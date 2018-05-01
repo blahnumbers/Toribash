@@ -1,0 +1,49 @@
+#tag	achid	achname	achdesc	
+ACHIEVEMENT	1	Legendary	Get one of your clan mates reach legendhood.	
+ACHIEVEMENT	2	Clan Level 1	Your way has started.	
+ACHIEVEMENT	3	The hunt begins	You have won your first clan war!	
+ACHIEVEMENT	4	It's alive!	Your clan has stayed active for a week, good job!	
+ACHIEVEMENT	5	Just a lucky day	3 Clan Wars won in a row, wow!	
+ACHIEVEMENT	6	Streak Breaker	You have broken another clan's war win streak! Ouch.	
+ACHIEVEMENT	7	Clan League 2017 Winner	Strongest clan of 2017.	
+ACHIEVEMENT	8	Clan Level 5	Baby steps lead to giant strides.	
+ACHIEVEMENT	9	Clan Level 10	Time to become official!	
+ACHIEVEMENT	10	Clan Level 15	Training wheels come off now.	
+ACHIEVEMENT	11	Clan Level 20	Getting better... Harder... Stronger!	
+ACHIEVEMENT	12	Clan Level 25	Well done, progress has been made.	
+ACHIEVEMENT	13	Clan Level 30	Pedal to the metal, floor it!	
+ACHIEVEMENT	14	Clan Level 35	A third of the way to your final goal.	
+ACHIEVEMENT	15	Clan Level 40	Not too shabby, keep it up.	
+ACHIEVEMENT	16	Clan Level 45	You cannot stop now - Nearly lvl 50!	
+ACHIEVEMENT	17	Clan Level 50	Halfway to glory!	
+ACHIEVEMENT	18	Clan Level 55	Keep on keeping on, never give up.	
+ACHIEVEMENT	19	Clan Level 60	Look at how you have come. Few clans reach this point.	
+ACHIEVEMENT	20	Clan Level 65	Whose bright idea was it to have new descriptions written every 5 levels?	
+ACHIEVEMENT	21	Clan Level 70	Almost as good as 69.	
+ACHIEVEMENT	22	Clan Level 75	Time for the final stretch!	
+ACHIEVEMENT	23	Clan Level 80	Welcome to the grind.	
+ACHIEVEMENT	24	Clan Level 85	Other clans envy your mad XP total!	
+ACHIEVEMENT	25	Clan Level 90	So close, yet still so far..	
+ACHIEVEMENT	26	Clan Level 95	Your clan is the 1%.	
+ACHIEVEMENT	27	Clan Level 100	Hallelujah!!! Your clan has achieved holy status! You are gods amongst men!	
+ACHIEVEMENT	28	Another one bites the dust!	You have won 5 clan wars.	
+ACHIEVEMENT	29	Painting with blood	10 clan war victories, good job!	
+ACHIEVEMENT	30	Born warriors	You have defeated 25 clans in wars.	
+ACHIEVEMENT	31	The official murderhobo	You have slain 50 clans in wars.	
+ACHIEVEMENT	32	Call us Death	You have earned 100 clan war wins.	
+ACHIEVEMENT	33	Not going anywhere	A month of activity, keep it up!	
+ACHIEVEMENT	34	It is called a commitment	Three months of staying active, that is quite an achievement.	
+ACHIEVEMENT	35	Feeling old yet?	Your clan has been active for half a year now!	
+ACHIEVEMENT	36	Pay your rent!	A year of continuous activity, what a feat!	
+ACHIEVEMENT	37	Blood, sweat and streaks	Let no others stand in your path! Six clan wars won in a row.	
+ACHIEVEMENT	38	Untouchable	Amazing! You beat the competition into the ground! Ten clan wars won in a row.	
+ACHIEVEMENT	39	Party pooper	Well, at least you had fun. Break 5 clans' war win streaks.	
+ACHIEVEMENT	40	No mercy	Now that is just cruel. Break 10 clans' war win streaks.	
+ACHIEVEMENT	41	Clan League 2007 Winner	Strongest clan of 2007	
+ACHIEVEMENT	42	Clan League 2008 Winner	Strongest clan of 2008.	
+ACHIEVEMENT	43	Clan League 2009 Winner	Strongest clan of 2009.	
+ACHIEVEMENT	44	Clan League 2011 Winner	Strongest clan of 2011.	
+ACHIEVEMENT	45	Clan League 2013 Winner	Strongest clan of 2013.	
+ACHIEVEMENT	46	Clan League 2014 Winner	Strongest clan of 2014.	
+ACHIEVEMENT	47	Clan League 2015 Winner	Strongest clan of 2015.	
+ACHIEVEMENT	48	Clan League 2016 Winner	Strongest clan of 2016.	
