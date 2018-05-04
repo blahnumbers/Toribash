@@ -1,5 +1,7 @@
 dofile ("gui/image.lua")
 
+TORISHOP_ISOPEN = 1
+
 -- Global
 local width, height = get_window_size()
 local options = { backgroundclick = 0, name = 0, timer = 0, uke = 0, score = 0, hint = 0, feedback = 0 }

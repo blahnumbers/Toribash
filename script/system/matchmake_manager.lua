@@ -194,7 +194,7 @@ do
 					rankedSearchButtonStop:show()
 				end, nil)
 			rankedSearchButtonStop:addCustomDisplay(false, function()
-					rankedSearchButtonStop:uiText("Stop search", nil, rankedSearchButtonStop.pos.y + 8, FONTS.BIG, nil, 0.7, nil, 1)
+					rankedSearchButtonStop:uiText("Stop search", nil, nil, FONTS.BIG, nil, 0.7, nil, 1)
 				end)
 			rankedSearchButtonStop:addMouseHandlers(nil, function()
 					UIElement:runCmd("matchmake on 8 0 1")

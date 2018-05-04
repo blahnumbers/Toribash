@@ -790,12 +790,12 @@ do
 			bgColor = { 1, 1, 1, 1 },
 			bgImage = headTexture
 		})
-		local headRotation, headRotationDirection = 0, 1
+		local headRotation = 0
 		tbMenuUserHeadAvatar:addCustomDisplay(false, function()
-				tbMenuUserHeadAvatar.rot.z = 180 - 180 * math.cos(headRotation) * headRotationDirection
-				headRotation = headRotation + math.pi / 250
-				if (math.floor(headRotation * 100) % math.floor(math.pi * 100) == 0) then
-					headRotationDirection = headRotationDirection * -1
+				tbMenuUserHeadAvatar.rot.z = 180 - 180 * math.cos(headRotation)
+				headRotation = headRotation + math.pi / 500
+				if (math.floor(headRotation * 250) % math.floor(math.pi * 250) == 0) then
+					headRotation = 0
 				end
 			end)
 		local tbMenuUserName = UIElement:new( {
