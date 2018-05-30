@@ -9,6 +9,9 @@ TB_MENU_DEFAULT_BG_COLOR = { 0.67, 0.11, 0.11, 1 }
 TB_NAVBAR_DEFAULT_BG_COLOR = { 0.7, 0.11, 0.11, 1 }
 TB_MENU_DEFAULT_DARKER_COLOR = { 0.607, 0.109, 0.109, 1 }
 
+TB_MENU_LANGUAGE = TB_MENU_LANGUAGE or nil
+TB_MENU_LOCALIZED = TB_MENU_LOCALIZED or {}
+
 --Global objects
 tbMenuMain = nil -- base parent element
 tbMenuCurrentSection = nil -- parent element for current section items
@@ -26,10 +29,47 @@ do
 		setmetatable(cln, TBMenu)
     end
 	
+	function TBMenu:getTranslation(language)
+		local language = language or "english"
+		local file = io.open("data/script/system/language/" .. language .. ".txt", "r", 1)
+		if (not file) then
+			file = io.open("data/script/system/language/english.txt", "r", 1)
+			if (not file) then
+				echo("^04Translation file not found, exiting main menu")
+				TBMenu:quit()
+				set_option("newmenu", 0)
+				return
+			end
+		end
+		
+		for ln in file:lines() do
+			if (not ln:match("^#")) then
+				local data_stream = { ln:match(("([^\t]*)\t"):rep(2)) }
+				TB_MENU_LOCALIZED[data_stream[1]] = data_stream[2]
+			end
+		end
+		file:close()
+		
+		if (language ~= "english") then
+			-- Make sure there's no missing values
+			local file = io.open("data/language/englishnew.txt", "r", 1)
+			for ln in file:lines() do
+				if (not ln:match("^#")) then
+					local data_stream = { ln:match(("([^\t]*)\t"):rep(2)) }
+					if (not TB_MENU_LOCALIZED[data_stream[1]]) then
+						TB_MENU_LOCALIZED[data_stream[1]] = data_stream[2]
+					end
+				end
+			end
+			file:close()
+		end
+	end
+	
 	function TBMenu:quit()
 		remove_hooks("tbMainMenuVisual")
-		TB_MENU_MAIN_ISOPEN = 0
+		remove_hooks("tbMenuConsoleIgnore")
 		disable_blur()
+		TB_MENU_MAIN_ISOPEN = 0
 		tbMenuMain:kill()
 	end	
 	
@@ -137,38 +177,58 @@ do
 	function TBMenu:showEvents(viewElement)
 		-- Table to store event announcement data
 		local eventsData = {
+			{ 
+				title = "Ranking Season 4", 
+				subtitle = "The fourth season of Toribash ranking is here - with better prizes and stronger opponents. Game on!", 
+				image = "../textures/menu/promo/season4.tga",
+				action = function() 
+						open_url("http://forum.toribash.com/showthread.php?t=614185") 
+					end
+			},
 			{
-				title = "April Shiai Items", 
-				subtitle = "Set off on a journey beyond the stars!", 
-				image = "../textures/menu/promo/astroshiai.tga",
+				title = "Sports Themed Shiai Items", 
+				subtitle = "A line of new 3D items from Event Squad's Item Forgers, for you to be prepared and jump into the field!", 
+				image = "../textures/menu/promo/sportsshiai.tga",
 				action = function() 
 						open_url("http://forum.toribash.com/tori_token_exchange.php") 
 					end
-				},
-			{ 
-				title = "Opener Challenge - Space Edition", 
-				subtitle = "Fight Uke in the hostile space envorinment and finish repairments of your space station!", 
-				image = "../textures/menu/promo/openerchallenge13.tga",
-				action = function() 
-						open_url("http://forum.toribash.com/showthread.php?t=612869") 
-					end
 			},
  			{ 
- 				title = "Torisoccer", 
- 				subtitle = "You've been tasked with the final penalty shot at ToriWorld Cup. Unfortunately, you don't seem to have a ball. Well, except for Uke's head.", 
- 				image = "../textures/menu/promo/torisoccer.tga",
+ 				title = "Colors of the Rainbow", 
+ 				subtitle = "It's the middle of spring! The sky is blue, there's beautiful sunshine and vibrant rainbows, how lovely... but, what's this? The rainbow seems... off. Time to investigate!", 
+ 				image = "../textures/menu/promo/colorsoftherainbow.tga",
  				action = function() 
- 						open_url("http://forum.toribash.com/showthread.php?t=612947") 
+ 						open_url("http://forum.toribash.com/showthread.php?t=614272") 
  					end
  			 },
+  			{ 
+  				title = "Summer Art Contest", 
+  				subtitle = "Ahh…. with Summer right around the corner, theres nothing better than painting your way through the joyful season! Am I right?", 
+  				image = "../textures/menu/promo/summerart.tga",
+  				action = function() 
+  						open_url("http://forum.toribash.com/showthread.php?t=614273") 
+  					end
+  			 },
 		}
+		
+		-- Store all elements that would require reloading when switching event announcements in one table
+		local toReload = UIElement:new({
+			parent = viewElement,
+			pos = { 0, 0 },
+			size = { viewElement.size.w, viewElement.size.h }
+		})
+		
+		-- Create bottom splat
+		local eventButtonSplat = TBMenu:addBottomBloodSmudge(toReload, 1)
+		
+		
 		viewElement:addMouseHandlers(nil, eventsData[TB_MENU_HOME_CURRENT_ANNOUNCEMENT].action, nil)
-		local textHeight, descHeight = 50, 50
+		local textHeight, descHeight = viewElement.size.h / 9, viewElement.size.h / 8
 		local elementWidth, elementHeight, heightShift = unpack(TBMenu:getImageDimensions(viewElement.size.w, viewElement.size.h, 0.5, textHeight, descHeight))
 		-- Spawn event announcement elements
 		local eventItems = {}
 		for i, v in pairs (eventsData) do
-			local titleTextScale, subtitleTextScale = 0.75, 1
+			local titleTextScale, subtitleTextScale = 1, 1
 			eventItems[i] = {}
 			eventItems[i].image = UIElement:new( {
 				parent = viewElement,
@@ -215,7 +275,7 @@ do
 				pos = { 10, 5 },
 				size = { eventItems[i].subtitleView.size.w - 20, eventItems[i].subtitleView.size.h - 10 }
 			})
-			while (not eventItems[i].title:uiText(v.subtitle, nil, nil, 4, LEFT, subtitleTextScale, nil, nil, nil, nil, nil, true) and subtitleTextScale > 0.6) do
+			while (not eventItems[i].subtitle:uiText(v.subtitle, nil, nil, 4, LEFT, subtitleTextScale, nil, nil, nil, nil, nil, true) and subtitleTextScale > 0.6) do
 				subtitleTextScale = subtitleTextScale - 0.05
 			end
 			eventItems[i].subtitle:addCustomDisplay(false, function()
@@ -225,16 +285,6 @@ do
 				eventItems[i].image:hide()
 			end
 		end
-		
-		-- Store all elements that would require reloading when switching event announcements in one table
-		local toReload = UIElement:new({
-			parent = viewElement,
-			pos = { 0, 0 },
-			size = { viewElement.size.w, viewElement.size.h }
-		})
-		
-		-- Create bottom splat
-		local eventButtonSplat = TBMenu:addBottomBloodSmudge(toReload, 1)
 		
 		-- Spawn progress bar before next/prev buttons
 		local eventDisplayTime = UIElement:new( {
@@ -268,8 +318,8 @@ do
 			end, nil)
 	end
 	
-	function TBMenu:showHomeButton(viewElement, buttonData)
-		local titleHeight, descHeight = 34, 35
+	function TBMenu:showHomeButton(viewElement, buttonData, isTorishop)
+		local titleHeight, descHeight = viewElement.size.h / 5, viewElement.size.h / 6
 		local elementWidth, elementHeight, heightShift
 		local itemIcon
 		if (viewElement.size.h < viewElement.size.w and buttonData.image2) then
@@ -288,6 +338,49 @@ do
 				size = { elementWidth, elementHeight },
 				bgImage = buttonData.image
 			})
+		end
+		if (isTorishop and itemIcon.size.h > 160) then
+			local shopView = UIElement:new({
+				parent = itemIcon,
+				pos = { itemIcon.size.w * 0.5, 10 },
+				size = { itemIcon.size.w * 0.5 - 10, itemIcon.size.h * 0.45 },
+				bgColor = { 0, 0, 0, 0.2 },
+			})
+			local iconScale = shopView.size.h > 64 and 64 or shopView.size.h
+			local tbMenuSaleIcon = UIElement:new({
+				parent = shopView,
+				pos = { 0, (shopView.size.h - iconScale) / 2 },
+				size = { iconScale, iconScale },
+				bgImage = "../textures/store/items/" .. TB_STORE_DATA.onsale.id .. ".tga"
+			})
+			local tbMenuSaleName = UIElement:new({
+				parent = shopView,
+				pos = { iconScale + 5, 0 },
+				size = { shopView.size.w - iconScale - 5, shopView.size.h / 2 }
+			})
+			local saleNameSize, saleDiscountSize = 0.8, 1
+			while (tbMenuSaleName:uiText(TB_STORE_DATA.onsale.name, nil, nil, nil, LEFT, saleNameSize, nil, nil, nil, nil, nil, true) == false) do
+				saleNameSize = saleNameSize - 0.05
+			end
+			local tbMenuSaleDiscount = UIElement:new({
+				parent = shopView,
+				pos = { iconScale + 5, tbMenuSaleName.size.h },
+				size = { shopView.size.w - iconScale - 5, shopView.size.h - tbMenuSaleName.size.h }
+			})
+			local saleDiscount = TB_STORE_DATA.onsale.tcOld and (TB_STORE_DATA.onsale.tcOld - TB_STORE_DATA.onsale.tc) / TB_STORE_DATA.onsale.tcOld * 100 or (TB_STORE_DATA.onsale.usdOld - TB_STORE_DATA.onsale.usd) / TB_STORE_DATA.onsale.usdOld * 100
+			while (tbMenuSaleDiscount:uiText(saleDiscount .. "% OFF!", nil, nil, nil, LEFT, saleDiscountSize, nil, nil, nil, nil, nil, true) == false) do
+				saleDiscountSize = saleDiscountSize - 0.05
+			end
+			if (saleDiscountSize < 0.35 or saleNameSize < 0.3 or saleDiscount == 0) then
+				shopView:kill()
+			else
+				tbMenuSaleName:addCustomDisplay(true, function()
+						tbMenuSaleName:uiText(TB_STORE_DATA.onsale.name, nil, nil, nil, CENTERBOT, saleNameSize, nil, 1)
+					end)
+				tbMenuSaleDiscount:addCustomDisplay(true, function()
+						tbMenuSaleDiscount:uiText(saleDiscount .. "% OFF!", nil, nil, nil, CENTER, saleDiscountSize, nil, 1)
+					end)
+			end
 		end
 		local textColor, descColor = { 0.64, 0.11, 0.11, 0.8 }, { 0.64, 0.11, 0.11, 0.8 }
 		if (heightShift == titleHeight) then
@@ -308,11 +401,15 @@ do
 		})
 		local shopTitle = UIElement:new( {
 			parent = shopTitleView,
-			pos = { 5, 0 },
-			size = { shopTitleView.size.w - 10, shopTitleView.size.h }
+			pos = { 5, 5 },
+			size = { shopTitleView.size.w - 10, shopTitleView.size.h - 5 }
 		})
+		local titleSize = 1
+		while (not shopTitle:uiText(buttonData.title, nil, nil, FONTS.BIG, LEFT, titleSize, nil, nil, nil, nil, nil, true)) do
+			titleSize = titleSize - 0.05
+		end
 		shopTitle:addCustomDisplay(false, function()
-				shopTitle:uiText(buttonData.title, nil, nil, FONTS.BIG, LEFT, 0.55)
+				shopTitle:uiText(buttonData.title, nil, nil, FONTS.BIG, LEFTBOT, titleSize)
 			end)
 		if (descHeight - heightShift == 0) then
 			textOverlayColor = { 0, 0, 0, 0 }
@@ -325,11 +422,15 @@ do
 		})
 		local shopSubtitle = UIElement:new( {
 			parent = shopSubtitleView,
-			pos = { 5, 2 },
-			size = { shopSubtitleView.size.w - 10, shopSubtitleView.size.h - 4 }
+			pos = { 5, 0 },
+			size = { shopSubtitleView.size.w - 10, shopSubtitleView.size.h - 5 }
 		})
+		local subtitleSize = 0.8
+		while (not shopSubtitle:uiText(buttonData.subtitle, nil, nil, 4, LEFT, subtitleSize, nil, nil, nil, nil, nil, true)) do
+			subtitleSize = subtitleSize - 0.05
+		end
 		shopSubtitle:addCustomDisplay(false, function()
-				shopSubtitle:uiText(buttonData.subtitle, nil, nil, 4, LEFT, 0.6)
+				shopSubtitle:uiText(buttonData.subtitle, nil, nil, 4, LEFT, subtitleSize)
 			end)
 		viewElement:addMouseHandlers(nil, buttonData.action, nil)
 	end
@@ -340,15 +441,15 @@ do
 		-- Buttons data; doesn't include events section
 		local tbMenuHomeButtonsData = {
 			shop = {
-				title = "Torishop",
-				subtitle = "Try out and purchase items for your Tori",
+				title = TB_MENU_LOCALIZED.MAINMENUTORISHOPNAME,
+				subtitle = TB_MENU_LOCALIZED.MAINMENUTORISHOPDESC,
 				image = "../textures/menu/torishop.tga",
 				ratio = 0.41,
-				action = function() close_menu() open_menu(12) end
+				action = function() TBMenu:showTorishopMain() end
 			},
 			clan = {
-				title = "Clan",
-				subtitle = "Explore Toribash clans",
+				title = TB_MENU_LOCALIZED.MAINMENUCLANSNAME,
+				subtitle = TB_MENU_LOCALIZED.MAINMENUCLANSDESC,
 				image = "../textures/menu/clansbig.tga",
 				image2 = "../textures/menu/clanssmall.tga",
 				ratio = 1,
@@ -356,8 +457,8 @@ do
 				action = function() TBMenu:showClans() end
 			},
 			replays = {
-				title = "Replays",
-				subtitle = "View your downloaded replays",
+				title = TB_MENU_LOCALIZED.MAINMENUREPLAYSNAME,
+				subtitle = TB_MENU_LOCALIZED.MAINMENUREPLAYSDESC,
 				image = "../textures/menu/replaysbig.tga",
 				image2 = "../textures/menu/replayssmall.tga",
 				ratio = 1,
@@ -395,27 +496,7 @@ do
 			pressedColor = { 0.3, 0.1, 0.1, 1 },
 			hoverSound = 31
 		})
-		TBMenu:showHomeButton(tbMenuShopButton, tbMenuHomeButtonsData.shop)
-		local tbMenuSaleItem = UIElement:new({
-			parent = tbMenuShopButton,
-			pos = { tbMenuShopButton.size.w * 0.5, tbMenuShopButton.size.h * 0.1 },
-			size = { tbMenuShopButton.size.w * 0.4, tbMenuShopButton.size.h * 0.4 }
-		})
-		local iconScale = tbMenuSaleItem.size.h > 64 and 64 or tbMenuSaleItem.size.h
-		local tbMenuSaleIcon = UIElement:new({
-			parent = tbMenuSaleItem,
-			pos = { 0, (tbMenuSaleItem.size.h - iconScale) / 2 },
-			size = { iconScale, iconScale },
-			bgImage = "torishop/icons/" .. TB_STORE_DATA.onsale.name:lower() .. ".tga"
-		})
-		local tbMenuSaleName = UIElement:new({
-			parent = tbMenuSaleItem,
-			pos = { iconScale + 5, 0 },
-			size = { tbMenuSaleItem.size.w - iconScale - 5, tbMenuSaleItem.size.h }
-		})
-		tbMenuSaleName:addCustomDisplay(true, function()
-				tbMenuSaleName:uiText(TB_STORE_DATA.onsale.name, nil, nil, nil, LEFTMID, 0.8, nil, 1)
-			end)
+		TBMenu:showHomeButton(tbMenuShopButton, tbMenuHomeButtonsData.shop, true)
 		local tbMenuClansButton = UIElement:new({
 			parent = tbMenuCurrentSection,
 			pos = { tbMenuCurrentSection.size.w * 0.6 + 5, tbMenuCurrentSection.size.h / 2 + 5 },
@@ -426,8 +507,8 @@ do
 			pressedColor = { 0.3, 0.1, 0.1, 1 },
 			hoverSound = 31		
 		})
-		TBMenu:showHomeButton(tbMenuClansButton, tbMenuHomeButtonsData.clan)
 		local tbMenuClansBottomSplat = TBMenu:addBottomBloodSmudge(tbMenuClansButton, 1)
+		TBMenu:showHomeButton(tbMenuClansButton, tbMenuHomeButtonsData.clan)
 		local tbMenuReplaysButton = UIElement:new({
 			parent = tbMenuCurrentSection,
 			pos = { tbMenuCurrentSection.size.w * 0.8 + 5, tbMenuCurrentSection.size.h / 2 + 5 },
@@ -438,13 +519,13 @@ do
 			pressedColor = { 0.3, 0.1, 0.1, 1 },
 			hoverSound = 31			
 		})
-		TBMenu:showHomeButton(tbMenuReplaysButton, tbMenuHomeButtonsData.replays)
 		local tbMenuReplaysBottomSplat = TBMenu:addBottomBloodSmudge(tbMenuReplaysButton, 2)
+		TBMenu:showHomeButton(tbMenuReplaysButton, tbMenuHomeButtonsData.replays)
 	end
 	
 	-- Clears navigation bar and current section element for side modules
 	function TBMenu:clearNavSection()
-		tbMenuNavigationBar:kill()
+		tbMenuNavigationBar:kill(true)
 		if (not tbMenuCurrentSection) then
 			TBMenu:createCurrentSectionView()
 		else
@@ -454,6 +535,7 @@ do
 	
 	function TBMenu:showClans()
 		tbMenuBottomLeftBar:hide()
+		TBMenu:clearNavSection()
 		
 		CLANLISTLASTPOS = { scroll = {}, list = {} }
 		Clans:getLevelData()
@@ -479,7 +561,7 @@ do
 		end
 	end
 	
-	function TBMenu:showTcPurchase()
+	function TBMenu:showTorishopMain()
 		for i,v in pairs(get_downloads()) do
 			if (v:match("data/script/torishop/torishop.txt")) then
 				return
@@ -487,7 +569,7 @@ do
 		end
 		TBMenu:clearNavSection()
 		tbMenuBottomLeftBar:hide()
-		Torishop:showTcPurchase(tbMenuCurrentSection)
+		Torishop:showTorishopMain(tbMenuCurrentSection)
 		TBMenu:showNavigationBar(Torishop:getNavigationButtons(), true)
 	end
 	
@@ -502,39 +584,38 @@ do
 	
 	function TBMenu:showPlaySection()
 		local tbMenuPlayButtonsData = {
-			{ title = "Free Play", subtitle = "Practice your skills or make replays in Single Player mode", size = 0.5, image = "../textures/menu/freeplay.tga", mode = ORIENTATION_LANDSCAPE, action = function() open_menu(1) end, noQuit = true },
-			{ title = "Matchmaking", subtitle = "Quick way to get placed in one-on-one fights", size = 0.25, image = "../textures/menu/matchmaking.tga", mode = ORIENTATION_PORTRAIT, action = function() TBMenu:showMatchmaking() end, noQuit = true },
-			{ title = "Room List", subtitle = "Create your own online room or join any of the existing ones", size = 0.25, image = "../textures/menu/multiplayer.tga", mode = ORIENTATION_PORTRAIT, action = function() open_menu(2) end, noQuit = true }
+			{ title = TB_MENU_LOCALIZED.MAINMENUFREEPLAYNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUFREEPLAYDESC, size = 0.5, image = "../textures/menu/freeplay.tga", mode = ORIENTATION_LANDSCAPE, action = function() open_menu(1) end, noQuit = true },
+			{ title = TB_MENU_LOCALIZED.MAINMENUMATCHMAKINGNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUMATCHMAKINGDESC, size = 0.25, image = "../textures/menu/matchmaking.tga", mode = ORIENTATION_PORTRAIT, action = function() TBMenu:showMatchmaking() end, noQuit = true },
+			{ title = TB_MENU_LOCALIZED.MAINMENUROOMLISTNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUROOMLISTDESC, size = 0.25, image = "../textures/menu/multiplayer.tga", mode = ORIENTATION_PORTRAIT, action = function() open_menu(2) end, noQuit = true }
 		}
 		TBMenu:showSection(tbMenuPlayButtonsData)
 	end
 	
 	function TBMenu:showPracticeSection()
 		local tbMenuPracticeButtonsData = {
-			{ title = "Beginner Tutorial", subtitle = "Learn Toribash basics: controls, gameplay and more", size = 0.3, vsize = 0.5, mode = ORIENTATION_PORTRAIT, action = function() run_tutorial(1) end },
-			{ title = "Advanced Moves", subtitle = "Discover advanced moves to use in multiplayer", size = 0.3, vsize = 0.5, mode = ORIENTATION_PORTRAIT, action = function() run_tutorial(2) end },
-			{ title = "Fight Uke", subtitle = "Put your skills against Tori's ultimate foe", size = 0.467, image = "../textures/menu/fightuke.tga", mode = ORIENTATION_LANDSCAPE, action = function() open_menu(1) run_tutorial(4) end, noQuit = true },
-			{ title = "Comeback Practice", subtitle = "Keep catching Uke without getting disqualified", size = 0.233, image = "../textures/menu/comebackpractice.tga", mode = ORIENTATION_PORTRAIT, noQuit = true }
+			{ title = TB_MENU_LOCALIZED.MAINMENUBEGINNERTUTNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUBEGINNERTUTDESC, size = 0.3, vsize = 0.5, mode = ORIENTATION_PORTRAIT, action = function() open_menu(1) dofile("tutorial/tutorial6.lua") end, noQuit = true },
+			{ title = TB_MENU_LOCALIZED.MAINMENUADVMOVESNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUADVMOVESDESC, size = 0.3, vsize = 0.5, mode = ORIENTATION_PORTRAIT, action = function() open_menu(1) dofile("tutorial/tutorial7.lua") end, noQuit = true },
+			{ title = TB_MENU_LOCALIZED.MAINMENUFIGHTUKENAME, subtitle = TB_MENU_LOCALIZED.MAINMENUFIGHTUKEDESC, size = 0.467, image = "../textures/menu/fightuke.tga", mode = ORIENTATION_LANDSCAPE, action = function() open_menu(1) dofile("tutorial/fight_uke_v01.lua") end, noQuit = true },
+			{ title = TB_MENU_LOCALIZED.MAINMENUCOMEBACKNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUCOMEBACKDESC, size = 0.233, image = "../textures/menu/comebackpractice.tga", mode = ORIENTATION_PORTRAIT, action = function() open_menu(1) dofile("sdk/unload.lua") dofile("tutorial/cbpractice.lua") end, noQuit = true }
 		}
 		TBMenu:showSection(tbMenuPracticeButtonsData)
 	end
 	
 	function TBMenu:showModsSection()
 		local tbMenuModsButtonsData = {
-			{ title = "Game Rules", subtitle = "Customize gravity and other mod settings", size = 0.233, image = "../textures/menu/gamerules.tga", mode = ORIENTATION_PORTRAIT, action = function() open_menu(5) end, noQuit = true },
-			{ title = "Mod List", subtitle = "Load one of the downloaded mods", size = 0.467, image = "../textures/menu/modlist.tga", mode = ORIENTATION_LANDSCAPE, action = function() open_menu(7) end, noQuit = true },
-			{ title = "Modmaker", subtitle = "Create your own mod for Toribash", size = 0.3, vsize = 0.5, mode = ORIENTATION_PORTRAIT, action = function() open_menu(17) end, noQuit = true },
-			{ title = "Discover", subtitle = "Search for new mods created by other players", size = 0.3, vsize = 0.5, mode = ORIENTATION_PORTRAIT, noQuit = true }
+			{ title = TB_MENU_LOCALIZED.MAINMENUMODMAKERNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUMODMAKERDESC, size = 0.25, image = "../textures/menu/modmaker.tga", mode = ORIENTATION_PORTRAIT, action = function() open_menu(17) end, noQuit = true },
+			{ title = TB_MENU_LOCALIZED.MAINMENUGAMERULESNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUGAMERULESDESC, size = 0.25, image = "../textures/menu/gamerules.tga", mode = ORIENTATION_PORTRAIT, action = function() open_menu(5) end, noQuit = true },
+			{ title = TB_MENU_LOCALIZED.MAINMENUMODLISTNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUMODLISTDESC, size = 0.5, image = "../textures/menu/modlist.tga", mode = ORIENTATION_LANDSCAPE, action = function() open_menu(7) end, noQuit = true },
+			--{ title = TB_MENU_LOCALIZED.MAINMENUMODSDISCOVERNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUMODSDISCOVERDESC, size = 0.3, vsize = 0.5, mode = ORIENTATION_PORTRAIT, noQuit = true }
 		}
 		TBMenu:showSection(tbMenuModsButtonsData)
 	end
 	
 	function TBMenu:showToolsSection()
 		local tbMenuToolsButtonsData = {
-			{ title = "Shaders", subtitle = "Customize lighting and environment colors", size = 0.25, image = "/system/multiplayer.tga", mode = ORIENTATION_PORTRAIT, action = function() open_menu(9) end, noQuit = true },
-			{ title = "Atmospheres", subtitle = "Set up a custom environment to play in", size = 0.25, image = "/system/matchmaking.tga", mode = ORIENTATION_PORTRAIT, noQuit = true },
-			{ title = "Scripts", subtitle = "Load pre-installed or third-party scripts for Toribash", size = 0.25, image = "/system/multiplayer.tga", mode = ORIENTATION_PORTRAIT, action = function() open_menu(8) end, noQuit = true },
-			{ title = "Sounds", subtitle = "Toggle custom sounds on/off", size = 0.25, image = "/system/matchmaking.tga", mode = ORIENTATION_PORTRAIT, action = function() open_menu(16) end, noQuit = true }
+			{ title = TB_MENU_LOCALIZED.MAINMENUSCRIPTSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUSCRIPTSDESC, size = 0.25, image = "../textures/menu/scripts.tga", mode = ORIENTATION_PORTRAIT, action = function() open_menu(8) end, noQuit = true },
+			{ title = TB_MENU_LOCALIZED.MAINMENUSHADERSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUSHADERSDESC, size = 0.5, image = "../textures/menu/shaders.tga", mode = ORIENTATION_LANDSCAPE, action = function() open_menu(9) end, noQuit = true },
+			{ title = TB_MENU_LOCALIZED.MAINMENUSOUNDSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUSOUNDSDESC, size = 0.25, image = "../textures/menu/sounds.tga", mode = ORIENTATION_PORTRAIT, action = function() open_menu(16) end, noQuit = true }
 		}
 		TBMenu:showSection(tbMenuToolsButtonsData)		
 	end
@@ -558,12 +639,12 @@ do
 		return smudgeElement
 	end
 	
-	function TBMenu:showSection(buttonsData)
+	function TBMenu:showSection(buttonsData, shift)
 		if (not tbMenuCurrentSection) then
 			TBMenu:createCurrentSectionView()
 		end
 		local tbMenuSectionButtons = {}
-		local sectionX = 5
+		local sectionX = shift and shift + 15 or 5
 		local sectionY = 0
 		local maxWidthButton = { 0, 0 }
 		for i, v in pairs (buttonsData) do
@@ -699,6 +780,14 @@ do
 		tbMenuBottomLeftBar:show()
 		if (TB_MENU_MATCHMAKE_ISOPEN == 1) then
 			TBMenu:showMatchmaking()
+		elseif (TB_MENU_INVENTORY_ISOPEN == 1) then
+			TBMenu:showTorishopMain()
+			Torishop:prepareInventory(tbMenuCurrentSection)
+		elseif (TB_MENU_CLANS_ISOPEN == 1) then
+			TBMenu:showClans()
+			if (TB_MENU_CLANS_OPENCLANID ~= 0) then
+				Clans:showClan(tbMenuCurrentSection, TB_MENU_CLANS_OPENCLANID)
+			end
 		elseif (screenId == 1) then
 			TBMenu:showHome()
 		elseif (screenId == 2) then
@@ -743,26 +832,49 @@ do
 		})
 	end
 	
+	function TBMenu:buttonGrowHover(viewElement, iconElement)
+		local scale = 1.1
+		local growth = 0.4
+		if (viewElement.hoverState == BTN_HVR) then
+			if (iconElement.size.h < viewElement.size.h * scale) then
+				iconElement.size.h = iconElement.size.h + growth
+				iconElement.size.w = iconElement.size.h
+				if (iconElement.shift.x >= 0) then 
+					iconElement:moveTo(-viewElement.size.w - growth / 2, -viewElement.size.h - growth / 2)
+				else
+					iconElement:moveTo(iconElement.shift.x - growth / 2, iconElement.shift.y - growth / 2)
+				end
+			end
+		elseif (viewElement.hoverState == BTN_DN) then
+			iconElement.size.h = viewElement.size.h * scale
+			iconElement.size.w = iconElement.size.h
+			iconElement:moveTo(-viewElement.size.w - viewElement.size.h * (scale - 1) / 2, -viewElement.size.h - viewElement.size.h * (scale - 1) / 2)
+		else
+			iconElement.size.h = viewElement.size.h
+			iconElement.size.w = iconElement.size.h
+			iconElement:moveTo(0, 0)
+		end
+	end
+	
 	function TBMenu:showUserBar()
 		local tbMenuTopBarWidth = 512
 		
 		local tbMenuUserBar = UIElement:new( {
 			parent = tbMenuMain,
 			pos = {-tbMenuTopBarWidth, 0},
-			size = {tbMenuTopBarWidth, 100},
-			bgColor = TB_MENU_DEFAULT_BG_COLOR
+			size = {tbMenuTopBarWidth, 100}
 		})
 		local tbMenuUserBarBottomSplat2 = UIElement:new( {
 			parent = tbMenuUserBar,
 			pos = {-tbMenuTopBarWidth, 0},
 			size = {512, 128},
-			bgImage = "/system/menutopbottomsplat.tga"
+			bgImage = "../textures/menu/general/topbarbgmain.tga"
 		})
 		local tbMenuUserBarSplat = UIElement:new( {
 			parent = tbMenuUserBar,
-			pos = { -tbMenuTopBarWidth - 107, 0 },
-			size = { 107, 107 },
-			bgImage = "/system/menutopleftsplat.tga"
+			pos = { -tbMenuTopBarWidth - 128, 0 },
+			size = { 128, 128 },
+			bgImage = "../textures/menu/general/topbarbgleft.tga"
 		})
 		local tbMenuUserHeadAvatarViewport = UIElement:new( {
 			parent = tbMenuUserBar,
@@ -819,7 +931,7 @@ do
 				size = { 350, 20 }
 			})
 			tbMenuClan:addCustomDisplay(false, function()
-					tbMenuClan:uiText("Clan: " .. TB_MENU_PLAYER_INFO.clan.tag .. "  |  " .. TB_MENU_PLAYER_INFO.clan.name, nil, nil, 4, LEFT, 0.6)
+					tbMenuClan:uiText(TB_MENU_LOCALIZED.MAINMENUUSERCLAN .. ": " .. TB_MENU_PLAYER_INFO.clan.tag .. "  |  " .. TB_MENU_PLAYER_INFO.clan.name, nil, nil, 4, LEFT, 0.6)
 				end)
 		end
 		local tbMenuUserTcView = UIElement:new( {
@@ -827,14 +939,14 @@ do
 			pos = { 80, 65 },
 			size = { 170, 25 },
 			interactive = true,
-			bgColor = {1,1,1,1},
+			bgColor = UICOLORWHITE,
 			hoverColor = { 1, 0.81, 0.81, 1 },
 			pressedColor = { 0.85, 0.42, 0.42, 1 },
 			hoverSound = 31
 		})
 		tbMenuUserTcView:addCustomDisplay(true, function() end)
 		tbMenuUserTcView:addMouseHandlers(nil, function()
-				TBMenu:showTcPurchase()
+				TBMenu:showTorishopMain()
 			end, nil)
 		local tbMenuUserTcIcon = UIElement:new( {
 			parent = tbMenuUserTcView,
@@ -843,31 +955,7 @@ do
 			bgImage = "/system/tc32px.tga"
 		})
 		tbMenuUserTcIcon:addCustomDisplay(false, function()
-				local scale = 1.1
-				local growth = 0.4
-				if (tbMenuUserTcView.hoverState == BTN_HVR) then
-					if (tbMenuUserTcIcon.size.h < tbMenuUserTcView.size.h * scale) then
-						tbMenuUserTcIcon.size.h = tbMenuUserTcIcon.size.h + growth
-						tbMenuUserTcIcon.size.w = tbMenuUserTcIcon.size.h
-						if (tbMenuUserTcIcon.shift.x >= 0) then 
-							tbMenuUserTcIcon.shift.x = -tbMenuUserTcView.size.w - growth / 2
-							tbMenuUserTcIcon.shift.y = -tbMenuUserTcView.size.h - growth / 2
-						else
-							tbMenuUserTcIcon.shift.x = tbMenuUserTcIcon.shift.x - growth / 2 
-							tbMenuUserTcIcon.shift.y = tbMenuUserTcIcon.shift.y - growth / 2
-						end
-					end
-				elseif (tbMenuUserTcView.hoverState == BTN_DN) then
-					tbMenuUserTcIcon.size.h = tbMenuUserTcView.size.h * scale
-					tbMenuUserTcIcon.size.w = tbMenuUserTcIcon.size.h
-					tbMenuUserTcIcon.shift.x = -tbMenuUserTcView.size.w - tbMenuUserTcView.size.h * (scale - 1) / 2
-					tbMenuUserTcIcon.shift.y = -tbMenuUserTcView.size.h - tbMenuUserTcView.size.h * (scale - 1) / 2
-				else
-					tbMenuUserTcIcon.shift.x = 0
-					tbMenuUserTcIcon.shift.y = tbMenuUserTcIcon.shift.x
-					tbMenuUserTcIcon.size.h = tbMenuUserTcView.size.h
-					tbMenuUserTcIcon.size.w = tbMenuUserTcIcon.size.h
-				end
+				TBMenu:buttonGrowHover(tbMenuUserTcView, tbMenuUserTcIcon)
 			end)
 		local tbMenuUserTcBalance = UIElement:new( {
 			parent = tbMenuUserTcView,
@@ -881,20 +969,32 @@ do
 			parent = tbMenuUserBar,
 			pos = { 255, 65 },
 			size = { 100, 25 },
+			interactive = true,
+			bgColor = UICOLORWHITE,
+			hoverColor = { 1, 0.81, 0.81, 1 },
+			pressedColor = { 0.85, 0.42, 0.42, 1 },
+			hoverSound = 31
 		})
+		tbMenuUserStView:addCustomDisplay(true, function() end)
+		tbMenuUserStView:addMouseHandlers(nil, function()
+				open_url("http://forum.toribash.com/tori_token_exchange.php")
+			end, nil)
 		local tbMenuUserStIcon = UIElement:new( {
 			parent = tbMenuUserStView,
 			pos = { 0, 0 },
 			size = { tbMenuUserStView.size.h, tbMenuUserStView.size.h },
 			bgImage = "/system/st32px.tga"
 		})
+		tbMenuUserStIcon:addCustomDisplay(false, function()
+				TBMenu:buttonGrowHover(tbMenuUserStView, tbMenuUserStIcon)
+			end)
 		local tbMenuUserStBalance = UIElement:new( {
 			parent = tbMenuUserStView,
 			pos = { 30, 0 },
 			size = { tbMenuUserStView.size.w - 30, tbMenuUserStView.size.h }
 		})
 		tbMenuUserStBalance:addCustomDisplay(false, function()
-				tbMenuUserStBalance:uiText(TB_MENU_PLAYER_INFO.data.st, nil, tbMenuUserStBalance.pos.y + 2, nil, LEFT, 0.9)
+				tbMenuUserStBalance:uiText(TB_MENU_PLAYER_INFO.data.st, nil, tbMenuUserStBalance.pos.y + 2, nil, LEFT, 0.9, nil, nil, tbMenuUserStView:getButtonColor())
 			end)
 		local tbMenuUserBeltIcon = UIElement:new({
 			parent = tbMenuUserBar,
@@ -918,7 +1018,7 @@ do
 		local tbMenuNavigationButtons = {}
 		-- Button width has to be divisable by 10
 		local navX = 30
-		tbMenuNavigationBar = UIElement:new( {
+		tbMenuNavigationBar = tbMenuNavigationBar or UIElement:new( {
 			parent = tbMenuMain,
 			pos = { 50, 130 },
 			size = { WIN_W - 100, 50 },
@@ -929,7 +1029,7 @@ do
 		for i, v in pairs(tbMenuNavigationButtonsData) do 
 			tbMenuNavigationButtons[i] = UIElement:new( {
 				parent = tbMenuNavigationBar,
-				pos = { navX, 0},
+				pos = { navX, 0 },
 				size = { v.width, 50 },
 				bgColor = { 0.2, 0.2, 0.2, 0 },
 				interactive = true,
@@ -944,13 +1044,13 @@ do
 			tbMenuNavigationButtons[i]:addCustomDisplay(false, function()
 					set_color(tbMenuNavigationButtons[i].animateColor[1] - 0.1, tbMenuNavigationButtons[i].animateColor[2], tbMenuNavigationButtons[i].animateColor[3], tbMenuNavigationButtons[i].animateColor[4])
 					for j = 40, 10, -10 do
-						draw_line(tbMenuNavigationButtons[i].pos.x, tbMenuNavigationButtons[i].pos.y + j, tbMenuNavigationButtons[i].pos.x + j, tbMenuNavigationButtons[i].pos.y, 0.5)
+						draw_line(tbMenuNavigationButtons[i].pos.x, tbMenuNavigationButtons[i].pos.y - 1 + j, tbMenuNavigationButtons[i].pos.x + j, tbMenuNavigationButtons[i].pos.y + 1, 0.5)
 					end
 					for j = 0, tbMenuNavigationButtons[i].size.w - 50, 10 do
-						draw_line(tbMenuNavigationButtons[i].pos.x + 50 + j, tbMenuNavigationButtons[i].pos.y, tbMenuNavigationButtons[i].pos.x + j, tbMenuNavigationButtons[i].pos.y + 50, 0.5)
+						draw_line(tbMenuNavigationButtons[i].pos.x + 50 + j, tbMenuNavigationButtons[i].pos.y + 1, tbMenuNavigationButtons[i].pos.x + j, tbMenuNavigationButtons[i].pos.y + 49, 0.5)
 					end
 					for j = 40, 10, -10 do
-						draw_line(tbMenuNavigationButtons[i].pos.x + tbMenuNavigationButtons[i].size.w - j, tbMenuNavigationButtons[i].pos.y + 50, tbMenuNavigationButtons[i].pos.x + tbMenuNavigationButtons[i].size.w, tbMenuNavigationButtons[i].pos.y + 50 - j, 0.5)
+						draw_line(tbMenuNavigationButtons[i].pos.x + tbMenuNavigationButtons[i].size.w - j, tbMenuNavigationButtons[i].pos.y + 49, tbMenuNavigationButtons[i].pos.x + tbMenuNavigationButtons[i].size.w, tbMenuNavigationButtons[i].pos.y + 49 - j, 0.5)
 					end
 					tbMenuNavigationButtons[i]:uiText(v.text, nil, tbMenuNavigationButtons[i].pos.y + 5, FONTS.BIG, CENTER, 0.65)
 				end)
@@ -974,11 +1074,11 @@ do
 	
 	function TBMenu:getMainNavigationButtons()
 		local buttonData = {
-			{ text = "Home", sectionId = 1, width = 120 },
-			{ text = "Play", sectionId = 2, width = 120 },
-			{ text = "Practice", sectionId = 3, width = 190 },
-			{ text = "Mods", sectionId = 4, width = 120 },
-			{ text = "Tools", sectionId = 5, width = 140 }
+			{ text = TB_MENU_LOCALIZED.NAVBUTTONHOME, sectionId = 1, width = get_string_length(TB_MENU_LOCALIZED.NAVBUTTONHOME, FONTS.BIG) * 0.65 + 30 },
+			{ text = TB_MENU_LOCALIZED.NAVBUTTONPLAY, sectionId = 2, width = get_string_length(TB_MENU_LOCALIZED.NAVBUTTONPLAY, FONTS.BIG) * 0.65 + 30 },
+			{ text = TB_MENU_LOCALIZED.NAVBUTTONPRACTICE, sectionId = 3, width = get_string_length(TB_MENU_LOCALIZED.NAVBUTTONPRACTICE, FONTS.BIG) * 0.65 + 30 },
+			{ text = TB_MENU_LOCALIZED.NAVBUTTONMODS, sectionId = 4, width = get_string_length(TB_MENU_LOCALIZED.NAVBUTTONMODS, FONTS.BIG) * 0.65 + 30 },
+			{ text = TB_MENU_LOCALIZED.NAVBUTTONTOOLS, sectionId = 5, width = get_string_length(TB_MENU_LOCALIZED.NAVBUTTONTOOLS, FONTS.BIG) * 0.65 + 30 }
 		}
 		return buttonData
 	end
@@ -1021,7 +1121,7 @@ do
 		tbMenuDownloads:addCustomDisplay(true, function()
 				local downloads = #get_downloads() or 0
 				if (downloads > 0) then
-					tbMenuDownloads:uiText("Downloading files, please wait...", nil, nil, 4, RIGHTMID, 0.5, nil, nil, UICOLORBLACK)
+					tbMenuDownloads:uiText(TB_MENU_LOCALIZED.DOWNLOADINGFILESWAIT, nil, nil, 4, RIGHTMID, 0.5, nil, nil, UICOLORBLACK)
 				end
 			end)
 	end

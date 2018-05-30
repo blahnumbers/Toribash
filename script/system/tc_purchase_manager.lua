@@ -133,7 +133,7 @@ do
 												hoverColor = {0.7, 0, 0, 1},
 												pressedColor = {0.4, 0, 0, 1} } )
 		torishopButton:addCustomDisplay(false, function()
-				torishopButton:uiText("Go to Torishop", nil, torishopButton.pos.y + 5, FONTS.BIG, nil, 0.63, nil, 1.5)
+				torishopButton:uiText("Go to Torishop", nil, nil, FONTS.BIG, nil, 0.63, nil, 1.5)
 			end)
 		torishopButton:addMouseHandlers(function() end, function()
 				remove_hooks("tcPurchaseVisual")	

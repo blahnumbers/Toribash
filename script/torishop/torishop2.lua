@@ -2494,13 +2494,15 @@ end
 -- Drawing
 
 function draw_item(section, item, pos, marked, flag)	-- the section the item is from, the item index in the section, the shelf position, whether it is selected
-	local name = 0
+	local name, id = 0, 0
 	local w_add = 100
 	
 	if (flag == 1) then
 		name = sections[section][item].name
+		id = sections[section][item].id
 	else 
 		name = sections_[section][item].name
+		id = sections_[section][item].id
 	end
 		
 	if (string.find(name, "Secondary Gradient")) then
@@ -2574,17 +2576,11 @@ function draw_item(section, item, pos, marked, flag)	-- the section the item is 
 		draw_quad(buttons[pos].icon.x+20, buttons[pos].icon.y+44, 24, 30) end
 	set_color(1,1,1,1)
 	if (pos_icon[pos] == nil) then
-		local tempicon = io.open("torishop/icons/"..name..".tga", "r")
+		local tempicon = io.open("data/textures/store/items/"..id..".tga", "r", 1)
 		if (tempicon == nil) then
-			if (string.find(name, "superior")) then
-				icon[pos] = load_texture("torishop/icons/superior.tga")
-			elseif (string.find(name, "astro ")) then
-				icon[pos] = load_texture("torishop/icons/astro.tga")
-			else
-				icon[pos] = load_texture("torishop/icons/defaulticon.tga")
-			end
+			icon[pos] = load_texture("torishop/icons/defaulticon.tga")
 		else
-			icon[pos] = load_texture("torishop/icons/"..name..".tga")
+			icon[pos] = load_texture("../textures/store/items/"..id..".tga")
 			io.close(tempicon)
 		end
 		pos_icon[pos] = 1 
@@ -2611,6 +2607,8 @@ end
 
 function draw_sale_item(item, pos, marked)
 	local name = sections[32][item].name
+	local id = sections[32][item].id
+	
 	local timeleft_length = get_string_length(get_sale_time(item), FONTS.MEDIUM)
 	
 	if (string.find(name, "Secondary Gradient")) then
@@ -2633,15 +2631,11 @@ function draw_sale_item(item, pos, marked)
 		draw_quad(buttons[pos].icon.x+35, buttons[pos].icon.y+59, 322, 30) end
 	set_color(1,1,1,1)
 	if (pos_icon[pos] == nil) then
-		local tempicon = io.open("torishop/icons/"..name..".tga", "r")
+		local tempicon = io.open("data/textures/store/items/"..id..".tga", "r", 1)
 		if (tempicon == nil) then
-			if (string.find(name, "Superior")) then
-				icon[pos] = load_texture("torishop/icons/superior.tga")
-			else
-				icon[pos] = load_texture("torishop/icons/defaulticon.tga")
-			end
+			icon[pos] = load_texture("torishop/icons/defaulticon.tga")
 		else
-			icon[pos] = load_texture("torishop/icons/"..name..".tga")
+			icon[pos] = load_texture("../textures/store/items/"..id..".tga")
 			io.close(tempicon)
 		end
 		pos_icon[pos] = 1 
@@ -2701,8 +2695,8 @@ function load_images()
 	--torishop_announcement = load_texture("/torishop/gui/featuredbeanies.tga")
 	--torishop_announcement1 = load_texture("/torishop/gui/featuredfulltextures.tga")
 	torishop_announcement2 = load_texture("/torishop/gui/featuredshovelershovel.tga")
-	torishop_announcement3 = load_texture("/torishop/gui/featuredastrocolor.tga")
-	torishop_announcement4 = load_texture("/torishop/gui/featuredastro.tga")
+	torishop_announcement3 = load_texture("/torishop/gui/featuredspring.tga")
+	torishop_announcement4 = load_texture("/torishop/gui/featuredspring.tga")
 	--torishop_announcement5 = load_texture("/torishop/gui/featuredlotterypro.tga")
 	sect_flames = load_texture("/torishop/gui/flames.tga")
 	sect_flames_ = load_texture("/torishop/gui/flames_.tga")
@@ -4757,12 +4751,8 @@ function draw_torishop()
 			set_color(1, 1, 1, 1)
 			draw_text(get_main_sale_time(sale_id), 245 - sale_timeleft_length / 2, height - 360, FONTS.MEDIUM)
 		
-			if (sale_icon == nil) then 
-				if (string.find(sale_name, "Superior")) then
-					sale_icon = load_texture("/torishop/icons/superior.tga")
-				else
-					sale_icon = load_texture("/torishop/icons/"..sale_name..".tga")
-				end
+			if (sale_icon == nil) then 				
+				sale_icon = load_texture("/torishop/icons/"..sale_name..".tga")
 			end
 			draw_quad(buttons.sonsale.x + 120, buttons.sonsale.y + 40, 64, 64, sale_icon)
 			if (buttons.sonsale.state == BTN_HOVER or buttons.sonsale.state == BTN_DOWN) then
@@ -4959,20 +4949,6 @@ function close_torishop()
 	run_cmd("opt effects " .. effects_option)
 	run_cmd("opt chat 1")
 	run_cmd("opt newshopitem 0")
-	run_cmd("exec profile.tbs")
-	run_cmd("clear")
-	echo(" ")
-	echo(" ")
-	echo(" ")
-	echo(" ")
-	echo(" ")
-	echo(" ")
-	echo(" ")
-	echo(" ")
-	echo(" ")
-	echo(" ")
-	echo(" ")
-	echo(" ")
 	if (tempflag == 0) then
 		local temp = io.open("torishop/flames.cfg", "w")
 		temp:write("null")
@@ -5049,13 +5025,9 @@ function init_torishop()
 					
 					for i = 1, sections[32].total_items do
 						if (sections[32][i].promo == "1") then
-							sale_name = sections[32][i].name
+							sale_id = sections[32][i].id
 							sale = true
-							if (string.find(sale_name, "Superior")) then
-								sale_icon = load_texture("/torishop/icons/superior.tga")
-							else
-								sale_icon = load_texture("/torishop/icons/"..sale_name..".tga")
-							end
+							sale_icon = load_texture("../textures/store/items/"..sale_id..".tga")
 							break
 						end
 					end

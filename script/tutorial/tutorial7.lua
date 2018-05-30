@@ -349,7 +349,7 @@ function mouse_up(mouse_btn, x, y)
 		if (x > (buttons.next_tut.x) and x < (buttons.next_tut.x + buttons.next_tut.w) and (y > buttons.next_tut.y) and y < (buttons.next_tut.y + buttons.next_tut.h)) then
 			buttons.next_tut.state = BTN_UP
 			terminate()
-			run_tutorial(3)
+			dofile("tutorial/fight_uke_v01.lua")
 		end
 	end
 end
@@ -524,7 +524,7 @@ end
 		run_cmd("reset")
 		step = 1
 	elseif (step == 1) then	
-		add_hook("leave_game", "terminate", terminate)
+		add_hook("new_game", "terminate", terminate)
 		set_color(1, 1, 1, trans_modifier)
 		draw_quad(0, 0, width, height)
 		if (trans_modifier > 0) then trans_modifier = trans_modifier - 0.02 end
@@ -560,7 +560,7 @@ function tut_stage1()
 		run_cmd("loadreplay system/tut_2-1.rpl")
 		step = 1
 	elseif (step == 1) then	
-		add_hook("leave_game", "terminate", terminate)
+		add_hook("new_game", "terminate", terminate)
 		set_color(1, 1, 1, trans_modifier)
 		draw_quad(0, 0, width, height)
 		if (trans_modifier > 0) then trans_modifier = trans_modifier - 0.02 end
@@ -629,7 +629,7 @@ function tut_stage1()
 		run_cmd("set ed 175")
 		start_new_game()
 		step = 8
-		add_hook("leave_game", "terminate", terminate)
+		add_hook("new_game", "terminate", terminate)
 		add_hook("joint_select", "bodyparts", set_joint_tooltip)
 		add_hook("body_select", "bodyparts", set_hand_tooltip)
 		hand_joint_render = true
@@ -1201,7 +1201,7 @@ function tut_stage1()
 				run_cmd("loadreplay system/tut_2-1.rpl")
 				run_cmd("loadreplay system/tut_2-1.rpl")
 				run_cmd("lp 0"..player_name)
-				add_hook("leave_game", "terminate", terminate)
+				add_hook("new_game", "terminate", terminate)
 				step = 29
 				return 1
 			else return 1

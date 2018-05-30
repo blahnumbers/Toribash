@@ -28,6 +28,7 @@ TEXTUREINDEX = TEXTUREINDEX or 0
 DEFTEXTCOLOR = DEFTEXTCOLOR or { 1, 1, 1, 1 }
 DEFSHADOWCOLOR = DEFSHADOWCOLOR or { 0, 0, 0, 0.6 }
 
+UICOLORWHITE = {1,1,1,1}
 UICOLORBLACK = {0,0,0,1}
 UICOLORRED = {1,0,0,1}
 UICOLORGREEN = {0,1,0,1}
@@ -55,7 +56,7 @@ do
 						customDisplay = function() end,
 						innerShadow = { 0, 0 },
 						}
-		setmetatable(elem, UIElement)
+		setmetatable(elem, self)
 		
 		o = o or nil
 		if (o) then
@@ -149,19 +150,20 @@ do
 			if (o.downSound) then
 				elem.downSound = o.downSound
 			end
+			
+			table.insert(UIElementManager, elem)
+			
+			-- Display is enabled by default, comment this out to disable
+			if (elem.viewport or (elem.parent and elem.parent.viewport)) then
+				table.insert(UIViewportManager, elem)
+			else	
+				table.insert(UIVisualManager, elem)
+			end
+			
+			-- Force update global x/y pos when spawning element
+			elem:updatePos()
 		end
 		
-		table.insert(UIElementManager, elem)
-		
-		-- Display is enabled by default, comment this out to disable
-		if (elem.viewport or (elem.parent and elem.parent.viewport)) then
-			table.insert(UIViewportManager, elem)
-		else	
-			table.insert(UIVisualManager, elem)
-		end
-		
-		-- Force update global x/y pos when spawning element
-		elem:updatePos()
 		return elem
 	end
 	
@@ -439,16 +441,19 @@ do
 				break
 			end
 		end
-		if (self.interactive) then
-			table.insert(UIMouseHandler, self)
-		end
-		if (self.keyboard) then
-			table.insert(UIKeyboardHandler, self)
+		if (not num) then
+			if (self.interactive) then
+				table.insert(UIMouseHandler, self)
+			end
+			if (self.keyboard) then
+				table.insert(UIKeyboardHandler, self)
+			end
 		end
 	end
 	
 	function UIElement:deactivate()
 		local num = nil
+		self.hoverState = nil
 		if (self.interactive) then
 			for i,v in pairs(UIMouseHandler) do
 				if (self == v) then
@@ -779,7 +784,7 @@ do
 					yPos = yPos + font_mod * 5 * scale
 				end
 			end
-			if (check == true and self.size.w < get_string_length(str[i], font) * scale) then
+			if (check == true and (self.size.w < get_string_length(str[i], font) * scale or self.size.h < font_mod * 10 * scale)) then
 				return false
 			elseif (self.size.h > (pos + 2) * font_mod * 10 * scale) then
 				if (check == false) then

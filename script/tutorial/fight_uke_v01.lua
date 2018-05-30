@@ -20,6 +20,12 @@ local BTN_UP = 1
 local BTN_HOVER = 2
 local BTN_DOWN = 3
 
+local function unload_tutorial()
+	remove_hooks("general")
+	remove_hooks("fight uke")
+	remove_hooks("redirect")
+end
+
 local buttons = {}
 function load_buttons()
 	buttons.arrow = { x = width,  y = height/2-40, state = BTN_UP }
@@ -333,7 +339,9 @@ function mouse_up(mouse_btn, x, y)
 			change_mod_wait = 1
 			mod_pending = 0
 		else
+			remove_hook("new_game", "redirect")
 			change_mod(0)
+			add_hook("new_game", "redirect", unload_tutorial)
 		end
 	end
 	if (x > buttons.judo.x and x < (buttons.judo.x + buttons.judo.w) and y > buttons.judo.y and y < (buttons.judo.y + buttons.judo.h)) then
@@ -342,7 +350,9 @@ function mouse_up(mouse_btn, x, y)
 			change_mod_wait = 1
 			mod_pending = 1
 		else
+			remove_hook("new_game", "redirect")
 			change_mod(1)
+			add_hook("new_game", "redirect", unload_tutorial)
 		end
 	end
 	if (x > buttons.wushu.x and x < (buttons.wushu.x + buttons.wushu.w) and y > buttons.wushu.y and y < (buttons.wushu.y + buttons.wushu.h)) then
@@ -351,7 +361,9 @@ function mouse_up(mouse_btn, x, y)
 			change_mod_wait = 1
 			mod_pending = 2
 		else
+			remove_hook("new_game", "redirect")
 			change_mod(2)
+			add_hook("new_game", "redirect", unload_tutorial)
 		end
 	end
 	end
@@ -380,7 +392,7 @@ function mouse_up(mouse_btn, x, y)
 			buttons.gotomp.state = BTN_HOVER
 			continue = 2
 			unload_icons()
-			remove_hooks("general")
+			unload_tutorial()
 			run_cmd("option beginner 5")
 			run_cmd("connect 144.76.163.135 22005")
 			echo(" ")
@@ -527,7 +539,7 @@ function overlay()
 			draw_text("aikido", buttons.aikido.x + 100 - slide, buttons.aikido.y, FONTS.MEDIUM)
 			draw_text("judo", buttons.judo.x + 100 - slide, buttons.judo.y, FONTS.MEDIUM)
 			draw_text("wushu", buttons.wushu.x + 100 - slide, buttons.wushu.y, FONTS.MEDIUM)
-			slide = slide + 2
+			slide = slide + 5
 		end
 		if (slide == 100) then
 			initchange = 0
@@ -566,7 +578,7 @@ function overlay()
 			draw_text("aikido", buttons.aikido.x + 100 - slide, buttons.aikido.y, FONTS.MEDIUM)
 			draw_text("judo", buttons.judo.x + 100 - slide, buttons.judo.y, FONTS.MEDIUM)
 			draw_text("wushu", buttons.wushu.x + 100 - slide, buttons.wushu.y, FONTS.MEDIUM)
-			slide = slide - 2
+			slide = slide - 5
 		end
 		if (slide == 0) then
 			initchange = 0
@@ -638,9 +650,10 @@ function check_victory()
 		remove_hooks("redirect")
 		if (winner == 0) then	-- tori won
 			win_count = win_count + 1
-			if (continue == 0 and win_count == 3) then continue = 1
+			if (continue == 0 and win_count == 3) then 
+				continue = 1
 			else 
-			activate_uke()
+				activate_uke()
 			end
 		elseif (winner == 1) then	-- uke won
 			win_count = 0
@@ -656,7 +669,7 @@ function check_victory()
 			echo("Finding Uke too tough to beat?")
 			echo("Visit the link below for tips and tricks!")
 			echo("http://forum.toribash.com/forumdisplay.php?f=364")
-			remove_hooks("general")
+			unload_tutorial()
 			unload_icons()
 		end
 		refresh_chat_cache()
@@ -693,15 +706,15 @@ function activate_uke()
 	end
 	run_cmd("clear")
 
-	
-
 	add_hook("draw2d", "general", overlay)
 	add_hook("mouse_button_down", "general", mouse_down)
 	add_hook("mouse_button_up", "general", mouse_up)
 	add_hook("mouse_move", "general", mouse_move)
 	add_hook("enter_freeze", "fight uke", do_combo_move)
 	add_hook("exit_freeze", "fight uke", function() redo_combo_move(); speak(); end)
-	add_hook("leave_game", "fight uke", check_victory)
+	add_hook("end_game", "fight uke", function() check_victory() end)
+	add_hook("new_game", "redirect", unload_tutorial)
+	add_hook("new_mp_game", "redirect", unload_tutorial)
 
 
 	echo(" ")		-- to hide "clear" echo message

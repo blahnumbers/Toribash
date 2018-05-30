@@ -11,41 +11,41 @@ do
 			title = "Diamond Tier",
 			showRank = true,
 			maxElo = 10000,
-			minElo = 1690,
+			minElo = 1670,
 			image = "../textures/menu/ranking/diamond.tga"
 		},
 		{
 			title = "Platinum Tier",
 			showRank = true,
-			maxElo = 1690,
-			minElo = 1645,
+			maxElo = 1670,
+			minElo = 1635,
 			image = "../textures/menu/ranking/platinum.tga"
 		},
 		{
 			title = "Gold Tier",
 			showRank = true,
-			maxElo = 1645,
-			minElo = 1618,
+			maxElo = 1635,
+			minElo = 1610,
 			image = "../textures/menu/ranking/gold.tga"
 		},
 		{
 			title = "Silver Tier",
 			showRank = false,
-			maxElo = 1618,
-			minElo = 1607,
+			maxElo = 1610,
+			minElo = 1590,
 			image = "../textures/menu/ranking/silver.tga"
 		},
 		{
 			title = "Bronze Tier",
 			showRank = false,
-			maxElo = 1607,
-			minElo = 1570,
+			maxElo = 1590,
+			minElo = 1565,
 			image = "../textures/menu/ranking/bronze.tga"
 		},
 		{
 			title = "Elo Hell",
 			showRank = false,
-			maxElo = 1570,
+			maxElo = 1565,
 			minElo = 0,
 			image = "../textures/menu/ranking/elohell.tga"
 		}
@@ -78,6 +78,20 @@ do
 		player_name = player_name:gsub(".*%b()", "")
 		
 		return player_name
+	end
+	
+	function PlayerInfo:getClanTag(player)
+		local name, tag = player
+		local braces = { "[]", "()", "{}" }
+
+		local i = 1
+		while (not tag) do
+			tag = name:match("%b" .. braces[i])
+			i = i + 1
+		end
+		
+		tag = tag:gsub("%W", "")
+		return tag
 	end
 	
 	function PlayerInfo:getLoginRewardStatus()

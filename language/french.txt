@@ -5,7 +5,7 @@ Multiplayer Mode multijoueur
 FightSchool École de combat
 ToriShop ToriShop 
 Setup Réglages
----- BuyToriCredits Acheter des ToriCredits
+BuyToriCredits Acheter des ToriCredits
 Quit Quitter
 Options Options
 Mods Modes

@@ -41,7 +41,7 @@ do
 	
 	function Rewards:quit()
 		tbMenuCurrentSection:kill(true) 
-		tbMenuNavigationBar:kill()
+		tbMenuNavigationBar:kill(true)
 		TB_MENU_NOTIFICATIONS_ISOPEN = 0
 		TBMenu:showNavigationBar()
 		TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
@@ -50,7 +50,7 @@ do
 	function Rewards:getNavigationButtons()
 		local buttonsData = {
 			{ 
-				text = "To Main", 
+				text = TB_MENU_LOCALIZED.NAVBUTTONTOMAIN, 
 				action = function() Rewards:quit() end, 
 				width = 160 
 			}
@@ -76,7 +76,7 @@ do
 			size = {loginView.size.w, 50}
 		})
 		loginViewTitle:addCustomDisplay(false, function()
-			loginViewTitle:uiText("Daily Login Reward", nil, nil, FONTS.BIG, CENTERMID, 0.8, nil, nil, nil, nil, 0.2)
+			loginViewTitle:uiText(TB_MENU_LOCALIZED.REWARDSDAILYTITLE, nil, nil, FONTS.BIG, CENTERMID, 0.8, nil, nil, nil, nil, 0.2)
 		end)
 		local dayRewardsView = UIElement:new({
 			parent = loginView,
@@ -138,7 +138,7 @@ do
 			pressedColor = { 1, 0, 0, 0.2 },
 			downSound = 31
 		})
-		local rewardClaimString = "Claim Reward"
+		local rewardClaimString = TB_MENU_LOCALIZED.REWARDSCLAIM
 		local rewardClaimInProgress = false
 		local rewardClaimProgressTime = nil
 		local textSizeModifier = 0.55
@@ -146,25 +146,26 @@ do
 		if (rewardData.available) then
 			rewardClaim:addCustomDisplay(false, function()
 				if (rewardClaimInProgress == true and PlayerInfo:getLoginRewardStatus() == -1 and os.time() - rewardClaimProgressTime > 5) then
-					rewardClaimString = "Error communicating with Toribash servers, please try again later"
+					rewardClaimString = TB_MENU_LOCALIZED.REWARDSCLAIMNETWORKERROR
 					rewardClaimInProgress = false
 					rewardClaim:deactivate()
 				elseif (rewardClaimInProgress == true and PlayerInfo:getLoginRewardStatus() == -1) then
-					rewardClaimString = "Claiming Reward" .. string.rep(".", (os.time() - rewardClaimProgressTime) % 4)
+					rewardClaimString = TB_MENU_LOCALIZED.REWARDSCLAIMINPROGRESS .. string.rep(".", (os.time() - rewardClaimProgressTime) % 4)
 				elseif (rewardClaimInProgress == true) then
 					rewardClaim:deactivate()
 					if (PlayerInfo:getLoginRewardStatus() == 0) then
-						rewardClaimString = "Reward Claimed"
+						rewardClaimString = TB_MENU_LOCALIZED.REWARDSCLAIMSUCCESS
 						update_tc_balance()
+						TB_MENU_DOWNLOAD_INACTION = true
 						tcUpdate = true
 					else
 						local error = PlayerInfo:getLoginRewardError()
 						if (error == 0) then
-							rewardClaimString = "No reward available, try again later"
+							rewardClaimString = TB_MENU_LOCALIZED.REWARDSCLAIMNOREWARD
 						elseif (error == 1) then
-							rewardClaimString = "Timeout error, restart the game or go online"
+							rewardClaimString = TB_MENU_LOCALIZED.REWARDSCLAIMTIMEOUT
 						else
-							rewardClaimString = "Error claiming reward"
+							rewardClaimString = TB_MENU_LOCALIZED.REWARDSCLAIMERROROTHER
 						end
 					end
 					rewardClaimInProgress = false
@@ -188,53 +189,53 @@ do
 				end, function() end)
 		else
 			rewardClaim:addCustomDisplay(false, function()
-				rewardClaim:uiText("No reward available", nil, nil, FONTS.BIG, CENTERMID, 0.55, nil, 1)
+				rewardClaim:uiText(TB_MENU_LOCALIZED.REWARDSNOAVAILABLE, nil, nil, FONTS.BIG, CENTERMID, 0.55, nil, 1)
 			end)				
 		end
 	end
 	
 	function Rewards:getTime(timetonext, isClaimed)
 		if (timetonext <= 0 and not isClaimed) then
-			return "Reward will be available on next game launch"
+			return TB_MENU_LOCALIZED.REWARDSAVAILABLERESTART
 		elseif (timetonext <= 0 and isClaimed) then
-			return "Your reward expired! :("
+			return TB_MENU_LOCALIZED.REWARDSEXPIRED
 		end
 		
 		local returnval = ""
 		local timeleft = 0
 		local timetype = ""
 		if (math.floor(timetonext / 3600) > 1) then
-			timetype = "hours"
+			timetype = TB_MENU_LOCALIZED.REWARDSTIMEHOURS
 			timeleft = math.floor(timetonext / 3600)
 			timetonext = timetonext - timeleft * 3600
 			returnval = timeleft .. " " .. timetype
 		end
 		if (math.floor(timetonext / 3600) == 1) then
-			timetype = "hour"
+			timetype = TB_MENU_LOCALIZED.REWARDSTIMEHOUR
 			timeleft = math.floor(timetonext / 3600)
 			timetonext = timetonext - timeleft * 3600
 			returnval = timeleft .. " " .. timetype
 		end
 		if (math.floor(timetonext / 60) > 1) then
-			timetype = "minutes"
+			timetype = TB_MENU_LOCALIZED.REWARDSTIMEMINUTES
 			timeleft = math.floor(timetonext / 60)
 			timetonext = timetonext - timeleft * 60
 			returnval = returnval .. " " .. timeleft .. " " .. timetype
 		end
 		if (math.floor(timetonext / 60) == 1) then
-			timetype = "minute"
+			timetype = TB_MENU_LOCALIZED.REWARDSTIMEMINUTE
 			timeleft = math.floor(timetonext / 60)
 			timetonext = timetonext - timeleft * 60
 			returnval = returnval .. " " .. timeleft .. " " .. timetype
 		end
 		if (timetonext > 0 and timetype == "") then 
-			timetype = "seconds"
+			timetype = TB_MENU_LOCALIZED.REWARDSTIMESECONDS
 			returnval = returnval .. " " .. timetonext .. " " .. timetype
 		end
 		
 		if (not isClaimed) then
-			return "Next reward in " .. returnval
+			return TB_MENU_LOCALIZED.REWARDSNEXTREWARD .. " " .. returnval
 		end
-		return returnval .. " left to claim reward"
+		return returnval .. " " .. TB_MENU_LOCALIZED.REWARDSTIMELEFT
 	end						
 end

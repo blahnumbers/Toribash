@@ -1,0 +1,177 @@
+# New UI Localization file
+NAVBUTTONHOME	Home	
+NAVBUTTONPLAY	Play	
+NAVBUTTONPRACTICE	Practice	
+NAVBUTTONMODS	Mods	
+NAVBUTTONTOOLS	Tools	
+NAVBUTTONTOMAIN	To Main	
+NAVBUTTONBACK	Back	
+NAVBUTTONEXIT	Exit	
+MAINMENUUSERCLAN	Clan	
+MAINMENUTORISHOPNAME	Torishop	
+MAINMENUTORISHOPDESC	Try out and purchase items for your Tori	
+MAINMENUCLANSNAME	Clans	
+MAINMENUCLANSDESC	Explore Toribash clans	
+MAINMENUREPLAYSNAME	Replays	
+MAINMENUREPLAYSDESC	Watch your downloaded replays	
+MAINMENUFREEPLAYNAME	Free Play	
+MAINMENUFREEPLAYDESC	Practice your skills or make replays in Single Player mode	
+MAINMENUMATCHMAKINGNAME	Matchmaking	
+MAINMENUMATCHMAKINGDESC	Quick way to get placed in one-on-one fights	
+MAINMENUROOMLISTNAME	Room List	
+MAINMENUROOMLISTDESC	Create your own online room or join any of the existing ones	
+MAINMENUBEGINNERTUTNAME	Beginner Tutorial	
+MAINMENUBEGINNERTUTDESC	Learn Toribash basics: controls, gameplay and more	
+MAINMENUADVMOVESNAME	Advanced Moves	
+MAINMENUADVMOVESDESC	Discover advanced moves to use in multiplayer	
+MAINMENUFIGHTUKENAME	Fight Uke	
+MAINMENUFIGHTUKEDESC	Put your skills against Tori's ultimate foe	
+MAINMENUCOMEBACKNAME	Comeback Practice	
+MAINMENUCOMEBACKDESC	Keep catching Uke without getting disqualified	
+MAINMENUGAMERULESNAME	Game Rules	
+MAINMENUGAMERULESDESC	Customize gravity and other mod settings	
+MAINMENUMODLISTNAME	Mod List	
+MAINMENUMODLISTDESC	Load one of the downloaded mods	
+MAINMENUMODMAKERNAME	Modmaker	
+MAINMENUMODMAKERDESC	Create your own mod for Toribash	
+MAINMENUMODSDISCOVERNAME	Discover	
+MAINMENUMODSDISCOVERDESC	Search for new mods created by other players	
+MAINMENUSHADERSNAME	Shaders & Atmospheres	
+MAINMENUSHADERSDESC	Customize lighting and Toribash environment	
+MAINMENUSCRIPTSNAME	Scripts	
+MAINMENUSCRIPTSDESC	Load pre-installed or third-party scripts for Toribash	
+MAINMENUSOUNDSNAME	Sounds	
+MAINMENUSOUNDSDESC	Toggle custom sounds on/off	
+DOWNLOADINGFILESWAIT	Downloading files, please wait...	
+STORESETEMPTY	EMPTY	marks an empty set	
+STOREITEM	item	used to display that there's only 1 item in a set	
+STOREITEMS	items	used to display number of items in a set	
+STOREFLAMEBODYPART	Particle flame for your	
+STOREFLAMEID	Flame ID	
+STOREFLAMEFORGEDBY	Forged by	
+STOREITEMINSIDESET	Inside set	
+STOREOBJITEMBODYPART	Custom 3D model for	
+STOREITEMNODESCRIPTION	This item has no description	
+STOREITEMGOTOSET	Go to set	
+STORESETITEMNAME	Set	
+STOREITEMADDTOSET	Add to set	
+STOREITEMREMOVEFROMSET	Remove from set	
+STOREVIEWSETITEMS	View set items	
+STOREITEMSINSET	Items inside set	
+STORESELLMARKET	Sell in market	
+STOREDIALOGMARKETSELL1	Are you sure you want to put	
+STOREDIALOGMARKETSELL2	in market?	
+STOREITEMDEACTIVATE	Deactivate	
+STOREDIALOGDEACTIVATE1	Are you sure you want to deactivate	
+STOREDIALOGDEACTIVATE2	 	
+STOREITEMACTIVATE	Activate	
+STOREDIALOGACTIVATE1	Are you sure you want to activate	
+STOREDIALOGACTIVATE2	 	
+STOREDIALOGCONFLICTSDEACTIVATE	Any conflicting item will be deactivated.	
+STOREITEMUNPACK	Unpack	
+STOREDIALOGUNPACK1	Are you sure you want to unpack	
+STOREDIALOGUNPACK2	 	
+STOREDIALOGUNPACKINFO	Unpacked items will be put in a set\nand placed in your deactivated inventory.	
+STOREACTIVATEDINVENTORY	Activated Inventory	
+STOREDEACTIVATEDINVENTORY	Deactivated Inventory	
+STOREMARKETINVENTORY	Market Inventory	
+STOREINVENTORYALLITEMS	All inventory items	
+PAGINATIONPAGE	Page	
+PAGINATIONPAGEOF	of	
+STOREINVENTORYLOADING	Loading data from Toriverse	
+STOREGOTOSHOP	Open Torishop	
+STORESHOPDESC	Purchase new items for your Tori	
+STOREGOTOINVENTORY	Open Inventory	
+STOREINVENTORYDESC	Customize your character with purchased items	
+STORESTEAMPURCHASELOADING	Working	
+STORESTEAMPURCHASEERROR	Something went wrong	
+CLANSMYCLAN	My Clan	
+CLANSCLANLEADER	Clan leader	
+CLANSCLANMEMBER	Clan member	
+CLANSTOGETHERWITH	Together with	
+CLANSVIEWCLAN	View Clan	
+GENERALSTRINGAND	and	
+CLANFILTERSRANK	Rank	
+CLANFILTERSCLANNAME	Name	
+CLANFILTERSCLANTAG	Tag	
+CLANFILTERSCLANID	ID	
+CLANFILTERSOFFICIALSTATUS	Status	
+CLANFILTERSJOINMODE	Join Mode	
+CLANFILTERSDEAD	Dead	
+CLANFILTERSINACTIVE	Inactive	
+CLANFILTERSACTIVE	Active	
+SORTORDERASCENDING	Ascending	
+SORTORDERDESCENDING	Descending	
+CLANFILTERSACTIVITYSTATE	Activity Status	
+CLANFILTERSACTIVITYSTATEDESC	Clans are considered to be active when they have at least 5 members. Clans with no members are marked as dead.	
+CLANFILTERSFFAONLY	Only free for all clans	
+CLANFILTERSFFAONLYDESC	You can join free for all clans any time with one button click. For invite only clans, a custom application process is required.	
+CLANFILTERSOFFICIALONLY	Only official clans	
+CLANFILTERSOFFICIALONLYDESC	Official clans have their own board on Toribash forums and have square tag brackets in game.	
+SORTBYNAME	Sort by	
+SORTORDERNAME	Sort order	
+CLANSSEARCHFILTERS	Search Filters	
+CLANSSEARCH	Search clans	
+CLANSCLANLIST	Clan List	
+CLANSLEGENDRANK	Rank	
+CLANSLEGENDLEVEL	Level	
+CLANSLEGENDXP	XP	
+CLANSLEGENDTAGNAME	Tag and name	
+CLANSLEGENDSTATUS	Status	
+CLANSLEGENDJOINMODE	Join Mode	
+CLANSTATEOFFICIAL	Official	
+CLANSTATEUNOFFICIAL	Unofficial	
+CLANSTATEFREEFORALL	Free for all	
+CLANSTATEINVITEONLY	Invite Only	
+CLANSLISTEMPTYMSG	No clans to display	
+CLANSJOINCLAN	Join clan	
+CLANSRELOADLOGO	Reload logo	
+CLANSUPDATINGLOGO	Updating	
+CLANSTATEUNRANKED	Unranked	
+CLANSVIEWWARSFORUM	View wars on forum	
+CLANSTOPACHMISSING	This clan hasn't chosen an achievement to display	
+CLANSLEGENDROSTER	Roster	
+CLANLEADERS	Leaders	
+CLANLEADER	Leader	
+CLANMEMBERS	Members	
+CLANMEMBER	Member	
+REWARDSDAILYTITLE	Daily Login Reward	
+REWARDSCLAIM	Claim Reward	
+REWARDSCLAIMNETWORKERROR	Error communicating with Toribash servers, please try again later	
+REWARDSCLAIMINPROGRESS	Claiming Reward	
+REWARDSCLAIMSUCCESS	Reward Claimed	
+REWARDSCLAIMNOREWARD	No reward available, try again later	
+REWARDSCLAIMTIMEOUT	Timeout error, restart the game or go online	
+REWARDSCLAIMERROROTHER	Error claiming reward	
+REWARDSNOAVAILABLE	No reward available	
+REWARDSAVAILABLERESTART	Reward will be available on next game launch	
+REWARDSEXPIRED	Your reward expired! :(	
+REWARDSTIMEHOURS	hours	
+REWARDSTIMEHOUR	hour	
+REWARDSTIMEMINUTES	minutes	
+REWARDSTIMEMINUTE	minute	
+REWARDSTIMESECONDS	seconds	
+REWARDSNEXTREWARD	Next reward in	
+REWARDSTIMELEFT	left to claim reward	
+MATCHMAKEMODGRAPPLING	Grappling	
+MATCHMAKEMODKICKING	Kicking	
+MATCHMAKEMODSTRIKING	Striking	
+MATCHMAKEMODFUN	Fun	
+MATCHMAKERANKEDBELT	Ranked Matchmaking is available with Brown Belt	
+MATCHMAKERANKEDMODE	Ranked Mode	
+MATCHMAKERANK	Rank	
+MATCHMAKEFIGHTSTOTAL	fights total	
+MATCHMAKEWINRATE	win rate	
+MATCHMAKENOPLAYERS	No players currently searching	
+MATCHMAKEPLAYERSEARCHING	player searching	
+MATCHMAKEPLAYERSSEARCHING	players searching	
+MATCHMAKESEARCHING	Searching for a match	
+MATCHMAKESEARCH	Search	
+MATCHMAKESTOPSEARCH	Stop search	
+MATCHMAKEUNRANKEDMODE	Casual Play	
+MATCHMAKEFINDBESTMATCH1	Find	
+MATCHMAKEFINDBESTMATCH2	best match	
+MATCHMAKESEARCHSETTINGS1	Search	
+MATCHMAKESEARCHSETTINGS2	with settings	
+MATCHMAKESEARCHCUSTOM	custom	
+MATCHMAKEUPDATINGRANK	Updating Ranking Stats...	

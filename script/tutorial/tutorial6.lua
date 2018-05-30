@@ -164,7 +164,7 @@ function mouse_up(mouse_btn, x, y)
 		if (x > (buttons.next_tut.x) and x < (buttons.next_tut.x + buttons.next_tut.w) and (y > buttons.next_tut.y) and y < (buttons.next_tut.y + buttons.next_tut.h)) then
 			buttons.next_tut.state = BTN_UP
 			terminate()
-			run_tutorial(2)
+			dofile("tutorial/tutorial7.lua")
 		end
 	end
 end
@@ -575,7 +575,7 @@ function tut_stage4()
 		draw_quad(0, 0, width, height)
 		run_cmd("loadreplay system/tut_1-3.rpl")
 		freeze_game()
-		add_hook("leave_game", "terminate", terminate)
+		add_hook("new_game", "terminate", terminate)
 		step = 1
 	elseif (step == 1) then
 		-- Fade out
@@ -823,7 +823,7 @@ function tut_stage3()
 		run_cmd("set engagedistance 100")
 		start_new_game()
 		set_option("uke", 1)
-		add_hook("leave_game", "terminate", terminate)
+		add_hook("new_game", "terminate", terminate)
 		step = 0.5
 	elseif (step == 0.5) then
 		-- Open mod browser
@@ -930,7 +930,7 @@ function tut_stage3()
 		end
 	elseif (step == 8) then
 		-- Add terminate hook, open gamerules
-		add_hook("leave_game", "terminate", terminate)
+		add_hook("new_game", "terminate", terminate)
 	--	close_menu(7)
 		open_menu(5)
 		step = 9
@@ -983,7 +983,7 @@ function tut_stage3()
 		close_menu(5)
 		run_cmd("loadreplay system/tut_1-2.rpl")
 		freeze_game()
-		add_hook("leave_game", "terminate", terminate)
+		add_hook("new_game", "terminate", terminate)
 		step = 13
 		trans_modifier = 0
 	elseif (step == 13) then
@@ -1215,7 +1215,7 @@ function tut_stage2()
 		start_new_game()
 		start_torishop_camera(4)
 		set_option("uke", 0)
-		add_hook("leave_game", "terminate", terminate)
+		add_hook("new_game", "terminate", terminate)
 		step = 1
 	elseif (step == 1) then
 		-- Fade out
@@ -1519,7 +1519,7 @@ function tut_stage2()
 		--display_step()
 		run_cmd("loadreplay system/tut_1-1.rpl")
 		run_cmd("option uke 1")
-		add_hook("leave_game", "terminate", terminate)
+		add_hook("new_game", "terminate", terminate)
 		run_frames(220)
 		step = 20
 	elseif (step == 20) then
@@ -1659,7 +1659,7 @@ function tut_stage1()
 		step = 1
 	elseif (step == 1) then
 		--display_step()
-		add_hook("leave_game", "terminate", terminate)
+		add_hook("new_game", "terminate", terminate)
 		set_color(1, 1, 1, trans_modifier)
 		draw_quad(0, 0, width, height)
 		if (trans_modifier > 0) then trans_modifier = trans_modifier - 0.02 end
