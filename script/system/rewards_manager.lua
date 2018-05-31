@@ -3,6 +3,10 @@
 TC = 0
 ITEM = 1
 
+if (not Torishop) then
+	dofile("system/store_manager.lua")
+end
+
 do
 	Rewards = {}
 	Rewards.__index = Rewards
@@ -32,6 +36,9 @@ do
 						RewardData[days - 1][v] = data_stream[i + 2]
 					end
 				end
+				if (RewardData[days - 1].item ~= '0') then
+					RewardData[days - 1].item = Torishop:getItemInfo(tonumber(RewardData[days - 1].item))
+				end
 			end
 		end
 		
@@ -40,6 +47,12 @@ do
 	end
 	
 	function Rewards:quit()
+		if (get_option("newmenu") == 0) then
+			tbMenuMain:kill()
+			TB_MENU_NOTIFICATIONS_ISOPEN = 0
+			remove_hooks("tbMainMenuVisual")
+			return
+		end
 		tbMenuCurrentSection:kill(true) 
 		tbMenuNavigationBar:kill(true)
 		TB_MENU_NOTIFICATIONS_ISOPEN = 0
@@ -48,11 +61,12 @@ do
 	end
 	
 	function Rewards:getNavigationButtons()
+		local buttonText = get_option("newmenu") == 0 and TB_MENU_LOCALIZED.NAVBUTTONEXIT or TB_MENU_LOCALIZED.NAVBUTTONTOMAIN
 		local buttonsData = {
 			{ 
-				text = TB_MENU_LOCALIZED.NAVBUTTONTOMAIN, 
+				text = buttonText, 
 				action = function() Rewards:quit() end, 
-				width = 160 
+				width = get_string_length(buttonText, FONTS.BIG) * 0.65 + 30 
 			}
 		}
 		return buttonsData
@@ -87,7 +101,7 @@ do
 		local dayReward = {}
 		
 		for i = 0, 6 do
-			local bgImg = RewardData[i].item ~= "0" and "torishop/icons/" .. RewardData[i].item:lower() .. ".tga" or "torishop/icons/tc.tga"
+			local bgImg = RewardData[i].item ~= '0' and "../textures/store/items/" .. RewardData[i].item.itemid .. "_big.tga" or "torishop/icons/tc.tga"
 			local iconSize = dayRewardWidth - 40 > dayRewardsView.size.h - 50 and dayRewardsView.size.h - 70 or dayRewardWidth - 60
 			
 			dayReward[i] = {}
@@ -111,7 +125,7 @@ do
 				pos = { 5, -60 },
 				size = { dayReward[i].main.size.w - 10, 50 }
 			})
-			local rewardStr = RewardData[i].item ~= "0" and RewardData[i].item or RewardData[i].tc .. " TC"
+			local rewardStr = RewardData[i].item.itemid ~= 0 and RewardData[i].item.itemname or RewardData[i].tc .. " TC"
 			local textScaleModifier = 0
 			while (not dayReward[i].title:uiText(rewardStr, nil, nil, i == rewardData.days and FONTS.BIG or FONTS.MEDIUM, LEFT, i == rewardData.days and 0.55 - textScaleModifier or 1 - textScaleModifier, nil, nil, nil, nil, nil, true)) do
 				textScaleModifier = textScaleModifier + 0.05

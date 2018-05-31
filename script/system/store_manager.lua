@@ -72,6 +72,13 @@ do
 		return TorishopData
 	end
 	
+	function Torishop:getItemInfo(itemid)
+		if (not TB_STORE_DATA) then
+			TB_STORE_DATA = Torishop:getItems()
+		end
+		return TB_STORE_DATA[itemid]
+	end
+	
 	function Torishop:getSaleItem(temp)
 		local temp = temp or nil
 		itemData = {

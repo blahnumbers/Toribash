@@ -52,7 +52,7 @@ do
 		
 		if (language ~= "english") then
 			-- Make sure there's no missing values
-			local file = io.open("data/language/englishnew.txt", "r", 1)
+			local file = io.open("data/script/system/language/english.txt", "r", 1)
 			for ln in file:lines() do
 				if (not ln:match("^#")) then
 					local data_stream = { ln:match(("([^\t]*)\t"):rep(2)) }
