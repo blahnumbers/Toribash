@@ -186,3 +186,29 @@ Effects Effets
 AlwaysOff Toujours Off
 OnlyOnReplays Seulement pendant les replays
 AlwaysOn Toujours On
+LANGUAGESTEAM Utiliser la langue de Steam
+VOICECHATVOLUME Volume du chat vocal
+VOICECHATTOGGLE Basculer sur le chat vocal
+OBJMODEL Modèle d’objet
+AUTOTOURNAMENTS Tournoi automatique
+DEFAULT Par défaut
+PLEASEENABLESTEAMOVERLAY Veuillez activer l’overlay de steam et redémarrer le jeu 
+PLEASEWAITFORSTEAMPURCHASEOVERLAY Veuillez attendre l’overlay de la boutique de steam
+PLEASELOGONSTEAM Veuillez vous connecter à votre compte steam pour acheter des ToriCredits
+REFRESH Actualiser
+DELETE Supprimer
+RENAME Renommer
+NEW Nouveau
+ENTERNEWREPLAYNAME Entrez le nouveau nom du replay
+GRAPPLING Grappling
+KICKING Kicking
+STRICKING Striking
+MATCHMAKING Matchmaking
+(PAUSED) (Pause)
+(SEARCHING) (Recherche en cours)
+MODGROUPS Mod Groups
+SEARCH Recherche
+UNRANKED Non classé
+RANKEDPREFERRED Classé en particularité
+RANKEDONLY Classé Uniquement
+MATCHMAKEAGAIN Continuer le Matchmaking

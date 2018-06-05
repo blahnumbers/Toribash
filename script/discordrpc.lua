@@ -18,7 +18,6 @@ DiscordRPC.__index = DiscordRPC
 local cln = {}
 setmetatable(cln, DiscordRPC)
 
-ARG1 = "sir#2152\t29329391\tAsdaoi512.tga"
 local DiscordUsername, DiscordUserid, DiscordAvatar = ARG1:match(("([^\t]*)\t*"):rep(3))
 
 if (DiscordUsername == "" or DiscordUserid == "" or DiscordAvatar == "") then

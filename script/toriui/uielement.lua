@@ -22,7 +22,7 @@ RIGHTMID = 8
 BTN_DN = 1
 BTN_HVR = 2
 
-DEFTEXTURE = "torishop/icons/defaulticon.tga"
+DEFTEXTURE = "../textures/menu/logos/toribash.tga"
 TEXTURECACHE = {}
 TEXTUREINDEX = TEXTUREINDEX or 0
 DEFTEXTCOLOR = DEFTEXTCOLOR or { 1, 1, 1, 1 }
@@ -463,8 +463,6 @@ do
 			end
 			if (num) then
 				table.remove(UIMouseHandler, num)
-			else
-				err(UIMouseHandlerEmpty)
 			end
 		end
 		if (self.keyboard) then
@@ -541,10 +539,9 @@ do
 			end
 			if (num) then
 				table.remove(UIMouseHandler, num)
-			else
-				err(UIMouseHandlerEmpty)
 			end
 		end
+		
 		if (self.keyboard) then
 			for i,v in pairs(UIKeyboardHandler) do
 				if (self == v) then
@@ -556,12 +553,14 @@ do
 				table.remove(UIKeyboardHandler, num)
 			end
 		end
+		
 		for i,v in pairs(UIVisualManager) do
 			if (self == v) then
 				num = i
 				break
 			end
 		end
+		
 		for i,v in pairs(UIViewportManager) do
 			if (self == v) then
 				table.remove(UIViewportManager, i)
@@ -571,8 +570,6 @@ do
 		
 		if (num) then
 			table.remove(UIVisualManager, num)
-		else
-			err(UIElementEmpty)
 		end
 	end
 		

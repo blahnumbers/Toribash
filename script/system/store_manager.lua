@@ -635,7 +635,7 @@ do
 						bgColor = { 0, 0, 0, 0 },
 						hoverColor = { 1, 1, 1, 0.2 },
 						pressedColor = TB_MENU_DEFAULT_DARKER_COLOR,
-						bgImage = "/system/arrowbotwhite.tga"
+						bgImage = "../textures/menu/general/buttons/arrowbotwhite.tga"
 					})
 					inventoryTitle:addCustomDisplay(true, function()
 							inventoryTitle:uiText(v.name, nil, nil, FONTS.BIG, nil, 0.7, nil, nil, nil, nil, 0.2)
@@ -713,7 +713,7 @@ do
 				bgColor = { 0, 0, 0, 0.3 },
 				hoverColor = { 0, 0, 0, 0.5 },
 				pressedColor = { 1, 0, 0, 0.2 },
-				bgImage = "/system/arrowleft.tga"
+				bgImage = "../textures/menu/general/buttons/arrowleft.tga"
 			})
 			inventoryPrevPage:addMouseHandlers(nil, function()
 					Torishop:showInventoryPage(inventoryItems, -1, mode, title, pageid, itemScale, showBack)
@@ -726,7 +726,7 @@ do
 				bgColor = { 0, 0, 0, 0.3 },
 				hoverColor = { 0, 0, 0, 0.5 },
 				pressedColor = { 1, 0, 0, 0.2 },
-				bgImage = "/system/arrowright.tga"
+				bgImage = "../textures/menu/general/buttons/arrowright.tga"
 			})
 			inventoryNextPage:addMouseHandlers(nil, function()
 					Torishop:showInventoryPage(inventoryItems, 1, mode, title, pageid, itemScale, showBack)
@@ -864,7 +864,7 @@ do
 				parent = tcEntry,
 				pos = { tcEntry.size.w / 20, (tcEntry.size.h - iconScale) / 2 },
 				size = { iconScale, iconScale },
-				bgImage = "torishop/icons/tc.tga"
+				bgImage = "../textures/store/toricredit.tga"
 			})
 			local itemDetails = UIElement:new({
 				parent = tcEntry,
@@ -873,8 +873,8 @@ do
 			})
 			local itemName = UIElement:new({
 				parent = itemDetails,
-				pos = { 0, 0 },
-				size = { itemDetails.size.w, itemDetails.size.h / 2 }
+				pos = { 0, itemDetails.size.h * 0.1 },
+				size = { itemDetails.size.w, itemDetails.size.h * 0.5 }
 			})
 			local itemNameSize = 1
 			while (not itemName:uiText(v.name, nil, nil, FONTS.BIG, LEFT, itemNameSize, nil, nil, nil, nil, nil, true)) do
@@ -886,8 +886,8 @@ do
 			
 			local itemPrice = UIElement:new({
 				parent = itemDetails,
-				pos = { 0, itemDetails.size.h / 2 + 5 },
-				size = { itemDetails.size.w, itemDetails.size.h / 2 - 5 }
+				pos = { 0, itemDetails.size.h * 0.6 },
+				size = { itemDetails.size.w, itemDetails.size.h * 0.4 }
 			})
 			local itemPriceSize = 1
 			while (not itemPrice:uiText("$" .. v.price, nil, nil, FONTS.MEDIUM, LEFT, itemPriceSize, nil, nil, nil, nil, nil, true)) do
@@ -904,7 +904,7 @@ do
 		local tcPurchaseView = UIElement:new({
 			parent = viewElement,
 			pos = { 5, 0 },
-			size = { viewElement.size.w * 0.5 - 10, viewElement.size.h },
+			size = { viewElement.size.w * 0.6 - 10, viewElement.size.h },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
 		local bottomSmudge = TBMenu:addBottomBloodSmudge(tcPurchaseView, 1)
@@ -912,8 +912,8 @@ do
 		
 		
 		local buttons = {
-			{ title = TB_MENU_LOCALIZED.STOREGOTOSHOP, subtitle = TB_MENU_LOCALIZED.STORESHOPDESC, size = 0.25, image = "../textures/menu/scripts.tga", mode = ORIENTATION_PORTRAIT, action = function() close_menu() open_menu(12) end, noQuit = true },
-			{ title = TB_MENU_LOCALIZED.STOREGOTOINVENTORY, subtitle = TB_MENU_LOCALIZED.STOREINVENTORYDESC, size = 0.25, image = "../textures/menu/sounds.tga", mode = ORIENTATION_PORTRAIT, action = function() if (#get_downloads() == 0) then Torishop:prepareInventory(viewElement) end end, noQuit = true },
+			{ title = TB_MENU_LOCALIZED.STOREGOTOSHOP, subtitle = TB_MENU_LOCALIZED.STORESHOPDESC, size = 0.4, vsize = 0.5, action = function() close_menu() open_menu(12) end, noQuit = true },
+			{ title = TB_MENU_LOCALIZED.STOREGOTOINVENTORY, subtitle = TB_MENU_LOCALIZED.STOREINVENTORYDESC, size = 0.4, vsize = 0.5, action = function() if (#get_downloads() == 0) then Torishop:prepareInventory(viewElement) end end, noQuit = true },
 		}
 		TBMenu:showSection(buttons, tcPurchaseView.size.w)
 	end

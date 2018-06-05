@@ -16,3 +16,19 @@ buddies\.txt
 flames\.dat
 
 stats\.dat
+
+script/tutorial/tutorial8_orig\.lua
+
+script/atmo/
+
+script/clans/clans\.txt
+
+script/sdk/
+
+script/system/color_manager\.lua
+
+script/3dtest\.lua
+
+script/clickme\.lua
+
+script/sports\.lua

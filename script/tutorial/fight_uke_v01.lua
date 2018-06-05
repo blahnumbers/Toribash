@@ -750,7 +750,7 @@ function activate_uke()
 			echo("^07<^05Uke^07> Let's try again, two more wins to defeat me!")	
 		else
 			echo("^07<^05Uke^07> ...are you playing already?")
-			echo("^07<^05Uke^07> Eh, sorry, I kind of felt asleep. Well, you won't win me two more ^07times anyway.")
+			echo("^07<^05Uke^07> Eh, sorry, I kinda fell asleep. Well, you won't beat me any more ^07times anyway.")
 		end
 		
 	elseif (win_count == 2) then
@@ -759,11 +759,11 @@ function activate_uke()
 			echo("^07<^05Uke^07> THAT WAS YOUR LUCK! I MISCLICKED!")
 			echo("^07<^05Uke^07> YOU'LL NEVER WIN ME!!!")
 		elseif (uke_welcome == 2) then
-			echo("^07<^05Uke^07> Is that really the first time you play this game?")
-			echo("^07<^05Uke^07> I can't believe you just won me twice!")
+			echo("^07<^05Uke^07> Is this really the first time you play Toribash?")
+			echo("^07<^05Uke^07> I can't believe you just beat me twice!")
 		else
 			echo("^07<^05Uke^07> That was intense, good game!")
-			echo("^07<^05Uke^07> Win me one more time and you're ready to face real players!")
+			echo("^07<^05Uke^07> Win one more game and you're ready to face real players!")
 		end
 	end
 	elseif (continue == 2) then

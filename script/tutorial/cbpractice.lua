@@ -328,7 +328,7 @@ function ComebackPractice:drawUI()
 		parent = restart,
 		pos = { 7.5, 7.5 },
 		size = { 35, 35 },
-		bgImage = "system/restart.tga"
+		bgImage = "../textures/menu/general/buttons/restart.tga"
 	})
 	restart:addMouseHandlers(nil, function()
 			ComebackPractice:showConfirmation(function() 
@@ -349,7 +349,7 @@ function ComebackPractice:drawUI()
 		parent = settings,
 		pos = { 7.5, 7.5 },
 		size = { 35, 35 },
-		bgImage = "system/settingswhite.tga"
+		bgImage = "../textures/menu/general/buttons/settingswhite.tga"
 	})
 	settings:addMouseHandlers(nil, function()
 			ComebackPractice:toggleSettings(settingsView)

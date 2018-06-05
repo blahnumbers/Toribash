@@ -1220,7 +1220,11 @@ function set_player_color(item)
 			model_name == "tv_box" or 
 			model_name == "soderspy" or
 			model_name == "viking_helmet" or
-			model_name == "forehead_protector") then run_cmd("obj load data/script/torishop/models/"..model_name..".obj 0 0 0 255 1 0 0 0")
+			model_name == "forehead_protector" or
+			model_name == "vagabond" or
+			model_name == "road_fighter" or
+			model_name == "kid_popstar" or
+			model_name == "soderhair") then run_cmd("obj load data/script/torishop/models/"..model_name..".obj 0 0 0 255 1 0 0 0")
 		elseif (model_name == "shutter_shades") then run_cmd("obj load data/script/torishop/models/"..model_name..".obj 0 0 31 255 0 0 0 0")
 		elseif (model_name == "red_submarine") then run_cmd("obj load data/script/torishop/models/"..model_name..".obj 0 0 2 255 1 0 0 0")
 		elseif (model_name == "green_hat") then run_cmd("obj load data/script/torishop/models/"..model_name..".obj 0 0 10 255 0 0 0 0")
@@ -1925,13 +1929,7 @@ function mouse_up(mouse_btn, x, y)
 			view_flames()
 		end
 		if (height >= 720) then
-			if (main_view == 0) then
-				gotofeatured(buttons.sfeatured, nil, nil, nil, x, y, "shop_announcement")
-			elseif (main_view == 1) then
-				gotofeatured(buttons.sfeatured, 3, 23, 20, x, y, nil)
-			else
-				gotofeatured(buttons.sfeatured, 5, 27, 26, x, y, nil)
-			end
+			gotofeatured(buttons.sfeatured, 3, 22, 20, x, y)
 		end
 	else
 	local r = button_click_radius
@@ -2578,7 +2576,7 @@ function draw_item(section, item, pos, marked, flag)	-- the section the item is 
 	if (pos_icon[pos] == nil) then
 		local tempicon = io.open("data/textures/store/items/"..id..".tga", "r", 1)
 		if (tempicon == nil) then
-			icon[pos] = load_texture("torishop/icons/defaulticon.tga")
+			icon[pos] = load_texture("../textures/store/default.tga")
 		else
 			icon[pos] = load_texture("../textures/store/items/"..id..".tga")
 			io.close(tempicon)
@@ -2633,7 +2631,7 @@ function draw_sale_item(item, pos, marked)
 	if (pos_icon[pos] == nil) then
 		local tempicon = io.open("data/textures/store/items/"..id..".tga", "r", 1)
 		if (tempicon == nil) then
-			icon[pos] = load_texture("torishop/icons/defaulticon.tga")
+			icon[pos] = load_texture("../textures/store/default.tga")
 		else
 			icon[pos] = load_texture("../textures/store/items/"..id..".tga")
 			io.close(tempicon)
@@ -2694,9 +2692,9 @@ function load_images()
 	sect_misc_ = load_texture("/torishop/gui/misc_.tga")
 	--torishop_announcement = load_texture("/torishop/gui/featuredbeanies.tga")
 	--torishop_announcement1 = load_texture("/torishop/gui/featuredfulltextures.tga")
-	torishop_announcement2 = load_texture("/torishop/gui/featuredshovelershovel.tga")
-	torishop_announcement3 = load_texture("/torishop/gui/featuredspring.tga")
-	torishop_announcement4 = load_texture("/torishop/gui/featuredspring.tga")
+	--torishop_announcement2 = load_texture("/torishop/gui/featuredbarbershop.tga")
+	--torishop_announcement3 = load_texture("/torishop/gui/featuredmuaypromo.tga")
+	torishop_announcement4 = load_texture("/torishop/gui/featuredbarbershop.tga")
 	--torishop_announcement5 = load_texture("/torishop/gui/featuredlotterypro.tga")
 	sect_flames = load_texture("/torishop/gui/flames.tga")
 	sect_flames_ = load_texture("/torishop/gui/flames_.tga")
@@ -3175,6 +3173,23 @@ function draw_shelf()
 	
 	if (string.find(details_name, "Zabrak Horns")) then
 		print_desc("Try not to get cut in half!", 2)
+	elseif (string.find(details_name, "Vagabond")) then
+		print_desc("Being the lone wanderer taught you", 0)
+		print_desc("a lot of things. Defeating your opponents", 1)
+		print_desc("with no effort is, obviously, one of them.", 2)
+	elseif (string.find(details_name, "Soderhair")) then
+		print_desc("The trademark hairstyle of the Toribash God Hampa.", 1)
+		print_desc("Careful, it might make you old!", 2)
+	elseif (string.find(details_name, "Kid Popstar")) then
+		print_desc("\"I'm in love with you forever,", 0)
+		print_desc("Nothing will stand in my way,", 1)
+		print_desc("And of course it doesn't matter", 2)
+		print_desc("That you're nine and I am eight.\"", 3)
+	elseif (string.find(details_name, "Road Fighter")) then
+		print_desc("Hey boy, whatcha lookin' at?", 1)
+	elseif (string.find(details_name, "Soderhair")) then
+		print_desc("The trademark hairstyle of the Toribash God Hampa.", 1)
+		print_desc("Careful, it might make you old!", 2)
 	elseif (string.find(details_name, "Shoveler's Shovel")) then
 		print_desc("Shovel your way out of any situation!", 1)
 		print_desc("Makes a nice SMOK when hitting faces.", 2)
@@ -4691,13 +4706,7 @@ function draw_torishop()
 	
 		-- PROMO ANNOUNCEMENT HERE
 		if (height >= 720) then
-			if (main_view == 0) then
-				draw_sectionbutton(buttons.sfeatured, torishop_announcement4, torishop_announcement4, 512)
-			elseif (main_view == 1) then
-				draw_sectionbutton(buttons.sfeatured, torishop_announcement2, torishop_announcement2, 512)
-			else
-				draw_sectionbutton(buttons.sfeatured, torishop_announcement3, torishop_announcement3, 512)
-			end
+			draw_sectionbutton(buttons.sfeatured, torishop_announcement4, torishop_announcement4, 512)
 			
 			set_color(0,0,0,0.2)
 			draw_quad(0, height-1, 490, 1)
@@ -4949,6 +4958,11 @@ function close_torishop()
 	run_cmd("opt effects " .. effects_option)
 	run_cmd("opt chat 1")
 	run_cmd("opt newshopitem 0")
+	run_cmd("clear")
+	echo(" ")
+	echo(" ")
+	echo(" ")
+	echo(" ")
 	if (tempflag == 0) then
 		local temp = io.open("torishop/flames.cfg", "w")
 		temp:write("null")

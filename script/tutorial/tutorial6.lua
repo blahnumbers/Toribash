@@ -769,7 +769,6 @@ function tut_stage4()
 		trans_modifier = 0
 		step = 14
 		change_init = false
-		set_post_tutorial_alpha(trans_modifier);
 		--display_step()
 	elseif (step == 14) then
 		set_color(1, 1, 1, 1)
@@ -793,8 +792,6 @@ function tut_stage4()
 			set_color(0.82, 0.39, 0.39, trans_modifier)
 		end
 		draw_centered_text("Quit", buttons.quit.y, FONTS.MEDIUM)
-		open_post_tutorial_menu();
-		set_post_tutorial_alpha(trans_modifier);
 		--display_step()
 	elseif (step == -1) then
 		wait_for_continue = true
@@ -1799,7 +1796,6 @@ function terminate()
 	echo(" ")
 	echo("Access the Toribash Beginner Sanctuary from the link below!")
 	echo("http://forum.toribash.com/forumdisplay.php?f=362")
-	close_post_tutorial_menu();
 end
 
 function start_tutorial()

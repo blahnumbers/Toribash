@@ -144,7 +144,7 @@ do
 				size = { viewElement.size.w / 10 * 8, viewElement.size.h / 10 }
 			})
 			rankedPlayers:addCustomDisplay(false, function()
-					if (TB_MATCHMAKER_INFO.ranked == 0) then
+					if (TB_MATCHMAKER_INFO.ranked == 0 or TB_MATCHMAKER_INFO.ranked > 65535) then
 						rankedPlayers:uiText(TB_MENU_LOCALIZED.MATCHMAKENOPLAYERS)
 					elseif (TB_MATCHMAKER_INFO.ranked == 1) then
 						rankedPlayers:uiText(TB_MATCHMAKER_INFO.ranked .. " " .. TB_MENU_LOCALIZED.MATCHMAKEPLAYERSEARCHING)
@@ -330,7 +330,7 @@ do
 				parent = unrankedMods[i].checkbox,
 				pos = { 0, 0 },
 				size = { unrankedMods[i].checkbox.size.w, unrankedMods[i].checkbox.size.h },
-				bgImage = "system/checkmark.tga"
+				bgImage = "../textures/menu/general/buttons/checkmark.tga"
 			})
 			if (not MM_MATCHMAKER_MODS[i].selected) then
 				unrankedMods[i].checkimage:hide()

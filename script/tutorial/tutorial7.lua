@@ -46,7 +46,7 @@ local messages = {
 		"Now you'll need to rotate your body",
 		"To add force to your leg kick",
 		"First off, rotate your chest to the left",
-		"Extend your right pec and contract left pec to finish this turn",
+		"Contract your right pec and extend left pec to finish this turn",
 		"Hit space when you're ready",
 		"Time to get your leg ready for the kick",
 		"Contract your left hip and hit the spacebar to finish the turn",
@@ -1357,7 +1357,6 @@ function tut_stage1()
 		trans_modifier = 0
 		step = 39
 		change_init = false
-		set_post_tutorial_alpha(trans_modifier);
 	elseif (step == 39) then
 		set_color(1, 1, 1, 1)
 		draw_quad(0, 0, width, height)
@@ -1380,8 +1379,6 @@ function tut_stage1()
 			set_color(0.82, 0.39, 0.39, trans_modifier)
 		end
 		draw_centered_text("Quit", buttons.quit.y, FONTS.MEDIUM)
-		open_post_tutorial_menu();
-		set_post_tutorial_alpha(trans_modifier);
 	end
 end
 
@@ -1410,8 +1407,6 @@ function terminate()
 	remove_hooks("conditions")
 	reset_camera(1)
 	start_new_game()
-	
-	close_post_tutorial_menu();
 end
 
 function start_tutorial()

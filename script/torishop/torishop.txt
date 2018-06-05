@@ -146,23 +146,23 @@ PRODUCT	48	Texture Packs	2711	512 Body+Misc Textures	0	0.00	0.00	0.00	0.00	0	0	0
 PRODUCT	74	Joint Textures	1865	512x512 Abs joint texture	0	50000.00	15.00	50000.00	15.00	0	1	0	0	0	1	0	0	0	
 PRODUCT	48	Texture Packs	2093	512x512 Body Texture Pack	0	0.00	40.00	0.00	40.00	0	0	0	0	0	0	0	0	0	
 PRODUCT	54	Body Textures	1643	512x512 Breast Texture	0	20000.00	0.00	20000.00	0.00	0	0	0	0	0	1	0	0	0	
-PRODUCT	74	Joint Textures	1863	512x512 Chest joint texture	0	80000.00	15.00	80000.00	15.00	3020399	1	0	0	0	1	0	0	0	
+PRODUCT	74	Joint Textures	1863	512x512 Chest joint texture	0	80000.00	15.00	80000.00	15.00	383906	1	0	0	0	1	0	0	0	
 PRODUCT	54	Body Textures	1644	512x512 Chest Texture	0	20000.00	0.00	20000.00	0.00	0	0	0	0	0	1	0	0	0	
 PRODUCT	54	Body Textures	1646	512x512 Groin Texture	0	20000.00	0.00	20000.00	0.00	0	0	0	0	0	1	0	0	0	
 PRODUCT	55	Misc Textures	1610	512x512 Ground Texture	0	100000.00	0.00	100000.00	0.00	0	0	0	0	0	1	0	0	0	
 PRODUCT	54	Body Textures	1567	512x512 Head Texture	0	20000.00	7.00	20000.00	7.00	3020399	1	0	0	0	1	0	0	0	
 PRODUCT	48	Texture Packs	2096	512x512 Joint Texture Pack	0	0.00	100.00	0.00	100.00	0	0	0	0	0	0	0	0	0	
-PRODUCT	74	Joint Textures	1881	512x512 Left ankle joint texture	0	50000.00	15.00	50000.00	15.00	3020399	1	0	0	0	1	0	0	0	
+PRODUCT	74	Joint Textures	1881	512x512 Left ankle joint texture	0	50000.00	15.00	50000.00	15.00	1161506	1	0	0	0	1	0	0	0	
 PRODUCT	54	Body Textures	1651	512x512 Left Bicep Texture	0	20000.00	0.00	20000.00	0.00	0	0	0	0	0	1	0	0	0	
 PRODUCT	74	Joint Textures	1871	512x512 Left elbow joint texture	0	80000.00	15.00	80000.00	15.00	0	1	0	0	0	1	0	0	0	
 PRODUCT	54	Body Textures	1660	512x512 Left Foot Texture	0	20000.00	0.00	20000.00	0.00	0	0	0	0	0	1	0	0	0	
 PRODUCT	54	Body Textures	1652	512x512 Left Forearm Texture	0	20000.00	0.00	20000.00	0.00	0	0	0	0	0	1	0	0	0	
 PRODUCT	74	Joint Textures	1875	512x512 Left glute joint texture	0	80000.00	15.00	80000.00	15.00	3020399	1	0	0	0	1	0	0	0	
 PRODUCT	54	Body Textures	1654	512x512 Left Hand Texture	0	20000.00	0.00	20000.00	0.00	0	0	0	0	0	1	0	0	0	
-PRODUCT	74	Joint Textures	1877	512x512 Left hip joint texture	0	80000.00	15.00	80000.00	15.00	3020399	1	0	0	0	1	0	0	0	
+PRODUCT	74	Joint Textures	1877	512x512 Left hip joint texture	0	80000.00	15.00	80000.00	15.00	2371106	1	0	0	0	1	0	0	0	
 PRODUCT	74	Joint Textures	1879	512x512 Left knee joint texture	0	80000.00	15.00	80000.00	15.00	3020399	1	0	0	0	1	0	0	0	
 PRODUCT	54	Body Textures	1650	512x512 Left Pec Texture	0	20000.00	0.00	20000.00	0.00	0	0	0	0	0	1	0	0	0	
-PRODUCT	74	Joint Textures	1869	512x512 Left pecs joint texture	0	80000.00	15.00	80000.00	15.00	1405957	1	0	0	0	1	0	0	0	
+PRODUCT	74	Joint Textures	1869	512x512 Left pecs joint texture	0	80000.00	15.00	80000.00	15.00	0	1	0	0	0	1	0	0	0	
 PRODUCT	54	Body Textures	1657	512x512 Left Shin Texture	0	20000.00	0.00	20000.00	0.00	0	0	0	0	0	1	0	0	0	
 PRODUCT	74	Joint Textures	1870	512x512 Left shoulder joint texture	0	80000.00	15.00	80000.00	15.00	0	1	0	0	0	1	0	0	0	
 PRODUCT	54	Body Textures	1656	512x512 Left Thigh Texture	0	20000.00	0.00	20000.00	0.00	0	0	0	0	0	1	0	0	0	
@@ -171,17 +171,17 @@ PRODUCT	74	Joint Textures	1864	512x512 Lumbar joint texture	0	80000.00	15.00	800
 PRODUCT	74	Joint Textures	1862	512x512 Neck joint texture	0	50000.00	15.00	50000.00	15.00	3020399	1	0	0	0	1	0	0	0	
 PRODUCT	74	Joint Textures	1880	512x512 Right ankle joint texture	0	50000.00	15.00	50000.00	15.00	3020399	1	0	0	0	1	0	0	0	
 PRODUCT	54	Body Textures	1648	512x512 Right Bicep Texture	0	20000.00	0.00	20000.00	0.00	0	0	0	0	0	1	0	0	0	
-PRODUCT	74	Joint Textures	1868	512x512 Right elbow joint texture	0	80000.00	15.00	80000.00	15.00	1665157	1	0	0	0	1	0	0	0	
+PRODUCT	74	Joint Textures	1868	512x512 Right elbow joint texture	0	80000.00	15.00	80000.00	15.00	0	1	0	0	0	1	0	0	0	
 PRODUCT	54	Body Textures	1659	512x512 Right Foot Texture	0	20000.00	0.00	20000.00	0.00	0	0	0	0	0	1	0	0	0	
 PRODUCT	54	Body Textures	1649	512x512 Right Forearm Texture	0	20000.00	0.00	20000.00	0.00	0	0	0	0	0	1	0	0	0	
-PRODUCT	74	Joint Textures	1874	512x512 Right glute joint texture	0	80000.00	15.00	80000.00	15.00	2269957	1	0	0	0	1	0	0	0	
+PRODUCT	74	Joint Textures	1874	512x512 Right glute joint texture	0	80000.00	15.00	80000.00	15.00	0	1	0	0	0	1	0	0	0	
 PRODUCT	54	Body Textures	1653	512x512 Right Hand Texture	0	20000.00	0.00	20000.00	0.00	0	0	0	0	0	1	0	0	0	
 PRODUCT	74	Joint Textures	1876	512x512 Right hip joint texture	0	80000.00	15.00	80000.00	15.00	0	1	0	0	0	1	0	0	0	
 PRODUCT	74	Joint Textures	1878	512x512 Right knee joint texture	0	80000.00	15.00	80000.00	15.00	0	1	0	0	0	1	0	0	0	
 PRODUCT	54	Body Textures	1647	512x512 Right Pec Texture	0	20000.00	0.00	20000.00	0.00	0	0	0	0	0	1	0	0	0	
-PRODUCT	74	Joint Textures	1866	512x512 Right pecs joint texture	0	80000.00	15.00	80000.00	15.00	887557	1	0	0	0	1	0	0	0	
+PRODUCT	74	Joint Textures	1866	512x512 Right pecs joint texture	0	80000.00	15.00	80000.00	15.00	0	1	0	0	0	1	0	0	0	
 PRODUCT	54	Body Textures	1658	512x512 Right Shin Texture	0	20000.00	0.00	20000.00	0.00	0	0	0	0	0	1	0	0	0	
-PRODUCT	74	Joint Textures	1867	512x512 Right shoulder joint texture	0	80000.00	15.00	80000.00	15.00	3020399	1	0	0	0	1	0	0	0	
+PRODUCT	74	Joint Textures	1867	512x512 Right shoulder joint texture	0	80000.00	15.00	80000.00	15.00	2025506	1	0	0	0	1	0	0	0	
 PRODUCT	54	Body Textures	1655	512x512 Right Thigh Texture	0	20000.00	0.00	20000.00	0.00	0	0	0	0	0	1	0	0	0	
 PRODUCT	74	Joint Textures	1872	512x512 Right wrist joint texture	0	50000.00	15.00	50000.00	15.00	3020399	1	0	0	0	1	0	0	0	
 PRODUCT	54	Body Textures	1645	512x512 Stomach Texture	0	20000.00	0.00	20000.00	0.00	0	0	0	0	0	1	0	0	0	
@@ -200,7 +200,6 @@ PRODUCT	44	Color Packs	1276	Amber Pack	0	0.00	35.00	0.00	35.00	0	0	0	0	0	0	61	0	
 PRODUCT	44	Color Packs	1457	Amethyst Pack	0	0.00	3.00	0.00	3.00	0	0	0	0	0	0	27	0	0	
 PRODUCT	78	3d objects	1996	Angel Wings	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	
 PRODUCT	78	3d objects	2143	Antenna	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
-PRODUCT	81	Beanie Colors	2208	Antenna	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	
 PRODUCT	78	3d objects	2816	Antenna	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	
 PRODUCT	77	Tokens	1926	Appreciation Token	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	
 PRODUCT	44	Color Packs	914	Aqua Pack	0	0.00	2.00	0.00	2.00	0	0	0	0	0	0	28	0	0	
@@ -231,20 +230,18 @@ PRODUCT	78	3d objects	2644	Armor V2 Right Thigh	0	0.00	0.00	0.00	0.00	0	0	0	0	0	
 PRODUCT	78	3d objects	2642	Armor V2 Right Triceps	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
 PRODUCT	78	3d objects	2637	Armor V2 Stomach	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
 PRODUCT	18	Misc	1112	Ash Switch	0	0.00	60.00	0.00	60.00	0	0	0	0	0	0	0	0	0	
-PRODUCT	1	Blood Colors	2860	Astro Blood	0	0.00	4.00	0.00	4.00	0	0	0	0	0	1	131	0	0	
-PRODUCT	81	Beanie Colors	2530	Astro Box #1	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	
-PRODUCT	81	Beanie Colors	2536	Astro Box #2	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	
+PRODUCT	1	Blood Colors	2860	Astro Blood	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	131	1	0	
 PRODUCT	12	DQ Rings	2864	Astro DQ	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	131	1	0	
 PRODUCT	43	Emote Colors	2874	Astro Emote	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	131	1	0	
-PRODUCT	22	Force Colors	2859	Astro Force	0	0.00	6.00	0.00	6.00	0	0	0	0	0	1	131	0	0	
-PRODUCT	11	Ghost Colors	2863	Astro Ghost	0	0.00	4.00	0.00	4.00	0	0	0	0	0	1	131	0	0	
+PRODUCT	22	Force Colors	2859	Astro Force	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	131	1	0	
+PRODUCT	11	Ghost Colors	2863	Astro Ghost	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	131	1	0	
 PRODUCT	41	Grip Colors	2873	Astro Grip	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	131	1	0	
 PRODUCT	73	Hair Color	2875	Astro Hair	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	131	1	0	
 PRODUCT	28	Left Hand Motion Trail	2869	Astro Left Hand Motion Trail	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	131	1	0	
 PRODUCT	30	Left Leg Motion Trail	2871	Astro Left Leg Motion Trail	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	131	1	0	
-PRODUCT	44	Color Packs	2876	Astro Pack	0	0.00	20.00	0.00	20.00	0	0	0	0	0	0	131	0	0	
+PRODUCT	44	Color Packs	2876	Astro Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	131	1	0	
 PRODUCT	20	Primary Gradients	2865	Astro Primary Gradient	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	131	1	0	
-PRODUCT	2	Relax Colors	2861	Astro Relax	0	0.00	6.00	0.00	6.00	0	0	0	0	0	1	131	0	0	
+PRODUCT	2	Relax Colors	2861	Astro Relax	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	131	1	0	
 PRODUCT	27	Right Hand Motion Trail	2868	Astro Right Hand Motion Trail	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	131	1	0	
 PRODUCT	29	Right Leg Motion Trail	2870	Astro Right Leg Motion Trail	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	131	1	0	
 PRODUCT	21	Secondary Gradients	2866	Astro Secondary Gradient	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	131	1	0	
@@ -270,14 +267,14 @@ PRODUCT	78	3d objects	2099	balltest	0	99999999.99	0.00	99999999.99	0.00	0	0	0	0	
 PRODUCT	26	ArtOfWar	300	bandit	0	1000.00	0.00	1000.00	0.00	0	0	0	0	0	0	0	0	1	
 PRODUCT	78	3d objects	2397	Bane of Derprog	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
 PRODUCT	40	Bank	493	Bank Transfer	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	0	0	
-PRODUCT	78	3d objects	2017	Barbed Wire	0	0.00	5.00	0.00	5.00	3020399	1	0	0	0	1	0	0	0	
+PRODUCT	78	3d objects	2017	Barbed Wire	0	0.00	5.00	0.00	5.00	556706	1	0	0	0	1	0	0	0	
 PRODUCT	47	Secret	940	Barneh's Pack	0	0.00	9.00	0.00	9.00	0	0	0	0	0	0	0	0	0	
 PRODUCT	78	3d objects	2016	Beanie	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
 PRODUCT	78	3d objects	2015	Beanie	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
 PRODUCT	78	3d objects	2014	BeanieTest	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
 PRODUCT	78	3d objects	2124	Beaten Halo	0	5000.00	3.00	5000.00	3.00	0	0	0	0	0	1	0	1	1	
 PRODUCT	78	3d objects	2125	Beaten Horns	0	5000.00	3.00	5000.00	3.00	0	0	0	0	0	1	0	1	1	
-PRODUCT	78	3d objects	2163	Beerhat	0	10000.00	4.00	10000.00	4.00	455557	1	0	0	0	1	0	0	0	
+PRODUCT	78	3d objects	2163	Beerhat	0	10000.00	4.00	10000.00	4.00	0	1	0	0	0	1	0	0	0	
 PRODUCT	44	Color Packs	919	Beetle Pack	0	0.00	3.00	0.00	3.00	0	0	0	0	0	0	92	0	0	
 PRODUCT	46	Tier Packs	2079	Beginner Tier Pack	0	1000.00	1.00	1000.00	1.00	0	0	0	0	0	0	0	0	0	
 PRODUCT	78	3d objects	2103	Bendey	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
@@ -403,14 +400,13 @@ PRODUCT	78	3d objects	2481	Cel Shaded Right Shin	0	0.00	0.00	0.00	0.00	0	0	0	0	0
 PRODUCT	78	3d objects	2479	Cel Shaded Right Thigh	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
 PRODUCT	78	3d objects	2466	Cel Shaded Stomach	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
 PRODUCT	80	Full Toris	2484	Cel Shaded Tori	0	50000.00	20.00	50000.00	20.00	0	0	0	0	0	0	0	0	0	
-PRODUCT	72	Hair Styles	1750	Centurion	0	0.00	50.00	0.00	50.00	2615557	1	0	0	0	1	0	0	0	
+PRODUCT	72	Hair Styles	1750	Centurion	0	0.00	50.00	0.00	50.00	0	1	0	0	0	1	0	0	0	
 PRODUCT	72	Hair Styles	1749	Centurion-broken	0	0.00	50.00	0.00	50.00	0	0	0	0	0	1	0	1	0	
 PRODUCT	78	3d objects	2145	Cereal Box	0	5000.00	3.00	5000.00	3.00	0	0	0	0	0	1	0	1	1	
 PRODUCT	8	Withdrawn	200	Cevius' Left Tit	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	0	0	
 PRODUCT	78	3d objects	2012	Championship Belt	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	
 PRODUCT	78	3d objects	2254	Chef Hat	0	15000.00	5.00	15000.00	5.00	0	0	0	0	0	1	0	1	1	
 PRODUCT	4	Textures	595	Chest Texture	0	6000.00	0.00	6000.00	0.00	0	0	0	0	0	0	0	0	1	
-PRODUCT	78	3d objects	2454	Child Popstar	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
 PRODUCT	78	3d objects	2794	Christmas Tree	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
 PRODUCT	69	Chrome	1618	Chrome Bodyparts	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	0	1	
 PRODUCT	69	Chrome	1619	Chrome Head	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	0	1	
@@ -447,7 +443,7 @@ PRODUCT	47	Secret	1506	Copper Force + Relax Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0
 PRODUCT	44	Color Packs	917	Copper Pack	0	0.00	25.00	0.00	25.00	0	0	0	0	0	0	16	0	0	
 PRODUCT	78	3d objects	2284	Corrupt Scythe	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
 PRODUCT	78	3d objects	2263	Court Jester	0	15000.00	5.00	15000.00	5.00	0	0	0	0	0	1	0	1	1	
-PRODUCT	78	3d objects	2456	Cowboy Hat	0	15000.00	5.00	15000.00	5.00	3020399	1	0	0	0	1	0	0	0	
+PRODUCT	78	3d objects	2456	Cowboy Hat	0	15000.00	5.00	15000.00	5.00	1507106	1	0	0	0	1	0	0	0	
 PRODUCT	78	3d objects	2144	Crayon Tori Box	0	5000.00	3.00	5000.00	3.00	0	0	0	0	0	1	0	1	1	
 PRODUCT	7	Secret	745	Cretor's head	0	0.00	999999.00	0.00	999999.00	0	0	0	0	0	0	0	0	0	
 PRODUCT	44	Color Packs	1071	Crimson Pack	0	0.00	60.00	0.00	60.00	0	0	0	0	0	0	57	0	0	
@@ -466,7 +462,7 @@ PRODUCT	78	3d objects	2521	Cyborg Right Thigh	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	
 PRODUCT	78	3d objects	2518	Cyborg Right Tricep	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
 PRODUCT	78	3d objects	2523	Cyborg Stomach	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
 PRODUCT	76	Uncategorized	2757	Daily Login	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	
-PRODUCT	72	Hair Styles	1901	Daimyo Hat and Scarf	0	0.00	3.00	0.00	3.00	3020399	1	0	0	0	1	0	0	0	
+PRODUCT	72	Hair Styles	1901	Daimyo Hat and Scarf	0	0.00	3.00	0.00	3.00	1593506	1	0	0	0	1	0	0	0	
 PRODUCT	47	Secret	746	Dark Angel Pack	0	0.00	100.00	0.00	100.00	0	0	0	0	0	0	0	0	0	
 PRODUCT	78	3d objects	2237	Dark Blue Beanie	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
 PRODUCT	72	Hair Styles	1990	Dark Duke	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	
@@ -474,7 +470,7 @@ PRODUCT	78	3d objects	2238	Dark Green Beanie	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0
 PRODUCT	78	3d objects	2243	Dark Grey Beanie	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	
 PRODUCT	78	3d objects	2239	Dark Red Beanie	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
 PRODUCT	18	Misc	1744	Dead Soul	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	0	
-PRODUCT	78	3d objects	2105	Deal With It	0	15000.00	5.00	15000.00	5.00	2529157	1	0	0	0	1	0	0	0	
+PRODUCT	78	3d objects	2105	Deal With It	0	15000.00	5.00	15000.00	5.00	0	1	0	0	0	1	0	0	0	
 PRODUCT	47	Secret	742	Deathbringer Pack	0	0.00	120.00	0.00	120.00	0	0	0	0	0	0	0	0	0	
 PRODUCT	67	Tournament	1884	Decap prize	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	0	0	
 PRODUCT	47	Secret	937	December 100k Promo Set	0	0.00	50.00	0.00	50.00	0	0	0	0	0	0	0	0	0	
@@ -578,7 +574,7 @@ PRODUCT	80	Full Toris	2449	Fire Guardian Head Texture (256px)	0	10000.00	4.00	10
 PRODUCT	80	Full Toris	2450	Fire Guardian Head Texture (512px)	0	20000.00	7.00	20000.00	7.00	0	0	0	0	0	0	0	1	0	
 PRODUCT	6	Transfer	490	Firstmeta Transfer	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	0	0	
 PRODUCT	78	3d objects	2580	Fish Best Friend	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	
-PRODUCT	78	3d objects	2562	Fish Friend	0	15000.00	5.00	15000.00	5.00	541957	1	0	0	0	1	0	0	0	
+PRODUCT	78	3d objects	2562	Fish Friend	0	15000.00	5.00	15000.00	5.00	0	1	0	0	0	1	0	0	0	
 PRODUCT	78	3d objects	1993	Fish's Fedora	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
 PRODUCT	50	Flames	936	Flame	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	0	0	
 PRODUCT	62	Flame Forge	1287	Flame Forge	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	0	0	
@@ -605,7 +601,8 @@ PRODUCT	80	Full Toris	2556	Flippers	0	20000.00	7.00	20000.00	7.00	0	0	0	0	0	0	0	
 PRODUCT	78	3d objects	2255	Flower Crown	0	10000.00	4.00	10000.00	4.00	0	0	0	0	0	1	0	1	1	
 PRODUCT	71	Sounds	1704	Foot Step Sound	0	10000.00	0.00	10000.00	0.00	0	0	0	0	0	1	0	1	0	
 PRODUCT	78	3d objects	1994	Football Helmet	0	0.00	4.00	0.00	4.00	3020399	1	0	0	0	1	0	0	0	
-PRODUCT	78	3d objects	2725	Forehead Protector	0	15000.00	5.00	15000.00	5.00	3020399	1	0	0	0	1	0	0	0	
+PRODUCT	81	Beanie Colors	2208	Football Helmet	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	
+PRODUCT	78	3d objects	2725	Forehead Protector	0	15000.00	5.00	15000.00	5.00	2716706	1	0	0	0	1	0	0	0	
 PRODUCT	78	3d objects	2707	Forgers Anvil	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
 PRODUCT	79	Subscriptions	2042	Forum VIP	0	0.00	5.00	0.00	5.00	0	0	0	0	7	0	0	0	0	
 PRODUCT	79	Subscriptions	2043	ForumVIP	0	0.00	7.00	0.00	7.00	0	0	0	0	12	0	0	1	1	
@@ -647,6 +644,7 @@ PRODUCT	34	User Text Colour	478	Gladiator User Text	0	10.00	0.00	10.00	0.00	0	0	
 PRODUCT	47	Secret	732	Gold and Blue pack	0	0.00	10.00	0.00	10.00	0	0	0	0	0	0	0	0	0	
 PRODUCT	44	Color Packs	2071	Gold Pack	0	0.00	25.00	0.00	25.00	0	0	0	0	0	0	33	0	0	
 PRODUCT	18	Misc	1748	Golden Toricredit	0	750000.00	0.00	750000.00	0.00	0	0	0	0	0	0	0	0	0	
+PRODUCT	81	Beanie Colors	2408	Golf Club	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	
 PRODUCT	78	3d objects	2879	Golf Club	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	
 PRODUCT	80	Full Toris	2400	Goraxx Body Texture Pack (128px)	0	0.00	4.00	0.00	4.00	0	0	0	0	0	0	0	0	0	
 PRODUCT	80	Full Toris	2401	Goraxx Body Texture Pack (256px)	0	0.00	20.00	0.00	20.00	0	0	0	0	0	0	0	0	0	
@@ -671,13 +669,14 @@ PRODUCT	80	Full Toris	2447	Hardened Soul Head Texture (512px)	0	20000.00	7.00	20
 PRODUCT	44	Color Packs	2372	Hawk Pack	0	0.00	70.00	0.00	70.00	0	0	0	0	0	0	55	0	0	
 PRODUCT	78	3d objects	2106	Head Arrow	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
 PRODUCT	10	Avatars	151	Head Avatar	0	1500.00	0.00	1500.00	0.00	0	0	0	0	0	1	0	0	0	
-PRODUCT	78	3d objects	2674	Head Axe	0	25000.00	8.00	25000.00	8.00	3020399	1	0	0	0	1	50	0	0	
+PRODUCT	78	3d objects	2674	Head Axe	0	25000.00	8.00	25000.00	8.00	124706	1	0	0	0	1	50	0	0	
 PRODUCT	50	Flames	961	Head Flame	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	0	0	
 PRODUCT	4	Textures	204	Head Texture	0	20000.00	0.00	20000.00	0.00	0	0	0	0	0	0	0	0	0	
 PRODUCT	78	3d objects	2164	Head Toriboppers	0	5000.00	3.00	5000.00	3.00	0	0	0	0	0	1	0	1	1	
 PRODUCT	18	Misc	959	Hector Relax	0	0.00	350.00	0.00	350.00	0	0	0	0	0	0	0	0	0	
 PRODUCT	44	Color Packs	1068	Helios Pack	0	0.00	3.00	0.00	3.00	0	0	0	0	0	0	123	0	0	
-PRODUCT	78	3d objects	2199	Hidden Blade	0	20000.00	7.00	20000.00	7.00	1751557	1	0	0	0	1	0	0	0	
+PRODUCT	78	3d objects	2199	Hidden Blade	0	20000.00	7.00	20000.00	7.00	0	1	0	0	0	1	0	0	0	
+PRODUCT	78	3d objects	2907	Hidden Blade L	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	
 PRODUCT	80	Full Toris	2275	High Class Gentleman	0	500000.00	175.00	500000.00	175.00	0	0	0	0	0	0	0	1	1	
 PRODUCT	18	Misc	723	Highland Tomatoes	0	0.00	50.00	0.00	50.00	0	0	0	0	0	0	0	0	0	
 PRODUCT	80	Full Toris	2279	Hipster	0	140000.00	65.00	140000.00	65.00	0	0	0	0	0	0	0	1	1	
@@ -712,11 +711,10 @@ PRODUCT	76	Uncategorized	2141	itemtest3	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1
 PRODUCT	47	Secret	1513	Ivory Force + Relax Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	0	0	
 PRODUCT	44	Color Packs	1065	Ivory Pack	0	0.00	5.00	0.00	5.00	0	0	0	0	0	0	97	0	0	
 PRODUCT	78	3d objects	2028	Jack-o'-lantern	0	0.00	5.00	0.00	5.00	0	0	0	0	0	1	0	1	0	
-PRODUCT	72	Hair Styles	2097	Jester Hat	0	2500.00	2.00	2500.00	2.00	973957	1	0	0	0	1	0	0	0	
-PRODUCT	81	Beanie Colors	2408	Jetpack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	
+PRODUCT	72	Hair Styles	2097	Jester Hat	0	2500.00	2.00	2500.00	2.00	0	1	0	0	0	1	0	0	0	
 PRODUCT	78	3d objects	2815	Jetpack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	
-PRODUCT	78	3d objects	2180	Jim the Tuna	0	15000.00	5.00	15000.00	5.00	3020399	1	0	0	0	1	0	0	0	
-PRODUCT	72	Hair Styles	1937	Jiyu Dreads	0	30000.00	10.00	30000.00	10.00	3020399	1	0	0	0	1	0	0	0	
+PRODUCT	78	3d objects	2180	Jim the Tuna	0	15000.00	5.00	15000.00	5.00	2284706	1	0	0	0	1	0	0	0	
+PRODUCT	72	Hair Styles	1937	Jiyu Dreads	0	30000.00	10.00	30000.00	10.00	211106	1	0	0	0	1	0	0	0	
 PRODUCT	71	Sounds	1709	Joint Change Sound	0	10000.00	0.00	10000.00	0.00	0	0	0	0	0	1	0	1	0	
 PRODUCT	71	Sounds	1707	Joint Hold Sound	0	10000.00	0.00	10000.00	0.00	0	0	0	0	0	1	0	1	0	
 PRODUCT	71	Sounds	1708	Joint Over Sound	0	10000.00	0.00	10000.00	0.00	0	0	0	0	0	1	0	1	0	
@@ -737,7 +735,7 @@ PRODUCT	47	Secret	1404	June WRESTLERS Tori-Booster 50 Pack	0	0.00	0.00	0.00	0.00
 PRODUCT	47	Secret	1401	June WRESTLERS Tori-Booster 500 Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	0	0	
 PRODUCT	44	Color Packs	1387	Juryo Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	21	1	0	
 PRODUCT	78	3d objects	2625	kahn's super sick beanie!!!	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
-PRODUCT	78	3d objects	2044	Kamehamehair	0	30000.00	10.00	30000.00	10.00	1578757	1	0	0	0	1	9	0	0	
+PRODUCT	78	3d objects	2044	Kamehamehair	0	30000.00	10.00	30000.00	10.00	0	1	0	0	0	1	9	0	0	
 PRODUCT	80	Full Toris	2269	Karate Master	0	45000.00	45.00	45000.00	45.00	0	0	0	0	0	0	0	1	1	
 PRODUCT	78	3d objects	2700	Katana	0	0.00	7.00	0.00	7.00	3020399	1	0	0	0	1	0	0	0	
 PRODUCT	47	Secret	1510	Kevlar Force + Relax Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	0	0	
@@ -746,7 +744,8 @@ PRODUCT	71	Sounds	1887	Kiai Sound	0	1000.00	0.00	1000.00	0.00	0	0	0	0	0	1	0	0	0
 PRODUCT	78	3d objects	1981	Kickin' Kick L	0	0.00	3.00	0.00	3.00	0	0	0	0	0	1	0	1	1	
 PRODUCT	78	3d objects	1982	Kickin' Kick R	0	0.00	3.00	0.00	3.00	0	0	0	0	0	1	0	1	1	
 PRODUCT	80	Full Toris	2558	Kickin' Kicks	0	0.00	5.00	0.00	5.00	0	0	0	0	0	0	0	0	0	
-PRODUCT	78	3d objects	2251	Kitsune Mask	0	20000.00	7.00	20000.00	7.00	3020399	1	0	0	0	1	0	0	0	
+PRODUCT	78	3d objects	2454	Kid Popstar	0	15000.00	5.00	15000.00	5.00	0	0	0	0	0	1	0	0	0	
+PRODUCT	78	3d objects	2251	Kitsune Mask	0	20000.00	7.00	20000.00	7.00	470306	1	0	0	0	1	0	0	0	
 PRODUCT	44	Color Packs	1391	Knox Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	121	1	0	
 PRODUCT	78	3d objects	2280	Kunai Holster	0	15000.00	5.00	15000.00	5.00	0	1	0	0	0	1	0	0	0	
 PRODUCT	72	Hair Styles	1886	Kung Fu Master Beard	0	200000.00	0.00	200000.00	0.00	0	0	0	0	0	1	0	1	1	
@@ -771,7 +770,7 @@ PRODUCT	72	Hair Styles	2810	Leprechaun Beard	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0
 PRODUCT	72	Hair Styles	1900	Lesser Demon Horns	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	
 PRODUCT	79	Subscriptions	2507	Lifetime Wibbles Access	0	0.00	0.00	0.00	0.00	0	0	0	0	13	0	0	1	0	
 PRODUCT	78	3d objects	2244	Light Red Beanie	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
-PRODUCT	78	3d objects	2161	Little Latching Elf	0	0.00	0.00	0.00	0.00	109957	1	0	0	0	1	0	1	0	
+PRODUCT	78	3d objects	2161	Little Latching Elf	0	0.00	0.00	0.00	0.00	0	1	0	0	0	1	0	1	0	
 PRODUCT	18	Misc	1745	Living Soul	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	0	
 PRODUCT	18	Misc	1742	Llama Luck	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	
 PRODUCT	78	3d objects	2139	Longfall Boot L	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
@@ -796,6 +795,7 @@ PRODUCT	47	Secret	1282	May Toribooster-1000 Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0
 PRODUCT	47	Secret	1284	May Toribooster-200 Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	0	0	
 PRODUCT	47	Secret	1286	May Toribooster-50 Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	0	0	
 PRODUCT	47	Secret	1283	May Toribooster-500 Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	0	0	
+PRODUCT	78	3d objects	2197	Maya	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
 PRODUCT	47	Secret	1467	Maya Force + Relax Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	0	0	
 PRODUCT	47	Secret	1191	Maya Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	0	0	
 PRODUCT	44	Color Packs	2066	Maya Pack	0	0.00	17.00	0.00	17.00	0	0	0	0	0	0	109	0	0	
@@ -919,6 +919,7 @@ PRODUCT	34	User Text Colour	470	Orc User Text	0	20.00	0.00	20.00	0.00	0	0	0	1	0	
 PRODUCT	80	Full Toris	2420	Orc Warlord Head Texture (256px)	0	10000.00	4.00	10000.00	4.00	0	0	0	0	0	0	0	1	0	
 PRODUCT	80	Full Toris	2419	Orc Warlord Head Texture (512px)	0	20000.00	7.00	20000.00	7.00	0	0	0	0	0	0	0	1	0	
 PRODUCT	18	Misc	1572	Organic Cucumber	0	0.00	1.00	0.00	1.00	0	0	0	0	0	0	0	0	0	
+PRODUCT	18	Misc	2923	Organic Cucumber &#8212; FDA Approved!	0	69.00	0.00	69.00	0.00	0	0	0	0	0	0	0	1	1	
 PRODUCT	71	Sounds	1678	Pain 1 Sound	0	10000.00	0.00	10000.00	0.00	0	0	0	0	0	1	0	1	0	
 PRODUCT	71	Sounds	1679	Pain 2 Sound	0	10000.00	0.00	10000.00	0.00	0	0	0	0	0	1	0	1	0	
 PRODUCT	71	Sounds	1680	Pain 3 Sound	0	10000.00	0.00	10000.00	0.00	0	0	0	0	0	1	0	1	0	
@@ -957,10 +958,10 @@ PRODUCT	18	Misc	2150	Ploopy plumpy pumpaking	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0
 PRODUCT	18	Misc	1675	Pocket Rockets	0	0.00	50.00	0.00	50.00	0	0	0	0	0	0	0	0	0	
 PRODUCT	78	3d objects	2131	Poker Hat	0	1000.00	0.00	1000.00	0.00	0	0	0	0	0	1	0	0	0	
 PRODUCT	72	Hair Styles	1753	pony tail	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	
-PRODUCT	72	Hair Styles	1885	Pony Tail	0	5000.00	3.00	5000.00	3.00	2701957	1	0	0	0	1	0	0	0	
+PRODUCT	72	Hair Styles	1885	Pony Tail	0	5000.00	3.00	5000.00	3.00	0	1	0	0	0	1	0	0	0	
 PRODUCT	72	Hair Styles	2227	Pony Tail	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	
 PRODUCT	72	Hair Styles	2228	Pony Tail	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	
-PRODUCT	78	3d objects	2013	Portable Cassette	0	5000.00	3.00	5000.00	3.00	1060357	1	0	0	0	1	0	0	0	
+PRODUCT	78	3d objects	2013	Portable Cassette	0	5000.00	3.00	5000.00	3.00	0	1	0	0	0	1	0	0	0	
 PRODUCT	78	3d objects	2805	Pot o' Gold	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	
 PRODUCT	78	3d objects	2159	Present from Santa	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
 PRODUCT	78	3d objects	1986	Propeller Hat	0	10000.00	4.00	10000.00	4.00	0	0	0	0	0	1	0	1	1	
@@ -994,7 +995,6 @@ PRODUCT	80	Full Toris	2405	Randombot001 Head Texture (512px)	0	20000.00	7.00	200
 PRODUCT	76	Uncategorized	2130	Ranking Award	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	
 PRODUCT	44	Color Packs	924	Raptor Pack	0	0.00	50.00	0.00	50.00	0	0	0	0	0	0	58	0	0	
 PRODUCT	72	Hair Styles	2075	Rave Punk	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	
-PRODUCT	81	Beanie Colors	2233	Raygun	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
 PRODUCT	78	3d objects	2814	Raygun	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	
 PRODUCT	19	Tournaments	1743	RCL Cup	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	0	1	
 PRODUCT	71	Sounds	1728	Ready Sound	0	10000.00	0.00	10000.00	0.00	0	0	0	0	0	1	0	1	0	
@@ -1019,10 +1019,10 @@ PRODUCT	4	Textures	598	Right Pec Texture	0	6000.00	0.00	6000.00	0.00	0	0	0	0	0	0
 PRODUCT	4	Textures	211	Right Thigh Texture	0	25000.00	0.00	25000.00	0.00	0	0	0	0	0	0	0	0	0	
 PRODUCT	15	Body Text	214	Right Tricep Tattoo	0	1000000.00	0.00	1000000.00	0.00	0	0	0	0	0	0	0	0	0	
 PRODUCT	4	Textures	209	Right Tricep Texture	0	10000.00	0.00	10000.00	0.00	0	0	0	0	0	0	0	0	0	
-PRODUCT	78	3d objects	2197	RIP TEST	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
+PRODUCT	78	3d objects	2924	Road Fighter	0	15000.00	5.00	15000.00	5.00	0	0	0	0	0	1	0	0	0	
 PRODUCT	63	robbery	1534	Robbery	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	0	0	
 PRODUCT	78	3d objects	2047	Rudolph Nose and Antlers	0	0.00	5.00	0.00	5.00	0	0	0	0	0	1	0	1	0	
-PRODUCT	78	3d objects	2675	Ruined Crown	0	25000.00	8.00	25000.00	8.00	1924357	1	0	0	0	1	0	0	0	
+PRODUCT	78	3d objects	2675	Ruined Crown	0	25000.00	8.00	25000.00	8.00	0	1	0	0	0	1	0	0	0	
 PRODUCT	78	3d objects	2190	Samurai War Banner	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
 PRODUCT	72	Hair Styles	1936	Santa Beard	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	
 PRODUCT	72	Hair Styles	1935	Santa Hat	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	
@@ -1088,15 +1088,15 @@ PRODUCT	78	3d objects	2010	Slugfest Champion	0	0.00	0.00	0.00	0.00	0	0	0	12	0	1	
 PRODUCT	78	3d objects	2146	Smile Box	0	5000.00	3.00	5000.00	3.00	0	0	0	0	0	1	0	1	1	
 PRODUCT	18	Misc	1673	Snowman	0	0.00	3.00	0.00	3.00	0	0	0	0	0	0	0	1	0	
 PRODUCT	78	3d objects	2792	Snowman	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
+PRODUCT	81	Beanie Colors	2409	Soccer Goal	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	
 PRODUCT	78	3d objects	2880	Soccer Goal	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	
+PRODUCT	78	3d objects	2926	Soderhair	0	50000.00	15.00	50000.00	15.00	0	0	0	0	0	1	0	0	0	
 PRODUCT	71	Sounds	1696	Soft Impact 1 Sound	0	10000.00	0.00	10000.00	0.00	0	0	0	0	0	1	0	1	0	
 PRODUCT	71	Sounds	1697	Soft Impact 2 Sound	0	10000.00	0.00	10000.00	0.00	0	0	0	0	0	1	0	1	0	
 PRODUCT	78	3d objects	2217	Sombrero	0	15000.00	5.00	15000.00	5.00	0	0	0	0	0	1	0	1	1	
 PRODUCT	78	3d objects	2004	Sonic Head Cap	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
 PRODUCT	78	3d objects	2005	Sonic Left Foot	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
 PRODUCT	78	3d objects	2006	Sonic Right Foot	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
-PRODUCT	81	Beanie Colors	2503	Space Box	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	
-PRODUCT	81	Beanie Colors	2396	Space Helmet	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	
 PRODUCT	78	3d objects	2831	Space Helmet	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	
 PRODUCT	80	Full Toris	2412	Space Owl Head Texture (512px)	0	20000.00	7.00	20000.00	7.00	0	0	0	0	0	0	0	1	0	
 PRODUCT	44	Color Packs	2069	Sphinx Pack	0	0.00	3.00	0.00	3.00	0	0	0	0	0	0	47	0	0	
@@ -1111,9 +1111,44 @@ PRODUCT	71	Sounds	1721	Splash 7 Sound	0	10000.00	0.00	10000.00	0.00	0	0	0	0	0	1	
 PRODUCT	71	Sounds	1722	Splash 8 Sound	0	10000.00	0.00	10000.00	0.00	0	0	0	0	0	1	0	1	0	
 PRODUCT	71	Sounds	1723	Splash 9 Sound	0	10000.00	0.00	10000.00	0.00	0	0	0	0	0	1	0	1	0	
 PRODUCT	78	3d objects	2225	Splatter Beanie	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
+PRODUCT	81	Beanie Colors	2503	Sports Box	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	
+PRODUCT	1	Blood Colors	2889	Spring Blood	0	0.00	4.00	0.00	4.00	0	0	0	0	0	1	10	0	0	
+PRODUCT	81	Beanie Colors	2530	Spring Box #1	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	
+PRODUCT	81	Beanie Colors	2536	Spring Box #2	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	
+PRODUCT	12	DQ Rings	2893	Spring DQ	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	10	1	0	
+PRODUCT	43	Emote Colors	2904	Spring Emote	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	10	1	0	
+PRODUCT	22	Force Colors	2896	Spring Force	0	0.00	6.00	0.00	6.00	0	0	0	0	0	1	10	0	0	
+PRODUCT	11	Ghost Colors	2892	Spring Ghost	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	10	1	0	
+PRODUCT	41	Grip Colors	2903	Spring Grip	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	10	1	0	
+PRODUCT	73	Hair Color	2905	Spring Hair	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	10	1	0	
+PRODUCT	28	Left Hand Motion Trail	2899	Spring Left Hand Motion Trail	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	10	1	0	
+PRODUCT	30	Left Leg Motion Trail	2901	Spring Left Leg Motion Trail	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	10	1	0	
+PRODUCT	44	Color Packs	2906	Spring Pack	0	0.00	20.00	0.00	20.00	0	0	0	0	0	0	10	0	0	
+PRODUCT	20	Primary Gradients	2894	Spring Primary Gradient	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	10	1	0	
+PRODUCT	2	Relax Colors	2890	Spring Relax	0	0.00	6.00	0.00	6.00	0	0	0	0	0	1	10	0	0	
+PRODUCT	27	Right Hand Motion Trail	2898	Spring Right Hand Motion Trail	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	10	1	0	
+PRODUCT	29	Right Leg Motion Trail	2900	Spring Right Leg Motion Trail	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	10	1	0	
+PRODUCT	21	Secondary Gradients	2895	Spring Secondary Gradient	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	10	1	0	
+PRODUCT	24	Timers	2897	Spring Timer	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	10	1	0	
+PRODUCT	5	Torso Colors	2891	Spring Torso	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	10	1	0	
+PRODUCT	34	User Text Colour	2902	Spring User Text	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	10	1	0	
 PRODUCT	18	Misc	1918	ST (deprecated)	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	0	1	
 PRODUCT	44	Color Packs	2070	Static Pack	0	0.00	100.00	0.00	100.00	0	0	0	0	0	0	9	0	0	
 PRODUCT	78	3d objects	2271	Steampunk Goggles	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	
+PRODUCT	78	3d objects	2909	Steampunk Hammer	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	
+PRODUCT	78	3d objects	2922	Steampunk Joints - Left Ankle	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
+PRODUCT	78	3d objects	2918	Steampunk Joints - Left Elbow	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
+PRODUCT	78	3d objects	2920	Steampunk Joints - Left Hip	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
+PRODUCT	78	3d objects	2921	Steampunk Joints - Left Knee	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
+PRODUCT	78	3d objects	2917	Steampunk Joints - Left Shoulder	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
+PRODUCT	78	3d objects	2919	Steampunk Joints - Left Wrist	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
+PRODUCT	78	3d objects	2910	Steampunk Joints - Neck	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
+PRODUCT	78	3d objects	2916	Steampunk Joints - Right Ankle	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
+PRODUCT	78	3d objects	2912	Steampunk Joints - Right Elbow	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
+PRODUCT	78	3d objects	2914	Steampunk Joints - Right Hip	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
+PRODUCT	78	3d objects	2915	Steampunk Joints - Right Knee	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
+PRODUCT	78	3d objects	2911	Steampunk Joints - Right Shoulder	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
+PRODUCT	78	3d objects	2913	Steampunk Joints - Right Wrist	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
 PRODUCT	4	Textures	596	Stomach Texture	0	6000.00	0.00	6000.00	0.00	0	0	0	0	0	0	0	0	1	
 PRODUCT	72	Hair Styles	2373	Straw Hat	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	
 PRODUCT	46	Tier Packs	2587	Summer Sale Ultimate Pack	0	0.00	150.00	0.00	150.00	0	0	0	0	0	0	0	1	1	
@@ -1126,7 +1161,7 @@ PRODUCT	44	Color Packs	928	Supernova Pack	0	0.00	50.00	0.00	50.00	0	0	0	0	0	0	71
 PRODUCT	72	Hair Styles	1908	Surfer's Seishin	0	10000.00	4.00	10000.00	4.00	3020399	1	0	0	0	1	0	0	0	
 PRODUCT	52	Survey	1122	Survey	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	0	0	
 PRODUCT	78	3d objects	2137	SWAG Cap	0	13370.00	5.00	13370.00	5.00	3020399	1	0	0	0	1	0	0	0	
-PRODUCT	78	3d objects	2113	Swagtastic Gear	0	30000.00	10.00	30000.00	10.00	3020399	1	0	0	0	1	0	0	0	
+PRODUCT	78	3d objects	2113	Swagtastic Gear	0	30000.00	10.00	30000.00	10.00	2975906	1	0	0	0	1	0	0	0	
 PRODUCT	71	Sounds	1702	Swoosh Feet Sound	0	10000.00	0.00	10000.00	0.00	0	0	0	0	0	1	0	1	0	
 PRODUCT	71	Sounds	1701	Swoosh Hand Sound	0	10000.00	0.00	10000.00	0.00	0	0	0	0	0	1	0	1	0	
 PRODUCT	71	Sounds	1703	Swoosh Sound	0	10000.00	0.00	10000.00	0.00	0	0	0	0	0	1	0	1	0	
@@ -1141,6 +1176,7 @@ PRODUCT	80	Full Toris	2439	Technologic Head Texture (128px)	0	200.00	0.00	200.00
 PRODUCT	80	Full Toris	2443	Technologic Head Texture (256px)	0	10000.00	4.00	10000.00	4.00	0	0	0	0	0	0	0	1	0	
 PRODUCT	80	Full Toris	2444	Technologic Head Texture (512px)	0	20000.00	7.00	20000.00	7.00	0	0	0	0	0	0	0	1	0	
 PRODUCT	78	3d objects	2185	Tengu Mask	0	20000.00	7.00	20000.00	7.00	0	0	0	0	0	1	1	1	1	
+PRODUCT	81	Beanie Colors	2233	Tennis Racket	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
 PRODUCT	78	3d objects	2881	Tennis Racket	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	
 PRODUCT	44	Color Packs	2583	Tesla + Boreal Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	0	
 PRODUCT	44	Color Packs	2438	Tesla Pack	0	0.00	58.00	0.00	58.00	0	0	0	0	0	0	54	0	0	
@@ -1201,6 +1237,7 @@ PRODUCT	78	3d objects	2149	Tori Box	0	5000.00	3.00	5000.00	3.00	0	0	0	0	0	1	0	1	
 PRODUCT	72	Hair Styles	1888	Tori Hair	0	200.00	0.00	200.00	0.00	0	0	0	0	0	1	0	0	0	
 PRODUCT	80	Full Toris	2710	Tori Ninja	0	0.00	20.00	0.00	20.00	0	0	0	0	0	0	0	0	0	
 PRODUCT	80	Full Toris	2624	Tori Pirate	0	0.00	10.00	0.00	10.00	0	0	0	0	0	0	0	0	0	
+PRODUCT	81	Beanie Colors	2396	Tori Sweatband	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	
 PRODUCT	78	3d objects	2882	Tori Sweatband	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
 PRODUCT	18	Misc	2063	Tori Team Discount Coupon	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	
 PRODUCT	78	3d objects	2022	Tori Team | Comm's Cap	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	
@@ -1247,13 +1284,13 @@ PRODUCT	44	Color Packs	1398	Typhon Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	49	1	0
 PRODUCT	47	Secret	1469	Tyrian Force + Relax Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	0	0	
 PRODUCT	44	Color Packs	1064	Tyrian Pack	0	0.00	9.00	0.00	9.00	0	0	0	0	0	0	107	0	0	
 PRODUCT	78	3d objects	2858	U.F.O	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	
-PRODUCT	81	Beanie Colors	2409	U.F.O.	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	
 PRODUCT	78	3d objects	2297	Uke balls	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
 PRODUCT	72	Hair Styles	1889	Uke Hair	0	200.00	0.00	200.00	0.00	0	0	0	0	0	1	0	0	0	
 PRODUCT	78	3d objects	2221	Ukelele	0	30000.00	10.00	30000.00	10.00	3020399	1	0	0	0	1	0	0	0	
 PRODUCT	47	Secret	1088	Ultimate March Pack	0	0.00	135.00	0.00	135.00	0	0	0	0	0	0	0	0	0	
 PRODUCT	47	Secret	1546	Ultimate Value Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	0	
 PRODUCT	7	Secret	1669	user_change [shopadmin]	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	0	0	
+PRODUCT	78	3d objects	2925	Vagabond	0	15000.00	5.00	15000.00	5.00	0	0	0	0	0	1	0	0	0	
 PRODUCT	80	Full Toris	2758	Valkyrie	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	
 PRODUCT	78	3d objects	2763	Valkyrie Hair	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	
 PRODUCT	80	Full Toris	2759	Valkyrie Hair &amp; Wings	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	
@@ -1278,7 +1315,7 @@ PRODUCT	78	3d objects	2764	Valkyrie Right Wing	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1
 PRODUCT	44	Color Packs	1288	Vampire Pack	0	0.00	13.00	0.00	13.00	0	0	0	0	0	0	41	0	0	
 PRODUCT	44	Color Packs	1190	Velvet Pack	0	0.00	35.00	0.00	35.00	0	0	0	0	0	0	115	0	0	
 PRODUCT	78	3d objects	2213	viet	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
-PRODUCT	78	3d objects	2727	Viking Helmet	0	15000.00	5.00	15000.00	5.00	3020399	1	0	0	0	1	0	0	0	
+PRODUCT	78	3d objects	2727	Viking Helmet	0	15000.00	5.00	15000.00	5.00	643106	1	0	0	0	1	0	0	0	
 PRODUCT	47	Secret	1465	Viridian Force + Relax Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	0	0	
 PRODUCT	44	Color Packs	1074	Viridian Pack	0	0.00	50.00	0.00	50.00	0	0	0	0	0	0	64	0	0	
 PRODUCT	19	Tournaments	1909	VK Gold Cup	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	0	1	
@@ -1307,6 +1344,7 @@ PRODUCT	78	3d objects	2218	White Straw Hat	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1
 PRODUCT	78	3d objects	2564	White Straw Hat - Frosy	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
 PRODUCT	79	Subscriptions	2737	Wibbles	0	1337.00	0.00	1337.00	0.00	0	0	0	0	13	0	0	0	0	
 PRODUCT	79	Subscriptions	2738	Wibbles Anonymous	0	42000.00	0.00	42000.00	0.00	0	0	0	0	14	0	0	0	0	
+PRODUCT	78	3d objects	2908	Wife's Rainbow Katana	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
 PRODUCT	44	Color Packs	2323	Wildfire Pack	0	0.00	62.00	0.00	62.00	0	0	0	0	0	0	52	0	0	
 PRODUCT	71	Sounds	1711	Win Sound	0	50000.00	0.00	50000.00	0.00	0	0	0	0	0	1	0	0	0	
 PRODUCT	78	3d objects	2654	Winged Halo	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
@@ -1326,7 +1364,7 @@ PRODUCT	18	Misc	1896	Yoyo's secret item	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1
 PRODUCT	78	3d objects	2749	Yuma - SWAG Cap Recolour	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	
 PRODUCT	72	Hair Styles	2535	Zabrak Horns	0	0.00	4.00	0.00	4.00	3020399	1	0	0	0	1	0	0	0	
 PRODUCT	78	3d objects	2785	ZombieHand	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	
-PRODUCT	58	GUI Textures	1455	[GUI] Background	0	1000.00	0.00	1000.00	0.00	0	0	0	0	0	1	0	0	0	
+PRODUCT	58	GUI Textures	1455	[GUI] Background	0	1000.00	0.00	1000.00	0.00	0	0	0	0	0	1	0	1	0	
 PRODUCT	58	GUI Textures	1456	[GUI] Header	0	1000.00	0.00	1000.00	0.00	0	0	0	0	0	1	0	0	0	
 PRODUCT	58	GUI Textures	1454	[GUI] Logo	0	1000.00	0.00	1000.00	0.00	0	0	0	0	0	1	0	0	0	
 PRODUCT	58	GUI Textures	1453	[GUI] Splatter	0	1000.00	0.00	1000.00	0.00	0	0	0	0	0	1	0	0	0	
@@ -1690,10 +1728,10 @@ PRODUCT	21	Secondary Gradients	253	Noxious Secondary Gradient	0	600.00	0.00	600.
 PRODUCT	24	Timers	285	Noxious Timer	0	400.00	0.00	400.00	0.00	0	0	200	5	0	1	35	0	0	
 PRODUCT	5	Torso Colors	134	Noxious Torso	0	600.00	0.00	600.00	0.00	0	0	200	5	0	1	35	0	0	
 PRODUCT	34	User Text Colour	469	Noxious User Text	0	400.00	0.00	400.00	0.00	0	0	200	5	0	1	35	0	0	
-PRODUCT	1	Blood Colors	39	Quicksilver Blood	0	16000.00	7.00	16000.00	7.00	2788357	1	200	5	0	1	37	0	0	
+PRODUCT	1	Blood Colors	39	Quicksilver Blood	0	16000.00	7.00	16000.00	7.00	0	1	200	5	0	1	37	0	0	
 PRODUCT	12	DQ Rings	192	Quicksilver DQ	0	1600.00	0.00	1600.00	0.00	0	0	200	5	0	1	37	0	0	
 PRODUCT	43	Emote Colors	547	Quicksilver Emote	0	1600.00	0.00	1600.00	0.00	0	0	200	5	0	1	37	0	0	
-PRODUCT	22	Force Colors	61	Quicksilver Force	0	24000.00	11.00	24000.00	11.00	196357	1	200	5	0	1	37	0	0	
+PRODUCT	22	Force Colors	61	Quicksilver Force	0	24000.00	11.00	24000.00	11.00	0	1	200	5	0	1	37	0	0	
 PRODUCT	11	Ghost Colors	168	Quicksilver Ghost	0	8000.00	4.00	8000.00	4.00	0	1	200	5	0	1	37	0	0	
 PRODUCT	41	Grip Colors	517	Quicksilver Grip	0	1600.00	0.00	1600.00	0.00	0	0	200	5	0	1	37	0	0	
 PRODUCT	73	Hair Color	1800	Quicksilver Hair	0	4800.00	0.00	4800.00	0.00	0	0	200	5	0	1	37	0	0	
@@ -1848,7 +1886,7 @@ PRODUCT	21	Secondary Gradients	267	Typhon Secondary Gradient	0	900.00	0.00	900.0
 PRODUCT	24	Timers	295	Typhon Timer	0	600.00	0.00	600.00	0.00	0	0	500	6	0	1	49	0	0	
 PRODUCT	5	Torso Colors	501	Typhon Torso	0	900.00	0.00	900.00	0.00	0	0	500	6	0	1	49	0	0	
 PRODUCT	34	User Text Colour	483	Typhon User Text	0	600.00	0.00	600.00	0.00	0	0	500	6	0	1	49	0	0	
-PRODUCT	1	Blood Colors	967	Vulcan Blood	0	20000.00	8.00	20000.00	8.00	1837957	1	500	6	0	1	104	0	0	
+PRODUCT	1	Blood Colors	967	Vulcan Blood	0	20000.00	8.00	20000.00	8.00	0	1	500	6	0	1	104	0	0	
 PRODUCT	12	DQ Rings	966	Vulcan DQ	0	2000.00	0.00	2000.00	0.00	0	0	500	6	0	1	104	0	0	
 PRODUCT	43	Emote Colors	968	Vulcan Emote	0	2000.00	0.00	2000.00	0.00	0	0	500	6	0	1	104	0	0	
 PRODUCT	22	Force Colors	969	Vulcan Force	0	30000.00	12.00	30000.00	12.00	3020399	1	500	6	0	1	104	0	0	
@@ -1858,7 +1896,7 @@ PRODUCT	73	Hair Color	1818	Vulcan Hair	0	6000.00	0.00	6000.00	0.00	0	0	500	6	0	1
 PRODUCT	28	Left Hand Motion Trail	972	Vulcan Left Hand Motion Trail	0	2000.00	0.00	2000.00	0.00	0	0	500	6	0	1	104	0	0	
 PRODUCT	30	Left Leg Motion Trail	973	Vulcan Left Leg Motion Trail	0	2000.00	0.00	2000.00	0.00	0	0	500	6	0	1	104	0	0	
 PRODUCT	20	Primary Gradients	974	Vulcan Primary Gradient	0	6000.00	0.00	6000.00	0.00	0	0	500	6	0	1	104	0	0	
-PRODUCT	2	Relax Colors	975	Vulcan Relax	0	20000.00	8.00	20000.00	8.00	1233157	1	500	6	0	1	104	0	0	
+PRODUCT	2	Relax Colors	975	Vulcan Relax	0	20000.00	8.00	20000.00	8.00	0	1	500	6	0	1	104	0	0	
 PRODUCT	27	Right Hand Motion Trail	976	Vulcan Right Hand Motion Trail	0	2000.00	0.00	2000.00	0.00	0	0	500	6	0	1	104	0	0	
 PRODUCT	29	Right Leg Motion Trail	977	Vulcan Right Leg Motion Trail	0	2000.00	0.00	2000.00	0.00	0	0	500	6	0	1	104	0	0	
 PRODUCT	21	Secondary Gradients	978	Vulcan Secondary Gradient	0	6000.00	0.00	6000.00	0.00	0	0	500	6	0	1	104	0	0	
@@ -2147,7 +2185,7 @@ PRODUCT	21	Secondary Gradients	263	Hydra Secondary Gradient	0	6000.00	0.00	6000.
 PRODUCT	24	Timers	283	Hydra Timer	0	4000.00	0.00	4000.00	0.00	0	0	3000	9	0	1	45	0	0	
 PRODUCT	5	Torso Colors	497	Hydra Torso	0	6000.00	0.00	6000.00	0.00	0	0	3000	9	0	1	45	0	0	
 PRODUCT	34	User Text Colour	479	Hydra User Text	0	4000.00	0.00	4000.00	0.00	0	0	3000	9	0	1	45	0	0	
-PRODUCT	1	Blood Colors	750	Platinum Blood	0	28000.00	10.00	28000.00	10.00	628357	1	3000	9	0	1	87	0	0	
+PRODUCT	1	Blood Colors	750	Platinum Blood	0	28000.00	10.00	28000.00	10.00	0	1	3000	9	0	1	87	0	0	
 PRODUCT	12	DQ Rings	749	Platinum DQ	0	2800.00	0.00	2800.00	0.00	0	0	3000	9	0	1	87	0	0	
 PRODUCT	43	Emote Colors	751	Platinum Emote	0	2800.00	0.00	2800.00	0.00	0	0	3000	9	0	1	87	0	0	
 PRODUCT	22	Force Colors	752	Platinum Force	0	42000.00	15.00	42000.00	15.00	3020399	1	3000	9	0	1	87	0	0	
@@ -2185,7 +2223,7 @@ PRODUCT	1	Blood Colors	687	Crimson Blood	0	28000.00	10.00	28000.00	10.00	0	1	400
 PRODUCT	12	DQ Rings	686	Crimson DQ	0	2800.00	0.00	2800.00	0.00	0	0	4000	10	0	1	57	0	0	
 PRODUCT	43	Emote Colors	688	Crimson Emote	0	2800.00	0.00	2800.00	0.00	0	0	4000	10	0	1	57	0	0	
 PRODUCT	22	Force Colors	689	Crimson Force	0	42000.00	15.00	42000.00	15.00	0	1	4000	10	0	1	57	0	0	
-PRODUCT	11	Ghost Colors	690	Crimson Ghost	0	14000.00	5.00	14000.00	5.00	3020399	1	4000	10	0	1	57	0	0	
+PRODUCT	11	Ghost Colors	690	Crimson Ghost	0	14000.00	5.00	14000.00	5.00	1334306	1	4000	10	0	1	57	0	0	
 PRODUCT	41	Grip Colors	691	Crimson Grip	0	2800.00	0.00	2800.00	0.00	0	0	4000	10	0	1	57	0	0	
 PRODUCT	73	Hair Color	1769	Crimson Hair	0	8400.00	0.00	8400.00	0.00	0	0	4000	10	0	1	57	0	0	
 PRODUCT	28	Left Hand Motion Trail	692	Crimson Left Hand Motion Trail	0	2800.00	0.00	2800.00	0.00	0	0	4000	10	0	1	57	0	0	
@@ -2266,11 +2304,11 @@ PRODUCT	21	Secondary Gradients	666	Viridian Secondary Gradient	0	6000.00	0.00	60
 PRODUCT	24	Timers	667	Viridian Timer	0	4000.00	0.00	4000.00	0.00	0	0	4000	10	0	1	64	0	0	
 PRODUCT	5	Torso Colors	668	Viridian Torso	0	6000.00	0.00	6000.00	0.00	0	0	4000	10	0	1	64	0	0	
 PRODUCT	34	User Text Colour	669	Viridian User Text	0	4000.00	0.00	4000.00	0.00	0	0	4000	10	0	1	64	0	0	
-PRODUCT	1	Blood Colors	579	Azurite Blood	0	40000.00	16.00	40000.00	16.00	282757	1	5000	11	0	1	62	0	0	
+PRODUCT	1	Blood Colors	579	Azurite Blood	0	40000.00	16.00	40000.00	16.00	0	1	5000	11	0	1	62	0	0	
 PRODUCT	12	DQ Rings	578	Azurite DQ	0	4000.00	0.00	4000.00	0.00	0	0	5000	11	0	1	62	0	0	
 PRODUCT	43	Emote Colors	580	Azurite Emote	0	4000.00	0.00	4000.00	0.00	0	0	5000	11	0	1	62	0	0	
 PRODUCT	22	Force Colors	581	Azurite Force	0	60000.00	24.00	60000.00	24.00	0	1	5000	11	0	1	62	0	0	
-PRODUCT	11	Ghost Colors	582	Azurite Ghost	0	20000.00	8.00	20000.00	8.00	3020399	1	5000	11	0	1	62	0	0	
+PRODUCT	11	Ghost Colors	582	Azurite Ghost	0	20000.00	8.00	20000.00	8.00	2111906	1	5000	11	0	1	62	0	0	
 PRODUCT	41	Grip Colors	583	Azurite Grip	0	4000.00	0.00	4000.00	0.00	0	0	5000	11	0	1	62	0	0	
 PRODUCT	73	Hair Color	1762	Azurite Hair	0	12000.00	0.00	12000.00	0.00	0	0	5000	11	0	1	62	0	0	
 PRODUCT	28	Left Hand Motion Trail	584	Azurite Left Hand Motion Trail	0	4000.00	0.00	4000.00	0.00	0	0	5000	11	0	1	62	0	0	
@@ -2293,7 +2331,7 @@ PRODUCT	73	Hair Color	1770	Demolition Hair	0	13200.00	0.00	13200.00	0.00	0	0	500
 PRODUCT	28	Left Hand Motion Trail	1295	Demolition Left Hand Motion Trail	0	4400.00	0.00	4400.00	0.00	0	0	5000	11	0	1	113	0	0	
 PRODUCT	30	Left Leg Motion Trail	1296	Demolition Left Leg Motion Trail	0	4400.00	0.00	4400.00	0.00	0	0	5000	11	0	1	113	0	0	
 PRODUCT	20	Primary Gradients	1297	Demolition Primary Gradient	0	13200.00	0.00	13200.00	0.00	0	0	5000	11	0	1	113	0	0	
-PRODUCT	2	Relax Colors	1298	Demolition Relax	0	44000.00	16.00	44000.00	16.00	3020399	1	5000	11	0	1	113	0	0	
+PRODUCT	2	Relax Colors	1298	Demolition Relax	0	44000.00	16.00	44000.00	16.00	1075106	1	5000	11	0	1	113	0	0	
 PRODUCT	27	Right Hand Motion Trail	1299	Demolition Right Hand Motion Trail	0	4400.00	0.00	4400.00	0.00	0	0	5000	11	0	1	113	0	0	
 PRODUCT	29	Right Leg Motion Trail	1300	Demolition Right Leg Motion Trail	0	4400.00	0.00	4400.00	0.00	0	0	5000	11	0	1	113	0	0	
 PRODUCT	21	Secondary Gradients	1301	Demolition Secondary Gradient	0	13200.00	0.00	13200.00	0.00	0	0	5000	11	0	1	113	0	0	
@@ -2304,30 +2342,30 @@ PRODUCT	1	Blood Colors	780	Imperial Blood	0	50000.00	18.00	50000.00	18.00	302039
 PRODUCT	12	DQ Rings	779	Imperial DQ	0	5000.00	0.00	5000.00	0.00	0	0	5000	11	0	1	86	0	0	
 PRODUCT	43	Emote Colors	781	Imperial Emote	0	5000.00	0.00	5000.00	0.00	0	0	5000	11	0	1	86	0	0	
 PRODUCT	22	Force Colors	782	Imperial Force	0	75000.00	27.00	75000.00	27.00	0	1	5000	11	0	1	86	0	0	
-PRODUCT	11	Ghost Colors	783	Imperial Ghost	0	25000.00	9.00	25000.00	9.00	3020399	1	5000	11	0	1	86	0	0	
+PRODUCT	11	Ghost Colors	783	Imperial Ghost	0	25000.00	9.00	25000.00	9.00	729506	1	5000	11	0	1	86	0	0	
 PRODUCT	41	Grip Colors	784	Imperial Grip	0	5000.00	0.00	5000.00	0.00	0	0	5000	11	0	1	86	0	0	
 PRODUCT	73	Hair Color	1782	Imperial Hair	0	15000.00	0.00	15000.00	0.00	0	0	5000	11	0	1	86	0	0	
 PRODUCT	28	Left Hand Motion Trail	785	Imperial Left Hand Motion Trail	0	5000.00	0.00	5000.00	0.00	0	0	5000	11	0	1	86	0	0	
 PRODUCT	30	Left Leg Motion Trail	786	Imperial Left Leg Motion Trail	0	5000.00	0.00	5000.00	0.00	0	0	5000	11	0	1	86	0	0	
 PRODUCT	20	Primary Gradients	787	Imperial Primary Gradient	0	15000.00	0.00	15000.00	0.00	0	0	5000	11	0	1	86	0	0	
-PRODUCT	2	Relax Colors	788	Imperial Relax	0	50000.00	18.00	50000.00	18.00	3020399	1	5000	11	0	1	86	0	0	
+PRODUCT	2	Relax Colors	788	Imperial Relax	0	50000.00	18.00	50000.00	18.00	2630306	1	5000	11	0	1	86	0	0	
 PRODUCT	27	Right Hand Motion Trail	789	Imperial Right Hand Motion Trail	0	5000.00	0.00	5000.00	0.00	0	0	5000	11	0	1	86	0	0	
 PRODUCT	29	Right Leg Motion Trail	790	Imperial Right Leg Motion Trail	0	5000.00	0.00	5000.00	0.00	0	0	5000	11	0	1	86	0	0	
 PRODUCT	21	Secondary Gradients	791	Imperial Secondary Gradient	0	15000.00	0.00	15000.00	0.00	0	0	5000	11	0	1	86	0	0	
 PRODUCT	24	Timers	792	Imperial Timer	0	10000.00	0.00	10000.00	0.00	0	0	5000	11	0	1	86	0	0	
 PRODUCT	5	Torso Colors	793	Imperial Torso	0	15000.00	5.00	15000.00	5.00	0	1	5000	11	0	1	86	0	0	
 PRODUCT	34	User Text Colour	794	Imperial User Text	0	10000.00	0.00	10000.00	0.00	0	0	5000	11	0	1	86	0	0	
-PRODUCT	1	Blood Colors	983	Magnetite Blood	0	28000.00	12.00	28000.00	12.00	2961157	1	5000	11	0	1	102	0	0	
+PRODUCT	1	Blood Colors	983	Magnetite Blood	0	28000.00	12.00	28000.00	12.00	0	1	5000	11	0	1	102	0	0	
 PRODUCT	12	DQ Rings	982	Magnetite DQ	0	2800.00	0.00	2800.00	0.00	0	0	5000	11	0	1	102	0	0	
 PRODUCT	43	Emote Colors	984	Magnetite Emote	0	2800.00	0.00	2800.00	0.00	0	0	5000	11	0	1	102	0	0	
-PRODUCT	22	Force Colors	985	Magnetite Force	0	42000.00	18.00	42000.00	18.00	3020399	1	5000	11	0	1	102	0	0	
-PRODUCT	11	Ghost Colors	986	Magnetite Ghost	0	14000.00	6.00	14000.00	6.00	2183557	1	5000	11	0	1	102	0	0	
+PRODUCT	22	Force Colors	985	Magnetite Force	0	42000.00	18.00	42000.00	18.00	2198306	1	5000	11	0	1	102	0	0	
+PRODUCT	11	Ghost Colors	986	Magnetite Ghost	0	14000.00	6.00	14000.00	6.00	0	1	5000	11	0	1	102	0	0	
 PRODUCT	41	Grip Colors	987	Magnetite Grip	0	2800.00	0.00	2800.00	0.00	0	0	5000	11	0	1	102	0	0	
 PRODUCT	73	Hair Color	1787	Magnetite Hair	0	8400.00	0.00	8400.00	0.00	0	0	5000	11	0	1	102	0	0	
 PRODUCT	28	Left Hand Motion Trail	988	Magnetite Left Hand Motion Trail	0	2800.00	0.00	2800.00	0.00	0	0	5000	11	0	1	102	0	0	
 PRODUCT	30	Left Leg Motion Trail	989	Magnetite Left Leg Motion Trail	0	2800.00	0.00	2800.00	0.00	0	0	5000	11	0	1	102	0	0	
 PRODUCT	20	Primary Gradients	990	Magnetite Primary Gradient	0	8400.00	0.00	8400.00	0.00	0	0	5000	11	0	1	102	0	0	
-PRODUCT	2	Relax Colors	991	Magnetite Relax	0	28000.00	12.00	28000.00	12.00	3020399	1	5000	11	0	1	102	0	0	
+PRODUCT	2	Relax Colors	991	Magnetite Relax	0	28000.00	12.00	28000.00	12.00	1852706	1	5000	11	0	1	102	0	0	
 PRODUCT	27	Right Hand Motion Trail	992	Magnetite Right Hand Motion Trail	0	2800.00	0.00	2800.00	0.00	0	0	5000	11	0	1	102	0	0	
 PRODUCT	29	Right Leg Motion Trail	993	Magnetite Right Leg Motion Trail	0	2800.00	0.00	2800.00	0.00	0	0	5000	11	0	1	102	0	0	
 PRODUCT	21	Secondary Gradients	994	Magnetite Secondary Gradient	0	8400.00	0.00	8400.00	0.00	0	0	5000	11	0	1	102	0	0	
@@ -2338,7 +2376,7 @@ PRODUCT	1	Blood Colors	796	Plasma Blood	0	36000.00	12.00	36000.00	12.00	0	1	5000
 PRODUCT	12	DQ Rings	795	Plasma DQ	0	3600.00	0.00	3600.00	0.00	0	0	5000	11	0	1	59	0	0	
 PRODUCT	43	Emote Colors	797	Plasma Emote	0	3600.00	0.00	3600.00	0.00	0	0	5000	11	0	1	59	0	0	
 PRODUCT	22	Force Colors	798	Plasma Force	0	54000.00	18.00	54000.00	18.00	0	1	5000	11	0	1	59	0	0	
-PRODUCT	11	Ghost Colors	799	Plasma Ghost	0	18000.00	6.00	18000.00	6.00	2010757	1	5000	11	0	1	59	0	0	
+PRODUCT	11	Ghost Colors	799	Plasma Ghost	0	18000.00	6.00	18000.00	6.00	0	1	5000	11	0	1	59	0	0	
 PRODUCT	41	Grip Colors	800	Plasma Grip	0	3600.00	0.00	3600.00	0.00	0	0	5000	11	0	1	59	0	0	
 PRODUCT	73	Hair Color	1797	Plasma Hair	0	10800.00	0.00	10800.00	0.00	0	0	5000	11	0	1	59	0	0	
 PRODUCT	28	Left Hand Motion Trail	801	Plasma Left Hand Motion Trail	0	3600.00	0.00	3600.00	0.00	0	0	5000	11	0	1	59	0	0	
@@ -2362,7 +2400,7 @@ PRODUCT	73	Hair Color	2178	Magma Hair	0	20000.00	0.00	20000.00	0.00	0	0	7500	11	
 PRODUCT	28	Left Hand Motion Trail	2172	Magma Left Hand Motion Trail	0	8000.00	0.00	8000.00	0.00	0	0	7500	11	0	1	128	0	0	
 PRODUCT	30	Left Leg Motion Trail	2174	Magma Left Leg Motion Trail	0	8000.00	0.00	8000.00	0.00	0	0	7500	11	0	1	128	0	0	
 PRODUCT	20	Primary Gradients	2168	Magma Primary Gradient	0	20000.00	0.00	20000.00	0.00	0	0	7500	11	0	1	128	0	0	
-PRODUCT	2	Relax Colors	1894	Magma Relax	0	70000.00	28.00	70000.00	28.00	3020399	1	7500	11	0	1	128	0	0	
+PRODUCT	2	Relax Colors	1894	Magma Relax	1	35000.00	14.00	70000.00	28.00	38306	1	7500	11	0	1	128	0	0	
 PRODUCT	27	Right Hand Motion Trail	2171	Magma Right Hand Motion Trail	0	8000.00	0.00	8000.00	0.00	0	0	7500	11	0	1	128	0	0	
 PRODUCT	29	Right Leg Motion Trail	2173	Magma Right Leg Motion Trail	0	8000.00	0.00	8000.00	0.00	0	0	7500	11	0	1	128	0	0	
 PRODUCT	21	Secondary Gradients	2169	Magma Secondary Gradient	0	20000.00	0.00	20000.00	0.00	0	0	7500	11	0	1	128	0	0	
@@ -2371,7 +2409,7 @@ PRODUCT	5	Torso Colors	2165	Magma Torso	0	20000.00	0.00	20000.00	0.00	0	0	7500	1
 PRODUCT	34	User Text Colour	2175	Magma User Text	0	14000.00	0.00	14000.00	0.00	0	0	7500	11	0	1	128	0	0	
 PRODUCT	1	Blood Colors	1306	Warrior Blood	0	60000.00	22.00	60000.00	22.00	3020399	1	7500	11	0	1	116	0	0	
 PRODUCT	12	DQ Rings	1305	Warrior DQ	0	6000.00	0.00	6000.00	0.00	0	0	7500	11	0	1	116	0	0	
-PRODUCT	22	Force Colors	1308	Warrior Force	0	90000.00	33.00	90000.00	33.00	3020399	1	7500	11	0	1	116	0	0	
+PRODUCT	22	Force Colors	1308	Warrior Force	0	90000.00	33.00	90000.00	33.00	1766306	1	7500	11	0	1	116	0	0	
 PRODUCT	11	Ghost Colors	1309	Warrior Ghost	0	30000.00	11.00	30000.00	11.00	3020399	1	7500	11	0	1	116	0	0	
 PRODUCT	41	Grip Colors	1310	Warrior Grip	0	6000.00	0.00	6000.00	0.00	0	0	7500	11	0	1	116	0	0	
 PRODUCT	73	Hair Color	1819	Warrior Hair	0	18000.00	0.00	18000.00	0.00	0	0	7500	11	0	1	116	0	0	
@@ -2400,13 +2438,13 @@ PRODUCT	27	Right Hand Motion Trail	2318	Wildfire Right Hand Motion Trail	0	3000.
 PRODUCT	29	Right Leg Motion Trail	2320	Wildfire Right Leg Motion Trail	0	3000.00	0.00	3000.00	0.00	0	0	9400	11	0	1	52	0	0	
 PRODUCT	21	Secondary Gradients	2317	Wildfire Secondary Gradient	0	9000.00	0.00	9000.00	0.00	0	0	9400	11	0	1	52	0	0	
 PRODUCT	24	Timers	2312	Wildfire Timer	0	6000.00	0.00	6000.00	0.00	0	0	9400	11	0	1	52	0	0	
-PRODUCT	5	Torso Colors	2299	Wildfire Torso	0	9000.00	3.00	9000.00	3.00	2874757	1	9400	11	0	1	52	0	0	
+PRODUCT	5	Torso Colors	2299	Wildfire Torso	0	9000.00	3.00	9000.00	3.00	0	1	9400	11	0	1	52	0	0	
 PRODUCT	34	User Text Colour	2322	Wildfire User Text	0	6000.00	0.00	6000.00	0.00	0	0	9400	11	0	1	52	0	0	
 PRODUCT	78	3d objects	2788	Pile o' Coins	0	0.00	0.00	0.00	0.00	0	0	10000	0	0	1	0	1	1	
-PRODUCT	1	Blood Colors	146	Pure Blood	1	10000.00	12.50	20000.00	25.00	23557	1	10000	12	0	1	50	0	0	
+PRODUCT	1	Blood Colors	146	Pure Blood	0	20000.00	25.00	20000.00	25.00	0	1	10000	12	0	1	50	0	0	
 PRODUCT	43	Emote Colors	560	Pure Emote	0	2000.00	2.00	2000.00	2.00	0	1	10000	12	0	1	50	0	0	
 PRODUCT	22	Force Colors	148	Pure Force	0	30000.00	35.00	30000.00	35.00	0	1	10000	12	0	1	50	0	0	
-PRODUCT	41	Grip Colors	530	Pure Grip	0	2000.00	2.00	2000.00	2.00	3020399	1	10000	12	0	1	50	0	0	
+PRODUCT	41	Grip Colors	530	Pure Grip	0	2000.00	2.00	2000.00	2.00	2889506	1	10000	12	0	1	50	0	0	
 PRODUCT	73	Hair Color	1799	Pure Hair	0	6000.00	7.00	6000.00	7.00	0	1	10000	12	0	1	50	0	0	
 PRODUCT	28	Left Hand Motion Trail	425	Pure Left Hand Motion Trail	0	2000.00	2.00	2000.00	2.00	0	1	10000	12	0	1	50	0	0	
 PRODUCT	30	Left Leg Motion Trail	350	Pure Left Leg Motion Trail	0	2000.00	2.00	2000.00	2.00	0	1	10000	12	0	1	50	0	0	
@@ -2414,9 +2452,9 @@ PRODUCT	20	Primary Gradients	243	Pure Primary Gradient	0	6000.00	7.00	6000.00	7.
 PRODUCT	2	Relax Colors	147	Pure Relax	0	20000.00	25.00	20000.00	25.00	0	1	10000	12	0	1	50	0	0	
 PRODUCT	27	Right Hand Motion Trail	375	Pure Right Hand Motion Trail	0	2000.00	2.00	2000.00	2.00	3020399	1	10000	12	0	1	50	0	0	
 PRODUCT	29	Right Leg Motion Trail	450	Pure Right Leg Motion Trail	0	2000.00	2.00	2000.00	2.00	0	1	10000	12	0	1	50	0	0	
-PRODUCT	21	Secondary Gradients	268	Pure Secondary Gradient	0	6000.00	7.00	6000.00	7.00	3020399	1	10000	12	0	1	50	0	0	
+PRODUCT	21	Secondary Gradients	268	Pure Secondary Gradient	0	6000.00	7.00	6000.00	7.00	1939106	1	10000	12	0	1	50	0	0	
 PRODUCT	24	Timers	288	Pure Timer	0	4000.00	5.00	4000.00	5.00	3020399	1	10000	12	0	1	50	0	0	
-PRODUCT	5	Torso Colors	149	Pure Torso	0	6000.00	7.00	6000.00	7.00	1319557	1	10000	12	0	1	50	0	0	
+PRODUCT	5	Torso Colors	149	Pure Torso	0	6000.00	7.00	6000.00	7.00	0	1	10000	12	0	1	50	0	0	
 PRODUCT	34	User Text Colour	484	Pure User Text	0	4000.00	5.00	4000.00	5.00	0	1	10000	12	0	1	50	0	0	
 PRODUCT	1	Blood Colors	1592	Static Blood	0	100000.00	25.00	100000.00	25.00	3020399	1	10000	12	0	1	9	0	0	
 PRODUCT	12	DQ Rings	1591	Static DQ	0	10000.00	0.00	10000.00	0.00	0	0	10000	12	0	1	9	0	0	
@@ -2428,7 +2466,7 @@ PRODUCT	73	Hair Color	1807	Static Hair	0	30000.00	0.00	30000.00	0.00	0	0	10000	1
 PRODUCT	28	Left Hand Motion Trail	1597	Static Left Hand Motion Trail	0	10000.00	0.00	10000.00	0.00	0	0	10000	12	0	1	9	0	0	
 PRODUCT	30	Left Leg Motion Trail	1598	Static Left Leg Motion Trail	0	10000.00	0.00	10000.00	0.00	0	0	10000	12	0	1	9	0	0	
 PRODUCT	20	Primary Gradients	1599	Static Primary Gradient	0	30000.00	0.00	30000.00	0.00	0	0	10000	12	0	1	9	0	0	
-PRODUCT	2	Relax Colors	1600	Static Relax	0	100000.00	25.00	100000.00	25.00	3020399	1	10000	12	0	1	9	0	0	
+PRODUCT	2	Relax Colors	1600	Static Relax	0	100000.00	25.00	100000.00	25.00	1679906	1	10000	12	0	1	9	0	0	
 PRODUCT	27	Right Hand Motion Trail	1601	Static Right Hand Motion Trail	0	10000.00	0.00	10000.00	0.00	0	0	10000	12	0	1	9	0	0	
 PRODUCT	29	Right Leg Motion Trail	1602	Static Right Leg Motion Trail	0	10000.00	0.00	10000.00	0.00	0	0	10000	12	0	1	9	0	0	
 PRODUCT	21	Secondary Gradients	1603	Static Secondary Gradient	0	30000.00	0.00	30000.00	0.00	0	0	10000	12	0	1	9	0	0	
@@ -2436,7 +2474,7 @@ PRODUCT	24	Timers	1604	Static Timer	0	20000.00	0.00	20000.00	0.00	0	0	10000	12	0
 PRODUCT	5	Torso Colors	1605	Static Torso	0	30000.00	8.00	30000.00	8.00	0	1	10000	12	0	1	9	0	0	
 PRODUCT	34	User Text Colour	1606	Static User Text	0	20000.00	0.00	20000.00	0.00	0	0	10000	12	0	1	9	0	0	
 PRODUCT	78	3d objects	2789	Treasure Chest	0	0.00	0.00	0.00	0.00	0	0	10000	0	0	1	0	1	0	
-PRODUCT	1	Blood Colors	1927	Vortex Blood	0	100000.00	25.00	100000.00	25.00	2097157	1	10000	12	0	1	4	0	0	
+PRODUCT	1	Blood Colors	1927	Vortex Blood	0	100000.00	25.00	100000.00	25.00	0	1	10000	12	0	1	4	0	0	
 PRODUCT	12	DQ Rings	1960	Vortex DQ	0	10000.00	0.00	10000.00	0.00	0	0	10000	12	0	1	4	0	0	
 PRODUCT	43	Emote Colors	1969	Vortex Emote	0	10000.00	0.00	10000.00	0.00	0	0	10000	12	0	1	4	0	0	
 PRODUCT	22	Force Colors	1961	Vortex Force	0	150000.00	38.00	150000.00	38.00	0	1	10000	12	0	1	4	0	0	
@@ -2456,7 +2494,7 @@ PRODUCT	34	User Text Colour	1967	Vortex User Text	0	20000.00	0.00	20000.00	0.00	
 PRODUCT	1	Blood Colors	143	Elf Blood	0	14000.00	28.00	14000.00	28.00	0	1	15000	12	0	1	32	0	0	
 PRODUCT	12	DQ Rings	183	Elf DQ	0	1400.00	0.00	1400.00	0.00	0	0	15000	12	0	1	32	0	0	
 PRODUCT	43	Emote Colors	542	Elf Emote	0	1400.00	0.00	1400.00	0.00	0	0	15000	12	0	1	32	0	0	
-PRODUCT	22	Force Colors	144	Elf Force	0	21000.00	42.00	21000.00	42.00	714757	1	15000	12	0	1	32	0	0	
+PRODUCT	22	Force Colors	144	Elf Force	0	21000.00	42.00	21000.00	42.00	0	1	15000	12	0	1	32	0	0	
 PRODUCT	11	Ghost Colors	159	Elf Ghost	0	7000.00	14.00	7000.00	14.00	0	1	15000	12	0	1	32	0	0	
 PRODUCT	41	Grip Colors	512	Elf Grip	0	1400.00	0.00	1400.00	0.00	0	0	15000	12	0	1	32	0	0	
 PRODUCT	73	Hair Color	1774	Elf Hair	0	4200.00	0.00	4200.00	0.00	0	0	15000	12	0	1	32	0	0	
@@ -2468,30 +2506,30 @@ PRODUCT	27	Right Hand Motion Trail	357	Elf Right Hand Motion Trail	0	1400.00	0.0
 PRODUCT	29	Right Leg Motion Trail	432	Elf Right Leg Motion Trail	0	1400.00	0.00	1400.00	0.00	0	0	15000	12	0	1	32	0	0	
 PRODUCT	21	Secondary Gradients	250	Elf Secondary Gradient	0	4200.00	0.00	4200.00	0.00	0	0	15000	12	0	1	32	0	0	
 PRODUCT	24	Timers	279	Elf Timer	0	2800.00	0.00	2800.00	0.00	0	0	15000	12	0	1	32	0	0	
-PRODUCT	5	Torso Colors	1069	Elf Torso	0	15000.00	8.00	15000.00	8.00	3020399	1	15000	12	0	1	32	0	0	
+PRODUCT	5	Torso Colors	1069	Elf Torso	0	15000.00	8.00	15000.00	8.00	1247906	1	15000	12	0	1	32	0	0	
 PRODUCT	34	User Text Colour	466	Elf User Text	0	2800.00	0.00	2800.00	0.00	0	0	15000	12	0	1	32	0	0	
 PRODUCT	1	Blood Colors	1322	Mysterio Blood	0	60000.00	20.00	60000.00	20.00	0	1	15000	12	0	1	118	0	0	
 PRODUCT	12	DQ Rings	1321	Mysterio DQ	0	6000.00	0.00	6000.00	0.00	0	0	15000	12	0	1	118	0	0	
 PRODUCT	43	Emote Colors	1323	Mysterio Emote	0	6000.00	0.00	6000.00	0.00	0	0	15000	12	0	1	118	0	0	
 PRODUCT	22	Force Colors	1324	Mysterio Force	0	90000.00	30.00	90000.00	30.00	0	1	15000	12	0	1	118	0	0	
-PRODUCT	11	Ghost Colors	1325	Mysterio Ghost	0	30000.00	10.00	30000.00	10.00	1492357	1	15000	12	0	1	118	0	0	
+PRODUCT	11	Ghost Colors	1325	Mysterio Ghost	0	30000.00	10.00	30000.00	10.00	0	1	15000	12	0	1	118	0	0	
 PRODUCT	41	Grip Colors	1326	Mysterio Grip	0	6000.00	0.00	6000.00	0.00	0	0	15000	12	0	1	118	0	0	
 PRODUCT	73	Hair Color	1790	Mysterio Hair	0	18000.00	0.00	18000.00	0.00	0	0	15000	12	0	1	118	0	0	
 PRODUCT	28	Left Hand Motion Trail	1327	Mysterio Left Hand Motion Trail	0	6000.00	0.00	6000.00	0.00	0	0	15000	12	0	1	118	0	0	
 PRODUCT	30	Left Leg Motion Trail	1328	Mysterio Left Leg Motion Trail	0	6000.00	0.00	6000.00	0.00	0	0	15000	12	0	1	118	0	0	
 PRODUCT	20	Primary Gradients	1329	Mysterio Primary Gradient	0	18000.00	0.00	18000.00	0.00	0	0	15000	12	0	1	118	0	0	
-PRODUCT	2	Relax Colors	1330	Mysterio Relax	0	60000.00	20.00	60000.00	20.00	2356357	1	15000	12	0	1	118	0	0	
+PRODUCT	2	Relax Colors	1330	Mysterio Relax	0	60000.00	20.00	60000.00	20.00	0	1	15000	12	0	1	118	0	0	
 PRODUCT	27	Right Hand Motion Trail	1331	Mysterio Right Hand Motion Trail	0	6000.00	0.00	6000.00	0.00	0	0	15000	12	0	1	118	0	0	
 PRODUCT	29	Right Leg Motion Trail	1332	Mysterio Right Leg Motion Trail	0	6000.00	0.00	6000.00	0.00	0	0	15000	12	0	1	118	0	0	
 PRODUCT	21	Secondary Gradients	1333	Mysterio Secondary Gradient	0	18000.00	0.00	18000.00	0.00	0	0	15000	12	0	1	118	0	0	
 PRODUCT	24	Timers	1334	Mysterio Timer	0	12000.00	0.00	12000.00	0.00	0	0	15000	12	0	1	118	0	0	
-PRODUCT	5	Torso Colors	1335	Mysterio Torso	0	18000.00	6.00	18000.00	6.00	3020399	1	15000	12	0	1	118	0	0	
+PRODUCT	5	Torso Colors	1335	Mysterio Torso	0	18000.00	6.00	18000.00	6.00	902306	1	15000	12	0	1	118	0	0	
 PRODUCT	34	User Text Colour	1336	Mysterio User Text	0	12000.00	0.00	12000.00	0.00	0	0	15000	12	0	1	118	0	0	
 PRODUCT	1	Blood Colors	1208	Alpha Blood	0	200000.00	40.00	200000.00	40.00	0	1	20000	12	0	1	110	0	0	
 PRODUCT	12	DQ Rings	1209	Alpha DQ	0	20000.00	0.00	20000.00	0.00	0	0	20000	12	0	1	110	0	0	
 PRODUCT	43	Emote Colors	1207	Alpha Emote	0	20000.00	0.00	20000.00	0.00	0	0	20000	12	0	1	110	0	0	
 PRODUCT	22	Force Colors	1206	Alpha Force	0	300000.00	60.00	300000.00	60.00	3020399	1	20000	12	0	1	110	0	0	
-PRODUCT	11	Ghost Colors	1205	Alpha Ghost	0	100000.00	20.00	100000.00	20.00	3020399	1	20000	12	0	1	110	0	0	
+PRODUCT	11	Ghost Colors	1205	Alpha Ghost	0	100000.00	20.00	100000.00	20.00	2543906	1	20000	12	0	1	110	0	0	
 PRODUCT	41	Grip Colors	1210	Alpha Grip	0	20000.00	0.00	20000.00	0.00	0	0	20000	12	0	1	110	0	0	
 PRODUCT	73	Hair Color	1757	Alpha Hair	0	60000.00	0.00	60000.00	0.00	0	0	20000	12	0	1	110	0	0	
 PRODUCT	28	Left Hand Motion Trail	1211	Alpha Left Hand Motion Trail	0	20000.00	0.00	20000.00	0.00	0	0	20000	12	0	1	110	0	0	
@@ -2508,39 +2546,39 @@ PRODUCT	23	Custom Belt	271	Custom Belt Title	0	2000.00	0.00	2000.00	0.00	0	0	200
 PRODUCT	1	Blood Colors	70	Demon Blood	0	160000.00	32.00	160000.00	32.00	3020399	1	20000	12	0	1	30	0	0	
 PRODUCT	12	DQ Rings	181	Demon DQ	0	16000.00	4.00	16000.00	4.00	3020399	1	20000	12	0	1	30	0	0	
 PRODUCT	43	Emote Colors	540	Demon Emote	0	16000.00	4.00	16000.00	4.00	3020399	1	20000	12	0	1	30	0	0	
-PRODUCT	22	Force Colors	71	Demon Force	0	240000.00	48.00	240000.00	48.00	3020399	1	20000	12	0	1	30	0	0	
-PRODUCT	11	Ghost Colors	157	Demon Ghost	0	80000.00	16.00	80000.00	16.00	3020399	1	20000	12	0	1	30	0	0	
+PRODUCT	22	Force Colors	71	Demon Force	0	240000.00	48.00	240000.00	48.00	815906	1	20000	12	0	1	30	0	0	
+PRODUCT	11	Ghost Colors	157	Demon Ghost	0	80000.00	16.00	80000.00	16.00	1420706	1	20000	12	0	1	30	0	0	
 PRODUCT	41	Grip Colors	510	Demon Grip	0	16000.00	4.00	16000.00	4.00	0	1	20000	12	0	1	30	0	0	
 PRODUCT	73	Hair Color	1771	Demon Hair	0	48000.00	10.00	48000.00	10.00	3020399	1	20000	12	0	1	30	0	0	
 PRODUCT	28	Left Hand Motion Trail	405	Demon Left Hand Motion Trail	0	16000.00	4.00	16000.00	4.00	3020399	1	20000	12	0	1	30	0	0	
-PRODUCT	30	Left Leg Motion Trail	330	Demon Left Leg Motion Trail	0	16000.00	4.00	16000.00	4.00	1146757	1	20000	12	0	1	30	0	0	
+PRODUCT	30	Left Leg Motion Trail	330	Demon Left Leg Motion Trail	0	16000.00	4.00	16000.00	4.00	0	1	20000	12	0	1	30	0	0	
 PRODUCT	20	Primary Gradients	223	Demon Primary Gradient	0	48000.00	10.00	48000.00	10.00	0	1	20000	12	0	1	30	0	0	
 PRODUCT	2	Relax Colors	72	Demon Relax	0	160000.00	32.00	160000.00	32.00	3020399	1	20000	12	0	1	30	0	0	
-PRODUCT	27	Right Hand Motion Trail	355	Demon Right Hand Motion Trail	0	16000.00	4.00	16000.00	4.00	369157	1	20000	12	0	1	30	0	0	
+PRODUCT	27	Right Hand Motion Trail	355	Demon Right Hand Motion Trail	0	16000.00	4.00	16000.00	4.00	0	1	20000	12	0	1	30	0	0	
 PRODUCT	29	Right Leg Motion Trail	430	Demon Right Leg Motion Trail	0	16000.00	4.00	16000.00	4.00	3020399	1	20000	12	0	1	30	0	0	
-PRODUCT	21	Secondary Gradients	248	Demon Secondary Gradient	0	54000.00	10.00	54000.00	10.00	3020399	1	20000	12	0	1	30	0	0	
-PRODUCT	24	Timers	277	Demon Timer	0	32000.00	6.00	32000.00	6.00	3020399	1	20000	12	0	1	30	0	0	
+PRODUCT	21	Secondary Gradients	248	Demon Secondary Gradient	0	54000.00	10.00	54000.00	10.00	2457506	1	20000	12	0	1	30	0	0	
+PRODUCT	24	Timers	277	Demon Timer	0	32000.00	6.00	32000.00	6.00	988706	1	20000	12	0	1	30	0	0	
 PRODUCT	5	Torso Colors	201	Demon Torso	0	48000.00	10.00	48000.00	10.00	0	1	20000	12	0	1	30	0	0	
 PRODUCT	34	User Text Colour	464	Demon User Text	0	32000.00	6.00	32000.00	6.00	3020399	1	20000	12	0	1	30	0	0	
 PRODUCT	76	Uncategorized	2008	Mad Stacks	0	2196633.00	0.00	2196633.00	0.00	0	0	20000	0	0	0	0	1	1	
 PRODUCT	1	Blood Colors	606	Void Blood	0	180000.00	36.00	180000.00	36.00	3020399	1	20000	12	0	1	85	0	0	
 PRODUCT	12	DQ Rings	605	Void DQ	0	18000.00	4.00	18000.00	4.00	0	1	20000	12	0	1	85	0	0	
-PRODUCT	43	Emote Colors	607	Void Emote	0	18000.00	4.00	18000.00	4.00	3020399	1	20000	12	0	1	85	0	0	
+PRODUCT	43	Emote Colors	607	Void Emote	0	18000.00	4.00	18000.00	4.00	297506	1	20000	12	0	1	85	0	0	
 PRODUCT	22	Force Colors	608	Void Force	0	270000.00	52.00	270000.00	52.00	0	1	20000	12	0	1	85	0	0	
 PRODUCT	11	Ghost Colors	609	Void Ghost	0	90000.00	18.00	90000.00	18.00	3020399	1	20000	12	0	1	85	0	0	
 PRODUCT	41	Grip Colors	610	Void Grip	0	18000.00	4.00	18000.00	4.00	0	1	20000	12	0	1	85	0	0	
 PRODUCT	73	Hair Color	1817	Void Hair	0	54000.00	11.00	54000.00	11.00	0	1	20000	12	0	1	85	0	0	
 PRODUCT	28	Left Hand Motion Trail	611	Void Left Hand Motion Trail	0	18000.00	4.00	18000.00	4.00	3020399	1	20000	12	0	1	85	0	0	
-PRODUCT	30	Left Leg Motion Trail	612	Void Left Leg Motion Trail	0	18000.00	4.00	18000.00	4.00	3020399	1	20000	12	0	1	85	0	0	
+PRODUCT	30	Left Leg Motion Trail	612	Void Left Leg Motion Trail	0	18000.00	4.00	18000.00	4.00	2803106	1	20000	12	0	1	85	0	0	
 PRODUCT	20	Primary Gradients	613	Void Primary Gradient	0	54000.00	11.00	54000.00	11.00	0	1	20000	12	0	1	85	0	0	
 PRODUCT	2	Relax Colors	614	Void Relax	0	180000.00	35.00	180000.00	35.00	0	1	20000	12	0	1	85	0	0	
 PRODUCT	27	Right Hand Motion Trail	615	Void Right Hand Motion Trail	0	18000.00	4.00	18000.00	4.00	0	1	20000	12	0	1	85	0	0	
 PRODUCT	29	Right Leg Motion Trail	616	Void Right Leg Motion Trail	0	18000.00	4.00	18000.00	4.00	0	1	20000	12	0	1	85	0	0	
 PRODUCT	21	Secondary Gradients	653	Void Secondary Gradient	0	54000.00	11.00	54000.00	11.00	0	1	20000	12	0	1	85	0	0	
 PRODUCT	18	Misc	617	Void Secondary Gradient - deprecated	0	0.00	10.00	0.00	10.00	0	0	20000	0	0	0	0	0	0	
-PRODUCT	24	Timers	618	Void Timer	0	36000.00	7.00	36000.00	7.00	801157	1	20000	12	0	1	85	0	0	
+PRODUCT	24	Timers	618	Void Timer	0	36000.00	7.00	36000.00	7.00	0	1	20000	12	0	1	85	0	0	
 PRODUCT	5	Torso Colors	619	Void Torso	0	54000.00	10.00	54000.00	10.00	0	1	20000	12	0	1	85	0	0	
-PRODUCT	34	User Text Colour	620	Void User Text	0	36000.00	7.00	36000.00	7.00	2442757	1	20000	12	0	1	85	0	0	
+PRODUCT	34	User Text Colour	620	Void User Text	0	36000.00	7.00	36000.00	7.00	0	1	20000	12	0	1	85	0	0	
 PRODUCT	1	Blood Colors	2657	Superior Blood	0	150000.00	25.00	150000.00	25.00	3020399	1	30000	12	0	1	130	0	0	
 PRODUCT	12	DQ Rings	2660	Superior DQ	0	15000.00	0.00	15000.00	0.00	0	0	30000	12	0	1	130	0	0	
 PRODUCT	43	Emote Colors	2670	Superior Emote	0	15000.00	0.00	15000.00	0.00	0	0	30000	12	0	1	130	0	0	

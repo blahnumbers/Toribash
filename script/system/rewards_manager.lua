@@ -101,7 +101,7 @@ do
 		local dayReward = {}
 		
 		for i = 0, 6 do
-			local bgImg = RewardData[i].item ~= '0' and "../textures/store/items/" .. RewardData[i].item.itemid .. "_big.tga" or "torishop/icons/tc.tga"
+			local bgImg = RewardData[i].item ~= '0' and "../textures/store/items/" .. RewardData[i].item.itemid .. "_big.tga" or "../textures/store/toricredit.tga"
 			local iconSize = dayRewardWidth - 40 > dayRewardsView.size.h - 50 and dayRewardsView.size.h - 70 or dayRewardWidth - 60
 			
 			dayReward[i] = {}
@@ -115,7 +115,7 @@ do
 				iconSize = i == rewardData.days and iconSize + 20 or iconSize
 				dayReward[i].icon = UIElement:new({
 					parent = dayReward[i].main,
-					pos = { (dayReward[i].main.size.w - iconSize) / 2, 20 - (i == rewardData.days and 10 or 0) },
+					pos = { (dayReward[i].main.size.w - iconSize) / 2, (dayReward[i].main.size.h - iconSize) / 3 },
 					size = { iconSize, iconSize },
 					bgImage = bgImg
 				})
@@ -136,7 +136,7 @@ do
 		end
 		local rewardNextTime = UIElement:new( {
 			parent = loginView,
-			pos = { 0, -110 },
+			pos = { 0, -115 },
 			size = { loginView.size.w, 30 }
 		})
 		rewardNextTime:addCustomDisplay(false, function()

@@ -1,5 +1,4 @@
 -- clan data manager class
-dofile("clans/errors.lua")
 
 DEAD = 0
 ALIVE = 1
@@ -33,7 +32,6 @@ do
 		local data_types = { "id", "name", "tag", "isofficial", "rank", "level", "xp", "memberstotal", "isfreeforall", "topach", "isactive", "members", "leaders" }
 		local file = io.open("clans/clans.txt")
 		if (file == nil) then
-			err(ERR.clanDataEmpty)
 			return false
 		end
 		
@@ -66,7 +64,6 @@ do
 		local data_types = { "minxp", "maxmembers", "officialonly" }
 		local file = io.open("clans/clanlevels.txt")
 		if (file == nil) then
-			err(ERR.clanLevelDataEmpty)
 			return false
 		end
 		
@@ -90,7 +87,6 @@ do
 		local data_types = { "achname", "achdesc" }
 		local file = io.open("clans/clanachievements.txt")
 		if (file == nil) then
-			err(ERR.clanAchievementDataEmpty)
 			return false
 		end
 		
@@ -454,7 +450,7 @@ do
 		filtersTitle:addCustomDisplay(true, function()
 				filtersTitle:uiText(TB_MENU_LOCALIZED.CLANSSEARCHFILTERS, nil, nil, FONTS.BIG, CENTERMID, 0.7, nil, nil, nil, nil, 0.2)
 			end)
-		local clanListFilters = TBMenu:createImageButtons(filtersTopBar, filtersTitle.size.w, 0, filtersTitle.size.h, filtersTitle.size.h, "system/clanfilters.tga", "system/clanfiltershover.tga", "system/clanfilterspressed.tga")
+		local clanListFilters = TBMenu:createImageButtons(filtersTopBar, filtersTitle.size.w, 0, filtersTitle.size.h, filtersTitle.size.h, "../textures/menu/general/buttons/clanfilters.tga", "../textures/menu/general/buttons/clanfiltershover.tga", "../textures/menu/general/buttons/clanfilterspressed.tga")
 		clanListFilters:addMouseHandlers(nil, function()
 				if (options) then
 					options.isactive = options.isactive - 1
@@ -603,7 +599,7 @@ do
 					parent = filterCheckbox,
 					pos = { 0, 0 },
 					size = { filterCheckbox.size.w, filterCheckbox.size.h },
-					bgImage = "system/checkmark.tga"
+					bgImage = "../textures/menu/general/buttons/checkmark.tga"
 				})
 				if (options[opts] == 0 or options[opts] == false) then
 					filterCheckboxIcon:hide(true)
@@ -714,7 +710,7 @@ do
 		clanListTopBarTitle:addCustomDisplay(true, function()
 				clanListTopBarTitle:uiText(TB_MENU_LOCALIZED.CLANSCLANLIST, nil, nil, FONTS.BIG, CENTERMID, 0.7, nil, nil, nil, nil, 0.2)
 			end)
-		local clanListFilters = TBMenu:createImageButtons(clanListTopBar, clanListTopBarTitle.size.w, 0, clanListTopBarTitle.size.h, clanListTopBarTitle.size.h, "system/clanfilters.tga", "system/clanfiltershover.tga", "system/clanfilterspressed.tga")
+		local clanListFilters = TBMenu:createImageButtons(clanListTopBar, clanListTopBarTitle.size.w, 0, clanListTopBarTitle.size.h, clanListTopBarTitle.size.h, "../textures/menu/general/buttons/clanfilters.tga", "../textures/menu/general/buttons/clanfiltershover.tga", "../textures/menu/general/buttons/clanfilterspressed.tga")
 		clanListFilters:addMouseHandlers(nil, function()
 				Clans:showClanListFilters(viewElement, options)
 			end, nil)
@@ -1081,7 +1077,7 @@ do
 				parent = clanTopAchievement,
 				pos = { 10, (clanTopAchievement.size.h - iconScale) / 2 },
 				size = { iconScale, iconScale },
-				bgImage = "/clans/achievements/" .. clanTopAch .. ".tga"
+				bgImage = "../textures/clans/achievements/" .. clanTopAch .. ".tga"
 			})
 			local clanTopAchName = UIElement:new({
 				parent = clanTopAchievement,

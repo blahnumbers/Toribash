@@ -186,29 +186,14 @@ do
 					end
 			},
 			{
-				title = "Sports Themed Shiai Items", 
-				subtitle = "A line of new 3D items from Event Squad's Item Forgers, for you to be prepared and jump into the field!", 
-				image = "../textures/menu/promo/sportsshiai.tga",
+				title = "The Barbershop", 
+				subtitle = "Summer has come but you're still getting your hair done by your mom? Time to get trendy with the new 3D hairs collection!", 
+				image = "../textures/menu/promo/barbershop.tga",
 				action = function() 
-						open_url("http://forum.toribash.com/tori_token_exchange.php") 
+						close_menu()
+						open_menu(12)
 					end
-			},
- 			{ 
- 				title = "Colors of the Rainbow", 
- 				subtitle = "It's the middle of spring! The sky is blue, there's beautiful sunshine and vibrant rainbows, how lovely... but, what's this? The rainbow seems... off. Time to investigate!", 
- 				image = "../textures/menu/promo/colorsoftherainbow.tga",
- 				action = function() 
- 						open_url("http://forum.toribash.com/showthread.php?t=614272") 
- 					end
- 			 },
-  			{ 
-  				title = "Summer Art Contest", 
-  				subtitle = "Ahh…. with Summer right around the corner, theres nothing better than painting your way through the joyful season! Am I right?", 
-  				image = "../textures/menu/promo/summerart.tga",
-  				action = function() 
-  						open_url("http://forum.toribash.com/showthread.php?t=614273") 
-  					end
-  			 },
+			}
 		}
 		
 		-- Store all elements that would require reloading when switching event announcements in one table
@@ -308,11 +293,11 @@ do
 			end)
 		
 		-- Manual announcement change
-		local eventPrevButton = TBMenu:createImageButtons(toReload, 10, toReload.size.h / 2 - 32, 32, 64, "/system/arrowleft.tga", nil, nil, { 0, 0, 0, 0 }, { 0, 0, 0, 0.7 })
+		local eventPrevButton = TBMenu:createImageButtons(toReload, 10, toReload.size.h / 2 - 32, 32, 64, "../textures/menu/general/buttons/arrowleft.tga", nil, nil, { 0, 0, 0, 0 }, { 0, 0, 0, 0.7 })
 		eventPrevButton:addMouseHandlers(nil, function()
 				TBMenu:changeCurrentEvent(viewElement, eventsData, eventItems, rotateClock, toReload, -1)
 			end, nil)
-		local eventNextButton = TBMenu:createImageButtons(toReload, toReload.size.w - 42, toReload.size.h / 2 - 32, 32, 64, "/system/arrowright.tga", nil, nil, { 0, 0, 0, 0 }, { 0, 0, 0, 0.7 })
+		local eventNextButton = TBMenu:createImageButtons(toReload, toReload.size.w - 42, toReload.size.h / 2 - 32, 32, 64, "../textures/menu/general/buttons/arrowright.tga", nil, nil, { 0, 0, 0, 0 }, { 0, 0, 0, 0.7 })
 		eventNextButton:addMouseHandlers(nil, function()
 				TBMenu:changeCurrentEvent(viewElement, eventsData, eventItems, rotateClock, toReload, 1)
 			end, nil)
@@ -367,7 +352,7 @@ do
 				pos = { iconScale + 5, tbMenuSaleName.size.h },
 				size = { shopView.size.w - iconScale - 5, shopView.size.h - tbMenuSaleName.size.h }
 			})
-			local saleDiscount = TB_STORE_DATA.onsale.tcOld and (TB_STORE_DATA.onsale.tcOld - TB_STORE_DATA.onsale.tc) / TB_STORE_DATA.onsale.tcOld * 100 or (TB_STORE_DATA.onsale.usdOld - TB_STORE_DATA.onsale.usd) / TB_STORE_DATA.onsale.usdOld * 100
+			local saleDiscount = TB_STORE_DATA.onsale.tcOld ~= 0 and (TB_STORE_DATA.onsale.tcOld - TB_STORE_DATA.onsale.tc) / TB_STORE_DATA.onsale.tcOld * 100 or (TB_STORE_DATA.onsale.usdOld - TB_STORE_DATA.onsale.usd) / TB_STORE_DATA.onsale.usdOld * 100
 			while (tbMenuSaleDiscount:uiText(saleDiscount .. "% OFF!", nil, nil, nil, LEFT, saleDiscountSize, nil, nil, nil, nil, nil, true) == false) do
 				saleDiscountSize = saleDiscountSize - 0.05
 			end
@@ -593,10 +578,10 @@ do
 	
 	function TBMenu:showPracticeSection()
 		local tbMenuPracticeButtonsData = {
-			{ title = TB_MENU_LOCALIZED.MAINMENUBEGINNERTUTNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUBEGINNERTUTDESC, size = 0.3, vsize = 0.5, mode = ORIENTATION_PORTRAIT, action = function() open_menu(1) dofile("tutorial/tutorial6.lua") end, noQuit = true },
-			{ title = TB_MENU_LOCALIZED.MAINMENUADVMOVESNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUADVMOVESDESC, size = 0.3, vsize = 0.5, mode = ORIENTATION_PORTRAIT, action = function() open_menu(1) dofile("tutorial/tutorial7.lua") end, noQuit = true },
+			{ title = TB_MENU_LOCALIZED.MAINMENUBEGINNERTUTNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUBEGINNERTUTDESC, size = 0.3, vsize = 0.5, mode = ORIENTATION_PORTRAIT, action = function() open_menu(1) dofile("tutorial/tutorial6.lua") close_menu() close_menu() end, noQuit = true },
+			{ title = TB_MENU_LOCALIZED.MAINMENUADVMOVESNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUADVMOVESDESC, size = 0.3, vsize = 0.5, mode = ORIENTATION_PORTRAIT, action = function() open_menu(1) dofile("tutorial/tutorial7.lua") close_menu() close_menu() end, noQuit = true },
 			{ title = TB_MENU_LOCALIZED.MAINMENUFIGHTUKENAME, subtitle = TB_MENU_LOCALIZED.MAINMENUFIGHTUKEDESC, size = 0.467, image = "../textures/menu/fightuke.tga", mode = ORIENTATION_LANDSCAPE, action = function() open_menu(1) dofile("tutorial/fight_uke_v01.lua") end, noQuit = true },
-			{ title = TB_MENU_LOCALIZED.MAINMENUCOMEBACKNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUCOMEBACKDESC, size = 0.233, image = "../textures/menu/comebackpractice.tga", mode = ORIENTATION_PORTRAIT, action = function() open_menu(1) dofile("sdk/unload.lua") dofile("tutorial/cbpractice.lua") end, noQuit = true }
+			{ title = TB_MENU_LOCALIZED.MAINMENUCOMEBACKNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUCOMEBACKDESC, size = 0.233, image = "../textures/menu/comebackpractice.tga", mode = ORIENTATION_PORTRAIT, action = function() open_menu(1) dofile("tutorial/cbpractice.lua") end, noQuit = true }
 		}
 		TBMenu:showSection(tbMenuPracticeButtonsData)
 	end
@@ -622,12 +607,12 @@ do
 	
 	function TBMenu:addBottomBloodSmudge(parentElement, num, scale)
 		local scale = scale or 64
-		local bottomSmudge = "system/sectionbottomsplat1.tga"
+		local bottomSmudge = "../textures/menu/general/bottomsmudgebig.tga"
 		if (parentElement.size.w < 400) then
 			if (num % 2 == 1) then
-				bottomSmudge = "/system/sectionbottomsplat2.tga"
+				bottomSmudge = "../textures/menu/general/bottomsmudgemedium1.tga"
 			else
-				bottomSmudge = "/system/sectionbottomsplat3.tga"
+				bottomSmudge = "../textures/menu/general/bottomsmudgemedium2.tga"
 			end
 		end
 		local smudgeElement = UIElement:new({
@@ -744,13 +729,13 @@ do
 			else
 				tbMenuSectionButtons[i].titleView = UIElement:new( {
 					parent = tbMenuSectionButtons[i].mainView,
-					pos = { 20, -tbMenuSectionButtons[i].mainView.size.h / 4},
-					size = { tbMenuSectionButtons[i].mainView.size.w - 40, 50 }
+					pos = { 20, tbMenuSectionButtons[i].mainView.size.h / 4 },
+					size = { tbMenuSectionButtons[i].mainView.size.w - 40, tbMenuSectionButtons[i].mainView.size.h / 4 }
 				})
 				tbMenuSectionButtons[i].subtitleView = UIElement:new( {
 					parent = tbMenuSectionButtons[i].mainView,
-					pos = { 20, -tbMenuSectionButtons[i].mainView.size.h / 7 },
-					size = { tbMenuSectionButtons[i].mainView.size.w - 40, 50 }
+					pos = { 20, tbMenuSectionButtons[i].mainView.size.h / 2 },
+					size = { tbMenuSectionButtons[i].mainView.size.w - 40, tbMenuSectionButtons[i].mainView.size.h / 4 }
 				})
 			end
 			while (not tbMenuSectionButtons[i].titleView:uiText(buttonsData[i].title, nil, nil, FONTS.BIG, LEFT, titleScaleModifier, nil, nil, nil, nil, nil, true)) do
@@ -804,8 +789,8 @@ do
 	end
 	
 	function TBMenu:showGameLogo()
-		local logo = "/system/tblogo128.tga"
-		local gametitle = "/system/toribashgametitle.tga"
+		local logo = "../textures/menu/logos/toribash_small.tga"
+		local gametitle = "../textures/menu/logos/toribashgametitle.tga"
 		local logoSize = 80
 		local customLogo = io.open("custom/" .. TB_MENU_PLAYER_INFO.username .. "/logo.tga", "r", 1)
 		if (customLogo) then
@@ -915,11 +900,12 @@ do
 			pos = { 80, 10 },
 			size = { 350, 25 }
 		})
+		local displayName = TB_MENU_PLAYER_INFO.username == "" and "Tori" or TB_MENU_PLAYER_INFO.username
 		tbMenuUserName:addCustomDisplay(false, function()
-				tbMenuUserName:uiText(TB_MENU_PLAYER_INFO.username, tbMenuUserName.pos.x + 2, tbMenuUserName.pos.y + 2, FONTS.BIG, LEFT, 0.55, nil, nil, {0,0,0,0.2})
-				tbMenuUserName:uiText(TB_MENU_PLAYER_INFO.username, nil, nil, FONTS.BIG, LEFT, 0.55)
+				tbMenuUserName:uiText(displayName, tbMenuUserName.pos.x + 2, tbMenuUserName.pos.y + 2, FONTS.BIG, LEFT, 0.55, nil, nil, {0,0,0,0.2})
+				tbMenuUserName:uiText(displayName, nil, nil, FONTS.BIG, LEFT, 0.55)
 			end)
-		local tbMenuLogoutButton = TBMenu:createImageButtons(tbMenuUserBar, 85 + get_string_length(TB_MENU_PLAYER_INFO.username, FONTS.BIG) * 0.55, 15, 25, 25, "/system/logout.tga", "/system/logouthover.tga", "/system/logoutpressed.tga")
+		local tbMenuLogoutButton = TBMenu:createImageButtons(tbMenuUserBar, 85 + get_string_length(displayName, FONTS.BIG) * 0.55, 15, 25, 25, "../textures/menu/general/buttons/logout.tga", "../textures/menu/general/buttons/logouthover.tga", "../textures/menu/general/buttons/logoutpressed.tga")
 		tbMenuLogoutButton:addMouseHandlers(nil, function()
 				open_menu(18)
 			end, nil)
@@ -952,7 +938,7 @@ do
 			parent = tbMenuUserTcView,
 			pos = { 0, 0 },
 			size = { tbMenuUserTcView.size.h, tbMenuUserTcView.size.h },
-			bgImage = "/system/tc32px.tga"
+			bgImage = "../textures/store/toricredit_tiny.tga"
 		})
 		tbMenuUserTcIcon:addCustomDisplay(false, function()
 				TBMenu:buttonGrowHover(tbMenuUserTcView, tbMenuUserTcIcon)
@@ -983,7 +969,7 @@ do
 			parent = tbMenuUserStView,
 			pos = { 0, 0 },
 			size = { tbMenuUserStView.size.h, tbMenuUserStView.size.h },
-			bgImage = "/system/st32px.tga"
+			bgImage = "../textures/store/shiaitoken_tiny.tga"
 		})
 		tbMenuUserStIcon:addCustomDisplay(false, function()
 				TBMenu:buttonGrowHover(tbMenuUserStView, tbMenuUserStIcon)
@@ -1090,8 +1076,8 @@ do
 			size = { 110, 50 }
 		})
 		local tbMenuBottomLeftButtonsData = {
-			{ action = function() if (TB_MENU_NOTIFICATIONS_ISOPEN == 0) then TBMenu:openMenu(101) else Rewards:quit() end end, image = "system/notifications.tga", imageHover = "system/notificationshover.tga", imagePress = "system/notificationspress.tga" },
-			{ action = function() open_url("http://discord.gg/toribash") end, image = "/system/discordred.tga", imageHover = "/system/discordredhover.tga", imagePress = "/system/discordredpress.tga" }
+			{ action = function() if (TB_MENU_NOTIFICATIONS_ISOPEN == 0) then TBMenu:openMenu(101) else Rewards:quit() end end, image = "../textures/menu/general/buttons/notifications.tga", imageHover = "../textures/menu/general/buttons/notificationshover.tga", imagePress = "../textures/menu/general/buttons/notificationspress.tga" },
+			{ action = function() open_url("http://discord.gg/toribash") end, image = "../textures/menu/general/buttons/discordred.tga", imageHover = "../textures/menu/general/buttons/discordredhover.tga", imagePress = "../textures/menu/general/buttons/discordredpress.tga" }
 		}
 		local tbMenuBottomLeftButtons = {}
 		for i, v in pairs(tbMenuBottomLeftButtonsData) do
@@ -1105,8 +1091,8 @@ do
 			size = { 110, 50 }
 		})
 		local tbMenuBottomRightButtonsData = {
-			{ action = function() open_menu(4) end, image = "/system/quit.tga", imageHover = "/system/quithover.tga", imagePress = "/system/quitpress.tga" },
-			{ action = function() open_menu(3) end, image = "/system/settingsred.tga", imageHover = "/system/settingsredhover.tga", imagePress = "/system/settingsredpress.tga" }
+			{ action = function() open_menu(4) end, image = "../textures/menu/general/buttons/quit.tga", imageHover = "../textures/menu/general/buttons/quithover.tga", imagePress = "../textures/menu/general/buttons/quitpress.tga" },
+			{ action = function() open_menu(3) end, image = "../textures/menu/general/buttons/settingsred.tga", imageHover = "../textures/menu/general/buttons/settingsredhover.tga", imagePress = "../textures/menu/general/buttons/settingsredpress.tga" }
 		}
 		local tbMenuBottomRightButtons = {}
 		for i,v in pairs(tbMenuBottomRightButtonsData) do
@@ -1143,7 +1129,7 @@ do
 		else 
 			BLURENABLED = true
 		end
-		local tbMenuHide = TBMenu:createImageButtons(tbMenuMain, WIN_W / 2 - 32, -84, 64, 64, "/system/arrowbot.tga", nil, nil, {0, 0, 0, 0}, { 0, 0, 0, 0.2 }, { 0, 0, 0, 0.4}, 32)
+		local tbMenuHide = TBMenu:createImageButtons(tbMenuMain, WIN_W / 2 - 32, -84, 64, 64, "../textures/menu/general/buttons/arrowbot.tga", nil, nil, {0, 0, 0, 0}, { 0, 0, 0, 0.2 }, { 0, 0, 0, 0.4}, 32)
 		tbMenuHide.state = 0
 		tbMenuHide:addMouseHandlers(nil, function()
 				if (tbMenuHide.state == 0) then
@@ -1165,7 +1151,7 @@ do
 					end
 					if (tbMenuMain.pos.y >= WIN_H) then
 						for i = 1, 3 do
-							tbMenuHide.child[i]:updateImage("/system/arrowtop.tga")
+							tbMenuHide.child[i]:updateImage("../textures/menu/general/buttons/arrowtop.tga")
 						end
 						tbMenuMain:moveTo(nil, WIN_H)
 						tbMenuHide:moveTo(nil, -tbMenuMain.pos.y - 84)
@@ -1181,7 +1167,7 @@ do
 					end
 					if (tbMenuMain.pos.y <= 0) then
 						for i = 1, 3 do
-							tbMenuHide.child[i]:updateImage("/system/arrowbot.tga")
+							tbMenuHide.child[i]:updateImage("../textures/menu/general/buttons/arrowbot.tga")
 						end
 						tbMenuMain:moveTo(nil, 0)
 						tbMenuHide:moveTo(nil, -tbMenuMain.pos.y - 84)
@@ -1192,7 +1178,7 @@ do
 					end
 				end
 			end, false)
-		local splatLeftImg = "system/bloodsplatleft.tga"
+		local splatLeftImg = "../textures/menu/general/bloodsplatleft.tga"
 		local splatCustom = false
 		local customLogo = io.open("custom/" .. TB_MENU_PLAYER_INFO.username .. "/splatt1.tga", "r", 1)
 		if (customLogo) then
@@ -1210,7 +1196,7 @@ do
 			parent = tbMenuMain,
 			pos = { -(WIN_H - 320) - 10, 200 },
 			size = { (WIN_H - 320), WIN_H - 320 },
-			bgImage = splatCustom and splatLeftImg or "system/bloodsplatright.tga"
+			bgImage = splatCustom and splatLeftImg or "../textures/menu/general/bloodsplatright.tga"
 		})
 		TBMenu:showGameLogo()
 		TBMenu:showUserBar()
