@@ -109,7 +109,7 @@ function DiscordRPC:show()
 		parent = discordUsernameView,
 		pos = { 0, 0 },
 		size = { discordUsernameView.size.h, discordUsernameView.size.h },
-		bgImage = "../textures/menu/general/discordLogo.tga"
+		bgImage = "../textures/menu/logos/discord.tga"
 	})
 	local discordUsername = UIElement:new({
 		parent = discordUsernameView,

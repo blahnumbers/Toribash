@@ -34,7 +34,7 @@ do
 	
 	-- Connects to matchmake server in idle mode, do not instantly search for a fight
 	function Matchmake:connect()
-		if (TB_MENU_MATCHMAKE_ISOPEN == 0) then
+		if (TB_MENU_MATCHMAKE_ISOPEN == 0 and get_world_state().game_type == 0) then
 			UIElement:runCmd("matchmake pause")
 		end
 		Matchmake:getMatchmaker()
@@ -43,7 +43,9 @@ do
 	function Matchmake:quit()
 		TB_MENU_MATCHMAKE_ISOPEN = 0
 		TB_MATCHMAKER_SEARCHSTATUS = nil
-		UIElement:runCmd("matchmake disconnect")
+		if (get_world_state().game_type == 0) then
+			UIElement:runCmd("matchmake disconnect")
+		end
 		tbMenuCurrentSection:kill(true) 
 		tbMenuNavigationBar:kill(true)
 		TBMenu:showNavigationBar()
@@ -76,7 +78,7 @@ do
 			})
 			local titleSizeMod = 1
 			local rankedStr = TB_MENU_LOCALIZED.MATCHMAKERANKEDMODE
-			local rankedSearchDisabled = get_world_state().game_type == 1 and (PlayerInfo:getUser(get_player_info(0).name) == TB_MENU_PLAYER_INFO.username or PlayerInfo:getUser(get_player_info(1).name) == TB_MENU_PLAYER_INFO.username)
+			local rankedSearchDisabled = get_world_state().game_type == 1-- and (PlayerInfo:getUser(get_player_info(0).name) == TB_MENU_PLAYER_INFO.username or PlayerInfo:getUser(get_player_info(1).name) == TB_MENU_PLAYER_INFO.username)
 			while (mmRankedTitle:uiText(rankedStr, nil, nil, FONTS.BIG, LEFT, titleSizeMod, nil, nil, nil, nil, nil, true) == false) do
 				titleSizeMod = titleSizeMod - 0.05
 			end
@@ -284,7 +286,7 @@ do
 			pos = { 5, viewElement.size.h / 25 },
 			size = { viewElement.size.w - 10, viewElement.size.h / 7 }
 		})
-		local unrankedSearchDisabled = get_world_state().game_type == 1 and (PlayerInfo:getUser(get_player_info(0).name) == TB_MENU_PLAYER_INFO.username or PlayerInfo:getUser(get_player_info(1).name) == TB_MENU_PLAYER_INFO.username)
+		local unrankedSearchDisabled = get_world_state().game_type == 1-- and (PlayerInfo:getUser(get_player_info(0).name) == TB_MENU_PLAYER_INFO.username or PlayerInfo:getUser(get_player_info(1).name) == TB_MENU_PLAYER_INFO.username)
 		local titleSizeMod = 1
 		local unrankedStr = TB_MENU_LOCALIZED.MATCHMAKEUNRANKEDMODE
 		while (mmUnrankedTitle:uiText(unrankedStr, nil, nil, FONTS.BIG, LEFT, titleSizeMod, nil, nil, nil, nil, nil, true) == false) do

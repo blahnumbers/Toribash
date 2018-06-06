@@ -177,6 +177,14 @@ do
 	function TBMenu:showEvents(viewElement)
 		-- Table to store event announcement data
 		local eventsData = {
+			{
+				title = "Steampunk Month", 
+				subtitle = "This June the Event Squad came here to deliver the finest creations made out of scrap metal, springs, screws and things alike!", 
+				image = "../textures/menu/promo/steampunk.tga",
+				action = function() 
+						open_url("http://forum.toribash.com/tori_token_exchange.php")
+					end
+			},
 			{ 
 				title = "Ranking Season 4", 
 				subtitle = "The fourth season of Toribash ranking is here - with better prizes and stronger opponents. Game on!", 
@@ -569,28 +577,28 @@ do
 	
 	function TBMenu:showPlaySection()
 		local tbMenuPlayButtonsData = {
-			{ title = TB_MENU_LOCALIZED.MAINMENUFREEPLAYNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUFREEPLAYDESC, size = 0.5, image = "../textures/menu/freeplay.tga", mode = ORIENTATION_LANDSCAPE, action = function() open_menu(1) end, noQuit = true },
-			{ title = TB_MENU_LOCALIZED.MAINMENUMATCHMAKINGNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUMATCHMAKINGDESC, size = 0.25, image = "../textures/menu/matchmaking.tga", mode = ORIENTATION_PORTRAIT, action = function() TBMenu:showMatchmaking() end, noQuit = true },
-			{ title = TB_MENU_LOCALIZED.MAINMENUROOMLISTNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUROOMLISTDESC, size = 0.25, image = "../textures/menu/multiplayer.tga", mode = ORIENTATION_PORTRAIT, action = function() open_menu(2) end, noQuit = true }
+			{ title = TB_MENU_LOCALIZED.MAINMENUFREEPLAYNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUFREEPLAYDESC, size = 0.5, image = "../textures/menu/freeplay.tga", mode = ORIENTATION_LANDSCAPE, action = function() open_menu(1) end },
+			{ title = TB_MENU_LOCALIZED.MAINMENUMATCHMAKINGNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUMATCHMAKINGDESC, size = 0.25, image = "../textures/menu/matchmaking.tga", mode = ORIENTATION_PORTRAIT, action = function() TBMenu:showMatchmaking() end },
+			{ title = TB_MENU_LOCALIZED.MAINMENUROOMLISTNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUROOMLISTDESC, size = 0.25, image = "../textures/menu/multiplayer.tga", mode = ORIENTATION_PORTRAIT, action = function() open_menu(2) end }
 		}
 		TBMenu:showSection(tbMenuPlayButtonsData)
 	end
 	
 	function TBMenu:showPracticeSection()
 		local tbMenuPracticeButtonsData = {
-			{ title = TB_MENU_LOCALIZED.MAINMENUBEGINNERTUTNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUBEGINNERTUTDESC, size = 0.3, vsize = 0.5, mode = ORIENTATION_PORTRAIT, action = function() open_menu(1) dofile("tutorial/tutorial6.lua") close_menu() close_menu() end, noQuit = true },
-			{ title = TB_MENU_LOCALIZED.MAINMENUADVMOVESNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUADVMOVESDESC, size = 0.3, vsize = 0.5, mode = ORIENTATION_PORTRAIT, action = function() open_menu(1) dofile("tutorial/tutorial7.lua") close_menu() close_menu() end, noQuit = true },
-			{ title = TB_MENU_LOCALIZED.MAINMENUFIGHTUKENAME, subtitle = TB_MENU_LOCALIZED.MAINMENUFIGHTUKEDESC, size = 0.467, image = "../textures/menu/fightuke.tga", mode = ORIENTATION_LANDSCAPE, action = function() open_menu(1) dofile("tutorial/fight_uke_v01.lua") end, noQuit = true },
-			{ title = TB_MENU_LOCALIZED.MAINMENUCOMEBACKNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUCOMEBACKDESC, size = 0.233, image = "../textures/menu/comebackpractice.tga", mode = ORIENTATION_PORTRAIT, action = function() open_menu(1) dofile("tutorial/cbpractice.lua") end, noQuit = true }
+			{ title = TB_MENU_LOCALIZED.MAINMENUBEGINNERTUTNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUBEGINNERTUTDESC, size = 0.3, vsize = 0.5, mode = ORIENTATION_PORTRAIT, action = function() dofile("tutorial/tutorial6.lua") end, quit = true },
+			{ title = TB_MENU_LOCALIZED.MAINMENUADVMOVESNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUADVMOVESDESC, size = 0.3, vsize = 0.5, mode = ORIENTATION_PORTRAIT, action = function() dofile("tutorial/tutorial7.lua") end, quit = true },
+			{ title = TB_MENU_LOCALIZED.MAINMENUFIGHTUKENAME, subtitle = TB_MENU_LOCALIZED.MAINMENUFIGHTUKEDESC, size = 0.467, image = "../textures/menu/fightuke.tga", mode = ORIENTATION_LANDSCAPE, action = function() dofile("tutorial/fight_uke_v01.lua") end, quit = true },
+			{ title = TB_MENU_LOCALIZED.MAINMENUCOMEBACKNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUCOMEBACKDESC, size = 0.233, image = "../textures/menu/comebackpractice.tga", mode = ORIENTATION_PORTRAIT, action = function() dofile("tutorial/cbpractice.lua") end, quit = true }
 		}
 		TBMenu:showSection(tbMenuPracticeButtonsData)
 	end
 	
 	function TBMenu:showModsSection()
 		local tbMenuModsButtonsData = {
-			{ title = TB_MENU_LOCALIZED.MAINMENUMODMAKERNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUMODMAKERDESC, size = 0.25, image = "../textures/menu/modmaker.tga", mode = ORIENTATION_PORTRAIT, action = function() open_menu(17) end, noQuit = true },
-			{ title = TB_MENU_LOCALIZED.MAINMENUGAMERULESNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUGAMERULESDESC, size = 0.25, image = "../textures/menu/gamerules.tga", mode = ORIENTATION_PORTRAIT, action = function() open_menu(5) end, noQuit = true },
-			{ title = TB_MENU_LOCALIZED.MAINMENUMODLISTNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUMODLISTDESC, size = 0.5, image = "../textures/menu/modlist.tga", mode = ORIENTATION_LANDSCAPE, action = function() open_menu(7) end, noQuit = true },
+			{ title = TB_MENU_LOCALIZED.MAINMENUMODMAKERNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUMODMAKERDESC, size = 0.25, image = "../textures/menu/modmaker.tga", mode = ORIENTATION_PORTRAIT, action = function() open_menu(17) end },
+			{ title = TB_MENU_LOCALIZED.MAINMENUGAMERULESNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUGAMERULESDESC, size = 0.25, image = "../textures/menu/gamerules.tga", mode = ORIENTATION_PORTRAIT, action = function() open_menu(5) end, quit = true },
+			{ title = TB_MENU_LOCALIZED.MAINMENUMODLISTNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUMODLISTDESC, size = 0.5, image = "../textures/menu/modlist.tga", mode = ORIENTATION_LANDSCAPE, action = function() open_menu(7) end },
 			--{ title = TB_MENU_LOCALIZED.MAINMENUMODSDISCOVERNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUMODSDISCOVERDESC, size = 0.3, vsize = 0.5, mode = ORIENTATION_PORTRAIT, noQuit = true }
 		}
 		TBMenu:showSection(tbMenuModsButtonsData)
@@ -598,9 +606,9 @@ do
 	
 	function TBMenu:showToolsSection()
 		local tbMenuToolsButtonsData = {
-			{ title = TB_MENU_LOCALIZED.MAINMENUSCRIPTSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUSCRIPTSDESC, size = 0.25, image = "../textures/menu/scripts.tga", mode = ORIENTATION_PORTRAIT, action = function() open_menu(8) end, noQuit = true },
-			{ title = TB_MENU_LOCALIZED.MAINMENUSHADERSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUSHADERSDESC, size = 0.5, image = "../textures/menu/shaders.tga", mode = ORIENTATION_LANDSCAPE, action = function() open_menu(9) end, noQuit = true },
-			{ title = TB_MENU_LOCALIZED.MAINMENUSOUNDSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUSOUNDSDESC, size = 0.25, image = "../textures/menu/sounds.tga", mode = ORIENTATION_PORTRAIT, action = function() open_menu(16) end, noQuit = true }
+			{ title = TB_MENU_LOCALIZED.MAINMENUSCRIPTSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUSCRIPTSDESC, size = 0.25, image = "../textures/menu/scripts.tga", mode = ORIENTATION_PORTRAIT, action = function() open_menu(8) end },
+			{ title = TB_MENU_LOCALIZED.MAINMENUSHADERSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUSHADERSDESC, size = 0.5, image = "../textures/menu/shaders.tga", mode = ORIENTATION_LANDSCAPE, action = function() open_menu(9) end },
+			{ title = TB_MENU_LOCALIZED.MAINMENUSOUNDSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUSOUNDSDESC, size = 0.25, image = "../textures/menu/sounds.tga", mode = ORIENTATION_PORTRAIT, action = function() open_menu(16) end, quit = true }
 		}
 		TBMenu:showSection(tbMenuToolsButtonsData)		
 	end
@@ -747,8 +755,8 @@ do
 		end
 		for i, v in pairs (buttonsData) do
 			tbMenuSectionButtons[i].mainView:addMouseHandlers(nil, function()
-					if (not v.noQuit) then
-						TBMenu:quit()
+					if (v.quit) then
+						close_menu()
 					end
 					buttonsData[i].action()
 				end, nil)

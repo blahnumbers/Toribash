@@ -23,6 +23,10 @@ script/atmo/
 
 script/clans/clans\.txt
 
+textures/clans/
+
+!textures/clans/achievements/
+
 script/sdk/
 
 script/system/color_manager\.lua
@@ -32,3 +36,7 @@ script/3dtest\.lua
 script/clickme\.lua
 
 script/sports\.lua
+
+script/torishop/torishop\.txt
+
+script/torishop/invent\.txt

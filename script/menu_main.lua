@@ -139,4 +139,9 @@ add_hook("console", "tbMainMenuStatic", function(s, i)
 			return 1 
 		end 
 	end)
-add_hook("new_mp_game", "tbMainMenuStatic", function() close_menu() UIElement:runCmd("matchmake disconnect") TB_MATCHMAKER_SEARCHSTATUS = nil end)
+add_hook("new_mp_game", "tbMainMenuStatic", function() 
+		if (TB_MENU_MAIN_ISOPEN == 1) then 
+			TB_MATCHMAKER_SEARCHSTATUS = nil
+			close_menu() 
+		end
+	end)
