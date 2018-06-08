@@ -185,6 +185,14 @@ do
 						open_url("http://forum.toribash.com/tori_token_exchange.php")
 					end
 			},
+			{
+				title = "Head Texture of the Month: Steampunk",
+				subtitle = "Wipe off your tablets or your mice, and get the artistic cogs in your brain turning folks because it’s time for a rustic reboot of an old Head Texture of the Month theme!",
+				image = "../textures/menu/promo/htotmsteampunk.tga",
+				action = function()
+						open_url("http://forum.toribash.com/showthread.php?t=615845")
+					end
+			},
 			{ 
 				title = "Ranking Season 4", 
 				subtitle = "The fourth season of Toribash ranking is here - with better prizes and stronger opponents. Game on!", 

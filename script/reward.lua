@@ -46,6 +46,7 @@ if (is_available == "1") then
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR
 	})
 	
+	TB_MENU_MAIN_ISOPEN = 0
 	if (TBMenu:showLoginRewards() == 0) then
 		local startTime = os.time()
 		tbMenuCurrentSection:addCustomDisplay(false, function()

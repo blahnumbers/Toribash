@@ -47,7 +47,7 @@ do
 	end
 	
 	function Rewards:quit()
-		if (get_option("newmenu") == 0) then
+		if (get_option("newmenu") == 0 or TB_MENU_MAIN_ISOPEN == 0) then
 			tbMenuMain:kill()
 			TB_MENU_NOTIFICATIONS_ISOPEN = 0
 			remove_hooks("tbMainMenuVisual")
@@ -61,7 +61,7 @@ do
 	end
 	
 	function Rewards:getNavigationButtons()
-		local buttonText = get_option("newmenu") == 0 and TB_MENU_LOCALIZED.NAVBUTTONEXIT or TB_MENU_LOCALIZED.NAVBUTTONTOMAIN
+		local buttonText = (get_option("newmenu") == 0 or TB_MENU_MAIN_ISOPEN == 0) and TB_MENU_LOCALIZED.NAVBUTTONEXIT or TB_MENU_LOCALIZED.NAVBUTTONTOMAIN
 		local buttonsData = {
 			{ 
 				text = buttonText, 
