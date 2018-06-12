@@ -996,7 +996,9 @@ do
 			size = { tbMenuUserStView.size.w - 30, tbMenuUserStView.size.h }
 		})
 		tbMenuUserStBalance:addCustomDisplay(false, function()
-				tbMenuUserStBalance:uiText(TB_MENU_PLAYER_INFO.data.st, nil, tbMenuUserStBalance.pos.y + 2, nil, LEFT, 0.9, nil, nil, tbMenuUserStView:getButtonColor())
+				-- Proper ST balance is deprecated until a fix is rolled out
+				tbMenuUserStBalance:uiText("ST", nil, tbMenuUserStBalance.pos.y + 2, nil, LEFT, 0.9, nil, nil, tbMenuUserStView:getButtonColor())
+				--tbMenuUserStBalance:uiText(TB_MENU_PLAYER_INFO.data.st, nil, tbMenuUserStBalance.pos.y + 2, nil, LEFT, 0.9, nil, nil, tbMenuUserStView:getButtonColor())
 			end)
 		local tbMenuUserBeltIcon = UIElement:new({
 			parent = tbMenuUserBar,
