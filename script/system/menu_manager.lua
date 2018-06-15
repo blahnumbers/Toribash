@@ -539,10 +539,33 @@ do
 		TBMenu:clearNavSection()
 		
 		CLANLISTLASTPOS = { scroll = {}, list = {} }
-		Clans:getLevelData()
-		Clans:getAchievementData()
-		Clans:getClanData()
-		Clans:showMain(tbMenuCurrentSection)
+		if (not Clans:getLevelData() or not Clans:getAchievementData() or not Clans:getClanData()) then
+			TB_MENU_CLANS_ISOPEN = 0
+			TB_MENU_CLANS_OPENCLANID = 0
+			TBMenu:showNavigationBar()
+			TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
+			local transparency = 1
+			local clanErrorMessage = UIElement:new({
+				parent = tbMenuMain,
+				pos = { WIN_W / 4, -40 },
+				size = { WIN_W / 2, 40 },
+				bgColor = { 0, 0, 0, 0.8 * transparency }
+			})
+			local startTime = os.clock()
+			clanErrorMessage:addCustomDisplay(false, function()
+					clanErrorMessage:uiText(TB_MENU_LOCALIZED.CLANDATALOADERROR, nil, nil, 4, nil, 0.7, nil, nil, { 1, 1, 1, transparency })
+					if (os.clock() - startTime > 2) then
+						transparency = transparency - 0.05
+						clanErrorMessage.bgColor[4] = 0.8 * transparency
+					end
+					if (transparency <= 0) then
+						clanErrorMessage:kill()
+					end
+				end)
+		else 
+			Clans:getClanData()
+			Clans:showMain(tbMenuCurrentSection)
+		end
 	end
 	
 	function TBMenu:showLoginRewards()

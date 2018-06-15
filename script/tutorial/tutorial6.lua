@@ -6,12 +6,6 @@ local playername = get_master().master.nick
 -- User settings
 local default_background_click = 1
 local default_autosave = 1
-local default_chat = 1
-local default_text = 1
-local default_hint = 1
-local default_feedback = 1
-local default_score = 1
-local default_timer = 1
 local default_hud = 1
 
 local completion = 0
@@ -159,6 +153,7 @@ function mouse_up(mouse_btn, x, y)
 	if (tut_end == true) then
 		if (x > (buttons.quit.x) and x < (buttons.quit.x + buttons.quit.w) and (y > buttons.quit.y) and y < (buttons.quit.y + buttons.quit.h)) then
 			buttons.quit.state = BTN_UP
+			start_new_game()
 			terminate()
 		end
 		if (x > (buttons.next_tut.x) and x < (buttons.next_tut.x + buttons.next_tut.w) and (y > buttons.next_tut.y) and y < (buttons.next_tut.y + buttons.next_tut.h)) then
@@ -1769,12 +1764,6 @@ end
 function terminate()
 	set_option("backgroundclick", default_background_click)
 	set_option("autosave", default_autosave)
-	set_option("chat", default_chat)
-	set_option("text", default_text)
-	set_option("hint", default_hint)
-	set_option("feedback", default_feedback)
-	set_option("score", default_score)
-	set_option("timer", default_timer)
 	set_option("hud", default_hud)
 	
 	run_cmd("option uke 1")
@@ -1789,7 +1778,6 @@ function terminate()
 	remove_hooks("stage4")
 	remove_hooks("terminate")
 	reset_camera(1)
-	start_new_game()
 	
 	echo(" ")
 	echo(" ")
@@ -1801,23 +1789,11 @@ end
 function start_tutorial()
 	default_background_click = get_option("backgroundclick")
 	default_autosave = get_option("autosave")
-	default_chat = get_option("chat")
-	default_text = get_option("text")
-	default_hint = get_option("hint")
-	default_feedback = get_option("feedback")
-	default_score = get_option("score")
-	default_timer = get_option("timer")
 	default_hud = get_option("hud")
 	
 	set_option("uke", 1)
 	set_option("backgroundclick", 0)
 	set_option("autosave", 0)
-	set_option("chat", 0)
-	set_option("text", 0)
-	set_option("hint", 0)
-	set_option("feedback", 0)
-	set_option("score", 0)
-	set_option("timer", 0)
 	set_option("hud", 0)
 	
 	run_cmd("lm classic.tbm")
@@ -1827,6 +1803,7 @@ function start_tutorial()
 	
 	add_hook("draw2d", "stage1", tut_stage1)
 	add_hook("draw3d", "stage2", tut_stage2_drawdq)
+	add_hook("new_mp_game", "tutorial", terminate)
 	add_hook("mouse_button_down", "tutorial", mouse_down)
 	add_hook("mouse_button_up", "tutorial", mouse_up)
 	add_hook("mouse_move", "tutorial", mouse_move)

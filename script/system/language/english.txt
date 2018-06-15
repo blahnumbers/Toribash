@@ -135,6 +135,7 @@ CLANLEADERS	Leaders
 CLANLEADER	Leader	
 CLANMEMBERS	Members	
 CLANMEMBER	Member	
+CLANDATALOADERROR	Error loading clan data, check Toribash folder permissions	
 REWARDSDAILYTITLE	Daily Login Reward	
 REWARDSCLAIM	Claim Reward	
 REWARDSCLAIMNETWORKERROR	Error communicating with Toribash servers, please try again later	

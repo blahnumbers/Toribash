@@ -60,7 +60,7 @@ function ComebackPractice:setMod()
 	UIElement:runCmd("set matchframes " .. COMEBACK_SETTINGS.matchframes)
 	UIElement:runCmd("set turnframes " .. COMEBACK_SETTINGS.turnframes)
 	UIElement:runCmd("set gravity 0.00 0.00 " .. COMEBACK_SETTINGS.gravity)
-	UIElement:runCmd("reset")
+	start_new_game()
 end
 
 function ComebackPractice:setStartPose()

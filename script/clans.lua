@@ -9,6 +9,10 @@ dofile("system/clans_manager.lua")
 dofile("system/player_info.lua")
 dofile("toriui/uielement.lua")
 
+if (tbMenuMain) then
+	tbMenuMain:kill()
+end
+
 TB_MENU_PLAYER_INFO = {}
 TB_MENU_PLAYER_INFO.username = PlayerInfo:getUser()
 TB_MENU_PLAYER_INFO.clan = PlayerInfo:getClan(TB_MENU_PLAYER_INFO.username)
@@ -17,9 +21,9 @@ TBMenu:create()
 function TBMenu:addBottomBloodSmudge() end
 TBMenu:getTranslation(get_language())
 
-Clans:getLevelData()
-Clans:getAchievementData()
-Clans:getClanData()
+if (not Clans:getLevelData() or not Clans:getAchievementData() or not Clans:getClanData()) then
+	return
+end
 
 tbMenuMain = UIElement:new({
 	pos = { WIN_W / 8, WIN_H / 5 },

@@ -135,6 +135,7 @@ CLANLEADERS	Лидеры
 CLANLEADER	Лидер	
 CLANMEMBERS	Участники	
 CLANMEMBER	Участник	
+CLANDATALOADERROR	Ошибка загрузки данных, проверьте настройки доступа папки Toribash	
 REWARDSDAILYTITLE	Ежедневная награда	
 REWARDSCLAIM	Получить награду	
 REWARDSCLAIMNETWORKERROR	Ошибка соединения с серверами Toribash, пожалуйста, попробуйте позже	

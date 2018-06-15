@@ -58,6 +58,7 @@ do
 			end
 		end
 		file:close()
+		return true
 	end
 	
 	function Clans:getLevelData()
@@ -81,6 +82,7 @@ do
 		end
 		
 		file:close()
+		return true
 	end
 	
 	function Clans:getAchievementData()
@@ -104,6 +106,7 @@ do
 		end
 		
 		file:close()
+		return true
 	end
 	
 	function Clans:quit()
@@ -1131,7 +1134,9 @@ do
 				break
 			end
 		end
-		download_head(avatars[1].player)
+		if (avatars[1].player) then
+			download_head(avatars[1].player)
+		end
 		TB_MENU_DOWNLOAD_INACTION = true
 		local reloader = UIElement:new({
 			parent = tbMenuCurrentSection,

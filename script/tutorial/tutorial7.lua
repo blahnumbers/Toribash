@@ -5,7 +5,7 @@ local player_name = get_master().master.nick
 local SPACE = 1
 
 -- User settings
-local default_opt = {backgroundclick = 0, autosave = 0, chat = 0, text = 0, hint = 0, feedback = 0, score = 0, timer = 0, hud = 0}
+local default_opt = {backgroundclick = 0, autosave = 0, hud = 0}
 
 local completion = 0
 local completion_change = completion
@@ -344,6 +344,7 @@ function mouse_up(mouse_btn, x, y)
 	if (tut_end == true) then
 		if (x > (buttons.quit.x) and x < (buttons.quit.x + buttons.quit.w) and (y > buttons.quit.y) and y < (buttons.quit.y + buttons.quit.h)) then
 			buttons.quit.state = BTN_UP
+			start_new_game()
 			terminate()
 		end
 		if (x > (buttons.next_tut.x) and x < (buttons.next_tut.x + buttons.next_tut.w) and (y > buttons.next_tut.y) and y < (buttons.next_tut.y + buttons.next_tut.h)) then
@@ -1406,7 +1407,6 @@ function terminate()
 	remove_hooks("terminate")
 	remove_hooks("conditions")
 	reset_camera(1)
-	start_new_game()
 end
 
 function start_tutorial()
@@ -1424,6 +1424,7 @@ function start_tutorial()
 	
 	add_hook("draw2d", "tutorial", tut_stage1)
 	add_hook("draw3d", "tutorial", function() draw_3d(); update_loop() end)
+	add_hook("new_mp_game", "tutorial", terminate)
 	add_hook("mouse_button_down", "tutorial", mouse_down)
 	add_hook("mouse_button_up", "tutorial", mouse_up)
 	add_hook("mouse_move", "tutorial", mouse_move)

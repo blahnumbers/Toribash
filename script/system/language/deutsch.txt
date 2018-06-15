@@ -131,6 +131,7 @@ CLANLEADERS	Anführer
 CLANLEADER	Anführer	
 CLANMEMBERS	Mitglieder	
 CLANMEMBER	Mitglied	
+CLANDATALOADERROR	Fehler beim Laden von Clandaten, überprüfe Lese- und Schreibrechte deines Toribash Ordners	
 REWARDSDAILYTITLE	Tägliche Login Belohnung	
 REWARDSCLAIM	Belohnung abholen	
 REWARDSCLAIMNETWORKERROR	Fehler bei der Kommunikation mit den Toribash Servern, bitte versuche es später erneut	
