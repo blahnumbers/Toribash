@@ -534,11 +534,12 @@ do
 		end
 	end
 	
-	function TBMenu:showClans()
+	function TBMenu:showClans(clantag)
 		tbMenuBottomLeftBar:hide()
 		TBMenu:clearNavSection()
 		
-		CLANLISTLASTPOS = { scroll = {}, list = {} }
+		CLANLISTLASTPOS = CLANLISTLASTPOS or { scroll = {}, list = {} }
+		
 		if (not Clans:getLevelData() or not Clans:getAchievementData() or not Clans:getClanData()) then
 			TB_MENU_CLANS_ISOPEN = 0
 			TB_MENU_CLANS_OPENCLANID = 0
@@ -562,9 +563,8 @@ do
 						clanErrorMessage:kill()
 					end
 				end)
-		else 
-			Clans:getClanData()
-			Clans:showMain(tbMenuCurrentSection)
+		else
+			Clans:showMain(tbMenuCurrentSection, clantag)
 		end
 	end
 	
@@ -1153,7 +1153,7 @@ do
 			end)
 	end
 	
-	function TBMenu:showMain()
+	function TBMenu:showMain(noload)
 		local mainBgColor = nil
 		tbMenuMain = UIElement:new( {
 			pos = {0, 0},
@@ -1243,7 +1243,9 @@ do
 		TBMenu:showUserBar()
 		TBMenu:showNavigationBar()
 		TBMenu:showBottomBar()
-		TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
+		if (not noload) then
+			TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
+		end
 	end
 		
 		

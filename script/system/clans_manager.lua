@@ -142,7 +142,18 @@ do
 		return buttonsData
 	end
 	
-	function Clans:showMain(viewElement)
+	function Clans:showMain(viewElement, clantag)
+		if (clantag) then
+			local clanid
+			for i,v in pairs(ClanData) do
+				if (v.tag == clantag) then
+					clanid = v.id
+					break
+				end
+			end
+			Clans:showClan(viewElement, clanid)
+			return
+		end
 		viewElement:kill(true)
 		TB_MENU_CLANS_ISOPEN = 1
 		TBMenu:clearNavSection()

@@ -40,3 +40,5 @@ script/sports\.lua
 script/torishop/torishop\.txt
 
 script/torishop/invent\.txt
+
+*.tmp

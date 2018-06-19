@@ -66,33 +66,29 @@ else
 	TB_STORE_DATA.onsale = Torishop:getSaleItem()
 end
 
-TBMenu:showMain()
-
 
 if (PlayerInfo:getLoginRewards().available) then
+	TBMenu:showMain(true)
 	TBMenu:showLoginRewards()
 end
 local launchOption = ARG1
 if (launchOption == "15") then
+	TBMenu:showMain(true)
 	TBMenu:showTorishopMain()
 end
 if (launchOption == "matchmake" and TB_MENU_MATCHMAKE_ISOPEN == 0) then
+	TBMenu:showMain(true)
 	TBMenu:showMatchmaking()
 end
 if (launchOption:match("clans ")) then
-	TBMenu:showClans()
+	TBMenu:showMain(true)
 	local clantag = launchOption:gsub("clans ", "")
 	clantag = PlayerInfo:getClanTag(clantag)
-	local clanid
-	for i,v in pairs(ClanData) do
-		if (v.tag == clantag) then
-			clanid = v.id
-			break
-		end
-	end
-	if (clanid) then
-		Clans:showClan(tbMenuCurrentSection, clanid)
-	end
+	TBMenu:showClans(clantag)
+end
+
+if (launchOption == "") then
+	TBMenu:showMain()
 end
 
 -- Wait for customs update on client start
