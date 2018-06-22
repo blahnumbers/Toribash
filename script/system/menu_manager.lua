@@ -545,24 +545,7 @@ do
 			TB_MENU_CLANS_OPENCLANID = 0
 			TBMenu:showNavigationBar()
 			TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
-			local transparency = 1
-			local clanErrorMessage = UIElement:new({
-				parent = tbMenuMain,
-				pos = { WIN_W / 4, -40 },
-				size = { WIN_W / 2, 40 },
-				bgColor = { 0, 0, 0, 0.8 * transparency }
-			})
-			local startTime = os.clock()
-			clanErrorMessage:addCustomDisplay(false, function()
-					clanErrorMessage:uiText(TB_MENU_LOCALIZED.CLANDATALOADERROR, nil, nil, 4, nil, 0.7, nil, nil, { 1, 1, 1, transparency })
-					if (os.clock() - startTime > 2) then
-						transparency = transparency - 0.05
-						clanErrorMessage.bgColor[4] = 0.8 * transparency
-					end
-					if (transparency <= 0) then
-						clanErrorMessage:kill()
-					end
-				end)
+			TBMenu:showDataError(TB_MENU_LOCALIZED.CLANDATALOADERROR)
 		else
 			Clans:showMain(tbMenuCurrentSection, clantag)
 		end
@@ -576,19 +559,44 @@ do
 			TB_MENU_PLAYER_INFO.rewards = rewards
 		end
 		if (Rewards:getRewardData()) then
-			TBMenu:clearNavSection()
-			Rewards:showMain(tbMenuCurrentSection, TB_MENU_PLAYER_INFO.rewards)
-			TBMenu:showNavigationBar(Rewards:getNavigationButtons(), true)
-			TB_MENU_NOTIFICATIONS_ISOPEN = 1
+			if (TB_STORE_DATA.ready) then
+				TBMenu:clearNavSection()
+				Rewards:showMain(tbMenuCurrentSection, TB_MENU_PLAYER_INFO.rewards)
+				TBMenu:showNavigationBar(Rewards:getNavigationButtons(), true)
+				TB_MENU_NOTIFICATIONS_ISOPEN = 1
+			else
+				TBMenu:showDataError(TB_MENU_LOCALIZED.STOREDATALOADERROR)
+			end
 		else
 			echo("^04Error: ^07missing daily rewards data")
 		end
 	end
 	
+	function TBMenu:showDataError(message)
+		local transparency = 1
+		local errorMessage = UIElement:new({
+			parent = tbMenuMain,
+			pos = { WIN_W / 4, -40 },
+			size = { WIN_W / 2, 40 },
+			bgColor = { 0, 0, 0, 0.8 * transparency }
+		})
+		local startTime = os.clock()
+		errorMessage:addCustomDisplay(false, function()
+				errorMessage:uiText(message, nil, nil, 4, nil, 0.7, nil, nil, { 1, 1, 1, transparency })
+				if (os.clock() - startTime > 2) then
+					transparency = transparency - 0.05
+					errorMessage.bgColor[4] = 0.8 * transparency
+				end
+				if (transparency <= 0) then
+					errorMessage:kill()
+				end
+			end)
+	end
+	
 	function TBMenu:showTorishopMain()
 		for i,v in pairs(get_downloads()) do
-			if (v:match("data/script/torishop/torishop.txt")) then
-				return
+			if (v:match("data/script/torishop/torishop.txt") or not TB_STORE_DATA.ready) then
+				TBMenu:showDataError(TB_MENU_LOCALIZED.STOREDATALOADERROR)
 			end
 		end
 		TBMenu:clearNavSection()

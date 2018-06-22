@@ -63,31 +63,29 @@ if (os.clock() < 10) then
 	TB_STORE_DATA = { onsale = Torishop:getSaleItem(true) }
 else 
 	TB_STORE_DATA = Torishop:getItems()
-	TB_STORE_DATA.onsale = Torishop:getSaleItem()
+	if (TB_STORE_DATA) then
+		TB_STORE_DATA.ready = true
+		TB_STORE_DATA.onsale = Torishop:getSaleItem()
+	end
 end
 
 
-if (PlayerInfo:getLoginRewards().available) then
-	TBMenu:showMain(true)
-	TBMenu:showLoginRewards()
-end
 local launchOption = ARG1
 if (launchOption == "15") then
 	TBMenu:showMain(true)
 	TBMenu:showTorishopMain()
-end
-if (launchOption == "matchmake" and TB_MENU_MATCHMAKE_ISOPEN == 0) then
+elseif (launchOption == "matchmake" and TB_MENU_MATCHMAKE_ISOPEN == 0) then
 	TBMenu:showMain(true)
 	TBMenu:showMatchmaking()
-end
-if (launchOption:match("clans ")) then
+elseif (launchOption:match("clans ")) then
 	TBMenu:showMain(true)
 	local clantag = launchOption:gsub("clans ", "")
 	clantag = PlayerInfo:getClanTag(clantag)
 	TBMenu:showClans(clantag)
-end
-
-if (launchOption == "") then
+elseif (PlayerInfo:getLoginRewards().available and TB_STORE_DATA.ready) then
+	TBMenu:showMain(true)
+	TBMenu:showLoginRewards()
+else
 	TBMenu:showMain()
 end
 
@@ -100,7 +98,10 @@ if (os.clock() < 10) then
 				TB_MENU_PLAYER_INFO.clan = PlayerInfo:getClan(TB_MENU_PLAYER_INFO.username)
 				TB_MENU_PLAYER_INFO.items = PlayerInfo:getItems(TB_MENU_PLAYER_INFO.username)
 				TB_STORE_DATA = Torishop:getItems()
-				TB_STORE_DATA.onsale = Torishop:getSaleItem()
+				if (TB_STORE_DATA) then
+					TB_STORE_DATA.ready = true
+					TB_STORE_DATA.onsale = Torishop:getSaleItem()
+				end
 				if (PlayerInfo:getLoginRewards().available and TB_MENU_MAIN_ISOPEN == 1) then
 					TBMenu:showLoginRewards()
 				end

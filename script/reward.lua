@@ -3,6 +3,7 @@
 
 dofile("system/menu_manager.lua")
 dofile("system/rewards_manager.lua")
+dofile("system/store_manager.lua")
 dofile("system/player_info.lua")
 dofile("toriui/uielement.lua")
 
@@ -13,6 +14,13 @@ end
 local days_cons = ARG1:gsub("%s%d%s%d+$", "")
 local is_available = ARG1:gsub("^%d%s", ""):gsub("%s%d+$", "")
 local seconds_to_next = ARG1:gsub("^%d%s%d%s", "")
+
+TB_STORE_DATA = Torishop:getItems()
+if (TB_STORE_DATA) then
+	TB_STORE_DATA.ready = true
+else 
+	return
+end
 
 if (is_available == "1") then
 	TBMenu:create()

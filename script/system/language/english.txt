@@ -79,6 +79,7 @@ STOREINVENTORYALLITEMS	All inventory items
 PAGINATIONPAGE	Page	
 PAGINATIONPAGEOF	of	
 STOREINVENTORYLOADING	Loading data from Toriverse	
+STOREDATALOADERROR	Error opening Torishop data, please wait until it's updated or check Toribash folder permissions.	
 STOREGOTOSHOP	Open Torishop	
 STORESHOPDESC	Purchase new items for your Tori	
 STOREGOTOINVENTORY	Open Inventory	
