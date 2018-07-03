@@ -3173,6 +3173,10 @@ function draw_shelf()
 	
 	if (string.find(details_name, "Zabrak Horns")) then
 		print_desc("Try not to get cut in half!", 2)
+	elseif (string.find(details_name, "Sakura")) then
+		print_desc("Sakura bloom and die fast.", 1)
+		print_desc("Some may think of it as a flaw,", 2)
+		print_desc("but certainly not the true Sakura-bito.", 3)
 	elseif (string.find(details_name, "Vagabond")) then
 		print_desc("Being the lone wanderer taught you", 0)
 		print_desc("a lot of things. Defeating your opponents", 1)

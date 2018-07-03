@@ -42,3 +42,5 @@ script/torishop/torishop\.txt
 script/torishop/invent\.txt
 
 *.tmp
+
+script/color_preview\.lua

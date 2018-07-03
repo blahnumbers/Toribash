@@ -50,6 +50,11 @@ do
 		end
 		file:close()
 		
+		if (language == "hebrew") then
+			FONTS.BIG = 4
+			FONTS.MEDIUM = 4
+		end
+		
 		if (language ~= "english") then
 			-- Make sure there's no missing values
 			local file = io.open("data/script/system/language/english.txt", "r", 1)
@@ -178,19 +183,27 @@ do
 		-- Table to store event announcement data
 		local eventsData = {
 			{
-				title = "Steampunk Month", 
-				subtitle = "This June the Event Squad came here to deliver the finest creations made out of scrap metal, springs, screws and things alike!", 
-				image = "../textures/menu/promo/steampunk.tga",
+				title = "Anime Month", 
+				subtitle = "You might ask yourself, did Event Squad think about the userbase interested in Anime? Yes we did! Release your inner otaku and wrap yourself in all the kawaii stuff!", 
+				image = "../textures/menu/promo/animemonth.tga",
 				action = function() 
 						open_url("http://forum.toribash.com/tori_token_exchange.php")
 					end
 			},
 			{
-				title = "Head Texture of the Month: Steampunk",
-				subtitle = "Wipe off your tablets or your mice, and get the artistic cogs in your brain turning folks because it’s time for a rustic reboot of an old Head Texture of the Month theme!",
-				image = "../textures/menu/promo/htotmsteampunk.tga",
+				title = "Head Texture of the Month: Anime",
+				subtitle = "Otakus Unite!",
+				image = "../textures/menu/promo/htotmanime.tga",
 				action = function()
-						open_url("http://forum.toribash.com/showthread.php?t=615845")
+						open_url("http://forum.toribash.com/showthread.php?t=616951")
+					end
+			},
+			{
+				title = "Anime Us 2.0", 
+				subtitle = "Anime, weaboos, henta- nevermind, are all great. Ever wonder if you artists could draw anime characters? Well here is the place to try!", 
+				image = "../textures/menu/promo/animeus2.tga",
+				action = function() 
+						open_url("http://forum.toribash.com/showthread.php?t=616953")
 					end
 			},
 			{ 
@@ -199,15 +212,6 @@ do
 				image = "../textures/menu/promo/season4.tga",
 				action = function() 
 						open_url("http://forum.toribash.com/showthread.php?t=614185") 
-					end
-			},
-			{
-				title = "The Barbershop", 
-				subtitle = "Summer has come but you're still getting your hair done by your mom? Time to get trendy with the new 3D hairs collection!", 
-				image = "../textures/menu/promo/barbershop.tga",
-				action = function() 
-						close_menu()
-						open_menu(12)
 					end
 			}
 		}
@@ -259,11 +263,11 @@ do
 				pos = { 10, 5 },
 				size = { eventItems[i].titleView.size.w - 20, eventItems[i].titleView.size.h - 10 }
 			})
-			while (not eventItems[i].title:uiText(v.title, nil, nil, FONTS.BIG, LEFT, titleTextScale, nil, nil, nil, nil, nil, true)) do
+			while (not eventItems[i].title:uiText(v.title, nil, nil, 0, LEFT, titleTextScale, nil, nil, nil, nil, nil, true)) do
 				titleTextScale = titleTextScale - 0.05
 			end
 			eventItems[i].title:addCustomDisplay(false, function()
-					eventItems[i].title:uiText(v.title, nil, nil, FONTS.BIG, LEFT, titleTextScale)
+					eventItems[i].title:uiText(v.title, nil, nil, 0, LEFT, titleTextScale)
 				end)
 			eventItems[i].subtitleView = UIElement:new( {
 				parent = eventItems[i].button,
@@ -949,10 +953,10 @@ do
 		})
 		local displayName = TB_MENU_PLAYER_INFO.username == "" and "Tori" or TB_MENU_PLAYER_INFO.username
 		tbMenuUserName:addCustomDisplay(false, function()
-				tbMenuUserName:uiText(displayName, tbMenuUserName.pos.x + 2, tbMenuUserName.pos.y + 2, FONTS.BIG, LEFT, 0.55, nil, nil, {0,0,0,0.2})
-				tbMenuUserName:uiText(displayName, nil, nil, FONTS.BIG, LEFT, 0.55)
+				tbMenuUserName:uiText(displayName, tbMenuUserName.pos.x + 2, tbMenuUserName.pos.y + 2, 0, LEFT, 0.55, nil, nil, {0,0,0,0.2})
+				tbMenuUserName:uiText(displayName, nil, nil, 0, LEFT, 0.55)
 			end)
-		local tbMenuLogoutButton = TBMenu:createImageButtons(tbMenuUserBar, 85 + get_string_length(displayName, FONTS.BIG) * 0.55, 15, 25, 25, "../textures/menu/general/buttons/logout.tga", "../textures/menu/general/buttons/logouthover.tga", "../textures/menu/general/buttons/logoutpressed.tga")
+		local tbMenuLogoutButton = TBMenu:createImageButtons(tbMenuUserBar, 85 + get_string_length(displayName, 0) * 0.55, 15, 25, 25, "../textures/menu/general/buttons/logout.tga", "../textures/menu/general/buttons/logouthover.tga", "../textures/menu/general/buttons/logoutpressed.tga")
 		tbMenuLogoutButton:addMouseHandlers(nil, function()
 				open_menu(18)
 			end, nil)
@@ -996,7 +1000,7 @@ do
 			size = { tbMenuUserTcView.size.w - tbMenuUserTcIcon.size.w - 5, tbMenuUserTcView.size.h }
 		})
 		tbMenuUserTcBalance:addCustomDisplay(false, function()
-				tbMenuUserTcBalance:uiText(PlayerInfo:tcFormat(TB_MENU_PLAYER_INFO.data.tc), nil, tbMenuUserTcBalance.pos.y + 2, nil, LEFT, 0.9, nil, nil, tbMenuUserTcView:getButtonColor())
+				tbMenuUserTcBalance:uiText(PlayerInfo:tcFormat(TB_MENU_PLAYER_INFO.data.tc), nil, tbMenuUserTcBalance.pos.y + 2, 2, LEFT, 0.9, nil, nil, tbMenuUserTcView:getButtonColor())
 			end)
 		local tbMenuUserStView = UIElement:new( {
 			parent = tbMenuUserBar,
@@ -1028,7 +1032,7 @@ do
 		})
 		tbMenuUserStBalance:addCustomDisplay(false, function()
 				-- Proper ST balance is deprecated until a fix is rolled out
-				tbMenuUserStBalance:uiText("ST", nil, tbMenuUserStBalance.pos.y + 2, nil, LEFT, 0.9, nil, nil, tbMenuUserStView:getButtonColor())
+				tbMenuUserStBalance:uiText("ST", nil, tbMenuUserStBalance.pos.y + 2, 2, LEFT, 0.9, nil, nil, tbMenuUserStView:getButtonColor())
 				--tbMenuUserStBalance:uiText(TB_MENU_PLAYER_INFO.data.st, nil, tbMenuUserStBalance.pos.y + 2, nil, LEFT, 0.9, nil, nil, tbMenuUserStView:getButtonColor())
 			end)
 		local tbMenuUserBeltIcon = UIElement:new({
@@ -1043,7 +1047,7 @@ do
 			size = { 110, 40 }
 		})
 		tbMenuUserQi:addCustomDisplay(false, function()
-				tbMenuUserQi:uiText(TB_MENU_PLAYER_INFO.data.belt.name .. " belt", nil, nil, nil, nil, 0.7, nil, 1)
+				tbMenuUserQi:uiText(TB_MENU_PLAYER_INFO.data.belt.name .. " belt", nil, nil, 2, nil, 0.7, nil, 1)
 			end)
 	end
 	

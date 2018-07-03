@@ -748,15 +748,15 @@ do
 		local pos = 0
 		local align = align or CENTERMID
 		local check = check or false
-		if (font == FONTS.MEDIUM) then
+		if (font == 2) then
 			font_mod = 2.4
-		elseif (font == FONTS.BIG) then
+		elseif (font == 0) then
 			font_mod = 5.6
 		elseif (font == 4) then
 			font_mod = 2.4
-		elseif (font == FONTS.SMALL) then
+		elseif (font == 1) then
 			font_mod = 1.5
-		elseif (fonts == FONTS.BIGGER) then
+		elseif (fonts == 9) then
 			font_mod = 10
 		end
 	
@@ -991,7 +991,7 @@ do
 			set_color(unpack(col1))
 		end
 		draw_text_angle_scale(str, xPos, yPos, angle, scale, font)
-		if (font == FONTS.MEDIUM or font == FONTS.BIG or font == FONTS.BIGGER) then
+		if (font == 2 or font == 0 or font == 9) then
 			set_color(col1[1], col1[2], col1[3], intensity)
 			draw_text_angle_scale(str, xPos, yPos, angle, scale, font)
 		end
