@@ -765,17 +765,17 @@ do
 		for i = 1, #str do
 			local xPos = x
 			local yPos = y
-			if (align == CENTER or align == CENTERBOT or align == CENTERMID) then
+			if ((align + 2) % 3 == 0) then
 				xPos = x + self.size.w / 2 - get_string_length(str[i], font) * scale / 2					
-			elseif (align == RIGHT or align == RIGHTBOT or align == RIGHTMID) then
+			elseif ((align + 1) % 3 == 0) then
 				xPos = x + self.size.w - get_string_length(str[i], font) * scale
 			end
-			if (align == CENTERBOT or align == RIGHTBOT or align == LEFTBOT) then
+			if (align >= 3 and align <= 5) then
 				yPos = y + self.size.h - #str * font_mod * 10 * scale
 				while (yPos < y and yPos + font_mod * 10 * scale < y + self.size.h) do
 					yPos = yPos + font_mod * 10 * scale
 				end
-			elseif (align == CENTERMID or align == RIGHTMID or align == LEFTMID) then
+			elseif (align >= 6 and align <= 8) then
 				yPos = y + (self.size.h - #str * font_mod * 10 * scale) / 2
 				while (yPos < y and yPos + font_mod * 10 * scale < y + self.size.h) do
 					yPos = yPos + font_mod * 5 * scale

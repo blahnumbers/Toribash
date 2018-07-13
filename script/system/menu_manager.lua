@@ -29,8 +29,31 @@ do
 		setmetatable(cln, TBMenu)
     end
 	
+	function TBMenu:setLanguageFontOptions(language)
+		if (language == "hebrew") then
+			FONTS.BIG = 4
+			FONTS.MEDIUM = 4
+			LEFT = 2
+			LEFTBOT = 5
+			LEFTMID = 8		
+		else 
+			FONTS.BIG = 0
+			FONTS.MEDIUM = 2
+			LEFT = 0
+			LEFTBOT = 3
+			LEFTMID = 6
+		end
+	end
+	
 	function TBMenu:getTranslation(language)
 		local language = language or "english"
+		TBMenu:setLanguageFontOptions(language)
+		if (TB_MENU_LOCALIZED.language ~= language) then
+			TB_MENU_LOCALIZED.language = language
+		else 
+			--return
+		end
+		
 		local file = io.open("data/script/system/language/" .. language .. ".txt", "r", 1)
 		if (not file) then
 			file = io.open("data/script/system/language/english.txt", "r", 1)
@@ -49,11 +72,6 @@ do
 			end
 		end
 		file:close()
-		
-		if (language == "hebrew") then
-			FONTS.BIG = 4
-			FONTS.MEDIUM = 4
-		end
 		
 		if (language ~= "english") then
 			-- Make sure there's no missing values
@@ -183,6 +201,22 @@ do
 		-- Table to store event announcement data
 		local eventsData = {
 			{
+				title = "ES Tournament Weekend!", 
+				subtitle = "YOU WANT ONE MIRRION TOURNAMENTS!? TOO BAD, HERE...\n...wait, we're actually going through with this? Hory cow!", 
+				image = "../textures/menu/promo/tourneyweekend.tga",
+				action = function() 
+						open_url("http://forum.toribash.com/showthread.php?t=617233")
+					end
+			},
+			{
+				title = "Clan League 2018", 
+				subtitle = "It's finally here! Gather your clan mates, wake up the inactive and get ready for the main clan event of the year!", 
+				image = "../textures/menu/promo/clanleague.tga",
+				action = function() 
+						open_url("http://forum.toribash.com/showthread.php?t=617188")
+					end
+			},
+			{
 				title = "Anime Month", 
 				subtitle = "You might ask yourself, did Event Squad think about the userbase interested in Anime? Yes we did! Release your inner otaku and wrap yourself in all the kawaii stuff!", 
 				image = "../textures/menu/promo/animemonth.tga",
@@ -263,11 +297,11 @@ do
 				pos = { 10, 5 },
 				size = { eventItems[i].titleView.size.w - 20, eventItems[i].titleView.size.h - 10 }
 			})
-			while (not eventItems[i].title:uiText(v.title, nil, nil, 0, LEFT, titleTextScale, nil, nil, nil, nil, nil, true)) do
+			while (not eventItems[i].title:uiText(v.title, nil, nil, 0, 0, titleTextScale, nil, nil, nil, nil, nil, true)) do
 				titleTextScale = titleTextScale - 0.05
 			end
 			eventItems[i].title:addCustomDisplay(false, function()
-					eventItems[i].title:uiText(v.title, nil, nil, 0, LEFT, titleTextScale)
+					eventItems[i].title:uiText(v.title, nil, nil, 0, 0, titleTextScale)
 				end)
 			eventItems[i].subtitleView = UIElement:new( {
 				parent = eventItems[i].button,
@@ -280,11 +314,11 @@ do
 				pos = { 10, 5 },
 				size = { eventItems[i].subtitleView.size.w - 20, eventItems[i].subtitleView.size.h - 10 }
 			})
-			while (not eventItems[i].subtitle:uiText(v.subtitle, nil, nil, 4, LEFT, subtitleTextScale, nil, nil, nil, nil, nil, true) and subtitleTextScale > 0.6) do
+			while (not eventItems[i].subtitle:uiText(v.subtitle, nil, nil, 4, 0, subtitleTextScale, nil, nil, nil, nil, nil, true) and subtitleTextScale > 0.6) do
 				subtitleTextScale = subtitleTextScale - 0.05
 			end
 			eventItems[i].subtitle:addCustomDisplay(false, function()
-					eventItems[i].subtitle:uiText(v.subtitle, nil, nil, 4, LEFT, subtitleTextScale)
+					eventItems[i].subtitle:uiText(v.subtitle, nil, nil, 4, 0, subtitleTextScale)
 				end)
 			if (i ~= TB_MENU_HOME_CURRENT_ANNOUNCEMENT) then
 				eventItems[i].image:hide()
@@ -576,6 +610,12 @@ do
 		end
 	end
 	
+	function TBMenu:showFriendsList()
+		TBMenu:clearNavSection()
+		FriendsList:showMain(tbMenuCurrentSection)
+		TBMenu:showNavigationBar(FriendsList:getNavigationButtons(), true)
+	end
+	
 	function TBMenu:showDataError(message)
 		local transparency = 1
 		local errorMessage = UIElement:new({
@@ -836,6 +876,8 @@ do
 			TBMenu:showToolsSection()
 		elseif (screenId == 101) then
 			TBMenu:showLoginRewards()
+		elseif (screenId == 102) then
+			TBMenu:showFriendsList()
 		end
 	end
 	
@@ -953,8 +995,8 @@ do
 		})
 		local displayName = TB_MENU_PLAYER_INFO.username == "" and "Tori" or TB_MENU_PLAYER_INFO.username
 		tbMenuUserName:addCustomDisplay(false, function()
-				tbMenuUserName:uiText(displayName, tbMenuUserName.pos.x + 2, tbMenuUserName.pos.y + 2, 0, LEFT, 0.55, nil, nil, {0,0,0,0.2})
-				tbMenuUserName:uiText(displayName, nil, nil, 0, LEFT, 0.55)
+				tbMenuUserName:uiText(displayName, tbMenuUserName.pos.x + 2, tbMenuUserName.pos.y + 2, 0, 0, 0.55, nil, nil, {0,0,0,0.2})
+				tbMenuUserName:uiText(displayName, nil, nil, 0, 0, 0.55)
 			end)
 		local tbMenuLogoutButton = TBMenu:createImageButtons(tbMenuUserBar, 85 + get_string_length(displayName, 0) * 0.55, 15, 25, 25, "../textures/menu/general/buttons/logout.tga", "../textures/menu/general/buttons/logouthover.tga", "../textures/menu/general/buttons/logoutpressed.tga")
 		tbMenuLogoutButton:addMouseHandlers(nil, function()
@@ -968,7 +1010,7 @@ do
 				size = { 350, 20 }
 			})
 			tbMenuClan:addCustomDisplay(false, function()
-					tbMenuClan:uiText(TB_MENU_LOCALIZED.MAINMENUUSERCLAN .. ": " .. TB_MENU_PLAYER_INFO.clan.tag .. "  |  " .. TB_MENU_PLAYER_INFO.clan.name, nil, nil, 4, LEFT, 0.6)
+					tbMenuClan:uiText(TB_MENU_LOCALIZED.MAINMENUUSERCLAN .. ": " .. TB_MENU_PLAYER_INFO.clan.tag .. "  |  " .. TB_MENU_PLAYER_INFO.clan.name, nil, nil, 4, 0, 0.6)
 				end)
 		end
 		local tbMenuUserTcView = UIElement:new( {
@@ -1000,7 +1042,7 @@ do
 			size = { tbMenuUserTcView.size.w - tbMenuUserTcIcon.size.w - 5, tbMenuUserTcView.size.h }
 		})
 		tbMenuUserTcBalance:addCustomDisplay(false, function()
-				tbMenuUserTcBalance:uiText(PlayerInfo:tcFormat(TB_MENU_PLAYER_INFO.data.tc), nil, tbMenuUserTcBalance.pos.y + 2, 2, LEFT, 0.9, nil, nil, tbMenuUserTcView:getButtonColor())
+				tbMenuUserTcBalance:uiText(PlayerInfo:tcFormat(TB_MENU_PLAYER_INFO.data.tc), nil, tbMenuUserTcBalance.pos.y + 2, 2, 0, 0.9, nil, nil, tbMenuUserTcView:getButtonColor())
 			end)
 		local tbMenuUserStView = UIElement:new( {
 			parent = tbMenuUserBar,
@@ -1032,7 +1074,7 @@ do
 		})
 		tbMenuUserStBalance:addCustomDisplay(false, function()
 				-- Proper ST balance is deprecated until a fix is rolled out
-				tbMenuUserStBalance:uiText("ST", nil, tbMenuUserStBalance.pos.y + 2, 2, LEFT, 0.9, nil, nil, tbMenuUserStView:getButtonColor())
+				tbMenuUserStBalance:uiText("ST", nil, tbMenuUserStBalance.pos.y + 2, 2, 0, 0.9, nil, nil, tbMenuUserStView:getButtonColor())
 				--tbMenuUserStBalance:uiText(TB_MENU_PLAYER_INFO.data.st, nil, tbMenuUserStBalance.pos.y + 2, nil, LEFT, 0.9, nil, nil, tbMenuUserStView:getButtonColor())
 			end)
 		local tbMenuUserBeltIcon = UIElement:new({
@@ -1130,7 +1172,8 @@ do
 		})
 		local tbMenuBottomLeftButtonsData = {
 			{ action = function() if (TB_MENU_NOTIFICATIONS_ISOPEN == 0) then TBMenu:openMenu(101) else Rewards:quit() end end, image = "../textures/menu/general/buttons/notifications.tga", imageHover = "../textures/menu/general/buttons/notificationshover.tga", imagePress = "../textures/menu/general/buttons/notificationspress.tga" },
-			{ action = function() open_url("http://discord.gg/toribash") end, image = "../textures/menu/general/buttons/discordred.tga", imageHover = "../textures/menu/general/buttons/discordredhover.tga", imagePress = "../textures/menu/general/buttons/discordredpress.tga" }
+			{ action = function() open_url("http://discord.gg/toribash") end, image = "../textures/menu/general/buttons/discordred.tga", imageHover = "../textures/menu/general/buttons/discordredhover.tga", imagePress = "../textures/menu/general/buttons/discordredpress.tga" },
+			--{ action = function() TBMenu:openMenu(102) end, image = "../textures/menu/general/buttons/settingsred.tga", imageHover = "../textures/menu/general/buttons/settingsredhover.tga", imagePress = "../textures/menu/general/buttons/settingsredpress.tga" }
 		}
 		local tbMenuBottomLeftButtons = {}
 		for i, v in pairs(tbMenuBottomLeftButtonsData) do
