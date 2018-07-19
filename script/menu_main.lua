@@ -7,7 +7,9 @@ TB_MENU_MATCHMAKE_ISOPEN = TB_MENU_MATCHMAKE_ISOPEN or 0
 TB_MENU_CLANS_ISOPEN = TB_MENU_CLANS_ISOPEN or 0
 TB_MENU_CLANS_OPENCLANID = TB_MENU_CLANS_OPENCLANID or 0
 TB_MENU_NOTIFICATIONS_ISOPEN = 0
+TB_MENU_NOTIFICATIONS_COUNT = 0
 TB_MENU_DOWNLOAD_INACTION = TB_MENU_DOWNLOAD_INACTION or false
+TB_MENU_KEYBOARD_ENABLED = false
 TB_LAST_MENU_SCREEN_OPEN = TB_LAST_MENU_SCREEN_OPEN or 2
 TB_MENU_HOME_CURRENT_ANNOUNCEMENT = TB_MENU_HOME_CURRENT_ANNOUNCEMENT or 1
 
@@ -19,7 +21,9 @@ end
 if (TB_MENU_MAIN_ISOPEN == 1) then
 	remove_hooks("tbMainMenuVisual")
 	remove_hooks("tbMenuConsoleIgnore")
+	remove_hooks("tbMenuKeyboardHandler")
 	disable_blur()
+	disable_menu_keyboard()
 	TB_MENU_MAIN_ISOPEN = 0
 	tbMenuMain:kill()
 	return
@@ -51,6 +55,7 @@ dofile("system/player_info.lua")
 dofile("system/matchmake_manager.lua")
 dofile("system/rewards_manager.lua")
 dofile("system/clans_manager.lua")
+dofile("system/friendlist_manager.lua")
 
 TB_MENU_PLAYER_INFO = {}
 TB_MENU_PLAYER_INFO.username = PlayerInfo:getUser()
@@ -58,6 +63,10 @@ TB_MENU_PLAYER_INFO.data = PlayerInfo:getUserData()
 TB_MENU_PLAYER_INFO.ranking = PlayerInfo:getRanking()
 TB_MENU_PLAYER_INFO.clan = PlayerInfo:getClan(TB_MENU_PLAYER_INFO.username)
 TB_MENU_PLAYER_INFO.items = PlayerInfo:getItems(TB_MENU_PLAYER_INFO.username)
+
+if (PlayerInfo:getLoginRewards().available and TB_STORE_DATA.ready) then
+	TB_MENU_NOTIFICATIONS_COUNT = TB_MENU_NOTIFICATIONS_COUNT + 1
+end
 
 if (os.clock() < 10) then
 	TB_STORE_DATA = { onsale = Torishop:getSaleItem(true) }
@@ -74,6 +83,9 @@ local launchOption = ARG1
 if (launchOption == "15") then
 	TBMenu:showMain(true)
 	TBMenu:showTorishopMain()
+elseif (launchOption == "friendslist") then
+	TBMenu:showMain(true)
+	TBMenu:showFriendsList()
 elseif (launchOption == "matchmake" and TB_MENU_MATCHMAKE_ISOPEN == 0) then
 	TBMenu:showMain(true)
 	TBMenu:showMatchmaking()
@@ -82,9 +94,6 @@ elseif (launchOption:match("clans ")) then
 	local clantag = launchOption:gsub("clans ", "")
 	clantag = PlayerInfo:getClanTag(clantag)
 	TBMenu:showClans(clantag)
-elseif (PlayerInfo:getLoginRewards().available and TB_STORE_DATA.ready) then
-	TBMenu:showMain(true)
-	TBMenu:showLoginRewards()
 else
 	TBMenu:showMain()
 end
@@ -128,6 +137,8 @@ add_hook("mouse_move", "uiMouseHandler", function(x, y)
 		return 1 
 	end 
 end)
+add_hook("key_up", "tbMenuKeyboardHandler", function(s) UIElement:handleKeyUp(s) return 1 end)
+add_hook("key_down", "tbMenuKeyboardHandler", function(s) UIElement:handleKeyDown(s) return 1 end)
 add_hook("draw2d", "tbMainMenuVisual", function() TBMenu:drawVisuals() end)
 add_hook("draw_viewport", "tbMainMenuVisual", function() TBMenu:drawViewport() end)
 add_hook("console", "tbMainMenuStatic", function(s, i) 

@@ -170,6 +170,7 @@ do
 					if (PlayerInfo:getLoginRewardStatus() == 0) then
 						rewardClaimString = TB_MENU_LOCALIZED.REWARDSCLAIMSUCCESS
 						update_tc_balance()
+						TB_MENU_NOTIFICATIONS_COUNT = TB_MENU_NOTIFICATIONS_COUNT - 1
 						TB_MENU_DOWNLOAD_INACTION = true
 						tcUpdate = true
 					else

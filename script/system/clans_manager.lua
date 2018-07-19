@@ -142,6 +142,13 @@ do
 		return buttonsData
 	end
 	
+	function Clans:isBeginnerClan(clanid)
+		if (clanid == 2193 or clanid == 2194) then
+			return true
+		end
+		return false
+	end
+	
 	function Clans:showMain(viewElement, clantag)
 		if (clantag) then
 			local clanid
@@ -932,7 +939,7 @@ do
 				clanName:uiText(clanTag .. " " .. ClanData[clanid].name, nil, nil, FONTS.BIG, CENTER, clanNameScale)
 			end)
 		local joinInteractive = false
-		if (ClanData[clanid].isfreeforall == 1 and TB_MENU_PLAYER_INFO.clan.id == 0 and ClanData[clanid].memberstotal < LevelData[ClanData[clanid].level + 1].maxmembers) then
+		if (ClanData[clanid].isfreeforall == 1 and TB_MENU_PLAYER_INFO.clan.id == 0 and (ClanData[clanid].memberstotal < LevelData[ClanData[clanid].level + 1].maxmembers or Clans:isBeginnerClan(clanid))) then
 			joinInteractive = true
 		end
 		local clanJoin = UIElement:new({
@@ -1178,7 +1185,7 @@ do
 			pos = { avatarWidth, 0 },
 			size = { rosterTop.size.w - avatarWidth * 2, rosterTop.size.h }
 		})
-		local rosterStr = TB_MENU_LOCALIZED.CLANSLEGENDROSTER .. " (" .. ClanData[clanid].memberstotal .. "/" .. LevelData[ClanData[clanid].level].maxmembers .. ")"
+		local rosterStr = TB_MENU_LOCALIZED.CLANSLEGENDROSTER .. (Clans:isBeginnerClan(clanid) and (" (" .. ClanData[clanid].memberstotal .. ")") or (" (" .. ClanData[clanid].memberstotal .. "/" .. LevelData[ClanData[clanid].level].maxmembers .. ")"))
 		local rosterTextScale = 1
 		while (not rosterTitle:uiText(rosterStr, nil, nil, nil, LEFT, rosterTextScale, nil, nil, nil, nil, nil, true)) do
 			rosterTextScale = rosterTextScale - 0.05
@@ -1340,7 +1347,9 @@ do
 				rosterPos = rosterPos + rosterEntryHeight
 			end
 		end
-		Clans:reloadHeadAvatars(headAvatars)
+		if (shaders == 1) then
+			Clans:reloadHeadAvatars(headAvatars)
+		end
 		
 		local scrollActive = true
 		local scrollScale = #rosterMembers == 0 and 1 or (rosterView.size.h) / (#rosterMembers * rosterEntryHeight)

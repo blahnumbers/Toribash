@@ -85,9 +85,15 @@ do
 		local braces = { "[]", "()", "{}" }
 
 		local i = 1
-		while (not tag) do
+		for i = 1, #braces do
 			tag = name:match("%b" .. braces[i])
-			i = i + 1
+			if (tag) then
+				break
+			end
+		end
+		
+		if (not tag) then
+			return false
 		end
 		
 		tag = tag:gsub("%W", "")

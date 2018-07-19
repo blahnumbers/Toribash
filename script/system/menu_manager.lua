@@ -51,7 +51,7 @@ do
 		if (TB_MENU_LOCALIZED.language ~= language) then
 			TB_MENU_LOCALIZED.language = language
 		else 
-			--return
+			return
 		end
 		
 		local file = io.open("data/script/system/language/" .. language .. ".txt", "r", 1)
@@ -91,7 +91,9 @@ do
 	function TBMenu:quit()
 		remove_hooks("tbMainMenuVisual")
 		remove_hooks("tbMenuConsoleIgnore")
+		remove_hooks("tbMenuKeyboardHandler")
 		disable_blur()
+		disable_menu_keyboard()
 		TB_MENU_MAIN_ISOPEN = 0
 		tbMenuMain:kill()
 	end	
@@ -201,14 +203,6 @@ do
 		-- Table to store event announcement data
 		local eventsData = {
 			{
-				title = "ES Tournament Weekend!", 
-				subtitle = "YOU WANT ONE MIRRION TOURNAMENTS!? TOO BAD, HERE...\n...wait, we're actually going through with this? Hory cow!", 
-				image = "../textures/menu/promo/tourneyweekend.tga",
-				action = function() 
-						open_url("http://forum.toribash.com/showthread.php?t=617233")
-					end
-			},
-			{
 				title = "Clan League 2018", 
 				subtitle = "It's finally here! Gather your clan mates, wake up the inactive and get ready for the main clan event of the year!", 
 				image = "../textures/menu/promo/clanleague.tga",
@@ -249,6 +243,22 @@ do
 					end
 			}
 		}
+		
+		if (TB_MENU_PLAYER_INFO.data.qi < 500 and TB_MENU_PLAYER_INFO.clan.id == 0) then
+			local clanModifier = string.byte(TB_MENU_PLAYER_INFO.username) % 2
+			local clan = {
+				name = clanModifier == 0 and "Blue" or "Red",
+				texture = clanModifier == 0 and "../textures/menu/promo/blueclan.tga" or "../textures/menu/promo/redclan.tga"
+			}
+			table.insert(eventsData, 1, {
+				title = "Join Clan (" .. clan.name .. ")!",
+				subtitle = "A beginner clan that will help you find new Toribash friends and understand the game is always open for joining!",
+				image = clan.texture,
+				action = function()
+						TBMenu:showClans(clan.name)
+					end
+			})
+		end
 		
 		-- Store all elements that would require reloading when switching event announcements in one table
 		local toReload = UIElement:new({
@@ -1171,14 +1181,41 @@ do
 			size = { 110, 50 }
 		})
 		local tbMenuBottomLeftButtonsData = {
+			{ action = function() TBMenu:openMenu(102) end, image = "../textures/menu/general/buttons/friends.tga", imageHover = "../textures/menu/general/buttons/friendshover.tga", imagePress = "../textures/menu/general/buttons/friendspress.tga" },
 			{ action = function() if (TB_MENU_NOTIFICATIONS_ISOPEN == 0) then TBMenu:openMenu(101) else Rewards:quit() end end, image = "../textures/menu/general/buttons/notifications.tga", imageHover = "../textures/menu/general/buttons/notificationshover.tga", imagePress = "../textures/menu/general/buttons/notificationspress.tga" },
 			{ action = function() open_url("http://discord.gg/toribash") end, image = "../textures/menu/general/buttons/discordred.tga", imageHover = "../textures/menu/general/buttons/discordredhover.tga", imagePress = "../textures/menu/general/buttons/discordredpress.tga" },
-			--{ action = function() TBMenu:openMenu(102) end, image = "../textures/menu/general/buttons/settingsred.tga", imageHover = "../textures/menu/general/buttons/settingsredhover.tga", imagePress = "../textures/menu/general/buttons/settingsredpress.tga" }
 		}
 		local tbMenuBottomLeftButtons = {}
 		for i, v in pairs(tbMenuBottomLeftButtonsData) do
 			tbMenuBottomLeftButtons[i] = TBMenu:createImageButtons(tbMenuBottomLeftBar, (i - 1) * (tbMenuBottomLeftBar.size.h + 10), 0, tbMenuBottomLeftBar.size.h, tbMenuBottomLeftBar.size.h, v.image, v.imageHover, v.imagePress)
 			tbMenuBottomLeftButtons[i]:addMouseHandlers(nil, v.action, nil)
+		end
+		local tbMenuFriendsBetaCaption = UIElement:new({
+			parent = tbMenuBottomLeftButtons[1],
+			pos = { 0, -tbMenuBottomLeftBar.size.h / 3 },
+			size = { tbMenuBottomLeftBar.size.h, tbMenuBottomLeftBar.size.h / 3 },
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			shapeType = ROUNDED,
+			rounded = tbMenuBottomLeftBar.size.h
+		})
+		tbMenuFriendsBetaCaption:addCustomDisplay(false, function()
+				tbMenuFriendsBetaCaption:uiText("Beta", nil, nil, nil, nil, 0.6)
+			end)
+		if (TB_MENU_NOTIFICATIONS_COUNT > 0) then
+			local tbMenuNotificationsCount = UIElement:new({
+				parent = tbMenuBottomLeftButtons[2],
+				pos = { -tbMenuBottomLeftBar.size.h / 2, 0 },
+				size = { tbMenuBottomLeftBar.size.h / 2, tbMenuBottomLeftBar.size.h / 2 },
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				shapeType = ROUNDED,
+				rounded = tbMenuBottomLeftBar.size.h
+			})
+			tbMenuNotificationsCount:addCustomDisplay(false, function()
+					tbMenuNotificationsCount:uiText(TB_MENU_NOTIFICATIONS_COUNT, nil, nil, 4, nil, 0.7)
+					if (TB_MENU_NOTIFICATIONS_COUNT == 0) then
+						tbMenuNotificationsCount:kill()
+					end
+				end)
 		end
 		
 		tbMenuBottomRightBar = UIElement:new({
@@ -1302,7 +1339,33 @@ do
 			TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
 		end
 	end
-		
+	
+	function TBMenu:enableMenuKeyboard()
+		enable_menu_keyboard()
+		TB_MENU_KEYBOARD_ENABLED = true
+	end
+	
+	function TBMenu:disableMenuKeyboard()
+		disable_menu_keyboard()
+		TB_MENU_KEYBOARD_ENABLED = false
+	end
+	
+	function TBMenu:displayTextfield(element, fontid, scale, color)
+		element:addCustomDisplay(true, function()
+				if (element.keyboard == true) then
+					local part1 = element.textfieldstr[1]:sub(0, element.textfieldindex)
+					local part2 = element.textfieldstr[1]:sub(element.textfieldindex + 1)
+					local separator = os.time() % 2 == 0 and "|" or (element.textfieldindex == 0 and "|" or " ")
+					local displayString = part1 .. separator .. part2
+					element:uiText(displayString, nil, nil, fontid, LEFTMID, scale, nil, nil, color)
+				else
+					if (TB_MENU_KEYBOARD_ENABLED) then
+						TBMenu:disableMenuKeyboard()
+					end
+					element:uiText(element.textfieldstr[1], nil, nil, fontid, LEFTMID, scale, nil, nil, color)
+				end
+			end)
+	end
 		
 	-- Draw functions for hooks	
 	function TBMenu:drawVisuals()

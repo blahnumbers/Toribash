@@ -96,6 +96,7 @@ do
 				-- Textfield value is a table to allow proper initiation / use after obj is created
 				elem.textfield = o.textfield
 				elem.textfieldstr = o.textfieldstr or { "" }
+				elem.textfieldindex = 0
 				elem.keyDown = function(key) elem:textfieldKeyDown(key, o.isNumeric) end
 				elem.keyUp = function(key) elem:textfieldKeyUp(key) end
 				table.insert(UIKeyboardHandler, elem)
@@ -580,6 +581,12 @@ do
 		LONGKEYPRESSED.repeats = 0
 	end
 	
+	function UIElement:textfieldUpdate(symbol)
+		local part1 = self.textfieldstr[1]:sub(0, self.textfieldindex)
+		local part2 = self.textfieldstr[1]:sub(self.textfieldindex + 1)
+		self.textfieldstr[1] = part1 .. symbol .. part2
+	end
+	
 	function UIElement:textfieldKeyDown(key, isNumeric)
 		local isNumeric = isNumeric or false
 		if (LONGKEYPRESSED.status == false) then 
@@ -591,41 +598,53 @@ do
 			return 1
 		end
 		if (key == 8) then
-			self.textfieldstr[1] = self.textfieldstr[1]:sub(1,-2)
-		elseif ((key == string.byte('-')) and (get_shift_key_state() > 0)) then
-			self.textfieldstr[1] = self.textfieldstr[1] .. "_"
-		elseif ((key == string.byte('1')) and (get_shift_key_state() > 0)) then
-			self.textfieldstr[1] = self.textfieldstr[1] .. "!"
-		elseif ((key == string.byte('2')) and (get_shift_key_state() > 0)) then
-			self.textfieldstr[1] = self.textfieldstr[1] .. "@"
-		elseif ((key == string.byte('3')) and (get_shift_key_state() > 0)) then
-			self.textfieldstr[1] = self.textfieldstr[1] .. "#"
-		elseif ((key == string.byte('4')) and (get_shift_key_state() > 0)) then
-			self.textfieldstr[1] = self.textfieldstr[1] .. "$"
-		elseif ((key == string.byte('5')) and (get_shift_key_state() > 0)) then
-			self.textfieldstr[1] = self.textfieldstr[1] .. "%"
-		elseif ((key == string.byte('6')) and (get_shift_key_state() > 0)) then
-			self.textfieldstr[1] = self.textfieldstr[1] .. "^"
-		elseif ((key == string.byte('7')) and (get_shift_key_state() > 0)) then
-			self.textfieldstr[1] = self.textfieldstr[1] .. "&"
-		elseif ((key == string.byte('8')) and (get_shift_key_state() > 0)) then
-			self.textfieldstr[1] = self.textfieldstr[1] .. "*"
-		elseif ((key == string.byte('9')) and (get_shift_key_state() > 0)) then
-			self.textfieldstr[1] = self.textfieldstr[1] .. "("
-		elseif ((key == string.byte('0')) and (get_shift_key_state() > 0)) then
-			self.textfieldstr[1] = self.textfieldstr[1] .. ")"
-		elseif ((key == string.byte('=')) and (get_shift_key_state() > 0)) then
-			self.textfieldstr[1] = self.textfieldstr[1] .. "+"
-		elseif ((key == string.byte('/')) and (get_shift_key_state() > 0)) then
-			self.textfieldstr[1] = self.textfieldstr[1] .. "?"
-		elseif ((key == string.byte('\'')) and (get_shift_key_state() > 0)) then
-			self.textfieldstr[1] = self.textfieldstr[1] .. "\""
-		elseif ((key == string.byte(';')) and (get_shift_key_state() > 0)) then
-			self.textfieldstr[1] = self.textfieldstr[1] .. ":"
-		elseif (key >= 97 and key <= 122 and (get_shift_key_state() > 0)) then
-			self.textfieldstr[1] = self.textfieldstr[1] .. string.char(key - 32)
+			if (self.textfieldindex > 0) then
+				self.textfieldstr[1] = self.textfieldstr[1]:sub(1, self.textfieldindex - 1) .. self.textfieldstr[1]:sub(self.textfieldindex + 1)
+				self.textfieldindex = self.textfieldindex - 1
+			end
+		elseif (key == 127) then
+			self.textfieldstr[1] = self.textfieldstr[1]:sub(1, self.textfieldindex) .. self.textfieldstr[1]:sub(self.textfieldindex + 2) 
+		elseif (key == 276) then
+			self.textfieldindex = self.textfieldindex > 0 and self.textfieldindex - 1 or 0
+		elseif (key == 275) then
+			self.textfieldindex = self.textfieldindex < self.textfieldstr[1]:len() and self.textfieldindex + 1 or self.textfieldindex
 		else
-			self.textfieldstr[1] = self.textfieldstr[1] .. string.char(key)
+			if ((key == string.byte('-')) and (get_shift_key_state() > 0)) then
+				self:textfieldUpdate("_")
+			elseif ((key == string.byte('1')) and (get_shift_key_state() > 0)) then
+				self:textfieldUpdate("!")
+			elseif ((key == string.byte('2')) and (get_shift_key_state() > 0)) then
+				self:textfieldUpdate("@")
+			elseif ((key == string.byte('3')) and (get_shift_key_state() > 0)) then
+				self:textfieldUpdate("#")
+			elseif ((key == string.byte('4')) and (get_shift_key_state() > 0)) then
+				self:textfieldUpdate("$")
+			elseif ((key == string.byte('5')) and (get_shift_key_state() > 0)) then
+				self:textfieldUpdate("%")
+			elseif ((key == string.byte('6')) and (get_shift_key_state() > 0)) then
+				self:textfieldUpdate("^")
+			elseif ((key == string.byte('7')) and (get_shift_key_state() > 0)) then
+				self:textfieldUpdate("&")
+			elseif ((key == string.byte('8')) and (get_shift_key_state() > 0)) then
+				self:textfieldUpdate("*")
+			elseif ((key == string.byte('9')) and (get_shift_key_state() > 0)) then
+				self:textfieldUpdate("(")
+			elseif ((key == string.byte('0')) and (get_shift_key_state() > 0)) then
+				self:textfieldUpdate(")")
+			elseif ((key == string.byte('=')) and (get_shift_key_state() > 0)) then
+				self:textfieldUpdate("+")
+			elseif ((key == string.byte('/')) and (get_shift_key_state() > 0)) then
+				self:textfieldUpdate("?")
+			elseif ((key == string.byte('\'')) and (get_shift_key_state() > 0)) then
+				self:textfieldUpdate("\"")
+			elseif ((key == string.byte(';')) and (get_shift_key_state() > 0)) then
+				self:textfieldUpdate(":")
+			elseif (key >= 97 and key <= 122 and (get_shift_key_state() > 0)) then
+				self:textfieldUpdate(string.char(key - 32))
+			else
+				self:textfieldUpdate(string.char(key))
+			end
+			self.textfieldindex = self.textfieldindex + 1
 		end
 	end	
 			
@@ -865,9 +884,7 @@ do
 					id = i
 				end
 			end
-			--echo("entered " .. self.bgImage .. "; count = " .. count)
 			if (count == 1) then
-				--echo("unloading " .. self.bgImage)
 				unload_texture(self.bgImage)
 				TEXTUREINDEX = TEXTUREINDEX - 1
 			else
@@ -921,12 +938,18 @@ do
 		for i, v in pairs(arr) do 
 			table.insert(a, v) 
 		end
-		table.sort(a, function(a,b) 
+		table.sort(a, function(a,b)
 				local val1 = a[sort] == 0 and b[sort] - desc or a[sort]
 				local val2 = b[sort] == 0 and a[sort] - desc or b[sort]
 				if (type(val1) == "string" or type(val2) == "string") then
 					val1 = val1:lower()
 					val2 = val2:lower()
+				end
+				if (type(val1) == "boolean") then
+					val1 = val1 and 1 or -1
+				end
+				if (type(val2) == "boolean") then
+					val2 = val2 and 1 or -1
 				end
 				if (desc == 1) then 
 					return val1 > val2
