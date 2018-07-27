@@ -1,6 +1,8 @@
 -- modern main menu UI
 -- DO NOT MODIFY THIS FILE
 
+TB_MENU_DEBUG = false
+
 TB_MENU_MAIN_ISOPEN = TB_MENU_MAIN_ISOPEN or 0
 TB_MENU_INVENTORY_ISOPEN = TB_MENU_INVENTORY_ISOPEN or 0
 TB_MENU_MATCHMAKE_ISOPEN = TB_MENU_MATCHMAKE_ISOPEN or 0
@@ -130,7 +132,16 @@ add_hook("mouse_move", "uiMouseHandler", function(x, y)
 	UIElement:handleMouseHover(x, y)
 	if (INVENTORY_UPDATE) then
 		if (x ~= INVENTORY_MOUSE_POS.x or y ~= INVENTORY_MOUSE_POS.y) then
-			Torishop:refreshInventory()
+			if (x > WIN_W / 2) then
+				Torishop:refreshInventory()
+				if (INVENTORY_SELECTION_RESET) then
+					INVENTORY_SELECTED_ITEMS = {}
+					INVENTORY_SELECTION_RESET = false
+				end
+			else
+				INVENTORY_UPDATE = false
+				INVENTORY_SELECTION_RESET = false
+			end
 		end
 	end
 	if (TB_MENU_MAIN_ISOPEN == 1) then 

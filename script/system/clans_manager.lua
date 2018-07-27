@@ -328,11 +328,11 @@ do
 				size = { viewElement.size.w / 10 * 8, viewElement.size.h / 4 }
 			})
 			local noClanHeaderSize = 1
-			while (not noClanHeader:uiText("You are currently clanless", nil, nil, FONTS.BIG, LEFT, noClanHeaderSize, nil, nil, nil, nil, nil, true)) do
+			while (not noClanHeader:uiText(TB_MENU_LOCALIZED.CLANSPLAYERCLANLESS, nil, nil, FONTS.BIG, LEFT, noClanHeaderSize, nil, nil, nil, nil, nil, true)) do
 				noClanHeaderSize = noClanHeaderSize - 0.05
 			end
 			noClanHeader:addCustomDisplay(true, function()
-					noClanHeader:uiText("You are currently clanless", nil, nil, FONTS.BIG, nil, noClanHeaderSize)
+					noClanHeader:uiText(TB_MENU_LOCALIZED.CLANSPLAYERCLANLESS, nil, nil, FONTS.BIG, nil, noClanHeaderSize)
 				end)
 			local noClanDesc = UIElement:new({
 				parent = viewElement,
@@ -340,11 +340,11 @@ do
 				size = { viewElement.size.w / 10 * 8, viewElement.size.h / 4 }
 			})
 			local noClanDescSize = 1
-			while (not noClanDesc:uiText("You can join an existing clan from the list or create a new one.", nil, nil, nil, LEFT, noClanDescSize, nil, nil, nil, nil, nil, true)) do
+			while (not noClanDesc:uiText(TB_MENU_LOCALIZED.CLANSPLAYERCLANLESSINFOMSG, nil, nil, nil, LEFT, noClanDescSize, nil, nil, nil, nil, nil, true)) do
 				noClanDescSize = noClanDescSize - 0.05
 			end
 			noClanDesc:addCustomDisplay(true, function()
-					noClanDesc:uiText("You can join an existing clan from the list or create a new one.", nil, nil, nil, nil, noClanDescSize)
+					noClanDesc:uiText(TB_MENU_LOCALIZED.CLANSPLAYERCLANLESSINFOMSG, nil, nil, nil, nil, noClanDescSize)
 				end)
 			local makeNewClan = UIElement:new({
 				parent = viewElement,
@@ -357,7 +357,7 @@ do
 				hoverSound = 31
 			})
 			makeNewClan:addCustomDisplay(false, function()
-					makeNewClan:uiText("Create new clan")
+					makeNewClan:uiText(TB_MENU_LOCALIZED.CLANSCREATENEWCLAN)
 				end)
 			makeNewClan:addMouseHandlers(nil, function()
 					open_url("http://forum.toribash.com/clan_register.php")
@@ -488,7 +488,7 @@ do
 		local filtersView = UIElement:new({
 			parent = filtersMain,
 			pos = { 0, 0 },
-			size = { filtersMain.size.w - 30, filtersMain.size.h }
+			size = { filtersMain.size.w - 20, filtersMain.size.h }
 		})
 		local listFilters = {}
 		for i,v in pairs(optData) do
@@ -639,41 +639,12 @@ do
 					end, nil)
 			end
 		end
-		
-		local scrollActive = true
-		local scrollScale = (filtersView.size.h) / (#listFilters * 50)
-		if (scrollScale >= 1) then
-			scrollScale = 1
-			scrollActive = false
-		elseif (scrollScale < 0.1) then
-			scrollScale = 0.1
-		end
-		
-		local filtersScrollBG = UIElement:new({
-			parent = filtersMain,
-			pos = { -30, 0 },
-			size = { 30, filtersMain.size.h },
-			bgColor = { 0, 0, 0, 0.2 }
-		})
-		local filtersScrollView = UIElement:new({
-			parent = filtersScrollBG,
-			pos = { 5, 5 },
-			size = { filtersScrollBG.size.w - 10, filtersScrollBG.size.h - 10 }
-		})
-		local filtersScrollBar = UIElement:new({
-			parent = filtersScrollView,
-			pos = { 0, 0 },
-			size = { filtersScrollView.size.w, filtersScrollView.size.h * scrollScale },
-			interactive = scrollActive,
-			bgColor = { 0, 0, 0, 0.3 },
-			hoverColor = { 0, 0, 0, 0.5 },
-			pressedColor = { 1, 0, 0, 0.2 },
-			scrollEnabled = true
-		})
 			
 		for i,v in pairs(listFilters) do
 			v:hide()
 		end
+		
+		local filtersScrollBar = TBMenu:spawnScrollBar(filtersView, #listFilters, 50)
 		filtersScrollBar:makeScrollBar(filtersView, listFilters, toReload)
 				
 		local clanFiltersBotSmudge = TBMenu:addBottomBloodSmudge(filtersBotBar, 2)
@@ -801,43 +772,9 @@ do
 		local clanListHolder = UIElement:new({
 			parent = clanListView,
 			pos = { 0, 0 },
-			size = { clanListView.size.w - 30, clanListView.size.h }
+			size = { clanListView.size.w - 20, clanListView.size.h }
 		})
-		
-		local scrollActive = true
-		local scrollScale = #clanList == 0 and 1 or (clanListView.size.h) / (#clanList * clanEntryHeight)
-		if (scrollScale >= 1) then
-			scrollScale = 1
-			scrollActive = false
-		elseif (scrollScale < 0.1) then
-			scrollScale = 0.1
-		end
-		
-		local clanListScrollBG = UIElement:new({
-			parent = clanListView,
-			pos = { -30, 0 },
-			size = { 30, clanListView.size.h },
-			bgColor = { 0, 0, 0, 0.2 }
-		})
-		local clanListScrollView = UIElement:new({
-			parent = clanListScrollBG,
-			pos = { 5, 5 },
-			size = { clanListScrollBG.size.w - 10, clanListScrollBG.size.h - 10 }
-		})
-		local clanListScrollBar = UIElement:new({
-			parent = clanListScrollView,
-			pos = { 0, 0 },
-			size = { clanListScrollView.size.w, clanListScrollView.size.h * scrollScale },
-			interactive = scrollActive,
-			bgColor = { 0, 0, 0, 0.3 },
-			hoverColor = { 0, 0, 0, 0.5 },
-			pressedColor = { 1, 0, 0, 0.2 },
-			scrollEnabled = true
-		})
-		if (not scrollActive) then
-			clanListScrollBar:hide()
-		end
-		
+				
 		if (#clanList > 0) then
 			local clanListClans = {}
 			for i, v in pairs(clanList) do
@@ -915,6 +852,13 @@ do
 				clanListClans[i]:hide()
 			end
 			
+			local clanListScrollBG = UIElement:new({
+				parent = clanListView,
+				pos = { -(clanListView.size.w - clanListHolder.size.w), 0 },
+				size = { clanListView.size.w - clanListHolder.size.w, clanListHolder.size.h },
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR
+			})
+			local clanListScrollBar = TBMenu:spawnScrollBar(clanListHolder, #clanListClans, clanEntryHeight)
 			clanListScrollBar:makeScrollBar(clanListHolder, clanListClans, toReload, CLANLISTSHIFT)
 		else 
 			clanListHolder:addCustomDisplay(true, function()
@@ -1234,7 +1178,7 @@ do
 		local rosterMemberHolder = UIElement:new({
 			parent = rosterView,
 			pos = { 0, 0 },
-			size = { rosterView.size.w - 30, rosterView.size.h }
+			size = { rosterView.size.w - 20, rosterView.size.h }
 		})
 		local rosterMembers = {}
 		local headAvatars = {}
@@ -1347,51 +1291,33 @@ do
 				rosterPos = rosterPos + rosterEntryHeight
 			end
 		end
-		if (shaders == 1) then
-			Clans:reloadHeadAvatars(headAvatars)
-		end
 		
-		local scrollActive = true
-		local scrollScale = #rosterMembers == 0 and 1 or (rosterView.size.h) / (#rosterMembers * rosterEntryHeight)
-		if (scrollScale >= 1) then
-			scrollScale = 1
-			scrollActive = false
-		elseif (scrollScale < 0.1) then
-			scrollScale = 0.1
-		end
-		
-		if (scrollActive) then
-			local rosterScrollBG = UIElement:new({
-				parent = rosterView,
-				pos = { -30, 0 },
-				size = { 30, rosterView.size.h },
-				bgColor = { 0, 0, 0, 0.2 }
-			})
-			local rosterScrollView = UIElement:new({
-				parent = rosterScrollBG,
-				pos = { 5, 5 },
-				size = { rosterScrollBG.size.w - 10, rosterScrollBG.size.h - 10 }
-			})
-			local rosterScrollBar = UIElement:new({
-				parent = rosterScrollView,
-				pos = { 0, 0 },
-				size = { rosterScrollView.size.w, rosterScrollView.size.h * scrollScale },
-				interactive = scrollActive,
-				bgColor = { 0, 0, 0, 0.3 },
-				hoverColor = { 0, 0, 0, 0.5 },
-				pressedColor = { 1, 0, 0, 0.2 },
-				scrollEnabled = true
-			})
+		if (#rosterMembers > 0) then
+			if (shaders == 1) then
+				Clans:reloadHeadAvatars(headAvatars)
+			end
 			
 			for i,v in pairs(rosterMembers) do
 				v:hide()
 			end
+			
+			local rosterScrollBG = UIElement:new({
+				parent = rosterView,
+				pos = { -(rosterView.size.w - rosterMemberHolder.size.w), 0 },
+				size = { rosterView.size.w - rosterMemberHolder.size.w, rosterMemberHolder.size.h },
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR
+			})
+			local rosterScrollBar = TBMenu:spawnScrollBar(rosterMemberHolder, #rosterMembers, rosterEntryHeight)
 			rosterScrollBar:makeScrollBar(rosterMemberHolder, rosterMembers, toReload)
 		else 
-			rosterMemberHolder.size.w = rosterView.size.w
-			for i,v in pairs(rosterMembers) do
-				v.size.w = rosterMemberHolder.size.w
-			end
+			local clanMembersEmpty = UIElement:new({
+				parent = rosterView,
+				pos = { 0, 0 },
+				size = { rosterView.size.w, rosterView.size.h }
+			})
+			clanMembersEmpty:addCustomDisplay(true, function()
+					clanMembersEmpty:uiText(TB_MENU_LOCALIZED.CLANSMEMBERSEMPTY)
+				end)
 		end
 	end
 	

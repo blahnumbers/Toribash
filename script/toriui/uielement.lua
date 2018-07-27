@@ -921,14 +921,15 @@ do
 		end
 	end
 	
-	function UIElement:runCmd(command, echo)
+	function UIElement:runCmd(command, online, echo)
+		local online = online and 1 or 0
 		local echo = echo or false
 		if (echo == false) then
 			add_hook("console", "UIManagerSkipEcho", function(s,i)
 					return 1
 				end)
 		end
-		run_cmd(command)
+		run_cmd(command, online)
 		remove_hooks("UIManagerSkipEcho")
 	end
 	

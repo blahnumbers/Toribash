@@ -1,4 +1,4 @@
--- Friends List manage
+-- Friends List manager
 
 do
 	FriendsList = {}
@@ -44,7 +44,7 @@ do
 			table.insert(playersOnline, { room = data[1]:lower(), player = data[2]:lower() })
 			return 1
 		end)
-		UIElement:runCmd("sa *", true)
+		UIElement:runCmd("sa *", false, true)
 		remove_hooks("friendsListConsoleIgnore")
 		-- Remove the command echo
 		table.remove(playersOnline)
@@ -53,7 +53,7 @@ do
 	
 	function FriendsList:getOnline(viewElement, noWait)
 		FRIENDSLIST_IS_REFRESHED = false
-		add_hook("console", "friendsListConsoleIgnore", function(s, i) return 1 end)
+		add_hook("console", "friendsListConsoleIgnore", function(s, i) if (s == "refreshing server list") then return 1 end end)
 		UIElement:runCmd("refresh")
 		remove_hooks("friendsListConsoleIgnore")
 		
@@ -178,7 +178,7 @@ do
 		local friendsView = UIElement:new({
 			parent = friendsMain,
 			pos = { 0, 0 },
-			size = { friendsMain.size.w - 30, friendsMain.size.h }
+			size = { friendsMain.size.w - 20, friendsMain.size.h }
 		})
 		
 		local friendsElements = {}
@@ -249,41 +249,19 @@ do
 				end)
 			end
 		end
-		
-		local scrollActive = true
-		local scrollScale = (friendsView.size.h) / (#friendsElements * entryHeight)
-		if (scrollScale >= 1) then
-			scrollScale = 1
-			scrollActive = false
-		elseif (scrollScale < 0.1) then
-			scrollScale = 0.1
-		end
-		
-		local friendsScrollBG = UIElement:new({
-			parent = friendsMain,
-			pos = { -30, 0 },
-			size = { 30, friendsMain.size.h },
-			bgColor = { 0, 0, 0, 0.2 }
-		})
-		local friendsScrollView = UIElement:new({
-			parent = friendsScrollBG,
-			pos = { 5, 5 },
-			size = { friendsScrollBG.size.w - 10, friendsScrollBG.size.h - 10 }
-		})
-		local friendsScrollBar = UIElement:new({
-			parent = friendsScrollView,
-			pos = { 0, 0 },
-			size = { friendsScrollView.size.w, friendsScrollView.size.h * scrollScale },
-			interactive = scrollActive,
-			bgColor = { 0, 0, 0, 0.3 },
-			hoverColor = { 0, 0, 0, 0.5 },
-			pressedColor = { 1, 0, 0, 0.2 },
-			scrollEnabled = true
-		})
 			
 		for i,v in pairs(friendsElements) do
 			v:hide()
 		end
+		
+		local friendsScrollBG = UIElement:new({
+			parent = friendsMain,
+			pos = { -(friendsMain.size.w - friendsView.size.w), 0 },
+			size = { friendsMain.size.w - friendsView.size.w, friendsView.size.h },
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR
+		})
+		
+		local friendsScrollBar = TBMenu:spawnScrollBar(friendsView, #friendsElements, entryHeight)
 		friendsScrollBar:makeScrollBar(friendsView, friendsElements, toReload)
 		
 		local legendInfo = {

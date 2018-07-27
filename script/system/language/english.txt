@@ -56,6 +56,8 @@ STOREITEMGOTOSET	Go to set
 STORESETITEMNAME	Set	
 STOREITEMADDTOSET	Add to set	
 STOREITEMREMOVEFROMSET	Remove from set	
+STORESETSELECTIONCONTROLS	Selection controls	
+STORESETSELECT	Pick the set	
 STOREVIEWSETITEMS	View set items	
 STOREITEMSINSET	Items inside set	
 STORESELLMARKET	Sell in market	
@@ -72,6 +74,11 @@ STOREITEMUNPACK	Unpack
 STOREDIALOGUNPACK1	Are you sure you want to unpack	
 STOREDIALOGUNPACK2	 	
 STOREDIALOGUNPACKINFO	Unpacked items will be put in a set\nand placed in your deactivated inventory.	
+STOREBUTTONCANCEL	Cancel	
+STOREDIALOGADDTOSET1	Are you sure you want to add	
+STOREDIALOGADDTOSET2	to a set	
+STOREDIALOGREMOVEFROMSET1	Are you sure you want to remove	
+STOREDIALOGREMOVEFROMSET2	from a set	
 STOREACTIVATEDINVENTORY	Activated Inventory	
 STOREDEACTIVATEDINVENTORY	Deactivated Inventory	
 STOREMARKETINVENTORY	Market Inventory	
@@ -132,6 +139,10 @@ CLANSTATEUNRANKED	Unranked
 CLANSVIEWWARSFORUM	View wars on forum	
 CLANSTOPACHMISSING	This clan hasn't chosen an achievement to display	
 CLANSLEGENDROSTER	Roster	
+CLANSMEMBERSEMPTY	This clan has no members	
+CLANSPLAYERCLANLESS	You are currently clanless	
+CLANSPLAYERCLANLESSINFOMSG	You can join an existing clan from the list or create a new one	
+CLANSCREATENEWCLAN	Create new clan	
 CLANLEADERS	Leaders	
 CLANLEADER	Leader	
 CLANMEMBERS	Members	

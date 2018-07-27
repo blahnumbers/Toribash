@@ -48,7 +48,7 @@ do
 	function TBMenu:getTranslation(language)
 		local language = language or "english"
 		TBMenu:setLanguageFontOptions(language)
-		if (TB_MENU_LOCALIZED.language ~= language) then
+		if (TB_MENU_LOCALIZED.language ~= language or TB_MENU_DEBUG) then
 			TB_MENU_LOCALIZED.language = language
 		else 
 			return
@@ -197,7 +197,7 @@ do
 			end
 		end
 	end
-		
+			
 	-- Stores and displays event announcements with timed rotation
 	function TBMenu:showEvents(viewElement)
 		-- Table to store event announcement data
@@ -618,6 +618,12 @@ do
 		else
 			echo("^04Error: ^07missing daily rewards data")
 		end
+	end
+	
+	function TBMenu:showEventInfo(eventid)
+		TBMenu:clearNavSection()
+		Events:showMain(tbMenuCurrentSection)
+		TBMenu:showNavigationBar(Events:getNavigationButtons(), true)
 	end
 	
 	function TBMenu:showFriendsList()
@@ -1190,7 +1196,7 @@ do
 			tbMenuBottomLeftButtons[i] = TBMenu:createImageButtons(tbMenuBottomLeftBar, (i - 1) * (tbMenuBottomLeftBar.size.h + 10), 0, tbMenuBottomLeftBar.size.h, tbMenuBottomLeftBar.size.h, v.image, v.imageHover, v.imagePress)
 			tbMenuBottomLeftButtons[i]:addMouseHandlers(nil, v.action, nil)
 		end
-		local tbMenuFriendsBetaCaption = UIElement:new({
+		--[[local tbMenuFriendsBetaCaption = UIElement:new({
 			parent = tbMenuBottomLeftButtons[1],
 			pos = { 0, -tbMenuBottomLeftBar.size.h / 3 },
 			size = { tbMenuBottomLeftBar.size.h, tbMenuBottomLeftBar.size.h / 3 },
@@ -1200,7 +1206,7 @@ do
 		})
 		tbMenuFriendsBetaCaption:addCustomDisplay(false, function()
 				tbMenuFriendsBetaCaption:uiText("Beta", nil, nil, nil, nil, 0.6)
-			end)
+			end)]]
 		if (TB_MENU_NOTIFICATIONS_COUNT > 0) then
 			local tbMenuNotificationsCount = UIElement:new({
 				parent = tbMenuBottomLeftButtons[2],
@@ -1338,6 +1344,37 @@ do
 		if (not noload) then
 			TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
 		end
+	end
+	
+	-- Spawns default menu scroll bar
+	function TBMenu:spawnScrollBar(holderElement, listElements, elementHeight)
+		local scrollActive = true
+		local scrollScale = listElements > 0 and (holderElement.size.h) / (listElements * elementHeight) or holderElement.size.h
+		if (scrollScale >= 1) then
+			scrollScale = 1
+			scrollActive = false
+		elseif (scrollScale < 0.1) then
+			scrollScale = 0.1
+		end
+		
+		local scrollView = UIElement:new({
+			parent = holderElement.parent,
+			pos = { -(holderElement.parent.size.w - holderElement.size.w) / 4 * 3, 5 },
+			size = { (holderElement.parent.size.w - holderElement.size.w) / 2, holderElement.size.h - 10 }
+		})
+		local scrollBar = UIElement:new({
+			parent = scrollView,
+			pos = { 0, 0 },
+			size = { scrollView.size.w, scrollView.size.h * scrollScale },
+			interactive = scrollActive,
+			bgColor = { 0, 0, 0, 0.3 },
+			hoverColor = { 0, 0, 0, 0.5 },
+			pressedColor = { 1, 1, 1, 0.6 },
+			scrollEnabled = true,
+			shapeType = ROUNDED,
+			rounded = 10
+		})
+		return scrollBar
 	end
 	
 	function TBMenu:enableMenuKeyboard()
