@@ -860,7 +860,7 @@ do
 				bgImage = "../textures/menu/general/buttons/checkmark.tga"
 			})
 			if (not itemSelected) then
-				selectIcon:hide()
+				selectIcon:hide(true)
 			end
 			
 			selectBox:addMouseHandlers(nil, function()
@@ -878,7 +878,7 @@ do
 					end
 					table.insert(INVENTORY_SELECTED_ITEMS, item)
 					Torishop:showSelectionControls()
-					selectIcon:show()
+					selectIcon:show(true)
 				end)
 		end
 		
@@ -1107,6 +1107,7 @@ do
 	function Torishop:prepareInventory(viewElement)
 		TB_MENU_INVENTORY_ISOPEN = 1
 		viewElement:kill(true)
+		
 		download_inventory()
 		TB_MENU_DOWNLOAD_INACTION = true
 		local inventoryWait = UIElement:new({
@@ -1162,6 +1163,10 @@ do
 				hoverSound = 31
 			})
 			tcEntry:addMouseHandlers(nil, function()
+					if (TB_MENU_PLAYER_INFO.username == '') then
+						TBMenu:showLoginError(tcPurchaseView.parent, TB_MENU_LOCALIZED.STOREPURCHASETORICREDITS)
+						return
+					end
 					UIElement:runCmd("steam purchase " .. v.itemid)
 					local waitNotification = UIElement:new({
 						parent = tbMenuMain,
@@ -1239,8 +1244,37 @@ do
 		
 		
 		local buttons = {
-			{ title = TB_MENU_LOCALIZED.STOREGOTOSHOP, subtitle = TB_MENU_LOCALIZED.STORESHOPDESC, size = 0.4, vsize = 0.5, action = function() close_menu() open_menu(12) end, noQuit = true },
-			{ title = TB_MENU_LOCALIZED.STOREGOTOINVENTORY, subtitle = TB_MENU_LOCALIZED.STOREINVENTORYDESC, size = 0.4, vsize = 0.5, action = function() if (#get_downloads() == 0) then Torishop:prepareInventory(viewElement) end end, noQuit = true },
+			{
+				title = TB_MENU_LOCALIZED.STOREGOTOSHOP, 
+				subtitle = TB_MENU_LOCALIZED.STORESHOPDESC, 
+				size = 0.4,
+				vsize = 0.5, 
+				action = function() 
+						if (TB_MENU_PLAYER_INFO.username == '') then 
+							TBMenu:showLoginError(viewElement, TB_MENU_LOCALIZED.STOREGOTOSHOP) 
+							return 
+						end 
+						close_menu() 
+						open_menu(12) 
+					end, 
+				noQuit = true
+			},
+			{ 
+				title = TB_MENU_LOCALIZED.STOREGOTOINVENTORY, 
+				subtitle = TB_MENU_LOCALIZED.STOREINVENTORYDESC, 
+				size = 0.4, 
+				vsize = 0.5, 
+				action = function() 
+						if (TB_MENU_PLAYER_INFO.username == '') then 
+							TBMenu:showLoginError(viewElement, TB_MENU_LOCALIZED.STOREGOTOSHOP) 
+							return 
+						end 
+						if (#get_downloads() == 0) then 
+							Torishop:prepareInventory(viewElement) 
+						end 
+					end, 
+				noQuit = true 
+			},
 		}
 		TBMenu:showSection(buttons, tcPurchaseView.size.w)
 	end

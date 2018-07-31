@@ -212,7 +212,7 @@ do
 			}
 		}
 		
-		if (TB_MENU_PLAYER_INFO.data.qi < 500 and TB_MENU_PLAYER_INFO.clan.id == 0) then
+		if (TB_MENU_PLAYER_INFO.data.qi < 500 and TB_MENU_PLAYER_INFO.clan.id == 0 and TB_MENU_PLAYER_INFO.username ~= "") then
 			local clanModifier = string.byte(TB_MENU_PLAYER_INFO.username) % 2
 			local clan = {
 				name = clanModifier == 0 and "Blue" or "Red",
@@ -645,8 +645,8 @@ do
 	function TBMenu:showPlaySection()
 		local tbMenuPlayButtonsData = {
 			{ title = TB_MENU_LOCALIZED.MAINMENUFREEPLAYNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUFREEPLAYDESC, size = 0.5, image = "../textures/menu/freeplay.tga", mode = ORIENTATION_LANDSCAPE, action = function() open_menu(1) end },
-			{ title = TB_MENU_LOCALIZED.MAINMENUMATCHMAKINGNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUMATCHMAKINGDESC, size = 0.25, image = "../textures/menu/matchmaking.tga", mode = ORIENTATION_PORTRAIT, action = function() TBMenu:showMatchmaking() end },
-			{ title = TB_MENU_LOCALIZED.MAINMENUROOMLISTNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUROOMLISTDESC, size = 0.25, image = "../textures/menu/multiplayer.tga", mode = ORIENTATION_PORTRAIT, action = function() open_menu(2) end }
+			{ title = TB_MENU_LOCALIZED.MAINMENUMATCHMAKINGNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUMATCHMAKINGDESC, size = 0.25, image = "../textures/menu/matchmaking.tga", mode = ORIENTATION_PORTRAIT, action = function() if (TB_MENU_PLAYER_INFO.username == '') then TBMenu:showLoginError(tbMenuCurrentSection, TB_MENU_LOCALIZED.MAINMENUMATCHMAKINGNAME) return end TBMenu:showMatchmaking() end },
+			{ title = TB_MENU_LOCALIZED.MAINMENUROOMLISTNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUROOMLISTDESC, size = 0.25, image = "../textures/menu/multiplayer.tga", mode = ORIENTATION_PORTRAIT, action = function() if (TB_MENU_PLAYER_INFO.username == '') then TBMenu:showLoginError(tbMenuCurrentSection, TB_MENU_LOCALIZED.MAINMENUROOMLISTNAME) return end open_menu(2) end }
 		}
 		TBMenu:showSection(tbMenuPlayButtonsData)
 	end
@@ -1312,6 +1312,41 @@ do
 		if (not noload) then
 			TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
 		end
+	end
+	
+	-- Displays login error
+	function TBMenu:showLoginError(viewElement, actionStr)
+		viewElement:kill(true)
+		local background = UIElement:new({
+			parent = viewElement,
+			pos = { 5, 0 },
+			size = { viewElement.size.w - 10, viewElement.size.h },
+			bgColor = TB_MENU_DEFAULT_BG_COLOR
+		})
+		TBMenu:addBottomBloodSmudge(background, 1)
+		local errorMessage = UIElement:new({
+			parent = background,
+			pos = { background.size.w / 4, 0 },
+			size = { background.size.w / 2, background.size.h / 2 - 10 }
+		})
+		errorMessage:addCustomDisplay(true, function()
+				errorMessage:uiText(TB_MENU_LOCALIZED.MAINMENUSIGNINERROR .. " " .. actionStr, nil, nil, nil, CENTERBOT)
+			end)
+		local loginButton = UIElement:new({
+			parent = background,
+			pos = { background.size.w / 4, background.size.h / 2 + 10 },
+			size = { background.size.w / 2, background.size.h / 5 },
+			interactive = true,
+			bgColor = { 0, 0, 0, 0.1 },
+			hoverColor = { 0, 0, 0, 0.3 },
+			pressedColor = { 1, 1, 1, 0.2 }
+		})
+		loginButton:addCustomDisplay(false, function()
+				loginButton:uiText("Log in / Create account")
+			end)
+		loginButton:addMouseHandlers(nil, function()
+				open_menu(18)
+			end)
 	end
 	
 	-- Spawns default menu scroll bar

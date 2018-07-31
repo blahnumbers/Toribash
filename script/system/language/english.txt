@@ -42,6 +42,7 @@ MAINMENUSCRIPTSNAME	Scripts
 MAINMENUSCRIPTSDESC	Load pre-installed or third-party scripts for Toribash	
 MAINMENUSOUNDSNAME	Sounds	
 MAINMENUSOUNDSDESC	Toggle custom sounds on/off	
+MAINMENUSIGNINERROR	You need to log in to be able to	
 DOWNLOADINGFILESWAIT	Downloading files, please wait...	
 STORESETEMPTY	EMPTY	marks an empty set	
 STOREITEM	item	used to display that there's only 1 item in a set	
@@ -90,6 +91,7 @@ STOREDATALOADERROR	Error opening Torishop data, please wait until it's updated o
 STOREGOTOSHOP	Open Torishop	
 STORESHOPDESC	Purchase new items for your Tori	
 STOREGOTOINVENTORY	Open Inventory	
+STOREPURCHASETORICREDITS	Purchase Toricredits	
 STOREINVENTORYDESC	Customize your character with purchased items	
 STORESTEAMPURCHASELOADING	Working	
 STORESTEAMPURCHASEERROR	Something went wrong	

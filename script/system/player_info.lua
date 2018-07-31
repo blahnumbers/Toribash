@@ -1,4 +1,5 @@
 -- Player info fetcher
+dofile("system/iofiles.lua")
 
 do
 	PlayerInfo = {}
@@ -187,12 +188,11 @@ do
 			colors = {},
 			textures = {}
 		}
-		local file = io.open("custom/" .. player .. "/item.dat", 'r', 1)
-		items.colors = PlayerInfo:getColors(file)
-		items.textures = PlayerInfo:getTextures(file)
-		if (file) then
-			file:close()
-		end
+		local customs = Files:new("../custom/" .. player .. "/item.dat", FILES_MODE_READONLY)
+		
+		items.colors = PlayerInfo:getColors(customs.data)
+		items.textures = PlayerInfo:getTextures(customs.data)
+		customs:close()
 		return items
 	end
 	
@@ -241,11 +241,11 @@ do
 		if (not player) then
 			return clanInfo
 		end
-		local file = io.open("custom/" .. player .. "/item.dat", 'r', 1)
-		if (not file) then
+		local customs = Files:new("../custom/" .. player .. "/item.dat", FILES_MODE_READONLY)
+		if (not customs.data) then
 			return clanInfo
 		end
-		for ln in file:lines() do
+		for ln in customs.data:lines() do
 			if string.match(ln, "^CLAN 0;") then
 				ln = string.gsub(ln, "CLAN 0;", "")
 				local clanid = ln:match("%d+");
@@ -253,18 +253,19 @@ do
 				if (clanInfo.id ~= 0) then
 					clanInfo.tag = ln:match("%S+$")
 				end
-				file:close()
 				break
 			end
 		end
+		customs:close()
 		if (clanInfo.id == 0) then
 			return clanInfo
 		end
-		local file = io.open("clans/clans.txt")
-		if (not file) then
+		
+		local clans = Files:new("clans/clans.txt", FILES_MODE_READONLY)
+		if (not clans.data) then
 			return clanInfo
 		end
-		for ln in file:lines() do
+		for ln in clans.data:lines() do
 			if string.match(ln, "^CLAN") then
 				local segments = 14
 				local data_stream = { ln:match(("([^\t]*)\t"):rep(segments)) }
@@ -277,6 +278,7 @@ do
 				end
 			end
 		end
+		clans:close()
 		return clanInfo
 	end
 	
@@ -367,11 +369,11 @@ do
 			userData.belt = PlayerInfo:getBeltFromQi(userData.qi)
 			return userData
 		end
-		local file = io.open("custom/" .. player .. "/item.dat", 'r', 1)
-		if (not file) then
+		local customs = Files:new("../custom/" .. player .. "/item.dat", FILES_MODE_READONLY)
+		if (not customs.data) then
 			return userData
 		end
-		for ln in file:lines() do
+		for ln in customs.data:lines() do
 			if string.match(ln, "^BELT 0;") then
 				userData.qi = string.gsub(ln, "BELT 0;", "")
 				userData.qi = tonumber(userData.qi)
@@ -383,7 +385,8 @@ do
 				userData.tc = tonumber(userData.tc)
 			end
 		end
-	    file:close()
+		
+	    customs:close()
 		return userData
 	end
 	
