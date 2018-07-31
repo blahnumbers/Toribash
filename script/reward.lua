@@ -23,6 +23,7 @@ else
 end
 
 if (is_available == "1") then
+	TB_MENU_NOTIFICATIONS_COUNT = 1
 	TBMenu:create()
 	function TBMenu:addBottomBloodSmudge() end
 	TBMenu:getTranslation(get_language())

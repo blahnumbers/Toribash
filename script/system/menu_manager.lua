@@ -203,43 +203,11 @@ do
 		-- Table to store event announcement data
 		local eventsData = {
 			{
-				title = "Clan League 2018", 
-				subtitle = "It's finally here! Gather your clan mates, wake up the inactive and get ready for the main clan event of the year!", 
+				title = "Clan League 2018 is live!", 
+				subtitle = "The main clan event of the year has started! Defeat all opponents to bring eternal glory to your clan or cheer on other clans you love!", 
 				image = "../textures/menu/promo/clanleague.tga",
 				action = function() 
-						open_url("http://forum.toribash.com/showthread.php?t=617188")
-					end
-			},
-			{
-				title = "Anime Month", 
-				subtitle = "You might ask yourself, did Event Squad think about the userbase interested in Anime? Yes we did! Release your inner otaku and wrap yourself in all the kawaii stuff!", 
-				image = "../textures/menu/promo/animemonth.tga",
-				action = function() 
-						open_url("http://forum.toribash.com/tori_token_exchange.php")
-					end
-			},
-			{
-				title = "Head Texture of the Month: Anime",
-				subtitle = "Otakus Unite!",
-				image = "../textures/menu/promo/htotmanime.tga",
-				action = function()
-						open_url("http://forum.toribash.com/showthread.php?t=616951")
-					end
-			},
-			{
-				title = "Anime Us 2.0", 
-				subtitle = "Anime, weaboos, henta- nevermind, are all great. Ever wonder if you artists could draw anime characters? Well here is the place to try!", 
-				image = "../textures/menu/promo/animeus2.tga",
-				action = function() 
-						open_url("http://forum.toribash.com/showthread.php?t=616953")
-					end
-			},
-			{ 
-				title = "Ranking Season 4", 
-				subtitle = "The fourth season of Toribash ranking is here - with better prizes and stronger opponents. Game on!", 
-				image = "../textures/menu/promo/season4.tga",
-				action = function() 
-						open_url("http://forum.toribash.com/showthread.php?t=614185") 
+						open_url("http://forum.toribash.com/showthread.php?t=618245")
 					end
 			}
 		}

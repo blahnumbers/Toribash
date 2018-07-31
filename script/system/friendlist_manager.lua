@@ -332,6 +332,13 @@ do
 			pos = { 0, 0 },
 			size = { viewElement.size.w, viewElement.size.h / 4 }
 		})
+		local imageSize = viewElement.size.w / 4 * 5 < viewElement.size.h / 7 * 5 and viewElement.size.w / 4 * 5 or viewElement.size.h / 7 * 5
+		local friendImage = UIElement:new({
+			parent = viewElement,
+			pos = { imageSize > viewElement.size.w and -viewElement.size.w - (imageSize - viewElement.size.w) / 2 or (viewElement.size.w - imageSize) / 2, viewElement.size.h / 3 + (viewElement.size.h / 7 * 4 - imageSize) / 2 },
+			size = { imageSize, imageSize },
+			bgImage = "../textures/menu/friendslist.tga"
+		})
 		local friendAddTitle = UIElement:new({
 			parent = friendAddView,
 			pos = { 0, 0 },
