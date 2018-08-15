@@ -96,7 +96,7 @@ do
 				-- Textfield value is a table to allow proper initiation / use after obj is created
 				elem.textfield = o.textfield
 				elem.textfieldstr = o.textfieldstr or { "" }
-				elem.textfieldindex = 0
+				elem.textfieldindex = elem.textfieldstr[1]:len()
 				elem.keyDown = function(key) elem:textfieldKeyDown(key, o.isNumeric) end
 				elem.keyUp = function(key) elem:textfieldKeyUp(key) end
 				table.insert(UIKeyboardHandler, elem)
@@ -334,6 +334,13 @@ do
 	function UIElement:updatePos()
 		if (self.parent) then 
 			self:updateChildPos()
+		end
+	end
+	
+	function UIElement:clearTextfield()
+		if (self.textfield) then
+			self.textfieldstr[1] = ""
+			self.textfieldindex = 0
 		end
 	end
 	
@@ -641,6 +648,10 @@ do
 				self:textfieldUpdate(":")
 			elseif (key >= 97 and key <= 122 and (get_shift_key_state() > 0)) then
 				self:textfieldUpdate(string.char(key - 32))
+			elseif (key == 13) then
+				self:textfieldUpdate("\n")
+			elseif (key > 300) then
+				return
 			else
 				self:textfieldUpdate(string.char(key))
 			end
@@ -889,7 +900,8 @@ do
 				TEXTUREINDEX = TEXTUREINDEX - 1
 			else
 				table.remove(TEXTURECACHE, id)
-			end				
+			end		
+			self.bgImage = nil		
 		end
 		
 		if (not image) then

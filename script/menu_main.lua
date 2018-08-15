@@ -24,8 +24,11 @@ if (TB_MENU_MAIN_ISOPEN == 1) then
 	remove_hooks("tbMainMenuVisual")
 	remove_hooks("tbMenuConsoleIgnore")
 	remove_hooks("tbMenuKeyboardHandler")
-	disable_blur()
+	
+	enable_camera_movement()
 	disable_menu_keyboard()
+	disable_blur()
+	
 	TB_MENU_MAIN_ISOPEN = 0
 	tbMenuMain:kill()
 	return
@@ -58,6 +61,7 @@ dofile("system/matchmake_manager.lua")
 dofile("system/rewards_manager.lua")
 dofile("system/clans_manager.lua")
 dofile("system/friendlist_manager.lua")
+dofile("system/replays_manager.lua")
 
 TB_MENU_PLAYER_INFO = {}
 TB_MENU_PLAYER_INFO.username = PlayerInfo:getUser()

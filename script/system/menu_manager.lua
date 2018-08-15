@@ -480,7 +480,7 @@ do
 				image2 = "../textures/menu/replayssmall.tga",
 				ratio = 1,
 				ratio2 = 0.5,
-				action = function() open_menu(6) end
+				action = function() TBMenu:showReplays() end
 			}
 		}
 		
@@ -565,6 +565,12 @@ do
 		else
 			Clans:showMain(tbMenuCurrentSection, clantag)
 		end
+	end
+	
+	function TBMenu:showReplays()
+		TBMenu:clearNavSection()
+		Replays:showMain(tbMenuCurrentSection)
+		TBMenu:showNavigationBar(Replays:getNavigationButtons(), true)
 	end
 	
 	function TBMenu:showLoginRewards()
@@ -1380,29 +1386,48 @@ do
 		return scrollBar
 	end
 	
-	function TBMenu:enableMenuKeyboard()
+	function TBMenu:enableMenuKeyboard(element)
 		enable_menu_keyboard()
-		TB_MENU_KEYBOARD_ENABLED = true
+		local id = 1
+		for i,v in pairs(UIKeyboardHandler) do
+			if (v.menuKeyboardId == id) then
+				id = id + 1
+			else
+				element.menuKeyboardId = id
+				break
+			end
+		end
 	end
 	
-	function TBMenu:disableMenuKeyboard()
+	function TBMenu:disableMenuKeyboard(element)
+		element.menuKeyboardId = nil
+		for i,v in pairs(UIKeyboardHandler) do
+			if (v.menuKeyboardId) then
+				return
+			end
+		end
 		disable_menu_keyboard()
-		TB_MENU_KEYBOARD_ENABLED = false
 	end
 	
-	function TBMenu:displayTextfield(element, fontid, scale, color)
+	function TBMenu:displayTextfield(element, fontid, scale, color, defaultStr, orientation)
+		local defaultStr = defaultStr or ""
+		local orientation = orientation or LEFTMID
 		element:addCustomDisplay(true, function()
 				if (element.keyboard == true) then
 					local part1 = element.textfieldstr[1]:sub(0, element.textfieldindex)
 					local part2 = element.textfieldstr[1]:sub(element.textfieldindex + 1)
 					local separator = os.time() % 2 == 0 and "|" or (element.textfieldindex == 0 and "|" or " ")
 					local displayString = part1 .. separator .. part2
-					element:uiText(displayString, nil, nil, fontid, LEFTMID, scale, nil, nil, color)
+					element:uiText(displayString, nil, nil, fontid, orientation, scale, nil, nil, color)
 				else
-					if (TB_MENU_KEYBOARD_ENABLED) then
-						TBMenu:disableMenuKeyboard()
+					if (element.menuKeyboardId) then
+						TBMenu:disableMenuKeyboard(element)
 					end
-					element:uiText(element.textfieldstr[1], nil, nil, fontid, LEFTMID, scale, nil, nil, color)
+					if (element.textfieldstr[1] == "") then
+						element:uiText(defaultStr, nil, nil, fontid, orientation, scale, nil, nil, { color[1], color[2], color[3], color[4] * 0.5 })
+					else
+						element:uiText(element.textfieldstr[1], nil, nil, fontid, orientation, scale, nil, nil, color)
+					end
 				end
 			end)
 	end

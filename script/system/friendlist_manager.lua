@@ -368,17 +368,10 @@ do
 			interactive = true,
 			textfield = true
 		})
-		friendAddInput:addCustomDisplay(false, function()
-				if (friendAddInputField.hoverState == BTN_HVR) then 
-					friendAddInput.hoverColor = { friendAddInput.bgColor[1] * 1.1, friendAddInput.bgColor[2] * 1.1, friendAddInput.bgColor[3] * 1.1, 1 }
-				else 
-					friendAddInput.hoverColor = nil
-				end
-			end)
 		friendAddInputField:addMouseHandlers(function()
-				TBMenu:enableMenuKeyboard()
+				TBMenu:enableMenuKeyboard(friendAddInputField)
 			end)
-		TBMenu:displayTextfield(friendAddInputField, 4, 0.8, UICOLORBLACK)
+		TBMenu:displayTextfield(friendAddInputField, 4, 0.7, UICOLORBLACK, "Type a name or clan tag with brackets...")
 		local addFriendButton = UIElement:new({
 			parent = friendAddInputBG,
 			pos = { -elementHeight + 1, 1 },

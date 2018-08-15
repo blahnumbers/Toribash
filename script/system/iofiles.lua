@@ -1,7 +1,7 @@
 -- Files I/O manager
 
 FILES_MODE_READONLY = 'r'
-FILES_MODE_WRITE = 'w'
+FILES_MODE_WRITE = 'w+'
 FILES_MODE_APPEND = 'a'
 FILES_MODE_READWRITE = 'r+'
 
