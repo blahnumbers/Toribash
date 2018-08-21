@@ -1,6 +1,7 @@
 -- Replays manager
 
 local SELECTED_REPLAY = { element = nil, defaultColor = nil, time = 0 }
+TB_MENU_REPLAYS = { name = "replay" }
 
 do
 	Replays = {}
@@ -39,44 +40,46 @@ do
 		local hasDecap = false
 		local version = 0
 		
-		for ln in replay.data:lines() do
-			if (ln:match("FIGHTNAME 0;")) then
-				-- We base version off second replay line instead of actual VERSION
-				version = 10
-			elseif (ln:match("AUTHOR 0;")) then
-				rplInfo.author = ln:gsub("AUTHOR 0;", "")
-				rplInfo.author = PlayerInfo:getUser(rplInfo.author:gsub("^ ", ""))
-			elseif (ln:match("NEWGAME %d;")) then
-				local mod = ln:gsub("NEWGAME %d;", "")
-				rplInfo.mod = mod:match("/*%S*%.tbm")
-				rplInfo.mod = rplInfo.mod and rplInfo.mod:gsub("/", "") or "classic"
-			elseif (ln:match("CRUSH %d; 0") and not hasDecap) then
-				rplInfo.hiddentags = rplInfo.hiddentags and rplInfo.hiddentags .. " decap" or "decap"
-				hasDecap = true
-			end
-			if (version > 9) then
+		if (replay.data) then
+			for ln in replay.data:lines() do
 				if (ln:match("FIGHTNAME 0;")) then
-					rplInfo.name = ln:gsub("FIGHTNAME 0;", "")
-					rplInfo.name = rplInfo.name:gsub("^ ", "")
-				elseif (ln:match("BOUT 0;")) then
-					rplInfo.bout0 = ln:gsub("BOUT 0;", "")
-					rplInfo.bout0 = PlayerInfo:getUser(rplInfo.bout0:gsub("^ ", ""))
-				elseif (ln:match("BOUT 1;")) then
-					rplInfo.bout1 = ln:gsub("BOUT 1;", "")
-					rplInfo.bout1 = PlayerInfo:getUser(rplInfo.bout1:gsub("^ ", ""))
+					-- We base version off second replay line instead of actual VERSION
+					version = 10
+				elseif (ln:match("AUTHOR 0;")) then
+					rplInfo.author = ln:gsub("AUTHOR 0;", "")
+					rplInfo.author = PlayerInfo:getUser(rplInfo.author:gsub("^ ", ""))
+				elseif (ln:match("NEWGAME %d;")) then
+					local mod = ln:gsub("NEWGAME %d;", "")
+					rplInfo.mod = mod:match("/*%S*%.tbm")
+					rplInfo.mod = rplInfo.mod and rplInfo.mod:gsub("/", "") or "classic"
+				elseif (ln:match("CRUSH %d; 0") and not hasDecap) then
+					rplInfo.hiddentags = rplInfo.hiddentags and rplInfo.hiddentags .. " decap" or "decap"
+					hasDecap = true
 				end
-			else
-				if (ln:match("FIGHT %d;")) then
-					local info = ln:gsub("FIGHT %d; ", "")
-					rplInfo.bout1 = PlayerInfo:getUser(info:match("[^ ]+$"))
-					info = info:gsub(" [^ ]+$", "")
-					rplInfo.bout0 = PlayerInfo:getUser(info:match("[^ ]+$"))
-					rplInfo.name = info:gsub(" [^ ]+$", "")
+				if (version > 9) then
+					if (ln:match("FIGHTNAME 0;")) then
+						rplInfo.name = ln:gsub("FIGHTNAME 0;", "")
+						rplInfo.name = rplInfo.name:gsub("^ ", "")
+					elseif (ln:match("BOUT 0;")) then
+						rplInfo.bout0 = ln:gsub("BOUT 0;", "")
+						rplInfo.bout0 = PlayerInfo:getUser(rplInfo.bout0:gsub("^ ", ""))
+					elseif (ln:match("BOUT 1;")) then
+						rplInfo.bout1 = ln:gsub("BOUT 1;", "")
+						rplInfo.bout1 = PlayerInfo:getUser(rplInfo.bout1:gsub("^ ", ""))
+					end
+				else
+					if (ln:match("FIGHT %d;")) then
+						local info = ln:gsub("FIGHT %d; ", "")
+						rplInfo.bout1 = PlayerInfo:getUser(info:match("[^ ]+$"))
+						info = info:gsub(" [^ ]+$", "")
+						rplInfo.bout0 = PlayerInfo:getUser(info:match("[^ ]+$"))
+						rplInfo.name = info:gsub(" [^ ]+$", "")
+					end
 				end
 			end
 		end
 		
-		local infodata = { name = path, bout0 = " ", bout1 = " ", author = "autosave", mod = "classic", tags = " ", hiddentags = " " }
+		local infodata = { name = path, bout0 = " ", bout1 = " ", author = "autosave", mod = "classic", tags = " ", hiddentags = " ", uploaded = 0 }
 		for i,v in pairs(infodata) do
 			if (not rplInfo[i] or rplInfo[i] == "") then
 				rplInfo[i] = v
@@ -114,12 +117,10 @@ do
 		end
 		
 		for i, v in pairs(get_files(folder, "")) do
-			echo(v)
 			if (v:match(".rpl$")) then
-				local replaydata = { filename = v }
-				local replaypath = folder and string.lower(folder .. "/" .. v) or v:lower()
+				local replaydata = { filename = v:lower() }
+				local replaypath = folder and string.lower(folder .. "/" .. v) or replaydata.filename
 				local replaydatapath = replaypath:gsub(" ", "_")
-				echo(replaydatapath)
 				if (filedata[replaydatapath]) then
 					replaydata.name = filedata[replaydatapath].name
 					replaydata.author = filedata[replaydatapath].author
@@ -128,9 +129,10 @@ do
 					replaydata.bout1 = filedata[replaydatapath].bout1
 					replaydata.tags = filedata[replaydatapath].tags
 					replaydata.hiddentags = filedata[replaydatapath].hiddentags
+					replaydata.uploaded = filedata[replaydatapath].uploaded
 				else 
 					replaydata = Replays:getReplayInfo(replaypath)
-					replaydata.filename = v
+					replaydata.filename = v:lower()
 					file.data:write(replaypath .. "\t" ..
 									replaydata.name .. "\t" ..
 									replaydata.author .. "\t" ..
@@ -139,6 +141,7 @@ do
 									replaydata.bout1 .. "\t" ..
 									replaydata.tags .. "\t" ..
 									replaydata.hiddentags .. "\t" ..
+									replaydata.uploaded .. "\t" ..
 									"\n")
 				end
 				table.insert(rplTable.replays, {
@@ -148,16 +151,20 @@ do
 					mod = replaydata.mod,
 					bouts = { replaydata.bout0, replaydata.bout1 },
 					tags = replaydata.tags,
-					hiddentags = replaydata.hiddentags
+					hiddentags = replaydata.hiddentags,
+					uploaded = replaydata.uploaded == 1
 				})
-			elseif (v ~= "." and v ~= ".." and v ~= "system" and not v:match(".dat")) then
-				table.insert(rplTable.folders, {
-					parent = rplTable,
-					name = v
-				})
-				Replays:fetchReplayData(folder .. "/" .. v, rplTable.folders[#rplTable.folders], file, filedata)
+			elseif (v ~= "." and v ~= ".." and v ~= "system" and not v:find("%.%a+$")) then
+				--if (is_folder(folder .. "/" .. v)) then
+					table.insert(rplTable.folders, {
+						parent = rplTable,
+						name = v
+					})
+					Replays:fetchReplayData(folder .. "/" .. v, rplTable.folders[#rplTable.folders], file, filedata)
+				--end
 			end
 		end
+		rplTable.replays = UIElement:qsort(rplTable.replays, "name")
 	end
 	
 	function Replays:updateReplayCache(replay, newreplay)
@@ -169,7 +176,7 @@ do
 		end
 		local filedata = {}
 		for ln in file.data:lines() do
-			if (ln:find(replay.filename .. "\t" .. replay.name .. "\t" .. replay.author)) then
+			if (ln:find(strEsc("replay/" .. replay.filename))) then
 				if (not matchFound) then
 					matchFound = true
 					table.insert(filedata, 
@@ -180,7 +187,8 @@ do
 						newreplay.bouts[1] .. "\t" ..
 						newreplay.bouts[2] .. "\t" ..
 						newreplay.tags .. "\t" ..
-						newreplay.hiddentags .. "\t")
+						newreplay.hiddentags .. "\t" ..
+						(newreplay.uploaded and "1\t" or "0\t"))
 				end
 			else
 				table.insert(filedata, ln)
@@ -198,6 +206,24 @@ do
 		file:close()
 		
 		return true
+	end
+	
+	function Replays:getReplayFolders(folder, level, levelint)
+		local folders = folder or {}
+		local level = level or TB_MENU_REPLAYS
+		local levelint = levelint or 1
+		
+		if (#folders < 1) then
+			table.insert(folders, { name = "replay [root]", fullname = "replay", level = 1 })
+		end
+		
+		local parentFolder = folders[#folders]
+				
+		for i,v in pairs(level.folders) do
+			table.insert(folders, { name = v.name, fullname = parentFolder.fullname .. "/" .. v.name, level = levelint })
+			Replays:getReplayFolders(folders, v, levelint + 1)
+		end
+		return folders
 	end
 	
 	function Replays:getReplayFiles()	
@@ -221,7 +247,8 @@ do
 				bout0 = data_stream[5], 
 				bout1 = data_stream[6],
 			 	tags = data_stream[7]:lower(),
-				hiddentags = data_stream[8]:lower()
+				hiddentags = data_stream[8]:lower(),
+				uploaded = tonumber(data_stream[9])
 			}
 		end
 		Replays:fetchReplayData(nil, nil, file, filedata)
@@ -443,6 +470,7 @@ do
 			parent = toReload,
 			pos = { 0, 0 },
 			size = { viewElement.size.w, 50 },
+			interactive = true,
 			bgColor = TB_MENU_DEFAULT_DARKER_COLOR
 		})
 		topBar:addCustomDisplay(false, function()
@@ -452,6 +480,7 @@ do
 			parent = toReload,
 			pos = { 0, -elementHeight },
 			size = { viewElement.size.w, elementHeight },
+			interactive = true,
 			bgColor = TB_MENU_DEFAULT_DARKER_COLOR
 		})
 		local searchInput = UIElement:new({
@@ -938,18 +967,8 @@ do
 					tagsString = " "
 				end
 				
-				local newreplay = { 
-					filename = replay.filename,
-					name = replay.name,
-					author = replay.author,
-					mod = replay.mod,
-					tags = tagsString,
-					hiddentags = replay.hiddentags,
-					bouts = {}
-				}
-				for i,v in pairs(replay.bouts) do
-					table.insert(newreplay.bouts, v)
-				end
+				local newreplay = UIElement:cloneTable(replay)
+				newreplay.tags = tagsString
 				
 				if (Replays:updateReplayCache(replay, newreplay)) then
 					replay.tags = newreplay.tags
@@ -969,8 +988,8 @@ do
 		})
 		local uploadView = UIElement:new({
 			parent = uploadOverlay,
-			pos = { uploadOverlay.size.w / 8, uploadOverlay.size.h / 5 },
-			size = { uploadOverlay.size.w / 8 * 6, uploadOverlay.size.h / 5 * 3 },
+			pos = { uploadOverlay.size.w / 6, uploadOverlay.size.h / 5 },
+			size = { uploadOverlay.size.w / 6 * 4, uploadOverlay.size.h / 5 * 3 },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
 		local uploadTitle = UIElement:new({
@@ -1010,11 +1029,12 @@ do
 			{
 				name = "Tags",
 				desc = "Space-separated tags for your replay",
-				value = { replay.tags .. (replay.hiddentags == " " and "" or " " .. replay.hiddentags) },
+				value = { string.gsub(replay.tags .. " " .. replay.hiddentags, "^ +", "") },
 				tip = "Input replay tags",
 				input = true
 			}
 		}
+		
 		
 		posY, elementHeight = 0, 90
 		for i,v in pairs(replayData) do
@@ -1130,6 +1150,281 @@ do
 									replayData[3].value[1],
 									"replay/" .. replay.filename
 								)
+				local overlay = UIElement:new({
+					pos = { 0, 0 },
+					size = { WIN_W, WIN_H }
+				})
+				local left = UIElement:new({
+					parent = overlay,
+					pos = { 0, 0 },
+					size = { overlay.size.w / 2, overlay.size.h },
+					interactive = true
+				})
+				left:addMouseHandlers(nil, nil, function()
+						overlay:kill()
+					end)
+				local right = UIElement:new({
+					parent = overlay,
+					pos = { overlay.size.w / 2, 0 },
+					size = { overlay.size.w / 2, overlay.size.h },
+					interactive = true
+				})
+				right:addMouseHandlers(nil, nil, function()
+						overlay:kill()
+						uploadOverlay:kill()
+						Replays:showReplayInfo(replayInfoView, replay)
+					end)
+			end)
+	end
+	
+	function Replays:showFolderDropdown(viewElement, folderdata)
+		local entries = #folderdata.data
+		local entryHeight = 30
+		local dropdownHeight = entries * entryHeight
+		local dropdownScrollable = false
+		if (dropdownHeight > WIN_H / 2) then
+			dropdownHeight = WIN_H / 2
+			dropdownScrollable = true
+		end
+		
+		local dropdownOverlay = UIElement:new({
+			parent = tbMenuMain,
+			pos = { 0, 0 },
+			size = { WIN_W, WIN_H },
+			interactive = true
+		})		
+		local dropdownView = UIElement:new({
+			parent = viewElement,
+			pos = { 0, -viewElement.size.h / 2 - dropdownHeight / 2 },
+			size = { viewElement.size.w, dropdownHeight},
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR
+		})
+		dropdownOverlay:addMouseHandlers(nil, function()
+				dropdownOverlay:kill()
+				dropdownView:kill()
+			end)
+		if (not dropdownScrollable) then
+			for i,v in pairs(folderdata.data) do
+				local folder = UIElement:new({
+					parent = dropdownView,
+					pos = { 0, (i - 1) * entryHeight },
+					size = { dropdownView.size.w, entryHeight },
+					interactive = true,
+					bgColor = { 0, 0, 0, 0 },
+					hoverColor = { 0, 0, 0, 0.2 },
+					pressedColor = { 1, 1, 1, 0.2 }
+				})
+				local infoHolder = UIElement:new({
+					parent = folder,
+					pos = { (v.level - 1) / 2 * entryHeight, 0 },
+					size = { folder.size.w - (v.level - 1) / 2 * entryHeight, folder.size.h }
+				})
+				local folderIcon = UIElement:new({
+					parent = infoHolder,
+					pos = { 0, 0 },
+					size = { entryHeight, entryHeight },
+					bgImage = "../textures/menu/general/folder.tga"
+				})
+				local folderText = UIElement:new({
+					parent = infoHolder,
+					pos = { entryHeight + 10, 0 },
+					size = { infoHolder.size.w - entryHeight - 20, infoHolder.size.h }
+				})
+				folderText:addCustomDisplay(true, function()
+						folderText:uiText(v.name, nil, nil, 4, LEFTMID, 0.6)
+					end)
+				folder:addMouseHandlers(nil, function()
+						folderdata.value = v.fullname
+						dropdownOverlay:kill()
+						dropdownView:kill()
+					end)
+			end
+		end
+	end
+	
+	function Replays:showReplayManageWindow(replayInfoView, replay)
+		local manageOverlay = UIElement:new({
+			parent = tbMenuMain,
+			pos = { 0, 0 },
+			size = { tbMenuMain.size.w, tbMenuMain.size.h },
+			interactive = true,
+			bgColor = { 0, 0, 0, 0.4 }
+		})
+		local manageView = UIElement:new({
+			parent = manageOverlay,
+			pos = { manageOverlay.size.w / 6, manageOverlay.size.h / 2 - 130 },
+			size = { manageOverlay.size.w / 6 * 4, 260 },
+			bgColor = TB_MENU_DEFAULT_BG_COLOR
+		})
+		local manageTitle = UIElement:new({
+			parent = manageView,
+			pos = { 10, 0 },
+			size = { manageView.size.w - 20, 50 }
+		})
+		manageTitle:addAdaptedText(true, "Manage " .. replay.name .. " Replay", nil, nil, FONTS.BIG, nil, 0.7, nil, 0.2)
+		local replayManageInfoView = UIElement:new({
+			parent = manageView,
+			pos = { 10, manageTitle.size.h },
+			size = { manageView.size.w - 20, manageView.size.h * 7 / 8 - manageTitle.size.h }
+		})
+		
+		
+		local _, dirlevel = replay.filename:gsub("/", "")
+		local replayData = {
+			{
+				name = "File Name",
+				sysname = "filename",
+				value = { replay.filename:gsub("^.*/", ""):gsub("%.rpl$", "") },
+				input = true
+			},
+			{
+				name = "Replay Name",
+				sysname = "rpltitle",
+				value = { replay.name },
+				input = true
+			},
+			{
+				name = "Replay Directory",
+				sysname = "dir",
+				value = dirlevel == 0 and "replay" or "replay/" .. replay.filename:gsub("/.*$", ""),
+				dropdown = true,
+				data = Replays:getReplayFolders()
+			}
+		}
+		
+		
+		posY, elementHeight = 0, 50
+		for i,v in pairs(replayData) do
+			local replayManageInfoHolder = UIElement:new({
+				parent = replayManageInfoView,
+				pos = { 0, posY },
+				size = { replayManageInfoView.size.w, elementHeight }
+			})
+			local replayManageInfoNameTitle = UIElement:new({
+				parent = replayManageInfoHolder,
+				pos = { 0, 0 },
+				size = { replayManageInfoHolder.size.w / 3, replayManageInfoHolder.size.h }
+			})
+			replayManageInfoNameTitle:addCustomDisplay(true, function()
+					replayManageInfoNameTitle:uiText(v.name, nil, nil, nil, LEFTMID)
+				end)
+			local replayManageInfoDataField = UIElement:new({
+				parent = replayManageInfoHolder,
+				pos = { replayManageInfoHolder.size.w * 2 / 5, 0 },
+				size = { replayManageInfoHolder.size.w * 3 / 5, replayManageInfoHolder.size.h }
+			})
+			if (v.input) then
+				local replayManageInfoDataInputBG = UIElement:new({
+					parent = replayManageInfoDataField,
+					pos = { 10, 10 },
+					size = { replayManageInfoDataField.size.w - 20, 30 },
+					bgColor = TB_MENU_DEFAULT_DARKER_COLOR
+				})
+				local replayManageInfoDataInputOverlay = UIElement:new({
+					parent = replayManageInfoDataInputBG,
+					pos = { 1, 1 },
+					size = { replayManageInfoDataInputBG.size.w - 2, replayManageInfoDataInputBG.size.h - 2 },
+					bgColor = { 1, 1, 1, 0.5 }
+				})
+				local replayManageInfoDataInput = UIElement:new({
+					parent = replayManageInfoDataInputOverlay,
+					pos = { 10, 5 },
+					size = { replayManageInfoDataInputOverlay.size.w - 20, replayManageInfoDataInputOverlay.size.h - 10 },
+					interactive = true,
+					textfield = true,
+					textfieldstr = v.value
+				})
+				replayManageInfoDataInput:addMouseHandlers(function()
+						TBMenu:enableMenuKeyboard(replayManageInfoDataInput)
+					end)
+				TBMenu:displayTextfield(replayManageInfoDataInput, FONTS.SMALL, nil, UICOLORBLACK, v.tip)
+			elseif (v.dropdown) then
+				local replayManageInfoDataDropdownButtonBG = UIElement:new({
+					parent = replayManageInfoDataField,
+					pos = { 10, 10 },
+					size = { replayManageInfoDataField.size.w - 20, 30 },
+					bgColor = { 0, 0, 0, 0.5}
+				})
+				local replayManageInfoDataDropdownButton = UIElement:new({
+					parent = replayManageInfoDataDropdownButtonBG,
+					pos = { 1, 1 },
+					size = { replayManageInfoDataDropdownButtonBG.size.w - 2, replayManageInfoDataDropdownButtonBG.size.h - 2 },
+					interactive = true,
+					bgColor = TB_MENU_DEFAULT_BG_COLOR,
+					hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
+					pressedColor = { 1, 0.7, 0.7, 0.6 }
+				})
+				local replayManageInfoDataDropdownButtonText = UIElement:new({
+					parent = replayManageInfoDataDropdownButton,
+					pos = { 10, 0 },
+					size = { replayManageInfoDataDropdownButton.size.w - 20, replayManageInfoDataDropdownButton.size.h }
+				})
+				replayManageInfoDataDropdownButtonText:addCustomDisplay(false, function()
+						replayManageInfoDataDropdownButtonText:uiText(v.value, nil, nil, 4, LEFTMID, 0.7)
+					end)
+				replayManageInfoDataDropdownButton:addMouseHandlers(nil, function()
+						Replays:showFolderDropdown(replayManageInfoDataDropdownButtonBG, v)
+					end)
+			end
+			
+			posY = posY + elementHeight
+		end
+		
+		local cancelButton = UIElement:new({
+			parent = manageView,
+			pos = { 10, -50 },
+			size = { manageView.size.w / 2 - 15, 40 },
+			interactive = true,
+			bgColor = { 0, 0, 0, 0.3 },
+			hoverColor = { 0, 0, 0, 0.5 },
+			pressedColor = { 1, 1, 1, 0.2 }
+		})
+		cancelButton:addCustomDisplay(false, function()
+				cancelButton:uiText("Cancel")
+			end)
+		cancelButton:addMouseHandlers(nil, function()
+				manageOverlay:kill()
+			end)
+		local saveButton = UIElement:new({
+			parent = manageView,
+			pos = { manageView.size.w / 2 + 5, -50 },
+			size = { manageView.size.w / 2 - 15, 40 },
+			interactive = true,
+			bgColor = { 0, 0, 0, 0.3 },
+			hoverColor = { 0, 0, 0, 0.5 },
+			pressedColor = { 1, 1, 1, 0.2 }
+		})
+		saveButton:addCustomDisplay(false, function()
+				saveButton:uiText("Save")
+			end)
+		saveButton:addMouseHandlers(nil, function()
+				local errors = 0
+				local newReplay = UIElement:cloneTable(replay)
+				for i, v in pairs(replayData) do
+					if (v.sysname == "filename") then
+						if (v.value[1] ~= replay.filename:gsub("^.*/", ""):gsub("%.rpl$", "")) then
+							local newname = replay.filename:gsub("/.+$", "/") == replay.filename and (v.value[1] .. ".rpl") or replay.filename:gsub("/.+$", "/") .. v.value[1] .. ".rpl"
+							echo("Attempting to change name: " .. replay.filename .. " to " .. newname)
+							local result = rename_replay(replay.filename, newname)
+							if (result) then
+								errors = errors + 1
+								echo("Replay rename error: " .. result)
+							else
+								newReplay.filename = newname
+							end
+						end
+					--elseif (v.sysname == "dir") then
+					--	local result = remove_replay_subfolder("bamboozle")
+					--	echo(result or "empty")
+					end
+				end
+				if (errors == 0) then
+					if (Replays:updateReplayCache(replay, newReplay)) then
+						replay = UIElement:cloneTable(newReplay)
+					end
+					manageOverlay:kill()
+					Replays:showReplayInfo(replayInfoView, replay)
+				end
 			end)
 	end
 	
@@ -1274,13 +1569,12 @@ do
 				replayManageButton:uiText("Manage Replay")
 			end)
 		replayManageButton:addMouseHandlers(nil, function()
-				Replay:showReplayManageWindow(replay)
+				Replays:showReplayManageWindow(viewElement, replay)
 			end)
 	end
 	
 	function Replays:showMain(viewElement)
 		viewElement:kill(true)
-		TB_MENU_REPLAYS = { name = "replays" }
 		Replays:getReplayFiles()
 		
 		local replaysList = UIElement:new({

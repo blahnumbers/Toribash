@@ -764,6 +764,18 @@ do
 		end
 	end
 	
+	function UIElement:addAdaptedText(override, str, x, y, font, align, maxscale, minscale, intensity, shadow, col1, col2)
+		local scale = maxscale or 1
+		local minscale = minscale or 0.2
+		
+		while (not self:uiText(str, x, y, font, nil, scale, nil, nil, nil, nil, nil, true) and scale > minscale) do
+			scale = scale - 0.05
+		end
+		self:addCustomDisplay(override, function()
+				self:uiText(str, x, y, font, align, scale, nil, shadow, col1, col2, intensity)
+			end)
+	end
+	
 	function UIElement:uiText(str, x, y, font, align, scale, angle, shadow, col1, col2, intensity, check)
 		if (not scale and check) then
 			echo("^04UIElement error: ^07uiText cannot take undefined scale argument with check enabled")
@@ -945,6 +957,31 @@ do
 		remove_hooks("UIManagerSkipEcho")
 	end
 	
+	function UIElement:cloneTable(table)
+		local newTable = {}
+		for i,v in pairs(table) do
+			if (type(v) == "table") then
+				newTable[i] = UIElement:cloneTable(v)
+			else
+				newTable[i] = v
+			end
+		end
+		return newTable
+	end
+	
+	function UIElement:debugEcho(mixed, msg)
+		local msg = msg and msg .. ": " or ""
+		if (type(mixed) == "table") then
+			for i,v in pairs(mixed) do
+				UIElement:debugEcho(v, i)
+			end
+		elseif (type(mixed) == "boolean") then
+			echo(msg .. (mixed and "true" or "false"))
+		else
+			echo(msg .. mixed)
+		end
+	end
+	
 	function UIElement:qsort(arr, sort, desc)
 		local a = {}
 		local desc = desc and 1 or -1
@@ -977,8 +1014,10 @@ do
 		local destStr = {}
 		local newStr = ""
 		
-		-- Fix newlines and ensure the string is in fact a string
+		-- Fix newlines, remove redundant spaces and ensure the string is in fact a string
 		local str = string.gsub(str, "\\n", "\n")
+		str = str:gsub("^%s*", "")
+		str = str:gsub("%s*$", "")
 		
 		local newline = false
 		while (str ~= "") do
@@ -1042,10 +1081,31 @@ do
 	end
 	
 	function strEsc(str)
-		return (str:gsub('%(', '\(')
-					:gsub('%)', '\)')
-					:gsub('%[', '\[')
-					:gsub('%]', '\]')
-					:gsub('%-', '\-'))
+		local str = str
+		
+		-- escape regular special characters
+		local chars = "%+-*?^$"
+		for i = 1, #chars do
+			local char = "%" .. chars:sub(i, i)
+			str = str:gsub(char, char)
+		end
+		
+		-- escape paired special characters
+		local paired = { {"%[", "%]"}, { "%(", "%)" } }
+		for i,v in pairs(paired) do
+			local count = 0
+			for j, k in pairs(v) do
+				if (str:find(k)) then
+					count = count + 1
+				end
+			end
+			if (count == 2) then
+				for j, k in pairs(v) do
+					str = str:gsub(k, "%" .. k)
+				end
+			end
+		end
+		str = str:gsub("%.", "%%.")		
+		return str
 	end
 end
