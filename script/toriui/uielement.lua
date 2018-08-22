@@ -957,18 +957,6 @@ do
 		remove_hooks("UIManagerSkipEcho")
 	end
 	
-	function UIElement:cloneTable(table)
-		local newTable = {}
-		for i,v in pairs(table) do
-			if (type(v) == "table") then
-				newTable[i] = UIElement:cloneTable(v)
-			else
-				newTable[i] = v
-			end
-		end
-		return newTable
-	end
-	
 	function UIElement:debugEcho(mixed, msg)
 		local msg = msg and msg .. ": " or ""
 		if (type(mixed) == "table") then
@@ -1008,6 +996,18 @@ do
 				end
 			end)
 		return a
+	end
+	
+	function cloneTable(table)
+		local newTable = {}
+		for i,v in pairs(table) do
+			if (type(v) == "table") then
+				newTable[i] = cloneTable(v)
+			else
+				newTable[i] = v
+			end
+		end
+		return newTable
 	end
 			
 	function textAdapt(str, font, scale, maxWidth)
@@ -1083,11 +1083,14 @@ do
 	function strEsc(str)
 		local str = str
 		
-		-- escape regular special characters
-		local chars = "%+-*?^$"
+		-- escape % symbols
+		str = str:gsub("%%", "%%%%")
+		
+		-- escape other single special characters
+		local chars = ".+-*?^$"
 		for i = 1, #chars do
 			local char = "%" .. chars:sub(i, i)
-			str = str:gsub(char, char)
+			str = str:gsub(char, "%" .. char)
 		end
 		
 		-- escape paired special characters
@@ -1104,8 +1107,7 @@ do
 					str = str:gsub(k, "%" .. k)
 				end
 			end
-		end
-		str = str:gsub("%.", "%%.")		
+		end	
 		return str
 	end
 end

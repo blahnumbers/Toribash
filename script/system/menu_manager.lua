@@ -606,6 +606,60 @@ do
 		TBMenu:showNavigationBar(FriendsList:getNavigationButtons(), true)
 	end
 	
+	function TBMenu:spawnWindowOverlay()
+		local overlay = UIElement:new({
+			parent = tbMenuMain,
+			pos = { 0, 0 },
+			size = { tbMenuMain.size.w, tbMenuMain.size.h },
+			interactive = true,
+			bgColor = { 0, 0, 0, 0.4 }
+		})
+		return overlay
+	end
+	
+	function TBMenu:showConfirmationWindow(message, confirmAction)
+		local confirmOverlay = TBMenu:spawnWindowOverlay()
+		local confirmBoxView = UIElement:new({
+			parent = confirmOverlay,
+			pos = { confirmOverlay.size.w / 3, confirmOverlay.size.h / 2 - 75 },
+			size = { confirmOverlay.size.w / 3, 150 },
+			bgColor = TB_MENU_DEFAULT_BG_COLOR
+		})
+		local confirmBoxMessage = UIElement:new({
+			parent = confirmBoxView,
+			pos = { 10, 10 },
+			size = { confirmBoxView.size.w - 20, 80 }
+		})
+		confirmBoxMessage:addAdaptedText(true, message)
+		local cancelButton = UIElement:new({
+			parent = confirmBoxView,
+			pos = { 10, -50 },
+			size = { confirmBoxView.size.w / 2 - 15, 40 },
+			interactive = true,
+			bgColor = { 0, 0, 0, 0.1 },
+			hoverColor = { 0, 0, 0, 0.3 },
+			pressedColor = { 1, 1, 1, 0.2 }
+		})
+		cancelButton:addAdaptedText(false, "Cancel")
+		cancelButton:addMouseHandlers(nil, function()
+				confirmOverlay:kill()
+			end)
+		local acceptButton = UIElement:new({
+			parent = confirmBoxView,
+			pos = { confirmBoxView.size.w / 2 + 5, -50 },
+			size = { confirmBoxView.size.w / 2 - 15, 40 },
+			interactive = true,
+			bgColor = { 0, 0, 0, 0.1 },
+			hoverColor = { 0, 0, 0, 0.3 },
+			pressedColor = { 1, 1, 1, 0.2 }
+		})
+		acceptButton:addAdaptedText(false, "Continue")
+		acceptButton:addMouseHandlers(nil, function()
+				confirmOverlay:kill()
+				confirmAction()
+			end)
+	end
+	
 	function TBMenu:showDataError(message)
 		local transparency = 1
 		local errorMessage = UIElement:new({
