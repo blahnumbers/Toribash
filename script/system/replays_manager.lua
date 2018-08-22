@@ -208,7 +208,6 @@ do
 		local matchFound = false
 		if (newreplay) then
 			if (replay.name ~= newreplay.name) then
-				echo("updating replay file")
 				if (not Replays:updateReplayFile(newreplay)) then
 					TBMenu:showDataError("Error updating replay name")
 					return false
@@ -380,7 +379,8 @@ do
 			end)
 		goBack:addMouseHandlers(nil, function()
 				SELECTED_REPLAY.replay = nil
-				Replays:showList(viewElement.parent, replayInfo, rplTable)
+				SELECTED_FOLDER = { fullname = "replay" }
+				Replays:showMain(tbMenuCurrentSection)
 			end)
 		posY = posY + elementHeight
 		table.insert(listing, goBack)
@@ -1133,7 +1133,6 @@ do
 				bgImage = "../textures/menu/general/buttons/trash.tga"
 			})
 			deleteButton:addMouseHandlers(nil, function()
-					echo(SELECTED_FOLDER.fullname)
 					local parentFolder = SELECTED_FOLDER.fullname:gsub("/" .. SELECTED_FOLDER.name .. "$", "")
 					local result = remove_replay_subfolder(SELECTED_FOLDER.fullname:gsub("^replay/", ""))
 					SELECTED_FOLDER = { fullname = parentFolder }
@@ -1268,7 +1267,6 @@ do
 				add_replay_subfolder(newFolderName)
 				newFolderOverlay:kill()
 				SELECTED_FOLDER = { fullname = "replay/" .. newFolderName }
-				echo(SELECTED_FOLDER.fullname)
 				Replays:showMain(tbMenuCurrentSection)
 			end)
 	end
@@ -1715,7 +1713,6 @@ do
 							local fileDirectory = replay.filename:find("/") and replay.filename:gsub("/.+$", "/") or "" 
 							local newname = (newDirectory or fileDirectory) .. v.value[1] .. ".rpl"
 							if (not fileMove) then
-								echo("Attempting to change name: " .. replay.filename .. " to " .. newname)
 								local result = rename_replay(replay.filename, newname)
 								if (result) then
 									errors = errors + 1
