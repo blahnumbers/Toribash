@@ -570,6 +570,7 @@ do
 	function TBMenu:showReplays()
 		TBMenu:clearNavSection()
 		Replays:showMain(tbMenuCurrentSection)
+		TB_MENU_REPLAYS_ISOPEN = 1
 		TBMenu:showNavigationBar(Replays:getNavigationButtons(), true)
 	end
 	
@@ -621,8 +622,8 @@ do
 		local confirmOverlay = TBMenu:spawnWindowOverlay()
 		local confirmBoxView = UIElement:new({
 			parent = confirmOverlay,
-			pos = { confirmOverlay.size.w / 3, confirmOverlay.size.h / 2 - 75 },
-			size = { confirmOverlay.size.w / 3, 150 },
+			pos = { confirmOverlay.size.w / 7 * 2, confirmOverlay.size.h / 2 - 75 },
+			size = { confirmOverlay.size.w / 7 * 3, 150 },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
 		local confirmBoxMessage = UIElement:new({
@@ -908,6 +909,8 @@ do
 			if (TB_MENU_CLANS_OPENCLANID ~= 0) then
 				Clans:showClan(tbMenuCurrentSection, TB_MENU_CLANS_OPENCLANID)
 			end
+		elseif (TB_MENU_REPLAYS_ISOPEN == 1) then
+			TBMenu:showReplays()
 		elseif (screenId == 1) then
 			TBMenu:showHome()
 		elseif (screenId == 2) then

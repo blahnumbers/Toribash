@@ -97,6 +97,7 @@ do
 				elem.textfield = o.textfield
 				elem.textfieldstr = o.textfieldstr or { "" }
 				elem.textfieldindex = elem.textfieldstr[1]:len()
+				elem.textfieldsingleline = o.textfieldsingleline
 				elem.keyDown = function(key) elem:textfieldKeyDown(key, o.isNumeric) end
 				elem.keyUp = function(key) elem:textfieldKeyUp(key) end
 				table.insert(UIKeyboardHandler, elem)
@@ -187,6 +188,16 @@ do
 		if (keyUp) then
 			self.keyUp = keyUp
 		end
+	end
+	
+	function UIElement:addEnterAction(func)
+		self.textfieldenteractionenabled = true
+		self.textfieldenteraction = func
+	end
+	
+	function UIElement:removeEnterAction()
+		self.textfieldenteractionenabled = false
+		self.textfieldenteraction = nil
 	end
 	
 	function UIElement:reloadListElements(listHolder, listElements, toReload, enabled)
@@ -586,6 +597,10 @@ do
 		LONGKEYPRESSED.key = nil
 		LONGKEYPRESSED.time = nil
 		LONGKEYPRESSED.repeats = 0
+		
+		if ((key == 13 or key == 271) and self.textfieldenteractionenabled) then
+			self.textfieldenteraction()
+		end
 	end
 	
 	function UIElement:textfieldUpdate(symbol)
@@ -609,7 +624,7 @@ do
 				self.textfieldstr[1] = self.textfieldstr[1]:sub(1, self.textfieldindex - 1) .. self.textfieldstr[1]:sub(self.textfieldindex + 1)
 				self.textfieldindex = self.textfieldindex - 1
 			end
-		elseif (key == 127) then
+		elseif (key == 127 or key == 266) then
 			self.textfieldstr[1] = self.textfieldstr[1]:sub(1, self.textfieldindex) .. self.textfieldstr[1]:sub(self.textfieldindex + 2) 
 		elseif (key == 276) then
 			self.textfieldindex = self.textfieldindex > 0 and self.textfieldindex - 1 or 0
@@ -632,13 +647,13 @@ do
 				self:textfieldUpdate("^")
 			elseif ((key == string.byte('7')) and (get_shift_key_state() > 0)) then
 				self:textfieldUpdate("&")
-			elseif ((key == string.byte('8')) and (get_shift_key_state() > 0)) then
+			elseif ((key == string.byte('8')) and (get_shift_key_state() > 0) or key == 268) then
 				self:textfieldUpdate("*")
 			elseif ((key == string.byte('9')) and (get_shift_key_state() > 0)) then
 				self:textfieldUpdate("(")
 			elseif ((key == string.byte('0')) and (get_shift_key_state() > 0)) then
 				self:textfieldUpdate(")")
-			elseif ((key == string.byte('=')) and (get_shift_key_state() > 0)) then
+			elseif ((key == string.byte('=')) and (get_shift_key_state() > 0) or key == 270) then
 				self:textfieldUpdate("+")
 			elseif ((key == string.byte('/')) and (get_shift_key_state() > 0)) then
 				self:textfieldUpdate("?")
@@ -646,10 +661,20 @@ do
 				self:textfieldUpdate("\"")
 			elseif ((key == string.byte(';')) and (get_shift_key_state() > 0)) then
 				self:textfieldUpdate(":")
+			elseif (key == 269) then
+				self:textfieldUpdate("-")
+			elseif (key == 267) then
+				self:textfieldUpdate("/")
 			elseif (key >= 97 and key <= 122 and (get_shift_key_state() > 0)) then
 				self:textfieldUpdate(string.char(key - 32))
-			elseif (key == 13) then
-				self:textfieldUpdate("\n")
+			elseif (key == 13 or key == 271) then
+				if (not self.textfieldsingleline) then
+					self:textfieldUpdate("\n")
+				else
+					return
+				end
+			elseif (key > 256 and key < 265) then
+				self:textfieldUpdate(key - 256)
 			elseif (key > 300) then
 				return
 			else
@@ -767,9 +792,19 @@ do
 	function UIElement:addAdaptedText(override, str, x, y, font, align, maxscale, minscale, intensity, shadow, col1, col2)
 		local scale = maxscale or 1
 		local minscale = minscale or 0.2
+		local font = font
 		
 		while (not self:uiText(str, x, y, font, nil, scale, nil, nil, nil, nil, nil, true) and scale > minscale) do
 			scale = scale - 0.05
+			if (scale < 0.5 and font) then
+				if (font == FONTS.BIG) then
+					font = FONTS.MEDIUM
+				elseif (font == FONTS.BIGGER) then
+					font = FONTS.BIG
+				end
+				scale = 1
+				minscale = minscale * 2
+			end
 		end
 		self:addCustomDisplay(override, function()
 				self:uiText(str, x, y, font, align, scale, nil, shadow, col1, col2, intensity)

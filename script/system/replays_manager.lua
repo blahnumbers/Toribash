@@ -2,7 +2,7 @@
 
 local SELECTED_REPLAY = { element = nil, defaultColor = nil, time = 0, replay = nil }
 local TB_MENU_REPLAYS = { name = "replay", fullname = "replay" }
-local SELECTED_FOLDER = TB_MENU_REPLAYS
+SELECTED_FOLDER = SELECTED_FOLDER and { fullname = SELECTED_FOLDER.fullname } or  TB_MENU_REPLAYS
 local MAXFOLDERLEVELS = 4
 
 do
@@ -12,6 +12,7 @@ do
 	setmetatable(cln, Replays)
 	
 	function Replays:quit()
+		TB_MENU_REPLAYS_ISOPEN = 0
 		if (get_option("newmenu") == 0) then
 			FRIENDSLIST_OPEN = false
 			tbMenuMain:kill()
@@ -157,7 +158,7 @@ do
 					uploaded = replaydata.uploaded == 1
 				})
 			elseif (v ~= "." and v ~= ".." and v ~= "system" and not v:find("%.%a+$")) then
-				--if (is_folder(folder .. "/" .. v)) then
+				if (is_folder(rplTable.fullname .. "/" .. v)) then
 					table.insert(rplTable.folders, {
 						parent = rplTable,
 						name = v,
@@ -167,7 +168,7 @@ do
 					if (rplTable.fullname .. "/" .. v == SELECTED_FOLDER.fullname) then
 						SELECTED_FOLDER = rplTable.folders[#rplTable.folders]
 					end
-				--end
+				end
 			end
 		end
 		rplTable.replays = UIElement:qsort(rplTable.replays, "filename")
@@ -325,7 +326,7 @@ do
 	function Replays:findReplays(searchString, rplTable, searchResults)
 		local replays = rplTable or TB_MENU_REPLAYS
 		local searchResults = searchResults or { name = {}, filename = {}, author = {}, bouts = {}, mod = {}, tags = {}, hiddentags = {} }
-		local searchString = searchString:lower()
+		local searchString = type(searchString) == "table" and searchString[1]:lower() or searchString:lower()
 		
 		for i, folder in pairs(rplTable.folders) do
 			Replays:findReplays(searchString, folder, searchResults)
@@ -537,9 +538,11 @@ do
 			pos = { 10, 0 },
 			size = { topBar.size.w / 3 * 2 - 20, topBar.size.h }
 		})
-		replaysTitle:addCustomDisplay(true, function()
-				replaysTitle:uiText(TB_MENU_LOCALIZED.MAINMENUREPLAYSNAME, nil, nil, FONTS.BIG, LEFTMID, 0.75, nil, nil, nil, nil, 0.2)
-			end)
+		local replaysTitleStr = TB_MENU_LOCALIZED.MAINMENUREPLAYSNAME
+		if (rplTable.fullname ~= "replay") then
+			replaysTitleStr = replaysTitleStr .. " - " .. rplTable.name
+		end
+		replaysTitle:addAdaptedText(true, replaysTitleStr, nil, nil, FONTS.BIG, LEFTMID, 0.65, nil, 0.2)
 			
 		if (level.fullname ~= "replay/autosave") then
 			local posX = 0
@@ -595,7 +598,8 @@ do
 			pos = { 5, 0 },
 			size = { searchInput.size.w - 10, searchInput.size.h },
 			interactive = true,
-			textfield = true
+			textfield = true,
+			textfieldsingleline = true
 		})
 		searchInputField:addMouseHandlers(function()
 				TBMenu:enableMenuKeyboard(searchInputField)
@@ -619,9 +623,12 @@ do
 			pos = { 0, topBar.size.h },
 			size = { viewElement.size.w, viewElement.size.h - topBar.size.h - botBar.size.h }
 		})
-		searchButton:addMouseHandlers(nil, function()
-				Replays:showSearchList(listingView, replayInfo, toReload, Replays:findReplays(searchInputField.textfieldstr[1], rplTable))
-			end)
+		
+		local searchFunction = function() 
+			Replays:showSearchList(listingView, replayInfo, toReload, Replays:findReplays(searchInputField.textfieldstr, rplTable)) 
+		end
+		searchInputField:addEnterAction(searchFunction)
+		searchButton:addMouseHandlers(nil, searchFunction)
 		
 		local listingHolder = UIElement:new({
 			parent = listingView,
@@ -865,13 +872,7 @@ do
 			table.insert(updatedTags, i)
 		end
 		
-		local tagsOverlay = UIElement:new({
-			parent = tbMenuMain,
-			pos = { 0, 0 },
-			size = { tbMenuMain.size.w, tbMenuMain.size.h },
-			interactive = true,
-			bgColor = { 0, 0, 0, 0.1 }
-		})
+		local tagsOverlay = TBMenu:spawnWindowOverlay()
 		local tagsView = UIElement:new({
 			parent = tagsOverlay,
 			pos = { tagsOverlay.size.w / 8, tagsOverlay.size.h / 6 },
@@ -975,8 +976,8 @@ do
 		
 		local tagInputFieldView = UIElement:new({
 			parent = tagsView,
-			pos = { 10, -tagsView.size.h / 8 },
-			size = { tagsView.size.w / 2 - 20, tagsView.size.h / 10 },
+			pos = { 10, -50 },
+			size = { tagsView.size.w / 2 - 100, 40 },
 			bgColor = TB_MENU_DEFAULT_DARKER_COLOR
 		})
 		local tagInputFieldBG = UIElement:new({
@@ -987,28 +988,18 @@ do
 		})
 		local tagInputField = UIElement:new({
 			parent = tagInputFieldBG,
-			pos = { 5, 0 },
-			size = { tagInputFieldBG.size.w - tagInputFieldBG.size.h * 2 - 10, tagInputFieldBG.size.h },
+			pos = { 10, 0 },
+			size = { tagInputFieldBG.size.w - 20, tagInputFieldBG.size.h },
 			interactive = true,
-			textfield = true
+			textfield = true,
+			textfieldsingleline = true
 		})
 		tagInputField:addMouseHandlers(function()
 				TBMenu:enableMenuKeyboard(tagInputField)
 			end)
 		TBMenu:displayTextfield(tagInputField, FONTS.SMALL, 1, UICOLORBLACK, "Input your own tag here...")
-		local tagButton = UIElement:new({
-			parent = tagInputFieldBG,
-			pos = { -tagInputFieldBG.size.h * 2, 0 },
-			size = { tagInputFieldBG.size.h * 2, tagInputFieldBG.size.h },
-			interactive = true,
-			bgColor = { 0, 0, 0, 0.3 },
-			hoverColor = { 0, 0, 0, 0.5 },
-			pressedColor = { 1, 1, 1, 0.2 }
-		})
-		tagButton:addCustomDisplay(false, function()
-				tagButton:uiText("Add")
-			end)
-		tagButton:addMouseHandlers(nil, function()
+			
+		local tagAddFunction = function()
 				local tagString = tagInputField.textfieldstr[1]
 				if (tagString:gsub("%A", "") == "" or tagString:len() < 2) then
 					TBMenu:showDataError("Replay tag should contain at least one letter")
@@ -1023,7 +1014,22 @@ do
 				tagInputField:clearTextfield()
 				table.insert(updatedTags, tagString)
 				Replays:showReplayTaglistTag(replayTagsView, updatedTags, tagString, elementHeight, replayTagListInfo, popularTagsButtons)
+			end
+		tagInputField:addEnterAction(tagAddFunction)
+		
+		local tagButton = UIElement:new({
+			parent = tagsView,
+			pos = { tagsView.size.w / 2 - 90, -50 },
+			size = { 80, 40 },
+			interactive = true,
+			bgColor = { 0, 0, 0, 0.3 },
+			hoverColor = { 0, 0, 0, 0.5 },
+			pressedColor = { 1, 1, 1, 0.2 }
+		})
+		tagButton:addCustomDisplay(false, function()
+				tagButton:uiText("Add")
 			end)
+		tagButton:addMouseHandlers(nil, tagAddFunction)
 		
 		
 		for i, tag in pairs(updatedTags) do
@@ -1032,8 +1038,8 @@ do
 		
 		local buttonCancel = UIElement:new({
 			parent = tagsView,
-			pos = { tagsView.size.w / 2 + 10, -tagsView.size.h / 8 },
-			size = { tagsView.size.w / 4 - 15, tagsView.size.h / 10 },
+			pos = { tagsView.size.w / 2 + 10, -50 },
+			size = { tagsView.size.w / 4 - 15, 40 },
 			interactive = true,
 			bgColor = { 0, 0, 0, 0.3 },
 			hoverColor = { 0, 0, 0, 0.5 },
@@ -1047,8 +1053,8 @@ do
 			end)
 		local buttonSave = UIElement:new({
 			parent = tagsView,
-			pos = { tagsView.size.w / 4 * 3, -tagsView.size.h / 8 },
-			size = { tagsView.size.w / 4 - 10, tagsView.size.h / 10 },
+			pos = { tagsView.size.w / 4 * 3, -50 },
+			size = { tagsView.size.w / 4 - 10, 40 },
 			interactive = true,
 			bgColor = { 0, 0, 0, 0.3 },
 			hoverColor = { 0, 0, 0, 0.5 },
@@ -1121,30 +1127,52 @@ do
 		TBMenu:displayTextfield(newFolderInput, FONTS.SMALL, nil, UICOLORBLACK, "Folder name")
 		
 		local posX = 0
-		if (#SELECTED_FOLDER.replays == 0 and #SELECTED_FOLDER.folders == 0) then
-			local deleteButton = UIElement:new({
-				parent = editFolderView,
-				pos = { -50, -50 },
-				size = { 40, 40 },
-				interactive = true,
-				bgColor = { 0, 0, 0, 0.3 },
-				hoverColor = { 0, 0, 0, 0.5 },
-				pressedColor = { 1, 1, 1, 0.2 },
-				bgImage = "../textures/menu/general/buttons/trash.tga"
-			})
-			deleteButton:addMouseHandlers(nil, function()
-					local parentFolder = SELECTED_FOLDER.fullname:gsub("/" .. SELECTED_FOLDER.name .. "$", "")
-					local result = remove_replay_subfolder(SELECTED_FOLDER.fullname:gsub("^replay/", ""))
+		local deleteButton = UIElement:new({
+			parent = editFolderView,
+			pos = { -50, -50 },
+			size = { 40, 40 },
+			interactive = true,
+			bgColor = { 0, 0, 0, 0.3 },
+			hoverColor = { 0, 0, 0, 0.5 },
+			pressedColor = { 1, 1, 1, 0.2 },
+			bgImage = "../textures/menu/general/buttons/trash.tga"
+		})
+		deleteButton:addMouseHandlers(nil, function()
+				local function delete_folder(folder)
+					local parentFolder = folder.fullname:gsub("/" .. folder.name .. "$", "")
+					local error = remove_replay_subfolder(folder.fullname:gsub("^replay/", ""))
+					if (error) then
+						TBMenu:showDataError("Error deleting " .. folder.fullname .. " folder: " .. error)
+						return
+					end
 					SELECTED_FOLDER = { fullname = parentFolder }
+				end
+				if (#SELECTED_FOLDER.replays == 0 and #SELECTED_FOLDER.folders == 0) then
+					delete_folder(SELECTED_FOLDER)
 					editFolderOverlay:kill()
 					Replays:showMain(tbMenuCurrentSection)
-				end)
-			posX = posX + 50
-		end
+				else
+					local function delete_folder_with_files(folder, targetFolder)
+						local targetFolder = targetFolder or folder.fullname:gsub("^replay/", ""):gsub(folder.name .. ".*$", "")
+						for i,v in pairs(folder.folders) do
+							delete_folder_with_files(v, targetFolder)
+						end
+						for i,v in pairs(folder.replays) do
+							local error = move_replay(v.filename, targetFolder .. v.filename:gsub("^.*/", ""))
+							if (error) then
+								TBMenu:showDataError("Error moving " .. v.filename .. " to " .. newPath .. ": " .. error)
+								return
+							end
+						end
+						delete_folder(folder)
+					end
+					TBMenu:showConfirmationWindow("This folder is not empty. Deleting it will move all replays inside to the parent folder. Continue?", function() delete_folder_with_files(SELECTED_FOLDER) editFolderOverlay:kill() Replays:showMain(tbMenuCurrentSection) end)
+				end
+			end)
 		local cancelButton = UIElement:new({
 			parent = editFolderView,
 			pos = { 10, -50 },
-			size = { editFolderView.size.w / 2 - 15 - (posX / 2), 40 },
+			size = { editFolderView.size.w / 2 - 40, 40 },
 			interactive = true,
 			bgColor = { 0, 0, 0, 0.3 },
 			hoverColor = { 0, 0, 0, 0.5 },
@@ -1158,8 +1186,8 @@ do
 			end)
 		local saveButton = UIElement:new({
 			parent = editFolderView,
-			pos = { editFolderView.size.w / 2 + 5 - (posX / 2), -50 },
-			size = { editFolderView.size.w / 2 - 15 - (posX / 2), 40 },
+			pos = { editFolderView.size.w / 2 - 20, -50 },
+			size = { editFolderView.size.w / 2 - 40, 40 },
 			interactive = true,
 			bgColor = { 0, 0, 0, 0.3 },
 			hoverColor = { 0, 0, 0, 0.5 },
@@ -1172,9 +1200,14 @@ do
 				local newFolderName = newFolderInput.textfieldstr[1]:gsub("%s+$", ""):gsub("^%s+", "")
 				local parentFolder = SELECTED_FOLDER.fullname:gsub(SELECTED_FOLDER.name .. "$", "")
 				if (SELECTED_FOLDER.name == newFolderName) then
+					editFolderOverlay:kill()
 					return
 				end
-				rename_replay_subfolder(SELECTED_FOLDER.fullname:gsub("^replay/", ""), parentFolder:gsub("^replay/", "") .. newFolderName)
+				local error = rename_replay_subfolder(SELECTED_FOLDER.fullname:gsub("^replay/", ""), parentFolder:gsub("^replay/", "") .. newFolderName)
+				if (error) then
+					TBMenu:showDataError("Error renaming folder: " .. error)
+					return
+				end
 				SELECTED_FOLDER = { fullname = parentFolder .. newFolderName }
 				editFolderOverlay:kill()
 				Replays:showMain(tbMenuCurrentSection)
@@ -1187,13 +1220,7 @@ do
 			TBMenu:showDataError("You can't spawn more than " .. MAXFOLDERLEVELS .. " folder levels")
 			return
 		end
-		local newFolderOverlay = UIElement:new({
-			parent = tbMenuMain,
-			pos = { 0, 0 },
-			size = { tbMenuMain.size.w, tbMenuMain.size.h },
-			interactive = true,
-			bgColor = { 0, 0, 0, 0.4 }
-		})
+		local newFolderOverlay = TBMenu:spawnWindowOverlay()
 		local newFolderView = UIElement:new({
 			parent = newFolderOverlay,
 			pos = { newFolderOverlay.size.w / 4, newFolderOverlay.size.h / 2 - 100 },
@@ -1223,7 +1250,8 @@ do
 			pos = { 10, 0 },
 			size = { newFolderInputOverlay.size.w - 20, newFolderInputOverlay.size.h },
 			interactive = true,
-			textfield = true
+			textfield = true,
+			textfieldsingleline = true
 		})
 		newFolderInput:addMouseHandlers(function()
 				TBMenu:enableMenuKeyboard(newFolderInput)
@@ -1256,29 +1284,29 @@ do
 		saveButton:addCustomDisplay(false, function()
 				saveButton:uiText("Create")
 			end)
-		saveButton:addMouseHandlers(nil, function()
-				if (newFolderInput.textfieldstr[1] ~= newFolderInput.textfieldstr[1]:match("[^ ][%w+ ]+")) then
-					TBMenu:showDataError("Folder name should be alphanumeric")
-					return
-				end
-				local parentFolder = SELECTED_FOLDER.fullname:gsub("^replay/*", "")
-				parentFolder = parentFolder:len() > 0 and parentFolder .. "/" or parentFolder
-				local newFolderName = parentFolder .. newFolderInput.textfieldstr[1]:gsub(" +$", "")
-				add_replay_subfolder(newFolderName)
-				newFolderOverlay:kill()
-				SELECTED_FOLDER = { fullname = "replay/" .. newFolderName }
-				Replays:showMain(tbMenuCurrentSection)
-			end)
+		local function spawnNewFolder()
+			if (newFolderInput.textfieldstr[1] ~= newFolderInput.textfieldstr[1]:match("[^ ][%w+ ]+")) then
+				TBMenu:showDataError("Folder name should be alphanumeric")
+				return
+			end
+			local parentFolder = SELECTED_FOLDER.fullname:gsub("^replay/*", "")
+			parentFolder = parentFolder:len() > 0 and parentFolder .. "/" or parentFolder
+			local newFolderName = parentFolder .. newFolderInput.textfieldstr[1]:gsub(" +$", "")
+			local result = add_replay_subfolder(newFolderName)
+			if (result) then
+				TBMenu:showDataError("Error adding replay folder: " .. result)
+				return
+			end
+			newFolderOverlay:kill()
+			SELECTED_FOLDER = { fullname = "replay/" .. newFolderName }
+			Replays:showMain(tbMenuCurrentSection)
+		end
+		newFolderInput:addEnterAction(spawnNewFolder)
+		saveButton:addMouseHandlers(nil, spawnNewFolder)
 	end
 	
 	function Replays:showUploadWindow(replayInfoView, replay)
-		local uploadOverlay = UIElement:new({
-			parent = tbMenuMain,
-			pos = { 0, 0 },
-			size = { tbMenuMain.size.w, tbMenuMain.size.h },
-			interactive = true,
-			bgColor = { 0, 0, 0, 0.1 }
-		})
+		local uploadOverlay = TBMenu:spawnWindowOverlay()
 		local uploadView = UIElement:new({
 			parent = uploadOverlay,
 			pos = { uploadOverlay.size.w / 6, uploadOverlay.size.h / 5 },
@@ -1376,7 +1404,8 @@ do
 					size = { replayUploadInfoDataInputOverlay.size.w - 20, replayUploadInfoDataInputOverlay.size.h - 10 },
 					interactive = true,
 					textfield = true,
-					textfieldstr = v.value
+					textfieldstr = v.value,
+					textfieldsingleline = not v.fulltext
 				})
 				replayUploadInfoDataInput:addMouseHandlers(function()
 						TBMenu:enableMenuKeyboard(replayUploadInfoDataInput)
@@ -1536,13 +1565,7 @@ do
 	end
 	
 	function Replays:showReplayManageWindow(replayInfoView, replay)
-		local manageOverlay = UIElement:new({
-			parent = tbMenuMain,
-			pos = { 0, 0 },
-			size = { tbMenuMain.size.w, tbMenuMain.size.h },
-			interactive = true,
-			bgColor = { 0, 0, 0, 0.4 }
-		})
+		local manageOverlay = TBMenu:spawnWindowOverlay()
 		local manageView = UIElement:new({
 			parent = manageOverlay,
 			pos = { manageOverlay.size.w / 6, manageOverlay.size.h / 2 - 130 },
@@ -1667,7 +1690,7 @@ do
 		local cancelButton = UIElement:new({
 			parent = manageView,
 			pos = { 10, -50 },
-			size = { manageView.size.w / 4 - 15, 40 },
+			size = { manageView.size.w / 2 - 40, 40 },
 			interactive = true,
 			bgColor = { 0, 0, 0, 0.3 },
 			hoverColor = { 0, 0, 0, 0.5 },
@@ -1681,8 +1704,8 @@ do
 			end)
 		local saveButton = UIElement:new({
 			parent = manageView,
-			pos = { manageView.size.w / 4 + 5, -50 },
-			size = { manageView.size.w / 2 - 10, 40 },
+			pos = { manageView.size.w / 2 - 20, -50 },
+			size = { manageView.size.w / 2 - 40, 40 },
 			interactive = true,
 			bgColor = { 0, 0, 0, 0.3 },
 			hoverColor = { 0, 0, 0, 0.5 },
@@ -1702,7 +1725,7 @@ do
 						local directory = v.dirlevel == 0 and "replay" or "replay/" .. replay.filename:gsub("/.+$", "")
 						if (directory ~= v.value) then
 							fileMove = true
-							newDirectory = v.value .. "/"
+							newDirectory = v.value == "replay" and "" or v.value .. "/"
 						end
 					elseif (v.sysname == "rpltitle") then
 						if (v.value[1] ~= replay.name) then
@@ -1743,16 +1766,14 @@ do
 			
 		local deleteButton = UIElement:new({
 			parent = manageView,
-			pos = { manageView.size.w / 4 * 3 + 5, -50 },
-			size = { manageView.size.w / 4 - 15, 40 },
+			pos = { -50, -50 },
+			size = { 40, 40 },
 			interactive = true,
 			bgColor = { 0, 0, 0, 0.3 },
 			hoverColor = { 0, 0, 0, 0.5 },
-			pressedColor = { 1, 1, 1, 0.2 }
+			pressedColor = { 1, 1, 1, 0.2 },
+			bgImage = "../textures/menu/general/buttons/trash.tga"
 		})
-		deleteButton:addCustomDisplay(false, function()
-				deleteButton:uiText("Delete")
-			end)
 		deleteButton:addMouseHandlers(nil, function()
 				TBMenu:showConfirmationWindow("Are you sure want to delete " .. replay.filename .. " replay?", function()
 						local result = delete_replay(replay.filename)
@@ -1768,9 +1789,93 @@ do
 			end)
 	end
 	
+	function Replays:canUploadReplay(replay)
+		if (replay.uploaded == 1) then
+			return false
+		end
+		
+		local isInReplay = false
+		if (replay.author == TB_MENU_PLAYER_INFO.username) then
+			isInReplay = true
+		end
+		for i,v in pairs(replay.bouts) do
+			if (v == TB_MENU_PLAYER_INFO.username) then
+				isInReplay = true
+			end
+		end
+		return isInReplay
+	end
+	
+	function Replays:showAutosaveToggle(viewElement)
+		local autosaveStatus = get_option("autosave")
+		local autosaveView = UIElement:new({
+			parent = viewElement,
+			pos = { 10, -viewElement.size.h / 8 },
+			size = { viewElement.size.w - 20, viewElement.size.h / 10 },
+			interactive = true,
+			bgColor = { 0, 0, 0, 0.1 },
+			hoverColor = { 0, 0, 0, 0.3 },
+			pressedColor = { 1, 1, 1, 0.2 }
+		})
+		local autosaveCheckbox = UIElement:new({
+			parent = autosaveView,
+			pos = { 0, 0 },
+			size = { autosaveView.size.h, autosaveView.size.h }
+		})
+		autosaveView:addCustomDisplay(true, function()
+				if (autosaveView.hoverState == BTN_DN) then
+					set_color(unpack(autosaveView.pressedColor))
+				else
+					set_color(unpack(autosaveView.animateColor))
+				end
+				draw_quad(	autosaveView.pos.x + autosaveCheckbox.shift.x,
+							autosaveView.pos.y + autosaveCheckbox.shift.y,
+							autosaveCheckbox.size.w,
+							autosaveCheckbox.size.h	)
+			end)
+		local autosaveIcon = UIElement:new({
+			parent = autosaveCheckbox,
+			pos = { 2, 2 },
+			size = { autosaveCheckbox.size.w - 4, autosaveCheckbox.size.h - 4 },
+			bgImage = "../textures/menu/general/buttons/checkmark.tga"
+		})
+		if (autosaveStatus == 0) then
+			autosaveIcon:hide()
+		end
+		autosaveView:addMouseHandlers(nil, function()
+				autosaveStatus = 1 - autosaveStatus
+				set_option("autosave", autosaveStatus)
+				if (autosaveStatus == 1) then
+					autosaveIcon:show()
+				else
+					autosaveIcon:hide()
+				end
+			end)
+		local autosaveText = UIElement:new({
+			parent = autosaveView,
+			pos = { 50, 0 },
+			size = { autosaveView.size.w - 60, autosaveView.size.h }
+		})
+		autosaveText:addAdaptedText(true, "Auto-save replays")
+	end
+	
 	function Replays:showReplayInfo(viewElement, replay)
 		viewElement:kill(true)
 		local bottomSmudge = TBMenu:addBottomBloodSmudge(viewElement, 2)
+		if (not replay) then
+			local heightMod = 0
+			if (SELECTED_FOLDER.fullname == "replay/autosave") then
+				Replays:showAutosaveToggle(viewElement)
+				heightMod = viewElement.size.h / 8
+			end
+			local noReplaysFound = UIElement:new({
+				parent = viewElement,
+				pos = { 10, 10 },
+				size = { viewElement.size.w - 20, viewElement.size.h - 20 - heightMod }
+			})
+			noReplaysFound:addAdaptedText(true, "No replays in this folder")
+			return
+		end
 		
 		SELECTED_REPLAY.replay = replay
 		SELECTED_REPLAY.element.bgColor = { 1, 1, 1, 0.3 }
@@ -1780,13 +1885,7 @@ do
 			pos = { 10, 0 },
 			size = { viewElement.size.w - 20, viewElement.size.h / 8 }
 		})
-		local replayNameSize = 0.7
-		while (not replayName:uiText(replay.name, nil, nil, FONTS.BIG, nil, replayNameSize, nil, nil, nil, nil, nil, true) and replayNameSize > 0.4) do
-			replayNameSize = replayNameSize - 0.05
-		end
-		replayName:addCustomDisplay(true, function()
-				replayName:uiText(replay.name, nil, nil, FONTS.BIG, nil, replayNameSize, nil, nil, nil, nil, 0.2)
-			end)
+		replayName:addAdaptedText(true, replay.name, nil, nil, FONTS.BIG, nil, 0.65, 0.4, 0.2)
 		local replayAuthor = UIElement:new({
 			parent = viewElement,
 			pos = { 10, replayName.shift.y + replayName.size.h },
@@ -1805,25 +1904,13 @@ do
 		for i = 2, #replay.bouts do
 			replayBoutsStr = replay.bouts[i] ~= " " and replayBoutsStr .. " vs " .. replay.bouts[i] or replayBoutsStr
 		end
-		local replayBoutsSize = 0.7
-		while (not replayBouts:uiText("Players: " .. replayBoutsStr, nil, nil, 4, nil, replayBoutsSize, nil, nil, nil, nil, nil, true)) do
-			replayBoutsSize = replayBoutsSize - 0.05
-		end
-		replayBouts:addCustomDisplay(true, function()
-				replayBouts:uiText("Players: " .. replayBoutsStr, nil, nil, 4, LEFTBOT, replayBoutsSize)
-			end)
+		replayBouts:addAdaptedText(true, "Players: " .. replayBoutsStr, nil, nil, 4, LEFTBOT, 0.7)
 		local replayMod = UIElement:new({
 			parent = viewElement,
 			pos = { 10, replayBouts.shift.y + replayBouts.size.h },
 			size = { viewElement.size.w - 20, viewElement.size.h / 16 }
 		})
-		local replayModSize = 0.7
-		while (not replayMod:uiText("Mod: " .. replay.mod, nil, nil, 4, nil, replayModSize, nil, nil, nil, nil, nil, true)) do
-			replayModSize = replayModSize - 0.05
-		end
-		replayMod:addCustomDisplay(true, function()
-				replayMod:uiText("Mod: " .. replay.mod, nil, nil, 4, LEFTMID, replayModSize)
-			end)
+		replayMod:addAdaptedText(true, "Mod: " .. replay.mod, nil, nil, 4, LEFTMID, 0.7)
 		local replayTags = UIElement:new({
 			parent = viewElement,
 			pos = { 10, replayMod.shift.y + replayMod.size.h },
@@ -1837,6 +1924,12 @@ do
 		local tagsAdapted = textAdapt("Tags: " .. tagsText, 4, 0.7, viewElement.size.w - 20)
 		local tagsDispositionX = get_string_length(tagsAdapted[#tagsAdapted], 4) * 0.7
 		local tagsDispositionY = math.ceil((#tagsAdapted - 1) * 16.8) + 1
+		local linesBack = 0
+		while (tagsDispositionY + 18 > replayTags.size.h) do
+			tagsDispositionY = tagsDispositionY - 18
+			linesBack = linesBack + 1
+			tagsDispositionX = get_string_length(tagsAdapted[#tagsAdapted - linesBack], 4) * 0.7
+		end
 		if (tagsDispositionX + 10 > replayTags.size.w) then
 			tagsDispositionX = 0
 			tagsDispositionY = tagsDispositionY + 18
@@ -1867,58 +1960,64 @@ do
 				Replays:showTags(viewElement, replay)
 			end)
 		
-		local replayViewButton = UIElement:new({
-			parent = viewElement,
-			pos = { 10, -viewElement.size.h / 8 * 3 },
-			size = { viewElement.size.w - 20, viewElement.size.h / 10 },
-			interactive = true,
-			bgColor = { 0, 0, 0, 0.1 },
-			hoverColor = { 0, 0, 0, 0.3 },
-			pressedColor = { 1, 1, 1, 0.3 }
-		})
-		replayViewButton:addCustomDisplay(false, function()
-				replayViewButton:uiText("View Replay")
-			end)
-		replayViewButton:addMouseHandlers(nil, function()
-				Replays:playReplay(replay)
-			end)
-		local replayUploadButton = UIElement:new({
-			parent = viewElement,
-			pos = { 10, -viewElement.size.h / 8 * 2 },
-			size = { viewElement.size.w - 20, viewElement.size.h / 10 },
-			interactive = not replay.uploaded,
-			bgColor = { 0, 0, 0, 0.1 },
-			hoverColor = { 0, 0, 0, 0.3 },
-			pressedColor = { 1, 1, 1, 0.3 }
-		})
-		replayUploadButton:addCustomDisplay(false, function()
-				replayUploadButton:uiText("Upload Replay")
-			end)
-		replayUploadButton:addMouseHandlers(nil, function()
-				Replays:showUploadWindow(viewElement, replay)
-			end)
+		local posY = 0
+		if (SELECTED_FOLDER.fullname == "replay/autosave") then
+			Replays:showAutosaveToggle(viewElement)
+			posY = -viewElement.size.h / 8
+		end
+		
 		local replayManageButton = UIElement:new({
 			parent = viewElement,
-			pos = { 10, -viewElement.size.h / 8 },
+			pos = { 10, -viewElement.size.h / 8 + posY },
 			size = { viewElement.size.w - 20, viewElement.size.h / 10 },
 			interactive = true,
 			bgColor = { 0, 0, 0, 0.1 },
 			hoverColor = { 0, 0, 0, 0.3 },
 			pressedColor = { 1, 1, 1, 0.3 }
 		})
-		replayManageButton:addCustomDisplay(false, function()
-				replayManageButton:uiText("Manage Replay")
-			end)
+		replayManageButton:addAdaptedText(false, "Manage Replay")
 		replayManageButton:addMouseHandlers(nil, function()
 				Replays:showReplayManageWindow(viewElement, replay)
+			end)
+		posY = replayManageButton.shift.y
+		
+		if (Replays:canUploadReplay(replay)) then
+			local replayUploadButton = UIElement:new({
+				parent = viewElement,
+				pos = { 10, -viewElement.size.h / 8 + posY },
+				size = { viewElement.size.w - 20, viewElement.size.h / 10 },
+				interactive = not replay.uploaded,
+				bgColor = { 0, 0, 0, 0.1 },
+				hoverColor = { 0, 0, 0, 0.3 },
+				pressedColor = { 1, 1, 1, 0.3 }
+			})
+			replayUploadButton:addAdaptedText(false, "Upload Replay")
+			replayUploadButton:addMouseHandlers(nil, function()
+					Replays:showUploadWindow(viewElement, replay)
+				end)
+			posY = replayUploadButton.shift.y
+		end
+			
+		local replayViewButton = UIElement:new({
+			parent = viewElement,
+			pos = { 10, -viewElement.size.h / 8 + posY },
+			size = { viewElement.size.w - 20, viewElement.size.h / 10 },
+			interactive = true,
+			bgColor = { 0, 0, 0, 0.1 },
+			hoverColor = { 0, 0, 0, 0.3 },
+			pressedColor = { 1, 1, 1, 0.3 }
+		})
+		replayViewButton:addAdaptedText(false, "View Replay")
+		replayViewButton:addMouseHandlers(nil, function()
+				Replays:playReplay(replay)
 			end)
 	end
 	
 	function Replays:showMain(viewElement)
 		viewElement:kill(true)
 		Replays:getReplayFiles()
-		SELECTED_REPLAY.element = nil
-		SELECTED_REPLAY.defaultcolor = nil
+		
+		SELECTED_REPLAY = { replay = nil, element = nil, defaultcolor = nil, time = 0 }
 		
 		local replaysList = UIElement:new({
 			parent = viewElement,
