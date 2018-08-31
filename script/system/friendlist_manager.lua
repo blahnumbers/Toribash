@@ -364,14 +364,15 @@ do
 		local friendAddInputField = UIElement:new({
 			parent = friendAddInput,
 			pos = { 5, 0 },
-			size = { friendAddInput.size.w - 10, friendAddInput.size.h },
+			size = { friendAddInput.size.w - 40, friendAddInput.size.h },
 			interactive = true,
-			textfield = true
+			textfield = true,
+			textfieldsingleline = true
 		})
 		friendAddInputField:addMouseHandlers(function()
 				TBMenu:enableMenuKeyboard(friendAddInputField)
 			end)
-		TBMenu:displayTextfield(friendAddInputField, 4, 0.7, UICOLORBLACK, "Type a name or clan tag with brackets...")
+		TBMenu:displayTextfield(friendAddInputField, FONTS.SMALL, 1, UICOLORBLACK, "Type a name or clan tag with brackets...")
 		local addFriendButton = UIElement:new({
 			parent = friendAddInputBG,
 			pos = { -elementHeight + 1, 1 },

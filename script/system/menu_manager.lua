@@ -8,6 +8,7 @@ BLURENABLED = false
 TB_MENU_DEFAULT_BG_COLOR = { 0.67, 0.11, 0.11, 1 }
 TB_NAVBAR_DEFAULT_BG_COLOR = { 0.7, 0.11, 0.11, 1 }
 TB_MENU_DEFAULT_DARKER_COLOR = { 0.607, 0.109, 0.109, 1 }
+TB_MENU_DEFAULT_DARKEST_COLOR = { 0.55, 0.05, 0.05, 1 }
 
 TB_MENU_LANGUAGE = TB_MENU_LANGUAGE or nil
 TB_MENU_LOCALIZED = TB_MENU_LOCALIZED or {}
@@ -568,10 +569,22 @@ do
 	end
 	
 	function TBMenu:showReplays()
+		tbMenuBottomLeftBar:hide()
 		TBMenu:clearNavSection()
-		Replays:showMain(tbMenuCurrentSection)
+		
+		if (TB_MENU_REPLAYS_ONLINE == 1) then
+			local menubg = UIElement:new({
+				parent = tbMenuCurrentSection,
+				pos = { 5, 0 },
+				size = { tbMenuCurrentSection.size.w - 10, tbMenuCurrentSection.size.h },
+				bgColor = TB_MENU_DEFAULT_BG_COLOR
+			})
+			TBMenu:addBottomBloodSmudge(menubg, 1)
+			Replays:getServerReplays()
+		else
+			Replays:showMain(tbMenuCurrentSection)
+		end
 		TB_MENU_REPLAYS_ISOPEN = 1
-		TBMenu:showNavigationBar(Replays:getNavigationButtons(), true)
 	end
 	
 	function TBMenu:showLoginRewards()
@@ -605,6 +618,46 @@ do
 		TBMenu:clearNavSection()
 		FriendsList:showMain(tbMenuCurrentSection)
 		TBMenu:showNavigationBar(FriendsList:getNavigationButtons(), true)
+	end
+	
+	function TBMenu:prepareScrollableList(viewElement, topBarH, botBarH, scrollWidth)
+		local topBarH = topBarH or 50
+		local toReload = UIElement:new({
+			parent = viewElement,
+			pos = { 0, 0 },
+			size = { viewElement.size.w, viewElement.size.h }
+		})
+		local topBar = UIElement:new({
+			parent = toReload,
+			pos = { 0, 0 },
+			size = { viewElement.size.w, topBarH },
+			interactive = true,
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR
+		})
+		local botBar = UIElement:new({
+			parent = toReload,
+			pos = { 0, -botBarH },
+			size = { viewElement.size.w, botBarH },
+			interactive = true,
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR
+		})
+		local listingView = UIElement:new({
+			parent = viewElement,
+			pos = { 0, topBar.size.h },
+			size = { viewElement.size.w, viewElement.size.h - topBar.size.h - botBar.size.h }
+		})
+		local listingHolder = UIElement:new({
+			parent = listingView,
+			pos = { 0, 0 },
+			size = { listingView.size.w - scrollWidth, listingView.size.h }
+		})
+		local listingScrollBG = UIElement:new({
+			parent = listingView,
+			pos = { -scrollWidth, 0 },
+			size = { scrollWidth, listingView.size.h },
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR
+		})
+		return toReload, topBar, botBar, listingView, listingHolder, listingScrollBG
 	end
 	
 	function TBMenu:spawnWindowOverlay()
@@ -1144,8 +1197,9 @@ do
 		local tbMenuNavigationButtonsData = buttonsData or TBMenu:getMainNavigationButtons()
 		local customNav = customNav or nil
 		local tbMenuNavigationButtons = {}
+		
 		-- Button width has to be divisable by 10
-		local navX = 30
+		local navX = { l = { 30 } , r = { -30 } }
 		tbMenuNavigationBar = tbMenuNavigationBar or UIElement:new( {
 			parent = tbMenuMain,
 			pos = { 50, 130 },
@@ -1155,9 +1209,10 @@ do
 			rounded = 15
 		} )
 		for i, v in pairs(tbMenuNavigationButtonsData) do 
+			local navX = v.right and navX.r or navX.l
 			tbMenuNavigationButtons[i] = UIElement:new( {
 				parent = tbMenuNavigationBar,
-				pos = { navX, 0 },
+				pos = { v.right and navX[1] - v.width or navX[1], 0 },
 				size = { v.width, 50 },
 				bgColor = { 0.2, 0.2, 0.2, 0 },
 				interactive = true,
@@ -1165,7 +1220,7 @@ do
 				pressedColor = { 0.51, 0.11, 0.11, 1 },
 				hoverSound = 31
 			})
-			navX = navX + v.width
+			navX[1] = v.right and navX[1] - v.width or navX[1] + v.width
 			if (TB_LAST_MENU_SCREEN_OPEN == v.sectionId and not customNav) then
 				tbMenuNavigationButtons[i].bgColor = TB_NAVBAR_DEFAULT_BG_COLOR
 			end
@@ -1469,12 +1524,27 @@ do
 	function TBMenu:displayTextfield(element, fontid, scale, color, defaultStr, orientation)
 		local defaultStr = defaultStr or ""
 		local orientation = orientation or LEFTMID
+		local scale = scale or 1
+		
 		element:addCustomDisplay(true, function()
 				if (element.keyboard == true) then
+					set_color(1, 1, 1, 0.2)
+					draw_quad(element.parent.pos.x, element.parent.pos.y, element.parent.size.w, element.parent.size.h)
 					local part1 = element.textfieldstr[1]:sub(0, element.textfieldindex)
 					local part2 = element.textfieldstr[1]:sub(element.textfieldindex + 1)
-					local separator = os.time() % 2 == 0 and "|" or (element.textfieldindex == 0 and "|" or " ")
+					local separator = os.time() % 2 == 0 and "|" or (element.textfieldindex == 0 and "|" or "¦")
 					local displayString = part1 .. separator .. part2
+					local pointerpos = element.textfieldindex
+					local strings = textAdapt(displayString, fontid, scale, element.size.w)
+					
+					while (not element:uiText(displayString, nil, nil, fontid, orientation, scale, nil, nil, nil, nil, nil, true)) do
+						if (pointerpos - strings[1]:len() < 0) then
+							break
+						end
+						displayString = displayString:gsub("^[%.\n]*" .. strings[1], "...")
+						pointerpos = pointerpos - strings[1]:len()
+						table.remove(strings, 1)
+					end
 					element:uiText(displayString, nil, nil, fontid, orientation, scale, nil, nil, color)
 				else
 					if (element.menuKeyboardId) then

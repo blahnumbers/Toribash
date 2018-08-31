@@ -15,8 +15,10 @@ do
 		end
 		local mode = mode or FILES_MODE_READONLY
 		
-		local File = { mode = mode }
+		local File = {}
 		setmetatable(File, self)
+		
+		File.mode = mode
 		
 		local isroot = path:match("%.%.%/") and 1 or nil
 		File.isroot = isroot
@@ -30,6 +32,24 @@ do
 		end
 		
 		return File
+	end
+	
+	function Files:reopen()
+		self:close()
+		if (not self:isDownloading()) then
+			self.data = io.open(self.path, self.mode, self.isroot)
+		end
+	end
+	
+	function Files:readAll()
+		if (not self.data) then
+			return false
+		end
+		local filedata = {}
+		for ln in self.data:lines() do
+			table.insert(filedata, ln)
+		end
+		return filedata
 	end
 	
 	function Files:isDownloading()

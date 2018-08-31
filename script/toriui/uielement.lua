@@ -1,6 +1,8 @@
 -- UI class
 
 WIN_W, WIN_H = get_window_size()
+MOUSE_X, MOUSE_Y = 0, 0
+
 FONTS.BIGGER = 9
 
 KEYBOARDGLOBALIGNORE = KEYBOARDGLOBALIGNORE or false
@@ -497,6 +499,25 @@ do
 		end
 	end
 	
+	function UIElement:isDisplayed()
+		local viewport = (self.viewport or (self.parent and self.parent.viewport)) and true or false
+		
+		if (not viewport) then
+			for i,v in pairs(UIVisualManager) do
+				if (self == v) then
+					return true
+				end
+			end
+		else
+			for i,v in pairs(UIViewportManager) do
+				if (self == v) then
+					return true
+				end
+			end
+		end
+		return false
+	end
+	
 	function UIElement:show(forceReload)
 		local num = nil
 		local viewport = (self.viewport or (self.parent and self.parent.viewport)) and true or false
@@ -607,6 +628,10 @@ do
 		local part1 = self.textfieldstr[1]:sub(0, self.textfieldindex)
 		local part2 = self.textfieldstr[1]:sub(self.textfieldindex + 1)
 		self.textfieldstr[1] = part1 .. symbol .. part2
+		if (self.textfieldstr[1]:find("\\n") and self.textfieldsingleline) then
+			self.textfieldstr[1] = self.textfieldstr[1]:gsub("\\n", "")
+			self.textfieldindex = self.textfieldindex - 2
+		end
 	end
 	
 	function UIElement:textfieldKeyDown(key, isNumeric)
@@ -742,6 +767,8 @@ do
 	
 	function UIElement:handleMouseHover(x, y)
 		local disable = nil
+		MOUSE_X, MOUSE_Y = x, y
+		
 		for i, v in pairs(tableReverse(UIMouseHandler)) do
 			if (v.hoverState == BTN_DN) then
 				disable = true
@@ -799,11 +826,13 @@ do
 			if (scale < 0.5 and font) then
 				if (font == FONTS.BIG) then
 					font = FONTS.MEDIUM
+					scale = 1
+					minscale = minscale * 2
 				elseif (font == FONTS.BIGGER) then
 					font = FONTS.BIG
+					scale = 1
+					minscale = minscale * 2
 				end
-				scale = 1
-				minscale = minscale * 2
 			end
 		end
 		self:addCustomDisplay(override, function()
@@ -811,7 +840,7 @@ do
 			end)
 	end
 	
-	function UIElement:uiText(str, x, y, font, align, scale, angle, shadow, col1, col2, intensity, check)
+	function UIElement:uiText(str, x, y, font, align, scale, angle, shadow, col1, col2, intensity, check, refresh)
 		if (not scale and check) then
 			echo("^04UIElement error: ^07uiText cannot take undefined scale argument with check enabled")
 			return true
@@ -825,6 +854,7 @@ do
 		local pos = 0
 		local align = align or CENTERMID
 		local check = check or false
+		local refresh = refresh or false
 		if (font == 2) then
 			font_mod = 2.4
 		elseif (font == 0) then
@@ -837,7 +867,13 @@ do
 			font_mod = 10
 		end
 	
-		str = textAdapt(str, font, scale, self.size.w)
+		if (check) then
+			str = textAdapt(str, font, scale, self.size.w)
+		else
+			local strunformatted = str
+			str = self.str == strunformatted and self.dispstr or textAdapt(str, font, scale, self.size.w)
+			self.str, self.dispstr = strunformatted, str
+		end
 		
 		for i = 1, #str do
 			local xPos = x
@@ -1046,17 +1082,37 @@ do
 	end
 			
 	function textAdapt(str, font, scale, maxWidth)
+		local clockdebug = os.clock()
+		
 		local destStr = {}
 		local newStr = ""
-		
 		-- Fix newlines, remove redundant spaces and ensure the string is in fact a string
 		local str = string.gsub(str, "\\n", "\n")
 		str = str:gsub("^%s*", "")
 		str = str:gsub("%s*$", "")
 		
+		local attemptPrediction = font == FONTS.SMALL and true or false
+		
 		local newline = false
 		while (str ~= "") do
-			local word = str:match("^%S+%s*")
+			if (not attemptPrediction or newStr ~= "") then
+				-- Match words followed by newlines separately to allow newline spacing
+				word = str:match("^[^\n]*%S*[^\n]*\n") or str:match("^%s*%S+%s*")
+			else
+				-- Attempt to guess the beginning of a string
+				word = str:sub(1, math.floor(maxWidth / 8 * scale))
+				word = word:gsub("%s+%S+$", "")
+				word = word:gsub("[\n].*$", "")
+				if (get_string_length(word, font) * scale > maxWidth) then
+					-- Incorrect guess, start building classic way
+					word = str:match("^[^\n]*%S*[^\n]*\n") or str:match("^%s*%S+%s*")
+				end	
+			end
+			
+			-- Wrap words that exceed text field width
+			while (get_string_length(word, font) * scale > maxWidth) do
+				word = word:sub(1, word:len() - 1)
+			end
 			
 			if ((get_string_length(newStr .. word, font) * scale > maxWidth or newline) and newStr ~= "") then
 				table.insert(destStr, newStr)
@@ -1073,6 +1129,12 @@ do
 			end
 		end
 		table.insert(destStr, newStr)
+		
+		local clockdebugend = os.clock()
+		if (TB_MENU_DEBUG and clockdebugend - clockdebug > 0.01) then
+			echo("Warning: slow text adapt call on string " .. destStr[1]:sub(1, 10) .. " - " .. clockdebugend - clockdebug .. " seconds")
+		end
+		
 		return destStr
 	end
 	
