@@ -464,6 +464,7 @@ do
 		end
 		if (not num) then
 			if (self.interactive) then
+				self.hoverState = false
 				table.insert(UIMouseHandler, self)
 			end
 			if (self.keyboard) then
@@ -474,7 +475,7 @@ do
 	
 	function UIElement:deactivate()
 		local num = nil
-		self.hoverState = nil
+		self.hoverState = false
 		if (self.interactive) then
 			for i,v in pairs(UIMouseHandler) do
 				if (self == v) then

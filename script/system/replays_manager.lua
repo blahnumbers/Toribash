@@ -10,6 +10,8 @@ local MAXFOLDERLEVELS = 4
 
 REPLAY_VOTE = 101
 
+local REPLAY_TEMPNAME = "--onlinereplaytempfile"
+
 do
 	Replays = {}
 	Replays.__index = Replays
@@ -54,9 +56,9 @@ do
 			})
 		else
 			table.insert(navigation, {
-				text = "Server browser",
+				text = "Community replays",
 				action = function() Replays:getServerReplays() end,
-				width = get_string_length("Server browser", FONTS.BIG) * 0.65 + 30,
+				width = get_string_length("Community replays", FONTS.BIG) * 0.65 + 30,
 				right = true
 			})
 		end
@@ -155,7 +157,9 @@ do
 				
 				while (1) do
 					local v = files[count]
-					if (v:match(".rpl$")) then
+					if (v:match(REPLAY_TEMPNAME)) then
+						count = count + 1
+					elseif (v:match(".rpl$")) then
 						local replaydata = { filename = v:lower() }
 						local replaypath = folder and string.lower(folder .. "/" .. v) or replaydata.filename
 						local replaydatapath = replaypath:gsub(" ", "_")
@@ -205,22 +209,6 @@ do
 									uploaded = replaydata.uploaded == 1
 								})
 								count = count + 1
-								if (count > #files) then
-									rplTable.replays = UIElement:qsort(rplTable.replays, "filename")
-									if (#replayUpdateWindow.replayfolders > 0) then
-										local fname = replayUpdateWindow.replayfolders[1].fname
-										local rpltbl = replayUpdateWindow.replayfolders[1].rpltbl
-										table.remove(replayUpdateWindow.replayfolders, 1)
-										Replays:fetchReplayData(fname, rpltbl, file, filedata)
-									else
-										file:close()
-										TB_MENU_REPLAYS_LOADED = true
-										replayUpdateWindow:kill()
-										if (not SELECTED_FOLDER.name) then
-											SELECTED_FOLDER = TB_MENU_REPLAYS
-										end
-									end
-								end
 							end
 							break
 						end
@@ -240,19 +228,22 @@ do
 					end
 					
 					if (count > #files) then
-						rplTable.replays = UIElement:qsort(rplTable.replays, "filename")
-						if (#replayUpdateWindow.replayfolders > 0) then
-							local fname = replayUpdateWindow.replayfolders[1].fname
-							local rpltbl = replayUpdateWindow.replayfolders[1].rpltbl
-							table.remove(replayUpdateWindow.replayfolders, 1)
-							Replays:fetchReplayData(fname, rpltbl, file, filedata)
-						else
-							file:close()
-							TB_MENU_REPLAYS_LOADED = true
-							replayUpdateWindow:kill()
-							if (not SELECTED_FOLDER.name) then
-								SELECTED_FOLDER = TB_MENU_REPLAYS
-							end
+						break
+					end
+				end
+				if (count > #files) then
+					rplTable.replays = UIElement:qsort(rplTable.replays, "filename")
+					if (#replayUpdateWindow.replayfolders > 0) then
+						local fname = replayUpdateWindow.replayfolders[1].fname
+						local rpltbl = replayUpdateWindow.replayfolders[1].rpltbl
+						table.remove(replayUpdateWindow.replayfolders, 1)
+						Replays:fetchReplayData(fname, rpltbl, file, filedata)
+					else
+						file:close()
+						TB_MENU_REPLAYS_LOADED = true
+						replayUpdateWindow:kill()
+						if (not SELECTED_FOLDER.name) then
+							SELECTED_FOLDER = TB_MENU_REPLAYS
 						end
 					end
 				end
@@ -2407,6 +2398,86 @@ do
 			end)
 	end
 	
+	function Replays:showServerReplayPreview()
+		local previewOverlay = TBMenu:spawnWindowOverlay()
+		local previewView = UIElement:new({
+			parent = previewOverlay,
+			pos = { previewOverlay.size.w / 3, previewOverlay.size.h / 2 - 50 },
+			size = { previewOverlay.size.w / 3, 100 },
+			bgColor = TB_MENU_DEFAULT_BG_COLOR
+		})
+		previewView:addAdaptedText(false, "Downloading replay...")
+		local downloadWait = UIElement:new({
+			parent = previewView,
+			pos = { 0, 0 },
+			size = { 0, 0 }
+		})
+		
+		local frames = 0
+		local replayFile = nil
+		downloadWait:addCustomDisplay(true, function()
+				frames = frames + 1
+				if (frames == 10) then
+					replayFile = Files:new("../replay/downloads/" .. REPLAY_TEMPNAME .. ".rpl", FILES_MODE_READONLY)
+				end
+				if (replayFile) then
+					if (not replayFile:isDownloading()) then
+						replayFile:close()
+						previewView:addAdaptedText(false, "Opening replay...")
+						local framesN = 0
+						downloadWait:addCustomDisplay(true, function()
+								framesN = framesN + 1
+								if (framesN > 4) then
+									UIElement:runCmd("loadreplay downloads/" .. REPLAY_TEMPNAME .. ".rpl")
+									close_menu()
+								end
+							end)
+					end
+				end
+			end)
+	end
+	
+	function Replays:showReplayDownloadPopup(rplname)
+		local notificationView = UIElement:new({
+			parent = tbMenuMain,
+			pos = { tbMenuMain.size.w / 3, -60 },
+			size = { tbMenuMain.size.w / 3, 60 },
+			bgColor = { 0, 0, 0, 0.8 }
+		})
+		notificationView:addAdaptedText(false, "Downloading replay...", nil, nil, nil, nil, nil, nil, nil, nil, { 1, 1, 1, notificationView.bgColor[4] })
+		
+		local downloadWait = UIElement:new({
+			parent = notificationView,
+			pos = { 0, 0 },
+			size = { 0, 0 }
+		})		
+		local frames = 0
+		local replayFile = nil
+		downloadWait:addCustomDisplay(true, function()
+				frames = frames + 1
+				if (frames == 10) then
+					replayFile = Files:new("../replay/downloads/" .. rplname .. ".rpl", FILES_MODE_READONLY)
+				end
+				if (replayFile) then
+					if (not replayFile:isDownloading()) then
+						replayFile:close()
+						notificationView:addAdaptedText(false, "Replay downloaded and saved in downloads folder", nil, nil, nil, nil, nil, nil, nil, nil, { 1, 1, 1, notificationView.bgColor[4] })
+						local framesN = 0
+						downloadWait:addCustomDisplay(true, function()
+								framesN = framesN + 1
+								if (framesN > 30) then
+									notificationView.bgColor[4] = notificationView.bgColor[4] - 0.05
+									notificationView:addAdaptedText(false, "Replay downloaded and saved in downloads folder", nil, nil, nil, nil, nil, nil, nil, nil, { 1, 1, 1, notificationView.bgColor[4] })
+								end
+								if (notificationView.bgColor[4] <= 0) then
+									notificationView:kill()
+								end
+							end)
+					end
+				end
+			end)
+	end
+	
 	function Replays:showServerReplayList(replaysList, replayInfo)
 		TBMenu:addBottomBloodSmudge(replaysList, 1)
 		SELECTED_SERVER_REPLAY.element = nil
@@ -2462,7 +2533,13 @@ do
 					SELECTED_SERVER_REPLAY = { element = replayElementHolder, color = { unpack(replayElementHolder.bgColor) }, id = v.id, replay = v, displayid = dispid }
 					replayElementHolder.bgColor = replayElementHolder.pressedColor
 				end
-				replayElementHolder:addCustomDisplay(true, function() end)
+				replayElementHolder:addCustomDisplay(true, function()
+						if (replayElementHolder.pos.y < topBar.pos.y or replayElementHolder.pos.y > botBar.pos.y) then
+							replayElementHolder:deactivate()
+						else
+							replayElementHolder:activate()
+						end
+					end)
 				local replayElement = UIElement:new({
 					parent = replayHolder,
 					pos = { 0, posX },
@@ -2537,14 +2614,21 @@ do
 						end
 						draw_quad(replayTags.pos.x, replayTags.pos.y, replayTags.size.w, replayTags.size.h)
 					end)
+				replayElementHolder.lastPress = 0
 				replayElementHolder:addMouseHandlers(nil, function(s, x, y) 
 						if (y < botBar.pos.y and y > topBar.pos.y + topBar.size.h) then
+							if (os.clock() - replayElementHolder.lastPress < 0.5) then
+								download_replay(v.id, REPLAY_TEMPNAME)
+								Replays:showServerReplayPreview()
+								return
+							end
+							replayElementHolder.lastPress = os.clock()
 							if (SELECTED_SERVER_REPLAY.element) then
 								SELECTED_SERVER_REPLAY.element.bgColor = { unpack(SELECTED_SERVER_REPLAY.color) }
 							end
 							SELECTED_SERVER_REPLAY = { element = replayElementHolder, color = { unpack(replayElementHolder.bgColor) }, id = v.id, replay = v, displayid = dispid }
 							replayElementHolder.bgColor = replayElementHolder.pressedColor
-							Replays:showServerReplayInfo(replayInfo, v) 
+							Replays:showServerReplayInfo(replayInfo, v)
 						end 
 					end)
 				table.insert(replayElements, replayTags)
@@ -2595,12 +2679,13 @@ do
 		Replays:showServerReplayInfo(replayInfo, SELECTED_SERVER_REPLAY.replay or SERVER_REPLAYS[1])
 	end
 	
-	function Replays:showReplayRating(viewElement, score, votes)
+	function Replays:showReplayRating(viewElement, score, votes, uservote)
 		local votes = votes--math.random(1, 100)
 		local score = score--votes * math.random(10, 50) / 10
 		local scale = math.floor(viewElement.size.w / 5 > viewElement.size.h and viewElement.size.h or viewElement.size.w / 5)
 		local displaynum = votes > 0 and math.floor(score / votes + 0.5) or 0
 		local leftShift = (viewElement.size.w - scale * 5) / 2
+		local uservote = uservote or 0
 		
 		for i = 1, displaynum do
 			local ratingStar = UIElement:new({
@@ -2609,13 +2694,21 @@ do
 				size = { scale, scale },
 				bgImage = scale > 32 and "../textures/menu/general/buttons/star.tga" or "../textures/menu/general/buttons/startiny.tga"
 			})
+			if (uservote >= i) then
+				local ratingSign = UIElement:new({
+					parent = ratingStar,
+					pos = { 0, 0 },
+					size = { ratingStar.size.w, ratingStar.size.h },
+					bgImage = "../textures/menu/general/buttons/starborderglow.tga"
+				})
+			end
 		end
 		for i = displaynum + 1, 5 do
 			local ratingStarTransparent = UIElement:new({
 				parent = viewElement,
 				pos = { leftShift + (i - 1) * scale, (viewElement.size.h - scale) / 2 },
 				size = { scale, scale },
-				bgImage = scale > 32 and "../textures/menu/general/buttons/starborder.tga" or "../textures/menu/general/buttons/starbordertiny.tga"
+				bgImage = uservote >= i and "../textures/menu/general/buttons/starborderglow.tga" or (scale > 32 and "../textures/menu/general/buttons/starborder.tga" or "../textures/menu/general/buttons/starbordertiny.tga")
 			})
 		end
 	end
@@ -2909,6 +3002,21 @@ do
 		backButton:addMouseHandlers(nil, function()
 				Replays:showServerReplays()
 			end)
+		if (replay.uploader:lower() ~= TB_MENU_PLAYER_INFO.username:lower() and replay.uservote == 0) then
+			local voteButton = UIElement:new({
+				parent = botBar,
+				pos = { 10, 10 },
+				size = { 170, botBar.size.h - 10 },
+				interactive = true,
+				bgColor = { 0, 0, 0, 0.3 },
+				hoverColor = { 0, 0, 0, 0.5 },
+				pressedColor = { 1, 1, 1, 0.2 }
+			})
+			voteButton:addAdaptedText(false, "Add comment")
+			voteButton:addMouseHandlers(nil, function()
+					Replays:showReplayVoteWindow(replay)
+				end)
+		end
 	end
 	
 	function Replays:showServerReplayInfo(replayInfo, replay)
@@ -2944,8 +3052,8 @@ do
 		replayDate:addAdaptedText(true, "Uploaded on " .. replay.date, nil, nil, 4, nil, 0.75)
 		local replayRating = UIElement:new({
 			parent = replayInfoHolder,
-			pos = { 10, replayDate.shift.y + replayDate.size.h },
-			size = { replayUploader.size.w, replayInfoHolder.size.h / 4 },
+			pos = { 10, replayDate.shift.y + replayDate.size.h + 10 },
+			size = { replayUploader.size.w, replayInfoHolder.size.h / 4 - 20 },
 			interactive = true,
 			shapeType = ROUNDED,
 			rounded = 5,
@@ -2956,13 +3064,13 @@ do
 		replayRating:addMouseHandlers(nil, function()
 				Replays:showReplayVoteWindow(replay)
 			end)
-		if (PlayerInfo:getUser(replay.uploader) == TB_MENU_PLAYER_INFO.username) then
+		if (replay.uploader:lower() == TB_MENU_PLAYER_INFO.username:lower()) then
 			replayRating:deactivate()
 		end
-		Replays:showReplayRating(replayRating, replay.score, replay.votes)
+		Replays:showReplayRating(replayRating, replay.score, replay.votes, replay.uservote)
 		local replayDescription = UIElement:new({
 			parent = replayInfoHolder,
-			pos = { 10, replayRating.shift.y + replayRating.size.h },
+			pos = { 10, replayRating.shift.y + replayRating.size.h + 10 },
 			size = { replayDate.size.w, replayInfoHolder.size.h / 8 * 3 }
 		})
 		replayDescription:addAdaptedText(true, "Description: " .. replay.description, nil, nil, 4, LEFT, 0.65, 0.65)
@@ -2978,7 +3086,8 @@ do
 		})
 		replayDownloadButton:addAdaptedText(false, "Download replay")
 		replayDownloadButton:addMouseHandlers(nil, function()
-				download_replay(replay.id, replay.rplname:gsub("%s", "_") .. ".rpl")
+				download_replay(replay.id, replay.rplname:gsub("%s", "_"))
+				Replays:showReplayDownloadPopup(replay.rplname:gsub("%s", "_"))
 			end)
 		local replayCommentsButton = UIElement:new({
 			parent = replayInfo,

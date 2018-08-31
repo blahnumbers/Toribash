@@ -54,7 +54,7 @@ do
 	
 	function Files:isDownloading()
 		for i,v in pairs(get_downloads()) do
-			if (v:match(self.path)) then
+			if (v:match(strEsc(self.path))) then
 				return true
 			end
 		end
