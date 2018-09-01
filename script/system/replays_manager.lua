@@ -497,6 +497,9 @@ do
 		local action = action or 1
 		local offset = offset or 1
 		local searchStr = searchStr and searchStr:lower() or ""
+		if (action ~= SERVER_REPLAYS.action) then
+			SELECTED_SERVER_REPLAY.id = 0
+		end
 		
 		download_replay_result(action, offset, searchStr)
 		local overlay = TBMenu:spawnWindowOverlay()
@@ -558,12 +561,20 @@ do
 	function Replays:getPopularTags()
 		return {
 			"multiplayer",
+			"kick",
+			"sparring",
+			"aikido",
+			"parkour",
 			"madman",
+			"tricking",
 			"manipulation",
 			"realism",
-			"tricking",
-			"sparring",
-			"parkour"
+			"awesome",
+			"punch",
+			"split",
+			"jump",
+			"judo",
+			"running"
 		}
 	end
 	
@@ -2499,6 +2510,7 @@ do
 		end
 		
 		local replayElements = {}
+		local tempHolder = nil
 		if (SERVER_REPLAYS.offset > 1) then
 			local offset = SERVER_REPLAYS.offset - 100 > 0 and SERVER_REPLAYS.offset - 100 or 1
 			local offsetDecrementButton = UIElement:new({
@@ -2528,6 +2540,9 @@ do
 					hoverColor = { 0, 0, 0, 0.3 },
 					pressedColor = { 1, 1, 1, 0.2 }
 				})
+				if (i == 1) then
+					tempHolder = replayElementHolder
+				end
 				local dispid = #replayElements
 				if (v.id == SELECTED_SERVER_REPLAY.id) then
 					SELECTED_SERVER_REPLAY = { element = replayElementHolder, color = { unpack(replayElementHolder.bgColor) }, id = v.id, replay = v, displayid = dispid }
@@ -2676,7 +2691,11 @@ do
 			scrollBar.btnDown(4, 0, -SELECTED_SERVER_REPLAY.displayid)
 		end
 		
-		Replays:showServerReplayInfo(replayInfo, SELECTED_SERVER_REPLAY.replay or SERVER_REPLAYS[1])
+		if (not SELECTED_SERVER_REPLAY.replay) then
+			SELECTED_SERVER_REPLAY = { element = tempHolder, color = { unpack(tempHolder.bgColor) }, id = SERVER_REPLAYS[1].id, replay = SERVER_REPLAYS[1], displayid = 1 }
+			tempHolder.bgColor = tempHolder.pressedColor
+		end
+		Replays:showServerReplayInfo(replayInfo, SELECTED_SERVER_REPLAY.replay)
 	end
 	
 	function Replays:showReplayRating(viewElement, score, votes, uservote)
