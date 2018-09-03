@@ -377,15 +377,6 @@ do
 	end
 		
 	function UIElement:display()
-		if (LONGKEYPRESSED.status and LONGKEYPRESSED.time < os.clock() - 0.5 - LONGKEYPRESSED.repeats * 0.04) then
-			for i, v in pairs(tableReverse(UIKeyboardHandler)) do
-				if (v.keyboard == true) then
-					v.keyDown(LONGKEYPRESSED.key)
-					LONGKEYPRESSED.repeats = LONGKEYPRESSED.repeats + 1
-					break
-				end
-			end
-		end
 		if (self.hoverState ~= false and self.hoverColor) then
 			for i = 1, 4 do
 				if ((self.bgColor[i] > self.hoverColor[i] and self.animateColor[i] > self.hoverColor[i]) or (self.bgColor[i] < self.hoverColor[i] and self.animateColor[i] < self.hoverColor[i])) then
@@ -637,11 +628,18 @@ do
 	
 	function UIElement:textfieldKeyDown(key, isNumeric)
 		local isNumeric = isNumeric or false
-		if (LONGKEYPRESSED.status == false) then 
+		
+		--[[if (LONGKEYPRESSED.status == false or key ~= LONGKEYPRESSED.key) then 
 			LONGKEYPRESSED.status = true
 			LONGKEYPRESSED.key = key
 			LONGKEYPRESSED.time = os.clock()
-		end
+			LONGKEYPRESSED.repeats = 1
+		elseif (os.clock() - LONGKEYPRESSED.time > 0.5 and (LONGKEYPRESSED.repeats < 15 or LONGKEYPRESSED.key == 8 or LONGKEYPRESSED.key == 127 or LONGKEYPRESSED.key == 266) ) then
+			LONGKEYPRESSED.repeats = LONGKEYPRESSED.repeats + 1
+		else
+			return 1
+		end]]
+		
 		if (isNumeric and (get_shift_key_state() > 0 or key < 48 or key > 57) and key ~= 8) then
 			return 1
 		end
@@ -876,7 +874,22 @@ do
 			self.str, self.dispstr = strunformatted, str
 		end
 		
-		for i = 1, #str do
+		local startLine = 1
+		if (self.textfield and font_mod * 10 * scale * #str > self.size.h) then
+			local tfstrlen = 0
+			for i, v in pairs(str) do
+				tfstrlen = tfstrlen + v:len()
+				if (self.textfieldindex < tfstrlen) then
+					startLine = i - math.floor(self.size.h / font_mod / 10 / scale) + 1
+					if (startLine < 1) then
+						startLine = 1
+					end
+					break
+				end
+			end
+		end
+		
+		for i = startLine, #str do
 			local xPos = x
 			local yPos = y
 			if ((align + 2) % 3 == 0) then
@@ -1110,7 +1123,7 @@ do
 				end	
 			end
 			
-			-- Wrap words that exceed text field width
+			-- Wrap word around if it still exceeds text field width
 			while (get_string_length(word, font) * scale > maxWidth) do
 				word = word:sub(1, word:len() - 1)
 			end

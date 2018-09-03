@@ -204,13 +204,29 @@ do
 		-- Table to store event announcement data
 		local eventsData = {
 			{
-				title = "Clan League 2018 is live!", 
-				subtitle = "The main clan event of the year has started! Defeat all opponents to bring eternal glory to your clan or cheer on other clans you love!", 
-				image = "../textures/menu/promo/clanleague.tga",
+				title = "It's magical!", 
+				subtitle = "Welcome this September's theme - magic and sorcery!", 
+				image = "../textures/menu/promo/magicmonth.tga",
 				action = function() 
-						open_url("http://forum.toribash.com/showthread.php?t=618245")
+						open_url("http://forum.toribash.com/tori_token_exchange.php")
 					end
-			}
+			},
+			--[[{
+				title = "I SMASH! TINY THING SQUASH!", 
+				subtitle = "Event Squad's GOLEM event is back for magic month!", 
+				image = "../textures/menu/promo/golem2.tga",
+				action = function() 
+						open_url("http://forum.toribash.com/tori_token_exchange.php")
+					end
+			},
+			{
+				title = "HTOTM: Magic", 
+				subtitle = "Your monthly art event is back again! Draw your best sorcery-themed head texture to win cool stuff!", 
+				image = "../textures/menu/promo/htotmmagic.tga",
+				action = function() 
+						open_url("http://forum.toribash.com/tori_token_exchange.php")
+					end
+			}]]
 		}
 		
 		if (TB_MENU_PLAYER_INFO.data.qi < 500 and TB_MENU_PLAYER_INFO.clan.id == 0 and TB_MENU_PLAYER_INFO.username ~= "") then
@@ -1532,10 +1548,9 @@ do
 					draw_quad(element.parent.pos.x, element.parent.pos.y, element.parent.size.w, element.parent.size.h)
 					local part1 = element.textfieldstr[1]:sub(0, element.textfieldindex)
 					local part2 = element.textfieldstr[1]:sub(element.textfieldindex + 1)
-					local separator = os.time() % 2 == 0 and "|" or (element.textfieldindex == 0 and "|" or "¦")
-					local displayString = part1 .. separator .. part2
-					local pointerpos = element.textfieldindex
-					local strings = textAdapt(displayString, fontid, scale, element.size.w)
+					local displayString = part1 .. "|" .. part2
+			--[[		local pointerpos = element.textfieldindex
+					local strings = element.dispstr
 					
 					while (not element:uiText(displayString, nil, nil, fontid, orientation, scale, nil, nil, nil, nil, nil, true)) do
 						if (pointerpos - strings[1]:len() < 0) then
@@ -1544,7 +1559,7 @@ do
 						displayString = displayString:gsub("^[%.\n]*" .. strings[1], "...")
 						pointerpos = pointerpos - strings[1]:len()
 						table.remove(strings, 1)
-					end
+					end]]
 					element:uiText(displayString, nil, nil, fontid, orientation, scale, nil, nil, color)
 				else
 					if (element.menuKeyboardId) then

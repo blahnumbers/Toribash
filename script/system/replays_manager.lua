@@ -2,7 +2,7 @@
 
 local SELECTED_REPLAY = { element = nil, defaultColor = nil, time = 0, replay = nil }
 local TB_MENU_REPLAYS = { name = "replay", fullname = "replay" }
-local SERVER_REPLAYS = {}
+SERVER_REPLAYS = SERVER_REPLAYS or { action = 1, offset = 1, search = "", id = 0 }
 SELECTED_FOLDER = SELECTED_FOLDER and { fullname = SELECTED_FOLDER.fullname } or TB_MENU_REPLAYS
 SELECTED_SERVER_REPLAY = SELECTED_SERVER_REPLAY or { id = 0 }
 
@@ -483,7 +483,7 @@ do
 					id = tonumber(data_stream[1]),
 					user = data_stream[2],
 					score = tonumber(data_stream[3]),
-					comment = data_stream[4],
+					comment = data_stream[4]:gsub("\\'", "'"):gsub("\\\"", "\""),
 					date = data_stream[5]
 				}
 				table.insert(comments, comment)
@@ -494,9 +494,9 @@ do
 	
 	function Replays:getServerReplays(action, offset, searchStr)
 		TB_MENU_REPLAYS_ONLINE = 1
-		local action = action or 1
-		local offset = offset or 1
-		local searchStr = searchStr and searchStr:lower() or ""
+		local action = action or SERVER_REPLAYS.action
+		local offset = offset or SERVER_REPLAYS.offset
+		local searchStr = searchStr and searchStr:lower() or SERVER_REPLAYS.search
 		if (action ~= SERVER_REPLAYS.action) then
 			SELECTED_SERVER_REPLAY.id = 0
 		end
@@ -2252,7 +2252,7 @@ do
 		local searchByDate = UIElement:new({
 			parent = searchView,
 			pos = { 10, searchTitle.shift.y + searchTitle.size.h + 10 },
-			size = { (searchView.size.w - 40) / 3, 70 },
+			size = { (searchView.size.w - 30) / 2, 70 },
 			interactive = true,
 			bgColor = { 0, 0, 0, 0.3 },
 			hoverColor = { 0, 0, 0, 0.5 },
@@ -2261,10 +2261,10 @@ do
 		searchByDate:addAdaptedText(false, "By upload date")
 		searchByDate:addMouseHandlers(nil, function()
 				searchOverlay:kill()
-				Replays:getServerReplays(1)
+				Replays:getServerReplays(1, 1)
 			end)
 		
-		local searchByRating = UIElement:new({
+		--[[local searchByRating = UIElement:new({
 			parent = searchView,
 			pos = { searchByDate.shift.x + searchByDate.size.w + 10, searchTitle.shift.y + searchTitle.size.h + 10 },
 			size = { (searchView.size.w - 40) / 3, 70 },
@@ -2276,13 +2276,13 @@ do
 		searchByRating:addAdaptedText(false, "By rating")
 		searchByRating:addMouseHandlers(nil, function()
 				searchOverlay:kill()
-				Replays:getServerReplays(2)
-			end)
+				Replays:getServerReplays(2, 1)
+			end)]]
 		
 		local searchByPopularity = UIElement:new({
 			parent = searchView,
-			pos = { searchByRating.shift.x + searchByRating.size.w + 10, searchTitle.shift.y + searchTitle.size.h + 10 },
-			size = { (searchView.size.w - 40) / 3, 70 },
+			pos = { searchByDate.shift.x + searchByDate.size.w + 10, searchTitle.shift.y + searchTitle.size.h + 10 },
+			size = { (searchView.size.w - 30) / 2, 70 },
 			interactive = true,
 			bgColor = { 0, 0, 0, 0.3 },
 			hoverColor = { 0, 0, 0, 0.5 },
@@ -2291,7 +2291,7 @@ do
 		searchByPopularity:addAdaptedText(false, "By popularity")
 		searchByPopularity:addMouseHandlers(nil, function()
 				searchOverlay:kill()
-				Replays:getServerReplays(3)
+				Replays:getServerReplays(3, 1)
 			end)
 			
 		local searchByTagTitle = UIElement:new({
@@ -2341,7 +2341,7 @@ do
 		searchByTagButton:addAdaptedText(false, "Search")
 		searchByTagButton:addMouseHandlers(nil, function()
 				searchOverlay:kill()
-				Replays:getServerReplays(4, nil, searchByTagInput.textfieldstr[1])
+				Replays:getServerReplays(4, 1, searchByTagInput.textfieldstr[1])
 			end)
 		
 		local searchByUserTitle = UIElement:new({
@@ -2391,7 +2391,7 @@ do
 		searchByUserButton:addAdaptedText(false, "Search")
 		searchByUserButton:addMouseHandlers(nil, function()
 				searchOverlay:kill()
-				Replays:getServerReplays(5, nil, searchByUserInput.textfieldstr[1])
+				Replays:getServerReplays(5, 1, searchByUserInput.textfieldstr[1])
 			end)
 		
 		local cancelButton = UIElement:new({
@@ -2687,7 +2687,7 @@ do
 			scrollBar:makeScrollBar(replayHolder, replayElements, toReload)
 		end
 		
-		if (SELECTED_SERVER_REPLAY.displayid) then
+		if (SELECTED_SERVER_REPLAY.displayid and replayHolder.size.h < elementHeight * 2 * SELECTED_SERVER_REPLAY.displayid) then
 			scrollBar.btnDown(4, 0, -SELECTED_SERVER_REPLAY.displayid)
 		end
 		
@@ -3133,7 +3133,7 @@ do
 		})
 		findReplaysByUserButton:addAdaptedText(false, "More by " .. replay.uploader)
 		findReplaysByUserButton:addMouseHandlers(nil, function()
-				Replays:getServerReplays(5, nil, replay.uploader)
+				Replays:getServerReplays(5, 1, replay.uploader)
 			end)
 	end
 	
