@@ -10,7 +10,8 @@ local MAXFOLDERLEVELS = 4
 
 REPLAY_VOTE = 101
 
-local REPLAY_TEMPNAME = "--onlinereplaytempfile"
+REPLAY_TEMPNAME = "--onlinereplaytempfile"
+REPLAY_SAVETEMPNAME = "--localreplaytempfile"
 
 do
 	Replays = {}
@@ -157,7 +158,7 @@ do
 				
 				while (1) do
 					local v = files[count]
-					if (v:match(REPLAY_TEMPNAME)) then
+					if (v:match(REPLAY_TEMPNAME) or v:match(REPLAY_SAVETEMPNAME)) then
 						count = count + 1
 					elseif (v:match(".rpl$")) then
 						local replaydata = { filename = v:lower() }
@@ -459,7 +460,7 @@ do
 					rplname = data_stream[2],
 					uploader = data_stream[3],
 					date = data_stream[4],
-					description = data_stream[5],
+					description = data_stream[5]:gsub("\\'", "'"):gsub("\\\"", "\""):gsub("\\r", ""),
 					downloads = data_stream[6] + 0,
 					score = tonumber(data_stream[7]),
 					votes = tonumber(data_stream[8]),
@@ -2434,15 +2435,36 @@ do
 				if (replayFile) then
 					if (not replayFile:isDownloading()) then
 						replayFile:close()
-						previewView:addAdaptedText(false, "Opening replay...")
-						local framesN = 0
-						downloadWait:addCustomDisplay(true, function()
-								framesN = framesN + 1
-								if (framesN > 4) then
-									UIElement:runCmd("loadreplay downloads/" .. REPLAY_TEMPNAME .. ".rpl")
-									close_menu()
-								end
-							end)
+						local replaydata = Replays:getReplayInfo(replayFile.path)
+						local modFile = Files:new("../data/mod/" .. replaydata.mod)
+						if (replaydata.mod ~= "classic" and not modFile.data) then
+							previewView:addAdaptedText(false, "Downloading replay mod...")
+							local modname = replaydata.mod:gsub("%.tbm$", "")
+							download_mod(modname)
+							downloadWait:addCustomDisplay(true, function()
+									if (not modFile:isDownloading()) then
+										previewView:addAdaptedText(false, "Opening replay...")
+										local framesN = 0
+										downloadWait:addCustomDisplay(true, function()
+												framesN = framesN + 1
+												if (framesN > 4) then
+													UIElement:runCmd("loadreplay downloads/" .. REPLAY_TEMPNAME .. ".rpl")
+													close_menu()
+												end
+											end)
+									end
+								end)
+						else
+							previewView:addAdaptedText(false, "Opening replay...")
+							local framesN = 0
+							downloadWait:addCustomDisplay(true, function()
+									framesN = framesN + 1
+									if (framesN > 4) then
+										UIElement:runCmd("loadreplay downloads/" .. REPLAY_TEMPNAME .. ".rpl")
+										close_menu()
+									end
+								end)
+						end
 					end
 				end
 			end)
@@ -2497,10 +2519,24 @@ do
 		
 		local posX, elementHeight = 0, 25
 		local toReload, topBar, botBar, replayListing, replayHolder, scrollBG = TBMenu:prepareScrollableList(replaysList, 50, 35, 20)
+		
+		local helpButton = UIElement:new({
+			parent = topBar,
+			pos = { 10, 10 },
+			size = { topBar.size.h - 20, topBar.size.h - 20 },
+			interactive = true,
+			bgColor = { 0, 0, 0, 0.2 },
+			hoverColor = { 1, 1, 1, 0.2 },
+			pressedColor = { 1, 1, 1, 0.2 },
+			shapeType = ROUNDED,
+			rounded = topBar.size.h
+		})
+		TBMenu:displayHelpPopup(helpButton, "Double-click on any replay in the list for quick preview.", true)
+		
 		local listTitle = UIElement:new({
 			parent = topBar,
-			pos = { 10, 0 },
-			size = { topBar.size.w - 20, topBar.size.h }
+			pos = { helpButton.shift.x + helpButton.size.w + 10, 0 },
+			size = { topBar.size.w - 20 - helpButton.shift.x - helpButton.size.w, topBar.size.h }
 		})
 		local offsetMax = SERVER_REPLAYS.total - SERVER_REPLAYS.offset > 100 and SERVER_REPLAYS.offset + 100 or SERVER_REPLAYS.total
 		if (SERVER_REPLAYS.total == 0) then
@@ -3103,7 +3139,7 @@ do
 			hoverColor = { 0, 0, 0, 0.3 },
 			pressedColor = { 1, 1, 1, 0.2 }
 		})
-		replayDownloadButton:addAdaptedText(false, "Download replay")
+		replayDownloadButton:addAdaptedText(false, "Save replay")
 		replayDownloadButton:addMouseHandlers(nil, function()
 				download_replay(replay.id, replay.rplname:gsub("%s", "_"))
 				Replays:showReplayDownloadPopup(replay.rplname:gsub("%s", "_"))

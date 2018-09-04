@@ -211,12 +211,12 @@ do
 						open_url("http://forum.toribash.com/tori_token_exchange.php")
 					end
 			},
-			--[[{
+			{
 				title = "I SMASH! TINY THING SQUASH!", 
 				subtitle = "Event Squad's GOLEM event is back for magic month!", 
 				image = "../textures/menu/promo/golem2.tga",
 				action = function() 
-						open_url("http://forum.toribash.com/tori_token_exchange.php")
+						open_url("http://forum.toribash.com/showthread.php?t=619995")
 					end
 			},
 			{
@@ -224,9 +224,9 @@ do
 				subtitle = "Your monthly art event is back again! Draw your best sorcery-themed head texture to win cool stuff!", 
 				image = "../textures/menu/promo/htotmmagic.tga",
 				action = function() 
-						open_url("http://forum.toribash.com/tori_token_exchange.php")
+						open_url("http://forum.toribash.com/showthread.php?t=619992")
 					end
-			}]]
+			}
 		}
 		
 		if (TB_MENU_PLAYER_INFO.data.qi < 500 and TB_MENU_PLAYER_INFO.clan.id == 0 and TB_MENU_PLAYER_INFO.username ~= "") then
@@ -730,17 +730,16 @@ do
 			end)
 	end
 	
-	function TBMenu:showDataError(message)
+	function TBMenu:showDataError(message, noParent)
 		local transparency = 1
 		local errorMessage = UIElement:new({
 			parent = tbMenuMain,
-			pos = { WIN_W / 4, -40 },
+			pos = { WIN_W / 4, noParent and WIN_H - 40 or -40 },
 			size = { WIN_W / 2, 40 },
 			bgColor = { 0, 0, 0, 0.8 * transparency }
 		})
 		local startTime = os.clock()
 		errorMessage:addCustomDisplay(false, function()
-				errorMessage:uiText(message, nil, nil, 4, nil, 0.7, nil, nil, { 1, 1, 1, transparency })
 				if (os.clock() - startTime > 2) then
 					transparency = transparency - 0.05
 					errorMessage.bgColor[4] = 0.8 * transparency
@@ -749,6 +748,12 @@ do
 					errorMessage:kill()
 				end
 			end)
+		local errorMessageView = UIElement:new({
+			parent = errorMessage,
+			pos = { 10, 0 },
+			size = { errorMessage.size.w - 20, errorMessage.size.h }
+		})
+		errorMessageView:addAdaptedText(true, message, nil, nil, 4, nil, 0.7, nil, nil, nil, { 1, 1, 1, transparency })
 	end
 	
 	function TBMenu:showTorishopMain()
@@ -1535,6 +1540,80 @@ do
 			end
 		end
 		disable_menu_keyboard()
+	end
+	
+	function TBMenu:displayHelpPopup(element, message, forceManualPosCheck)
+		local messageElement = UIElement:new({
+			parent = element,
+			pos = { 0, 0 },
+			size = { WIN_W / 3, WIN_H / 10 },
+			bgColor = { 0, 0, 0, 0.8 }
+		})
+		
+		if (messageElement.pos.x < 0) then
+			messageElement:moveTo(messageElement:getLocalPos(10, 0).x)
+		end
+		if (messageElement.pos.y < 0) then
+			messageElement:moveTo(nil, messageElement:getLocalPos(0, 10).y)
+		end
+		if (messageElement.pos.x + messageElement.size.w > WIN_W) then
+			messageElement:moveTo(messageElement:getLocalPos(WIN_W - 10 - messageElement.size.w, 0).x)
+		end
+		if (messageElement.pos.y + messageElement.size.h > WIN_H) then
+			messageElement:moveTo(nil, messageElement:getLocalPos(0, WIN_H - 10 - messageElement.size.h).y)
+		end
+		
+		messageElement:addAdaptedText(false, message, nil, nil, nil, nil, nil, nil, nil, nil, { 1, 1, 1, 0.7 })
+		messageElement:hide(true)
+		
+		local popupShown = false
+		local pressTime = 0
+		
+		if (forceManualPosCheck) then
+			element:addCustomDisplay(false, function()
+					if (MOUSE_X > element.pos.x and MOUSE_Y > element.pos.y and MOUSE_X < element.pos.x + element.size.w and MOUSE_Y < element.pos.y + element.size.h) then
+						element.hoverState = BTN_HVR
+						if (not popupShown) then
+							pressTime = pressTime + 0.07
+							if (pressTime > 1) then
+								messageElement:show(true)
+								popupShown = true
+							end
+						end
+					elseif (popupShown) then
+						if (MOUSE_X < messageElement.pos.x or MOUSE_X > messageElement.pos.x + messageElement.size.w or MOUSE_Y < messageElement.pos.y or MOUSE_Y > messageElement.pos.y + messageElement.size.h) then
+							messageElement:hide(true)
+							pressTime = 0
+							popupShown = false
+						end
+					end
+				end)
+		else
+			element:addCustomDisplay(false, function()
+					if (element.hoverState == BTN_HVR) then
+						if (not popupShown) then
+							pressTime = pressTime + 0.07
+							if (pressTime > 1) then
+								messageElement:show(true)
+								popupShown = true
+							end
+						end
+					elseif (popupShown) then
+						if (not messageElement.hoverState) then
+							messageElement:hide(true)
+							pressTime = 0
+							popupShown = false
+						end
+					end
+				end)
+		end
+		
+		local questionmark = UIElement:new({
+			parent = element,
+			pos = { 0, 0 },
+			size = { element.size.w, element.size.h }
+		})
+		questionmark:addAdaptedText(true, "?", nil, nil, nil, nil, 0.7)
 	end
 	
 	function TBMenu:displayTextfield(element, fontid, scale, color, defaultStr, orientation)
