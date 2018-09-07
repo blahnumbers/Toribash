@@ -769,18 +769,15 @@ do
 	end
 	
 	function TBMenu:showMatchmaking()
-		TBMenu:clearNavSection()
-		tbMenuBottomLeftBar:hide()
 		-- Connect user to matchmake server
 		Matchmake:connect()
 		Matchmake:showMain(tbMenuCurrentSection)
-		TBMenu:showNavigationBar(Matchmake:getNavigationButtons(), true)
 	end
 	
 	function TBMenu:showPlaySection()
 		local tbMenuPlayButtonsData = {
 			{ title = TB_MENU_LOCALIZED.MAINMENUFREEPLAYNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUFREEPLAYDESC, size = 0.5, image = "../textures/menu/freeplay.tga", mode = ORIENTATION_LANDSCAPE, action = function() open_menu(1) end },
-			{ title = TB_MENU_LOCALIZED.MAINMENUMATCHMAKINGNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUMATCHMAKINGDESC, size = 0.25, image = "../textures/menu/matchmaking.tga", mode = ORIENTATION_PORTRAIT, action = function() if (TB_MENU_PLAYER_INFO.username == '') then TBMenu:showLoginError(tbMenuCurrentSection, TB_MENU_LOCALIZED.MAINMENUMATCHMAKINGNAME) return end TBMenu:showMatchmaking() end },
+			{ title = TB_MENU_LOCALIZED.MAINMENURANKEDNAME, subtitle = TB_MENU_LOCALIZED.MAINMENURANKEDDESC, size = 0.25, image = "../textures/menu/matchmaking.tga", mode = ORIENTATION_PORTRAIT, action = function() if (TB_MENU_PLAYER_INFO.username == '') then TBMenu:showLoginError(tbMenuCurrentSection, TB_MENU_LOCALIZED.MAINMENUMATCHMAKINGNAME) return end TBMenu:showMatchmaking() end },
 			{ title = TB_MENU_LOCALIZED.MAINMENUROOMLISTNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUROOMLISTDESC, size = 0.25, image = "../textures/menu/multiplayer.tga", mode = ORIENTATION_PORTRAIT, action = function() if (TB_MENU_PLAYER_INFO.username == '') then TBMenu:showLoginError(tbMenuCurrentSection, TB_MENU_LOCALIZED.MAINMENUROOMLISTNAME) return end open_menu(2) end }
 		}
 		TBMenu:showSection(tbMenuPlayButtonsData)
@@ -1163,7 +1160,7 @@ do
 			size = { tbMenuUserTcView.size.w - tbMenuUserTcIcon.size.w - 5, tbMenuUserTcView.size.h }
 		})
 		tbMenuUserTcBalance:addCustomDisplay(false, function()
-				tbMenuUserTcBalance:uiText(PlayerInfo:tcFormat(TB_MENU_PLAYER_INFO.data.tc), nil, tbMenuUserTcBalance.pos.y + 2, 2, 0, 0.9, nil, nil, tbMenuUserTcView:getButtonColor())
+				tbMenuUserTcBalance:uiText(PlayerInfo:tcFormat(TB_MENU_PLAYER_INFO.data.tc), nil, 2, 2, 0, 0.9, nil, nil, tbMenuUserTcView:getButtonColor())
 			end)
 		local tbMenuUserStView = UIElement:new( {
 			parent = tbMenuUserBar,
@@ -1195,7 +1192,7 @@ do
 		})
 		tbMenuUserStBalance:addCustomDisplay(false, function()
 				-- Proper ST balance is deprecated until a fix is rolled out
-				tbMenuUserStBalance:uiText("ST", nil, tbMenuUserStBalance.pos.y + 2, 2, 0, 0.9, nil, nil, tbMenuUserStView:getButtonColor())
+				tbMenuUserStBalance:uiText("ST", nil, 2, 2, 0, 0.9, nil, nil, tbMenuUserStView:getButtonColor())
 				--tbMenuUserStBalance:uiText(TB_MENU_PLAYER_INFO.data.st, nil, tbMenuUserStBalance.pos.y + 2, nil, LEFT, 0.9, nil, nil, tbMenuUserStView:getButtonColor())
 			end)
 		local tbMenuUserBeltIcon = UIElement:new({
@@ -1256,7 +1253,7 @@ do
 					for j = 40, 10, -10 do
 						draw_line(tbMenuNavigationButtons[i].pos.x + tbMenuNavigationButtons[i].size.w - j, tbMenuNavigationButtons[i].pos.y + 49, tbMenuNavigationButtons[i].pos.x + tbMenuNavigationButtons[i].size.w, tbMenuNavigationButtons[i].pos.y + 49 - j, 0.5)
 					end
-					tbMenuNavigationButtons[i]:uiText(v.text, nil, tbMenuNavigationButtons[i].pos.y + 5, FONTS.BIG, CENTER, 0.65)
+					tbMenuNavigationButtons[i]:uiText(v.text, nil, 5, FONTS.BIG, CENTER, 0.65)
 				end)
 			tbMenuNavigationButtons[i]:addMouseHandlers(nil, function() 
 					if (not customNav) then
@@ -1547,6 +1544,7 @@ do
 			parent = element,
 			pos = { 0, 0 },
 			size = { WIN_W / 3, WIN_H / 10 },
+			interactive = true,
 			bgColor = { 0, 0, 0, 0.8 }
 		})
 		
@@ -1563,7 +1561,7 @@ do
 			messageElement:moveTo(nil, messageElement:getLocalPos(0, WIN_H - 10 - messageElement.size.h).y)
 		end
 		
-		messageElement:addAdaptedText(false, message, nil, nil, nil, nil, nil, nil, nil, nil, { 1, 1, 1, 0.7 })
+		messageElement:addAdaptedText(false, message, nil, nil, 4, nil, 0.7)
 		messageElement:hide(true)
 		
 		local popupShown = false

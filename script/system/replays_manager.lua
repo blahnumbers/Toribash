@@ -70,6 +70,7 @@ do
 		local replay = Files:new("../" .. path, FILES_MODE_READONLY)
 		local rplInfo = {}
 		local hasDecap = false
+		local hasMadman = false
 		local version = 0
 		
 		if (replay.data) then
@@ -87,7 +88,11 @@ do
 				elseif (ln:match("CRUSH %d; 0") and not hasDecap) then
 					rplInfo.hiddentags = rplInfo.hiddentags and rplInfo.hiddentags .. " decap" or "decap"
 					hasDecap = true
+				elseif (ln:match("CRUSH %d; %d %d %d %d %d %d") and not hasMadman) then
+					rplInfo.hiddentags = rplInfo.hiddentags and rplInfo.hiddentags .. " madman" or "madman"
+					hasMadman = true
 				end
+				
 				if (version > 9) then
 					if (ln:match("FIGHTNAME 0;")) then
 						rplInfo.name = ln:gsub("FIGHTNAME 0;", "")

@@ -845,8 +845,8 @@ do
 			return true
 		end
 		local font = font or FONTS.MEDIUM
-		local x = x or self.pos.x
-		local y = y or self.pos.y
+		local x = x and self.pos.x + x or self.pos.x
+		local y = y and self.pos.y + y or self.pos.y
 		local font_mod = font
 		local scale = scale or 1
 		local angle = angle or 0
@@ -1045,12 +1045,13 @@ do
 	function UIElement:debugEcho(mixed, msg)
 		local msg = msg and msg .. ": " or ""
 		if (type(mixed) == "table") then
+			echo("entering table " .. msg)
 			for i,v in pairs(mixed) do
 				UIElement:debugEcho(v, i)
 			end
 		elseif (type(mixed) == "boolean") then
 			echo(msg .. (mixed and "true" or "false"))
-		else
+		elseif (type(mixed) ~= "function") then
 			echo(msg .. mixed)
 		end
 	end

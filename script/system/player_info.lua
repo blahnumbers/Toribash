@@ -31,7 +31,7 @@ do
 		},
 		{
 			title = "Silver Tier",
-			showRank = false,
+			showRank = true,
 			maxElo = 1610,
 			minElo = 1590,
 			image = "../textures/menu/ranking/silver.tga"
@@ -196,6 +196,27 @@ do
 		return items
 	end
 	
+	function PlayerInfo:getRankTier(ranking)
+		if (ranking.wins + ranking.loses >= rankingQualificationMatches) then
+			for i,v in pairs(RankingData) do
+				if (ranking.elo >= v.minElo and ranking.elo < v.maxElo) then
+					ranking.title = v.title
+					ranking.image = v.image
+					if (not v.showRank) then
+						ranking.rank = nil
+					end
+					break
+				end
+			end
+		else 
+			ranking.rank = nil
+			ranking.title = rankingQualifying.title
+			ranking.image = rankingQualifying.image
+			ranking.qualifying = true
+		end
+		return ranking
+	end
+	
 	function PlayerInfo:getRanking()
 		local ranking = {
 			elo = nil,
@@ -212,21 +233,8 @@ do
 			ranking.elo = master.elo
 			ranking.wins = master.season_win
 			ranking.loses = master.season_lose
-			if (ranking.wins + ranking.loses >= rankingQualificationMatches) then
-				for i,v in pairs(RankingData) do
-					if (ranking.elo >= v.minElo and ranking.elo < v.maxElo) then
-						ranking.title = v.title
-						ranking.image = v.image
-						if (v.showRank) then
-							ranking.rank = master.rank
-						end
-						break
-					end
-				end
-			else 
-				ranking.title = rankingQualifying.title
-				ranking.image = rankingQualifying.image
-			end
+			ranking.rank = master.rank
+			PlayerInfo:getRankTier(ranking)
 		end
 		return ranking		
 	end
