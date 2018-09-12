@@ -80,6 +80,9 @@ do
 		local mods = true
 		
 		for i, ln in pairs(lines) do
+			if (ln:find("^#NO DATA FOUND")) then
+				break
+			end
 			if (ln:find("^#ELO")) then
 				mods = false
 			end
@@ -117,8 +120,8 @@ do
 	end
 	
 	function Matchmake:showRankingTrendsWithHistory(viewElement)
-		--download_ranking_trends()
-		local rankingFile = Files:new("../data/ranktrends.txt")
+		download_ranking_trends()
+		local rankingFile = Files:new("../data/ranking_trends.txt")
 		local playerTrends, modTrends = nil, nil
 		
 		local dataWait = UIElement:new({
@@ -129,9 +132,10 @@ do
 		local dataMessage = UIElement:new({
 			parent = dataWait,
 			pos = { 0, 0 },
-			size = { viewElement.size.w, viewElement.size.h }
+			size = { viewElement.size.w, viewElement.size.h },
+			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
-		dataMessage:addAdaptedText(true, "Updating data...")
+		dataMessage:addAdaptedText(false, "Updating data...")
 		
 		local function showTrendsWithHistory()
 			local userTrendsView = UIElement:new({
@@ -305,18 +309,18 @@ do
 				if (not rankingFile:isDownloading()) then
 					rankingFile:reopen()
 					playerTrends, modTrends = Matchmake:fetchRankingTrends(rankingFile:readAll())
-					dataWait:kill()
+					viewElement:kill(true)
 					showTrendsWithHistory()
 				end
 			end)
 	end
 	
 	function Matchmake:showGlobalRankToplist(viewElement)
-		--download_ranking_toplist()
+		download_ranking_toplist()
 		local elementHeight = 35
 		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 50, elementHeight, 20)
 		
-		local rankingFile = Files:new("../data/ranking.txt")
+		local rankingFile = Files:new("../data/ranking_toplist.txt")
 		local playerRanking = nil
 		
 		local topPlayersTitle = UIElement:new({
@@ -399,8 +403,8 @@ do
 			pos = { 5, 0 },
 			size = { tbMenuCurrentSection.size.w * 0.65 - 10, tbMenuCurrentSection.size.h }
 		})
-		TBMenu:addBottomBloodSmudge(playerRankingView, 1)
 		Matchmake:showRankingTrendsWithHistory(playerRankingView)
+		TBMenu:addBottomBloodSmudge(playerRankingView, 1)
 		
 		local rankingTopView = UIElement:new({
 			parent = tbMenuCurrentSection,
@@ -413,6 +417,11 @@ do
 	end
 	
 	function Matchmake:getRankedSeasonInfo()
+		local function getRandom(list)
+			local seed = math.random(1, #list)
+			return list[seed]
+		end
+		
 		local season = {
 			{
 				title = "Description",
@@ -429,7 +438,7 @@ do
 					{
 						title = "Rank 1",
 						prizes = {
-							items = { { itemid = 729, name = "Demon Pack" }, { itemid = 3043, name = "Mana Pack" } },
+							items = { { itemid = 729, name = "Demon Pack" }, { itemid = 1389, name = "Mysterio Pack" } },
 							tc = "450,000",
 							st = 25,
 							misc = "rank tier item rewards"
@@ -438,7 +447,7 @@ do
 					{
 						title = "Rank 2",
 						prizes = {
-							items = { { itemid = 2021, name = "Tori Team item" }, { itemid = 2024, name = "Engineer's Hat" } },
+							items = { { itemid = 1270, name = "Alpha Pack" }, { itemid = 1194, name = "Pure Pack" } },
 							tc = "300,000",
 							st = 20,
 							misc = "rank tier item rewards"
@@ -447,7 +456,7 @@ do
 					{
 						title = "Rank 3",
 						prizes = {
-							items = { { itemid = 2021, name = "Tori Team item" }, { itemid = 2024, name = "Engineer's Hat" } },
+							items = { { itemid = 1070, name = "Elf Pack" }, { itemid = 1400, name = "Vortex Pack" } },
 							tc = "200,000",
 							st = 15,
 							misc = "rank tier item rewards"
@@ -456,7 +465,7 @@ do
 					{
 						title = "Diamond Tier",
 						prizes = {
-							items = { { itemid = 2857, name = "Diamond Tori 3D set" }, { itemid = 2996, name = "Comic Effects" }, { itemid = 2980, name = "Random Limited Edition Shiai Pack" }, { itemid = 0, name = "Upgradable 3D item set (TBA)" } },
+							items = { { itemid = 2857, name = "Diamond Tori 3D set" }, { itemid = 2996, name = "Comic Effects" }, { itemid = getRandom({ 2876, 2906, 2944, 3016, 3043 }), name = "Random Limited Edition Shiai Pack" }, { customicon = "season5dmnwr", name = "Upgradable 3D item set (TBA)" } },
 							tc = "100,000",
 							st = 10
 						}
@@ -464,21 +473,21 @@ do
 					{
 						title = "Platinum Tier",
 						prizes = {
-							items = { { itemid = 2980, name = "Random Limited Edition Shiai Pack" }, { itemid = 2996, name = "Comic Effects" }, { itemid = 0, name = "Upgradable 3D item set (TBA)" } },
+							items = { { itemid = getRandom({ 2876, 2906, 2944, 3016, 3043 }), name = "Random Limited Edition Shiai Pack" }, { itemid = 2996, name = "Comic Effects" }, { customicon = "season5dmnwr", name = "Upgradable 3D item set (TBA)" } },
 							st = 7
 						}
 					},
 					{
 						title = "Gold Tier",
 						prizes = {
-							items = { { itemid = 2980, name = "Random Limited Edition Shiai Joints" }, { itemid = 0, name = "Upgradable 3D item (TBA)" } },
+							items = { { itemid = getRandom({ 2859, 2896, 2934, 2958, 3006, 3033, 2861, 2890, 2928, 2960, 3000, 3027 }), name = "Random Limited Edition Shiai Joints" }, { customicon = "season5dmnwr", name = "Upgradable 3D item (TBA)" } },
 							st = 5
 						}
 					},
 					{
 						title = "Silver Tier",
 						prizes = {
-							items = { { itemid = 2980, name = "Random Limited Edition Shiai Force" } },
+							items = { { itemid = getRandom({ 2859, 2896, 2934, 2958, 3006, 3033 }), name = "Random Limited Edition Shiai Force" } },
 							st = 3
 						}
 					}
@@ -613,17 +622,28 @@ do
 								pos = { (count - 1) * (elementHeight + 10), 0 },
 								size = { elementHeight, elementHeight },
 								interactive = true,
-								bgImage = "../textures/store/items/" .. item.itemid .. ".tga"
+								bgImage = item.customicon and "../textures/store/" .. item.customicon ..".tga" or "../textures/store/items/" .. item.itemid .. ".tga"
 							})
 							local itemInfo = UIElement:new({
 								parent = itemDisplay,
 								pos = { 5, 5 },
-								size = { 190, elementHeight },
-								bgColor = { 0, 0, 0, 0.7 },
+								size = { 250, 84 },
+								bgColor = { 1, 1, 1, 0.85 },
 								shapeType = ROUNDED,
 								rounded = 5
 							})
-							itemInfo:addAdaptedText(false, item.name, nil, nil, 4, nil, 0.7)
+							local itemTexture = UIElement:new({
+								parent = itemInfo,
+								pos = { 10, 10 },
+								size = { 64, 64 },
+								bgImage = item.customicon and "../textures/store/" .. item.customicon ..".tga" or "../textures/store/items/" .. item.itemid .. ".tga"
+							})
+							local itemDescription = UIElement:new({
+								parent = itemInfo,
+								pos = { 84, 10 },
+								size = { itemInfo.size.w - 94, itemInfo.size.h - 20 }
+							})
+							itemDescription:addAdaptedText(false, item.name, nil, nil, 4, nil, 0.7, nil, nil, nil, UICOLORBLACK)
 							itemDisplay:addCustomDisplay(false, function()
 									if (itemDisplay.hoverState) then
 										itemInfo:show()

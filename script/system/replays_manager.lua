@@ -80,9 +80,9 @@ do
 					version = 10
 				elseif (ln:match("AUTHOR 0;")) then
 					rplInfo.author = ln:gsub("AUTHOR 0;", "")
-					rplInfo.author = PlayerInfo:getUser(rplInfo.author:gsub("^ ", ""))
+					rplInfo.author = PlayerInfo:getUser(rplInfo.author:gsub("^ ", ""):gsub("\r", ""))
 				elseif (ln:match("NEWGAME %d;")) then
-					local mod = ln:gsub("NEWGAME %d;", "")
+					local mod = ln:gsub("NEWGAME %d;", ""):gsub("\r", "")
 					rplInfo.mod = mod:match("/*%S*%.tbm")
 					rplInfo.mod = rplInfo.mod and rplInfo.mod:gsub("/", "") or "classic"
 				elseif (ln:match("CRUSH %d; 0") and not hasDecap) then
@@ -96,17 +96,17 @@ do
 				if (version > 9) then
 					if (ln:match("FIGHTNAME 0;")) then
 						rplInfo.name = ln:gsub("FIGHTNAME 0;", "")
-						rplInfo.name = rplInfo.name:gsub("^ ", "")
+						rplInfo.name = rplInfo.name:gsub("^ ", ""):gsub("\r", "")
 					elseif (ln:match("BOUT 0;")) then
-						rplInfo.bout0 = ln:gsub("BOUT 0;", "")
+						rplInfo.bout0 = ln:gsub("BOUT 0;", ""):gsub("\r", "")
 						rplInfo.bout0 = PlayerInfo:getUser(rplInfo.bout0:gsub("^ ", ""))
 					elseif (ln:match("BOUT 1;")) then
-						rplInfo.bout1 = ln:gsub("BOUT 1;", "")
+						rplInfo.bout1 = ln:gsub("BOUT 1;", ""):gsub("\r", "")
 						rplInfo.bout1 = PlayerInfo:getUser(rplInfo.bout1:gsub("^ ", ""))
 					end
 				else
 					if (ln:match("FIGHT %d;")) then
-						local info = ln:gsub("FIGHT %d; ", "")
+						local info = ln:gsub("FIGHT %d; ", ""):gsub("\r", "")
 						rplInfo.bout1 = PlayerInfo:getUser(info:match("[^ ]+$"))
 						info = info:gsub(" [^ ]+$", "")
 						rplInfo.bout0 = PlayerInfo:getUser(info:match("[^ ]+$"))
@@ -429,7 +429,7 @@ do
 		end
 		
 		local filedata = {}
-		for ln in file.data:lines() do
+		for i, ln in pairs(file:readAll()) do
 			local segments = 8
 			local data_stream = { ln:match(("([^\t]+)\t*"):rep(segments)) }
 			local filename = string.lower(data_stream[1]:gsub(" ", "_"))

@@ -45,11 +45,17 @@ do
 		if (not self.data) then
 			return false
 		end
-		local filedata = {}
-		for ln in self.data:lines() do
-			table.insert(filedata, ln)
+		local filedata = self.data:read("*all")
+		
+		-- Remove all CRs
+		filedata = filedata:gsub("\r", "")
+		
+		local lines = {}
+		-- Replace lines() with gmatch to ensure we only read LF newlines
+		for ln in filedata:gmatch("[^\n]*\n") do
+			table.insert(lines, ln)
 		end
-		return filedata
+		return lines
 	end
 	
 	function Files:isDownloading()
