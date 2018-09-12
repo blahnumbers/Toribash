@@ -218,7 +218,7 @@ do
 							end
 							break
 						end
-					elseif (v ~= "." and v ~= ".." and v ~= "system" and not v:find("%.%a+$")) then
+					elseif (not v:find("^%.+[%s%S]*$") and v ~= "system" and not v:find("%.%a+$")) then
 						table.insert(rplTable.folders, {
 							parent = rplTable,
 							name = v,
