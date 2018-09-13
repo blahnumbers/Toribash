@@ -120,7 +120,9 @@ if (os.clock() < 10) then
 					TB_STORE_DATA.onsale = Torishop:getSaleItem()
 				end
 				if (PlayerInfo:getLoginRewards().available and TB_MENU_MAIN_ISOPEN == 1) then
-					TBMenu:showLoginRewards()
+					if (TB_MENU_INVENTORY_ISOPEN == 0 and TB_MENU_MATCHMAKE_ISOPEN == 0 and TB_MENU_CLANS_ISOPEN == 0) then
+						TBMenu:showLoginRewards()
+					end
 				end
 				remove_hooks("playerinfoUpdate")
 			end

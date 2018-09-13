@@ -4,6 +4,9 @@
 TB_MATCHMAKER_INFO = nil
 TB_MATCHMAKER_SEARCHSTATUS = TB_MATCHMAKER_SEARCHSTATUS or nil
 
+ELO_DIVISOR = 400
+ELO_FACTOR = 2
+
 do
 	Matchmake = {}
     Matchmake.__index = Matchmake
@@ -81,6 +84,7 @@ do
 		
 		for i, ln in pairs(lines) do
 			if (ln:find("^#NO DATA FOUND")) then
+				table.insert(rankingTrends, { elo = 1610, rank = 0 })
 				break
 			end
 			if (ln:find("^#ELO")) then
@@ -135,7 +139,7 @@ do
 			size = { viewElement.size.w, viewElement.size.h },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
-		dataMessage:addAdaptedText(false, "Updating data...")
+		dataMessage:addAdaptedText(false, TB_MENU_LOCALIZED.MATCHMAKEUPDATINGTRENDS)
 		
 		local function showTrendsWithHistory()
 			local userTrendsView = UIElement:new({
@@ -155,19 +159,23 @@ do
 				pos = { 0, 5 },
 				size = { rankTrendView.size.w, 30 }
 			})
-			rankTrendTitle:addAdaptedText(true, "Global Rank", nil, nil, FONTS.BIG, nil, nil, nil, 0.1)
+			rankTrendTitle:addAdaptedText(true, TB_MENU_LOCALIZED.MATCHMAKEGLOBALRANK, nil, nil, FONTS.BIG, nil, nil, nil, 0.1)
 			local rankTrendTextView = UIElement:new({
 				parent = rankTrendView,
 				pos = { 10, rankTrendTitle.shift.y + rankTrendTitle.size.h + 10 },
 				size = { rankTrendView.size.w - 20, rankTrendView.size.h - 20 - rankTrendTitle.shift.y - rankTrendTitle.size.h }
 			})
 			local trend = 0
-			local currentRank = playerTrends[#playerTrends].rank
+			local currentRank = TB_MENU_PLAYER_INFO.ranking.rank
 			local compareRank = playerTrends[#playerTrends - 10 < 1 and 1 or #playerTrends - 10].rank
-			if (currentRank > compareRank) then
-				trend = -1
-			elseif (currentRank < compareRank) then
-				trend = 1
+			if (currentRank) then
+				if (currentRank > compareRank) then
+					trend = -1
+				elseif (currentRank < compareRank) then
+					trend = 1
+				end
+			else
+				trend = nil
 			end
 			if (TB_MENU_PLAYER_INFO.ranking.qualifying) then
 				local rankQualifying = UIElement:new({
@@ -175,12 +183,19 @@ do
 					pos = { 40, 0 },
 					size = { rankTrendTextView.size.w - 40, rankTrendTextView.size.h }
 				})
+				rankQualifying:uiText(TB_MENU_LOCALIZED.MATCHMAKEQUALIFYING, nil, nil, FONTS.BIG, nil, 0.65)
 				rankQualifying:addCustomDisplay(true, function()
 						rankQualifying:uiText(TB_MENU_LOCALIZED.MATCHMAKEQUALIFYING, nil, nil, FONTS.BIG, nil, 0.65)
 					end)
+				local maxLen = 0
+				for i,v in pairs(rankQualifying.dispstr) do
+					if (maxLen < get_string_length(v, FONTS.BIG) * 0.65) then
+						maxLen = get_string_length(v, FONTS.BIG) * 0.65
+					end
+				end
 				local rankQualifyingInfo = UIElement:new({
 					parent = rankTrendTextView,
-					pos = { (rankTrendTextView.size.w - get_string_length(TB_MENU_LOCALIZED.MATCHMAKEQUALIFYING, FONTS.BIG) * 0.65) / 2 - 15, rankTrendTextView.size.h / 2 - 15 },
+					pos = { (rankTrendTextView.size.w - maxLen) / 2 - 15, rankTrendTextView.size.h / 2 - 15 },
 					size = { 30, 30 },
 					interactive = true,
 					bgColor = { 0, 0, 0, 0.2 },
@@ -189,7 +204,35 @@ do
 					shapeType = ROUNDED,
 					rounded = rankTrendTextView.size.h
 				})
-				TBMenu:displayHelpPopup(rankQualifyingInfo, "You need to play 10 ranked fights within a season to qualify for a rank")
+				TBMenu:displayHelpPopup(rankQualifyingInfo, TB_MENU_LOCALIZED.MATCHMAKEQUALIFICATIONINFO)
+			elseif (not trend) then
+				local rankUnavailable = UIElement:new({
+					parent = rankTrendTextView,
+					pos = { 40, 0 },
+					size = { rankTrendTextView.size.w - 40, rankTrendTextView.size.h }
+				})
+				rankUnavailable:uiText(TB_MENU_LOCALIZED.MATCHMAKERANKUNAVAILABLE, nil, nil, FONTS.BIG, nil, 0.65)
+				rankUnavailable:addCustomDisplay(true, function()
+						rankUnavailable:uiText(TB_MENU_LOCALIZED.MATCHMAKERANKUNAVAILABLE, nil, nil, FONTS.BIG, nil, 0.65)
+					end)
+				local maxLen = 0
+				for i,v in pairs(rankUnavailable.dispstr) do
+					if (maxLen < get_string_length(v, FONTS.BIG) * 0.65) then
+						maxLen = get_string_length(v, FONTS.BIG) * 0.65
+					end
+				end
+				local rankUnavailableInfo = UIElement:new({
+					parent = rankTrendTextView,
+					pos = { (rankTrendTextView.size.w - maxLen) / 2 - 15, rankTrendTextView.size.h / 2 - 15 },
+					size = { 30, 30 },
+					interactive = true,
+					bgColor = { 0, 0, 0, 0.2 },
+					hoverColor = { 1, 1, 1, 0.2 },
+					pressedColor = { 1, 1, 1, 0.2 },
+					shapeType = ROUNDED,
+					rounded = rankTrendTextView.size.h
+				})
+				TBMenu:displayHelpPopup(rankUnavailableInfo, TB_MENU_LOCALIZED.MATCHMAKEGOLDTIERREQUIREDFORRANKDISPLAY)
 			else
 				local scale = rankTrendTextView.size.h - 20 > 50 and 50 or rankTrendTextView.size.h - 20
 				local rankTrendOldText = UIElement:new({
@@ -224,7 +267,7 @@ do
 					pos = { 10, 5 },
 					size = { modTrendsView.size.w - 20, 30 }
 				})
-				modTrendsTitle:addAdaptedText(true, "Best mods", nil, nil, FONTS.BIG, nil, nil, nil, 0.1)
+				modTrendsTitle:addAdaptedText(true, TB_MENU_LOCALIZED.MATCHMAKEBESTRANKEDMODS, nil, nil, FONTS.BIG, nil, nil, nil, 0.1)
 				
 				local modListView = UIElement:new({
 					parent = modTrendsView,
@@ -235,6 +278,9 @@ do
 				local maxDisplay = math.floor(modListView.size.h / height)
 				local modsToShow = #modTrends > maxDisplay and maxDisplay or #modTrends
 				local posY = modListView.size.h / modsToShow
+				if (#modTrends == 0) then
+					modListView:addAdaptedText(true, TB_MENU_LOCALIZED.MATCHMAKERANKEDMODSEMPTY)
+				end
 				for i, v in pairs(UIElement:qsort(modTrends, "games", true)) do
 					if (i > maxDisplay) then
 						break
@@ -255,7 +301,7 @@ do
 						pos = { modTrend.size.w / 2, 0 },
 						size = { modTrend.size.w / 2, modTrend.size.h }
 					})
-					modStats:addAdaptedText(true, math.floor(v.wins / v.games * 10000) / 100 .. "% W/L", nil, nil, nil, RIGHTMID, 0.8, nil, 0)
+					modStats:addAdaptedText(true, math.floor(v.wins / v.games * 10000) / 100 .. "% " .. TB_MENU_LOCALIZED.MATCHMAKEWINLOSE, nil, nil, nil, RIGHTMID, 0.8, nil, 0)
 				end
 			end
 			
@@ -270,7 +316,7 @@ do
 				pos = { 10, 10 },
 				size = { trendsView.size.w - 20, 35 }
 			})
-			trendsTitle:addAdaptedText(false, "Your global ranking trends", nil, nil, FONTS.BIG)
+			trendsTitle:addAdaptedText(false, TB_MENU_LOCALIZED.MATCHMAKERANKINGTRENDS, nil, nil, FONTS.BIG)
 			
 			local trendsChartBG = UIElement:new({
 				parent = trendsView,
@@ -286,6 +332,9 @@ do
 			})
 			local eloScale = (playerTrends.topElo - playerTrends.minElo) / trendsChartView.size.h
 			local width = trendsChartView.size.w / (#playerTrends - 1)
+			if (#playerTrends < 4) then
+				trendsChartView:addAdaptedText(true, TB_MENU_LOCALIZED.MATCHMAKEMOREGAMESREQUIREDFORTRENDS)
+			end
 			for i, info in pairs(playerTrends) do
 				local elo = info.elo
 				if (type(i) == "number") then
@@ -328,8 +377,8 @@ do
 			pos = { 10, 0 },
 			size = { topBar.size.w - 20, topBar.size.h }
 		})
-		topPlayersTitle:addAdaptedText(false, "Top ranked players", nil, nil, FONTS.BIG, nil, 0.65)
-		listingHolder:addAdaptedText(true, "Waiting for data...")
+		topPlayersTitle:addAdaptedText(false, TB_MENU_LOCALIZED.MATCHMAKETOPRANKEDPLAYERS, nil, nil, FONTS.BIG, nil, 0.65)
+		listingHolder:addAdaptedText(true, TB_MENU_LOCALIZED.MATCHMAKEUPDATINGRANK)
 		local listingWait = UIElement:new({
 			parent = listingHolder,
 			pos = { 0, 0 },
@@ -358,14 +407,14 @@ do
 					pos = { 0, 0 },
 					size = { playerRankView.size.w / 2, playerRankView.size.h }
 				})
-				local rankString = player.rank and player.title .. " Rank " .. player.rank or player.title
-				playerRank:addAdaptedText(true, rankString .. "\n" .. player.elo .. " elo", nil, nil, 4, LEFT, 0.6)
+				local rankString = player.rank and player.title .. " " .. TB_MENU_LOCALIZED.MATCHMAKERANK .. " " .. player.rank or player.title
+				playerRank:addAdaptedText(true, rankString .. "\n" .. player.elo .. " " .. TB_MENU_LOCALIZED.MATCHMAKEELO, nil, nil, 4, LEFT, 0.6)
 				local playerGames = UIElement:new({
 					parent = playerRankView,
 					pos = { playerRankView.size.w / 2, 0 },
 					size = { playerRankView.size.w / 2, playerRankView.size.h }
 				})
-				playerGames:addAdaptedText(true, player.games .. " games total\n" .. math.floor(player.wins / player.games * 10000) / 100 .. "% W/L", nil, nil, 4, RIGHT, 0.6)
+				playerGames:addAdaptedText(true, player.games .. " " .. TB_MENU_LOCALIZED.MATCHMAKEFIGHTSTOTAL .. "\n" .. math.floor(player.wins / player.games * 10000) / 100 .. "% " .. TB_MENU_LOCALIZED.MATCHMAKEWINLOSE, nil, nil, 4, RIGHT, 0.6)
 				if (i < #playerRanking) then
 					local separator = UIElement:new({
 						parent = playerRankView,
@@ -425,11 +474,11 @@ do
 		local season = {
 			{
 				title = "Description",
-				desc = "Toribash Ranking is based on a seasonal system.\nThere are three seasons per year, each 3 months long. Best players of each year's seasons will compete in Toribash World Championships for the title of the best player of the year.\nAt the end of each season, players who qualified for Silver Tier or higher receive unique prizes.\nThe higher you ranked during the season, the better are the prizes - starting with mid-tier body colors and up to Elite Tier color packs with unique full body customization sets.",
+				desc = "Toribash Ranking is based on a seasonal system.\nThere are three seasons per year, each 3 months long. Best players of each year's seasons will compete in Toribash World Championships for the title of the best player of the year.\nAt the end of each season, players who qualified for Silver Tier or higher receive unique prizes.\nThe higher you ranked during the season, the better prizes you'll receive - starting with mid-tier body colors and up to Elite Tier color packs with unique full body customization sets.",
 			},
 			{
 				title = "How to play",
-				desc = "To qualify for a rank tier during a season, you need to play at least 10 ranked games.\nMain way to earn rank is to play in Ranked Matchmaking mode. Additionally, there will be two public Ranked servers available for players below Platinum Tier until December. The more you play and win, the better rank you get!"
+				desc = "To qualify for a rank tier during a season, you need to play at least 10 ranked games.\nMain way to earn rank is to play in Ranked Matchmaking mode. Additionally, there will be two public Ranked servers available for players below Platinum Tier until December. What's more, by winning ranked fights you not only climb up ranks but also earn additional XP for your clan!"
 			},
 			{
 				title = "Prizes",
@@ -465,7 +514,7 @@ do
 					{
 						title = "Diamond Tier",
 						prizes = {
-							items = { { itemid = 2857, name = "Diamond Tori 3D set" }, { itemid = 2996, name = "Comic Effects" }, { itemid = getRandom({ 2876, 2906, 2944, 3016, 3043 }), name = "Random Limited Edition Shiai Pack" }, { customicon = "season5dmnwr", name = "Upgradable 3D item set (TBA)" } },
+							items = { { customicon = "season5dmnwr", name = "Upgradable 3D item set (TBA)" }, { itemid = 2857, name = "Diamond Tori 3D set" }, { itemid = 2996, name = "Comic Effects" }, { itemid = getRandom({ 2876, 2906, 2944, 3016, 3043 }), name = "Random Limited Edition Shiai Color Pack" } },
 							tc = "100,000",
 							st = 10
 						}
@@ -473,14 +522,14 @@ do
 					{
 						title = "Platinum Tier",
 						prizes = {
-							items = { { itemid = getRandom({ 2876, 2906, 2944, 3016, 3043 }), name = "Random Limited Edition Shiai Pack" }, { itemid = 2996, name = "Comic Effects" }, { customicon = "season5dmnwr", name = "Upgradable 3D item set (TBA)" } },
+							items = { { customicon = "season5dmnwr", name = "Upgradable 3D item set (TBA)" }, { itemid = 2996, name = "Comic Effects" }, { itemid = getRandom({ 2876, 2906, 2944, 3016, 3043 }), name = "Random Limited Edition Shiai Color Pack" } },
 							st = 7
 						}
 					},
 					{
 						title = "Gold Tier",
 						prizes = {
-							items = { { itemid = getRandom({ 2859, 2896, 2934, 2958, 3006, 3033, 2861, 2890, 2928, 2960, 3000, 3027 }), name = "Random Limited Edition Shiai Joints" }, { customicon = "season5dmnwr", name = "Upgradable 3D item (TBA)" } },
+							items = { { customicon = "season5dmnwr", name = "Upgradable 3D item (TBA)" }, { itemid = getRandom({ 2859, 2896, 2934, 2958, 3006, 3033, 2861, 2890, 2928, 2960, 3000, 3027 }), name = "Random Limited Edition Shiai Joints" } },
 							st = 5
 						}
 					},
@@ -542,7 +591,7 @@ do
 			hoverColor = { 0, 0, 0, 0.5 },
 			pressedColor = { 1, 1, 1, 0.2 }
 		})
-		backButton:addAdaptedText(false, "Back")
+		backButton:addAdaptedText(false, TB_MENU_LOCALIZED.NAVBUTTONBACK)
 		backButton:addMouseHandlers(nil, function()
 				seasonOverlay:kill()
 			end)
@@ -761,7 +810,7 @@ do
 			pressedColor = { 0, 0, 0, 0.8 }
 		})
 		seasonPromoAbout:addCustomDisplay(false, function()
-				seasonPromoAbout:uiText("About", nil, nil, FONTS.BIG, nil, 0.65, nil, nil, { 1, 1, 1, seasonPromoAbout.animateColor[4] * 1.4 })
+				seasonPromoAbout:uiText(TB_MENU_LOCALIZED.MATCHMAKESEASONABOUT, nil, nil, FONTS.BIG, nil, 0.65, nil, nil, { 1, 1, 1, seasonPromoAbout.animateColor[4] * 1.4 })
 			end)
 		seasonPromoAbout:addMouseHandlers(nil, function()
 				Matchmake:showSeasonAboutWindow()
@@ -785,7 +834,7 @@ do
 			hoverColor = { 0, 0, 0, 0.3 },
 			pressedColor = { 1, 1, 1, 0.2 }
 		})
-		seasonButtonRankingList:addAdaptedText(false, "Global Ranking")
+		seasonButtonRankingList:addAdaptedText(false, TB_MENU_LOCALIZED.MATCHMAKEGLOBALRANKING)
 		seasonButtonRankingList:addMouseHandlers(nil, function()
 				Matchmake:showGlobalRanking()
 			end)
@@ -838,14 +887,14 @@ do
 			local mmRankedTitle = UIElement:new({
 				parent = viewElement,
 				pos = { 10, 0 },
-				size = { viewElement.size.w - 20, 50 }
+				size = { viewElement.size.w - 20, viewElement.size.h / 8 }
 			})
 			mmRankedTitle:addAdaptedText(true, TB_MENU_LOCALIZED.MATCHMAKERANKEDMODE, nil, nil, FONTS.BIG, nil, 0.7)
 			if (TB_MENU_PLAYER_INFO.ranking.elo) then
 				local mmRankedInfo = UIElement:new({
 					parent = viewElement,
-					pos = { viewElement.size.w / 20, mmRankedTitle.size.h + mmRankedTitle.shift.y + 10 },
-					size = { viewElement.size.w / 20 * 18, viewElement.size.h / 5 * 2 }
+					pos = { 10, mmRankedTitle.size.h + mmRankedTitle.shift.y },
+					size = { viewElement.size.w - 20, TB_MENU_PLAYER_INFO.ranking.nextTierElo and viewElement.size.h / 16 * 7 or viewElement.size.h / 7 * 4 }
 				})
 				local iconScale = mmRankedInfo.size.w / 2 < mmRankedInfo.size.h and mmRankedInfo.size.w / 2 or mmRankedInfo.size.h
 				if (iconScale > 64) then
@@ -864,7 +913,7 @@ do
 					pos = { iconScale, 0 },
 					size = { mmRankedInfo.size.w - iconScale, mmRankedInfo.size.h }
 				})
-				local details = TB_MENU_PLAYER_INFO.ranking.rank and 3 or 2					
+				local details = 3
 				local mmRankedInfoTier = UIElement:new({
 					parent = mmRankedInfoText,
 					pos = { 0, 0 },
@@ -874,10 +923,17 @@ do
 				if (TB_MENU_PLAYER_INFO.ranking.rank) then
 					local mmRankedInfoRank = UIElement:new({
 						parent = mmRankedInfoText,
-						pos = { 0, mmRankedInfoText.size.h / details },
+						pos = { 0, mmRankedInfoText.size.h / details * (details - 2) },
 						size = { mmRankedInfoText.size.w, mmRankedInfoText.size.h / details }
 					})
-					mmRankedInfoRank:addAdaptedText(true, TB_MENU_LOCALIZED.MATCHMAKERANK .. " " .. TB_MENU_PLAYER_INFO.ranking.rank)
+					mmRankedInfoRank:addAdaptedText(true, TB_MENU_LOCALIZED.MATCHMAKERANK .. " " .. TB_MENU_PLAYER_INFO.ranking.rank .. "\n(" .. string.format("%4.2f", TB_MENU_PLAYER_INFO.ranking.elo) .. " " .. TB_MENU_LOCALIZED.MATCHMAKEELO .. ")")
+				else
+					local mmRankedInfoElo = UIElement:new({
+						parent = mmRankedInfoText,
+						pos = { 0, mmRankedInfoText.size.h / details * (details - 2) },
+						size = { mmRankedInfoText.size.w, mmRankedInfoText.size.h / details }
+					})
+					mmRankedInfoElo:addAdaptedText(true, string.format("%4.2f", TB_MENU_PLAYER_INFO.ranking.elo) .. " " .. TB_MENU_LOCALIZED.MATCHMAKEELO)
 				end
 				local mmRankedInfoGames = UIElement:new({
 					parent = mmRankedInfoText,
@@ -890,9 +946,50 @@ do
 				gameInfoStr = winrate and (gameInfoStr .. ", " .. winrate .. "% " .. TB_MENU_LOCALIZED.MATCHMAKEWINRATE) or gameInfoStr
 				mmRankedInfoGames:addAdaptedText(true, gameInfoStr, nil, nil, 4, CENTER, 0.7)
 			end
+			
+			if (TB_MENU_PLAYER_INFO.ranking.nextTierElo) then
+				local gamesToNextTier = UIElement:new({
+					parent = viewElement,
+					pos = { 30, viewElement.size.h / 2 + viewElement.size.h / 16 },
+					size = { viewElement.size.w - 30, viewElement.size.h / 8 }
+				})
+				
+				local bestAverageOpponent = 1.01 * (TB_MENU_PLAYER_INFO.ranking.elo + 1600) / 2
+				local worstAverageOpponent = (1600 / TB_MENU_PLAYER_INFO.ranking.elo) * (TB_MENU_PLAYER_INFO.ranking.elo + 1600) / 2
+				
+				local minGamesToNextTier = math.ceil((TB_MENU_PLAYER_INFO.ranking.nextTierElo - TB_MENU_PLAYER_INFO.ranking.elo) / (ELO_FACTOR * (1 - (1 / ( 1 + (math.pow(TB_MENU_PLAYER_INFO.ranking.elo, (bestAverageOpponent - TB_MENU_PLAYER_INFO.ranking.elo) / ELO_DIVISOR)))))))
+				local maxGamesToNextTier = math.ceil((TB_MENU_PLAYER_INFO.ranking.nextTierElo - TB_MENU_PLAYER_INFO.ranking.elo) / (ELO_FACTOR * (1 - (1 / ( 1 + (math.pow(TB_MENU_PLAYER_INFO.ranking.elo, (worstAverageOpponent - TB_MENU_PLAYER_INFO.ranking.elo) / ELO_DIVISOR)))))))
+				
+				local winsToNextTierString = (minGamesToNextTier == maxGamesToNextTier and minGamesToNextTier or (minGamesToNextTier .. " - " .. maxGamesToNextTier)) .. " " .. TB_MENU_LOCALIZED.MATCHMAKEWINSTONEXTTIER
+				gamesToNextTier:uiText(winsToNextTierString)
+				gamesToNextTier:addCustomDisplay(true, function()
+						gamesToNextTier:uiText(winsToNextTierString)
+					end)
+				
+				local signScale = gamesToNextTier.size.h > 30 and 30 or gamesToNextTier.size.h
+				local maxLen = 0
+				for i,v in pairs(gamesToNextTier.dispstr) do
+					if (maxLen < get_string_length(v, FONTS.MEDIUM)) then
+						maxLen = get_string_length(v, FONTS.MEDIUM)
+					end
+				end
+				local gamesToNextTierInfo = UIElement:new({
+					parent = viewElement,
+					pos = { (viewElement.size.w - maxLen) / 2 - 20, viewElement.size.h / 2 + viewElement.size.h / 16 + (gamesToNextTier.size.h - signScale) / 2 },
+					size = { signScale, signScale },
+					interactive = true,
+					bgColor = { 0, 0, 0, 0.2 },
+					hoverColor = { 1, 1, 1, 0.2 },
+					pressedColor = { 1, 1, 1, 0.2 },
+					shapeType = ROUNDED,
+					rounded = signScale
+				})
+				TBMenu:displayHelpPopup(gamesToNextTierInfo, TB_MENU_LOCALIZED.MATCHMAKEELOGAININFO)
+			end
+			
 			local rankedPlayers = UIElement:new({
 				parent = viewElement,
-				pos = { 10, -viewElement.size.h / 11 * 4 },
+				pos = { 10, -viewElement.size.h / 10 * 3 },
 				size = { viewElement.size.w - 20, viewElement.size.h / 10 }
 			})
 			rankedPlayers:addCustomDisplay(false, function()
@@ -906,8 +1003,8 @@ do
 				end)
 			local rankedSearchButton = UIElement:new({
 				parent = viewElement,
-				pos = { 10, -viewElement.size.h / 4 },
-				size = { viewElement.size.w - 20, viewElement.size.h / 4 - 10 },
+				pos = { 10, -viewElement.size.h / 5 },
+				size = { viewElement.size.w - 20, viewElement.size.h / 5 - 10 },
 				bgColor = { 0, 0, 0, 0.1 },
 				hoverColor = { 0, 0, 0, 0.3 },
 				pressedColor = { 1, 1, 1, 0.2 },
@@ -917,7 +1014,7 @@ do
 			})
 			local rankedSearchProgress = UIElement:new({
 				parent = viewElement,
-				pos = { viewElement.size.w / 10, -viewElement.size.h / 11 * 4 },
+				pos = { viewElement.size.w / 10, -viewElement.size.h / 10 * 3 },
 				size = { viewElement.size.w / 10 * 8, viewElement.size.h / 10 },
 			})
 			local progress, rotation = 0, 0
@@ -930,8 +1027,8 @@ do
 				end)
 			local rankedSearchButtonStop = UIElement:new({
 				parent = viewElement,
-				pos = { 10, -viewElement.size.h / 4 },
-				size = { viewElement.size.w - 20, viewElement.size.h / 4 - 10 },
+				pos = { 10, -viewElement.size.h / 5 },
+				size = { viewElement.size.w - 20, viewElement.size.h / 5 - 10 },
 				bgColor = { 0, 0, 0, 0.1 },
 				hoverColor = { 0, 0, 0, 0.3 },
 				pressedColor = { 1, 1, 1, 0.2 },

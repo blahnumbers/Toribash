@@ -12,27 +12,27 @@ do
 			title = "Diamond Tier",
 			showRank = true,
 			maxElo = 10000,
-			minElo = 1670,
+			minElo = 1667,
 			image = "../textures/menu/ranking/diamond.tga"
 		},
 		{
 			title = "Platinum Tier",
 			showRank = true,
-			maxElo = 1670,
-			minElo = 1635,
+			maxElo = 1667,
+			minElo = 1631,
 			image = "../textures/menu/ranking/platinum.tga"
 		},
 		{
 			title = "Gold Tier",
 			showRank = true,
-			maxElo = 1635,
-			minElo = 1610,
+			maxElo = 1631,
+			minElo = 1608,
 			image = "../textures/menu/ranking/gold.tga"
 		},
 		{
 			title = "Silver Tier",
-			showRank = true,
-			maxElo = 1610,
+			showRank = false,
+			maxElo = 1608,
 			minElo = 1590,
 			image = "../textures/menu/ranking/silver.tga"
 		},
@@ -200,6 +200,7 @@ do
 		if (ranking.wins + ranking.loses >= rankingQualificationMatches) then
 			for i,v in pairs(RankingData) do
 				if (ranking.elo >= v.minElo and ranking.elo < v.maxElo) then
+					ranking.nextTierElo = v.maxElo < 10000 and v.maxElo
 					ranking.title = v.title
 					ranking.image = v.image
 					if (not v.showRank) then
@@ -229,7 +230,7 @@ do
 		
 		local master = getMaster()
 		
-		if (master.elo) then			
+		if (master.elo) then
 			ranking.elo = master.elo
 			ranking.wins = master.season_win
 			ranking.loses = master.season_lose

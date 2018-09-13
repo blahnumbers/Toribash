@@ -177,6 +177,7 @@ MATCHMAKEMODFUN	Fun
 MATCHMAKERANKEDBELT	Ranked Matchmaking is available with Brown Belt	
 MATCHMAKERANKEDMODE	Ranked Mode	
 MATCHMAKERANK	Rank	
+MATCHMAKEELO	elo	
 MATCHMAKEFIGHTSTOTAL	fights total	
 MATCHMAKEWINRATE	win rate	
 MATCHMAKENOPLAYERS	No players currently searching	
@@ -193,6 +194,21 @@ MATCHMAKESEARCHSETTINGS2	with settings
 MATCHMAKESEARCHCUSTOM	custom	
 MATCHMAKEUPDATINGRANK	Updating Ranking Stats...	
 MATCHMAKEQUALIFYING	Qualifying	
+MATCHMAKERANKUNAVAILABLE	Rank Unavailable	
+MATCHMAKEUPDATINGTRENDS	Updating your ranking trends...	
+MATCHMAKEGLOBALRANK	Global Rank	
+MATCHMAKEGLOBALRANKING	Global Ranking	
+MATCHMAKEQUALIFICATIONINFO	You need to play 10 ranked fights within a season to qualify for a rank	
+MATCHMAKEGOLDTIERREQUIREDFORRANKDISPLAY	Only Gold Tier+ ranked players can view their rank	
+MATCHMAKEBESTRANKEDMODS	Best mods	
+MATCHMAKERANKEDMODSEMPTY	No mods to display	
+MATCHMAKEWINLOSE	W/L	
+MATCHMAKERANKINGTRENDS	Your global ranking trends	
+MATCHMAKEMOREGAMESREQUIREDFORTRENDS	Play more ranked games to view your elo trends	
+MATCHMAKETOPRANKEDPLAYERS	Top ranked players	
+MATCHMAKESEASONABOUT	About	
+MATCHMAKEWINSTONEXTTIER	wins to next tier	
+MATCHMAKEELOGAININFO	You receive different amount of elo for winning games depending on your opponent's rank	
 FRIENDSLISTTITLE	Friends List	
 FRIENDSLISTJOINROOM	Join room	
 FRIENDSLISTLEGENDPLAYER	PLAYER	
