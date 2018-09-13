@@ -482,65 +482,7 @@ do
 			},
 			{
 				title = "Prizes",
-				desc = "At the end of the season, players who qualified for a rank tier will receive prizes:",
-				prizes = {
-					{
-						title = "Rank 1",
-						prizes = {
-							items = { { itemid = 729, name = "Demon Pack" }, { itemid = 1389, name = "Mysterio Pack" } },
-							tc = "450,000",
-							st = 25,
-							misc = "rank tier item rewards"
-						}
-					},
-					{
-						title = "Rank 2",
-						prizes = {
-							items = { { itemid = 1270, name = "Alpha Pack" }, { itemid = 1194, name = "Pure Pack" } },
-							tc = "300,000",
-							st = 20,
-							misc = "rank tier item rewards"
-						}
-					},
-					{
-						title = "Rank 3",
-						prizes = {
-							items = { { itemid = 1070, name = "Elf Pack" }, { itemid = 1400, name = "Vortex Pack" } },
-							tc = "200,000",
-							st = 15,
-							misc = "rank tier item rewards"
-						}
-					},
-					{
-						title = "Diamond Tier",
-						prizes = {
-							items = { { customicon = "season5dmnwr", name = "Upgradable 3D item set (TBA)" }, { itemid = 2857, name = "Diamond Tori 3D set" }, { itemid = 2996, name = "Comic Effects" }, { itemid = getRandom({ 2876, 2906, 2944, 3016, 3043 }), name = "Random Limited Edition Shiai Color Pack" } },
-							tc = "100,000",
-							st = 10
-						}
-					},
-					{
-						title = "Platinum Tier",
-						prizes = {
-							items = { { customicon = "season5dmnwr", name = "Upgradable 3D item set (TBA)" }, { itemid = 2996, name = "Comic Effects" }, { itemid = getRandom({ 2876, 2906, 2944, 3016, 3043 }), name = "Random Limited Edition Shiai Color Pack" } },
-							st = 7
-						}
-					},
-					{
-						title = "Gold Tier",
-						prizes = {
-							items = { { customicon = "season5dmnwr", name = "Upgradable 3D item (TBA)" }, { itemid = getRandom({ 2859, 2896, 2934, 2958, 3006, 3033, 2861, 2890, 2928, 2960, 3000, 3027 }), name = "Random Limited Edition Shiai Joints" } },
-							st = 5
-						}
-					},
-					{
-						title = "Silver Tier",
-						prizes = {
-							items = { { itemid = getRandom({ 2859, 2896, 2934, 2958, 3006, 3033 }), name = "Random Limited Edition Shiai Force" } },
-							st = 3
-						}
-					}
-				}
+				desc = "At the end of the season, players who qualified for a rank tier will receive amazing prizes!\nSee more info on current season's prizes on Toribash forums."
 			}
 		}
 		return season
@@ -580,7 +522,7 @@ do
 			pos = { 10, 0 },
 			size = { topBar.size.w - 20, topBar.size.h }
 		})
-		seasonTitle:addAdaptedText(true, "Toribash Season 5", nil, nil, FONTS.BIG)
+		seasonTitle:addAdaptedText(true, "Toribash Ranking", nil, nil, FONTS.BIG)
 		
 		local backButton = UIElement:new({
 			parent = botBar,
@@ -847,8 +789,8 @@ do
 			hoverColor = { 0, 0, 0, 0.3 },
 			pressedColor = { 1, 1, 1, 0.2 }
 		})
-		seasonButtonRankingThread:addAdaptedText(false, "Season 5 thread on forum", -15)
-		local posX = get_string_length("Season 5 thread on forum", FONTS.MEDIUM)
+		seasonButtonRankingThread:addAdaptedText(false, "Ranking on forum", -15)
+		local posX = get_string_length("Ranking on forum", FONTS.MEDIUM)
 		local onlineSign = UIElement:new({
 			parent = seasonButtonRankingThread,
 			pos = { seasonButtonRankingThread.size.w / 2 + posX / 2 - 10, seasonButtonRankingThread.size.h / 2 - 13 },

@@ -204,27 +204,15 @@ do
 		-- Table to store event announcement data
 		local eventsData = {
 			{
-				title = "It's magical!", 
-				subtitle = "Welcome this September's theme - magic and sorcery!", 
-				image = "../textures/menu/promo/magicmonth.tga",
+				title = "Toribash Ranking", 
+				subtitle = "Become the best Toribash player and get outstanding rewards!", 
+				image = "../textures/menu/promo/season5.tga",
 				action = function() 
-						open_url("http://forum.toribash.com/tori_token_exchange.php")
-					end
-			},
-			{
-				title = "I SMASH! TINY THING SQUASH!", 
-				subtitle = "Event Squad's GOLEM event is back for magic month!", 
-				image = "../textures/menu/promo/golem2.tga",
-				action = function() 
-						open_url("http://forum.toribash.com/showthread.php?t=619995")
-					end
-			},
-			{
-				title = "HTOTM: Magic", 
-				subtitle = "Your monthly art event is back again! Draw your best sorcery-themed head texture to win cool stuff!", 
-				image = "../textures/menu/promo/htotmmagic.tga",
-				action = function() 
-						open_url("http://forum.toribash.com/showthread.php?t=619992")
+						if (TB_MENU_PLAYER_INFO.username == '') then 
+							TBMenu:showLoginError(tbMenuCurrentSection, TB_MENU_LOCALIZED.MAINMENUMATCHMAKINGNAME)
+							return
+						end
+						TBMenu:showMatchmaking()
 					end
 			}
 		}
