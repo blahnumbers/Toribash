@@ -202,6 +202,7 @@ MATCHMAKEQUALIFICATIONINFO	You need to play 10 ranked fights within a season to 
 MATCHMAKEGOLDTIERREQUIREDFORRANKDISPLAY	Only Gold Tier+ ranked players can view their rank	
 MATCHMAKEBESTRANKEDMODS	Best mods	
 MATCHMAKERANKEDMODSEMPTY	No mods to display	
+MATCHMAKERANKEDTOPEMPTY	No players to display... yet	
 MATCHMAKEWINLOSE	W/L	
 MATCHMAKERANKINGTRENDS	Your global ranking trends	
 MATCHMAKEMOREGAMESREQUIREDFORTRENDS	Play more ranked games to view your elo trends	

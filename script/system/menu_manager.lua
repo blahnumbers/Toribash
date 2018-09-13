@@ -204,6 +204,18 @@ do
 		-- Table to store event announcement data
 		local eventsData = {
 			{
+				title = "Season 5", 
+				subtitle = "Toribash Ranking is back with Season 5!", 
+				image = "../textures/menu/promo/season5.tga",
+				action = function() 
+						if (TB_MENU_PLAYER_INFO.username == '') then 
+							TBMenu:showLoginError(tbMenuCurrentSection, TB_MENU_LOCALIZED.MAINMENUMATCHMAKINGNAME)
+							return
+						end
+						TBMenu:showMatchmaking()
+					end
+			},
+			{
 				title = "It's magical!", 
 				subtitle = "Welcome this September's theme - magic and sorcery!", 
 				image = "../textures/menu/promo/magicmonth.tga",

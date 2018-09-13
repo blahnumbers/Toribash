@@ -387,6 +387,9 @@ do
 		
 		local function showGlobalList()
 			local listElements = {}
+			if (#playerRanking == 0) then
+				listingHolder:addAdaptedText(true, TB_MENU_LOCALIZED.MATCHMAKERANKEDTOPEMPTY)
+			end
 			for i, player in pairs(playerRanking) do
 				PlayerInfo:getRankTier(player)
 				local playerView = UIElement:new({
@@ -856,7 +859,7 @@ do
 			bgImage = "../textures/menu/general/buttons/external.tga"
 		})
 		seasonButtonRankingThread:addMouseHandlers(nil, function()
-				open_url("http://forum.toribash.com/tori_ranking.php")
+				open_url("http://forum.toribash.com/showthread.php?t=620288")
 			end)
 		
 		
