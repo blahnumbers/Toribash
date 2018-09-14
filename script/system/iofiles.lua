@@ -61,6 +61,11 @@ do
 		return lines
 	end
 	
+	function Files:writeLine(line)
+		local line = line:find("\n$") and line or (line .. "\n")
+		self.data:write(line)
+	end
+	
 	function Files:isDownloading()
 		for i,v in pairs(get_downloads()) do
 			if (v:match(strEsc(self.path))) then

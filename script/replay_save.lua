@@ -7,14 +7,30 @@ for i,v in pairs(rploptions) do
 	set_option(i, 0)
 end
 
-local function quitReplaySave()
+local function quitReplaySave(timeout)
 	remove_hooks("tbMenuKeyboardHandler")
-	remove_hooks("tbMainMenuVisual")
 	remove_hooks("replaySaveMouseHandler")
 	replaySave:kill()
 	for i,v in pairs(rploptions) do
 		set_option(i, v)
 	end
+	if (timeout) then
+		timeoutWait = UIElement:new({
+			pos = { 0, 0 },
+			size = { 0, 0 }
+		})
+		local waitTime = os.clock()
+		timeoutWait:addCustomDisplay(true, function()
+				if (os.clock() > waitTime + timeout) then
+					if (not tbMenuMain) then
+						remove_hooks("tbMainMenuVisual")
+					end
+					timeoutWait:kill()
+				end
+			end)
+		return
+	end
+	remove_hooks("tbMainMenuVisual")
 end
 
 replaySave = UIElement:new({
@@ -109,6 +125,24 @@ local function saveReplay(newname)
 		TBMenu:showDataError(error, true)
 		return
 	end
+	local rplFile = Files:new("../replay/my replays/" .. newname .. ".rpl")
+	if (not rplFile or not rplFile.data) then
+		TBMenu:showDataError("Error renaming replay, please change replay name with replays menu", true)
+		quitReplaySave(3)
+		return
+	end
+	
+	local fileData = rplFile:readAll()
+	rplFile.mode = FILES_MODE_WRITE
+	rplFile:reopen()
+	for i,ln in pairs(fileData) do
+		if (ln:find("^FIGHTNAME %d;")) then
+			rplFile:writeLine("FIGHTNAME 0; " .. newname)
+		else
+			rplFile:writeLine(ln)
+		end
+	end
+	rplFile:close()
 	quitReplaySave()
 end
 
