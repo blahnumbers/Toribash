@@ -55,7 +55,7 @@ do
 		for ln in filedata:gmatch("[^\n]*\n") do
 			table.insert(lines, ln)
 		end
-		if (#lines == 0) then
+		if (#lines == 0 and filedata:len() > 0) then
 			return { filedata }
 		end
 		return lines
