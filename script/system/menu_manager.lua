@@ -414,6 +414,7 @@ do
 				size = { shopView.size.w - iconScale - 5, shopView.size.h - tbMenuSaleName.size.h }
 			})
 			local saleDiscount = TB_STORE_DATA.onsale.tcOld ~= 0 and (TB_STORE_DATA.onsale.tcOld - TB_STORE_DATA.onsale.tc) / TB_STORE_DATA.onsale.tcOld * 100 or (TB_STORE_DATA.onsale.usdOld - TB_STORE_DATA.onsale.usd) / TB_STORE_DATA.onsale.usdOld * 100
+			saleDiscount = math.floor(saleDiscount)
 			while (tbMenuSaleDiscount:uiText(saleDiscount .. "% OFF!", nil, nil, nil, LEFT, saleDiscountSize, nil, nil, nil, nil, nil, true) == false) do
 				saleDiscountSize = saleDiscountSize - 0.05
 			end

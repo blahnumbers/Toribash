@@ -109,11 +109,12 @@ do
 					itemData.tc = tonumber(data_stream[7])
 					itemData.usdOld = tonumber(data_stream[10])
 					itemData.usd = tonumber(data_stream[8])
-					return itemData
+					break
 				end
 			end
 		end
 		file:close()
+		return itemData
 	end
 	
 	function Torishop:getTcSales()
