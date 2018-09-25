@@ -30,7 +30,9 @@ local function quitReplaySave(timeout)
 			end)
 		return
 	end
-	remove_hooks("tbMainMenuVisual")
+	if (TB_MENU_MAIN_ISOPEN == 0) then
+		remove_hooks("tbMainMenuVisual")
+	end
 end
 
 replaySave = UIElement:new({
@@ -40,13 +42,8 @@ replaySave = UIElement:new({
 })
 UIElement:runCmd("savereplay " .. REPLAY_SAVETEMPNAME)
 replaySave:addCustomDisplay(false, function()
-		if (tbMenuMain) then
-			if (tbMenuMain:isDisplayed()) then
-				replaySave:kill()
-				for i,v in pairs(rploptions) do
-					set_option(i, v)
-				end
-			end
+		if (TB_MENU_MAIN_ISOPEN == 1) then
+			quitReplaySave(timeout)
 		end
 	end)
 
