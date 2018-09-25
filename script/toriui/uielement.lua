@@ -127,9 +127,11 @@ do
 			end
 			if (o.interactive) then 
 				elem.interactive = o.interactive
+				elem.isactive = true
 				elem.scrollEnabled = o.scrollEnabled or nil
 				elem.hoverColor = o.hoverColor or nil
 				elem.pressedColor = o.pressedColor or nil
+				elem.inactiveColor = o.inactiveColor or o.bgColor
 				elem.animateColor = {}
 				for i = 1, 4 do
 					elem.animateColor[i] = elem.bgColor[i]
@@ -377,17 +379,21 @@ do
 	end
 		
 	function UIElement:display()
-		if (self.hoverState ~= false and self.hoverColor) then
+		if (self.interactive and not self.isactive) then
+			for i = 1, 4 do
+				if ((self.bgColor[i] > self.inactiveColor[i] and self.animateColor[i] > self.inactiveColor[i]) or (self.bgColor[i] < self.inactiveColor[i] and self.animateColor[i] < self.inactiveColor[i])) then
+					self.animateColor[i] = self.animateColor[i] - math.floor((self.bgColor[i] - self.inactiveColor[i]) * 150) / 1000
+				end
+			end
+		elseif (self.hoverState ~= false and self.hoverColor) then
 			for i = 1, 4 do
 				if ((self.bgColor[i] > self.hoverColor[i] and self.animateColor[i] > self.hoverColor[i]) or (self.bgColor[i] < self.hoverColor[i] and self.animateColor[i] < self.hoverColor[i])) then
 					self.animateColor[i] = self.animateColor[i] - math.floor((self.bgColor[i] - self.hoverColor[i]) * 150) / 1000
 				end
 			end
-		else
-			if (self.animateColor) then
-				for i = 1, 4 do
-					self.animateColor[i] = self.bgColor[i]
-				end
+		elseif (self.animateColor) then
+			for i = 1, 4 do
+				self.animateColor[i] = self.bgColor[i]
 			end
 		end
 		if (self.customDisplayBefore) then
@@ -416,6 +422,8 @@ do
 				set_color(unpack(self.animateColor))
 			elseif (self.hoverState == BTN_DN and self.pressedColor) then
 				set_color(unpack(self.pressedColor))
+			elseif (self.interactive) then
+				set_color(unpack(self.animateColor))
 			else
 				set_color(unpack(self.bgColor))
 			end
@@ -461,12 +469,14 @@ do
 			if (self.keyboard) then
 				table.insert(UIKeyboardHandler, self)
 			end
+			self.isactive = true
 		end
 	end
 	
 	function UIElement:deactivate()
 		local num = nil
 		self.hoverState = false
+		self.isactive = false
 		if (self.interactive) then
 			for i,v in pairs(UIMouseHandler) do
 				if (self == v) then
@@ -1051,7 +1061,7 @@ do
 			end
 		elseif (type(mixed) == "boolean") then
 			echo(msg .. (mixed and "true" or "false"))
-		elseif (type(mixed) ~= "function") then
+		elseif (type(mixed) == "number" or type(mixed) == "string") then
 			echo(msg .. mixed)
 		end
 	end

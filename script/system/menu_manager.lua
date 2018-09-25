@@ -9,6 +9,8 @@ TB_MENU_DEFAULT_BG_COLOR = { 0.67, 0.11, 0.11, 1 }
 TB_NAVBAR_DEFAULT_BG_COLOR = { 0.7, 0.11, 0.11, 1 }
 TB_MENU_DEFAULT_DARKER_COLOR = { 0.607, 0.109, 0.109, 1 }
 TB_MENU_DEFAULT_DARKEST_COLOR = { 0.55, 0.05, 0.05, 1 }
+TB_MENU_DEFAULT_LIGHTER_COLOR = { 0.9, 0.25, 0.25, 1 }
+TB_MENU_DEFAULT_LIGHEST_COLOR = { 0.9, 0.62, 0.62, 1 }
 
 TB_MENU_LANGUAGE = TB_MENU_LANGUAGE or nil
 TB_MENU_LOCALIZED = TB_MENU_LOCALIZED or {}
@@ -1306,13 +1308,49 @@ do
 		local tbMenuBottomLeftButtonsData = {
 			{ action = function() TBMenu:openMenu(102) end, image = "../textures/menu/general/buttons/friends.tga", imageHover = "../textures/menu/general/buttons/friendshover.tga", imagePress = "../textures/menu/general/buttons/friendspress.tga" },
 			{ action = function() if (TB_MENU_NOTIFICATIONS_ISOPEN == 0) then TBMenu:openMenu(101) else Rewards:quit() end end, image = "../textures/menu/general/buttons/notifications.tga", imageHover = "../textures/menu/general/buttons/notificationshover.tga", imagePress = "../textures/menu/general/buttons/notificationspress.tga" },
-			{ action = function() open_url("http://discord.gg/toribash") end, image = "../textures/menu/general/buttons/discordred.tga", imageHover = "../textures/menu/general/buttons/discordredhover.tga", imagePress = "../textures/menu/general/buttons/discordredpress.tga" },
+			{ action = function() open_url("http://discord.gg/toribash") end, image = "../textures/menu/general/buttons/discordred.tga", imageHover = "../textures/menu/general/buttons/discordredhover.tga", imagePress = "../textures/menu/general/buttons/discordredpress.tga" }
 		}
 		local tbMenuBottomLeftButtons = {}
 		for i, v in pairs(tbMenuBottomLeftButtonsData) do
 			tbMenuBottomLeftButtons[i] = TBMenu:createImageButtons(tbMenuBottomLeftBar, (i - 1) * (tbMenuBottomLeftBar.size.h + 10), 0, tbMenuBottomLeftBar.size.h, tbMenuBottomLeftBar.size.h, v.image, v.imageHover, v.imagePress)
 			tbMenuBottomLeftButtons[i]:addMouseHandlers(nil, v.action, nil)
 		end
+		local tbMenuModVoting = UIElement:new({
+			parent = tbMenuBottomLeftBar,
+			pos = { #tbMenuBottomLeftButtonsData * (tbMenuBottomLeftBar.size.h + 10) + 7.5, 7.5 },
+			size = { tbMenuBottomLeftBar.size.h * 3 - 15, tbMenuBottomLeftBar.size.h - 15 },
+			interactive = true,
+			bgColor = TB_MENU_DEFAULT_BG_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+			shapeType = ROUNDED,
+			rounded = tbMenuBottomLeftBar.size.h
+		})
+		local tbMenuModVotingImage = UIElement:new({
+			parent = tbMenuModVoting,
+			pos = { -tbMenuModVoting.size.h + 10, 5 },
+			size = { tbMenuModVoting.size.h - 15, tbMenuModVoting.size.h - 15 },
+			bgImage = "../textures/menu/general/buttons/external.tga"
+		})
+		tbMenuModVoting:addMouseHandlers(nil, function() open_url("https://docs.google.com/forms/d/e/1FAIpQLSdqZWXYlwKTXVIDVLc_KTjVGbtOkEX4i2YlJUB1VXsAaMuadg/viewform?usp=sf_link") end)
+		local pulseMod = 0
+		tbMenuModVoting:addCustomDisplay(false, function()
+				local r, g, b, a = unpack(tbMenuModVoting.animateColor)
+				set_color(r, g, b, a - pulseMod / 15)
+				draw_disk(tbMenuModVoting.pos.x + tbMenuModVoting.size.h / 2, tbMenuModVoting.pos.y + tbMenuModVoting.size.h / 2, tbMenuModVoting.size.h / 2, tbMenuModVoting.size.h / 2 + pulseMod, 500, 1, 180, 180, 0)
+				draw_disk(tbMenuModVoting.pos.x + tbMenuModVoting.size.w - tbMenuModVoting.size.h / 2, tbMenuModVoting.pos.y + tbMenuModVoting.size.h / 2, tbMenuModVoting.size.h / 2, tbMenuModVoting.size.h / 2 + pulseMod, 500, 1, 0, 180, 0)
+				draw_quad(tbMenuModVoting.pos.x + tbMenuModVoting.size.h / 2, tbMenuModVoting.pos.y - pulseMod, tbMenuModVoting.size.w - tbMenuModVoting.size.h, tbMenuModVoting.size.h + pulseMod * 2)
+				pulseMod = pulseMod + 0.2
+				if (pulseMod > 15) then
+					pulseMod = 0
+				end
+			end)
+		local tbMenuModVotingCaption = UIElement:new({
+			parent = tbMenuModVoting,
+			pos = { 5, 0 },
+			size = { tbMenuModVoting.size.w - tbMenuModVoting.size.h + 10, tbMenuModVoting.size.h }
+		})
+		tbMenuModVotingCaption:addAdaptedText(false, "Mod Voting")
 		--[[local tbMenuFriendsBetaCaption = UIElement:new({
 			parent = tbMenuBottomLeftButtons[1],
 			pos = { 0, -tbMenuBottomLeftBar.size.h / 3 },
