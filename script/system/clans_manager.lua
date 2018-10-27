@@ -471,7 +471,7 @@ do
 		filtersTitle:addCustomDisplay(true, function()
 				filtersTitle:uiText(TB_MENU_LOCALIZED.CLANSSEARCHFILTERS, nil, nil, FONTS.BIG, CENTERMID, 0.7, nil, nil, nil, nil, 0.2)
 			end)
-		local clanListFilters = TBMenu:createImageButtons(filtersTopBar, filtersTitle.size.w, 0, filtersTitle.size.h, filtersTitle.size.h, "../textures/menu/general/buttons/clanfilters.tga", "../textures/menu/general/buttons/clanfiltershover.tga", "../textures/menu/general/buttons/clanfilterspressed.tga")
+		local clanListFilters = TBMenu:createImageButtons(filtersTopBar, filtersTitle.size.w, 0, filtersTitle.size.h, filtersTitle.size.h, TB_MENU_CLANFILTERS_BUTTON, TB_MENU_CLANFILTERS_BUTTON_HOVER, TB_MENU_CLANFILTERS_BUTTON_PRESS)
 		clanListFilters:addMouseHandlers(nil, function()
 				if (options) then
 					options.isactive = options.isactive - 1
@@ -702,7 +702,7 @@ do
 		clanListTopBarTitle:addCustomDisplay(true, function()
 				clanListTopBarTitle:uiText(TB_MENU_LOCALIZED.CLANSCLANLIST, nil, nil, FONTS.BIG, CENTERMID, 0.7, nil, nil, nil, nil, 0.2)
 			end)
-		local clanListFilters = TBMenu:createImageButtons(clanListTopBar, clanListTopBarTitle.size.w, 0, clanListTopBarTitle.size.h, clanListTopBarTitle.size.h, "../textures/menu/general/buttons/clanfilters.tga", "../textures/menu/general/buttons/clanfiltershover.tga", "../textures/menu/general/buttons/clanfilterspressed.tga")
+		local clanListFilters = TBMenu:createImageButtons(clanListTopBar, clanListTopBarTitle.size.w, 0, clanListTopBarTitle.size.h, clanListTopBarTitle.size.h, TB_MENU_CLANFILTERS_BUTTON, TB_MENU_CLANFILTERS_BUTTON_HOVER, TB_MENU_CLANFILTERS_BUTTON_PRESS)
 		clanListFilters:addMouseHandlers(nil, function()
 				Clans:showClanListFilters(viewElement, options)
 			end, nil)
@@ -1154,7 +1154,7 @@ do
 			parent = toReload,
 			pos = { 0, -rosterEntryHeight },
 			size = { toReload.size.w, rosterEntryHeight },
-			bgColor = { 0.607, 0.109, 0.109, 1 },
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 		})
 		if (shaders == 1) then
 			local viewportBotReplacer = UIElement:new({

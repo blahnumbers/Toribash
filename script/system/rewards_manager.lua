@@ -216,37 +216,7 @@ do
 			return TB_MENU_LOCALIZED.REWARDSEXPIRED
 		end
 		
-		local returnval = ""
-		local timeleft = 0
-		local timetype = ""
-		if (math.floor(timetonext / 3600) > 1) then
-			timetype = TB_MENU_LOCALIZED.REWARDSTIMEHOURS
-			timeleft = math.floor(timetonext / 3600)
-			timetonext = timetonext - timeleft * 3600
-			returnval = timeleft .. " " .. timetype
-		end
-		if (math.floor(timetonext / 3600) == 1) then
-			timetype = TB_MENU_LOCALIZED.REWARDSTIMEHOUR
-			timeleft = math.floor(timetonext / 3600)
-			timetonext = timetonext - timeleft * 3600
-			returnval = timeleft .. " " .. timetype
-		end
-		if (math.floor(timetonext / 60) > 1) then
-			timetype = TB_MENU_LOCALIZED.REWARDSTIMEMINUTES
-			timeleft = math.floor(timetonext / 60)
-			timetonext = timetonext - timeleft * 60
-			returnval = returnval .. " " .. timeleft .. " " .. timetype
-		end
-		if (math.floor(timetonext / 60) == 1) then
-			timetype = TB_MENU_LOCALIZED.REWARDSTIMEMINUTE
-			timeleft = math.floor(timetonext / 60)
-			timetonext = timetonext - timeleft * 60
-			returnval = returnval .. " " .. timeleft .. " " .. timetype
-		end
-		if (timetonext > 0 and timetype == "") then 
-			timetype = TB_MENU_LOCALIZED.REWARDSTIMESECONDS
-			returnval = returnval .. " " .. timetonext .. " " .. timetype
-		end
+		local returnval = TBMenu:getTime(timetonext)
 		
 		if (not isClaimed) then
 			return TB_MENU_LOCALIZED.REWARDSNEXTREWARD .. " " .. returnval

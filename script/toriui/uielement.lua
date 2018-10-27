@@ -35,6 +35,7 @@ UICOLORBLACK = {0,0,0,1}
 UICOLORRED = {1,0,0,1}
 UICOLORGREEN = {0,1,0,1}
 UICOLORBLUE = {0,0,1,1}
+UICOLORTORI = {0.58,0,0,1}
 
 do
 	UIElementManager = UIElementManager or {}
@@ -64,6 +65,8 @@ do
 		if (o) then
 			if (o.parent) then
 				elem.parent = o.parent
+				elem.uiColor = o.parent.uiColor
+				elem.uiShadowColor = o.parent.uiShadowColor
 				table.insert(elem.parent.child, elem)
 				if (o.parent.viewport) then
 					elem.pos.x = o.pos[1]
@@ -80,6 +83,12 @@ do
 				elem.pos.x = o.pos[1]
 				elem.pos.y = o.pos[2]
 				elem.size = { w = o.size[1], h = o.size[2] }
+			end
+			if (o.uiColor) then
+				elem.uiColor = o.uiColor
+			end
+			if (o.uiShadowColor) then
+				elem.uiShadowColor = o.uiShadowColor
 			end
 			if (o.viewport) then
 				elem.viewport = o.viewport
@@ -301,6 +310,7 @@ do
 		if (drawBefore) then 
 			self.customDisplayBefore = drawBefore
 		end
+		func()
 	end
 	
 	function UIElement:kill(childOnly)
@@ -365,7 +375,7 @@ do
 		end
 		if (self.viewport) then
 			set_viewport(self.pos.x, self.pos.y, self.size.w, self.size.h)
-		else 
+		elseif (not self.customDisplayTrue) then 
 			set_color(unpack(self.bgColor))
 			if (self.bgImage) then
 				draw_sphere(self.pos.x, self.pos.y, self.pos.z, self.radius, self.rot.x, self.rot.y, self.rot.z, self.bgImage)
@@ -844,6 +854,8 @@ do
 				end
 			end
 		end
+		
+		self.textScale = scale
 		self:addCustomDisplay(override, function()
 				self:uiText(str, x, y, font, align, scale, nil, shadow, col1, col2, intensity)
 			end)
@@ -862,6 +874,8 @@ do
 		local angle = angle or 0
 		local pos = 0
 		local align = align or CENTERMID
+		local col1 = col1 or self.uiColor
+		local col2 = col2 or self.uiShadowColor
 		local check = check or false
 		local refresh = refresh or false
 		if (font == 2) then
@@ -903,7 +917,7 @@ do
 			local xPos = x
 			local yPos = y
 			if ((align + 2) % 3 == 0) then
-				xPos = x + self.size.w / 2 - get_string_length(str[i], font) * scale / 2					
+				xPos = x + (self.size.w - get_string_length(str[i], font) * scale) / 2					
 			elseif ((align + 1) % 3 == 0) then
 				xPos = x + self.size.w - get_string_length(str[i], font) * scale
 			end

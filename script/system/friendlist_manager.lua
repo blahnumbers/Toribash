@@ -359,7 +359,7 @@ do
 			pos = { 1, 1 },
 			size = { friendAddInputBG.size.w - 2, friendAddInputBG.size.h - 2 },
 			interactive = true,
-			bgColor = { 0.9, 0.5, 0.5, 1 }
+			bgColor = TB_MENU_DEFAULT_LIGHTER_COLOR
 		})
 		local friendAddInputField = UIElement:new({
 			parent = friendAddInput,

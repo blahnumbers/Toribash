@@ -1,16 +1,11 @@
 -- modern main menu manager class
 -- DO NOT MODIFY THIS FILE
 
+dofile("system/menu_defines.lua")
+
 ORIENTATION_PORTRAIT = 1
 ORIENTATION_LANDSCAPE = 2
 BLURENABLED = false
-
-TB_MENU_DEFAULT_BG_COLOR = { 0.67, 0.11, 0.11, 1 }
-TB_NAVBAR_DEFAULT_BG_COLOR = { 0.7, 0.11, 0.11, 1 }
-TB_MENU_DEFAULT_DARKER_COLOR = { 0.607, 0.109, 0.109, 1 }
-TB_MENU_DEFAULT_DARKEST_COLOR = { 0.55, 0.05, 0.05, 1 }
-TB_MENU_DEFAULT_LIGHTER_COLOR = { 0.9, 0.25, 0.25, 1 }
-TB_MENU_DEFAULT_LIGHEST_COLOR = { 0.9, 0.62, 0.62, 1 }
 
 TB_MENU_LANGUAGE = TB_MENU_LANGUAGE or nil
 TB_MENU_LOCALIZED = TB_MENU_LOCALIZED or {}
@@ -24,13 +19,13 @@ tbMenuBottomLeftBar = nil -- parent element for bottom left bar
 
 do
 	TBMenu = {}
-    TBMenu.__index = TBMenu
-	    
-    function TBMenu:create()
+	TBMenu.__index = TBMenu
+	
+	function TBMenu:create()
 		TB_MENU_MAIN_ISOPEN = 1
 		local cln = {}
 		setmetatable(cln, TBMenu)
-    end
+	end
 	
 	function TBMenu:setLanguageFontOptions(language)
 		if (language == "hebrew") then
@@ -206,6 +201,14 @@ do
 		-- Table to store event announcement data
 		local eventsData = {
 			{
+				title = "Toribash's Most Wanted", 
+				subtitle = "This Halloween, the Hunt gets real.", 
+				image = "../textures/menu/promo/halloweenmostwanted.tga",
+				action = function()
+						TBMenu:showBounties()
+					end
+			},
+			{
 				title = "Season 5", 
 				subtitle = "Toribash Ranking is back with Season 5!", 
 				image = "../textures/menu/promo/season5.tga",
@@ -215,30 +218,6 @@ do
 							return
 						end
 						TBMenu:showMatchmaking()
-					end
-			},
-			{
-				title = "It's magical!", 
-				subtitle = "Welcome this September's theme - magic and sorcery!", 
-				image = "../textures/menu/promo/magicmonth.tga",
-				action = function() 
-						open_url("http://forum.toribash.com/tori_token_exchange.php")
-					end
-			},
-			{
-				title = "I SMASH! TINY THING SQUASH!", 
-				subtitle = "Event Squad's GOLEM event is back for magic month!", 
-				image = "../textures/menu/promo/golem2.tga",
-				action = function() 
-						open_url("http://forum.toribash.com/showthread.php?t=619995")
-					end
-			},
-			{
-				title = "HTOTM: Magic", 
-				subtitle = "Your monthly art event is back again! Draw your best sorcery-themed head texture to win cool stuff!", 
-				image = "../textures/menu/promo/htotmmagic.tga",
-				action = function() 
-						open_url("http://forum.toribash.com/showthread.php?t=619992")
 					end
 			}
 		}
@@ -289,7 +268,9 @@ do
 				pos = { 0, eventItems[i].image.size.h - heightShift },
 				size = { eventItems[i].image.size.w, textHeight + descHeight }
 			})
-			local textColor, descColor = { 0.64, 0.11, 0.11, 0.8 }, { 0.64, 0.11, 0.11, 0.8 }
+			local textColor, descColor = cloneTable(TB_MENU_DEFAULT_BG_COLOR), cloneTable(TB_MENU_DEFAULT_BG_COLOR)
+			textColor[4] = 0.8
+			descColor[4] = 0.8
 			if (heightShift == textHeight) then
 				descColor = nil
 			elseif (heightShift == 0) then
@@ -431,7 +412,8 @@ do
 					end)
 			end
 		end
-		local textColor, descColor = { 0.64, 0.11, 0.11, 0.8 }, { 0.64, 0.11, 0.11, 0.8 }
+		local textColor, descColor = cloneTable(TB_MENU_DEFAULT_BG_COLOR), cloneTable(TB_MENU_DEFAULT_BG_COLOR)
+		textColor[4], descColor[4] = 0.8, 0.8
 		if (heightShift == titleHeight) then
 			descColor = nil
 		elseif (heightShift == 0) then
@@ -528,8 +510,8 @@ do
 			size = { tbMenuCurrentSection.size.w * 0.6 - 10, tbMenuCurrentSection.size.h },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR,
 			interactive = true,
-			hoverColor = { 0.5, 0.1, 0.1, 1 },
-			pressedColor = { 0.3, 0.1, 0.1, 1 },
+			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			hoverSound = 31			
 		})
 		TBMenu:showEvents(tbMenuHomeEventsView)
@@ -541,8 +523,8 @@ do
 			size = { tbMenuCurrentSection.size.w * 0.4 - 10, tbMenuCurrentSection.size.h / 2 - 5 },
 			interactive = true,
 			bgColor = TB_MENU_DEFAULT_BG_COLOR,
-			hoverColor = { 0.5, 0.1, 0.1, 1 },
-			pressedColor = { 0.3, 0.1, 0.1, 1 },
+			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			hoverSound = 31
 		})
 		TBMenu:showHomeButton(tbMenuShopButton, tbMenuHomeButtonsData.shop, true)
@@ -552,8 +534,8 @@ do
 			size = { tbMenuCurrentSection.size.w * 0.2 - 10, tbMenuCurrentSection.size.h / 2 - 5 },
 			interactive = true,
 			bgColor = TB_MENU_DEFAULT_BG_COLOR,
-			hoverColor = { 0.5, 0.1, 0.1, 1 },
-			pressedColor = { 0.3, 0.1, 0.1, 1 },
+			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			hoverSound = 31		
 		})
 		local tbMenuClansBottomSplat = TBMenu:addBottomBloodSmudge(tbMenuClansButton, 1)
@@ -564,8 +546,8 @@ do
 			size = { tbMenuCurrentSection.size.w * 0.2 - 10, tbMenuCurrentSection.size.h / 2 - 5 },
 			interactive = true,
 			bgColor = TB_MENU_DEFAULT_BG_COLOR,
-			hoverColor = { 0.5, 0.1, 0.1, 1 },
-			pressedColor = { 0.3, 0.1, 0.1, 1 },
+			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			hoverSound = 31			
 		})
 		local tbMenuReplaysBottomSplat = TBMenu:addBottomBloodSmudge(tbMenuReplaysButton, 2)
@@ -651,6 +633,12 @@ do
 		TBMenu:showNavigationBar(FriendsList:getNavigationButtons(), true)
 	end
 	
+	function TBMenu:showBounties()
+		TBMenu:clearNavSection()
+		Bounty:prepare()
+		TBMenu:showNavigationBar(Bounty:getNavigationButtons(), true)
+	end
+	
 	function TBMenu:prepareScrollableList(viewElement, topBarH, botBarH, scrollWidth)
 		local topBarH = topBarH or 50
 		local toReload = UIElement:new({
@@ -689,6 +677,41 @@ do
 			bgColor = TB_MENU_DEFAULT_DARKER_COLOR
 		})
 		return toReload, topBar, botBar, listingView, listingHolder, listingScrollBG
+	end
+	
+	function TBMenu:getTime(seconds)
+		local returnval = ""
+		local timeleft = 0
+		local timetype = ""
+		if (math.floor(seconds / 3600) > 1) then
+			timetype = TB_MENU_LOCALIZED.REWARDSTIMEHOURS
+			timeleft = math.floor(seconds / 3600)
+			seconds = seconds - timeleft * 3600
+			returnval = timeleft .. " " .. timetype
+		end
+		if (math.floor(seconds / 3600) == 1) then
+			timetype = TB_MENU_LOCALIZED.REWARDSTIMEHOUR
+			timeleft = math.floor(seconds / 3600)
+			seconds = seconds - timeleft * 3600
+			returnval = timeleft .. " " .. timetype
+		end
+		if (math.floor(seconds / 60) > 1) then
+			timetype = TB_MENU_LOCALIZED.REWARDSTIMEMINUTES
+			timeleft = math.floor(seconds / 60)
+			seconds = seconds - timeleft * 60
+			returnval = returnval .. " " .. timeleft .. " " .. timetype
+		end
+		if (math.floor(seconds / 60) == 1) then
+			timetype = TB_MENU_LOCALIZED.REWARDSTIMEMINUTE
+			timeleft = math.floor(seconds / 60)
+			seconds = seconds - timeleft * 60
+			returnval = returnval .. " " .. timeleft .. " " .. timetype
+		end
+		if (seconds > 0 and timetype == "") then 
+			timetype = TB_MENU_LOCALIZED.REWARDSTIMESECONDS
+			returnval = returnval .. " " .. seconds .. " " .. timetype
+		end
+		return returnval:gsub("^ ", "")
 	end
 	
 	function TBMenu:spawnWindowOverlay()
@@ -829,12 +852,12 @@ do
 	
 	function TBMenu:addBottomBloodSmudge(parentElement, num, scale)
 		local scale = scale or 64
-		local bottomSmudge = "../textures/menu/general/bottomsmudgebig.tga"
+		local bottomSmudge = TB_MENU_BOTTOM_SMUDGE_BIG
 		if (parentElement.size.w < 400) then
 			if (num % 2 == 1) then
-				bottomSmudge = "../textures/menu/general/bottomsmudgemedium1.tga"
+				bottomSmudge = TB_MENU_BOTTOM_SMUDGE_MEDIUM1
 			else
-				bottomSmudge = "../textures/menu/general/bottomsmudgemedium2.tga"
+				bottomSmudge = TB_MENU_BOTTOM_SMUDGE_MEDIUM2
 			end
 		end
 		local smudgeElement = UIElement:new({
@@ -882,8 +905,8 @@ do
 					size = { tbMenuCurrentSection.size.w * buttonsData[i].size - 10, tbMenuCurrentSection.size.h * buttonsData[i].vsize - 5 },
 					bgColor = TB_MENU_DEFAULT_BG_COLOR,
 					interactive = true,
-					hoverColor = { 0.5, 0.1, 0.1, 1 },
-					pressedColor = { 0.3, 0.1, 0.1, 1 },
+					hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
+					pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 					hoverSound = 31
 				})
 				if (i == #buttonsData) then 
@@ -901,8 +924,8 @@ do
 					size = { tbMenuCurrentSection.size.w * buttonsData[i].size - 10, tbMenuCurrentSection.size.h },
 					bgColor = TB_MENU_DEFAULT_BG_COLOR,
 					interactive = true,
-					hoverColor = { 0.5, 0.1, 0.1, 1 },
-					pressedColor = { 0.3, 0.1, 0.1, 1 },
+					hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
+					pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 					hoverSound = 31
 				})
 				local bottomSmudge = TBMenu:addBottomBloodSmudge(tbMenuSectionButtons[i].mainView, i)
@@ -1015,8 +1038,8 @@ do
 	end
 	
 	function TBMenu:showGameLogo()
-		local logo = "../textures/menu/logos/toribash_small.tga"
-		local gametitle = "../textures/menu/logos/toribashgametitle.tga"
+		local logo = TB_MENU_GAME_LOGO
+		local gametitle = TB_MENU_GAME_TITLE
 		local logoSize = 80
 		local customLogo = io.open("custom/" .. TB_MENU_PLAYER_INFO.username .. "/logo.tga", "r", 1)
 		if (customLogo) then
@@ -1079,13 +1102,13 @@ do
 			parent = tbMenuUserBar,
 			pos = {-tbMenuTopBarWidth, 0},
 			size = {512, 128},
-			bgImage = "../textures/menu/general/topbarbgmain.tga"
+			bgImage = TB_MENU_USERBAR_MAIN
 		})
 		local tbMenuUserBarSplat = UIElement:new( {
 			parent = tbMenuUserBar,
 			pos = { -tbMenuTopBarWidth - 128, 0 },
 			size = { 128, 128 },
-			bgImage = "../textures/menu/general/topbarbgleft.tga"
+			bgImage = TB_MENU_USERBAR_LEFT
 		})
 		local tbMenuUserHeadAvatarViewport = UIElement:new( {
 			parent = tbMenuUserBar,
@@ -1128,10 +1151,10 @@ do
 		})
 		local displayName = TB_MENU_PLAYER_INFO.username == "" and "Tori" or TB_MENU_PLAYER_INFO.username
 		tbMenuUserName:addCustomDisplay(false, function()
-				tbMenuUserName:uiText(displayName, tbMenuUserName.pos.x + 2, tbMenuUserName.pos.y + 2, 0, 0, 0.55, nil, nil, {0,0,0,0.2})
-				tbMenuUserName:uiText(displayName, nil, nil, 0, 0, 0.55)
+				tbMenuUserName:uiText(displayName, tbMenuUserName.pos.x + 2, tbMenuUserName.pos.y + 2, 0, 0, 0.55, nil, nil, {0,0,0,0.2}, nil, 0)
+				tbMenuUserName:uiText(displayName, nil, nil, 0, 0, 0.55, nil, nil, nil, nil, 0.5)
 			end)
-		local tbMenuLogoutButton = TBMenu:createImageButtons(tbMenuUserBar, 85 + get_string_length(displayName, 0) * 0.55, 15, 25, 25, "../textures/menu/general/buttons/logout.tga", "../textures/menu/general/buttons/logouthover.tga", "../textures/menu/general/buttons/logoutpressed.tga")
+		local tbMenuLogoutButton = TBMenu:createImageButtons(tbMenuUserBar, 85 + get_string_length(displayName, 0) * 0.55, 15, 25, 25, TB_MENU_LOGOUT_BUTTON, TB_MENU_LOGOUT_BUTTON_HOVER, TB_MENU_LOGOUT_BUTTON_PRESS)
 		tbMenuLogoutButton:addMouseHandlers(nil, function()
 				open_menu(18)
 			end, nil)
@@ -1151,9 +1174,9 @@ do
 			pos = { 80, 65 },
 			size = { 170, 25 },
 			interactive = true,
-			bgColor = UICOLORWHITE,
-			hoverColor = { 1, 0.81, 0.81, 1 },
-			pressedColor = { 0.85, 0.42, 0.42, 1 },
+			bgColor = TB_MENU_UI_TEXT_COLOR,
+			hoverColor = TB_MENU_DEFAULT_LIGHTEST_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHER_COLOR,
 			hoverSound = 31
 		})
 		tbMenuUserTcView:addCustomDisplay(true, function() end)
@@ -1175,16 +1198,16 @@ do
 			size = { tbMenuUserTcView.size.w - tbMenuUserTcIcon.size.w - 5, tbMenuUserTcView.size.h }
 		})
 		tbMenuUserTcBalance:addCustomDisplay(false, function()
-				tbMenuUserTcBalance:uiText(PlayerInfo:tcFormat(TB_MENU_PLAYER_INFO.data.tc), nil, 2, 2, 0, 0.9, nil, nil, tbMenuUserTcView:getButtonColor())
+				tbMenuUserTcBalance:uiText(PlayerInfo:tcFormat(TB_MENU_PLAYER_INFO.data.tc), nil, 2, 2, 0, 0.9, nil, nil, tbMenuUserTcView:getButtonColor(), nil, 0)
 			end)
 		local tbMenuUserStView = UIElement:new( {
 			parent = tbMenuUserBar,
 			pos = { 255, 65 },
 			size = { 100, 25 },
 			interactive = true,
-			bgColor = UICOLORWHITE,
-			hoverColor = { 1, 0.81, 0.81, 1 },
-			pressedColor = { 0.85, 0.42, 0.42, 1 },
+			bgColor = TB_MENU_UI_TEXT_COLOR,
+			hoverColor = TB_MENU_DEFAULT_LIGHTEST_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHER_COLOR,
 			hoverSound = 31
 		})
 		tbMenuUserStView:addCustomDisplay(true, function() end)
@@ -1207,7 +1230,7 @@ do
 		})
 		tbMenuUserStBalance:addCustomDisplay(false, function()
 				-- Proper ST balance is deprecated until a fix is rolled out
-				tbMenuUserStBalance:uiText("ST", nil, 2, 2, 0, 0.9, nil, nil, tbMenuUserStView:getButtonColor())
+				tbMenuUserStBalance:uiText("ST", nil, 2, 2, 0, 0.9, nil, nil, tbMenuUserStView:getButtonColor(), nil, 0)
 				--tbMenuUserStBalance:uiText(TB_MENU_PLAYER_INFO.data.st, nil, tbMenuUserStBalance.pos.y + 2, nil, LEFT, 0.9, nil, nil, tbMenuUserStView:getButtonColor())
 			end)
 		local tbMenuUserBeltIcon = UIElement:new({
@@ -1250,7 +1273,7 @@ do
 				bgColor = { 0.2, 0.2, 0.2, 0 },
 				interactive = true,
 				hoverColor = TB_NAVBAR_DEFAULT_BG_COLOR,
-				pressedColor = { 0.51, 0.11, 0.11, 1 },
+				pressedColor = TB_MENU_DEFAULT_DARKER_COLOR,
 				hoverSound = 31
 			})
 			navX[1] = v.right and navX[1] - v.width or navX[1] + v.width
@@ -1268,7 +1291,7 @@ do
 					for j = 40, 10, -10 do
 						draw_line(tbMenuNavigationButtons[i].pos.x + tbMenuNavigationButtons[i].size.w - j, tbMenuNavigationButtons[i].pos.y + 49, tbMenuNavigationButtons[i].pos.x + tbMenuNavigationButtons[i].size.w, tbMenuNavigationButtons[i].pos.y + 49 - j, 0.5)
 					end
-					tbMenuNavigationButtons[i]:uiText(v.text, nil, 5, FONTS.BIG, CENTER, 0.65)
+					tbMenuNavigationButtons[i]:uiText(v.text, nil, 5, FONTS.BIG, CENTER, 0.65, nil, nil, UICOLORWHITE)
 				end)
 			tbMenuNavigationButtons[i]:addMouseHandlers(nil, function() 
 					if (not customNav) then
@@ -1306,19 +1329,19 @@ do
 			size = { 110, 50 }
 		})
 		local tbMenuBottomLeftButtonsData = {
-			{ action = function() TBMenu:openMenu(102) end, image = "../textures/menu/general/buttons/friends.tga", imageHover = "../textures/menu/general/buttons/friendshover.tga", imagePress = "../textures/menu/general/buttons/friendspress.tga" },
-			{ action = function() if (TB_MENU_NOTIFICATIONS_ISOPEN == 0) then TBMenu:openMenu(101) else Rewards:quit() end end, image = "../textures/menu/general/buttons/notifications.tga", imageHover = "../textures/menu/general/buttons/notificationshover.tga", imagePress = "../textures/menu/general/buttons/notificationspress.tga" },
-			{ action = function() open_url("http://discord.gg/toribash") end, image = "../textures/menu/general/buttons/discordred.tga", imageHover = "../textures/menu/general/buttons/discordredhover.tga", imagePress = "../textures/menu/general/buttons/discordredpress.tga" }
+			{ action = function() TBMenu:openMenu(102) end, image = TB_MENU_FRIENDS_BUTTON, imageHover = TB_MENU_FRIENDS_BUTTON_HOVER, imagePress = TB_MENU_FRIENDS_BUTTON_PRESS },
+			{ action = function() if (TB_MENU_NOTIFICATIONS_ISOPEN == 0) then TBMenu:openMenu(101) else Rewards:quit() end end, image = TB_MENU_NOTIFICATIONS_BUTTON, imageHover = TB_MENU_NOTIFICATIONS_BUTTON_HOVER, imagePress = TB_MENU_NOTIFICATIONS_BUTTON_PRESS },
+			{ action = function() open_url("http://discord.gg/toribash") end, image = TB_MENU_DISCORD_BUTTON, imageHover = TB_MENU_DISCORD_BUTTON_HOVER, imagePress = TB_MENU_DISCORD_BUTTON_PRESS }
 		}
 		local tbMenuBottomLeftButtons = {}
 		for i, v in pairs(tbMenuBottomLeftButtonsData) do
 			tbMenuBottomLeftButtons[i] = TBMenu:createImageButtons(tbMenuBottomLeftBar, (i - 1) * (tbMenuBottomLeftBar.size.h + 10), 0, tbMenuBottomLeftBar.size.h, tbMenuBottomLeftBar.size.h, v.image, v.imageHover, v.imagePress)
 			tbMenuBottomLeftButtons[i]:addMouseHandlers(nil, v.action, nil)
 		end
-		local tbMenuModVoting = UIElement:new({
+		local tbMenuPulseNotification = UIElement:new({
 			parent = tbMenuBottomLeftBar,
-			pos = { #tbMenuBottomLeftButtonsData * (tbMenuBottomLeftBar.size.h + 10) + 7.5, 7.5 },
-			size = { tbMenuBottomLeftBar.size.h * 3 - 15, tbMenuBottomLeftBar.size.h - 15 },
+			pos = { #tbMenuBottomLeftButtonsData * (tbMenuBottomLeftBar.size.h + 10) + 5, 5 },
+			size = { tbMenuBottomLeftBar.size.h * 5 - 10, tbMenuBottomLeftBar.size.h - 10 },
 			interactive = true,
 			bgColor = TB_MENU_DEFAULT_BG_COLOR,
 			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
@@ -1326,31 +1349,27 @@ do
 			shapeType = ROUNDED,
 			rounded = tbMenuBottomLeftBar.size.h
 		})
-		local tbMenuModVotingImage = UIElement:new({
-			parent = tbMenuModVoting,
-			pos = { -tbMenuModVoting.size.h + 10, 5 },
-			size = { tbMenuModVoting.size.h - 15, tbMenuModVoting.size.h - 15 },
-			bgImage = "../textures/menu/general/buttons/external.tga"
-		})
-		tbMenuModVoting:addMouseHandlers(nil, function() open_url("https://docs.google.com/forms/d/e/1FAIpQLSdqZWXYlwKTXVIDVLc_KTjVGbtOkEX4i2YlJUB1VXsAaMuadg/viewform?usp=sf_link") end)
-		local pulseMod = 0
-		tbMenuModVoting:addCustomDisplay(false, function()
-				local r, g, b, a = unpack(tbMenuModVoting.animateColor)
+		tbMenuPulseNotification:addMouseHandlers(nil, function()
+				TBMenu:showBounties()
+			end)
+		--[[local pulseMod = 0
+		tbMenuPulseNotification:addCustomDisplay(false, function()
+				local r, g, b, a = unpack(tbMenuPulseNotification.animateColor)
 				set_color(r, g, b, a - pulseMod / 15)
-				draw_disk(tbMenuModVoting.pos.x + tbMenuModVoting.size.h / 2, tbMenuModVoting.pos.y + tbMenuModVoting.size.h / 2, tbMenuModVoting.size.h / 2, tbMenuModVoting.size.h / 2 + pulseMod, 500, 1, 180, 180, 0)
-				draw_disk(tbMenuModVoting.pos.x + tbMenuModVoting.size.w - tbMenuModVoting.size.h / 2, tbMenuModVoting.pos.y + tbMenuModVoting.size.h / 2, tbMenuModVoting.size.h / 2, tbMenuModVoting.size.h / 2 + pulseMod, 500, 1, 0, 180, 0)
-				draw_quad(tbMenuModVoting.pos.x + tbMenuModVoting.size.h / 2, tbMenuModVoting.pos.y - pulseMod, tbMenuModVoting.size.w - tbMenuModVoting.size.h, tbMenuModVoting.size.h + pulseMod * 2)
+				draw_disk(tbMenuPulseNotification.pos.x + tbMenuPulseNotification.size.h / 2, tbMenuPulseNotification.pos.y + tbMenuPulseNotification.size.h / 2, tbMenuPulseNotification.size.h / 2, tbMenuPulseNotification.size.h / 2 + pulseMod, 500, 1, 180, 180, 0)
+				draw_disk(tbMenuPulseNotification.pos.x + tbMenuPulseNotification.size.w - tbMenuPulseNotification.size.h / 2, tbMenuPulseNotification.pos.y + tbMenuPulseNotification.size.h / 2, tbMenuPulseNotification.size.h / 2, tbMenuPulseNotification.size.h / 2 + pulseMod, 500, 1, 0, 180, 0)
+				draw_quad(tbMenuPulseNotification.pos.x + tbMenuPulseNotification.size.h / 2, tbMenuPulseNotification.pos.y - pulseMod, tbMenuPulseNotification.size.w - tbMenuPulseNotification.size.h, tbMenuPulseNotification.size.h + pulseMod * 2)
 				pulseMod = pulseMod + 0.2
 				if (pulseMod > 15) then
 					pulseMod = 0
 				end
-			end)
-		local tbMenuModVotingCaption = UIElement:new({
-			parent = tbMenuModVoting,
-			pos = { 5, 0 },
-			size = { tbMenuModVoting.size.w - tbMenuModVoting.size.h + 10, tbMenuModVoting.size.h }
+			end)]]
+		local tbMenuPulseNotificationCaption = UIElement:new({
+			parent = tbMenuPulseNotification,
+			pos = { 10, 0 },
+			size = { tbMenuPulseNotification.size.w - 20, tbMenuPulseNotification.size.h }
 		})
-		tbMenuModVotingCaption:addAdaptedText(false, "Mod Voting")
+		tbMenuPulseNotificationCaption:addAdaptedText(false, "Toribash's Most Wanted")
 		--[[local tbMenuFriendsBetaCaption = UIElement:new({
 			parent = tbMenuBottomLeftButtons[1],
 			pos = { 0, -tbMenuBottomLeftBar.size.h / 3 },
@@ -1385,8 +1404,8 @@ do
 			size = { 110, 50 }
 		})
 		local tbMenuBottomRightButtonsData = {
-			{ action = function() open_menu(4) end, image = "../textures/menu/general/buttons/quit.tga", imageHover = "../textures/menu/general/buttons/quithover.tga", imagePress = "../textures/menu/general/buttons/quitpress.tga" },
-			{ action = function() open_menu(3) end, image = "../textures/menu/general/buttons/settingsred.tga", imageHover = "../textures/menu/general/buttons/settingsredhover.tga", imagePress = "../textures/menu/general/buttons/settingsredpress.tga" }
+			{ action = function() open_menu(4) end, image = TB_MENU_QUIT_BUTTON, imageHover = TB_MENU_QUIT_BUTTON_HOVER, imagePress = TB_MENU_QUIT_BUTTON_PRESS },
+			{ action = function() open_menu(3) end, image = TB_MENU_SETTINGS_BUTTON, imageHover = TB_MENU_SETTINGS_BUTTON_HOVER, imagePress = TB_MENU_SETTINGS_BUTTON_PRESS }
 		}
 		local tbMenuBottomRightButtons = {}
 		for i,v in pairs(tbMenuBottomRightButtonsData) do
@@ -1409,8 +1428,10 @@ do
 	function TBMenu:showMain(noload)
 		local mainBgColor = nil
 		tbMenuMain = UIElement:new( {
-			pos = {0, 0},
-			size = {WIN_W, WIN_H}
+			pos = { 0, 0 },
+			size = { WIN_W, WIN_H },
+			uiColor = TB_MENU_UI_TEXT_COLOR,
+			uiShadowColor = UICOLORWHITE
 		})
 		local tbMenuBackground = UIElement:new({
 			parent = tbMenuMain,
@@ -1472,7 +1493,7 @@ do
 					end
 				end
 			end, false)
-		local splatLeftImg = "../textures/menu/general/bloodsplatleft.tga"
+		local splatLeftImg = TB_MENU_BLOODSPLATTER_LEFT
 		local splatCustom = false
 		local customLogo = io.open("custom/" .. TB_MENU_PLAYER_INFO.username .. "/splatt1.tga", "r", 1)
 		if (customLogo) then
@@ -1483,14 +1504,14 @@ do
 		local splatLeft = UIElement:new( {
 			parent = tbMenuMain,
 			pos = { 10, 200 },
-			size = { splatCustom and WIN_H - 320 or (WIN_H - 320) / 2, WIN_H - 320 },
+			size = { WIN_H - 320, WIN_H - 320 },
 			bgImage = splatLeftImg
 		})
 		local splatRight = UIElement:new( {
 			parent = tbMenuMain,
 			pos = { -(WIN_H - 320) - 10, 200 },
-			size = { (WIN_H - 320), WIN_H - 320 },
-			bgImage = splatCustom and splatLeftImg or "../textures/menu/general/bloodsplatright.tga"
+			size = { WIN_H - 320, WIN_H - 320 },
+			bgImage = splatCustom and splatLeftImg or TB_MENU_BLOODSPLATTER_RIGHT
 		})
 		TBMenu:showGameLogo()
 		TBMenu:showUserBar()
@@ -1590,13 +1611,42 @@ do
 		disable_menu_keyboard()
 	end
 	
+	function TBMenu:displayLoadingMark(element, message)
+		local loadMark = UIElement:new({
+			parent = element,
+			pos = { 0, 0 },
+			size = { element.size.w, element.size.h }
+		})
+		local grow, rotate = 0, 0
+		loadMark:addCustomDisplay(true, function()
+				set_color(1, 1, 1, 1)
+				draw_disk(loadMark.pos.x + loadMark.size.w / 2, loadMark.pos.y + loadMark.size.h / 2 - 40, 12, 20, 500, 1, rotate, grow, 0)
+				grow = grow + 4
+				rotate = rotate + 2
+				if (grow >= 360) then
+					grow = -360
+				end
+			end)
+		if (message) then
+			local textView = UIElement:new({
+				parent = loadMark,
+				pos = { 10, loadMark.size.h / 2 },
+				size = { loadMark.size.w - 20, loadMark.size.h }
+			})
+			textView:addAdaptedText(true, message, nil, nil, nil, CENTER)
+		end
+	end
+	
 	function TBMenu:displayHelpPopup(element, message, forceManualPosCheck)
+		local textColor = cloneTable(TB_MENU_UI_TEXT_SHADOW_COLOR)
+		textColor[4] = 1
 		local messageElement = UIElement:new({
 			parent = element,
 			pos = { 0, 0 },
 			size = { WIN_W / 3, WIN_H / 10 },
 			interactive = true,
-			bgColor = { 0, 0, 0, 0.8 }
+			bgColor = { 0, 0, 0, 0.8 },
+			uiColor = textColor
 		})
 		
 		if (messageElement.pos.x < 0) then

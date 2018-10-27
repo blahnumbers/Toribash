@@ -2,6 +2,8 @@
 
 local SELECTED_REPLAY = { element = nil, defaultColor = nil, time = 0, replay = nil }
 local TB_MENU_REPLAYS = { name = "replay", fullname = "replay" }
+local TB_MENU_REPLAYS_LOADED = false
+
 SERVER_REPLAYS = SERVER_REPLAYS or { action = 1, offset = 1, search = "", id = 0 }
 SELECTED_FOLDER = SELECTED_FOLDER and { fullname = SELECTED_FOLDER.fullname } or TB_MENU_REPLAYS
 SELECTED_SERVER_REPLAY = SELECTED_SERVER_REPLAY or { id = 0 }

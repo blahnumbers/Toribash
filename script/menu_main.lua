@@ -64,6 +64,7 @@ dofile("system/rewards_manager.lua")
 dofile("system/clans_manager.lua")
 dofile("system/friendlist_manager.lua")
 dofile("system/replays_manager.lua")
+dofile("system/bounty_manager.lua")
 
 TB_MENU_PLAYER_INFO = {}
 TB_MENU_PLAYER_INFO.username = PlayerInfo:getUser()

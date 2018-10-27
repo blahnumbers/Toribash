@@ -3,10 +3,14 @@ dofile('toriui/uielement.lua')
 
 CUBE = 1
 SPHERE = 2
-CYLINDER = 3
+CAPSULE = 3
+CUSTOMOBJ = 4
 
 TORI = 0
 UKE = 1
+
+OBJMODELCACHE = OBJMODELCACHE or {}
+OBJMODELINDEX = OBJMODELINDEX or 0
 
 do
 	UIElement3DManager = UIElement3DManager or {}
@@ -34,6 +38,7 @@ do
 			if (o.playerAttach) then
 				elem.playerAttach = o.playerAttach
 				elem.attachBodypart = o.attachBodypart
+				elem.attachJoint = o.attachJoint
 			end
 			if (o.parent) then
 				elem.parent = o.parent
@@ -59,6 +64,10 @@ do
 				elem.rot = { x = o.rot[1], y = o.rot[2], z = o.rot[3] }
 			else
 				elem.rot = { x = 0, y = 0, z = 0 }
+			end
+			if (o.objModel) then
+				elem.shapeType = CUSTOMOBJ
+				elem:updateObj(o.objModel)
 			end
 			if (o.bgColor) then
 				elem.bgColor = o.bgColor
@@ -157,18 +166,31 @@ do
 				end
 			elseif (self.shapeType == SPHERE) then
 				if (self.playerAttach) then
-					local body = get_body_info(self.playerAttach, self.attachBodypart)
-			        draw_sphere_m(body.pos.x, body.pos.y, body.pos.z, self.size.x, body.rot)
+					if (self.attachBodypart) then
+						local body = get_body_info(self.playerAttach, self.attachBodypart)
+						draw_sphere_m(body.pos.x + self.pos.x, body.pos.y + self.pos.y, body.pos.z + self.pos.z, self.size.x, body.rot)
+					elseif (self.attachJoint) then
+						local joint = get_joint_pos2(self.playerAttach, self.attachJoint)
+						local radius = get_joint_radius(self.playerAttach, self.attachJoint)
+						draw_sphere(joint.x + self.pos.x, joint.y + self.pos.y, joint.z + self.pos.z, radius * self.size.x)
+					end
 				else
 					draw_sphere(self.pos.x, self.pos.y, self.pos.z, self.size.x)
 				end
-			elseif (self.shapeType == CYLINDER) then
+			elseif (self.shapeType == CAPSULE) then
 				if (self.playerAttach) then
-					local body = get_body_info(self.playerAttach, self.attachBodypart)					
-			        draw_capsule_m(body.pos.x, body.pos.y, body.pos.z, self.size.y, self.size.x, body.rot)
+					if (self.attachBodypart) then
+						local body = get_body_info(self.playerAttach, self.attachBodypart)					
+						draw_capsule_m(body.pos.x, body.pos.y, body.pos.z, self.size.y, self.size.x, body.rot)
+					elseif (self.attachJoint) then
+						local joint = get_joint_pos2(self.playerAttach, self.attachJoint)
+						draw_capsule(joint.x, joint.y, joint.z, self.size.y, self.size.x, self.rot.x, self.rot.y, self.rot.z)
+					end
 				else
 					draw_capsule(self.pos.x, self.pos.y, self.pos.z, self.size.y, self.size.x, self.rot.x, self.rot.y, self.rot.z)
 				end
+			elseif (self.shapeType == CUSTOMOBJ) then
+				draw_obj(self.objModel, self.pos.x, self.pos.y, self.pos.z, self.size.x, self.size.y, self.size.z, self.rot.x + self.relrot.x, self.rot.y + self.relrot.y, self.rot.z + self.relrot.z)
 			end
 		end
 		if (not self.customDisplayBefore) then
@@ -337,6 +359,8 @@ do
 	function UIElement3D:updateChildPos()
 		if (self.parent.vector) then
 			self:updateChildRot()
+		end
+		
 --[[			if (self.parent.rotMatrix.x ~= 0) then
 				local rotated = { x = self.shift.x, y = self.shift.y, z = self.shift.z }
 				local angle = (self.parent.rot.x / 180 * math.pi) % (math.pi * 2)
@@ -363,8 +387,8 @@ do
 			end
 			self.pos.x = self.parent.pos.x + shift.x
 			self.pos.y = self.parent.pos.y + shift.y
-			self.pos.z = self.parent.pos.z + shift.z]]
-		end
+			self.pos.z = self.parent.pos.z + shift.z
+		end]]
 	end
 	
 	--[[function UIElement3D:updateChildPos()
@@ -391,6 +415,73 @@ do
 			--echo(self.pos.x .. " " .. self.pos.y .. " " .. self.pos.z)
 		end
 	end]]
+	
+	function UIElement:updateObj(model, noreload)
+		local filename
+		if (model) then
+			if (model:find("%.%./", 4)) then
+				filename = model:gsub("%.%./%.%./", "")
+			elseif (model:find("%.%./")) then
+				filename = model:gsub("%.%./", "data/")
+			else 
+				filename = "data/script/" .. model:gsub("^/", "")
+			end
+		end
+		filename = filename .. ".obj"
+		
+		if (not noreload and self.objModel) then
+			local count, id = 0, 0
+			for i,v in pairs(OBJMODELCACHE) do
+				if (v == self.objModel) then
+					count = count + 1
+					id = i
+				end
+			end
+			if (count == 1) then
+				unload_obj(self.objModel)
+				OBJMODELINDEX = OBJMODELINDEX - 1
+			else
+				table.remove(OBJMODELCACHE, id)
+			end		
+			self.objModel = nil		
+		end
+		
+		if (not model) then
+			return
+		end
+		
+		if (OBJMODELINDEX > 127) then
+			return false
+		end
+		
+		local tempobj = io.open(filename, "r", 1)
+		if (not tempobj) then
+			return false
+		else
+			local objid = 0
+			for i = 0, 127 do
+				if (not OBJMODELCACHE[i]) then
+					objid = i
+				end
+			end
+			if (load_obj(objid, model)) then
+				self.objModel = objid
+			end
+			OBJMODELINDEX = OBJMODELINDEX > objid and OBJMODELINDEX or objid
+			table.insert(OBJMODELCACHE, self.objModel)
+			io.close(tempobj)
+		end
+	end
+	
+	function UIElement3D:getEulerAnglesFromMatrixTB(R)
+		local Rz, Ry, Rx = 0, 0, 0
+		
+		Rx = math.atan2(-R.r6, R.r10)
+		Ry = math.atan2(R.r2, R.r10 * math.cos(Rx) - R.r6 * math.sin(Rx))
+		Rz = math.atan2(R.r4 * math.cos(Rx) + R.r8 * math.sin(Rx), R.r5 * math.cos(Rx) + R.r9 * math.sin(Rx))
+		
+		return -Rx, -Ry, -Rz
+	end
 	
 	function UIElement3D:multiply(a, b)
 		if (#a[1] ~= #b) then
