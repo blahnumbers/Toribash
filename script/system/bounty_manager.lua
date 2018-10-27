@@ -1,5 +1,9 @@
 -- Bounty manager class
 
+if (download_fetch_bounties) then
+	TB_BOUNTIES_DEFINED = true
+end
+
 do
 	Bounty = {}
 	Bounty.__index = Bounty
@@ -59,7 +63,6 @@ do
 	end
 	
 	function Bounty:showCurrentTarget(objectiveView, target)
-		target = PlayerBounties[1]
 		if (not target) then
 			local noActiveBountiesMessage = UIElement:new({
 				parent = objectiveView,
@@ -467,6 +470,7 @@ do
 	function Bounty:showBountyList(viewElement)
 		local elementHeight = 35
 		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 50, elementHeight, 20)
+		TBMenu:addBottomBloodSmudge(botBar, 2)
 		local bountyListTitle = UIElement:new({
 			parent = topBar,
 			pos = { 10, 5 },
@@ -489,7 +493,7 @@ do
 			})
 			table.insert(listEntries, bountyInfo)
 			local infoString = 	"Bounty: " .. v.reward .. " TC\n" ..
-								(v.claimed == "" and (v.room == false and "Offline" or "Online in " .. v.room) or "Claimed by " .. v.claimedby .. " in " .. TBMenu:getTime(v.claimed) .. "\n")
+								(v.claimedby == "" and (v.room == false and "Offline" or "Online in " .. v.room) or "Claimed by " .. v.claimedby .. " in " .. TBMenu:getTime(v.claimed) .. "\n")
 			bountyInfo:addAdaptedText(false, infoString, 10, nil, 4, LEFT, 0.6)
 			if (i ~= 1) then
 				local separator = UIElement:new({
@@ -529,8 +533,7 @@ do
 			pos = { objectiveView.size.w + 15, 0 },
 			size = { tbMenuCurrentSection.size.w / 3 - 10, tbMenuCurrentSection.size.h },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
-		})		
-		TBMenu:addBottomBloodSmudge(bountyList, 2)
+		})
 		Bounty:showBountyList(bountyList)
 		
 		Bounty:showCurrentTarget(objectiveView, Bounty:getTarget())
@@ -539,7 +542,7 @@ do
 	function Bounty:getTarget()
 		local bounties = {}
 		for i,v in pairs(PlayerBounties) do
-			if (v.claimed == 0) then
+			if (v.claimedby == "") then
 				table.insert(bounties, v)
 			end
 		end

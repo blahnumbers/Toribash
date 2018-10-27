@@ -634,9 +634,13 @@ do
 	end
 	
 	function TBMenu:showBounties()
-		TBMenu:clearNavSection()
-		Bounty:prepare()
-		TBMenu:showNavigationBar(Bounty:getNavigationButtons(), true)
+		if (TB_BOUNTIES_DEFINED) then
+			TBMenu:clearNavSection()
+			Bounty:prepare()
+			TBMenu:showNavigationBar(Bounty:getNavigationButtons(), true)
+		else
+			open_url("http://forum.toribash.com/tori_bounty.php")
+		end
 	end
 	
 	function TBMenu:prepareScrollableList(viewElement, topBarH, botBarH, scrollWidth)
@@ -1338,38 +1342,40 @@ do
 			tbMenuBottomLeftButtons[i] = TBMenu:createImageButtons(tbMenuBottomLeftBar, (i - 1) * (tbMenuBottomLeftBar.size.h + 10), 0, tbMenuBottomLeftBar.size.h, tbMenuBottomLeftBar.size.h, v.image, v.imageHover, v.imagePress)
 			tbMenuBottomLeftButtons[i]:addMouseHandlers(nil, v.action, nil)
 		end
-		local tbMenuPulseNotification = UIElement:new({
-			parent = tbMenuBottomLeftBar,
-			pos = { #tbMenuBottomLeftButtonsData * (tbMenuBottomLeftBar.size.h + 10) + 5, 5 },
-			size = { tbMenuBottomLeftBar.size.h * 5 - 10, tbMenuBottomLeftBar.size.h - 10 },
-			interactive = true,
-			bgColor = TB_MENU_DEFAULT_BG_COLOR,
-			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
-			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-			shapeType = ROUNDED,
-			rounded = tbMenuBottomLeftBar.size.h
-		})
-		tbMenuPulseNotification:addMouseHandlers(nil, function()
-				TBMenu:showBounties()
-			end)
-		--[[local pulseMod = 0
-		tbMenuPulseNotification:addCustomDisplay(false, function()
-				local r, g, b, a = unpack(tbMenuPulseNotification.animateColor)
-				set_color(r, g, b, a - pulseMod / 15)
-				draw_disk(tbMenuPulseNotification.pos.x + tbMenuPulseNotification.size.h / 2, tbMenuPulseNotification.pos.y + tbMenuPulseNotification.size.h / 2, tbMenuPulseNotification.size.h / 2, tbMenuPulseNotification.size.h / 2 + pulseMod, 500, 1, 180, 180, 0)
-				draw_disk(tbMenuPulseNotification.pos.x + tbMenuPulseNotification.size.w - tbMenuPulseNotification.size.h / 2, tbMenuPulseNotification.pos.y + tbMenuPulseNotification.size.h / 2, tbMenuPulseNotification.size.h / 2, tbMenuPulseNotification.size.h / 2 + pulseMod, 500, 1, 0, 180, 0)
-				draw_quad(tbMenuPulseNotification.pos.x + tbMenuPulseNotification.size.h / 2, tbMenuPulseNotification.pos.y - pulseMod, tbMenuPulseNotification.size.w - tbMenuPulseNotification.size.h, tbMenuPulseNotification.size.h + pulseMod * 2)
-				pulseMod = pulseMod + 0.2
-				if (pulseMod > 15) then
-					pulseMod = 0
-				end
-			end)]]
-		local tbMenuPulseNotificationCaption = UIElement:new({
-			parent = tbMenuPulseNotification,
-			pos = { 10, 0 },
-			size = { tbMenuPulseNotification.size.w - 20, tbMenuPulseNotification.size.h }
-		})
-		tbMenuPulseNotificationCaption:addAdaptedText(false, "Toribash's Most Wanted")
+		if (TB_BOUNTIES_DEFINED) then
+			local tbMenuPulseNotification = UIElement:new({
+				parent = tbMenuBottomLeftBar,
+				pos = { #tbMenuBottomLeftButtonsData * (tbMenuBottomLeftBar.size.h + 10) + 5, 5 },
+				size = { tbMenuBottomLeftBar.size.h * 5 - 10, tbMenuBottomLeftBar.size.h - 10 },
+				interactive = true,
+				bgColor = TB_MENU_DEFAULT_BG_COLOR,
+				hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+				shapeType = ROUNDED,
+				rounded = tbMenuBottomLeftBar.size.h
+			})
+			tbMenuPulseNotification:addMouseHandlers(nil, function()
+					TBMenu:showBounties()
+				end)
+			--[[local pulseMod = 0
+			tbMenuPulseNotification:addCustomDisplay(false, function()
+					local r, g, b, a = unpack(tbMenuPulseNotification.animateColor)
+					set_color(r, g, b, a - pulseMod / 15)
+					draw_disk(tbMenuPulseNotification.pos.x + tbMenuPulseNotification.size.h / 2, tbMenuPulseNotification.pos.y + tbMenuPulseNotification.size.h / 2, tbMenuPulseNotification.size.h / 2, tbMenuPulseNotification.size.h / 2 + pulseMod, 500, 1, 180, 180, 0)
+					draw_disk(tbMenuPulseNotification.pos.x + tbMenuPulseNotification.size.w - tbMenuPulseNotification.size.h / 2, tbMenuPulseNotification.pos.y + tbMenuPulseNotification.size.h / 2, tbMenuPulseNotification.size.h / 2, tbMenuPulseNotification.size.h / 2 + pulseMod, 500, 1, 0, 180, 0)
+					draw_quad(tbMenuPulseNotification.pos.x + tbMenuPulseNotification.size.h / 2, tbMenuPulseNotification.pos.y - pulseMod, tbMenuPulseNotification.size.w - tbMenuPulseNotification.size.h, tbMenuPulseNotification.size.h + pulseMod * 2)
+					pulseMod = pulseMod + 0.2
+					if (pulseMod > 15) then
+						pulseMod = 0
+					end
+				end)]]
+			local tbMenuPulseNotificationCaption = UIElement:new({
+				parent = tbMenuPulseNotification,
+				pos = { 10, 0 },
+				size = { tbMenuPulseNotification.size.w - 20, tbMenuPulseNotification.size.h }
+			})
+			tbMenuPulseNotificationCaption:addAdaptedText(false, "Toribash's Most Wanted")
+		end
 		--[[local tbMenuFriendsBetaCaption = UIElement:new({
 			parent = tbMenuBottomLeftButtons[1],
 			pos = { 0, -tbMenuBottomLeftBar.size.h / 3 },
