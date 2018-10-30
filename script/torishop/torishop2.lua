@@ -281,6 +281,11 @@ function load_data()
 					string.lower(data_stream[5]) == "portable cassette" or
 					string.lower(data_stream[5]) == "fish friend" or
 					string.lower(data_stream[5]) == "katana" or
+					string.lower(data_stream[5]) == "zombie hand" or
+					string.lower(data_stream[5]) == "lil spooks" or
+					string.lower(data_stream[5]) == "obsidian scythe" or
+					string.lower(data_stream[5]) == "tombstone" or
+					string.lower(data_stream[5]) == "broom stick" or
 					string.lower(data_stream[5]) == "little latching elf" or
 					string.lower(data_stream[5]) == "candy cane" or
 					string.lower(data_stream[5]) == "demon wings" or
@@ -1224,6 +1229,7 @@ function set_player_color(item)
 			model_name == "vagabond" or
 			model_name == "road_fighter" or
 			model_name == "kid_popstar" or
+			model_name == "plague_doctor_mask" or
 			model_name == "soderhair") then run_cmd("obj load data/script/torishop/models/"..model_name..".obj 0 0 0 255 1 0 0 0")
 		elseif (model_name == "shutter_shades") then run_cmd("obj load data/script/torishop/models/"..model_name..".obj 0 0 31 255 0 0 0 0")
 		elseif (model_name == "red_submarine") then run_cmd("obj load data/script/torishop/models/"..model_name..".obj 0 0 2 255 1 0 0 0")
@@ -1253,6 +1259,8 @@ function set_player_color(item)
 			model_name == "ukelele" or
 			model_name == "demon_wings" or
 			model_name == "fish_friend" or
+			model_name == "broom_stick" or 
+			model_name == "obsidian_scythe" or 
 			model_name == "shoveler's_shovel") then run_cmd("obj load data/script/torishop/models/"..model_name..".obj 0 1 0 255 1 0 0 0")
 		elseif (model_name == "katana") then run_cmd("obj load data/script/torishop/models/"..model_name..".obj 0 1 0 255 1 1 0 0")
 		elseif (model_name == "right_punkspike") then run_cmd("obj load data/script/torishop/models/"..model_name..".obj 0 7 0 255 1 0 0 0")
@@ -1275,8 +1283,11 @@ function set_player_color(item)
 		elseif (model_name == "hidden_blade" or 
 			model_name == "right_armblade") then run_cmd("obj load data/script/torishop/models/"..model_name..".obj 0 7 0 255 1 0 0 0")
 		elseif (model_name == "pirate_belt") then run_cmd("obj load data/script/torishop/models/"..model_name..".obj 0 4 0 255 1 0 0 0")
+		elseif (model_name == "zombie_hand") then run_cmd("obj load data/script/torishop/models/"..model_name..".obj 0 17 0 255 1 0 0 0")
 		elseif (model_name == "left_armblade") then run_cmd("obj load data/script/torishop/models/"..model_name..".obj 0 10 0 255 1 0 0 0")
-		elseif (model_name == "sword_in_the_stone") then run_cmd("objfloor load data/script/torishop/models/"..model_name..".obj 0 1")
+		elseif (model_name == "sword_in_the_stone" or
+				model_name == "tombstone") then run_cmd("objfloor load data/script/torishop/models/"..model_name..".obj 0 1")
+		elseif (model_name == "lil_spooks") then run_cmd("obj load data/script/torishop/models/"..model_name..".obj 0 1 0 255 1 0 0 0")
 		end
 	elseif (name == "Model Packs" or name == "Full Toris") then
 		if (details_name == "Cel Shaded Tori") then
@@ -1929,7 +1940,7 @@ function mouse_up(mouse_btn, x, y)
 			view_flames()
 		end
 		if (height >= 720) then
-			gotofeatured(buttons.sfeatured, 3, 22, 20, x, y)
+			gotofeatured(buttons.sfeatured, 3, 23, 20, x, y)
 		end
 	else
 	local r = button_click_radius
@@ -2694,7 +2705,7 @@ function load_images()
 	--torishop_announcement1 = load_texture("/torishop/gui/featuredfulltextures.tga")
 	--torishop_announcement2 = load_texture("/torishop/gui/featuredbarbershop.tga")
 	--torishop_announcement3 = load_texture("/torishop/gui/featuredmuaypromo.tga")
-	torishop_announcement4 = load_texture("/torishop/gui/featuredbarbershop.tga")
+	torishop_announcement4 = load_texture("/torishop/gui/featuredlilspook.tga")
 	--torishop_announcement5 = load_texture("/torishop/gui/featuredlotterypro.tga")
 	sect_flames = load_texture("/torishop/gui/flames.tga")
 	sect_flames_ = load_texture("/torishop/gui/flames_.tga")
@@ -3220,18 +3231,23 @@ function draw_shelf()
 		print_desc("all of your enemies", 2)
 	elseif (string.find(details_name, "Brain")) then
 		set_color(0.95,0.83,0.01, 1)
-		print_desc("Halloween Limited Set", 0)
+		print_desc("Halloween Limited Item", 1)
 		set_color(1,1,1,1)
-		print_desc("Hmmm... yummy!", 1)
+		print_desc("Hmmm... yummy!", 2)
+	elseif (string.find(details_name, "Broom Stick")) then
+		set_color(0.95,0.83,0.01, 1)
+		print_desc("Halloween Limited Item", 1)
+		set_color(1,1,1,1)
+		print_desc("Allows to fly AND clean floors!", 2)
 	elseif (string.find(details_name, "Button Eyes")) then
 		set_color(0.95,0.83,0.01, 1)
-		print_desc("Halloween Limited Set", 0)
+		print_desc("Halloween Limited Item", 1)
 		set_color(1,1,1,1)
-		print_desc("The world definitely looks", 1)
-		print_desc("better now... right?", 2)
+		print_desc("The world definitely looks", 2)
+		print_desc("better now... right?", 3)
 	elseif (string.find(details_name, "Demon Wings")) then
 		set_color(0.95,0.83,0.01, 1)
-		print_desc("Halloween Limited Set", 0)
+		print_desc("Halloween Limited Item", 0)
 		set_color(1,1,1,1)
 		print_desc("Now you can be cooler - just like Satan!", 1)
 	elseif (string.find(details_name, "Tori Armor V2")) then
@@ -3239,23 +3255,6 @@ function draw_shelf()
 		print_desc("This set was only obtainable", 0)
 		print_desc("by reaching rank 1 during", 1)
 		print_desc("Toribash's first ranking season", 2)
-	elseif (string.find(details_name, "Halloween Special")) then
-		set_color(0.95,0.83,0.01, 1)
-		print_desc("Halloween Limited Set", -1)
-		set_color(1,1,1,1)
-		print_desc("Participate in Event Squad", 0)
-		print_desc("game tournaments and forum", 1)
-		print_desc("events to collect this set", 2)
-		set_color(0,0,0,1)
-		draw_text("See more info", 175, 294, FONTS.MEDIUM)
-		if (buttons.info_prime.state == BTN_UP) then
-			set_color(0.16,0.66,0.86,1)
-		elseif (buttons.info_prime.state == BTN_DOWN) then
-			set_color(0.58, 0, 0, 1)
-		else
-			set_color(0.82, 0.39, 0.39, 1.0)
-		end
-		draw_text("See more info", 175, 294, FONTS.MEDIUM)
 	elseif (string.find(details_name, "Little Latching Elf")) then
 		print_desc("A tiny friend that would", 1)
 		print_desc("Never gonna give you up!", 2)
@@ -4023,22 +4022,37 @@ function draw_shelf()
 	draw_text("Piratyness +100", 150, 289, FONTS.MEDIUM)
 	elseif string.find(details_name, "Frankenbolts") then
 	set_color(0.95,0.83,0.01, 1)
-	print_desc("Halloween Limited Set", 1)
+	print_desc("Halloween Limited Item", 1)
 	set_color(1,1,1,1)
 	print_desc("No, this doesn't make you a doctor...", 2)
+	elseif string.find(details_name, "Lil Spooks") then
+	set_color(0.95,0.83,0.01, 1)
+	print_desc("Halloween Limited Item", 1)
+	set_color(1,1,1,1)
+	print_desc("Spooks you and cheers you up", 2)
+	print_desc("at the same time!", 3)
+elseif string.find(details_name, "Zombie Hand") then
+	set_color(0.95,0.83,0.01, 1)
+	print_desc("Halloween Limited Item", 1)
+	set_color(1,1,1,1)
+	print_desc("Who could know that those zombies", 2)
+	print_desc("have such a strong grip?", 3)
 	elseif (string.find(details_name, "Jack") and string.find(details_name, "lantern")) then
 	set_color(0.95,0.83,0.01, 1)
-	print_desc("Halloween Limited Set", 0)
+	print_desc("Halloween Limited Item", 0)
 	set_color(1,1,1,1)
 	print_desc("With this pumpkin on your head,", 1)
 	print_desc("you're all set to start trick or treating!", 2)
 	elseif string.find(details_name, "Witch Hat") then
+	set_color(0.95,0.83,0.01, 1)
+	print_desc("Halloween Limited Item", -1)
+	set_color(1, 1, 1, 1)
 	draw_text("Legends say it gives it's wearer", 69, 243, FONTS.MEDIUM)
 	draw_text("magical powers...", 150, 266, FONTS.MEDIUM)
 	draw_text("no one ever discovered how to use them.", 24, 289, FONTS.MEDIUM)
 	elseif string.find(details_name, "Skull Necklace") then
 	set_color(0.95,0.83,0.01, 1)
-	print_desc("Halloween Limited Set", -1)
+	print_desc("Halloween Limited Item", -1)
 	set_color(1,1,1,1)
 	print_desc("A beautiful masterpiece to show your", 0)
 	print_desc("foes what you reserve for them", 1)
@@ -4327,7 +4341,31 @@ function draw_shelf()
 	print_desc("For when you want to look cool", 1) 
 	print_desc("or just blocking out the sun", 2)
 	elseif string.find(details_name, "Head Axe") then
-	print_desc("Heads up!", 2) 
+	set_color(0.95,0.83,0.01, 1)
+	print_desc("Halloween Limited Item", 1)
+	set_color(1,1,1,1)
+	print_desc("Heads up!", 2)
+	elseif string.find(details_name, "Tombstone") then
+	set_color(0.95,0.83,0.01, 1)
+	print_desc("Halloween Limited Item", 1)
+	set_color(1,1,1,1)
+	print_desc("Looks like your ancestor", 2)
+	print_desc("wants in on the fight!", 3)
+	elseif string.find(details_name, "Obsidian Scythe") then
+	set_color(0.95,0.83,0.01, 1)
+	print_desc("Halloween Limited Item", 0)
+	set_color(1,1,1,1)
+	print_desc("The Weapon of Demon Hunters.", 1)
+	print_desc("Rewarded to those who have slain", 2)
+	print_desc("a Werewolf, a Reaper, and the Devil.", 3)
+	elseif string.find(details_name, "Plague Doctor Mask") then
+	set_color(0.95,0.83,0.01, 1)
+	print_desc("Halloween Limited Item", -1)
+	set_color(1,1,1,1)
+	print_desc("Originally used by medieval doctors to protect", 0)
+	print_desc("from plague, this mask also comes in handy", 1)
+	print_desc("when you need to hide your identity", 2)
+	print_desc("from the unsuspecting victims.", 3)
 	elseif string.find(details_name, "Indian Headdress") then
 	print_desc("Contrary to popular belief,", 1) 
 	print_desc("did not originate in India", 2)

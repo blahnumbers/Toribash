@@ -201,6 +201,15 @@ do
 		-- Table to store event announcement data
 		local eventsData = {
 			{
+				title = "Happy Halloween!", 
+				subtitle = "Celebrate Halloween with exclusive items featuring Lil Spooks!", 
+				image = "../textures/menu/promo/lilspooks.tga",
+				action = function()
+						close_menu()
+						open_menu(12)
+					end
+			},
+			{
 				title = "Toribash's Most Wanted", 
 				subtitle = "This Halloween, the Hunt gets real.", 
 				image = "../textures/menu/promo/halloweenmostwanted.tga",
