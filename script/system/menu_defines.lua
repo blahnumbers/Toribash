@@ -46,7 +46,7 @@ TB_MENU_CLANFILTERS_BUTTON = "../textures/menu/general/buttons/clanfilters.tga"
 TB_MENU_CLANFILTERS_BUTTON_HOVER = "../textures/menu/general/buttons/clanfiltershover.tga"
 TB_MENU_CLANFILTERS_BUTTON_PRESS = "../textures/menu/general/buttons/clanfilterspressed.tga"
 
-local overrideActive = true
+local overrideActive = false
 
 function setDefinesOverrides()
 	TB_MENU_DEFAULT_BG_COLOR = { 0.735, 0.487, 0.265, 1 }

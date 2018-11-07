@@ -1940,7 +1940,7 @@ function mouse_up(mouse_btn, x, y)
 			view_flames()
 		end
 		if (height >= 720) then
-			gotofeatured(buttons.sfeatured, 3, 23, 20, x, y)
+			gotofeatured(buttons.sfeatured, 3, 22, 20, x, y)
 		end
 	else
 	local r = button_click_radius
@@ -2703,9 +2703,9 @@ function load_images()
 	sect_misc_ = load_texture("/torishop/gui/misc_.tga")
 	--torishop_announcement = load_texture("/torishop/gui/featuredbeanies.tga")
 	--torishop_announcement1 = load_texture("/torishop/gui/featuredfulltextures.tga")
-	--torishop_announcement2 = load_texture("/torishop/gui/featuredbarbershop.tga")
+	torishop_announcement4 = load_texture("/torishop/gui/featuredbarbershop.tga")
 	--torishop_announcement3 = load_texture("/torishop/gui/featuredmuaypromo.tga")
-	torishop_announcement4 = load_texture("/torishop/gui/featuredlilspook.tga")
+	--torishop_announcement4 = load_texture("/torishop/gui/featuredlilspook.tga")
 	--torishop_announcement5 = load_texture("/torishop/gui/featuredlotterypro.tga")
 	sect_flames = load_texture("/torishop/gui/flames.tga")
 	sect_flames_ = load_texture("/torishop/gui/flames_.tga")

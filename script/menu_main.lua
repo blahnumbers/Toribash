@@ -22,6 +22,11 @@ if (TORISHOP_ISOPEN == 1) then
 	TORISHOP_ISOPEN = 0
 end
 
+--[[if (not TB_MENU_CHAT_IGNORE_OVERRIDE) then --and not TB_MENU_CHAT_IGNORE) then
+	dofile("system/ignore_manager.lua")
+	ChatIgnore:activate()
+end]]
+
 if (TB_MENU_MAIN_ISOPEN == 1) then
 	remove_hooks("tbMainMenuVisual")
 	remove_hooks("tbMenuConsoleIgnore")

@@ -216,3 +216,4 @@ FRIENDSLISTLEGENDPLAYER	PLAYER
 FRIENDSLISTLEGENDROOM	ROOM	
 FRIENDSLISTREFRESH	Refresh	
 FRIENDSLISTADDFRIEND	Add new friend	
+CHATCENSOREDMESSAGE	Your message contains a banned word and will be censored for other players.	

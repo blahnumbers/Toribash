@@ -201,20 +201,11 @@ do
 		-- Table to store event announcement data
 		local eventsData = {
 			{
-				title = "Happy Halloween!", 
-				subtitle = "Celebrate Halloween with exclusive items featuring Lil Spooks!", 
-				image = "../textures/menu/promo/lilspooks.tga",
+				title = "Head Texture of the Month: Abstract", 
+				subtitle = "Are you diversified in the unknown? Can you replicate the abstract? Be unique and create your masterpiece!", 
+				image = "../textures/menu/promo/htotmabstract.tga",
 				action = function()
-						close_menu()
-						open_menu(12)
-					end
-			},
-			{
-				title = "Toribash's Most Wanted", 
-				subtitle = "This Halloween, the Hunt gets real.", 
-				image = "../textures/menu/promo/halloweenmostwanted.tga",
-				action = function()
-						TBMenu:showBounties()
+						open_url("http://forum.toribash.com/showthread.php?t=621707")
 					end
 			},
 			{
@@ -1351,7 +1342,7 @@ do
 			tbMenuBottomLeftButtons[i] = TBMenu:createImageButtons(tbMenuBottomLeftBar, (i - 1) * (tbMenuBottomLeftBar.size.h + 10), 0, tbMenuBottomLeftBar.size.h, tbMenuBottomLeftBar.size.h, v.image, v.imageHover, v.imagePress)
 			tbMenuBottomLeftButtons[i]:addMouseHandlers(nil, v.action, nil)
 		end
-		if (TB_BOUNTIES_DEFINED) then
+		--[[if (TB_BOUNTIES_DEFINED) then
 			local tbMenuPulseNotification = UIElement:new({
 				parent = tbMenuBottomLeftBar,
 				pos = { #tbMenuBottomLeftButtonsData * (tbMenuBottomLeftBar.size.h + 10) + 5, 5 },
@@ -1366,7 +1357,7 @@ do
 			tbMenuPulseNotification:addMouseHandlers(nil, function()
 					TBMenu:showBounties()
 				end)
-			--[[local pulseMod = 0
+			local pulseMod = 0
 			tbMenuPulseNotification:addCustomDisplay(false, function()
 					local r, g, b, a = unpack(tbMenuPulseNotification.animateColor)
 					set_color(r, g, b, a - pulseMod / 15)
@@ -1377,14 +1368,14 @@ do
 					if (pulseMod > 15) then
 						pulseMod = 0
 					end
-				end)]]
+				end)
 			local tbMenuPulseNotificationCaption = UIElement:new({
 				parent = tbMenuPulseNotification,
 				pos = { 10, 0 },
 				size = { tbMenuPulseNotification.size.w - 20, tbMenuPulseNotification.size.h }
 			})
 			tbMenuPulseNotificationCaption:addAdaptedText(false, "Toribash's Most Wanted")
-		end
+		end]]
 		--[[local tbMenuFriendsBetaCaption = UIElement:new({
 			parent = tbMenuBottomLeftButtons[1],
 			pos = { 0, -tbMenuBottomLeftBar.size.h / 3 },
@@ -1446,7 +1437,7 @@ do
 			pos = { 0, 0 },
 			size = { WIN_W, WIN_H },
 			uiColor = TB_MENU_UI_TEXT_COLOR,
-			uiShadowColor = UICOLORWHITE
+			uiShadowColor = TB_MENU_UI_TEXT_SHADOW_COLOR
 		})
 		local tbMenuBackground = UIElement:new({
 			parent = tbMenuMain,
