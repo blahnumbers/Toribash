@@ -1231,7 +1231,213 @@ do
 				end)
 		end
 	end
-	
+
+	function Torishop:showCollectorsCardsWC()
+		TB_MENU_IGNORE_REWARDS = 1
+		local overlay = TBMenu:spawnWindowOverlay({ 1, 1, 1, 0.5 })
+		overlay:addMouseHandlers(nil, function()
+				overlay:kill()
+				TB_MENU_IGNORE_REWARDS = 0
+			end)
+		local cardsData = {
+			{ player = "Gentleman", itemid = 3100 },
+			{ player = "Euphoria", itemid = 3098 },
+			{ player = "Code", itemid = 3096 },
+			{ player = "Diamond", itemid = 3097 },
+			{ player = "nervau", itemid = 3101 },
+			{ player = "Fade", itemid = 3099 },
+			{ player = "Nerfpls", itemid = 3093 },
+			{ player = "McFarbo", itemid = 3092 },
+		}
+		local selectedPlayer = math.random(1, #cardsData)
+
+		local cardsOverlay = UIElement:new({
+			parent = overlay,
+			pos = { 100, 100 },
+			size = { overlay.size.w - 200, overlay.size.h - 200 },
+			bgColor = { 0.118, 0.016, 0.043, 1 },
+			interactive = true
+		})
+		local scale = cardsOverlay.size.h * 2 < cardsOverlay.size.w and cardsOverlay.size.h or cardsOverlay.size.w / 2
+		local cardsBackgroundImage = UIElement:new({
+			parent = cardsOverlay,
+			pos = { cardsOverlay.size.w / 2 - scale, (cardsOverlay.size.h - scale) / 2 },
+			size = { scale * 2, scale },
+			bgImage = "../textures/menu/worldsbackground.tga"
+		})
+		local cardsBackgroundAnimation = UIElement:new({
+			parent = cardsOverlay,
+			pos = { 0, 0 },
+			size = { cardsOverlay.size.w, cardsOverlay.size.h }
+		})
+		local circles = {}
+		while (#circles < 100) do
+			local gb = math.random(250, 620) / 1000
+			local circle = {
+				color = { math.random(800, 900) / 1000, gb, gb, 1},
+				size = math.random(20, 60) / 10,
+				x = math.random(15, cardsOverlay.size.w - 15),
+			 	y = math.random(15, cardsOverlay.size.h - 15),
+				speed = math.random(100, 200) / 100,
+				shift = math.random(10, 40) / 100
+			}
+			table.insert(circles, circle)
+		end
+		cardsBackgroundAnimation:addCustomDisplay(true, function()
+				while (#circles < 100) do
+					local gb = math.random(250, 620) / 1000
+					local circle = {
+						color = { math.random(800, 900) / 1000, gb, gb, 1},
+						size = math.random(20, 60) / 10,
+						x = math.random(15, cardsOverlay.size.w - 15),
+					 	y = cardsOverlay.size.h - 40,
+						speed = math.random(100, 400) / 100,
+						shift = math.random(10, 40) / 100
+					}
+					table.insert(circles, circle)
+				end
+				for i = #circles, 1, -1 do
+					local circleTrans = circles[i].x > circles[i].y and circles[i].y or circles[i].x
+					set_color(circles[i].color[1], circles[i].color[2], circles[i].color[3], (circleTrans - 6) / cardsOverlay.size.h * 2)
+					draw_disk(cardsOverlay.pos.x + circles[i].x + circles[i].size / 2, cardsOverlay.pos.y + circles[i].y + circles[i].size / 2, 0, circles[i].size, 500, 1, 0, 360, 0)
+					circles[i].y = circles[i].y - 1 * circles[i].speed
+					circles[i].x = circles[i].x - circles[i].shift * circles[i].speed
+					if (circles[i].y < 15 or circles[i].x < 15) then
+						table.remove(circles, i)
+					end
+				end
+			end)
+
+			local backButton = UIElement:new({
+				parent = cardsOverlay,
+				pos = { -150, 0 },
+				size = { 140, 40 },
+				interactive = true,
+				bgColor = UICOLORWHITE,
+				hoverColor = TB_MENU_DEFAULT_LIGHTEST_COLOR,
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+			})
+			backButton:addCustomDisplay(true, function()
+					backButton:uiText(TB_MENU_LOCALIZED.NAVBUTTONBACK, nil, nil, nil, RIGHTMID, nil, nil, nil, backButton:getButtonColor())
+				end)
+			backButton:addMouseHandlers(nil, function()
+					overlay:kill()
+					TB_MENU_IGNORE_REWARDS = 0
+				end)
+
+			local cardsInfoHolder = UIElement:new({
+				parent = cardsOverlay,
+				pos = { 0, 0 },
+				size = { cardsOverlay.size.w, cardsOverlay.size.h }
+			})
+			Torishop:showCollectorsCardSingle(cardsInfoHolder, cardsData, selectedPlayer)
+	end
+
+	function Torishop:showCollectorsCardSingle(cardsOverlay, cardsData, selectedPlayer)
+		cardsOverlay:kill(true)
+		local cardScale = cardsOverlay.size.h > 532 and 512 or cardsOverlay.size.h - 20
+		local cardImage = UIElement:new({
+			parent = cardsOverlay,
+			pos = { (cardsOverlay.size.w * 2 / 3 - cardScale) / 2, (cardsOverlay.size.h - cardScale) / 2 },
+			size = { cardScale, cardScale },
+			bgImage = "../textures/menu/worlds2018/card" .. cardsData[selectedPlayer].player:lower() .. ".tga"
+		})
+		local cardInfoHolder = UIElement:new({
+			parent = cardsOverlay,
+			pos = { cardsOverlay.size.w / 3 + cardScale * 0.4, cardsOverlay.size.h / 10 },
+			size = { cardScale * 0.8, cardsOverlay.size.h * 0.8 }
+		})
+		local cardsDisclaimer = UIElement:new({
+			parent = cardInfoHolder,
+			pos = { 10, 0 },
+			size = { cardInfoHolder.size.w - 20, cardInfoHolder.size.h / 4 }
+		})
+		cardsDisclaimer:addAdaptedText(true, "World Championship 2018\nCollectors Card", nil, nil, FONTS.BIG, nil, 0.6)
+
+		local cardName = UIElement:new({
+			parent = cardInfoHolder,
+			pos = { 10, cardInfoHolder.size.h / 4 },
+			size = { cardInfoHolder.size.w - 20, cardInfoHolder.size.h / 4 }
+		})
+		cardName:addAdaptedText(true, cardsData[selectedPlayer].player, nil, nil, FONTS.BIG)
+
+		local cardInfo = UIElement:new({
+			parent = cardInfoHolder,
+			pos = { 0, cardInfoHolder.size.h / 2 },
+			size = { cardInfoHolder.size.w, cardInfoHolder.size.h / 4 },
+			shapeType = ROUNDED,
+			rounded = 5,
+			bgColor = { 0.118, 0.016, 0.043, 0.7 }
+		})
+		local cardInfoText = UIElement:new({
+			parent = cardInfo,
+			pos = { 10, 5 },
+			size = { cardInfo.size.w - 20, cardInfo.size.h - 10 }
+		})
+		cardInfoText:addAdaptedText(true, "Purchase this card now and win prize Toricredits if " .. cardsData[selectedPlayer].player .. " wins Toribash World Championship 2018 and becomes the best player of the year!", nil, nil, 4)
+
+		local cardPurchaseButton = UIElement:new({
+			parent = cardInfoHolder,
+			pos = { 10, cardInfoHolder.size.h * 3 / 4 + cardInfoHolder.size.h / 16 },
+			size = { cardInfoHolder.size.w - 20, cardInfoHolder.size.h / 4 - cardInfoHolder.size.h / 8 },
+			shapeType = ROUNDED,
+			rounded = 10,
+			hoverColor = { 0.236, 0.032, 0.086, 0.8 },
+			innerShadow = { 0, 5 },
+			shadowColor = { 0.354, 0.048, 0.129, 0.7 },
+			interactive = true,
+			bgColor = { 0.354, 0.048, 0.129, 0.7 },
+			pressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR
+		})
+		cardPurchaseButton:addAdaptedText(false, "Buy for 5,000 TC")
+		cardPurchaseButton:addMouseHandlers(nil, function()
+			UIElement:runCmd("bi " .. cardsData[selectedPlayer].itemid)
+		end)
+
+		local prevCardButton = UIElement:new({
+			parent = cardsOverlay,
+			pos = { 5, cardsOverlay.size.h / 2 - 25 },
+			size = { 50, 50 },
+			shapeType = ROUNDED,
+			rounded = 25,
+			interactive = true,
+			bgColor = { 0.118, 0.016, 0.043, 0.01 },
+			hoverColor = { 0.218, 0.036, 0.1, 1 },
+			pressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR
+		})
+		local prevCardIcon = UIElement:new({
+			parent = prevCardButton,
+			pos = { 12.5, 0 },
+			size = { 25, 50 },
+			bgImage = "../textures/menu/general/buttons/arrowleft.tga"
+		})
+		prevCardButton:addMouseHandlers(nil, function()
+				local selectedPlayer = selectedPlayer - 1 < 1 and #cardsData or selectedPlayer - 1
+				Torishop:showCollectorsCardSingle(cardsOverlay, cardsData, selectedPlayer)
+			end)
+		local nextCardButton = UIElement:new({
+			parent = cardsOverlay,
+			pos = { -55, cardsOverlay.size.h / 2 - 25 },
+			size = { 50, 50 },
+			shapeType = ROUNDED,
+			rounded = 25,
+			interactive = true,
+			bgColor = { 0.118, 0.016, 0.043, 0.01 },
+			hoverColor = { 0.218, 0.036, 0.1, 1 },
+			pressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR
+		})
+		local nextCardIcon = UIElement:new({
+			parent = nextCardButton,
+			pos = { 12.5, 0 },
+			size = { 25, 50 },
+			bgImage = "../textures/menu/general/buttons/arrowright.tga"
+		})
+		nextCardButton:addMouseHandlers(nil, function()
+				local selectedPlayer = selectedPlayer + 1 > #cardsData and 1 or selectedPlayer + 1
+				Torishop:showCollectorsCardSingle(cardsOverlay, cardsData, selectedPlayer)
+			end)
+	end
+
 	function Torishop:showTorishopMain(viewElement)
 		viewElement:kill(true)
 		local tcPurchaseView = UIElement:new({

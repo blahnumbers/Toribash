@@ -47,3 +47,5 @@ ACHIEVEMENT	45	Clan League 2013 Winner	Strongest clan of 2013.
 ACHIEVEMENT	46	Clan League 2014 Winner	Strongest clan of 2014.	
 ACHIEVEMENT	47	Clan League 2015 Winner	Strongest clan of 2015.	
 ACHIEVEMENT	48	Clan League 2016 Winner	Strongest clan of 2016.	
+ACHIEVEMENT	49	Clan League 2018 Winner	Strongest clan of 2018.	
+ACHIEVEMENT	50	PewPew	Your clan has become the best Pewers!	

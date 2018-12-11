@@ -891,7 +891,7 @@ do
 		end
 	
 		if (check) then
-			str = textAdapt(str, font, scale, self.size.w)
+			str = textAdapt(str, font, scale, self.size.w, true)
 		else
 			local strunformatted = str
 			str = self.str == strunformatted and self.dispstr or textAdapt(str, font, scale, self.size.w)
@@ -1120,7 +1120,7 @@ do
 		return newTable
 	end
 			
-	function textAdapt(str, font, scale, maxWidth)
+	function textAdapt(str, font, scale, maxWidth, check)
 		local clockdebug = os.clock()
 		
 		local destStr = {}
@@ -1149,8 +1149,10 @@ do
 			end
 			
 			-- Wrap word around if it still exceeds text field width
-			while (get_string_length(word, font) * scale > maxWidth) do
-				word = word:sub(1, word:len() - 1)
+			if (not check) then
+				while (get_string_length(word, font) * scale > maxWidth) do
+					word = word:sub(1, word:len() - 1)
+				end
 			end
 			
 			if ((get_string_length(newStr .. word, font) * scale > maxWidth or newline) and newStr ~= "") then

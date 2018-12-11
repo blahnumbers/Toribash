@@ -10,6 +10,8 @@ BLURENABLED = false
 TB_MENU_LANGUAGE = TB_MENU_LANGUAGE or nil
 TB_MENU_LOCALIZED = TB_MENU_LOCALIZED or {}
 
+TB_MENU_IGNORE_REWARDS = 0
+
 --Global objects
 tbMenuMain = nil -- base parent element
 tbMenuCurrentSection = nil -- parent element for current section items
@@ -186,34 +188,58 @@ do
 					TB_MENU_HOME_CURRENT_ANNOUNCEMENT = #eventItems
 				end
 				eventItems[TB_MENU_HOME_CURRENT_ANNOUNCEMENT].image:show()
-				viewElement:addMouseHandlers(nil, eventsData[TB_MENU_HOME_CURRENT_ANNOUNCEMENT].action, nil)
+				local function behavior()
+					eventsData[TB_MENU_HOME_CURRENT_ANNOUNCEMENT].action()
+					if (eventsData[TB_MENU_HOME_CURRENT_ANNOUNCEMENT].stop) then
+						clock.pause = true
+					end
+				end
+				viewElement:addMouseHandlers(nil, behavior, nil)
 				reloadElement:reload()
 				local tickTime = os.clock() * 10
 				clock.start = math.floor(tickTime)
 				clock.last = math.floor(tickTime)
+				clock.pause = false
 				break
 			end
 		end
 	end
-			
+
 	-- Stores and displays event announcements with timed rotation
 	function TBMenu:showEvents(viewElement)
 		-- Table to store event announcement data
 		local eventsData = {
 			{
-				title = "Head Texture of the Month: Abstract", 
-				subtitle = "Are you diversified in the unknown? Can you replicate the abstract? Be unique and create your masterpiece!", 
-				image = "../textures/menu/promo/htotmabstract.tga",
+				title = "World Championship Collectors Cards",
+				subtitle = "Toribash World Championship 2018 Collectors Cards are here! Support your favourite player now!",
+				image = "../textures/menu/promo/worldchampionship2018.tga",
 				action = function()
-						open_url("http://forum.toribash.com/showthread.php?t=621707")
-					end
+						Torishop:showCollectorsCardsWC(tbMenuCurrentSection)
+					end,
+				stop = true
 			},
 			{
-				title = "Season 5", 
-				subtitle = "Toribash Ranking is back with Season 5!", 
+				title = "Takes Two to Tango!",
+				subtitle = "Go with the flow! Dance the night away! Enjoy the ball with your special someone, or just let loose on the dance floor!",
+				image = "../textures/menu/promo/takestwototango.tga",
+				action = function()
+						open_url("http://forum.toribash.com/showthread.php?t=622568")
+					end,
+			},
+			{
+				title = "Head Texture of the Month: Christmas Edition",
+				subtitle = "Tis the season to make head textures, fa la la la la, la la la la. Let's get drawin' and have some fun!",
+				image = "../textures/menu/promo/htotmchristmas.tga",
+				action = function()
+						open_url("http://forum.toribash.com/showthread.php?t=622440")
+					end,
+			},
+			{
+				title = "Season 5",
+				subtitle = "Toribash Ranking is back with Season 5!",
 				image = "../textures/menu/promo/season5.tga",
-				action = function() 
-						if (TB_MENU_PLAYER_INFO.username == '') then 
+				action = function()
+						if (TB_MENU_PLAYER_INFO.username == '') then
 							TBMenu:showLoginError(tbMenuCurrentSection, TB_MENU_LOCALIZED.MAINMENUMATCHMAKINGNAME)
 							return
 						end
@@ -327,15 +353,17 @@ do
 		local tickTime = os.clock() * 10
 		local rotateClock = { start = math.floor(tickTime), last = math.floor(tickTime) }
 		eventDisplayTime:addCustomDisplay(true, function()
-				set_color(1,1,1,1)
-				draw_quad(eventItems[1].button.pos.x, eventItems[1].button.pos.y - 5, (os.clock() * 10 - rotateClock.start) % rotateTime / rotateTime * eventItems[1].button.size.w, 5)
+				if (not rotateClock.pause) then
+					set_color(1,1,1,1)
+					draw_quad(eventItems[1].button.pos.x, eventItems[1].button.pos.y - 5, (os.clock() * 10 - rotateClock.start) % rotateTime / rotateTime * eventItems[1].button.size.w, 5)
+				end
 			end)
 		viewElement:addCustomDisplay(false, function()
-				if ((math.floor(os.clock() * 10) - rotateClock.start) % rotateTime == 0 and math.floor(os.clock() * 10) ~= rotateClock.last) then
+				if ((math.floor(os.clock() * 10) - rotateClock.start) % rotateTime == 0 and math.floor(os.clock() * 10) ~= rotateClock.last and not rotateClock.pause) then
 					TBMenu:changeCurrentEvent(viewElement, eventsData, eventItems, rotateClock, toReload, 1)
 				end
 			end)
-		
+
 		-- Manual announcement change
 		local eventPrevButton = TBMenu:createImageButtons(toReload, 10, toReload.size.h / 2 - 32, 32, 64, "../textures/menu/general/buttons/arrowleft.tga", nil, nil, { 0, 0, 0, 0 }, { 0, 0, 0, 0.7 })
 		eventPrevButton:addMouseHandlers(nil, function()
@@ -345,8 +373,17 @@ do
 		eventNextButton:addMouseHandlers(nil, function()
 				TBMenu:changeCurrentEvent(viewElement, eventsData, eventItems, rotateClock, toReload, 1)
 			end, nil)
+
+		-- Set event button behavior
+		local function behavior()
+			eventsData[TB_MENU_HOME_CURRENT_ANNOUNCEMENT].action()
+			if (eventsData[TB_MENU_HOME_CURRENT_ANNOUNCEMENT].stop) then
+				rotateClock.pause = true
+			end
+		end
+		viewElement:addMouseHandlers(nil, behavior, nil)
 	end
-	
+
 	function TBMenu:showHomeButton(viewElement, buttonData, isTorishop)
 		local titleHeight, descHeight = viewElement.size.h / 5, viewElement.size.h / 6
 		local elementWidth, elementHeight, heightShift
@@ -368,7 +405,7 @@ do
 				bgImage = buttonData.image
 			})
 		end
-		if (isTorishop and itemIcon.size.h > 160) then
+		if (isTorishop and itemIcon.size.h > 160 and TB_STORE_DATA.onsale) then
 			local shopView = UIElement:new({
 				parent = itemIcon,
 				pos = { itemIcon.size.w * 0.5, 10 },
@@ -711,25 +748,74 @@ do
 			seconds = seconds - timeleft * 60
 			returnval = returnval .. " " .. timeleft .. " " .. timetype
 		end
-		if (seconds > 0 and timetype == "") then 
+		if (seconds > 0 and timetype == "") then
 			timetype = TB_MENU_LOCALIZED.REWARDSTIMESECONDS
 			returnval = returnval .. " " .. seconds .. " " .. timetype
 		end
 		return returnval:gsub("^ ", "")
 	end
-	
-	function TBMenu:spawnWindowOverlay()
+
+	function TBMenu:spawnWindowOverlay(color)
 		local overlay = UIElement:new({
+			globalid = TB_MENU_MAIN_ISOPEN == 0 and TB_MENU_HUB_GLOBALID,
 			parent = tbMenuMain,
 			pos = { 0, 0 },
-			size = { tbMenuMain.size.w, tbMenuMain.size.h },
+			size = { WIN_W, WIN_H },
 			interactive = true,
-			bgColor = { 0, 0, 0, 0.4 }
+			bgColor = color or { 0, 0, 0, 0.4 }
 		})
 		return overlay
 	end
-	
-	function TBMenu:showConfirmationWindow(message, confirmAction)
+
+	function TBMenu:showConfirmationWindowInput(title, inputInfo, confirmAction, cancelAction)
+		local confirmOverlay = TBMenu:spawnWindowOverlay()
+		local confirmBoxView = UIElement:new({
+			parent = confirmOverlay,
+			pos = { confirmOverlay.size.w / 7 * 2, confirmOverlay.size.h / 2 - 75 },
+			size = { confirmOverlay.size.w / 7 * 3, 150 },
+			bgColor = TB_MENU_DEFAULT_BG_COLOR
+		})
+		local confirmBoxTitle = UIElement:new({
+			parent = confirmBoxView,
+			pos = { 10, 5 },
+			size = { confirmBoxView.size.w - 20, 35 }
+		})
+		confirmBoxTitle:addAdaptedText(true, title)
+		local textField = TBMenu:spawnTextField(confirmBoxView, 10, 50, confirmBoxView.size.w - 20, 30, nil, nil, 1, nil, nil, inputInfo)
+		local cancelButton = UIElement:new({
+			parent = confirmBoxView,
+			pos = { 10, -50 },
+			size = { confirmBoxView.size.w / 2 - 15, 40 },
+			interactive = true,
+			bgColor = { 0, 0, 0, 0.1 },
+			hoverColor = { 0, 0, 0, 0.3 },
+			pressedColor = { 1, 1, 1, 0.2 }
+		})
+		cancelButton:addAdaptedText(false, "Cancel")
+		cancelButton:addMouseHandlers(nil, function()
+				confirmOverlay:kill()
+				if (cancelAction) then
+					cancelAction(textField.textfieldstr[1])
+				end
+			end)
+		local acceptButton = UIElement:new({
+			parent = confirmBoxView,
+			pos = { confirmBoxView.size.w / 2 + 5, -50 },
+			size = { confirmBoxView.size.w / 2 - 15, 40 },
+			interactive = true,
+			bgColor = { 0, 0, 0, 0.1 },
+			hoverColor = { 0, 0, 0, 0.3 },
+			pressedColor = { 1, 1, 1, 0.2 }
+		})
+		acceptButton:addAdaptedText(false, "Continue")
+		acceptButton:addMouseHandlers(nil, function()
+				confirmOverlay:kill()
+				confirmAction(textField.textfieldstr[1])
+			end)
+		return confirmOverlay
+	end
+
+	function TBMenu:showConfirmationWindow(message, confirmAction, cancelAction)
 		local confirmOverlay = TBMenu:spawnWindowOverlay()
 		local confirmBoxView = UIElement:new({
 			parent = confirmOverlay,
@@ -755,6 +841,9 @@ do
 		cancelButton:addAdaptedText(false, "Cancel")
 		cancelButton:addMouseHandlers(nil, function()
 				confirmOverlay:kill()
+				if (cancelAction) then
+					cancelAction()
+				end
 			end)
 		local acceptButton = UIElement:new({
 			parent = confirmBoxView,
@@ -770,34 +859,39 @@ do
 				confirmOverlay:kill()
 				confirmAction()
 			end)
+		return confirmOverlay
 	end
-	
+
 	function TBMenu:showDataError(message, noParent)
 		local transparency = 1
-		local errorMessage = UIElement:new({
+		if (tbMenuDataErrorMessage) then
+			tbMenuDataErrorMessage:kill()
+		end
+		tbMenuDataErrorMessage = UIElement:new({
+			globalid = noParent and TB_MENU_HUB_GLOBALID,
 			parent = tbMenuMain,
 			pos = { WIN_W / 4, noParent and WIN_H - 40 or -40 },
 			size = { WIN_W / 2, 40 },
 			bgColor = { 0, 0, 0, 0.8 * transparency }
 		})
 		local startTime = os.clock()
-		errorMessage:addCustomDisplay(false, function()
+		tbMenuDataErrorMessage:addCustomDisplay(false, function()
 				if (os.clock() - startTime > 2) then
 					transparency = transparency - 0.05
-					errorMessage.bgColor[4] = 0.8 * transparency
+					tbMenuDataErrorMessage.bgColor[4] = 0.8 * transparency
 				end
 				if (transparency <= 0) then
-					errorMessage:kill()
+					tbMenuDataErrorMessage:kill()
 				end
 			end)
 		local errorMessageView = UIElement:new({
-			parent = errorMessage,
+			parent = tbMenuDataErrorMessage,
 			pos = { 10, 0 },
-			size = { errorMessage.size.w - 20, errorMessage.size.h }
+			size = { tbMenuDataErrorMessage.size.w - 20, tbMenuDataErrorMessage.size.h }
 		})
 		errorMessageView:addAdaptedText(true, message, nil, nil, 4, nil, 0.7, nil, nil, nil, { 1, 1, 1, transparency })
 	end
-	
+
 	function TBMenu:showTorishopMain()
 		for i,v in pairs(get_downloads()) do
 			if (v:match("data/script/torishop/torishop.txt") or not TB_STORE_DATA.ready) then
