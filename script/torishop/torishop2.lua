@@ -120,7 +120,7 @@ end
 
 function errormessage()
 	set_color(1,1,1,0.8)
-	draw_quad(0,0,width,height) 
+	draw_quad(0,0,width,height)
 	set_color(0,0,0,1)
 	if (height <= 1100) then
 	draw_centered_text("Please log in with your", height/2-65, FONTS.BIG)
@@ -147,7 +147,7 @@ function get_playerinfo()
 		tc = 0
 		return
 	end
-		
+
     for ln in file:lines() do
 		if string.match(ln, "^BELT 0;") then
 			qi = string.gsub(ln, "BELT 0;", "")
@@ -163,7 +163,7 @@ function get_playerinfo()
 		end
     end
     file:close()
-	
+
 	if ((qi >= 0) and (qi < 20)) then belt = "White Belt" qi_next = 20 belt_next = "Yellow Belt"
 	elseif ((qi >= 20) and (qi < 50)) then belt = "Yellow Belt" qi_next = 50 belt_next = "Orange Belt"
 	elseif ((qi >= 50) and (qi < 100)) then belt = "Orange Belt" qi_next = 100 belt_next = "Green Belt"
@@ -188,7 +188,7 @@ function get_playerinfo()
 	end
 end
 
-	
+
 function load_data()
 	local file = io.open("torishop/torishop.txt") --'http://www.toribash.com/dump/store.php
 	if (file == nil) then
@@ -201,61 +201,61 @@ function load_data()
 
 	local current_line = 0
 	local _current_line = 0
-	
+
 	for ln in file:lines() do
 		if string.match(ln, "^PRODUCT") then
 			local segments = 19
 			local data_stream = { ln:match(("([^\t]*)\t"):rep(segments)) }	-- split a tab separated string into an array
-			
+
 			-- Adjust forum torishop sections
 			local skip = nil
 			if (data_stream[2] == "1") then data_stream[2] = "6"
-			elseif (data_stream[2] == "2") then 
-			elseif (data_stream[2] == "5") then 
+			elseif (data_stream[2] == "2") then
+			elseif (data_stream[2] == "5") then
 			elseif (data_stream[2] == "10") then data_stream[2] = "26"
 			elseif (data_stream[2] == "11") then data_stream[2] = "7"
 			elseif (data_stream[2] == "12") then data_stream[2] = "9"
 			-- elseif (data_stream[2] == "18") then data_stream[2] = "32" - Collectibles
 			elseif (data_stream[2] == "20") then data_stream[2] = "3"
 			elseif (data_stream[2] == "21") then data_stream[2] = "4"
-			elseif (data_stream[2] == "22") then 
+			elseif (data_stream[2] == "22") then
 				data_stream[2] = "1"
 			elseif (data_stream[2] == "23") then data_stream[2] = "26"
 			elseif (data_stream[2] == "24") then data_stream[2] = "11"
 			elseif (data_stream[2] == "27") then
 				data_stream[2] = "8"
 				data_stream[5] = string.gsub(data_stream[5], "Right Hand Motion Trail", "RHMT")
-			elseif (data_stream[2] == "28") then 
+			elseif (data_stream[2] == "28") then
 				data_stream[2] = "8"
 				data_stream[5] = string.gsub(data_stream[5], "Left Hand Motion Trail", "LHMT")
-			elseif (data_stream[2] == "29") then 
+			elseif (data_stream[2] == "29") then
 				data_stream[2] = "8"
 				data_stream[5] = string.gsub(data_stream[5], "Right Leg Motion Trail", "RLMT")
-			elseif (data_stream[2] == "30") then 
+			elseif (data_stream[2] == "30") then
 				data_stream[2] = "8"
 				data_stream[5] = string.gsub(data_stream[5], "Left Leg Motion Trail", "LLMT")
 			elseif (data_stream[2] == "34") then data_stream[2] = "12"
 			elseif (data_stream[2] == "41") then data_stream[2] = "10"
 			elseif (data_stream[2] == "43") then data_stream[2] = "13"
 			elseif (data_stream[2] == "44") then data_stream[2] = "27"
-			elseif (data_stream[2] == "46") then 
+			elseif (data_stream[2] == "46") then
 				if (data_stream[5] == "Box of Boxes") then
 					data_stream[2] = "30"
 				else
 					data_stream[2] = "28"
 				end
 			elseif (data_stream[2] == "48") then data_stream[2] = "29"
-			elseif (data_stream[2] == "54") then 
-				if string.find (data_stream[5], "256x256") then 
+			elseif (data_stream[2] == "54") then
+				if string.find (data_stream[5], "256x256") then
 					data_stream[2] = "16"
 				elseif string.find (data_stream[5], "512x512") then
 					data_stream[2] = "17"
-				else 
+				else
 					data_stream[2] = "15"
 				end
 			elseif (data_stream[2] == "55") then data_stream[2] = "18"
 			elseif (data_stream[2] == "57") then data_stream[2] = "19"
-			elseif (data_stream[2] == "58") then 
+			elseif (data_stream[2] == "58") then
 				data_stream[2] = "20"
 				data_stream[5] = string.sub(data_stream[5], 6)
 				data_stream[5] = "GUI" .. data_stream[5]
@@ -263,15 +263,15 @@ function load_data()
 			elseif (data_stream[2] == "68") then data_stream[2] = "25"
 			elseif (data_stream[2] == "72") then data_stream[2] = "21"
 			elseif (data_stream[2] == "73") then data_stream[2] = "14"
-			elseif (data_stream[2] == "74") then 
-				if string.find (data_stream[5], "256x256") then 
+			elseif (data_stream[2] == "74") then
+				if string.find (data_stream[5], "256x256") then
 					data_stream[2] = "16"
 				elseif string.find (data_stream[5], "512x512") then
 					data_stream[2] = "17"
-				else 
+				else
 					data_stream[2] = "15"
 				end
-			elseif (data_stream[2] == "78") then 
+			elseif (data_stream[2] == "78") then
 				if (string.lower(data_stream[5]) == "colossal sword" or
 					string.lower(data_stream[5]) == "hidden blade" or
 					string.lower(data_stream[5]) == "kunai holster" or
@@ -295,7 +295,7 @@ function load_data()
 				else
 					data_stream[2] = "22"
 				end
-			elseif (data_stream[2] == "79") then 
+			elseif (data_stream[2] == "79") then
 				if (data_stream[5] == "Forum VIP" or
 					data_stream[5] == "Wibbles" or
 					data_stream[5] == "Wibbles Anonymous") then
@@ -304,7 +304,7 @@ function load_data()
 					data_stream[2] = "24"
 				end
 			elseif (data_stream[2] == "80") then
-				if (string.lower(data_stream[5]) == "sound pack") then 
+				if (string.lower(data_stream[5]) == "sound pack") then
 					data_stream[2] = "26"
 					data_stream[18] = "0"
 				elseif string.find(string.lower(data_stream[5]), "texture") then
@@ -338,7 +338,7 @@ function load_data()
 					data_stream[2] = "30"
 				end
 			else skip = 1 end
-			
+
 			if (data_stream[14] == "1") then
 				data_stream[14] = "Beginner"
 			elseif (data_stream[14] == "2") then
@@ -364,14 +364,14 @@ function load_data()
 			elseif (data_stream[14] == "12") then
 				data_stream[14] = "Elite"
 			end
-			
+
 			if (not skip and (data_stream[18] ~= "1" and data_stream[19] ~= "1")) then
 				current_line = current_line + 1
 				for i, v in ipairs(data_types) do
 					data_table[v][current_line] = data_stream[i + 1]
 				end
-			
-				if (data_stream[10] ~= "0.00") then 
+
+				if (data_stream[10] ~= "0.00") then
 					_current_line = _current_line + 1
 					for i, v in ipairs(data_types) do
 						data_table_usd[v][_current_line] = data_stream[i + 1]
@@ -381,16 +381,16 @@ function load_data()
 		end
 	end
 	file:close()
-	
+
 	if (current_line > 0) then
 		data_table_lines = current_line
 		data_exists = true
 	end
-	
+
 	if (_current_line > 0) then
 		data_table_usd_lines = _current_line
 	end
-	
+
 	get_playerinfo()
 end
 
@@ -444,14 +444,14 @@ function load_sections()
 	sections[33] = { name = "128px Head Textures", total_items = 0, try = true, selected_index = 0 }
 	sections[34] = { name = "256px Head Textures", total_items = 0, try = true, selected_index = 0 }
 	sections[35] = { name = "512px Head Textures", total_items = 0, try = true, selected_index = 0 }
-	
+
 	for i = 1, 35 do
 		sections[i].selected_index = 1
 		change_section_first[i] = 1
 	end
-	
-	-- USD 
-	
+
+	-- USD
+
 	-- Colors Section
 	sections_[1] = { name = "Force Colors", total_items = 0, try = true, selected_index = 0 }
 	sections_[2] = { name = "Relax Colors", total_items = 0, try = true, selected_index = 0 }
@@ -581,7 +581,7 @@ function load_items()
 		end
 		line = line + 1
 	end
-	
+
 	for line = 1, data_table_usd_lines do
 		local id = tonumber(data_table_usd.catid[line])
 		local num = sections_[id].total_items + 1
@@ -624,10 +624,10 @@ function load_buttons()
 	buttons.arrows.cart_next = { x = 900, y = 490, angle = 90, state = BTN_UP }
 	buttons.arrows.cart_prev = { x = 870, y = 490, angle = 270, state = BTN_UP }
 	buttons.arrows.cart_min = { x = 935, y = 0, angle = 0, state = BTN_UP }
-	
+
 	-- Text-type buttons
 	if (main_page == false) then main_y = 10 else main_y = height-30 end
-	
+
 	-- Text Buttons
 	buttons.torishop = { x = 162, y = main_y, w = 165, h = 20, state = BTN_UP }
 	buttons.none = { x = 36, y = 43, w = 56, h = 20, state = BTN_UP }
@@ -639,24 +639,24 @@ function load_buttons()
 	buttons.sfeatured = { x = 10, y = height/10 - 10, w = 470, h = 275, state = BTN_UP }
 	buttons.sfeatured1 = { x = 10, y = height/10 - 10, w = 230, h = 275, state = BTN_UP }
 	buttons.sfeatured2 = { x = 250, y = height/10 - 10, w = 230, h = 275, state = BTN_UP }
-	
+
 	buttons.mainsingle =  {x = 10, y = position, w = 230, h = 150, state = BTN_UP }
 	buttons.mainfull =  {x = 250, y = position, w = 230, h = 150, state = BTN_UP }
-	
+
 	buttons.sflames = { x = 85, y = position + step + step, w = 320, h = 40, state = BTN_UP }
-	
+
 	-- MainView1 Buttons
 	buttons.scolors = { x = 10, y = position, w = 230, h = 70, state = BTN_UP }
 	buttons.stextures = { x = 250, y = position, w = 230, h = 70, state = BTN_UP }
 	buttons.shairs = { x = 10, y = position + step, w = 230, h = 70, state = BTN_UP }
 	buttons.smisc = { x = 250, y = position + step, w = 230, h = 70, state = BTN_UP }
-	
+
 	--MainView2 Buttons
 	buttons.scolorpacks = { x = 10, y = position, w = 230, h = 70, state = BTN_UP }
 	buttons.stexturesets = { x = 250, y = position, w = 230, h = 70, state = BTN_UP }
 	buttons.smodelpacks = { x = 10, y = position + step, w = 230, h = 70, state = BTN_UP }
 	buttons.sfulltoris = { x = 250, y = position + step, w = 230, h = 70, state = BTN_UP }
-	
+
 	-- Purchase Buttons
 	buttons.buy = { x = 313, y = 135, w = 128, h = 34, state = BTN_UP }
 	buttons.gettc = { x = 330, y = 135, w = 128, h = 34, state = BTN_UP }
@@ -665,8 +665,8 @@ function load_buttons()
 	buttons.cartbuy = { x = 810, y = height - 36, w = 128, h = 34, state = BTN_UP }
 
 	-- Vip/Prime info Button
-	buttons.info_prime = { x = 175, y = 294, w = 150, h = 20, state = BTN_UP } 
-	
+	buttons.info_prime = { x = 175, y = 294, w = 150, h = 20, state = BTN_UP }
+
 	-- Confirm Screen Buttons
 	buttons.confirm = { x = width/2 - 105, y = height/2 - 10, w = 230, h = 20, state = BTN_UP }
 	buttons.cancel = { x = width/2 - 40, y = height/2 + 20, w = 80, h = 20, state = BTN_UP }
@@ -674,10 +674,10 @@ function load_buttons()
 	for i = 1, items_per_shelf do
 		buttons[i] = {}
 	end
-		
+
 	for i = 1, 5 do
 		cartbuttons[i] = {}
-		cartbuttons[i].cartremove = { x = 0, y = 0, w = 0, h = 0 } 
+		cartbuttons[i].cartremove = { x = 0, y = 0, w = 0, h = 0 }
 		cartremovestate[i] = BTN_UP
 	end
 end
@@ -705,7 +705,7 @@ function change_ss()
 		elseif (main_section == 5) then sub_in_section = 2
 		elseif (main_section <= 8) then sub_in_section = 1
 		else sub_in_section = 0
-		end 
+		end
 	end
 	load_ss_buttons()
 end
@@ -728,7 +728,7 @@ function init_player()
 	if (name ~= nil) then
 		load_player(0, name)	-- use player customs if logged in
 	end
-	
+
 	local data1 = set_torishop(0)
 	player.blood = data1.blood_color
 	player.torso = data1.torso_color
@@ -740,7 +740,7 @@ function init_player()
 	player.rhmt = { data1.rh_trail_r, data1.rh_trail_g, data1.rh_trail_b, data1.rh_trail_a }
 	player.llmt = { data1.ll_trail_r, data1.ll_trail_g, data1.ll_trail_b, data1.ll_trail_a }
 	player.rlmt = { data1.rl_trail_r, data1.rl_trail_g, data1.rl_trail_b, data1.rl_trail_a }
-	
+
 	local data2 = get_joint_color(0, 0)
 	player.relax = data2.joint.relax
 	player.force = data2.joint.force
@@ -789,10 +789,10 @@ function apply_texture(texture, section)
 		loads = 20
 	elseif (section > 32 and section < 36) then
 		if section == 34 then resolution = 1
-		elseif section == 35 then resolution = 2 
+		elseif section == 35 then resolution = 2
 		end
 		if string.find(string.lower(texture), "nautikor") then seed = 1
-		elseif string.find(string.lower(texture), "randombot001") then seed = 2 
+		elseif string.find(string.lower(texture), "randombot001") then seed = 2
 		elseif string.find(string.lower(texture), "avionic") then seed = 3
 		elseif string.find(string.lower(texture), "geo") then seed = 4
 		elseif string.find(string.lower(texture), "space owl") then seed = 5
@@ -823,7 +823,7 @@ function set_player_color(item)
 		name = sections_[section_index].name
 		color = sections_[section_index][item].color
 	end
-	
+
 	local head = get_body_info(0, BODYPARTS.HEAD)
 
 	if (name == "Force Colors") then
@@ -875,7 +875,7 @@ function set_player_color(item)
 		usertext_custom_color = true
 		tempinfo.text = color
 	elseif (name == "Emote Colors") then
-		if (string.len(color) < 2) then  
+		if (string.len(color) < 2) then
 		run_cmd("em ^0"..color..details_name)
 		elseif (string.len(color) > 2) then
 		run_cmd("em %"..color..details_name)
@@ -902,7 +902,7 @@ function set_player_color(item)
 			timer_custom_color = true
 			usertext_color = color
 			usertext_custom_color = true
-			if (string.len(color) < 2) then  
+			if (string.len(color) < 2) then
 				run_cmd("em ^0"..color..details_name)
 			elseif (string.len(color) > 2) then
 				run_cmd("em %"..color..details_name)
@@ -1194,11 +1194,11 @@ function set_player_color(item)
 			model_name == "gentlemen's_mustache" or
 			model_name == "sunglasses" or
 			model_name == "swag_cap" or
-			model_name == "beaten_halo" or 
+			model_name == "beaten_halo" or
 			model_name == "beaten_horns" or
 			model_name == "cereal_box" or
 			model_name == "crayon_tori_box" or
-			model_name == "deal_with_it" or 
+			model_name == "deal_with_it" or
 			model_name == "duckbill" or
 			model_name == "flammable_box" or
 			model_name == "hampa_box" or
@@ -1222,7 +1222,7 @@ function set_player_color(item)
 			model_name == "side_kitsune_mask" or
 			model_name == "yin_the_orca" or
 			model_name == "cowboy_hat" or
-			model_name == "tv_box" or 
+			model_name == "tv_box" or
 			model_name == "soderspy" or
 			model_name == "viking_helmet" or
 			model_name == "forehead_protector" or
@@ -1242,13 +1242,13 @@ function set_player_color(item)
 		elseif (model_name == "jack-o'-lantern") then run_cmd("obj load data/script/torishop/models/"..model_name..".obj 0 0 0 255 1 0 1 0")
 		elseif (model_name == "tengu_mask") then run_cmd("obj load data/script/torishop/models/"..model_name..".obj 0 0 50 255 1 0 0 0")
 		elseif (model_name == "little_latching_elf") then run_cmd("obj load data/script/torishop/models/"..model_name..".obj 0 17 0 255 1 0 0 0")
-		elseif (model_name == "portable_cassette" or 
+		elseif (model_name == "portable_cassette" or
 			model_name == "kunai_holster" or
 			model_name == "love_potion") then run_cmd("obj load data/script/torishop/models/"..model_name..".obj 0 16 0 255 1 0 0 0")
-		elseif (model_name == "left_boxing_glove" or 
+		elseif (model_name == "left_boxing_glove" or
 			model_name == "left_box-ing_glove" or
 			model_name == "pirate_hook") then run_cmd("obj load data/script/torishop/models/"..model_name..".obj 0 12 0 255 1 0 1 0")
-		elseif (model_name == "right_boxing_glove" or 
+		elseif (model_name == "right_boxing_glove" or
 			model_name == "right_box-ing_glove") then run_cmd("obj load data/script/torishop/models/"..model_name..".obj 0 11 0 255 1 0 1 0")
 		elseif (model_name == "left_kickin'_kick") then run_cmd("obj load data/script/torishop/models/"..model_name..".obj 0 20 0 255 1 0 1 0")
 		elseif (model_name == "right_kickin'_kick") then run_cmd("obj load data/script/torishop/models/"..model_name..".obj 0 19 0 255 1 0 1 0")
@@ -1256,11 +1256,13 @@ function set_player_color(item)
 		elseif (model_name == "candy_cane" or
 			model_name == "fashionable_bow-tie" or
 			model_name == "nailbat" or
+			model_name == "gold_chain" or
+			model_name == "silver_chain" or
 			model_name == "ukelele" or
 			model_name == "demon_wings" or
 			model_name == "fish_friend" or
-			model_name == "broom_stick" or 
-			model_name == "obsidian_scythe" or 
+			model_name == "broom_stick" or
+			model_name == "obsidian_scythe" or
 			model_name == "shoveler's_shovel") then run_cmd("obj load data/script/torishop/models/"..model_name..".obj 0 1 0 255 1 0 0 0")
 		elseif (model_name == "katana") then run_cmd("obj load data/script/torishop/models/"..model_name..".obj 0 1 0 255 1 1 0 0")
 		elseif (model_name == "right_punkspike") then run_cmd("obj load data/script/torishop/models/"..model_name..".obj 0 7 0 255 1 0 0 0")
@@ -1276,11 +1278,11 @@ function set_player_color(item)
 			model_name == "hazard_mask" or
 			model_name == "steampunk_goggles" or
 			model_name == "clout_goggles" or
-			model_name == "pirate_hat" or 
+			model_name == "pirate_hat" or
 			model_name == "indian_headdress" or
 			string.find(model_name, "beanie")) then run_cmd("obj load data/script/torishop/models/"..model_name..".obj 0 0 0 255 1 1 0 0")
 		elseif (model_name == "colossal_sword") then run_cmd("obj load data/script/torishop/models/"..model_name..".obj 0 2 0 255 1 0 0 0")
-		elseif (model_name == "hidden_blade" or 
+		elseif (model_name == "hidden_blade" or
 			model_name == "right_armblade") then run_cmd("obj load data/script/torishop/models/"..model_name..".obj 0 7 0 255 1 0 0 0")
 		elseif (model_name == "pirate_belt") then run_cmd("obj load data/script/torishop/models/"..model_name..".obj 0 4 0 255 1 0 0 0")
 		elseif (model_name == "zombie_hand") then run_cmd("obj load data/script/torishop/models/"..model_name..".obj 0 17 0 255 1 0 0 0")
@@ -1397,7 +1399,7 @@ function set_player_color(item)
 		elseif (details_name == "Punkspikes") then
 			run_cmd("obj load data/script/torishop/models/right_punkspike.obj 0 7 0 255 1 0 0 0")
 			run_cmd("obj load data/script/torishop/models/left_punkspike.obj 0 10 0 255 1 0 0 0")
-		elseif (details_name == "Elbow Pads") then 
+		elseif (details_name == "Elbow Pads") then
 			run_cmd("obj load data/script/torishop/models/elbow_pad_r.obj 0 7 0 255 1 0 0 0")
 			run_cmd("obj load data/script/torishop/models/elbow_pad_l.obj 0 10 0 255 1 0 0 0")
 		elseif (details_name == "July Muay Thai Promo") then
@@ -1462,7 +1464,7 @@ end
 function set_player_default_color()
 	local section_index = section_order[current_section]
 	local name = sections[section_index].name
-	
+
 	if (name == "Force Colors") then
 		set_joint_force_color(0, player.force)
 	elseif (name == "Relax Colors") then
@@ -1567,7 +1569,7 @@ function change_section(num)
 		local section = section_order[current_section]
 		items_all = sections[section].total_items
 		items = items_all
-		if (current_section == 32) then 
+		if (current_section == 32) then
 			total_shelves = math.ceil(items / sale_items_per_shelf)
 			total_shelves_all = total_shelves
 			total_shelves_all2 = total_shelves
@@ -1577,11 +1579,11 @@ function change_section(num)
 				if (sections[section].selected_index % sale_items_per_shelf == 0) then current_shelf = current_shelf - 1 end
 			end
 		else
-			items_usd_all = sections_[section].total_items 
+			items_usd_all = sections_[section].total_items
 			items_usd_skip = items_usd_all
 			items_nextqi = 0
 			items_usd = 0
-			
+
 			for i = 1, items_all do
 				local item_index = i + (current_shelf - 1)*items_shelf
 				local shelf_qi = tonumber(sections[section][item_index].qi)
@@ -1589,18 +1591,18 @@ function change_section(num)
 					if (shelf_qi <= qi_next) then items_nextqi = (items_nextqi + 1)
 					end
 				end
-			end	
-						
+			end
+
 			for i = 1, items_usd_all do
 				local item_index = i + (current_shelf - 1)*items_shelf
 				local shelf_qi = tonumber(sections_[section][item_index].qi)
 				local shelf_usd = tonumber(sections_[section][item_index].price_usd)
-				if (shelf_qi > qi_next and shelf_usd > 0) then 
+				if (shelf_qi > qi_next and shelf_usd > 0) then
 					items_usd = (items_usd + 1)
 					items_usd_skip = items_usd_skip - 1
 				end
 			end
-			
+
 			total_shelves = math.ceil(items/items_shelf)
 			total_shelves_all = math.ceil(items/items_shelf) + math.ceil(items_nextqi/items_shelf_next)
 			total_shelves_all2 = math.ceil(items/items_shelf) + math.ceil(items_nextqi/items_shelf_next) + math.ceil(items_usd/items_shelf_next)
@@ -1615,10 +1617,10 @@ function change_section(num)
 					current_shelf = math.floor(sections[section].selected_index/items_shelf) + 1
 					if (sections[section].selected_index % items_shelf == 0) then current_shelf = current_shelf - 1 end
 				end
-			else 
+			else
 				current_shelf = math.floor(sections_[section].selected_index/items_shelf_next) + total_shelves_all + 1
 				if (sections_[section].selected_index % items_shelf_next == 0) then current_shelf = current_shelf - 1 end
-			end	
+			end
 		end
 	end
 end
@@ -1678,7 +1680,7 @@ end
 
 function cart_reload()
 	for j = 1, 5 do
-		if (cart_icon[j]) then 
+		if (cart_icon[j]) then
 			unload_texture(cart_icon[j])
 			cart_icon[j] = nil
 		end
@@ -1697,13 +1699,13 @@ end
 
 function mouse_down(mouse_btn, x, y)
 	mouse_state = MOUSE_DOWN
-	
+
 	if (x > buttons.torishop.x and x < (buttons.torishop.x + buttons.torishop.w) and y > buttons.torishop.y and y < (buttons.torishop.y + buttons.torishop.h)) then
 		buttons.torishop.state = BTN_DOWN
 	end
-	
+
 	btn_dn(buttons.tomain, x, y)
-	
+
 	if (main_page == true) then
 		local r = button_click_radius
 		for i, v in pairs(buttons.arrows) do
@@ -1737,46 +1739,46 @@ function mouse_down(mouse_btn, x, y)
 			btn_dn(buttons.sfulltoris, x, y)
 		end
 		btn_dn(buttons.sflames, x, y)
-	
+
 	else
-		
+
 		local r = button_click_radius
 		for i, v in pairs(buttons.arrows) do
 			if (x > (v.x - r) and x < (v.x + r) and y > (v.y - r) and y < (v.y + r)) then
 				v.state = BTN_DOWN
 			end
 		end
-		
+
 			btn_dn(buttons.none, x, y)
 			btn_dn(buttons.default, x, y)
-		
+
 		if (details_name == "Forum VIP" or details_name == "Halloween Special") then
 			btn_dn(buttons.info_prime, x, y)
 		end
-		
+
 		if (cart_current > 0) then
 			btn_dn(buttons.cartbuy, x, y)
-		
+
 			for i = 1, 5 do
 				if (x > cartbuttons[i].cartremove.x and x < (cartbuttons[i].cartremove.x + cartbuttons[i].cartremove.w) and y > cartbuttons[i].cartremove.y and y < (cartbuttons[i].cartremove.y + cartbuttons[i].cartremove.h)) then
 					cartremovestate[i] = BTN_DOWN
 				end
 			end
 		end
-		
+
 		for ss = 1, sub_in_section do
 			btn_dn(buttons[ss].choose_ss, x, y)
 		end
-		
+
 		for i = 1, items_per_shelf do
 			btn_dn(buttons[i].icon, x, y)
 			btn_dn(buttons.buy, x, y)
 			btn_dn(buttons.tocarttc, x, y)
 			btn_dn(buttons.buysteam, x, y)
-			btn_dn(buttons.gettc, x, y)	
+			btn_dn(buttons.gettc, x, y)
 		end
 	end
-	
+
 	if confirm_name ~= nil then
 		btn_dn(buttons.confirm, x, y)
 		btn_dn(buttons.cancel, x, y)
@@ -1790,7 +1792,7 @@ function gotosection(button, sale, mainsection, section, x, y)
 		if (sale == true) then
 			buttons.tomain.y = 15
 			buttons.tomain.x = 428
-		else 
+		else
 			buttons.tomain.y = 43
 			buttons.tomain.x = 400
 		end
@@ -1804,7 +1806,7 @@ function gotosection(button, sale, mainsection, section, x, y)
 		end
 		change_ss()
 		change_section(current_section)
-		clear_icons() 
+		clear_icons()
 	end
 end
 
@@ -1845,26 +1847,26 @@ function gotofeatured(button, mainsection, section, sectionshift, x, y, url)
 			end
 			change_ss()
 			change_section(current_section)
-			clear_icons() 
+			clear_icons()
 		end
 	end
 end
 
 function mouse_up(mouse_btn, x, y)
 	mouse_state = MOUSE_UP
-	local section_index = section_order[current_section]	
-	
+	local section_index = section_order[current_section]
+
 	if (x > buttons.torishop.x and x < (buttons.torishop.x + buttons.torishop.w) and y > buttons.torishop.y and y < (buttons.torishop.y + buttons.torishop.h)) then
 		buttons.torishop.state = BTN_HOVER
 		--open_url("http://www.toribash.com/forum/tori_inventory.php")	-- NON-STEAM
 		run_cmd("it")                                           	 	-- STEAM
 	end
-	
+
 	if confirm_name ~= nil then
 		if (x > buttons.confirm.x and x < (buttons.confirm.x + buttons.confirm.w) and y > buttons.confirm.y and y < (buttons.confirm.y + buttons.confirm.h)) then
 			buttons.confirm.state = BTN_HOVER
-			if ((details_price ~= 0) and (buysteam == false)) then 
-				if (buy_type == SINGLE_ITEM) then 
+			if ((details_price ~= 0) and (buysteam == false)) then
+				if (buy_type == SINGLE_ITEM) then
 					run_cmd("bi " .. confirm_id)
 				elseif (buy_type == CART_ITEMS) then
 					run_cmd("mbi " .. cart_current .. " " .. confirm_id)
@@ -1882,14 +1884,14 @@ function mouse_up(mouse_btn, x, y)
 			buysteam = false
 			buy_type = SINGLE_ITEM
 		end
-	
+
 		if (x > buttons.cancel.x and x < (buttons.cancel.x + buttons.cancel.w) and y > buttons.cancel.y and y < (buttons.cancel.y + buttons.cancel.h)) then
 			buttons.cancel.state = BTN_HOVER
 			confirm_name = nil
 			confirm_id = nil
 		end
 	end
-	
+
 	if (main_page == true) then
 		local r = button_click_radius
 		for i, v in pairs(buttons.arrows) do
@@ -1928,7 +1930,7 @@ function mouse_up(mouse_btn, x, y)
 			gotosection(buttons.stextures, false, 2, 15, x, y)
 			gotosection(buttons.shairs, false, 3, 21, x, y)
 			gotosection(buttons.smisc, false, 4, 24, x, y)
-		else 
+		else
 			gotosection(buttons.scolorpacks, false, 5, 27, x, y)
 			gotosection(buttons.stexturesets, false, 6, 29, x, y)
 			gotosection(buttons.smodelpacks, false, 7, 30, x, y)
@@ -1970,7 +1972,7 @@ function mouse_up(mouse_btn, x, y)
 			end
 		end
 	end
-	
+
 	if (x > buttons.none.x and x < (buttons.none.x + buttons.none.w) and y > buttons.none.y and y < (buttons.none.y + buttons.none.h)) then
 		buttons.none.state = BTN_HOVER
 		if (sections[section_index].try == true) then
@@ -1990,7 +1992,7 @@ function mouse_up(mouse_btn, x, y)
 			clear_icons()
 		end
 	end
-	
+
 	if (details_name == "Forum VIP") then
 	if (x > buttons.info_prime.x and x < (buttons.info_prime.x + buttons.info_prime.w) and y > buttons.info_prime.y and y < (buttons.info_prime.y + buttons.info_prime.h)) then
 		buttons.info_prime.state = BTN_HOVER
@@ -2002,11 +2004,11 @@ function mouse_up(mouse_btn, x, y)
 		open_url("http://forum.toribash.com/tori_token_exchange.php")
 	end
 	end
-	
+
 	for ss = 1, sub_in_section do
 		if (x > buttons[ss].choose_ss.x and x < (buttons[ss].choose_ss.x + buttons[ss].choose_ss.w) and y > buttons[ss].choose_ss.y and y < (buttons[ss].choose_ss.y + buttons[ss].choose_ss.h)) then
 			buttons[ss].choose_ss.state = BTN_HOVER
-			current_shelf = 1 
+			current_shelf = 1
 			if (main_section == 1) then ss_shift = 0
 			elseif (main_section == 2) then ss_shift = 14
 			elseif (main_section == 3) then ss_shift = 20
@@ -2016,7 +2018,7 @@ function mouse_up(mouse_btn, x, y)
 			elseif (main_section == 7) then ss_shift = 29
 			elseif (main_section == 8) then ss_shift = 30
 			elseif (main_section == 9) then ss_shift = 31
-			end 
+			end
 			if (sections[ss_shift+ss].selected_index == 0) then
 				sections[ss_shift+ss].selected_index = 1
 			end
@@ -2024,17 +2026,17 @@ function mouse_up(mouse_btn, x, y)
 			clear_icons()
 		end
 	end
-	
+
 	if (current_shelf <= total_shelves) then
 		local per_shelf, ignore_qi = nil
 		if (current_section == 32) then
 			per_shelf = sale_items_per_shelf
 			ignore_qi = 1
-		else 
+		else
 			per_shelf = items_per_shelf
 			ignore_qi = nil
 		end
-		
+
 		for i = 1, per_shelf do
 			local item_index = i + (current_shelf - 1)*per_shelf
 			if (item_index > #sections[section_index]) then
@@ -2051,13 +2053,13 @@ function mouse_up(mouse_btn, x, y)
 					details_price_usd = sections[section_index][item_index].price_usd
 					details_id = sections[section_index][item_index].id
 					sections[section_index].selected_index = item_index
-					if (current_section ~= 32) then 
+					if (current_section ~= 32) then
 						sections_[section_index].selected_index = 0
 					end
 					change_section_first[section_index] = 0
 					if (sections[section_index].try == true) then
 						if section_index == 29 then
-							apply_texture(details_name, section_index)							
+							apply_texture(details_name, section_index)
 						elseif section_index < 33 then
 							set_player_color(item_index)
 						else
@@ -2118,7 +2120,7 @@ function mouse_up(mouse_btn, x, y)
 			end
 		end
 	end
-		
+
 	if (x > buttons.buy.x and x < (buttons.buy.x + buttons.buy.w) and y > buttons.buy.y and y < (buttons.buy.y + buttons.buy.h)) then
 		buttons.buy.state = BTN_HOVER
 			if (can_buy == true and details_price > 0) then
@@ -2131,13 +2133,13 @@ function mouse_up(mouse_btn, x, y)
 					if (sections[current_section].selected_index == 0) then
 						sections[current_section].selected_index = 1
 					end
-					change_ss() change_section(current_section) clear_icons() 
+					change_ss() change_section(current_section) clear_icons()
 				else
 					buy_type = SINGLE_ITEM
 					confirm_name = details_name
 					confirm_id = details_id
 				end
-			end				
+			end
 	end
 	if (x > buttons.tocarttc.x and x < (buttons.tocarttc.x + buttons.tocarttc.w) and y > buttons.tocarttc.y and y < (buttons.tocarttc.y + buttons.tocarttc.h)) then
 		buttons.tocarttc.state = BTN_HOVER
@@ -2151,7 +2153,7 @@ function mouse_up(mouse_btn, x, y)
 				if (sections[current_section].selected_index == 0) then
 					sections[current_section].selected_index = 1
 				end
-				change_ss() change_section(current_section) clear_icons() 
+				change_ss() change_section(current_section) clear_icons()
 			else
 				if (cart_type == nil) then
 					cart_type = 1
@@ -2185,7 +2187,7 @@ function mouse_up(mouse_btn, x, y)
 			cart_warning[1] = true
 		end
 	end
-	
+
 	if (details_price_usd ~= "0.00") then
 		if (x > buttons.buysteam.x and x < (buttons.buysteam.x + buttons.buysteam.w) and y > buttons.buysteam.y and y < (buttons.buysteam.y + buttons.buysteam.h)) then
 			buttons.buysteam.state = BTN_HOVER
@@ -2198,8 +2200,8 @@ function mouse_up(mouse_btn, x, y)
 					if (sections[current_section].selected_index == 0) then
 						sections[current_section].selected_index = 1
 					end
-					change_ss() change_section(current_section) clear_icons() 
-			else		
+					change_ss() change_section(current_section) clear_icons()
+			else
 				buysteam = true
 				buy_type = SINGLE_ITEM
 				confirm_name = details_name
@@ -2221,13 +2223,13 @@ function mouse_up(mouse_btn, x, y)
 				confirm_id = ""
 				buy_type = CART_ITEMS
 				for i = 1, #cart do
-					if (i > 1) then 
+					if (i > 1) then
 						confirm_id = confirm_id .. ","
 					end
 				confirm_id = confirm_id .. cart[i].id
-			end				
+			end
 		end
-		
+
 		for i = 1, 5 do
 			if (x > cartbuttons[i].cartremove.x and x < (cartbuttons[i].cartremove.x + cartbuttons[i].cartremove.w) and y > cartbuttons[i].cartremove.y and y < (cartbuttons[i].cartremove.y + cartbuttons[i].cartremove.h)) then
 				cartremovestate[i] = BTN_HOVER
@@ -2242,7 +2244,7 @@ function mouse_up(mouse_btn, x, y)
 			end
 		end
 	end
-	
+
 	if (main_view ~= 0 or main_page == false) then
 		if (x > buttons.tomain.x and x < (buttons.tomain.x + buttons.tomain.w) and y > buttons.tomain.y and y < (buttons.tomain.y + buttons.tomain.h)) then
 			buttons.tomain.state = BTN_HOVER
@@ -2254,7 +2256,7 @@ function mouse_up(mouse_btn, x, y)
 				first = true
 				change_ss()
 				change_section(current_section)
-				clear_icons() 
+				clear_icons()
 			else
 				if (sale_icon) then unload_texture(sale_icon) end
 				sale_icon = nil
@@ -2289,14 +2291,14 @@ end
 
 function mouse_move(x, y)
 	btn_move(buttons.torishop, x, y)
-	
+
 	if confirm_name ~= nil then
 		btn_move(buttons.confirm, x, y)
 		btn_move(buttons.cancel, x, y)
 	end
-	
+
 	btn_move(buttons.tomain, x, y)
-	
+
 	if (main_page == true) then
 		local r = button_click_radius
 		for i, v in pairs(buttons.arrows) do
@@ -2343,13 +2345,13 @@ function mouse_move(x, y)
 				v.state = BTN_UP
 			end
 		end
-		
+
 		btn_move(buttons.none, x, y)
 		btn_move(buttons.default, x, y)
 		if (details_name == "Forum VIP" or details_name == "Halloween Special") then
 			btn_move(buttons.info_prime, x, y)
 		end
-		
+
 		for ss = 1, sub_in_section do
 			if (x > buttons[ss].choose_ss.x and x < (buttons[ss].choose_ss.x + buttons[ss].choose_ss.w) and y > buttons[ss].choose_ss.y and y < (buttons[ss].choose_ss.y + buttons[ss].choose_ss.h)) then
 				if (mouse_state == MOUSE_DOWN) then
@@ -2360,19 +2362,19 @@ function mouse_move(x, y)
 			else
 				buttons[ss].choose_ss.state = BTN_UP
 			end
-		end	
-		
+		end
+
 		for i = 1, items_per_shelf do
 			btn_move(buttons[i].icon, x, y)
 			btn_move(buttons.buy, x, y)
 			btn_move(buttons.tocarttc, x, y)
 			btn_move(buttons.buysteam, x, y)
-			btn_move(buttons.gettc, x, y)		
+			btn_move(buttons.gettc, x, y)
 		end
 	end
 	if (cart_current > 0) then
 		btn_move(buttons.cartbuy, x, y)
-		
+
 		for i = 1, 5 do
 		if (x > cartbuttons[i].cartremove.x and x < (cartbuttons[i].cartremove.x + cartbuttons[i].cartremove.w) and y > cartbuttons[i].cartremove.y and y < (cartbuttons[i].cartremove.y + cartbuttons[i].cartremove.h)) then
 			if (mouse_state == MOUSE_DOWN) then
@@ -2383,13 +2385,13 @@ function mouse_move(x, y)
 		else
 			cartremovestate[i] = BTN_UP
 		end
-	end	
+	end
 	end
 end
 
 function key_down(key)
 	--[[if (key == string.byte(' ')) then
-		draw_ground_impact(0)		
+		draw_ground_impact(0)
 		return 1
 	end--]]
 end
@@ -2404,9 +2406,9 @@ function get_main_sale_time(item)
 	local timetype = "second"
 	local timemod = 0
 	local returnstring = ""
-	
+
 	if tonumber(timeleft) <= 0 then return "Sale is over!" end
-	
+
 	if (math.floor(timeleft / 86400) > 1) then
 		timetype = "days"
 		timeleft = math.floor(timeleft / 86400)
@@ -2425,10 +2427,10 @@ function get_main_sale_time(item)
 	elseif (math.floor(timeleft / 60) == 1) then
 		timetype = "minute"
 		timeleft = math.floor(timeleft / 60)
-	elseif (timeleft > 1) then 
+	elseif (timeleft > 1) then
 		timetype = "seconds"
 	end
-	
+
 	returnstring = timeleft .. " " .. timetype .. " left"
 	return returnstring
 end
@@ -2439,7 +2441,7 @@ function get_sale_time(item)
 	local timetype = "second"
 	local timemod = 0
 	local returnstring = ""
-	
+
 	for i = 1, 2 do
 		if (math.floor(timeleft / 2592000) > 1) then
 			timetype = "months"
@@ -2479,16 +2481,16 @@ function get_sale_time(item)
 			timetype = "minute"
 			timeprint = math.floor(timeleft / 60)
 			timemod = 60
-		elseif (timeleft > 1) then 
+		elseif (timeleft > 1) then
 			timetype = "seconds"
 			timeprint = timeleft
 			timemod = 0
 		end
-		
+
 		if (timeleft < 0) then
 			return "Sale is over!"
 		end
-		
+
 		returnstring = returnstring .. timeprint .. " " .. timetype .. " "
 		if (timemod == 0) then
 			return returnstring
@@ -2497,7 +2499,7 @@ function get_sale_time(item)
 		end
 	end
 	return returnstring .. "left"
-end	
+end
 
 
 -- Drawing
@@ -2505,29 +2507,29 @@ end
 function draw_item(section, item, pos, marked, flag)	-- the section the item is from, the item index in the section, the shelf position, whether it is selected
 	local name, id = 0, 0
 	local w_add = 100
-	
+
 	if (flag == 1) then
 		name = sections[section][item].name
 		id = sections[section][item].id
-	else 
+	else
 		name = sections_[section][item].name
 		id = sections_[section][item].id
 	end
-		
+
 	if (string.find(name, "Secondary Gradient")) then
 		name = string.gsub(name, "Secondary Gradient", "Sec. Grad.")
 	end
 	if (string.find(name, "Primary Gradient")) then
 		name = string.gsub(name, "Primary Gradient", "Pr. Grad.")
 	end
-	
-	-- Item Icons	
+
+	-- Item Icons
 	if (current_shelf <= total_shelves) then
 		if (pos == 1) then
 			w_shelf = 64
 			h_shelf = 360
 		end
-		if (w_shelf + 100 > 490) then 
+		if (w_shelf + 100 > 490) then
 			w_shelf = 64
 			h_shelf = h_shelf + 100
 		end
@@ -2539,7 +2541,7 @@ function draw_item(section, item, pos, marked, flag)	-- the section the item is 
 			w_shelf = 64
 			h_shelf = 400
 		end
-		if (w_shelf + w_add > 490) then 
+		if (w_shelf + w_add > 490) then
 			w_shelf = 64
 			h_shelf = h_shelf + 100
 		end
@@ -2549,31 +2551,31 @@ function draw_item(section, item, pos, marked, flag)	-- the section the item is 
 	end
 
 	name = name:lower()
-	
+
 	-- HALLOWEEN SPECIALS
-	if ((string.find(name, "frankenbolts")) or 
-		((string.find(name, "jack")) and (string.find(name, "lantern"))) or 
-		(string.find(name, "button eyes")) or 
-		(string.find(name, "brain")) or 
-		(string.find(name, "demon wings")) or 
-		(string.find(name, "halloween special")) or 
+	if ((string.find(name, "frankenbolts")) or
+		((string.find(name, "jack")) and (string.find(name, "lantern"))) or
+		(string.find(name, "button eyes")) or
+		(string.find(name, "brain")) or
+		(string.find(name, "demon wings")) or
+		(string.find(name, "halloween special")) or
 		(string.find(name, "skull necklace"))) then
 		select_color(0.95,0.83,0.01,0.4,marked,0.95,0.83,0.01,0.8)
 	else
 		select_color(1,1,1,0.23,marked,0,0,0,0.4)
 	end
-	
+
 	-- CHRISTMAS SPECIALS
-	if ((string.find(name, "santa hat")) or 
-		(string.find(name, "santa beard")) or 
-		(string.find(name, "candy cane")) or 
-		(string.find(name, "little latching elf")) or 
+	if ((string.find(name, "santa hat")) or
+		(string.find(name, "santa beard")) or
+		(string.find(name, "candy cane")) or
+		(string.find(name, "little latching elf")) or
 		(string.find(name, "elven hat"))) then
 		select_color(0.6,0.7,0.95,0.8,marked,0.4,0.5,0.95,0.8)
 	else
 		select_color(1,1,1,0.23,marked,0,0,0,0.4)
 	end
-	
+
 	buttons[pos].icon = { x = w_shelf, y = h_shelf, w = 64, h = 64, state = BTN_UP }
 	if (buttons[pos].icon.state == BTN_UP) then
 		draw_disk(buttons[pos].icon.x+20, buttons[pos].icon.y+20, 0, 30, 500, 1, -180, 90, 0)
@@ -2592,7 +2594,7 @@ function draw_item(section, item, pos, marked, flag)	-- the section the item is 
 			icon[pos] = load_texture("../textures/store/items/"..id..".tga")
 			io.close(tempicon)
 		end
-		pos_icon[pos] = 1 
+		pos_icon[pos] = 1
 	end
 	draw_quad(buttons[pos].icon.x, buttons[pos].icon.y, 64, 64, icon[pos])
 	w_shelf = w_shelf + w_add
@@ -2617,17 +2619,17 @@ end
 function draw_sale_item(item, pos, marked)
 	local name = sections[32][item].name
 	local id = sections[32][item].id
-	
+
 	local timeleft_length = get_string_length(get_sale_time(item), FONTS.MEDIUM)
-	
+
 	if (string.find(name, "Secondary Gradient")) then
 		name = string.gsub(name, "Secondary Gradient", "Sec. Grad.")
 	end
 	if (string.find(name, "Primary Gradient")) then
 		name = string.gsub(name, "Primary Gradient", "Pr. Grad.")
 	end
-	
-	
+
+
 	buttons[pos].icon = { x = 49, y = 345 + (pos - 1) * 100, w = 392, h = 94, state = BTN_UP }
 	select_color(1,1,1,0.23,marked,0,0,0,0.4)
 	if (buttons[pos].icon.state == BTN_UP) then
@@ -2647,12 +2649,12 @@ function draw_sale_item(item, pos, marked)
 			icon[pos] = load_texture("../textures/store/items/"..id..".tga")
 			io.close(tempicon)
 		end
-		pos_icon[pos] = 1 
+		pos_icon[pos] = 1
 	end
 	draw_quad(buttons[pos].icon.x + 20, buttons[pos].icon.y + 15, 64, 64, icon[pos])
-	select_color(0,0,0,1,marked,1,1,1,1)	
+	select_color(0,0,0,1,marked,1,1,1,1)
 	draw_text(get_sale_time(item), 420 - timeleft_length, buttons[pos].icon.y + 35, FONTS.MEDIUM)
-	
+
 end
 
 
@@ -2783,10 +2785,10 @@ function draw_shelf()
 	local heightmod = 0
 	local tocarttmp = ""
 	local tocarttmpsize = 64
-	
+
 	set_color(0,0,0,1)
 	-- Draw items on the shelf
-	
+
 	-- an awful hack to make purchase buttons work on few items
 	if (first == true) then
 		local i = 1
@@ -2806,7 +2808,7 @@ function draw_shelf()
 		clear_icons()
 	end
 	-- end of hack
-	
+
 	if (current_section == 32) then
 		for i = 1, sale_items_per_shelf do
 			local item_index = i + (current_shelf - 1)*sale_items_per_shelf
@@ -2833,10 +2835,10 @@ function draw_shelf()
 				if (shelf_qi <= qi) then
 					draw_item(section_index, item_index, i, selected, 1)
 				end
-			
+
 		end
 		set_color(0,0,0,1)
-		if ((current_shelf == total_shelves) and (total_shelves < total_shelves_all)) then 
+		if ((current_shelf == total_shelves) and (total_shelves < total_shelves_all)) then
 			if (h_shelf+200 < height) then
 				draw_text("Go to the next page to see", 105, h_shelf+((height-80-h_shelf)/2), FONTS.MEDIUM)
 				draw_text("what items will be unlocked", 95, h_shelf+((height-80-h_shelf)/2)+25, FONTS.MEDIUM)
@@ -2878,7 +2880,7 @@ function draw_shelf()
 			end
 		end
 	end
-	
+
 	if (change_section_first[section_index] == 1) then
 		details_qi = tonumber(sections[current_section][1].qi)
 		details_name = sections[current_section][1].name
@@ -2902,7 +2904,7 @@ function draw_shelf()
 			details_old_price_usd = sections[current_section][sections[section_index].selected_index].old_price_usd
 		end
 	end
-	
+
 	-- Draw shelf text
 	if ((current_shelf <= total_shelves_all and sections[section_index].try == true) or (current_shelf > total_shelves_all and sections_[section_index].try == true)) then
 		select_color_links(buttons.none.state)
@@ -2910,14 +2912,14 @@ function draw_shelf()
 		select_color_links(buttons.default.state)
 		draw_text("DEFAULT", buttons.default.x, buttons.default.y, FONTS.MEDIUM)
 	end
-	
+
 	select_color_links(buttons.tomain.state)
 	draw_text("BACK", buttons.tomain.x, buttons.tomain.y, FONTS.MEDIUM)
-	
+
 	set_color(1,1,1,1)
 	pages_length = get_string_length("Page: " .. current_shelf .. " of " .. total_shelves_all2, FONTS.MEDIUM)
 	draw_text("Page:  " .. current_shelf .. " of " .. total_shelves_all2, 245 - pages_length / 2, height-55, FONTS.MEDIUM)
-	
+
 	if (current_section == 32) then
 		set_color(0,0,0,0.2)
 		draw_quad(10,50,470,290)
@@ -2935,7 +2937,7 @@ function draw_shelf()
 		draw_quad(9,69,472,1)
 		draw_quad(9,340,472,1)
 	end
-	
+
 	if (details_name == nil) then draw_text("CLICK ON ITEM", 30, 140, FONTS.BIG)
 		draw_text("FOR DETAILS", 180, 200, FONTS.BIG)
 		draw_text("CLICK ON ITEM", 30, 140, FONTS.BIG)
@@ -2951,7 +2953,7 @@ function draw_shelf()
 		details_name = string.gsub(details_name, "LLMT", "Left Leg Trail")
 	end
 	if (details_name == "Jiy&#252; Dreads") then details_name = "Jiyü Dreads" end
-	
+
 	if (current_section == 32) then
 	heightmod = -20
 	else
@@ -3038,7 +3040,7 @@ function draw_shelf()
 		end
 		draw_buysteam()
 		draw_btn(buttons.buy, "purchase", purchase_button, 128)
-		if (current_section == 32) then 
+		if (current_section == 32) then
 			tocarttmp = "_big"
 			tocarttmpsize = 128
 		end
@@ -3053,7 +3055,7 @@ function draw_shelf()
 		end
 		draw_quad(buttons.tocarttc.x, buttons.tocarttc.y, tocarttmpsize, tocarttmpsize, cart_button)
 	elseif (details_price == 0 and details_price_usd == "0.00") then
-		can_buy = false	
+		can_buy = false
 	else
 		can_buy = true
 		set_color(1,1,1,1)
@@ -3071,7 +3073,7 @@ function draw_shelf()
 			buttons.tocarttc.w = 34
 		end
 		draw_btn(buttons.buy, "purchase", purchase_button, 128)
-		if (current_section == 32) then 
+		if (current_section == 32) then
 			tocarttmp = "_big"
 			tocarttmpsize = 128
 		end
@@ -3086,7 +3088,7 @@ function draw_shelf()
 		end
 		draw_quad(buttons.tocarttc.x, buttons.tocarttc.y, tocarttmpsize, tocarttmpsize, cart_button)
 	end
-		
+
 	set_color(1,1,1,1)
 	if (current_section == 32) then
 		if ((details_price_usd == "0.00") and (details_price ~= 0)) then
@@ -3105,7 +3107,7 @@ function draw_shelf()
 			set_color(1,1,1,1)
 			draw_text_angle_scale(tc_format(details_price).." TC", 128 - math.floor(get_string_length(tc_format(details_price).." TC ", FONTS.BIG) * 0.7 / 2), 140, 0, 0.7, FONTS.BIG)
 			draw_text_angle_scale(tc_format(details_price).." TC", 128 - math.floor(get_string_length(tc_format(details_price).." TC ", FONTS.BIG) * 0.7 / 2), 140, 0, 0.7, FONTS.BIG)
-			
+
 			set_color(1,1,1,0.7)
 			draw_text("$ "..details_old_price_usd, 362 - get_string_length("$ "..details_old_price_usd, FONTS.MEDIUM) / 2, 127, FONTS.MEDIUM)
 			set_color(1,0,0,1)
@@ -3113,7 +3115,7 @@ function draw_shelf()
 			set_color(1,1,1,1)
 			draw_text_angle_scale("$ "..details_price_usd, 362 - math.floor(get_string_length("$ "..details_price_usd, FONTS.BIG) * 0.7 / 2), 140, 0, 0.7, FONTS.BIG)
 			draw_text_angle_scale("$ "..details_price_usd, 362 - math.floor(get_string_length("$ "..details_price_usd, FONTS.BIG) * 0.7 / 2), 140, 0, 0.7, FONTS.BIG)
-		else 	if (details_name == "ToriBooster-10000") then 
+		else 	if (details_name == "ToriBooster-10000") then
 					set_color(1,1,1,0.7)
 					draw_text("$ "..details_old_price_usd.." per day", 245 - get_string_length("$ "..details_old_price_usd.." per day", FONTS.MEDIUM) / 2, 127, FONTS.MEDIUM)
 					set_color(1,0,0,1)
@@ -3121,7 +3123,7 @@ function draw_shelf()
 					set_color(1,1,1,1)
 					draw_text_angle_scale("$ "..details_price_usd.." per day", 245 - math.floor(get_string_length("$ "..details_price_usd.." per day", FONTS.BIG) * 0.7 / 2), 140, 0, 0.7, FONTS.BIG)
 					draw_text_angle_scale("$ "..details_price_usd.." per day", 245 - math.floor(get_string_length("$ "..details_price_usd.." per day", FONTS.BIG) * 0.7 / 2), 140, 0, 0.7, FONTS.BIG)
-				elseif string.find(details_name, "Booster") then 
+				elseif string.find(details_name, "Booster") then
 					set_color(1,1,1,0.7)
 					draw_text("$ "..details_old_price_usd.." per month", 245 - get_string_length("$ "..details_old_price_usd.." per month", FONTS.MEDIUM) / 2, 127, FONTS.MEDIUM)
 					set_color(1,0,0,1)
@@ -3129,7 +3131,7 @@ function draw_shelf()
 					set_color(1,1,1,1)
 					draw_text_angle_scale("$ "..details_price_usd.." per month", 245 - math.floor(get_string_length("$ "..details_price_usd.." per month", FONTS.BIG) * 0.7 / 2), 140, 0, 0.7, FONTS.BIG)
 					draw_text_angle_scale("$ "..details_price_usd.." per month", 245 - math.floor(get_string_length("$ "..details_price_usd.." per month", FONTS.BIG) * 0.7 / 2), 140, 0, 0.7, FONTS.BIG)
-				elseif (details_name == "Forum VIP") then 
+				elseif (details_name == "Forum VIP") then
 					set_color(1,1,1,0.7)
 					draw_text("$ "..details_old_price_usd.." per 6 months", 245 - get_string_length("$ "..details_old_price_usd.." per 6 months", FONTS.MEDIUM) / 2, 127, FONTS.MEDIUM)
 					set_color(1,0,0,1)
@@ -3141,7 +3143,7 @@ function draw_shelf()
 					buttons.info_prime.y = 245
 					select_color_links(buttons.info_prime.state)
 					draw_text("What is this?", buttons.info_prime.x, buttons.info_prime.y, FONTS.MEDIUM)
-				else 
+				else
 					set_color(1,1,1,0.7)
 					draw_text("$ "..details_old_price_usd, 245 - get_string_length("$ "..details_old_price_usd, FONTS.MEDIUM) / 2, 127, FONTS.MEDIUM)
 					set_color(1,0,0,1)
@@ -3156,12 +3158,12 @@ function draw_shelf()
 			draw_text("Tier: "..details_tier, 245 - math.floor(get_string_length("Tier: "..details_tier, FONTS.MEDIUM) / 2), 210, FONTS.MEDIUM)
 			if (details_qi ~= 0) then
 				draw_text("Requires "..details_qi.." qi", 245 - math.floor(get_string_length("Requires: "..details_qi.." qi", FONTS.MEDIUM) / 2), 235, FONTS.MEDIUM)
-			else 
+			else
 				draw_text("Doesn't require qi", 245 - math.floor(get_string_length("Doesn't require qi", FONTS.MEDIUM) / 2), 235, FONTS.MEDIUM)
 			end
 		elseif ((details_tier == "None") and (details_qi ~= 0)) then
 			draw_text("Requires "..details_qi.." qi", 245 - math.floor(get_string_length("Requires: "..details_qi.." qi", FONTS.MEDIUM) / 2), 210, FONTS.MEDIUM)
-		else 
+		else
 			draw_text("Doesn't require qi", 245 - math.floor(get_string_length("Doesn't require qi", FONTS.MEDIUM) / 2), 210, FONTS.MEDIUM)
 		end
 	else
@@ -3181,7 +3183,7 @@ function draw_shelf()
 	draw_text("QI: "..details_qi, 30, 155, FONTS.MEDIUM)
 	elseif (details_price ~= 0 or details_price_usd ~= "0.00") then draw_text("Doesn't require qi", 30, 155, FONTS.MEDIUM)
 	end
-	
+
 	if (string.find(details_name, "Zabrak Horns")) then
 		print_desc("Try not to get cut in half!", 2)
 	elseif (string.find(details_name, "Sakura")) then
@@ -3575,7 +3577,7 @@ function draw_shelf()
 	draw_text("amazing mutant powers.", 110, 266, FONTS.MEDIUM)
 	draw_text("However, you won't ever need a", 70, 289, FONTS.MEDIUM)
 	draw_text("flashlight ever again.", 125, 312, FONTS.MEDIUM)
-	elseif string.find(details_name, "Raider") then	
+	elseif string.find(details_name, "Raider") then
 	draw_text("This deep blue", 175, 243, FONTS.MEDIUM)
 	draw_text("is reminiscent of raiders", 110, 266, FONTS.MEDIUM)
 	draw_text("of lost tombs...", 165, 289, FONTS.MEDIUM)
@@ -3589,7 +3591,7 @@ function draw_shelf()
 	draw_text("resilience in the face of intensity.", 56, 243, FONTS.MEDIUM)
 	draw_text("Now you will bear this very power.", 56, 266, FONTS.MEDIUM)
 	draw_text("Not even hellfire can harm you now...", 40, 289, FONTS.MEDIUM)
-	elseif string.find(details_name, "Shaman") then	
+	elseif string.find(details_name, "Shaman") then
 	draw_text("Call upon the tribal fires", 105, 243, FONTS.MEDIUM)
 	draw_text("to bring hell upon them all.", 95, 266, FONTS.MEDIUM)
 	elseif string.find(details_name, "Sphinx") then
@@ -3597,11 +3599,11 @@ function draw_shelf()
 	draw_text("still flows deep within your body", 65, 243, FONTS.MEDIUM)
 	draw_text("and your patience guides you", 90, 266, FONTS.MEDIUM)
 	draw_text("to victory", 195, 289, FONTS.MEDIUM)
-	elseif string.find(details_name, "Static") then	
+	elseif string.find(details_name, "Static") then
 	draw_text("As the electricity builds within you,", 45, 243, FONTS.MEDIUM)
 	draw_text("you strike down all your enemies", 60, 266, FONTS.MEDIUM)
 	draw_text("with lightning speed.", 130, 289, FONTS.MEDIUM)
-	elseif string.find(details_name, "Superfly") then	
+	elseif string.find(details_name, "Superfly") then
 	draw_text("From the maker of", 140, 243, FONTS.MEDIUM)
 	draw_text("the superfly splash...", 130, 266, FONTS.MEDIUM)
 	elseif string.find(details_name, "Supernova") then
@@ -3620,7 +3622,7 @@ function draw_shelf()
 	draw_text("experiments in the name of science...", 38, 243, FONTS.MEDIUM)
 	draw_text("and came out the other side", 90, 266, FONTS.MEDIUM)
 	draw_text("something new...", 155, 289, FONTS.MEDIUM)
-	elseif string.find(details_name, "Typhon") then	
+	elseif string.find(details_name, "Typhon") then
 	draw_text("Summon the energy of", 120, 243, FONTS.MEDIUM)
 	draw_text("Typhon, God of Wind,", 130, 266, FONTS.MEDIUM)
 	draw_text("to annihilate your enemies.", 90, 289, FONTS.MEDIUM)
@@ -3635,7 +3637,7 @@ function draw_shelf()
 	draw_text("from your victims...", 130, 266, FONTS.MEDIUM)
 	draw_text("The One... True...", 150, 289, FONTS.MEDIUM)
 	draw_text("Nocturnal... Beast!", 130, 312, FONTS.MEDIUM)
-	elseif string.find(details_name, "Velvet") then	
+	elseif string.find(details_name, "Velvet") then
 	draw_text("Velvet is pure luxury.", 125, 243, FONTS.MEDIUM)
 	draw_text("Royalty, Wealth, Sophistication.", 60, 266, FONTS.MEDIUM)
 	draw_text("Only the rich need apply.", 105, 289, FONTS.MEDIUM)
@@ -3699,6 +3701,11 @@ function draw_shelf()
 	draw_text("A 128x128 image for the", 103, 255, FONTS.MEDIUM)
 	end
 	draw_text("floor area near you", 127, 278, FONTS.MEDIUM)
+	elseif string.find(details_name, "Flame Particle Texture") then
+	print_desc("This item allows you to change the shape", 0)
+	print_desc("of your flame particles using a texture", 1)
+	set_color(0.16,0.66,0.86,1)
+	print_desc("REQUIRES AN EXISTING FLAME!", 3)
 	elseif string.find(details_name, "128x128 ") then
 	local texture_name = nil
 	draw_text("A 128x128 empty texture slot", 77, 255, FONTS.MEDIUM)
@@ -3731,13 +3738,6 @@ function draw_shelf()
 	draw_text(texture_name, 245 - texture_name_width / 2, 278, FONTS.MEDIUM)
 	elseif string.find(details_name, "DQ Texture") then
 	draw_text("Tradable texture for your DQ Ring", 49, 266, FONTS.MEDIUM)
-	elseif string.find(details_name, "Flame Particle Texture") then
-	draw_text("This item allows you to change the shape", 21, 239, FONTS.MEDIUM)
-	draw_text("of your flame using a texture", 75, 262, FONTS.MEDIUM)
-	set_color(0,0,0,1)
-	draw_text("REQUIRES AN EXISTING FLAME!", 86, 294, FONTS.MEDIUM)
-	set_color(0.16,0.66,0.86,1)
-	draw_text("REQUIRES AN EXISTING FLAME!", 87, 294, FONTS.MEDIUM)
 	elseif string.find(details_name, "Trail Texture") then
 	local texture_name = nil
 	texture_name = "A textured trail for your "..string.gsub(details_name, "Trail Texture", "")
@@ -3761,12 +3761,12 @@ function draw_shelf()
 	elseif string.find(details_name, "Uke Hair") then
 	draw_text("The spirit of the Uke", 133, 255, FONTS.MEDIUM)
 	draw_text("resides in those who wear this hair.", 45, 278, FONTS.MEDIUM)
-	elseif string.find(details_name, "Candy Locks") then	
+	elseif string.find(details_name, "Candy Locks") then
 	draw_text("We found this rare hair", 115, 220, FONTS.MEDIUM)
 	draw_text("in a Harajuku alley way.", 115, 243, FONTS.MEDIUM)
 	draw_text("Only worn by the players who", 85, 266, FONTS.MEDIUM)
 	draw_text("fracture knees to socialize.", 88, 289, FONTS.MEDIUM)
-	elseif string.find(details_name, "Cat Ears") then	
+	elseif string.find(details_name, "Cat Ears") then
 	draw_text("Your keen sense of hearing is recognized", 18, 220, FONTS.MEDIUM)
 	draw_text("by Toribashians everywhere.", 90, 243, FONTS.MEDIUM)
 	draw_text("Your agility and nine lives", 100, 266, FONTS.MEDIUM)
@@ -3802,7 +3802,7 @@ function draw_shelf()
 	draw_text("this shapely hat will aid you", 85, 266, FONTS.MEDIUM)
 	draw_text("in your conquers.", 150, 289, FONTS.MEDIUM)
 	draw_text("Ladies love it.", 175, 312, FONTS.MEDIUM)
-	elseif string.find(details_name, "Football Helmet") then	
+	elseif string.find(details_name, "Football Helmet") then
 	draw_text("It won't stop your head coming off.", 50, 243, FONTS.MEDIUM)
 	draw_text("Heck, it won't even mitigate damage.", 43, 266, FONTS.MEDIUM)
 	draw_text("Still looks cool though.", 120, 289, FONTS.MEDIUM)
@@ -3876,38 +3876,38 @@ function draw_shelf()
 	draw_text("Adds 1000 Qi to your game account.", 50, 266, FONTS.MEDIUM)
 	elseif string.find(details_name, "Qi 5000") then
 	draw_text("Adds 5000 Qi to your game account.", 49, 266, FONTS.MEDIUM)
-	elseif string.find(details_name, "Head Avatar") then	
+	elseif string.find(details_name, "Head Avatar") then
 	draw_text("For good luck and ingame companionship.", 15, 243, FONTS.MEDIUM)
 	draw_text("Uses your current head texture", 68, 266, FONTS.MEDIUM)
 	draw_text("and appears under your nickname.", 55, 289, FONTS.MEDIUM)
-	elseif string.find(details_name, "Set") then	
+	elseif string.find(details_name, "Set") then
 	draw_text("Sets can contain other items.", 77, 243, FONTS.MEDIUM)
 	draw_text("Good for trading packs and", 85, 266, FONTS.MEDIUM)
 	draw_text("organizing your inventory.", 88, 289, FONTS.MEDIUM)
-	elseif string.find(details_name, "Custom Belt") then	
+	elseif string.find(details_name, "Custom Belt") then
 	draw_text("For the few who reach", 118, 243, FONTS.MEDIUM)
 	draw_text("20,000 games played", 125, 266, FONTS.MEDIUM)
 	draw_text("they can choose their own title.", 65, 289, FONTS.MEDIUM)
-	elseif string.find(details_name, "DQ Sound") then	
+	elseif string.find(details_name, "DQ Sound") then
 	draw_text("Sound played when you DQ.", 98, 255, FONTS.MEDIUM)
 	draw_text("Even if you lose, do it in style.", 75, 278, FONTS.MEDIUM)
-	elseif string.find(details_name, "Grip Sound") then	
+	elseif string.find(details_name, "Grip Sound") then
 	draw_text("This item allows you to play", 90, 243, FONTS.MEDIUM)
 	draw_text("a custom sound when your character", 40, 266, FONTS.MEDIUM)
 	draw_text("grips the other player.", 110, 289, FONTS.MEDIUM)
-	elseif string.find(details_name, "Hit 1 Sound") then	
+	elseif string.find(details_name, "Hit 1 Sound") then
 	draw_text("Sound played when your Tori", 85, 243, FONTS.MEDIUM)
 	draw_text("gets a light hit.", 157, 266, FONTS.MEDIUM)
-	elseif string.find(details_name, "Hit 2 Sound") then	
+	elseif string.find(details_name, "Hit 2 Sound") then
 	draw_text("Sound played when your Tori", 85, 243, FONTS.MEDIUM)
 	draw_text("gets a medium-light hit.", 113, 266, FONTS.MEDIUM)
-	elseif string.find(details_name, "Hit 3 Sound") then	
+	elseif string.find(details_name, "Hit 3 Sound") then
 	draw_text("Sound played when your Tori", 85, 243, FONTS.MEDIUM)
 	draw_text("gets a medium hit.", 145, 266, FONTS.MEDIUM)
-	elseif string.find(details_name, "Hit 4 Sound") then	
+	elseif string.find(details_name, "Hit 4 Sound") then
 	draw_text("Sound played when your Tori", 85, 243, FONTS.MEDIUM)
 	draw_text("gets a medium-hard hit.", 115, 266, FONTS.MEDIUM)
-	elseif string.find(details_name, "Hit 5 Sound") then	
+	elseif string.find(details_name, "Hit 5 Sound") then
 	draw_text("Sound played when your Tori", 85, 243, FONTS.MEDIUM)
 	draw_text("gets a hard hit.", 158, 266, FONTS.MEDIUM)
 	elseif string.find(details_name, "Kiai Sound") then
@@ -3971,7 +3971,7 @@ function draw_shelf()
 	draw_text("AF A BLACKHALA, HAS ATAMS WARA", 70, 266, FONTS.MEDIUM)
 	draw_text("AACTAANAD AFF. THAS AS ANA AF", 80, 289, FONTS.MEDIUM)
 	draw_text("THA FAW ATAMS AP FAR PABLAC AACTAAN.", 37, 312, FONTS.MEDIUM)
-	elseif string.find(details_name, "Organic Cucumber") then	
+	elseif string.find(details_name, "Organic Cucumber") then
 	draw_text("Grown in veb's greenhouse the only", 50, 243, FONTS.MEDIUM)
 	draw_text("additive is a secret blend of 'awesome'", 30, 266, FONTS.MEDIUM)
 	draw_text("guaranteeing a perfect yield.", 80, 289, FONTS.MEDIUM)
@@ -4270,7 +4270,7 @@ elseif string.find(details_name, "Zombie Hand") then
 	draw_text("OOOOOOOOOOOOH, PRETTY COLORS!", 65, 266, FONTS.MEDIUM)
 	elseif string.find(details_name, "Nerd Glasses") then
 	draw_text("You wouldn't hit a guy with glasses,", 45, 255, FONTS.MEDIUM)
-	draw_text("would you?!?", 175, 278, FONTS.MEDIUM) 
+	draw_text("would you?!?", 175, 278, FONTS.MEDIUM)
 	elseif string.find(details_name, "Poker Hat") then
 	draw_text("MY P-P-POKER HAT MY P-POKER HAT!", 58, 266, FONTS.MEDIUM)
 	elseif string.find(details_name, "Jim the Tuna") then
@@ -4279,16 +4279,16 @@ elseif string.find(details_name, "Zombie Hand") then
 	draw_text("For when your head needs a good kicking!", 18, 243, FONTS.MEDIUM)
 	draw_text_angle_scale("(However you feel like some padding would be nice)", 27, 266, 0, 0.8, FONTS.MEDIUM)
 	elseif string.find(details_name, "Totally 3D!") then
-	draw_text("3D Glasses 3D Item in a 3D Game?!?", 53, 255, FONTS.MEDIUM) 
+	draw_text("3D Glasses 3D Item in a 3D Game?!?", 53, 255, FONTS.MEDIUM)
 	draw_text("Totally 3D! (glasses)!", 130, 278, FONTS.MEDIUM)
 	elseif string.find(details_name, "Colossal Sword") then
-	draw_text("A legendary sword created by", 75, 255, FONTS.MEDIUM) 
+	draw_text("A legendary sword created by", 75, 255, FONTS.MEDIUM)
 	draw_text("the God himself, Zeus.", 115, 278, FONTS.MEDIUM)
 	elseif string.find(details_name, "Hazard Mask") then
-	draw_text("Want some of that Cyber-Gothic look?", 35, 255, FONTS.MEDIUM) 
+	draw_text("Want some of that Cyber-Gothic look?", 35, 255, FONTS.MEDIUM)
 	draw_text("You can have that now!", 115, 278, FONTS.MEDIUM)
 	elseif string.find(details_name, "Nailbat") then
-	draw_text("A Makeshift Weapon often used to", 55, 243, FONTS.MEDIUM) 
+	draw_text("A Makeshift Weapon often used to", 55, 243, FONTS.MEDIUM)
 	draw_text("brutally murder zombies.", 100, 266, FONTS.MEDIUM)
 	draw_text("As deadly as it is simple.", 110, 289, FONTS.MEDIUM)
 	elseif string.find(details_name, "Ash Switch") then
@@ -4301,28 +4301,28 @@ elseif string.find(details_name, "Zombie Hand") then
 	draw_text("THAS AS ANA AF THA FAW ATAMS AP FAR", 48, 289, FONTS.MEDIUM)
 	draw_text("PABLAC AACTAAN.", 160, 312, FONTS.MEDIUM)
 	elseif string.find(details_name, "Cel Shaded Tori") then
-	draw_text("This is how you'd look if", 110, 255, FONTS.MEDIUM) 
+	draw_text("This is how you'd look if", 110, 255, FONTS.MEDIUM)
 	draw_text("it was 2008 now!", 145, 278, FONTS.MEDIUM)
 	elseif string.find(details_name, "ToriArmor") then
-	draw_text("The Tori Armor Set,", 140, 255, FONTS.MEDIUM) 
+	draw_text("The Tori Armor Set,", 140, 255, FONTS.MEDIUM)
 	draw_text("created by dumbn00b", 125, 278, FONTS.MEDIUM)
 	elseif string.find(details_name, "Mecha Arm") then
-	draw_text("If you have been Dismembered", 80, 255, FONTS.MEDIUM) 
+	draw_text("If you have been Dismembered", 80, 255, FONTS.MEDIUM)
 	draw_text("we can rearm you", 145, 278, FONTS.MEDIUM)
 	elseif string.find(details_name, "Cowboy Hat") then
-	draw_text("Winner of the 3D Showdown Event!", 55, 243, FONTS.MEDIUM) 
+	draw_text("Winner of the 3D Showdown Event!", 55, 243, FONTS.MEDIUM)
 	draw_text("A Western Themed Cowboy Hat", 80, 266, FONTS.MEDIUM)
 	draw_text("idea inspired by Code", 125, 289, FONTS.MEDIUM)
 	elseif string.find(details_name, "Box of Boxes") then
-	draw_text("This is the boxception!", 115, 266, FONTS.MEDIUM) 
+	draw_text("This is the boxception!", 115, 266, FONTS.MEDIUM)
 	elseif string.find(details_name, "Flip Flops") then
-	draw_text("Type of open-toed footwear sandal,", 45, 255, FONTS.MEDIUM) 
+	draw_text("Type of open-toed footwear sandal,", 45, 255, FONTS.MEDIUM)
 	draw_text("typically worn as a form of casual wear.", 20, 278, FONTS.MEDIUM)
 	elseif string.find(details_name, "Flippers") then
-	draw_text("Synthetic flat forelimb", 115, 255, FONTS.MEDIUM) 
+	draw_text("Synthetic flat forelimb", 115, 255, FONTS.MEDIUM)
 	draw_text("for movement through water.", 80, 278, FONTS.MEDIUM)
 	elseif string.find(details_name, "Cyborg") then
-	draw_text("You have been assembled", 105, 255, FONTS.MEDIUM) 
+	draw_text("You have been assembled", 105, 255, FONTS.MEDIUM)
 	draw_text("to destroy.", 180, 278, FONTS.MEDIUM)
 	elseif string.find(details_name, "Beanie") then
 	draw_text("Unleash your inner hipster", 100, 243, FONTS.MEDIUM)
@@ -4333,12 +4333,12 @@ elseif string.find(details_name, "Zombie Hand") then
 	draw_text("can't post it on Facebook because", 56, 266, FONTS.MEDIUM)
 	draw_text("my wife thinks I'm working.", 90, 289, FONTS.MEDIUM)
 	elseif string.find(details_name, "Soderspy") then
-	print_desc("I've got your back!", 2) 
+	print_desc("I've got your back!", 2)
 	elseif string.find(details_name, "RAGE!") then
-	print_desc("TELL ME I LOOK LIKE A PORCUPINE ONCE AGAIN", 1) 
+	print_desc("TELL ME I LOOK LIKE A PORCUPINE ONCE AGAIN", 1)
 	print_desc("AND I'LL WRECK YOU SO HARD!!!", 2)
 	elseif string.find(details_name, "Clout Goggles") then
-	print_desc("For when you want to look cool", 1) 
+	print_desc("For when you want to look cool", 1)
 	print_desc("or just blocking out the sun", 2)
 	elseif string.find(details_name, "Head Axe") then
 	set_color(0.95,0.83,0.01, 1)
@@ -4367,31 +4367,31 @@ elseif string.find(details_name, "Zombie Hand") then
 	print_desc("when you need to hide your identity", 2)
 	print_desc("from the unsuspecting victims.", 3)
 	elseif string.find(details_name, "Indian Headdress") then
-	print_desc("Contrary to popular belief,", 1) 
+	print_desc("Contrary to popular belief,", 1)
 	print_desc("did not originate in India", 2)
 	elseif string.find(details_name, "Ruined Crown") then
-	print_desc("Crown of the Ruined King", 2) 
+	print_desc("Crown of the Ruined King", 2)
 	elseif string.find(details_name, "Forehead Protector") then
-	print_desc("I won't run away anymore,", 1) 
+	print_desc("I won't run away anymore,", 1)
 	print_desc("not even with a point lead,", 2)
 	print_desc("that is my ninja way!", 3)
 	elseif string.find(details_name, "Viking Helmet") then
-	print_desc("One of Solax spare helmets,", 1) 
+	print_desc("One of Solax spare helmets,", 1)
 	print_desc("lost after a night full of Mead", 2)
 	print_desc("and pillaging", 3)
 	elseif string.find(details_name, "Katana") then
-	print_desc("A Japanese trademark weapon", 1) 
+	print_desc("A Japanese trademark weapon", 1)
 	print_desc("brought to Toriworld by hampa-san", 2)
 	print_desc("during the Gold Age", 3)
 	elseif string.find(details_name, "Tori Ninja") then
-	print_desc("Become the stealthy assassin", 1) 
+	print_desc("Become the stealthy assassin", 1)
 	print_desc("armed with the deadliest weapons", 2)
 	print_desc("the Toriworld seen yet", 3)
 	end
 	end
 	end
-	
-	-- Subsection buttons	
+
+	-- Subsection buttons
 	if (main_section == 1) then name_ss = "colors" size_ss = 32
 	elseif (main_section == 2) then name_ss = "textures" size_ss = 32
 	elseif (main_section == 3) then name_ss = "hairs" size_ss = 128
@@ -4401,7 +4401,7 @@ elseif string.find(details_name, "Zombie Hand") then
 	elseif (main_section == 7) then name_ss = "modelpacks" size_ss = 128
 	elseif (main_section == 8) then name_ss = "fulltoris" size_ss = 128
 	end
-	
+
 	for ss = 1, sub_in_section do
 	if (ss == current_section-ss_shift) then
 		set_color(1,1,1,0.5)
@@ -4421,9 +4421,9 @@ elseif string.find(details_name, "Zombie Hand") then
 		draw_quad(buttons[ss].choose_ss.x + 16, buttons[ss].choose_ss.y, buttons[ss].choose_ss.w - 32, 32)
 		draw_disk(buttons[ss].choose_ss.x + 16, buttons[ss].choose_ss.y+16, 0, 16, 100, 1, 180, 180, 0)
 	end
-	
+
 		set_color(1,1,1,1)
-		if (ss_icon[ss] ~= load_texture("/torishop/gui/ss/"..name_ss..ss..".tga")) then 
+		if (ss_icon[ss] ~= load_texture("/torishop/gui/ss/"..name_ss..ss..".tga")) then
 			ss_icon[ss] = load_texture("/torishop/gui/ss/"..name_ss..ss..".tga")
 		end
 		draw_quad(buttons[ss].choose_ss.x, buttons[ss].choose_ss.y, size_ss, size_ss, ss_icon[ss])
@@ -4503,7 +4503,7 @@ function draw_cart()
 	local color_bg = 0.6
 	local color_bg_end = false
 	cart_sum = 0
-	
+
 	-- CART ANIMATIONS
 	if (cart_current == 0) then
 		if (cart_slide > 0) then
@@ -4524,7 +4524,7 @@ function draw_cart()
 			cart_slide = cart_slide - 4
 		end
 	end
-	
+
 	-- CART BG
 	for i = 1, 400 do
 		if (color_bg >= 0.8) then
@@ -4532,22 +4532,22 @@ function draw_cart()
 		end
 		if (color_bg_end == false) then
 			color_bg = color_bg + i/100000
-		else 
-			color_bg = color_bg - i/250000 
+		else
+			color_bg = color_bg - i/250000
 		end
 		set_color(color_bg, 0, 0, 1)
 		draw_quad(550 + i, height - cart_slide, 1, cart_slide)
 	end
-	
+
 	set_color(0, 0, 0, 0.2)
 	draw_quad(551, height - cart_slide, 400, 28)
-	
+
 	-- LOAD CART ITEM ICONS
 	if (cart_current > 0) then
 		for i = 1, #cart do
 			cart_sum = cart_sum + cart[i].price
 		end
-		
+
 		if (buttons.cartbuy.state == BTN_UP) then
 			cart_purchase = load_texture("torishop/gui/purchase.tga")
 		elseif (buttons.cartbuy.state == BTN_HOVER) then
@@ -4556,7 +4556,7 @@ function draw_cart()
 			cart_purchase = load_texture("torishop/gui/purchase_dn.tga")
 		end
 	end
-		
+
 	-- CART MAIN
 	if (cart_current == 0) then
 	elseif (cart_minimize == false) then
@@ -4575,20 +4575,20 @@ function draw_cart()
 			end
 			draw_right_text(cart[i + cart_shift].price.." TC", width - 945, height + i * 36 - cart_slide - 6, FONTS.MEDIUM)
 		end
-		
+
 		draw_text("Items in the cart: "..cart_current, 560, height - cart_slide + 2, FONTS.MEDIUM)
 		if (cart_slide < 64) then
 			set_color(0.4, 0, 0, 1)
 			draw_quad(551, height + 26 - cart_slide, 400, 38)
-			draw_quad(810, height + 28 - cart_slide, 128, 128, cart_purchase) 
+			draw_quad(810, height + 28 - cart_slide, 128, 128, cart_purchase)
 			draw_text("Total: "..cart_sum.." TC", 565, height + 32 - cart_slide, FONTS.MEDIUM)
 		else
 			set_color(0.4, 0, 0, 1)
 			draw_quad(551, height - 38, 400, 38)
-			draw_quad(810, height - 36, 128, 128, cart_purchase) 
+			draw_quad(810, height - 36, 128, 128, cart_purchase)
 			draw_text("Total: "..cart_sum.." TC", 565, height - 32, FONTS.MEDIUM)
 		end
-		
+
 		-- MOVE BETWEEN CART PAGES
 		if (cart_current > 5 and cart_slide == 244) then
 			for i, v in pairs(buttons.arrows) do
@@ -4614,9 +4614,9 @@ function draw_cart()
 				end
 			end
 		end
-	
+
 		buttons.arrows.cart_min.y = height - cart_slide + 12
-				
+
 		for i, v in pairs(buttons.arrows) do
 			if (v == buttons.arrows.cart_min) then
 				if (v.state == BTN_HOVER) then
@@ -4644,20 +4644,20 @@ function draw_cart()
 				end
 				draw_right_text(cart[i + cart_shift].price.." TC", width - 945, height + i * 36 - cart_slide - 6, FONTS.MEDIUM)
 			end
-		else 
+		else
 			cart_reload()
 		end
-		
+
 		set_color(1, 1, 1, 1)
 		draw_text("Items in the cart: "..cart_current, 560, height - cart_slide + 2, FONTS.MEDIUM)
 		set_color(0.4, 0, 0, 1)
 		draw_quad(551, height - 38, 400, 38)
-		draw_quad(810, height - 36, 128, 128, cart_purchase) 
+		draw_quad(810, height - 36, 128, 128, cart_purchase)
 		set_color(1, 1, 1, 1)
 		draw_text("Total: "..cart_sum.." TC", 565, height - 32, FONTS.MEDIUM)
-		
+
 		buttons.arrows.cart_min.y = height - cart_slide + 16
-		
+
 		set_color(1, 1, 1, 1)
 		for i, v in pairs(buttons.arrows) do
 			if (v == buttons.arrows.cart_min) then
@@ -4672,10 +4672,10 @@ function draw_cart()
 		end
 	end
 	if (cart_current > 0) then
-	
+
 		-- WARNING IN CASE OF INSUFFICIENT FUNDS OR CART FULL
 		draw_cart_warning(cart_warning)
-		
+
 	end
 end
 
@@ -4689,13 +4689,13 @@ function draw_torishop()
 	local sale_name, sale_discount, sale_id
 	local sale_marked = false
 	local sale_timeleft_length, discount_length
-	
+
 	get_playerinfo() -- to avoid torishop reloading after TC purchase
 	run_sale_timer()
-	
+
 	if (wait_for_update == 1 or wait_for_update == 2) then
 		local disp_string = "Updating torishop data, please wait..."
-		if (get_string_length(disp_string, FONTS.BIG) * 0.7 + 600 < width) then 
+		if (get_string_length(disp_string, FONTS.BIG) * 0.7 + 600 < width) then
 			set_color(0, 0, 0, wait_warning * 0.8)
 			draw_text(disp_string, width - get_string_length(disp_string, FONTS.MEDIUM), height - 30, FONTS.MEDIUM)
 		end
@@ -4711,7 +4711,7 @@ function draw_torishop()
 		end
 	elseif (wait_for_update == -1) then
 		local disp_string = "Update failed, please try again later"
-		if (get_string_length(disp_string, FONTS.BIG) * 0.7 + 600 < width) then 
+		if (get_string_length(disp_string, FONTS.BIG) * 0.7 + 600 < width) then
 			set_color(0, 0, 0, wait_warning * 0.8)
 			draw_text(disp_string, width - get_string_length(disp_string.." ", FONTS.MEDIUM), height - 30, FONTS.MEDIUM)
 			if (os.difftime(os.time(), warning_time) > 30) then
@@ -4722,14 +4722,14 @@ function draw_torishop()
 			end
 		end
 	end
-	
+
 	-- Overlay
 	set_color(0.5, 0, 0, 1)
 	draw_quad(0, 0, 490, height)
 	local color_bg = 0.6
 	local color_bg_end = false
 	for i = 1, 490 do
-	if (color_bg >= 0.8) then 
+	if (color_bg >= 0.8) then
 		color_bg_end = true
 	end
 	if (color_bg_end == false) then
@@ -4738,28 +4738,28 @@ function draw_torishop()
 	set_color(color_bg, 0, 0, 1)
 	draw_quad(i, 1, 1, height-2)
 	end
-	
+
 	-- Draw cart
 	draw_cart()
-	
+
 	-- Main page
-	
+
 	if (main_page == true) then
-	
+
 		-- PROMO ANNOUNCEMENT HERE
 		if (height >= 720) then
 			draw_sectionbutton(buttons.sfeatured, torishop_announcement4, torishop_announcement4, 512)
-			
+
 			set_color(0,0,0,0.2)
 			draw_quad(0, height-1, 490, 1)
 			draw_quad(0, height-32, 491, 31)
 		end
-		
+
 		set_color(1,1,1,1)
 		if (hellomessage == 1) then
 		draw_text("Hello, "..name.."!", 10, 10, FONTS.MEDIUM)
 		draw_text("Hello, "..name.."!", 10, 10, FONTS.MEDIUM)
-		elseif (hellomessage == 2) then		
+		elseif (hellomessage == 2) then
 		draw_text("Hi, "..name.."!", 10, 10, FONTS.MEDIUM)
 		draw_text("Hi, "..name.."!", 10, 10, FONTS.MEDIUM)
 		else
@@ -4773,9 +4773,9 @@ function draw_torishop()
 		draw_text("You have "..tc.." TC and a "..belt, 10, 35, FONTS.MEDIUM)
 		draw_text("You have "..tc.." TC and a "..belt, 10, 35, FONTS.MEDIUM)
 		end
-		
+
 		-- Daily sale section
-		
+
 		for i = 1, sections[32].total_items do
 			if (sections[32][i].promo == "1") then
 				sale_name = sections[32][i].name
@@ -4793,16 +4793,16 @@ function draw_torishop()
 			draw_quad(buttons.sonsale.x, buttons.sonsale.y + 5, 470, 90)
 			draw_quad(buttons.sonsale.x + 15, buttons.sonsale.y - 10, 440, 15)
 			draw_quad(buttons.sonsale.x + 15, buttons.sonsale.y + 95, 440, 15)
-			
+
 			sale_timeleft_length = get_string_length(get_main_sale_time(sale_id) .. " ", FONTS.MEDIUM)
-			
+
 			set_color(0, 0, 0, 1)
 			draw_text(get_main_sale_time(sale_id), 244 - sale_timeleft_length / 2, height - 361, FONTS.MEDIUM)
-			
+
 			set_color(1, 1, 1, 1)
 			draw_text(get_main_sale_time(sale_id), 245 - sale_timeleft_length / 2, height - 360, FONTS.MEDIUM)
-		
-			if (sale_icon == nil) then 				
+
+			if (sale_icon == nil) then
 				sale_icon = load_texture("/torishop/icons/"..sale_name..".tga")
 			end
 			draw_quad(buttons.sonsale.x + 120, buttons.sonsale.y + 40, 64, 64, sale_icon)
@@ -4812,7 +4812,7 @@ function draw_torishop()
 				draw_quad(buttons.sonsale.x, buttons.sonsale.y - 5, 512, 512, sale_main_)
 			end
 		end
-	
+
 		-- Section Buttons
 		if (main_view == 0) then -- Main Screen
 			draw_sectionbutton(buttons.mainsingle, sect_singleitems, sect_singleitems_, 256)
@@ -4828,13 +4828,13 @@ function draw_torishop()
 			draw_sectionbutton(buttons.smodelpacks, sect_modelpacks, sect_modelpacks_, 256)
 			draw_sectionbutton(buttons.sfulltoris, sect_sfulltoris, sect_sfulltoris_, 256)
 		end
-		
+
 		if (main_view ~= 0) then
 			select_color_links(buttons.tomain.state)
 			draw_text("BACK", buttons.tomain.x, buttons.tomain.y, FONTS.MEDIUM)
 			draw_text("BACK", buttons.tomain.x, buttons.tomain.y, FONTS.MEDIUM)
 		end
-		
+
 		--Go to see flames
 		set_color(0,0,0,0.2)
 		draw_disk(90, buttons.sflames.y + 5, 0, 5, 500, 1, -180, 90, 0)
@@ -4850,7 +4850,7 @@ function draw_torishop()
 		set_color(0,0,0,0.2)
 		draw_quad(0, height-1, 490, 1)
 		draw_quad(0, height-58, 491, 57)
-		
+
 		draw_shelf()
 		-- draw arrow buttons
 		if (total_shelves_all2 > 1) then
@@ -4874,7 +4874,7 @@ function draw_torishop()
 	-- The Torishop link
 	select_color_links(buttons.torishop.state)
 	draw_text("OPEN INVENTORY", buttons.torishop.x, buttons.torishop.y, FONTS.MEDIUM)
-	
+
 	-- Timer and Usertext
 	draw_timer()
 	draw_usertext()
@@ -4889,30 +4889,30 @@ function draw_torishop()
 		draw_quad(width/2 + 250, height/2 - 90, 1, 150)
 		draw_quad(width/2 - 250, height/2 - 90, 500, 1)
 		draw_quad(width/2 - 250, height/2 + 60, 500, 1)
-		
+
 		set_color(0,0,0,1)
-		
+
 		if string.len(confirm_name) > 10 then
 			draw_centered_text("Are you sure want to buy", buttons.confirm.y - 63, FONTS.MEDIUM)
 			draw_centered_text(confirm_name .. "?", buttons.confirm.y - 40, FONTS.MEDIUM)
 		else
 			draw_centered_text("Are you sure want to buy " .. confirm_name .. "?", buttons.confirm.y - 50, FONTS.MEDIUM)
 		end
-		if (buttons.confirm.state == BTN_UP) then 
+		if (buttons.confirm.state == BTN_UP) then
 			set_color(0,0,0,1)
 		else
 			select_color_links(buttons.confirm.state)
 		end
 		draw_centered_text("Confirm purchase", buttons.confirm.y, FONTS.MEDIUM)
-		if (buttons.cancel.state == BTN_UP) then 
+		if (buttons.cancel.state == BTN_UP) then
 			set_color(0,0,0,1)
 		else
 			select_color_links(buttons.cancel.state)
 		end
 		draw_centered_text("Cancel", buttons.cancel.y, FONTS.MEDIUM)
 	end
-	
-	
+
+
 	-- DQ Hint
 	if (current_section == 9) then
 		draw_ground_impact(0)
@@ -4923,7 +4923,7 @@ function draw_torishop()
 		draw_right_text("Space to DQ", 10, height-30, FONTS.MEDIUM)
 		clear_ground_impact(0)--]]
 	end
-	
+
 end
 
 function draw_offline()
@@ -4939,7 +4939,7 @@ function load_temp()
 	for ln in temp:lines() do
 		if string.match(ln, "null") then
 			wait_for_update = 1
-			return 0 
+			return 0
 		elseif string.match(ln, "temp") then
 		elseif string.match(ln, "section ") then
 			line = string.gsub(ln, "section ", "")
@@ -4948,9 +4948,9 @@ function load_temp()
 			sections_[section].selected_index = tonumber(sections_[section].selected_index)
 			change_section_first[section] = tonumber(change_section_first[section])
 			section = section + 1
-		else 
+		else
 			tempinfo.force, tempinfo.relax, tempinfo.primary, tempinfo.secondary, tempinfo.torso, tempinfo.blood, tempinfo.ghost, tempinfo.rhmt, tempinfo.lhmt, tempinfo.rlmt, tempinfo.llmt, tempinfo.dq, tempinfo.grip, tempinfo.timer, tempinfo.text, tempinfo.emote, tempinfo.hair = ln:match("([^,]+) ([^,]+) ([^,]+) ([^,]+) ([^,]+) ([^,]+) ([^,]+) ([^,]+) ([^,]+) ([^,]+) ([^,]+) ([^,]+) ([^,]+) ([^,]+) ([^,]+) ([^,]+) ([^,]+)")
-		end	
+		end
 	if (tempinfo.force ~= "0" and tempinfo.force ~= 0) then set_joint_force_color(0, tempinfo.force) end
 	if (tempinfo.relax ~= "0" and tempinfo.relax ~= 0) then set_joint_relax_color(0, tempinfo.relax) end
 	if (tempinfo.primary ~= "0" and tempinfo.primary ~= 0) then set_gradient_primary_color(0, tempinfo.primary) end
@@ -4987,14 +4987,14 @@ function close_torishop()
 	cart_reload()
 	clear_icons()
 	clear_ss_icons()
-	
+
 	-- Unload static images and item icons
 	if (player_name ~= "") then
 		unload_images()
 	end
-	
+
 	for i, v in pairs(options) do
-		set_option(i, v) 
+		set_option(i, v)
 	end
 	remove_hooks("error")
 	run_cmd("opt effects " .. effects_option)
@@ -5017,32 +5017,32 @@ function init_torishop()
 	run_cmd("opt chat 0")
 	run_cmd("opt effects 2")
 	run_cmd("refreshtorishop")
-	
+
 	for i, v in pairs(options) do
 		options[i] = get_option(i)
 		set_option(i, 0)
 	end
-	
+
 	-- Ensure Torishop can close properly
 	add_hook("leave_game", "torishop", close_torishop)
-	
+
 	if (player_name == "") then
 		start_torishop_camera(1)
 		add_hook("draw2d", "error", errormessage)
-	else	
+	else
 		run_cmd("dl "..player_name)
 		start_torishop_camera(15)
 
-	
+
 		-- Prepare the player figure
 		init_player()
-	
+
 
 		-- Prepare the item display
 		load_data()
 		if (data_exists == false) then
 			print("Error")	-- print no torishop message
-		
+
 			add_hook("draw2d", "torishop", draw_offline)
 			return
 		end
@@ -5051,34 +5051,34 @@ function init_torishop()
 		load_items()
 		load_buttons()
 		load_images()
-	
+
 		change_section(0)
 		change_shelf(0)
-		
+
 		load_temp()
-	
+
 		add_hook("draw2d", "torishop", draw_torishop)
 		add_hook("mouse_button_down", "torishop", mouse_down)
 		add_hook("mouse_button_up", "torishop", mouse_up)
 		add_hook("mouse_move", "torishop", mouse_move)
 		add_hook("key_down", "torishop", key_down)
 		add_hook("key_up", "torishop", key_up)
-		
+
 	add_hook("console",	"update_shop", function(s,i)
 			if (wait_for_update > 0) then
 				if (s == "Download of torishop files complete") then
 					local sale_name = 0
-				
+
 					data_table = {}
 					data_table_usd = {}
 					data_table_lines = 0
 					data_table_usd_lines = 0
 					sections = {}
-					
+
 					load_data()
 					load_sections()
 					load_items()
-					
+
 					for i = 1, sections[32].total_items do
 						if (sections[32][i].promo == "1") then
 							sale_id = sections[32][i].id

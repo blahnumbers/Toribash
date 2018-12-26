@@ -44,3 +44,11 @@ script/torishop/invent\.txt
 *.tmp
 
 script/color_preview\.lua
+
+quest\.txt
+
+ranking_toplist\.txt
+
+ranking_trends\.txt
+
+script/replaysaver\.lua

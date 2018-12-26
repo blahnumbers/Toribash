@@ -19,14 +19,14 @@ do
 	
 	-- Connects to matchmake server in idle mode, do not instantly search for a fight
 	function Matchmake:connect()
-		if (TB_MENU_MATCHMAKE_ISOPEN == 0 and get_world_state().game_type == 0) then
+		if (TB_MENU_SPECIAL_SCREEN_ISOPEN == 2 and get_world_state().game_type == 0) then
 			UIElement:runCmd("matchmake pause")
 		end
 		Matchmake:getMatchmaker()
 	end
 	
 	function Matchmake:quit()
-		TB_MENU_MATCHMAKE_ISOPEN = 0
+		TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
 		TB_MATCHMAKER_SEARCHSTATUS = nil
 		if (get_world_state().game_type == 0) then
 			UIElement:runCmd("matchmake disconnect")
@@ -368,6 +368,7 @@ do
 		download_ranking_toplist()
 		local elementHeight = 35
 		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 50, elementHeight, 20)
+		TBMenu:addBottomBloodSmudge(botBar, 2)
 		
 		local rankingFile = Files:new("../data/ranking_toplist.txt")
 		local playerRanking = nil
@@ -464,7 +465,6 @@ do
 			size = { tbMenuCurrentSection.size.w * 0.35 - 10, tbMenuCurrentSection.size.h },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
-		TBMenu:addBottomBloodSmudge(rankingTopView, 2)
 		Matchmake:showGlobalRankToplist(rankingTopView)
 	end
 	
@@ -723,7 +723,7 @@ do
 							pos = { elementHeight, 0 },
 							size = { tcPrizeHolder.size.w - elementHeight, elementHeight }
 						})
-						tcPrize:addAdaptedText(true, prize.prizes.tc .. " Toricredits", nil, nil, nil, LEFTMID, 0.8)
+						tcPrize:addAdaptedText(true, prize.prizes.tc .. " " .. TB_MENU_LOCALIZED.WORDTC, nil, nil, nil, LEFTMID, 0.8)
 					end
 					if (prize.prizes.st) then
 						local stPrizeHolder = UIElement:new({
@@ -1070,7 +1070,7 @@ do
 	end
 	
 	function Matchmake:showMain()
-		TB_MENU_MATCHMAKE_ISOPEN = 1
+		TB_MENU_SPECIAL_SCREEN_ISOPEN = 2
 		tbMenuBottomLeftBar:hide()
 		
 		local mmTimeRefresh = os.time()

@@ -22,8 +22,10 @@ do
 	
 	function UIElement3D:new(o)
 		local elem = {
+			globalid = 0,
 			parent = nil,
 			child = {},
+			rotXYZ = { x = 0, y = 0, z = 0 },
 			pos = {},
 			shift = {},
 			bgColor = { 1, 1, 1, 1 },
@@ -41,33 +43,31 @@ do
 				elem.attachJoint = o.attachJoint
 			end
 			if (o.parent) then
+				elem.globalid = o.parent.globalid
 				elem.parent = o.parent
 				table.insert(elem.parent.child, elem)
 				elem.shift = { x = o.pos[1], y = o.pos[2], z = o.pos[3] }
-				if (o.rot) then
-					elem.relrot = { x = o.rot[1], y = o.rot[2], z = o.rot[3] }
-				else
-					elem.relrot = { x = 0, y = 0, z = 0 }
-				end
+				elem.rotXYZ = { x = elem.parent.rotXYZ.x, y = elem.parent.rotXYZ.y, z = elem.parent.rotXYZ.z }
+				elem:setChildShift()
 				for i,v in pairs(elem.shift) do
-					if (v < 0) then
-						elem.pos[i] = elem.parent.pos[i] + elem.shift[i]
-					else
-						elem.pos[i] = elem.parent.pos[i] + elem.shift[i]
-					end
+					elem.pos[i] = elem.parent.pos[i] + elem.shift[i]
 				end
 			else
 				elem.pos = { x = o.pos[1], y = o.pos[2], z = o.pos[3] }
 			end
 			elem.size = { x = o.size[1], y = o.size[2], z = o.size[3] }
 			if (o.rot) then
-				elem.rot = { x = o.rot[1], y = o.rot[2], z = o.rot[3] }
-			else
-				elem.rot = { x = 0, y = 0, z = 0 }
+				elem.rotXYZ.x = elem.rotXYZ.x + o.rot[1]
+				elem.rotXYZ.y = elem.rotXYZ.y + o.rot[2]
+				elem.rotXYZ.z = elem.rotXYZ.z + o.rot[3]
 			end
+			elem:updateRotations(elem.rotXYZ)
 			if (o.objModel) then
 				elem.shapeType = CUSTOMOBJ
 				elem:updateObj(o.objModel)
+			end
+			if (o.globalid) then
+				elem.globalid = o.globalid
 			end
 			if (o.bgColor) then
 				elem.bgColor = o.bgColor
@@ -132,6 +132,11 @@ do
 		self = nil
 	end
 	
+	function UIElement3D:addCustomEnterFrame(func)
+		self.customEnterFrameFunc = func
+		func()
+	end
+	
 	function UIElement3D:display()
 		if (self.hoverState ~= false and self.hoverColor) then
 			for i = 1, 4 do
@@ -190,11 +195,29 @@ do
 					draw_capsule(self.pos.x, self.pos.y, self.pos.z, self.size.y, self.size.x, self.rot.x, self.rot.y, self.rot.z)
 				end
 			elseif (self.shapeType == CUSTOMOBJ) then
-				draw_obj(self.objModel, self.pos.x, self.pos.y, self.pos.z, self.size.x, self.size.y, self.size.z, self.rot.x + self.relrot.x, self.rot.y + self.relrot.y, self.rot.z + self.relrot.z)
+				draw_obj(self.objModel, self.pos.x, self.pos.y, self.pos.z, self.size.x, self.size.y, self.size.z, self.rot.x, self.rot.y, self.rot.z)
 			end
 		end
 		if (not self.customDisplayBefore) then
 			self.customDisplay()
+		end
+	end
+	
+	function UIElement3D:drawVisuals(globalid)
+		for i, v in pairs(UIVisual3DManager) do
+			if (v.globalid == globalid) then
+				v:display()
+			end
+		end
+	end
+	
+	function UIElement3D:playFrameFunc(globalid)
+		for i,v in pairs(UIVisual3DManager) do
+			if (v.globalid == globalid) then
+				if (v.customEnterFrameFunc ~= nil) then
+					v.customEnterFrameFunc()
+				end
+			end
 		end
 	end
 	
@@ -264,157 +287,148 @@ do
 		end
 	end
 	
+	function UIElement3D:updatePos()
+		for i,v in pairs(self.child) do
+			v:updateChildPos()
+		end
+	end
+	
+	function UIElement3D:setChildShift()
+		local rotMatrix = self.parent.rotMatrix
+		local pos = self.parent.pos
+		local shift = self.shift
+		
+		local rotatedShift = UIElement3D:multiply({ { shift.x, shift.y, shift.z } }, rotMatrix)
+		local newShift = rotatedShift[1]
+		
+		self.shift.x = newShift[1]
+		self.shift.y = newShift[2]
+		self.shift.z = newShift[3]
+	end 
+	
+	function UIElement3D:updateChildPos(rotMatrix, pos, shift)
+		local rotMatrix = rotMatrix or self.parent.rotMatrix
+		local pos = pos or self.parent.pos
+		local shift = shift and { x = shift.x + self.shift.x, y = shift.y + self.shift.y, z = shift.z + self.shift.z } or self.shift
+		
+		local newPos = UIElement3D:multiply({ { shift.x, shift.y, shift.z } }, rotMatrix)
+		local vector = newPos[1]
+		
+		self.pos.x = pos.x + vector[1]
+		self.pos.y = pos.y + vector[2]
+		self.pos.z = pos.z + vector[3]
+		
+		for i,v in pairs(self.child) do
+			v:updateChildPos(rotMatrix, pos, shiftSum)
+		end
+	end
 	
 	function UIElement3D:moveTo(x, y, z)
 		if (self.playerAttach) then
 			return
 		end
 		if (self.parent) then
-			if (x) then self.shift.x = x end
-			if (y) then self.shift.y = y end
-			if (z) then self.shift.z = z end
+			if (x) then self.shift.x = self.shift.x + x end
+			if (y) then self.shift.y = self.shift.y + y end
+			if (z) then self.shift.z = self.shift.z + z end
 		else
-			if (x) then self.pos.x = x end
-			if (y) then self.pos.y = y end
-			if (z) then self.pos.y = z end
+			if (x) then self.pos.x = self.pos.x + x end
+			if (y) then self.pos.y = self.pos.y + y end
+			if (z) then self.pos.y = self.pos.z + z end
 		end
+		self:updateChildPos()
 	end
 	
 	function UIElement3D:rotate(x, y, z)
 		local x = x or 0
 		local y = y or 0
 		local z = z or 0
-		local rot = self.rot
-		if (self.parent) then
-			rot = self.relrot
+		if (x == 0 and y == 0 and z == 0) then
+			return
 		end
+		
+		local rot = self.rotXYZ
 		rot.x = (rot.x + x) % 360
 		rot.y = (rot.y + y) % 360
 		rot.z = (rot.z + z) % 360
+		self:updateRotations(rot)
 		
-		local max = math.max(rot.x, rot.y, rot.z)
-		x = rot.x / max
-		y = rot.y / max
-		z = rot.z / max
-		local angle = math.rad(max)
-		
-		self.vector = { u = x, v = y, w = z, angle = angle }
+		for i,v in pairs(self.child) do
+			v:rotate(x, y, z)
+		end
+		self:updatePos()
 	end
 	
-	function UIElement3D:setupRotMatrix(vector)
-		local u2 = vector.u * vector.u
-		local v2 = vector.v * vector.v
-		local w2 = vector.w * vector.w
-		local l = u2 + v2 + w2
-		local angle = vector.angle
-		local rotationMatrix = {}
-		
-		local rotationRow1 = {}
-		rotationRow1[1] = (u2 + (v2 + w2) * math.cos(angle)) / l
-		rotationRow1[2] = (vector.u * vector.v * (1 - math.cos(angle)) - vector.w * math.sqrt(l) * math.sin(angle)) / l
-    	rotationRow1[3] = (vector.u * vector.w * (1 - math.cos(angle)) + vector.v * math.sqrt(l) * math.sin(angle)) / l
-    	rotationRow1[4] = 0.0
-		
-		local rotationRow2 = {}
-	    rotationRow2[1] = (vector.u * vector.v * (1 - math.cos(angle)) + vector.w * math.sqrt(l) * math.sin(angle)) / l
-	    rotationRow2[2] = (v2 + (u2 + w2) * math.cos(angle)) / l
-	    rotationRow2[3] = (vector.v * vector.w * (1 - math.cos(angle)) - vector.u * math.sqrt(l) * math.sin(angle)) / l
-	    rotationRow2[4] = 0.0;
-
-		local rotationRow3 = {}
-	    rotationRow3[1] = (vector.u * vector.w * (1 - math.cos(angle)) - vector.v * math.sqrt(l) * math.sin(angle)) / l
-	    rotationRow3[2] = (vector.v * vector.w * (1 - math.cos(angle)) + vector.u * math.sqrt(l) * math.sin(angle)) / l
-	    rotationRow3[3] = (w2 + (u2 + v2) * math.cos(angle)) / l
-	    rotationRow3[4] = 0.0;
-
-		local rotationRow4 = {}
-	    rotationRow4[1] = 0.0
-	    rotationRow4[2] = 0.0
-	    rotationRow4[3] = 0.0
-	    rotationRow4[4] = 1.0
-		
-		rotationMatrix[1] = rotationRow1
-		rotationMatrix[2] = rotationRow2
-		rotationMatrix[3] = rotationRow3
-		rotationMatrix[4] = rotationRow4
-		
-		return rotationMatrix
+	function UIElement3D:updateRotations(rot)
+		self.rotMatrix = UIElement3D:getRotMatrixFromEulerAngles(math.rad(rot.x), math.rad(rot.y), math.rad(rot.z))
+		local relX, relY, relZ = self:getEulerZYXFromRotationMatrix(self.rotMatrix)
+		self.rot = { x = relX, y = relY, z = relZ }
 	end
 	
-	function UIElement3D:updateChildRot()
-		local rotMatrix = UIElement3D:setupRotMatrix(self.parent.vector)
-		local newPos = UIElement3D:multiply({ { self.shift.x, self.shift.y, self.shift.z, 1 } }, rotMatrix)
-		local vector = newPos[1]
-		echo("x angle: " .. self.parent.rot.x .. "; pos " .. vector[1])
-		echo("y angle: " .. self.parent.rot.y .. "; pos " .. vector[2])
-		echo("z angle: " .. self.parent.rot.z .. "; pos " .. vector[3])
-		self.pos.x = self.parent.pos.x + vector[1]
-		self.pos.y = self.parent.pos.y + vector[2]
-		self.pos.z = self.parent.pos.z + vector[3]
-		self.rot.x = self.parent.rot.x + self.relrot.x
-		self.rot.y = self.parent.rot.y + self.relrot.y
-		self.rot.z = self.parent.rot.z + self.relrot.z
+	function UIElement3D:getEulerZYXFromRotationMatrix(R)
+		local clamp = R[3][1] > 1 and 1 or (R[3][1] < -1 and -1 or R[3][1])
+		local x, y, z
+		
+		y = math.asin(-clamp)
+		if (0.99999 > math.abs(R[3][1])) then
+			x = math.atan2(R[3][2], R[3][3])
+			z = math.atan2(R[2][1], R[1][1])
+		else
+			x = 0
+			z = math.atan2(-R[1][2], R[2][2])
+		end
+		return math.deg(x), math.deg(y), math.deg(z) 
 	end
 	
-	function UIElement3D:updateChildPos()
-		if (self.parent.vector) then
-			self:updateChildRot()
+	function UIElement3D:getEulerAnglesFromMatrixTB(rTB)
+		return UIElement3D:getEulerZYXFromRotationMatrix({
+			{ rTB.r0, rTB.r1, rTB.r2, rTB.r3 },
+			{ rTB.r4, rTB.r5, rTB.r6, rTB.r7 },
+			{ rTB.r8, rTB.r9, rTB.r10, rTB.r11 },
+			{ rTB.r12, rTB.r13, rTB.r14, rTB.r15 },
+		})
+	end
+	
+	function UIElement3D:getRotMatrixFromEulerAngles(x, y, z)
+		local R_x = {
+			{ 1, 0, 0 },
+			{ 0, math.cos(x), -math.sin(x) },
+			{ 0, math.sin(x), math.cos(x) }
+		}
+		local R_y = {
+			{ math.cos(y), 0, math.sin(y) },
+			{ 0, 1, 0 },
+			{ -math.sin(y), 0, math.cos(y) }
+		}
+		local R_z = {
+			{ math.cos(z), -math.sin(z), 0 },
+			{ math.sin(z), math.cos(z), 0 },
+			{ 0, 0, 1 }
+		}
+		local R = UIElement3D:multiply(UIElement3D:multiply(R_y, R_x), R_z)
+		return R
+	end
+	
+	function UIElement3D:multiply(a, b)
+		if (#a[1] ~= #b) then
+			return false
 		end
 		
---[[			if (self.parent.rotMatrix.x ~= 0) then
-				local rotated = { x = self.shift.x, y = self.shift.y, z = self.shift.z }
-				local angle = (self.parent.rot.x / 180 * math.pi) % (math.pi * 2)
-				rotated.y = shift.y * math.cos(angle) + shift.z * math.sin(angle)
-				rotated.z = shift.z * math.cos(angle) - shift.y * math.sin(angle)
-				self.rot.x = self.rot.x + self.parent.rotMatrix.x
-				shift = rotated
+		local matrix = {}
+		
+		for aRow = 1, #a do
+			matrix[aRow] = {}
+			for bCol = 1, #b[1] do
+				local sum = matrix[aRow][bCol] or 0
+				for bRow = 1, #b do
+					sum = sum + a[aRow][bRow] * b[bRow][bCol]
+				end
+				matrix[aRow][bCol] = sum
 			end
-			if (self.parent.rotMatrix.y ~= 0) then
-				local rotated = { x = self.shift.x, y = self.shift.y, z = self.shift.z }
-				local angle = (self.parent.rot.y / 180 * math.pi) % (math.pi * 2)
-				rotated.x = shift.x * math.cos(angle) - shift.z * math.sin(angle)
-				rotated.z = shift.z * math.cos(angle) + shift.x * math.sin(angle)
-				self.rot.y = self.rot.y + self.parent.rotMatrix.y
-				shift = rotated
-			end
-			if (self.parent.rotMatrix.z ~= 0) then
-				local rotated = { x = self.shift.x, y = self.shift.y, z = self.shift.z }
-				local angle = (self.parent.rot.z / 180 * math.pi) % (math.pi * 2)
-				rotated.x = shift.x * math.cos(angle) - shift.y * math.sin(angle)
-				rotated.y = shift.y * math.cos(angle) + shift.x * math.sin(angle)
-				self.rot.z = self.rot.z + self.parent.rotMatrix.z
-				shift = rotated
-			end
-			self.pos.x = self.parent.pos.x + shift.x
-			self.pos.y = self.parent.pos.y + shift.y
-			self.pos.z = self.parent.pos.z + shift.z
-		end]]
+		end
+		
+		return matrix
 	end
-	
-	--[[function UIElement3D:updateChildPos()
-		if (self.playerAttach) then
-			return
-		end
-		if (self.parent.lastRot) then
-			if (self.parent.rot.x ~= self.parent.lastRot.x) then
-				local rotMod = (self.parent.rot.x / 180 * math.pi) % (math.pi * 2)
-				modified.z = modified.z + (self.parent.size.x + self.shift.z / 2 + self.shift.y / 2) * math.cos(rotMod)
-				modified.y = modified.y + (self.parent.size.x + self.shift.z / 2 + self.shift.y / 2) * math.sin(rotMod)
-				self.rot.x = self.parent.rot.x + self.relrot.x
-			end
-			--echo(self.pos.x .. " " .. self.pos.y .. " " .. self.pos.z)
-			if (self.parent.rot.y ~= self.parent.lastRot.y) then
-				local rotMod = (self.parent.rot.y / 180 * math.pi) % (math.pi * 2)
-				modified.x = modified.x + (self.parent.size.y + self.shift.x / 2 + self.shift.z / 2) * math.sin(rotMod)
-				modified.z = modified.z + (self.parent.size.y + self.shift.x / 2 + self.shift.z / 2) * math.cos(rotMod)
-				self.rot.y = self.parent.rot.y + self.relrot.y
-			end
-			self.pos.x = self.parent.pos.x + modified.x
-			self.pos.y = self.parent.pos.y + modified.y
-			self.pos.z = self.parent.pos.z + modified.z
-			--echo(self.pos.x .. " " .. self.pos.y .. " " .. self.pos.z)
-		end
-	end]]
 	
 	function UIElement:updateObj(model, noreload)
 		local filename
@@ -423,7 +437,7 @@ do
 				filename = model:gsub("%.%./%.%./", "")
 			elseif (model:find("%.%./")) then
 				filename = model:gsub("%.%./", "data/")
-			else 
+			else
 				filename = "data/script/" .. model:gsub("^/", "")
 			end
 		end
@@ -471,36 +485,5 @@ do
 			table.insert(OBJMODELCACHE, self.objModel)
 			io.close(tempobj)
 		end
-	end
-	
-	function UIElement3D:getEulerAnglesFromMatrixTB(R)
-		local Rz, Ry, Rx = 0, 0, 0
-		
-		Rx = math.atan2(-R.r6, R.r10)
-		Ry = math.atan2(R.r2, R.r10 * math.cos(Rx) - R.r6 * math.sin(Rx))
-		Rz = math.atan2(R.r4 * math.cos(Rx) + R.r8 * math.sin(Rx), R.r5 * math.cos(Rx) + R.r9 * math.sin(Rx))
-		
-		return -Rx, -Ry, -Rz
-	end
-	
-	function UIElement3D:multiply(a, b)
-		if (#a[1] ~= #b) then
-			return false
-		end
-		
-		local matrix = {}
-		
-		for aRow = 1, #a do
-			matrix[aRow] = {}
-			for bCol = 1, #b[1] do
-				local sum = matrix[aRow][bCol] or 0
-				for bRow = 1, #b do
-					sum = sum + a[aRow][bRow] * b[bRow][bCol]
-				end
-				matrix[aRow][bCol] = sum
-			end
-		end
-		
-		return matrix
 	end
 end

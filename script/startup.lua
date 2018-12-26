@@ -34,6 +34,9 @@ local events = {
 	"command", --Called when an unused /command is entered.
 	"unload",
 	"draw_viewport",
+	"key_hold",
+	"pre_draw",
+	"new_game_mp"
 }
 
 function call_hook(event, ...)
@@ -131,4 +134,3 @@ if (startup == nil) then
 
 	startup = true
 end
-

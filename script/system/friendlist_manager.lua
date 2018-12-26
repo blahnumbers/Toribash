@@ -108,13 +108,18 @@ do
 	end
 	
 	function FriendsList:getFriends()
-		local file = io.open("data/buddies.txt", "r", 1)
-		if (file == nil) then
-			return false
+		local file = Files:new("../data/buddies.txt")
+		if (not file.data) then
+			UIElement:runCmd("ab testuser")
+			file:reopen()
+			if (not file.data) then
+				return false
+			end
+			UIElement:runCmd("rb testuser")
 		end
 		FRIENDSLIST_FRIENDS = {}
 		
-		for ln in file:lines() do
+		for i, ln in pairs(file:readAll()) do
 			local segments = 3
 			local data_stream = { ln:match(("([^ ]+) *"):rep(segments)) }
 			table.insert(FRIENDSLIST_FRIENDS, { username = data_stream[1], online = false, room = false })
@@ -169,6 +174,7 @@ do
 			size = { viewElement.size.w, entryHeight },
 			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 		})
+		TBMenu:addBottomBloodSmudge(friendsBotBar, 1)
 		
 		local friendsMain = UIElement:new({
 			parent = viewElement,
@@ -249,6 +255,20 @@ do
 				end)
 			end
 		end
+		if (#friendsElements == 0) then
+			local friendsMessageTop = UIElement:new({
+				parent = friendsView,
+				pos = { 10, 0 },
+				size = { friendsView.size.w - 20, friendsView.size.h / 2 - 5 }
+			})
+			friendsMessageTop:addAdaptedText(true, TB_MENU_LOCALIZED.FRIENDSLISTEMPTY .. " :(", nil, nil, FONTS.BIG, CENTERBOT)
+			local friendsMessageBot = UIElement:new({
+				parent = friendsView,
+				pos = { 10, friendsView.size.h / 2 + 5 },
+				size = { friendsView.size.w - 20, friendsView.size.h / 2 - 5 }
+			})
+			friendsMessageBot:addAdaptedText(true, TB_MENU_LOCALIZED.FRIENDSLISTEMPTYINFO, nil, nil, nil, CENTER)
+		end
 			
 		for i,v in pairs(friendsElements) do
 			v:hide()
@@ -322,7 +342,6 @@ do
 			pos = { 0, headerTitle.size.h },
 			size = { viewElement.size.w, viewElement.size.h - headerTitle.size.h }
 		})
-		TBMenu:addBottomBloodSmudge(viewElement, 1)
 		FriendsList:showFriendsList(friendsView)
 	end
 	
@@ -347,40 +366,30 @@ do
 		friendAddTitle:addCustomDisplay(true, function()
 				friendAddTitle:uiText(TB_MENU_LOCALIZED.FRIENDSLISTADDFRIEND)
 			end)
-		local elementHeight = friendAddView.size.h / 2 > 40 and 40 or friendAddView.size.h / 2
+		local elementHeight = friendAddView.size.h / 2 > 30 and 30 or friendAddView.size.h / 2
 		local friendAddInputBG = UIElement:new({
 			parent = friendAddView,
 			pos = { elementHeight / 2, friendAddView.size.h / 2 },
 			size = { friendAddView.size.w - elementHeight, elementHeight },
-			bgColor = UICOLORBLACK
+			shapeType = ROUNDED,
+			rounded = 3
 		})
-		local friendAddInput = UIElement:new({
-			parent = friendAddInputBG,
-			pos = { 1, 1 },
-			size = { friendAddInputBG.size.w - 2, friendAddInputBG.size.h - 2 },
-			interactive = true,
-			bgColor = TB_MENU_DEFAULT_LIGHTER_COLOR
-		})
-		local friendAddInputField = UIElement:new({
-			parent = friendAddInput,
-			pos = { 5, 0 },
-			size = { friendAddInput.size.w - 40, friendAddInput.size.h },
-			interactive = true,
-			textfield = true,
-			textfieldsingleline = true
-		})
-		friendAddInputField:addMouseHandlers(function()
-				TBMenu:enableMenuKeyboard(friendAddInputField)
+		friendAddInputBG:addCustomDisplay(true, function() end)
+		local friendAddInputField = TBMenu:spawnTextField(friendAddInputBG, nil, nil, friendAddInputBG.size.w - elementHeight - 5, nil, nil, nil, nil, 0.7, UICOLORWHITE, TB_MENU_LOCALIZED.FRIENDSLISTSEARCHDEFAULT)
+		friendAddInputField:addEnterAction(function()
+				FriendsList:addFriend(friendAddInputField.textfieldstr[1])
+				FriendsList:showMain(viewElement.parent, true)
 			end)
-		TBMenu:displayTextfield(friendAddInputField, FONTS.SMALL, 1, UICOLORBLACK, "Type a name or clan tag with brackets...")
 		local addFriendButton = UIElement:new({
 			parent = friendAddInputBG,
-			pos = { -elementHeight + 1, 1 },
-			size = { elementHeight - 2, elementHeight - 2 },
+			pos = { -elementHeight, 0 },
+			size = { elementHeight, elementHeight },
 			interactive = true,
 			bgColor = { 0, 0, 0, 0.3 },
 			hoverColor = { 0, 0, 0, 0.6 },
-			pressedColor = { 0, 1, 0, 0.6 }
+			pressedColor = { 0, 1, 0, 0.6 },
+			shapeType = ROUNDED,
+			rounded = 3
 		})
 		addFriendButton:addCustomDisplay(false, function()
 				set_color(1, 1, 1, 1)

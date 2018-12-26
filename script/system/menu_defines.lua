@@ -1,12 +1,21 @@
 -- Menu UI defines
+TB_MENU_HUB_GLOBALID = 1000
+TB_MENU_MAIN_GLOBALID = 1001
+TB_ATMOSPHERES_GLOBALID = 1002
+TB_TUTORIAL_MODERN_GLOBALID = 1003
+TB_MOVEMEMORY_GLOBALID = 1011
+TB_TOOLTIP_GLOBALID = 1010
 
 -- Colors
 TB_MENU_DEFAULT_BG_COLOR = { 0.67, 0.11, 0.11, 1 }
+TB_MENU_DEFAULT_BG_COLOR_TRANS = { 0.67, 0.11, 0.11, 0.5 }
 TB_NAVBAR_DEFAULT_BG_COLOR = { 0.7, 0.11, 0.11, 1 }
 TB_MENU_DEFAULT_DARKER_COLOR = { 0.607, 0.109, 0.109, 1 }
 TB_MENU_DEFAULT_DARKEST_COLOR = { 0.55, 0.05, 0.05, 1 }
-TB_MENU_DEFAULT_LIGHTER_COLOR = { 0.9, 0.25, 0.25, 1 }
+TB_MENU_DEFAULT_LIGHTER_COLOR = { 0.8, 0.25, 0.25, 1 }
 TB_MENU_DEFAULT_LIGHTEST_COLOR = { 0.9, 0.62, 0.62, 1 }
+TB_MENU_DEFAULT_YELLOW = { 0.973, 0.886, 0.247, 1 }
+TB_MENU_DEFAULT_ORANGE = { 0.965, 0.725, 0.172, 1 }
 
 TB_MENU_UI_TEXT_COLOR = { 1, 1, 1, 1 }
 TB_MENU_UI_TEXT_SHADOW_COLOR = { 0, 0, 0, 0.6 }
@@ -94,3 +103,14 @@ end
 if (overrideActive) then
 	setDefinesOverrides()
 end
+
+add_hook("key_down", "tbSystemKeyStateHandler", function(key)
+		if (key == 27) then
+			ESC_KEY_PRESSED = true
+		end
+	end)
+add_hook("key_up", "tbSystemKeyStateHandler", function(key)
+		if (key == 27) then
+			ESC_KEY_PRESSED = false
+		end
+	end)

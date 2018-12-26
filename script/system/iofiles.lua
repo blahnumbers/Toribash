@@ -34,10 +34,11 @@ do
 		return File
 	end
 	
-	function Files:reopen()
+	function Files:reopen(mode)
 		self:close()
+		local mode = mode or self.mode
 		if (not self:isDownloading()) then
-			self.data = io.open(self.path, self.mode, self.isroot)
+			self.data = io.open(self.path, mode, self.isroot)
 		end
 	end
 	

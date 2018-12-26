@@ -143,6 +143,7 @@ do
 			l_foot = { id = 21, equipped = false }
 		}
 		if (not file) then
+			textures.default = true
 			return textures
 		end
 		file:seek("set")
@@ -161,7 +162,8 @@ do
 	function PlayerInfo:getColors(file)
 		local colors = {
 			force = 23,
-			relax = 21
+			relax = 21,
+			default = true
 		}
 		if (not file) then
 			return colors
@@ -179,6 +181,7 @@ do
 				colors.relax = color == 0 and colors.relax or color
 			end
 		end
+		colors.default = false
 		return colors
 	end
 	

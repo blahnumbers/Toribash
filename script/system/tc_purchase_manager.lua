@@ -64,7 +64,7 @@ do
 													pos = { 0, 0 },
 													size = { tcPurchaseView.size.w, 50 } } )
 		tcPurchaseTitle:addCustomDisplay(false, function()
-				tcPurchaseTitle:uiText("Purchase Toricredits", tcPurchaseTitle.pos.x + 20, tcPurchaseTitle.pos.y + 10, FONTS.BIG, LEFT, 0.75, nil, 2) 
+				tcPurchaseTitle:uiText("Purchase Toricredits", 20, tcPurchaseTitle.pos.y +0, FONTS.BIG, LEFT, 0.75, nil, 2) 
 			end)
 		local quitButton = UIElement:new( {	parent = tcPurchaseTitle,
 											pos = { -50, 5 },
@@ -88,7 +88,7 @@ do
 				TC_PURCHASE_ISOPEN = 0
 			end, function() end)
 		local tcEntry = {}
-		local tcIcon = load_texture("torishop/icons/tc.tga")
+		local tcIcon = load_texture("../textures/store/toricredit.tga")
 		for i, v in pairs(tcPriceData) do
 			tcEntry[i] = UIElement:new( {	parent = tcPurchaseView,
 											pos = { 20, i * 70 },
@@ -101,15 +101,15 @@ do
 											pressedColor = {0.4, 0, 0, 1} } )
 			tcEntry[i]:addCustomDisplay(false, function()
 					draw_quad(tcEntry[i].pos.x, tcEntry[i].pos.y, 64, 64, tcIcon)
-					tcEntry[i]:uiText(v.name, tcEntry[i].pos.x + 100, tcEntry[i].pos.y + 2, nil, LEFT, nil, nil, 1)
-					tcEntry[i]:uiText(v.price .. " USD", tcEntry[i].pos.x + 100, tcEntry[i].pos.y + 24, FONTS.BIG, LEFT, 0.6, nil, 1.5)
+					tcEntry[i]:uiText(v.name, 100, 2, nil, LEFT, nil, nil, 1)
+					tcEntry[i]:uiText(v.price .. " USD", 100, 24, FONTS.BIG, LEFT, 0.6, nil, 1.5)
 					local priceCents = v.price:gsub("%.", "")
 					local noDiscountVal = tonumber(priceCents) / 100 * 1000
 					local discountVal = v.name:gsub("%s%a*", "")
 					discountVal = tonumber(discountVal)
 					local percentFree = math.floor((1 - (noDiscountVal/discountVal)) * 100)
 					if (percentFree > 0) then
-						tcEntry[i]:uiText(percentFree .. "% free", tcEntry[i].pos.x - 20, tcEntry[i].pos.y + 40, nil, RIGHT, nil, -22, 0.5, {1, 0.8, 0, 1})
+						tcEntry[i]:uiText(percentFree .. "% cheaper", -20, 45, nil, RIGHT, 0.8, -22, 0.5, {1, 0.8, 0, 1})
 					end
 				end)
 			tcEntry[i]:addMouseHandlers(function() end, function()

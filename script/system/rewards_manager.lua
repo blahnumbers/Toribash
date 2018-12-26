@@ -49,13 +49,13 @@ do
 	function Rewards:quit()
 		if (get_option("newmenu") == 0 or TB_MENU_MAIN_ISOPEN == 0) then
 			tbMenuMain:kill()
-			TB_MENU_NOTIFICATIONS_ISOPEN = 0
+			TB_MENU_SPECIAL_SCREEN_ISOPEN = 4
 			remove_hooks("tbMainMenuVisual")
 			return
 		end
 		tbMenuCurrentSection:kill(true) 
 		tbMenuNavigationBar:kill(true)
-		TB_MENU_NOTIFICATIONS_ISOPEN = 0
+		TB_MENU_SPECIAL_SCREEN_ISOPEN = 4
 		TBMenu:showNavigationBar()
 		TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
 	end
@@ -73,14 +73,15 @@ do
 	end
 	
 	function Rewards:showMain(viewElement, rewardData)
+		viewElement:kill(true)
 		if (rewardData.days > 6) then
 			rewardData.days = rewardData.days % 7
 		end
 		
 		local loginView = UIElement:new({	
 			parent = viewElement,
-			pos = { 0, 0 },
-			size = { viewElement.size.w, viewElement.size.h },
+			pos = { 5, 0 },
+			size = { viewElement.size.w - 10, viewElement.size.h },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
 		local bloodSmudge = TBMenu:addBottomBloodSmudge(loginView, 1)
@@ -205,7 +206,7 @@ do
 		else
 			rewardClaim:addCustomDisplay(false, function()
 				rewardClaim:uiText(TB_MENU_LOCALIZED.REWARDSNOAVAILABLE, nil, nil, FONTS.BIG, CENTERMID, 0.55, nil, 1)
-			end)				
+			end)
 		end
 	end
 	
@@ -222,5 +223,5 @@ do
 			return TB_MENU_LOCALIZED.REWARDSNEXTREWARD .. " " .. returnval
 		end
 		return returnval .. " " .. TB_MENU_LOCALIZED.REWARDSTIMELEFT
-	end						
+	end
 end
