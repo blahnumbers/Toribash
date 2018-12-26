@@ -4,6 +4,8 @@ OPT hud 0;
 OPT chat 0;
 OPT feedback 0;
 OPT replaycache 0;
+OPT uke 1;
+OPT tori 1;
 NEWGAME aikido.tbm;
 EDITGAME;
 GHOSTMODE NONE;

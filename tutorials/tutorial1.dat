@@ -5,13 +5,14 @@ OPT bloodstains 0;
 OPT bruise 0;
 OPT comicfx 0;
 OPT focuscam 0;
+OPT uke 1;
+OPT tori 1;
 DISABLECAMERA;
 KEYBOARDLOCK;
 JOINTLOCK;
 LOADREPLAY t1_intro.rpl;
 LOADPLAYER 0 PLAYER;
 LOADPLAYER 1 SENSEI;
-STEPSKIP 36;
 
 STEP;
 CUSTOMFUNC IntroOverlay;

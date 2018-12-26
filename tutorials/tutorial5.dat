@@ -6,6 +6,8 @@ OPT score 0;
 OPT text 0;
 OPT feedback 0;
 OPT replaycache 0;
+OPT uke 1;
+OPT tori 1;
 NEWGAME system/tutorial/comebackpractice.tbm;
 EDITGAME;
 GHOSTMODE NONE;

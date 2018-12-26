@@ -4,6 +4,8 @@ OPT blood 0;
 OPT bloodstains 0;
 OPT bruise 0;
 OPT focuscam 0;
+OPT uke 1;
+OPT tori 1;
 KEYBOARDLOCK;
 JOINTLOCK;
 LOADREPLAY t3_stage1.rpl;
