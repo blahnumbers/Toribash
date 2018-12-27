@@ -172,7 +172,6 @@ do
 				rounded = bgScale
 			})
 			local qType = (quest.type == 4 and quest.decap) and "decap" or quest.type
-			qType = qType == 3 and 4 or qType
 			local questIcon = UIElement:new({
 				parent = questBackground,
 				pos = { bgScale / 5, bgScale / 5 },

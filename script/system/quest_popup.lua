@@ -18,8 +18,10 @@ end
 
 local function showPopup(i)
 	local quest = Quests:getQuestById(popupsData[i][1])
-	if (not quest and popupsData[i + 1]) then
-		showPopup(i + 1)
+	if (not quest) then
+		if (popupsData[i + 1]) then
+			showPopup(i + 1)
+		end
 		return
 	end
 	local oldProgress = quest.progress
@@ -59,7 +61,6 @@ local function showPopup(i)
 			buttonClicked = true
 		end)
 	local qType = (quest.type == 4 and quest.decap) and "decap" or quest.type
-	qType = qType == 3 and 4 or qType
 	local questIcon = UIElement:new({
 		parent = questProgressNotificationHolder,
 		pos = { 5, 5 },
