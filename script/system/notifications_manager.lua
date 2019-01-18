@@ -66,7 +66,7 @@ do
 	end
 	
 	function Notifications:showQuests()
-		Quests:showMain()
+		Quests:showMain(QUEST_REFRESH_CLAIMED)
 	end
 	
 	function Notifications:showMain()

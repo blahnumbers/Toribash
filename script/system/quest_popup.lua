@@ -101,7 +101,7 @@ local function showPopup(i)
 		size = { questProgressBar.size.w, questProgressBar.size.h }
 	})
 	
-	local function showClaim()
+	local function showClaim(quest)
 		QUEST_POPUP_CLAIM = true
 		local trans = 1
 		local grow = 10
@@ -132,6 +132,7 @@ local function showPopup(i)
 					questProgressNotificationHolder:addMouseHandlers(nil, function()
 							claim_quest(quest.id)
 							buttonClicked = true
+							QUEST_REFRESH_CLAIMED = true
 						end)
 				end
 				if (trans <= 0.5) then
@@ -174,7 +175,7 @@ local function showPopup(i)
 							barProgress = barProgress + math.pi / 100
 						else
 							if (quest.progress >= quest.requirement) then
-								showClaim()
+								showClaim(quest)
 							end
 							questProgress:addCustomDisplay(false, function() end)
 						end
@@ -211,9 +212,10 @@ local function showPopup(i)
 														file:close()
 														local oldQuests = cloneTable(QUESTS_DATA)
 														QUESTS_DATA = Quests:getQuests()
-														if (QUEST_POPUP_CLAIM and not TB_MENU_QUESTS_NEW) then
+														if (QUEST_POPUP_CLAIM and QUEST_REFRESH_CLAIMED) then
 															TB_MENU_NOTIFICATIONS_COUNT = TB_MENU_NOTIFICATIONS_COUNT + 1
 															TB_MENU_QUESTS_NEW = true
+															QUEST_REFRESH_CLAIMED = false
 														end
 														questRefresh:kill()
 													end

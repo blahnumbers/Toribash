@@ -82,6 +82,7 @@ do
 				return TB_MENU_LOCALIZED.QUESTSNAMETYPE4
 			end
 		end
+		return "Toribash Quest"
 	end
 	
 	function Quests:getQuestTarget(v)
@@ -301,6 +302,7 @@ do
 					if (not file:isDownloading()) then
 						file:close()
 						QUESTS_DATA = Quests:getQuests()
+						QUEST_REFRESH_CLAIMED = false
 						Quests:showQuests()
 					end
 				end)
