@@ -71,6 +71,7 @@ dofile("system/replays_manager.lua")
 dofile("system/bounty_manager.lua")
 dofile("system/settings_manager.lua")
 dofile("system/scripts_manager.lua")
+dofile("system/events_manager.lua")
 
 TB_MENU_PLAYER_INFO = {}
 TB_MENU_PLAYER_INFO.username = PlayerInfo:getUser()
@@ -134,6 +135,7 @@ if (os.clock() < 10) then
 					end
 				end
 				remove_hooks("playerinfoUpdate")
+				download_clan()
 			end
 		end)
 	-- Set default atmosphere from a draw2d hook so that shader settings are applied properly

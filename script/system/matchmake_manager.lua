@@ -807,17 +807,9 @@ do
 			parent = seasonPromo,
 			pos = { 0, 0 },
 			size = { seasonPromo.size.w, promoRatio == RATIO_NORMAL and seasonPromo.size.h or seasonPromo.size.h / 1.65 },
-			interactive = true,
-			bgColor = { 0, 0, 0, 0 },
-			hoverColor = { 0, 0, 0, 0.6 },
-			pressedColor = { 0, 0, 0, 0.8 }
+			bgColor = { 0, 0, 0, 0.6 }
 		})
-		seasonPromoAbout:addCustomDisplay(false, function()
-				seasonPromoAbout:uiText(TB_MENU_LOCALIZED.MATCHMAKESEASONABOUT, nil, nil, FONTS.BIG, nil, 0.65, nil, nil, { 1, 1, 1, seasonPromoAbout.animateColor[4] * 1.4 })
-			end)
-		seasonPromoAbout:addMouseHandlers(nil, function()
-				Matchmake:showSeasonAboutWindow()
-			end)
+		seasonPromoAbout:addAdaptedText(false, "Ranking cooldown period", nil, nil, FONTS.BIG)
 		
 		local posY = seasonPromo.shift.y + seasonPromo.size.h
 		if (promoRatio == RATIO_WIDE) then
@@ -831,7 +823,7 @@ do
 		local seasonButtonRankingList = UIElement:new({
 			parent = seasonButtonsView,
 			pos = { 0, 0 },
-			size = { seasonButtonsView.size.w, (seasonButtonsView.size.h - 10) / 2},
+			size = { seasonButtonsView.size.w, (seasonButtonsView.size.h - 10)},
 			interactive = true,
 			bgColor = { 0, 0, 0, 0.1 },
 			hoverColor = { 0, 0, 0, 0.3 },
@@ -841,7 +833,7 @@ do
 		seasonButtonRankingList:addMouseHandlers(nil, function()
 				Matchmake:showGlobalRanking()
 			end)
-		local seasonButtonRankingThread = UIElement:new({
+		--[[local seasonButtonRankingThread = UIElement:new({
 			parent = seasonButtonsView,
 			pos = { 0, seasonButtonRankingList.size.h + 10 },
 			size = { seasonButtonRankingList.size.w, seasonButtonRankingList.size.h },
@@ -860,7 +852,7 @@ do
 		})
 		seasonButtonRankingThread:addMouseHandlers(nil, function()
 				open_url("http://forum.toribash.com/showthread.php?t=620288")
-			end)
+			end)]]
 		
 		
 		local viewElement = UIElement:new({

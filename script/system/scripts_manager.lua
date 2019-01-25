@@ -168,19 +168,7 @@ do
 			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
 		})
-		local scriptsBoardButtonText = UIElement:new({
-			parent = scriptsBoardButton,
-			pos = { 20, 0 },
-			size = { scriptsBoardButton.size.w - 30, scriptsBoardButton.size.h }
-		})
-		scriptsBoardButtonText:addAdaptedText(false, TB_MENU_LOCALIZED.LUASCRIPTSFORUMBOARD, -15)
-		local posX = get_string_length(scriptsBoardButtonText.dispstr[1], FONTS.MEDIUM) * scriptsBoardButtonText.textScale
-		local onlineSign = UIElement:new({
-			parent = scriptsBoardButtonText,
-			pos = { scriptsBoardButtonText.size.w / 2 + posX / 2 - 15, scriptsBoardButtonText.size.h / 2 - 13 },
-			size = { 26, 26 },
-			bgImage = "../textures/menu/general/buttons/external.tga"
-		})
+		TBMenu:showTextExternal(scriptsBoardButton, TB_MENU_LOCALIZED.LUASCRIPTSFORUMBOARD)
 		scriptsBoardButton:addMouseHandlers(nil, function()
 				open_url("http://forum.toribash.com/forumdisplay.php?f=65")
 			end)

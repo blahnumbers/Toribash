@@ -1317,11 +1317,10 @@ do
 
 	function Tutorials:updateConfig(next)
 		-- Steam achievements integration
-		--[[local level = get_tutorial_level()
-		if (level < CURRENT_TUTORIAL) then
+		local level = get_tutorial_level()
+		if (level < CURRENT_TUTORIAL and CURRENT_TUTORIAL > 4) then
 			set_tutorial_level(CURRENT_TUTORIAL)
-			set_config_string("debugTest", CURRENT_TUTORIAL, STEAM_INT_ID)
-		end]]
+		end
 		
 		local tutorialsConfig = Files:new("../data/tutorials/config.cfg")
 		if (not tutorialsConfig.data) then
@@ -1791,7 +1790,7 @@ do
 				tutorials[i].image = nil
 				tutorials[i].size = size
 			end
-			if (i > featuredTutorial and TB_MENU_PLAYER_INFO.data.qi < i * 50) then
+			if (i > featuredTutorial and TB_MENU_PLAYER_INFO.data.qi < i * 250) then
 				tutorials[i].locked = true
 			end
 			tutorials[i].action = function() Tutorials:runTutorial(tutorials[i].id) end

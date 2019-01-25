@@ -65,8 +65,7 @@ do
 		local buttonsData = {
 			{ 
 				text = buttonText, 
-				action = function() Rewards:quit() end, 
-				width = get_string_length(buttonText, FONTS.BIG) * 0.65 + 30 
+				action = function() Rewards:quit() end
 			}
 		}
 		return buttonsData
@@ -87,23 +86,23 @@ do
 		local bloodSmudge = TBMenu:addBottomBloodSmudge(loginView, 1)
 		local loginViewTitle = UIElement:new({
 			parent = loginView,
-			pos = {0, 7},
-			size = {loginView.size.w, 50}
+			pos = { 0, 0 },
+			size = { loginView.size.w, loginView.size.h / 8 }
 		})
 		loginViewTitle:addCustomDisplay(false, function()
-			loginViewTitle:uiText(TB_MENU_LOCALIZED.REWARDSDAILYTITLE, nil, nil, FONTS.BIG, CENTERMID, 0.8, nil, nil, nil, nil, 0.2)
+			loginViewTitle:uiText(TB_MENU_LOCALIZED.REWARDSDAILYTITLE, nil, nil, FONTS.BIG, CENTERMID, 0.8, nil, nil, nil, nil, 0.5)
 		end)
 		local dayRewardsView = UIElement:new({
 			parent = loginView,
-			pos = { 20, loginViewTitle.size.h + 20 },
-			size = { loginView.size.w - 40, loginView.size.h - 190 }
+			pos = { 20, loginViewTitle.size.h },
+			size = { loginView.size.w - 40, loginView.size.h * 0.62 }
 		})
 		local dayRewardWidth = dayRewardsView.size.w / 7
 		local dayReward = {}
 		
 		for i = 0, 6 do
 			local bgImg = RewardData[i].item ~= '0' and "../textures/store/items/" .. RewardData[i].item.itemid .. "_big.tga" or "../textures/store/toricredit.tga"
-			local iconSize = dayRewardWidth - 40 > dayRewardsView.size.h - 50 and dayRewardsView.size.h - 70 or dayRewardWidth - 60
+			local iconSize = dayRewardWidth - 40 > dayRewardsView.size.h / 2 and dayRewardsView.size.h / 2 - 20 or dayRewardWidth - 60
 			
 			dayReward[i] = {}
 			dayReward[i].main = UIElement:new({
@@ -112,41 +111,46 @@ do
 				size = { dayRewardWidth - 20, dayRewardsView.size.h },
 				bgColor = i == rewardData.days and { 0, 0, 0, 0.5 } or { 0, 0, 0, 0.3 }
 			})
-			if (iconSize > 40) then
+			dayReward[i].day = UIElement:new({
+				parent = dayReward[i].main,
+				pos = { 5, 0 },
+				size = { dayReward[i].main.size.w - 10, dayReward[i].main.size.h / 7 }
+			})
+			dayReward[i].day:addAdaptedText(true, rewardData.days == i and "Today" or TB_MENU_LOCALIZED.REWARDSTIMEDAY .. " " .. i + 1, nil, nil, FONTS.BIG, nil, 0.55, nil, 0.2)
+			if (iconSize > 32) then
 				iconSize = i == rewardData.days and iconSize + 20 or iconSize
 				dayReward[i].icon = UIElement:new({
 					parent = dayReward[i].main,
-					pos = { (dayReward[i].main.size.w - iconSize) / 2, (dayReward[i].main.size.h - iconSize) / 3 },
+					pos = { (dayReward[i].main.size.w - iconSize) / 2, (dayReward[i].main.size.h - iconSize) / 2 - 10 },
 					size = { iconSize, iconSize },
 					bgImage = bgImg
 				})
 			end
 			dayReward[i].title = UIElement:new({
 				parent = dayReward[i].main,
-				pos = { 5, -60 },
-				size = { dayReward[i].main.size.w - 10, 50 }
+				pos = { 5, -dayReward[i].main.size.h / 4 },
+				size = { dayReward[i].main.size.w - 10, dayReward[i].main.size.h / 5 }
 			})
 			local rewardStr = RewardData[i].item.itemid ~= 0 and RewardData[i].item.itemname or RewardData[i].tc .. " TC"
 			local textScaleModifier = 0
-			while (not dayReward[i].title:uiText(rewardStr, nil, nil, i == rewardData.days and FONTS.BIG or FONTS.MEDIUM, LEFT, i == rewardData.days and 0.55 - textScaleModifier or 1 - textScaleModifier, nil, nil, nil, nil, nil, true)) do
-				textScaleModifier = textScaleModifier + 0.05
+			if (rewardData.days == i) then
+				dayReward[i].title:addAdaptedText(true, rewardStr, nil, nil, FONTS.BIG)
+			else
+				dayReward[i].title:addAdaptedText(true, rewardStr)
 			end
-			dayReward[i].title:addCustomDisplay(true, function()
-				dayReward[i].title:uiText(rewardStr, nil, nil, i == rewardData.days and FONTS.BIG or FONTS.MEDIUM, CENTERMID, i == rewardData.days and 0.55 - textScaleModifier or 1 - textScaleModifier, nil, i == rewardData.days and 1 or nil)
-			end)
 		end
 		local rewardNextTime = UIElement:new( {
 			parent = loginView,
-			pos = { 0, -115 },
-			size = { loginView.size.w, 30 }
+			pos = { 0, -loginView.size.h / 6 - loginView.size.h / 12 },
+			size = { loginView.size.w, loginView.size.h / 12 }
 		})
 		rewardNextTime:addCustomDisplay(false, function()
-			rewardNextTime:uiText(Rewards:getTime(rewardData.timeLeft - math.ceil(os.clock()), rewardData.available), nil, nil, nil, nil, nil, nil, 1)
+			rewardNextTime:uiText(Rewards:getTime(rewardData.timeLeft - math.ceil(os.clock()), rewardData.available))
 		end)
 		local rewardClaim = UIElement:new({
 			parent = loginView,
-			pos = { loginView.size.w / 6, -80 },
-			size = { loginView.size.w / 6 * 4, 60 },
+			pos = { loginView.size.w / 6, -loginView.size.h / 6 },
+			size = { loginView.size.w / 6 * 4, loginView.size.h / 7 },
 			interactive = rewardData.available,
 			bgColor = { 0, 0, 0, 0.3 },
 			hoverColor = { 0, 0, 0, 0.5 },
@@ -185,9 +189,6 @@ do
 						end
 					end
 					rewardClaimInProgress = false
-				end				
-				while (not rewardClaim:uiText(rewardClaimString, nil, nil, FONTS.BIG, LEFT, textSizeModifier, nil, nil, nil, nil, nil, true)) do
-					textSizeModifier = textSizeModifier - 0.05
 				end
 				if (tcUpdate) then
 					local tempData = PlayerInfo:getUserData(TB_MENU_PLAYER_INFO.username)
@@ -196,7 +197,10 @@ do
 						tcUpdate = false
 					end
 				end
-				rewardClaim:uiText(rewardClaimString, nil, nil, FONTS.BIG, CENTERMID, textSizeModifier, nil, 1)
+				while (not rewardClaim:uiText(rewardClaimString, nil, nil, FONTS.BIG, LEFT, textSizeModifier, nil, nil, nil, nil, nil, true)) do
+					textSizeModifier = textSizeModifier - 0.05
+				end
+				rewardClaim:uiText(rewardClaimString, nil, nil, FONTS.BIG, nil, textSizeModifier)
 			end)
 			rewardClaim:addMouseHandlers(function() end, function()
 					claim_reward()
@@ -204,9 +208,7 @@ do
 					rewardClaimInProgress = true
 				end, function() end)
 		else
-			rewardClaim:addCustomDisplay(false, function()
-				rewardClaim:uiText(TB_MENU_LOCALIZED.REWARDSNOAVAILABLE, nil, nil, FONTS.BIG, CENTERMID, 0.55, nil, 1)
-			end)
+			rewardClaim:addAdaptedText(false, TB_MENU_LOCALIZED.REWARDSNOAVAILABLE, nil, nil, FONTS.BIG, nil, 0.6, nil, 0.6)
 		end
 	end
 	

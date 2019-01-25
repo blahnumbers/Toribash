@@ -745,30 +745,76 @@ do
 	end
 	
 	function Replays:playReplay(replay)
-		local whiteoverlay = UIElement:new({
-			parent = tbMenuMain,
-			pos = { 0, 0 },
-			size = { tbMenuMain.size.w, tbMenuMain.size.h },
-			bgColor = { 1, 1, 1, 0 }
-		})
-		whiteoverlay:addCustomDisplay(false, function()
-				whiteoverlay.bgColor[4] = whiteoverlay.bgColor[4] + 0.05
-			end)
+		local whiteoverlay = TBMenu:spawnWindowOverlay()
+		
 		local loading = UIElement:new({
 			parent = whiteoverlay,
 			pos = { WIN_W / 4, WIN_H / 7 * 3 },
 			size = { WIN_W / 2, WIN_H / 7 },
 			bgColor = TB_MENU_DEFAULT_DARKER_COLOR
 		})
-		local wait = 0
-		loading:addCustomDisplay(false, function()
-				loading:uiText(TB_MENU_LOCALIZED.REPLAYSLOADINGREPLAY)
-				wait = wait + 1
-				if (wait > 4) then
-					UIElement:runCmd("loadreplay " .. replay.filename)
-					close_menu()
+		if (replay.mod ~= "classic") then
+			local files = get_files("data/mod", "")
+			local folders = {}
+			for i,v in pairs(files) do
+				if (not v:find("^%.+[%s%S]*$") and not v:find("%.%a+$") and not v:find("^.*%.tbm$")) then
+					table.insert(folders, v)
 				end
-			end)
+			end
+			local modFile = Files:new("../data/mod/" .. replay.mod)
+			local id = 1
+			while (not modFile.data and id < #folders) do
+				modFile = Files:new("../data/mod/" .. folders[id] .. "/" .. replay.mod)
+				id = id + 1
+			end
+			if (not modFile.data) then
+				modFile = Files:new("../data/mod/downloads/" .. replay.mod)
+				loading:addAdaptedText(false, TB_MENU_LOCALIZED.MODSDOWNLOADINGMOD)
+				local modname = replay.mod:gsub("%.tbm$", "")
+				download_mod(modname)
+				local downloadWait = UIElement:new({
+					parent = loading,
+					pos = { 0, 0 },
+					size = { 0, 0 }
+				})
+				local wait = 0
+				downloadWait:addCustomDisplay(true, function()
+						wait = wait + 1
+						if (not modFile:isDownloading() and wait > 5) then
+							loading:addAdaptedText(false, TB_MENU_LOCALIZED.REPLAYSLOADINGREPLAY)
+							local framesN = 0
+							downloadWait:addCustomDisplay(true, function()
+									framesN = framesN + 1
+									if (framesN > 4) then
+										UIElement:runCmd("loadreplay " .. replay.filename)
+										close_menu()
+									end
+								end)
+						end
+					end)
+			else
+				modFile:close()
+				local wait = 0
+				loading:addCustomDisplay(false, function()
+						loading:uiText(TB_MENU_LOCALIZED.REPLAYSLOADINGREPLAY)
+						wait = wait + 1
+						if (wait > 4) then
+							UIElement:runCmd("loadreplay " .. replay.filename)
+							close_menu()
+						end
+					end)
+			end
+		else
+			local wait = 0
+			loading:addCustomDisplay(false, function()
+					loading:uiText(TB_MENU_LOCALIZED.REPLAYSLOADINGREPLAY)
+					wait = wait + 1
+					if (wait > 4) then
+						UIElement:runCmd("loadreplay " .. replay.filename)
+						close_menu()
+					end
+				end)
+		end
 	end
 	
 	function Replays:showList(viewElement, replayInfo, level)
@@ -2432,14 +2478,44 @@ do
 					if (not replayFile:isDownloading()) then
 						replayFile:close()
 						local replaydata = Replays:getReplayInfo(replayFile.path)
-						local modFile = Files:new("../data/mod/" .. replaydata.mod)
-						if (replaydata.mod ~= "classic" and not modFile.data) then
-							previewView:addAdaptedText(false, TB_MENU_LOCALIZED.MODSDOWNLOADINGMOD)
-							local modname = replaydata.mod:gsub("%.tbm$", "")
-							download_mod(modname)
-							downloadWait:addCustomDisplay(true, function()
-									if (not modFile:isDownloading()) then
-										previewView:addAdaptedText(false, TB_MENU_LOCALIZED.REPLAYSOPENINGREPLAY)
+						if (replaydata.mod ~= "classic") then
+							local files = get_files("data/mod", "")
+							local folders = {}
+							for i,v in pairs(files) do
+								if (not v:find("^%.+[%s%S]*$") and not v:find("%.%a+$") and not v:find("^.*%.tbm$")) then
+									table.insert(folders, v)
+								end
+							end
+							local modFile = Files:new("../data/mod/" .. replaydata.mod)
+							local id = 1
+							while (not modFile.data and id < #folders) do
+								modFile = Files:new("../data/mod/" .. folders[id] .. "/" .. replaydata.mod)
+								id = id + 1
+							end
+							if (not modFile.data) then
+								modFile = Files:new("../data/mod/downloads/" .. replaydata.mod)
+								previewView:addAdaptedText(false, TB_MENU_LOCALIZED.MODSDOWNLOADINGMOD)
+								local modname = replaydata.mod:gsub("%.tbm$", "")
+								download_mod(modname)
+								local wait = 0
+								downloadWait:addCustomDisplay(true, function()
+										wait = wait + 1
+										if (not modFile:isDownloading() and wait > 5) then
+											previewView:addAdaptedText(false, TB_MENU_LOCALIZED.REPLAYSLOADINGREPLAY)
+											local framesN = 0
+											downloadWait:addCustomDisplay(true, function()
+													framesN = framesN + 1
+													if (framesN > 4) then
+														UIElement:runCmd("loadreplay downloads/" .. REPLAY_TEMPNAME .. ".rpl")
+														close_menu()
+													end
+												end)
+										end
+									end)
+							else
+								modFile:close()
+								downloadWait:addCustomDisplay(false, function()
+										previewView:addAdaptedText(false, TB_MENU_LOCALIZED.REPLAYSLOADINGREPLAY)
 										local framesN = 0
 										downloadWait:addCustomDisplay(true, function()
 												framesN = framesN + 1
@@ -2448,17 +2524,20 @@ do
 													close_menu()
 												end
 											end)
-									end
-								end)
+									end)
+							end
 						else
-							previewView:addAdaptedText(false, TB_MENU_LOCALIZED.REPLAYSOPENINGREPLAY)
-							local framesN = 0
-							downloadWait:addCustomDisplay(true, function()
-									framesN = framesN + 1
-									if (framesN > 4) then
-										UIElement:runCmd("loadreplay downloads/" .. REPLAY_TEMPNAME .. ".rpl")
-										close_menu()
-									end
+							local wait = 0
+							downloadWait:addCustomDisplay(false, function()
+									previewView:addAdaptedText(false, TB_MENU_LOCALIZED.REPLAYSLOADINGREPLAY)
+									local framesN = 0
+									downloadWait:addCustomDisplay(true, function()
+											framesN = framesN + 1
+											if (framesN > 4) then
+												UIElement:runCmd("loadreplay downloads/" .. REPLAY_TEMPNAME .. ".rpl")
+												close_menu()
+											end
+										end)
 								end)
 						end
 					end

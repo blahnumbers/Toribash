@@ -84,6 +84,14 @@ do
 		end
 		return TB_STORE_DATA[itemid]
 	end
+	
+	function Torishop:getItemIcon(item)
+		if (type(item) == "table" and item.itemid) then
+			return "../textures/store/items/" .. item.itemid .. ".tga"
+		elseif (item) then
+			return "../textures/store/items/" .. item .. ".tga"
+		end
+	end
 
 	function Torishop:getSaleItem(temp)
 		local temp = temp or nil

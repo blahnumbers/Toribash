@@ -38,6 +38,12 @@ do
 			LEFTBOT = 5
 			LEFTMID = 8
 		else
+			-- Scaling for huge screens
+			if (WIN_W * WIN_H > 2000000) then
+				UI_HIGH_RESOLUTION_MODE = true
+			else
+				UI_HIGH_RESOLUTION_MODE = false
+			end
 			FONTS.BIG = 0
 			FONTS.MEDIUM = 2
 			LEFT = 0
@@ -59,7 +65,7 @@ do
 		if (not file) then
 			file = io.open("data/script/system/language/english.txt", "r", 1)
 			if (not file) then
-				echo("^04Translation file not found, exiting main menu")
+				echo("^04Localization file not found, exiting main menu")
 				TBMenu:quit()
 				set_option("newmenu", 0)
 				return
@@ -107,8 +113,8 @@ do
 	function TBMenu:createCurrentSectionView()
 		tbMenuCurrentSection = UIElement:new( {
 			parent = tbMenuMain,
-			pos = { 75, 190 },
-			size = { WIN_W - 150, WIN_H - 300 }
+			pos = { 75, 140 + WIN_H / 16 },
+			size = { WIN_W - 150, WIN_H - 250 - WIN_H / 16 }
 		})
 	end
 
@@ -216,27 +222,20 @@ do
 		-- Table to store event announcement data
 		local eventsData = {
 			{
-				title = "Christmas Brawl",
-				subtitle = "Ho ho ho 'tis the season to be merry!",
-				image = "../textures/menu/promo/christmasbrawl.tga",
+				title = "Head Texture of the Month: Ocean",
+				subtitle = "The Ocean has many interesting creatures dwelling within - show us your favorite!",
+				image = "../textures/menu/promo/htotmocean.tga",
+				stop = true,
 				action = function()
-						open_url("http://forum.toribash.com/showthread.php?t=622766")
+						Events:showEventInfo(1)
 					end,
 			},
 			{
-				title = "Takes Two to Tango!",
-				subtitle = "Go with the flow! Dance the night away! Enjoy the ball with your special someone, or just let loose on the dance floor!",
-				image = "../textures/menu/promo/takestwototango.tga",
+				title = "Clan Outreach",
+				subtitle = "We're trying to make Toribash clans better - and we need your opinions on it",
+				image = "../textures/menu/promo/clanoutreach.tga",
 				action = function()
-						open_url("http://forum.toribash.com/showthread.php?t=622568")
-					end,
-			},
-			{
-				title = "Head Texture of the Month: Christmas Edition",
-				subtitle = "Tis the season to make head textures, fa la la la la, la la la la. Let's get drawin' and have some fun!",
-				image = "../textures/menu/promo/htotmchristmas.tga",
-				action = function()
-						open_url("http://forum.toribash.com/showthread.php?t=622440")
+						open_url("http://forum.toribash.com/showthread.php?t=624019")
 					end,
 			},
 		}
@@ -327,47 +326,53 @@ do
 			end
 		end
 
-		-- Spawn progress bar before next/prev buttons
-		local eventDisplayTime = UIElement:new( {
-			parent = toReload,
-			pos = {0, 0},
-			size = {0, 0}
-		})
+		if (#eventsData > 1) then
+			-- Spawn progress bar before next/prev buttons
+			local eventDisplayTime = UIElement:new( {
+				parent = toReload,
+				pos = {0, 0},
+				size = {0, 0}
+			})
 
-		-- Auto-rotate event announcements
-		local rotateTime = 100
-		local tickTime = os.clock() * 10
-		local rotateClock = { start = math.floor(tickTime), last = math.floor(tickTime) }
-		eventDisplayTime:addCustomDisplay(true, function()
-				if (not rotateClock.pause) then
-					set_color(1,1,1,1)
-					draw_quad(eventItems[1].button.pos.x, eventItems[1].button.pos.y - 5, (os.clock() * 10 - rotateClock.start) % rotateTime / rotateTime * eventItems[1].button.size.w, 5)
-				end
-			end)
-		viewElement:addCustomDisplay(false, function()
-				if ((math.floor(os.clock() * 10) - rotateClock.start) % rotateTime == 0 and math.floor(os.clock() * 10) ~= rotateClock.last and not rotateClock.pause) then
+			-- Auto-rotate event announcements
+			local rotateTime = 100
+			local tickTime = os.clock() * 10
+			local rotateClock = { start = math.floor(tickTime), last = math.floor(tickTime) }
+			eventDisplayTime:addCustomDisplay(true, function()
+					if (not rotateClock.pause) then
+						set_color(1,1,1,1)
+						draw_quad(eventItems[1].button.pos.x, eventItems[1].button.pos.y - 5, (os.clock() * 10 - rotateClock.start) % rotateTime / rotateTime * eventItems[1].button.size.w, 5)
+					end
+				end)
+			viewElement:addCustomDisplay(false, function()
+					if ((math.floor(os.clock() * 10) - rotateClock.start) % rotateTime == 0 and math.floor(os.clock() * 10) ~= rotateClock.last and not rotateClock.pause) then
+						TBMenu:changeCurrentEvent(viewElement, eventsData, eventItems, rotateClock, toReload, 1)
+					end
+				end)
+				
+			-- Manual announcement change
+			local eventPrevButton = TBMenu:createImageButtons(toReload, 10, toReload.size.h / 2 - 32, 32, 64, "../textures/menu/general/buttons/arrowleft.tga", nil, nil, { 0, 0, 0, 0 }, { 0, 0, 0, 0.7 })
+			eventPrevButton:addMouseHandlers(nil, function()
+					TBMenu:changeCurrentEvent(viewElement, eventsData, eventItems, rotateClock, toReload, -1)
+				end, nil)
+			local eventNextButton = TBMenu:createImageButtons(toReload, toReload.size.w - 42, toReload.size.h / 2 - 32, 32, 64, "../textures/menu/general/buttons/arrowright.tga", nil, nil, { 0, 0, 0, 0 }, { 0, 0, 0, 0.7 })
+			eventNextButton:addMouseHandlers(nil, function()
 					TBMenu:changeCurrentEvent(viewElement, eventsData, eventItems, rotateClock, toReload, 1)
+				end, nil)
+			
+			-- Set event button behavior
+			local function behavior()
+				eventsData[TB_MENU_HOME_CURRENT_ANNOUNCEMENT].action()
+				if (eventsData[TB_MENU_HOME_CURRENT_ANNOUNCEMENT].stop and rotateClock) then
+					rotateClock.pause = true
 				end
-			end)
-
-		-- Manual announcement change
-		local eventPrevButton = TBMenu:createImageButtons(toReload, 10, toReload.size.h / 2 - 32, 32, 64, "../textures/menu/general/buttons/arrowleft.tga", nil, nil, { 0, 0, 0, 0 }, { 0, 0, 0, 0.7 })
-		eventPrevButton:addMouseHandlers(nil, function()
-				TBMenu:changeCurrentEvent(viewElement, eventsData, eventItems, rotateClock, toReload, -1)
-			end, nil)
-		local eventNextButton = TBMenu:createImageButtons(toReload, toReload.size.w - 42, toReload.size.h / 2 - 32, 32, 64, "../textures/menu/general/buttons/arrowright.tga", nil, nil, { 0, 0, 0, 0 }, { 0, 0, 0, 0.7 })
-		eventNextButton:addMouseHandlers(nil, function()
-				TBMenu:changeCurrentEvent(viewElement, eventsData, eventItems, rotateClock, toReload, 1)
-			end, nil)
-
-		-- Set event button behavior
-		local function behavior()
-			eventsData[TB_MENU_HOME_CURRENT_ANNOUNCEMENT].action()
-			if (eventsData[TB_MENU_HOME_CURRENT_ANNOUNCEMENT].stop) then
-				rotateClock.pause = true
+			end
+			viewElement:addMouseHandlers(nil, behavior, nil)
+		else
+			local function behavior()
+				eventsData[TB_MENU_HOME_CURRENT_ANNOUNCEMENT].action()
 			end
 		end
-		viewElement:addMouseHandlers(nil, behavior, nil)
 	end
 
 	function TBMenu:showHomeButton(viewElement, buttonData, isTorishop)
@@ -561,10 +566,11 @@ do
 	function TBMenu:showClans(clantag)
 		tbMenuBottomLeftBar:hide()
 		TBMenu:clearNavSection()
-
+		
 		CLANLISTLASTPOS = CLANLISTLASTPOS or { scroll = {}, list = {} }
-
+		
 		if (not Clans:getLevelData() or not Clans:getAchievementData() or not Clans:getClanData()) then
+			download_clan()
 			TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
 			TB_MENU_CLANS_OPENCLANID = 0
 			TBMenu:showNavigationBar()
@@ -614,12 +620,6 @@ do
 		TBMenu:clearNavSection()
 		Settings:showMain()
 		TBMenu:showNavigationBar(Settings:getNavigationButtons(), true, true, TB_MENU_SETTINGS_SCREEN_ACTIVE or 1)
-	end
-
-	function TBMenu:showEventInfo(eventid)
-		TBMenu:clearNavSection()
-		Events:showMain(tbMenuCurrentSection)
-		TBMenu:showNavigationBar(Events:getNavigationButtons(), true)
 	end
 
 	function TBMenu:showFriendsList()
@@ -1237,7 +1237,7 @@ do
 			end
 		end
 		local imageRes = tbMenuCurrentSection.size.w * maxWidthButton[2] - 10
-		local titleScaleModifier, subtitleScaleModifier = 1, 1
+		local titleScaleModifier, titleFont, subtitleScaleModifier = 1, UI_HIGH_RESOLUTION_MODE and FONTS.BIGGER or FONTS.BIG, 1
 		for i, v in pairs (buttonsData) do
 			if (v.vsize) then
 				titleScaleModifier, subtitleScaleModifier = 0.7, 0.8
@@ -1345,9 +1345,14 @@ do
 					size = { tbMenuSectionButtons[i].mainView.size.w * 0.9, tbMenuSectionButtons[i].mainView.size.h / 3 }
 				})
 			end
-			while (not tbMenuSectionButtons[i].titleView:uiText(buttonsData[i].title, nil, nil, FONTS.BIG, LEFT, titleScaleModifier, nil, nil, nil, nil, nil, true) and titleScaleModifier > 0.3) do
-				titleScaleModifier = titleScaleModifier - 0.05
+			tbMenuSectionButtons[i].titleView:addAdaptedText(true, buttonsData[i].title, nil, nil, titleFont, LEFT)
+			if (titleFont > tbMenuSectionButtons[i].titleView.textFont) then
+				titleFont = tbMenuSectionButtons[i].titleView.textFont
+				titleScaleModifier = tbMenuSectionButtons[i].titleView.textScale
+			elseif (titleScaleModifier > tbMenuSectionButtons[i].titleView.textScale) then
+				titleScaleModifier = tbMenuSectionButtons[i].titleView.textScale
 			end
+			
 			while (not tbMenuSectionButtons[i].subtitleView:uiText(buttonsData[i].subtitle, nil, nil, 4, LEFT, subtitleScaleModifier, nil, nil, nil, nil, nil, true) and subtitleScaleModifier > 0.4) do
 				subtitleScaleModifier = subtitleScaleModifier - 0.05
 			end
@@ -1360,7 +1365,7 @@ do
 					buttonsData[i].action()
 				end, nil)
 			tbMenuSectionButtons[i].titleView:addCustomDisplay(false, function()
-					tbMenuSectionButtons[i].titleView:uiText(buttonsData[i].title, nil, nil, FONTS.BIG, LEFTBOT, titleScaleModifier, nil, nil, nil, nil, 0.2)
+					tbMenuSectionButtons[i].titleView:uiText(buttonsData[i].title, nil, nil, titleFont, LEFTBOT, titleScaleModifier, nil, nil, nil, nil, 0.2)
 				end)
 			tbMenuSectionButtons[i].subtitleView:addCustomDisplay(false, function()
 					tbMenuSectionButtons[i].subtitleView:uiText(buttonsData[i].subtitle, nil, nil, 4, LEFT, subtitleScaleModifier)
@@ -1637,17 +1642,26 @@ do
 		local tbMenuNavigationButtons = {}
 		local selectedId = selectedId or 0
 
-		-- Button width has to be divisable by 10
 		local navX = { l = { 30 } , r = { -30 } }
-		tbMenuNavigationBar = tbMenuNavigationBar or UIElement:new( {
+		tbMenuNavigationBar = tbMenuNavigationBar or UIElement:new({
 			parent = tbMenuMain,
 			pos = { 50, 130 },
-			size = { WIN_W - 100, 50 },
+			size = { WIN_W - 100, WIN_H / 16 },
 			bgColor = { 0, 0, 0, 0.9 },
 			shapeType = ROUNDED,
-			rounded = 15
-		} )
+			rounded = 10
+		})
 		for i, v in pairs(tbMenuNavigationButtonsData) do
+			-- Assign width dynamically and kill check element afterwards
+			local temp = UIElement:new({
+				parent = tbMenuNavigationBar,
+				pos = { 0, 0 },
+				size = { WIN_W, tbMenuNavigationBar.size.h / 6 * 4 }
+			})
+			temp:addAdaptedText(true, v.text, nil, nil, FONTS.BIG)
+			v.width = get_string_length(temp.dispstr[1] .. "____", temp.textFont) * temp.textScale
+			temp:kill()
+			
 			local navX = v.right and navX.r or navX.l
 			tbMenuNavigationButtons[i] = UIElement:new( {
 				parent = tbMenuNavigationBar,
@@ -1677,10 +1691,10 @@ do
 				end)
 			local buttonText = UIElement:new({
 				parent = tbMenuNavigationButtons[i],
-				pos = { 15, 0 },
-				size = { tbMenuNavigationButtons[i].size.w - 30, tbMenuNavigationButtons[i].size.h }
+				pos = { 15, tbMenuNavigationBar.size.h / 6 },
+				size = { tbMenuNavigationButtons[i].size.w - 30, tbMenuNavigationBar.size.h / 6 * 4 }
 			})
-			buttonText:addAdaptedText(true, v.text, nil, nil, FONTS.BIG, nil, 0.65)
+			buttonText:addAdaptedText(true, v.text, nil, nil, FONTS.BIG)
 			tbMenuNavigationButtons[i]:addMouseHandlers(nil, function()
 					if (not customNav) then
 						if (v.sectionId ~= TB_LAST_MENU_SCREEN_OPEN) then
@@ -1710,11 +1724,11 @@ do
 
 	function TBMenu:getMainNavigationButtons()
 		local buttonData = {
-			{ text = TB_MENU_LOCALIZED.NAVBUTTONHOME, sectionId = 1, width = get_string_length(TB_MENU_LOCALIZED.NAVBUTTONHOME, FONTS.BIG) * 0.65 + 30 },
-			{ text = TB_MENU_LOCALIZED.NAVBUTTONPLAY, sectionId = 2, width = get_string_length(TB_MENU_LOCALIZED.NAVBUTTONPLAY, FONTS.BIG) * 0.65 + 30 },
-			{ text = TB_MENU_LOCALIZED.NAVBUTTONPRACTICE, sectionId = 3, width = get_string_length(TB_MENU_LOCALIZED.NAVBUTTONPRACTICE, FONTS.BIG) * 0.65 + 30 },
-			{ text = TB_MENU_LOCALIZED.NAVBUTTONMODS, sectionId = 4, width = get_string_length(TB_MENU_LOCALIZED.NAVBUTTONMODS, FONTS.BIG) * 0.65 + 30 },
-			{ text = TB_MENU_LOCALIZED.NAVBUTTONTOOLS, sectionId = 5, width = get_string_length(TB_MENU_LOCALIZED.NAVBUTTONTOOLS, FONTS.BIG) * 0.65 + 30 }
+			{ text = TB_MENU_LOCALIZED.NAVBUTTONHOME, sectionId = 1 },
+			{ text = TB_MENU_LOCALIZED.NAVBUTTONPLAY, sectionId = 2 },
+			{ text = TB_MENU_LOCALIZED.NAVBUTTONPRACTICE, sectionId = 3 },
+			{ text = TB_MENU_LOCALIZED.NAVBUTTONMODS, sectionId = 4 },
+			{ text = TB_MENU_LOCALIZED.NAVBUTTONTOOLS, sectionId = 5 }
 		}
 		return buttonData
 	end
@@ -2145,6 +2159,27 @@ do
 			textView:addAdaptedText(true, message, nil, nil, nil, CENTER)
 		end
 	end
+	
+	function TBMenu:showTextExternal(viewElement, text)
+		local textView = UIElement:new({
+			parent = viewElement,
+			pos = { 20, 0 },
+			size = { viewElement.size.w - 30, viewElement.size.h }
+		})
+		textView:addAdaptedText(false, text, -17)
+		local posX = get_string_length(textView.dispstr[1], FONTS.MEDIUM) * textView.textScale
+		local bgColorDelta = viewElement.bgColor[1] + viewElement.bgColor[2] + viewElement.bgColor[3]
+		local texture = "../textures/menu/general/buttons/external.tga"
+		if (bgColorDelta > 1.5) then
+			texture = "../textures/menu/general/buttons/externalblack.tga"
+		end
+		local onlineSign = UIElement:new({
+			parent = textView,
+			pos = { textView.size.w / 2 + posX / 2 - 13, textView.size.h / 2 - 13 },
+			size = { 26, 26 },
+			bgImage = texture
+		})
+	end
 
 	function TBMenu:displayHelpPopup(element, message, forceManualPosCheck)
 		local messageElement = UIElement:new({
@@ -2274,7 +2309,7 @@ do
 		local orientation = orientation or LEFTMID
 		local scale = scale or 1
 		
-		element:addAdaptedText(true, defaultStr, nil, nil, fontid, orientation, scale)
+		element:addAdaptedText(true, defaultStr, nil, nil, fontid, orientation, scale, nil, nil, nil, nil, nil, true)
 		local defaultStringScale = element.textScale
 
 		element:addCustomDisplay(true, function()
@@ -2284,16 +2319,16 @@ do
 					local part1 = element.textfieldstr[1]:sub(0, element.textfieldindex)
 					local part2 = element.textfieldstr[1]:sub(element.textfieldindex + 1)
 					local displayString = part1 .. (noCursor and "" or "|") .. part2
-					element:uiText(displayString, nil, nil, fontid, orientation, scale, nil, nil, color)
+					element:uiText(displayString, nil, nil, fontid, orientation, scale, nil, nil, color, nil, nil, nil, nil, nil, true)
 				else
 					if (element.menuKeyboardId) then
 						TBMenu:disableMenuKeyboard(element)
 						chat_input_activate()
 					end
 					if (element.textfieldstr[1] == "") then
-						element:uiText(defaultStr, nil, nil, fontid, orientation, defaultStringScale, nil, nil, { color[1], color[2], color[3], color[4] * 0.5 })
+						element:uiText(defaultStr, nil, nil, fontid, orientation, defaultStringScale, nil, nil, { color[1], color[2], color[3], color[4] * 0.5 }, nil, nil, nil, nil, nil, true)
 					else
-						element:uiText(element.textfieldstr[1], nil, nil, fontid, orientation, scale, nil, nil, color)
+						element:uiText(element.textfieldstr[1], nil, nil, fontid, orientation, scale, nil, nil, color, nil, nil, nil, nil, nil, true)
 					end
 				end
 			end)

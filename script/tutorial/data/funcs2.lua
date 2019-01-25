@@ -222,6 +222,11 @@ local function unloadStaticHook(viewElement, reqTable)
 	hideDamageAndTimerBars(viewElement, reqTable)
 end
 
+local function unloadStaticHookWithAchievement(viewElement, reqTable)
+	unloadStaticHook(viewElement, reqTable)
+	award_achievement(788)
+end
+
 functions = {
 	IntroOverlay = introOverlay,
 	OutroOverlay = outroOverlay,
@@ -230,6 +235,7 @@ functions = {
 	DisplayAxisPecs = showPecsAxis,
 	LockPunchingBag = punchingBag,
 	ClearStaticHooks = unloadStaticHook,
+	ClearStaticHooksAch = unloadStaticHookWithAchievement,
 	ShowDamageBar = showDamageBar,
 	ShowTimer = showTimer,
 	ShowDamageAndTimer = showDamageAndTimerBars,

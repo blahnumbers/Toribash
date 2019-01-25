@@ -30,6 +30,8 @@ TEXTUREINDEX = TEXTUREINDEX or 0
 DEFTEXTCOLOR = DEFTEXTCOLOR or { 1, 1, 1, 1 }
 DEFSHADOWCOLOR = DEFSHADOWCOLOR or { 0, 0, 0, 0.6 }
 
+STEAM_INT_ID = 3449
+
 UICOLORWHITE = {1,1,1,1}
 UICOLORBLACK = {0,0,0,1}
 UICOLORRED = {1,0,0,1}
@@ -880,12 +882,16 @@ do
 		end
 	end
 
-	function UIElement:addAdaptedText(override, str, x, y, font, align, maxscale, minscale, intensity, shadow, col1, col2)
+	function UIElement:addAdaptedText(override, str, x, y, font, align, maxscale, minscale, intensity, shadow, col1, col2, textfield)
 		local scale = maxscale or 1
 		local minscale = minscale or 0.2
 		local font = font
+		
+		if (UI_HIGH_RESOLUTION_MODE) then
+			font = font == FONTS.BIG and FONTS.BIGGER or (font == FONTS.MEDIUM and FONTS.BIG or font)
+		end
 
-		while (not self:uiText(str, x, y, font, nil, scale, nil, nil, nil, nil, nil, true) and scale > minscale) do
+		while (not self:uiText(str, x, y, font, nil, scale, nil, nil, nil, nil, nil, true, nil, nil, textfield) and scale > minscale) do
 			scale = scale - 0.05
 			if (scale < 0.5 and font) then
 				if (font == FONTS.BIG) then
@@ -901,12 +907,13 @@ do
 		end
 
 		self.textScale = scale
+		self.textFont = font
 		self:addCustomDisplay(override, function()
-				self:uiText(str, x, y, font, align, scale, nil, shadow, col1, col2, intensity)
+				self:uiText(str, x, y, font, align, scale, nil, shadow, col1, col2, intensity, nil, nil, nil, textfield)
 			end)
 	end
 
-	function UIElement:uiText(str, x, y, font, align, scale, angle, shadow, col1, col2, intensity, check, refresh, nosmooth)
+	function UIElement:uiText(str, x, y, font, align, scale, angle, shadow, col1, col2, intensity, check, refresh, nosmooth, textfield)
 		if (not scale and check) then
 			echo("^04UIElement error: ^07uiText cannot take undefined scale argument with check enabled")
 			return true
@@ -937,10 +944,10 @@ do
 		end
 
 		if (check) then
-			str = textAdapt(str, font, scale, self.size.w, true)
+			str = textAdapt(str, font, scale, self.size.w, true, textfield)
 		else
 			local strunformatted = str
-			str = self.str == strunformatted and self.dispstr or textAdapt(str, font, scale, self.size.w)
+			str = self.str == strunformatted and self.dispstr or textAdapt(str, font, scale, self.size.w, nil, textfield)
 			self.str, self.dispstr = strunformatted, str
 		end
 
@@ -1067,9 +1074,8 @@ do
 			if (count == 1) then
 				unload_texture(self.bgImage)
 				TEXTUREINDEX = TEXTUREINDEX - 1
-			else
-				table.remove(TEXTURECACHE, id)
 			end
+			table.remove(TEXTURECACHE, id)
 			self.bgImage = nil
 		end
 
@@ -1168,23 +1174,39 @@ do
 		return newTable
 	end
 
-	function textAdapt(str, font, scale, maxWidth, check)
+	function textAdapt(str, font, scale, maxWidth, check, textfield)
 		local clockdebug = os.clock()
 
 		local destStr = {}
 		local newStr = ""
 		-- Fix newlines, remove redundant spaces and ensure the string is in fact a string
-		local str = string.gsub(str, "\\n", "\n")
+		local str, cnt = string.gsub(str, "\\n", "\n")
 		str = str:gsub("^%s*", "")
 		str = str:gsub("%s*$", "")
 
 		local attemptPrediction = font == FONTS.SMALL and true or false
 
+		local function getWord(str)
+			local newlined = str:match("^.*\n")
+			word = str:match("^%s*%S+%s*")
+			if (newlined) then
+				if (newlined:len() < word:len()) then
+					echo("word: " .. word .. "; newlined: " .. newlined)
+					word = newlined
+				end
+			end
+			return word
+		end
+		
 		local newline = false
 		while (str ~= "") do
 			if (not attemptPrediction or newStr ~= "") then
 				-- Match words followed by newlines separately to allow newline spacing
-				word = str:match("^[^\n]*%S*[^\n]*\n") or str:match("^%s*%S+%s*")
+				if (textfield) then
+					word = str:match("^[^\n]*%S*[^\n]*\n") or str:match("^%s*%S+%s*")
+				else
+					word = getWord(str)
+				end
 			else
 				-- Attempt to guess the beginning of a string
 				word = str:sub(1, math.floor(maxWidth / 8 * scale))
@@ -1192,30 +1214,40 @@ do
 				word = word:gsub("[\n].*$", "")
 				if (get_string_length(word, font) * scale > maxWidth) then
 					-- Incorrect guess, start building classic way
-					word = str:match("^[^\n]*%S*[^\n]*\n") or str:match("^%s*%S+%s*")
+					if (textfield) then
+						word = str:match("^[^\n]*%S*[^\n]*\n") or str:match("^%s*%S+%s*")
+					else
+						word = getWord(str)
+					end
 				end
 			end
 
 			-- Wrap word around if it still exceeds text field width
 			if (not check) then
-				while (get_string_length(word:gsub("%s*$", ""), font) * scale > maxWidth) do
-					word = word:sub(1, word:len() - 1)
+				local _, words = word:gsub("%s", "")
+				if (words == 0) then
+					while (get_string_length(word:gsub("%s*$", ""), font) * scale > maxWidth) do
+						word = word:sub(1, word:len() - 1)
+					end
+				else
+					while (words > 0 and get_string_length(word:gsub("%s*$", ""), font) * scale > maxWidth) do
+						local pos = word:find("%s")
+						word = word:sub(1, pos)
+					end					
+					while (get_string_length(word:gsub("%s*$", ""), font) * scale > maxWidth) do
+						word = word:sub(1, word:len() - 1)
+					end
 				end
 			end
 
 			if ((get_string_length(newStr .. word, font) * scale > maxWidth or newline) and newStr ~= "") then
 				table.insert(destStr, newStr)
-				newline = false
 				newStr = word
-				str = str:sub(word:len() + 1)
 			else
 				newStr = newStr .. word
-				str = str:sub(word:len() + 1)
 			end
-			local nextNewline = word:match("\n") or word:match("\\n")
-			if (nextNewline) then
-				newline = true
-			end
+			str = str:sub(word:len() + 1)
+			newline = word:match("\n") or word:match("\\n")
 		end
 		table.insert(destStr, newStr)
 
@@ -1254,7 +1286,7 @@ do
 			set_color(unpack(col1))
 		end
 		draw_text_angle_scale(str, xPos, yPos, angle, scale, font)
-		if (font == 2 or font == 0 or font == 9) then
+		if (font == 0 or font == 9) then
 			set_color(col1[1], col1[2], col1[3], intensity)
 			draw_text_angle_scale(str, xPos, yPos, angle, scale, font)
 			if (font == 0 or font == 9) then

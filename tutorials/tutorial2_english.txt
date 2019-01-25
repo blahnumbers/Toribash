@@ -20,6 +20,7 @@ SENSEIFINALTIMEUP	Oh, looks like time is up. No problem, let's try again!
 SENSEIFINALRESTART	Alright, keep the moves I've shown you previously in mind and try to get 100K points this time!
 SENSEIFINALOPTINCOMPLETE	Great! That's some good workout!
 SENSEIFINALOPTCOMPLETE	Wow, that was something! Excellent work!
+SENSEIFINALOPTCOMPLETE2	Check your inventory after this, I've given you a bonus item as a reward for your efforts!
 SENSEIFINAL4	Now that you know how to use your hands, you are ready train your kicks!
 #
 #HINT MESSAGES
@@ -42,4 +43,4 @@ PUNCHTASK	Repeat Sensei's Punch
 PUNCHTASKOPT	Raise right shoulder and extend your wrist to improve the punch
 FINALTASK	Complete Sensei's punching lesson
 FINALTASKMAIN	Reach 100,000 damage points to hit the objective
-FINALTASKOPT	Get over 500,000 points to make Sensei proud
+FINALTASKOPT	Get over 500,000 points for bonus reward
