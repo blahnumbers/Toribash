@@ -1927,3 +1927,7 @@ do
 			end)
 	end
 end
+
+if (ARG1 == 'register') then
+	Tutorials:runTutorial(1)
+end

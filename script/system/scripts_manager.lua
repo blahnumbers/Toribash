@@ -40,7 +40,7 @@ do
 		local path = path or "data/script"
 		local data = { name = path, files = {}, folders = {}, contents = {} }
 		for i,v in pairs(get_files(path, "")) do
-			if (v:match(".lua$")) then
+			if (v:match(".lua$") and (not v:match("^startup.lua") and path == "data/script")) then
 				table.insert(data.files, v)
 			elseif (not v:find("^%.+[%s%S]*$") and not v:find("%.%a+$") and not Settings:isDefaultFolder(v)) then
 				table.insert(data.folders, v)
@@ -174,40 +174,48 @@ do
 			end)
 	end
 	
-	function Scripts:showScriptInfo(viewElement, file)
-		local scriptName = UIElement:new({
-			parent = viewElement,
-			pos = { 10, 5 },
-			size = { viewElement.size.w - 20, viewElement.size.h / 6 - 10 }
-		})
-		scriptName:addAdaptedText(true, file:gsub("^.*/", ""))
-		
-		local scriptFile = Files:new(file)
-		
+	function Scripts:showSource(info)
+		local overlay = TBMenu:spawnWindowOverlay()
 		local scriptData = UIElement:new({
-			parent = viewElement,
-			pos = { 5, viewElement.size.h / 6 },
-			size = { viewElement.size.w - 10, viewElement.size.h / 2 },
-			bgColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+			parent = overlay,
+			pos = { WIN_W / 10, WIN_H / 8 },
+			size = { WIN_W * 0.8, WIN_H / 8 * 6 },
+			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
+		overlay:addMouseHandlers(nil, function()
+				overlay:kill()
+			end)
 		local elementHeight = 16
-		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(scriptData, elementHeight, elementHeight, 15, TB_MENU_DEFAULT_BG_COLOR)
+		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(scriptData, 50, elementHeight, 30, TB_MENU_DEFAULT_BG_COLOR)
+		local quitButton = UIElement:new({
+			parent = topBar,
+			pos = { -45, 5 },
+			size = { 40, 40 },
+			rounded = 3,
+			shapeType = ROUNDED,
+			interactive = true,
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			pressedColor = { 1, 0, 0, 0.4 }
+		})
+		local quitIcon = UIElement:new({
+			parent = quitButton,
+			pos = { 5, 5 },
+			size = { quitButton.size.w - 10, quitButton.size.h - 10 },
+			bgImage = "../textures/menu/general/buttons/crosswhite.tga"
+		})
+		quitButton:addMouseHandlers(nil, function()
+				overlay:kill()
+			end)
+		local sourceTitle = UIElement:new({
+			parent = topBar,
+			pos = { 10, 0 },
+			size = { topBar.size.w - 60, topBar.size.h }
+		})
+		sourceTitle:addAdaptedText(true, TB_MENU_LOCALIZED.LUAVIEWINGSORCE, nil, nil, FONTS.BIG, nil, 0.6)
 		local listElements = {}
-		local vulnerabilityAlert = false
-		local fileAccessAlert = false
-		local loadScriptAlert = false
-		
-		for i, info in pairs(scriptFile:readAll()) do
-			if (info:find("tb_login")) then
-				vulnerabilityAlert = true
-			end
-			if (info:find("io.[p]?open") or info:find("Files:new")) then
-				fileAccessAlert = true
-			end
-			if (info:find("dofile") or info:find("require") or info:find("loadfile") or info:find("loadstring")) then
-				loadScriptAlert = true
-			end
-			local textString = textAdapt(info, 1, 0.9, listingHolder.size.w - 10)
+		for i, ln in pairs(info) do
+			local textString = textAdapt(ln, 1, 1, listingHolder.size.w - 10, nil, true)
 			for i = 1, #textString do
 				local infoRow = UIElement:new({
 					parent = listingHolder,
@@ -226,17 +234,46 @@ do
 		end
 		local scriptDataScroll = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
 		scriptDataScroll:makeScrollBar(listingHolder, listElements, toReload)
+	end
+	
+	function Scripts:showScriptInfo(viewElement, file)
+		local scriptName = UIElement:new({
+			parent = viewElement,
+			pos = { 10, 5 },
+			size = { viewElement.size.w - 20, viewElement.size.h / 6 - 10 }
+		})
+		scriptName:addAdaptedText(true, file:gsub("^.*/", ""))
+		
+		local scriptFile = Files:new(file)
+		local scriptSource = scriptFile:readAll()
+		scriptFile:close()
+		
+		local vulnerabilityAlert = false
+		local fileAccessAlert = false
+		local loadScriptAlert = false
+		
+		for i, info in pairs(scriptSource) do
+			if (info:find("tb_login")) then
+				vulnerabilityAlert = true
+			end
+			if (info:find("io.[p]?open") or info:find("Files:new")) then
+				fileAccessAlert = true
+			end
+			if (info:find("dofile") or info:find("require") or info:find("loadfile") or info:find("loadstring")) then
+				loadScriptAlert = true
+			end
+		end
 		
 		if (vulnerabilityAlert or fileAccessAlert or loadScriptAlert) then
 			local alertMessage = UIElement:new({
 				parent = viewElement,
-				pos = { 10, viewElement.size.h / 6 * 4 },
-				size = { viewElement.size.w - 20, viewElement.size.h / 6 }
+				pos = { 10, viewElement.size.h / 6 },
+				size = { viewElement.size.w - 20, viewElement.size.h / 3 }
 			})
 			local alertMsg = ""
 			if (vulnerabilityAlert) then
 				alertMsg = TB_MENU_LOCALIZED.LUAMALICIOUSWARNING .. "\n"
-				alertMessage:addAdaptedText(true, alertMsg, nil, nil, nil, nil, nil, nil, nil, 1.5, UICOLORRED, UICOLORWHITE)
+				alertMessage:addAdaptedText(true, alertMsg, nil, nil, 4, nil, nil, nil, nil, 1.5, UICOLORRED, UICOLORWHITE)
 			else
 				if (fileAccessAlert) then
 					alertMsg = alertMsg .. TB_MENU_LOCALIZED.LUAFILEACCESSWARNING .. "\n"
@@ -244,10 +281,23 @@ do
 				if (loadScriptAlert) then
 					alertMsg = alertMsg .. TB_MENU_LOCALIZED.LUAOTHERSCRIPTSWARNING .. "\n"
 				end
-				alertMessage:addAdaptedText(true, alertMsg)
+				alertMessage:addAdaptedText(true, alertMsg, nil, nil, 4)
 			end
 		end
 		
+		local viewSourceButton = UIElement:new({
+			parent = viewElement,
+			pos = { 10, viewElement.size.h / 6 * 4 },
+			size = { viewElement.size.w - 10, viewElement.size.h / 8 },
+			interactive = true,
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+		})
+		viewSourceButton:addAdaptedText(false, TB_MENU_LOCALIZED.LUASHOWSOURCE)
+		viewSourceButton:addMouseHandlers(nil, function()
+				Scripts:showSource(scriptSource)
+			end)
 		local loadScriptButton = UIElement:new({
 			parent = viewElement,
 			pos = { 10, viewElement.size.h / 6 * 5 },
