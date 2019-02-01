@@ -69,7 +69,7 @@ do
 			local frame = get_world_state().match_frame
 			tbTooltip:addCustomDisplay(true, function()
 					local ws = get_world_state()
-					if (ws.replay_mode == 1 or ws.match_frame ~= frame or TB_MENU_MAIN_ISOPEN == 1) then
+					if (ws.replay_mode == 1 or ws.match_frame ~= frame or TB_MENU_MAIN_ISOPEN == 1 or ws.selected_player < 0) then
 						tbTooltip:kill()
 						BODYTOOLTIPACTIVE = false
 						return
@@ -171,7 +171,7 @@ do
 			local frame = get_world_state().match_frame
 			tbTooltip:addCustomDisplay(true, function()
 					local ws = get_world_state()
-					if (ws.replay_mode == 1 or ws.match_frame ~= frame or TB_MENU_MAIN_ISOPEN == 1) then
+					if (ws.replay_mode == 1 or ws.match_frame ~= frame or TB_MENU_MAIN_ISOPEN == 1 or ws.selected_player < 0) then
 						tbTooltip:kill()
 						return
 					end
