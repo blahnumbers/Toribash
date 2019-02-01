@@ -112,6 +112,11 @@ elseif (launchOption:match("clans ")) then
 	local clantag = launchOption:gsub("clans ", "")
 	clantag = PlayerInfo:getClanTag(clantag)
 	TBMenu:showClans(clantag)
+elseif (launchOption == "register") then
+	TBMenu:showMain()
+	TBMenu:quit()
+	dofile("tutorial/tutorial_manager.lua")
+	Tutorials:runTutorial(1)
 else
 	TBMenu:showMain()
 end
