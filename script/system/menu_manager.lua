@@ -222,20 +222,12 @@ do
 		-- Table to store event announcement data
 		local eventsData = {
 			{
-				title = "Head Texture of the Month: Ocean",
+				title = "Head Texture of the Month: Mythology",
 				subtitle = "The Ocean has many interesting creatures dwelling within - show us your favorite!",
-				image = "../textures/menu/promo/htotmocean.tga",
+				image = "../textures/menu/promo/holeinthewall.tga",
 				stop = true,
 				action = function()
 						Events:showEventInfo(1)
-					end,
-			},
-			{
-				title = "Clan Outreach",
-				subtitle = "We're trying to make Toribash clans better - and we need your opinions on it",
-				image = "../textures/menu/promo/clanoutreach.tga",
-				action = function()
-						open_url("http://forum.toribash.com/showthread.php?t=624019")
 					end,
 			},
 		}
@@ -372,6 +364,7 @@ do
 			local function behavior()
 				eventsData[TB_MENU_HOME_CURRENT_ANNOUNCEMENT].action()
 			end
+			viewElement:addMouseHandlers(nil, behavior, nil)
 		end
 	end
 
@@ -807,24 +800,26 @@ do
 		return confirmOverlay
 	end
 
-	function TBMenu:showConfirmationWindow(message, confirmAction, cancelAction)
+	function TBMenu:showConfirmationWindow(message, confirmAction, cancelAction, thirdAction, thirdButtonText)
 		local confirmOverlay = TBMenu:spawnWindowOverlay()
+		local width = thirdAction and confirmOverlay.size.w / 7 * 4 or confirmOverlay.size.w / 7 * 3
 		local confirmBoxView = UIElement:new({
 			parent = confirmOverlay,
-			pos = { confirmOverlay.size.w / 7 * 2, confirmOverlay.size.h / 2 - 75 },
-			size = { confirmOverlay.size.w / 7 * 3, 150 },
+			pos = { (confirmOverlay.size.w - width) / 2, confirmOverlay.size.h / 2 - confirmOverlay.size.h / 10 },
+			size = { width, confirmOverlay.size.h / 5 },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
 		local confirmBoxMessage = UIElement:new({
 			parent = confirmBoxView,
 			pos = { 10, 10 },
-			size = { confirmBoxView.size.w - 20, 80 }
+			size = { confirmBoxView.size.w - 20, (confirmBoxView.size.h - 20) / 3 * 2 }
 		})
+		local actions = thirdAction and 3 or 2
 		confirmBoxMessage:addAdaptedText(true, message)
 		local cancelButton = UIElement:new({
 			parent = confirmBoxView,
-			pos = { 10, -50 },
-			size = { confirmBoxView.size.w / 2 - 15, 40 },
+			pos = { 10, -(confirmBoxView.size.h - 20) / 3 + 5 },
+			size = { confirmBoxView.size.w / actions - 15, (confirmBoxView.size.h - 20) / 4 },
 			interactive = true,
 			bgColor = { 0, 0, 0, 0.1 },
 			hoverColor = { 0, 0, 0, 0.3 },
@@ -839,8 +834,8 @@ do
 			end)
 		local acceptButton = UIElement:new({
 			parent = confirmBoxView,
-			pos = { confirmBoxView.size.w / 2 + 5, -50 },
-			size = { confirmBoxView.size.w / 2 - 15, 40 },
+			pos = { -confirmBoxView.size.w / actions + 5, -(confirmBoxView.size.h - 20) / 3 + 5 },
+			size = { confirmBoxView.size.w / actions - 15, (confirmBoxView.size.h - 20) / 4 },
 			interactive = true,
 			bgColor = { 0, 0, 0, 0.1 },
 			hoverColor = { 0, 0, 0, 0.3 },
@@ -851,6 +846,24 @@ do
 				confirmOverlay:kill()
 				confirmAction()
 			end)
+		if (thirdAction) then
+			local thirdButton = UIElement:new({
+				parent = confirmBoxView,
+				pos = { confirmBoxView.size.w / actions + 5, -(confirmBoxView.size.h - 20) / 3 + 5 },
+				size = { confirmBoxView.size.w / actions - 10, (confirmBoxView.size.h - 20) / 4 },
+				interactive = true,
+				bgColor = { 0, 0, 0, 0.1 },
+				hoverColor = { 0, 0, 0, 0.3 },
+				pressedColor = { 1, 1, 1, 0.2 }
+			})
+			if (thirdButtonText) then
+				thirdButton:addAdaptedText(false, thirdButtonText)
+			end
+			thirdButton:addMouseHandlers(nil, function()
+					confirmOverlay:kill()
+					thirdAction()
+				end)
+		end
 		return confirmOverlay
 	end
 
@@ -866,6 +879,10 @@ do
 			size = { WIN_W / 2, 40 },
 			bgColor = { 0, 0, 0, 0.8 * transparency }
 		})
+		local option = get_option("hint")
+		if (noParent) then
+			set_option("hint", 0)
+		end
 		local startTime = os.clock()
 		tbMenuDataErrorMessage:addCustomDisplay(false, function()
 				if (os.clock() - startTime > 2) then
@@ -874,6 +891,9 @@ do
 				end
 				if (transparency <= 0) then
 					tbMenuDataErrorMessage:kill()
+					if (noParent) then
+						set_option("hint", option)
+					end
 				end
 			end)
 		local errorMessageView = UIElement:new({
@@ -2112,6 +2132,7 @@ do
 	end
 
 	function TBMenu:enableMenuKeyboard(element)
+		TB_MENU_INPUT_ISACTIVE = true
 		enable_menu_keyboard()
 		local id = 1
 		for i,v in pairs(UIKeyboardHandler) do
@@ -2125,6 +2146,7 @@ do
 	end
 
 	function TBMenu:disableMenuKeyboard(element)
+		TB_MENU_INPUT_ISACTIVE = false
 		element.menuKeyboardId = nil
 		for i,v in pairs(UIKeyboardHandler) do
 			if (v.menuKeyboardId) then

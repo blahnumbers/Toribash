@@ -231,6 +231,7 @@ BUTTONSAVE	Save
 BUTTONDISCARD	Discard	
 BUTTONCANCEL	Cancel	
 BUTTONCONTINUE	Continue	
+BUTTONCONTINUENOSAVE	Continue without saving	
 BUTTONADD	Add	
 BUTTONCREATE	Create	
 BUTTONUPLOAD	Upload	
@@ -515,6 +516,7 @@ HOTKEYSGAMERULES	Open Game Rules
 HOTKEYSFULLSCREEN	Enter Fullscreen Mode	
 HOTKEYSCAMERAMODES	Change Camera Modes	
 TUTORIALSLEAVINGPROMPT	Leaving tutorial mode.\nCurrent tutorial will have to be restarted from the beginning if you proceed.	
+EVENTSLEAVINGPROMPT	Quitting SP Event replay creator.\nCurrent replay will be saved as a temp file so you can continue editing it later.	
 TUTORIALSCONTINUETONEXT	Continue to next tutorial	
 TUTORIALSBACKTOMAIN	Return to main menu	
 TUTORIALSINTRONAME	Introduction to Toribash	

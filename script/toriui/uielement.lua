@@ -742,6 +742,10 @@ do
 				self:textfieldUpdate("\"")
 			elseif ((key == string.byte(';')) and (get_shift_key_state() > 0)) then
 				self:textfieldUpdate(":")
+			elseif (key == 44 and get_shift_key_state() > 0) then
+				self:textfieldUpdate("<")
+			elseif (key == 46 and get_shift_key_state() > 0) then
+				self:textfieldUpdate(">")
 			elseif (key == 269) then
 				self:textfieldUpdate("-")
 			elseif (key == 267) then

@@ -13,6 +13,7 @@ local tbTutorialCurrentStep = 0
 
 TUTORIALJOINTLOCK = false
 TUTORIALKEYBOARDLOCK = false
+TUTORIAL_SPECIAL_RP_IGNORE = false
 
 do
 	Tutorials = {}
@@ -41,7 +42,7 @@ do
 		remove_hooks("tbTutorialsCustomStatic")
 		remove_hooks("tbMoveMemoryPlayTurns0")
 		remove_hooks("tbMoveMemoryPlayTurns1")
-		start_new_game()
+		UIElement:runCmd("lm classic")
 		if (TUTORIAL_TOOLTIP_ACTIVE) then
 			Tooltip:quit()
 			TUTORIAL_TOOLTIP_ACTIVE = false
@@ -62,10 +63,10 @@ do
 		tutorialQuitOverlay = TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.TUTORIALSLEAVINGPROMPT, function() close_menu() Tutorials:quit() end, function() close_menu() TUTORIAL_LEAVEGAME = false end)
 	end
 
-	function Tutorials:getLocalization(TUTORIAL_LOCALIZED, id, language)
+	function Tutorials:getLocalization(TUTORIAL_LOCALIZED, id, language, path)
 		local language = language or get_language()
-
-		local localization = Files:new("../data/tutorials/tutorial" .. id .. "_" .. language .. ".txt")
+		local path = path or "../data/tutorials/tutorial"
+		local localization = Files:new(path .. id .. "_" .. language .. ".txt")
 		if (not localization.data) then
 			if (language == "english") then
 				return false
@@ -98,8 +99,13 @@ do
 		return true
 	end
 
-	function Tutorials:loadTutorial(id)
-		local tutorial = Files:new("../data/tutorials/tutorial" .. id .. ".dat")
+	function Tutorials:loadTutorial(id, path)
+		local cfuncpath = "tutorial/data/funcs"
+		if (path) then
+			cfuncpath = path:gsub("%.%./data/")
+		end
+		local path = path or "../data/tutorials/tutorial"
+		local tutorial = Files:new(path .. id .. ".dat")
 		local tutorialData = tutorial:readAll()
 		tutorial:close()
 
@@ -246,7 +252,7 @@ do
 				end
 			elseif (ln:find("^CUSTOMFUNC")) then
 				steps[#steps].customfuncdefined = true
-				steps[#steps].customfuncfile = loadfile("tutorial/data/funcs" .. id .. ".lua")
+				steps[#steps].customfuncfile = loadfile(cfuncpath .. id .. ".lua")
 				steps[#steps].customfunc = ln:gsub("CUSTOMFUNC ", "")
 			elseif (ln:find("^OPT")) then
 				steps[#steps].opt = true
@@ -823,7 +829,7 @@ do
 				end
 			end
 			return 1
-		elseif (key == 112 or key == 114) then
+		elseif ((key == 112 or key == 114) and not TUTORIAL_SPECIAL_RP_IGNORE) then
 			return 1
 		end
 	end
@@ -1140,6 +1146,13 @@ do
 			pos = { 0, 0 },
 			size = { tbTutorialsOverlay.size.w, tbTutorialsOverlay.size.h }
 		})
+		--[[local stepDisplay = UIElement:new({
+			parent = stepElement,
+			pos = { 5, 5 },
+			size = { 20, 70 },
+			uiColor = UICOLORBLACK
+		})
+		stepDisplay:addAdaptedText(true, 's' .. currentStep)]]
 		local stepNext = UIElement:new({
 			parent = stepElement,
 			pos = { 0, 0 },
@@ -1387,7 +1400,7 @@ do
 	function Tutorials:showTutorialEnd(buttonsCustom)
 		TUTORIAL_LEAVEGAME = true
 		local buttons = {}
-		local nextTutorial = Files:new("../data/tutorials/tutorial" .. CURRENT_TUTORIAL + 1 .. ".dat")
+		local nextTutorial = Files:new("../data/tutorials/tutorial" .. (type(CURRENT_TUTORIAL) == "number" and (CURRENT_TUTORIAL + 1) or 'non-existing') .. ".dat")
 		Tutorials:updateConfig(nextTutorial.data and true or false)
 
 		local scale = WIN_W > WIN_H * 2 and WIN_H or WIN_W / 7 * 6
@@ -1480,7 +1493,7 @@ do
 			buttonText:addAdaptedText(true, v.title)
 		end
 	end
-
+	
 	function Tutorials:runTutorial(id)
 		TUTORIAL_ISACTIVE = true
 		TUTORIAL_LEAVEGAME = true
@@ -1897,7 +1910,7 @@ do
 						end
 					end
 				else
-					return Tutorials:ignoreKeyPress(key, true)
+					return Tutorials:ignoreKeyPress(key, true, true)
 				end
 			end)
 

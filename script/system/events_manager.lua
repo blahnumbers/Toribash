@@ -17,11 +17,13 @@ do
 	function Events:getEvents()
 		return {
 			{
-				accentColor = { 1, 1, 1, 1 },
-				uiColor = { 0.05, 0.44, 0.57, 1 },
-				name = "Head Texture of the Month: Ocean",
-				image = "../textures/menu/promo/events/htotmocean.tga",
+				accentColor = { 0.196, 0.129, 0.016, 1 },
+				uiColor = { 1, 1, 1, 1 },
+				name = "Hole in the Wall",
+				image = "../textures/menu/promo/events/holeinthewall.tga",
 				forumlink = "http://forum.toribash.com/showthread.php?t=623552",
+				action = function() EventsOnline:playEvent("holeinthewall") end,
+				actionText = "Participate",
 				data = {
 					{
 						title = "Description",
@@ -56,8 +58,8 @@ do
 	function Events:showEventDescription(viewElement, event)
 		local elementHeight = 41
 		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 55, elementHeight + 5, 20, event.accentColor)
-		listingView.bgColor = cloneTable(event.accentColor)
-		listingView.bgColor[4] = 0.7
+		--listingView.bgColor = cloneTable(event.accentColor)
+		--listingView.bgColor[4] = 0.7
 		
 		local listElements = {}
 		for i, info in pairs(event.data) do
@@ -156,8 +158,8 @@ do
 	function Events:showEventPrizes(viewElement, event)
 		local elementHeight = 41
 		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 55, elementHeight + 5, 20, event.accentColor)
-		listingView.bgColor = cloneTable(event.accentColor)
-		listingView.bgColor[4] = 0.7
+		--listingView.bgColor = cloneTable(event.accentColor)
+		--listingView.bgColor[4] = 0.7
 		
 		local listElements = {}
 		if (event.imagetitle) then
@@ -303,10 +305,11 @@ do
 			buttonPColor[1] = (buttonPColor[1] + math.abs(0.7 - buttonPColor[1]))
 		end
 		
+		local buttons = event.action and 2 or 1
 		local eventForumLink = UIElement:new({
 			parent = eventForumLinkHolder,
-			pos = { viewElement.size.w / 4, 5 },
-			size = { viewElement.size.w / 2, eventForumLinkHolder.size.h - 10 },
+			pos = { viewElement.size.w / 20 + viewElement.size.w * 0.425 * (2 - buttons), 5 },
+			size = { viewElement.size.w * 0.425, eventForumLinkHolder.size.h - 10 },
 			interactive = true,
 			bgColor = viewElement.uiColor,
 			hoverColor = buttonHColor,
@@ -319,6 +322,25 @@ do
 		eventForumLink:addMouseHandlers(nil, function()
 				open_url(event.forumlink)
 			end)
+		if (event.action) then
+			local eventActionButton = UIElement:new({
+				parent = eventForumLinkHolder,
+				pos = { viewElement.size.w * 0.5, 5 },
+				size = { viewElement.size.w * 0.425, eventForumLinkHolder.size.h - 10 },
+				interactive = true,
+				bgColor = viewElement.uiColor,
+				hoverColor = buttonHColor,
+				pressedColor = buttonPColor,
+				shapeType = ROUNDED,
+				rounded = 3
+			})
+			table.insert(pbotBar.child, eventActionButton)
+			eventActionButton:addAdaptedText(false, event.actionText)
+			eventActionButton:addMouseHandlers(nil, function()
+					close_menu()
+					event.action()
+				end)
+		end
 		
 		local closeButton = UIElement:new({
 			parent = ptopBar,
