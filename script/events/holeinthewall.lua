@@ -116,7 +116,9 @@ local function eventMain(viewElement, reqTable, skipAdd)
 				end
 				if (key == 101) then
 					TUTORIAL_LEAVEGAME = true
+					STOPFRAME = nil
 					edit_game()
+					tbTutorialsTaskMark:hide(true)
 					TUTORIAL_LEAVEGAME = false
 					REPLAY_CAN_BE_SUBMITTED = false
 					return 1
@@ -126,6 +128,11 @@ local function eventMain(viewElement, reqTable, skipAdd)
 					return 1
 				end
 				if (key == 114) then
+					STOPFRAME = get_world_state().match_frame
+					if (STOPFRAME == 0) then
+						STOPFRAME = nil
+						return 1
+					end
 					TUTORIAL_LEAVEGAME = true
 					rewind_replay()
 					TUTORIAL_LEAVEGAME = false
@@ -133,6 +140,7 @@ local function eventMain(viewElement, reqTable, skipAdd)
 				end
 				if (key == 32 and get_world_state().replay_mode == 1) then
 					TUTORIAL_LEAVEGAME = true
+					STOPFRAME = nil
 					UIElement:runCmd("lm system/events/holeinthewall.tbm")
 					REPLAY_CAN_BE_SUBMITTED = false
 					TUTORIAL_LEAVEGAME = false
@@ -144,11 +152,31 @@ local function eventMain(viewElement, reqTable, skipAdd)
 					set_replay_speed(get_replay_speed() + 0.1)
 				end
 		end)
+		
+		--[[local customReplayButton = UIElement:new({
+			parent = viewElement,
+			pos = { -200, 20 },
+			size = { 200, 45 },
+			interactive = true,
+			bgColor = TB_MENU_DEFAULT_BG_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+		})
+		customReplayButton:addAdaptedText(false, "Load Custom Replay")
+		customReplayButton:addMouseHandlers(false, function()
+				Replays:getReplayFiles()
+			end)]]
 	end
 	
 	local submitButton = nil
 	add_hook("draw2d", "tbTutorialsCustom", function()
 			local ws = get_world_state()
+			if (STOPFRAME) then
+				if (ws.match_frame >= STOPFRAME) then
+					edit_game()
+					STOPFRAME = nil
+				end
+			end
 			if (not submitButton and REPLAY_CAN_BE_SUBMITTED) then
 				submitButton = showSubmitButton(viewElement, reqTable, skipAdd)
 			elseif (ws.replay_mode == 0) then
@@ -172,28 +200,28 @@ local function eventMain(viewElement, reqTable, skipAdd)
 				REPLAY_CAN_BE_SUBMITTED = false
 				remove_hook("draw2d", "tbTutorialsCustomStatic")
 				freeze_game()
-				run_frames(50)
 				CURRENT_STEP.skip = 2 + skipAdd
 				reqTable.ready = true
 				return
 			end
-			if (ws.match_frame == ws.game_frame) then
+			if (ws.match_frame >= ws.game_frame) then
 				TUTORIAL_LEAVEGAME = true
 				rewind_replay()
 				TUTORIAL_LEAVEGAME = false
 				return
 			end
-			if (not REPLAY_CAN_BE_SUBMITTED) then
+			if (not REPLAY_CAN_BE_SUBMITTED and ws.replay_mode == 0) then
 				local criteriaMet = true
 				for i,v in pairs(JOINTS) do
 					local x, y, z = get_joint_pos(0, v)
-					if (y > -20) then
+					if (y > -15) then
 						criteriaMet = false
 						break
 					end
 				end
 				if (criteriaMet) then
 					REPLAY_CAN_BE_SUBMITTED = true
+					EventsOnline:taskComplete()
 				end
 			end
 		end)
@@ -214,6 +242,11 @@ local function loadExistingReplay(viewElement, reqTable)
 	for i, ln in pairs(rplData) do
 		if (ln:find("^FRAME %d+")) then
 			local rplFrame = ln:gsub("^FRAME ", ""):gsub("%D?;.*$", "")
+			if (#steps > 0) then
+				if (tonumber(rplFrame) < steps[#steps].frame) then
+					steps = {}
+				end
+			end
 			table.insert(steps, { frame = tonumber(rplFrame), moves = {} })
 			if (#steps ~= 1) then
 				steps[#steps - 1].turnLength = steps[#steps].frame - steps[#steps - 1].frame
@@ -274,8 +307,13 @@ local function launchGame(viewElement, reqTable)
 	UIElement:runCmd("lm system/events/holeinthewall.tbm")
 	local wipReplay = Files:new("../replay/my replays/--eventtmpholeinthewall.rpl")
 	if (wipReplay.data) then
-		CURRENT_STEP.skip = 3
-		wipReplay:close()
+		for i,ln in pairs(wipReplay:readAll()) do
+			if (ln:find("^JOINT")) then
+				CURRENT_STEP.skip = 4
+				wipReplay:close()
+				break
+			end
+		end
 	end
 	
 	local reqElement = UIElement:new({
@@ -292,27 +330,24 @@ local function launchGame(viewElement, reqTable)
 end
 
 local function showYouLostScreen(viewElement, reqTable, offPlatform)
+	local scale = WIN_W / 3 > WIN_H / 5 * 2 and WIN_H / 5 * 2 or WIN_W / 3
 	local holder = UIElement:new({
 		parent = viewElement,
-		pos = { WIN_W / 6, WIN_H / 2 - 75 },
-		size = { WIN_W / 3 * 2, 150 },
-		bgColor = TB_MENU_DEFAULT_BG_COLOR
+		pos = { (WIN_W - scale * 2) / 2, -scale - 50 },
+		size = { scale * 2, scale },
+		bgColor = TB_MENU_DEFAULT_BG_COLOR,
+		bgImage = "../textures/menu/promo/events/hitw_youlost.tga"
 	})
-	local title = UIElement:new({
-		parent = holder,
-		pos = { 10, 5 },
-		size = { holder.size.w - 20, 40 }
-	})
-	title:addAdaptedText(true, "You lost!", nil, nil, FONTS.BIG)
 	local message = UIElement:new({
 		parent = holder,
-		pos = { 10, 50 },
-		size = { holder.size.w - 20, 40 }
+		pos = { holder.size.w * 0.6, holder.size.h * 0.65 },
+		size = { holder.size.w * 0.35, (holder.size.h - 55) * 0.25 },
+		uiColor = { 1, 0.8, 0, 1 }
 	})
-	message:addAdaptedText(true, offPlatform and "Try to stay on the moving platform next time!" or "Try not to get dismembered next time!")
+	message:addAdaptedText(true, offPlatform and "Try to stay on the moving platform next time!" or "Try not to get dismembered next time!", nil, nil, nil, nil, nil, nil, nil, 1)
 	local restartButton = UIElement:new({
 		parent = holder,
-		pos = { 10, 100 },
+		pos = { 10, -50 },
 		size = { holder.size.w / 2 - 15, 40 },
 		interactive = true,
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
@@ -321,7 +356,7 @@ local function showYouLostScreen(viewElement, reqTable, offPlatform)
 	})
 	local rewindButton = UIElement:new({
 		parent = holder,
-		pos = { holder.size.w / 2 + 5, 100 },
+		pos = { holder.size.w / 2 + 5, -50 },
 		size = { holder.size.w / 2 - 15, 40 },
 		interactive = true,
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
@@ -342,6 +377,19 @@ local function showYouLostScreen(viewElement, reqTable, offPlatform)
 			rewind_replay()
 			TUTORIAL_LEAVEGAME = false
 			reqTable.ready = true
+		end)
+	local loseFrame, gamePaused = 0, false
+	add_hook("draw2d", "tbTutorialsCustom", function()
+			local ws = get_world_state()
+			if (ws.winner > 0 and loseFrame == 0) then
+				loseFrame = ws.match_frame
+				echo(loseFrame)
+			end
+			if (loseFrame > 0 and ws.match_frame > loseFrame + 30 and not gamePaused) then
+				freeze_game()
+				echo(ws.match_frame)
+				gamePaused = true
+			end
 		end)
 end
 

@@ -17,28 +17,35 @@ do
 	function Events:getEvents()
 		return {
 			{
-				accentColor = { 0.196, 0.129, 0.016, 1 },
+				accentColor = { 0, 0, 0, 1 },
 				uiColor = { 1, 1, 1, 1 },
+				buttonHoverColor = { 0.969, 0.847, 0.122, 1 },
+				buttonPressedColor = { 0.996, 0.769, 0.102, 1 },
 				name = "Hole in the Wall",
 				image = "../textures/menu/promo/events/holeinthewall.tga",
 				forumlink = "http://forum.toribash.com/showthread.php?t=623552",
 				action = function() EventsOnline:playEvent("holeinthewall") end,
 				actionText = "Participate",
+				overlaytransparency = 0,
 				data = {
 					{
 						title = "Description",
+						imagetitle = "../textures/menu/promo/events/hitw_description.tga",
 						desc = "May it be the friendly fish near the surface or the mysterious horrors of the abyss, the Ocean has many interesting creatures dwelling within. Show us your favorite - as the theme for this month's HTOTM is Ocean!"
 					},
 					{
 						title = "Rules",
+						imagetitle = "../textures/menu/promo/events/hitw_rules.tga",
 						desc = "- No plagiarism, this isn't tolerated at all and is severely punishable\n- Do not submit old or pre-made textures\n- A rough sketch or WIP is required to prove that it is a head in progress and not a pre-made head that you are reposting\n- Collaborations are allowed, however in this scenario prizes will be split\n- Only one submission is allowed, which also means no alts used to submit two different heads (if you're collaborating with another artist, you can only submit that head)\n- Submissions must be in 512x512 resolution or higher\n- Post watermarked flats in this thread with spherical previews. It would be much appreciated if you used Toribash Textures for 3D previews\n- If you aren't using Toribash Textures, ensure to make your previews clear, show all aspects of your head and attempt to keep watermarks somewhat non-intrusive while still being effective"
 					},
 					{
 						title = "Deadline",
+						imagetitle = "../textures/menu/promo/events/hitw_deadline.tga",
 						desc = "We will stop accepting new entries on February 6th, 20:00 (GMT +0)"
 					},
 				},
 				prizes = {
+					imagetitle = "../textures/menu/promo/events/hitw_prizes.tga",
 					{
 						info = "Best work",
 						tc = 100000,
@@ -58,8 +65,8 @@ do
 	function Events:showEventDescription(viewElement, event)
 		local elementHeight = 41
 		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 55, elementHeight + 5, 20, event.accentColor)
-		--listingView.bgColor = cloneTable(event.accentColor)
-		--listingView.bgColor[4] = 0.7
+		listingView.bgColor = cloneTable(event.accentColor)
+		listingView.bgColor[4] = event.overlaytransparency or 0.7
 		
 		local listElements = {}
 		for i, info in pairs(event.data) do
@@ -162,13 +169,13 @@ do
 		--listingView.bgColor[4] = 0.7
 		
 		local listElements = {}
-		if (event.imagetitle) then
+		if (event.prizes.imagetitle) then
 			local imageScale = elementHeight * 8 > listingHolder.size.w - 20 and (listingHolder.size.w - 20) / 8 or elementHeight
 			local infoTitle = UIElement:new({
 				parent = listingHolder,
 				pos = { listingHolder.size.w / 2 - imageScale * 4, #listElements * elementHeight },
 				size = { imageScale * 8, imageScale },
-				bgImage = event.imagetitle
+				bgImage = event.prizes.imagetitle
 			})
 			table.insert(listElements, infoTitle)
 		else
@@ -293,16 +300,24 @@ do
 			bgColor = event.accentColor,
 			uiColor = event.accentColor
 		})
-		local buttonHColor, buttonPColor = cloneTable(viewElement.uiColor), cloneTable(viewElement.uiColor)
-		local delta = buttonHColor[1] + buttonHColor[2] + buttonHColor[3]
-		if (delta > 1.5) then
-			buttonHColor[2] = (buttonHColor[2] - math.abs(0.8 - buttonHColor[2]))
-			buttonHColor[3] = (buttonHColor[3] - math.abs(0.8 - buttonHColor[3]))
-			buttonPColor[2] = (buttonPColor[2] - math.abs(0.85 - buttonPColor[2]))
-			buttonPColor[3] = (buttonPColor[3] - math.abs(0.85 - buttonPColor[3]))
+		local buttonHColor, buttonPColor, delta = nil, nil, nil
+		if (event.buttonHoverColor and event.buttonPressedColor) then
+			buttonHColor = event.buttonHoverColor
+			buttonPColor = event.buttonPressedColor
+			delta = buttonHColor[1] + buttonHColor[2] + buttonHColor[3]
 		else
-			buttonHColor[1] = (buttonHColor[1] + math.abs(0.6 - buttonHColor[1]))
-			buttonPColor[1] = (buttonPColor[1] + math.abs(0.7 - buttonPColor[1]))
+			buttonHColor = cloneTable(viewElement.uiColor)
+			buttonPColor = cloneTable(viewElement.uiColor)
+			local delta = buttonHColor[1] + buttonHColor[2] + buttonHColor[3]
+			if (delta > 1.5) then
+				buttonHColor[2] = (buttonHColor[2] - math.abs(0.8 - buttonHColor[2]))
+				buttonHColor[3] = (buttonHColor[3] - math.abs(0.8 - buttonHColor[3]))
+				buttonPColor[2] = (buttonPColor[2] - math.abs(0.85 - buttonPColor[2]))
+				buttonPColor[3] = (buttonPColor[3] - math.abs(0.85 - buttonPColor[3]))
+			else
+				buttonHColor[1] = (buttonHColor[1] + math.abs(0.6 - buttonHColor[1]))
+				buttonPColor[1] = (buttonPColor[1] + math.abs(0.7 - buttonPColor[1]))
+			end
 		end
 		
 		local buttons = event.action and 2 or 1
@@ -325,7 +340,7 @@ do
 		if (event.action) then
 			local eventActionButton = UIElement:new({
 				parent = eventForumLinkHolder,
-				pos = { viewElement.size.w * 0.5, 5 },
+				pos = { viewElement.size.w * 0.525, 5 },
 				size = { viewElement.size.w * 0.425, eventForumLinkHolder.size.h - 10 },
 				interactive = true,
 				bgColor = viewElement.uiColor,

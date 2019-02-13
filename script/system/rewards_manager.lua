@@ -116,7 +116,7 @@ do
 				pos = { 5, 0 },
 				size = { dayReward[i].main.size.w - 10, dayReward[i].main.size.h / 7 }
 			})
-			dayReward[i].day:addAdaptedText(true, rewardData.days == i and "Today" or TB_MENU_LOCALIZED.REWARDSTIMEDAY .. " " .. i + 1, nil, nil, FONTS.BIG, nil, 0.55, nil, 0.2)
+			dayReward[i].day:addAdaptedText(true, rewardData.days == i and (rewardData.available and "Today" or "Tomorrow") or TB_MENU_LOCALIZED.REWARDSTIMEDAY .. " " .. i + 1, nil, nil, FONTS.BIG, nil, 0.55, nil, 0.2)
 			if (iconSize > 32) then
 				iconSize = i == rewardData.days and iconSize + 20 or iconSize
 				dayReward[i].icon = UIElement:new({
@@ -128,8 +128,8 @@ do
 			end
 			dayReward[i].title = UIElement:new({
 				parent = dayReward[i].main,
-				pos = { 5, -dayReward[i].main.size.h / 4 },
-				size = { dayReward[i].main.size.w - 10, dayReward[i].main.size.h / 5 }
+				pos = { dayReward[i].main.size.w / 10, -dayReward[i].main.size.h / 4 },
+				size = { dayReward[i].main.size.w * 0.8, dayReward[i].main.size.h / 5 }
 			})
 			local rewardStr = RewardData[i].item.itemid ~= 0 and RewardData[i].item.itemname or RewardData[i].tc .. " TC"
 			local textScaleModifier = 0

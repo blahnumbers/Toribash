@@ -14,6 +14,7 @@ REPLAY_VOTE = 101
 
 REPLAY_TEMPNAME = "--onlinereplaytempfile"
 REPLAY_SAVETEMPNAME = "--localreplaytempfile"
+REPLAY_EVENT = "--eventtmp"
 
 do
 	Replays = {}
@@ -165,7 +166,7 @@ do
 				
 				while (1) do
 					local v = files[count]
-					if (v:match(REPLAY_TEMPNAME) or v:match(REPLAY_SAVETEMPNAME)) then
+					if (v:match(REPLAY_TEMPNAME) or v:match(REPLAY_SAVETEMPNAME) or v:find("^" .. REPLAY_EVENT)) then
 						count = count + 1
 					elseif (v:match(".rpl$")) then
 						local replaydata = { filename = v:lower() }
@@ -786,7 +787,7 @@ do
 							downloadWait:addCustomDisplay(true, function()
 									framesN = framesN + 1
 									if (framesN > 4) then
-										UIElement:runCmd("loadreplay " .. replay.filename)
+										open_replay(replay.filename, 1)
 										close_menu()
 									end
 								end)
@@ -799,7 +800,7 @@ do
 						loading:uiText(TB_MENU_LOCALIZED.REPLAYSLOADINGREPLAY)
 						wait = wait + 1
 						if (wait > 4) then
-							UIElement:runCmd("loadreplay " .. replay.filename)
+							open_replay(replay.filename, 1)
 							close_menu()
 						end
 					end)
@@ -810,7 +811,7 @@ do
 					loading:uiText(TB_MENU_LOCALIZED.REPLAYSLOADINGREPLAY)
 					wait = wait + 1
 					if (wait > 4) then
-						UIElement:runCmd("loadreplay " .. replay.filename)
+						open_replay(replay.filename, 1)
 						close_menu()
 					end
 				end)

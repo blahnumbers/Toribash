@@ -74,7 +74,7 @@ do
 			tutorialQuitOverlay = nil
 			return
 		end
-		tutorialQuitOverlay = TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.EVENTSLEAVINGPROMPT, function() close_menu() UIElement:runCmd("savereplay --eventtmp" .. CURRENT_TUTORIAL) Tutorials:quit() end, function() close_menu() TUTORIAL_LEAVEGAME = false end, function() close_menu() Tutorials:quit() end, TB_MENU_LOCALIZED.BUTTONCONTINUENOSAVE)
+		tutorialQuitOverlay = TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.EVENTSLEAVINGPROMPT, function() close_menu() UIElement:runCmd("savereplay --eventtmp" .. CURRENT_TUTORIAL) Tutorials:quit() end, function() close_menu() TUTORIAL_LEAVEGAME = false end, function() close_menu() Tutorials:quit() end, TB_MENU_LOCALIZED.BUTTONCONTINUENOSAVE, TB_TUTORIAL_MODERN_GLOBALID)
 	end
 end
 

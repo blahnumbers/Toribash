@@ -60,7 +60,7 @@ do
 			tutorialQuitOverlay = nil
 			return
 		end
-		tutorialQuitOverlay = TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.TUTORIALSLEAVINGPROMPT, function() close_menu() Tutorials:quit() end, function() close_menu() TUTORIAL_LEAVEGAME = false end)
+		tutorialQuitOverlay = TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.TUTORIALSLEAVINGPROMPT, function() close_menu() Tutorials:quit() end, function() close_menu() TUTORIAL_LEAVEGAME = false end, nil, nil, TB_TUTORIAL_MODERN_GLOBALID)
 	end
 
 	function Tutorials:getLocalization(TUTORIAL_LOCALIZED, id, language, path)
@@ -179,6 +179,10 @@ do
 				local data = { ln:gsub("^TASKOPT ", ""):match(("([^\t]+)\t*"):rep(2)) }
 				steps[#steps].taskoptional = steps[#steps].taskoptional or {}
 				table.insert(steps[#steps].taskoptional, { id = data[1] + 0, text = data[2] })
+			elseif (ln:find("^TASKADD")) then
+				local data = { ln:gsub("^TASKADD ", ""):match(("([^\t]+)\t*"):rep(2)) }
+				steps[#steps].taskadditional = steps[#steps].taskadditional or {}
+				table.insert(steps[#steps].taskadditional, { id = data[1] + 0, text = data[2] })
 			elseif (ln:find("^TASK")) then
 				steps[#steps].task = ln:gsub("^TASK ", "")
 			elseif (ln:find("^MESSAGE")) then
@@ -948,6 +952,41 @@ do
 				end
 			end)
 	end
+	
+	function Tutorials:addAdditionalTask(data, taskText)
+		local optTaskColor = cloneTable(TB_MENU_DEFAULT_BG_COLOR)
+		optTaskColor[4] = 0.7
+
+		local optTaskView = UIElement:new({
+			parent = tbTutorialsTask,
+			pos = { 0, tbTutorialsTask.size.h - 40 },
+			size = { tbTutorialsTask.size.w, 40 },
+			bgColor = optTaskColor
+		})
+
+		local optTaskTextView = UIElement:new({
+			parent = optTaskView,
+			pos = { 10, 3 },
+			size = { optTaskView.size.w - 20, 34 }
+		})
+		optTaskTextView:addAdaptedText(true, taskText, nil, nil, 4, LEFTMID, 0.6)
+
+		tbTutorialsTask:hide()
+		optTaskView:show()
+		tbTutorialsTask:show()
+
+		local posVertical = #tbTutorialsTask.extra
+		local task = { id = data.id, complete = false, element = optTaskView, textView = optTaskTextView }
+		table.insert(tbTutorialsTask.extra, task)
+
+		optTaskView:addCustomDisplay(false, function()
+				if (optTaskView.shift.y < tbTutorialsTask.size.h + posVertical * 40) then
+					optTaskView:moveTo(nil, optTaskView.shift.y + 2)
+				else
+					optTaskView:addCustomDisplay(false, function() end)
+				end
+			end)
+	end
 
 	function Tutorials:taskOptComplete(id)
 		for i,v in pairs(tbTutorialsTask.optional) do
@@ -1029,7 +1068,11 @@ do
 						for i,v in pairs(tbTutorialsTask.optional) do
 							v.element:kill()
 						end
+						for i,v in pairs(tbTutorialsTask.extra) do
+							v.element:kill()
+						end
 						tbTutorialsTask.optional = {}
+						tbTutorialsTask.extra = {}
 						tbTutorialsTask:addCustomDisplay(false, function() end)
 						req.ready = true
 						reqTable.ready = checkRequirements(reqTable)
@@ -1260,7 +1303,17 @@ do
 		if (steps[currentStep].keyboardunlock) then
 			if (steps[currentStep].keystounlock) then
 				for i = 1, steps[currentStep].keystounlock:len() do
-					table.insert(tbTutorialsKeysIgnore, string.byte(steps[currentStep].keystounlock:sub(i, i)))
+					local key = string.byte(steps[currentStep].keystounlock:sub(i, i))
+					table.insert(tbTutorialsKeysIgnore, key)
+					if (key == 97) then
+						table.insert(tbTutorialsKeysIgnore, 276)
+					elseif (key == 119) then
+						table.insert(tbTutorialsKeysIgnore, 273)
+					elseif (key == 100) then
+						table.insert(tbTutorialsKeysIgnore, 275)
+					elseif (key == 115) then
+						table.insert(tbTutorialsKeysIgnore, 274)
+					end
 				end
 			else
 				TUTORIALKEYBOARDLOCK = false
@@ -1300,6 +1353,10 @@ do
 			elseif (reqType == "taskoptional") then
 				for i,task in pairs(val) do
 					Tutorials:addOptionalTask(task, LOCALIZED_MESSAGES[task.text])
+				end
+			elseif (reqType == "taskadditional") then
+				for i,task in pairs(val) do
+					Tutorials:addAdditionalTask(task, LOCALIZED_MESSAGES[task.text])
 				end
 			elseif (reqType == "marktaskcomplete") then
 				Tutorials:taskComplete()
@@ -1555,6 +1612,7 @@ do
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
 		tbTutorialsTask.optional = {}
+		tbTutorialsTask.extra = {}
 		local tbTutorialsTaskMarkOutline = UIElement:new({
 			parent = tbTutorialsTask,
 			pos = { 10, 10 },

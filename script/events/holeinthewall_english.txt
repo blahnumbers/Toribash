@@ -1,3 +1,7 @@
-INTRO1	Hi
-INTRO2	This is a generic welcome message
-INTRO3	This is a generic welcome message if you have a saved temp replay
+#Messages
+INTRO1	Hello and welcome to Hole in the Wall!
+INTRO2	Make a replay where you go through the wall and submit it for review to receive prizes! Good luck and have fun!
+INTRO3	Hi again! Let's get back to your auto-saved replay!
+#Tasks
+HWTASK1	Get through the wall
+HWTASKADD1	Do not get dismembered\nDo not leave the moving platform

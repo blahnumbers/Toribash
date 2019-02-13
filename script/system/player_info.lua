@@ -390,7 +390,7 @@ do
 				userData.qi = string.gsub(ln, "BELT 0;", "")
 				userData.qi = tonumber(userData.qi)
 				userData.belt = PlayerInfo:getBeltFromQi(userData.qi)
-	        end
+			end
 			if string.match(ln, "^TC 0;") then
 				userData.tc = string.gsub(ln, "TC 0;", "")
 				userData.tc = string.gsub(userData.tc, ".%d+$", "")
@@ -402,7 +402,7 @@ do
 		return userData
 	end
 	
-	function PlayerInfo:tcFormat(n)
+	function PlayerInfo:currencyFormat(n)
 		local left, num, right = string.match(n,'^([^%d]*%d)(%d*)(.-)$')
 		return left..(num:reverse():gsub('(%d%d%d)','%1,'):reverse())..right
 	end

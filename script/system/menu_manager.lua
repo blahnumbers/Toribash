@@ -738,15 +738,16 @@ do
 		return returnval 
 	end
 
-	function TBMenu:spawnWindowOverlay(color)
+	function TBMenu:spawnWindowOverlay(globalid)
+		local globalid = globalid or nil
 		UIScrollbarIgnore = true
 		local overlay = UIElement:new({
-			globalid = TB_MENU_MAIN_ISOPEN == 0 and TB_MENU_HUB_GLOBALID,
+			globalid = TB_MENU_MAIN_ISOPEN == 0 and (globalid or TB_MENU_HUB_GLOBALID),
 			parent = tbMenuMain,
 			pos = { 0, 0 },
 			size = { WIN_W, WIN_H },
 			interactive = true,
-			bgColor = color or { 0, 0, 0, 0.4 }
+			bgColor = { 0, 0, 0, 0.4 }
 		})
 		overlay.killAction = function() UIScrollbarIgnore = false end
 		return overlay
@@ -800,8 +801,8 @@ do
 		return confirmOverlay
 	end
 
-	function TBMenu:showConfirmationWindow(message, confirmAction, cancelAction, thirdAction, thirdButtonText)
-		local confirmOverlay = TBMenu:spawnWindowOverlay()
+	function TBMenu:showConfirmationWindow(message, confirmAction, cancelAction, thirdAction, thirdButtonText, globalid)
+		local confirmOverlay = TBMenu:spawnWindowOverlay(globalid)
 		local width = thirdAction and confirmOverlay.size.w / 7 * 4 or confirmOverlay.size.w / 7 * 3
 		local confirmBoxView = UIElement:new({
 			parent = confirmOverlay,
@@ -1606,7 +1607,7 @@ do
 			size = { tbMenuUserTcView.size.w - tbMenuUserTcIcon.size.w - 5, tbMenuUserTcView.size.h }
 		})
 		tbMenuUserTcBalance:addCustomDisplay(false, function()
-				tbMenuUserTcBalance:uiText(PlayerInfo:tcFormat(TB_MENU_PLAYER_INFO.data.tc), nil, 2, 2, 0, 0.9, nil, nil, tbMenuUserTcView:getButtonColor(), nil, 0)
+				tbMenuUserTcBalance:uiText(PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.tc), nil, 2, 2, 0, 0.9, nil, nil, tbMenuUserTcView:getButtonColor(), nil, 0)
 			end)
 		local tbMenuUserStView = UIElement:new( {
 			parent = tbMenuUserBar,
@@ -1638,8 +1639,8 @@ do
 		})
 		tbMenuUserStBalance:addCustomDisplay(false, function()
 				-- Proper ST balance is deprecated until a fix is rolled out
-				tbMenuUserStBalance:uiText("ST", nil, 2, 2, 0, 0.9, nil, nil, tbMenuUserStView:getButtonColor(), nil, 0)
-				--tbMenuUserStBalance:uiText(TB_MENU_PLAYER_INFO.data.st, nil, tbMenuUserStBalance.pos.y + 2, nil, LEFT, 0.9, nil, nil, tbMenuUserStView:getButtonColor())
+				--tbMenuUserStBalance:uiText("ST", nil, 2, 2, 0, 0.9, nil, nil, tbMenuUserStView:getButtonColor(), nil, 0)
+				tbMenuUserStBalance:uiText(PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.st), nil, 2, 2, 0, 0.9, nil, nil, tbMenuUserStView:getButtonColor(), nil, 0)
 			end)
 		local tbMenuUserBeltIcon = UIElement:new({
 			parent = tbMenuUserBar,
