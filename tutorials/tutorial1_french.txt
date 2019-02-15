@@ -1,0 +1,35 @@
+#PLAYER MESSAGES	
+INTROSENSEI1	... Et voici comment tu deviendras un vrai guerrier.
+INTROSENSEI2	Après un dur travail et de l’entrainement, tu peux atteindre des résultats incroyables!
+INTROPLAYER1	Mais Sensei, que pouvez vous savoir à propos du combat - vous peinez à marcher tout seul !
+INTROSENSEI3	Ah, mon enfant, je n’ai pas toujours été vieux.
+INTROSENSEI4	À une époque, il n’y a pas si longtemps, quand j’etais aussi jeune est innocent que toi...
+INTROFIGHTSENSEI1	Mon dernier combat, il était intense.
+INTROFIGHTSENSEI2	J’ai suivi les conseils de mon maître, Je suis resté concentré pendant tout le combat.
+INTROFIGHTSENSEI3	J’ai gardé un œil sur les différents points faibles de mon adversaire - et je les aient tous vus. 
+INTROFIGHTSENSEI4	J’étais aussi rapide qu’un animal sauvage. 
+INTROFIGHTSENSEI5	Il ne pouvait pas voir mes attaques venir, cela ressemblait à une victoire facile. 
+INTROFIGHTSENSEI6	Mes mouvements étaient parfait et j’étais en train de gagner, mais c’est alors que quelque chose de complètement inattendu arriva...
+INTROFIGHTSENSEI7	Juste au moment ou je m’apprêtais à gagner, mon genoux se cassa, ruinant mes chances.
+INTROENDPLAYER1	J’étais en colère et ai appelé ce gars un chanceux puis je lui ai dis que je le battrai la prochaine fois que l’on se fera face! 
+INTROENDPLAYER2	Je lui ai aussi dis que sa mère est une-
+INTROENDSENSEI1	Non-non-non, mon élève. Tu apprendras de tes défaites tout autant que de tes victoires. 
+INTROENDPLAYER3	Alors c’est pour cela que vous utilisez un bâton, maître? Votre jambe, elle vous fais encore mal? 
+INTROENDSENSEI2	Oh non, tu es de toute manière soigné après chaque combat.
+INTROENDSENSEI3	C’est juste que, je uh, j’ai l’air plus respectable avec un bâton-
+INTROENDSENSEI4	eeh, pourquoi tu me poses cette question? ... Cela n’a pas d’importance! Nous nous reposons depuis trop longtemps!
+INTROENDSENSEI5	Si tu veux devenir un véritable grand guerrier, tu dois t’entrainer ; Pas rester assis sur un banc éternellement!
+#	
+#HINT MESSAGES	
+CAMERAHINT1	Déplace ta CAMÉRA en utilisant les touches ~Z~ ~Q~ ~S~ ~D~.
+CAMERAHINT2	Pour ajuster la hauteur de la caméra, maintiens ~SHIFT~ tout en déplacant la caméra.
+CAMERAHINT3	Tu peux aussi contrôler la caméra en faisant un clique-droit n’importe où avec ta souris.
+CONTROLSHINT1	Dans Toribash, tu contrôles ton personnage en modifiant les joints sur son corps. 
+CONTROLSHINT2	Il existe quatre état pour les joints - MAINTENU, RELAXÉ, CONTRACTÉ, et ÉTENDU.\nCombiner ces états résulte en un tas de mouvements uniques qui rendent chaques combats spéciaux.
+CONTROLSHINT3	Clique sur le genoux de Sensei pour changer son état en ÉTENDU et donne un kick à l’adversaire.
+CONTROLSHINT4	Tu peux aussi contrôler les differents joints plus rapidement en utilisant les raccourcis claviers. 
+CONTROLSHINT5	Pour changer tous les états des joints d’un coup soit en MAINTENU soit en RELAXÉ, appuie sur ~C~
+CONTROLSHINT6	Passe au dessus de n’importe quel joint et appuie sur ~X~ pour le passer dans son état MAINTENU ou son état RELAXÉ.
+CONTROLSHINT7	Pour passer dans les états CONTRACTÉ ou ÉTENDU, appuie sur ~W~ en survolant un joint.
+QIHINT1	Ton expérience dans Toribash est mesuré en QI. Pour chaque combat joué, tu gagnes 1 QI.
+QIHINT2	The more Qi you get, the better BELT you receive and the more customization items will become available for purchase. Plus tu gagneras des QI, puis tu recevras une meilleure CEINTURE et plus il y aura des objets de cosmétique disponible à l’achat.

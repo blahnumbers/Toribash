@@ -1,0 +1,42 @@
+#PLAYER MESSAGES	
+SENSEIKICK1	Agora que você sabe como usar seus braços, é hora de aprender como ganhar de seus oponentes usando as pernas.
+SENSEIKICK2	Eu vou ensina-lo este chute simples.
+SENSEIKICK3	Segure todos os 'joints' para evitar que caia.
+SENSEIKICK4	Este será um chute na perna esquerda. Contraia seu quadril e o joelho para ficar em posição.
+SENSEIKICK5	Tudo certo, agora termine seu turno pressionando espaço.
+SENSEIKICK6	Bem, agora você está pronto para chutar o adversário. Estenda o seu joelho e olhe para o seu fantasma!
+SENSEIKICK7	Preste atenção que, apesar de ser capaz de chutar a perna do manequim, seu corpo se inclina para a frente, tornando-o vulnerável aos ataques do oponente.
+SENSEIKICK8	Há uma maneira de corrigir isso, estendendo o quadril direito. Isso também torna o chute mais forte, então é uma luta ganha!
+SENSEIKICK9	Termine o seu turno e veja o que você fez!
+PLAYERKICK1	Hiiya!
+SENSEIKICK10	Isso foi bom! Lembre-se de sempre verificar o seu fantasma para visualizar o seu movimento antes de terminar o turno!
+SENSEIADVKICK1	O chute mais simples foi dominado, mas para enfrentar adversários reais você precisa aprender a usar todo o seu corpo.
+SENSEIADVKICK2	Isso pode parecer muito complicado no começo, mas eventualmente você vai sentir o que precisa fazer sem memorizar os movimentos.
+SENSEIADVKICK3	Quase lá!
+SENSEIADVKICK4	Maravilhoso! Agora vem aqui, eu tenho uma coisa especial para você.
+SENSEIMOVEMEMORY1	Primeiramente, memorizar seus movimentos para executá-los contra oponentes reais pode ser complicado.
+SENSEIMOVEMEMORY2	Aqui, pegue o 'MoveMemory'. Isso vai ajudar você a armazenar e executar seus movimentos registrados.
+SENSEIMOVEMEMORY3	Por conveniência, eu já adicionei os movimentos que você aprendeu anteriormente.
+SENSEIMOVEMEMORY4	Tente usa-lo
+SENSEIMOVEMEMORY5	Está tudo certo, agora você está preparado para a sua primeira luta real!
+#	
+#HINT MESSAGES	
+HINTADVKICK1	Para conseguir um chute alto, você precisará usar seus GLUTEOS, TORSO e até os BRAÇOS para aumentar o impulso.\nMas antes, segure todo o seu corpo pressionando ~C~
+HINTADVKICK2	Reproduza o chute que o Sensei lhe ensinou: contraia o quadril esquerdo e o joelho para levantar a perna e ficar em posição, depois estenda o quadril direito para dar um impulso ao seu movimento.
+HINTADVKICK3	Agora, rode o seu corpo para a direita e mova o braço direito para a frente. Girar as partes superiores do corpo na direção oposta do chute lhe dará um impulso adicional.
+HINTADVKICK4	Para elevar sua perna ainda mais, você precisa usar os glúteos.\nEstenda ambos pressionando ~Z~ e veja o que acontecerá.
+HINTADVKICK5	Aí vem a parte da 'Tentativa e Erro' - aplicar as mudanças finais na direção de seus chutes.\nNo nosso caso, o 'joint' LOMBAR será muito útil.
+HINTADVKICK6	Tente dobrar a lombar para a direita.
+HINTADVKICK7	Você pode ver que, embora seu chute pareça ser mais poderoso, ele se moveu um pouco abaixo do esperado.\nIsso pode ser útil quando você pretende fazer um chute corporal, mas agora estamos mirando na cabeça.
+HINTADVKICK8	Desta vez, tente dobrar a lombar para a esquerda para ver o que muda.
+HINTADVKICK9	Isso fez com que o chute fosse mais alto do que antes, então você conseguirá acertar o boneco facilmente.\nPressione ~ ESPAÇO ~ para terminar seu turno.
+HINTADVKICK10	Hora de terminar o chute! Estenda seu JOELHO para acertar o boneco e terminar o turno!
+HINTMOVEMEMORY1	Para abrir o MOVEMEMORY, pressione ~ M ~
+HINTMOVEMEMORY2	Selecione qualquer movimento que você gostaria de executar e pressione ~ ESPAÇO ~ para ver a mágica acontecer!
+HINTMOVEMEMORY3	O MoveMemory permite fazer movimentos sem tocar nas articulações manualmente. \ Com sua ajuda, você pode economizar tempo se quiser fazer um movimento que já tenha feito antes.
+HINTMOVEMEMORY4	Para fechar o MoveMemory, pressione ~ M ~ novamente.
+#	
+#TASK MESSAGES	
+KICKTASK	Execute um chute na perna simples
+ADVKICKTASK	Chute a cabeça do manequim
+MMEMORYTASK	Use o MoveMemory contra o Uke

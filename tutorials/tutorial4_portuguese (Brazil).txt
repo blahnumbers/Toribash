@@ -1,0 +1,22 @@
+#PLAYER MESSAGES	
+SENSEIMSG1	Bem-vindo ao seu primeiro teste real!
+SENSEIMSG2	Seu oponente será o Uke, e você estará jogando 'aikido' - um dos mods mais populares.
+SENSEIMSG3	Esse desafio é muito parecido com as lutas no modo multijogador.
+SENSEIMSG4	Boa sorte e lembre-se de tudo que aprendeu!
+SENSEIMSG5	Bem-vindo de volta e divirta-se com o seu treinamento!
+UKEWIN1	Ha-ha, toma essa!
+UKEWIN2	E eu levo a vitória!
+UKEWIN3	Uau, passou perto. Pffft, só brincando!
+UKEWIN4	Opa, você perdeu? Que coisa chata... não mesmo!
+UKELOSS	Ugh. Não é justo!
+SENSEIMSGEND	Bom trabalho! Agora você está pronto para se juntar a outros lutadores de todo o mundo!
+GMANKICK	Isso foi um chute simples de aikido feito por 'Gman80'. Bom trabalho, vou adicioná-lo ao seu MoveMemory.
+FNUGGETKICK	Com esse movimento, eu tentei levantar você com meu braço e te carregar com a perna direita. Você pode usá-lo agora.
+EVILTHROW	Com este movimento, você pode jogar seus adversários no chão! Experimente usar com o Movememory alguma hora.
+KYATKICKLIFT	Esse tipo de movimento é chamado de 'kicklift'. Usando isso, você pode chutar seus oponentes para fora do dojo!
+EVILPUSH	Evilperson me ensinou esse 'empurrão' - e agora ele está no seu MoveMemory também.
+EVILPUSH2	Esse 'empurrão' para fora do dojo foi um dos movimentos do 'Evilperson'. Acho que ainda tenho que praticar isso.
+#	
+#HINT MESSAGES	
+HINT1	No AIKIDO, você precisa terminar a luta com a maioria dos pontos ou desqualificar o oponente.\nMantenha a luta dentro do dojo e apenas toque o chão com os pés ou mãos!
+MOVEMEMORYHINT	Não esqueça que você pode usar o MOVEMEMORY! Pressione ~ M ~ para abri-lo durante a luta.

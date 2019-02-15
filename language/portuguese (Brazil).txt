@@ -1,0 +1,206 @@
+FreePlay Jogar Livremente
+Multiplayer Multiplayer
+FightSchool Escola de Luta
+ToriShop ToriShop
+Setup Configurações
+BuyToriCredits Buy ToriCredits
+ChatNetwork Chat Network
+Quit Quit
+Options Opções
+Mods Mods
+Utils Utilidades
+Replays Replays
+GameRules Regras do Jogo
+Login Login
+Back Voltar
+ToribashTutorial Tutorial do Toribash
+BasicTraining Treino Básico
+AdvancedMoves Movimentos Avançados
+ChallengeUke Desafiar Uke
+FlameForge Flame Forge
+FlameBrowser Flame Browser
+ModMaker Mod Maker
+Scripts Scripts
+Sounds Sons
+Credits Créditos
+Cancel Cancelar
+OK OK
+Advanced Avançado
+Graphics Gráficos
+LanguageSteam Usar linguagem da Steam
+Language Linguagem
+MouseButtons Botões do Mouse
+BackgroundClick Clique de fundo
+EffectsVolume Volume dos Efeitos
+MusicVolume Volume da Música
+VoiceChatVolume Volume do Chat de Voz
+ChatToggle Chat Toggle
+VoiceChatToggle Voice Chat Toggle
+Fullscreen Tela Cheia
+Autosavereplays Salvar Replays Automáticamente
+RememberGameRules Lembrar Regras do Jogo
+LowerFrameRateCap Limitar Taxa de Quadros
+Shaders Shaders
+FluidBlood Sangue Fluído
+Reflections Reflexos
+SoftShadows Sombreamento Suaves
+AmbientOcclusion Ambient Occlusion
+Bumpmapping Bump-mapping
+RayTracing Ray Tracing
+Particles Particulas
+Trails Rastros
+Hair Cabelos
+ShaderHair Sombra do Cabelo
+ObjModel Objetos
+BodyTextures Texturas do Corpo
+DisableGraphicsReloading Desabilitar Recarregamento de Gráficos
+WindowWidth Largura da Janela
+WindowHeight Largura da Janela
+FixedFramerate Ajustar Taxa de Quadros
+Basic Básico
+Minimum Mínimo
+Low Baixo
+Medium Médio
+High Alto
+Maximum Máximo
+Register Registrar
+Create Criar
+Username Nome de Usuário
+Password Senha
+Email Email
+Email(optional) Email (opcional)
+RemindMe Lembrar-me
+RememberMe Lembrar-me
+Show Mostrar
+ForgotYourPassword? Esqueceu sua Senha?
+Don'tHaveAnAccount? Não tem uma conta?
+Close Fechar
+UPGRADED! ATUALIZADO!
+NumGamesToBelt partidas para
+DRAW! EMPTATE!
+MatchWonBelowMin Partida ganha antes do mínimo de turnos.
+WINS! VITÓRIA!
+STREAK STREAK
+DRAW2! EMPATE!
+DISQUALIFIED! DESQUALIFICADO!
+KeyframesCleared! Keyframes apagados!
+KeyframeSaved! Keyframe salvo!
+DefaultCameraEnabled Câmera padrão ativada
+FreeOrbitalCameraEnabled Câmera Livre Orbitar habilitada, use W/S/A/D/Q/E + SHIFT para controlar.
+FreeCameraEnabled Câmera Livre habilitada, use W/S/A/D/Q/E + SHIFT para controlar.
+ToriCameraEnabled Câmera do Tori habilitada.
+UkeCameraEnabled Câmera do Uke habilitada.
+RecordingNextRewind Recording will start next rewind
+RecordingCameraMovements Gravando Movimentos da Câmera
+PlayingCameraMovements Rodando movimentos da câmera
+FreeCamDisabled Câmera Livre desabilitada.
+Desc Descrição
+Room Sala
+Mod Mod
+MinBelt Faixa Mínima
+MaxBelt Faixa Máxima
+Players Jogadores
+Connect Conectar
+LoadingServerList Carregando Lista de Servidores
+BeltRestriction Restrição de Faixa
+RankRestriction Restrição de Ranking
+OfficialServers Servidores Oficiais
+AutoTournaments Torneios Automáticos
+Elo Elo
+Rank Rank
+RoomName: Nome:
+Password: Senha:
+MaxPlayer: Máximo de Jogadores:
+MinBelt: Faixa Mínima:
+MaxBelt: Faixa Máxima:
+Desc: Descrição:
+Option Opções
+CreateRoom Criar Sala
+SPECTATOR ESPECTADOR
+WaitingForOtherPlayer Esperando por outros jogadores
+SPACEBARNewGameFSaveReplay DE ESPAÇONovoJogoFSalvarReplay BARRA DE ESPAÇO - Novo Jogo   ;   F - Salvar Replay
+PressTheSPACEBARToPlay Pressione ESPAÇO para Jogar!
+PressTheSPACEBARForREPLAY Pressione ESPAÇO para ver Replay!
+WaitingForYourTurn Esperando pelo seu turno @
+InQueue Na fila
+WaitingForOpponent Esperando Oponente
+ClickToSelectPlayer Clique para selecionar Jogador
+HitSPACEWhenReadyWithMove Aperte ESPAÇO quando estive pronto par Mover.
+PleaseEnterAValidEmailAddress Por favor, insira um endereço de E-mail válido.
+PleaseEnterYourUsername Por favor, insira seu nome de usuário!
+PleaseEnterYourPassword Por favor, insira sua senha.
+PleaseRetypeYourPassword Por favor, insira novamente sua senha.
+UsernameLesserThan4Characters O nome de usuário tem menos de 4 letras!
+UsernameMoreThan10Characters O nome de usuário tem mais de 10 letras!
+MismatchingPasswords Senha incompatível.
+UsernameMustBeAlphaNumeric Nome de usuário deve ser alphanumérico.
+Error! Erro!
+CreateAccountFromToribash Por favor crie sua conta do
+#ToribashFromCreateAccount Not used for english
+NetworkError! Erro de conexão!
+UsernameUsedOrSubstandard Esse nome de usuário já está em uso ou não atende aos padrões de uso.
+ModsCtrlM Mods (Ctrl + M)
+Load Carregar
+Open Abrir
+NewGame Novo Jogo
+TypeHere Escreva aqui
+QuickLoad Carregamento rápido
+ShadersCtrlH Shaders (Ctrl + H)
+AutoLoad Carregar automáticamente
+SoundsCtrlY Sons (Ctrl + Y)
+UsernameIsEmpty Nome de usuário está vazio.
+Neck PESCOÇO
+Chest PEITO
+Lumbar LOMBAR
+Abs Abs
+RightPecs PEITORAL DIREITO
+RightShoulder OMBRO DIREITO
+RightElbow COTOVEL DIREITO
+LeftPecs PEITORAL ESQUERDO
+LeftShoulder OMBRO ESQUERDO
+LeftElbow LEFT ELBOW
+RightWrist PULSO DIREITO
+LeftWrist PULSO ESQUERDO
+RightGlute GLÚTEO DIREITO
+LeftGlute GLÚTEO ESQUERDO
+RightHip QUADRIL DIREITO
+LeftHip QUADRIL ESQUERDO
+RightKnee JOELHO DIREITO
+LeftKnee JOELHO ESQUERDO
+RightAnkle TORNOZELO DIREITO
+LeftAnkle TORNOZELO ESQUERDO
+RightRotating ROTAÇÃO DIREITA
+RightBending INCLINAÇÃO DIREITA
+LeftRotating ROTAÇÃO ESQUERDA
+LeftBending INCLINAÇÃO ESQUERDA
+Lowering ABAIXANDO
+Extending EXTENDENDO
+Raising LEVANTANDO
+Contracting CONTRAINDO
+Holding SEGURANDO
+Relaxing RELAXANDO
+Effects Efeitos
+AlwaysOff Sempre Desligado
+OnlyOnReplays Apenas em replays
+AlwaysOn Sempre Ligado
+Default Padrão
+PleaseEnableSteamOverlay Por favor habilide o Steam Overlay' e reinicie o jogo.
+PleaseWaitForSteamPurchaseOverlay Please wait for the steam purchase overlay
+PleaseLogonSteam Por favor entre na Steam para comprar ToriCréditos
+Refresh Recarregar
+Delete Deletar
+Rename Renomear
+New Novo
+EnterNewReplayName Insira o novo nome do replay.
+Grappling Agarrando
+Kicking Chutando
+Striking Golpeando
+Matchmaking Matchmaking
+(Paused) (Pausado)
+(Searching) (Procurando)
+ModGroups Mod Groups
+Search Procurar
+Unranked Unranked
+RankedPreferred Ranked Preferred
+RankedOnly Ranked Only
+MatchmakeAgain Matchmake Again

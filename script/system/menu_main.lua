@@ -84,8 +84,8 @@ TB_MENU_PLAYER_INFO.items = PlayerInfo:getItems(TB_MENU_PLAYER_INFO.username)
 if (os.clock() < 10) then
 	TB_STORE_DATA = { onsale = Torishop:getSaleItem(true) }
 else
-	if (not TB_STORE_DATA or not TB_STORE_DATA.ready) then
-		TB_STORE_DATA = Torishop:getItems()
+	if (not TB_STORE_DATA or not TB_STORE_DATA.ready or TB_MENU_DEBUG) then
+		TB_STORE_DATA, TB_STORE_SECTIONS = Torishop:getItems()
 		if (not TB_STORE_DATA.failed) then
 			TB_STORE_DATA.ready = true
 			TB_STORE_DATA.onsale = Torishop:getSaleItem()
@@ -130,7 +130,7 @@ if (os.clock() < 10) then
 				TB_MENU_PLAYER_INFO.ranking = PlayerInfo:getRanking()
 				TB_MENU_PLAYER_INFO.clan = PlayerInfo:getClan(TB_MENU_PLAYER_INFO.username)
 				TB_MENU_PLAYER_INFO.items = PlayerInfo:getItems(TB_MENU_PLAYER_INFO.username)
-				TB_STORE_DATA = Torishop:getItems()
+				TB_STORE_DATA, TB_STORE_SECTIONS = Torishop:getItems()
 				if (not TB_STORE_DATA.failed) then
 					TB_STORE_DATA.ready = true
 					TB_STORE_DATA.onsale = Torishop:getSaleItem()
@@ -187,7 +187,8 @@ add_hook("mouse_move", "tbMainMenuMouse", function(x, y)
 add_hook("key_up", "tbMenuKeyboardHandler", function(s) UIElement:handleKeyUp(s) return 1 end)
 add_hook("key_down", "tbMenuKeyboardHandler", function(s) UIElement:handleKeyDown(s) return 1 end)
 add_hook("draw2d", "tbMainMenuVisual", function() UIElement:drawVisuals(TB_MENU_MAIN_GLOBALID) end)
-add_hook("draw_viewport", "tbMainMenuVisual", function() UIElement:drawViewport(TB_MENU_MAIN_GLOBALID) end)
+--add_hook("draw_viewport", "tbMainMenuVisual", function() UIElement:drawViewport(TB_MENU_MAIN_GLOBALID) end)
+add_hook("draw_viewport", "tbMainMenuVisual", function() UIElement3D:drawViewport(TB_MENU_MAIN_GLOBALID) end)
 
 add_hook("console", "tbMainMenuStatic", function(s, i)
 		if (s == "Download complete" and TB_MENU_DOWNLOAD_INACTION) then

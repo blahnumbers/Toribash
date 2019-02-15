@@ -1,0 +1,22 @@
+#PLAYER MESSAGES	
+SENSEIMSG1	Bienvenue pour ton premier vrai test!
+SENSEIMSG2	Ton adversaire sera Uke, et vous jouerez sur le mode aikido - l’un des modes les plus populaires. 
+SENSEIMSG3	Cette épreuve ressemble beaucoup aux Combats en Multijoueur.
+SENSEIMSG4	Bonne chance et souviens toi de tout ce que tu as appris!
+SENSEIMSG5	Bon retour et amuse toi lors de ton entraînement!
+UKEWIN1	Ha-ha, prend ça!
+UKEWIN2	Et me voila victorieux!
+UKEWIN3	Wow, c’est pas passé loin. En fait, pas vraiment!
+UKEWIN4	Oops, tu viens de perdre? Je suis désolé ...pour rien!
+UKELOSS	Ugh. C’est pas juste!
+SENSEIMSGEND	Joli travail! Tu es maintenant prêt à rejoindre d’autres combattants de tout les coins du monde!
+GMANKICK	C’était un simple coup de pied d’aikido créé par Gman80. bon boulot, je vais l’ajouter à ton MoveMemory.
+FNUGGETKICK	Avec cette technique, j’ai essayé de te soulever avec mon bras et te pousser avec ma jambe droite. Tu peux l’utiliser maintenant.
+EVILTHROW	Avec cette technique, tu peux balancer tes adversaires sur le sol! Essaye la avec MoveMemory quand tu voudras.
+KYATKICKLIFT	Ce genre de technique est appelé un kicklift.  Avec celle ci, tu peux pousser tes adversaires en dehors du dojo!
+EVILPUSH	Evilperson m’a appris ce floor push - et c’est aussi dans ton MoveMemory maintenant.
+EVILPUSH2	Ce dojo push était l’une des techniques de Evilperson. Je pense que je dois encore m’entrainer à l’utiliser
+#	
+#HINT MESSAGES	
+HINT1	En AIKIDO, tu dois gagner le combat soit en terminant avec plus de points que l’adversaire, soit en le disqualifiant.\nReste dans le dojo de combat et ne touche le sol qu’avec tes pieds ou tes mains!
+MOVEMEMORYHINT	N’oublie pas que tu peux utiliser MOVEMEMORY! Appuie sur ~M~  pour l’ouvrir pendant un combat.

@@ -31,7 +31,7 @@ do
 	end
 
 	function TBMenu:setLanguageFontOptions(language)
-		if (language == "hebrew") then
+		if (language == "hebrew" or language == "arabic") then
 			FONTS.BIG = 4
 			FONTS.MEDIUM = 4
 			LEFT = 2
@@ -74,7 +74,7 @@ do
 
 		for ln in file:lines() do
 			if (not ln:match("^#")) then
-				local data_stream = { ln:match(("([^\t]*)\t"):rep(2)) }
+				local data_stream = { ln:match(("([^\t]*)\t?"):rep(2)) }
 				TB_MENU_LOCALIZED[data_stream[1]] = data_stream[2]
 			end
 		end
@@ -906,14 +906,10 @@ do
 	end
 
 	function TBMenu:showTorishopMain()
-		if (not TB_STORE_DATA.ready) then
-			TBMenu:showDataError(TB_MENU_LOCALIZED.STOREDATALOADERROR)
-			return
+		if (not tbMenuCurrentSection) then
+			TBMenu:createCurrentSectionView()
 		end
-		TBMenu:clearNavSection()
-		tbMenuBottomLeftBar:hide()
-		Torishop:showTorishopMain(tbMenuCurrentSection)
-		TBMenu:showNavigationBar(Torishop:getNavigationButtons(), true)
+		Torishop:showMain(tbMenuCurrentSection)
 	end
 
 	function TBMenu:showMatchmaking()
@@ -1439,6 +1435,8 @@ do
 			TBMenu:showModsSection()
 		elseif (screenId == 5) then
 			TBMenu:showToolsSection()
+		elseif (screenId == 6) then
+			TBMenu:showTorishopMain()
 		elseif (screenId == 101) then
 			TBMenu:showNotifications()
 		elseif (screenId == 102) then
@@ -1521,38 +1519,72 @@ do
 		})
 		local tbMenuUserHeadAvatarViewport = UIElement:new( {
 			parent = tbMenuUserBar,
-			pos = { -tbMenuUserBar.size.w - 10, 10 },
-			size = { 80, 80 },
+			pos = { -tbMenuUserBar.size.w - 30, 0 },
+			size = { 100, 100 },
 			viewport = true
 		})
-		local color = get_color_info(TB_MENU_PLAYER_INFO.items.colors.force)
-		local tbMenuUserHeadAvatarNeck = UIElement:new({
+		local tbMenuUserHeadAvatarViewport3D = UIElement3D:new({
+			globalid = TB_MENU_MAIN_GLOBALID,
+			shapeType = VIEWPORT,
 			parent = tbMenuUserHeadAvatarViewport,
-			pos = { 0, 0, 9.35 },
+			pos = { 0, 0, 0 },
+			size = { 0, 0, 0 },
 			rot = { 0, 0, 0 },
-			radius = 0.6,
+			viewport = true
+		})
+		table.insert(tbMenuUserHeadAvatarViewport.child, tbMenuUserHeadAvatarViewport3D)
+		local playerHeadHolder = UIElement3D:new({
+			parent = tbMenuUserHeadAvatarViewport3D,
+			shapeType = SPHERE,
+			pos = { 0, 0, 9.7 },
+			size = { 0.6, 0.6, 0.6 },
+			rot = { 0, 0, 0 },
+			viewport = true
+		})
+		local headRotation = math.pi / 2
+		playerHeadHolder:addCustomDisplay(true, function()
+				playerHeadHolder:rotate(0, 0, math.cos(headRotation))
+				headRotation = headRotation + math.pi / 570
+			end)
+		local color = get_color_info(TB_MENU_PLAYER_INFO.items.colors.force)
+		local headAvatarNeck = UIElement3D:new({
+			parent = playerHeadHolder,
+			pos = { 0, 0.2, -0.48},
+			rot = { 0, 0, 0 },
+			size = { 0.5, 0, 0 },
+			shapeType = SPHERE,
+			viewport = true,
 			bgColor = { color.r, color.g, color.b, 1 }
 		})
 		local headTexture = { "../../custom/tori/head.tga", "../../custom/tori/head.tga" }
 		if (TB_MENU_PLAYER_INFO.items.textures.head.equipped) then
 			headTexture[1] = "../../custom/" .. TB_MENU_PLAYER_INFO.username .. "/head.tga"
 		end
-		local tbMenuUserHeadAvatar = UIElement:new({
-			parent = tbMenuUserHeadAvatarViewport,
-			pos = { 0, 0, 10 },
+		local headAvatarHead = UIElement3D:new({
+			parent = playerHeadHolder,
+			shapeType = SPHERE,
+			pos = { 0, 0, 0.2 },
 			rot = { 0, 0, 0 },
-			radius = 1,
+			size = { 0.9, 0, 0 },
 			bgColor = { 1, 1, 1, 1 },
-			bgImage = headTexture
+			bgImage = headTexture,
+			viewport = true
 		})
-		local headRotation = 0
-		tbMenuUserHeadAvatar:addCustomDisplay(false, function()
-				tbMenuUserHeadAvatar.rot.z = 180 - 180 * math.cos(headRotation)
-				headRotation = headRotation + math.pi / 500
-				if (math.floor(headRotation * 250) % math.floor(math.pi * 250) == 0) then
-					headRotation = 0
-				end
-			end)
+		--[[local headModel = Files:new("../../custom/" .. TB_MENU_PLAYER_INFO.username .. "/head.obj")
+		if (headModel.data) then
+			headModel:close()
+			local objScale = (get_option("shaders") + 1) * 5
+			local headObjModel = UIElement3D:new({
+				parent = playerHeadHolder,
+				shapeType = CUSTOMOBJ,
+				objModel = "../../custom/" .. TB_MENU_PLAYER_INFO.username .. "/head",
+				pos = { 0, 0, 0.2 },
+				rot = { 0, 0, 0 },
+				size = { objScale * 0.9, objScale * 0.9, objScale * 0.9 },
+				bgColor = { 1, 1, 1, 1 },
+				viewport = true
+			})
+		end]]
 		local tbMenuUserName = UIElement:new( {
 			parent = tbMenuUserBar,
 			pos = { 80, 10 },
@@ -1749,7 +1781,8 @@ do
 			{ text = TB_MENU_LOCALIZED.NAVBUTTONPLAY, sectionId = 2 },
 			{ text = TB_MENU_LOCALIZED.NAVBUTTONPRACTICE, sectionId = 3 },
 			{ text = TB_MENU_LOCALIZED.NAVBUTTONMODS, sectionId = 4 },
-			{ text = TB_MENU_LOCALIZED.NAVBUTTONTOOLS, sectionId = 5 }
+			{ text = TB_MENU_LOCALIZED.NAVBUTTONTOOLS, sectionId = 5 },
+			{ text = "Store", sectionId = 6}
 		}
 		return buttonData
 	end

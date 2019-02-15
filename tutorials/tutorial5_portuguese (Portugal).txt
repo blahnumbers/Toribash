@@ -1,0 +1,12 @@
+#PLAYER MESSAGES	
+SENSEIMSG1	Desta vez, vais praticar as tuas capacidades de retorno.
+SENSEIMSG2	Cada vez que acertares no Uke, ele vai teletransportar-se para longe de ti.
+SENSEIMSG3	Desta forma podes aprender técnicas que te ajudarão nas partidas online e divertires-te!
+SENSEIMSGFAIL	Oh, acho que me deixei dormir. Vá lá, podes fazer muito melhor!
+SENSEIMSGEND1	Acertar uma vez é melhor que não acertar nenhuma, mas tenho a certeza que podes melhorar! Tenta outra vez!
+SENSEIMSGEND2	Bom trabalho, isso foi... %d de vezes que acertas-te no Uke. Mas ainda podes fazer melhor, continua a treinar!
+SENSEIMSGEND3	Bom trabalho, acertas-te no Uke %d das vezes! Continua a treinar as tuas habilidades e vais tornar-te num mestre do retorno!
+SENSEIMSGEND4	Acertas-te %d das vezes, maravilhoso! Grande treino, não há maneira de alguém conseguir fugir de ti!
+#	
+#HINT MESSAGES	
+HINT1	Vais começar num modo modificado de LENSHU. Diferente do AIKIDO, aqui tu podes tocar no chão com qualquer parte do corpo - mas só por um curto período de tempo. No entanto, fica dentro das linhas do dojo - sair do dojo irá desqualificar-te automaticamente!

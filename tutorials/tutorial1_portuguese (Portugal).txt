@@ -1,0 +1,35 @@
+#PLAYER MESSAGES	
+INTROSENSEI1	... E é assim que te tornas num grande lutador.
+INTROSENSEI2	Através de treino e trabalho árduo, podes alcançar resultados fantásticos!
+INTROPLAYER1	Mas Sensei, como é que você sabe alguma coisa sobre luta - você mal consegue andar sozinho!
+INTROSENSEI3	Huh, meu jovem, eu nem sempre fui velho.
+INTROSENSEI4	Numa época, não há tanto tempo assim, quando eu era tão jovem e ingénuo como tu és agora...
+INTROFIGHTSENSEI1	A minha última luta, isso foi fantástico.
+INTROFIGHTSENSEI2	Seguindo as instruções do meu mestre, fiquei concentrado durante a luta toda.
+INTROFIGHTSENSEI3	Estive sempre atento aos pontos fracos do meu oponente - E vi todos eles.
+INTROFIGHTSENSEI4	Eu era ágil como um animal selvagem.
+INTROFIGHTSENSEI5	Ele não conseguia prever os meus ataques, e pareceu-me uma vitória fácil.
+INTROFIGHTSENSEI6	Os meus movimentos eram perfeitos e eu ia ganhar, mas depois algo completamente inesperado aconteceu...
+INTROFIGHTSENSEI7	Assim que eu estava prestes a derrotar o meu oponente, o meu joelho partiu-se, arruinando as minhas hipóteses...
+INTROENDPLAYER1	Zangado, eu chamei-lhe de "sortudo" e depois disse que acabaria com ele da próxima vez que nos enfrentasse-mos!
+INTROENDPLAYER2	Também lhe disse que a sua mãe era uma-
+INTROENDSENSEI1	Não-não-não, meu jovem aprendiz. As tuas derrotas ensinam-te tanto como as tuas vitórias.
+INTROENDPLAYER3	Então é por isso que usa um pau, mestre? A sua perna, and dói?
+INTROENDSENSEI2	Oh não, na verdade tu és curado depois de cada luta.
+INTROENDSENSEI3	Então isso é só, eu uh, eu pareço mais respeitável com um pau-
+INTROENDSENSEI4	eeh, porque é que estás sequer a perguntar? ...Não interessa! Já estamos a falar á demasiado tempo!
+INTROENDSENSEI5	Se queres ser um lutador verdadeiramente bom, tens que treinar; Não ficar sentado num banco o tempo todo!
+#	
+#HINT MESSAGES	
+CAMERAHINT1	Para mover a câmara usa as teclas ~W~ ~A~ ~S~ ~D~
+CAMERAHINT2	Para ajustar a altura da câmara, pressiona ~SHIFT~ enquanto moves a câmara.
+CAMERAHINT3	Também podes controlar a cãmara clicando em qualquer lugar com o botão direito do teu rato.
+CONTROLSHINT1	No Toribash, controlas o teu personagem modificando o estado das articulações no seu corpo.
+CONTROLSHINT2	Há quatro estados de articulações - AGUENTANDO, RELAXADO, CONTRAÍDO and ESTENDIDO.\nCombinar estes estados num resultado único torna cada luta especial.
+CONTROLSHINT3	Clica no joelho do Sensei para mudar o seu estado para ESTENDIDO e pontapear o adversário.
+CONTROLSHINT4	Também podes controlar as tuas articulações mais rápido usando o teclado.
+CONTROLSHINT5	Para mudar o estado de todas as articulações para AGUENTANDO ou RELAXADO pressiona ~C~
+CONTROLSHINT6	Passa com o rato por cima de qualquer articulação e pressiona ~X~ para mudar entre AGUENTANDO e RELAXADO.
+CONTROLSHINT7	Para mudar entre os estados CONTRAÍDO e ESTENDIDO, pressiona ~Z~ com o cursor em cima da articulação.
+QIHINT1	A tua experiência no Toribash é medida através de QI. Por cada partida que jogas, ganhas 1 QI.
+QIHINT2	Quanto mais QI tiveres, melhor será o teu CINTURÃO e melhores serão as customizações que estarão dísponiveis para comprares.

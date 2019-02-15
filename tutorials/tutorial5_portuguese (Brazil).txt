@@ -1,0 +1,12 @@
+#PLAYER MESSAGES	
+SENSEIMSG1	Desta vez, você vai praticar suas habilidades de 'Comeback', ou retornar.
+SENSEIMSG2	Toda vez que você acertar o Uke, ele se teleportará para longe de você.
+SENSEIMSG3	Dessa forma, você pode aprender algumas habilidades úteis para ajudá-lo em lutas on-line e se divertir!
+SENSEIMSGFAIL	Oh, Acho que peguei no sono. Vamos lá, você pode fazer muito melhor que isso!
+SENSEIMSGEND1	Um acerto é melhor que nada, mas você pode melhorar isso! Tente novamente!
+SENSEIMSGEND2	Bom trabalho, isso foi ...%d vezes que você bateu no Uke. Mas você ainda pode fazer melhor, continue treinando!
+SENSEIMSGEND3	Ótimo trabalho, você acertou o Uke %d vezes! Continue trabalhando em suas habilidades e você será um mestre do 'Comeback'!
+SENSEIMSGEND4	%d acertos, maravilhoso! Excelente treino, não há como alguém conseguir fugir de você!
+#	
+#HINT MESSAGES	
+HINT1	Você começará em uma modificação do mod LENSHU. Ao contrário do AIKIDO, aqui você pode tocar o chão com qualquer parte do corpo - mas apenas por um curto período. No entanto, fique dentro do dojo - pisar fora do dojo irá te desqualificar imediatamente!

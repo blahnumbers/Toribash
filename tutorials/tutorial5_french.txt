@@ -1,0 +1,12 @@
+#PLAYER MESSAGES	
+SENSEIMSG1	Cette fois, tu va entrainer ta capacité à effectuer un comeback
+SENSEIMSG2	À chaque fois que tu toucheras Uke, il sera téléporté encore plus loin de toi.
+SENSEIMSG3	De cette manière vous apprendrez tout les deux de nombreux outils qui vous aidront pour les combats en ligne et pour vous amuser!
+SENSEIMSGFAIL	Oh, j’ai dû m’assoupir. Allez, tu peux faire bien mieux!
+SENSEIMSGEND1	Un coup, c’est mieux que rien, mais tu peux clairement améliorer cela! Réessaye!
+SENSEIMSGEND2	Joli travail, ça fait... %d fois que tu touches Uke. Mais tu peux encore faire mieux, continue à t’entrainer!
+SENSEIMSGEND3	Bravo, tu as touché Uke %d fois! Continue à travailler sur cet exercice et tu deviendras un maître du comeback!
+SENSEIMSGEND4	%d coups, excellent! Quel entrainement incroyable, plus personne n’est capable de te fuir maintenant!
+#	
+#HINT MESSAGES	
+HINT1	Tu commenceras sur le mode LENSHU légèrement modifié. Contrairement à l’AIKIDO, ici tu peux toucher le sol avec n’importe quelle partie du corps - mais uniquement pendant une courte période. Néanmoins, reste dans le dojo - toucher le sol en dehors du dojo te disqualifiera instantanément!

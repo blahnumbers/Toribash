@@ -1,0 +1,524 @@
+NAVBUTTONHOME	الصفحة الرئيسية
+NAVBUTTONPLAY	إلعب
+NAVBUTTONPRACTICE	ممارسة
+NAVBUTTONMODS	تعديلات
+NAVBUTTONTOOLS	أدوات
+NAVBUTTONTOMAIN	إلى الصفحة الرئيسية
+NAVBUTTONBACK	الى الخلف
+NAVBUTTONEXIT	خروج
+NAVBUTTONLOGINREWARDS	مكافآت تسجيل الدخول
+NAVBUTTONQUESTS	المهام
+MAINMENUUSERCLAN	عشيرة
+MAINMENUTORISHOPNAME	متجرتوري
+MAINMENUTORISHOPDESC	جرب وشراء سلع لتوري الخاص بك
+MAINMENUCLANSNAME	العشائر
+MAINMENUCLANSDESC	استكشاف عشائر Toribash
+MAINMENUREPLAYSNAME	الاعادة
+MAINMENUREPLAYSDESC	مشاهدة الاعادة التي تم تنزيلها
+MAINMENUFREEPLAYNAME	لعب حر
+MAINMENUFREEPLAYDESC	قم بممارسة مهاراتك أو قم بالإعادة في وضع المشغل الفردي
+MAINMENURANKEDNAME	المرتبة
+MAINMENURANKEDDESC	العثور على مبارزة في المرتبة سريعة في وضع صنع المباراة
+MAINMENUMATCHMAKINGNAME	صنع مباراة
+MAINMENUMATCHMAKINGDESC	طريقة سريعة لوضعها في معارك فردية
+MAINMENUROOMLISTNAME	قائمة غرفة
+MAINMENUROOMLISTDESC	قم بإنشاء غرفة خاصة بك على الإنترنت أو انضم إلى أي من الغرف الموجودة
+MAINMENUBEGINNERTUTNAME	البرنامج التعليمي للمبتدئين
+MAINMENUBEGINNERTUTDESC	تعلم أساسيات Toribash: الضوابط ، واللعب وأكثر من ذلك
+MAINMENUADVMOVESNAME	التحركات المتقدمة
+MAINMENUADVMOVESDESC	اكتشف التحركات المتقدمة لاستخدامها في وضع اللعب الجماعي
+MAINMENUFIGHTUKENAME	قتال Uke
+MAINMENUFIGHTUKEDESC	ضع مهاراتك ضد العدو النهائي لتوري
+MAINMENUCOMEBACKNAME	العودة للممارسة
+MAINMENUCOMEBACKDESC	حافظ على اصطياد Uke دون استبعادك
+MAINMENUGAMERULESNAME	قواعد اللعبة
+MAINMENUGAMERULESDESC	تخصيص الجاذبية وإعدادات التعديل الأخرى
+MAINMENUMODLISTNAME	قائمة التعديل
+MAINMENUMODLISTDESC	قم بتحميل أحد التعديلات التي تم تنزيلها
+MAINMENUMODMAKERNAME	صانع التعديل
+MAINMENUMODMAKERDESC	إنشاء تعديل خاصة بك ل Toribash
+MAINMENUMODSDISCOVERNAME	اكتشف
+MAINMENUMODSDISCOVERDESC	ابحث عن تعديلات جديدة تم إنشاؤها بواسطة لاعبين آخرين
+MAINMENUSHADERSNAME	تظليل & الأجواء
+MAINMENUSHADERSDESC	تخصيص الإضاءة وبيئة Toribash
+MAINMENUSCRIPTSNAME	مخطوطات
+MAINMENUSCRIPTSDESC	تحميل البرامج النصية المثبتة مسبقًا أو البرامج التابعة لجهات خارجية لـ Toribash
+MAINMENUHOTKEYSNAME	مفاتيح الاختصار
+MAINMENUHOTKEYSDESC	انظر قائمة مفاتيح التشغيل السريع Toribash
+MAINMENUSIGNINERROR	تحتاج إلى تسجيل الدخول لتتمكن من
+DOWNLOADINGFILESWAIT	جارٍ تنزيل الملفات ، يرجى الانتظار ...
+STORESETEMPTY	فارغة
+STOREITEM	بند
+STOREITEMS	البنود
+STOREFLAMEBODYPART	لهب الجسيمات الخاص بك
+STOREFLAMEID	معرف اللهب
+STOREFLAMEFORGEDBY	مزورة من قبل
+STOREITEMINSIDESET	داخل مجموعة
+STOREOBJITEMBODYPART	نموذج مخصص 3D ل
+STOREITEMNODESCRIPTION	هذا البند ليس لديه وصف
+STOREITEMGOTOSET	اذهب الى مجموعة
+STORESETITEMNAME	مجموعة
+STOREITEMADDTOSET	أضف للمجموعة
+STOREITEMREMOVEFROMSET	إزالة من مجموعة
+STORESETSELECTIONCONTROLS	ضوابط الاختيار
+STORESETSELECT	اختر المجموعة
+STOREVIEWSETITEMS	عرض مجموعة البنود
+STOREITEMSINSET	العناصر داخل مجموعة
+STORESELLMARKET	بيع في السوق
+STOREDIALOGMARKETSELL1	هل أنت متأكد أنك تريد أن تضع
+STOREDIALOGMARKETSELL2	في السوق؟
+STOREITEMDEACTIVATE	عطل
+STOREDIALOGDEACTIVATE1	هل أنت متأكد من أنك تريد إلغاء التنشيط
+STOREITEMACTIVATE	تفعيل
+STOREDIALOGACTIVATE1	هل أنت متأكد من أنك تريد التنشيط
+STOREDIALOGCONFLICTSDEACTIVATE	سيتم إلغاء تنشيط أي عنصر متضارب.
+STOREITEMUNPACK	فضا
+STOREDIALOGUNPACK1	هل أنت متأكد من أنك تريد فك
+STOREDIALOGUNPACKINFO	سيتم وضع العناصر غير معبأة في مجموعة و وضعها في مخزونك المعطل.
+STOREBUTTONCANCEL	إلغاء
+STOREDIALOGADDTOSET1	هل أنت متأكد من أنك تريد إضافته
+STOREDIALOGADDTOSET2	إلى مجموعة
+STOREDIALOGREMOVEFROMSET1	هل أنت متأكد من أنك تريد إزالة
+STOREDIALOGREMOVEFROMSET2	من مجموعة
+STOREACTIVATEDINVENTORY	الجرد المنشط
+STOREDEACTIVATEDINVENTORY	الجرد المعطلة
+STOREMARKETINVENTORY	جرد السوق
+STOREINVENTORYALLITEMS	جميع عناصر الجرد
+PAGINATIONPAGE	صفحة
+PAGINATIONPAGEOF	من
+STOREINVENTORYLOADING	تحميل البيانات من الآية توري
+STOREDATALOADERROR	خطأ في فتح بيانات Torishop ، يرجى الانتظار حتى يتم تحديثه أو تحقق من أذونات مجلد Toribash.
+STOREGOTOSHOP	فتح متجر توري
+STORESHOPDESC	شراء عناصر جديدة لتوري الخاص بك
+STOREGOTOINVENTORY	جرد مفتوحة
+STOREPURCHASETORICREDITS	شراء رصيد توري
+STOREINVENTORYDESC	تخصيص الطابع الخاص بك مع العناصر التي تم شراؤها
+STORESTEAMPURCHASELOADING	العمل
+STORESTEAMPURCHASEERROR	هناك خطأ ما
+CLANSMYCLAN	عشيرتي
+CLANSCLANLEADER	زعيم عشيرة
+CLANSCLANMEMBER	عضو عشيرة
+CLANSTOGETHERWITH	معا مع
+CLANSVIEWCLAN	عرض عشيرة
+GENERALSTRINGAND	و
+CLANFILTERSRANK	مرتبة
+CLANFILTERSCLANNAME	اسم
+CLANFILTERSCLANTAG	بطاقة
+CLANFILTERSCLANID	هوية شخصية
+CLANFILTERSOFFICIALSTATUS	الحالة
+CLANFILTERSJOINMODE	وضع الانضمام
+CLANFILTERSDEAD	ميت
+CLANFILTERSINACTIVE	غير نشط
+CLANFILTERSACTIVE	نشيط
+SORTORDERASCENDING	تصاعدي
+SORTORDERDESCENDING	تنازلي
+CLANFILTERSACTIVITYSTATE	حالة النشاط
+CLANFILTERSACTIVITYSTATEDESC	تعتبر العشائر نشطة عندما يكون لديها 5 أعضاء على الأقل. يتم وضع علامة على العشائر مع عدم وجود أعضاء على أنها ميتة.
+CLANFILTERSFFAONLY	فقط مجانا لجميع العشائر
+CLANFILTERSFFAONLYDESC	يمكنك الانضمام مجانا لجميع العشائر في أي وقت بنقرة زر واحدة. لدعوات فقط ، مطلوب عملية تطبيق مخصص.
+CLANFILTERSOFFICIALONLY	فقط العشائر الرسمية
+CLANFILTERSOFFICIALONLYDESC	تمتلك العشائر الرسمية لوحاتها الخاصة في منتديات توريباش ولها أقواس مربعة في اللعبة.
+SORTBYNAME	ترتيب حسب
+SORTORDERNAME	امر ترتيب
+CLANSSEARCHFILTERS	فلاتر البحث
+CLANSSEARCH	ابحث عن العشائر
+CLANSCLANLIST	قائمة العشائر
+CLANSLEGENDRANK	مرتبة
+CLANSLEGENDLEVEL	مستوى
+CLANSLEGENDXP	XP
+CLANSLEGENDTAGNAME	العلامة والاسم
+CLANSLEGENDSTATUS	الحالة
+CLANSLEGENDJOINMODE	وضع الانضمام
+CLANSTATEOFFICIAL	الرسمية
+CLANSTATEUNOFFICIAL	غير رسمي
+CLANSTATEFREEFORALL	مجانا للجميع
+CLANSTATEINVITEONLY	دعوة فقط
+CLANSLISTEMPTYMSG	لا توجد عشائر لعرضها
+CLANSJOINCLAN	إنضم للقبيلة
+CLANSRELOADLOGO	إعادة تحميل الشعار
+CLANSUPDATINGLOGO	تحديث
+CLANSTATEUNRANKED	غير مصنف
+CLANSVIEWWARSFORUM	شاهد الحروب على المنتدى
+CLANSTOPACHMISSING	هذه العشيرة لم تختر إنجازا لعرضه
+CLANSLEGENDROSTER	قائمة
+CLANSMEMBERSEMPTY	هذه العشيرة ليس لديها أعضاء
+CLANSPLAYERCLANLESS	أنت الآن بلا عشير
+CLANSPLAYERCLANLESSINFOMSG	يمكنك الانضمام إلى عشيرة قائمة من القائمة أو إنشاء واحدة جديدة
+CLANSCREATENEWCLAN	خلق عشيرة جديدة
+CLANLEADERS	قادة
+CLANLEADER	زعيم
+CLANMEMBERS	أفراد
+CLANMEMBER	عضو
+CLANDATALOADERROR	حدث خطأ أثناء تحميل بيانات العشائر ، وتحقق من أذونات مجلد Toribash
+REWARDSDAILYTITLE	مكافأة تسجيل الدخول يوميا
+REWARDSCLAIM	مكافأة المطالبة
+REWARDSCLAIMNETWORKERROR	حدث خطأ في الاتصال بخوادم Toribash ، يرجى المحاولة مرة أخرى في وقت لاحق
+REWARDSCLAIMINPROGRESS	يدعي مكافأة
+REWARDSCLAIMSUCCESS	ادعى مكافأة
+REWARDSCLAIMNOREWARD	لا توجد مكافأة متاحة ، حاول مرة أخرى لاحقًا
+REWARDSCLAIMTIMEOUT	خطأ المهلة ، أعد تشغيل اللعبة أو انتقل عبر الإنترنت
+REWARDSCLAIMERROROTHER	خطأ في المطالبة بالمكافأة
+REWARDSNOAVAILABLE	لا مكافأة متاحة
+REWARDSAVAILABLERESTART	ستكون المكافأة متوفرة عند إطلاق اللعبة القادمة
+REWARDSEXPIRED	انتهت صلاحية مكافأتك! :(
+REWARDSTIMEWEEKS	أسابيع
+REWARDSTIMEWEEK	أسبوع
+REWARDSTIMEDAYS	أيام
+REWARDSTIMEDAY	يوم
+REWARDSTIMEHOURS	ساعات
+REWARDSTIMEHOUR	ساعة
+REWARDSTIMEMINUTES	الدقائق
+REWARDSTIMEMINUTE	اللحظة
+REWARDSTIMESECONDS	ثواني
+REWARDSNEXTREWARD	مكافأة المقبل في
+REWARDSTIMELEFT	اليسار للمطالبة بمكافأة
+MATCHMAKEMODGRAPPLING	تتصارع
+MATCHMAKEMODKICKING	الركل
+MATCHMAKEMODSTRIKING	ضرب
+MATCHMAKEMODFUN	مرح
+MATCHMAKERANKEDBELT	صنع المباراة المرتبة متاح مع الحزام البني
+MATCHMAKERANKEDMODE	وضع مرتبة
+MATCHMAKERANK	مرتبة
+MATCHMAKEELO	إيلو
+MATCHMAKEFIGHTSTOTAL	يحارب المجموع
+MATCHMAKEWINRATE	معدل الفوز
+MATCHMAKENOPLAYERS	لا يوجد لاعبين يبحثون حاليا
+MATCHMAKEPLAYERSEARCHING	البحث عن لاعب
+MATCHMAKEPLAYERSSEARCHING	لاعبين يبحثون
+MATCHMAKESEARCHING	البحث عن مباراة
+MATCHMAKESEARCH	بحث
+MATCHMAKESTOPSEARCH	توقف عن البحث
+MATCHMAKEUNRANKEDMODE	عارضة اللعب
+MATCHMAKEFINDBESTMATCH1	تجد
+MATCHMAKEFINDBESTMATCH2	افضل مباراة
+MATCHMAKESEARCHSETTINGS1	بحث
+MATCHMAKESEARCHSETTINGS2	مع الإعدادات
+MATCHMAKESEARCHCUSTOM	العادة
+MATCHMAKEUPDATINGRANK	تحديث تصنيف الاحصائيات ...
+MATCHMAKEQUALIFYING	تأهيل
+MATCHMAKERANKUNAVAILABLE	الرتبة غير متاحة
+MATCHMAKEUPDATINGTRENDS	تحديث اتجاهات الترتيب الخاصة بك ...
+MATCHMAKEGLOBALRANK	تصنيف عالمي
+MATCHMAKEGLOBALRANKING	الترتيب العالمي
+MATCHMAKEQUALIFICATIONINFO	تحتاج إلى لعب 10 معارك في المرتبة في موسم واحد للتأهل للحصول على رتبة
+MATCHMAKEGOLDTIERREQUIREDFORRANKDISPLAY	يمكن للاعبين المصنفين من فئة صف+ فقط مشاهدة ترتيبهم
+MATCHMAKEBESTRANKEDMODS	أفضل تعديل
+MATCHMAKERANKEDMODSEMPTY	لا تعديل لعرضه
+MATCHMAKERANKEDTOPEMPTY	لا يوجد لاعبين لعرض ... حتى الآن
+MATCHMAKEWINLOSE	ف/خ
+MATCHMAKERANKINGTRENDS	اتجاهات الترتيب العالمية الخاصة بك
+MATCHMAKEMOREGAMESREQUIREDFORTRENDS	العب ألعاب مرتبة أكثر لعرض اتجاهاتك
+MATCHMAKETOPRANKEDPLAYERS	اللاعبين الأعلى مرتبة
+MATCHMAKESEASONABOUT	حول
+MATCHMAKEWINSTONEXTTIER	يفوز إلى المستوى التالي
+MATCHMAKEELOGAININFO	تتلقى مبلغًا مختلفًا من الصفوة للألعاب الفائزة اعتمادًا على رتبة خصمك
+FRIENDSLISTTITLE	قائمة الأصدقاء
+FRIENDSLISTJOINROOM	انضم الى الغرفة
+FRIENDSLISTLEGENDPLAYER	لاعب
+FRIENDSLISTLEGENDROOM	مجال
+FRIENDSLISTREFRESH	تحديث
+FRIENDSLISTADDFRIEND	أضف صديق جديد
+FRIENDSLISTEMPTY	قائمة الأصدقاء فارغة
+FRIENDSLISTEMPTYINFO	أضف لاعبين آخرين أو عشائر كاملة إلى قائمة أصدقائك لتعرف متى يكونوا متصلين!
+FRIENDSLISTSEARCHDEFAULT	اكتب اسمًا أو علامة عشيرة بين قوسين
+BUTTONSAVE	حفظ
+BUTTONDISCARD	تجاهل
+BUTTONCANCEL	إلغاء
+BUTTONCONTINUE	استمر
+BUTTONADD	إضافة
+BUTTONCREATE	خلق
+BUTTONUPLOAD	رفع
+BUTTONVIEW	رأي
+BUTTONSEARCH	بحث
+BUTTONSUBMIT	خضع
+WORDTOTAL	مجموع
+WORDTURN	منعطف أو دور
+WORDGAMES	ألعاب
+WORDFIGHTS	معارك
+WORDTIMES	مرات
+WORDIN	في
+WORDTC	الاعتمادات توري
+WORDDONE	فعله
+WORDVS	ضد
+WORDNONE	لا شيء
+WORDOPTIONAL	اختياري
+CHATCENSOREDMESSAGE	تحتوي رسالتك على كلمة محظورة وسيتم حظرها للاعبين الآخرين.
+MOVEMEMORYLOADERROR	حدث خطأ أثناء تحميل بيانات نقل الذاكرة.
+MOVEMEMORYSAVING	إنقاذ الخطوة
+MOVEMEMORYENTERMOVENAME	أدخل اسم النقل
+MOVEMEMORYENTERMOVEDESCOPT	أدخل وصف النقل (اختياري)
+MOVEMEMORYENTERMODNAMEOPT	أدخل اسم المود (اختياري)
+MOVEMEMORYMODNAMEEMPTYERROR	لا يمكن أن يكون نقل الاسم فارغًا!
+MOVEMEMORYMOVESAVEERRORPERMS	حدث خطأ أثناء حفظ عملية نقل ، وتأكد من أن لديك أذونات كتابة على مجلد Toribash.
+MOVEMEMORYERRORNOTINGAME	يجب عليك اللعب لتسجيل حركة.
+MOVEMEMORYERRORSTOPMOVE	من فضلك توقف عن الحركة الحالية قبل تسجيل واحدة جديدة.
+MOVEMEMORYRECORDINGMOVE	تسجيل التسجيل
+MOVEMEMORYERRORUPDATINGDATA	حدث خطأ أثناء تحديث ملف البيانات نقل الذاكرة ، ولم يتم إجراء أي تغييرات.
+MOVEMEMORYNOMOVESFOUND	لم يتم العثور على تحركات
+MOVEMEMORYDELETEMOVECONFIRM	هل أنت متأكد من حذف هذا الافتتاحية؟ لا يمكن عكس هذا الإجراء.
+MOVEMEMORYALLMOVES	جميع التحركات
+MOVEMEMORYSUGGESTEDMOVES	اقترحت تحركات
+QUESTSNAMETYPE1	التدريب اليومي
+QUESTSNAMETYPE2	آلة القاتل
+QUESTSNAMETYPE3	مسبب الضرر
+QUESTSNAMETYPE4	محطم العظام
+QUESTSNAMETYPEDECAP	رئيس الصياد
+QUESTSPLAYREQ	لعب
+QUESTSWINREQ	يفوز
+QUESTSGETREQ	احصل على
+QUESTSGETREQ2	نقطة عبر معاركك
+QUESTSDECAPREQ	لاعبين Decap
+QUESTSDISMEMBERREQ	قم بتقليد اللاعبين
+QUESTSMATCHMAKEREQ	بينما في التوفيق
+QUESTSOFFICIALREQ	بينما في الغرف الرسمية
+QUESTSCLAIMREWARD	مكافأة المطالبة
+QUESTSUPDATING	جارٍ تحديث بيانات المهام ...
+QUESTSBYDECAP	عن طريق قطع الرأس
+LUASCRIPTSNAME	مخطوطات لوا
+LUASCRIPTSTHIRDPARTYWARNING1	انتبه دائمًا للنصوص البرمجية للجهات الخارجية التي تقوم بتشغيلها.
+LUASCRIPTSTHIRDPARTYWARNING2	قد تقوم البرامج النصية الضارة بتعديل بيانات Toribash أو محوها أو سرقتها.
+LUASCRIPTSTHIRDPARTYWARNING3	فقط تشغيل البرامج النصية التي تم التحقق منها من قبل موظفي Toribash.
+LUASCRIPTSFORUMBOARD	مخطوطات المجلس على المنتدى
+LUAMALICIOUSWARNING	ممكن نصيحه خبيثة
+LUAFILEACCESSWARNING	البرنامج النصي يمكن الوصول إلى الملفات الأخرى
+LUAOTHERSCRIPTSWARNING	تحميل البرنامج النصي برامج أخرى
+LUALOADSCRIPT	تحميل النصي
+ERRORCREATINGFILE	خطأ في إنشاء الملف
+REPLAYSSAVING	حفظ الإعادة
+REPLAYSDEFAULTPATH	سيتم حفظ ملف الإعادة إلى مجلد "الاعادة"
+REPLAYSENTERNAME	أدخل اسم إعادة التشغيل
+REPLAYSERROREMPTYNAME	لا يمكن أن يكون اسم إعادة التشغيل فارغًا
+REPLAYSERRORCHARACTERS	يجب أن يكون اسم إعادة التشغيل أبجديًا رقميًا ويمكن أن يحتوي فقط على الشرطات السفلية أو المسافات أو الشرطات كأحرف خاصة
+REPLAYSERRORRENAMING	خطأ في إعادة تسمية إعادة التشغيل ، يرجى تغيير اسم إعادة التشغيل مع قائمة الإعادة
+REPLAYSLOCAL	الاعادة المحلية
+REPLAYSSEARCH	بحث
+REPLAYSCOMMUNITY	مجتمع الاعادة
+REPLAYSUPDATINGCACHE	تحديث ذاكرة التخزين المؤقت
+REPLAYSERRORREADINGFILE	خطأ في قراءة ملف إعادة التشغيل
+REPLAYSERRORUPDATINGFILE	خطأ في تحديث ملف إعادة التشغيل
+REPLAYSERRORUPDATINGNAME	خطأ في تحديث اسم إعادة التشغيل
+REPLAYSERRORREADINGCACHE	خطأ في قراءة ملف ذاكرة التخزين المؤقت
+REPLAYSERRORUPDATINGTAGS	خطأ في تحديث علامات إعادة التشغيل
+REPLAYSUPDATINGCOMMUNITY	جارٍ تنزيل بيانات إعادة التشغيل ، يرجى الانتظار ...
+REPLAYSFILTERSDATE	عن طريق تاريخ التحميل
+REPLAYSFILTERSRATING	حسب التصنيف
+REPLAYSFILTERSPOPULARITY	بشعبية
+REPLAYSFILTERSTAGGED	الكلمات الدلالية
+REPLAYSFILTERSBYTAG	من قبل العلامات اعادة
+REPLAYSFILTERSBY	تم الرفع بواسطة
+REPLAYSFILTERSUPLOADER	بواسطة رد رافع
+REPLAYSBACKTOALLREPLAYS	رجوع إلى كل النسخ
+REPLAYSMATCHBY	المباراة من قبل
+REPLAYSAUTHORAUTOSAVE	الحفظ التلقائي
+REPLAYSAUTHORBY	بواسطة
+REPLAYSLOADINGREPLAY	جارٍ تحميل الإعادة ...
+REPLAYSADDFOLDER	أضف المجلد
+REPLAYSTAGSMODIFYING	تعديل
+REPLAYSTAGSNAME	اعادتها العلامات
+REPLAYSPOPULARTAGS	الكلمات الشعبية
+REPLAYSASSIGNEDTAGS	العلامات المخصصة
+REPLAYSINPUTTAGHERE	أدخل علامتك الخاصة هنا
+REPLAYSTAGERRORSHORT	يجب أن تحتوي علامة إعادة التشغيل على حرف واحد على الأقل
+REPLAYSTAGERRORDUPLICATE	تمت إضافة هذه العلامة بالفعل إلى الإعادة
+REPLAYSMODIFYINGFOLDER	مجلد
+REPLAYSFOLDERNAME	إسم الملف
+REPLAYSERRORDELETING	خطأ في الحذف
+REPLAYSERRORDELETINGFOLDER	مجلد
+REPLAYSERRORMOVING	خطأ في التحرك
+REPLAYSERRORMOVINGTO	إلى
+REPLAYSFOLDERNOTEMPTYDELETEWARNING	هذا المجلد ليس فارغًا. سيؤدي حذفه إلى نقل جميع عمليات الإعادة من الداخل إلى المجلد الأصلي. استمر؟
+REPLAYSERRORRENAMINGFOLDER	خطأ في إعادة تسمية المجلد
+REPLAYSERRORRENAMINGREPLAY	خطأ في إعادة تسمية إعادة التشغيل
+REPLAYSERRORMOVINGREPLAY	خطأ في تغيير مجلد إعادة التشغيل
+REPLAYSFOLDERLEVELERROR1	لا يمكنك أن تفرخ أكثر من
+REPLAYSFOLDERLEVELERROR2	مستويات المجلد
+REPLAYSADDINGFOLDER	مضيفا داخل مجلد جديد
+REPLAYSNEWFOLDERNAME	اسم مجلد جديد
+REPLAYSFOLDERALPHANUMERIC	يجب أن يكون اسم المجلد أبجديًا رقميًا
+REPLAYSERRORADDINGFOLDER	خطأ في إضافة مجلد إعادة التشغيل
+REPLAYSUPLOAD	رفع
+REPLAYSUPLOADTORIBASHSERVERS	إلى خوادم Toribash
+REPLAYSNAME	اسم
+REPLAYSNAMEINFO	سيكون هذا هو اسم الإعادة العامة
+REPLAYSDESC	وصف
+REPLAYSDESCINFO	وصف قصير لاعادتها
+REPLAYSDESCTIP	أدخل الوصف
+REPLAYSTAGS	الكلمات
+REPLAYSTAGSINFO	علامات مفصولة في الفضاء لاعادتها
+REPLAYSTAGSTIP	علامات إعادة الإدخال
+REPLAYSUPLOADCONFIRM	سيؤدي ذلك إلى تحميل إعادة التشغيل إلى خوادم Toribash وإتاحتها للجميع. هل تريد المتابعة؟
+REPLAYSMANAGE	تدبير
+REPLAYSREPLAY	إعادة
+REPLAYSREPLAYS	الاعادة
+REPLAYSREPLAYNAME	اسم اللعب
+REPLAYSREPLAYDIR	إعادة مجلد
+REPLAYSCONFIRMDELETION	هل أنت متأكد أنك تريد حذف
+REPLAYSCONFIRMDELETION2	إعادة؟
+REPLAYSAUTOSAVEOPTION	الادخار التلقائي حفظ
+REPLAYSEMPTYFOLDER	لا الاعادة في هذا المجلد
+REPLAYSBY	بواسطة
+REPLAYSDATACORRUPT	بيانات الفساد
+REPLAYSPLAYERS	لاعبين
+REPLAYSMOD	عصري
+REPLAYSCOMMUNITYTITLEINFO	البحث عن الاعادة على خوادم Toribash
+REPLAYSDOWNLOADINGREPLAY	جارٍ تنزيل إعادة التشغيل ...
+REPLAYSOPENINGREPLAY	جارٍ فتح إعادة التشغيل ...
+REPLAYSREPLAYSAVEDINFO	إعادة تحميلها وحفظها في مجلد التنزيلات
+REPLAYSCOMMUNITYDOUBLECLICKINFO	انقر نقرًا مزدوجًا على أي إعادة في القائمة للمعاينة السريعة.
+REPLAYSCOMMUNITYNOFOUND	لا يوجد الاعادة
+REPLAYSLOADPREVIOUS	حمل السابق
+REPLAYSLOADNEXT	تحميل المقبل
+REPLAYSDOWNLOAD	تحميل
+REPLAYSDOWNLOADS	التنزيلات
+REPLAYSVOTINGON	التصويت على
+REPLAYSCOMMENT	تعليق
+REPLAYSVOTECONFIRM1	أنت ستعطي هذه الإعادة
+REPLAYSVOTECONFIRM2	من 5 نجوم. هل تريد المتابعة؟
+REPLAYSCOMMENTSDOWNLOADING	جارٍ تنزيل التعليقات ...
+REPLAYSADDCOMMENT	أضف تعليق
+REPLAYSUPLOADEDON	تم التحميل على
+REPLAYSSAVEREPLAY	حفظ اعادتها
+REPLAYSVIEWCOMMENTS	تعليقات عرض
+REPLAYSMOREBY	المزيد من
+REPLAYSREFRESHCACHEPROMPT	سيؤدي هذا إلى إعادة تعيين ذاكرة التخزين المؤقت للإعادة. هل تريد بالتأكيد المتابعة؟
+REPLAYSERRORREFRESHINGCACHE	حدث خطأ أثناء تحديث ذاكرة التخزين المؤقت ، تأكد من أن لديك أذونات كتابة داخل مجلد Toribash
+MODSDOWNLOADINGMOD	جارٍ تنزيل عصري ...
+NOFILESFOUND	لا توجد ملفات
+FILENAME	اسم الملف
+MODSRESTARTGAME	بدء لعبة جديدة بعد تحميل وزارة الدفاع
+SEARCHNOTE	ابدأ الكتابة للبحث ...
+SHADERSSAVESHADER	حفظ تظليل
+SHADERSSAVING	إنقاذ تظليل إلى ملف
+SHADERSINPUTNAME	اسم تظليل المدخلات
+SHADERSERRORFILEEXISTS	يوجد بالفعل تظليل مع هذا الاسم. سيؤدي هذا الإجراء إلى استبدال الملف القديم.
+SHADERSRESETTODEFAULT	إعادة تعيين إلى الافتراضي
+SHADERSEDITOR	معدل التظليل
+SHADERSATMOSNAME	أجواء
+SHADERSNAME	تظليل
+SETTINGSOTHER	آخر
+SETTINGSAUDIO	سمعي
+SETTINGSEFFECTS	تأثيرات
+SETTINGSGRAPHICS	الرسومات
+SETTINGSGRAPHICSPRESETS	الرسومات المسبقة
+SETTINGSVISUALSQUALITY	جودة المرئيات (قد تتطلب إعادة التشغيل)
+SETTINGSCUSTOM	العادة
+SETTINGSLOWEST	البطاطس
+SETTINGSLOW	منخفض
+SETTINGSMEDIUM	متوسط
+SETTINGSHIGH	متوسط
+SETTINGSHIGHEST	RTX 2080 Ti
+SETTINGSRESOLUTION	القرار
+SETTINGSADVANCED	المتقدمة
+SETTINGSSHADERS	تظليل
+SETTINGSFLUIDBLOOD	دم السائل
+SETTINGSFLOORREFLECTIONS	تأملات الأرضيات
+SETTINGSSOFTSHADOWS	الظلال الناعمة
+SETTINGSAMBIENTOCCLUSION	انسداد في المحيط
+SETTINGSRAYTRACING	راي التتبع
+SETTINGSFRAMERATE	معدل الإطار
+SETTINGSFPS	لقطة في الثانية
+SETTINGSFPSUNCAPPED	لم يسبق لهم اللعب
+SETTINGSGENERAL	جنرال 
+SETTINGSEFFECTSINFO	آثار عرض الإعدادات
+SETTINGSDISABLED	معاق
+SETTINGSENABLED	تمكين
+SETTINGSREPLAYSONLY	فقط على الاعادة
+SETTINGSPLAYERCUSTOMIZATION	تخصيصات اللاعب
+SETTINGSBODYTEXTURES	نسيج الجسم
+SETTINGSTRAILS	مسارات
+SETTINGSFLAMES	النيران
+SETTINGSHAIRS	الشعر
+SETTINGSOBJMODELS	نماذج ثلاثية الأبعاد
+SETTINGSEFFECTSVOLUME	حجم التأثيرات
+SETTINGSMUSICVOLUME	طبقة صوت الموسيقا
+SETTINGSVCVOLUME	صوت دردشة صوتية
+SETTINGSVCTOGGLE	تبديل الدردشة الصوتية 
+SETTINGSSOUNDMASTER	تأثير الأصوات الرئيسية
+SETTINGSHITEFFECTS	ضرب الأصوات
+SETTINGSGAMEOVER	 DQ أصوات الفوز و
+SETTINGSREADY	كياى ساوند
+SETTINGSGRIP	صوت قبضة 
+SETTINGSALERT	صوت صيحة 
+SETTINGSDISMEMBER	صوت صمت 
+SETTINGSFIGHTALERT	صوت محاربة تنبيه 
+SETTINGSFREEZE	تجميد الصوت
+SETTINGSGRADING	صوت الدرجات
+SETTINGSIMPACT	تأثير الصوت
+SETTINGSJOINT	صوت مشترك
+SETTINGSMENU	صوت القائمة
+SETTINGSNONE	بلا صوت
+SETTINGSPAIN	صوت ألم 
+SETTINGSSELECTPLAYER	حدد مشغل الصوت
+SETTINGSSPLASH	سبلاش ساوند
+SETTINGSSWOOSH	صوت Swoosh
+SETTINGSLANGUAGE	لغة
+SETTINGSGAMELANGUAGE	لعبة اللغة
+SETTINGSCHAT	إعدادات المحادثة
+SETTINGSCHATTOGGLE	تبديل مدة الدردشة 
+SETTINGSPROFANITYFILTER	تصفية الألفاظ النابية
+SETTINGSHIDEECHO	إخفاء رسائل النظام
+SETTINGSGAMEPLAY	القرص اللعب
+SETTINGSMOUSEBUTTONS	وضع ضوابط الماوس
+SETTINGSMOUSEBUTTONS0	إنكماش/ تمديد فقط
+SETTINGSMOUSEBUTTONS1	جميع أوضاع مشتركة الأربعة
+SETTINGSMOUSEBUTTONS2	عقد / الاسترخاء فقط
+SETTINGSBACKGROUNDCLICK	انقر الخلفية
+SETTINGSAUTOSAVE	الاضافات التلقائية
+SETTINGSGAMERULES	تذكر قواعد اللعبة
+SETTINGSMODERNHUD	المتقدم هود
+SETTINGSTOOLTIP	عرض أداة متقدمة
+SETTINGSMOVEMEMORY	تمكين نقل الذاكرة
+SETTINGSBASEHUDONLY	قاعدة HUD فقط
+SETTINGSWINDOWED	وضع إطارات
+SETTINGSWIDTH	عرض
+SETTINGSHEIGHT	ارتفاع
+SETTINGSONLYDEFAULTSOUNDS	الأصوات الافتراضية فقط
+SETTINGSAPPLY	تطبيق التغييرات
+SETTINGSRESTARTREQUIRED	قد تتطلب إعادة التشغيل
+SETTINGSNOCHANGES	لم يتم إجراء أي تغييرات
+HOTKEYSBASICCONTROLS	الضوابط الأساسية
+HOTKEYSCAMERACONTROLS	ضوابط الكاميرا
+HOTKEYSHOLDALL	عقد الكل / الاسترخاء الكل
+HOTKEYSHOLDRELAX	عقد / الاسترخاء المشتركة
+HOTKEYSCONTRACTEXTEND	إنكماش / تمديد المشترك
+HOTKEYSGRABUNGRAB	تبديل وضع اليد (الاستيلاء / الغاء)
+HOTKEYSGRABALL	تبديل كلتا الدولتين
+HOTKEYSSAVEREPLAY	حفظ الإعادة
+HOTKEYSTORIGHOST	تبديل لاعب الاشباح
+HOTKEYSPLAYERSGHOST	تبديل أشباح كل من اللاعبين
+HOTKEYSTURN	إنهاء بدوره / تخطي إطار واحد
+HOTKEYSCHAT	ضوابط الدردشة
+HOTKEYSOPENCHAT	افتح صندوق الدردشة
+HOTKEYSTOGGLECHAT	عرض المزيد من خطوط الدردشة
+HOTKEYSSCROLLCHAT	لتمرير الدردشة أعلى / أسفل
+HOTKEYSSCROLLCHATMAX	بدء الدردشة / النهاية
+HOTKEYSREPLAYS	يعيد مفاتيح الاختصار
+HOTKEYSREPLAYRESTART	إعادة تشغيل 
+HOTKEYSREPLAYPAUSE	وقفة الإعادة
+HOTKEYSREPLAYEDIT	تحرير إعادة التشغيل
+HOTKEYSREPLAYKEYFRAME	حفظ الإطار الأساسي
+HOTKEYSREPLAYKEYFRAMESCLEAR	قم بإلغاء تحديد الإطارات المفتاحية
+HOTKEYSREPLAYNEXT	لعب التالي الإعادة
+HOTKEYSREPLAYPREV	تلعب اعادة السابقة
+HOTKEYSOTHER	مفاتيح الاختصار الأخرى
+HOTKEYSMODLIST	فتح قائمة وزارة الدفاع
+HOTKEYSSHADERS	فتح تظليل & الأجواء
+HOTKEYSGAMERULES	افتح قواعد اللعبة
+HOTKEYSFULLSCREEN	أدخل وضع ملء الشاشة
+HOTKEYSCAMERAMODES	تغيير أوضاع الكاميرا
+TUTORIALSLEAVINGPROMPT	ترك وضع البرنامج التعليمي. يجب إعادة تشغيل البرنامج التعليمي الحالي من البداية في حالة المتابعة.
+TUTORIALSCONTINUETONEXT	استمر في البرنامج التعليمي التالي
+TUTORIALSBACKTOMAIN	عودة إلى القائمة الرئيسية
+TUTORIALSINTRONAME	مقدمة Toribash
+TUTORIALSINTRODESC	تعرف على Sensei وابدأ رحلة Toribash
+TUTORIALSPUNCHNAME	دروس اللكم
+TUTORIALSPUNCHDESC	تعلم أساسيات اللكم في Toribash
+TUTORIALSKICKNAME	ركلة تعليمية
+TUTORIALSKICKDESC	تعلم كيفية مهاجمة خصومك مع الساقين
+TUTORIALSCHALLENGEUKENAME	تحدي Uke
+TUTORIALSCHALLENGEUKEDESC	اختبار المهارات الخاصة بك في معركة ضد Uke
+TUTORIALSCOMEBACKPRACTICENAME	العودة للممارسة
+TUTORIALSCOMEBACKPRACTICEDESC	ممارسة مهاراتك في العودة أثناء اصطياد Uke
+TUTORIALSLOCKED	أكمل البرامج التعليمية الأخرى أو اكتسب المزيد من Qi لإلغاء قفل هذا
+TUTORIALSVIEWALLNAME	عرض جميع البرامج التعليمية
+TUTORIALSVIEWALLDESC	الوصول إلى أي برنامج تعليمي انتهيت بالفعل

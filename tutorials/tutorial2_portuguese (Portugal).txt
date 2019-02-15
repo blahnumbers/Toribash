@@ -1,0 +1,45 @@
+#PLAYER MESSAGES	
+INTROSENSEI1	Aqui eu vou-te ensinar a derrotar o teu oponente usando apenas os teus braços.
+INTROSENSEI2	Vamos tentar um ataque do mais simples possível - o noobclap.
+INTROSENSEI3	Vê como se faz.
+SENSEINOOBCLAP1	Só ponho ambos os meus braços para a frente: Para dar dano ao meu oponente, ficar em posição para agarrar o meu oponente...
+SENSEINOOBCLAP2	...ou preparar-me para bloquear os seus ataques!
+SENSEINOOBCLAP3	Não deixes o nome deste movimento enganar-te - é um movimento útil que ás vezes até os melhores usam!
+SENSEINOOBCLAP4	Muito bem! Vamos á próxima tarefa!
+SENSEIPUNCH1	Para conseguir acertar murros poderosos, usar apenas os teus peitorais é suficiente.
+SENSEIPUNCH2	Vê este murro.
+SENSEIPUNCH3	Eu usei o meu cotovelo e o meu tronco para aumentar o poder do ataque.
+SENSEIPUNCH4	Se usares mais força conseguirás mais pontos, e ficarás mais perto de vencer!
+SENSEIPUNCHOPTINCOMPLETE	Isso foi bom. Podias ter aperfeiçoado um pouco, mas um murro é um murro - bom trabalho!
+SENSEIPUNCHOPTCOMPLETE	Incrível! Mesmo como eu te mostrei!
+SENSEIPUNCH5	Agora vamos ao teste final de hoje!
+SENSEIFINAL1	Hora de um murro improvisado, meu aluno!
+SENSEIFINAL2	Dá murros ao saco até conseguires 100000 pontos!
+SENSEIFINAL3	Fica atento ao tempo, tens que ter a certeza que consegues fazer a tarefa em 500 frames!
+SENSEIFINALTIMEUP	Oh, parece que o tempo acabou. Não há problema, vamos tentar outra vez!
+SENSEIFINALRESTART	Boa, mantém os movimentos que eu te mostrei anteriormente na tua mente e tenta chegar aos 100K pontos desta vez!
+SENSEIFINALOPTINCOMPLETE	Ótimo! Isso foi um bom treino!
+SENSEIFINALOPTCOMPLETE	Wow, isso foi alguma coisa! Excelente trabalho!
+SENSEIFINAL4	Agora que sabes como usar as tuas mãoes, estás pronto para treinar os teus chutos!
+#	
+#HINT MESSAGES	
+NOOBCLAPHINT1	Pressiona ~C~ para AGUENTAR TODAS AS ARTICULAÇÕES e fazer com que não caias.
+NOOBCLAPHINT2	Para DOBRAR OS BRAÇOS PARA A FRENTE OU PARA TRÁS, precisas de modificar os estado dos teus peitorais.
+NOOBCLAPHINT3	CONTRAI os teus peitorais para mover os braços PARA A FRENTE.\nLembra-te, podes clicar nas articulações ou pressionar ~Z~ com o cursor por cima das articulações para mudar o estado.
+NOOBCLAPHINT4	Bom trabalho, mas ainda não acabas-te.\nPara ACABAR O TEU TURNO e veres o teu personagem mexer-se, pressiona ~SPACE~
+PUNCHHINT1	Aguenta todas as articulações pressionando ~C~
+PUNCHHINT2	Para preparar a posição inicial do teu murro, CONTRAI os cotovelos e RELAXA os ombros.
+PUNCHHINT3	Os OMBROS ajudam-te a levantar ou a baixar os braços.\nOs COTOVELOS permitem dobrar os braços.
+PUNCHHINT4	Para completar o teu movimento, pressiona ~SPACE~
+PUNCHHINT5	RODA O PEITO para a esquerda para adicionar mais força ao teu murro.
+PUNCHHINT6	Agora contrai o teu PEITORAL DIREITO e estende o COTOVELO DIREITO para acertar no saco.
+PUNCHHINT7	Podes improvisar e tem sempre atenção ao teu FANTASMA!\nAumentar o impulso é a chave para que os teus ataques sejam bem sucedidos.
+PUNCHHINT8	Pressiona ~SPACE~ quando estiveres pronto para acabar o teu movimento.
+#	
+#TASK MESSAGES	
+NOOBCLAPTASK	Acerta no saco com um noobclap
+PUNCHTASK	Repete o murro do Sensei
+PUNCHTASKOPT	Levanta o ombro direito e estende o teu pulso para melhorar o murro
+FINALTASK	Completa a lição de murros do Sensei
+FINALTASKMAIN	Alcança 100,000 pontos de dano para completar o objetivo
+FINALTASKOPT	Obtém mais de 500,000 pontos para que o Sensei fique orgulhoso

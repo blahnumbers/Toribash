@@ -1,0 +1,46 @@
+#PLAYER MESSAGES	
+INTROSENSEI1	Aqui eu vou te ensinar como derrotar seu oponente usando apenas seus braços.
+INTROSENSEI2	Vamos tentar o ataque mais simples possível - um 'noobclap'.
+INTROSENSEI3	Aqui está como ele se parece.
+SENSEINOOBCLAP1	Eu só coloco meus dois braços para frente: ou para causar dano e ganhar pontos, ou ficar em posição para agarrar o adversário ...
+SENSEINOOBCLAP2	... ou para bloquear os ataques dos meus oponentes!
+SENSEINOOBCLAP3	Não deixe o nome desse movimento te enganar - é um movimento útil, até mesmo o melhor às vezes... use!
+SENSEINOOBCLAP4	Muito bom! Vamos para a próxima tarefa!
+SENSEIPUNCH1	Para dar socos poderosos, usar apenas seus 'pecs' não é suficiente.
+SENSEIPUNCH2	Olhe esse soco.
+SENSEIPUNCH3	Eu usei meu cotovelo e torso para aumentar o poder de ataque.
+SENSEIPUNCH4	Quanto mais você acertar seus oponentes, mais pontos você terá e ficará mais perto de vencer!
+SENSEIPUNCHOPTINCOMPLETE	Isso foi bom. Você poderia ter melhorado um pouco, mas um soco é um soco - bom trabalho!
+SENSEIPUNCHOPTCOMPLETE	Excepcional! Do jeito que eu te mostrei!
+SENSEIPUNCH5	Agora vamos passar para o teste final de hoje!
+SENSEIFINAL1	Hora de dar socos no estilo livre, aluno!
+SENSEIFINAL2	"Continue dando socos no saco de pancadas até obter 100000 pontos!
+"
+SENSEIFINAL3	Fique ligado no cronômetro também, certifique-se de que você consegue terminar a tarefa dentro de 500 quadros!
+SENSEIFINALTIMEUP	Oh, parece que o tempo acabou. Não tem problema, vamos tentar de novo!
+SENSEIFINALRESTART	Tudo bem, mantenha os movimentos que eu mostrei anteriormente em mente e tente obter 100 mil pontos desta vez!
+SENSEIFINALOPTINCOMPLETE	Ótimo! Esse foi um bom treino!
+SENSEIFINALOPTCOMPLETE	Uau, estamos chegando em algum lugar! Excelente trabalho!
+SENSEIFINAL4	Agora que você sabe como usar suas mãos, você está pronto para treinar seus chutes!
+#	
+#HINT MESSAGES	
+NOOBCLAPHINT1	Pressione ~ C ~ para SEGURAR TODOS OS 'JOINTS' e evite cair.
+NOOBCLAPHINT2	Para dobrar os BRAÇOS para frente ou para trás, você precisa modificar os seus 'PECS'.
+NOOBCLAPHINT3	CONTRAIA seus 'pecs' para mover os braços para frente. \ Lembre-se, você pode clicar nas articulações ou pressionar ~Z~ enquanto passa o mouse sobre elas para mudar seus estados.
+NOOBCLAPHINT4	Bom trabalho, mas você ainda não terminou.\nPARA TERMINAR O TURNO e ver seu personagem se mover, pressione ~ ESPAÇO ~
+PUNCHHINT1	Segure todos os 'joints' pressionando ~ C ~
+PUNCHHINT2	Para entrar na posição inicial do soco, use os cotovelos CONTRAIDOS e os ombros RELAXADOS.
+PUNCHHINT3	OS OMBROS o ajudam a levantar ou abaixar seus braços.\nOs COTOVELOS te permite a dobrá-los
+PUNCHHINT4	Para completar sua jogada, pressione ~ SPACE ~
+PUNCHHINT5	Gire o 'CHEST' para a esquerda para adicionar mais força ao seu soco.
+PUNCHHINT6	Agora contraia seu 'PEC' DIREITO e estenda o COTOVELO DIREITO para mandar o saco.
+PUNCHHINT7	Sinta-se à vontade para improvisar e sempre preste atenção ao seu FANTASMA!\nAumentar o 'momentum' é fundamental para ataques bem-sucedidos.
+PUNCHHINT8	Pressione ~ SPACE ~ quando estiver pronto para terminar o movimento.
+#	
+#TASK MESSAGES	
+NOOBCLAPTASK	Bata no saco de pancadas com um 'noobclap'
+PUNCHTASK	Repita o soco do Seisei.
+PUNCHTASKOPT	Levante o ombro direito e estenda o pulso para melhorar o soco
+FINALTASK	Complete a lição de soco do Sensei
+FINALTASKMAIN	Alcance 100.000 pontos de dano para acertar o objetivo
+FINALTASKOPT	Consiga mais de 500.000 pontos para uma recompensa bônus

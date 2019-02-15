@@ -1,0 +1,35 @@
+#PLAYER MESSAGES	
+INTROSENSEI1	... Und so wirst du ein großartiger Kämpfer
+INTROSENSEI2	Durch Training und harte Arbeit kann du wahrhaft erstaunliche Ergebnisse erzielen!
+INTROPLAYER1	Aber Sensei, woher weißt du irgendetwas über das Kämpfen - du kannst gerade so noch selber laufen!
+INTROSENSEI3	Huh, junger Mann, Ich war nicht immer so alt.
+INTROSENSEI4	There was a  time, not so long ago, when I was just as young and naive as you are now...
+INTROFIGHTSENSEI1	Mein letzter Kampf, der war groß.
+INTROFIGHTSENSEI2	Durch das befolgen der Anweisungen meines Meisters, war ich während des ganzen Kampfes konzentriert.
+INTROFIGHTSENSEI3	Ich hielt ein Auge auf die Schwachpunkte meines Gegners - und ich sah jeden einzelnen von ihnen.
+INTROFIGHTSENSEI4	Ich war schnell wie ein wildes Tier.
+INTROFIGHTSENSEI5	Er sah meine Angriffe nicht einmal kommen, und es schien nach einem einfachem Sieg.
+INTROFIGHTSENSEI6	Meine Bewegungen waren perfekt und Ich würde gewinnen, aber dann geschah etwas komplett unerwartetes...
+INTROFIGHTSENSEI7	Gerade dann, als ich meinen Gegner besiegen wollte, brach mein Knie und ruinierte mir die Chancen.
+INTROENDPLAYER1	Ich würde aggressiv werden, dem Kerl sagen es sei nur Glück gewesen und dass ich ihn das nächste mal besiegen werde wenn ich ihn wieder gegenüber stehe!
+INTROENDPLAYER2	Ich würde ihm auch sagen seine Mutter wäre ein-
+INTROENDSENSEI1	Nein-nein-nein, mein junger Schüler. Deine Niederlagen lehren dir genau so viel wie deine Siege.
+INTROENDPLAYER3	Also ist das der Grund warum du einen Stock benutzts, Meister? Dein Bein, tut es immer noch weh?
+INTROENDSENSEI2	Oh nein, du bist nach jedem Kampf wieder geheilt.
+INTROENDSENSEI3	Es ist nur dass, Ich uhm, Ich seh respektabler aus mit einem Stock-
+INTROENDSENSEI4	Eh, warum fragst du überhaupt?...Spielt keine Rolle! Wir haben für's erste genug rumgetrödelt!
+INTROENDSENSEI5	Wenn du ein wirklich guter Kämpfer werden willst, musst du trainieren; Nicht die ganze Zeit auf der Bank rumsitzen!
+#	
+#HINT MESSAGES	
+CAMERAHINT1	Bewege deine Kamera mit den ~W~ ~A~ ~S~ ~D~ Tasten.
+CAMERAHINT2	Benutze ~SHIFT~ während du deine Kamera bewegst, um die Kamera Höhe einzustellen.
+CAMERAHINT3	Du kannst die Kamera auch mit Rechts-klick steuern.
+CONTROLSHINT1	In Toribash steuerst du deinen Charakter, indem du Gelenk Zustände im Körper änderst.
+CONTROLSHINT2	Es gibt vier Zustände - ANSPANNEN, ENTSPANNEN, ZUSAMMENZIEHEN und AUSDEHNEN.\nKombiniert man diese, sind einzigartige Bewegungen das resultat die jeden Kampf einzigartig machen. 
+CONTROLSHINT3	Klicke auf Sensei's Knie um seinen Zustand in AUSDEHNEN zu ändern und trete den Gegner.
+CONTROLSHINT4	Du kannst deine Gelenke auch mit Tastaturen Hotkeys schneller steuern
+CONTROLSHINT5	Um alle Gelenk Zustände auf einmal ANSPANNEN oder ENTSPANNEN zu lassen, drücke ~C~
+CONTROLSHINT6	Hover over any joint and press ~X~ to toggle between its HOLD and RELAX states.
+CONTROLSHINT7	Um zwischen ZUSAMMENZIEHEN und AUSDEHNEN zu wechseln, drücke ~Z~ während du auf ein Gelenk zielst.
+QIHINT1	Deine Toribash Erfahrung wird in QI gemessen. Für jeden Kampf den du spielst, bekommst du 1 QI.
+QIHINT2	Je mehr Qi du verdiesnt, desto besser wird dein GÜRTEL den du bekommst und mehr Items werden zum Kauf erhältlich.

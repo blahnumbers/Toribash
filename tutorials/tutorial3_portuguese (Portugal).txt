@@ -1,0 +1,42 @@
+#PLAYER MESSAGES	
+SENSEIKICK1	Agora que sabes usar os teus braços, está na hora de aprenderes a dar pontapés.
+SENSEIKICK2	Vou-te ensinar este pontapé simples.
+SENSEIKICK3	Aguenta todas as tuas articulações para não caires.
+SENSEIKICK4	Este vai ser um pontapé com a perna esquerda. Contrai a tua anca e o teu joelho para ficares em posição.
+SENSEIKICK5	Ok, agora acaba o teu turno pressionando o espaço.
+SENSEIKICK6	Boa, agora estás pronto para dar um pontapé no teu oponente. Estende o teu joelho e olha para o teu fantasma!
+SENSEIKICK7	Toma atenção porque apesar de conseguires pontapear o boneco, o teu corpo fica inclinado para a frente, deixando-te vulnerável.
+SENSEIKICK8	Há uma forma de prevenir isso, apenas estende a tua anca direita. Isso também irá deixar o pontapé mais forte, é como matar dois coelhos com uma cajadada!
+SENSEIKICK9	Acaba o teu turno e vê o que fizeste!
+PLAYERKICK1	Hiiya!
+SENSEIKICK10	Isso foi ótimo! Lembra-te sempre de ver o teu fantasma para poderes observar o teu movimento antes de acabares o teu turno!
+SENSEIADVKICK1	O pontapé mais simples já está, mas para enfrentar oponentes a sério precisas de aprender a usar o teu corpo inteiro.
+SENSEIADVKICK2	Isto pode parecer complicado, mas eventualmente vais saber o que fazer sem memorizar movimentos.
+SENSEIADVKICK3	Está quase!
+SENSEIADVKICK4	Maravilhoso! Agora vem cá, tenho algo especialmente para ti.
+SENSEIMOVEMEMORY1	Das primeiras vezes, memorizar os teus movimentos para usar contra um verdadeiro oponente pode parecer difícil.
+SENSEIMOVEMEMORY2	Aqui está, leva a Movememory. Ela irá ajudar-te a armazenar e usar os teus movimentos.
+SENSEIMOVEMEMORY3	Por conveniência, eu já lhe adicionei movimentos que já aprendes-te.
+SENSEIMOVEMEMORY4	Tenta utilizá-la
+SENSEIMOVEMEMORY5	É isso, agora estás pronto para a tua verdadeira primeira luta.
+#	
+#HINT MESSAGES	
+HINTADVKICK1	Para fazeres um pontapé alto, precisas de usar os teus GLÚTEOS, TRONCO e até BRAÇOS para aumentar o impulso.\nMas primeiro, aguenta o teu corpo pressionando ~C~
+HINTADVKICK2	Imita o pontapé que o Sensei te ensinou : contrai a anca esquerda e o joelho para levantar a perna e ficar em posição e estender a anca esquerda para dar uma ajuda ao movimento.
+HINTADVKICK3	Agora roda o teu corpo PARA A DIREITA e mexe o teu braço direito para a frente.\nRodar partes superiores do teu corpo na direção oposta do chuto irá dar-te impulso adicional.
+HINTADVKICK4	Para levantar ainda mais a tua perna, precisas de usar os glúteos.\nEstende ambos pressionando ~Z~ e vê o que acontece.
+HINTADVKICK5	Aqui vem a parte por tentativas - aplicar toques finais ao teu pontapé.\nNo teu caso, a LOMBAR vai ser uma grande ajuda.
+HINTADVKICK6	Tenta dobrar a tua lombar para a direita.
+HINTADVKICK7	Agora consegues ver que o teu pontapé parece mais poderoso, e mudou um pouco para baixo.\nIsto pode ser útil quando quiseres fazer um chuto de corpo inteiro, mas agora estamos a apontar á cabeça.
+HINTADVKICK8	Desta vez, tenta dobrar a tua lombar para a esquerda para veres o que muda.
+HINTADVKICK9	Isto fez o pontapé ainda mais alto que antes por isso vais poder acertar no boneco livremente.\nPressiona ~SPACE~ para acabar o teu turno.
+HINTADVKICK10	Hora de acabar o pontapé! Estende o teu JOELHO para acertar no boneco e acabar o turno!
+HINTMOVEMEMORY1	Para abrir a MOVEMEMORY, pressiona ~M~
+HINTMOVEMEMORY2	Seleciona qualquer movimento que queiras executar e pressiona ~SPACE~ para ver a magia acontecer!
+HINTMOVEMEMORY3	A Movememory permite fazer movimentos sem tocar em nenhuma articulação manualmente.\nCom esta ajuda,podes poupar tempo se quiseres fazer um movimento que já tenhas feito antes.
+HINTMOVEMEMORY4	Para fechar a movememory, pressiona ~M~ outra vez.
+#	
+#TASK MESSAGES	
+KICKTASK	Executa um pontapé simples
+ADVKICKTASK	Acerta na cabeça do boneco com um pontapé
+MMEMORYTASK	Usa a Movememory contra o Uke

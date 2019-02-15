@@ -54,12 +54,11 @@ local function showUploadWindow(viewElement, reqTable)
 			return false
 		end
 		UIElement:runCmd("savereplay " .. name)
-		open_upload_replay(	TB_MENU_LOCALIZED.REPLAYSUPLOADCONFIRM:gsub("\\n", "\n"),
+		upload_event_replay(TB_MENU_LOCALIZED.REPLAYSUPLOADCONFIRM:gsub("\\n", "\n"),
 							name,
 							"Event Squad's Hole in the Wall Event entry",
-							"#esevent" .. CURRENT_TUTORIAL,
-							"replay/my replays/" .. name .. ".rpl"
-						)
+							"ESEVNT" .. CURRENT_TUTORIAL,
+							"replay/my replays/" .. name .. ".rpl")
 		
 		-- keep step state update in mouse_move hook as it'd only fire after upload window has been closed
 		add_hook("mouse_move", "tbTutorialsCustom", function(x, y) 
@@ -105,15 +104,13 @@ local function eventMain(viewElement, reqTable, skipAdd)
 	
 	chat_input_deactivate()
 	if (skipAdd == 0) then
+		local gameRulesScreen = nil
 		add_hook("leave_game", "tbTutorialsCustomStatic", function()
 				if (TUTORIAL_LEAVEGAME) then
 					return 1
 				end
 			end)
 		add_hook("key_up", "tbTutorialsCustom", function(key)
-				if (get_keyboard_ctrl() > 0 or get_keyboard_alt() > 0) then
-					return 1
-				end
 				if (key == 101) then
 					TUTORIAL_LEAVEGAME = true
 					STOPFRAME = nil
@@ -148,10 +145,73 @@ local function eventMain(viewElement, reqTable, skipAdd)
 				end
 				if (key == 44) then
 					set_replay_speed(get_replay_speed() - 0.1)
+					return 1
 				elseif (key == 46) then
 					set_replay_speed(get_replay_speed() + 0.1)
+					return 1
+				end
+				if (key == 103 and gameRulesScreen) then
+					gameRulesScreen:kill()
+					gameRulesScreen = nil
+					return 1
+				end
+				if (get_keyboard_ctrl() > 0 or get_keyboard_alt() > 0) then
+					return 1
 				end
 		end)
+		add_hook("key_down", "tbTutorialsCustom", function(key)
+				if (key == 103 and not gameRulesScreen) then
+					gameRulesScreen = TBMenu:spawnWindowOverlay(TB_TUTORIAL_MODERN_GLOBALID)
+					local gameRulesView = UIElement:new({
+						parent = gameRulesScreen,
+						pos = { WIN_W / 4, WIN_H / 2 - WIN_H / 8 },
+						size = { WIN_W / 2, WIN_H / 4 },
+						bgColor = TB_MENU_DEFAULT_BG_COLOR
+					})
+					local gameRules = get_game_rules()
+					local rulesTitle = UIElement:new({
+						parent = gameRulesView,
+						pos = { 0, 10 },
+						size = { gameRulesView.size.w, gameRulesView.size.h / 5 }
+					})
+					rulesTitle:addAdaptedText(true, "Game Rules", nil, nil, FONTS.BIG)
+					local rules = {}
+					table.insert(rules, { name = "Mod", value = gameRules.mod:gsub("^.*/", "") })
+					table.insert(rules, { name = "Gravity", value = gameRules.gravity:gsub("^" .. ("[-]?[%.%d]*%s"):rep(2), "") })
+					table.insert(rules, { name = "Dismemberment", value = gameRules.dismemberment == '1' and "Enabled" or "Disabled" })
+					if (gameRules.dismemberment == '1') then
+						table.insert(rules, { name = "DM Threshold", value = gameRules.dismemberthreshold })
+					end
+					table.insert(rules, { name = "Fracture", value = gameRules.fracture == '1' and "Enabled" or "Disabled" })
+					if (gameRules.fracture == '1') then
+						table.insert(rules, { name = "Frac Threshold", value = gameRules.fracturethreshold })
+					end
+					table.insert(rules, { name = "Grip", value = gameRules.grip == '1' and "Enabled" or "Disabled" })
+					
+					local posY = rulesTitle.shift.y + rulesTitle.size.h
+					for i,v in pairs(rules) do
+						local ruleHolder = UIElement:new({
+							parent = gameRulesView,
+							pos = { 0, posY },
+							size = { gameRulesView.size.w, (gameRulesView.size.h - rulesTitle.size.h - rulesTitle.shift.y * 2) / #rules }
+						})
+						posY = posY + ruleHolder.size.h
+						local ruleTitle = UIElement:new({
+							parent = ruleHolder,
+							pos = { ruleHolder.size.w / 20, ruleHolder.size.h / 10 },
+							size = { ruleHolder.size.w * 0.425, ruleHolder.size.h * 0.8 }
+						})
+						ruleTitle:addAdaptedText(true, v.name, nil, nil, 4, RIGHTMID)
+						local ruleValue = UIElement:new({
+							parent = ruleHolder,
+							pos = { -ruleTitle.size.w - ruleTitle.shift.x, ruleTitle.shift.y },
+							size = { ruleTitle.size.w, ruleTitle.size.h }
+						})
+						ruleValue:addAdaptedText(true, v.value, nil, nil, 4, LEFTMID)
+					end					
+					return 1
+				end
+			end)
 		
 		--[[local customReplayButton = UIElement:new({
 			parent = viewElement,
@@ -330,19 +390,24 @@ local function launchGame(viewElement, reqTable)
 end
 
 local function showYouLostScreen(viewElement, reqTable, offPlatform)
-	local scale = WIN_W / 3 > WIN_H / 5 * 2 and WIN_H / 5 * 2 or WIN_W / 3
+	local scale = WIN_W / 5 > WIN_H / 4 and WIN_H / 4 or WIN_W / 5
 	local holder = UIElement:new({
 		parent = viewElement,
-		pos = { (WIN_W - scale * 2) / 2, -scale - 50 },
-		size = { scale * 2, scale },
-		bgColor = TB_MENU_DEFAULT_BG_COLOR,
-		bgImage = "../textures/menu/promo/events/hitw_youlost.tga"
+		pos = { (WIN_W - (scale * 4 + 20)) / 2, -scale - 70 },
+		size = { scale * 4 + 20, scale + 20 },
+		bgColor = TB_MENU_DEFAULT_BG_COLOR
+	})
+	local background = UIElement:new({
+		parent = holder,
+		pos = { 10, 10 },
+		size = { holder.size.w - 20, holder.size.h - 20 },
+		bgImage = "../textures/menu/promo/events/hitw_youlost2.tga"
 	})
 	local message = UIElement:new({
 		parent = holder,
-		pos = { holder.size.w * 0.6, holder.size.h * 0.65 },
-		size = { holder.size.w * 0.35, (holder.size.h - 55) * 0.25 },
-		uiColor = { 1, 0.8, 0, 1 }
+		pos = { holder.size.w * 0.6, holder.size.h * 0.4 },
+		size = { holder.size.w * 0.35, (holder.size.h - 55) * 0.5 },
+		uiColor = { 1, 0.8, 0, 1 },
 	})
 	message:addAdaptedText(true, offPlatform and "Try to stay on the moving platform next time!" or "Try not to get dismembered next time!", nil, nil, nil, nil, nil, nil, nil, 1)
 	local restartButton = UIElement:new({

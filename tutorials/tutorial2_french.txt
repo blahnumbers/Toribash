@@ -1,0 +1,45 @@
+#PLAYER MESSAGES	
+INTROSENSEI1	Je vais t’apprendre ici comment vaincre ton adversaire en utilisant uniquement tes bras.
+INTROSENSEI2	Essayons l’attaque la plus simple possible - un noobclap.
+INTROSENSEI3	Voila à quoi ça ressemble.
+SENSEINOOBCLAP1	Je ne fais que mettre mes deux bras en avant : pour causer des points de dégât, pour me mettre en position pour attraper l’adversaire...
+SENSEINOOBCLAP2	...ou bien me préparer à bloquer le coups de mon adversaire!
+SENSEINOOBCLAP3	Ne sois pas perturbé par le nom de cette technique - c’est un mouvement utile que même les meilleurs utilisent parfois!
+SENSEINOOBCLAP4	Très bien! Continuons vers la prochaine tâche!
+SENSEIPUNCH1	Pour placer des coups de poing véritablement puissant, n’utiliser que tes pecs n’est pas suffisant.
+SENSEIPUNCH2	Regarde ce coup de poing.
+SENSEIPUNCH3	J’ai utilisé mon coude et mon torse pour augmenter la puissance d’attaque.
+SENSEIPUNCH4	Plus tu frappe fort ton adversaire, plus tu gagneras des points qui te rapprocheront de la victoire!
+SENSEIPUNCHOPTINCOMPLETE	C’était bien. Tu aurais pu l’améliorer un peu, mais un coup est un coup - joli boulot!
+SENSEIPUNCHOPTCOMPLETE	Incroyable! Exactement comme je te l’avais montré!
+SENSEIPUNCH5	Maintenant continuons vers le dernier test de la journée!
+SENSEIFINAL1	Il est temps de créer tes propres coups de poing, mon élève!
+SENSEIFINAL2	N’arrête pas de frapper le sac de frappe jusqu’à obtenir 100000 points!
+SENSEIFINAL3	Garde un œil sur le timer aussi, sois sur de pouvoir finir ta tâche en 500 frames!
+SENSEIFINALTIMEUP	Ah, on dirait que le temps est écoulé. Pas de problème, réessayons !
+SENSEIFINALRESTART	D’accord, garde en tête les techniques que je t’ai montré plus tôt et essaye d’obtenir 100K points cette fois!
+SENSEIFINALOPTINCOMPLETE	Bien! C’est un bon entrainement!
+SENSEIFINALOPTCOMPLETE	Wow, ça c’était quelque chose! Excellent travail!
+SENSEIFINAL4	Maintenant que tu sais comment utiliser tes mains, tu es prêt à entrainer tes coups de pied!
+#	
+#HINT MESSAGES	
+NOOBCLAPHINT1	Appuie sur ~C~ pour MAINTENIR TOUS TES JOINTS et t’empêcher de tomber par terre.
+NOOBCLAPHINT2	Pour tourner tes BRAS vers l’avant ou l’arrière, tu dois modifier les états de tes PECS.
+NOOBCLAPHINT3	CONTRACTE tes pecs pour tourner tes bras vers l’AVANT.\nRappelle toi, tu peux cliquer sur les joints ou bien appuyer sur ~W~ en survolant les joints pour changer les états.
+NOOBCLAPHINT4	Bon boulot, mais tu n’as pas encore terminé.\nPour TERMINER TON TOUR et voir ton personnage bouger, appuie sur la barre ~ESPACE~
+PUNCHHINT1	Maintiens tous les joints en appuyant sur ~C~
+PUNCHHINT2	Pour te mettre en position de départ pour le coup, CONTRACTE les coudes et RELAXE les épaules.
+PUNCHHINT3	LES ÉPAULES t’aident à lever ou baisser tes bras.\nLES COUDES t’aident à courber tes bras en leur milieu.
+PUNCHHINT4	Pour terminer ton mouvement, appuie sur ~ESPACE~
+PUNCHHINT5	TOURNE TON BUSTE vers la gauche pour ajouter encore plus de force dans ton coup
+PUNCHHINT6	Maintenant contracte ton PEC DROIT et étend ton COUDE DROIT pour frapper le sac de frappe.
+PUNCHHINT7	N’hésite pas à improviser et à toujours prêter attention à ton FANTÔME.\nAugmenter le momentum est la clé de la réussite.
+PUNCHHINT8	Appuie sur ~ESPACE~ quand tu es prêt à terminer ton mouvement.
+#	
+#TASK MESSAGES	
+NOOBCLAPTASK	Frappe le sac de frappe avec un noobclap
+PUNCHTASK	Reproduit le coup de poing de Sensei
+PUNCHTASKOPT	Lève l’épaule droite et tend ton poignet pour améliorer le coup de poing
+FINALTASK	Termine la leçon sur le coup de poing de Sensei
+FINALTASKMAIN	Atteint 100,000 points de dégât pour réussir l‘objectif 
+FINALTASKOPT	Obtient plus de 500,000 points pour rendre Sensei fier de toi

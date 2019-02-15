@@ -71,7 +71,7 @@ do
 			if (language == "english") then
 				return false
 			else
-				return Tutorials:getLocalization(TUTORIAL_LOCALIZED, id, "english")
+				return Tutorials:getLocalization(TUTORIAL_LOCALIZED, id, "english", path)
 			end
 		end
 
@@ -510,9 +510,9 @@ do
 					keyPress:addAdaptedText(false, displayKey, nil, nil, 4)
 				end
 			end
-
-			local startpos, endpos = v:find("^[A-Z][A-Z]+")
-			if (startpos) then
+			
+			local startpos, endpos = v:find("^[A-ZÉАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ][A-ZÉАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ]+")
+			if (startpos and endpos - startpos > 2) then
 				local displayLineLength = get_string_length(v, 4) * tbTutorialsHintMessage.textScale
 				local displayKey = v:sub(startpos, endpos)
 				local displayKeyLength = get_string_length(displayKey, 4) * tbTutorialsHintMessage.textScale
@@ -525,12 +525,12 @@ do
 						keyPressBG:uiText(displayKey, nil, nil, 4, nil, tbTutorialsHintMessage.textScale, nil, 1, TB_MENU_DEFAULT_BG_COLOR, UICOLORWHITE, nil, nil, nil, true)
 				end)
 			end
-			local _, count = v:gsub(" [A-Z][A-Z]+", "")
+			local _, count = v:gsub(" [A-ZÉАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ][A-ZÉАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ]+", "")
 			local endposLast = 0
 			for j = 1, count do
-				local startpos, endpos = v:find(" [A-Z][A-Z]+", endposLast)
+				local startpos, endpos = v:find(" [A-ZÉАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ][A-ZÉАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ]+", endposLast)
 				endposLast = endpos
-				if (startpos) then
+				if (startpos and endpos - startpos > 2) then
 					local displayLength = get_string_length(v:sub(0, startpos), 4) * tbTutorialsHintMessage.textScale
 					local displayLineLength = get_string_length(v, 4) * tbTutorialsHintMessage.textScale
 					local displayKey = v:sub(startpos + 1, endpos)
@@ -571,9 +571,9 @@ do
 					tbTutorialsMessageAuthorNeck.bgColor = { color.r, color.g, color.b, 1 }
 					tbTutorialsMessageAuthorNameBackground.bgColor = cloneTable(TB_MENU_DEFAULT_BG_COLOR)
 					tbTutorialsMessageBackground.shadowColor[2] = cloneTable(TB_MENU_DEFAULT_BG_COLOR)
-					tbTutorialsMessageAuthorName:addAdaptedText(false, TB_MENU_PLAYER_INFO.username or "Tori", -20, -15)
+					tbTutorialsMessageAuthorName:addAdaptedText(false, TB_MENU_PLAYER_INFO.username or "Tori", -20, -15, 2)
 				else
-					tbTutorialsMessageAuthorName:addAdaptedText(false, messageby, -20, -15)
+					tbTutorialsMessageAuthorName:addAdaptedText(false, messageby, -20, -15, 2)
 					local neckColId = 23
 					if (messageby == "SENSEI") then
 						messageby = "senseitutorial"
@@ -593,6 +593,7 @@ do
 				})
 				local sub = 1
 				local wait = 0
+				local framerate = get_option("framerate")
 				messageBuilder:addCustomDisplay(true, function()
 						tbTutorialsMessageView:addAdaptedText(false, message:sub(0,sub), nil, nil, nil, LEFTMID)
 						if (wait > 0) then
@@ -600,10 +601,17 @@ do
 							return
 						end
 						if (message:sub(sub, sub):find("[.,?!:;]")) then
-							wait = 10
+							wait = 5 * (framerate == 60 and 2 or 1)
 						end
 						if (sub < message:len()) then
 							sub = sub + 1
+							local strbyte = string.byte(message:sub(sub, sub))
+							if (strbyte == 208 or strbyte == 208) then
+								sub = sub + 1
+							end
+							if (framerate == 60) then
+								wait = 1
+							end
 						else
 							req.ready = true
 							reqTable.ready = checkRequirements(reqTable)
@@ -1570,6 +1578,9 @@ do
 		if (Tutorials:getLocalization(LOCALIZED_MESSAGES, id)) then
 			Tutorials:updateConfig()
 			Tutorials:runSteps(tutorialSteps, nil, LOCALIZED_MESSAGES)
+		else
+			Tutorials:quit()
+			TBMenu:showDataError("No localization found")
 		end
 	end
 

@@ -1138,15 +1138,15 @@ do
 		end
 	end
 
-	function UIElement:qsort(arr, sort, desc)
+	function UIElement:qsort(arr, sort, desc, includeZeros)
 		local a = {}
 		local desc = desc and 1 or -1
 		for i, v in pairs(arr) do
 			table.insert(a, v)
 		end
 		table.sort(a, function(a,b)
-				local val1 = a[sort] == 0 and b[sort] - desc or a[sort]
-				local val2 = b[sort] == 0 and a[sort] - desc or b[sort]
+				local val1 = a[sort] == 0 and (includeZeros and 0 or b[sort] - desc) or a[sort]
+				local val2 = b[sort] == 0 and (includeZeros and 0 or a[sort] - desc) or b[sort]
 				if (type(val1) == "string" or type(val2) == "string") then
 					val1 = val1:lower()
 					val2 = val2:lower()

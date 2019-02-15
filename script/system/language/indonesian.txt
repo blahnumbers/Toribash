@@ -1,0 +1,205 @@
+NAVBUTTONHOME	Halaman Utama
+NAVBUTTONPLAY	Main
+NAVBUTTONPRACTICE	Latihan
+NAVBUTTONMODS	Mods
+NAVBUTTONTOOLS	Perangkat
+NAVBUTTONTOMAIN	Ke Halaman Utama
+NAVBUTTONBACK	Kembali
+NAVBUTTONEXIT	Keluar
+NAVBUTTONLOGINREWARDS	Hadiah login
+NAVBUTTONQUESTS	Quest
+MAINMENUUSERCLAN	Klan
+MAINMENUTORISHOPNAME	Torishop
+MAINMENUTORISHOPDESC	Mencoba dan membeli item untuk tori kamu
+MAINMENUCLANSNAME	Klan
+MAINMENUCLANSDESC	Menjelajahi klan Toribash
+MAINMENUREPLAYSNAME	Replays
+MAINMENUREPLAYSDESC	Menonton Replay yang kamu unduh
+MAINMENUFREEPLAYNAME	Permainan bebas
+MAINMENUFREEPLAYDESC	Latih kemampuan kamu atau membuat replay di mode single player
+MAINMENURANKEDNAME	Ranked
+MAINMENURANKEDDESC	Mencari duel ranked yang cepat di mode Matchmaking
+MAINMENUMATCHMAKINGNAME	Matchmaking
+MAINMENUMATCHMAKINGDESC	Cara cepat untuk menempatkan diri di pertarungan antar muka
+MAINMENUROOMLISTNAME	Daftar ruangan
+MAINMENUROOMLISTDESC	Membuat ruangan online sendiri atau bergabung ke ruangan yang sudah ada
+MAINMENUBEGINNERTUTNAME	Tutorial untuk pemula
+MAINMENUBEGINNERTUTDESC	Belajar dasar Toribash: kontrol, gameplay, dan masih banyak lagi
+MAINMENUADVMOVESNAME	Gerakan tingkat lanjut
+MAINMENUADVMOVESDESC	Temukan gerakan tingkat lanjut yang dapat digunakan pada multiplayer
+MAINMENUFIGHTUKENAME	Lawan Uke
+MAINMENUFIGHTUKEDESC	Gunakan kemampuan kamu melawan musuh berat Tori
+MAINMENUCOMEBACKNAME	Latihan comeback
+MAINMENUCOMEBACKDESC	Tetap tangkap Uke tanpa terdiskualifikasi
+MAINMENUGAMERULESNAME	Aturan permainan
+MAINMENUGAMERULESDESC	Atur gravitasi dan setelan mod yang lain
+MAINMENUMODLISTNAME	Daftar mod
+MAINMENUMODLISTDESC	Muat salah satu mod yang sudah diunduh 
+MAINMENUMODMAKERNAME	Modmaker
+MAINMENUMODMAKERDESC	Buat mod kamu sendiri untuk Toribash
+MAINMENUMODSDISCOVERNAME	Temukan
+MAINMENUMODSDISCOVERDESC	Mencari mod baru yang dibuat oleh player lain
+MAINMENUSHADERSNAME	Shaders & Atmosfir
+MAINMENUSHADERSDESC	Atur pencahayaan dan suasana Toribash
+MAINMENUSCRIPTSNAME	Scripts
+MAINMENUSCRIPTSDESC	Muat yang sudah terunduh atau Third party script untuk toribash
+MAINMENUHOTKEYSNAME	Hotkeys
+MAINMENUHOTKEYSDESC	Lihat daftar hotkeys untuk Toribash
+MAINMENUSIGNINERROR	Kamu perlu login untuk bisa [Insert activity you want to put next]
+DOWNLOADINGFILESWAIT	Mengunduh file, harap tunggu...
+STORESETEMPTY	Kosong
+STOREITEM	Item
+STOREITEMS	Items
+STOREFLAMEBODYPART	partikel api untuk [insert the item here] kamu
+STOREFLAMEID	ID api
+STOREFLAMEFORGEDBY	Dibuat oleh [Put the name here]
+STOREITEMINSIDESET	Didalam set
+STOREOBJITEMBODYPART	3D kustom model untuk [Put the item name here]
+STOREITEMNODESCRIPTION	Item ini tidak memiliki deskripsi
+STOREITEMGOTOSET	Menuju ke set
+STORESETITEMNAME	set
+STOREITEMADDTOSET	tambahkan ke set
+STOREITEMREMOVEFROMSET	keluarkan dari set
+STORESETSELECTIONCONTROLS	Pilihan kontrol
+STORESETSELECT	Pilih set
+STOREVIEWSETITEMS	Lihat item set
+STOREITEMSINSET	Item didalam set
+STORESELLMARKET	Jual di pasar
+STOREDIALOGMARKETSELL1	Apakah kamu yakin untuk meletakkan [Put the item name here]
+STOREDIALOGMARKETSELL2	di pasar?
+STOREITEMDEACTIVATE	Deactivate
+STOREDIALOGDEACTIVATE1	Apakah kamu yakin untuk mennonaktifkan [Put the item name here]
+STOREDIALOGDEACTIVATE2	
+STOREITEMACTIVATE	Activate
+STOREDIALOGACTIVATE1	Apakah kamu yakin untuk mengaktifkan [Put your item name here]
+STOREDIALOGACTIVATE2	
+STOREDIALOGCONFLICTSDEACTIVATE	Setiap item yang memiliki konflik akan dinonaktifkan
+STOREITEMUNPACK	Membongkar
+STOREDIALOGUNPACK1	Apakah kamu yakin untuk membongkar [Put your item name here]
+STOREDIALOGUNPACK2	
+STOREDIALOGUNPACKINFO	Item yang terbongkar akan diletakkan di set  diletakkan di inventaris deactive
+STOREBUTTONCANCEL	Batal
+STOREDIALOGADDTOSET1	Apakah kamu yakin untuk menambahkan [Put the item name here]
+STOREDIALOGADDTOSET2	ke set
+STOREDIALOGREMOVEFROMSET1	Apakah kamu yakin untuk mengeluarkan [put the item name here]
+STOREDIALOGREMOVEFROMSET2	dari set
+STOREACTIVATEDINVENTORY	Inventrais activated
+STOREDEACTIVATEDINVENTORY	Inventaris deactivated
+STOREMARKETINVENTORY	Inventaris pasar
+STOREINVENTORYALLITEMS	Semua invetaris item
+PAGINATIONPAGE	Halaman
+PAGINATIONPAGEOF	dari
+STOREINVENTORYLOADING	Memuat data dari toriverse
+STOREDATALOADERROR	Gagal membuka data toribash, harap tunggu sampai update selesai atau cek izin folder Toribash
+STOREGOTOSHOP	Buka Torishop
+STORESHOPDESC	Membeli item baru untuk Tori kamu
+STOREGOTOINVENTORY	Buka inventaris
+STOREPURCHASETORICREDITS	Membeli Toricredits
+STOREINVENTORYDESC	Ubah karakter kamu dengan item yang kamu beli
+STORESTEAMPURCHASELOADING	Mengerjakan
+STORESTEAMPURCHASEERROR	Terjadi suatu kesalahan
+CLANSMYCLAN	Klan saya
+CLANSCLANLEADER	Pemimpin klan
+CLANSCLANMEMBER	Anggota klan
+CLANSTOGETHERWITH	Bersama dengan [Put the name here]
+CLANSVIEWCLAN	Lihat klan
+GENERALSTRINGAND	dan
+CLANFILTERSRANK	Peringkat
+CLANFILTERSCLANNAME	Nama
+CLANFILTERSCLANTAG	Tag
+CLANFILTERSCLANID	ID
+CLANFILTERSOFFICIALSTATUS	Kondisi
+CLANFILTERSJOINMODE	Mode bergabung
+CLANFILTERSDEAD	Mati
+CLANFILTERSINACTIVE	Inaktif
+CLANFILTERSACTIVE	Aktif
+SORTORDERASCENDING	Naik
+SORTORDERDESCENDING	Turun
+CLANFILTERSACTIVITYSTATE	Kondisi aktivitas
+CLANFILTERSACTIVITYSTATEDESC	Klan dianggap aktif jika memiliki kurang lebih 5 anggota. Klan yang tidak memiliki anggota dianggap mati
+CLANFILTERSFFAONLY	Hanya klan free for all
+CLANFILTERSFFAONLYDESC	Kamu dapat bergabung klan free for all kapan saja dengan menekan satu tombol. Untuk klan invite only, proses kustom aplikasi diperlukan
+CLANFILTERSOFFICIALONLY	Hanya klan official
+CLANFILTERSOFFICIALONLYDESC	Klan official punya board tersendiri di forum Toribash dan mempunyai kurung siku di permainan
+SORTBYNAME	Sortir dengan
+SORTORDERNAME	Sortir urutan
+CLANSSEARCHFILTERS	Filter pencarian
+CLANSSEARCH	Pencarian klan
+CLANSCLANLIST	Daftar klan
+CLANSLEGENDRANK	Peringkat
+CLANSLEGENDLEVEL	Level
+CLANSLEGENDXP	XP
+CLANSLEGENDTAGNAME	Tag dan nama
+CLANSLEGENDSTATUS	Kondisi
+CLANSLEGENDJOINMODE	Mode bergabung
+CLANSTATEOFFICIAL	Official
+CLANSTATEUNOFFICIAL	Unofficial
+CLANSTATEFREEFORALL	Free for all
+CLANSTATEINVITEONLY	Invite only
+CLANSLISTEMPTYMSG	Tidak klan untuk ditampilkan
+CLANSJOINCLAN	Gabung klan
+CLANSRELOADLOGO	Memuat ulang logo
+CLANSUPDATINGLOGO	Mengupdate
+CLANSTATEUNRANKED	Unranked
+CLANSVIEWWARSFORUM	Lihat wars di forum
+CLANSTOPACHMISSING	Klan ini belum memilih achievement untuk ditampilkan
+CLANSLEGENDROSTER	Daftar nama
+CLANSMEMBERSEMPTY	Klan ini tidak memiliki anggota
+CLANSPLAYERCLANLESS	Kamu saat ini tidak memiliki klan
+CLANSPLAYERCLANLESSINFOMSG	Kamu dapat bergabung dengan klan yang ada di daftar atau membuat klan sendiri
+CLANSCREATENEWCLAN	Buat klan baru
+CLANLEADERS	Para pemimpin
+CLANLEADER	Pemimpin
+CLANMEMBERS	Para anggota
+CLANMEMBER	Anggota
+CLANDATALOADERROR	Gagal memuat data klan, cek izin folder toribash
+REWARDSDAILYTITLE	Hadiah login harian
+REWARDSCLAIM	Klaim hadiah
+REWARDSCLAIMNETWORKERROR	Gagal berkomunikasi dengan server Toribash, Silahkan coba lagi nanti
+REWARDSCLAIMINPROGRESS	Mengklaim hadiah
+REWARDSCLAIMSUCCESS	Hadiah sudah terklaim
+REWARDSCLAIMNOREWARD	Tidak ada hadiah tersedia, silahkan coba lagi nanti 
+REWARDSCLAIMTIMEOUT	timeout error, buka kembali game kamu atau pergi ke online
+REWARDSCLAIMERROROTHER	Gagal mengklaim hadiah
+REWARDSNOAVAILABLE	Tidak ada hadiah tersedia
+REWARDSAVAILABLERESTART	Hadiah akan tersedia pada pembukaan game berikutnya
+REWARDSEXPIRED	Hadiah kamu sudah kadaluwarsa! :(
+REWARDSTIMEWEEKS	Minggu
+	
+REWARDSTIMEWEEK	Minggu
+REWARDSTIMEDAYS	Hari
+REWARDSTIMEDAY	Hari
+REWARDSTIMEHOURS	Jam
+REWARDSTIMEHOUR	Jam
+REWARDSTIMEMINUTES	Menit
+REWARDSTIMEMINUTE	Menit
+REWARDSTIMESECONDS	Detik
+REWARDSNEXTREWARD	Hadiah berikut pada saat...
+REWARDSTIMELEFT	tinggal [put the time here] untuk mengklaim hadiah
+MATCHMAKEMODGRAPPLING	Grappling
+MATCHMAKEMODKICKING	Kicking
+MATCHMAKEMODSTRIKING	Striking
+MATCHMAKEMODFUN	Menyenangkan
+MATCHMAKERANKEDBELT	Ranked Matchmaking tersedia untuk sabuk coklat
+MATCHMAKERANKEDMODE	Mode ranked
+MATCHMAKERANK	Peringkat
+MATCHMAKEELO	elo
+MATCHMAKEFIGHTSTOTAL	Total pertandingan
+MATCHMAKEWINRATE	Rasio kemenangan
+MATCHMAKENOPLAYERS	Tidak ada pemain yang sedang mencari
+MATCHMAKEPLAYERSEARCHING	Mencari pemain
+MATCHMAKEPLAYERSSEARCHING	Mencari pemain
+MATCHMAKESEARCHING	Mencari pertandingan
+MATCHMAKESEARCH	Mencari
+MATCHMAKESTOPSEARCH	Berhenti mencari
+MATCHMAKEUNRANKEDMODE	Permainan casual
+MATCHMAKEFINDBESTMATCH1	Mencari
+MATCHMAKEFINDBESTMATCH2	Temuan terbaik
+MATCHMAKESEARCHSETTINGS1	Mencari
+MATCHMAKESEARCHSETTINGS2	dengan pengaturan
+MATCHMAKESEARCHCUSTOM	Kustom
+MATCHMAKEUPDATINGRANK	Mengupdate statistik rank...
+MATCHMAKEQUALIFYING	Kualifikasi...
+MATCHMAKERANKUNAVAILABLE	Peringkat tidak ada
+MATCHMAKEUPDATINGTRENDS	Mengupdate tren peringkat kamu...
+MATCHMAKEGLOBALRANK	Peringkat global

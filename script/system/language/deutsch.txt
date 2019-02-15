@@ -6,6 +6,10 @@ NAVBUTTONMODS	Mods
 NAVBUTTONTOOLS	Werkzeuge	
 NAVBUTTONTOMAIN	Zum Menü	
 NAVBUTTONBACK	Zurück	
+NAVBUTTONEXIT	Verlassen
+NAVBUTTONLOGINREWARDS	Login Belohnungen
+NAVBUTTONQUESTS	Aufgaben
+MAINMENUUSERCLAN	Clan
 MAINMENUTORISHOPNAME	Torishop	
 MAINMENUTORISHOPDESC	Probiere und kaufe Gegenstände für deinen Tori	
 MAINMENUCLANSNAME	Clans	
@@ -14,6 +18,8 @@ MAINMENUREPLAYSNAME	Replays
 MAINMENUREPLAYSDESC	Schaue deine heruntergeladenen Replays an	
 MAINMENUFREEPLAYNAME	Freies Spiel	
 MAINMENUFREEPLAYDESC	Verbessere dein Können oder erstelle Replays im Einzelspielermodus	
+MAINMENURANKEDNAME	Ranked
+MAINMENURANKEDDESC	Finde ein schnelles Ranked Duell im Matchmaking Modus
 MAINMENUMATCHMAKINGNAME	Matchmaking	
 MAINMENUMATCHMAKINGDESC	Um schnell eins-gegen-eins Kämpfe zu bestreiten	
 MAINMENUROOMLISTNAME	Server Liste	
@@ -36,8 +42,11 @@ MAINMENUMODSDISCOVERNAME	Entdecke
 MAINMENUMODSDISCOVERDESC	Suche nach neuen, von anderen Spielern erstellte Mods	
 MAINMENUSHADERSNAME	Shader & Atmosphären	
 MAINMENUSHADERSDESC	Passe Belichtung und Umgebung an	
-MAINMENUSCRIPTSNAME	Scripts	
-MAINMENUSCRIPTSDESC	Lade vorinstallierte oder von anderen erstellte Scripts	
+MAINMENUSCRIPTSNAME	Skripte
+MAINMENUSCRIPTSDESC	Lade vorinstallierte oder drittanbieter Skripte für Toribash
+MAINMENUHOTKEYSNAME	Hotkeys
+MAINMENUHOTKEYSDESC	Siehe eine Liste von Toribash hotkeys
+MAINMENUSIGNINERROR	Du musst eingeloggt sein um
 MAINMENUSOUNDSNAME	Töne	
 MAINMENUSOUNDSDESC	Schalte benutzerdefinierte Töne an/aus	
 DOWNLOADINGFILESWAIT	Lade Daten herunter, bitte warte...	
@@ -54,6 +63,8 @@ STOREITEMGOTOSET	Gehe zum Set
 STORESETITEMNAME	Set	
 STOREITEMADDTOSET	Füge zum Set hinzu	
 STOREITEMREMOVEFROMSET	Entferne vom Set	
+STORESETSELECTIONCONTROLS	Auswahl Steuerungen
+STORESETSELECT	Wähle das Set aus
 STOREVIEWSETITEMS	Zeige Items im Set an	
 STOREITEMSINSET	Items im Set	
 STORESELLMARKET	Verkaufe im Markt	
@@ -70,6 +81,11 @@ STOREITEMUNPACK	Entpacken
 STOREDIALOGUNPACK1	Bist du sicher, das du	
 STOREDIALOGUNPACK2	entpacken willst?	
 STOREDIALOGUNPACKINFO	Ausgepackte Items werden in ein set\nin deinem deaktivierten Inventar platziert.	
+STOREBUTTONCANCEL	Abbruch
+STOREDIALOGADDTOSET1	Bist du dir sicher du willst
+STOREDIALOGADDTOSET2	zu einem Set hinzufügen
+STOREDIALOGREMOVEFROMSET1	Bist du dir sicher du willst
+STOREDIALOGREMOVEFROMSET2	von einem Set entfernen
 STOREACTIVATEDINVENTORY	Aktives Inventar	
 STOREDEACTIVATEDINVENTORY	Inaktives Inventar	
 STOREMARKETINVENTORY	Marktinventar	
@@ -77,6 +93,10 @@ STOREINVENTORYALLITEMS	Alle Items im Inventar
 PAGINATIONPAGE	Seite	
 PAGINATIONPAGEOF	von	
 STOREINVENTORYLOADING	Empfängt Daten vom Toriverse	
+STOREDATALOADERROR	Fehler beim öffnen der Toribash Daten, bitte warte bis es aktualisiert wurde oder überprüfe deine Toribash Ordner Berechtigungen.
+STORESHOPDESC	Kaufe neue Items für deinen Tori
+STOREPURCHASETORICREDITS	Kaufe Toricredits
+STOREINVENTORYDESC	Gestalte deinen Charakter mit gekauften Items
 STOREGOTOSHOP	Öffne den Torishop	
 STOREGOTOINVENTORY	Öffne dein Inventar	
 STORESTEAMPURCHASELOADING	Kauf wird bestätigt	
@@ -127,11 +147,15 @@ CLANSTATEUNRANKED	Unranked
 CLANSVIEWWARSFORUM	Zeige Clan Kriege im Forum	
 CLANSTOPACHMISSING	Dieser Clan hat keine Errungenschaft ausgestellt	
 CLANSLEGENDROSTER	Roster	
+CLANSMEMBERSEMPTY	Dieser Clan hat keine Mitglieder
+CLANSPLAYERCLANLESS	Du bist momentan Clan-los
+CLANSPLAYERCLANLESSINFOMSG	Du kannst einem existierendem Clan aus der Liste beitreten oder einen neuen erstellen
+CLANSCREATENEWCLAN	Erstelle einen neuen Clan
 CLANLEADERS	Anführer	
 CLANLEADER	Anführer	
 CLANMEMBERS	Mitglieder	
 CLANMEMBER	Mitglied	
-CLANDATALOADERROR	Fehler beim Laden von Clandaten, überprüfe Lese- und Schreibrechte deines Toribash Ordners	
+CLANDATALOADERROR	Fehler beim Laden von Clan Daten, überprüfe deine Toribash Ordner Berechtigungen
 REWARDSDAILYTITLE	Tägliche Login Belohnung	
 REWARDSCLAIM	Belohnung abholen	
 REWARDSCLAIMNETWORKERROR	Fehler bei der Kommunikation mit den Toribash Servern, bitte versuche es später erneut	
@@ -143,6 +167,10 @@ REWARDSCLAIMERROROTHER	Fehler beim Erhalten der Belohnung
 REWARDSNOAVAILABLE	Keine Belohnung verfügbar	
 REWARDSAVAILABLERESTART	Belohnung wird beim nächsten Spielstart verfügbar sein	
 REWARDSEXPIRED	Deine Belohnung ist abgelaufen! :(	
+REWARDSTIMEWEEKS	wochen
+REWARDSTIMEWEEK	woche
+REWARDSTIMEDAYS	Tage
+REWARDSTIMEDAY	Tag
 REWARDSTIMEHOURS	Stunden	
 REWARDSTIMEHOUR	Stunde	
 REWARDSTIMEMINUTES	Minuten	
@@ -172,3 +200,330 @@ MATCHMAKESEARCHSETTINGS1	Suche
 MATCHMAKESEARCHSETTINGS2	Mit Einstellungen	
 MATCHMAKESEARCHCUSTOM	Benutzerdefiniert	
 MATCHMAKEUPDATINGRANK	Aktualisiere Ranking Statistiken...	
+MATCHMAKEQUALIFYING	Qualifizierung
+MATCHMAKERANKUNAVAILABLE	Rang nicht verfügbar
+MATCHMAKEUPDATINGTRENDS	Aktualisiere deine ranking trends...
+MATCHMAKEGLOBALRANK	Globaler Rank
+MATCHMAKEGLOBALRANKING	Globales Ranking
+MATCHMAKEQUALIFICATIONINFO	Du musst 10 gewertete Kämpfe innerhalb einer Season spielen um dich für einen Rang zu qualifiezieren
+MATCHMAKEGOLDTIERREQUIREDFORRANKDISPLAY	Only Gold Tier+ ranked players can view their rank
+MATCHMAKEBESTRANKEDMODS	Beste Mods
+MATCHMAKERANKEDMODSEMPTY	Keine Mods zum Anzeigen
+MATCHMAKERANKEDTOPEMPTY	Keine Spieler zum Anzeigen....noch nicht
+MATCHMAKEWINLOSE	W/L
+MATCHMAKERANKINGTRENDS	Deine Globalen ranking trends
+MATCHMAKEMOREGAMESREQUIREDFORTRENDS	Spiele mehr gewertete Spiele um deine Elo trends zu sehen
+MATCHMAKETOPRANKEDPLAYERS	Besten ranked Spieler
+MATCHMAKESEASONABOUT	Über
+MATCHMAKEWINSTONEXTTIER	Siege zur nächsten Stufe
+MATCHMAKEELOGAININFO	Du erhälst eine unterschiedliche Menge an Elo für das gewinnen von Spielen, basierend auf dem Rang deines Gegners
+FRIENDSLISTTITLE	Freundes Liste
+FRIENDSLISTJOINROOM	Raum beitreten
+FRIENDSLISTLEGENDPLAYER	SPIELER
+FRIENDSLISTLEGENDROOM	RAUM
+FRIENDSLISTREFRESH	Aktualisieren
+FRIENDSLISTADDFRIEND	Neuen Freund hinzufügen
+FRIENDSLISTEMPTY	Freundes Liste leer
+FRIENDSLISTEMPTYINFO	Füge andere Spieler oder ganze Clans zu deiner Freundesliste hinzu, um zu wissen wann sie Online sind!
+FRIENDSLISTSEARCHDEFAULT	Schreibe einen Namen oder einen Clan tag in Klammern
+BUTTONSAVE	Speichern
+BUTTONDISCARD	Verwerfen
+BUTTONCANCEL	Abbrechen
+BUTTONCONTINUE	Fortfahren
+BUTTONADD	Hinzufügen
+BUTTONCREATE	Erstellen
+BUTTONUPLOAD	Hochladen
+BUTTONVIEW	Ansehen
+BUTTONSEARCH	Suchen
+BUTTONSUBMIT	Einreichen
+WORDTOTAL	insgesamt
+WORDTURN	reihe
+WORDGAMES	spiele
+WORDFIGHTS	kämpfe
+WORDTIMES	anzahl
+WORDIN	in
+WORDTC	toricredits
+WORDDONE	fertig
+WORDVS	vs
+WORDNONE	keiner
+WORDOPTIONAL	optional
+CHATCENSOREDMESSAGE	Deine Nachricht enthält ein verbotenes Wort und wird für andere Spieler zensiert.
+MOVEMEMORYLOADERROR	Fehler beim Laden von MoveMemory Daten.
+MOVEMEMORYSAVING	Speichere Move
+MOVEMEMORYENTERMOVENAME	Geben Move Namen ein
+MOVEMEMORYENTERMOVEDESCOPT	Gebe Move beschreibung ein (optional)
+MOVEMEMORYENTERMODNAMEOPT	Gebe Mod Namen ein (optional)
+MOVEMEMORYMODNAMEEMPTYERROR	Move Name kann nicht leer sein!
+MOVEMEMORYMOVESAVEERRORPERMS	Fehler beim Speichern des move, stelle sicher, dass dein Toribash Ordner Schreibberechtigungen hat
+MOVEMEMORYERRORNOTINGAME	Du musst spielen um einen Move aufzunehmen.
+MOVEMEMORYERRORSTOPMOVE	Bitte halte den derzeit spielenden move an bevor du einen neuen aufnimmst.
+MOVEMEMORYRECORDINGMOVE	Nehme Move auf
+MOVEMEMORYERRORUPDATINGDATA	Fehler beim Aktualisieren der MoveMemory Daten Datei, keine Änderungen vorgenommen.
+MOVEMEMORYNOMOVESFOUND	Keine Moves gefunden
+MOVEMEMORYDELETEMOVECONFIRM	Bist du dir sicher du möchtest diesen Opener löschen? Dieser Vorgang kann nicht rückgängig gemacht werden.
+MOVEMEMORYALLMOVES	ALLE MOVES
+MOVEMEMORYSUGGESTEDMOVES	EMPFOHLENE MOVES
+QUESTSNAMETYPE1	Tägliches Training
+QUESTSNAMETYPE2	Killer Maschine
+QUESTSNAMETYPE3	Damage Dealer
+QUESTSNAMETYPE4	Knochen Brecher
+QUESTSNAMETYPEDECAP	Kopfjäger
+QUESTSPLAYREQ	Spielen
+QUESTSWINREQ	Sieg
+QUESTSGETREQ	Erziele
+QUESTSGETREQ2	Punkte in deinen Kämpfen
+QUESTSDECAPREQ	Enthaupte Spieler
+QUESTSDISMEMBERREQ	Zerstückel Spieler
+QUESTSMATCHMAKEREQ	während im matchmaking
+QUESTSOFFICIALREQ	während in offiziellen Räumen
+QUESTSCLAIMREWARD	Erhalte Belohnung
+QUESTSUPDATING	Aktualisiere deine Quest Daten....
+QUESTSBYDECAP	bei Enthauptungen
+LUASCRIPTSNAME	Lua Skripte
+LUASCRIPTSTHIRDPARTYWARNING1	Achte immer doppelt auf drittanbieter Skripte die du ausführst.
+LUASCRIPTSTHIRDPARTYWARNING2	Bösartige Skripte können deine Toribash Daten modifizieren, löschen oder stehlen
+LUASCRIPTSTHIRDPARTYWARNING3	Führe nur Skripte aus die von dem Toribash Personal überprüft wurde
+LUASCRIPTSFORUMBOARD	Skripte Brett auf dem forum
+LUAMALICIOUSWARNING	MÖGLICHERWEISE BÖSARTIGES SKRIPT
+LUAFILEACCESSWARNING	SKRIPT KANN ZUGRIFF AUF ANDERE DATEIEN ERHALTEN
+LUAOTHERSCRIPTSWARNING	SKRIPT LÄDT ANDERE SKRIPTE
+LUALOADSCRIPT	Lade Skript
+ERRORCREATINGFILE	Fehler beim erstellen der Datei
+REPLAYSSAVING	Speichere Wiederholung
+REPLAYSDEFAULTPATH	Wiederholungs Datei wird im 'my replays' Ordner gespeichert
+REPLAYSENTERNAME	Gebe Wiederholungs Namen ein
+REPLAYSERROREMPTYNAME	Wiederholungs Name kann nicht leer sein
+REPLAYSERRORCHARACTERS	Wiederholungs Name muss alphanumeric sein und kann nur unterstriche, leerzeichen oder striche als spezielle charaktere enthalten
+REPLAYSERRORRENAMING	Fehler beim umbennen der Wiederholung, bitte ändere den Namen im Wiederholungs Menü
+REPLAYSLOCAL	Lokale Wiederholungen
+REPLAYSSEARCH	Suche
+REPLAYSCOMMUNITY	Community Wiederholungen
+REPLAYSUPDATINGCACHE	Aktualisiere Wiederholungs cache
+REPLAYSERRORREADINGFILE	Fehler beim lesen der Wiederholungs Datei
+REPLAYSERRORUPDATINGFILE	Fehler beim Aktualisieren der Wiederholungs Datei
+REPLAYSERRORUPDATINGNAME	Fehler beim Aktualiiseren des Wiederholungs Namen
+REPLAYSERRORREADINGCACHE	Fehler beim Lesen der Wiederholungs cache Datei
+REPLAYSERRORUPDATINGTAGS	Fehler beim Aktualisieren der Wiederholungs Stichworte
+REPLAYSUPDATINGCOMMUNITY	Lade Wiederholungs Daten herunter, bitte warten...
+REPLAYSFILTERSDATE	nach hochlade Datum
+REPLAYSFILTERSRATING	nach Bewertung
+REPLAYSFILTERSPOPULARITY	nach Popularität
+REPLAYSFILTERSTAGGED	gekenzeichnet
+REPLAYSFILTERSBYTAG	nach Wiederholungs Stichworten
+REPLAYSFILTERSBY	hochgeladen von
+REPLAYSFILTERSUPLOADER	von Wiederholungs Uploader
+REPLAYSBACKTOALLREPLAYS	ZURÜCK ZU ALLEN WIEDERHOLUNGEN
+REPLAYSMATCHBY	Match nach
+REPLAYSAUTHORAUTOSAVE	autosave
+REPLAYSAUTHORBY	nach
+REPLAYSLOADINGREPLAY	Lade Wiederholung...
+REPLAYSADDFOLDER	Füge Ordner hinzu
+REPLAYSTAGSMODIFYING	Modifieziere
+REPLAYSTAGSNAME	Wiederholungs Stichworte
+REPLAYSPOPULARTAGS	Populäre Stichworte
+REPLAYSASSIGNEDTAGS	Zugewiesene Stichworte
+REPLAYSINPUTTAGHERE	Gebe dein eigenes Stichwort ein
+REPLAYSTAGERRORSHORT	Wiederholungs Stichwort sollte mindestens einen Buchstaben haben
+REPLAYSTAGERRORDUPLICATE	Dieses Stichwort wurde zur Wiederholung bereits hinzugefügt
+REPLAYSMODIFYINGFOLDER	ordner
+REPLAYSFOLDERNAME	Ordner Name
+REPLAYSERRORDELETING	Fehler beim löschen
+REPLAYSERRORDELETINGFOLDER	ordner
+REPLAYSERRORMOVING	Fehler beim verschieben
+REPLAYSERRORMOVINGTO	nach
+REPLAYSFOLDERNOTEMPTYDELETEWARNING	Dieser Ordner ist nicht leer. Durch das löschen werden alle enthaltenen Wiederholungen zum Vorläufer Ornder verschoben. Fortfahren?
+REPLAYSERRORRENAMINGFOLDER	Fehler beim umbenennen des Ordners
+REPLAYSERRORRENAMINGREPLAY	Fehler beim umbenennen der Wiederholung
+REPLAYSERRORMOVINGREPLAY	Fehler beim verändern des Wiederholungs Ordners
+REPLAYSFOLDERLEVELERROR1	Du kannst nicht mehr als
+REPLAYSFOLDERLEVELERROR2	Ordner Level erzeugen
+REPLAYSADDINGFOLDER	Neuen Ordner innen hinzufügen
+REPLAYSNEWFOLDERNAME	Neuer Ordner Name
+REPLAYSFOLDERALPHANUMERIC	Ordner Name sollte alphanumeric sein
+REPLAYSERRORADDINGFOLDER	Fehler beim hinzufügen des Wiederholungs Ordners
+REPLAYSUPLOAD	Hochladen
+REPLAYSUPLOADTORIBASHSERVERS	zu Toribash Servern
+REPLAYSNAME	Name
+REPLAYSNAMEINFO	Das wird der öffentliche Wiederholungs Name
+REPLAYSDESC	Beschreibung
+REPLAYSDESCINFO	Eine kurze Beschreibung deiner Wiederholugns
+REPLAYSDESCTIP	Gebe die Beschreibung ein
+REPLAYSTAGS	Stichworte
+REPLAYSTAGSINFO	Leerzeichen-separierte Stichworte für deine Wiederholung
+REPLAYSTAGSTIP	Gebe Wiederholungs Stichworte ein
+REPLAYSUPLOADCONFIRM	Dies wird deine Wiederholung \nzu den Toribash Servern hochladen und dadurch verfügbar für alle anderen machen.\nFortfahren?
+REPLAYSMANAGE	Verwalten
+REPLAYSREPLAY	Wiederholung
+REPLAYSREPLAYS	Wiederholungen
+REPLAYSREPLAYNAME	Wiederholungs Name
+REPLAYSREPLAYDIR	Wiederholungs Ordner
+REPLAYSCONFIRMDELETION	Bist du dir sicher du möchtest
+REPLAYSCONFIRMDELETION2	Wiederholung löschen?
+REPLAYSAUTOSAVEOPTION	Speichere WIederholungen Automatisch
+REPLAYSEMPTYFOLDER	Keine Wiederholungen in diesem Ordner
+REPLAYSBY	nach
+REPLAYSDATACORRUPT	DATEN BESCHÄDIGT
+REPLAYSPLAYERS	Spieler
+REPLAYSMOD	Mod
+REPLAYSCOMMUNITYTITLEINFO	Suche nach Wiederholungen auf den Toribash Servern
+REPLAYSDOWNLOADINGREPLAY	Lade Wiederholung herunter...
+REPLAYSOPENINGREPLAY	Öffne Wiederholung....
+REPLAYSREPLAYSAVEDINFO	Wiederholung heruntergeladen und im Download Ordner abgespeichert.
+REPLAYSCOMMUNITYDOUBLECLICKINFO	Doppel klicke auf irgendeine Wiederholung für eine kurze Vorschau.
+REPLAYSCOMMUNITYNOFOUND	Keine Wiederholungen gefunden.
+REPLAYSLOADPREVIOUS	LADE VORHERIGE
+REPLAYSLOADNEXT	LADE NÄCHSTE
+REPLAYSDOWNLOAD	download
+REPLAYSDOWNLOADS	downloads
+REPLAYSVOTINGON	Abstimmung über
+REPLAYSCOMMENT	Kommentar
+REPLAYSVOTECONFIRM1	Du bist dabei dieser Wiederholung
+REPLAYSVOTECONFIRM2	von 5 Sternen zu geben.\nFortfahren?
+REPLAYSCOMMENTSDOWNLOADING	Lade Kommentare herunter...
+REPLAYSADDCOMMENT	Füge Kommentar hinzu
+REPLAYSUPLOADEDON	Hochgeladen am
+REPLAYSSAVEREPLAY	Speichere Wiederholung
+REPLAYSVIEWCOMMENTS	Zeige Kommentare
+REPLAYSMOREBY	Mehr nach
+REPLAYSREFRESHCACHEPROMPT	Dies wird deinen Wiederholungs cache zurücksetzen.\nBist du dir sicher du möchtest Fortfahren? 
+REPLAYSERRORREFRESHINGCACHE	Fehler beim aktualieseren des cache, stelle sicher du hast schreibberechtigungen im Toribash Ordner
+MODSDOWNLOADINGMOD	Lade Mod herunter...
+NOFILESFOUND	Keine Dateien gefunden
+FILENAME	Datei Name
+MODSRESTARTGAME	Starte ein neues Spiel nach laden der Mod
+SEARCHNOTE	Fang an zu schreiben um zu suchen
+SHADERSSAVESHADER	Speicher Shader
+SHADERSSAVING	Speichere Shader zur Datei
+SHADERSINPUTNAME	Gebe Shader Namen ein
+SHADERSERRORFILEEXISTS	Shader Name existiert bereits. Dieser Vorgang wird die alte Datei überschreiben.
+SHADERSRESETTODEFAULT	Nach Standard zurücksetzen
+SHADERSEDITOR	Shader Editor
+SHADERSATMOSNAME	Atmosphären
+SHADERSNAME	Shaders
+SETTINGSOTHER	Andere
+SETTINGSAUDIO	Audio
+SETTINGSEFFECTS	Effekte
+SETTINGSGRAPHICS	Grafiken
+SETTINGSGRAPHICSPRESETS	Grafik Voreinstellungen
+SETTINGSVISUALSQUALITY	Visuelle Qualitäten (könnte neustart erfordern)
+SETTINGSCUSTOM	Benutzerdefiniert
+SETTINGSLOWEST	Kartoffel
+SETTINGSLOW	Niedrig
+SETTINGSMEDIUM	Medium
+SETTINGSHIGH	Hoch
+SETTINGSHIGHEST	RTX 2080 Ti
+SETTINGSRESOLUTION	Auflösung
+SETTINGSADVANCED	Erweitert
+SETTINGSSHADERS	Shader
+SETTINGSFLUIDBLOOD	Flüssiges Blut
+SETTINGSFLOORREFLECTIONS	Boden Reflektionen
+SETTINGSSOFTSHADOWS	Weiche Schatten
+SETTINGSAMBIENTOCCLUSION	Umgebungsverdeckung
+SETTINGSRAYTRACING	Ray Tracing
+SETTINGSFRAMERATE	Bildwiederholungsrate
+SETTINGSFPS	Bilder die Sekunde
+SETTINGSFPSUNCAPPED	Unlimitiert
+SETTINGSGENERAL	Allgemeines
+SETTINGSEFFECTSINFO	Effekt Anzeige Einstellungen
+SETTINGSDISABLED	Deaktiviert
+SETTINGSENABLED	Aktiviert
+SETTINGSREPLAYSONLY	Nur in Wiederholungen
+SETTINGSPLAYERCUSTOMIZATION	Spieler Anpassungen
+SETTINGSBODYTEXTURES	Körper Texturen
+SETTINGSTRAILS	Spuren
+SETTINGSFLAMES	Flammen
+SETTINGSHAIRS	Haare
+SETTINGSOBJMODELS	3D Modelle
+SETTINGSEFFECTSVOLUME	Effekt Lautstärke
+SETTINGSMUSICVOLUME	Musik Lautstärke
+SETTINGSVCVOLUME	Sprach Chat Lautstärke
+SETTINGSVCTOGGLE	Sprach Chat Umschalten
+SETTINGSSOUNDMASTER	Effekt Sound Master
+SETTINGSHITEFFECTS	Treffer Sounds
+SETTINGSGAMEOVER	DQ und Sieges Sounds
+SETTINGSREADY	Kiai Sound
+SETTINGSGRIP	Griff Sound
+SETTINGSALERT	Schrei Sound
+SETTINGSDISMEMBER	Zerstückel Sound
+SETTINGSFIGHTALERT	Kampf Alarm Sound
+SETTINGSFREEZE	Freeze Sound
+SETTINGSGRADING	Wertungs Sound
+SETTINGSIMPACT	Aufprall Sound
+SETTINGSJOINT	Gelenk Sound
+SETTINGSMENU	Menü Sound
+SETTINGSNONE	Kein Sound
+SETTINGSPAIN	Schmerz Sound
+SETTINGSSELECTPLAYER	Spieler Auswahl Sound
+SETTINGSSPLASH	Spritz Sound
+SETTINGSSWOOSH	Swoosh Sound
+SETTINGSLANGUAGE	Sprache
+SETTINGSGAMELANGUAGE	Spiel Sprache
+SETTINGSCHAT	Chat Einstellungen
+SETTINGSCHATTOGGLE	Chat Länge Umschalten
+SETTINGSPROFANITYFILTER	Profanitäts Filter
+SETTINGSHIDEECHO	Verstecke System Nachrichten
+SETTINGSGAMEPLAY	Gameplay tweaks
+SETTINGSMOUSEBUTTONS	Maus Steuerungs Modus
+SETTINGSMOUSEBUTTONS0	Nur Zusammenziehen / Ausdehnen 
+SETTINGSMOUSEBUTTONS1	Alle vier Gelenk Modis
+SETTINGSMOUSEBUTTONS2	Nur Anspannen / Entspannen
+SETTINGSBACKGROUNDCLICK	Hintergrund Klick
+SETTINGSAUTOSAVE	Autosave Wiederholungen
+SETTINGSGAMERULES	Erinnere Spielregeln
+SETTINGSMODERNHUD	Erweitertes HUD
+SETTINGSTOOLTIP	Zeige erweitertes Tooltip
+SETTINGSMOVEMEMORY	Aktiviere MoveMemory
+SETTINGSBASEHUDONLY	nur basis HUD
+SETTINGSWINDOWED	FensterModus
+SETTINGSWIDTH	Breite
+SETTINGSHEIGHT	Höhe
+SETTINGSONLYDEFAULTSOUNDS	Nur Standard Sounds
+SETTINGSAPPLY	Änderung übernehmen
+SETTINGSRESTARTREQUIRED	Neustart könnte erforderlich sein
+SETTINGSNOCHANGES	Keine änderungen vorgenommen
+HOTKEYSBASICCONTROLS	Grundlegende Steuerung
+HOTKEYSCAMERACONTROLS	Kamera Steuerung
+HOTKEYSHOLDALL	Alles Anspannen / Alles Entspannen
+HOTKEYSHOLDRELAX	Anspannen / Entspanne Gelenk
+HOTKEYSCONTRACTEXTEND	Zusammenziehen / Ausdehnen Gelenk
+HOTKEYSGRABUNGRAB	Schalte Hand Status um (Grab / Ungrab)
+HOTKEYSGRABALL	Schalte beide Hand Stadien um
+HOTKEYSSAVEREPLAY	Speichere Wiederholung
+HOTKEYSTORIGHOST	Schalte Spieler Geist um
+HOTKEYSPLAYERSGHOST	Schalte beide Spieler Geister um
+HOTKEYSTURN	Beende Zug / Überspringe ein Bild
+HOTKEYSCHAT	Chat Steuerung
+HOTKEYSOPENCHAT	Öffne Chat Box
+HOTKEYSTOGGLECHAT	Zeige mehr Chat Linien an
+HOTKEYSSCROLLCHAT	Scrolle Chat Hoch / Runter
+HOTKEYSSCROLLCHATMAX	Scrolle Chat zum Anfang / Ende
+HOTKEYSREPLAYS	Wiederholungs Hotkeys
+HOTKEYSREPLAYRESTART	Starte Wiederholung erneut
+HOTKEYSREPLAYPAUSE	Pausiere Wiederholung
+HOTKEYSREPLAYEDIT	Ändere Wiederholung
+HOTKEYSREPLAYKEYFRAME	Speichere Keyframes
+HOTKEYSREPLAYKEYFRAMESCLEAR	Lösche Keyframes
+HOTKEYSREPLAYNEXT	Spiele die nächste Wiederholung
+HOTKEYSREPLAYPREV	Spiele die vorherige Wiederholung
+HOTKEYSOTHER	Andere Hotkeys
+HOTKEYSMODLIST	Öffne Mod Liste
+HOTKEYSSHADERS	Öffne Shader & Atmosphären
+HOTKEYSGAMERULES	Öffne Spielregeln
+HOTKEYSFULLSCREEN	Gehe in den Vollbild Modus
+HOTKEYSCAMERAMODES	Ändere den Kamera Modus
+TUTORIALSLEAVINGPROMPT	Verlasse Tutorial Modus.\nDerzeitiges Tutorial muss vom Anfang neugestartet werden wenn du fortfährst.
+TUTORIALSCONTINUETONEXT	Fahre fort zum nächsten Tutorial
+TUTORIALSBACKTOMAIN	Kehre zurück zum Hauptmenü
+TUTORIALSINTRONAME	Vorstellung zu Toribash
+TUTORIALSINTRODESC	Lerne Sensei kennen und starte deine Toribash Reise
+TUTORIALSPUNCHNAME	Schlag Tutorial
+TUTORIALSPUNCHDESC	Lerne die Grundlagen des Schlagens in Toribash
+TUTORIALSKICKNAME	Tritt Tutorial
+TUTORIALSKICKDESC	Lerne deinen Gegner mit den Beinen Anzugreifen
+TUTORIALSCHALLENGEUKENAME	Fordere Uke heraus
+TUTORIALSCHALLENGEUKEDESC	Teste deine Fähigkeiten in einem Kampf gegen Uke
+TUTORIALSCOMEBACKPRACTICENAME	Comeback Übung
+TUTORIALSCOMEBACKPRACTICEDESC	Übe deine Comeback Fähigkeiten während du Uke fängst
+TUTORIALSLOCKED	Beende andere Tutorial oder verdiene mehr Qi um dies Freizuschalten
+TUTORIALSVIEWALLNAME	Schaue alle Tutorials an
+TUTORIALSVIEWALLDESC	Greife auf irgendein Tutorial zu, welches du bereits beendet hast.

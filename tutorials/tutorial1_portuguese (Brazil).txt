@@ -1,0 +1,35 @@
+#PLAYER MESSAGES	
+INTROSENSEI1	... E é assim que você se torna um grande lutador.
+INTROSENSEI2	Com muito treinamento e trabalho duro, você pode alcançar resultados surpreendentes!
+INTROPLAYER1	Mas Sensei, como você sabe tanto sobre luta - você mal consegue andar sozinho!
+INTROSENSEI3	Huh, jovens... eu nem sempre fui velho.
+INTROSENSEI4	Houve um tempo, não muito tempo atrás, quando eu era tão jovem e ingênuo como você é agora ...
+INTROFIGHTSENSEI1	Minha última luta foi grandiosa.
+INTROFIGHTSENSEI2	Seguindo a orientação do meu mestre, fiquei concentrado durante toda a luta.
+INTROFIGHTSENSEI3	Fiquei de olho nos pontos fracos do meu oponente - e sabia cada um deles.
+INTROFIGHTSENSEI4	Eu fui rápido como um animal selvagem.
+INTROFIGHTSENSEI5	Ele não podia ver meus ataques chegando, e parecia uma vitória fácil.
+INTROFIGHTSENSEI6	Meus movimentos eram perfeitos e eu estava prestes a ganhar, mas algo completamente inesperado aconteceu ...
+INTROFIGHTSENSEI7	Assim que eu estava prestes a derrotar o meu adversário, meu joelho quebrou, acabando com todas as minhas chances.
+INTROENDPLAYER1	Eu me enfureci e chamei aquele cara de sortudo... então disse que o venceria da próxima vez que o encarasse!
+INTROENDPLAYER2	Eu também diria a ele que sua mãe é uma-
+INTROENDSENSEI1	Não não não, meu jovem estudante. Suas derrotas ensinam a você, tanto quanto suas vitórias.
+INTROENDPLAYER3	Então é por isso que você está usando uma bengala, mestre? Sua perna ainda dói?
+INTROENDSENSEI2	Oh não, você se sente curado depois de cada luta.
+INTROENDSENSEI3	É só que... eu pareço mais respeitável com uma bengala
+INTROENDSENSEI4	eeh, por que você está perguntando? ... não importa! Nós já falamos por tempo demais!
+INTROENDSENSEI5	Se você quer se tornar um bom lutador, precisa treinar; Não fique sentado o tempo todo!
+#	
+#HINT MESSAGES	
+CAMERAHINT1	Mova sua câmera usando as teclas ~W~ ~A~ ~S~ ~D~.
+CAMERAHINT2	Para ajustar a altura da câmera, segure ~SHIFT~ enquanto move a câmera.
+CAMERAHINT3	Você também pode controlar a câmera segurando o botão direito do mouse em qualquer lugar.
+CONTROLSHINT1	No Toribash, você controla seu personagem modificando o estado de seus 'joints' do corpo.
+CONTROLSHINT2	Existem quatro estados dos 'joints' - SEGURAR, RELAXAR, CONTRAIR e EXTENDER.\nCombinando eles, resultará em movimentos únicos que fará cada luta ser especial.
+CONTROLSHINT3	Clique no joelho do Sensei para mudar seu estado para EXTENDER e chutar o oponente.
+CONTROLSHINT4	Você também pode controlar seus 'joints' mais rápido usando os atalhos do teclado.
+CONTROLSHINT5	Para mudar o estado de todos os 'joints' de uma vez para RELAXAR ou SEGURAR, pressione ~C~
+CONTROLSHINT6	Passe o mouse em cima de qualquer 'joint' e aperte ~X~ para mudar entre SEGURAR e RELAXAR.
+CONTROLSHINT7	Para mudar entre CONTRAIR and EXTENDER, pressione ~Z~ enquanto está com o mouse em cima de qualquer 'joint'.
+QIHINT1	Sua experiência do Toribash é medida em QI. Para cada luta que você joga, você ganha 1 QI.
+QIHINT2	Quanto mais Qi você conseguir, maior será a faixa que você terá e mais itens de personalização ficarão disponíveis para compra.

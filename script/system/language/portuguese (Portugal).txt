@@ -1,0 +1,527 @@
+NAVBUTTONHOME	Início
+NAVBUTTONPLAY	Jogar
+NAVBUTTONPRACTICE	Treino
+NAVBUTTONMODS	Modificações
+NAVBUTTONTOOLS	Ferramentas
+NAVBUTTONTOMAIN	Para o início
+NAVBUTTONBACK	Voltar
+NAVBUTTONEXIT	Sair
+NAVBUTTONLOGINREWARDS	Prémios de Login
+NAVBUTTONQUESTS	Missões
+MAINMENUUSERCLAN	Clã
+MAINMENUTORISHOPNAME	Torishop
+MAINMENUTORISHOPDESC	Tenta e compra items para o teu Tori
+MAINMENUCLANSNAME	Clãs
+MAINMENUCLANSDESC	Pesquisar Clãs Do Toribash
+MAINMENUREPLAYSNAME	Reproduções
+MAINMENUREPLAYSDESC	Vê as reproduções que desgarregas-te
+MAINMENUFREEPLAYNAME	Partida livre
+MAINMENUFREEPLAYDESC	Treina as tuas habilidades ou faz reproduções nos modos de Um Jogador
+MAINMENURANKEDNAME	Competitivo
+MAINMENURANKEDDESC	Encontra rapidamente um duelo competitivo no modo matchmaking
+MAINMENUMATCHMAKINGNAME	Matchmaking
+MAINMENUMATCHMAKINGDESC	Forma rápida de te posicionares em batalhas um contra um 
+MAINMENUROOMLISTNAME	Lista de salas
+MAINMENUROOMLISTDESC	Cria a tua sala online ou junta-te a uma já criada
+MAINMENUBEGINNERTUTNAME	Tutorial para novatos
+MAINMENUBEGINNERTUTDESC	Aprende os básicos do Toribash: controlos, jogabilidade e mais
+MAINMENUADVMOVESNAME	Movimentos avançados
+MAINMENUADVMOVESDESC	Descobre movimentos avançados para usar no modo multijogador
+MAINMENUFIGHTUKENAME	Luta contra o Uke
+MAINMENUFIGHTUKEDESC	Põe as tuas habilidades á prova contra o maior inimigo do Tori
+MAINMENUCOMEBACKNAME	Treino de regresso
+MAINMENUCOMEBACKDESC	Continua a apanhar o Uke sem seres desqualificado
+MAINMENUGAMERULESNAME	Regras do jogo
+MAINMENUGAMERULESDESC	Costumizar gravidade e outras modificações
+MAINMENUMODLISTNAME	Lista de modificações
+MAINMENUMODLISTDESC	Carregar uma das modificações instaladas
+MAINMENUMODMAKERNAME	Criador de modos
+MAINMENUMODMAKERDESC	Cria a tua própria modificações de Toribash
+MAINMENUMODSDISCOVERNAME	Descobre
+MAINMENUMODSDISCOVERDESC	Pesquisar modificações criadas por outros jogadores
+MAINMENUSHADERSNAME	Sombras e atmosfera
+MAINMENUSHADERSDESC	Costumiza a luz e o ambiente do Toribash
+MAINMENUSCRIPTSNAME	Scripts
+MAINMENUSCRIPTSDESC	Carregar arquivos pre-instalados ou não oficiais para o Toribash
+MAINMENUHOTKEYSNAME	Teclas
+MAINMENUHOTKEYSDESC	Ver a lista de teclas para o Toribash
+MAINMENUSIGNINERROR	Precisas de estar na tua conta para
+DOWNLOADINGFILESWAIT	Instalando ficheiros, por favor espera...
+STORESETEMPTY	VAZIO
+STOREITEM	item
+STOREITEMS	items
+STOREFLAMEBODYPART	Particulas de chama para o teu
+STOREFLAMEID	ID de chama
+STOREFLAMEFORGEDBY	Feito por
+STOREITEMINSIDESET	Dentro do conjunto
+STOREOBJITEMBODYPART	Modelos 3D costumizados para
+STOREITEMNODESCRIPTION	Este item não tem descrição
+STOREITEMGOTOSET	Ir para o conjunto
+STORESETITEMNAME	Conjunto
+STOREITEMADDTOSET	Adicionar ao conjunto
+STOREITEMREMOVEFROMSET	Remover do conjunto
+STORESETSELECTIONCONTROLS	Seleção controlos
+STORESETSELECT	Escolhe o conjunto
+STOREVIEWSETITEMS	Ver items do conjunto
+STOREITEMSINSET	Items dentro do conjunto
+STORESELLMARKET	Vender no mercado
+STOREDIALOGMARKETSELL1	Tens a certeza que queres colocar
+STOREDIALOGMARKETSELL2	no mercado?
+STOREITEMDEACTIVATE	Inativo
+STOREDIALOGDEACTIVATE1	Tens a certeza que queres desativar
+STOREDIALOGDEACTIVATE2	
+STOREITEMACTIVATE	Ativo
+STOREDIALOGACTIVATE1	Tens a certeza que queres ativar
+STOREDIALOGACTIVATE2	
+STOREDIALOGCONFLICTSDEACTIVATE	Qualquer item conflitivo será desativado
+STOREITEMUNPACK	Desempacotar
+STOREDIALOGUNPACK1	Tens a certeza que queres desempacotar
+STOREDIALOGUNPACK2	
+STOREDIALOGUNPACKINFO	Items desempacotados vão ser postos\n e colocados no teu inventário inativo
+STOREBUTTONCANCEL	Cancelar
+STOREDIALOGADDTOSET1	Tens a certeza que queres adicionar
+STOREDIALOGADDTOSET2	para um conjunto
+STOREDIALOGREMOVEFROMSET1	Tens a certeza que queres retirar
+STOREDIALOGREMOVEFROMSET2	De um conjunto
+STOREACTIVATEDINVENTORY	Inventário ativo
+STOREDEACTIVATEDINVENTORY	Inventário inativo
+STOREMARKETINVENTORY	Inventário do mercado
+STOREINVENTORYALLITEMS	Todos os items do inventário
+PAGINATIONPAGE	Página
+PAGINATIONPAGEOF	de
+STOREINVENTORYLOADING	Carregando dados do Toriverse
+STOREDATALOADERROR	Erro ao abrir dados do Torishop, por favor espera até estar atualizada ou vê as permissões da pasta do Toribash
+STOREGOTOSHOP	Abrir Torishop
+STORESHOPDESC	Comprar novos items para o teu Tori
+STOREGOTOINVENTORY	Abrir inventário
+STOREPURCHASETORICREDITS	Comprar Toricredits
+STOREINVENTORYDESC	Costumiza o teu personagem com os items que compras-te
+STORESTEAMPURCHASELOADING	Funcionando
+STORESTEAMPURCHASEERROR	Algo correu mal
+CLANSMYCLAN	Meu clã
+CLANSCLANLEADER	Líder do clã
+CLANSCLANMEMBER	Membro do clã
+CLANSTOGETHERWITH	Com
+CLANSVIEWCLAN	Ver clã
+GENERALSTRINGAND	e
+CLANFILTERSRANK	Classificação
+CLANFILTERSCLANNAME	Nome
+CLANFILTERSCLANTAG	Tag
+CLANFILTERSCLANID	ID
+CLANFILTERSOFFICIALSTATUS	Estado
+CLANFILTERSJOINMODE	Entrar no modo
+CLANFILTERSDEAD	Morto
+CLANFILTERSINACTIVE	Inativo
+CLANFILTERSACTIVE	Ativo
+SORTORDERASCENDING	Ascendendo
+SORTORDERDESCENDING	Descendendo
+CLANFILTERSACTIVITYSTATE	Estado de atividade
+CLANFILTERSACTIVITYSTATEDESC	Clãs são considerados ativos quando têm pelo menos 5 membros. Clãs sem membros são marcados como mortos.
+CLANFILTERSFFAONLY	Só clãs abertos
+CLANFILTERSFFAONLYDESC	Podes juntar-te a clãs abertos quando quiseres apenas clicando num botão. Para entrar em clãs privados, é preciso preencher um formulário.
+CLANFILTERSOFFICIALONLY	Só clãs oficiais
+CLANFILTERSOFFICIALONLYDESC	Clãs oficiais têm o seu próprio quadro nos Toribash forums e têm parênteses retos no jogo
+SORTBYNAME	Filtrar por
+SORTORDERNAME	Filtrar ordem
+CLANSSEARCHFILTERS	Pesquisar filtros
+CLANSSEARCH	Pesquisar clãs
+CLANSCLANLIST	Lista de clãs
+CLANSLEGENDRANK	Classificação
+CLANSLEGENDLEVEL	Nível
+CLANSLEGENDXP	Experiência
+CLANSLEGENDTAGNAME	Tag e nome
+CLANSLEGENDSTATUS	Estado
+CLANSLEGENDJOINMODE	Modo de entrada
+CLANSTATEOFFICIAL	Oficial
+CLANSTATEUNOFFICIAL	Não oficial
+CLANSTATEFREEFORALL	Abertos
+CLANSTATEINVITEONLY	Privados
+CLANSLISTEMPTYMSG	Sem clãs para mostrar
+CLANSJOINCLAN	Juntar ao clã
+CLANSRELOADLOGO	Recarregar logo
+CLANSUPDATINGLOGO	Atualizando
+CLANSTATEUNRANKED	Não classificado
+CLANSVIEWWARSFORUM	Ver guerras no forum
+CLANSTOPACHMISSING	Este clã não escolheu uma conquista para mostrar
+CLANSLEGENDROSTER	Seleção
+CLANSMEMBERSEMPTY	Este clã não tem membros
+CLANSPLAYERCLANLESS	Atualmente não estás num clã
+CLANSPLAYERCLANLESSINFOMSG	Podes juntar-te a um clã da lista ou criar um novo
+CLANSCREATENEWCLAN	Criar novo clã
+CLANLEADERS	Líderes
+CLANLEADER	Líder
+CLANMEMBERS	Membros
+CLANMEMBER	Membro
+CLANDATALOADERROR	Erro ao carregar dados do clã, vê as permissões da pasta do Toribash
+REWARDSDAILYTITLE	Prémios de login diários
+REWARDSCLAIM	Obter prémio
+REWARDSCLAIMNETWORKERROR	Erro ao comunicar com os servidores do Toribash, por favor tenta de novo
+REWARDSCLAIMINPROGRESS	Obtendo prémio
+REWARDSCLAIMSUCCESS	Prémio obtido
+REWARDSCLAIMNOREWARD	Prémio indisponível, tenta novamente mais tarde
+REWARDSCLAIMTIMEOUT	Erro de tempo, reinicia o jogo ou fica online
+REWARDSCLAIMERROROTHER	Erro obtendo prémio
+REWARDSNOAVAILABLE	Sem prémio disponível
+REWARDSAVAILABLERESTART	O prémio irá estar disponível no próximo lançamento
+REWARDSEXPIRED	O teu prémio expirou! :(
+REWARDSTIMEWEEKS	semanas
+REWARDSTIMEWEEK	semana
+REWARDSTIMEDAYS	dias
+REWARDSTIMEDAY	dia
+REWARDSTIMEHOURS	horas
+REWARDSTIMEHOUR	hora
+REWARDSTIMEMINUTES	minutos
+REWARDSTIMEMINUTE	minuto
+REWARDSTIMESECONDS	segundos
+REWARDSNEXTREWARD	Próximo prémio dentro de
+REWARDSTIMELEFT	faltam para obter o prémio
+MATCHMAKEMODGRAPPLING	Agarrar
+MATCHMAKEMODKICKING	Pontapear
+MATCHMAKEMODSTRIKING	Impacto
+MATCHMAKEMODFUN	Diversão
+MATCHMAKERANKEDBELT	Matchmaking competitivo está disponível a partir do cinturão castanho
+MATCHMAKERANKEDMODE	Modo competitivo
+MATCHMAKERANK	Classificação
+MATCHMAKEELO	elo
+MATCHMAKEFIGHTSTOTAL	total de partidas
+MATCHMAKEWINRATE	Percentagem de vitórias
+MATCHMAKENOPLAYERS	Nenhum jogador á procura de partida
+MATCHMAKEPLAYERSEARCHING	jogador procurando
+MATCHMAKEPLAYERSSEARCHING	jogadores procurando
+MATCHMAKESEARCHING	Procurando uma partida
+MATCHMAKESEARCH	Pesquisar
+MATCHMAKESTOPSEARCH	Parar de pesquisar
+MATCHMAKEUNRANKEDMODE	Partida amigável
+MATCHMAKEFINDBESTMATCH1	Encontrar
+MATCHMAKEFINDBESTMATCH2	melhor partida
+MATCHMAKESEARCHSETTINGS1	Pesquisar
+MATCHMAKESEARCHSETTINGS2	com definições
+MATCHMAKESEARCHCUSTOM	personalizado
+MATCHMAKEUPDATINGRANK	Atualizando estado de classificação...
+MATCHMAKEQUALIFYING	Classificando
+MATCHMAKERANKUNAVAILABLE	Classificação indisponível
+MATCHMAKEUPDATINGTRENDS	Atualizando as estatísticas de classificação
+MATCHMAKEGLOBALRANK	Classificação global
+MATCHMAKEGLOBALRANKING	Classificação global
+MATCHMAKEQUALIFICATIONINFO	Precisas de jogar mais 10 partidas competitivas nesta temporada para te classificares
+MATCHMAKEGOLDTIERREQUIREDFORRANKDISPLAY	Só jogadores Ouro+ podem ver o seu rank
+MATCHMAKEBESTRANKEDMODS	Melhor modos
+MATCHMAKERANKEDMODSEMPTY	Sem modos para mostrar
+MATCHMAKERANKEDTOPEMPTY	Sem jogadores para mostrar... Ainda
+MATCHMAKEWINLOSE	W/L
+MATCHMAKERANKINGTRENDS	As estatísticas da tua classificação global
+MATCHMAKEMOREGAMESREQUIREDFORTRENDS	Joga mais partidas competitivas para veres as estatísticas do teu elo
+MATCHMAKETOPRANKEDPLAYERS	Jogadores melhor classificados
+MATCHMAKESEASONABOUT	Sobre
+MATCHMAKEWINSTONEXTTIER	vitórias para o próximo patamar
+MATCHMAKEELOGAININFO	Recebes diferentes quantidades de elo por ganhar jogos dependendo da classificação do teu oponente
+FRIENDSLISTTITLE	Lista de amigos
+FRIENDSLISTJOINROOM	Juntar á sala
+FRIENDSLISTLEGENDPLAYER	JOGADOR
+FRIENDSLISTLEGENDROOM	SALA
+FRIENDSLISTREFRESH	Recarregar
+FRIENDSLISTADDFRIEND	Adicionar amigo
+FRIENDSLISTEMPTY	Lista de amigos vazia
+FRIENDSLISTEMPTYINFO	Adiciona outros jogadores ou clãs á tua lista de amigos para saberes quando eles estão online!
+FRIENDSLISTSEARCHDEFAULT	Digita um nome ou tag de clã entre parênteses
+BUTTONSAVE	Guardar
+BUTTONDISCARD	Descartar
+BUTTONCANCEL	Cancelar
+BUTTONCONTINUE	Continuar
+BUTTONADD	Adicionar
+BUTTONCREATE	Criar
+BUTTONUPLOAD	Publicar
+BUTTONVIEW	Ver
+BUTTONSEARCH	Pesquisar
+BUTTONSUBMIT	Enviar
+WORDTOTAL	total
+WORDTURN	turno
+WORDGAMES	jogos
+WORDFIGHTS	lutas
+WORDTIMES	tempos
+WORDIN	em
+WORDTC	toricredits
+WORDDONE	feito
+WORDVS	contra
+WORDNONE	nenhum
+WORDOPTIONAL	opcional
+CHATCENSOREDMESSAGE	A tua mensagem contém uma palavra banida, e não vai ser vista por outros jogadores.
+MOVEMEMORYLOADERROR	Erro ao carregar dados do Movememory
+MOVEMEMORYSAVING	Guardando movimento
+MOVEMEMORYENTERMOVENAME	Escreve o nome do movimento
+MOVEMEMORYENTERMOVEDESCOPT	Escreve a descrição do movimento (opcional)
+MOVEMEMORYENTERMODNAMEOPT	Escreve o nome do modo (opcional)
+MOVEMEMORYMODNAMEEMPTYERROR	O nome do movimento não pode estar vazio!
+MOVEMEMORYMOVESAVEERRORPERMS	Erro ao guardar movimento, vê as permissões na pasta do Toribash.
+MOVEMEMORYERRORNOTINGAME	Tens de estar a jogar para gravar um movimento
+MOVEMEMORYERRORSTOPMOVE	Por favor para a primeira jogada antes de gravares uma nova.
+MOVEMEMORYRECORDINGMOVE	Gravando movimento
+MOVEMEMORYERRORUPDATINGDATA	Erro ao atualizar a pasta Movememory, nenhuma mudança foi feita.
+MOVEMEMORYNOMOVESFOUND	Nenhum movimento encontrado
+MOVEMEMORYDELETEMOVECONFIRM	Tens a certeza que queres eliminar este movimento? Não poderás voltar atrás.
+MOVEMEMORYALLMOVES	TODOS OS MOVIMENTOS
+MOVEMEMORYSUGGESTEDMOVES	MOVIMENTOS SUGERIDOS
+QUESTSNAMETYPE1	Treino diário
+QUESTSNAMETYPE2	Máquina de matar
+QUESTSNAMETYPE3	Fazedor de dano
+QUESTSNAMETYPE4	Partidor de ossos
+QUESTSNAMETYPEDECAP	Caçador de cabeças
+QUESTSPLAYREQ	Jogar
+QUESTSWINREQ	Ganhar
+QUESTSGETREQ	Reclamar
+QUESTSGETREQ2	pontos das tuas lutas
+QUESTSDECAPREQ	Decapitar jogadores
+QUESTSDISMEMBERREQ	Desmembrar jogadores
+QUESTSMATCHMAKEREQ	enquanto estás no matchmaking
+QUESTSOFFICIALREQ	enquanto estás em salas oficiais
+QUESTSCLAIMREWARD	Reclamando prémio
+QUESTSUPDATING	Atualizando as tuas missões...
+QUESTSBYDECAP	por decapitação
+LUASCRIPTSNAME	scripts Lua
+LUASCRIPTSTHIRDPARTYWARNING1	Tem sempre o dobro da atenção quando usas scripts mão oficiais.
+LUASCRIPTSTHIRDPARTYWARNING2	Scripts maliciosos podem apagar, alterar ou até roubar os dados do teu Toribash.
+LUASCRIPTSTHIRDPARTYWARNING3	Usa só scripts que foram aprovados pela Toribash staff.
+LUASCRIPTSFORUMBOARD	Secção de scripts no forum
+LUAMALICIOUSWARNING	SCRIPT POSSIVELMENTE MALICIOSO
+LUAFILEACCESSWARNING	ESTE SCRIPT PODE GANHAR ACESSO A OUTROS FICHEIROS
+LUAOTHERSCRIPTSWARNING	ESTE SCRIPT CARREGA OUTROS SCRIPTS
+LUALOADSCRIPT	Carregar script
+ERRORCREATINGFILE	Erro ao criar ficheiro
+REPLAYSSAVING	Guardando replay
+REPLAYSDEFAULTPATH	Ficheiros de replays vão ser salvos na pasta 'my replays' 
+REPLAYSENTERNAME	Escreve o nome da replay
+REPLAYSERROREMPTYNAME	O nome da replay não pode estar vazio
+REPLAYSERRORCHARACTERS	O nome da replay deve ser alfanumérico e só pode conter underscores, espaços ou traços como caracteres especiais.
+REPLAYSERRORRENAMING	Erro ao renomiar replay, por favor muda o nome da replay no menu de replays
+REPLAYSLOCAL	Replays locais
+REPLAYSSEARCH	Pesquisar
+REPLAYSCOMMUNITY	Replays da comunidade
+REPLAYSUPDATINGCACHE	Atualizando a cache das replays
+REPLAYSERRORREADINGFILE	Erro ao ler o ficheiro da replay
+REPLAYSERRORUPDATINGFILE	Erro ao atualizar o ficheiro da replay
+REPLAYSERRORUPDATINGNAME	Erro ao atualizar o nome da replay
+REPLAYSERRORREADINGCACHE	Erro ao ler o ficheiro da cache da replay
+REPLAYSERRORUPDATINGTAGS	Erro ao atualizar as tags da replay
+REPLAYSUPDATINGCOMMUNITY	Guardando dados da replay, \n por favor espera...
+REPLAYSFILTERSDATE	por data de carregamento
+REPLAYSFILTERSRATING	por classificação
+REPLAYSFILTERSPOPULARITY	por popularidade
+REPLAYSFILTERSTAGGED	tagged
+REPLAYSFILTERSBYTAG	por tags de replays
+REPLAYSFILTERSBY	carregado por 
+REPLAYSFILTERSUPLOADER	por utilizador
+REPLAYSBACKTOALLREPLAYS	VOLTAR PARA TODAS AS REPLAYS
+REPLAYSMATCHBY	Partida por
+REPLAYSAUTHORAUTOSAVE	guardar automaticamente
+REPLAYSAUTHORBY	por
+REPLAYSLOADINGREPLAY	Carregando replay...
+REPLAYSADDFOLDER	Adicionar pasta
+REPLAYSTAGSMODIFYING	Modificando
+REPLAYSTAGSNAME	tags da replay
+REPLAYSPOPULARTAGS	Tags Populares
+REPLAYSASSIGNEDTAGS	Tags Inseridas
+REPLAYSINPUTTAGHERE	Insere a tua própria tag aqui
+REPLAYSTAGERRORSHORT	A tag da replay deve conter pelo menos uma letra
+REPLAYSTAGERRORDUPLICATE	Esta tag já foi adicionada á replay
+REPLAYSMODIFYINGFOLDER	pasta
+REPLAYSFOLDERNAME	Nome da pasta
+REPLAYSERRORDELETING	Erro ao eliminar
+REPLAYSERRORDELETINGFOLDER	pasta
+REPLAYSERRORMOVING	Erro ao mover
+REPLAYSERRORMOVINGTO	para
+REPLAYSFOLDERNOTEMPTYDELETEWARNING	Esta pasta está vazia. Eliminá-lo irá deslocar todas as replays que ela contém para a pasta principal. Continuar?
+REPLAYSERRORRENAMINGFOLDER	Erro ao renomear ficheiro
+REPLAYSERRORRENAMINGREPLAY	Erro ao renomear replay
+REPLAYSERRORMOVINGREPLAY	Erro ao mudar pasta de replay
+REPLAYSFOLDERLEVELERROR1	Não podes invocar mais de
+REPLAYSFOLDERLEVELERROR2	niveis de pasta
+REPLAYSADDINGFOLDER	Adicionando pasta dentro
+REPLAYSNEWFOLDERNAME	Novo nome da pasta
+REPLAYSFOLDERALPHANUMERIC	O nome da pasta deve ser alfanumérico
+REPLAYSERRORADDINGFOLDER	Erro ao adicionar pasta da replay
+REPLAYSUPLOAD	Carregar script
+REPLAYSUPLOADTORIBASHSERVERS	para servidores do Toribash
+REPLAYSNAME	Nome da pasta
+REPLAYSNAMEINFO	Este vai ser o nome público da replay
+REPLAYSDESC	Descrição
+REPLAYSDESCINFO	Uma pequena descrição para a tua replay
+REPLAYSDESCTIP	Insere a descrição
+REPLAYSTAGS	Tags
+REPLAYSTAGSINFO	Tags separadas por espaços para a tua replay
+REPLAYSTAGSTIP	Inserir tags da replay
+REPLAYSUPLOADCONFIRM	Isto vai carregar a tua replay\n para os servidores do Toribash e disponibilizar para todos.\ Continuar?
+REPLAYSMANAGE	Gerir
+REPLAYSREPLAY	replay
+REPLAYSREPLAYS	Replays
+REPLAYSREPLAYNAME	Nome da replay
+REPLAYSREPLAYDIR	Pasta da replay
+REPLAYSCONFIRMDELETION	Tens a certeza que queres eliminar 
+REPLAYSCONFIRMDELETION2	replay?
+REPLAYSAUTOSAVEOPTION	Guardar automaticamente replays
+REPLAYSEMPTYFOLDER	Sem replays nesta pasta
+REPLAYSBY	por
+REPLAYSDATACORRUPT	DADOS CORRUPTOS
+REPLAYSPLAYERS	Jogadores
+REPLAYSMOD	Modo 
+REPLAYSCOMMUNITYTITLEINFO	Pesquisar por replays nos servidores do Toribash
+REPLAYSDOWNLOADINGREPLAY	Instalando replay...
+REPLAYSOPENINGREPLAY	Abrindo replay...
+REPLAYSREPLAYSAVEDINFO	Replay instalada e guardada na pasta de downloads
+REPLAYSCOMMUNITYDOUBLECLICKINFO	Clica duas vezes em qualquer replay na lista para uma visão rápida
+REPLAYSCOMMUNITYNOFOUND	Nenhuma replay encontrada
+REPLAYSLOADPREVIOUS	CARREGAR ANTERIOR
+REPLAYSLOADNEXT	CARREGAR SEGUINTE
+REPLAYSDOWNLOAD	instalar
+REPLAYSDOWNLOADS	instalações
+REPLAYSVOTINGON	Votação on
+REPLAYSCOMMENT	Comentar
+REPLAYSVOTECONFIRM1	Vais dar a esta replay
+REPLAYSVOTECONFIRM2	5 estrelas.\n Continuar?
+REPLAYSCOMMENTSDOWNLOADING	Descarregando comentários...
+REPLAYSADDCOMMENT	Adicionar comentário
+REPLAYSUPLOADEDON	Publicado em
+REPLAYSSAVEREPLAY	Guardar replay
+REPLAYSVIEWCOMMENTS	Ver comentários
+REPLAYSMOREBY	Mais por
+REPLAYSREFRESHCACHEPROMPT	Isto vai reiniciar a cache das tuas replays.\n Tens a certeza que queres continuar?
+REPLAYSERRORREFRESHINGCACHE	Erro ao recarregar cache, vê as premissões da pasta do Toribash
+MODSDOWNLOADINGMOD	Instalando modificação...
+NOFILESFOUND	Nenhum ficheiro encontrado
+FILENAME	Nome do ficheiro
+MODSRESTARTGAME	Começar novo jogo depois de instalar a modificação
+SEARCHNOTE	Começa a escrever para pesquisar...
+SHADERSSAVESHADER	Guardar shader
+SHADERSSAVING	A guardar shader para ficheiro
+SHADERSINPUTNAME	Inserir nome do shader
+SHADERSERRORFILEEXISTS	Um shader com este nome já existe. Esta ação vai substituir o ficheiro antigo.
+SHADERSRESETTODEFAULT	Reiniciar para a pré-definição
+SHADERSEDITOR	Editor de shaders
+SHADERSATMOSNAME	Atmosferas
+SHADERSNAME	Shaders
+SETTINGSOTHER	Outro
+SETTINGSAUDIO	Áudio
+SETTINGSEFFECTS	Efeitos
+SETTINGSGRAPHICS	Graficos
+SETTINGSGRAPHICSPRESETS	Pré-definições de gráficos
+SETTINGSVISUALSQUALITY	Qualidade visual (podes ter que reiniciar)
+SETTINGSCUSTOM	Personalizado
+SETTINGSLOWEST	Batata
+SETTINGSLOW	Baixo
+SETTINGSMEDIUM	Médio
+SETTINGSHIGH	Alto
+SETTINGSHIGHEST	RTX 2080 Ti
+SETTINGSRESOLUTION	Resolução
+SETTINGSADVANCED	Avançado
+SETTINGSSHADERS	Shaders
+SETTINGSFLUIDBLOOD	Sangue fluído
+SETTINGSFLOORREFLECTIONS	Refleções do chão
+SETTINGSSOFTSHADOWS	Sombras leves
+SETTINGSAMBIENTOCCLUSION	Oclusão de ambiente
+SETTINGSRAYTRACING	Ray Tracing
+SETTINGSFRAMERATE	Frame Rate
+SETTINGSFPS	Frames Por Segundo
+SETTINGSFPSUNCAPPED	Uncapped
+SETTINGSGENERAL	Geral
+SETTINGSEFFECTSINFO	Definições de efeitos
+SETTINGSDISABLED	Desativado
+SETTINGSENABLED	Ativado
+SETTINGSREPLAYSONLY	Só em replays
+SETTINGSPLAYERCUSTOMIZATION	Customizações do jogador
+SETTINGSBODYTEXTURES	Texturas do corpo
+SETTINGSTRAILS	Rastos
+SETTINGSFLAMES	Flames
+SETTINGSHAIRS	Cabelos
+SETTINGSOBJMODELS	Modelos 3D
+SETTINGSEFFECTSVOLUME	Volume de efeitos
+SETTINGSMUSICVOLUME	Volume da música
+SETTINGSVCVOLUME	Volume do chat de voz
+SETTINGSVCTOGGLE	Alternância de chat de voz
+SETTINGSSOUNDMASTER	Master de efeitos de som
+SETTINGSHITEFFECTS	Sons de bater
+SETTINGSGAMEOVER	Sons de DQ e vencedor
+SETTINGSREADY	Som de Kiai
+SETTINGSGRIP	Som de agarrar
+SETTINGSALERT	Som de grito
+SETTINGSDISMEMBER	Som de desmembramento
+SETTINGSFIGHTALERT	Som de alerta de luta
+SETTINGSFREEZE	Som de congelamento
+SETTINGSGRADING	Som de grading
+SETTINGSIMPACT	Som de impacto
+SETTINGSJOINT	Som de articulação
+SETTINGSMENU	Som do menu
+SETTINGSNONE	None Sound
+SETTINGSPAIN	Som de dor
+SETTINGSSELECTPLAYER	Selecionar som de jogador
+SETTINGSSPLASH	Som de splash
+SETTINGSSWOOSH	Som de swoosh
+SETTINGSLANGUAGE	Linguagem
+SETTINGSGAMELANGUAGE	Linguagem do jogo
+SETTINGSCHAT	Definições de chat
+SETTINGSCHATTOGGLE	Alternância do tamanho do chat
+SETTINGSPROFANITYFILTER	Filtro de palavrões
+SETTINGSHIDEECHO	Esconder mensagens de sistema
+SETTINGSGAMEPLAY	Ajustes de gameplay
+SETTINGSMOUSEBUTTONS	Modo de controlos do rato
+SETTINGSMOUSEBUTTONS0	Contrair / Estender Só
+SETTINGSMOUSEBUTTONS1	Modos das quatro articulações
+SETTINGSMOUSEBUTTONS2	Aguentar / Relaxar Só
+SETTINGSBACKGROUNDCLICK	Background Click
+SETTINGSAUTOSAVE	Guardar automaticamente replays
+SETTINGSGAMERULES	Lembrar regras do jogo
+SETTINGSMODERNHUD	HUD Avançado
+SETTINGSTOOLTIP	Mostrar Dica Avançada
+SETTINGSMOVEMEMORY	Habilitar Movememory
+SETTINGSBASEHUDONLY	Só HUD base
+SETTINGSWINDOWED	Modo Janela
+SETTINGSWIDTH	Largura
+SETTINGSHEIGHT	Altura
+SETTINGSONLYDEFAULTSOUNDS	Só sons pré-definidos
+SETTINGSAPPLY	Aplicar Alterações
+SETTINGSRESTARTREQUIRED	pode precisar de reiniciar
+SETTINGSNOCHANGES	Nenhuma alteração feita
+HOTKEYSBASICCONTROLS	Controlos básicos
+HOTKEYSCAMERACONTROLS	Controlos de câmara
+HOTKEYSHOLDALL	Aguentar Tudo / Relaxar Tudo
+HOTKEYSHOLDRELAX	Aguentar / Relaxar Articulação
+HOTKEYSCONTRACTEXTEND	Contrair / Estender Articulação
+HOTKEYSGRABUNGRAB	Alternar estado da mão (Agarrar / Não Agarrar)
+HOTKEYSGRABALL	Alternar o estado das duas mãos
+HOTKEYSSAVEREPLAY	Guardar replay
+HOTKEYSTORIGHOST	Remover ou ativar fantasma do jogador
+HOTKEYSPLAYERSGHOST	Remover ou ativar os fantasmas dos dois jogadores
+HOTKEYSTURN	Acabar turno / Passar um frame
+HOTKEYSCHAT	Controlos de Chat
+HOTKEYSOPENCHAT	Abrir Caixa de Chat
+HOTKEYSTOGGLECHAT	Mostrar mais linhas de chat
+HOTKEYSSCROLLCHAT	Chat para cima / para baixo
+HOTKEYSSCROLLCHATMAX	Fim do chat / ínicio do chat
+HOTKEYSREPLAYS	Teclas de replays
+HOTKEYSREPLAYRESTART	Recomeçar replay
+HOTKEYSREPLAYPAUSE	Parar replay
+HOTKEYSREPLAYEDIT	Editar replay
+HOTKEYSREPLAYKEYFRAME	Salvar Keyframe
+HOTKEYSREPLAYKEYFRAMESCLEAR	Limpar Keyframes
+HOTKEYSREPLAYNEXT	Começar próxima replay
+HOTKEYSREPLAYPREV	Começar a replay anterior
+HOTKEYSOTHER	Outras teclas
+HOTKEYSMODLIST	Abrir lista de modos
+HOTKEYSSHADERS	Abrir Shaders e Atmosfera
+HOTKEYSGAMERULES	Abrir Regras do Jogo
+HOTKEYSFULLSCREEN	Entrar em modo ecrã cheio
+HOTKEYSCAMERAMODES	Mudar modos da câmara
+TUTORIALSLEAVINGPROMPT	Saindo do modo tutorial.\n O tutorial atual será recomeçado se continuares.
+TUTORIALSCONTINUETONEXT	Ir para o próximo tutorial
+TUTORIALSBACKTOMAIN	Ir para o menu principal
+TUTORIALSINTRONAME	Introdução do Toribash
+TUTORIALSINTRODESC	Conhece o Sensei e começa a tua jornada no Toribash
+TUTORIALSPUNCHNAME	Tutorial de murro
+TUTORIALSPUNCHDESC	Aprende os básicos de dar murros no Toribash
+TUTORIALSKICKNAME	Tutorial de pontapé
+TUTORIALSKICKDESC	Aprende a atacar os teus oponentes com as pernas
+TUTORIALSCHALLENGEUKENAME	Desafiar o Uke
+TUTORIALSCHALLENGEUKEDESC	Testa as tuas habilidades numa luta contra o Uke
+TUTORIALSCOMEBACKPRACTICENAME	Treino de retorno
+TUTORIALSCOMEBACKPRACTICEDESC	Treina as tuas habilidades de retorno enquanto tentas apanhar o Uke
+TUTORIALSLOCKED	Completa outros tutoriais ou obtém mais QI para desbloquear isto
+TUTORIALSVIEWALLNAME	Ver todos os tutoriais
+TUTORIALSVIEWALLDESC	Ver qualquer tutorial que já acabaste

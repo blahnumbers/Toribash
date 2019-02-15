@@ -186,3 +186,24 @@ Effects Efeitos
 AlwaysOff Sempre Desligado
 OnlyOnReplays Somente Nos Replays
 AlwaysOn Sempre Ligado
+Default Padrão
+PleaseEnableSteamOverlay Por favor habilide o Steam Overlay' e reinicie o jogo.
+PleaseWaitForSteamPurchaseOverlay Please wait for the steam purchase overlay
+PleaseLogonSteam Por favor entre na Steam para comprar ToriCréditos
+Refresh Recarregar
+Delete Deletar
+Rename Renomear
+New Novo
+EnterNewReplayName Insira o novo nome do replay.
+Grappling Agarrando
+Kicking Chutando
+Striking Golpeando
+Matchmaking Matchmaking
+(Paused) (Pausado)
+(Searching) (Procurando)
+ModGroups Mod Groups
+Search Procurar
+Unranked Unranked
+RankedPreferred Ranked Preferred
+RankedOnly Ranked Only
+MatchmakeAgain Matchmake Again

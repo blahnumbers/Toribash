@@ -1,0 +1,45 @@
+#PLAYER MESSAGES	
+INTROSENSEI1	Hier lehre ich dir, wie du deinen Gegner nur mit den Armen besiegts.
+INTROSENSEI2	Probieren wir mal die einfachste Attacke möglich - ein Noobclap.
+INTROSENSEI3	So sieht es aus.
+SENSEINOOBCLAP1	Ich tue nur meine beiden Arme vorwärts: Entweder um Punkte Schaden zu erzielen, um in Position zu kommen damit ich den Gegner greifen kann...
+SENSEINOOBCLAP2	...oder um einen block von den Angriffen meines Gegners vorzubereiten!
+SENSEINOOBCLAP3	Lass dich nicht von dem Namen dieser Bewegung in die irre führen - es ist eine sehr nützliche Bewegung welche selbst die besten manchmal benutzen!
+SENSEINOOBCLAP4	Sehr gut! Lass uns zu der nächsten Aufgabe gehen!
+SENSEIPUNCH1	Um Arme nach vorne oder nach hinten zu biegen, musst du die Pec Zustände ändern
+SENSEIPUNCH2	Schau dir diesen Schlag an.
+SENSEIPUNCH3	Ich habe meinen Ellenbogen und meinen Oberkörper benutz um die Angriffskraft zu erhöhen.
+SENSEIPUNCH4	Je härter du deinen Gegner triffst, desto mehr punkte bekommst du und kommst so dem Sieg näher!
+SENSEIPUNCHOPTINCOMPLETE	Das war gut. Hättest du noch ein wenig verbessern können, aber ein Schlag ist ein Schlag - gute Arbeit!
+SENSEIPUNCHOPTCOMPLETE	Ausgezeichnet! Genau wie ich es dir gezeigt habe!
+SENSEIPUNCH5	Lass uns nun mit dem heutigen finalen Test beginnen!
+SENSEIFINAL1	Zeit für das freestyle Schlagen, mein Schüler!
+SENSEIFINAL2	Schlage das Ziel bis du 10000 Punkte erreichst!
+SENSEIFINAL3	Halte auch ausschau nach der Zeit, gehe sicher du kannst die Aufgabe innerhalb von 500 frames beenden!
+SENSEIFINALTIMEUP	Oh, scheint als wäre die Zeit um. Kein problem, probieren wir es nochmal!
+SENSEIFINALRESTART	Alright, keep the moves I've shown you previously in mind and try to get 100K points this time! Alles klar, behalte die Bewegungen von vorhin im Kopf und versuche dieses mal 100k Punkte zu erreichen!
+SENSEIFINALOPTINCOMPLETE	Super! Das ist ein gutes Workout!
+SENSEIFINALOPTCOMPLETE	Wow, das war etwas! Ausgezeichnete Arbeit!
+SENSEIFINAL4	Nun da du weißt deine Hände zu  benutzen, bist du bereit deine Tritte zu trainieren!
+#	
+#HINT MESSAGES	
+NOOBCLAPHINT1	Drücke ~C~ um ALLE GELENKE ANZUSPANNEN und verhindere somit zu fallen.
+NOOBCLAPHINT2	Um Arme nach vorne oder nach hinten zu biegen, musst du die Pec Zustände ändern
+NOOBCLAPHINT3	Ziehe deine Pecs ein um deine Arme vorwärts zu bewegen.\nDenk dran, du kannst entweder das Gelenk anklicken oder ~Z~ drücken während du auf das Gelenk zielst um den Zustand zu ändern.
+NOOBCLAPHINT4	Gute Arbeit, aber du bist noch nicht fertig.\nUm DEINEN ZUG ZU BEENDEN und deinen Charakter in Bewegung zu sehen, drücke ~Leertaste~
+PUNCHHINT1	Spanne alle Gelenke an indem du ~C~ drückst.
+PUNCHHINT2	Um für den Schlag in Startposition zu kommen, ZIEHE deine ELLENBOGEN EIN und ENTSPANNE die Schultern.
+PUNCHHINT3	SCHULTERN helfen dir deinen Arm zu steigen oder zu senken. \nELLENBOGEN erlauben sie in der Mitte zu biegen.
+PUNCHHINT4	Um deine Bewegung zu vollenden, drücke ~LEERTASTE~
+PUNCHHINT5	ROTATE CHEST to left to add more force to your punch. ROTIERE den OBERKÖRPER nach links um deinem Schlag mehr Kraft zu geben.
+PUNCHHINT6	Ziehe nun deinen RECHTEN PEC ein und dehne deinen RECHTEN ELLENBOGEN um den Boxsack zu schlagen.
+PUNCHHINT7	Du kannst gerne improvisieren und gib immer acht auf deinen GEIST!\nDen Schwung zu erhöhen ist der Schlüssel zu erfolgreichen Angriffen.
+PUNCHHINT8	Drücke ~LEERTASTE~ wenn du bereit bist deinen zug zu Beenden.
+#	
+#TASK MESSAGES	
+NOOBCLAPTASK	Treffe den Boxsack mit einem Noobclap
+PUNCHTASK	Wiederhole Sensei`s Schlag
+PUNCHTASKOPT	Erhöhe die rechte Schulter und dehne dein Handgelenk aus um deinen Schlag zu verbessern.
+FINALTASK	Schließe Sensei's Schlag Lehre ab
+FINALTASKMAIN	Erreiche 100,000 Schadenspunkte um das Ziel zu erreichen
+FINALTASKOPT	Schaffe es über 500,000 Punkte um Sensei stolz zu machen

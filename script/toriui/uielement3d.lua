@@ -5,6 +5,7 @@ CUBE = 1
 SPHERE = 2
 CAPSULE = 3
 CUSTOMOBJ = 4
+VIEWPORT = 5
 
 TORI = 0
 UKE = 1
@@ -15,6 +16,7 @@ OBJMODELINDEX = OBJMODELINDEX or 0
 do
 	UIElement3DManager = UIElement3DManager or {}
 	UIVisual3DManager = UIVisual3DManager or {}
+	UIVisual3DManagerViewport = UIVisual3DManagerViewport or {}
 	
 	if (not UIElement3D) then 
 		UIElement3D = UIElement:new()
@@ -42,7 +44,7 @@ do
 				elem.attachBodypart = o.attachBodypart
 				elem.attachJoint = o.attachJoint
 			end
-			if (o.parent) then
+			if (o.parent and o.shapeType ~= VIEWPORT) then
 				elem.globalid = o.parent.globalid
 				elem.parent = o.parent
 				table.insert(elem.parent.child, elem)
@@ -53,6 +55,10 @@ do
 					elem.pos[i] = elem.parent.pos[i] + elem.shift[i]
 				end
 			else
+				if (o.shapeType == VIEWPORT) then
+					elem.viewport = o.parent
+					table.insert(elem.viewport.child, elem)
+				end
 				elem.pos = { x = o.pos[1], y = o.pos[2], z = o.pos[3] }
 			end
 			elem.size = { x = o.size[1], y = o.size[2], z = o.size[3] }
@@ -65,6 +71,13 @@ do
 			if (o.objModel) then
 				elem.shapeType = CUSTOMOBJ
 				elem:updateObj(o.objModel)
+			end
+			if (o.bgImage) then
+				if (type(o.bgImage) == "table") then
+					elem:updateImage(o.bgImage[1], o.bgImage[2])
+				else
+					elem:updateImage(o.bgImage)
+				end
 			end
 			if (o.globalid) then
 				elem.globalid = o.globalid
@@ -96,7 +109,11 @@ do
 			end
 			
 			table.insert(UIElement3DManager, elem)
-			table.insert(UIVisual3DManager, elem)
+			if (o.viewport) then
+				table.insert(UIVisual3DManagerViewport, elem)
+			else
+				table.insert(UIVisual3DManager, elem)
+			end
 		end
 		
 		return elem
@@ -111,6 +128,7 @@ do
 			return true
 		end
 		
+		if (self.bgImage) then self:updateImage(nil) end
 		for i,v in pairs(UIMouseHandler) do
 			if (self == v) then
 				table.remove(UIMouseHandler, i)
@@ -120,6 +138,12 @@ do
 		for i,v in pairs(UIVisual3DManager) do
 			if (self == v) then
 				table.remove(UIVisual3DManager, i)
+				break
+			end
+		end
+		for i,v in pairs(UIVisual3DManagerViewport) do
+			if (self == v) then
+				table.remove(UIVisual3DManagerViewport, i)
 				break
 			end
 		end
@@ -138,6 +162,10 @@ do
 	end
 	
 	function UIElement3D:display()
+		if (self.viewport) then
+			set_viewport(self.viewport.pos.x, self.viewport.pos.y, self.viewport.size.w, self.viewport.size.h)
+			return
+		end
 		if (self.hoverState ~= false and self.hoverColor) then
 			for i = 1, 4 do
 				if ((self.bgColor[i] > self.hoverColor[i] and self.animateColor[i] > self.hoverColor[i]) or (self.bgColor[i] < self.hoverColor[i] and self.animateColor[i] < self.hoverColor[i])) then
@@ -177,10 +205,10 @@ do
 					elseif (self.attachJoint) then
 						local joint = get_joint_pos2(self.playerAttach, self.attachJoint)
 						local radius = get_joint_radius(self.playerAttach, self.attachJoint)
-						draw_sphere(joint.x + self.pos.x, joint.y + self.pos.y, joint.z + self.pos.z, radius * self.size.x)
+						self:drawSphere(joint, radius)
 					end
 				else
-					draw_sphere(self.pos.x, self.pos.y, self.pos.z, self.size.x)
+					self:drawSphere()
 				end
 			elseif (self.shapeType == CAPSULE) then
 				if (self.playerAttach) then
@@ -203,8 +231,31 @@ do
 		end
 	end
 	
+	function UIElement3D:drawSphere(displaceTable, scale)
+		local drawPos = cloneTable(self.pos)
+		local scale = scale or 1
+		if (displaceTable) then
+			drawPos.x = displaceTable.x
+			drawPos.y = displaceTable.y
+			drawPos.z = displaceTable.z
+		end
+		if (self.bgImage) then
+			draw_sphere(drawPos.x, drawPos.y, drawPos.z, self.size.x * scale, self.rot.x, self.rot.y, self.rot.z, self.bgImage)
+		else
+			draw_sphere(drawPos.x, drawPos.y, drawPos.z, self.size.x * scale)
+		end
+	end
+	
 	function UIElement3D:drawVisuals(globalid)
 		for i, v in pairs(UIVisual3DManager) do
+			if (v.globalid == globalid) then
+				v:display()
+			end
+		end
+	end
+
+	function UIElement3D:drawViewport(globalid)
+		for i, v in pairs(UIVisual3DManagerViewport) do
 			if (v.globalid == globalid) then
 				v:display()
 			end
