@@ -54,8 +54,10 @@ do
 
 	function TBMenu:getTranslation(language)
 		local language = language or "english"
+		local inverse = (language == "arabic" or language == "hebrew") and true 
 		TBMenu:setLanguageFontOptions(language)
 		if (TB_MENU_LOCALIZED.language ~= language or TB_MENU_DEBUG) then
+			TB_MENU_LOCALIZED = {}
 			TB_MENU_LOCALIZED.language = language
 		else
 			return
@@ -75,7 +77,7 @@ do
 		for ln in file:lines() do
 			if (not ln:match("^#")) then
 				local data_stream = { ln:match(("([^\t]*)\t?"):rep(2)) }
-				TB_MENU_LOCALIZED[data_stream[1]] = data_stream[2]
+				TB_MENU_LOCALIZED[data_stream[1]] = inverse and localize_rtl(data_stream[2]) or data_stream[2]
 			end
 		end
 		file:close()
@@ -1570,7 +1572,7 @@ do
 			bgImage = headTexture,
 			viewport = true
 		})
-		--[[local headModel = Files:new("../../custom/" .. TB_MENU_PLAYER_INFO.username .. "/head.obj")
+		local headModel = Files:new("../../custom/" .. TB_MENU_PLAYER_INFO.username .. "/head.obj")
 		if (headModel.data) then
 			headModel:close()
 			local objScale = (get_option("shaders") + 1) * 5
@@ -1584,7 +1586,7 @@ do
 				bgColor = { 1, 1, 1, 1 },
 				viewport = true
 			})
-		end]]
+		end
 		local tbMenuUserName = UIElement:new( {
 			parent = tbMenuUserBar,
 			pos = { 80, 10 },

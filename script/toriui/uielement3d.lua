@@ -129,6 +129,7 @@ do
 		end
 		
 		if (self.bgImage) then self:updateImage(nil) end
+		if (self.objModel) then self:updateObj(nil) end
 		for i,v in pairs(UIMouseHandler) do
 			if (self == v) then
 				table.remove(UIMouseHandler, i)
@@ -195,7 +196,7 @@ do
 					local body = get_body_info(self.playerAttach, self.attachBodypart)
 					draw_box_m(body.pos.x + self.pos.x, body.pos.y + self.pos.y, body.pos.z + self.pos.z, self.size.x, self.size.y, self.size.z, body.rot)
 				else
-					draw_box(self.pos.x, self.pos.y, self.pos.z, self.size.x, self.size.y, self.size.z, self.rot.x, self.rot.y, self.rot.z)
+					self:drawBox()
 				end
 			elseif (self.shapeType == SPHERE) then
 				if (self.playerAttach) then
@@ -228,6 +229,14 @@ do
 		end
 		if (not self.customDisplayBefore) then
 			self.customDisplay()
+		end
+	end
+	
+	function UIElement3D:drawBox()
+		if (self.bgImage) then
+			draw_box(self.pos.x, self.pos.y, self.pos.z, self.size.x, self.size.y, self.size.z, self.rot.x, self.rot.y, self.rot.z, self.bgImage)
+		else
+			draw_box(self.pos.x, self.pos.y, self.pos.z, self.size.x, self.size.y, self.size.z, self.rot.x, self.rot.y, self.rot.z)
 		end
 	end
 	
@@ -482,7 +491,7 @@ do
 	end
 	
 	function UIElement:updateObj(model, noreload)
-		local filename
+		local filename = ''
 		if (model) then
 			if (model:find("%.%./", 4)) then
 				filename = model:gsub("%.%./%.%./", "")
@@ -497,7 +506,7 @@ do
 		if (not noreload and self.objModel) then
 			local count, id = 0, 0
 			for i,v in pairs(OBJMODELCACHE) do
-				if (v == self.objModel) then
+				if (i == self.objModel) then
 					count = count + 1
 					id = i
 				end
@@ -505,36 +514,42 @@ do
 			if (count == 1) then
 				unload_obj(self.objModel)
 				OBJMODELINDEX = OBJMODELINDEX - 1
-			else
-				table.remove(OBJMODELCACHE, id)
-			end		
-			self.objModel = nil		
+			end
+			OBJMODELCACHE[id] = nil
+			self.objModel = nil
 		end
 		
 		if (not model) then
-			return
-		end
-		
-		if (OBJMODELINDEX > 127) then
-			return false
+			return true
 		end
 		
 		local tempobj = io.open(filename, "r", 1)
 		if (not tempobj) then
 			return false
-		else
-			local objid = 0
-			for i = 0, 127 do
-				if (not OBJMODELCACHE[i]) then
-					objid = i
-				end
-			end
-			if (load_obj(objid, model)) then
-				self.objModel = objid
-			end
-			OBJMODELINDEX = OBJMODELINDEX > objid and OBJMODELINDEX or objid
-			table.insert(OBJMODELCACHE, self.objModel)
-			io.close(tempobj)
 		end
+		io.close(tempobj)
+		
+		local objid = 0
+		for i = 0, 127 do
+			if (OBJMODELCACHE[i] == filename) then
+				self.objModel = i
+				return true
+			end
+		end
+		if (OBJMODELINDEX > 127) then
+			return false
+		end
+		for i = 0, 127 do
+			if (not OBJMODELCACHE[i]) then
+				objid = i
+				break
+			end
+		end
+		if (load_obj(objid, model)) then
+			self.objModel = objid
+		end
+		OBJMODELCACHE[objid] = filename
+		OBJMODELINDEX = OBJMODELINDEX + 1
+		return true
 	end
 end

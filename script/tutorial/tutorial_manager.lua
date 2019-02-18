@@ -51,6 +51,7 @@ do
 			tutorialQuitOverlay:kill()
 			tutorialQuitOverlay = nil
 		end
+		set_discord_rpc("", TB_MENU_LOCALIZED.MAINMENUFREEPLAYNAME)
 		open_menu(19)
 	end
 
@@ -1559,6 +1560,22 @@ do
 		end
 	end
 	
+	function Tutorials:setDiscordRPC()
+		local currentTutorialname = nil
+		if (CURRENT_TUTORIAL == 1) then
+			currentTutorialname = TB_MENU_LOCALIZED.TUTORIALSINTRONAME
+		elseif (CURRENT_TUTORIAL == 2) then
+			currentTutorialname = TB_MENU_LOCALIZED.TUTORIALSPUNCHNAME
+		elseif (CURRENT_TUTORIAL == 3) then
+			currentTutorialname = TB_MENU_LOCALIZED.TUTORIALSKICKNAME
+		elseif (CURRENT_TUTORIAL == 4) then
+			currentTutorialname = TB_MENU_LOCALIZED.MAINMENUFIGHTUKENAME
+		elseif (CURRENT_TUTORIAL == 5) then
+			currentTutorialname = TB_MENU_LOCALIZED.MAINMENUCOMEBACKNAME
+		end
+		set_discord_rpc(currentTutorialname, TB_MENU_LOCALIZED.DISCORDRPCINTUTORIAL)
+	end
+	
 	function Tutorials:runTutorial(id)
 		TUTORIAL_ISACTIVE = true
 		TUTORIAL_LEAVEGAME = true
@@ -1577,6 +1594,7 @@ do
 		local tutorialSteps = Tutorials:loadTutorial(id)
 		if (Tutorials:getLocalization(LOCALIZED_MESSAGES, id)) then
 			Tutorials:updateConfig()
+			Tutorials:setDiscordRPC()
 			Tutorials:runSteps(tutorialSteps, nil, LOCALIZED_MESSAGES)
 		else
 			Tutorials:quit()

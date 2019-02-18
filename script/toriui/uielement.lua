@@ -1311,6 +1311,15 @@ do
 		return open_dialog_box(id, msg:gsub("%\\n", "\n"), data)
 	end
 	
+	function in_array(needle, haystack)
+		for i,v in pairs(haystack) do
+			if (needle == v) then
+				return true
+			end
+		end
+		return false
+	end
+	
 	function strEsc(str)
 		local str = str
 

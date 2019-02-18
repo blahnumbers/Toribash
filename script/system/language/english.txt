@@ -532,3 +532,4 @@ TUTORIALSCOMEBACKPRACTICEDESC	Practice your comeback skills while catching Uke
 TUTORIALSLOCKED	Complete other tutorials or gain more Qi to unlock this	
 TUTORIALSVIEWALLNAME	View all tutorials	
 TUTORIALSVIEWALLDESC	Access any tutorial you've already finished	
+DISCORDRPCINTUTORIAL	Tutorial Mode	
