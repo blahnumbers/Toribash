@@ -536,7 +536,7 @@ do
 				return true
 			end
 		end
-		if (OBJMODELINDEX > 127) then
+		if (OBJMODELINDEX > 126) then
 			return false
 		end
 		for i = 0, 127 do

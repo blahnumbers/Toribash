@@ -163,6 +163,8 @@ do
 		local colors = {
 			force = 23,
 			relax = 21,
+			pgrad = 0,
+			sgrad = 0,
 			default = true
 		}
 		if (not file) then
@@ -179,6 +181,14 @@ do
 				ln = ln:gsub("^RELCOL 0;0 ", "")
 				local color = tonumber(ln:match("%d+"))
 				colors.relax = color == 0 and colors.relax or color
+			end
+			if string.match(ln, "^GRADCOL1 0;0 ") then
+				ln = ln:gsub("^GRADCOL1 0;0 ", "")
+				colors.pgrad = tonumber(ln:match("%d+"))
+			end
+			if string.match(ln, "^GRADCOL2 0;0 ") then
+				ln = ln:gsub("^GRADCOL2 0;0 ", "")
+				colors.sgrad = tonumber(ln:match("%d+"))
 			end
 		end
 		colors.default = false

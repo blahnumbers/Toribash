@@ -1614,9 +1614,46 @@ do
 				viewport = true
 			})
 			return
+		elseif (item.catid == 1) then
+			-- Blood Items
+			local color = get_color_info(item.colorid)
+			local blood1 = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = CUSTOMOBJ,
+				objModel = "../models/store/presets/blood",
+				pos = { 0, 0, -0.5 },
+				size = { 0.7 * scaleMultiplier, 0.7 * scaleMultiplier, 0.7 * scaleMultiplier },
+				rot = { -90, 0, 0 },
+				bgColor = { color.r, color.g, color.b, 1 },
+				viewport = true
+			})
+			local blood2 = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = CUSTOMOBJ,
+				objModel = "../models/store/presets/blood",
+				pos = { 0.1, -0.4, 0.2 },
+				size = { 0.5 * scaleMultiplier, 0.5 * scaleMultiplier, 0.5 * scaleMultiplier },
+				rot = { -90, 0, 0 },
+				bgColor = { color.r, color.g, color.b, 1 },
+				viewport = true
+			})
+			local blood3 = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = CUSTOMOBJ,
+				objModel = "../models/store/presets/blood",
+				pos = { 0.1, -0.4, 0.2 },
+				size = { 0.5 * scaleMultiplier, 0.5 * scaleMultiplier, 0.5 * scaleMultiplier },
+				rot = { -90, 0, 0 },
+				bgColor = { color.r, color.g, color.b, 1 },
+				viewport = true
+			})
+			return
 		elseif (item.catid == 20 or item.catid == 21) then
 			-- Gradient Items
+			local trans = get_option("shaders") == 1 and 1 or 0.99
 			local color = get_color_info(item.colorid)
+			local pcolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.pgrad)
+			local scolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.sgrad)
 			local fcolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.force)
 			local primaryGrad = UIElement3D:new({
 				parent = previewHolder,
@@ -1625,19 +1662,19 @@ do
 				pos = { 0, 0.2, 0 },
 				size = { 2, 0.65, 0.65 },
 				rot = { 90, 0, 0 },
-				bgColor = item.catid == 20 and { color.r, color.g, color.b, 1 } or { 1, 1, 1, 1 },
+				bgColor = item.catid == 20 and { color.r, color.g, color.b, trans } or { pcolor.r, pcolor.g, pcolor.b, trans },
 				viewport = true
 			})
-			--[[local secondaryGrad = UIElement3D:new({
+			local secondaryGrad = UIElement3D:new({
 				parent = previewHolder,
 				shapeType = CUBE,
-				--bgImage = "../textures/store/presets/secgrad.tga",
+				bgImage = "../textures/store/presets/secgrad.tga",
 				pos = { 0, 0.2, 0 },
-				size = { 0.65, 2, 0.65 },
-				rot = { 0, 0, 0 },
-				bgColor = item.catid == 20 and { color.r, color.g, color.b, 1 } or { 1, 1, 1, 1 },
+				size = { 2, 0.65, 0.65 },
+				rot = { 90, 0, 0 },
+				bgColor = item.catid == 21 and { color.r, color.g, color.b, trans } or { scolor.r, scolor.g, scolor.b, trans },
 				viewport = true
-			})]]
+			})
 			local joint1 = UIElement3D:new({
 				parent = previewHolder,
 				shapeType = SPHERE,
@@ -1657,28 +1694,30 @@ do
 			local handPrGrad = UIElement3D:new({
 				parent = previewHolder,
 				shapeType = CUBE,
-				--bgImage = "../textures/store/presets/prgrad.tga",
+				bgImage = "../textures/store/presets/prgrad.tga",
 				pos = { 0.2, -1.53, 0 },
 				size = { 1.2, 1.2, 1.2 },
-				rot = { 0, 0, 0 },
-				bgColor = item.catid == 20 and { color.r, color.g, color.b, 1 } or { 1, 1, 1, 1 },
+				rot = { 90, 0, 0 },
+				bgColor = item.catid == 20 and { color.r, color.g, color.b, trans } or { pcolor.r, pcolor.g, pcolor.b, trans },
 				viewport = true
 			})
-			--[[local handSecGrad = UIElement3D:new({
+			local handSecGrad = UIElement3D:new({
 				parent = previewHolder,
 				shapeType = CUBE,
-				--bgImage = "../textures/store/presets/secgrad.tga",
+				bgImage = "../textures/store/presets/secgrad.tga",
 				pos = { 0.2, -1.53, 0 },
 				size = { 1.2, 1.2, 1.2 },
-				rot = { 0, 0, 0 },
-				bgColor = item.catid == 21 and { color.r, color.g, color.b, 1 } or { 1, 1, 1, 1 },
+				rot = { 90, 0, 0 },
+				bgColor = item.catid == 21 and { color.r, color.g, color.b, trans } or { scolor.r, scolor.g, scolor.b, trans },
 				viewport = true
-			})]]
+			})
 			previewHolder:rotate(40, 90, 110)
 			return
 		elseif (item.catid == 5) then
-			-- Force Items
+			-- Torso Items
 			local color = get_color_info(item.colorid)
+			local pcolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.pgrad)
+			local scolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.sgrad)
 			local fcolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.force)
 			local chest = UIElement3D:new({
 				parent = previewHolder,
@@ -1752,13 +1791,24 @@ do
 				bgColor = { color.r, color.g, color.b, 1 },
 				viewport = true
 			})
-			local torsostomach = UIElement3D:new({
+			local torsostomachp = UIElement3D:new({
 				parent = previewHolder,
 				shapeType = CUBE,
+				bgImage = "../textures/store/presets/prgrad.tga",
 				pos = { 0, 0.2, -1.6 },
-				size = { 1.4, 0.7, 1.1 },
-				rot = { 0, 0, 0 },
-				bgColor = { 1, 1, 1, 1 },
+				size = { 0.7, 1.1, 1.4 },
+				rot = { -90, 90, 0 },
+				bgColor = { pcolor.r, pcolor.g, pcolor.b, 1 },
+				viewport = true
+			})
+			local torsostomachs = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = CUBE,
+				bgImage = "../textures/store/presets/secgrad.tga",
+				pos = { 0, 0.2, -1.6 },
+				size = { 0.7, 1.1, 1.4 },
+				rot = { 90, 90, 0 },
+				bgColor = { scolor.r, scolor.g, scolor.b, 1 },
 				viewport = true
 			})
 			previewHolder:moveTo(0, 0.6, 0)

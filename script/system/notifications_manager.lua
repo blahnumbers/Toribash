@@ -66,11 +66,11 @@ do
 	end
 	
 	function Notifications:showQuests()
+		TB_MENU_SPECIAL_SCREEN_ISOPEN = 4
 		Quests:showMain(QUEST_REFRESH_CLAIMED)
 	end
 	
 	function Notifications:showMain()
-		TB_MENU_SPECIAL_SCREEN_ISOPEN = 4
 		local rewards = PlayerInfo:getLoginRewards()
 		if (rewards.available) then
 			Notifications:showLoginRewards()

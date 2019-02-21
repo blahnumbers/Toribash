@@ -11,6 +11,7 @@ local TOGGLE = 1
 local SLIDER = 2
 local DROPDOWN = 3
 local INPUT = 4
+local BUTTON = 5
 
 local SHADERS = 0
 local FLUIDBLOOD = 1
@@ -639,32 +640,15 @@ do
 					}
 				},
 				{
-					name = TB_MENU_LOCALIZED.SETTINGSCHAT,
-					items = {
-						{
-							name = TB_MENU_LOCALIZED.SETTINGSCHATTOGGLE,
-							type = INPUT,
-							inputspecial = true,
-							systemname = "chattoggle",
-							val = { get_option("chattoggle") }
-						},
-						{
-							name = TB_MENU_LOCALIZED.SETTINGSPROFANITYFILTER,
-							type = TOGGLE,
-							systemname = "chatcensor",
-							val = { get_option("chatcensor") % 2 == 1 and 1 or 0 }
-						},
-						{
-							name = TB_MENU_LOCALIZED.SETTINGSHIDEECHO,
-							type = TOGGLE,
-							systemname = "chatcensorhidesystem",
-							val = { get_option("chatcensor") > 1 and 1 or 0 }
-						}
-					}
-				},
-				{
 					name = TB_MENU_LOCALIZED.SETTINGSGAMEPLAY,
 					items = {
+						{
+							name = TB_MENU_LOCALIZED.MAINMENUHOTKEYSNAME,
+							type = BUTTON,
+							action = function()
+								TBMenu:showHotkeys()
+							end
+						},
 						{
 							name = TB_MENU_LOCALIZED.SETTINGSMOUSEBUTTONS,
 							type = DROPDOWN,
@@ -713,6 +697,30 @@ do
 							type = TOGGLE,
 							systemname = "rememberrules",
 							val = { get_option("rememberrules") }
+						}
+					}
+				},
+				{
+					name = TB_MENU_LOCALIZED.SETTINGSCHAT,
+					items = {
+						{
+							name = TB_MENU_LOCALIZED.SETTINGSCHATTOGGLE,
+							type = INPUT,
+							inputspecial = true,
+							systemname = "chattoggle",
+							val = { get_option("chattoggle") }
+						},
+						{
+							name = TB_MENU_LOCALIZED.SETTINGSPROFANITYFILTER,
+							type = TOGGLE,
+							systemname = "chatcensor",
+							val = { get_option("chatcensor") % 2 == 1 and 1 or 0 }
+						},
+						{
+							name = TB_MENU_LOCALIZED.SETTINGSHIDEECHO,
+							type = TOGGLE,
+							systemname = "chatcensorhidesystem",
+							val = { get_option("chatcensor") > 1 and 1 or 0 }
 						}
 					}
 				},
@@ -1300,6 +1308,28 @@ do
 						selectedId = item.selectedAction()
 					end
 					TBMenu:spawnDropdown(itemDropdown, item.dropdown, 30, WIN_H - 100, item.dropdown[selectedId], 0.7, nil, 0.6)
+				elseif (item.type == BUTTON) then
+					local itemButtonBG = UIElement:new({
+						parent = itemView,
+						pos = { itemView.size.w / 3 * 2 - 20, 5 },
+						size = { itemView.size.w / 3, itemView.size.h - 10 },
+						bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+						shapeType = ROUNDED,
+						rounded = 3
+					})
+					local itemButton = UIElement:new({
+						parent = itemButtonBG,
+						pos = { 1, 1 },
+						size = { itemButtonBG.size.w - 2, itemButtonBG.size.h - 2 },
+						bgColor = TB_MENU_DEFAULT_BG_COLOR,
+						hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+						pressedColor = TB_MENU_DEFAULT_DARKER_COLOR,
+						interactive = true,
+						shapeType = ROUNDED,
+						rounded = 3
+					})
+					itemButton:addMouseHandlers(nil, item.action)
+					itemButton:addAdaptedText(false, string.upper("Press to show"), nil, nil, 4, nil, 0.7)
 				end
 			end
 		end

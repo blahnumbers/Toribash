@@ -245,7 +245,7 @@ do
 		toReload:reload()
 	end
 
-	function UIElement:makeScrollBar(listHolder, listElements, toReload, posShift, scrollSpeed)
+	function UIElement:makeScrollBar(listHolder, listElements, toReload, posShift, scrollSpeed, scrollIgnoreOverride)
 		local scrollSpeed = scrollSpeed or 1
 		local posShift = posShift or { 0 }
 		local enabled = {}
@@ -256,6 +256,10 @@ do
 		
 		self:addMouseHandlers(
 			function(s, x, y)
+				local scrollIgnore = UIScrollbarIgnore
+				if (scrollIgnoreOverride and scrollIgnore) then
+					UIScrollbarIgnore = false
+				end
 				if (s < 4) then
 					self.pressedPos = self:getLocalPos(x,y)
 					self.hoverState = BTN_DN
@@ -263,6 +267,9 @@ do
 						(MOUSE_X > listHolder.parent.pos.x and MOUSE_X < listHolder.parent.pos.x + listHolder.parent.size.w and MOUSE_Y > listHolder.parent.pos.y and MOUSE_Y < listHolder.parent.pos.y + listHolder.parent.size.h))) then
 					self:mouseScroll(listElements, listHolder, toReload, y * scrollSpeed, enabled)
 					posShift[1] = self.shift.y
+				end
+				if (scrollIgnore and not UIScrollbarIgnore) then
+					UIScrollbarIgnore = true
 				end
 			end, nil,
 			function(x, y)
@@ -1087,7 +1094,7 @@ do
 			return
 		end
 
-		if (TEXTUREINDEX > 254) then
+		if (TEXTUREINDEX > 253) then
 			self.bgImage = load_texture(DEFTEXTURE)
 			return false
 		end

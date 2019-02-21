@@ -1193,8 +1193,8 @@ do
 			v:hide()
 		end
 		local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
-		scrollBar:makeScrollBar(listingHolder, listElements, toReload)
-		UIScrollbarIgnore = false
+		scrollBar:makeScrollBar(listingHolder, listElements, toReload, nil, nil, true)
+		UIScrollbarIgnore = true
 	end
 
 	function TBMenu:showModsSection()
@@ -1216,8 +1216,9 @@ do
 	function TBMenu:showToolsSection()
 		local tbMenuToolsButtonsData = {
 			{ title = TB_MENU_LOCALIZED.MAINMENUSCRIPTSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUSCRIPTSDESC, size = 0.25, image = "../textures/menu/scripts.tga", mode = ORIENTATION_PORTRAIT, action = function() TBMenu:showScripts() end },
-			{ title = TB_MENU_LOCALIZED.MAINMENUSHADERSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUSHADERSDESC, size = 0.5, image = "../textures/menu/shaders.tga", mode = ORIENTATION_LANDSCAPE, action = function() dofile("system/atmo.lua") end, quit = true },
-			{ title = TB_MENU_LOCALIZED.MAINMENUHOTKEYSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUHOTKEYSDESC, size = 0.25, image = "../textures/menu/hotkeys.tga", mode = ORIENTATION_PORTRAIT, action = function() TBMenu:showHotkeys() end }
+			{ title = TB_MENU_LOCALIZED.MAINMENUMODMAKERNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUMODMAKERDESC, size = 0.25, image = "../textures/menu/modmaker.tga", mode = ORIENTATION_PORTRAIT, action = function() open_menu(17) end },
+			{ title = TB_MENU_LOCALIZED.MAINMENUHOTKEYSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUHOTKEYSDESC, size = 0.25, image = "../textures/menu/hotkeys.tga", mode = ORIENTATION_PORTRAIT, action = function() TBMenu:showHotkeys() end },
+			{ title = "Settings", subtitle = TB_MENU_LOCALIZED.MAINMENUHOTKEYSDESC, size = 0.25, image = "../textures/menu/hotkeys.tga", mode = ORIENTATION_PORTRAIT, action = function() TBMenu:showSettings() end },
 		}
 		TBMenu:showSection(tbMenuToolsButtonsData)
 	end
@@ -1782,9 +1783,9 @@ do
 			{ text = TB_MENU_LOCALIZED.NAVBUTTONHOME, sectionId = 1 },
 			{ text = TB_MENU_LOCALIZED.NAVBUTTONPLAY, sectionId = 2 },
 			{ text = TB_MENU_LOCALIZED.NAVBUTTONPRACTICE, sectionId = 3 },
-			{ text = TB_MENU_LOCALIZED.NAVBUTTONMODS, sectionId = 4 },
 			{ text = TB_MENU_LOCALIZED.NAVBUTTONTOOLS, sectionId = 5 },
-			{ text = "Store", sectionId = 6}
+			{ text = "Store", sectionId = 6 },
+			{ text = "Account", sectionId = 7 }
 		}
 		return buttonData
 	end
