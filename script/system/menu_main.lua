@@ -86,6 +86,7 @@ if (os.clock() < 10) then
 else
 	if (not TB_STORE_DATA or not TB_STORE_DATA.ready or TB_MENU_DEBUG) then
 		TB_STORE_DATA, TB_STORE_SECTIONS = Torishop:getItems()
+		TB_STORE_MODELS = Torishop:getModelsData()
 		if (not TB_STORE_DATA.failed) then
 			TB_STORE_DATA.ready = true
 			TB_STORE_DATA.onsale = Torishop:getSaleItem()
@@ -131,6 +132,7 @@ if (os.clock() < 10) then
 				TB_MENU_PLAYER_INFO.clan = PlayerInfo:getClan(TB_MENU_PLAYER_INFO.username)
 				TB_MENU_PLAYER_INFO.items = PlayerInfo:getItems(TB_MENU_PLAYER_INFO.username)
 				TB_STORE_DATA, TB_STORE_SECTIONS = Torishop:getItems()
+				TB_STORE_MODELS = Torishop:getModelsData()
 				if (not TB_STORE_DATA.failed) then
 					TB_STORE_DATA.ready = true
 					TB_STORE_DATA.onsale = Torishop:getSaleItem()

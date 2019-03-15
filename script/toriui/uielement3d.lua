@@ -110,6 +110,7 @@ do
 			
 			table.insert(UIElement3DManager, elem)
 			if (o.viewport) then
+				elem.viewportElement = true
 				table.insert(UIVisual3DManagerViewport, elem)
 			else
 				table.insert(UIVisual3DManager, elem)
@@ -221,7 +222,7 @@ do
 						draw_capsule(joint.x, joint.y, joint.z, self.size.y, self.size.x, self.rot.x, self.rot.y, self.rot.z)
 					end
 				else
-					draw_capsule(self.pos.x, self.pos.y, self.pos.z, self.size.y, self.size.x, self.rot.x, self.rot.y, self.rot.z)
+					self:drawCapsule()
 				end
 			elseif (self.shapeType == CUSTOMOBJ) then
 				draw_obj(self.objModel, self.pos.x, self.pos.y, self.pos.z, self.size.x, self.size.y, self.size.z, self.rot.x, self.rot.y, self.rot.z)
@@ -237,6 +238,14 @@ do
 			draw_box(self.pos.x, self.pos.y, self.pos.z, self.size.x, self.size.y, self.size.z, self.rot.x, self.rot.y, self.rot.z, self.bgImage)
 		else
 			draw_box(self.pos.x, self.pos.y, self.pos.z, self.size.x, self.size.y, self.size.z, self.rot.x, self.rot.y, self.rot.z)
+		end
+	end
+	
+	function UIElement3D:drawCapsule()
+		if (self.bgImage) then
+			draw_capsule(self.pos.x, self.pos.y, self.pos.z, self.size.y, self.size.x, self.rot.x, self.rot.y, self.rot.z, self.bgImage)
+		else
+			draw_capsule(self.pos.x, self.pos.y, self.pos.z, self.size.y, self.size.x, self.rot.x, self.rot.y, self.rot.z)
 		end
 	end
 	
@@ -290,7 +299,7 @@ do
 			self.noreload = nil
 		end
 		
-		for i,v in pairs(UIVisual3DManager) do
+		for i,v in pairs(self.viewportElement and UIVisual3DManagerViewport or UIVisual3DManager) do
 			if (self == v) then
 				num = i
 				break
@@ -298,7 +307,7 @@ do
 		end
 		
 		if (not num) then
-			table.insert(UIVisual3DManager, self)
+			table.insert(self.viewportElement and UIVisual3DManagerViewport or UIVisual3DManager, self)
 			if (self.interactive) then
 				table.insert(UIMouseHandler, self)
 			end
@@ -328,12 +337,10 @@ do
 			end
 			if (num) then
 				table.remove(UIMouseHandler, num)
-			else
-				err(UIMouseHandlerEmpty)
 			end
 		end
 		
-		for i,v in pairs(UIVisual3DManager) do
+		for i,v in pairs(self.viewportElement and UIVisual3DManagerViewport or UIVisual3DManager) do
 			if (self == v) then
 				num = i
 				break
@@ -341,9 +348,7 @@ do
 		end
 		
 		if (num) then
-			table.remove(UIVisual3DManager, num)
-		else
-			err(UIElementEmpty)
+			table.remove(self.viewportElement and UIVisual3DManagerViewport or UIVisual3DManager, num)
 		end
 	end
 	
@@ -504,18 +509,19 @@ do
 		filename = filename .. ".obj"
 		
 		if (not noreload and self.objModel) then
-			local count, id = 0, 0
+			local id = 0
 			for i,v in pairs(OBJMODELCACHE) do
 				if (i == self.objModel) then
-					count = count + 1
 					id = i
+					break
 				end
 			end
-			if (count == 1) then
+			OBJMODELCACHE[id].count = OBJMODELCACHE[id].count - 1
+			if (OBJMODELCACHE[id].count == 0) then
 				unload_obj(self.objModel)
+				OBJMODELCACHE[id] = nil
 				OBJMODELINDEX = OBJMODELINDEX - 1
 			end
-			OBJMODELCACHE[id] = nil
 			self.objModel = nil
 		end
 		
@@ -531,9 +537,12 @@ do
 		
 		local objid = 0
 		for i = 0, 127 do
-			if (OBJMODELCACHE[i] == filename) then
-				self.objModel = i
-				return true
+			if (OBJMODELCACHE[i]) then
+				if (OBJMODELCACHE[i].name == filename) then
+					self.objModel = i
+					OBJMODELCACHE[i].count = OBJMODELCACHE[i].count + 1
+					return true
+				end
 			end
 		end
 		if (OBJMODELINDEX > 126) then
@@ -548,7 +557,7 @@ do
 		if (load_obj(objid, model)) then
 			self.objModel = objid
 		end
-		OBJMODELCACHE[objid] = filename
+		OBJMODELCACHE[objid] = { name = filename, count = 1 }
 		OBJMODELINDEX = OBJMODELINDEX + 1
 		return true
 	end

@@ -17,7 +17,7 @@ do
 	function Events:getEvents()
 		return {
 			{
-				accentColor = { 0, 0, 0, 1 },
+				accentColor = { 0.024, 0.024, 0.024, 1 },
 				uiColor = { 1, 1, 1, 1 },
 				buttonHoverColor = { 0.969, 0.847, 0.122, 1 },
 				buttonPressedColor = { 0.996, 0.769, 0.102, 1 },

@@ -279,6 +279,8 @@ do
 					posShift[1] = self.shift.y
 				end
 			end)
+			
+		self.listReload = function() toReload:reload() end
 		
 		if (not self.isScrollBar) then
 			self.isScrollBar = true
@@ -1151,24 +1153,34 @@ do
 		for i, v in pairs(arr) do
 			table.insert(a, v)
 		end
+		if (type(sort) ~= "table") then
+			sort = { sort }
+		end
+		tableReverse(sort)
 		table.sort(a, function(a,b)
-				local val1 = a[sort] == 0 and (includeZeros and 0 or b[sort] - desc) or a[sort]
-				local val2 = b[sort] == 0 and (includeZeros and 0 or a[sort] - desc) or b[sort]
-				if (type(val1) == "string" or type(val2) == "string") then
-					val1 = val1:lower()
-					val2 = val2:lower()
+				local cmpRes = false
+				for i,v in pairs(sort) do
+					local val1 = a[v] == 0 and (includeZeros and 0 or b[v] - desc) or a[v]
+					local val2 = b[v] == 0 and (includeZeros and 0 or a[v] - desc) or b[v]
+					if (type(val1) == "string" or type(val2) == "string") then
+						val1 = val1:lower()
+						val2 = val2:lower()
+					end
+					if (type(val1) == "boolean") then
+						val1 = val1 and 1 or -1
+					end
+					if (type(val2) == "boolean") then
+						val2 = val2 and 1 or -1
+					end
+					if (val1 ~= val2) then
+						if (desc == 1) then
+							return val1 > val2
+						else
+							return val1 < val2
+						end
+					end
 				end
-				if (type(val1) == "boolean") then
-					val1 = val1 and 1 or -1
-				end
-				if (type(val2) == "boolean") then
-					val2 = val2 and 1 or -1
-				end
-				if (desc == 1) then
-					return val1 > val2
-				else
-					return val1 < val2
-				end
+				return cmpRes
 			end)
 		return a
 	end
@@ -1202,7 +1214,6 @@ do
 			word = str:match("^%s*%S+%s*")
 			if (newlined) then
 				if (newlined:len() < word:len()) then
-					echo("word: " .. word .. "; newlined: " .. newlined)
 					word = newlined
 				end
 			end

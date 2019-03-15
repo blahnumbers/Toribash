@@ -1,6 +1,8 @@
 dofile("toriui/uielement.lua")
 dofile("system/menu_manager.lua")
 
+REPLAY_SAVETEMPNAME = "--localreplaytempfile"
+
 rploptions = { hint = get_option("hint"), feedback = get_option("feedback") }
 local REPLAY_NEWGAME = false
 

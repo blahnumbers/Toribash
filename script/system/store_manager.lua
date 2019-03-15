@@ -2,6 +2,7 @@
 
 TB_INVENTORY_PAGE = TB_INVENTORY_PAGE or {}
 TB_ITEM_DETAILS = TB_ITEM_DETAILS or nil
+TB_LAST_STORE_SECTION = 1
 
 ITEM_SET = 1458
 ITEM_FLAME = 936
@@ -24,11 +25,16 @@ INVENTORY_UNPACK = 5
 INVENTORY_UPDATE = false
 INVENTORY_MOUSE_POS = { x = 0, y = 0 }
 
-CATEGORIES_COLORS = { 44, 22, 2, 20, 21, 1, 5, 11, 12, 24, 27, 28, 29, 30, 34, 41, 43, 73 }
-CATEGORIES_TEXTURES = { 48, 54, 55, 57, 58 }
-CATEGORIES_ADVANCED = { 78, 72, 80 }
-CATEGORIES_ACCOUNT = { 45, 79 }
-CATEGORIES_HIDDEN = { 3 }
+local CATEGORIES_COLORS = { 44, 22, 2, 20, 21, 1, 5, 11, 12, 24, 27, 28, 29, 30, 34, 41, 43, 73 }
+local CATEGORIES_TEXTURES = { 48, 54, 55, 57, 58 }
+local CATEGORIES_ADVANCED = { 78, 72, 80 }
+local CATEGORIES_ACCOUNT = { 45, 84, 68, 79 }
+local CATEGORIES_HIDDEN = { 3 }
+
+local TAB_COLORS = 1
+local TAB_TEXTURES = 2
+local TAB_ADVANCED = 3
+local TAB_ACCOUNT = 4
 
 do
 	Torishop = {}
@@ -37,7 +43,7 @@ do
 	setmetatable(cln, Torishop)
 
 	function Torishop:getItems()
-		local file = Files:new("torishop/torishop.txt")
+		local file = Files:new("../data/store.txt")
 		if (not file.data) then
 			return { failed = true }
 		end
@@ -59,7 +65,9 @@ do
 			{ "ingame", numeric = true },
 			{ "colorid", numeric = true },
 			{ "hidden", numeric = true },
-			{ "locked", numeric = true }
+			{ "locked", numeric = true },
+			{ "description" },
+			{ "contents" }
 		}
 		local TorishopData = {}
 		local TorishopSections = {}
@@ -75,9 +83,18 @@ do
 						item[v[1]] = tonumber(item[v[1]])
 					end
 				end
+				local contents = item.contents
+				item.contents = {}
+				while (contents:len() > 0) do
+					table.insert(item.contents, tonumber(contents:match("%d+")))
+					contents = contents:gsub("^%d+ ?", "")
+				end
 				TorishopSections[item.catid] = { name = item.catname }
-				item.catname = nil
 				item.shortname = item.itemname:gsub("Motion Trail", "Trail")
+				if (item.locked == 1) then
+					item.now_tc_price = 0
+					item.now_usd_price = 0
+				end
 				TorishopData[item.itemid] = item
 			end
 		end
@@ -85,6 +102,41 @@ do
 		
 		TorishopSections[0] = { name = "Color Items" }
 		return TorishopData, TorishopSections
+	end
+	
+	function Torishop:getModelsData()
+		local file = Files:new("../data/store_obj.txt")
+		if (not file.data) then
+			return { failed = true }
+		end
+		local data_types = {
+			{ "itemid", numeric = true },
+			{ "bodyid", numeric = true },
+			{ "colorid", numeric = true },
+			{ "alpha", numeric = true },
+			{ "dynamic", boolean = true },
+			{ "partless", boolean = true },
+			{ "level", numeric = true }
+		}
+		local ModelsData = {}
+		for i, ln in pairs(file:readAll()) do
+			if string.match(ln, "^OBJ") then
+				local _, segments = ln:gsub("\t", "")
+				segments = segments
+				local data_stream = { ln:match(("([^\t]*)\t"):rep(segments)) }
+				local item = {}
+				for i,v in pairs(data_types) do
+					item[v[1]] = tonumber(data_stream[i + 1])
+					if (v.boolean) then
+						item[v[1]] = item[v[1]] == 1 and true or false
+					end
+				end
+				ModelsData[item.itemid] = item
+			end
+		end
+		file:close()
+		
+		return ModelsData
 	end
 	
 	function Torishop:getStoreSection(sectionid)
@@ -128,7 +180,7 @@ do
 		if (temp) then
 			return itemData
 		end
-		local file = Files:new("torishop/torishop.txt")
+		local file = Files:new("../data/store.txt")
 		if (not file.data) then
 			return itemData
 		end
@@ -153,7 +205,7 @@ do
 
 	function Torishop:getTcSales()
 		local data = {}
-		local file = Files:new("torishop/torishop.txt")
+		local file = Files:new("../data/store.txt")
 		if (not file.data) then
 			return
 		end
@@ -344,35 +396,39 @@ do
 		local buttons = {
 			{
 				text = TB_MENU_LOCALIZED.NAVBUTTONBACK,
-				action = function() Torishop:showStore(viewElement) end,
+				action = function() TB_MENU_SPECIAL_SCREEN_ISOPEN = 0 Torishop:quit() end,
 			}
 		}
 		local sections = {
 			{
 				text = "Account",
 				action = function() Torishop:showStoreSection(viewElement, 4) end,
+				sectionId = TAB_ACCOUNT,
 				right = true,
 			},
 			{
 				text = "Advanced",
 				action = function() Torishop:showStoreSection(viewElement, 3) end,
+				sectionId = TAB_ADVANCED,
 				right = true,
 			},
 			{
 				text = "Textures",
 				action = function() Torishop:showStoreSection(viewElement, 2) end,
+				sectionId = TAB_TEXTURES,
 				right = true,
 			},
 			{
 				text = "Colors",
 				action = function() Torishop:showStoreSection(viewElement, 1) end,
+				sectionId = TAB_COLORS,
 				right = true,
 			},
 		}
 		for i,v in pairs(sections) do
-			if (i ~= (5 - section)) then
+			--if (i ~= (5 - section)) then
 				table.insert(buttons, v)
-			end
+			--end
 		end
 		return buttons
 	end
@@ -1530,6 +1586,13 @@ do
 			size = { viewElement.size.h, viewElement.size.h },
 			viewport = true
 		})
+		local background = UIElement:new({
+			parent = viewElement,
+			pos = { viewport.shift.x - 1, 0 },
+			size = { viewport.size.w + 1, viewElement.size.h + 1 },
+			bgColor = UICOLORWHITE,
+			bgImage = "../textures/store/presets/previewbgshade.tga"
+		})
 		local viewport3D = UIElement3D:new({
 			globalid = TB_MENU_MAIN_GLOBALID,
 			shapeType = VIEWPORT,
@@ -1542,10 +1605,9 @@ do
 		table.insert(viewport.child, viewport3D)
 		local previewHolder = UIElement3D:new({
 			parent = viewport3D,
-			shapeType = SPHERE,
+			shapeType = CUBE,
 			pos = { 0, 0, 10 },
 			size = { 0, 0, 0 },
-			rot = { 0, 0, 0 },
 			viewport = true
 		})
 		previewHolder:addCustomDisplay(true, function()
@@ -1566,6 +1628,8 @@ do
 				end
 			end)
 		local scaleMultiplier = 2 --get_option("shaders") + 1
+		local trans = get_option("shaders") == 1 and 1 or 0.99
+		local heightMod = 0
 		if (item.catid == 2) then
 			-- Relax Items
 			local color = get_color_info(item.colorid)
@@ -1621,36 +1685,15 @@ do
 				parent = previewHolder,
 				shapeType = CUSTOMOBJ,
 				objModel = "../models/store/presets/blood",
-				pos = { 0, 0, -0.5 },
-				size = { 0.7 * scaleMultiplier, 0.7 * scaleMultiplier, 0.7 * scaleMultiplier },
-				rot = { -90, 0, 0 },
-				bgColor = { color.r, color.g, color.b, 1 },
-				viewport = true
-			})
-			local blood2 = UIElement3D:new({
-				parent = previewHolder,
-				shapeType = CUSTOMOBJ,
-				objModel = "../models/store/presets/blood",
-				pos = { 0.1, -0.4, 0.2 },
-				size = { 0.5 * scaleMultiplier, 0.5 * scaleMultiplier, 0.5 * scaleMultiplier },
-				rot = { -90, 0, 0 },
-				bgColor = { color.r, color.g, color.b, 1 },
-				viewport = true
-			})
-			local blood3 = UIElement3D:new({
-				parent = previewHolder,
-				shapeType = CUSTOMOBJ,
-				objModel = "../models/store/presets/blood",
-				pos = { 0.1, -0.4, 0.2 },
-				size = { 0.5 * scaleMultiplier, 0.5 * scaleMultiplier, 0.5 * scaleMultiplier },
-				rot = { -90, 0, 0 },
+				pos = { 0, 0, -0.3 },
+				size = { 0.8 * scaleMultiplier, 0.8 * scaleMultiplier, 0.8 * scaleMultiplier },
+				rot = { -90, 0, 80 },
 				bgColor = { color.r, color.g, color.b, 1 },
 				viewport = true
 			})
 			return
 		elseif (item.catid == 20 or item.catid == 21) then
 			-- Gradient Items
-			local trans = get_option("shaders") == 1 and 1 or 0.99
 			local color = get_color_info(item.colorid)
 			local pcolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.pgrad)
 			local scolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.sgrad)
@@ -1665,12 +1708,32 @@ do
 				bgColor = item.catid == 20 and { color.r, color.g, color.b, trans } or { pcolor.r, pcolor.g, pcolor.b, trans },
 				viewport = true
 			})
+			local handPrGrad = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = CUBE,
+				bgImage = "../textures/store/presets/prgrad.tga",
+				pos = { 0.2, -1.53, 0 },
+				size = { 1.2, 1.2, 1.2 },
+				rot = { 90, 0, 0 },
+				bgColor = item.catid == 20 and { color.r, color.g, color.b, trans } or { pcolor.r, pcolor.g, pcolor.b, trans },
+				viewport = true
+			})
 			local secondaryGrad = UIElement3D:new({
 				parent = previewHolder,
 				shapeType = CUBE,
 				bgImage = "../textures/store/presets/secgrad.tga",
 				pos = { 0, 0.2, 0 },
 				size = { 2, 0.65, 0.65 },
+				rot = { 90, 0, 0 },
+				bgColor = item.catid == 21 and { color.r, color.g, color.b, trans } or { scolor.r, scolor.g, scolor.b, trans },
+				viewport = true
+			})
+			local handSecGrad = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = CUBE,
+				bgImage = "../textures/store/presets/secgrad.tga",
+				pos = { 0.2, -1.53, 0 },
+				size = { 1.2, 1.2, 1.2 },
 				rot = { 90, 0, 0 },
 				bgColor = item.catid == 21 and { color.r, color.g, color.b, trans } or { scolor.r, scolor.g, scolor.b, trans },
 				viewport = true
@@ -1691,27 +1754,88 @@ do
 				bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
 				viewport = true
 			})
-			local handPrGrad = UIElement3D:new({
-				parent = previewHolder,
-				shapeType = CUBE,
-				bgImage = "../textures/store/presets/prgrad.tga",
-				pos = { 0.2, -1.53, 0 },
-				size = { 1.2, 1.2, 1.2 },
-				rot = { 90, 0, 0 },
-				bgColor = item.catid == 20 and { color.r, color.g, color.b, trans } or { pcolor.r, pcolor.g, pcolor.b, trans },
-				viewport = true
-			})
-			local handSecGrad = UIElement3D:new({
-				parent = previewHolder,
-				shapeType = CUBE,
-				bgImage = "../textures/store/presets/secgrad.tga",
-				pos = { 0.2, -1.53, 0 },
-				size = { 1.2, 1.2, 1.2 },
-				rot = { 90, 0, 0 },
-				bgColor = item.catid == 21 and { color.r, color.g, color.b, trans } or { scolor.r, scolor.g, scolor.b, trans },
-				viewport = true
-			})
+			previewHolder:moveTo(0, 0, -0.3)
 			previewHolder:rotate(40, 90, 110)
+			return
+		elseif (item.catid == 11) then
+			-- Ghost Colors
+			local color = get_color_info(item.colorid)
+			local pcolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.pgrad)
+			local scolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.sgrad)
+			local fcolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.force)
+			
+			local cubesec = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = CUBE,
+				pos = { 0, 0, 0 },
+				size = { 1, 1, 1 },
+				bgImage = "../textures/store/presets/secgrad.tga",
+				rot = { 0, 90, 0 },
+				bgColor = { scolor.r, scolor.g, scolor.b, trans },
+				viewport = true
+			})
+			local cubepr = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = CUBE,
+				pos = { 0, 0, 0 },
+				size = { 1, 1, 1 },
+				bgImage = "../textures/store/presets/prgrad.tga",
+				rot = { 0, 90, 0 },
+				bgColor = { pcolor.r, pcolor.g, pcolor.b, trans },
+				viewport = true
+			})
+			local ghost = UIElement3D:new({
+				parent = cubepr,
+				shapeType = CUBE,
+				pos = { 0, 0, 0 },
+				size = { cubepr.size.x, cubepr.size.y, cubepr.size.z },
+				bgColor = { color.r, color.g, color.b, 0.6 },
+				viewport = true
+			})
+			ghost:addCustomDisplay(nil, function()
+					if (ghost.bgColor[4] <= 0) then
+						ghost:moveTo(-ghost.shift.x, -ghost.shift.y, 0)
+						ghost:rotate(-ghost.rotXYZ.x - 30)
+						ghost.bgColor[4] = 0.6
+						return
+					end
+					ghost:moveTo(0.01, -0.005, 0)
+					ghost:rotate(0.4)
+					ghost.bgColor[4] = ghost.bgColor[4] - 0.01
+				end)
+			previewHolder:rotate(-30, 0, 0)
+			return
+		elseif (item.catid == 12) then
+			-- DQ colors
+			local color = get_color_info(item.colorid)
+			local fcolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.force)
+			local head = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = SPHERE,
+				pos = { -0.3, 0, 0 },
+				size = { 0.8, 0.8, 0.8 },
+				rot = { 170, 20, -190 },
+				bgImage = "../../custom/sir/head.tga",
+				viewport = true
+			})
+			local neck = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = SPHERE,
+				pos = { -0.6, 0.3, 0.6 },
+				size = { 0.4, 0.4, 0.4 },
+				bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
+				viewport = true
+			})
+			local dq = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = CUSTOMOBJ,
+				objModel = "../models/store/presets/dq",
+				size = { 7, 7, 7 },
+				pos = { -0.3, 0, -0.8 },
+				rot = { 0, 0, 0 },
+				bgColor = { color.r, color.g, color.b, 1 },
+				viewport = true
+			})
 			return
 		elseif (item.catid == 5) then
 			-- Torso Items
@@ -1797,8 +1921,8 @@ do
 				bgImage = "../textures/store/presets/prgrad.tga",
 				pos = { 0, 0.2, -1.6 },
 				size = { 0.7, 1.1, 1.4 },
-				rot = { -90, 90, 0 },
-				bgColor = { pcolor.r, pcolor.g, pcolor.b, 1 },
+				rot = { 90, 90, 0 },
+				bgColor = { pcolor.r, pcolor.g, pcolor.b, trans },
 				viewport = true
 			})
 			local torsostomachs = UIElement3D:new({
@@ -1807,48 +1931,1170 @@ do
 				bgImage = "../textures/store/presets/secgrad.tga",
 				pos = { 0, 0.2, -1.6 },
 				size = { 0.7, 1.1, 1.4 },
-				rot = { 90, 90, 0 },
-				bgColor = { scolor.r, scolor.g, scolor.b, 1 },
+				rot = { -90, -90, 0 },
+				bgColor = { scolor.r, scolor.g, scolor.b, trans },
 				viewport = true
 			})
 			previewHolder:moveTo(0, 0.6, 0)
 			return
+		elseif (item.catid == 41) then
+			-- Grip items
+			local color = get_color_info(item.colorid)
+			local pcolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.pgrad)
+			local scolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.sgrad)
+			local fcolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.force)
+			local handp = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = CUBE,
+				pos = { 0, 0.3, 0 },
+				bgImage = "../textures/store/presets/prgrad.tga",
+				size = { 1, 1, 1 },
+				rot = { -45, 90, 0 },
+				bgColor = { pcolor.r, pcolor.g, pcolor.b, trans },
+				viewport = true
+			})
+			local hands = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = CUBE,
+				pos = { 0, 0.3, 0 },
+				bgImage = "../textures/store/presets/secgrad.tga",
+				size = { 1, 1, 1 },
+				rot = { -45, 90, 0 },
+				bgColor = { scolor.r, scolor.g, scolor.b, trans },
+				viewport = true
+			})
+			local wrist = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = SPHERE,
+				pos = { 0, 0.6, -0.6 },
+				size = { 0.45, 0.45, 0.45 },
+				rot = { 0, 0, 0 },
+				bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
+				viewport = true
+			})
+			local tricepsp = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = CUBE,
+				pos = { 0, 0.4, -1.3 },
+				bgImage = "../textures/store/presets/prgrad.tga",
+				size = { 1.1, 0.4, 0.4 },
+				rot = { 25, 90, 0 },
+				bgColor = { pcolor.r, pcolor.g, pcolor.b, trans },
+				viewport = true
+			})
+			local tricepss = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = CUBE,
+				pos = { 0, 0.4, -1.3 },
+				bgImage = "../textures/store/presets/secgrad.tga",
+				size = { 1.1, 0.4, 0.4 },
+				rot = { 25, 90, 0 },
+				bgColor = { scolor.r, scolor.g, scolor.b, trans },
+				viewport = true
+			})
+			local grip = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = SPHERE,
+				pos = { 0, -0.3, 0.4 },
+				size = { 0.4, 0.4, 0.4 },
+				bgColor = { color.r, color.g, color.b, 0.7 },
+				viewport = true
+			})
+			previewHolder:rotate(0, 0, 40)
+			return
+		elseif (item.catid == 27 or item.catid == 28) then
+			-- Hand Trail items
+			local color = get_color_info(item.colorid)
+			local pcolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.pgrad)
+			local scolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.sgrad)
+			local fcolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.force)
+			local handp = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = CUBE,
+				pos = { 0, 0.3, 0.7 },
+				bgImage = "../textures/store/presets/prgrad.tga",
+				size = { 0.5, 0.5, 0.5 },
+				rot = { -25, -90, 0 },
+				bgColor = { pcolor.r, pcolor.g, pcolor.b, trans },
+				viewport = true
+			})
+			local hands = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = CUBE,
+				pos = { 0, 0.3, 0.7 },
+				bgImage = "../textures/store/presets/secgrad.tga",
+				size = { 0.5, 0.5, 0.5 },
+				rot = { -25, -90, 0 },
+				bgColor = { scolor.r, scolor.g, scolor.b, trans },
+				viewport = true
+			})
+			local wrist = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = SPHERE,
+				pos = { 0, 0.4, 0.4 },
+				size = { 0.25, 0.25, 0.25 },
+				rot = { 0, 0, 0 },
+				bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
+				viewport = true
+			})
+			local tricepsp = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = CUBE,
+				pos = { 0, 0.58, 0 },
+				bgImage = "../textures/store/presets/prgrad.tga",
+				size = { 1.1, 0.25, 0.25 },
+				rot = { -25, 90, 0 },
+				bgColor = { pcolor.r, pcolor.g, pcolor.b, trans },
+				viewport = true
+			})
+			local tricepss = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = CUBE,
+				pos = { 0, 0.58, 0 },
+				bgImage = "../textures/store/presets/secgrad.tga",
+				size = { 1.1, 0.25, 0.25 },
+				rot = { -25, 90, 0 },
+				bgColor = { scolor.r, scolor.g, scolor.b, trans },
+				viewport = true
+			})
+			local elbow = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = SPHERE,
+				pos = { 0, 0.9, -0.7 },
+				size = { 0.3, 0.3, 0.3 },
+				rot = { 0, 0, 0 },
+				bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
+				viewport = true
+			})
+			local trail = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = CUSTOMOBJ,
+				objModel = "../models/store/presets/trails",
+				pos = { 0, -0.4, -0.2 },
+				size = { 1.6 * scaleMultiplier, 1.6 * scaleMultiplier, 1.6 * scaleMultiplier },
+				rot = { 80, 90, 0 },
+				bgColor = { color.r, color.g, color.b, 1 },
+				viewport = true
+			})
+			previewHolder:rotate(0, 0, item.catid == 27 and -130 or 50)
+			return			
+		elseif (item.catid == 29 or item.catid == 30) then
+			-- Leg Trail items
+			local color = get_color_info(item.colorid)
+			local pcolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.pgrad)
+			local scolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.sgrad)
+			local fcolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.force)
+			local legp = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = CUBE,
+				pos = { 0, -0.3, -0.95 },
+				bgImage = "../textures/store/presets/prgrad.tga",
+				size = { 1.2, 0.5, 0.15 },
+				rot = { 0, 10, -90 },
+				bgColor = { pcolor.r, pcolor.g, pcolor.b, trans },
+				viewport = true
+			})
+			local legs = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = CUBE,
+				pos = { 0, -0.3, -0.95 },
+				bgImage = "../textures/store/presets/secgrad.tga",
+				size = { 1.2, 0.5, 0.15 },
+				rot = { 0, 10, -90 },
+				bgColor = { scolor.r, scolor.g, scolor.b, trans },
+				viewport = true
+			})
+			local ankle = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = SPHERE,
+				pos = { 0, 0, -0.7 },
+				size = { 0.28, 0.28, 0.28 },
+				rot = { 0, 0, 0 },
+				bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
+				viewport = true
+			})
+			local legp = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = CAPSULE,
+				pos = { 0, -0.25, 0 },
+				bgImage = "../textures/store/presets/gradient1.tga",
+				size = { 0.3, 1, 0.3 },
+				rot = { -25, 0, 0 },
+				bgColor = { pcolor.r, pcolor.g, pcolor.b, trans },
+				viewport = true
+			})
+			local legs = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = CAPSULE,
+				pos = { 0, -0.25, 0 },
+				bgImage = "../textures/store/presets/gradient2.tga",
+				size = { 0.3, 1, 0.3 },
+				rot = { -25, 0, 0 },
+				bgColor = { scolor.r, scolor.g, scolor.b, trans },
+				viewport = true
+			})
+			local knee = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = SPHERE,
+				pos = { 0, -0.52, 0.72 },
+				size = { 0.32, 0.32, 0.32 },
+				rot = { 0, 0, 0 },
+				bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
+				viewport = true
+			})
+			local trail = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = CUSTOMOBJ,
+				objModel = "../models/store/presets/trails",
+				pos = { 0, 0.8, 0 },
+				size = { 1.6 * scaleMultiplier, 1.6 * scaleMultiplier, 1.6 * scaleMultiplier },
+				rot = { -90, 90, 0 },
+				bgColor = { color.r, color.g, color.b, 1 },
+				viewport = true
+			})
+			previewHolder:rotate(0, 0, item.catid == 30 and -60 or 50)
+			return
+		elseif (item.catid == 73) then
+			-- Hair Colors
+			local color = get_color_info(item.colorid)
+			local scaleMultiplier = scaleMultiplier * 5
+			local head = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = SPHERE,
+				pos = { 0, 0, 0 },
+				size = { 0.8, 0.8, 0.8 },
+				viewport = true,
+				bgImage = "../../custom/sir/head.tga"
+			})
+			local model = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = CUSTOMOBJ,
+				objModel = "torishop/models/kamehamehair",
+				pos = { 0, 0, 0 },
+				size = { 0.8 * scaleMultiplier, 0.8 * scaleMultiplier, 0.8 * scaleMultiplier },
+				rot = { 0, 0, 0 },
+				bgColor = { color.r, color.g, color.b, trans },
+				viewport = true
+			})
+			previewHolder:moveTo(0, 0, -0.3)
+			return
+		elseif (item.catid == 44 and item.colorid ~= 0) then
+			-- Color Packs
+			local color = get_color_info(item.colorid)
+			local boxModel = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = CUSTOMOBJ,
+				objModel = "../models/store/presets/box",
+				pos = { 0, 0, -0.1 },
+				size = { 1.3, 1.3, 1.3 },
+				rot = { -90, 0, 0 },
+				bgColor = { 0.7, 0.7, 0.7, 1 },
+				viewport = true
+			})
+			local tbLogo = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = CUSTOMOBJ,
+				objModel = "../models/store/presets/logo",
+				pos = { 0, 0, -0.1 },
+				size = { 1.3, 1.3, 1.3 },
+				rot = { -90, 0, 0 },
+				bgColor = { 0.222, 0.137, 0.064, 1 },
+				viewport = true
+			})
+			local itemsModel = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = CUSTOMOBJ,
+				objModel = "../models/store/presets/colourobjs",
+				pos = { 0, 0, 0 },
+				size = { 1.3, 1.3, 1.3 },
+				rot = { -90, 0, 0 },
+				bgColor = { color.r, color.g, color.b, 1 },
+				viewport = true
+			})
+			local jointsModel = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = CUSTOMOBJ,
+				objModel = "../models/store/presets/colourobjs_joints",
+				pos = { 0, 0, 0 },
+				size = { 1.3, 1.3, 1.3 },
+				rot = { -90, 0, 0 },
+				bgColor = { 0.66, 0.66, 0.66, 1 },
+				viewport = true
+			})
+			local colorGlow = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = CUSTOMOBJ,
+				objModel = "../models/store/presets/glow",
+				pos = { 0, 0, -0.1 },
+				size = { 1.3, 1.3, 1.3 },
+				rot = { -90, 0, 0 },
+				bgColor = { color.r, color.g, color.b, 1 },
+				viewport = true
+			})
+			previewHolder:moveTo(0, 0, -0.2)
+			previewHolder:rotate(-10, 0, -40)
+			return
 		elseif (item.catid == 78) then
 			-- 3D Items
-			local objPath = "torishop/models/" .. item.itemname:gsub(" ", "_"):lower()
-			local scaleMultiplier = scaleMultiplier * 5
-			local objModel = Files:new(objPath .. ".obj")
-			if (objModel.data) then
-				objModel:close()
-				local model = UIElement3D:new({
-					parent = previewHolder,
-					shapeType = CUSTOMOBJ,
-					objModel = objPath,
-					pos = { 0, 0, 0 },
-					size = { 0.8 * scaleMultiplier, 0.8 * scaleMultiplier, 0.8 * scaleMultiplier },
-					rot = { 0, 0, 0 },
-					viewport = true
-				})
-				local head = UIElement3D:new({
-					parent = previewHolder,
-					shapeType = SPHERE,
-					pos = { 0, 0, 0 },
-					size = { 0.8, 0.8, 0.8 },
-					viewport = true,
-					bgImage = "../../custom/sir/head.tga"
-				})
+			if (Torishop:showObjPreview(item, viewElement, previewHolder, scaleMultiplier, trans)) then
 				return
+			else
+				heightMod = 20
+				local iconScale = viewElement.size.w > viewElement.size.h and viewElement.size.h or viewElement.size.w
+				iconScale = iconScale > 64 and 64 or iconScale
+				local updaterNotice = UIElement:new({
+					parent = viewElement,
+					pos = { 0, iconScale },
+					size = { viewElement.size.w, 20 },
+					bgColor = TB_MENU_DEFAULT_DARKEST_COLOR
+				})
+				updaterNotice:addAdaptedText(false, "Downloading the model...")
 			end
+		elseif (item.catid == 80) then
+			item.pack = true
+			item.objs = {}
+			for i,v in pairs(item.contents) do
+				table.insert(item.objs, Torishop:getItemInfo(v))
+			end
+			Torishop:showObjPreview(item, viewElement, previewHolder, scaleMultiplier, trans)
+			return
 		end
 		viewport:kill()
+		background:kill()
 		local iconScale = viewElement.size.w > viewElement.size.h and viewElement.size.h or viewElement.size.w
 		iconScale = iconScale > 64 and 64 or iconScale
+		viewElement.size.h = iconScale + 20
 		local itemIcon = UIElement:new({
 			parent = viewElement,
-			pos = { (viewElement.size.w - iconScale) / 2, (viewElement.size.h - iconScale) / 2 },
+			pos = { (viewElement.size.w - iconScale) / 2, (viewElement.size.h - iconScale - heightMod) / 2 },
 			size = { iconScale, iconScale },
 			bgImage = Torishop:getItemIcon(item.itemid)
 		})
+	end
+	
+	function Torishop:showPlayerBody(previewHolder, trans, customTextures)
+		local fcolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.force)
+		local pcolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.pgrad)
+		local scolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.sgrad)
+		local tcolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.torso)
+		local textures = TB_MENU_PLAYER_INFO.items.textures
+		local customPath = "../../custom/" .. TB_MENU_PLAYER_INFO.username .. "/"
+		if (customTextures) then
+			for i,v in pairs(textures) do
+				for j,k in pairs(customTextures) do
+					if (i == j) then
+						textures[i] = k
+					end
+				end
+			end
+		end
+		
+		local bodyhead = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = SPHERE,
+			pos = { 0, 0, 0 },
+			size = { 0.8, 0.8, 0.8 },
+			viewport = true,
+			bgImage = textures.head.equipped and (textures.head.path or (customPath .. "head.tga")) or "../../custom/tori/head.tga"
+		})
+		local bodybreast = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = CUBE,
+			pos = { 0, 0.2, -1.8 },
+			size = { 0.8, 0.4, 1.2 },
+			bgColor = textures.breast.equipped and { 1, 1, 1, 1 } or { tcolor.r, tcolor.g, tcolor.b, 1 },
+			bgImage = textures.breast.equipped and (textures.breast.path or (customPath .. "breast.tga")), 
+			viewport = true
+		})
+		local lbodypecs = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = CUBE,
+			pos = { 1, 0.2, -2 },
+			size = { 0.8, 0.6, 0.8 },
+			bgColor = textures.l_pec.equipped and { 1, 1, 1, 1 } or { tcolor.r, tcolor.g, tcolor.b, 1 },
+			bgImage = textures.l_pec.equipped and (textures.l_pec.path or (customPath .. "l_pecs.tga")), 
+			viewport = true
+		})
+		local rbodypecs = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = CUBE,
+			pos = { -1, 0.2, -2 },
+			size = { 0.8, 0.6, 0.8 },
+			bgColor = textures.r_pec.equipped and { 1, 1, 1, 1 } or { tcolor.r, tcolor.g, tcolor.b, 1 },
+			bgImage = textures.r_pec.equipped and (textures.r_pec.path or (customPath .. "r_pecs.tga")), 
+			viewport = true
+		})
+		local bodychest = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = CUBE,
+			pos = { 0, 0.2, -2.8 },
+			size = { 2, 0.6, 0.8 },
+			bgColor = textures.chest.equipped and { 1, 1, 1, 1 } or { tcolor.r, tcolor.g, tcolor.b, 1 },
+			bgImage = textures.chest.equipped and (textures.chest.path or (customPath .. "chest.tga")), 
+			viewport = true
+		})
+		local bodystomach = UIElement3D:new({
+			parent = previewHolder,
+			pos = { 0, 0.4, -3.6 },
+			size = { 1.4, 0.6, 0.8 },
+			shapeType = CUBE,
+			viewport = true
+		})
+		bodystomach:addCustomDisplay(true, function() end)
+		local bodystomachp = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = CUBE,
+			pos = { 0, 0.4, -3.6 },
+			size = { 0.8, 0.6, 1.4 },
+			bgColor = textures.stomach.equipped and { 1, 1, 1, 1 } or { pcolor.r, pcolor.g, pcolor.b, trans },
+			bgImage = textures.stomach.equipped and (textures.stomach.path or (customPath .. "stomach.tga")) or "../textures/store/presets/prgrad.tga",
+			rot = { 90, 90, 0 },
+			viewport = true
+		})
+		local bodystomachs = nil
+		if (not textures.stomach.equipped) then
+			bodystomachs = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = CUBE,
+				pos = { 0, 0.4, -3.6 },
+				size = { 0.8, 0.6, 1.4 },
+				bgImage = "../textures/store/presets/secgrad.tga",
+				rot = { 90, 90, 0 },
+				bgColor = { scolor.r, scolor.g, scolor.b, trans },
+				viewport = true
+			})
+		end
+		local bodygroin = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = CUBE,
+			pos = { 0, 0.6, -4.4 },
+			size = { 0.8, 0.6, 0.8 },
+			viewport = true
+		})
+		bodygroin:addCustomDisplay(true, function() end)
+		local bodygroinp = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = CUBE,
+			pos = { 0, 0.6, -4.4 },
+			size = { 0.8, 0.6, 0.8 },
+			bgColor = textures.groin.equipped and { 1, 1, 1, 1 } or { pcolor.r, pcolor.g, pcolor.b, trans },
+			bgImage = textures.groin.equipped and (textures.groin.path or (customPath .. "groin.tga")) or "../textures/store/presets/prgrad.tga",
+			rot = { 90, 90, 0 },
+			viewport = true
+		})
+		local bodygroins = nil
+		if (not textures.groin.equipped) then
+			bodygroins = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = CUBE,
+				pos = { 0, 0.6, -4.4 },
+				size = { 0.8, 0.6, 0.8 },
+				bgImage = "../textures/store/presets/secgrad.tga",
+				rot = { 90, 90, 0 },
+				bgColor = { scolor.r, scolor.g, scolor.b, trans },
+				viewport = true
+			})
+		end
+		local lbodythigh = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = CAPSULE,
+			pos = { 0.8, 0.6, -6.2 },
+			size = { 0.48, 1.2, 1 },
+			viewport = true
+		})
+		lbodythigh:addCustomDisplay(true, function() end)
+		local lbodythighp = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = CAPSULE,
+			pos = { 0.8, 0.6, -6.2 },
+			size = { 0.48, 1.2, 0 },
+			bgColor = textures.l_thigh.equipped and { 1, 1, 1, 1 } or { pcolor.r, pcolor.g, pcolor.b, trans },
+			bgImage = textures.l_thigh.equipped and (textures.l_thigh.path or (customPath .. "l_thigh.tga")) or "../textures/store/presets/gradient1.tga",
+			rot = { 0, 0, 0 },
+			viewport = true
+		})
+		local lbodythighs = nil
+		if (not textures.l_thigh.equipped) then
+			lbodythighs = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = CAPSULE,
+				pos = { 0.8, 0.6, -6.2 },
+				size = { 0.48, 1.2, 0 },
+				bgImage = "../textures/store/presets/gradient2.tga",
+				rot = { 0, 0, 0 },
+				bgColor = { scolor.r, scolor.g, scolor.b, trans },
+				viewport = true
+			})
+		end
+		local rbodythigh = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = CAPSULE,
+			pos = { -0.8, 0.6, -6.2 },
+			size = { 0.48, 1.2, 1 },
+			viewport = true
+		})
+		rbodythigh:addCustomDisplay(true, function() end)
+		local rbodythighp = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = CAPSULE,
+			pos = { -0.8, 0.6, -6.2 },
+			size = { 0.48, 1.2, 0 },
+			bgColor = textures.r_thigh.equipped and { 1, 1, 1, 1 } or { pcolor.r, pcolor.g, pcolor.b, trans },
+			bgImage = textures.r_thigh.equipped and (textures.r_thigh.path or (customPath .. "r_thigh.tga")) or "../textures/store/presets/gradient1.tga",
+			rot = { 0, 0, 0 },
+			viewport = true
+		})
+		local rbodythighs = nil
+		if (not textures.r_thigh.equipped) then
+			rbodythighs = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = CAPSULE,
+				pos = { -0.8, 0.6, -6.2 },
+				size = { 0.48, 1.2, 0 },
+				bgImage = "../textures/store/presets/gradient2.tga",
+				rot = { 0, 0, 0 },
+				bgColor = { scolor.r, scolor.g, scolor.b, trans },
+				viewport = true
+			})
+		end
+		local lbodyleg = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = CAPSULE,
+			pos = { 0.8, 0.6, -8.6 },
+			size = { 0.52, 1.2, 1 },
+			viewport = true
+		})
+		lbodyleg:addCustomDisplay(true, function() end)
+		local lbodylegp = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = CAPSULE,
+			pos = { 0.8, 0.6, -8.6 },
+			size = { 0.52, 1.2, 0 },
+			bgColor = textures.l_leg.equipped and { 1, 1, 1, 1 } or { pcolor.r, pcolor.g, pcolor.b, trans },
+			bgImage = textures.l_leg.equipped and (textures.l_leg.path or (customPath .. "l_leg.tga")) or "../textures/store/presets/gradient1.tga",
+			rot = { 0, 0, 0 },
+			viewport = true
+		})
+		local lbodylegs = nil
+		if (not textures.l_leg.equipped) then
+			lbodylegs = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = CAPSULE,
+				pos = { 0.8, 0.6, -8.6 },
+				size = { 0.52, 1.2, 0 },
+				bgImage = "../textures/store/presets/gradient2.tga",
+				rot = { 0, 0, 0 },
+				bgColor = { scolor.r, scolor.g, scolor.b, trans },
+				viewport = true
+			})
+		end
+		local rbodyleg = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = CAPSULE,
+			pos = { -0.8, 0.6, -8.6 },
+			size = { 0.52, 1.2, 1 },
+			viewport = true
+		})
+		rbodyleg:addCustomDisplay(true, function() end)
+		local rbodylegp = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = CAPSULE,
+			pos = { -0.8, 0.6, -8.6 },
+			size = { 0.52, 1.2, 0 },
+			bgColor = textures.r_leg.equipped and { 1, 1, 1, 1 } or { pcolor.r, pcolor.g, pcolor.b, trans },
+			bgImage = textures.r_leg.equipped and (textures.r_leg.path or (customPath .. "r_leg.tga")) or "../textures/store/presets/gradient1.tga",
+			rot = { 0, 0, 0 },
+			viewport = true
+		})
+		local rbodylegs = nil
+		if (not textures.r_leg.equipped) then
+			rbodylegs = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = CAPSULE,
+				pos = { -0.8, 0.6, -8.6 },
+				size = { 0.52, 1.2, 0 },
+				bgImage = "../textures/store/presets/gradient2.tga",
+				rot = { 0, 0, 0 },
+				bgColor = { scolor.r, scolor.g, scolor.b, trans },
+				viewport = true
+			})
+		end
+		local lbodyfoot = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = CUBE,
+			pos = { 0.8, 0.2, -10.2 },
+			size = { 0.8, 2, 0.32 },
+			viewport = true
+		})
+		lbodyfoot:addCustomDisplay(true, function() end)
+		local lbodyfootp = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = CUBE,
+			pos = { 0.8, 0.2, -10.2 },
+			size = { 2, 0.32, 0.8 },
+			bgColor = textures.l_foot.equipped and { 1, 1, 1, 1 } or { pcolor.r, pcolor.g, pcolor.b, trans },
+			bgImage = textures.l_foot.equipped and (textures.l_foot.path or (customPath .. "l_foot.tga")) or "../textures/store/presets/prgrad.tga",
+			rot = { 90, 90, 0 },
+			viewport = true
+		})
+		local lbodyfoots = nil
+		if (not textures.l_foot.equipped) then
+			lbodyfoots = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = CUBE,
+				pos = { 0.8, 0.2, -10.2 },
+				size = { 2, 0.32, 0.8 },
+				bgImage = "../textures/store/presets/secgrad.tga",
+				rot = { 90, 90, 0 },
+				bgColor = { scolor.r, scolor.g, scolor.b, trans },
+				viewport = true
+			})
+		end
+		local rbodyfoot = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = CUBE,
+			pos = { -0.8, 0.2, -10.2 },
+			size = { 0.8, 2, 0.32 },
+			viewport = true
+		})
+		rbodyfoot:addCustomDisplay(true, function() end)
+		local rbodyfootp = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = CUBE,
+			pos = { -0.8, 0.2, -10.2 },
+			size = { 2, 0.32, 0.8 },
+			bgColor = textures.r_foot.equipped and { 1, 1, 1, 1 } or { pcolor.r, pcolor.g, pcolor.b, trans },
+			bgImage = textures.r_foot.equipped and (textures.r_foot.path or (customPath .. "r_foot.tga")) or "../textures/store/presets/prgrad.tga",
+			rot = { 90, 90, 0 },
+			viewport = true
+		})
+		local rbodyfoots = nil
+		if (not textures.r_foot.equipped) then
+			rbodyfoots = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = CUBE,
+				pos = { -0.8, 0.2, -10.2 },
+				size = { 2, 0.32, 0.8 },
+				bgImage = "../textures/store/presets/secgrad.tga",
+				rot = { 90, 90, 0 },
+				bgColor = { scolor.r, scolor.g, scolor.b, trans },
+				viewport = true
+			})
+		end
+		local lbodybicep = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = CUBE,
+			pos = { 2.2, 0.2, -1.4 },
+			size = { 1.6, 0.8, 0.8 },
+			viewport = true
+		})
+		lbodybicep:addCustomDisplay(true, function() end)
+		local lbodybicepp = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = CUBE,
+			pos = { 2.2, 0.2, -1.4 },
+			size = { 1.6, 0.8, 0.8 },
+			bgColor = textures.l_bicep.equipped and { 1, 1, 1, 1 } or { pcolor.r, pcolor.g, pcolor.b, trans },
+			bgImage = textures.l_bicep.equipped and (textures.l_bicep.path or (customPath .. "l_biceps.tga")) or "../textures/store/presets/prgrad.tga",
+			rot = { 0, 0, 180 },
+			viewport = true
+		})
+		local lbodybiceps = nil
+		if (not textures.l_bicep.equipped) then
+			lbodybiceps = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = CUBE,
+				pos = { 2.2, 0.2, -1.4 },
+				size = { 1.6, 0.8, 0.8 },
+				bgImage = "../textures/store/presets/secgrad.tga",
+				rot = { 0, 0, 180 },
+				bgColor = { scolor.r, scolor.g, scolor.b, trans },
+				viewport = true
+			})
+		end
+		local rbodybicep = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = CUBE,
+			pos = { -2.2, 0.2, -1.4 },
+			size = { 1.6, 0.8, 0.8 },
+			viewport = true
+		})
+		rbodybicep:addCustomDisplay(true, function() end)
+		local rbodybicepp = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = CUBE,
+			pos = { -2.2, 0.2, -1.4 },
+			size = { 1.6, 0.8, 0.8 },
+			bgColor = textures.r_bicep.equipped and { 1, 1, 1, 1 } or { pcolor.r, pcolor.g, pcolor.b, trans },
+			bgImage = textures.r_bicep.equipped and (textures.r_bicep.path or (customPath .. "r_biceps.tga")) or "../textures/store/presets/prgrad.tga",
+			rot = { 0, 0, 0 },
+			viewport = true
+		})
+		local rbodybiceps = nil
+		if (not textures.r_bicep.equipped) then
+			rbodybiceps = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = CUBE,
+				pos = { -2.2, 0.2, -1.4 },
+				size = { 1.6, 0.8, 0.8 },
+				bgImage = "../textures/store/presets/secgrad.tga",
+				rot = { 0, 0, 0 },
+				bgColor = { scolor.r, scolor.g, scolor.b, trans },
+				viewport = true
+			})
+		end
+		local lbodytricep = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = CUBE,
+			pos = { 3.8, 0.2, -1.4 },
+			size = { 1.6, 0.4, 0.4 },
+			viewport = true
+		})
+		lbodytricep:addCustomDisplay(true, function() end)
+		local lbodytricepp = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = CUBE,
+			pos = { 3.8, 0.2, -1.4 },
+			size = { 1.6, 0.4, 0.4 },
+			bgColor = textures.l_tricep.equipped and { 1, 1, 1, 1 } or { pcolor.r, pcolor.g, pcolor.b, trans },
+			bgImage = textures.l_tricep.equipped and (textures.l_tricep.path or (customPath .. "l_triceps.tga")) or "../textures/store/presets/prgrad.tga",
+			rot = { 0, 0, 180 },
+			viewport = true
+		})
+		local lbodytriceps = nil
+		if (not textures.l_tricep.equipped) then
+			lbodytriceps = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = CUBE,
+				pos = { 3.8, 0.2, -1.4 },
+				size = { 1.6, 0.4, 0.4 },
+				bgImage = "../textures/store/presets/secgrad.tga",
+				rot = { 0, 0, 180 },
+				bgColor = { scolor.r, scolor.g, scolor.b, trans },
+				viewport = true
+			})
+		end
+		local rbodytricep = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = CUBE,
+			pos = { -3.8, 0.2, -1.4 },
+			size = { 1.6, 0.4, 0.4 },
+			viewport = true
+		})
+		rbodytricep:addCustomDisplay(true, function() end)
+		local rbodytricepp = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = CUBE,
+			pos = { -3.8, 0.2, -1.4 },
+			size = { 1.6, 0.4, 0.4 },
+			bgColor = textures.r_tricep.equipped and { 1, 1, 1, 1 } or { pcolor.r, pcolor.g, pcolor.b, trans },
+			bgImage = textures.r_tricep.equipped and (textures.r_tricep.path or (customPath .. "r_triceps.tga")) or "../textures/store/presets/prgrad.tga",
+			rot = { 0, 0, 0 },
+			viewport = true
+		})
+		local rbodytriceps = nil
+		if (not textures.r_tricep.equipped) then
+			rbodytriceps = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = CUBE,
+				pos = { -3.8, 0.2, -1.4 },
+				size = { 1.6, 0.4, 0.4 },
+				bgImage = "../textures/store/presets/secgrad.tga",
+				rot = { 0, 0, 0 },
+				bgColor = { scolor.r, scolor.g, scolor.b, trans },
+				viewport = true
+			})
+		end
+		local lbodyhand = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = CUBE,
+			pos = { 5.4, 0, -1.4 },
+			size = { 0.88, 0.88, 0.88 },
+			viewport = true
+		})
+		lbodyhand:addCustomDisplay(true, function() end)
+		local lbodyhandp = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = CUBE,
+			pos = { 5.4, 0, -1.4 },
+			size = { 0.88, 0.88, 0.88 },
+			bgColor = textures.l_hand.equipped and { 1, 1, 1, 1 } or { pcolor.r, pcolor.g, pcolor.b, trans },
+			bgImage = textures.l_hand.equipped and (textures.l_hand.path or (customPath .. "l_hand.tga")) or "../textures/store/presets/prgrad.tga",
+			rot = { 0, 0, 180 },
+			viewport = true
+		})
+		local lbodyhands = nil
+		if (not textures.l_hand.equipped) then
+			lbodyhands = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = CUBE,
+				pos = { 5.4, 0, -1.4 },
+				size = { 0.88, 0.88, 0.88 },
+				bgImage = "../textures/store/presets/secgrad.tga",
+				rot = { 0, 0, 180 },
+				bgColor = { scolor.r, scolor.g, scolor.b, trans },
+				viewport = true
+			})
+		end
+		local rbodyhand = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = CUBE,
+			pos = { -5.4, 0, -1.4 },
+			size = { 0.88, 0.88, 0.88 },
+			viewport = true
+		})
+		rbodyhand:addCustomDisplay(true, function() end)
+		local rbodyhandp = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = CUBE,
+			pos = { -5.4, 0, -1.4 },
+			size = { 0.88, 0.88, 0.88 },
+			bgColor = textures.r_hand.equipped and { 1, 1, 1, 1 } or { pcolor.r, pcolor.g, pcolor.b, trans },
+			bgImage = textures.r_hand.equipped and (textures.r_hand.path or (customPath .. "r_hand.tga")) or "../textures/store/presets/prgrad.tga",
+			rot = { 0, 0, 0 },
+			viewport = true
+		})
+		local rbodyhands = nil
+		if (not textures.r_hand.equipped) then
+			rbodyhands = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = CUBE,
+				pos = { -5.4, 0, -1.4 },
+				size = { 0.88, 0.88, 0.88 },
+				bgImage = "../textures/store/presets/secgrad.tga",
+				rot = { 0, 0, 0 },
+				bgColor = { scolor.r, scolor.g, scolor.b, trans },
+				viewport = true
+			})
+		end
+		local rbodybutt = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = CUBE,
+			pos = { -0.8, 0.6, -4.8 },
+			size = { 0.4, 0.4, 0.4 },
+			viewport = true
+		})
+		local lbodybutt = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = CUBE,
+			pos = { 0.8, 0.6, -4.8 },
+			size = { 0.4, 0.4, 0.4 },
+			viewport = true
+		})
+		
+		local neck = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = SPHERE,
+			pos = { 0, 0.2, -0.6 },
+			size = { 0.44, 0, 0 },
+			bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
+			viewport = true
+		})
+		local lpecs = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = SPHERE,
+			pos = { 0.6, 0, -1.8 },
+			size = { 0.72, 0, 0 },
+			bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
+			viewport = true
+		})
+		local rpecs = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = SPHERE,
+			pos = { -0.6, 0, -1.8 },
+			size = { 0.72, 0, 0 },
+			bgColor = { 1, 0, 1, 1 },
+			bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
+			viewport = true
+		})
+		local lshoulder = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = SPHERE,
+			pos = { 1.4, 0.2, -1.4 },
+			size = { 0.72, 0, 0 },
+			bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
+			viewport = true
+		})
+		local rshoulder = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = SPHERE,
+			pos = { -1.4, 0.2, -1.4 },
+			size = { 0.72, 0, 0 },
+			bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
+			viewport = true
+		})
+		local lelbow = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = SPHERE,
+			pos = { 3, 0.2, -1.4 },
+			size = { 0.64, 0, 0 },
+			bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
+			viewport = true
+		})
+		local relbow = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = SPHERE,
+			pos = { -3, 0.2, -1.4 },
+			size = { 0.64, 0, 0 },
+			bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
+			viewport = true
+		})
+		local lwrist = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = SPHERE,
+			pos = { 4.8, 0.2, -1.4 },
+			size = { 0.44, 0, 0 },
+			bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
+			viewport = true
+		})
+		local rwrist = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = SPHERE,
+			pos = { -4.8, 0.2, -1.4 },
+			size = { 0.44, 0, 0 },
+			bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
+			viewport = true
+		})
+		local chest = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = SPHERE,
+			pos = { 0, 0.2, -2.4 },
+			size = { 0.72, 0, 0 },
+			bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
+			viewport = true
+		})
+		local lumbar = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = SPHERE,
+			pos = { 0, 0.4, -3.2 },
+			size = { 0.64, 0, 0 },
+			bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
+			viewport = true
+		})
+		local abs = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = SPHERE,
+			pos = { 0, 0.6, -4 },
+			size = { 0.56, 0, 0 },
+			bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
+			viewport = true
+		})
+		local lglute = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = SPHERE,
+			pos = { 0.4, 1, -4.56 },
+			size = { 0.64, 0, 0 },
+			bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
+			viewport = true
+		})
+		local rglute = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = SPHERE,
+			pos = { -0.4, 1, -4.56 },
+			size = { 0.64, 0, 0 },
+			bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
+			viewport = true
+		})
+		local lhip = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = SPHERE,
+			pos = { 0.84, 0.6, -5 },
+			size = { 0.64, 0, 0 },
+			bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
+			viewport = true
+		})
+		local rhip = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = SPHERE,
+			pos = { -0.84, 0.6, -5 },
+			size = { 0.64, 0, 0 },
+			bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
+			viewport = true
+		})
+		local lknee = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = SPHERE,
+			pos = { 0.8, 0.6, -7.4 },
+			size = { 0.56, 0, 0 },
+			bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
+			viewport = true
+		})
+		local rknee = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = SPHERE,
+			pos = { -0.8, 0.6, -7.4 },
+			size = { 0.56, 0, 0 },
+			bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
+			viewport = true
+		})
+		local lankle = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = SPHERE,
+			pos = { 0.8, 0.8, -9.6 },
+			size = { 0.44, 0, 0 },
+			bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
+			viewport = true
+		})
+		local rankle = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = SPHERE,
+			pos = { -0.8, 0.8, -9.6 },
+			size = { 0.44, 0, 0 },
+			bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
+			viewport = true
+		})
+		
+		bodystomach.linked = { bodystomachp, bodystomachs }
+		bodygroin.linked = { bodygroinp, bodygroins }
+		lbodythigh.linked = { lbodythighp, lbodythighs }
+		rbodythigh.linked = { rbodythighp, rbodythighs }
+		lbodyleg.linked = { lbodylegp, lbodylegs }
+		rbodyleg.linked = { rbodylegp, rbodylegs }
+		lbodyfoot.linked = { lbodyfootp, lbodyfoots }
+		rbodyfoot.linked = { rbodyfootp, rbodyfoots }
+		lbodybicep.linked = { lbodybicepp, lbodybiceps }
+		rbodybicep.linked = { rbodybicepp, rbodybiceps }
+		lbodytricep.linked = { lbodytricepp, lbodytriceps }
+		rbodytricep.linked = { rbodytricepp, rbodytriceps }
+		lbodyhand.linked = { lbodyhandp, lbodyhands }
+		rbodyhand.linked = { rbodyhandp, rbodyhands }
+		
+		local bodyparts = { bodyhead, bodybreast, bodychest, bodystomach, bodygroin, rbodypecs, rbodybicep, rbodytricep, lbodypecs, lbodybicep, lbodytricep, rbodyhand, lbodyhand, rbodybutt, lbodybutt, rbodythigh, lbodythigh, lbodyleg, rbodyleg, rbodyfoot, lbodyfoot }
+		local joints = { neck, chest, lumbar, abs, rpecs, rshoulder, relbow, lpecs, lshoulder, lelbow, rwrist, lwrist, rglute, lglute, rhip, lhip, rknee, lknee, rankle, lankle }
+		return { bodypart = bodyparts, joint = joints }
+	end
+	
+	function Torishop:drawObjItem(item, previewHolder, scaleMultiplier, objPath, bodyInfos, cameraMove)
+		local modelInfo = TB_STORE_MODELS[item.itemid]
+		local color = get_color_info(modelInfo.colorid)
+		local scaleMultiplier = scaleMultiplier * (modelInfo.dynamic and 1 or 5)
+		local modelData = { pos = { 0, 0, 0 }, rot = { 0, 0, 0 } }
+		local scale = { 0.8, 0.8, 0.8 }
+		if (modelInfo.bodyid < 21) then
+			local body = bodyInfos.bodypart[modelInfo.bodyid + 1]
+			modelData.pos = { body.shift.x, body.shift.y, body.shift.z }
+			if (cameraMove) then
+				previewHolder:moveTo(0, -body.shift.z / 2 + 1, -body.shift.z)
+			end
+		elseif (modelInfo.bodyid < 40) then
+			local joint = bodyInfos.joint[modelInfo.bodyid - 20]
+			modelData.pos = { joint.shift.x, joint.shift.y, joint.shift.z }
+			if (cameraMove) then
+				previewHolder:moveTo(0, -joint.shift.z / 2 + 1, -joint.shift.z)
+			end
+		else
+			modelData.pos = { 0, 0, -11 }
+			if (cameraMove) then
+				previewHolder:moveTo(0, 7, 4)
+			end
+		end
+		
+		if (modelInfo.dynamic) then
+			if (modelInfo.bodyid < 20) then
+				local mScale = bodyInfos.bodypart[modelInfo.bodyid + 1].size
+				scale = { mScale.x, mScale.y, mScale.z }
+			end
+		end
+		if (modelInfo.partless) then
+			if (modelInfo.bodyid < 20) then
+				if (bodyInfos.bodypart[modelInfo.bodyid + 1].linked) then
+					for i,v in pairs(bodyInfos.bodypart[modelInfo.bodyid + 1].linked) do
+						v:kill()
+					end
+				else
+					bodyInfos.bodypart[modelInfo.bodyid + 1]:kill()
+				end
+			end
+		end
+		local model = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = CUSTOMOBJ,
+			objModel = objPath,
+			pos = modelData.pos,
+			size = { scale[1] * scaleMultiplier, scale[2] * scaleMultiplier, scale[3] * scaleMultiplier },
+			rot = modelData.rot,
+			bgColor = { color.r, color.g, color.b, modelInfo.alpha / 255 },
+			viewport = true
+		})
+		return model
+	end
+	
+	function Torishop:showObjPreview(items, viewElement, previewHolder, scaleMultiplier, trans, textures, level)
+		local level = level or 1
+		viewElement.scrollEnabled = true
+		viewElement:addMouseHandlers(function(s, x, y)
+				if (s >= 4 and viewElement.hoverState == BTN_HVR) then
+					previewHolder:moveTo(0, -0.3 * y)
+				else
+					viewElement.pressedPos.x = MOUSE_X
+				end
+			end)
+		local itemslist = {}
+		if (not items.pack) then
+			table.insert(itemslist, items)
+		else
+			for i,v in pairs(items.objs) do
+				table.insert(itemslist, v)
+			end
+			items.objs = nil
+			table.insert(itemslist, items)
+		end
+		local modelDrawn = false
+		
+		local bodyInfos = Torishop:showPlayerBody(previewHolder, trans, textures)
+		
+		local cameraMove = true
+		if (#itemslist > 1) then
+			previewHolder:moveTo(0, 6, 2)
+			cameraMove = false
+		end
+		for i, item in pairs(itemslist) do
+			local objPath = "../models/store/" .. item.itemid .. (level > 1 and ("_" .. level) or '')
+			local objModel = Files:new("../data/" .. objPath .. ".obj")
+			local itemHolder = nil
+			if (objModel.data) then
+				itemHolder = Torishop:drawObjItem(item, previewHolder, scaleMultiplier, objPath, bodyInfos, cameraMove)
+				modelDrawn = true
+			end
+			download_server_file(item.itemid)
+			if (i == #itemslist) then
+				local itemUpdater = UIElement:new({
+					parent = viewElement,
+					pos = { 0, 0 },
+					size = { 0, 0 }
+				})
+				local forcedDelay = os.clock()
+				local objTexture = Files:new("../data/" .. objPath .. "_obj.tga")
+				local modelUpdated, textureUpdated = false, false
+				itemUpdater:addCustomDisplay(true, function()
+						local isDownloading = false
+						for i,v in pairs(get_downloads()) do
+							if (v:find(objPath:gsub("%.%./", "")) or v:find("cache/obj_data_" .. item.itemid)) then
+								isDownloading = true
+							end
+						end
+						if (forcedDelay < os.clock() - 2 and not isDownloading) then
+							if (not itemHolder or modelUpdated or textureUpdated) then
+								if (itemHolder) then
+									itemHolder:kill()
+								end
+								Torishop:showStoreItemInfo(items)
+							end
+							objModel:close()
+							objTexture:close()
+							itemUpdater:kill()
+						elseif (forcedDelay > os.clock() - 2) then
+							if (objModel:isDownloading()) then
+								modelUpdated = true
+							end
+							if (objTexture:isDownloading()) then
+								textureUpdated = true
+							end
+						end
+					end)
+			end
+		end
+		return modelDrawn
 	end
 	
 	function Torishop:showStoreItemInfo(item)
@@ -1876,22 +3122,44 @@ do
 		local itemInfo = UIElement:new({
 			parent = tbStoreItemInfoHolder,
 			pos = { 10, itemPreviewAdvanced.shift.y + itemPreviewAdvanced.size.h + 10 },
-			size = { tbStoreItemInfoHolder.size.w - 20, tbStoreItemInfoHolder.size.h - 20 - (itemPreviewAdvanced.shift.y + itemPreviewAdvanced.size.h) }
+			size = { tbStoreItemInfoHolder.size.w - 20, tbStoreItemInfoHolder.size.h - 10 - (itemPreviewAdvanced.shift.y + itemPreviewAdvanced.size.h) }
 		})
 		local itemDesc = UIElement:new({
 			parent = itemInfo,
 			pos = { 0, 0 },
 			size = { itemInfo.size.w, itemInfo.size.h / 2 }
 		})
-		itemDesc:addAdaptedText(true, "Description: " .. "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", nil, nil, 4, LEFT, nil, 0.6)
-		local itemQi = UIElement:new({
-			parent = itemInfo,
-			pos = { 0, itemDesc.shift.x + itemDesc.size.h },
-			size = { itemInfo.size.w, itemInfo.size.h / 12 }
-		})
-		itemQi:addAdaptedText(true, "Belt requirement: " .. (item.qi > 0 and (PlayerInfo:currencyFormat(item.qi) .. " Qi") or "none"), nil, nil, 4, LEFTMID, nil, 0.6)
+		itemDesc:addAdaptedText(true, item.description, nil, nil, 4, CENTERMID, nil, 0.6)
 		
 		local buttonPos = -itemInfo.size.h / 6
+		local iconScale = itemInfo.size.h / 7 > 32 and 32 or itemInfo.size.h / 7
+		if (item.qi > TB_MENU_PLAYER_INFO.data.qi) then
+			local getMoreQi = UIElement:new({
+				parent = itemInfo,
+				pos = { 0, buttonPos },
+				size = { itemInfo.size.w, itemInfo.size.h / 7 },
+				interactive = true,
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+				pressedColor = TB_MENU_DEFAULT_LIGHER_COLOR
+			})
+			local getMoreQiText = UIElement:new({
+				parent = getMoreQi,
+				pos = { 10, 0 },
+				size = { getMoreQi.size.w - 20 - getMoreQi.size.h, getMoreQi.size.h }
+			})
+			local getMoreQiIcon = UIElement:new({
+				parent = getMoreQi,
+				pos = { -getMoreQi.size.h + (getMoreQi.size.h - iconScale) / 2 - 5, (getMoreQi.size.h - iconScale) / 2 },
+				size = { iconScale, iconScale },
+				bgImage = "../textures/store/qi_tiny.tga"
+			})
+			getMoreQiText:addAdaptedText(true, "Get more Qi", nil, nil, nil, LEFTMID)
+			getMoreQi:addMouseHandlers(nil, function()
+				Torishop:showStoreSection(tbMenuCurrentSection, 4, 3)
+			end)
+			buttonPos = buttonPos - itemInfo.size.h / 6
+		end
 		if (item.now_usd_price > 0) then
 			local buyWithSt = UIElement:new({
 				parent = itemInfo,
@@ -1903,25 +3171,46 @@ do
 				pressedColor = TB_MENU_DEFAULT_LIGHER_COLOR,
 				inactiveColor = { 0.6, 0.6, 0.6, 1 }
 			})
-			buttonPos = buttonPos * 2
+			buttonPos = buttonPos - itemInfo.size.h / 6
 			local buyWithStText = UIElement:new({
 				parent = buyWithSt,
 				pos = { 10, 0 },
 				size = { buyWithSt.size.w - 20 - buyWithSt.size.h, buyWithSt.size.h }
 			})
-			local iconScale = buyWithSt.size.h > 32 and 32 or buyWithSt.size.h
-			local buyWithStIcon = UIElement:new({
-				parent = buyWithSt,
-				pos = { -buyWithSt.size.h + (buyWithSt.size.h - iconScale) / 2 - 5, (buyWithSt.size.h - iconScale) / 2 },
-				size = { iconScale, iconScale },
-				bgImage = "../textures/store/shiaitoken_tiny.tga"
-			})
-			buyWithStText:addAdaptedText(true, "Buy for " .. PlayerInfo:currencyFormat(item.now_usd_price) .. " ST", nil, nil, nil, LEFTMID)
-			buyWithSt:addMouseHandlers(nil, function()
-					TBMenu:showConfirmationWindow("Are you sure you want to purchase " .. item.itemname .. " for " .. PlayerInfo:currencyFormat(item.now_usd_price) .. " Shiai Tokens?\nYou will have " .. PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.st - item.now_usd_price) .. " ST left after purchase.", function() UIElement:runCmd("steam purchase " .. item.itemid) end)
-				end)
+			if (not in_array(item.catid, CATEGORIES_ACCOUNT)) then
+				local buyWithStIcon = UIElement:new({
+					parent = buyWithSt,
+					pos = { -buyWithSt.size.h + (buyWithSt.size.h - iconScale) / 2 - 5, (buyWithSt.size.h - iconScale) / 2 },
+					size = { iconScale, iconScale },
+					bgImage = "../textures/store/shiaitoken.tga"
+				})
+				if (item.now_usd_price > TB_MENU_PLAYER_INFO.data.st) then
+					buyWithStText:addAdaptedText(true, "Get more ST", nil, nil, nil, LEFTMID)
+					buyWithSt:addMouseHandlers(nil, function()
+							Torishop:showStoreSection(tbMenuCurrentSection, 4, 2)
+						end)
+				else
+					buyWithStText:addAdaptedText(true, "Buy for " .. PlayerInfo:currencyFormat(item.now_usd_price) .. " ST", nil, nil, nil, LEFTMID)
+					buyWithSt:addMouseHandlers(nil, function()
+							TBMenu:showConfirmationWindow("Are you sure you want to purchase " .. item.itemname .. " for " .. PlayerInfo:currencyFormat(item.now_usd_price) .. " Shiai Tokens?\nYou will have " .. PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.st - item.now_usd_price) .. " ST left after purchase.", function() buy_st(item.itemid) end)
+						end)
+				end
+			else
+				local buyWithStIcon = UIElement:new({
+					parent = buyWithSt,
+					pos = { -buyWithSt.size.h + (buyWithSt.size.h - iconScale) / 2 - 5, (buyWithSt.size.h - iconScale) / 2 },
+					size = { iconScale, iconScale },
+					bgImage = is_steam() and "../textures/menu/logos/steam.tga" or "../textures/menu/logos/paypal.tga"
+				})
+				buyWithStText:addAdaptedText(true, "Buy for $" .. PlayerInfo:currencyFormat(item.now_usd_price), nil, nil, nil, LEFTMID)
+				buyWithSt:addMouseHandlers(nil, is_steam() and function()
+						UIElement:runCmd("steam purchase " .. item.itemid)
+					end or function()
+						open_url("http://forum.toribash.com/tori_shop.php?action=process&item=" .. item.itemid)
+					end)
+			end
 		end
-		if (item.now_tc_price > 0) then
+		if (item.now_tc_price > 0 and item.qi <= TB_MENU_PLAYER_INFO.data.qi) then
 			local buyWithTc = UIElement:new({
 				parent = itemInfo,
 				pos = { 0, buttonPos },
@@ -1929,32 +3218,49 @@ do
 				interactive = true,
 				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-				pressedColor = TB_MENU_DEFAULT_LIGHER_COLOR,
-				inactiveColor = { 0.6, 0.6, 0.6, 1 }
+				pressedColor = TB_MENU_DEFAULT_LIGHER_COLOR
 			})
-			if (item.now_tc_price > TB_MENU_PLAYER_INFO.data.tc) then
-				buyWithTc:deactivate()
-			end
 			local buyWithTcText = UIElement:new({
 				parent = buyWithTc,
 				pos = { 10, 0 },
 				size = { buyWithTc.size.w - 20 - buyWithTc.size.h, buyWithTc.size.h }
 			})
-			local iconScale = buyWithTc.size.h > 32 and 32 or buyWithTc.size.h
 			local buyWithTcIcon = UIElement:new({
 				parent = buyWithTc,
 				pos = { -buyWithTc.size.h + (buyWithTc.size.h - iconScale) / 2 - 5, (buyWithTc.size.h - iconScale) / 2 },
 				size = { iconScale, iconScale },
-				bgImage = "../textures/store/toricredit_tiny.tga"
+				bgImage = "../textures/store/toricredit.tga"
 			})
-			buyWithTcText:addAdaptedText(true, "Buy for " .. PlayerInfo:currencyFormat(item.now_tc_price) .. " TC", nil, nil, nil, LEFTMID)
-			buyWithTc:addMouseHandlers(nil, function()
-				TBMenu:showConfirmationWindow("Purchasing " .. item.itemname .. " for " .. PlayerInfo:currencyFormat(item.now_tc_price) .. " Toricredits.\nYou will have " .. PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.tc - item.now_tc_price) .. " TC left after purchase.", function() UIElement:runCmd("bi " .. item.itemid) end)
-			end)
+			if (item.now_tc_price > TB_MENU_PLAYER_INFO.data.tc) then
+				buyWithTcText:addAdaptedText(true, "Get more TC", nil, nil, nil, LEFTMID)
+				buyWithTc:addMouseHandlers(nil, function()
+					Torishop:showStoreSection(tbMenuCurrentSection, 4, 1)
+				end)
+			else
+				buyWithTcText:addAdaptedText(true, "Buy for " .. PlayerInfo:currencyFormat(item.now_tc_price) .. " TC", nil, nil, nil, LEFTMID)
+				buyWithTc:addMouseHandlers(nil, function()
+					TBMenu:showConfirmationWindow("Purchasing " .. item.itemname .. " for " .. PlayerInfo:currencyFormat(item.now_tc_price) .. " Toricredits.\nYou will have " .. PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.tc - item.now_tc_price) .. " TC left after purchase.", function() buy_tc(item.itemid) end)
+				end)
+			end
+		end
+		if (item.qi > TB_MENU_PLAYER_INFO.data.qi) then
+			buttonPos = buttonPos + itemInfo.size.h / 42
+			local qiReq = UIElement:new({
+				parent = itemInfo,
+				pos = { -itemInfo.size.w - 10, buttonPos },
+				size = { itemInfo.size.w + 20, itemInfo.size.h / 9 },
+				bgColor = UICOLORRED
+			})
+			local qiReqText = UIElement:new({
+				parent = qiReq,
+				pos = { 10, qiReq.size.h / 7 },
+				size = { qiReq.size.w - 20, qiReq.size.h / 7 * 5 }
+			})
+			qiReqText:addAdaptedText(true, "Requires " .. (item.qi - TB_MENU_PLAYER_INFO.data.qi) .. " more Qi!", nil, nil, 4)
 		end
 	end
 	
-	function Torishop:showStoreListItem(listingHolder, listElements, elementHeight, item)
+	function Torishop:showStoreListItem(listingHolder, listElements, elementHeight, item, stItem)
 		local itemHolder = UIElement:new({
 			parent = listingHolder,
 			pos = { 0, #listElements * elementHeight },
@@ -1972,6 +3278,7 @@ do
 		})
 		itemSection:addMouseHandlers(nil, function()
 				Torishop:showStoreItemInfo(item)
+				storeListingScrollBar.listReload()
 			end)
 		local itemIcon = UIElement:new({
 			parent = itemSection,
@@ -1981,8 +3288,8 @@ do
 		})
 		local itemName = UIElement:new({
 			parent = itemSection,
-			pos = { 70, 0 },
-			size = { (itemSection.size.w - 80) / 3 * 2, itemSection.size.h }
+			pos = { 70, 10 },
+			size = { (itemSection.size.w - 80) / 3 * 2, itemSection.size.h - 20 }
 		})
 		itemName:addAdaptedText(true, item.shortname, nil, nil, FONTS.BIG, LEFTMID, 0.55, nil, 0.4)
 		local itemPrice = UIElement:new({
@@ -1996,7 +3303,7 @@ do
 			hasTCPrice = true
 		end
 		if (item.now_usd_price > 0) then
-			pricesString = (hasTCPrice and (pricesString .. '\n') or '') .. "$" .. PlayerInfo:currencyFormat(item.now_usd_price)
+			pricesString = (hasTCPrice and (pricesString .. '\n') or '') .. (not stItem and "$" or '') .. PlayerInfo:currencyFormat(item.now_usd_price) .. (stItem and " ST" or "")
 		end
 		itemPrice:addAdaptedText(true, pricesString, nil, nil, nil, RIGHTMID)
 	end
@@ -2013,15 +3320,15 @@ do
 		else
 			for i,v in pairs(TB_STORE_DATA) do
 				if (type(i) == "number") then
-					if (v.catid == catid and (v.now_tc_price > 0 or v.now_usd_price > 0)) then
+					if (v.catid == catid and (v.now_tc_price > 0 or v.now_usd_price > 0) and not (v.locked == 1 and v.hidden == 1)) then
 						table.insert(sectionItems, v)
 					end
 				end
 			end
 		end
-		sectionItems = UIElement:qsort(sectionItems, 'now_tc_price', true, true)
-		sectionItemsDesc = UIElement:qsort(sectionItems, 'now_tc_price', false, true)
-		sectionItemsUSD = UIElement:qsort(sectionItems, 'now_usd_price', false, true)
+		sectionItems = UIElement:qsort(sectionItems, { 'now_tc_price', 'now_usd_price', 'itemname' }, false, true)
+		sectionItemsDesc = UIElement:qsort(sectionItems, { 'now_tc_price', 'now_usd_price', 'itemname' }, true, true)
+		sectionItemsQi = UIElement:qsort(sectionItems, { 'qi', 'now_tc_price', 'now_usd_price', 'itemname' }, false, true)
 		
 		local elementHeight = 64
 		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, elementHeight, 48, 20, TB_MENU_DEFAULT_BG_COLOR)
@@ -2033,11 +3340,12 @@ do
 		})
 		sectionTitle:addAdaptedText(true, "Viewing " .. TB_STORE_SECTIONS[catid].name, nil, nil, FONTS.BIG)
 		
+		local stItems = not in_array(sectionItems[1].catid, CATEGORIES_ACCOUNT)
 		local listElements = {}
 		local cnt = 0
 		local itemShown = false
-		for i, item in pairs(sectionItems) do
-			if (item.qi <= TB_MENU_PLAYER_INFO.data.qi and item.now_tc_price > 0 and item.now_tc_price <= TB_MENU_PLAYER_INFO.data.tc) then
+		for i, item in pairs(sectionItemsDesc) do
+			if (((item.qi <= TB_MENU_PLAYER_INFO.data.qi and (item.now_tc_price > 0 and item.now_tc_price <= TB_MENU_PLAYER_INFO.data.tc)) or (stItems and item.now_usd_price > 0 and item.now_usd_price <= TB_MENU_PLAYER_INFO.data.st)) and (item.locked == 0 and item.hidden == 0)) then
 				if (cnt == 0) then
 					local separatorAffordable = UIElement:new({
 						parent = listingHolder,
@@ -2057,66 +3365,69 @@ do
 						Torishop:showStoreItemInfo(item)
 					end
 				end
-				Torishop:showStoreListItem(listingHolder, listElements, elementHeight, item)
+				Torishop:showStoreListItem(listingHolder, listElements, elementHeight, item, stItems)
 				cnt = cnt + 1
 			end
 		end
 		
 		cnt = 0
-		--[[for i, item in pairs(sectionItemsDesc) do
-			if (item.qi <= TB_MENU_PLAYER_INFO.data.qi and item.now_tc_price > TB_MENU_PLAYER_INFO.data.tc) then
-				if (cnt == 0) then
-					local separatorUnavailable = UIElement:new({
-						parent = listingHolder,
-						pos = { 0, #listElements * elementHeight },
-						size = { listingHolder.size.w, elementHeight }
-					})
-					table.insert(listElements, separatorUnavailable)
-					local separatorUnavailableText = UIElement:new({
-						parent = separatorUnavailable,
-						pos = { 10, -elementHeight / 7 * 5 - 2.5 },
-						size = { separatorUnavailable.size.w - 10, elementHeight / 7 * 5 },
-						bgColor = TB_MENU_DEFAULT_DARKER_COLOR
-					})
-					separatorUnavailableText:addAdaptedText(false, "Expensive Items")
-					if (not itemShown) then
-						itemShown = true
-						Torishop:showStoreItemInfo(item)
+		if (stItems) then
+			for i, item in pairs(sectionItems) do
+				if (((item.qi <= TB_MENU_PLAYER_INFO.data.qi and item.now_tc_price > TB_MENU_PLAYER_INFO.data.tc) or (item.now_usd_price > TB_MENU_PLAYER_INFO.data.st)) and (item.locked == 0 and item.hidden == 0)) then
+					if (cnt == 0) then
+						local separatorUnavailable = UIElement:new({
+							parent = listingHolder,
+							pos = { 0, #listElements * elementHeight },
+							size = { listingHolder.size.w, elementHeight }
+						})
+						table.insert(listElements, separatorUnavailable)
+						local separatorUnavailableText = UIElement:new({
+							parent = separatorUnavailable,
+							pos = { 10, -elementHeight / 7 * 5 - 2.5 },
+							size = { separatorUnavailable.size.w - 10, elementHeight / 7 * 5 },
+							bgColor = TB_MENU_DEFAULT_DARKER_COLOR
+						})
+						separatorUnavailableText:addAdaptedText(false, "Expensive Items")
+						if (not itemShown) then
+							itemShown = true
+							Torishop:showStoreItemInfo(item)
+						end
 					end
+					Torishop:showStoreListItem(listingHolder, listElements, elementHeight, item, stItems)
+					cnt = cnt + 1
 				end
-				Torishop:showStoreListItem(listingHolder, listElements, elementHeight, item)
-				cnt = cnt + 1
 			end
-		end]]
-		for i, item in pairs(sectionItemsUSD) do
-			if (item.qi <= TB_MENU_PLAYER_INFO.data.qi and (item.now_tc_price > TB_MENU_PLAYER_INFO.data.tc or item.now_tc_price == 0)) then
-				if (cnt == 0) then
-					local separatorUnavailable = UIElement:new({
-						parent = listingHolder,
-						pos = { 0, #listElements * elementHeight },
-						size = { listingHolder.size.w, elementHeight }
-					})
-					table.insert(listElements, separatorUnavailable)
-					local separatorUnavailableText = UIElement:new({
-						parent = separatorUnavailable,
-						pos = { 10, -elementHeight / 7 * 5 - 2.5 },
-						size = { separatorUnavailable.size.w - 10, elementHeight / 7 * 5 },
-						bgColor = TB_MENU_DEFAULT_DARKER_COLOR
-					})
-					separatorUnavailableText:addAdaptedText(false, "Expensive Items")
-					if (not itemShown) then
-						itemShown = true
-						Torishop:showStoreItemInfo(item)
+		else
+			for i, item in pairs(sectionItems) do
+				if (item.now_tc_price == 0 and item.now_usd_price > 0 and (item.locked == 0 and item.hidden == 0)) then
+					if (cnt == 0) then
+						local separatorUnavailable = UIElement:new({
+							parent = listingHolder,
+							pos = { 0, #listElements * elementHeight },
+							size = { listingHolder.size.w, elementHeight }
+						})
+						table.insert(listElements, separatorUnavailable)
+						local separatorUnavailableText = UIElement:new({
+							parent = separatorUnavailable,
+							pos = { 10, -elementHeight / 7 * 5 - 2.5 },
+							size = { separatorUnavailable.size.w - 10, elementHeight / 7 * 5 },
+							bgColor = TB_MENU_DEFAULT_DARKER_COLOR
+						})
+						separatorUnavailableText:addAdaptedText(false, "USD Items")
+						if (not itemShown) then
+							itemShown = true
+							Torishop:showStoreItemInfo(item)
+						end
 					end
+					Torishop:showStoreListItem(listingHolder, listElements, elementHeight, item, stItems)
+					cnt = cnt + 1
 				end
-				Torishop:showStoreListItem(listingHolder, listElements, elementHeight, item)
-				cnt = cnt + 1
 			end
 		end
 		
 		cnt = 0
-		for i, item in pairs(sectionItemsDesc) do
-			if (item.qi > TB_MENU_PLAYER_INFO.data.qi and item.now_tc_price > 0) then
+		for i, item in pairs(sectionItemsQi) do
+			if ((item.qi > TB_MENU_PLAYER_INFO.data.qi and item.now_usd_price == 0 and item.now_tc_price > 0 and item.hidden == 0 and item.locked == 0) or (searchString ~= "" and (item.hidden == 1 or item.locked == 1))) then
 				if (cnt == 0) then
 					local separatorLocked = UIElement:new({
 						parent = listingHolder,
@@ -2130,38 +3441,13 @@ do
 						size = { separatorLocked.size.w - 10, elementHeight / 7 * 5 },
 						bgColor = TB_MENU_DEFAULT_DARKER_COLOR
 					})
-					separatorLockedText:addAdaptedText(false, "Locked Items")
+					separatorLockedText:addAdaptedText(false, "Unavailable or Locked Items")
 					if (not itemShown) then
 						itemShown = true
 						Torishop:showStoreItemInfo(item)
 					end
 				end
-				Torishop:showStoreListItem(listingHolder, listElements, elementHeight, item)
-				cnt = cnt + 1
-			end
-		end
-		for i, item in pairs(sectionItemsUSD) do
-			if (item.qi > TB_MENU_PLAYER_INFO.data.qi and item.now_tc_price == 0) then
-				if (cnt == 0) then
-					local separatorLocked = UIElement:new({
-						parent = listingHolder,
-						pos = { 0, #listElements * elementHeight },
-						size = { listingHolder.size.w, elementHeight }
-					})
-					table.insert(listElements, separatorLocked)
-					local separatorLockedText = UIElement:new({
-						parent = separatorLocked,
-						pos = { 10, -elementHeight / 7 * 5 - 2.5 },
-						size = { separatorLocked.size.w - 10, elementHeight / 7 * 5 },
-						bgColor = TB_MENU_DEFAULT_DARKER_COLOR
-					})
-					separatorLockedText:addAdaptedText(false, "Locked Items")
-					if (not itemShown) then
-						itemShown = true
-						Torishop:showStoreItemInfo(item)
-					end
-				end
-				Torishop:showStoreListItem(listingHolder, listElements, elementHeight, item)
+				Torishop:showStoreListItem(listingHolder, listElements, elementHeight, item, stItems)
 				cnt = cnt + 1
 			end
 		end
@@ -2170,8 +3456,8 @@ do
 			v:hide()
 		end
 		
-		local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
-		scrollBar:makeScrollBar(listingHolder, listElements, toReload)
+		storeListingScrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
+		storeListingScrollBar:makeScrollBar(listingHolder, listElements, toReload)
 		
 		TBMenu:addBottomBloodSmudge(botBar, 2)
 	end
@@ -2190,13 +3476,13 @@ do
 	function Torishop:getSearchSections(searchString)
 		local searchString = searchString:lower()
 		local searchResults = { list = {}, items = {} }
-		if (searchString:len() < 2) then
+		if (searchString:len() < 3) then
 			return searchResults
 		end
 		
 		for i,v in pairs(TB_STORE_DATA) do
 			if (type(i) == "number") then
-				if ((v.itemname:lower()):find(searchString)) then
+				if ((v.itemname:lower()):find(searchString) and not (v.itemname:lower()):find("test")) then
 					local catid = Torishop:getSearchCategory(v)
 					if (catid) then
 						if (not searchResults.list[catid]) then
@@ -2229,7 +3515,7 @@ do
 				size = { viewElement.size.w - 10, viewElement.size.h },
 				bgColor = TB_MENU_DEFAULT_BG_COLOR
 			})
-			emptyMessage:addAdaptedText(false, searchString:len() >= 2 and "There are no items that match your search!" or "Search string is too short, try something that's longer than 2 symbols!", nil, nil, FONTS.BIG)
+			emptyMessage:addAdaptedText(false, searchString:len() >= 3 and "There are no items that match your search!" or "Search string is too short, try something that's longer than 3 symbols!", nil, nil, FONTS.BIG)
 			TBMenu:addBottomBloodSmudge(emptyMessage, 1)
 			return
 		end
@@ -2293,10 +3579,11 @@ do
 		scrollBar:makeScrollBar(listingHolder, listElements, toReload)
 	end
 	
-	function Torishop:showStoreSection(viewElement, section)
+	function Torishop:showStoreSection(viewElement, section, sectionid)
+		TB_LAST_STORE_SECTION = section
 		viewElement:kill(true)
 		TBMenu:clearNavSection()
-		TBMenu:showNavigationBar(Torishop:getSectionNavButtons(viewElement, section), true)
+		TBMenu:showNavigationBar(Torishop:getSectionNavButtons(viewElement, section), true, true, TB_LAST_STORE_SECTION)
 		
 		local sectionsHolder = UIElement:new({
 			parent = viewElement,
@@ -2329,21 +3616,32 @@ do
 			size = { viewElement.size.w / 2 - 10, viewElement.size.h },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
-		Torishop:showSectionItems(sectionItemsView, sectionInfo.list[1])
+		Torishop:showSectionItems(sectionItemsView, sectionInfo.list[sectionid or 1])
 		
 		local listElements = {}
 		for i,v in pairs(sectionInfo.list) do
 			local section = UIElement:new({
 				parent = listingHolder,
-				pos = { 0, #listElements * elementHeight },
-				size = { listingHolder.size.w, elementHeight },
+				pos = { 5, #listElements * elementHeight },
+				size = { listingHolder.size.w - 5, elementHeight },
 				interactive = true,
 				bgColor = TB_MENU_DEFAULT_BG_COLOR,
 				hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
 				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
 			})
 			table.insert(listElements, section)
-			section:addAdaptedText(nil, TB_STORE_SECTIONS[v].name)
+			local sectionIcon = UIElement:new({
+				parent = section,
+				pos = { 4, 2 },
+				size = { section.size.h - 4, section.size.h - 4 },
+				bgImage = "torishop/gui/ss/colors" .. i .. ".tga"
+			})
+			local sectionText = UIElement:new({
+				parent = section,
+				pos = { section.size.h + 8, 0 },
+				size = { section.size.w - section.size.h - 16, section.size.h }
+			})
+			sectionText:addAdaptedText(true, TB_STORE_SECTIONS[v].name, nil, nil, nil, LEFTMID)
 			section:addMouseHandlers(nil, function()
 					Torishop:showSectionItems(sectionItemsView, v)
 				end)
@@ -2368,7 +3666,9 @@ do
 			parent = searchHolder,
 			pos = { 0, 45 },
 			size = { searchHolder.size.w, 40 },
-			bgColor = TB_MENU_DEFAULT_BG_COLOR
+			bgColor = TB_MENU_DEFAULT_BG_COLOR,
+			shapeType = ROUNDED,
+			rounded = 5
 		})
 		local searchTitle = UIElement:new({
 			parent = searchBar,
@@ -2378,141 +3678,175 @@ do
 		searchTitle:addAdaptedText(true, "Search:", nil, nil, nil, RIGHTMID)
 		local searchBox = TBMenu:spawnTextField(searchBar, searchTitle.size.w + searchTitle.shift.x * 2, 5, searchBar.size.w - searchTitle.size.w - searchTitle.shift.x * 2 - 5, searchBar.size.h - 10, searchString, nil, 4, 0.7, UICOLORWHITE, "Start typing item name to search")
 		searchBox:addEnterAction(function()
-				Torishop:showSearchResults(viewElement, Torishop:getSearchSections(searchBox.textfieldstr[1]), searchBox.textfieldstr[1])
+				if (searchBox.textfieldstr[1]:gsub("%s", "") == '') then
+					Torishop:showStoreSection(viewElement, TB_LAST_STORE_SECTION)
+				else
+					Torishop:showSearchResults(viewElement, Torishop:getSearchSections(searchBox.textfieldstr[1]), searchBox.textfieldstr[1])
+				end
 			end)
-	end
-	
-	function Torishop:showStore(viewElement)
-		viewElement:kill(true)
-		TBMenu:clearNavSection()
-		TBMenu:showNavigationBar(Torishop:getStoreNavButtons(), true)
-		
-		local buttons = {
-			{
-				title = "Colors",
-				subtitle = "Joints, Gradients and other color items",
-				image = "../textures/menu/matchmaking.tga",
-				mode = ORIENTATION_PORTRAIT,
-				size = 0.25, noQuit = true,
-				action = function() Torishop:showStoreSection(viewElement, 1) end
-			},
-			{
-				title = "Textures",
-				subtitle = "Texture items to give your Tori a unique look",
-				image = "../textures/menu/multiplayer.tga",
-				mode = ORIENTATION_PORTRAIT,
-				size = 0.25, noQuit = true,
-				action = function() Torishop:showStoreSection(viewElement, 2) end
-			},
-			{
-				title = "Advanced",
-				subtitle = "3D items, Hairs and other advanced upgrades for your Tori",
-				image = "../textures/menu/tutorial1_small.tga",
-				mode = ORIENTATION_PORTRAIT,
-				size = 0.25, noQuit = true,
-				action = function() Torishop:showStoreSection(viewElement, 3) end
-			},
-			{
-				title = "Account",
-				subtitle = "Boosters, forum subscriptions and other items to upgrade your account",
-				image = "../textures/menu/tutorial3_small.tga",
-				mode = ORIENTATION_PORTRAIT,
-				size = 0.25, noQuit = true,
-				action = function() Torishop:showStoreSection(viewElement, 4) end
-			},
-		}
-		TBMenu:showSection(buttons)
 	end
 
 	function Torishop:showMain(viewElement)
 		viewElement:kill(true)
-		local saleItem = Torishop:getSaleItem()
+		if (not TB_STORE_DATA.ready) then
+			local shopLoading = UIElement:new({
+				parent = viewElement,
+				pos = { 5, 0 },
+				size = { viewElement.size.w - 10, viewElement.size.h },
+				bgColor = TB_MENU_DEFAULT_BG_COLOR
+			})
+			TBMenu:addBottomBloodSmudge(shopLoading, 1)
+			local shopLoadingText = UIElement:new({
+				parent = shopLoading,
+				pos = { shopLoading.size.w / 6, shopLoading.size.h / 3 },
+				size = { shopLoading.size.w / 3 * 2, shopLoading.size.h / 3 }
+			})
+			shopLoadingText:addAdaptedText(true, "Loading Store data, please wait...")
+			shopLoading:addCustomDisplay(false, function()
+					if (TB_STORE_DATA.ready) then
+						Torishop:showMain(viewElement)
+					end
+				end)
+			return
+		end
+		local tbStoreButtons = {
+			featured = {
+				title = "Featured Item Name",
+				subtitle = "Featured item description",
+				image = "../textures/menu/torishop.tga",
+				ratio = 0.435,
+				action = function() end
+			},
+			salecolor = {
+				title = "Color Name",
+				subtitle = "Remaining Time",
+				image = "../textures/menu/clansbig.tga",
+				image2 = "../textures/menu/clanssmall.tga",
+				ratio = 1,
+				ratio2 = 0.5,
+				action = function() end
+			},
+			dailysale = {
+				title = "Item Name",
+				subtitle = "Remaining Time",
+				image = "../textures/menu/replaysbig.tga",
+				image2 = "../textures/menu/replayssmall.tga",
+				ratio = 1,
+				ratio2 = 0.5,
+				action = function() end
+			},
+			storecolors = {
+				title = "Colors",
+				subtitle = "Joints, gradients and other color items",
+				image = "../textures/menu/store/colors-big.tga",
+				image2 = "../textures/menu/store/colors-small.tga",
+				ratio = 0.75,
+				ratio2 = 0.449,
+				action = function() Torishop:showStoreSection(viewElement, 1) end
+			},
+			storeadvanced = {
+				title = "Advanced",
+				subtitle = "3D items, Hairs and other advanced upgrades for your Tori",
+				image = "../textures/menu/store/advanced-big.tga",
+				image2 = "../textures/menu/store/advanced-small.tga",
+				ratio = 0.75,
+				ratio2 = 0.449,
+				action = function() Torishop:showStoreSection(viewElement, 3) end
+			},
+			storetextures = {
+				title = "Textures",
+				subtitle = "Texture items to give your Tori a unique look",
+				image = "../textures/menu/store/textures-big.tga",
+				image2 = "../textures/menu/store/textures-small.tga",
+				ratio = 0.75,
+				ratio2 = 0.449,
+				action = function() Torishop:showStoreSection(viewElement, 2) end
+			},
+			storeaccount = {
+				title = "Account",
+				subtitle = "In-game currency, boosters and subscriptions",
+				image = "../textures/menu/store/account-big.tga",
+				image2 = "../textures/menu/store/account-small.tga",
+				ratio = 0.75,
+				ratio2 = 0.449,
+				action = function() Torishop:showStoreSection(viewElement, 4) end
+			},
+		}
 		local featuredItem = UIElement:new({
 			parent = viewElement,
 			pos = { 5, 0 },
-			size = { viewElement.size.w * 0.275 - 10, viewElement.size.h },
+			size = { viewElement.size.w * 0.45 - 10, viewElement.size.h / 5 * 3 - 5 },
 			interactive = true,
 			bgColor = TB_MENU_DEFAULT_BG_COLOR,
 			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
 			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR
 		})
-		TBMenu:addBottomBloodSmudge(featuredItem, 1)
-		featuredItem:addAdaptedText(false, "Daily Sale Single Item")
+		TBMenu:showHomeButton(featuredItem, tbStoreButtons.featured)
 		
-		--local saleColor = Torishop:getSaleColor()
-		local featuredColor = UIElement:new({
+		local saleColor = UIElement:new({
 			parent = viewElement,
-			pos = { featuredItem.shift.x + featuredItem.size.w + 10, 0 },
-			size = { viewElement.size.w * 0.425 - 10, viewElement.size.h },
+			pos = { 5, viewElement.size.h / 5 * 3 + 5 },
+			size = { viewElement.size.w * 0.225 - 10, viewElement.size.h / 5 * 2 - 5 },
 			interactive = true,
 			bgColor = TB_MENU_DEFAULT_BG_COLOR,
 			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
 			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR
 		})
-		TBMenu:addBottomBloodSmudge(featuredColor, 2)
-		featuredColor:addAdaptedText(false, "Weekly Sale Color")
+		TBMenu:showHomeButton(saleColor, tbStoreButtons.salecolor, 1)
 		
-		local storeAllItems = UIElement:new({
+		local dailySale = UIElement:new({
 			parent = viewElement,
-			pos = { featuredColor.shift.x + featuredColor.size.w + 10, 0 },
-			size = { viewElement.size.w * 0.3 - 10, viewElement.size.h },
+			pos = { viewElement.size.w * 0.225 + 5, viewElement.size.h / 5 * 3 + 5 },
+			size = { viewElement.size.w * 0.225 - 10, viewElement.size.h / 5 * 2 - 5 },
 			interactive = true,
 			bgColor = TB_MENU_DEFAULT_BG_COLOR,
 			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
 			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR
 		})
-		TBMenu:addBottomBloodSmudge(storeAllItems, 3)
-		storeAllItems:addAdaptedText(false, "All Items")
-		storeAllItems:addMouseHandlers(nil, function()
-				Torishop:showStore(viewElement)
-			end)
+		TBMenu:showHomeButton(dailySale, tbStoreButtons.dailysale, 2)
+		
+		local storeColors = UIElement:new({
+			parent = viewElement,
+			pos = { viewElement.size.w * 0.45 + 5, 0 },
+			size = { viewElement.size.w * 0.275 - 10, viewElement.size.h / 2 - 5 },
+			interactive = true,
+			bgColor = TB_MENU_DEFAULT_BG_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR
+		})
+		TBMenu:showHomeButton(storeColors, tbStoreButtons.storecolors)
+		
+		local storeAdvanced = UIElement:new({
+			parent = viewElement,
+			pos = { viewElement.size.w * 0.725 + 5, 0 },
+			size = { viewElement.size.w * 0.275 - 10, viewElement.size.h / 2 - 5 },
+			interactive = true,
+			bgColor = TB_MENU_DEFAULT_BG_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR
+		})
+		TBMenu:showHomeButton(storeAdvanced, tbStoreButtons.storeadvanced)
+		
+		local storeTextures = UIElement:new({
+			parent = viewElement,
+			pos = { viewElement.size.w * 0.45 + 5, viewElement.size.h / 2 + 5 },
+			size = { viewElement.size.w * 0.275 - 10, viewElement.size.h / 2 - 5 },
+			interactive = true,
+			bgColor = TB_MENU_DEFAULT_BG_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR
+		})
+		TBMenu:showHomeButton(storeTextures, tbStoreButtons.storetextures, 3)
+		
+		local storeAccount = UIElement:new({
+			parent = viewElement,
+			pos = { viewElement.size.w * 0.725 + 5, viewElement.size.h / 2 + 5 },
+			size = { viewElement.size.w * 0.275 - 10, viewElement.size.h / 2 - 5 },
+			interactive = true,
+			bgColor = TB_MENU_DEFAULT_BG_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR
+		})
+		TBMenu:showHomeButton(storeAccount, tbStoreButtons.storeaccount, 4)
 	end
-
-	--[[function Torishop:showTorishopMain(viewElement)
-		viewElement:kill(true)
-		local tcPurchaseView = UIElement:new({
-			parent = viewElement,
-			pos = { 5, 0 },
-			size = { viewElement.size.w * 0.6 - 10, viewElement.size.h },
-			bgColor = TB_MENU_DEFAULT_BG_COLOR
-		})
-		local bottomSmudge = TBMenu:addBottomBloodSmudge(tcPurchaseView, 1)
-		Torishop:showTcPurchase(tcPurchaseView)
-
-
-		local buttons = {
-			{
-				title = TB_MENU_LOCALIZED.STOREGOTOSHOP,
-				subtitle = TB_MENU_LOCALIZED.STORESHOPDESC,
-				size = 0.4,
-				vsize = 0.5,
-				action = function()
-						if (TB_MENU_PLAYER_INFO.username == '') then
-							TBMenu:showLoginError(viewElement, TB_MENU_LOCALIZED.STOREGOTOSHOP)
-							return
-						end
-						Torishop:initStore()
-					end,
-				noQuit = true
-			},
-			{
-				title = TB_MENU_LOCALIZED.STOREGOTOINVENTORY,
-				subtitle = TB_MENU_LOCALIZED.STOREINVENTORYDESC,
-				size = 0.4,
-				vsize = 0.5,
-				action = function()
-						if (TB_MENU_PLAYER_INFO.username == '') then
-							TBMenu:showLoginError(viewElement, TB_MENU_LOCALIZED.STOREGOTOSHOP)
-							return
-						end
-						if (#get_downloads() == 0) then
-							Torishop:prepareInventory(viewElement)
-						end
-					end,
-				noQuit = true
-			},
-		}
-		TBMenu:showSection(buttons, tcPurchaseView.size.w)
-	end]]
-
 end

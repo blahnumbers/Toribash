@@ -370,10 +370,10 @@ do
 		end
 	end
 
-	function TBMenu:showHomeButton(viewElement, buttonData, isTorishop)
+	function TBMenu:showHomeButton(viewElement, buttonData, hasSmudge)
 		local titleHeight, descHeight = viewElement.size.h / 4.5, viewElement.size.h / 5
 		local elementWidth, elementHeight, heightShift
-		local itemIcon
+		local itemIcon		
 		if (viewElement.size.h < viewElement.size.w and buttonData.image2) then
 			elementWidth, elementHeight, heightShift = unpack(TBMenu:getImageDimensions(viewElement.size.w, viewElement.size.h, buttonData.ratio2, titleHeight, descHeight))
 			itemIcon = UIElement:new( {
@@ -391,73 +391,55 @@ do
 				bgImage = buttonData.image
 			})
 		end
-		if (isTorishop and itemIcon.size.h > 160 and TB_STORE_DATA.onsale) then
-			local shopView = UIElement:new({
-				parent = itemIcon,
-				pos = { itemIcon.size.w * 0.4, 10 },
-				size = { itemIcon.size.w * 0.6 - 10, itemIcon.size.h * 0.45 },
-				bgColor = { 0, 0, 0, 0.2 },
-			})
-			local iconScale = shopView.size.h > 64 and 64 or shopView.size.h
-			local tbMenuSaleIcon = UIElement:new({
-				parent = shopView,
-				pos = { 5, (shopView.size.h - iconScale) / 2 },
-				size = { iconScale, iconScale },
-				bgImage = "../textures/store/items/" .. TB_STORE_DATA.onsale.id .. ".tga"
-			})
-			local tbMenuSaleName = UIElement:new({
-				parent = shopView,
-				pos = { iconScale + 10, 0 },
-				size = { shopView.size.w - iconScale - 10, shopView.size.h / 2 }
-			})
-			local tbMenuSaleDiscount = UIElement:new({
-				parent = shopView,
-				pos = { iconScale + 5, tbMenuSaleName.size.h },
-				size = { shopView.size.w - iconScale - 5, shopView.size.h - tbMenuSaleName.size.h }
-			})
-			local saleDiscount = TB_STORE_DATA.onsale.tcOld ~= 0 and (TB_STORE_DATA.onsale.tcOld - TB_STORE_DATA.onsale.tc) / TB_STORE_DATA.onsale.tcOld * 100 or (TB_STORE_DATA.onsale.usdOld - TB_STORE_DATA.onsale.usd) / TB_STORE_DATA.onsale.usdOld * 100
-			saleDiscount = math.floor(saleDiscount)
-			tbMenuSaleName:addAdaptedText(true, TB_STORE_DATA.onsale.name, nil, nil, nil, CENTERBOT, nil, nil, nil, 1)
-			tbMenuSaleDiscount:addAdaptedText(true, saleDiscount .. "% OFF!", nil, nil, FONTS.BIG, CENTER, 0.6, nil, nil, 1)
-		end
 		local buttonOverlay = UIElement:new( {
 			parent = viewElement,
 			pos = { 0, -titleHeight - descHeight - 10 },
 			size = { viewElement.size.w, titleHeight + descHeight }
 		})
+		local overlay = nil
 		if (viewElement.size.h + buttonOverlay.shift.y < itemIcon.shift.y + itemIcon.size.h) then
-			local overlayColor = cloneTable(TB_MENU_DEFAULT_BG_COLOR)
-			overlayColor[4] = 0.9
-			local overlay = UIElement:new({
+			overlay = UIElement:new({
 				parent = itemIcon,
 				pos = { 0, viewElement.size.h + buttonOverlay.shift.y - itemIcon.shift.y - itemIcon.size.h },
 				size = { itemIcon.size.w, -buttonOverlay.shift.y - itemIcon.shift.y - (viewElement.size.h - 20 - itemIcon.size.h) },
-				bgColor = overlayColor
+				bgColor = viewElement.animateColor
 			})
 		end
-		local shopTitleView = UIElement:new( {
+		if (hasSmudge) then
+			TBMenu:addBottomBloodSmudge(viewElement, hasSmudge)
+		end
+		local buttonTitleView = UIElement:new( {
 			parent = buttonOverlay,
 			pos = { 10, 0 },
 			size = { buttonOverlay.size.w - 20, titleHeight }
 		})
-		local shopTitle = UIElement:new( {
-			parent = shopTitleView,
+		local buttonTitle = UIElement:new( {
+			parent = buttonTitleView,
 			pos = { 5, 5 },
-			size = { shopTitleView.size.w - 10, shopTitleView.size.h - 5 }
+			size = { buttonTitleView.size.w - 10, buttonTitleView.size.h - 5 }
 		})
-		shopTitle:addAdaptedText(true, buttonData.title, nil, nil, FONTS.BIG, LEFTBOT, nil, nil, 0.2)
-		local shopSubtitleView = UIElement:new( {
+		buttonTitle:addAdaptedText(true, buttonData.title, nil, nil, FONTS.BIG, LEFTBOT, nil, nil, 0.2)
+		local buttonSubtitleView = UIElement:new( {
 			parent = buttonOverlay,
 			pos = { 10, titleHeight },
 			size = { buttonOverlay.size.w - 20, descHeight }
 		})
-		local shopSubtitle = UIElement:new( {
-			parent = shopSubtitleView,
+		local buttonSubtitle = UIElement:new( {
+			parent = buttonSubtitleView,
 			pos = { 5, 0 },
-			size = { shopSubtitleView.size.w - 10, shopSubtitleView.size.h - 5 }
+			size = { buttonSubtitleView.size.w - 10, buttonSubtitleView.size.h - 5 }
 		})
-		shopSubtitle:addAdaptedText(true, buttonData.subtitle, nil, nil, 4, LEFT)
-		viewElement:addMouseHandlers(nil, buttonData.action, nil)
+		buttonSubtitle:addAdaptedText(true, buttonData.subtitle, nil, nil, 4, LEFT)
+		if (overlay) then
+			viewElement:addMouseHandlers(function()
+					overlay.bgColor = cloneTable(viewElement.pressedColor)
+				end, function()
+					buttonData.action()
+					overlay.bgColor = viewElement.animateColor
+				end)
+		else
+			viewElement:addMouseHandlers(nil, buttonData.action)
+		end
 	end
 
 	-- Loads home section
@@ -470,7 +452,7 @@ do
 				subtitle = TB_MENU_LOCALIZED.MAINMENUTORISHOPDESC,
 				image = "../textures/menu/torishop.tga",
 				ratio = 0.435,
-				action = function() TBMenu:showTorishopMain() end
+				action = function() Torishop:prepareInventory(tbMenuCurrentSection) end
 			},
 			clan = {
 				title = TB_MENU_LOCALIZED.MAINMENUCLANSNAME,
@@ -521,7 +503,7 @@ do
 			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			hoverSound = 31
 		})
-		TBMenu:showHomeButton(tbMenuShopButton, tbMenuHomeButtonsData.shop, true)
+		TBMenu:showHomeButton(tbMenuShopButton, tbMenuHomeButtonsData.shop)
 		local tbMenuClansButton = UIElement:new({
 			parent = tbMenuCurrentSection,
 			pos = { tbMenuCurrentSection.size.w * 0.6 + 5, tbMenuCurrentSection.size.h / 2 + 5 },
@@ -1573,10 +1555,13 @@ do
 			bgImage = headTexture,
 			viewport = true
 		})
-		local headModel = Files:new("../../custom/" .. TB_MENU_PLAYER_INFO.username .. "/head.obj")
-		if (headModel.data) then
-			headModel:close()
-			local objScale = (get_option("shaders") + 1) * 5
+		if (TB_MENU_PLAYER_INFO.items.objs.head.equipped) then
+			local objScale = TB_MENU_PLAYER_INFO.items.objs.head.dynamic and 2 or 10
+			if (TB_MENU_PLAYER_INFO.items.objs.head.partless) then
+				headAvatarHead:kill()
+			end
+			local modelColor = get_color_info(TB_MENU_PLAYER_INFO.items.objs.head.colorid)
+			modelColor.a = TB_MENU_PLAYER_INFO.items.objs.head.alpha / 255
 			local headObjModel = UIElement3D:new({
 				parent = playerHeadHolder,
 				shapeType = CUSTOMOBJ,
@@ -1584,7 +1569,7 @@ do
 				pos = { 0, 0, 0.2 },
 				rot = { 0, 0, 0 },
 				size = { objScale * 0.9, objScale * 0.9, objScale * 0.9 },
-				bgColor = { 1, 1, 1, 1 },
+				bgColor = { modelColor.r, modelColor.g, modelColor.b, modelColor.a },
 				viewport = true
 			})
 		end
@@ -1784,8 +1769,7 @@ do
 			{ text = TB_MENU_LOCALIZED.NAVBUTTONPLAY, sectionId = 2 },
 			{ text = TB_MENU_LOCALIZED.NAVBUTTONPRACTICE, sectionId = 3 },
 			{ text = TB_MENU_LOCALIZED.NAVBUTTONTOOLS, sectionId = 5 },
-			{ text = "Store", sectionId = 6 },
-			{ text = "Account", sectionId = 7 }
+			{ text = "Store", sectionId = 6 }
 		}
 		return buttonData
 	end

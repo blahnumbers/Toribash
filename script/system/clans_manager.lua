@@ -1123,6 +1123,42 @@ do
 		reloader:addCustomDisplay(false, function() Clans:downloadHead(reloader, avatars, 1) end)
 	end
 	
+	function Clans:showPlayerAvatar(parent, avatarWidth, user)
+		local avatarViewport = UIElement:new( {
+			parent = parent,
+			pos = { 0, 0 },
+			size = { avatarWidth, avatarWidth },
+			viewport = true
+		})
+		local avatarViewport3D = UIElement3D:new({
+			globalid = TB_MENU_MAIN_GLOBALID,
+			shapeType = VIEWPORT,
+			parent = avatarViewport,
+			pos = { 0, 0, 0 },
+			size = { 0, 0, 0 },
+			rot = { 0, 0, 0 },
+			viewport = true
+		})
+		table.insert(avatarViewport.child, avatarViewport3D)
+		local headTexture = { "../../custom/tori/head.tga", "../../custom/tori/head.tga" }
+		local player = PlayerInfo:getItems(user)
+		if (player.textures.head.equipped) then
+			headTexture[1] = "../../custom/" .. user .. "/head.tga"
+		end
+		local avatar = UIElement3D:new({
+			parent = avatarViewport3D,
+			shapeType = SPHERE,
+			pos = { 0, 0, 10 },
+			rot = { 0, 0, 0 },
+			size = { 1, 0, 0 },
+			bgColor = { 1, 1, 1, 1 },
+			bgImage = headTexture,
+			viewport = true
+		})
+		avatar.player = user
+		return avatar
+	end
+	
 	function Clans:showClanMemberlist(viewElement, clanid)
 		local shaders = get_option("shaders")
 		local avatarWidth = shaders * 40
@@ -1186,27 +1222,7 @@ do
 					bgColor = rosterPos % (rosterEntryHeight * 2 ) == 0 and { 0, 0, 0, 0.1 } or { 0, 0, 0, 0 }
 				})
 				if (shaders == 1) then
-					local avatarViewport = UIElement:new( {
-						parent = leader,
-						pos = { 0, 0 },
-						size = { avatarWidth, avatarWidth },
-						viewport = true
-					})
-					local headTexture = { "../../custom/tori/head.tga", "../../custom/tori/head.tga" }
-					local player = PlayerInfo:getItems(v)
-					if (player.textures.head.equipped) then
-						headTexture[1] = "../../custom/" .. v .. "/head.tga"
-					end
-					local avatar = UIElement:new({
-						parent = avatarViewport,
-						pos = { 0, 0, 10 },
-						rot = { 0, 0, 0 },
-						radius = 1,
-						bgColor = { 1, 1, 1, 1 },
-						bgImage = headTexture
-					})
-					avatar.player = v
-					table.insert(headAvatars, avatar)
+					table.insert(headAvatars, Clans:showPlayerAvatar(leader, avatarWidth, v))
 				end
 				local leaderText = UIElement:new({
 					parent = leader,
@@ -1237,28 +1253,8 @@ do
 					size = { rosterMemberHolder.size.w, rosterEntryHeight },
 					bgColor = rosterPos % (rosterEntryHeight * 2 ) == 0 and { 0, 0, 0, 0.05 } or { 0, 0, 0, 0 }
 				})
-				if (shaders == 1) then	
-					local avatarViewport = UIElement:new( {
-						parent = member,
-						pos = { 0, 0 },
-						size = { avatarWidth, member.size.h },
-						viewport = true
-					})
-					local headTexture = { "../../custom/tori/head.tga", "../../custom/tori/head.tga" }
-					local player = PlayerInfo:getItems(v)
-					if (player.textures.head.equipped) then
-						headTexture[1] = "../../custom/" .. v .. "/head.tga"
-					end
-					local avatar = UIElement:new({
-						parent = avatarViewport,
-						pos = { 0, 0, 10 },
-						rot = { 0, 0, 0 },
-						radius = 1,
-						bgColor = { 1, 1, 1, 1 },
-						bgImage = headTexture
-					})
-					avatar.player = v
-					table.insert(headAvatars, avatar)
+				if (shaders == 1) then
+					table.insert(headAvatars, Clans:showPlayerAvatar(member, avatarWidth, v))
 				end
 				local memberText = UIElement:new({
 					parent = member,

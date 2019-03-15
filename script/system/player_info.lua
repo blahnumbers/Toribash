@@ -118,7 +118,7 @@ do
 		return getMaster("reward_error")
 	end
 	
-	function PlayerInfo:getTextures(file)
+	function PlayerInfo:getTextures(data)
 		local textures = {
 			head = { id = 1, equipped = false },
 			breast = { id = 2, equipped = false },
@@ -137,17 +137,16 @@ do
 			l_butt = { id = 15, equipped = false },
 			r_thigh = { id = 16, equipped = false },
 			l_thigh = { id = 17, equipped = false },
-			l_shin = { id = 18, equipped = false },
-			r_shin = { id = 19, equipped = false },
+			l_leg = { id = 18, equipped = false },
+			r_leg = { id = 19, equipped = false },
 			r_foot = { id = 20, equipped = false },
 			l_foot = { id = 21, equipped = false }
 		}
-		if (not file) then
+		if (not data) then
 			textures.default = true
 			return textures
 		end
-		file:seek("set")
-		for ln in file:lines() do
+		for i, ln in pairs(data) do
 			if string.match(ln, "^TEXBODY 0; ") then
 				ln = ln:gsub("TEXBODY 0; ", "")
 				local data_stream = { ln:match(("([^%s]*)%s*"):rep(21)) }
@@ -159,53 +158,90 @@ do
 		return textures
 	end
 	
-	function PlayerInfo:getColors(file)
+	function PlayerInfo:getColors(data)
 		local colors = {
 			force = 23,
 			relax = 21,
 			pgrad = 0,
 			sgrad = 0,
-			default = true
+			torso = 0
 		}
-		if (not file) then
+		if (not data) then
+			colors.default = true
 			return colors
 		end
-		file:seek("set", 0)
-		for ln in file:lines() do
+		for i, ln in pairs(data) do
 			if string.match(ln, "^FORCOL 0;0 ") then
 				ln = ln:gsub("^FORCOL 0;0 ", "")
 				local color = tonumber(ln:match("%d+"))
 				colors.force = color == 0 and colors.force or color
-			end
-			if string.match(ln, "^RELCOL 0;0 ") then
+			elseif string.match(ln, "^RELCOL 0;0 ") then
 				ln = ln:gsub("^RELCOL 0;0 ", "")
 				local color = tonumber(ln:match("%d+"))
 				colors.relax = color == 0 and colors.relax or color
-			end
-			if string.match(ln, "^GRADCOL1 0;0 ") then
+			elseif string.match(ln, "^GRADCOL1 0;0 ") then
 				ln = ln:gsub("^GRADCOL1 0;0 ", "")
 				colors.pgrad = tonumber(ln:match("%d+"))
-			end
-			if string.match(ln, "^GRADCOL2 0;0 ") then
+			elseif string.match(ln, "^GRADCOL2 0;0 ") then
 				ln = ln:gsub("^GRADCOL2 0;0 ", "")
 				colors.sgrad = tonumber(ln:match("%d+"))
+			elseif string.match(ln, "^BODCOL 0;0 ") then
+				ln = ln:gsub("^BODCOL 0;0 0 1 ", "")
+				colors.torso = tonumber(ln:match("%d+"))
 			end
 		end
-		colors.default = false
 		return colors
+	end
+	
+	function PlayerInfo:getObjs(player, data)
+		local objs = {
+			head = { equipped = false },
+		}
+		if (not data) then
+			objs.default = true
+			return objs
+		end
+		local options = {
+			"colorid", "alpha", "textured", "dynamic", "partless", "ghosted"
+		}
+		local optNumeric = {
+			colorid = true, alpha = true
+		}
+		local function getValues(data)
+			local dataStream = { data:match(("(%d+) ?"):rep(6)) }
+			local objValues = {}
+			for i,v in pairs(options) do
+				objValues[v] = tonumber(dataStream[i])
+				if (not optNumeric[v]) then
+					objValues[v] = objValues[v] == 1 and true or false
+				end
+			end
+			objValues.equipped = true
+			return objValues
+		end
+		for i, ln in pairs(data) do
+			if (string.match(ln, "^OBJ0 0; 1")) then
+				ln = ln:gsub("^OBJ0 0; 1 ", "")
+				objs.head = getValues(ln)
+			end
+		end
+		return objs
 	end
 	
 	function PlayerInfo:getItems(player)
 		local player = player or "tori"
 		local items = {
 			colors = {},
-			textures = {}
+			textures = {},
+			objs = {}
 		}
 		local customs = Files:new("../custom/" .. player .. "/item.dat", FILES_MODE_READONLY)
-		
-		items.colors = PlayerInfo:getColors(customs.data)
-		items.textures = PlayerInfo:getTextures(customs.data)
+		local customsData = customs:readAll()
 		customs:close()
+		
+		items.colors = PlayerInfo:getColors(customsData)
+		items.textures = PlayerInfo:getTextures(customsData)
+		items.objs = PlayerInfo:getObjs(player, customsData)
 		return items
 	end
 	
