@@ -81,16 +81,15 @@ TB_MENU_PLAYER_INFO.ranking = PlayerInfo:getRanking()
 TB_MENU_PLAYER_INFO.clan = PlayerInfo:getClan(TB_MENU_PLAYER_INFO.username)
 TB_MENU_PLAYER_INFO.items = PlayerInfo:getItems(TB_MENU_PLAYER_INFO.username)
 
-if (os.clock() < 10) then
-	TB_STORE_DATA = { onsale = Torishop:getSaleItem(true) }
-else
-	if (not TB_STORE_DATA or not TB_STORE_DATA.ready or TB_MENU_DEBUG) then
-		TB_STORE_DATA, TB_STORE_SECTIONS = Torishop:getItems()
-		TB_STORE_MODELS = Torishop:getModelsData()
-		if (not TB_STORE_DATA.failed) then
-			TB_STORE_DATA.ready = true
-			TB_STORE_DATA.onsale = Torishop:getSaleItem()
-		end
+if (not TB_STORE_DATA) then
+	TB_STORE_DATA = {}
+end
+
+if (not TB_STORE_DATA.ready or TB_MENU_DEBUG) then
+	TB_STORE_DATA, TB_STORE_SECTIONS = Torishop:getItems()
+	TB_STORE_MODELS = Torishop:getModelsData()
+	if (not TB_STORE_DATA.failed) then
+		TB_STORE_DATA.ready = true
 	end
 end
 
@@ -135,7 +134,6 @@ if (os.clock() < 10) then
 				TB_STORE_MODELS = Torishop:getModelsData()
 				if (not TB_STORE_DATA.failed) then
 					TB_STORE_DATA.ready = true
-					TB_STORE_DATA.onsale = Torishop:getSaleItem()
 				end
 				if (PlayerInfo:getLoginRewards().available and TB_MENU_MAIN_ISOPEN == 1) then
 					if (TB_MENU_SPECIAL_SCREEN_ISOPEN == 0 and TB_MENU_IGNORE_REWARDS == 0) then

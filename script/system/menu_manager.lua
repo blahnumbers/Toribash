@@ -194,14 +194,14 @@ do
 	function TBMenu:changeCurrentEvent(viewElement, eventsData, eventItems, clock, reloadElement, direction)
 		for i, v in pairs(eventItems) do
 			if (i == TB_MENU_HOME_CURRENT_ANNOUNCEMENT) then
-				v.image:hide()
+				v:hide()
 				TB_MENU_HOME_CURRENT_ANNOUNCEMENT = TB_MENU_HOME_CURRENT_ANNOUNCEMENT + direction
 				if (TB_MENU_HOME_CURRENT_ANNOUNCEMENT > #eventItems) then
 					TB_MENU_HOME_CURRENT_ANNOUNCEMENT = TB_MENU_HOME_CURRENT_ANNOUNCEMENT - #eventItems
 				elseif (TB_MENU_HOME_CURRENT_ANNOUNCEMENT < 1) then
 					TB_MENU_HOME_CURRENT_ANNOUNCEMENT = #eventItems
 				end
-				eventItems[TB_MENU_HOME_CURRENT_ANNOUNCEMENT].image:show()
+				eventItems[TB_MENU_HOME_CURRENT_ANNOUNCEMENT]:show()
 				local function behavior()
 					eventsData[TB_MENU_HOME_CURRENT_ANNOUNCEMENT].action()
 					if (eventsData[TB_MENU_HOME_CURRENT_ANNOUNCEMENT].stop) then
@@ -219,104 +219,86 @@ do
 		end
 	end
 
-	-- Stores and displays event announcements with timed rotation
-	function TBMenu:showEvents(viewElement)
+	function TBMenu:showHome()
+		if (not tbMenuCurrentSection) then
+			TBMenu:createCurrentSectionView()
+		end
+		
+		-- Create and load regular announcements view
+		local homeAnnouncements = UIElement:new( {
+			parent = tbMenuCurrentSection,
+			pos = { 5, 0 },
+			size = { tbMenuCurrentSection.size.w * 0.565 - 10, tbMenuCurrentSection.size.h }
+		})
+		local featuredEvent = UIElement:new({
+			parent = tbMenuCurrentSection,
+			pos = { tbMenuCurrentSection.size.w * 0.565 + 5, 0 },
+			size = { tbMenuCurrentSection.size.w * 0.435 - 10, tbMenuCurrentSection.size.h },
+			interactive = true,
+			bgColor = TB_MENU_DEFAULT_BG_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			hoverSound = 31
+		})
+		
 		-- Table to store event announcement data
 		local eventsData = {
 			{
-				title = "Head Texture of the Month: Mythology",
-				subtitle = "The Ocean has many interesting creatures dwelling within - show us your favorite!",
-				image = "../textures/menu/promo/holeinthewall.tga",
-				stop = true,
+				title = "Toribash Merch is now available!",
+				subtitle = "Super cool and extra awesome, yay!",
+				image = "../textures/menu/promo/store/merchpromo.tga",
+				ratio = 0.5,
 				action = function()
-						Events:showEventInfo(1)
-					end,
+						open_url("https://teespring.com/")
+					end
+			},
+			{
+				title = "Placeholder announcement",
+				subtitle = "Placeholder description",
+				image = "../textures/menu/promo/season5.tga",
+				ratio = 0.5,
+				action = function()
+						open_url("https://teespring.com/")
+					end
 			},
 		}
-
-		--[[if (TB_MENU_PLAYER_INFO.data.qi < 500 and TB_MENU_PLAYER_INFO.clan.id == 0 and TB_MENU_PLAYER_INFO.username ~= "") then
-			local clanModifier = string.byte(TB_MENU_PLAYER_INFO.username) % 2
-			local clan = {
-				name = clanModifier == 0 and "Blue" or "Red",
-				texture = clanModifier == 0 and "../textures/menu/promo/blueclan.tga" or "../textures/menu/promo/redclan.tga"
-			}
-			table.insert(eventsData, 1, {
-				title = "Join Clan (" .. clan.name .. ")!",
-				subtitle = "A beginner clan that will help you find new Toribash friends and understand the game is always open for joining!",
-				image = clan.texture,
-				action = function()
-						TBMenu:showClans(clan.name)
-					end
-			})
-		end]]
-
+		
+		-- Current event button data
+		local featuredEventData = {
+			title = "Hole in the Wall!",
+			subtitle = "Ready, steady... JUMP!",
+			image = "../textures/menu/promo/holeinthewall.tga",
+			ratio = 0.66,
+			action = function() Events:showEventInfo(1) end,
+			initAction = function() Events:showEventInfo(1) end
+		}
+		
 		-- Store all elements that would require reloading when switching event announcements in one table
 		local toReload = UIElement:new({
-			parent = viewElement,
+			parent = homeAnnouncements,
 			pos = { 0, 0 },
-			size = { viewElement.size.w, viewElement.size.h }
+			size = { homeAnnouncements.size.w, homeAnnouncements.size.h }
 		})
 
-		-- Create bottom splat
-		local eventButtonSplat = TBMenu:addBottomBloodSmudge(toReload, 1)
-
-		local textHeight, descHeight = viewElement.size.h / 9, viewElement.size.h / 8
-		local elementWidth, elementHeight, heightShift = unpack(TBMenu:getImageDimensions(viewElement.size.w, viewElement.size.h, 0.5, textHeight, descHeight))
+		local textHeight, descHeight = homeAnnouncements.size.h / 9, homeAnnouncements.size.h / 8
+		local elementWidth, elementHeight, heightShift = unpack(TBMenu:getImageDimensions(homeAnnouncements.size.w, homeAnnouncements.size.h, 0.5, textHeight, descHeight))
 		-- Spawn event announcement elements
 		local eventItems = {}
 		for i, v in pairs (eventsData) do
 			local titleTextScale, subtitleTextScale = 1, 1
-			eventItems[i] = {}
-			eventItems[i].image = UIElement:new( {
-				parent = viewElement,
-				pos = { (viewElement.size.w - elementWidth) / 2, 10 },
-				size = { elementWidth, elementHeight },
-				bgImage = v.image
-			})
-			eventItems[i].button = UIElement:new( {
-				parent = eventItems[i].image,
-				pos = { 0, eventItems[i].image.size.h - heightShift },
-				size = { eventItems[i].image.size.w, textHeight + descHeight }
-			})
-			local textColor, descColor = cloneTable(TB_MENU_DEFAULT_BG_COLOR), cloneTable(TB_MENU_DEFAULT_BG_COLOR)
-			textColor[4] = 0.8
-			descColor[4] = 0.8
-			if (heightShift == textHeight) then
-				descColor = nil
-			elseif (heightShift == 0) then
-				descColor, textColor = nil, nil
-			end
-			eventItems[i].titleView = UIElement:new( {
-				parent = eventItems[i].button,
+			eventItems[i] = UIElement:new({
+				parent = homeAnnouncements,
 				pos = { 0, 0 },
-				size = { eventItems[i].button.size.w, textHeight },
-				bgColor = textColor
+				size = { homeAnnouncements.size.w, homeAnnouncements.size.h },
+				bgColor = TB_MENU_DEFAULT_BG_COLOR,
+				interactive = true,
+				hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+				hoverSound = 31
 			})
-			eventItems[i].title = UIElement:new( {
-				parent = eventItems[i].titleView,
-				pos = { 10, 5 },
-				size = { eventItems[i].titleView.size.w - 20, eventItems[i].titleView.size.h - 10 }
-			})
-			while (not eventItems[i].title:uiText(v.title, nil, nil, 0, 0, titleTextScale, nil, nil, nil, nil, nil, true)) do
-				titleTextScale = titleTextScale - 0.05
-			end
-			eventItems[i].title:addCustomDisplay(false, function()
-					eventItems[i].title:uiText(v.title, nil, nil, 0, 0, titleTextScale)
-				end)
-			eventItems[i].subtitleView = UIElement:new( {
-				parent = eventItems[i].button,
-				pos = { 0, textHeight },
-				size = { eventItems[i].button.size.w, descHeight },
-				bgColor = descColor
-			})
-			eventItems[i].subtitle = UIElement:new( {
-				parent = eventItems[i].subtitleView,
-				pos = { 10, 5 },
-				size = { eventItems[i].subtitleView.size.w - 20, eventItems[i].subtitleView.size.h }
-			})
-			eventItems[i].subtitle:addAdaptedText(true, v.subtitle, nil, nil, 4, LEFT)
+			TBMenu:showHomeButton(eventItems[i], v, 1)
 			if (i ~= TB_MENU_HOME_CURRENT_ANNOUNCEMENT) then
-				eventItems[i].image:hide()
+				eventItems[i]:hide()
 			end
 		end
 
@@ -324,34 +306,36 @@ do
 			-- Spawn progress bar before next/prev buttons
 			local eventDisplayTime = UIElement:new( {
 				parent = toReload,
-				pos = {0, 0},
-				size = {0, 0}
+				pos = { 0, 0 },
+				size = { 0, 0 }
 			})
 
 			-- Auto-rotate event announcements
 			local rotateTime = 100
 			local tickTime = os.clock() * 10
 			local rotateClock = { start = math.floor(tickTime), last = math.floor(tickTime) }
+			featuredEventData.action = function() featuredEventData.initAction() rotateClock.pause = true end
+			local timeData = eventItems[1].button.pos.y > eventItems[1].image.pos.y + eventItems[1].image.size.h and { pos = { x = eventItems[1].image.pos.x, y = eventItems[1].image.pos.y + eventItems[1].image.size.h }, width = eventItems[1].image.size.w } or { pos = { x = eventItems[1].button.pos.x + 10, y = eventItems[1].button.pos.y - 5 }, width = eventItems[1].button.size.w - 20 } 
 			eventDisplayTime:addCustomDisplay(true, function()
 					if (not rotateClock.pause) then
 						set_color(1,1,1,1)
-						draw_quad(eventItems[1].button.pos.x, eventItems[1].button.pos.y - 5, (os.clock() * 10 - rotateClock.start) % rotateTime / rotateTime * eventItems[1].button.size.w, 5)
+						draw_quad(timeData.pos.x, timeData.pos.y, (os.clock() * 10 - rotateClock.start) % rotateTime / rotateTime * timeData.width, 5)
 					end
 				end)
-			viewElement:addCustomDisplay(false, function()
+			homeAnnouncements:addCustomDisplay(false, function()
 					if ((math.floor(os.clock() * 10) - rotateClock.start) % rotateTime == 0 and math.floor(os.clock() * 10) ~= rotateClock.last and not rotateClock.pause) then
-						TBMenu:changeCurrentEvent(viewElement, eventsData, eventItems, rotateClock, toReload, 1)
+						TBMenu:changeCurrentEvent(homeAnnouncements, eventsData, eventItems, rotateClock, toReload, 1)
 					end
 				end)
 				
 			-- Manual announcement change
-			local eventPrevButton = TBMenu:createImageButtons(toReload, 10, toReload.size.h / 2 - 32, 32, 64, "../textures/menu/general/buttons/arrowleft.tga", nil, nil, { 0, 0, 0, 0 }, { 0, 0, 0, 0.7 })
+			local eventPrevButton = TBMenu:createImageButtons(toReload, 10, 10 + elementHeight / 2 - 32, 32, 64, "../textures/menu/general/buttons/arrowleft.tga", nil, nil, { 0, 0, 0, 0 }, { 0, 0, 0, 0.7 })
 			eventPrevButton:addMouseHandlers(nil, function()
-					TBMenu:changeCurrentEvent(viewElement, eventsData, eventItems, rotateClock, toReload, -1)
+					TBMenu:changeCurrentEvent(homeAnnouncements, eventsData, eventItems, rotateClock, toReload, -1)
 				end, nil)
-			local eventNextButton = TBMenu:createImageButtons(toReload, toReload.size.w - 42, toReload.size.h / 2 - 32, 32, 64, "../textures/menu/general/buttons/arrowright.tga", nil, nil, { 0, 0, 0, 0 }, { 0, 0, 0, 0.7 })
+			local eventNextButton = TBMenu:createImageButtons(toReload, toReload.size.w - 42, 10 + elementHeight / 2 - 32, 32, 64, "../textures/menu/general/buttons/arrowright.tga", nil, nil, { 0, 0, 0, 0 }, { 0, 0, 0, 0.7 })
 			eventNextButton:addMouseHandlers(nil, function()
-					TBMenu:changeCurrentEvent(viewElement, eventsData, eventItems, rotateClock, toReload, 1)
+					TBMenu:changeCurrentEvent(homeAnnouncements, eventsData, eventItems, rotateClock, toReload, 1)
 				end, nil)
 			
 			-- Set event button behavior
@@ -361,20 +345,24 @@ do
 					rotateClock.pause = true
 				end
 			end
-			viewElement:addMouseHandlers(nil, behavior, nil)
+			homeAnnouncements:addMouseHandlers(nil, behavior, nil)
 		else
 			local function behavior()
 				eventsData[TB_MENU_HOME_CURRENT_ANNOUNCEMENT].action()
 			end
-			viewElement:addMouseHandlers(nil, behavior, nil)
+			homeAnnouncements:addMouseHandlers(nil, behavior, nil)
 		end
+		TBMenu:showHomeButton(featuredEvent, featuredEventData, 2)
 	end
 
-	function TBMenu:showHomeButton(viewElement, buttonData, hasSmudge)
-		local titleHeight, descHeight = viewElement.size.h / 4.5, viewElement.size.h / 5
-		local elementWidth, elementHeight, heightShift
-		local itemIcon		
-		if (viewElement.size.h < viewElement.size.w and buttonData.image2) then
+	function TBMenu:showHomeButton(viewElement, buttonData, hasSmudge, extraElements)
+		local titleHeight = buttonData.title and (buttonData.subtitle and viewElement.size.h / 5 or viewElement.size.h / 3) or 0
+		titleHeight = titleHeight > WIN_H / 15 and WIN_H / 15 or titleHeight
+		local descHeight = buttonData.subtitle and viewElement.size.h / 6 or 0
+		descHeight = descHeight > WIN_H / 15 and WIN_H / 15 or descHeight
+		local elementWidth, elementHeight, heightShift, itemIcon
+		local extraElements = extraElements or {}
+		if ((viewElement.size.h - 20) * buttonData.ratio + titleHeight + descHeight < (viewElement.size.w - 20) and buttonData.image2) then
 			elementWidth, elementHeight, heightShift = unpack(TBMenu:getImageDimensions(viewElement.size.w, viewElement.size.h, buttonData.ratio2, titleHeight, descHeight))
 			itemIcon = UIElement:new( {
 				parent = viewElement,
@@ -396,6 +384,8 @@ do
 			pos = { 0, -titleHeight - descHeight - 10 },
 			size = { viewElement.size.w, titleHeight + descHeight }
 		})
+		viewElement.button = buttonOverlay
+		viewElement.image = itemIcon
 		local overlay = nil
 		if (viewElement.size.h + buttonOverlay.shift.y < itemIcon.shift.y + itemIcon.size.h) then
 			overlay = UIElement:new({
@@ -408,126 +398,49 @@ do
 		if (hasSmudge) then
 			TBMenu:addBottomBloodSmudge(viewElement, hasSmudge)
 		end
-		local buttonTitleView = UIElement:new( {
-			parent = buttonOverlay,
-			pos = { 10, 0 },
-			size = { buttonOverlay.size.w - 20, titleHeight }
-		})
-		local buttonTitle = UIElement:new( {
-			parent = buttonTitleView,
-			pos = { 5, 5 },
-			size = { buttonTitleView.size.w - 10, buttonTitleView.size.h - 5 }
-		})
-		buttonTitle:addAdaptedText(true, buttonData.title, nil, nil, FONTS.BIG, LEFTBOT, nil, nil, 0.2)
-		local buttonSubtitleView = UIElement:new( {
-			parent = buttonOverlay,
-			pos = { 10, titleHeight },
-			size = { buttonOverlay.size.w - 20, descHeight }
-		})
-		local buttonSubtitle = UIElement:new( {
-			parent = buttonSubtitleView,
-			pos = { 5, 0 },
-			size = { buttonSubtitleView.size.w - 10, buttonSubtitleView.size.h - 5 }
-		})
-		buttonSubtitle:addAdaptedText(true, buttonData.subtitle, nil, nil, 4, LEFT)
+		if (buttonData.title) then
+			local buttonTitleView = UIElement:new( {
+				parent = buttonOverlay,
+				pos = { 10, 0 },
+				size = { buttonOverlay.size.w - 20, titleHeight }
+			})
+			local buttonTitle = UIElement:new( {
+				parent = buttonTitleView,
+				pos = { 5, 5 },
+				size = { buttonTitleView.size.w - 10, buttonTitleView.size.h - 5 }
+			})
+			buttonTitle:addAdaptedText(true, buttonData.title, nil, nil, FONTS.BIG, buttonData.subtitle and LEFTBOT or LEFT, nil, nil, 0.2)
+		end
+		if (buttonData.subtitle) then
+			local buttonSubtitleView = UIElement:new( {
+				parent = buttonOverlay,
+				pos = { 10, titleHeight },
+				size = { buttonOverlay.size.w - 20, descHeight }
+			})
+			local buttonSubtitle = UIElement:new( {
+				parent = buttonSubtitleView,
+				pos = { 5, 0 },
+				size = { buttonSubtitleView.size.w - 10, buttonSubtitleView.size.h - 5 }
+			})
+			buttonSubtitle:addAdaptedText(true, buttonData.subtitle, nil, nil, 4, LEFT)
+		end
 		if (overlay) then
 			viewElement:addMouseHandlers(function()
 					overlay.bgColor = cloneTable(viewElement.pressedColor)
+					for i,v in pairs(extraElements) do
+						v.bgColor = cloneTable(viewElement.pressedColor)
+					end
 				end, function()
 					buttonData.action()
 					overlay.bgColor = viewElement.animateColor
+					for i,v in pairs(extraElements) do
+						v.bgColor = viewElement.animateColor
+					end
 				end)
 		else
 			viewElement:addMouseHandlers(nil, buttonData.action)
 		end
-	end
-
-	-- Loads home section
-	-- Uses custom methods, can't be loaded with showSection() unlike other sections
-	function TBMenu:showHome()
-		-- Buttons data; doesn't include events section
-		local tbMenuHomeButtonsData = {
-			shop = {
-				title = TB_MENU_LOCALIZED.MAINMENUTORISHOPNAME,
-				subtitle = TB_MENU_LOCALIZED.MAINMENUTORISHOPDESC,
-				image = "../textures/menu/torishop.tga",
-				ratio = 0.435,
-				action = function() Torishop:prepareInventory(tbMenuCurrentSection) end
-			},
-			clan = {
-				title = TB_MENU_LOCALIZED.MAINMENUCLANSNAME,
-				subtitle = TB_MENU_LOCALIZED.MAINMENUCLANSDESC,
-				image = "../textures/menu/clansbig.tga",
-				image2 = "../textures/menu/clanssmall.tga",
-				ratio = 1,
-				ratio2 = 0.5,
-				action = function() TBMenu:showClans() end
-			},
-			replays = {
-				title = TB_MENU_LOCALIZED.MAINMENUREPLAYSNAME,
-				subtitle = TB_MENU_LOCALIZED.MAINMENUREPLAYSDESC,
-				image = "../textures/menu/replaysbig.tga",
-				image2 = "../textures/menu/replayssmall.tga",
-				ratio = 1,
-				ratio2 = 0.5,
-				action = function() TBMenu:showReplays() end
-			}
-		}
-
-		-- Base UI element
-		if (not tbMenuCurrentSection) then
-			TBMenu:createCurrentSectionView()
-		end
-
-		-- Create and load events view
-		local tbMenuHomeEventsView = UIElement:new( {
-			parent = tbMenuCurrentSection,
-			pos = { 5, 0 },
-			size = { tbMenuCurrentSection.size.w * 0.6 - 10, tbMenuCurrentSection.size.h },
-			bgColor = TB_MENU_DEFAULT_BG_COLOR,
-			interactive = true,
-			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
-			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-			hoverSound = 31
-		})
-		TBMenu:showEvents(tbMenuHomeEventsView)
-
-		-- Create and load home section buttons
-		local tbMenuShopButton = UIElement:new({
-			parent = tbMenuCurrentSection,
-			pos = { tbMenuCurrentSection.size.w * 0.6 + 5, 0 },
-			size = { tbMenuCurrentSection.size.w * 0.4 - 10, tbMenuCurrentSection.size.h / 2 - 5 },
-			interactive = true,
-			bgColor = TB_MENU_DEFAULT_BG_COLOR,
-			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
-			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-			hoverSound = 31
-		})
-		TBMenu:showHomeButton(tbMenuShopButton, tbMenuHomeButtonsData.shop)
-		local tbMenuClansButton = UIElement:new({
-			parent = tbMenuCurrentSection,
-			pos = { tbMenuCurrentSection.size.w * 0.6 + 5, tbMenuCurrentSection.size.h / 2 + 5 },
-			size = { tbMenuCurrentSection.size.w * 0.2 - 10, tbMenuCurrentSection.size.h / 2 - 5 },
-			interactive = true,
-			bgColor = TB_MENU_DEFAULT_BG_COLOR,
-			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
-			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-			hoverSound = 31
-		})
-		local tbMenuClansBottomSplat = TBMenu:addBottomBloodSmudge(tbMenuClansButton, 1)
-		TBMenu:showHomeButton(tbMenuClansButton, tbMenuHomeButtonsData.clan)
-		local tbMenuReplaysButton = UIElement:new({
-			parent = tbMenuCurrentSection,
-			pos = { tbMenuCurrentSection.size.w * 0.8 + 5, tbMenuCurrentSection.size.h / 2 + 5 },
-			size = { tbMenuCurrentSection.size.w * 0.2 - 10, tbMenuCurrentSection.size.h / 2 - 5 },
-			interactive = true,
-			bgColor = TB_MENU_DEFAULT_BG_COLOR,
-			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
-			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-			hoverSound = 31
-		})
-		local tbMenuReplaysBottomSplat = TBMenu:addBottomBloodSmudge(tbMenuReplaysButton, 2)
-		TBMenu:showHomeButton(tbMenuReplaysButton, tbMenuHomeButtonsData.replays)
+		return titleHeight, descHeight
 	end
 
 	-- Clears navigation bar and current section element for side modules
@@ -660,17 +573,35 @@ do
 		local returnval = ""
 		local timeleft = 0
 		local timetype = ""
+		if (math.floor(seconds / 3600 / 24 / 365) > 1) then
+			timetype = TB_MENU_LOCALIZED.REWARDSTIMEYEARS
+			timeleft = math.floor(seconds / 3600 / 24 / 365)
+			seconds = seconds - timeleft * 3600 * 24 * 365
+			returnval = timeleft .. " " .. timetype
+		end
+		if (math.floor(seconds / 3600 / 24 / 365) == 1) then
+			timetype = TB_MENU_LOCALIZED.REWARDSTIMEYEAR
+			timeleft = math.floor(seconds / 3600 / 24 / 365)
+			seconds = seconds - timeleft * 3600 * 24 * 365
+			returnval = timeleft .. " " .. timetype
+		end
+		if (math.floor(seconds / 3600 / 24 / 30.4) > 2) then
+			timetype = TB_MENU_LOCALIZED.REWARDSTIMEMONTHS
+			timeleft = math.floor(seconds / 3600 / 24 / 30)
+			seconds = seconds - timeleft * 3600 * 24 * 30
+			returnval = returnval .. " " .. timeleft .. " " .. timetype
+		end
 		if (math.floor(seconds / 3600 / 24 / 7) > 1) then
 			timetype = TB_MENU_LOCALIZED.REWARDSTIMEWEEKS
 			timeleft = math.floor(seconds / 3600 / 24 / 7)
 			seconds = seconds - timeleft * 3600 * 24 * 7
-			returnval = timeleft .. " " .. timetype
+			returnval = returnval .. " " .. timeleft .. " " .. timetype
 		end
 		if (math.floor(seconds / 3600 / 24 / 7) == 1) then
 			timetype = TB_MENU_LOCALIZED.REWARDSTIMEWEEK
 			timeleft = math.floor(seconds / 3600 / 24 / 7)
 			seconds = seconds - timeleft * 3600 * 24 * 7
-			returnval = timeleft .. " " .. timetype
+			returnval = returnval .. " " .. timeleft .. " " .. timetype
 		end
 		if (math.floor(seconds / 3600 / 24) > 1) then
 			timetype = TB_MENU_LOCALIZED.REWARDSTIMEDAYS
@@ -714,6 +645,7 @@ do
 		end
 		returnval = returnval:gsub("^ ", "")
 		if (cut) then
+			echo(returnval)
 			local sPos, ePos = returnval:find(("%d+%s%S+%s"):rep(cut))
 			if (ePos) then
 				returnval = returnval:sub(0, ePos - 1)
@@ -896,6 +828,142 @@ do
 		Torishop:showMain(tbMenuCurrentSection)
 	end
 
+	function TBMenu:showAccountMain()
+		if (not tbMenuCurrentSection) then
+			TBMenu:createCurrentSectionView()
+		end
+		local accountView = UIElement:new({
+			parent = tbMenuCurrentSection,
+			pos = { 5, 0 },
+			size = { tbMenuCurrentSection.size.w * 0.667 - 10, tbMenuCurrentSection.size.h },
+			bgColor = TB_MENU_DEFAULT_BG_COLOR
+		})
+		local elementHeight = 50
+		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(accountView, accountView.size.h / 10 > elementHeight and accountView.size.h or elementHeight, elementHeight - 16, 20, TB_MENU_DEFAULT_BG_COLOR)
+	
+		TBMenu:addBottomBloodSmudge(botBar, 1)
+		local accountTitle = UIElement:new({
+			parent = topBar,
+			pos = { 10, 5 },
+			size = { topBar.size.w - 20, topBar.size.h - 10 }
+		})
+		accountTitle:addAdaptedText(true, "Info about Your Account", nil, nil, FONTS.BIG, nil, nil, nil, 0.2)
+		
+		local accountDatas = PlayerInfo:getServerUserinfo()
+		if (not accountDatas.ready) then
+			local infoMessage = UIElement:new({
+				parent = listingHolder,
+				pos = { 0, 0 },
+				size = { listingHolder.size.w, listingHolder.size.h }
+			})
+			infoMessage:addAdaptedText(true, "Getting your data...")
+			local infoUpdater = UIElement:new({
+				parent = infoMessage,
+				pos = { 0, 0 },
+				size = { 0, 0 }
+			})
+			infoUpdater:addCustomDisplay(true, function()
+					if (accountDatas.ready) then
+						if (accountDatas.failed) then
+							infoMessage:addAdaptedText(true, "Something went wrong, try again later")
+							infoUpdater:kill()
+							return
+						end
+						infoMessage:kill()
+						accountDatas.ready = nil
+						
+						local listElements = {}
+						for i,v in pairs(accountDatas) do
+							local infoBG = UIElement:new({
+								parent = listingHolder,
+								pos = { 0, elementHeight * #listElements },
+								size = { listingHolder.size.w, elementHeight }
+							})
+							table.insert(listElements, infoBG)
+							local infoHolder = UIElement:new({
+								parent = infoBG,
+								pos = { 10, 5 },
+								size = { infoBG.size.w - 10, elementHeight - 10 },
+								bgColor = v.customColor or TB_MENU_DEFAULT_DARKER_COLOR,
+								uiColor = v.customUiColor,
+								interactive = v.action,
+								hoverColor = v.customHoverColor or TB_MENU_DEFAULT_DARKEST_COLOR,
+								pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+							})
+							local infoText = UIElement:new({
+								parent = infoHolder,
+								pos = { 10, 0 },
+								size = { infoHolder.size.w - 20, infoHolder.size.h }
+							})
+							if (v.hint) then
+								local hintSign = UIElement:new({
+									parent = infoHolder,
+									pos = { 5, 5 },
+									size = { 30, 30 },
+									bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+									hoverColor = TB_MENU_DEFAULT_BG_COLOR,
+									shapeType = ROUNDED,
+									uiColor = UICOLORWHITE,
+									rounded = 36,
+									interactive = true
+								})
+								TBMenu:displayHelpPopup(hintSign, v.hint)
+								infoText:moveTo(40)
+								infoText.size.w = infoHolder.size.w - 50
+							end
+							infoText:addAdaptedText(true, v.name .. ": " .. v.value, nil, nil, nil, LEFTMID)
+							if (v.action) then
+								infoHolder:addMouseHandlers(nil, v.action)
+							end
+						end
+						for i,v in pairs(listElements) do
+							v:hide()
+						end
+						local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
+						scrollBar:makeScrollBar(listingHolder, listElements, toReload)
+					end
+				end)
+		end
+		
+		local inventoryButton = UIElement:new({
+			parent = tbMenuCurrentSection,
+			pos = { 5 + tbMenuCurrentSection.size.w * 0.667, 0 },
+			size = { tbMenuCurrentSection.size.w * 0.333 - 10, tbMenuCurrentSection.size.h / 2 - 5 },
+			bgColor = TB_MENU_DEFAULT_BG_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			hoverSound = 31,
+			interactive = true
+		})
+		local inventoryButtonData = {
+			title = TB_MENU_LOCALIZED.STOREGOTOINVENTORY,
+			subtitle = TB_MENU_LOCALIZED.STOREINVENTORYDESC,
+			image = "../textures/menu/torishop.tga",
+			ratio = 0.435,
+			action = function() Torishop:prepareInventory(tbMenuCurrentSection) end
+		}
+		TBMenu:showHomeButton(inventoryButton, inventoryButtonData)
+		
+		local clansButton = UIElement:new({
+			parent = tbMenuCurrentSection,
+			pos = { 5 + tbMenuCurrentSection.size.w * 0.667, tbMenuCurrentSection.size.h / 2 + 5 },
+			size = { tbMenuCurrentSection.size.w * 0.333 - 10, tbMenuCurrentSection.size.h / 2 - 5 },
+			bgColor = TB_MENU_DEFAULT_BG_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			hoverSound = 31,
+			interactive = true
+		})
+		local clansButtonData = {
+			title = TB_MENU_LOCALIZED.MAINMENUCLANSNAME,
+			subtitle = TB_MENU_LOCALIZED.MAINMENUCLANSDESC,
+			image = "../textures/menu/clanssmall.tga",
+			ratio = 0.5,
+			action = function() TBMenu:showClans() end
+		}
+		TBMenu:showHomeButton(clansButton, clansButtonData, 2)
+	end
+
 	function TBMenu:showMatchmaking()
 		-- Connect user to matchmake server
 		Matchmake:connect()
@@ -905,7 +973,7 @@ do
 	function TBMenu:showPlaySection()
 		local tbMenuPlayButtonsData = {
 			{ title = TB_MENU_LOCALIZED.MAINMENUFREEPLAYNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUFREEPLAYDESC, size = 0.5, image = "../textures/menu/freeplay.tga", mode = ORIENTATION_LANDSCAPE, action = function() open_menu(1) end },
-			{ title = TB_MENU_LOCALIZED.MAINMENURANKEDNAME, subtitle = TB_MENU_LOCALIZED.MAINMENURANKEDDESC, size = 0.25, image = "../textures/menu/matchmaking.tga", mode = ORIENTATION_PORTRAIT, action = function() if (TB_MENU_PLAYER_INFO.username == '') then TBMenu:showLoginError(tbMenuCurrentSection, TB_MENU_LOCALIZED.MAINMENUMATCHMAKINGNAME) return end TBMenu:showMatchmaking() end },
+			{ title = TB_MENU_LOCALIZED.MAINMENUREPLAYSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUREPLAYSDESC, size = 0.25, image = "../textures/menu/replays.tga", mode = ORIENTATION_PORTRAIT, action = function() TBMenu:showReplays() end },
 			{ title = TB_MENU_LOCALIZED.MAINMENUROOMLISTNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUROOMLISTDESC, size = 0.25, image = "../textures/menu/multiplayer.tga", mode = ORIENTATION_PORTRAIT, action = function() if (TB_MENU_PLAYER_INFO.username == '') then TBMenu:showLoginError(tbMenuCurrentSection, TB_MENU_LOCALIZED.MAINMENUROOMLISTNAME) return end open_menu(2) end }
 		}
 		TBMenu:showSection(tbMenuPlayButtonsData)
@@ -1422,6 +1490,8 @@ do
 			TBMenu:showToolsSection()
 		elseif (screenId == 6) then
 			TBMenu:showTorishopMain()
+		elseif (screenId == 7) then
+			TBMenu:showAccountMain()
 		elseif (screenId == 101) then
 			TBMenu:showNotifications()
 		elseif (screenId == 102) then
@@ -1603,65 +1673,43 @@ do
 			pos = { 80, 65 },
 			size = { 170, 25 },
 			interactive = true,
-			bgColor = TB_MENU_UI_TEXT_COLOR,
-			hoverColor = TB_MENU_DEFAULT_LIGHTEST_COLOR,
-			pressedColor = TB_MENU_DEFAULT_LIGHER_COLOR,
 			hoverSound = 31
 		})
 		tbMenuUserTcView:addCustomDisplay(true, function() end)
-		tbMenuUserTcView:addMouseHandlers(nil, function()
-				TBMenu:showTorishopMain()
-			end, nil)
+		TBMenu:displayHelpPopup(tbMenuUserTcView, "Toricredits can be spent on customizations that fit your character belt", nil, true)
 		local tbMenuUserTcIcon = UIElement:new( {
 			parent = tbMenuUserTcView,
 			pos = { 0, 0 },
 			size = { tbMenuUserTcView.size.h, tbMenuUserTcView.size.h },
 			bgImage = "../textures/store/toricredit_tiny.tga"
 		})
-		tbMenuUserTcIcon:addCustomDisplay(false, function()
-				TBMenu:buttonGrowHover(tbMenuUserTcView, tbMenuUserTcIcon)
-			end)
 		local tbMenuUserTcBalance = UIElement:new( {
 			parent = tbMenuUserTcView,
 			pos = { 30, 0 },
 			size = { tbMenuUserTcView.size.w - tbMenuUserTcIcon.size.w - 5, tbMenuUserTcView.size.h }
 		})
-		tbMenuUserTcBalance:addCustomDisplay(false, function()
-				tbMenuUserTcBalance:uiText(PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.tc), nil, 2, 2, 0, 0.9, nil, nil, tbMenuUserTcView:getButtonColor(), nil, 0)
-			end)
+		tbMenuUserTcBalance:addAdaptedText(true, PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.tc), nil, 1, 2, LEFTMID, 0.9)
 		local tbMenuUserStView = UIElement:new( {
 			parent = tbMenuUserBar,
 			pos = { 255, 65 },
 			size = { 100, 25 },
 			interactive = true,
-			bgColor = TB_MENU_UI_TEXT_COLOR,
-			hoverColor = TB_MENU_DEFAULT_LIGHTEST_COLOR,
-			pressedColor = TB_MENU_DEFAULT_LIGHER_COLOR,
 			hoverSound = 31
 		})
 		tbMenuUserStView:addCustomDisplay(true, function() end)
-		tbMenuUserStView:addMouseHandlers(nil, function()
-				open_url("http://forum.toribash.com/tori_token_exchange.php")
-			end, nil)
+		TBMenu:displayHelpPopup(tbMenuUserStView, "Shiai Tokens can be spent on premium customizations and items that require high belts", nil, true)
 		local tbMenuUserStIcon = UIElement:new( {
 			parent = tbMenuUserStView,
 			pos = { 0, 0 },
 			size = { tbMenuUserStView.size.h, tbMenuUserStView.size.h },
 			bgImage = "../textures/store/shiaitoken_tiny.tga"
 		})
-		tbMenuUserStIcon:addCustomDisplay(false, function()
-				TBMenu:buttonGrowHover(tbMenuUserStView, tbMenuUserStIcon)
-			end)
 		local tbMenuUserStBalance = UIElement:new( {
 			parent = tbMenuUserStView,
 			pos = { 30, 0 },
 			size = { tbMenuUserStView.size.w - 30, tbMenuUserStView.size.h }
 		})
-		tbMenuUserStBalance:addCustomDisplay(false, function()
-				-- Proper ST balance is deprecated until a fix is rolled out
-				--tbMenuUserStBalance:uiText("ST", nil, 2, 2, 0, 0.9, nil, nil, tbMenuUserStView:getButtonColor(), nil, 0)
-				tbMenuUserStBalance:uiText(PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.st), nil, 2, 2, 0, 0.9, nil, nil, tbMenuUserStView:getButtonColor(), nil, 0)
-			end)
+		tbMenuUserStBalance:addAdaptedText(true, PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.st), nil, 1, 2, LEFTMID, 0.9)
 		local tbMenuUserBeltIcon = UIElement:new({
 			parent = tbMenuUserBar,
 			pos = { -130, 0 },
@@ -1765,11 +1813,12 @@ do
 
 	function TBMenu:getMainNavigationButtons()
 		local buttonData = {
-			{ text = TB_MENU_LOCALIZED.NAVBUTTONHOME, sectionId = 1 },
+			{ text = TB_MENU_LOCALIZED.NAVBUTTONNEWS, sectionId = 1 },
 			{ text = TB_MENU_LOCALIZED.NAVBUTTONPLAY, sectionId = 2 },
 			{ text = TB_MENU_LOCALIZED.NAVBUTTONPRACTICE, sectionId = 3 },
 			{ text = TB_MENU_LOCALIZED.NAVBUTTONTOOLS, sectionId = 5 },
-			{ text = "Store", sectionId = 6 }
+			{ text = TB_MENU_LOCALIZED.NAVBUTTONSTORE, sectionId = 6 },
+			{ text = TB_MENU_LOCALIZED.NAVBUTTONACCOUNT, sectionId = 7, right = true }
 		}
 		return buttonData
 	end
@@ -2224,12 +2273,11 @@ do
 		})
 	end
 
-	function TBMenu:displayHelpPopup(element, message, forceManualPosCheck)
+	function TBMenu:displayHelpPopup(element, message, forceManualPosCheck, noMark)
 		local messageElement = UIElement:new({
 			parent = element,
 			pos = { 0, 0 },
 			size = { WIN_W / 3, WIN_H / 10 },
-			interactive = true,
 			bgColor = { 0, 0, 0, 0.8 },
 		})
 
@@ -2240,13 +2288,18 @@ do
 			messageElement:moveTo(nil, messageElement:getLocalPos(0, 10).y)
 		end
 		if (messageElement.pos.x + messageElement.size.w > WIN_W) then
-			messageElement:moveTo(messageElement:getLocalPos(WIN_W - 10 - messageElement.size.w, 0).x)
+			messageElement:moveTo((WIN_W - messageElement.pos.x - messageElement.size.w) - 10, nil, true)
 		end
 		if (messageElement.pos.y + messageElement.size.h > WIN_H) then
-			messageElement:moveTo(nil, messageElement:getLocalPos(0, WIN_H - 10 - messageElement.size.h).y)
+			messageElement:moveTo(nil, (WIN_H - messageElement.pos.y - messageElement.size.h) - 10, true)
 		end
 
-		messageElement:addAdaptedText(false, message, nil, nil, 4, nil, 0.7)
+		local messageText = UIElement:new({
+			parent = messageElement,
+			pos = { 10, 5 },
+			size = { messageElement.size.w - 20, messageElement.size.h - 10 }
+		})
+		messageText:addAdaptedText(true, message, nil, nil, 4, nil, 0.7)
 		messageElement:hide(true)
 
 		local popupShown = false
@@ -2282,7 +2335,7 @@ do
 							end
 						end
 					elseif (popupShown) then
-						if (not messageElement.hoverState) then
+						if (not element.hoverState) then
 							messageElement:hide(true)
 							pressTime = 0
 							popupShown = false
@@ -2290,13 +2343,15 @@ do
 					end
 				end)
 		end
-
-		local questionmark = UIElement:new({
-			parent = element,
-			pos = { 0, 0 },
-			size = { element.size.w, element.size.h }
-		})
-		questionmark:addAdaptedText(true, "?", nil, nil, nil, nil, 0.7)
+		
+		if (not noMark) then
+			local questionmark = UIElement:new({
+				parent = element,
+				pos = { 0, 0 },
+				size = { element.size.w, element.size.h }
+			})
+			questionmark:addAdaptedText(true, "?", nil, nil, nil, nil, 0.7)
+		end
 	end
 
 	function TBMenu:spawnTextField(parent, x, y, w, h, textFieldString, numeric, fontid, scale, color, defaultStr, orientation, noCursor)

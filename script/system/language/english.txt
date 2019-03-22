@@ -533,3 +533,9 @@ TUTORIALSLOCKED	Complete other tutorials or gain more Qi to unlock this
 TUTORIALSVIEWALLNAME	View all tutorials	
 TUTORIALSVIEWALLDESC	Access any tutorial you've already finished	
 DISCORDRPCINTUTORIAL	Tutorial Mode	
+NAVBUTTONNEWS	News	
+NAVBUTTONSTORE	Store	
+NAVBUTTONACCOUNT	Account	
+REWARDSTIMEMONTHS	months	
+REWARDSTIMEYEAR	year	
+REWARDSTIMEYEARS	years	

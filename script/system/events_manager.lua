@@ -31,32 +31,42 @@ do
 					{
 						title = "Description",
 						imagetitle = "../textures/menu/promo/events/hitw_description.tga",
-						desc = "May it be the friendly fish near the surface or the mysterious horrors of the abyss, the Ocean has many interesting creatures dwelling within. Show us your favorite - as the theme for this month's HTOTM is Ocean!"
+						desc = "The %115Event Squad ^01are proud to present Hole in the Wall!\nIn this event, we will be providing you with obstacles to complete, and doing so will allow you to win prizes!\nEach challenge will have a different wall, as well as a different objective to complete. Basic obstacles will be the easiest, as your main objective will be getting through the wall in any way possible. Advanced obstacles will be were things pick up a bit.. You will be given a specific objectives to complete in order to pass the challenge."
 					},
 					{
 						title = "Rules",
 						imagetitle = "../textures/menu/promo/events/hitw_rules.tga",
-						desc = "- No plagiarism, this isn't tolerated at all and is severely punishable\n- Do not submit old or pre-made textures\n- A rough sketch or WIP is required to prove that it is a head in progress and not a pre-made head that you are reposting\n- Collaborations are allowed, however in this scenario prizes will be split\n- Only one submission is allowed, which also means no alts used to submit two different heads (if you're collaborating with another artist, you can only submit that head)\n- Submissions must be in 512x512 resolution or higher\n- Post watermarked flats in this thread with spherical previews. It would be much appreciated if you used Toribash Textures for 3D previews\n- If you aren't using Toribash Textures, ensure to make your previews clear, show all aspects of your head and attempt to keep watermarks somewhat non-intrusive while still being effective"
+						desc = "- No Replay Hacking\n- No Replay Stealing\n- No Gamerule Editing"
+					},
+					{
+						title = "How to Enter",
+						imagetitle = "../textures/menu/promo/events/hitw_howtoenter.tga",
+						desc = "You can participate in Hole in the Wall by pressing \"Participate\" button on bottom right, completing the challenge and submitting your replay to Toribash servers.\nAlternatively, you can make a replay in current challenge's mod in Free Play mode and attach it to your post in event thread on forums - if you just upload it to Toribash Community Replays then it won't be judged.\n^02Only one replay per player will be judged."
 					},
 					{
 						title = "Deadline",
 						imagetitle = "../textures/menu/promo/events/hitw_deadline.tga",
-						desc = "We will stop accepting new entries on February 6th, 20:00 (GMT +0)"
+						desc = "We will stop accepting new entries on April 15th, 20:00 (GMT +0)"
 					},
 				},
 				prizes = {
 					imagetitle = "../textures/menu/promo/events/hitw_prizes.tga",
 					{
-						info = "Best work",
-						tc = 100000,
+						info = "Best Replay",
+						tc = 50000,
 						st = 5,
 						itemids = { 2888 }
 					},
 					{
-						info = "Honorable mentions",
-						tc = 30000,
-						st = 3
+						info = "Complete Advanced Task",
+						tc = 5000,
+						st = 2
 					},
+					{
+						info = "Complete Basic Task",
+						tc = 2000,
+						st = 1
+					}
 				}
 			}
 		}
@@ -64,7 +74,7 @@ do
 	
 	function Events:showEventDescription(viewElement, event)
 		local elementHeight = 41
-		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 55, elementHeight + 5, 20, event.accentColor)
+		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 55, 60, 20, event.accentColor)
 		listingView.bgColor = cloneTable(event.accentColor)
 		listingView.bgColor[4] = event.overlaytransparency or 0.7
 		
@@ -164,9 +174,7 @@ do
 	
 	function Events:showEventPrizes(viewElement, event)
 		local elementHeight = 41
-		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 55, elementHeight + 5, 20, event.accentColor)
-		--listingView.bgColor = cloneTable(event.accentColor)
-		--listingView.bgColor[4] = 0.7
+		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 55, 60, 20, event.accentColor)
 		
 		local listElements = {}
 		if (event.prizes.imagetitle) then
@@ -199,7 +207,7 @@ do
 				table.insert(listElements, infoRow)
 			end
 			if (prize.tc) then
-				local itemShopInfo = { itemname = prize.tc .. " Toricredits", icon = "../textures/store/toricredit.tga" }
+				local itemShopInfo = { itemname = PlayerInfo:currencyFormat(prize.tc) .. " Toricredits", icon = "../textures/store/toricredit.tga" }
 				local itemRewardView = Events:showPrizeInfo(itemShopInfo, listingHolder, #listElements, elementHeight)
 				table.insert(listElements, itemRewardView)
 			end
@@ -286,8 +294,8 @@ do
 		
 		local eventName = UIElement:new({
 			parent = dtopBar,
-			pos = { 10, 0 },
-			size = { viewElement.size.w - (dtopBar.size.h - 30), dtopBar.size.h },
+			pos = { 10, 5 },
+			size = { viewElement.size.w - (dtopBar.size.h - 30), dtopBar.size.h - 10 },
 			bgColor = event.accentColor
 		})
 		table.insert(ptopBar.child, eventName)
@@ -323,8 +331,8 @@ do
 		local buttons = event.action and 2 or 1
 		local eventForumLink = UIElement:new({
 			parent = eventForumLinkHolder,
-			pos = { viewElement.size.w / 20 + viewElement.size.w * 0.425 * (2 - buttons), 5 },
-			size = { viewElement.size.w * 0.425, eventForumLinkHolder.size.h - 10 },
+			pos = { viewElement.size.w / 20 + viewElement.size.w * 0.425 * (2 - buttons), 10 },
+			size = { viewElement.size.w * 0.425, eventForumLinkHolder.size.h - 20 },
 			interactive = true,
 			bgColor = viewElement.uiColor,
 			hoverColor = buttonHColor,
@@ -340,8 +348,8 @@ do
 		if (event.action) then
 			local eventActionButton = UIElement:new({
 				parent = eventForumLinkHolder,
-				pos = { viewElement.size.w * 0.525, 5 },
-				size = { viewElement.size.w * 0.425, eventForumLinkHolder.size.h - 10 },
+				pos = { viewElement.size.w * 0.525, 10 },
+				size = { viewElement.size.w * 0.425, eventForumLinkHolder.size.h - 20 },
 				interactive = true,
 				bgColor = viewElement.uiColor,
 				hoverColor = buttonHColor,

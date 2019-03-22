@@ -913,7 +913,7 @@ do
 		searchInputField:addKeyboardHandlers(nil, searchFunction)
 		
 		local listing = {}
-		if (rplTable ~= TB_MENU_REPLAYS) then
+		if (rplTable.fullname ~= TB_MENU_REPLAYS.fullname) then
 			local folderElement = UIElement:new({
 				parent = listingHolder,
 				pos = { 0, posY },

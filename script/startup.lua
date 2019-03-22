@@ -36,7 +36,9 @@ local events = {
 	"draw_viewport",
 	"key_hold",
 	"pre_draw",
-	"new_game_mp"
+	"new_game_mp",
+	"network_complete",
+	"network_error"
 }
 
 function call_hook(event, ...)

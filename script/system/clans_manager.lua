@@ -1174,28 +1174,52 @@ do
 		local rosterStr = TB_MENU_LOCALIZED.CLANSLEGENDROSTER .. (Clans:isBeginnerClan(clanid) and (" (" .. ClanData[clanid].memberstotal .. ")") or (" (" .. ClanData[clanid].memberstotal .. "/" .. ClanLevelData[ClanData[clanid].level].maxmembers .. ")"))
 		rosterTitle:addAdaptedText(true, rosterStr, nil, nil, FONTS.BIG, nil, nil, nil, 0)
 		if (shaders == 1) then
-			local viewportTopReplacer = UIElement:new({
+			local viewportTopReplacer = UIElement:new( {
 				parent = rosterTop,
 				pos = { 0, 0 },
 				size = { avatarWidth, rosterTop.size.h },
+				viewport = true
+			})
+			local viewportTopReplacer3D = UIElement3D:new({
+				globalid = TB_MENU_MAIN_GLOBALID,
+				shapeType = VIEWPORT,
+				parent = viewportTopReplacer,
+				pos = { 0, 0, 0 },
+				size = { 0, 0, 0 },
+				rot = { 0, 0, 0 },
+				viewport = true
+			})
+			table.insert(viewportTopReplacer.child, viewportTopReplacer3D)
+			local cube = UIElement3D:new({
+				parent = viewportTopReplacer3D,
+				pos = { 0, 0, 10 },
+				size = { 2, 2, 2 },
 				bgColor = ClanData[clanid].bgcolor or TB_MENU_DEFAULT_DARKER_COLOR,
 				viewport = true
 			})
-			viewportTopReplacer:addCustomDisplay(false, function()
-					set_color(unpack(viewportTopReplacer.bgColor))
-					draw_box(0, 0, 10, 2, 2, 2, 0, 0, 0)
-				end)
-			local viewportBotReplacer = UIElement:new({
+			local viewportBotReplacer = UIElement:new( {
 				parent = rosterBottom,
 				pos = { 0, 0 },
 				size = { avatarWidth, avatarWidth },
+				viewport = true
+			})
+			local viewportBotReplacer3D = UIElement3D:new({
+				globalid = TB_MENU_MAIN_GLOBALID,
+				shapeType = VIEWPORT,
+				parent = viewportBotReplacer,
+				pos = { 0, 0, 0 },
+				size = { 0, 0, 0 },
+				rot = { 0, 0, 0 },
+				viewport = true
+			})
+			table.insert(viewportBotReplacer.child, viewportBotReplacer3D)
+			local cube2 = UIElement3D:new({
+				parent = viewportBotReplacer3D,
+				pos = { 0, 0, 10 },
+				size = { 2, 2, 2 },
 				bgColor = ClanData[clanid].bgcolor or TB_MENU_DEFAULT_DARKER_COLOR,
 				viewport = true
 			})
-			viewportBotReplacer:addCustomDisplay(false, function()
-					set_color(unpack(viewportBotReplacer.bgColor))
-					draw_box(0, 0, 10, 2, 2, 2, 0, 0, 0)
-				end)
 		end
 		if (not ClanData[clanid].bgcolor) then
 			TBMenu:addBottomBloodSmudge(rosterBottom, 3)

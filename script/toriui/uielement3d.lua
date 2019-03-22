@@ -379,6 +379,12 @@ do
 		local newPos = UIElement3D:multiply({ { shift.x, shift.y, shift.z } }, rotMatrix)
 		local vector = newPos[1]
 		
+		local shiftSum = shift or {
+			x = vector[1],
+			y = vector[2],
+			z = vector[3]
+		}
+		
 		self.pos.x = pos.x + vector[1]
 		self.pos.y = pos.y + vector[2]
 		self.pos.z = pos.z + vector[3]
