@@ -15,10 +15,14 @@ do
 		local success = success or function() if (TB_MENU_DEBUG) then echo(get_network_response()) end end
 		local error = error or function() if (TB_MENU_DEBUG) then echo(get_network_error()) end response.failed = true response.ready = true end
 		add_hook("network_error", name, function()
-				error()
+				if (TB_MENU_DEBUG) then echo(get_network_error()) end
+				error(response)
+				response.failed = true
+				response.ready = true
 				remove_hooks(name)
 			end)
 		add_hook("network_complete", name, function()
+				if (TB_MENU_DEBUG) then echo(get_network_response()) end
 				success(response)
 				response.ready = true
 				remove_hooks(name)

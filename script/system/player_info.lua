@@ -543,7 +543,7 @@ do
 			end
 			userinfo.ready = true
 		end
-		get_player_userinfo(username or getMaster("nick"))
+		get_player_userinfo(PlayerInfo:getUser(username))
 		return Request:new("userinfo", success)
 	end
 	
