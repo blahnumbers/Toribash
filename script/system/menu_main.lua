@@ -59,6 +59,7 @@ dofile("system/menu_manager.lua")
 TBMenu:create()
 TBMenu:getTranslation(get_language())
 
+dofile("system/network_request.lua")
 dofile("system/store_manager.lua")
 dofile("system/player_info.lua")
 dofile("system/matchmake_manager.lua")

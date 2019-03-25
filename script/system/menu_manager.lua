@@ -253,12 +253,12 @@ do
 					end
 			},
 			{
-				title = "Placeholder announcement",
+				title = "Clan Item Shop",
 				subtitle = "Placeholder description",
-				image = "../textures/menu/promo/season5.tga",
+				image = "../textures/menu/promo/clanitemshop.tga",
 				ratio = 0.5,
 				action = function()
-						open_url("https://teespring.com/")
+						open_url("https://forum.toribash.com/")
 					end
 			},
 		}
@@ -645,7 +645,6 @@ do
 		end
 		returnval = returnval:gsub("^ ", "")
 		if (cut) then
-			echo(returnval)
 			local sPos, ePos = returnval:find(("%d+%s%S+%s"):rep(cut))
 			if (ePos) then
 				returnval = returnval:sub(0, ePos - 1)

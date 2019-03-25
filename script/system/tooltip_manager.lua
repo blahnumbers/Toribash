@@ -19,7 +19,7 @@ do
 	end
 	
 	function Tooltip:create()
-		PLAYERINFO = PlayerInfo:getItems(PlayerInfo:getUser())
+		PLAYERINFO = PlayerInfo:getItems(PlayerInfo:getUser(), true)
 		local forceInfo = get_color_info(PLAYERINFO.colors.force)
 		local relaxInfo = get_color_info(PLAYERINFO.colors.relax)
 		PLAYERINFO = { rgbForce = { forceInfo.r, forceInfo.g, forceInfo.b, 1 }, rgbRelax = { relaxInfo.r, relaxInfo.g, relaxInfo.b, 1 }, default = PLAYERINFO.colors.default }

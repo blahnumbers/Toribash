@@ -254,10 +254,12 @@ do
 				})
 				questClaim:addMouseHandlers(nil, function()
 						claim_quest(quest.id)
-						update_tc_balance()
-						TB_MENU_DOWNLOAD_INACTION = true
-						tcUpdate = true
-						Quests:showMain(true)
+						Request:new("questclaim", function()
+							update_tc_balance()
+							TB_MENU_DOWNLOAD_INACTION = true
+							tcUpdate = true
+							Quests:showMain(true)
+						end)
 					end)
 				local claimText = UIElement:new({
 					parent = questClaim,

@@ -1,5 +1,6 @@
 -- Player info fetcher
-dofile("system/iofiles.lua")
+require("system/iofiles")
+require("system/network_request")
 
 do
 	PlayerInfo = {}
@@ -228,7 +229,7 @@ do
 		return objs
 	end
 	
-	function PlayerInfo:getItems(player)
+	function PlayerInfo:getItems(player, colorsOnly)
 		local player = player or "tori"
 		local items = {
 			colors = {},
@@ -240,8 +241,10 @@ do
 		customs:close()
 		
 		items.colors = PlayerInfo:getColors(customsData)
-		items.textures = PlayerInfo:getTextures(customsData)
-		items.objs = PlayerInfo:getObjs(player, customsData)
+		if (not colorsOnly) then
+			items.textures = PlayerInfo:getTextures(customsData)
+			items.objs = PlayerInfo:getObjs(player, customsData)
+		end
 		return items
 	end
 	
@@ -412,7 +415,7 @@ do
 		return belt
 	end
 	
-	function PlayerInfo:getUserData()
+	function PlayerInfo:getUserData(player)
 		userData = {
 			tc = 0,
 			qi = 0,
@@ -421,9 +424,9 @@ do
 		}
 		if (not player) then
 			local master = getMaster()
-			userData.tc = 10000
-			userData.st = 30
-			userData.qi = 60000
+			userData.tc = master.tc
+			userData.st = master.st
+			userData.qi = master.qi
 			userData.belt = PlayerInfo:getBeltFromQi(userData.qi)
 			return userData
 		end
@@ -444,76 +447,104 @@ do
 			end
 		end
 		
-	    customs:close()
+		customs:close()
 		return userData
 	end
-	
-	-- returns a table that gets updated once player info is loaded
-	-- works somewhat similarly to JavaScript Promise type
-	-- https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/Promise
 	function PlayerInfo:getServerUserinfo(username)
-		local userinfo = { ready = false }
-		get_player_userinfo(username or getMaster("nick"))
-		add_hook("network_error", "userinforesponse", function()
-				echo(get_network_error())
-				userinfo.failed = true
-				userinfo.ready = true
-				remove_hooks("userinforesponse")
-			end)
-		add_hook("network_complete", "userinforesponse", function()
-				local response, lines = get_network_response(), {}
-				echo(response)
-				for ln in response:gmatch("[^\n]*\n") do
-					table.insert(lines, ln)
+		local function success(userinfo)
+			local response = get_network_response()
+			for ln in response:gmatch("[^\n]*\n?") do
+				local ln = ln:gsub("\n$", '')
+				if (ln:find("^USERNAME 0;")) then
+					table.insert(userinfo, {
+						name = "Username",
+						value = ln:gsub("^USERNAME 0;", "")
+					})
+				elseif (ln:find("^USERID 0;")) then
+					table.insert(userinfo, {
+						name = "User ID",
+						value = ln:gsub("^USERID 0;", "")
+					})
+				elseif (ln:find("^QI 0;")) then
+					local qi = ln:gsub("^QI 0;", "")
+					qi = qi:len() > 0 and qi + 0 or 0
+					local belt = PlayerInfo:getBeltFromQi(qi)
+					table.insert(userinfo, {
+						name = "Qi",
+						value = qi .. " (" .. belt.name .. " Belt)"
+					})
+				elseif (ln:find("^TODAYGAMES 0;")) then
+					table.insert(userinfo, {
+						name = "Games Played Today",
+						value = ln:gsub("^TODAYGAMES 0;", "")
+					})
+				elseif (ln:find("^TODAYWINS 0;")) then
+					table.insert(userinfo, {
+						name = "Games Won Today",
+						value = ln:gsub("^TODAYWINS 0;", "")
+					})
+				elseif (ln:find("^TODAYEARNINGS 0;")) then
+					table.insert(userinfo, {
+						name = "Today's Fights Earnings",
+						value = ln:gsub("^TODAYEARNINGS 0;", "") .. " ToriCredits"
+					})
+				elseif (ln:find("^QIRESET 0;")) then
+					table.insert(userinfo, {
+						name = "Daily Qi Limit resets in",
+						value = TBMenu:getTime(ln:gsub("^QIRESET 0;", "") + 0, 2)
+					})
+				elseif (ln:find("^BANNED 0;")) then
+					table.insert(userinfo, {
+						name = "Account Status",
+						value = "Suspended (" .. ln:gsub("^BANNED 0; ?", "") .. ")",
+						customColor = UICOLORRED,
+						hint = "Your account has been suspended by Toribash moderators. You can appeal your ban on forums.",
+						action = function() open_url("http://forum.toribash.com/forumdisplay.php?f=594") end
+					})
+				elseif (ln:find("^GREYLIST 0;")) then
+					table.insert(userinfo, {
+						name = "Account Status",
+						value = "Trading Greylisted (" .. TBMenu:getTime(ln:gsub("^GREYLIST 0;", "") + 0, 2) .. " left)",
+						customColor = TB_MENU_DEFAULT_ORANGE,
+						customHoverColor = TB_MENU_DEFAULT_DARKER_ORANGE,
+						customUiColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+						hint = "Your account has limited trading capabilities. You can wait your greylist period out or contact an administrator to lift it earlier.",
+						action = function() open_url("http://discord.gg/toribash") end
+					})
+				elseif (ln:find("^EMAILERR 0;")) then
+					table.insert(userinfo, {
+						name = "Account Status",
+						value = "No email connected",
+						customColor = TB_MENU_DEFAULT_ORANGE,
+						customHoverColor = TB_MENU_DEFAULT_DARKER_ORANGE,
+						customUiColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+						hint = "Your account's capabilities will be limited until you connect an email to your account and confirm it.",
+						action = function() open_url("http://forum.toribash.com/profile.php?do=editpassword") end
+					})
+				elseif (ln:find("^EMAILERR 1;")) then
+					table.insert(userinfo, {
+						name = "Account Status",
+						value = "Awaiting Email Confirmation",
+						customColor = TB_MENU_DEFAULT_ORANGE,
+						customHoverColor = TB_MENU_DEFAULT_DARKER_ORANGE,
+						customUiColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+						hint = "Your account's capabilities will be limited until you connect an email to your account and confirm it.",
+						action = function() open_url("http://forum.toribash.com/profile.php?do=editpassword") end
+					})
+				elseif (ln:find("^SUBSCRIPTION %d+;")) then
+					local subInfo = ln:gsub("^SUBSCRIPTION %d+; ?", "")
+					local subName = subInfo:gsub("^%d+", ""):gsub("^ ", "")
+					local subTime = subInfo:sub(0, -subName:len() - 1)
+					table.insert(userinfo, {
+						name = subName,
+						value = TBMenu:getTime(subTime + 0, 2) .. " left"
+					})
 				end
-				userinfo.ready = true
-				table.insert(userinfo, {
-					name = "Username",
-					value = TB_MENU_PLAYER_INFO.username
-				})
-				remove_hooks("userinforesponse")
-			end)
-		return userinfo
-		-- return {
-		-- 	{
-		-- 		name = "Username",
-		-- 		value = TB_MENU_PLAYER_INFO.username
-		-- 	},
-		-- 	{
-		-- 		name = "User ID",
-		-- 		value = 232126
-		-- 	},
-		-- 	{
-		-- 		name = "Account Status",
-		-- 		value = "Awaiting Email Confirmation",
-		-- 		customColor = TB_MENU_DEFAULT_ORANGE,
-		-- 		customHoverColor = TB_MENU_DEFAULT_DARKER_ORANGE,
-		-- 		customUiColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-		-- 		hint = "Your account activity will be limited until you connect an email to your account and verify it",
-		-- 		action = function() open_url("http://forum.toribash.com/some-url-that-shows-verify-page") end
-		-- 	},
-		-- 	{
-		-- 		name = "Toricredits",
-		-- 		value = PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.tc)
-		-- 	},
-		-- 	{
-		-- 		name = "Shiai Tokens",
-		-- 		value = TB_MENU_PLAYER_INFO.data.st
-		-- 	},
-		-- 	{
-		-- 		name = "Daily Qi Limit",
-		-- 		value = "89 games left"
-		-- 	},
-		-- 	{
-		-- 		name = "Clan",
-		-- 		value = TB_MENU_PLAYER_INFO.clan.tag .. " " .. TB_MENU_PLAYER_INFO.clan.name,
-		-- 		action = function() TBMenu:showClans(TB_MENU_PLAYER_INFO.clan.tag:sub(2, -2)) end
-		-- 	},
-		-- 	{
-		-- 		name = "Wibbles",
-		-- 		value = TBMenu:getTime(12320982, 2) .. " left"
-		-- 	}
-		-- }
+			end
+			userinfo.ready = true
+		end
+		get_player_userinfo(username or getMaster("nick"))
+		return Request:new("userinfo", success)
 	end
 	
 	function PlayerInfo:currencyFormat(n)

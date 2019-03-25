@@ -141,74 +141,70 @@ do
 		end
 		local rewardNextTime = UIElement:new( {
 			parent = loginView,
-			pos = { 0, -loginView.size.h / 6 - loginView.size.h / 12 },
-			size = { loginView.size.w, loginView.size.h / 12 }
+			pos = { 0, -loginView.size.h / 7 - loginView.size.h / 10 },
+			size = { loginView.size.w, loginView.size.h / 11 }
 		})
-		rewardNextTime:addCustomDisplay(false, function()
+		rewardNextTime:addCustomDisplay(true, function()
 			rewardNextTime:uiText(Rewards:getTime(rewardData.timeLeft - math.ceil(os.clock()), rewardData.available))
 		end)
 		local rewardClaim = UIElement:new({
 			parent = loginView,
-			pos = { loginView.size.w / 6, -loginView.size.h / 6 },
-			size = { loginView.size.w / 6 * 4, loginView.size.h / 7 },
+			pos = { loginView.size.w / 6, -loginView.size.h / 7 },
+			size = { loginView.size.w / 6 * 4, loginView.size.h / 8 },
 			interactive = rewardData.available,
 			bgColor = { 0, 0, 0, 0.3 },
 			hoverColor = { 0, 0, 0, 0.5 },
 			pressedColor = { 1, 0, 0, 0.2 },
 			downSound = 31
 		})
-		local rewardClaimString = TB_MENU_LOCALIZED.REWARDSCLAIM
-		local rewardClaimInProgress = false
-		local rewardClaimProgressTime = nil
-		local textSizeModifier = 0.55
-		local tcUpdate = false
+		local rewardClaimText = UIElement:new({
+			parent = rewardClaim,
+			pos = { rewardClaim.size.w / 20, rewardClaim.size.h / 7 },
+			size = { rewardClaim.size.w * 0.9, rewardClaim.size.h / 7 * 5 }
+		})
 		if (rewardData.available) then
-			rewardClaim:addCustomDisplay(false, function()
-				if (rewardClaimInProgress == true and PlayerInfo:getLoginRewardStatus() == -1 and os.time() - rewardClaimProgressTime > 5) then
-					rewardClaimString = TB_MENU_LOCALIZED.REWARDSCLAIMNETWORKERROR
-					rewardClaimInProgress = false
-					rewardClaim:deactivate()
-				elseif (rewardClaimInProgress == true and PlayerInfo:getLoginRewardStatus() == -1) then
-					rewardClaimString = TB_MENU_LOCALIZED.REWARDSCLAIMINPROGRESS .. string.rep(".", (os.time() - rewardClaimProgressTime) % 4)
-				elseif (rewardClaimInProgress == true) then
-					rewardClaim:deactivate()
-					if (PlayerInfo:getLoginRewardStatus() == 0) then
-						rewardClaimString = TB_MENU_LOCALIZED.REWARDSCLAIMSUCCESS
-						update_tc_balance()
-						TB_MENU_NOTIFICATIONS_COUNT = TB_MENU_NOTIFICATIONS_COUNT - 1
-						TB_MENU_DOWNLOAD_INACTION = true
-						tcUpdate = true
-					else
-						local error = PlayerInfo:getLoginRewardError()
-						if (error == 0) then
-							rewardClaimString = TB_MENU_LOCALIZED.REWARDSCLAIMNOREWARD
-						elseif (error == 1) then
-							rewardClaimString = TB_MENU_LOCALIZED.REWARDSCLAIMTIMEOUT
-						else
-							rewardClaimString = TB_MENU_LOCALIZED.REWARDSCLAIMERROROTHER
-						end
-					end
-					rewardClaimInProgress = false
-				end
-				if (tcUpdate) then
-					local tempData = PlayerInfo:getUserData(TB_MENU_PLAYER_INFO.username)
-					if (TB_MENU_PLAYER_INFO.data.tc ~= tempData.tc or TB_MENU_PLAYER_INFO.data.st ~= tempData.st) then
-						TB_MENU_PLAYER_INFO.data = PlayerInfo:getUserData(TB_MENU_PLAYER_INFO.username)
-						tcUpdate = false
-					end
-				end
-				while (not rewardClaim:uiText(rewardClaimString, nil, nil, FONTS.BIG, LEFT, textSizeModifier, nil, nil, nil, nil, nil, true)) do
-					textSizeModifier = textSizeModifier - 0.05
-				end
-				rewardClaim:uiText(rewardClaimString, nil, nil, FONTS.BIG, nil, textSizeModifier)
-			end)
+			rewardClaimText:addAdaptedText(false, TB_MENU_LOCALIZED.REWARDSCLAIM, nil, nil, FONTS.BIG)
 			rewardClaim:addMouseHandlers(function() end, function()
 					claim_reward()
-					rewardClaimProgressTime = os.time()
-					rewardClaimInProgress = true
-				end, function() end)
+					rewardClaimText:addAdaptedText(false, TB_MENU_LOCALIZED.REWARDSCLAIMINPROGRESS .. "...", nil, nil, FONTS.BIG)
+					Request:new("loginreward", function()
+							local response = get_network_response()
+							response = response:gsub("REWARDS 0; ", "")
+							local rewardRes = { response:match(("(%d+)%s?"):rep(3)) }
+							if (rewardRes[1] == '1') then
+								if (rewardRes[2] == '0') then
+									rewardClaimText:addAdaptedText(false, TB_MENU_LOCALIZED.REWARDSNOAVAILABLE, nil, nil, FONTS.BIG)
+								elseif (rewardRes[2] == '1') then
+									rewardClaimText:addAdaptedText(false, TB_MENU_LOCALIZED.REWARDSCLAIMTIMEOUT, nil, nil, FONTS.BIG)
+								else
+									rewardClaimText:addAdaptedText(false, TB_MENU_LOCALIZED.REWARDSCLAIMERROROTHER, nil, nil, FONTS.BIG)
+								end
+								rewardClaim:deactivate()
+							elseif (rewardRes[1] == '0') then
+								rewardClaimText:addAdaptedText(false, TB_MENU_LOCALIZED.REWARDSCLAIMSUCCESS, nil, nil, FONTS.BIG)
+								rewardClaim:deactivate()
+								update_tc_balance()
+								TB_MENU_NOTIFICATIONS_COUNT = TB_MENU_NOTIFICATIONS_COUNT - 1
+								TB_MENU_DOWNLOAD_INACTION = true
+								local tcUpdater = UIElement:new({
+									parent = rewardClaim,
+									pos = { 0, 0 },
+									size = { 0, 0 }
+								})
+								tcUpdater:addCustomDisplay(true, function()
+										local tempData = PlayerInfo:getUserData(TB_MENU_PLAYER_INFO.username)
+										if (TB_MENU_PLAYER_INFO.data.tc ~= tempData.tc or TB_MENU_PLAYER_INFO.data.st ~= tempData.st) then
+											TB_MENU_PLAYER_INFO.data = PlayerInfo:getUserData(TB_MENU_PLAYER_INFO.username)
+										end
+									end)
+							end
+						end, function()
+							rewardClaimText:addAdaptedText(false, TB_MENU_LOCALIZED.REWARDSCLAIMERROROTHER, nil, nil, FONTS.BIG)
+							rewardClaim:deactivate()
+						end)
+				end)
 		else
-			rewardClaim:addAdaptedText(false, TB_MENU_LOCALIZED.REWARDSNOAVAILABLE, nil, nil, FONTS.BIG, nil, 0.6, nil, 0.6)
+			rewardClaimText:addAdaptedText(false, TB_MENU_LOCALIZED.REWARDSNOAVAILABLE, nil, nil, FONTS.BIG)
 		end
 	end
 	

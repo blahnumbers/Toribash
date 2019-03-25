@@ -1576,7 +1576,7 @@ do
 			end)
 	end
 	
-	function Torishop:showStoreAdvancedItemPreview(viewElement, item)
+	function Torishop:showStoreAdvancedItemPreview(viewElement, item, noReload)
 		local viewport = UIElement:new({
 			parent = viewElement,
 			pos = { (viewElement.size.w - viewElement.size.h) / 2, 0 },
@@ -2241,7 +2241,7 @@ do
 			return
 		elseif (item.catid == 78) then
 			-- 3D Items
-			if (Torishop:showObjPreview(item, viewElement, previewHolder, scaleMultiplier, trans)) then
+			if (Torishop:showObjPreview(item, viewElement, previewHolder, scaleMultiplier, trans, nil, nil, noReload)) then
 				return
 			else
 				heightMod = 20
@@ -2264,7 +2264,7 @@ do
 					table.insert(item.objs, newItem)
 				end
 			end
-			if (Torishop:showObjPreview(item, viewElement, previewHolder, scaleMultiplier, trans)) then
+			if (Torishop:showObjPreview(item, viewElement, previewHolder, scaleMultiplier, trans, nil, nil, noReload)) then
 				return
 			else
 				heightMod = 20
@@ -3049,7 +3049,7 @@ do
 		return model
 	end
 	
-	function Torishop:showObjPreview(items, viewElement, previewHolder, scaleMultiplier, trans, textures, level)
+	function Torishop:showObjPreview(items, viewElement, previewHolder, scaleMultiplier, trans, textures, level, noReload)
 		local level = level or 1
 		viewElement.scrollEnabled = true
 		viewElement:addMouseHandlers(function(s, x, y)
@@ -3069,29 +3069,13 @@ do
 			items.objs = nil
 			table.insert(itemslist, items)
 		end
+		
 		local modelDrawn = false
-		
 		local bodyInfos = Torishop:showPlayerBody(previewHolder, trans, textures)
-		
 		local cameraMove = true
 		if (#itemslist > 1) then
 			previewHolder.parent:moveTo(0, 10, 4.5)
 			cameraMove = false
-		end
-		
-		local function downloadProgress()
-			local downloads = get_downloads()
-			for i,v in pairs(downloads) do
-				for j, item in pairs(itemslist) do
-					local objPath = "../models/store/" .. item.itemid .. (level > 1 and ("_" .. level) or '')
-					if (v:find(objPath:gsub("%.%./", ""))) then
-						return true, false
-					elseif (v:find("cache/obj_data_" .. item.itemid)) then
-						return true, false
-					end
-				end
-			end
-			return false, false
 		end
 		
 		for i, item in pairs(itemslist) do
@@ -3103,44 +3087,73 @@ do
 				modelDrawn = true
 			end
 			objModel:close()
-			local inQueue = false
-			for i,v in pairs(get_downloads()) do
-				if (v:find("cache/obj_data_" .. item.itemid)) then
-					inQueue = true
+		end
+		if (noReload) then
+			return modelDrawn
+		end
+		
+		local function downloadProgress()
+			local downloads = get_downloads()
+			for i,v in pairs(downloads) do
+				for j, item in pairs(itemslist) do
+					local objPath = "../models/store/" .. item.itemid .. (level > 1 and ("_" .. level) or '')
+					if (v:find(objPath:gsub("%.%./", ""))) then
+						return true
+					end
 				end
 			end
-			if (not inQueue) then
-				download_server_file(item.itemid)
-			end
-			
-			-- Item downloads are pushed first in the download list, so we apply this to first item in queue which would download the last
-			if (i == 1) then
-				local itemUpdater = UIElement:new({
-					parent = viewElement,
-					pos = { 0, 0 },
-					size = { 0, 0 }
-				})
-				local forcedDelay = os.clock()
-				local filesUpdated = nil
-				itemUpdater:addCustomDisplay(true, function()
-						local isDownloading, updated = downloadProgress()
-						filesUpdated = filesUpdated or updated
-						if (forcedDelay < os.clock() - 2 and not isDownloading) then
-							if (not itemHolder or filesUpdated) then
-								if (itemHolder) then
-									itemHolder:kill()
+			return false
+		end
+		
+		local function downloadFile(i)
+			download_server_file(itemslist[i].itemid)
+			if (i < #itemslist) then
+				Request:new("store_itemdownload", function()
+						local dWait = UIElement:new({
+							parent = viewElement,
+							pos = { 0, 0 },
+							size = { 0, 0 }
+						})
+						local wait = 0
+						dWait:addCustomDisplay(true, function()
+								wait = wait + 1
+								if (wait > 1) then
+									dWait:kill()
+									downloadFile(i + 1)
 								end
-								Torishop:showStoreItemInfo(items)
-							end
-							itemUpdater:kill()
-						end
+							end)
+					end)
+			else
+				Request:new("store_itemdownload", function()
+						local itemUpdater = UIElement:new({
+							parent = viewElement,
+							pos = { 0, 0 },
+							size = { 0, 0 }
+						})
+						local forcedDelay = os.clock()
+						local filesUpdated = false
+						itemUpdater:addCustomDisplay(true, function()
+								local isDownloading = downloadProgress()
+								filesUpdated = filesUpdated or isDownloading
+								if (forcedDelay < os.clock() - 0.2 and not isDownloading) then
+									if (not itemHolder or filesUpdated) then
+										if (itemHolder) then
+											itemHolder:kill()
+										end
+										Torishop:showStoreItemInfo(items, true)
+									end
+									itemUpdater:kill()
+								end
+							end)
 					end)
 			end
 		end
+		
+		downloadFile(1)
 		return modelDrawn
 	end
 	
-	function Torishop:showStoreItemInfo(item)
+	function Torishop:showStoreItemInfo(item, noReload)
 		tbStoreItemInfoHolder:kill(true)
 		TBMenu:addBottomBloodSmudge(tbStoreItemInfoHolder, 3)
 		
@@ -3161,7 +3174,7 @@ do
 			size = { tbStoreItemInfoHolder.size.w, scale },
 			interactive = true
 		})
-		Torishop:showStoreAdvancedItemPreview(itemPreviewAdvanced, item)
+		Torishop:showStoreAdvancedItemPreview(itemPreviewAdvanced, item, noReload)
 		local itemInfo = UIElement:new({
 			parent = tbStoreItemInfoHolder,
 			pos = { 10, itemPreviewAdvanced.shift.y + itemPreviewAdvanced.size.h + 10 },

@@ -4,9 +4,9 @@ local DELAY = 5
 local QUEST_POPUP_CLAIM = false
 
 local inputData = ARG1
-local _, popups = inputData:gsub(" ", "")
+local _, popups = inputData:gsub(":", "")
 
-local popupsRaw = { inputData:match(("([^ ]*) ?"):rep(popups + 1)) }
+local popupsRaw = { inputData:match(("([^ ]+) ?"):rep(popups)) }
 local popupsData = {}
 for i,v in pairs(popupsRaw) do
 	local data = { v:match(("([^:]*):?"):rep(2)) }
@@ -132,7 +132,9 @@ local function showPopup(i)
 					questProgressNotificationHolder:addMouseHandlers(nil, function()
 							claim_quest(quest.id)
 							buttonClicked = true
-							QUEST_REFRESH_CLAIMED = true
+							Request:new("questclaim", function()
+								update_tc_balance()
+							end)
 						end)
 				end
 				if (trans <= 0.5) then
@@ -212,10 +214,9 @@ local function showPopup(i)
 														file:close()
 														local oldQuests = cloneTable(QUESTS_DATA)
 														QUESTS_DATA = Quests:getQuests()
-														if (QUEST_POPUP_CLAIM and QUEST_REFRESH_CLAIMED) then
+														if (QUEST_POPUP_CLAIM and not TB_MENU_QUESTS_NEW) then
 															TB_MENU_NOTIFICATIONS_COUNT = TB_MENU_NOTIFICATIONS_COUNT + 1
 															TB_MENU_QUESTS_NEW = true
-															QUEST_REFRESH_CLAIMED = false
 														end
 														questRefresh:kill()
 													end
