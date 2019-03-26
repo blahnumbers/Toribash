@@ -451,35 +451,23 @@ do
 		return userData
 	end
 	
-	function writeDebug(msg, mode)
-		local file = Files:new("playerinfo-debug.txt", mode or FILES_MODE_APPEND)
-		file:writeLine(os.clock() .. " `" .. msg .. "`")
-		file:close()
-	end
-	
 	function PlayerInfo:getServerUserinfo(username)
 		local localized = TB_MENU_LOCALIZED or {}
 		local function success(userinfo)
 			local response = get_network_response()
 			for ln in response:gmatch("[^\n]*\n?") do
 				local ln = ln:gsub("\n$", '')
-				writeDebug("Read line " .. ln)
 				if (ln:find("^USERNAME 0;")) then
-					writeDebug("username found")
 					table.insert(userinfo, {
 						name = localized.ACCOUNTUSERNAME or "Username",
 						value = ln:gsub("^USERNAME 0;", "")
 					})
-					writeDebug("username added")
 				elseif (ln:find("^USERID 0;")) then
-					writeDebug("userid found")
 					table.insert(userinfo, {
 						name = localized.ACCOUNTUSERID or "User ID",
 						value = ln:gsub("^USERID 0;", "")
 					})
-					writeDebug("userid added")
 				elseif (ln:find("^QI 0;")) then
-					writeDebug("qi found")
 					local qi = ln:gsub("^QI 0;", "")
 					qi = qi:len() > 0 and qi + 0 or 0
 					local belt = PlayerInfo:getBeltFromQi(qi)
@@ -487,35 +475,26 @@ do
 						name = "Qi",
 						value = qi .. " (" .. belt.name .. " Belt)"
 					})
-					writeDebug("qi added")
 				elseif (ln:find("^TODAYGAMES 0;")) then
-					writeDebug("games found")
 					table.insert(userinfo, {
 						name = localized.ACCOUNTGAMESPLAYEDTODAY or "Games Played Today",
 						value = ln:gsub("^TODAYGAMES 0;", "")
 					})
-					writeDebug("games added")
 				elseif (ln:find("^TODAYWINS 0;")) then
-					writeDebug("wins found")
 					table.insert(userinfo, {
 						name = localized.ACCOUNTGAMESWONTODAY or "Games Won Today",
 						value = ln:gsub("^TODAYWINS 0;", "")
 					})
-					writeDebug("wins added")
 				elseif (ln:find("^TODAYEARNINGS 0;")) then
-					writeDebug("earnings found")
 					table.insert(userinfo, {
 						name = localized.ACCOUNTTCEARNINGSTODAY or "Today's Fights Earnings",
 						value = ln:gsub("^TODAYEARNINGS 0;", "") .. " ToriCredits"
 					})
-					writeDebug("earnings added")
 				elseif (ln:find("^QIRESET 0;")) then
-					writeDebug("qireset found")
 					table.insert(userinfo, {
 						name = localized.ACCOUNTQIRESETS or "Daily Qi Limit resets in",
 						value = TBMenu:getTime(ln:gsub("^QIRESET 0;", "") + 0, 2)
 					})
-					writeDebug("qireset added")
 				elseif (ln:find("^BANNED 0;")) then
 					table.insert(userinfo, {
 						name = localized.ACCOUNTSTATUS or "Account Status",
@@ -555,7 +534,6 @@ do
 						action = function() open_url("http://forum.toribash.com/profile.php?do=editpassword") end
 					})
 				elseif (ln:find("^SUBSCRIPTION %d+;")) then
-					writeDebug("sub found")
 					local subInfo = ln:gsub("^SUBSCRIPTION %d+; ?", "")
 					local subName = subInfo:gsub("^%d+", ""):gsub("^ ", "")
 					local subTime = subInfo:sub(0, -subName:len() - 1)
@@ -563,11 +541,9 @@ do
 						name = subName,
 						value = TBMenu:getTime(subTime + 0, 2)
 					})
-					writeDebug("sub added")
 				end
 			end
 			userinfo.ready = true
-			writeDebug("userinfo ready")
 		end
 		get_player_userinfo(PlayerInfo:getUser(username))
 		return Request:new("userinfo", success)

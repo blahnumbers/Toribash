@@ -839,7 +839,7 @@ do
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
 		local elementHeight = 50
-		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(accountView, accountView.size.h / 10 > elementHeight and accountView.size.h or elementHeight, elementHeight - 16, 20, TB_MENU_DEFAULT_BG_COLOR)
+		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(accountView, accountView.size.h / 10 > elementHeight and accountView.size.h / 10 or elementHeight, elementHeight - 16, 20, TB_MENU_DEFAULT_BG_COLOR)
 	
 		TBMenu:addBottomBloodSmudge(botBar, 1)
 		local accountTitle = UIElement:new({
@@ -849,7 +849,6 @@ do
 		})
 		accountTitle:addAdaptedText(true, TB_MENU_LOCALIZED.ACCOUNTTITLEINFO, nil, nil, FONTS.BIG, nil, nil, nil, 0.2)
 		
-		writeDebug("New debug file initiated", FILES_MODE_WRITE)
 		local accountDatas = PlayerInfo:getServerUserinfo()
 		if (not accountDatas.ready) then
 			local infoMessage = UIElement:new({
@@ -875,7 +874,6 @@ do
 						
 						local listElements = {}
 						for i,v in pairs(accountDatas) do
-							writeDebug("adding data for " .. v.name)
 							local infoBG = UIElement:new({
 								parent = listingHolder,
 								pos = { 0, elementHeight * #listElements },
