@@ -18,7 +18,7 @@ do
 			if (v:match(".tbm$")) then
 				table.insert(data.mods, v)
 			elseif (not v:find("^%.+[%s%S]*$") and v ~= "system" and v ~= "modmaker_draft" and not v:find("%.%a+$")) then
-				local v = v:sub(0, 1):upper() .. v:sub(2)
+				--local v = v:sub(0, 1):upper() .. v:sub(2) --This breaks things for Linux, we should make first letter uppercase when printing folder name instead
 				table.insert(data.folders, v)
 				data.contents[#data.folders] = Mods:getModFiles(path .. "/" .. v, fullsearch)
 				data.contents[#data.folders].parent = data
@@ -88,7 +88,7 @@ do
 					hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
 					pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR
 				})
-				element:addAdaptedText(false, folder, elementHeight + 15, nil, 4, LEFTMID, 0.8, 0.8)
+				element:addAdaptedText(false, folder:sub(0, 1):upper() .. folder:sub(2), elementHeight + 15, nil, 4, LEFTMID, 0.8, 0.8)
 				element:addMouseHandlers(nil, function()
 						search:clearTextfield()
 						Mods:spawnMainList(listingHolder, toReload, topBar, elementHeight, data.contents[i], search)

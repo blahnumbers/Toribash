@@ -681,10 +681,66 @@ do
 							}
 						},
 						{
-							name = TB_MENU_LOCALIZED.SETTINGSBACKGROUNDCLICK,
-							type = TOGGLE,
-							systemname = "backgroundclick",
-							val = { get_option("backgroundclick") }
+							name = TB_MENU_LOCALIZED.SETTINGSREPLAYCACHE,
+							type = DROPDOWN,
+							systemname = "replaycache",
+							selectedAction = function()
+									return get_option("replaycache") + 1
+								end,
+							dropdown = {
+								{
+									text = TB_MENU_LOCALIZED.SETTINGSDISABLED,
+									action = function()
+											TB_MENU_MAIN_SETTINGS.replaycache = { value = 0 }
+											Settings:settingsApplyActivate()
+										end
+								},
+								{
+									text = TB_MENU_LOCALIZED.SETTINGSREPLAYCACHESECONDPLAYTHROUGH,
+									action = function()
+											TB_MENU_MAIN_SETTINGS.replaycache = { value = 1 }
+											Settings:settingsApplyActivate()
+										end
+								},
+								{
+									text = TB_MENU_LOCALIZED.SETTINGSENABLED,
+									action = function()
+											TB_MENU_MAIN_SETTINGS.replaycache = { value = 2 }
+											Settings:settingsApplyActivate()
+										end
+								},
+							}
+						},
+						{
+							name = TB_MENU_LOCALIZED.SETTINGSREPLAYMEMSIZE,
+							type = DROPDOWN,
+							systemname = "memsize",
+							selectedAction = function()
+									return get_option("memsize") + 1
+								end,
+							dropdown = {
+								{
+									text = 1024 .. " " .. TB_MENU_LOCALIZED.SETTINGSREPLAYFRAMES,
+									action = function()
+											TB_MENU_MAIN_SETTINGS.memsize = { value = 0 }
+											Settings:settingsApplyActivate()
+										end
+								},
+								{
+									text = 4096 .. " " .. TB_MENU_LOCALIZED.SETTINGSREPLAYFRAMES,
+									action = function()
+											TB_MENU_MAIN_SETTINGS.memsize = { value = 1 }
+											Settings:settingsApplyActivate()
+										end
+								},
+								{
+									text = 8192 .. " " .. TB_MENU_LOCALIZED.SETTINGSREPLAYFRAMES,
+									action = function()
+											TB_MENU_MAIN_SETTINGS.memsize = { value = 2 }
+											Settings:settingsApplyActivate()
+										end
+								},
+							}
 						},
 						{
 							name = TB_MENU_LOCALIZED.SETTINGSAUTOSAVE,
@@ -697,6 +753,18 @@ do
 							type = TOGGLE,
 							systemname = "rememberrules",
 							val = { get_option("rememberrules") }
+						},
+						{
+							name = TB_MENU_LOCALIZED.SETTINGSBACKGROUNDCLICK,
+							type = TOGGLE,
+							systemname = "backgroundclick",
+							val = { get_option("backgroundclick") }
+						},
+						{
+							name = TB_MENU_LOCALIZED.SETTINGSAUTOUPDATE,
+							type = TOGGLE,
+							systemname = "autoupdate",
+							val = { get_option("autoupdate") }
 						}
 					}
 				},

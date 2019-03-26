@@ -450,22 +450,36 @@ do
 		customs:close()
 		return userData
 	end
+	
+	function writeDebug(msg, mode)
+		local file = Files:new("playerinfo-debug.txt", mode or FILES_MODE_APPEND)
+		file:writeLine(os.clock() .. " `" .. msg .. "`")
+		file:close()
+	end
+	
 	function PlayerInfo:getServerUserinfo(username)
+		local localized = TB_MENU_LOCALIZED or {}
 		local function success(userinfo)
 			local response = get_network_response()
 			for ln in response:gmatch("[^\n]*\n?") do
 				local ln = ln:gsub("\n$", '')
+				writeDebug("Read line " .. ln)
 				if (ln:find("^USERNAME 0;")) then
+					writeDebug("username found")
 					table.insert(userinfo, {
-						name = "Username",
+						name = localized.ACCOUNTUSERNAME or "Username",
 						value = ln:gsub("^USERNAME 0;", "")
 					})
+					writeDebug("username added")
 				elseif (ln:find("^USERID 0;")) then
+					writeDebug("userid found")
 					table.insert(userinfo, {
-						name = "User ID",
+						name = localized.ACCOUNTUSERID or "User ID",
 						value = ln:gsub("^USERID 0;", "")
 					})
+					writeDebug("userid added")
 				elseif (ln:find("^QI 0;")) then
+					writeDebug("qi found")
 					local qi = ln:gsub("^QI 0;", "")
 					qi = qi:len() > 0 and qi + 0 or 0
 					local belt = PlayerInfo:getBeltFromQi(qi)
@@ -473,75 +487,87 @@ do
 						name = "Qi",
 						value = qi .. " (" .. belt.name .. " Belt)"
 					})
+					writeDebug("qi added")
 				elseif (ln:find("^TODAYGAMES 0;")) then
+					writeDebug("games found")
 					table.insert(userinfo, {
-						name = "Games Played Today",
+						name = localized.ACCOUNTGAMESPLAYEDTODAY or "Games Played Today",
 						value = ln:gsub("^TODAYGAMES 0;", "")
 					})
+					writeDebug("games added")
 				elseif (ln:find("^TODAYWINS 0;")) then
+					writeDebug("wins found")
 					table.insert(userinfo, {
-						name = "Games Won Today",
+						name = localized.ACCOUNTGAMESWONTODAY or "Games Won Today",
 						value = ln:gsub("^TODAYWINS 0;", "")
 					})
+					writeDebug("wins added")
 				elseif (ln:find("^TODAYEARNINGS 0;")) then
+					writeDebug("earnings found")
 					table.insert(userinfo, {
-						name = "Today's Fights Earnings",
+						name = localized.ACCOUNTTCEARNINGSTODAY or "Today's Fights Earnings",
 						value = ln:gsub("^TODAYEARNINGS 0;", "") .. " ToriCredits"
 					})
+					writeDebug("earnings added")
 				elseif (ln:find("^QIRESET 0;")) then
+					writeDebug("qireset found")
 					table.insert(userinfo, {
-						name = "Daily Qi Limit resets in",
+						name = localized.ACCOUNTQIRESETS or "Daily Qi Limit resets in",
 						value = TBMenu:getTime(ln:gsub("^QIRESET 0;", "") + 0, 2)
 					})
+					writeDebug("qireset added")
 				elseif (ln:find("^BANNED 0;")) then
 					table.insert(userinfo, {
-						name = "Account Status",
-						value = "Suspended (" .. ln:gsub("^BANNED 0; ?", "") .. ")",
+						name = localized.ACCOUNTSTATUS or "Account Status",
+						value = (localized.ACCOUNTSUSPENDED or "Suspended") .. " (" .. ln:gsub("^BANNED 0; ?", "") .. ")",
 						customColor = UICOLORRED,
-						hint = "Your account has been suspended by Toribash moderators. You can appeal your ban on forums.",
+						hint = localized.ACCOUNTSUSPENDEDINFO or "Your account has been suspended by Toribash moderators. You can appeal your ban on forums.",
 						action = function() open_url("http://forum.toribash.com/forumdisplay.php?f=594") end
 					})
 				elseif (ln:find("^GREYLIST 0;")) then
 					table.insert(userinfo, {
-						name = "Account Status",
-						value = "Trading Greylisted (" .. TBMenu:getTime(ln:gsub("^GREYLIST 0;", "") + 0, 2) .. " left)",
+						name = localized.ACCOUNTSTATUS or "Account Status",
+						value = (localized.ACCOUNTGREYLISTED or "Trading Greylisted") .. " (" .. TBMenu:getTime(ln:gsub("^GREYLIST 0;", "") + 0, 2) .. ")",
 						customColor = TB_MENU_DEFAULT_ORANGE,
 						customHoverColor = TB_MENU_DEFAULT_DARKER_ORANGE,
 						customUiColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-						hint = "Your account has limited trading capabilities. You can wait your greylist period out or contact an administrator to lift it earlier.",
+						hint = localized.ACCOUNTGREYLISTEDINFO or "Your account has limited trading capabilities. You can wait your greylist period out or contact an administrator to lift it earlier.",
 						action = function() open_url("http://discord.gg/toribash") end
 					})
 				elseif (ln:find("^EMAILERR 0;")) then
 					table.insert(userinfo, {
-						name = "Account Status",
-						value = "No email connected",
+						name = localized.ACCOUNTSTATUS or "Account Status",
+						value = localized.ACCOUNTNOEMAIL or "No email connected",
 						customColor = TB_MENU_DEFAULT_ORANGE,
 						customHoverColor = TB_MENU_DEFAULT_DARKER_ORANGE,
 						customUiColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-						hint = "Your account's capabilities will be limited until you connect an email to your account and confirm it.",
+						hint = localized.ACCOUNTEMAILERRORINFO or "Your account's capabilities will be limited until you connect an email to your account and confirm it.",
 						action = function() open_url("http://forum.toribash.com/profile.php?do=editpassword") end
 					})
 				elseif (ln:find("^EMAILERR 1;")) then
 					table.insert(userinfo, {
-						name = "Account Status",
-						value = "Awaiting Email Confirmation",
+						name = localized.ACCOUNTSTATUS or "Account Status",
+						value = localized.ACCOUNTAWAITINGCONFIRMATION or "Awaiting Email Confirmation",
 						customColor = TB_MENU_DEFAULT_ORANGE,
 						customHoverColor = TB_MENU_DEFAULT_DARKER_ORANGE,
 						customUiColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-						hint = "Your account's capabilities will be limited until you connect an email to your account and confirm it.",
+						hint = localized.ACCOUNTEMAILERRORINFO or "Your account's capabilities will be limited until you connect an email to your account and confirm it.",
 						action = function() open_url("http://forum.toribash.com/profile.php?do=editpassword") end
 					})
 				elseif (ln:find("^SUBSCRIPTION %d+;")) then
+					writeDebug("sub found")
 					local subInfo = ln:gsub("^SUBSCRIPTION %d+; ?", "")
 					local subName = subInfo:gsub("^%d+", ""):gsub("^ ", "")
 					local subTime = subInfo:sub(0, -subName:len() - 1)
 					table.insert(userinfo, {
 						name = subName,
-						value = TBMenu:getTime(subTime + 0, 2) .. " left"
+						value = TBMenu:getTime(subTime + 0, 2)
 					})
+					writeDebug("sub added")
 				end
 			end
 			userinfo.ready = true
+			writeDebug("userinfo ready")
 		end
 		get_player_userinfo(PlayerInfo:getUser(username))
 		return Request:new("userinfo", success)

@@ -173,7 +173,7 @@ add_hook("mouse_move", "tbMainMenuMouse", function(x, y)
 		if (INVENTORY_UPDATE) then
 			if (x ~= INVENTORY_MOUSE_POS.x or y ~= INVENTORY_MOUSE_POS.y) then
 				if (x > WIN_W / 2) then
-					Torishop:refreshInventory()
+					Torishop:refreshInventory(TB_MENU_SPECIAL_SCREEN_ISOPEN == 1)
 					if (INVENTORY_SELECTION_RESET) then
 						INVENTORY_SELECTED_ITEMS = {}
 						INVENTORY_SELECTION_RESET = false

@@ -19,6 +19,7 @@ tbMenuCurrentSection = nil -- parent element for current section items
 tbMenuNavigationBar = nil -- parent element for navbar
 tbMenuBottomRightBar = nil -- parent element for bottom right bar
 tbMenuBottomLeftBar = nil -- parent element for bottom left bar
+tbMenuUserBar = nil -- parent element for top user bar
 
 do
 	TBMenu = {}
@@ -846,8 +847,9 @@ do
 			pos = { 10, 5 },
 			size = { topBar.size.w - 20, topBar.size.h - 10 }
 		})
-		accountTitle:addAdaptedText(true, "Info about Your Account", nil, nil, FONTS.BIG, nil, nil, nil, 0.2)
+		accountTitle:addAdaptedText(true, TB_MENU_LOCALIZED.ACCOUNTTITLEINFO, nil, nil, FONTS.BIG, nil, nil, nil, 0.2)
 		
+		writeDebug("New debug file initiated", FILES_MODE_WRITE)
 		local accountDatas = PlayerInfo:getServerUserinfo()
 		if (not accountDatas.ready) then
 			local infoMessage = UIElement:new({
@@ -855,7 +857,7 @@ do
 				pos = { 0, 0 },
 				size = { listingHolder.size.w, listingHolder.size.h }
 			})
-			infoMessage:addAdaptedText(true, "Getting your data...")
+			infoMessage:addAdaptedText(true, TB_MENU_LOCALIZED.ACCOUNTGETTINGINFO)
 			local infoUpdater = UIElement:new({
 				parent = infoMessage,
 				pos = { 0, 0 },
@@ -864,7 +866,7 @@ do
 			infoUpdater:addCustomDisplay(true, function()
 					if (accountDatas.ready) then
 						if (accountDatas.failed) then
-							infoMessage:addAdaptedText(true, "Something went wrong, try again later")
+							infoMessage:addAdaptedText(true, TB_MENU_LOCALIZED.ACCOUNTINFOERROR)
 							infoUpdater:kill()
 							return
 						end
@@ -873,6 +875,7 @@ do
 						
 						local listElements = {}
 						for i,v in pairs(accountDatas) do
+							writeDebug("adding data for " .. v.name)
 							local infoBG = UIElement:new({
 								parent = listingHolder,
 								pos = { 0, elementHeight * #listElements },
@@ -1108,6 +1111,10 @@ do
 					{
 						keys = { "i" },
 						desc = TB_MENU_LOCALIZED.HOTKEYSREPLAYKEYFRAMESCLEAR
+					},
+					{
+						keys = { { "<", ">" }, "shift" },
+						desc = TB_MENU_LOCALIZED.HOTKEYSREPLAYSPEED
 					},
 					{
 						keys = { "ctrl", "]" },
@@ -1553,8 +1560,11 @@ do
 
 	function TBMenu:showUserBar()
 		local tbMenuTopBarWidth = 512
+		if (tbMenuUserBar) then
+			tbMenuUserBar:kill()
+		end
 
-		local tbMenuUserBar = UIElement:new( {
+		tbMenuUserBar = UIElement:new( {
 			parent = tbMenuMain,
 			pos = {-tbMenuTopBarWidth, 0},
 			size = {tbMenuTopBarWidth, 100}
@@ -1675,7 +1685,7 @@ do
 			hoverSound = 31
 		})
 		tbMenuUserTcView:addCustomDisplay(true, function() end)
-		TBMenu:displayHelpPopup(tbMenuUserTcView, "Toricredits can be spent on customizations that fit your character belt", nil, true)
+		TBMenu:displayHelpPopup(tbMenuUserTcView, TB_MENU_LOCALIZED.USERBARTCINFO, nil, true)
 		local tbMenuUserTcIcon = UIElement:new( {
 			parent = tbMenuUserTcView,
 			pos = { 0, 0 },
@@ -1696,7 +1706,7 @@ do
 			hoverSound = 31
 		})
 		tbMenuUserStView:addCustomDisplay(true, function() end)
-		TBMenu:displayHelpPopup(tbMenuUserStView, "Shiai Tokens can be spent on premium customizations and items that require high belts", nil, true)
+		TBMenu:displayHelpPopup(tbMenuUserStView, TB_MENU_LOCALIZED.USERBARSTINFO, nil, true)
 		local tbMenuUserStIcon = UIElement:new( {
 			parent = tbMenuUserStView,
 			pos = { 0, 0 },
@@ -1720,9 +1730,7 @@ do
 			pos = { -130, 50 },
 			size = { 110, 40 }
 		})
-		tbMenuUserQi:addCustomDisplay(false, function()
-				tbMenuUserQi:uiText(TB_MENU_PLAYER_INFO.data.belt.name .. " belt", nil, nil, 2, nil, 0.7, nil, 1)
-			end)
+		tbMenuUserQi:addAdaptedText(true, TB_MENU_PLAYER_INFO.data.belt.name .. " belt", nil, nil, 2, nil, nil, nil, nil, 1)
 	end
 
 	function TBMenu:showNavigationBar(buttonsData, customNav, customNavHighlight, selectedId)

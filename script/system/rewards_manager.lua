@@ -191,10 +191,15 @@ do
 									pos = { 0, 0 },
 									size = { 0, 0 }
 								})
+								local spawnTime = os.clock()
 								tcUpdater:addCustomDisplay(true, function()
 										local tempData = PlayerInfo:getUserData(TB_MENU_PLAYER_INFO.username)
-										if (TB_MENU_PLAYER_INFO.data.tc ~= tempData.tc or TB_MENU_PLAYER_INFO.data.st ~= tempData.st) then
+										if (spawnTime + 5 < os.clock()) then
+											tcUpdater:kill()
+										elseif (TB_MENU_PLAYER_INFO.data.tc < tempData.tc or TB_MENU_PLAYER_INFO.data.st < tempData.st) then
+											tcUpdater:kill()
 											TB_MENU_PLAYER_INFO.data = PlayerInfo:getUserData(TB_MENU_PLAYER_INFO.username)
+											TBMenu:showUserBar()
 										end
 									end)
 							end

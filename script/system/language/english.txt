@@ -466,7 +466,7 @@ SETTINGSCHAT	Chat settings
 SETTINGSCHATTOGGLE	Chat Length Toggle	
 SETTINGSPROFANITYFILTER	Profanity Filter	
 SETTINGSHIDEECHO	Hide system messages	
-SETTINGSGAMEPLAY	Gameplay tweaks	
+SETTINGSGAMEPLAY	Gameplay	
 SETTINGSMOUSEBUTTONS	Mouse controls mode	
 SETTINGSMOUSEBUTTONS0	Contract / Extend only	
 SETTINGSMOUSEBUTTONS1	All four joint modes	
@@ -539,3 +539,76 @@ NAVBUTTONACCOUNT	Account
 REWARDSTIMEMONTHS	months	
 REWARDSTIMEYEAR	year	
 REWARDSTIMEYEARS	years	
+SETTINGSREPLAYCACHE	Enable replay speed	
+SETTINGSREPLAYCACHESECONDPLAYTHROUGH	Enable on second replay playthrough
+SETTINGSREPLAYMEMSIZE	Replay cache memory size	
+SETTINGSREPLAYFRAMES	frames	
+HOTKEYSREPLAYSPEED	Modify replay speed	
+USERBARTCINFO	Toricredits can be spent on customizations that fit your character belt	
+USERBARSTINFO	Shiai Tokens can be spent on premium customizations and items that require high belts	
+ACCOUNTTITLEINFO	Info about Your Account	
+ACCOUNTGETTINGINFO	Getting your data...	
+ACCOUNTINFOERROR	Something went wrong, try again later	
+STOREDOWNLOADINGMODEL	Downloading item model...
+STOREDOWNLOADINGSET	Downloading set...	
+STOREGETMORE	Get more	
+STOREBUYFOR	Buy for	
+STOREPURCHASECONFIRM	Are you sure you want to purchase	
+STOREPURCHASEFOR	for	
+STOREPURCHASEYOUWILLHAVELEFT1	You will have	
+STOREPURCHASEYOUWILLHAVELEFT2	left after purchase.	
+STOREREQUIRES	Requires	
+STOREREQUIRESQI	more Qi	
+STOREVIEWING	Viewing	
+STOREAVAILABLEITEMS	Available Items	
+STOREEXPENSIVEITEMS	Expensive Items	
+STOREUSDITEMS	USD Items	
+STORELOCKEDITEMS	Unavailable or Locked Items	
+STORESEARCHNOITEMS	There are no items that match your search!	
+STORESEARCHSTRINGSHORT	Search string is too short, try something that's longer than 3 symbols!	
+SEARCHRESULTS1		
+SEARCHRESULTS2	search results	
+WORDSEARCH	Search	
+STORESEARCHHINT	Start typing item name to search	
+STOREDISCOUNTEDPRICE	Discounted Price	
+WORDTORICREDITS	ToriCredits	
+WORDSHIAITOKENS	Shiai Tokens	
+STOREBUYWITH	Buy with	
+STOREVIEWIN1	View	
+STOREVIEWIN2	in Store	
+STORELOADING	Loading Store data, please wait...	
+STORESALE1		
+STORESALE2	sale	
+STORENOCOLORSALE	No colors on sale for now, come back later!	
+STORENOSALE	No items on sale for now, come back later!
+STORECOLORS	Colors	
+STORECOLORSNAME	Color Items	
+STORECOLORSDESC	Joints, gradients and other color items	
+STORETEXTURES	Textures	
+STORETEXTURESNAME	Texture Slots	
+STORETEXTURESDESC	Texture items to give your Tori a unique look	
+STOREADVANCED	Advanced	
+STOREADVANCEDNAME	Advanced Customizations	
+STOREADVANCEDDESC	3D items, Hairs and other advanced upgrades for your Tori	
+STOREACCOUNT	Account	
+STOREACCOUNTDESC	In-game currency, boosters and subscriptions	
+STOREPURCHASINGITEM	Purchasing item...	
+STOREPURCHASEERROR	Purchase error	
+STOREPURCHASESERVERERROR	Server error, please try again later	
+STOREPURCHASEERRORUNDEF	Undefined purchase error. Please contact an administrator.
+STOREPURCHASESUCCESSFUL	Congratulations on your purchase!\nWould you like to activate your new item?	
+SETTINGSAUTOUPDATE	Auto-update players customs and data files	
+ACCOUNTUSERNAME	Username	
+ACCOUNTUSERID	User ID	
+ACCOUNTGAMESPLAYEDTODAY	Games Played Today	
+ACCOUNTGAMESWONTODAY	Games Won Today	
+ACCOUNTTCEARNINGSTODAY	Today's Fights Earnings	
+ACCOUNTQIRESETS	Daily Qi Limit resets in	
+ACCOUNTSTATUS	Account Status	
+ACCOUNTSUSPENDED	Suspended	
+ACCOUNTGREYLISTED	Trading Greylisted	
+ACCOUNTNOEMAIL	No Email Set	
+ACCOUNTAWAITINGCONFIRMATION	Awaiting Email Confirmation	
+ACCOUNTSUSPENDEDINFO	Your account has been suspended by Toribash moderators. You can appeal your ban on forums.	
+ACCOUNTGREYLISTEDINFO	Your account has limited trading capabilities. You can wait your greylist period out or contact an administrator to lift it earlier.	
+ACCOUNTEMAILERRORINFO	Your account's capabilities will be limited until you connect an email to your account and confirm it.	

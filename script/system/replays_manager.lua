@@ -747,6 +747,7 @@ do
 	
 	function Replays:playReplay(replay)
 		local whiteoverlay = TBMenu:spawnWindowOverlay()
+		local cacheMode = get_option("replaycache") == 2 and 1 or 0
 		
 		local loading = UIElement:new({
 			parent = whiteoverlay,
@@ -787,7 +788,7 @@ do
 							downloadWait:addCustomDisplay(true, function()
 									framesN = framesN + 1
 									if (framesN > 4) then
-										open_replay(replay.filename, 1)
+										open_replay(replay.filename, cacheMode)
 										close_menu()
 									end
 								end)
@@ -800,7 +801,7 @@ do
 						loading:uiText(TB_MENU_LOCALIZED.REPLAYSLOADINGREPLAY)
 						wait = wait + 1
 						if (wait > 4) then
-							open_replay(replay.filename, 1)
+							open_replay(replay.filename, cacheMode)
 							close_menu()
 						end
 					end)
@@ -811,7 +812,7 @@ do
 					loading:uiText(TB_MENU_LOCALIZED.REPLAYSLOADINGREPLAY)
 					wait = wait + 1
 					if (wait > 4) then
-						open_replay(replay.filename, 1)
+						open_replay(replay.filename, cacheMode)
 						close_menu()
 					end
 				end)
@@ -2470,6 +2471,7 @@ do
 		
 		local frames = 0
 		local replayFile = nil
+		local cacheMode = get_option("replaycache") == 2 and 1 or 0
 		downloadWait:addCustomDisplay(true, function()
 				frames = frames + 1
 				if (frames == 10) then
@@ -2507,7 +2509,7 @@ do
 											downloadWait:addCustomDisplay(true, function()
 													framesN = framesN + 1
 													if (framesN > 4) then
-														UIElement:runCmd("loadreplay downloads/" .. REPLAY_TEMPNAME .. ".rpl")
+														open_replay("downloads/" .. REPLAY_TEMPNAME .. ".rpl", cacheMode)
 														close_menu()
 													end
 												end)
@@ -2521,7 +2523,7 @@ do
 										downloadWait:addCustomDisplay(true, function()
 												framesN = framesN + 1
 												if (framesN > 4) then
-													UIElement:runCmd("loadreplay downloads/" .. REPLAY_TEMPNAME .. ".rpl")
+													open_replay("downloads/" .. REPLAY_TEMPNAME .. ".rpl", cacheMode)
 													close_menu()
 												end
 											end)
@@ -2535,7 +2537,7 @@ do
 									downloadWait:addCustomDisplay(true, function()
 											framesN = framesN + 1
 											if (framesN > 4) then
-												UIElement:runCmd("loadreplay downloads/" .. REPLAY_TEMPNAME .. ".rpl")
+												open_replay("downloads/" .. REPLAY_TEMPNAME .. ".rpl", cacheMode)
 												close_menu()
 											end
 										end)

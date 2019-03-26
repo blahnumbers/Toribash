@@ -1397,7 +1397,7 @@ do
 	function Tutorials:updateConfig(next)
 		-- Steam achievements integration
 		local level = get_tutorial_level()
-		if (level < CURRENT_TUTORIAL and CURRENT_TUTORIAL > 4) then
+		if (level < CURRENT_TUTORIAL or CURRENT_TUTORIAL > 4) then
 			set_tutorial_level(CURRENT_TUTORIAL)
 		end
 		
