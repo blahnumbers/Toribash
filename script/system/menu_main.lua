@@ -143,6 +143,15 @@ if (os.clock() < 10) then
 				end
 				remove_hooks("playerinfoUpdate")
 				download_clan()
+				if (is_steam() == 0) then
+					get_latest_version()
+					Request:new("versioncheck", function()
+							local latestVersion = get_network_response()
+							if (TORIBASH_VERSION ~= latestVersion and latestVersion:len() > 0) then
+								TBMenu:showConfirmationWindow("Toribash " .. latestVersion .. " is now available.\nWould you like to download it now?", function() open_url("https://www.toribash.com/downloads.php") end)
+							end
+						end)
+				end
 			end
 		end)
 	-- Set default atmosphere from a draw2d hook so that shader settings are applied properly
