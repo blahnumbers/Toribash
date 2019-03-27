@@ -54,18 +54,27 @@ local function showUploadWindow(viewElement, reqTable)
 			return false
 		end
 		UIElement:runCmd("savereplay " .. name)
-		upload_event_replay(TB_MENU_LOCALIZED.REPLAYSUPLOADCONFIRM:gsub("\\n", "\n"),
-							name,
-							"Event Squad's Hole in the Wall Event entry",
-							"ESEVNT" .. CURRENT_TUTORIAL,
-							"replay/my replays/" .. name .. ".rpl")
-		
-		-- keep step state update in mouse_move hook as it'd only fire after upload window has been closed
-		add_hook("mouse_move", "tbTutorialsCustom", function(x, y) 
-				if (x < WIN_W / 2) then
-					CURRENT_STEP.fallbackrequirement = false
+		upload_event_replay(name, "Event Squad's Hole in the Wall Event entry", "ESEVNT" .. CURRENT_TUTORIAL, "replay/my replays/" .. name .. ".rpl")
+		local overlay = TBMenu:spawnWindowOverlay()
+		local width = overlay.size.w / 7 * 3
+		local uploadingView = UIElement:new({
+			parent = overlay,
+			pos = { (overlay.size.w - width) / 2, overlay.size.h / 2 - overlay.size.h / 10 },
+			size = { width, overlay.size.h / 5 },
+			bgColor = TB_MENU_DEFAULT_BG_COLOR
+		})
+		uploadingView:addAdaptedText(false, TB_MENU_LOCALIZED.REPLAYUPLOADINPROGRESS)
+		Request:new("replayupload", function()
+				overlay:kill()
+				local response = get_network_response()
+				if (response:find("^SUCCESS")) then
+					reqTable.ready = true
+				else
+					TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.REPLAYUPLOADERROR .. ": " .. response:gsub("^ERROR 0;", ""), function() showUploadWindow(viewElement, reqTable) end, function() CURRENT_STEP.fallbackrequirement = false reqTable.ready = true end)
 				end
-				reqTable.ready = true
+			end, function()
+				overlay:kill()
+				TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.REPLAYUPLOADFAILED, function() showUploadWindow(viewElement, reqTable) end, function() CURRENT_STEP.fallbackrequirement = false reqTable.ready = true end)
 			end)
 	end
 	
@@ -448,11 +457,9 @@ local function showYouLostScreen(viewElement, reqTable, offPlatform)
 			local ws = get_world_state()
 			if (ws.winner > 0 and loseFrame == 0) then
 				loseFrame = ws.match_frame
-				echo(loseFrame)
 			end
 			if (loseFrame > 0 and ws.match_frame > loseFrame + 30 and not gamePaused) then
 				freeze_game()
-				echo(ws.match_frame)
 				gamePaused = true
 			end
 		end)

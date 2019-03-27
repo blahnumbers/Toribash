@@ -87,7 +87,7 @@ do
 				elseif (ln:match("NEWGAME %d;")) then
 					local mod = ln:gsub("NEWGAME %d;", ""):gsub("\r", "")
 					rplInfo.mod = mod:match("/*%S*%.tbm")
-					rplInfo.mod = rplInfo.mod and rplInfo.mod:gsub("/", "") or "classic"
+					rplInfo.mod = rplInfo.mod and rplInfo.mod:gsub("^.*/", "") or "classic"
 				elseif (ln:match("CRUSH %d; 0") and not hasDecap) then
 					rplInfo.hiddentags = rplInfo.hiddentags and rplInfo.hiddentags .. " decap" or "decap"
 					hasDecap = true
@@ -1731,35 +1731,30 @@ do
 				uploadButton:uiText(TB_MENU_LOCALIZED.BUTTONUPLOAD)
 			end)
 		uploadButton:addMouseHandlers(nil, function()
-				open_upload_replay(	TB_MENU_LOCALIZED.REPLAYSUPLOADCONFIRM,
-									replayData[1].value[1],
+				open_upload_replay(	replayData[1].value[1],
 									replayData[2].value[1],
 									replayData[3].value[1],
-									"replay/" .. replay.filename
-								)
-				local overlay = UIElement:new({
-					pos = { 0, 0 },
-					size = { WIN_W, WIN_H }
-				})
-				local left = UIElement:new({
+									"replay/" .. replay.filename)
+				local overlay = TBMenu:spawnWindowOverlay()
+				local width = overlay.size.w / 7 * 3
+				local uploadingView = UIElement:new({
 					parent = overlay,
-					pos = { 0, 0 },
-					size = { overlay.size.w / 2, overlay.size.h },
-					interactive = true
+					pos = { (overlay.size.w - width) / 2, overlay.size.h / 2 - overlay.size.h / 10 },
+					size = { width, overlay.size.h / 5 },
+					bgColor = TB_MENU_DEFAULT_BG_COLOR
 				})
-				left:addMouseHandlers(nil, nil, function()
+				uploadingView:addAdaptedText(false, TB_MENU_LOCALIZED.REPLAYUPLOADINPROGRESS)
+				Request:new("replayupload", function()
 						overlay:kill()
-					end)
-				local right = UIElement:new({
-					parent = overlay,
-					pos = { overlay.size.w / 2, 0 },
-					size = { overlay.size.w / 2, overlay.size.h },
-					interactive = true
-				})
-				right:addMouseHandlers(nil, nil, function()
+						local response = get_network_response()
+						if (response:find("^SUCCESS")) then
+							reqTable.ready = true
+						else
+							TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.REPLAYUPLOADERROR .. ": " .. response:gsub("^ERROR 0;", ""), function() showUploadWindow(viewElement, reqTable) end, function() CURRENT_STEP.fallbackrequirement = false reqTable.ready = true end)
+						end
+					end, function()
 						overlay:kill()
-						uploadOverlay:kill()
-						Replays:showReplayInfo(replayInfoView, replay)
+						TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.REPLAYUPLOADFAILED, function() showUploadWindow(viewElement, reqTable) end, function() CURRENT_STEP.fallbackrequirement = false reqTable.ready = true end)
 					end)
 			end)
 	end

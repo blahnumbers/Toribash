@@ -68,6 +68,58 @@ do
 						st = 1
 					}
 				}
+			},
+			{
+				accentColor = { 0.776, 0.902, 0.969, 1 },
+				uiColor = { 0.184, 0.192, 0.259, 1 },
+				buttonHoverColor = { 0.121, 0.126, 0.172, 1 },
+				buttonPressedColor = { 0.245, 0.258, 0.369, 1 },
+				name = "GOLEM III: RETURN OF THE GOLEM",
+				image = "../textures/menu/promo/events/golem.tga",
+				forumlink = "http://forum.toribash.com/showthread.php?t=626177",
+				overlaytransparency = 0.3,
+				data = {
+					{
+						title = "Description",
+						imagetitle = "../textures/menu/promo/events/golem_description.tga",
+						desc = "GOLEM COME BACK TO SMASH TINY THING!!!\nIF TINY THING TOUCH HEAD TINY THING WIN, IF GOLEM SQUASH TINY HUMAN BODY HUMAN LOSE! SPLAT!"
+					},
+					{
+						title = "Rules",
+						imagetitle = "../textures/menu/promo/events/golem_rules.tga",
+						desc = "THE SERVER WILL ALWAYS BE BROADCASTED\n3 DISMEMBERS AND YOU LOSE, GET DECAPPED AND YOU'RE OUT UNTIL THE NEXT SERVER IS MADE\nTOUCH GOLEM'S HEAD WITH HANDS OR FEET TO TRIGGER WIN\nNO SKEETS, GOLEM GETS ANGRY WHEN HUMANS PLAY DIRTY\nPERSON TO BE DECAPPED THE MOST AT THE END OF THE EVENT WILL BE BANNED FOR 1 DAY\nMOD IS E_GOLEM, GOLEM_VS_UKE.TBM AND ES_GOLEM.TBM"
+					},
+					{
+						title = "Deadline",
+						imagetitle = "../textures/menu/promo/events/golem_deadline.tga",
+						desc = "4 WEEKS AFTER EVENT START\nHUMAN DO THE MATH, GOLEM NO DO SILLY THINGS"
+					},
+				},
+				prizes = {
+					imagetitle = "../textures/menu/promo/events/golem_prizes.tga",
+					{
+						info = "Defeat Golem",
+						st = 1
+					},
+					{
+						info = "Make Golem Laugh",
+						st = 1
+					},
+					{
+						info = "Most Wins in 1 Server",
+						itemids = { 2801 }
+					},
+					{
+						info = "Most Wins in Total",
+						st = 8,
+						itemids = { 71, 54 }
+					},
+					{
+						info = "Runners Up",
+						st = 5,
+						itemids = { 752, 711 }
+					},
+				}
 			}
 		}
 	end
@@ -175,6 +227,8 @@ do
 	function Events:showEventPrizes(viewElement, event)
 		local elementHeight = 41
 		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 55, 60, 20, event.accentColor)
+		listingView.bgColor = cloneTable(event.accentColor)
+		listingView.bgColor[4] = event.overlaytransparency or 0.7
 		
 		local listElements = {}
 		if (event.prizes.imagetitle) then
@@ -258,7 +312,7 @@ do
 			TBMenu:showDataError("Please wait until Torishop data is ready")
 			return false
 		end
-		local event = Events:getEventInfo(1)
+		local event = Events:getEventInfo(id or 1)
 		local overlay = TBMenu:spawnWindowOverlay()
 		UIScrollbarIgnore = false
 		local viewElement = UIElement:new({
@@ -331,8 +385,8 @@ do
 		local buttons = event.action and 2 or 1
 		local eventForumLink = UIElement:new({
 			parent = eventForumLinkHolder,
-			pos = { viewElement.size.w / 20 + viewElement.size.w * 0.425 * (2 - buttons), 10 },
-			size = { viewElement.size.w * 0.425, eventForumLinkHolder.size.h - 20 },
+			pos = { buttons == 2 and viewElement.size.w / 20 or viewElement.size.w * 0.1, 10 },
+			size = { buttons == 2 and viewElement.size.w * 0.425 or viewElement.size.w * 0.8, eventForumLinkHolder.size.h - 20 },
 			interactive = true,
 			bgColor = viewElement.uiColor,
 			hoverColor = buttonHColor,

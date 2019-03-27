@@ -85,13 +85,9 @@ TB_MENU_PLAYER_INFO.items = PlayerInfo:getItems(TB_MENU_PLAYER_INFO.username)
 if (not TB_STORE_DATA) then
 	TB_STORE_DATA = {}
 end
-
 if (not TB_STORE_DATA.ready or TB_MENU_DEBUG) then
 	TB_STORE_DATA, TB_STORE_SECTIONS = Torishop:getItems()
 	TB_STORE_MODELS = Torishop:getModelsData()
-	if (not TB_STORE_DATA.failed) then
-		TB_STORE_DATA.ready = true
-	end
 end
 
 if (PlayerInfo:getLoginRewards().available and TB_STORE_DATA.ready and not TB_MENU_NOTIFICATION_LOGINREWARDS) then
@@ -126,34 +122,42 @@ end
 -- Wait for customs update on client start
 if (os.clock() < 10) then
 	add_hook("draw2d", "playerinfoUpdate", function()
-			if (#get_downloads() == 0) then
-				TB_MENU_PLAYER_INFO.data = PlayerInfo:getUserData()
-				TB_MENU_PLAYER_INFO.ranking = PlayerInfo:getRanking()
-				TB_MENU_PLAYER_INFO.clan = PlayerInfo:getClan(TB_MENU_PLAYER_INFO.username)
-				TB_MENU_PLAYER_INFO.items = PlayerInfo:getItems(TB_MENU_PLAYER_INFO.username)
-				TB_STORE_DATA, TB_STORE_SECTIONS = Torishop:getItems()
-				TB_STORE_MODELS = Torishop:getModelsData()
-				if (not TB_STORE_DATA.failed) then
-					TB_STORE_DATA.ready = true
-				end
-				if (PlayerInfo:getLoginRewards().available and TB_MENU_MAIN_ISOPEN == 1) then
-					if (TB_MENU_SPECIAL_SCREEN_ISOPEN == 0 and TB_MENU_IGNORE_REWARDS == 0) then
-						TBMenu:showNotifications()
+		for i,v in pairs(get_downloads()) do
+			if (v:find("item.dat")) then
+				return
+			end
+		end
+		TB_MENU_PLAYER_INFO.data = PlayerInfo:getUserData()
+		TB_MENU_PLAYER_INFO.items = PlayerInfo:getItems(TB_MENU_PLAYER_INFO.username)
+		TB_MENU_PLAYER_INFO.clan = PlayerInfo:getClan(TB_MENU_PLAYER_INFO.username)
+		if (TB_MENU_MAIN_ISOPEN == 1) then
+			TBMenu:showUserBar()
+		end
+		add_hook("draw2d", "playerinfoUpdate", function()
+				if (#get_downloads() == 0) then
+					TB_MENU_PLAYER_INFO.ranking = PlayerInfo:getRanking()
+					TB_STORE_DATA, TB_STORE_SECTIONS = Torishop:getItems()
+					TB_STORE_MODELS = Torishop:getModelsData()
+					if (PlayerInfo:getLoginRewards().available and TB_MENU_MAIN_ISOPEN == 1) then
+						if (TB_MENU_SPECIAL_SCREEN_ISOPEN == 0 and TB_MENU_IGNORE_REWARDS == 0) then
+							TBMenu:showNotifications()
+						end
+					end
+					download_clan()
+					remove_hooks("playerinfoUpdate")
+					if (is_steam() == 0) then
+						get_latest_version()
+						Request:new("versioncheck", function()
+								local latestVersion = get_network_response()
+								if (TORIBASH_VERSION ~= latestVersion and latestVersion:len() > 0) then
+									TBMenu:showConfirmationWindow("Toribash " .. latestVersion .. " is now available.\nWould you like to download it now?", function() open_url("https://www.toribash.com/downloads.php") end)
+								end
+							end)
 					end
 				end
-				remove_hooks("playerinfoUpdate")
-				download_clan()
-				if (is_steam() == 0) then
-					get_latest_version()
-					Request:new("versioncheck", function()
-							local latestVersion = get_network_response()
-							if (TORIBASH_VERSION ~= latestVersion and latestVersion:len() > 0) then
-								TBMenu:showConfirmationWindow("Toribash " .. latestVersion .. " is now available.\nWould you like to download it now?", function() open_url("https://www.toribash.com/downloads.php") end)
-							end
-						end)
-				end
-			end
-		end)
+			end)
+	end)
+	
 	-- Set default atmosphere from a draw2d hook so that shader settings are applied properly
 	if (not DEFAULT_ATMOSPHERE_ISSET) then
 		add_hook("draw2d", "atmodefault", function()

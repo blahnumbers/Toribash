@@ -104,6 +104,7 @@ do
 		file:close()
 		
 		TorishopSections[0] = { name = "Color Items" }
+		TorishopData.ready = true
 		return TorishopData, TorishopSections
 	end
 	
@@ -135,8 +136,9 @@ do
 					end
 				end
 				if (item.level > 0) then
-					ModelsData[item.itemid] = ModelsData[item.itemid] or { itemid = item.itemid, upgradeable = true }
+					ModelsData[item.itemid] = ModelsData[item.itemid] or { itemid = item.itemid, levels = 0, upgradeable = true }
 					ModelsData[item.itemid][item.level] = item
+					ModelsData[item.itemid].levels = ModelsData[item.itemid].levels + 1
 				else
 					ModelsData[item.itemid] = item
 				end
@@ -1561,7 +1563,7 @@ do
 			end)
 	end
 	
-	function Torishop:showStoreAdvancedItemPreview(viewElement, item, noReload, updateOverride, updatedFunc)
+	function Torishop:showStoreAdvancedItemPreview(viewElement, item, noReload, updateOverride, updatedFunc, level)
 		local viewport = UIElement:new({
 			parent = viewElement,
 			pos = { (viewElement.size.w - viewElement.size.h) / 2, 0 },
@@ -1570,8 +1572,8 @@ do
 		})
 		local background = UIElement:new({
 			parent = viewElement,
-			pos = { viewport.shift.x - 1, 1 },
-			size = { viewport.size.w - 1, viewElement.size.h - 1 },
+			pos = { math.ceil(viewport.shift.x), 1 },
+			size = { viewport.size.w - 1, viewElement.size.h - 2 },
 			bgColor = UICOLORWHITE,
 			bgImage = "../textures/store/presets/previewbgshade.tga"
 		})
@@ -1645,7 +1647,7 @@ do
 				bgColor = { color.r, color.g, color.b, 1 },
 				viewport = true
 			})
-			return
+			return true
 		elseif (item.catid == 22) then
 			-- Force Items
 			local color = get_color_info(item.colorid)
@@ -1669,7 +1671,7 @@ do
 				bgColor = { rcolor.r, rcolor.g, rcolor.b, 1 },
 				viewport = true
 			})
-			return
+			return true
 		elseif (item.catid == 1) then
 			-- Blood Items
 			local color = get_color_info(item.colorid)
@@ -1683,7 +1685,7 @@ do
 				bgColor = { color.r, color.g, color.b, 1 },
 				viewport = true
 			})
-			return
+			return true
 		elseif (item.catid == 20 or item.catid == 21) then
 			-- Gradient Items
 			local color = get_color_info(item.colorid)
@@ -1748,7 +1750,7 @@ do
 			})
 			previewHolder:moveTo(0, 0, -0.3)
 			previewMain:rotate(40, 90, 110)
-			return
+			return true
 		elseif (item.catid == 11) then
 			-- Ghost Colors
 			local color = get_color_info(item.colorid)
@@ -1796,7 +1798,7 @@ do
 					ghost.bgColor[4] = ghost.bgColor[4] - 0.01
 				end)
 			previewMain:rotate(-30, 0, 0)
-			return
+			return true
 		elseif (item.catid == 12) then
 			-- DQ colors
 			local color = get_color_info(item.colorid)
@@ -1828,7 +1830,7 @@ do
 				bgColor = { color.r, color.g, color.b, 1 },
 				viewport = true
 			})
-			return
+			return true
 		elseif (item.catid == 5) then
 			-- Torso Items
 			local color = get_color_info(item.colorid)
@@ -1928,7 +1930,7 @@ do
 				viewport = true
 			})
 			previewHolder:moveTo(0, 0.6, 0)
-			return
+			return true
 		elseif (item.catid == 41) then
 			-- Grip items
 			local color = get_color_info(item.colorid)
@@ -1993,7 +1995,7 @@ do
 				viewport = true
 			})
 			previewMain:rotate(0, 0, 40)
-			return
+			return true
 		elseif (item.catid == 27 or item.catid == 28) then
 			-- Hand Trail items
 			local color = get_color_info(item.colorid)
@@ -2069,7 +2071,7 @@ do
 				viewport = true
 			})
 			previewMain:rotate(0, 0, item.catid == 27 and -130 or 50)
-			return			
+			return true
 		elseif (item.catid == 29 or item.catid == 30) then
 			-- Leg Trail items
 			local color = get_color_info(item.colorid)
@@ -2145,7 +2147,7 @@ do
 				viewport = true
 			})
 			previewMain:rotate(0, 0, item.catid == 30 and -60 or 50)
-			return
+			return true
 		elseif (item.catid == 73) then
 			-- Hair Colors
 			local color = get_color_info(item.colorid)
@@ -2169,7 +2171,7 @@ do
 				viewport = true
 			})
 			previewHolder:moveTo(0, 0, -0.3)
-			return
+			return true
 		elseif (item.catid == 44 and item.colorid ~= 0) then
 			-- Color Packs
 			local color = get_color_info(item.colorid)
@@ -2225,11 +2227,49 @@ do
 			})
 			previewHolder:moveTo(0, 0, -0.2)
 			previewMain:rotate(-10, 0, -40)
-			return
+			return true
 		elseif (item.catid == 78) then
 			-- 3D Items
-			if (Torishop:showObjPreview(item, viewElement, previewHolder, scaleMultiplier, trans, nil, nil, noReload, updateOverride, updatedFunc)) then
-				return
+			if (Torishop:showObjPreview(item, viewElement, previewHolder, scaleMultiplier, trans, nil, level, noReload, updateOverride, updatedFunc)) then
+				if (TB_STORE_MODELS[item.itemid].upgradeable) then
+					local level = level or 1
+					local buttonScale = viewport.shift.x - 5 > 32 and 32 or viewport.shift.x - 5
+					if (TB_STORE_MODELS[item.itemid].levels > 1) then
+						if (level < TB_STORE_MODELS[item.itemid].levels) then
+							local nextLevel = UIElement:new({
+								parent = viewElement,
+								pos = { -(viewport.shift.x - buttonScale) / 2 - buttonScale, viewElement.size.h / 2 - buttonScale },
+								size = { buttonScale, buttonScale * 2 },
+								interactive = true,
+								bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+								hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+								pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+								bgImage = "../textures/menu/general/buttons/arrowright.tga"
+							})
+							nextLevel:addMouseHandlers(nil, function()
+									viewElement:kill(true)
+									Torishop:showStoreAdvancedItemPreview(viewElement, item, noReload, updateOverride, updatedFunc, level + 1)
+								end)
+						end
+						if (level > 1) then
+							local prevLevel = UIElement:new({
+								parent = viewElement,
+								pos = { (viewport.shift.x - buttonScale) / 2, viewElement.size.h / 2 - buttonScale },
+								size = { buttonScale, buttonScale * 2 },
+								interactive = true,
+								bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+								hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+								pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+								bgImage = "../textures/menu/general/buttons/arrowleft.tga"
+							})
+							prevLevel:addMouseHandlers(nil, function()
+									viewElement:kill(true)
+									Torishop:showStoreAdvancedItemPreview(viewElement, item, noReload, updateOverride, updatedFunc, level - 1)
+								end)
+						end
+					end
+				end
+				return true
 			else
 				heightMod = 30
 				if (get_option("autoupdate") == 0 and not updateOverride) then
@@ -2266,14 +2306,56 @@ do
 			item.pack = true
 			item.objs = {}
 			for i,v in pairs(item.contents) do
+				if (TB_STORE_MODELS[v].upgradeable and not TB_STORE_MODELS[item.itemid].upgradeable) then
+					item.upgradeable = true
+					TB_STORE_MODELS[item.itemid] = cloneTable(TB_STORE_MODELS[v])
+				end
 				local newItem = Torishop:getItemInfo(v)
 				if (newItem.catid == 78) then
 					table.insert(item.objs, newItem)
 				end
 			end
 			if (#item.objs > 0) then
-				if (Torishop:showObjPreview(item, viewElement, previewHolder, scaleMultiplier, trans, nil, nil, noReload, updateOverride, updatedFunc)) then
-					return
+				if (Torishop:showObjPreview(item, viewElement, previewHolder, scaleMultiplier, trans, nil, level, noReload, updateOverride, updatedFunc)) then
+					if (item.upgradeable) then
+						local level = level or 1
+						local buttonScale = viewport.shift.x - 5 > 32 and 32 or viewport.shift.x - 5
+						if (TB_STORE_MODELS[item.itemid].levels > 1) then
+							if (level < TB_STORE_MODELS[item.itemid].levels) then
+								local nextLevel = UIElement:new({
+									parent = viewElement,
+									pos = { -(viewport.shift.x - buttonScale) / 2 - buttonScale, viewElement.size.h / 2 - buttonScale },
+									size = { buttonScale, buttonScale * 2 },
+									interactive = true,
+									bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+									hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+									pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+									bgImage = "../textures/menu/general/buttons/arrowright.tga"
+								})
+								nextLevel:addMouseHandlers(nil, function()
+										viewElement:kill(true)
+										Torishop:showStoreAdvancedItemPreview(viewElement, item, noReload, updateOverride, updatedFunc, level + 1)
+									end)
+							end
+							if (level > 1) then
+								local prevLevel = UIElement:new({
+									parent = viewElement,
+									pos = { (viewport.shift.x - buttonScale) / 2, viewElement.size.h / 2 - buttonScale },
+									size = { buttonScale, buttonScale * 2 },
+									interactive = true,
+									bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+									hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+									pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+									bgImage = "../textures/menu/general/buttons/arrowleft.tga"
+								})
+								prevLevel:addMouseHandlers(nil, function()
+										viewElement:kill(true)
+										Torishop:showStoreAdvancedItemPreview(viewElement, item, noReload, updateOverride, updatedFunc, level - 1)
+									end)
+							end
+						end
+					end
+					return true
 				else
 					heightMod = 30
 					if (get_option("autoupdate") == 0 and not updateOverride) then
@@ -2318,6 +2400,10 @@ do
 			size = { iconScale, iconScale },
 			bgImage = Torishop:getItemIcon(item.itemid)
 		})
+		if (heightMod > 0) then
+			return true
+		end
+		return false
 	end
 	
 	function Torishop:showPlayerBody(previewHolder, trans, customTextures)
@@ -3134,7 +3220,11 @@ do
 		end
 		
 		local function downloadFile(i)
-			download_server_file(itemslist[i].itemid)
+			if (TB_STORE_MODELS[itemslist[i].itemid].upgradeable) then
+				download_server_file(itemslist[i].itemid .. "_" .. level)
+			else
+				download_server_file(itemslist[i].itemid)
+			end
 			if (i < #itemslist) then
 				Request:new("store_itemdownload", function()
 						local dWait = UIElement:new({
@@ -3238,7 +3328,7 @@ do
 		tbStoreItemInfoHolder:kill(true)
 		TBMenu:addBottomBloodSmudge(tbStoreItemInfoHolder, 3)
 		
-		local scale = tbStoreItemInfoHolder.size.w - 20
+		local scale = tbStoreItemInfoHolder.size.w - 50
 		if (scale > tbStoreItemInfoHolder.size.h / 3) then
 			scale = tbStoreItemInfoHolder.size.h / 3
 		end
@@ -3413,7 +3503,7 @@ do
 		end
 	end
 	
-	function Torishop:showStoreListItem(listingHolder, listElements, elementHeight, item, stItem)
+	function Torishop:showStoreListItem(listingHolder, listElements, elementHeight, item, stItem, locked)
 		local itemHolder = UIElement:new({
 			parent = listingHolder,
 			pos = { 0, #listElements * elementHeight },
@@ -3430,21 +3520,67 @@ do
 			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
 			uiColor = item.on_sale == 1 and TB_MENU_DEFAULT_DARKEST_COLOR
 		})
-		itemSection:addMouseHandlers(nil, function()
-				Torishop:showStoreItemInfo(item)
-				storeListingScrollBar.listReload()
-			end)
 		local itemIcon = UIElement:new({
 			parent = itemSection,
 			pos = { 10, (itemSection.size.h - 50) / 2 },
 			size = { 50, 50 },
 			bgImage = Torishop:getItemIcon(item.itemid)
 		})
-		local itemName = UIElement:new({
-			parent = itemSection,
-			pos = { 70, 10 },
-			size = { (itemSection.size.w - 80) / 3 * 2, itemSection.size.h - 20 }
-		})
+		local iconOverlay = nil
+		if (locked) then
+			iconOverlay = UIElement:new({
+				parent = itemIcon,
+				pos = { 0, 0 },
+				size = { itemIcon.size.w, itemIcon.size.h },
+				bgColor = itemSection.animateColor
+			})
+			iconOverlay:addCustomDisplay(true, function()
+					set_color(iconOverlay.bgColor[1], iconOverlay.bgColor[2], iconOverlay.bgColor[3], 0.6)
+					draw_quad(iconOverlay.pos.x, iconOverlay.pos.y, iconOverlay.size.w, iconOverlay.size.h)
+				end)
+		end
+		itemSection:addMouseHandlers(function()
+				if (iconOverlay) then
+					iconOverlay.bgColor = cloneTable(itemSection.pressedColor)
+				end
+			end, function()
+				Torishop:showStoreItemInfo(item)
+				storeListingScrollBar.listReload()
+				if (iconOverlay) then
+					iconOverlay.bgColor = itemSection.animateColor
+				end
+			end)
+		local itemName = nil
+		if (locked) then
+			itemName = UIElement:new({
+				parent = itemSection,
+				pos = { 70, 5 },
+				size = { (itemSection.size.w - 80) / 3 * 2, itemSection.size.h - 25 }
+			})
+			local itemLocked = UIElement:new({
+				parent = itemSection,
+				pos = { 70, itemSection.size.h - 22 },
+				size = { itemName.size.w, 15 }
+			})
+			local itemLockedIcon = UIElement:new({
+				parent = itemSection,
+				pos = { 0, 0 },
+				size = { 32, 32 },
+				bgImage = "../textures/menu/general/buttons/locked.tga"
+			})
+			
+			if (item.qi > TB_MENU_PLAYER_INFO.data.qi and item.locked == 0) then
+				itemLocked:addAdaptedText(true, TB_MENU_LOCALIZED.STOREREQUIRES .. " " .. item.qi .. " Qi", nil, nil, 4, LEFTMID)
+			else
+				itemLocked:addAdaptedText(true, TB_MENU_LOCALIZED.STOREITEMUNAVAILABLE, nil, nil, 4, LEFTMID)
+			end
+		else 
+			itemName = UIElement:new({
+				parent = itemSection,
+				pos = { 70, 10 },
+				size = { (itemSection.size.w - 80) / 3 * 2, itemSection.size.h - 20 }
+			})
+		end
 		itemName:addAdaptedText(true, item.shortname, nil, nil, FONTS.BIG, LEFTMID, 0.55, nil, 0.4)
 		local itemPrice = UIElement:new({
 			parent = itemSection,
@@ -3601,7 +3737,7 @@ do
 						Torishop:showStoreItemInfo(item)
 					end
 				end
-				Torishop:showStoreListItem(listingHolder, listElements, elementHeight, item, stItems)
+				Torishop:showStoreListItem(listingHolder, listElements, elementHeight, item, stItems, true)
 				cnt = cnt + 1
 			end
 		end
@@ -3889,19 +4025,32 @@ do
 			interactive = true
 		})
 		
-		local itemName = UIElement:new({
+		local exitButtonScale = saleItemHolder.size.h > saleItemHolder.size.w and saleItemHolder.size.w or saleItemHolder.size.h
+		local saleExit = UIElement:new({
 			parent = saleItemHolder,
-			pos = { saleItemHolder.size.w / 8, 0 },
-			size = { saleItemHolder.size.w / 8 * 6, saleItemHolder.size.h / 10 }
+			pos = { -exitButtonScale / 13, exitButtonScale / 13 - exitButtonScale / 15 },
+			size = { exitButtonScale / 15, exitButtonScale / 15 },
+			interactive = true,
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+			shapeType = saleItemHolder.shapeType,
+			rounded = saleItemHolder.rounded * 0.8
 		})
-		itemName:addAdaptedText(true, item.itemname, nil, nil, FONTS.BIG)
+		saleExit:addMouseHandlers(nil, function() overlay:kill() end)
+		local saleExitIcon = UIElement:new({
+			parent = saleExit,
+			pos = { 5, 5 },
+			size = { saleExit.size.w - 10, saleExit.size.h - 10 },
+			bgImage = "../textures/menu/general/buttons/crosswhite.tga"
+		})
 		
 		local advancedPreviewHolder = UIElement:new({
 			parent = saleItemHolder,
 			pos = { 10, saleItemHolder.size.h / 10 + 20 },
 			size = { saleItemHolder.size.w / 5 * 2 - 20, saleItemHolder.size.h * 0.7 - 40 }
 		})
-		local scale = advancedPreviewHolder.size.w - 20
+		local scale = advancedPreviewHolder.size.w - 50
 		if (scale > advancedPreviewHolder.size.h) then
 			scale = advancedPreviewHolder.size.h - 20
 		end
@@ -3911,20 +4060,28 @@ do
 			size = { advancedPreviewHolder.size.w, scale },
 			interactive = true
 		})
-		Torishop:showStoreAdvancedItemPreview(advancedPreview, item, false, updateOverride, function()
-				overlay:kill()
-				Torishop:showDailySaleItem(item)
-			end)
+		local advancedPreviewShown = true
+		if (not Torishop:showStoreAdvancedItemPreview(advancedPreview, item, false, updateOverride, function() overlay:kill() Torishop:showDailySaleItem(item) end)) then
+			advancedPreviewShown = false
+			advancedPreview:kill(true)
+		end
+		
+		local itemName = UIElement:new({
+			parent = saleItemHolder,
+			pos = { saleItemHolder.size.w / 8, 0 },
+			size = { saleItemHolder.size.w / 8 * 6, saleItemHolder.size.h / 10 }
+		})
+		itemName:addAdaptedText(true, item.itemname, nil, nil, FONTS.BIG)
 		
 		local itemDescHolder = UIElement:new({
 			parent = saleItemHolder,
-			pos = { saleItemHolder.size.w / 5 * 2 + 10, saleItemHolder.size.h / 10 },
-			size = { saleItemHolder.size.w / 5 * 3 - 20, saleItemHolder.size.h * 0.4 }
+			pos = { advancedPreviewShown and saleItemHolder.size.w / 5 * 2 + 10 or 20, saleItemHolder.size.h / 10 },
+			size = { advancedPreviewShown and saleItemHolder.size.w / 5 * 3 - 20 or saleItemHolder.size.w / 5 * 2, advancedPreviewShown and saleItemHolder.size.h * 0.4 or saleItemHolder.size.h * 0.7 }
 		})
 		local itemDescTitle = UIElement:new({
 			parent = itemDescHolder,
 			pos = { 0, 0 },
-			size = { itemDescHolder.size.w, itemDescHolder.size.h / 4 }
+			size = { itemDescHolder.size.w, advancedPreviewShown and itemDescHolder.size.h / 4 or saleItemHolder.size.h * 0.9 / 4 }
 		})
 		itemDescTitle:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSDESC, nil, nil, FONTS.BIG, nil, 0.75)
 		local itemDesc = UIElement:new({
@@ -3936,13 +4093,13 @@ do
 		
 		local itemPriceHolder = UIElement:new({
 			parent = saleItemHolder,
-			pos = { itemDescHolder.shift.x, itemDescHolder.shift.y + itemDescHolder.size.h + saleItemHolder.size.h / 20 },
-			size = { itemDescHolder.size.w, saleItemHolder.size.h * 0.45 - 20 }
+			pos = { advancedPreviewShown and itemDescHolder.shift.x or saleItemHolder.size.w / 5 * 2 + 10, advancedPreviewShown and itemDescHolder.shift.y + itemDescHolder.size.h or saleItemHolder.size.h / 10 },
+			size = { advancedPreviewShown and itemDescHolder.size.w or saleItemHolder.size.w / 5 * 3 - 20, advancedPreviewShown and saleItemHolder.size.h * 0.5 or saleItemHolder.size.h * 0.9 }
 		})
 		local itemPriceTitle = UIElement:new({
 			parent = itemPriceHolder,
 			pos = { 0, 0 },
-			size = { itemPriceHolder.size.w, itemPriceHolder.size.h / 3 }
+			size = { itemPriceHolder.size.w, itemPriceHolder.size.h / 4 }
 		})
 		itemPriceTitle:addAdaptedText(true, TB_MENU_LOCALIZED.STOREDISCOUNTEDPRICE, nil, nil, FONTS.BIG, nil, 0.75)
 		local pricesNum = (item.now_tc_price > 0 and item.now_usd_price > 0) and (item.qi <= TB_MENU_PLAYER_INFO.data.qi and 2 or 1) or 1
@@ -3950,7 +4107,7 @@ do
 		if (item.now_tc_price > 0 and item.qi <= TB_MENU_PLAYER_INFO.data.qi) then
 			local tcPriceHolder = UIElement:new({
 				parent = itemPriceHolder,
-				pos = { 10, itemPriceHolder.size.h / 3 },
+				pos = { 10, itemPriceHolder.size.h / 4 },
 				size = { itemPriceHolder.size.w / pricesNum - 20, itemPriceHolder.size.h / 3 }
 			})
 			local tcOldPrice = UIElement:new({
@@ -3981,8 +4138,8 @@ do
 			})
 			local purchaseButton = UIElement:new({
 				parent = itemPriceHolder,
-				pos = { tcPriceHolder.shift.x, itemPriceHolder.size.h / 3 * 2 + 5 },
-				size = { tcPriceHolder.size.w, itemPriceHolder.size.h / 3 - 5 },
+				pos = { tcPriceHolder.shift.x, -saleItemHolder.size.h * 0.45 / 3 - 10 },
+				size = { tcPriceHolder.size.w, saleItemHolder.size.h * 0.45 / 3 - 10 },
 				interactive = true,
 				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
@@ -4009,7 +4166,7 @@ do
 					Torishop:showStoreSection(tbMenuCurrentSection, 4, 1)
 				end)
 			else
-				purchaseText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREBUYFOR .. " TC")
+				purchaseText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREBUYWITH .. " TC")
 				purchaseButton:addMouseHandlers(nil, function()
 						advancedPreview.child[1]:hide()
 						TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASECONFIRM .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " " .. PlayerInfo:currencyFormat(item.now_tc_price) .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS .. "?\n" .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT1 .. " " .. PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.tc - item.now_tc_price) .. " TC " .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT2, function() advancedPreview:show()
@@ -4022,8 +4179,8 @@ do
 		if (item.now_usd_price > 0) then
 			local stPriceHolder = UIElement:new({
 				parent = itemPriceHolder,
-				pos = { (pricesNum == 2 and itemDescHolder.size.w / 2 + 10 or 10), itemPriceHolder.size.h / 3 },
-				size = { itemDescHolder.size.w / pricesNum - 20, itemPriceHolder.size.h / 3 }
+				pos = { pricesNum == 2 and itemPriceHolder.size.w / 2 + 10 or 10, itemPriceHolder.size.h / 4 },
+				size = { itemPriceHolder.size.w / pricesNum - 20, itemPriceHolder.size.h / 3 }
 			})
 			local stOldPrice = UIElement:new({
 				parent = stPriceHolder,
@@ -4049,8 +4206,8 @@ do
 			})
 			local purchaseButton = UIElement:new({
 				parent = itemPriceHolder,
-				pos = { stPriceHolder.shift.x, itemPriceHolder.size.h / 3 * 2 + 5 },
-				size = { stPriceHolder.size.w, itemPriceHolder.size.h / 3 - 5 },
+				pos = { stPriceHolder.shift.x, -saleItemHolder.size.h * 0.45 / 3 - 10 },
+				size = { stPriceHolder.size.w, saleItemHolder.size.h * 0.45 / 3 - 10 },
 				interactive = true,
 				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
@@ -4083,7 +4240,7 @@ do
 						TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASECONFIRM .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " $" .. PlayerInfo:currencyFormat(item.now_usd_price) .. "?", function() if (is_steam()) then UIElement:runCmd("steam purchase " .. item.itemid) else open_url("http://forum.toribash.com/tori_shop.php?action=process&item=" .. item.itemid) end advancedPreview:show() end, function() advancedPreview:show() end)
 					end)
 			else
-				purchaseText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREBUYFOR .. " st")
+				purchaseText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREBUYWITH .. " st")
 				purchaseButton:addMouseHandlers(nil, function()
 						advancedPreview.child[1]:hide()
 						TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASECONFIRM .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " " .. PlayerInfo:currencyFormat(item.now_usd_price) .. " " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS .. "?\n" .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT1 .. " " .. PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.st - item.now_usd_price) .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT2, function() advancedPreview:show()
@@ -4104,7 +4261,7 @@ do
 			shapeType = ROUNDED,
 			rounded = 3
 		})
-		viewStoreButton:addAdaptedText(false, TB_MENU_LOCALIZED.STOREVIEWIN1 .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.STOREVIEWIN2)
+		TBMenu:showTextWithImage(viewStoreButton, TB_MENU_LOCALIZED.STOREVIEWIN1 .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.STOREVIEWIN2, nil, itemName.size.h * 0.7 > 64 and 64 or itemName.size.h * 0.7, Torishop:getItemIcon(item))
 		viewStoreButton:addMouseHandlers(nil, function()
 				overlay:kill()
 				Torishop:showStoreSection(tbMenuCurrentSection, nil, nil, item.itemid)

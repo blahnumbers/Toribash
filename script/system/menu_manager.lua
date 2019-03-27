@@ -254,14 +254,23 @@ do
 					end
 			},
 			{
-				title = "Clan Item Shop",
-				subtitle = "Placeholder description",
-				image = "../textures/menu/promo/clanitemshop.tga",
+				title = "Golem III: Return of the Golem",
+				subtitle = "GOLEM COME BACK TO SMASH TINY THING!!!",
+				image = "../textures/menu/promo/golem.tga",
 				ratio = 0.5,
-				action = function()
-						open_url("https://forum.toribash.com/")
-					end
+				action = function() Events:showEventInfo(2) end,
+				initAction = function() Events:showEventInfo(2) end
 			},
+			-- idk clan squad are slow and suck
+			-- {
+			-- 	title = "Clan Item Shop",
+			-- 	subtitle = "Placeholder description",
+			-- 	image = "../textures/menu/promo/clanitemshop.tga",
+			-- 	ratio = 0.5,
+			-- 	action = function()
+			-- 			open_url("https://forum.toribash.com/")
+			-- 		end
+			-- },
 		}
 		
 		-- Current event button data
@@ -283,9 +292,13 @@ do
 
 		local textHeight, descHeight = homeAnnouncements.size.h / 9, homeAnnouncements.size.h / 8
 		local elementWidth, elementHeight, heightShift = unpack(TBMenu:getImageDimensions(homeAnnouncements.size.w, homeAnnouncements.size.h, 0.5, textHeight, descHeight))
+		
 		-- Spawn event announcement elements
+		-- Make sure rotateClock is spawned before that
+		local tickTime = os.clock() * 10
+		local rotateClock = { start = math.floor(tickTime), last = math.floor(tickTime) }
 		local eventItems = {}
-		for i, v in pairs (eventsData) do
+		for i, v in pairs(eventsData) do
 			local titleTextScale, subtitleTextScale = 1, 1
 			eventItems[i] = UIElement:new({
 				parent = homeAnnouncements,
@@ -297,6 +310,9 @@ do
 				pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 				hoverSound = 31
 			})
+			if (v.initAction) then
+				v.action = function() v.initAction() rotateClock.pause = true end
+			end
 			TBMenu:showHomeButton(eventItems[i], v, 1)
 			if (i ~= TB_MENU_HOME_CURRENT_ANNOUNCEMENT) then
 				eventItems[i]:hide()
@@ -313,8 +329,6 @@ do
 
 			-- Auto-rotate event announcements
 			local rotateTime = 100
-			local tickTime = os.clock() * 10
-			local rotateClock = { start = math.floor(tickTime), last = math.floor(tickTime) }
 			featuredEventData.action = function() featuredEventData.initAction() rotateClock.pause = true end
 			local timeData = eventItems[1].button.pos.y > eventItems[1].image.pos.y + eventItems[1].image.size.h and { pos = { x = eventItems[1].image.pos.x, y = eventItems[1].image.pos.y + eventItems[1].image.size.h }, width = eventItems[1].image.size.w } or { pos = { x = eventItems[1].button.pos.x + 10, y = eventItems[1].button.pos.y - 5 }, width = eventItems[1].button.size.w - 20 } 
 			eventDisplayTime:addCustomDisplay(true, function()
@@ -338,20 +352,6 @@ do
 			eventNextButton:addMouseHandlers(nil, function()
 					TBMenu:changeCurrentEvent(homeAnnouncements, eventsData, eventItems, rotateClock, toReload, 1)
 				end, nil)
-			
-			-- Set event button behavior
-			local function behavior()
-				eventsData[TB_MENU_HOME_CURRENT_ANNOUNCEMENT].action()
-				if (eventsData[TB_MENU_HOME_CURRENT_ANNOUNCEMENT].stop and rotateClock) then
-					rotateClock.pause = true
-				end
-			end
-			homeAnnouncements:addMouseHandlers(nil, behavior, nil)
-		else
-			local function behavior()
-				eventsData[TB_MENU_HOME_CURRENT_ANNOUNCEMENT].action()
-			end
-			homeAnnouncements:addMouseHandlers(nil, behavior, nil)
 		end
 		TBMenu:showHomeButton(featuredEvent, featuredEventData, 2)
 	end
@@ -1821,8 +1821,8 @@ do
 			{ text = TB_MENU_LOCALIZED.NAVBUTTONNEWS, sectionId = 1 },
 			{ text = TB_MENU_LOCALIZED.NAVBUTTONPLAY, sectionId = 2 },
 			{ text = TB_MENU_LOCALIZED.NAVBUTTONPRACTICE, sectionId = 3 },
-			{ text = TB_MENU_LOCALIZED.NAVBUTTONTOOLS, sectionId = 5 },
 			{ text = TB_MENU_LOCALIZED.NAVBUTTONSTORE, sectionId = 6 },
+			{ text = TB_MENU_LOCALIZED.NAVBUTTONTOOLS, sectionId = 5 },
 			{ text = TB_MENU_LOCALIZED.NAVBUTTONACCOUNT, sectionId = 7, right = true }
 		}
 		return buttonData
@@ -2257,25 +2257,28 @@ do
 		end
 	end
 	
-	function TBMenu:showTextExternal(viewElement, text)
+	function TBMenu:showTextWithImage(viewElement, text, fontid, imgScale, imgWhite, imgBlack)
+		local fontid = fontid or FONTS.MEDIUM
+		local imgScale = imgScale or 26
+		local imgBlack = imgBlack or imgWhite
 		local textView = UIElement:new({
 			parent = viewElement,
-			pos = { 20, 0 },
-			size = { viewElement.size.w - 30, viewElement.size.h }
+			pos = { imgScale * 0.8, 0 },
+			size = { viewElement.size.w - imgScale * 1.15, viewElement.size.h }
 		})
-		textView:addAdaptedText(false, text, -17)
-		local posX = get_string_length(textView.dispstr[1], FONTS.MEDIUM) * textView.textScale
+		textView:addAdaptedText(false, text, -imgScale * 0.65, nil, fontid)
+		local posX = get_string_length(textView.dispstr[1], fontid) * textView.textScale
 		local bgColorDelta = viewElement.bgColor[1] + viewElement.bgColor[2] + viewElement.bgColor[3]
-		local texture = "../textures/menu/general/buttons/external.tga"
-		if (bgColorDelta > 1.5) then
-			texture = "../textures/menu/general/buttons/externalblack.tga"
-		end
-		local onlineSign = UIElement:new({
+		local imageElement = UIElement:new({
 			parent = textView,
-			pos = { textView.size.w / 2 + posX / 2 - 13, textView.size.h / 2 - 13 },
-			size = { 26, 26 },
-			bgImage = texture
+			pos = { textView.size.w / 2 + posX / 2 - imgScale / 2, textView.size.h / 2 - imgScale / 2 },
+			size = { imgScale, imgScale },
+			bgImage = bgColorDelta > 1.5 and imgBlack or imgWhite
 		})
+	end
+	
+	function TBMenu:showTextExternal(viewElement, text)
+		TBMenu:showTextWithImage(viewElement, text, FONTS.MEDIUM, 26, "../textures/menu/general/buttons/external.tga", "../textures/menu/general/buttons/externalblack.tga")
 	end
 
 	function TBMenu:displayHelpPopup(element, message, forceManualPosCheck, noMark)

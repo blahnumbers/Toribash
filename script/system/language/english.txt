@@ -231,7 +231,7 @@ BUTTONSAVE	Save
 BUTTONDISCARD	Discard	
 BUTTONCANCEL	Cancel	
 BUTTONCONTINUE	Continue	
-BUTTONCONTINUENOSAVE	Continue without saving	
+BUTTONCONTINUENOSAVE	Exit without saving	
 BUTTONADD	Add	
 BUTTONCREATE	Create	
 BUTTONUPLOAD	Upload	
@@ -516,7 +516,7 @@ HOTKEYSGAMERULES	Open Game Rules
 HOTKEYSFULLSCREEN	Enter Fullscreen Mode	
 HOTKEYSCAMERAMODES	Change Camera Modes	
 TUTORIALSLEAVINGPROMPT	Leaving tutorial mode.\nCurrent tutorial will have to be restarted from the beginning if you proceed.	
-EVENTSLEAVINGPROMPT	Quitting SP Event replay creator.\nCurrent replay will be saved as a temp file so you can continue editing it later.	
+EVENTSLEAVINGPROMPT	Quitting SP Event replay creator.\nCurrent replay will be saved so you can continue editing it later.	
 TUTORIALSCONTINUETONEXT	Continue to next tutorial	
 TUTORIALSBACKTOMAIN	Return to main menu	
 TUTORIALSINTRONAME	Introduction to Toribash	
@@ -612,3 +612,8 @@ ACCOUNTAWAITINGCONFIRMATION	Awaiting Email Confirmation
 ACCOUNTSUSPENDEDINFO	Your account has been suspended by Toribash moderators. You can appeal your ban on forums.	
 ACCOUNTGREYLISTEDINFO	Your account has limited trading capabilities. You can wait your greylist period out or contact an administrator to lift it earlier.	
 ACCOUNTEMAILERRORINFO	Your account's capabilities will be limited until you connect an email to your account and confirm it.	
+STOREITEMUNAVAILABLE	This item cannot be bought	
+REPLAYUPLOADERROR	Replay upload error	
+REPLAYUPLOADFAILED	Replay upload failed, please try again later.	
+REPLAYUPLOADINPROGRESS	Uploading your replay...	
+ACCOUNTSWITCH	Switch Account	
