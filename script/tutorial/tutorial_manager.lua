@@ -1888,7 +1888,8 @@ do
 			tutorials[featuredTutorial].size = size
 			tutorials[featuredTutorial].mode = ORIENTATION_LANDSCAPE
 			if (not tutorials[featuredTutorial].image) then
-				tutorials[featuredTutorial].image = "../textures/menu/tutorial" .. featuredTutorial .. ".tga"
+				tutorials[featuredTutorial].image = "../textures/menu/tutorial" .. featuredTutorial .. "_small.tga"
+				tutorials[featuredTutorial].ratio = 1.055
 			end
 			if (featuredTutorial % 2 == 0) then
 				local temp = cloneTable(tutorials[featuredTutorial])
@@ -1899,8 +1900,9 @@ do
 		for i,v in pairs(tutorials) do
 			if (not tutorials[i].size) then
 				tutorials[i].vsize = 0.5
-				tutorials[i].image = nil
+				tutorials[i].image = "../textures/menu/tutorial" .. i .. ".tga"
 				tutorials[i].size = size
+				tutorials[i].ratio = 0.5
 			end
 			if (i > featuredTutorial and TB_MENU_PLAYER_INFO.data.qi < i * 250) then
 				tutorials[i].locked = true
@@ -1944,6 +1946,7 @@ do
 			image = tutorials[nextTutorial].image or "../textures/menu/tutorial" .. nextTutorial .. ".tga",
 			mode = ORIENTATION_LANDSCAPE,
 			size = 0.47,
+			ratio = 0.5, 
 			action = function() Tutorials:runTutorial(nextTutorial) end,
 			quit = true
 		}
@@ -1953,6 +1956,7 @@ do
 			image = tutorials[lastTutorial].smallimage or "../textures/menu/tutorial" .. lastTutorial .. "_small.tga",
 			mode = ORIENTATION_PORTRAIT,
 			size = 0.235,
+			ratio = 1.055,
 			action = function() Tutorials:runTutorial(lastTutorial) end,
 			quit = true
 		}
@@ -1962,6 +1966,7 @@ do
 			image = "../textures/menu/tutorials_all_small.tga",
 			mode = ORIENTATION_LANDSCAPE_SHORTER,
 			size = 0.295,
+			ratio = 0.819,
 			action = function()
 				TBMenu:clearNavSection()
 				Tutorials:showAllTutorials(allTutorialsNext)
@@ -1980,6 +1985,7 @@ do
 			allTutorialsButton.image = "../textures/menu/tutorials_all.tga"
 			allTutorialsButton.mode = ORIENTATION_LANDSCAPE
 			allTutorialsButton.size = 0.5
+			allTutorialsButton.ratio = 0.5
 			return {
 				mainTutorialButton,
 				allTutorialsButton

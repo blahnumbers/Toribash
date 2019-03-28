@@ -301,11 +301,11 @@ do
 			-- Auto-rotate event announcements
 			local rotateTime = 100
 			featuredEventData.action = function() featuredEventData.initAction() rotateClock.pause = true end
-			local timeData = eventItems[1].button.pos.y > eventItems[1].image.pos.y + eventItems[1].image.size.h and { pos = { x = eventItems[1].image.pos.x, y = eventItems[1].image.pos.y + eventItems[1].image.size.h }, width = eventItems[1].image.size.w } or { pos = { x = eventItems[1].button.pos.x + 10, y = eventItems[1].button.pos.y - 5 }, width = eventItems[1].button.size.w - 20 } 
+			local timeData = eventItems[1].button.pos.y > eventItems[1].image.pos.y + eventItems[1].image.size.h and { x = eventItems[1].image.pos.x, width = eventItems[1].image.size.w } or { x = eventItems[1].button.pos.x + 10, width = eventItems[1].button.size.w - 20 } 
 			eventDisplayTime:addCustomDisplay(true, function()
 					if (not rotateClock.pause) then
 						set_color(1,1,1,1)
-						draw_quad(timeData.pos.x, timeData.pos.y, (os.clock() * 10 - rotateClock.start) % rotateTime / rotateTime * timeData.width, 5)
+						draw_quad(timeData.x, eventItems[1].button.pos.y > eventItems[1].image.pos.y + eventItems[1].image.size.h and eventItems[1].image.pos.y + eventItems[1].image.size.h or eventItems[1].button.pos.y - 5, (os.clock() * 10 - rotateClock.start) % rotateTime / rotateTime * timeData.width, 5)
 					end
 				end)
 			homeAnnouncements:addCustomDisplay(false, function()
@@ -327,7 +327,7 @@ do
 		TBMenu:showHomeButton(featuredEvent, featuredEventData, 2)
 	end
 
-	function TBMenu:showHomeButton(viewElement, buttonData, hasSmudge, extraElements)
+	function TBMenu:showHomeButton(viewElement, buttonData, hasSmudge, extraElements, lockedMessage)
 		local titleHeight = buttonData.title and (buttonData.subtitle and viewElement.size.h / 5 or viewElement.size.h / 3) or 0
 		titleHeight = titleHeight > WIN_H / 15 and WIN_H / 15 or titleHeight
 		local descHeight = buttonData.subtitle and viewElement.size.h / 6 or 0
@@ -411,6 +411,17 @@ do
 				end)
 		else
 			viewElement:addMouseHandlers(nil, buttonData.action)
+		end
+		if (buttonData.locked and lockedMessage) then
+			viewElement:deactivate()
+			local lockedMessageView = UIElement:new({
+				parent = itemIcon,
+				pos = { 0, 0 },
+				size = { itemIcon.size.w, viewElement.size.h - 20 - titleHeight - descHeight },
+				bgColor = cloneTable(TB_MENU_DEFAULT_BG_COLOR)
+			})
+			lockedMessageView.bgColor[4] = 0.7
+			lockedMessageView:addAdaptedText(nil, lockedMessage)
 		end
 		return titleHeight, descHeight
 	end
@@ -799,7 +810,7 @@ do
 		Torishop:showMain(tbMenuCurrentSection)
 	end
 
-	function TBMenu:showAccountMain()
+	function TBMenu:showAccountMain(reload)
 		if (not tbMenuCurrentSection) then
 			TBMenu:createCurrentSectionView()
 		end
@@ -815,13 +826,105 @@ do
 		TBMenu:addBottomBloodSmudge(botBar, 1)
 		local accountTitle = UIElement:new({
 			parent = topBar,
-			pos = { 10, 5 },
-			size = { topBar.size.w - 20, topBar.size.h - 10 }
+			pos = { 20, 5 },
+			size = { topBar.size.w / 2 - 25, topBar.size.h - 10 }
 		})
-		accountTitle:addAdaptedText(true, TB_MENU_LOCALIZED.ACCOUNTTITLEINFO, nil, nil, FONTS.BIG, nil, nil, nil, 0.2)
+		accountTitle:addAdaptedText(true, TB_MENU_LOCALIZED.ACCOUNTTITLEINFO, nil, nil, FONTS.BIG, LEFTMID, nil, nil, 0.2)
+		local accountDataRefresh = UIElement:new({
+			parent = topBar,
+			pos = { -45, 5 },
+			size = { 40, 40 },
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+			interactive = true,
+			shapeType = ROUNDED,
+			rounded = 3
+		})
+		local accountDataRefreshIcon = UIElement:new({
+			parent = accountDataRefresh,
+			pos = { 5, 5 },
+			size = { accountDataRefresh.size.w - 10, accountDataRefresh.size.h - 10 },
+			bgImage = "../textures/menu/general/buttons/restart.tga"
+		})
+		accountDataRefresh:addMouseHandlers(nil, function()
+				if (get_network_task() == 0) then
+					TBMenu:showAccountMain(true)
+				end
+			end)
+		local switchButtonSize = topBar.size.w / 2 - 55 > 250 and 250 or topBar.size.w / 2 - 55
+		local accountSwitch = UIElement:new({
+			parent = topBar,
+			pos = { -switchButtonSize - 50, 5 },
+			size = { switchButtonSize, 40 },
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+			interactive = true,
+			shapeType = ROUNDED,
+			rounded = 3
+		})
+		TBMenu:showTextWithImage(accountSwitch, TB_MENU_LOCALIZED.ACCOUNTSWITCH, FONTS.MEDIUM, 24, TB_MENU_LOGOUT_BUTTON)
+		accountSwitch:addMouseHandlers(nil, function() open_menu(18) end)
 		
-		local accountDatas = PlayerInfo:getServerUserinfo()
-		if (not accountDatas.ready) then
+		local function showAccountData(data)
+			local listElements = {}
+			for i,v in pairs(data) do
+				if (type(v) == "table") then
+					local infoBG = UIElement:new({
+						parent = listingHolder,
+						pos = { 0, elementHeight * #listElements },
+						size = { listingHolder.size.w, elementHeight }
+					})
+					table.insert(listElements, infoBG)
+					local infoHolder = UIElement:new({
+						parent = infoBG,
+						pos = { 10, 5 },
+						size = { infoBG.size.w - 10, elementHeight - 10 },
+						bgColor = v.customColor or TB_MENU_DEFAULT_DARKER_COLOR,
+						uiColor = v.customUiColor,
+						interactive = v.action,
+						hoverColor = v.customHoverColor or TB_MENU_DEFAULT_DARKEST_COLOR,
+						pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+					})
+					local infoText = UIElement:new({
+						parent = infoHolder,
+						pos = { 10, 0 },
+						size = { infoHolder.size.w - 20, infoHolder.size.h }
+					})
+					if (v.hint) then
+						local hintSign = UIElement:new({
+							parent = infoHolder,
+							pos = { 5, 5 },
+							size = { 30, 30 },
+							bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+							hoverColor = TB_MENU_DEFAULT_BG_COLOR,
+							shapeType = ROUNDED,
+							uiColor = UICOLORWHITE,
+							rounded = 36,
+							interactive = true
+						})
+						TBMenu:displayHelpPopup(hintSign, v.hint)
+						infoText:moveTo(40)
+						infoText.size.w = infoHolder.size.w - 50
+					end
+					infoText:addAdaptedText(true, v.name .. ": " .. v.value, nil, nil, nil, LEFTMID)
+					if (v.action) then
+						infoHolder:addMouseHandlers(nil, v.action)
+					end
+				end
+			end
+			for i,v in pairs(listElements) do
+				v:hide()
+			end
+			local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
+			scrollBar:makeScrollBar(listingHolder, listElements, toReload)
+		end
+		
+		local accountDatas = PlayerInfo:getServerUserinfo(nil, reload)
+		if (accountDatas.ready) then
+			showAccountData(accountDatas)
+		else
 			local infoMessage = UIElement:new({
 				parent = listingHolder,
 				pos = { 0, 0 },
@@ -843,55 +946,7 @@ do
 						infoMessage:kill()
 						accountDatas.ready = nil
 						
-						local listElements = {}
-						for i,v in pairs(accountDatas) do
-							local infoBG = UIElement:new({
-								parent = listingHolder,
-								pos = { 0, elementHeight * #listElements },
-								size = { listingHolder.size.w, elementHeight }
-							})
-							table.insert(listElements, infoBG)
-							local infoHolder = UIElement:new({
-								parent = infoBG,
-								pos = { 10, 5 },
-								size = { infoBG.size.w - 10, elementHeight - 10 },
-								bgColor = v.customColor or TB_MENU_DEFAULT_DARKER_COLOR,
-								uiColor = v.customUiColor,
-								interactive = v.action,
-								hoverColor = v.customHoverColor or TB_MENU_DEFAULT_DARKEST_COLOR,
-								pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
-							})
-							local infoText = UIElement:new({
-								parent = infoHolder,
-								pos = { 10, 0 },
-								size = { infoHolder.size.w - 20, infoHolder.size.h }
-							})
-							if (v.hint) then
-								local hintSign = UIElement:new({
-									parent = infoHolder,
-									pos = { 5, 5 },
-									size = { 30, 30 },
-									bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-									hoverColor = TB_MENU_DEFAULT_BG_COLOR,
-									shapeType = ROUNDED,
-									uiColor = UICOLORWHITE,
-									rounded = 36,
-									interactive = true
-								})
-								TBMenu:displayHelpPopup(hintSign, v.hint)
-								infoText:moveTo(40)
-								infoText.size.w = infoHolder.size.w - 50
-							end
-							infoText:addAdaptedText(true, v.name .. ": " .. v.value, nil, nil, nil, LEFTMID)
-							if (v.action) then
-								infoHolder:addMouseHandlers(nil, v.action)
-							end
-						end
-						for i,v in pairs(listElements) do
-							v:hide()
-						end
-						local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
-						scrollBar:makeScrollBar(listingHolder, listElements, toReload)
+						showAccountData(accountDatas)
 					end
 				end)
 		end
@@ -949,9 +1004,9 @@ do
 
 	function TBMenu:showPlaySection()
 		local tbMenuPlayButtonsData = {
-			{ title = TB_MENU_LOCALIZED.MAINMENUFREEPLAYNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUFREEPLAYDESC, size = 0.5, image = "../textures/menu/freeplay.tga", mode = ORIENTATION_LANDSCAPE, action = function() open_menu(1) end },
-			{ title = TB_MENU_LOCALIZED.MAINMENUREPLAYSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUREPLAYSDESC, size = 0.25, image = "../textures/menu/replays.tga", mode = ORIENTATION_PORTRAIT, action = function() TBMenu:showReplays() end },
-			{ title = TB_MENU_LOCALIZED.MAINMENUROOMLISTNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUROOMLISTDESC, size = 0.25, image = "../textures/menu/multiplayer.tga", mode = ORIENTATION_PORTRAIT, action = function() if (TB_MENU_PLAYER_INFO.username == '') then TBMenu:showLoginError(tbMenuCurrentSection, TB_MENU_LOCALIZED.MAINMENUROOMLISTNAME) return end open_menu(2) end }
+			{ title = TB_MENU_LOCALIZED.MAINMENUFREEPLAYNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUFREEPLAYDESC, size = 0.5, ratio = 0.5, image = "../textures/menu/freeplay.tga", mode = ORIENTATION_LANDSCAPE, action = function() open_menu(1) end },
+			{ title = TB_MENU_LOCALIZED.MAINMENUREPLAYSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUREPLAYSDESC, size = 0.25, ratio = 1.055, image = "../textures/menu/replays.tga", mode = ORIENTATION_PORTRAIT, action = function() TBMenu:showReplays() end },
+			{ title = TB_MENU_LOCALIZED.MAINMENUROOMLISTNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUROOMLISTDESC, size = 0.25, ratio = 1.055, image = "../textures/menu/multiplayer.tga", mode = ORIENTATION_PORTRAIT, action = function() if (TB_MENU_PLAYER_INFO.username == '') then TBMenu:showLoginError(tbMenuCurrentSection, TB_MENU_LOCALIZED.MAINMENUROOMLISTNAME) return end open_menu(2) end }
 		}
 		TBMenu:showSection(tbMenuPlayButtonsData)
 	end
@@ -1228,28 +1283,29 @@ do
 		UIScrollbarIgnore = true
 	end
 
-	function TBMenu:showModsSection()
-		local tbMenuModsButtonsData = {
-			{ title = TB_MENU_LOCALIZED.MAINMENUMODMAKERNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUMODMAKERDESC, size = 0.25, image = "../textures/menu/modmaker.tga", mode = ORIENTATION_PORTRAIT, action = function() open_menu(17) end },
-			{ title = TB_MENU_LOCALIZED.MAINMENUGAMERULESNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUGAMERULESDESC, size = 0.25, image = "../textures/menu/gamerules.tga", mode = ORIENTATION_PORTRAIT, action = function() open_menu(5) end, quit = true },
-			{ title = TB_MENU_LOCALIZED.MAINMENUMODLISTNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUMODLISTDESC, size = 0.5, image = "../textures/menu/modlist.tga", mode = ORIENTATION_LANDSCAPE, action = function()
-					dofile("system/mods_manager.lua")
-					if (MODS_MENU_MAIN_ELEMENT) then
-						MODS_MENU_MAIN_ELEMENT:kill()
-						MODS_MENU_MAIN_ELEMENT = nil
-					end
-					Mods:showMain()
-				end, quit = true }
-		}
-		TBMenu:showSection(tbMenuModsButtonsData)
-	end
+	-- Not used anymore
+	-- function TBMenu:showModsSection()
+	-- 	local tbMenuModsButtonsData = {
+	-- 		{ title = TB_MENU_LOCALIZED.MAINMENUMODMAKERNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUMODMAKERDESC, size = 0.25, image = "../textures/menu/modmaker.tga", mode = ORIENTATION_PORTRAIT, action = function() open_menu(17) end },
+	-- 		{ title = TB_MENU_LOCALIZED.MAINMENUGAMERULESNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUGAMERULESDESC, size = 0.25, image = "../textures/menu/gamerules.tga", mode = ORIENTATION_PORTRAIT, action = function() open_menu(5) end, quit = true },
+	-- 		{ title = TB_MENU_LOCALIZED.MAINMENUMODLISTNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUMODLISTDESC, size = 0.5, image = "../textures/menu/modlist.tga", mode = ORIENTATION_LANDSCAPE, action = function()
+	-- 				dofile("system/mods_manager.lua")
+	-- 				if (MODS_MENU_MAIN_ELEMENT) then
+	-- 					MODS_MENU_MAIN_ELEMENT:kill()
+	-- 					MODS_MENU_MAIN_ELEMENT = nil
+	-- 				end
+	-- 				Mods:showMain()
+	-- 			end, quit = true }
+	-- 	}
+	-- 	TBMenu:showSection(tbMenuModsButtonsData)
+	-- end
 
 	function TBMenu:showToolsSection()
 		local tbMenuToolsButtonsData = {
-			{ title = TB_MENU_LOCALIZED.MAINMENUMODMAKERNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUMODMAKERDESC, size = 0.25, image = "../textures/menu/modmaker2.tga", mode = ORIENTATION_PORTRAIT, action = function() open_menu(17) end },
-			{ title = TB_MENU_LOCALIZED.MAINMENUSCRIPTSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUSCRIPTSDESC, size = 0.25, image = "../textures/menu/scripts.tga", mode = ORIENTATION_PORTRAIT, action = function() TBMenu:showScripts() end },
-			{ title = TB_MENU_LOCALIZED.MAINMENUHOTKEYSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUHOTKEYSDESC, size = 0.25, image = "../textures/menu/hotkeys.tga", mode = ORIENTATION_PORTRAIT, action = function() TBMenu:showHotkeys() end },
-			{ title = "Settings", subtitle = TB_MENU_LOCALIZED.MAINMENUHOTKEYSDESC, size = 0.25, image = "../textures/menu/settings.tga", mode = ORIENTATION_PORTRAIT, action = function() TBMenu:showSettings() end },
+			{ title = TB_MENU_LOCALIZED.MAINMENUMODMAKERNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUMODMAKERDESC, size = 0.25, ratio = 1.055, image = "../textures/menu/modmaker2.tga", mode = ORIENTATION_PORTRAIT, action = function() open_menu(17) end },
+			{ title = TB_MENU_LOCALIZED.MAINMENUSCRIPTSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUSCRIPTSDESC, size = 0.25, ratio = 1.055, image = "../textures/menu/scripts.tga", mode = ORIENTATION_PORTRAIT, action = function() TBMenu:showScripts() end },
+			{ title = TB_MENU_LOCALIZED.MAINMENUHOTKEYSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUHOTKEYSDESC, size = 0.25, ratio = 1.055, image = "../textures/menu/hotkeys.tga", mode = ORIENTATION_PORTRAIT, action = function() TBMenu:showHotkeys() end },
+			{ title = "Settings", subtitle = TB_MENU_LOCALIZED.MAINMENUHOTKEYSDESC, size = 0.25, ratio = 1.055, image = "../textures/menu/settings.tga", mode = ORIENTATION_PORTRAIT, action = function() TBMenu:showSettings() end },
 		}
 		TBMenu:showSection(tbMenuToolsButtonsData)
 	end
@@ -1272,174 +1328,199 @@ do
 		})
 		return smudgeElement
 	end
-
+	
 	function TBMenu:showSection(buttonsData, shift, lockedMessage)
 		if (not tbMenuCurrentSection) then
 			TBMenu:createCurrentSectionView()
 		end
-		local tbMenuSectionButtons = {}
 		local sectionX = shift and shift + 15 or 5
 		local sectionY = 0
-		local maxWidthButton = { 0, 0 }
-		for i, v in pairs (buttonsData) do
-			if (v.size > maxWidthButton[2] and not v.vsize) then
-				maxWidthButton[2] = v.size
-				maxWidthButton[1] = i
-			end
-		end
-		local imageRes = tbMenuCurrentSection.size.w * maxWidthButton[2] - 10
-		local titleScaleModifier, titleFont, subtitleScaleModifier = 1, UI_HIGH_RESOLUTION_MODE and FONTS.BIGGER or FONTS.BIG, 1
-		for i, v in pairs (buttonsData) do
-			if (v.vsize) then
-				titleScaleModifier, subtitleScaleModifier = 0.7, 0.8
-				break
-			end
-		end
-		for i, v in pairs (buttonsData) do
-			tbMenuSectionButtons[i] = {}
-			if (buttonsData[i].vsize) then
-				if (sectionY + tbMenuCurrentSection.size.h * buttonsData[i].vsize - 5 > tbMenuCurrentSection.size.h) then
-					tbMenuSectionButtons[i - 1].bottomSmudge = TBMenu:addBottomBloodSmudge(tbMenuSectionButtons[i - 1].mainView, i - 1)
-					sectionY = 0
-					sectionX = sectionX + tbMenuCurrentSection.size.w * buttonsData[i].size
-				end
-				tbMenuSectionButtons[i].mainView = UIElement:new( {
-					parent = tbMenuCurrentSection,
-					pos = { sectionX, sectionY },
-					size = { tbMenuCurrentSection.size.w * buttonsData[i].size - 10, tbMenuCurrentSection.size.h * buttonsData[i].vsize - 5 },
-					bgColor = TB_MENU_DEFAULT_BG_COLOR,
-					interactive = true,
-					hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
-					pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-					hoverSound = 31
-				})
-				if (i == #buttonsData) then
-					tbMenuSectionButtons[i].bottomSmudge = TBMenu:addBottomBloodSmudge(tbMenuSectionButtons[i].mainView, i - 1)
-				end
-				sectionY = sectionY + tbMenuCurrentSection.size.h * buttonsData[i].vsize + 5
-			else
-				if (i > 1 and tbMenuSectionButtons[i - 1].mainView.shift.x == sectionX) then
-					sectionX = sectionX + tbMenuCurrentSection.size.w * buttonsData[i - 1].size
-					tbMenuSectionButtons[i - 1].bottomSmudge = TBMenu:addBottomBloodSmudge(tbMenuSectionButtons[i - 1].mainView, i - 1)
-				end
-				sectionY = 0
-				tbMenuSectionButtons[i].mainView = UIElement:new( {
-					parent = tbMenuCurrentSection,
-					pos = { sectionX, 0 },
-					size = { tbMenuCurrentSection.size.w * buttonsData[i].size - 10, tbMenuCurrentSection.size.h },
-					bgColor = TB_MENU_DEFAULT_BG_COLOR,
-					interactive = true,
-					hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
-					pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-					hoverSound = 31
-				})
-				tbMenuSectionButtons[i].bottomSmudge = TBMenu:addBottomBloodSmudge(tbMenuSectionButtons[i].mainView, i)
-				sectionX = sectionX + tbMenuCurrentSection.size.w * buttonsData[i].size
-			end
-			if (imageRes > 0 and buttonsData[i].image and ((imageRes / 2 < tbMenuSectionButtons[i].mainView.size.h / 5 * 4 and buttonsData[maxWidthButton[1]].mode == ORIENTATION_LANDSCAPE) or (imageRes / 3 * 2 < tbMenuSectionButtons[i].mainView.size.h / 5 * 4 and buttonsData[maxWidthButton[1]].mode == ORIENTATION_LANDSCAPE_SHORTER) or (imageRes < tbMenuSectionButtons[i].mainView.size.h / 5 * 4 and buttonsData[maxWidthButton[1]].mode == ORIENTATION_PORTRAIT)) and not buttonsData[i].vsize) then
-				local imageBottom
-				if (buttonsData[i].mode == ORIENTATION_PORTRAIT) then
-					tbMenuSectionButtons[i].imageView = UIElement:new( {
-						parent = tbMenuSectionButtons[i].mainView,
-						pos = { 10, 10 },
-						size = { tbMenuSectionButtons[i].mainView.size.w - 20, (imageRes - 20) / maxWidthButton[2] * buttonsData[i].size },
-						bgImage = buttonsData[i].image
-					})
-					imageBottom = (imageRes - 20) / maxWidthButton[2] * buttonsData[i].size + 20
-				elseif (buttonsData[i].mode == ORIENTATION_LANDSCAPE) then
-					tbMenuSectionButtons[i].imageView = UIElement:new( {
-						parent = tbMenuSectionButtons[i].mainView,
-						pos = { 10, 10 },
-						size = { (imageRes - 20) / maxWidthButton[2] * buttonsData[i].size, (imageRes - 20) / maxWidthButton[2] * buttonsData[i].size / 2 },
-						bgImage = buttonsData[i].image
-					})
-					imageBottom = (imageRes - 20) / maxWidthButton[2] * buttonsData[i].size / 2 + 20
-				else
-					tbMenuSectionButtons[i].imageView = UIElement:new( {
-						parent = tbMenuSectionButtons[i].mainView,
-						pos = { 10, 10 },
-						size = { tbMenuSectionButtons[i].mainView.size.w - 20, (imageRes - 20) / maxWidthButton[2] * buttonsData[i].size * 0.795 },
-						bgImage = buttonsData[i].image
-					})
-					imageBottom = (imageRes - 20) / maxWidthButton[2] * buttonsData[i].size * 0.795 + 20
-				end
-				tbMenuSectionButtons[i].titleView = UIElement:new( {
-					parent = tbMenuSectionButtons[i].mainView,
-					pos = { tbMenuSectionButtons[i].mainView.size.w / 20, imageBottom},
-					size = { tbMenuSectionButtons[i].mainView.size.w * 0.9, (tbMenuSectionButtons[i].mainView.size.h - imageBottom) / 2 - 10 }
-				})
-				tbMenuSectionButtons[i].subtitleView = UIElement:new( {
-					parent = tbMenuSectionButtons[i].mainView,
-					pos = { tbMenuSectionButtons[i].mainView.size.w / 20, imageBottom + (tbMenuSectionButtons[i].mainView.size.h - imageBottom) / 2 },
-					size = { tbMenuSectionButtons[i].mainView.size.w * 0.9, (tbMenuSectionButtons[i].mainView.size.h - imageBottom) / 3 }
-				})
-			elseif (buttonsData[i].vsize) then
-				tbMenuSectionButtons[i].titleView = UIElement:new( {
-					parent = tbMenuSectionButtons[i].mainView,
-					pos = { tbMenuSectionButtons[i].mainView.size.w / 20, tbMenuSectionButtons[i].mainView.size.h * 1 / 10 },
-					size = { tbMenuSectionButtons[i].mainView.size.w * 0.9, tbMenuSectionButtons[i].mainView.size.h * 4 / 10 - 5 }
-				})
-				tbMenuSectionButtons[i].subtitleView = UIElement:new( {
-					parent = tbMenuSectionButtons[i].mainView,
-					pos = { tbMenuSectionButtons[i].mainView.size.w / 20, tbMenuSectionButtons[i].mainView.size.h / 2 + 5 },
-					size = { tbMenuSectionButtons[i].mainView.size.w * 0.9, tbMenuSectionButtons[i].mainView.size.h * 4 / 10 }
-				})
-			else
-				tbMenuSectionButtons[i].titleView = UIElement:new( {
-					parent = tbMenuSectionButtons[i].mainView,
-					pos = { tbMenuSectionButtons[i].mainView.size.w / 20, tbMenuSectionButtons[i].mainView.size.h / 6 },
-					size = { tbMenuSectionButtons[i].mainView.size.w * 0.9, tbMenuSectionButtons[i].mainView.size.h / 3 - 5 }
-				})
-				tbMenuSectionButtons[i].subtitleView = UIElement:new( {
-					parent = tbMenuSectionButtons[i].mainView,
-					pos = { tbMenuSectionButtons[i].mainView.size.w / 20, tbMenuSectionButtons[i].mainView.size.h / 2 + 5 },
-					size = { tbMenuSectionButtons[i].mainView.size.w * 0.9, tbMenuSectionButtons[i].mainView.size.h / 3 }
-				})
-			end
-			tbMenuSectionButtons[i].titleView:addAdaptedText(true, buttonsData[i].title, nil, nil, titleFont, LEFT)
-			if (titleFont > tbMenuSectionButtons[i].titleView.textFont) then
-				titleFont = tbMenuSectionButtons[i].titleView.textFont
-				titleScaleModifier = tbMenuSectionButtons[i].titleView.textScale
-			elseif (titleScaleModifier > tbMenuSectionButtons[i].titleView.textScale) then
-				titleScaleModifier = tbMenuSectionButtons[i].titleView.textScale
-			end
-			
-			while (not tbMenuSectionButtons[i].subtitleView:uiText(buttonsData[i].subtitle, nil, nil, 4, LEFT, subtitleScaleModifier, nil, nil, nil, nil, nil, true) and subtitleScaleModifier > 0.4) do
-				subtitleScaleModifier = subtitleScaleModifier - 0.05
-			end
-		end
-		for i, v in pairs (buttonsData) do
-			tbMenuSectionButtons[i].mainView:addMouseHandlers(nil, function()
-					if (v.quit) then
-						close_menu()
-					end
-					buttonsData[i].action()
-				end, nil)
-			tbMenuSectionButtons[i].titleView:addCustomDisplay(false, function()
-					tbMenuSectionButtons[i].titleView:uiText(buttonsData[i].title, nil, nil, titleFont, LEFTBOT, titleScaleModifier, nil, nil, nil, nil, 0.2)
-				end)
-			tbMenuSectionButtons[i].subtitleView:addCustomDisplay(false, function()
-					tbMenuSectionButtons[i].subtitleView:uiText(buttonsData[i].subtitle, nil, nil, 4, LEFT, subtitleScaleModifier)
-				end)
-			if (lockedMessage) then
-				if (v.locked) then
-					tbMenuSectionButtons[i].locked = UIElement:new({
-						parent = tbMenuSectionButtons[i].mainView,
-						pos = { 0, 0 },
-						size = { tbMenuSectionButtons[i].mainView.size.w, tbMenuSectionButtons[i].mainView.size.h },
-						interactive = true,
-						bgColor = cloneTable(TB_MENU_DEFAULT_DARKEST_COLOR)
-					})
-					tbMenuSectionButtons[i].locked.bgColor[4] = 0.8
-					tbMenuSectionButtons[i].locked:addAdaptedText(false, lockedMessage)
-					if (tbMenuSectionButtons[i].bottomSmudge) then
-						tbMenuSectionButtons[i].bottomSmudge:kill()
-						tbMenuSectionButtons[i].bottomSmudge = TBMenu:addBottomBloodSmudge(tbMenuSectionButtons[i].mainView, i)
-					end
-				end
-			end
+		for i,v in pairs(buttonsData) do
+			local buttonView = UIElement:new({
+				parent = tbMenuCurrentSection,
+				pos = { sectionX, sectionY },
+				size = { tbMenuCurrentSection.size.w * v.size - 10, v.vsize and (tbMenuCurrentSection.size.h * v.vsize - 5) or tbMenuCurrentSection.size.h },
+				bgColor = TB_MENU_DEFAULT_BG_COLOR,
+				interactive = true,
+				hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+				hoverSound = 31
+			})
+			sectionY = v.vsize and sectionY + buttonView.size.h + 10 or sectionY
+			sectionY = sectionY >= tbMenuCurrentSection.size.h and 0 or sectionY
+			sectionX = sectionY == 0 and sectionX + buttonView.size.w + 10 or sectionX
+			TBMenu:showHomeButton(buttonView, v, sectionY == 0 and i, nil, lockedMessage)
 		end
 	end
+
+	-- Old display method, not used anymore
+	-- function TBMenu:showSectionOld(buttonsData, shift, lockedMessage)
+	-- 	if (not tbMenuCurrentSection) then
+	-- 		TBMenu:createCurrentSectionView()
+	-- 	end
+	-- 	local tbMenuSectionButtons = {}
+	-- 	local sectionX = shift and shift + 15 or 5
+	-- 	local sectionY = 0
+	-- 	local maxWidthButton = { 0, 0 }
+	-- 	for i, v in pairs (buttonsData) do
+	-- 		if (v.size > maxWidthButton[2] and not v.vsize) then
+	-- 			maxWidthButton[2] = v.size
+	-- 			maxWidthButton[1] = i
+	-- 		end
+	-- 	end
+	-- 	local imageRes = tbMenuCurrentSection.size.w * maxWidthButton[2] - 10
+	-- 	local titleScaleModifier, titleFont, subtitleScaleModifier = 1, UI_HIGH_RESOLUTION_MODE and FONTS.BIGGER or FONTS.BIG, 1
+	-- 	for i, v in pairs (buttonsData) do
+	-- 		if (v.vsize) then
+	-- 			titleScaleModifier, subtitleScaleModifier = 0.7, 0.8
+	-- 			break
+	-- 		end
+	-- 	end
+	-- 	for i, v in pairs (buttonsData) do
+	-- 		tbMenuSectionButtons[i] = {}
+	-- 		if (buttonsData[i].vsize) then
+	-- 			if (sectionY + tbMenuCurrentSection.size.h * buttonsData[i].vsize - 5 > tbMenuCurrentSection.size.h) then
+	-- 				tbMenuSectionButtons[i - 1].bottomSmudge = TBMenu:addBottomBloodSmudge(tbMenuSectionButtons[i - 1].mainView, i - 1)
+	-- 				sectionY = 0
+	-- 				sectionX = sectionX + tbMenuCurrentSection.size.w * buttonsData[i].size
+	-- 			end
+	-- 			tbMenuSectionButtons[i].mainView = UIElement:new( {
+	-- 				parent = tbMenuCurrentSection,
+	-- 				pos = { sectionX, sectionY },
+	-- 				size = { tbMenuCurrentSection.size.w * buttonsData[i].size - 10, tbMenuCurrentSection.size.h * buttonsData[i].vsize - 5 },
+	-- 				bgColor = TB_MENU_DEFAULT_BG_COLOR,
+	-- 				interactive = true,
+	-- 				hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
+	-- 				pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+	-- 				hoverSound = 31
+	-- 			})
+	-- 			if (i == #buttonsData) then
+	-- 				tbMenuSectionButtons[i].bottomSmudge = TBMenu:addBottomBloodSmudge(tbMenuSectionButtons[i].mainView, i - 1)
+	-- 			end
+	-- 			sectionY = sectionY + tbMenuCurrentSection.size.h * buttonsData[i].vsize + 5
+	-- 		else
+	-- 			if (i > 1 and tbMenuSectionButtons[i - 1].mainView.shift.x == sectionX) then
+	-- 				sectionX = sectionX + tbMenuCurrentSection.size.w * buttonsData[i - 1].size
+	-- 				tbMenuSectionButtons[i - 1].bottomSmudge = TBMenu:addBottomBloodSmudge(tbMenuSectionButtons[i - 1].mainView, i - 1)
+	-- 			end
+	-- 			sectionY = 0
+	-- 			tbMenuSectionButtons[i].mainView = UIElement:new( {
+	-- 				parent = tbMenuCurrentSection,
+	-- 				pos = { sectionX, 0 },
+	-- 				size = { tbMenuCurrentSection.size.w * buttonsData[i].size - 10, tbMenuCurrentSection.size.h },
+	-- 				bgColor = TB_MENU_DEFAULT_BG_COLOR,
+	-- 				interactive = true,
+	-- 				hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
+	-- 				pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+	-- 				hoverSound = 31
+	-- 			})
+	-- 			tbMenuSectionButtons[i].bottomSmudge = TBMenu:addBottomBloodSmudge(tbMenuSectionButtons[i].mainView, i)
+	-- 			sectionX = sectionX + tbMenuCurrentSection.size.w * buttonsData[i].size
+	-- 		end
+	-- 		if (imageRes > 0 and buttonsData[i].image and ((imageRes / 2 < tbMenuSectionButtons[i].mainView.size.h / 5 * 4 and buttonsData[maxWidthButton[1]].mode == ORIENTATION_LANDSCAPE) or (imageRes / 3 * 2 < tbMenuSectionButtons[i].mainView.size.h / 5 * 4 and buttonsData[maxWidthButton[1]].mode == ORIENTATION_LANDSCAPE_SHORTER) or (imageRes < tbMenuSectionButtons[i].mainView.size.h / 5 * 4 and buttonsData[maxWidthButton[1]].mode == ORIENTATION_PORTRAIT)) and not buttonsData[i].vsize) then
+	-- 			local imageBottom
+	-- 			if (buttonsData[i].mode == ORIENTATION_PORTRAIT) then
+	-- 				tbMenuSectionButtons[i].imageView = UIElement:new( {
+	-- 					parent = tbMenuSectionButtons[i].mainView,
+	-- 					pos = { 10, 10 },
+	-- 					size = { tbMenuSectionButtons[i].mainView.size.w - 20, (imageRes - 20) / maxWidthButton[2] * buttonsData[i].size },
+	-- 					bgImage = buttonsData[i].image
+	-- 				})
+	-- 				imageBottom = (imageRes - 20) / maxWidthButton[2] * buttonsData[i].size + 20
+	-- 			elseif (buttonsData[i].mode == ORIENTATION_LANDSCAPE) then
+	-- 				tbMenuSectionButtons[i].imageView = UIElement:new( {
+	-- 					parent = tbMenuSectionButtons[i].mainView,
+	-- 					pos = { 10, 10 },
+	-- 					size = { (imageRes - 20) / maxWidthButton[2] * buttonsData[i].size, (imageRes - 20) / maxWidthButton[2] * buttonsData[i].size / 2 },
+	-- 					bgImage = buttonsData[i].image
+	-- 				})
+	-- 				imageBottom = (imageRes - 20) / maxWidthButton[2] * buttonsData[i].size / 2 + 20
+	-- 			else
+	-- 				tbMenuSectionButtons[i].imageView = UIElement:new( {
+	-- 					parent = tbMenuSectionButtons[i].mainView,
+	-- 					pos = { 10, 10 },
+	-- 					size = { tbMenuSectionButtons[i].mainView.size.w - 20, (imageRes - 20) / maxWidthButton[2] * buttonsData[i].size * 0.795 },
+	-- 					bgImage = buttonsData[i].image
+	-- 				})
+	-- 				imageBottom = (imageRes - 20) / maxWidthButton[2] * buttonsData[i].size * 0.795 + 20
+	-- 			end
+	-- 			tbMenuSectionButtons[i].titleView = UIElement:new( {
+	-- 				parent = tbMenuSectionButtons[i].mainView,
+	-- 				pos = { tbMenuSectionButtons[i].mainView.size.w / 20, imageBottom},
+	-- 				size = { tbMenuSectionButtons[i].mainView.size.w * 0.9, (tbMenuSectionButtons[i].mainView.size.h - imageBottom) / 2 - 10 }
+	-- 			})
+	-- 			tbMenuSectionButtons[i].subtitleView = UIElement:new( {
+	-- 				parent = tbMenuSectionButtons[i].mainView,
+	-- 				pos = { tbMenuSectionButtons[i].mainView.size.w / 20, imageBottom + (tbMenuSectionButtons[i].mainView.size.h - imageBottom) / 2 },
+	-- 				size = { tbMenuSectionButtons[i].mainView.size.w * 0.9, (tbMenuSectionButtons[i].mainView.size.h - imageBottom) / 3 }
+	-- 			})
+	-- 		elseif (buttonsData[i].vsize) then
+	-- 			tbMenuSectionButtons[i].titleView = UIElement:new( {
+	-- 				parent = tbMenuSectionButtons[i].mainView,
+	-- 				pos = { tbMenuSectionButtons[i].mainView.size.w / 20, tbMenuSectionButtons[i].mainView.size.h * 1 / 10 },
+	-- 				size = { tbMenuSectionButtons[i].mainView.size.w * 0.9, tbMenuSectionButtons[i].mainView.size.h * 4 / 10 - 5 }
+	-- 			})
+	-- 			tbMenuSectionButtons[i].subtitleView = UIElement:new( {
+	-- 				parent = tbMenuSectionButtons[i].mainView,
+	-- 				pos = { tbMenuSectionButtons[i].mainView.size.w / 20, tbMenuSectionButtons[i].mainView.size.h / 2 + 5 },
+	-- 				size = { tbMenuSectionButtons[i].mainView.size.w * 0.9, tbMenuSectionButtons[i].mainView.size.h * 4 / 10 }
+	-- 			})
+	-- 		else
+	-- 			tbMenuSectionButtons[i].titleView = UIElement:new( {
+	-- 				parent = tbMenuSectionButtons[i].mainView,
+	-- 				pos = { tbMenuSectionButtons[i].mainView.size.w / 20, tbMenuSectionButtons[i].mainView.size.h / 6 },
+	-- 				size = { tbMenuSectionButtons[i].mainView.size.w * 0.9, tbMenuSectionButtons[i].mainView.size.h / 3 - 5 }
+	-- 			})
+	-- 			tbMenuSectionButtons[i].subtitleView = UIElement:new( {
+	-- 				parent = tbMenuSectionButtons[i].mainView,
+	-- 				pos = { tbMenuSectionButtons[i].mainView.size.w / 20, tbMenuSectionButtons[i].mainView.size.h / 2 + 5 },
+	-- 				size = { tbMenuSectionButtons[i].mainView.size.w * 0.9, tbMenuSectionButtons[i].mainView.size.h / 3 }
+	-- 			})
+	-- 		end
+	-- 		tbMenuSectionButtons[i].titleView:addAdaptedText(true, buttonsData[i].title, nil, nil, titleFont, LEFT)
+	-- 		if (titleFont > tbMenuSectionButtons[i].titleView.textFont) then
+	-- 			titleFont = tbMenuSectionButtons[i].titleView.textFont
+	-- 			titleScaleModifier = tbMenuSectionButtons[i].titleView.textScale
+	-- 		elseif (titleScaleModifier > tbMenuSectionButtons[i].titleView.textScale) then
+	-- 			titleScaleModifier = tbMenuSectionButtons[i].titleView.textScale
+	-- 		end
+	-- 
+	-- 		while (not tbMenuSectionButtons[i].subtitleView:uiText(buttonsData[i].subtitle, nil, nil, 4, LEFT, subtitleScaleModifier, nil, nil, nil, nil, nil, true) and subtitleScaleModifier > 0.4) do
+	-- 			subtitleScaleModifier = subtitleScaleModifier - 0.05
+	-- 		end
+	-- 	end
+	-- 	for i, v in pairs (buttonsData) do
+	-- 		tbMenuSectionButtons[i].mainView:addMouseHandlers(nil, function()
+	-- 				if (v.quit) then
+	-- 					close_menu()
+	-- 				end
+	-- 				buttonsData[i].action()
+	-- 			end, nil)
+	-- 		tbMenuSectionButtons[i].titleView:addCustomDisplay(false, function()
+	-- 				tbMenuSectionButtons[i].titleView:uiText(buttonsData[i].title, nil, nil, titleFont, LEFTBOT, titleScaleModifier, nil, nil, nil, nil, 0.2)
+	-- 			end)
+	-- 		tbMenuSectionButtons[i].subtitleView:addCustomDisplay(false, function()
+	-- 				tbMenuSectionButtons[i].subtitleView:uiText(buttonsData[i].subtitle, nil, nil, 4, LEFT, subtitleScaleModifier)
+	-- 			end)
+	-- 		if (lockedMessage) then
+	-- 			if (v.locked) then
+	-- 				tbMenuSectionButtons[i].locked = UIElement:new({
+	-- 					parent = tbMenuSectionButtons[i].mainView,
+	-- 					pos = { 0, 0 },
+	-- 					size = { tbMenuSectionButtons[i].mainView.size.w, tbMenuSectionButtons[i].mainView.size.h },
+	-- 					interactive = true,
+	-- 					bgColor = cloneTable(TB_MENU_DEFAULT_DARKEST_COLOR)
+	-- 				})
+	-- 				tbMenuSectionButtons[i].locked.bgColor[4] = 0.8
+	-- 				tbMenuSectionButtons[i].locked:addAdaptedText(false, lockedMessage)
+	-- 				if (tbMenuSectionButtons[i].bottomSmudge) then
+	-- 					tbMenuSectionButtons[i].bottomSmudge:kill()
+	-- 					tbMenuSectionButtons[i].bottomSmudge = TBMenu:addBottomBloodSmudge(tbMenuSectionButtons[i].mainView, i)
+	-- 				end
+	-- 			end
+	-- 		end
+	-- 	end
+	-- end
 
 	function TBMenu:openMenu(screenId)
 		tbMenuBottomLeftBar:show()
@@ -2242,13 +2323,13 @@ do
 			pos = { imgScale * 0.8, 0 },
 			size = { viewElement.size.w - imgScale * 1.15, viewElement.size.h }
 		})
-		textView:addAdaptedText(false, text, -imgScale * 0.65, nil, fontid)
+		textView:addAdaptedText(false, text, -imgScale * 0.7, nil, fontid)
 		local fontid = textView.textFont
 		local posX = get_string_length(textView.dispstr[1], fontid) * textView.textScale
 		local bgColorDelta = viewElement.bgColor[1] + viewElement.bgColor[2] + viewElement.bgColor[3]
 		local imageElement = UIElement:new({
 			parent = textView,
-			pos = { textView.size.w / 2 + posX / 2 - imgScale / 2, textView.size.h / 2 - imgScale / 2 },
+			pos = { (textView.size.w + posX - imgScale) / 2, (textView.size.h - imgScale) / 2 },
 			size = { imgScale, imgScale },
 			bgImage = bgColorDelta > 1.5 and imgBlack or imgWhite
 		})

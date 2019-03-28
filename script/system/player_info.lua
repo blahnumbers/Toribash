@@ -2,6 +2,8 @@
 require("system/iofiles")
 require("system/network_request")
 
+SERVER_USER_INFO = SERVER_USER_INFO or { updated = -1000 }
+
 do
 	PlayerInfo = {}
 	PlayerInfo.__index = PlayerInfo
@@ -451,7 +453,7 @@ do
 		return userData
 	end
 	
-	function PlayerInfo:getServerUserinfo(username)
+	function PlayerInfo:getServerUserinfo(username, reload)
 		local localized = TB_MENU_LOCALIZED or {}
 		local function success(userinfo)
 			local response = get_network_response()
@@ -544,9 +546,21 @@ do
 				end
 			end
 			userinfo.ready = true
+			if (not username) then
+				SERVER_USER_INFO = userinfo
+				SERVER_USER_INFO.updated = os.clock()
+			end
 		end
-		get_player_userinfo(PlayerInfo:getUser(username))
-		return Request:new("userinfo", success)
+		local reload = reload or false
+		if (not username and not reload) then
+			reload = SERVER_USER_INFO.updated < os.clock() - 300
+		end
+		if (username or reload) then
+			get_player_userinfo(PlayerInfo:getUser(username))
+			return Request:new("userinfo", success)
+		end
+		SERVER_USER_INFO.ready = true
+		return SERVER_USER_INFO
 	end
 	
 	function PlayerInfo:currencyFormat(n)

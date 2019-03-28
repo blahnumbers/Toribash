@@ -35,7 +35,7 @@ DESCDATAIMGTITLE 0;2hitw_rules.tga
 DESCDATATEXT 0;2- No Replay Hacking\n- No Replay Stealing\n- No Gamerule Editing
 DESCDATA 0;3How to Enter
 DESCDATAIMGTITLE 0;3hitw_howtoenter.tga
-DESCDATATEXT 0;3You can participate in Hole in the Wall by pressing \"Participate\" button on bottom right, completing the challenge and submitting your replay to Toribash servers.\nAlternatively, you can make a replay in current challenge's mod in Free Play mode and attach it to your post in event thread on forums - if you just upload it to Toribash Community Replays then it won't be judged.\n^02Only one replay per player will be judged.
+DESCDATATEXT 0;3You can participate in Hole in the Wall by pressing "Participate" button on bottom right, completing the challenge and submitting your replay to Toribash servers.\nAlternatively, you can make a replay in current challenge's mod in Free Play mode and attach it to your post in event thread on forums - if you just upload it to Toribash Community Replays then it won't be judged.\n^02Only one replay per player will be judged.
 DESCDATA 0;4Deadline
 DESCDATAIMGTITLE 0;4hitw_deadline.tga
 DESCDATATEXT 0;4We will stop accepting new entries on April 15th, 20:00 (GMT +0)

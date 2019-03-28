@@ -146,7 +146,6 @@ do
 					local id = tonumber(ln:sub(1, 1))
 					local cnt = tonumber(ln:sub(2, 2))
 					local items = ln:sub(3)
-					echo(items .. " " .. cnt)
 					evt.prizes[id].itemids = { items:match(("(%d+) ?"):rep(cnt)) }
 				end
 			end
