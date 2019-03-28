@@ -1338,6 +1338,15 @@ do
 		return false
 	end
 	
+	function get_color_from_hex(hex)
+		local color = {}
+		for col in hex:gmatch("%w%w") do
+			table.insert(color, tonumber(col, 16) / 256)
+		end
+		color[4] = 1
+		return color
+	end
+	
 	function strEsc(str)
 		local str = str
 

@@ -525,3 +525,87 @@ TUTORIALSCOMEBACKPRACTICEDESC	Pratique suas habilidades de  'comeback' enquanto 
 TUTORIALSLOCKED	Complete outros tutoriais ou ganhe mais Qi para desbloquear
 TUTORIALSVIEWALLNAME	Ver todos os tutoriais
 TUTORIALSVIEWALLDESC	Acesse tutoriais que você já tenha completado
+NAVBUTTONNEWS	Novidades
+NAVBUTTONSTORE	Loja
+NAVBUTTONACCOUNT	Conta
+REWARDSTIMEMONTHS	meses
+REWARDSTIMEYEAR	ano
+REWARDSTIMEYEARS	anos
+SETTINGSREPLAYCACHE	Habilitar Velocidade do Replay
+SETTINGSREPLAYCACHESECONDPLAYTHROUGH	Habilitar na segunda repetição do replay
+SETTINGSREPLAYMEMSIZE	Tamanho da memória do cache dos Replays
+SETTINGSREPLAYFRAMES	quadros
+HOTKEYSREPLAYSPEED	Modificar velocidade do replay
+USERBARTCINFO	Toricreditos podem ser gastos em personalizações que se encaixam no seu limite de faixa.
+USERBARSTINFO	Shiai Tokens podem ser gastos em personalizações premium e itens que exigem faixas altas
+ACCOUNTTITLEINFO	Informações sobre sua conta
+ACCOUNTGETTINGINFO	Obtendo seus dados...
+ACCOUNTINFOERROR	Algo deu errado, tente novamente mais tarde
+STOREDOWNLOADINGMODEL	Baixando modelo do item...
+STOREDOWNLOADINGSET	Baixando set...
+STOREGETMORE	Consiga mais
+STOREBUYFOR	Comprar para
+STOREPURCHASECONFIRM	Tem certeza de que quer comprar?
+STOREPURCHASEFOR	para
+STOREPURCHASEYOUWILLHAVELEFT1	Você terá
+STOREPURCHASEYOUWILLHAVELEFT2	sair após comprar
+STOREREQUIRES	Requer
+STOREREQUIRESQI	mais Qi
+STOREVIEWING	Visualizando
+STOREAVAILABLEITEMS	Itens Disponíveis
+STOREEXPENSIVEITEMS	Itens Caros
+STOREUSDITEMS	Itens por Dólar
+STORELOCKEDITEMS	Itens indisponíveis ou bloqueados
+STORESEARCHNOITEMS	Não há itens que correspondam à sua pesquisa!
+STORESEARCHSTRINGSHORT	A pesquisa é muito curta, tente algo que tenha mais de 3 símbolos!
+SEARCHRESULTS1	
+SEARCHRESULTS2	resultados da pesquisa
+WORDSEARCH	Procurar
+STORESEARCHHINT	Comece a digitar o nome do item para pesquisar
+STOREDISCOUNTEDPRICE	Preço com desconto
+WORDTORICREDITS	ToriCréditos
+WORDSHIAITOKENS	Shiai Tokens
+STOREBUYWITH	Comprar com
+STOREVIEWIN1	Ver
+STOREVIEWIN2	na Loja
+STORELOADING	Carregando os dados da loja, aguarde ...
+STORESALE1	
+STORESALE2	Venda
+STORENOCOLORSALE	Não há cores à venda por enquanto, volte mais tarde!
+STORENOSALE	Não há itens à venda por enquanto, volte mais tarde!
+STORECOLORS	Cores
+STORECOLORSNAME	Itens coloridos
+STORECOLORSDESC	Joints, gradientes e outros itens coloridos
+STORETEXTURES	Texturas
+STORETEXTURESNAME	Slots de textura
+STORETEXTURESDESC	Itens de textura para dar ao seu Tori uma aparência única
+STOREADVANCED	Avançado
+STOREADVANCEDNAME	Personalizações avançadas
+STOREADVANCEDDESC	Itens 3D, Cabelos e outros 'upgrades' avançados para o seu Tori
+STOREACCOUNT	Conta
+STOREACCOUNTDESC	Moedsa do jogo, Boosters e subscrições
+STOREPURCHASINGITEM	Comprando item...
+STOREPURCHASEERROR	Erro ao comprar
+STOREPURCHASESERVERERROR	Erro do servidor, por favor, tente novamente mais tarde
+STOREPURCHASEERRORUNDEF	Erro de compra indefinido. Por favor contate um administrador.
+STOREPURCHASESUCCESSFUL	Parabéns pela sua compra!\nGostaria de ativar seu novo item?
+SETTINGSAUTOUPDATE	Atualizar automaticamente os arquivos e customizações dos jogadores
+ACCOUNTUSERNAME	Nome de Usuário
+ACCOUNTUSERID	ID do Usuário
+ACCOUNTGAMESPLAYEDTODAY	Partidas Jogadas Hoje
+ACCOUNTGAMESWONTODAY	Partidas Vencidas Hoje
+ACCOUNTTCEARNINGSTODAY	Recompensas das lutas de hoje
+ACCOUNTQIRESETS	O limite diário de Qi recomeçará em
+ACCOUNTSTATUS	Status da Conta
+ACCOUNTSUSPENDED	Suspenso
+ACCOUNTGREYLISTED	Trading Greylisted
+ACCOUNTNOEMAIL	Nenhum e-mail cadastrado
+ACCOUNTAWAITINGCONFIRMATION	Aguardando Confirmação de Email
+ACCOUNTSUSPENDEDINFO	Sua conta foi suspensa pelos moderadores do Toribash. Você pode recorrer seu banimento no fórum.
+ACCOUNTGREYLISTEDINFO	Sua conta tem recursos de negociação limitados. Você pode esperar o seu período de greylist ou contatar um administrador para reverte-lo antes.
+ACCOUNTEMAILERRORINFO	Os recursos da sua conta serão limitados até que você conecte um e-mail à sua conta e confirme-o.
+STOREITEMUNAVAILABLE	Este item não pode ser comprado
+REPLAYUPLOADERROR	Erro de upload de replay
+REPLAYUPLOADFAILED	Falha no upload do replay, tente novamente mais tarde.
+REPLAYUPLOADINPROGRESS	Fazendo o upload do seu replay...
+ACCOUNTSWITCH	Switch Account

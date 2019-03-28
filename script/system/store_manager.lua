@@ -163,6 +163,7 @@ do
 	end
 
 	function Torishop:getItemInfo(itemid)
+		local itemid = tonumber(itemid)
 		if (not TB_STORE_DATA) then
 			TB_STORE_DATA = Torishop:getItems()
 		end
@@ -2163,7 +2164,7 @@ do
 			local model = UIElement3D:new({
 				parent = previewHolder,
 				shapeType = CUSTOMOBJ,
-				objModel = "../models/store/presets/hairobj",
+				objModel = "../models/store/presets/hair",
 				pos = { 0, 0, 0 },
 				size = { 0.8 * scaleMultiplier, 0.8 * scaleMultiplier, 0.8 * scaleMultiplier },
 				rot = { 0, 0, 0 },
@@ -3221,9 +3222,9 @@ do
 		
 		local function downloadFile(i)
 			if (TB_STORE_MODELS[itemslist[i].itemid].upgradeable) then
-				download_server_file(itemslist[i].itemid .. "_" .. level)
+				download_server_file(itemslist[i].itemid .. "_" .. level, 1)
 			else
-				download_server_file(itemslist[i].itemid)
+				download_server_file(itemslist[i].itemid, 1)
 			end
 			if (i < #itemslist) then
 				Request:new("store_itemdownload", function()
@@ -3272,7 +3273,21 @@ do
 		end
 		
 		if (updateOverride or get_option("autoupdate") == 1) then
-			downloadFile(1)
+			if (get_network_task() == 0) then
+				downloadFile(1)
+			else
+				local downloadWaiter = UIElement:new({
+					parent = viewElement,
+					pos = { 0, 0 },
+					size = { 0, 0 }
+				})
+				downloadWaiter:addCustomDisplay(true, function()
+						if (get_network_task() == 0) then
+							downloadFile(1)
+							downloadWaiter:kill()
+						end
+					end)
+			end
 		end
 		return modelDrawn
 	end
@@ -3327,6 +3342,21 @@ do
 	function Torishop:showStoreItemInfo(item, noReload, updateOverride)
 		tbStoreItemInfoHolder:kill(true)
 		TBMenu:addBottomBloodSmudge(tbStoreItemInfoHolder, 3)
+		if (item.on_sale == 1) then
+			local sale = UIElement:new({
+				parent = tbStoreItemInfoHolder,
+				pos = { 0, 0 },
+				size = { tbStoreItemInfoHolder.size.w, tbStoreItemInfoHolder.size.w },
+				bgImage = "../textures/store/sale.tga"
+			})
+		end
+		local itemName = UIElement:new({
+			parent = tbStoreItemInfoHolder,
+			pos = { 10, 10 },
+			size = { tbStoreItemInfoHolder.size.w - 20, 44 },
+			uiShadowColor = TB_MENU_DEFAULT_BG_COLOR
+		})
+		itemName:addAdaptedText(true, item.itemname, nil, nil, FONTS.BIG, nil, nil, nil, nil, item.on_sale == 1 and 2)
 		
 		local scale = tbStoreItemInfoHolder.size.w - 50
 		if (scale > tbStoreItemInfoHolder.size.h / 3) then
@@ -3338,35 +3368,34 @@ do
 			size = { tbStoreItemInfoHolder.size.w, scale },
 			interactive = true
 		})
-		Torishop:showStoreAdvancedItemPreview(itemPreviewAdvanced, item, noReload, updateOverride)
+		Torishop:showStoreAdvancedItemPreview(itemPreviewAdvanced, item, noReload, updateOverride, nil, level)
 		
-		if (item.on_sale == 1) then
-			local saleScale = tbStoreItemInfoHolder.size.w / 2 > 256 and 256 or tbStoreItemInfoHolder.size.w / 2
-			local sale = UIElement:new({
-				parent = tbStoreItemInfoHolder,
-				pos = { -saleScale, 0 },
-				size = { saleScale, saleScale },
-				bgImage = "../textures/store/sale.tga"
-			})
-		end
-		
-		local itemName = UIElement:new({
-			parent = tbStoreItemInfoHolder,
-			pos = { 10, 10 },
-			size = { tbStoreItemInfoHolder.size.w - 20, 44 }
-		})
-		itemName:addAdaptedText(true, item.itemname, nil, nil, FONTS.BIG)
 		local itemInfo = UIElement:new({
 			parent = tbStoreItemInfoHolder,
 			pos = { 10, itemPreviewAdvanced.shift.y + itemPreviewAdvanced.size.h + 10 },
 			size = { tbStoreItemInfoHolder.size.w - 20, tbStoreItemInfoHolder.size.h - 10 - (itemPreviewAdvanced.shift.y + itemPreviewAdvanced.size.h) }
-		})
+		})			
 		local itemDesc = UIElement:new({
 			parent = itemInfo,
 			pos = { 0, 0 },
-			size = { itemInfo.size.w, itemInfo.size.h / 2 }
+			size = { itemInfo.size.w, item.on_sale == 1 and itemInfo.size.h / 3 or itemInfo.size.h / 2 }
 		})
+		if (item.qi <= TB_MENU_PLAYER_INFO.data.qi) then
+			itemDesc.size.h = itemDesc.size.h + itemInfo.size.h / 8
+		end
 		itemDesc:addAdaptedText(true, item.description, nil, nil, 4, CENTERMID, nil, 0.6)
+		
+		if (item.on_sale == 1) then
+			local discountInfo = UIElement:new({
+				parent = itemInfo,
+				pos = { 10, itemDesc.size.h },
+				size = { itemInfo.size.w - 20, itemInfo.size.h / 6 },
+				uiColor = TB_MENU_DEFAULT_ORANGE
+			})
+			local percentageTC, percentageST = item.now_tc_price == 0 and 0 or item.now_tc_price / item.price, item.now_usd_price == 0 and 0 or item.now_usd_price / item.price_usd
+			local percentage = percentageTC > percentageST and math.floor(percentageTC * 100) or math.floor(percentageST * 100)
+			discountInfo:addAdaptedText(true, TB_MENU_LOCALIZED.STOREDISCOUNTCHEAPER1 .. " " .. percentage .. "%" .. (TB_MENU_LOCALIZED.STOREDISCOUNTCHEAPER2:len() > 0 and (" " .. TB_MENU_LOCALIZED.STOREDISCOUNTCHEAPER2) or "") .. "!", nil, nil, FONTS.BIG)
+		end
 		
 		local buttonPos = -itemInfo.size.h / 6
 		local iconScale = itemInfo.size.h / 7 > 32 and 32 or itemInfo.size.h / 7
@@ -3492,7 +3521,7 @@ do
 				parent = itemInfo,
 				pos = { -itemInfo.size.w - 10, buttonPos },
 				size = { itemInfo.size.w + 20, itemInfo.size.h / 9 },
-				bgColor = UICOLORRED
+				bgColor = TB_MENU_DEFAULT_DARKEST_COLOR
 			})
 			local qiReqText = UIElement:new({
 				parent = qiReq,
@@ -4313,7 +4342,7 @@ do
 				action = function() open_url("https://teespring.com") end
 			},
 			salecolor = {
-				title = saleColorInfo and (TB_MENU_LOCALIZED.STORESALE1 .. " " .. saleColorInfo.colorname .. TB_MENU_LOCALIZED.STORESALE2 .. " !") or TB_MENU_LOCALIZED.STORENOCOLORSALE,
+				title = saleColorInfo and (TB_MENU_LOCALIZED.STORESALE1 .. " " .. saleColorInfo.colorname .. (TB_MENU_LOCALIZED.STORESALE2:len() > 0 and (" " .. TB_MENU_LOCALIZED.STORESALE2 .. "!") or "!")) or TB_MENU_LOCALIZED.STORENOCOLORSALE,
 				image = "../textures/menu/store/colorsale.tga",
 				ratio = 0.5,
 				action = function() if (saleColorInfo) then Torishop:showSearchResults(viewElement, Torishop:getSearchSections(saleColorInfo.colorname, true), saleColorInfo.colorname) end end

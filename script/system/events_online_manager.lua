@@ -59,6 +59,9 @@ do
 
 		LOCALIZED_MESSAGES = {}
 		local eventSteps = EventsOnline:loadEvent(eventName)
+		if (not eventSteps) then
+			return
+		end
 		if (EventsOnline:getLocalization(LOCALIZED_MESSAGES, eventName, nil, "events/")) then
 			EventsOnline:runSteps(eventSteps, nil, LOCALIZED_MESSAGES)
 		end

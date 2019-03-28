@@ -46,6 +46,7 @@ local function showUploadWindow(viewElement, reqTable)
 	CURRENT_STEP.fallbackrequirement = true
 	
 	local function uploadReplay(name)
+		chat_input_deactivate()
 		local name = name:gsub("%.rpl$", ""):gsub("^%/", "")
 		if (name == '') then
 			TBMenu:showDataError(TB_MENU_LOCALIZED.REPLAYSERROREMPTYNAME, true)
@@ -79,13 +80,14 @@ local function showUploadWindow(viewElement, reqTable)
 	end
 	
 	local function cancelUpload()
+		chat_input_deactivate()
 		CURRENT_STEP.fallbackrequirement = false
 		reqTable.ready = true
 	end
 	
 	add_hook("key_down", "tbTutorialsCustom", function(s) UIElement:handleKeyDown(s) return 1 end)
 	add_hook("key_up", "tbTutorialsCustom", function(s) UIElement:handleKeyUp(s) return 1 end)
-	TBMenu:showConfirmationWindowInput("Uploading event entry", "Enter your replay name", uploadReplay, cancelUpload)
+	TBMenu:showConfirmationWindowInput(TB_MENU_LOCALIZED.EVENTSUPLOADINGENTRY, TB_MENU_LOCALIZED.REPLAYSENTERNAME, uploadReplay, cancelUpload)
 end
 
 local function showSubmitButton(viewElement, reqTable, skipAdd)
@@ -98,7 +100,7 @@ local function showSubmitButton(viewElement, reqTable, skipAdd)
 		pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 		interactive = true
 	})
-	submitButton:addAdaptedText(false, 'Submit Replay')
+	submitButton:addAdaptedText(false, TB_MENU_LOCALIZED.BUTTONSUBMIT)
 	submitButton:addMouseHandlers(nil, function()
 			freeze_game()
 			CURRENT_STEP.skip = skipAdd
@@ -183,19 +185,19 @@ local function eventMain(viewElement, reqTable, skipAdd)
 						pos = { 0, 10 },
 						size = { gameRulesView.size.w, gameRulesView.size.h / 5 }
 					})
-					rulesTitle:addAdaptedText(true, "Game Rules", nil, nil, FONTS.BIG)
+					rulesTitle:addAdaptedText(true, TB_MENU_LOCALIZED.MAINMENUGAMERULESNAME, nil, nil, FONTS.BIG)
 					local rules = {}
 					table.insert(rules, { name = "Mod", value = gameRules.mod:gsub("^.*/", "") })
 					table.insert(rules, { name = "Gravity", value = gameRules.gravity:gsub("^" .. ("[-]?[%.%d]*%s"):rep(2), "") })
-					table.insert(rules, { name = "Dismemberment", value = gameRules.dismemberment == '1' and "Enabled" or "Disabled" })
+					table.insert(rules, { name = "Dismemberment", value = gameRules.dismemberment == '1' and TB_MENU_LOCALIZED.SETTINGSENABLED or TB_MENU_LOCALIZED.SETTINGSDISABLED })
 					if (gameRules.dismemberment == '1') then
 						table.insert(rules, { name = "DM Threshold", value = gameRules.dismemberthreshold })
 					end
-					table.insert(rules, { name = "Fracture", value = gameRules.fracture == '1' and "Enabled" or "Disabled" })
+					table.insert(rules, { name = "Fracture", value = gameRules.fracture == '1' and TB_MENU_LOCALIZED.SETTINGSENABLED or TB_MENU_LOCALIZED.SETTINGSDISABLED })
 					if (gameRules.fracture == '1') then
 						table.insert(rules, { name = "Frac Threshold", value = gameRules.fracturethreshold })
 					end
-					table.insert(rules, { name = "Grip", value = gameRules.grip == '1' and "Enabled" or "Disabled" })
+					table.insert(rules, { name = "Grip", value = gameRules.grip == '1' and TB_MENU_LOCALIZED.SETTINGSENABLED or TB_MENU_LOCALIZED.SETTINGSDISABLED })
 					
 					local posY = rulesTitle.shift.y + rulesTitle.size.h
 					for i,v in pairs(rules) do
@@ -358,15 +360,6 @@ local function loadExistingReplay(viewElement, reqTable)
 		end)
 end
 
-local function showEndScreen()
-	local buttons = {
-		{ title = "Keep fighting Uke to train your skills and unlock new moves", size = 0.5, shift = 0, image = "../textures/menu/tutorial4.tga", action = function() Tutorials:runTutorial(CURRENT_TUTORIAL) end },
-		{ title = "Put your skills against real players online", size = 0.25, shift = 0, image = "../textures/menu/matchmaking.tga", action = function() Tutorials:beginnerConnect() end },
-		{ title = "Return to main menu", size = 0.25, shift = 0, image = "../textures/menu/multiplayer.tga", action = function() Tutorials:quit() end }
-	}
-	EventsOnline:showTutorialEnd(buttons)
-end
-
 local function launchGame(viewElement, reqTable)
 	local req = { type = "newgame", ready = false }
 	table.insert(reqTable, req)
@@ -418,7 +411,7 @@ local function showYouLostScreen(viewElement, reqTable, offPlatform)
 		size = { holder.size.w * 0.35, (holder.size.h - 55) * 0.5 },
 		uiColor = { 1, 0.8, 0, 1 },
 	})
-	message:addAdaptedText(true, offPlatform and "Try to stay on the moving platform next time!" or "Try not to get dismembered next time!", nil, nil, nil, nil, nil, nil, nil, 1)
+	message:addAdaptedText(true, offPlatform and TB_MENU_LOCALIZED.EVENTSTRYSTAYONPLATFORM or TB_MENU_LOCALIZED.EVENTSTRYNOTGETDISMEMBERED, nil, nil, nil, nil, nil, nil, nil, 1)
 	local restartButton = UIElement:new({
 		parent = holder,
 		pos = { 10, -50 },
@@ -437,8 +430,8 @@ local function showYouLostScreen(viewElement, reqTable, offPlatform)
 		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
 	})
-	restartButton:addAdaptedText(false, "New Game")
-	rewindButton:addAdaptedText(false, "Rewind This Replay")
+	restartButton:addAdaptedText(false, TB_MENU_LOCALIZED.EVENTSNEWGAME)
+	rewindButton:addAdaptedText(false, TB_MENU_LOCALIZED.EVENTSREWIND)
 	restartButton:addMouseHandlers(nil, function()
 			REPLAY_CAN_BE_SUBMITTED = false
 			TUTORIAL_LEAVEGAME = true

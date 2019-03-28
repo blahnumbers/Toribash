@@ -6,7 +6,7 @@ if (TUTORIAL_ISACTIVE) then
 	return
 end
 
-TB_MENU_DEBUG = false
+TB_MENU_DEBUG = true
 
 TB_MENU_MAIN_ISOPEN = TB_MENU_MAIN_ISOPEN or 0
 TB_MENU_SPECIAL_SCREEN_ISOPEN = TB_MENU_SPECIAL_SCREEN_ISOPEN or 0
@@ -74,6 +74,7 @@ dofile("system/settings_manager.lua")
 dofile("system/scripts_manager.lua")
 dofile("system/events_manager.lua")
 dofile("system/events_online_manager.lua")
+dofile("system/news_manager.lua")
 
 TB_MENU_PLAYER_INFO = {}
 TB_MENU_PLAYER_INFO.username = PlayerInfo:getUser()
@@ -144,7 +145,6 @@ if (os.clock() < 10) then
 						end
 					end
 					download_clan()
-					remove_hooks("playerinfoUpdate")
 					if (is_steam() == 0) then
 						get_latest_version()
 						Request:new("versioncheck", function()
@@ -154,6 +154,12 @@ if (os.clock() < 10) then
 								end
 							end)
 					end
+					add_hook("draw2d", "playerinfoUpdate", function()
+						if (get_network_task() == 0) then
+							download_server_file("news", 0)
+							remove_hooks("playerinfoUpdate")
+						end
+					end)
 				end
 			end)
 	end)
@@ -201,7 +207,6 @@ add_hook("mouse_move", "tbMainMenuMouse", function(x, y)
 add_hook("key_up", "tbMenuKeyboardHandler", function(s) UIElement:handleKeyUp(s) return 1 end)
 add_hook("key_down", "tbMenuKeyboardHandler", function(s) UIElement:handleKeyDown(s) return 1 end)
 add_hook("draw2d", "tbMainMenuVisual", function() UIElement:drawVisuals(TB_MENU_MAIN_GLOBALID) end)
---add_hook("draw_viewport", "tbMainMenuVisual", function() UIElement:drawViewport(TB_MENU_MAIN_GLOBALID) end)
 add_hook("draw_viewport", "tbMainMenuVisual", function() UIElement3D:drawViewport(TB_MENU_MAIN_GLOBALID) end)
 
 add_hook("console", "tbMainMenuStatic", function(s, i)

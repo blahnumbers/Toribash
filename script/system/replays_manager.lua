@@ -1745,12 +1745,24 @@ do
 				})
 				uploadingView:addAdaptedText(false, TB_MENU_LOCALIZED.REPLAYUPLOADINPROGRESS)
 				Request:new("replayupload", function()
-						overlay:kill()
 						local response = get_network_response()
 						if (response:find("^SUCCESS")) then
-							reqTable.ready = true
+							uploadingView:addAdaptedText(false, TB_MENU_LOCALIZED.REPLAYUPLOADSUCCESSFUL)
+							local uploadClose = UIElement:new({
+								parent = uploadingView,
+								pos = { 0, 0 },
+								size = { 0, 0 },
+							})
+							local spawnTime = os.clock()
+							uploadClose:addCustomDisplay(true, function()
+									if (spawnTime + 1.5 < os.clock()) then
+										overlay:kill()
+										uploadOverlay:kill()
+									end
+								end)
 						else
-							TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.REPLAYUPLOADERROR .. ": " .. response:gsub("^ERROR 0;", ""), function() showUploadWindow(viewElement, reqTable) end, function() CURRENT_STEP.fallbackrequirement = false reqTable.ready = true end)
+							overlay:kill()
+							TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.REPLAYUPLOADERROR .. ": " .. response:gsub("^ERROR 0;", ""), function() end, function() uploadOverlay:kill() end)
 						end
 					end, function()
 						overlay:kill()

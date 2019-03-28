@@ -88,7 +88,7 @@ do
 			local file = io.open("data/script/system/language/english.txt", "r", 1)
 			for ln in file:lines() do
 				if (not ln:match("^#")) then
-					local data_stream = { ln:match(("([^\t]*)\t"):rep(2)) }
+					local data_stream = { ln:match(("([^\t]*)\t?"):rep(2)) }
 					if (not TB_MENU_LOCALIZED[data_stream[1]]) then
 						TB_MENU_LOCALIZED[data_stream[1]] = data_stream[2]
 					end
@@ -243,45 +243,16 @@ do
 		})
 		
 		-- Table to store event announcement data
-		local eventsData = {
-			{
-				title = "Toribash Merch is now available!",
-				subtitle = "Super cool and extra awesome, yay!",
-				image = "../textures/menu/promo/store/merchpromo.tga",
-				ratio = 0.5,
-				action = function()
-						open_url("https://teespring.com/")
-					end
-			},
-			{
-				title = "Golem III: Return of the Golem",
-				subtitle = "GOLEM COME BACK TO SMASH TINY THING!!!",
-				image = "../textures/menu/promo/golem.tga",
-				ratio = 0.5,
-				action = function() Events:showEventInfo(2) end,
-				initAction = function() Events:showEventInfo(2) end
-			},
-			-- idk clan squad are slow and suck
-			-- {
-			-- 	title = "Clan Item Shop",
-			-- 	subtitle = "Placeholder description",
-			-- 	image = "../textures/menu/promo/clanitemshop.tga",
-			-- 	ratio = 0.5,
-			-- 	action = function()
-			-- 			open_url("https://forum.toribash.com/")
-			-- 		end
-			-- },
-		}
+		local newsData = News:getNews()
 		
-		-- Current event button data
-		local featuredEventData = {
-			title = "Hole in the Wall!",
-			subtitle = "Ready, steady... JUMP!",
-			image = "../textures/menu/promo/holeinthewall.tga",
-			ratio = 0.66,
-			action = function() Events:showEventInfo(1) end,
-			initAction = function() Events:showEventInfo(1) end
-		}
+		local eventsData, featuredEventData = {}, {}
+		for i,v in pairs(newsData) do
+			if (v.featured) then
+				featuredEventData = v
+			else
+				table.insert(eventsData, v)
+			end
+		end
 		
 		-- Store all elements that would require reloading when switching event announcements in one table
 		local toReload = UIElement:new({
@@ -792,8 +763,8 @@ do
 		tbMenuDataErrorMessage = UIElement:new({
 			globalid = noParent and TB_MENU_HUB_GLOBALID,
 			parent = tbMenuMain,
-			pos = { WIN_W / 4, noParent and WIN_H - 40 or -40 },
-			size = { WIN_W / 2, 40 },
+			pos = { WIN_W / 4, -WIN_H / 10 },
+			size = { WIN_W / 2, WIN_H / 10 },
 			bgColor = { 0, 0, 0, 0.8 * transparency }
 		})
 		local option = get_option("hint")
@@ -802,7 +773,7 @@ do
 		end
 		local startTime = os.clock()
 		tbMenuDataErrorMessage:addCustomDisplay(false, function()
-				if (os.clock() - startTime > 2) then
+				if (os.clock() - startTime > 5) then
 					transparency = transparency - 0.05
 					tbMenuDataErrorMessage.bgColor[4] = 0.8 * transparency
 				end
@@ -815,10 +786,10 @@ do
 			end)
 		local errorMessageView = UIElement:new({
 			parent = tbMenuDataErrorMessage,
-			pos = { 10, 0 },
-			size = { tbMenuDataErrorMessage.size.w - 20, tbMenuDataErrorMessage.size.h }
+			pos = { tbMenuDataErrorMessage.size.w / 10, tbMenuDataErrorMessage.size.h / 10 },
+			size = { tbMenuDataErrorMessage.size.w * 0.8, tbMenuDataErrorMessage.size.h * 0.8 }
 		})
-		errorMessageView:addAdaptedText(true, message, nil, nil, 4, nil, 0.7, nil, nil, nil, { 1, 1, 1, transparency })
+		errorMessageView:addAdaptedText(true, message, nil, nil, 4, nil, nil, nil, nil, nil, { 1, 1, 1, transparency })
 	end
 
 	function TBMenu:showTorishopMain()
@@ -940,7 +911,13 @@ do
 			subtitle = TB_MENU_LOCALIZED.STOREINVENTORYDESC,
 			image = "../textures/menu/torishop.tga",
 			ratio = 0.435,
-			action = function() Torishop:prepareInventory(tbMenuCurrentSection) end
+			action = function()
+					if (TB_STORE_DATA.ready) then
+						Torishop:prepareInventory(tbMenuCurrentSection)
+					else
+						TBMenu:showDataError(TB_MENU_LOCALIZED.STOREDATALOADERROR)
+					end
+				end
 		}
 		TBMenu:showHomeButton(inventoryButton, inventoryButtonData)
 		
@@ -957,7 +934,7 @@ do
 		local clansButtonData = {
 			title = TB_MENU_LOCALIZED.MAINMENUCLANSNAME,
 			subtitle = TB_MENU_LOCALIZED.MAINMENUCLANSDESC,
-			image = "../textures/menu/clanssmall.tga",
+			image = "../textures/menu/clans.tga",
 			ratio = 0.5,
 			action = function() TBMenu:showClans() end
 		}
@@ -1269,10 +1246,10 @@ do
 
 	function TBMenu:showToolsSection()
 		local tbMenuToolsButtonsData = {
+			{ title = TB_MENU_LOCALIZED.MAINMENUMODMAKERNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUMODMAKERDESC, size = 0.25, image = "../textures/menu/modmaker2.tga", mode = ORIENTATION_PORTRAIT, action = function() open_menu(17) end },
 			{ title = TB_MENU_LOCALIZED.MAINMENUSCRIPTSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUSCRIPTSDESC, size = 0.25, image = "../textures/menu/scripts.tga", mode = ORIENTATION_PORTRAIT, action = function() TBMenu:showScripts() end },
-			{ title = TB_MENU_LOCALIZED.MAINMENUMODMAKERNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUMODMAKERDESC, size = 0.25, image = "../textures/menu/modmaker.tga", mode = ORIENTATION_PORTRAIT, action = function() open_menu(17) end },
 			{ title = TB_MENU_LOCALIZED.MAINMENUHOTKEYSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUHOTKEYSDESC, size = 0.25, image = "../textures/menu/hotkeys.tga", mode = ORIENTATION_PORTRAIT, action = function() TBMenu:showHotkeys() end },
-			{ title = "Settings", subtitle = TB_MENU_LOCALIZED.MAINMENUHOTKEYSDESC, size = 0.25, image = "../textures/menu/hotkeys.tga", mode = ORIENTATION_PORTRAIT, action = function() TBMenu:showSettings() end },
+			{ title = "Settings", subtitle = TB_MENU_LOCALIZED.MAINMENUHOTKEYSDESC, size = 0.25, image = "../textures/menu/settings.tga", mode = ORIENTATION_PORTRAIT, action = function() TBMenu:showSettings() end },
 		}
 		TBMenu:showSection(tbMenuToolsButtonsData)
 	end
@@ -2258,7 +2235,6 @@ do
 	end
 	
 	function TBMenu:showTextWithImage(viewElement, text, fontid, imgScale, imgWhite, imgBlack)
-		local fontid = fontid or FONTS.MEDIUM
 		local imgScale = imgScale or 26
 		local imgBlack = imgBlack or imgWhite
 		local textView = UIElement:new({
@@ -2267,6 +2243,7 @@ do
 			size = { viewElement.size.w - imgScale * 1.15, viewElement.size.h }
 		})
 		textView:addAdaptedText(false, text, -imgScale * 0.65, nil, fontid)
+		local fontid = textView.textFont
 		local posX = get_string_length(textView.dispstr[1], fontid) * textView.textScale
 		local bgColorDelta = viewElement.bgColor[1] + viewElement.bgColor[2] + viewElement.bgColor[3]
 		local imageElement = UIElement:new({

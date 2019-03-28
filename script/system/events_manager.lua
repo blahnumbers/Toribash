@@ -14,115 +14,116 @@ do
 		TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
 	end
 	
-	function Events:getEvents()
-		return {
-			{
-				accentColor = { 0.024, 0.024, 0.024, 1 },
-				uiColor = { 1, 1, 1, 1 },
-				buttonHoverColor = { 0.969, 0.847, 0.122, 1 },
-				buttonPressedColor = { 0.996, 0.769, 0.102, 1 },
-				name = "Hole in the Wall",
-				image = "../textures/menu/promo/events/holeinthewall.tga",
-				forumlink = "http://forum.toribash.com/showthread.php?t=623552",
-				action = function() EventsOnline:playEvent("holeinthewall") end,
-				actionText = "Participate",
-				overlaytransparency = 0,
-				data = {
-					{
-						title = "Description",
-						imagetitle = "../textures/menu/promo/events/hitw_description.tga",
-						desc = "The %115Event Squad ^01are proud to present Hole in the Wall!\nIn this event, we will be providing you with obstacles to complete, and doing so will allow you to win prizes!\nEach challenge will have a different wall, as well as a different objective to complete. Basic obstacles will be the easiest, as your main objective will be getting through the wall in any way possible. Advanced obstacles will be were things pick up a bit.. You will be given a specific objectives to complete in order to pass the challenge."
-					},
-					{
-						title = "Rules",
-						imagetitle = "../textures/menu/promo/events/hitw_rules.tga",
-						desc = "- No Replay Hacking\n- No Replay Stealing\n- No Gamerule Editing"
-					},
-					{
-						title = "How to Enter",
-						imagetitle = "../textures/menu/promo/events/hitw_howtoenter.tga",
-						desc = "You can participate in Hole in the Wall by pressing \"Participate\" button on bottom right, completing the challenge and submitting your replay to Toribash servers.\nAlternatively, you can make a replay in current challenge's mod in Free Play mode and attach it to your post in event thread on forums - if you just upload it to Toribash Community Replays then it won't be judged.\n^02Only one replay per player will be judged."
-					},
-					{
-						title = "Deadline",
-						imagetitle = "../textures/menu/promo/events/hitw_deadline.tga",
-						desc = "We will stop accepting new entries on April 15th, 20:00 (GMT +0)"
-					},
-				},
-				prizes = {
-					imagetitle = "../textures/menu/promo/events/hitw_prizes.tga",
-					{
-						info = "Best Replay",
-						tc = 50000,
-						st = 5,
-						itemids = { 2888 }
-					},
-					{
-						info = "Complete Advanced Task",
-						tc = 5000,
-						st = 2
-					},
-					{
-						info = "Complete Basic Task",
-						tc = 2000,
-						st = 1
-					}
-				}
-			},
-			{
-				accentColor = { 0.776, 0.902, 0.969, 1 },
-				uiColor = { 0.184, 0.192, 0.259, 1 },
-				buttonHoverColor = { 0.121, 0.126, 0.172, 1 },
-				buttonPressedColor = { 0.245, 0.258, 0.369, 1 },
-				name = "GOLEM III: RETURN OF THE GOLEM",
-				image = "../textures/menu/promo/events/golem.tga",
-				forumlink = "http://forum.toribash.com/showthread.php?t=626177",
-				overlaytransparency = 0.3,
-				data = {
-					{
-						title = "Description",
-						imagetitle = "../textures/menu/promo/events/golem_description.tga",
-						desc = "GOLEM COME BACK TO SMASH TINY THING!!!\nIF TINY THING TOUCH HEAD TINY THING WIN, IF GOLEM SQUASH TINY HUMAN BODY HUMAN LOSE! SPLAT!"
-					},
-					{
-						title = "Rules",
-						imagetitle = "../textures/menu/promo/events/golem_rules.tga",
-						desc = "THE SERVER WILL ALWAYS BE BROADCASTED\n3 DISMEMBERS AND YOU LOSE, GET DECAPPED AND YOU'RE OUT UNTIL THE NEXT SERVER IS MADE\nTOUCH GOLEM'S HEAD WITH HANDS OR FEET TO TRIGGER WIN\nNO SKEETS, GOLEM GETS ANGRY WHEN HUMANS PLAY DIRTY\nPERSON TO BE DECAPPED THE MOST AT THE END OF THE EVENT WILL BE BANNED FOR 1 DAY\nMOD IS E_GOLEM, GOLEM_VS_UKE.TBM AND ES_GOLEM.TBM"
-					},
-					{
-						title = "Deadline",
-						imagetitle = "../textures/menu/promo/events/golem_deadline.tga",
-						desc = "4 WEEKS AFTER EVENT START\nHUMAN DO THE MATH, GOLEM NO DO SILLY THINGS"
-					},
-				},
-				prizes = {
-					imagetitle = "../textures/menu/promo/events/golem_prizes.tga",
-					{
-						info = "Defeat Golem",
-						st = 1
-					},
-					{
-						info = "Make Golem Laugh",
-						st = 1
-					},
-					{
-						info = "Most Wins in 1 Server",
-						itemids = { 2801 }
-					},
-					{
-						info = "Most Wins in Total",
-						st = 8,
-						itemids = { 71, 54 }
-					},
-					{
-						info = "Runners Up",
-						st = 5,
-						itemids = { 752, 711 }
-					},
-				}
-			}
-		}
-	end
+	-- Deprecated, we're using file data now
+	-- function Events:getEvents()
+	-- 	return {
+	-- 		{
+	-- 			accentColor = { 0.024, 0.024, 0.024, 1 },
+	-- 			uiColor = { 1, 1, 1, 1 },
+	-- 			buttonHoverColor = { 0.969, 0.847, 0.122, 1 },
+	-- 			buttonPressedColor = { 0.996, 0.769, 0.102, 1 },
+	-- 			name = "Hole in the Wall",
+	-- 			image = "../textures/menu/promo/events/holeinthewall.tga",
+	-- 			forumlink = "http://forum.toribash.com/showthread.php?t=623552",
+	-- 			action = function() EventsOnline:playEvent("holeinthewall") end,
+	-- 			actionText = "Participate",
+	-- 			overlaytransparency = 0,
+	-- 			data = {
+	-- 				{
+	-- 					title = "Description",
+	-- 					imagetitle = "../textures/menu/promo/events/hitw_description.tga",
+	-- 					desc = "The %115Event Squad ^01are proud to present Hole in the Wall!\nIn this event, we will be providing you with obstacles to complete, and doing so will allow you to win prizes!\nEach challenge will have a different wall, as well as a different objective to complete. Basic obstacles will be the easiest, as your main objective will be getting through the wall in any way possible. Advanced obstacles will be were things pick up a bit.. You will be given a specific objectives to complete in order to pass the challenge."
+	-- 				},
+	-- 				{
+	-- 					title = "Rules",
+	-- 					imagetitle = "../textures/menu/promo/events/hitw_rules.tga",
+	-- 					desc = "- No Replay Hacking\n- No Replay Stealing\n- No Gamerule Editing"
+	-- 				},
+	-- 				{
+	-- 					title = "How to Enter",
+	-- 					imagetitle = "../textures/menu/promo/events/hitw_howtoenter.tga",
+	-- 					desc = "You can participate in Hole in the Wall by pressing \"Participate\" button on bottom right, completing the challenge and submitting your replay to Toribash servers.\nAlternatively, you can make a replay in current challenge's mod in Free Play mode and attach it to your post in event thread on forums - if you just upload it to Toribash Community Replays then it won't be judged.\n^02Only one replay per player will be judged."
+	-- 				},
+	-- 				{
+	-- 					title = "Deadline",
+	-- 					imagetitle = "../textures/menu/promo/events/hitw_deadline.tga",
+	-- 					desc = "We will stop accepting new entries on April 15th, 20:00 (GMT +0)"
+	-- 				},
+	-- 			},
+	-- 			prizes = {
+	-- 				imagetitle = "../textures/menu/promo/events/hitw_prizes.tga",
+	-- 				{
+	-- 					info = "Best Replay",
+	-- 					tc = 50000,
+	-- 					st = 5,
+	-- 					itemids = { 2888 }
+	-- 				},
+	-- 				{
+	-- 					info = "Complete Advanced Task",
+	-- 					tc = 5000,
+	-- 					st = 2
+	-- 				},
+	-- 				{
+	-- 					info = "Complete Basic Task",
+	-- 					tc = 2000,
+	-- 					st = 1
+	-- 				}
+	-- 			}
+	-- 		},
+	-- 		{
+	-- 			accentColor = { 0.776, 0.902, 0.969, 1 },
+	-- 			uiColor = { 0.184, 0.192, 0.259, 1 },
+	-- 			buttonHoverColor = { 0.121, 0.126, 0.172, 1 },
+	-- 			buttonPressedColor = { 0.245, 0.258, 0.369, 1 },
+	-- 			name = "GOLEM III: RETURN OF THE GOLEM",
+	-- 			image = "../textures/menu/promo/events/golem.tga",
+	-- 			forumlink = "http://forum.toribash.com/showthread.php?t=626177",
+	-- 			overlaytransparency = 0.3,
+	-- 			data = {
+	-- 				{
+	-- 					title = "Description",
+	-- 					imagetitle = "../textures/menu/promo/events/golem_description.tga",
+	-- 					desc = "GOLEM COME BACK TO SMASH TINY THING!!!\nIF TINY THING TOUCH HEAD TINY THING WIN, IF GOLEM SQUASH TINY HUMAN BODY HUMAN LOSE! SPLAT!"
+	-- 				},
+	-- 				{
+	-- 					title = "Rules",
+	-- 					imagetitle = "../textures/menu/promo/events/golem_rules.tga",
+	-- 					desc = "THE SERVER WILL ALWAYS BE BROADCASTED\n3 DISMEMBERS AND YOU LOSE, GET DECAPPED AND YOU'RE OUT UNTIL THE NEXT SERVER IS MADE\nTOUCH GOLEM'S HEAD WITH HANDS OR FEET TO TRIGGER WIN\nNO SKEETS, GOLEM GETS ANGRY WHEN HUMANS PLAY DIRTY\nPERSON TO BE DECAPPED THE MOST AT THE END OF THE EVENT WILL BE BANNED FOR 1 DAY\nMOD IS E_GOLEM, GOLEM_VS_UKE.TBM AND ES_GOLEM.TBM"
+	-- 				},
+	-- 				{
+	-- 					title = "Deadline",
+	-- 					imagetitle = "../textures/menu/promo/events/golem_deadline.tga",
+	-- 					desc = "4 WEEKS AFTER EVENT START\nHUMAN DO THE MATH, GOLEM NO DO SILLY THINGS"
+	-- 				},
+	-- 			},
+	-- 			prizes = {
+	-- 				imagetitle = "../textures/menu/promo/events/golem_prizes.tga",
+	-- 				{
+	-- 					info = "Defeat Golem",
+	-- 					st = 1
+	-- 				},
+	-- 				{
+	-- 					info = "Make Golem Laugh",
+	-- 					st = 1
+	-- 				},
+	-- 				{
+	-- 					info = "Most Wins in 1 Server",
+	-- 					itemids = { 2801 }
+	-- 				},
+	-- 				{
+	-- 					info = "Most Wins in Total",
+	-- 					st = 8,
+	-- 					itemids = { 71, 54 }
+	-- 				},
+	-- 				{
+	-- 					info = "Runners Up",
+	-- 					st = 5,
+	-- 					itemids = { 752, 711 }
+	-- 				},
+	-- 			}
+	-- 		}
+	-- 	}
+	-- end
 	
 	function Events:showEventDescription(viewElement, event)
 		local elementHeight = 41
@@ -301,7 +302,7 @@ do
 	end
 	
 	function Events:getEventInfo(id)
-		local events = Events:getEvents()
+		local events = News:getEvents()
 		
 		events[id].accentColor = events[id].accentColor or TB_MENU_DEFAULT_BG_COLOR
 		return events[id]

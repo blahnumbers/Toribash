@@ -107,6 +107,13 @@ do
 		end
 		local path = path or "../data/tutorials/tutorial"
 		local tutorial = Files:new(path .. id .. ".dat")
+		if (not tutorial.data) then
+			download_server_file("tutorial_" .. id, 0)
+			TBMenu:showDataError(TB_MENU_LOCALIZED.TUTORIALNODATAFOUND)
+			Tutorials:quit()
+			tbMenuDataErrorMessage:reload()
+			return false
+		end
 		local tutorialData = tutorial:readAll()
 		tutorial:close()
 
@@ -1467,7 +1474,9 @@ do
 		TUTORIAL_LEAVEGAME = true
 		local buttons = {}
 		local nextTutorial = Files:new("../data/tutorials/tutorial" .. (type(CURRENT_TUTORIAL) == "number" and (CURRENT_TUTORIAL + 1) or 'non-existing') .. ".dat")
-		Tutorials:updateConfig(nextTutorial.data and true or false)
+		if (type(CURRENT_TUTORIAL) == "number") then
+			Tutorials:updateConfig(nextTutorial.data and true or false)
+		end
 
 		local scale = WIN_W > WIN_H * 2 and WIN_H or WIN_W / 7 * 6
 		if (scale > 1024) then
@@ -1592,6 +1601,9 @@ do
 		local id = tonumber(id)
 		LOCALIZED_MESSAGES = {}
 		local tutorialSteps = Tutorials:loadTutorial(id)
+		if (not tutorialSteps) then
+			return
+		end
 		if (Tutorials:getLocalization(LOCALIZED_MESSAGES, id)) then
 			Tutorials:updateConfig()
 			Tutorials:setDiscordRPC()
