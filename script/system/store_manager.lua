@@ -2307,9 +2307,11 @@ do
 			item.pack = true
 			item.objs = {}
 			for i,v in pairs(item.contents) do
-				if (TB_STORE_MODELS[v].upgradeable and not TB_STORE_MODELS[item.itemid].upgradeable) then
-					item.upgradeable = true
-					TB_STORE_MODELS[item.itemid] = cloneTable(TB_STORE_MODELS[v])
+				if (TB_STORE_MODELS[v] and not TB_STORE_MODELS[item.itemid]) then
+					if (TB_STORE_MODELS[v].upgradeable) then
+						item.upgradeable = true
+						TB_STORE_MODELS[item.itemid] = cloneTable(TB_STORE_MODELS[v])
+					end
 				end
 				local newItem = Torishop:getItemInfo(v)
 				if (newItem.catid == 78) then
@@ -2926,6 +2928,14 @@ do
 		local neck = UIElement3D:new({
 			parent = previewHolder,
 			shapeType = SPHERE,
+			pos = { 0, 0, 0 },
+			size = { 0.44, 0.44, 0.44 },
+			viewport = true
+		})
+		neck:addCustomDisplay(true, function() end)
+		local jneck = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = SPHERE,
 			pos = { 0, 0.2, -0.6 },
 			size = { 0.44, 0, 0 },
 			bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
@@ -3099,9 +3109,10 @@ do
 		rbodytricep.linked = { rbodytricepp, rbodytriceps }
 		lbodyhand.linked = { lbodyhandp, lbodyhands }
 		rbodyhand.linked = { rbodyhandp, rbodyhands }
+		neck.linked = { jneck }
 		
 		local bodyparts = { bodyhead, bodybreast, bodychest, bodystomach, bodygroin, rbodypecs, rbodybicep, rbodytricep, lbodypecs, lbodybicep, lbodytricep, rbodyhand, lbodyhand, rbodybutt, lbodybutt, rbodythigh, lbodythigh, lbodyleg, rbodyleg, rbodyfoot, lbodyfoot }
-		local joints = { bodyhead, chest, lumbar, abs, rpecs, rshoulder, relbow, lpecs, lshoulder, lelbow, rwrist, lwrist, rglute, lglute, rhip, lhip, rknee, lknee, rankle, lankle }
+		local joints = { neck, chest, lumbar, abs, rpecs, rshoulder, relbow, lpecs, lshoulder, lelbow, rwrist, lwrist, rglute, lglute, rhip, lhip, rknee, lknee, rankle, lankle }
 		return { bodypart = bodyparts, joint = joints }
 	end
 	
@@ -3138,6 +3149,9 @@ do
 			if (modelInfo.bodyid < 21) then
 				local mScale = bodyInfos.bodypart[modelInfo.bodyid + 1].size
 				scale = { mScale.x, mScale.y, mScale.z }
+			elseif (modelInfo.bodyid < 40) then
+				local mScale = bodyInfos.joint[modelInfo.bodyid - 20].size
+				scale = { mScale.x, mScale.y, mScale.z }
 			end
 		end
 		if (modelInfo.partless) then
@@ -3148,6 +3162,14 @@ do
 					end
 				else
 					bodyInfos.bodypart[modelInfo.bodyid + 1]:kill()
+				end
+			elseif (modelInfo.bodyid < 40) then
+				if (bodyInfos.joint[modelInfo.bodyid - 20].linked) then
+					for i,v in pairs(bodyInfos.joint[modelInfo.bodyid - bodyid].linked) do
+						v:kill()
+					end
+				else
+					bodyInfos.joint[modelInfo.bodyid - 20]:kill()
 				end
 			end
 		end
@@ -3324,6 +3346,7 @@ do
 					response = response:gsub("^ERROR 0;", "")
 					fn(TB_MENU_LOCALIZED.STOREPURCHASEERROR .. ": " .. response)
 				elseif (response:find("^SUCCESS 0;")) then
+					update_tc_balance()
 					local invid = response:gsub("^SUCCESS 0;", "")
 					overlay:kill()
 					TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASESUCCESSFUL, function()
@@ -3392,9 +3415,13 @@ do
 				size = { itemInfo.size.w - 20, itemInfo.size.h / 6 },
 				uiColor = TB_MENU_DEFAULT_ORANGE
 			})
-			local percentageTC, percentageST = item.now_tc_price == 0 and 0 or item.now_tc_price / item.price, item.now_usd_price == 0 and 0 or item.now_usd_price / item.price_usd
+			local percentageTC, percentageST = item.now_tc_price == 0 and 0 or 1 - item.now_tc_price / item.price, item.now_usd_price == 0 and 0 or 1 - item.now_usd_price / item.price_usd
 			local percentage = percentageTC > percentageST and math.floor(percentageTC * 100) or math.floor(percentageST * 100)
 			discountInfo:addAdaptedText(true, TB_MENU_LOCALIZED.STOREDISCOUNTCHEAPER1 .. " " .. percentage .. "%" .. (TB_MENU_LOCALIZED.STOREDISCOUNTCHEAPER2:len() > 0 and (" " .. TB_MENU_LOCALIZED.STOREDISCOUNTCHEAPER2) or "") .. "!", nil, nil, FONTS.BIG)
+		end
+		
+		if (TB_MENU_PLAYER_INFO.username == '') then
+			return
 		end
 		
 		local buttonPos = -itemInfo.size.h / 6
@@ -3647,7 +3674,7 @@ do
 		end
 		sectionItems = UIElement:qsort(sectionItems, { 'on_sale', 'now_tc_price', 'now_usd_price', 'itemname' }, false, true)
 		sectionItemsDesc = UIElement:qsort(sectionItems, { 'on_sale', 'now_tc_price', 'now_usd_price', 'itemname' }, true, true)
-		sectionItemsQi = UIElement:qsort(sectionItems, { 'qi', 'now_tc_price', 'now_usd_price', 'itemname' }, false, true)
+		sectionItemsQi = UIElement:qsort(sectionItems, { 'on_sale', 'qi', 'now_tc_price', 'now_usd_price', 'itemname' }, false, true)
 		
 		local elementHeight = 64
 		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, elementHeight, 48, 20, TB_MENU_DEFAULT_BG_COLOR)
@@ -4290,7 +4317,7 @@ do
 			shapeType = ROUNDED,
 			rounded = 3
 		})
-		TBMenu:showTextWithImage(viewStoreButton, TB_MENU_LOCALIZED.STOREVIEWIN1 .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.STOREVIEWIN2, nil, itemName.size.h * 0.7 > 64 and 64 or itemName.size.h * 0.7, Torishop:getItemIcon(item))
+		TBMenu:showTextWithImage(viewStoreButton, TB_MENU_LOCALIZED.STOREVIEWIN1 .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.STOREVIEWIN2, FONTS.MEDIUM, viewStoreButton.size.h * 0.7 > 64 and 64 or viewStoreButton.size.h * 0.7, Torishop:getItemIcon(item))
 		viewStoreButton:addMouseHandlers(nil, function()
 				overlay:kill()
 				Torishop:showStoreSection(tbMenuCurrentSection, nil, nil, item.itemid)
@@ -4326,8 +4353,7 @@ do
 		for i,v in pairs(saleItems) do
 			if (v.sale_promotion == 1) then
 				saleFeatured = v
-			end
-			if (in_array(v.catid, CATEGORIES_COLORS)) then
+			elseif (in_array(v.catid, CATEGORIES_COLORS)) then
 				table.insert(saleColor, v)
 			end
 		end
@@ -4339,7 +4365,7 @@ do
 				subtitle = "Super cool and real nice Toribash themed apparel is now available!",
 				image = "../textures/menu/promo/store/merchpromo.tga",
 				ratio = 0.5,
-				action = function() open_url("https://teespring.com") end
+				action = function() open_url("https://teespring.com/stores/toribash") end
 			},
 			salecolor = {
 				title = saleColorInfo and (TB_MENU_LOCALIZED.STORESALE1 .. " " .. saleColorInfo.colorname .. (TB_MENU_LOCALIZED.STORESALE2:len() > 0 and (" " .. TB_MENU_LOCALIZED.STORESALE2 .. "!") or "!")) or TB_MENU_LOCALIZED.STORENOCOLORSALE,
@@ -4381,8 +4407,8 @@ do
 				action = function() Torishop:showStoreSection(viewElement, 2) end
 			},
 			storeaccount = {
-				title = TB_MENU_LOCALIZED.STOREADVANCED,
-				subtitle = TB_MENU_LOCALIZED.STOREADVANCEDDESC,
+				title = TB_MENU_LOCALIZED.STOREACCOUNT,
+				subtitle = TB_MENU_LOCALIZED.STOREACCOUNTDESC,
 				image = "../textures/menu/store/account-big.tga",
 				image2 = "../textures/menu/store/account-small.tga",
 				ratio = 0.75,
@@ -4435,8 +4461,9 @@ do
 				pos = { 5, 0 },
 				size = { colorDiscountHolder.size.w - 10, colorDiscountHolder.size.h }
 			})
-			local discount = math.floor(100 - (saleColor[1].price_usd == 0 and saleColor[1].now_tc_price / saleColor[1].price or (saleColor[1].price_usd ~= 0 and saleColor[1].now_usd_price / saleColor[1].price_usd or 1)) * 100)
-			saleDiscount:addAdaptedText(true, "-" .. discount .. "%")
+			local percentageTC, percentageST = saleColor[1].now_tc_price == 0 and 0 or 1 - saleColor[1].now_tc_price / saleColor[1].price, saleColor[1].now_usd_price == 0 and 0 or 1 - saleColor[1].now_usd_price / saleColor[1].price_usd
+			local percentage = percentageTC > percentageST and math.floor(percentageTC * 100) or math.floor(percentageST * 100)
+			saleDiscount:addAdaptedText(true, "-" .. percentage .. "%")
 		else
 			local w, h = unpack(TBMenu:getImageDimensions(weeklySale.size.w, weeklySale.size.h, storeButtons.salecolor.ratio, 0, 0))
 			local colorBackground = UIElement:new({
@@ -4471,8 +4498,9 @@ do
 				pos = { 5, 0 },
 				size = { dailyDiscountHolder.size.w - 10, dailyDiscountHolder.size.h }
 			})
-			local discount = math.floor(100 - (saleFeatured.price_usd == 0 and saleFeatured.now_tc_price / saleFeatured.price or (saleFeatured.price_usd ~= 0 and saleFeatured.now_usd_price / saleFeatured.price_usd or 1)) * 100)
-			dailyDiscount:addAdaptedText(true, "-" .. discount .. "%")
+			local percentageTC, percentageST = saleFeatured.now_tc_price == 0 and 0 or 1 - saleFeatured.now_tc_price / saleFeatured.price, saleFeatured.now_usd_price == 0 and 0 or 1 - saleFeatured.now_usd_price / saleFeatured.price_usd
+			local percentage = percentageTC > percentageST and math.floor(percentageTC * 100) or math.floor(percentageST * 100)
+			dailyDiscount:addAdaptedText(true, "-" .. percentage .. "%")
 			local saleItemIconHolder = UIElement:new({
 				parent = dailySale,
 				pos = { -10 - (dailySale.size.w - 20) * 0.55, dailySale.size.h * 0.3 * storeButtons.dailysale.ratio },

@@ -328,6 +328,9 @@ do
 	end
 
 	function TBMenu:showHomeButton(viewElement, buttonData, hasSmudge, extraElements, lockedMessage)
+		-- Add hover sound by default so it doesn't have to be set for each element manually
+		viewElement.hoverSound = 31
+		
 		local titleHeight = buttonData.title and (buttonData.subtitle and viewElement.size.h / 5 or viewElement.size.h / 3) or 0
 		titleHeight = titleHeight > WIN_H / 15 and WIN_H / 15 or titleHeight
 		local descHeight = buttonData.subtitle and viewElement.size.h / 6 or 0
@@ -403,6 +406,9 @@ do
 						v.bgColor = cloneTable(viewElement.pressedColor)
 					end
 				end, function()
+					if (buttonData.quit) then
+						close_menu()
+					end
 					buttonData.action()
 					overlay.bgColor = viewElement.animateColor
 					for i,v in pairs(extraElements) do
@@ -410,7 +416,7 @@ do
 					end
 				end)
 		else
-			viewElement:addMouseHandlers(nil, buttonData.action)
+			viewElement:addMouseHandlers(nil, function() if (buttonData.quit) then close_menu() end buttonData.action() end)
 		end
 		if (buttonData.locked and lockedMessage) then
 			viewElement:deactivate()
@@ -964,7 +970,7 @@ do
 		local inventoryButtonData = {
 			title = TB_MENU_LOCALIZED.STOREGOTOINVENTORY,
 			subtitle = TB_MENU_LOCALIZED.STOREINVENTORYDESC,
-			image = "../textures/menu/torishop.tga",
+			image = "../textures/menu/inventory.tga",
 			ratio = 0.435,
 			action = function()
 					if (TB_STORE_DATA.ready) then
@@ -1005,9 +1011,14 @@ do
 	function TBMenu:showPlaySection()
 		local tbMenuPlayButtonsData = {
 			{ title = TB_MENU_LOCALIZED.MAINMENUFREEPLAYNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUFREEPLAYDESC, size = 0.5, ratio = 0.5, image = "../textures/menu/freeplay.tga", mode = ORIENTATION_LANDSCAPE, action = function() open_menu(1) end },
-			{ title = TB_MENU_LOCALIZED.MAINMENUREPLAYSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUREPLAYSDESC, size = 0.25, ratio = 1.055, image = "../textures/menu/replays.tga", mode = ORIENTATION_PORTRAIT, action = function() TBMenu:showReplays() end },
-			{ title = TB_MENU_LOCALIZED.MAINMENUROOMLISTNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUROOMLISTDESC, size = 0.25, ratio = 1.055, image = "../textures/menu/multiplayer.tga", mode = ORIENTATION_PORTRAIT, action = function() if (TB_MENU_PLAYER_INFO.username == '') then TBMenu:showLoginError(tbMenuCurrentSection, TB_MENU_LOCALIZED.MAINMENUROOMLISTNAME) return end open_menu(2) end }
+			{ title = TB_MENU_LOCALIZED.MAINMENUREPLAYSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUREPLAYSDESC, size = 0.25, ratio = 1.055, image = "../textures/menu/replays2.tga", mode = ORIENTATION_PORTRAIT, action = function() TBMenu:showReplays() end },
+			{ title = TB_MENU_LOCALIZED.MAINMENUROOMLISTNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUROOMLISTDESC, size = 0.25, ratio = 1.055, image = "../textures/menu/multiplayer.tga", mode = ORIENTATION_PORTRAIT, action = function() open_menu(2) end }
 		}
+		if (TB_MENU_PLAYER_INFO.username == '') then
+			tbMenuPlayButtonsData[3] = nil
+			tbMenuPlayButtonsData[1].size = 0.667
+			tbMenuPlayButtonsData[2].size = 0.333
+		end
 		TBMenu:showSection(tbMenuPlayButtonsData)
 	end
 
@@ -1883,6 +1894,9 @@ do
 			{ text = TB_MENU_LOCALIZED.NAVBUTTONTOOLS, sectionId = 5 },
 			{ text = TB_MENU_LOCALIZED.NAVBUTTONACCOUNT, sectionId = 7, right = true }
 		}
+		if (TB_MENU_PLAYER_INFO.username == '') then
+			buttonData[6] = nil
+		end
 		return buttonData
 	end
 

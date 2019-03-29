@@ -383,7 +383,7 @@ do
 			end
 		end
 		
-		local buttons = event.action and 2 or 1
+		local buttons = (event.action and TB_MENU_PLAYER_INFO.username ~= '') and 2 or 1
 		local eventForumLink = UIElement:new({
 			parent = eventForumLinkHolder,
 			pos = { buttons == 2 and viewElement.size.w / 20 or viewElement.size.w * 0.1, 10 },
@@ -400,7 +400,7 @@ do
 		eventForumLink:addMouseHandlers(nil, function()
 				open_url(event.forumlink)
 			end)
-		if (event.action) then
+		if (event.action and TB_MENU_PLAYER_INFO.username ~= '') then
 			local eventActionButton = UIElement:new({
 				parent = eventForumLinkHolder,
 				pos = { viewElement.size.w * 0.525, 10 },

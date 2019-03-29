@@ -186,22 +186,15 @@ do
 								update_tc_balance()
 								TB_MENU_NOTIFICATIONS_COUNT = TB_MENU_NOTIFICATIONS_COUNT - 1
 								TB_MENU_DOWNLOAD_INACTION = true
-								local tcUpdater = UIElement:new({
-									parent = rewardClaim,
-									pos = { 0, 0 },
-									size = { 0, 0 }
-								})
-								local spawnTime = os.clock()
-								tcUpdater:addCustomDisplay(true, function()
-										local tempData = PlayerInfo:getUserData(TB_MENU_PLAYER_INFO.username)
-										if (spawnTime + 5 < os.clock()) then
-											tcUpdater:kill()
-										elseif (TB_MENU_PLAYER_INFO.data.tc < tempData.tc or TB_MENU_PLAYER_INFO.data.st < tempData.st) then
-											tcUpdater:kill()
-											TB_MENU_PLAYER_INFO.data = PlayerInfo:getUserData(TB_MENU_PLAYER_INFO.username)
-											TBMenu:showUserBar()
-										end
-									end)
+								
+								-- Let's update balance instantly, no need to wait for update_tc_balance() to finish downloading customs
+								if (RewardData[rewardData.days].tc ~= 0) then
+									TB_MENU_PLAYER_INFO.data.tc = TB_MENU_PLAYER_INFO.data.tc + RewardData[rewardData.days].tc
+									TBMenu:showUserBar()
+								elseif (RewardData[rewardData.days].item.itemid == 2528) then
+									TB_MENU_PLAYER_INFO.data.st = TB_MENU_PLAYER_INFO.data.st + 1
+									TBMenu:showUserBar()
+								end
 							end
 						end, function()
 							rewardClaimText:addAdaptedText(false, TB_MENU_LOCALIZED.REWARDSCLAIMERROROTHER, nil, nil, FONTS.BIG)
