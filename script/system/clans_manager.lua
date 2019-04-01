@@ -1111,16 +1111,18 @@ do
 				break
 			end
 		end
-		if (avatars[1].player) then
-			download_head(avatars[1].player)
+		if (#avatars > 0) then
+			if (avatars[1].player) then
+				download_head(avatars[1].player)
+			end
+			TB_MENU_DOWNLOAD_INACTION = true
+			local reloader = UIElement:new({
+				parent = tbMenuCurrentSection,
+				pos = { 0, 0 },
+				size = { 1, 1 }
+			})
+			reloader:addCustomDisplay(false, function() Clans:downloadHead(reloader, avatars, 1) end)
 		end
-		TB_MENU_DOWNLOAD_INACTION = true
-		local reloader = UIElement:new({
-			parent = tbMenuCurrentSection,
-			pos = { 0, 0 },
-			size = { 1, 1 }
-		})
-		reloader:addCustomDisplay(false, function() Clans:downloadHead(reloader, avatars, 1) end)
 	end
 	
 	function Clans:showPlayerAvatar(parent, avatarWidth, user)
