@@ -59,6 +59,14 @@ do
 		if (tutorialQuitOverlay) then
 			tutorialQuitOverlay:kill()
 			tutorialQuitOverlay = nil
+			if (TUTORIAL_REQUIRE_CLOSEMENU) then
+				TUTORIAL_QUITPOPUP_IGNORE = true
+				close_menu()
+			end
+			return
+		end
+		if (TUTORIAL_QUITPOPUP_IGNORE) then
+			TUTORIAL_QUITPOPUP_IGNORE = false
 			return
 		end
 		tutorialQuitOverlay = TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.TUTORIALSLEAVINGPROMPT, function() close_menu() Tutorials:quit() end, function() close_menu() TUTORIAL_LEAVEGAME = false end, nil, nil, TB_TUTORIAL_MODERN_GLOBALID)
@@ -1585,9 +1593,10 @@ do
 		set_discord_rpc(currentTutorialname, TB_MENU_LOCALIZED.DISCORDRPCINTUTORIAL)
 	end
 	
-	function Tutorials:runTutorial(id)
+	function Tutorials:runTutorial(id, postTutorial)
 		TUTORIAL_ISACTIVE = true
 		TUTORIAL_LEAVEGAME = true
+		TUTORIAL_REQUIRE_CLOSEMENU = false
 		
 		if (get_world_state().game_type == 1) then
 			start_new_game()
@@ -1603,6 +1612,12 @@ do
 		local tutorialSteps = Tutorials:loadTutorial(id)
 		if (not tutorialSteps) then
 			return
+		end
+		if (postTutorial) then
+			open_menu(19)
+			close_menu()
+			TUTORIAL_LEAVEGAME = false
+			TUTORIAL_REQUIRE_CLOSEMENU = true
 		end
 		if (Tutorials:getLocalization(LOCALIZED_MESSAGES, id)) then
 			Tutorials:updateConfig()

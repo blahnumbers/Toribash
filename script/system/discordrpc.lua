@@ -20,7 +20,7 @@ DiscordRPC.__index = DiscordRPC
 local cln = {}
 setmetatable(cln, DiscordRPC)
 
-local DiscordUsername, DiscordUserid, DiscordAvatar = ARG1:match(("([^ ]*) *"):rep(3))
+local DiscordUsername, DiscordUserid, DiscordAvatar = ARG:match(("([^ ]*) *"):rep(3))
 
 if (DiscordUsername == "" or DiscordUserid == "" or DiscordAvatar == "") then
 	return

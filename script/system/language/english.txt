@@ -40,7 +40,7 @@ MAINMENUMODMAKERNAME	Modmaker
 MAINMENUMODMAKERDESC	Create your own mod for Toribash	
 MAINMENUMODSDISCOVERNAME	Discover	
 MAINMENUMODSDISCOVERDESC	Search for new mods created by other players	
-MAINMENUSHADERSNAME	Shaders & Atmospheres	
+MAINMENUSHADERSNAME	Shaders & Atmos	
 MAINMENUSHADERSDESC	Customize lighting and Toribash environment	
 MAINMENUSCRIPTSNAME	Scripts	
 MAINMENUSCRIPTSDESC	Load pre-installed or third-party scripts for Toribash	

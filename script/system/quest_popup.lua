@@ -3,7 +3,7 @@ dofile("system/quests_manager.lua")
 local DELAY = 5
 local QUEST_POPUP_CLAIM = false
 
-local inputData = ARG1
+local inputData = ARG
 local _, popups = inputData:gsub(":", "")
 
 local popupsRaw = { inputData:match(("([^ ]+) ?"):rep(popups)) }

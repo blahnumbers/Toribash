@@ -67,6 +67,12 @@ do
 		self.data:write(line)
 	end
 	
+	function Files:writeDebug(line, rewrite)
+		local debug = Files:new("../debug.txt", rewrite and FILES_MODE_WRITE or FILES_MODE_APPEND)
+		debug:writeLine(os.clock() .. ': ' .. line)
+		debug:close()
+	end
+	
 	function Files:isDownloading()
 		for i,v in pairs(get_downloads()) do
 			if (v:match(strEsc(self.path:gsub("%.%a+$", "")) .. "%.%a+$")) then

@@ -50,8 +50,8 @@ tbMenuCurrentSection = UIElement:new({
 })
 
 local clanId = nil
-if (ARG1 ~= "") then
-	local clanTag = PlayerInfo:getClanTag(ARG1)
+if (ARG ~= "") then
+	local clanTag = PlayerInfo:getClanTag(ARG)
 	for i,v in pairs(ClanData) do
 		if (v.tag == clanTag) then
 			clanId = v.id

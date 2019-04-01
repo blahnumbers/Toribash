@@ -335,25 +335,19 @@ do
 		titleHeight = titleHeight > WIN_H / 15 and WIN_H / 15 or titleHeight
 		local descHeight = buttonData.subtitle and viewElement.size.h / 6 or 0
 		descHeight = descHeight > WIN_H / 15 and WIN_H / 15 or descHeight
-		local elementWidth, elementHeight, heightShift, itemIcon
-		local extraElements = extraElements or {}
-		if ((viewElement.size.h - 20) * buttonData.ratio + titleHeight + descHeight < (viewElement.size.w - 20) and buttonData.image2) then
+		local elementWidth, elementHeight, heightShift = unpack(TBMenu:getImageDimensions(viewElement.size.w, viewElement.size.h, buttonData.ratio, titleHeight, descHeight))
+		local selectedIcon = buttonData.image
+		if (elementHeight > viewElement.size.h - 20 - titleHeight - descHeight and buttonData.ratio2) then
 			elementWidth, elementHeight, heightShift = unpack(TBMenu:getImageDimensions(viewElement.size.w, viewElement.size.h, buttonData.ratio2, titleHeight, descHeight))
-			itemIcon = UIElement:new( {
-				parent = viewElement,
-				pos = { (viewElement.size.w - elementWidth) / 2, 10 },
-				size = { elementWidth, elementHeight },
-				bgImage = buttonData.image2
-			})
-		else
-			elementWidth, elementHeight, heightShift = unpack(TBMenu:getImageDimensions(viewElement.size.w, viewElement.size.h, buttonData.ratio, titleHeight, descHeight))
-			itemIcon = UIElement:new( {
-				parent = viewElement,
-				pos = { (viewElement.size.w - elementWidth) / 2, 10 },
-				size = { elementWidth, elementHeight },
-				bgImage = buttonData.image
-			})
+			selectedIcon = buttonData.image2
 		end
+		local extraElements = extraElements or {}
+		local itemIcon = UIElement:new( {
+				parent = viewElement,
+				pos = { (viewElement.size.w - elementWidth) / 2, 10 },
+				size = { elementWidth, elementHeight },
+				bgImage = selectedIcon
+			})
 		local buttonOverlay = UIElement:new( {
 			parent = viewElement,
 			pos = { 0, -titleHeight - descHeight - 10 },
@@ -1313,10 +1307,26 @@ do
 
 	function TBMenu:showToolsSection()
 		local tbMenuToolsButtonsData = {
-			{ title = TB_MENU_LOCALIZED.MAINMENUMODMAKERNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUMODMAKERDESC, size = 0.25, ratio = 1.055, image = "../textures/menu/modmaker2.tga", mode = ORIENTATION_PORTRAIT, action = function() open_menu(17) end },
-			{ title = TB_MENU_LOCALIZED.MAINMENUSCRIPTSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUSCRIPTSDESC, size = 0.25, ratio = 1.055, image = "../textures/menu/scripts.tga", mode = ORIENTATION_PORTRAIT, action = function() TBMenu:showScripts() end },
-			{ title = TB_MENU_LOCALIZED.MAINMENUHOTKEYSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUHOTKEYSDESC, size = 0.25, ratio = 1.055, image = "../textures/menu/hotkeys.tga", mode = ORIENTATION_PORTRAIT, action = function() TBMenu:showHotkeys() end },
-			{ title = "Settings", subtitle = TB_MENU_LOCALIZED.MAINMENUHOTKEYSDESC, size = 0.25, ratio = 1.055, image = "../textures/menu/settings.tga", mode = ORIENTATION_PORTRAIT, action = function() TBMenu:showSettings() end },
+			{ title = TB_MENU_LOCALIZED.MAINMENUMODLISTNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUMODLISTDESC, size = 0.25, ratio = 1.055, image = "../textures/menu/modlist2.tga", action = function()
+					dofile("system/mods_manager.lua")
+					if (MODS_MENU_MAIN_ELEMENT) then
+						MODS_MENU_MAIN_ELEMENT:kill()
+						MODS_MENU_MAIN_ELEMENT = nil
+					end
+					Mods:showMain()
+				end, quit = true },
+			{ title = TB_MENU_LOCALIZED.MAINMENUGAMERULESNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUGAMERULESDESC, size = 0.25, vsize, ratio = 1.055, image = "../textures/menu/gamerules2.tga", action = function() open_menu(5) end, quit = true },
+			{ title = TB_MENU_LOCALIZED.MAINMENUMODMAKERNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUMODMAKERDESC, size = 0.25, vsize = 0.5, ratio = 1.055, image = "../textures/menu/modmaker2.tga", ratio2 = 0.5, image2 = "../textures/menu/modmaker3.tga", action = function() open_menu(17) end },
+			{ title = TB_MENU_LOCALIZED.MAINMENUSCRIPTSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUSCRIPTSDESC, size = 0.25, vsize = 0.5, ratio = 1.055, image = "../textures/menu/scripts.tga", ratio2 = 0.5, image2 = "../textures/menu/scripts2.tga", action = function() TBMenu:showScripts() end },
+			{ title = TB_MENU_LOCALIZED.MAINMENUSHADERSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUSHADERSDESC, size = 0.25, vsize = 0.5, ratio = 0.5, image = "../textures/menu/shaders2.tga", action = function()
+					dofile("system/atmospheres_manager.lua")
+					if (ATMO_MENU_MAIN_ELEMENT) then
+						ATMO_MENU_MAIN_ELEMENT:kill()
+						ATMO_MENU_MAIN_ELEMENT = nil
+					end
+					Atmospheres:showMain()
+				end, quit = true },
+			{ title = TB_MENU_LOCALIZED.MAINMENUHOTKEYSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUHOTKEYSDESC, size = 0.25, vsize = 0.5, ratio = 1.055, image = "../textures/menu/hotkeys.tga", ratio2 = 0.5, image2 = "../textures/menu/hotkeys2.tga", action = function() TBMenu:showHotkeys() end },
 		}
 		TBMenu:showSection(tbMenuToolsButtonsData)
 	end
@@ -1814,17 +1824,28 @@ do
 			shapeType = ROUNDED,
 			rounded = 10
 		})
+		
+		-- Check if total button width doesn't exceed navbar width
+		-- Assign button width accordingly
+		local totalWidth = tbMenuNavigationBar.size.w + 5
+		local fontScale = 1.1
+		local temp = UIElement:new({
+			parent = tbMenuNavigationBar,
+			pos = { 0, 0 },
+			size = { WIN_W, tbMenuNavigationBar.size.h / 6 * 4 }
+		})
+		while (totalWidth > tbMenuNavigationBar.size.w) do
+			totalWidth = 0
+			fontScale = fontScale - 0.1
+			for i,v in pairs (tbMenuNavigationButtonsData) do
+				temp:addAdaptedText(true, v.text, nil, nil, FONTS.BIG, nil, fontScale)
+				v.width = get_string_length(temp.dispstr[1] .. "____", temp.textFont) * temp.textScale
+				totalWidth = totalWidth + v.width
+			end
+		end
+		temp:kill()
+		
 		for i, v in pairs(tbMenuNavigationButtonsData) do
-			-- Assign width dynamically and kill check element afterwards
-			local temp = UIElement:new({
-				parent = tbMenuNavigationBar,
-				pos = { 0, 0 },
-				size = { WIN_W, tbMenuNavigationBar.size.h / 6 * 4 }
-			})
-			temp:addAdaptedText(true, v.text, nil, nil, FONTS.BIG)
-			v.width = get_string_length(temp.dispstr[1] .. "____", temp.textFont) * temp.textScale
-			temp:kill()
-			
 			local navX = v.right and navX.r or navX.l
 			tbMenuNavigationButtons[i] = UIElement:new( {
 				parent = tbMenuNavigationBar,

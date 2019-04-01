@@ -81,6 +81,6 @@ do
 	end
 end
 
-if (ARG1 ~= '') then
-	EventsOnline:playEvent(ARG1)
+if (ARG ~= '') then
+	EventsOnline:playEvent(ARG)
 end

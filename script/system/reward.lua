@@ -7,13 +7,13 @@ dofile("system/store_manager.lua")
 dofile("system/player_info.lua")
 dofile("toriui/uielement.lua")
 
-if (ARG1 == '') then
+if (ARG == '') then
 	return
 end
 
-local days_cons = ARG1:gsub("%s%d%s%d+$", "")
-local is_available = ARG1:gsub("^%d%s", ""):gsub("%s%d+$", "")
-local seconds_to_next = ARG1:gsub("^%d%s%d%s", "")
+local days_cons = ARG:gsub("%s%d%s%d+$", "")
+local is_available = ARG:gsub("^%d%s", ""):gsub("%s%d+$", "")
+local seconds_to_next = ARG:gsub("^%d%s%d%s", "")
 
 local function showRewards()
 	function TBMenu:addBottomBloodSmudge() end

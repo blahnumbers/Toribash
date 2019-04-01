@@ -96,7 +96,7 @@ if (PlayerInfo:getLoginRewards().available and TB_STORE_DATA.ready and not TB_ME
 	TB_MENU_NOTIFICATION_LOGINREWARDS = true
 end
 
-local launchOption = ARG1
+local launchOption = ARG
 if (launchOption == "15") then
 	TBMenu:showMain(true)
 	TBMenu:showTorishopMain()
@@ -112,10 +112,9 @@ elseif (launchOption:match("clans ")) then
 	clantag = PlayerInfo:getClanTag(clantag)
 	TBMenu:showClans(clantag)
 elseif (launchOption == "register") then
-	TBMenu:showMain()
-	TBMenu:quit()
+	TB_MENU_MAIN_ISOPEN = 0
 	dofile("tutorial/tutorial_manager.lua")
-	Tutorials:runTutorial(1)
+	Tutorials:runTutorial(1, true)
 else
 	TBMenu:showMain()
 end
@@ -247,4 +246,11 @@ end
 if (get_option("tooltip") == 1 and not TOOLTIP_ACTIVE) then
 	dofile("system/tooltip_manager.lua")
 	Tooltip:create()
+end
+
+if (launchOption == 'register') then
+	remove_hooks("tbMainMenuVisual")
+	remove_hooks("tbMainMenuMouse")
+	remove_hooks("tbMenuConsoleIgnore")
+	remove_hooks("tbMenuKeyboardHandler")
 end

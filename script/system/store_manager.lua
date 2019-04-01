@@ -2944,12 +2944,28 @@ do
 		local lpecs = UIElement3D:new({
 			parent = previewHolder,
 			shapeType = SPHERE,
+			pos = { lbodypecs.shift.x, lbodypecs.shift.y, lbodypecs.shift.z },
+			size = { 0.72, 0.72, 0.72 },
+			viewport = true
+		})
+		lpecs:addCustomDisplay(true, function() end)
+		local jlpecs = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = SPHERE,
 			pos = { 0.6, 0, -1.8 },
 			size = { 0.72, 0, 0 },
 			bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
 			viewport = true
 		})
 		local rpecs = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = SPHERE,
+			pos = { rbodypecs.shift.x, rbodypecs.shift.y, rbodypecs.shift.z },
+			size = { 0.72, 0.72, 0.72 },
+			viewport = true
+		})
+		rpecs:addCustomDisplay(true, function() end)
+		local jrpecs = UIElement3D:new({
 			parent = previewHolder,
 			shapeType = SPHERE,
 			pos = { -0.6, 0, -1.8 },
@@ -2961,12 +2977,28 @@ do
 		local lshoulder = UIElement3D:new({
 			parent = previewHolder,
 			shapeType = SPHERE,
+			pos = { lbodybicep.shift.x, lbodybicep.shift.y, lbodybicep.shift.z },
+			size = { 0.72, 0.72, 0.72 },
+			viewport = true
+		})
+		lshoulder:addCustomDisplay(true, function() end)
+		local jlshoulder = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = SPHERE,
 			pos = { 1.4, 0.2, -1.4 },
 			size = { 0.72, 0, 0 },
 			bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
 			viewport = true
 		})
 		local rshoulder = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = SPHERE,
+			pos = { rbodybicep.shift.x, rbodybicep.shift.y, rbodybicep.shift.z },
+			size = { 0.72, 0.72, 0.72 },
+			viewport = true
+		})
+		rshoulder:addCustomDisplay(true, function() end)
+		local jrshoulder = UIElement3D:new({
 			parent = previewHolder,
 			shapeType = SPHERE,
 			pos = { -1.4, 0.2, -1.4 },
@@ -2977,12 +3009,28 @@ do
 		local lelbow = UIElement3D:new({
 			parent = previewHolder,
 			shapeType = SPHERE,
+			pos = { lbodytricep.shift.x, lbodytricep.shift.y, lbodytricep.shift.z },
+			size = { 0.64, 0.64, 0.64 },
+			viewport = true
+		})
+		lelbow:addCustomDisplay(true, function() end)
+		local jlelbow = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = SPHERE,
 			pos = { 3, 0.2, -1.4 },
 			size = { 0.64, 0, 0 },
 			bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
 			viewport = true
 		})
 		local relbow = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = SPHERE,
+			pos = { rbodytricep.shift.x, rbodytricep.shift.y, rbodytricep.shift.z },
+			size = { 0.64, 0.64, 0.64 },
+			viewport = true
+		})
+		relbow:addCustomDisplay(true, function() end)
+		local jrelbow = UIElement3D:new({
 			parent = previewHolder,
 			shapeType = SPHERE,
 			pos = { -3, 0.2, -1.4 },
@@ -2993,12 +3041,28 @@ do
 		local lwrist = UIElement3D:new({
 			parent = previewHolder,
 			shapeType = SPHERE,
+			pos = { lbodyhand.shift.x, lbodyhand.shift.y, lbodyhand.shift.z },
+			size = { 0.44, 0.44, 0.44 },
+			viewport = true
+		})
+		lwrist:addCustomDisplay(true, function() end)
+		local jlwrist = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = SPHERE,
 			pos = { 4.8, 0.2, -1.4 },
 			size = { 0.44, 0, 0 },
 			bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
 			viewport = true
 		})
 		local rwrist = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = SPHERE,
+			pos = { rbodyhand.shift.x, rbodyhand.shift.y, rbodyhand.shift.z },
+			size = { 0.44, 0.44, 0.44 },
+			viewport = true
+		})
+		rwrist:addCustomDisplay(true, function() end)
+		local jrwrist = UIElement3D:new({
 			parent = previewHolder,
 			shapeType = SPHERE,
 			pos = { -4.8, 0.2, -1.4 },
@@ -3009,12 +3073,28 @@ do
 		local chest = UIElement3D:new({
 			parent = previewHolder,
 			shapeType = SPHERE,
+			pos = { bodybreast.shift.x, bodybreast.shift.y, bodybreast.shift.z },
+			size = { 0.72, 0.72, 0.72 },
+			viewport = true
+		})
+		chest:addCustomDisplay(true, function() end)
+		local jchest = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = SPHERE,
 			pos = { 0, 0.2, -2.4 },
 			size = { 0.72, 0, 0 },
 			bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
 			viewport = true
 		})
 		local lumbar = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = SPHERE,
+			pos = { bodychest.shift.x, bodychest.shift.y, bodychest.shift.z },
+			size = { 0.64, 0.64, 0.64 },
+			viewport = true
+		})
+		lumbar:addCustomDisplay(true, function() end)
+		local jlumbar = UIElement3D:new({
 			parent = previewHolder,
 			shapeType = SPHERE,
 			pos = { 0, 0.4, -3.2 },
@@ -3025,12 +3105,28 @@ do
 		local abs = UIElement3D:new({
 			parent = previewHolder,
 			shapeType = SPHERE,
+			pos = { bodystomach.shift.x, bodystomach.shift.y, bodystomach.shift.z },
+			size = { 0.56, 0.56, 0.56 },
+			viewport = true
+		})
+		abs:addCustomDisplay(true, function() end)
+		local jabs = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = SPHERE,
 			pos = { 0, 0.6, -4 },
 			size = { 0.56, 0, 0 },
 			bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
 			viewport = true
 		})
 		local lglute = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = SPHERE,
+			pos = { lbodybutt.shift.x, lbodybutt.shift.y, lbodybutt.shift.z },
+			size = { 0.64, 0.64, 0.64 },
+			viewport = true
+		})
+		lglute:addCustomDisplay(true, function() end)
+		local jlglute = UIElement3D:new({
 			parent = previewHolder,
 			shapeType = SPHERE,
 			pos = { 0.4, 1, -4.56 },
@@ -3041,12 +3137,28 @@ do
 		local rglute = UIElement3D:new({
 			parent = previewHolder,
 			shapeType = SPHERE,
+			pos = { rbodybutt.shift.x, rbodybutt.shift.y, rbodybutt.shift.z },
+			size = { 0.64, 0.64, 0.64 },
+			viewport = true
+		})
+		rglute:addCustomDisplay(true, function() end)
+		local jrglute = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = SPHERE,
 			pos = { -0.4, 1, -4.56 },
 			size = { 0.64, 0, 0 },
 			bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
 			viewport = true
 		})
 		local lhip = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = SPHERE,
+			pos = { lbodythigh.shift.x, lbodythigh.shift.y, lbodythigh.shift.z },
+			size = { 0.64, 0.64, 0.64 },
+			viewport = true
+		})
+		lhip:addCustomDisplay(true, function() end)
+		local jlhip = UIElement3D:new({
 			parent = previewHolder,
 			shapeType = SPHERE,
 			pos = { 0.84, 0.6, -5 },
@@ -3057,12 +3169,28 @@ do
 		local rhip = UIElement3D:new({
 			parent = previewHolder,
 			shapeType = SPHERE,
+			pos = { rbodythigh.shift.x, rbodythigh.shift.y, rbodythigh.shift.z },
+			size = { 0.64, 0.64, 0.64 },
+			viewport = true
+		})
+		rhip:addCustomDisplay(true, function() end)
+		local jrhip = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = SPHERE,
 			pos = { -0.84, 0.6, -5 },
 			size = { 0.64, 0, 0 },
 			bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
 			viewport = true
 		})
 		local lknee = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = SPHERE,
+			pos = { lbodythigh.shift.x, lbodythigh.shift.y, lbodythigh.shift.z },
+			size = { 0.56, 0.56, 0.56 },
+			viewport = true
+		})
+		lknee:addCustomDisplay(true, function() end)
+		local jlknee = UIElement3D:new({
 			parent = previewHolder,
 			shapeType = SPHERE,
 			pos = { 0.8, 0.6, -7.4 },
@@ -3073,6 +3201,14 @@ do
 		local rknee = UIElement3D:new({
 			parent = previewHolder,
 			shapeType = SPHERE,
+			pos = { rbodythigh.shift.x, rbodythigh.shift.y, rbodythigh.shift.z },
+			size = { 0.56, 0.56, 0.56 },
+			viewport = true
+		})
+		rknee:addCustomDisplay(true, function() end)
+		local jrknee = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = SPHERE,
 			pos = { -0.8, 0.6, -7.4 },
 			size = { 0.56, 0, 0 },
 			bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
@@ -3081,12 +3217,28 @@ do
 		local lankle = UIElement3D:new({
 			parent = previewHolder,
 			shapeType = SPHERE,
+			pos = { lbodyleg.shift.x, lbodyleg.shift.y, lbodyleg.shift.z },
+			size = { 0.44, 0.44, 0.44 },
+			viewport = true
+		})
+		lankle:addCustomDisplay(true, function() end)
+		local jlankle = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = SPHERE,
 			pos = { 0.8, 0.8, -9.6 },
 			size = { 0.44, 0, 0 },
 			bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
 			viewport = true
 		})
 		local rankle = UIElement3D:new({
+			parent = previewHolder,
+			shapeType = SPHERE,
+			pos = { rbodyleg.shift.x, rbodyleg.shift.y, rbodyleg.shift.z },
+			size = { 0.44, 0.44, 0.44 },
+			viewport = true
+		})
+		rankle:addCustomDisplay(true, function() end)
+		local jrankle = UIElement3D:new({
 			parent = previewHolder,
 			shapeType = SPHERE,
 			pos = { -0.8, 0.8, -9.6 },
@@ -3109,7 +3261,27 @@ do
 		rbodytricep.linked = { rbodytricepp, rbodytriceps }
 		lbodyhand.linked = { lbodyhandp, lbodyhands }
 		rbodyhand.linked = { rbodyhandp, rbodyhands }
+		
 		neck.linked = { jneck }
+		lpecs.linked = { jlpecs }
+		rpecs.linked = { jrpecs }
+		lshoulder.linked = { jlshoulder }
+		rshoulder.linked = { jrshoulder }
+		lelbow.linked = { jlelbow }
+		relbow.linked = { jrelbow }
+		lwrist.linked = { jlwrist }
+		rwrist.linked = { jrwrist }
+		chest.linked = { jchest }
+		lumbar.linked = { jlumbar }
+		abs.linked = { jabs }
+		lglute.linked = { jlglute }
+		rglute.linked = { jrglute }
+		lhip.linked = { jlhip }
+		rhip.linked = { jrhip }
+		lknee.linked = { jlknee }
+		rknee.linked = { jrknee }
+		lankle.linked = { jlankle }
+		rankle.linked = { jrankle }
 		
 		local bodyparts = { bodyhead, bodybreast, bodychest, bodystomach, bodygroin, rbodypecs, rbodybicep, rbodytricep, lbodypecs, lbodybicep, lbodytricep, rbodyhand, lbodyhand, rbodybutt, lbodybutt, rbodythigh, lbodythigh, lbodyleg, rbodyleg, rbodyfoot, lbodyfoot }
 		local joints = { neck, chest, lumbar, abs, rpecs, rshoulder, relbow, lpecs, lshoulder, lelbow, rwrist, lwrist, rglute, lglute, rhip, lhip, rknee, lknee, rankle, lankle }
@@ -3130,7 +3302,7 @@ do
 				previewHolder.parent:rotate(0, 0, -previewHolder.parent.rotXYZ.z)
 				previewHolder:moveTo(-pos.x, -pos.y, -pos.z + 10)
 			end
-		elseif (modelInfo.bodyid < 40) then
+		elseif (modelInfo.bodyid < 41) then
 			local joint = bodyInfos.joint[modelInfo.bodyid - 20]
 			modelData.pos = { joint.shift.x, joint.shift.y, joint.shift.z }
 			if (cameraMove) then
@@ -3149,9 +3321,9 @@ do
 			if (modelInfo.bodyid < 21) then
 				local mScale = bodyInfos.bodypart[modelInfo.bodyid + 1].size
 				scale = { mScale.x, mScale.y, mScale.z }
-			elseif (modelInfo.bodyid < 40) then
+			elseif (modelInfo.bodyid < 41) then
 				local mScale = bodyInfos.joint[modelInfo.bodyid - 20].size
-				scale = { mScale.x, mScale.y, mScale.z }
+				scale = { mScale.x, mScale.x, mScale.x }
 			end
 		end
 		if (modelInfo.partless) then
@@ -3163,9 +3335,9 @@ do
 				else
 					bodyInfos.bodypart[modelInfo.bodyid + 1]:kill()
 				end
-			elseif (modelInfo.bodyid < 40) then
+			elseif (modelInfo.bodyid < 41) then
 				if (bodyInfos.joint[modelInfo.bodyid - 20].linked) then
-					for i,v in pairs(bodyInfos.joint[modelInfo.bodyid - bodyid].linked) do
+					for i,v in pairs(bodyInfos.joint[modelInfo.bodyid - 20].linked) do
 						v:kill()
 					end
 				else
@@ -3265,6 +3437,8 @@ do
 							end)
 					end)
 			else
+				-- store element update time to prevent reloading item info when user has switched to another item preview
+				local sectionTime = tbStoreItemInfoHolder.updated
 				Request:new("store_itemdownload", function()
 						local itemUpdater = UIElement:new({
 							parent = viewElement,
@@ -3283,7 +3457,7 @@ do
 										end
 										if (updatedFunc) then
 											updatedFunc()
-										else
+										elseif (sectionTime == tbStoreItemInfoHolder.updated) then
 											Torishop:showStoreItemInfo(items, true)
 										end
 									end
@@ -3364,6 +3538,7 @@ do
 	
 	function Torishop:showStoreItemInfo(item, noReload, updateOverride)
 		tbStoreItemInfoHolder:kill(true)
+		tbStoreItemInfoHolder.updated = os.clock()
 		TBMenu:addBottomBloodSmudge(tbStoreItemInfoHolder, 3)
 		if (item.on_sale == 1) then
 			local sale = UIElement:new({
