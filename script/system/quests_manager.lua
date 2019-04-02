@@ -25,7 +25,8 @@ do
 			{ "official", boolean = true },
 			{ "reward", numeric = true },
 			{ "rewardid", numeric = true },
-			{ "name" }
+			{ "name" },
+			{ "ranked", boolean = true }
 		}
 		for i, ln in pairs(file:readAll()) do
 			if (not ln:find("^#")) then
@@ -88,19 +89,19 @@ do
 	function Quests:getQuestTarget(v)
 		local targetText = ""
 		if (v.type == 1) then
-			targetText = TB_MENU_LOCALIZED.QUESTSPLAYREQ .. " " .. v.requirement .. " " .. TB_MENU_LOCALIZED.WORDGAMES
+			targetText = TB_MENU_LOCALIZED.QUESTSPLAYREQ .. " " .. v.requirement .. " " .. (v.ranked and TB_MENU_LOCALIZED.WORDRANKED .. " " or "") .. TB_MENU_LOCALIZED.WORDGAMES
 		elseif (v.type == 2) then
-			targetText = TB_MENU_LOCALIZED.QUESTSWINREQ .. " " .. v.requirement .. " " .. TB_MENU_LOCALIZED.WORDFIGHTS
+			targetText = TB_MENU_LOCALIZED.QUESTSWINREQ .. " " .. v.requirement .. " " .. (v.ranked and TB_MENU_LOCALIZED.WORDRANKED .. " " or "") .. TB_MENU_LOCALIZED.WORDFIGHTS
 			if (v.decap) then
-				targetText = targetText .. " " .. TB_MENU_LOCALIZED.QUESTSBYDECAP
+				targetText = targetText .. " " .. TB_MENU_LOCALIZED.QUESTSBYDECAP .. (v.ranked and " " .. TB_MENU_LOCALIZED.QUESTSRANKEDMODE or "")
 			end
 		elseif (v.type == 3) then
-			targetText = TB_MENU_LOCALIZED.QUESTSGETREQ .. " " .. v.requirement .. " " .. TB_MENU_LOCALIZED.QUESTSGETREQ2
+			targetText = TB_MENU_LOCALIZED.QUESTSGETREQ .. " " .. v.requirement .. " " .. TB_MENU_LOCALIZED.QUESTSGETREQ2 .. (v.ranked and " " .. TB_MENU_LOCALIZED.QUESTSRANKEDMODE or "")
 		elseif (v.type == 4) then
 			if (v.decap) then
-				targetText = TB_MENU_LOCALIZED.QUESTSDECAPREQ .. " " .. v.requirement .. " " .. TB_MENU_LOCALIZED.WORDTIMES
+				targetText = TB_MENU_LOCALIZED.QUESTSDECAPREQ .. " " .. v.requirement .. " " .. TB_MENU_LOCALIZED.WORDTIMES .. (v.ranked and " " .. TB_MENU_LOCALIZED.QUESTSRANKEDMODE or "")
 			else
-				targetText = TB_MENU_LOCALIZED.QUESTSDISMEMBERREQ .. " " .. v.requirement .. " " .. TB_MENU_LOCALIZED.WORDTIMES
+				targetText = TB_MENU_LOCALIZED.QUESTSDISMEMBERREQ .. " " .. v.requirement .. " " .. TB_MENU_LOCALIZED.WORDTIMES .. (v.ranked and " " .. TB_MENU_LOCALIZED.QUESTSRANKEDMODE or "")
 			end
 		end
 		if (v.modid ~= 0) then

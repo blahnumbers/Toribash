@@ -627,3 +627,5 @@ EVENTSREWIND	Rewind this replay
 TUTORIALNODATAFOUND	No data found, please try again after downloads have completed	
 STOREDISCOUNTCHEAPER1		
 STOREDISCOUNTCHEAPER2	cheaper	
+WORDRANKED	ranked	
+QUESTSRANKEDMODE	in ranked mode	
