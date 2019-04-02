@@ -597,6 +597,7 @@ STOREPURCHASEERROR	Purchase error
 STOREPURCHASESERVERERROR	Server error, please try again later	
 STOREPURCHASEERRORUNDEF	Undefined purchase error. Please contact an administrator.
 STOREPURCHASESUCCESSFUL	Congratulations on your purchase!\nWould you like to activate your new item?	
+STOREPURCHASESUCCESSFULUNPACK	Congratulations on your purchase!\nWould you like to unpack the set you've bought?	
 SETTINGSAUTOUPDATE	Auto-update players customs and data files	
 ACCOUNTUSERNAME	Username	
 ACCOUNTUSERID	User ID	

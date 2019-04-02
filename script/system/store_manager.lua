@@ -3523,11 +3523,19 @@ do
 					update_tc_balance()
 					local invid = response:gsub("^SUCCESS 0;", "")
 					overlay:kill()
-					TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASESUCCESSFUL, function()
-							INVENTORY_UPDATE = true
-							INVENTORY_MOUSE_POS = { x = posX, y = posY }
-							show_dialog_box(INVENTORY_ACTIVATE, TB_MENU_LOCALIZED.STOREDIALOGACTIVATE1 .. " " .. item.itemname .. (TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 .. "?"), invid)
-						end)
+					if (#item.contents > 0) then
+						TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASESUCCESSFULUNPACK, function()
+								INVENTORY_UPDATE = true
+								INVENTORY_MOUSE_POS = { x = posX, y = posY }
+								show_dialog_box(INVENTORY_UNPACK, TB_MENU_LOCALIZED.STOREDIALOGUNPACK1 .. " " .. item.itemname .. (TB_MENU_LOCALIZED.STOREDIALOGUNPACK2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGUNPACK2 .. "?") .. "\n" .. TB_MENU_LOCALIZED.STOREDIALOGUNPACKINFO, invid)
+							end)
+					elseif (item.ingame == 1) then
+						TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASESUCCESSFUL, function()
+								INVENTORY_UPDATE = true
+								INVENTORY_MOUSE_POS = { x = posX, y = posY }
+								show_dialog_box(INVENTORY_ACTIVATE, TB_MENU_LOCALIZED.STOREDIALOGACTIVATE1 .. " " .. item.itemname .. (TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 .. "?"), invid)
+							end)
+					end
 				else
 					fn(TB_MENU_LOCALIZED.STOREPURCHASEERRORUNDEF)
 				end

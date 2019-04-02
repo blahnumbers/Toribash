@@ -224,6 +224,7 @@ do
 		if (not tbMenuCurrentSection) then
 			TBMenu:createCurrentSectionView()
 		end
+		set_option("newshopitem", 0)
 		
 		-- Create and load regular announcements view
 		local homeAnnouncements = UIElement:new( {
@@ -559,6 +560,9 @@ do
 		if (math.floor(seconds / 3600 / 24 / 365) > 1) then
 			timetype = TB_MENU_LOCALIZED.REWARDSTIMEYEARS
 			timeleft = math.floor(seconds / 3600 / 24 / 365)
+			if (timeleft > 4 and TB_MENU_LOCALIZED.language == "russian") then
+				timetype = TB_MENU_LOCALIZED.REWARDSTIMEYEARSRUS
+			end
 			seconds = seconds - timeleft * 3600 * 24 * 365
 			returnval = timeleft .. " " .. timetype
 		end
@@ -571,12 +575,18 @@ do
 		if (math.floor(seconds / 3600 / 24 / 30.4) > 2) then
 			timetype = TB_MENU_LOCALIZED.REWARDSTIMEMONTHS
 			timeleft = math.floor(seconds / 3600 / 24 / 30)
+			if (timeleft > 4 and TB_MENU_LOCALIZED.language == "russian") then
+				timetype = TB_MENU_LOCALIZED.REWARDSTIMEMONTHSRUS
+			end
 			seconds = seconds - timeleft * 3600 * 24 * 30
 			returnval = returnval .. " " .. timeleft .. " " .. timetype
 		end
 		if (math.floor(seconds / 3600 / 24 / 7) > 1) then
 			timetype = TB_MENU_LOCALIZED.REWARDSTIMEWEEKS
 			timeleft = math.floor(seconds / 3600 / 24 / 7)
+			if (timeleft > 4 and TB_MENU_LOCALIZED.language == "russian") then
+				timetype = TB_MENU_LOCALIZED.REWARDSTIMEWEEKSRUS
+			end
 			seconds = seconds - timeleft * 3600 * 24 * 7
 			returnval = returnval .. " " .. timeleft .. " " .. timetype
 		end
@@ -589,6 +599,9 @@ do
 		if (math.floor(seconds / 3600 / 24) > 1) then
 			timetype = TB_MENU_LOCALIZED.REWARDSTIMEDAYS
 			timeleft = math.floor(seconds / 3600 / 24)
+			if (timeleft > 4 and TB_MENU_LOCALIZED.language == "russian") then
+				timetype = TB_MENU_LOCALIZED.REWARDSTIMEDAYSRUS
+			end
 			seconds = seconds - timeleft * 3600 * 24
 			returnval = returnval .. " " .. timeleft .. " " .. timetype
 		end
@@ -601,6 +614,9 @@ do
 		if (math.floor(seconds / 3600) > 1) then
 			timetype = TB_MENU_LOCALIZED.REWARDSTIMEHOURS
 			timeleft = math.floor(seconds / 3600)
+			if (timeleft > 4 and TB_MENU_LOCALIZED.language == "russian") then
+				timetype = TB_MENU_LOCALIZED.REWARDSTIMEHOURSRUS
+			end
 			seconds = seconds - timeleft * 3600
 			returnval = returnval .. " " .. timeleft .. " " .. timetype
 		end
@@ -613,6 +629,9 @@ do
 		if (math.floor(seconds / 60) > 1) then
 			timetype = TB_MENU_LOCALIZED.REWARDSTIMEMINUTES
 			timeleft = math.floor(seconds / 60)
+			if (timeleft > 4 and TB_MENU_LOCALIZED.language == "russian") then
+				timetype = TB_MENU_LOCALIZED.REWARDSTIMEMINUTESRUS
+			end
 			seconds = seconds - timeleft * 60
 			returnval = returnval .. " " .. timeleft .. " " .. timetype
 		end

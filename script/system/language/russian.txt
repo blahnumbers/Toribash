@@ -147,11 +147,19 @@ REWARDSCLAIMERROROTHER	Ошибка получения награды
 REWARDSNOAVAILABLE	Нет доступных наград	
 REWARDSAVAILABLERESTART	Награда будет доступна при следующем запуске игры	
 REWARDSEXPIRED	Срок действия награды истек :(	
-REWARDSTIMEHOURS	ч	
-REWARDSTIMEHOUR	ч	
-REWARDSTIMEMINUTES	м	
-REWARDSTIMEMINUTE	м	
-REWARDSTIMESECONDS	с	
+REWARDSTIMEHOURS	часа
+REWARDSTIMEHOURSRUS	часов		
+REWARDSTIMEHOUR	час	
+REWARDSTIMEMINUTES	минуты	
+REWARDSTIMEMINUTESRUS	минут
+REWARDSTIMEMINUTE	минута	
+REWARDSTIMESECONDS	секунд	
+REWARDSTIMEDAY	день	
+REWARDSTIMEDAYS	дня
+REWARDSTIMEDAYSRUS	дней	
+REWARDSTIMEWEEK	неделя	
+REWARDSTIMEWEEKS	недели	
+REWARDSTIMEWEEKSRUS	недель	
 REWARDSNEXTREWARD	Следующая награда будет доступна через	
 REWARDSTIMELEFT	осталось до истечения награды	
 MATCHMAKEMODGRAPPLING	Grappling	
@@ -176,3 +184,99 @@ MATCHMAKESEARCHSETTINGS1	Поиск
 MATCHMAKESEARCHSETTINGS2	с настройками	
 MATCHMAKESEARCHCUSTOM	пользовательский	
 MATCHMAKEUPDATINGRANK	Обновление ранговой статистики...	
+NAVBUTTONNEWS	Новости
+NAVBUTTONSTORE	Магазин
+NAVBUTTONACCOUNT	Профиль
+REWARDSTIMEMONTHS	месяца
+REWARDSTIMEYEAR	год
+REWARDSTIMEYEARS	года
+REWARDSTIMEMONTHSRUS	месяцев
+REWARDSTIMEYEARSRUS	лет
+SETTINGSREPLAYCACHE	Показать настройки скорости повтора
+SETTINGSREPLAYCACHESECONDPLAYTHROUGH	Включить со второго проигрывания повтора
+SETTINGSREPLAYMEMSIZE	Объём памяти кэша
+SETTINGSREPLAYFRAMES	фреймов
+HOTKEYSREPLAYSPEED	Изменить скорость повтора
+USERBARTCINFO	За Торикредиты вы можете покупать предметы, соответсвующие вашему поясу.
+USERBARSTINFO	За Шиай Токены вы можете покупать премиум-предметы в обход ограничений по поясу.
+ACCOUNTTITLEINFO	Информация о профиле
+ACCOUNTGETTINGINFO	Загружаем информацию о профиле...
+ACCOUNTINFOERROR	Что-то пошло не так, попробуйте снова
+STOREDOWNLOADINGMODEL	Загрузка предмета...
+STOREDOWNLOADINGSET	Загрузка предметов...
+STOREGETMORE	Купить больше
+STOREBUYFOR	Купить за
+STOREPURCHASECONFIRM	Вы уверены, что хотите купить
+STOREPURCHASEFOR	за
+STOREPURCHASEYOUWILLHAVELEFT1	у вас останется
+STOREPURCHASEYOUWILLHAVELEFT2	после покупки.
+STOREREQUIRES	Не хватает
+STOREREQUIRESQI	Qi
+STOREVIEWING	Просмотр
+STOREAVAILABLEITEMS	Доступные предметы
+STOREEXPENSIVEITEMS	Дорогие предметы
+STOREUSDITEMS	Предметы за $
+STORELOCKEDITEMS	Недоступные или заблокированные предметы
+STORESEARCHNOITEMS	По вашему запросу ничего не найдено
+STORESEARCHSTRINGSHORT	Запрос должен содержать не менее 3 символов!
+SEARCHRESULTS1	Результаты для
+SEARCHRESULTS2	
+WORDSEARCH	Поиск
+STORESEARCHHINT	Начните писать название предмета...
+STOREDISCOUNTEDPRICE	Цена со скидкой
+WORDTORICREDITS	Торикредитов
+WORDSHIAITOKENS	Шиай токенов
+STOREBUYWITH	Купить за
+STOREVIEWIN1	Показать
+STOREVIEWIN2	в Магазине
+STORELOADING	Загрузка данных магазина, пожалуйста подождите...
+STORESALE1	Распродажа
+STORESALE2	
+STORENOCOLORSALE	На данный момент нет цветов со скидкой, возвращайтесь позже!
+STORENOSALE	На данный момент нет предметов со скидкой, возвращайтесь позже!
+STORECOLORS	Цвета
+STORECOLORSNAME	Цвета
+STORECOLORSDESC	Джоинты, градиенты и другие предметы для изменения цвета
+STORETEXTURES	Текстуры
+STORETEXTURESNAME	Текстуры
+STORETEXTURESDESC	Текстуры позволяют создать уникальный образ вашего Тори
+STOREADVANCED	3D-предметы и причёски
+STOREADVANCEDNAME	3D-предметы и причёски
+STOREADVANCEDDESC	3D предметы, причёски и другие продвинутые апгрейды для вашего Тори
+STOREACCOUNT	Профиль
+STOREACCOUNTDESC	Внутриигровая валюта, бустеры и подписки
+STOREPURCHASINGITEM	Покупка предмета...
+STOREPURCHASEERROR	Ошибка при покупке
+STOREPURCHASESERVERERROR	Ошибка сервера, повторите позже
+STOREPURCHASEERRORUNDEF	Неизвестная ошибка при покупке. Обратитесь к администратору.
+STOREPURCHASESUCCESSFUL	Поздравляем с покупкой! Хотите активировать новый предмет?
+STOREPURCHASESUCCESSFULUNPACK	Поздравляем с покупкой! Хотите распаковать купленный сет?
+SETTINGSAUTOUPDATE	Автоматически обновлять текстуры и предметы других игроков
+ACCOUNTUSERNAME	Ник
+ACCOUNTUSERID	ID аккаунта
+ACCOUNTGAMESPLAYEDTODAY	Игр сыграно сегодня
+ACCOUNTGAMESWONTODAY	Игр выиграно сегодня
+ACCOUNTTCEARNINGSTODAY	Торикредитов получено от боёв
+ACCOUNTQIRESETS	Время до обновления ежедневного лимита Qi
+ACCOUNTSTATUS	Статус профиля
+ACCOUNTSUSPENDED	Заблокирован
+ACCOUNTGREYLISTED	Покупка и обмен предметов временно недоступны
+ACCOUNTNOEMAIL	Почта не привязана
+ACCOUNTAWAITINGCONFIRMATION	Ожидание подтверждения почты
+ACCOUNTSUSPENDEDINFO	Ваш аккаунт был заблокирован модераторами. Вы можете обжаловать данное решение на форуме.
+ACCOUNTGREYLISTEDINFO	Вы временно не можете совершать покупки. Дождитесь окончания данного ограничения, либо свяжитесь с администратором для досрочного снятия ограничений.
+ACCOUNTEMAILERRORINFO	Возможности вашего аккаунта ограничены. Пожалуйста, подтвердите адрес электронной почты, чтобы снять ограничения.
+STOREITEMUNAVAILABLE	Вы не можете приобрести данный предмет.
+REPLAYUPLOADERROR	Невозможно загрузить повтор
+REPLAYUPLOADFAILED	Ошибка при загрузке повтора, повторите позже
+REPLAYUPLOADINPROGRESS	Загружаем повтор...
+ACCOUNTSWITCH	Сменить аккаунт
+REPLAYUPLOADSUCCESSFUL	Ваш реплей успешно загружен!
+EVENTSUPLOADINGENTRY	Отправка реплея для участия...	
+EVENTSTRYNOTGETDISMEMBERED	Попытайся остаться в целости в следующий раз!	
+EVENTSTRYSTAYONPLATFORM	Попытайся остаться на движущейся платформе в следующий раз!	
+EVENTSNEWGAME	Новая игра	
+EVENTSREWIND	Перезапустить этот повтор	
+TUTORIALNODATAFOUND	Данные не найдены, пожалуйста, попробуйте ещё раз после завершения загрузки	
+STOREDISCOUNTCHEAPER1	Скидка	
+STOREDISCOUNTCHEAPER2		
