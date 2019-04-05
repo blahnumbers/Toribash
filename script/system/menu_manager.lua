@@ -789,6 +789,7 @@ do
 		local transparency = 1
 		if (tbMenuDataErrorMessage) then
 			tbMenuDataErrorMessage:kill()
+			tbMenuDataErrorMessage = nil
 		end
 		tbMenuDataErrorMessage = UIElement:new({
 			globalid = noParent and TB_MENU_HUB_GLOBALID,
@@ -1658,6 +1659,7 @@ do
 		local tbMenuTopBarWidth = 512
 		if (tbMenuUserBar) then
 			tbMenuUserBar:kill()
+			tbMenuUserBar = nil
 		end
 
 		tbMenuUserBar = UIElement:new( {

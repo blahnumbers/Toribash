@@ -1915,7 +1915,7 @@ do
 		for i,v in pairs(tutorials) do
 			if (not tutorials[i].size) then
 				tutorials[i].vsize = 0.5
-				tutorials[i].image = "../textures/menu/tutorial" .. i .. ".tga"
+				tutorials[i].image = "../textures/menu/tutorial" .. tutorials[i].id .. ".tga"
 				tutorials[i].size = size
 				tutorials[i].ratio = 0.5
 			end

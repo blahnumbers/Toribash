@@ -229,15 +229,18 @@ do
 
 		for i = #enabled, 1, -1 do
 			enabled[i]:hide()
+			enabled[i].listDisplayed = false
 			table.remove(enabled)
 		end
 
 		if (checkPos > 0 and checkPos * listElementHeight + listHolder.shift.y + self.size.h > 0) then
 			listElements[checkPos]:show()
+			listElements[checkPos].listDisplayed = true
 			table.insert(enabled, listElements[checkPos])
 		end
 		while (listHolder.shift.y + self.size.h + checkPos * listElementHeight >= 0 and listHolder.shift.y + checkPos * listElementHeight <= 0 and checkPos < #listElements) do
 			listElements[checkPos + 1]:show()
+			listElements[checkPos + 1].listDisplayed = true
 			table.insert(enabled, listElements[checkPos + 1])
 			checkPos = checkPos + 1
 		end
@@ -389,6 +392,8 @@ do
 				break
 			end
 		end
+		
+		self.destroyed = true
 		self = nil
 	end
 
@@ -1345,6 +1350,13 @@ do
 		end
 		color[4] = 1
 		return color
+	end
+	
+	function empty(table)
+		if (next(table) == false) then
+			return true
+		end
+		return false
 	end
 	
 	function strEsc(str)

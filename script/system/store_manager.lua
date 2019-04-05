@@ -36,6 +36,8 @@ local TAB_TEXTURES = 2
 local TAB_ADVANCED = 3
 local TAB_ACCOUNT = 4
 
+STORE_ICONS_DOWNLOAD_QUEUE = STORE_ICONS_DOWNLOAD_QUEUE or {}
+
 do
 	Torishop = {}
 	Torishop.__index = Torishop
@@ -45,6 +47,9 @@ do
 	function Torishop:getItems()
 		local file = Files:new("../data/store.txt")
 		if (not file.data) then
+			if (get_option('autoupdate') == 0 and not file:isDownloading()) then
+				download_torishop()
+			end
 			return { failed = true }
 		end
 		local data_types = {
@@ -2404,8 +2409,10 @@ do
 			bgImage = Torishop:getItemIcon(item.itemid)
 		})
 		if (heightMod > 0) then
+			STORE_DOWNLOADS_COMPLETE = false
 			return true
 		end
+		STORE_DOWNLOADS_COMPLETE = true
 		return false
 	end
 	
@@ -3415,8 +3422,12 @@ do
 		end
 		
 		local function downloadFile(i)
-			if (TB_STORE_MODELS[itemslist[i].itemid].upgradeable) then
-				download_server_file(itemslist[i].itemid .. "_" .. level, 1)
+			if (TB_STORE_MODELS[itemslist[i].itemid]) then
+				if (TB_STORE_MODELS[itemslist[i].itemid].upgradeable) then
+					download_server_file(itemslist[i].itemid .. "_" .. level, 1)
+				else
+					download_server_file(itemslist[i].itemid, 1)
+				end
 			else
 				download_server_file(itemslist[i].itemid, 1)
 			end
@@ -3438,7 +3449,7 @@ do
 					end)
 			else
 				-- store element update time to prevent reloading item info when user has switched to another item preview
-				local sectionTime = tbStoreItemInfoHolder.updated
+				local sectionTime = tbStoreItemInfoHolder and tbStoreItemInfoHolder.updated or 0
 				Request:new("store_itemdownload", function()
 						local itemUpdater = UIElement:new({
 							parent = viewElement,
@@ -3457,10 +3468,13 @@ do
 										end
 										if (updatedFunc) then
 											updatedFunc()
-										elseif (sectionTime == tbStoreItemInfoHolder.updated) then
-											Torishop:showStoreItemInfo(items, true)
+										elseif (sectionTime > 0) then
+											if (sectionTime == tbStoreItemInfoHolder.updated) then
+												Torishop:showStoreItemInfo(items, true)
+											end
 										end
 									end
+									STORE_DOWNLOADS_COMPLETE = true
 									itemUpdater:kill()
 								end
 							end)
@@ -3545,6 +3559,7 @@ do
 	end
 	
 	function Torishop:showStoreItemInfo(item, noReload, updateOverride)
+		STORE_DOWNLOADS_COMPLETE = noReload and true or false
 		tbStoreItemInfoHolder:kill(true)
 		tbStoreItemInfoHolder.updated = os.clock()
 		TBMenu:addBottomBloodSmudge(tbStoreItemInfoHolder, 3)
@@ -3742,6 +3757,53 @@ do
 		end
 	end
 	
+	function Torishop:addIconToDownloadQueue(item, path, element)
+		table.insert(STORE_ICONS_DOWNLOAD_QUEUE, { path = path, itemid = item.itemid, element = element })
+		STORE_ICONS_DOWNLOADING = STORE_ICONS_DOWNLOADING or false
+		add_hook("draw2d", "storeicondownloads", function()
+				if (STORE_ICONS_DOWNLOADING) then
+					if (os.clock() - 1 < STORE_ICONS_DOWNLOADING) then
+						return
+					end
+					local downloads = get_downloads()
+					local searchPath = STORE_ICONS_DOWNLOAD_QUEUE[#STORE_ICONS_DOWNLOAD_QUEUE].path
+					searchPath = searchPath:gsub("^%.%./", "../data/")
+					for i,v in pairs(downloads) do
+						if (v:find(searchPath)) then
+							return
+						end
+					end
+					if (not STORE_ICONS_DOWNLOAD_QUEUE[#STORE_ICONS_DOWNLOAD_QUEUE].element.destroyed) then
+						STORE_ICONS_DOWNLOAD_QUEUE[#STORE_ICONS_DOWNLOAD_QUEUE].element:updateImage(Torishop:getItemIcon(STORE_ICONS_DOWNLOAD_QUEUE[#STORE_ICONS_DOWNLOAD_QUEUE].itemid))
+					end
+					table.remove(STORE_ICONS_DOWNLOAD_QUEUE)
+					STORE_ICONS_DOWNLOADING = false
+					STORE_DOWNLOADS_COMPLETE = true
+					return
+				end
+				if (STORE_DOWNLOADS_COMPLETE) then
+					if (#STORE_ICONS_DOWNLOAD_QUEUE == 0) then
+						remove_hooks("storeicondownloads")
+						return
+					end
+					download_server_file("get_icon&itemid=" .. STORE_ICONS_DOWNLOAD_QUEUE[#STORE_ICONS_DOWNLOAD_QUEUE].itemid, 0)
+					STORE_DOWNLOADS_COMPLETE = false
+					Request:new("storeicondownload", function()
+							local response = get_network_response()
+							if (response:len() == 0 or response:find("^ERROR")) then
+								table.remove(STORE_ICONS_DOWNLOAD_QUEUE)
+								STORE_DOWNLOADS_COMPLETE = true
+							else
+								STORE_ICONS_DOWNLOADING = os.clock()
+							end
+						end, function()
+							table.remove(STORE_ICONS_DOWNLOAD_QUEUE)
+							STORE_DOWNLOADS_COMPLETE = true
+						end)
+				end
+			end)
+	end
+	
 	function Torishop:showStoreListItem(listingHolder, listElements, elementHeight, item, stItem, locked)
 		local itemHolder = UIElement:new({
 			parent = listingHolder,
@@ -3759,12 +3821,24 @@ do
 			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
 			uiColor = item.on_sale == 1 and TB_MENU_DEFAULT_DARKEST_COLOR
 		})
+		local itemIconPath = Torishop:getItemIcon(item.itemid)
+		local itemIconFilePath = itemIconPath:gsub("^%.%./", "../data/")
+		local itemIconFile = Files:new(itemIconFilePath)
+		local downloadingIcon = false
+		if (not itemIconFile.data) then
+			downloadingIcon = true
+		else
+			itemIconFile:close()
+		end
 		local itemIcon = UIElement:new({
 			parent = itemSection,
 			pos = { 10, (itemSection.size.h - 50) / 2 },
 			size = { 50, 50 },
-			bgImage = Torishop:getItemIcon(item.itemid)
+			bgImage = itemIconPath
 		})
+		if (downloadingIcon) then
+			Torishop:addIconToDownloadQueue(item, itemIconPath, itemIcon)
+		end
 		local iconOverlay = nil
 		if (locked) then
 			iconOverlay = UIElement:new({
@@ -4522,7 +4596,7 @@ do
 				pos = { shopLoading.size.w / 6, shopLoading.size.h / 3 },
 				size = { shopLoading.size.w / 3 * 2, shopLoading.size.h / 3 }
 			})
-			shopLoadingText:addAdaptedText(true, TB_MENU_LOCALIZED.STORELOADING)
+			TBMenu:displayLoadingMark(shopLoadingText, TB_MENU_LOCALIZED.STORELOADING)
 			shopLoading:addCustomDisplay(false, function()
 					if (TB_STORE_DATA.ready) then
 						Torishop:showMain(viewElement)
