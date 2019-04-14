@@ -90,6 +90,7 @@ do
 				elseif (ln:find("^URL 0;")) then
 					evt.forumlink = ln:gsub("URL 0;", "")
 				elseif (ln:find("^PLAYNAME 0;")) then
+					evt.eventid = ln:gsub("^PLAYNAME 0;", '')
 					evt.action = function() EventsOnline:playEvent(ln:gsub("^PLAYNAME 0;", "")) end
 				elseif (ln:find("^PLAYTEXT 0;")) then
 					evt.actionText = TB_MENU_LOCALIZED[ln:gsub("^PLAYTEXT 0;", "")] or ln:gsub("^PLAYTEXT 0;", "")

@@ -445,5 +445,8 @@ do
 		closeButton:addMouseHandlers(nil, function()
 				overlay:kill()
 			end)
+		if (not EventsOnline:checkFiles(event.eventid)) then
+			download_server_file('tutorial_' .. event.eventid, 0)
+		end
 	end
 end

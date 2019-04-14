@@ -17,6 +17,30 @@ do
 		return EventsOnline:loadTutorial(eventName, "events/")
 	end
 	
+	function EventsOnline:checkFiles(eventName)
+		local event = Files:new("events/" .. eventName .. ".dat")
+		if (not event.data) then
+			return false
+		end
+		event:close()
+		local eventscript = Files:new("events/" .. eventName .. ".lua")
+		if (not eventscript.data) then
+			return false
+		end
+		eventscript:close()
+		local eventloc = Files:new("events/" .. eventName .. "_english.txt")
+		if (not eventloc.data) then
+			return false
+		end
+		eventloc:close()
+		local eventmod = Files:new("../data/mod/system/events/" .. eventName .. ".tbm")
+		if (not eventmod.data) then
+			return false
+		end
+		eventmod:close()
+		return true
+	end
+	
 	function EventsOnline:playEvent(eventName)
 		TUTORIAL_ISACTIVE = true
 		TUTORIAL_LEAVEGAME = true
