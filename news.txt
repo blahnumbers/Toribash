@@ -20,7 +20,7 @@ EVENT 0;1
 EVENTID 1;
 NAME 0;Hole in the Wall - Challenge #2
 IMAGE 0;holeinthewall.tga
-URL 0;http://forum.toribash.com/showthread.php?t=626225
+URL 0;http://forum.toribash.com/showthread.php?t=626776
 PLAYNAME 0;holeinthewall2
 PLAYTEXT 0;PARTICIPATE
 ACCENTCOLOR 0;060606
@@ -83,3 +83,46 @@ PRIZEITEMS 0;4271 54
 PRIZEDATA 0;5Runners Up
 PRIZEST 0;55
 PRIZEITEMS 0;52752 711
+
+EVENTID 3;
+NAME 0;Ranking Season 6
+IMAGE 0;season6.tga
+OVERLAYTRANS 0;0.4
+ACCENTCOLOR 0;39282c
+UICOLOR 0;ffffff
+BTNHVRCOL 0;ff8919
+BTNDNCOL 0;fa5012
+DESCDATA 0;1Season 6
+DESCDATATEXT 0;1Toribash Ranking is back with Season 6!\nDefeat other players in ranked mode, climb ranks and get exclusive rewards!
+DESCDATA 0;2Ranking Basics
+DESCDATATEXT 0;2All Brown Belt+ players can participate in Season 6 by playing ranked games in special ranked rooms or via ranked matchmaking.\nYour first 10 ranked games' outcome will be used to put you in your starting rank tier. Toribash ranking uses Elo system as its base, so with every fight you win you gain some Elo points based on your opponent's rank (and vice versa). The more Elo points you have, the better rank you get.
+DESCDATA 0;3Rank Tiers
+DESCDATATEXT 0;3After playing qualification matches, you will receive a rank tier which depends on your Elo:\n- Elo Hell (0 - 1550)\n- Bronze (1550 - 1575)\n- Silver (1575 - 1595)\n- Gold III (1595 - 1615)\n- Gold II (1615 - 1630)\n- Gold I (1630 - 1645)\n- Platinum III (1645 - 1660)\n- Platinum II (1660 - 1675)\n- Platinum I (1675 - 1690)\n- Diamond (1690+)
+DESCDATA 0;4Ranked Quests
+DESCDATATEXT 0;4Aside from classic end-of-season rewards, this time you will be able to get additional rewards throughout the whole season by completing ranked quests, which will feature Season 6 exclusive color items and brand new 3D items!
+DESCDATA 0;5Other Info
+DESCDATATEXT 0;5Toribash Ranking features Elo decay which will affect inactive players within Platinum and Diamond tiers.\nInactive Platinum tier players will start losing 1 Elo point for every day of inactivity after they stay inactive for 2 weeks, and Diamond tier players will start losing their Elo after 1 week of inactivity.
+DESCDATA 0;6Season ends on December 1st, 2019
+DESCDATATEXT 0;6Once the season ends, top 64 ranked players will be invited to participate in 2019 World Championships, which will take place later in December.
+DESCDATA 0;7Good luck and have fun!
+PRIZEDATA 0;1Top ranked player 
+PRIZETC 0;1600000
+PRIZEST 0;160
+PRIZEDATA 0;2Ranks #2-10 (Global)
+PRIZETC 0;2100000
+PRIZEST 0;220
+PRIZEDATA 0;3Top 5 Ranks (each mod)
+PRIZETC 0;350000
+PRIZEST 0;35
+PRIZEDATA 0;4Diamond Players
+PRIZEITEMS 0;432857 2062 2996
+PRIZEDATA 0;5Platinum I Players
+PRIZEITEMS 0;523166 2996
+PRIZEDATA 0;6Platinum II Players
+PRIZEITEMS 0;623189 2996
+PRIZEDATA 0;7Platinum III Players
+PRIZEITEMS 0;723190 2979
+PRIZEDATA 0;8Gold I Players
+PRIZEITEMS 0;823191 2979
+PRIZEDATA 0;9Other Gold Players
+PRIZEITEMS 0;912979
