@@ -6,6 +6,7 @@ local SETTINGS_GRAPHICS = 1
 local SETTINGS_EFFECTS = 2
 local SETTINGS_AUDIO = 3
 local SETTINGS_OTHER = 4
+local SETTINGS_ABOUT = 5
 
 local TOGGLE = 1
 local SLIDER = 2
@@ -46,12 +47,19 @@ do
 			{
 				text = TB_MENU_LOCALIZED.NAVBUTTONTOMAIN,
 				action = function() Settings:quit() end,
-				width = get_string_length(TB_MENU_LOCALIZED.NAVBUTTONTOMAIN, FONTS.BIG) * 0.65 + 30
+			},
+			{
+				text = TB_MENU_LOCALIZED.SETTINGSABOUT,
+				action = function() end,
+				right = true,
+				sectionId = -1,
+				action = function()
+						Settings:showAbout()
+					end
 			},
 			{
 				text = TB_MENU_LOCALIZED.SETTINGSOTHER,
 				action = function() end,
-				width = get_string_length(TB_MENU_LOCALIZED.SETTINGSOTHER, FONTS.BIG) * 0.65 + 30,
 				right = true,
 				sectionId = SETTINGS_OTHER,
 				action = function()
@@ -61,7 +69,6 @@ do
 			{
 				text = TB_MENU_LOCALIZED.SETTINGSAUDIO,
 				action = function() end,
-				width = get_string_length(TB_MENU_LOCALIZED.SETTINGSAUDIO, FONTS.BIG) * 0.65 + 30,
 				right = true,
 				sectionId = SETTINGS_AUDIO,
 				action = function()
@@ -71,7 +78,6 @@ do
 			{
 				text = TB_MENU_LOCALIZED.SETTINGSEFFECTS,
 				action = function() end,
-				width = get_string_length(TB_MENU_LOCALIZED.SETTINGSEFFECTS, FONTS.BIG) * 0.65 + 30,
 				right = true,
 				sectionId = SETTINGS_EFFECTS,
 				action = function()
@@ -81,7 +87,6 @@ do
 			{
 				text = TB_MENU_LOCALIZED.SETTINGSGRAPHICS,
 				action = function() end,
-				width = get_string_length(TB_MENU_LOCALIZED.SETTINGSGRAPHICS, FONTS.BIG) * 0.65 + 30,
 				right = true,
 				sectionId = SETTINGS_GRAPHICS,
 				action = function()
@@ -100,6 +105,156 @@ do
 			table.insert(navigation, back)
 		end
 		return navigation
+	end
+	
+	function Settings:showAbout()
+		tbMenuUserBar:hide()
+		local whiteOverlay = UIElement:new({
+			parent = tbMenuMain,
+			pos = { 0, 0 },
+			size = { WIN_W, WIN_H },
+			bgColor = cloneTable(UICOLORWHITE),
+			interactive = true
+		})
+		local slowMode = false
+		local speedMultiplier = get_option('framerate') == 30 and 2 or 1
+		whiteOverlay:addMouseHandlers(nil, function()
+				whiteOverlay:kill()
+				tbMenuUserBar:show()
+			end, function() slowMode = false end)
+		local aboutMover = UIElement:new({
+			parent = whiteOverlay,
+			pos = { WIN_W / 5, WIN_H },
+			size = { WIN_W / 5 * 3, 1 },
+			uiColor = UICOLORBLACK
+		})
+		aboutMover:addCustomDisplay(true, function()
+			aboutMover:moveTo(nil, slowMode and -WIN_H / 1400 * speedMultiplier or -WIN_H / 700 * speedMultiplier, true)
+		end)
+		local tbLogo = UIElement:new({
+			parent = aboutMover,
+			pos = { aboutMover.size.w / 2 - 128, 0 },
+			size = { 256, 256 },
+			bgImage = "../textures/menu/logos/toribash_legacy.tga"
+		})
+		local tbGameTitle = UIElement:new({
+			parent = aboutMover,
+			pos = { aboutMover.size.w / 2 - 200, tbLogo.shift.y + tbLogo.size.h - 40 },
+			size = { 400, 100 },
+			bgImage = "../textures/menu/logos/toribashgametitle_legacy.tga"
+		})
+		local tbDevelopedNabi = UIElement:new({
+			parent = aboutMover,
+			pos = { 0, tbGameTitle.shift.y + tbGameTitle.size.h },
+			size = { aboutMover.size.w, 50 },
+			uiColor = UICOLORWHITE
+		})
+		tbDevelopedNabi:addAdaptedText(true, "Developed by Nabi Studios", nil, nil, FONTS.BIG, nil, 0.65, nil, nil, 2)
+		local tbToribashTeam = UIElement:new({
+			parent = aboutMover,
+			pos = { 0, tbDevelopedNabi.shift.y + tbDevelopedNabi.size.h + 50 },
+			size = { aboutMover.size.w, 40 },
+		})
+		tbToribashTeam:addAdaptedText(true, "Current Team", nil, nil, FONTS.BIG, nil, nil, nil, 0.2)
+		
+		-- Keep hampa in the middle and others on sides
+		local tbTeam = { 'hagan', 'hampa', 'dranix', 'sir' }
+		local teamScale = aboutMover.size.w / #tbTeam
+		teamScale = teamScale > 512 and 512 or teamScale
+		for i,v in pairs(tbTeam) do
+			local teamMember = UIElement:new({
+				parent = aboutMover,
+				pos = { aboutMover.size.w / 2 - #tbTeam / 2 * teamScale + (i - 1) * teamScale, tbToribashTeam.shift.y + tbToribashTeam.size.h },
+				size = { teamScale, teamScale },
+				bgImage = "../textures/menu/about/" .. v .. ".tga"
+			})
+			local teamMemberName = UIElement:new({
+				parent = teamMember,
+				pos = { 0, 0 },
+				size = { teamMember.size.w, teamMember.size.h },
+				uiColor = UICOLORWHITE
+			})
+			teamMemberName:addAdaptedText(true, v, nil, nil, FONTS.BIG, CENTERBOT, 0.55, nil, nil, 2)
+		end
+		
+		
+		local tbSpecialThanks = UIElement:new({
+			parent = aboutMover,
+			pos = { 0, tbToribashTeam.shift.y + tbToribashTeam.size.h + teamScale + 60 },
+			size = { aboutMover.size.w, 40 },
+		})
+		tbSpecialThanks:addAdaptedText(true, "Special Thanks To", nil, nil, FONTS.BIG, nil, nil, nil, 0.2)
+		
+		local tbMusicBy = UIElement:new({
+			parent = aboutMover,
+			pos = { 0, tbSpecialThanks.shift.y + tbSpecialThanks.size.h + 20 },
+			size = { aboutMover.size.w, 60 },
+			interactive = true,
+			bgColor = UICOLORWHITE,
+			hoverColor = TB_MENU_DEFAULT_LIGHTEST_COLOR,
+			shapeType = ROUNDED,
+			rounded = 15
+		})
+		local tbMusicTMMRW = UIElement:new({
+			parent = tbMusicBy,
+			pos = { 0, 0 },
+			size = { tbMusicBy.size.w, 35 }
+		})
+		TBMenu:showTextWithImage(tbMusicTMMRW, "Jacob \"TMMRW\" Milo", FONTS.BIG, 30, "../textures/menu/logos/soundcloud.tga")
+		local tbMusicDesc = UIElement:new({
+			parent = tbMusicBy,
+			pos = { 0, tbMusicTMMRW.size.h },
+			size = { tbMusicBy.size.w, tbMusicBy.size.h - tbMusicTMMRW.size.h }
+		})
+		tbMusicDesc:addAdaptedText(true, "for making Toribash background music")
+		tbMusicBy:addMouseHandlers(nil, function() open_url("https://soundcloud.com/TMMRW") end, function() slowMode = true end)
+		
+		local tbStaff = UIElement:new({
+			parent = aboutMover,
+			pos = { 0, tbMusicBy.size.h + tbMusicBy.shift.y + 40 },
+			size = { aboutMover.size.w, 35 }
+		})
+		tbStaff:addAdaptedText(true, "Toribash Staff", nil, nil, FONTS.BIG)
+		local tbStaffAbout = UIElement:new({
+			parent = aboutMover,
+			pos = { 0, tbMusicBy.size.h + tbMusicBy.shift.y + 40 + tbStaff.size.h },
+			size = { aboutMover.size.w, 25 }
+		})
+		tbStaffAbout:addAdaptedText(true, "for helping us maintain Toribash across the years")
+		
+		local tbPlayer = UIElement:new({
+			parent = aboutMover,
+			pos = { 0, tbStaffAbout.size.h + tbStaffAbout.shift.y + 40 },
+			size = { aboutMover.size.w, 35 }
+		})
+		tbPlayer:addAdaptedText(true, TB_MENU_PLAYER_INFO.username == '' and "and all the players" or ("and you, " .. TB_MENU_PLAYER_INFO.username), nil, nil, FONTS.BIG)
+		local tbPlayerThanks = UIElement:new({
+			parent = aboutMover,
+			pos = { 0, tbPlayer.size.h + tbPlayer.shift.y},
+			size = { aboutMover.size.w, 25 }
+		})
+		tbPlayerThanks:addAdaptedText(true, "for playing Toribash!")
+		
+		local lastElement = UIElement:new({
+			parent = tbPlayerThanks,
+			pos = { 0, 0 },
+			size = { tbPlayerThanks.size.w, tbPlayerThanks.size.h }
+		})
+		local function initOutro()
+			whiteOverlay:addCustomDisplay(nil, function()
+					whiteOverlay.bgColor[4] = whiteOverlay.bgColor[4] - 0.05
+					if (whiteOverlay.bgColor[4] <= 0) then
+						whiteOverlay:kill()
+						tbMenuUserBar:show()
+					end
+				end)
+		end
+		lastElement:addCustomDisplay(false, function()
+				if (lastElement.pos.y + lastElement.size.h < 0) then
+					lastElement:kill()
+					initOutro()
+				end
+			end)
 	end
 	
 	function Settings:getSettingsData(id)

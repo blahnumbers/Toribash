@@ -226,6 +226,27 @@ do
 		end
 		set_option("newshopitem", 0)
 		
+		-- Table to store event announcement data
+		local newsData = News:getNews()
+		
+		-- If download is in progress, show loading screen instead
+		if (newsData.downloading) then
+			local homeView = UIElement:new({
+				parent = tbMenuCurrentSection,
+				pos = { 5, 0 },
+				size = { tbMenuCurrentSection.size.w - 10, tbMenuCurrentSection.size.h },
+				bgColor = TB_MENU_DEFAULT_BG_COLOR
+			})
+			homeView:addCustomDisplay(false, function()
+					if (not newsData.file:isDownloading()) then
+						TBMenu:showHome()
+					end
+				end)
+			TBMenu:addBottomBloodSmudge(homeView)
+			TBMenu:displayLoadingMark(homeView, TB_MENU_LOCALIZED.NEWSDOWNLOADING)
+			return
+		end
+		
 		-- Create and load regular announcements view
 		local homeAnnouncements = UIElement:new( {
 			parent = tbMenuCurrentSection,
@@ -242,9 +263,6 @@ do
 			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			hoverSound = 31
 		})
-		
-		-- Table to store event announcement data
-		local newsData = News:getNews()
 		
 		local eventsData, featuredEventData = {}, {}
 		for i,v in pairs(newsData) do
@@ -379,7 +397,7 @@ do
 				pos = { 5, 5 },
 				size = { buttonTitleView.size.w - 10, buttonTitleView.size.h - 5 }
 			})
-			buttonTitle:addAdaptedText(true, buttonData.title, nil, nil, FONTS.BIG, buttonData.subtitle and LEFTBOT or LEFT, nil, nil, 0.2)
+			buttonTitle:addAdaptedText(true, buttonData.title, nil, nil, FONTS.BIG, buttonData.subtitle and LEFTBOT or LEFT, nil, nil, 0.4)
 		end
 		if (buttonData.subtitle) then
 			local buttonSubtitleView = UIElement:new( {
@@ -1017,6 +1035,9 @@ do
 	end
 
 	function TBMenu:showMatchmaking()
+		if (not tbMenuCurrentSection) then
+			TBMenu:createCurrentSectionView()
+		end
 		-- Connect user to matchmake server
 		Matchmake:connect()
 		Matchmake:showMain(tbMenuCurrentSection)
@@ -1565,11 +1586,18 @@ do
 
 	function TBMenu:openMenu(screenId)
 		tbMenuBottomLeftBar:show()
+		
+		-- If last used screen was matchmaking, disable search and disconnect from lobby
+		if (TB_MATCHMAKER_SEARCHSTATUS) then
+			TB_MATCHMAKER_SEARCHSTATUS = nil
+			if (get_world_state().game_type == 0) then
+				UIElement:runCmd("matchmake disconnect")
+			end
+		end
+		
 		if (TB_MENU_SPECIAL_SCREEN_ISOPEN == 1) then
 			TBMenu:showTorishopMain()
 			Torishop:prepareInventory(tbMenuCurrentSection)
-		elseif (TB_MENU_SPECIAL_SCREEN_ISOPEN == 2) then
-			TBMenu:showMatchmaking()
 		elseif (TB_MENU_SPECIAL_SCREEN_ISOPEN == 3) then
 			TBMenu:showClans()
 			if (TB_MENU_CLANS_OPENCLANID ~= 0) then
@@ -1595,6 +1623,8 @@ do
 			TBMenu:showTorishopMain()
 		elseif (screenId == 7) then
 			TBMenu:showAccountMain()
+		elseif (screenId == 8) then
+			TBMenu:showMatchmaking()
 		elseif (screenId == 101) then
 			TBMenu:showNotifications()
 		elseif (screenId == 102) then
@@ -1913,7 +1943,7 @@ do
 						end
 					else
 						if (customNavHighlight) then
-							if (v.sectionId ~= selectedId) then
+							if (v.sectionId ~= selectedId and v.sectionId ~= -1) then
 								selectedId = v.sectionId
 								for i, v in pairs(tbMenuNavigationButtons) do
 									v.bgColor = { 0.2, 0.2, 0.2, 0 }
@@ -1934,7 +1964,8 @@ do
 			{ text = TB_MENU_LOCALIZED.NAVBUTTONPRACTICE, sectionId = 3 },
 			{ text = TB_MENU_LOCALIZED.NAVBUTTONSTORE, sectionId = 6 },
 			{ text = TB_MENU_LOCALIZED.NAVBUTTONTOOLS, sectionId = 5 },
-			{ text = TB_MENU_LOCALIZED.NAVBUTTONACCOUNT, sectionId = 7, right = true }
+			{ text = TB_MENU_LOCALIZED.NAVBUTTONACCOUNT, sectionId = 7, right = true },
+			{ text = TB_MENU_LOCALIZED.MAINMENURANKEDNAME, sectionId = 8, right = true },
 		}
 		if (TB_MENU_PLAYER_INFO.username == '') then
 			buttonData[6] = nil
@@ -1950,7 +1981,7 @@ do
 		})
 		local tbMenuBottomLeftButtonsData = {
 			{ action = function() TBMenu:openMenu(102) end, image = TB_MENU_FRIENDS_BUTTON, imageHover = TB_MENU_FRIENDS_BUTTON_HOVER, imagePress = TB_MENU_FRIENDS_BUTTON_PRESS },
-			{ action = function() if (TB_MENU_SPECIAL_SCREEN_ISOPEN == 0) then TBMenu:openMenu(101) else Notifications:quit() end end, image = TB_MENU_NOTIFICATIONS_BUTTON, imageHover = TB_MENU_NOTIFICATIONS_BUTTON_HOVER, imagePress = TB_MENU_NOTIFICATIONS_BUTTON_PRESS },
+			{ action = function() if (TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 4) then TBMenu:openMenu(101) else Notifications:quit() end end, image = TB_MENU_NOTIFICATIONS_BUTTON, imageHover = TB_MENU_NOTIFICATIONS_BUTTON_HOVER, imagePress = TB_MENU_NOTIFICATIONS_BUTTON_PRESS },
 			{ action = function() open_url("http://discord.gg/toribash") end, image = TB_MENU_DISCORD_BUTTON, imageHover = TB_MENU_DISCORD_BUTTON_HOVER, imagePress = TB_MENU_DISCORD_BUTTON_PRESS },
 		}
 		local tbMenuBottomLeftButtons = {}
@@ -2371,7 +2402,7 @@ do
 		end
 	end
 	
-	function TBMenu:showTextWithImage(viewElement, text, fontid, imgScale, imgWhite, imgBlack)
+	function TBMenu:showTextWithImage(viewElement, text, fontid, imgScale, imgWhite, imgBlack, left)
 		local imgScale = imgScale or 26
 		local imgBlack = imgBlack or imgWhite
 		local textView = UIElement:new({
@@ -2379,13 +2410,13 @@ do
 			pos = { imgScale * 0.8, 0 },
 			size = { viewElement.size.w - imgScale * 1.15, viewElement.size.h }
 		})
-		textView:addAdaptedText(false, text, -imgScale * 0.7, nil, fontid)
+		textView:addAdaptedText(false, text, left and imgScale * 0.7 or -imgScale * 0.7, nil, fontid)
 		local fontid = textView.textFont
 		local posX = get_string_length(textView.dispstr[1], fontid) * textView.textScale
 		local bgColorDelta = viewElement.bgColor[1] + viewElement.bgColor[2] + viewElement.bgColor[3]
 		local imageElement = UIElement:new({
 			parent = textView,
-			pos = { (textView.size.w + posX - imgScale) / 2, (textView.size.h - imgScale) / 2 },
+			pos = { (textView.size.w + (left and (-posX - imgScale) or (posX - imgScale))) / 2, (textView.size.h - imgScale) / 2 },
 			size = { imgScale, imgScale },
 			bgImage = bgColorDelta > 1.5 and imgBlack or imgWhite
 		})

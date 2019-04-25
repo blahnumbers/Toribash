@@ -939,7 +939,7 @@ do
 		local font = font or FONTS.MEDIUM
 		local x = x and self.pos.x + x or self.pos.x
 		local y = y and self.pos.y + y or self.pos.y
-		local font_mod = font
+		local font_mod = getFontMod(font)
 		local scale = scale or 1
 		local angle = angle or 0
 		local pos = 0
@@ -949,17 +949,6 @@ do
 		local check = check or false
 		local refresh = refresh or false
 		local smoothing = not nosmooth
-		if (font == 2) then
-			font_mod = 2.4
-		elseif (font == 0) then
-			font_mod = 5.6
-		elseif (font == 4) then
-			font_mod = 2.4
-		elseif (font == 1) then
-			font_mod = 1.5
-		elseif (fonts == 9) then
-			font_mod = 10
-		end
 
 		if (check) then
 			str = textAdapt(str, font, scale, self.size.w, true, textfield)
@@ -1188,6 +1177,22 @@ do
 				return cmpRes
 			end)
 		return a
+	end
+	
+	function getFontMod(font)
+		local font_mod = font
+		if (font == 2) then
+			font_mod = 2.4
+		elseif (font == 0) then
+			font_mod = 5.6
+		elseif (font == 4) then
+			font_mod = 2.4
+		elseif (font == 1) then
+			font_mod = 1.5
+		elseif (fonts == 9) then
+			font_mod = 10
+		end
+		return font_mod
 	end
 
 	function cloneTable(table)

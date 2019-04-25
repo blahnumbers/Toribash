@@ -29,6 +29,34 @@ local function showPopup(i)
 	if (oldProgress > quest.progress) then
 		DELAY = 0
 	end
+	local percentageThreshold = math.floor(oldProgress / quest.requirement * 10)
+	if (math.floor(quest.progress / quest.requirement * 10) == percentageThreshold) then
+		if (popupsData[i + 1]) then
+			showPopup(i + 1)
+		else
+			download_quest(TB_MENU_PLAYER_INFO.username)
+			local file = Files:new("../data/quest.txt")
+			local questRefresh = UIElement:new({
+				globalid = TB_MENU_HUB_GLOBALID,
+				pos = { 0, 0 },
+				size = { 0, 0 }
+			})
+			questRefresh:addCustomDisplay(false, function()
+					if (not file:isDownloading()) then
+						file:close()
+						local oldQuests = cloneTable(QUESTS_DATA)
+						QUESTS_DATA = Quests:getQuests()
+						if (QUEST_POPUP_CLAIM and not TB_MENU_QUESTS_NEW) then
+							TB_MENU_NOTIFICATIONS_COUNT = TB_MENU_NOTIFICATIONS_COUNT + 1
+							TB_MENU_QUESTS_NEW = true
+						end
+						questRefresh:kill()
+					end
+				end)
+		end
+		return
+	end 
+	
 	local questProgressNotificationHolder = UIElement:new({
 		globalid = TB_MENU_HUB_GLOBALID,
 		pos = { WIN_W, WIN_H - 140 },

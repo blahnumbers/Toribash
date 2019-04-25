@@ -12,44 +12,72 @@ do
 	
 	local RankingData = {
 		{
-			title = "Diamond Tier",
+			title = "Diamond",
 			showRank = true,
 			maxElo = 10000,
-			minElo = 1667,
+			minElo = 1690,
 			image = "../textures/menu/ranking/diamond.tga"
 		},
 		{
-			title = "Platinum Tier",
+			title = "Platinum I",
 			showRank = true,
-			maxElo = 1667,
-			minElo = 1631,
-			image = "../textures/menu/ranking/platinum.tga"
+			maxElo = 1690,
+			minElo = 1675,
+			image = "../textures/menu/ranking/plat1.tga"
 		},
 		{
-			title = "Gold Tier",
+			title = "Platinum II",
 			showRank = true,
-			maxElo = 1631,
-			minElo = 1608,
-			image = "../textures/menu/ranking/gold.tga"
+			maxElo = 1675,
+			minElo = 1660,
+			image = "../textures/menu/ranking/plat2.tga"
 		},
 		{
-			title = "Silver Tier",
+			title = "Platinum III",
+			showRank = true,
+			maxElo = 1660,
+			minElo = 1645,
+			image = "../textures/menu/ranking/plat3.tga"
+		},
+		{
+			title = "Gold I",
+			showRank = true,
+			maxElo = 1645,
+			minElo = 1630,
+			image = "../textures/menu/ranking/gold1.tga"
+		},
+		{
+			title = "Gold II",
+			showRank = true,
+			maxElo = 1630,
+			minElo = 1615,
+			image = "../textures/menu/ranking/gold2.tga"
+		},
+		{
+			title = "Gold III",
+			showRank = true,
+			maxElo = 1615,
+			minElo = 1595,
+			image = "../textures/menu/ranking/gold3.tga"
+		},
+		{
+			title = "Silver",
 			showRank = false,
-			maxElo = 1608,
-			minElo = 1590,
+			maxElo = 1595,
+			minElo = 1575,
 			image = "../textures/menu/ranking/silver.tga"
 		},
 		{
-			title = "Bronze Tier",
+			title = "Bronze",
 			showRank = false,
-			maxElo = 1590,
-			minElo = 1565,
+			maxElo = 1575,
+			minElo = 1550,
 			image = "../textures/menu/ranking/bronze.tga"
 		},
 		{
 			title = "Elo Hell",
 			showRank = false,
-			maxElo = 1565,
+			maxElo = 1550,
 			minElo = 0,
 			image = "../textures/menu/ranking/elohell.tga"
 		}
@@ -267,7 +295,7 @@ do
 			ranking.rank = nil
 			ranking.title = rankingQualifying.title
 			ranking.image = rankingQualifying.image
-			ranking.qualifying = true
+			--ranking.qualifying = true
 		end
 		return ranking
 	end
@@ -284,6 +312,14 @@ do
 		
 		local master = getMaster()
 		
+		if (TB_MENU_DEBUG) then
+			ranking.elo = 1623
+			ranking.wins = 40
+			ranking.loses = 23
+			ranking.rank = 52
+			PlayerInfo:getRankTier(ranking)
+			return ranking
+		end
 		if (master.elo) then
 			ranking.elo = master.elo
 			ranking.wins = master.season_win

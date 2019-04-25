@@ -215,8 +215,9 @@ add_hook("console", "tbMainMenuStatic", function(s, i)
 		end
 	end)
 add_hook("new_mp_game", "tbMainMenuStatic", function()
+		TB_MATCHMAKER_SEARCHSTATUS = nil
+		set_discord_rpc("", "")
 		if (TB_MENU_MAIN_ISOPEN == 1) then
-			TB_MATCHMAKER_SEARCHSTATUS = nil
 			close_menu()
 		end
 	end)

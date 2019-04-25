@@ -182,15 +182,15 @@ MATCHMAKEMODGRAPPLING	Grappling
 MATCHMAKEMODKICKING	Kicking	
 MATCHMAKEMODSTRIKING	Striking	
 MATCHMAKEMODFUN	Fun	
-MATCHMAKERANKEDBELT	Ranked Matchmaking is available with Brown Belt	
+MATCHMAKERANKEDBELT	Ranked play is available with Brown Belt	
 MATCHMAKERANKEDMODE	Ranked Mode	
 MATCHMAKERANK	Rank	
 MATCHMAKEELO	elo	
 MATCHMAKEFIGHTSTOTAL	fights total	
 MATCHMAKEWINRATE	win rate	
-MATCHMAKENOPLAYERS	No players currently searching	
-MATCHMAKEPLAYERSEARCHING	player searching	
-MATCHMAKEPLAYERSSEARCHING	players searching	
+MATCHMAKENOPLAYERS	No players currently matchmaking	
+MATCHMAKEPLAYERSEARCHING	player matchmaking	
+MATCHMAKEPLAYERSSEARCHING	players matchmaking	
 MATCHMAKESEARCHING	Searching for a match	
 MATCHMAKESEARCH	Search	
 MATCHMAKESTOPSEARCH	Stop searching	
@@ -405,6 +405,7 @@ SHADERSEDITOR	Shader Editor
 SHADERSATMOSNAME	Atmospheres	
 SHADERSNAME	Shaders	
 SETTINGSOTHER	Game	
+SETTINGSABOUT	About	
 SETTINGSAUDIO	Audio	
 SETTINGSEFFECTS	Effects	
 SETTINGSGRAPHICS	Graphics	
@@ -629,3 +630,13 @@ STOREDISCOUNTCHEAPER1
 STOREDISCOUNTCHEAPER2	cheaper	
 WORDRANKED	ranked	
 QUESTSRANKEDMODE	in ranked mode	
+NEWSDOWNLOADING	Downloading latest news, please wait...
+MATCHMAKERANKINGMODS	Ranking by mods
+MATCHMAKESPOT	spot	
+MATCHMAKESPOTS	spots	
+DISCORDRPCMATCHMAKING	Matchmaking	
+MATCHMAKECANTSEARCH	Can't search while in multiplayer	
+MATCHMAKENORANKCHANGES	No rank changes in past	
+MATCHMAKEGLOBALRANKINGDESC	View your ranking details and season's top players
+MATCHMAKENORANKEDQUEST	You don't have any ranked quests.\nPlease refresh your quests to get one.
+MATCHMAKEVIEWQUESTS	View your quests

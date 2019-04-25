@@ -9,15 +9,15 @@ do
 	function News:getDefaultNews()
 		return {
 			{
-				title = "Wooo weee",
-				subtitle = "Wowzers!",
+				title = "Welcome to Toribash " .. TORIBASH_VERSION .. "!",
+				subtitle = "",
 				ratio = 0.5,
 				image = "../textures/menu/promo/golem.tga",
 				action = function() end
 			},
 			{
-				title = "azzz",
-				subtitle = "test",
+				title = "Toribash Events",
+				subtitle = "Go online to participate in Toribash events",
 				ratio = 0.66,
 				featured = true,
 				image = "../textures/menu/promo/holeinthewall.tga",
@@ -29,7 +29,12 @@ do
 	function News:getNews()
 		local file = Files:new("../data/news.txt")
 		if (not file.data) then
-			return News:getDefaultNews()
+			local news = News:getDefaultNews()
+			if (file:isDownloading()) then
+				news.downloading = true
+				news.file = file
+			end
+			return news
 		end
 		local lines = file:readAll()
 		file:close()

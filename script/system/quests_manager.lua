@@ -150,6 +150,132 @@ do
 		end
 	end
 	
+	function Quests:showQuest(questView, quest, bottomSmudge, customClaimFunc)
+		local bgScale = questView.size.w - 20 > questView.size.h / 5 * 3 - 20 and questView.size.h / 5 * 3 - 20 or questView.size.w - 20
+		local questBackground = UIElement:new({
+			parent = questView,
+			pos = { (questView.size.w - bgScale) / 2, 10 },
+			size = { bgScale, bgScale },
+			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			shapeType = ROUNDED,
+			rounded = bgScale
+		})
+		local qType = (quest.type == 4 and quest.decap) and "decap" or quest.type
+		local questIcon = UIElement:new({
+			parent = questBackground,
+			pos = { bgScale / 5, bgScale / 5 },
+			size = { bgScale / 5 * 3, bgScale / 5 * 3 },
+			bgImage = "../textures/menu/general/quests/qtype" .. qType .. ".tga"
+		})
+		local progress = quest.progress / quest.requirement
+		progress = progress > 1 and 1 or progress
+		questBackground:addCustomDisplay(false, function()
+				set_color(unpack(TB_MENU_DEFAULT_LIGHTER_COLOR))
+				draw_disk(questBackground.pos.x + questBackground.size.w / 2, questBackground.pos.y + questBackground.size.h / 2, questBackground.size.h / 2 - 25, questBackground.size.h / 2 - 5, 100, 1, -60, -240, 0)
+				set_color(unpack(UICOLORWHITE))
+				draw_disk(questBackground.pos.x + questBackground.size.w / 2, questBackground.pos.y + questBackground.size.h / 2, questBackground.size.h / 2 - 25, questBackground.size.h / 2 - 5, 100, 1, -60, -240 * progress, 0)
+			end)
+		if (quest.timeleft < 0) then
+			local progressText = UIElement:new({
+				parent = questBackground,
+				pos = { questBackground.size.w / 5, -questBackground.size.h / 5 },
+				size = { questBackground.size.w / 5 * 3, questBackground.size.h / 8 }
+			})
+			progressText:addAdaptedText(true, quest.progress .. " / " .. quest.requirement)
+		else
+			quest.timetick = quest.timetick or os.time()
+			local progressText = UIElement:new({
+				parent = questBackground,
+				pos = { questBackground.size.w / 5, -questBackground.size.h / 3 },
+				size = { questBackground.size.w / 5 * 3, questBackground.size.h / 8 },
+				bgColor = cloneTable(TB_MENU_DEFAULT_DARKEST_COLOR)
+			})
+			progressText.bgColor[4] = 0.7
+			progressText:addAdaptedText(false, quest.progress .. " / " .. quest.requirement)
+			local timeleftText = UIElement:new({
+				parent = questBackground,
+				pos = { questBackground.size.w / 5, -questBackground.size.h / 5 },
+				size = { questBackground.size.w / 5 * 3, questBackground.size.h / 7 }
+			})
+			timeleftText:addAdaptedText(true, TBMenu:getTime(quest.timeleft - (os.time() - quest.timetick), 2) .. " left")
+			timeleftText:addCustomDisplay(true, function()
+					timeleftText:uiText(TBMenu:getTime(quest.timeleft - (os.time() - quest.timetick), 2) .. " left", nil, nil, nil, nil, timeleftText.textScale)
+				end)
+		end
+		local questName = UIElement:new({
+			parent = questView,
+			pos = { 10, questView.size.h / 5 * 3 },
+			size = { questView.size.w - 20, questView.size.h / 10 }
+		})
+		questName:addAdaptedText(true, Quests:getQuestName(quest), nil, nil, FONTS.BIG, nil, 0.7)
+		local questTarget = UIElement:new({
+			parent = questView,
+			pos = { 10, questView.size.h / 10 * 7 },
+			size = { questView.size.w - 20, questView.size.h / 5 }
+		})
+		questTarget:addAdaptedText(true, Quests:getQuestTarget(quest))
+		local questReward = UIElement:new({
+			parent = questView,
+			pos = { 5, questView.size.h / 10 * 9 },
+			size = { questView.size.w - 10, questView.size.h / 10 }
+		})
+		Quests:drawRewardText(quest, questReward)
+		if (quest.progress >= quest.requirement) then
+			local questClaimBg = UIElement:new({
+				parent = questView,
+				pos = { 0, 0 },
+				size = { questView.size.w, questView.size.h },
+				bgColor = { 0, 0, 0, 0.2 }
+			})
+			local questClaim = UIElement:new({
+				parent = questClaimBg,
+				pos = { 10, (questClaimBg.size.h + 32) / 3 },
+				size = { questClaimBg.size.w - 20, (questClaimBg.size.h + 32) / 3 },
+				shapeType = ROUNDED,
+				rounded = 5,
+				innerShadow = { 0, 5 },
+				shadowColor = TB_MENU_DEFAULT_ORANGE,
+				bgColor = TB_MENU_DEFAULT_YELLOW,
+				interactive = true,
+				pressedColor = { 0.902, 0.738, 0.269, 1 },
+				hoverColor = { 0.969, 0.781, 0.199, 1 }
+			})
+			questClaim:addMouseHandlers(nil, function()
+					claim_quest(quest.id)
+					questView:kill(true)
+					TBMenu:addBottomBloodSmudge(questView, 1)
+					TBMenu:displayLoadingMark(questView, "Claiming Quest")
+					Request:new("questclaim", function()
+						update_tc_balance()
+						TB_MENU_DOWNLOAD_INACTION = true
+						tcUpdate = true
+						if (customClaimFunc) then
+							customClaimFunc()
+						else
+							Quests:showMain(true)
+						end
+					end)
+				end)
+			local claimText = UIElement:new({
+				parent = questClaim,
+				pos = { 10, 0 },
+				size = { questClaim.size.w - 20, questClaim.size.h / 2 }
+			})
+			claimText:addAdaptedText(false, TB_MENU_LOCALIZED.QUESTSCLAIMREWARD, nil, nil, FONTS.BIG, nil, 0.7, nil, nil, 1.8)
+			local buttonSize = questClaim.size.h - 15 > 40 and 40 or questClaim.size.h - 15
+			local claimButton = UIElement:new({
+				parent = questClaim,
+				pos = { 10, -5 - (questClaim.size.h / 2 + buttonSize) / 2 },
+				size = { questClaim.size.w - 20, buttonSize },
+				shapeType = ROUNDED,
+				rounded = 5,
+				bgColor = { 0.594, 0.418, 0.14, 1 }
+			})
+			Quests:drawRewardText(quest, claimButton)
+			bottomSmudge:reload()
+		end
+	end
+	
 	function Quests:showQuests()
 		tbMenuCurrentSection:kill(true)
 		if (TB_MENU_QUESTS_NEW) then
@@ -164,122 +290,8 @@ do
 				bgColor = TB_MENU_DEFAULT_BG_COLOR
 			})
 			local bottomSmudge = TBMenu:addBottomBloodSmudge(questView, i)
-			local bgScale = questView.size.w - 10 > questView.size.h / 5 * 3 - 10 and questView.size.h / 5 * 3 - 10 or questView.size.w - 10
-			local questBackground = UIElement:new({
-				parent = questView,
-				pos = { (questView.size.w - bgScale) / 2, 5 },
-				size = { bgScale, bgScale },
-				bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-				shapeType = ROUNDED,
-				rounded = bgScale
-			})
-			local qType = (quest.type == 4 and quest.decap) and "decap" or quest.type
-			local questIcon = UIElement:new({
-				parent = questBackground,
-				pos = { bgScale / 5, bgScale / 5 },
-				size = { bgScale / 5 * 3, bgScale / 5 * 3 },
-				bgImage = "../textures/menu/general/quests/qtype" .. qType .. ".tga"
-			})
-			local progress = quest.progress / quest.requirement
-			progress = progress > 1 and 1 or progress
-			questBackground:addCustomDisplay(false, function()
-					set_color(unpack(TB_MENU_DEFAULT_LIGHTER_COLOR))
-					draw_disk(questBackground.pos.x + questBackground.size.w / 2, questBackground.pos.y + questBackground.size.h / 2, questBackground.size.h / 2 - 25, questBackground.size.h / 2 - 5, 100, 1, -60, -240, 0)
-					set_color(unpack(UICOLORWHITE))
-					draw_disk(questBackground.pos.x + questBackground.size.w / 2, questBackground.pos.y + questBackground.size.h / 2, questBackground.size.h / 2 - 25, questBackground.size.h / 2 - 5, 100, 1, -60, -240 * progress, 0)
-				end)
-			if (quest.timeleft < 0) then
-				local progressText = UIElement:new({
-					parent = questBackground,
-					pos = { questBackground.size.w / 5, -questBackground.size.h / 5 },
-					size = { questBackground.size.w / 5 * 3, questBackground.size.h / 8 }
-				})
-				progressText:addAdaptedText(true, quest.progress .. " / " .. quest.requirement)
-			else
-				quest.timetick = quest.timetick or os.time()
-				local progressText = UIElement:new({
-					parent = questBackground,
-					pos = { questBackground.size.w / 5, -questBackground.size.h / 3 },
-					size = { questBackground.size.w / 5 * 3, questBackground.size.h / 8 },
-					bgColor = cloneTable(TB_MENU_DEFAULT_DARKEST_COLOR)
-				})
-				progressText.bgColor[4] = 0.7
-				progressText:addAdaptedText(false, quest.progress .. " / " .. quest.requirement)
-				local timeleftText = UIElement:new({
-					parent = questBackground,
-					pos = { questBackground.size.w / 5, -questBackground.size.h / 5 },
-					size = { questBackground.size.w / 5 * 3, questBackground.size.h / 7 }
-				})
-				timeleftText:addAdaptedText(true, TBMenu:getTime(quest.timeleft - (os.time() - quest.timetick), 2) .. " left")
-				timeleftText:addCustomDisplay(true, function()
-						timeleftText:uiText(TBMenu:getTime(quest.timeleft - (os.time() - quest.timetick), 2) .. " left", nil, nil, nil, nil, timeleftText.textScale)
-					end)
-			end
-			local questName = UIElement:new({
-				parent = questView,
-				pos = { 10, questView.size.h / 5 * 3 },
-				size = { questView.size.w - 20, questView.size.h / 10 }
-			})
-			questName:addAdaptedText(true, Quests:getQuestName(quest), nil, nil, FONTS.BIG, nil, 0.7)
-			local questTarget = UIElement:new({
-				parent = questView,
-				pos = { 10, questView.size.h / 10 * 7 },
-				size = { questView.size.w - 20, questView.size.h / 5 }
-			})
-			questTarget:addAdaptedText(true, Quests:getQuestTarget(quest))
-			local questReward = UIElement:new({
-				parent = questView,
-				pos = { 5, questView.size.h / 10 * 9 },
-				size = { questView.size.w - 10, questView.size.h / 10 }
-			})
-			Quests:drawRewardText(quest, questReward)
-			if (quest.progress >= quest.requirement) then
-				local questClaimBg = UIElement:new({
-					parent = questView,
-					pos = { 0, 0 },
-					size = { questView.size.w, questView.size.h },
-					bgColor = { 0, 0, 0, 0.2 }
-				})
-				local questClaim = UIElement:new({
-					parent = questClaimBg,
-					pos = { 10, (questClaimBg.size.h + 32) / 3 },
-					size = { questClaimBg.size.w - 20, (questClaimBg.size.h + 32) / 3 },
-					shapeType = ROUNDED,
-					rounded = 5,
-					innerShadow = { 0, 5 },
-					shadowColor = TB_MENU_DEFAULT_ORANGE,
-					bgColor = TB_MENU_DEFAULT_YELLOW,
-					interactive = true,
-					pressedColor = { 0.902, 0.738, 0.269, 1 },
-					hoverColor = { 0.969, 0.781, 0.199, 1 }
-				})
-				questClaim:addMouseHandlers(nil, function()
-						claim_quest(quest.id)
-						Request:new("questclaim", function()
-							update_tc_balance()
-							TB_MENU_DOWNLOAD_INACTION = true
-							tcUpdate = true
-							Quests:showMain(true)
-						end)
-					end)
-				local claimText = UIElement:new({
-					parent = questClaim,
-					pos = { 10, 0 },
-					size = { questClaim.size.w - 20, questClaim.size.h / 2 }
-				})
-				claimText:addAdaptedText(false, TB_MENU_LOCALIZED.QUESTSCLAIMREWARD, nil, nil, FONTS.BIG, nil, 0.7, nil, nil, 1.8)
-				local buttonSize = questClaim.size.h - 15 > 40 and 40 or questClaim.size.h - 15
-				local claimButton = UIElement:new({
-					parent = questClaim,
-					pos = { 10, -5 - (questClaim.size.h / 2 + buttonSize) / 2 },
-					size = { questClaim.size.w - 20, buttonSize },
-					shapeType = ROUNDED,
-					rounded = 5,
-					bgColor = { 0.594, 0.418, 0.14, 1 }
-				})
-				Quests:drawRewardText(quest, claimButton)
-				bottomSmudge:reload()
-			end
+			Quests:showQuest(questView, quest, bottomSmudge)
+			
 		end
 	end
 	
