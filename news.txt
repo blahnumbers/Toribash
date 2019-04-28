@@ -1,27 +1,27 @@
+NEWSID 4;
+TITLE 0;Ranking Season 6 is here!
+SUBTITLE 0;Defeat other players to climb up ranks and get exciting rewards!
+IMAGE 0;season6.tga
+URL 0;http://forum.toribash.com/showthread.php?t=627137
+
 NEWSID 1;
 TITLE 0;Toribash Merch is now available!
 SUBTITLE 0;Super cool and extra awesome, yay!
 IMAGE 0;store/merchpromo.tga
 URL 0;https://teespring.com/stores/toribash
 
-NEWSID 2;
-TITLE 0;Golem III: Return of the Golem
-SUBTITLE 0;GOLEM COME BACK TO SMASH TINY THING!!!
-IMAGE 0;golem.tga
-EVENT 0;2
-
 NEWSID 3;
-TITLE 0;Hole in the Wall 2
-SUBTITLE 0;The second challenge is now available!
+TITLE 0;Hole in the Wall 3
+SUBTITLE 0;The new objective is now available!
 IMAGE 0;holeinthewall.tga
 FEATURED 0;
 EVENT 0;1
 
 EVENTID 1;
-NAME 0;Hole in the Wall - Challenge #2
+NAME 0;Hole in the Wall - Challenge #3
 IMAGE 0;holeinthewall.tga
-URL 0;http://forum.toribash.com/showthread.php?t=626776
-PLAYNAME 0;holeinthewall2
+URL 0;https://forum.toribash.com/showthread.php?t=627214
+PLAYNAME 0;holeinthewall3
 PLAYTEXT 0;PARTICIPATE
 ACCENTCOLOR 0;060606
 UICOLOR 0;FFFFFF
@@ -38,55 +38,26 @@ DESCDATAIMGTITLE 0;3hitw_howtoenter.tga
 DESCDATATEXT 0;3You can participate in Hole in the Wall by pressing "Participate" button on bottom right, completing the challenge and submitting your replay to Toribash servers.\nAlternatively, you can make a replay in current challenge's mod in Free Play mode and attach it to your post in event thread on forums - if you just upload it to Toribash Community Replays then it won't be judged.\n^02Only one replay per player will be judged.
 DESCDATA 0;4Deadline
 DESCDATAIMGTITLE 0;4hitw_deadline.tga
-DESCDATATEXT 0;4We will stop accepting new entries on April 28th, 12:00 (GMT +1)
+DESCDATATEXT 0;4We will stop accepting new entries on May 10th, 16:00 (GMT +1)
 PRIZEIMG 0;hitw_prizes.tga
 PRIZEDATA 0;1Best Replay
 PRIZETC 0;130000
 PRIZEST 0;16
-PRIZEITEMS 0;12728 3142
-PRIZEDATA 0;2Pass the wall and throw the knife through the top hole
+PRIZEITEMS 0;113167
+PRIZEDATA 0;2Do not touch the teeth
 PRIZETC 0;25000
 PRIZEST 0;22
-PRIZEITEMS 0;213142
+PRIZEITEMS 0;213167
 PRIZEDATA 0;3Pass the wall in any way
 PRIZETC 0;32000
 PRIZEST 0;31
 
 EVENTID 2;
-NAME 0;GOLEM III: RETURN OF THE GOLEM
-IMAGE 0;golem.tga
-URL 0;http://forum.toribash.com/showthread.php?t=626177
-OVERLAYTRANS 0;0.6
-ACCENTCOLOR 0;c7e7f8
-UICOLOR 0;2f3142
-BTNHVRCOL 0;1f202c
-BTNDNCOL 0;3f425e
-DESCDATA 0;1DESCRIPTION
-DESCDATAIMGTITLE 0;1golem_description.tga
-DESCDATATEXT 0;1GOLEM COME BACK TO SMASH TINY THING!!!\nIF TINY THING TOUCH HEAD TINY THING WIN, IF GOLEM SQUASH TINY HUMAN BODY HUMAN LOSE! SPLAT!
-DESCDATA 0;2RULES
-DESCDATAIMGTITLE 0;2golem_rules.tga
-DESCDATATEXT 0;2THE SERVER WILL ALWAYS BE BROADCASTED\n3 DISMEMBERS AND YOU LOSE, GET DECAPPED AND YOU'RE OUT UNTIL THE NEXT SERVER IS MADE\nTOUCH GOLEM'S HEAD WITH HANDS OR FEET TO TRIGGER WIN\nNO SKEETS, GOLEM GETS ANGRY WHEN HUMANS PLAY DIRTY\nPERSON TO BE DECAPPED THE MOST AT THE END OF THE EVENT WILL BE BANNED FOR 1 DAY\nMOD IS E_GOLEM, GOLEM_VS_UKE.TBM AND ES_GOLEM.TBM
-DESCDATA 0;3DEADLINE
-DESCDATAIMGTITLE 0;3golem_deadline.tga
-DESCDATATEXT 0;34 WEEKS AFTER EVENT START\nHUMAN DO THE MATH, GOLEM NO DO SILLY THINGS
-PRIZEIMG 0;golem_prizes.tga
-PRIZEDATA 0;1Defeat GOLEM
-PRIZEST 0;11
-PRIZEDATA 0;2Make GOLEM Laugh
-PRIZEST 0;21
-PRIZEDATA 0;3Most Wins in One Server
-PRIZEITEMS 0;312801
-PRIZEDATA 0;4Most Wins in Total
-PRIZEST 0;48
-PRIZEITEMS 0;4271 54
-PRIZEDATA 0;5Runners Up
-PRIZEST 0;55
-PRIZEITEMS 0;52752 711
 
 EVENTID 3;
 NAME 0;Ranking Season 6
 IMAGE 0;season6.tga
+URL 0;http://forum.toribash.com/showthread.php?t=627137
 OVERLAYTRANS 0;0.4
 ACCENTCOLOR 0;39282c
 UICOLOR 0;ffffff
