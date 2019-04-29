@@ -86,7 +86,7 @@ do
 		if (not eventSteps) then
 			return
 		end
-		if (EventsOnline:getLocalization(LOCALIZED_MESSAGES, eventName, nil, "events/")) then
+		if (EventsOnline:getLocalization(LOCALIZED_MESSAGES, eventName, TB_MENU_LOCALIZED.language, "events/")) then
 			EventsOnline:runSteps(eventSteps, nil, LOCALIZED_MESSAGES)
 		end
 	end

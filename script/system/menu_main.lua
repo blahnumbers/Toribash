@@ -138,17 +138,14 @@ if (os.clock() < 10) then
 					TB_MENU_PLAYER_INFO.ranking = PlayerInfo:getRanking()
 					TB_STORE_DATA, TB_STORE_SECTIONS = Torishop:getItems()
 					TB_STORE_MODELS = Torishop:getModelsData()
-					if (PlayerInfo:getLoginRewards().available and TB_MENU_MAIN_ISOPEN == 1) then
-						if (TB_MENU_SPECIAL_SCREEN_ISOPEN == 0 and TB_MENU_IGNORE_REWARDS == 0) then
-							TBMenu:showNotifications()
-						end
-					end
 					download_clan()
-					if (is_steam() == 0) then
+					if (not is_steam()) then
 						get_latest_version()
 						Request:new("versioncheck", function()
 								local latestVersion = get_network_response()
-								if (TORIBASH_VERSION ~= latestVersion and latestVersion:len() > 0) then
+								local currentVersion = tonumber(TORIBASH_VERSION)
+								latestVersion = tonumber(latestVersion)
+								if (TORIBASH_VERSION < latestVersion) then
 									TBMenu:showConfirmationWindow("Toribash " .. latestVersion .. " is now available.\nWould you like to download it now?", function() open_url("https://www.toribash.com/downloads.php") end)
 								end
 							end)
@@ -156,7 +153,20 @@ if (os.clock() < 10) then
 					add_hook("draw2d", "playerinfoUpdate", function()
 						if (get_network_task() == 0) then
 							download_server_file("news", 0)
-							remove_hooks("playerinfoUpdate")
+							add_hook("draw2d", "playerinfoUpdate", function()
+									if (#get_downloads() == 0) then
+										if (PlayerInfo:getLoginRewards().available) then
+											if (TB_MENU_MAIN_ISOPEN == 1 and TB_MENU_SPECIAL_SCREEN_ISOPEN == 0 and TB_MENU_IGNORE_REWARDS == 0) then
+												TBMenu:showNotifications()
+											-- else
+											-- Need to add some way to display the reward has been claimed first
+											-- 	claim_reward()
+											-- 	Request:new("loginreward", function() update_tc_balance() end)
+											end
+										end
+										remove_hooks("playerinfoUpdate")
+									end
+								end)
 						end
 					end)
 				end

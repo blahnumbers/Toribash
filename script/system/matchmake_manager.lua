@@ -1224,7 +1224,7 @@ do
 				end)
 		end
 		
-		local quests = Quests:getQuests()
+		local quests = Quests:getQuests() or {}
 		local rankedQuestData = nil
 		for i,v in pairs(quests) do
 			if (v.ranked) then
@@ -1232,6 +1232,7 @@ do
 				break
 			end
 		end
+		
 		local rankedQuest = UIElement:new({
 			parent = tbMenuCurrentSection,
 			pos = { viewElement.shift.x + viewElement.size.w + 10, 0 },
@@ -1240,7 +1241,12 @@ do
 		})
 		local bloodSmudge = TBMenu:addBottomBloodSmudge(rankedQuest, 3)
 		if (not rankedQuestData) then
-			rankedQuest:addAdaptedText(false, TB_MENU_LOCALIZED.MATCHMAKENORANKEDQUEST)
+			local rankedQuestText = UIElement:new({
+				parent = rankedQuest,
+				pos = { 10, 10 },
+				size = { rankedQuest.size.w - 20, rankedQuest.size.h - 20 }
+			})
+			rankedQuestText:addAdaptedText(true, TB_MENU_LOCALIZED.MATCHMAKENORANKEDQUEST)
 			return
 		end
 		Quests:showQuest(rankedQuest, rankedQuestData, bloodSmudge, function()

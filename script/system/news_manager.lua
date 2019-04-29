@@ -49,7 +49,12 @@ do
 			elseif (ln:find("^SUBTITLE 0;")) then
 				newsData[#newsData].subtitle = ln:gsub("^SUBTITLE 0;", "")
 			elseif (ln:find("^IMAGE 0;")) then
-				newsData[#newsData].image = "../textures/menu/promo/" .. ln:gsub("^IMAGE 0;", "")
+				local imageName = ln:gsub("^IMAGE 0;", "")
+				newsData[#newsData].image = { "../textures/menu/promo/" .. imageName, "../textures/menu/promo/toribash.tga" }
+				local imageFile = Files:new("../data/textures/menu/promo/" .. imageName)
+				if (not imageFile.data) then
+					download_server_file("get_event_image&name=" .. imageName, 0)
+				end
 			elseif (ln:find("^URL 0;")) then
 				newsData[#newsData].action = function() open_url(ln:gsub("^URL 0;", "")) end
 			elseif (ln:find("^EVENT 0;")) then
@@ -76,18 +81,21 @@ do
 		file:close()
 		
 		local eventData = {}
+		local currentID = 1
 		for i,ln in pairs(lines) do
 			local ln = ln:gsub("\r?\n?", '')
 			if (ln:find("^EVENTID")) then
-				table.insert(eventData, {
+				currentID = ln:gsub("%D", "")
+				currentID = tonumber(currentID)
+				eventData[currentID] = {
 					uiColor = cloneTable(UICOLORWHITE),
 					accentColor = cloneTable(TB_MENU_DEFAULT_BG_COLOR),
 					buttonHoverColor = cloneTable(TB_MENU_DEFAULT_DARKER_COLOR),
 					buttonPressedColor = cloneTable(TB_MENU_DEFAULT_DARKEST_COLOR),
 					overlaytransparency = 0
-				})
+				}
 			elseif (#eventData > 0) then
-				local evt = eventData[#eventData]
+				local evt = eventData[currentID]
 				if (ln:find("^NAME 0;")) then
 					evt.name = ln:gsub("^NAME 0;", "")
 				elseif (ln:find("^IMAGE 0;")) then

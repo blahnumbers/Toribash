@@ -94,7 +94,7 @@ do
 
 		if (language ~= "english") then
 			-- Make sure there's no missing values
-			local localization = Files:new("../data/tutorials/tutorial" .. id .. "_english.txt")
+			local localization = Files:new(path .. id .. "_english.txt")
 			for i, ln in pairs(localization:readAll()) do
 				if (not ln:match("^#")) then
 					local data_stream = { ln:match(("([^\t]*)\t?"):rep(2)) }
@@ -116,7 +116,7 @@ do
 		local path = path or "../data/tutorials/tutorial"
 		local tutorial = Files:new(path .. id .. ".dat")
 		if (not tutorial.data) then
-			download_server_file("tutorial_" .. id, 0)
+			download_server_file("tutorial_" .. id .. "&language=" .. TB_MENU_LOCALIZED.language, 0)
 			TBMenu:showDataError(TB_MENU_LOCALIZED.TUTORIALNODATAFOUND)
 			Tutorials:quit()
 			tbMenuDataErrorMessage:reload()

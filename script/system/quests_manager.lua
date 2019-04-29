@@ -9,6 +9,7 @@ do
 	function Quests:getQuests()
 		local file = Files:new("../data/quest.txt")
 		if (not file.data) then
+			download_quest(TB_MENU_PLAYER_INFO.username)
 			return false
 		end
 		local questData = {}
@@ -214,12 +215,14 @@ do
 			size = { questView.size.w - 20, questView.size.h / 5 }
 		})
 		questTarget:addAdaptedText(true, Quests:getQuestTarget(quest))
-		local questReward = UIElement:new({
-			parent = questView,
-			pos = { 5, questView.size.h / 10 * 9 },
-			size = { questView.size.w - 10, questView.size.h / 10 }
-		})
-		Quests:drawRewardText(quest, questReward)
+		if (TB_STORE_DATA.ready) then
+			local questReward = UIElement:new({
+				parent = questView,
+				pos = { 5, questView.size.h / 10 * 9 },
+				size = { questView.size.w - 10, questView.size.h / 10 }
+			})
+			Quests:drawRewardText(quest, questReward)
+		end
 		if (quest.progress >= quest.requirement) then
 			local questClaimBg = UIElement:new({
 				parent = questView,
@@ -271,7 +274,9 @@ do
 				rounded = 5,
 				bgColor = { 0.594, 0.418, 0.14, 1 }
 			})
-			Quests:drawRewardText(quest, claimButton)
+			if (TB_STORE_DATA.ready) then
+				Quests:drawRewardText(quest, claimButton)
+			end
 			bottomSmudge:reload()
 		end
 	end

@@ -1,0 +1,12 @@
+#Messages
+INTRO1	¡Hola y bienvenidos a Hole in the Wall!
+INTRO2	¡Haz una repetición donde tú pases a través de la pared y envíalo para que sea juzgado y así recibas premios! ¡Mucha suerte y diviértete!
+INTRO3	¡Hola nuevamente! ¡Veamos nuevamente tus repeticiones guardadas automáticamente!
+UPLOADSUCCESS1	¡Hurra! Enviaste tu entrada satisfactoriamente!
+UPLOADSUCCESS2	Si todo es correcto, recibirás tu premio base pronto - y si eres particularmente bueno, ¡un premio mejor luego de que finalice el evento!
+UPLOADSUCCESS3	Si decides cambiar tu entrada por una diferente, por favor hazlo en el hilo del evento en los foros.
+UPLOADSUCCESS4	Gracias por participar, ¡nos vemos la próxima!
+#Tasks
+HWTASK1	Pasa a través de la pared
+HWTASKADD1	No pierdas ningún miembro\nNo abandones la plataforma móvil
+HWTASKADDKNIFE	Tarea avanzada: No toques los dientes
