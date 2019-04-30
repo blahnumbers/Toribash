@@ -95,6 +95,7 @@ do
 					contents = contents:gsub("^%d+ ?", "")
 				end
 				TorishopSections[item.catid] = { name = item.catname }
+				item.itemname = item.itemname:gsub("&amp;", "&")
 				item.shortname = item.itemname:gsub("Motion Trail", "Trail")
 				if (item.locked == 1) then
 					item.now_tc_price = 0
