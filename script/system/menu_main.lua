@@ -130,6 +130,7 @@ if (os.clock() < 10) then
 		TB_MENU_PLAYER_INFO.data = PlayerInfo:getUserData()
 		TB_MENU_PLAYER_INFO.items = PlayerInfo:getItems(TB_MENU_PLAYER_INFO.username)
 		TB_MENU_PLAYER_INFO.clan = PlayerInfo:getClan(TB_MENU_PLAYER_INFO.username)
+		download_quest(TB_MENU_PLAYER_INFO.username)
 		if (TB_MENU_MAIN_ISOPEN == 1) then
 			TBMenu:showUserBar()
 		end
