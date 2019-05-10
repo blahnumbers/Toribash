@@ -20,7 +20,7 @@ EVENT 0;1
 EVENTID 1;
 NAME 0;Hole in the Wall - Challenge #4
 IMAGE 0;holeinthewall.tga
-URL 0;https://forum.toribash.com/showthread.php?t=627214
+URL 0;https://forum.toribash.com/showthread.php?t=627594
 PLAYNAME 0;holeinthewall4
 PLAYTEXT 0;PARTICIPATE
 ACCENTCOLOR 0;060606
@@ -56,6 +56,8 @@ PRIZEITEMS 0;312253
 PRIZEDATA 0;4Pass the wall in any way
 PRIZETC 0;42000
 PRIZEST 0;41
+
+EVENTID 2;
 
 EVENTID 3;
 NAME 0;Ranking Season 6
