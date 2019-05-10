@@ -88,6 +88,9 @@ do
 		end
 		if (EventsOnline:getLocalization(LOCALIZED_MESSAGES, eventName, TB_MENU_LOCALIZED.language, "events/")) then
 			EventsOnline:runSteps(eventSteps, nil, LOCALIZED_MESSAGES)
+		else
+			Tutorials:quit()
+			TBMenu:showDataError("No localization found")
 		end
 	end
 	

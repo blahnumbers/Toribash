@@ -51,7 +51,7 @@ do
 			tutorialQuitOverlay:kill()
 			tutorialQuitOverlay = nil
 		end
-		set_discord_rpc("", TB_MENU_LOCALIZED.MAINMENUFREEPLAYNAME)
+		set_discord_rpc("", "")
 		open_menu(19)
 	end
 
