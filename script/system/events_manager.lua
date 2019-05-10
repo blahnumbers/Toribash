@@ -197,6 +197,7 @@ do
 	end
 	
 	function Events:showPrizeInfo(prize, listingHolder, elements, elementHeight)
+		local prize = prize or { id = 0, itemname = "Unknown Item" }
 		local rewardView = UIElement:new({
 			parent = listingHolder,
 			pos = { 10, elements * elementHeight },
@@ -216,6 +217,9 @@ do
 			size = { rewardView.size.h - 4, rewardView.size.h - 4 },
 			bgImage = prize.icon or Torishop:getItemIcon(prize.itemid)
 		})
+		if (not itemIcon.bgImage) then
+			itemIcon:addAdaptedText(true, "?")
+		end
 		local itemName = UIElement:new({
 			parent = rewardView,
 			pos = { rewardBulletpoint.size.w + itemIcon.size.w + 10, 0 },
