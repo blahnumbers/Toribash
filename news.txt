@@ -11,17 +11,17 @@ IMAGE 0;store/merchpromo.tga
 URL 0;https://teespring.com/stores/toribash
 
 NEWSID 3;
-TITLE 0;Hole in the Wall 4
-SUBTITLE 0;The new objective is now available!
+TITLE 0;Hole in the Wall 5
+SUBTITLE 0;...no I didn't slip on that banana, I was kung-fu fighting!
 IMAGE 0;holeinthewall.tga
 FEATURED 0;
 EVENT 0;1
 
 EVENTID 1;
-NAME 0;Hole in the Wall - Challenge #4
+NAME 0;Hole in the Wall - Challenge #5
 IMAGE 0;holeinthewall.tga
 URL 0;https://forum.toribash.com/showthread.php?t=627594
-PLAYNAME 0;holeinthewall4
+PLAYNAME 0;holeinthewall5
 PLAYTEXT 0;PARTICIPATE
 ACCENTCOLOR 0;060606
 UICOLOR 0;FFFFFF
@@ -44,18 +44,14 @@ PRIZEIMG 0;hitw_prizes.tga
 PRIZEDATA 0;1Best Replay
 PRIZETC 0;150000
 PRIZEST 0;18
-PRIZEITEMS 0;113214
-PRIZEDATA 0;2Break all windows with the stone
-PRIZETC 0;28000
-PRIZEST 0;23
-PRIZEITEMS 0;213214
-PRIZEDATA 0;3Do not touch the glass with your body
-PRIZETC 0;35000
-PRIZEST 0;32
-PRIZEITEMS 0;312253
-PRIZEDATA 0;4Pass the wall in any way
-PRIZETC 0;42000
-PRIZEST 0;41
+PRIZEITEMS 0;112135
+PRIZEDATA 0;2Do the pose
+PRIZETC 0;25000
+PRIZEST 0;22
+PRIZEITEMS 0;212135
+PRIZEDATA 0;3Pass the wall in any way
+PRIZETC 0;32000
+PRIZEST 0;31
 
 EVENTID 2;
 

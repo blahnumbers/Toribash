@@ -2481,7 +2481,7 @@ do
 		local bodystomach = UIElement3D:new({
 			parent = previewHolder,
 			pos = { 0, 0.4, -3.6 },
-			size = { 1.4, 0.6, 0.8 },
+			size = { 1.4, 0.8, 0.6 },
 			shapeType = CUBE,
 			viewport = true
 		})
@@ -2495,7 +2495,7 @@ do
 				parent = previewHolder,
 				shapeType = CUBE,
 				pos = { 0, 0.4, -3.6 },
-				size = { 0.8, 0.6, 1.4 },
+				size = { 0.6, 0.8, 1.4 },
 				bgColor = { pcolor.r, pcolor.g, pcolor.b, trans },
 				bgImage = "../textures/store/presets/prgrad.tga",
 				rot = { 90, 90, 0 },
@@ -2505,7 +2505,7 @@ do
 				parent = previewHolder,
 				shapeType = CUBE,
 				pos = { 0, 0.4, -3.6 },
-				size = { 0.8, 0.6, 1.4 },
+				size = { 0.6, 0.8, 1.4 },
 				bgImage = "../textures/store/presets/secgrad.tga",
 				rot = { 90, 90, 0 },
 				bgColor = { scolor.r, scolor.g, scolor.b, trans },
@@ -4466,11 +4466,11 @@ do
 		
 		local storeButtons = {
 			featured = {
-				title = "Toribash Merch is here!",
-				subtitle = "Super cool and real nice Toribash themed apparel is now available!",
-				image = "../textures/menu/promo/store/merchpromo.tga",
+				title = "Covered in Goo!",
+				subtitle = nil,
+				image = "../textures/menu/promo/store/ecto-tori.tga",
 				ratio = 0.5,
-				action = function() open_url("https://teespring.com/stores/toribash") end
+				action = function() Torishop:showStoreSection(tbMenuCurrentSection, nil, nil, 3231) end
 			},
 			salecolor = {
 				title = saleColorInfo and (TB_MENU_LOCALIZED.STORESALE1 .. " " .. saleColorInfo.colorname .. (TB_MENU_LOCALIZED.STORESALE2:len() > 0 and (" " .. TB_MENU_LOCALIZED.STORESALE2 .. "!") or "!")) or TB_MENU_LOCALIZED.STORENOCOLORSALE,
