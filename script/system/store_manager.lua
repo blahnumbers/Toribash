@@ -4464,13 +4464,30 @@ do
 		end
 		local saleColorInfo = #saleColor > 0 and { colorid = saleColor[1].colorid, colorname = saleColor[1].itemname:gsub(" " .. TB_STORE_SECTIONS[saleColor[1].catid].name:sub(1, -8) .. ".*$", "") } or false
 		
-		local storeButtons = {
-			featured = {
+		local featuredPromos = {
+			{
 				title = "Covered in Goo!",
-				subtitle = nil,
 				image = "../textures/menu/promo/store/ecto-tori.tga",
 				ratio = 0.5,
 				action = function() Torishop:showStoreSection(tbMenuCurrentSection, nil, nil, 3231) end
+			},
+			{
+				title = "New items now available!",
+				image = "../textures/menu/promo/store/spearpond.tga",
+				ratio = 0.5,
+				action = function() Torishop:showStoreSection(viewElement, 3) end
+			}
+		}
+		featuredPromoId = math.random(1, 3);
+		featuredPromoId = featuredPromoId > 1 and 2 or 1
+		
+		local storeButtons = {
+			featured = {
+				title = featuredPromos[featuredPromoId].title,
+				subtitle = featuredPromos[featuredPromoId].subtitle,
+				image = featuredPromos[featuredPromoId].image,
+				ratio = featuredPromos[featuredPromoId].ratio,
+				action = featuredPromos[featuredPromoId].action
 			},
 			salecolor = {
 				title = saleColorInfo and (TB_MENU_LOCALIZED.STORESALE1 .. " " .. saleColorInfo.colorname .. (TB_MENU_LOCALIZED.STORESALE2:len() > 0 and (" " .. TB_MENU_LOCALIZED.STORESALE2 .. "!") or "!")) or TB_MENU_LOCALIZED.STORENOCOLORSALE,
