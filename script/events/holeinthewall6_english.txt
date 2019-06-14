@@ -1,0 +1,12 @@
+#Messages
+INTRO1	*sniff sniff* What's that smell? It's a hole in the wall challenge, of course!
+INTRO2	As usual, make a replay where you pass the wall and submit it for review to receive prizes!
+INTRO3	Hi again! Let's get back to your auto-saved replay!
+UPLOADSUCCESS1	Hooray, you've successfully uploaded your entry!
+UPLOADSUCCESS2	If everything's fine, you'll receive your base reward shortly soon - and if you're particularly good, an even better prize after the deadline!
+UPLOADSUCCESS3	If you decide to change your replay entry to another one, please post it in event thread on forums.
+UPLOADSUCCESS4	Thanks for participating and see you next time!
+#Tasks
+HWTASK1	Get through the wall
+HWTASKADD1	Do not get dismembered\nDo not leave the moving platform
+HWTASKADD2	Advanced Task: go head first
