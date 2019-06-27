@@ -57,7 +57,7 @@ STOREFLAMEBODYPART	Particle flame for your
 STOREFLAMEID	Flame ID	
 STOREFLAMEFORGEDBY	Forged by	
 STOREITEMINSIDESET	Inside set	
-STOREOBJITEMBODYPART	Custom 3D model for	
+STOREOBJITEMBODYPART	3D model for	
 STOREITEMNODESCRIPTION	This item has no description	
 STOREITEMGOTOSET	Go to set	
 STORESETITEMNAME	Set	
@@ -76,7 +76,8 @@ STOREDIALOGDEACTIVATE2
 STOREITEMACTIVATE	Activate	
 STOREDIALOGACTIVATE1	Are you sure you want to activate	
 STOREDIALOGACTIVATE2	 	
-STOREDIALOGCONFLICTSDEACTIVATE	Any conflicting item will be deactivated.	
+STOREDIALOGCONFLICTSDEACTIVATE	Any conflicting items will be deactivated.	
+STOREDIALOGITEMCONFLICTDEACTIVATE	conflicts with this item and will be deactivated.
 STOREITEMUNPACK	Unpack	
 STOREDIALOGUNPACK1	Are you sure you want to unpack	
 STOREDIALOGUNPACK2	 	
@@ -99,7 +100,7 @@ STORESHOPDESC	Purchase new items for your Tori
 STOREGOTOINVENTORY	Open Inventory	
 STOREPURCHASETORICREDITS	Purchase Toricredits	
 STOREINVENTORYDESC	Customize your character with purchased items	
-STORESTEAMPURCHASELOADING	Working	
+STORESTEAMPURCHASELOADING	Loading	
 STORESTEAMPURCHASEERROR	Something went wrong	
 CLANSMYCLAN	My Clan	
 CLANSCLANLEADER	Clan leader	
@@ -640,3 +641,59 @@ MATCHMAKENORANKCHANGES	No rank changes in past
 MATCHMAKEGLOBALRANKINGDESC	View your ranking details and season's top players
 MATCHMAKENORANKEDQUEST	You don't have any ranked quests.\nPlease refresh your quests to get one.
 MATCHMAKEVIEWQUESTS	View your quests
+QUEUELISTDROPDOWNCLANLEADER	Leader	
+QUEUELISTDROPDOWNADDFRIEND	Add Friend	
+QUEUELISTDROPDOWNREMOVEFRIEND	Remove Friend	
+QUEUELISTDROPDOWNREPORT	Report User	
+QUEUELISTDROPDOWNKICK	Kick	
+QUEUELISTDROPDOWNBAN	Ban	
+QUEUELISTDROPDOWNIPBAN	IP Ban	
+QUEUELISTDROPDOWNOP	Make Operator	
+QUEUELISTDROPDOWNDEOP	Remove Op	
+QUEUELISTDROPDOWNWHISPER	Whisper	
+QUEUELISTDROPDOWNMUTE	Mute	
+QUEUELISTDROPDOWNUNMUTE	Unmute	
+QUEUELISTDROPDOWNSPECTATEALL	Force Spectate All	
+QUEUELISTDROPDOWNSPECALLCONFIRM	Are you sure you want to fspec all players? You won't be able to fenter everyone to same positions automatically.	
+QUEUELISTDROPDOWNMUTEALL	Mute All	
+QUEUELISTDROPDOWNUNMUTEALL	Unmute All	
+QUEUELISTDROPDOWNFSPEC	Force Spectate	
+QUEUELISTDROPDOWNFENTER	Force Enter	
+QUEUELISTDROPDOWNIGNORE	Ignore	
+QUEUELISTDROPDOWNNUDGE	Nudge	
+QUEUELISTDROPDOWNNUDGEUP	Nudge Up	
+QUEUELISTDROPDOWNNUDGEDOWN	Nudge Down	
+QUEUELISTDROPDOWNNUDGETOPOSITION	Nudge	
+QUEUELISTDROPDOWNNUDGECHOOSE	Choose Position	
+QUEUELISTDROPDOWNNUDGECUSTOM	Custom Position	
+QUEUELISTDROPDOWNUNIGNORE	Unignore	
+QUEUELISTDROPDOWNMASSCONTROLS	Mass Controls	
+QUEUELISTDROPDOWNSCRAMBLE	Scramble queue list	
+QUEUELISTDROPDOWNSCRAMBLECONFIRM	Are you sure you want to scramble queue list? You won't be able to revert to current player order automatically.	
+REPORTSREPORTINGPLAYER	Reporting Player	
+REPORTSREPORTREASON	Report reason:	
+REPORTSREASONHARASSMENT	Harassment / Toxicity	
+REPORTSREASONSPAM	Spam	
+REPORTSREASONCHEATING	Cheating (prize rigging, ranked fight evading, etc)	
+REPORTSREASONSCAMMING	Scamming 
+REPORTSREASONOTHER	Other	
+REPORTSSUCCESSDEFAULT	Your report has been successfully submitted, Toribash staff will get to it as soon as possible.\nIf your issue requires immediate action, you can also contact staff on Toribash Discord.	
+REPORTSSUCCESSSCAMMING	Your report has been successfully submitted, Market Squad will get to it as soon as possible.\nMake sure you keep an eye on your report until it's resolved in case there are any extra questions. If you want to add any extra replays, screenshots or other information to the report, please do so in the thread.	
+REPORTSEXTRAMESSAGE	Extra message:	
+REPORTSEXTRAMESSAGETIP	Add any extra information that you think may be useful	
+REPORTSCHATLOGINFO	Room chat logs and latest fight's replay will be also automatically attached to the report.\nAbusing reports system will get you banned from Toribash forums and game servers.	
+MESSAGEPLEASEWAIT	Please wait...	
+BUTTONCLOSEWINDOW	Close Window	
+INVENTORY3DITEMFOR	3D item for	your	
+STOREITEMSEDIT	Edit	
+STOREITEMSCUSTOMIZE	Customize	
+STORESHOWEMPTYSETS	Show empty sets	
+STOREITEMUPGRADEFOR	Upgrade for	
+STOREITEMUPGRADEPRICEFREE	FREE	
+STOREINVENTORYRELOAD	Reload inventory	
+STOREITEMRETEXTURABLE	Retexturable	
+STOREITEMSCLEANSELECTION	Clear Selection	
+STOREDIALOGUPGRADE1	Are you sure you want to upgrade	
+STOREDIALOGUPGRADE2	to level	
+DISCORDSERVER	Toribash Discord	
+REPORTSREPORTTHREAD	Report Thread	

@@ -5,6 +5,15 @@
 if (TUTORIAL_ISACTIVE) then
 	return
 end
+-- Also ignore for vanilla store previewer
+if (STORE_VANILLA_PREVIEW) then
+	return
+end
+if (STORE_VANILLA_POST) then
+	STORE_VANILLA_POST = false
+	set_option("hud", 1)
+	chat_input_activate()
+end
 
 TB_MENU_DEBUG = false
 
@@ -18,11 +27,6 @@ TB_MENU_DOWNLOAD_INACTION = TB_MENU_DOWNLOAD_INACTION or false
 TB_MENU_KEYBOARD_ENABLED = false
 TB_LAST_MENU_SCREEN_OPEN = TB_LAST_MENU_SCREEN_OPEN or (get_option("newshopitem") == 1 and 1 or 2)
 TB_MENU_HOME_CURRENT_ANNOUNCEMENT = TB_MENU_HOME_CURRENT_ANNOUNCEMENT or 1
-
-if (TORISHOP_ISOPEN == 1) then
-	start_new_game()
-	TORISHOP_ISOPEN = 0
-end
 
 if (TB_MENU_MAIN_ISOPEN == 1) then
 	remove_hooks("tbMainMenuVisual")
@@ -97,6 +101,10 @@ if (PlayerInfo:getLoginRewards().available and TB_STORE_DATA.ready and not TB_ME
 end
 
 local launchOption = ARG
+if (launchOption == "" and ARG1) then
+	launchOption = ARG1
+end
+ARG, ARG1 = nil, nil
 if (launchOption == "15") then
 	TBMenu:showMain(true)
 	TBMenu:showTorishopMain()
@@ -204,8 +212,10 @@ add_hook("mouse_move", "tbMainMenuMouse", function(x, y)
 				if (x > WIN_W / 2) then
 					Torishop:refreshInventory(TB_MENU_SPECIAL_SCREEN_ISOPEN == 1)
 					if (INVENTORY_SELECTION_RESET) then
-						INVENTORY_SELECTED_ITEMS = {}
-						INVENTORY_SELECTION_RESET = false
+						for i = #INVENTORY_SELECTED_ITEMS, 1, -1 do
+							table.remove(INVENTORY_SELECTED_ITEMS, i)
+						end
+						INVENTORY_SELECTED_RESET = false
 					end
 				else
 					INVENTORY_UPDATE = false
@@ -245,6 +255,11 @@ add_hook("draw2d", "tbMainHubVisual", function()
 			UIElement:drawVisuals(TB_MENU_HUB_GLOBALID)
 		end
 	end)
+add_hook("draw_viewport", "tbMainHubVisual", function()
+		if (TB_MENU_MAIN_ISOPEN == 0) then
+			UIElement3D:drawViewport(TB_MENU_HUB_GLOBALID)
+		end
+	end)
 
 -- Load miscellaneous scripts
 if (get_option("chatcensor") > 0 and not CHATIGNORE_ACTIVE) then
@@ -258,6 +273,9 @@ end
 if (get_option("tooltip") == 1 and not TOOLTIP_ACTIVE) then
 	dofile("system/tooltip_manager.lua")
 	Tooltip:create()
+end
+if (not QueueList) then
+	dofile("system/queuelist_manager.lua")
 end
 
 if (launchOption == 'register') then

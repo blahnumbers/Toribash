@@ -901,6 +901,12 @@ do
 	end
 
 	function UIElement:addAdaptedText(override, str, x, y, font, align, maxscale, minscale, intensity, shadow, col1, col2, textfield)
+		if (not str) then
+			if (TB_MENU_DEBUG) then
+				echo("Error: string is undefined")
+			end
+			return false
+		end
 		local scale = maxscale or 1
 		local minscale = minscale or 0.2
 		local font = font
@@ -1123,7 +1129,7 @@ do
 					return 1
 				end)
 		end
-		run_cmd(command, online)
+		run_cmd(command .. (online and "\n" or ""), online)
 		remove_hooks("UIManagerSkipEcho")
 	end
 

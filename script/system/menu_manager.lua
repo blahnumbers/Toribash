@@ -809,11 +809,12 @@ do
 			tbMenuDataErrorMessage:kill()
 			tbMenuDataErrorMessage = nil
 		end
+		local dataErrorY = tbMenuMain.pos.y > 0 and (-tbMenuMain.pos.y) or WIN_H
 		tbMenuDataErrorMessage = UIElement:new({
 			globalid = noParent and TB_MENU_HUB_GLOBALID,
 			parent = tbMenuMain,
-			pos = { WIN_W / 4, -WIN_H / 10 },
-			size = { WIN_W / 2, WIN_H / 10 },
+			pos = { WIN_W / 4, dataErrorY },
+			size = { WIN_W / 2, 68 },
 			bgColor = { 0, 0, 0, 0.8 * transparency }
 		})
 		local option = get_option("hint")
@@ -821,16 +822,25 @@ do
 			set_option("hint", 0)
 		end
 		local startTime = os.clock()
+		local moveRad = math.pi / 4
 		tbMenuDataErrorMessage:addCustomDisplay(false, function()
-				if (os.clock() - startTime > 5) then
-					transparency = transparency - 0.05
-					tbMenuDataErrorMessage.bgColor[4] = 0.8 * transparency
-				end
-				if (transparency <= 0) then
-					tbMenuDataErrorMessage:kill()
-					if (noParent) then
-						set_option("hint", option)
-					end
+				if (tbMenuDataErrorMessage.pos.y > WIN_H - tbMenuDataErrorMessage.size.h) then
+					tbMenuDataErrorMessage:moveTo(nil, -10 * math.sin(moveRad), true)
+					moveRad = moveRad + (math.pi / 12)
+				else
+					tbMenuDataErrorMessage:moveTo(nil, dataErrorY - tbMenuDataErrorMessage.size.h)
+					tbMenuDataErrorMessage:addCustomDisplay(false, function()
+							if (os.clock() - startTime > 5) then
+								transparency = transparency - 0.05
+								tbMenuDataErrorMessage.bgColor[4] = 0.8 * transparency
+							end
+							if (transparency <= 0) then
+								tbMenuDataErrorMessage:kill()
+								if (noParent) then
+									set_option("hint", option)
+								end
+							end
+						end)
 				end
 			end)
 		local errorMessageView = UIElement:new({
@@ -968,7 +978,7 @@ do
 				pos = { 0, 0 },
 				size = { listingHolder.size.w, listingHolder.size.h }
 			})
-			infoMessage:addAdaptedText(true, TB_MENU_LOCALIZED.ACCOUNTGETTINGINFO)
+			TBMenu:displayLoadingMark(infoMessage, TB_MENU_LOCALIZED.ACCOUNTGETTINGINFO)
 			local infoUpdater = UIElement:new({
 				parent = infoMessage,
 				pos = { 0, 0 },
@@ -977,8 +987,8 @@ do
 			infoUpdater:addCustomDisplay(true, function()
 					if (accountDatas.ready) then
 						if (accountDatas.failed) then
+							infoMessage:kill(true)
 							infoMessage:addAdaptedText(true, TB_MENU_LOCALIZED.ACCOUNTINFOERROR)
-							infoUpdater:kill()
 							return
 						end
 						infoMessage:kill()
@@ -2102,7 +2112,7 @@ do
 		else
 			BLURENABLED = true
 		end
-		local tbMenuHide = TBMenu:createImageButtons(tbMenuMain, WIN_W / 2 - 32, -74, 64, 64, "../textures/menu/general/buttons/arrowbot.tga", nil, nil, {0, 0, 0, 0}, { 0, 0, 0, 0.2 }, { 0, 0, 0, 0.4}, 32)
+		tbMenuHide = TBMenu:createImageButtons(tbMenuMain, WIN_W / 2 - 32, -74, 64, 64, "../textures/menu/general/buttons/arrowbot.tga", nil, nil, {0, 0, 0, 0}, { 0, 0, 0, 0.2 }, { 0, 0, 0, 0.4}, 32)
 		tbMenuHide.state = 0
 		tbMenuHide:addMouseHandlers(nil, function()
 				if (tbMenuHide.state == 0) then
@@ -2216,9 +2226,16 @@ do
 	end
 
 	function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHeight, selectedItem, textScale, fontid, textScale2, fontid2)
-		local maxHeight = maxHeight or #listElements * elementHeight + 4
-		if (maxHeight > #listElements * elementHeight + 4) then
-			maxHeight = #listElements * elementHeight + 4
+		local listElementsDisplay = {}
+		for i,v in pairs(listElements) do
+			if (not v.default) then
+				table.insert(listElementsDisplay, v)
+			end
+		end
+		
+		local maxHeight = maxHeight or #listElementsDisplay * elementHeight + 4
+		if (maxHeight > #listElementsDisplay * elementHeight + 4) then
+			maxHeight = #listElementsDisplay * elementHeight + 4
 		end
 		local selectedItem = selectedItem or listElements[1]
 		local fontid = fontid or 4
@@ -2235,8 +2252,8 @@ do
 			pos = { 0, 0 },
 			size = { holderElement.size.w, maxHeight },
 			bgColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-			shapeType = ROUNDED,
-			rounded = 5
+			shapeType = holderElement.shapeType,
+			rounded = holderElement.rounded and holderElement.rounded * 4 / 3 or 0
 		})
 		overlay:addMouseHandlers(function(s)
 				if (s >= 4) then
@@ -2278,8 +2295,8 @@ do
 		})
 		local selectedElementText = UIElement:new({
 			parent = selectedElement,
-			pos = { 10, 0 },
-			size = { selectedElement.size.w - selectedElement.size.h - 10, selectedElement.size.h }
+			pos = { 10, 2 },
+			size = { selectedElement.size.w - selectedElement.size.h - 10, selectedElement.size.h - 4 }
 		})
 		selectedElementText:addAdaptedText(false, selectedItem.text:upper(), nil, nil, fontid, LEFTMID, textScale)
 		local selectedElementArrow = UIElement:new({
@@ -2288,8 +2305,8 @@ do
 			size = { selectedElement.size.h, selectedElement.size.h },
 			bgImage = "../textures/menu/general/buttons/arrowbotwhite.tga"
 		})
-		if (#listElements * elementHeight <= maxHeight) then
-			for i,v in pairs(listElements) do
+		if (#listElementsDisplay * elementHeight <= maxHeight) then
+			for i,v in pairs(listElementsDisplay) do
 				local element = UIElement:new({
 					parent = dropdownView,
 					pos = { 2, 2 + (i - 1) * elementHeight },
@@ -2404,6 +2421,9 @@ do
 	
 	function TBMenu:showTextWithImage(viewElement, text, fontid, imgScale, imgWhite, imgBlack, left)
 		local imgScale = imgScale or 26
+		if (imgScale > viewElement.size.h) then
+			imgScale = viewElement.size.h
+		end
 		local imgBlack = imgBlack or imgWhite
 		local textView = UIElement:new({
 			parent = viewElement,
@@ -2507,7 +2527,7 @@ do
 		end
 	end
 
-	function TBMenu:spawnTextField(parent, x, y, w, h, textFieldString, numeric, fontid, scale, color, defaultStr, orientation, noCursor)
+	function TBMenu:spawnTextField(parent, x, y, w, h, textFieldString, numeric, fontid, scale, color, defaultStr, orientation, noCursor, multiLine, darkerMode)
 		if (not parent) then
 			return false
 		end
@@ -2531,19 +2551,19 @@ do
 			pos = { 1, 1 },
 			size = { textBg.size.w - 2, textBg.size.h - 2 },
 			interactive = true,
-			bgColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+			bgColor = darkerMode and TB_MENU_DEFAULT_BG_COLOR or TB_MENU_DEFAULT_LIGHTER_COLOR,
 			shapeType = textBg.shapeType,
 			rounded = textBg.rounded
 		})
 		local inputField = UIElement:new({
 			parent = textBg,
-			pos = { 5, 0 },
-			size = { input.size.w - 10, input.size.h },
+			pos = { 5, 2 },
+			size = { input.size.w - 10, input.size.h - 4 },
 			interactive = true,
 			textfield = true,
 			isNumeric = numeric,
 			textfieldstr = textFieldString,
-			textfieldsingleline = true,
+			textfieldsingleline = not multiLine,
 			shapeType = textBg.shapeType,
 			rounded = textBg.rounded
 		})

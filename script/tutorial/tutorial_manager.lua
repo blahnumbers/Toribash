@@ -270,6 +270,10 @@ do
 				if (ln:len() > 14) then
 					steps[#steps].keystounlock = ln:gsub("KEYBOARDUNLOCK ", ""):lower()
 				end
+			elseif (ln:find("^INTROFADE")) then
+				steps[#steps].introOverlay = true
+			elseif (ln:find("^OUTROFADE")) then
+				steps[#steps].outroOverlay = true
 			elseif (ln:find("^CUSTOMFUNC")) then
 				steps[#steps].customfuncdefined = true
 				steps[#steps].customfuncfile = loadfile(cfuncpath .. id .. ".lua")
@@ -316,6 +320,47 @@ do
 			end
 		end
 		return skip
+	end
+	
+	function Tutorials:showOverlay(viewElement, reqTable, out, speed)
+		local speed = speed or 1
+		local req = { type = "transition", ready = false }
+		table.insert(reqTable, req)
+		
+		if (tbOutOverlay) then
+			tbOutOverlay:kill()
+		end
+		local overlay = UIElement:new({
+			parent = out and tbTutorialsOverlay or viewElement,
+			pos = { 0, 0 },
+			size = { viewElement.size.w, viewElement.size.h },
+			bgColor = cloneTable(UICOLORWHITE)
+		})
+		if (out) then
+			tbOutOverlay = overlay
+		end
+		overlay.bgColor[4] = out and 0 or 1
+		overlay:addCustomDisplay(true, function()
+				overlay.bgColor[4] = overlay.bgColor[4] + (out and 0.02 or -0.02) * speed
+				if (not out and overlay.bgColor[4] <= 0) then
+					req.ready = true
+					reqTable.ready = Tutorials:checkRequirements(reqTable)
+					overlay:kill()
+				elseif (out and overlay.bgColor[4] >= 1) then
+					req.ready = true
+					reqTable.ready = Tutorials:checkRequirements(reqTable)
+				end
+				set_color(unpack(overlay.bgColor))
+				draw_quad(overlay.pos.x, overlay.pos.y, overlay.size.w, overlay.size.h)
+			end)
+	end
+	
+	function Tutorials:introOverlay(viewElement, reqTable)
+		Tutorials:showOverlay(viewElement, reqTable)
+	end
+	
+	function Tutorials:outroOverlay(viewElement, reqTable)
+		Tutorials:showOverlay(viewElement, reqTable, true)
 	end
 
 	function Tutorials:hideWaitButton(requirements)
@@ -1263,6 +1308,11 @@ do
 		end
 		if (steps[currentStep].progressstep) then
 			tbTutorialCurrentStep = tbTutorialCurrentStep + 1
+		end
+		if (steps[currentStep].introOverlay) then
+			Tutorials:introOverlay(stepElement, requirements)
+		elseif (steps[currentStep].outroOverlay) then
+			Tutorials:outroOverlay(stepElement, requirements)
 		end
 		if (steps[currentStep].newgame) then
 			Tutorials:startNewGame(stepElement, requirements, steps[currentStep].mod)

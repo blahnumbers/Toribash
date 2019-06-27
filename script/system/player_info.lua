@@ -312,14 +312,6 @@ do
 		
 		local master = getMaster()
 		
-		if (TB_MENU_DEBUG) then
-			ranking.elo = 1623
-			ranking.wins = 40
-			ranking.loses = 23
-			ranking.rank = 52
-			PlayerInfo:getRankTier(ranking)
-			return ranking
-		end
 		if (master.elo) then
 			ranking.elo = master.elo
 			ranking.wins = master.season_win
@@ -330,7 +322,7 @@ do
 		return ranking		
 	end
 	
-	function PlayerInfo:getClan(player)
+	function PlayerInfo:getClan(player, tag)
 		local clanInfo = {
 			id = 0,
 			name = "",
@@ -340,24 +332,31 @@ do
 		if (not player) then
 			return clanInfo
 		end
-		local customs = Files:new("../custom/" .. player .. "/item.dat", FILES_MODE_READONLY)
-		if (not customs.data) then
-			return clanInfo
-		end
-		for ln in customs.data:lines() do
-			if string.match(ln, "^CLAN 0;") then
-				ln = string.gsub(ln, "CLAN 0;", "")
-				local clanid = ln:match("%d+");
-				clanInfo.id = tonumber(clanid)
-				if (clanInfo.id ~= 0) then
-					clanInfo.tag = ln:match("%S+$")
+		if (not tag) then
+			local customs = Files:new("../custom/" .. player .. "/item.dat", FILES_MODE_READONLY)
+			if (not customs.data) then
+				customs = Files:new("../custom/" .. player:lower() .. "/item.dat", FILES_MODE_READONLY)
+				if (not customs.data) then
+					return clanInfo
 				end
-				break
 			end
-		end
-		customs:close()
-		if (clanInfo.id == 0) then
-			return clanInfo
+			for ln in customs.data:lines() do
+				if string.match(ln, "^CLAN 0;") then
+					ln = string.gsub(ln, "CLAN 0;", "")
+					local clanid = ln:match("%d+");
+					clanInfo.id = tonumber(clanid)
+					if (clanInfo.id ~= 0) then
+						clanInfo.tag = ln:match("%S+$")
+					end
+					break
+				end
+			end
+			customs:close()
+			if (clanInfo.id == 0) then
+				return clanInfo
+			end
+		else
+			clanInfo.tag = tag
 		end
 		
 		local clans = Files:new("clans/clans.txt", FILES_MODE_READONLY)
@@ -366,10 +365,18 @@ do
 		end
 		for ln in clans.data:lines() do
 			if string.match(ln, "^CLAN") then
-				local segments = 14
+				local segments, found = 14, false
 				local data_stream = { ln:match(("([^\t]*)\t"):rep(segments)) }
-				if (tonumber(data_stream[2]) == clanInfo.id) then
+				if (tonumber(data_stream[2]) == clanInfo.id and clanInfo.id > 0) then
 					clanInfo.name = data_stream[3]
+					found = true
+			 	elseif (data_stream[4] == clanInfo.tag and clanInfo.tag ~= '') then
+					clanInfo.id = tonumber(data_stream[2])
+					clanInfo.tag = data_stream[5] == 1 and "[" .. clanInfo.tag .. "]" or "(" .. clanInfo.tag .. ")"
+					clanInfo.name = data_stream[3]
+					found = true
+				end
+				if (found) then
 					if (data_stream[14]:match(PlayerInfo:getUser())) then
 						clanInfo.isleader = true
 					end
@@ -488,6 +495,56 @@ do
 		customs:close()
 		return userData
 	end
+	
+	--[[function PlayerInfo:getPlayerinfo(username)
+		local playerinfo = {}
+		local localized = TB_MENU_LOCALIZED or {}
+		local function success(userinfo)
+			local response = get_network_response()
+			for ln in response:gmatch("[^\n]*\n?") do
+				local ln = ln:gsub("\n$", '')
+				if (ln:find("^USERNAME 0;")) then
+					table.insert(userinfo, {
+						name = localized.ACCOUNTUSERNAME or "Username",
+						value = ln:gsub("^USERNAME 0;", "")
+					})
+				elseif (ln:find("^USERID 0;")) then
+					table.insert(userinfo, {
+						name = localized.ACCOUNTUSERID or "User ID",
+						value = ln:gsub("^USERID 0;", "")
+					})
+				elseif (ln:find("^QI 0;")) then
+					local qi = ln:gsub("^QI 0;", "")
+					qi = qi:len() > 0 and qi + 0 or 0
+					local belt = PlayerInfo:getBeltFromQi(qi)
+					table.insert(userinfo, {
+						name = "Qi",
+						value = qi .. " (" .. belt.name .. " Belt)"
+					})
+				elseif (ln:find("^TODAYGAMES 0;")) then
+					table.insert(userinfo, {
+						name = localized.ACCOUNTGAMESPLAYEDTODAY or "Games Played Today",
+						value = ln:gsub("^TODAYGAMES 0;", "")
+					})
+				elseif (ln:find("^TODAYWINS 0;")) then
+					table.insert(userinfo, {
+						name = localized.ACCOUNTGAMESWONTODAY or "Games Won Today",
+						value = ln:gsub("^TODAYWINS 0;", "")
+					})
+				end
+			end
+			userinfo.ready = true
+			if (not username) then
+				playerinfo = userinfo
+			end
+		end
+		if (username) then
+			get_player_userinfo(PlayerInfo:getUser(username) .. "?do=stats")
+			return Request:new("playerinfo", success)
+		end
+		playerinfo.ready = true
+		return playerinfo
+	end]]
 	
 	function PlayerInfo:getServerUserinfo(username, reload)
 		local localized = TB_MENU_LOCALIZED or {}

@@ -126,16 +126,27 @@ do
 		end
 		
 		file:close()
+		FRIENDSLIST_IGNORE = {}
+		local ignoreFile = Files:new("../ignorelist.txt")
+		if (ignoreFile.data) then
+			for i, ln in pairs(ignoreFile:readAll()) do
+				table.insert(FRIENDSLIST_IGNORE, ln)
+			end
+			ignoreFile:close()
+		end
+		
 		return true
 	end
 	
 	function FriendsList:addFriend(player)
 		local friend = { username = player:lower() }
-		for i,v in pairs(FRIENDSLIST_PLAYERS_ONLINE) do
-			if (v.player == friend.username) then
-				friend.online = true
-				friend.room = v.room
-				break
+		if (FRIENDSLIST_PLAYERS_ONLINE) then
+			for i,v in pairs(FRIENDSLIST_PLAYERS_ONLINE) do
+				if (v.player == friend.username) then
+					friend.online = true
+					friend.room = v.room
+					break
+				end
 			end
 		end
 		table.insert(FRIENDSLIST_FRIENDS, friend)
@@ -143,14 +154,30 @@ do
 	end
 	
 	function FriendsList:removeFriend(player)
-		for i,v in pairs (FRIENDSLIST_FRIENDS) do
+		for i,v in pairs(FRIENDSLIST_FRIENDS) do
 			if (v.username == player) then
 				table.remove(FRIENDSLIST_FRIENDS, i)
 				break
 			end
 		end
 		UIElement:runCmd("removebuddy " .. player)
-		--FriendsList:updateDataFile()
+	end
+	
+	function FriendsList:addIgnore(player)
+		local player = player:lower()
+		table.insert(FRIENDSLIST_IGNORE, player)
+		UIElement:runCmd("ignore add " .. player)
+	end
+	
+	function FriendsList:removeIgnore(player)
+		local player = player:lower()
+		for i,v in pairs(FRIENDSLIST_IGNORE) do
+			if (v == player) then
+				table.remove(FRIENDSLIST_IGNORE, i)
+				break
+			end
+		end
+		UIElement:runCmd("ignore remove " .. player)
 	end
 	
 	function FriendsList:showFriendsList(viewElement)

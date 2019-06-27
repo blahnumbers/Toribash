@@ -242,7 +242,9 @@ do
 					end
 				end
 				if (count > #files) then
-					rplTable.replays = UIElement:qsort(rplTable.replays, "filename")
+					if (rplTable.fullname ~= "replay/autosave") then
+						rplTable.replays = UIElement:qsort(rplTable.replays, "filename")
+					end
 					if (#replayUpdateWindow.replayfolders > 0) then
 						local fname = replayUpdateWindow.replayfolders[1].fname
 						local rpltbl = replayUpdateWindow.replayfolders[1].rpltbl
