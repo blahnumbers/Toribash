@@ -1,0 +1,11 @@
+#Posts
+INTRO1	Olá, seja bem vindo ao Hole in the Wall!
+INTRO2	Faça um replay atravessando a parede e nos envie para revisão para receber prêmios! Boa sorte e divirta-se!
+INTRO3	Oi novamente! Vamos voltar ao seu replay salvo automaticamente!
+UPLOADSUCCESS1	Muito bem, você enviou sua entrada com sucesso!
+UPLOADSUCCESS2	Se tudo estiver certo, você receberá sua recompensa básica em breve - e se você for particularmente bom, você receberá um prêmio ainda melhor no final!
+UPLOADSUCCESS3	Se você decidir alterar seu replay para um novo, por favor poste-o no tópico do evento no fórum.
+UPLOADSUCCESS4	Obrigado por participar e até a próxima!
+# Tasks
+HWTASK1	Atravesse a parede
+HWTASKADD1	Não desmembrar\nNão deixe a plataforma móvel
