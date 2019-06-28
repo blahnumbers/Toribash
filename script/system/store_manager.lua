@@ -5230,8 +5230,8 @@ do
 				action = function() Torishop:showStoreSection(tbMenuCurrentSection, nil, nil, 3231) end
 			},
 			{
-				title = "New items now available!",
-				image = "../textures/menu/promo/store/spearpond.tga",
+				title = "Become the Grandmaster!",
+				image = "../textures/menu/promo/store/grandmaster.tga",
 				ratio = 0.5,
 				action = function() Torishop:showStoreSection(viewElement, 3) end
 			}
