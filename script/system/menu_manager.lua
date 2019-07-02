@@ -2401,7 +2401,7 @@ do
 		})
 		local grow, rotate = 0, 0
 		loadMark:addCustomDisplay(true, function()
-				set_color(1, 1, 1, 1)
+				set_color(unpack(loadMark.uiColor))
 				draw_disk(loadMark.pos.x + loadMark.size.w / 2, loadMark.pos.y + loadMark.size.h / 2 - 40, 12, 20, 500, 1, rotate, grow, 0)
 				grow = grow + 4
 				rotate = rotate + 2
@@ -2417,6 +2417,37 @@ do
 			})
 			textView:addAdaptedText(true, message, nil, nil, nil, CENTER)
 		end
+	end
+	
+	function TBMenu:displayLoadingMarkSmall(viewElement, message, fontid, loadScale)
+		local fontid = fontid or FONTS.MEDIUM
+		local loadScale = loadScale or 26
+		if (loadScale > viewElement.size.h) then
+			loadScale = viewElement.size.h
+		end
+		local textView = UIElement:new({
+			parent = viewElement,
+			pos = { loadScale * 0.8, 0 },
+			size = { viewElement.size.w - loadScale * 1.15, viewElement.size.h }
+		})
+		textView:addAdaptedText(false, message, loadScale * 0.7, nil, fontid)
+		local fontid = textView.textFont
+		local posX = get_string_length(textView.dispstr[1], fontid) * textView.textScale
+		local loadElement = UIElement:new({
+			parent = textView,
+			pos = { (textView.size.w - posX - loadScale) / 2, (textView.size.h - loadScale) / 2 },
+			size = { loadScale, loadScale }
+		})
+		local grow, rotate = 0, 0
+		loadElement:addCustomDisplay(true, function()
+				set_color(unpack(loadElement.uiColor))
+				draw_disk(loadElement.pos.x + loadElement.size.w / 2, loadElement.pos.y + loadElement.size.h / 2, loadScale / 5, loadScale / 2, 360, 1, rotate, grow, 0)
+				grow = grow + 4
+				rotate = rotate + 2
+				if (grow >= 360) then
+					grow = -360
+				end
+			end)
 	end
 	
 	function TBMenu:showTextWithImage(viewElement, text, fontid, imgScale, imgWhite, imgBlack, left)

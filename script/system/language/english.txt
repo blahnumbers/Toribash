@@ -697,3 +697,8 @@ STOREDIALOGUPGRADE1	Are you sure you want to upgrade
 STOREDIALOGUPGRADE2	to level	
 DISCORDSERVER	Toribash Discord	
 REPORTSREPORTTHREAD	Report Thread	
+STOREITEMPREVIEW	Preview	
+REQUESTUNKNOWNERROR	Unknown Error	
+REQUESTCONNECTIONERROR	Connection Error	
+STOREREQUESTNOTHAIRSTYLE	This item is not a hairstyle	
+STOREVANILLAENTERMP	Previewing the item on your Tori will disconnect you from current Multiplayer room.	
