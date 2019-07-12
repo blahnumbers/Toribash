@@ -1,3 +1,6 @@
+EVENTNAME 0;Hole in the Wall 2
+EVENTENDDATE 0;April 28th, 2019
+
 STEP 1;
 OPT focuscam 1;
 OPT hud 0;
@@ -120,4 +123,3 @@ WAITBUTTON;
 STEP 19;
 HIDESAYMESSAGE;
 CUSTOMFUNC OutroOverlay;
-

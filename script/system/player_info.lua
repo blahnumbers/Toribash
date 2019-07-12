@@ -224,7 +224,7 @@ do
 		return colors
 	end
 	
-	function PlayerInfo:getObjs(player, data)
+	function PlayerInfo:getObjs(data)
 		local objs = {
 			head = { equipped = false },
 		}
@@ -260,7 +260,7 @@ do
 	end
 	
 	function PlayerInfo:getItems(player, colorsOnly)
-		local player = player or "tori"
+		local player = player and player or "tori"
 		local items = {
 			colors = {},
 			textures = {},
@@ -273,7 +273,7 @@ do
 		items.colors = PlayerInfo:getColors(customsData)
 		if (not colorsOnly) then
 			items.textures = PlayerInfo:getTextures(customsData)
-			items.objs = PlayerInfo:getObjs(player, customsData)
+			items.objs = PlayerInfo:getObjs(customsData)
 		end
 		return items
 	end

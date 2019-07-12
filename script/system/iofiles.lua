@@ -20,10 +20,10 @@ do
 		
 		File.mode = mode
 		
-		local isroot = path:match("%.%.%/") and 1 or nil
+		local isroot = path:match("^%.%.%/") and 1 or nil
 		File.isroot = isroot
 		
-		local path = path:gsub("%.%.%/", "")
+		local path = path:gsub("^%.%.%/", "")
 		File.path = path
 		
 		if (not File:isDownloading()) then

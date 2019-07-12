@@ -239,6 +239,7 @@ do
 			})
 			homeView:addCustomDisplay(false, function()
 					if (not newsData.file:isDownloading()) then
+						homeView:kill()
 						TBMenu:showHome()
 					end
 				end)
@@ -256,7 +257,17 @@ do
 		local featuredEvent = UIElement:new({
 			parent = tbMenuCurrentSection,
 			pos = { tbMenuCurrentSection.size.w * 0.565 + 5, 0 },
-			size = { tbMenuCurrentSection.size.w * 0.435 - 10, tbMenuCurrentSection.size.h },
+			size = { tbMenuCurrentSection.size.w * 0.435 - 10, tbMenuCurrentSection.size.h * 0.7 },
+			interactive = true,
+			bgColor = TB_MENU_DEFAULT_BG_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			hoverSound = 31
+		})
+		local viewEventsButton = UIElement:new({
+			parent = tbMenuCurrentSection,
+			pos = { tbMenuCurrentSection.size.w * 0.565 + 5, tbMenuCurrentSection.size.h * 0.7 + 10 },
+			size = { tbMenuCurrentSection.size.w * 0.435 - 10, tbMenuCurrentSection.size.h * 0.3 - 10 },
 			interactive = true,
 			bgColor = TB_MENU_DEFAULT_BG_COLOR,
 			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
@@ -264,14 +275,24 @@ do
 			hoverSound = 31
 		})
 		
-		local eventsData, featuredEventData = {}, {}
+		local eventsData, featuredEvents, featuredEventData = {}, {}, {}
 		for i,v in pairs(newsData) do
 			if (v.featured) then
+				table.insert(featuredEvents, v)
 				featuredEventData = v
 			else
 				table.insert(eventsData, v)
 			end
 		end
+		if (#featuredEvents > 1) then
+			featuredEventData = featuredEvents[math.random(1, #featuredEvents)]
+		end
+		
+		local viewEventsButtonData = {
+			title = "View All Events",
+			ratio = 0.3,
+			action = function() Events:showEventsHome(tbMenuCurrentSection) end
+		}
 		
 		-- Store all elements that would require reloading when switching event announcements in one table
 		local toReload = UIElement:new({
@@ -337,13 +358,16 @@ do
 			local eventPrevButton = TBMenu:createImageButtons(toReload, 10, 10 + elementHeight / 2 - 32, 32, 64, "../textures/menu/general/buttons/arrowleft.tga", nil, nil, { 0, 0, 0, 0 }, { 0, 0, 0, 0.7 })
 			eventPrevButton:addMouseHandlers(nil, function()
 					TBMenu:changeCurrentEvent(homeAnnouncements, eventsData, eventItems, rotateClock, toReload, -1)
+					eventPrevButton.hoverState = BTN_HVR
 				end, nil)
 			local eventNextButton = TBMenu:createImageButtons(toReload, toReload.size.w - 42, 10 + elementHeight / 2 - 32, 32, 64, "../textures/menu/general/buttons/arrowright.tga", nil, nil, { 0, 0, 0, 0 }, { 0, 0, 0, 0.7 })
 			eventNextButton:addMouseHandlers(nil, function()
 					TBMenu:changeCurrentEvent(homeAnnouncements, eventsData, eventItems, rotateClock, toReload, 1)
+					eventNextButton.hoverState = BTN_HVR
 				end, nil)
 		end
-		TBMenu:showHomeButton(featuredEvent, featuredEventData, 2)
+		TBMenu:showHomeButton(featuredEvent, featuredEventData)
+		TBMenu:showHomeButton(viewEventsButton, viewEventsButtonData, 2)
 	end
 
 	function TBMenu:showHomeButton(viewElement, buttonData, hasSmudge, extraElements, lockedMessage)
@@ -1383,6 +1407,9 @@ do
 	end
 
 	function TBMenu:addBottomBloodSmudge(parentElement, num, scale)
+		if (not parentElement) then
+			return false
+		end
 		local scale = scale or 64
 		local bottomSmudge = TB_MENU_BOTTOM_SMUDGE_BIG
 		if (parentElement.size.w < 400) then
@@ -1870,7 +1897,71 @@ do
 		})
 		tbMenuUserQi:addAdaptedText(true, TB_MENU_PLAYER_INFO.data.belt.name .. " belt", nil, nil, 2, nil, nil, nil, nil, 1)
 	end
-
+	
+	function TBMenu:showPlayerHeadAvatar(viewElement, player)
+		local viewportSize = viewElement.size.w > viewElement.size.h and viewElement.size.h or viewElement.size.w
+		local headViewport = UIElement:new( {
+			parent = viewElement,
+			pos = { (viewElement.size.w - viewportSize) / 2, (viewElement.size.h - viewportSize) / 2 },
+			size = { viewportSize, viewportSize },
+			viewport = true
+		})
+		local headViewport3D = UIElement3D:new({
+			globalid = TB_MENU_MAIN_GLOBALID,
+			shapeType = VIEWPORT,
+			parent = headViewport,
+			pos = { 0, 0, 0 },
+			size = { 0, 0, 0 },
+			rot = { 0, 0, 0 },
+			viewport = true
+		})
+		table.insert(headViewport.child, headViewport3D)
+		
+		local customs = PlayerInfo:getItems(player)
+		local headTexture = { "../../custom/tori/head.tga", "../../custom/tori/head.tga" }
+		if (customs.textures.head.equipped) then
+			headTexture[1] = "../../custom/" .. player .. "/head.tga"
+		end
+		local color = get_color_info(customs.colors.force)
+		local playerNeckHolder = UIElement3D:new({
+			parent = headViewport3D,
+			shapeType = SPHERE,
+			pos = { -0.04, 0.18, 9.22},
+			rot = { 0, 0, 0 },
+			size = { 0.5, 0, 0 },
+			viewport = true,
+			bgColor = { color.r, color.g, color.b, 1 }
+		})
+		local playerHeadHolder = UIElement3D:new({
+			parent = headViewport3D,
+			shapeType = SPHERE,
+			pos = { 0, 0, 9.9 },
+			size = { 0.9, 0, 0 },
+			rot = { 0, 0, -10 },
+			bgColor = { 1, 1, 1, 1 },
+			bgImage = headTexture,
+			viewport = true
+		})
+		if (customs.objs.head.equipped) then
+			local objScale = customs.objs.head.dynamic and 2 or 10
+			if (customs.objs.head.partless) then
+				headAvatarHead:kill()
+			end
+			local modelColor = get_color_info(customs.objs.head.colorid)
+			modelColor.a = customs.objs.head.alpha / 255
+			local headObjModel = UIElement3D:new({
+				parent = headViewport3D,
+				shapeType = CUSTOMOBJ,
+				objModel = "../../custom/" .. player .. "/head",
+				pos = { 0, 0, 9.7 },
+				rot = { 0, 0, -10 },
+				size = { objScale * 0.9, objScale * 0.9, objScale * 0.9 },
+				bgColor = { modelColor.r, modelColor.g, modelColor.b, modelColor.a },
+				viewport = true
+			})
+		end
+	end
+	
 	function TBMenu:showNavigationBar(buttonsData, customNav, customNavHighlight, selectedId)
 		local tbMenuNavigationButtonsData = buttonsData or TBMenu:getMainNavigationButtons()
 		local tbMenuNavigationButtons = {}

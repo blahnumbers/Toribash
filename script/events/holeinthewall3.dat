@@ -1,3 +1,6 @@
+EVENTNAME 0;Hole in the Wall 3
+EVENTENDDATE 0;May 10th, 2019
+
 STEP 1;
 OPT focuscam 1;
 OPT hud 0;

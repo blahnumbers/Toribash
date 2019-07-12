@@ -26,7 +26,7 @@ do
 		}
 	end
 	
-	function News:getNews()
+	function News:getNews(miniImages)
 		local file = Files:new("../data/news.txt")
 		if (not file.data) then
 			local news = News:getDefaultNews()
@@ -48,9 +48,24 @@ do
 				newsData[#newsData].title = ln:gsub("^TITLE 0;", "")
 			elseif (ln:find("^SUBTITLE 0;")) then
 				newsData[#newsData].subtitle = ln:gsub("^SUBTITLE 0;", "")
+			elseif (ln:find("^IMAGESMALL 0;") and miniImages) then
+				local imageName = ln:gsub("^IMAGESMALL 0;", "")
+				newsData[#newsData].image = { "../textures/menu/promo/" .. imageName, "../textures/menu/promo/toribashsmall.tga" }
+				newsData[#newsData].ratio = 1
+				newsData[#newsData].hasMiniImage = true
+				local imageFile = Files:new("../data/textures/menu/promo/" .. imageName)
+				if (not imageFile.data) then
+					download_server_file("get_event_image&name=" .. imageName, 0)
+				end
 			elseif (ln:find("^IMAGE 0;")) then
 				local imageName = ln:gsub("^IMAGE 0;", "")
-				newsData[#newsData].image = { "../textures/menu/promo/" .. imageName, "../textures/menu/promo/toribash.tga" }
+				if (newsData[#newsData].image) then
+					newsData[#newsData].image2 = { "../textures/menu/promo/" .. imageName, "../textures/menu/promo/toribash.tga" }
+					newsData[#newsData].ratio2 = 0.5
+				else
+					newsData[#newsData].image = { "../textures/menu/promo/" .. imageName, "../textures/menu/promo/toribash.tga" }
+				end
+				
 				local imageFile = Files:new("../data/textures/menu/promo/" .. imageName)
 				if (not imageFile.data) then
 					download_server_file("get_event_image&name=" .. imageName, 0)
@@ -59,11 +74,20 @@ do
 				newsData[#newsData].action = function() open_url(ln:gsub("^URL 0;", "")) end
 			elseif (ln:find("^EVENT 0;")) then
 				local eventid = ln:gsub("^EVENT 0;", "") + 0
+				newsData[#newsData].isEvent = true
 				newsData[#newsData].action = function() Events:showEventInfo(eventid) end
 				newsData[#newsData].initAction = function() Events:showEventInfo(eventid) end
+			elseif (ln:find("^MODCHAMPIONSHIP 0;")) then
+				newsData[#newsData].isEvent = true
+				newsData[#newsData].action = function() Events:showModChampionship(tbMenuCurrentSection) end
+				newsData[#newsData].initAction = function() Events:showModChampionship(tbMenuCurrentSection) end
 			elseif (ln:find("^FEATURED 0;")) then
 				newsData[#newsData].featured = true
-				newsData[#newsData].ratio = 0.66
+				if (miniImages and newsData[#newsData].hasMiniImage) then
+					newsData[#newsData].ratio2 = 0.66
+				else
+					newsData[#newsData].ratio = 0.66
+				end
 			end
 			if (ln:find("^EVENTID")) then
 				break
@@ -104,7 +128,7 @@ do
 					evt.forumlink = ln:gsub("URL 0;", "")
 				elseif (ln:find("^PLAYNAME 0;")) then
 					evt.eventid = ln:gsub("^PLAYNAME 0;", '')
-					evt.action = function() EventsOnline:playEvent(ln:gsub("^PLAYNAME 0;", "")) end
+					evt.action = function() EventsOnline:playEvent(evt.eventid) end
 				elseif (ln:find("^PLAYTEXT 0;")) then
 					evt.actionText = TB_MENU_LOCALIZED[ln:gsub("^PLAYTEXT 0;", "")] or ln:gsub("^PLAYTEXT 0;", "")
 				elseif (ln:find("^OVERLAYTRANS 0;")) then

@@ -1,3 +1,6 @@
+EVENTNAME 0;Toilet in the Wall
+EVENTENDDATE 0;June 28th, 2019
+
 STEP 1;
 OPT focuscam 1;
 OPT hud 0;

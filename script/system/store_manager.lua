@@ -3654,12 +3654,12 @@ do
 		local itemHolder = nil
 		for i, item in pairs(itemslist) do
 			local objPath = "../models/store/" .. item.itemid .. (level > 1 and ("_" .. level) or '')
-			local objModel = Files:new("../data/" .. objPath .. ".obj")
+			local objModel = Files:new("../data/models/store/" .. item.itemid .. (level > 1 and ("_" .. level) or '') .. ".obj")
 			if (objModel.data) then
+				objModel:close()
 				itemHolder = Torishop:drawObjItem(item, previewHolder, scaleMultiplier, objPath, bodyInfos, cameraMove, level)
 				modelDrawn = true
 			end
-			objModel:close()
 		end
 		if (noReload) then
 			return modelDrawn
@@ -3818,7 +3818,7 @@ do
 	end
 	
 	function Torishop:previewHairVanilla(item)
-		download_server_file("get_hair&itemid=" .. item.itemid, 0)
+		download_server_info("get_hair&itemid=" .. item.itemid)
 		if (storeVanillaLoading) then
 			storeVanillaLoading:kill()
 			storeVanillaLoading = nil
@@ -3932,7 +3932,7 @@ do
 		elseif (item.catid == 73) then
 			set_hair_color(0, item.colorid)
 		elseif (item.catid == 78) then
-			local file = Files:new("../../data/models/store/" .. item.itemid .. ".obj", FILES_MODE_READ)
+			local file = Files:new("../data/models/store/" .. item.itemid .. ".obj")
 			download_server_file(item.itemid, 1)
 			if (not file.data) then
 				TBMenu:showDataError("No model found, starting download")

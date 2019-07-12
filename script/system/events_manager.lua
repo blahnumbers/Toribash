@@ -10,120 +10,476 @@ do
 		tbMenuCurrentSection:kill(true)
 		tbMenuNavigationBar:kill(true)
 		TBMenu:showNavigationBar()
-		TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
+		TB_MENU_EVENTS_OPEN = false
 		TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
 	end
 	
-	-- Deprecated, we're using file data now
-	-- function Events:getEvents()
-	-- 	return {
-	-- 		{
-	-- 			accentColor = { 0.024, 0.024, 0.024, 1 },
-	-- 			uiColor = { 1, 1, 1, 1 },
-	-- 			buttonHoverColor = { 0.969, 0.847, 0.122, 1 },
-	-- 			buttonPressedColor = { 0.996, 0.769, 0.102, 1 },
-	-- 			name = "Hole in the Wall",
-	-- 			image = "../textures/menu/promo/events/holeinthewall.tga",
-	-- 			forumlink = "http://forum.toribash.com/showthread.php?t=623552",
-	-- 			action = function() EventsOnline:playEvent("holeinthewall") end,
-	-- 			actionText = "Participate",
-	-- 			overlaytransparency = 0,
-	-- 			data = {
-	-- 				{
-	-- 					title = "Description",
-	-- 					imagetitle = "../textures/menu/promo/events/hitw_description.tga",
-	-- 					desc = "The %115Event Squad ^01are proud to present Hole in the Wall!\nIn this event, we will be providing you with obstacles to complete, and doing so will allow you to win prizes!\nEach challenge will have a different wall, as well as a different objective to complete. Basic obstacles will be the easiest, as your main objective will be getting through the wall in any way possible. Advanced obstacles will be were things pick up a bit.. You will be given a specific objectives to complete in order to pass the challenge."
-	-- 				},
-	-- 				{
-	-- 					title = "Rules",
-	-- 					imagetitle = "../textures/menu/promo/events/hitw_rules.tga",
-	-- 					desc = "- No Replay Hacking\n- No Replay Stealing\n- No Gamerule Editing"
-	-- 				},
-	-- 				{
-	-- 					title = "How to Enter",
-	-- 					imagetitle = "../textures/menu/promo/events/hitw_howtoenter.tga",
-	-- 					desc = "You can participate in Hole in the Wall by pressing \"Participate\" button on bottom right, completing the challenge and submitting your replay to Toribash servers.\nAlternatively, you can make a replay in current challenge's mod in Free Play mode and attach it to your post in event thread on forums - if you just upload it to Toribash Community Replays then it won't be judged.\n^02Only one replay per player will be judged."
-	-- 				},
-	-- 				{
-	-- 					title = "Deadline",
-	-- 					imagetitle = "../textures/menu/promo/events/hitw_deadline.tga",
-	-- 					desc = "We will stop accepting new entries on April 15th, 20:00 (GMT +0)"
-	-- 				},
-	-- 			},
-	-- 			prizes = {
-	-- 				imagetitle = "../textures/menu/promo/events/hitw_prizes.tga",
-	-- 				{
-	-- 					info = "Best Replay",
-	-- 					tc = 50000,
-	-- 					st = 5,
-	-- 					itemids = { 2888 }
-	-- 				},
-	-- 				{
-	-- 					info = "Complete Advanced Task",
-	-- 					tc = 5000,
-	-- 					st = 2
-	-- 				},
-	-- 				{
-	-- 					info = "Complete Basic Task",
-	-- 					tc = 2000,
-	-- 					st = 1
-	-- 				}
-	-- 			}
-	-- 		},
-	-- 		{
-	-- 			accentColor = { 0.776, 0.902, 0.969, 1 },
-	-- 			uiColor = { 0.184, 0.192, 0.259, 1 },
-	-- 			buttonHoverColor = { 0.121, 0.126, 0.172, 1 },
-	-- 			buttonPressedColor = { 0.245, 0.258, 0.369, 1 },
-	-- 			name = "GOLEM III: RETURN OF THE GOLEM",
-	-- 			image = "../textures/menu/promo/events/golem.tga",
-	-- 			forumlink = "http://forum.toribash.com/showthread.php?t=626177",
-	-- 			overlaytransparency = 0.3,
-	-- 			data = {
-	-- 				{
-	-- 					title = "Description",
-	-- 					imagetitle = "../textures/menu/promo/events/golem_description.tga",
-	-- 					desc = "GOLEM COME BACK TO SMASH TINY THING!!!\nIF TINY THING TOUCH HEAD TINY THING WIN, IF GOLEM SQUASH TINY HUMAN BODY HUMAN LOSE! SPLAT!"
-	-- 				},
-	-- 				{
-	-- 					title = "Rules",
-	-- 					imagetitle = "../textures/menu/promo/events/golem_rules.tga",
-	-- 					desc = "THE SERVER WILL ALWAYS BE BROADCASTED\n3 DISMEMBERS AND YOU LOSE, GET DECAPPED AND YOU'RE OUT UNTIL THE NEXT SERVER IS MADE\nTOUCH GOLEM'S HEAD WITH HANDS OR FEET TO TRIGGER WIN\nNO SKEETS, GOLEM GETS ANGRY WHEN HUMANS PLAY DIRTY\nPERSON TO BE DECAPPED THE MOST AT THE END OF THE EVENT WILL BE BANNED FOR 1 DAY\nMOD IS E_GOLEM, GOLEM_VS_UKE.TBM AND ES_GOLEM.TBM"
-	-- 				},
-	-- 				{
-	-- 					title = "Deadline",
-	-- 					imagetitle = "../textures/menu/promo/events/golem_deadline.tga",
-	-- 					desc = "4 WEEKS AFTER EVENT START\nHUMAN DO THE MATH, GOLEM NO DO SILLY THINGS"
-	-- 				},
-	-- 			},
-	-- 			prizes = {
-	-- 				imagetitle = "../textures/menu/promo/events/golem_prizes.tga",
-	-- 				{
-	-- 					info = "Defeat Golem",
-	-- 					st = 1
-	-- 				},
-	-- 				{
-	-- 					info = "Make Golem Laugh",
-	-- 					st = 1
-	-- 				},
-	-- 				{
-	-- 					info = "Most Wins in 1 Server",
-	-- 					itemids = { 2801 }
-	-- 				},
-	-- 				{
-	-- 					info = "Most Wins in Total",
-	-- 					st = 8,
-	-- 					itemids = { 71, 54 }
-	-- 				},
-	-- 				{
-	-- 					info = "Runners Up",
-	-- 					st = 5,
-	-- 					itemids = { 752, 711 }
-	-- 				},
-	-- 			}
-	-- 		}
-	-- 	}
-	-- end
+	function Events:getNavigationButtons(showBack)
+		local navigation = {
+			{
+				text = TB_MENU_LOCALIZED.NAVBUTTONTOMAIN,
+				action = function() Events:quit() end
+			}
+		}
+		if (showBack) then
+			table.insert(navigation, {
+				text = TB_MENU_LOCALIZED.NAVBUTTONBACK,
+				action = function() Events:showEventsHome(tbMenuCurrentSection) end
+			})
+		end
+		return navigation
+	end
+	
+	function Events:showModChampionship(viewElement)
+		TBMenu:clearNavSection()
+		TBMenu:showNavigationBar(Events:getNavigationButtons(TB_MENU_EVENTS_OPEN), true)
+		
+		local globalChallengeHolder = UIElement:new({
+			parent = viewElement,
+			pos = { 5, 0 },
+			size = { viewElement.size.w * 0.3, viewElement.size.h },
+			bgColor = TB_MENU_DEFAULT_BG_COLOR
+		})
+		TBMenu:addBottomBloodSmudge(globalChallengeHolder, 1)
+		Request:new("modchampionship", function()
+				
+			end, function()
+				
+			end)
+		download_server_info("modchampionship&username=" .. TB_MENU_PLAYER_INFO.username)
+		
+		local quest = {
+			progress = 10000,
+			requirement = 10001
+		}
+		local bgScale = globalChallengeHolder.size.w - 20 > globalChallengeHolder.size.h / 5 * 3 - 20 and globalChallengeHolder.size.h / 5 * 3 - 20 or globalChallengeHolder.size.w - 20
+		local questBackground = UIElement:new({
+			parent = globalChallengeHolder,
+			pos = { (globalChallengeHolder.size.w - bgScale) / 2, 10 },
+			size = { bgScale, bgScale },
+			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			shapeType = ROUNDED,
+			rounded = bgScale
+		})
+		local questIcon = UIElement:new({
+			parent = questBackground,
+			pos = { bgScale / 5, bgScale / 5 },
+			size = { bgScale / 5 * 3, bgScale / 5 * 3 },
+			bgImage = "../textures/menu/general/quests/qtype2.tga"
+		})
+		local progress = quest.progress / quest.requirement
+		progress = progress > 1 and 1 or progress
+		questBackground:addCustomDisplay(false, function()
+				set_color(unpack(TB_MENU_DEFAULT_LIGHTER_COLOR))
+				draw_disk(questBackground.pos.x + questBackground.size.w / 2, questBackground.pos.y + questBackground.size.h / 2, questBackground.size.h / 2 - 25, questBackground.size.h / 2 - 5, 100, 1, -60, -240, 0)
+				set_color(unpack(UICOLORWHITE))
+				draw_disk(questBackground.pos.x + questBackground.size.w / 2, questBackground.pos.y + questBackground.size.h / 2, questBackground.size.h / 2 - 25, questBackground.size.h / 2 - 5, 100, 1, -60, -240 * progress, 0)
+			end)
+		local progressText = UIElement:new({
+			parent = questBackground,
+			pos = { questBackground.size.w / 5, -questBackground.size.h / 5 },
+			size = { questBackground.size.w / 5 * 3, questBackground.size.h / 8 }
+		})
+		progressText:addAdaptedText(true, quest.progress .. " / " .. quest.requirement)
+	end
+	
+	function Events:getPassedEventInfo(filename)
+		local eventInfo = { shortname = filename:gsub("%.dat$", '') }
+		eventInfo.name = eventInfo.shortname
+		local file = Files:new("../data/script/events/" .. filename, FILES_MODE_READ)
+		if (not file.data) then
+			return eventInfo
+		end
+		local lines = file:readAll()
+		file:close()
+		
+		for i, ln in pairs(lines) do
+			if (ln:find("^EVENTNAME 0;")) then
+				eventInfo.name = ln:gsub("^EVENTNAME 0;", '')
+			end
+			if (ln:find("^STEP")) then
+				break
+			end
+		end
+		return eventInfo
+	end
+	
+	function Events:showPassedEventWinners(viewElement, data)
+		viewElement:kill(true)
+		viewElement:addCustomDisplay(true, function() end)
+		
+		local eventName = UIElement:new({
+			parent = viewElement,
+			pos = { 10, 0 },
+			size = { viewElement.size.w - 20, 45 }
+		})
+		eventName:addAdaptedText(true, data.eventname, nil, nil, FONTS.BIG, CENTERBOT)
+		
+		local endTime = UIElement:new({
+			parent = viewElement,
+			pos = { 10, eventName.size.h + eventName.shift.y },
+			size = { viewElement.size.w - 20, 25 }
+		})
+		endTime:addAdaptedText(true, data.endtimestring, nil, nil, nil, CENTER)
+		
+		local yShift = endTime.size.h + endTime.shift.y + 10
+		if (data.endtimeraw > 0) then
+			local winnerHolder = UIElement:new({
+				parent = viewElement,
+				pos = { 10, yShift },
+				size = { viewElement.size.w - 20, (viewElement.size.h - yShift - 10) / 2 }
+			})
+			local headDisplayed = false
+			if (data.winner) then
+				local winnerName = data.winner:lower()
+				
+				-- make sure we can open customs on Linux
+				local customs = get_files("custom", "")
+				local folderFound = false
+				for i,v in pairs(customs) do
+					if (winnerName == v:lower()) then
+						winnerName = v
+						folderFound = true
+						break
+					end
+				end
+				if (folderFound) then
+					local viewportSize = winnerHolder.size.w / 2 < winnerHolder.size.h - 20 and winnerHolder.size.w / 2 or winnerHolder.size.h - 20
+					local viewportHolder = UIElement:new({
+						parent = winnerHolder,
+						pos = { (winnerHolder.size.w / 2 - viewportSize) / 2, (winnerHolder.size.h - viewportSize) / 2 },
+						size = { viewportSize, viewportSize }
+					})
+					TBMenu:showPlayerHeadAvatar(viewportHolder, winnerName)
+					headDisplayed = true
+				end
+				download_head(winnerName)
+				local winnerInfo = UIElement:new({
+					parent = winnerHolder,
+					pos = { headDisplayed and (winnerHolder.size.w / 2 + 10) or 10, 0 },
+					size = { headDisplayed and (winnerHolder.size.w / 2 - 20) or winnerHolder.size.w - 20, winnerHolder.size.h }
+				})
+				local winnerTop = UIElement:new({
+					parent = winnerInfo,
+					pos = { 0, 0 },
+					size = { winnerInfo.size.w, winnerInfo.size.h / 2 }
+				})
+				winnerTop:addAdaptedText(true, TB_MENU_LOCALIZED.EVENTSWONBY, nil, nil, FONTS.BIG, headDisplayed and LEFTBOT or CENTERBOT, 0.7, nil, 0.2)
+				local winnerBot = UIElement:new({
+					parent = winnerInfo,
+					pos = { 0, winnerTop.size.h },
+					size = { winnerInfo.size.w, winnerInfo.size.h - winnerTop.size.h }
+				})
+				winnerBot:addAdaptedText(true, winnerName, nil, nil, FONTS.BIG, headDisplayed and LEFT or CENTER)
+			else
+				winnerHolder.size.h = 40
+				winnerHolder:addAdaptedText(true, TB_MENU_LOCALIZED.EVENTSJUDGINGINPROGRESS)
+			end
+			yShift = yShift + winnerHolder.size.h + 10
+		end
+		local prizesHeight = viewElement.size.h - yShift > 150 and 150 or viewElement.size.h - yShift
+		local prizesHolder = UIElement:new({
+			parent = viewElement,
+			pos = { 10, yShift + (viewElement.size.h - yShift - prizesHeight) / 2 },
+			size = { viewElement.size.w - 20, prizesHeight }
+		})
+		local function showPrize(icon, text, pos)
+			local prizeHolder = UIElement:new({
+				parent = prizesHolder,
+				pos = { (pos - 1) * prizesHolder.size.w / 3, 0 },
+				size = { prizesHolder.size.w / 3, prizesHolder.size.h - 10 }
+			})
+			local iconScale = prizeHolder.size.h / 2 > prizeHolder.size.w and prizeHolder.size.w or prizeHolder.size.h / 2
+			iconScale = iconScale > 64 and 64 or iconScale
+			local prizeIcon = UIElement:new({
+				parent = prizeHolder,
+				pos = { (prizeHolder.size.w - iconScale) / 2, (prizeHolder.size.h / 2 - iconScale) / 2 },
+				size = { iconScale, iconScale },
+				bgImage = icon
+			})
+			local prizeText = UIElement:new({
+				parent = prizeHolder,
+				pos = { 10, prizeHolder.size.h / 2 },
+				size = { prizeHolder.size.w - 20, prizeHolder.size.h / 2 }
+			})
+			prizeText:addAdaptedText(true, text, nil, nil, FONTS.BIG, nil, 0.6, nil, 0.5)
+		end
+		showPrize("../textures/store/toricredit.tga", PlayerInfo:currencyFormat(data.tc) .. " Toricredits", 1)
+		showPrize("../textures/store/shiaitoken.tga", PlayerInfo:currencyFormat(data.st) .. " Shiai Tokens", 2)
+		local itemInfo = Torishop:getItemInfo(data.itemid)
+		showPrize(Torishop:getItemIcon(itemInfo), itemInfo.itemname, 3)
+	end
+	
+	function Events:showPassedEventButtons(viewElement, sysname, eventid)
+		viewElement:kill(true)
+		local buttonWidth, buttonShift = viewElement.size.w / 3, viewElement.size.w / 3
+		if (eventid) then
+			local infoButton = UIElement:new({
+				parent = viewElement,
+				pos = { viewElement.size.w / 6 - 5, 0 },
+				size = { buttonWidth, viewElement.size.h },
+				interactive = true,
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+				hoverSound = 31
+			})
+			infoButton:addAdaptedText(false, TB_MENU_LOCALIZED.EVENTSVIEWMOREINFO)
+			infoButton:addMouseHandlers(nil, function()
+					Events:showEventInfo(eventid)
+				end)
+			buttonShift = viewElement.size.w / 2 + 5
+		end
+		local playButton = UIElement:new({
+			parent = viewElement,
+			pos = { buttonShift, 0 },
+			size = { buttonWidth, viewElement.size.h },
+			interactive = true,
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+			hoverSound = 31
+		})
+		playButton:addAdaptedText(false, TB_MENU_LOCALIZED.EVENTSPLAY)
+		playButton:addMouseHandlers(nil, function()
+				close_menu()
+				EventsOnline:playEvent(sysname)
+			end)
+	end
+	
+	function Events:showPassedEventInfo(viewElement, evtname, activeId)
+		viewElement:kill(true)
+		TBMenu:addBottomBloodSmudge(viewElement, 2)
+		
+		local eventResponse = {}
+		local eventInfo = Request:new("passedEventInfoFetch", function(data)
+				local response = get_network_response()
+				data.sysname = evtname
+				for ln in response:gmatch("[^\n]*\n?") do
+					local ln = ln:gsub("\n$", '')
+					if (ln:find("^WINNER 0;")) then
+						local winner = ln:gsub("^WINNER 0;", '')
+						if (winner:len() > 1) then
+							data.winner = winner
+						end
+					elseif (ln:find("^ENDTIME 0;")) then
+						data.endtimeraw = ln:gsub("ENDTIME 0;", '') + 0
+						data.endtimestring = data.endtimeraw < 0 and (TB_MENU_LOCALIZED.EVENTSENDSIN .. " " .. TBMenu:getTime(-data.endtimeraw, 2)) or (TB_MENU_LOCALIZED.EVENTSENDED .. " " .. TBMenu:getTime(data.endtimeraw, 2) .. " " .. TB_MENU_LOCALIZED.EVENTSENDEDAGO)
+					elseif (ln:find("^EVENTNAME 0;")) then
+						data.eventname = ln:gsub("EVENTNAME 0;", '')
+					elseif (ln:find("^REWARDTC 0;")) then
+						data.tc = ln:gsub("REWARDTC 0;", '') + 0
+					elseif (ln:find("^REWARDST 0;")) then
+						data.st = ln:gsub("REWARDST 0;", '') + 0
+					elseif (ln:find("^REWARDITEM 0;")) then
+						data.itemid = ln:gsub("REWARDITEM 0;", '') + 0
+					end
+				end
+				if (not data.eventname) then
+					data.failed = true
+				end
+			end)
+		download_server_info("passed_event_info&eventid=" .. evtname)
+		
+		local eventInfoHolder = UIElement:new({
+			parent = viewElement,
+			pos = { 10, 10 },
+			size = { viewElement.size.w - 20, viewElement.size.h - 60 }
+		})
+		TBMenu:displayLoadingMark(eventInfoHolder, TB_MENU_LOCALIZED.EVENTSLOADING)
+		local eventButtonsHolder = UIElement:new({
+			parent = viewElement,
+			pos = { 10, eventInfoHolder.size.h + eventInfoHolder.shift.y },
+			size = { viewElement.size.w - 20, viewElement.size.h - (eventInfoHolder.size.h + eventInfoHolder.shift.y * 2) }
+		})
+		Events:showPassedEventButtons(eventButtonsHolder, evtname, activeId)
+		eventInfoHolder:addCustomDisplay(true, function()
+				if (eventInfo.failed and eventInfo.ready) then
+					eventInfoHolder:kill(true)
+					eventInfoHolder:addAdaptedText(true, TB_MENU_LOCALIZED.ACCOUNTINFOERROR)
+					return
+				end 
+				if (eventInfo.ready and TB_STORE_DATA.ready) then
+					Events:showPassedEventWinners(eventInfoHolder, eventInfo)
+					return
+				end
+			end)
+	end
+	
+	function Events:showPassedEvents(viewElement, noBack)
+		if (noBack) then
+			viewElement:kill(true)
+		else
+			TBMenu:clearNavSection()
+			TBMenu:showNavigationBar(Events:getNavigationButtons(true), true)
+		end
+		
+		local eventsListHolder = UIElement:new({
+			parent = viewElement,
+			pos = { 5, 0 },
+			size = { viewElement.size.w * 0.35 - 5, viewElement.size.h },
+			bgColor = TB_MENU_DEFAULT_BG_COLOR
+		})
+		local eventInfoHolder = UIElement:new({
+			parent = viewElement,
+			pos = { viewElement.size.w * 0.35 + 5, 0 },
+			size = { viewElement.size.w * 0.65 - 5, viewElement.size.h },
+			bgColor = TB_MENU_DEFAULT_BG_COLOR
+		})
+		
+		local elementHeight = 50
+		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(eventsListHolder, elementHeight, elementHeight - 16, 20, TB_MENU_DEFAULT_BG_COLOR)
+		TBMenu:addBottomBloodSmudge(botBar, 1)
+		
+		local allEventsTitle = UIElement:new({
+			parent = topBar,
+			pos = { 10, 5 },
+			size = { topBar.size.w - 20, topBar.size.h - 10 }
+		})
+		allEventsTitle:addAdaptedText(true, TB_MENU_LOCALIZED.EVENTSVIEWIGNALLEVENTS, nil, nil, FONTS.BIG, nil, nil, nil, 0.2)
+		
+		local eventsList = get_files("data/script/events", "dat")
+		
+		local eventsData = News:getEvents()
+		for i = 1, #eventsList do
+			local shortname = eventsList[i]:gsub("%.dat$", '')
+			eventsList[i] = { file = eventsList[i], live = false }
+			for j,v in pairs(eventsData) do
+				if (v.eventid == shortname) then
+					eventsList[i].live = true
+					eventsList[i].activeId = j
+				end
+			end
+		end
+		eventsList = UIElement:qsort(eventsList, { 'live', 'file' }, true)
+		
+		local selectedButton = nil
+		local listElements = {}
+		for i,v in pairs(eventsList) do
+			local listEventHolder = UIElement:new({
+				parent = listingHolder,
+				pos = { 0, #listElements * elementHeight },
+				size = { listingHolder.size.w, elementHeight }
+			})
+			table.insert(listElements, listEventHolder)
+			local listEvent = UIElement:new({
+				parent = listEventHolder,
+				pos = { 5, 3 },
+				size = { listEventHolder.size.w - 5, listEventHolder.size.h - 6 },
+				interactive = true,
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+			})
+			local eventInfo = Events:getPassedEventInfo(v.file)
+			listEvent:addMouseHandlers(nil, function()
+					Events:showPassedEventInfo(eventInfoHolder, eventInfo.shortname, v.activeId)
+					selectedButton.bgColor = cloneTable(TB_MENU_DEFAULT_DARKER_COLOR)
+					listEvent.bgColor = cloneTable(TB_MENU_DEFAULT_DARKEST_COLOR)
+					selectedButton = listEvent
+				end)
+			local shiftX = 0
+			if (v.live) then
+				local length = get_string_length(TB_MENU_LOCALIZED.EVENTSLIVE:upper(), 4) * 0.5
+				local liveCaption = UIElement:new({
+					parent = listEvent,
+					pos = { 10, 12 },
+					size = { length + 10, listEvent.size.h - 24 },
+					bgColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+					shapeType = ROUNDED,
+					rounded = 5
+				})
+				liveCaption:addAdaptedText(nil, TB_MENU_LOCALIZED.EVENTSLIVE:upper(), nil, nil, 4, nil, 0.5)
+				shiftX = shiftX + liveCaption.shift.x + liveCaption.size.w
+			end
+			local listEventName = UIElement:new({
+				parent = listEvent,
+				pos = { 10 + shiftX, 5 },
+				size = { listEvent.size.w - shiftX - 20, listEvent.size.h - 10 }
+			})
+			listEventName:addAdaptedText(nil, eventInfo.name, nil, nil, nil, LEFTMID, nil, nil, 0.2)
+			
+			if (i == 1) then
+				selectedButton = listEvent
+				selectedButton.bgColor = cloneTable(TB_MENU_DEFAULT_DARKEST_COLOR)
+				Events:showPassedEventInfo(eventInfoHolder, eventInfo.shortname, v.activeId)
+			end
+		end
+		for i,v in pairs(listElements) do
+			v:hide()
+		end
+		local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
+		scrollBar:makeScrollBar(listingHolder, listElements, toReload)
+	end
+	
+	function Events:showEventsHome(viewElement)
+		TBMenu:clearNavSection()
+		TBMenu:showNavigationBar(Events:getNavigationButtons(), true)
+		TB_MENU_EVENTS_OPEN = true
+		local newsData = News:getNews(true)
+		local count = #newsData
+		for i = count, 1, -1 do
+			if (not newsData[i].isEvent) then
+				table.remove(newsData, i)
+			end
+		end
+		
+		if (#newsData) < 2 then
+			Events:showPassedEvents(viewElement, true)
+			return
+		end
+		
+		local buttonH = #newsData > 3 and 0.5 or 1
+		local buttonW = viewElement.size.w * 0.75 / math.ceil(#newsData * buttonH)
+		local shiftX, shiftY = 0, 0
+		for i,v in pairs(newsData) do
+			v.ratio2 = 0.66
+			if (i == #newsData and shiftY == 0) then
+				buttonH = 1
+			end
+			local newsButton = UIElement:new({
+				parent = viewElement,
+				pos = { 5 + shiftX, shiftY },
+				size = { buttonW - 10, buttonH * viewElement.size.h - (buttonH == 1 and 0 or 5) },
+				interactive = true,
+				bgColor = TB_MENU_DEFAULT_BG_COLOR,
+				hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR
+			})
+			if (buttonH == 1 or shiftY > 0) then
+				TBMenu:showHomeButton(newsButton, v, buttonH * i)
+			else
+				TBMenu:showHomeButton(newsButton, v)
+			end
+			
+			if (buttonH == 1) then
+				shiftX = shiftX + buttonW
+			else
+				shiftY = shiftY + viewElement.size.h * buttonH + 5
+				if (shiftY > viewElement.size.h) then
+					shiftY = 0
+					shiftX = shiftX + buttonW + 5
+				end
+			end
+		end
+		
+		local allEventsButton = UIElement:new({
+			parent = viewElement,
+			pos = { viewElement.size.w * 0.75 + 5, 0 },
+			size = { viewElement.size.w * 0.25 - 10, viewElement.size.h },
+			interactive = true,
+			bgColor = TB_MENU_DEFAULT_BG_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR
+		})
+		local allEventsButtonData = {
+			title = TB_MENU_LOCALIZED.EVENTSALLEVENTS,
+			subtitle = TB_MENU_LOCALIZED.EVENTSALLEVENTSDESC,
+			ratio = 0.3,
+			action = function() Events:showPassedEvents(viewElement) end
+		}
+		TBMenu:showHomeButton(allEventsButton, allEventsButtonData, 3)
+	end	
 	
 	function Events:showEventDescription(viewElement, event)
 		local elementHeight = 41

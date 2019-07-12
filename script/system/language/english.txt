@@ -702,3 +702,16 @@ REQUESTUNKNOWNERROR	Unknown Error
 REQUESTCONNECTIONERROR	Connection Error	
 STOREREQUESTNOTHAIRSTYLE	This item is not a hairstyle	
 STOREVANILLAENTERMP	Previewing the item on your Tori will disconnect you from current Multiplayer room.	
+DISCORDRPCPLAYINGSPEVENT	Playing Single Player Event	
+EVENTSVIEWIGNALLEVENTS	Viewing all Events	
+EVENTSLIVE	Live	
+EVENTSALLEVENTS	All Events	
+EVENTSALLEVENTSDESC	View ended events' winners and replay ended events	
+EVENTSWONBY	Event won by	
+EVENTSJUDGINGINPROGRESS	Event judging still in progress	
+EVENTSVIEWMOREINFO	View more info	
+EVENTSPLAY	Play	
+EVENTSENDSIN	Ends in	
+EVENTSENDED	Ended	
+EVENTSENDEDAGO	ago	
+EVENTSLOADING	Loading event info	

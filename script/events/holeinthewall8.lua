@@ -48,6 +48,7 @@ local function showUploadWindow(viewElement, reqTable)
 	local function uploadReplay(name)
 		chat_input_deactivate()
 		local name = name:gsub("%.rpl$", ""):gsub("^%/", "")
+		name = name:sub(0, 35) -- attempt to fix infinite replay upload error
 		if (name == '') then
 			TBMenu:showDataError(TB_MENU_LOCALIZED.REPLAYSERROREMPTYNAME, true)
 			CURRENT_STEP.fallbackrequirement = false
@@ -370,7 +371,7 @@ local function launchGame(viewElement, reqTable)
 	table.insert(reqTable, req)
 	TUTORIAL_LEAVEGAME = true
 	setDiscordRPC()
-	download_head("loli")
+	download_head("divine")
 	
 	REPLAY_CAN_BE_SUBMITTED = false
 	UIElement:runCmd("lm system/events/" .. CURRENT_TUTORIAL .. ".tbm")
