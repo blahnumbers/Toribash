@@ -2552,7 +2552,7 @@ do
 			pos = { imgScale * 0.8, 0 },
 			size = { viewElement.size.w - imgScale * 1.15, viewElement.size.h }
 		})
-		textView:addAdaptedText(false, text, left and imgScale * 0.7 or -imgScale * 0.7, nil, fontid)
+		textView:addAdaptedText(false, text, left and imgScale * 0.7 or -imgScale * 0.7, nil, fontid, nil, nil, nil, fontid == FONTS.BIG and 0.5)
 		local fontid = textView.textFont
 		local posX = get_string_length(textView.dispstr[1], fontid) * textView.textScale
 		local bgColorDelta = viewElement.bgColor[1] + viewElement.bgColor[2] + viewElement.bgColor[3]

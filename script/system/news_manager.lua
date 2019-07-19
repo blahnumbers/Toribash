@@ -79,8 +79,8 @@ do
 				newsData[#newsData].initAction = function() Events:showEventInfo(eventid) end
 			elseif (ln:find("^MODCHAMPIONSHIP 0;")) then
 				newsData[#newsData].isEvent = true
-				newsData[#newsData].action = function() Events:showModChampionship(tbMenuCurrentSection) end
-				newsData[#newsData].initAction = function() Events:showModChampionship(tbMenuCurrentSection) end
+				newsData[#newsData].action = function() Events:loadModChampionship(tbMenuCurrentSection) end
+				newsData[#newsData].initAction = function() Events:loadModChampionship(tbMenuCurrentSection) end
 			elseif (ln:find("^FEATURED 0;")) then
 				newsData[#newsData].featured = true
 				if (miniImages and newsData[#newsData].hasMiniImage) then
@@ -155,7 +155,11 @@ do
 					local ln = ln:gsub("^DESCDATAIMGTITLE 0;", "")
 					local id = tonumber(ln:sub(1, 1))
 					local imgtitle = ln:sub(2)
-					evt.data[id].imagetitle = "../textures/menu/promo/events/" .. imgtitle
+					local file = Files:new("../data/textures/menu/promo/events/" .. imgtitle)
+					if (file.data) then
+						evt.data[id].imagetitle = "../textures/menu/promo/events/" .. imgtitle
+						file:close()
+					end
 				elseif (ln:find("^DESCDATATEXT 0;")) then
 					local ln = ln:gsub("^DESCDATATEXT 0;", "")
 					local id = tonumber(ln:sub(1, 1))
@@ -168,7 +172,12 @@ do
 					evt.prizes[id] = { info = ln:sub(2) }
 				elseif (ln:find("^PRIZEIMG 0;")) then
 					evt.prizes = evt.prizes or {}
-					evt.prizes.imagetitle = "../textures/menu/promo/events/" .. ln:gsub("^PRIZEIMG 0;", "")
+					local imgtitle = ln:gsub("^PRIZEIMG 0;", "")
+					local file = Files:new("../data/textures/menu/promo/events/" .. imgtitle)
+					if (file.data) then
+						evt.prizes.imagetitle = "../textures/menu/promo/events/" .. imgtitle
+						file:close()
+					end
 				elseif (ln:find("^PRIZETC 0;")) then
 					local ln = ln:gsub("^PRIZETC 0;", "")
 					local id = tonumber(ln:sub(1, 1))

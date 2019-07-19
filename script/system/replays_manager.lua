@@ -17,7 +17,7 @@ REPLAY_SAVETEMPNAME = "--localreplaytempfile"
 REPLAY_EVENT = "--eventtmp"
 
 do
-	Replays = {}
+	Replays = { ver = 1.1 }
 	Replays.__index = Replays
 	local cln = {}
 	setmetatable(cln, Replays)
@@ -147,7 +147,7 @@ do
 		return rplInfo
 	end
 	
-	function Replays:fetchReplayData(folder, level, file, filedata)
+	function Replays:fetchReplayData(folder, level, file, filedata, includeEventTemp)
 		local folder = folder or "replay"
 		local rplTable = level or TB_MENU_REPLAYS
 		
@@ -166,7 +166,7 @@ do
 				
 				while (1) do
 					local v = files[count]
-					if (v:match(REPLAY_TEMPNAME) or v:match(REPLAY_SAVETEMPNAME) or v:find("^" .. REPLAY_EVENT)) then
+					if (v:match(REPLAY_TEMPNAME) or v:match(REPLAY_SAVETEMPNAME) or (v:find("^" .. REPLAY_EVENT) and not includeEventTemp)) then
 						count = count + 1
 					elseif (v:match(".rpl$")) then
 						local replaydata = { filename = v:lower() }
@@ -249,7 +249,7 @@ do
 						local fname = replayUpdateWindow.replayfolders[1].fname
 						local rpltbl = replayUpdateWindow.replayfolders[1].rpltbl
 						table.remove(replayUpdateWindow.replayfolders, 1)
-						Replays:fetchReplayData(fname, rpltbl, file, filedata)
+						Replays:fetchReplayData(fname, rpltbl, file, filedata, includeEventTemp)
 					else
 						file:close()
 						replayUpdateWindow:kill()
@@ -261,61 +261,6 @@ do
 				end
 				frame = frame + 1
 			end)
-		
-		-- Old loading method - may freeze the client when too many new replays is encountered
-		--[[for i, v in pairs(get_files(folder, "")) do
-			if (v:match(".rpl$")) then
-				local replaydata = { filename = v:lower() }
-				local replaypath = folder and string.lower(folder .. "/" .. v) or replaydata.filename
-				local replaydatapath = replaypath:gsub(" ", "_")
-				if (filedata[replaydatapath]) then
-					replaydata.name = filedata[replaydatapath].name
-					replaydata.author = filedata[replaydatapath].author
-					replaydata.mod = filedata[replaydatapath].mod
-					replaydata.bout0 = filedata[replaydatapath].bout0
-					replaydata.bout1 = filedata[replaydatapath].bout1
-					replaydata.tags = filedata[replaydatapath].tags
-					replaydata.hiddentags = filedata[replaydatapath].hiddentags
-					replaydata.uploaded = filedata[replaydatapath].uploaded
-				else 
-					replaydata = Replays:getReplayInfo(replaypath)
-					replaydata.filename = v:lower()
-					file.data:write(replaypath .. "\t" ..
-									replaydata.name .. "\t" ..
-									replaydata.author .. "\t" ..
-									replaydata.mod .. "\t" ..
-									replaydata.bout0 .. "\t" ..
-									replaydata.bout1 .. "\t" ..
-									replaydata.tags .. "\t" ..
-									replaydata.hiddentags .. "\t" ..
-									replaydata.uploaded .. "\t" ..
-									"\n")
-				end
-				table.insert(rplTable.replays, {
-					filename = folder == "replay" and replaydata.filename or folder:gsub("^replay/", "") .. "/" .. replaydata.filename,
-					name = replaydata.name,
-					author = replaydata.author,
-					mod = replaydata.mod,
-					bouts = { replaydata.bout0, replaydata.bout1 },
-					tags = replaydata.tags,
-					hiddentags = replaydata.hiddentags,
-					uploaded = replaydata.uploaded == 1
-				})
-			elseif (v ~= "." and v ~= ".." and v ~= "system" and not v:find("%.%a+$")) then
-				if (is_folder(rplTable.fullname .. "/" .. v)) then
-					table.insert(rplTable.folders, {
-						parent = rplTable,
-						name = v,
-						fullname = rplTable.fullname .. "/" .. v
-					})
-					Replays:fetchReplayData(folder .. "/" .. v, rplTable.folders[#rplTable.folders], file, filedata)
-					if (rplTable.fullname .. "/" .. v == SELECTED_FOLDER.fullname) then
-						SELECTED_FOLDER = rplTable.folders[#rplTable.folders]
-					end
-				end
-			end
-		end
-		rplTable.replays = UIElement:qsort(rplTable.replays, "filename")--]]
 	end
 	
 	function Replays:updateReplayFile(replay)
@@ -419,7 +364,8 @@ do
 		return folders
 	end
 	
-	function Replays:getReplayFiles()
+	function Replays:getReplayFiles(parentElement, includeEventTemp)
+		local parentElement = parentElement or tbMenuMain
 		TB_MENU_REPLAYS_LOADED = false
 		
 		-- Make sure replays table is flushed first
@@ -450,12 +396,12 @@ do
 			}
 		end
 		replayUpdateWindow = UIElement:new({
-			parent = tbMenuMain,
-			pos = { tbMenuMain.size.w / 3, -100 },
-			size = { tbMenuMain.size.w / 3, 100 },
+			parent = parentElement,
+			pos = { parentElement.size.w / 3, -100 },
+			size = { parentElement.size.w / 3, 100 },
 			bgColor = { 0, 0, 0, 0.6 }
 		})
-		Replays:fetchReplayData(nil, nil, file, filedata)
+		Replays:fetchReplayData(nil, nil, file, filedata, includeEventTemp)
 	end
 	
 	function Replays:getServerReplaysData(lines)
@@ -3313,4 +3259,122 @@ do
 			end)
 	end
 	
+	function Replays:showCustomReplaySelection(mainElement, mod, action)
+		local function showCustomReplayChoice(viewElement)
+			local holder = UIElement:new({
+				parent = viewElement,
+				pos = { viewElement.size.w / 5, viewElement.size.h / 4 },
+				size = { viewElement.size.w * 0.6, viewElement.size.h / 2 },
+				bgColor = TB_MENU_DEFAULT_BG_COLOR
+			})
+			local replaysToChooseFrom = {}
+			local function checkReplay(v)
+				if (v.mod == mod and v.author == TB_MENU_PLAYER_INFO.username) then
+					if (v.name:find("^" .. REPLAY_EVENT)) then
+						v.name = 'Autosaved Replay'
+					end
+					table.insert(replaysToChooseFrom, { path = v.filename, name = v.name })
+				end
+			end
+			local function checkFolder(folder)
+				for i,v in pairs(folder.replays) do
+					checkReplay(v)
+				end
+				for i,v in pairs(folder.folders) do
+					checkFolder(v)
+				end
+			end
+			checkFolder(TB_MENU_REPLAYS)
+			
+			local elementHeight = 45
+			local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(holder, elementHeight + 15, elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
+			local topTitle = UIElement:new({
+				parent = topBar,
+				pos = { 10, 5 },
+				size = { topBar.size.w - 20, topBar.size.h - 10 }
+			})
+			topTitle:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSSELECTREPLAYTOPROCEED, nil, nil, FONTS.BIG, nil, nil, nil, 0.5)
+			local botQuit = UIElement:new({
+				parent = botBar,
+				pos = { botBar.size.w / 4, 5 },
+				size = { botBar.size.w / 2, botBar.size.h - 10 },
+				interactive = true,
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+			})
+			botQuit:addAdaptedText(nil, TB_MENU_LOCALIZED.BUTTONCLOSEWINDOW)
+			botQuit:addMouseHandlers(nil, function()
+					viewElement:kill()
+				end)
+			if (#replaysToChooseFrom == 0) then
+				listingHolder:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSCOMMUNITYNOFOUND, nil, nil, FONTS.BIG, nil, nil, nil, 0.5)
+				return
+			end
+			
+			local listElements = {}
+			for i,v in pairs(replaysToChooseFrom) do
+				local replayFile = UIElement:new({
+					parent = listingHolder,
+					pos = { 0, #listElements * elementHeight },
+					size = { listingHolder.size.w, elementHeight }
+				})
+				table.insert(listElements, replayFile)
+				local replayButton = UIElement:new({
+					parent = replayFile,
+					pos = { 10, 3 },
+					size = { replayFile.size.w - 10, replayFile.size.h - 6 },
+					interactive = true,
+					bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+					hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+					pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+				})
+				local replayText = UIElement:new({
+					parent = replayButton,
+					pos = { 10, 5 },
+					size = { replayButton.size.w - 20, replayButton.size.h - 10 }
+				})
+				replayText:addAdaptedText(true, v.name .. " (" .. v.path .. ")", nil, nil, 4, LEFTMID)
+				replayButton:addMouseHandlers(nil, function()
+						viewElement:kill()
+						action(v.path)
+					end)
+			end
+			for i,v in pairs(listElements) do
+				v:hide()
+			end
+			local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
+			scrollBar:makeScrollBar(listingHolder, listElements, toReload) 
+		end
+		
+		local customReplayOverlay = UIElement:new({
+			parent = mainElement,
+			pos = { 0, 0 },
+			size = { mainElement.size.w, mainElement.size.h },
+			interactive = true,
+			bgColor = { 0, 0, 0, 0.1 }
+		})
+		customReplayOverlay:addMouseHandlers(nil, function()
+				customReplayOverlay:kill()
+			end)
+		local customReplayLoading = UIElement:new({
+			parent = customReplayOverlay,
+			pos = { customReplayOverlay.size.w / 5, customReplayOverlay.size.h / 2 - 70 },
+			size = { customReplayOverlay.size.w * 0.6, 140 },
+			bgColor = TB_MENU_DEFAULT_BG_COLOR
+		})
+		customReplayLoading:addAdaptedText(false, TB_MENU_LOCALIZED.MESSAGEPLEASEWAIT or "Please wait...")
+		local waiter = UIElement:new({
+			parent = customReplayOverlay,
+			pos = { 0, 0 },
+			size = { 0, 0 }
+		})
+		waiter:addCustomDisplay(false, function()
+				if (TB_MENU_REPLAYS_LOADED) then
+					customReplayOverlay:kill(true)
+					showCustomReplayChoice(customReplayOverlay)
+				end
+			end)
+		Replays:getReplayFiles(mainElement, true)
+	end
 end

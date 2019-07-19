@@ -741,6 +741,9 @@ do
 	end
 
 	function QueueList:show(info, bout, id)		
+		if (not info) then
+			return
+		end
 		local pName = PlayerInfo:getUser(info.nick)
 		local customs = Files:new("../custom/" .. pName .. "/item.dat", FILES_MODE_READONLY)
 		if (not customs.data) then
@@ -790,11 +793,17 @@ do
 end
 
 local function getBoutInfo(id)
+	if (id < 0) then
+		return false
+	end
 	local bout = get_bout_info(id)
 	bout.id = id
 	return bout
 end
 local function getSpecInfo(id)
+	if (id < 0) then
+		return false
+	end
 	return get_spectator_info(id)
 end
 

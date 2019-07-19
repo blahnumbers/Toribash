@@ -1056,6 +1056,15 @@ do
 				end
 			end)
 	end
+	
+	function Tutorials:taskOptIncomplete(id)
+		for i,v in pairs(tbTutorialsTask.optional) do
+			if (v.id == id) then
+				v.mark:hide(true)
+				v.complete = false
+			end
+		end
+	end
 
 	function Tutorials:taskOptComplete(id)
 		for i,v in pairs(tbTutorialsTask.optional) do
@@ -1258,13 +1267,15 @@ do
 			pos = { 0, 0 },
 			size = { tbTutorialsOverlay.size.w, tbTutorialsOverlay.size.h }
 		})
-		--[[local stepDisplay = UIElement:new({
-			parent = stepElement,
-			pos = { 5, 5 },
-			size = { 20, 70 },
-			uiColor = UICOLORBLACK
-		})
-		stepDisplay:addAdaptedText(true, 's' .. currentStep)]]
+		if (TB_MENU_DEBUG) then
+			local stepDisplay = UIElement:new({
+				parent = stepElement,
+				pos = { 5, -100 },
+				size = { 60, 70 },
+				uiColor = UICOLORBLACK
+			})
+			stepDisplay:addAdaptedText(true, 's' .. currentStep, nil, nil, FONTS.BIG, nil, 0.7, nil, 0.6)
+		end
 		local stepNext = UIElement:new({
 			parent = stepElement,
 			pos = { 0, 0 },
@@ -1694,7 +1705,7 @@ do
 		end
 		tbTutorials3DHolder = UIElement3D:new({
 			globalid = TB_TUTORIAL_MODERN_GLOBALID,
-			pos = { 0, 0, 0 },
+			pos = { 1, 0, 0 },
 			size = { 0, 0, 0 }
 		})
 		tbTutorials3DHolder:addCustomDisplay(false, function() end)

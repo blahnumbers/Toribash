@@ -1144,6 +1144,8 @@ do
 			echo(msg .. (mixed and "true" or "false"))
 		elseif (type(mixed) == "number" or type(mixed) == "string") then
 			echo(msg .. mixed)
+		else
+			echo(msg .. "[" .. type(mixed) .. "]")
 		end
 	end
 

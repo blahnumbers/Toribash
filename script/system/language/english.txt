@@ -714,4 +714,20 @@ EVENTSPLAY	Play
 EVENTSENDSIN	Ends in	
 EVENTSENDED	Ended	
 EVENTSENDEDAGO	ago	
-EVENTSLOADING	Loading event info	
+EVENTSLOADING	Loading event info...	
+EVENTSMYSTATS	My stats	
+EVENTSCOMMUNITYOBJECTIVE	Global Community Objective	
+EVENTSGAMESWON	Games won	
+EVENTSGLOBALPRIZEWILLBESENT	Global objective reward will be applied to your account after event is over if you played 10 or more games	
+EVENTSLOADINGTOPPLAYERS	Loading top players...	
+EVENTSTOPLIST	Top players	
+EVENTSCOMPLETED	Completed	
+EVENTSCLAIM	Claim	
+EVENTSCLAIMALL	Claim All Rewards	
+EVENTSPRIZESLOCKED	Locked Prizes	
+EVENTSWINSTOUNLOCK	wins to unlock	
+EVENTSALLREWARDSCLAIMED	All rewards have been claimed!	
+EVENTSKEEPPLAYINGTOGETINTOPLIST	Keep playing to get in top list to receive even better rewards at the end of the championship!	
+EVENTSLOADCUSTOMREPLAY	Load custom replay	
+REPLAYSAUTOSAVEDREPLAY	Autosaved Replay	
+REPLAYSSELECTREPLAYTOPROCEED	Select a Replay to Proceed	

@@ -30,57 +30,442 @@ do
 		return navigation
 	end
 	
-	function Events:showModChampionship(viewElement)
+	function Events:loadModChampionship(viewElement)
 		TBMenu:clearNavSection()
 		TBMenu:showNavigationBar(Events:getNavigationButtons(TB_MENU_EVENTS_OPEN), true)
+		add_hook("console", "friendsListConsoleIgnore", function(s, i) if (s == "refreshing server list") then return 1 end end)
+		UIElement:runCmd("refresh")
+		remove_hooks("friendsListConsoleIgnore")
+		
+		local loadingView = UIElement:new({
+			parent = viewElement,
+			pos = { 5, 0 },
+			size = { viewElement.size.w - 10, viewElement.size.h },
+			bgColor = TB_MENU_DEFAULT_BG_COLOR
+		})
+		TBMenu:addBottomBloodSmudge(loadingView, 1)
+		TBMenu:displayLoadingMark(loadingView, TB_MENU_LOCALIZED.EVENTSLOADING)
+		
+		local function throwError(text)
+			loadingView:kill(true)
+			TBMenu:addBottomBloodSmudge(loadingView, 1)
+			loadingView:addAdaptedText(nil, text)
+		end
+		
+		local champInfo, playerData = { loaded = false }, { games = 0 }
+		Request:new("modchampionship", function()
+				local response = get_network_response()
+				if (response:find("ERROR;")) then
+					throwError(TB_MENU_LOCALIZED.ACCOUNTINFOERROR)
+					return
+				end
+				for ln in response:gmatch("[^\n]*\n?") do
+					local ln = ln:gsub("\n$", '')
+					if (ln:find("^MODCHAMPIONSHIP 0;")) then
+						playerData.games = ln:gsub("MODCHAMPIONSHIP 0;", '') + 0
+					elseif (ln:find("^MODNAME 0;")) then
+						champInfo.loaded = true
+						champInfo.mod = ln:gsub("MODNAME 0;", '')
+					elseif (ln:find("^CHAMPOBJECTIVE 0;")) then
+						champInfo.objective = ln:gsub("CHAMPOBJECTIVE 0;", '') + 0
+					elseif (ln:find("^CHAMPGAMES 0;")) then
+						champInfo.progress = ln:gsub("CHAMPGAMES 0;", '') + 0
+					elseif (ln:find("^CHAMPREWARD 0;")) then
+						champInfo.reward = ln:gsub("CHAMPREWARD 0;", '') + 0
+					elseif (ln:find("^CHAMPREWARDS %d;")) then
+						playerData.rewards = playerData.rewards or {}
+						local info = ln:gsub("CHAMPREWARDS ", '')
+						rewardid = info:gsub(";.*$", '') + 0
+						info = info:gsub("^%d;", '')
+						local data = { info:match(("([^\t]*)\t"):rep(5)) }
+						playerData.rewards[rewardid] = { tc = data[1] + 0, st = data[2] + 0, itemid = data[3] + 0, requirement = data[4] + 0, claimed = data[5] == '1' and true or false }
+					end
+				end
+				if (playerData.rewards) then
+					playerData.rewards = UIElement:qsort(playerData.rewards, 'requirement')
+				end
+				if (loadingView:isDisplayed()) then
+					loadingView:kill()
+					Events:showModChampionship(viewElement, champInfo, playerData)
+				end
+			end, function()
+				throwError(TB_MENU_LOCALIZED.REQUESTCONNECTIONERROR)
+			end)
+		download_server_info("modchampionship&username=" .. TB_MENU_PLAYER_INFO.username)
+	end
+	
+	function Events:showModChampionshipPlayerRewards(viewElement, playerStats)
+		local prizesToClaim, prizesToUnlock = {}, {}
+		for i,v in pairs(playerStats.rewards) do
+			if (v.requirement <= playerStats.games and not v.claimed) then
+				table.insert(prizesToClaim, v)
+			end
+			if (v.requirement > playerStats.games) then
+				table.insert(prizesToUnlock, v)
+			end
+		end
+		local shiftY = 0
+		if (#prizesToClaim > 0) then
+			local prizesClaimButton = UIElement:new({
+				parent = viewElement,
+				pos = { 10, shiftY },
+				size = { viewElement.size.w - 20, 50 },
+				interactive = true,
+				bgColor = TB_MENU_DEFAULT_DARKER_ORANGE,
+				hoverColor = TB_MENU_DEFAULT_ORANGE,
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+				shapeType = ROUNDED,
+				rounded = 10,
+				uiColor = UICOLORBLACK
+			})
+			local rewardName = #prizesToClaim > 1 and TB_MENU_LOCALIZED.EVENTSCLAIMALL or (TB_MENU_LOCALIZED.EVENTSCLAIM .. " " .. (prizesToClaim[1].tc > 0 and (prizesToClaim[1].tc .. " TC") or (prizesToClaim[1].st > 0 and (prizesToClaim[1].st .. " ST") or Torishop:getItemInfo(prizesToClaim[1].itemid).itemname)))
+			local rewardIcon = #prizesToClaim > 1 and "../textures/store/toricredit.tga" or (prizesToClaim[1].tc > 0 and "../textures/store/toricredit.tga" or (prizesToClaim[1].st > 0 and "../textures/store/shiaitoken.tga" or Torishop:getItemIcon(prizesToClaim[1].itemid)))
+			TBMenu:showTextWithImage(prizesClaimButton, rewardName, 2, 35, rewardIcon)
+			prizesClaimButton:addMouseHandlers(nil, function()
+					prizesClaimButton:deactivate()
+					prizesClaimButton:addCustomDisplay(false, function() end)
+					prizesClaimButton:kill(true)
+					TBMenu:displayLoadingMarkSmall(prizesClaimButton, TB_MENU_LOCALIZED.REWARDSCLAIMINPROGRESS .. "...", FONTS.MEDIUM)
+					
+					if (get_network_task() == 0) then
+						Request:new('modchampreward', function()
+								prizesClaimButton:kill(true)
+								prizesClaimButton:addAdaptedText(false, TB_MENU_LOCALIZED.REWARDSCLAIMSUCCESS)
+							end, function()
+								prizesClaimButton:kill(true)
+								prizesClaimButton:addAdaptedText(false, TB_MENU_LOCALIZED.REQUESTUNKNOWNERROR)
+							end)
+						claim_quest(-1)
+					else
+						local waiter = UIElement:new({
+							parent = prizesClaimButton,
+							pos = { 0, 0 },
+							size = { 0, 0 }
+						})
+						waiter:addCustomDisplay(true, function()
+								if (get_network_task() == 0) then
+									waiter:kill()
+									Request:new('modchampreward', function()
+											prizesClaimButton:kill(true)
+											prizesClaimButton:addAdaptedText(false, TB_MENU_LOCALIZED.REWARDSCLAIMSUCCESS)
+										end, function()
+											prizesClaimButton:kill(true)
+											prizesClaimButton:addAdaptedText(false, TB_MENU_LOCALIZED.REQUESTUNKNOWNERROR)
+										end)
+									claim_quest(-1)
+								end
+							end)
+					end
+				end)
+			shiftY = shiftY + prizesClaimButton.size.h + 10
+		end
+		if (#prizesToUnlock > 0 and shiftY + 100 < viewElement.size.h) then
+			local prizesToUnlockTitle = UIElement:new({
+				parent = viewElement,
+				pos = { 0, shiftY },
+				size = { viewElement.size.w, 40 }
+			})
+			prizesToUnlockTitle:addAdaptedText(true, TB_MENU_LOCALIZED.EVENTSPRIZESLOCKED, nil, nil, FONTS.BIG, nil, 0.6)
+			shiftY = shiftY + prizesToUnlockTitle.size.h + 10
+			for i,v in pairs(prizesToUnlock) do
+				if (shiftY + 60 > viewElement.size.h) then
+					break
+				end
+				local prizeHolder = UIElement:new({
+					parent = viewElement,
+					pos = { 0, shiftY },
+					size = { viewElement.size.w, 60 }
+				})
+				shiftY = shiftY + prizeHolder.size.h + 5
+				local prizeName = UIElement:new({
+					parent = prizeHolder,
+					pos = { 0, 5 },
+					size = { prizeHolder.size.w, 30 }
+				})
+				local rewardName = v.tc > 0 and (v.tc .. " Toricredits") or (v.st > 0 and (v.st .. " Shiai Tokens") or Torishop:getItemInfo(v.itemid).itemname)
+				local rewardIcon = v.tc > 0 and "../textures/store/toricredit.tga" or (v.st > 0 and "../textures/store/shiaitoken.tga" or Torishop:getItemIcon(v.itemid))
+				TBMenu:showTextWithImage(prizeName, rewardName, 2, nil, rewardIcon)
+				local prizeRequirement = UIElement:new({
+					parent = prizeHolder,
+					pos = { 0, prizeName.size.h + prizeName.shift.y },
+					size = { prizeHolder.size.w, prizeHolder.size.h - prizeName.size.h - prizeName.shift.y * 2 }
+				})
+				prizeRequirement:addAdaptedText(true, (v.requirement - playerStats.games) .. " " .. TB_MENU_LOCALIZED.EVENTSWINSTOUNLOCK, nil, nil, 4, nil, 0.6)
+			end
+		end
+		if (shiftY == 0) then
+			local allRewardsClaimed = UIElement:new({
+				parent = viewElement,
+				pos = { 10, shiftY },
+				size = { viewElement.size.w - 20, viewElement.size.h / 2 }
+			})
+			allRewardsClaimed:addAdaptedText(true, TB_MENU_LOCALIZED.EVENTSALLREWARDSCLAIMED, nil, nil, FONTS.BIG, CENTERBOT, 0.7, nil, 0.5)
+			local allRewardsClaimedInfo = UIElement:new({
+				parent = viewElement,
+				pos = { 10, allRewardsClaimed.size.h },
+				size = { viewElement.size.w - 20, viewElement.size.h - allRewardsClaimed.size.h }
+			})
+			allRewardsClaimedInfo:addAdaptedText(true, TB_MENU_LOCALIZED.EVENTSKEEPPLAYINGTOGETINTOPLIST, nil, nil, 4, CENTER)
+		end
+	end
+	
+	function Events:modChampionshipConnect()
+		dofile("system/friendlist_manager.lua")
+		local players = FriendsList:updateOnline()
+		
+		local defaultRoom, rooms = "summer1", { "summer%d" }
+		local roomsOnline = {}
+		for i, online in pairs(players) do
+			for j, roomname in pairs(rooms) do
+				if (online.room:find(roomname)) then
+					roomsOnline[online.room] = roomsOnline[online.room] or { players = 0 }
+					roomsOnline[online.room].players = roomsOnline[online.room].players + 1
+					break
+				end
+			end
+		end
+		for i, room in pairs(roomsOnline) do
+			room.name = i
+		end
+		roomsOnline = UIElement:qsort(roomsOnline, "players", true)
+		if (#roomsOnline > 0) then
+			for i, room in pairs(roomsOnline) do
+				if (room.players > 1 and room.players < 5) then
+					UIElement:runCmd("jo " .. room.name)
+					close_menu()
+					return
+				end
+			end
+			UIElement:runCmd("jo " .. roomsOnline[1].name)
+			close_menu()
+		else
+			UIElement:runCmd("jo " .. defaultRoom)
+			close_menu()
+		end
+	end
+	
+	function Events:showModChampionshipToplist(toReload, listingHolder, elementHeight, toplist)
+		local listElements = {}
+		for i,v in pairs(toplist) do
+			if (v.games) then
+				local topPlayerHolder = UIElement:new({
+					parent = listingHolder,
+					pos = { 0, #listElements * elementHeight },
+					size = { listingHolder.size.w, elementHeight }
+				})
+				table.insert(listElements, topPlayerHolder)
+				local topPlayerEntry = UIElement:new({
+					parent = topPlayerHolder,
+					pos = { 10, 3 },
+					size = { topPlayerHolder.size.w - 10, topPlayerHolder.size.h - 6 },
+					bgColor = TB_MENU_DEFAULT_DARKER_COLOR
+				})
+				local topPlayerPlace = UIElement:new({
+					parent = topPlayerEntry,
+					pos = { 10, 5 },
+					size = { 30, topPlayerEntry.size.h - 10 }
+				})
+				topPlayerPlace:addAdaptedText(true, "#" .. i, nil, nil, 4, nil, 0.7)
+				local topPlayerName = UIElement:new({
+					parent = topPlayerEntry,
+					pos = { 50, 5 },
+					size = { (topPlayerEntry.size.w - 60) * 0.7, topPlayerEntry.size.h - 10 }
+				})
+				topPlayerName:addAdaptedText(true, v.name, nil, nil, nil, LEFTMID)
+				local topPlayerGames = UIElement:new({
+					parent = topPlayerEntry,
+					pos = { -(topPlayerEntry.size.w - 60) * 0.3 - 10, 5 },
+					size = { (topPlayerEntry.size.w - 60) * 0.3, topPlayerEntry.size.h - 10 }
+				})
+				topPlayerGames:addAdaptedText(true, v.games .. " " .. string.lower(TB_MENU_LOCALIZED.EVENTSGAMESWON), nil, nil, 4, nil, 0.6)
+			end
+		end
+		for i,v in pairs(listElements) do
+			v:hide()
+		end
+		local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
+		scrollBar:makeScrollBar(listingHolder, listElements, toReload)
+	end
+	
+	function Events:showModChampionship(viewElement, champInfo, playerStats)
+		local playerStatsHolder = UIElement:new({
+			parent = viewElement,
+			pos = { 5, 0 },
+			size = { viewElement.size.w * 0.35 - 10, viewElement.size.h },
+			bgColor = TB_MENU_DEFAULT_BG_COLOR
+		})
+		TBMenu:addBottomBloodSmudge(playerStatsHolder, 1)
+		local playerStatsTitle = UIElement:new({
+			parent = playerStatsHolder,
+			pos = { 10, 5 },
+			size = { playerStatsHolder.size.w - 20, 40 }
+		})
+		playerStatsTitle:addAdaptedText(true, TB_MENU_LOCALIZED.EVENTSMYSTATS, nil, nil, FONTS.BIG, nil, nil, nil, 0.5)
+		local gamesHolderH = playerStatsHolder.size.h / 2 - playerStatsTitle.size.h - playerStatsTitle.shift.y - 5
+		gamesHolderH = gamesHolderH > 130 and 130 or gamesHolderH
+		local playerGamesHolder = UIElement:new({
+			parent = playerStatsHolder,
+			pos = { 10, playerStatsTitle.shift.y + playerStatsTitle.size.h + 5 },
+			size = { playerStatsHolder.size.w - 10, gamesHolderH }
+		})
+		local playerGamesWonText = UIElement:new({
+			parent = playerGamesHolder,
+			pos = { 0, 0 },
+			size = { playerGamesHolder.size.w, playerGamesHolder.size.h * 0.4 }
+		})
+		playerGamesWonText:addAdaptedText(true, TB_MENU_LOCALIZED.EVENTSGAMESWON, nil, nil, FONTS.MEDIUM, CENTERBOT)
+		local playerGamesWon = UIElement:new({
+			parent = playerGamesHolder,
+			pos = { 0, playerGamesWonText.size.h },
+			size = { playerGamesHolder.size.w, playerGamesHolder.size.h - playerGamesWonText.size.h }
+		})
+		playerGamesWon:addAdaptedText(true, playerStats.games > 0 and (playerStats.games .. '') or TB_MENU_LOCALIZED.WORDNONE, nil, nil, FONTS.BIG, CENTER)
+		if (playerStats.rewards) then
+			local playerGamesRewards = UIElement:new({
+				parent = playerStatsHolder,
+				pos = { 10, playerGamesHolder.size.h + playerGamesHolder.shift.y },
+				size = { playerStatsHolder.size.w - 20, playerStatsHolder.size.h - playerGamesHolder.size.h - playerGamesHolder.shift.y }
+			})
+			Events:showModChampionshipPlayerRewards(playerGamesRewards, playerStats)
+		end
 		
 		local globalChallengeHolder = UIElement:new({
 			parent = viewElement,
-			pos = { 5, 0 },
-			size = { viewElement.size.w * 0.3, viewElement.size.h },
+			pos = { playerStatsHolder.size.w + 15, 0 },
+			size = { viewElement.size.w * 0.3 - 10, viewElement.size.h },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
 		TBMenu:addBottomBloodSmudge(globalChallengeHolder, 1)
-		Request:new("modchampionship", function()
-				
-			end, function()
-				
-			end)
-		download_server_info("modchampionship&username=" .. TB_MENU_PLAYER_INFO.username)
+		local globalChallengeTitle = UIElement:new({
+			parent = globalChallengeHolder,
+			pos = { 10, 5 },
+			size = { globalChallengeHolder.size.w - 20, 70 }
+		})
+		globalChallengeTitle:addAdaptedText(true, TB_MENU_LOCALIZED.EVENTSCOMMUNITYOBJECTIVE, nil, nil, FONTS.BIG, nil, nil, nil, 0.5)
 		
-		local quest = {
-			progress = 10000,
-			requirement = 10001
-		}
-		local bgScale = globalChallengeHolder.size.w - 20 > globalChallengeHolder.size.h / 5 * 3 - 20 and globalChallengeHolder.size.h / 5 * 3 - 20 or globalChallengeHolder.size.w - 20
+		local bgScale = globalChallengeHolder.size.w * 0.7 > globalChallengeHolder.size.h - 200 and globalChallengeHolder.size.h - 200 or globalChallengeHolder.size.w * 0.7
 		local questBackground = UIElement:new({
 			parent = globalChallengeHolder,
-			pos = { (globalChallengeHolder.size.w - bgScale) / 2, 10 },
+			pos = { (globalChallengeHolder.size.w - bgScale) / 2, globalChallengeTitle.shift.y + globalChallengeTitle.size.h + 5 },
 			size = { bgScale, bgScale },
 			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			uiColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
 			shapeType = ROUNDED,
 			rounded = bgScale
 		})
+		local progress = champInfo.progress / champInfo.objective
+		local questImage = "../textures/menu/general/quests/qtype2.tga"
+		if (progress > 1) then
+			progress = 1
+			questBackground.bgColor = cloneTable(TB_MENU_DEFAULT_DARKER_ORANGE)
+			questBackground.uiColor = cloneTable(TB_MENU_DEFAULT_ORANGE)
+			questImage = "../textures/menu/general/buttons/checkmarkbig.tga"
+		end
+		
 		local questIcon = UIElement:new({
 			parent = questBackground,
 			pos = { bgScale / 5, bgScale / 5 },
 			size = { bgScale / 5 * 3, bgScale / 5 * 3 },
-			bgImage = "../textures/menu/general/quests/qtype2.tga"
+			bgImage = questImage
 		})
-		local progress = quest.progress / quest.requirement
-		progress = progress > 1 and 1 or progress
 		questBackground:addCustomDisplay(false, function()
-				set_color(unpack(TB_MENU_DEFAULT_LIGHTER_COLOR))
-				draw_disk(questBackground.pos.x + questBackground.size.w / 2, questBackground.pos.y + questBackground.size.h / 2, questBackground.size.h / 2 - 25, questBackground.size.h / 2 - 5, 100, 1, -60, -240, 0)
+				set_color(unpack(questBackground.uiColor))
+				draw_disk(questBackground.pos.x + questBackground.size.w / 2, questBackground.pos.y + questBackground.size.h / 2, questBackground.size.h / 2.75, questBackground.size.h / 2 - 5, 100, 1, -60, -240, 0)
 				set_color(unpack(UICOLORWHITE))
-				draw_disk(questBackground.pos.x + questBackground.size.w / 2, questBackground.pos.y + questBackground.size.h / 2, questBackground.size.h / 2 - 25, questBackground.size.h / 2 - 5, 100, 1, -60, -240 * progress, 0)
+				draw_disk(questBackground.pos.x + questBackground.size.w / 2, questBackground.pos.y + questBackground.size.h / 2, questBackground.size.h / 2.75, questBackground.size.h / 2 - 5, 100, 1, -60, -240 * progress, 0)
 			end)
 		local progressText = UIElement:new({
 			parent = questBackground,
-			pos = { questBackground.size.w / 5, -questBackground.size.h / 5 },
-			size = { questBackground.size.w / 5 * 3, questBackground.size.h / 8 }
+			pos = { 0, -questBackground.size.h / 4.5 },
+			size = { questBackground.size.w, questBackground.size.h / 4.5 },
+			shapeType = ROUNDED,
+			rounded = 10,
+			bgColor = questBackground.uiColor,
+			uiColor = UICOLORWHITE
 		})
-		progressText:addAdaptedText(true, quest.progress .. " / " .. quest.requirement)
+		progressText:addAdaptedText(false, progress == 1 and (TB_MENU_LOCALIZED.EVENTSCOMPLETED .. "!") or (champInfo.progress .. " / " .. champInfo.objective .. "\n" .. TB_MENU_LOCALIZED.WORDGAMES))
+		if (progress == 1) then
+			local prizeInfo = UIElement:new({
+				parent = progressText,
+				pos = { 0, 0 },
+				size = { progressText.size.w, progressText.size.h },
+				interactive = true
+			})
+			TBMenu:displayHelpPopup(prizeInfo, TB_MENU_LOCALIZED.EVENTSGLOBALPRIZEWILLBESENT, nil, true)
+		end
+		
+		local globalItemReward = Torishop:getItemInfo(champInfo.reward)
+		local globalReward = UIElement:new({
+			parent = globalChallengeHolder,
+			pos = { 20, questBackground.shift.y + questBackground.size.h },
+			size = { globalChallengeHolder.size.w - 40, globalChallengeHolder.size.h - questBackground.shift.y - questBackground.size.h - 60 }
+		})
+		TBMenu:showTextWithImage(globalReward, globalItemReward.itemname, FONTS.BIG, 64, Torishop:getItemIcon(globalItemReward.itemid))
+		
+		local joinButton = UIElement:new({
+			parent = globalChallengeHolder,
+			pos = { 20, -60 },
+			size = { globalChallengeHolder.size.w - 40, 50 },
+			interactive = true,
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+		})
+		joinButton:addAdaptedText(nil, TB_MENU_LOCALIZED.FRIENDSLISTJOINROOM)
+		joinButton:addMouseHandlers(nil, function() Events:modChampionshipConnect() end)
+		
+		local playersToplistHolder = UIElement:new({
+			parent = viewElement,
+			pos = { globalChallengeHolder.size.w + globalChallengeHolder.shift.x + 10, 0 },
+			size = { viewElement.size.w * 0.35 - 10, viewElement.size.h },
+			bgColor = TB_MENU_DEFAULT_BG_COLOR
+		})
+		local elementHeight = 50
+		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(playersToplistHolder, elementHeight, elementHeight - 16, 15, TB_MENU_DEFAULT_BG_COLOR)
+		local toplistTitle = UIElement:new({
+			parent = topBar,
+			pos = { 10, 5 },
+			size = { topBar.size.w - 20, topBar.size.h - 10 }
+		})
+		toplistTitle:addAdaptedText(true, TB_MENU_LOCALIZED.EVENTSTOPLIST, nil, nil, FONTS.BIG, nil, nil, nil, 0.5)
+		TBMenu:addBottomBloodSmudge(botBar, 3)
+		
+		TBMenu:displayLoadingMark(listingHolder, TB_MENU_LOCALIZED.EVENTSLOADINGTOPPLAYERS)
+		local loader = UIElement:new({
+			parent = listingHolder,
+			pos = { 0, 0 },
+			size = { 0, 0 }
+		})
+		loader.count = 0
+		loader:addCustomDisplay(true, function()
+				if (get_network_task() == 0 and loader.count > 2) then
+					loader:kill()
+					Request:new("modchampionshiptoplist", function()
+							local response = get_network_response()
+							local toplist = {}
+							listingHolder:kill(true)
+							if (response:sub(0, 4) ~= "USER") then
+								listingHolder:addAdaptedText(true, TB_MENU_LOCALIZED.REQUESTUNKNOWNERROR)
+							end
+							for ln in response:gmatch("[^\n]*\n?") do
+								local ln = ln:gsub("\n$", '')
+								local data = { ln:match(("([^\t]*)\t"):rep(2)) }
+								if (data[2] ~= "WINS") then
+									table.insert(toplist, { name = data[1], games = data[2] })
+								end
+							end
+							listingHolder:addCustomDisplay(false, function() end)
+							if (listingHolder:isDisplayed()) then
+								Events:showModChampionshipToplist(toReload, listingHolder, elementHeight, toplist)
+							end
+						end, function()
+							listingHolder:kill(true)
+							listingHolder:addAdaptedText(true, TB_MENU_LOCALIZED.REQUESTCONNECTIONERROR)
+						end)
+					download_server_info("modchampionship&do=toplist")
+				end
+				loader.count = loader.count + 1
+			end)
 	end
 	
 	function Events:getPassedEventInfo(filename)
