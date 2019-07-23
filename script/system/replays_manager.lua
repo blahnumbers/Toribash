@@ -166,6 +166,9 @@ do
 				
 				while (1) do
 					local v = files[count]
+					if (not v) then
+						break
+					end
 					if (v:match(REPLAY_TEMPNAME) or v:match(REPLAY_SAVETEMPNAME) or (v:find("^" .. REPLAY_EVENT) and not includeEventTemp)) then
 						count = count + 1
 					elseif (v:match(".rpl$")) then
