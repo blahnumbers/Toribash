@@ -25,6 +25,10 @@ do
 		if (DEFAULT_SHADER) then
 			UIElement:runCmd("lws " .. DEFAULT_SHADER:gsub("^data/shader/", ""))
 		end
+		if (TB_MENU_DEBUG and atmoDebug2dHolder) then
+			atmoDebug2dHolder:kill()
+			atmoDebug2dHolder = nil
+		end
 		remove_hook("draw3d", "atmospheres")
 	end
 	
@@ -65,13 +69,13 @@ do
 				elseif (ln:find("^shape ")) then
 					local shape = ln:gsub("^shape ", "")
 					local model = nil
-					if (shape:find("box") or shape:find("cube")) then
+					if (shape:find("^box") or shape:find("^cube")) then
 						shape = CUBE
-					elseif (shape:find("cylinder") or shape:find("capsule")) then
+					elseif (shape:find("^cylinder") or shape:find("^capsule")) then
 						shape = CAPSULE
-					elseif (shape:find("sphere")) then
+					elseif (shape:find("^sphere")) then
 						shape = SPHERE
-					elseif (shape:find("custom")) then
+					elseif (shape:find("^custom")) then
 						model = shape:gsub("^custom ", "")
 						shape = CUSTOMOBJ
 					end
@@ -305,6 +309,10 @@ do
 			pos = { 10, 10 },
 			size = { viewElement.size.w / 4 - 20, viewElement.size.h - 20 },
 			shapeType = ROUNDED,
+			interactive = true,
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
 			rounded = 5
 		})
 		TBMenu:spawnDropdown(dropdownView, shaderList, 25, WIN_H - 100, nil, 0.7, nil, 0.6)
@@ -550,8 +558,14 @@ do
 		})
 		entityList[entity.name] = item
 		if (TB_MENU_DEBUG) then
-			local itemText = UIElement:new({
+			atmoDebug2dHolder = atmoDebug2dHolder and atmoDebug2dHolder or UIElement:new({
 				globalid = TB_MENU_HUB_GLOBALID,
+				pos = { 0, 0 },
+				size = { 0, 0 }
+			})
+			atmoDebug2dHolder:addCustomDisplay(true, function() end)
+			local itemText = UIElement:new({
+				parent = atomDebug2dHolder,
 				pos = { 0, 0 },
 				size = { 60, 20 }
 			})

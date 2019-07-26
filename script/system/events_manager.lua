@@ -72,6 +72,8 @@ do
 						champInfo.progress = ln:gsub("CHAMPGAMES 0;", '') + 0
 					elseif (ln:find("^CHAMPREWARD 0;")) then
 						champInfo.reward = ln:gsub("CHAMPREWARD 0;", '') + 0
+					elseif (ln:find("^CHAMPTIMELEFT 0;")) then
+						champInfo.timeleft = ln:gsub("CHAMPTIMELEFT 0;", '') + 0
 					elseif (ln:find("^CHAMPREWARDS %d;")) then
 						playerData.rewards = playerData.rewards or {}
 						local info = ln:gsub("CHAMPREWARDS ", '')
@@ -342,11 +344,17 @@ do
 			size = { globalChallengeHolder.size.w - 20, 70 }
 		})
 		globalChallengeTitle:addAdaptedText(true, TB_MENU_LOCALIZED.EVENTSCOMMUNITYOBJECTIVE, nil, nil, FONTS.BIG, nil, nil, nil, 0.5)
+		local globalChallengeTimeleft = UIElement:new({
+			parent = globalChallengeHolder,
+			pos = { 10, 75 },
+			size = { globalChallengeHolder.size.w - 20, 25 }
+		})
+		globalChallengeTimeleft:addAdaptedText(true, champInfo.timeleft > 0 and (TB_MENU_LOCALIZED.EVENTSENDSIN .. " " .. TBMenu:getTime(champInfo.timeleft, 2)) or (TB_MENU_LOCALIZED.EVENTSENDED .. " " .. TBMenu:getTime(-champInfo.timeleft, 2) .. " " .. TB_MENU_LOCALIZED.EVENTSENDEDAGO))
 		
-		local bgScale = globalChallengeHolder.size.w * 0.7 > globalChallengeHolder.size.h - 200 and globalChallengeHolder.size.h - 200 or globalChallengeHolder.size.w * 0.7
+		local bgScale = globalChallengeHolder.size.w * 0.7 > globalChallengeHolder.size.h - 250 and globalChallengeHolder.size.h - 250 or globalChallengeHolder.size.w * 0.7
 		local questBackground = UIElement:new({
 			parent = globalChallengeHolder,
-			pos = { (globalChallengeHolder.size.w - bgScale) / 2, globalChallengeTitle.shift.y + globalChallengeTitle.size.h + 5 },
+			pos = { (globalChallengeHolder.size.w - bgScale) / 2, globalChallengeTimeleft.shift.y + globalChallengeTimeleft.size.h + 5 },
 			size = { bgScale, bgScale },
 			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			uiColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
@@ -397,8 +405,8 @@ do
 		local globalItemReward = Torishop:getItemInfo(champInfo.reward)
 		local globalReward = UIElement:new({
 			parent = globalChallengeHolder,
-			pos = { 20, questBackground.shift.y + questBackground.size.h },
-			size = { globalChallengeHolder.size.w - 40, globalChallengeHolder.size.h - questBackground.shift.y - questBackground.size.h - 60 }
+			pos = { 20, questBackground.shift.y + questBackground.size.h + 5 },
+			size = { globalChallengeHolder.size.w - 40, globalChallengeHolder.size.h - questBackground.shift.y - questBackground.size.h - 70 }
 		})
 		TBMenu:showTextWithImage(globalReward, globalItemReward.itemname, FONTS.BIG, 64, Torishop:getItemIcon(globalItemReward.itemid))
 		

@@ -1,0 +1,9 @@
+shader Vaporwave.inc
+shaderopt FLOOR_COLOR 1 1 1 1
+
+env_obj ground
+	pos -3.8 0 0
+	shape custom ../atmospheres/vaporwave
+	size 15 15 15
+	color 2 1 2 1
+	rot 270 0 90

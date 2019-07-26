@@ -22,7 +22,7 @@ MAINMENURANKEDNAME	Ranked
 MAINMENURANKEDDESC	Find a quick ranked duel in matchmaking mode	
 MAINMENUMATCHMAKINGNAME	Matchmaking	
 MAINMENUMATCHMAKINGDESC	Quick way to get placed in one-on-one fights	
-MAINMENUROOMLISTNAME	Room List	
+MAINMENUROOMLISTNAME	Multiplayer	
 MAINMENUROOMLISTDESC	Create your own online room or join any of the existing ones	
 MAINMENUBEGINNERTUTNAME	Beginner Tutorial	
 MAINMENUBEGINNERTUTDESC	Learn Toribash basics: controls, gameplay and more	

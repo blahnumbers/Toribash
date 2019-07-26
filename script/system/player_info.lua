@@ -372,7 +372,7 @@ do
 					found = true
 			 	elseif (data_stream[4] == clanInfo.tag and clanInfo.tag ~= '') then
 					clanInfo.id = tonumber(data_stream[2])
-					clanInfo.tag = data_stream[5] == 1 and "[" .. clanInfo.tag .. "]" or "(" .. clanInfo.tag .. ")"
+					clanInfo.tag = data_stream[5] == '1' and ("[" .. clanInfo.tag .. "]") or ("(" .. clanInfo.tag .. ")")
 					clanInfo.name = data_stream[3]
 					found = true
 				end
