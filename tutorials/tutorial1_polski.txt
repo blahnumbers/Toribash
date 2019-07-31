@@ -1,0 +1,35 @@
+#PLAYER MESSAGES
+INTROSENSEI1	...I w ten sposob zostaniesz swietnym wojownikiem.
+INTROSENSEI2	Przez trening i trudna prace, mozesz uzyskac niesamowite rezultaty!
+INTROPLAYER1	Lecz Sensei, jak ty mozesz wiedziec cokolwiek o walce - sam ledwo chodzisz!
+INTROSENSEI3	Ha, mlody. Nie zawsze bylem taki stary.
+INTROSENSEI4	Byly czasy, nie tak dawno, kiedy bylem tak samo mlody i naiwny jak ty.
+INTROFIGHTSENSEI1	Moja ostatnia walka, ktora byla duza.
+INTROFIGHTSENSEI2	Podazajac za wskazowkami mojego mistrza, pozostalem skoncentrowany podczas calej walki.
+INTROFIGHTSENSEI3	Pilnowalem slabych punktow mojego przeciwnika - i widzialem kazdy z nich.
+INTROFIGHTSENSEI4	Bylem szybki jak dzikie zwierze.
+INTROFIGHTSENSEI5	Nie widzial moich nadchodzacych atakow i wydawalo sie to latwym zwyciestwem.
+INTROFIGHTSENSEI6	Moje ruchy byly idealne i zamierzalem wygrac, ale potem stalo sie cos zupelnie nieoczekiwanego ...
+INTROFIGHTSENSEI7	Gdy juz mialem pokonac mojego przeciwnika, moje kolano peklo, rujnujac moje szanse..
+INTROENDPLAYER1	Ja Wscieklbym sie i nazwalbym tego goscia szczesciarzem, mowiac mu ze nastepnym razem go pokonam!
+INTROENDPLAYER2	Ja bym takze nazwalbym jego matke-
+INTROENDSENSEI1	Nie, nie, nie, moj mlody studencie. Twoje porazki ucza cie tyle samo, co twoje zwyciestwa..
+INTROENDPLAYER3	Czy dlatego uzywasz kija, mistrzu? Twoja noga, czy nadal boli?
+INTROENDSENSEI2	O, nie, jestes uzdrowiony po kazdej walce.
+INTROENDSENSEI3	Po prostu wygladam na bardziej szanowanego z kijem-
+INTROENDSENSEI4	eeh, dlaczego pytasz? ... Nie ma znaczenia! Juz zbyt dlugo sie obijamy!
+INTROENDSENSEI5	Jesli chcesz zostac naprawde dobrym wojownikiem, musisz trenowac; Nie siedziec na lawce przez caly czas!
+#
+#HINT MESSAGES
+CAMERAHINT1	Obracaj swoja kamere uzywajac ~W~ ~A~ ~S~ ~D~
+CAMERAHINT2	Aby zmienic wysokosc kamery, przytrzymaj ~SHIFT~ i ruszaj kamera.
+CAMERAHINT3	Mozesz takze kontrolowac kamere uzywajac PPM na tle.
+CONTROLSHINT1	W Toribash, kontrolujesz swoja postac przez utawianie stawow na jego ciele.
+CONTROLSHINT2	Sa cztery tryby stawow - Trzymanie, Puszczanie, Kurczenie, Rozciaganie. Robienie roznych kombinacji sprawi kazda walke specjalna.
+CONTROLSHINT3	Kliknij na kolano Senseia aby zmienic jego tryb na Rozciaganie.
+CONTROLSHINT4	Mozesz takze zmienic tryby stawow przez uzywanie skrotow klawiszowych.
+CONTROLSHINT5	Aby zmienic tryb wszystkich stawow za jednym razem, przycisnij ~C~.
+CONTROLSHINT6	Najedz kursorem na dowolny staw i nacisnij ~X~, aby przelaczac pomiędzy Trzymaniem i Puszczaniem.
+CONTROLSHINT7	Aby przelaczac sie miedzy Rozszerzaniem i Kurczeniem, nacisnij przycisk ~Z~ podczas przesuwania kursora nad stawem.
+QIHINT1	Twoje doswiadczenie w Toribash jest mierzone w QI. Za kazda rozgrywana walke otrzymujesz 1 QI.
+QIHINT2	Im wiecej otrzymasz Qi, tym lepszy otrzymasz PASEK i tym wiecej przedmiotow bedzie dostepnych do zakupu.

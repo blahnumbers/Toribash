@@ -1,0 +1,46 @@
+#PLAYER MESSAGES
+INTROSENSEI1	Tutaj naucze cie, jak pokonac przeciwnika tylko za pomoca rak.
+INTROSENSEI2	Sprobujmy najprostszego mozliwego ataku - noobclapu.
+INTROSENSEI3	Oto jak to wyglada.
+SENSEINOOBCLAP1	Ruszylem tylko obie rece do przodu: albo by zadac obrazenia punktowe, zajac pozycje aby zlapac przeciwnika...
+SENSEINOOBCLAP2	...Albo przygotowac sie na blokowanie atakow mojego przeciwnika!
+SENSEINOOBCLAP3	Nie daj sie oszukac nazwie tego ruchu - jest to porzyteczny ruch ktory jest uzywany nawet przez najlepszych!
+SENSEINOOBCLAP4	Bardzo dobrze! Przejdzmy do nastepnego zadania!
+SENSEIPUNCH1	Aby zrobic naprawde mocne ciosy, uzywanie samych lopatek nie wystarczy.
+SENSEIPUNCH2	Zobacz ten cios.
+SENSEIPUNCH3	Uzylem mojego lokcia i tulowia, aby zwiekszyc sile ataku.
+SENSEIPUNCH4	Im mocniej uderzysz przeciwnikow, tym wiecej punktow zdobedziesz i zblizysz sie do zwyciestwa!
+SENSEIPUNCHOPTINCOMPLETE	To bylo dobre. Mogles to troche poprawic, ale cios to cios - dobra robota!
+SENSEIPUNCHOPTCOMPLETE	Wybitnie! Dokladnie tak jak ci pokazalem!
+SENSEIPUNCH5	Przejdzmy teraz do ostatniego dzisiejszego testu!
+SENSEIFINAL1	Czas na wlasne ciosy, moj uczniu.
+SENSEIFINAL2	Uderzaj w worek, az dostaniesz 100000 punktow!
+SENSEIFINAL3	Uwazaj na zegar, upewnij sie ze skonczysz to zadanie w 500 klatek!
+SENSEIFINALTIMEUP	Oj, wyglada na to ze czas minal. Nie ma problemu, sprobojmy ponownie!
+SENSEIFINALRESTART	W porzadku, pamietaj o ruchach, ktore ci pokazalem, i tym razem sprobuj zdobyc 100000 punkt�w!
+SENSEIFINALOPTINCOMPLETE	Swietnie! To byl dobry trening!
+SENSEIFINALOPTCOMPLETE	Wow, to bylo cos. Znakomita robota!
+SENSEIFINALOPTCOMPLETE2	Sprawdz po tym swoj ekwipunek, dalem ci bonusowy przedmiot jako nagrode za twoj wysilek!
+SENSEIFINAL4	Teraz jak juz wiesz jak uzywac swoich rak, jestes gotowy na trenowanie swoich kopniec!
+#
+#HINT MESSAGES
+NOOBCLAPHINT1	Nacisnij ~C~ aby przytrzymac wszystkie stawy i zapobiec upadku.
+NOOBCLAPHINT2	Aby zgiac rece do przodu lub do tylu, musisz zmodyfikowac tryb swoich lopatek.
+NOOBCLAPHINT3	Zkurcz swoje lopatki, aby ruszyc rece do przodu.\nPamietaj, mozesz albo kliknac na stawy albo nacisnac ~Z~ aby zmienic tryb.
+NOOBCLAPHINT4	Dobra robota, ale jeszcze nie skonczyles.\nAby zakonczyc ture i zobaczyc ruch swojej postaci, nacisnij ~SPACE~
+PUNCHHINT1	Przytrzymaj wszystkie stawy uzywajac ~C~
+PUNCHHINT2	Aby dostac sie do pozycji startowej dla uderzenia, zkurcz lokcie i pusc ramiona.
+PUNCHHINT3	Ramiona pomagaja ci powyzszyc lub znizyc twoje rece.\nLokcie pozwalaja na zginanie je w srodku.
+PUNCHHINT4	Aby ukonczyc ruch, nacisnij ~SPACE~
+PUNCHHINT5	Obroc klatke piersowa na lewo aby dodac wiecej sily do twojego ciosu.
+PUNCHHINT6	Teraz zkurcz twoja prawa lopatke i rozciagnij twoj prawy lokiec aby uderzyc worek.
+PUNCHHINT7	Nie boj sie improwizowac i zawsze zwracaj uwage na twoj duszek!\nZwiekszanie szybkosci jest kluczem do udanych atakow.
+PUNCHHINT8	Nacisnij ~SPACE~ kiedy bedziesz gotowy ukonczyc ruch.
+#
+#TASK MESSAGES
+NOOBCLAPTASK	Uderz worek treningowy noobclapem
+PUNCHTASK	Powtorz cios Senseia
+PUNCHTASKOPT	Podnies prawe ramie i rozciagnij nadgarstek aby poprawic cios
+FINALTASK	Ukoncz lekcje uderzania Senseia
+FINALTASKMAIN	Osiagnij 100000 punktow obrazen, aby trafic w cel
+FINALTASKOPT	Zdobadz ponad 500000 punktow aby dostac specjalna nagrode

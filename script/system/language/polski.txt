@@ -1,0 +1,642 @@
+# New UI Localization file
+NAVBUTTONHOME	Dom	
+NAVBUTTONPLAY	Graj	
+NAVBUTTONPRACTICE	Tutoriale	
+NAVBUTTONMODS	Modyfikacje	
+NAVBUTTONTOOLS	Narzedzia	
+NAVBUTTONTOMAIN	Do Glownego	
+NAVBUTTONBACK	Wroc	
+NAVBUTTONEXIT	Wyjdz	
+NAVBUTTONLOGINREWARDS	Nagrody Za Logowanie
+NAVBUTTONQUESTS	Zadania	
+MAINMENUUSERCLAN	Klan	
+MAINMENUTORISHOPNAME	Torishop	
+MAINMENUTORISHOPDESC	Wyprobuj i kup ulepszenia dla swojego Tori	
+MAINMENUCLANSNAME	Klany	
+MAINMENUCLANSDESC	Przegladaj klany Toribasha	
+MAINMENUREPLAYSNAME	Powtorki	
+MAINMENUREPLAYSDESC	Ogladnij swoje pobrane powtorki	
+MAINMENUFREEPLAYNAME	Gra Zwykla	
+MAINMENUFREEPLAYDESC	Cwicz swoje umiejetnosci Lub zrob powtorki w trybie dla Jednego Gracza	
+MAINMENURANKEDNAME	Rankingowe	
+MAINMENURANKEDDESC	Znajdz szybki pojedynek w Matchmaking	
+MAINMENUMATCHMAKINGNAME	Matchmaking	
+MAINMENUMATCHMAKINGDESC	Szybki sposob aby zostac postawiony w pojedynkach	
+MAINMENUROOMLISTNAME	Lista Pokoji	
+MAINMENUROOMLISTDESC	Stworz swoj pokoj albo dolacz do dokoju	
+MAINMENUBEGINNERTUTNAME	Tutorial Dla Poczatkujacych	
+MAINMENUBEGINNERTUTDESC	Naucz sie podstaw Toribasha: Kontrolowanie, Granie i wiecej	
+MAINMENUADVMOVESNAME	Ruchy Zaawansowane	
+MAINMENUADVMOVESDESC	Odkryj zaawansowane ruchy do uzycia w grze Wieloosobowej	
+MAINMENUFIGHTUKENAME	Walcz z Uke	
+MAINMENUFIGHTUKEDESC	Przetestuj swoje umiejetnosci przed wrogiem Tori	
+MAINMENUCOMEBACKNAME	Cwicz Ruszanie Sie
+MAINMENUCOMEBACKDESC	Lap Uke bez zostania zdyskwalifikowanym	
+MAINMENUGAMERULESNAME	Zasady Gry	
+MAINMENUGAMERULESDESC	Dostosuj grawitacje i inne istawienia	
+MAINMENUMODLISTNAME	Lista Modyfikacji	
+MAINMENUMODLISTDESC	Zaladuj jeden z pobranych modyfikacji	
+MAINMENUMODMAKERNAME	Tworzyciel modow	
+MAINMENUMODMAKERDESC	Tworz swoje wlasne mody na Toribash	
+MAINMENUMODSDISCOVERNAME	Odkrywaj	
+MAINMENUMODSDISCOVERDESC	Szukaj nowych modow stworzonych przez Graczy	
+MAINMENUSHADERSNAME	Shadery i Atmosfera	
+MAINMENUSHADERSDESC	Zmien oswietlenie I atmosfere	
+MAINMENUSCRIPTSNAME	Skrypty	
+MAINMENUSCRIPTSDESC	Zaladuj zainstalowane skrypty do Toribasha	
+MAINMENUSOUNDSNAME	Dzwieki	
+MAINMENUSOUNDSDESC	Przelacz wlasne Dzwieki	
+MAINMENUHOTKEYSNAME	Skroty Klawiszy	
+MAINMENUHOTKEYSDESC	Zobacz wszystkie skroty klawiszowe	
+MAINMENUSIGNINERROR	Musisz Sie Zalogowac Aby Moc	
+DOWNLOADINGFILESWAIT	Pobieranie Plikow, Prosze Czekac...	
+STORESETEMPTY	EMPTY	Zanaczam Pusty Zestaw	
+STOREITEM	przedmiot	uzywany do wy�wietlania, �e w zestawie jest tylko 1 przedmiot	
+STOREITEMS	przedmioty	uzywane do wy�wietlania liczby element�w w zestawie	
+STOREFLAMEBODYPART	Czasteczki Ognia Dla Twojego	
+STOREFLAMEID	ID Ognia	
+STOREFLAMEFORGEDBY	Wykuty Przez		
+STOREITEMINSIDESET	w Zestawie	
+STOREOBJITEMBODYPART	Niestandardowy Model 3D Dla	
+STOREITEMNODESCRIPTION	Ten Przedmiot Nie Ma Opisu	
+STOREITEMGOTOSET	Idz Do Zestawu	
+STORESETITEMNAME	Zestaw	
+STOREITEMADDTOSET	Dodaj Do Zestawu	
+STOREITEMREMOVEFROMSET	Usun z Zestawu	
+STORESETSELECTIONCONTROLS	Kontrola Wyboru	
+STORESETSELECT	Wybierz Zestaw	
+STOREVIEWSETITEMS	Wyswietl Przedmioty Zestawu	
+STOREITEMSINSET	Przedmioty w Zestawie	
+STORESELLMARKET	Sprzedaj w Markecie	
+STOREDIALOGMARKETSELL1	Jestes pewny ze chcesz to wlozyc	
+STOREDIALOGMARKETSELL2	na market?	
+STOREITEMDEACTIVATE	Dezaktywuj	
+STOREDIALOGDEACTIVATE1	Jestes pewny ze chcesz dezaktywowac?	
+STOREDIALOGDEACTIVATE2	 	
+STOREITEMACTIVATE	Aktywuj	
+STOREDIALOGACTIVATE1	Jestes Pewny Ze Chcesz Aktywowac?	
+STOREDIALOGACTIVATE2	 	
+STOREDIALOGCONFLICTSDEACTIVATE	Kazdy Konfilktujacy Przedmiot Zostanie zdezaktywowany.	
+STOREITEMUNPACK	Rozpakuj	
+STOREDIALOGUNPACK1	Czy Jestes pewny ze chcesz rozpakowac	
+STOREDIALOGUNPACK2	 	
+STOREDIALOGUNPACKINFO	Rozpakowane przedmioty zostan� umieszczone w zestawie i umieszczone w dezaktywowanym ekwipunku.	
+STOREBUTTONCANCEL	Anuluj	
+STOREDIALOGADDTOSET1	Jestes Pewny Ze Chcesz Dodac	
+STOREDIALOGADDTOSET2	Do Zestawu	
+STOREDIALOGREMOVEFROMSET1	Jestes pewny ze chcesz usunac	
+STOREDIALOGREMOVEFROMSET2	z zestawu?	
+STOREACTIVATEDINVENTORY	Aktywny Ekwipunek	
+STOREDEACTIVATEDINVENTORY	Nieaktywny Ekwipunek	
+STOREMARKETINVENTORY	Ekwipunek Marketowy	
+STOREINVENTORYALLITEMS	Wszystkie Przedmioty w Ekwipunku	
+PAGINATIONPAGE	Strona	
+PAGINATIONPAGEOF		
+STOREINVENTORYLOADING	Ladowanie Daty z Toriverse...	
+STOREDATALOADERROR	Blad przy otwieraniu sklepu, czekaj az zaladujemy TC lub sprawdz pozwolenia folderu Toribasha.	
+STOREGOTOSHOP	Otworz ToriShop	
+STORESHOPDESC	Kup Nowe przedmioty dla swojego Tori	
+STOREGOTOINVENTORY	Otworz Ekwipunek	
+STOREPURCHASETORICREDITS	Kup ToriCreditsy	
+STOREINVENTORYDESC	Dostosuj Swojego Tori z zakupionymi przedmiotami	
+STORESTEAMPURCHASELOADING	Pracuje	
+STORESTEAMPURCHASEERROR	Cos poszlo nie tak	
+CLANSMYCLAN	Moj Klan	
+CLANSCLANLEADER	Dowodca Klanu	
+CLANSCLANMEMBER	Czlonek Klanu	
+CLANSTOGETHERWITH	Razem z	
+CLANSVIEWCLAN	Pokaz klan	
+GENERALSTRINGAND	i	
+CLANFILTERSRANK	Ranga	
+CLANFILTERSCLANNAME	Nazwa	
+CLANFILTERSCLANTAG	Etykieta	
+CLANFILTERSCLANID	ID	
+CLANFILTERSOFFICIALSTATUS	Status	
+CLANFILTERSJOINMODE	Tryb Dolaczenia	
+CLANFILTERSDEAD	Niezywy	
+CLANFILTERSINACTIVE	Nieaktywny	
+CLANFILTERSACTIVE	Aktywny	
+SORTORDERASCENDING	Rosnacy	
+SORTORDERDESCENDING	Opadajacy	
+CLANFILTERSACTIVITYSTATE	Status Aktywnosci	
+CLANFILTERSACTIVITYSTATEDESC	Klany sa aktywne gdy maja 5 osob. Puste klany sa niezywe.
+CLANFILTERSFFAONLY	Tylko wolne dla wszystkich klanow	
+CLANFILTERSFFAONLYDESC	Mozesz dolaczyc do wszystkich wolnych klanow. Aby dolaczyc do klanow tylko na zaproszenia, trzeba przejsc specjalny proces.	
+CLANFILTERSOFFICIALONLY	Tylko klany oficjalne	
+CLANFILTERSOFFICIALONLYDESC	Oficjalne klany maja swoja wlasna tablice na forach I maj� nawiasy kolo siebie.	
+SORTBYNAME	Sortuj przez	
+SORTORDERNAME	Kolejnosc sortowania	
+CLANSSEARCHFILTERS	Filtery Szukania	
+CLANSSEARCH	Szukaj Klanow	
+CLANSCLANLIST	Lista klanow	
+CLANSLEGENDRANK	Ranga	
+CLANSLEGENDLEVEL	Poziom	
+CLANSLEGENDXP	XP	
+CLANSLEGENDTAGNAME	Etykieta i nazwa	
+CLANSLEGENDSTATUS	Status	
+CLANSLEGENDJOINMODE	Tryb dolaczenia	
+CLANSTATEOFFICIAL	Oficjalny	
+CLANSTATEUNOFFICIAL	Nieoficjalny	
+CLANSTATEFREEFORALL	Wolny	
+CLANSTATEINVITEONLY	Tylko zaproszenia	
+CLANSLISTEMPTYMSG	Brak klanow do pokazania	
+CLANSJOINCLAN	Dolacz do klanu	
+CLANSRELOADLOGO	Przeladuj logo	
+CLANSUPDATINGLOGO	Aktualizowanie	
+CLANSTATEUNRANKED	Bez rangi	
+CLANSVIEWWARSFORUM	Pokaz wojny na forum	
+CLANSTOPACHMISSING	Ten klan nie wybral osiagniecia do pokazania	
+CLANSLEGENDROSTER	Lista	
+CLANSMEMBERSEMPTY	Ten klan nie ma czlonkow	
+CLANSPLAYERCLANLESS	Nie jestes w zadnym klanie	
+CLANSPLAYERCLANLESSINFOMSG	Mozesz dolaczyc do klanu z listy lub stworzyc nowy
+CLANSCREATENEWCLAN	Stworz nowy klan	
+CLANLEADERS	Dowodcow
+CLANLEADER	Dowodca	
+CLANMEMBERS	Czlonkow	
+CLANMEMBER	Czlonek	
+CLANDATALOADERROR	Blad przy ladowaniu klanu, czekaj az sie pobierze lub sprawdz pozwolenia folderu Toribasha.
+REWARDSDAILYTITLE	Nagroda za Codzienne Logowanie	
+REWARDSCLAIM	Odbierz nagrode	
+REWARDSCLAIMNETWORKERROR	Blad przy komunikowaniu sie z serverami Toribasha, prosze sprobowac ponownie pozniej	
+REWARDSCLAIMINPROGRESS	Odbieranie nagrody	
+REWARDSCLAIMSUCCESS	Nagroda Odebrana	
+REWARDSCLAIMNOREWARD	Brak nagrody, wroc pozniej	
+REWARDSCLAIMTIMEOUT	Blad limitu czasu, zrestartuj gre albo polacz sie z internetem	
+REWARDSCLAIMERROROTHER	Blad przy odbieraniu nagrody	
+REWARDSNOAVAILABLE	Brak nagrody	
+REWARDSAVAILABLERESTART	Zrestartuj gre aby odebrac nagrode	
+REWARDSEXPIRED	Twoja nagroda jest przedawniona :(	
+REWARDSTIMEWEEKS	tygodnie	
+REWARDSTIMEWEEK	tydzien	
+REWARDSTIMEDAYS	dni	
+REWARDSTIMEDAY	dzien	
+REWARDSTIMEHOURS	godziny	
+REWARDSTIMEHOUR	godzina	
+REWARDSTIMEMINUTES	minuty	
+REWARDSTIMEMINUTE	minuta	
+REWARDSTIMESECONDS	sekundy	
+REWARDSNEXTREWARD	Nastepna nagroda w	
+REWARDSTIMELEFT	do odebrania nagrody	
+MATCHMAKEMODGRAPPLING	Zahaczanie	
+MATCHMAKEMODKICKING	Kopanie	
+MATCHMAKEMODSTRIKING	Uderzanie	
+MATCHMAKEMODFUN	Zabawa	
+MATCHMAKERANKEDBELT	Gra rankingowa jest dostepna przy brazowym pasku.	
+MATCHMAKERANKEDMODE	gra rankingowa	
+MATCHMAKERANK	Ranga	
+MATCHMAKEELO	elo	
+MATCHMAKEFIGHTSTOTAL	walk	
+MATCHMAKEWINRATE	szacujace wygrane	
+MATCHMAKENOPLAYERS	Brak graczy robiacy matchmaking	
+MATCHMAKEPLAYERSEARCHING	dobieranie gracza	
+MATCHMAKEPLAYERSSEARCHING	gracze dobierajacy	
+MATCHMAKESEARCHING	Szukanie meczu	
+MATCHMAKESEARCH	Szukanie	
+MATCHMAKESTOPSEARCH	Przestan szukac	
+MATCHMAKEUNRANKEDMODE	Swobodna gra	
+MATCHMAKEFINDBESTMATCH1	Znajdz	
+MATCHMAKEFINDBESTMATCH2	najlepzy mecz	
+MATCHMAKESEARCHSETTINGS1	Szukaj	
+MATCHMAKESEARCHSETTINGS2	z ustawieniami	
+MATCHMAKESEARCHCUSTOM	niestandardowe	
+MATCHMAKEUPDATINGRANK	Aktualizowanie statystyk rankingowych...	
+MATCHMAKEQUALIFYING	Kwalifikowanie...	
+MATCHMAKERANKUNAVAILABLE	Ranga niedostepna	
+MATCHMAKEUPDATINGTRENDS	Aktualizowanie twoich trendow rankingowych...	
+MATCHMAKEGLOBALRANK	Ranga Globalna	
+MATCHMAKEGLOBALRANKING	Globalny Ranking	
+MATCHMAKEQUALIFICATIONINFO	Musisz grac przynajmniej 10 meczow na sezon aby sie kwalifikowac
+MATCHMAKEGOLDTIERREQUIREDFORRANKDISPLAY	Tylko gracze z poziomem Zlotym+ moga wyswietlac swoja range
+MATCHMAKEBESTRANKEDMODS	Najlepsze mody	
+MATCHMAKERANKEDMODSEMPTY	Brak modow do pokazania	
+MATCHMAKERANKEDTOPEMPTY	Brak graczy do pokazania... Narazie	
+MATCHMAKEWINLOSE	Wygrana/Przegrana	
+MATCHMAKERANKINGTRENDS	Twoje trendy globalnego rankingu	
+MATCHMAKEMOREGAMESREQUIREDFORTRENDS	Graj wiecej gier rankingowych aby zobaczyc twoje trendy elo	
+MATCHMAKETOPRANKEDPLAYERS	Najwyzej sklasyfikowani gracze	
+MATCHMAKESEASONABOUT	O...	
+MATCHMAKEWINSTONEXTTIER	Wygrane do nastepnego poziomu	
+MATCHMAKEELOGAININFO	Otrzymujesz rozna ilosc elo za wygrane gry w zaleznosci od rangi przeciwnika 	
+FRIENDSLISTTITLE	Lista Znajomych	
+FRIENDSLISTJOINROOM	Dolacz do pokoju	
+FRIENDSLISTLEGENDPLAYER	GRACZ	
+FRIENDSLISTLEGENDROOM	POKOJ	
+FRIENDSLISTREFRESH	Odswiez	
+FRIENDSLISTADDFRIEND	Dodaj nowego znajomego	
+FRIENDSLISTEMPTY	Lista Znajomych pusta	
+FRIENDSLISTEMPTYINFO	Dodaj innych graczy lub cale klany aby wiedziec kiedy beda online!	
+FRIENDSLISTSEARCHDEFAULT	Wpisz nazwe albo klan w nawiasach	
+BUTTONSAVE	Zapisz	
+BUTTONDISCARD	Odrzuc	
+BUTTONCANCEL	Anuluj	
+BUTTONCONTINUE	Kontynuuj	
+BUTTONCONTINUENOSAVE	Wyjdz bez zapisywania	
+BUTTONADD	Dodaj	
+BUTTONCREATE	Stworz	
+BUTTONUPLOAD	Wrzuc	
+BUTTONVIEW	Widok	
+BUTTONSEARCH	Wyszukaj	
+BUTTONSUBMIT	Zglos	
+WORDTOTAL	totalne	
+WORDTURN	tura	
+WORDGAMES	gry	
+WORDFIGHTS	walki	
+WORDTIMES	czasy	
+WORDIN	w	
+WORDTC	ToriCreditsy	
+WORDDONE	Skonczone	
+WORDVS	Versus	
+WORDNONE	Nic	
+WORDOPTIONAL	opcjonalne	
+CHATCENSOREDMESSAGE	Twoja wiadomosc zawiera wulgaryzmy i zostanie ocenzurowana.	
+MOVEMEMORYLOADERROR	Blad przy ladowaniu danych MoveMemory.	
+MOVEMEMORYSAVING	Zapisywanie Ruchu	
+MOVEMEMORYENTERMOVENAME	Wpisz nazwe ruchu	
+MOVEMEMORYENTERMOVEDESCOPT	Wpisz opis ruchu (opcjonalne)	
+MOVEMEMORYENTERMODNAMEOPT	Wpisz nazwe modyfikacji (opcjonalne)	
+MOVEMEMORYMODNAMEEMPTYERROR	Nazwa ruchu nie moze byc pusta!	
+MOVEMEMORYMOVESAVEERRORPERMS	Blad przy zapisywaniu ruchu, sprawdz czy folder Toribasha ma uprawnienia do pisania.	
+MOVEMEMORYERRORNOTINGAME	Musisz grac aby nagrac ruch.	
+MOVEMEMORYERRORSTOPMOVE	Prosze zatrzymac terazniejszy ruch aby nagrac nowy.	
+MOVEMEMORYRECORDINGMOVE	Nagrywanie ruchu.	
+MOVEMEMORYERRORUPDATINGDATA	Blad przy aktualizowaniu danych MoveMemory, nic sie nie zmienilo.	
+MOVEMEMORYNOMOVESFOUND	Brak Ruchow	
+MOVEMEMORYDELETEMOVECONFIRM	Jestes pewny ze chcesz usunac ten ruch? Ta akcja nie moze byc odwrocona.	
+MOVEMEMORYALLMOVES	WSZYSTKIE RUCHY	
+MOVEMEMORYSUGGESTEDMOVES	SUGESTOWANE RUCHY	
+QUESTSNAMETYPE1	Codzienny Trening	
+QUESTSNAMETYPE2	Maszyna do Zabijania	
+QUESTSNAMETYPE3	Dealer Obrazen	
+QUESTSNAMETYPE4	Lamacz Kosci	
+QUESTSNAMETYPEDECAP	Lowca Glow	
+QUESTSPLAYREQ	Graj	
+QUESTSWINREQ	Wygraj	
+QUESTSGETREQ	Dostan	
+QUESTSGETREQ2	punktow na twoich bitwach	
+QUESTSDECAPREQ	Zdekapuj graczy	
+QUESTSDISMEMBERREQ	Rozczlonkoj graczy	
+QUESTSMATCHMAKEREQ	kiedy w Matckmaking	
+QUESTSOFFICIALREQ	Kiedy w oficjalnych pokojach	
+QUESTSCLAIMREWARD	Odbierz nagrode	
+QUESTSUPDATING	Aktualizowanie danych o zadaniach...	
+QUESTSBYDECAP	przez dekapitacje	
+LUASCRIPTSNAME	Skryptry LUA	
+LUASCRIPTSTHIRDPARTYWARNING1	Zawsze zwracaj podwojna uwage na skrypty ktore otwierasz.	
+LUASCRIPTSTHIRDPARTYWARNING2	Zlosliwe skrypty moga zmieniac, usuwac a nawet krasc twoje dane w Toribash.	
+LUASCRIPTSTHIRDPARTYWARNING3	Tylko otwieraj skrypty ktore zostaly potwierdzone przez obsluge Toribasha.	
+LUASCRIPTSFORUMBOARD	Tablica skryptow na forum	
+LUAMALICIOUSWARNING	MOZLIWIE ZLOSLIWY SKRYPT	
+LUAFILEACCESSWARNING	SKRYPT MA DOSTEP DO INNYCH PLIKOW	
+LUAOTHERSCRIPTSWARNING	SKRYPT MOZE LADOWAC INNE SKRYPTY	
+LUALOADSCRIPT	Zaladuj skrypt	
+LUASHOWSOURCE	Pokaz zrodlo skryptow	
+LUAVIEWINGSORCE	Pokazywanie zrodla skryptow	
+ERRORCREATINGFILE	Blad przy tworzeniu pliku	
+REPLAYSSAVING	Saving replay	
+REPLAYSDEFAULTPATH	Plik powtorki zostanie zapisany do folderu 'my replays'	
+REPLAYSENTERNAME	Wpisz nazwe powtorki	
+REPLAYSERROREMPTYNAME	Nazwa powtorki nie moze byc pusta	
+REPLAYSERRORCHARACTERS	Nazwa powtorki musi byc alfanumeryczna i moze zawierac tylko podkreslenia, spacje i myslniki jako litery specjalne.	
+REPLAYSERRORRENAMING	Blad przy zmianie nazwy powtorki, prosze mzien nazwe powtorki w menu powtorek	
+REPLAYSLOCAL	Lokalne powtorki	
+REPLAYSSEARCH	Wyszukaj	
+REPLAYSCOMMUNITY	Powtorki spolecznosci	
+REPLAYSUPDATINGCACHE	Aktualizowanie pamieci podrecznej powtorek...	
+REPLAYSERRORREADINGFILE	Blad przy czytaniu pliku powtorki	
+REPLAYSERRORUPDATINGFILE	Blad przy aktualizowaniu pliku powtorki	
+REPLAYSERRORUPDATINGNAME	Blad przy aktualizowaniu nazwy powtorki	
+REPLAYSERRORREADINGCACHE	Blad przy czytaniu pamieci podrecznej powtorki	
+REPLAYSERRORUPDATINGTAGS	Blad przy aktualizowaniu etykietek powtorki	
+REPLAYSUPDATINGCOMMUNITY	Ladowanie danych powtorek, prosze czekac...	
+REPLAYSFILTERSDATE	przez date wrzucenia	
+REPLAYSFILTERSRATING	przez oceny	
+REPLAYSFILTERSPOPULARITY	przez popularnosc	
+REPLAYSFILTERSTAGGED	etykietowany	
+REPLAYSFILTERSBYTAG	przez etykietki powtorek	
+REPLAYSFILTERSBY	wrzucony przez	
+REPLAYSFILTERSUPLOADER	przez uploader powtorek	
+REPLAYSBACKTOALLREPLAYS	POWROT DO WSZYSTKICH POWTOREK	
+REPLAYSMATCHBY	Mecz przez	
+REPLAYSAUTHORAUTOSAVE	Auto-zapis	
+REPLAYSAUTHORBY	przez	
+REPLAYSLOADINGREPLAY	Ladowanie powtorki...	
+REPLAYSADDFOLDER	Dodaj folder	
+REPLAYSTAGSMODIFYING	Modyfikowanie	
+REPLAYSTAGSNAME	etykietki powtorki	
+REPLAYSPOPULARTAGS	etykietki popularnosci	
+REPLAYSASSIGNEDTAGS	Przydzielona etykietka	
+REPLAYSINPUTTAGHERE	Wpisz swoja wlasna etykietke tutah	
+REPLAYSTAGERRORSHORT	Etykietka powtorki powinna zawierac przynajmniej 1 literke	
+REPLAYSTAGERRORDUPLICATE	Ta etykietka juz zostala dodana do powtorki.	
+REPLAYSMODIFYINGFOLDER	folder	
+REPLAYSFOLDERNAME	Nazwa folderu	
+REPLAYSERRORDELETING	Blad przy usuwaniu	
+REPLAYSERRORDELETINGFOLDER	folder	
+REPLAYSERRORMOVING	Blad przy przenoszeniu	
+REPLAYSERRORMOVINGTO	do	
+REPLAYSFOLDERNOTEMPTYDELETEWARNING	Ten folder nie jest pusty. Usuwanie tego folderu spowoduje przeniesienie wszystkich powtorek do folderu nadrzednego. Kontynuowac?	
+REPLAYSERRORRENAMINGFOLDER	Blad przy zmianie nazwy folderu	
+REPLAYSERRORRENAMINGREPLAY	Blad przy zmianie nazwy powtorki	
+REPLAYSERRORMOVINGREPLAY	Blad przy zmienianiu folderu powtorek	
+REPLAYSFOLDERLEVELERROR1	Nie mozesz dodac wiecej niz	
+REPLAYSFOLDERLEVELERROR2	folder poziomow	
+REPLAYSADDINGFOLDER	Dodawanie nowego folderu w srodku	
+REPLAYSNEWFOLDERNAME	Nazwa nowego folderu	
+REPLAYSFOLDERALPHANUMERIC	Nazwa folderu powinna byc alfanumeryczna	
+REPLAYSERRORADDINGFOLDER	Blad przy dodawaniu folderu powtorek	
+REPLAYSUPLOAD	Wrzuc	
+REPLAYSUPLOADTORIBASHSERVERS	do serverow Toribash	
+REPLAYSNAME	Nazwa	
+REPLAYSNAMEINFO	To bedzie publiczna nazwa powtorki	
+REPLAYSDESC	Opis	
+REPLAYSDESCINFO	Krotki opis dla twojej powtorki	
+REPLAYSDESCTIP	Wpisz opis	
+REPLAYSTAGS	Etykietki	
+REPLAYSTAGSINFO	Etykietki dla twojej powtorki podzielone spacja	
+REPLAYSTAGSTIP	Wpisz etykietki powtorki	
+REPLAYSUPLOADCONFIRM	To wrzuci twoja powtorke na servery Toribash i zostanie ona dostepna dla wszystkich. Kontynuowac?	
+REPLAYSMANAGE	Zarzadzaj	
+REPLAYSREPLAY	powtorka	
+REPLAYSREPLAYS	Powtorki	
+REPLAYSREPLAYNAME	Nazwa powtorki	
+REPLAYSREPLAYDIR	Folder powtorki	
+REPLAYSCONFIRMDELETION	Jestes pewny ze chcesz usunac	
+REPLAYSCONFIRMDELETION2	powtorke?	
+REPLAYSAUTOSAVEOPTION	Auto-zapisuj powtorki	
+REPLAYSEMPTYFOLDER	Brak powtorek w tym folderze	
+REPLAYSBY	przez	
+REPLAYSDATACORRUPT	DANE ZEPSUTE	
+REPLAYSPLAYERS	Gracze	
+REPLAYSMOD	Modyfikacja	
+REPLAYSCOMMUNITYTITLEINFO	Szukaj powtorek na serveracj Toribasha	
+REPLAYSDOWNLOADINGREPLAY	Pobieranie powtorki...	
+REPLAYSOPENINGREPLAY	Otwieranie powtorki...	
+REPLAYSREPLAYSAVEDINFO	Powtorka pobrana i zapisana w folderze Pobrane	
+REPLAYSCOMMUNITYDOUBLECLICKINFO	Podwojnie kliknij na jakakolwiek powtorke aby ja szybko zobaczyc.	
+REPLAYSCOMMUNITYNOFOUND	Brak powtorek	
+REPLAYSLOADPREVIOUS	ZALADUJ POPRZEDNIE	
+REPLAYSLOADNEXT	ZALADUJ NASTEPNE	
+REPLAYSDOWNLOAD	pobierz	
+REPLAYSDOWNLOADS	pobrane	
+REPLAYSVOTINGON	Glosowanie na	
+REPLAYSCOMMENT	Komentarz	
+REPLAYSVOTECONFIRM1	Dasz tej powtorce	
+REPLAYSVOTECONFIRM2	z 5 gwiazdek. Kontynuowac?	
+REPLAYSCOMMENTSDOWNLOADING	Pobieranie komentarzy...	
+REPLAYSADDCOMMENT	Dodaj komentarz	
+REPLAYSUPLOADEDON	Wrzucone w	
+REPLAYSSAVEREPLAY	Zapisz powtorke	
+REPLAYSVIEWCOMMENTS	Pokaz komentarze	
+REPLAYSMOREBY	Wiecej od	
+REPLAYSREFRESHCACHEPROMPT	To zresetuje pamiec podreczna powtorek. Kontynuowac?	
+REPLAYSERRORREFRESHINGCACHE	Blad przy odswiezaniu pamieci podrecznej, sprawdz czy folder Toribasha ma uprawnienia do pisania.	
+MODSDOWNLOADINGMOD	Pobieranie modyfikacji...	
+NOFILESFOUND	Brak plikow	
+FILENAME	Nazwa pliku	
+MODSRESTARTGAME	Zacznij nowa gre po pobraniu modyfikacji	
+SEARCHNOTE	Zacznij pisac by szukac...	
+SHADERSSAVESHADER	Zapisz shadera	
+SHADERSSAVING	Zapisywanie shadera do pliku	
+SHADERSINPUTNAME	Wpisz nazwe shadera	
+SHADERSERRORFILEEXISTS	Shader z ta nazwa istnieje. Zapisywanie spowoduje nadpisanie starego pliku.	
+SHADERSRESETTODEFAULT	Reset to default	
+SHADERSEDITOR	Edytor shaderow	
+SHADERSATMOSNAME	Atmosfery	
+SHADERSNAME	Shadery	
+SETTINGSOTHER	Gra	
+SETTINGSABOUT	O...	
+SETTINGSAUDIO	Audio	
+SETTINGSEFFECTS	Efekty	
+SETTINGSGRAPHICS	Grafika	
+SETTINGSGRAPHICSPRESETS	Szablony Grafiki	
+SETTINGSVISUALSQUALITY	Jakosc wizualna (Mozliwa potrzeba zrestartowania gry)	
+SETTINGSCUSTOM	Niestandardowe	
+SETTINGSLOWEST	Ziemniak	
+SETTINGSLOW	Niskie	
+SETTINGSMEDIUM	Srednie	
+SETTINGSHIGH	Wysokie	
+SETTINGSHIGHEST	RTX 2080 Ti	
+SETTINGSRESOLUTION	Rezolucja	
+SETTINGSADVANCED	Zaawansowane	
+SETTINGSSHADERS	Shadery	
+SETTINGSFLUIDBLOOD	Plynna krew	
+SETTINGSFLOORREFLECTIONS	Odbicia w podlodze	
+SETTINGSSOFTSHADOWS	Miekkie cienie	
+SETTINGSAMBIENTOCCLUSION	Okluzja otoczenia	
+SETTINGSRAYTRACING	Sledzenie Promieni	
+SETTINGSFRAMERATE	Czestowliwosc klatek	
+SETTINGSFPS	Klatki na sekunde	
+SETTINGSFPSUNCAPPED	Nieograniczone	
+SETTINGSGENERAL	Generalne	
+SETTINGSEFFECTSINFO	Ustawienia wyswietlania efektow	
+SETTINGSDISABLED	Wyl	
+SETTINGSENABLED	Wl	
+SETTINGSREPLAYSONLY	Tylko na powtorkach	
+SETTINGSPLAYERCUSTOMIZATION	Dostosowania gracza	
+SETTINGSBODYTEXTURES	Tekstury ciala	
+SETTINGSTRAILS	Slady	
+SETTINGSFLAMES	Plomienie	
+SETTINGSHAIRS	Wlosy	
+SETTINGSOBJMODELS	Modele 3D	
+SETTINGSEFFECTSVOLUME	Glosnosc Efektow	
+SETTINGSMUSICVOLUME	Glosnosc Muzyki	
+SETTINGSVCVOLUME	Glosnosc Czatu glosowego	
+SETTINGSVCTOGGLE	Przelacz Czat Glosowy	
+SETTINGSSOUNDMASTER	Glowne efekty dzwiekowe	
+SETTINGSHITEFFECTS	Dzwieki uderzenia	
+SETTINGSGAMEOVER	Dzwieki dyskwalifikacji i wygranej	
+SETTINGSREADY	Dzwiek kiai	
+SETTINGSGRIP	Dzwiek Uchwytu	
+SETTINGSALERT	Dzwiek Okrzyku	
+SETTINGSDISMEMBER	Dzwiek Rozczlonkowania	
+SETTINGSFIGHTALERT	Dzwiek Alarmu Walki	
+SETTINGSFREEZE	Dzwiek Zamarzniecia	
+SETTINGSGRADING	Dzwiek Cieniowania	
+SETTINGSIMPACT	Dzwiek Impaktu	
+SETTINGSJOINT	Dzwiek Stawu	
+SETTINGSMENU	Dzwiek Menu	
+SETTINGSNONE	Dzwiek Niczego	
+SETTINGSPAIN	Dzwiek Bolu	
+SETTINGSSELECTPLAYER	Dzwiek Wybrania Gracza	
+SETTINGSSPLASH	Dwiek Plusku	
+SETTINGSSWOOSH	Dzwiek Machnieca	
+SETTINGSLANGUAGE	Jezyk	
+SETTINGSGAMELANGUAGE	Jezyk Gry	
+SETTINGSCHAT	Ustawienia Czatu	
+SETTINGSCHATTOGGLE	Przelacz Dlugosc Czatu	
+SETTINGSPROFANITYFILTER	Filtr bluznierstwa	
+SETTINGSHIDEECHO	Ukryj Komunikaty Systemu	
+SETTINGSGAMEPLAY	Rozgrywka	
+SETTINGSMOUSEBUTTONS	Sterowanie Mysza	
+SETTINGSMOUSEBUTTONS0	Tylko Kurczenie i Rozciaganie	
+SETTINGSMOUSEBUTTONS1	Wszystkie 4 tryby	
+SETTINGSMOUSEBUTTONS2	Tylko Trzymanie i Puszczanie	
+SETTINGSBACKGROUNDCLICK	Klikniecie Tla	
+SETTINGSAUTOSAVE	Autozapisuj powtorki	
+SETTINGSGAMERULES	Pamietaj Zasady Gry	
+SETTINGSMODERNHUD	Zaawansowany HUD	
+SETTINGSTOOLTIP	Pokaz Zaawansowana Podpowiedz	
+SETTINGSMOVEMEMORY	Wlacz Movememory	
+SETTINGSBASEHUDONLY	Tylko podstawowy HUD	
+SETTINGSWINDOWED	Tryb Okienka	
+SETTINGSWIDTH	Szerokosc	
+SETTINGSHEIGHT	Wysokosc	
+SETTINGSONLYDEFAULTSOUNDS	Tylko Podstawowe Dzwieki	
+SETTINGSAPPLY	Zastosuj Zmiany 
+SETTINGSRESTARTREQUIRED	moze wymagac restartu	
+SETTINGSNOCHANGES	Brak Zmian	
+HOTKEYSBASICCONTROLS	Podstawowa Kontrola	
+HOTKEYSCAMERACONTROLS	Kontrola kamera	
+HOTKEYSHOLDALL	Trzymaj / pusc wszystko	
+HOTKEYSHOLDRELAX	Trzymaj / Pusc staw	
+HOTKEYSCONTRACTEXTEND	Skurcz / Rozciagnij staw	
+HOTKEYSGRABUNGRAB	Przelac Status Dloni (Chwyc/Pusc)	
+HOTKEYSGRABALL	Przelacz statusy obydwoch dloni	
+HOTKEYSSAVEREPLAY	Zapisz Powtorke	
+HOTKEYSTORIGHOST	Przelacz Duszka Gracza	
+HOTKEYSPLAYERSGHOST	Przelacz Duszka Obu GRaczy	
+HOTKEYSTURN	Skoncz ture / Pomin klatke	
+HOTKEYSCHAT	Skroty czatu	
+HOTKEYSOPENCHAT	Otworz Czat	
+HOTKEYSTOGGLECHAT	Pokaz Wiecej Linijek Czatu	
+HOTKEYSSCROLLCHAT	Scrolluj Czat w Gore / Dol	
+HOTKEYSSCROLLCHATMAX	Scrolluj Czat na Poczatek / Koniec	
+HOTKEYSREPLAYS	Skroty Powtorek	
+HOTKEYSREPLAYRESTART	Zrestartuj Powtorke	
+HOTKEYSREPLAYPAUSE	Pauzuj Powtorke	
+HOTKEYSREPLAYEDIT	Edytuj Powtorke	
+HOTKEYSREPLAYKEYFRAME	Zapisz Klatke	
+HOTKEYSREPLAYKEYFRAMESCLEAR	Wyczysc Klatki	
+HOTKEYSREPLAYNEXT	Graj Nastepna Powtorke	
+HOTKEYSREPLAYPREV	Graj Poprzednia Powtorke	
+HOTKEYSOTHER	Inne Skroty	
+HOTKEYSMODLIST	Wlacz Liste Modow	
+HOTKEYSSHADERS	Otworz Shadery i Atmosfery	
+HOTKEYSGAMERULES	Otworz Zasady Gry	
+HOTKEYSFULLSCREEN	Wejdz w Pelny Ekran	
+HOTKEYSCAMERAMODES	Zmien Tryby Kamery	
+TUTORIALSLEAVINGPROMPT	Wychodzisz z Tutorialu. Ta akcja spowoduje zresetowanie	terazniejszego postepu.
+EVENTSLEAVINGPROMPT	Wychodzisz z SP Event Replay Creator. Terazniejsza powtorka zostanie zapisana na pozniej.	
+TUTORIALSCONTINUETONEXT	Kontynuuj do nastepnego tutorialu	
+TUTORIALSBACKTOMAIN	Wroc do menu glownego	
+TUTORIALSINTRONAME	Wprowadzenie do Toribash	
+TUTORIALSINTRODESC	Spotkaj Sensei i zacznij swoja przygode w Toribash	
+TUTORIALSPUNCHNAME	Tutorial Uderzania Piescia	
+TUTORIALSPUNCHDESC	Poznaj podstawy bicia w Toribash	
+TUTORIALSKICKNAME	Tutorial Kopania	
+TUTORIALSKICKDESC	Naucz sie jak atakowac swojego przeciwnika uzywajac nog.	
+TUTORIALSCHALLENGEUKENAME	Bitwa z Uke	
+TUTORIALSCHALLENGEUKEDESC	Przetestuj swoje umiejetnosci w walce przeciwko Uke	
+TUTORIALSCOMEBACKPRACTICENAME	Praktyka Ruszania	
+TUTORIALSCOMEBACKPRACTICEDESC	Sproboj sie poruszac, lapiac przy tym Uke!	
+TUTORIALSLOCKED	Skoncz inne tutoriale albo zdobadz wiecej QI aby to odblokowac	
+TUTORIALSVIEWALLNAME	Pokaz wszystkie tutoriale	
+TUTORIALSVIEWALLDESC	Dostan sie do kazdego tutoriala ktory skonczyles.	
+DISCORDRPCINTUTORIAL	Tryb Tutorialowy	
+NAVBUTTONNEWS	Nowosci	
+NAVBUTTONSTORE	Sklep	
+NAVBUTTONACCOUNT	Konto	
+REWARDSTIMEMONTHS	miesiace	
+REWARDSTIMEYEAR	rok	
+REWARDSTIMEYEARS	lata	
+SETTINGSREPLAYCACHE	Wlacz predkosc powtorki	
+SETTINGSREPLAYCACHESECONDPLAYTHROUGH	Wlacz na drugiej powtorce
+SETTINGSREPLAYMEMSIZE	Wielkosc pamieci podrecznej powtorek	
+SETTINGSREPLAYFRAMES	klatki	
+HOTKEYSREPLAYSPEED	Modyfikuj Szybkosc Powtorek	
+USERBARTCINFO	Toricreditsy moga zostac wydane na ukepsznie ktore pasuja do twojego paska	
+USERBARSTINFO	Shai Tokeny moga zostac wydane na przedmioty premium ktore wymagaja dobrych paskow.	
+ACCOUNTTITLEINFO	Info o twoim koncie	
+ACCOUNTGETTINGINFO	Dostawanie twoich danych...	
+ACCOUNTINFOERROR	Cos nie poszlo, sproboj ponownie pozniej	
+STOREDOWNLOADINGMODEL	Pobieranie Modelu Przedmiotu...
+STOREDOWNLOADINGSET	Pobieranie Zestawu...	
+STOREGETMORE	Dostan wiecej	
+STOREBUYFOR	Kup za	
+STOREPURCHASECONFIRM	Jestes pewny ze chcesz kupic	
+STOREPURCHASEFOR	za	
+STOREPURCHASEYOUWILLHAVELEFT1	Zostanie ci	
+STOREPURCHASEYOUWILLHAVELEFT2	po zakupie.	
+STOREREQUIRES	Wymaga	
+STOREREQUIRESQI	wiecej Qi	
+STOREVIEWING	Pokazuje	
+STOREAVAILABLEITEMS	Dostepne przedmioty	
+STOREEXPENSIVEITEMS	Drogie przedmioty	
+STOREUSDITEMS	Przedmioty za USD	
+STORELOCKEDITEMS	Niedostepne lub zablokowane przedmioty	
+STORESEARCHNOITEMS	Nie ma przedmiotow ktore pasuja do wyszukiwania!	
+STORESEARCHSTRINGSHORT	Wyszukanie zbyt krotkie, sproboj cos dluzszego niz 3 litery!	
+SEARCHRESULTS1		
+SEARCHRESULTS2	rezultaty wyszukiwania	
+WORDSEARCH	Szukaj	
+STORESEARCHHINT	Zacznij pisac by szukac	
+STOREDISCOUNTEDPRICE	Cena obnizona	
+WORDTORICREDITS	ToriCreditow	
+WORDSHIAITOKENS	Shiai Tokenow	
+STOREBUYWITH	Kup z	
+STOREVIEWIN1	Wyswietl	
+STOREVIEWIN2	w sklepie	
+STORELOADING	Ladowanie danych sklepu, prosze czekac...	
+STORESALE1		
+STORESALE2	wyprzedaz	
+STORENOCOLORSALE	Brak kolorow na wyprzedazy, wroc pozniej!	
+STORENOSALE	Brak przedmiotow na wyprzedazy, wroc pozniej!
+STORECOLORS	Kolory	
+STORECOLORSNAME	Przedmioty Koloru	
+STORECOLORSDESC	Stawy, gradienty i inne przedmioty kolorowe	
+STORETEXTURES	Tekstury	
+STORETEXTURESNAME	Miejsce na textury	
+STORETEXTURESDESC	Przedmioty z texturami, daja twojemu Tori wyjatkowy widok	
+STOREADVANCED	Zaawansowane	
+STOREADVANCEDNAME	Zaawansowane Modyfikacje	
+STOREADVANCEDDESC	Przedmioty 3d, wlosy i inne zaawansowane aktualizacje dla twojego Tori
+STOREACCOUNT	Konto	
+STOREACCOUNTDESC	Waluta  w grze, boostery i subskrybcje	
+STOREPURCHASINGITEM	Kupowanie Przedmiotu...	
+STOREPURCHASEERROR	Blad Kupowania	
+STOREPURCHASESERVERERROR	Blad servera, prosze sproboj ponownie pozniej	
+STOREPURCHASEERRORUNDEF	Niezdefiniowany blad w kupowaniu. Zkontaktuj sie z administratorem.
+STOREPURCHASESUCCESSFUL	Gratulacje za zakup! Czy chcesz aktywowac nowy przedmiot? ?	
+STOREPURCHASESUCCESSFULUNPACK	Gratulacje za zakup! Czy chcesz odpakowac swoj nowy zestaw?	
+SETTINGSAUTOUPDATE	Auto-aktualizacja zwyczaje gracza	
+ACCOUNTUSERNAME	Nazwa	
+ACCOUNTUSERID	ID Uzytkownika	
+ACCOUNTGAMESPLAYEDTODAY	Gry dzisiaj zagrane	
+ACCOUNTGAMESWONTODAY	Gry dzisiaj wygrane	
+ACCOUNTTCEARNINGSTODAY	Dzisiejszy zarobek z bitw	
+ACCOUNTQIRESETS	Codzienny limit QI resetuje sie w	
+ACCOUNTSTATUS	Status konta	
+ACCOUNTSUSPENDED	Zawieszony	
+ACCOUNTGREYLISTED	Handlowanie Zabronione	
+ACCOUNTNOEMAIL	Brak emaila	
+ACCOUNTAWAITINGCONFIRMATION	Czekanie na potwierdzenie emaila	
+ACCOUNTSUSPENDEDINFO	Twoje konto zostalo zawieszone przez administratorow Toribasha. Zkontaktuj sie z administratorem na forum.	
+ACCOUNTGREYLISTEDINFO	Twoje konto ma limitowane handlowanie. Mozesz poczekac az sie skonczy, albo zkontaktowac sie z administratorem.	
+ACCOUNTEMAILERRORINFO	Mozliwosci twojego konta sa limitowane dopoki nie potwierdzisz swojego adresu email.	
+STOREITEMUNAVAILABLE	Ten przedmiot nie moze byc kupiony	
+REPLAYUPLOADERROR	Blad wrzucania powtorki	
+REPLAYUPLOADFAILED	Wrzucanie powtorki nie zadzialalo, sproboj ponownie pozniej.	
+REPLAYUPLOADINPROGRESS	Wrzucanie twojej powtorki...	
+ACCOUNTSWITCH	Zmien konto	
+REPLAYUPLOADSUCCESSFUL	Twoja powtorka zostala wrzucona!	
+EVENTSUPLOADINGENTRY	Wrzucanie wpisu zdarzenia	
+EVENTSTRYNOTGETDISMEMBERED	Nastepnym razem sproboj nie zostac rozczlonkowanym!	
+EVENTSTRYSTAYONPLATFORM	Nastepnym razem zostan na platformie!	
+EVENTSNEWGAME	Nowa gra	
+EVENTSREWIND	Przewijaj ta powtorke	
+TUTORIALNODATAFOUND	Nie znaleziono danych, poczekaj az zostana pobrane	
+STOREDISCOUNTCHEAPER1		
+STOREDISCOUNTCHEAPER2	tansze	
+WORDRANKED	w rankingu	
+QUESTSRANKEDMODE	w trybu rankingowym	
+NEWSDOWNLOADING	Pobieranie najnowszych nowosci, prosze czekac...
+MATCHMAKERANKINGMODS	Ranking przez modyfikacje
+MATCHMAKESPOT	miejsce	
+MATCHMAKESPOTS	miejsca	
+DISCORDRPCMATCHMAKING	Matchmaking	
+MATCHMAKECANTSEARCH	Nie da sie szukac kiedy w trybie Wieloosobowym	
+MATCHMAKENORANKCHANGES	Zadna ranga nie zmienia sie w przeszlosci	
+MATCHMAKEGLOBALRANKINGDESC	Wyswietl swoje detale rankingu i najlepszych graczy w sezonie
+MATCHMAKENORANKEDQUEST	Nie masz zadnych zadan w rankingach. Odswiez swoje zadania.
+MATCHMAKEVIEWQUESTS	Pokaz swoje zadania

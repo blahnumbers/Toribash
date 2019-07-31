@@ -1,0 +1,208 @@
+#Localization file.
+
+FreePlay Gra Zwykla
+Multiplayer Gra Wieloosobowa
+FightSchool Szkola walki
+ToriShop Sklep
+Setup Ustawienia
+BuyToriCredits Kup ToriCreditsy
+ChatNetwork Siec Chatow
+Quit Wyjdz
+Options Opcje
+Mods Modyfikacje
+Utils Nardzedzia
+Replays Powtorki
+GameRules Zasady Gry
+Login Zaloguj
+Back Wroc
+ToribashTutorial Tutorial Toribasha
+BasicTraining Podstawowy Trening
+AdvancedMoves Zaawansowane Ruchy
+ChallengeUke Walcz z Uke
+FlameForge Kuznia Ognia
+FlameBrowser Przegladarka Plomieni
+ModMaker Tworzyciel Modyfikacji
+Scripts Skrypty
+Sounds Dzwieki
+Credits Uznania
+Cancel Anuluj
+OK Ok
+Advanced Zaawansowane
+Graphics Grafika
+LanguageSteam Uzyj Jezyka Steama
+Language Jezyk
+MouseButtons Przyciski Myszy
+BackgroundClick Klikniecie Tla
+EffectsVolume Glosnosc Efektow
+MusicVolume Głosnosc Muzyki
+VoiceChatVolume Głosnosc Chatu Glosowego
+ChatToggle Przelacz Chat
+VoiceChatToggle Przelacz Chat Głosowy
+Fullscreen Pelny Ekran
+Autosavereplays Automatycznie zapisuj powtorki
+RememberGameRules Pamietaj zasady gry
+LowerFrameRateCap Zmniejsz maksymalne FPS
+Shaders Shadery
+FluidBlood Realistyczna Krew
+Reflections Odbicia
+SoftShadows Miekkie cienie
+AmbientOcclusion Okluzja otoczenia
+Bumpmapping Mapowanie Nierownosci
+RayTracing Sledzenie promieni
+Particles Czasteczki
+Trails Szlaki
+Hair Wlosy
+ShaderHair Shaderowe wlosy
+ObjModel Model obiektu
+BodyTextures Tekstury ciala
+DisableGraphicsReloading Wylacz przeladowywanie grafiki
+WindowWidth Szerokosc okna
+WindowHeight Wysokosc okna
+FixedFramerate Stala ilosc klatek na sekunde
+Basic Podstawowy
+Minimum Minimum
+Low Niski
+Medium Sredni
+High Wysoki
+Maximum Maksimum
+Register Zarejestruj sie
+Create Stworz
+Username Nazwa uzytkownika
+Password Haslo
+Email Email
+Email(optional) Email (opcjonalny)
+RemindMe Przypomnij Mnie
+RememberMe Zapamietaj mnie
+Show Pokaz
+ForgotYourPassword? Zapomniales hasla?
+Don'tHaveAnAccount? Nie masz konta?
+Close Zamknij
+UPGRADED! ZAKTUALIZOWANY!
+NumGamesToBelt Gry do
+DRAW! REMIS !
+MatchWonBelowMin Mecz wygrany ponizej minimalna iloscia ruchow.
+WINS! WYGRAL!
+STREAK STREAK
+DRAW2! REMIS!
+DISQUALIFIED! ZDYZKWALIFIKOWANY!
+KeyframesCleared! Klatki wyczyszczone!
+KeyframeSaved! Klatka zapisana!
+DefaultCameraEnabled Domyslna kamera
+FreeOrbitalCameraEnabled Wolna orbitalna kamera, uzyj W/S/A/D/Q/E + SHIFT aby sie ruszac
+FreeCameraEnabled Wolna kamera, uzyj W/S/A/D/Q/E + SHIFT aby sie ruszac
+ToriCameraEnabled Kamera Tori pierwszoosobowa
+UkeCameraEnabled Kamera Uke pierwszoosobowa
+RecordingNextRewind Nagrywanie sie zacznie przy nastepnym przewijaniu
+RecordingCameraMovements Nagrywanie ruchow kamery
+PlayingCameraMovements Odtwarzanie ruchow kamery
+FreeCamDisabled Kamera wolna wylaczona
+Desc Opis
+Room Pokoj
+Mod Modyfikacja
+MinBelt Minimalny Pasek
+MaxBelt Maksymalny Pasek
+Players Gracze
+Connect Polacz
+LoadingServerList Ladowanie listy serverow
+BeltRestriction Ograniczenia Paskow
+RankRestriction Ograniczenia Rang
+OfficialServers Oficjalne Servery
+AutoTournaments Automatyczne Zawody
+Elo Elo
+Rank Ranga
+RoomName: Nazwa:
+Password: Haslo:
+MaxPlayer: Max Gracze:
+MinBelt: Min Pasek:
+MaxBelt: Max Pasek:
+Desc: Opis:
+Option Opcja
+CreateRoom Nowy Pokoj
+SPECTATOR WIDZ
+WaitingForOtherPlayer Czekanie Na Drugiego Gracza
+SPACEBARNewGameFSaveReplay SPACJA - Nowa Gra   ;   F - Zapisz Powtorke
+PressTheSPACEBARToPlay Nacisnij Spacje Aby Grac!
+PressTheSPACEBARForREPLAY Nacisnij spacje aby zobaczyc powtorke
+WaitingForYourTurn Czekanie na twoja kolej: #
+InQueue w kolejcie
+WaitingForOpponent Czekanie na przeciwnika
+ClickToSelectPlayer Kliknij aby wybrac gracza
+HitSPACEWhenReadyWithMove Nacisnij SPACJA aby skonczyc klatke
+PleaseEnterAValidEmailAddress Prosze wpisac prawidlowy email:
+PleaseEnterYourUsername Prosze wpisac nazwe!
+PleaseEnterYourPassword Prosze wpisac haslo
+PleaseRetypeYourPassword Prosze powtorz haslo
+UsernameLesserThan4Characters Twoja nazwa jest krotsza niz 4 litery!
+UsernameMoreThan10Characters Twoja nazwa jest dluzsza niz 10 liter!
+MismatchingPasswords Hasla sie roznia
+UsernameMustBeAlphaNumeric Nazwa musi byc alfonumeryczna
+Error! Blad!
+CreateAccountFromToribash Prosze stworz swoje konto z
+#ToribashFromCreateAccount Nie uzywany do Angielskiego
+NetworkError! Blad sieci!
+UsernameUsedOrSubstandard Ta nazwa jest w uzyciu albo nie pasuje do standardow administratora
+ModsCtrlM Mods (Ctrl + M)
+Load Zaladuj
+Open Otworz
+NewGame Nowa Gra
+TypeHere Pisz Tutaj
+QuickLoad Szybkie Zaladowanie
+ShadersCtrlH Shadery (Ctrl + H)
+AutoLoad Automatyczne Ladowanie
+SoundsCtrlY Dzwieki (Ctrl + Y)
+UsernameIsEmpty nazwa jest pusta
+Neck SZYJA
+Chest PIERSI
+Lumbar LEDZWIOWY
+Abs Brzuch
+RightPecs PRAWA LOPATKA
+RightShoulder PRAWE RAMIE
+RightElbow PRAWY LOKIEC
+LeftPecs LEWA LOPATKA
+LeftShoulder LEWE RAMIE
+LeftElbow LEWY LOKIEC
+RightWrist PRAWY NADGARSTEK
+LeftWrist LEWY NADGARSTEK
+RightGlute PRAWY ZAD
+LeftGlute LEWY ZAD
+RightHip PRAWE UDO
+LeftHip LEWE UDO
+RightKnee PRAWE KOLANO
+LeftKnee LEWE KOLANO
+RightAnkle PRAWA KOSTKA
+LeftAnkle LEWA KOSTKA
+RightRotating PRAWY OBROT
+RightBending PRAWE ZGIECIE
+LeftRotating LEWY OBROT
+LeftBending LEWE ZGIECIE
+Lowering ZNIZANIE
+Extending ROZCIAGANIE
+Raising PODWYZSZANIE
+Contracting KURCZENIE
+Holding TRZYMANIE
+Relaxing PUSZCZENIE
+Effects Efekty
+AlwaysOff Zawsze wyl
+OnlyOnReplays Tylko na powtorkach
+AlwaysOn Zawsze wl
+Default Domyslne
+PleaseEnableSteamOverlay Prosze wlaczyc narzute Steam i zrestartowac gre
+PleaseWaitForSteamPurchaseOverlay Prosze czekac na narzute Steam
+PleaseLogonSteam Proszie sie zalogowac na Steam aby kupic TC
+Refresh Odswiez
+Delete Usun
+Rename Zmien Nazwe
+New Nowy
+EnterNewReplayName Wprowadz nowa nazwe powtorki
+Grappling Zachaczanie
+Kicking Kopanie
+Striking Uderzanie
+Matchmaking Matchmaking
+(Paused) (Pauza)
+(Searching) (Szukanie)
+ModGroups Grupy Modyfikacji
+Search Szukaj
+Unranked Bezrangowe
+RankedPreferred Rangowe Preferowane
+RankedOnly Tylko Rangowe
+MatchmakeAgain Dopasuj od nowa

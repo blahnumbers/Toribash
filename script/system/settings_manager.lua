@@ -109,6 +109,7 @@ do
 	
 	function Settings:showAbout()
 		tbMenuUserBar:hide()
+		UIScrollbarIgnore = true
 		local whiteOverlay = UIElement:new({
 			parent = tbMenuMain,
 			pos = { 0, 0 },
@@ -116,6 +117,7 @@ do
 			bgColor = cloneTable(UICOLORWHITE),
 			interactive = true
 		})
+		whiteOverlay.killAction = function() UIScrollbarIgnore = false end
 		local slowMode = false
 		local speedMultiplier = get_option('framerate') == 30 and 2 or 1
 		whiteOverlay:addMouseHandlers(nil, function()
