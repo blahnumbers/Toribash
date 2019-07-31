@@ -975,6 +975,37 @@ do
 								end
 							end,
 							val = { get_option("movememory") }
+						},
+						{
+							name = TB_MENU_LOCALIZED.SETTINGSBROADCASTS,
+							type = DROPDOWN,
+							systemname = "showbroadcast",
+							selectedAction = function()
+									return get_option("showbroadcast") + 1
+								end,
+							dropdown = {
+								{
+									text = TB_MENU_LOCALIZED.SETTINGSDISABLED,
+									action = function()
+											TB_MENU_MAIN_SETTINGS.showbroadcast = { value = 0 }
+											Settings:settingsApplyActivate()
+										end
+								},
+								{
+									text = TB_MENU_LOCALIZED.SETTINGSSHOWINMP,
+									action = function()
+											TB_MENU_MAIN_SETTINGS.showbroadcast = { value = 1 }
+											Settings:settingsApplyActivate()
+										end
+								},
+								{
+									text = TB_MENU_LOCALIZED.SETTINGSALWAYSSHOW,
+									action = function()
+											TB_MENU_MAIN_SETTINGS.showbroadcast = { value = 2 }
+											Settings:settingsApplyActivate()
+										end
+								},
+							}
 						}
 					}
 				}
@@ -1423,6 +1454,14 @@ do
 						ChatIgnore:activate()
 					else
 						ChatIgnore:deactivate()
+					end
+				end
+				if (TB_MENU_MAIN_SETTINGS.showbroadcast) then
+					dofile("system/broadcast_manager.lua")
+					if (TB_MENU_MAIN_SETTINGS.showbroadcast.value > 0) then
+						Broadcasts:activate()
+					else
+						Broadcasts:deactivate()
 					end
 				end
 				TB_MENU_MAIN_SETTINGS = {}

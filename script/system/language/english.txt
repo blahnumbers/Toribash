@@ -731,3 +731,6 @@ EVENTSKEEPPLAYINGTOGETINTOPLIST	Keep playing to get in top list to receive even 
 EVENTSLOADCUSTOMREPLAY	Load custom replay	
 REPLAYSAUTOSAVEDREPLAY	Autosaved Replay	
 REPLAYSSELECTREPLAYTOPROCEED	Select a Replay to Proceed	
+SETTINGSBROADCASTS	Broadcast Popups	
+SETTINGSSHOWINMP	Only show in Multiplayer	
+SETTINGSALWAYSSHOW	Always show	

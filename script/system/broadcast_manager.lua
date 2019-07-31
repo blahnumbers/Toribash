@@ -163,6 +163,7 @@ do
 	end
 	
 	function Broadcasts:activate()
+		Broadcasts:deactivate()
 		BROADCASTS_ACTIVE = true
 		add_hook("console", "broadcast_manager", function(s, i)
 				if (i == 1) then
