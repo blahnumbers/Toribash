@@ -22,15 +22,15 @@ local function drawSingleKey(viewElement, reqTable, key)
 	local req = { type = "keypresscontrol", ready = false }
 	table.insert(reqTable, req)
 	
-	add_hook("key_up", "tbTutorialsCustom", function(s)
-			if (string.char(s) == key and button.hoverState) then
+	add_hook("key_up", "tbTutorialsCustom", function(s, code)
+			if ((string.char(s) == key or (code > 3 and code < 30 and string.char(code + 93) == key)) and button.hoverState) then
 				button.hoverState = false
 				req.ready = true
 				reqTable.ready = Tutorials:checkRequirements(reqTable)
 			end
 		end)
-	add_hook("key_down", "tbTutorialsCustom", function(s)
-			if (string.char(s) == key) then
+	add_hook("key_down", "tbTutorialsCustom", function(s, code)
+			if (string.char(s) == key or (code > 3 and code < 30 and string.char(code + 93) == key)) then
 				button.hoverState = BTN_HVR
 			end
 		end)
@@ -97,17 +97,17 @@ local function drawWASD(viewElement, reqTable, shift, fade)
 		local req = { type = "cameracontrols", ready = false }
 		table.insert(reqTable, req)
 		
-		add_hook("key_up", "tbTutorialsCustom", function(key)
+		add_hook("key_up", "tbTutorialsCustom", function(key, code)
 				if (shift and get_shift_key_state() == 0) then
 					keysToPress.shift.keyButton.hoverState = false
 				end
 				for i,v in pairs(keysToPress) do
 					if (i ~= "shift") then
-						if (string.char(key) == i) then
+						if (string.char(code + 93) == i) then
 							v.keyButton.hoverState = false
 						end
 						if (shift) then
-							if ((string.char(key) == "w" or string.char(key) == "s") and get_shift_key_state() > 0) then
+							if ((string.char(code + 93) == "w" or string.char(code + 93) == "s") and get_shift_key_state() > 0) then
 								req.ready = true
 								reqTable.ready = Tutorials:checkRequirements(reqTable)
 							end
@@ -126,13 +126,13 @@ local function drawWASD(viewElement, reqTable, shift, fade)
 					end
 				end
 			end)
-		add_hook("key_down", "tbTutorialsCustom", function(key)
+		add_hook("key_down", "tbTutorialsCustom", function(key, code)
 				if (shift and get_shift_key_state() > 0) then
 					keysToPress.shift.keyButton.hoverState = BTN_HVR
 				end
 				for i,v in pairs(keysToPress) do
 					if (i ~= "shift") then
-						if (string.char(key) == i) then
+						if (string.char(code + 93) == i) then
 							if (shift) then
 								if (get_shift_key_state() > 0 and i ~= "shift") then
 									keysToPress[i].pressed = true

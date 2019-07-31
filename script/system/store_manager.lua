@@ -1657,6 +1657,7 @@ do
 					end
 				end
 				Torishop:showInventory(viewElement)
+				check_steam_color(0)
 			end)
 	end
 
@@ -3803,6 +3804,9 @@ do
 								show_dialog_box(INVENTORY_UNPACK, TB_MENU_LOCALIZED.STOREDIALOGUNPACK1 .. " " .. item.itemname .. (TB_MENU_LOCALIZED.STOREDIALOGUNPACK2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGUNPACK2 .. "?") .. "\n" .. TB_MENU_LOCALIZED.STOREDIALOGUNPACKINFO, invid)
 							end)
 					elseif (item.ingame == 1) then
+						if (in_array(item.catid, CATEGORIES_COLORS)) then
+							check_steam_color(item.colorid)
+						end
 						TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASESUCCESSFUL, function()
 								INVENTORY_UPDATE = true
 								INVENTORY_MOUSE_POS = { x = posX, y = posY }

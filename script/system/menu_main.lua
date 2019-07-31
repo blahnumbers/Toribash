@@ -274,6 +274,10 @@ if (get_option("tooltip") == 1 and not TOOLTIP_ACTIVE) then
 	dofile("system/tooltip_manager.lua")
 	Tooltip:create()
 end
+if (get_option("showbroadcast") > 0 and not BROADCASTS_ACTIVE) then
+	dofile("system/broadcast_manager.lua")
+	Broadcasts:activate()
+end
 if (not QueueList) then
 	dofile("system/queuelist_manager.lua")
 end

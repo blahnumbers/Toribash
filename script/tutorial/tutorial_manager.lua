@@ -886,11 +886,11 @@ do
 		return checkRequirements(reqTable)
 	end
 
-	function Tutorials:ignoreKeyPress(key, jointlock, keyboardlock)
+	function Tutorials:ignoreKeyPress(key, keycode, jointlock, keyboardlock)
 		if ((jointlock and TUTORIALJOINTLOCK) or (keyboardlock and TUTORIALKEYBOARDLOCK)) then
 			for i,v in pairs(tbTutorialsKeysIgnore) do
-				if (key == v) then
-					if (v == string.byte("z") or v == string.byte("x")) then
+				if (key == v[1] or keycode == v[2]) then
+					if (v[1] == string.byte("z") or v[1] == string.byte("x")) then
 						if (#tbTutorialsJointsIgnore > 0) then
 							return Tutorials:ignoreMouseClick()
 						else
@@ -1382,22 +1382,22 @@ do
 			Tutorials:taskOptComplete(steps[currentStep].taskoptcomplete)
 		end
 		if (steps[currentStep].shiftunlock) then
-			table.insert(tbTutorialsKeysIgnore, 303)
-			table.insert(tbTutorialsKeysIgnore, 304)
+			table.insert(tbTutorialsKeysIgnore, { 303 })
+			table.insert(tbTutorialsKeysIgnore, { 304 })
 		end
 		if (steps[currentStep].keyboardunlock) then
 			if (steps[currentStep].keystounlock) then
 				for i = 1, steps[currentStep].keystounlock:len() do
 					local key = string.byte(steps[currentStep].keystounlock:sub(i, i))
-					table.insert(tbTutorialsKeysIgnore, key)
+					table.insert(tbTutorialsKeysIgnore, { key, (key > 96 and key < 123) and key - 93 or nil })
 					if (key == 97) then
-						table.insert(tbTutorialsKeysIgnore, 276)
+						table.insert(tbTutorialsKeysIgnore, { 276 })
 					elseif (key == 119) then
-						table.insert(tbTutorialsKeysIgnore, 273)
+						table.insert(tbTutorialsKeysIgnore, { 273 })
 					elseif (key == 100) then
-						table.insert(tbTutorialsKeysIgnore, 275)
+						table.insert(tbTutorialsKeysIgnore, { 275 })
 					elseif (key == 115) then
-						table.insert(tbTutorialsKeysIgnore, 274)
+						table.insert(tbTutorialsKeysIgnore, { 274 })
 					end
 				end
 			else
@@ -2078,10 +2078,10 @@ do
 			end)
 		add_hook("mouse_button_up", "uiMouseHandler", function(s, x, y) UIElement:handleMouseUp(s, x, y) end)
 		add_hook("mouse_move", "uiMouseHandler", function(x, y) UIElement:handleMouseHover(x, y) end)
-		add_hook("key_down", "tbTutorialKeyboardHandler", function(key)
-				return Tutorials:ignoreKeyPress(key, true, true)
+		add_hook("key_down", "tbTutorialKeyboardHandler", function(key, kcode)
+				return Tutorials:ignoreKeyPress(key, kcode, true, true)
 			end)
-		add_hook("key_up", "tbTutorialKeyboardHandler", function(key)
+		add_hook("key_up", "tbTutorialKeyboardHandler", function(key, kcode)
 				if (key == 13) then
 					if (tbTutorialsContinueButton.isactive) then
 						if (tbTutorialsContinueButton.req.ready ~= nil) then
@@ -2091,7 +2091,7 @@ do
 						end
 					end
 				else
-					return Tutorials:ignoreKeyPress(key, true, true)
+					return Tutorials:ignoreKeyPress(key, kcode, true, true)
 				end
 			end)
 
