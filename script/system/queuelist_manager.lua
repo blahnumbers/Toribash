@@ -162,12 +162,12 @@ do
 	end
 	
 	function QueueList:report(pName)
-		add_hook("key_up", "queuelistKeyboard", function(s) UIElement:handleKeyUp(s) return 1 end)
-		add_hook("key_down", "queuelistKeyboard", function(s) UIElement:handleKeyDown(s) return 1 end)
+		add_hook("key_up", "reportsubmitKeyboard", function(s) UIElement:handleKeyUp(s) return 1 end)
+		add_hook("key_down", "reportsubmitKeyboard", function(s) UIElement:handleKeyDown(s) return 1 end)
 		chat_input_deactivate()
 		
 		local overlay = TBMenu:spawnWindowOverlay()
-		overlay:addMouseHandlers(nil, function() overlay:kill() remove_hooks("queuelistKeyboard") chat_input_activate() end)
+		overlay:addMouseHandlers(nil, function() overlay:kill() remove_hooks("reportsubmitKeyboard") chat_input_activate() end)
 		local reportHolder = UIElement:new({
 			parent = overlay,
 			pos = { WIN_W / 5, WIN_H / 2 - 220 },
@@ -267,7 +267,7 @@ do
 			pos = { 20, extraMessageHolder.size.h + extraMessageHolder.shift.y + 5 },
 			size = { reportHolder.size.w - 40, 40 }
 		})
-		chatlogInfo:addAdaptedText(true, TB_MENU_LOCALIZED.REPORTSCHATLOGINFO, nil, nil, 4, LEFTMID, 0.6)
+		chatlogInfo:addAdaptedText(true, TB_MENU_LOCALIZED.REPORTSCHATLOGINFO .. "\n" .. TB_MENU_LOCALIZED.REPORTSABUSENOTICE, nil, nil, 4, LEFTMID, 0.6)
 		local submitReport = UIElement:new({
 			parent = reportHolder,
 			pos = { reportHolder.size.w / 4, -50 },
@@ -283,71 +283,35 @@ do
 			size = { submitReport.size.w - 30, submitReport.size.h - 10 }
 		})
 		submitReportText:addAdaptedText(true, TB_MENU_LOCALIZED.BUTTONSUBMIT)
-		submitReport:addMouseHandlers(nil, function()
-				local waitOverlay = UIElement:new({
-					parent = reportHolder,
-					pos = { 0, 0 },
-					size = { reportHolder.size.w, reportHolder.size.h },
-					bgColor = TB_MENU_DEFAULT_BG_COLOR,
-					interactive = true
-				})
-				TBMenu:displayLoadingMark(waitOverlay, TB_MENU_LOCALIZED.MESSAGEPLEASEWAIT)
-				local function doReport()
-					Request:new("reportPlayer", function()
-							local response = get_network_response()
-							if (response:find("GATEWAY 0; 0")) then
-								if (not waitOverlay:isDisplayed()) then
-									TBMenu:showDataError(reportReasonId == 3 and TB_MENU_LOCALIZED.REPORTSSUCCESSSCAMMING or TB_MENU_LOCALIZED.REPORTSSUCCESSDEFAULT, true)
-									return
-								end
-								waitOverlay:kill(true)
-								local successMessage = UIElement:new({
-									parent = waitOverlay,
-									pos = { 20, 10 },
-									size = { waitOverlay.size.w - 40, waitOverlay.size.h / 2 - 10 }
-								})
-								successMessage:addAdaptedText(true, reportReasonId == 3 and TB_MENU_LOCALIZED.REPORTSSUCCESSSCAMMING or TB_MENU_LOCALIZED.REPORTSSUCCESSDEFAULT, nil, nil, nil, CENTERBOT)
-								
-								local shiftH, buttonH = 10, (waitOverlay.size.h / 2 - 20) / 2 > 50 and 50 or (waitOverlay.size.h / 2 - 20) / 2
-								if (reportReasonId == 3) then
-									local reportThreadId = response:gsub("GATEWAY 0; 0 ", "")
-									local reportThread = UIElement:new({
-										parent = waitOverlay,
-										pos = { waitOverlay.size.w / 4, waitOverlay.size.h / 2 + shiftH },
-										size = { waitOverlay.size.w / 2, buttonH },
-										interactive = true,
-										bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
-										hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-										pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
-									})
-									local reportThreadText = UIElement:new({
-										parent = reportThread,
-										pos = { reportThread.size.w / 20, reportThread.size.h / 8 },
-										size = { reportThread.size.w * 0.9, reportThread.size.h / 8 * 6 }
-									})
-									TBMenu:showTextWithImage(reportThreadText, TB_MENU_LOCALIZED.REPORTSREPORTTHREAD .. ": ID " .. reportThreadId, FONTS.MEDIUM, reportThreadText.size.h, "../textures/menu/general/buttons/external.tga")
-									reportThread:addMouseHandlers(nil, function() open_url("https://forum.toribash.com/showthread.php?t=" .. reportThreadId) end)
-								else
-									local discordButton = UIElement:new({
-										parent = waitOverlay,
-										pos = { waitOverlay.size.w / 4, waitOverlay.size.h / 2 + shiftH },
-										size = { waitOverlay.size.w / 2, buttonH },
-										interactive = true,
-										bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
-										hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-										pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
-									})
-									local discordButtonText = UIElement:new({
-										parent = discordButton,
-										pos = { discordButton.size.w / 20, discordButton.size.h / 8 },
-										size = { discordButton.size.w * 0.9, discordButton.size.h / 8 * 6 }
-									})
-									TBMenu:showTextWithImage(discordButtonText, TB_MENU_LOCALIZED.DISCORDSERVER, FONTS.MEDIUM, discordButtonText.size.h, "..//textures/menu/logos/discord.tga")
-									discordButton:addMouseHandlers(nil, function() open_url("https://discord.gg/toribash") end)
-								end
-								shiftH = shiftH * 2 + buttonH
-								
-								local exitButton = UIElement:new({
+		local function showSubmitReport()
+			local waitOverlay = UIElement:new({
+				parent = reportHolder,
+				pos = { 0, 0 },
+				size = { reportHolder.size.w, reportHolder.size.h },
+				bgColor = TB_MENU_DEFAULT_BG_COLOR,
+				interactive = true
+			})
+			TBMenu:displayLoadingMark(waitOverlay, TB_MENU_LOCALIZED.MESSAGEPLEASEWAIT)
+			local function doReport()
+				Request:new("reportPlayer", function()
+						local response = get_network_response()
+						if (response:find("GATEWAY 0; 0")) then
+							if (not waitOverlay:isDisplayed()) then
+								TBMenu:showDataError(reportReasonId == 3 and TB_MENU_LOCALIZED.REPORTSSUCCESSSCAMMING or TB_MENU_LOCALIZED.REPORTSSUCCESSDEFAULT, true)
+								return
+							end
+							waitOverlay:kill(true)
+							local successMessage = UIElement:new({
+								parent = waitOverlay,
+								pos = { 20, 10 },
+								size = { waitOverlay.size.w - 40, waitOverlay.size.h / 2 - 10 }
+							})
+							successMessage:addAdaptedText(true, reportReasonId == 3 and TB_MENU_LOCALIZED.REPORTSSUCCESSSCAMMING or TB_MENU_LOCALIZED.REPORTSSUCCESSDEFAULT, nil, nil, nil, CENTERBOT)
+							
+							local shiftH, buttonH = 10, (waitOverlay.size.h / 2 - 20) / 2 > 50 and 50 or (waitOverlay.size.h / 2 - 20) / 2
+							if (reportReasonId == 3) then
+								local reportThreadId = response:gsub("GATEWAY 0; 0 ", "")
+								local reportThread = UIElement:new({
 									parent = waitOverlay,
 									pos = { waitOverlay.size.w / 4, waitOverlay.size.h / 2 + shiftH },
 									size = { waitOverlay.size.w / 2, buttonH },
@@ -356,41 +320,102 @@ do
 									hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 									pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
 								})
-								local exitButtonText = UIElement:new({
-									parent = exitButton,
-									pos = { exitButton.size.w / 20, exitButton.size.h / 8 },
-									size = { exitButton.size.w * 0.9, exitButton.size.h / 8 * 6 }
+								local reportThreadText = UIElement:new({
+									parent = reportThread,
+									pos = { reportThread.size.w / 20, reportThread.size.h / 8 },
+									size = { reportThread.size.w * 0.9, reportThread.size.h / 8 * 6 }
 								})
-								exitButtonText:addAdaptedText(true, TB_MENU_LOCALIZED.BUTTONCLOSEWINDOW)
-								exitButton:addMouseHandlers(nil, overlay.btnUp)
+								TBMenu:showTextWithImage(reportThreadText, TB_MENU_LOCALIZED.REPORTSREPORTTHREAD .. ": ID " .. reportThreadId, FONTS.MEDIUM, reportThreadText.size.h, "../textures/menu/general/buttons/external.tga")
+								reportThread:addMouseHandlers(nil, function() open_url("https://forum.toribash.com/showthread.php?t=" .. reportThreadId) end)
 							else
-								waitOverlay:kill()
-								TBMenu:showDataError(TB_MENU_LOCALIZED.ACCOUNTINFOERROR, true)
+								local discordButton = UIElement:new({
+									parent = waitOverlay,
+									pos = { waitOverlay.size.w / 4, waitOverlay.size.h / 2 + shiftH },
+									size = { waitOverlay.size.w / 2, buttonH },
+									interactive = true,
+									bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+									hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+									pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+								})
+								local discordButtonText = UIElement:new({
+									parent = discordButton,
+									pos = { discordButton.size.w / 20, discordButton.size.h / 8 },
+									size = { discordButton.size.w * 0.9, discordButton.size.h / 8 * 6 }
+								})
+								TBMenu:showTextWithImage(discordButtonText, TB_MENU_LOCALIZED.DISCORDSERVER, FONTS.MEDIUM, discordButtonText.size.h, "..//textures/menu/logos/discord.tga")
+								discordButton:addMouseHandlers(nil, function() open_url("https://discord.gg/toribash") end)
 							end
-						end, function()
+							shiftH = shiftH * 2 + buttonH
+							
+							local exitButton = UIElement:new({
+								parent = waitOverlay,
+								pos = { waitOverlay.size.w / 4, waitOverlay.size.h / 2 + shiftH },
+								size = { waitOverlay.size.w / 2, buttonH },
+								interactive = true,
+								bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+								hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+								pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+							})
+							local exitButtonText = UIElement:new({
+								parent = exitButton,
+								pos = { exitButton.size.w / 20, exitButton.size.h / 8 },
+								size = { exitButton.size.w * 0.9, exitButton.size.h / 8 * 6 }
+							})
+							exitButtonText:addAdaptedText(true, TB_MENU_LOCALIZED.BUTTONCLOSEWINDOW)
+							exitButton:addMouseHandlers(nil, overlay.btnUp)
+						else
 							waitOverlay:kill()
 							TBMenu:showDataError(TB_MENU_LOCALIZED.ACCOUNTINFOERROR, true)
-						end)
-					report_player(pName, reportReasonId, extraMessage.textfieldstr[1], "")
-				end
-				if (get_network_task() == 0) then
-					echo("network task 0, reporting")
-					doReport()
-				else
-					local waiter = UIElement:new({
-						parent = waitOverlay,
-						pos = { 0, 0 },
-						size = { 0, 0 }
-					})
-					waiter:addCustomDisplay(true, function()
-							if (get_network_task() == 0) then
-								waiter:kill()
-								doReport()
-								return
-							end
-							echo("network task 1")
-						end)
-				end
+						end
+					end, function()
+						waitOverlay:kill()
+						TBMenu:showDataError(TB_MENU_LOCALIZED.ACCOUNTINFOERROR, true)
+					end)
+				report_player(pName, reportReasonId, extraMessage.textfieldstr[1], "")
+			end
+			if (get_network_task() == 0) then
+				doReport()
+				local spawnTime = os.clock()
+				local messageChanger = UIElement:new({
+					parent = reportHolder,
+					pos = { 0, 0 },
+					size = { 0, 0 }
+				})
+				messageChanger:addCustomDisplay(true, function()
+						if (spawnTime < os.clock() - 5) then
+							waitOverlay:kill(true)
+							TBMenu:displayLoadingMark(waitOverlay, TB_MENU_LOCALIZED.REPORTSLONGWAITMESSAGE)
+						end
+					end)
+			else
+				local waiter = UIElement:new({
+					parent = waitOverlay,
+					pos = { 0, 0 },
+					size = { 0, 0 }
+				})
+				waiter:addCustomDisplay(true, function()
+						if (get_network_task() == 0) then
+							waiter:kill()
+							local spawnTime = os.clock()
+							local messageChanger = UIElement:new({
+								parent = reportHolder,
+								pos = { 0, 0 },
+								size = { 0, 0 }
+							})
+							messageChanger:addCustomDisplay(true, function()
+									if (spawnTime < os.clock() - 5) then
+										waitOverlay:kill(true)
+										TBMenu:displayLoadingMark(waitOverlay, TB_MENU_LOCALIZED.REPORTSLONGWAITMESSAGE)
+									end
+								end)
+							doReport()
+							return
+						end
+					end)
+			end
+		end
+		submitReport:addMouseHandlers(nil, function()
+				TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.REPORTSCONFIRMATION .. " " .. pName .. "?\n" .. TB_MENU_LOCALIZED.REPORTSABUSENOTICE, showSubmitReport)
 			end)
 	end
 	
@@ -543,7 +568,7 @@ do
 				name = "report",
 				show = true,
 				text = TB_MENU_LOCALIZED.QUEUELISTDROPDOWNREPORT,
-				action = function(s) QueueList:report(s) return 2 end
+				action = function(s) QueueList:report(s) end
 			}
 		}
 		local cButtons = {

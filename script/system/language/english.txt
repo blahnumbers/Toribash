@@ -681,7 +681,8 @@ REPORTSSUCCESSDEFAULT	Your report has been successfully submitted, Toribash staf
 REPORTSSUCCESSSCAMMING	Your report has been successfully submitted, Market Squad will get to it as soon as possible.\nMake sure you keep an eye on your report until it's resolved in case there are any extra questions. If you want to add any extra replays, screenshots or other information to the report, please do so in the thread.	
 REPORTSEXTRAMESSAGE	Extra message:	
 REPORTSEXTRAMESSAGETIP	Add any extra information that you think may be useful	
-REPORTSCHATLOGINFO	Room chat logs and latest fight's replay will be also automatically attached to the report.\nAbusing reports system will get you banned from Toribash forums and game servers.	
+REPORTSCHATLOGINFO	Room chat logs and latest fight's replay will be also automatically attached to the report.
+REPORTSABUSENOTICE	Abusing reports system will get you banned from Toribash forums and game servers.	
 MESSAGEPLEASEWAIT	Please wait...	
 BUTTONCLOSEWINDOW	Close Window	
 INVENTORY3DITEMFOR	3D item for	your	
@@ -734,3 +735,5 @@ REPLAYSSELECTREPLAYTOPROCEED	Select a Replay to Proceed
 SETTINGSBROADCASTS	Broadcast Popups	
 SETTINGSSHOWINMP	Only show in Multiplayer	
 SETTINGSALWAYSSHOW	Always show	
+REPORTSCONFIRMATION	Are you sure you want to report	
+REPORTSLONGWAITMESSAGE	Taking a bit longer than usual...\nThis window can be closed, you'll receive a notification when your report gets submitted.

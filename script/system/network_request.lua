@@ -12,12 +12,12 @@ do
 		local response = { ready = false }
 		
 		local name = name or "netrequest"
-		local success = success or function() if (TB_MENU_DEBUG) then echo(get_network_response()) end end
-		local error = error or function() if (TB_MENU_DEBUG) then echo(get_network_error()) end response.failed = true response.ready = true end
+		local success = success or function() end
+		local error = error or function() end
 		add_hook("network_error", name, function()
 				if (TB_MENU_DEBUG) then echo(get_network_error()) end
-				error(response)
 				response.failed = true
+				error(response)
 				response.ready = true
 				remove_hooks(name)
 			end)

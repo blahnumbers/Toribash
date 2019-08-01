@@ -167,8 +167,7 @@ do
 		BROADCASTS_ACTIVE = true
 		add_hook("console", "broadcast_manager", function(s, i)
 				if (i == 1) then
-					if (s:find('%[global%]')) then
-						echo("success")
+					if (s:find("%[global%]")) then
 						Broadcasts:fetchBroadcast()
 					end
 				end
