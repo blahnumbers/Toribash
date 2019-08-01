@@ -524,11 +524,15 @@ do
 		end
 		
 		local showControls, showAdvControls = false, false
-		if (userinfo.admin ~= 0 or userinfo.eventsquad ~= 0) then
+		if (userinfo.admin ~= 0 or userinfo.eventsquad ~= 0 or userinfo.helpsquad ~= 0) then
+			userinfo.ingameadmin = true
 			showControls = true
 			showAdvControls = true
-		elseif (userinfo.op ~= 0 and info.admin == 0 and info.eventsquad == 0) then
+		elseif (userinfo.op ~= 0) then
 			showControls = true
+		end
+		if (info.admin ~= 0 or info.eventsquad ~= 0 or info.helpsquad ~= 0) then
+			info.ingameadmin = true
 		end
 		
 		local isUser = TB_MENU_PLAYER_INFO.username:lower() == pName:lower()
@@ -574,7 +578,7 @@ do
 		local cButtons = {
 			{
 				name = "mute",
-				show = info.muted == 0 and info.eventsquad == 0 and info.admin == 0,
+				show = info.muted == 0 and info.op == 0 and not info.ingameadmin,
 				text = TB_MENU_LOCALIZED.QUEUELISTDROPDOWNMUTE,
 				action = function(s) UIElement:runCmd("mute " .. s, true) end
 			},
@@ -586,13 +590,13 @@ do
 			},
 			{
 				name = "op",
-				show = info.op == 0 and info.eventsquad == 0 and info.admin == 0,
+				show = info.op == 0 and not info.ingameadmin,
 				text = TB_MENU_LOCALIZED.QUEUELISTDROPDOWNOP,
 				action = function(s) UIElement:runCmd("op " .. s, true) end
 			},
 			{
 				name = "deop",
-				show = info.op ~= 0 and info.eventsquad == 0 and info.admin == 0,
+				show = info.op ~= 0 and not info.ingameadmin,
 				text = TB_MENU_LOCALIZED.QUEUELISTDROPDOWNDEOP,
 				action = function(s) UIElement:runCmd("deop " .. s, true) end
 			},
@@ -616,19 +620,19 @@ do
 			},
 			{
 				name = "kick",
-				show = info.eventsquad == 0 and info.admin == 0,
+				show = not info.ingameadmin,
 				text = TB_MENU_LOCALIZED.QUEUELISTDROPDOWNKICK,
 				action = function(s) UIElement:runCmd("kick " .. s, true) end
 			},
 			{
 				name = "ban",
-				show = info.eventsquad == 0 and info.admin == 0,
+				show = not info.ingameadmin,
 				text = TB_MENU_LOCALIZED.QUEUELISTDROPDOWNBAN,
 				action = function(s) UIElement:runCmd("ban add " .. s, true) end
 			},
 			{
 				name = "ipban",
-				show = showAdvControls and info.eventsquad == 0 and info.admin == 0,
+				show = showAdvControls and not info.ingameadmin,
 				text = TB_MENU_LOCALIZED.QUEUELISTDROPDOWNIPBAN,
 				action = function(s) QueueList:placeIPBan(s) end
 			}
