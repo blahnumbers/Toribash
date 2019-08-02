@@ -215,7 +215,7 @@ do
 		dofile("system/friendlist_manager.lua")
 		local players = FriendsList:updateOnline()
 		
-		local defaultRoom, rooms = "summer1", { "summer%d" }
+		local defaultRoom, rooms = "modmania1", { "modmania%d" }
 		local roomsOnline = {}
 		for i, online in pairs(players) do
 			for j, roomname in pairs(rooms) do

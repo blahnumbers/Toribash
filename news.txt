@@ -4,6 +4,14 @@ SUBTITLE 0;Defeat other players to climb up ranks and get exciting rewards!
 IMAGE 0;season6.tga
 URL 0;http://forum.toribash.com/showthread.php?t=627137
 
+NEWSID 3;
+TITLE 0;Mod Mania
+SUBTITLE 0;Old style mod championships are back for this summer!
+IMAGESMALL 0;modmaniasmall.tga
+IMAGE 0;modmania.tga
+FEATURED 0;
+MODCHAMPIONSHIP 0;
+
 NEWSID 4;
 TITLE 0;Free Run Frenzy
 SUBTITLE 0;Welcome to the Event Squad's first ever automated parkour event!
