@@ -1,8 +1,19 @@
 local INTRO = 1
 local OUTRO = -1
 
+local loadOpener
 local openerStopframe = 60
 STOPFRAME = openerStopframe
+
+local function setModSettings()
+	UIElement:runCmd("set mod classic.tbm")
+	start_new_game()
+	UIElement:runCmd("set matchframes 1000")
+	UIElement:runCmd("set engagedistance -200")
+	UIElement:runCmd("set fracture 0")
+	UIElement:runCmd("set gravity 0 0 -15")
+	start_new_game()
+end
 
 local function showOverlay(viewElement, reqTable, out, speed)
 	local speed = speed or 1
@@ -116,6 +127,7 @@ end
 
 local function eventMain(viewElement, reqTable, skipAdd)
 	local skipAdd = skipAdd or 0
+	local advComplete = false
 	TUTORIAL_SPECIAL_RP_IGNORE = true
 	
 	EventsOnline:taskOptIncomplete(1)
@@ -138,6 +150,9 @@ local function eventMain(viewElement, reqTable, skipAdd)
 					tbTutorialsTaskMark:hide(true)
 					TUTORIAL_LEAVEGAME = false
 					REPLAY_CAN_BE_SUBMITTED = false
+					EventsOnline:taskOptIncomplete(1)
+					EventsOnline:taskOptIncomplete(2)
+					advComplete = false
 				end
 				if (key == 102) then
 					dofile("system/replay_save.lua")
@@ -157,7 +172,8 @@ local function eventMain(viewElement, reqTable, skipAdd)
 				if (key == 32 and get_world_state().replay_mode == 1) then
 					TUTORIAL_LEAVEGAME = true
 					STOPFRAME = openerStopframe
-					open_replay("system/events/" .. CURRENT_TUTORIAL .. ".rpl")
+					setModSettings()
+					loadOpener()
 					REPLAY_CAN_BE_SUBMITTED = false
 					TUTORIAL_LEAVEGAME = false
 					return 1
@@ -234,13 +250,11 @@ local function eventMain(viewElement, reqTable, skipAdd)
 	end
 	
 	local submitButton = nil
-	local advComplete = false
 	add_hook("draw2d", "tbTutorialsCustom", function()
 			local ws = get_world_state()
 			if (STOPFRAME) then
-				if (ws.match_frame >= STOPFRAME) then
+				if (ws.match_frame >= STOPFRAME and ws.replay_mode == 1) then
 					edit_game()
-					STOPFRAME = nil
 				end
 			end
 			if (not submitButton and REPLAY_CAN_BE_SUBMITTED) then
@@ -264,21 +278,22 @@ local function eventMain(viewElement, reqTable, skipAdd)
 				end
 			end
 			if (not advComplete and ws.replay_mode == 0) then
-				local criteriaMet = true
+				local criteriaMet1, criteriaMet2 = false, true
 				for i,v in pairs(JOINTS) do
 					local dismembered = get_joint_dismember(1, v)
 					if (in_array(v, { 1, 2, 3 })) then
-						if (not dismembered) then
-							criteriaMet = false
+						if (dismembered) then
+							criteriaMet1 = true
 						end
 					end
 					if (in_array(v, { 4, 5, 7, 8, 12, 13, 14, 15 })) then
 						if (dismembered) then
-							criteriaMet = false
+							criteriaMet2 = false
+							break
 						end
 					end
 				end
-				if (criteriaMet) then
+				if (criteriaMet1 and criteriaMet2) then
 					EventsOnline:taskOptComplete(2)
 					advComplete = true
 				end
@@ -298,7 +313,7 @@ local function launchGame(viewElement, reqTable)
 	setDiscordRPC()
 	
 	REPLAY_CAN_BE_SUBMITTED = false
-	UIElement:runCmd("lm classic.tbm")
+	setModSettings()
 	local wipReplay = Files:new("../replay/my replays/--eventtmp" .. CURRENT_TUTORIAL .. ".rpl")
 	if (wipReplay.data) then
 		for i,ln in pairs(wipReplay:readAll()) do
@@ -309,9 +324,9 @@ local function launchGame(viewElement, reqTable)
 			end
 		end
 	else
-		open_replay("system/events/" .. CURRENT_TUTORIAL .. ".rpl")
-		freeze_game()
-		REPLAY_RUNNING = true
+		--open_replay("system/events/" .. CURRENT_TUTORIAL .. ".rpl")
+		--freeze_game()
+		--REPLAY_RUNNING = true
 	end
 	
 	local reqElement = UIElement:new({
@@ -382,13 +397,169 @@ local function checkOpenerReplay(viewElement, reqTable)
 	download_head("fred")
 end
 
+local function loadExistingReplay(viewElement, reqTable, openerOnly)
+	local opener = Files:new("../replay/system/events/" .. CURRENT_TUTORIAL .. ".rpl")
+	if (not opener.data) then
+		reqTable.ready = true
+		return false
+	end
+	local openerData = opener:readAll()
+	opener:close()
+	local openerSteps = {}
+	for i,ln in pairs(openerData) do
+		if (ln:find("^FRAME %d+")) then
+			local rplFrame = ln:gsub("^FRAME ", ""):gsub("%D?;.*$", "")
+			table.insert(openerSteps, { frame = tonumber(rplFrame), moves = {}, grip = {} })
+			if (#openerSteps ~= 1) then
+				openerSteps[#openerSteps - 1].turnLength = openerSteps[#openerSteps].frame - openerSteps[#openerSteps - 1].frame
+			end
+		elseif (ln:find("JOINT 0;")) then
+			local jointMoves = ln:gsub("JOINT 0; ", "")
+			local _, count = jointMoves:gsub(" ", "")
+			count = (count + 1) / 2
+			local data_stream = { jointMoves:match(("(%d+ %d+) *"):rep(count)) }
+			for i,v in pairs(data_stream) do
+				local info = { v:match(("(%d+) *"):rep(2)) }
+				openerSteps[#openerSteps].moves[info[1] + 0] = info[2] + 0
+			end
+		elseif (ln:find("GRIP 0;")) then
+			local gripChanges = ln:gsub("GRIP 0; ", "")
+			local data_stream = { gripChanges:match(("(%d) ?"):rep(2)) }
+			if (data_stream[1] ~= '0') then
+				openerSteps[#openerSteps].grip[12] = data_stream[1] == '1' and 1 or 0
+			end
+			if (data_stream[2] ~= '0') then
+				openerSteps[#openerSteps].grip[11] = data_stream[2] == '1' and 1 or 0
+			end
+		end
+	end
+	openerSteps[#openerSteps].turnLength = openerStopframe - openerSteps[#openerSteps].frame
+	eventMain(viewElement, reqTable, 2)
+	
+	local current_step = 1
+	
+	local replay = Files:new("../replay/my replays/--eventtmp" .. CURRENT_TUTORIAL .. ".rpl")
+	local setReady = false
+	if (not replay.data) then
+		setReady = true
+	end
+	if (setReady or openerOnly) then
+		if (openerOnly and not setReady) then
+			replay:close()
+		end 
+		add_hook("draw2d", "tbTutorialsCustomStatic", function()
+				local ws = get_world_state()
+				if (ws.match_frame == openerStopframe) then
+					remove_hook("draw2d", "tbTutorialsCustomStatic")
+					freeze_game()
+					edit_game()
+					if (setReady) then
+						reqTable.ready = true
+					end
+				end
+				if (ws.match_frame == openerSteps[current_step].frame) then
+					for i,v in pairs(openerSteps[current_step].moves) do
+						set_joint_state(0, i, v)
+					end
+					for i,v in pairs(openerSteps[current_step].grip) do
+						set_grip_info(0, i, v)
+					end
+					run_frames(openerSteps[current_step].turnLength)
+					current_step = current_step + 1
+				end
+			end)
+		return true
+	end
+	
+	local rplData = replay:readAll()
+	replay:close()
+	local steps = {}
+	local acceptStep = false
+	for i, ln in pairs(rplData) do
+		if (ln:find("^FRAME %d+")) then
+			local rplFrame = ln:gsub("^FRAME ", ""):gsub("%D?;.*$", "")
+			if (#steps > 0) then
+				if (tonumber(rplFrame) < steps[#steps].frame) then
+					steps = {}
+				end
+			end
+			if (tonumber(rplFrame) < openerStopframe) then
+				acceptStep = false
+			else
+				acceptStep = true
+				table.insert(steps, { frame = tonumber(rplFrame), moves = {}, grip = {} })
+				if (#steps ~= 1) then
+					steps[#steps - 1].turnLength = steps[#steps].frame - steps[#steps - 1].frame
+				end
+			end
+		elseif (ln:find("JOINT 0;") and acceptStep) then
+			local jointMoves = ln:gsub("JOINT 0; ", "")
+			local _, count = jointMoves:gsub(" ", "")
+			count = (count + 1) / 2
+			local data_stream = { jointMoves:match(("(%d+ %d+) *"):rep(count)) }
+			for i,v in pairs(data_stream) do
+				local info = { v:match(("(%d+) *"):rep(2)) }
+				steps[#steps].moves[info[1] + 0] = info[2] + 0
+			end
+		elseif (ln:find("GRIP 0;")) then
+			local gripChanges = ln:gsub("GRIP 0; ", "")
+			local data_stream = { gripChanges:match(("(%d) ?"):rep(2)) }
+			if (data_stream[1] ~= '0') then
+				steps[#steps].grip[12] = data_stream[1] == '1' and 1 or 0
+			end
+			if (data_stream[2] ~= '0') then
+				steps[#steps].grip[11] = data_stream[2] == '1' and 1 or 0
+			end
+		end
+	end
+	if (#steps > 0) then
+		openerSteps[#openerSteps].turnLength = steps[1].frame - openerSteps[#openerSteps].frame
+		for i,v in pairs(steps) do
+			table.insert(openerSteps, v)
+		end
+		STOPFRAME = openerSteps[#openerSteps].frame
+	else
+		openerSteps[#openerSteps].turnLength = openerStopframe - openerSteps[#openerSteps].frame
+		table.insert(openerSteps, { frame = openerStopframe, moves = {}, grip = {} })
+	end
+	add_hook("draw2d", "tbTutorialsCustomStatic", function()
+			local ws = get_world_state()
+			if (current_step > #openerSteps) then
+				remove_hook("draw2d", "tbTutorialsCustomStatic")
+				freeze_game()
+				edit_game()
+				reqTable.ready = true
+			end
+			if (ws.match_frame == openerSteps[current_step].frame) then
+				for i,v in pairs(openerSteps[current_step].moves) do
+					set_joint_state(0, i, v)
+				end
+				for i,v in pairs(openerSteps[current_step].grip) do
+					set_grip_info(0, i, v)
+				end
+				if (current_step ~= #openerSteps) then
+					run_frames(openerSteps[current_step].turnLength)
+				end
+				current_step = current_step + 1
+			end
+		end)
+end
+
+loadOpener = function(viewElement, reqTable)
+	TUTORIAL_LEAVEGAME = true
+	setModSettings()
+	TUTORIAL_LEAVEGAME = false
+	loadExistingReplay(viewElement, reqTable, true)
+end
+
 functions = {
 	IntroOverlay = introOverlay,
 	OutroOverlay = outroOverlay,
 	InitCheckpoints = loadCheckpoints,
 	PrepareNewGame = launchGame,
+	PlayOpener = loadOpener,
+	LoadReplay = loadExistingReplay,
 	OpenerChallenge = eventMain,
 	UploadEventEntry = showUploadWindow,
-	PlayOpener = playOpenerFrames,
 	CheckReplay = checkOpenerReplay
 }
