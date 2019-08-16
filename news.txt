@@ -31,7 +31,7 @@ EVENT 0;1
 EVENTID 1;
 NAME 0;Opener Challenge
 IMAGE 0;openerchallenge.tga
-URL 0;https://forum.toribash.com/showthread.php?t=629768
+URL 0;https://forum.toribash.com/showthread.php?t=630515
 PLAYNAME 0;openerchallenge
 OVERLAYTRANS 0;0.1
 PLAYTEXT 0;PARTICIPATE

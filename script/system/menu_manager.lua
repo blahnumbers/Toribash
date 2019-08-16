@@ -1080,7 +1080,8 @@ do
 	function TBMenu:showPlaySection()
 		local tbMenuPlayButtonsData = {
 			{ title = TB_MENU_LOCALIZED.MAINMENUFREEPLAYNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUFREEPLAYDESC, size = 0.5, ratio = 0.5, image = "../textures/menu/freeplay.tga", mode = ORIENTATION_LANDSCAPE, action = function() open_menu(1) end },
-			{ title = TB_MENU_LOCALIZED.MAINMENUREPLAYSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUREPLAYSDESC, size = 0.25, ratio = 1.055, image = "../textures/menu/replays2.tga", mode = ORIENTATION_PORTRAIT, action = function() TBMenu:showReplays() end },
+			{ title = TB_MENU_LOCALIZED.MAINMENUREPLAYSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUREPLAYSDESC, size = 0.25, vsize = 0.55, ratio = 0.7, image = "../textures/menu/replays3.tga", mode = ORIENTATION_PORTRAIT, action = function() TBMenu:showReplays() end },
+			{ title = "Mod Mania's second challenge is now available!", size = 0.25, vsize = 0.45, ratio = 0.66, image = "../textures/menu/promo/modmania.tga", action = function() Events:loadModChampionship(tbMenuCurrentSection) end },
 			{ title = TB_MENU_LOCALIZED.MAINMENUROOMLISTNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUROOMLISTDESC, size = 0.25, ratio = 1.055, image = "../textures/menu/multiplayer.tga", mode = ORIENTATION_PORTRAIT, action = function() open_menu(2) end }
 		}
 		if (TB_MENU_PLAYER_INFO.username == '') then

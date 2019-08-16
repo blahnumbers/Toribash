@@ -451,6 +451,16 @@ do
 		return math.deg(x), math.deg(y), math.deg(z) 
 	end
 	
+	function UIElement3D:getEulerXYZFromRotationMatrix(R)
+		local x, y, z
+		
+		x = math.atan2(-R[2][3], R[3][3])
+		y = math.atan2(R[1][3], R[3][3] * math.cos(x) - R[2][3] * math.sin(x))
+		z = math.atan2(R[2][1] * math.cos(x) + R[3][1] * math.sin(x), R[2][2] * math.cos(x) + R[3][2] * math.sin(x))
+		
+		return math.deg(x), math.deg(y), math.deg(z) 
+	end
+	
 	function UIElement3D:getEulerAnglesFromMatrixTB(rTB)
 		return UIElement3D:getEulerZYXFromRotationMatrix({
 			{ rTB.r0, rTB.r1, rTB.r2, rTB.r3 },
@@ -480,7 +490,21 @@ do
 		return R
 	end
 	
+	function UIElement3D:multiplyByNumber(a, b)
+		local matrix = {}
+		for i,v in pairs(a) do
+			matrix[i] = {}
+			for j,k in pairs(v) do
+				matrix[i][j] = k * b
+			end
+		end
+		return matrix
+	end
+	
 	function UIElement3D:multiply(a, b)
+		if (type(b) == 'number') then
+			return UIElement3D:multiplyByNumber(a, b)
+		end
 		if (#a[1] ~= #b) then
 			return false
 		end
