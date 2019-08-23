@@ -729,7 +729,7 @@ EVENTSPRIZESLOCKED	Locked Prizes
 EVENTSWINSTOUNLOCK	wins to unlock	
 EVENTSALLREWARDSCLAIMED	All rewards have been claimed!	
 EVENTSKEEPPLAYINGTOGETINTOPLIST	Keep playing to get in top list to receive even better rewards at the end of the championship!	
-EVENTSLOADCUSTOMREPLAY	Load custom replay	
+EVENTSLOADCUSTOMREPLAY	Load replay (CTRL + L)	
 REPLAYSAUTOSAVEDREPLAY	Autosaved Replay	
 REPLAYSSELECTREPLAYTOPROCEED	Select a Replay to Proceed	
 SETTINGSBROADCASTS	Broadcast Popups	

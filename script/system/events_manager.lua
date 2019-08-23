@@ -597,10 +597,13 @@ do
 			})
 			prizeText:addAdaptedText(true, text, nil, nil, FONTS.BIG, nil, 0.6, nil, 0.5)
 		end
-		showPrize("../textures/store/toricredit.tga", PlayerInfo:currencyFormat(data.tc) .. " Toricredits", 1)
-		showPrize("../textures/store/shiaitoken.tga", PlayerInfo:currencyFormat(data.st) .. " Shiai Tokens", 2)
-		local itemInfo = Torishop:getItemInfo(data.itemid)
-		showPrize(Torishop:getItemIcon(itemInfo), itemInfo.itemname, 3)
+		local posShift = data.itemid == 0 and 0.5 or 0
+		showPrize("../textures/store/toricredit.tga", PlayerInfo:currencyFormat(data.tc) .. " Toricredits", 1 + posShift)
+		showPrize("../textures/store/shiaitoken.tga", PlayerInfo:currencyFormat(data.st) .. " Shiai Tokens", 2 + posShift)
+		if (data.itemid ~= 0) then
+			local itemInfo = Torishop:getItemInfo(data.itemid)
+			showPrize(Torishop:getItemIcon(itemInfo), itemInfo.itemname, 3)
+		end
 	end
 	
 	function Events:showPassedEventButtons(viewElement, sysname, eventid)
@@ -936,7 +939,7 @@ do
 		end
 		
 		local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
-		scrollBar:makeScrollBar(listingHolder, listElements, toReload)
+		scrollBar:makeScrollBar(listingHolder, listElements, toReload, nil, nil, true)
 		scrollBar.bgColor = { 0, 0, 0, 0 }
 		scrollBar.hoverColor = { 0, 0, 0, 0 }
 		scrollBar.pressedColor = { 0, 0, 0, 0 }
@@ -1045,7 +1048,7 @@ do
 		end
 		
 		local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
-		scrollBar:makeScrollBar(listingHolder, listElements, toReload)
+		scrollBar:makeScrollBar(listingHolder, listElements, toReload, nil, nil, true)
 		scrollBar.bgColor = { 0, 0, 0, 0 }
 		scrollBar.hoverColor = { 0, 0, 0, 0 }
 		scrollBar.pressedColor = { 0, 0, 0, 0 }
@@ -1068,7 +1071,6 @@ do
 		end
 		local event = Events:getEventInfo(id or 1)
 		local overlay = TBMenu:spawnWindowOverlay()
-		UIScrollbarIgnore = false
 		local viewElement = UIElement:new({
 			parent = overlay,
 			pos = { WIN_W / 10, 100 },

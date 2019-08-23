@@ -13,8 +13,7 @@ FEATURED 0;
 MODCHAMPIONSHIP 0;
 
 NEWSID 4;
-TITLE 0;Free Run Frenzy
-SUBTITLE 0;Welcome to the Event Squad's first ever automated parkour event!
+TITLE 0;Free Run Frenzy 2
 IMAGESMALL 0;freerunfrenzysmall.tga
 IMAGE 0;freerunfrenzy.tga
 FEATURED 0;
@@ -50,7 +49,7 @@ DESCDATAIMGTITLE 0;3oc_howtoenter.tga
 DESCDATATEXT 0;3You can participate in Free Run Frenzy by pressing "Participate" button on bottom right, completing the challenge and submitting your replay to Toribash servers.\nAlternatively, you can make a replay in current challenge's mod in Free Play mode and attach it to your post in event thread on forums - if you just upload it to Toribash Community Replays then it won't be judged.\n^02Only one replay per player will be judged.
 DESCDATA 0;4Deadline
 DESCDATAIMGTITLE 0;4oc_deadline.tga
-DESCDATATEXT 0;4We will stop accepting new entries on August 16th, 16:00 (GMT +0)
+DESCDATATEXT 0;4We will stop accepting new entries on August 30th, 16:00 (GMT +0)
 DESCDATA 0;5 
 PRIZEIMG 0;oc_prizes.tga
 PRIZEDATA 0;1Best Replay
@@ -66,10 +65,10 @@ PRIZETC 0;32000
 PRIZEST 0;32
 
 EVENTID 2;
-NAME 0;Free Run Frenzy
+NAME 0;Free Run Frenzy - Challenge 2
 IMAGE 0;freerunfrenzy.tga
 URL 0;https://forum.toribash.com/showthread.php?t=629768
-PLAYNAME 0;freerunfrenzy
+PLAYNAME 0;freerunfrenzy2
 OVERLAYTRANS 0;0.7
 PLAYTEXT 0;PARTICIPATE
 ACCENTCOLOR 0;060606
@@ -87,18 +86,24 @@ DESCDATAIMGTITLE 0;3frf_howtoenter.tga
 DESCDATATEXT 0;3You can participate in Free Run Frenzy by pressing "Participate" button on bottom right, completing the challenge and submitting your replay to Toribash servers.\nAlternatively, you can make a replay in current challenge's mod in Free Play mode and attach it to your post in event thread on forums - if you just upload it to Toribash Community Replays then it won't be judged.\n^02Only one replay per player will be judged.
 DESCDATA 0;4Deadline
 DESCDATAIMGTITLE 0;4frf_deadline.tga
-DESCDATATEXT 0;4We will stop accepting new entries on August 16th, 16:00 (GMT +0)
+DESCDATATEXT 0;4We will stop accepting new entries on September 20th, 16:00 (GMT +0)
 DESCDATA 0;5 
 PRIZEIMG 0;frf_prizes.tga
 PRIZEDATA 0;1Best Replay
 PRIZETC 0;1100000
 PRIZEST 0;110
-PRIZEDATA 0;2Go through the extra checkpoint
-PRIZETC 0;28000
-PRIZEST 0;24
-PRIZEDATA 0;3Get to Uke
-PRIZETC 0;33000
-PRIZEST 0;32
+PRIZEITEMS 0;111921
+PRIZEDATA 0;2Fastest Replay
+PRIZETC 0;240000
+PRIZEST 0;25
+PRIZEITEMS 0;211921
+PRIZEDATA 0;3Go through the extra checkpoint
+PRIZETC 0;38000
+PRIZEST 0;34
+PRIZEITEMS 0;311921
+PRIZEDATA 0;4Get to Uke
+PRIZETC 0;43000
+PRIZEST 0;42
 
 EVENTID 3;
 NAME 0;Ranking Season 6

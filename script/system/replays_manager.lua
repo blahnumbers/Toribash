@@ -3367,6 +3367,7 @@ do
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
 		customReplayLoading:addAdaptedText(false, TB_MENU_LOCALIZED.MESSAGEPLEASEWAIT or "Please wait...")
+		Replays:getReplayFiles(mainElement, true)
 		local waiter = UIElement:new({
 			parent = customReplayOverlay,
 			pos = { 0, 0 },
@@ -3378,6 +3379,5 @@ do
 					showCustomReplayChoice(customReplayOverlay)
 				end
 			end)
-		Replays:getReplayFiles(mainElement, true)
 	end
 end

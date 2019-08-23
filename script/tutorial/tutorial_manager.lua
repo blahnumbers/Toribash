@@ -16,7 +16,7 @@ TUTORIALKEYBOARDLOCK = false
 TUTORIAL_SPECIAL_RP_IGNORE = false
 
 do
-	Tutorials = {}
+	Tutorials = { ver = 1.1 }
 	Tutorials.__index = Tutorials
 	local cln = {}
 	setmetatable(cln, Tutorials)
@@ -1131,7 +1131,7 @@ do
 		Tutorials:showTaskWindow(reqTable, true)
 	end
 
-	function Tutorials:showTaskWindow(reqTable, hide)
+	function Tutorials:showTaskWindow(reqTable, hide, noTaskReset)
 		local req = { type = "taskwindowmove", ready = false }
 		table.insert(reqTable, req)
 
@@ -1143,21 +1143,25 @@ do
 						rad = rad + math.pi / 60
 					else
 						tbTutorialsTask:moveTo(-tbTutorialsTask.parent.size.w - tbTutorialsTask.size.w)
-						for i,v in pairs(tbTutorialsTask.optional) do
-							v.element:kill()
+						if (not noTaskReset) then
+							for i,v in pairs(tbTutorialsTask.optional) do
+								v.element:kill()
+							end
+							for i,v in pairs(tbTutorialsTask.extra) do
+								v.element:kill()
+							end
+							tbTutorialsTask.optional = {}
+							tbTutorialsTask.extra = {}
 						end
-						for i,v in pairs(tbTutorialsTask.extra) do
-							v.element:kill()
-						end
-						tbTutorialsTask.optional = {}
-						tbTutorialsTask.extra = {}
 						tbTutorialsTask:addCustomDisplay(false, function() end)
 						req.ready = true
 						reqTable.ready = checkRequirements(reqTable)
 					end
 				end)
 		else
-			tbTutorialsTaskMark:hide(true)
+			if (not noTaskReset) then
+				tbTutorialsTaskMark:hide(true)
+			end
 			tbTutorialsTask:addCustomDisplay(false, function()
 					if (tbTutorialsTask.shift.x < -tbTutorialsTask.parent.size.w - 10) then
 						tbTutorialsTask:moveTo(tbTutorialsTask.shift.x + math.sin(rad) * (tbTutorialsTask.size.w * 0.0375))
