@@ -157,7 +157,7 @@ local function showUploadWindow(viewElement, reqTable)
 			return false
 		end
 		UIElement:runCmd("savereplay " .. name)
-		upload_event_replay(name, "Event Squad's Hole in the Wall Event entry", "ESEVNT" .. CURRENT_TUTORIAL, "replay/my replays/" .. name .. ".rpl")
+		upload_event_replay(name, "Event Squad's Free Run Frenzy Event entry", "ESEVNT" .. CURRENT_TUTORIAL, "replay/my replays/" .. name .. ".rpl")
 		local overlay = TBMenu:spawnWindowOverlay()
 		local width = overlay.size.w / 7 * 3
 		local uploadingView = UIElement:new({
