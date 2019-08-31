@@ -16,6 +16,8 @@ REPLAY_TEMPNAME = "--onlinereplaytempfile"
 REPLAY_SAVETEMPNAME = "--localreplaytempfile"
 REPLAY_EVENT = "--eventtmp"
 
+REPLAYS_CUSTOM_SELECTOR_ACTIVE = false
+
 do
 	Replays = { ver = 1.1 }
 	Replays.__index = Replays
@@ -3360,6 +3362,7 @@ do
 		customReplayOverlay:addMouseHandlers(nil, function()
 				customReplayOverlay:kill()
 			end)
+		customReplayOverlay.killAction = function() REPLAYS_CUSTOM_SELECTOR_ACTIVE = false end
 		local customReplayLoading = UIElement:new({
 			parent = customReplayOverlay,
 			pos = { customReplayOverlay.size.w / 5, customReplayOverlay.size.h / 2 - 70 },
@@ -3379,5 +3382,6 @@ do
 					showCustomReplayChoice(customReplayOverlay)
 				end
 			end)
+		REPLAYS_CUSTOM_SELECTOR_ACTIVE = true
 	end
 end
