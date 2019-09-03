@@ -28,9 +28,9 @@ FEATURED 0;
 EVENT 0;1
 
 EVENTID 1;
-NAME 0;Opener Challenge
+NAME 0;Opener Challenge 2
 IMAGE 0;openerchallenge.tga
-URL 0;https://forum.toribash.com/showthread.php?t=630515
+URL 0;https://forum.toribash.com/showthread.php?t=631247
 PLAYNAME 0;openerch2
 OVERLAYTRANS 0;0.1
 PLAYTEXT 0;PARTICIPATE
@@ -65,7 +65,7 @@ PRIZEDATA 0;5Get 9 DMs
 PRIZEST 0;53
 PRIZEDATA 0;6Get 14 DMs
 PRIZEST 0;64
-PRIZEDATA 0;7Get 19 or more DMs
+PRIZEDATA 0;7Get over 19 DMs
 PRIZEST 0;75
 
 EVENTID 2;

@@ -1985,18 +1985,19 @@ do
 		
 		-- Check if total button width doesn't exceed navbar width
 		-- Assign button width accordingly
-		local totalWidth = tbMenuNavigationBar.size.w + 5
-		local fontScale = 1.1
+		local totalWidth = tbMenuNavigationBar.size.w
+		local fontScale = 0.65
 		local temp = UIElement:new({
 			parent = tbMenuNavigationBar,
 			pos = { 0, 0 },
 			size = { WIN_W, tbMenuNavigationBar.size.h / 6 * 4 }
 		})
-		while (totalWidth > tbMenuNavigationBar.size.w) do
+		
+		while (totalWidth > tbMenuNavigationBar.size.w - navX.l[1] + navX.r[1]) do
 			totalWidth = 0
-			fontScale = fontScale - 0.1
+			fontScale = fontScale - 0.05
 			for i,v in pairs (tbMenuNavigationButtonsData) do
-				temp:addAdaptedText(true, v.text, nil, nil, FONTS.BIG, nil, fontScale)
+				temp:addAdaptedText(true, v.text, nil, nil, FONTS.BIG, nil, fontScale, fontScale)
 				v.width = get_string_length(temp.dispstr[1] .. "____", temp.textFont) * temp.textScale
 				totalWidth = totalWidth + v.width
 			end
@@ -2036,7 +2037,7 @@ do
 				pos = { 15, tbMenuNavigationBar.size.h / 6 },
 				size = { tbMenuNavigationButtons[i].size.w - 30, tbMenuNavigationBar.size.h / 6 * 4 }
 			})
-			buttonText:addAdaptedText(true, v.text, nil, nil, FONTS.BIG)
+			buttonText:addAdaptedText(true, v.text, nil, nil, FONTS.BIG, nil, fontScale, fontScale)
 			tbMenuNavigationButtons[i]:addMouseHandlers(nil, function()
 					if (not customNav) then
 						if (v.sectionId ~= TB_LAST_MENU_SCREEN_OPEN) then
