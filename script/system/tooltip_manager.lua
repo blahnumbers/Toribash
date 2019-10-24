@@ -6,7 +6,7 @@ BACKGROUNDCOLOR[4] = 0.6
 PLAYERINFO = {}
 do
 	Tooltip = {}
-    Tooltip.__index = Tooltip
+	Tooltip.__index = Tooltip
 	local cln = {}
 	setmetatable(cln, Tooltip)
 	
@@ -15,6 +15,7 @@ do
 		remove_hooks("tbSystemTooltip")
 		if (tbTooltip) then
 			tbTooltip:kill()
+			tbTooltip = nil
 		end
 	end
 	
@@ -42,6 +43,7 @@ do
 	function Tooltip:showTooltipBody(player, body)
 		if (tbTooltip) then
 			tbTooltip:kill()
+			tbTooltip = nil
 			BODYTOOLTIPACTIVE = false
 		end
 		if (get_option("tooltip") == 0) then
@@ -71,6 +73,7 @@ do
 					local ws = get_world_state()
 					if (ws.replay_mode == 1 or ws.match_frame ~= frame or TB_MENU_MAIN_ISOPEN == 1 or ws.selected_player < 0) then
 						tbTooltip:kill()
+						tbTooltip = nil
 						BODYTOOLTIPACTIVE = false
 						return
 					end
@@ -147,6 +150,7 @@ do
 		end
 		if (tbTooltip and not BODYTOOLTIPACTIVE) then
 			tbTooltip:kill()
+			tbTooltip = nil
 		end
 		if (get_option("tooltip") == 0) then
 			Tooltip:quit()
@@ -173,6 +177,7 @@ do
 					local ws = get_world_state()
 					if (ws.replay_mode == 1 or ws.match_frame ~= frame or TB_MENU_MAIN_ISOPEN == 1 or ws.selected_player < 0) then
 						tbTooltip:kill()
+						tbTooltip = nil
 						return
 					end
 					tbTooltip:moveTo(MOUSE_X + 15, MOUSE_Y - 15)

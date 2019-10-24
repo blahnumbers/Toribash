@@ -1089,17 +1089,19 @@ do
 		end
 	end
 
-	function Tutorials:taskComplete()
+	function Tutorials:taskComplete(noOptFail)
 		tbTutorialsTaskMark:show(true)
 		local markAnimation = UIElement:new({
 			parent = tbTutorialsTaskMark,
 			pos = { 0, 0 },
 			size = { tbTutorialsTaskMark.size.w, tbTutorialsTaskMark.size.h }
 		})
-		for i,v in pairs(tbTutorialsTask.optional) do
-			if (not v.complete) then
-				v.markFail:show(true)
-				v.markFail.bgColor = { 1, 0, 0, 0.2 }
+		if (not noOptFail) then
+			for i,v in pairs(tbTutorialsTask.optional) do
+				if (not v.complete) then
+					v.markFail:show(true)
+					v.markFail.bgColor = { 1, 0, 0, 0.2 }
+				end
 			end
 		end
 

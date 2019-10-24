@@ -27,6 +27,8 @@ textures/clans/
 
 !textures/clans/achievements/
 
+models/
+
 script/sdk/
 
 script/system/color_manager\.lua
@@ -52,3 +54,9 @@ ranking_toplist\.txt
 ranking_trends\.txt
 
 script/replaysaver\.lua
+
+*.zip
+
+script/mytutorials/
+
+script/system/data\.mm

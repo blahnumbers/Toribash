@@ -4,7 +4,7 @@ NAVBUTTONPLAY	Graj
 NAVBUTTONPRACTICE	Tutoriale	
 NAVBUTTONMODS	Modyfikacje	
 NAVBUTTONTOOLS	Narzedzia	
-NAVBUTTONTOMAIN	Do Glownego	
+NAVBUTTONTOMAIN	Wróć	
 NAVBUTTONBACK	Wroc	
 NAVBUTTONEXIT	Wyjdz	
 NAVBUTTONLOGINREWARDS	Nagrody Za Logowanie
@@ -51,8 +51,8 @@ MAINMENUHOTKEYSDESC	Zobacz wszystkie skroty klawiszowe
 MAINMENUSIGNINERROR	Musisz Sie Zalogowac Aby Moc	
 DOWNLOADINGFILESWAIT	Pobieranie Plikow, Prosze Czekac...	
 STORESETEMPTY	EMPTY	Zanaczam Pusty Zestaw	
-STOREITEM	przedmiot	uzywany do wy�wietlania, �e w zestawie jest tylko 1 przedmiot	
-STOREITEMS	przedmioty	uzywane do wy�wietlania liczby element�w w zestawie	
+STOREITEM	przedmiot	uzywany do wyswietlania, ze w zestawie jest tylko 1 przedmiot	
+STOREITEMS	przedmioty	uzywane do wyswietlania liczby elementow w zestawie	
 STOREFLAMEBODYPART	Czasteczki Ognia Dla Twojego	
 STOREFLAMEID	ID Ognia	
 STOREFLAMEFORGEDBY	Wykuty Przez		
@@ -68,19 +68,19 @@ STORESETSELECT	Wybierz Zestaw
 STOREVIEWSETITEMS	Wyswietl Przedmioty Zestawu	
 STOREITEMSINSET	Przedmioty w Zestawie	
 STORESELLMARKET	Sprzedaj w Markecie	
-STOREDIALOGMARKETSELL1	Jestes pewny ze chcesz to wlozyc	
+STOREDIALOGMARKETSELL1	Jestes pewny ze chcesz to dac	
 STOREDIALOGMARKETSELL2	na market?	
 STOREITEMDEACTIVATE	Dezaktywuj	
-STOREDIALOGDEACTIVATE1	Jestes pewny ze chcesz dezaktywowac?	
+STOREDIALOGDEACTIVATE1	Jestes pewny ze chcesz dezaktywowac	
 STOREDIALOGDEACTIVATE2	 	
 STOREITEMACTIVATE	Aktywuj	
-STOREDIALOGACTIVATE1	Jestes Pewny Ze Chcesz Aktywowac?	
+STOREDIALOGACTIVATE1	Jestes Pewny Ze Chcesz Aktywowac
 STOREDIALOGACTIVATE2	 	
 STOREDIALOGCONFLICTSDEACTIVATE	Kazdy Konfilktujacy Przedmiot Zostanie zdezaktywowany.	
 STOREITEMUNPACK	Rozpakuj	
 STOREDIALOGUNPACK1	Czy Jestes pewny ze chcesz rozpakowac	
 STOREDIALOGUNPACK2	 	
-STOREDIALOGUNPACKINFO	Rozpakowane przedmioty zostan� umieszczone w zestawie i umieszczone w dezaktywowanym ekwipunku.	
+STOREDIALOGUNPACKINFO	Rozpakowane przedmioty zostana umieszczone w zestawie i umieszczone w dezaktywowanym ekwipunku.	
 STOREBUTTONCANCEL	Anuluj	
 STOREDIALOGADDTOSET1	Jestes Pewny Ze Chcesz Dodac	
 STOREDIALOGADDTOSET2	Do Zestawu	
@@ -123,7 +123,7 @@ CLANFILTERSACTIVITYSTATEDESC	Klany sa aktywne gdy maja 5 osob. Puste klany sa ni
 CLANFILTERSFFAONLY	Tylko wolne dla wszystkich klanow	
 CLANFILTERSFFAONLYDESC	Mozesz dolaczyc do wszystkich wolnych klanow. Aby dolaczyc do klanow tylko na zaproszenia, trzeba przejsc specjalny proces.	
 CLANFILTERSOFFICIALONLY	Tylko klany oficjalne	
-CLANFILTERSOFFICIALONLYDESC	Oficjalne klany maja swoja wlasna tablice na forach I maj� nawiasy kolo siebie.	
+CLANFILTERSOFFICIALONLYDESC	Oficjalne klany maja swoja wlasna tablice na forach I maja nawiasy kolo siebie.	
 SORTBYNAME	Sortuj przez	
 SORTORDERNAME	Kolejnosc sortowania	
 CLANSSEARCHFILTERS	Filtery Szukania	

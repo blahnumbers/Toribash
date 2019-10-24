@@ -58,7 +58,7 @@ TB_MENU_CLANFILTERS_BUTTON = "../textures/menu/general/buttons/clanfilters.tga"
 TB_MENU_CLANFILTERS_BUTTON_HOVER = "../textures/menu/general/buttons/clanfiltershover.tga"
 TB_MENU_CLANFILTERS_BUTTON_PRESS = "../textures/menu/general/buttons/clanfilterspressed.tga"
 
-local overrideActive = false
+local overrideActive = true
 
 function setDefinesOverrides()
 	TB_MENU_DEFAULT_BG_COLOR = { 0.735, 0.487, 0.265, 1 }
@@ -68,8 +68,8 @@ function setDefinesOverrides()
 	TB_MENU_DEFAULT_LIGHTER_COLOR = { 0.877, 0.614, 0.384, 1 }
 	TB_MENU_DEFAULT_LIGHTEST_COLOR = { 0.934, 0.666, 0.433, 1 }
 	
-	TB_MENU_UI_TEXT_COLOR = { 0, 0, 0, 1 }
-	TB_MENU_UI_TEXT_SHADOW_COLOR = { 1, 1, 1, 0.6 }
+	TB_MENU_UI_TEXT_COLOR = { 1, 1, 1, 1 }
+	TB_MENU_UI_TEXT_SHADOW_COLOR = { 0, 0, 0, 0.6 }
 	
 	TB_MENU_GAME_LOGO = "../textures/menu/logos/toribash_halloween_small.tga"
 	TB_MENU_USERBAR_MAIN = "../textures/menu/general/topbarbgmain_halloween.tga"
@@ -95,9 +95,9 @@ function setDefinesOverrides()
 	TB_MENU_DISCORD_BUTTON = "../textures/menu/general/buttons/halloween/discord.tga"
 	TB_MENU_DISCORD_BUTTON_HOVER = "../textures/menu/general/buttons/halloween/discordhover.tga"
 	TB_MENU_DISCORD_BUTTON_PRESS = "../textures/menu/general/buttons/halloween/discordpress.tga"
-	TB_MENU_LOGOUT_BUTTON = "../textures/menu/general/buttons/halloween/logout.tga"
-	TB_MENU_LOGOUT_BUTTON_HOVER = "../textures/menu/general/buttons/halloween/logouthover.tga"
-	TB_MENU_LOGOUT_BUTTON_PRESS = "../textures/menu/general/buttons/halloween/logoutpressed.tga"
+	--TB_MENU_LOGOUT_BUTTON = "../textures/menu/general/buttons/halloween/logout.tga"
+	--TB_MENU_LOGOUT_BUTTON_HOVER = "../textures/menu/general/buttons/halloween/logouthover.tga"
+	--TB_MENU_LOGOUT_BUTTON_PRESS = "../textures/menu/general/buttons/halloween/logoutpressed.tga"
 	
 	TB_MENU_CLANFILTERS_BUTTON_HOVER = "../textures/menu/general/buttons/halloween/clanfiltershover.tga"
 	TB_MENU_CLANFILTERS_BUTTON_PRESS = "../textures/menu/general/buttons/halloween/clanfilterspressed.tga"

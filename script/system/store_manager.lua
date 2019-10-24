@@ -5288,20 +5288,13 @@ do
 		
 		local featuredPromos = {
 			{
-				title = "Covered in Goo!",
-				image = "../textures/menu/promo/store/ecto-tori.tga",
+				image = "../textures/menu/promo/store/spooky-spider.tga",
 				ratio = 0.5,
-				action = function() Torishop:showStoreSection(tbMenuCurrentSection, nil, nil, 3231) end
+				action = function() Torishop:showStoreSection(tbMenuCurrentSection, nil, nil, 3270) end
 			},
-			{
-				title = "Become the Grandmaster!",
-				image = "../textures/menu/promo/store/grandmaster.tga",
-				ratio = 0.5,
-				action = function() Torishop:showStoreSection(viewElement, 3) end
-			}
 		}
-		featuredPromoId = math.random(1, 3);
-		featuredPromoId = featuredPromoId > 1 and 2 or 1
+		--featuredPromoId = math.random(1, 3);
+		featuredPromoId = 1
 		
 		local storeButtons = {
 			featured = {
