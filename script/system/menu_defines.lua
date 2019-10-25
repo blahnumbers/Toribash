@@ -62,6 +62,7 @@ local overrideActive = true
 
 function setDefinesOverrides()
 	TB_MENU_DEFAULT_BG_COLOR = { 0.735, 0.487, 0.265, 1 }
+	TB_MENU_DEFAULT_BG_COLOR_TRANS = { 0.735, 0.487, 0.265, 0.5 }
 	TB_MENU_DEFAULT_DARKER_COLOR = { 0.68, 0.438, 0.218, 1 }
 	TB_MENU_DEFAULT_DARKEST_COLOR = { 0.6, 0.38, 0.16, 1 }
 	TB_NAVBAR_DEFAULT_BG_COLOR = { 0.835, 0.576, 0.349, 1 }

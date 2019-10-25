@@ -139,7 +139,8 @@ do
 				for ln in response:gmatch("[^\n]*\n?") do
 					local ln = ln:gsub("\n$", '')
 					if (ln:find("^BROADCASTID 0;")) then
-						broadcast.id = ln:gsub("^BROADCASTID 0;", '') + 0
+						broadcast.id = ln:gsub("^BROADCASTID 0;", ''):gsub("[^%d]", "")
+						broadcast.id = broadcast.id == '' and 0 or broadcast.id + 0
 					elseif (ln:find("^BROADCASTMSG 0;")) then
 						broadcast.msg = ln:gsub("^BROADCASTMSG 0;", '')
 						broadcast.msg = broadcast.msg:gsub("%^%d%d", '')
