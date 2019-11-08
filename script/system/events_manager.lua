@@ -298,7 +298,7 @@ do
 		local progressInfo = UIElement:new({
 			parent = viewElement,
 			pos = { 20, progressOverlay.shift.y + progressOverlay.size.h * 0.7 + 20 },
-			size = { viewElement.size.w - 40, viewElement.size.h - progressOverlay.shift.y - progressOverlay.size.h * 0.7 - 20 }
+			size = { viewElement.size.w - 40, viewElement.size.h - progressOverlay.shift.y - progressOverlay.size.h * 0.7 - 20 - viewElement.size.h / 10 }
 		})
 		local progressTitle = UIElement:new({
 			parent = progressInfo,
@@ -312,6 +312,20 @@ do
 			size = { progressInfo.size.w, progressInfo.size.h - progressTitle.shift.y - progressTitle.size.h }
 		})
 		progressInfoText:addAdaptedText(true, Events:getMovemberProgressInfoText(), nil, nil, 4, LEFT, nil, 0.6)
+		
+		local threadButton = UIElement:new({
+			parent = viewElement,
+			pos = { viewElement.size.w / 5, progressInfo.size.h + progressInfo.shift.y },
+			size = { viewElement.size.w * 0.6, viewElement.size.h / 11 },
+			interactive = true,
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+		})
+		TBMenu:showTextExternal(threadButton, "More about Toribash Movember on forums")
+		threadButton:addMouseHandlers(nil, function()
+				open_url("https://forum.toribash.com/showthread.php?p=11680821")
+			end)
 	end
 	
 	function Events:showMovemberToplist(viewElement, toplistData)
