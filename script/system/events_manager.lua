@@ -324,7 +324,7 @@ do
 		})
 		TBMenu:showTextExternal(threadButton, "More about Toribash Movember on forums")
 		threadButton:addMouseHandlers(nil, function()
-				open_url("https://forum.toribash.com/showthread.php?p=11680821")
+				open_url("https://forum.toribash.com/showthread.php?t=633220")
 			end)
 	end
 	
