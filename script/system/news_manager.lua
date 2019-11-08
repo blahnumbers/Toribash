@@ -81,6 +81,9 @@ do
 				newsData[#newsData].isEvent = true
 				newsData[#newsData].action = function() Events:loadModChampionship(tbMenuCurrentSection) end
 				newsData[#newsData].initAction = function() Events:loadModChampionship(tbMenuCurrentSection) end
+			elseif (ln:find("^MOVEMBER 0;")) then
+				newsData[#newsData].action = function() Events:loadMovember(tbMenuCurrentSection) end
+				newsData[#newsData].initAction = function() Events:loadMovember(tbMenuCurrentSection) end
 			elseif (ln:find("^FEATURED 0;")) then
 				newsData[#newsData].featured = true
 				if (miniImages and newsData[#newsData].hasMiniImage) then

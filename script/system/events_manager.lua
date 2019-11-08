@@ -30,6 +30,435 @@ do
 		return navigation
 	end
 	
+	function Events:loadMovember(viewElement)
+		TBMenu:clearNavSection()
+		TBMenu:showNavigationBar(Events:getNavigationButtons(TB_MENU_EVENTS_OPEN), true)
+		
+		local loadingView = UIElement:new({
+			parent = viewElement,
+			pos = { 5, 0 },
+			size = { viewElement.size.w - 10, viewElement.size.h },
+			bgColor = TB_MENU_DEFAULT_BG_COLOR
+		})
+		TBMenu:addBottomBloodSmudge(loadingView, 1)
+		TBMenu:displayLoadingMark(loadingView, TB_MENU_LOCALIZED.EVENTSLOADING)
+		
+		local function throwError(text)
+			loadingView:kill(true)
+			TBMenu:addBottomBloodSmudge(loadingView, 1)
+			loadingView:addAdaptedText(nil, text)
+		end
+		
+		local playerData, showWelcome = {}, false
+		loadingView:addCustomDisplay(false, function()
+				if (get_network_task() == 0) then
+					Request:new("movember19", function()
+							local response = get_network_response()
+							if (response:find("ERROR;")) then
+								throwError(TB_MENU_LOCALIZED.ACCOUNTINFOERROR)
+								return
+							end
+							for ln in response:gmatch("[^\n]*\n?") do
+								local ln = ln:gsub("\n$", '')
+								if (ln:find("^INVID 0;")) then
+									playerData.invid = ln:gsub("INVID 0;", '') + 0
+								elseif (ln:find("^ITEMID 0;")) then
+									playerData.itemid = ln:gsub("ITEMID 0;", '') + 0
+								elseif (ln:find("^GAMESPLAYED 0;")) then
+									playerData.points = ln:gsub("GAMESPLAYED 0;", '') + 0
+								elseif (ln:find("^UPGRADELVL 0;")) then
+									playerData.level = ln:gsub("UPGRADELVL 0;", '') + 0
+								elseif (ln:find("^FIRSTRUN 0;")) then
+									showWelcome = true
+								end
+							end
+							if (loadingView:isDisplayed()) then
+								loadingView:kill()
+								Events:showMovember(viewElement, playerData, showWelcome)
+							end
+						end, function()
+							throwError(TB_MENU_LOCALIZED.REQUESTCONNECTIONERROR)
+						end)
+					download_server_info("movember19&username=" .. TB_MENU_PLAYER_INFO.username)
+					loadingView:addCustomDisplay(false, function() end)
+				end
+			end)
+	end
+	
+	function Events:showMovemberIntro()
+		local overlay = TBMenu:spawnWindowOverlay()
+		overlay.bgColor[4] = 0
+		
+		local mainView = UIElement:new({
+			parent = overlay,
+			pos = { overlay.size.w / 5, overlay.size.h / 8 },
+			size = { overlay.size.w * 0.6, overlay.size.h / 3 * 2 },
+			bgColor = TB_MENU_DEFAULT_BG_COLOR
+		})
+		mainView.bgColor[4] = 0
+		
+		local function showMain()
+			local updater = UIElement:new({
+				parent = mainView,
+				pos = { 0, 0 },
+				size = { 0, 0 }
+			})
+			local welcomeTitle = UIElement:new({
+				parent = mainView,
+				pos = { 20, 0 },
+				size = { mainView.size.w - 40, mainView.size.h / 10 },
+				uiColor = cloneTable(TB_MENU_UI_TEXT_COLOR)
+			})
+			local welcomeTitleText = UIElement:new({
+				parent = welcomeTitle,
+				pos = { 0, welcomeTitle.size.h / 10 },
+				size = { welcomeTitle.size.w, welcomeTitle.size.h * 0.8 }
+			})
+			local welcomeText = UIElement:new({
+				parent = mainView,
+				pos = { 20, welcomeTitle.shift.y + welcomeTitle.size.h },
+				size = { mainView.size.w - 40, mainView.size.h / 4 },
+				uiColor = cloneTable(TB_MENU_UI_TEXT_COLOR)
+			})
+			local imageSize = mainView.size.h / 9 * 5
+			local welcomeImage = UIElement:new({
+				parent = mainView,
+				pos = { (mainView.size.w - imageSize) / 2, welcomeText.shift.y + welcomeText.size.h },
+				size = { imageSize, imageSize },
+				bgImage = "../textures/menu/promo/events/movemberwelcome.tga"
+			})
+			local welcomeImageOverlay = UIElement:new({
+				parent = welcomeImage,
+				pos = { 0, 0 },
+				size = { welcomeImage.size.w, welcomeImage.size.h },
+				bgColor = cloneTable(TB_MENU_DEFAULT_BG_COLOR)
+			})
+			local welcomeButton = UIElement:new({
+				parent = mainView,
+				pos = { mainView.size.w / 4, welcomeImage.shift.y + welcomeImage.size.h },
+				size = { mainView.size.w / 2, mainView.size.h / 12 },
+				interactive = true,
+				bgColor = cloneTable(TB_MENU_DEFAULT_DARKER_COLOR),
+				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+				uiColor = cloneTable(TB_MENU_UI_TEXT_COLOR)
+			})
+			welcomeTitleText:addAdaptedText(true, "Welcome to Toribash Movember!", nil, nil, FONTS.BIG)
+			welcomeText:addAdaptedText(true, "Movember is an annual event involving the growing of moustaches to raise awareness of men's health issues.\nThis year, you can be a part of the movement by wearing your free moustache item in Toribash!\nUpgrade your stache to max level until the end of November and get the grand prize - limited Krakenstache item!", nil, nil, 4)
+			welcomeButton:addAdaptedText(false, "Start growing your stache!")
+			welcomeButton:addMouseHandlers(nil, function()
+					overlay:kill()
+				end)
+			
+			welcomeTitle.uiColor[4] = 0
+			welcomeText.uiColor[4] = 0
+			welcomeButton.bgColor[4] = 0
+			welcomeButton.uiColor[4] = 0
+			local rad, step = math.pi / 3, math.pi / 45
+			updater:addCustomDisplay(true, function()
+					framerate = 5
+					local mod = math.sin(rad)
+					rad = rad + step
+					
+					welcomeTitle.uiColor[4] = welcomeTitle.uiColor[4] + 0.09 * mod
+					welcomeText.uiColor[4] = welcomeText.uiColor[4] + 0.09 * mod
+					welcomeImageOverlay.bgColor[4] = welcomeImageOverlay.bgColor[4] - 0.09 * mod
+					welcomeButton.uiColor[4] = welcomeButton.uiColor[4] + 0.09 * mod
+					welcomeButton.bgColor[4] = welcomeButton.bgColor[4] + 0.09 * mod
+					if (welcomeTitle.uiColor[4] >= 1) then
+						updater:kill()
+					end
+				end)
+		end
+		
+		local rad, step = math.pi / 3, math.pi / 45
+		mainView:addCustomDisplay(false, function()
+				local finished = false
+				local mod = math.sin(rad)
+				rad = rad + step
+				
+				overlay.bgColor[4] = overlay.bgColor[4] + 0.04 * mod
+				mainView.bgColor[4] = mainView.bgColor[4] + 0.09 * mod
+				mainView.shift.y = mainView.shift.y + overlay.size.h / 400 * mod
+				
+				if (mainView.shift.y >= overlay.size.h / 6) then
+					mainView.bgColor[4] = 1
+					mainView.shift.y = overlay.size.h / 6
+					finished = true
+				end
+				
+				if (finished) then
+					mainView:addCustomDisplay(false, function() end)
+					showMain()
+				end
+			end)
+		return mainView
+	end
+	
+	function Events:getMovemberProgressInfoText()
+		return "- Playing games online with your moustache equipped (1 pt per game)\n- Completing quests (20 pts per quest, up to 3 per day)\n- Logging in daily (up to 75 pts for 7th day of consecutive logins)\n- Winning bets in active rooms (up to 5 pts per won bet)\n- Winning automatic tournaments (50 pts per tourney)\n- Winning ES events (100 pts per event)"
+	end
+	
+	function Events:getStacheLevelPoints(points, current)
+		local stachePointLevels = {
+			0, 100, 250, 500, 1000, 2000
+		}
+		
+		for i = 1, #stachePointLevels do
+			if (stachePointLevels[i] > points and stachePointLevels[i - 1] <= points) then
+				local i = current and i - 1 or i
+				return stachePointLevels[i], i
+			end
+		end
+		return stachePointLevels[#stachePointLevels], #stachePointLevels
+	end
+	
+	function Events:showMovemberPlayerStats(viewElement, playerData)
+		local viewTitle = UIElement:new({
+			parent = viewElement,
+			pos = { 20, 10 },
+			size = { viewElement.size.w - 40, viewElement.size.h / 10 }
+		})
+		viewTitle:addAdaptedText(true, "My stache: lvl " .. playerData.level .. ', ' .. playerData.points .. " pts", nil, nil, FONTS.BIG, nil, nil, nil, 0.6)
+		local progressDataPoints, progressDataLevel = Events:getStacheLevelPoints(playerData.points)
+		local progressScale = viewTitle.size.w < viewTitle.size.h / 4 and viewTitle.size.h / 4 or viewTitle.size.w
+		progressScale = progressScale > 512 and 512 or progressScale
+		local progressOverlay = UIElement:new({
+			parent = viewElement,
+			pos = { (viewElement.size.w - progressScale) / 2, math.ceil(viewTitle.shift.y + viewTitle.size.h) },
+			size = { progressScale, progressScale / 2 },
+			bgImage = "../textures/menu/promo/events/movemberprogress.tga"
+		})
+		-- Hide overlay and enable it after loading progress bar to show it on top
+		progressOverlay:hide()
+		local progressBackground = UIElement:new({
+			parent = viewElement,
+			pos = { progressOverlay.shift.x, progressOverlay.shift.y },
+			size = { progressOverlay.size.w, progressOverlay.size.h / 5 * 3 },
+			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR
+		})
+		local progressDataPointsDisplay = (progressDataPoints > playerData.points and progressDataLevel == playerData.level + 1) and progressDataPoints or playerData.points
+		local progressBar = UIElement:new({
+			parent = progressBackground,
+			pos = { 0, 0 },
+			size = { progressBackground.size.w * (playerData.points / progressDataPointsDisplay), progressBackground.size.h },
+			bgColor = UICOLORBLACK --{ 0.232, 0.075, 0.008, 1 }
+		})
+		progressOverlay:show()
+		if (progressDataPoints > playerData.points and progressDataLevel == playerData.level + 1) then
+			local progressTextHolder = UIElement:new({
+				parent = progressBackground,
+				pos = { progressBackground.size.w / 8, -progressBackground.size.h / 5 },
+				size = { progressBackground.size.w * 0.75, progressBackground.size.h / 3 },
+				bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+				rounded = 5,
+				shapeType = ROUNDED
+			})
+			local progressText = UIElement:new({
+				parent = progressTextHolder,
+				pos = { progressTextHolder.size.w / 10, progressTextHolder.size.h / 8 },
+				size = { progressTextHolder.size.w * 0.8, progressTextHolder.size.h * 0.75 }
+			})
+			progressText:addAdaptedText(true, playerData.points .. " / " .. progressDataPoints .. " points", nil, nil, FONTS.BIG, nil, 0.7, nil, 1, 1)
+		else
+			local progressTextHolder = UIElement:new({
+				parent = progressBackground,
+				pos = { progressBackground.size.w / 8, -progressBackground.size.h / 5 },
+				size = { progressBackground.size.w * 0.75, progressBackground.size.h / 3 },
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				rounded = 5,
+				shapeType = ROUNDED,
+				interactive = true,
+				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+				pressedColor = TB_MENU_DEFAULT_DARKER_ORANGE
+			})
+			local progressText = UIElement:new({
+				parent = progressTextHolder,
+				pos = { progressTextHolder.size.w / 10, progressTextHolder.size.h / 8 },
+				size = { progressTextHolder.size.w * 0.8, progressTextHolder.size.h * 0.75 },
+				uiColor = TB_MENU_DEFAULT_YELLOW
+			})
+			progressText:addAdaptedText(true, "Upgrade to next level", nil, nil, FONTS.BIG, nil, 0.7)
+			progressTextHolder:addMouseHandlers(nil, function()
+					show_dialog_box(6, TB_MENU_LOCALIZED.STOREDIALOGUPGRADE1 .. "\nyour Moustache ".. TB_MENU_LOCALIZED.STOREDIALOGUPGRADE2 .. " " .. (playerData.level + 1) .. "?", playerData.invid)
+					local background = TBMenu:spawnWindowOverlay()
+					background.interactive = true
+					background:activate()
+					background:addMouseHandlers(nil, nil, function(x)
+							if (x < WIN_W / 2) then
+								background:kill()
+							else
+								background:kill()
+								Events:loadMovember(tbMenuCurrentSection)
+							end
+						end)
+				end)
+		end
+		
+		local progressInfo = UIElement:new({
+			parent = viewElement,
+			pos = { 20, progressOverlay.shift.y + progressOverlay.size.h * 0.7 + 20 },
+			size = { viewElement.size.w - 40, viewElement.size.h - progressOverlay.shift.y - progressOverlay.size.h * 0.7 - 20 }
+		})
+		local progressTitle = UIElement:new({
+			parent = progressInfo,
+			pos = { 0, 0 },
+			size = { progressInfo.size.w, progressInfo.size.h / 7 }
+		})
+		progressTitle:addAdaptedText(true, "How to get more points", nil, nil, FONTS.BIG, LEFT, nil, nil, 0.6)
+		local progressInfoText = UIElement:new({
+			parent = progressInfo,
+			pos = { 0, progressTitle.shift.y + progressTitle.size.h },
+			size = { progressInfo.size.w, progressInfo.size.h - progressTitle.shift.y - progressTitle.size.h }
+		})
+		progressInfoText:addAdaptedText(true, Events:getMovemberProgressInfoText(), nil, nil, 4, LEFT, nil, 0.6)
+	end
+	
+	function Events:showMovemberToplist(viewElement, toplistData)
+		local elementHeight = 38
+		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 50, elementHeight - 20, 20, TB_MENU_DEFAULT_BG_COLOR)
+		TBMenu:addBottomBloodSmudge(botBar, 2)
+		
+		local toplistTitle = UIElement:new({
+			parent = topBar,
+			pos = { 10, 7 },
+			size = { topBar.size.w - 20, topBar.size.h - 14 }
+		})
+		toplistTitle:addAdaptedText(true, "Manliest Mustaches", nil, nil, FONTS.BIG, nil, nil, nil, 0.5)
+		
+		local listElements = {}
+		for i,v in pairs(toplistData) do
+			local topEntry1 = UIElement:new({
+				parent = listingHolder,
+				pos = { 0, #listElements * elementHeight },
+				size = { listingHolder.size.w, elementHeight }
+			})
+			table.insert(listElements, topEntry1)
+			local entryUsername = UIElement:new({
+				parent = topEntry1,
+				pos = { 10, topEntry1.size.h * 0.15 },
+				size = { topEntry1.size.w - topEntry1.size.h * 2 - 20, topEntry1.size.h * 0.85 }
+			})
+			entryUsername:addAdaptedText(true, v.name, nil, nil, FONTS.BIG, LEFTBOT, nil, nil, 0.4)
+			local topEntry2 = UIElement:new({
+				parent = listingHolder,
+				pos = { 0, #listElements * elementHeight },
+				size = { listingHolder.size.w, elementHeight }
+			})
+			table.insert(listElements, topEntry2)
+			local entryPoints = UIElement:new({
+				parent = topEntry2,
+				pos = { 10, topEntry2.size.h / 10 },
+				size = { topEntry2.size.w - topEntry2.size.h * 2 - 20, topEntry2.size.h * 0.8 }
+			})
+			local pts, lvl = Events:getStacheLevelPoints(v.points, true)
+			lvl = lvl == 6 and 'MAX Level' or 'Level ' .. lvl
+			entryPoints:addAdaptedText(true, lvl .. ", " .. v.points .. " points", nil, nil, 4, LEFTMID, 0.7)
+			
+			local userBelt = PlayerInfo:getBeltFromQi(v.qi)
+			local entryUserbelt = UIElement:new({
+				parent = topEntry2,
+				pos = { -topEntry2.size.h * 2, -topEntry2.size.h * 2 },
+				size = { topEntry2.size.h * 2, topEntry2.size.h * 2 },
+				bgImage = userBelt.icon
+			})
+			entryUserbelt:addAdaptedText(false, userBelt.name .. " belt", nil, nil, nil, CENTERBOT, 0.7, nil, 1, 1)
+			
+			local separator = UIElement:new({
+				parent = listingHolder,
+				pos = { 10, #listElements * elementHeight + elementHeight / 2 - 1 },
+				size = { listingHolder.size.w - 20, 1 },
+				bgColor = { 1, 1, 1, 0.8 }
+			})
+			table.insert(listElements, separator)
+		end
+		for i,v in pairs(listElements) do
+			v:hide()
+		end
+		local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
+		scrollBar:makeScrollBar(listingHolder, listElements, toReload)
+	end
+	
+	function Events:loadMovemberToplist(viewElement)
+		TBMenu:displayLoadingMark(viewElement, TB_MENU_LOCALIZED.EVENTSLOADINGTOPPLAYERS)
+		
+		local function throwError(text)
+			viewElement:kill(true)
+			TBMenu:addBottomBloodSmudge(viewElement, 2)
+			viewElement:addAdaptedText(nil, text)
+		end
+		local waiter = UIElement:new({
+			parent = viewElement,
+			pos = { 0, 0 },
+			size = { 0, 0 }
+		})
+		local countdown = 10
+		waiter:addCustomDisplay(true, function()
+				-- Hack to prevent infinite loading
+				countdown = countdown - 1
+				if (countdown > 0) then
+					return
+				end
+				
+				local toplistData = {}
+				-- Send new request only if any previous requests are finished
+				if (get_network_task() == 0) then
+					Request:new("movember19", function()
+							local response = get_network_response()
+							if (response:find("ERROR;")) then
+								throwError(TB_MENU_LOCALIZED.ACCOUNTINFOERROR)
+								return
+							end
+							for ln in response:gmatch("[^\n]*\n?") do
+								local data = { ln:match(("([^\t]*)\t"):rep(3)) }
+								if (data[1] ~= "USERNAME" and data[1] ~= nil) then
+									table.insert(toplistData, { name = data[1], points = data[2] + 0, qi = data[3] + 0 })
+								end
+							end
+							if (viewElement:isDisplayed()) then
+								viewElement:kill(true)
+								Events:showMovemberToplist(viewElement, toplistData)
+							end
+						end, function()
+							throwError(TB_MENU_LOCALIZED.REQUESTCONNECTIONERROR)
+						end)
+					download_server_info("movember19&do=toplist")
+					waiter:kill()
+				end
+			end)
+	end
+	
+	function Events:showMovember(viewElement, playerData, firstLaunch)
+		viewElement:kill(true)
+		
+		local toplistWidth = viewElement.size.w / 3 > 350 and 350 or viewElement.size.w / 3
+		local playerStatsView = UIElement:new({
+			parent = viewElement,
+			pos = { 5, 0 },
+			size = { (viewElement.size.w - toplistWidth) - 5, viewElement.size.h },
+			bgColor = TB_MENU_DEFAULT_BG_COLOR
+		})
+		TBMenu:addBottomBloodSmudge(playerStatsView, 1)
+		Events:showMovemberPlayerStats(playerStatsView, playerData)
+		
+		local movemberToplistView = UIElement:new({
+			parent = viewElement,
+			pos = { playerStatsView.size.w + 15, 0 },
+			size = { toplistWidth - 15, viewElement.size.h },
+			bgColor = TB_MENU_DEFAULT_BG_COLOR
+		})
+		TBMenu:addBottomBloodSmudge(movemberToplistView, 2)
+		
+		if (firstLaunch) then
+			local intro = Events:showMovemberIntro()
+			intro.killAction = function()
+					Events:loadMovemberToplist(movemberToplistView)
+				end
+		else
+			Events:loadMovemberToplist(movemberToplistView)
+		end
+	end
+	
 	function Events:loadModChampionship(viewElement)
 		TBMenu:clearNavSection()
 		TBMenu:showNavigationBar(Events:getNavigationButtons(TB_MENU_EVENTS_OPEN), true)

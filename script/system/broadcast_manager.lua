@@ -135,7 +135,7 @@ do
 	function Broadcasts:fetchBroadcast()
 		Request:new("broadcast", function()
 				local response = get_network_response()
-				local broadcast = {}
+				local broadcast = { id = 0 }
 				for ln in response:gmatch("[^\n]*\n?") do
 					local ln = ln:gsub("\n$", '')
 					if (ln:find("^BROADCASTID 0;")) then
