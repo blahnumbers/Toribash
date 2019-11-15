@@ -1,0 +1,12 @@
+#Messages
+INTRO1	Hi and welcome to Opener Challenge!
+INTRO2	In this event you need to make a replay by using a premade opener - and complete an objective or two in process!
+INTRO3	Hi again! Let's get back to your auto-saved replay!
+UPLOADSUCCESS1	Hooray, you've successfully uploaded your entry!
+UPLOADSUCCESS2	If everything's fine, you'll receive your base reward shortly soon - and if you're particularly good, an even better prize after the deadline!
+UPLOADSUCCESS3	If you decide to change your replay entry to another one, please post it in event thread on forums.
+UPLOADSUCCESS4	Thanks for participating and see you next time!
+#Tasks
+OCTASK1	Make Uke reach 15m height
+OCTASKOPT1	Advanced: Make Uke reach 50m height
+OCTASKADD1	Uke height:
