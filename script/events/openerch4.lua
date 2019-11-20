@@ -183,7 +183,9 @@ local function eventMain(viewElement, reqTable, skipAdd)
 	tbTutorialsTaskMark:hide(true)
 	REPLAY_CAN_BE_SUBMITTED = false
 	EventsOnline:taskOptIncomplete(1)
-	tbTutorialsTask.extra[1].element.shift.y = tbTutorialsTask.size.h + 40
+	if (#tbTutorialsTask.extra > 0) then
+		tbTutorialsTask.extra[1].element.shift.y = tbTutorialsTask.size.h + 40
+	end
 	
 	chat_input_deactivate()
 	Tutorials:setGhostMode(2)
@@ -426,9 +428,11 @@ local function eventMain(viewElement, reqTable, skipAdd)
 					tbTutorialsTask.height = height
 				end
 				
-				local textView = tbTutorialsTask.extra[1].textView
-				local displayText = textView.str:gsub(":.*$", ': ')
-				textView:addAdaptedText(true, displayText .. string.format("%.2f", height) .. 'm (' .. string.format("%.2f", tbTutorialsTask.height) .. 'm max)', nil, nil, 4, LEFTMID, 0.6)
+				if (#tbTutorialsTask.extra > 0) then
+					local textView = tbTutorialsTask.extra[1].textView
+					local displayText = textView.str:gsub(":.*$", ': ')
+					textView:addAdaptedText(true, displayText .. string.format("%.2f", height) .. 'm (' .. string.format("%.2f", tbTutorialsTask.height) .. 'm max)', nil, nil, 4, LEFTMID, 0.6)
+				end
 				
 				if (not tbTutorialsTaskMark:isDisplayed()) then
 					if (tbTutorialsTask.height >= 15) then
