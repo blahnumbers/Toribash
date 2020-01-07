@@ -290,6 +290,23 @@ do
 		end
 	end
 	
+	function UIElement3D:isDisplayed()
+		if (not self.viewportElement) then
+			for i,v in pairs(UIVisual3DManager) do
+				if (self == v) then
+					return true
+				end
+			end
+		else
+			for i,v in pairs(UIVisual3DManagerViewport) do
+				if (self == v) then
+					return true
+				end
+			end
+		end
+		return false
+	end
+	
 	function UIElement3D:show(forceReload)
 		local num = nil
 		

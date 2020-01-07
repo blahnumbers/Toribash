@@ -84,6 +84,9 @@ do
 			elseif (ln:find("^MOVEMBER 0;")) then
 				newsData[#newsData].action = function() Events:loadMovember(tbMenuCurrentSection) end
 				newsData[#newsData].initAction = function() Events:loadMovember(tbMenuCurrentSection) end
+			elseif (ln:find("^COLLECTORCARDS 0;")) then
+				newsData[#newsData].action = function() Torishop:showCollectorsCardsWC() end
+				newsData[#newsData].initAction = function() Torishop:showCollectorsCardsWC() end
 			elseif (ln:find("^FEATURED 0;")) then
 				newsData[#newsData].featured = true
 				if (miniImages and newsData[#newsData].hasMiniImage) then
@@ -134,6 +137,8 @@ do
 					evt.action = function() EventsOnline:playEvent(evt.eventid) end
 				elseif (ln:find("^PLAYTEXT 0;")) then
 					evt.actionText = TB_MENU_LOCALIZED[ln:gsub("^PLAYTEXT 0;", "")] or ln:gsub("^PLAYTEXT 0;", "")
+				elseif (ln:find("^REQUIREMOD 0;")) then
+					evt.requireMod = true
 				elseif (ln:find("^OVERLAYTRANS 0;")) then
 					local trans = ln:gsub("^OVERLAYTRANS 0;", "")
 					evt.overlaytransparency = tonumber(trans)

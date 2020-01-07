@@ -17,7 +17,7 @@ do
 		return EventsOnline:loadTutorial(eventName, "events/")
 	end
 	
-	function EventsOnline:checkFiles(eventName)
+	function EventsOnline:checkFiles(eventName, requireMod)
 		local event = Files:new("events/" .. eventName .. ".dat")
 		if (not event.data) then
 			return false
@@ -33,11 +33,13 @@ do
 			return false
 		end
 		eventloc:close()
-		local eventmod = Files:new("../data/mod/system/events/" .. eventName .. ".tbm")
-		if (not eventmod.data) then
-			return false
+		if (requireMod) then
+			local eventmod = Files:new("../data/mod/system/events/" .. eventName .. ".tbm")
+			if (not eventmod.data) then
+				return false
+			end
+			eventmod:close()
 		end
-		eventmod:close()
 		return true
 	end
 	

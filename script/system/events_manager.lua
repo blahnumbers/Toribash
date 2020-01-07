@@ -1610,6 +1610,26 @@ do
 				shapeType = ROUNDED,
 				rounded = 3
 			})
+			local eventActionDownloadManager = UIElement:new({
+				parent = eventActionButton,
+				pos = { 0, 0 },
+				size = { 0, 0 }
+			})
+			eventActionDownloadManager.life = -1
+			eventActionDownloadManager:addCustomDisplay(true, function()
+				eventActionDownloadManager.life = eventActionDownloadManager.life + 1
+				local downloads = get_downloads()
+				for i,v in pairs(downloads) do
+					if (v:find(event.eventid)) then
+						eventActionButton:deactivate()
+						return
+					end
+				end
+				eventActionButton:activate()
+				if ((#downloads == 0 and eventActionDownloadManager.life > 50) or eventActionDownloadManager.life > 600) then
+					eventActionDownloadManager:kill()
+				end
+			end)
 			table.insert(pbotBar.child, eventActionButton)
 			eventActionButton:addAdaptedText(false, event.actionText)
 			eventActionButton:addMouseHandlers(nil, function()
@@ -1643,7 +1663,7 @@ do
 		closeButton:addMouseHandlers(nil, function()
 				overlay:kill()
 			end)
-		if (not EventsOnline:checkFiles(event.eventid)) then
+		if (not EventsOnline:checkFiles(event.eventid, event.requireMod)) then
 			download_server_file('tutorial_' .. event.eventid, 0)
 		end
 	end

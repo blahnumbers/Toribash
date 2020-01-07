@@ -488,7 +488,7 @@ do
 		for i,v in pairs(Torishop:getInventoryRaw()) do
 			if (v.active) then
 				if (TB_STORE_DATA[item.itemid].catid == TB_STORE_DATA[v.itemid].catid) then
-					if (TB_STORE_DATA[item.itemid].catid == 78) then
+					if (TB_STORE_DATA[item.itemid].catid == 78 and TB_STORE_MODELS[v.itemid]) then
 						local nModelInfo = TB_STORE_MODELS[item.itemid]
 						if (TB_STORE_MODELS[item.itemid].upgradeable) then
 							nModelInfo = TB_STORE_MODELS[item.itemid][item.upgrade_level]
@@ -1784,22 +1784,22 @@ do
 				TB_MENU_IGNORE_REWARDS = 0
 			end)
 		local cardsData = {
-			{ player = "Gentleman", itemid = 3100 },
-			{ player = "Euphoria", itemid = 3098 },
-			{ player = "Code", itemid = 3096 },
-			{ player = "Diamond", itemid = 3097 },
-			{ player = "nervau", itemid = 3101 },
-			{ player = "Fade", itemid = 3099 },
-			{ player = "Nerfpls", itemid = 3093 },
-			{ player = "McFarbo", itemid = 3092 },
+			{ player = "Lisa", itemid = 3100 },
+			{ player = "alximikrus", itemid = 3098 },
+			{ player = "Chax", itemid = 3096 },
+			{ player = "Valha", itemid = 3097 },
+			{ player = "Velordrel", itemid = 3101 },
+			{ player = "Swaves", itemid = 3099 },
+			{ player = "Cicada3301", itemid = 3093 },
+			{ player = "Wounder", itemid = 3092 },
 		}
-		local selectedPlayer = math.random(1, #cardsData)
+		local selectedPlayer = 1 --math.random(1, #cardsData)
 
 		local cardsOverlay = UIElement:new({
 			parent = overlay,
 			pos = { 100, 100 },
 			size = { overlay.size.w - 200, overlay.size.h - 200 },
-			bgColor = { 0.118, 0.016, 0.043, 1 },
+			bgColor = { 0.392, 0.211, 0.17, 1 },
 			interactive = true
 		})
 		local scale = cardsOverlay.size.h * 2 < cardsOverlay.size.w and cardsOverlay.size.h or cardsOverlay.size.w / 2
@@ -1807,9 +1807,9 @@ do
 			parent = cardsOverlay,
 			pos = { cardsOverlay.size.w / 2 - scale, (cardsOverlay.size.h - scale) / 2 },
 			size = { scale * 2, scale },
-			bgImage = "../textures/menu/worldsbackground.tga"
+			bgImage = "../textures/menu/worlds19background.tga"
 		})
-		local cardsBackgroundAnimation = UIElement:new({
+		--[[local cardsBackgroundAnimation = UIElement:new({
 			parent = cardsOverlay,
 			pos = { 0, 0 },
 			size = { cardsOverlay.size.w, cardsOverlay.size.h }
@@ -1850,53 +1850,60 @@ do
 						table.remove(circles, i)
 					end
 				end
+			end)--]]
+
+		local backButton = UIElement:new({
+			parent = cardsOverlay,
+			pos = { -150, 0 },
+			size = { 140, 40 },
+			interactive = true,
+			bgColor = UICOLORWHITE,
+			hoverColor = TB_MENU_DEFAULT_LIGHTEST_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+		})
+		backButton:addCustomDisplay(true, function()
+				backButton:uiText(TB_MENU_LOCALIZED.NAVBUTTONBACK, nil, nil, nil, RIGHTMID, nil, nil, nil, backButton:getButtonColor())
+			end)
+		backButton:addMouseHandlers(nil, function()
+				overlay:kill()
+				TB_MENU_IGNORE_REWARDS = 0
 			end)
 
-			local backButton = UIElement:new({
-				parent = cardsOverlay,
-				pos = { -150, 0 },
-				size = { 140, 40 },
-				interactive = true,
-				bgColor = UICOLORWHITE,
-				hoverColor = TB_MENU_DEFAULT_LIGHTEST_COLOR,
-				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
-			})
-			backButton:addCustomDisplay(true, function()
-					backButton:uiText(TB_MENU_LOCALIZED.NAVBUTTONBACK, nil, nil, nil, RIGHTMID, nil, nil, nil, backButton:getButtonColor())
-				end)
-			backButton:addMouseHandlers(nil, function()
-					overlay:kill()
-					TB_MENU_IGNORE_REWARDS = 0
-				end)
-
-			local cardsInfoHolder = UIElement:new({
-				parent = cardsOverlay,
-				pos = { 0, 0 },
-				size = { cardsOverlay.size.w, cardsOverlay.size.h }
-			})
-			Torishop:showCollectorsCardSingle(cardsInfoHolder, cardsData, selectedPlayer)
+		local cardsInfoHolder = UIElement:new({
+			parent = cardsOverlay,
+			pos = { 0, 0 },
+			size = { cardsOverlay.size.w, cardsOverlay.size.h }
+		})
+		Torishop:showCollectorsCardSingle(cardsInfoHolder, cardsData, selectedPlayer)
 	end
 
 	function Torishop:showCollectorsCardSingle(cardsOverlay, cardsData, selectedPlayer)
 		cardsOverlay:kill(true)
 		local cardScale = cardsOverlay.size.h > 532 and 512 or cardsOverlay.size.h - 20
+		cardScale = cardScale * 0.8 > cardsOverlay.size.w / 3 and cardsOverlay.size.w / 2.5 or cardScale
+		
 		local cardImage = UIElement:new({
 			parent = cardsOverlay,
-			pos = { (cardsOverlay.size.w * 2 / 3 - cardScale) / 2, (cardsOverlay.size.h - cardScale) / 2 },
+			pos = { cardsOverlay.size.w / 3.5 - cardScale / 2, (cardsOverlay.size.h - cardScale) / 2 },
 			size = { cardScale, cardScale },
-			bgImage = "../textures/menu/worlds2018/card" .. cardsData[selectedPlayer].player:lower() .. ".tga"
+			bgImage = "../textures/menu/worlds2019/card" .. cardsData[selectedPlayer].player:lower() .. ".tga"
 		})
 		local cardInfoHolder = UIElement:new({
 			parent = cardsOverlay,
-			pos = { cardsOverlay.size.w / 3 + cardScale * 0.4, cardsOverlay.size.h / 10 },
-			size = { cardScale * 0.8, cardsOverlay.size.h * 0.8 }
+			pos = { cardImage.pos.x + cardImage.size.w * 0.7, cardsOverlay.size.h / 10 },
+			size = { cardScale, cardsOverlay.size.h * 0.8 },
+			bgColor = { 0.392, 0.211, 0.17, 0.75 },
+			shapeType = ROUNDED,
+			rounded = 10
 		})
 		local cardsDisclaimer = UIElement:new({
 			parent = cardInfoHolder,
 			pos = { 10, 0 },
-			size = { cardInfoHolder.size.w - 20, cardInfoHolder.size.h / 4 }
+			size = { cardInfoHolder.size.w - 20, cardInfoHolder.size.h / 4 },
+			uiShadowColor = { 0.392, 0.211, 0.17, 1 },
+			--uiShadowColor = UICOLORWHITE
 		})
-		cardsDisclaimer:addAdaptedText(true, "World Championship 2018\nCollectors Card", nil, nil, FONTS.BIG, nil, 0.6)
+		cardsDisclaimer:addAdaptedText(true, "World Championship 2019\nCollectors Card", nil, nil, FONTS.BIG, nil, 0.825, nil, 0.25, 1.5)
 
 		local cardName = UIElement:new({
 			parent = cardInfoHolder,
@@ -1909,33 +1916,66 @@ do
 			parent = cardInfoHolder,
 			pos = { 0, cardInfoHolder.size.h / 2 },
 			size = { cardInfoHolder.size.w, cardInfoHolder.size.h / 4 },
-			shapeType = ROUNDED,
+			--[[shapeType = ROUNDED,
 			rounded = 5,
-			bgColor = { 0.118, 0.016, 0.043, 0.7 }
+			bgColor = { 0.118, 0.016, 0.043, 0.7 }]]
 		})
 		local cardInfoText = UIElement:new({
 			parent = cardInfo,
 			pos = { 10, 5 },
 			size = { cardInfo.size.w - 20, cardInfo.size.h - 10 }
 		})
-		cardInfoText:addAdaptedText(true, "Purchase this card now and win prize Toricredits if " .. cardsData[selectedPlayer].player .. " wins Toribash World Championship 2018 and becomes the best player of the year!", nil, nil, 4)
-
-		local cardPurchaseButton = UIElement:new({
+		cardInfoText:addAdaptedText(true, "Purchase this card now and win prize Toricredits if " .. cardsData[selectedPlayer].player .. " wins Toribash World Championship 2019 and becomes the best player of the year!", nil, nil, 4, nil, 0.85)
+		
+		local item = Torishop:getItemInfo(cardsData[selectedPlayer].itemid)
+		local cardPurchaseButtonTC = UIElement:new({
 			parent = cardInfoHolder,
-			pos = { 10, cardInfoHolder.size.h * 3 / 4 + cardInfoHolder.size.h / 16 },
-			size = { cardInfoHolder.size.w - 20, cardInfoHolder.size.h / 4 - cardInfoHolder.size.h / 8 },
+			pos = { 20, cardInfoHolder.size.h * 3 / 4 + cardInfoHolder.size.h / 16 },
+			size = { cardInfoHolder.size.w / 2 - 30, cardInfoHolder.size.h / 4 - cardInfoHolder.size.h / 8 },
 			shapeType = ROUNDED,
 			rounded = 10,
-			hoverColor = { 0.236, 0.032, 0.086, 0.8 },
+			hoverColor = { 0.32, 0.16, 0.13, 1 },
+			pressedColor = { 0.035, 0.616, 0.843, 1 },
+			inactiveColor = { 0.43, 0.32, 0.3, 1 },
 			innerShadow = { 0, 5 },
-			shadowColor = { 0.354, 0.048, 0.129, 0.7 },
+			shadowColor = { 0.293, 0.125, 0.09, 1 },
 			interactive = true,
-			bgColor = { 0.354, 0.048, 0.129, 0.7 },
-			pressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR
+			bgColor = { 0.392, 0.211, 0.17, 1 }
 		})
-		cardPurchaseButton:addAdaptedText(false, "Buy for 5,000 TC")
-		cardPurchaseButton:addMouseHandlers(nil, function()
-			UIElement:runCmd("bi " .. cardsData[selectedPlayer].itemid)
+		if (TB_MENU_PLAYER_INFO.data.tc < item.now_tc_price) then
+			cardPurchaseButtonTC:deactivate()
+		end
+		cardPurchaseButtonTC:addAdaptedText(false, "Buy for " .. item.now_tc_price / 1000 .. "K TC", nil, -2)
+		cardPurchaseButtonTC:addMouseHandlers(nil, function()
+			TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASECONFIRM .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " " .. PlayerInfo:currencyFormat(item.now_tc_price) .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS .. "?\n" .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT1 .. " " .. PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.tc - item.now_tc_price) .. " TC " .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT2, function()
+					buy_tc(item.itemid .. ":" .. item.now_tc_price)
+					Torishop:showPostPurchaseScreen(item)
+				end)
+		end)
+		
+		local cardPurchaseButtonST = UIElement:new({
+			parent = cardInfoHolder,
+			pos = { cardPurchaseButtonTC.size.w + cardPurchaseButtonTC.shift.x + 20, cardInfoHolder.size.h * 3 / 4 + cardInfoHolder.size.h / 16 },
+			size = { cardInfoHolder.size.w / 2 - 30, cardInfoHolder.size.h / 4 - cardInfoHolder.size.h / 8 },
+			shapeType = ROUNDED,
+			rounded = 10,
+			hoverColor = { 0.32, 0.16, 0.13, 1 },
+			pressedColor = { 0.035, 0.616, 0.843, 1 },
+			inactiveColor = { 0.43, 0.32, 0.3, 1 },
+			innerShadow = { 0, 5 },
+			shadowColor = { 0.293, 0.125, 0.09, 1 },
+			interactive = true,
+			bgColor = { 0.392, 0.211, 0.17, 1 }
+		})
+		if (TB_MENU_PLAYER_INFO.data.st < item.now_usd_price) then
+			cardPurchaseButtonST:deactivate()
+		end
+		cardPurchaseButtonST:addAdaptedText(false, "Buy for " .. item.now_usd_price .. " ST", nil, -2)
+		cardPurchaseButtonST:addMouseHandlers(nil, function()
+			TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASECONFIRM .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " " .. PlayerInfo:currencyFormat(item.now_usd_price) .. " " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS .. "?\n" .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT1 .. " " .. PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.st - item.now_usd_price) .. " ST " .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT2, function()
+					buy_st(item.itemid .. ":" .. item.now_usd_price)
+					Torishop:showPostPurchaseScreen(item)
+				end)
 		end)
 
 		local prevCardButton = UIElement:new({
