@@ -51,7 +51,7 @@ end
 local function setModSettings()
 	UIElement:runCmd("set mod classic.tbm")
 	start_new_game()
-	UIElement:runCmd("set matchframes 1000")
+	UIElement:runCmd("set matchframes 1500")
 	UIElement:runCmd("set engagedistance 160")
 	UIElement:runCmd("set gravity 0 0 -9.82")
 	UIElement:runCmd("set flags 6")
