@@ -1784,16 +1784,16 @@ do
 				TB_MENU_IGNORE_REWARDS = 0
 			end)
 		local cardsData = {
-			{ player = "Lisa", itemid = 3100 },
-			{ player = "alximikrus", itemid = 3098 },
-			{ player = "Chax", itemid = 3096 },
-			{ player = "Valha", itemid = 3097 },
-			{ player = "Velordrel", itemid = 3101 },
-			{ player = "Swaves", itemid = 3099 },
-			{ player = "Cicada3301", itemid = 3093 },
-			{ player = "Wounder", itemid = 3092 },
+			{ player = "Lisa", itemid = 3284 },
+			{ player = "alximikrus", itemid = 3285 },
+			{ player = "Chax", itemid = 3286 },
+			{ player = "Valha", itemid = 3287 },
+			{ player = "Velordrel", itemid = 3288 },
+			{ player = "Swaves", itemid = 3289 },
+			{ player = "Cicada3301", itemid = 3290 },
+			{ player = "Wounder", itemid = 3283 },
 		}
-		local selectedPlayer = 1 --math.random(1, #cardsData)
+		local selectedPlayer = math.random(1, #cardsData)
 
 		local cardsOverlay = UIElement:new({
 			parent = overlay,
@@ -1949,7 +1949,7 @@ do
 		cardPurchaseButtonTC:addMouseHandlers(nil, function()
 			TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASECONFIRM .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " " .. PlayerInfo:currencyFormat(item.now_tc_price) .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS .. "?\n" .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT1 .. " " .. PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.tc - item.now_tc_price) .. " TC " .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT2, function()
 					buy_tc(item.itemid .. ":" .. item.now_tc_price)
-					Torishop:showPostPurchaseScreen(item)
+					Torishop:showPostPurchaseScreen(item, true)
 				end)
 		end)
 		
@@ -1974,7 +1974,7 @@ do
 		cardPurchaseButtonST:addMouseHandlers(nil, function()
 			TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASECONFIRM .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " " .. PlayerInfo:currencyFormat(item.now_usd_price) .. " " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS .. "?\n" .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT1 .. " " .. PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.st - item.now_usd_price) .. " ST " .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT2, function()
 					buy_st(item.itemid .. ":" .. item.now_usd_price)
-					Torishop:showPostPurchaseScreen(item)
+					Torishop:showPostPurchaseScreen(item, true)
 				end)
 		end)
 
@@ -3802,7 +3802,7 @@ do
 		return modelDrawn
 	end
 	
-	function Torishop:showPostPurchaseScreen(item)
+	function Torishop:showPostPurchaseScreen(item, forceSucessDisplay)
 		local overlay = TBMenu:spawnWindowOverlay()
 		local purchasing = UIElement:new({
 			parent = overlay,
@@ -3852,6 +3852,8 @@ do
 								INVENTORY_MOUSE_POS = { x = posX, y = posY }
 								show_dialog_box(INVENTORY_ACTIVATE, TB_MENU_LOCALIZED.STOREDIALOGACTIVATE1 .. " " .. item.itemname .. (TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 .. "?"), invid)
 							end)
+					elseif (forceSucessDisplay) then
+						TBMenu:showDataError(item.itemname .. " " .. TB_MENU_LOCALIZED.STOREITEMPURCHASESUCCESSFUL)
 					end
 				else
 					fn(TB_MENU_LOCALIZED.STOREPURCHASEERRORUNDEF)

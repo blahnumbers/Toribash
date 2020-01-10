@@ -2068,7 +2068,7 @@ do
 			{ text = TB_MENU_LOCALIZED.NAVBUTTONSTORE, sectionId = 6 },
 			{ text = TB_MENU_LOCALIZED.NAVBUTTONTOOLS, sectionId = 5 },
 			{ text = TB_MENU_LOCALIZED.NAVBUTTONACCOUNT, sectionId = 7, right = true },
-			{ text = TB_MENU_LOCALIZED.MAINMENURANKEDNAME, sectionId = 8, right = true },
+		--	{ text = TB_MENU_LOCALIZED.MAINMENURANKEDNAME, sectionId = 8, right = true },
 		}
 		if (TB_MENU_PLAYER_INFO.username == '') then
 			buttonData[6] = nil
