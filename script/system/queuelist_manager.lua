@@ -517,6 +517,7 @@ do
 				isFriend = true
 			end
 		end
+		local isIgnored = false
 		for i,v in pairs(FRIENDSLIST_IGNORE) do
 			if (v:lower() == pName:lower()) then
 				isIgnored = true

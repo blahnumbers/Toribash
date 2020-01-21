@@ -1,29 +1,21 @@
-NEWSID 1;
-TITLE 0;Toribash Movember
-SUBTITLE 0;Join the movement and put on your manliest stache!
-IMAGE 0;movember.tga
-URL 0;https://toribash.com/index9.php
-MOVEMBER 0;1
-
 NEWSID 2;
-TITLE 0;Ranking Season 6 is here!
-SUBTITLE 0;Defeat other players to climb up ranks and get exciting rewards!
-IMAGE 0;season6.tga
-URL 0;https://forum.toribash.com/showthread.php?t=627137
+TITLE 0;Toribash World Championship 2019
+//SUBTITLE 0;World Championship is nearing its end - support your favorite fighter with WC19 collectors cards!
+IMAGE 0;worldchampionship2019.tga
+URL 0;https://forum.toribash.com/showthread.php?t=634188
 
 NEWSID 5;
-TITLE 0;Opener Challenge 3
-SUBTITLE 0;Opener challenge is back after, ugh, let's call it holiday?
+TITLE 0;Opener Challenge 5
 IMAGESMALL 0;openerchallengesmall.tga
 IMAGE 0;openerchallenge.tga
 FEATURED 0;
 EVENT 0;1
 
 EVENTID 1;
-NAME 0;Opener Challenge 3
+NAME 0;Opener Challenge 5
 IMAGE 0;openerchallenge.tga
-URL 0;https://forum.toribash.com/showthread.php?t=632763
-PLAYNAME 0;openerch3
+URL 0;https://forum.toribash.com/showthread.php?t=635476
+PLAYNAME 0;openerch5
 OVERLAYTRANS 0;0.1
 PLAYTEXT 0;PARTICIPATE
 ACCENTCOLOR 0;F5F5F5
@@ -32,31 +24,29 @@ BTNHVRCOL 0;505050
 BTNDNCOL 0;92041f
 DESCDATA 0;1Description
 DESCDATAIMGTITLE 0;1oc_description.tga
-DESCDATATEXT 0;1The Event Squad is proud to present Opener Challenge!\nIn this event we provide you with a pre-made opener to edit after a set number of frames in order to complete the challenges described.\nThose who complete the advanced challenge and also split Uke will receive an even better reward!
+DESCDATATEXT 0;1The Event Squad is proud to present Opener Challenge!\nIn this event we provide you with a pre-made opener to edit after a set number of frames in order to complete the challenges described.\nThis time, you'll have to manipulate Uke's body to keep him in the air for as long as you can to receive rewards!
 DESCDATA 0;2Rules
 DESCDATAIMGTITLE 0;2oc_rules.tga
-DESCDATATEXT 0;2- Replay hacking is strictly forbidden\n- Do not steal other players' replays\n- Do not edit the replay before frame 60\n- Do not edit any of the game rules except turn and match frames
+DESCDATATEXT 0;2- Replay hacking is strictly forbidden\n- Do not steal other players' replays\n- Do not edit any of the game rules except turn and match frames\n- Do not try to enter the event with multiple accounts
 DESCDATA 0;3How to Enter
 DESCDATAIMGTITLE 0;3oc_howtoenter.tga
-DESCDATATEXT 0;3You can participate in Free Run Frenzy by pressing "Participate" button on bottom right, completing the challenge and submitting your replay to Toribash servers.\nAlternatively, you can make a replay in current challenge's mod in Free Play mode and attach it to your post in event thread on forums - if you just upload it to Toribash Community Replays then it won't be judged.\n^02Only one replay per player will be judged.
+DESCDATATEXT 0;3You can participate in Opener Challenge by pressing "Participate" button on bottom right, completing the challenge and submitting your replay to Toribash servers.\nAlternatively, you can download the opener from the event thread on forums, edit it according to the rules and post your replay back in event thread - if you just upload it to Toribash Community Replays then it won't be judged.\n^02Only one replay per player will be judged.
 DESCDATA 0;4Deadline
 DESCDATAIMGTITLE 0;4oc_deadline.tga
-DESCDATATEXT 0;4We will stop accepting new entries on November 15th, 16:00 (GMT +0)
+DESCDATATEXT 0;4We will stop accepting new entries on January 24th, 16:00 UTC
 DESCDATA 0;5 
 PRIZEIMG 0;oc_prizes.tga
-PRIZEDATA 0;1Best Replay
+PRIZEDATA 0;1Best replay
 PRIZETC 0;150000
-PRIZEST 0;110
-PRIZEITEMS 0;112284
+PRIZEST 0;18
+PRIZEITEMS 0;112255
 PRIZEDATA 0;2Honorable Mentions
 PRIZETC 0;220000
 PRIZEST 0;26
-PRIZEITEMS 0;212031
-PRIZEDATA 0;3Reach 300K point score
-PRIZETC 0;35000
+PRIZEDATA 0;3Keep Uke in the air for 650 frames
+PRIZETC 0;37000
 PRIZEST 0;34
-PRIZEITEMS 0;312031
-PRIZEDATA 0;4Reach 100K point score
+PRIZEDATA 0;4Keep Uke in the air for 200 frames
 PRIZETC 0;42000
 PRIZEST 0;42
 
