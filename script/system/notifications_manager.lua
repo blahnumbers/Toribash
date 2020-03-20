@@ -52,6 +52,7 @@ do
 	function Notifications:showLoginRewards()
 		local rewards = PlayerInfo:getLoginRewards()
 		if (rewards.days == 0 and rewards.available == false and rewards.timeLeft == 0) then
+			TBMenu:showDataError(TB_MENU_LOCALIZED.REWARDSCLAIMNETWORKERROR)
 			return 0
 		else
 			TB_MENU_PLAYER_INFO.rewards = rewards

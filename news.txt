@@ -1,21 +1,20 @@
-NEWSID 2;
-TITLE 0;Toribash World Championship 2019
-//SUBTITLE 0;World Championship is nearing its end - support your favorite fighter with WC19 collectors cards!
-IMAGE 0;worldchampionship2019.tga
-URL 0;https://forum.toribash.com/showthread.php?t=634188
+NEWSID 1;
+TITLE 0;Event Squad is recruiting!
+SUBTITLE 0;Join ES today and help us make Toribash more fun!
+IMAGE 0;esrecdrivebanner.tga
+URL 0;https://forum.toribash.com/showthread.php?t=637286
 
-NEWSID 5;
-TITLE 0;Opener Challenge 5
-IMAGESMALL 0;openerchallengesmall.tga
-IMAGE 0;openerchallenge.tga
+NEWSID 2;
+TITLE 0;Show off your boxshu mushu skills and win various prizes!
+IMAGE 0;modmania.tga
 FEATURED 0;
-EVENT 0;1
+MODCHAMPIONSHIP 0;
 
 EVENTID 1;
 NAME 0;Opener Challenge 5
 IMAGE 0;openerchallenge.tga
 URL 0;https://forum.toribash.com/showthread.php?t=635476
-PLAYNAME 0;openerch5
+//PLAYNAME 0;openerch5
 OVERLAYTRANS 0;0.1
 PLAYTEXT 0;PARTICIPATE
 ACCENTCOLOR 0;F5F5F5
