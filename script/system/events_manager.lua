@@ -851,7 +851,7 @@ do
 			pos = { 20, questBackground.shift.y + questBackground.size.h + 5 },
 			size = { globalChallengeHolder.size.w - 40, globalChallengeHolder.size.h - questBackground.shift.y - questBackground.size.h - 70 }
 		})
-		TBMenu:showTextWithImage(globalReward, globalItemReward.itemname, FONTS.BIG, 64, Torishop:getItemIcon(globalItemReward.itemid))
+		TBMenu:showTextWithImage(globalReward, globalItemReward.itemname, FONTS.MEDIUM, 64, Torishop:getItemIcon(globalItemReward.itemid))
 		
 		local joinButton = UIElement:new({
 			parent = globalChallengeHolder,

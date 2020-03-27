@@ -4835,7 +4835,7 @@ do
 	function Torishop:showSearchResults(viewElement, searchResults, searchString)
 		viewElement:kill(true)
 		TBMenu:clearNavSection()
-		TBMenu:showNavigationBar(Torishop:getSectionNavButtons(viewElement, 0), true)		
+		TBMenu:showNavigationBar(Torishop:getSectionNavButtons(viewElement, 0), true)
 		Torishop:showSearchBar(viewElement, searchString)
 		
 		local isEmpty = true
