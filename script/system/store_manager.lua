@@ -1775,6 +1775,215 @@ do
 				end)
 		end
 	end
+	
+	function Torishop:showSeasonPassAprilFools()
+		TB_MENU_IGNORE_REWARDS = 1
+		local overlay = TBMenu:spawnWindowOverlay()
+		overlay:addMouseHandlers(nil, function()
+				overlay:kill()
+				TB_MENU_IGNORE_REWARDS = 0
+			end)
+		local seasonPassBG = UIElement:new({
+			parent = overlay,
+			pos = { 100, 150 },
+			size = { overlay.size.w - 200, overlay.size.h - 300 },
+			bgColor = { 0.847, 0.89, 0.941, 1 },
+			shapeType = ROUNDED,
+			rounded = 5,
+			interactive = true
+		})
+		local backButton = UIElement:new({
+			parent = seasonPassBG,
+			pos = { -150, 0 },
+			size = { 140, 40 },
+			interactive = true,
+			bgColor = UICOLORBLACK,
+			hoverColor = { 0.431, 0.6, 0.78, 1 },
+			pressedColor = { 0.373, 0.557, 0.749, 1 }
+		})
+		backButton:addCustomDisplay(true, function()
+				backButton:uiText(TB_MENU_LOCALIZED.NAVBUTTONBACK, nil, nil, nil, RIGHTMID, nil, nil, nil, backButton:getButtonColor())
+			end)
+		backButton:addMouseHandlers(nil, function()
+				overlay:kill()
+				TB_MENU_IGNORE_REWARDS = 0
+			end)
+		function doShow()
+			local seasonPassHolder = UIElement:new({
+				parent = seasonPassBG,
+				pos = { 10, 25 },
+				size = { seasonPassBG.size.w * 0.6, seasonPassBG.size.h - 50 }
+			})
+			local passImageSize = 1024 > seasonPassHolder.size.w and seasonPassHolder.size.w or 1024
+			local seasonPassImage = UIElement:new({
+				parent = seasonPassHolder,
+				pos = { 0, 0 },
+				size = { seasonPassHolder.size.w, seasonPassHolder.size.w / 2 },
+				bgImage = "../textures/menu/promo/seasonpasssmall.tga"
+			})
+			
+			local seasonPassInfoHolder = UIElement:new({
+				parent = seasonPassHolder,
+				pos = { 10, -180 },
+				size = { seasonPassHolder.size.w - 20, 110 },
+				bgColor = { 0.58, 0.706, 0.835, 0.8 },
+				shapeType = ROUNDED,
+				rounded = 5
+			})
+			local seasonPassInfo = UIElement:new({
+				parent = seasonPassInfoHolder,
+				pos = { 10, 5 },
+				size = { seasonPassInfoHolder.size.w - 20, seasonPassInfoHolder.size.h - 10 },
+				uiColor = UICOLORBLACK
+			})
+			seasonPassInfo:addAdaptedText(nil, "Toribash Season Pass 2020 is a special collectible card that upgrades your Toribash account by giving you exclusive access to:\n- ^62NO ^07unique or otherwise unavailable items\n- ^62ZERO ^07Season Pass levels to unlock\n- ^62ALL THE ITEMS ^07that you already own", nil, nil, 4, LEFTMID)
+			
+			local item = Torishop:getItemInfo(3304)
+			local cardPurchaseButtonTC = UIElement:new({
+				parent = seasonPassHolder,
+				pos = { seasonPassHolder.size.w / 5, -60},
+				size = { seasonPassHolder.size.w / 5 * 3, 60 },
+				shapeType = ROUNDED,
+				rounded = 10,
+				hoverColor = { 0.792, 0.851, 0.918, 1 },
+				pressedColor = { 0.373, 0.557, 0.749, 1 },
+				innerShadow = { 0, 5 },
+				shadowColor = { 0.431, 0.6, 0.78, 1 },
+				interactive = true,
+				bgColor = { 0.58, 0.706, 0.835, 1 },
+				uiColor = { 0, 0, 0, 1 }
+			})
+			if (TB_MENU_PLAYER_INFO.data.tc < item.now_tc_price) then
+				cardPurchaseButtonTC:deactivate()
+				cardPurchaseButtonTC.uiColor = { 0.4, 0.4, 0.4, 1 }
+			end
+			cardPurchaseButtonTC:addAdaptedText(false, "Get Season Pass for " .. PlayerInfo:currencyFormat(item.now_tc_price) .. " TC", nil, -2)
+			cardPurchaseButtonTC:addMouseHandlers(nil, function()
+				TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASECONFIRM .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " " .. PlayerInfo:currencyFormat(item.now_tc_price) .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS .. "?\n" .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT1 .. " " .. PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.tc - item.now_tc_price) .. " TC " .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT2, function()
+						buy_tc(item.itemid .. ":" .. item.now_tc_price)
+						Torishop:showPostPurchaseScreen(item)
+					end)
+			end)
+			
+			local plusSign = UIElement:new({
+				parent = seasonPassBG,
+				pos = { seasonPassHolder.size.w + seasonPassHolder.shift.x, 25 },
+				size = { 20, seasonPassBG.size.h / 3 * 2 },
+				uiColor = UICOLORBLACK
+			})
+			plusSign:addAdaptedText(nil, "+", nil, nil, FONTS.BIG)
+			
+			local lootBox = Torishop:getItemInfo(3303)
+			local lootBoxHolder = UIElement:new({
+				parent = seasonPassBG,
+				pos = { seasonPassHolder.size.w + seasonPassHolder.shift.x + 20, 25 },
+				size = { seasonPassBG.size.w - seasonPassHolder.size.w - seasonPassHolder.shift.x * 2 - 20, seasonPassBG.size.h - 50 },
+				uiColor = UICOLORBLACK
+			})
+			local lootboxIconSize = 256 > lootBoxHolder.size.w - 100 and lootBoxHolder.size.w - 100 or 256
+			lootboxIconSize = lootboxIconSize > lootBoxHolder.size.h / 2 and lootBoxHolder.size.h / 2 or lootboxIconSize
+			local lootBoxName = UIElement:new({
+				parent = lootBoxHolder,
+				pos = { 20, 10 },
+				size = { lootBoxHolder.size.w - 40, 35 }
+			})
+			lootBoxName:addAdaptedText(nil, lootBox.itemname, nil, nil, FONTS.BIG, nil, nil, nil, 0.2)
+			local lootBoxIcon = UIElement:new({
+				parent = lootBoxHolder,
+				pos = { (lootBoxHolder.size.w - lootboxIconSize) / 2, 50 },
+				size = { lootboxIconSize, lootboxIconSize },
+				bgImage = "../textures/store/items/3303_big.tga"
+			})
+			local lootBoxInfoHolder = UIElement:new({
+				parent = lootBoxHolder,
+				pos = { 10, -160 },
+				size = { lootBoxHolder.size.w - 20, 90 },
+				bgColor = { 0.58, 0.706, 0.835, 0.8 },
+				shapeType = ROUNDED,
+				rounded = 5
+			})
+			local lootBoxInfo = UIElement:new({
+				parent = lootBoxInfoHolder,
+				pos = { 10, 5 },
+				size = { lootBoxInfoHolder.size.w - 20, lootBoxInfoHolder.size.h - 10 }
+			})
+			lootBoxInfo:addAdaptedText(nil, lootBox.itemname .. " is an item that utilizes surprise mechanics: by purchasing it you will receive one random color item - including no-qi Void and Demon!", nil, nil, 4)
+			
+			local lootboxPurchaseButtonTC = UIElement:new({
+				parent = lootBoxHolder,
+				pos = { 10, -60},
+				size = { lootBoxHolder.size.w / 2 - 10, 60 },
+				shapeType = ROUNDED,
+				rounded = 10,
+				hoverColor = { 0.792, 0.851, 0.918, 1 },
+				pressedColor = { 0.373, 0.557, 0.749, 1 },
+				innerShadow = { 0, 5 },
+				shadowColor = { 0.431, 0.6, 0.78, 1 },
+				interactive = true,
+				bgColor = { 0.58, 0.706, 0.835, 1 },
+				uiColor = { 0, 0, 0, 1 }
+			})
+			if (TB_MENU_PLAYER_INFO.data.tc < lootBox.now_tc_price) then
+				lootboxPurchaseButtonTC:deactivate()
+				lootboxPurchaseButtonTC.uiColor = { 0.4, 0.4, 0.4, 1 }
+			end
+			lootboxPurchaseButtonTC:addAdaptedText(false, "Buy for " .. PlayerInfo:currencyFormat(lootBox.now_tc_price) .. " TC", nil, -2)
+			lootboxPurchaseButtonTC:addMouseHandlers(nil, function()
+				TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASECONFIRM .. " " .. lootBox.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " " .. PlayerInfo:currencyFormat(lootBox.now_tc_price) .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS .. "?\n" .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT1 .. " " .. PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.tc - lootBox.now_tc_price) .. " TC " .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT2, function()
+						buy_tc(lootBox.itemid .. ":" .. lootBox.now_tc_price)
+						Torishop:showPostPurchaseScreen(lootBox, nil, true)
+					end)
+			end)
+			
+			local lootboxPurchaseButtonST = UIElement:new({
+				parent = lootBoxHolder,
+				pos = { lootBoxHolder.size.w / 2 + 10, -60 },
+				size = { lootBoxHolder.size.w / 2 - 10, 60 },
+				shapeType = ROUNDED,
+				rounded = 10,
+				hoverColor = { 0.792, 0.851, 0.918, 1 },
+				pressedColor = { 0.373, 0.557, 0.749, 1 },
+				innerShadow = { 0, 5 },
+				shadowColor = { 0.431, 0.6, 0.78, 1 },
+				interactive = true,
+				bgColor = { 0.58, 0.706, 0.835, 1 },
+				uiColor = { 0, 0, 0, 1 }
+			})
+			if (TB_MENU_PLAYER_INFO.data.st < lootBox.now_usd_price) then
+				lootboxPurchaseButtonST:deactivate()
+				lootboxPurchaseButtonST.uiColor = { 0.4, 0.4, 0.4, 1 }
+			end
+			lootboxPurchaseButtonST:addAdaptedText(false, "Buy for " .. lootBox.now_usd_price .. " ST", nil, -2)
+			lootboxPurchaseButtonST:addMouseHandlers(nil, function()
+				TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASECONFIRM .. " " .. lootBox.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " " .. PlayerInfo:currencyFormat(lootBox.now_usd_price) .. " " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS .. "?\n" .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT1 .. " " .. PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.st - lootBox.now_usd_price) .. " ST " .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT2, function()
+						buy_st(lootBox.itemid .. ":" .. lootBox.now_usd_price)
+						Torishop:showPostPurchaseScreen(lootBox, nil, true)
+					end)
+			end)
+		end
+		if (not TB_STORE_DATA.ready) then
+			local waiterText = UIElement:new({
+				parent = seasonPassBG,
+				pos = { 100, 50 },
+				size = { seasonPassBG.size.w - 200, seasonPassBG.size.h - 100 },
+				uiColor = UICOLORBLACK
+			})
+			waiterText:addAdaptedText(true, "Loading store data, please wait...")
+			local waiter = UIElement:new({
+				parent = waiterText,
+				pos = { 0, 0 },
+				size = { 0, 0 }
+			})
+			waiter:addCustomDisplay(true, function()
+					if (TB_STORE_DATA.ready) then
+						waiterText:kill()
+						doShow()
+					end
+				end)
+		else
+			doShow()
+		end
+	end
 
 	function Torishop:showCollectorsCardsWC()
 		TB_MENU_IGNORE_REWARDS = 1
@@ -3802,7 +4011,7 @@ do
 		return modelDrawn
 	end
 	
-	function Torishop:showPostPurchaseScreen(item, forceSucessDisplay)
+	function Torishop:showPostPurchaseScreen(item, forceSucessDisplay, forceRefreshItem)
 		local overlay = TBMenu:spawnWindowOverlay()
 		local purchasing = UIElement:new({
 			parent = overlay,
@@ -3834,8 +4043,53 @@ do
 					response = response:gsub("^ERROR 0;", "")
 					fn(TB_MENU_LOCALIZED.STOREPURCHASEERROR .. ": " .. response)
 				elseif (response:find("^SUCCESS 0;")) then
-					update_tc_balance()
 					local invid = response:gsub("^SUCCESS 0;", "")
+					if (forceRefreshItem) then
+						local waiter = UIElement:new({
+							parent = overlay,
+							pos = { 0, 0 },
+							size = { 0, 0 }
+						})
+						waiter.timeAlive = 0
+						waiter:addCustomDisplay(true, function()
+								waiter.timeAlive = waiter.timeAlive + 1
+								if (get_network_task() == 0 and waiter.timeAlive > 5) then
+									Request:new("itempurchase", function()
+											local response = get_network_response()
+											if (response:find("^ITEMID 0;")) then
+												local itemid = response:gsub("^ITEMID 0;", "")
+												local item = Torishop:getItemInfo(itemid)
+												update_tc_balance()
+												overlay:kill()
+												if (#item.contents > 0) then
+													TBMenu:showConfirmationWindow("Congratulations, you have received " .. item.itemname .. "!\nWould you like to unpack your new item?", function()
+															INVENTORY_UPDATE = true
+															INVENTORY_MOUSE_POS = { x = posX, y = posY }
+															show_dialog_box(INVENTORY_UNPACK, TB_MENU_LOCALIZED.STOREDIALOGUNPACK1 .. " " .. item.itemname .. (TB_MENU_LOCALIZED.STOREDIALOGUNPACK2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGUNPACK2 .. "?") .. "\n" .. TB_MENU_LOCALIZED.STOREDIALOGUNPACKINFO, invid)
+														end)
+												elseif (item.ingame == 1) then
+													if (in_array(item.catid, CATEGORIES_COLORS)) then
+														check_steam_color(item.colorid)
+													end
+													TBMenu:showConfirmationWindow("Congratulations, you have received " .. item.itemname .. "!\nWould you like to activate your new item?", function()
+															INVENTORY_UPDATE = true
+															INVENTORY_MOUSE_POS = { x = posX, y = posY }
+															show_dialog_box(INVENTORY_ACTIVATE, TB_MENU_LOCALIZED.STOREDIALOGACTIVATE1 .. " " .. item.itemname .. (TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 .. "?"), invid)
+														end)
+												elseif (forceSucessDisplay) then
+													TBMenu:showDataError(item.itemname .. " " .. TB_MENU_LOCALIZED.STOREITEMPURCHASESUCCESSFUL)
+												end
+											else
+												fn(TB_MENU_LOCALIZED.STOREPURCHASEERROR)
+											end
+										end)
+									download_server_info("getitemid&invid=" .. invid)
+									waiter:kill()
+								end
+							end)
+						return
+					end
+					update_tc_balance()
 					overlay:kill()
 					if (#item.contents > 0) then
 						TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASESUCCESSFULUNPACK, function()
@@ -5330,9 +5584,9 @@ do
 		
 		local featuredPromos = {
 			{
-				image = "../textures/menu/promo/store/spooky-spider.tga",
+				image = "../textures/menu/promo/seasonpass.tga",
 				ratio = 0.5,
-				action = function() Torishop:showStoreSection(tbMenuCurrentSection, nil, nil, 3270) end
+				action = function() Torishop:showSeasonPassAprilFools() end
 			},
 		}
 		--featuredPromoId = math.random(1, 3);

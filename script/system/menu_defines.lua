@@ -58,10 +58,10 @@ TB_MENU_CLANFILTERS_BUTTON = "../textures/menu/general/buttons/clanfilters.tga"
 TB_MENU_CLANFILTERS_BUTTON_HOVER = "../textures/menu/general/buttons/clanfiltershover.tga"
 TB_MENU_CLANFILTERS_BUTTON_PRESS = "../textures/menu/general/buttons/clanfilterspressed.tga"
 
-local overrideActive = false
+local overrideActive = true
 
 function setDefinesOverrides()
-	TB_MENU_DEFAULT_BG_COLOR = { 0.735, 0.487, 0.265, 1 }
+	--[[TB_MENU_DEFAULT_BG_COLOR = { 0.735, 0.487, 0.265, 1 }
 	TB_MENU_DEFAULT_BG_COLOR_TRANS = { 0.735, 0.487, 0.265, 0.5 }
 	TB_MENU_DEFAULT_DARKER_COLOR = { 0.68, 0.438, 0.218, 1 }
 	TB_MENU_DEFAULT_DARKEST_COLOR = { 0.6, 0.38, 0.16, 1 }
@@ -101,7 +101,8 @@ function setDefinesOverrides()
 	--TB_MENU_LOGOUT_BUTTON_PRESS = "../textures/menu/general/buttons/halloween/logoutpressed.tga"
 	
 	TB_MENU_CLANFILTERS_BUTTON_HOVER = "../textures/menu/general/buttons/halloween/clanfiltershover.tga"
-	TB_MENU_CLANFILTERS_BUTTON_PRESS = "../textures/menu/general/buttons/halloween/clanfilterspressed.tga"
+	TB_MENU_CLANFILTERS_BUTTON_PRESS = "../textures/menu/general/buttons/halloween/clanfilterspressed.tga"]]
+	TB_MENU_GAME_LOGO = "../textures/menu/logos/toribash_winged_small.tga"
 end
 
 if (overrideActive) then

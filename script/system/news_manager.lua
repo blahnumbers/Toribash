@@ -84,6 +84,9 @@ do
 			elseif (ln:find("^MOVEMBER 0;")) then
 				newsData[#newsData].action = function() Events:loadMovember(tbMenuCurrentSection) end
 				newsData[#newsData].initAction = function() Events:loadMovember(tbMenuCurrentSection) end
+			elseif (ln:find("^SEASONPASS 0;")) then
+				newsData[#newsData].action = function() Torishop:showSeasonPassAprilFools() end
+				newsData[#newsData].initAction = function() Torishop:showSeasonPassAprilFools() end
 			elseif (ln:find("^COLLECTORCARDS 0;")) then
 				newsData[#newsData].action = function() Torishop:showCollectorsCardsWC() end
 				newsData[#newsData].initAction = function() Torishop:showCollectorsCardsWC() end

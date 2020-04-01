@@ -632,9 +632,9 @@ do
 					tbTutorialsMessageAuthorNeck.bgColor = { color.r, color.g, color.b, 1 }
 					tbTutorialsMessageAuthorNameBackground.bgColor = cloneTable(TB_MENU_DEFAULT_BG_COLOR)
 					tbTutorialsMessageBackground.shadowColor[2] = cloneTable(TB_MENU_DEFAULT_BG_COLOR)
-					tbTutorialsMessageAuthorName:addAdaptedText(false, TB_MENU_PLAYER_INFO.username or "Tori", -20, -15, 2)
+					tbTutorialsMessageAuthorName:addAdaptedText(true, TB_MENU_PLAYER_INFO.username or "Tori", nil, nil, 2)
 				else
-					tbTutorialsMessageAuthorName:addAdaptedText(false, messageby, -20, -15, 2)
+					tbTutorialsMessageAuthorName:addAdaptedText(true, messageby, nil, nil, 2)
 					local neckColId = 23
 					if (messageby == "SENSEI") then
 						messageby = "senseitutorial"
@@ -1787,11 +1787,16 @@ do
 				draw_quad(tbTutorialsMessageAuthorNameBackground.pos.x + tbTutorialsMessageAuthorNameBackground.size.w + 25, tbTutorialsMessageAuthorNameBackground.pos.y + 22, 5, 42)
 				draw_quad(tbTutorialsMessageAuthorNameBackground.pos.x + tbTutorialsMessageAuthorNameBackground.size.w + 30, tbTutorialsMessageAuthorNameBackground.pos.y + 35, 5, 34)
 			end)
-		tbTutorialsMessageAuthorName = UIElement:new({
+		local tbTutorialsMessageAuthorNameOverlay = UIElement:new({
 			parent = tbTutorialsMessageAuthorNameBackground,
 			pos = { 0, 0 },
 			size = { 256, 64 },
 			bgImage = "../textures/menu/general/tutorial_speech_box_dotted.tga"
+		})
+		tbTutorialsMessageAuthorName = UIElement:new({
+			parent = tbTutorialsMessageAuthorNameOverlay,
+			pos = { 10, 0 },
+			size = { tbTutorialsMessageAuthorNameOverlay.size.w - 30, 34 }
 		})
 		tbTutorialsMessageBackground = UIElement:new({
 			parent = tbTutorialsMessage,

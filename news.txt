@@ -1,20 +1,14 @@
 NEWSID 1;
-TITLE 0;Event Squad is recruiting!
-SUBTITLE 0;Join ES today and help us make Toribash more fun!
-IMAGE 0;esrecdrivebanner.tga
-URL 0;https://forum.toribash.com/showthread.php?t=637286
+TITLE 0;Toribash Season Pass 2020
+SUBTITLE 0;Toribash's first season pass is here!
+IMAGE 0;seasonpass.tga
+SEASONPASS 0;
 
 NEWSID 2;
-TITLE 0;Show off your boxshu mushu skills and win various prizes!
+TITLE 0;It's aikido time in Mod Mania!
 IMAGE 0;modmania.tga
 FEATURED 0;
 MODCHAMPIONSHIP 0;
-
-//NEWSID 2;
-//TITLE 0;It's aikido time in Mod Mania!
-//IMAGE 0;modmania.tga
-//FEATURED 0;
-//MODCHAMPIONSHIP 0;
 
 NEWSID 3;
 TITLE 0;Opener Challenge 6
