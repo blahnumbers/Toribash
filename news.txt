@@ -1,8 +1,8 @@
 NEWSID 1;
-TITLE 0;Toribash Season Pass 2020
-SUBTITLE 0;Toribash's first season pass is here!
-IMAGE 0;seasonpass.tga
-SEASONPASS 0;
+TITLE 0;Event Squad is recruiting!
+SUBTITLE 0;Apply to join Event Squad and help us make Toribash more fun!
+IMAGE 0;esrecdrivebanner.tga
+URL 0;https://forum.toribash.com/showthread.php?t=637286
 
 NEWSID 2;
 TITLE 0;It's aikido time in Mod Mania!
@@ -20,7 +20,7 @@ FEATURED 0;
 EVENTID 1;
 NAME 0;Opener Challenge 6
 IMAGE 0;openerchallenge.tga
-URL 0;https://forum.toribash.com/forumdisplay.php?f=37
+URL 0;https://forum.toribash.com/showthread.php?t=637772
 PLAYNAME 0;openerch6
 OVERLAYTRANS 0;0.1
 PLAYTEXT 0;PARTICIPATE

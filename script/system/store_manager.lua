@@ -5584,9 +5584,11 @@ do
 		
 		local featuredPromos = {
 			{
-				image = "../textures/menu/promo/seasonpass.tga",
+				image = "../textures/menu/promo/store/grandmaster.tga",
 				ratio = 0.5,
-				action = function() Torishop:showSeasonPassAprilFools() end
+				title = "Grandmaster Gear",
+				subtitle = "Put on the gear of a true grandmaster!",
+				action = function() Torishop:showStoreSection(tbMenuCurrentSection, nil, nil, 3236) end
 			},
 		}
 		--featuredPromoId = math.random(1, 3);

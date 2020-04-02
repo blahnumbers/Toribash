@@ -1689,10 +1689,8 @@ do
 			parent = tbMenuMain,
 			pos = {50, 15},
 			size = {logoSize, logoSize},
-			bgImage = logo,
-			interactive = true
+			bgImage = logo
 		})
-		tbMenuLogo:addMouseHandlers(nil, function() Torishop:showSeasonPassAprilFools() end)
 		local tbMenuGameTitle = UIElement:new( {
 			parent = tbMenuMain,
 			pos = {135, 25},
