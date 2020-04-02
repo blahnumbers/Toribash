@@ -26,7 +26,7 @@ do
 	
 	function Settings:isDefaultFolder(folder)
 		local defaultFolders = {
-			"system", "toriui", "tutorial", "torishop", "modules", "gui", "examples", "clans"
+			"system", "toriui", "tutorial", "torishop", "modules", "gui", "examples", "clans", "events"
 		}
 		for i,v in pairs(defaultFolders) do
 			if (v == folder) then
@@ -40,7 +40,7 @@ do
 		local path = path or "data/script"
 		local data = { name = path, files = {}, folders = {}, contents = {} }
 		for i,v in pairs(get_files(path, "")) do
-			if (v:match(".lua$") and (not v:match("^startup.lua") and path == "data/script")) then
+			if (v:match(".lua$") and not (v:match("^startup.lua") and path == "data/script")) then
 				table.insert(data.files, v)
 			elseif (not v:find("^%.+[%s%S]*$") and not v:find("%.%a+$") and not Settings:isDefaultFolder(v)) then
 				table.insert(data.folders, v)
