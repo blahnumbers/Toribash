@@ -5,7 +5,7 @@ IMAGE 0;esrecdrivebanner.tga
 URL 0;https://forum.toribash.com/showthread.php?t=637286
 
 NEWSID 2;
-TITLE 0;It's aikido time in Mod Mania!
+TITLE 0;Get ready to rumble because it's Judo week!
 IMAGE 0;modmania.tga
 FEATURED 0;
 MODCHAMPIONSHIP 0;
