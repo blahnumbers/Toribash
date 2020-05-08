@@ -5620,11 +5620,10 @@ do
 		
 		local featuredPromos = {
 			{
-				image = "../textures/menu/promo/store/grandmaster.tga",
+				image = "../textures/menu/promo/store/hairseast.tga",
 				ratio = 0.5,
-				title = "Grandmaster Gear",
-				subtitle = "Put on the gear of a true grandmaster!",
-				action = function() Torishop:showStoreSection(tbMenuCurrentSection, nil, nil, 3236) end
+				title = "New 3D hairs are now available!",
+				action = function() Torishop:showStoreSection(tbMenuCurrentSection, nil, nil, 3305) end
 			},
 		}
 		--featuredPromoId = math.random(1, 3);
