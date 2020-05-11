@@ -251,7 +251,7 @@ WORDVS	vs
 WORDNONE	none	
 WORDOPTIONAL	optional	
 CHATCENSOREDMESSAGE	Your message contains a banned word and will be censored for other players.	
-MOVEMEMORYLOADERROR	Error loading MoveMemory data.	
+MOVEMEMORYLOADERROR	Error loading MoveMemory data\nMake sure you have read/write permissions on Toribash folder and try again
 MOVEMEMORYSAVING	Saving move	
 MOVEMEMORYENTERMOVENAME	Enter move name	
 MOVEMEMORYENTERMOVEDESCOPT	Enter move description (optional)	
@@ -293,7 +293,7 @@ LUAOTHERSCRIPTSWARNING	SCRIPT LOADS OTHER SCRIPTS
 LUALOADSCRIPT	Load script	
 LUASHOWSOURCE	Show script source	
 LUAVIEWINGSORCE	Viewing script source	
-ERRORCREATINGFILE	Error creating file	
+ERRORCREATINGFILE	Error creating file\nPlease check your folder permissions or run Toribash as admin	
 REPLAYSSAVING	Saving replay	
 REPLAYSDEFAULTPATH	Replay file will be saved to 'my replays' folder	
 REPLAYSENTERNAME	Enter replay name	
@@ -738,3 +738,5 @@ SETTINGSSHOWINMP	Only show in Multiplayer
 SETTINGSALWAYSSHOW	Always show	
 REPORTSCONFIRMATION	Are you sure you want to report	
 REPORTSLONGWAITMESSAGE	Taking a bit longer than usual...\nThis window can be closed, you'll receive a notification when your report gets submitted.
+REPLAYSERRORLOADINGCACHE	Error loading replay cache, this may mean the data has been corrupted or you don't have read/write permissions on your Toribash folder.
+WORDERROR	Error

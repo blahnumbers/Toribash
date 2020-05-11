@@ -3,6 +3,8 @@
 
 MOVEMEMORY_PLAYBACK_ACTIVE = MOVEMEMORY_PLAYBACK_ACTIVE or {}
 MOVEMEMORYPOS = MOVEMEMORYPOS or { x = 60, y = 100 }
+MOVEMEMORY_BACKGROUNDCLICK = MOVEMEMORY_BACKGROUNDCLICK or get_option("backgroundclick")
+MOVEMEMORY_FIRSTTURN = MOVEMEMORY_FIRSTTURN or false
 
 do
 	MoveMemory = {}
@@ -11,6 +13,7 @@ do
 	setmetatable(cln, MoveMemory)
 	
 	function MoveMemory:quit()
+		set_option("backgroundclick", MOVEMEMORY_BACKGROUNDCLICK)
 		TB_MOVEMEMORY_ISOPEN = 0
 		moveMemoryMain:kill()
 	end
@@ -357,15 +360,26 @@ do
 	end
 	
 	function MoveMemory:showMain()
-		if (not MoveMemory:getOpeners()) then
+		local openersLoaded = false
+		local status, error = pcall(function() openersLoaded = MoveMemory:getOpeners() end)
+		if (not status) then
+			TBMenu:showDataError(TB_MENU_LOCALIZED.WORDERROR .. " " .. error)
 			return
+		end
+		if (not openersLoaded) then
+			return
+		end
+		
+		if (MOVEMEMORY_BACKGROUNDCLICK == 1) then
+			set_option("backgroundclick", 0)
 		end
 		TB_MOVEMEMORY_ISOPEN = 1
 		
+		local winWidth = 300 > WIN_W / 3 and WIN_W / 3 or 300
 		moveMemoryMain = UIElement:new({
 			globalid = TB_MOVEMEMORY_GLOBALID,
 			pos = { 0, 0 },
-			size = { 250, WIN_H / 3 * 2 },
+			size = { winWidth, WIN_H / 4 * 3 },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR_TRANS,
 			shapeType = ROUNDED,
 			rounded = 4,
@@ -493,7 +507,7 @@ do
 			pos = { 0, featuredHolder and featuredHolder.shift.y + featuredHolder.size.h or moveMemoryTitle.size.h },
 			size = { moveMemoryHolder.size.w, featuredHolder and moveMemoryHolder.size.h - featuredHolder.size.h - featuredHolder.shift.y or moveMemoryHolder.size.h - moveMemoryTitle.size.h }
 		})
-		MoveMemory:spawnOpeners(openersHolder, memoryOpeners, TB_MOVEMEMORY_LASTPAGE)
+		MoveMemory:spawnOpeners(openersHolder, memoryOpeners, TB_MOVEMEMORY_LASTPAGE, suggested)
 	end
 	
 	function MoveMemory:showToolbar(id, text, killAction, saveAction)
@@ -585,6 +599,7 @@ do
 		local worldstate = get_world_state()
 		local player = player or worldstate.selected_player
 		if (player < 0) then
+			TBMenu:showDataError("Please select a player to run the opener")
 			return false
 		end
 		
@@ -592,6 +607,7 @@ do
 		
 		local function playMoveQuit()
 			MOVEMEMORY_PLAYBACK_ACTIVE[player] = false
+			memorymove.currentturn = false
 			remove_hooks("tbMoveMemoryPlayTurns" .. player)
 			if (moveMemoryToolbar[player]) then
 				moveMemoryToolbar[player]:kill()
@@ -599,7 +615,7 @@ do
 			end
 		end
 		
-		local turn = worldstate.match_turn + 1
+		local turn = spawnHook and (MOVEMEMORY_FIRSTTURN and 1 or worldstate.match_turn + 1) or memorymove.currentturn
 		if (memorymove.turns < turn) then
 			playMoveQuit()
 			return
@@ -614,6 +630,7 @@ do
 				end
 			end
 		end
+		memorymove.currentturn = turn + 1
 		
 		-- Force-refresh ghost
 		set_ghost(2)
@@ -628,127 +645,169 @@ do
 		end
 	end
 	
-	function MoveMemory:spawnMovementButton(viewElement, memorymove, pos)
-		local openerElement = UIElement:new({
+	function MoveMemory:spawnMovementButton(viewElement, memorymove, pos, shift, toReload)
+		local shift = shift or 0
+		local buttonHolder = UIElement:new({
 			parent = viewElement,
-			pos = { 0, 20 + pos * 40 },
-			size = { viewElement.size.w, 40 },
+			pos = { 0, shift + pos * 45 },
+			size = { viewElement.size.w, 45 },
 			interactive = true,
-			bgColor = { 0, 0, 0, 0 },
-			hoverColor = { 0, 0, 0, 0.1 },
-			pressedColor = { 1, 0, 0, 0.1 }
+			bgColor = TB_MENU_DEFAULT_BG_COLOR_TRANS,
+			hoverColor = { unpack(TB_MENU_DEFAULT_DARKEST_COLOR) },
+			pressedColor = { unpack(TB_MENU_DEFAULT_LIGHTER_COLOR) },
+			uiColor = UICOLORWHITE
 		})
-		local openerDelete = TBMenu:createImageButtons(openerElement, -30, 10, 20, 20, "../textures/menu/general/buttons/trash.tga", nil, "../textures/menu/general/buttons/trashblack.tga", { 0, 0, 0, 0 })
-		openerElement:addMouseHandlers(nil, function()
+		buttonHolder.hoverColor[4] = 0.5
+		buttonHolder.pressedColor[4] = 0.5
+		
+		local openerDelete = TBMenu:createImageButtons(buttonHolder, -40, 0, 40, 40, "../textures/menu/general/buttons/trash.tga", "../textures/menu/general/buttons/trashhvr.tga", "../textures/menu/general/buttons/trashblack.tga", { 0, 0, 0, 0 })
+		buttonHolder:addMouseHandlers(nil, function()
 				MoveMemory:playMove(memorymove, true)
 			end, function()
 				if (not openerDelete.isactive) then
 					openerDelete:show()
 					openerDelete:activate()
+					if (toReload) then
+						toReload:reload()
+					end
 				end
 			end)
 		openerDelete:addCustomDisplay(false, function()
-				if (not openerElement.hoverState) then
+				if (not buttonHolder.hoverState) then
 					if (openerDelete.hoverState) then
+						buttonHolder.hoverState = BTN_HVR
 						return
 					end
+					buttonHolder.bgColor = TB_MENU_DEFAULT_BG_COLOR_TRANS
 					openerDelete:deactivate()
 					openerDelete:hide()
 				end
 			end)
 		if (not MOVEMEMORY_TUTORIAL_MODE) then
-			openerDelete:addMouseHandlers(nil, function() TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.MOVEMEMORYDELETEMOVECONFIRM, function() MoveMemory:deleteMove(memorymove) MoveMemory:quit() MoveMemory:showMain() end) end)
+			openerDelete:addMouseHandlers(nil, function() TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.MOVEMEMORYDELETEMOVECONFIRM, function() MoveMemory:deleteMove(memorymove) MoveMemory:quit() MoveMemory:showMain() end) end, function() buttonHolder.bgColor = buttonHolder.hoverColor end)
 		end
+		
+		-- why the fuck is this flickering
 		local nameHolder = UIElement:new({
-			parent = openerElement,
+			parent = buttonHolder,
 			pos = { 5, 2 },
-			size = { openerElement.size.w - 10, openerElement.size.h / 3 * 2 - 2 }
+			size = { buttonHolder.size.w - 40, 22 }
 		})
-		nameHolder:addAdaptedText(true, memorymove.name, nil, nil, nil, LEFTMID, nil, nil, 0)
+		nameHolder:addCustomDisplay(true, function() end)
+		
+		-- nameHolder isn't used for display because it doesn't work
+		-- I have no idea why's that happening
+		local nameHolder2 = UIElement:new({
+			parent = buttonHolder,
+			pos = { 5, 2 },
+			size = { buttonHolder.size.w - 40, 22 }
+		})
+		nameHolder2:addAdaptedText(true, memorymove.name, nil, nil, FONTS.MEDIUM, LEFTBOT, nil, 0.7)
 		if (memorymove.desc) then
 			local descHolder = UIElement:new({
-				parent = openerElement,
+				parent = buttonHolder,
 				pos = { 5, nameHolder.shift.y + nameHolder.size.h },
-				size = { openerElement.size.w - 40, openerElement.size.h - 4 - nameHolder.size.h }
+				size = { buttonHolder.size.w - 40, buttonHolder.size.h - nameHolder.size.h - nameHolder.shift.y * 2 }
 			})
-			descHolder:addAdaptedText(true, memorymove.desc:upper(), nil, nil, FONTS.SMALL, LEFTMID, nil, 0.7, 0)
+			descHolder:addAdaptedText(true, memorymove.desc, nil, nil, FONTS.SMALL, LEFT, nil, 0.7)
 		end
+		return buttonHolder
 	end
 	
-	function MoveMemory:spawnOpeners(viewElement, memoryOpeners, page)
+	function MoveMemory:spawnFirstTurnToggle(viewElement)
+		local toggleText = UIElement:new({
+			parent = viewElement,
+			pos = { 10, 5 },
+			size = { viewElement.size.w - 60, viewElement.size.h - 6 }
+		})
+		toggleText:addAdaptedText(true, "Run opener from start", nil, nil, nil, LEFTMID, 0.8)
+		
+		local toggleView = UIElement:new({
+			parent = viewElement,
+			pos = { -37, 7 },
+			size = { 30, 30 }
+		})
+		local toggleBG = UIElement:new({
+			parent = toggleView,
+			pos = { 0, 0 },
+			size = { toggleView.size.w, toggleView.size.h },
+			shapeType = ROUNDED,
+			rounded = 3,
+			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR
+		})
+		local toggleView = UIElement:new({
+			parent = toggleBG,
+			pos = { 1, 1 },
+			size = { toggleBG.size.w - 2, toggleBG.size.h - 2 },
+			shapeType = ROUNDED,
+			rounded = 3,
+			bgColor = TB_MENU_DEFAULT_BG_COLOR,
+			hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR,
+			interactive = true
+		})
+		local toggleIcon = UIElement:new({
+			parent = toggleView,
+			pos = { 0, 0 },
+			size = { toggleView.size.w, toggleView.size.h },
+			bgImage = "../textures/menu/general/buttons/checkmark.tga"
+		})
+		if (not MOVEMEMORY_FIRSTTURN) then
+			toggleIcon:hide(true)
+		end
+		toggleView:addMouseHandlers(nil, function()
+				MOVEMEMORY_FIRSTTURN = not MOVEMEMORY_FIRSTTURN
+				if (MOVEMEMORY_FIRSTTURN) then
+					toggleIcon:show(true)
+				else
+					toggleIcon:hide(true)
+				end
+			end)
+	end
+	
+	function MoveMemory:spawnOpeners(viewElement, memoryOpeners, page, suggested)
 		local page = page or 1
 		TB_MOVEMEMORY_LASTPAGE = page
 		viewElement:kill(true)
 		
 		if (#memoryOpeners > 0) then
+			local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, suggested and 45 or 35, 40, 20, { 0, 0, 0, 0 })
+			
 			local openersTitle = UIElement:new({
-				parent = viewElement,
+				parent = topBar,
 				pos = { 0, 0 },
-				size = { viewElement.size.w, 20 }
-			})
-			openersTitle:addAdaptedText(false, TB_MENU_LOCALIZED.MOVEMEMORYALLMOVES .. ":", 5, nil, 4, LEFTMID, 0.7)
-		end
-		local perPage = math.floor((viewElement.size.h - 40) / 40)
-		local pages = math.ceil(#memoryOpeners / perPage)
-		if (pages > 1) then
-			local pagesHolder = UIElement:new({
-				parent = viewElement,
-				pos = { 0, -20 + moveMemoryMain.rounded },
-				size = { viewElement.size.w, 20 },
-				bgColor = TB_MENU_DEFAULT_BG_COLOR,
+				size = { topBar.size.w, topBar.size.h },
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 				uiColor = UICOLORWHITE
 			})
-			pagesHolder:addCustomDisplay(true, function()
-					set_color(unpack(pagesHolder.bgColor))
-					draw_disk(pagesHolder.pos.x + moveMemoryMain.rounded, pagesHolder.pos.y + pagesHolder.size.h - moveMemoryMain.rounded, 0, moveMemoryMain.rounded, 100, 1, -90, 90, 0)
-					draw_disk(pagesHolder.pos.x + pagesHolder.size.w - moveMemoryMain.rounded, pagesHolder.pos.y + pagesHolder.size.h - moveMemoryMain.rounded, 0, moveMemoryMain.rounded, 100, 1, 0, 90, 0)
-					draw_quad(pagesHolder.pos.x, pagesHolder.pos.y, pagesHolder.size.w, pagesHolder.size.h - moveMemoryMain.rounded)
-					draw_quad(pagesHolder.pos.x + moveMemoryMain.rounded, pagesHolder.pos.y + pagesHolder.size.h - moveMemoryMain.rounded, pagesHolder.size.w - (moveMemoryMain.rounded * 2), moveMemoryMain.rounded)
-				end)
-			local pagePrevious = UIElement:new({
-				parent = pagesHolder,
-				pos = { 5, 0 },
-				size = { pagesHolder.size.h, pagesHolder.size.h },
-				interactive = true,
-				bgColor = UICOLORWHITE,
-				hoverColor = TB_MENU_DEFAULT_BG_COLOR,
-				pressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR
+			openersTitle:addAdaptedText(false, TB_MENU_LOCALIZED.MOVEMEMORYALLMOVES .. ":", 5, -5, 4, LEFTBOT, 0.7)
+			local botBarOverlay = UIElement:new({
+				parent = botBar,
+				pos = { 0, 0 },
+				size = { botBar.size.w, botBar.size.h },
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				uiColor = UICOLORWHITE
 			})
-			pagePrevious:addCustomDisplay(true, function()
-					set_color(unpack(pagePrevious:getButtonColor()))
-					draw_disk(pagePrevious.pos.x + pagePrevious.size.w / 2, pagePrevious.pos.y + pagePrevious.size.h / 2, 0, pagePrevious.size.h / 5 * 2, 3, 1, -90, 360, 0)
-				end)
-			pagePrevious:addMouseHandlers(nil, function()
-					MoveMemory:spawnOpeners(viewElement, memoryOpeners, page - 1 < 1 and pages or page - 1)
-				end)
-			local pageNext = UIElement:new({
-				parent = pagesHolder,
-				pos = { -pagesHolder.size.h - 5, 0 },
-				size = { pagesHolder.size.h, pagesHolder.size.h },
-				interactive = true,
-				bgColor = UICOLORWHITE,
-				hoverColor = TB_MENU_DEFAULT_BG_COLOR,
-				pressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR
-			})
-			pageNext:addCustomDisplay(true, function()
-					set_color(unpack(pageNext:getButtonColor()))
-					draw_disk(pageNext.pos.x + pageNext.size.w / 2, pageNext.pos.y + pageNext.size.h / 2, 0, pageNext.size.h / 5 * 2, 3, 1, 90, 360, 0)
-				end)
-			pageNext:addMouseHandlers(nil, function()
-					MoveMemory:spawnOpeners(viewElement, memoryOpeners, page + 1 > pages and 1 or page + 1)
-				end)
-			local pagesText = UIElement:new({
-				parent = pagesHolder,
-				pos = { pagesHolder.size.h + pagePrevious.shift.x, 0 },
-				size = { pagesHolder.size.w - ((pagesHolder.size.h + pagePrevious.shift.x) * 2), pagesHolder.size.h }
-			})
-			pagesText:addAdaptedText(true, TB_MENU_LOCALIZED.PAGINATIONPAGE .. " " .. page .. " " .. TB_MENU_LOCALIZED.PAGINATIONPAGEOF .. " " .. pages .. " " .. TB_MENU_LOCALIZED.WORDTOTAL, nil, nil, 4, nil, 0.6)
-		end
-		
-		local count = 0
-		for i = 1 + perPage * (page - 1), (#memoryOpeners < perPage * page and #memoryOpeners or perPage * page) do
-			MoveMemory:spawnMovementButton(viewElement, memoryOpeners[i], count)
-			count = count + 1
+			botBarOverlay:addCustomDisplay(true, function()
+				set_color(unpack(botBarOverlay.bgColor))
+				draw_disk(botBarOverlay.pos.x + 4, botBarOverlay.pos.y + botBarOverlay.size.h, 0, 4, 100, 1, -90, 90, 0)
+				draw_disk(botBarOverlay.pos.x + botBarOverlay.size.w - 4, botBarOverlay.pos.y + botBarOverlay.size.h, 0, 4, 100, 1, 0, 90, 0)
+				draw_quad(botBarOverlay.pos.x, botBarOverlay.pos.y, botBarOverlay.size.w, botBarOverlay.size.h)
+				draw_quad(botBarOverlay.pos.x + 4, botBarOverlay.pos.y + botBarOverlay.size.h, botBarOverlay.size.w - 8, 4)
+			end)
+			MoveMemory:spawnFirstTurnToggle(botBarOverlay)
+			
+			local listElements = {}
+			for i,v in pairs(memoryOpeners) do
+				local button = MoveMemory:spawnMovementButton(listingHolder, v, i - 1, nil, botBar)
+				table.insert(listElements, button)
+			end
+			
+			for i,v in pairs(listElements) do
+				v:hide()
+			end
+			local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, 45)
+			scrollBar:makeScrollBar(listingHolder, listElements, toReload)
 		end
 	end
 	
@@ -766,21 +825,21 @@ do
 		if (#suggestedOpeners == 0) then
 			return false
 		end
-		if (#suggestedOpeners == 1) then
-			viewElement.size.h = 70
-		end
 		local suggestedTitle = UIElement:new({
 			parent = viewElement,
-			pos = { 5, 0 },
-			size = { viewElement.size.w - 10, 20 }
+			pos = { 0, 0 },
+			size = { viewElement.size.w, 35 },
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			uiColor = UICOLORWHITE
 		})
-		suggestedTitle:addAdaptedText(true, TB_MENU_LOCALIZED.MOVEMEMORYSUGGESTEDMOVES .. ":", nil, nil, 4, LEFTMID, 0.7)
+		viewElement.size.h = #suggestedOpeners > 2 and 2 * 45 + 35 or #suggestedOpeners * 45 + 35
+		suggestedTitle:addAdaptedText(false, TB_MENU_LOCALIZED.MOVEMEMORYSUGGESTEDMOVES .. " (" .. loadedMod:upper() .. "):", 5, -5, 4, LEFTBOT, 0.7)
 		for i,v in pairs(suggestedOpeners) do
-			if (i * 40 + 20 > viewElement.size.h) then
+			if (i * 40 + 35 > viewElement.size.h) then
 				return displayedSuggested
 			end
 			table.insert(displayedSuggested, v)
-			MoveMemory:spawnMovementButton(viewElement, v, i - 1)
+			MoveMemory:spawnMovementButton(viewElement, v, i - 1, 35)
 		end
 		return displayedSuggested
 	end

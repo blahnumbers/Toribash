@@ -79,46 +79,48 @@ do
 		local version = 0
 		
 		if (replay.data) then
-			for ln in replay.data:lines() do
-				if (ln:match("FIGHTNAME 0;")) then
-					-- We base version off second replay line instead of actual VERSION
-					version = 10
-				elseif (ln:match("AUTHOR 0;")) then
-					rplInfo.author = ln:gsub("AUTHOR 0;", "")
-					rplInfo.author = PlayerInfo:getUser(rplInfo.author:gsub("^ ", ""):gsub("\r", ""))
-				elseif (ln:match("NEWGAME %d;")) then
-					local mod = ln:gsub("NEWGAME %d;", ""):gsub("\r", "")
-					rplInfo.mod = mod:match("/*%S*%.tbm")
-					rplInfo.mod = rplInfo.mod and rplInfo.mod:gsub("^.*/", "") or "classic"
-				elseif (ln:match("CRUSH %d; 0") and not hasDecap) then
-					rplInfo.hiddentags = rplInfo.hiddentags and rplInfo.hiddentags .. " decap" or "decap"
-					hasDecap = true
-				elseif (ln:match("CRUSH %d; %d %d %d %d %d %d") and not hasMadman) then
-					rplInfo.hiddentags = rplInfo.hiddentags and rplInfo.hiddentags .. " madman" or "madman"
-					hasMadman = true
-				end
-				
-				if (version > 9) then
+			pcall(function()
+				for ln in replay.data:lines() do
 					if (ln:match("FIGHTNAME 0;")) then
-						rplInfo.name = ln:gsub("FIGHTNAME 0;", "")
-						rplInfo.name = rplInfo.name:gsub("^ ", ""):gsub("\r", "")
-					elseif (ln:match("BOUT 0;")) then
-						rplInfo.bout0 = ln:gsub("BOUT 0;", ""):gsub("\r", "")
-						rplInfo.bout0 = PlayerInfo:getUser(rplInfo.bout0:gsub("^ ", ""))
-					elseif (ln:match("BOUT 1;")) then
-						rplInfo.bout1 = ln:gsub("BOUT 1;", ""):gsub("\r", "")
-						rplInfo.bout1 = PlayerInfo:getUser(rplInfo.bout1:gsub("^ ", ""))
+						-- We base version off second replay line instead of actual VERSION
+						version = 10
+					elseif (ln:match("AUTHOR 0;")) then
+						rplInfo.author = ln:gsub("AUTHOR 0;", "")
+						rplInfo.author = PlayerInfo:getUser(rplInfo.author:gsub("^ ", ""):gsub("\r", ""))
+					elseif (ln:match("NEWGAME %d;")) then
+						local mod = ln:gsub("NEWGAME %d;", ""):gsub("\r", "")
+						rplInfo.mod = mod:match("/*%S*%.tbm")
+						rplInfo.mod = rplInfo.mod and rplInfo.mod:gsub("^.*/", "") or "classic"
+					elseif (ln:match("CRUSH %d; 0") and not hasDecap) then
+						rplInfo.hiddentags = rplInfo.hiddentags and rplInfo.hiddentags .. " decap" or "decap"
+						hasDecap = true
+					elseif (ln:match("CRUSH %d; %d %d %d %d %d %d") and not hasMadman) then
+						rplInfo.hiddentags = rplInfo.hiddentags and rplInfo.hiddentags .. " madman" or "madman"
+						hasMadman = true
 					end
-				else
-					if (ln:match("FIGHT %d;")) then
-						local info = ln:gsub("FIGHT %d; ", ""):gsub("\r", "")
-						rplInfo.bout1 = PlayerInfo:getUser(info:match("[^ ]+$"))
-						info = info:gsub(" [^ ]+$", "")
-						rplInfo.bout0 = PlayerInfo:getUser(info:match("[^ ]+$"))
-						rplInfo.name = info:gsub(" [^ ]+$", "")
+					
+					if (version > 9) then
+						if (ln:match("FIGHTNAME 0;")) then
+							rplInfo.name = ln:gsub("FIGHTNAME 0;", "")
+							rplInfo.name = rplInfo.name:gsub("^ ", ""):gsub("\r", "")
+						elseif (ln:match("BOUT 0;")) then
+							rplInfo.bout0 = ln:gsub("BOUT 0;", ""):gsub("\r", "")
+							rplInfo.bout0 = PlayerInfo:getUser(rplInfo.bout0:gsub("^ ", ""))
+						elseif (ln:match("BOUT 1;")) then
+							rplInfo.bout1 = ln:gsub("BOUT 1;", ""):gsub("\r", "")
+							rplInfo.bout1 = PlayerInfo:getUser(rplInfo.bout1:gsub("^ ", ""))
+						end
+					else
+						if (ln:match("FIGHT %d;")) then
+							local info = ln:gsub("FIGHT %d; ", ""):gsub("\r", "")
+							rplInfo.bout1 = PlayerInfo:getUser(info:match("[^ ]+$"))
+							info = info:gsub(" [^ ]+$", "")
+							rplInfo.bout0 = PlayerInfo:getUser(info:match("[^ ]+$"))
+							rplInfo.name = info:gsub(" [^ ]+$", "")
+						end
 					end
 				end
-			end
+			end)
 		end
 		
 		local infodata = { name = path, bout0 = " ", bout1 = " ", author = "autosave", mod = "classic", tags = " ", hiddentags = " ", uploaded = 0 }
@@ -380,7 +382,8 @@ do
 		if (not file.data) then
 			file = Files:new("../replay/replaycache.dat", FILES_MODE_WRITE)
 			if (not file.data) then
-				TBMenu:showDataError(TB_MENU_LOCALIZED.ERRORCREATINGFILE)
+				TBMenu:showDataError("replaycache.dat: " .. TB_MENU_LOCALIZED.ERRORCREATINGFILE)
+				return
 			end
 		end
 		
@@ -772,6 +775,17 @@ do
 		end
 	end
 	
+	function Replays:resetCache()
+		local file = Files:new("../replay/replaycache.dat", FILES_MODE_WRITE)
+		if (not file.data) then
+			TBMenu:showDataError(TB_MENU_LOCALIZED.REPLAYSERRORREFRESHINGCACHE)
+		end
+		file:close()
+		TB_MENU_REPLAYS = { name = "replay", fullname = "replay" }
+		SELECTED_FOLDER = { fullname = "replay" }
+		Replays:showMain(tbMenuCurrentSection)
+	end
+	
 	function Replays:showList(viewElement, replayInfo, level)
 		viewElement:kill(true)
 		
@@ -825,14 +839,7 @@ do
 				posX = refreshCacheButton.shift.x
 				refreshCacheButton:addMouseHandlers(nil, function()
 						TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.REPLAYSREFRESHCACHEPROMPT, function()
-								local file = Files:new("../replay/replaycache.dat", FILES_MODE_WRITE)
-								if (not file.data) then
-									TBMenu:showDataError(TB_MENU_LOCALIZED.REPLAYSERRORREFRESHINGCACHE)
-								end
-								file:close()
-								TB_MENU_REPLAYS = { name = "replay", fullname = "replay" }
-								SELECTED_FOLDER = { fullname = "replay" }
-								Replays:showMain(tbMenuCurrentSection)
+								Replays:resetCache()
 							end)
 					end)
 			end
@@ -3237,6 +3244,17 @@ do
 		tbMenuNavigationBar:kill(true)
 		TBMenu:showNavigationBar(Replays:getNavigationButtons(), true)
 		viewElement:kill(true)
+		local status, error = pcall(function() Replays:getReplayFiles() end)
+		if (not status) then
+			local background = UIElement:new({
+				parent = viewElement,
+				pos = { 5, 0 },
+				size = { viewElement.size.w - 10, viewElement.size.h },
+				bgColor = TB_MENU_DEFAULT_BG_COLOR
+			})
+			TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.REPLAYSERRORLOADINGCACHE .. " " .. error, function() Replays:resetCache() end, function() Replays:quit() end)
+			return
+		end
 		TB_MENU_REPLAYS_ONLINE = 0
 		
 		SELECTED_REPLAY = { replay = nil, element = nil, defaultcolor = nil, time = 0 }
@@ -3255,7 +3273,6 @@ do
 		})
 		TBMenu:addBottomBloodSmudge(replaysList, 1)
 		TBMenu:addBottomBloodSmudge(replayInfo, 2)
-		Replays:getReplayFiles()
 		replaysList:addCustomDisplay(false, function()
 				if (TB_MENU_REPLAYS_LOADED) then
 					replaysList:addCustomDisplay(false, function() end)
@@ -3352,6 +3369,12 @@ do
 			scrollBar:makeScrollBar(listingHolder, listElements, toReload) 
 		end
 		
+		local status, error = pcall(function() Replays:getReplayFiles(mainElement, true) end)
+		if (not status) then
+			TBMenu:showDataError("Error loading replay cache: " .. error)
+			return
+		end
+		
 		local customReplayOverlay = UIElement:new({
 			parent = mainElement,
 			pos = { 0, 0 },
@@ -3370,7 +3393,6 @@ do
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
 		customReplayLoading:addAdaptedText(false, TB_MENU_LOCALIZED.MESSAGEPLEASEWAIT or "Please wait...")
-		Replays:getReplayFiles(mainElement, true)
 		local waiter = UIElement:new({
 			parent = customReplayOverlay,
 			pos = { 0, 0 },
