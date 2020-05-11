@@ -18,11 +18,34 @@ do
 		moveMemoryMain:kill()
 	end
 	
-	function MoveMemory:getOpeners()
+	function MoveMemory:checkLegacyCache()
 		local file = Files:new("system/data.mm")
-		if (not file.data) then
-			TBMenu:showDataError(TB_MENU_LOCALIZED.MOVEMEMORYLOADERROR, true)
+		local newfile = Files:new("system/movememory.mm", FILES_MODE_WRITE)
+		if (not file.data or not newfile.data) then
+			file:close()
+			newfile:close()
 			return false
+		end
+		for i,v in pairs(file:readAll()) do
+			newfile:writeLine(v)
+		end
+		file:close()
+		newfile:close()
+		return true
+	end
+	
+	function MoveMemory:getOpeners()
+		local file = Files:new("system/movememory.mm", FILES_MODE_READONLY)
+		if (not file.data) then
+			if (not pcall(function() MoveMemory:checkLegacyCache() end)) then
+				TBMenu:showDataError(TB_MENU_LOCALIZED.MOVEMEMORYLOADERROR, true)
+				return false
+			end
+			file = Files:new("system/movememory.mm", FILES_MODE_READONLY)
+			if (not file.data) then
+				TBMenu:showDataError(TB_MENU_LOCALIZED.MOVEMEMORYLOADERROR, true)
+				return false
+			end
 		end
 		MOVEMEMORY_DATA = {}
 		for i, line in pairs(file:readAll()) do
@@ -64,7 +87,7 @@ do
 	end
 	
 	function MoveMemory:isMoveStored(memorymove)
-		local file = Files:new("system/data.mm")
+		local file = Files:new("system/movememory.mm")
 		if (not file.data) then
 			return false
 		end
@@ -80,7 +103,7 @@ do
 		if (memorymove.name:len() == 0) then
 			return
 		end
-		local file = Files:new("system/data.mm", FILES_MODE_APPEND)
+		local file = Files:new("system/movememory.mm", FILES_MODE_APPEND)
 		if (not file.data) then
 			return
 		end
@@ -232,7 +255,7 @@ do
 				TBMenu:showDataError(TB_MENU_LOCALIZED.MOVEMEMORYMODNAMEEMPTYERROR, true)
 				return
 			end
-			local file = Files:new("system/data.mm", FILES_MODE_APPEND)
+			local file = Files:new("system/movememory.mm", FILES_MODE_APPEND)
 			if (not file.data) then
 				TBMenu:showDataError(LOCALIZED.MOVEMEMORYMOVESAVEERRORPERMS, true)
 				return
@@ -318,7 +341,7 @@ do
 	end
 	
 	function MoveMemory:deleteMove(memorymove)
-		local file = Files:new("system/data.mm")
+		local file = Files:new("system/movememory.mm")
 		if (not file.data) then
 			TBMenu:showDataError(TB_MENU_LOCALIZED.MOVEMEMORYLOADERROR, true)
 			return false
@@ -796,6 +819,13 @@ do
 				draw_quad(botBarOverlay.pos.x + 4, botBarOverlay.pos.y + botBarOverlay.size.h, botBarOverlay.size.w - 8, 4)
 			end)
 			MoveMemory:spawnFirstTurnToggle(botBarOverlay)
+			local scrollBackdrop = UIElement:new({
+				parent = listingScrollBG,
+				pos = { 0, 0 },
+				size = { listingScrollBG.size.w, listingScrollBG.size.h },
+				bgColor = { unpack(TB_MENU_DEFAULT_DARKER_COLOR) }
+			})
+			scrollBackdrop.bgColor[4] = 0.6
 			
 			local listElements = {}
 			for i,v in pairs(memoryOpeners) do
