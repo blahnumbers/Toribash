@@ -1,27 +1,26 @@
 NEWSID 1;
-TITLE 0;Event Squad is recruiting!
-SUBTITLE 0;Apply to join Event Squad and help us make Toribash more fun!
-IMAGE 0;esrecdrivebanner.tga
-URL 0;https://forum.toribash.com/showthread.php?t=637286
+TITLE 0;Golem IV - Rise of MELOG
+SUBTITLE 0;GOLEM WAS A FOOLISH PAWN, MELOG WILL RISE!
+IMAGE 0;golem4.tga
+URL 0;https://forum.toribash.com/showthread.php?t=640044
 
-NEWSID 2;
-TITLE 0;Get ready to rumble because it's Judo week!
-IMAGE 0;modmania.tga
-FEATURED 0;
-MODCHAMPIONSHIP 0;
+//NEWSID 2;
+//TITLE 0;No events live now, but you can still replay any ended event in all events menu!
+//IMAGE 0;openerchallenge.tga
+//FEATURED 0;
 
 NEWSID 3;
-TITLE 0;Opener Challenge 6
-SUBTITLE 0;Dismember Uke as many times as you can and get rewards!
+TITLE 0;Opener Challenge 7
+SUBTITLE 0;Reach the highest speed that you can in the new Opener Challenge!
 IMAGE 0;openerchallenge.tga
 EVENT 0;1
 FEATURED 0;
 
 EVENTID 1;
-NAME 0;Opener Challenge 6
+NAME 0;Opener Challenge 7
 IMAGE 0;openerchallenge.tga
-URL 0;https://forum.toribash.com/showthread.php?t=637772
-PLAYNAME 0;openerch6
+URL 0;https://forum.toribash.com/showthread.php?t=640109
+PLAYNAME 0;openerch7
 OVERLAYTRANS 0;0.1
 PLAYTEXT 0;PARTICIPATE
 ACCENTCOLOR 0;F5F5F5
@@ -30,7 +29,7 @@ BTNHVRCOL 0;505050
 BTNDNCOL 0;92041f
 DESCDATA 0;1Description
 DESCDATAIMGTITLE 0;1oc_description.tga
-DESCDATATEXT 0;1The Event Squad is proud to present Opener Challenge!\nIn this event we provide you with a pre-made opener to edit after a set number of frames in order to complete the challenges described.\nThis time we want you to dismember Uke as many times as you can!
+DESCDATATEXT 0;1The Event Squad is proud to present Opener Challenge!\nIn this event we provide you with a pre-made opener to edit after a set number of frames in order to complete the challenges described.\nThis time we want you to move as fast and reach the highest speed that you can!
 DESCDATA 0;2Rules
 DESCDATAIMGTITLE 0;2oc_rules.tga
 DESCDATATEXT 0;2- Replay hacking is strictly forbidden\n- Do not steal other players' replays\n- Do not edit any of the game rules except turn and match frames\n- Do not try to enter the event with multiple accounts
@@ -39,19 +38,19 @@ DESCDATAIMGTITLE 0;3oc_howtoenter.tga
 DESCDATATEXT 0;3You can participate in Opener Challenge by pressing "Participate" button on bottom right, completing the challenge and submitting your replay to Toribash servers.\nAlternatively, you can download the opener from the event thread on forums, edit it according to the rules and post your replay back in event thread - if you just upload it to Toribash Community Replays then it won't be judged.\n^02Only one replay per player will be judged.
 DESCDATA 0;4Deadline
 DESCDATAIMGTITLE 0;4oc_deadline.tga
-DESCDATATEXT 0;4We will stop accepting new entries on April 10th, 16:00 UTC
-DESCDATA 0;5 
+DESCDATATEXT 0;4We will stop accepting new entries on May 29th, 16:00 UTC
+DESCDATA 0;5
 PRIZEIMG 0;oc_prizes.tga
 PRIZEDATA 0;1Best replay
 PRIZETC 0;150000
 PRIZEST 0;110
-PRIZEDATA 0;2Honorable Mentions
-PRIZETC 0;220000
-PRIZEST 0;28
-PRIZEDATA 0;3Dismember Uke 5 or more times
+PRIZEDATA 0;2Highest speed reached
+PRIZETC 0;250000
+PRIZEST 0;210
+PRIZEDATA 0;3Reach speed of 55
 PRIZETC 0;38000
 PRIZEST 0;34
-PRIZEDATA 0;4Dismember Uke 3 times
+PRIZEDATA 0;4Reach speed of 40
 PRIZETC 0;43000
 PRIZEST 0;42
 
