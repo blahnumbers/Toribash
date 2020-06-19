@@ -16,7 +16,7 @@ TUTORIALKEYBOARDLOCK = false
 TUTORIAL_SPECIAL_RP_IGNORE = false
 
 do
-	Tutorials = { ver = 1.1 }
+	Tutorials = { ver = 1.2 }
 	Tutorials.__index = Tutorials
 	local cln = {}
 	setmetatable(cln, Tutorials)
@@ -52,6 +52,7 @@ do
 			tutorialQuitOverlay = nil
 		end
 		set_discord_rpc("", "")
+		disable_player_select(-1)
 		open_menu(19)
 	end
 
@@ -136,7 +137,7 @@ do
 				elseif (ln:find("^STEPFALLBACK")) then
 					steps[#steps].fallback = ln:gsub("STEPFALLBACK ", "") + 0
 				else
-					steps[#steps + 1] = { skip = 0 }
+					steps[#steps + 1] = { skip = 0, id = #steps + 1 }
 				end
 			elseif (ln:find("^NEWGAME")) then
 				steps[#steps].newgame = true
@@ -274,6 +275,8 @@ do
 				steps[#steps].introOverlay = true
 			elseif (ln:find("^OUTROFADE")) then
 				steps[#steps].outroOverlay = true
+			elseif (ln:find("^PLAYERLOCK")) then
+				steps[#steps].playerlock = ln:gsub("PLAYERLOCK ", "") + 0
 			elseif (ln:find("^CUSTOMFUNC")) then
 				steps[#steps].customfuncdefined = true
 				steps[#steps].customfuncfile = loadfile(cfuncpath .. id .. ".lua")
@@ -1356,6 +1359,11 @@ do
 		if (steps[currentStep].keyboardlock) then
 			TUTORIALKEYBOARDLOCK = true
 			tbTutorialsKeysIgnore = {}
+		end
+		if (steps[currentStep].playerlock) then
+			disable_player_select(steps[currentStep].playerlock)
+		else
+			disable_player_select(-1)
 		end
 		if (steps[currentStep].showsaymessage) then
 			Tutorials:showMessageWindow(requirements)

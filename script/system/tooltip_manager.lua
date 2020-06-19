@@ -13,9 +13,15 @@ do
 	function Tooltip:quit()
 		TOOLTIP_ACTIVE = false
 		remove_hooks("tbSystemTooltip")
-		if (tbTooltip) then
-			tbTooltip:kill()
-			tbTooltip = nil
+		Tooltip:destroy()
+	end
+	
+	function Tooltip:destroy()
+		-- Force destroy all objects assigned to TB_TOOLTIP_GLOBALID global id
+		for i, v in pairs(UIElementManager) do
+			if (v.globalid == TB_TOOLTIP_GLOBALID and v.parent == nil) then
+				v:kill()
+			end
 		end
 	end
 	
@@ -24,14 +30,12 @@ do
 		local forceInfo = get_color_info(PLAYERINFO.colors.force)
 		local relaxInfo = get_color_info(PLAYERINFO.colors.relax)
 		PLAYERINFO = { rgbForce = { forceInfo.r, forceInfo.g, forceInfo.b, 1 }, rgbRelax = { relaxInfo.r, relaxInfo.g, relaxInfo.b, 1 }, default = PLAYERINFO.colors.default }
-		if (not TOOLTIP_ACTIVE) then
-			add_hook("joint_select", "tbSystemTooltip", function(player, joint)
-					Tooltip:showTooltipJoint(player, joint)
-				end)
-			add_hook("body_select", "tbSystemTooltip", function(player, body)
-					Tooltip:showTooltipBody(player, body)
-				end)
-		end
+		add_hook("joint_select", "tbSystemTooltip", function(player, joint)
+				Tooltip:showTooltipJoint(player, joint)
+			end)
+		add_hook("body_select", "tbSystemTooltip", function(player, body)
+				Tooltip:showTooltipBody(player, body)
+			end)
 		TOOLTIP_ACTIVE = true
 	end
 	
@@ -41,11 +45,7 @@ do
 	end
 	
 	function Tooltip:showTooltipBody(player, body)
-		if (tbTooltip) then
-			tbTooltip:kill()
-			tbTooltip = nil
-			BODYTOOLTIPACTIVE = false
-		end
+		Tooltip:destroy()
 		if (get_option("tooltip") == 0) then
 			Tooltip:quit()
 			return
@@ -54,7 +54,6 @@ do
 			return
 		end
 		if (body > -1) then
-			BODYTOOLTIPACTIVE = true
 			local bodyInfo = get_body_info(player, body)
 			bodyInfo.name = bodyInfo.name:gsub("^R_", "RIGHT "):gsub("^L_", "LEFT ")
 			
@@ -72,9 +71,7 @@ do
 			tbTooltip:addCustomDisplay(true, function()
 					local ws = get_world_state()
 					if (ws.replay_mode == 1 or ws.match_frame ~= frame or TB_MENU_MAIN_ISOPEN == 1 or ws.selected_player < 0) then
-						tbTooltip:kill()
-						tbTooltip = nil
-						BODYTOOLTIPACTIVE = false
+						Tooltip:destroy()
 						return
 					end
 					tbTooltip:moveTo(MOUSE_X + 15, MOUSE_Y - 15)
@@ -148,10 +145,7 @@ do
 			local relaxInfo = get_color_info(PLAYERINFO.colors.relax)
 			PLAYERINFO = { rgbForce = { forceInfo.r, forceInfo.g, forceInfo.b, 1 }, rgbRelax = { relaxInfo.r, relaxInfo.g, relaxInfo.b, 1 }, default = PLAYERINFO.colors.default }
 		end
-		if (tbTooltip and not BODYTOOLTIPACTIVE) then
-			tbTooltip:kill()
-			tbTooltip = nil
-		end
+		Tooltip:destroy()
 		if (get_option("tooltip") == 0) then
 			Tooltip:quit()
 			return
@@ -176,8 +170,7 @@ do
 			tbTooltip:addCustomDisplay(true, function()
 					local ws = get_world_state()
 					if (ws.replay_mode == 1 or ws.match_frame ~= frame or TB_MENU_MAIN_ISOPEN == 1 or ws.selected_player < 0) then
-						tbTooltip:kill()
-						tbTooltip = nil
+						Tooltip:destroy()
 						return
 					end
 					tbTooltip:moveTo(MOUSE_X + 15, MOUSE_Y - 15)

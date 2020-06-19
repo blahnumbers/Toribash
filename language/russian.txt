@@ -132,7 +132,7 @@ PleaseEnterYourUsername Пожалуйста, введите ваш никней
 PleaseEnterYourPassword Пожалуйста, введите ваш пароль
 PleaseRetypeYourPassword Пожалуйста, введите ваш пароль ещё раз
 UsernameLesserThan4Characters Ваш никнейм короче 4 символов
-UsernameMoreThan10Characters Ваш никнейм длиннее 10 символов
+UsernameMoreThan12Characters Ваш никнейм длиннее 12 символов
 MismatchingPasswords Пароли не совпадают
 UsernameMustBeAlphaNumeric Никнейм может содержать только латиницу или цифры
 Error! Ошибка!
@@ -170,19 +170,23 @@ RightKnee ПРАВОЕ КОЛЕНО
 LeftKnee ЛЕВОЕ КОЛЕНО
 RightAnkle ПРАВАЯ ЛОДЫЖКА
 LeftAnkle ЛЕВАЯ ЛОДЫЖКА
-RightRotating РАЗВОРОТ ВПРАВО:
-RightBending НАКЛОН ВПРАВО:
-LeftRotating РАЗВОРОТ ВЛЕВО:
-LeftBending НАКЛОН ВЛЕВО:
-Lowering ОПУСКАЕТСЯ:
-Extending РАЗГИБАЕТСЯ:
-Raising ПОДНИМАЕТСЯ:
-Contracting СГИБАЕТСЯ:
-Holding НАПРЯЖЕНИЕ:
-Relaxing РАССЛАБЛЕНИЕ:
+RightRotating РАЗВОРОТ ВПРАВО
+RightBending НАКЛОН ВПРАВО
+LeftRotating РАЗВОРОТ ВЛЕВО
+LeftBending НАКЛОН ВЛЕВО
+Lowering ОПУСКАЕТСЯ
+Extending РАЗГИБАЕТСЯ
+Raising ПОДНИМАЕТСЯ
+Contracting СГИБАЕТСЯ
+Holding НАПРЯЖЕНИЕ
+Relaxing РАССЛАБЛЕНИЕ
 ObjModel 3D-модели
 LanguageSteam Использовать язык Steam
 Effects Эффекты
 AlwaysOff Всегда выключены
 OnlyOnReplays Только во время повторов
 AlwaysOn Всегда включены
+PasswordTooShort Пароль должен быть как минимум 8 символов длиной
+PasswordNotStrongEnough Пароль должен содержать содержать заглавные и строчные буквы и как минимум одну цифру
+RegisterWasInvited Меня пригласили
+ReferralUsername Ник друга в игре

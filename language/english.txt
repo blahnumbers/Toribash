@@ -133,7 +133,7 @@ PleaseEnterYourUsername Please enter your username!
 PleaseEnterYourPassword Please enter your password
 PleaseRetypeYourPassword Please retype your password
 UsernameLesserThan4Characters Your username is lesser than 4 characters!
-UsernameMoreThan10Characters Your username is more than 10 characters!
+UsernameMoreThan12Characters Your username is more than 12 characters!
 MismatchingPasswords Mismatching passwords
 UsernameMustBeAlphaNumeric Username must be alpha numeric
 Error! Error!
@@ -206,3 +206,7 @@ Unranked Unranked
 RankedPreferred Ranked Preferred
 RankedOnly Ranked Only
 MatchmakeAgain Matchmake Again
+PasswordTooShort Password should be at least 8 characters long
+PasswordNotStrongEnough Password should contain both lowercase and uppercase letters and at least one digit
+RegisterWasInvited I was invited
+ReferralUsername Referral username

@@ -31,5 +31,5 @@ CONTROLSHINT4	You can also control your joints quicker by using keyboard hotkeys
 CONTROLSHINT5	To change all joints' states at once to either HOLD or RELAX, press ~C~
 CONTROLSHINT6	Hover over any joint and press ~X~ to toggle between its HOLD and RELAX states.
 CONTROLSHINT7	To switch between CONTRACTING and EXTENDING states, press ~Z~ while hovering over a joint.
-QIHINT1	Your Toribash experience is measured in QI. For every fight you play, you get 1 QI.
-QIHINT2	The more Qi you get, the better BELT you receive and the more customization items will become available for purchase.
+QIHINT1	In Toribash, your experience is measured in Qi.\nFor every fight you play, you get at least 1 Qi - and more the longer the fight.
+QIHINT2	The higher your Qi, the better BELT you receive and the more customization items will become available in the shop.
