@@ -293,7 +293,7 @@ do
 			})
 			TBMenu:displayLoadingMark(waitOverlay, TB_MENU_LOCALIZED.MESSAGEPLEASEWAIT)
 			local function doReport()
-				Request:new("reportPlayer", function()
+				Request:queue(function() report_player(pName, reportReasonId, extraMessage.textfieldstr[1], "") end, "reportPlayer", function()
 						local response = get_network_response()
 						if (response:find("GATEWAY 0; 0")) then
 							if (not waitOverlay:isDisplayed()) then
@@ -371,7 +371,6 @@ do
 						waitOverlay:kill()
 						TBMenu:showDataError(TB_MENU_LOCALIZED.ACCOUNTINFOERROR, true)
 					end)
-				report_player(pName, reportReasonId, extraMessage.textfieldstr[1], "")
 			end
 			if (get_network_task() == 0) then
 				doReport()

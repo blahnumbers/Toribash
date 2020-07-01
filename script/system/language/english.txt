@@ -740,3 +740,22 @@ REPORTSCONFIRMATION	Are you sure you want to report
 REPORTSLONGWAITMESSAGE	Taking a bit longer than usual...\nThis window can be closed, you'll receive a notification when your report gets submitted.
 REPLAYSERRORLOADINGCACHE	Error loading replay cache, this may mean the data has been corrupted or you don't have read/write permissions on your Toribash folder.
 WORDERROR	Error
+WORDNEW	New
+WORDNOTIFICATIONS	Notifications
+NOTIFICATIONSHEADER	Your recent notifications
+NOTIFICATIONSLOADING	Loading notifications...
+NOTIFICATIONSLOADINGPM	Loading message text...
+NOTIFICATIONSVIEWPMFORUMS	View or reply on forums
+NOTIFICATIONSEMPTY	You don't have any notifications
+ERRORTRYAGAIN	Something went wrong, please try again
+QUESTSGLOBAL	Global quests
+QUESTSGLOBALDESC	Global objectives for your account
+WORDREWARD	Reward
+QUESTSGLOBALUPDATING	Updating global quests...
+NETWORKLOADING	Loading...
+QUESTSGLOBALCOMPLETED	Completed
+QUESTSGLOBALACTIVE	Active
+QUESTSGLOBALEMPTY	Nothing to show here :(
+CLANSUPDATINGWAIT	Updating clans data, please wait...
+QUESTSCLOSEST	Closest quests and quests available for claiming
+QUESTSLOCKED	Locked quests

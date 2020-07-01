@@ -2,8 +2,6 @@
 require("system/iofiles")
 require("system/network_request")
 
-SERVER_USER_INFO = SERVER_USER_INFO or { updated = -1000 }
-
 do
 	PlayerInfo = {}
 	PlayerInfo.__index = PlayerInfo
@@ -649,8 +647,7 @@ do
 			reload = SERVER_USER_INFO.updated < os.clock() - 300
 		end
 		if (username or reload) then
-			get_player_userinfo(PlayerInfo:getUser(username))
-			return Request:new("userinfo", success)
+			return Request:queue(function() get_player_userinfo(PlayerInfo:getUser(username)) end, "userinfo", success)
 		end
 		SERVER_USER_INFO.ready = true
 		return SERVER_USER_INFO

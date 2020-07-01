@@ -5,15 +5,10 @@ if (get_option("tooltip") == 0 or not TOOLTIP_ACTIVE) then
 	TUTORIAL_TOOLTIP_ACTIVE = true
 end
 
-TUTORIAL_STORED_OPTS = TUTORIAL_STORED_OPTS or {}
 local tbTutorialsKeysIgnore = {}
 local tbTutorialsJointsIgnore = {}
 local tbTutorialTotalSteps = 0
 local tbTutorialCurrentStep = 0
-
-TUTORIALJOINTLOCK = false
-TUTORIALKEYBOARDLOCK = false
-TUTORIAL_SPECIAL_RP_IGNORE = false
 
 do
 	Tutorials = { ver = 1.2 }

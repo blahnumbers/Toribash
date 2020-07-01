@@ -133,7 +133,7 @@ do
 	end
 	
 	function Broadcasts:fetchBroadcast()
-		Request:new("broadcast", function()
+		Request:queue(function() download_server_info("last_broadcast") end, "broadcast", function()
 				local response = get_network_response()
 				local broadcast = { id = 0 }
 				for ln in response:gmatch("[^\n]*\n?") do
@@ -160,7 +160,6 @@ do
 				end
 				Broadcasts:showBroadcast(broadcast)
 			end)
-		download_server_info("last_broadcast")
 	end
 	
 	function Broadcasts:activate()
@@ -184,10 +183,8 @@ do
 		add_hook("draw2d", "broadcast_manager", function()
 				if (get_world_state().game_type == 0 and not TUTORIAL_ISACTIVE) then
 					if (clock < os.clock() - 60) then
-						if (get_network_task() == 0) then
-							clock = os.clock()
-							Broadcasts:fetchBroadcast()
-						end
+						clock = os.clock()
+						Broadcasts:fetchBroadcast()
 					end
 				end
 			end)

@@ -15,7 +15,12 @@ if (STORE_VANILLA_POST) then
 	chat_input_activate()
 end
 
-TB_MENU_DEBUG = false
+TB_MENU_DEBUG = get_option("menudebug") == 1
+--[[if (TB_MENU_DEBUG) then
+	require = function(file)
+		dofile(file .. ".lua")
+	end
+end]]
 
 TB_MENU_MAIN_ISOPEN = TB_MENU_MAIN_ISOPEN or 0
 TB_MENU_SPECIAL_SCREEN_ISOPEN = TB_MENU_SPECIAL_SCREEN_ISOPEN or 0
@@ -58,27 +63,29 @@ if (WIN_W < 950 or WIN_H < 600) then
 	return
 end
 
-dofile("system/menu_manager.lua")
+dofile("system/menu_defines.lua")
+require("system/menu_manager")
 
 TBMenu:create()
 TBMenu:getTranslation(get_language())
 
-dofile("system/network_request.lua")
-dofile("system/store_manager.lua")
-dofile("system/player_info.lua")
-dofile("system/matchmake_manager.lua")
-dofile("system/notifications_manager.lua")
-dofile("system/quests_manager.lua")
-dofile("system/rewards_manager.lua")
-dofile("system/clans_manager.lua")
-dofile("system/friendlist_manager.lua")
-dofile("system/replays_manager.lua")
-dofile("system/bounty_manager.lua")
-dofile("system/settings_manager.lua")
-dofile("system/scripts_manager.lua")
-dofile("system/events_manager.lua")
-dofile("system/events_online_manager.lua")
-dofile("system/news_manager.lua")
+dofile("system/menu_backend_defines.lua")
+require("system/network_request")
+require("system/store_manager")
+require("system/player_info")
+--dofile("system/matchmake_manager.lua")
+require("system/notifications_manager")
+require("system/quests_manager")
+require("system/rewards_manager") --?
+require("system/clans_manager")
+require("system/friendlist_manager")
+require("system/replays_manager")
+--dofile("system/bounty_manager.lua")
+require("system/settings_manager")
+require("system/scripts_manager")
+require("system/events_manager")
+require("system/events_online_manager")
+require("system/news_manager")
 
 TB_MENU_PLAYER_INFO = {}
 TB_MENU_PLAYER_INFO.username = PlayerInfo:getUser()
@@ -139,6 +146,7 @@ if (os.clock() < 10) then
 		TB_MENU_PLAYER_INFO.items = PlayerInfo:getItems(TB_MENU_PLAYER_INFO.username)
 		TB_MENU_PLAYER_INFO.clan = PlayerInfo:getClan(TB_MENU_PLAYER_INFO.username)
 		download_quest(TB_MENU_PLAYER_INFO.username)
+		download_global_quests()
 		if (TB_MENU_MAIN_ISOPEN == 1) then
 			TBMenu:showUserBar()
 		end
@@ -147,10 +155,11 @@ if (os.clock() < 10) then
 					TB_MENU_PLAYER_INFO.ranking = PlayerInfo:getRanking()
 					TB_STORE_DATA, TB_STORE_SECTIONS = Torishop:getItems()
 					TB_STORE_MODELS = Torishop:getModelsData()
+					QUESTS_DATA = Quests:getQuests()
+					QUESTS_GLOBAL_DATA = Quests:getGlobalQuests()
 					download_clan()
 					if (not is_steam()) then
-						get_latest_version()
-						Request:new("versioncheck", function()
+						Request:queue(function() get_latest_version() end,"versioncheck", function()
 								local latestVersion = get_network_response()
 								local currentVersion = tonumber(TORIBASH_VERSION)
 								latestVersion = tonumber(latestVersion)
@@ -285,6 +294,7 @@ if (not QueueList) then
 		dofile("system/queuelist_manager.lua")
 	end
 end
+Notifications:getTotalNotifications()
 
 if (launchOption == 'register') then
 	remove_hooks("tbMainMenuVisual")

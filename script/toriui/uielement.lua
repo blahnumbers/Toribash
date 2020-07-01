@@ -2,6 +2,7 @@
 
 WIN_W, WIN_H = get_window_size()
 MOUSE_X, MOUSE_Y = 0, 0
+UIMODE_LIGHT = get_option("uilight") == 1
 
 FONTS.BIGGER = 9
 
@@ -452,9 +453,15 @@ do
 
 	function UIElement:display()
 		if (self.hoverState ~= false and self.hoverColor) then
-			for i = 1, 4 do
-				if ((self.bgColor[i] > self.hoverColor[i] and self.animateColor[i] > self.hoverColor[i]) or (self.bgColor[i] < self.hoverColor[i] and self.animateColor[i] < self.hoverColor[i])) then
-					self.animateColor[i] = self.animateColor[i] - math.floor((self.bgColor[i] - self.hoverColor[i]) * 150) / 1000
+			if (UIMODE_LIGHT) then
+				for i = 1, 4 do
+					self.animateColor[i] = self.hoverColor[i]
+				end
+			else
+				for i = 1, 4 do
+					if ((self.bgColor[i] > self.hoverColor[i] and self.animateColor[i] > self.hoverColor[i]) or (self.bgColor[i] < self.hoverColor[i] and self.animateColor[i] < self.hoverColor[i])) then
+						self.animateColor[i] = self.animateColor[i] - math.floor((self.bgColor[i] - self.hoverColor[i]) * 150) / 1000
+					end
 				end
 			end
 		elseif (self.animateColor) then
@@ -465,7 +472,8 @@ do
 		if (self.customDisplayBefore) then
 			self.customDisplay()
 		end
-		if (not self.customDisplayTrue) then
+		
+		if (not self.customDisplayTrue and (self.bgColor[4] > 0 or self.bgImage or self.interactive)) then
 			if (self.innerShadow[1] > 0 or self.innerShadow[2] > 0) then
 				set_color(unpack(self.shadowColor[1]))
 				if (self.shapeType == ROUNDED) then
@@ -1401,5 +1409,13 @@ do
 			end
 		end
 		return str
+	end
+	
+	function Guid()
+		local template ='xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
+		return string.gsub(template, '[xy]', function(c)
+			local v = (c == 'x') and math.random(0, 0xf) or math.random(8, 0xb)
+			return string.format('%x', v)
+		end)
 	end
 end

@@ -1,24 +1,16 @@
 -- Replays manager
+local REPLAY_VOTE = 101
 
-local SELECTED_REPLAY = { element = nil, defaultColor = nil, time = 0, replay = nil }
-local TB_MENU_REPLAYS = { name = "replay", fullname = "replay" }
-local TB_MENU_REPLAYS_LOADED = false
-
-SERVER_REPLAYS = SERVER_REPLAYS or { action = 1, offset = 1, search = "", id = 0 }
-SELECTED_FOLDER = SELECTED_FOLDER and { fullname = SELECTED_FOLDER.fullname } or { fullname = "replay" }
-SELECTED_SERVER_REPLAY = SELECTED_SERVER_REPLAY or { id = 0 }
-
-local MAXFOLDERLEVELS = 4
-
-REPLAY_VOTE = 101
-
-REPLAY_TEMPNAME = "--onlinereplaytempfile"
-REPLAY_SAVETEMPNAME = "--localreplaytempfile"
-REPLAY_EVENT = "--eventtmp"
-
-REPLAYS_CUSTOM_SELECTOR_ACTIVE = false
+local REPLAY_TEMPNAME = "--onlinereplaytempfile"
+local REPLAY_SAVETEMPNAME = "--localreplaytempfile"
+local REPLAY_EVENT = "--eventtmp"
 
 do
+	local SELECTED_REPLAY = { element = nil, defaultColor = nil, time = 0, replay = nil }
+	local TB_MENU_REPLAYS = { name = "replay", fullname = "replay" }
+	local TB_MENU_REPLAYS_LOADED = false
+	local MAXFOLDERLEVELS = 4
+	
 	Replays = { ver = 1.1 }
 	Replays.__index = Replays
 	local cln = {}
@@ -1691,20 +1683,21 @@ do
 				uploadButton:uiText(TB_MENU_LOCALIZED.BUTTONUPLOAD)
 			end)
 		uploadButton:addMouseHandlers(nil, function()
-				open_upload_replay(	replayData[1].value[1],
-									replayData[2].value[1],
-									replayData[3].value[1],
-									"replay/" .. replay.filename)
-				local overlay = TBMenu:spawnWindowOverlay()
-				local width = overlay.size.w / 7 * 3
-				local uploadingView = UIElement:new({
-					parent = overlay,
-					pos = { (overlay.size.w - width) / 2, overlay.size.h / 2 - overlay.size.h / 10 },
-					size = { width, overlay.size.h / 5 },
-					bgColor = TB_MENU_DEFAULT_BG_COLOR
-				})
-				uploadingView:addAdaptedText(false, TB_MENU_LOCALIZED.REPLAYUPLOADINPROGRESS)
-				Request:new("replayupload", function()
+				Request:queue(function()
+						open_upload_replay(	replayData[1].value[1],
+											replayData[2].value[1],
+											replayData[3].value[1],
+											"replay/" .. replay.filename)
+						local overlay = TBMenu:spawnWindowOverlay()
+						local width = overlay.size.w / 7 * 3
+						local uploadingView = UIElement:new({
+							parent = overlay,
+							pos = { (overlay.size.w - width) / 2, overlay.size.h / 2 - overlay.size.h / 10 },
+							size = { width, overlay.size.h / 5 },
+							bgColor = TB_MENU_DEFAULT_BG_COLOR
+						})
+						uploadingView:addAdaptedText(false, TB_MENU_LOCALIZED.REPLAYUPLOADINPROGRESS)
+					end, "replayupload", function()
 						local response = get_network_response()
 						if (response:find("^SUCCESS")) then
 							uploadingView:addAdaptedText(false, TB_MENU_LOCALIZED.REPLAYUPLOADSUCCESSFUL)

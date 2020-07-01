@@ -1,7 +1,5 @@
 -- Settings Manager Class
 
-dofile("system/settings_defines.lua")
-
 local SETTINGS_GRAPHICS = 1
 local SETTINGS_EFFECTS = 2
 local SETTINGS_AUDIO = 3
@@ -292,7 +290,8 @@ do
 												{ opt = "bodytextures", val = 0, graphics = true, id = BODYTEXTURES },
 												{ opt = "effects", val = 0 },
 												{ opt = "particles", val = 0 },
-												{ opt = "fixedframerate", val = 1 }
+												{ opt = "fixedframerate", val = 1 },
+												{ opt = "uilight", val = 1 }
 											}
 											for i,v in pairs(options) do
 												if (v.graphics) then
@@ -324,7 +323,8 @@ do
 											{ opt = "bodytextures", val = 1, graphics = true, id = BODYTEXTURES },
 											{ opt = "effects", val = 1 },
 											{ opt = "particles", val = 1 },
-											{ opt = "fixedframerate", val = 1 }
+											{ opt = "fixedframerate", val = 1 },
+											{ opt = "uilight", val = 1 }
 										}
 										for i,v in pairs(options) do
 											if (v.graphics) then
@@ -356,7 +356,8 @@ do
 											{ opt = "bodytextures", val = 1, graphics = true, id = BODYTEXTURES },
 											{ opt = "effects", val = 3 },
 											{ opt = "particles", val = 1 },
-											{ opt = "fixedframerate", val = 1 }
+											{ opt = "fixedframerate", val = 1 },
+											{ opt = "uilight", val = 0 }
 										}
 										for i,v in pairs(options) do
 											if (v.graphics) then
@@ -388,7 +389,8 @@ do
 											{ opt = "bodytextures", val = 1, graphics = true, id = BODYTEXTURES },
 											{ opt = "effects", val = 3 },
 											{ opt = "particles", val = 1 },
-											{ opt = "fixedframerate", val = 1 }
+											{ opt = "fixedframerate", val = 1 },
+											{ opt = "uilight", val = 0 }
 										}
 										for i,v in pairs(options) do
 											if (v.graphics) then
@@ -420,7 +422,8 @@ do
 											{ opt = "bodytextures", val = 1, graphics = true, id = BODYTEXTURES },
 											{ opt = "effects", val = 3 },
 											{ opt = "particles", val = 1 },
-											{ opt = "fixedframerate", val = 1 }
+											{ opt = "fixedframerate", val = 1 },
+											{ opt = "uilight", val = 0 }
 										}
 										for i,v in pairs(options) do
 											if (v.graphics) then

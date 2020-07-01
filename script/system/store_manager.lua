@@ -1,36 +1,5 @@
 -- new store manager class
 
-TB_INVENTORY_PAGE = TB_INVENTORY_PAGE or {}
-TB_ITEM_DETAILS = TB_ITEM_DETAILS or nil
-TB_LAST_STORE_SECTION = 1
-TB_INVENTORY_LOADED = TB_INVENTORY_LOADED or nil
-
-ITEM_SET = 1458
-ITEM_FLAME = 936
-ITEM_SHIAI_TOKEN = 2528
-
-INVENTORY_SELECTED_ITEMS = INVENTORY_SELECTED_ITEMS or {}
-
-INVENTORY_DEACTIVATED = 1
-INVENTORY_ACTIVATED = 2
-INVENTORY_MARKET = 3
-INVENTORY_ALL = 4
-TB_INVENTORY_MODE = TB_INVENTORY_MODE or INVENTORY_DEACTIVATED
-SHOW_EMPTY_SETS	= SHOW_EMPTY_SETS or 0
-
-INVENTORY_DEACTIVATE = 1
-INVENTORY_ACTIVATE = 2
-INVENTORY_ADDSET = 3
-INVENTORY_REMOVESET = 4
-INVENTORY_UNPACK = 5
-INVENTORY_UPGRADE = 6
-
-INVENTORY_UPDATE = false
-INVENTORY_MOUSE_POS = { x = 0, y = 0 }
-
-MODE_TC = 0
-MODE_ST = 1
-
 local CATEGORIES_COLORS = { 44, 22, 2, 20, 21, 1, 5, 11, 12, 24, 27, 28, 29, 30, 34, 41, 43, 73 }
 local CATEGORIES_TEXTURES = { 48, 54, 55, 57, 58 }
 local CATEGORIES_ADVANCED = { 78, 72, 80 }
@@ -42,7 +11,26 @@ local TAB_TEXTURES = 2
 local TAB_ADVANCED = 3
 local TAB_ACCOUNT = 4
 
-STORE_ICONS_DOWNLOAD_QUEUE = STORE_ICONS_DOWNLOAD_QUEUE or {}
+local TB_LAST_STORE_SECTION = 1
+
+local ITEM_SET = 1458
+local ITEM_FLAME = 936
+local ITEM_SHIAI_TOKEN = 2528
+
+local INVENTORY_DEACTIVATED = 1
+local INVENTORY_ACTIVATED = 2
+local INVENTORY_MARKET = 3
+local INVENTORY_ALL = 4
+
+local INVENTORY_DEACTIVATE = 1
+local INVENTORY_ACTIVATE = 2
+local INVENTORY_ADDSET = 3
+local INVENTORY_REMOVESET = 4
+local INVENTORY_UNPACK = 5
+local INVENTORY_UPGRADE = 6
+
+local MODE_TC = 0
+local MODE_ST = 1
 
 do
 	Torishop = {}
@@ -5618,7 +5606,7 @@ do
 		saleColor = UIElement:qsort(saleColor, 'catid') --Do this to prevent incorrect name detection when first item is a pack
 		local saleColorInfo = #saleColor > 0 and { colorid = saleColor[1].colorid, colorname = saleColor[1].itemname:gsub(" " .. TB_STORE_SECTIONS[saleColor[1].catid].name:sub(1, -8) .. ".*$", "") } or false
 		
-		local featuredPromos = {
+		--[[local featuredPromos = {
 			{
 				image = "../textures/menu/promo/store/hairseast.tga",
 				ratio = 0.5,
@@ -5627,15 +5615,28 @@ do
 			},
 		}
 		--featuredPromoId = math.random(1, 3);
-		featuredPromoId = 1
+		featuredPromoId = 1]]
 		
 		local storeButtons = {
-			featured = {
+			--[[featured = {
 				title = featuredPromos[featuredPromoId].title,
 				subtitle = featuredPromos[featuredPromoId].subtitle,
 				image = featuredPromos[featuredPromoId].image,
 				ratio = featuredPromos[featuredPromoId].ratio,
 				action = featuredPromos[featuredPromoId].action
+			},]]
+			featured = {
+				title = TB_MENU_LOCALIZED.STOREGOTOINVENTORY,
+				subtitle = TB_MENU_LOCALIZED.STOREINVENTORYDESC,
+				image = "../textures/menu/inventory.tga",
+				ratio = 0.435,
+				action = function()
+						if (TB_STORE_DATA.ready) then
+							Torishop:prepareInventory(tbMenuCurrentSection)
+						else
+							TBMenu:showDataError(TB_MENU_LOCALIZED.STOREDATALOADERROR)
+						end
+					end
 			},
 			salecolor = {
 				title = saleColorInfo and (TB_MENU_LOCALIZED.STORESALE1 .. " " .. saleColorInfo.colorname .. (TB_MENU_LOCALIZED.STORESALE2:len() > 0 and (" " .. TB_MENU_LOCALIZED.STORESALE2 .. "!") or "!")) or TB_MENU_LOCALIZED.STORENOCOLORSALE,

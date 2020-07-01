@@ -1091,7 +1091,7 @@ do
 		TBMenu:addBottomBloodSmudge(viewElement, 2)
 		
 		local eventResponse = {}
-		local eventInfo = Request:new("passedEventInfoFetch", function(data)
+		local eventInfo = Request:queue(function() download_server_info("passed_event_info&eventid=" .. evtname) end, "passedEventInfoFetch", function(data)
 				local response = get_network_response()
 				data.sysname = evtname
 				for ln in response:gmatch("[^\n]*\n?") do
@@ -1118,7 +1118,6 @@ do
 					data.failed = true
 				end
 			end)
-		download_server_info("passed_event_info&eventid=" .. evtname)
 		
 		local eventInfoHolder = UIElement:new({
 			parent = viewElement,

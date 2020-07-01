@@ -1,3 +1,20 @@
+--These used to be in menu_manager.lua
+ORIENTATION_PORTRAIT = 1
+ORIENTATION_LANDSCAPE = 2
+ORIENTATION_LANDSCAPE_SHORTER = 3
+BLURENABLED = false
+TB_MENU_LANGUAGE = TB_MENU_LANGUAGE or nil
+TB_MENU_LOCALIZED = TB_MENU_LOCALIZED or {}
+TB_MENU_IGNORE_REWARDS = 0
+
+--Global objects
+tbMenuMain = nil -- base parent element
+tbMenuCurrentSection = nil -- parent element for current section items
+tbMenuNavigationBar = nil -- parent element for navbar
+tbMenuBottomRightBar = nil -- parent element for bottom right bar
+tbMenuBottomLeftBar = nil -- parent element for bottom left bar
+tbMenuUserBar = nil -- parent element for top user bar
+
 -- Menu UI defines
 TB_MENU_HUB_GLOBALID = 1000
 TB_MENU_MAIN_GLOBALID = 1001

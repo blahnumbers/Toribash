@@ -1,26 +1,6 @@
 -- modern main menu manager class
 -- DO NOT MODIFY THIS FILE
 
-dofile("system/menu_defines.lua")
-
-ORIENTATION_PORTRAIT = 1
-ORIENTATION_LANDSCAPE = 2
-ORIENTATION_LANDSCAPE_SHORTER = 3
-BLURENABLED = false
-
-TB_MENU_LANGUAGE = TB_MENU_LANGUAGE or nil
-TB_MENU_LOCALIZED = TB_MENU_LOCALIZED or {}
-
-TB_MENU_IGNORE_REWARDS = 0
-
---Global objects
-tbMenuMain = nil -- base parent element
-tbMenuCurrentSection = nil -- parent element for current section items
-tbMenuNavigationBar = nil -- parent element for navbar
-tbMenuBottomRightBar = nil -- parent element for bottom right bar
-tbMenuBottomLeftBar = nil -- parent element for bottom left bar
-tbMenuUserBar = nil -- parent element for top user bar
-
 do
 	TBMenu = {}
 	TBMenu.__index = TBMenu
@@ -480,21 +460,10 @@ do
 	end
 
 	function TBMenu:showClans(clantag)
-		tbMenuBottomLeftBar:hide()
-		TBMenu:clearNavSection()
-		
-		CLANLISTLASTPOS = CLANLISTLASTPOS or { scroll = {}, list = {} }
-		
-		if (not Clans:getLevelData() or not Clans:getAchievementData() or not Clans:getClanData()) then
-			download_clan()
-			TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
-			TB_MENU_CLANS_OPENCLANID = 0
-			TBMenu:showNavigationBar()
-			TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
-			TBMenu:showDataError(TB_MENU_LOCALIZED.CLANDATALOADERROR)
-		else
-			Clans:showMain(tbMenuCurrentSection, clantag)
+		if (not tbMenuCurrentSection) then
+			TBMenu:createCurrentSectionView()
 		end
+		Clans:showMain(tbMenuCurrentSection, clantag)
 	end
 
 	function TBMenu:showReplays()
@@ -889,7 +858,7 @@ do
 		local accountView = UIElement:new({
 			parent = tbMenuCurrentSection,
 			pos = { 5, 0 },
-			size = { tbMenuCurrentSection.size.w * 0.667 - 10, tbMenuCurrentSection.size.h },
+			size = { tbMenuCurrentSection.size.w - 10, tbMenuCurrentSection.size.h },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
 		local elementHeight = 50
@@ -1023,7 +992,7 @@ do
 				end)
 		end
 		
-		local inventoryButton = UIElement:new({
+		--[[local inventoryButton = UIElement:new({
 			parent = tbMenuCurrentSection,
 			pos = { 5 + tbMenuCurrentSection.size.w * 0.667, 0 },
 			size = { tbMenuCurrentSection.size.w * 0.333 - 10, tbMenuCurrentSection.size.h / 2 - 5 },
@@ -1065,7 +1034,7 @@ do
 			ratio = 0.5,
 			action = function() TBMenu:showClans() end
 		}
-		TBMenu:showHomeButton(clansButton, clansButtonData, 2)
+		TBMenu:showHomeButton(clansButton, clansButtonData, 2)]]
 	end
 
 	function TBMenu:showMatchmaking()
@@ -1636,11 +1605,11 @@ do
 		if (TB_MENU_SPECIAL_SCREEN_ISOPEN == 1) then
 			TBMenu:showTorishopMain()
 			Torishop:prepareInventory(tbMenuCurrentSection)
-		elseif (TB_MENU_SPECIAL_SCREEN_ISOPEN == 3) then
+		--[[elseif (TB_MENU_SPECIAL_SCREEN_ISOPEN == 3) then
 			TBMenu:showClans()
 			if (TB_MENU_CLANS_OPENCLANID ~= 0) then
 				Clans:showClan(tbMenuCurrentSection, TB_MENU_CLANS_OPENCLANID)
-			end
+			end]]
 		elseif (TB_MENU_SPECIAL_SCREEN_ISOPEN == 4) then
 			TBMenu:showNotifications()
 		elseif (TB_MENU_SPECIAL_SCREEN_ISOPEN == 5) then
@@ -1663,6 +1632,8 @@ do
 			TBMenu:showAccountMain()
 		elseif (screenId == 8) then
 			TBMenu:showMatchmaking()
+		elseif (screenId == 9) then
+			TBMenu:showClans()
 		elseif (screenId == 101) then
 			TBMenu:showNotifications()
 		elseif (screenId == 102) then
@@ -1771,11 +1742,15 @@ do
 			rot = { 0, 0, 0 },
 			viewport = true
 		})
-		local headRotation = math.pi / 2
-		playerHeadHolder:addCustomDisplay(true, function()
-				playerHeadHolder:rotate(0, 0, math.cos(headRotation))
-				headRotation = headRotation + math.pi / 570
-			end)
+		if (UIMODE_LIGHT) then
+			playerHeadHolder:rotate(0, 0, -16)
+		else
+			local headRotation = math.pi / 2
+			playerHeadHolder:addCustomDisplay(true, function()
+					playerHeadHolder:rotate(0, 0, math.cos(headRotation))
+					headRotation = headRotation + math.pi / 570
+				end)
+		end
 		local color = get_color_info(TB_MENU_PLAYER_INFO.items.colors.force)
 		local headAvatarNeck = UIElement3D:new({
 			parent = playerHeadHolder,
@@ -1967,12 +1942,13 @@ do
 		local tbMenuNavigationButtonsData = buttonsData or TBMenu:getMainNavigationButtons()
 		local tbMenuNavigationButtons = {}
 		local selectedId = selectedId or 0
-
+		
+		local navHeight = WIN_H / 16 > 60 and 60 or WIN_H / 16
 		local navX = { l = { 30 } , r = { -30 } }
 		tbMenuNavigationBar = tbMenuNavigationBar or UIElement:new({
 			parent = tbMenuMain,
 			pos = { 50, 130 },
-			size = { WIN_W - 100, WIN_H / 16 },
+			size = { WIN_W - 100, navHeight },
 			bgColor = { 0, 0, 0, 0.9 },
 			shapeType = ROUNDED,
 			rounded = 10
@@ -1982,6 +1958,7 @@ do
 		-- Assign button width accordingly
 		local totalWidth = tbMenuNavigationBar.size.w
 		local fontScale = 0.65
+		local fontId = FONTS.BIG
 		local temp = UIElement:new({
 			parent = tbMenuNavigationBar,
 			pos = { 0, 0 },
@@ -1991,10 +1968,12 @@ do
 		while (totalWidth > tbMenuNavigationBar.size.w - navX.l[1] + navX.r[1]) do
 			totalWidth = 0
 			fontScale = fontScale - 0.05
-			for i,v in pairs (tbMenuNavigationButtonsData) do
-				temp:addAdaptedText(true, v.text, nil, nil, FONTS.BIG, nil, fontScale, fontScale)
-				v.width = get_string_length(temp.dispstr[1] .. "____", temp.textFont) * temp.textScale
+			for i,v in pairs(tbMenuNavigationButtonsData) do
+				local string = v.misctext and v.text .. " " .. v.misctext or v.text
+				temp:addAdaptedText(true, string, nil, nil, fontId, nil, fontScale, nil)
+				v.width = get_string_length(temp.dispstr[1] .. "_____", temp.textFont) * temp.textScale
 				totalWidth = totalWidth + v.width
+				fontId = temp.textFont
 			end
 		end
 		temp:kill()
@@ -2032,7 +2011,26 @@ do
 				pos = { 15, tbMenuNavigationBar.size.h / 6 },
 				size = { tbMenuNavigationButtons[i].size.w - 30, tbMenuNavigationBar.size.h / 6 * 4 }
 			})
-			buttonText:addAdaptedText(true, v.text, nil, nil, FONTS.BIG, nil, fontScale, fontScale)
+			if (v.misctext) then
+				local width = get_string_length(v.misctext .. "__", FONTS.MEDIUM)
+				local miscMark = UIElement:new({
+					parent = buttonText,
+					pos = { -(buttonText.size.w - get_string_length(v.text, fontId) * fontScale + width - 16) / 2, 0 },
+					size = { width, buttonText.size.h },
+					bgColor = TB_MENU_DEFAULT_ORANGE,
+					uiColor = UICOLORBLACK,
+					shapeType = ROUNDED,
+					rounded = buttonText.size.h
+				})
+				miscMark:addAdaptedText(false, v.misctext)
+				buttonText:addCustomDisplay(true, function()
+					buttonText:uiText(v.text, -width / 2, nil, fontId, nil, fontScale)
+				end)
+			else
+				buttonText:addCustomDisplay(true, function()
+					buttonText:uiText(v.text, nil, nil, fontId, nil, fontScale)
+				end)
+			end
 			tbMenuNavigationButtons[i]:addMouseHandlers(nil, function()
 					if (not customNav) then
 						if (v.sectionId ~= TB_LAST_MENU_SCREEN_OPEN) then
@@ -2066,13 +2064,17 @@ do
 			{ text = TB_MENU_LOCALIZED.NAVBUTTONPLAY, sectionId = 2 },
 			{ text = TB_MENU_LOCALIZED.NAVBUTTONPRACTICE, sectionId = 3 },
 			{ text = TB_MENU_LOCALIZED.NAVBUTTONSTORE, sectionId = 6 },
-			{ text = TB_MENU_LOCALIZED.NAVBUTTONTOOLS, sectionId = 5 },
+			{ text = TB_MENU_LOCALIZED.MAINMENUCLANSNAME, sectionId = 9 },
+			{ text = TB_MENU_LOCALIZED.NAVBUTTONTOOLS, sectionId = 5, right = true },
 			{ text = TB_MENU_LOCALIZED.NAVBUTTONACCOUNT, sectionId = 7, right = true },
 		--	{ text = TB_MENU_LOCALIZED.MAINMENURANKEDNAME, sectionId = 8, right = true },
 		}
 		if (TB_MENU_PLAYER_INFO.username == '') then
 			buttonData[6] = nil
 		end
+		--[[if (TB_MENU_PLAYER_INFO.data.qi >= 500) then
+			table.insert(buttonData, { text = TB_MENU_LOCALIZED.MAINMENURANKEDNAME, sectionId = 8, right = true })
+		end]]
 		return buttonData
 	end
 
@@ -2137,23 +2139,28 @@ do
 		tbMenuFriendsBetaCaption:addCustomDisplay(false, function()
 				tbMenuFriendsBetaCaption:uiText("Beta", nil, nil, nil, nil, 0.6)
 			end)]]
-		if (TB_MENU_NOTIFICATIONS_COUNT > 0) then
-			local tbMenuNotificationsCount = UIElement:new({
-				parent = tbMenuBottomLeftButtons[2],
-				pos = { -tbMenuBottomLeftBar.size.h / 2, 0 },
-				size = { tbMenuBottomLeftBar.size.h / 2, tbMenuBottomLeftBar.size.h / 2 },
-				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
-				shapeType = ROUNDED,
-				rounded = tbMenuBottomLeftBar.size.h
-			})
-			tbMenuNotificationsCount:addCustomDisplay(false, function()
-					if (TB_MENU_NOTIFICATIONS_COUNT == 0) then
-						tbMenuNotificationsCount:kill()
-					else
-						tbMenuNotificationsCount:uiText(TB_MENU_NOTIFICATIONS_COUNT, nil, nil, 4, nil, 0.7)
-					end
-				end)
-		end
+		local notificationsCountWidth = get_string_length(TB_MENU_NOTIFICATIONS_COUNT + TB_MENU_NOTIFICATIONS_NET_COUNT + TB_MENU_QUESTS_GLOBAL_COUNT + TB_MENU_QUESTS_COUNT, FONTS.MEDIUM) * 0.9
+		notificationsCountWidth = notificationsCountWidth > tbMenuBottomLeftBar.size.h / 2 and (notificationsCountWidth > tbMenuBottomLeftBar.size.h and tbMenuBottomLeftBar.size.h or notificationsCountWidth) or tbMenuBottomLeftBar.size.h / 2
+		tbMenuNotificationsCount = UIElement:new({
+			parent = tbMenuBottomLeftButtons[2],
+			pos = { -notificationsCountWidth, 0 },
+			size = { notificationsCountWidth, tbMenuBottomLeftBar.size.h / 2 },
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			shapeType = ROUNDED,
+			rounded = tbMenuBottomLeftBar.size.h
+		})
+		tbMenuNotificationsCount:addCustomDisplay(false, function()
+				tbMenuNotificationsCount:uiText(TB_MENU_NOTIFICATIONS_COUNT + TB_MENU_NOTIFICATIONS_NET_COUNT + TB_MENU_QUESTS_GLOBAL_COUNT + TB_MENU_QUESTS_COUNT, nil, nil, FONTS.MEDIUM, nil, 0.7, 0.4)
+			end)
+		tbMenuBottomLeftButtons[2]:addCustomDisplay(true, function()
+				if (TB_MENU_NOTIFICATIONS_COUNT + TB_MENU_NOTIFICATIONS_NET_COUNT + TB_MENU_QUESTS_GLOBAL_COUNT + TB_MENU_QUESTS_COUNT == 0) then
+					tbMenuNotificationsCount:hide()
+					tbMenuNotificationsCount.hidden = true
+				elseif (tbMenuNotificationsCount.hidden) then
+					tbMenuNotificationsCount:show()
+					tbMenuNotificationsCount.hidden = false
+				end
+			end)
 		if (leftOnly) then
 			return
 		end
@@ -2554,7 +2561,7 @@ do
 			pos = { imgScale * 0.8, 0 },
 			size = { viewElement.size.w - imgScale * 1.15, viewElement.size.h }
 		})
-		textView:addAdaptedText(false, text, left and imgScale * 0.7 or -imgScale * 0.7, nil, fontid, nil, nil, nil, fontid == FONTS.BIG and 0.5)
+		textView:addAdaptedText(true, text, left and imgScale * 0.7 or -imgScale * 0.7, nil, fontid, nil, nil, nil, fontid == FONTS.BIG and 0.5)
 		
 		local fontid = textView.textFont
 		local textScale = textView.textScale
@@ -2737,5 +2744,4 @@ do
 				end
 			end)
 	end
-
 end

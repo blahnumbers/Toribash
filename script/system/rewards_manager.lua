@@ -1,13 +1,10 @@
 -- daily login manager class
-
-TC = 0
-ITEM = 1
-
-if (not Torishop) then
-	dofile("system/store_manager.lua")
-end
+require("system/store_manager")
 
 do
+	TC = 0
+	ITEM = 1
+
 	Rewards = {}
 	Rewards.__index = Rewards
 	local cln = {}
@@ -165,9 +162,8 @@ do
 		if (rewardData.available) then
 			rewardClaimText:addAdaptedText(false, TB_MENU_LOCALIZED.REWARDSCLAIM, nil, nil, FONTS.BIG)
 			rewardClaim:addMouseHandlers(function() end, function()
-					claim_reward()
 					rewardClaimText:addAdaptedText(false, TB_MENU_LOCALIZED.REWARDSCLAIMINPROGRESS .. "...", nil, nil, FONTS.BIG)
-					Request:new("loginreward", function()
+					Request:queue(function() claim_reward() end, "loginreward", function()
 							local response = get_network_response()
 							response = response:gsub("REWARDS 0; ", "")
 							local rewardRes = { response:match(("(%d+)%s?"):rep(3)) }

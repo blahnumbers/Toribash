@@ -1,18 +1,11 @@
 -- clan data manager class
+local DEAD = 0
+local ALIVE = 1
+local ACTIVE = 2
+local CLANLOGODEFAULT = "../textures/clans/default.tga"
 
-DEAD = 0
-ALIVE = 1
-ACTIVE = 2
-
-CLANLOGODEFAULT = "../textures/clans/default.tga"
-LOGOCACHE = LOGOCACHE or {}
-AVATARCACHE = AVATARCACHE or {}
-
-DEFCOLOR = {0.7, 0.1, 0.1, 1}
-DEFHOVCOLOR = {0.8,0.07,0.07,1}
-
-CLANLISTSHIFT = CLANLISTSHIFT or { 0 }
-CLANSEARCHFILTERS = CLANSEARCHFILTERS or nil
+local DEFCOLOR = {0.7, 0.1, 0.1, 1}
+local DEFHOVCOLOR = {0.8,0.07,0.07,1}
 
 do
 	Clans = {}
@@ -154,6 +147,19 @@ do
 	end
 		
 	function Clans:getNavigationButtons(showBack)
+		if (get_option("newmenu") == 1) then
+			return {
+				{
+					text = TB_MENU_LOCALIZED.NAVBUTTONBACK, 
+					action = function() 
+						TBMenu:clearNavSection()
+						TBMenu:showNavigationBar()
+						TBMenu:showClans()
+					end, 
+				}
+			}
+		end
+		
 		local buttonText = get_option("newmenu") == 0 and TB_MENU_LOCALIZED.NAVBUTTONEXIT or TB_MENU_LOCALIZED.NAVBUTTONTOMAIN
 		local buttonsData = {
 			{ 
@@ -181,6 +187,28 @@ do
 	end
 	
 	function Clans:showMain(viewElement, clantag)
+		if (not Clans:getLevelData() or not Clans:getAchievementData() or not Clans:getClanData()) then
+			download_clan()
+			local loader = UIElement:new({
+				parent = viewElement,
+				pos = { 5, 0 },
+				size = { viewElement.size.w - 10, viewElement.size.h },
+				bgColor = TB_MENU_DEFAULT_BG_COLOR
+			})
+			loader:addCustomDisplay(false, function()
+					if (#get_downloads() == 0) then
+						loader:kill()
+						Clans:showMain(viewElement, clantag)
+					end
+				end)
+			local loadingText = UIElement:new({
+				parent = loader,
+				pos = { loader.size.w / 4, loader.size.h / 3 },
+				size = { loader.size.w / 2, loader.size.h / 3 }
+			})
+			TBMenu:displayLoadingMark(loadingText, TB_MENU_LOCALIZED.CLANSUPDATINGWAIT)
+		end
+		
 		if (clantag) then
 			local clanid
 			for i,v in pairs(ClanData) do
@@ -193,9 +221,7 @@ do
 			return
 		end
 		viewElement:kill(true)
-		TB_MENU_SPECIAL_SCREEN_ISOPEN = 3
-		TBMenu:clearNavSection()
-		TBMenu:showNavigationBar(Clans:getNavigationButtons(), true)
+		--TB_MENU_SPECIAL_SCREEN_ISOPEN = 3
 		local clanListSettings = UIElement:new({
 			parent = viewElement,
 			pos = { 5, 0 },

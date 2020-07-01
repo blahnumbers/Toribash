@@ -158,9 +158,8 @@ local function showPopup(i)
 					questProgressNotificationHolder.hoverColor = { 0.969, 0.781, 0.199, 1 }
 					questProgressNotificationHolder:activate()
 					questProgressNotificationHolder:addMouseHandlers(nil, function()
-							claim_quest(quest.id)
 							buttonClicked = true
-							Request:new("questclaim", function()
+							Request:queue(function() claim_quest(quest.id) end, "questclaim", function()
 								update_tc_balance()
 							end)
 						end)
