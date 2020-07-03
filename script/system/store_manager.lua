@@ -11,27 +11,6 @@ local TAB_TEXTURES = 2
 local TAB_ADVANCED = 3
 local TAB_ACCOUNT = 4
 
-local TB_LAST_STORE_SECTION = 1
-
-local ITEM_SET = 1458
-local ITEM_FLAME = 936
-local ITEM_SHIAI_TOKEN = 2528
-
-local INVENTORY_DEACTIVATED = 1
-local INVENTORY_ACTIVATED = 2
-local INVENTORY_MARKET = 3
-local INVENTORY_ALL = 4
-
-local INVENTORY_DEACTIVATE = 1
-local INVENTORY_ACTIVATE = 2
-local INVENTORY_ADDSET = 3
-local INVENTORY_REMOVESET = 4
-local INVENTORY_UNPACK = 5
-local INVENTORY_UPGRADE = 6
-
-local MODE_TC = 0
-local MODE_ST = 1
-
 do
 	Torishop = {}
 	Torishop.__index = Torishop

@@ -444,11 +444,11 @@ do
 				shapeType = questProgressBar.shapeType,
 				rounded = questProgressBar.rounded,
 				interactive = questProgress == 1 and not quest.claimed,
-				bgColor = quest.claimed and TB_MENU_DEFAULT_DARKER_COLOR or TB_MENU_DEFAULT_ORANGE,
-				hoverColor = TB_MENU_DEFAULT_DARKER_ORANGE,
-				pressedColor = TB_MENU_DEFAULT_YELLOW,
+				bgColor = (quest.progresspercentage > 1 or quest.claimed) and TB_MENU_DEFAULT_BG_COLOR or TB_MENU_DEFAULT_ORANGE,
+				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
 				innerShadow = { 3, 3 },
-				shadowColor = { quest.claimed and TB_MENU_DEFAULT_LIGHTER_COLOR or TB_MENU_DEFAULT_YELLOW, quest.claimed and TB_MENU_DEFAULT_DARKEST_COLOR or TB_MENU_DEFAULT_DARKER_ORANGE }
+				shadowColor = { (quest.progresspercentage > 1 or quest.claimed) and TB_MENU_DEFAULT_LIGHTER_COLOR or TB_MENU_DEFAULT_YELLOW, (quest.progresspercentage > 1 or quest.claimed) and TB_MENU_DEFAULT_DARKEST_COLOR or TB_MENU_DEFAULT_DARKER_ORANGE }
 			})
 		end
 		local questProgressText = UIElement:new({

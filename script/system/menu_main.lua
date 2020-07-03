@@ -16,11 +16,11 @@ if (STORE_VANILLA_POST) then
 end
 
 TB_MENU_DEBUG = get_option("menudebug") == 1
---[[if (TB_MENU_DEBUG) then
+if (TB_MENU_DEBUG) then
 	require = function(file)
 		dofile(file .. ".lua")
 	end
-end]]
+end
 
 TB_MENU_MAIN_ISOPEN = TB_MENU_MAIN_ISOPEN or 0
 TB_MENU_SPECIAL_SCREEN_ISOPEN = TB_MENU_SPECIAL_SCREEN_ISOPEN or 0

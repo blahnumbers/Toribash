@@ -1,10 +1,6 @@
 -- Replays manager
 local REPLAY_VOTE = 101
 
-local REPLAY_TEMPNAME = "--onlinereplaytempfile"
-local REPLAY_SAVETEMPNAME = "--localreplaytempfile"
-local REPLAY_EVENT = "--eventtmp"
-
 do
 	local SELECTED_REPLAY = { element = nil, defaultColor = nil, time = 0, replay = nil }
 	local TB_MENU_REPLAYS = { name = "replay", fullname = "replay" }

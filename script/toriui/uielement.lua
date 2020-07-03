@@ -908,7 +908,7 @@ do
 		end
 	end
 
-	function UIElement:addAdaptedText(override, str, x, y, font, align, maxscale, minscale, intensity, shadow, col1, col2, textfield)
+	function UIElement:addAdaptedText(override, str, x, y, font, align, maxscale, minscale, intensity, shadow, col1, col2, textfield, ignoreHiresMode)
 		if (not str) then
 			if (TB_MENU_DEBUG) then
 				echo("Error: string is undefined")
@@ -919,7 +919,7 @@ do
 		local minscale = minscale or 0.2
 		local font = font
 		
-		if (UI_HIGH_RESOLUTION_MODE) then
+		if (UI_HIGH_RESOLUTION_MODE and not ignoreHiresMode) then
 			font = font == FONTS.BIG and FONTS.BIGGER or (font == FONTS.MEDIUM and FONTS.BIG or font)
 		end
 

@@ -1970,10 +1970,9 @@ do
 			fontScale = fontScale - 0.05
 			for i,v in pairs(tbMenuNavigationButtonsData) do
 				local string = v.misctext and v.text .. " " .. v.misctext or v.text
-				temp:addAdaptedText(true, string, nil, nil, fontId, nil, fontScale, nil)
+				temp:addAdaptedText(true, string, nil, nil, fontId, nil, fontScale, fontScale, nil, nil, nil, nil, nil, true)
 				v.width = get_string_length(temp.dispstr[1] .. "_____", temp.textFont) * temp.textScale
 				totalWidth = totalWidth + v.width
-				fontId = temp.textFont
 			end
 		end
 		temp:kill()
@@ -2084,6 +2083,17 @@ do
 			pos = { 45, -70 },
 			size = { 110, 50 }
 		})
+		local shopCheckExit = function()
+			if (STORE_VANILLA_PREVIEW) then
+				STORE_VANILLA_PREVIEW = false
+				remove_hooks("storevanillapreview")
+				set_option("uke", 1)
+				tbMenuHide:show()
+				storeVanillaHolder:kill()
+				STORE_VANILLA_POST = true
+				start_new_game()
+			end
+		end
 		local tbMenuBottomLeftButtonsData = {
 			{ action = function() TBMenu:openMenu(102) end, image = TB_MENU_FRIENDS_BUTTON, imageHover = TB_MENU_FRIENDS_BUTTON_HOVER, imagePress = TB_MENU_FRIENDS_BUTTON_PRESS },
 			{ action = function() if (TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 4) then TBMenu:openMenu(101) else Notifications:quit() end end, image = TB_MENU_NOTIFICATIONS_BUTTON, imageHover = TB_MENU_NOTIFICATIONS_BUTTON_HOVER, imagePress = TB_MENU_NOTIFICATIONS_BUTTON_PRESS },
@@ -2092,7 +2102,7 @@ do
 		local tbMenuBottomLeftButtons = {}
 		for i, v in pairs(tbMenuBottomLeftButtonsData) do
 			tbMenuBottomLeftButtons[i] = TBMenu:createImageButtons(tbMenuBottomLeftBar, (i - 1) * (tbMenuBottomLeftBar.size.h + 10), 0, tbMenuBottomLeftBar.size.h, tbMenuBottomLeftBar.size.h, v.image, v.imageHover, v.imagePress)
-			tbMenuBottomLeftButtons[i]:addMouseHandlers(nil, v.action, nil)
+			tbMenuBottomLeftButtons[i]:addMouseHandlers(nil, function() shopCheckExit() v.action() end, nil)
 		end
 		--[[if (TB_BOUNTIES_DEFINED) then
 			local tbMenuPulseNotification = UIElement:new({
@@ -2177,7 +2187,7 @@ do
 		local tbMenuBottomRightButtons = {}
 		for i,v in pairs(tbMenuBottomRightButtonsData) do
 			tbMenuBottomRightButtons[i] = TBMenu:createImageButtons(tbMenuBottomRightBar, -i * (tbMenuBottomRightBar.size.h + 10), 0, tbMenuBottomRightBar.size.h, tbMenuBottomRightBar.size.h, v.image, v.imageHover, v.imagePress)
-			tbMenuBottomRightButtons[i]:addMouseHandlers(nil, v.action, nil)
+			tbMenuBottomRightButtons[i]:addMouseHandlers(nil, function() shopCheckExit() v.action() end, nil)
 		end
 		local tbMenuDownloads = UIElement:new({
 			parent = tbMenuMain,
