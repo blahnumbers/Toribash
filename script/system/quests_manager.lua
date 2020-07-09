@@ -327,7 +327,7 @@ do
 				quest.progresspercentage = (quest.requirement / (quest.progress == 0 and 0.01 or quest.progress))
 				table.insert(globalQuests, quest)
 				
-				if (quest.progresspercentage > 0) then
+				if (quest.progresspercentage <= 1 and not quest.claimed) then
 					TB_MENU_QUESTS_GLOBAL_COUNT = TB_MENU_QUESTS_GLOBAL_COUNT + 1
 				end
 			end
@@ -445,8 +445,8 @@ do
 				rounded = questProgressBar.rounded,
 				interactive = questProgress == 1 and not quest.claimed,
 				bgColor = (quest.progresspercentage > 1 or quest.claimed) and TB_MENU_DEFAULT_BG_COLOR or TB_MENU_DEFAULT_ORANGE,
-				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+				hoverColor = TB_MENU_DEFAULT_DARKER_ORANGE,
+				pressedColor = TB_MENU_DEFAULT_YELLOW,
 				innerShadow = { 3, 3 },
 				shadowColor = { (quest.progresspercentage > 1 or quest.claimed) and TB_MENU_DEFAULT_LIGHTER_COLOR or TB_MENU_DEFAULT_YELLOW, (quest.progresspercentage > 1 or quest.claimed) and TB_MENU_DEFAULT_DARKEST_COLOR or TB_MENU_DEFAULT_DARKER_ORANGE }
 			})

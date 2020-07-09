@@ -2719,7 +2719,9 @@ do
 		})
 		inputField:addMouseHandlers(function()
 				TBMenu:enableMenuKeyboard(inputField)
-				chat_input_deactivate()
+				if (TB_MENU_MAIN_ISOPEN == 0) then
+					chat_input_deactivate()
+				end
 			end)
 		TBMenu:displayTextfield(inputField, fontid, scale, color, defaultStr, orientation, noCursor)
 		return inputField
@@ -2744,7 +2746,9 @@ do
 				else
 					if (element.menuKeyboardId) then
 						TBMenu:disableMenuKeyboard(element)
-						chat_input_activate()
+						if (TB_MENU_MAIN_ISOPEN == 0) then
+							chat_input_activate()
+						end
 					end
 					if (element.textfieldstr[1] == "") then
 						element:uiText(defaultStr, nil, nil, fontid, orientation, defaultStringScale, nil, nil, { color[1], color[2], color[3], color[4] * 0.5 }, nil, nil, nil, nil, nil, true)

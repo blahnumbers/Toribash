@@ -170,7 +170,7 @@ if (os.clock() < 10) then
 					end
 					add_hook("draw2d", "playerinfoUpdate", function()
 						if (get_network_task() == 0) then
-							download_server_file("news" .. (is_steam() and "light" or "") , 0)
+							download_server_file("news" .. (is_steam() and "light" or ("&ver=" .. TORIBASH_VERSION)), 0)
 							add_hook("draw2d", "playerinfoUpdate", function()
 									if (#get_downloads() == 0) then
 										if (PlayerInfo:getLoginRewards().available) then
