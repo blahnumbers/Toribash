@@ -646,17 +646,21 @@ do
 			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			hoverSound = 31
 		})
-		local questsToClaimIcon = UIElement:new({
-			parent = globalQuests,
-			pos = { globalQuests.size.w / 6, globalQuests.size.h / 7 * 2 },
-			size = { globalQuests.size.w / 5, globalQuests.size.w / 5 },
-			shapeType = ROUNDED,
-			rounded = globalQuests.size.w / 5,
-			bgColor = TB_MENU_DEFAULT_BG_COLOR
-		})
-		questsToClaimIcon:addCustomDisplay(false, function()
-				questsToClaimIcon:uiText("!", nil, nil, FONTS.BIG)
-			end)
+		
+		local questsToClaimIcon = nil
+		if (TB_MENU_QUESTS_GLOBAL_COUNT > 0) then
+			questsToClaimIcon = UIElement:new({
+				parent = globalQuests,
+				pos = { globalQuests.size.w / 6, globalQuests.size.h / 7 * 2 },
+				size = { globalQuests.size.w / 5, globalQuests.size.w / 5 },
+				shapeType = ROUNDED,
+				rounded = globalQuests.size.w / 5,
+				bgColor = TB_MENU_DEFAULT_BG_COLOR
+			})
+			questsToClaimIcon:addCustomDisplay(false, function()
+					questsToClaimIcon:uiText("!", nil, nil, FONTS.BIG)
+				end)
+		end
 		TBMenu:showHomeButton(globalQuests, {
 				title = TB_MENU_LOCALIZED.QUESTSGLOBAL,
 				subtitle = TB_MENU_LOCALIZED.QUESTSGLOBALDESC,
@@ -667,8 +671,10 @@ do
 						Quests:prepareGlobalQuests()
 					end
 			}, 1, questsToClaimIcon)
-		questsToClaimIcon:hide()
-		questsToClaimIcon:show()
+		if (questsToClaimIcon) then
+			questsToClaimIcon:hide()
+			questsToClaimIcon:show()
+		end
 		
 		local questsHolder = UIElement:new({
 			parent = tbMenuCurrentSection,
