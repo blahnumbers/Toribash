@@ -175,6 +175,10 @@ if (os.clock() < 10) then
 									if (#get_downloads() == 0) then
 										if (PlayerInfo:getLoginRewards().available) then
 											if (TB_MENU_MAIN_ISOPEN == 1 and TB_MENU_SPECIAL_SCREEN_ISOPEN == 0 and TB_MENU_IGNORE_REWARDS == 0) then
+												if (not TB_MENU_NOTIFICATION_LOGINREWARDS) then
+													TB_MENU_NOTIFICATIONS_COUNT = TB_MENU_NOTIFICATIONS_COUNT + 1
+													TB_MENU_NOTIFICATION_LOGINREWARDS = true
+												end
 												TBMenu:showNotifications()
 											-- else
 											-- Need to add some way to display the reward has been claimed first
