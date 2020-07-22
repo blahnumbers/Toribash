@@ -224,7 +224,7 @@ do
 				else
 					self:drawCapsule()
 				end
-			elseif (self.shapeType == CUSTOMOBJ) then
+			elseif (self.shapeType == CUSTOMOBJ and self.objModel ~= nil) then
 				draw_obj(self.objModel, self.pos.x, self.pos.y, self.pos.z, self.size.x, self.size.y, self.size.z, self.rot.x, self.rot.y, self.rot.z)
 			end
 		end

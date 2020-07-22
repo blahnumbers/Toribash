@@ -1351,8 +1351,8 @@ do
 		return tblRev
 	end
 	
-	function show_dialog_box(id, msg, data)
-		return open_dialog_box(id, msg:gsub("%\\n", "\n"), data)
+	function show_dialog_box(id, msg, data, luaNetwork)
+		return open_dialog_box(id, msg:gsub("%\\n", "\n"), data, luaNetwork)
 	end
 	
 	function in_array(needle, haystack)
