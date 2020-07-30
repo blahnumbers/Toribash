@@ -80,7 +80,7 @@ require("system/rewards_manager") --?
 require("system/clans_manager")
 require("system/friendlist_manager")
 require("system/replays_manager")
---dofile("system/bounty_manager.lua")
+require("system/bounty_manager")
 require("system/settings_manager")
 require("system/scripts_manager")
 require("system/events_manager")

@@ -9,15 +9,16 @@ do
 	Bounty.__index = Bounty
 	local cln = {}
 	setmetatable(cln, Bounty)
-
-	PlayerBounties = {}
 	
 	function Bounty:getBountyData(data)
 		local onlinePlayers = FriendsList:updateOnline()
-		local data_types = { "userid", "player", "tc", "claimed", "claimedby", "decap" }
+		local data_types = { "userid", "player", "tc", "since", "claimed", "claimedby", "decap" }
+		
+		-- Don't display multiple bounties on same user; only first one will be claimed when user is defeated
+		local useridList = {}
 		
 		for i,ln in pairs(data) do
-			if (not ln:find("^USERID")) then
+			if (not ln:find("^#?USERID")) then
 				local data_stream = { ln:match(("([^\t]*)\t"):rep(#data_types)) }
 				local online = false
 				for i,v in pairs(onlinePlayers) do
@@ -26,14 +27,20 @@ do
 					end
 				end
 				
-				table.insert(PlayerBounties, {
-					player = data_stream[2],
-					reward = data_stream[3] + 0,
-					claimed = data_stream[4] + 0,
-					claimedby = data_stream[5],
-					decap = data_stream[6] + 0,
-					room = online
-				})
+				local userid = tonumber(data_stream[1])
+				if (not in_array(userid, useridList)) then
+					table.insert(PlayerBounties, {
+						id = i,
+						player = data_stream[2],
+						reward = data_stream[3] + 0,
+						since = data_stream[4] + 0,
+						claimed = data_stream[5] + 0,
+						claimedby = data_stream[6],
+						decap = data_stream[7] == '1',
+						room = online
+					})
+					table.insert(useridList, userid)
+				end
 			end
 		end
 	end
@@ -44,6 +51,7 @@ do
 			remove_hooks("tbMainMenuVisual")
 			return
 		end
+		TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
 		tbMenuCurrentSection:kill(true) 
 		tbMenuNavigationBar:kill(true)
 		TBMenu:showNavigationBar()
@@ -62,7 +70,8 @@ do
 		return buttonsData
 	end
 	
-	function Bounty:showCurrentTarget(objectiveView, target)
+	-- Halloween 2018 stuff
+	--[[function Bounty:showCurrentTargetHalloween(objectiveView, target)
 		if (not target) then
 			local noActiveBountiesMessage = UIElement:new({
 				parent = objectiveView,
@@ -189,7 +198,7 @@ do
 			end)
 	end
 	
-	function Bounty:getEventInfo()
+	function Bounty:getHalloweenEventInfo()
 		local function getRandom(list)
 			local seed = math.random(1, #list)
 			return list[seed]
@@ -228,7 +237,7 @@ do
 		return season
 	end
 	
-	function Bounty:showAboutEvent(headObject, bountyList)
+	function Bounty:showHalloweenAboutEvent(headObject, bountyList)
 		headObject:hide()
 		bountiesScrollBar:deactivate()
 		
@@ -465,43 +474,221 @@ do
 		
 		local eventInfoScrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
 		eventInfoScrollBar:makeScrollBar(listingHolder, listElements, toReload)
+	end]]
+	
+	function Bounty:formatUserStats(dataString)
+		local userStats = {}
+		for ln in dataString:gmatch("[^\n]*\n?") do
+			local ln = ln:gsub("\n$", '')
+			if (ln:find("^CLAIMED 0;")) then
+				userStats.claimed = ln:gsub("^CLAIMED 0;", "")
+			elseif (ln:find("^USERCLAIMED 0;")) then
+				userStats.userClaimed = ln:gsub("^USERCLAIMED 0;", "")
+			elseif (ln:find("^USERTOTAL 0;")) then
+				userStats.userTotal = ln:gsub("^USERTOTAL 0;", "")
+			end
+		end
+		return userStats
+	end
+	
+	function Bounty:showMainView(viewElement, userStats)
+		viewElement:kill(true)
+		
+		local headerTitle = UIElement:new({
+			parent = viewElement,
+			pos = { 20, 10 },
+			size = { viewElement.size.w - 40, 40 }
+		})
+		headerTitle:addAdaptedText(true, TB_MENU_LOCALIZED.BOUNTYYOURSTATISTICS, nil, nil, FONTS.BIG)
+		
+		if (not userStats.claimed) then
+			viewElement:addAdaptedText(false, TB_MENU_LOCALIZED.ERRORTRYAGAIN)
+			return
+		end
+		
+		local claimedBounties = UIElement:new({
+			parent = viewElement,
+			pos = { 20, headerTitle.size.h + headerTitle.shift.y },
+			size = { (viewElement.size.w - 40) / 2 - 10, viewElement.size.h - headerTitle.size.h - headerTitle.shift.y - 15 }
+		})
+		local iconSize = claimedBounties.size.w > claimedBounties.size.h * 0.7 and claimedBounties.size.h * 0.7 or claimedBounties.size.w
+		local claimedBountiesIcon = UIElement:new({
+			parent = claimedBounties,
+			pos = { (claimedBounties.size.w - iconSize) / 2, 0 },
+			size = { iconSize, iconSize },
+			bgImage = "../textures/menu/general/quests/qtypedecap.tga"
+		})
+		local claimedBountiesHolder = UIElement:new({
+			parent = claimedBounties,
+			pos = { 0, claimedBountiesIcon.size.h * 0.8 },
+			size = { claimedBounties.size.w, claimedBounties.size.h - claimedBountiesIcon.size.h * 0.8 },
+			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			shapeType = ROUNDED,
+			rounded = 10
+		})
+		claimedBountiesHolder.bgColor[4] = 0.5
+		local claimedBountiesTitle = UIElement:new({
+			parent = claimedBountiesHolder,
+			pos = { 0, 0 },
+			size = { claimedBountiesHolder.size.w, claimedBountiesHolder.size.h / 5 * 2 },
+			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			shapeType = claimedBountiesHolder.shapeType,
+			rounded = claimedBountiesHolder.rounded
+		})
+		claimedBountiesTitle.bgColor[4] = 0.5
+		claimedBountiesTitle:addAdaptedText(false, TB_MENU_LOCALIZED.BOUNTYCLAIMEDBOUNTIES)
+		local claimedBountiesStat = UIElement:new({
+			parent = claimedBountiesHolder,
+			pos = { 0, claimedBountiesTitle.size.h },
+			size = { claimedBountiesHolder.size.w, claimedBountiesHolder.size.h - claimedBountiesTitle.size.h }
+		})
+		claimedBountiesStat:addAdaptedText(true, userStats.claimed .. "", nil, nil, FONTS.BIG, nil, 1, nil, 0.5)
+		
+		local userBounties = UIElement:new({
+			parent = viewElement,
+			pos = { claimedBounties.shift.x + claimedBounties.size.w + 20, claimedBounties.shift.y },
+			size = { claimedBounties.size.w, claimedBounties.size.h }
+		})
+		local userBountiesIcon = UIElement:new({
+			parent = userBounties,
+			pos = { (userBounties.size.w - iconSize) / 2, 0 },
+			size = { iconSize, iconSize },
+			bgImage = "../textures/menu/general/quests/qtypedecap.tga"
+		})
+		local userBountiesHolder = UIElement:new({
+			parent = userBounties,
+			pos = { 0, userBountiesIcon.size.h * 0.8 },
+			size = { userBounties.size.w, userBounties.size.h - userBountiesIcon.size.h * 0.8 },
+			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			shapeType = ROUNDED,
+			rounded = 10
+		})
+		userBountiesHolder.bgColor[4] = 0.5
+		local userBountiesTitle = UIElement:new({
+			parent = userBountiesHolder,
+			pos = { 0, 0 },
+			size = { userBountiesHolder.size.w, userBountiesHolder.size.h / 5 * 2 },
+			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			shapeType = userBountiesHolder.shapeType,
+			rounded = userBountiesHolder.rounded
+		})
+		userBountiesTitle.bgColor[4] = 0.5
+		userBountiesTitle:addAdaptedText(false, TB_MENU_LOCALIZED.BOUNTYUSERBOUNTIES)
+		local userBountiesStat = UIElement:new({
+			parent = userBountiesHolder,
+			pos = { 0, userBountiesTitle.size.h },
+			size = { userBountiesHolder.size.w, userBountiesHolder.size.h - userBountiesTitle.size.h }
+		})
+		userBountiesStat:addAdaptedText(true, string.upper(TB_MENU_LOCALIZED.WORDTOTAL:sub(0, 1)) .. TB_MENU_LOCALIZED.WORDTOTAL:sub(1) .. ": " .. userStats.userTotal .. "\n" .. string.upper(TB_MENU_LOCALIZED.WORDCLAIMED:sub(0, 1)) .. TB_MENU_LOCALIZED.WORDCLAIMED(1) .. ": " .. userStats.userClaimed, nil, nil, FONTS.BIG, nil, 0.55, nil, 0.5)
 	end
 	
 	function Bounty:showBountyList(viewElement)
 		local elementHeight = 35
-		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 50, elementHeight, 20)
+		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 50, elementHeight - 12, 20, TB_MENU_DEFAULT_BG_COLOR)
 		TBMenu:addBottomBloodSmudge(botBar, 2)
 		local bountyListTitle = UIElement:new({
 			parent = topBar,
 			pos = { 10, 5 },
 			size = { topBar.size.w - 20, topBar.size.h - 10 }
 		})
-		bountyListTitle:addAdaptedText(true, "Latest bounties", nil, nil, FONTS.BIG, nil, 0.65)
+		bountyListTitle:addAdaptedText(true, TB_MENU_LOCALIZED.BOUNTYLATEST, nil, nil, FONTS.BIG, nil, 0.65)
+		
 		local listEntries = {}
-		for i,v in pairs(PlayerBounties) do
-			local playerName = UIElement:new({
+		local bountyData = UIElement:qsort(PlayerBounties, { 'reward' }, true)
+		local bountyData = UIElement:qsort(bountyData, { 'claimedby', 'id' }, false)
+		for i,v in pairs(bountyData) do
+			local holderTop = UIElement:new({
 				parent = listingHolder,
 				pos = { 0, #listEntries * elementHeight },
 				size = { listingHolder.size.w, elementHeight }
 			})
-			table.insert(listEntries, playerName)
-			playerName:addAdaptedText(false, "Target: " .. v.player, 10, nil, nil, LEFTBOT)
+			table.insert(listEntries, holderTop)
+			local bgTop = UIElement:new({
+				parent = holderTop,
+				pos = { 10, 3 },
+				size = { holderTop.size.w - 10, holderTop.size.h - 3 },
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR
+			})
+			local bountyPlayer = UIElement:new({
+				parent = bgTop,
+				pos = { 10, 3 },
+				size = { bgTop.size.w / 3 * 2 - 20, bgTop.size.h - 6 }
+			})
+			bountyPlayer:addAdaptedText(true, (v.decap and (TB_MENU_LOCALIZED.WORDDECAPV .. " ") or (TB_MENU_LOCALIZED.WORDBEAT .. " ")) .. v.player, nil, nil, nil, LEFTMID)
+			local bountyPrice = UIElement:new({
+				parent = bgTop,
+				pos = { -bgTop.size.w / 3 + 10, 3 },
+				size = { bgTop.size.w / 3 - 20, bgTop.size.h - 6 }
+			})
+			bountyPrice:addAdaptedText(true, v.reward .. " TC", nil, nil, FONTS.MEDIUM, RIGHTMID)
+			local strlen = get_string_length(bountyPrice.dispstr[1], bountyPrice.textFont) * bountyPrice.textScale
+			local tcIcon = UIElement:new({
+				parent = bountyPrice,
+				pos = { -strlen - 28, 2 },
+				size = { 23, 23 },
+				bgImage = "../textures/store/toricredit_tiny.tga"
+			})
+			
+			local holderBottom = UIElement:new({
+				parent = listingHolder,
+				pos = { 0, #listEntries * elementHeight },
+				size = { listingHolder.size.w, elementHeight }
+			})
+			table.insert(listEntries, holderBottom)
+			local bgBottom = UIElement:new({
+				parent = holderBottom,
+				pos = { 10, 0 },
+				size = { holderBottom.size.w - 10, holderBottom.size.h - 3 },
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR
+			})
+			
 			local bountyInfo = UIElement:new({
-				parent = listingHolder,
-				pos = { 0, #listEntries * elementHeight },
-				size = { listingHolder.size.w, elementHeight }
+				parent = bgBottom,
+				pos = { 10, 3 },
+				size = { bgBottom.size.w - 20, bgBottom.size.h - 6 }
 			})
-			table.insert(listEntries, bountyInfo)
-			local infoString = 	"Bounty: " .. v.reward .. " TC\n" ..
-								(v.claimedby == "" and (v.room == false and "Offline" or "Online in " .. v.room) or "Claimed by " .. v.claimedby .. " in " .. TBMenu:getTime(v.claimed) .. "\n")
-			bountyInfo:addAdaptedText(false, infoString, 10, nil, 4, LEFT, 0.6)
-			if (i ~= 1) then
-				local separator = UIElement:new({
-					parent = playerName,
-					pos = { 10, 0 },
-					size = { playerName.size.w - 20, 1 },
-					bgColor = { 1, 1, 1, 0.3 }
+			if (v.claimedby == "") then
+				local onlineStatusIcon = UIElement:new({
+					parent = bountyInfo,
+					pos = { 0, 4 },
+					size = { bountyInfo.size.h - 8, bountyInfo.size.h - 8 },
+					shapeType = ROUNDED,
+					rounded = bountyInfo.size.h,
+					bgColor = v.room == false and UICOLORRED or UICOLORGREEN
 				})
+				local onlineStatus = UIElement:new({
+					parent = bountyInfo,
+					pos = { onlineStatusIcon.shift.x + onlineStatusIcon.size.w + 5, 3 },
+					size = { bountyInfo.size.w - onlineStatusIcon.shift.x - onlineStatusIcon.size.w - 5, bountyInfo.size.h - 8 }
+				})
+				onlineStatus:addAdaptedText(true, (v.room == false and TB_MENU_LOCALIZED.BOUNTYOFFLINE or (TB_MENU_LOCALIZED.BOUNTYONLINEIN .. " " .. v.room)), nil, nil, 4, LEFTMID)
+				if (v.room) then
+					bgBottom.size.h = holderBottom.size.h
+					local holderBottomJoin = UIElement:new({
+						parent = listingHolder,
+						pos = { 0, #listEntries * elementHeight },
+						size = { listingHolder.size.w, elementHeight }
+					})
+					table.insert(listEntries, holderBottomJoin)
+					local bgBottomJoin = UIElement:new({
+						parent = holderBottomJoin,
+						pos = { 10, 0 },
+						size = { holderBottomJoin.size.w - 10, holderBottomJoin.size.h - 3 },
+						bgColor = TB_MENU_DEFAULT_DARKER_COLOR
+					})
+					local joinButton = UIElement:new({
+						parent = bgBottomJoin,
+						pos = { 5, 0 },
+						size = { bgBottomJoin.size.w - 10, bgBottomJoin.size.h - 5 },
+						interactive = true,
+						bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+						hoverColor = TB_MENU_DEFAULT_BG_COLOR,
+						pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+					})
+					joinButton:addAdaptedText(false, TB_MENU_LOCALIZED.FRIENDSLISTJOINROOM, nil, nil, nil, nil, 0.8)
+				end
+			else
+				bountyInfo:addAdaptedText(true, TB_MENU_LOCALIZED.BOUNTYCLAIMEDBY .. " " .. v.claimedby .. " " .. TB_MENU_LOCALIZED.BOUNTYCLAIMEDBYIN .. " " .. TBMenu:getTime(v.claimed, 1), nil, nil, 4, LEFTMID, 0.7)
 			end
 		end
 		for i,v in pairs(listEntries) do
@@ -512,6 +699,121 @@ do
 		bountiesScrollBar:makeScrollBar(listingHolder, listEntries, toReload)
 	end
 	
+	function Bounty:displayBountyAdd(viewElement)
+		local displayHolder = UIElement:new({
+			parent = viewElement,
+			pos = { 20, viewElement.size.h > 120 and (viewElement.size.h - 120) / 4 or 0 },
+			size = { viewElement.size.w - 40, viewElement.size.h > 120 and 120 or viewElement.size.h }
+		})
+		local bountyAddTitle = UIElement:new({
+			parent = displayHolder,
+			pos = { 0, 0 },
+			size = { displayHolder.size.w, displayHolder.size.h / 3 }
+		})
+		bountyAddTitle:addAdaptedText(true, TB_MENU_LOCALIZED.BOUNTYADDBOUNTYTITLE, nil, nil, nil, LEFTMID)
+		
+		local bountyAddData = { name = { "" }, text = { "" }, amount = { "" }}
+		bountyAddNameTextfield = TBMenu:spawnTextField(displayHolder, 0, bountyAddTitle.size.h, displayHolder.size.w / 2 - 5, (displayHolder.size.h - bountyAddTitle.size.h) / 2 - 5, bountyAddData.name, false, 4, 0.75, UICOLORWHITE, TB_MENU_LOCALIZED.BOUNTYADDUSERNAME, nil, nil, nil, true)
+		bountyAddAmountTextfield = TBMenu:spawnTextField(displayHolder, displayHolder.size.w / 2 + 5, bountyAddTitle.size.h, displayHolder.size.w / 2 - 5, (displayHolder.size.h - bountyAddTitle.size.h) / 2 - 5, bountyAddData.amount, true, 4, 0.75, UICOLORWHITE, TB_MENU_LOCALIZED.BOUNTYADDAMOUNT, nil, nil, nil, true)
+		bountyAddTextTextfield = TBMenu:spawnTextField(displayHolder, 0, bountyAddNameTextfield.size.h + bountyAddTitle.size.h + 15, displayHolder.size.w / 3 * 2 - 5, (displayHolder.size.h - bountyAddTitle.size.h) / 2 - 5, bountyAddData.text, false, 4, 0.75, UICOLORWHITE, TB_MENU_LOCALIZED.BOUNTYADDTEXT, nil, nil, nil, true)
+		bountyAddTextTextfield:addKeyboardHandlers(function()
+				if (bountyAddTextTextfield.textfieldstr[1]:len() > 32) then
+					bountyAddTextTextfield.textfieldstr[1] = bountyAddTextTextfield.textfieldstr[1]:sub(0, 32)
+					bountyAddTextTextfield.textfieldindex = bountyAddTextTextfield.textfieldindex - 1
+				end
+			end)
+			
+		bountyAddButton = UIElement:new({
+			parent = displayHolder,
+			pos = { bountyAddTextTextfield.size.w + 20, bountyAddNameTextfield.size.h + bountyAddTitle.size.h + 15 },
+			size = { displayHolder.size.w - bountyAddTextTextfield.size.w - 20, (displayHolder.size.h - bountyAddTitle.size.h) / 2 - 5 },
+			interactive = true,
+			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			hoverColor = TB_MENU_DEFAULT_BG_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+		})
+		bountyAddButton:addAdaptedText(false, TB_MENU_LOCALIZED.BOUNTYADDBOUNTY)
+		bountyAddButton:addMouseHandlers(nil, function()
+				if (bountyAddData.name[1] == "") then
+					TBMenu:showDataError(TB_MENU_LOCALIZED.BOUNTYERRORNOUSER)
+					return
+				end
+				if (tonumber(bountyAddData.amount[1]) < 100) then
+					TBMenu:showDataError(TB_MENU_LOCALIZED.BOUNTYERRORAMOUNT)
+					return
+				end
+				
+				local overlay = TBMenu:spawnWindowOverlay()
+				local loadingMark = UIElement:new({
+					parent = overlay,
+					pos = { overlay.size.w / 2 - 200, overlay.size.h / 2 - 50 },
+					size = { 400, 100 },
+					bgColor = TB_MENU_DEFAULT_BG_COLOR
+				})
+				TBMenu:displayLoadingMarkSmall(loadingMark, TB_MENU_LOCALIZED.REQUESTFINISHINGACTIVE)
+				Request:queue(function()
+						show_dialog_box(BOUNTY_ADD_ACTION,
+							TB_MENU_LOCALIZED.BOUNTYCONFIRM1 .. " " .. bountyAddData.amount[1] .. " " .. TB_MENU_LOCALIZED.BOUNTYCONFIRM2 .. " " .. bountyAddData.name[1] .. "?",
+							bountyAddData.name[1] .. ";" .. bountyAddData.amount[1] .. ";" .. bountyAddData.text[1],
+							true)
+						loadingMark:kill(true)
+						TBMenu:displayLoadingMarkSmall(loadingMark, TB_MENU_LOCALIZED.NETWORKLOADING)
+						
+						overlay:addMouseHandlers(nil, nil, function(x)
+								if (x < WIN_W / 2) then
+									overlay:kill()
+									Request:cancelCurrentRequest()
+								else
+									overlay:addMouseHandlers(nil, nil, function() end)
+								end
+							end)
+					end, "bountyadd", function()
+						overlay:kill(true)
+						local reload = false
+						local response = get_network_response()
+						local result = response:find("GATEWAY 0; 0")
+						local error = result and false or response:gsub("GATEWAY 0; 1 ", "")
+						
+						local postScreen = UIElement:new({
+							parent = overlay,
+							pos = { overlay.size.w / 4, overlay.size.h / 2 - 70 },
+							size = { overlay.size.w / 2, 140 },
+							bgColor = TB_MENU_DEFAULT_BG_COLOR
+						})
+						local postScreenText = UIElement:new({
+							parent = postScreen,
+							pos = { 20, 10 },
+							size = { postScreen.size.w - 40, postScreen.size.h / 2 }
+						})
+						if (result) then
+							postScreenText:addAdaptedText(true, TB_MENU_LOCALIZED.BOUNTYSUCCESS1 .. " " .. bountyAddData.name[1] .. " " .. TB_MENU_LOCALIZED.BOUNTYSUCCESS2 .. " " .. bountyAddData.amount[1] .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS .. "!")
+							reload = true
+						else
+							postScreenText:addAdaptedText(true, TB_MENU_LOCALIZED.BOUNTYERROR1 .. " " .. bountyAddData.amount[1] .. " " .. TB_MENU_LOCALIZED.BOUNTYERROR2 .. " " .. bountyAddData.name[1] .. ":\n" .. error)
+						end
+						local closeButton = UIElement:new({
+							parent = postScreen,
+							pos = { postScreen.size.w / 4, postScreenText.shift.y * 2 + postScreenText.size.h },
+							size = { postScreen.size.w / 2, postScreen.size.h - postScreenText.shift.y * 3 - postScreenText.size.h },
+							interactive = true,
+							bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+							hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+							pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+						})
+						closeButton:addAdaptedText(false, "OK")
+						closeButton:addMouseHandlers(nil, function()
+								overlay:kill()
+								if (reload) then
+									Bounty:prepare(true)
+								end
+							end)
+					end, function()
+						overlay:kill()
+						TBMenu:showDataError(TB_MENU_LOCALIZED.ERRORTRYAGAIN)
+					end)
+			end)
+	end
+	
 	function Bounty:showBounties()
 		add_hook("console", "tbMenuBountiesChatIgnore", function(s,i)
 				if (s:find("Download complete")) then
@@ -520,23 +822,48 @@ do
 				end
 			end)
 		tbMenuCurrentSection:kill(true)
-		local objectiveView = UIElement:new({
+		local mainView = UIElement:new({
 			parent = tbMenuCurrentSection,
 			pos = { 5, 0 },
-			size = { tbMenuCurrentSection.size.w / 3 * 2 - 10, tbMenuCurrentSection.size.h },
+			size = { tbMenuCurrentSection.size.w / 5 * 3 - 10, tbMenuCurrentSection.size.h },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
-		TBMenu:addBottomBloodSmudge(objectiveView, 1)
+		local playerStatsView = UIElement:new({
+			parent = mainView,
+			pos = { 0, 0 },
+			size = { mainView.size.w, mainView.size.h * 0.7 }
+		})
+		TBMenu:displayLoadingMark(playerStatsView, TB_MENU_LOCALIZED.BOUNTYREFRESHINGSTATS)
+		local bountyAddView = UIElement:new({
+			parent = mainView,
+			pos = { 0, playerStatsView.size.h },
+			size = { mainView.size.w, mainView.size.h - playerStatsView.size.h },
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR
+		})
+		Bounty:displayBountyAdd(bountyAddView)
+		TBMenu:addBottomBloodSmudge(mainView, 1)
+		
+		Request:queue(function()
+				download_server_info("bountystats&username=" .. TB_MENU_PLAYER_INFO.username)
+			end,
+			"bountyinfo",
+			function()
+				local userStats = Bounty:formatUserStats(get_network_response())
+				Bounty:showMainView(playerStatsView, userStats)
+			end,
+			function()
+				mainView:kill(true)
+				TBMenu:addBottomBloodSmudge(playerStatsView, 1)
+				mainView:addAdaptedText(false, TB_MENU_LOCALIZED.ACCOUNTINFOERROR)
+			end)
 		
 		local bountyList = UIElement:new({
 			parent = tbMenuCurrentSection,
-			pos = { objectiveView.size.w + 15, 0 },
-			size = { tbMenuCurrentSection.size.w / 3 - 10, tbMenuCurrentSection.size.h },
+			pos = { mainView.size.w + 15, 0 },
+			size = { tbMenuCurrentSection.size.w / 5 * 2 - 10, tbMenuCurrentSection.size.h },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
 		Bounty:showBountyList(bountyList)
-		
-		Bounty:showCurrentTarget(objectiveView, Bounty:getTarget())
 	end
 	
 	function Bounty:getTarget()
@@ -560,10 +887,17 @@ do
 		end
 	end
 	
-	function Bounty:prepare()
+	function Bounty:prepare(reload)
 		tbMenuCurrentSection:kill(true)
+
+		PlayerBounties = {}
+		TB_MENU_SPECIAL_SCREEN_ISOPEN = 7
 		UIElement:runCmd("refresh")
-		download_fetch_bounties()
+		
+		if (BOUNTIES_LAST_UPDATE + 300 < os.clock() or reload) then
+			download_fetch_bounties()
+		end
+		
 		local loadOverlay = UIElement:new({
 			parent = tbMenuCurrentSection,
 			pos = { 5, 0 },
@@ -571,13 +905,14 @@ do
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
 		TBMenu:addBottomBloodSmudge(loadOverlay, 1)
-		TBMenu:displayLoadingMark(loadOverlay, "Updating...")
+		TBMenu:displayLoadingMark(loadOverlay, TB_MENU_LOCALIZED.BOUNTYUPDATINGLIST)
 		local bountyFile = Files:new("../data/bounties.txt")
 		loadOverlay:addCustomDisplay(false, function()
 				if (not bountyFile:isDownloading()) then
 					bountyFile:reopen()
 					Bounty:getBountyData(bountyFile:readAll())
 					Bounty:showBounties()
+					BOUNTIES_LAST_UPDATE = os.clock()
 				end
 			end)
 	end

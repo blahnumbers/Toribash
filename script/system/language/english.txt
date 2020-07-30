@@ -759,3 +759,30 @@ QUESTSGLOBALEMPTY	Nothing to show here :(
 CLANSUPDATINGWAIT	Updating clans data, please wait...
 QUESTSCLOSEST	Closest quests and quests available for claiming
 QUESTSLOCKED	Locked quests
+WORDCLAIMED	claimed
+BOUNTYREFRESHINGSTATS	Refreshing your bounty stats
+BOUNTYYOURSTATISTICS	Your bounty stats
+BOUNTYCLAIMEDBOUNTIES	Bounties Claimed
+BOUNTYUSERBOUNTIES	Bounties Set on You
+BOUNTYLATEST	Latest Bounties
+WORDDECAPV	decap
+WORDBEAT	beat
+BOUNTYOFFLINE	Offline
+BOUNTYONLINEIN	Online in
+BOUNTYCLAIMEDBY	Claimed by
+BOUNTYCLAIMEDBYIN	in
+BOUNTYADDBOUNTYTITLE	Add a bounty on another player
+BOUNTYADDUSERNAME	User name
+BOUNTYADDAMOUNT	Bounty amount
+BOUNTYADDTEXT	* Bounty text (optional)
+BOUNTYADDBOUNTY	Add bounty
+BOUNTYERRORNOUSER	You need to specify user's name
+BOUNTYERRORAMOUNT	Bounty has to be at least 100 Toricredits
+REQUESTFINISHINGACTIVE	Finishing active request...
+BOUNTYCONFIRM1	Are you sure you want to add a
+BOUNTYCONFIRM2	bounty on
+BOUNTYSUCCESS1	Bounty has been added!\nNext user to defeat
+BOUNTYSUCCESS2	in a fight will receive
+BOUNTYERROR1	Failed to add a
+BOUNTYERROR2	TC bounty on
+BOUNTYUPDATINGLIST	Updating bounty list...

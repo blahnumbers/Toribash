@@ -13,6 +13,7 @@ do
 			remove_hooks("tbMainMenuVisual")
 			return
 		end
+		TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
 		tbMenuCurrentSection:kill(true)
 		tbMenuNavigationBar:kill(true)
 		TBMenu:showNavigationBar()
@@ -437,6 +438,7 @@ do
 	
 	function FriendsList:showMain(viewElement, noWait)
 		viewElement:kill(true)
+		TB_MENU_SPECIAL_SCREEN_ISOPEN = 8
 		local friendsView = UIElement:new({
 			parent = viewElement,
 			pos = { 5, 0 },

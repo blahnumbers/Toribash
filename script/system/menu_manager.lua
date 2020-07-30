@@ -1616,6 +1616,10 @@ do
 			TBMenu:showReplays()
 		elseif (TB_MENU_SPECIAL_SCREEN_ISOPEN == 6) then
 			TBMenu:showSettings()
+		elseif (TB_MENU_SPECIAL_SCREEN_ISOPEN == 7) then
+			TBMenu:showBounties()
+		elseif (TB_MENU_SPECIAL_SCREEN_ISOPEN == 8) then
+			TBMenu:showFriendsList()
 		elseif (screenId == 1) then
 			TBMenu:showHome()
 		elseif (screenId == 2) then
@@ -2095,9 +2099,10 @@ do
 			end
 		end
 		local tbMenuBottomLeftButtonsData = {
-			{ action = function() TBMenu:openMenu(102) end, image = TB_MENU_FRIENDS_BUTTON, imageHover = TB_MENU_FRIENDS_BUTTON_HOVER, imagePress = TB_MENU_FRIENDS_BUTTON_PRESS },
-			{ action = function() if (TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 4) then TBMenu:openMenu(101) else Notifications:quit() end end, image = TB_MENU_NOTIFICATIONS_BUTTON, imageHover = TB_MENU_NOTIFICATIONS_BUTTON_HOVER, imagePress = TB_MENU_NOTIFICATIONS_BUTTON_PRESS },
-			{ action = function() open_url("http://discord.gg/toribash") end, image = TB_MENU_DISCORD_BUTTON, imageHover = TB_MENU_DISCORD_BUTTON_HOVER, imagePress = TB_MENU_DISCORD_BUTTON_PRESS },
+			{ action = function() if (TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 8) then TBMenu:showFriendsList() else FriendsList:quit() end end, image = TB_MENU_FRIENDS_BUTTON, imageHover = TB_MENU_FRIENDS_BUTTON_HOVER, imagePress = TB_MENU_FRIENDS_BUTTON_PRESS },
+			{ action = function() if (TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 4) then TBMenu:showNotifications() else Notifications:quit() end end, image = TB_MENU_NOTIFICATIONS_BUTTON, imageHover = TB_MENU_NOTIFICATIONS_BUTTON_HOVER, imagePress = TB_MENU_NOTIFICATIONS_BUTTON_PRESS },
+			{ action = function() if (TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 7) then TBMenu:showBounties() else Bounty:quit() end end, image = TB_MENU_BOUNTY_BUTTON, imageHover = TB_MENU_BOUNTY_BUTTON_HOVER, imagePress = TB_MENU_BOUNTY_BUTTON_PRESS },
+			{ action = function() open_url("http://discord.gg/toribash") end, image = TB_MENU_DISCORD_BUTTON, imageHover = TB_MENU_DISCORD_BUTTON_HOVER, imagePress = TB_MENU_DISCORD_BUTTON_PRESS }
 		}
 		local tbMenuBottomLeftButtons = {}
 		for i, v in pairs(tbMenuBottomLeftButtonsData) do

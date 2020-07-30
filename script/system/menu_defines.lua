@@ -70,6 +70,9 @@ TB_MENU_DISCORD_BUTTON_PRESS = "../textures/menu/general/buttons/discordredpress
 TB_MENU_LOGOUT_BUTTON = "../textures/menu/general/buttons/logout.tga"
 TB_MENU_LOGOUT_BUTTON_HOVER = "../textures/menu/general/buttons/logouthover.tga"
 TB_MENU_LOGOUT_BUTTON_PRESS = "../textures/menu/general/buttons/logoutpressed.tga"
+TB_MENU_BOUNTY_BUTTON = "../textures/menu/general/buttons/bountyred.tga"
+TB_MENU_BOUNTY_BUTTON_HOVER = "../textures/menu/general/buttons/bountyredhover.tga"
+TB_MENU_BOUNTY_BUTTON_PRESS = "../textures/menu/general/buttons/bountyredpress.tga"
 
 TB_MENU_CLANFILTERS_BUTTON = "../textures/menu/general/buttons/clanfilters.tga"
 TB_MENU_CLANFILTERS_BUTTON_HOVER = "../textures/menu/general/buttons/clanfiltershover.tga"

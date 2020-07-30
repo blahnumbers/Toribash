@@ -72,7 +72,6 @@ do
 	end
 	
 	function Notifications:showQuests()
-		TB_MENU_SPECIAL_SCREEN_ISOPEN = 4
 		Quests:showMain(QUEST_REFRESH_CLAIMED)
 	end
 	
@@ -500,6 +499,7 @@ do
 	end
 	
 	function Notifications:showMain(override)
+		TB_MENU_SPECIAL_SCREEN_ISOPEN = 4
 		local rewards = PlayerInfo:getLoginRewards()
 		local navButtons = Notifications:getNavigationButtons()
 		if (rewards.available and not override) then
