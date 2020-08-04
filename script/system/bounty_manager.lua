@@ -508,20 +508,20 @@ do
 		
 		local claimedBounties = UIElement:new({
 			parent = viewElement,
-			pos = { 20, headerTitle.size.h + headerTitle.shift.y },
-			size = { (viewElement.size.w - 40) / 2 - 10, viewElement.size.h - headerTitle.size.h - headerTitle.shift.y - 15 }
+			pos = { 20, headerTitle.size.h + headerTitle.shift.y * 2 },
+			size = { (viewElement.size.w - 40) / 2 - 10, viewElement.size.h - headerTitle.size.h - headerTitle.shift.y * 2 - 15 }
 		})
-		local iconSize = claimedBounties.size.w > claimedBounties.size.h * 0.7 and claimedBounties.size.h * 0.7 or claimedBounties.size.w
+		local iconSize = claimedBounties.size.w > claimedBounties.size.h * 0.8 and claimedBounties.size.h * 0.8 or claimedBounties.size.w
 		local claimedBountiesIcon = UIElement:new({
 			parent = claimedBounties,
 			pos = { (claimedBounties.size.w - iconSize) / 2, 0 },
 			size = { iconSize, iconSize },
-			bgImage = "../textures/menu/general/quests/qtypedecap.tga"
+			bgImage = "../textures/menu/general/quests/bountiesuser.tga"
 		})
 		local claimedBountiesHolder = UIElement:new({
 			parent = claimedBounties,
-			pos = { 0, claimedBountiesIcon.size.h * 0.8 },
-			size = { claimedBounties.size.w, claimedBounties.size.h - claimedBountiesIcon.size.h * 0.8 },
+			pos = { 0, claimedBountiesIcon.size.h * 0.75 },
+			size = { claimedBounties.size.w, claimedBounties.size.h - claimedBountiesIcon.size.h * 0.75 },
 			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			shapeType = ROUNDED,
 			rounded = 10
@@ -553,12 +553,12 @@ do
 			parent = userBounties,
 			pos = { (userBounties.size.w - iconSize) / 2, 0 },
 			size = { iconSize, iconSize },
-			bgImage = "../textures/menu/general/quests/qtypedecap.tga"
+			bgImage = "../textures/menu/general/quests/bountiesstats.tga"
 		})
 		local userBountiesHolder = UIElement:new({
 			parent = userBounties,
-			pos = { 0, userBountiesIcon.size.h * 0.8 },
-			size = { userBounties.size.w, userBounties.size.h - userBountiesIcon.size.h * 0.8 },
+			pos = { 0, claimedBountiesHolder.shift.y },
+			size = { userBounties.size.w, claimedBountiesHolder.size.h },
 			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			shapeType = ROUNDED,
 			rounded = 10
@@ -579,7 +579,7 @@ do
 			pos = { 0, userBountiesTitle.size.h },
 			size = { userBountiesHolder.size.w, userBountiesHolder.size.h - userBountiesTitle.size.h }
 		})
-		userBountiesStat:addAdaptedText(true, string.upper(TB_MENU_LOCALIZED.WORDTOTAL:sub(0, 1)) .. TB_MENU_LOCALIZED.WORDTOTAL:sub(1) .. ": " .. userStats.userTotal .. "\n" .. string.upper(TB_MENU_LOCALIZED.WORDCLAIMED:sub(0, 1)) .. TB_MENU_LOCALIZED.WORDCLAIMED(1) .. ": " .. userStats.userClaimed, nil, nil, FONTS.BIG, nil, 0.55, nil, 0.5)
+		userBountiesStat:addAdaptedText(true, string.upper(TB_MENU_LOCALIZED.WORDTOTAL:sub(0, 1)) .. TB_MENU_LOCALIZED.WORDTOTAL:sub(2) .. ": " .. userStats.userTotal .. "\n" .. string.upper(TB_MENU_LOCALIZED.WORDCLAIMED:sub(0, 1)) .. TB_MENU_LOCALIZED.WORDCLAIMED:sub(2) .. ": " .. userStats.userClaimed, nil, nil, FONTS.BIG, nil, 0.5, nil, 0.5)
 	end
 	
 	function Bounty:showBountyList(viewElement)
