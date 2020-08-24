@@ -522,7 +522,7 @@ do
 			parent = claimedBounties,
 			pos = { 0, claimedBountiesIcon.size.h * 0.75 },
 			size = { claimedBounties.size.w, claimedBounties.size.h - claimedBountiesIcon.size.h * 0.75 },
-			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			bgColor = cloneTable(TB_MENU_DEFAULT_DARKEST_COLOR),
 			shapeType = ROUNDED,
 			rounded = 10
 		})
@@ -531,7 +531,7 @@ do
 			parent = claimedBountiesHolder,
 			pos = { 0, 0 },
 			size = { claimedBountiesHolder.size.w, claimedBountiesHolder.size.h / 5 * 2 },
-			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			bgColor = cloneTable(TB_MENU_DEFAULT_DARKEST_COLOR),
 			shapeType = claimedBountiesHolder.shapeType,
 			rounded = claimedBountiesHolder.rounded
 		})
@@ -559,7 +559,7 @@ do
 			parent = userBounties,
 			pos = { 0, claimedBountiesHolder.shift.y },
 			size = { userBounties.size.w, claimedBountiesHolder.size.h },
-			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			bgColor = cloneTable(TB_MENU_DEFAULT_DARKEST_COLOR),
 			shapeType = ROUNDED,
 			rounded = 10
 		})
@@ -568,7 +568,7 @@ do
 			parent = userBountiesHolder,
 			pos = { 0, 0 },
 			size = { userBountiesHolder.size.w, userBountiesHolder.size.h / 5 * 2 },
-			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			bgColor = cloneTable(TB_MENU_DEFAULT_DARKEST_COLOR),
 			shapeType = userBountiesHolder.shapeType,
 			rounded = userBountiesHolder.rounded
 		})
@@ -686,6 +686,10 @@ do
 						pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
 					})
 					joinButton:addAdaptedText(false, TB_MENU_LOCALIZED.FRIENDSLISTJOINROOM, nil, nil, nil, nil, 0.8)
+					joinButton:addMouseHandlers(nil, function() 
+							UIElement:runCmd("jo " .. v.room)
+							close_menu()
+					end)
 				end
 			else
 				bountyInfo:addAdaptedText(true, TB_MENU_LOCALIZED.BOUNTYCLAIMEDBY .. " " .. v.claimedby .. " " .. TB_MENU_LOCALIZED.BOUNTYCLAIMEDBYIN .. " " .. TBMenu:getTime(v.claimed, 1), nil, nil, 4, LEFTMID, 0.7)
@@ -804,6 +808,10 @@ do
 						closeButton:addMouseHandlers(nil, function()
 								overlay:kill()
 								if (reload) then
+									update_tc_balance()
+									TB_MENU_DOWNLOAD_INACTION = true
+									TB_MENU_PLAYER_INFO.data.tc = TB_MENU_PLAYER_INFO.data.tc - bountyAddData.amount[1]
+									TBMenu:showUserBar()
 									Bounty:prepare(true)
 								end
 							end)

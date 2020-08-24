@@ -223,7 +223,7 @@ do
 				set_color(unpack(FRACTURECOLOR))
 				draw_disk(tbTooltipView.pos.x + 10 + jointTooltipState.size.h / 2, jointTooltipState.pos.y + jointTooltipState.size.h / 2, 0, jointTooltipState.size.h / 2, 500, 1, 0, 360, 0)
 			end
-			local function drawJointState(state)				
+			local function drawJointState(state)
 				if (state ~= 3) then
 					set_color(unpack(PLAYERINFO.rgbRelax))
 					draw_disk(tbTooltipView.pos.x + 10 + jointTooltipState.size.h / 2, jointTooltipState.pos.y + jointTooltipState.size.h / 2, 0, jointTooltipState.size.h / 3, 500, 1, 0, 360, 0)
