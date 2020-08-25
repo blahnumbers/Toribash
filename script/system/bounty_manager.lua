@@ -856,13 +856,20 @@ do
 			end,
 			"bountyinfo",
 			function()
-				local userStats = Bounty:formatUserStats(get_network_response())
-				Bounty:showMainView(playerStatsView, userStats)
+				-- Make sure we're still in bounty menu
+				if (not mainView) then return end
+				if (not mainView.destroyed) then
+					local userStats = Bounty:formatUserStats(get_network_response())
+					Bounty:showMainView(playerStatsView, userStats)
+				end
 			end,
 			function()
-				mainView:kill(true)
-				TBMenu:addBottomBloodSmudge(playerStatsView, 1)
-				mainView:addAdaptedText(false, TB_MENU_LOCALIZED.ACCOUNTINFOERROR)
+				if (not mainView) then return end
+				if (not mainView.destroyed) then
+					mainView:kill(true)
+					TBMenu:addBottomBloodSmudge(playerStatsView, 1)
+					mainView:addAdaptedText(false, TB_MENU_LOCALIZED.ACCOUNTINFOERROR)
+				end
 			end)
 		
 		local bountyList = UIElement:new({

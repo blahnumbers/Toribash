@@ -37,7 +37,7 @@ do
 		local language = language or "english"
 		local inverse = (language == "arabic" or language == "hebrew") and true 
 		TBMenu:setLanguageFontOptions(language)
-		if (TB_MENU_LOCALIZED.language ~= language or TB_MENU_DEBUG) then
+		if (type(TB_MENU_LOCALIZED) ~= "table" or TB_MENU_LOCALIZED.language ~= language or TB_MENU_DEBUG) then
 			TB_MENU_LOCALIZED = {}
 			TB_MENU_LOCALIZED.language = language
 		else
