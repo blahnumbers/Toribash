@@ -226,7 +226,7 @@ end
 
 local function moveMemoryAddMoves(moves)
 	local storedMoves = {}
-	local file = Files:new("system/data.mm")
+	local file = Files:new("system/movememory.mm")
 	if (file.data) then
 		for i, ln in pairs(file:readAll()) do
 			if (ln:find("^NAME")) then
@@ -329,6 +329,8 @@ local function moveMemoryShowExit(viewElement)
 				toAnimate[1]:kill()
 			end
 		end)
+	MOVEMEMORY_PLAYBACK_ACTIVE[0] = false
+	MOVEMEMORY_PLAYBACK_ACTIVE[1] = false
 end
 
 local function checkJointStates(viewElement, reqTable)

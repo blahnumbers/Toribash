@@ -786,3 +786,6 @@ BOUNTYSUCCESS2	in a fight will receive
 BOUNTYERROR1	Failed to add a
 BOUNTYERROR2	TC bounty on
 BOUNTYUPDATINGLIST	Updating bounty list...
+EVENTSLIVEEVENTS	Live events	
+EVENTSENDEDEVENTS	Ended events	
+EVENTSPLAYAGAIN	Play again	

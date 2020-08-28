@@ -72,6 +72,10 @@ do
 				end
 			elseif (ln:find("^URL 0;")) then
 				newsData[#newsData].action = function() open_url(ln:gsub("^URL 0;", "")) end
+			elseif (ln:find("^STORE 0;")) then
+				local itemid = ln:gsub("^STORE 0;", "") + 0
+				newsData[#newsData].action = function() Torishop:showStoreSection(tbMenuCurrentSection, nil, nil, itemid) end
+				newsData[#newsData].initAction = function() Torishop:showStoreSection(tbMenuCurrentSection, nil, nil, itemid) end
 			elseif (ln:find("^EVENT 0;")) then
 				local eventid = ln:gsub("^EVENT 0;", "") + 0
 				newsData[#newsData].isEvent = true

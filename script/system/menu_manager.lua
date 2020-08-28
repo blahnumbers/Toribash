@@ -681,21 +681,30 @@ do
 		return overlay
 	end
 
-	function TBMenu:showConfirmationWindowInput(title, inputInfo, confirmAction, cancelAction)
-		local confirmOverlay = TBMenu:spawnWindowOverlay()
+	function TBMenu:showConfirmationWindowInput(title, inputInfo, confirmAction, cancelAction, subtitle, globalid)
+		local subtitleSet = subtitle and 1 or 0
+		local confirmOverlay = TBMenu:spawnWindowOverlay(globalid)
 		local confirmBoxView = UIElement:new({
 			parent = confirmOverlay,
-			pos = { confirmOverlay.size.w / 7 * 2, confirmOverlay.size.h / 2 - 75 },
-			size = { confirmOverlay.size.w / 7 * 3, 150 },
+			pos = { confirmOverlay.size.w / 4, confirmOverlay.size.h / 2 - 80 - subtitleSet * 10 },
+			size = { confirmOverlay.size.w / 2, 160 + subtitleSet * 10 },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
 		local confirmBoxTitle = UIElement:new({
 			parent = confirmBoxView,
 			pos = { 10, 5 },
-			size = { confirmBoxView.size.w - 20, 35 }
+			size = { confirmBoxView.size.w - 20, 45 }
 		})
-		confirmBoxTitle:addAdaptedText(true, title)
-		local textField = TBMenu:spawnTextField(confirmBoxView, 10, 50, confirmBoxView.size.w - 20, 30, nil, nil, 1, nil, nil, inputInfo)
+		confirmBoxTitle:addAdaptedText(true, title, nil, nil, FONTS.BIG, nil, 0.65)
+		if (subtitleSet) then
+			local confirmBoxSubtitle = UIElement:new({
+				parent = confirmBoxView,
+				pos = { 10, confirmBoxTitle.shift.y + confirmBoxTitle.size.h },
+				size = { confirmBoxView.size.w - 20, 20 }
+			})
+			confirmBoxSubtitle:addAdaptedText(true, subtitle, nil, nil, 4, nil, 0.6)
+		end
+		local textField = TBMenu:spawnTextField(confirmBoxView, 10, confirmBoxTitle.shift.y + confirmBoxTitle.size.h + subtitleSet * 25 + 5, confirmBoxView.size.w - 20, 40, nil, nil, 1, nil, nil, inputInfo)
 		local cancelButton = UIElement:new({
 			parent = confirmBoxView,
 			pos = { 10, -50 },

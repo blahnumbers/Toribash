@@ -1,5 +1,5 @@
 dofile("toriui/uielement.lua")
-dofile("system/menu_manager.lua")
+require("system/menu_manager")
 
 REPLAY_SAVETEMPNAME = "--localreplaytempfile"
 
@@ -15,11 +15,12 @@ local function quitReplaySave()
 	for i,v in pairs(rploptions) do
 		set_option(i, v)
 	end
-	replaySave:kill()
+	replaySaveOverlay:kill()
 end
 
-replaySave = UIElement:new({
-	globalid = TB_MENU_HUB_GLOBALID,
+replaySaveOverlay = TBMenu:spawnWindowOverlay(TB_MENU_HUB_GLOBALID)
+local replaySave = UIElement:new({
+	parent = replaySaveOverlay,
 	pos = { WIN_W / 4, WIN_H / 2 - 90 },
 	size = { WIN_W / 2, 180 },
 	bgColor = TB_MENU_DEFAULT_BG_COLOR

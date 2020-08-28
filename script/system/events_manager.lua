@@ -1174,7 +1174,7 @@ do
 			pos = { 10, 5 },
 			size = { topBar.size.w - 20, topBar.size.h - 10 }
 		})
-		allEventsTitle:addAdaptedText(true, TB_MENU_LOCALIZED.EVENTSVIEWIGNALLEVENTS, nil, nil, FONTS.BIG, nil, nil, nil, 0.2)
+		allEventsTitle:addAdaptedText(true, TB_MENU_LOCALIZED.EVENTSVIEWIGNALLEVENTS, nil, nil, FONTS.BIG)
 		
 		local eventsList = get_files("data/script/events", "dat")
 		
@@ -1193,7 +1193,38 @@ do
 		
 		local selectedButton = nil
 		local listElements = {}
+		local liveShown, liveOver = false, false
 		for i,v in pairs(eventsList) do
+			if (v.live and not liveShown) then
+				liveShown = true
+				local liveEventsCaption = UIElement:new({
+					parent = listingHolder,
+					pos = { 0, #listElements * elementHeight },
+					size = { listingHolder.size.w, elementHeight }
+				})
+				table.insert(listElements, liveEventsCaption)
+				local liveEventsCaptionText = UIElement:new({
+					parent = liveEventsCaption,
+					pos = { 10, 0 },
+					size ={ liveEventsCaption.size.w - 20, liveEventsCaption.size.h }
+				})
+				liveEventsCaptionText:addAdaptedText(true, TB_MENU_LOCALIZED.EVENTSLIVEEVENTS, 10, nil, FONTS.BIG, LEFTMID, 0.6, nil, 0.4)
+			end
+			if (not v.live and liveShown and not liveOver) then
+				liveOver = true
+				local endedEventsCaption = UIElement:new({
+					parent = listingHolder,
+					pos = { 0, #listElements * elementHeight },
+					size = { listingHolder.size.w, elementHeight }
+				})
+				table.insert(listElements, endedEventsCaption)
+				local endedEventsCaptionText = UIElement:new({
+					parent = endedEventsCaption,
+					pos = { 10, 0 },
+					size ={ endedEventsCaption.size.w - 20, endedEventsCaption.size.h }
+				})
+				endedEventsCaptionText:addAdaptedText(true, TB_MENU_LOCALIZED.EVENTSENDEDEVENTS, 10, nil, FONTS.BIG, LEFTMID, 0.6, nil, 0.4)
+			end
 			local listEventHolder = UIElement:new({
 				parent = listingHolder,
 				pos = { 0, #listElements * elementHeight },
