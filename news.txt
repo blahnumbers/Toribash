@@ -1,26 +1,53 @@
-NEWSID 1;
-TITLE 0;Clan League 2020 Sign Ups
-SUBTITLE 0;Sign up with your clan for the main event of the year!
-IMAGE 0;clanleague2020.tga
-URL 0;https://forum.toribash.com/showthread.php?t=641716
+//NEWSID 6;
+//TITLE 0;Rubik Fists now available!
+//SUBTITLE 0;Get the newest 3D items by Item Forgers now!
+//IMAGE 0;store/rubikfists.tga
+//URL 0;https://forum.toribash.com/tori_shop_item.php?id=3344
+//STORE 0;3344
 
-//NEWSID 2;
-//TITLE 0;No events live now, but you can still replay any ended event in all events menu!
-//IMAGE 0;openerchallenge.tga
-//FEATURED 0;
+NEWSID 1;
+TITLE 0;We're giving away more Tori Team items!
+SUBTITLE 0;Join Toribash Discord server to participate now!
+IMAGE 0;giveawaytoriteam2.tga
+URL 0;https://discord.gg/toribash
+
+NEWSID 2;
+TITLE 0;Clan League 2020
+SUBTITLE 0;The knockout stage is now on!
+IMAGE 0;clanleague2020.tga
+URL 0;https://forum.toribash.com/showthread.php?t=642297
 
 NEWSID 3;
-TITLE 0;Opener Challenge 8
-SUBTITLE 0;Show off your tricking skills with OC8!
+TITLE 0;No events live now, but you can still replay any ended event in all events menu!
 IMAGE 0;openerchallenge20sum.tga
-EVENT 0;1
 FEATURED 0;
+
+//NEWSID 4;
+//TITLE 0;Opener Challenge 8
+//SUBTITLE 0;Show off your tricking skills with OC8!
+//IMAGE 0;openerchallenge20sum.tga
+//EVENT 0;1
+//FEATURED 0;
+
+//NEWSID 5;
+//TITLE 0;Free Run Frenzy 3
+//IMAGESMALL 0;freerunfrenzysmall.tga
+//IMAGE 0;freerunfrenzy.tga
+//EVENT 0;2
+//FEATURED 0;
+
+//NEWSID 7;
+//TITLE 0;Head in the Wall
+//IMAGESMALL 0;headinthewallsmall.tga
+//IMAGE 0;headinthewall.tga
+//EVENT 0;3
+//FEATURED 0;
 
 EVENTID 1;
 NAME 0;Opener Challenge 8
 IMAGE 0;openerchallenge.tga
 URL 0;https://forum.toribash.com/showthread.php?t=641991
-PLAYNAME 0;openerch8
+//PLAYNAME 0;openerch8
 OVERLAYTRANS 0;0.1
 PLAYTEXT 0;PARTICIPATE
 ACCENTCOLOR 0;F5F5F5
@@ -57,46 +84,75 @@ PRIZEDATA 0;5Do 1 trick
 PRIZETC 0;51000
 PRIZEST 0;51
 
+EVENTID 2;
+NAME 0;Free Run Frenzy 3
+IMAGE 0;freerunfrenzy.tga
+URL 0;https://forum.toribash.com/showthread.php?t=642742
+//PLAYNAME 0;freerunfrenzy3
+OVERLAYTRANS 0;0.7
+PLAYTEXT 0;PARTICIPATE
+ACCENTCOLOR 0;060606
+UICOLOR 0;FFFA7D
+BTNHVRCOL 0;DD8e21
+BTNDNCOL 0;FC5400
+DESCDATA 0;1Description
+DESCDATAIMGTITLE 0;1frf_description.tga
+DESCDATATEXT 0;1The Event Squad is proud to present Free Run Frenzy!\nThe challenge is simple (or is it?) - get to Uke any manner you can! Parkour your way to the red zone either straight on or take a detour through the extra blue checkpoint area for a better prize!\nAs usual, best replay will receive extra rewards so give your replay some love!\nGood luck at freerunning!
+DESCDATA 0;2Rules
+DESCDATAIMGTITLE 0;2frf_rules.tga
+DESCDATATEXT 0;2- Replay hacking is strictly forbidden\n- Do not steal other players' replays\n- Do not edit any of the game rules except turn and match frames\n- Do not try to enter the event with multiple accounts
+DESCDATA 0;3How to Enter
+DESCDATAIMGTITLE 0;3frf_howtoenter.tga
+DESCDATATEXT 0;3You can participate in Free Run Frenzy by pressing "Participate" button on bottom right, completing the challenge and submitting your replay to Toribash servers.\nAlternatively, you can download the opener from the event thread on forums, edit it according to the rules and post your replay back in event thread - if you just upload it to Toribash Community Replays then it won't be judged.\n^02Only one replay per player will be judged.
+DESCDATA 0;4Deadline
+DESCDATAIMGTITLE 0;4frf_deadline.tga
+DESCDATATEXT 0;4We will stop accepting new entries on August 27th, 16:00 UTC
+DESCDATA 0;5
+PRIZEIMG 0;frf_prizes.tga
+PRIZEDATA 0;1Best replay
+PRIZETC 0;150000
+PRIZEST 0;110
+PRIZEDATA 0;2Go through the checkpoint
+PRIZETC 0;28000
+PRIZEST 0;24
+PRIZEDATA 0;3Reach Uke
+PRIZETC 0;33000
+PRIZEST 0;32
+
 EVENTID 3;
-NAME 0;Ranking Season 6
-IMAGE 0;season6.tga
-URL 0;http://forum.toribash.com/showthread.php?t=627137
-OVERLAYTRANS 0;0.4
-ACCENTCOLOR 0;39282c
-UICOLOR 0;ffffff
-BTNHVRCOL 0;ff8919
-BTNDNCOL 0;fa5012
-DESCDATA 0;1Season 6
-DESCDATATEXT 0;1Toribash Ranking is back with Season 6!\nDefeat other players in ranked mode, climb ranks and get exclusive rewards!
-DESCDATA 0;2Ranking Basics
-DESCDATATEXT 0;2All Brown Belt+ players can participate in Season 6 by playing ranked games in special ranked rooms or via ranked matchmaking.\nYour first 10 ranked games' outcome will be used to put you in your starting rank tier. Toribash ranking uses Elo system as its base, so with every fight you win you gain some Elo points based on your opponent's rank (and vice versa). The more Elo points you have, the better rank you get.
-DESCDATA 0;3Rank Tiers
-DESCDATATEXT 0;3After playing qualification matches, you will receive a rank tier which depends on your Elo:\n- Elo Hell (0 - 1550)\n- Bronze (1550 - 1575)\n- Silver (1575 - 1595)\n- Gold III (1595 - 1615)\n- Gold II (1615 - 1630)\n- Gold I (1630 - 1645)\n- Platinum III (1645 - 1660)\n- Platinum II (1660 - 1675)\n- Platinum I (1675 - 1690)\n- Diamond (1690+)
-DESCDATA 0;4Ranked Quests
-DESCDATATEXT 0;4Aside from classic end-of-season rewards, this time you will be able to get additional rewards throughout the whole season by completing ranked quests, which will feature Season 6 exclusive color items and brand new 3D items!
-DESCDATA 0;5Other Info
-DESCDATATEXT 0;5Toribash Ranking features Elo decay which will affect inactive players within Platinum and Diamond tiers.\nInactive Platinum tier players will start losing 1 Elo point for every day of inactivity after they stay inactive for 2 weeks, and Diamond tier players will start losing their Elo after 1 week of inactivity.
-DESCDATA 0;6Season ends on December 1st, 2019
-DESCDATATEXT 0;6Once the season ends, top 64 ranked players will be invited to participate in 2019 World Championships, which will take place later in December.
-DESCDATA 0;7Good luck and have fun!
-PRIZEDATA 0;1Top ranked player 
-PRIZETC 0;1600000
-PRIZEST 0;160
-PRIZEDATA 0;2Ranks #2-10 (Global)
-PRIZETC 0;2100000
-PRIZEST 0;220
-PRIZEDATA 0;3Top 5 Ranks (each mod)
-PRIZETC 0;350000
-PRIZEST 0;35
-PRIZEDATA 0;4Diamond Players
-PRIZEITEMS 0;432857 2062 2996
-PRIZEDATA 0;5Platinum I Players
-PRIZEITEMS 0;523166 2996
-PRIZEDATA 0;6Platinum II Players
-PRIZEITEMS 0;623189 2996
-PRIZEDATA 0;7Platinum III Players
-PRIZEITEMS 0;723190 2979
-PRIZEDATA 0;8Gold I Players
-PRIZEITEMS 0;823191 2979
-PRIZEDATA 0;9Other Gold Players
-PRIZEITEMS 0;912979
+NAME 0;Head in the Wall
+IMAGE 0;headinthewall.tga
+URL 0;https://forum.toribash.com/showthread.php?t=642742
+//PLAYNAME 0;headinthewall
+OVERLAYTRANS 0;0.7
+PLAYTEXT 0;PARTICIPATE
+ACCENTCOLOR 0;00d6ff
+UICOLOR 0;363636
+BTNHVRCOL 0;0057b2
+BTNDNCOL 0;8000a5
+DESCDATA 0;1Description
+DESCDATAIMGTITLE 0;1headwall_description.tga
+DESCDATATEXT 0;1The Event Squad is proud to present Free Run Frenzy!\nThe challenge is simple (or is it?) - get to Uke any manner you can! Parkour your way to the red zone either straight on or take a detour through the extra blue checkpoint area for a better prize!\nAs usual, best replay will receive extra rewards so give your replay some love!\nGood luck at freerunning!
+DESCDATA 0;2Rules
+DESCDATAIMGTITLE 0;2headwall_rules.tga
+DESCDATATEXT 0;2- Replay hacking is strictly forbidden\n- Do not steal other players' replays\n- Do not edit any of the game rules except turn and match frames\n- Do not try to enter the event with multiple accounts
+DESCDATA 0;3How to Enter
+DESCDATAIMGTITLE 0;3headwall_howtoenter.tga
+DESCDATATEXT 0;3You can participate in Free Run Frenzy by pressing "Participate" button on bottom right, completing the challenge and submitting your replay to Toribash servers.\nAlternatively, you can download the opener from the event thread on forums, edit it according to the rules and post your replay back in event thread - if you just upload it to Toribash Community Replays then it won't be judged.\n^07Only one replay per player will be judged.
+DESCDATA 0;4Deadline
+DESCDATAIMGTITLE 0;4headwall_deadline.tga
+DESCDATATEXT 0;4We will stop accepting new entries on September 13th, 16:00 UTC
+DESCDATA 0;5
+PRIZEIMG 0;headwall_prizes.tga
+PRIZEDATA 0;1Best replay
+PRIZETC 0;150000
+PRIZEST 0;110
+PRIZEDATA 0;2Hit the smallest hole
+PRIZETC 0;25000
+PRIZEST 0;23
+PRIZEDATA 0;3Medium hole
+PRIZETC 0;32500
+PRIZEST 0;32
+PRIZEDATA 0;4Big hole
+PRIZETC 0;41000
+PRIZEST 0;41

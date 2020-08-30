@@ -3,6 +3,8 @@ DISMEMBERCOLOR = cloneTable(UICOLORRED)
 BACKGROUNDCOLOR = cloneTable(TB_MENU_DEFAULT_DARKEST_COLOR)
 BACKGROUNDCOLOR[4] = 0.6
 
+TB_TOOLTIP_GLOBALID = 1010
+TB_TOOLTIP_GRABDISPLAY = TB_TOOLTIP_GRABDISPLAY or false
 PLAYERINFO = {}
 do
 	Tooltip = {}
@@ -18,14 +20,17 @@ do
 	
 	function Tooltip:destroy()
 		-- Force destroy all objects assigned to TB_TOOLTIP_GLOBALID global id
+		TB_TOOLTIP_GLOBALID = TB_TOOLTIP_GLOBALID or 1010
 		for i, v in pairs(UIElementManager) do
 			if (v.globalid == TB_TOOLTIP_GLOBALID and v.parent == nil) then
 				v:kill()
 			end
 		end
+		TB_TOOLTIP_LASTSTATE = -1
 	end
 	
 	function Tooltip:create()
+		TB_TOOLTIP_GLOBALID = TB_TOOLTIP_GLOBALID or 1010
 		PLAYERINFO = PlayerInfo:getItems(PlayerInfo:getUser(), true)
 		local forceInfo = get_color_info(PLAYERINFO.colors.force)
 		local relaxInfo = get_color_info(PLAYERINFO.colors.relax)
@@ -45,6 +50,8 @@ do
 	end
 	
 	function Tooltip:showTooltipBody(player, body)
+		TB_TOOLTIP_GLOBALID = TB_TOOLTIP_GLOBALID or 1010
+		TB_TOOLTIP_GRABDISPLAY = false
 		Tooltip:destroy()
 		if (get_option("tooltip") == 0) then
 			Tooltip:quit()
@@ -113,6 +120,7 @@ do
 			jointTooltipName:addAdaptedText(true, bodyInfo.name, nil, nil, nil, LEFTMID)
 			
 			if (body == 11 or body == 12) then
+				TB_TOOLTIP_GRABDISPLAY = true
 				local jointTooltipState = UIElement:new({
 					parent = tbTooltipView,
 					pos = { tbTooltipView.size.h / 3 + 10, jointTooltipName.shift.y + jointTooltipName.size.h },
@@ -139,6 +147,10 @@ do
 	end
 	
 	function Tooltip:showTooltipJoint(player, joint)
+		if (TB_TOOLTIP_GRABDISPLAY) then
+			return
+		end
+		TB_TOOLTIP_GLOBALID = TB_TOOLTIP_GLOBALID or 1010
 		if (PLAYERINFO.default) then
 			PLAYERINFO = PlayerInfo:getItems(PlayerInfo:getUser())
 			local forceInfo = get_color_info(PLAYERINFO.colors.force)
