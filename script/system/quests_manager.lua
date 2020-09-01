@@ -463,7 +463,7 @@ do
 		else
 			questProgressText:addAdaptedText(true, TB_MENU_LOCALIZED.QUESTSCLAIMREWARD, nil, nil, nil, nil, nil, nil, nil, 1)
 			questProgressBarState:addMouseHandlers(nil, function()
-					questProgressBarState:deactivate()
+					questProgressBarState:deactivate(true)
 					questProgressText:addCustomDisplay(true, function() end)
 					TBMenu:displayLoadingMarkSmall(questProgressBarState, "", questProgressText.textFont)
 					Request:queue(function() claim_quest_global(quest.id) end, "net_questclaim", function()
@@ -716,7 +716,9 @@ do
 						file:close()
 						QUESTS_DATA = Quests:getQuests()
 						QUEST_REFRESH_CLAIMED = false
-						Quests:showQuests()
+						if (waitView and not waitView.destroyed) then
+							Quests:showQuests()
+						end
 					end
 				end)
 		end

@@ -274,7 +274,7 @@ QUESTSNAMETYPEDECAP	Head Hunter
 QUESTSPLAYREQ	Play	
 QUESTSWINREQ	Win	
 QUESTSGETREQ	Get	
-QUESTSGETREQ2	points accross your fights	
+QUESTSGETREQ2	points across your fights	
 QUESTSDECAPREQ	Decap players	
 QUESTSDISMEMBERREQ	Dismember players	
 QUESTSMATCHMAKEREQ	while in matchmaking	

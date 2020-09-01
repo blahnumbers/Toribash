@@ -28,6 +28,10 @@ local function showPopup(i)
 	Quests:setQuestProgress(quest, popupsData[i][2])
 	if (oldProgress > quest.progress) then
 		DELAY = 0
+	elseif (quest.progress >= quest.requirement) then
+		DELAY = 10
+	else
+		DELAY = 5
 	end
 	local percentageThreshold = math.floor(oldProgress / quest.requirement * 10)
 	if (math.floor(quest.progress / quest.requirement * 10) == percentageThreshold) then
@@ -44,7 +48,6 @@ local function showPopup(i)
 			questRefresh:addCustomDisplay(false, function()
 					if (not file:isDownloading()) then
 						file:close()
-						local oldQuests = cloneTable(QUESTS_DATA)
 						QUESTS_DATA = Quests:getQuests()
 						if (QUEST_POPUP_CLAIM and not TB_MENU_QUESTS_NEW) then
 							TB_MENU_NOTIFICATIONS_COUNT = TB_MENU_NOTIFICATIONS_COUNT + 1
@@ -159,6 +162,7 @@ local function showPopup(i)
 					questProgressNotificationHolder:activate()
 					questProgressNotificationHolder:addMouseHandlers(nil, function()
 							buttonClicked = true
+							QUEST_POPUP_CLAIM = false
 							Request:queue(function() claim_quest(quest.id) end, "questclaim", function()
 								update_tc_balance()
 							end)
@@ -236,10 +240,14 @@ local function showPopup(i)
 												pos = { 0, 0 },
 												size = { 0, 0 }
 											})
-											questRefresh:addCustomDisplay(false, function()
+											local wait = 0
+											questRefresh:addCustomDisplay(true, function()
+													if (wait < 10) then
+														wait = wait + 1
+														return
+													end
 													if (not file:isDownloading()) then
 														file:close()
-														local oldQuests = cloneTable(QUESTS_DATA)
 														QUESTS_DATA = Quests:getQuests()
 														if (QUEST_POPUP_CLAIM and not TB_MENU_QUESTS_NEW) then
 															TB_MENU_NOTIFICATIONS_COUNT = TB_MENU_NOTIFICATIONS_COUNT + 1
