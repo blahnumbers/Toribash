@@ -87,7 +87,7 @@ local function outroOverlay(viewElement, reqTable)
 	showOverlay(viewElement, reqTable, true)
 end
 
-local function showUploadWindow(viewElement, reqTable)
+local function showUploadWindow(viewElement, reqTable, onlySave)
 	local uploadOverlay = nil
 	
 	local function uploadReplay(name)
@@ -100,6 +100,10 @@ local function showUploadWindow(viewElement, reqTable)
 			return false
 		end
 		UIElement:runCmd("savereplay " .. name)
+		
+		if (onlySave) then
+			return
+		end
 		
 		local tutorialNum = CURRENT_TUTORIAL:gsub("%D", "")
 		local eventtag = "headinthewall" .. tutorialNum
@@ -160,7 +164,7 @@ local function showUploadWindow(viewElement, reqTable)
 	
 	add_hook("key_down", "tbTutorialsCustom", function(s) UIElement:handleKeyDown(s) return 1 end)
 	add_hook("key_up", "tbTutorialsCustom", function(s) UIElement:handleKeyUp(s) return 1 end)
-	uploadOverlay = TBMenu:showConfirmationWindowInput(TB_MENU_LOCALIZED.EVENTSUPLOADINGENTRY, TB_MENU_LOCALIZED.REPLAYSENTERNAME, uploadReplay, cancelUpload, TB_MENU_LOCALIZED.EVENTSUPLOADIGNENTRYINFO, TB_TUTORIAL_MODERN_GLOBALID)
+	uploadOverlay = TBMenu:showConfirmationWindowInput(onlySave and TB_MENU_LOCALIZED.REPLAYSSAVEREPLAY or TB_MENU_LOCALIZED.EVENTSUPLOADINGENTRY, TB_MENU_LOCALIZED.REPLAYSENTERNAME, uploadReplay, cancelUpload, not onlySave and TB_MENU_LOCALIZED.EVENTSUPLOADIGNENTRYINFO or nil, TB_TUTORIAL_MODERN_GLOBALID)
 end
 
 local function eventMain(viewElement, reqTable, skipAdd)
@@ -491,7 +495,7 @@ local function playerWin(viewElement, reqTable)
 		})
 		saveReplay:addAdaptedText(false, TB_MENU_LOCALIZED.REPLAYSSAVEREPLAY)
 		saveReplay:addMouseHandlers(nil, function()
-				dofile("system/replay_save.lua")
+				showUploadWindow(viewElement, reqTable, true)
 			end)
 		local restartGame = UIElement:new({
 			parent = playAgainView,

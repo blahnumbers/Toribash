@@ -9,4 +9,4 @@ UPLOADSUCCESS3	If you decide to change your replay entry to another one, please 
 UPLOADSUCCESS4	Thanks for participating and see you next time!
 #Tasks
 HWTASK1	Toss your head into one of the three holes
-HWTASKADD1	Smaller holes give the better rewards
+HWTASKADD1	Smaller holes give better rewards
