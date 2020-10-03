@@ -5,7 +5,7 @@ do
 	Events.__index = Events
 	local cln = {}
 	setmetatable(cln, Events)
-	
+
 	function Events:quit()
 		tbMenuCurrentSection:kill(true)
 		tbMenuNavigationBar:kill(true)
@@ -13,7 +13,7 @@ do
 		TB_MENU_EVENTS_OPEN = false
 		TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
 	end
-	
+
 	function Events:getNavigationButtons(showBack)
 		local navigation = {
 			{
@@ -29,11 +29,11 @@ do
 		end
 		return navigation
 	end
-	
+
 	function Events:loadMovember(viewElement)
 		TBMenu:clearNavSection()
 		TBMenu:showNavigationBar(Events:getNavigationButtons(TB_MENU_EVENTS_OPEN), true)
-		
+
 		local loadingView = UIElement:new({
 			parent = viewElement,
 			pos = { 5, 0 },
@@ -42,13 +42,13 @@ do
 		})
 		TBMenu:addBottomBloodSmudge(loadingView, 1)
 		TBMenu:displayLoadingMark(loadingView, TB_MENU_LOCALIZED.EVENTSLOADING)
-		
+
 		local function throwError(text)
 			loadingView:kill(true)
 			TBMenu:addBottomBloodSmudge(loadingView, 1)
 			loadingView:addAdaptedText(nil, text)
 		end
-		
+
 		local playerData, showWelcome = {}, false
 		loadingView:addCustomDisplay(false, function()
 				if (get_network_task() == 0) then
@@ -84,11 +84,11 @@ do
 				end
 			end)
 	end
-	
+
 	function Events:showMovemberIntro()
 		local overlay = TBMenu:spawnWindowOverlay()
 		overlay.bgColor[4] = 0
-		
+
 		local mainView = UIElement:new({
 			parent = overlay,
 			pos = { overlay.size.w / 5, overlay.size.h / 8 },
@@ -96,7 +96,7 @@ do
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
 		mainView.bgColor[4] = 0
-		
+
 		local function showMain()
 			local updater = UIElement:new({
 				parent = mainView,
@@ -149,7 +149,7 @@ do
 			welcomeButton:addMouseHandlers(nil, function()
 					overlay:kill()
 				end)
-			
+
 			welcomeTitle.uiColor[4] = 0
 			welcomeText.uiColor[4] = 0
 			welcomeButton.bgColor[4] = 0
@@ -159,7 +159,7 @@ do
 					framerate = 5
 					local mod = math.sin(rad)
 					rad = rad + step
-					
+
 					welcomeTitle.uiColor[4] = welcomeTitle.uiColor[4] + 0.09 * mod
 					welcomeText.uiColor[4] = welcomeText.uiColor[4] + 0.09 * mod
 					welcomeImageOverlay.bgColor[4] = welcomeImageOverlay.bgColor[4] - 0.09 * mod
@@ -170,23 +170,23 @@ do
 					end
 				end)
 		end
-		
+
 		local rad, step = math.pi / 3, math.pi / 45
 		mainView:addCustomDisplay(false, function()
 				local finished = false
 				local mod = math.sin(rad)
 				rad = rad + step
-				
+
 				overlay.bgColor[4] = overlay.bgColor[4] + 0.04 * mod
 				mainView.bgColor[4] = mainView.bgColor[4] + 0.09 * mod
 				mainView.shift.y = mainView.shift.y + overlay.size.h / 400 * mod
-				
+
 				if (mainView.shift.y >= overlay.size.h / 6) then
 					mainView.bgColor[4] = 1
 					mainView.shift.y = overlay.size.h / 6
 					finished = true
 				end
-				
+
 				if (finished) then
 					mainView:addCustomDisplay(false, function() end)
 					showMain()
@@ -194,16 +194,16 @@ do
 			end)
 		return mainView
 	end
-	
+
 	function Events:getMovemberProgressInfoText()
 		return "- Playing games online with your moustache equipped (1 pt per game)\n- Completing quests (20 pts per quest, up to 3 per day)\n- Logging in daily (up to 75 pts for 7th day of consecutive logins)\n- Winning bets in active rooms (up to 5 pts per won bet)\n- Winning automatic tournaments (50 pts per tourney)\n- Winning ES events (100 pts per event)"
 	end
-	
+
 	function Events:getStacheLevelPoints(points, current)
 		local stachePointLevels = {
 			0, 100, 250, 500, 1000, 2000
 		}
-		
+
 		for i = 1, #stachePointLevels do
 			if (stachePointLevels[i] > points and stachePointLevels[i - 1] <= points) then
 				local i = current and i - 1 or i
@@ -212,7 +212,7 @@ do
 		end
 		return stachePointLevels[#stachePointLevels], #stachePointLevels
 	end
-	
+
 	function Events:showMovemberPlayerStats(viewElement, playerData)
 		local viewTitle = UIElement:new({
 			parent = viewElement,
@@ -294,7 +294,7 @@ do
 						end)
 				end)
 		end
-		
+
 		local progressInfo = UIElement:new({
 			parent = viewElement,
 			pos = { 20, progressOverlay.shift.y + progressOverlay.size.h * 0.7 + 20 },
@@ -312,7 +312,7 @@ do
 			size = { progressInfo.size.w, progressInfo.size.h - progressTitle.shift.y - progressTitle.size.h }
 		})
 		progressInfoText:addAdaptedText(true, Events:getMovemberProgressInfoText(), nil, nil, 4, LEFT, nil, 0.6)
-		
+
 		local threadButton = UIElement:new({
 			parent = viewElement,
 			pos = { viewElement.size.w / 5, progressInfo.size.h + progressInfo.shift.y },
@@ -327,19 +327,19 @@ do
 				open_url("https://forum.toribash.com/showthread.php?t=633220")
 			end)
 	end
-	
+
 	function Events:showMovemberToplist(viewElement, toplistData)
 		local elementHeight = 38
 		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 50, elementHeight - 20, 20, TB_MENU_DEFAULT_BG_COLOR)
 		TBMenu:addBottomBloodSmudge(botBar, 2)
-		
+
 		local toplistTitle = UIElement:new({
 			parent = topBar,
 			pos = { 10, 7 },
 			size = { topBar.size.w - 20, topBar.size.h - 14 }
 		})
 		toplistTitle:addAdaptedText(true, "Manliest Mustaches", nil, nil, FONTS.BIG, nil, nil, nil, 0.5)
-		
+
 		local listElements = {}
 		for i,v in pairs(toplistData) do
 			local topEntry1 = UIElement:new({
@@ -368,7 +368,7 @@ do
 			local pts, lvl = Events:getStacheLevelPoints(v.points, true)
 			lvl = lvl == 6 and 'MAX Level' or 'Level ' .. lvl
 			entryPoints:addAdaptedText(true, lvl .. ", " .. v.points .. " points", nil, nil, 4, LEFTMID, 0.7)
-			
+
 			local userBelt = PlayerInfo:getBeltFromQi(v.qi)
 			local entryUserbelt = UIElement:new({
 				parent = topEntry2,
@@ -377,7 +377,7 @@ do
 				bgImage = userBelt.icon
 			})
 			entryUserbelt:addAdaptedText(false, userBelt.name .. " belt", nil, nil, nil, CENTERBOT, 0.7, nil, 1, 1)
-			
+
 			local separator = UIElement:new({
 				parent = listingHolder,
 				pos = { 10, #listElements * elementHeight + elementHeight / 2 - 1 },
@@ -392,10 +392,10 @@ do
 		local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
 		scrollBar:makeScrollBar(listingHolder, listElements, toReload)
 	end
-	
+
 	function Events:loadMovemberToplist(viewElement)
 		TBMenu:displayLoadingMark(viewElement, TB_MENU_LOCALIZED.EVENTSLOADINGTOPPLAYERS)
-		
+
 		local function throwError(text)
 			viewElement:kill(true)
 			TBMenu:addBottomBloodSmudge(viewElement, 2)
@@ -413,7 +413,7 @@ do
 				if (countdown > 0) then
 					return
 				end
-				
+
 				local toplistData = {}
 				-- Send new request only if any previous requests are finished
 				if (get_network_task() == 0) then
@@ -441,10 +441,10 @@ do
 				end
 			end)
 	end
-	
+
 	function Events:showMovember(viewElement, playerData, firstLaunch)
 		viewElement:kill(true)
-		
+
 		local toplistWidth = viewElement.size.w / 3 > 350 and 350 or viewElement.size.w / 3
 		local playerStatsView = UIElement:new({
 			parent = viewElement,
@@ -454,7 +454,7 @@ do
 		})
 		TBMenu:addBottomBloodSmudge(playerStatsView, 1)
 		Events:showMovemberPlayerStats(playerStatsView, playerData)
-		
+
 		local movemberToplistView = UIElement:new({
 			parent = viewElement,
 			pos = { playerStatsView.size.w + 15, 0 },
@@ -462,7 +462,7 @@ do
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
 		TBMenu:addBottomBloodSmudge(movemberToplistView, 2)
-		
+
 		if (firstLaunch) then
 			local intro = Events:showMovemberIntro()
 			intro.killAction = function()
@@ -472,14 +472,14 @@ do
 			Events:loadMovemberToplist(movemberToplistView)
 		end
 	end
-	
+
 	function Events:loadModChampionship(viewElement)
 		TBMenu:clearNavSection()
 		TBMenu:showNavigationBar(Events:getNavigationButtons(TB_MENU_EVENTS_OPEN), true)
 		add_hook("console", "friendsListConsoleIgnore", function(s, i) if (s == "refreshing server list") then return 1 end end)
 		UIElement:runCmd("refresh")
 		remove_hooks("friendsListConsoleIgnore")
-		
+
 		local loadingView = UIElement:new({
 			parent = viewElement,
 			pos = { 5, 0 },
@@ -488,15 +488,18 @@ do
 		})
 		TBMenu:addBottomBloodSmudge(loadingView, 1)
 		TBMenu:displayLoadingMark(loadingView, TB_MENU_LOCALIZED.EVENTSLOADING)
-		
+
 		local function throwError(text)
 			loadingView:kill(true)
 			TBMenu:addBottomBloodSmudge(loadingView, 1)
 			loadingView:addAdaptedText(nil, text)
 		end
-		
-		local champInfo, playerData = { loaded = false }, { games = 0 }
-		Request:new("modchampionship", function()
+
+		local champInfo, playerData = { loaded = false }, { games = 0, ranking = { wins = 0, losses = 0 } }
+		Request:queue(function()
+				download_server_info("modchampionship&username=" .. TB_MENU_PLAYER_INFO.username)
+			end,
+			"modchampionship", function()
 				local response = get_network_response()
 				if (response:find("ERROR;")) then
 					throwError(TB_MENU_LOCALIZED.ACCOUNTINFOERROR)
@@ -506,6 +509,10 @@ do
 					local ln = ln:gsub("\n$", '')
 					if (ln:find("^MODCHAMPIONSHIP 0;")) then
 						playerData.games = ln:gsub("MODCHAMPIONSHIP 0;", '') + 0
+					elseif (ln:find("^MODCHAMPRANKING 0;")) then
+						local rankInfo = ln:gsub("MODCHAMPRANKING 0;", '');
+						local data = { rankInfo:match(("([^\t]*)\t?"):rep(4)) }
+						playerData.ranking = { elo = data[1], rank = data[2] + 0, wins = data[3] + 0, losses = data[4] + 0 }
 					elseif (ln:find("^MODNAME 0;")) then
 						champInfo.loaded = true
 						champInfo.mod = ln:gsub("MODNAME 0;", '')
@@ -536,9 +543,8 @@ do
 			end, function()
 				throwError(TB_MENU_LOCALIZED.REQUESTCONNECTIONERROR)
 			end)
-		download_server_info("modchampionship&username=" .. TB_MENU_PLAYER_INFO.username)
 	end
-	
+
 	function Events:showModChampionshipPlayerRewards(viewElement, playerStats)
 		local prizesToClaim, prizesToUnlock = {}, {}
 		for i,v in pairs(playerStats.rewards) do
@@ -571,16 +577,16 @@ do
 					prizesClaimButton:addCustomDisplay(false, function() end)
 					prizesClaimButton:kill(true)
 					TBMenu:displayLoadingMarkSmall(prizesClaimButton, TB_MENU_LOCALIZED.REWARDSCLAIMINPROGRESS .. "...", FONTS.MEDIUM)
-					
+
 					if (get_network_task() == 0) then
-						Request:new('modchampreward', function()
+						Request:queue(function() claim_quest(-1) end,
+							'modchampreward', function()
 								prizesClaimButton:kill(true)
 								prizesClaimButton:addAdaptedText(false, TB_MENU_LOCALIZED.REWARDSCLAIMSUCCESS)
 							end, function()
 								prizesClaimButton:kill(true)
 								prizesClaimButton:addAdaptedText(false, TB_MENU_LOCALIZED.REQUESTUNKNOWNERROR)
 							end)
-						claim_quest(-1)
 					else
 						local waiter = UIElement:new({
 							parent = prizesClaimButton,
@@ -590,14 +596,14 @@ do
 						waiter:addCustomDisplay(true, function()
 								if (get_network_task() == 0) then
 									waiter:kill()
-									Request:new('modchampreward', function()
+									Request:queue(function() claim_quest(-1) end,
+									'modchampreward', function()
 											prizesClaimButton:kill(true)
 											prizesClaimButton:addAdaptedText(false, TB_MENU_LOCALIZED.REWARDSCLAIMSUCCESS)
 										end, function()
 											prizesClaimButton:kill(true)
 											prizesClaimButton:addAdaptedText(false, TB_MENU_LOCALIZED.REQUESTUNKNOWNERROR)
 										end)
-									claim_quest(-1)
 								end
 							end)
 					end
@@ -653,11 +659,11 @@ do
 			allRewardsClaimedInfo:addAdaptedText(true, TB_MENU_LOCALIZED.EVENTSKEEPPLAYINGTOGETINTOPLIST, nil, nil, 4, CENTER)
 		end
 	end
-	
+
 	function Events:modChampionshipConnect()
 		dofile("system/friendlist_manager.lua")
 		local players = FriendsList:updateOnline()
-		
+
 		local defaultRoom, rooms = "modmania1", { "modmania%d" }
 		local roomsOnline = {}
 		for i, online in pairs(players) do
@@ -688,10 +694,12 @@ do
 			close_menu()
 		end
 	end
-	
-	function Events:showModChampionshipToplist(toReload, listingHolder, elementHeight, toplist)
+
+	function Events:showModChampionshipToplist(toReload, listingHolder, elementHeight, toplist, mode)
+		MODCHAMPIONSHIP_TOPLIST_MODE = mode and mode or 0
+		local modeName = MODCHAMPIONSHIP_TOPLIST_MODE == 1 and "ranking" or "games"
 		local listElements = {}
-		for i,v in pairs(toplist) do
+		for i,v in pairs(toplist[modeName]) do
 			if (v.games) then
 				local topPlayerHolder = UIElement:new({
 					parent = listingHolder,
@@ -723,6 +731,37 @@ do
 					size = { (topPlayerEntry.size.w - 60) * 0.3, topPlayerEntry.size.h - 10 }
 				})
 				topPlayerGames:addAdaptedText(true, v.games .. " " .. string.lower(TB_MENU_LOCALIZED.EVENTSGAMESWON), nil, nil, 4, nil, 0.6)
+			elseif (v.rank) then
+				local topPlayerHolder = UIElement:new({
+					parent = listingHolder,
+					pos = { 0, #listElements * elementHeight },
+					size = { listingHolder.size.w, elementHeight }
+				})
+				table.insert(listElements, topPlayerHolder)
+				local topPlayerEntry = UIElement:new({
+					parent = topPlayerHolder,
+					pos = { 10, 3 },
+					size = { topPlayerHolder.size.w - 10, topPlayerHolder.size.h - 6 },
+					bgColor = TB_MENU_DEFAULT_DARKER_COLOR
+				})
+				local topPlayerPlace = UIElement:new({
+					parent = topPlayerEntry,
+					pos = { 10, 5 },
+					size = { 30, topPlayerEntry.size.h - 10 }
+				})
+				topPlayerPlace:addAdaptedText(true, "#" .. v.rank, nil, nil, 4, nil, 0.7)
+				local topPlayerName = UIElement:new({
+					parent = topPlayerEntry,
+					pos = { 50, 5 },
+					size = { (topPlayerEntry.size.w - 60) * 0.7, topPlayerEntry.size.h - 10 }
+				})
+				topPlayerName:addAdaptedText(true, v.name, nil, nil, nil, LEFTMID)
+				local topPlayerGames = UIElement:new({
+					parent = topPlayerEntry,
+					pos = { -(topPlayerEntry.size.w - 60) * 0.3 - 10, 5 },
+					size = { (topPlayerEntry.size.w - 60) * 0.3, topPlayerEntry.size.h - 10 }
+				})
+				topPlayerGames:addAdaptedText(true, v.elo .. " elo", nil, nil, 4, nil, 0.6)
 			end
 		end
 		for i,v in pairs(listElements) do
@@ -730,8 +769,9 @@ do
 		end
 		local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
 		scrollBar:makeScrollBar(listingHolder, listElements, toReload)
+		return scrollBar
 	end
-	
+
 	function Events:showModChampionship(viewElement, champInfo, playerStats)
 		local playerStatsHolder = UIElement:new({
 			parent = viewElement,
@@ -747,33 +787,31 @@ do
 		})
 		playerStatsTitle:addAdaptedText(true, TB_MENU_LOCALIZED.EVENTSMYSTATS, nil, nil, FONTS.BIG, nil, nil, nil, 0.5)
 		local gamesHolderH = playerStatsHolder.size.h / 2 - playerStatsTitle.size.h - playerStatsTitle.shift.y - 5
-		gamesHolderH = gamesHolderH > 130 and 130 or gamesHolderH
+		gamesHolderH = gamesHolderH > 70 and 70 or gamesHolderH
 		local playerGamesHolder = UIElement:new({
 			parent = playerStatsHolder,
-			pos = { 10, playerStatsTitle.shift.y + playerStatsTitle.size.h + 5 },
-			size = { playerStatsHolder.size.w - 10, gamesHolderH }
+			pos = { 20, playerStatsTitle.shift.y + playerStatsTitle.size.h + 5 },
+			size = { playerStatsHolder.size.w - 40, gamesHolderH / 2 }
 		})
-		local playerGamesWonText = UIElement:new({
-			parent = playerGamesHolder,
-			pos = { 0, 0 },
-			size = { playerGamesHolder.size.w, playerGamesHolder.size.h * 0.4 }
+		playerGamesHolder:addAdaptedText(true, TB_MENU_LOCALIZED.EVENTSGAMESWON .. ": " .. (playerStats.games > 0 and (playerStats.games .. '') or TB_MENU_LOCALIZED.WORDNONE), nil, nil, FONTS.MEDIUM, CENTERBOT)
+		
+		local hasRank = (playerStats.ranking.wins + playerStats.ranking.losses) >= 10
+		local playerRankHolder = UIElement:new({
+			parent = playerStatsHolder,
+			pos = { playerGamesHolder.shift.x, playerGamesHolder.shift.y + playerGamesHolder.size.h + 5 },
+			size = { playerGamesHolder.size.w, playerGamesHolder.size.h }
 		})
-		playerGamesWonText:addAdaptedText(true, TB_MENU_LOCALIZED.EVENTSGAMESWON, nil, nil, FONTS.MEDIUM, CENTERBOT)
-		local playerGamesWon = UIElement:new({
-			parent = playerGamesHolder,
-			pos = { 0, playerGamesWonText.size.h },
-			size = { playerGamesHolder.size.w, playerGamesHolder.size.h - playerGamesWonText.size.h }
-		})
-		playerGamesWon:addAdaptedText(true, playerStats.games > 0 and (playerStats.games .. '') or TB_MENU_LOCALIZED.WORDNONE, nil, nil, FONTS.BIG, CENTER)
+		playerRankHolder:addAdaptedText(true, TB_MENU_LOCALIZED.MATCHMAKERANK .. (hasRank and (" " .. playerStats.ranking.rank .. ' (' .. playerStats.ranking.elo .. " elo)") or (": " .. TB_MENU_LOCALIZED.MATCHMAKEQUALIFYING)), nil, nil, FONTS.MEDIUM, CENTER)
+		
 		if (playerStats.rewards) then
 			local playerGamesRewards = UIElement:new({
 				parent = playerStatsHolder,
-				pos = { 10, playerGamesHolder.size.h + playerGamesHolder.shift.y },
-				size = { playerStatsHolder.size.w - 20, playerStatsHolder.size.h - playerGamesHolder.size.h - playerGamesHolder.shift.y }
+				pos = { 10, playerRankHolder.shift.y + playerRankHolder.size.h + 20 },
+				size = { playerStatsHolder.size.w - 20, playerStatsHolder.size.h - playerRankHolder.shift.y - playerRankHolder.size.h - 20 }
 			})
 			Events:showModChampionshipPlayerRewards(playerGamesRewards, playerStats)
 		end
-		
+
 		local globalChallengeHolder = UIElement:new({
 			parent = viewElement,
 			pos = { playerStatsHolder.size.w + 15, 0 },
@@ -793,7 +831,7 @@ do
 			size = { globalChallengeHolder.size.w - 20, 25 }
 		})
 		globalChallengeTimeleft:addAdaptedText(true, champInfo.timeleft > 0 and (TB_MENU_LOCALIZED.EVENTSENDSIN .. " " .. TBMenu:getTime(champInfo.timeleft, 2)) or (TB_MENU_LOCALIZED.EVENTSENDED .. " " .. TBMenu:getTime(-champInfo.timeleft, 2) .. " " .. TB_MENU_LOCALIZED.EVENTSENDEDAGO))
-		
+
 		local bgScale = globalChallengeHolder.size.w * 0.7 > globalChallengeHolder.size.h - 250 and globalChallengeHolder.size.h - 250 or globalChallengeHolder.size.w * 0.7
 		local questBackground = UIElement:new({
 			parent = globalChallengeHolder,
@@ -812,7 +850,7 @@ do
 			questBackground.uiColor = cloneTable(TB_MENU_DEFAULT_ORANGE)
 			questImage = "../textures/menu/general/buttons/checkmarkbig.tga"
 		end
-		
+
 		local questIcon = UIElement:new({
 			parent = questBackground,
 			pos = { bgScale / 5, bgScale / 5 },
@@ -844,7 +882,7 @@ do
 			})
 			TBMenu:displayHelpPopup(prizeInfo, TB_MENU_LOCALIZED.EVENTSGLOBALPRIZEWILLBESENT, nil, true)
 		end
-		
+
 		local globalItemReward = Torishop:getItemInfo(champInfo.reward)
 		local globalReward = UIElement:new({
 			parent = globalChallengeHolder,
@@ -852,7 +890,7 @@ do
 			size = { globalChallengeHolder.size.w - 40, globalChallengeHolder.size.h - questBackground.shift.y - questBackground.size.h - 70 }
 		})
 		TBMenu:showTextWithImage(globalReward, globalItemReward.itemname, FONTS.MEDIUM, 64, Torishop:getItemIcon(globalItemReward.itemid))
-		
+
 		local joinButton = UIElement:new({
 			parent = globalChallengeHolder,
 			pos = { 20, -60 },
@@ -864,7 +902,8 @@ do
 		})
 		joinButton:addAdaptedText(nil, TB_MENU_LOCALIZED.FRIENDSLISTJOINROOM)
 		joinButton:addMouseHandlers(nil, function() Events:modChampionshipConnect() end)
-		
+
+		local toplist = { games = {}, ranking = {} }
 		local playersToplistHolder = UIElement:new({
 			parent = viewElement,
 			pos = { globalChallengeHolder.size.w + globalChallengeHolder.shift.x + 10, 0 },
@@ -872,53 +911,102 @@ do
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
 		local elementHeight = 50
-		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(playersToplistHolder, elementHeight, elementHeight - 16, 15, TB_MENU_DEFAULT_BG_COLOR)
+		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(playersToplistHolder, elementHeight * 2, elementHeight - 16, 15, TB_MENU_DEFAULT_BG_COLOR)
+		listingHolder.hasDataLoaded = false
+		
 		local toplistTitle = UIElement:new({
 			parent = topBar,
 			pos = { 10, 5 },
-			size = { topBar.size.w - 20, topBar.size.h - 10 }
+			size = { topBar.size.w - 20, topBar.size.h / 2 - 10 }
 		})
 		toplistTitle:addAdaptedText(true, TB_MENU_LOCALIZED.EVENTSTOPLIST, nil, nil, FONTS.BIG, nil, nil, nil, 0.5)
 		TBMenu:addBottomBloodSmudge(botBar, 3)
-		
-		TBMenu:displayLoadingMark(listingHolder, TB_MENU_LOCALIZED.EVENTSLOADINGTOPPLAYERS)
-		local loader = UIElement:new({
-			parent = listingHolder,
-			pos = { 0, 0 },
-			size = { 0, 0 }
+		local toplistModeGames = UIElement:new({
+			parent = topBar,
+			pos = { 10, toplistTitle.shift.y + toplistTitle.size.h + 5 },
+			size = { topBar.size.w / 2 - 15, topBar.size.h - toplistTitle.size.h - toplistTitle.shift.y - 10 },
+			interactive = true,
+			bgColor = cloneTable(TB_MENU_DEFAULT_BG_COLOR),
+			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR
 		})
-		loader.count = 0
-		loader:addCustomDisplay(true, function()
-				if (get_network_task() == 0 and loader.count > 2) then
-					loader:kill()
-					Request:new("modchampionshiptoplist", function()
-							local response = get_network_response()
-							local toplist = {}
-							listingHolder:kill(true)
-							if (response:sub(0, 4) ~= "USER") then
-								listingHolder:addAdaptedText(true, TB_MENU_LOCALIZED.REQUESTUNKNOWNERROR)
-							end
-							for ln in response:gmatch("[^\n]*\n?") do
-								local ln = ln:gsub("\n$", '')
-								local data = { ln:match(("([^\t]*)\t"):rep(2)) }
-								if (data[2] ~= "WINS") then
-									table.insert(toplist, { name = data[1], games = data[2] })
-								end
-							end
-							listingHolder:addCustomDisplay(false, function() end)
-							if (listingHolder:isDisplayed()) then
-								Events:showModChampionshipToplist(toReload, listingHolder, elementHeight, toplist)
-							end
-						end, function()
-							listingHolder:kill(true)
-							listingHolder:addAdaptedText(true, TB_MENU_LOCALIZED.REQUESTCONNECTIONERROR)
-						end)
-					download_server_info("modchampionship&do=toplist")
+		toplistModeGames:addAdaptedText(false, TB_MENU_LOCALIZED.EVENTSGAMESWON)
+		local toplistModeRank = UIElement:new({
+			parent = topBar,
+			pos = { toplistModeGames.shift.x * 2 + toplistModeGames.size.w, toplistModeGames.shift.y },
+			size = { toplistModeGames.size.w, toplistModeGames.size.h },
+			interactive = true,
+			bgColor = cloneTable(TB_MENU_DEFAULT_BG_COLOR),
+			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR
+		})
+		toplistModeRank:addAdaptedText(false, TB_MENU_LOCALIZED.MATCHMAKERANK)
+		
+		toplistModeGames:addMouseHandlers(nil, function()
+				if (listingHolder.hasDataLoaded) then
+					if (listingHolder.scrollBar) then
+						listingHolder.scrollBar.parent:kill()
+						listingHolder:kill(true)
+					end
+					listingHolder.scrollBar = Events:showModChampionshipToplist(toReload, listingHolder, elementHeight, toplist, 0)
+					toplistModeGames.bgColor = cloneTable(TB_MENU_DEFAULT_DARKEST_COLOR)
+					toplistModeRank.bgColor = cloneTable(TB_MENU_DEFAULT_BG_COLOR)
 				end
-				loader.count = loader.count + 1
+			end)
+		toplistModeRank:addMouseHandlers(nil, function()
+				if (listingHolder.hasDataLoaded) then
+					if (listingHolder.scrollBar) then
+						listingHolder.scrollBar.parent:kill()
+						listingHolder:kill(true)
+					end
+					listingHolder.scrollBar = Events:showModChampionshipToplist(toReload, listingHolder, elementHeight, toplist, 1)
+					toplistModeRank.bgColor = cloneTable(TB_MENU_DEFAULT_DARKEST_COLOR)
+					toplistModeGames.bgColor = cloneTable(TB_MENU_DEFAULT_BG_COLOR)
+				end
+			end)
+
+		TBMenu:displayLoadingMark(listingHolder, TB_MENU_LOCALIZED.EVENTSLOADINGTOPPLAYERS)
+		Request:queue(function() download_server_info("modchampionship&do=toplist") end,
+			"modchampionshiptoplist", function()
+				local response = get_network_response()
+				listingHolder:kill(true)
+				if (response:sub(0, 4) ~= "USER") then
+					listingHolder:addAdaptedText(true, TB_MENU_LOCALIZED.REQUESTUNKNOWNERROR)
+				end
+				local mode = 0
+				for ln in response:gmatch("[^\n]*\n?") do
+					if (ln:find("^#")) then
+						mode = mode + 1
+					else
+						local ln = ln:gsub("\n$", '')
+						if (mode == 0) then
+							local data = { ln:match(("([^\t]*)\t"):rep(2)) }
+							if (data[2] ~= "WINS") then
+								table.insert(toplist.games, { name = data[1], games = data[2] })
+							end
+						elseif (mode == 1) then
+							local data = { ln:match(("([^\t]*)\t"):rep(3)) }
+							if (data[2] ~= "RANK") then
+								table.insert(toplist.ranking, { name = data[1], rank = data[2], elo = data[3] })
+							end
+						end
+					end
+				end
+				listingHolder:addCustomDisplay(false, function() end)
+				if (listingHolder:isDisplayed()) then
+					listingHolder.hasDataLoaded = true
+					if (MODCHAMPIONSHIP_TOPLIST_MODE == 1) then
+						toplistModeRank.btnUp()
+					else
+						toplistModeGames.btnUp()
+					end
+				end
+			end, function()
+				listingHolder:kill(true)
+				listingHolder:addAdaptedText(true, TB_MENU_LOCALIZED.REQUESTCONNECTIONERROR)
 			end)
 	end
-	
+
 	function Events:getPassedEventInfo(filename)
 		local eventInfo = { shortname = filename:gsub("%.dat$", '') }
 		eventInfo.name = eventInfo.shortname
@@ -928,7 +1016,7 @@ do
 		end
 		local lines = file:readAll()
 		file:close()
-		
+
 		for i, ln in pairs(lines) do
 			if (ln:find("^EVENTNAME 0;")) then
 				eventInfo.name = ln:gsub("^EVENTNAME 0;", '')
@@ -939,25 +1027,25 @@ do
 		end
 		return eventInfo
 	end
-	
+
 	function Events:showPassedEventWinners(viewElement, data)
 		viewElement:kill(true)
 		viewElement:addCustomDisplay(true, function() end)
-		
+
 		local eventName = UIElement:new({
 			parent = viewElement,
 			pos = { 10, 0 },
 			size = { viewElement.size.w - 20, 45 }
 		})
 		eventName:addAdaptedText(true, data.eventname, nil, nil, FONTS.BIG, CENTERBOT)
-		
+
 		local endTime = UIElement:new({
 			parent = viewElement,
 			pos = { 10, eventName.size.h + eventName.shift.y },
 			size = { viewElement.size.w - 20, 25 }
 		})
 		endTime:addAdaptedText(true, data.endtimestring, nil, nil, nil, CENTER)
-		
+
 		local yShift = endTime.size.h + endTime.shift.y + 10
 		if (data.endtimeraw > 0) then
 			local winnerHolder = UIElement:new({
@@ -968,7 +1056,7 @@ do
 			local headDisplayed = false
 			if (data.winner) then
 				local winnerName = data.winner:lower()
-				
+
 				-- make sure we can open customs on Linux
 				local customs = get_files("custom", "")
 				local folderFound = false
@@ -1048,7 +1136,7 @@ do
 			showPrize(Torishop:getItemIcon(itemInfo), itemInfo.itemname, 3)
 		end
 	end
-	
+
 	function Events:showPassedEventButtons(viewElement, sysname, eventid)
 		viewElement:kill(true)
 		local buttonWidth, buttonShift = viewElement.size.w / 3, viewElement.size.w / 3
@@ -1085,11 +1173,11 @@ do
 				EventsOnline:playEvent(sysname)
 			end)
 	end
-	
+
 	function Events:showPassedEventInfo(viewElement, evtname, activeId)
 		viewElement:kill(true)
 		TBMenu:addBottomBloodSmudge(viewElement, 2)
-		
+
 		local eventResponse = {}
 		local eventInfo = Request:queue(function() download_server_info("passed_event_info&eventid=" .. evtname) end, "passedEventInfoFetch", function(data)
 				local response = get_network_response()
@@ -1118,7 +1206,7 @@ do
 					data.failed = true
 				end
 			end)
-		
+
 		local eventInfoHolder = UIElement:new({
 			parent = viewElement,
 			pos = { 10, 10 },
@@ -1136,14 +1224,14 @@ do
 					eventInfoHolder:kill(true)
 					eventInfoHolder:addAdaptedText(true, TB_MENU_LOCALIZED.ACCOUNTINFOERROR)
 					return
-				end 
+				end
 				if (eventInfo.ready and TB_STORE_DATA.ready) then
 					Events:showPassedEventWinners(eventInfoHolder, eventInfo)
 					return
 				end
 			end)
 	end
-	
+
 	function Events:showPassedEvents(viewElement, noBack)
 		if (noBack) then
 			viewElement:kill(true)
@@ -1151,7 +1239,7 @@ do
 			TBMenu:clearNavSection()
 			TBMenu:showNavigationBar(Events:getNavigationButtons(true), true)
 		end
-		
+
 		local eventsListHolder = UIElement:new({
 			parent = viewElement,
 			pos = { 5, 0 },
@@ -1164,20 +1252,20 @@ do
 			size = { viewElement.size.w * 0.65 - 5, viewElement.size.h },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
-		
+
 		local elementHeight = 50
 		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(eventsListHolder, elementHeight, elementHeight - 16, 20, TB_MENU_DEFAULT_BG_COLOR)
 		TBMenu:addBottomBloodSmudge(botBar, 1)
-		
+
 		local allEventsTitle = UIElement:new({
 			parent = topBar,
 			pos = { 10, 5 },
 			size = { topBar.size.w - 20, topBar.size.h - 10 }
 		})
 		allEventsTitle:addAdaptedText(true, TB_MENU_LOCALIZED.EVENTSVIEWIGNALLEVENTS, nil, nil, FONTS.BIG)
-		
+
 		local eventsList = get_files("data/script/events", "dat")
-		
+
 		local eventsData = News:getEvents()
 		for i = 1, #eventsList do
 			local shortname = eventsList[i]:gsub("%.dat$", '')
@@ -1190,7 +1278,7 @@ do
 			end
 		end
 		eventsList = UIElement:qsort(eventsList, { 'live', 'file' }, true)
-		
+
 		local selectedButton = nil
 		local listElements = {}
 		local liveShown, liveOver = false, false
@@ -1267,7 +1355,7 @@ do
 				size = { listEvent.size.w - shiftX - 20, listEvent.size.h - 10 }
 			})
 			listEventName:addAdaptedText(nil, eventInfo.name, nil, nil, nil, LEFTMID, nil, nil, 0.2)
-			
+
 			if (i == 1) then
 				selectedButton = listEvent
 				selectedButton.bgColor = cloneTable(TB_MENU_DEFAULT_DARKEST_COLOR)
@@ -1280,7 +1368,7 @@ do
 		local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
 		scrollBar:makeScrollBar(listingHolder, listElements, toReload)
 	end
-	
+
 	function Events:showEventsHome(viewElement)
 		TBMenu:clearNavSection()
 		TBMenu:showNavigationBar(Events:getNavigationButtons(), true)
@@ -1292,12 +1380,12 @@ do
 				table.remove(newsData, i)
 			end
 		end
-		
+
 		if (#newsData) < 2 then
 			Events:showPassedEvents(viewElement, true)
 			return
 		end
-		
+
 		local buttonH = #newsData > 3 and 0.5 or 1
 		local buttonW = viewElement.size.w * 0.75 / math.ceil(#newsData * buttonH)
 		local shiftX, shiftY = 0, 0
@@ -1320,7 +1408,7 @@ do
 			else
 				TBMenu:showHomeButton(newsButton, v)
 			end
-			
+
 			if (buttonH == 1) then
 				shiftX = shiftX + buttonW
 			else
@@ -1331,7 +1419,7 @@ do
 				end
 			end
 		end
-		
+
 		local allEventsButton = UIElement:new({
 			parent = viewElement,
 			pos = { viewElement.size.w * 0.75 + 5, 0 },
@@ -1348,14 +1436,14 @@ do
 			action = function() Events:showPassedEvents(viewElement) end
 		}
 		TBMenu:showHomeButton(allEventsButton, allEventsButtonData, 3)
-	end	
-	
+	end
+
 	function Events:showEventDescription(viewElement, event)
 		local elementHeight = 41
 		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 55, 60, 20, event.accentColor)
 		listingView.bgColor = cloneTable(event.accentColor)
 		listingView.bgColor[4] = event.overlaytransparency or 0.7
-		
+
 		local listElements = {}
 		for i, info in pairs(event.data) do
 			if (info.imagetitle) then
@@ -1410,17 +1498,17 @@ do
 		for i,v in pairs(listElements) do
 			v:hide()
 		end
-		
+
 		local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
 		scrollBar:makeScrollBar(listingHolder, listElements, toReload, nil, nil, true)
 		scrollBar.bgColor = { 0, 0, 0, 0 }
 		scrollBar.hoverColor = { 0, 0, 0, 0 }
 		scrollBar.pressedColor = { 0, 0, 0, 0 }
 		listingScrollBG.bgColor = { 0, 0, 0, 0 }
-		
+
 		return topBar, botBar
 	end
-	
+
 	function Events:showPrizeInfo(prize, listingHolder, elements, elementHeight)
 		local prize = prize or { id = 0, itemname = "Unknown Item" }
 		local rewardView = UIElement:new({
@@ -1453,13 +1541,13 @@ do
 		itemName:addAdaptedText(true, prize.itemname, nil, nil, nil, LEFTMID)
 		return rewardView
 	end
-	
+
 	function Events:showEventPrizes(viewElement, event)
 		local elementHeight = 41
 		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 55, 60, 20, event.accentColor)
 		listingView.bgColor = cloneTable(event.accentColor)
 		listingView.bgColor[4] = event.overlaytransparency or 0.7
-		
+
 		local listElements = {}
 		if (event.prizes.imagetitle) then
 			local imageScale = elementHeight * 8 > listingHolder.size.w - 20 and (listingHolder.size.w - 20) / 8 or elementHeight
@@ -1479,7 +1567,7 @@ do
 			infoTitle:addAdaptedText(true, "Prizes", nil, nil, FONTS.BIG, nil, nil, nil, 0.5)
 			table.insert(listElements, infoTitle)
 		end
-		
+
 		for i, prize in pairs(event.prizes) do
 			if (prize.info) then
 				local infoRow = UIElement:new({
@@ -1519,24 +1607,24 @@ do
 		for i,v in pairs(listElements) do
 			v:hide()
 		end
-		
+
 		local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
 		scrollBar:makeScrollBar(listingHolder, listElements, toReload, nil, nil, true)
 		scrollBar.bgColor = { 0, 0, 0, 0 }
 		scrollBar.hoverColor = { 0, 0, 0, 0 }
 		scrollBar.pressedColor = { 0, 0, 0, 0 }
 		listingScrollBG.bgColor = { 0, 0, 0, 0 }
-		
+
 		return topBar, botBar
 	end
-	
+
 	function Events:getEventInfo(id)
 		local events = News:getEvents()
-		
+
 		events[id].accentColor = events[id].accentColor or TB_MENU_DEFAULT_BG_COLOR
 		return events[id]
 	end
-	
+
 	function Events:showEventInfo(id)
 		if (not TB_STORE_DATA.ready) then
 			TBMenu:showDataError("Please wait until Torishop data is ready")
@@ -1561,7 +1649,7 @@ do
 			size = { scale * 2, scale },
 			bgImage = event.image
 		})
-		
+
 		local descriptionView = UIElement:new({
 			parent = viewElement,
 			pos = { 0, 0 },
@@ -1574,7 +1662,7 @@ do
 			size = { viewElement.size.w - descriptionView.size.w, viewElement.size.h }
 		})
 		local ptopBar, pbotBar = Events:showEventPrizes(prizesView, event)
-		
+
 		local eventName = UIElement:new({
 			parent = dtopBar,
 			pos = { 10, 5 },
@@ -1583,7 +1671,7 @@ do
 		})
 		table.insert(ptopBar.child, eventName)
 		eventName:addAdaptedText(false, event.name, nil, nil, FONTS.BIG)
-		
+
 		local eventForumLinkHolder = UIElement:new({
 			parent = dbotBar,
 			pos = { 0, 0 },
@@ -1610,7 +1698,7 @@ do
 				buttonPColor[1] = (buttonPColor[1] + math.abs(0.7 - buttonPColor[1]))
 			end
 		end
-		
+
 		local buttons = (event.action and TB_MENU_PLAYER_INFO.username ~= '') and 2 or 1
 		local eventForumLink = UIElement:new({
 			parent = eventForumLinkHolder,
@@ -1667,7 +1755,7 @@ do
 					event.action()
 				end)
 		end
-		
+
 		local closeButton = UIElement:new({
 			parent = ptopBar,
 			pos = { -(ptopBar.size.h - 10), 10 },

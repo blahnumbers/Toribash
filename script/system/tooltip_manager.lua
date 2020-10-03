@@ -21,9 +21,26 @@ do
 	function Tooltip:destroy()
 		-- Force destroy all objects assigned to TB_TOOLTIP_GLOBALID global id
 		TB_TOOLTIP_GLOBALID = TB_TOOLTIP_GLOBALID or 1010
-		for i, v in pairs(UIElementManager) do
+		--[[for i, v in pairs(UIElementManager) do
 			if (v.globalid == TB_TOOLTIP_GLOBALID and v.parent == nil) then
 				v:kill()
+			end
+		end]]
+		
+		-- Method above looks to be not reliable enough
+		local destroyed = false
+		while (not destroyed) do
+			destroyed = true
+			for i,v in pairs(UIElementManager) do
+				if (v.globalid == TB_TOOLTIP_GLOBALID) then
+					local topParent = v
+					while (topParent and topParent.parent) do
+						topParent = topParent.parent;
+					end
+					topParent:kill()
+					destroyed = false
+					break
+				end
 			end
 		end
 		TB_TOOLTIP_LASTSTATE = -1
