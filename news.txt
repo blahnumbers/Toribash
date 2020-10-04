@@ -1,15 +1,27 @@
-//NEWSID 6;
-//TITLE 0;Rubik Fists now available!
-//SUBTITLE 0;Get the newest 3D items by Item Forgers now!
-//IMAGE 0;store/rubikfists.tga
-//URL 0;https://forum.toribash.com/tori_shop_item.php?id=3344
-//STORE 0;3344
+//NEWSID 0;
+//TITLE 0;Twitch Weekend is on!
+//SUBTITLE 0;Stream or watch Toribash on Twitch to get limited edition Streamer Headphones!
+//IMAGE 0;twitchweekend20.tga
+//URL 0;https://forum.toribash.com/showthread.php?t=644002
 
-NEWSID 1;
-TITLE 0;We're giving away more Tori Team items!
-SUBTITLE 0;Join Toribash Discord server to participate now!
-IMAGE 0;giveawaytoriteam2.tga
-URL 0;https://discord.gg/toribash
+//NEWSID 1;
+//TITLE 0;Tank's Ushanka and Medic's Mask giveaway!
+//SUBTITLE 0;Join Toribash Discord server to participate now!
+//IMAGE 0;giveawaytoriteam4.tga
+//URL 0;https://discord.gg/toribash
+
+NEWSID 6;
+TITLE 0;Streamer Headphones are here!
+SUBTITLE 0;HOW'S IT GOING BROS MY NAME'S *high pitched noises*
+IMAGE 0;store/streamerheadphones.tga
+URL 0;https://forum.toribash.com/tori_shop_item.php?id=3346
+STORE 0;3346
+
+NEWSID 7;
+TITLE 0;Head Texture of the Month is back!
+SUBTITLE 0;Show off your art skills in a freestyle texturing event!
+IMAGE 0;htotm20freestyle.tga
+URL 0;https://forum.toribash.com/showthread.php?t=643758
 
 NEWSID 2;
 TITLE 0;Clan League 2020
@@ -17,10 +29,10 @@ SUBTITLE 0;The knockout stage is now on!
 IMAGE 0;clanleague2020.tga
 URL 0;https://forum.toribash.com/showthread.php?t=642297
 
-NEWSID 3;
-TITLE 0;No events live now, but you can still replay any ended event in all events menu!
-IMAGE 0;openerchallenge20sum.tga
-FEATURED 0;
+//NEWSID 3;
+//TITLE 0;No events live now, but you can still replay any ended event in all events menu!
+//IMAGE 0;openerchallenge20sum.tga
+//FEATURED 0;
 
 //NEWSID 4;
 //TITLE 0;Opener Challenge 8
@@ -29,12 +41,18 @@ FEATURED 0;
 //EVENT 0;1
 //FEATURED 0;
 
-//NEWSID 5;
-//TITLE 0;Free Run Frenzy 3
+NEWSID 9;
+SUBTITLE 0;Battle your way to become the top player of this fall!
+IMAGE 0;modmania20.tga
+MODCHAMPIONSHIP 0;
+FEATURED 0;
+
+NEWSID 5;
+TITLE 0;Floor is Lava
 //IMAGESMALL 0;freerunfrenzysmall.tga
-//IMAGE 0;freerunfrenzy.tga
-//EVENT 0;2
-//FEATURED 0;
+IMAGE 0;floorislava.tga
+EVENT 0;4
+FEATURED 0;
 
 //NEWSID 7;
 //TITLE 0;Head in the Wall
@@ -122,7 +140,7 @@ PRIZEST 0;32
 EVENTID 3;
 NAME 0;Head in the Wall
 IMAGE 0;headinthewall.tga
-URL 0;https://forum.toribash.com/showthread.php?t=642742
+URL 0;https://forum.toribash.com/showthread.php?t=643426
 //PLAYNAME 0;headinthewall
 OVERLAYTRANS 0;0.7
 PLAYTEXT 0;PARTICIPATE
@@ -132,7 +150,7 @@ BTNHVRCOL 0;0057b2
 BTNDNCOL 0;8000a5
 DESCDATA 0;1Description
 DESCDATAIMGTITLE 0;1headwall_description.tga
-DESCDATATEXT 0;1The Event Squad is proud to present Free Run Frenzy!\nThe challenge is simple (or is it?) - get to Uke any manner you can! Parkour your way to the red zone either straight on or take a detour through the extra blue checkpoint area for a better prize!\nAs usual, best replay will receive extra rewards so give your replay some love!\nGood luck at freerunning!
+DESCDATATEXT 0;1The Event Squad is proud to present Head in the Wall!\nAll you have to do is throw your head through one of the holes in the wall, how hard can that be? If you can make it through you may just win a prize! If you do it the most stylish way, we've got something extra for you.
 DESCDATA 0;2Rules
 DESCDATAIMGTITLE 0;2headwall_rules.tga
 DESCDATATEXT 0;2- Replay hacking is strictly forbidden\n- Do not steal other players' replays\n- Do not edit any of the game rules except turn and match frames\n- Do not try to enter the event with multiple accounts
@@ -141,12 +159,12 @@ DESCDATAIMGTITLE 0;3headwall_howtoenter.tga
 DESCDATATEXT 0;3You can participate in Free Run Frenzy by pressing "Participate" button on bottom right, completing the challenge and submitting your replay to Toribash servers.\nAlternatively, you can download the opener from the event thread on forums, edit it according to the rules and post your replay back in event thread - if you just upload it to Toribash Community Replays then it won't be judged.\n^07Only one replay per player will be judged.
 DESCDATA 0;4Deadline
 DESCDATAIMGTITLE 0;4headwall_deadline.tga
-DESCDATATEXT 0;4We will stop accepting new entries on September 13th, 16:00 UTC
+DESCDATATEXT 0;4We will stop accepting new entries on September 15th, 16:00 UTC
 DESCDATA 0;5
 PRIZEIMG 0;headwall_prizes.tga
 PRIZEDATA 0;1Best replay
-PRIZETC 0;150000
-PRIZEST 0;110
+PRIZETC 0;145000
+PRIZEST 0;18
 PRIZEDATA 0;2Hit the smallest hole
 PRIZETC 0;25000
 PRIZEST 0;23
@@ -156,3 +174,40 @@ PRIZEST 0;32
 PRIZEDATA 0;4Big hole
 PRIZETC 0;41000
 PRIZEST 0;41
+
+EVENTID 4;
+NAME 0;Floor is Lava
+IMAGE 0;floorislava.tga
+URL 0;https://forum.toribash.com/showthread.php?t=643852
+PLAYNAME 0;floorislava
+OVERLAYTRANS 0;0.7
+PLAYTEXT 0;PARTICIPATE
+ACCENTCOLOR 0;ffbe77
+UICOLOR 0;111111
+BTNHVRCOL 0;bd5500
+BTNDNCOL 0;ff2d00
+DESCDATA 0;1Description
+DESCDATAIMGTITLE 0;1fil_description.tga
+DESCDATATEXT 0;1The Event Squad is proud to present Floor is Lava!\nIn this event you'll need to get to Uke without getting fried! Run straight to the red zone or take a detour through the extra blue checkpoint area for a better prize!\nAs usual, best replay will receive extra rewards so give your replay some love!\nGood luck at freerunning!
+DESCDATA 0;2Rules
+DESCDATAIMGTITLE 0;2fil_rules.tga
+DESCDATATEXT 0;2- Replay hacking is strictly forbidden\n- Do not steal other players' replays\n- Do not edit any of the game rules except turn and match frames\n- Do not try to enter the event with multiple accounts
+DESCDATA 0;3How to Enter
+DESCDATAIMGTITLE 0;3fil_howtoenter.tga
+DESCDATATEXT 0;3You can participate in Floor is Lava by pressing "Participate" button on bottom right, completing the challenge and submitting your replay to Toribash servers.\nAlternatively, you can download event mod from event thread on forums, make a replay according to the rules and post your replay back in event thread - if you just upload it to Toribash Community Replays then it won't be judged.\n^02Only one replay per player is allowed.
+DESCDATA 0;4Deadline
+DESCDATAIMGTITLE 0;4fil_deadline.tga
+DESCDATATEXT 0;4We will stop accepting new entries on October 9th, 16:00 UTC
+DESCDATA 0;5
+PRIZEIMG 0;fil_prizes.tga
+PRIZEDATA 0;1Best replay
+PRIZETC 0;125000
+PRIZEST 0;18
+PRIZEITEMS 0;11 928
+PRIZEDATA 0;2Go through the checkpoint
+PRIZETC 0;28000
+PRIZEST 0;24
+PRIZEITEMS 0;21 2102
+PRIZEDATA 0;3Reach Uke
+PRIZETC 0;33000
+PRIZEST 0;32

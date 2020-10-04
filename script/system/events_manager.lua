@@ -569,8 +569,21 @@ do
 				rounded = 10,
 				uiColor = UICOLORBLACK
 			})
-			local rewardName = #prizesToClaim > 1 and TB_MENU_LOCALIZED.EVENTSCLAIMALL or (TB_MENU_LOCALIZED.EVENTSCLAIM .. " " .. (prizesToClaim[1].tc > 0 and (prizesToClaim[1].tc .. " TC") or (prizesToClaim[1].st > 0 and (prizesToClaim[1].st .. " ST") or Torishop:getItemInfo(prizesToClaim[1].itemid).itemname)))
-			local rewardIcon = #prizesToClaim > 1 and "../textures/store/toricredit.tga" or (prizesToClaim[1].tc > 0 and "../textures/store/toricredit.tga" or (prizesToClaim[1].st > 0 and "../textures/store/shiaitoken.tga" or Torishop:getItemIcon(prizesToClaim[1].itemid)))
+			local rewardName = ""
+			if (#prizesToClaim == 1) then
+				if (prizesToClaim[1].tc > 0) then
+					rewardName = prizesToClaim[1].tc .. " TC"
+				end
+				if (prizesToClaim[1].st > 0) then
+					rewardName = rewardName == "" and (prizesToClaim[1].st .. " ST") or (rewardName .. " & " .. prizesToClaim[1].st .. " ST")
+				end
+				if (prizesToClaim[1].itemid > 0) then
+					rewardName = rewardName == "" and Torishop:getItemInfo(prizesToClaim[1].itemid).itemname or (rewardName .. " & " .. Torishop:getItemInfo(prizesToClaim[1].itemid).itemname)
+				end
+			else
+				rewardName = TB_MENU_LOCALIZED.EVENTSCLAIMALL
+			end
+			local rewardIcon = prizesToClaim[#prizesToClaim].itemid > 0 and Torishop:getItemIcon(prizesToClaim[#prizesToClaim].itemid) or (prizesToClaim[#prizesToClaim].st > 0 and "../textures/store/shiaitoken.tga" or (prizesToClaim[#prizesToClaim].tc > 0 and "../textures/store/toricredit.tga"))
 			TBMenu:showTextWithImage(prizesClaimButton, rewardName, 2, 35, rewardIcon)
 			prizesClaimButton:addMouseHandlers(nil, function()
 					prizesClaimButton:deactivate()
@@ -633,8 +646,17 @@ do
 					pos = { 0, 5 },
 					size = { prizeHolder.size.w, 30 }
 				})
-				local rewardName = v.tc > 0 and (v.tc .. " Toricredits") or (v.st > 0 and (v.st .. " Shiai Tokens") or Torishop:getItemInfo(v.itemid).itemname)
-				local rewardIcon = v.tc > 0 and "../textures/store/toricredit.tga" or (v.st > 0 and "../textures/store/shiaitoken.tga" or Torishop:getItemIcon(v.itemid))
+				local rewardName = ""
+				if (v.tc > 0) then
+					rewardName = v.tc .. " Toricredits"
+				end
+				if (v.st > 0) then
+					rewardName = rewardName == "" and (v.st .. " Shiai Tokens") or (rewardName:gsub("Toricredits", "TC") .. " & " .. v.st .. " ST")
+				end
+				if (v.itemid > 0) then
+					rewardName = rewardName == "" and Torishop:getItemInfo(v.itemid).itemname or (rewardName:gsub("Toricredits", "TC"):gsub("Shiai Tokens", "ST") .. " & " .. Torishop:getItemInfo(v.itemid).itemname)
+				end
+				local rewardIcon = v.itemid > 0 and Torishop:getItemIcon(v.itemid) or (v.st > 0 and "../textures/store/shiaitoken.tga" or (v.tc > 0 and "../textures/store/toricredit.tga"))
 				TBMenu:showTextWithImage(prizeName, rewardName, 2, nil, rewardIcon)
 				local prizeRequirement = UIElement:new({
 					parent = prizeHolder,

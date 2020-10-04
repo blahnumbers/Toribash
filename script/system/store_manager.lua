@@ -11,6 +11,27 @@ local TAB_TEXTURES = 2
 local TAB_ADVANCED = 3
 local TAB_ACCOUNT = 4
 
+local ITEM_EMPTY = {
+	catid = 0,
+	catname = "undef",
+	itemid = 0,
+	itemname = "undefined",
+	on_sale = 0,
+	now_tc_price = 0,
+	now_usd_price = 0,
+	price = 0,
+	price_usd = 0,
+	sale_time = 0,
+	sale_promotion = 0,
+	qi = 0,
+	tier = 0,
+	subscriptionid = 0,
+	ingame = 0,
+	colorid = 0,
+	hidden = 1,
+	locked = 1
+}
+
 do
 	Torishop = {}
 	Torishop.__index = Torishop
@@ -146,7 +167,7 @@ do
 		if (not TB_STORE_DATA) then
 			TB_STORE_DATA, TB_STORE_SECTIONS = Torishop:getItems()
 		end
-		return TB_STORE_DATA[itemid]
+		return TB_STORE_DATA[itemid] or ITEM_EMPTY
 	end
 	
 	function Torishop:getItemIcon(item)
