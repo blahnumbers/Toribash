@@ -264,6 +264,7 @@ do
 				if (scrollIgnoreOverride and scrollIgnore) then
 					UIScrollbarIgnore = false
 				end
+				local scrollSuccessful = false
 				if (s < 4) then
 					self.pressedPos = self:getLocalPos(x,y)
 					self.hoverState = BTN_DN
@@ -271,10 +272,12 @@ do
 						(MOUSE_X > listHolder.parent.pos.x and MOUSE_X < listHolder.parent.pos.x + listHolder.parent.size.w and MOUSE_Y > listHolder.parent.pos.y and MOUSE_Y < listHolder.parent.pos.y + listHolder.parent.size.h))) then
 					self:mouseScroll(listElements, listHolder, toReload, y * scrollSpeed, enabled)
 					posShift[1] = self.shift.y
+					scrollSuccessful = true
 				end
 				if (scrollIgnore and not UIScrollbarIgnore) then
 					UIScrollbarIgnore = true
 				end
+				return scrollSuccessful
 			end, nil,
 			function(x, y)
 				if (self.hoverState == BTN_DN) then
@@ -714,13 +717,12 @@ do
 		else
 			return 1
 		end]]
-
 		if (isNumeric and
 			(get_shift_key_state() > 0 or key < 48 or key > 57) and
 			key ~= 8 and key ~= 127 and key ~= 266 and
 			key ~= 276 and key ~= 275 and
-			key ~= 46) then
-			return 1
+			key ~= 46 and not (key == 45 and self.textfieldindex == 0)) then
+			return
 		end
 		if (key == 8) then
 			if (self.textfieldindex > 0) then
@@ -784,6 +786,8 @@ do
 				self:textfieldUpdate(key - 256)
 			elseif (key > 300) then
 				return
+			elseif (key == 46 and (self.textfieldindex == 0 or self.textfieldstr[1]:find("%."))) then
+				return
 			else
 				self:textfieldUpdate(string.char(key))
 			end
@@ -836,7 +840,9 @@ do
 					end
 					return
 				elseif (s >= 4 and v.scrollEnabled == true) then
-					v.btnDown(s, x, y)
+					if (v.btnDown(s, x, y)) then
+						return
+					end
 				end
 			end
 		end
@@ -872,7 +878,9 @@ do
 					end
 					if (v.hoverState ~= BTN_DN) then
 						v.hoverState = BTN_HVR
-						disable = true
+						if (not v.textfield) then
+							disable = true
+						end
 					end
 					v.btnHover(x,y)
 				else

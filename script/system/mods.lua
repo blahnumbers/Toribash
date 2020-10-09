@@ -1,9 +1,9 @@
 -- Modern UI mods screen
 -- DO NOT MODIFY THIS FILE
 
-dofile("toriui/uielement3d.lua")
-dofile("system/iofiles.lua")
-dofile("system/menu_manager.lua")
+require("toriui/uielement3d")
+require("system/iofiles")
+require("system/menu_manager")
 dofile("system/mods_manager.lua")
 
 if (MODS_MENU_MAIN_ELEMENT) then

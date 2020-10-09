@@ -2716,6 +2716,7 @@ do
 			size = { textBg.size.w - 2, textBg.size.h - 2 },
 			interactive = true,
 			bgColor = darkerMode and TB_MENU_DEFAULT_BG_COLOR or TB_MENU_DEFAULT_LIGHTER_COLOR,
+			hoverColor = darkerMode and TB_MENU_DEFAULT_LIGHTER_COLOR or TB_MENU_DEFAULT_LIGHTEST_COLOR,
 			shapeType = textBg.shapeType,
 			rounded = textBg.rounded
 		})
@@ -2752,7 +2753,18 @@ do
 		element:addCustomDisplay(true, function()
 				if (element.keyboard == true) then
 					set_color(1, 1, 1, 0.2)
-					draw_quad(element.parent.pos.x, element.parent.pos.y, element.parent.size.w, element.parent.size.h)
+					if (element.parent.shapeType == ROUNDED) then
+						draw_disk(element.parent.pos.x + element.parent.rounded, element.parent.pos.y + element.parent.rounded + element.parent.innerShadow[1], 0, element.parent.rounded, 500, 1, -180, 90, 0)
+						draw_disk(element.parent.pos.x + element.parent.rounded, element.parent.pos.y + element.parent.size.h - element.parent.rounded - element.parent.innerShadow[2], 0, element.parent.rounded, 500, 1, -90, 90, 0)
+						draw_disk(element.parent.pos.x + element.parent.size.w - element.parent.rounded, element.parent.pos.y + element.parent.rounded + element.parent.innerShadow[1], 0, element.parent.rounded, 500, 1, 90, 90, 0)
+						draw_disk(element.parent.pos.x + element.parent.size.w - element.parent.rounded, element.parent.pos.y + element.parent.size.h - element.parent.rounded - element.parent.innerShadow[2], 0, element.parent.rounded, 500, 1, 0, 90, 0)
+						draw_quad(element.parent.pos.x + element.parent.rounded, element.parent.pos.y + element.parent.innerShadow[1], element.parent.size.w - element.parent.rounded * 2, element.parent.rounded)
+						draw_quad(element.parent.pos.x, element.parent.pos.y + element.parent.rounded + element.parent.innerShadow[1], element.parent.size.w, element.parent.size.h - element.parent.rounded * 2 - element.parent.innerShadow[2] - element.parent.innerShadow[1])
+						draw_quad(element.parent.pos.x + element.parent.rounded, element.parent.pos.y + element.parent.size.h - element.parent.rounded - element.parent.innerShadow[2], element.parent.size.w - element.parent.rounded * 2, element.parent.rounded)
+					else
+						draw_quad(element.parent.pos.x, element.parent.pos.y, element.parent.size.w, element.parent.size.h)
+					end
+					
 					local part1 = element.textfieldstr[1]:sub(0, element.textfieldindex)
 					local part2 = element.textfieldstr[1]:sub(element.textfieldindex + 1)
 					local displayString = part1 .. (noCursor and "" or "|") .. part2
