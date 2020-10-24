@@ -4444,8 +4444,9 @@ do
 		tbStoreItemInfoHolder:kill(true)
 		tbStoreItemInfoHolder.updated = os.clock()
 		TBMenu:addBottomBloodSmudge(tbStoreItemInfoHolder, 3)
+		local saleBackground
 		if (item.on_sale == 1) then
-			local sale = UIElement:new({
+			saleBackground = UIElement:new({
 				parent = tbStoreItemInfoHolder,
 				pos = { 0, 0 },
 				size = { tbStoreItemInfoHolder.size.w, tbStoreItemInfoHolder.size.w },
@@ -4496,7 +4497,12 @@ do
 			})
 			local percentageTC, percentageST = item.now_tc_price == 0 and 0 or 1 - item.now_tc_price / item.price, item.now_usd_price == 0 and 0 or 1 - item.now_usd_price / item.price_usd
 			local percentage = percentageTC > percentageST and math.floor(percentageTC * 100) or math.floor(percentageST * 100)
-			discountInfo:addAdaptedText(true, TB_MENU_LOCALIZED.STOREDISCOUNTCHEAPER1 .. " " .. percentage .. "%" .. (TB_MENU_LOCALIZED.STOREDISCOUNTCHEAPER2:len() > 0 and (" " .. TB_MENU_LOCALIZED.STOREDISCOUNTCHEAPER2) or "") .. "!", nil, nil, FONTS.BIG)
+			if (percentage > 0) then
+				discountInfo:addAdaptedText(true, TB_MENU_LOCALIZED.STOREDISCOUNTCHEAPER1 .. " " .. percentage .. "%" .. (TB_MENU_LOCALIZED.STOREDISCOUNTCHEAPER2:len() > 0 and (" " .. TB_MENU_LOCALIZED.STOREDISCOUNTCHEAPER2) or "") .. "!", nil, nil, FONTS.BIG)
+			else
+				saleBackground:kill()
+				discountInfo:kill()
+			end
 		end
 		
 		if (TB_MENU_PLAYER_INFO.username == '') then
