@@ -1095,14 +1095,22 @@ do
 					type = INPUT,
 					systemname = "width",
 					reload = true,
-					val = { get_option("width") }
+					val = { get_option("width") },
+					valueVerifyAction = function(val)
+						local maxWidth, maxHeight = get_maximum_window_size()
+						return (tonumber(val) > maxWidth and maxWidth or val)
+					end
 				},
 				{
 					name = TB_MENU_LOCALIZED.SETTINGSHEIGHT,
 					type = INPUT,
 					systemname = "height",
 					reload = true,
-					val = { get_option("height") }
+					val = { get_option("height") },
+					valueVerifyAction = function(val)
+						local maxWidth, maxHeight = get_maximum_window_size()
+						return (tonumber(val) > maxHeight and maxHeight or val)
+					end
 				},
 				{
 					name = TB_MENU_LOCALIZED.SETTINGSWINDOWED,
@@ -1547,6 +1555,9 @@ do
 					else
 						local textField = TBMenu:spawnTextField(itemInput, nil, nil, nil, nil, item.val[1] .. "", true, nil, 0.8, UICOLORWHITE, item.name, CENTERMID)
 						textField:addKeyboardHandlers(nil, function()
+								if (item.valueVerifyAction) then
+									textField.textfieldstr[1] = item.valueVerifyAction(textField.textfieldstr[1]) .. ''
+								end
 								TB_MENU_MAIN_SETTINGS[item.systemname] = { value = tonumber(textField.textfieldstr[1]), reload = item.reload }
 								Settings:settingsApplyActivate(item.reload)
 							end)

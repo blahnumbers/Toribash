@@ -41,11 +41,11 @@ do
 			rule.onSetValue = g.onSetValue
 		end
 		setmetatable(rule, self)
-		if (g.value) then
-			self:setValue(g.value)
+		if (g.gameValue) then
+			rule:setValue(g.gameValue)
 		end
 		if (g.options) then
-			self:setOptions(g.options)
+			rule:setOptions(g.options)
 		end
 		return rule
 	end
@@ -64,8 +64,8 @@ do
 		end
 	end
 	
-	function Gamerule:setSliderSettings(min, max, isBool)
-		self.slider = { minValue = min, maxValue = max, isBoolean = isBool }
+	function Gamerule:setSliderSettings(min, max, isBool, minDisp, maxDisp)
+		self.slider = { minValue = min, maxValue = max, isBoolean = isBool, minValueDisp = minDisp, maxValueDisp = maxDisp }
 	end
 	
 	function Gamerule:setOptions(opts)
@@ -87,7 +87,7 @@ do
 		local rulesList = {
 			{ name = "mod", title = "Mod name", type = GAMERULE_STRING, readonly = true },
 			{ name = "matchframes", title = "Match Frames", type = GAMERULE_INT },
-			{ name = "turnframes", title = "Turn Frames", type = GAMERULE_INT },
+			{ name = "turnframes", title = "Turn Frames", type = GAMERULE_STRING },
 			{ name = "flags", title = "Flags", type = GAMERULE_INT, hidden = true },
 			{ name = "grip", title = "Grip", section = GAMERULES_SECTION_GRAB, triggerUpdate = true, type = GAMERULE_BOOL },
 			{ name = "dismemberment", title = "Dismemberment", section = GAMERULES_SECTION_DISMEMBER, triggerUpdate = true, type = GAMERULE_BOOL },
@@ -117,6 +117,9 @@ do
 			--{ name = "engagespace", type = GAMERULE_INT }, -- This is used for 3/4 player mode only, we don't use that
 			{ name = "engageplayerpos", title = "Custom Player Position", section = GAMERULES_SECTION_MISC, type = GAMERULE_CUSTOM,
 				onSet = function(val)
+					if (type(val) ~= "string") then
+						return val
+					end
 					local data = { val:match(("([^,]*),?"):rep(6)) }
 					local returnVal = {}
 					local toriPos = {}
@@ -135,6 +138,9 @@ do
 			 	null = "0,0,0,0,0,0" },
 			{ name = "engageplayerrot", title = "Custom Player Rotation", section = GAMERULES_SECTION_MISC, type = GAMERULE_CUSTOM,
 				onSet = function(val)
+					if (type(val) ~= "string") then
+						return val
+					end
 					local data = { val:match(("([^,]*),?"):rep(6)) }
 					local returnVal = {}
 					local toriPos = {}
@@ -160,6 +166,9 @@ do
 			},
 			{ name = "gravity", title = "Gravity", type = GAMERULE_CUSTOM,
 				onSet = function(val)
+					if (type(val) ~= "string") then
+						return val
+					end
 					local data = { val:match(("([^ ]*) ?"):rep(3)) }
 					local returnVal = {}
 					table.insert(returnVal, { title = 'x', value = data[1] })
@@ -189,9 +198,15 @@ do
 					return val + 0
 				end
 			},
-			{ name = "ghostspeed", title = "Ghost Speed", depends = "ghostcustom", section = GAMERULES_SECTION_GHOST, type = GAMERULE_SLIDER, slider = { 0.1, 5, false },
+			{ name = "ghostspeed", title = "Ghost Speed", depends = "ghostcustom", section = GAMERULES_SECTION_GHOST, type = GAMERULE_SLIDER, slider = { 10, 150, false, "0.1x", "5x" },
 				onSet = function(val)
-					return (val + 0) / 100
+					local val = val + 0
+					if (val <= 100) then
+						return val
+					else
+						val = (val - 100) / 8
+						return val + 100
+					end
 				end
 		 	},
 			{ name = "grabmode", title = "Grab Mode", depends = "grip", section = GAMERULES_SECTION_GRAB, type = GAMERULE_ENUM,
@@ -212,7 +227,7 @@ do
 			if (v.type == GAMERULE_ENUM) then
 				gameRule:setOptions(v.options)
 			elseif (v.type == GAMERULE_SLIDER) then
-				gameRule:setSliderSettings(v.slider[1], v.slider[2], v.slider[3])
+				gameRule:setSliderSettings(unpack(v.slider))
 			end
 			local grValue = get_gamerule(v.name)
 			if (v.name == "mod") then
@@ -228,7 +243,7 @@ do
 		return gameRules
 	end
 	
-	function Gamerules:showGamerule(v, listingHolder, elementHeight, listElements, sectionId, ruleId, changedValues, updateFunc)
+	function Gamerules:showGamerule(v, listingHolder, elementHeight, listElements, sectionId, ruleId, changedValues, updateFunc, prevInput)
 		local xShift = (not in_array(sectionId, { GAMERULES_SECTION_DEFAULT, GAMERULES_SECTION_MISC}) and ruleId > 1) and 10 or 0
 		local grHolderMain = UIElement:new({
 			parent = listingHolder,
@@ -255,16 +270,60 @@ do
 			shapeType = ROUNDED,
 			rounded = 3
 		})
+		
+		local scrollTabFunc = function(input, prev)
+				local dir = prev and 1 or -1
+				local tempX, tempY = MOUSE_X, MOUSE_Y
+				MOUSE_X, MOUSE_Y = listingHolder.parent.pos.x + 1, listingHolder.parent.pos.y + 1
+				if (not input:isDisplayed()) then
+					while (not input:isDisplayed()) do
+						listingHolder.scrollBar.btnDown(4, 0, dir)
+					end
+				end
+				if (dir == -1) then
+					if (input.pos.y + input.size.h > listingHolder.parent.pos.y + listingHolder.parent.size.h) then
+						listingHolder.scrollBar.btnDown(4, 0, -1)
+					end
+				else
+					if (input.pos.y < listingHolder.parent.pos.y) then
+						listingHolder.scrollBar.btnDown(4, 0, 1)
+					end
+				end
+				MOUSE_X, MOUSE_Y = tempX, tempY
+			end
+		
 		if (v.type == GAMERULE_INT or v.type == GAMERULE_STRING) then
 			grName.size.w = listingHolder.size.w / 3 * 2 - 10
 			if (not v.readonly) then
-				local grInput = TBMenu:spawnTextField(grValueHolder, grValueHolder.size.w / 2, nil, grValueHolder.size.w / 2, nil, changedValues[v.name] and changedValues[v.name].value or v.value, v.type == GAMERULE_INT, 4, 0.7, UICOLORWHITE, nil, CENTERMID, nil, nil, true)
-				grInput:addKeyboardHandlers(nil, function()
+				local grInput = TBMenu:spawnTextField(grValueHolder, grValueHolder.size.w / 2, nil, grValueHolder.size.w / 2, nil, changedValues[v.name] and changedValues[v.name].value or v.value, { isNumeric = v.type == GAMERULE_INT, allowDecimal = v.allowDecimal, allowNegative = v.allowNegative }, 4, 0.7, UICOLORWHITE, nil, CENTERMID, nil, nil, true)
+				grInput:addTabAction(scrollTabFunc)
+				if (prevInput) then
+					prevInput:addTabSwitch(grInput)
+					grInput:addTabSwitchPrev(prevInput)
+				end
+				local inputLastValue = grInput.textfieldstr[1]
+				grInput:addKeyboardHandlers(function()
+						if (v.name == "turnframes") then
+							local newInput = grInput.textfieldstr[1]:sub(grInput.textfieldindex, grInput.textfieldindex)
+							if (newInput:len() > 0 and not newInput:match("[0-9,]")) then
+								grInput.textfieldstr[1] = grInput.textfieldstr[1]:sub(0, grInput.textfieldindex - 1) .. grInput.textfieldstr[1]:sub(grInput.textfieldindex + 1)
+								grInput.textfieldindex = grInput.textfieldindex - 1
+							end
+						end
+					end, function()
 						if (not changedValues[v.name]) then
 							changedValues[v.name] = Gamerule:new(v)
 						end
 						changedValues[v.name]:setValue(grInput.textfieldstr[1])
-						grInput.requireUpdate = true
+						if (changedValues[v.name].gameValue ~= inputLastValue) then
+							grInput.requireUpdate = true
+							inputLastValue = changedValues[v.name].gameValue
+						end
+					end)
+				grInput:addEnterAction(function()
+						grInput.keyUpCustom()
+						grInput.requireUpdate = false
+						updateFunc()
 					end)
 				if (v.triggerUpdate) then
 					local inputUpdater = UIElement:new({
@@ -272,62 +331,44 @@ do
 						pos = { 0, 0 },
 						size = { 0, 0 }
 					})
+					local lastValue = grInput.textfieldstr[1]
 					inputUpdater:addCustomDisplay(true, function()
 							if (grInput.requireUpdate and not grInput.keyboard) then
-								grInput.requireUpdate = false
-								updateFunc()
+								if (lastValue ~= grInput.textfieldstr[1] and (lastValue == '0' or grInput.textfieldstr[1] == '0')) then
+									grInput.requireUpdate = false
+									updateFunc()
+								end
 							end
 						end)
 				end
+				grInput.name = v.name
+				prevInput = grInput
 			else
 				grValueHolder:addAdaptedText(true, v.value, -4, nil, 4, RIGHTMID, 0.7)
 			end
 		elseif (v.type == GAMERULE_BOOL) then
 			grName.size.w = listingHolder.size.w / 3 * 2 - 10
-			local grToggleValue = changedValues[v.name] and changedValues[v.name].value or v.value
-			local grToggleBG = UIElement:new({
-				parent = grValueHolder,
-				pos = { -grValueHolder.size.h, 0 },
-				size = { grValueHolder.size.h, grValueHolder.size.h },
-				shapeType = ROUNDED,
-				rounded = 3,
-				bgColor = TB_MENU_DEFAULT_DARKEST_COLOR
-			})
-			local grToggleView = UIElement:new({
-				parent = grToggleBG,
-				pos = { 1, 1 },
-				size = { grToggleBG.size.w - 2, grToggleBG.size.h - 2 },
-				shapeType = ROUNDED,
-				rounded = 3,
-				bgColor = TB_MENU_DEFAULT_BG_COLOR,
-				hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-				pressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR,
-				interactive = true
-			})
-			local grToggleIcon = UIElement:new({
-				parent = grToggleView,
-				pos = { 0, 0 },
-				size = { grToggleView.size.w, grToggleView.size.h },
-				bgImage = "../textures/menu/general/buttons/checkmark.tga"
-			})
-			if (grToggleValue == '0' or grToggleValue == 0) then
-				grToggleIcon:hide(true)
-			end
-			grToggleView:addMouseHandlers(nil, function()
-					grToggleValue = 1 - grToggleValue
-					if (grToggleValue == 1) then
-						grToggleIcon:show(true)
-					else
-						grToggleIcon:hide(true)
-					end
+			local grToggle = TBMenu:spawnToggle(grValueHolder, -grValueHolder.size.h, nil, nil, nil, changedValues[v.name] and changedValues[v.name].value or v.value, function(val)
 					if (not changedValues[v.name]) then
 						changedValues[v.name] = Gamerule:new(v)
 					end
-					changedValues[v.name]:setValue(grToggleValue)
+					changedValues[v.name]:setValue(val)
 					if (v.triggerUpdate) then
 						updateFunc()
 					end
 				end)
+			
+			grToggle:addEnterAction(function()
+					GAMERULES_LAST_SELECTED_GAMERULE = v.name
+					grToggle.btnUp()
+				end)
+			grToggle:addTabAction(scrollTabFunc)
+			if (prevInput) then
+				prevInput:addTabSwitch(grToggle)
+				grToggle:addTabSwitchPrev(prevInput)
+			end
+			grToggle.name = v.name
+			prevInput = grToggle
 		elseif (v.type == GAMERULE_ENUM) then
 			v.dropdown = {}
 			for value,k in pairs(v.options) do
@@ -365,18 +406,20 @@ do
 			local value = changedValues[v.name] and changedValues[v.name].value or v.value
 			local maxVal = v.slider.maxValue or 1
 			local minVal = v.slider.minValue or 0
+			local maxValLabel = v.slider.maxValueDisp or maxVal
+			local minValLabel = v.slider.minValueDisp or minVal
 			local minText = UIElement:new({
 				parent = grValueHolder,
 				pos = { 0, 0 },
 				size = { 30, grValueHolder.size.h }
 			})
-			minText:addAdaptedText(false, minVal .. "", nil, nil, 4, RIGHTMID, 0.7)
+			minText:addAdaptedText(false, minValLabel .. "", nil, nil, 4, RIGHTMID, 0.7)
 			local maxText = UIElement:new({
 				parent = grValueHolder,
 				pos = { -30, 0 },
 				size = { 30, grValueHolder.size.h }
 			})
-			maxText:addAdaptedText(false, maxVal == 128 and 100 or maxVal .. "", nil, nil, 4, LEFTMID, 0.7)
+			maxText:addAdaptedText(false, maxValLabel == 128 and 100 or maxValLabel .. "", nil, nil, 4, LEFTMID, 0.7)
 			local sliderBG = UIElement:new({
 				parent = grValueHolder,
 				pos = { 35, 0 },
@@ -402,6 +445,25 @@ do
 				shapeType = ROUNDED,
 				rounded = 20
 			})
+			local sliderLabel = UIElement:new({
+				parent = slider,
+				pos = { -slider.size.w - 5, -slider.size.h - 20 },
+				size = { slider.size.w + 10, 20 },
+				bgColor = cloneTable(TB_MENU_DEFAULT_LIGHTER_COLOR),
+				uiColor = cloneTable(UICOLORWHITE),
+				shapeType = ROUNDED,
+				rounded = 4
+			})
+			sliderLabel.bgColor[4] = 0
+			sliderLabel.uiColor[4] = 0
+			sliderLabel.labelText = { "" }
+			sliderLabel:addCustomDisplay(false, function()
+					if (sliderLabel.uiColor[4] > 0) then
+						sliderLabel:uiText(sliderLabel.labelText[1], nil, nil, 4, nil, 0.5)
+						sliderLabel.uiColor[4] = sliderLabel.uiColor[4] - 0.02
+						sliderLabel.bgColor[4] = sliderLabel.bgColor[4] - 0.02
+					end
+				end)
 			slider:addMouseHandlers(function()
 					slider.pressed = true
 					slider.pressedPos = slider:getLocalPos()
@@ -423,7 +485,19 @@ do
 							end
 						end
 						slider:moveTo(xPos, nil)
-						changedValues[v.name]:setValue(xPos / (sliderBG.size.w - 20) * (maxVal - minVal) + minVal)
+						if (not changedValues[v.name]) then
+							changedValues[v.name] = Gamerule:new(v)
+						end
+						local val = xPos / (sliderBG.size.w - 20) * (maxVal - minVal) + minVal
+						if (v.name == "ghostspeed") then
+							val = val > 100 and (100 + math.floor((val - 100) / 2.5) * 20) or val
+							sliderLabel.labelText[1] = (math.floor(val) / 100) .. ''
+						else
+							sliderLabel.labelText[1] = math.floor(val) .. ''
+						end
+						sliderLabel.uiColor[4] = 1
+						sliderLabel.bgColor[4] = 1
+						changedValues[v.name]:setValue(val)
 					end
 				end)
 			sliderBG:addMouseHandlers(function()
@@ -435,7 +509,19 @@ do
 					xPos = sliderBG.size.w - slider.size.w
 				end
 				slider:moveTo(xPos)
-				changedValues[v.name]:setValue(xPos / (sliderBG.size.w - 20) * (maxVal - minVal) + minVal)
+				if (not changedValues[v.name]) then
+					changedValues[v.name] = Gamerule:new(v)
+				end
+				local val = xPos / (sliderBG.size.w - 20) * (maxVal - minVal) + minVal
+				if (v.name == "ghostspeed") then
+					val = val > 100 and (100 + math.floor((val - 100) / 2.5) * 20) or val
+					sliderLabel.labelText[1] = (math.floor(val) / 100) .. ''
+				else
+					sliderLabel.labelText[1] = math.floor(val) .. ''
+				end
+				sliderLabel.uiColor[4] = 1
+				sliderLabel.bgColor[4] = 1
+				changedValues[v.name]:setValue(val)
 			end)
 		else
 			if (v.name == "gravity") then
@@ -463,11 +549,19 @@ do
 				local gravInputs = {}
 				local counter = 0
 				for j,k in pairs(v.value) do
-					local grInput = TBMenu:spawnTextField(grValueInputsHolder, 10 + (grValueInputsHolder.size.w / 3 - 5) * counter, 4, grValueInputsHolder.size.w / 3 - 10, grValueInputsHolder.size.h - 6, k.value, true, 4, 0.7, UICOLORWHITE, k.title, CENTERMID, nil, nil, true)
+					local grInput = TBMenu:spawnTextField(grValueInputsHolder, 10 + (grValueInputsHolder.size.w / 3 - 5) * counter, 4, grValueInputsHolder.size.w / 3 - 10, grValueInputsHolder.size.h - 6, k.value, { isNumeric = true, allowDecimal = true, allowNegative = true }, 4, 0.7, UICOLORWHITE, k.title, CENTERMID, nil, nil, true)
 					table.insert(gravInputs, grInput)
 					counter = counter + 1
 				end
 				for j,grInput in pairs(gravInputs) do
+					grInput:addTabAction(scrollTabFunc)
+					if (prevInput) then
+						prevInput:addTabSwitch(grInput)
+						grInput:addTabSwitchPrev(prevInput)
+					end
+					grInput:addEnterAction(function()
+							grInput.keyUpCustom()
+						end)
 					grInput:addKeyboardHandlers(nil, function()
 							if (not changedValues[v.name]) then
 								changedValues[v.name] = Gamerule:new(v)
@@ -475,6 +569,8 @@ do
 							local gravity = gravInputs[1].textfieldstr[1] .. " " .. gravInputs[2].textfieldstr[1] .. " " .. gravInputs[3].textfieldstr[1]
 							changedValues[v.name]:setValue(gravity)
 						end)
+					grInput.name = v.name .. j
+					prevInput = grInput
 				end
 			elseif (v.name == "engageplayerpos" or v.name == "engageplayerrot") then
 				grHolder.size.h = elementHeight - grHolder.shift.y
@@ -508,7 +604,7 @@ do
 				local engageInputs = {}
 				local counter = 0
 				for j,k in pairs(v.value[1]) do
-					local grInput = TBMenu:spawnTextField(grValueInputsHolder, (grValueInputsHolder.size.w / 3 + 2.5) * counter, 2, grValueInputsHolder.size.w / 3 - 5, grValueInputsHolder.size.h - 4, k.value, true, 4, 0.7, UICOLORWHITE, k.title, CENTERMID, nil, nil, true)
+					local grInput = TBMenu:spawnTextField(grValueInputsHolder, (grValueInputsHolder.size.w / 3 + 2.5) * counter, 2, grValueInputsHolder.size.w / 3 - 5, grValueInputsHolder.size.h - 4, k.value, { isNumeric = true, allowDecimal = true, allowNegative = true }, 4, 0.7, UICOLORWHITE, k.title, CENTERMID, nil, nil, true)
 					table.insert(engageInputs, grInput)
 					counter = counter + 1
 				end
@@ -541,12 +637,20 @@ do
 				})
 				counter = 0
 				for j,k in pairs(v.value[2]) do
-					local grInput = TBMenu:spawnTextField(grValueInputsHolder2, (grValueInputsHolder2.size.w / 3 + 2.5) * counter, 2, grValueInputsHolder2.size.w / 3 - 5, grValueInputsHolder2.size.h - 4, k.value, true, 4, 0.7, UICOLORWHITE, k.title, CENTERMID, nil, nil, true)
+					local grInput = TBMenu:spawnTextField(grValueInputsHolder2, (grValueInputsHolder2.size.w / 3 + 2.5) * counter, 2, grValueInputsHolder2.size.w / 3 - 5, grValueInputsHolder2.size.h - 4, k.value, { isNumeric = true, allowDecimal = true, allowNegative = true }, 4, 0.7, UICOLORWHITE, k.title, CENTERMID, nil, nil, true)
 					table.insert(engageInputs, grInput)
 					counter = counter + 1
 				end
 				
 				for j,grInput in pairs(engageInputs) do
+					grInput:addTabAction(scrollTabFunc)
+					if (prevInput) then
+						prevInput:addTabSwitch(grInput)
+						grInput:addTabSwitchPrev(prevInput)
+					end
+					grInput:addEnterAction(function()
+							grInput.keyUpCustom()
+						end)
 					grInput:addKeyboardHandlers(nil, function()
 							if (not changedValues[v.name]) then
 								changedValues[v.name] = Gamerule:new(v)
@@ -554,10 +658,13 @@ do
 							local engage = engageInputs[1].textfieldstr[1] .. "," .. engageInputs[2].textfieldstr[1] .. "," .. engageInputs[3].textfieldstr[1] .. "," .. engageInputs[4].textfieldstr[1] .. "," .. engageInputs[5].textfieldstr[1] .. "," .. engageInputs[6].textfieldstr[1]
 							changedValues[v.name]:setValue(engage)
 						end)
+					grInput.name = v.name .. j
+					prevInput = grInput
 				end
 			end
 		end
 		grName:addAdaptedText(true, v.title, nil, nil, nil, LEFTMID, xShift > 0 and 0.75 or 0.9)
+		return prevInput
 	end
 	
 	function Gamerules:findRuleValue(ruleName, gamerules, changedValues)
@@ -596,28 +703,46 @@ do
 		end
 		
 		local listElements = {}
+		local lastInput = nil
+		local switchTarget, switchNext = false, false
 		for x,section in pairs(gamerules) do
 			for i,v in pairs(section) do
+				if (GAMERULES_LAST_SELECTED_GAMERULE == v.name or switchNext) then
+					if (lastInput) then
+						switchTarget = lastInput
+					else
+						switchNext = true
+					end
+					GAMERULES_LAST_SELECTED_GAMERULE = nil
+				end
 				if (not v.hidden) then
 					if (searchStr:len() > 0) then
 						if (v.name:find(searchStr) or v.title:find(searchStr)) then
-							Gamerules:showGamerule(v, listingHolder, elementHeight, listElements, x, i, changedValues, thisFunc)
+							lastInput = Gamerules:showGamerule(v, listingHolder, elementHeight, listElements, x, i, changedValues, thisFunc, lastInput)
 						end
 					else
 						if (#v.depends == 0) then
-							Gamerules:showGamerule(v, listingHolder, elementHeight, listElements, x, i, changedValues, thisFunc)
+							lastInput = Gamerules:showGamerule(v, listingHolder, elementHeight, listElements, x, i, changedValues, thisFunc, lastInput)
 						else
 							for j,rule in pairs(v.depends) do
 								if (Gamerules:findRuleValue(rule, gamerules, changedValues)) then
-									Gamerules:showGamerule(v, listingHolder, elementHeight, listElements, x, i, changedValues, thisFunc)
+									lastInput = Gamerules:showGamerule(v, listingHolder, elementHeight, listElements, x, i, changedValues, thisFunc, lastInput)
 									break
 								end
 							end
 						end
 					end
 				end
+				if (switchTarget) then
+					if (switchNext) then
+						lastInput.tabswitchprevaction()
+					else
+						switchTarget.tabswitchaction()
+					end
+				end
 			end
 		end
+		GAMERULES_LAST_SELECTED_GAMERULE = nil
 		
 		if (#listElements == 0) then
 			local element = UIElement:new({
@@ -731,46 +856,11 @@ do
 			pos = { 0, -35 },
 			size = { botBar.size.w / 2, 30 }
 		})
-		local grNewGameToggleBG = UIElement:new({
-			parent = grNewGameToggleView,
-			pos = { 5, 2 },
-			size = { grNewGameToggleView.size.h - 4, grNewGameToggleView.size.h - 4 },
-			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-			shapeType = ROUNDED,
-			rounded = 3
-		})
-		local grNewGameToggle = UIElement:new({
-			parent = grNewGameToggleBG,
-			pos = { 1, 1 },
-			size = { grNewGameToggleBG.size.w - 2, grNewGameToggleBG.size.h - 2 },
-			interactive = true,
-			shapeType = ROUNDED,
-			rounded = 3,
-			bgColor = TB_MENU_DEFAULT_BG_COLOR,
-			hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-			pressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR
-		})
-		local grNewGameToggleIcon = UIElement:new({
-			parent = grNewGameToggle,
-			pos = { 0, 0 },
-			size = { grNewGameToggle.size.w, grNewGameToggle.size.h },
-			bgImage = "../textures/menu/general/buttons/checkmark.tga"
-		})
-		if (not GAMERULES_MENU_START_NEW_GAME) then
-			grNewGameToggleIcon:hide()
-		end
-		grNewGameToggle:addMouseHandlers(nil, function()
-				GAMERULES_MENU_START_NEW_GAME = not GAMERULES_MENU_START_NEW_GAME
-				if (not GAMERULES_MENU_START_NEW_GAME) then
-					grNewGameToggleIcon:hide()
-				else
-					grNewGameToggleIcon:show()
-				end
-			end)
+		local newGameToggle = TBMenu:spawnToggle(grNewGameToggleView, 5, 2, grNewGameToggleView.size.h - 4, grNewGameToggleView.size.h - 4, GAMERULES_MENU_START_NEW_GAME, function(val) GAMERULES_MENU_START_NEW_GAME = val end)
 		local grNewGameText = UIElement:new({
 			parent = grNewGameToggleView,
-			pos = { grNewGameToggleBG.shift.x * 2 + grNewGameToggleBG.size.w, 0 },
-			size = { grNewGameToggleView.size.w - grNewGameToggleBG.shift.x * 3 - grNewGameToggleBG.size.w, grNewGameToggleView.size.h }
+			pos = { 6 + grNewGameToggleView.size.h, 0 },
+			size = { grNewGameToggleView.size.w - 10 - grNewGameToggleView.size.h, grNewGameToggleView.size.h }
 		})
 		grNewGameText:addAdaptedText(true, TB_MENU_LOCALIZED.GAMERULESRESTARTGAME, nil, nil, 4, LEFTMID, 0.7)
 		
@@ -796,11 +886,26 @@ do
 						end
 					end
 				end
-				remove_hooks("tbGamerulesKeyboard")
-				mainView:kill()
-				GAMERULES_MENU_MAIN_ELEMENT = nil
 				if (GAMERULES_MENU_START_NEW_GAME) then
-					start_new_game()
+					remove_hooks("tbGamerulesKeyboard")
+					mainView:kill()
+					GAMERULES_MENU_MAIN_ELEMENT = nil
+					if (get_world_state().game_type == 1) then
+						local delayedResetter = UIElement:new({
+							globalid = TB_MENU_HUB_GLOBALID,
+							pos = { 0, 0 },
+							size = { 0, 0 }
+						})
+						delayedResetter.spawnTime = os.clock()
+						delayedResetter:addCustomDisplay(true, function()
+								if (delayedResetter.spawnTime + 0.5 <= os.clock()) then
+									delayedResetter:kill()
+									UIElement:runCmd("reset")
+								end
+							end)
+					else
+						start_new_game()
+					end
 				end
 			end)
 		

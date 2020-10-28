@@ -165,8 +165,10 @@ do
 					draw_quad(buttonMain.pos.x, buttonMain.pos.y, buttonMain.size.w, buttonMain.size.h, buttonImage.bgImage)
 				elseif (buttonMain.hoverState == BTN_HVR) then
 					draw_quad(buttonMain.pos.x, buttonMain.pos.y, buttonMain.size.w, buttonMain.size.h, buttonImageHover.bgImage)
+					set_mouse_cursor(1)
 				elseif (buttonMain.hoverState == BTN_DN) then
 					draw_quad(buttonMain.pos.x, buttonMain.pos.y, buttonMain.size.w, buttonMain.size.h, buttonImagePress.bgImage)
+					set_mouse_cursor(1)
 				end
 			end)
 		return buttonMain
@@ -2492,31 +2494,6 @@ do
 		return scrollBar
 	end
 
-	function TBMenu:enableMenuKeyboard(element)
-		TB_MENU_INPUT_ISACTIVE = true
-		enable_menu_keyboard()
-		local id = 1
-		for i,v in pairs(UIKeyboardHandler) do
-			if (v.menuKeyboardId == id) then
-				id = id + 1
-			else
-				element.menuKeyboardId = id
-				break
-			end
-		end
-	end
-
-	function TBMenu:disableMenuKeyboard(element)
-		TB_MENU_INPUT_ISACTIVE = false
-		element.menuKeyboardId = nil
-		for i,v in pairs(UIKeyboardHandler) do
-			if (v.menuKeyboardId) then
-				return
-			end
-		end
-		disable_menu_keyboard()
-	end
-
 	function TBMenu:displayLoadingMark(element, message)
 		local loadMark = UIElement:new({
 			parent = element,
@@ -2690,8 +2667,74 @@ do
 			questionmark:addAdaptedText(true, "?", nil, nil, nil, nil, 0.7)
 		end
 	end
+	
+	function TBMenu:spawnToggle(parent, x, y, w, h, toggleValue, updateFunc)
+		local x = x or 0
+		local y = y or 0
+		local w = w or parent.size.h
+		local h = h or parent.size.h
+		
+		local toggleBG = UIElement:new({
+			parent = parent,
+			pos = { x, y },
+			size = { w, h },
+			shapeType = parent.shapeType,
+			rounded = parent.rounded,
+			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR
+		})
+		local toggleView = UIElement:new({
+			parent = toggleBG,
+			pos = { 1, 1 },
+			size = { toggleBG.size.w - 2, toggleBG.size.h - 2 },
+			shapeType = parent.shapeType,
+			rounded = parent.rounded,
+			bgColor = TB_MENU_DEFAULT_BG_COLOR,
+			hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR,
+			interactive = true,
+			toggle = true
+		})
+		toggleView:addCustomDisplay(nil, function()
+				if (toggleView.keyboard and not toggleView.hoverState) then
+					toggleView.hoverState = BTN_FOCUS
+				end
+			end, true)
+		toggleView:addOnReceiveTabFocus(function()
+				toggleView:enableMenuKeyboard()
+				toggleView.keyboard = true
+				toggleView.hoverState = BTN_FOCUS
+			end)
+		toggleView:addOnLoseTabFocus(function()
+				toggleView:disableMenuKeyboard()
+				toggleView.keyboard = false
+				toggleView.hoverState = false
+			end)
+		local toggleIcon = UIElement:new({
+			parent = toggleView,
+			pos = { 0, 0 },
+			size = { toggleView.size.w, toggleView.size.h },
+			bgImage = "../textures/menu/general/buttons/checkmark.tga"
+		})
+		if (toggleValue == '0' or toggleValue == 0 or toggleValue == false) then
+			toggleIcon:hide(true)
+		end
+		toggleView:addMouseHandlers(nil, function(s, x, y)
+				if (type(toggleValue) == "boolean") then
+					toggleValue = not toggleValue
+				else
+					toggleValue = 1 - toggleValue
+				end
+				if (toggleValue == 1 or toggleValue == true) then
+					toggleIcon:show(true)
+				else
+					toggleIcon:hide(true)
+				end
+				updateFunc(toggleValue)
+			end)
+		return toggleView
+	end
 
-	function TBMenu:spawnTextField(parent, x, y, w, h, textFieldString, numeric, fontid, scale, color, defaultStr, orientation, noCursor, multiLine, darkerMode)
+	function TBMenu:spawnTextField(parent, x, y, w, h, textFieldString, inputSettings, fontid, scale, color, defaultStr, orientation, noCursor, multiLine, darkerMode)
 		if (not parent) then
 			return false
 		end
@@ -2701,6 +2744,7 @@ do
 		local h = h or parent.size.h
 		local fontid = fontid or 4
 		local color = color or cloneTable(UICOLORBLACK)
+		local inputSettings = type(inputSettings) == "table" and inputSettings or { isNumeric = inputSettings }
 
 		local textBg = UIElement:new({
 			parent = parent,
@@ -2726,17 +2770,16 @@ do
 			size = { input.size.w - 10, input.size.h - 4 },
 			interactive = true,
 			textfield = true,
-			isNumeric = numeric,
+			isNumeric = inputSettings.isNumeric,
+			allowDecimal = inputSettings.allowDecimal,
+			allowNegative = inputSettings.allowNegative,
 			textfieldstr = textFieldString,
 			textfieldsingleline = not multiLine,
 			shapeType = textBg.shapeType,
 			rounded = textBg.rounded
 		})
 		inputField:addMouseHandlers(function()
-				TBMenu:enableMenuKeyboard(inputField)
-				if (TB_MENU_MAIN_ISOPEN == 0) then
-					chat_input_deactivate()
-				end
+				inputField:enableMenuKeyboard()
 			end)
 		TBMenu:displayTextfield(inputField, fontid, scale, color, defaultStr, orientation, noCursor)
 		return inputField
@@ -2771,10 +2814,7 @@ do
 					element:uiText(displayString, nil, nil, fontid, orientation, scale, nil, nil, color, nil, nil, nil, nil, nil, true)
 				else
 					if (element.menuKeyboardId) then
-						TBMenu:disableMenuKeyboard(element)
-						if (TB_MENU_MAIN_ISOPEN == 0) then
-							chat_input_activate()
-						end
+						element:disableMenuKeyboard()
 					end
 					if (element.textfieldstr[1] == "") then
 						element:uiText(defaultStr, nil, nil, fontid, orientation, defaultStringScale, nil, nil, { color[1], color[2], color[3], color[4] * 0.5 }, nil, nil, nil, nil, nil, true)
