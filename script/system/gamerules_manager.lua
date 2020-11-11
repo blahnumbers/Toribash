@@ -403,126 +403,29 @@ do
 			})
 			TBMenu:spawnDropdown(grDropdownHolder, v.dropdown, 30, 120, v.dropdown[v.value + 1], 0.6, 4, 0.5, 4)
 		elseif (v.type == GAMERULE_SLIDER) then
-			local value = changedValues[v.name] and changedValues[v.name].value or v.value
-			local maxVal = v.slider.maxValue or 1
-			local minVal = v.slider.minValue or 0
-			local maxValLabel = v.slider.maxValueDisp or maxVal
-			local minValLabel = v.slider.minValueDisp or minVal
-			local minText = UIElement:new({
-				parent = grValueHolder,
-				pos = { 0, 0 },
-				size = { 30, grValueHolder.size.h }
-			})
-			minText:addAdaptedText(false, minValLabel .. "", nil, nil, 4, RIGHTMID, 0.7)
-			local maxText = UIElement:new({
-				parent = grValueHolder,
-				pos = { -30, 0 },
-				size = { 30, grValueHolder.size.h }
-			})
-			maxText:addAdaptedText(false, maxValLabel == 128 and 100 or maxValLabel .. "", nil, nil, 4, LEFTMID, 0.7)
-			local sliderBG = UIElement:new({
-				parent = grValueHolder,
-				pos = { 35, 0 },
-				size = { grValueHolder.size.w - 70, grValueHolder.size.h },
-				bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-				interactive = true
-			})
-			sliderBG:addCustomDisplay(true, function()
-					set_color(unpack(sliderBG.bgColor))
-					draw_quad(sliderBG.pos.x, sliderBG.pos.y + grValueHolder.size.h / 2 - 3, sliderBG.size.w, 6)
-				end)
-			local sliderPos = 0
-			value = value > maxVal and 1 or value / maxVal
-			sliderPos = value * (sliderBG.size.w - 20)
-			local slider = UIElement:new({
-				parent = sliderBG,
-				pos = { sliderPos, -sliderBG.size.h / 2 - 10 },
-				size = { 20, 20 },
-				interactive = true,
-				bgColor = TB_MENU_DEFAULT_BG_COLOR,
-				hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-				pressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR,
-				shapeType = ROUNDED,
-				rounded = 20
-			})
-			local sliderLabel = UIElement:new({
-				parent = slider,
-				pos = { -slider.size.w - 5, -slider.size.h - 20 },
-				size = { slider.size.w + 10, 20 },
-				bgColor = cloneTable(TB_MENU_DEFAULT_LIGHTER_COLOR),
-				uiColor = cloneTable(UICOLORWHITE),
-				shapeType = ROUNDED,
-				rounded = 4
-			})
-			sliderLabel.bgColor[4] = 0
-			sliderLabel.uiColor[4] = 0
-			sliderLabel.labelText = { "" }
-			sliderLabel:addCustomDisplay(false, function()
-					if (sliderLabel.uiColor[4] > 0) then
-						sliderLabel:uiText(sliderLabel.labelText[1], nil, nil, 4, nil, 0.5)
-						sliderLabel.uiColor[4] = sliderLabel.uiColor[4] - 0.02
-						sliderLabel.bgColor[4] = sliderLabel.bgColor[4] - 0.02
-					end
-				end)
-			slider:addMouseHandlers(function()
-					slider.pressed = true
-					slider.pressedPos = slider:getLocalPos()
-				end, function()
-					slider.pressed = false
-				end, function()
-					if (slider.pressed) then
-						local xPos = MOUSE_X - sliderBG.pos.x - slider.pressedPos.x
-						if (xPos < 0) then
-							xPos = 0
-						elseif (xPos > sliderBG.size.w - slider.size.w) then
-							xPos = sliderBG.size.w - slider.size.w
-						end
-						if (v.slider.isBoolean) then
-							if (xPos + slider.size.w / 2 > sliderBG.size.w / 2) then
-								xPos = sliderBG.size.w - slider.size.w
-							else
-								xPos = 0
-							end
-						end
-						slider:moveTo(xPos, nil)
-						if (not changedValues[v.name]) then
-							changedValues[v.name] = Gamerule:new(v)
-						end
-						local val = xPos / (sliderBG.size.w - 20) * (maxVal - minVal) + minVal
-						if (v.name == "ghostspeed") then
-							val = val > 100 and (100 + math.floor((val - 100) / 2.5) * 20) or val
-							sliderLabel.labelText[1] = (math.floor(val) / 100) .. ''
-						else
-							sliderLabel.labelText[1] = math.floor(val) .. ''
-						end
-						sliderLabel.uiColor[4] = 1
-						sliderLabel.bgColor[4] = 1
-						changedValues[v.name]:setValue(val)
-					end
-				end)
-			sliderBG:addMouseHandlers(function()
-				local pos = sliderBG:getLocalPos()
-				local xPos = pos.x - slider.size.w / 2
-				if (xPos < 0) then
-					xPos = 0
-				elseif (xPos > sliderBG.size.w - slider.size.w) then
-					xPos = sliderBG.size.w - slider.size.w
-				end
-				slider:moveTo(xPos)
+			local sliderValue = changedValues[v.name] and changedValues[v.name].value or v.value
+			local sliderSettings = {
+				maxValue = v.slider.maxValue or 1,
+				minValue = v.slider.minValue or 0,
+				maxValueDisp = v.slider.maxValueDisp or maxVal,
+				minValueDisp = v.slider.minValueDisp or minVal,
+				isBoolean = v.slider.isBoolean
+			}
+			if (sliderSettings.maxValueDisp == 128) then
+				sliderSettings.maxValueDisp = "100"
+			end
+			local updateFunc = function(val, xPos, slider)
 				if (not changedValues[v.name]) then
 					changedValues[v.name] = Gamerule:new(v)
 				end
-				local val = xPos / (sliderBG.size.w - 20) * (maxVal - minVal) + minVal
 				if (v.name == "ghostspeed") then
 					val = val > 100 and (100 + math.floor((val - 100) / 2.5) * 20) or val
-					sliderLabel.labelText[1] = (math.floor(val) / 100) .. ''
-				else
-					sliderLabel.labelText[1] = math.floor(val) .. ''
+					slider.label.labelText[1] = (math.floor(val) / 100) .. ''
 				end
-				sliderLabel.uiColor[4] = 1
-				sliderLabel.bgColor[4] = 1
 				changedValues[v.name]:setValue(val)
-			end)
+			end
+			
+			local slider = TBMenu:spawnSlider(grValueHolder, 0, 0, nil, nil, 30, 20, sliderValue, sliderSettings, updateFunc)
 		else
 			if (v.name == "gravity") then
 				grHolder.size.h = elementHeight - grHolder.shift.y
@@ -744,15 +647,6 @@ do
 		end
 		GAMERULES_LAST_SELECTED_GAMERULE = nil
 		
-		if (#listElements == 0) then
-			local element = UIElement:new({
-				parent = listingHolder,
-				pos = { 0, 0 },
-				size = { listingHolder.size.w, listingHolder.size.h },
-			})
-			table.insert(listElements, element)
-			element:addAdaptedText(false, TB_MENU_LOCALIZED.NOFILESFOUND .. " :(")
-		end
 		for i,v in pairs(listElements) do
 			v:hide()
 		end

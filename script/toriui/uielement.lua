@@ -402,8 +402,8 @@ do
 		listHolder.parent:reloadListElements(listHolder, listElements, toReload, enabled)
 	end
 
-	function UIElement:addCustomDisplay(funcTrue, func, drawBefore)
-		self.customDisplayTrue = funcTrue
+	function UIElement:addCustomDisplay(funcOnly, func, drawBefore)
+		self.customDisplayOnly = funcOnly
 		if (drawBefore) then
 			self.customDisplayBefore = func
 		else
@@ -511,7 +511,7 @@ do
 		end
 		if (self.viewport) then
 			set_viewport(self.pos.x, self.pos.y, self.size.w, self.size.h)
-		elseif (not self.customDisplayTrue) then
+		elseif (not self.customDisplayOnly) then
 			set_color(unpack(self.bgColor))
 			if (self.bgImage) then
 				draw_sphere(self.pos.x, self.pos.y, self.pos.z, self.radius, self.rot.x, self.rot.y, self.rot.z, self.bgImage)
@@ -546,7 +546,7 @@ do
 			end
 		end
 		
-		if (not self.customDisplayTrue and (self.bgColor[4] > 0 or self.bgImage or self.interactive)) then
+		if (not self.customDisplayOnly and (self.bgColor[4] > 0 or self.bgImage or self.interactive)) then
 			if (self.innerShadow[1] > 0 or self.innerShadow[2] > 0) then
 				set_color(unpack(self.shadowColor[1]))
 				if (self.shapeType == ROUNDED) then

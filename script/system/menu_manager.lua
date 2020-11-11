@@ -2668,6 +2668,171 @@ do
 		end
 	end
 	
+	function TBMenu:spawnSlider(parent, x, y, w, h, textWidth, sliderRadius, value, settings, sliderFunc)
+		local x = x or 0
+		local y = y or 0
+		local w = w or parent.size.w - x * 2
+		local h = h or parent.size.h - y * 2
+		local textWidth = textWidth or w / 8
+		local sliderRadius = sliderRadius or 20
+		
+		local settings = settings or {}
+		settings.maxValue = settings.maxValue or 1
+		settings.minValue = settings.minValue or 0
+		settings.maxValueDisp = settings.maxValueDisp or settings.maxValue
+		settings.minValueDisp = settings.minValueDisp or settings.minValue
+		settings.decimal = settings.decimal or 0
+		local value = value or minVal
+		
+		local minText = UIElement:new({
+			parent = parent,
+			pos = { x, y },
+			size = { textWidth, h }
+		})
+		minText:addAdaptedText(false, settings.minValueDisp .. "", nil, nil, 4, RIGHTMID, 0.7)
+		local maxText = UIElement:new({
+			parent = parent,
+			pos = { -textWidth, y },
+			size = { textWidth, h }
+		})
+		maxText:addAdaptedText(false, settings.maxValueDisp .. "", nil, nil, 4, LEFTMID, 0.7)
+		
+		local sliderBG = UIElement:new({
+			parent = parent,
+			pos = { textWidth + 5, 0 },
+			size = { w - (textWidth + 5) * 2, h },
+			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			interactive = true
+		})
+		sliderBG:addCustomDisplay(true, function()
+				set_color(unpack(sliderBG.bgColor))
+				draw_quad(sliderBG.pos.x, sliderBG.pos.y + h / 2 - 3, sliderBG.size.w, 6)
+			end)
+		local sliderPos = 0
+		value = value > settings.maxValue and 1 or (-settings.minValue + value) / (-settings.minValue + settings.maxValue)
+		sliderPos = value * (sliderBG.size.w - sliderRadius)
+		local slider = UIElement:new({
+			parent = sliderBG,
+			pos = { sliderPos, (-sliderBG.size.h - sliderRadius) / 2 },
+			size = { sliderRadius, sliderRadius },
+			interactive = true,
+			bgColor = TB_MENU_DEFAULT_BG_COLOR,
+			hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR,
+			shapeType = ROUNDED,
+			rounded = sliderRadius
+		})
+		local sliderLabel = UIElement:new({
+			parent = slider,
+			pos = { -sliderRadius - 5, -slider.size.h - sliderRadius },
+			size = { sliderRadius + 10, sliderRadius },
+			bgColor = cloneTable(TB_MENU_DEFAULT_LIGHTER_COLOR),
+			uiColor = cloneTable(UICOLORWHITE),
+			shapeType = ROUNDED,
+			rounded = 4
+		})
+		sliderLabel.bgColor[4] = 0
+		sliderLabel.uiColor[4] = 0
+		sliderLabel.labelText = { "" }
+		sliderLabel:addCustomDisplay(false, function()
+				if (sliderLabel.uiColor[4] > 0) then
+					sliderLabel:uiText(sliderLabel.labelText[1], nil, nil, 4, nil, 0.5)
+					if (not slider.pressed) then
+						sliderLabel.uiColor[4] = sliderLabel.uiColor[4] - 0.02
+						sliderLabel.bgColor[4] = sliderLabel.bgColor[4] - 0.02
+					end
+				end
+			end)
+		sliderLabel:addCustomDisplay(false, function()
+				if (sliderLabel.uiColor[4] > 0) then
+					-- Adapt label width to be able to fit the text
+					local textWidth = get_string_length(sliderLabel.labelText[1], 4) * 0.5 + 16
+					local targetWidth = textWidth > sliderRadius + 10 and textWidth or sliderRadius + 10
+					if (targetWidth ~= sliderLabel.size.w) then
+						sliderLabel.size.w = targetWidth
+						sliderLabel:moveTo((-sliderRadius - sliderLabel.size.w) / 2)
+					end
+					
+					-- If bounding element is defined, we may want to display label below the slider
+					if (settings.boundParent) then
+						if (sliderLabel.lastY ~= sliderLabel.shift.y) then
+							if (settings.boundParent.pos.y >= slider.pos.y - sliderRadius) then
+								sliderLabel:moveTo(nil, slider.size.h)
+								sliderLabel:reload()
+							else
+								sliderLabel:moveTo(nil, -slider.size.h - sliderRadius)
+								sliderLabel:reload()
+							end
+							sliderLabel.lastY = sliderLabel.pos.y
+						end
+					end
+				end
+			end, true)
+			
+		slider.settings = settings
+		slider.label = sliderLabel
+		slider:addMouseHandlers(function()
+				slider.pressed = true
+				slider.pressedPos = slider:getLocalPos()
+			end, function()
+				slider.pressed = false
+			end, function()
+				if (slider.pressed) then
+					local xPos = MOUSE_X - sliderBG.pos.x - slider.pressedPos.x
+					if (xPos < 0) then
+						xPos = 0
+					elseif (xPos > sliderBG.size.w - slider.size.w) then
+						xPos = sliderBG.size.w - slider.size.w
+					end
+					if (settings.isBoolean) then
+						if (xPos + slider.size.w / 2 > sliderBG.size.w / 2) then
+							xPos = sliderBG.size.w - slider.size.w
+						else
+							xPos = 0
+						end
+					end
+					slider:moveTo(xPos, nil)
+					
+					local val = xPos / (sliderBG.size.w - sliderRadius) * (settings.maxValue - settings.minValue) + settings.minValue
+					local multiplyBy = tonumber('1' .. string.rep('0', settings.decimal))
+					sliderLabel.labelText[1] = (math.floor(val * multiplyBy) / multiplyBy) .. ''
+					sliderLabel.uiColor[4] = 1
+					sliderLabel.bgColor[4] = 1
+					
+					if (sliderFunc) then
+						sliderFunc(val, xPos, slider)
+					end
+				end
+			end)
+		sliderBG:addMouseHandlers(function()
+			local pos = sliderBG:getLocalPos()
+			local xPos = pos.x - slider.size.w / 2
+			if (xPos < 0) then
+				xPos = 0
+			elseif (xPos > sliderBG.size.w - slider.size.w) then
+				xPos = sliderBG.size.w - slider.size.w
+			end
+			if (settings.isBoolean) then
+				if (xPos + slider.size.w / 2 > sliderBG.size.w / 2) then
+					xPos = sliderBG.size.w - slider.size.w
+				else
+					xPos = 0
+				end
+			end
+			slider:moveTo(xPos)
+			
+			local val = xPos / (sliderBG.size.w - sliderRadius * 2) * (settings.maxValue - settings.minValue) + settings.minValue
+			sliderLabel.labelText[1] = math.floor(val) .. ''
+			sliderLabel.uiColor[4] = 1
+			sliderLabel.bgColor[4] = 1
+			
+			if (sliderFunc) then
+				sliderFunc(val, xPos, slider)
+			end
+		end)
+		return slider
+	end
+	
 	function TBMenu:spawnToggle(parent, x, y, w, h, toggleValue, updateFunc)
 		local x = x or 0
 		local y = y or 0
