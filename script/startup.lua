@@ -38,7 +38,8 @@ local events = {
 	"pre_draw",
 	"new_game_mp",
 	"network_complete",
-	"network_error"
+	"network_error",
+	"post_draw3d"
 }
 
 function call_hook(event, ...)

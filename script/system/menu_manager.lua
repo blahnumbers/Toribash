@@ -231,15 +231,17 @@ do
 		end
 		
 		-- Create and load regular announcements view
+		-- Featured event banner needs to have even borders, make sure it's scaled accordingly to 775x512 default size
+		local rightSideWidth = (tbMenuCurrentSection.size.h * 0.7 - 10) * 1.513 + 10
 		local homeAnnouncements = UIElement:new( {
 			parent = tbMenuCurrentSection,
 			pos = { 5, 0 },
-			size = { tbMenuCurrentSection.size.w * 0.565 - 10, tbMenuCurrentSection.size.h }
+			size = { tbMenuCurrentSection.size.w - rightSideWidth - 10, tbMenuCurrentSection.size.h }
 		})
 		local featuredEvent = UIElement:new({
 			parent = tbMenuCurrentSection,
-			pos = { tbMenuCurrentSection.size.w * 0.565 + 5, 0 },
-			size = { tbMenuCurrentSection.size.w * 0.435 - 10, tbMenuCurrentSection.size.h * 0.7 },
+			pos = { homeAnnouncements.size.w + 15, 0 },
+			size = { rightSideWidth, tbMenuCurrentSection.size.h * 0.7 },
 			interactive = true,
 			bgColor = TB_MENU_DEFAULT_BG_COLOR,
 			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
@@ -248,8 +250,8 @@ do
 		})
 		local viewEventsButton = UIElement:new({
 			parent = tbMenuCurrentSection,
-			pos = { tbMenuCurrentSection.size.w * 0.565 + 5, tbMenuCurrentSection.size.h * 0.7 + 10 },
-			size = { tbMenuCurrentSection.size.w * 0.435 - 10, tbMenuCurrentSection.size.h * 0.3 - 10 },
+			pos = { featuredEvent.shift.x, tbMenuCurrentSection.size.h * 0.7 + 10 },
+			size = { rightSideWidth, tbMenuCurrentSection.size.h * 0.3 - 10 },
 			interactive = true,
 			bgColor = TB_MENU_DEFAULT_BG_COLOR,
 			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
@@ -688,8 +690,8 @@ do
 		local confirmOverlay = TBMenu:spawnWindowOverlay(globalid)
 		local confirmBoxView = UIElement:new({
 			parent = confirmOverlay,
-			pos = { confirmOverlay.size.w / 4, confirmOverlay.size.h / 2 - 80 - subtitleSet * 10 },
-			size = { confirmOverlay.size.w / 2, 160 + subtitleSet * 10 },
+			pos = { confirmOverlay.size.w / 4, confirmOverlay.size.h / 2 - 80 - subtitleSet * 20 },
+			size = { confirmOverlay.size.w / 2, 160 + subtitleSet * 20 },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
 		local confirmBoxTitle = UIElement:new({
@@ -808,18 +810,22 @@ do
 	end
 
 	function TBMenu:showDataError(message, noParent)
-		local transparency = 1
+		local transparency = 0
+		local bgColor, uiColor = { 0, 0, 0, transparency }, { 1, 1, 1, transparency }
 		if (tbMenuDataErrorMessage) then
 			tbMenuDataErrorMessage:kill()
 			tbMenuDataErrorMessage = nil
 		end
 		local dataErrorY = tbMenuMain.pos.y > 0 and (-tbMenuMain.pos.y) or WIN_H
+		local messageWidth = WIN_W / 2 > 800 and 800 or WIN_W / 2
 		tbMenuDataErrorMessage = UIElement:new({
 			globalid = noParent and TB_MENU_HUB_GLOBALID,
 			parent = tbMenuMain,
-			pos = { WIN_W / 4, dataErrorY },
-			size = { WIN_W / 2, 68 },
-			bgColor = { 0, 0, 0, 0.8 * transparency }
+			pos = { (WIN_W - messageWidth) / 2, dataErrorY },
+			size = { messageWidth, 54 },
+			bgColor = bgColor,
+			shapeType = ROUNDED,
+			rounded = 5
 		})
 		local option = get_option("hint")
 		if (noParent) then
@@ -828,15 +834,18 @@ do
 		local startTime = os.clock()
 		local moveRad = math.pi / 4
 		tbMenuDataErrorMessage:addCustomDisplay(false, function()
-				if (tbMenuDataErrorMessage.pos.y > WIN_H - tbMenuDataErrorMessage.size.h) then
-					tbMenuDataErrorMessage:moveTo(nil, -10 * math.sin(moveRad), true)
-					moveRad = moveRad + (math.pi / 12)
+				if (tbMenuDataErrorMessage.pos.y > WIN_H - tbMenuDataErrorMessage.size.h - 10) then
+					tbMenuDataErrorMessage:moveTo(nil, -6 * math.sin(moveRad), true)
+					moveRad = moveRad + (math.pi / 20)
+					transparency = transparency + (math.pi / 40)
+					bgColor[4] = 0.8 * transparency
+					uiColor[4] = transparency
 				else
-					tbMenuDataErrorMessage:moveTo(nil, dataErrorY - tbMenuDataErrorMessage.size.h)
 					tbMenuDataErrorMessage:addCustomDisplay(false, function()
 							if (os.clock() - startTime > 5) then
 								transparency = transparency - 0.05
-								tbMenuDataErrorMessage.bgColor[4] = 0.8 * transparency
+								bgColor[4] = 0.8 * transparency
+								uiColor[4] = transparency
 							end
 							if (transparency <= 0) then
 								tbMenuDataErrorMessage:kill()
@@ -852,7 +861,7 @@ do
 			pos = { tbMenuDataErrorMessage.size.w / 10, tbMenuDataErrorMessage.size.h / 10 },
 			size = { tbMenuDataErrorMessage.size.w * 0.8, tbMenuDataErrorMessage.size.h * 0.8 }
 		})
-		errorMessageView:addAdaptedText(true, message, nil, nil, 4, nil, nil, nil, nil, nil, { 1, 1, 1, transparency })
+		errorMessageView:addAdaptedText(true, message, nil, nil, 4, nil, 0.9, nil, nil, nil, uiColor)
 	end
 
 	function TBMenu:showTorishopMain()

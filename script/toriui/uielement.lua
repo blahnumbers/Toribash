@@ -1537,7 +1537,8 @@ do
 	
 	function get_color_from_hex(hex)
 		local color = {}
-		for col in hex:gmatch("%w%w") do
+		local pattern = hex:len() < 7 and "%w%w" or "%w%w%w"
+		for col in hex:gmatch(pattern) do
 			table.insert(color, tonumber(col, 16) / 256)
 		end
 		color[4] = 1

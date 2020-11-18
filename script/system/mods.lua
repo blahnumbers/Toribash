@@ -9,6 +9,7 @@ dofile("system/mods_manager.lua")
 if (MODS_MENU_MAIN_ELEMENT) then
 	MODS_MENU_MAIN_ELEMENT:kill()
 	MODS_MENU_MAIN_ELEMENT = nil
+	remove_hooks("tbModsKeyboard")
 	return
 end
 
