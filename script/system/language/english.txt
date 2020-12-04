@@ -792,3 +792,20 @@ EVENTSPLAYAGAIN	Play again
 GAMERULESRESTARTGAME	Start New Game	
 SETTINGSHIGHDPI	High DPI Mode
 SETTINGSJOINTFLASH	Joint state change flash	
+ERRORINSUFFICIENTFUNDS	Error: insufficient funds	
+ERRORBUYINGITEM	Error purchasing item	
+ERRORTRANSFERRINGMONEY	Error transferring money	
+FLAMESERRORPRICEMISMATCH	Flame cost mismatch, forging cancelled	
+FLAMESERRORSPAWNING	Error spawning flame with specified settings	
+FLAMESBROWSE	Browse	
+FLAMESFORGERTITLE	Flame Forger	
+FLAMESBROWSERTITLE	Flame Browser	
+FLAMESFORGEFLAME	Forge Flame	
+FLAMESFLAMENAME	Flame name	
+FLAMESSPAWNCOST	Spawn cost	
+FLAMESFORGEDATE	Forge date	
+FLAMESOWNER	Current owner	
+FLAMESERROROPENINGSTORAGE	Error opening flame storage data file\nPlease make sure you have write permissions on your Toribash data folder and try again
+FLAMESSTORAGESUCCESS	Flame stored successfully!\nYou can now load it for preview using Flame Browser
+FLAMESSTOREDFLAMES	Stored flames	
+FLAMESBODYPARTFOR	for	

@@ -1,23 +1,54 @@
 -- Flames Manager
 
+FLAMES_MODE_FORGER = 0
+FLAMES_MODE_BROWSER = 1
+FLAMES_MODE_BROWSER_STORED = 2
+
+FLAMES_MENU_MODE = FLAMES_MENU_MODE or FLAMES_MODE_FORGER
 FLAMES_MENU_POS = FLAMES_MENU_POS or { x = 10, y = 10 }
 FLAMES_LIST_SHIFT = FLAMES_LIST_SHIFT or { 0, 0, 1 }
 FLAMES_USER_DATA = FLAMES_USER_DATA or { }
+FLAMES_BROWSER_INFO = FLAMES_BROWSER_INFO or { }
+FLAMES_PARAMETERS = FLAMES_PARAMETERS or { }
 FLAME_DIALOG_FORGE = 120
+FLAMES_CURRENT_FLAMEID = FLAMES_CURRENT_FLAMEID or 0
+FLAMES_MENU_MINIMIZED = FLAMES_MENU_MINIMIZED or false
 
 do
-	-- Gamerules manager class
 	Flames = {}
 	Flames.__index = Flames
 	local cln = {}
 	setmetatable(cln, Flames)
 	
 	function Flames:storeCurrentFlames()
+		-- Read their item.dat first
+		-- If we fail to fetch data, load playerid 0 flames
+		local custom = Files:new("../custom/" .. TB_MENU_PLAYER_INFO.username .. "/item.dat")
+		local settings = {}
+		if (custom.data) then
+			local flameid = 0
+			for i, line in pairs(custom:readAll()) do
+				if (line:find("^FLAME")) then
+					line = line:gsub("^FLAME%d %d; ", "")
+					
+					settings[flameid] = {}
+					local paramid = 0
+					for param in string.gmatch(line, "%d+") do
+						settings[flameid][paramid] = tonumber(param)
+						paramid = paramid + 1
+					end
+					
+					flameid = flameid + 1
+				end
+			end
+		end
+		custom:close()
+		
 		for flameid = 0, 4 do
 			FLAMES_USER_DATA[flameid] = {}
 			local empty = true
 			for id = 0, 52 do
-				FLAMES_USER_DATA[flameid][id] = get_flame_setting(0, flameid, id)
+				FLAMES_USER_DATA[flameid][id] = settings[flameid] and settings[flameid][id] or get_flame_setting(0, flameid, id)
 				if (empty and FLAMES_USER_DATA[flameid][id] ~= 0) then
 					empty = false
 				end
@@ -41,7 +72,7 @@ do
 			{ name = "General", ids = { 1, 2, 3, 4, 5 } },
 			{ name = "Color", ids = { 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 } },
 			{ name = "Size", ids = { 17, 18, 19, 20, 21, 22, 23, 24, 25, 26 } },
-			{ name = "Gravity & Displacement", ids = { 53, 32, 33, 34, 38, 35, 36, 37, 27, 28, 29, 30, 31 } },
+			{ name = "Gravity & Displacement", ids = { 32, 33, 34, 53, 35, 36, 37, 38, 31, 27, 28, 29, 30 } },
 			{ name = "Advanced", ids = { 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52 } }
 		}
 	end
@@ -86,6 +117,15 @@ do
 		remove_hooks("tbFlamesKeyboard")
 	end
 	
+	function Flames:minimize()
+		if (FLAMES_MENU_MAIN_ELEMENT) then
+			FLAMES_MENU_MAIN_ELEMENT:kill()
+			FLAMES_MENU_MAIN_ELEMENT = nil
+		end
+		FLAMES_MENU_MINIMIZED = true
+		remove_hooks("tbFlamesKeyboard")
+	end
+	
 	function Flames:getFlameParameters()
 		return {
 			{ name = "FLAME_BODYPART", min = 0, max = 20 },
@@ -117,7 +157,7 @@ do
 			{ name = "FLAME_RANDOM_DISPLACE_X", value = 0, min = 0, max = 100 },
 			{ name = "FLAME_RANDOM_DISPLACE_Y", value = 0, min = 0, max = 100 },
 			{ name = "FLAME_RANDOM_DISPLACE_Z", value = 0, min = 0, max = 100 },
-			{ name = "FLAME_RANDOM_DISPLACE_RANDOM", value = 0, min = 0, max = 100 },
+			{ name = "FLAME_DISPLACE_RANDOM", value = 0, min = 0, max = 100 },
 			{ name = "FLAME_RELATIVE_VELOCITY", value = 1, toggle = true },
 			{ name = "FLAME_GRAVITY_X", value = 0, min = -100, max = 100 },
 			{ name = "FLAME_GRAVITY_Y", value = 0, min = -100, max = 100 },
@@ -144,8 +184,7 @@ do
 		}
 	end
 	
-	function Flames:spawnFlameSettings(listingHolder, toReload, elementHeight, flamesData, flameId)
-		local flameId = flameId or 0
+	function Flames:checkFlamesParametersGenerated(flamesData)
 		local flameParameters
 		if (flamesData) then
 			flameParameters = flamesData
@@ -160,38 +199,36 @@ do
 				end
 			end
 		end
+		return flameParameters
+	end
+	
+	function Flames:spawnFlameSettings(listingHolder, toReload, elementHeight, flamesData, flameId)
+		FLAMES_MENU_MODE = FLAMES_MODE_FORGER
+		local flameId = flameId or 0
+		FLAMES_CURRENT_FLAMEID = flameId
+		local flameParameters = Flames:checkFlamesParametersGenerated(flamesData)
 		
 		local lastListHeight = FLAMES_LIST_SHIFT[2]
 		local lastListProgress = FLAMES_LIST_SHIFT[1] > 0 and FLAMES_LIST_SHIFT[1] / FLAMES_LIST_SHIFT[3] or 0
 		local targetListShift = listingHolder.shift.y < 0 and -listingHolder.shift.y or listingHolder.size.h
 		targetListShift = targetListShift - listingHolder.size.h
 		
+		if (toReload.browserButtons and toReload.forgerButtons) then
+			for i,v in pairs(toReload.browserButtons) do
+				v:hide(true)
+			end
+			for i,v in pairs(toReload.forgerButtons) do
+				v:show(true)
+			end
+		end
+		
 		if (listingHolder.scrollBar) then
 			listingHolder.scrollBar:kill()
 		end
 		listingHolder:kill(true)
 		listingHolder:moveTo(nil, 0)
-		
-		local scrollTabFunc = function(input, prev)
-				local dir = prev and 1 or -1
-				local tempX, tempY = MOUSE_X, MOUSE_Y
-				MOUSE_X, MOUSE_Y = listingHolder.parent.pos.x + 1, listingHolder.parent.pos.y + 1
-				if (not input:isDisplayed()) then
-					while (not input:isDisplayed()) do
-						listingHolder.scrollBar.btnDown(4, 0, dir)
-					end
-				end
-				if (dir == -1) then
-					if (input.pos.y + input.size.h > listingHolder.parent.pos.y + listingHolder.parent.size.h) then
-						listingHolder.scrollBar.btnDown(4, 0, -1)
-					end
-				else
-					if (input.pos.y < listingHolder.parent.pos.y) then
-						listingHolder.scrollBar.btnDown(4, 0, 1)
-					end
-				end
-				MOUSE_X, MOUSE_Y = tempX, tempY
-			end
+		toReload.menuTitle:addAdaptedText(true, TB_MENU_LOCALIZED.FLAMESFORGERTITLE, nil, nil, FONTS.BIG, LEFTMID, 0.6)
+		toReload.costDisplay:show(true)
 		
 		local listElements = {}
 		local nameWidth = listingHolder.size.w / 3 > 180 and 180 or listingHolder.size.w / 3
@@ -304,7 +341,252 @@ do
 		return flameParameters
 	end
 	
+	function Flames:spawnBrowseMenuStored(listingHolder, toReload, elementHeight, flamesData, flameId, previewFlames)
+		FLAMES_MENU_MODE = FLAMES_MODE_BROWSER_STORED
+		local flameId = flameId or 0
+		FLAMES_CURRENT_FLAMEID = flameId
+		local previewFlames = previewFlames or FLAMES_BROWSER_INFO
+		local previewFlame = previewFlames[flameId]
+		
+		if (toReload.browserButtons and toReload.forgerButtons) then
+			for i,v in pairs(toReload.forgerButtons) do
+				v:hide(true)
+			end
+			for i,v in pairs(toReload.browserButtons) do
+				v:show(true)
+			end
+		end
+		
+		if (listingHolder.scrollBar) then
+			listingHolder.scrollBar:kill()
+		end
+		listingHolder:kill(true)
+		listingHolder:moveTo(nil, 0)
+		toReload.menuTitle:addAdaptedText(true, TB_MENU_LOCALIZED.FLAMESSTOREDFLAMES, nil, nil, FONTS.BIG, LEFTMID, 0.6)
+		toReload.costDisplay:hide(true)
+		
+		local listElements = {}
+		
+		local storedFlames = {}
+		local storedFile = Files:new("../data/flames_stored.dat")
+		
+		if (storedFile.data) then
+			for i, line in pairs(storedFile:readAll()) do
+				if (line:match("^FLAME ([^;]+);[%d ]+")) then
+					local flame = { params = {} }
+					local flameName = line:gsub("^FLAME ([^;]+).*", "%1")
+					flame.name = flameName
+					local paramsLine = line:gsub("^FLAME [^;]+;", "")
+					for param in string.gmatch(paramsLine, "%-?%d+") do
+						table.insert(flame.params, tonumber(param))
+					end
+					table.insert(storedFlames, flame)
+				end
+			end
+		end
+		storedFile:close()
+		
+		for i,flame in pairs(storedFlames) do
+			local flameHolder = UIElement:new({
+				parent = listingHolder,
+				pos = { 0, #listElements * elementHeight },
+				size = { listingHolder.size.w, elementHeight },
+				bgColor = TB_MENU_DEFAULT_BG_COLOR
+			})
+			table.insert(listElements, flameHolder)
+			local flameNameHolder = UIElement:new({
+				parent = flameHolder,
+				pos = { 10, 2 },
+				size = { flameHolder.size.w - 10, flameHolder.size.h - 4 },
+				interactive = true,
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+				shapeType = ROUNDED,
+				rounded = 3
+			})
+			flameNameHolder:addMouseHandlers(nil, function()
+					local flameParameters = Flames:checkFlamesParametersGenerated(flamesData)
+					for i,v in pairs(flameParameters[FLAMES_CURRENT_FLAMEID]) do
+						flameParameters[FLAMES_CURRENT_FLAMEID][i].value = flame.params[i]
+					end
+					Flames:spawnFlameSettings(listingHolder, toReload, elementHeight, flameParameters, FLAMES_CURRENT_FLAMEID)
+				end)
+			local flameName = UIElement:new({
+				parent = flameNameHolder,
+				pos = { 10, 5 },
+				size = { (flameNameHolder.size.w - 20) / 3 * 2, flameNameHolder.size.h - 10 }
+			})
+			flameName:addAdaptedText(true, flame.name, nil, nil, nil, LEFTMID, 0.8)
+			
+			local flameBodypart = UIElement:new({
+				parent = flameNameHolder,
+				pos = { flameName.shift.x + flameName.size.w, flameName.shift.y },
+				size = { flameNameHolder.size.w - flameName.shift.x * 2 - flameName.size.w, flameName.size.h }
+			})
+			local bodyName = ""
+			for bodyPart,v in pairs(BODYPARTS) do
+				if (flame.params[0] == v) then
+					bodyName = bodyPart:gsub("^(L_)", "LEFT "):gsub("^(R_)", "RIGHT "):gsub("%u", function(a) return a:lower() end)
+				end
+			end
+			flameBodypart:addAdaptedText(true, TB_MENU_LOCALIZED.FLAMESBODYPARTFOR .. " " .. bodyName, nil, nil, 4, RIGHTMID, 0.7)
+		end
+	end
+	
+	function Flames:spawnBrowseMenu(listingHolder, toReload, elementHeight, flamesData, flameId, previewFlames)
+		FLAMES_MENU_MODE = FLAMES_MODE_BROWSER
+		local flameId = flameId or 0
+		FLAMES_CURRENT_FLAMEID = flameId
+		local previewFlames = previewFlames or FLAMES_BROWSER_INFO
+		local previewFlame = previewFlames[flameId]
+		
+		if (toReload.browserButtons and toReload.forgerButtons) then
+			for i,v in pairs(toReload.forgerButtons) do
+				v:hide(true)
+			end
+			for i,v in pairs(toReload.browserButtons) do
+				v:show(true)
+			end
+		end
+		
+		if (listingHolder.scrollBar) then
+			listingHolder.scrollBar:kill()
+		end
+		listingHolder:kill(true)
+		listingHolder:moveTo(nil, 0)
+		toReload.menuTitle:addAdaptedText(true, TB_MENU_LOCALIZED.FLAMESBROWSERTITLE, nil, nil, FONTS.BIG, LEFTMID, 0.6)
+		toReload.costDisplay:hide(true)
+		
+		local listElements = {}
+		
+		local flameIdLoader = UIElement:new({
+			parent = listingHolder,
+			pos = { 0, #listElements * elementHeight },
+			size = { listingHolder.size.w, elementHeight },
+			bgColor = TB_MENU_DEFAULT_BG_COLOR
+		})
+		table.insert(listElements, flameIdLoader)
+		local flameIdLoaderHolder = UIElement:new({
+			parent = flameIdLoader,
+			pos = { 10, 2 },
+			size = { flameIdLoader.size.w - 10, flameIdLoader.size.h - 4 },
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			shapeType = ROUNDED,
+			rounded = 3
+		})
+		local flameIdLoaderName = UIElement:new({
+			parent = flameIdLoaderHolder,
+			pos = { 10, 5 },
+			size = { flameIdLoaderHolder.size.w / 3, flameIdLoaderHolder.size.h - 10 }
+		})
+		flameIdLoaderName:addAdaptedText(true, "Flame ID", nil, nil, nil, LEFTMID)
+		local flameIdLoaderInput = TBMenu:spawnTextField(flameIdLoaderHolder, flameIdLoaderName.size.w + flameIdLoaderName.shift.x + 5, 3, flameIdLoaderHolder.size.w - flameIdLoaderName.size.w - flameIdLoaderName.shift.x * 2 - 5, flameIdLoaderHolder.size.h - 6, previewFlame and previewFlame.id, { isNumeric = true }, 4, 0.7, UICOLORWHITE, TB_MENU_LOCALIZED.STOREFLAMEID, CENTERMID, nil, nil, true)
+		flameIdLoaderInput:addEnterAction(function()
+				local flameLoaderOverlay = UIElement:new({
+					parent = flameIdLoader,
+					pos = { 10, 5 },
+					size = { flameIdLoader.size.w - 20, flameIdLoader.size.h - 10 },
+					bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+					uiColor = UICOLORWHITE,
+					shapeType = ROUNDED,
+					rounded = 3,
+					interactive = true
+				})
+				TBMenu:displayLoadingMarkSmall(flameLoaderOverlay, TB_MENU_LOCALIZED.NETWORKLOADING)
+				flameLoaderOverlay:handleMouseDn(0, -1, 0)
+				
+				Request:queue(function()
+						download_server_info("flame_fetch_settings&flameid=" .. flameIdLoaderInput.textfieldstr[1])
+					end,
+					"flameidfetch", -- Net call name
+					function() -- Success
+						flameLoaderOverlay:kill()
+						local response = get_network_response()
+						if (response:find("^ERROR;")) then
+							response = response:gsub("^ERROR;", "")
+							TBMenu:showDataError(response, true)
+							return
+						end
+						
+						local flameData = {
+							settings = {},
+							displayInfo = {},
+							id = flameIdLoaderInput.textfieldstr[1]
+						}
+						for line in string.gmatch(response, "[^\n]*") do
+							if (line:match("^FLAME;.*")) then
+								for param in string.gmatch(line, "%w+") do
+									table.insert(flameData.settings, tonumber(param))
+								end
+							elseif (line:match("^FLAMENAME;.*")) then
+								local name = line:gsub("^FLAMENAME;", "")
+								table.insert(flameData.displayInfo, { title = TB_MENU_LOCALIZED.FLAMESFLAMENAME, val = name })
+							elseif (line:match("^FLAMEFORGED;.*")) then
+								line = line:gsub("^FLAMEFORGED;", "")
+								local data = {}
+								for val in string.gmatch(line, "%w+") do
+									table.insert(data, val)
+								end
+								table.insert(flameData.displayInfo, { title = TB_MENU_LOCALIZED.STOREFLAMEFORGEDBY, val = data[1] })
+								table.insert(flameData.displayInfo, { title = TB_MENU_LOCALIZED.FLAMESSPAWNCOST, val = PlayerInfo:currencyFormat(data[2]) .. " TC" })
+							elseif (line:match("^FLAMEDATE;.*")) then
+								local date = line:gsub("^FLAMEDATE;", "")
+								table.insert(flameData.displayInfo, { title = TB_MENU_LOCALIZED.FLAMESFORGEDATE, val = date })
+							elseif (line:match("^FLAMEOWNER;.*")) then
+								local name = line:gsub("^FLAMEOWNER;", "")
+								table.insert(flameData.displayInfo, { title = TB_MENU_LOCALIZED.FLAMESOWNER, val = name })
+							end
+						end
+						previewFlames[flameId] = flameData
+						Flames:spawnBrowseMenu(listingHolder, toReload, elementHeight, flamesData, flameId, previewFlames)
+					end,
+					function() -- Error
+						flameLoaderOverlay:kill()
+						TBMenu:showDataError(TB_MENU_LOCALIZED.ERRORTRYAGAIN, true)
+					end)
+			end)
+			
+		if (previewFlame) then
+			for i,v in pairs(previewFlame.settings) do
+				set_flame_setting(i - 1, v, flameId)
+			end
+			for i,data in pairs(previewFlame.displayInfo) do
+				local fHolderMain = UIElement:new({
+					parent = listingHolder,
+					pos = { 0, #listElements * elementHeight },
+					size = { listingHolder.size.w, elementHeight },
+					bgColor = TB_MENU_DEFAULT_BG_COLOR
+				})
+				table.insert(listElements, fHolderMain)
+				local fHolder = UIElement:new({
+					parent = fHolderMain,
+					pos = { 10, 2 },
+					size = { fHolderMain.size.w - 10, fHolderMain.size.h - 4 },
+					bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+					shapeType = ROUNDED,
+					rounded = 3
+				})
+				local fParamName = UIElement:new({
+					parent = fHolder,
+					pos = { 10, 5 },
+					size = { fHolder.size.w / 2 - 20, fHolder.size.h - 10 }
+				})
+				fParamName:addAdaptedText(nil, data.title, nil, nil, nil, LEFTMID)
+				local fValueHolder = UIElement:new({
+					parent = fHolder,
+					pos = { fParamName.size.w + fParamName.shift.x + 5, 2 },
+					size = { fHolder.size.w - fParamName.size.w - fParamName.shift.x * 2 - 5, fHolder.size.h - 4 },
+					shapeType = ROUNDED,
+					rounded = 3
+				})
+				fValueHolder:addAdaptedText(nil, data.val, nil, nil, 4, nil, 0.8)
+			end
+		end
+	end
+	
 	function Flames:showMain()
+		FLAMES_MENU_MINIMIZED = false
 		local mainView = UIElement:new({
 			globalid = TB_MENU_HUB_GLOBALID,
 			pos = { FLAMES_MENU_POS.x, FLAMES_MENU_POS.y },
@@ -364,9 +646,9 @@ do
 		local flamesName = UIElement:new({
 			parent = topBar,
 			pos = { 20, mainMoverHolder.size.h + mainMoverHolder.shift.y },
-			size = { topBar.size.w / 2 - 25, topBar.size.h - mainMoverHolder.size.h - mainMoverHolder.shift.y * 2 }
+			size = { topBar.size.w / 2 - 75, topBar.size.h - mainMoverHolder.size.h - mainMoverHolder.shift.y * 2 }
 		})
-		flamesName:addAdaptedText(true, "Flame Forger", nil, nil, FONTS.BIG, LEFTMID, 0.6)
+		toReload.menuTitle = flamesName
 		
 		local flameCostEstimate = UIElement:new({
 			parent = botBar,
@@ -376,7 +658,15 @@ do
 		flameCostEstimate.tc = 0
 		toReload.costDisplay = flameCostEstimate
 		
-		local flameParameters = Flames:spawnFlameSettings(listingHolder, toReload, elementHeight)
+		if (not FLAMES_PARAMETERS[1]) then
+			FLAMES_PARAMETERS = Flames:spawnFlameSettings(listingHolder, toReload, elementHeight)
+		else
+			if (FLAMES_MENU_MODE == FLAMES_MODE_FORGER) then
+				Flames:spawnFlameSettings(listingHolder, toReload, elementHeight, FLAMES_PARAMETERS, FLAMES_CURRENT_FLAMEID)
+			else
+				Flames:spawnBrowseMenu(listingHolder, toReload, elementHeight, FLAMES_PARAMETERS, FLAMES_CURRENT_FLAMEID)
+			end
+		end
 		
 		local flameIdShift = flamesName.shift.x + flamesName.size.w + 10
 		flameIdShift = flameIdShift < topBar.size.w - 240 and topBar.size.w - 240 or flameIdShift
@@ -395,11 +685,54 @@ do
 				text = "Flame Slot " .. i,
 				action = function()
 					currentFlameId = i - 1
-					Flames:spawnFlameSettings(listingHolder, toReload, elementHeight, flameParameters, currentFlameId)
+					if (FLAMES_MENU_MODE == FLAMES_MODE_BROWSER) then
+						Flames:spawnBrowseMenu(listingHolder, toReload, elementHeight, FLAMES_PARAMETERS, currentFlameId)
+					elseif (FLAMES_MENU_MODE == FLAMES_MODE_FORGER) then
+						Flames:spawnFlameSettings(listingHolder, toReload, elementHeight, FLAMES_PARAMETERS, currentFlameId)
+					else
+						FLAMES_CURRENT_FLAMEID = currentFlameId
+					end
 				end
 			})
 		end
-		local flameIdDropdown = TBMenu:spawnDropdown(flameIdHolder, flameSlots, flameIdHolder.size.h / 3 * 2, nil, flameSlots[1], 0.6, 4, 0.5, 4)
+		local flameIdDropdown = TBMenu:spawnDropdown(flameIdHolder, flameSlots, flameIdHolder.size.h / 3 * 2, nil, flameSlots[FLAMES_CURRENT_FLAMEID + 1], 0.6, 4, 0.5, 4)
+		
+		
+		
+		local flamesFlameSave = UIElement:new({
+			parent = topBar,
+			pos = { flameIdHolder.shift.x - flameIdHolder.size.h - 5, flameIdHolder.shift.y },
+			size = { flameIdHolder.size.h, flameIdHolder.size.h },
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+			interactive = true,
+			shapeType = ROUNDED,
+			rounded = 4
+		})
+		local flamesFlameSaveIcon = UIElement:new({
+			parent = flamesFlameSave,
+			pos = { 8, 8 },
+			size = { flamesFlameSave.size.w - 16, flamesFlameSave.size.h - 16 },
+			bgImage = "../textures/menu/general/buttons/savewhite.tga"
+		})
+		flamesFlameSave:addMouseHandlers(nil, function()
+				local confirmOverlay = TBMenu:showConfirmationWindowInput("Saving flame", "flame name", function(flameName)
+					local flameName = flameName == "" and os.date() or flameName:gsub(";", "|")
+					local flamesStoredFile = Files:new("../data/flames_stored.dat", FILES_MODE_APPEND)
+					if (not flamesStoredFile.data) then
+						TBMenu:showDataError(TB_MENU_LOCALIZED.FLAMESERROROPENINGSTORAGE, true)
+						return
+					end
+					local flameString = "FLAME " .. flameName .. ";"
+					for i,v in pairs(FLAMES_PARAMETERS[FLAMES_CURRENT_FLAMEID]) do
+						flameString = flameString .. v.value .. " "
+					end
+					flamesStoredFile:writeLine(flameString)
+					flamesStoredFile:close()
+					TBMenu:showDataError(TB_MENU_LOCALIZED.FLAMESSTORAGESUCCESS, true)
+				end, nil, "Leave empty to save with current date as flame name", TB_MENU_HUB_GLOBALID)
+			end)
 		
 		local flamesButtonsHolder = UIElement:new({
 			parent = botBar,
@@ -418,11 +751,8 @@ do
 			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
 			inactiveColor = { 0.6, 0.6, 0.6, 0.6 }
 		})
-		flamesBrowseButton:deactivate(true)
-		flamesBrowseButton:addAdaptedText(false, "Browse")
-		flamesBrowseButton:addMouseHandlers(nil, function()
-				
-			end)
+		flamesBrowseButton:addAdaptedText(false, TB_MENU_LOCALIZED.FLAMESBROWSE)
+		
 		local flamesCreateButton = UIElement:new({
 			parent = flamesButtonsHolder,
 			pos = { flamesBrowseButton.shift.x + flamesBrowseButton.size.w + 6, 5 },
@@ -434,7 +764,7 @@ do
 			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
 		})
-		flamesCreateButton:addAdaptedText(false, "Forge Flame")
+		flamesCreateButton:addAdaptedText(false, TB_MENU_LOCALIZED.FLAMESFORGEFLAME)
 		flamesCreateButton:addMouseHandlers(nil, function()
 				local confirmOverlay = TBMenu:showConfirmationWindowInput("Forging your Flame", "Flame Name",
 					function(name)
@@ -458,7 +788,7 @@ do
 						})
 						TBMenu:displayLoadingMarkSmall(loadingMark, TB_MENU_LOCALIZED.REQUESTFINISHINGACTIVE)
 						Request:queue(function()
-								show_dialog_box(FLAME_DIALOG_FORGE, "Forging '" .. name .. "' flame for " .. flameCostEstimate.tc .. " Toricredits.\nAre you sure?", name .. ";" .. flameCostEstimate.tc .. ";" .. flameSettingsString, true)
+								show_dialog_box(FLAME_DIALOG_FORGE, "Forging '" .. name .. "' flame for " .. flameCostEstimate.tc .. " Toricredits.\nAre you sure?", name .. ";" .. flameCostEstimate.tc .. "0;" .. flameSettingsString, true)
 								loadingMark:kill(true)
 								TBMenu:displayLoadingMarkSmall(loadingMark, TB_MENU_LOCALIZED.NETWORKLOADING)
 								
@@ -477,8 +807,19 @@ do
 									local error = not result and response:gsub("GATEWAY 0; 1 ", "") or false
 									
 									if (error) then
-										Files:writeDebug(error)
-										TBMenu:showDataError(error, true)
+										local errMsg = TB_MENU_LOCALIZED.REQUESTUNKNOWNERROR -- Fall back to unknown network error on any undefined error code
+										if (error == "1") then
+											errMsg = TB_MENU_LOCALIZED.FLAMESERRORPRICEMISMATCH
+										elseif (error == "2") then
+											errMsg = TB_MENU_LOCALIZED.ERRORINSUFFICIENTFUNDS
+										elseif (error == "3") then
+											errMsg = TB_MENU_LOCALIZED.ERRORBUYINGITEM
+										elseif (error == "4") then
+											errMsg = TB_MENU_LOCALIZED.ERRORTRANSFERRINGMONEY
+										elseif (error == "5") then
+											errMsg = TB_MENU_LOCALIZED.FLAMESERRORSPAWNING
+										end
+										TBMenu:showDataError(errMsg, true)
 										return
 									end
 									
@@ -498,13 +839,64 @@ do
 				table.insert(FLAMES_MENU_MAIN_ELEMENT.child, confirmOverlay)
 			end)
 			
+		local flamesBrowserButtonsHolder = UIElement:new({
+			parent = botBar,
+			pos = { 0, -elementHeight * 3 },
+			size = { botBar.size.w, elementHeight * 3 },
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR
+		})
+		local flamesForgerButton = UIElement:new({
+			parent = flamesBrowserButtonsHolder,
+			pos = { 10, -elementHeight },
+			size = { flamesButtonsHolder.size.w - 20, elementHeight - 5 },
+			shapeType = ROUNDED,
+			rounded = 3,
+			interactive = true,
+			bgColor = TB_MENU_DEFAULT_BG_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+		})
+		flamesForgerButton:addAdaptedText(false, TB_MENU_LOCALIZED.FLAMESFORGERTITLE)
+		
+		toReload.browserButtons = { flamesBrowserButtonsHolder }
+		toReload.forgerButtons = { flamesButtonsHolder, flamesFlameSave }
+		
+		flamesBrowseButton:addMouseHandlers(nil, function()
+				Flames:spawnBrowseMenu(listingHolder, toReload, elementHeight, FLAMES_PARAMETERS, currentFlameId)
+			end)
+		flamesForgerButton:addMouseHandlers(nil, function()
+				Flames:spawnFlameSettings(listingHolder, toReload, elementHeight, FLAMES_PARAMETERS, currentFlameId)
+			end)
+			
+		local flamesStoredButton = UIElement:new({
+			parent = flamesBrowserButtonsHolder,
+			pos = { 10, -elementHeight * 2 },
+			size = { flamesButtonsHolder.size.w - 20, elementHeight - 5 },
+			shapeType = ROUNDED,
+			rounded = 3,
+			interactive = true,
+			bgColor = TB_MENU_DEFAULT_BG_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+		})
+		flamesStoredButton:addAdaptedText(false, TB_MENU_LOCALIZED.FLAMESSTOREDFLAMES)
+		flamesStoredButton:addMouseHandlers(nil, function()
+				Flames:spawnBrowseMenuStored(listingHolder, toReload, elementHeight, FLAMES_PARAMETERS, FLAMES_CURRENT_FLAMEID)
+			end)
+			
+		if (FLAMES_MENU_MODE == FLAMES_MODE_FORGER) then
+			flamesBrowserButtonsHolder:hide(true)
+		else
+			flamesButtonsHolder:hide(true)
+		end
+		
 		add_hook("key_up", "tbFlamesKeyboard", function(s) return(UIElement:handleKeyUp(s)) end)
 		add_hook("key_down", "tbFlamesKeyboard", function(s) return(UIElement:handleKeyDown(s)) end)
 		
 		local quitButton = UIElement:new({
 			parent = mainMoverHolder,
 			pos = { -mainMoverHolder.size.h, 0 },
-			size = { mainMoverHolder.size.h , mainMoverHolder.size.h },
+			size = { mainMoverHolder.size.h, mainMoverHolder.size.h },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR,
 			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
@@ -520,6 +912,29 @@ do
 		})
 		quitButton:addMouseHandlers(nil, function()
 				Flames:quit()
+			end)
+			
+		local minimizeButton = UIElement:new({
+			parent = mainMoverHolder,
+			pos = { -mainMoverHolder.size.h * 2, 0 },
+			size = { mainMoverHolder.size.h, mainMoverHolder.size.h },
+			bgColor = TB_MENU_DEFAULT_BG_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+			interactive = true,
+			shapeType = ROUNDED,
+			rounded = 4
+		})
+		local minimizeIcon = UIElement:new({
+			parent = minimizeButton,
+			pos = { 2, minimizeButton.size.h / 2 - 2 },
+			size = { minimizeButton.size.w - 4, 4 },
+			shapeType = ROUNDED,
+			rounded = 2,
+			bgColor = UICOLORWHITE
+		})
+		minimizeButton:addMouseHandlers(nil, function()
+				Flames:minimize()
 			end)
 	end
 end

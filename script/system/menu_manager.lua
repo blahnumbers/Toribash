@@ -2830,8 +2830,9 @@ do
 			end
 			slider:moveTo(xPos)
 			
-			local val = xPos / (sliderBG.size.w - sliderRadius * 2) * (settings.maxValue - settings.minValue) + settings.minValue
-			sliderLabel.labelText[1] = math.floor(val) .. ''
+			local val = xPos / (sliderBG.size.w - sliderRadius) * (settings.maxValue - settings.minValue) + settings.minValue
+			local multiplyBy = tonumber('1' .. string.rep('0', settings.decimal))
+			sliderLabel.labelText[1] = (math.floor(val * multiplyBy) / multiplyBy) .. ''
 			sliderLabel.uiColor[4] = 1
 			sliderLabel.bgColor[4] = 1
 			

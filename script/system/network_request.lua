@@ -82,7 +82,13 @@ do
 							UIElement:debugEcho(request)
 						end
 						Request:new(request.name, request.success, request.error, request.response)
-						request.netcall()
+						local err, msg = pcall(request.netcall)
+						if (not err) then
+							if (TB_MENU_DEBUG) then
+								UIElement:debugEcho("netcall error: " .. (type(msg) == "string" and msg or ''))
+							end
+							Request:cancelCurrentRequest()
+						end
 					end
 				end)
 		end

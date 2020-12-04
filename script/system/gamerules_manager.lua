@@ -215,7 +215,7 @@ do
 					{ value = 1, title = "Rotatable" }
 				}
 			},
-			{ name = "tearthreshold", title = "Tear Threshold", depends = "grabmode", section = GAMERULES_SECTION_GRAB, type = GAMERULE_INT }
+			{ name = "tearthreshold", title = "Tear Threshold", depends = {"grip", "grabmode"}, section = GAMERULES_SECTION_GRAB, type = GAMERULE_INT }
 		}
 		
 		local gameRules = {}
