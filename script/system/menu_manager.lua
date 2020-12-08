@@ -2511,7 +2511,7 @@ do
 		})
 		local grow, rotate = 0, 0
 		loadMark:addCustomDisplay(true, function()
-				set_color(unpack(loadMark.uiColor))
+				set_color(unpack(loadMark.uiColor or UICOLORWHITE))
 				draw_disk(loadMark.pos.x + loadMark.size.w / 2, loadMark.pos.y + loadMark.size.h / 2 - 40, 12, 20, 500, 1, rotate, grow, 0)
 				grow = grow + 4
 				rotate = rotate + 2

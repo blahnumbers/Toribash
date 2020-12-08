@@ -809,3 +809,11 @@ FLAMESERROROPENINGSTORAGE	Error opening flame storage data file\nPlease make sur
 FLAMESSTORAGESUCCESS	Flame stored successfully!\nYou can now load it for preview using Flame Browser
 FLAMESSTOREDFLAMES	Stored flames	
 FLAMESBODYPARTFOR	for	
+FLAMESSEARCHNONEFOUND	No flames found that fit your search	
+FLAMESSEARCHNAME1	Flames with 
+FLAMESSEARCHNAME2	in their name	
+FLAMESSEARCHFORGER	Flames forged by	
+FLAMESSEARCHOWNER	Flames owned by	
+STOREITEMOWNEDBY	Owned by	
+FLAMESDELETESTOREDCONFIRM	Are you sure you want to delete your stored flame design	
+CONFIRMACTIONCANNOTBEUNDONE	This action cannot be undone.

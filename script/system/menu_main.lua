@@ -206,53 +206,7 @@ if (os.clock() < 10) then
 	end
 end
 
-add_hook("mouse_button_down", "uiMouseHandler", function(s, x, y)
-		UIElement:handleMouseDn(s, x, y)
-		if (TB_MENU_MAIN_ISOPEN == 1) then
-			return 1
-		end
-	end)
-add_hook("mouse_button_up", "uiMouseHandler", function(s, x, y) UIElement:handleMouseUp(s, x, y) end)
-add_hook("mouse_move", "uiMouseHandler", function(x, y)
-		UIElement:handleMouseHover(x, y)
-		if (INVENTORY_UPDATE) then
-			if (x ~= INVENTORY_MOUSE_POS.x or y ~= INVENTORY_MOUSE_POS.y) then
-				if (x > WIN_W / 2) then
-					Torishop:refreshInventory(TB_MENU_SPECIAL_SCREEN_ISOPEN == 1 and TB_MENU_MAIN_ISOPEN)
-					if (INVENTORY_SELECTION_RESET) then
-						for i = #INVENTORY_SELECTED_ITEMS, 1, -1 do
-							table.remove(INVENTORY_SELECTED_ITEMS, i)
-						end
-						INVENTORY_SELECTED_RESET = false
-					end
-				else
-					INVENTORY_UPDATE = false
-					INVENTORY_SELECTION_RESET = false
-				end
-			end
-		end
-		if (TB_MENU_MAIN_ISOPEN == 1) then
-			return 1
-		end
-	end)
---[[add_hook("mouse_move", "tbMainMenuMouse", function(x, y)
-		if (INVENTORY_UPDATE) then
-			if (x ~= INVENTORY_MOUSE_POS.x or y ~= INVENTORY_MOUSE_POS.y) then
-				if (x > WIN_W / 2) then
-					Torishop:refreshInventory(TB_MENU_SPECIAL_SCREEN_ISOPEN == 1)
-					if (INVENTORY_SELECTION_RESET) then
-						for i = #INVENTORY_SELECTED_ITEMS, 1, -1 do
-							table.remove(INVENTORY_SELECTED_ITEMS, i)
-						end
-						INVENTORY_SELECTED_RESET = false
-					end
-				else
-					INVENTORY_UPDATE = false
-					INVENTORY_SELECTION_RESET = false
-				end
-			end
-		end
-	end)]]
+UIElement:mouseHooks()
 add_hook("key_up", "tbMenuKeyboardHandler", function(s) UIElement:handleKeyUp(s) return 1 end)
 add_hook("key_down", "tbMenuKeyboardHandler", function(s) UIElement:handleKeyDown(s) return 1 end)
 add_hook("draw2d", "tbMainMenuVisual", function() UIElement:drawVisuals(TB_MENU_MAIN_GLOBALID) end)

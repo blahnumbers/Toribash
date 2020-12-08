@@ -183,6 +183,9 @@ do
 			if (o.downSound) then
 				elem.downSound = o.downSound
 			end
+			if (o.clickThrough) then
+				elem.clickThrough = o.clickThrough
+			end
 
 			table.insert(UIElementManager, elem)
 
@@ -771,7 +774,7 @@ do
 		LONGKEYPRESSED.repeats = 0]]
 		
 		if ((key == 13 or key == 271) and self.enteraction) then
-			self.enteraction()
+			self.enteraction(self.textfieldstr[1])
 		end
 		if (key == 9) then
 			local ctrl_pressed = get_keyboard_ctrl() > 0 and true or false
@@ -971,7 +974,7 @@ do
 						v.keyboard = true
 						disable_camera_movement()
 					end
-					return
+					return v.clickThrough and 0 or 1
 				elseif (s >= 4 and v.scrollEnabled == true) then
 					if (v.btnDown(s, x, y)) then
 						return
@@ -1023,6 +1026,41 @@ do
 				end
 			end
 		end
+	end
+	
+	-- A generic mouse hooks spawner that we can use from any script without having to worry about disabling some bits of it
+	function UIElement:mouseHooks()
+		add_hook("mouse_button_down", "uiMouseHandler", function(s, x, y)
+				local toReturn = TB_MENU_MAIN_ISOPEN == 1 and 1 or 0
+				toReturn = UIElement:handleMouseDn(s, x, y) or toReturn
+				return toReturn
+			end)
+		add_hook("mouse_button_up", "uiMouseHandler", function(s, x, y)
+				local toReturn = 0
+				toReturn = UIElement:handleMouseUp(s, x, y) or toReturn
+				return toReturn
+			end)
+		add_hook("mouse_move", "uiMouseHandler", function(x, y)
+				local toReturn = TB_MENU_MAIN_ISOPEN == 1 and 1 or 0
+				toReturn = UIElement:handleMouseHover(x, y) or toReturn 
+				if (INVENTORY_UPDATE) then
+					if (x ~= INVENTORY_MOUSE_POS.x or y ~= INVENTORY_MOUSE_POS.y) then
+						if (x > WIN_W / 2) then
+							Torishop:refreshInventory(TB_MENU_SPECIAL_SCREEN_ISOPEN == 1 and TB_MENU_MAIN_ISOPEN)
+							if (INVENTORY_SELECTION_RESET) then
+								for i = #INVENTORY_SELECTED_ITEMS, 1, -1 do
+									table.remove(INVENTORY_SELECTED_ITEMS, i)
+								end
+								INVENTORY_SELECTED_RESET = false
+							end
+						else
+							INVENTORY_UPDATE = false
+							INVENTORY_SELECTION_RESET = false
+						end
+					end
+				end
+				return toReturn
+			end)
 	end
 
 	function UIElement:moveTo(x, y, relative)
