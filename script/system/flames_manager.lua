@@ -90,7 +90,7 @@ do
 			math.abs(flame[21].value / 100) * 30000 +																		-- Emit Amount
 			math.abs(flame[22].value / 100) * 10000 +																		-- Size
 			(math.abs(flame[22].value - flame[24].value) / 100) * (math.abs(flame[25].value) > 0 and 1 or 0) * 10000 +		-- Size Diff
-			math.abs(((flame[23].value + flame[26].value * (flame[25].value > 0 and 1 or 0)) / 100)) * 5000 +				-- Size Random
+			math.abs(((flame[23].value + flame[26].value * (math.abs(flame[25].value) > 0 and 1 or 0)) / 100)) * 5000 +		-- Size Random
 			math.abs(flame[27].value / 100) * 2500 +																		-- Displace X
 			math.abs(flame[28].value / 100) * 2500 + 																		-- Displace Y
 			math.abs(flame[29].value / 100) * 2500 +																		-- Displace Z
@@ -968,7 +968,7 @@ do
 						end
 						
 						local flameSettingsString = ''
-						for i,v in pairs(flameParameters[currentFlameId]) do
+						for i,v in pairs(FLAMES_PARAMETERS[currentFlameId]) do
 							flameSettingsString = flameSettingsString .. v.value .. " "
 						end
 						
@@ -981,7 +981,7 @@ do
 						})
 						TBMenu:displayLoadingMarkSmall(loadingMark, TB_MENU_LOCALIZED.REQUESTFINISHINGACTIVE)
 						Request:queue(function()
-								show_dialog_box(FLAME_DIALOG_FORGE, "Forging '" .. name .. "' flame for " .. flameCostEstimate.tc .. " Toricredits.\nAre you sure?", name .. ";" .. flameCostEstimate.tc .. "0;" .. flameSettingsString, true)
+								show_dialog_box(FLAME_DIALOG_FORGE, "Forging '" .. name .. "' flame for " .. flameCostEstimate.tc .. " Toricredits.\nAre you sure?", name .. ";" .. flameCostEstimate.tc .. ";" .. flameSettingsString, true)
 								loadingMark:kill(true)
 								TBMenu:displayLoadingMarkSmall(loadingMark, TB_MENU_LOCALIZED.NETWORKLOADING)
 								
