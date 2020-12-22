@@ -182,7 +182,8 @@ do
 								update_tc_balance()
 								TB_MENU_NOTIFICATIONS_COUNT = TB_MENU_NOTIFICATIONS_COUNT - 1
 								TB_MENU_DOWNLOAD_INACTION = true
-								TBMenu:showNavigationBar(Notifications:getNavigationButtons(), true, true, TB_MENU_NOTIFICATIONS_LASTSCREEN)
+								tbMenuNavigationBar:kill(true)
+								TBMenu:showNavigationBar(Notifications:getNavigationButtons(false, true), true, true, TB_MENU_NOTIFICATIONS_LASTSCREEN)
 								
 								-- Let's update balance instantly, no need to wait for update_tc_balance() to finish downloading customs
 								if (RewardData[rewardData.days].tc ~= 0) then

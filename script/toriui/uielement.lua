@@ -7,7 +7,7 @@ UIMODE_LIGHT = get_option("uilight") == 1
 FONTS.BIGGER = 9
 
 KEYBOARDGLOBALIGNORE = KEYBOARDGLOBALIGNORE or false
-LONGKEYPRESSED = { status = false, key = nil, time = nil, repeats = 0 }
+--LONGKEYPRESSED = { status = false, key = nil, time = nil, repeats = 0 }
 
 SQUARE = 1
 ROUNDED = 2
@@ -24,6 +24,7 @@ RIGHTMID = 8
 
 BTN_DN = 1
 BTN_HVR = 2
+BTN_FOCUS = 3
 
 DEFTEXTURE = "../textures/menu/logos/toribash.tga"
 TEXTURECACHE = TEXTURECACHE or {}
@@ -118,7 +119,13 @@ do
 				elem.textfieldstr = o.textfieldstr and (type(o.textfieldstr) == "table" and o.textfieldstr or { o.textfieldstr }) or { "" }
 				elem.textfieldindex = elem.textfieldstr[1]:len()
 				elem.textfieldsingleline = o.textfieldsingleline
-				elem.keyDown = function(key) elem:textfieldKeyDown(key, o.isNumeric) end
+				elem.keyDown = function(key) elem:textfieldKeyDown(key, o.isNumeric, o.allowNegative, o.allowDecimal) end
+				elem.keyUp = function(key) elem:textfieldKeyUp(key) end
+				table.insert(UIKeyboardHandler, elem)
+			end
+			if (o.toggle) then
+				elem.toggle = o.toggle
+				elem.keyDown = function() end
 				elem.keyUp = function(key) elem:textfieldKeyUp(key) end
 				table.insert(UIKeyboardHandler, elem)
 			end
@@ -176,6 +183,9 @@ do
 			if (o.downSound) then
 				elem.downSound = o.downSound
 			end
+			if (o.clickThrough) then
+				elem.clickThrough = o.clickThrough
+			end
 
 			table.insert(UIElementManager, elem)
 
@@ -215,13 +225,72 @@ do
 	end
 
 	function UIElement:addEnterAction(func)
-		self.textfieldenteractionenabled = true
-		self.textfieldenteraction = func
+		self.enteraction = func
 	end
 
 	function UIElement:removeEnterAction()
-		self.textfieldenteractionenabled = false
-		self.textfieldenteraction = nil
+		self.enteraction = nil
+	end
+	
+	function UIElement:addTabAction(func)
+		self.tabaction = func
+	end
+
+	function UIElement:removeTabAction()
+		self.tabaction = nil
+	end
+	
+	function UIElement:addOnLoseTabFocus(func)
+		self.onLoseFocus = func
+	end
+	
+	function UIElement:removeOnLoseTabFocus()
+		self.onLoseFocus = nil
+	end
+	
+	function UIElement:addOnReceiveTabFocus(func)
+		self.onReceiveFocus = func
+	end
+	
+	function UIElement:removeOnReceiveTabFocus()
+		self.onReceiveFocus = nil
+	end
+	
+	function UIElement:addTabSwitchPrev(element, btnDownArg)
+		self:addTabSwitch(element, btnDownArg, true)
+	end
+	
+	function UIElement:addTabSwitch(element, btnDownArg, prev)
+		local btnDownArg = btnDownArg or {}
+		local action = prev and "tabswitchprevaction" or "tabswitchaction"
+		local targetName = prev and "prevInput" or "nextInput"
+		self[targetName] = element
+		self[action] = function()
+			if (self.onLoseFocus) then
+				self.onLoseFocus()
+			end
+			for i, v in pairs(UIKeyboardHandler) do
+				v.keyboard = false
+				KEYBOARDGLOBALIGNORE = false
+			end
+			element.hoverState = BTN_HVR
+			element.btnDown(unpack(btnDownArg))
+			if (element.textfield) then
+				element.keyboard = true
+				disable_camera_movement()
+			end
+			if (element.onReceiveFocus) then
+				element.onReceiveFocus()
+			end
+		end
+	end
+
+	function UIElement:removeTabSwitch()
+		self.tabswitchaction = nil
+	end
+	
+	function UIElement:removeTabSwitchPrev()
+		self.tabswitchprevaction = nil
 	end
 
 	function UIElement:reloadListElements(listHolder, listElements, toReload, enabled)
@@ -264,6 +333,7 @@ do
 				if (scrollIgnoreOverride and scrollIgnore) then
 					UIScrollbarIgnore = false
 				end
+				local scrollSuccessful = false
 				if (s < 4) then
 					self.pressedPos = self:getLocalPos(x,y)
 					self.hoverState = BTN_DN
@@ -271,10 +341,12 @@ do
 						(MOUSE_X > listHolder.parent.pos.x and MOUSE_X < listHolder.parent.pos.x + listHolder.parent.size.w and MOUSE_Y > listHolder.parent.pos.y and MOUSE_Y < listHolder.parent.pos.y + listHolder.parent.size.h))) then
 					self:mouseScroll(listElements, listHolder, toReload, y * scrollSpeed, enabled)
 					posShift[1] = self.shift.y
+					scrollSuccessful = true
 				end
 				if (scrollIgnore and not UIScrollbarIgnore) then
 					UIScrollbarIgnore = true
 				end
+				return scrollSuccessful
 			end, nil,
 			function(x, y)
 				if (self.hoverState == BTN_DN) then
@@ -333,11 +405,12 @@ do
 		listHolder.parent:reloadListElements(listHolder, listElements, toReload, enabled)
 	end
 
-	function UIElement:addCustomDisplay(funcTrue, func, drawBefore)
-		self.customDisplayTrue = funcTrue
-		self.customDisplay = func
+	function UIElement:addCustomDisplay(funcOnly, func, drawBefore)
+		self.customDisplayOnly = funcOnly
 		if (drawBefore) then
-			self.customDisplayBefore = drawBefore
+			self.customDisplayBefore = func
+		else
+			self.customDisplay = func
 		end
 		func()
 	end
@@ -393,6 +466,9 @@ do
 				break
 			end
 		end
+		if (self.menuKeyboardId) then
+			self:disableMenuKeyboard()
+		end
 		
 		self.destroyed = true
 		self = nil
@@ -434,11 +510,11 @@ do
 
 	function UIElement:displayViewport()
 		if (self.customDisplayBefore) then
-			self.customDisplay()
+			self.customDisplayBefore()
 		end
 		if (self.viewport) then
 			set_viewport(self.pos.x, self.pos.y, self.size.w, self.size.h)
-		elseif (not self.customDisplayTrue) then
+		elseif (not self.customDisplayOnly) then
 			set_color(unpack(self.bgColor))
 			if (self.bgImage) then
 				draw_sphere(self.pos.x, self.pos.y, self.pos.z, self.radius, self.rot.x, self.rot.y, self.rot.z, self.bgImage)
@@ -446,12 +522,15 @@ do
 				draw_sphere(self.pos.x, self.pos.y, self.pos.z, self.radius, self.rot.x, self.rot.y, self.rot.z)
 			end
 		end
-		if (not self.customDisplayBefore) then
+		if (self.customDisplay) then
 			self.customDisplay()
 		end
 	end
 
 	function UIElement:display()
+		if (self.customDisplayBefore) then
+			self.customDisplayBefore()
+		end
 		if (self.hoverState ~= false and self.hoverColor) then
 			if (UIMODE_LIGHT) then
 				for i = 1, 4 do
@@ -469,11 +548,8 @@ do
 				self.animateColor[i] = self.bgColor[i]
 			end
 		end
-		if (self.customDisplayBefore) then
-			self.customDisplay()
-		end
 		
-		if (not self.customDisplayTrue and (self.bgColor[4] > 0 or self.bgImage or self.interactive)) then
+		if (not self.customDisplayOnly and (self.bgColor[4] > 0 or self.bgImage or self.interactive)) then
 			if (self.innerShadow[1] > 0 or self.innerShadow[2] > 0) then
 				set_color(unpack(self.shadowColor[1]))
 				if (self.shapeType == ROUNDED) then
@@ -496,8 +572,12 @@ do
 				set_color(unpack(self.inactiveColor))
 			elseif (self.hoverState == BTN_HVR and self.hoverColor) then
 				set_color(unpack(self.animateColor))
+				set_mouse_cursor(1)
+			elseif (self.hoverState == BTN_FOCUS and self.hoverColor) then
+				set_color(unpack(self.animateColor))
 			elseif (self.hoverState == BTN_DN and self.pressedColor) then
 				set_color(unpack(self.pressedColor))
+				set_mouse_cursor(1)
 			elseif (self.interactive) then
 				set_color(unpack(self.animateColor))
 			else
@@ -518,7 +598,7 @@ do
 				draw_quad(self.pos.x, self.pos.y, self.size.w, self.size.h, self.bgImage)
 			end
 		end
-		if (not self.customDisplayBefore) then
+		if (self.customDisplay) then
 			self.customDisplay()
 		end
 	end
@@ -590,7 +670,8 @@ do
 	end
 
 	function UIElement:isDisplayed()
-		local viewport = (self.viewport or (self.parent and self.parent.viewport)) and true or false
+		return self.displayed;
+		--[[local viewport = (self.viewport or (self.parent and self.parent.viewport)) and true or false
 
 		if (not viewport) then
 			for i,v in pairs(UIVisualManager) do
@@ -605,7 +686,7 @@ do
 				end
 			end
 		end
-		return false
+		return false]]
 	end
 
 	function UIElement:show(forceReload)
@@ -645,6 +726,7 @@ do
 		for i,v in pairs(self.child) do
 			v:show(forceReload)
 		end
+		self.displayed = true
 	end
 
 	function UIElement:hide(noreload)
@@ -678,16 +760,39 @@ do
 		if (num) then
 			table.remove(UIVisualManager, num)
 		end
+		
+		if (self.menuKeyboardId) then
+			self:disableMenuKeyboard()
+		end
+		self.displayed = false
 	end
 
 	function UIElement:textfieldKeyUp(key)
-		LONGKEYPRESSED.status = false
+		--[[LONGKEYPRESSED.status = false
 		LONGKEYPRESSED.key = nil
 		LONGKEYPRESSED.time = nil
-		LONGKEYPRESSED.repeats = 0
-
-		if ((key == 13 or key == 271) and self.textfieldenteractionenabled) then
-			self.textfieldenteraction()
+		LONGKEYPRESSED.repeats = 0]]
+		
+		if ((key == 13 or key == 271) and self.enteraction) then
+			self.enteraction(self.textfieldstr[1])
+		end
+		if (key == 9) then
+			local ctrl_pressed = get_keyboard_ctrl() > 0 and true or false
+			local target = ctrl_pressed and self.prevInput or self.nextInput
+			if (target) then
+				if (self.tabaction) then
+					self.tabaction(target, ctrl_pressed)
+				end
+				if (ctrl_pressed) then
+					if (self.tabswitchprevaction) then
+						self.tabswitchprevaction()
+					end
+				else
+					if (self.tabswitchaction) then
+						self.tabswitchaction()
+					end
+				end
+			end
 		end
 	end
 
@@ -701,8 +806,10 @@ do
 		end
 	end
 
-	function UIElement:textfieldKeyDown(key, isNumeric)
+	function UIElement:textfieldKeyDown(key, isNumeric, allowNegative, allowDecimal)
 		local isNumeric = isNumeric or false
+		local allowNegative = allowNegative or false
+		local allowDecimal = allowDecimal or false
 
 		--[[if (LONGKEYPRESSED.status == false or key ~= LONGKEYPRESSED.key) then
 			LONGKEYPRESSED.status = true
@@ -714,13 +821,13 @@ do
 		else
 			return 1
 		end]]
-
 		if (isNumeric and
 			(get_shift_key_state() > 0 or key < 48 or key > 57) and
 			key ~= 8 and key ~= 127 and key ~= 266 and
 			key ~= 276 and key ~= 275 and
-			key ~= 46) then
-			return 1
+			not (key == 46 and allowDecimal) and
+			not (key == 45 and self.textfieldindex == 0 and allowNegative)) then
+			return
 		end
 		if (key == 8) then
 			if (self.textfieldindex > 0) then
@@ -784,6 +891,8 @@ do
 				self:textfieldUpdate(key - 256)
 			elseif (key > 300) then
 				return
+			elseif (key == 46 and (self.textfieldindex == 0 or self.textfieldstr[1]:find("%."))) then
+				return
 			else
 				self:textfieldUpdate(string.char(key))
 			end
@@ -816,6 +925,37 @@ do
 		end
 	end
 
+	function UIElement:enableMenuKeyboard()
+		TB_MENU_INPUT_ISACTIVE = true
+		enable_menu_keyboard()
+		local id = 1
+		for i,v in pairs(UIKeyboardHandler) do
+			if (v.menuKeyboardId == id) then
+				id = id + 1
+			else
+				self.menuKeyboardId = id
+				break
+			end
+		end
+		if (TB_MENU_MAIN_ISOPEN == 0) then
+			chat_input_deactivate()
+		end
+	end
+
+	function UIElement:disableMenuKeyboard()
+		self.menuKeyboardId = nil
+		for i,v in pairs(UIKeyboardHandler) do
+			if (v.menuKeyboardId) then
+				return
+			end
+		end
+		TB_MENU_INPUT_ISACTIVE = false
+		disable_menu_keyboard()
+		if (TB_MENU_MAIN_ISOPEN == 0) then
+			chat_input_activate()
+		end
+	end
+
 	function UIElement:handleMouseDn(s, x, y)
 		enable_camera_movement()
 		for i, v in pairs(UIKeyboardHandler) do
@@ -834,9 +974,11 @@ do
 						v.keyboard = true
 						disable_camera_movement()
 					end
-					return
+					return v.clickThrough and 0 or 1
 				elseif (s >= 4 and v.scrollEnabled == true) then
-					v.btnDown(s, x, y)
+					if (v.btnDown(s, x, y)) then
+						return
+					end
 				end
 			end
 		end
@@ -850,6 +992,7 @@ do
 				end
 				v.hoverState = BTN_HVR
 				v.btnUp(s, x, y)
+				set_mouse_cursor(1)
 				return
 			end
 		end
@@ -872,14 +1015,52 @@ do
 					end
 					if (v.hoverState ~= BTN_DN) then
 						v.hoverState = BTN_HVR
-						disable = true
+						if (not v.textfield) then
+							disable = true
+						end
 					end
 					v.btnHover(x,y)
+					set_mouse_cursor(1)
 				else
 					v.hoverState = false
 				end
 			end
 		end
+	end
+	
+	-- A generic mouse hooks spawner that we can use from any script without having to worry about disabling some bits of it
+	function UIElement:mouseHooks()
+		add_hook("mouse_button_down", "uiMouseHandler", function(s, x, y)
+				local toReturn = TB_MENU_MAIN_ISOPEN == 1 and 1 or 0
+				toReturn = UIElement:handleMouseDn(s, x, y) or toReturn
+				return toReturn
+			end)
+		add_hook("mouse_button_up", "uiMouseHandler", function(s, x, y)
+				local toReturn = 0
+				toReturn = UIElement:handleMouseUp(s, x, y) or toReturn
+				return toReturn
+			end)
+		add_hook("mouse_move", "uiMouseHandler", function(x, y)
+				local toReturn = TB_MENU_MAIN_ISOPEN == 1 and 1 or 0
+				toReturn = UIElement:handleMouseHover(x, y) or toReturn 
+				if (INVENTORY_UPDATE) then
+					if (x ~= INVENTORY_MOUSE_POS.x or y ~= INVENTORY_MOUSE_POS.y) then
+						if (x > WIN_W / 2) then
+							Torishop:refreshInventory(TB_MENU_SPECIAL_SCREEN_ISOPEN == 1 and TB_MENU_MAIN_ISOPEN)
+							if (INVENTORY_SELECTION_RESET) then
+								for i = #INVENTORY_SELECTED_ITEMS, 1, -1 do
+									table.remove(INVENTORY_SELECTED_ITEMS, i)
+								end
+								INVENTORY_SELECTED_RESET = false
+							end
+						else
+							INVENTORY_UPDATE = false
+							INVENTORY_SELECTION_RESET = false
+						end
+					end
+				end
+				return toReturn
+			end)
 	end
 
 	function UIElement:moveTo(x, y, relative)
@@ -965,10 +1146,10 @@ do
 		local smoothing = not nosmooth
 
 		if (check) then
-			str = textAdapt(str, font, scale, self.size.w, true, textfield)
+			str = textAdapt(str, font, scale, self.size.w, true, textfield, self.textfieldsingleline, self.textfieldindex)
 		else
 			local strunformatted = str
-			str = self.str == strunformatted and self.dispstr or textAdapt(str, font, scale, self.size.w, nil, textfield)
+			str = self.str == strunformatted and self.dispstr or textAdapt(str, font, scale, self.size.w, nil, textfield, self.textfieldsingleline, self.textfieldindex)
 			self.str, self.dispstr = strunformatted, str
 		end
 
@@ -1223,11 +1404,12 @@ do
 		return newTable
 	end
 
-	function textAdapt(str, font, scale, maxWidth, check, textfield)
-		local clockdebug = os.clock()
+	function textAdapt(str, font, scale, maxWidth, check, textfield, singleLine, textfieldIndex)
+		local clockdebug = TB_MENU_DEBUG and os.clock() or nil
 
 		local destStr = {}
 		local newStr = ""
+		local word = ''
 		-- Fix newlines, remove redundant spaces and ensure the string is in fact a string
 		local str, cnt = string.gsub(str, "\\n", "\n")
 		str = str:gsub("^%s*", "")
@@ -1246,15 +1428,44 @@ do
 			return word
 		end
 		
+		local function buildString(str)
+			if (textfield) then
+				word = str:match("^[^\n]*%S*[^\n]*\n") or str:match("^%s*%S+%s*")
+			else
+				word = getWord(str)
+			end
+			return word
+		end
+		
+		if (textfield and singleLine) then
+			local strlen = get_string_length(str, font) * scale
+			local targetIndex = 1
+			while (strlen > maxWidth) do
+				local step = 2
+				local len = str:len()
+				local reverseStep = len
+				if (strlen > maxWidth) then
+					step = len - math.ceil(len / strlen * maxWidth)
+					step = step > 1 and step or 2
+				end
+				while (targetIndex + step >= textfieldIndex) do
+					step = step - 1
+					reverseStep = reverseStep - 1
+					if (step == 1) then
+						break
+					end
+				end
+				str = str:sub(step, reverseStep)
+				strlen = get_string_length(str, font) * scale
+			end
+			return { str } 
+		end
+		
 		local newline = false
 		while (str ~= "") do
 			if (not attemptPrediction or newStr ~= "") then
 				-- Match words followed by newlines separately to allow newline spacing
-				if (textfield) then
-					word = str:match("^[^\n]*%S*[^\n]*\n") or str:match("^%s*%S+%s*")
-				else
-					word = getWord(str)
-				end
+				word = buildString(str)
 			else
 				-- Attempt to guess the beginning of a string
 				word = str:sub(1, math.floor(maxWidth / 8 * scale))
@@ -1262,11 +1473,7 @@ do
 				word = word:gsub("[\n].*$", "")
 				if (get_string_length(word, font) * scale > maxWidth) then
 					-- Incorrect guess, start building classic way
-					if (textfield) then
-						word = str:match("^[^\n]*%S*[^\n]*\n") or str:match("^%s*%S+%s*")
-					else
-						word = getWord(str)
-					end
+					word = buildString(str)
 				end
 			end
 
@@ -1299,9 +1506,11 @@ do
 		end
 		table.insert(destStr, newStr)
 
-		local clockdebugend = os.clock()
-		if (TB_MENU_DEBUG and clockdebugend - clockdebug > 0.01) then
-			echo("Warning: slow text adapt call on string " .. destStr[1]:sub(1, 10) .. " - " .. clockdebugend - clockdebug .. " seconds")
+		if (TB_MENU_DEBUG) then
+			local clockdebugend = os.clock()
+			if (clockdebugend - clockdebug > 0.01) then
+				echo("Warning: slow text adapt call on string " .. destStr[1]:sub(1, 10) .. " - " .. clockdebugend - clockdebug .. " seconds")
+			end
 		end
 
 		return destStr
@@ -1366,7 +1575,8 @@ do
 	
 	function get_color_from_hex(hex)
 		local color = {}
-		for col in hex:gmatch("%w%w") do
+		local pattern = hex:len() < 7 and "%w%w" or "%w%w%w"
+		for col in hex:gmatch(pattern) do
 			table.insert(color, tonumber(col, 16) / 256)
 		end
 		color[4] = 1

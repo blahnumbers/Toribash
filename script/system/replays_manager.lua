@@ -531,32 +531,66 @@ do
 		}
 	end
 	
-	function Replays:findReplays(searchString, rplTable, searchResults)
+	function Replays:findReplays(str, rplTable, searchResults)
 		local replays = rplTable or TB_MENU_REPLAYS
 		local searchResults = searchResults or { name = {}, filename = {}, author = {}, bouts = {}, mod = {}, tags = {}, hiddentags = {} }
-		local searchString = type(searchString) == "table" and searchString[1]:lower() or searchString:lower()
+		local searchStringRaw = type(str) == "table" and str[1]:lower() or str:lower()
+		local searchStrings = {}
+		for i in string.gmatch(searchStringRaw, "[^ ]+") do
+			table.insert(searchStrings, i)
+		end
 		
 		for i, folder in pairs(rplTable.folders) do
-			Replays:findReplays(searchString, folder, searchResults)
+			Replays:findReplays(searchStringRaw, folder, searchResults)
 		end
 		for i, replay in pairs(rplTable.replays) do
-			if (string.find(replay.name:lower(), searchString)) then
+			if (string.find(replay.name:lower(), searchStrings[1])) then
 				table.insert(searchResults.name, replay)
-			elseif (string.find(replay.filename:lower(), searchString)) then
+			elseif (string.find(replay.filename:lower(), searchStrings[1])) then
 				table.insert(searchResults.filename, replay)
-			elseif (string.find(replay.author:lower(), searchString)) then
+			elseif (string.find(replay.author:lower(), searchStrings[1])) then
 				table.insert(searchResults.author, replay)
-			elseif (string.find(replay.mod:lower(), searchString)) then
+			elseif (string.find(replay.mod:lower(), searchStrings[1])) then
 				table.insert(searchResults.mod, replay)
-			elseif (string.find(replay.tags:lower(), searchString)) then
+			elseif (string.find(replay.tags:lower(), searchStrings[1])) then
 				table.insert(searchResults.tags, replay)
-			elseif (string.find(replay.hiddentags:lower(), searchString)) then
+			elseif (string.find(replay.hiddentags:lower(), searchStrings[1])) then
 				table.insert(searchResults.hiddentags, replay)
 			else
 				for k, bout in pairs(replay.bouts) do
-					if (string.find(bout:lower(), searchString)) then
+					if (string.find(bout:lower(), searchStrings[1])) then
 						table.insert(searchResults.bouts, replay)
 					end
+				end
+			end
+		end
+		if (#searchStrings > 1) then
+			local cleanedFolder = {}
+			for i = 2, #searchStrings do
+				for j, searchFolder in pairs(searchResults) do
+					cleanedFolder = {}
+					for k, replay in pairs(searchFolder) do
+						local match = false
+						if (string.find(replay.name:lower(), searchStrings[i]) or 
+							string.find(replay.filename:lower(), searchStrings[i]) or
+							string.find(replay.author:lower(), searchStrings[i]) or
+							string.find(replay.mod:lower(), searchStrings[i]) or
+							string.find(replay.tags:lower(), searchStrings[i]) or
+							string.find(replay.hiddentags:lower(), searchStrings[i])
+						) then
+							match = true
+						else
+							for x, bout in pairs(replay.bouts) do
+								if (string.find(bout:lower(), searchStrings[i])) then
+									match = true
+								end
+							end
+						end
+						if (match) then
+							table.insert(cleanedFolder, replay)
+						end
+					end
+					searchResults[j] = cleanedFolder
 				end
 			end
 		end
@@ -564,7 +598,7 @@ do
 	end
 	
 	function Replays:showSearchList(viewElement, replayInfo, toReload, replays)
-		viewElement:kill(true)		
+		viewElement:kill(true)
 		local posY, elementHeight = 0, 40
 		
 		local listingHolder = UIElement:new({
@@ -859,7 +893,8 @@ do
 				Replays:showSearchList(listingView, replayInfo, toReload, Replays:findReplays(searchInputField.textfieldstr, rplTable))
 			end
 		end
-		searchInputField:addKeyboardHandlers(nil, searchFunction)
+		--searchInputField:addKeyboardHandlers(nil, searchFunction)
+		searchInputField:addEnterAction(searchFunction)
 		
 		local listing = {}
 		if (rplTable.fullname ~= TB_MENU_REPLAYS.fullname) then

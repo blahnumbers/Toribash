@@ -14,7 +14,7 @@ do
 		TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
 	end
 	
-	function Notifications:getNavigationButtons(showBack)
+	function Notifications:getNavigationButtons(showBack, justClaimed)
 		local navigation = {
 			{
 				text = TB_MENU_LOCALIZED.NAVBUTTONTOMAIN,
@@ -22,7 +22,7 @@ do
 			},
 			{
 				text = TB_MENU_LOCALIZED.NAVBUTTONLOGINREWARDS,
-				misctext = PlayerInfo:getLoginRewards().available and "!" or nil,
+				misctext = (PlayerInfo:getLoginRewards().available and not justClaimed) and "!" or nil,
 				action = function() Notifications:showLoginRewards() TB_MENU_NOTIFICATIONS_LASTSCREEN = 1 end,
 				right = true,
 				sectionId = 1
@@ -504,6 +504,7 @@ do
 		local navButtons = Notifications:getNavigationButtons()
 		if (rewards.available and not override) then
 			Notifications:showLoginRewards()
+			TB_MENU_NOTIFICATIONS_LASTSCREEN = 1
 			TBMenu:showNavigationBar(navButtons, true, true, 1)
 		else
 			for i,v in pairs(navButtons) do

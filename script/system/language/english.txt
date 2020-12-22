@@ -573,7 +573,7 @@ SEARCHRESULTS2	search results
 WORDSEARCH	Search	
 STORESEARCHHINT	Start typing item name to search	
 STOREDISCOUNTEDPRICE	Discounted Price	
-WORDTORICREDITS	ToriCredits	
+WORDTORICREDITS	Toricredits	
 WORDSHIAITOKENS	Shiai Tokens	
 STOREBUYWITH	Buy with	
 STOREVIEWIN1	View	
@@ -789,3 +789,50 @@ BOUNTYUPDATINGLIST	Updating bounty list...
 EVENTSLIVEEVENTS	Live events	
 EVENTSENDEDEVENTS	Ended events	
 EVENTSPLAYAGAIN	Play again	
+GAMERULESRESTARTGAME	Start New Game	
+SETTINGSHIGHDPI	High DPI Mode
+SETTINGSJOINTFLASH	Joint state change flash	
+ERRORINSUFFICIENTFUNDS	Error: insufficient funds	
+ERRORBUYINGITEM	Error purchasing item	
+ERRORTRANSFERRINGMONEY	Error transferring money	
+FLAMESERRORPRICEMISMATCH	Flame cost mismatch, forging cancelled	
+FLAMESERRORSPAWNING	Error spawning flame with specified settings	
+FLAMESBROWSE	Browse	
+FLAMESFORGERTITLE	Flame Forger	
+FLAMESBROWSERTITLE	Flame Browser	
+FLAMESFORGEFLAME	Forge Flame	
+FLAMESFLAMENAME	Flame name	
+FLAMESSPAWNCOST	Spawn cost	
+FLAMESFORGEDATE	Forge date	
+FLAMESOWNER	Current owner	
+FLAMESERROROPENINGSTORAGE	Error opening flame storage data file\nPlease make sure you have write permissions on your Toribash data folder and try again
+FLAMESSTORAGESUCCESS	Flame stored successfully!\nYou can now load it for preview using Flame Browser
+FLAMESSTOREDFLAMES	Stored flames	
+FLAMESBODYPARTFOR	for	
+FLAMESSEARCHNONEFOUND	No flames found that fit your search	
+FLAMESSEARCHNAME1	Flames with 
+FLAMESSEARCHNAME2	in their name	
+FLAMESSEARCHFORGER	Flames forged by	
+FLAMESSEARCHOWNER	Flames owned by	
+FLAMESSECTIONGENERAL	General	
+FLAMESSECTIONCOLOR	Color	
+FLAMESSECTIONSIZE	Size	
+FLAMESSECTIONGRAVITYDISPLACEMENT	Gravity & displacement	
+FLAMESSECTIONADVANCED	Advanced	
+FLAMESPRICEESTIMATE	Flame price estimate	
+FLAMESSEARCHRESULTS	Search results for	
+FLAMESSLOTID	Flame slot	
+FLAMESSAVINGFLAME	Saving flame to local cache	
+FLAMESSAVINGEMPTYDATE	Leave empty to save with current date as flame name	
+FLAMESFORGINGFLAME	Forging your flame	
+FLAMESFORGINGNAMEEMPTY	Flame name cannot be empty	
+FLAMESFORGINGCONFIRM1	Forging	
+FLAMESFORGINGCONFIRM2	flame for	
+FLAMESFORGINGCHARGED1	You will be charged	
+FLAMESFORGINGCHARGED2	for spawning the flame	
+FLAMESSEARCHFLAMES	Search flames	
+STOREITEMOWNEDBY	Owned by	
+FLAMESFORGEDANDOWNEDBY	Forged and owned\nby	
+FLAMESDELETESTOREDCONFIRM	Are you sure you want to delete your stored flame design	
+CONFIRMACTIONCANNOTBEUNDONE	This action cannot be undone.
+CONFIRMAREYOUSURE	Are you sure?	

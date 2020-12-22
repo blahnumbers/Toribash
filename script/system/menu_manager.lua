@@ -165,8 +165,10 @@ do
 					draw_quad(buttonMain.pos.x, buttonMain.pos.y, buttonMain.size.w, buttonMain.size.h, buttonImage.bgImage)
 				elseif (buttonMain.hoverState == BTN_HVR) then
 					draw_quad(buttonMain.pos.x, buttonMain.pos.y, buttonMain.size.w, buttonMain.size.h, buttonImageHover.bgImage)
+					set_mouse_cursor(1)
 				elseif (buttonMain.hoverState == BTN_DN) then
 					draw_quad(buttonMain.pos.x, buttonMain.pos.y, buttonMain.size.w, buttonMain.size.h, buttonImagePress.bgImage)
+					set_mouse_cursor(1)
 				end
 			end)
 		return buttonMain
@@ -229,15 +231,17 @@ do
 		end
 		
 		-- Create and load regular announcements view
+		-- Featured event banner needs to have even borders, make sure it's scaled accordingly to 775x512 default size
+		local rightSideWidth = (tbMenuCurrentSection.size.h * 0.7 - 10) * 1.513 + 10
 		local homeAnnouncements = UIElement:new( {
 			parent = tbMenuCurrentSection,
 			pos = { 5, 0 },
-			size = { tbMenuCurrentSection.size.w * 0.565 - 10, tbMenuCurrentSection.size.h }
+			size = { tbMenuCurrentSection.size.w - rightSideWidth - 10, tbMenuCurrentSection.size.h }
 		})
 		local featuredEvent = UIElement:new({
 			parent = tbMenuCurrentSection,
-			pos = { tbMenuCurrentSection.size.w * 0.565 + 5, 0 },
-			size = { tbMenuCurrentSection.size.w * 0.435 - 10, tbMenuCurrentSection.size.h * 0.7 },
+			pos = { homeAnnouncements.size.w + 15, 0 },
+			size = { rightSideWidth, tbMenuCurrentSection.size.h * 0.7 },
 			interactive = true,
 			bgColor = TB_MENU_DEFAULT_BG_COLOR,
 			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
@@ -246,8 +250,8 @@ do
 		})
 		local viewEventsButton = UIElement:new({
 			parent = tbMenuCurrentSection,
-			pos = { tbMenuCurrentSection.size.w * 0.565 + 5, tbMenuCurrentSection.size.h * 0.7 + 10 },
-			size = { tbMenuCurrentSection.size.w * 0.435 - 10, tbMenuCurrentSection.size.h * 0.3 - 10 },
+			pos = { featuredEvent.shift.x, tbMenuCurrentSection.size.h * 0.7 + 10 },
+			size = { rightSideWidth, tbMenuCurrentSection.size.h * 0.3 - 10 },
 			interactive = true,
 			bgColor = TB_MENU_DEFAULT_BG_COLOR,
 			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
@@ -686,8 +690,8 @@ do
 		local confirmOverlay = TBMenu:spawnWindowOverlay(globalid)
 		local confirmBoxView = UIElement:new({
 			parent = confirmOverlay,
-			pos = { confirmOverlay.size.w / 4, confirmOverlay.size.h / 2 - 80 - subtitleSet * 10 },
-			size = { confirmOverlay.size.w / 2, 160 + subtitleSet * 10 },
+			pos = { confirmOverlay.size.w / 4, confirmOverlay.size.h / 2 - 80 - subtitleSet * 20 },
+			size = { confirmOverlay.size.w / 2, 160 + subtitleSet * 20 },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
 		local confirmBoxTitle = UIElement:new({
@@ -806,18 +810,22 @@ do
 	end
 
 	function TBMenu:showDataError(message, noParent)
-		local transparency = 1
+		local transparency = 0
+		local bgColor, uiColor = { 0, 0, 0, transparency }, { 1, 1, 1, transparency }
 		if (tbMenuDataErrorMessage) then
 			tbMenuDataErrorMessage:kill()
 			tbMenuDataErrorMessage = nil
 		end
 		local dataErrorY = tbMenuMain.pos.y > 0 and (-tbMenuMain.pos.y) or WIN_H
+		local messageWidth = WIN_W / 2 > 800 and 800 or WIN_W / 2
 		tbMenuDataErrorMessage = UIElement:new({
 			globalid = noParent and TB_MENU_HUB_GLOBALID,
 			parent = tbMenuMain,
-			pos = { WIN_W / 4, dataErrorY },
-			size = { WIN_W / 2, 68 },
-			bgColor = { 0, 0, 0, 0.8 * transparency }
+			pos = { (WIN_W - messageWidth) / 2, dataErrorY },
+			size = { messageWidth, 54 },
+			bgColor = bgColor,
+			shapeType = ROUNDED,
+			rounded = 5
 		})
 		local option = get_option("hint")
 		if (noParent) then
@@ -826,15 +834,18 @@ do
 		local startTime = os.clock()
 		local moveRad = math.pi / 4
 		tbMenuDataErrorMessage:addCustomDisplay(false, function()
-				if (tbMenuDataErrorMessage.pos.y > WIN_H - tbMenuDataErrorMessage.size.h) then
-					tbMenuDataErrorMessage:moveTo(nil, -10 * math.sin(moveRad), true)
-					moveRad = moveRad + (math.pi / 12)
+				if (tbMenuDataErrorMessage.pos.y > WIN_H - tbMenuDataErrorMessage.size.h - 10) then
+					tbMenuDataErrorMessage:moveTo(nil, -6 * math.sin(moveRad), true)
+					moveRad = moveRad + (math.pi / 20)
+					transparency = transparency + (math.pi / 40)
+					bgColor[4] = 0.8 * transparency
+					uiColor[4] = transparency
 				else
-					tbMenuDataErrorMessage:moveTo(nil, dataErrorY - tbMenuDataErrorMessage.size.h)
 					tbMenuDataErrorMessage:addCustomDisplay(false, function()
 							if (os.clock() - startTime > 5) then
 								transparency = transparency - 0.05
-								tbMenuDataErrorMessage.bgColor[4] = 0.8 * transparency
+								bgColor[4] = 0.8 * transparency
+								uiColor[4] = transparency
 							end
 							if (transparency <= 0) then
 								tbMenuDataErrorMessage:kill()
@@ -850,7 +861,7 @@ do
 			pos = { tbMenuDataErrorMessage.size.w / 10, tbMenuDataErrorMessage.size.h / 10 },
 			size = { tbMenuDataErrorMessage.size.w * 0.8, tbMenuDataErrorMessage.size.h * 0.8 }
 		})
-		errorMessageView:addAdaptedText(true, message, nil, nil, 4, nil, nil, nil, nil, nil, { 1, 1, 1, transparency })
+		errorMessageView:addAdaptedText(true, message, nil, nil, 4, nil, 0.9, nil, nil, nil, uiColor)
 	end
 
 	function TBMenu:showTorishopMain()
@@ -2214,6 +2225,21 @@ do
 					tbMenuDownloads:uiText(TB_MENU_LOCALIZED.DOWNLOADINGFILESWAIT, -10, nil, 4, RIGHTMID, 0.5, nil, nil, UICOLORBLACK)
 				end
 			end)
+		local tbMenuVersion = UIElement:new({
+			parent = tbMenuMain,
+			pos = { -25, -25 },
+			size = { 300, 25 },
+			interactive = true,
+			bgColor = { 0, 0, 0, 0.001 },
+			hoverColor = { 0, 0, 0, 1 },
+			pressedColor = { 0, 0, 0, 1 }
+		})
+		tbMenuVersion:addCustomDisplay(true, function()
+				local downloads = #get_downloads() or 0
+				if (downloads == 0) then
+					tbMenuVersion:uiText("Toribash " .. TORIBASH_VERSION .. (BETA_VERSION or '') .. " build ver " .. BUILD_VERSION, -280, nil, 4, RIGHTMID, 0.5, nil, nil, tbMenuVersion:getButtonColor())
+				end
+			end)
 	end
 
 	function TBMenu:showMain(noload)
@@ -2492,31 +2518,6 @@ do
 		return scrollBar
 	end
 
-	function TBMenu:enableMenuKeyboard(element)
-		TB_MENU_INPUT_ISACTIVE = true
-		enable_menu_keyboard()
-		local id = 1
-		for i,v in pairs(UIKeyboardHandler) do
-			if (v.menuKeyboardId == id) then
-				id = id + 1
-			else
-				element.menuKeyboardId = id
-				break
-			end
-		end
-	end
-
-	function TBMenu:disableMenuKeyboard(element)
-		TB_MENU_INPUT_ISACTIVE = false
-		element.menuKeyboardId = nil
-		for i,v in pairs(UIKeyboardHandler) do
-			if (v.menuKeyboardId) then
-				return
-			end
-		end
-		disable_menu_keyboard()
-	end
-
 	function TBMenu:displayLoadingMark(element, message)
 		local loadMark = UIElement:new({
 			parent = element,
@@ -2525,7 +2526,7 @@ do
 		})
 		local grow, rotate = 0, 0
 		loadMark:addCustomDisplay(true, function()
-				set_color(unpack(loadMark.uiColor))
+				set_color(unpack(loadMark.uiColor or UICOLORWHITE))
 				draw_disk(loadMark.pos.x + loadMark.size.w / 2, loadMark.pos.y + loadMark.size.h / 2 - 40, 12, 20, 500, 1, rotate, grow, 0)
 				grow = grow + 4
 				rotate = rotate + 2
@@ -2690,8 +2691,240 @@ do
 			questionmark:addAdaptedText(true, "?", nil, nil, nil, nil, 0.7)
 		end
 	end
+	
+	function TBMenu:spawnSlider(parent, x, y, w, h, textWidth, sliderRadius, value, settings, sliderFunc)
+		local x = x or 0
+		local y = y or 0
+		local w = w or parent.size.w - x * 2
+		local h = h or parent.size.h - y * 2
+		local textWidth = textWidth or w / 8
+		local sliderRadius = sliderRadius or 20
+		
+		local settings = settings or {}
+		settings.maxValue = settings.maxValue or 1
+		settings.minValue = settings.minValue or 0
+		settings.maxValueDisp = settings.maxValueDisp or settings.maxValue
+		settings.minValueDisp = settings.minValueDisp or settings.minValue
+		settings.decimal = settings.decimal or 0
+		local value = value or minVal
+		
+		local minText = UIElement:new({
+			parent = parent,
+			pos = { x, y },
+			size = { textWidth, h }
+		})
+		minText:addAdaptedText(false, settings.minValueDisp .. "", nil, nil, 4, RIGHTMID, 0.7)
+		local maxText = UIElement:new({
+			parent = parent,
+			pos = { -textWidth, y },
+			size = { textWidth, h }
+		})
+		maxText:addAdaptedText(false, settings.maxValueDisp .. "", nil, nil, 4, LEFTMID, 0.7)
+		
+		local sliderBG = UIElement:new({
+			parent = parent,
+			pos = { textWidth + 5, 0 },
+			size = { w - (textWidth + 5) * 2, h },
+			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			interactive = true
+		})
+		sliderBG:addCustomDisplay(true, function()
+				set_color(unpack(sliderBG.bgColor))
+				draw_quad(sliderBG.pos.x, sliderBG.pos.y + h / 2 - 3, sliderBG.size.w, 6)
+			end)
+		local sliderPos = 0
+		value = value > settings.maxValue and 1 or (-settings.minValue + value) / (-settings.minValue + settings.maxValue)
+		sliderPos = value * (sliderBG.size.w - sliderRadius)
+		local slider = UIElement:new({
+			parent = sliderBG,
+			pos = { sliderPos, (-sliderBG.size.h - sliderRadius) / 2 },
+			size = { sliderRadius, sliderRadius },
+			interactive = true,
+			bgColor = TB_MENU_DEFAULT_BG_COLOR,
+			hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR,
+			shapeType = ROUNDED,
+			rounded = sliderRadius
+		})
+		local sliderLabel = UIElement:new({
+			parent = slider,
+			pos = { -sliderRadius - 5, -slider.size.h - sliderRadius },
+			size = { sliderRadius + 10, sliderRadius },
+			bgColor = cloneTable(TB_MENU_DEFAULT_LIGHTER_COLOR),
+			uiColor = cloneTable(UICOLORWHITE),
+			shapeType = ROUNDED,
+			rounded = 4
+		})
+		sliderLabel.bgColor[4] = 0
+		sliderLabel.uiColor[4] = 0
+		sliderLabel.labelText = { "" }
+		sliderLabel:addCustomDisplay(false, function()
+				if (sliderLabel.uiColor[4] > 0) then
+					sliderLabel:uiText(sliderLabel.labelText[1], nil, nil, 4, nil, 0.5)
+					if (not slider.pressed) then
+						sliderLabel.uiColor[4] = sliderLabel.uiColor[4] - 0.02
+						sliderLabel.bgColor[4] = sliderLabel.bgColor[4] - 0.02
+					end
+				end
+			end)
+		sliderLabel:addCustomDisplay(false, function()
+				if (sliderLabel.uiColor[4] > 0) then
+					-- Adapt label width to be able to fit the text
+					local textWidth = get_string_length(sliderLabel.labelText[1], 4) * 0.5 + 16
+					local targetWidth = textWidth > sliderRadius + 10 and textWidth or sliderRadius + 10
+					if (targetWidth ~= sliderLabel.size.w) then
+						sliderLabel.size.w = targetWidth
+						sliderLabel:moveTo((-sliderRadius - sliderLabel.size.w) / 2)
+					end
+					
+					-- If bounding element is defined, we may want to display label below the slider
+					if (settings.boundParent) then
+						if (sliderLabel.lastY ~= sliderLabel.shift.y) then
+							if (settings.boundParent.pos.y >= slider.pos.y - sliderRadius) then
+								sliderLabel:moveTo(nil, slider.size.h)
+								sliderLabel:reload()
+							else
+								sliderLabel:moveTo(nil, -slider.size.h - sliderRadius)
+								sliderLabel:reload()
+							end
+							sliderLabel.lastY = sliderLabel.pos.y
+						end
+					end
+				end
+			end, true)
+			
+		slider.settings = settings
+		slider.label = sliderLabel
+		slider:addMouseHandlers(function()
+				slider.pressed = true
+				slider.pressedPos = slider:getLocalPos()
+			end, function()
+				slider.pressed = false
+			end, function()
+				if (slider.pressed) then
+					local xPos = MOUSE_X - sliderBG.pos.x - slider.pressedPos.x
+					if (xPos < 0) then
+						xPos = 0
+					elseif (xPos > sliderBG.size.w - slider.size.w) then
+						xPos = sliderBG.size.w - slider.size.w
+					end
+					if (settings.isBoolean) then
+						if (xPos + slider.size.w / 2 > sliderBG.size.w / 2) then
+							xPos = sliderBG.size.w - slider.size.w
+						else
+							xPos = 0
+						end
+					end
+					slider:moveTo(xPos, nil)
+					
+					local val = xPos / (sliderBG.size.w - sliderRadius) * (settings.maxValue - settings.minValue) + settings.minValue
+					local multiplyBy = tonumber('1' .. string.rep('0', settings.decimal))
+					sliderLabel.labelText[1] = (math.floor(val * multiplyBy) / multiplyBy) .. ''
+					sliderLabel.uiColor[4] = 1
+					sliderLabel.bgColor[4] = 1
+					
+					if (sliderFunc) then
+						sliderFunc(val, xPos, slider)
+					end
+				end
+			end)
+		sliderBG:addMouseHandlers(function()
+			local pos = sliderBG:getLocalPos()
+			local xPos = pos.x - slider.size.w / 2
+			if (xPos < 0) then
+				xPos = 0
+			elseif (xPos > sliderBG.size.w - slider.size.w) then
+				xPos = sliderBG.size.w - slider.size.w
+			end
+			if (settings.isBoolean) then
+				if (xPos + slider.size.w / 2 > sliderBG.size.w / 2) then
+					xPos = sliderBG.size.w - slider.size.w
+				else
+					xPos = 0
+				end
+			end
+			slider:moveTo(xPos)
+			
+			local val = xPos / (sliderBG.size.w - sliderRadius) * (settings.maxValue - settings.minValue) + settings.minValue
+			local multiplyBy = tonumber('1' .. string.rep('0', settings.decimal))
+			sliderLabel.labelText[1] = (math.floor(val * multiplyBy) / multiplyBy) .. ''
+			sliderLabel.uiColor[4] = 1
+			sliderLabel.bgColor[4] = 1
+			
+			if (sliderFunc) then
+				sliderFunc(val, xPos, slider)
+			end
+		end)
+		return slider
+	end
+	
+	function TBMenu:spawnToggle(parent, x, y, w, h, toggleValue, updateFunc)
+		local x = x or 0
+		local y = y or 0
+		local w = w or parent.size.h
+		local h = h or parent.size.h
+		
+		local toggleBG = UIElement:new({
+			parent = parent,
+			pos = { x, y },
+			size = { w, h },
+			shapeType = parent.shapeType,
+			rounded = parent.rounded,
+			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR
+		})
+		local toggleView = UIElement:new({
+			parent = toggleBG,
+			pos = { 1, 1 },
+			size = { toggleBG.size.w - 2, toggleBG.size.h - 2 },
+			shapeType = parent.shapeType,
+			rounded = parent.rounded,
+			bgColor = TB_MENU_DEFAULT_BG_COLOR,
+			hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR,
+			interactive = true,
+			toggle = true
+		})
+		toggleView:addCustomDisplay(nil, function()
+				if (toggleView.keyboard and not toggleView.hoverState) then
+					toggleView.hoverState = BTN_FOCUS
+				end
+			end, true)
+		toggleView:addOnReceiveTabFocus(function()
+				toggleView:enableMenuKeyboard()
+				toggleView.keyboard = true
+				toggleView.hoverState = BTN_FOCUS
+			end)
+		toggleView:addOnLoseTabFocus(function()
+				toggleView:disableMenuKeyboard()
+				toggleView.keyboard = false
+				toggleView.hoverState = false
+			end)
+		local toggleIcon = UIElement:new({
+			parent = toggleView,
+			pos = { 0, 0 },
+			size = { toggleView.size.w, toggleView.size.h },
+			bgImage = "../textures/menu/general/buttons/checkmark.tga"
+		})
+		if (toggleValue == '0' or toggleValue == 0 or toggleValue == false) then
+			toggleIcon:hide(true)
+		end
+		toggleView:addMouseHandlers(nil, function(s, x, y)
+				if (type(toggleValue) == "boolean") then
+					toggleValue = not toggleValue
+				else
+					toggleValue = 1 - toggleValue
+				end
+				if (toggleValue == 1 or toggleValue == true) then
+					toggleIcon:show(true)
+				else
+					toggleIcon:hide(true)
+				end
+				updateFunc(toggleValue)
+			end)
+		return toggleView
+	end
 
-	function TBMenu:spawnTextField(parent, x, y, w, h, textFieldString, numeric, fontid, scale, color, defaultStr, orientation, noCursor, multiLine, darkerMode)
+	function TBMenu:spawnTextField(parent, x, y, w, h, textFieldString, inputSettings, fontid, scale, color, defaultStr, orientation, noCursor, multiLine, darkerMode)
 		if (not parent) then
 			return false
 		end
@@ -2701,6 +2934,7 @@ do
 		local h = h or parent.size.h
 		local fontid = fontid or 4
 		local color = color or cloneTable(UICOLORBLACK)
+		local inputSettings = type(inputSettings) == "table" and inputSettings or { isNumeric = inputSettings }
 
 		local textBg = UIElement:new({
 			parent = parent,
@@ -2716,6 +2950,7 @@ do
 			size = { textBg.size.w - 2, textBg.size.h - 2 },
 			interactive = true,
 			bgColor = darkerMode and TB_MENU_DEFAULT_BG_COLOR or TB_MENU_DEFAULT_LIGHTER_COLOR,
+			hoverColor = darkerMode and TB_MENU_DEFAULT_LIGHTER_COLOR or TB_MENU_DEFAULT_LIGHTEST_COLOR,
 			shapeType = textBg.shapeType,
 			rounded = textBg.rounded
 		})
@@ -2725,17 +2960,16 @@ do
 			size = { input.size.w - 10, input.size.h - 4 },
 			interactive = true,
 			textfield = true,
-			isNumeric = numeric,
+			isNumeric = inputSettings.isNumeric,
+			allowDecimal = inputSettings.allowDecimal,
+			allowNegative = inputSettings.allowNegative,
 			textfieldstr = textFieldString,
 			textfieldsingleline = not multiLine,
 			shapeType = textBg.shapeType,
 			rounded = textBg.rounded
 		})
 		inputField:addMouseHandlers(function()
-				TBMenu:enableMenuKeyboard(inputField)
-				if (TB_MENU_MAIN_ISOPEN == 0) then
-					chat_input_deactivate()
-				end
+				inputField:enableMenuKeyboard()
 			end)
 		TBMenu:displayTextfield(inputField, fontid, scale, color, defaultStr, orientation, noCursor)
 		return inputField
@@ -2752,17 +2986,25 @@ do
 		element:addCustomDisplay(true, function()
 				if (element.keyboard == true) then
 					set_color(1, 1, 1, 0.2)
-					draw_quad(element.parent.pos.x, element.parent.pos.y, element.parent.size.w, element.parent.size.h)
+					if (element.parent.shapeType == ROUNDED) then
+						draw_disk(element.parent.pos.x + element.parent.rounded, element.parent.pos.y + element.parent.rounded + element.parent.innerShadow[1], 0, element.parent.rounded, 500, 1, -180, 90, 0)
+						draw_disk(element.parent.pos.x + element.parent.rounded, element.parent.pos.y + element.parent.size.h - element.parent.rounded - element.parent.innerShadow[2], 0, element.parent.rounded, 500, 1, -90, 90, 0)
+						draw_disk(element.parent.pos.x + element.parent.size.w - element.parent.rounded, element.parent.pos.y + element.parent.rounded + element.parent.innerShadow[1], 0, element.parent.rounded, 500, 1, 90, 90, 0)
+						draw_disk(element.parent.pos.x + element.parent.size.w - element.parent.rounded, element.parent.pos.y + element.parent.size.h - element.parent.rounded - element.parent.innerShadow[2], 0, element.parent.rounded, 500, 1, 0, 90, 0)
+						draw_quad(element.parent.pos.x + element.parent.rounded, element.parent.pos.y + element.parent.innerShadow[1], element.parent.size.w - element.parent.rounded * 2, element.parent.rounded)
+						draw_quad(element.parent.pos.x, element.parent.pos.y + element.parent.rounded + element.parent.innerShadow[1], element.parent.size.w, element.parent.size.h - element.parent.rounded * 2 - element.parent.innerShadow[2] - element.parent.innerShadow[1])
+						draw_quad(element.parent.pos.x + element.parent.rounded, element.parent.pos.y + element.parent.size.h - element.parent.rounded - element.parent.innerShadow[2], element.parent.size.w - element.parent.rounded * 2, element.parent.rounded)
+					else
+						draw_quad(element.parent.pos.x, element.parent.pos.y, element.parent.size.w, element.parent.size.h)
+					end
+					
 					local part1 = element.textfieldstr[1]:sub(0, element.textfieldindex)
 					local part2 = element.textfieldstr[1]:sub(element.textfieldindex + 1)
 					local displayString = part1 .. (noCursor and "" or "|") .. part2
 					element:uiText(displayString, nil, nil, fontid, orientation, scale, nil, nil, color, nil, nil, nil, nil, nil, true)
 				else
 					if (element.menuKeyboardId) then
-						TBMenu:disableMenuKeyboard(element)
-						if (TB_MENU_MAIN_ISOPEN == 0) then
-							chat_input_activate()
-						end
+						element:disableMenuKeyboard()
 					end
 					if (element.textfieldstr[1] == "") then
 						element:uiText(defaultStr, nil, nil, fontid, orientation, defaultStringScale, nil, nil, { color[1], color[2], color[3], color[4] * 0.5 }, nil, nil, nil, nil, nil, true)

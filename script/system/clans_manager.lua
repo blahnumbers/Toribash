@@ -152,6 +152,7 @@ do
 				{
 					text = TB_MENU_LOCALIZED.NAVBUTTONBACK, 
 					action = function() 
+						TB_LAST_MENU_SCREEN_OPEN = 9
 						TBMenu:clearNavSection()
 						TBMenu:showNavigationBar()
 						TBMenu:showClans()
