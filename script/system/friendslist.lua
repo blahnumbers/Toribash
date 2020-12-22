@@ -45,7 +45,5 @@ TBMenu:showFriendsList()
 
 add_hook("key_up", "tbMenuKeyboardHandler", function(s) UIElement:handleKeyUp(s) if (FRIENDSLIST_OPEN) then return 1 end end)
 add_hook("key_down", "tbMenuKeyboardHandler", function(s) UIElement:handleKeyDown(s) if (FRIENDSLIST_OPEN) then return 1 end end)
-add_hook("mouse_button_down", "uiMouseHandler", function(s, x, y) UIElement:handleMouseDn(s, x, y) end)
-add_hook("mouse_button_up", "uiMouseHandler", function(s, x, y) UIElement:handleMouseUp(s, x, y) end)
-add_hook("mouse_move", "uiMouseHandler", function(x, y) UIElement:handleMouseHover(x, y) end)
+UIElement:mouseHooks()
 add_hook("draw2d", "tbMainMenuVisual", function() UIElement:drawVisuals(1100) end)

@@ -2225,6 +2225,21 @@ do
 					tbMenuDownloads:uiText(TB_MENU_LOCALIZED.DOWNLOADINGFILESWAIT, -10, nil, 4, RIGHTMID, 0.5, nil, nil, UICOLORBLACK)
 				end
 			end)
+		local tbMenuVersion = UIElement:new({
+			parent = tbMenuMain,
+			pos = { -25, -25 },
+			size = { 300, 25 },
+			interactive = true,
+			bgColor = { 0, 0, 0, 0.001 },
+			hoverColor = { 0, 0, 0, 1 },
+			pressedColor = { 0, 0, 0, 1 }
+		})
+		tbMenuVersion:addCustomDisplay(true, function()
+				local downloads = #get_downloads() or 0
+				if (downloads == 0) then
+					tbMenuVersion:uiText("Toribash " .. TORIBASH_VERSION .. (BETA_VERSION or '') .. " build ver " .. BUILD_VERSION, -280, nil, 4, RIGHTMID, 0.5, nil, nil, tbMenuVersion:getButtonColor())
+				end
+			end)
 	end
 
 	function TBMenu:showMain(noload)

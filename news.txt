@@ -1,8 +1,8 @@
 //NEWSID 0;
-//TITLE 0;Twitch Weekend is on!
-//SUBTITLE 0;Stream or watch Toribash on Twitch to get limited edition Streamer Headphones!
-//IMAGE 0;twitchweekend20.tga
-//URL 0;https://forum.toribash.com/showthread.php?t=644002
+//TITLE 0;Halloween Twitch Weekend is on!
+//SUBTITLE 0;Stream or watch Toribash on Twitch to get one of the two unique and spooky items!
+//IMAGE 0;twitchhalloween.tga
+//URL 0;https://forum.toribash.com/showthread.php?t=644772
 
 //NEWSID 1;
 //TITLE 0;Tank's Ushanka and Medic's Mask giveaway!
@@ -10,29 +10,35 @@
 //IMAGE 0;giveawaytoriteam4.tga
 //URL 0;https://discord.gg/toribash
 
-NEWSID 6;
-TITLE 0;Streamer Headphones are here!
-SUBTITLE 0;HOW'S IT GOING BROS MY NAME'S *high pitched noises*
-IMAGE 0;store/streamerheadphones.tga
-URL 0;https://forum.toribash.com/tori_shop_item.php?id=3346
-STORE 0;3346
+NEWSID 11;
+TITLE 0;Christmas Sale!
+SUBTITLE 0;It's winter celebration time! Merry Christmas and happy New Year!
+IMAGE 0;xmassale20.tga
+URL 0;https://forum.toribash.com/tori_sale.php
+STORE 0;3365
 
-NEWSID 7;
-TITLE 0;Head Texture of the Month is back!
-SUBTITLE 0;Show off your art skills in a freestyle texturing event!
-IMAGE 0;htotm20freestyle.tga
-URL 0;https://forum.toribash.com/showthread.php?t=643758
+//NEWSID 7;
+//TITLE 0;Head Texture of the Month is back!
+//SUBTITLE 0;Show off your art skills in a freestyle texturing event!
+//IMAGE 0;htotm20freestyle.tga
+//URL 0;https://forum.toribash.com/showthread.php?t=643758
+
+NEWSID 1;
+TITLE 0;Tori-Santa 2020
+SUBTITLE 0;It's Toribash Secret Santa! Sign up until December 23rd and share the Christmas spirit!
+IMAGE 0;torisanta2020.tga
+URL 0;https://forum.toribash.com/showthread.php?t=645879
 
 NEWSID 2;
-TITLE 0;Clan League 2020
-SUBTITLE 0;The knockout stage is now on!
-IMAGE 0;clanleague2020.tga
-URL 0;https://forum.toribash.com/showthread.php?t=642297
+TITLE 0;World Championship 2020
+SUBTITLE 0;The grand finale of this *marvelous* year is here!
+IMAGE 0;worldchampionship2020.tga
+URL 0;https://forum.toribash.com/tori_worldchampionship.php
 
-//NEWSID 3;
-//TITLE 0;No events live now, but you can still replay any ended event in all events menu!
-//IMAGE 0;openerchallenge20sum.tga
-//FEATURED 0;
+NEWSID 3;
+TITLE 0;No events live now, but you can still replay any ended event in all events menu!
+IMAGE 0;openerchallenge20sum.tga
+FEATURED 0;
 
 //NEWSID 4;
 //TITLE 0;Opener Challenge 8
@@ -41,11 +47,11 @@ URL 0;https://forum.toribash.com/showthread.php?t=642297
 //EVENT 0;1
 //FEATURED 0;
 
-NEWSID 9;
-SUBTITLE 0;Battle your way to become the top player of this fall!
-IMAGE 0;modmania20.tga
-MODCHAMPIONSHIP 0;
-FEATURED 0;
+//NEWSID 9;
+//SUBTITLE 0;Battle your way to become the top player of this fall!
+//IMAGE 0;modmania20.tga
+//MODCHAMPIONSHIP 0;
+//FEATURED 0;
 
 //NEWSID 5;
 //TITLE 0;Floor is Lava
@@ -55,17 +61,17 @@ FEATURED 0;
 //FEATURED 0;
 
 //NEWSID 7;
-//TITLE 0;Head in the Wall
+//TITLE 0;Head in the Wall 2
 //IMAGESMALL 0;headinthewallsmall.tga
-//IMAGE 0;headinthewall.tga
+//IMAGE 0;headinthewall2.tga
 //EVENT 0;3
 //FEATURED 0;
 
-NEWSID 10;
-TITLE 0;Free Run Frenzy 4
-IMAGE 0;freerunfrenzy4a.tga
-EVENT 0;2
-FEATURED 0;
+//NEWSID 10;
+//TITLE 0;Free Run Frenzy 4
+//IMAGE 0;freerunfrenzy4a.tga
+//EVENT 0;2
+//FEATURED 0;
 
 EVENTID 1;
 NAME 0;Opener Challenge 8
@@ -112,7 +118,7 @@ EVENTID 2;
 NAME 0;Free Run Frenzy 4
 IMAGE 0;freerunfrenzy4.tga
 URL 0;https://forum.toribash.com/showthread.php?t=644309
-PLAYNAME 0;freerunfrenzy4
+//PLAYNAME 0;freerunfrenzy4
 OVERLAYTRANS 0;0.7
 PLAYTEXT 0;PARTICIPATE
 ACCENTCOLOR 0;8300ff
@@ -144,10 +150,10 @@ PRIZETC 0;33000
 PRIZEST 0;32
 
 EVENTID 3;
-NAME 0;Head in the Wall
+NAME 0;Head in the Wall 2
 IMAGE 0;headinthewall.tga
-URL 0;https://forum.toribash.com/showthread.php?t=643426
-//PLAYNAME 0;headinthewall
+URL 0;https://forum.toribash.com/showthread.php?t=645150
+//PLAYNAME 0;headinthewall2
 OVERLAYTRANS 0;0.7
 PLAYTEXT 0;PARTICIPATE
 ACCENTCOLOR 0;00d6ff
@@ -156,20 +162,20 @@ BTNHVRCOL 0;0057b2
 BTNDNCOL 0;8000a5
 DESCDATA 0;1Description
 DESCDATAIMGTITLE 0;1headwall_description.tga
-DESCDATATEXT 0;1The Event Squad is proud to present Head in the Wall!\nAll you have to do is throw your head through one of the holes in the wall, how hard can that be? If you can make it through you may just win a prize! If you do it the most stylish way, we've got something extra for you.
+DESCDATATEXT 0;1The Event Squad is proud to present Head in the Wall!\nAll you have to do is throw your head into one of the holes, how hard can that be? If you can make it through you may just win a prize! If you do it the most stylish way, we've got something extra for you.
 DESCDATA 0;2Rules
 DESCDATAIMGTITLE 0;2headwall_rules.tga
 DESCDATATEXT 0;2- Replay hacking is strictly forbidden\n- Do not steal other players' replays\n- Do not edit any of the game rules except turn and match frames\n- Do not try to enter the event with multiple accounts
 DESCDATA 0;3How to Enter
 DESCDATAIMGTITLE 0;3headwall_howtoenter.tga
-DESCDATATEXT 0;3You can participate in Free Run Frenzy by pressing "Participate" button on bottom right, completing the challenge and submitting your replay to Toribash servers.\nAlternatively, you can download the opener from the event thread on forums, edit it according to the rules and post your replay back in event thread - if you just upload it to Toribash Community Replays then it won't be judged.\n^07Only one replay per player will be judged.
+DESCDATATEXT 0;3You can play the event by pressing "Participate" button on bottom right, completing the challenge and submitting your replay to Toribash servers.\nAlternatively, you can download the mod from the event thread on forums, make your replay according to the rules and post it back in event thread - if you just upload it to Toribash Community Replays then it won't be judged.\n^07Only one replay per player will be judged.
 DESCDATA 0;4Deadline
 DESCDATAIMGTITLE 0;4headwall_deadline.tga
-DESCDATATEXT 0;4We will stop accepting new entries on September 15th, 16:00 UTC
+DESCDATATEXT 0;4We will stop accepting new entries on December 5th, 16:00 UTC
 DESCDATA 0;5
 PRIZEIMG 0;headwall_prizes.tga
 PRIZEDATA 0;1Best replay
-PRIZETC 0;145000
+PRIZETC 0;150000
 PRIZEST 0;18
 PRIZEDATA 0;2Hit the smallest hole
 PRIZETC 0;25000
@@ -185,7 +191,7 @@ EVENTID 4;
 NAME 0;Floor is Lava
 IMAGE 0;floorislava.tga
 URL 0;https://forum.toribash.com/showthread.php?t=643852
-PLAYNAME 0;floorislava
+//PLAYNAME 0;floorislava
 OVERLAYTRANS 0;0.7
 PLAYTEXT 0;PARTICIPATE
 ACCENTCOLOR 0;ffbe77

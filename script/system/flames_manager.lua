@@ -70,11 +70,11 @@ do
 	
 	function Flames:getFlameGroups()
 		return {
-			{ name = "General", ids = { 1, 2, 3, 4, 5 } },
-			{ name = "Color", ids = { 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 } },
-			{ name = "Size", ids = { 17, 18, 19, 20, 21, 22, 23, 24, 25, 26 } },
-			{ name = "Gravity & Displacement", ids = { 32, 33, 34, 53, 35, 36, 37, 38, 31, 27, 28, 29, 30 } },
-			{ name = "Advanced", ids = { 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52 } }
+			{ name = TB_MENU_LOCALIZED.FLAMESSECTIONGENERAL, ids = { 1, 2, 3, 4, 5 } },
+			{ name = TB_MENU_LOCALIZED.FLAMESSECTIONCOLOR, ids = { 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 } },
+			{ name = TB_MENU_LOCALIZED.FLAMESSECTIONSIZE, ids = { 17, 18, 19, 20, 21, 22, 23, 24, 25, 26 } },
+			{ name = TB_MENU_LOCALIZED.FLAMESSECTIONGRAVITYDISPLACEMENT, ids = { 32, 33, 34, 53, 35, 36, 37, 38, 31, 27, 28, 29, 30 } },
+			{ name = TB_MENU_LOCALIZED.FLAMESSECTIONADVANCED, ids = { 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52 } }
 		}
 	end
 	
@@ -290,7 +290,7 @@ do
 								param.value = val
 								set_flame_setting(i - 1, param.value, flameId)
 								toReload.costDisplay.tc = Flames:getFlameCostEstimate(flameParameters[flameId])
-								toReload.costDisplay:addAdaptedText(true, "Flame price estimate: " .. toReload.costDisplay.tc .. " TC", nil, nil, nil, LEFTMID)
+								toReload.costDisplay:addAdaptedText(true, TB_MENU_LOCALIZED.FLAMESPRICEESTIMATE .. ": " .. toReload.costDisplay.tc .. " TC", nil, nil, nil, LEFTMID)
 								if (param.hasDependency) then
 									Flames:spawnFlameSettings(listingHolder, toReload, elementHeight, flameParameters, flameId)
 								end
@@ -305,7 +305,7 @@ do
 							param.value = tonumber(slider.label.labelText[1])
 							set_flame_setting(i - 1, param.value, flameId)
 							toReload.costDisplay.tc = Flames:getFlameCostEstimate(flameParameters[flameId])
-							toReload.costDisplay:addAdaptedText(true, "Flame price estimate: " .. toReload.costDisplay.tc .. " TC", nil, nil, nil, LEFTMID)
+							toReload.costDisplay:addAdaptedText(true, TB_MENU_LOCALIZED.FLAMESPRICEESTIMATE .. ": " .. toReload.costDisplay.tc .. " TC", nil, nil, nil, LEFTMID)
 							if (in_array(i, { 1, 40, 51 })) then
 								local bodyName = '?'
 								for bodyPart,v in pairs(BODYPARTS) do
@@ -324,7 +324,7 @@ do
 			end
 		end
 		toReload.costDisplay.tc = Flames:getFlameCostEstimate(flameParameters[flameId])
-		toReload.costDisplay:addAdaptedText(true, "Flame price estimate: " .. toReload.costDisplay.tc .. " TC", nil, nil, nil, LEFTMID)
+		toReload.costDisplay:addAdaptedText(true, TB_MENU_LOCALIZED.FLAMESPRICEESTIMATE .. ": " .. toReload.costDisplay.tc .. " TC", nil, nil, nil, LEFTMID)
 		
 		for i,v in pairs(listElements) do
 			v:hide()
@@ -515,7 +515,7 @@ do
 			pos = { 10, 5 },
 			size = { flameIdLoaderHolder.size.w / 3, flameIdLoaderHolder.size.h - 10 }
 		})
-		flameIdLoaderName:addAdaptedText(true, "Flame ID", nil, nil, nil, LEFTMID)
+		flameIdLoaderName:addAdaptedText(true, TB_MENU_LOCALIZED.STOREFLAMEID, nil, nil, nil, LEFTMID)
 		local flameIdLoaderInput = TBMenu:spawnTextField(flameIdLoaderHolder, flameIdLoaderName.size.w + flameIdLoaderName.shift.x + 5, 3, flameIdLoaderHolder.size.w - flameIdLoaderName.size.w - flameIdLoaderName.shift.x * 2 - 5, flameIdLoaderHolder.size.h - 6, previewFlame and previewFlame.id, { isNumeric = true }, 4, 0.7, UICOLORWHITE, TB_MENU_LOCALIZED.STOREFLAMEID, CENTERMID, nil, nil, true)
 		flameIdLoaderInput:addEnterAction(function()
 				local flameLoaderOverlay = UIElement:new({
@@ -641,7 +641,7 @@ do
 				pos = { 10, 2 },
 				size = { fHolderMain.size.w - 10, fHolderMain.size.h - 4 },
 			})
-			fSearchTitle:addAdaptedText(true, "Search results for \"" .. searchFlames.query .. "\":", nil, nil, nil, LEFTMID)
+			fSearchTitle:addAdaptedText(true, TB_MENU_LOCALIZED.FLAMESSEARCHRESULTS .. " \"" .. searchFlames.query .. "\":", nil, nil, nil, LEFTMID)
 			
 			for i,section in pairs(searchFlames) do
 				if (type(section) == "table") then
@@ -761,7 +761,13 @@ do
 							shapeType = ROUNDED,
 							rounded = 3
 						})
-						fValueHolder:addAdaptedText(nil, (not forgedShown and (TB_MENU_LOCALIZED.STOREFLAMEFORGEDBY .. " " .. v.forger) or "") .. "\n" .. (not ownedShown and (TB_MENU_LOCALIZED.STOREITEMOWNEDBY .. " " .. v.owner) or ""), nil, nil, 4, RIGHTMID, 0.65)
+						local forgedOwnedString
+						if (not forgedShown and not ownedShown and v.forger == v.owner) then
+							forgedOwnedString = TB_MENU_LOCALIZED.FLAMESFORGEDANDOWNEDBY .. " " .. v.forger
+						else
+							forgedOwnedString = (not forgedShown and (TB_MENU_LOCALIZED.STOREFLAMEFORGEDBY .. " " .. v.forger) or "") .. "\n" .. (not ownedShown and (TB_MENU_LOCALIZED.STOREITEMOWNEDBY .. " " .. v.owner) or "")
+						end
+						fValueHolder:addAdaptedText(nil, forgedOwnedString, nil, nil, 4, RIGHTMID, 0.65)
 					end
 				end
 			end
@@ -882,7 +888,7 @@ do
 		local flameSlots = {}
 		for i = 1, 5 do
 			table.insert(flameSlots, {
-				text = "Flame Slot " .. i,
+				text = TB_MENU_LOCALIZED.FLAMESSLOTID .. " " .. i,
 				action = function()
 					currentFlameId = i - 1
 					if (FLAMES_MENU_MODE == FLAMES_MODE_BROWSER) then
@@ -915,7 +921,7 @@ do
 			bgImage = "../textures/menu/general/buttons/savewhite.tga"
 		})
 		flamesFlameSave:addMouseHandlers(nil, function()
-				local confirmOverlay = TBMenu:showConfirmationWindowInput("Saving flame", "flame name", function(flameName)
+				local confirmOverlay = TBMenu:showConfirmationWindowInput(TB_MENU_LOCALIZED.FLAMESSAVINGFLAME, TB_MENU_LOCALIZED.FLAMESFLAMENAME, function(flameName)
 					local flameName = flameName == "" and os.date() or flameName:gsub(";", "|")
 					local flamesStoredFile = Files:new("../data/flames_stored.dat", FILES_MODE_APPEND)
 					if (not flamesStoredFile.data) then
@@ -929,7 +935,7 @@ do
 					flamesStoredFile:writeLine(flameString)
 					flamesStoredFile:close()
 					TBMenu:showDataError(TB_MENU_LOCALIZED.FLAMESSTORAGESUCCESS, true)
-				end, nil, "Leave empty to save with current date as flame name", TB_MENU_HUB_GLOBALID)
+				end, nil, TB_MENU_LOCALIZED.FLAMESSAVINGEMPTYDATE, TB_MENU_HUB_GLOBALID)
 			end)
 			
 		local flamesBrowseButton = UIElement:new({
@@ -959,11 +965,11 @@ do
 		})
 		flamesCreateButton:addAdaptedText(false, TB_MENU_LOCALIZED.FLAMESFORGEFLAME)
 		flamesCreateButton:addMouseHandlers(nil, function()
-				local confirmOverlay = TBMenu:showConfirmationWindowInput("Forging your Flame", "Flame Name",
+				local confirmOverlay = TBMenu:showConfirmationWindowInput(TB_MENU_LOCALIZED.FLAMESFORGINGFLAME, TB_MENU_LOCALIZED.FLAMESFLAMENAME,
 					function(name)
 						local name = name:gsub(";", '')
 						if (name == '') then
-							TBMenu:showDataError("Flame name cannot be empty", true)
+							TBMenu:showDataError(TB_MENU_LOCALIZED.FLAMESFORGINGNAMEEMPTY, true)
 							return
 						end
 						
@@ -981,7 +987,7 @@ do
 						})
 						TBMenu:displayLoadingMarkSmall(loadingMark, TB_MENU_LOCALIZED.REQUESTFINISHINGACTIVE)
 						Request:queue(function()
-								show_dialog_box(FLAME_DIALOG_FORGE, "Forging '" .. name .. "' flame for " .. flameCostEstimate.tc .. " Toricredits.\nAre you sure?", name .. ";" .. flameCostEstimate.tc .. ";" .. flameSettingsString, true)
+								show_dialog_box(FLAME_DIALOG_FORGE, TB_MENU_LOCALIZED.FLAMESFORGINGCONFIRM1 .. " '" .. name .. "' " .. TB_MENU_LOCALIZED.FLAMESFORGINGCONFIRM2 .. " " .. flameCostEstimate.tc .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS .. ".\n" .. TB_MENU_LOCALIZED.CONFIRMAREYOUSURE, name .. ";" .. flameCostEstimate.tc .. ";" .. flameSettingsString, true)
 								loadingMark:kill(true)
 								TBMenu:displayLoadingMarkSmall(loadingMark, TB_MENU_LOCALIZED.NETWORKLOADING)
 								
@@ -1028,7 +1034,7 @@ do
 									TBMenu:showDataError(TB_MENU_LOCALIZED.ERRORTRYAGAIN, true)
 								end)
 						
-					end, nil, "You will be charged " .. flameCostEstimate.tc .. " Toricredits for spawning the flame", TB_MENU_HUB_GLOBALID)
+					end, nil, TB_MENU_LOCALIZED.FLAMESFORGINGCHARGED1 .. " " .. flameCostEstimate.tc .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS .. " " .. TB_MENU_LOCALIZED.FLAMESFORGINGCHARGED2, TB_MENU_HUB_GLOBALID)
 				table.insert(FLAMES_MENU_MAIN_ELEMENT.child, confirmOverlay)
 			end)
 			
@@ -1108,7 +1114,7 @@ do
 			shapeType = ROUNDED,
 			rounded = 3
 		})
-		local flamesSearchTextfield = TBMenu:spawnTextField(flamesSearch, nil, nil, flamesSearch.size.w, nil, nil, nil, 4, 0.7, UICOLORWHITE, "Search flames...", LEFTMID, nil, nil, true)
+		local flamesSearchTextfield = TBMenu:spawnTextField(flamesSearch, nil, nil, flamesSearch.size.w, nil, nil, nil, 4, 0.7, UICOLORWHITE, TB_MENU_LOCALIZED.FLAMESSEARCHFLAMES, LEFTMID, nil, nil, true)
 		local flamesSearchButton = UIElement:new({
 			parent = flamesSearch,
 			pos = { -200, 1 },
