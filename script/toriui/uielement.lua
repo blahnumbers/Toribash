@@ -62,7 +62,6 @@ do
 						pos = {},
 						shift = {},
 						bgColor = { 1, 1, 1, 0 },
-						customDisplay = function() end,
 						innerShadow = { 0, 0 },
 						}
 		setmetatable(elem, self)
@@ -412,7 +411,9 @@ do
 		else
 			self.customDisplay = func
 		end
-		func()
+		if (func) then
+			func()
+		end
 	end
 
 	function UIElement:kill(childOnly)

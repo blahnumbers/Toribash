@@ -31,8 +31,7 @@ do
 			pos = {},
 			shift = {},
 			bgColor = { 1, 1, 1, 1 },
-			shapeType = CUBE,
-			customDisplay = function() end
+			shapeType = CUBE
 		}
 		setmetatable(elem, UIElement3D)
 		self.__index = self
@@ -182,9 +181,9 @@ do
 			end
 		end
 		if (self.customDisplayBefore) then
-			self.customDisplay()
+			self.customDisplayBefore()
 		end
-		if (not self.customDisplayTrue) then
+		if (not self.customDisplayOnly) then
 			if (self.hoverState == BTN_HVR and self.hoverColor) then
 				set_color(unpack(self.animateColor))
 			elseif (self.hoverState == BTN_DN and self.pressedColor) then
@@ -228,7 +227,7 @@ do
 				draw_obj(self.objModel, self.pos.x, self.pos.y, self.pos.z, self.size.x, self.size.y, self.size.z, self.rot.x, self.rot.y, self.rot.z)
 			end
 		end
-		if (not self.customDisplayBefore) then
+		if (self.customDisplay) then
 			self.customDisplay()
 		end
 	end
