@@ -197,6 +197,7 @@ do
 
 			-- Force update global x/y pos when spawning element
 			elem:updatePos()
+			elem.displayed = true
 		end
 
 		return elem
@@ -888,7 +889,7 @@ do
 				else
 					return
 				end
-			elseif (key > 256 and key < 265) then
+			elseif (key > 255 and key < 266) then
 				self:textfieldUpdate(key - 256)
 			elseif (key > 300) then
 				return
