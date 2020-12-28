@@ -824,7 +824,7 @@ do
 			return 1
 		end]]
 		if (isNumeric and
-			(get_shift_key_state() > 0 or key < 48 or key > 57) and
+			(get_shift_key_state() > 0 or key < 48 or (key > 57 and (key < 256 or key > 266))) and
 			key ~= 8 and key ~= 127 and key ~= 266 and
 			key ~= 276 and key ~= 275 and
 			not (key == 46 and allowDecimal) and
