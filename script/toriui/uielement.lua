@@ -429,6 +429,7 @@ do
 			return true
 		end
 
+		self:hide(true)
 		if (self.isScrollBar) then 
 			for i,v in pairs(UIScrollbarHandler) do
 				if (self == v) then
@@ -438,6 +439,14 @@ do
 			end
 		end
 		if (self.bgImage) then self:updateImage(nil) end
+		for i,v in pairs(UIElementManager) do
+			if (self == v) then
+				table.remove(UIElementManager, i)
+				break
+			end
+		end
+		-- These are already handled in hide()
+		--[[
 		for i,v in pairs(UIMouseHandler) do
 			if (self == v) then
 				table.remove(UIMouseHandler, i)
@@ -456,12 +465,6 @@ do
 				break
 			end
 		end
-		for i,v in pairs(UIElementManager) do
-			if (self == v) then
-				table.remove(UIElementManager, i)
-				break
-			end
-		end
 		for i,v in pairs(UIViewportManager) do
 			if (self == v) then
 				table.remove(UIViewportManager, i)
@@ -470,7 +473,7 @@ do
 		end
 		if (self.menuKeyboardId) then
 			self:disableMenuKeyboard()
-		end
+		end]]
 		
 		self.destroyed = true
 		self = nil
@@ -640,7 +643,6 @@ do
 	end
 
 	function UIElement:deactivate(noreload)
-		local num = nil
 		self.hoverState = false
 		self.isactive = false
 		
@@ -650,23 +652,17 @@ do
 		if (self.interactive) then
 			for i,v in pairs(UIMouseHandler) do
 				if (self == v) then
-					num = i
+					table.remove(UIMouseHandler, i)
 					break
 				end
-			end
-			if (num) then
-				table.remove(UIMouseHandler, num)
 			end
 		end
 		if (self.keyboard) then
 			for i,v in pairs(UIKeyboardHandler) do
 				if (self == v) then
-					num = i
+					table.remove(UIKeyboardHandler, i)
 					break
 				end
-			end
-			if (num) then
-				table.remove(UIKeyboardHandler, num)
 			end
 		end
 	end
@@ -747,7 +743,7 @@ do
 
 		for i,v in pairs(UIVisualManager) do
 			if (self == v) then
-				num = i
+				table.remove(UIVisualManager, i)
 				break
 			end
 		end
@@ -757,10 +753,6 @@ do
 				table.remove(UIViewportManager, i)
 				break
 			end
-		end
-
-		if (num) then
-			table.remove(UIVisualManager, num)
 		end
 		
 		if (self.menuKeyboardId) then
@@ -828,7 +820,7 @@ do
 			key ~= 8 and key ~= 127 and key ~= 266 and
 			key ~= 276 and key ~= 275 and
 			not (key == 46 and allowDecimal) and
-			not (key == 45 and self.textfieldindex == 0 and allowNegative)) then
+			not ((key == 45 or key == 269) and self.textfieldindex == 0 and allowNegative)) then
 			return
 		end
 		if (key == 8) then

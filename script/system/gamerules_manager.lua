@@ -35,6 +35,9 @@ do
 			hidden = g.hidden,
 			null = g.null or '0',
 			triggerUpdate = g.triggerUpdate,
+			allowNegative = g.allowNegative,
+			allowDecimal = g.allowDecimal,
+			dependsAll = g.dependsAll,
 			value = nil
 		}
 		if (g.onSetValue) then
@@ -111,9 +114,9 @@ do
 					{ value = 1, title = "Round" }
 				},
 			},
-			{ name = "engagedistance", title = "Engage Distance", type = GAMERULE_INT },
+			{ name = "engagedistance", title = "Engage Distance", type = GAMERULE_INT, allowNegative = true },
 			{ name = "engageheight", title = "Engage Height", type = GAMERULE_INT },
-			{ name = "engagerotation", title = "Engage Rotation", type = GAMERULE_INT },
+			{ name = "engagerotation", title = "Engage Rotation", type = GAMERULE_INT, allowNegative = true },
 			--{ name = "engagespace", type = GAMERULE_INT }, -- This is used for 3/4 player mode only, we don't use that
 			{ name = "engageplayerpos", title = "Custom Player Position", section = GAMERULES_SECTION_MISC, type = GAMERULE_CUSTOM,
 				onSet = function(val)
@@ -209,13 +212,13 @@ do
 					end
 				end
 		 	},
-			{ name = "grabmode", title = "Grab Mode", depends = "grip", section = GAMERULES_SECTION_GRAB, type = GAMERULE_ENUM,
+			{ name = "grabmode", title = "Grab Mode", depends = "grip", section = GAMERULES_SECTION_GRAB, triggerUpdate = true, type = GAMERULE_ENUM,
 				options = {
 					{ value = 0, title = "Fixed" },
 					{ value = 1, title = "Rotatable" }
 				}
 			},
-			{ name = "tearthreshold", title = "Tear Threshold", depends = {"grip", "grabmode"}, section = GAMERULES_SECTION_GRAB, type = GAMERULE_INT }
+			{ name = "tearthreshold", title = "Tear Threshold", depends = {"grip", "grabmode"}, dependsAll = true, section = GAMERULES_SECTION_GRAB, type = GAMERULE_INT }
 		}
 		
 		local gameRules = {}
@@ -379,6 +382,9 @@ do
 							changedValues[v.name] = Gamerule:new(v)
 						end
 						changedValues[v.name]:setValue(value - 1)
+						if (v.triggerUpdate) then
+							updateFunc()
+						end
 					end
 				})
 			end
@@ -401,7 +407,7 @@ do
 				shapeType = ROUNDED,
 				rounded = 3
 			})
-			TBMenu:spawnDropdown(grDropdownHolder, v.dropdown, 30, 120, v.dropdown[v.value + 1], 0.6, 4, 0.5, 4)
+			TBMenu:spawnDropdown(grDropdownHolder, v.dropdown, 30, 120, changedValues[v.name] and v.dropdown[changedValues[v.name].value + 1] or v.dropdown[v.value + 1], 0.6, 4, 0.5, 4)
 		elseif (v.type == GAMERULE_SLIDER) then
 			local sliderValue = changedValues[v.name] and changedValues[v.name].value or v.value
 			local sliderSettings = {
@@ -627,10 +633,14 @@ do
 						if (#v.depends == 0) then
 							lastInput = Gamerules:showGamerule(v, listingHolder, elementHeight, listElements, x, i, changedValues, thisFunc, lastInput)
 						else
+							local dependsCount = v.dependsAll and #v.depends or 1
 							for j,rule in pairs(v.depends) do
 								if (Gamerules:findRuleValue(rule, gamerules, changedValues)) then
-									lastInput = Gamerules:showGamerule(v, listingHolder, elementHeight, listElements, x, i, changedValues, thisFunc, lastInput)
-									break
+									dependsCount = dependsCount - 1
+									if (dependsCount == 0) then
+										lastInput = Gamerules:showGamerule(v, listingHolder, elementHeight, listElements, x, i, changedValues, thisFunc, lastInput)
+										break
+									end
 								end
 							end
 						end
