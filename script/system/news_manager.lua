@@ -91,9 +91,10 @@ do
 			elseif (ln:find("^SEASONPASS 0;")) then
 				newsData[#newsData].action = function() Torishop:showSeasonPassAprilFools() end
 				newsData[#newsData].initAction = function() Torishop:showSeasonPassAprilFools() end
-			elseif (ln:find("^COLLECTORCARDS 0;")) then
-				newsData[#newsData].action = function() Torishop:showCollectorsCardsWC() end
-				newsData[#newsData].initAction = function() Torishop:showCollectorsCardsWC() end
+			elseif (ln:find("^COLLECTORCARDS %d+;")) then
+				local id = ln:gsub("^COLLECTORCARDS (%d+);", "%1") + 0
+				newsData[#newsData].action = function() Torishop:showCollectorsCards(id) end
+				newsData[#newsData].initAction = function() Torishop:showCollectorsCards(id) end
 			elseif (ln:find("^FEATURED 0;")) then
 				newsData[#newsData].featured = true
 				if (miniImages and newsData[#newsData].hasMiniImage) then
