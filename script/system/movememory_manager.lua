@@ -11,13 +11,13 @@ do
 	MoveMemory.__index = MoveMemory
 	local cln = {}
 	setmetatable(cln, MoveMemory)
-	
+
 	function MoveMemory:quit()
 		set_option("backgroundclick", MOVEMEMORY_BACKGROUNDCLICK)
 		TB_MOVEMEMORY_ISOPEN = 0
 		moveMemoryMain:kill()
 	end
-	
+
 	function MoveMemory:checkLegacyCache()
 		local file = Files:new("system/data.mm")
 		local newfile = Files:new("system/movememory.mm", FILES_MODE_WRITE)
@@ -33,7 +33,7 @@ do
 		newfile:close()
 		return true
 	end
-	
+
 	function MoveMemory:getOpeners()
 		local file = Files:new("system/movememory.mm", FILES_MODE_READONLY)
 		if (not file.data) then
@@ -71,7 +71,7 @@ do
 					elseif (MOVEMEMORY_DATA[#MOVEMEMORY_DATA].turns < turn) then
 						MOVEMEMORY_DATA[#MOVEMEMORY_DATA].turns = turn
 					end
-					
+
 					line = line:gsub("^%d+; ", "")
 					local _, count = line:gsub("%d+", "")
 					local data_stream = { line:match(("(%d+ %d+) *"):rep(count / 2)) }
@@ -85,7 +85,7 @@ do
 		file:close()
 		return true
 	end
-	
+
 	function MoveMemory:isMoveStored(memorymove)
 		local file = Files:new("system/movememory.mm")
 		if (not file.data) then
@@ -98,7 +98,7 @@ do
 		end
 		return false
 	end
-	
+
 	function MoveMemory:saveMove(memorymove)
 		if (memorymove.name:len() == 0) then
 			return
@@ -124,7 +124,7 @@ do
 		end
 		file:close()
 	end
-	
+
 	function MoveMemory:showSaveRecordingComplete(successAction, discard)
 		local overlay = TBMenu:spawnWindowOverlay()
 		local options = { hint = get_option("hint"), feedback = get_option("feedback") }
@@ -138,15 +138,15 @@ do
 		end
 		for i,v in pairs(options) do
 			set_option(i, 0)
-		end		
-		
+		end
+
 		local moveSave = UIElement:new({
 			parent = overlay,
 			pos = { WIN_W / 4, WIN_H / 2 - 140 },
 			size = { WIN_W / 2, 280 },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
-		
+
 		local moveSaveTitle = UIElement:new({
 			parent = moveSave,
 			pos = { 10, 0 },
@@ -163,7 +163,7 @@ do
 			pressedColor = { 1, 1, 1, 0.2 }
 		})
 		moveSaveButton:addAdaptedText(false, TB_MENU_LOCALIZED.BUTTONSAVE)
-		
+
 		local moveCancelButton = UIElement:new({
 			parent = moveSave,
 			pos = { 10, -50 },
@@ -201,8 +201,8 @@ do
 			textfieldsingleline = true
 		})
 		TBMenu:displayTextfield(moveNameInput, FONTS.SMALL, 1, UICOLORBLACK, TB_MENU_LOCALIZED.MOVEMEMORYENTERMOVENAME, CENTERMID)
-		moveNameInput:addMouseHandlers(nil, function() TBMenu:enableMenuKeyboard(moveNameInput) end)
-			
+		moveNameInput:addMouseHandlers(nil, function() moveNameInput:enableMenuKeyboard(moveNameInput) end)
+
 		local moveDescBackground = UIElement:new({
 			parent = moveSave,
 			pos = { 10, moveNameBackground.shift.y + moveNameBackground.size.h + 10 },
@@ -224,8 +224,8 @@ do
 			textfieldsingleline = true
 		})
 		TBMenu:displayTextfield(moveDescInput, FONTS.SMALL, 1, UICOLORBLACK, TB_MENU_LOCALIZED.MOVEMEMORYENTERMOVEDESCOPT, CENTERMID)
-		moveDescInput:addMouseHandlers(nil, function() TBMenu:enableMenuKeyboard(moveDescInput) end)
-			
+		moveDescInput:addMouseHandlers(nil, function() moveDescInput:enableMenuKeyboard(moveDescInput) end)
+
 		local moveModBackground = UIElement:new({
 			parent = moveSave,
 			pos = { 10, moveDescBackground.shift.y + moveDescBackground.size.h + 10 },
@@ -248,8 +248,8 @@ do
 			textfieldstr = { get_game_rules().mod:gsub("%.tbm$", "") }
 		})
 		TBMenu:displayTextfield(moveModInput, FONTS.SMALL, 1, UICOLORBLACK, TB_MENU_LOCALIZED.MOVEMEMORYENTERMODNAMEOPT, CENTERMID)
-		moveModInput:addMouseHandlers(nil, function() TBMenu:enableMenuKeyboard(moveModInput) end)
-		
+		moveModInput:addMouseHandlers(nil, function() moveModInput:enableMenuKeyboard(moveModInput) end)
+
 		local function saveMove(name, description, mod)
 			if (name:len() == 0) then
 				TBMenu:showDataError(TB_MENU_LOCALIZED.MOVEMEMORYMODNAMEEMPTYERROR, true)
@@ -280,9 +280,9 @@ do
 			successAction()
 			MoveMemory:reload()
 		end
-		
+
 		moveSaveButton:addMouseHandlers(nil, function() saveMove(moveNameInput.textfieldstr[1], moveDescInput.textfieldstr[1], moveModInput.textfieldstr[1]) end)
-			
+
 		add_hook("mouse_button_down", "moveSaveMouseHandler", function(s, x, y)
 			if (TB_MENU_MAIN_ISOPEN == 0) then
 				UIElement:handleMouseDn(s, x, y)
@@ -304,7 +304,7 @@ do
 		add_hook("key_up", "moveSaveKeyboardHandler", function(s) UIElement:handleKeyUp(s) return 1 end)
 		add_hook("key_down", "moveSaveKeyboardHandler", function(s) UIElement:handleKeyDown(s) return 1 end)
 	end
-	
+
 	function MoveMemory:recordMove()
 		local ws = get_world_state()
 		local player = ws.selected_player
@@ -318,7 +318,7 @@ do
 		end
 		local turn = ws.match_turn + 1
 		MOVEMEMORY_MOVE_RECORD = {}
-		
+
 		local function cancelRecording()
 			remove_hooks("tbMoveMemoryRecordMove")
 			moveMemoryToolbar[0]:kill()
@@ -339,7 +339,7 @@ do
 			end)
 		add_hook("leave_game", "tbMoveMemoryRecordMove", function() if (not ESC_KEY_PRESSED) then if (#MOVEMEMORY_MOVE_RECORD > 0) then saveRecording(cancelRecording, true) else cancelRecording() end end end)
 	end
-	
+
 	function MoveMemory:deleteMove(memorymove)
 		local file = Files:new("system/movememory.mm")
 		if (not file.data) then
@@ -363,7 +363,7 @@ do
 				table.insert(towrite, ln)
 			end
 		end
-		
+
 		file:reopen(FILES_MODE_WRITE)
 		if (not file.data) then
 			TBMenu:showDataError(TB_MENU_LOCALIZED.MOVEMEMORYERRORUPDATINGDATA, true)
@@ -374,14 +374,14 @@ do
 		end
 		file:close()
 	end
-	
+
 	function MoveMemory:reload()
 		if (TB_MOVEMEMORY_ISOPEN == 1) then
 			MoveMemory:quit()
 		end
 		MoveMemory:showMain()
 	end
-	
+
 	function MoveMemory:showMain()
 		local openersLoaded = false
 		local status, error = pcall(function() openersLoaded = MoveMemory:getOpeners() end)
@@ -392,12 +392,12 @@ do
 		if (not openersLoaded) then
 			return
 		end
-		
+
 		if (MOVEMEMORY_BACKGROUNDCLICK == 1) then
 			set_option("backgroundclick", 0)
 		end
 		TB_MOVEMEMORY_ISOPEN = 1
-		
+
 		local winWidth = 300 > WIN_W / 3 and WIN_W / 3 or 300
 		moveMemoryMain = UIElement:new({
 			globalid = TB_MOVEMEMORY_GLOBALID,
@@ -459,7 +459,7 @@ do
 			size = { moveMemoryMain.size.w, moveMemoryMain.size.h - moveMemoryMoverHolder.size.h - moveMemoryMain.rounded}
 		})
 		moveMemoryHolder:addCustomDisplay(true, function() end)
-			
+
 		local moveMemoryTitle = UIElement:new({
 			parent = moveMemoryHolder,
 			pos = { 0, 0 },
@@ -493,8 +493,8 @@ do
 							moveMemoryAddMove.size.w - 8,
 							2	)
 			end)
-		
-			
+
+
 		if (#MOVEMEMORY_DATA == 0) then
 			moveMemoryHolder:addAdaptedText(true, TB_MENU_LOCALIZED.MOVEMEMORYNOMOVESFOUND, nil, nil, nil, nil, nil, nil, 0)
 			return
@@ -532,7 +532,7 @@ do
 		})
 		MoveMemory:spawnOpeners(openersHolder, memoryOpeners, TB_MOVEMEMORY_LASTPAGE, suggested)
 	end
-	
+
 	function MoveMemory:showToolbar(id, text, killAction, saveAction)
 		if (MOVEMEMORY_TUTORIAL_MODE) then
 			return
@@ -544,7 +544,7 @@ do
 			moveMemoryToolbar[id]:kill()
 			moveMemoryToolbar[id] = nil
 		end
-		
+
 		local count = 0
 		for i,v in pairs(moveMemoryToolbar) do
 			count = count + 1
@@ -552,7 +552,7 @@ do
 		if (count == 1) then
 			posY = nil
 		end
-		
+
 		local toolbarH = WIN_W / 25 > 60 and 60 or WIN_W / 25
 		local widthMod = saveAction and toolbarH - 10 or 0
 		moveMemoryToolbar[id] = UIElement:new({
@@ -569,7 +569,7 @@ do
 			size = { moveMemoryToolbar[id].size.w - 60 - widthMod, moveMemoryToolbar[id].size.h - 20 }
 		})
 		moveMemoryTurnInfo:addAdaptedText(true, text, nil, nil, nil, LEFTMID)
-		
+
 		local killButtonSize = moveMemoryToolbar[id].size.h / 3 * 2
 		local moveMemoryToolbarKill = UIElement:new({
 			parent = moveMemoryToolbar[id],
@@ -616,7 +616,7 @@ do
 				end)
 		end
 	end
-	
+
 	function MoveMemory:playMove(memorymove, spawnHook, player, noToolbar)
 		-- Plays a move for current turn
 		local worldstate = get_world_state()
@@ -625,9 +625,9 @@ do
 			TBMenu:showDataError("Please select a player to run the opener")
 			return false
 		end
-		
+
 		MOVEMEMORY_PLAYBACK_ACTIVE[player] = true
-		
+
 		local function playMoveQuit()
 			MOVEMEMORY_PLAYBACK_ACTIVE[player] = false
 			memorymove.currentturn = false
@@ -637,7 +637,7 @@ do
 				moveMemoryToolbar[player] = nil
 			end
 		end
-		
+
 		local turn = spawnHook and (MOVEMEMORY_FIRSTTURN and 1 or worldstate.match_turn + 1) or memorymove.currentturn
 		if (memorymove.turns < turn) then
 			playMoveQuit()
@@ -654,10 +654,10 @@ do
 			end
 		end
 		memorymove.currentturn = turn + 1
-		
+
 		-- Force-refresh ghost
 		set_ghost(2)
-		
+
 		if (not noToolbar) then
 			MoveMemory:showToolbar(player, memorymove.name .. ": " .. TB_MENU_LOCALIZED.WORDTURN .. " " .. turn .. " " .. TB_MENU_LOCALIZED.PAGINATIONPAGEOF .. " " .. memorymove.turns, playMoveQuit)
 		end
@@ -667,7 +667,7 @@ do
 			add_hook("match_begin", "tbMoveMemoryPlayTurns" .. player, playMoveQuit)
 		end
 	end
-	
+
 	function MoveMemory:spawnMovementButton(viewElement, memorymove, pos, shift, toReload)
 		local shift = shift or 0
 		local buttonHolder = UIElement:new({
@@ -682,7 +682,7 @@ do
 		})
 		buttonHolder.hoverColor[4] = 0.5
 		buttonHolder.pressedColor[4] = 0.5
-		
+
 		local openerDelete = TBMenu:createImageButtons(buttonHolder, -40, 0, 40, 40, "../textures/menu/general/buttons/trash.tga", "../textures/menu/general/buttons/trashhvr.tga", "../textures/menu/general/buttons/trashblack.tga", { 0, 0, 0, 0 })
 		buttonHolder:addMouseHandlers(nil, function()
 				MoveMemory:playMove(memorymove, true)
@@ -709,7 +709,7 @@ do
 		if (not MOVEMEMORY_TUTORIAL_MODE) then
 			openerDelete:addMouseHandlers(nil, function() TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.MOVEMEMORYDELETEMOVECONFIRM, function() MoveMemory:deleteMove(memorymove) MoveMemory:quit() MoveMemory:showMain() end) end, function() buttonHolder.bgColor = buttonHolder.hoverColor end)
 		end
-		
+
 		-- why the fuck is this flickering
 		local nameHolder = UIElement:new({
 			parent = buttonHolder,
@@ -717,7 +717,7 @@ do
 			size = { buttonHolder.size.w - 40, 22 }
 		})
 		nameHolder:addCustomDisplay(true, function() end)
-		
+
 		-- nameHolder isn't used for display because it doesn't work
 		-- I have no idea why's that happening
 		local nameHolder2 = UIElement:new({
@@ -736,7 +736,7 @@ do
 		end
 		return buttonHolder
 	end
-	
+
 	function MoveMemory:spawnFirstTurnToggle(viewElement)
 		local toggleText = UIElement:new({
 			parent = viewElement,
@@ -744,7 +744,7 @@ do
 			size = { viewElement.size.w - 60, viewElement.size.h - 6 }
 		})
 		toggleText:addAdaptedText(true, "Run opener from start", nil, nil, nil, LEFTMID, 0.8)
-		
+
 		local toggleView = UIElement:new({
 			parent = viewElement,
 			pos = { -37, 7 },
@@ -787,15 +787,15 @@ do
 				end
 			end)
 	end
-	
+
 	function MoveMemory:spawnOpeners(viewElement, memoryOpeners, page, suggested)
 		local page = page or 1
 		TB_MOVEMEMORY_LASTPAGE = page
 		viewElement:kill(true)
-		
+
 		if (#memoryOpeners > 0) then
 			local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, suggested and 45 or 35, 40, 20, { 0, 0, 0, 0 })
-			
+
 			local openersTitle = UIElement:new({
 				parent = topBar,
 				pos = { 0, 0 },
@@ -826,13 +826,13 @@ do
 				bgColor = { unpack(TB_MENU_DEFAULT_DARKER_COLOR) }
 			})
 			scrollBackdrop.bgColor[4] = 0.6
-			
+
 			local listElements = {}
 			for i,v in pairs(memoryOpeners) do
 				local button = MoveMemory:spawnMovementButton(listingHolder, v, i - 1, nil, botBar)
 				table.insert(listElements, button)
 			end
-			
+
 			for i,v in pairs(listElements) do
 				v:hide()
 			end
@@ -840,7 +840,7 @@ do
 			scrollBar:makeScrollBar(listingHolder, listElements, toReload)
 		end
 	end
-	
+
 	function MoveMemory:spawnSuggested(viewElement)
 		local loadedMod = get_game_rules().mod:gsub("%.tbm$", "")
 		local suggestedOpeners = {}
@@ -873,7 +873,7 @@ do
 		end
 		return displayedSuggested
 	end
-	
+
 	function MoveMemory:spawnHotkeyListener()
 		MOVEMEMORY_ACTIVE = true
 		add_hook("key_down", "tbMoveMemoryHotkeyListener", function(key)
@@ -899,10 +899,10 @@ do
 				end]]
 			end)
 	end
-	
+
 	function MoveMemory:unloadHotkeyListener()
 		MOVEMEMORY_ACTIVE = false
 		remove_hooks("tbMoveMemoryHotkeyListener")
 	end
-	
+
 end

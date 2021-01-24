@@ -60,3 +60,7 @@ script/replaysaver\.lua
 script/mytutorials/
 
 script/system/data\.mm
+
+.vdf
+
+.DS_STORE
