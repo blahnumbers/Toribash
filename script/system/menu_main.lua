@@ -59,6 +59,8 @@ dofile("toriui/uielement3d.lua")
 
 -- Set old UI and return
 if (WIN_W < 950 or WIN_H < 600) then
+	echo("Screen resolution needs to be at least 950x600 for modern gui to work")
+	echo("Switching to classic menu")
 	set_option("newmenu", "0")
 	return
 end

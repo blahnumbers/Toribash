@@ -459,6 +459,43 @@ do
 							reload = true
 						},
 						{
+							name = TB_MENU_LOCALIZED.SETTINGSRAYTRACING,
+							type = TOGGLE,
+							action = function(val) 
+									TB_MENU_MAIN_SETTINGS.raytracing = { value = val, id = RAYTRACING, graphics = true }
+								end,
+							val = { get_option("raytracing") },
+							reload = true
+						},
+						{
+							name = TB_MENU_LOCALIZED.SETTINGSBLOOD,
+							type = DROPDOWN,
+							selectedAction = function() return get_option("blood") + 1 end,
+							dropdown = {
+								{
+									text = TB_MENU_LOCALIZED.WORDNONE,
+									action = function()
+										TB_MENU_MAIN_SETTINGS.blood = { value = 0 }
+										Settings:settingsApplyActivate()
+									end
+								},
+								{
+									text = TB_MENU_LOCALIZED.SETTINGSVANILLA,
+									action = function()
+										TB_MENU_MAIN_SETTINGS.blood = { value = 1 }
+										Settings:settingsApplyActivate()
+									end
+								},
+								{
+									text = TB_MENU_LOCALIZED.SETTINGSMODERN,
+									action = function()
+										TB_MENU_MAIN_SETTINGS.blood = { value = 2 }
+										Settings:settingsApplyActivate()
+									end
+								},
+							}
+						},
+						{
 							name = TB_MENU_LOCALIZED.SETTINGSFLUIDBLOOD,
 							type = TOGGLE,
 							action = function(val) 
@@ -492,15 +529,6 @@ do
 									TB_MENU_MAIN_SETTINGS.ambientocclusion = { value = val, id = AMBIENTOCCLUSION, graphics = true }
 								end,
 							val = { get_option("ambientocclusion") },
-							reload = true
-						},
-						{
-							name = TB_MENU_LOCALIZED.SETTINGSRAYTRACING,
-							type = TOGGLE,
-							action = function(val) 
-									TB_MENU_MAIN_SETTINGS.raytracing = { value = val, id = RAYTRACING, graphics = true }
-								end,
-							val = { get_option("raytracing") },
 							reload = true
 						},
 						{

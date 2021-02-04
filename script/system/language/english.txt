@@ -836,3 +836,6 @@ FLAMESFORGEDANDOWNEDBY	Forged and owned\nby
 FLAMESDELETESTOREDCONFIRM	Are you sure you want to delete your stored flame design	
 CONFIRMACTIONCANNOTBEUNDONE	This action cannot be undone.
 CONFIRMAREYOUSURE	Are you sure?	
+SETTINGSBLOOD	Blood	
+SETTINGSVANILLA	Vanilla (only joints)	
+SETTINGSMODERN	Modern (more bleeds)

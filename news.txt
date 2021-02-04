@@ -10,12 +10,12 @@
 //IMAGE 0;giveawaytoriteam4.tga
 //URL 0;https://discord.gg/toribash
 
-NEWSID 11;
-TITLE 0;Christmas Sale!
-SUBTITLE 0;It's winter celebration time! Merry Christmas and happy New Year!
-IMAGE 0;xmassale20.tga
-URL 0;https://forum.toribash.com/tori_sale.php
-STORE 0;3365
+//NEWSID 11;
+//TITLE 0;Christmas Sale!
+//SUBTITLE 0;It's winter celebration time! Merry Christmas and happy New Year!
+//IMAGE 0;xmassale20.tga
+//URL 0;https://forum.toribash.com/tori_sale.php
+//STORE 0;3365
 
 //NEWSID 7;
 //TITLE 0;Head Texture of the Month is back!
@@ -23,17 +23,24 @@ STORE 0;3365
 //IMAGE 0;htotm20freestyle.tga
 //URL 0;https://forum.toribash.com/showthread.php?t=643758
 
-NEWSID 1;
-TITLE 0;Tori-Santa 2020
-SUBTITLE 0;It's Toribash Secret Santa! Sign up until December 23rd and share the Christmas spirit!
-IMAGE 0;torisanta2020.tga
-URL 0;https://forum.toribash.com/showthread.php?t=645879
+//NEWSID 1;
+//TITLE 0;Tori-Santa 2020
+//SUBTITLE 0;It's Toribash Secret Santa! Sign up until December 23rd and share the Christmas spirit!
+//IMAGE 0;torisanta2020.tga
+//URL 0;https://forum.toribash.com/showthread.php?t=645879
 
-NEWSID 2;
-TITLE 0;World Championship 2020
-SUBTITLE 0;The grand finale of this *marvelous* year is here!
-IMAGE 0;worldchampionship2020.tga
-URL 0;https://forum.toribash.com/tori_worldchampionship.php
+NEWSID 1;
+TITLE 0;Toribash x Quarantined Rapport 3
+SUBTITLE 0;Toribash joined QR3 event to help raise money towards Direct Relief's
+efforts against COVID-19!
+IMAGE 0;tbqr3.tga
+URL 0;https://www.toribash.com/quarantined_rapport.php
+
+//NEWSID 2;
+//TITLE 0;World Championship 2020
+//SUBTITLE 0;The grand battle for the title of Toribash World Champion is nearing its closure!
+//IMAGE 0;worldchampionship2020.tga
+//URL 0;https://forum.toribash.com/showthread.php?t=645623
 
 NEWSID 3;
 TITLE 0;No events live now, but you can still replay any ended event in all events menu!
