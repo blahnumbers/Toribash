@@ -168,10 +168,12 @@ do
 				table.insert(UIMouseHandler, elem)
 			end
 			if (o.keyboard) then
+				elem.permanentListener = o.permanentListener
 				elem.keyDown = function() end
 				elem.keyUp = function() end
 				elem.keyDownCustom = function() end
 				elem.keyUpCustom = function() end
+				table.insert(UIKeyboardHandler, elem)
 			end
 			if (o.hoverSound) then
 				elem.hoverSound = o.hoverSound
@@ -640,9 +642,17 @@ do
 			end
 			self.isactive = true
 		end
+		
+		for i,v in pairs(self.child) do
+			v:activate(noreload)
+		end
 	end
 
 	function UIElement:deactivate(noreload)
+		for i,v in pairs(self.child) do
+			v:deactivate(noreload)
+		end
+		
 		self.hoverState = false
 		self.isactive = false
 		
@@ -901,7 +911,7 @@ do
 				if (v.keyUpCustom) then
 					v.keyUpCustom(key)
 				end
-				return 1
+				return v.permanentListener and 0 or 1
 			end
 		end
 	end
@@ -953,7 +963,7 @@ do
 	function UIElement:handleMouseDn(s, x, y)
 		enable_camera_movement()
 		for i, v in pairs(UIKeyboardHandler) do
-			v.keyboard = false
+			v.keyboard = v.permanentListener
 			KEYBOARDGLOBALIGNORE = false
 		end
 		for i, v in pairs(tableReverse(UIMouseHandler)) do

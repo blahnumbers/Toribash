@@ -149,3 +149,7 @@ end)
 add_hook("key_up", "replaySaveHandler", function(s) UIElement:handleKeyUp(s) return 1 end)
 add_hook("key_down", "replaySaveHandler", function(s) UIElement:handleKeyDown(s) return 1 end)
 add_hook("new_game_mp", "replaySaveHandler", function() REPLAY_NEWGAME = true end)
+
+replayNameInput:btnDown()
+replayNameInput.keyboard = true
+disable_camera_movement()

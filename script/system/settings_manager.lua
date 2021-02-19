@@ -21,6 +21,7 @@ local BUMPMAPPING = 5
 local RAYTRACING = 6
 local BODYTEXTURES = 7
 local HIGHDPI = 8
+local BORDERLESS = 9
 
 local TB_MENU_MAIN_SETTINGS = {}
 
@@ -848,6 +849,13 @@ do
 							end
 						},
 						{
+							name = TB_MENU_LOCALIZED.SETTINGSREPLAYHUDTOGGLE,
+							type = INPUT,
+							inputspecial = true,
+							systemname = "replayhudtoggle",
+							val = { get_option("replayhudtoggle") }
+						},
+						{
 							name = TB_MENU_LOCALIZED.SETTINGSMOUSEBUTTONS,
 							type = DROPDOWN,
 							systemname = "mousebuttons",
@@ -1125,6 +1133,14 @@ do
 							TB_MENU_MAIN_SETTINGS.fullscreen = { value = 1 - val, reload = true }
 						end,
 					val = { 1 - fullscreen }
+				},
+				{
+					name = TB_MENU_LOCALIZED.SETTINGSBORDERLESS,
+					type = TOGGLE,
+					action = function(val)
+							TB_MENU_MAIN_SETTINGS.borderless = { id = BORDERLESS, value = val, graphics = true }
+						end,
+					val = { get_option("borderless") }
 				}
 			}
 		else

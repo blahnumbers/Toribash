@@ -3430,4 +3430,264 @@ do
 			end)
 		REPLAYS_CUSTOM_SELECTOR_ACTIVE = true
 	end
+	
+	function Replays:spawnReplayProgressSlider(viewElement)
+		local replayProgressHolder = UIElement:new({
+			parent = viewElement,
+			pos = { 0, 0 },
+			size = { viewElement.size.w * 0.65, viewElement.size.h },
+			bgColor = cloneTable(TB_MENU_DEFAULT_BG_COLOR),
+			shapeType = ROUNDED,
+			rounded = 4,
+		})
+		local replayProgressTitle = UIElement:new({
+			parent = replayProgressHolder,
+			pos = { 15, 3 },
+			size = { replayProgressHolder.size.w - 30, 25 }
+		})
+		replayProgressTitle:addAdaptedText(true, "Progress")
+		
+		local worldstate = get_world_state()
+		local sliderSettings = {
+			maxValue = worldstate.game_frame + 100,
+			minValue = 0
+		}
+		local replaySpeed = 1
+		local updateFunc = function(val, xPos, slider)
+			rewind_replay_to_frame(val)
+		end
+		local onMouseDn = function()
+			replaySpeed = get_replay_speed()
+			set_replay_speed(0)
+		end
+		local onMouseUp = function()
+			set_replay_speed(replaySpeed)
+		end
+		
+		local slider = TBMenu:spawnSlider(replayProgressHolder, 15, 25, nil, replayProgressHolder.size.h - 25, 30, 20, worldstate.match_frame, sliderSettings, updateFunc, onMouseDn, onMouseUp)
+		slider.bgColor = UICOLORWHITE
+		slider.value = worldstate.match_frame
+		
+		replayProgressHolder:addCustomDisplay(nil, function()
+				local worldstate = get_world_state()
+				if (slider.settings.maxValue ~= worldstate.game_frame + 100) then
+					Replays:spawnReplayAdvancedGui(true)
+					return
+				end
+				if (slider.value ~= worldstate.match_frame) then
+					if (slider.hoverState or slider.parent.hoverState == BTN_DN) then
+						return
+					end
+					slider.setValue(worldstate.match_frame, false)
+					slider.value = worldstate.match_frame
+				end
+			end)
+		local afterFrames = UIElement:new({
+			parent = slider.parent,
+			pos = { -slider.parent.size.w / (worldstate.game_frame + 100) * 100, slider.parent.size.h / 2 - 3 },
+			size = { slider.parent.size.w / (worldstate.game_frame + 100) * 100, 6 },
+			bgColor = { 1, 1, 1, 0.8 },
+			shapeType = ROUNDED,
+			rounded = 6
+		})
+		slider:reload()
+		
+		return slider
+	end
+	
+	function Replays:spawnReplaySpeedSlider(viewElement)
+		local replaySpeedHolder = UIElement:new({
+			parent = viewElement,
+			pos = { viewElement.size.w * 0.65 + 10, 0 },
+			size = { viewElement.size.w * 0.35 - 10, viewElement.size.h },
+			bgColor = cloneTable(TB_MENU_DEFAULT_BG_COLOR),
+			shapeType = ROUNDED,
+			rounded = 4,
+		})
+		local replaySpeedTitle = UIElement:new({
+			parent = replaySpeedHolder,
+			pos = { 15, 3 },
+			size = { replaySpeedHolder.size.w - 30, 25 }
+		})
+		replaySpeedTitle:addAdaptedText(true, "Speed")
+		
+		local sliderSettings = {
+			maxValue = 2,
+			minValue = -1,
+			maxValueDisp = 4,
+			minValueDisp = -1.5,
+			decimal = 2
+		}
+		
+		local getSliderSpeed = function(val)
+			if (val > 1) then
+				if (val < 1.5) then
+					val = 1 + (val - 1) * 2
+				else
+					val = 2 + (val - 1.5) * 4
+				end
+			elseif (val < 0) then
+				if (val < -0.75) then
+					val = -1 + (val + 0.75) * 2
+				else
+					val = val / 75 * 100
+				end
+			end
+			if (val > -0.01 and val < 0) then
+				-- Ensure we don't get -0 speed, that looks wack
+				val = 0
+			end
+			return val
+		end
+		local getSliderSpeedPercentage = function(val)
+			--[[ Some maths:
+				-1.5 to -1 is 8.3%
+				-1 to 0 is 25%
+				0 to 1 is 33.3%
+				1 to 2 is 16.6%
+				2 to 4 is 16.6%
+			]]
+			if (val < -1.5) then
+				return 0
+			elseif (val < -1) then
+				return 0.083 * (val + 1.5) * 2
+			elseif (val < 0) then
+				return 0.083 + 0.25 * (val + 1)
+			elseif (val <= 1) then
+				return 0.333 + 0.333 * val
+			elseif (val < 2) then
+				return 0.666 + 0.166 * (val - 1)
+			elseif (val < 4) then
+				return 0.833 + 0.167 * (val - 2) / 2
+			end
+			return 1
+		end
+		
+		local updateFunc = function(val, xPos, slider)
+			local multiplyBy = tonumber('1' .. string.rep('0', slider.settings.decimal))
+			val = getSliderSpeed(val)
+			
+			if (math.abs(val) > 1) then
+				multiplyBy = multiplyBy / 10
+			elseif (math.abs(val) > 2) then
+				multiplyBy = 1
+			end
+			
+			local targetVal = val < 0 and math.ceil(val * multiplyBy) / multiplyBy or math.floor(val * multiplyBy) / multiplyBy
+			slider.child[1].labelText[1] = targetVal .. ''
+			
+			unfreeze_game()
+			set_replay_speed(targetVal)
+		end
+		
+		local slider = TBMenu:spawnSlider(replaySpeedHolder, 15, 25, nil, replaySpeedHolder.size.h - 25, 30, 20, get_replay_speed(), sliderSettings, updateFunc)
+		slider.bgColor = UICOLORWHITE
+		
+		local regularSpeed = UIElement:new({
+			parent = slider.parent,
+			pos = { slider.parent.size.w / 3 + 3, slider.parent.size.h / 2 - 3 },
+			size = { slider.parent.size.w / 3 - 6, 6 },
+			bgColor = { 1, 1, 1, 0.75 }
+		})
+		local speedMarks = UIElement:new({
+			parent = slider.parent,
+			pos = { slider.size.w / 2, slider.parent.size.h / 2 - 13 },
+			size = { slider.parent.size.w - slider.size.w, 26 },
+			bgColor = { 1, 1, 1, 0.75 },
+		})
+		speedMarks:addCustomDisplay(true, function()
+				set_color(unpack(speedMarks.bgColor))
+				-- -1 speed
+				local clock = os.clock()
+				draw_line(speedMarks.pos.x + speedMarks.size.w * 0.083, speedMarks.pos.y, speedMarks.pos.x + speedMarks.size.w * 0.083, speedMarks.pos.y + speedMarks.size.h, 2)
+				
+				draw_line(speedMarks.pos.x + speedMarks.size.w * 0.1455, speedMarks.pos.y + speedMarks.size.h * 0.333, speedMarks.pos.x + speedMarks.size.w * 0.1455, speedMarks.pos.y + speedMarks.size.h * 0.667, 2)
+				draw_line(speedMarks.pos.x + speedMarks.size.w * 0.208, speedMarks.pos.y + speedMarks.size.h * 0.25, speedMarks.pos.x + speedMarks.size.w * 0.208, speedMarks.pos.y + speedMarks.size.h * 0.75, 2)
+				draw_line(speedMarks.pos.x + speedMarks.size.w * 0.2705, speedMarks.pos.y + speedMarks.size.h * 0.333, speedMarks.pos.x + speedMarks.size.w * 0.2705, speedMarks.pos.y + speedMarks.size.h * 0.667, 2)
+				
+				-- zero
+				draw_line(speedMarks.pos.x + speedMarks.size.w * 0.333, speedMarks.pos.y, speedMarks.pos.x + speedMarks.size.w * 0.333, speedMarks.pos.y + speedMarks.size.h, 2)
+				
+				draw_line(speedMarks.pos.x + speedMarks.size.w * 0.41625, speedMarks.pos.y + speedMarks.size.h * 0.333, speedMarks.pos.x + speedMarks.size.w * 0.41625, speedMarks.pos.y + speedMarks.size.h * 0.667, 2)
+				draw_line(speedMarks.pos.x + speedMarks.size.w * 0.4995, speedMarks.pos.y + speedMarks.size.h * 0.25, speedMarks.pos.x + speedMarks.size.w * 0.4995, speedMarks.pos.y + speedMarks.size.h * 0.75, 2)
+				draw_line(speedMarks.pos.x + speedMarks.size.w * 0.58275, speedMarks.pos.y + speedMarks.size.h * 0.333, speedMarks.pos.x + speedMarks.size.w * 0.58275, speedMarks.pos.y + speedMarks.size.h * 0.667, 2)
+				
+				-- 1 speed
+				draw_line(speedMarks.pos.x + speedMarks.size.w * 0.667, speedMarks.pos.y, speedMarks.pos.x + speedMarks.size.w * 0.667, speedMarks.pos.y + speedMarks.size.h, 2)
+				
+				-- 2 speed
+				draw_line(speedMarks.pos.x + speedMarks.size.w * 0.833, speedMarks.pos.y, speedMarks.pos.x + speedMarks.size.w * 0.833, speedMarks.pos.y + speedMarks.size.h, 2)
+			end)
+		
+		replaySpeedHolder:addCustomDisplay(nil, function()
+				local replay_speed = get_replay_speed()
+				if (slider.value ~= replay_speed) then
+					if (slider.hoverState or slider.parent.hoverState == BTN_DN) then
+						return
+					end
+					local perc = getSliderSpeedPercentage(replay_speed)
+					slider:moveTo(perc * (slider.parent.size.w - slider.size.w))
+					slider.value = replay_speed
+				end
+			end)
+		
+		slider:reload()
+		
+		return slider
+	end
+	
+	function Replays:spawnReplayAdvancedGui(reload)
+		local replayGuiHolder
+		if (reload) then
+			REPLAY_GUI:kill(true)
+			replayGuiHolder = REPLAY_GUI
+			replayGuiHolder:activate(true)
+		else
+			replayGuiHolder = UIElement:new({
+				globalid = TB_MENU_HUB_GLOBALID,
+				pos = { WIN_W * 0.1, WIN_H },
+				size = { WIN_W * 0.8, 65 },
+				keyboard = true,
+				permanentListener = true
+			})
+			replayGuiHolder.hidden = false
+			replayGuiHolder:addCustomDisplay(true, function()
+					if (not REPLAY_GUI) then
+						return
+					end 
+					if (get_world_state().replay_mode == 0) then
+						REPLAY_GUI.hidden = true
+					end
+					if (replayGuiHolder.hidden) then
+						if (replayGuiHolder.pos.y < WIN_H) then
+							replayGuiHolder:moveTo(nil, 5, true)
+						else
+							replayGuiHolder:hide()
+						end
+					else
+						if (get_replay_cache() > 0) then
+							if (not REPLAY_GUI.isactive) then
+								echo("activating holder")
+								for i,v in pairs(REPLAY_GUI.child) do
+									echo("found child " .. i)
+								end
+								REPLAY_GUI:activate(true)
+							end
+						else
+							if (REPLAY_GUI.isactive) then
+								echo("deactivating holder")
+								REPLAY_GUI:deactivate(true)
+							end
+						end
+						if (replayGuiHolder.pos.y > WIN_H - 105) then
+							replayGuiHolder:moveTo(nil, -5, true)
+						end
+					end
+				end)
+		end
+		progressSlider = Replays:spawnReplayProgressSlider(replayGuiHolder)
+		speedSlider = Replays:spawnReplaySpeedSlider(replayGuiHolder)
+		
+		return replayGuiHolder
+	end
 end

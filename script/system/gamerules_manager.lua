@@ -3,7 +3,7 @@
 GAMERULES_MENU_POS = GAMERULES_MENU_POS or { x = 10, y = 10 }
 GAMERULES_LIST_SHIFT = GAMERULES_LIST_SHIFT or { 0, 0, 1 }
 GAMERULES_MENU_LAST_CLICKED = nil
-GAMERULES_MENU_START_NEW_GAME = GAMERULES_MENU_START_NEW_GAME == nil and true or GAMERULES_MENU_START_NEW_GAME
+GAMERULES_MENU_START_NEW_GAME = get_option("grnewgame")
 
 GAMERULE_BOOL = 0
 GAMERULE_INT = 1
@@ -760,7 +760,7 @@ do
 			pos = { 0, -35 },
 			size = { botBar.size.w / 2, 30 }
 		})
-		local newGameToggle = TBMenu:spawnToggle(grNewGameToggleView, 5, 2, grNewGameToggleView.size.h - 4, grNewGameToggleView.size.h - 4, GAMERULES_MENU_START_NEW_GAME, function(val) GAMERULES_MENU_START_NEW_GAME = val end)
+		local newGameToggle = TBMenu:spawnToggle(grNewGameToggleView, 5, 2, grNewGameToggleView.size.h - 4, grNewGameToggleView.size.h - 4, GAMERULES_MENU_START_NEW_GAME, function(val) GAMERULES_MENU_START_NEW_GAME = val set_option("grnewgame", val) end)
 		local grNewGameText = UIElement:new({
 			parent = grNewGameToggleView,
 			pos = { 6 + grNewGameToggleView.size.h, 0 },
@@ -790,7 +790,7 @@ do
 						end
 					end
 				end
-				if (GAMERULES_MENU_START_NEW_GAME) then
+				if (GAMERULES_MENU_START_NEW_GAME == 1) then
 					remove_hooks("tbGamerulesKeyboard")
 					mainView:kill()
 					GAMERULES_MENU_MAIN_ELEMENT = nil

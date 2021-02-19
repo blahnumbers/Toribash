@@ -2692,7 +2692,7 @@ do
 		end
 	end
 	
-	function TBMenu:spawnSlider(parent, x, y, w, h, textWidth, sliderRadius, value, settings, sliderFunc)
+	function TBMenu:spawnSlider(parent, x, y, w, h, textWidth, sliderRadius, value, settings, sliderFunc, onMouseDown, onMouseUp)
 		local x = x or 0
 		local y = y or 0
 		local w = w or parent.size.w - x * 2
@@ -2716,14 +2716,14 @@ do
 		minText:addAdaptedText(false, settings.minValueDisp .. "", nil, nil, 4, RIGHTMID, 0.7)
 		local maxText = UIElement:new({
 			parent = parent,
-			pos = { -textWidth, y },
+			pos = { -textWidth - x, y },
 			size = { textWidth, h }
 		})
 		maxText:addAdaptedText(false, settings.maxValueDisp .. "", nil, nil, 4, LEFTMID, 0.7)
 		
 		local sliderBG = UIElement:new({
 			parent = parent,
-			pos = { textWidth + 5, 0 },
+			pos = { x + textWidth + 5, y },
 			size = { w - (textWidth + 5) * 2, h },
 			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			interactive = true
@@ -2743,6 +2743,7 @@ do
 			bgColor = TB_MENU_DEFAULT_BG_COLOR,
 			hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR,
+			inactiveColor = { 0.5, 0.5, 0.5, 1 },
 			shapeType = ROUNDED,
 			rounded = sliderRadius
 		})
@@ -2798,8 +2799,14 @@ do
 		slider:addMouseHandlers(function()
 				slider.pressed = true
 				slider.pressedPos = slider:getLocalPos()
+				if (onMouseDown) then
+					onMouseDown()
+				end
 			end, function()
 				slider.pressed = false
+				if (onMouseUp) then
+					onMouseUp()
+				end
 			end, function()
 				if (slider.pressed) then
 					local xPos = MOUSE_X - sliderBG.pos.x - slider.pressedPos.x
@@ -2828,6 +2835,17 @@ do
 					end
 				end
 			end)
+		slider.setValue = function(val, updateLabel)
+			local val = val > settings.maxValue and settings.maxValue or (val < settings.minValue and settings.minValue or val)
+			slider:moveTo(val / settings.maxValue * (sliderBG.size.w - slider.size.w), nil)
+			
+			if (updateLabel) then
+				local multiplyBy = tonumber('1' .. string.rep('0', settings.decimal))
+				sliderLabel.labelText[1] = (math.floor(val * multiplyBy) / multiplyBy) .. ''
+				sliderLabel.uiColor[4] = 1
+				sliderLabel.bgColor[4] = 1
+			end
+		end
 		sliderBG:addMouseHandlers(function()
 			local pos = sliderBG:getLocalPos()
 			local xPos = pos.x - slider.size.w / 2
