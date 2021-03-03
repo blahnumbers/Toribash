@@ -11,7 +11,7 @@ local tbTutorialTotalSteps = 0
 local tbTutorialCurrentStep = 0
 
 do
-	Tutorials = { ver = 1.2 }
+	Tutorials = { ver = 1.3 }
 	Tutorials.__index = Tutorials
 	local cln = {}
 	setmetatable(cln, Tutorials)
@@ -1059,6 +1059,7 @@ do
 		for i,v in pairs(tbTutorialsTask.optional) do
 			if (v.id == id) then
 				v.mark:hide(true)
+				v.markFail:hide(true)
 				v.complete = false
 			end
 		end

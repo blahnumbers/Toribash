@@ -3033,3 +3033,6 @@ do
 			end)
 	end
 end
+
+-- Get translation here so other scripts that use menu manager have translation data
+TBMenu:getTranslation(get_language())

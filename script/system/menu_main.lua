@@ -67,9 +67,7 @@ end
 
 dofile("system/menu_defines.lua")
 require("system/menu_manager")
-
 TBMenu:create()
-TBMenu:getTranslation(get_language())
 
 dofile("system/menu_backend_defines.lua")
 require("system/network_request")

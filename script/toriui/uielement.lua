@@ -643,15 +643,15 @@ do
 			self.isactive = true
 		end
 		
-		for i,v in pairs(self.child) do
+		--[[for i,v in pairs(self.child) do
 			v:activate(noreload)
-		end
+		end]]
 	end
 
 	function UIElement:deactivate(noreload)
-		for i,v in pairs(self.child) do
+		--[[for i,v in pairs(self.child) do
 			v:deactivate(noreload)
-		end
+		end]]
 		
 		self.hoverState = false
 		self.isactive = false

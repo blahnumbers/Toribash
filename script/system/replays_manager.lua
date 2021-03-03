@@ -3449,7 +3449,7 @@ do
 		
 		local worldstate = get_world_state()
 		local sliderSettings = {
-			maxValue = worldstate.game_frame + 100,
+			maxValue = worldstate.game_frame + 99,
 			minValue = 0
 		}
 		local replaySpeed = 1
@@ -3470,7 +3470,7 @@ do
 		
 		replayProgressHolder:addCustomDisplay(nil, function()
 				local worldstate = get_world_state()
-				if (slider.settings.maxValue ~= worldstate.game_frame + 100) then
+				if (slider.settings.maxValue ~= worldstate.game_frame + 99) then
 					Replays:spawnReplayAdvancedGui(true)
 					return
 				end
@@ -3481,11 +3481,34 @@ do
 					slider.setValue(worldstate.match_frame, false)
 					slider.value = worldstate.match_frame
 				end
+				if (get_replay_cache() > 0) then
+					if (not slider.isactive) then
+						slider.parent:activate()
+						slider:activate()
+						slider:reload()
+					end
+				else
+					if (slider.isactive) then
+						slider.btnUp()
+						slider:deactivate()
+						slider.parent:deactivate()
+					end
+				end
 			end)
+		local keyframes = get_camera_keyframes()
+		for i = 1, #keyframes do
+			local kf = keyframes[i]
+			local keyframeButton = UIElement:new({
+				parent = slider.parent,
+				pos = { -slider.parent.size.w / (worldstate.game_frame + 99) * (worldstate.game_frame + 99 - kf.frame) - 5, slider.parent.size.h / 2 - 5 },
+				size = { 10, 10 },
+				bgImage = "../textures/menu/general/buttons/square45.tga"
+			})
+		end
 		local afterFrames = UIElement:new({
 			parent = slider.parent,
-			pos = { -slider.parent.size.w / (worldstate.game_frame + 100) * 100, slider.parent.size.h / 2 - 3 },
-			size = { slider.parent.size.w / (worldstate.game_frame + 100) * 100, 6 },
+			pos = { -slider.parent.size.w / (worldstate.game_frame + 99) * 99, slider.parent.size.h / 2 - 3 },
+			size = { slider.parent.size.w / (worldstate.game_frame + 99) * 99, 6 },
 			bgColor = { 1, 1, 1, 0.8 },
 			shapeType = ROUNDED,
 			rounded = 6
@@ -3617,6 +3640,21 @@ do
 				
 				-- 2 speed
 				draw_line(speedMarks.pos.x + speedMarks.size.w * 0.833, speedMarks.pos.y, speedMarks.pos.x + speedMarks.size.w * 0.833, speedMarks.pos.y + speedMarks.size.h, 2)
+				
+				
+				if (get_replay_cache() > 0) then
+					if (not slider.isactive) then
+						slider.parent:activate()
+						slider:activate()
+						slider:reload()
+					end
+				else
+					if (slider.isactive) then
+						slider.btnUp()
+						slider:deactivate()
+						slider.parent:deactivate()
+					end
+				end
 			end)
 		
 		replaySpeedHolder:addCustomDisplay(nil, function()
@@ -3665,20 +3703,6 @@ do
 							replayGuiHolder:hide()
 						end
 					else
-						if (get_replay_cache() > 0) then
-							if (not REPLAY_GUI.isactive) then
-								echo("activating holder")
-								for i,v in pairs(REPLAY_GUI.child) do
-									echo("found child " .. i)
-								end
-								REPLAY_GUI:activate(true)
-							end
-						else
-							if (REPLAY_GUI.isactive) then
-								echo("deactivating holder")
-								REPLAY_GUI:deactivate(true)
-							end
-						end
 						if (replayGuiHolder.pos.y > WIN_H - 105) then
 							replayGuiHolder:moveTo(nil, -5, true)
 						end
