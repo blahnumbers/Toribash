@@ -91,8 +91,9 @@ do
 		if (not file.data) then
 			return false
 		end
+		local moveName = memorymove.name:gsub("(%p)", "%%%1")
 		for i, ln in pairs(file:readAll()) do
-			if (ln:find("^NAME " .. memorymove.name)) then
+			if (ln:find("^NAME " .. moveName)) then
 				return true
 			end
 		end

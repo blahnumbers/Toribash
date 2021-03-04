@@ -591,7 +591,7 @@ STORETEXTURESNAME	Texture Slots
 STORETEXTURESDESC	Texture items to give your Tori a unique look	
 STOREADVANCED	Advanced	
 STOREADVANCEDNAME	Advanced Customizations	
-STOREADVANCEDDESC	3D items, Hairs and other advanced upgrades for your Tori	
+STOREADVANCEDDESC	3D items, hairs, textures and other items for your Tori	
 STOREACCOUNT	Account	
 STOREACCOUNTDESC	In-game currency, boosters and subscriptions	
 STOREPURCHASINGITEM	Purchasing item...	
@@ -841,3 +841,5 @@ SETTINGSVANILLA	Vanilla (only joints)
 SETTINGSMODERN	Modern (more bleeds)
 SETTINGSBORDERLESS	Borderless Mode	
 SETTINGSREPLAYHUDTOGGLE	Replay HUD Toggle	
+STOREFLAMEFORGE	Flame Forge	
+STOREFLAMEFORGEDESC	Spawn your own flames or browse existing ones	

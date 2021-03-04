@@ -1,8 +1,8 @@
 -- new store manager class
 
 local CATEGORIES_COLORS = { 44, 22, 2, 20, 21, 1, 5, 11, 12, 24, 27, 28, 29, 30, 34, 41, 43, 73 }
-local CATEGORIES_TEXTURES = { 48, 54, 55, 57, 58 }
-local CATEGORIES_ADVANCED = { 78, 72, 80 }
+--local CATEGORIES_TEXTURES = { 48, 54, 55, 57, 58 }
+local CATEGORIES_ADVANCED = { 78, 72, 80, 54, 55, 57, 58, 48 }
 local CATEGORIES_ACCOUNT = { 45, 84, 68, 79 }
 local CATEGORIES_HIDDEN = { 3 }
 
@@ -153,7 +153,7 @@ do
 		if (sectionid == 1) then
 			return { name = TB_MENU_LOCALIZED.STORECOLORSNAME, list = CATEGORIES_COLORS }
 		elseif (sectionid == 2) then
-			return { name = TB_MENU_LOCALIZED.STORETEXTURESNAME, list = CATEGORIES_TEXTURES }
+			return { name = TB_MENU_LOCALIZED.STOREFLAMEFORGENAME }
 		elseif (sectionid == 3) then
 			return { name = TB_MENU_LOCALIZED.STOREADVANCEDNAME, list = CATEGORIES_ADVANCED }
 		elseif (sectionid == 4) then
@@ -5081,8 +5081,8 @@ do
 	function Torishop:getItemMainSection(item)
 		if (in_array(item.catid, CATEGORIES_COLORS)) then
 			return 1
-		elseif (in_array(item.catid, CATEGORIES_TEXTURES)) then
-			return 2
+		--elseif (in_array(item.catid, CATEGORIES_TEXTURES)) then
+			--return 2
 		elseif (in_array(item.catid, CATEGORIES_ADVANCED)) then
 			return 3
 		elseif (in_array(item.catid, CATEGORIES_ACCOUNT)) then
@@ -5684,20 +5684,20 @@ do
 			storeadvanced = {
 				title = TB_MENU_LOCALIZED.STOREADVANCED,
 				subtitle = TB_MENU_LOCALIZED.STOREADVANCEDDESC,
-				image = "../textures/menu/store/advanced-big.tga",
-				image2 = "../textures/menu/store/advanced-small.tga",
+				image = "../textures/menu/store/advanced2-big.tga",
+				image2 = "../textures/menu/store/advanced2-small.tga",
 				ratio = 0.75,
 				ratio2 = 0.449,
 				action = function() Torishop:showStoreSection(viewElement, 3) end
 			},
 			storetextures = {
-				title = TB_MENU_LOCALIZED.STORETEXTURES,
-				subtitle = TB_MENU_LOCALIZED.STORETEXTURESDESC,
-				image = "../textures/menu/store/textures-big.tga",
-				image2 = "../textures/menu/store/textures-small.tga",
+				title = TB_MENU_LOCALIZED.STOREFLAMEFORGE,
+				subtitle = TB_MENU_LOCALIZED.STOREFLAMEFORGEDESC,
+				image = "../textures/menu/store/flameforge-big.tga",
+				image2 = "../textures/menu/store/flameforge-small.tga",
 				ratio = 0.75,
 				ratio2 = 0.449,
-				action = function() Torishop:showStoreSection(viewElement, 2) end
+				action = function() close_menu() if (FLAMES_MENU_MAIN_ELEMENT == nil) then dofile("system/flames.lua") end end
 			},
 			storeaccount = {
 				title = TB_MENU_LOCALIZED.STOREACCOUNT,

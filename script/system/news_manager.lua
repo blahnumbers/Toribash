@@ -1,5 +1,7 @@
 -- News manager class
 
+NEWS_DOWNLOAD_QUEUE = NEWS_DOWNLOAD_QUEUE or {}
+
 do
 	News = {}
 	News.__index = News
@@ -24,6 +26,24 @@ do
 				action = function() end
 			}
 		}
+	end
+	
+	function News:addToQueue(imageName)
+		for i,v in pairs(NEWS_DOWNLOAD_QUEUE) do
+			if (v == imageName) then
+				return
+			end
+		end
+		table.insert(NEWS_DOWNLOAD_QUEUE, imageName)
+	end
+	
+	function News:removeFromQueue(imageName)
+		for i,v in pairs(NEWS_DOWNLOAD_QUEUE) do
+			if (imageName:find(".*/" .. v .. "$")) then
+				table.remove(NEWS_DOWNLOAD_QUEUE, i)
+				return
+			end
+		end
 	end
 	
 	function News:getNews(miniImages)
@@ -53,9 +73,11 @@ do
 				newsData[#newsData].image = { "../textures/menu/promo/" .. imageName, "../textures/menu/promo/toribashsmall.tga" }
 				newsData[#newsData].ratio = 1
 				newsData[#newsData].hasMiniImage = true
+				
 				local imageFile = Files:new("../data/textures/menu/promo/" .. imageName)
 				if (not imageFile.data) then
-					download_server_file("get_event_image&name=" .. imageName, 0)
+					News:addToQueue(imageName)
+					Request:queue(function() download_server_file("get_event_image&name=" .. imageName, 0) end, "newsDownload" .. #newsData)
 				end
 			elseif (ln:find("^IMAGE 0;")) then
 				local imageName = ln:gsub("^IMAGE 0;", "")
@@ -68,7 +90,8 @@ do
 				
 				local imageFile = Files:new("../data/textures/menu/promo/" .. imageName)
 				if (not imageFile.data) then
-					download_server_file("get_event_image&name=" .. imageName, 0)
+					News:addToQueue(imageName)
+					Request:queue(function() download_server_file("get_event_image&name=" .. imageName, 0) end, "newsDownload" .. #newsData)
 				end
 			elseif (ln:find("^URL 0;")) then
 				newsData[#newsData].action = function() open_url(ln:gsub("^URL 0;", "")) end
@@ -215,5 +238,8 @@ do
 		end
 		return eventData
 	end
-	
 end
+
+add_hook("downloader_complete", "news_manager_downloader", function(name)
+		News:removeFromQueue(name)
+	end)

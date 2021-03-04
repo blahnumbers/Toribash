@@ -284,6 +284,7 @@ do
 			pos = { 0, 0 },
 			size = { homeAnnouncements.size.w, homeAnnouncements.size.h }
 		})
+		homeAnnouncements.toReload = toReload
 
 		local textHeight, descHeight = homeAnnouncements.size.h / 9, homeAnnouncements.size.h / 8
 		local elementWidth, elementHeight, heightShift = unpack(TBMenu:getImageDimensions(homeAnnouncements.size.w, homeAnnouncements.size.h, 0.5, textHeight, descHeight))
@@ -369,12 +370,49 @@ do
 			selectedIcon = buttonData.image2
 		end
 		local extraElements = extraElements or {}
-		local itemIcon = UIElement:new( {
-				parent = viewElement,
-				pos = { (viewElement.size.w - elementWidth) / 2, 10 },
-				size = { elementWidth, elementHeight },
-				bgImage = selectedIcon
-			})
+		local itemIcon = UIElement:new({
+			parent = viewElement,
+			pos = { (viewElement.size.w - elementWidth) / 2, 10 },
+			size = { elementWidth, elementHeight },
+			bgImage = selectedIcon,
+			uiColor = TB_MENU_DEFAULT_DARKEST_COLOR
+		})
+		
+		if (type(selectedIcon) == "table") then
+			local filename = selectedIcon[1]:gsub(".*/", "")
+			for i,v in pairs(NEWS_DOWNLOAD_QUEUE) do
+				if (v:find(filename)) then
+					TBMenu:displayLoadingMark(itemIcon, nil, elementHeight / 5)
+					add_hook("downloader_complete", "menuMain" .. filename, function(name)
+							if (name:find(filename .. "$")) then
+								News:removeFromQueue(name)
+								if (viewElement:isDisplayed()) then
+									viewElement:kill(true)
+									TBMenu:showHomeButton(viewElement, buttonData, hasSmudge, extraElements, lockedMessage)
+									viewElement.parent.toReload:reload()
+								else
+									local reloader = UIElement:new({
+										parent = viewElement,
+										pos = { 0, 0 },
+										size = { 0, 0 }
+									})
+									reloader:hide()
+									reloader:addCustomDisplay(true, function()
+											if (reloader:isDisplayed()) then
+												viewElement:kill(true)
+												TBMenu:showHomeButton(viewElement, buttonData, hasSmudge, extraElements, lockedMessage)
+												viewElement.parent.toReload:reload()
+											end
+										end)
+								end
+								remove_hooks("menuMain" .. filename)
+							end
+						end)
+					break
+				end
+			end
+		end
+		
 		local buttonOverlay = UIElement:new( {
 			parent = viewElement,
 			pos = { 0, -titleHeight - descHeight - 10 },
@@ -2518,7 +2556,8 @@ do
 		return scrollBar
 	end
 
-	function TBMenu:displayLoadingMark(element, message)
+	function TBMenu:displayLoadingMark(element, message, size)
+		local size = size or 20
 		local loadMark = UIElement:new({
 			parent = element,
 			pos = { 0, 0 },
@@ -2527,7 +2566,7 @@ do
 		local grow, rotate = 0, 0
 		loadMark:addCustomDisplay(true, function()
 				set_color(unpack(loadMark.uiColor or UICOLORWHITE))
-				draw_disk(loadMark.pos.x + loadMark.size.w / 2, loadMark.pos.y + loadMark.size.h / 2 - 40, 12, 20, 500, 1, rotate, grow, 0)
+				draw_disk(loadMark.pos.x + loadMark.size.w / 2, loadMark.pos.y + loadMark.size.h / 2 - (message and 40 or 0), size * 0.6, size, 500, 1, rotate, grow, 0)
 				grow = grow + 4
 				rotate = rotate + 2
 				if (grow >= 360) then

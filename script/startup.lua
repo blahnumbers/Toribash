@@ -39,7 +39,8 @@ local events = {
 	"new_game_mp",
 	"network_complete",
 	"network_error",
-	"post_draw3d"
+	"post_draw3d",
+	"downloader_complete"
 }
 
 function call_hook(event, ...)

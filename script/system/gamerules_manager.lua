@@ -785,6 +785,9 @@ do
 					for j,rule in pairs(section) do
 						if (changedValues[rule.name]) then
 							if (changedValues[rule.name].gameValue ~= rule.gameValue) then
+								if (rule.name == "engageplayerpos" and changedValues[rule.name].gameValue:match("^[0%.,]+$")) then
+									changedValues[rule.name].gameValue = "0"
+								end
 								set_gamerule(rule.name, changedValues[rule.name].gameValue)
 							end
 						end
