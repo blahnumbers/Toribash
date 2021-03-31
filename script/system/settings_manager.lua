@@ -1134,23 +1134,27 @@ do
 						end,
 					val = { 1 - fullscreen }
 				},
-				{
+			}
+			if (PLATFORM ~= "APPLE") then
+				table.insert(items, {
 					name = TB_MENU_LOCALIZED.SETTINGSBORDERLESS,
 					type = TOGGLE,
 					action = function(val)
 							TB_MENU_MAIN_SETTINGS.borderless = { id = BORDERLESS, value = val, graphics = true }
 						end,
 					val = { get_option("borderless") }
-				}
-			}
+				})
+			end
 		else
+			-- Use these values instead of get_option() width/height to get highdpi-adapted values on macOS
+			local optionWidth, optionHeight = get_window_size()
 			items = {
 				{
 					name = TB_MENU_LOCALIZED.SETTINGSWIDTH,
 					type = INPUT,
 					systemname = "width",
 					reload = true,
-					val = { get_option("width") },
+					val = { optionWidth },
 					valueVerifyAction = function(val)
 						local maxWidth, maxHeight = get_maximum_window_size()
 						return (tonumber(val) > maxWidth and maxWidth or val)
@@ -1161,7 +1165,7 @@ do
 					type = INPUT,
 					systemname = "height",
 					reload = true,
-					val = { get_option("height") },
+					val = { optionHeight },
 					valueVerifyAction = function(val)
 						local maxWidth, maxHeight = get_maximum_window_size()
 						return (tonumber(val) > maxHeight and maxHeight or val)
