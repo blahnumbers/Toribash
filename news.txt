@@ -1,8 +1,8 @@
-NEWSID 1;
-TITLE 0;Head Texture of the Month: Love
-SUBTITLE 0;Why celebrate love on Valentine's Day, when it should be celebrated every single day of the year!
-IMAGE 0;htotmlove2021.tga
-URL 0;https://forum.toribash.com/showthread.php?t=647885
+//NEWSID 1;
+//TITLE 0;Head Texture of the Month: Love
+//SUBTITLE 0;Why celebrate love on Valentine's Day, when it should be celebrated every single day of the year!
+//IMAGE 0;htotmlove2021.tga
+//URL 0;https://forum.toribash.com/showthread.php?t=647885
 
 NEWSID 11;
 TITLE 0;Armet 3D item now available!
@@ -11,10 +11,10 @@ IMAGE 0;store/armetpromo.tga
 URL 0;https://forum.toribash.com/tori_shop_item.php?id=3416
 STORE 0;3416
 
-//NEWSID 3;
-//TITLE 0;No events live now, but you can still replay any ended event in all events menu!
-//IMAGE 0;openerchallenge20sum.tga
-//FEATURED 0;
+NEWSID 3;
+TITLE 0;No events live now, but you can still replay any ended event in all events menu!
+IMAGE 0;openerchallenge20sum.tga
+FEATURED 0;
 
 //NEWSID 4;
 //TITLE 0;Opener Challenge 8
@@ -29,11 +29,11 @@ STORE 0;3416
 //MODCHAMPIONSHIP 0;
 //FEATURED 0;
 
-NEWSID 5;
-TITLE 0;Floor is Lava 2
-IMAGE 0;floorislava2.tga
-EVENT 0;4
-FEATURED 0;
+//NEWSID 5;
+//TITLE 0;Floor is Lava 2
+//IMAGE 0;floorislava2.tga
+//EVENT 0;4
+//FEATURED 0;
 
 //NEWSID 7;
 //TITLE 0;Head in the Wall 2
@@ -166,7 +166,7 @@ EVENTID 4;
 NAME 0;Floor is Lava 2
 IMAGE 0;floorislava.tga
 URL 0;https://forum.toribash.com/showthread.php?t=647994
-PLAYNAME 0;floorislava2
+//PLAYNAME 0;floorislava2
 OVERLAYTRANS 0;0.7
 PLAYTEXT 0;PARTICIPATE
 ACCENTCOLOR 0;ffbe77

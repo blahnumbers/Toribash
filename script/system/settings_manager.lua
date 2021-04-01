@@ -378,7 +378,7 @@ do
 										local options = {
 											{ opt = "shader", val = 1, graphics = true, id = SHADERS },
 											{ opt = "fluid", val = 1, graphics = true, id = FLUIDBLOOD },
-											{ opt = "framerate", val = 60 },
+											{ opt = "framerate", val = 75 },
 											{ opt = "reflection", val = 1, graphics = true, id = REFLECTIONS },
 											{ opt = "softshadow", val = 1, graphics = true, id = SOFTSHADOWS },
 											{ opt = "ambientocclusion", val = 1, graphics = true, id = AMBIENTOCCLUSION },
@@ -411,7 +411,7 @@ do
 										local options = {
 											{ opt = "shader", val = 1, graphics = true, id = SHADERS },
 											{ opt = "fluid", val = 1, graphics = true, id = FLUIDBLOOD },
-											{ opt = "framerate", val = 60 },
+											{ opt = "framerate", val = 75 },
 											{ opt = "reflection", val = 1, graphics = true, id = REFLECTIONS },
 											{ opt = "softshadow", val = 1, graphics = true, id = SOFTSHADOWS },
 											{ opt = "ambientocclusion", val = 1, graphics = true, id = AMBIENTOCCLUSION },
@@ -550,8 +550,10 @@ do
 									if (fixedframerate == 1) then
 										if (framerate == 30) then
 											return 1
-										else
+										elseif (framerate == 60) then
 											return 2
+										else
+											return 3
 										end
 									end
 									return 3
@@ -569,6 +571,14 @@ do
 									text = "60 " .. TB_MENU_LOCALIZED.SETTINGSFPS,
 									action = function()
 											TB_MENU_MAIN_SETTINGS.framerate = { value = 60 }
+											TB_MENU_MAIN_SETTINGS.fixedframerate = { value = 1 }
+											Settings:settingsApplyActivate()
+										end
+								},
+								{
+									text = "75 " .. TB_MENU_LOCALIZED.SETTINGSFPS,
+									action = function()
+											TB_MENU_MAIN_SETTINGS.framerate = { value = 75 }
 											TB_MENU_MAIN_SETTINGS.fixedframerate = { value = 1 }
 											Settings:settingsApplyActivate()
 										end
@@ -678,20 +688,41 @@ do
 							name = TB_MENU_LOCALIZED.SETTINGSEFFECTSVOLUME,
 							type = SLIDER,
 							maxValue = 128,
+							maxValueDisp = 100,
 							systemname = "soundvolume",
-							val = { get_option("soundvolume") }
+							val = { get_option("soundvolume") },
+							onUpdate = function(slider)
+								slider.label.labelText[1] = math.floor((slider.label.labelText[1] + 0) / 128 * 100 + 0.5)
+							end,
+							onMouseUp = function(slider)
+								local volume = get_option("soundvolume")
+								set_option("soundvolume", slider.label.labelText[1])
+								play_sound(36)
+								set_volume("soundvolume", volume)
+							end
 						},
 						{
 							name = TB_MENU_LOCALIZED.SETTINGSMUSICVOLUME,
 							type = SLIDER,
 							maxValue = 128,
+							maxValueDisp = 100,
 							systemname = "musicvolume",
-							val = { get_option("musicvolume") }
+							val = { get_option("musicvolume") },
+							onUpdate = function(slider)
+								slider.label.labelText[1] = math.floor((slider.label.labelText[1] + 0) / 128 * 100 + 0.5)
+							end,
+							onMouseUp = function(slider)
+								local volume = get_option("soundvolume")
+								set_option("soundvolume", slider.label.labelText[1])
+								play_sound(36)
+								set_volume("soundvolume", volume)
+							end
 						},
-						{
+						--[[{
 							name = TB_MENU_LOCALIZED.SETTINGSVCVOLUME,
 							type = SLIDER,
 							maxValue = 128,
+							maxValueDisp = 100,
 							systemname = "voicevolume",
 							val = { get_option("voicevolume") }
 						},
@@ -701,7 +732,7 @@ do
 							inputspecial = true,
 							systemname = "voicetoggle",
 							val = { get_option("voicetoggle") }
-						},
+						},--]]
 						{
 							name = TB_MENU_LOCALIZED.SETTINGSSOUNDMASTER,
 							type = DROPDOWN,
@@ -1122,7 +1153,7 @@ do
 	end
 	
 	function Settings:getResolutionItems()
-		local fullscreen = get_option("fullscreen")
+		local fullscreen = TB_MENU_MAIN_SETTINGS.fullscreen and TB_MENU_MAIN_SETTINGS.fullscreen.value or get_option("fullscreen")
 		local items
 		if (fullscreen == 1) then
 			items = {
@@ -1131,6 +1162,7 @@ do
 					type = TOGGLE,
 					action = function(val)
 							TB_MENU_MAIN_SETTINGS.fullscreen = { value = 1 - val, reload = true }
+							Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
 						end,
 					val = { 1 - fullscreen }
 				},
@@ -1176,6 +1208,7 @@ do
 					type = TOGGLE,
 					action = function(val)
 							TB_MENU_MAIN_SETTINGS.fullscreen = { value = 1 - val, reload = true }
+							Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
 						end,
 					val = { 1 - fullscreen }
 				}
@@ -1343,6 +1376,20 @@ do
 	end
 	
 	function Settings:spawnSlider(viewElement, sliderTable)
+		local slider
+		slider = TBMenu:spawnSlider(viewElement, nil, nil, nil, nil, nil, nil, sliderTable.val[1], sliderTable, function(val)
+				TB_MENU_MAIN_SETTINGS[sliderTable.systemname] = { value = val }
+				Settings:settingsApplyActivate()
+				if (sliderTable.onUpdate) then
+					sliderTable.onUpdate(slider)
+				end
+			end, nil, function()
+				if (sliderTable.onMouseUp) then
+					sliderTable.onMouseUp(slider)
+				end
+			end)
+		return slider
+		--[[
 		local maxVal = sliderTable.maxValue or 1
 		local minVal = sliderTable.minValue or 0
 		local minText = UIElement:new({
@@ -1421,7 +1468,7 @@ do
 			TB_MENU_MAIN_SETTINGS[sliderTable.systemname] = { value = sliderTable.val[1] }
 			Settings:settingsApplyActivate()
 		end)
-		return slider
+		return slider]]
 	end
 	
 	function Settings:spawnToggle(viewElement, toggle, i)
@@ -1485,7 +1532,7 @@ do
 		TB_MENU_MAIN_SETTINGS.chatcensor = { value = wordfilter + hidesystem * 2 }
 	end
 	
-	function Settings:showSettings(id)
+	function Settings:showSettings(id, keepStoredSettings)
 		TB_MENU_SETTINGS_SCREEN_ACTIVE = id
 		tbMenuCurrentSection:kill(true)
 		local settingsData = Settings:getSettingsData(id)
@@ -1547,7 +1594,9 @@ do
 						Broadcasts:deactivate()
 					end
 				end
-				TB_MENU_MAIN_SETTINGS = {}
+				if (not keepStoredSettings) then
+					TB_MENU_MAIN_SETTINGS = {}
+				end
 				tbMenuApplySettingsButton:deactivate(true)
 				tbMenuApplySettingsButton:addAdaptedText(false, TB_MENU_LOCALIZED.SETTINGSNOCHANGES)
 				save_custom_config()
