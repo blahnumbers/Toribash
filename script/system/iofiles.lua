@@ -44,7 +44,7 @@ do
 	
 	function Files:readAll()
 		if (not self.data) then
-			return false
+			return { }
 		end
 		local filedata = self.data:read("*all")
 		

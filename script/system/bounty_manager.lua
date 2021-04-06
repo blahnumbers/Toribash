@@ -867,7 +867,7 @@ do
 				if (not mainView) then return end
 				if (not mainView.destroyed) then
 					mainView:kill(true)
-					TBMenu:addBottomBloodSmudge(playerStatsView, 1)
+					TBMenu:addBottomBloodSmudge(mainView, 1)
 					mainView:addAdaptedText(false, TB_MENU_LOCALIZED.ACCOUNTINFOERROR)
 				end
 			end)
