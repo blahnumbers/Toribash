@@ -1026,6 +1026,12 @@ do
 							type = TOGGLE,
 							systemname = "chatcensorhidesystem",
 							val = { get_option("chatcensor") > 1 and 1 or 0 }
+						},
+						{
+							name = TB_MENU_LOCALIZED.SETTINGSPLAYERTEXTUCUSTOM,
+							type = TOGGLE,
+							systemname = "playertext",
+							val = { get_option("playertext") }
 						}
 					}
 				},
@@ -1174,12 +1180,16 @@ do
 					action = function(val)
 							TB_MENU_MAIN_SETTINGS.borderless = { id = BORDERLESS, value = val, graphics = true }
 						end,
-					val = { get_option("borderless") }
+					val = { TB_MENU_MAIN_SETTINGS["borderless"] and TB_MENU_MAIN_SETTINGS["borderless"].value or get_option("borderless") }
 				})
 			end
 		else
 			-- Use these values instead of get_option() width/height to get highdpi-adapted values on macOS
 			local optionWidth, optionHeight = get_window_size()
+			if (SETTINGS_LAST_RESOLUTION) then
+				optionWidth, optionHeight = unpack(SETTINGS_LAST_RESOLUTION)
+			end
+			
 			items = {
 				{
 					name = TB_MENU_LOCALIZED.SETTINGSWIDTH,
@@ -1219,9 +1229,9 @@ do
 				name = TB_MENU_LOCALIZED.SETTINGSHIGHDPI,
 				type = TOGGLE,
 				action = function(val)
-						TB_MENU_MAIN_SETTINGS.highdpi = { id = HIGHDPI, value = 1 - val, graphics = true, reload = true }
+						TB_MENU_MAIN_SETTINGS.highdpi = { id = HIGHDPI, value = val, graphics = true, reload = true }
 					end,
-				val = { 1 - get_option("highdpi") }
+				val = { get_option("highdpi") }
 			})
 		end
 		return items
@@ -1562,6 +1572,11 @@ do
 		tbMenuApplySettingsButton:addMouseHandlers(nil, function()
 				local reload = false
 				Settings:setChatCensorSettings()
+				if (TB_MENU_MAIN_SETTINGS["fullscreen"] and TB_MENU_MAIN_SETTINGS["fullscreen"].value == 1 and not SETTINGS_LAST_RESOLUTION) then
+					SETTINGS_LAST_RESOLUTION = { WIN_W, WIN_H }
+				elseif (not TB_MENU_MAIN_SETTINGS["borderless"]) then
+					SETTINGS_LAST_RESOLUTION = nil
+				end
 				for i,v in pairs(TB_MENU_MAIN_SETTINGS) do
 					if (i:find("soundcat")) then
 						local catid = i:gsub("^soundcat", "")
