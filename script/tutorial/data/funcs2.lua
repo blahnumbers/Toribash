@@ -1,6 +1,7 @@
 local INTRO = 1
 local OUTRO = -1
 local SPACEBAR = " "
+local FPS_MULTIPLIER = get_option("framerate") == 30 and 2 or 1
 
 local function showOverlay(viewElement, reqTable, out, speed)
 	local speed = speed or 1
@@ -21,7 +22,7 @@ local function showOverlay(viewElement, reqTable, out, speed)
 	end
 	overlay.bgColor[4] = out and 0 or 1
 	overlay:addCustomDisplay(true, function()
-			overlay.bgColor[4] = overlay.bgColor[4] + (out and 0.02 or -0.02) * speed
+			overlay.bgColor[4] = overlay.bgColor[4] + (out and 0.02 or -0.02) * speed * FPS_MULTIPLIER
 			if (not out and overlay.bgColor[4] <= 0) then
 				req.ready = true
 				reqTable.ready = Tutorials:checkRequirements(reqTable)
@@ -146,7 +147,7 @@ local function showDamageBar()
 		size = { 0, 0 }
 	})
 	transparencyAnimation:addCustomDisplay(true, function()
-			textColor[4] = textColor[4] + 0.04
+			textColor[4] = textColor[4] + 0.04 * FPS_MULTIPLIER
 			if (textColor[4] >= 1) then
 				textColor[4] = 1
 				transparencyAnimation:kill()
@@ -176,7 +177,7 @@ local function showTimer()
 		size = { 0, 0 }
 	})
 	transparencyAnimation:addCustomDisplay(true, function()
-			t2Timer.bgColor[4] = t2Timer.bgColor[4] + 0.04
+			t2Timer.bgColor[4] = t2Timer.bgColor[4] + 0.04 * FPS_MULTIPLIER
 			if (t2Timer.bgColor[4] >= 1) then
 				t2Timer.bgColor = t2DamageMeter.bgColor
 				transparencyAnimation:kill()
@@ -202,7 +203,7 @@ local function hideDamageAndTimerBars(viewElement, reqTable)
 		size = { 0, 0 }
 	})
 	transparencyAnimation:addCustomDisplay(true, function()
-			t2DamageMeter.bgColor[4] = t2DamageMeter.bgColor[4] - 0.04
+			t2DamageMeter.bgColor[4] = t2DamageMeter.bgColor[4] - 0.04 * FPS_MULTIPLIER
 			if (t2DamageMeter.bgColor[4] <= 0) then
 				t2DamageMeter:kill()
 				t2Timer:kill()

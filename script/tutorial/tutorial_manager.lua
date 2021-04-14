@@ -322,6 +322,9 @@ do
 	
 	function Tutorials:showOverlay(viewElement, reqTable, out, speed)
 		local speed = speed or 1
+		if (get_option("framerate") == 30) then
+			speed = speed * 2
+		end
 		local req = { type = "transition", ready = false }
 		table.insert(reqTable, req)
 		
@@ -428,7 +431,7 @@ do
 	end
 
 	function Tutorials:reqDismember(viewElement, reqTable, jointName)
-		if (not JOINTS[jointName]) then
+		if (not JOINTS[jointName] and TB_MENU_DEBUG) then
 			echo("No joint found with name " .. jointName)
 			return false
 		end
@@ -469,7 +472,7 @@ do
 	end
 
 	function Tutorials:reqFracture(viewElement, reqTable, jointName)
-		if (not JOINTS[jointName]) then
+		if (not JOINTS[jointName] and TB_MENU_DEBUG) then
 			echo("No joint found with name " .. jointName)
 			return false
 		end
@@ -650,7 +653,7 @@ do
 					pos = { 0, 0 },
 					size = { 0, 0 }
 				})
-				local sub = 1
+				local sub = 1 * (get_option("framerate") == 30 and 2 or 1)
 				local wait = 0
 				local framerate = get_option("framerate")
 				messageBuilder:addCustomDisplay(true, function()

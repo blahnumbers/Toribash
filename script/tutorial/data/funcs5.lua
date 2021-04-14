@@ -1,5 +1,6 @@
 local INTRO = 1
 local OUTRO = -1
+local FPS_MULTIPLIER = get_option("framerate") == 30 and 2 or 1
 
 local function showOverlay(viewElement, reqTable, out, speed)
 	local speed = speed or 1
@@ -20,7 +21,7 @@ local function showOverlay(viewElement, reqTable, out, speed)
 	end
 	overlay.bgColor[4] = out and 0 or 1
 	overlay:addCustomDisplay(true, function()
-			overlay.bgColor[4] = overlay.bgColor[4] + (out and 0.02 or -0.02) * speed
+			overlay.bgColor[4] = overlay.bgColor[4] + (out and 0.02 or -0.02) * speed * FPS_MULTIPLIER
 			if (not out and overlay.bgColor[4] <= 0) then
 				req.ready = true
 				reqTable.ready = Tutorials:checkRequirements(reqTable)

@@ -1,5 +1,6 @@
 local INTRO = 1
 local OUTRO = -1
+local FPS_MULTIPLIER = get_option("framerate") == 30 and 2 or 1
 
 local function drawSingleKey(viewElement, reqTable, key)
 	local BUTTON_DEFAULT_COLOR = { unpack(TB_MENU_DEFAULT_BG_COLOR) }
@@ -78,7 +79,7 @@ local function drawWASD(viewElement, reqTable, shift, fade)
 			size = { 0, 0 }
 		})
 		transparencyController:addCustomDisplay(true, function()
-				BUTTON_DEFAULT_COLOR[4] = BUTTON_DEFAULT_COLOR[4] + 0.04 * fade
+				BUTTON_DEFAULT_COLOR[4] = BUTTON_DEFAULT_COLOR[4] + 0.04 * fade * FPS_MULTIPLIER
 				if (fade == 1) then
 					if (BUTTON_DEFAULT_COLOR[4] >= 1) then
 						BUTTON_DEFAULT_COLOR[4] = 1
@@ -194,7 +195,7 @@ local function showOverlay(viewElement, reqTable, out, speed)
 	end
 	overlay.bgColor[4] = out and 0 or 1
 	overlay:addCustomDisplay(true, function()
-			overlay.bgColor[4] = overlay.bgColor[4] + (out and 0.02 or -0.02) * speed
+			overlay.bgColor[4] = overlay.bgColor[4] + (out and 0.02 or -0.02) * speed * FPS_MULTIPLIER
 			if (not out and overlay.bgColor[4] <= 0) then
 				req.ready = true
 				reqTable.ready = Tutorials:checkRequirements(reqTable)

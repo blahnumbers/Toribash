@@ -1,6 +1,7 @@
 local INTRO = 1
 local OUTRO = -1
 local SPACEBAR = " "
+local FPS_MULTIPLIER = get_option("framerate") == 30 and 2 or 1
 
 local function showOverlay(viewElement, reqTable, out, speed)
 	local speed = speed or 1
@@ -21,7 +22,7 @@ local function showOverlay(viewElement, reqTable, out, speed)
 	end
 	overlay.bgColor[4] = out and 0 or 1
 	overlay:addCustomDisplay(true, function()
-			overlay.bgColor[4] = overlay.bgColor[4] + (out and 0.02 or -0.02) * speed
+			overlay.bgColor[4] = overlay.bgColor[4] + (out and 0.02 or -0.02) * speed * FPS_MULTIPLIER
 			if (not out and overlay.bgColor[4] <= 0) then
 				req.ready = true
 				reqTable.ready = Tutorials:checkRequirements(reqTable)
@@ -160,17 +161,17 @@ local function moveMemoryShow(viewElement, reqTable, static)
 		moveMemoryMain.bgColor[4] = 0
 		moveMemoryMain:addCustomDisplay(false, function()
 				if (moveMemoryMain.bgColor[4] < 0.5) then
-					moveMemoryMain.bgColor[4] = moveMemoryMain.bgColor[4] + 0.1
+					moveMemoryMain.bgColor[4] = moveMemoryMain.bgColor[4] + 0.1 * FPS_MULTIPLIER
 				end
 			end)
 		moveMemoryMoverHolder.bgColor[4] = 0
 		moveMemoryTitleBg.bgColor[4] = 0
 		moveMemoryTitleBg:addCustomDisplay(false, function()
 				if (moveMemoryTitleBg.bgColor[4] < 1) then
-					moveMemoryTitleBg.bgColor[4] = moveMemoryTitleBg.bgColor[4] + 0.1
+					moveMemoryTitleBg.bgColor[4] = moveMemoryTitleBg.bgColor[4] + 0.1 * FPS_MULTIPLIER
 				end
 				if (moveMemoryMoverHolder.bgColor[4] < 1) then
-					moveMemoryMoverHolder.bgColor[4] = moveMemoryMoverHolder.bgColor[4] + 0.1
+					moveMemoryMoverHolder.bgColor[4] = moveMemoryMoverHolder.bgColor[4] + 0.1 * FPS_MULTIPLIER
 				end
 			end)
 	end
@@ -318,13 +319,13 @@ local function moveMemoryShowExit(viewElement)
 	for i,v in pairs(toAnimate) do
 		v:addCustomDisplay(false, function()
 				if (v.bgColor[4] > 0) then
-					v.bgColor[4] = v.bgColor[4] - 0.1
+					v.bgColor[4] = v.bgColor[4] - 0.1 * FPS_MULTIPLIER
 				end
 			end)
 	end
 	toAnimate[1]:addCustomDisplay(false, function()
 			if (toAnimate[1].uiColor[4] > 0) then
-				toAnimate[1].uiColor[4] = toAnimate[1].uiColor[4] - 0.1
+				toAnimate[1].uiColor[4] = toAnimate[1].uiColor[4] - 0.1 * FPS_MULTIPLIER
 			else
 				toAnimate[1]:kill()
 			end
