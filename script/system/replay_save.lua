@@ -1,4 +1,9 @@
-dofile("toriui/uielement.lua")
+if (TBMenu == nil) then
+	open_menu(19)
+	close_menu()
+end
+
+require("toriui/uielement")
 require("system/menu_manager")
 
 REPLAY_SAVETEMPNAME = "--localreplaytempfile"

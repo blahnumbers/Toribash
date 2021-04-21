@@ -2,6 +2,7 @@ if (TBMenu == nil) then
 	open_menu(19)
 	close_menu()
 end
+
 require("toriui/uielement")
 dofile("system/replays_manager.lua")
 REPLAY_GUI = REPLAY_GUI or nil

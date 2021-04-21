@@ -703,6 +703,7 @@ do
 		end
 		
 		local filtersScrollBar = TBMenu:spawnScrollBar(filtersView, #listFilters, 50)
+		filtersView.scrollBar = filtersScrollBar
 		filtersScrollBar:makeScrollBar(filtersView, listFilters, toReload)
 				
 		local clanFiltersBotSmudge = TBMenu:addBottomBloodSmudge(filtersBotBar, 2)
@@ -917,6 +918,7 @@ do
 				bgColor = TB_MENU_DEFAULT_DARKER_COLOR
 			})
 			local clanListScrollBar = TBMenu:spawnScrollBar(clanListHolder, #clanListClans, clanEntryHeight)
+			clanListHolder.scrollBar = clanListScrollBar
 			clanListScrollBar:makeScrollBar(clanListHolder, clanListClans, toReload, CLANLISTSHIFT)
 		else 
 			clanListHolder:addCustomDisplay(true, function()
@@ -1332,6 +1334,7 @@ do
 			end
 			
 			local rosterScrollBar = TBMenu:spawnScrollBar(rosterMemberHolder, #rosterMembers, rosterEntryHeight)
+			rosterMemberHolder.scrollBar = rosterScrollBar
 			rosterScrollBar:makeScrollBar(rosterMemberHolder, rosterMembers, toReload)
 		else 
 			local clanMembersEmpty = UIElement:new({

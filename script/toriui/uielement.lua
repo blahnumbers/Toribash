@@ -1102,11 +1102,11 @@ do
 		end
 		local scale = maxscale or 1
 		local minscale = minscale or 0.2
-		local font = font
+		local font = font or FONTS.MEDIUM
 		
-		if (UI_HIGH_RESOLUTION_MODE and not ignoreHiresMode) then
+		--[[if (UI_HIGH_RESOLUTION_MODE and not ignoreHiresMode) then
 			font = font == FONTS.BIG and FONTS.BIGGER or (font == FONTS.MEDIUM and FONTS.BIG or font)
-		end
+		end]]
 
 		while (not self:uiText(str, x, y, font, nil, scale, nil, nil, nil, nil, nil, true, nil, nil, textfield) and scale > minscale) do
 			scale = scale - 0.05
@@ -1381,19 +1381,24 @@ do
 	end
 	
 	function getFontMod(font)
-		local font_mod = font
-		if (font == 2) then
-			font_mod = 2.4
-		elseif (font == 0) then
-			font_mod = 5.6
-		elseif (font == 4) then
-			font_mod = 2.4
+		local hires = font >= 10
+		local font_mod = hires and font - 10 or font
+		if (font == 0) then
+			font_mod = 5.8
 		elseif (font == 1) then
 			font_mod = 1.5
+		elseif (font == 2 or font == 4) then
+			font_mod = 2.4
+		elseif (font == 3) then
+			font_mod = 3.6
+		elseif (font == 5 or font == 7) then
+			font_mod = 3
+		elseif (font == 6 or font == 8) then
+			font_mod = 4.8
 		elseif (fonts == 9) then
-			font_mod = 10
+			font_mod = 9.6
 		end
-		return font_mod
+		return font_mod * (hires and 2 or 1)
 	end
 
 	function cloneTable(table)

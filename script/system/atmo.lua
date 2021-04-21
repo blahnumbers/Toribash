@@ -1,6 +1,11 @@
 -- Modern UI shaders & atmosheres screen
 -- DO NOT MODIFY THIS FILE
 
+if (TBMenu == nil) then
+	open_menu(19)
+	close_menu()
+end
+
 dofile("toriui/uielement3d.lua")
 dofile("system/iofiles.lua")
 dofile("system/menu_manager.lua")

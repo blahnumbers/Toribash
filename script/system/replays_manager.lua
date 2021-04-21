@@ -619,6 +619,7 @@ do
 		})
 		goBack:addAdaptedText(false, TB_MENU_LOCALIZED.REPLAYSBACKTOALLREPLAYS, nil, nil, 4, nil, 0.6)
 		goBack:addMouseHandlers(nil, function()
+				TB_MENU_REPLAYS_SEARCH = nil
 				Replays:showList(viewElement.parent, replayInfo, SELECTED_FOLDER)
 			end)
 		posY = posY + elementHeight
@@ -808,7 +809,7 @@ do
 		Replays:showMain(tbMenuCurrentSection)
 	end
 
-	function Replays:showList(viewElement, replayInfo, level)
+	function Replays:showList(viewElement, replayInfo, level, doSearch)
 		viewElement:kill(true)
 
 		local posY, elementHeight = 0, 35
@@ -883,18 +884,27 @@ do
 				end)
 		end
 
-		local searchInputField = TBMenu:spawnTextField(botBar, 10, 10, botBar.size.w - 20, botBar.size.h - 5, nil, nil, nil, 0.65, UICOLORWHITE, TB_MENU_LOCALIZED.SEARCHNOTE)
+		local searchInputField = TBMenu:spawnTextField(botBar, 10, 10, botBar.size.w - 20, botBar.size.h - 5, TB_MENU_REPLAYS_SEARCH, nil, nil, 0.65, UICOLORWHITE, TB_MENU_LOCALIZED.SEARCHNOTE)
 
 
 		local searchFunction = function()
 			if (searchInputField.textfieldstr[1] == "") then
+				TB_MENU_REPLAYS_SEARCH = nil
 				Replays:showList(viewElement, replayInfo, level)
 			else
+				TB_MENU_REPLAYS_SEARCH = searchInputField.textfieldstr[1]
 				Replays:showSearchList(listingView, replayInfo, toReload, Replays:findReplays(searchInputField.textfieldstr, rplTable))
 			end
+			searchInputField:btnDown()
+			searchInputField:btnUp()
 		end
 		--searchInputField:addKeyboardHandlers(nil, searchFunction)
 		searchInputField:addEnterAction(searchFunction)
+		
+		if (doSearch) then
+			Replays:showSearchList(listingView, replayInfo, toReload, Replays:findReplays(TB_MENU_REPLAYS_SEARCH, rplTable))
+			return
+		end
 
 		local listing = {}
 		if (rplTable.fullname ~= TB_MENU_REPLAYS.fullname) then
@@ -3300,7 +3310,7 @@ do
 		replaysList:addCustomDisplay(false, function()
 				if (TB_MENU_REPLAYS_LOADED) then
 					replaysList:addCustomDisplay(false, function() end)
-					Replays:showList(replaysList, replayInfo, SELECTED_FOLDER)
+					Replays:showList(replaysList, replayInfo, SELECTED_FOLDER, TB_MENU_REPLAYS_SEARCH)
 				end
 			end)
 	end

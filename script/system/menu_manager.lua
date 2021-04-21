@@ -19,18 +19,20 @@ do
 			LEFTBOT = 5
 			LEFTMID = 8
 		else
-			-- Scaling for huge screens
-			if (WIN_W * WIN_H > 2000000) then
-				UI_HIGH_RESOLUTION_MODE = true
-			else
-				UI_HIGH_RESOLUTION_MODE = false
-			end
 			FONTS.BIG = 0
 			FONTS.MEDIUM = 2
 			LEFT = 0
 			LEFTBOT = 3
 			LEFTMID = 6
 		end
+		
+		-- Scaling for huge screens
+		-- Doesn't look good, scrap it
+		--[[if (WIN_W * WIN_H > 2000000) then
+			UI_HIGH_RESOLUTION_MODE = true
+		else
+			UI_HIGH_RESOLUTION_MODE = false
+		end]]
 	end
 
 	function TBMenu:getTranslation(language)
@@ -1017,6 +1019,7 @@ do
 				v:hide()
 			end
 			local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
+			listingHolder.scrollBar = scrollBar
 			scrollBar:makeScrollBar(listingHolder, listElements, toReload)
 		end
 		
@@ -1410,15 +1413,8 @@ do
 
 	function TBMenu:showToolsSection()
 		local tbMenuToolsButtonsData = {
-			{ title = TB_MENU_LOCALIZED.MAINMENUMODLISTNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUMODLISTDESC, size = 0.25, ratio = 1.055, image = "../textures/menu/modlist2.tga", action = function()
-					dofile("system/mods_manager.lua")
-					if (MODS_MENU_MAIN_ELEMENT) then
-						MODS_MENU_MAIN_ELEMENT:kill()
-						MODS_MENU_MAIN_ELEMENT = nil
-					end
-					Mods:showMain()
-				end, quit = true },
-			{ title = TB_MENU_LOCALIZED.MAINMENUGAMERULESNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUGAMERULESDESC, size = 0.25, vsize, ratio = 1.055, image = "../textures/menu/gamerules2.tga", action = function() open_menu(5) end, quit = true },
+			{ title = TB_MENU_LOCALIZED.MAINMENUMODLISTNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUMODLISTDESC, size = 0.25, ratio = 1.055, image = "../textures/menu/modlist2.tga", action = function() dofile("system/mods.lua") end, quit = true },
+			{ title = TB_MENU_LOCALIZED.MAINMENUGAMERULESNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUGAMERULESDESC, size = 0.25, vsize, ratio = 1.055, image = "../textures/menu/gamerules2.tga", action = function() dofile("system/gamerules.lua") end, quit = true },
 			{ title = TB_MENU_LOCALIZED.MAINMENUMODMAKERNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUMODMAKERDESC, size = 0.25, vsize = 0.5, ratio = 1.055, image = "../textures/menu/modmaker2.tga", ratio2 = 0.5, image2 = "../textures/menu/modmaker3.tga", action = function() open_menu(17) end },
 			{ title = TB_MENU_LOCALIZED.MAINMENUSCRIPTSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUSCRIPTSDESC, size = 0.25, vsize = 0.5, ratio = 1.055, image = "../textures/menu/scripts.tga", ratio2 = 0.5, image2 = "../textures/menu/scripts2.tga", action = function() TBMenu:showScripts() end },
 			{ title = TB_MENU_LOCALIZED.MAINMENUSHADERSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUSHADERSDESC, size = 0.25, vsize = 0.5, ratio = 0.5, image = "../textures/menu/shaders2.tga", action = function()
@@ -1900,7 +1896,7 @@ do
 			pos = { 30, 0 },
 			size = { tbMenuUserTcView.size.w - tbMenuUserTcIcon.size.w - 5, tbMenuUserTcView.size.h }
 		})
-		tbMenuUserTcBalance:addAdaptedText(true, PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.tc), nil, 1, 2, LEFTMID, 0.9)
+		tbMenuUserTcBalance:addAdaptedText(true, PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.tc), nil, 1, 2, 6, 0.9)
 		local tbMenuUserStView = UIElement:new( {
 			parent = tbMenuUserBar,
 			pos = { 255, 65 },
@@ -1921,7 +1917,7 @@ do
 			pos = { 30, 0 },
 			size = { tbMenuUserStView.size.w - 30, tbMenuUserStView.size.h }
 		})
-		tbMenuUserStBalance:addAdaptedText(true, PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.st), nil, 1, 2, LEFTMID, 0.9)
+		tbMenuUserStBalance:addAdaptedText(true, PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.st), nil, 1, 2, 6, 0.9)
 		local tbMenuUserBeltIcon = UIElement:new({
 			parent = tbMenuUserBar,
 			pos = { -130, 0 },
@@ -2119,6 +2115,59 @@ do
 		end
 	end
 
+	function TBMenu:getNearbyMenu(dir)
+		local buttons = TBMenu:getMainNavigationButtons()
+		local prev, next, found
+		for i,v in pairs(buttons) do
+			if (found) then
+				next = v
+				break
+			end
+			if (v.sectionId == TB_LAST_MENU_SCREEN_OPEN) then
+				found = v
+			end
+			if (not found) then
+				prev = v
+			end
+		end
+		if (not found) then
+			return nil
+		end
+		
+		if (dir) then
+			if (found.right) then
+				if (not next) then
+					return prev.sectionId
+				end
+				return buttons[1].sectionId
+			end
+			if (next.right) then
+				return buttons[#buttons].sectionId
+			end
+			return next.sectionId
+		end
+		if (found.right) then
+			if (next) then
+				return next.sectionId
+			end
+			local rval
+			for i,v in pairs(buttons) do
+				if (v.right) then
+					return rval
+				end
+				rval = v.sectionId
+			end
+		end
+		if (not prev) then
+			for i,v in pairs(buttons) do
+				if (v.right) then
+					return v.sectionId
+				end
+			end
+		end
+		return prev.sectionId
+	end
+
 	function TBMenu:getMainNavigationButtons()
 		local buttonData = {
 			{ text = TB_MENU_LOCALIZED.NAVBUTTONNEWS, sectionId = 1 },
@@ -2279,6 +2328,39 @@ do
 				end
 			end)
 	end
+	
+	function TBMenu:playMenuSwitchAnimation()
+		if (UIMODE_LIGHT) then return end
+		local speedMod = get_option("framerate") == 30 and 2 or 1
+		local currentSectionMover = UIElement:new({
+			parent = tbMenuCurrentSection.parent,
+			pos = { -tbMenuCurrentSection.parent.size.w + tbMenuCurrentSection.shift.x, tbMenuCurrentSection.shift.y },
+			size = { tbMenuCurrentSection.size.w, tbMenuCurrentSection.size.h }
+		})
+		for i,v in pairs(tbMenuCurrentSection.child) do
+			v.parent = currentSectionMover
+		end
+		tbMenuCurrentSection.child = {}
+		local rad = math.pi / 3
+		currentSectionMover:addCustomDisplay(true, function()
+				currentSectionMover:moveTo(-WIN_W / 10 * math.sin(rad) * speedMod, nil, true)
+				rad = rad + math.pi / 50
+				if (-currentSectionMover.pos.x >= currentSectionMover.size.w) then
+					currentSectionMover:kill()
+				end
+			end)
+			
+		tbMenuCurrentSection:moveTo(WIN_W)
+		local rad2 = math.pi / 3
+		tbMenuCurrentSection:addCustomDisplay(true, function()
+				tbMenuCurrentSection:moveTo(-WIN_W / 10 * math.sin(rad2) * speedMod, nil, true)
+				rad2 = rad + math.pi / 50
+				if (tbMenuCurrentSection.shift.x <= 75) then
+					tbMenuCurrentSection:moveTo(75)
+					tbMenuCurrentSection:addCustomDisplay(true, function() end)
+				end
+		end)
+	end
 
 	function TBMenu:showMain(noload)
 		local mainBgColor = nil
@@ -2369,6 +2451,33 @@ do
 			size = { WIN_H - 320, WIN_H - 320 },
 			bgImage = splatCustom and splatLeftImg or TB_MENU_BLOODSPLATTER_RIGHT
 		})
+		
+		local menuNavigationScroll = UIElement:new({
+			parent = tbMenuMain,
+			pos = { 0, 0 },
+			size = { 0, 0 },
+			interactive = true
+		})
+		menuNavigationScroll.scrollEnabled = true
+		menuNavigationScroll.lastTime = 0
+		menuNavigationScroll:addCustomDisplay(true, function() end)
+		menuNavigationScroll:addMouseHandlers(function(s)
+				local clocktime = math.floor(os.clock() * 2 + 0.5) / 2
+				-- Mouse scroll can trigger multiple times per frame for some reason, we don't want that
+				if (menuNavigationScroll.lastTime == clocktime or TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 0) then
+					return
+				end
+				local id = TBMenu:getNearbyMenu(s == 5)
+				if (id) then
+					TB_LAST_MENU_SCREEN_OPEN = id
+					TBMenu:playMenuSwitchAnimation()
+					TBMenu:clearNavSection()
+					TBMenu:showNavigationBar()
+					TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
+					menuNavigationScroll.lastTime = clocktime
+				end
+			end)
+		
 		TBMenu:showGameLogo()
 		TBMenu:showUserBar()
 		TBMenu:showNavigationBar()
