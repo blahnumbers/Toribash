@@ -11,10 +11,10 @@ IMAGE 0;store/armetpromo.tga
 URL 0;https://forum.toribash.com/tori_shop_item.php?id=3416
 STORE 0;3416
 
-NEWSID 3;
-TITLE 0;No events live now, but you can still replay any ended event in all events menu!
-IMAGE 0;openerchallenge20sum.tga
-FEATURED 0;
+//NEWSID 3;
+//TITLE 0;No events live now, but you can still replay any ended event in all events menu!
+//IMAGE 0;openerchallenge20sum.tga
+//FEATURED 0;
 
 //NEWSID 4;
 //TITLE 0;Opener Challenge 8
@@ -42,11 +42,11 @@ FEATURED 0;
 //EVENT 0;3
 //FEATURED 0;
 
-//NEWSID 10;
-//TITLE 0;Free Run Frenzy 4
-//IMAGE 0;freerunfrenzy4a.tga
-//EVENT 0;2
-//FEATURED 0;
+NEWSID 10;
+TITLE 0;LEGGANG RISE UP!
+IMAGE 0;leggang.tga
+EVENT 0;2
+FEATURED 0;
 
 EVENTID 1;
 NAME 0;Opener Challenge 8
@@ -90,38 +90,38 @@ PRIZETC 0;51000
 PRIZEST 0;51
 
 EVENTID 2;
-NAME 0;Free Run Frenzy 4
-IMAGE 0;freerunfrenzy4.tga
-URL 0;https://forum.toribash.com/showthread.php?t=644309
-//PLAYNAME 0;freerunfrenzy4
-OVERLAYTRANS 0;0.7
+NAME 0;LEGGANG RISE UP!
+//IMAGE 0;leggang.tga
+URL 0;https://forum.toribash.com/showthread.php?t=649429
+PLAYNAME 0;leggang
+OVERLAYTRANS 0;0
 PLAYTEXT 0;PARTICIPATE
-ACCENTCOLOR 0;8300ff
-UICOLOR 0;FFFFFF
-BTNHVRCOL 0;ffa800
-BTNDNCOL 0;f79700
+ACCENTCOLOR 0;00dbfe
+UICOLOR 0;000000
+BTNHVRCOL 0;005471
+BTNDNCOL 0;01befe
 DESCDATA 0;1Description
-DESCDATAIMGTITLE 0;1frf4-description.tga
-DESCDATATEXT 0;1The Event Squad is proud to present Free Run Frenzy!\nThe challenge is simple (or is it?) - get to Uke any manner you can! Parkour your way to the red zone either straight on or take a detour through the extra blue checkpoint area for a better prize!\nAs usual, best replay will receive extra rewards so give your replay some love!\nGood luck at freerunning!
+//DESCDATAIMGTITLE 0;1frf4-description.tga
+DESCDATATEXT 0;1Welcome to #leggang!\nWhat is leggang you may ask?!?! Well in short, it's making a replay with no arms whatsoever thanks to our state of the art "arm removal tool"!\nGet through the obstacle course using either of the two paths to win a prize! The red path offers a better reward but harder obstacles (you may even... need a hand, huh?)\nYour goal is to make it to the end in the most stylish way possible!
 DESCDATA 0;2Rules
-DESCDATAIMGTITLE 0;2frf4-rules.tga
-DESCDATATEXT 0;2- Replay hacking is strictly forbidden\n- Do not steal other players' replays\n- Do not edit any of the game rules except turn and match frames\n- Do not try to enter the event with multiple accounts
+//DESCDATAIMGTITLE 0;2frf4-rules.tga
+DESCDATATEXT 0;2- Replay hacking is forbidden\n- Do not steal other players' replays\n- Do not edit any of the game rules except turn and match frames\n- Do not try to enter the event with multiple accounts
 DESCDATA 0;3How to Enter
-DESCDATAIMGTITLE 0;3frf4-howtoenter.tga
+//DESCDATAIMGTITLE 0;3frf4-howtoenter.tga
 DESCDATATEXT 0;3Press the "Participate" button on bottom right, complete the challenge and submit your replay to Toribash servers!\nAlternatively, you can download event mod from the thread on forums, make a replay according to rules and post your replay back in event thread - if you just upload it to Toribash Community Replays then it won't be judged.\n^02Only one replay per player will be judged.
 DESCDATA 0;4Deadline
-DESCDATAIMGTITLE 0;4frf4-deadline.tga
-DESCDATATEXT 0;4We will stop accepting new entries on October 30th at 16:00 UTC
+//DESCDATAIMGTITLE 0;4frf4-deadline.tga
+DESCDATATEXT 0;4We will stop accepting new entries on May 21th at 16:00 UTC
 DESCDATA 0;5
-PRIZEIMG 0;frf4-prizes.tga
+//PRIZEIMG 0;frf4-prizes.tga
 PRIZEDATA 0;1Best replay
-PRIZETC 0;150000
+PRIZETC 0;1125000
 PRIZEST 0;110
-PRIZEDATA 0;2Go through the checkpoint
-PRIZETC 0;28000
+PRIZEDATA 0;2Choose the red path
+PRIZETC 0;210000
 PRIZEST 0;24
-PRIZEDATA 0;3Reach Uke
-PRIZETC 0;33000
+PRIZEDATA 0;3Reach the end zone and press the button
+PRIZETC 0;35000
 PRIZEST 0;32
 
 EVENTID 3;

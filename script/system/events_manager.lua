@@ -1652,6 +1652,7 @@ do
 			TBMenu:showDataError("Please wait until Torishop data is ready")
 			return false
 		end
+		TB_MENU_SPECIAL_SCREEN_ISOPEN = 10
 		local event = Events:getEventInfo(id or 1)
 		local overlay = TBMenu:spawnWindowOverlay()
 		local viewElement = UIElement:new({
@@ -1662,6 +1663,7 @@ do
 			uiColor = event.uiColor
 		})
 		overlay:addMouseHandlers(nil, function()
+				TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
 				overlay:kill()
 			end)
 		local scale = viewElement.size.h * 2 - 200 < viewElement.size.w and viewElement.size.h - 100 or viewElement.size.w / 2
@@ -1669,7 +1671,7 @@ do
 			parent = viewElement,
 			pos = { viewElement.size.w / 2 - scale, (viewElement.size.h - scale) / 2 },
 			size = { scale * 2, scale },
-			bgImage = event.image
+			bgImage = { "../textures/menu/promo/events/" .. event.eventid .. ".tga", "" }
 		})
 
 		local descriptionView = UIElement:new({
@@ -1801,6 +1803,7 @@ do
 		})
 		table.insert(dtopBar.child, closeButton)
 		closeButton:addMouseHandlers(nil, function()
+				TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
 				overlay:kill()
 			end)
 		if (not EventsOnline:checkFiles(event.eventid, event.requireMod)) then
