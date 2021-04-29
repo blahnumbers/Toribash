@@ -844,3 +844,4 @@ SETTINGSREPLAYHUDTOGGLE	Replay HUD Toggle
 STOREFLAMEFORGE	Flame Forge	
 STOREFLAMEFORGEDESC	Spawn your own flames or browse existing ones	
 SETTINGSPLAYERTEXTUCUSTOM	Show your messages in a different color	
+SETTINGSDISABLEANIMATIONS	Disable menu animations	

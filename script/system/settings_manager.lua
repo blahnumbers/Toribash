@@ -469,6 +469,58 @@ do
 							reload = true
 						},
 						{
+							name = TB_MENU_LOCALIZED.SETTINGSFRAMERATE,
+							type = DROPDOWN,
+							selectedAction = function()
+									local framerate = get_option("framerate")
+									local fixedframerate = get_option("fixedframerate")
+									if (fixedframerate == 1) then
+										if (framerate == 30) then
+											return 1
+										elseif (framerate == 60) then
+											return 2
+										else
+											return 3
+										end
+									end
+									return 3
+								end,
+							dropdown = {
+								{
+									text = "30 " .. TB_MENU_LOCALIZED.SETTINGSFPS,
+									action = function()
+											TB_MENU_MAIN_SETTINGS.framerate = { value = 30 }
+											TB_MENU_MAIN_SETTINGS.fixedframerate = { value = 1 }
+											Settings:settingsApplyActivate()
+										end
+								},
+								{
+									text = "60 " .. TB_MENU_LOCALIZED.SETTINGSFPS,
+									action = function()
+											TB_MENU_MAIN_SETTINGS.framerate = { value = 60 }
+											TB_MENU_MAIN_SETTINGS.fixedframerate = { value = 1 }
+											Settings:settingsApplyActivate()
+										end
+								},
+								{
+									text = "75 " .. TB_MENU_LOCALIZED.SETTINGSFPS,
+									action = function()
+											TB_MENU_MAIN_SETTINGS.framerate = { value = 75 }
+											TB_MENU_MAIN_SETTINGS.fixedframerate = { value = 1 }
+											Settings:settingsApplyActivate()
+										end
+								},
+								--[[{
+									text = TB_MENU_LOCALIZED.SETTINGSFPSUNCAPPED,
+									action = function()
+											TB_MENU_MAIN_SETTINGS.framerate = { value = 60 }
+											TB_MENU_MAIN_SETTINGS.fixedframerate = { value = 0 }
+											Settings:settingsApplyActivate()
+										end
+								}]]
+							}
+						},
+						{
 							name = TB_MENU_LOCALIZED.SETTINGSBLOOD,
 							type = DROPDOWN,
 							selectedAction = function() return get_option("blood") + 1 end,
@@ -533,6 +585,15 @@ do
 							reload = true
 						},
 						{
+							name = TB_MENU_LOCALIZED.SETTINGSDISABLEANIMATIONS,
+							type = TOGGLE,
+							action = function(val) 
+									TB_MENU_MAIN_SETTINGS.uilight = { value = val }
+								end,
+							val = { get_option("uilight") },
+							reload = true
+						},
+						{
 							name = TB_MENU_LOCALIZED.SETTINGSJOINTFLASH,
 							type = TOGGLE,
 							action = function(val) 
@@ -540,58 +601,6 @@ do
 								end,
 							val = { get_option("jointflash") },
 							reload = true
-						},
-						{
-							name = TB_MENU_LOCALIZED.SETTINGSFRAMERATE,
-							type = DROPDOWN,
-							selectedAction = function()
-									local framerate = get_option("framerate")
-									local fixedframerate = get_option("fixedframerate")
-									if (fixedframerate == 1) then
-										if (framerate == 30) then
-											return 1
-										elseif (framerate == 60) then
-											return 2
-										else
-											return 3
-										end
-									end
-									return 3
-								end,
-							dropdown = {
-								{
-									text = "30 " .. TB_MENU_LOCALIZED.SETTINGSFPS,
-									action = function()
-											TB_MENU_MAIN_SETTINGS.framerate = { value = 30 }
-											TB_MENU_MAIN_SETTINGS.fixedframerate = { value = 1 }
-											Settings:settingsApplyActivate()
-										end
-								},
-								{
-									text = "60 " .. TB_MENU_LOCALIZED.SETTINGSFPS,
-									action = function()
-											TB_MENU_MAIN_SETTINGS.framerate = { value = 60 }
-											TB_MENU_MAIN_SETTINGS.fixedframerate = { value = 1 }
-											Settings:settingsApplyActivate()
-										end
-								},
-								{
-									text = "75 " .. TB_MENU_LOCALIZED.SETTINGSFPS,
-									action = function()
-											TB_MENU_MAIN_SETTINGS.framerate = { value = 75 }
-											TB_MENU_MAIN_SETTINGS.fixedframerate = { value = 1 }
-											Settings:settingsApplyActivate()
-										end
-								},
-								--[[{
-									text = TB_MENU_LOCALIZED.SETTINGSFPSUNCAPPED,
-									action = function()
-											TB_MENU_MAIN_SETTINGS.framerate = { value = 60 }
-											TB_MENU_MAIN_SETTINGS.fixedframerate = { value = 0 }
-											Settings:settingsApplyActivate()
-										end
-								}]]
-							}
 						}
 					}
 				}

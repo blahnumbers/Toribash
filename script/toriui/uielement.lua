@@ -339,7 +339,7 @@ do
 				if (s < 4) then
 					self.pressedPos = self:getLocalPos(x,y)
 					self.hoverState = BTN_DN
-				elseif (not UIScrollbarIgnore and (#UIScrollbarHandler == 1 or 
+				elseif (not UIScrollbarIgnore and ((#UIScrollbarHandler == 1 and listHolder.scrollBar ~= self) or 
 						(MOUSE_X > listHolder.parent.pos.x and MOUSE_X < listHolder.parent.pos.x + listHolder.parent.size.w and MOUSE_Y > listHolder.parent.pos.y and MOUSE_Y < listHolder.parent.pos.y + listHolder.parent.size.h))) then
 					self:mouseScroll(listElements, listHolder, toReload, y * scrollSpeed, enabled)
 					posShift[1] = self.shift.y
