@@ -185,10 +185,10 @@ local function showUploadWindow(viewElement, reqTable)
 		end
 		if (Request.queue ~= nil) then
 			Request:queue(function()
-				upload_event_replay(name, "Event Squad's Wipeout Warrior event entry", "ESEVNT" .. CURRENT_TUTORIAL, "replay/my replays/" .. name .. ".rpl")
+				upload_event_replay(name, "Event Squad's Leggang Rise Up event entry", "ESEVNT" .. CURRENT_TUTORIAL, "replay/my replays/" .. name .. ".rpl")
 			end, "replayupload", success, error)
 		else
-			upload_event_replay(name, "Event Squad's Wipeout Warrior event entry", "ESEVNT" .. CURRENT_TUTORIAL, "replay/my replays/" .. name .. ".rpl")
+			upload_event_replay(name, "Event Squad's Leggang Rise Up event entry", "ESEVNT" .. CURRENT_TUTORIAL, "replay/my replays/" .. name .. ".rpl")
 			Request:new("replayupload", success, error)
 		end
 	end
@@ -621,7 +621,7 @@ end
 
 local function setDiscordRPC()
 	local tutorialNum = CURRENT_TUTORIAL:gsub("%D", "")
-	set_discord_rpc("Wipeout Warrior " .. tutorialNum, TB_MENU_LOCALIZED.DISCORDRPCPLAYINGSPEVENT or "Playing SP Event")
+	set_discord_rpc("Leggang Rise Up " .. tutorialNum, TB_MENU_LOCALIZED.DISCORDRPCPLAYINGSPEVENT or "Playing SP Event")
 end
 
 local function launchGame(viewElement, reqTable)
