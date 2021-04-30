@@ -2333,21 +2333,22 @@ do
 		if (UIMODE_LIGHT) then return end
 		local speedMod = get_option("framerate") == 30 and 2 or 1
 		local currentSectionMover = UIElement:new({
-			parent = tbMenuCurrentSection.parent,
-			pos = { -tbMenuCurrentSection.parent.size.w + tbMenuCurrentSection.shift.x, tbMenuCurrentSection.shift.y },
+			parent = tbMenuMain,
+			pos = { -tbMenuMain.size.w + tbMenuCurrentSection.shift.x, tbMenuCurrentSection.shift.y },
 			size = { tbMenuCurrentSection.size.w, tbMenuCurrentSection.size.h }
 		})
 		for i,v in pairs(tbMenuCurrentSection.child) do
+			table.insert(currentSectionMover.child, v)
 			v.parent = currentSectionMover
 		end
 		tbMenuCurrentSection.child = {}
 		local rad = math.pi / 3
 		currentSectionMover:addCustomDisplay(true, function()
-				currentSectionMover:moveTo(-WIN_W / 10 * math.sin(rad) * speedMod, nil, true)
-				rad = rad + math.pi / 50
-				if (-currentSectionMover.pos.x >= currentSectionMover.size.w) then
+				if (-currentSectionMover.pos.x >= currentSectionMover.size.w * 1.2) then
 					currentSectionMover:kill()
 				end
+				currentSectionMover:moveTo(-WIN_W / 10 * math.sin(rad) * speedMod, nil, true)
+				rad = rad + math.pi / 50
 			end)
 			
 		tbMenuCurrentSection:moveTo(WIN_W)

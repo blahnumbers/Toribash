@@ -423,14 +423,17 @@ do
 		for i,v in pairs(self.child) do
 			v:kill()
 		end
-		if (self.killAction) then
-			self.killAction()
-		end
 		if (childOnly) then
 			self.child = {}
 			return true
 		end
-
+		if (self.destroyed) then
+			return true
+		end
+		
+		if (self.killAction) then
+			self.killAction()
+		end
 		self:hide(true)
 		if (self.isScrollBar) then 
 			for i,v in pairs(UIScrollbarHandler) do
