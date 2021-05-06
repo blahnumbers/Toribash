@@ -1182,14 +1182,15 @@ do
 					val = { 1 - fullscreen }
 				},
 			}
-			if (PLATFORM ~= "APPLE") then
+			if (PLATFORM == "WINDOWS") then
 				table.insert(items, {
 					name = TB_MENU_LOCALIZED.SETTINGSBORDERLESS,
 					type = TOGGLE,
 					action = function(val)
 							TB_MENU_MAIN_SETTINGS.borderless = { id = BORDERLESS, value = val, graphics = true }
 						end,
-					val = { TB_MENU_MAIN_SETTINGS["borderless"] and TB_MENU_MAIN_SETTINGS["borderless"].value or get_option("borderless") }
+					val = { TB_MENU_MAIN_SETTINGS["borderless"] and TB_MENU_MAIN_SETTINGS["borderless"].value or get_option("borderless") },
+					inactive = get_dpiawareness().DPISCALING ~= 1
 				})
 			end
 		else
@@ -1241,6 +1242,22 @@ do
 						TB_MENU_MAIN_SETTINGS.highdpi = { id = HIGHDPI, value = val, graphics = true, reload = true }
 					end,
 				val = { get_option("highdpi") }
+			})
+		end
+		if (PLATFORM == "WINDOWS" and get_dpiawareness().DPISCALING ~= 1) then
+			table.insert(items, {
+				name = TB_MENU_LOCALIZED.SETTINGSDPIAWARENESS,
+				type = TOGGLE,
+				action = function(val)
+						TB_MENU_MAIN_SETTINGS.dpiawareness = { value = val }
+						if (get_option("borderless") == 1 and val == 0) then
+							TB_MENU_MAIN_SETTINGS.borderless = { id = BORDERLESS, value = 0, graphics = true }
+						elseif (get_option("borderless") == 0 and val == 1) then
+							TB_MENU_MAIN_SETTINGS.borderless = { id = BORDERLESS, value = 1, graphics = true }
+						end
+					end,
+				val = { get_option("dpiawareness") },
+				hint = TB_MENU_LOCALIZED.HINTREQUIRESRESTART
 			})
 		end
 		return items
@@ -1509,8 +1526,12 @@ do
 			bgColor = TB_MENU_DEFAULT_BG_COLOR,
 			hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR,
+			inactiveColor = TB_MENU_DEFAULT_LIGHTEST_COLOR,
 			interactive = true
 		})
+		if (toggle.inactive) then
+			toggleView:deactivate(true)
+		end
 		local toggleIcon = UIElement:new({
 			parent = toggleView,
 			pos = { 0, 0 },
@@ -1652,10 +1673,26 @@ do
 					size = { itemHolder.size.w - 40, itemHolder.size.h - 6 },
 					bgColor = TB_MENU_DEFAULT_DARKER_COLOR
 				})
+				local shiftX = 20
+				if (item.hint) then
+					local hintIcon = UIElement:new({
+						parent = itemView,
+						pos = { shiftX, 7 },
+						size = { itemView.size.h - 14, itemView.size.h - 14 },
+						interactive = true,
+						shapeType = ROUNDED,
+						rounded = itemView.size.h,
+						bgColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+						hoverColor = TB_MENU_DEFAULT_LIGHTEST_COLOR,
+						pressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR
+					})
+					TBMenu:displayHelpPopup(hintIcon, TB_MENU_LOCALIZED.HINTREQUIRESRESTART, true)
+					shiftX = shiftX + hintIcon.size.w + 5
+				end
 				local itemName = UIElement:new({
 					parent = itemView,
-					pos = { 20, 0 },
-					size = { itemView.size.w / 2 - 30, itemView.size.h }
+					pos = { shiftX, 0 },
+					size = { itemView.size.w / 2 - 10 - shiftX, itemView.size.h }
 				})
 				itemName:addAdaptedText(true, item.name, nil, nil, nil, LEFTMID)
 				if (item.type == SLIDER) then

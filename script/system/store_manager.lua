@@ -2,7 +2,7 @@
 
 local CATEGORIES_COLORS = { 44, 22, 2, 20, 21, 1, 5, 11, 12, 24, 27, 28, 29, 30, 34, 41, 43, 73 }
 --local CATEGORIES_TEXTURES = { 48, 54, 55, 57, 58 }
-local CATEGORIES_ADVANCED = { 78, 72, 80, 54, 55, 57, 58, 48 }
+local CATEGORIES_ADVANCED = { 78, 72, 80, 54, 74, 55, 57, 58, 48 }
 local CATEGORIES_ACCOUNT = { 45, 84, 68, 79 }
 local CATEGORIES_HIDDEN = { 3 }
 
@@ -422,12 +422,12 @@ do
 				sectionId = TAB_ADVANCED,
 				right = true,
 			},
-			{
+			--[[{
 				text = TB_MENU_LOCALIZED.STORETEXTURES,
 				action = function() Torishop:showStoreSection(viewElement, 2) end,
 				sectionId = TAB_TEXTURES,
 				right = true,
-			},
+			},]]
 			{
 				text = TB_MENU_LOCALIZED.STORECOLORS,
 				action = function() Torishop:showStoreSection(viewElement, 1) end,
@@ -5217,12 +5217,14 @@ do
 	end
 	
 	function Torishop:showStoreSection(viewElement, section, sectionid, itemid)
+		TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
 		local itemInfo = itemid and Torishop:getItemInfo(itemid)
 		local section = itemid and Torishop:getItemMainSection(itemInfo) or section
 		local sectionInfo = Torishop:getStoreSection(section)
 		local sectionid = itemid and Torishop:getItemSectionid(sectionInfo.list, itemInfo) or sectionid
 		
 		TB_LAST_STORE_SECTION = section
+		TB_LAST_STORE_SECTIONID = sectionid
 		viewElement:kill(true)
 		TBMenu:clearNavSection()
 		TBMenu:showNavigationBar(Torishop:getSectionNavButtons(viewElement, section), true, true, TB_LAST_STORE_SECTION)
@@ -5275,13 +5277,6 @@ do
 				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
 			})
 			table.insert(listElements, section)
-			-- We don't have all icons for now
-			--[[local sectionIcon = UIElement:new({
-				parent = section,
-				pos = { 4, 2 },
-				size = { section.size.h - 4, section.size.h - 4 },
-				bgImage = "torishop/gui/ss/colors" .. i .. ".tga"
-			})]]
 			local sectionText = UIElement:new({
 				parent = section,
 				pos = { 10, 0 },
@@ -5293,9 +5288,10 @@ do
 					selectedSection = section
 					section.bgColor = TB_MENU_DEFAULT_DARKER_COLOR
 					Torishop:showSectionItems(sectionItemsView, v)
+					TB_LAST_STORE_SECTIONID = i
 				end)
 		end
-		selectedSection = listElements[1]
+		selectedSection = listElements[sectionid or 1]
 		selectedSection.bgColor = TB_MENU_DEFAULT_DARKER_COLOR
 		
 		for i,v in pairs(listElements) do

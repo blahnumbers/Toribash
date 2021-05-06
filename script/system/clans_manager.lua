@@ -134,7 +134,6 @@ do
 	end
 	
 	function Clans:quit()
-		TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
 		if (get_option("newmenu") == 0) then
 			tbMenuMain:kill()
 			remove_hooks("tbMainMenuVisual")
@@ -153,6 +152,7 @@ do
 					text = TB_MENU_LOCALIZED.NAVBUTTONBACK, 
 					action = function() 
 						TB_LAST_MENU_SCREEN_OPEN = 9
+						TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
 						TBMenu:clearNavSection()
 						TBMenu:showNavigationBar()
 						TBMenu:showClans()
@@ -222,7 +222,6 @@ do
 			return
 		end
 		viewElement:kill(true)
-		--TB_MENU_SPECIAL_SCREEN_ISOPEN = 3
 		local clanListSettings = UIElement:new({
 			parent = viewElement,
 			pos = { 5, 0 },
@@ -1349,6 +1348,7 @@ do
 	end
 	
 	function Clans:showClan(viewElement, clanid)
+		TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
 		TB_MENU_CLANS_OPENCLANID = clanid
 		viewElement:kill(true)
 		TBMenu:clearNavSection()

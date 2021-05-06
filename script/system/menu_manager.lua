@@ -1129,8 +1129,10 @@ do
 	end
 	
 	function TBMenu:showHotkeys()
+		TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
 		local overlay = TBMenu:spawnWindowOverlay()
 		overlay:addMouseHandlers(nil, function()
+				TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
 				overlay:kill()
 			end)
 		local hotkeysView = UIElement:new({
@@ -1233,6 +1235,10 @@ do
 			{
 				name = TB_MENU_LOCALIZED.HOTKEYSREPLAYS,
 				items = {
+					{
+						keys = { Settings:getKeyName(get_option("replayhudtoggle")) },
+						desc = TB_MENU_LOCALIZED.SETTINGSREPLAYHUDTOGGLE
+					},
 					{
 						keys = { "r" },
 						desc = TB_MENU_LOCALIZED.HOTKEYSREPLAYRESTART
@@ -1674,6 +1680,9 @@ do
 			TBMenu:showBounties()
 		elseif (TB_MENU_SPECIAL_SCREEN_ISOPEN == 8) then
 			TBMenu:showFriendsList()
+		elseif (TB_MENU_SPECIAL_SCREEN_ISOPEN == 9) then
+			TBMenu:showTorishopMain()
+			Torishop:showStoreSection(tbMenuCurrentSection, TB_LAST_STORE_SECTION, TB_LAST_STORE_SECTIONID)
 		elseif (screenId == 1) then
 			TBMenu:showHome()
 		elseif (screenId == 2) then
@@ -2765,7 +2774,7 @@ do
 			parent = element,
 			pos = { 0, 0 },
 			size = { WIN_W / 3, WIN_H / 10 },
-			bgColor = { 0, 0, 0, 0.8 },
+			bgColor = { 0, 0, 0, 0.8 }
 		})
 
 		if (messageElement.pos.x < 0) then
@@ -2787,6 +2796,16 @@ do
 			size = { messageElement.size.w - 20, messageElement.size.h - 10 }
 		})
 		messageText:addAdaptedText(true, message, nil, nil, 4, nil, 0.7)
+		local textWidth = get_string_length(message, messageText.textFont) * messageText.textScale
+		if (textWidth + 20 < messageText.size.w) then
+			messageElement.size.w = textWidth + 40
+			messageText.size.w = textWidth + 20
+		end
+		local textHeight = getFontMod(messageText.textFont) * 10 * messageText.textScale * #messageText.dispstr
+		if (textHeight + 10 < messageText.size.h) then
+			messageElement.size.h = textHeight + 20
+			messageText.size.h = textHeight + 10
+		end
 		messageElement:hide(true)
 
 		local popupShown = false

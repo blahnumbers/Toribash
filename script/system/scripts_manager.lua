@@ -7,6 +7,7 @@ do
 	setmetatable(cln, Scripts)
 	
 	function Scripts:quit()
+		TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
 		tbMenuCurrentSection:kill(true)
 		tbMenuNavigationBar:kill(true)
 		TBMenu:showNavigationBar()
@@ -136,7 +137,7 @@ do
 		end
 		local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
 		listingHolder.scrollBar = scrollBar
-		scrollBar:makeScrollBar(listingHolder, listElements, toReload, MODS_LIST_SHIFT)
+		scrollBar:makeScrollBar(listingHolder, listElements, toReload)
 	end
 	
 	function Scripts:showThirdPartyWarning(thirdPartyWarningView)
@@ -326,6 +327,7 @@ do
 	end
 	
 	function Scripts:showMain()
+		TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
 		tbMenuCurrentSection:kill(true)
 		local scriptFiles = Scripts:getScriptFiles()
 		

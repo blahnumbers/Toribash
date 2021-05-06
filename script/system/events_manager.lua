@@ -1291,21 +1291,25 @@ do
 		local eventsData = News:getEvents()
 		for i = 1, #eventsList do
 			local shortname = eventsList[i]:gsub("%.dat$", '')
-			eventsList[i] = { file = eventsList[i], live = false }
+			eventsList[i] = { file = eventsList[i], live = 0 }
 			for j,v in pairs(eventsData) do
 				if (v.eventid == shortname) then
-					eventsList[i].live = true
+					eventsList[i].live = -1
 					eventsList[i].activeId = j
 				end
 			end
 		end
-		eventsList = UIElement:qsort(eventsList, { 'live', 'file' }, true)
+		for i,v in pairs(eventsList) do
+			v.info = Events:getPassedEventInfo(v.file)
+			v.name = v.info.name
+		end
+		eventsList = UIElement:qsort(eventsList, { 'live', 'name' }, false)
 
 		local selectedButton = nil
 		local listElements = {}
 		local liveShown, liveOver = false, false
 		for i,v in pairs(eventsList) do
-			if (v.live and not liveShown) then
+			if (v.live ~= 0 and not liveShown) then
 				liveShown = true
 				local liveEventsCaption = UIElement:new({
 					parent = listingHolder,
@@ -1320,7 +1324,7 @@ do
 				})
 				liveEventsCaptionText:addAdaptedText(true, TB_MENU_LOCALIZED.EVENTSLIVEEVENTS, 10, nil, FONTS.BIG, LEFTMID, 0.6, nil, 0.4)
 			end
-			if (not v.live and liveShown and not liveOver) then
+			if (v.live == 0 and liveShown and not liveOver) then
 				liveOver = true
 				local endedEventsCaption = UIElement:new({
 					parent = listingHolder,
@@ -1350,7 +1354,7 @@ do
 				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
 			})
-			local eventInfo = Events:getPassedEventInfo(v.file)
+			local eventInfo = v.info
 			listEvent:addMouseHandlers(nil, function()
 					Events:showPassedEventInfo(eventInfoHolder, eventInfo.shortname, v.activeId)
 					selectedButton.bgColor = cloneTable(TB_MENU_DEFAULT_DARKER_COLOR)
@@ -1358,7 +1362,7 @@ do
 					selectedButton = listEvent
 				end)
 			local shiftX = 0
-			if (v.live) then
+			if (v.live ~= 0) then
 				local length = get_string_length(TB_MENU_LOCALIZED.EVENTSLIVE:upper(), 4) * 0.5
 				local liveCaption = UIElement:new({
 					parent = listEvent,
