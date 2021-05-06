@@ -71,6 +71,7 @@ end
 
 dofile("system/menu_defines.lua")
 require("system/menu_manager")
+TBMenu:getTranslation(get_language())
 TBMenu:create()
 
 dofile("system/menu_backend_defines.lua")
