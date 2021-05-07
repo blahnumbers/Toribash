@@ -847,3 +847,4 @@ SETTINGSPLAYERTEXTUCUSTOM	Show your messages in a different color
 SETTINGSDISABLEANIMATIONS	Disable menu animations	
 SETTINGSDPIAWARENESS	Ignore Windows graphics scaling	
 HINTREQUIRESRESTART	Requires game restart	
+EVENTSEVENTINFO	Event Info	

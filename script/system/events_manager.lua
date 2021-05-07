@@ -11,10 +11,11 @@ do
 		tbMenuNavigationBar:kill(true)
 		TBMenu:showNavigationBar()
 		TB_MENU_EVENTS_OPEN = false
+		TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
 		TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
 	end
 
-	function Events:getNavigationButtons(showBack)
+	function Events:getNavigationButtons(showBack, showEventid)
 		local navigation = {
 			{
 				text = TB_MENU_LOCALIZED.NAVBUTTONTOMAIN,
@@ -25,6 +26,13 @@ do
 			table.insert(navigation, {
 				text = TB_MENU_LOCALIZED.NAVBUTTONBACK,
 				action = function() Events:showEventsHome(tbMenuCurrentSection) end
+			})
+		end
+		if (showEventid) then
+			table.insert(navigation, {
+				text = TB_MENU_LOCALIZED.EVENTSEVENTINFO,
+				action = function() Events:showEventInfo(showEventid) end,
+				right = true
 			})
 		end
 		return navigation
@@ -473,9 +481,10 @@ do
 		end
 	end
 
-	function Events:loadModChampionship(viewElement)
+	function Events:loadModChampionship(viewElement, eventid)
+		TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
 		TBMenu:clearNavSection()
-		TBMenu:showNavigationBar(Events:getNavigationButtons(TB_MENU_EVENTS_OPEN), true)
+		TBMenu:showNavigationBar(Events:getNavigationButtons(TB_MENU_EVENTS_OPEN, eventid), true)
 		add_hook("console", "friendsListConsoleIgnore", function(s, i) if (s == "refreshing server list") then return 1 end end)
 		UIElement:runCmd("refresh")
 		remove_hooks("friendsListConsoleIgnore")
@@ -704,16 +713,16 @@ do
 		if (#roomsOnline > 0) then
 			for i, room in pairs(roomsOnline) do
 				if (room.players > 1 and room.players < 5) then
-					UIElement:runCmd("jo " .. room.name)
 					close_menu()
+					UIElement:runCmd("jo " .. room.name)
 					return
 				end
 			end
+			close_menu()
 			UIElement:runCmd("jo " .. roomsOnline[1].name)
-			close_menu()
 		else
-			UIElement:runCmd("jo " .. defaultRoom)
 			close_menu()
+			UIElement:runCmd("jo " .. defaultRoom)
 		end
 	end
 
@@ -1396,6 +1405,7 @@ do
 	end
 
 	function Events:showEventsHome(viewElement)
+		TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
 		TBMenu:clearNavSection()
 		TBMenu:showNavigationBar(Events:getNavigationButtons(), true)
 		TB_MENU_EVENTS_OPEN = true
@@ -1671,12 +1681,14 @@ do
 				overlay:kill()
 			end)
 		local scale = viewElement.size.h * 2 - 200 < viewElement.size.w and viewElement.size.h - 100 or viewElement.size.w / 2
-		local backgroundImage = UIElement:new({
-			parent = viewElement,
-			pos = { viewElement.size.w / 2 - scale, (viewElement.size.h - scale) / 2 },
-			size = { scale * 2, scale },
-			bgImage = { "../textures/menu/promo/events/" .. event.eventid .. ".tga", "" }
-		})
+		if (event.eventid) then
+			local backgroundImage = UIElement:new({
+				parent = viewElement,
+				pos = { viewElement.size.w / 2 - scale, (viewElement.size.h - scale) / 2 },
+				size = { scale * 2, scale },
+				bgImage = { "../textures/menu/promo/events/" .. event.eventid .. ".tga", "" }
+			})
+		end
 
 		local descriptionView = UIElement:new({
 			parent = viewElement,

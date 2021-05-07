@@ -23,11 +23,12 @@ STORE 0;3416
 //EVENT 0;1
 //FEATURED 0;
 
-//NEWSID 9;
-//SUBTITLE 0;Battle your way to become the top player of this fall!
-//IMAGE 0;modmania20.tga
-//MODCHAMPIONSHIP 0;
-//FEATURED 0;
+NEWSID 9;
+TITLE 0;It's rank climbing time!
+IMAGE 0;modmania20.tga
+EVENT 0;5
+MODCHAMPIONSHIP 0;
+FEATURED 0;
 
 //NEWSID 5;
 //TITLE 0;Floor is Lava 2
@@ -198,3 +199,48 @@ PRIZEST 0;24
 PRIZEDATA 0;3Reach Uke
 PRIZETC 0;35000
 PRIZEST 0;32
+
+EVENTID 5;
+NAME 0;Mod Mania 2021 - Spring
+URL 0;https://forum.toribash.com/showthread.php?t=649614
+OVERLAYTRANS 0;0.7
+ACCENTCOLOR 0;bd0637
+UICOLOR 0;FFFFFF
+BTNHVRCOL 0;ffba43
+BTNDNCOL 0;fff8e9
+DESCDATA 0;1Description
+DESCDATATEXT 0;1Mod Mania is a series of mod championships.\nPlay in modmania rooms, win games and climb up ranks and get rewards!\nEach mod will stay in modmania rooms for 1 week and then will be changed to the next one.
+DESCDATA 0;2Mod Rotation
+DESCDATATEXT 0;2This week's mod is abd_r.tbm - aikidobigdojo.tbm with breakable and rotatable grabs.
+DESCDATA 0;3How to Participate
+DESCDATATEXT 0;3Play in any modmania room until the event is over - there are new rewards to get each week!
+PRIZEDATA 0;1Top 10 players (by games won, prize listed is for 1st place)
+PRIZETC 0;150000
+PRIZEST 0;15
+PRIZEDATA 0;2Global rank 1
+PRIZEITEMS 0;213423
+PRIZETC 0;2100000
+PRIZEST 0;210
+PRIZEDATA 0;3Global rank 2
+PRIZEITEMS 0;313424
+PRIZETC 0;375000
+PRIZEST 0;38
+PRIZEDATA 0;4Global rank 3
+PRIZEITEMS 0;413425
+PRIZETC 0;450000
+PRIZEST 0;46
+PRIZEDATA 0;5Global ranks 4 - 8
+PRIZETC 0;530000
+PRIZEST 0;54
+PRIZEDATA 0;6Global ranks 9 - 20
+PRIZETC 0;615000
+PRIZEST 0;63
+PRIZEDATA 0;7Mod rank 1
+PRIZETC 0;735000
+PRIZEST 0;75
+PRIZEDATA 0;8Mod rank 2
+PRIZETC 0;825000
+PRIZEST 0;84
+PRIZEDATA 0;9Mod rank 3
+PRIZETC 0;915000
+PRIZEST 0;93

@@ -104,10 +104,12 @@ do
 				newsData[#newsData].isEvent = true
 				newsData[#newsData].action = function() Events:showEventInfo(eventid) end
 				newsData[#newsData].initAction = function() Events:showEventInfo(eventid) end
+				newsData[#newsData].eventid = eventid
 			elseif (ln:find("^MODCHAMPIONSHIP 0;")) then
+				local eventid = newsData[#newsData].eventid
 				newsData[#newsData].isEvent = true
-				newsData[#newsData].action = function() Events:loadModChampionship(tbMenuCurrentSection) end
-				newsData[#newsData].initAction = function() Events:loadModChampionship(tbMenuCurrentSection) end
+				newsData[#newsData].action = function() Events:loadModChampionship(tbMenuCurrentSection, eventid) end
+				newsData[#newsData].initAction = function() Events:loadModChampionship(tbMenuCurrentSection, eventid) end
 			elseif (ln:find("^MOVEMBER 0;")) then
 				newsData[#newsData].action = function() Events:loadMovember(tbMenuCurrentSection) end
 				newsData[#newsData].initAction = function() Events:loadMovember(tbMenuCurrentSection) end
