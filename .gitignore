@@ -64,3 +64,17 @@ script/system/data\.mm
 .vdf
 
 .DS_STORE
+
+atmospheres/atmo.cfg
+
+*.vdf
+
+script/.vs/
+
+script/system/rplcomments.txt
+
+script/system/movememory.mm
+
+script/torishop/torishop.cfg
+
+tutorials/config.cfg

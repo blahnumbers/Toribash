@@ -6,7 +6,7 @@ do
 	
 	function Quests:getQuests()
 		TB_MENU_QUESTS_COUNT = 0
-		local file = Files:new("../data/quest.txt")
+		local file = Files:open("../data/quest.txt")
 		if (not file.data) then
 			download_quest(TB_MENU_PLAYER_INFO.username)
 			return false
@@ -286,7 +286,7 @@ do
 	function Quests:getGlobalQuests(fileData)
 		TB_MENU_QUESTS_GLOBAL_COUNT = 0
 		
-		local fileData = fileData or Files:new("../data/quests_global.dat")
+		local fileData = fileData or Files:open("../data/quests_global.dat")
 		local globalQuests = {}
 		local dataTypes = {
 			{ 'id', numeric = true },
@@ -381,7 +381,7 @@ do
 		TBMenu:addBottomBloodSmudge(loader, 1)
 		TBMenu:displayLoadingMark(loader, TB_MENU_LOCALIZED.QUESTSGLOBALUPDATING)
 		
-		local questsFile = Files:new("../data/quests_global.dat")
+		local questsFile = Files:open("../data/quests_global.dat")
 		loader:addCustomDisplay(false, function()
 				if (questsFile:isDownloading()) then
 					return
@@ -702,7 +702,7 @@ do
 				QUESTS_UPDATE_CLOCK = os.clock()
 				download_quest(TB_MENU_PLAYER_INFO.username)
 			end
-			local file = Files:new("../data/quest.txt")
+			local file = Files:open("../data/quest.txt")
 			local waitView = UIElement:new({
 				parent = tbMenuCurrentSection,
 				pos = { 5, 0 },

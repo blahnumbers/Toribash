@@ -25,7 +25,7 @@ do
 		end
 		
 		local data_types = { "id", "name", "tag", "isofficial", "rank", "level", "xp", "memberstotal", "isfreeforall", "topach", "isactive", "members", "leaders", "bgcolor", "leaderscustom", "memberscustom" }
-		local file = Files:new("clans/clans.txt")
+		local file = Files:open("clans/clans.txt")
 		if (not file.data) then
 			return false
 		end
@@ -83,7 +83,7 @@ do
 		end
 		
 		local data_types = { "minxp", "maxmembers", "officialonly" }
-		local file = Files:new("clans/clanlevels.txt")
+		local file = Files:open("clans/clanlevels.txt")
 		if (not file.data) then
 			return false
 		end
@@ -111,7 +111,7 @@ do
 		end
 		
 		local data_types = { "achname", "achdesc" }
-		local file = Files:new("clans/clanachievements.txt")
+		local file = Files:open("clans/clanachievements.txt")
 		if (not file.data) then
 			return false
 		end

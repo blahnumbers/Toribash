@@ -1049,23 +1049,7 @@ do
 			end)
 		add_hook("mouse_move", "uiMouseHandler", function(x, y)
 				local toReturn = TB_MENU_MAIN_ISOPEN == 1 and 1 or 0
-				toReturn = UIElement:handleMouseHover(x, y) or toReturn 
-				if (INVENTORY_UPDATE) then
-					if (x ~= INVENTORY_MOUSE_POS.x or y ~= INVENTORY_MOUSE_POS.y) then
-						if (x > WIN_W / 2) then
-							Torishop:refreshInventory(TB_MENU_SPECIAL_SCREEN_ISOPEN == 1 and TB_MENU_MAIN_ISOPEN)
-							if (INVENTORY_SELECTION_RESET) then
-								for i = #INVENTORY_SELECTED_ITEMS, 1, -1 do
-									table.remove(INVENTORY_SELECTED_ITEMS, i)
-								end
-								INVENTORY_SELECTED_RESET = false
-							end
-						else
-							INVENTORY_UPDATE = false
-							INVENTORY_SELECTION_RESET = false
-						end
-					end
-				end
+				toReturn = UIElement:handleMouseHover(x, y) or toReturn
 				return toReturn
 			end)
 	end
@@ -1600,6 +1584,18 @@ do
 			return true
 		end
 		return false
+	end
+	
+	function unpackN(tbl)
+		local indexedTable = {}
+		for i,v in pairs(tbl) do
+			table.insert(indexedTable, v)
+		end
+		return unpack(indexedTable)
+	end
+	
+	function debugEcho(a, b)
+		UIElement:debugEcho(a, b)
 	end
 	
 	function strEsc(str)

@@ -921,7 +921,7 @@ do
 		})
 		TBMenu:addBottomBloodSmudge(loadOverlay, 1)
 		TBMenu:displayLoadingMark(loadOverlay, TB_MENU_LOCALIZED.BOUNTYUPDATINGLIST)
-		local bountyFile = Files:new("../data/bounties.txt")
+		local bountyFile = Files:open("../data/bounties.txt")
 		loadOverlay:addCustomDisplay(false, function()
 				if (not bountyFile:isDownloading()) then
 					bountyFile:reopen()

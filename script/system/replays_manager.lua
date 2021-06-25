@@ -60,7 +60,7 @@ do
 	end
 
 	function Replays:getReplayInfo(path)
-		local replay = Files:new("../" .. path, FILES_MODE_READONLY)
+		local replay = Files:open("../" .. path, FILES_MODE_READONLY)
 		local rplInfo = {}
 		local hasDecap = false
 		local hasMadman = false
@@ -259,7 +259,7 @@ do
 	end
 
 	function Replays:updateReplayFile(replay)
-		local file = Files:new("../replay/" .. replay.filename, FILES_MODE_READONLY)
+		local file = Files:open("../replay/" .. replay.filename, FILES_MODE_READONLY)
 		if (not file.data) then
 			TBMenu:showDataError(TB_MENU_LOCALIZED.REPLAYSERRORREADINGFILE)
 			return false
@@ -276,7 +276,7 @@ do
 		end
 		file:close()
 
-		local file = Files:new("../replay/" .. replay.filename, FILES_MODE_WRITE)
+		local file = Files:open("../replay/" .. replay.filename, FILES_MODE_WRITE)
 		if (not file.data) then
 			TBMenu:showDataError(TB_MENU_LOCALIZED.REPLAYSERRORUPDATINGFILE)
 			return false
@@ -300,7 +300,7 @@ do
 			end
 		end
 
-		local file = Files:new("../replay/replaycache.dat", FILES_MODE_READONLY)
+		local file = Files:open("../replay/replaycache.dat", FILES_MODE_READONLY)
 		if (not file.data) then
 			TBMenu:showDataError(TB_MENU_LOCALIZED.REPLAYSERRORREADINGCACHE)
 			return false
@@ -328,7 +328,7 @@ do
 		end
 		file:close()
 
-		local file = Files:new("../replay/replaycache.dat", FILES_MODE_WRITE)
+		local file = Files:open("../replay/replaycache.dat", FILES_MODE_WRITE)
 		if (not file.data) then
 			TBMenu:showDataError(TB_MENU_LOCALIZED.REPLAYSERRORUPDATINGTAGS)
 			return false
@@ -366,9 +366,9 @@ do
 		-- Make sure replays table is flushed first
 		TB_MENU_REPLAYS = { name = "replay", fullname = "replay" }
 
-		local file = Files:new("../replay/replaycache.dat", FILES_MODE_READWRITE)
+		local file = Files:open("../replay/replaycache.dat", FILES_MODE_READWRITE)
 		if (not file.data) then
-			file = Files:new("../replay/replaycache.dat", FILES_MODE_WRITE)
+			file = Files:open("../replay/replaycache.dat", FILES_MODE_WRITE)
 			if (not file.data) then
 				TBMenu:showDataError("replaycache.dat: " .. TB_MENU_LOCALIZED.ERRORCREATINGFILE)
 				return
@@ -483,7 +483,7 @@ do
 		elseif (action == 5) then
 			infoMessage = TB_MENU_LOCALIZED.REPLAYSFILTERSBY .. " " .. searchStr
 		end
-		local serverReplays = Files:new("../data/script/system/rplres.txt", FILES_MODE_READONLY)
+		local serverReplays = Files:open("../data/script/system/rplres.txt", FILES_MODE_READONLY)
 		local rot, scale, time = 10, 90, os.clock()
 		waitAnimation:addCustomDisplay(true, function()
 				set_color(1, 1, 1, 0.8)
@@ -742,14 +742,14 @@ do
 					table.insert(folders, v)
 				end
 			end
-			local modFile = Files:new("../data/mod/" .. replay.mod)
+			local modFile = Files:open("../data/mod/" .. replay.mod)
 			local id = 1
 			while (not modFile.data and id < #folders) do
-				modFile = Files:new("../data/mod/" .. folders[id] .. "/" .. replay.mod)
+				modFile = Files:open("../data/mod/" .. folders[id] .. "/" .. replay.mod)
 				id = id + 1
 			end
 			if (not modFile.data) then
-				modFile = Files:new("../data/mod/downloads/" .. replay.mod)
+				modFile = Files:open("../data/mod/downloads/" .. replay.mod)
 				loading:addAdaptedText(false, TB_MENU_LOCALIZED.MODSDOWNLOADINGMOD)
 				local modname = replay.mod:gsub("%.tbm$", "")
 				download_mod(modname)
@@ -799,7 +799,7 @@ do
 	end
 
 	function Replays:resetCache()
-		local file = Files:new("../replay/replaycache.dat", FILES_MODE_WRITE)
+		local file = Files:open("../replay/replaycache.dat", FILES_MODE_WRITE)
 		if (not file.data) then
 			TBMenu:showDataError(TB_MENU_LOCALIZED.REPLAYSERRORREFRESHINGCACHE)
 		end
@@ -2476,7 +2476,7 @@ do
 		downloadWait:addCustomDisplay(true, function()
 				frames = frames + 1
 				if (frames == 10) then
-					replayFile = Files:new("../replay/downloads/" .. REPLAY_TEMPNAME .. ".rpl", FILES_MODE_READONLY)
+					replayFile = Files:open("../replay/downloads/" .. REPLAY_TEMPNAME .. ".rpl", FILES_MODE_READONLY)
 				end
 				if (replayFile) then
 					if (not replayFile:isDownloading()) then
@@ -2490,14 +2490,14 @@ do
 									table.insert(folders, v)
 								end
 							end
-							local modFile = Files:new("../data/mod/" .. replaydata.mod)
+							local modFile = Files:open("../data/mod/" .. replaydata.mod)
 							local id = 1
 							while (not modFile.data and id < #folders) do
-								modFile = Files:new("../data/mod/" .. folders[id] .. "/" .. replaydata.mod)
+								modFile = Files:open("../data/mod/" .. folders[id] .. "/" .. replaydata.mod)
 								id = id + 1
 							end
 							if (not modFile.data) then
-								modFile = Files:new("../data/mod/downloads/" .. replaydata.mod)
+								modFile = Files:open("../data/mod/downloads/" .. replaydata.mod)
 								previewView:addAdaptedText(false, TB_MENU_LOCALIZED.MODSDOWNLOADINGMOD)
 								local modname = replaydata.mod:gsub("%.tbm$", "")
 								download_mod(modname)
@@ -2568,7 +2568,7 @@ do
 		downloadWait:addCustomDisplay(true, function()
 				frames = frames + 1
 				if (frames == 10) then
-					replayFile = Files:new("../replay/downloads/" .. rplname .. ".rpl", FILES_MODE_READONLY)
+					replayFile = Files:open("../replay/downloads/" .. rplname .. ".rpl", FILES_MODE_READONLY)
 				end
 				if (replayFile) then
 					if (not replayFile:isDownloading()) then
@@ -3100,7 +3100,7 @@ do
 		})
 		local rot, scale = 0, 0
 		download_replay_comments(replay.id)
-		local commentsFile = Files:new("../data/script/system/rplcomments.txt", FILES_MODE_READONLY)
+		local commentsFile = Files:open("../data/script/system/rplcomments.txt", FILES_MODE_READONLY)
 		downloadWait:addCustomDisplay(true, function()
 				set_color(1, 1, 1, 0.8)
 				draw_disk(downloadWait.pos.x + downloadWait.size.w / 2, downloadWait.pos.y + downloadWait.size.h / 2, 20, 30, 200, 1, rot, scale, 0)

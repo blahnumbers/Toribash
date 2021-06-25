@@ -1,0 +1,11 @@
+#Messages
+INTRO1	Hi and welcome to Wipeout Warrior!
+INTRO2	Get to the red zone as fast as you can and press the button to finish!
+INTRO3	Hi again! Let's get back to your auto-saved replay!
+UPLOADSUCCESS1	Hooray, you've successfully uploaded your entry!
+UPLOADSUCCESS2	If everything's fine, you'll receive your base reward soon - and if you're particularly good, an even better prize after the deadline!
+UPLOADSUCCESS3	If you decide to change your replay entry to another one, please post it in event thread on forums.
+UPLOADSUCCESS4	Thanks for participating and see you next time!
+#Tasks
+EVTTASK1	Press the button in the end zone
+EVTTASKADD1	Optional: go through the blue zone for extra reward

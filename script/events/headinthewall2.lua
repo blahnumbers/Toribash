@@ -349,7 +349,7 @@ local function launchGame(viewElement, reqTable)
 	table.insert(reqTable, req)
 	TUTORIAL_LEAVEGAME = true
 	setDiscordRPC()
-	local headTexture = Files:new("../custom/Elmindreda/head.tga")
+	local headTexture = Files:open("../custom/Elmindreda/head.tga")
 	if (not headTexture.data) then
 		download_head("Elmindreda")
 	end
@@ -357,7 +357,7 @@ local function launchGame(viewElement, reqTable)
 	
 	REPLAY_CAN_BE_SUBMITTED = false
 	UIElement:runCmd("lm system/events/" .. CURRENT_TUTORIAL .. ".tbm")
-	local wipReplay = Files:new("../replay/my replays/--eventtmp" .. CURRENT_TUTORIAL .. ".rpl")
+	local wipReplay = Files:open("../replay/my replays/--eventtmp" .. CURRENT_TUTORIAL .. ".rpl")
 	if (wipReplay.data) then
 		for i,ln in pairs(wipReplay:readAll()) do
 			if (ln:find("^JOINT")) then
@@ -545,7 +545,7 @@ local function playerWin(viewElement, reqTable)
 end
 
 loadExistingReplay = function(viewElement, reqTable, rplFile)
-	local replay = Files:new(rplFile and ("../replay/" .. rplFile) or ("../replay/my replays/--eventtmp" .. CURRENT_TUTORIAL .. ".rpl"))
+	local replay = Files:open(rplFile and ("../replay/" .. rplFile) or ("../replay/my replays/--eventtmp" .. CURRENT_TUTORIAL .. ".rpl"))
 	if (not replay.data) then
 		reqTable.ready = not rplFile
 		return false

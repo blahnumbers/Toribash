@@ -19,8 +19,8 @@ do
 	end
 
 	function MoveMemory:checkLegacyCache()
-		local file = Files:new("system/data.mm")
-		local newfile = Files:new("system/movememory.mm", FILES_MODE_WRITE)
+		local file = Files:open("system/data.mm")
+		local newfile = Files:open("system/movememory.mm", FILES_MODE_WRITE)
 		if (not file.data or not newfile.data) then
 			file:close()
 			newfile:close()
@@ -35,13 +35,13 @@ do
 	end
 
 	function MoveMemory:getOpeners()
-		local file = Files:new("system/movememory.mm", FILES_MODE_READONLY)
+		local file = Files:open("system/movememory.mm", FILES_MODE_READONLY)
 		if (not file.data) then
 			if (not pcall(function() MoveMemory:checkLegacyCache() end)) then
 				TBMenu:showDataError(TB_MENU_LOCALIZED.MOVEMEMORYLOADERROR, true)
 				return false
 			end
-			file = Files:new("system/movememory.mm", FILES_MODE_READONLY)
+			file = Files:open("system/movememory.mm", FILES_MODE_READONLY)
 			if (not file.data) then
 				TBMenu:showDataError(TB_MENU_LOCALIZED.MOVEMEMORYLOADERROR, true)
 				return false
@@ -87,7 +87,7 @@ do
 	end
 
 	function MoveMemory:isMoveStored(memorymove)
-		local file = Files:new("system/movememory.mm")
+		local file = Files:open("system/movememory.mm")
 		if (not file.data) then
 			return false
 		end
@@ -104,7 +104,7 @@ do
 		if (memorymove.name:len() == 0) then
 			return
 		end
-		local file = Files:new("system/movememory.mm", FILES_MODE_APPEND)
+		local file = Files:open("system/movememory.mm", FILES_MODE_APPEND)
 		if (not file.data) then
 			return
 		end
@@ -256,7 +256,7 @@ do
 				TBMenu:showDataError(TB_MENU_LOCALIZED.MOVEMEMORYMODNAMEEMPTYERROR, true)
 				return
 			end
-			local file = Files:new("system/movememory.mm", FILES_MODE_APPEND)
+			local file = Files:open("system/movememory.mm", FILES_MODE_APPEND)
 			if (not file.data) then
 				TBMenu:showDataError(LOCALIZED.MOVEMEMORYMOVESAVEERRORPERMS, true)
 				return
@@ -342,7 +342,7 @@ do
 	end
 
 	function MoveMemory:deleteMove(memorymove)
-		local file = Files:new("system/movememory.mm")
+		local file = Files:open("system/movememory.mm")
 		if (not file.data) then
 			TBMenu:showDataError(TB_MENU_LOCALIZED.MOVEMEMORYLOADERROR, true)
 			return false

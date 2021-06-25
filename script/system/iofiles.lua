@@ -9,7 +9,13 @@ do
 	Files = {}
 	Files.__index = Files
 	
+	-- Legacy name, will be deprecated in future releases
+	-- For any new scripts use Files:open() instead
 	function Files:new(path, mode)
+		return Files:open(path, mode)
+	end
+	
+	function Files:open(path, mode)
 		if (not path) then
 			return false
 		end
@@ -68,7 +74,7 @@ do
 	end
 	
 	function Files:writeDebug(line, rewrite)
-		local debug = Files:new("../debug.txt", rewrite and FILES_MODE_WRITE or FILES_MODE_APPEND)
+		local debug = Files:open("../debug.txt", rewrite and FILES_MODE_WRITE or FILES_MODE_APPEND)
 		debug:writeLine(os.clock() .. ': ' .. line)
 		debug:close()
 	end

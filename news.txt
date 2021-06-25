@@ -11,10 +11,10 @@ IMAGE 0;store/armetpromo.tga
 URL 0;https://forum.toribash.com/tori_shop_item.php?id=3416
 STORE 0;3416
 
-//NEWSID 3;
-//TITLE 0;No events live now, but you can still replay any ended event in all events menu!
-//IMAGE 0;openerchallenge20sum.tga
-//FEATURED 0;
+NEWSID 3;
+TITLE 0;No events live now, but you can still replay any ended event in all events menu!
+IMAGE 0;openerchallenge20sum.tga
+FEATURED 0;
 
 //NEWSID 4;
 //TITLE 0;Opener Challenge 8
@@ -23,12 +23,12 @@ STORE 0;3416
 //EVENT 0;1
 //FEATURED 0;
 
-NEWSID 9;
-TITLE 0;It's rank climbing time!
-IMAGE 0;modmania20.tga
-EVENT 0;5
-MODCHAMPIONSHIP 0;
-FEATURED 0;
+//NEWSID 9;
+//TITLE 0;It's rank climbing time!
+//IMAGE 0;modmania20.tga
+//EVENT 0;5
+//MODCHAMPIONSHIP 0;
+//FEATURED 0;
 
 //NEWSID 5;
 //TITLE 0;Floor is Lava 2
@@ -43,11 +43,11 @@ FEATURED 0;
 //EVENT 0;3
 //FEATURED 0;
 
-NEWSID 10;
-TITLE 0;LEGGANG RISE UP!
-IMAGE 0;leggang.tga
-EVENT 0;2
-FEATURED 0;
+//NEWSID 10;
+//TITLE 0;Wipeout Warrior
+//IMAGE 0;wipeoutwarrior.tga
+//EVENT 0;2
+//FEATURED 0;
 
 EVENTID 1;
 NAME 0;Opener Challenge 8
@@ -91,10 +91,9 @@ PRIZETC 0;51000
 PRIZEST 0;51
 
 EVENTID 2;
-NAME 0;LEGGANG RISE UP!
-//IMAGE 0;leggang.tga
-URL 0;https://forum.toribash.com/showthread.php?t=649429
-PLAYNAME 0;leggang
+NAME 0;Wipeout Warrior
+URL 0;https://forum.toribash.com/showthread.php?t=649950
+//PLAYNAME 0;wipeoutwarrior
 OVERLAYTRANS 0;0
 PLAYTEXT 0;PARTICIPATE
 ACCENTCOLOR 0;00dbfe
@@ -103,27 +102,30 @@ BTNHVRCOL 0;005471
 BTNDNCOL 0;01befe
 DESCDATA 0;1Description
 //DESCDATAIMGTITLE 0;1frf4-description.tga
-DESCDATATEXT 0;1Welcome to #leggang!\nWhat is leggang you may ask?!?! Well in short, it's making a replay with no arms whatsoever thanks to our state of the art "arm removal tool"!\nGet through the obstacle course using either of the two paths to win a prize! The red path offers a better reward but harder obstacles (you may even... need a hand, huh?)\nYour goal is to make it to the end in the most stylish way possible!
+DESCDATATEXT 0;1Welcome to Wipeout Warrior!\nRun through the obstacle course and press the button to finish as fast as you can!\nYou can pick either of two paths, you'll only receive better prizes if you get inside the blue zone!\nThere are two main prizes this time - one for the most stylish replay and another for the fastest one!
 DESCDATA 0;2Rules
 //DESCDATAIMGTITLE 0;2frf4-rules.tga
 DESCDATATEXT 0;2- Replay hacking is forbidden\n- Do not steal other players' replays\n- Do not edit any of the game rules except turn and match frames\n- Do not try to enter the event with multiple accounts
 DESCDATA 0;3How to Enter
 //DESCDATAIMGTITLE 0;3frf4-howtoenter.tga
-DESCDATATEXT 0;3Press the "Participate" button on bottom right, complete the challenge and submit your replay to Toribash servers!\nAlternatively, you can download event mod from the thread on forums, make a replay according to rules and post your replay back in event thread - if you just upload it to Toribash Community Replays then it won't be judged.\n^02Only one replay per player will be judged.
+DESCDATATEXT 0;3Press the "Participate" button on bottom right, complete the challenge and submit your replay to Toribash servers!\nAlternatively, you can download event mod from the thread on forums, make a replay according to rules and post your replay back in event thread - if you just upload it to Toribash Community Replays then it won't be judged.\nIf you decide to switch your replay for advanced objective completion or best replay nomination, make sure you ^02post ^02it ^02on ^02forums.\n^02You may submit as ^02many ^02replays ^02for ^02fastest ^02replay ^02nomination ^02as ^02you ^02want.
 DESCDATA 0;4Deadline
 //DESCDATAIMGTITLE 0;4frf4-deadline.tga
-DESCDATATEXT 0;4We will stop accepting new entries on May 21th at 16:00 UTC
+DESCDATATEXT 0;4We will stop accepting new entries on June 11th at 16:00 UTC
 DESCDATA 0;5
 //PRIZEIMG 0;frf4-prizes.tga
 PRIZEDATA 0;1Best replay
-PRIZETC 0;1125000
+PRIZETC 0;175000
 PRIZEST 0;110
-PRIZEDATA 0;2Choose the red path
-PRIZETC 0;210000
-PRIZEST 0;24
-PRIZEDATA 0;3Reach the end zone and press the button
-PRIZETC 0;35000
-PRIZEST 0;32
+PRIZEDATA 0;2Fastest replay
+PRIZETC 0;275000
+PRIZEST 0;28
+PRIZEDATA 0;3Run through the blue zone
+PRIZETC 0;38000
+PRIZEST 0;34
+PRIZEDATA 0;4Reach the end zone and press the button
+PRIZETC 0;43000
+PRIZEST 0;42
 
 EVENTID 3;
 NAME 0;Head in the Wall 2
@@ -211,7 +213,7 @@ BTNDNCOL 0;fff8e9
 DESCDATA 0;1Description
 DESCDATATEXT 0;1Mod Mania is a series of mod championships.\nPlay in modmania rooms, win games and climb up ranks and get rewards!\nEach mod will stay in modmania rooms for 1 week and then will be changed to the next one.
 DESCDATA 0;2Mod Rotation
-DESCDATATEXT 0;2This week's mod is abd_r.tbm - aikidobigdojo.tbm with breakable and rotatable grabs.
+DESCDATATEXT 0;2This week's mod is rk-mma.tbm\nrk-mma is similar to lenshu3ng but has lighter gravity with lower dismember threshold, longer DQ timeout and smaller dojo!
 DESCDATA 0;3How to Participate
 DESCDATATEXT 0;3Play in any modmania room until the event is over - there are new rewards to get each week!
 PRIZEDATA 0;1Top 10 players (by games won, prize listed is for 1st place)

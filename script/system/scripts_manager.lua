@@ -245,7 +245,7 @@ do
 		})
 		scriptName:addAdaptedText(true, file:gsub("^.*/", ""))
 		
-		local scriptFile = Files:new(file)
+		local scriptFile = Files:open(file)
 		local scriptSource = scriptFile:readAll()
 		scriptFile:close()
 		
@@ -257,7 +257,7 @@ do
 			if (info:find("tb_login")) then
 				vulnerabilityAlert = true
 			end
-			if (info:find("io.[p]?open") or info:find("Files:new")) then
+			if (info:find("io.[p]?open") or info:find("Files:open")) then
 				fileAccessAlert = true
 			end
 			if (info:find("dofile") or info:find("require") or info:find("loadfile") or info:find("loadstring")) then

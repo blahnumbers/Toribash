@@ -40,7 +40,8 @@ local events = {
 	"network_complete",
 	"network_error",
 	"post_draw3d",
-	"downloader_complete"
+	"downloader_complete",
+	"filebrowser_select"
 }
 
 function call_hook(event, ...)

@@ -1711,7 +1711,8 @@ do
 	function TBMenu:showGameLogo()
 		local logo = TB_MENU_GAME_LOGO
 		local gametitle = TB_MENU_GAME_TITLE
-		local logoSize = 80
+		local logoSize = math.min(WIN_W / 15, 90)
+		local gameTitleSize = math.min(WIN_W / 5, 256)
 		local customLogo = io.open("custom/" .. TB_MENU_PLAYER_INFO.username .. "/logo.tga", "r", 1)
 		if (customLogo) then
 			logo = "../../custom/" .. TB_MENU_PLAYER_INFO.username .. "/logo.tga"
@@ -1725,14 +1726,14 @@ do
 		end
 		local tbMenuLogo = UIElement:new( {
 			parent = tbMenuMain,
-			pos = {50, 15},
-			size = {logoSize, logoSize},
+			pos = { logoSize / 9 * 5, 10 },
+			size = { logoSize, logoSize },
 			bgImage = logo
 		})
 		local tbMenuGameTitle = UIElement:new( {
 			parent = tbMenuMain,
-			pos = {135, 25},
-			size = {200, 200},
+			pos = { logoSize / 9 * 14 + 5, 15 },
+			size = { gameTitleSize, gameTitleSize },
 			bgImage = gametitle
 		})
 	end
@@ -1939,6 +1940,19 @@ do
 			size = { 110, 40 }
 		})
 		tbMenuUserQi:addAdaptedText(true, TB_MENU_PLAYER_INFO.data.belt.name .. " belt", nil, nil, 2, nil, nil, nil, nil, 1)
+		
+		TB_MENU_CUSTOMS_REFRESHED = false
+		tbMenuUserBar:addCustomDisplay(false, function()
+				if (TB_MENU_CUSTOMS_REFRESHED) then
+					TB_MENU_CUSTOMS_REFRESHED = false
+					
+					TB_MENU_PLAYER_INFO.data = PlayerInfo:getUserData()
+					TB_MENU_PLAYER_INFO.items = PlayerInfo:getItems(TB_MENU_PLAYER_INFO.username)
+					TB_MENU_PLAYER_INFO.clan = PlayerInfo:getClan(TB_MENU_PLAYER_INFO.username)
+					tbMenuUserTcBalance:addAdaptedText(true, PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.tc), nil, 1, 2, 6, 0.9)
+					tbMenuUserStBalance:addAdaptedText(true, PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.st), nil, 1, 2, 6, 0.9)
+				end
+			end)
 	end
 	
 	function TBMenu:showPlayerHeadAvatar(viewElement, player)
@@ -2029,7 +2043,7 @@ do
 		local temp = UIElement:new({
 			parent = tbMenuNavigationBar,
 			pos = { 0, 0 },
-			size = { WIN_W, tbMenuNavigationBar.size.h / 6 * 4 }
+			size = { tbMenuNavigationBar.size.w, tbMenuNavigationBar.size.h / 6 * 4 }
 		})
 		
 		while (totalWidth > tbMenuNavigationBar.size.w - navX.l[1] + navX.r[1]) do
@@ -2038,6 +2052,10 @@ do
 			for i,v in pairs(tbMenuNavigationButtonsData) do
 				local string = v.misctext and v.text .. " " .. v.misctext or v.text
 				temp:addAdaptedText(true, string, nil, nil, fontId, nil, fontScale, fontScale, nil, nil, nil, nil, nil, true)
+				if (getFontMod(temp.textFont) * 10 * temp.textScale > temp.size.h) then
+					totalWidth = tbMenuNavigationBar.size.w
+					break
+				end
 				v.width = get_string_length(temp.dispstr[1] .. "_____", temp.textFont) * temp.textScale
 				totalWidth = totalWidth + v.width
 			end
@@ -2198,10 +2216,11 @@ do
 	end
 
 	function TBMenu:showBottomBar(leftOnly)
+		local buttonSize = math.min(WIN_W / 25, 50)
 		tbMenuBottomLeftBar = tbMenuBottomLeftBar or UIElement:new( {
 			parent = tbMenuMain,
-			pos = { 45, -70 },
-			size = { 110, 50 }
+			pos = { 45, -buttonSize / 5 * 7 },
+			size = { 110, buttonSize }
 		})
 		local shopCheckExit = function()
 			if (STORE_VANILLA_PREVIEW) then
@@ -2218,58 +2237,13 @@ do
 			{ action = function() if (TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 8) then TBMenu:showFriendsList() else FriendsList:quit() end end, image = TB_MENU_FRIENDS_BUTTON, imageHover = TB_MENU_FRIENDS_BUTTON_HOVER, imagePress = TB_MENU_FRIENDS_BUTTON_PRESS },
 			{ action = function() if (TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 4) then TBMenu:showNotifications() else Notifications:quit() end end, image = TB_MENU_NOTIFICATIONS_BUTTON, imageHover = TB_MENU_NOTIFICATIONS_BUTTON_HOVER, imagePress = TB_MENU_NOTIFICATIONS_BUTTON_PRESS },
 			{ action = function() if (TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 7) then TBMenu:showBounties() else Bounty:quit() end end, image = TB_MENU_BOUNTY_BUTTON, imageHover = TB_MENU_BOUNTY_BUTTON_HOVER, imagePress = TB_MENU_BOUNTY_BUTTON_PRESS },
-			{ action = function() open_url("http://discord.gg/toribash") end, image = TB_MENU_DISCORD_BUTTON, imageHover = TB_MENU_DISCORD_BUTTON_HOVER, imagePress = TB_MENU_DISCORD_BUTTON_PRESS }
+			{ action = function() open_url("https://toribash.com/discord.php") end, image = TB_MENU_DISCORD_BUTTON, imageHover = TB_MENU_DISCORD_BUTTON_HOVER, imagePress = TB_MENU_DISCORD_BUTTON_PRESS }
 		}
 		local tbMenuBottomLeftButtons = {}
 		for i, v in pairs(tbMenuBottomLeftButtonsData) do
 			tbMenuBottomLeftButtons[i] = TBMenu:createImageButtons(tbMenuBottomLeftBar, (i - 1) * (tbMenuBottomLeftBar.size.h + 10), 0, tbMenuBottomLeftBar.size.h, tbMenuBottomLeftBar.size.h, v.image, v.imageHover, v.imagePress)
 			tbMenuBottomLeftButtons[i]:addMouseHandlers(nil, function() shopCheckExit() v.action() end, nil)
 		end
-		--[[if (TB_BOUNTIES_DEFINED) then
-			local tbMenuPulseNotification = UIElement:new({
-				parent = tbMenuBottomLeftBar,
-				pos = { #tbMenuBottomLeftButtonsData * (tbMenuBottomLeftBar.size.h + 10) + 5, 5 },
-				size = { tbMenuBottomLeftBar.size.h * 5 - 10, tbMenuBottomLeftBar.size.h - 10 },
-				interactive = true,
-				bgColor = TB_MENU_DEFAULT_BG_COLOR,
-				hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
-				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-				shapeType = ROUNDED,
-				rounded = tbMenuBottomLeftBar.size.h
-			})
-			tbMenuPulseNotification:addMouseHandlers(nil, function()
-					TBMenu:showBounties()
-				end)
-			local pulseMod = 0
-			tbMenuPulseNotification:addCustomDisplay(false, function()
-					local r, g, b, a = unpack(tbMenuPulseNotification.animateColor)
-					set_color(r, g, b, a - pulseMod / 15)
-					draw_disk(tbMenuPulseNotification.pos.x + tbMenuPulseNotification.size.h / 2, tbMenuPulseNotification.pos.y + tbMenuPulseNotification.size.h / 2, tbMenuPulseNotification.size.h / 2, tbMenuPulseNotification.size.h / 2 + pulseMod, 500, 1, 180, 180, 0)
-					draw_disk(tbMenuPulseNotification.pos.x + tbMenuPulseNotification.size.w - tbMenuPulseNotification.size.h / 2, tbMenuPulseNotification.pos.y + tbMenuPulseNotification.size.h / 2, tbMenuPulseNotification.size.h / 2, tbMenuPulseNotification.size.h / 2 + pulseMod, 500, 1, 0, 180, 0)
-					draw_quad(tbMenuPulseNotification.pos.x + tbMenuPulseNotification.size.h / 2, tbMenuPulseNotification.pos.y - pulseMod, tbMenuPulseNotification.size.w - tbMenuPulseNotification.size.h, tbMenuPulseNotification.size.h + pulseMod * 2)
-					pulseMod = pulseMod + 0.2
-					if (pulseMod > 15) then
-						pulseMod = 0
-					end
-				end)
-			local tbMenuPulseNotificationCaption = UIElement:new({
-				parent = tbMenuPulseNotification,
-				pos = { 10, 0 },
-				size = { tbMenuPulseNotification.size.w - 20, tbMenuPulseNotification.size.h }
-			})
-			tbMenuPulseNotificationCaption:addAdaptedText(false, "Toribash's Most Wanted")
-		end]]
-		--[[local tbMenuFriendsBetaCaption = UIElement:new({
-			parent = tbMenuBottomLeftButtons[1],
-			pos = { 0, -tbMenuBottomLeftBar.size.h / 3 },
-			size = { tbMenuBottomLeftBar.size.h, tbMenuBottomLeftBar.size.h / 3 },
-			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
-			shapeType = ROUNDED,
-			rounded = tbMenuBottomLeftBar.size.h
-		})
-		tbMenuFriendsBetaCaption:addCustomDisplay(false, function()
-				tbMenuFriendsBetaCaption:uiText("Beta", nil, nil, nil, nil, 0.6)
-			end)]]
 		local notificationsCountWidth = get_string_length(TB_MENU_NOTIFICATIONS_COUNT + TB_MENU_NOTIFICATIONS_NET_COUNT + TB_MENU_QUESTS_GLOBAL_COUNT + TB_MENU_QUESTS_COUNT, FONTS.MEDIUM) * 0.9
 		notificationsCountWidth = notificationsCountWidth > tbMenuBottomLeftBar.size.h / 2 and (notificationsCountWidth > tbMenuBottomLeftBar.size.h and tbMenuBottomLeftBar.size.h or notificationsCountWidth) or tbMenuBottomLeftBar.size.h / 2
 		tbMenuNotificationsCount = UIElement:new({
@@ -2292,14 +2266,15 @@ do
 					tbMenuNotificationsCount.hidden = false
 				end
 			end)
+		tbMenuBottomLeftBar.size.w = #tbMenuBottomLeftButtonsData * (tbMenuBottomLeftBar.size.h + 10)
 		if (leftOnly) then
 			return
 		end
 
 		tbMenuBottomRightBar = tbMenuBottomRightBar or UIElement:new({
 			parent = tbMenuMain,
-			pos = { -145, -70 },
-			size = { 110, 50 }
+			pos = { -145, -buttonSize / 5 * 7 },
+			size = { 110, buttonSize }
 		})
 		local tbMenuBottomRightButtonsData = {
 			{ action = function() open_menu(4) end, image = TB_MENU_QUIT_BUTTON, imageHover = TB_MENU_QUIT_BUTTON_HOVER, imagePress = TB_MENU_QUIT_BUTTON_PRESS },
@@ -2545,6 +2520,9 @@ do
 			maxHeight = #listElementsDisplay * elementHeight + 4
 		end
 		local selectedItem = selectedItem or listElements[1]
+		if (type(selectedItem) ~= "table") then
+			selectedItem = listElements[selectedItem] or listElements[1]
+		end
 		local fontid = fontid or 4
 		local fontid2 = fontid2 or 4
 		local overlay = UIElement:new({
@@ -2597,6 +2575,7 @@ do
 			bgColor = holderElement.bgColor or TB_MENU_DEFAULT_DARKER_COLOR,
 			hoverColor = holderElement.hoverColor or TB_MENU_DEFAULT_DARKEST_COLOR,
 			pressedColor = holderElement.pressedColor or TB_MENU_DEFAULT_BG_COLOR,
+			inactiveColor = holderElement.inactiveColor or TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
 			shapeType = holderElement.shapeType,
 			rounded = holderElement.rounded
 		})
@@ -2622,9 +2601,14 @@ do
 					bgColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
 					hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
 					pressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR,
+					inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR,
 					shapeType = holderElement.shapeType,
 					rounded = holderElement.rounded
 				})
+				if (v.locked) then
+					element.uiColor = cloneTable(UICOLORBLACK)
+					element:deactivate(true)
+				end
 				element:addAdaptedText(false, v.text:upper(), nil, nil, fontid2, nil, textScale2)
 				element:addMouseHandlers(nil, function()
 						overlay:hide(true)
@@ -2774,7 +2758,9 @@ do
 			parent = element,
 			pos = { 0, 0 },
 			size = { WIN_W / 3, WIN_H / 10 },
-			bgColor = { 0, 0, 0, 0.8 }
+			bgColor = { 0, 0, 0, 0.8 },
+			shapeType = ROUNDED,
+			rounded = 5
 		})
 
 		if (messageElement.pos.x < 0) then

@@ -36,12 +36,15 @@ TB_MENU_DEFAULT_ORANGE = { 0.965, 0.725, 0.172, 1 }
 TB_MENU_DEFAULT_DARKER_ORANGE = { 0.965, 0.606, 0.109, 1 }
 TB_MENU_DEFAULT_BLUE = { 0.004, 0.506, 0.906, 1 }
 TB_MENU_DEFAULT_DARKER_BLUE = { 0.004, 0.349, 0.671, 1 }
+TB_MENU_DEFAULT_INACTIVE_COLOR = { 0.8, 0.8, 0.8, 1 }
+TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS = { 0.6, 0.6, 0.6, 0.5 }
 
 TB_MENU_UI_TEXT_COLOR = { 1, 1, 1, 1 }
 TB_MENU_UI_TEXT_SHADOW_COLOR = { 0, 0, 0, 0.6 }
 
 -- Textures
 TB_MENU_GAME_LOGO = "../textures/menu/logos/toribash_small.tga"
+TB_MENU_GAME_LOGO_BIG = "../textures/menu/logos/toribash.tga"
 TB_MENU_GAME_TITLE = "../textures/menu/logos/toribashgametitle.tga"
 TB_MENU_USERBAR_MAIN = "../textures/menu/general/topbarbgmain.tga"
 TB_MENU_USERBAR_LEFT = "../textures/menu/general/topbarbgleft.tga"

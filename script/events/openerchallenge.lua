@@ -314,7 +314,7 @@ local function launchGame(viewElement, reqTable)
 	
 	REPLAY_CAN_BE_SUBMITTED = false
 	setModSettings()
-	local wipReplay = Files:new("../replay/my replays/--eventtmp" .. CURRENT_TUTORIAL .. ".rpl")
+	local wipReplay = Files:open("../replay/my replays/--eventtmp" .. CURRENT_TUTORIAL .. ".rpl")
 	if (wipReplay.data) then
 		for i,ln in pairs(wipReplay:readAll()) do
 			if (ln:find("^JOINT")) then
@@ -350,7 +350,7 @@ local function checkOpenerReplay(viewElement, reqTable)
 	local req = { type = "newgame", ready = false }
 	table.insert(reqTable, req)
 	
-	local rplFile = Files:new("../replay/system/events/" .. CURRENT_TUTORIAL .. ".rpl")
+	local rplFile = Files:open("../replay/system/events/" .. CURRENT_TUTORIAL .. ".rpl")
 	if (not rplFile.data) then
 		dofile("system/network_request.lua")
 		local loader = UIElement:new({
@@ -398,7 +398,7 @@ local function checkOpenerReplay(viewElement, reqTable)
 end
 
 local function loadExistingReplay(viewElement, reqTable, openerOnly)
-	local opener = Files:new("../replay/system/events/" .. CURRENT_TUTORIAL .. ".rpl")
+	local opener = Files:open("../replay/system/events/" .. CURRENT_TUTORIAL .. ".rpl")
 	if (not opener.data) then
 		reqTable.ready = true
 		return false
@@ -438,7 +438,7 @@ local function loadExistingReplay(viewElement, reqTable, openerOnly)
 	
 	local current_step = 1
 	
-	local replay = Files:new("../replay/my replays/--eventtmp" .. CURRENT_TUTORIAL .. ".rpl")
+	local replay = Files:open("../replay/my replays/--eventtmp" .. CURRENT_TUTORIAL .. ".rpl")
 	local setReady = false
 	if (not replay.data) then
 		setReady = true

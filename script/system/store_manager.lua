@@ -1,8 +1,8 @@
 -- new store manager class
-
+INVENTORY_LIST_SHIFT = INVENTORY_LIST_SHIFT or { 0 }
 local CATEGORIES_COLORS = { 44, 22, 2, 20, 21, 1, 5, 11, 12, 24, 27, 28, 29, 30, 34, 41, 43, 73 }
---local CATEGORIES_TEXTURES = { 48, 54, 55, 57, 58 }
-local CATEGORIES_ADVANCED = { 78, 72, 80, 54, 74, 55, 57, 58, 48 }
+local CATEGORIES_TEXTURES = { 54, 55, 57, 58, 74 }
+local CATEGORIES_ADVANCED = { 78, 72, 87, 80, 54, 74, 55, 57, 58, 48 }
 local CATEGORIES_ACCOUNT = { 45, 84, 68, 79 }
 local CATEGORIES_HIDDEN = { 3 }
 
@@ -30,6 +30,12 @@ local ITEM_EMPTY = {
 	colorid = 0,
 	hidden = 1,
 	locked = 1
+}
+
+local ITEM_EFFECTS = { 
+	{ id = 1, name = "Toon Shaded", colorid = 11 },
+	{ id = 2, name = " Glow", colorid = 0, use_colorid = true },
+	{ id = 4, name = "Dithering", colorid = 135 }
 }
 
 do
@@ -186,12 +192,26 @@ do
 		return ITEM_EMPTY
 	end
 	
+	function Torishop:isTextureItem(itemid)
+		local item = Torishop:getItemInfo(itemid)
+		return in_array(item.catid, CATEGORIES_TEXTURES)
+	end
+	
 	function Torishop:getItemIcon(item)
 		if (type(item) == "table" and item.itemid) then
 			return "../textures/store/items/" .. item.itemid .. ".tga"
 		elseif (item) then
 			return "../textures/store/items/" .. item .. ".tga"
 		end
+	end
+	
+	function Torishop:itemSupportsEffects(itemid)
+		local item = type(itemid) == "table" and itemid or Torishop:getItemInfo(itemid)
+		if (in_array(item.catid, { 2, 20, 22 }) or
+			in_array(item.itemid, { 1337, 1566, 1567, 2888})) then
+			return true
+		end
+		return false
 	end
 
 	function Torishop:getSaleItems(featured)
@@ -263,7 +283,10 @@ do
 			{ "unpackable", bool = true },
 			{ "games_played", numeric = true },
 			{ "upgrade_games", numeric = true },
-			{ "upgrade_price", numeric = true }
+			{ "upgrade_price", numeric = true },
+			{ "upgrade_max_level", numeric = true },
+			{ "effectid", numeric = true },
+			{ "glow_colorid", numeric = true }
 		}
 		local inventory = {}
 		local itemUpdated = TB_ITEM_DETAILS and 0 or 1
@@ -306,6 +329,8 @@ do
 							itemUpdated = 1
 						end
 					end
+					item.upgradeable = item.upgrade_level > 0
+					item.customizable = item.upgradeable or item.uploadable or Torishop:itemSupportsEffects(item.itemid)
 					if (item.itemid ~= ITEM_SHIAI_TOKEN) then
 						table.insert(inventory, item)
 					end
@@ -323,6 +348,11 @@ do
 		local inventoryRaw = Torishop:getInventoryRaw()
 		local inventory = {}
 		local activatedTemp = {}
+		
+		if (type(inventoryRaw) ~= "table") then
+			return inventory
+		end
+		
 		for i,v in pairs(inventoryRaw) do
 			if (v.itemid == ITEM_SET) then
 				v.contents = {}
@@ -395,7 +425,6 @@ do
 	end
 
 	function Torishop:refreshInventory(showInventory)
-		INVENTORY_UPDATE = false
 		UIElement:runCmd("download " .. TB_MENU_PLAYER_INFO.username)
 		if (showInventory) then
 			Torishop:prepareInventory(tbMenuCurrentSection, true)
@@ -522,6 +551,7 @@ do
 
 		local bottomSmudge = TBMenu:addBottomBloodSmudge(inventoryItemView, 2)
 		local itemData = TB_STORE_DATA[item.itemid]
+		
 		if (item.itemid == ITEM_SET) then
 			local itemName = UIElement:new({
 				parent = inventoryItemView,
@@ -635,24 +665,22 @@ do
 			end
 			itemDescription:addAdaptedText(true, itemData.description .. "\n" .. modelBodypartStr, nil, nil, 4, LEFTMID, 0.7)
 			
-			if (item.upgrade_level > 0 and ((item.upgrade_games > 0 and item.games_played < item.upgrade_games) or (item.upgrade_price > 0 and item.upgrade_price > TB_MENU_PLAYER_INFO.data.tc))) then
+			--[[if (item.upgrade_level > 0 and ((item.upgrade_games > 0 and item.games_played < item.upgrade_games) or (item.upgrade_price > 0 and item.upgrade_price > TB_MENU_PLAYER_INFO.data.tc))) then
 				local itemUpgradeInfo = UIElement:new({
 					parent = inventoryItemView,
 					pos = { 10, itemInfo.size.h + itemInfo.shift.y + 10 },
 					size = { inventoryItemView.size.w - 20, 30 }
 				})
 				local upgradeString = ''
-				local gamesMentioned = false
 				if (item.upgrade_games > item.games_played) then
-					gamesMentioned = true
-					upgradeString = "You need to play " .. (item.upgrade_games - item.games_played) .. " more fights with this item equipped "
+					upgradeString = TB_MENU_LOCALIZED.STOREYOUNEEDTOPLAYGAMES1 .. " " .. (item.upgrade_games - item.games_played) .. " " .. TB_MENU_LOCALIZED.STOREYOUNEEDTOPLAYGAMES2
 				end
 				if (item.upgrade_price > TB_MENU_PLAYER_INFO.data.tc) then
-					upgradeString = upgradeString == '' and "You need to have " .. item.upgrade_price .. " Toricredits " or "and have " .. item.upgrade_price .. " Toricredits "
+					upgradeString = upgradeString .. (upgradeString == '' and '' or "\n") .. TB_MENU_LOCALIZED.STOREYOUNEEDTC1 .. " " .. item.upgrade_price .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS
 				end
-				upgradeString = upgradeString .. "to be able to upgrade " .. (gamesMentioned and "it" or "this item")
+				upgradeString = upgradeString .. " to be able to upgrade " .. (gamesMentioned and "it" or "this item")
 				itemUpgradeInfo:addAdaptedText(true, upgradeString, nil, nil, 4, nil, 0.6)
-			end
+			end]]
 		end
 		
 		local buttonHeight = inventoryItemView.size.h / 10 > 40 and 40 or inventoryItemView.size.h / 10
@@ -670,6 +698,7 @@ do
 			if (item.insideset) then
 				addSetButton:addAdaptedText(nil, TB_MENU_LOCALIZED.STOREITEMGOTOSET)
 				addSetButton:addMouseHandlers(nil, function()
+						INVENTORY_LIST_SHIFT[1] = 0
 						Torishop:showInventoryPage(item.parentset.contents, nil, mode, TB_MENU_LOCALIZED.STORESETITEMNAME .. ": " .. item.parentset.setname, "invid" .. item.parentset.inventid, nil, true)
 					end)
 			elseif (item.setid == 0) then
@@ -680,8 +709,7 @@ do
 			else
 				addSetButton:addAdaptedText(nil, TB_MENU_LOCALIZED.STOREITEMREMOVEFROMSET)
 				addSetButton:addMouseHandlers(nil, function()
-						INVENTORY_UPDATE = true
-						INVENTORY_MOUSE_POS = { x = posX, y = posY }
+						Torishop:spawnInventoryUpdateWaiter()
 						INVENTORY_SELECTION_RESET = true
 						local dialogMessage = TB_MENU_LOCALIZED.STOREDIALOGREMOVEFROMSET1 .. " " .. item.name .. (TB_MENU_LOCALIZED.STOREDIALOGREMOVEFROMSET2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGREMOVEFROMSET2 .. "?")
 						show_dialog_box(INVENTORY_REMOVESET, dialogMessage, "0 " .. item.inventid)
@@ -700,6 +728,7 @@ do
 			})
 			viewSet:addAdaptedText(nil, TB_MENU_LOCALIZED.STOREVIEWSETITEMS)
 			viewSet:addMouseHandlers(nil, function()
+					INVENTORY_LIST_SHIFT[1] = 0
 					Torishop:showInventoryPage(item.contents, nil, mode, TB_MENU_LOCALIZED.STOREITEMSINSET .. ": " .. item.setname, "invid" .. item.inventid, nil, true)
 				end, nil)
 			buttonYPos = buttonYPos - buttonHeight * 1.2
@@ -722,7 +751,8 @@ do
 				end, nil)
 			buttonYPos = buttonYPos - inventoryItemView.size.h / 7
 		end--]]
-		if (item.upgrade_level > 0 and (item.upgrade_games > 0 or item.upgrade_price > 0) and item.games_played >= item.upgrade_games and item.upgrade_price <= TB_MENU_PLAYER_INFO.data.tc) then
+		-- Upgrade button is deprecated, we use customize screen now
+		--[[if (item.upgrade_level > 0 and (item.upgrade_games ~= -1 or item.upgrade_price ~= -1 or item.upgrade_level < item.upgrade_max_level) and item.games_played >= item.upgrade_games and item.upgrade_price <= TB_MENU_PLAYER_INFO.data.tc) then
 			local upgradeButton = UIElement:new({
 				parent = inventoryItemView,
 				pos = { 10, buttonYPos },
@@ -734,13 +764,12 @@ do
 			})
 			upgradeButton:addAdaptedText(nil, TB_MENU_LOCALIZED.STOREITEMUPGRADEFOR .. " " .. (item.upgrade_price > 0 and (item.upgrade_price .. " TC") or TB_MENU_LOCALIZED.STOREITEMUPGRADEPRICEFREE))
 			upgradeButton:addMouseHandlers(nil, function()
-					INVENTORY_UPDATE = true
-					INVENTORY_MOUSE_POS = { x = posX, y = posY }
-					show_dialog_box(INVENTORY_UPGRADE, TB_MENU_LOCALIZED.STOREDIALOGUPGRADE1 .. "\n" .. item.name .. " ".. TB_MENU_LOCALIZED.STOREDIALOGUPGRADE2 .. " " .. (item.upgrade_level + 1) .. "?", item.inventid)
+					Torishop:spawnInventoryUpdateWaiter()
+					show_dialog_box(INVENTORY_UPGRADE, TB_MENU_LOCALIZED.STOREDIALOGUPGRADE1 .. "\n" .. item.name .. " ".. TB_MENU_LOCALIZED.STOREDIALOGUPGRADE2 .. " " .. (item.upgrade_level + 1) .. "?", item.inventid .. ";" .. item.upgrade_price)
 				end)
 			buttonYPos = buttonYPos - buttonHeight * 1.2
-		end
-		if (item.uploadable) then
+		end]]
+		if (item.customizable) then
 			local customizeButton = UIElement:new({
 				parent = inventoryItemView,
 				pos = { 10, buttonYPos },
@@ -750,9 +779,11 @@ do
 				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
 			})
-			TBMenu:showTextWithImage(customizeButton, TB_MENU_LOCALIZED.STOREITEMSCUSTOMIZE, FONTS.MEDIUM, customizeButton.size.h / 3 * 2, "../textures/menu/general/buttons/external.tga")
+			customizeButton:addAdaptedText(false, TB_MENU_LOCALIZED.STOREITEMSCUSTOMIZE)
+			--TBMenu:showTextWithImage(customizeButton, TB_MENU_LOCALIZED.STOREITEMSCUSTOMIZE, FONTS.MEDIUM, customizeButton.size.h / 3 * 2, "../textures/menu/general/buttons/external.tga")
 			customizeButton:addMouseHandlers(nil, function()
-					open_url("https://forum.toribash.com/tori_item.php?invid=" .. item.inventid)
+					Torishop:showInventoryItemCustomize(item)
+					--open_url("https://forum.toribash.com/tori_item.php?invid=" .. item.inventid)
 				end)
 			buttonYPos = buttonYPos - buttonHeight * 1.2
 		end
@@ -769,16 +800,14 @@ do
 			if (item.active) then
 				activateButton:addAdaptedText(nil, TB_MENU_LOCALIZED.STOREITEMDEACTIVATE)
 				activateButton:addMouseHandlers(nil, function(s, posX, posY)
-						INVENTORY_UPDATE = true
-						INVENTORY_MOUSE_POS = { x = posX, y = posY }
+						Torishop:spawnInventoryUpdateWaiter()
 						show_dialog_box(INVENTORY_DEACTIVATE, TB_MENU_LOCALIZED.STOREDIALOGDEACTIVATE1 .. " " .. item.name .. (TB_MENU_LOCALIZED.STOREDIALOGDEACTIVATE2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGDEACTIVATE2 .. "?"), item.inventid)
 					end, nil)
 			else
 				local itemToDeactivate = Torishop:getItemToDeactivate(item)
 				activateButton:addAdaptedText(nil, TB_MENU_LOCALIZED.STOREITEMACTIVATE)
 				activateButton:addMouseHandlers(nil, function()
-						INVENTORY_UPDATE = true
-						INVENTORY_MOUSE_POS = { x = posX, y = posY }
+						Torishop:spawnInventoryUpdateWaiter()
 						show_dialog_box(INVENTORY_ACTIVATE, TB_MENU_LOCALIZED.STOREDIALOGACTIVATE1 .. " " .. item.name .. (TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 .. "?") .. "\n" .. (itemToDeactivate and itemToDeactivate.name .. " " .. TB_MENU_LOCALIZED.STOREDIALOGITEMCONFLICTDEACTIVATE or TB_MENU_LOCALIZED.STOREDIALOGCONFLICTSDEACTIVATE), item.inventid)
 					end, nil)
 			end
@@ -794,11 +823,647 @@ do
 			})
 			unpackButton:addAdaptedText(nil, TB_MENU_LOCALIZED.STOREITEMUNPACK)
 			unpackButton:addMouseHandlers(nil, function()
-					INVENTORY_UPDATE = true
-					INVENTORY_MOUSE_POS = { x = posX, y = posY }
+					Torishop:spawnInventoryUpdateWaiter()
 					show_dialog_box(INVENTORY_UNPACK, TB_MENU_LOCALIZED.STOREDIALOGUNPACK1 .. " " .. item.name .. (TB_MENU_LOCALIZED.STOREDIALOGUNPACK2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGUNPACK2 .. "?") .. "\n" .. TB_MENU_LOCALIZED.STOREDIALOGUNPACKINFO, item.inventid)
 				end, nil)
 		end
+	end
+	
+	function Torishop:showInventoryItemCustomize(item)
+		local overlay = TBMenu:spawnWindowOverlay()
+		overlay:addMouseHandlers(nil, function()
+				overlay:kill()
+			end)
+			
+		local customizeSize = { x = 600, y = 500 }
+		local customizeHolder = UIElement:new({
+			parent = overlay,
+			pos = { (WIN_W - customizeSize.x) / 2, (WIN_H - customizeSize.y) / 2},
+			size = { customizeSize.x, customizeSize.y },
+			bgColor = TB_MENU_DEFAULT_BG_COLOR,
+			interactive = true
+		})
+		local customizeTitle = UIElement:new({
+			parent = customizeHolder,
+			pos = { 50, 10 },
+			size = { customizeHolder.size.w - 100, 40 }
+		})
+		customizeTitle:addAdaptedText(true, "Customizing " .. item.name, nil, nil, FONTS.BIG)
+		local closeButton = UIElement:new({
+			parent = customizeHolder,
+			pos = { -40, 10 },
+			size = { 30, 30 },
+			interactive = true,
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+			shapeType = ROUNDED,
+			rounded = 3
+		})
+		closeButton:addMouseHandlers(nil, function()
+				overlay:kill()
+			end)
+		local closeImage = UIElement:new({
+			parent = closeButton,
+			pos = { 5, 5 },
+			size = { closeButton.size.w - 10, closeButton.size.h - 10 },
+			bgImage = "../textures/menu/general/buttons/crosswhite.tga"
+		})
+		
+		local customizeSectionHolder = UIElement:new({
+			parent = customizeHolder,
+			pos = { 20, 105 },
+			size = { customizeHolder.size.w - 40, customizeHolder.size.h - 120 }
+		})
+		
+		local customizeItemTexture, customizeItemLevel, customizeItemEffect
+		customizeItemTexture = function(forceReload)
+			customizeSectionHolder:kill(true)
+			local itemImage = UIElement:new({
+				parent = customizeSectionHolder,
+				pos = { 0, (customizeSectionHolder.size.h - 256) / 2 },
+				size = { 256, 256 },
+				bgImage = { "../textures/store/inventory/" .. item.inventid .. ".tga", "../textures/store/inventory/noise.tga" }
+			})
+			itemImage:addCustomDisplay(false, function()
+					if (itemImage.requireReload) then
+						item.iconElement:updateImage(nil)
+						itemImage:updateImage("../textures/store/inventory/" .. item.inventid .. ".tga", "../textures/store/inventory/noise.tga")
+						item.iconElement:updateImage("../textures/store/inventory/" .. item.inventid .. ".tga", "../textures/store/inventory/noise.tga")
+						itemImage.requireReload = false
+					end
+				end)
+			
+			local itemImageRefreshing = UIElement:new({
+				parent = itemImage,
+				pos = { 0, 0 },
+				size = { itemImage.size.w, itemImage.size.h },
+				bgColor = TB_MENU_DEFAULT_BG_COLOR_TRANS
+			})
+			TBMenu:displayLoadingMark(itemImageRefreshing)
+			
+			local onImageDownloaded = function()
+				itemImageRefreshing:kill()
+				remove_hooks("torishop_inventory_" .. item.inventid .. "_texture")
+				itemImage.requireReload = true
+			end
+			
+			Request:queue(function()
+					download_server_file("customtexture&invid=" .. item.inventid, 0)
+				end, "torishop_inventory_" .. item.inventid .. "_texture_prepare", function()
+					if (itemImage.destroyed) then return end
+					local response = get_network_response()
+					if (not response:find("^ERROR")) then
+						if (not forceReload) then
+							-- Check if we already have the file from cache first
+							local textureFile = Files:new("../data/textures/store/inventory/" .. item.inventid .. ".tga")
+							if (textureFile.data) then
+								onImageDownloaded()
+								textureFile:close()
+								return
+							end
+						end
+						-- Wasn't there, wait for downloader
+						add_hook("downloader_complete", "torishop_inventory_" .. item.inventid .. "_texture", function(name)
+							if (name:match("^.*/store/inventory/" .. item.inventid .. ".tga")) then
+								onImageDownloaded()
+							end
+						end)
+						-- get_downloads() doesn't get updated until after this code is run, add a pre_draw hook to check on next frame
+						add_hook("pre_draw", "torishop_inventory_" .. item.inventid .. "_texture", function()
+								if (#get_downloads() == 0) then
+									onImageDownloaded()
+								end
+							end)
+					else
+						itemImageRefreshing:kill()
+						itemImage:addAdaptedText(false, TB_MENU_LOCALIZED.INVENTORYNOTEXTUREUPLOADED, nil, nil, FONTS.BIG, nil, 0.6)
+					end
+				end, function()
+					itemImageRefreshing:kill()
+					TBMenu:showDataError(TB_MENU_LOCALIZED.REQUESTUNKNOWNERROR)
+				end)
+				
+			local uploadTextureButton = UIElement:new({
+				parent = customizeSectionHolder,
+				pos = { 270, -210 },
+				size = { customizeSectionHolder.size.w - 270, 70 },
+				interactive = true,
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+				shapeType = ROUNDED,
+				rounded = 4
+			})
+			uploadTextureButton:addAdaptedText(false, TB_MENU_LOCALIZED.INVENTORYUPLOADNEWTEXTURE)
+			uploadTextureButton:addMouseHandlers(nil, function()
+					if (open_file_browser("Image Files", "jpg;jpeg;png;tga;gif;bmp", "All Files", "*")) then
+						add_hook("filebrowser_select", "on_filebrowser_select", function(filename)
+								if (filename ~= "") then
+									local filenameNoPath = filename:gsub(".*%\\(.+%.%w+)$", "%1")
+									TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.INVENTORYUPLOADTEXTURECONFIRM1 .. " " .. filenameNoPath .. " " .. TB_MENU_LOCALIZED.INVENTORYUPLOADTEXTURECONFIRM2 .. " " .. item.name .. "?\n" .. TB_MENU_LOCALIZED.INVENTORYUPLOADTEXTUREOVERWRITENOTICE, function()
+											local uploadInProgress = UIElement:new({
+												parent = customizeHolder,
+												pos = { 0, 0 },
+												size = { customizeHolder.size.w, customizeHolder.size.h },
+												bgColor = TB_MENU_DEFAULT_BG_COLOR_TRANS,
+												interactive = true
+											})
+											TBMenu:displayLoadingMark(uploadInProgress, TB_MENU_LOCALIZED.INVENTORYUPLOADINGFILE)
+											Request:queue(function()
+													upload_item_texture(item.inventid, filename)
+												end, "upload_texture", function()
+													uploadInProgress:kill()
+													local response = get_network_response()
+													if (response:find("success")) then
+														customizeItemTexture(true)
+													else
+														if (response:match("^.*; 0 1$")) then
+															TBMenu:showDataError(TB_MENU_LOCALIZED.REQUESTUNKNOWNERROR)
+														else
+															local error = response:gsub("^GATEWAY 0; (.*) %d", "%1")
+															TBMenu:showDataError(error)
+														end
+													end
+												end, function()
+													uploadInProgress:kill()
+													TBMenu:showDataError(TB_MENU_LOCALIZED.REQUESTUNKNOWNERROR)
+												end)
+										end)
+								end
+								remove_hooks("on_filebrowser_select")
+							end)
+					end
+				end)
+				
+			local resetTextureButton = UIElement:new({
+				parent = customizeSectionHolder,
+				pos = { 270, -131 },
+				size = { customizeSectionHolder.size.w - 270, 70 },
+				interactive = true,
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+				shapeType = ROUNDED,
+				rounded = 4
+			})
+			resetTextureButton:addAdaptedText(false, TB_MENU_LOCALIZED.INVENTORYRESETTEXTURE)
+			resetTextureButton:addMouseHandlers(nil, function()
+					Torishop:spawnConfirmationWaiter(function()
+							local uploadInProgress = UIElement:new({
+								parent = customizeHolder,
+								pos = { 0, 0 },
+								size = { customizeHolder.size.w, customizeHolder.size.h },
+								bgColor = TB_MENU_DEFAULT_BG_COLOR_TRANS,
+								interactive = true
+							})
+							uploadInProgress.clock = os.clock()
+							TBMenu:displayLoadingMark(uploadInProgress, TB_MENU_LOCALIZED.MESSAGEPLEASEWAIT)
+							uploadInProgress:addCustomDisplay(false, function()
+									-- Give server some time to reset the texture as we don't know when main cURL request is finished
+									if (uploadInProgress.clock + 2 < os.clock()) then
+										uploadInProgress:kill()
+										customizeItemTexture(true)
+									end
+								end)
+						end)
+					show_dialog_box(INVENTORY_TEXTURERESET, TB_MENU_LOCALIZED.INVENTORYTEXTURERESETCONFIRM, item.inventid)
+				end)
+		end
+		
+		customizeItemLevel = function()
+			customizeSectionHolder:kill(true)
+			
+			local shiftY = 0
+			if (item.upgrade_max_level > 1) then
+				local onTargetLevelChange
+				local currentUpgradesList = { }
+				local targetLevel = item.upgrade_level
+				for i = 1, item.upgrade_max_level do
+					table.insert(currentUpgradesList, {
+						text = TB_MENU_LOCALIZED.STOREITEMLEVEL .. " " .. i,
+						action = function()
+								targetLevel = i
+								onTargetLevelChange()
+							end,
+						locked = targetLevel == i
+					})
+				end
+				
+				local upgradesChangeTitle = UIElement:new({
+					parent = customizeSectionHolder,
+					pos = { 0, 0 },
+					size = { customizeSectionHolder.size.w, 30 }
+				})
+				upgradesChangeTitle:addAdaptedText(true, TB_MENU_LOCALIZED.INVENTORYCHOOSEITEMUPGRADELEVEL, nil, nil, nil, LEFTMID)
+				local upgradesDropdownHolder = UIElement:new({
+					parent = customizeSectionHolder,
+					pos = { 0, 40 },
+					size = { customizeSectionHolder.size.w / 3 * 2 - 5, 40 },
+					bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+					shapeType = ROUNDED,
+					rounded = 4
+				})
+				local upgradesDropdown = TBMenu:spawnDropdown(upgradesDropdownHolder, currentUpgradesList, upgradesDropdownHolder.size.h, customizeSectionHolder.size.h, currentUpgradesList[targetLevel], 0.7, 4, 0.65, 4)
+				local setUpgradeButton = UIElement:new({
+					parent = customizeSectionHolder,
+					pos = { upgradesDropdownHolder.size.w + 10, upgradesDropdownHolder.shift.y },
+					size = { customizeSectionHolder.size.w - upgradesDropdownHolder.size.w - 10, upgradesDropdownHolder.size.h },
+					interactive = true,
+					bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+					hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+					pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+					inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
+					shapeType = ROUNDED,
+					rounded = 4
+				})
+				setUpgradeButton:addAdaptedText(false, TB_MENU_LOCALIZED.INVENTORYAPPLYUPGRADE)
+				setUpgradeButton:deactivate()
+				onTargetLevelChange = function()
+						setUpgradeButton:activate()
+					end
+				setUpgradeButton:addMouseHandlers(nil, function()
+						Torishop:spawnInventoryUpdateWaiter(nil, function()
+								overlay:kill()
+								update_tc_balance()
+								TB_MENU_DOWNLOAD_INACTION = true
+							end)
+						show_dialog_box(INVENTORY_UPGRADE, TB_MENU_LOCALIZED.STOREDIALOGCHANGELEVEL1 .. " " .. targetLevel .. " " .. TB_MENU_LOCALIZED.STOREDIALOGCHANGELEVEL2 .. " " .. item.name .. "?", item.inventid .. ";0;" .. targetLevel)
+					end)
+				shiftY = shiftY + upgradesDropdownHolder.shift.y + upgradesDropdownHolder.size.h + 20
+			end
+			
+			if (item.upgrade_max_level < TB_STORE_MODELS[item.itemid].levels) then
+				local upgradeNextLevel = UIElement:new({
+					parent = customizeSectionHolder,
+					pos = { 0, shiftY },
+					size = { customizeSectionHolder.size.w, 30 }
+				})
+				upgradeNextLevel:addAdaptedText(true, TB_MENU_LOCALIZED.INVENTORYUPGRADEITEMNEXTLEVEL, nil, nil, nil, LEFTMID)
+				local upgradeLevelButton = UIElement:new({
+					parent = customizeSectionHolder,
+					pos = { 0, shiftY + 35 },
+					size = { customizeSectionHolder.size.w, 40 },
+					interactive = true,
+					bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+					hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+					pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+					inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
+					shapeType = ROUNDED,
+					rounded = 4
+				})
+				upgradeLevelButton:addAdaptedText(nil, TB_MENU_LOCALIZED.STOREITEMUPGRADEFOR .. " " .. (item.upgrade_price > 0 and (item.upgrade_price .. " TC") or TB_MENU_LOCALIZED.STOREITEMUPGRADEPRICEFREE))
+				upgradeLevelButton:addMouseHandlers(nil, function()
+						Torishop:spawnInventoryUpdateWaiter(nil, function()
+								overlay:kill()
+								update_tc_balance()
+								TB_MENU_DOWNLOAD_INACTION = true
+							end)
+						show_dialog_box(INVENTORY_UPGRADE, TB_MENU_LOCALIZED.STOREDIALOGUPGRADE1 .. "\n" .. item.name .. " ".. TB_MENU_LOCALIZED.STOREDIALOGUPGRADE2 .. " " .. (item.upgrade_level + 1) .. "?", item.inventid .. ";" .. item.upgrade_price .. ";0")
+					end)
+				if (item.upgrade_games > item.games_played) then
+					upgradeLevelButton:deactivate(true)
+					local upgradeLevelNotice = UIElement:new({
+						parent = customizeSectionHolder,
+						pos = { 20, upgradeLevelButton.shift.y + upgradeLevelButton.size.h + 5 },
+						size = { customizeSectionHolder.size.w - 40, 50 }
+					})
+					upgradeLevelNotice:addAdaptedText(true, TB_MENU_LOCALIZED.STOREYOUNEEDTOPLAYGAMES1 .. " " .. (item.upgrade_games - item.games_played) .. " " .. TB_MENU_LOCALIZED.STOREYOUNEEDTOPLAYGAMES2, nil, nil, 4, CENTER, 0.7)
+				end
+			end
+		end
+		
+		customizeItemEffect = function()
+			customizeSectionHolder:kill(true)
+			
+			local displayEffects = function(effectState, effectOptions, generalInfo)
+				local shiftY = 0
+				if (item.effectid > 0) then
+					local effectUpdateRequirements = {
+						chosenEffects = { },
+						gamesPlayed = { },
+						upgradePrice = { }
+					}
+					local onUpdateEffectSettings = function() end
+					local effectCustomizeDropdownOptions, effectCustomizeDropdownActiveIds = {}, {}
+					for i = 1, #ITEM_EFFECTS do
+						effectCustomizeDropdownOptions[i] = {}
+						if (effectOptions[i]) then
+							for j,v in pairs(effectOptions[i]) do
+								table.insert(effectCustomizeDropdownOptions[i], {
+										text = v.upgradeName,
+										action = function()
+												effectUpdateRequirements.gamesPlayed[i] = not v.isActive and v.gamesPlayed or nil
+												effectUpdateRequirements.chosenEffects[i] = not v.isActive and v.effectId or nil
+												effectUpdateRequirements.upgradePrice[i] = item.games_played > v.gamesPlayed and 0 or math.ceil((v.gamesPlayed - item.games_played) / 100)
+												onUpdateEffectSettings()
+											end,
+										locked = v.isActive
+									})
+								if (v.isActive) then
+									effectCustomizeDropdownActiveIds[i] = #effectCustomizeDropdownOptions[i]
+								end
+							end
+						end
+					end
+					
+					local appliedEffectsHolder = UIElement:new({
+						parent = customizeSectionHolder,
+						pos = { 0, 0 },
+						size = { customizeSectionHolder.size.w, customizeSectionHolder.size.h / 3 * 2 }
+					})
+					local appliedEffectsTitle = UIElement:new({
+						parent = appliedEffectsHolder,
+						pos = { 0, 0 },
+						size = { appliedEffectsHolder.size.w, 25 }
+					})
+					shiftY = appliedEffectsTitle.size.h + 5
+					appliedEffectsTitle:addAdaptedText(true, TB_MENU_LOCALIZED.STOREAPPLIEDITEMEFFECTS, nil, nil, nil, LEFTMID)
+					for i = 1, #ITEM_EFFECTS do
+						if (bit.band(item.effectid, ITEM_EFFECTS[i].id) ~= 0) then
+							local effectHolder = UIElement:new({
+								parent = appliedEffectsHolder,
+								pos = { 0, shiftY },
+								size = { appliedEffectsHolder.size.w, 34 },
+								bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+								shapeType = ROUNDED,
+								rounded = 3
+							})
+							local effectName = UIElement:new({
+								parent = effectHolder,
+								pos = { 10, 5 },
+								size = { effectHolder.size.w * 0.4 - 15, effectHolder.size.h - 10 }
+							})
+							local color = get_color_info(ITEM_EFFECTS[i].use_colorid and item.glow_colorid or ITEM_EFFECTS[i].colorid)
+							color.name = color.game_name:gsub("^%l", string.upper)
+							effectName:addAdaptedText(true, (ITEM_EFFECTS[i].use_colorid and color.name or "") .. ITEM_EFFECTS[i].name, nil, nil, 4, LEFTMID, 0.8)
+							
+							if (#effectCustomizeDropdownOptions[i] > 0) then
+								local effectCustomizeDropdownHolder = UIElement:new({
+									parent = effectHolder,
+									pos = { effectHolder.size.w * 0.4 + 5, 4 },
+									size = { effectHolder.size.w * 0.6 - 9, effectHolder.size.h - 8 },
+									bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+									shapeType = ROUNDED,
+									rounded = 3
+								})
+								local effectCustomizeDropdown = TBMenu:spawnDropdown(effectCustomizeDropdownHolder, effectCustomizeDropdownOptions[i], effectHolder.size.h, appliedEffectsHolder.size.h, effectCustomizeDropdownActiveIds[i], 0.6, 4, 0.55, 4)
+							end
+							
+							shiftY = shiftY + effectHolder.size.h + 5
+						end
+					end
+					local updateEffectSettingsButton = UIElement:new({
+						parent = appliedEffectsHolder,
+						pos = { 0, shiftY },
+						size = { appliedEffectsHolder.size.w, 40 },
+						interactive = true,
+						bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+						hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+						pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+						shapeType = ROUNDED,
+						rounded = 4
+					})
+					local updateEffectInfoText = UIElement:new({
+						parent = appliedEffectsHolder,
+						pos = { 0, shiftY + 45 },
+						size = { appliedEffectsHolder.size.w, 20 }
+					})
+					shiftY = shiftY + 100
+					updateEffectSettingsButton:hide()
+					updateEffectInfoText:hide()
+					onUpdateEffectSettings = function()
+							updateEffectSettingsButton:show()
+							local buttonText = TB_MENU_LOCALIZED.STOREITEMUPGRADEFOR
+							local upgradePrice = 0
+							local maxRequirement = math.max(unpackN(effectUpdateRequirements.gamesPlayed))
+							for i,v in pairs(effectUpdateRequirements.upgradePrice) do
+								upgradePrice = upgradePrice + v
+							end
+							if (upgradePrice > 0) then
+								buttonText = buttonText .. " " .. upgradePrice .. " " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS
+								updateEffectInfoText:show()
+								updateEffectInfoText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREUPGRADEORPLAYGAMES .. " " .. (maxRequirement - item.games_played) .. " " .. TB_MENU_LOCALIZED.STOREYOUNEEDTOPLAYGAMES2, nil, nil, 4, nil, 0.7)
+							else
+								updateEffectInfoText:hide()
+								buttonText = buttonText .. " " .. TB_MENU_LOCALIZED.STOREITEMUPGRADEPRICEFREE
+							end
+							updateEffectSettingsButton:addAdaptedText(false, buttonText)
+						end
+					updateEffectSettingsButton:addMouseHandlers(nil, function()
+						Torishop:spawnConfirmationWaiter(function()
+								local requestInProgress = UIElement:new({
+									parent = customizeHolder,
+									pos = { 0, 0 },
+									size = { customizeHolder.size.w, customizeHolder.size.h },
+									bgColor = TB_MENU_DEFAULT_BG_COLOR_TRANS,
+									interactive = true
+								})
+								requestInProgress.clock = os.clock()
+								TBMenu:displayLoadingMark(requestInProgress, TB_MENU_LOCALIZED.MESSAGEPLEASEWAIT)
+								requestInProgress:addCustomDisplay(false, function()
+										-- Give server some time to reset the texture as we don't know when main cURL request is finished
+										if (requestInProgress.clock + 2 < os.clock()) then
+											requestInProgress:kill()
+											customizeItemEffect()
+											update_tc_balance()
+											TB_MENU_DOWNLOAD_INACTION = true
+										end
+									end)
+							end)
+							local load = ''
+							for i,v in pairs(effectUpdateRequirements.chosenEffects) do
+								load = load .. item.inventid .. ";" .. v .. ";" .. effectUpdateRequirements.upgradePrice[i] .. "|"
+							end
+							show_dialog_box(INVENTORY_EFFECTUPGRADE, TB_MENU_LOCALIZED.INVENTORYSETEFFECTCONFIRM .. " " .. item.name .. "?\n" .. TB_MENU_LOCALIZED.INVENTORYSETEFFECTNOTICE, load)
+						end)
+				end
+				
+				local selectedEffect
+				local availableEffectsDropdown = {}
+				for i,v in pairs(Torishop:getInventory(INVENTORY_DEACTIVATED)) do
+					if (TB_STORE_DATA[v.itemid].catid == 87 and bit.band(item.effectid, v.effectid) == 0) then
+						table.insert(availableEffectsDropdown, {
+							text = v.name,
+							action = function()
+									selectedEffect = v
+								end
+						})
+					end
+				end
+				if (#availableEffectsDropdown > 0) then
+					availableEffectsDropdown[1].action()
+				end
+				
+				local fuseEffectTitle = UIElement:new({
+					parent = customizeSectionHolder,
+					pos = { 0, shiftY },
+					size = { customizeSectionHolder.size.w, 25 }
+				})
+				fuseEffectTitle:addAdaptedText(true, TB_MENU_LOCALIZED.STOREFUSENEWEFFECT, nil, nil, nil, LEFTMID)
+				shiftY = shiftY + 35
+				
+				if (#availableEffectsDropdown == 0) then
+					local noEffectsInInventory = UIElement:new({
+						parent = customizeSectionHolder,
+						pos = { 0, shiftY },
+						size = { customizeSectionHolder.size.w, 25 }
+					})
+					noEffectsInInventory:addAdaptedText(true, TB_MENU_LOCALIZED.INVENTORYNOEFFECTITEMS, nil, nil, 4, CENTERBOT, 0.8)
+					local getInShopButton = UIElement:new({
+						parent = customizeSectionHolder,
+						pos = { 0, shiftY + 30 },
+						size = { customizeSectionHolder.size.w, 40 },
+						interactive = true,
+						bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+						hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+						pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+						shapeType = ROUNDED,
+						rounded = 4
+					})
+					getInShopButton:addAdaptedText(false, TB_MENU_LOCALIZED.STOREPURCHASEINSTORE)
+					getInShopButton:addMouseHandlers(nil, function()
+							overlay:kill()
+							Torishop:showStoreSection(tbMenuCurrentSection, 3, 3)
+						end)
+					return
+				end
+				local fuseEffectDropdownHolder = UIElement:new({
+					parent = customizeSectionHolder,
+					pos = { 0, shiftY },
+					size = { customizeSectionHolder.size.w / 2 - 5, 40 },
+					bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+					shapeType = ROUNDED,
+					rounded = 4
+				})
+				local fuseEffectDropdown = TBMenu:spawnDropdown(fuseEffectDropdownHolder, availableEffectsDropdown, fuseEffectDropdownHolder.size.h - 5, 300, nil, 0.7, 4, 0.65, 4)
+				local fuseEffectButton = UIElement:new({
+					parent = customizeSectionHolder,
+					pos = { fuseEffectDropdownHolder.size.w + 10, fuseEffectDropdownHolder.shift.y },
+					size = { customizeSectionHolder.size.w - fuseEffectDropdownHolder.size.w - 10, fuseEffectDropdownHolder.size.h },
+					interactive = true,
+					bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+					hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+					pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+					shapeType = ROUNDED,
+					rounded = 4
+				})
+				fuseEffectButton:addAdaptedText(false, TB_MENU_LOCALIZED.STOREFUSEEFFECTFOR .. " " .. (generalInfo.fuseCost > 0 and ((generalInfo.fuseCost / 1000) .. "K " .. TB_MENU_LOCALIZED.WORDTC) or TB_MENU_LOCALIZED.STOREITEMUPGRADEPRICEFREE))
+				fuseEffectButton:addMouseHandlers(nil, function()
+						Torishop:spawnInventoryUpdateWaiter(nil, function()
+								overlay:kill()
+							end)
+						show_dialog_box(INVENTORY_EFFECTFUSE, TB_MENU_LOCALIZED.INVENTORYFUSECONFIRM1 .. " " .. selectedEffect.name .. " " .. TB_MENU_LOCALIZED.INVENTORYFUSECONFIRM2 .. " " .. item.name .. "?\n" .. TB_MENU_LOCALIZED.INVENTORYFUSECONFIRMPRICE .. " " .. generalInfo.fuseCost .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS .. ".\n\n" .. TB_MENU_LOCALIZED.INVENTORYFUSECONFIRMINFO, item.inventid .. ";" .. selectedEffect.inventid .. ";" .. generalInfo.fuseCost)
+					end)
+			end
+			
+			TBMenu:displayLoadingMark(customizeSectionHolder, TB_MENU_LOCALIZED.INVENTORYLOADINGEFFECTS)
+			Request:queue(function()
+					download_server_info("effect_fuse_details&invid=" .. item.inventid)
+				end, "store_item_effect_upgrades", function()
+					local response = get_network_response()
+					local effectState, effectOptions, generalInfo = {}, {}, {}
+					for ln in response:gmatch("[^\n]+\n") do
+						if (ln:match("^EFFECTID")) then
+							local enabled = ln:gsub("^EFFECTID %d;(%d+).*$", "%1") == "1"
+							table.insert(effectState, enabled)
+						elseif (ln:match("^EFFECTUPGRADE")) then
+							ln = ln:gsub("^EFFECTUPGRADE %d+;", "")
+							local _, segments = ln:gsub("\t", "")
+							local data = { ln:match(("([^\t]*)\t?"):rep(segments + 1)) }
+							if (effectOptions[#effectState] == nil) then
+								effectOptions[#effectState] = {}
+							end
+							table.insert(effectOptions[#effectState], {
+								effectId = tonumber(data[1]),
+								isActive = tonumber(data[2]) == 1,
+								gamesPlayed = tonumber(data[3]),
+								upgradeName = data[4]
+							})
+						elseif (ln:match("^FUSECOST")) then
+							local cost = ln:gsub("^FUSECOST 0;(%d+).*$", "%1")
+							generalInfo.fuseCost = tonumber(cost)
+						end
+					end
+					customizeSectionHolder:kill(true)
+					displayEffects(effectState, effectOptions, generalInfo)
+				end, function()
+					customizeSectionHolder:kill(true)
+					TBMenu:showDataError(TB_MENU_LOCALIZED.ERRORTRYAGAIN)
+				end)
+		end
+		
+		local sections = {}
+		
+		-- Cache whether the item is a texture slot
+		-- For textures we want to prioritize on Texture upload, for other items on effects/levels
+		local isTexture = Torishop:isTextureItem(item.itemid)
+		if (isTexture and item.uploadable) then
+			table.insert(sections, { name = "Texture", action = customizeItemTexture })
+		end
+		if (item.upgradeable) then
+			table.insert(sections, { name = "Level", action = customizeItemLevel })
+		end
+		if (Torishop:itemSupportsEffects(item.itemid)) then
+			table.insert(sections, { name = "Effects", action = customizeItemEffect })
+		end
+		if (not isTexture and item.uploadable) then
+			table.insert(sections, { name = "Texture", action = customizeItemTexture })
+		end
+		
+		local sectionButtonWidth = (customizeHolder.size.w - 20) / #sections - 10
+		local selectedButton = nil
+		for i,v in pairs(sections) do
+			local sectionButton = UIElement:new({
+				parent = customizeHolder,
+				pos = { 15 + (sectionButtonWidth + 10) * (i - 1), 55 },
+				size = { sectionButtonWidth, 35 },
+				interactive = true,
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+			})
+			v.button = sectionButton
+			sectionButton:addAdaptedText(false, v.name)
+			sectionButton:addMouseHandlers(nil, function()
+					if (selectedButton) then
+						selectedButton.bgColor = cloneTable(TB_MENU_DEFAULT_DARKER_COLOR)
+					end
+					selectedButton = sectionButton
+					selectedButton.bgColor = cloneTable(TB_MENU_DEFAULT_DARKEST_COLOR)
+					v.action()
+				end)
+		end
+		sections[1].button:btnUp()
+	end
+	
+	function Torishop:spawnConfirmationWaiter(confirmAction, globalid)
+		local overlay = TBMenu:spawnWindowOverlay(globalid)
+		overlay:addMouseHandlers(nil, nil, function(x)
+			if (x > WIN_W / 2) then
+				confirmAction()
+			end
+			overlay:kill()
+		end)
+	end
+	
+	function Torishop:spawnInventoryUpdateWaiter(globalid, extraFunc)
+		local overlay = TBMenu:spawnWindowOverlay(globalid)
+		overlay:addMouseHandlers(nil, nil, function(x, y)
+			if (x > WIN_W / 2) then
+				Torishop:refreshInventory(TB_MENU_SPECIAL_SCREEN_ISOPEN == 1 and TB_MENU_MAIN_ISOPEN)
+				if (INVENTORY_SELECTION_RESET) then
+					for i = #INVENTORY_SELECTED_ITEMS, 1, -1 do
+						table.remove(INVENTORY_SELECTED_ITEMS, i)
+					end
+				end
+				if (extraFunc) then
+					extraFunc()
+				end
+			end
+			INVENTORY_SELECTED_RESET = false
+			overlay:kill()
+		end)
 	end
 
 	function Torishop:showSetSelection(item)
@@ -878,8 +1543,7 @@ do
 				pressedColor = TB_MENU_DEFAULT_DARKER_COLOR
 			})
 			setElement:addMouseHandlers(nil, function()
-					INVENTORY_UPDATE = true
-					INVENTORY_MOUSE_POS = { x = posX, y = posY }
+					Torishop:spawnInventoryUpdateWaiter()
 					INVENTORY_SELECTION_RESET = true
 					if (item) then
 						show_dialog_box(INVENTORY_ADDSET, TB_MENU_LOCALIZED.STOREDIALOGADDTOSET1 .. " " .. item.name .. " " .. TB_MENU_LOCALIZED.STOREDIALOGADDTOSET2 .. "?", v.inventid .. " " .. item.inventid)
@@ -922,6 +1586,7 @@ do
 		end
 
 		local scrollBar = TBMenu:spawnScrollBar(setsHolder, #listSets, 40)
+		setsHolder.scrollBar = scrollBar
 		scrollBar:makeScrollBar(setsHolder, listSets, toReload)
 	end
 
@@ -998,8 +1663,7 @@ do
 			})
 			removeSetButton:addAdaptedText(false, TB_MENU_LOCALIZED.STOREITEMREMOVEFROMSET)
 			removeSetButton:addMouseHandlers(nil, function()
-					INVENTORY_UPDATE = true
-					INVENTORY_MOUSE_POS = { x = posX, y = posY }
+					Torishop:spawnInventoryUpdateWaiter()
 					INVENTORY_SELECTION_RESET = true
 					local inventidStr = ""
 					for i,v in pairs(INVENTORY_SELECTED_ITEMS) do
@@ -1039,8 +1703,7 @@ do
 			})
 			deactivateButton:addAdaptedText(false, TB_MENU_LOCALIZED.STOREITEMDEACTIVATE)
 			deactivateButton:addMouseHandlers(nil, function()
-					INVENTORY_UPDATE = true
-					INVENTORY_MOUSE_POS = { x = posX, y = posY }
+					Torishop:spawnInventoryUpdateWaiter()
 					INVENTORY_SELECTION_RESET = true
 					local inventidStr = ""
 					for i,v in pairs(INVENTORY_SELECTED_ITEMS) do
@@ -1063,8 +1726,7 @@ do
 			})
 			activateButton:addAdaptedText(false, TB_MENU_LOCALIZED.STOREITEMACTIVATE)
 			activateButton:addMouseHandlers(nil, function()
-					INVENTORY_UPDATE = true
-					INVENTORY_MOUSE_POS = { x = posX, y = posY }
+					Torishop:spawnInventoryUpdateWaiter()
 					INVENTORY_SELECTION_RESET = true
 					local inventidStr = ""
 					for i,v in pairs(INVENTORY_SELECTED_ITEMS) do
@@ -1159,19 +1821,19 @@ do
 		local inventoryModes = {
 			{
 				text = TB_MENU_LOCALIZED.STOREDEACTIVATEDINVENTORY,
-				action = function() Torishop:showInventory(tbMenuCurrentSection, INVENTORY_DEACTIVATED) end
+				action = function() INVENTORY_LIST_SHIFT[1] = 0 Torishop:showInventory(tbMenuCurrentSection, INVENTORY_DEACTIVATED) end
 			},
 			{
 				text = TB_MENU_LOCALIZED.STOREACTIVATEDINVENTORY,
-				action = function() Torishop:showInventory(tbMenuCurrentSection, INVENTORY_ACTIVATED) end
+				action = function() INVENTORY_LIST_SHIFT[1] = 0 Torishop:showInventory(tbMenuCurrentSection, INVENTORY_ACTIVATED) end
 			},
 			{
 				text = TB_MENU_LOCALIZED.STOREMARKETINVENTORY,
-				action = function() Torishop:showInventory(tbMenuCurrentSection, INVENTORY_MARKET) end
+				action = function() INVENTORY_LIST_SHIFT[1] = 0 Torishop:showInventory(tbMenuCurrentSection, INVENTORY_MARKET) end
 			},
 			{
 				text = TB_MENU_LOCALIZED.STOREINVENTORYALLITEMS,
-				action = function() Torishop:showInventory(tbMenuCurrentSection, INVENTORY_ALL) end
+				action = function() INVENTORY_LIST_SHIFT[1] = 0 Torishop:showInventory(tbMenuCurrentSection, INVENTORY_ALL) end
 			}
 		}
 
@@ -1290,6 +1952,7 @@ do
 				})
 				button:addAdaptedText(nil, v .. "", nil, nil, 4, nil, 0.6)
 				button:addMouseHandlers(nil, function()
+						INVENTORY_LIST_SHIFT[1] = 0
 						Torishop:showInventoryPage(inventoryItems, -(TB_INVENTORY_PAGE[pageid] - v), mode, title, pageid, itemScale, showBack)
 					end)
 			end
@@ -1370,16 +2033,31 @@ do
 				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
 			})
+			invItemHolder.lastClick = 0
 			invItemHolder:addMouseHandlers(nil, function()
 					Torishop:showInventoryItem(inventoryItems[i])
+					if (inventoryItems[i].itemid == ITEM_SET and #inventoryItems[i].contents > 0) then
+						local clock = os.clock()
+						if (invItemHolder.lastClick + 0.5 > clock) then
+							INVENTORY_LIST_SHIFT[1] = 0
+							Torishop:showInventoryPage(inventoryItems[i].contents, nil, mode, TB_MENU_LOCALIZED.STOREITEMSINSET .. ": " .. inventoryItems[i].setname, "invid" .. inventoryItems[i].inventid, nil, true)
+						end
+						invItemHolder.lastClick = clock
+					end
 				end)
 			local item = Torishop:getItemInfo(inventoryItems[i].itemid)
 			local itemIcon = UIElement:new({
 				parent = invItemHolder,
 				pos = { 8, 2 },
-				size = { invItemHolder.size.h - 4, invItemHolder.size.h - 4 },
-				bgImage = Torishop:getItemIcon(item.itemid)
+				size = { invItemHolder.size.h - 4, invItemHolder.size.h - 4 }
 			})
+			if (Torishop:isTextureItem(item.itemid)) then
+				itemIcon:updateImage("../textures/store/inventory/" .. inventoryItems[i].inventid .. ".tga", Torishop:getItemIcon(item.itemid))
+			else
+				itemIcon:updateImage(Torishop:getItemIcon(item.itemid))
+			end
+			inventoryItems[i].iconElement = itemIcon
+			
 			local itemInfoHolder = UIElement:new({
 				parent = invItemHolder,
 				pos = { invItemHolder.size.h + 15, 2 },
@@ -1396,8 +2074,9 @@ do
 			if (inventoryItems[i].setname ~= '0') then
 				itemNameString = inventoryItems[i].setname
 			end
+			local itemName = nil
 			if (inventoryItems[i].bodypartname ~= '0' or inventoryItems[i].setname ~= '0') then
-				local itemName = UIElement:new({
+				itemName = UIElement:new({
 					parent = itemInfoHolder,
 					pos = { 0, 0 },
 					size = { itemInfoHolder.size.w, itemInfoHolder.size.h / 3 * 2 }
@@ -1421,12 +2100,52 @@ do
 					itemExtra:addAdaptedText(true, numItemsStr, nil, nil, 4, LEFTMID)
 				end
 			else
-				local itemName = UIElement:new({
+				itemName = UIElement:new({
 					parent = itemInfoHolder,
 					pos = { 0, itemInfoHolder.size.h / 6 },
 					size = { itemInfoHolder.size.w, itemInfoHolder.size.h / 3 * 2 }
 				})
 				itemName:addAdaptedText(true, itemNameString, nil, nil, FONTS.BIG, LEFTMID, nil, nil, 0.2)
+			end
+			if (inventoryItems[i].effectid > 0 and TB_STORE_DATA[inventoryItems[i].itemid].catid ~= 87) then
+				local nameLength = get_string_length(itemName.dispstr[1], itemName.textFont) * itemName.textScale
+				local itemEffectsHolder = UIElement:new({
+					parent = itemInfoHolder,
+					pos = { nameLength + 10, 0 },
+					size = { itemInfoHolder.size.w - nameLength - 20, itemInfoHolder.size.h }
+				})
+				local effectsShift = { x = 0, y = 0 }
+				for j = 1, #ITEM_EFFECTS do
+					if (bit.band(inventoryItems[i].effectid, ITEM_EFFECTS[j].id) ~= 0) then
+						local color = get_color_info(ITEM_EFFECTS[j].use_colorid and inventoryItems[i].glow_colorid or ITEM_EFFECTS[j].colorid)
+						color.name = color.game_name:gsub("^%l", string.upper)
+						local itemEffect = UIElement:new({
+							parent = itemEffectsHolder,
+							pos = { effectsShift.x, effectsShift.y },
+							size = { 150, 20 },
+							bgColor = { color.r, color.g, color.b, 1 },
+							shapeType = ROUNDED,
+							rounded = 10,
+							uiColor = (math.max(color.r, color.g, color.b) > 0.9 or (color.r + color.g + color.b > 1.5)) and UICOLORBLACK or UICOLORWHITE
+						})
+						itemEffect:addAdaptedText(false, (ITEM_EFFECTS[j].use_colorid and color.name or "") .. ITEM_EFFECTS[j].name, 10, nil, 4, LEFTMID, 0.6)
+						local effectTextLen = get_string_length(itemEffect.dispstr[1], itemEffect.textFont) * itemEffect.textScale + 20
+						itemEffect.size.w = effectTextLen
+						effectsShift.x = effectsShift.x + effectTextLen + 10
+						if (effectsShift.x > itemEffectsHolder.size.w) then
+							effectsShift.y = effectsShift.y + itemEffect.size.h + 3
+							if (effectsShift.y + itemEffect.size.h > itemEffectsHolder.size.h) then
+								effectsShift.y = effectsShift.y - itemEffect.size.h - 3
+								itemEffect:kill()
+								break
+							end
+							itemEffect:moveTo(0, effectsShift.y)
+							effectsShift.x = effectTextLen + 10
+						end
+					end
+				end
+				itemEffectsHolder.size.h = effectsShift.y + 20
+				itemEffectsHolder:moveTo(nil, (itemEffectsHolder.parent.size.h - itemEffectsHolder.size.h) / 2)
 			end
 			local lShift = 10
 			if (inventoryItems[i].itemid ~= ITEM_SET) then
@@ -1493,8 +2212,7 @@ do
 				})
 				activateText:addAdaptedText(true, inventoryItems[i].active and TB_MENU_LOCALIZED.STOREITEMDEACTIVATE or TB_MENU_LOCALIZED.STOREITEMACTIVATE)
 				activateButton:addMouseHandlers(nil, function()
-						INVENTORY_UPDATE = true
-						INVENTORY_MOUSE_POS = { x = posX, y = posY }
+						Torishop:spawnInventoryUpdateWaiter()
 						show_dialog_box(inventoryItems[i].active and INVENTORY_DEACTIVATE or INVENTORY_ACTIVATE, inventoryItems[i].active and (TB_MENU_LOCALIZED.STOREDIALOGDEACTIVATE1 .. " " .. inventoryItems[i].name .. (TB_MENU_LOCALIZED.STOREDIALOGDEACTIVATE2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGDEACTIVATE2 .. "?")) or (TB_MENU_LOCALIZED.STOREDIALOGACTIVATE1 .. " " .. inventoryItems[i].name .. (TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 .. "?")), inventoryItems[i].inventid)
 					end, nil)
 				lShift = lShift + buttonWidth + 10
@@ -1526,7 +2244,8 @@ do
 			v:hide()
 		end
 		local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
-		scrollBar:makeScrollBar(listingHolder, listElements, toReload)
+		listingHolder.scrollBar = scrollBar
+		scrollBar:makeScrollBar(listingHolder, listElements, toReload, INVENTORY_LIST_SHIFT)
 		
 		Torishop:showInventoryItem(TB_ITEM_DETAILS or inventoryItems[invStartShift])
 
@@ -1643,29 +2362,37 @@ do
 		
 		tbMenuNavigationBar:kill(true)
 		TBMenu:showNavigationBar(Torishop:getNavigationButtons(), true)
-
-		if (reload or not TB_INVENTORY_LOADED) then
-			download_inventory()
-			TB_INVENTORY_LOADED = true
-		end
-		TB_MENU_DOWNLOAD_INACTION = true
-		local inventoryWait = UIElement:new({
+		
+		local inventoryLoader = UIElement:new({
 			parent = viewElement,
 			pos = { 5, 0 },
 			size = { viewElement.size.w - 10, viewElement.size.h },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
-		local bottomSmudge = TBMenu:addBottomBloodSmudge(inventoryWait, 1)
-		TBMenu:displayLoadingMark(inventoryWait, TB_MENU_LOCALIZED.MESSAGEPLEASEWAIT)
-		inventoryWait:addCustomDisplay(false, function()
-				for i,v in pairs(get_downloads()) do
-					if (v:match("data/script/torishop/invent.txt")) then
-						return
-					end
+		-- Use waiter with flag instead of direct call from downloader_complete to ensure everything is called from draw2d hook
+		-- Otherwise we'll get a crash in steam code due to multithreading
+		inventoryLoader:addCustomDisplay(false, function()
+				if (inventoryLoader.ready) then
+					Torishop:showInventory(viewElement)
+					check_steam_color(0)
 				end
-				Torishop:showInventory(viewElement)
-				check_steam_color(0)
 			end)
+		TBMenu:addBottomBloodSmudge(inventoryLoader)
+		TBMenu:displayLoadingMark(inventoryLoader, TB_MENU_LOCALIZED.STOREINVENTORYLOADING)
+		
+		if (reload or not TB_INVENTORY_LOADED) then
+			download_inventory()
+			TB_INVENTORY_LOADED = true
+			TB_MENU_DOWNLOAD_INACTION = true
+			add_hook("downloader_complete", "torishop_inventory_download", function(name)
+					if (name:find("^.*/torishop/invent%.txt$")) then
+						remove_hooks("torishop_inventory_download")
+						inventoryLoader.ready = true
+					end
+				end)
+			return
+		end
+		inventoryLoader.ready = true
 	end
 
 	function Torishop:showInventory(viewElement, mode, showSets)
@@ -1783,7 +2510,7 @@ do
 		end
 	end
 	
-	function Torishop:showSeasonPassAprilFools()
+	--[[function Torishop:showSeasonPassAprilFools()
 		TB_MENU_IGNORE_REWARDS = 1
 		local overlay = TBMenu:spawnWindowOverlay()
 		overlay:addMouseHandlers(nil, function()
@@ -1936,8 +2663,11 @@ do
 			lootboxPurchaseButtonTC:addAdaptedText(false, "Buy for " .. PlayerInfo:currencyFormat(lootBox.now_tc_price) .. " TC", nil, -2)
 			lootboxPurchaseButtonTC:addMouseHandlers(nil, function()
 				TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASECONFIRM .. " " .. lootBox.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " " .. PlayerInfo:currencyFormat(lootBox.now_tc_price) .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS .. "?\n" .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT1 .. " " .. PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.tc - lootBox.now_tc_price) .. " TC " .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT2, function()
-						buy_tc(lootBox.itemid .. ":" .. lootBox.now_tc_price)
-						Torishop:showPostPurchaseScreen(lootBox, nil, true)
+						Request:queue(function()
+								buy_tc(lootBox.itemid .. ":" .. lootBox.now_tc_price)
+							end, "torishop_purchase", function()
+								Torishop:showPostPurchaseScreen(lootBox, true)
+							end)
 					end)
 			end)
 			
@@ -1962,8 +2692,11 @@ do
 			lootboxPurchaseButtonST:addAdaptedText(false, "Buy for " .. lootBox.now_usd_price .. " ST", nil, -2)
 			lootboxPurchaseButtonST:addMouseHandlers(nil, function()
 				TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASECONFIRM .. " " .. lootBox.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " " .. PlayerInfo:currencyFormat(lootBox.now_usd_price) .. " " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS .. "?\n" .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT1 .. " " .. PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.st - lootBox.now_usd_price) .. " ST " .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT2, function()
-						buy_st(lootBox.itemid .. ":" .. lootBox.now_usd_price)
-						Torishop:showPostPurchaseScreen(lootBox, nil, true)
+						Request:queue(function()
+								buy_st(lootBox.itemid .. ":" .. lootBox.now_usd_price)
+							end, "torishop_purchase", function()
+								Torishop:showPostPurchaseScreen(lootBox, true)
+							end)
 					end)
 			end)
 		end
@@ -1989,7 +2722,7 @@ do
 		else
 			doShow()
 		end
-	end
+	end--]]
 	
 	function Torishop:showCollectorsCards(id)
 		if (id == 1) then
@@ -3933,129 +4666,39 @@ do
 		end
 		
 		local function downloadFile(i)
-			if (TB_STORE_MODELS[itemslist[i].itemid]) then
-				if (TB_STORE_MODELS[itemslist[i].itemid].upgradeable) then
-					download_server_file(itemslist[i].itemid .. "_" .. level, 1)
-				else
-					download_server_file(itemslist[i].itemid, 1)
+			if (i > #itemslist) then
+				local sectionTime = (tbStoreItemInfoHolder and not tbStoreItemInfoHolder.destroyed) and tbStoreItemInfoHolder.updated or 0
+				if (updatedFunc) then
+					updatedFunc()
+				elseif (sectionTime > 0) then
+					if (sectionTime == tbStoreItemInfoHolder.updated) then
+						Torishop:showStoreItemInfo(items, true)
+					end
 				end
-			else
-				download_server_file(itemslist[i].itemid, 1)
+				STORE_DOWNLOADS_COMPLETE = true
+				return
 			end
-			if (i < #itemslist) then
-				Request:new("store_itemdownload", function()
-						local dWait = UIElement:new({
-							parent = viewElement,
-							pos = { 0, 0 },
-							size = { 0, 0 }
-						})
-						local wait = 0
-						dWait:addCustomDisplay(true, function()
-								wait = wait + 1
-								if (wait > 1) then
-									dWait:kill()
-									downloadFile(i + 1)
-								end
-							end)
-					end)
-			else
-				-- store element update time to prevent reloading item info when user has switched to another item preview
-				local sectionTime = tbStoreItemInfoHolder and tbStoreItemInfoHolder.updated or 0
-				Request:new("store_itemdownload", function()
-						local itemUpdater = UIElement:new({
-							parent = viewElement,
-							pos = { 0, 0 },
-							size = { 0, 0 }
-						})
-						local forcedDelay = os.clock()
-						local filesUpdated = false
-						itemUpdater:addCustomDisplay(true, function()
-								local isDownloading = downloadProgress()
-								filesUpdated = filesUpdated or isDownloading
-								if (forcedDelay < os.clock() - 0.2 and not isDownloading) then
-									if (not itemHolder or filesUpdated) then
-										if (itemHolder) then
-											itemHolder:kill()
-										end
-										if (updatedFunc) then
-											updatedFunc()
-										elseif (sectionTime > 0) then
-											if (sectionTime == tbStoreItemInfoHolder.updated) then
-												Torishop:showStoreItemInfo(items, true)
-											end
-										end
-									end
-									STORE_DOWNLOADS_COMPLETE = true
-									MODEL_DOWNLOAD_ACTIVE = false
-									itemUpdater:kill()
-								end
-							end)
-					end)
+			
+			local load = itemslist[i].itemid
+			if (TB_STORE_MODELS[itemslist[i].itemid] and level > 1 and TB_STORE_MODELS[itemslist[i].itemid].upgradeable) then
+				load = load .. "_" .. level
 			end
+			
+			Request:queue(function()
+					download_server_file(load, 1)
+				end, "store_obj_downloader_prepare", function()
+					local response = get_network_response()
+					downloadFile(i + 1)
+				end)
 		end
 		
 		if (updateOverride or get_option("autoupdate") == 1) then
-			if (get_network_task() == 0) then
-				downloadFile(1)
-			else
-				MODEL_DOWNLOAD_ACTIVE = true
-				local downloadWaiter = UIElement:new({
-					parent = viewElement,
-					pos = { 0, 0 },
-					size = { 0, 0 }
-				})
-				downloadWaiter:addCustomDisplay(true, function()
-						if (get_network_task() == 0) then
-							downloadFile(1)
-							downloadWaiter:kill()
-						end
-					end)
-			end
+			downloadFile(1)
 		end
 		return modelDrawn
 	end
 	
 	function Torishop:buyItem(item, mode)
-		function doPurchase()
-			if (get_network_task() == 0) then
-				if (mode == MODE_TC) then
-					buy_tc(item.itemid .. ":" .. item.now_tc_price)
-				else
-					buy_st(item.itemid .. ":" .. item.now_usd_price)
-				end
-				Torishop:showPostPurchaseScreen(item)
-				return true
-			end
-			return false
-		end
-		if (not doPurchase()) then
-			local overlay = TBMenu:spawnWindowOverlay()
-			overlay:addMouseHandlers(nil, function() overlay:kill() end)
-			local waiting = UIElement:new({
-				parent = overlay,
-				pos = { overlay.size.w / 7 * 2, overlay.size.h / 2 - 75 },
-				size = { overlay.size.w / 7 * 3, 150 },
-				bgColor = TB_MENU_DEFAULT_BG_COLOR
-			})
-			waiting:addAdaptedText(false, TB_MENU_LOCALIZED.STORELOADING)
-			local waiter = UIElement:new({
-				parent = waiting,
-				pos = { 0, 0 },
-				size = { 0, 0 }
-			})
-			waiter.timer = 0
-			waiter:addCustomDisplay(true, function()
-					waiter.timer = waiter.timer + 1
-					if (waiter.timer > 5) then
-						if (doPurchase()) then
-							overlay:kill()
-						end
-					end
-				end)
-		end
-	end
-	
-	function Torishop:showPostPurchaseScreen(item, forceSucessDisplay, forceRefreshItem)
 		local overlay = TBMenu:spawnWindowOverlay()
 		local purchasing = UIElement:new({
 			parent = overlay,
@@ -4064,101 +4707,82 @@ do
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
 		purchasing:addAdaptedText(false, TB_MENU_LOCALIZED.STOREPURCHASINGITEM)
-		local function fn(text)
-			purchasing:addAdaptedText(false, text)
-			overlay:addMouseHandlers(nil, function()
-					overlay:kill()
-				end)
-			local timedKill = UIElement:new({
-				parent = overlay,
-				pos = { 0, 0 },
-				size = { 0, 0 }
-			})
-			local spawnTime = os.clock()
-			timedKill:addCustomDisplay(true, function()
-					if (spawnTime + 2 < os.clock()) then
-						overlay:kill()
-					end
-				end)
-		end
-		Request:new("itempurchase", function()
-				local response = get_network_response()
-				if (response:find("^ERROR 0;")) then
-					response = response:gsub("^ERROR 0;", "")
-					fn(TB_MENU_LOCALIZED.STOREPURCHASEERROR .. ": " .. response)
-				elseif (response:find("^SUCCESS 0;")) then
-					local invid = response:gsub("^SUCCESS 0;", "")
-					if (forceRefreshItem) then
-						local waiter = UIElement:new({
-							parent = overlay,
-							pos = { 0, 0 },
-							size = { 0, 0 }
-						})
-						waiter.timeAlive = 0
-						waiter:addCustomDisplay(true, function()
-								waiter.timeAlive = waiter.timeAlive + 1
-								if (get_network_task() == 0 and waiter.timeAlive > 5) then
-									Request:new("itempurchase", function()
-											local response = get_network_response()
-											if (response:find("^ITEMID 0;")) then
-												local itemid = response:gsub("^ITEMID 0;", "")
-												local item = Torishop:getItemInfo(itemid)
-												update_tc_balance()
-												overlay:kill()
-												if (#item.contents > 0) then
-													TBMenu:showConfirmationWindow("Congratulations, you have received " .. item.itemname .. "!\nWould you like to unpack your new item?", function()
-															INVENTORY_UPDATE = true
-															INVENTORY_MOUSE_POS = { x = posX, y = posY }
-															show_dialog_box(INVENTORY_UNPACK, TB_MENU_LOCALIZED.STOREDIALOGUNPACK1 .. " " .. item.itemname .. (TB_MENU_LOCALIZED.STOREDIALOGUNPACK2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGUNPACK2 .. "?") .. "\n" .. TB_MENU_LOCALIZED.STOREDIALOGUNPACKINFO, invid)
-														end)
-												elseif (item.ingame == 1) then
-													if (in_array(item.catid, CATEGORIES_COLORS)) then
-														check_steam_color(item.colorid)
-													end
-													TBMenu:showConfirmationWindow("Congratulations, you have received " .. item.itemname .. "!\nWould you like to activate your new item?", function()
-															INVENTORY_UPDATE = true
-															INVENTORY_MOUSE_POS = { x = posX, y = posY }
-															show_dialog_box(INVENTORY_ACTIVATE, TB_MENU_LOCALIZED.STOREDIALOGACTIVATE1 .. " " .. item.itemname .. (TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 .. "?"), invid)
-														end)
-												elseif (forceSucessDisplay) then
-													TBMenu:showDataError(item.itemname .. " " .. TB_MENU_LOCALIZED.STOREITEMPURCHASESUCCESSFUL)
-												end
-											else
-												fn(TB_MENU_LOCALIZED.STOREPURCHASEERROR)
-											end
-										end)
-									download_server_info("getitemid&invid=" .. invid)
-									waiter:kill()
-								end
-							end)
-						return
-					end
-					update_tc_balance()
-					overlay:kill()
-					if (#item.contents > 0) then
-						TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASESUCCESSFULUNPACK, function()
-								INVENTORY_UPDATE = true
-								INVENTORY_MOUSE_POS = { x = posX, y = posY }
-								show_dialog_box(INVENTORY_UNPACK, TB_MENU_LOCALIZED.STOREDIALOGUNPACK1 .. " " .. item.itemname .. (TB_MENU_LOCALIZED.STOREDIALOGUNPACK2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGUNPACK2 .. "?") .. "\n" .. TB_MENU_LOCALIZED.STOREDIALOGUNPACKINFO, invid)
-							end)
-					elseif (item.ingame == 1) then
-						if (in_array(item.catid, CATEGORIES_COLORS)) then
-							check_steam_color(item.colorid)
-						end
-						TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASESUCCESSFUL, function()
-								INVENTORY_UPDATE = true
-								INVENTORY_MOUSE_POS = { x = posX, y = posY }
-								show_dialog_box(INVENTORY_ACTIVATE, TB_MENU_LOCALIZED.STOREDIALOGACTIVATE1 .. " " .. item.itemname .. (TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 .. "?"), invid)
-							end)
-					elseif (forceSucessDisplay) then
-						TBMenu:showDataError(item.itemname .. " " .. TB_MENU_LOCALIZED.STOREITEMPURCHASESUCCESSFUL)
-					end
+		
+		Request:queue(function()
+				if (mode == MODE_TC) then
+					buy_tc(item.itemid .. ":" .. item.now_tc_price)
 				else
-					fn(TB_MENU_LOCALIZED.STOREPURCHASEERRORUNDEF)
+					buy_st(item.itemid .. ":" .. item.now_usd_price)
 				end
+			end, "torishop_purchase", function()
+				overlay:kill()
+				Torishop:showPostPurchaseScreen(item)
 			end, function()
-				fn(TB_MENU_LOCALIZED.STOREPURCHASESERVERERROR)
+				overlay:kill()
+				TBMenu:showDataError(TB_MENU_LOCALIZED.STOREPURCHASESERVERERROR)
 			end)
+	end
+	
+	function Torishop:showPostPurchaseScreen(item, forceRefreshItem)
+		local response = get_network_response()
+		if (response:find("^ERROR 0;")) then
+			response = response:gsub("^ERROR 0;", "")
+			TBMenu:showDataError(TB_MENU_LOCALIZED.STOREPURCHASEERROR .. ": " .. response)
+		elseif (response:find("^SUCCESS 0;")) then
+			local invid = response:gsub("^SUCCESS 0;", "")
+			if (forceRefreshItem) then
+				local overlay = TBMenu:spawnWindowOverlay()
+				local purchasing = UIElement:new({
+					parent = overlay,
+					pos = { overlay.size.w / 7 * 2, overlay.size.h / 2 - 75 },
+					size = { overlay.size.w / 7 * 3, 150 },
+					bgColor = TB_MENU_DEFAULT_BG_COLOR
+				})
+				TBMenu:displayLoadingMark(purchasing, TB_MENU_LOCALIZED.STORESTEAMPURCHASELOADING)
+				Request:queue(function()
+						download_server_info("getitemid&invid=" .. invid)
+					end, "torishop_refresh_inventory_itemid", function()
+						overlay:kill()
+						local response = get_network_response()
+						if (response:find("^ITEMID 0;")) then
+							local itemid = response:gsub("^ITEMID 0;", "")
+							local item = Torishop:getItemInfo(itemid)
+							update_tc_balance()
+							TB_MENU_DOWNLOAD_INACTION = true
+							if (#item.contents > 0) then
+								Torishop:spawnInventoryUpdateWaiter()
+								show_dialog_box(INVENTORY_UNPACK, TB_MENU_LOCALIZED.STOREPURCHASECONGRATULATIONSRECEIVED .. " " .. item.itemname .. "!\n" .. TB_MENU_LOCALIZED.STOREDIALOGUNPACK1 .. " " .. item.itemname .. (TB_MENU_LOCALIZED.STOREDIALOGUNPACK2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGUNPACK2 .. "?") .. "\n" .. TB_MENU_LOCALIZED.STOREDIALOGUNPACKINFO, invid)
+							elseif (item.ingame == 1) then
+								if (in_array(item.catid, CATEGORIES_COLORS)) then
+									check_steam_color(item.colorid)
+								end
+								Torishop:spawnInventoryUpdateWaiter()
+								show_dialog_box(INVENTORY_ACTIVATE, TB_MENU_LOCALIZED.STOREPURCHASECONGRATULATIONSRECEIVED .. " "  .. item.itemname .. "!\n" .. TB_MENU_LOCALIZED.STOREDIALOGACTIVATE1 .. " " .. item.itemname .. (TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 .. "?"), invid)
+							end
+						else
+							TBMenu:showDataError(TB_MENU_LOCALIZED.STOREPURCHASEERROR)
+						end
+					end, function()
+						overlay:kill()
+						TBMenu:showDataError(TB_MENU_LOCALIZED.STOREPURCHASEERRORUNDEF)
+					end)
+				return
+			end
+			update_tc_balance()
+			TB_MENU_DOWNLOAD_INACTION = true
+			if (#item.contents > 0) then
+				Torishop:spawnInventoryUpdateWaiter()
+				show_dialog_box(INVENTORY_UNPACK, TB_MENU_LOCALIZED.STOREPURCHASECONGRATULATIONS .. "\n" .. TB_MENU_LOCALIZED.STOREPURCHASEWOULDYOULIKETOUNPACK1 .. " " .. item.itemname .. (TB_MENU_LOCALIZED.STOREPURCHASEWOULDYOULIKETOUNPACK2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREPURCHASEWOULDYOULIKETOUNPACK2 .. "?") .. "\n" .. TB_MENU_LOCALIZED.STOREDIALOGUNPACKINFO, invid)
+			elseif (item.ingame == 1) then
+				if (in_array(item.catid, CATEGORIES_COLORS)) then
+					check_steam_color(item.colorid)
+				end
+				Torishop:spawnInventoryUpdateWaiter()
+				show_dialog_box(INVENTORY_ACTIVATE, TB_MENU_LOCALIZED.STOREPURCHASECONGRATULATIONS .. "\n" .. TB_MENU_LOCALIZED.STOREPURCHASEWOULDYOULIKETOACTIVATE1 .. " " .. item.itemname .. (TB_MENU_LOCALIZED.STOREPURCHASEWOULDYOULIKETOACTIVATE2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREPURCHASEWOULDYOULIKETOACTIVATE2 .. "?"), invid)
+			end
+		else
+			TBMenu:showDataError(TB_MENU_LOCALIZED.STOREPURCHASEERRORUNDEF)
+		end
 	end
 	
 	function Torishop:previewHairVanilla(item)
@@ -4402,6 +5026,7 @@ do
 			v:hide()
 		end
 		local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
+		listingHolder.scrollBar = scrollBar
 		scrollBar:makeScrollBar(listingHolder, listElements, toReload)
 	end
 	
@@ -4460,6 +5085,18 @@ do
 		tbStoreItemInfoHolder:kill(true)
 		tbStoreItemInfoHolder.updated = os.clock()
 		TBMenu:addBottomBloodSmudge(tbStoreItemInfoHolder, 3)
+		
+		if (not item) then
+			-- Placeholder for an empty item, don't show anything
+			local infoMessage = UIElement:new({
+				parent = tbStoreItemInfoHolder,
+				pos = { tbStoreItemInfoHolder.size.w / 8, tbStoreItemInfoHolder.size.h / 5 },
+				size = { tbStoreItemInfoHolder.size.w * 0.75, tbStoreItemInfoHolder.size.h * 0.6}
+			})
+			infoMessage:addAdaptedText(true, TB_MENU_LOCALIZED.STORESELECTITEMTOVIEWDETAILS)
+			return
+		end
+		
 		local saleBackground
 		if (item.on_sale == 1) then
 			saleBackground = UIElement:new({
@@ -4705,53 +5342,46 @@ do
 				pos = { 10, qiReq.size.h / 10 },
 				size = { qiReq.size.w - 20, qiReq.size.h * 0.8 }
 			})
-			qiReqText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREREQUIRES .. " " .. (item.qi - TB_MENU_PLAYER_INFO.data.qi) .. " " .. TB_MENU_LOCALIZED.STOREREQUIRESQI, nil, nil, 4)
+			qiReqText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREREQUIRES .. " " .. (item.qi - TB_MENU_PLAYER_INFO.data.qi) .. " " .. TB_MENU_LOCALIZED.STOREREQUIRESQI, nil, nil, 4, nil, 0.8)
 		end
 	end
 	
 	function Torishop:addIconToDownloadQueue(item, path, element)
+		-- Don't do anything if they have autoupdate off
+		if (get_option("autoupdate") == 0) then
+			return
+		end
+		
 		table.insert(STORE_ICONS_DOWNLOAD_QUEUE, { path = path, itemid = item.itemid, element = element })
-		STORE_ICONS_DOWNLOADING = STORE_ICONS_DOWNLOADING or false
-		add_hook("draw2d", "storeicondownloads", function()
-				if (STORE_ICONS_DOWNLOADING) then
-					if (os.clock() - 0.5 < STORE_ICONS_DOWNLOADING) then
-						return
-					end
-					local downloads = get_downloads()
-					local searchPath = STORE_ICONS_DOWNLOAD_QUEUE[#STORE_ICONS_DOWNLOAD_QUEUE].path
-					searchPath = searchPath:gsub("^%.%./", "../data/")
-					for i,v in pairs(downloads) do
-						if (v:find(searchPath)) then
-							return
+		add_hook("downloader_complete", "store_icon_downloader", function(load)
+				local fileName = load:gsub("^.* ", '')
+				for i,v in pairs(STORE_ICONS_DOWNLOAD_QUEUE) do
+					if (fileName:find(".*/store/items/" .. v.itemid .. "%.tga$")) then
+						if (not STORE_ICONS_DOWNLOAD_QUEUE[i].element.destroyed) then
+							STORE_ICONS_DOWNLOAD_QUEUE[i].element:updateImage(Torishop:getItemIcon(STORE_ICONS_DOWNLOAD_QUEUE[i].itemid))
 						end
-					end
-					if (not STORE_ICONS_DOWNLOAD_QUEUE[#STORE_ICONS_DOWNLOAD_QUEUE].element.destroyed) then
-						STORE_ICONS_DOWNLOAD_QUEUE[#STORE_ICONS_DOWNLOAD_QUEUE].element:updateImage(Torishop:getItemIcon(STORE_ICONS_DOWNLOAD_QUEUE[#STORE_ICONS_DOWNLOAD_QUEUE].itemid))
-					end
-					table.remove(STORE_ICONS_DOWNLOAD_QUEUE)
-					STORE_ICONS_DOWNLOADING = false
-					STORE_DOWNLOADS_COMPLETE = true
-					return
-				end
-				if (STORE_DOWNLOADS_COMPLETE and not MODEL_DOWNLOAD_ACTIVE) then
-					if (#STORE_ICONS_DOWNLOAD_QUEUE == 0) then
-						remove_hooks("storeicondownloads")
+						table.remove(STORE_ICONS_DOWNLOAD_QUEUE, i)
+						if (#STORE_ICONS_DOWNLOAD_QUEUE == 0) then
+							remove_hooks("store_icon_downloader")
+						end
 						return
 					end
-					download_server_file("get_icon&itemid=" .. STORE_ICONS_DOWNLOAD_QUEUE[#STORE_ICONS_DOWNLOAD_QUEUE].itemid, 0)
-					STORE_DOWNLOADS_COMPLETE = false
-					Request:new("storeicondownload", function()
-							local response = get_network_response()
-							if (response:len() == 0 or response:find("^ERROR")) then
-								table.remove(STORE_ICONS_DOWNLOAD_QUEUE)
-								STORE_DOWNLOADS_COMPLETE = true
-							else
-								STORE_ICONS_DOWNLOADING = os.clock()
-							end
-						end, function()
-							table.remove(STORE_ICONS_DOWNLOAD_QUEUE)
-							STORE_DOWNLOADS_COMPLETE = true
-						end)
+				end
+			end)
+		Request:queue(function()
+				download_server_file("get_icon&itemid=" .. item.itemid, 0)
+			end, "store_icon_downloader_prepare", function()
+				local response = get_network_response()
+				if (response:len() == 0 or response:find("^ERROR")) then
+					table.remove(STORE_ICONS_DOWNLOAD_QUEUE)
+					if (#STORE_ICONS_DOWNLOAD_QUEUE == 0) then
+						remove_hooks("store_icon_downloader")
+					end
+				end
+			end, function()
+				table.remove(STORE_ICONS_DOWNLOAD_QUEUE)
+				if (#STORE_ICONS_DOWNLOAD_QUEUE == 0) then
+					remove_hooks("store_icon_downloader")
 				end
 			end)
 	end
@@ -4776,19 +5406,16 @@ do
 		local itemIconPath = Torishop:getItemIcon(item.itemid)
 		local itemIconFilePath = itemIconPath:gsub("^%.%./", "../data/")
 		local itemIconFile = Files:new(itemIconFilePath)
-		local downloadingIcon = false
-		if (not itemIconFile.data) then
-			downloadingIcon = true
-		else
-			itemIconFile:close()
-		end
+		local hasIcon = itemIconFile.data and true or false
+		itemIconFile:close()
+		
 		local itemIcon = UIElement:new({
 			parent = itemSection,
 			pos = { 10, (itemSection.size.h - 50) / 2 },
 			size = { 50, 50 },
 			bgImage = itemIconPath
 		})
-		if (downloadingIcon) then
+		if (not hasIcon) then
 			Torishop:addIconToDownloadQueue(item, itemIconPath, itemIcon)
 		end
 		local iconOverlay = nil
@@ -4924,7 +5551,7 @@ do
 		return listElements
 	end
 	
-	function Torishop:showSectionItems(viewElement, catid, searchString, itemsList)
+	function Torishop:showSectionItems(viewElement, catid, searchString, itemsList, itemShown)
 		viewElement:kill(true)
 		
 		local searchString = searchString or ""
@@ -4942,6 +5569,20 @@ do
 				end
 			end
 		end
+		
+		if (#sectionItems == 0) then
+			-- We are viewing an empty section, don't let the UI crash
+			local nothingToShow = UIElement:new({
+				parent = viewElement,
+				pos = { viewElement.size.w / 10, viewElement.size.h / 5 },
+				size = { viewElement.size.w * 0.8, viewElement.size.h * 0.6 }
+			})
+			nothingToShow:addAdaptedText(true, TB_MENU_LOCALIZED.STORENOITEMSTODISPLAY, nil, nil, FONTS.BIG, nil, 0.6)
+			TBMenu:addBottomBloodSmudge(viewElement, 2)
+			Torishop:showStoreItemInfo(nil)
+			return
+		end
+		
 		sectionItems = UIElement:qsort(sectionItems, { 'on_sale', 'now_tc_price', 'now_usd_price', 'itemname' }, false, true)
 		sectionItemsDesc = UIElement:qsort(sectionItems, { 'on_sale', 'now_tc_price', 'now_usd_price', 'itemname' }, true, true)
 		sectionItemsQi = UIElement:qsort(sectionItems, { 'on_sale', 'qi', 'now_tc_price', 'now_usd_price', 'itemname' }, false, true)
@@ -4959,7 +5600,7 @@ do
 		local stItems = not in_array(sectionItems[1].catid, CATEGORIES_ACCOUNT)
 		local listElements = {}
 		local cnt = 0
-		local itemShown = false
+		local itemShown = itemShown or false
 		for i, item in pairs(sectionItemsDesc) do
 			if (((item.qi <= TB_MENU_PLAYER_INFO.data.qi and (item.now_tc_price > 0 and item.now_tc_price <= TB_MENU_PLAYER_INFO.data.tc)) or (stItems and item.now_usd_price > 0 and item.now_usd_price <= TB_MENU_PLAYER_INFO.data.st)) and (item.locked == 0 and item.hidden == 0)) then
 				if (cnt == 0) then
@@ -5073,6 +5714,7 @@ do
 		end
 		
 		storeListingScrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
+		listingHolder.scrollBar = storeListingScrollBar
 		storeListingScrollBar:makeScrollBar(listingHolder, listElements, toReload)
 		
 		TBMenu:addBottomBloodSmudge(botBar, 2)
@@ -5135,6 +5777,7 @@ do
 	end
 	
 	function Torishop:showSearchResults(viewElement, searchResults, searchString)
+		TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
 		viewElement:kill(true)
 		TBMenu:clearNavSection()
 		TBMenu:showNavigationBar(Torishop:getSectionNavButtons(viewElement, 0), true)
@@ -5213,6 +5856,7 @@ do
 			v:hide()
 		end
 		local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
+		listingHolder.scrollBar = scrollBar
 		scrollBar:makeScrollBar(listingHolder, listElements, toReload)
 	end
 	
@@ -5259,7 +5903,7 @@ do
 			size = { viewElement.size.w / 2 - 10, viewElement.size.h },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
-		Torishop:showSectionItems(sectionItemsView, sectionInfo.list[sectionid or 1])
+		Torishop:showSectionItems(sectionItemsView, sectionInfo.list[sectionid or 1], nil, nil, itemid and true or false)
 		if (itemid) then
 			Torishop:showStoreItemInfo(itemInfo)
 		end
@@ -5298,6 +5942,7 @@ do
 			v:hide()
 		end
 		local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
+		listingHolder.scrollBar = scrollBar
 		scrollBar:makeScrollBar(listingHolder, listElements, toReload)
 		
 		Torishop:showSearchBar(viewElement)
@@ -5306,8 +5951,8 @@ do
 	function Torishop:showSearchBar(viewElement, searchString)
 		local searchHolder = UIElement:new({
 			parent = viewElement,
-			pos = { 200, viewElement.size.h },
-			size = { viewElement.size.w - 400, 120 },
+			pos = { tbMenuBottomLeftBar.size.w, viewElement.size.h },
+			size = { viewElement.size.w - tbMenuBottomLeftBar.size.w * 2, 120 },
 			interactive = true
 		})
 		local searchBar = UIElement:new({
@@ -5335,6 +5980,7 @@ do
 	end
 	
 	function Torishop:showDailySaleItem(item)
+		TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
 		local overlay = TBMenu:spawnWindowOverlay()
 		overlay:addMouseHandlers(nil, function() overlay:kill() end)
 		local saleItemHolder = UIElement:new({
@@ -5666,7 +6312,7 @@ do
 				title = saleFeatured and saleFeatured.itemname or TB_MENU_LOCALIZED.STORENOSALE,
 				image = "../textures/menu/store/sale.tga",
 				ratio = 0.5,
-				action = function() if (saleFeatured) then Torishop:showDailySaleItem(saleFeatured) end end
+				action = function() if (saleFeatured) then Torishop:showStoreSection(tbMenuCurrentSection, nil, nil, saleFeatured.itemid) end end
 			},
 			storecolors = {
 				title = TB_MENU_LOCALIZED.STORECOLORS,

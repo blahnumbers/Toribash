@@ -299,7 +299,7 @@ local function eventMain(viewElement, reqTable, skipAdd)
 end
 
 local function loadExistingReplay(viewElement, reqTable)
-	local replay = Files:new("../replay/my replays/--eventtmp" .. CURRENT_TUTORIAL .. ".rpl")
+	local replay = Files:open("../replay/my replays/--eventtmp" .. CURRENT_TUTORIAL .. ".rpl")
 	if (not replay.data) then
 		reqTable.ready = true
 		return false
@@ -362,7 +362,7 @@ end
 
 local function setDiscordRPC()
 	local tutorialNum = CURRENT_TUTORIAL:gsub("%D", "")
-	set_discord_rpc("Hole in the Wall " .. tutorialNum, TB_MENU_LOCALIZED.DISCORDRPCPLAYINGSPEVENT)
+	set_discord_rpc("Hole in the Wall " .. tutorialNum, "Playing SP Event")
 end
 
 local function launchGame(viewElement, reqTable)
@@ -370,11 +370,11 @@ local function launchGame(viewElement, reqTable)
 	table.insert(reqTable, req)
 	TUTORIAL_LEAVEGAME = true
 	setDiscordRPC()
-	download_head("loli")
+	download_head("erth")
 	
 	REPLAY_CAN_BE_SUBMITTED = false
 	UIElement:runCmd("lm system/events/" .. CURRENT_TUTORIAL .. ".tbm")
-	local wipReplay = Files:new("../replay/my replays/--eventtmp" .. CURRENT_TUTORIAL .. ".rpl")
+	local wipReplay = Files:open("../replay/my replays/--eventtmp" .. CURRENT_TUTORIAL .. ".rpl")
 	if (wipReplay.data) then
 		for i,ln in pairs(wipReplay:readAll()) do
 			if (ln:find("^JOINT")) then

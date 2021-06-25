@@ -18,23 +18,23 @@ do
 	end
 	
 	function EventsOnline:checkFiles(eventName, requireMod)
-		local event = Files:new("events/" .. eventName .. ".dat")
+		local event = Files:open("events/" .. eventName .. ".dat")
 		if (not event.data) then
 			return false
 		end
 		event:close()
-		local eventscript = Files:new("events/" .. eventName .. ".lua")
+		local eventscript = Files:open("events/" .. eventName .. ".lua")
 		if (not eventscript.data) then
 			return false
 		end
 		eventscript:close()
-		local eventloc = Files:new("events/" .. eventName .. "_english.txt")
+		local eventloc = Files:open("events/" .. eventName .. "_english.txt")
 		if (not eventloc.data) then
 			return false
 		end
 		eventloc:close()
 		if (requireMod) then
-			local eventmod = Files:new("../data/mod/system/events/" .. eventName .. ".tbm")
+			local eventmod = Files:open("../data/mod/system/events/" .. eventName .. ".tbm")
 			if (not eventmod.data) then
 				return false
 			end

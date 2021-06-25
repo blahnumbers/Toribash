@@ -798,7 +798,7 @@ do
 			return
 		end
 		local pName = PlayerInfo:getUser(info.nick)
-		local customs = Files:new("../custom/" .. pName .. "/item.dat", FILES_MODE_READONLY)
+		local customs = Files:open("../custom/" .. pName .. "/item.dat", FILES_MODE_READONLY)
 		if (not customs.data) then
 			download_head(pName)
 			TB_MENU_DOWNLOAD_INACTION = true

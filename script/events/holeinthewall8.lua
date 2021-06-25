@@ -300,7 +300,7 @@ local function eventMain(viewElement, reqTable, skipAdd)
 end
 
 local function loadExistingReplay(viewElement, reqTable)
-	local replay = Files:new("../replay/my replays/--eventtmp" .. CURRENT_TUTORIAL .. ".rpl")
+	local replay = Files:open("../replay/my replays/--eventtmp" .. CURRENT_TUTORIAL .. ".rpl")
 	if (not replay.data) then
 		reqTable.ready = true
 		return false
@@ -375,7 +375,7 @@ local function launchGame(viewElement, reqTable)
 	
 	REPLAY_CAN_BE_SUBMITTED = false
 	UIElement:runCmd("lm system/events/" .. CURRENT_TUTORIAL .. ".tbm")
-	local wipReplay = Files:new("../replay/my replays/--eventtmp" .. CURRENT_TUTORIAL .. ".rpl")
+	local wipReplay = Files:open("../replay/my replays/--eventtmp" .. CURRENT_TUTORIAL .. ".rpl")
 	if (wipReplay.data) then
 		for i,ln in pairs(wipReplay:readAll()) do
 			if (ln:find("^JOINT")) then

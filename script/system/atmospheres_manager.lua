@@ -142,7 +142,7 @@ do
 	end
 	
 	function Atmospheres:getWorldShader()
-		local file = Files:new("../custom.cfg")
+		local file = Files:open("../custom.cfg")
 		local data = file:readAll()
 		if (data) then
 			for i, ln in pairs(data) do
@@ -363,7 +363,7 @@ do
 				TBMenu:showConfirmationWindowInput(TB_MENU_LOCALIZED.SHADERSSAVING, TB_MENU_LOCALIZED.SHADERSINPUTNAME, function(name)
 					local name = name:gsub("%.inc.?$", "")
 					local function save()
-						local file = Files:new("../data/shader/" .. name .. ".inc", FILES_MODE_WRITE)
+						local file = Files:open("../data/shader/" .. name .. ".inc", FILES_MODE_WRITE)
 						for i,v in pairs(ATMO_CURRENT_SHADER) do
 							local line = i:lower() .. " " .. v[1] .. " " .. v[2] .. " " .. v[3] .. " " .. v[4]
 							file:writeLine(line)
@@ -371,7 +371,7 @@ do
 						file:close()
 						remove_hooks("tbAtmospheresKeyboard")
 					end
-					local file = Files:new("../data/shader/" .. name .. ".inc", FILES_MODE_READ)
+					local file = Files:open("../data/shader/" .. name .. ".inc", FILES_MODE_READ)
 					if (file.data) then
 						file:close()
 						TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.SHADERSERRORFILEEXISTS, save)
@@ -444,13 +444,13 @@ do
 	end
 	
 	function Atmospheres:setDefaultAtmo(filename)
-		local config = Files:new("../data/atmospheres/atmo.cfg", FILES_MODE_WRITE)
+		local config = Files:open("../data/atmospheres/atmo.cfg", FILES_MODE_WRITE)
 		config:writeLine(filename)
 		config:close()
 	end
 	
 	function Atmospheres:loadDefaultAtmo()
-		local config = Files:new("../data/atmospheres/atmo.cfg")
+		local config = Files:open("../data/atmospheres/atmo.cfg")
 		if (not config.data) then
 			return
 		end
@@ -482,7 +482,7 @@ do
 			ATMOSPHERES_ANIMATED = (get_world_state().game_paused==0 and is_game_frozen()==1 and get_world_state().replay_mode==1) or (get_world_state().game_paused==0 and is_game_frozen()==0 and get_world_state().replay_mode==0 ) or (get_world_state().replay_mode==2 and get_world_state().game_paused==0)
 		end)
 		
-		local file = Files:new("../data/atmospheres/" .. filename)
+		local file = Files:open("../data/atmospheres/" .. filename)
 		if (not file.data) then
 			return false
 		end

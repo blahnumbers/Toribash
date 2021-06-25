@@ -39,7 +39,7 @@ local function showPopup(i)
 			showPopup(i + 1)
 		else
 			download_quest(TB_MENU_PLAYER_INFO.username)
-			local file = Files:new("../data/quest.txt")
+			local file = Files:open("../data/quest.txt")
 			local questRefresh = UIElement:new({
 				globalid = TB_MENU_HUB_GLOBALID,
 				pos = { 0, 0 },
@@ -234,7 +234,7 @@ local function showPopup(i)
 											showPopup(i + 1)
 										else
 											download_quest(TB_MENU_PLAYER_INFO.username)
-											local file = Files:new("../data/quest.txt")
+											local file = Files:open("../data/quest.txt")
 											local questRefresh = UIElement:new({
 												globalid = TB_MENU_HUB_GLOBALID,
 												pos = { 0, 0 },

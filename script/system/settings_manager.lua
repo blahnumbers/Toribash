@@ -131,7 +131,7 @@ do
 			uiColor = UICOLORBLACK
 		})
 		aboutMover:addCustomDisplay(true, function()
-			aboutMover:moveTo(nil, slowMode and -WIN_H / 1400 * speedMultiplier or -WIN_H / 700 * speedMultiplier, true)
+			aboutMover:moveTo(nil, slowMode and math.ceil(-WIN_H / 1400 * speedMultiplier) or math.ceil(-WIN_H / 700 * speedMultiplier), true)
 		end)
 		local tbLogo = UIElement:new({
 			parent = aboutMover,
@@ -160,7 +160,7 @@ do
 		tbToribashTeam:addAdaptedText(true, "Current Team", nil, nil, FONTS.BIG, nil, nil, nil, 0.2)
 		
 		-- Keep hampa in the middle and others on sides
-		local tbTeam = { 'hagan', 'hampa', 'dranix', 'sir' }
+		local tbTeam = { 'hagan', 'hampa', 'sir' }
 		local teamScale = aboutMover.size.w / #tbTeam
 		teamScale = teamScale > 512 and 512 or teamScale
 		for i,v in pairs(tbTeam) do
@@ -191,7 +191,7 @@ do
 			parent = aboutMover,
 			pos = { 0, tbSpecialThanks.shift.y + tbSpecialThanks.size.h + 20 },
 			size = { aboutMover.size.w, 60 },
-			interactive = true,
+			--interactive = true,
 			bgColor = UICOLORWHITE,
 			hoverColor = TB_MENU_DEFAULT_LIGHTEST_COLOR,
 			shapeType = ROUNDED,
@@ -202,14 +202,16 @@ do
 			pos = { 0, 0 },
 			size = { tbMusicBy.size.w, 35 }
 		})
-		TBMenu:showTextWithImage(tbMusicTMMRW, "Jacob \"TMMRW\" Milo", FONTS.BIG, 30, "../textures/menu/logos/soundcloud.tga")
+		tbMusicTMMRW:addAdaptedText(true, "Jacob \"TMMRW\" Milo", nil, nil, FONTS.BIG)
+		-- Looks like our guy is no longer on soundcloud, credit but don't put up a link
+		--TBMenu:showTextWithImage(tbMusicTMMRW, "Jacob \"TMMRW\" Milo", FONTS.BIG, 30, "../textures/menu/logos/soundcloud.tga")
+		--tbMusicBy:addMouseHandlers(nil, function() open_url("https://soundcloud.com/TMMRW") end, function() slowMode = true end)
 		local tbMusicDesc = UIElement:new({
 			parent = tbMusicBy,
 			pos = { 0, tbMusicTMMRW.size.h },
 			size = { tbMusicBy.size.w, tbMusicBy.size.h - tbMusicTMMRW.size.h }
 		})
 		tbMusicDesc:addAdaptedText(true, "for making Toribash background music")
-		tbMusicBy:addMouseHandlers(nil, function() open_url("https://soundcloud.com/TMMRW") end, function() slowMode = true end)
 		
 		local tbStaff = UIElement:new({
 			parent = aboutMover,
@@ -1148,7 +1150,7 @@ do
 		end
 		table.insert(languages, 1, langFile)
 		for i,v in pairs(languages) do
-			local newMenuFile = Files:new("system/language/" .. v.name .. ".txt")
+			local newMenuFile = Files:open("system/language/" .. v.name .. ".txt")
 			if (not newMenuFile.data) then
 				v.newMenuDisabled = true
 			else

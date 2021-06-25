@@ -245,7 +245,7 @@ WORDGAMES	games
 WORDFIGHTS	fights	
 WORDTIMES	times	
 WORDIN	in	
-WORDTC	toricredits	
+WORDTC	TC	
 WORDDONE	done	
 WORDVS	vs	
 WORDNONE	none	
@@ -598,8 +598,6 @@ STOREPURCHASINGITEM	Purchasing item...
 STOREPURCHASEERROR	Purchase error	
 STOREPURCHASESERVERERROR	Server error, please try again later	
 STOREPURCHASEERRORUNDEF	Undefined purchase error. Please contact an administrator.
-STOREPURCHASESUCCESSFUL	Congratulations on your purchase!\nWould you like to activate your new item?	
-STOREPURCHASESUCCESSFULUNPACK	Congratulations on your purchase!\nWould you like to unpack the set you've bought?	
 STOREITEMPURCHASESUCCESSFUL	has been purchased successfully!	
 SETTINGSAUTOUPDATE	Auto-update players customs and data files	
 ACCOUNTUSERNAME	Username	
@@ -848,3 +846,41 @@ SETTINGSDISABLEANIMATIONS	Disable menu animations
 SETTINGSDPIAWARENESS	Ignore Windows graphics scaling	
 HINTREQUIRESRESTART	Requires game restart	
 EVENTSEVENTINFO	Event Info	
+STOREPURCHASECONGRATULATIONSRECEIVED	Congratulations, you have received	
+STOREPURCHASECONGRATULATIONS	Congratulations on your purchase!
+STOREPURCHASEWOULDYOULIKETOACTIVATE1	Would you like to activate	
+STOREPURCHASEWOULDYOULIKETOACTIVATE2	 	
+STOREPURCHASEWOULDYOULIKETOUNPACK1	Would you like to unpack	
+STOREPURCHASEWOULDYOULIKETOUNPACK2	 	
+INVENTORYNOTEXTUREUPLOADED	No texture uploaded	
+STOREAPPLIEDITEMEFFECTS	Applied item effects	
+STOREYOUNEEDTOPLAYGAMES1	You need to play	
+STOREYOUNEEDTOPLAYGAMES2	more fights with this item equipped	
+STOREUPGRADEORPLAYGAMES	or play	
+STOREYOUNEEDTC1	You need to have	
+STOREFUSENEWEFFECT	Fuse new effect	
+INVENTORYNOEFFECTITEMS	No effect items in inventory	
+INVENTORYUPLOADNEWTEXTURE	Upload new texture	
+INVENTORYUPLOADTEXTURECONFIRM1	Are you sure you want to upload	
+INVENTORYUPLOADTEXTURECONFIRM2	as texture for your	
+INVENTORYUPLOADTEXTUREOVERWRITENOTICE	Any existing texture will be overwritten.	
+INVENTORYUPLOADINGFILE	Uploading file to Toribash servers	
+INVENTORYRESETTEXTURE	Reset texture	
+INVENTORYTEXTURERESETCONFIRM	Are you sure you want to reset this item's texture?\nAny currently uploaded texture will be lost.	
+STOREPURCHASEINSTORE	Purchase in Store	
+STOREFUSEEFFECTFOR	Fuse for	
+INVENTORYLOADINGEFFECTS	Loading item effects and effect upgrades	
+INVENTORYFUSECONFIRM1	Are you sure you want to fuse 
+INVENTORYFUSECONFIRM2	effect into	
+INVENTORYFUSECONFIRMPRICE	You will be charged
+INVENTORYFUSECONFIRMINFO	Effect fusion is irreversible and your effect item will be destroyed.	
+STOREITEMLEVEL	Level	
+INVENTORYCHOOSEITEMUPGRADELEVEL	Choose item upgrade level	
+INVENTORYAPPLYUPGRADE	Apply upgrade	
+INVENTORYUPGRADEITEMNEXTLEVEL	Upgrade item to next level	
+STORENOITEMSTODISPLAY	No items to display	
+STORESELECTITEMTOVIEWDETAILS	Select an item to view its details	
+STOREDIALOGCHANGELEVEL1	Are you sure you want to set level	
+STOREDIALOGCHANGELEVEL2	upgrade for your	
+INVENTORYSETEFFECTCONFIRM	Are you sure you want to apply selected effect upgrades for your	
+INVENTORYSETEFFECTNOTICE	If you had any paid upgrades applied, you may need to purchase them again.	

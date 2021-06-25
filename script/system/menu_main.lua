@@ -112,6 +112,13 @@ if (PlayerInfo:getLoginRewards().available and TB_STORE_DATA.ready and not TB_ME
 	TB_MENU_NOTIFICATION_LOGINREWARDS = true
 end
 
+if (TB_MENU_CUSTOMS_REFRESHED) then
+	TB_MENU_CUSTOMS_REFRESHED = false
+	TB_MENU_PLAYER_INFO.data = PlayerInfo:getUserData()
+	TB_MENU_PLAYER_INFO.items = PlayerInfo:getItems(TB_MENU_PLAYER_INFO.username)
+	TB_MENU_PLAYER_INFO.clan = PlayerInfo:getClan(TB_MENU_PLAYER_INFO.username)
+end
+
 local launchOption = ARG
 if (launchOption == "" and ARG1) then
 	launchOption = ARG1
@@ -223,6 +230,12 @@ add_hook("console", "tbMainMenuStatic", function(s, i)
 			return 1
 		end
 	end)
+add_hook("downloader_complete", "tbMainMenuStatic", function(filename)
+		if (filename:find("custom/" .. TB_MENU_PLAYER_INFO.username .. "/item.dat")) then
+			TB_MENU_CUSTOMS_REFRESHED = true
+		end
+	end)
+	
 add_hook("new_mp_game", "tbMainMenuStatic", function()
 		TB_MATCHMAKER_SEARCHSTATUS = nil
 		set_discord_rpc("", "")
@@ -267,7 +280,7 @@ if (get_option("showbroadcast") and not BROADCASTS_ACTIVE) then
 	Broadcasts:activate()
 end
 if (not QueueList) then
-	local qmF = Files:new('system/queuelist_manager.lua')
+	local qmF = Files:open('system/queuelist_manager.lua')
 	if (qmF.data) then
 		qmF:close()
 		dofile("system/queuelist_manager.lua")

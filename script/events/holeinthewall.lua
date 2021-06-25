@@ -299,7 +299,7 @@ local function eventMain(viewElement, reqTable, skipAdd)
 end
 
 local function loadExistingReplay(viewElement, reqTable)
-	local replay = Files:new("../replay/my replays/--eventtmpholeinthewall.rpl")
+	local replay = Files:open("../replay/my replays/--eventtmpholeinthewall.rpl")
 	if (not replay.data) then
 		reqTable.ready = true
 		return false
@@ -367,7 +367,7 @@ local function launchGame(viewElement, reqTable)
 	
 	REPLAY_CAN_BE_SUBMITTED = false
 	UIElement:runCmd("lm system/events/holeinthewall.tbm")
-	local wipReplay = Files:new("../replay/my replays/--eventtmpholeinthewall.rpl")
+	local wipReplay = Files:open("../replay/my replays/--eventtmpholeinthewall.rpl")
 	if (wipReplay.data) then
 		for i,ln in pairs(wipReplay:readAll()) do
 			if (ln:find("^JOINT")) then

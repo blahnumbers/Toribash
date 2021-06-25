@@ -131,7 +131,7 @@ do
 		if (refresh) then
 			download_ranking_trends()
 		end
-		local rankingFile = Files:new("../data/ranking_trends.txt")
+		local rankingFile = Files:open("../data/ranking_trends.txt")
 		local playerTrends, modTrends = nil, nil
 		
 		local dataWait = UIElement:new({
@@ -459,7 +459,7 @@ do
 		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 50, elementHeight - 16, 20, TB_MENU_DEFAULT_BG_COLOR)
 		TBMenu:addBottomBloodSmudge(botBar, 2)
 		
-		local rankingFile = Files:new("../data/ranking_toplist.txt")
+		local rankingFile = Files:open("../data/ranking_toplist.txt")
 		local playerRanking = nil
 		
 		local topPlayersTitle = UIElement:new({

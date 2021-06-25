@@ -71,7 +71,7 @@ do
 	function Tutorials:getLocalization(TUTORIAL_LOCALIZED, id, language, path)
 		local language = language or get_language()
 		local path = path or "../data/tutorials/tutorial"
-		local localization = Files:new(path .. id .. "_" .. language .. ".txt")
+		local localization = Files:open(path .. id .. "_" .. language .. ".txt")
 		if (not localization.data) then
 			if (language == "english") then
 				return false
@@ -90,7 +90,7 @@ do
 
 		if (language ~= "english") then
 			-- Make sure there's no missing values
-			local localization = Files:new(path .. id .. "_english.txt")
+			local localization = Files:open(path .. id .. "_english.txt")
 			for i, ln in pairs(localization:readAll()) do
 				if (not ln:match("^#")) then
 					local data_stream = { ln:match(("([^\t]*)\t?"):rep(2)) }
@@ -110,7 +110,7 @@ do
 			cfuncpath = path:gsub("%.%./data/")
 		end
 		local path = path or "../data/tutorials/tutorial"
-		local tutorial = Files:new(path .. id .. ".dat")
+		local tutorial = Files:open(path .. id .. ".dat")
 		if (not tutorial.data) then
 			download_server_file("tutorial_" .. id .. "&language=" .. TB_MENU_LOCALIZED.language, 0)
 			TBMenu:showDataError(TB_MENU_LOCALIZED.TUTORIALNODATAFOUND)
@@ -1490,7 +1490,7 @@ do
 			set_tutorial_level(CURRENT_TUTORIAL)
 		end
 		
-		local tutorialsConfig = Files:new("../data/tutorials/config.cfg")
+		local tutorialsConfig = Files:open("../data/tutorials/config.cfg")
 		if (not tutorialsConfig.data) then
 			return false
 		end
@@ -1555,7 +1555,7 @@ do
 	function Tutorials:showTutorialEnd(buttonsCustom)
 		TUTORIAL_LEAVEGAME = true
 		local buttons = {}
-		local nextTutorial = Files:new("../data/tutorials/tutorial" .. (type(CURRENT_TUTORIAL) == "number" and (CURRENT_TUTORIAL + 1) or 'non-existing') .. ".dat")
+		local nextTutorial = Files:open("../data/tutorials/tutorial" .. (type(CURRENT_TUTORIAL) == "number" and (CURRENT_TUTORIAL + 1) or 'non-existing') .. ".dat")
 		if (type(CURRENT_TUTORIAL) == "number") then
 			Tutorials:updateConfig(nextTutorial.data and true or false)
 		end
@@ -2008,7 +2008,7 @@ do
 	end
 
 	function Tutorials:getConfig()
-		local tutorialsConfig = Files:new("../data/tutorials/config.cfg")
+		local tutorialsConfig = Files:open("../data/tutorials/config.cfg")
 		local nextTutorial, lastTutorial = 1, 1
 		if (tutorialsConfig.data) then
 			for i, ln in pairs(tutorialsConfig:readAll()) do

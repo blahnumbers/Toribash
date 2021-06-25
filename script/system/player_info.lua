@@ -264,7 +264,7 @@ do
 			textures = {},
 			objs = {}
 		}
-		local customs = Files:new("../custom/" .. player .. "/item.dat", FILES_MODE_READONLY)
+		local customs = Files:open("../custom/" .. player .. "/item.dat", FILES_MODE_READONLY)
 		local customsData = customs:readAll()
 		customs:close()
 		
@@ -331,9 +331,9 @@ do
 			return clanInfo
 		end
 		if (not tag) then
-			local customs = Files:new("../custom/" .. player .. "/item.dat", FILES_MODE_READONLY)
+			local customs = Files:open("../custom/" .. player .. "/item.dat", FILES_MODE_READONLY)
 			if (not customs.data) then
-				customs = Files:new("../custom/" .. player:lower() .. "/item.dat", FILES_MODE_READONLY)
+				customs = Files:open("../custom/" .. player:lower() .. "/item.dat", FILES_MODE_READONLY)
 				if (not customs.data) then
 					return clanInfo
 				end
@@ -357,7 +357,7 @@ do
 			clanInfo.tag = tag
 		end
 		
-		local clans = Files:new("clans/clans.txt", FILES_MODE_READONLY)
+		local clans = Files:open("clans/clans.txt", FILES_MODE_READONLY)
 		if (not clans.data) then
 			return clanInfo
 		end
@@ -473,7 +473,7 @@ do
 			userData.belt = PlayerInfo:getBeltFromQi(userData.qi)
 			return userData
 		end
-		local customs = Files:new("../custom/" .. player .. "/item.dat", FILES_MODE_READONLY)
+		local customs = Files:open("../custom/" .. player .. "/item.dat", FILES_MODE_READONLY)
 		if (not customs.data) then
 			return userData
 		end

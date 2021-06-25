@@ -155,7 +155,7 @@ local function showUploadWindow(viewElement, reqTable)
 			return false
 		end
 		UIElement:runCmd("savereplay " .. name)
-		local file = Files:new("../replay/my replays/" .. name .. ".rpl", FILES_MODE_APPEND)
+		local file = Files:open("../replay/my replays/" .. name .. ".rpl", FILES_MODE_APPEND)
 		if (file.data) then
 			file:writeLine("#ENDFRAME " .. WIN_FRAME)
 			file:close()
@@ -524,7 +524,7 @@ local function eventMain(viewElement, reqTable, skipAdd)
 end
 
 loadExistingReplay = function(viewElement, reqTable, rplFile)
-	local replay = Files:new(rplFile and ("../replay/" .. rplFile) or ("../replay/my replays/--eventtmp" .. CURRENT_TUTORIAL .. ".rpl"))
+	local replay = Files:open(rplFile and ("../replay/" .. rplFile) or ("../replay/my replays/--eventtmp" .. CURRENT_TUTORIAL .. ".rpl"))
 	if (not replay.data) then
 		return false
 	end
@@ -635,7 +635,7 @@ local function launchGame(viewElement, reqTable)
 	WIN_FRAME = 100000
 
 	UIElement:runCmd("lm system/events/" .. CURRENT_TUTORIAL .. ".tbm")
-	local wipReplay = Files:new("../replay/my replays/--eventtmp" .. CURRENT_TUTORIAL .. ".rpl")
+	local wipReplay = Files:open("../replay/my replays/--eventtmp" .. CURRENT_TUTORIAL .. ".rpl")
 	if (wipReplay.data) then
 		for i,ln in pairs(wipReplay:readAll()) do
 			if (ln:find("^JOINT")) then

@@ -109,7 +109,7 @@ do
 	end
 	
 	function FriendsList:getFriends()
-		local file = Files:new("../data/buddies.txt")
+		local file = Files:open("../data/buddies.txt")
 		if (not file.data) then
 			UIElement:runCmd("ab testuser")
 			file:reopen()
@@ -128,7 +128,7 @@ do
 		
 		file:close()
 		FRIENDSLIST_IGNORE = {}
-		local ignoreFile = Files:new("../ignorelist.txt")
+		local ignoreFile = Files:open("../ignorelist.txt")
 		if (ignoreFile.data) then
 			for i, ln in pairs(ignoreFile:readAll()) do
 				table.insert(FRIENDSLIST_IGNORE, ln)

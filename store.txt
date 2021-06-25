@@ -462,6 +462,7 @@ PRODUCT	78	3d objects	2286	Cocaine	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Drugs
 PRODUCT	83	Collectors Cards	3096	Code - WC2018	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	0			
 PRODUCT	60	Trading Cards	1533	Collectors Card	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	0	Tradeable card		
 PRODUCT	47	Secret	2062	Color Pack of choice	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1			
+PRODUCT	7	Secret	3423	Color Pack of Choice	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1			
 PRODUCT	82	Comic Effects	2991	Comic Decap Effect	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	RANKED SEASON EXCLUSIVE\n\nA textured decap effect.		
 PRODUCT	82	Comic Effects	2989	Comic Dismember Effect	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	RANKED SEASON EXCLUSIVE\n\nA textured dismember effect.		
 PRODUCT	82	Comic Effects	2981	Comic Effect [deprecated]	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1			
@@ -687,21 +688,23 @@ PRODUCT	78	3d objects	2219	Flip Flop R	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	T
 PRODUCT	80	Full Toris	2550	Flip Flops	0	20000.00	7.00	20000.00	7.00	0	0	0	0	0	0	0	0	0	Unpack this to get the following items:\n\nFlip Flop R\n\nFlip Flop L	2219 2220	
 PRODUCT	78	3d objects	2255	Flower Crown	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	"Pretty wreath, a headdress made of leaves, grasses, flowers or branches. It is typically worn in festive occasions and on holy days"		
 PRODUCT	71	Sounds	1704	Foot Step Sound	0	10000.00	0.00	10000.00	0.00	0	0	0	0	0	1	0	1	0	Upload .wav file (v 3.91 and above)		
+PRODUCT	7	Secret	3424	Force and Relax of Choice	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1			
+PRODUCT	7	Secret	3425	Force Color of Choice	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1			
 PRODUCT	78	3d objects	2707	Forgers Anvil	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Passed through generations by the legendary ancient forgers		
 PRODUCT	79	Subscriptions	2042	Forum VIP	0	0.00	5.00	0.00	5.00	0	0	0	0	7	0	0	0	0	A 6-month-long subscription that allows you new forum functionality\n\nSee more info		
 PRODUCT	79	Subscriptions	2043	ForumVIP	0	0.00	7.00	0.00	7.00	0	0	0	0	12	0	0	1	1	Forum VIP		
-PRODUCT	1	Blood Colors	3053	Fossil Blood	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	134	0	0	LIMITED EDITION\nDug up in archeological excavations, this colour might give you ancient powers.		
+PRODUCT	1	Blood Colors	3053	Fossil Blood	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	134	1	1	LIMITED EDITION\nDug up in archeological excavations, this colour might give you ancient powers.		
 PRODUCT	12	DQ Rings	3057	Fossil DQ	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	134	1	0	LIMITED EDITION\nDug up in archeological excavations, this colour might give you ancient powers.		
 PRODUCT	43	Emote Colors	3067	Fossil Emote	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	134	1	0	LIMITED EDITION\nDug up in archeological excavations, this colour might give you ancient powers.		
-PRODUCT	22	Force Colors	3052	Fossil Force	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	134	0	0	LIMITED EDITION\nDug up in archeological excavations, this colour might give you ancient powers.		
+PRODUCT	22	Force Colors	3052	Fossil Force	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	134	1	1	LIMITED EDITION\nDug up in archeological excavations, this colour might give you ancient powers.		
 PRODUCT	11	Ghost Colors	3056	Fossil Ghost	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	134	1	0	LIMITED EDITION\nDug up in archeological excavations, this colour might give you ancient powers.		
 PRODUCT	41	Grip Colors	3066	Fossil Grip	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	134	1	0	LIMITED EDITION\nDug up in archeological excavations, this colour might give you ancient powers.		
 PRODUCT	73	Hair Color	3068	Fossil Hair	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	134	1	0	LIMITED EDITION\nDug up in archeological excavations, this colour might give you ancient powers.		
 PRODUCT	28	Left Hand Motion Trail	3062	Fossil Left Hand Motion Trail	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	134	1	0	LIMITED EDITION\nDug up in archeological excavations, this colour might give you ancient powers.		
 PRODUCT	30	Left Leg Motion Trail	3064	Fossil Left Leg Motion Trail	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	134	1	0	LIMITED EDITION\nDug up in archeological excavations, this colour might give you ancient powers.		
-PRODUCT	44	Color Packs	3069	Fossil Pack	0	0.00	20.00	0.00	20.00	0	0	0	0	0	0	134	0	0	LIMITED EDITION\nDug up in archeological excavations, this colour might give you ancient powers.	3053 3054 3055 3056 3057 3058 3059 3052 3060 3061 3062 3064 3063 3065 3066 3067 3068	
+PRODUCT	44	Color Packs	3069	Fossil Pack	0	0.00	20.00	0.00	20.00	0	0	0	0	0	0	134	1	1	LIMITED EDITION\nDug up in archeological excavations, this colour might give you ancient powers.	3053 3054 3055 3056 3057 3058 3059 3052 3060 3061 3062 3064 3063 3065 3066 3067 3068	
 PRODUCT	20	Primary Gradients	3058	Fossil Primary Gradient	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	134	1	0	LIMITED EDITION\nDug up in archeological excavations, this colour might give you ancient powers.		
-PRODUCT	2	Relax Colors	3054	Fossil Relax	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	134	0	0	LIMITED EDITION\nDug up in archeological excavations, this colour might give you ancient powers.		
+PRODUCT	2	Relax Colors	3054	Fossil Relax	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	134	1	1	LIMITED EDITION\nDug up in archeological excavations, this colour might give you ancient powers.		
 PRODUCT	27	Right Hand Motion Trail	3061	Fossil Right Hand Motion Trail	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	134	1	0	LIMITED EDITION\nDug up in archeological excavations, this colour might give you ancient powers.		
 PRODUCT	29	Right Leg Motion Trail	3063	Fossil Right Leg Motion Trail	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	134	1	0	LIMITED EDITION\nDug up in archeological excavations, this colour might give you ancient powers.		
 PRODUCT	21	Secondary Gradients	3059	Fossil Secondary Gradient	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	134	1	0	LIMITED EDITION\nDug up in archeological excavations, this colour might give you ancient powers.		
@@ -806,24 +809,24 @@ PRODUCT	72	Hair Styles	1899	Imp Horns	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0
 PRODUCT	49	Premium Packs	1555	Imperial Demolition Pure Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	0	\n\n\n*Image is a reference for joint colors only. Texture sets are sold separately.\n\n\nIn this pack, you get:\n\n\n16 Demolition items\n16 Imperial items\n14 Pure items\nClick Unlock to unpack these items into your inventory!	1386 1070 929	
 PRODUCT	47	Secret	1463	Imperial Force + Relax Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	This pack contains 1 x Imperial Force and 1 x Imperial Relax.	782 788	
 PRODUCT	44	Color Packs	929	Imperial Pack	0	0.00	55.00	0.00	55.00	0	0	0	0	0	0	86	0	0	This pack contains a full set of Imperial items.\nUNLOCK this into your inventory.	780 779 781 782 783 784 785 786 787 788 789 790 791 792 793 794 1782	
-PRODUCT	1	Blood Colors	2999	Impure Blood	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	125	1	0	LIMITED EDITION\nTainted by forces beyond your imagination.		
-PRODUCT	12	DQ Rings	3003	Impure DQ	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	125	1	0	LIMITED EDITION\nTainted by forces beyond your imagination.		
-PRODUCT	43	Emote Colors	3014	Impure Emote	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	125	1	0	LIMITED EDITION\nTainted by forces beyond your imagination.		
-PRODUCT	22	Force Colors	3006	Impure Force	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	125	1	0	LIMITED EDITION\nTainted by forces beyond your imagination.		
-PRODUCT	11	Ghost Colors	3002	Impure Ghost	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	125	1	0	LIMITED EDITION\nTainted by forces beyond your imagination.		
-PRODUCT	41	Grip Colors	3013	Impure Grip	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	125	1	0	LIMITED EDITION\nTainted by forces beyond your imagination.		
-PRODUCT	73	Hair Color	3015	Impure Hair	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	125	1	0	LIMITED EDITION\nTainted by forces beyond your imagination.		
-PRODUCT	28	Left Hand Motion Trail	3009	Impure Left Hand Motion Trail	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	125	1	0	LIMITED EDITION\nTainted by forces beyond your imagination.		
-PRODUCT	30	Left Leg Motion Trail	3011	Impure Left Leg Motion Trail	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	125	1	0	LIMITED EDITION\nTainted by forces beyond your imagination.		
-PRODUCT	44	Color Packs	3016	Impure Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	125	1	0	LIMITED EDITION\nTainted by forces beyond your imagination.	2999 3000 3001 3002 3003 3004 3005 3006 3007 3008 3009 3010 3011 3012 3013 3014 3015	
-PRODUCT	20	Primary Gradients	3004	Impure Primary Gradient	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	125	1	0	LIMITED EDITION\nTainted by forces beyond your imagination.		
-PRODUCT	2	Relax Colors	3000	Impure Relax	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	125	1	0	LIMITED EDITION\nTainted by forces beyond your imagination.		
-PRODUCT	27	Right Hand Motion Trail	3008	Impure Right Hand Motion Trail	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	125	1	0	LIMITED EDITION\nTainted by forces beyond your imagination.		
-PRODUCT	29	Right Leg Motion Trail	3010	Impure Right Leg Motion Trail	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	125	1	0	LIMITED EDITION\nTainted by forces beyond your imagination.		
-PRODUCT	21	Secondary Gradients	3005	Impure Secondary Gradient	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	125	1	0	LIMITED EDITION\nTainted by forces beyond your imagination.		
-PRODUCT	24	Timers	3007	Impure Timer	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	125	1	0	LIMITED EDITION\nTainted by forces beyond your imagination.		
-PRODUCT	5	Torso Colors	3001	Impure Torso	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	125	1	0	LIMITED EDITION\nTainted by forces beyond your imagination.		
-PRODUCT	34	User Text Colour	3012	Impure User Text	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	125	1	0	LIMITED EDITION\nTainted by forces beyond your imagination.		
+PRODUCT	1	Blood Colors	2999	Impure Blood	0	80000.00	8.00	80000.00	8.00	0	0	0	0	0	1	125	0	0	LIMITED EDITION\nTainted by forces beyond your imagination.		
+PRODUCT	12	DQ Rings	3003	Impure DQ	0	8000.00	1.00	8000.00	1.00	0	0	0	0	0	1	125	0	0	LIMITED EDITION\nTainted by forces beyond your imagination.		
+PRODUCT	43	Emote Colors	3014	Impure Emote	0	8000.00	1.00	8000.00	1.00	0	0	0	0	0	1	125	0	0	LIMITED EDITION\nTainted by forces beyond your imagination.		
+PRODUCT	22	Force Colors	3006	Impure Force	0	120000.00	10.00	120000.00	10.00	0	0	0	0	0	1	125	0	0	LIMITED EDITION\nTainted by forces beyond your imagination.		
+PRODUCT	11	Ghost Colors	3002	Impure Ghost	0	40000.00	5.00	40000.00	5.00	0	0	0	0	0	1	125	0	0	LIMITED EDITION\nTainted by forces beyond your imagination.		
+PRODUCT	41	Grip Colors	3013	Impure Grip	0	8000.00	1.00	8000.00	1.00	0	0	0	0	0	1	125	0	0	LIMITED EDITION\nTainted by forces beyond your imagination.		
+PRODUCT	73	Hair Color	3015	Impure Hair	0	24000.00	4.00	24000.00	4.00	0	0	0	0	0	1	125	0	0	LIMITED EDITION\nTainted by forces beyond your imagination.		
+PRODUCT	28	Left Hand Motion Trail	3009	Impure Left Hand Motion Trail	0	8000.00	1.00	8000.00	1.00	0	0	0	0	0	1	125	0	0	LIMITED EDITION\nTainted by forces beyond your imagination.		
+PRODUCT	30	Left Leg Motion Trail	3011	Impure Left Leg Motion Trail	0	8000.00	1.00	8000.00	1.00	0	0	0	0	0	1	125	0	0	LIMITED EDITION\nTainted by forces beyond your imagination.		
+PRODUCT	44	Color Packs	3016	Impure Pack	0	0.00	36.00	0.00	36.00	0	0	0	0	0	0	125	0	0	LIMITED EDITION\nTainted by forces beyond your imagination.	2999 3000 3001 3002 3003 3004 3005 3006 3007 3008 3009 3010 3011 3012 3013 3014 3015	
+PRODUCT	20	Primary Gradients	3004	Impure Primary Gradient	0	24000.00	4.00	24000.00	4.00	0	0	0	0	0	1	125	0	0	LIMITED EDITION\nTainted by forces beyond your imagination.		
+PRODUCT	2	Relax Colors	3000	Impure Relax	0	80000.00	8.00	80000.00	8.00	0	0	0	0	0	1	125	0	0	LIMITED EDITION\nTainted by forces beyond your imagination.		
+PRODUCT	27	Right Hand Motion Trail	3008	Impure Right Hand Motion Trail	0	8000.00	1.00	8000.00	1.00	0	0	0	0	0	1	125	0	0	LIMITED EDITION\nTainted by forces beyond your imagination.		
+PRODUCT	29	Right Leg Motion Trail	3010	Impure Right Leg Motion Trail	0	8000.00	1.00	8000.00	1.00	0	0	0	0	0	1	125	0	0	LIMITED EDITION\nTainted by forces beyond your imagination.		
+PRODUCT	21	Secondary Gradients	3005	Impure Secondary Gradient	0	24000.00	4.00	24000.00	4.00	0	0	0	0	0	1	125	0	0	LIMITED EDITION\nTainted by forces beyond your imagination.		
+PRODUCT	24	Timers	3007	Impure Timer	0	16000.00	3.00	16000.00	3.00	0	0	0	0	0	1	125	0	0	LIMITED EDITION\nTainted by forces beyond your imagination.		
+PRODUCT	5	Torso Colors	3001	Impure Torso	0	24000.00	4.00	24000.00	4.00	0	0	0	0	0	1	125	0	0	LIMITED EDITION\nTainted by forces beyond your imagination.		
+PRODUCT	34	User Text Colour	3012	Impure User Text	0	16000.00	3.00	16000.00	3.00	0	0	0	0	0	1	125	0	0	LIMITED EDITION\nTainted by forces beyond your imagination.		
 PRODUCT	42	Boosters	1089	InstaBoost-200	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	0	0	Stackable 200 TC per win mobile booster		
 PRODUCT	47	Secret	958	Interim Feb Toribooster-100 Promo	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	Interim February Toribooster-100 pack with matching sets!\n\n\nFull Amber\n\n\nFull Beetle\n\n\nFull Copper\n\n\nFor one week only! UNPACK items in your inventory!	702 703 704 705 706 707 708 709 710 711 712 713 714 715 716 717 860 859 861 862 863 864 865 866 867 868 869 870 871 872 873 874 876 875 877 878 879 880 881 882 883 884 885 886 887 888 889 890	
 PRODUCT	47	Secret	954	Interim Feb Toribooster-1000 Promo	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	Interim February Toribooster-1000 pack with matching sets!\n\n\nFull Void\n\n\nFull Imperial\n\n\nFor one week only! UNPACK items in your inventory!	780 779 781 782 783 784 785 786 787 788 789 790 791 792 793 794 606 605 607 608 609 610 611 612 613 614 615 616 653 617 618 619 620	
@@ -831,6 +834,8 @@ PRODUCT	47	Secret	956	Interim Feb Toribooster-200 Promo	0	0.00	0.00	0.00	0.00	0	
 PRODUCT	47	Secret	960	Interim Feb Toribooster-50 Promo	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	Interim February Toribooster-50 pack with matching sets!\n\n\nFull Noxious\n\n\nFull Bronze\n\n\nFull Gaia\n\n\nFor one week only! UNPACK items in your inventory!	38 179 539 55 155 509 404 329 915 222 56 354 429 247 275 127 463 84 184 553 85 160 523 418 343 236 86 368 443 261 280 130 477 40 189 545 63 165 515 410 335 228 64 360 435 253 285 134 469	
 PRODUCT	47	Secret	955	Interim Feb Toribooster-500 Promo	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	Interim February Toribooster-500 pack with matching sets!\n\n\nFull Plasma\n\n\nFull Viridian\n\n\nFull Azurite\n\n\nFor one week only! UNPACK items in your inventory!	579 578 580 581 582 583 584 585 586 587 588 589 590 591 592 593 796 795 797 798 799 800 801 802 803 804 805 806 807 808 809 810 655 654 656 657 658 659 660 661 662 663 664 665 666 667 668 669	
 PRODUCT	78	3d objects	1992	ishi	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0			
+PRODUCT	76	Uncategorized	3427	Item Effect Fusion	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	ToriCredits sent for fusing effects into items.		
+PRODUCT	76	Uncategorized	3431	Item Effect Upgrade	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	Shiai Tokens sent for purchasing item effect upgrades.		
 PRODUCT	47	Secret	3162	Item Test Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	0		3192 3193 3194 3195 3196 3197 3198 3199 3200 3201 3202 3203 3204 3205 3206 3207 3208 3209 3210 3211 3212 3213 3215 3216 3217 3218 3219 3220 3221 3222 3223 3224 3225 3226 3227 3228 3229 3230	
 PRODUCT	76	Uncategorized	3116	Item Upgrade	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	ToriCredits sent for upgrading 3D items.		
 PRODUCT	76	Uncategorized	2141	itemtest3	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1			
@@ -2370,7 +2375,7 @@ PRODUCT	78	3d objects	2028	Jack-o'-lantern	0	50000.00	8.00	50000.00	8.00	0	0	100
 PRODUCT	78	3d objects	2815	Jetpack	0	50000.00	8.00	50000.00	8.00	0	0	1000	0	0	1	0	0	0	You're going to spaaaaace!		
 PRODUCT	72	Hair Styles	1937	Jiyu Dreads	0	50000.00	8.00	50000.00	8.00	0	1	1000	0	0	1	0	0	0	Steel drums are playing your anthem. The sand is warm under your feet. You sweep your hair aside, channel your inner calm, and prepare for the fight.		
 PRODUCT	18	Collectibles	741	Lighter	0	0.00	15.00	0.00	15.00	0	0	1000	0	0	0	0	0	0	This is a lighter to light your Marlboro smokes!		
-PRODUCT	78	3d objects	2186	Love Potion	0	50000.00	8.00	50000.00	8.00	0	1	1000	0	0	1	0	0	0	Extracted Oxytocin, Serotonin and Dopamine guaranteed to beguile your target in deep love.		
+PRODUCT	78	3d objects	2186	Love Potion	1	30000.00	4.00	50000.00	8.00	254194	1	1000	0	0	1	0	0	0	Extracted Oxytocin, Serotonin and Dopamine guaranteed to beguile your target in deep love.		
 PRODUCT	78	3d objects	3233	Mini Pond	0	20000.00	4.00	20000.00	4.00	0	1	1000	0	0	1	0	0	0	A tranquil pond, surrounded by stone.		
 PRODUCT	80	Full Toris	3095	Mittens	0	25000.00	5.00	25000.00	5.00	0	0	1000	0	0	0	0	0	0	Be warm, it's cold outside! - retexturable Items - Merry Christmas!	3090 3091	
 PRODUCT	1	Blood Colors	622	Neptune Blood	0	4000.00	1.00	4000.00	1.00	0	0	1000	7	0	1	11	0	0	TIER VI ITEM\nLet the spirit of Poseidon guide your every move. The healing calm of water fused with the destructive power of tidal waves flow through your veins.		
@@ -2455,6 +2460,7 @@ PRODUCT	78	3d objects	3346	Streamer Headphones	0	50000.00	8.00	50000.00	8.00	0	1
 PRODUCT	78	3d objects	2137	SWAG Cap	0	13370.00	3.00	13370.00	3.00	0	1	1000	0	0	1	0	0	0	Get your #SWAG on with this dope-ass cap!		
 PRODUCT	78	3d objects	2752	Sword In The Stone	0	25000.00	5.00	25000.00	5.00	0	0	1000	0	0	1	0	0	0	Are you the chosen one?		
 PRODUCT	72	Hair Styles	1921	The Sultan's Fez	0	15000.00	3.00	15000.00	3.00	0	1	1000	0	0	1	0	0	0	Created by only the most select Moorish artisans, this shapely hat will aid you in your conquers. Ladies love it.		
+PRODUCT	87	Special Effects	3426	Toon Shading	0	20000.00	0.00	20000.00	0.00	0	0	1000	0	0	1	0	0	1	Toon Shading effect for your item.\n\nCan be fused into Force, Relax, Primary Gradient or Head Texture items.		
 PRODUCT	78	3d objects	2858	U.F.O	0	40000.00	7.00	40000.00	7.00	0	0	1000	0	0	1	0	0	0	Extraterrestrials are observing your ABD Skills!		
 PRODUCT	1	Blood Colors	1125	Velvet Blood	0	14000.00	3.00	14000.00	3.00	0	0	1000	7	0	1	115	0	0	TIER VI ITEM\nVelvet is pure luxury. Royalty, Wealth, Sophistication. Only the rich need apply.		
 PRODUCT	12	DQ Rings	1124	Velvet DQ	0	1400.00	0.00	1400.00	0.00	0	0	1000	7	0	1	115	0	0	TIER VI ITEM\nVelvet is pure luxury. Royalty, Wealth, Sophistication. Only the rich need apply.		
@@ -2495,6 +2501,7 @@ PRODUCT	5	Torso Colors	2339	Blossom Torso	0	3000.00	1.00	3000.00	1.00	0	0	2000	8
 PRODUCT	34	User Text Colour	2350	Blossom User Text	0	2000.00	1.00	2000.00	1.00	0	0	2000	8	0	1	53	0	0	TIER VII ITEM\nSakura only blooms for a few days in spring. As the petals fall, so do your enemies. Requires 5.11 or higher to use		
 PRODUCT	0		935	Damaged Item	0	20000.00	0.00	20000.00	0.00	0	0	2000	0	0		0	0	0	Forged from solar explosions and brought to the earth by meteorites, platinum is a rare and precious mineral that has been sought after by every almost every major civilization in history; from past pharaohs, emperors and kings to present day nouveau riches.		
 PRODUCT	78	3d objects	2188	Demon Horns	0	15000.00	4.00	15000.00	4.00	0	0	2000	0	0	1	0	1	1	HALLOWEEN SPECIAL\n\nUnleash the demon within you!		
+PRODUCT	87	Special Effects	3430	Dithering	0	30000.00	0.00	30000.00	0.00	0	0	2000	0	0	1	0	0	1	Dithering effect for your item.\n\nCan be fused into Force, Relax, Primary Gradient or Head Texture items.		
 PRODUCT	78	3d objects	2184	Fashionable Bow-tie	0	5000.00	2.00	5000.00	2.00	0	0	2000	0	0	1	0	1	1	Now you can wear this nice Valentine-themed bow-tie on your dates, or even give them to your special someone for them to wear as a present! (Original design made by Leanmarkie)		
 PRODUCT	78	3d objects	2562	Fish Friend	0	15000.00	4.00	15000.00	4.00	0	1	2000	0	0	1	0	0	0	I caught my biggest fish but can't post it on Facebook because my wife thinks I'm working.		
 PRODUCT	78	3d objects	1980	Headphones	0	0.00	0.00	0.00	0.00	0	0	2000	6	0	1	0	1	1	The music moves through you. Your sense of style is second only to your fighting spirit. Let the canorous melodies carry you to victory and bring the beatdown.		
@@ -2578,7 +2585,7 @@ PRODUCT	34	User Text Colour	2434	Tesla User Text	0	5000.00	2.00	5000.00	2.00	0	0
 PRODUCT	1	Blood Colors	702	Amber Blood	0	14000.00	4.00	14000.00	4.00	0	0	3000	9	0	1	61	0	0	TIER VIII ITEM\nMade from fossilized ancients, this mineral embodies the spirits of the old, allowing you to harness their powers.		
 PRODUCT	12	DQ Rings	703	Amber DQ	0	1400.00	1.00	1400.00	1.00	0	0	3000	9	0	1	61	0	0	TIER VIII ITEM\nMade from fossilized ancients, this mineral embodies the spirits of the old, allowing you to harness their powers.		
 PRODUCT	43	Emote Colors	704	Amber Emote	0	1400.00	1.00	1400.00	1.00	0	0	3000	9	0	1	61	0	0	TIER VIII ITEM\nMade from fossilized ancients, this mineral embodies the spirits of the old, allowing you to harness their powers.		
-PRODUCT	22	Force Colors	705	Amber Force	0	21000.00	5.00	21000.00	5.00	0	1	3000	9	0	1	61	0	0	TIER VIII ITEM\nMade from fossilized ancients, this mineral embodies the spirits of the old, allowing you to harness their powers.		
+PRODUCT	22	Force Colors	705	Amber Force	0	21000.00	5.00	21000.00	5.00	0	0	3000	9	0	1	61	0	0	TIER VIII ITEM\nMade from fossilized ancients, this mineral embodies the spirits of the old, allowing you to harness their powers.		
 PRODUCT	11	Ghost Colors	706	Amber Ghost	0	7000.00	2.00	7000.00	2.00	0	0	3000	9	0	1	61	0	0	TIER VIII ITEM\nMade from fossilized ancients, this mineral embodies the spirits of the old, allowing you to harness their powers.		
 PRODUCT	41	Grip Colors	707	Amber Grip	0	1400.00	1.00	1400.00	1.00	0	0	3000	9	0	1	61	0	0	TIER VIII ITEM\nMade from fossilized ancients, this mineral embodies the spirits of the old, allowing you to harness their powers.		
 PRODUCT	73	Hair Color	1758	Amber Hair	0	4200.00	1.00	4200.00	1.00	0	0	3000	9	0	1	61	0	0	TIER VIII ITEM\nREQUIRES A HAIR STYLE TO USE\nColor for your hair style.		
@@ -2716,6 +2723,7 @@ PRODUCT	12	DQ Rings	670	Supernova DQ	0	2400.00	1.00	2400.00	1.00	0	0	4000	10	0	1
 PRODUCT	43	Emote Colors	672	Supernova Emote	0	2400.00	1.00	2400.00	1.00	0	0	4000	10	0	1	71	0	0	TIER IX ITEM\nThe energies from interstellar explosions fuel you... As you feel the power flowing through your joints, your body emits a burning red glow.		
 PRODUCT	22	Force Colors	673	Supernova Force	0	36000.00	9.00	36000.00	9.00	0	0	4000	10	0	1	71	0	0	TIER IX ITEM\nThe energies from interstellar explosions fuel you... As you feel the power flowing through your joints, your body emits a burning red glow.		
 PRODUCT	11	Ghost Colors	674	Supernova Ghost	0	12000.00	4.00	12000.00	4.00	0	0	4000	10	0	1	71	0	0	TIER IX ITEM\nThe energies from interstellar explosions fuel you... As you feel the power flowing through your joints, your body emits a burning red glow.		
+PRODUCT	87	Special Effects	3429	Supernova Glow	0	25000.00	0.00	25000.00	0.00	0	0	4000	0	0	1	0	0	1	Supernova fresnel glow effect for your item.\n\nCan be fused into Force, Relax, Primary Gradient or Head Texture items.		
 PRODUCT	41	Grip Colors	675	Supernova Grip	0	2400.00	1.00	2400.00	1.00	0	0	4000	10	0	1	71	0	0	TIER IX ITEM\nThe energies from interstellar explosions fuel you... As you feel the power flowing through your joints, your body emits a burning red glow.		
 PRODUCT	73	Hair Color	1809	Supernova Hair	0	7200.00	2.00	7200.00	2.00	0	0	4000	10	0	1	71	0	0	TIER IX ITEM\nREQUIRES A HAIR STYLE TO USE\nColor for your hair style.		
 PRODUCT	28	Left Hand Motion Trail	676	Supernova Left Hand Motion Trail	0	2400.00	1.00	2400.00	1.00	0	0	4000	10	0	1	71	0	0	TIER IX ITEM\nThe energies from interstellar explosions fuel you... As you feel the power flowing through your joints, your body emits a burning red glow.		
@@ -2894,7 +2902,7 @@ PRODUCT	34	User Text Colour	1320	Warrior User Text	0	12000.00	4.00	12000.00	4.00
 PRODUCT	1	Blood Colors	2290	Wildfire Blood	0	30000.00	10.00	30000.00	10.00	0	0	9400	11	0	1	52	0	0	TIER X ITEM\nYou become one with the Wildfire, incinerating anything that stands in your way. Requires 5.11 or higher to use		
 PRODUCT	12	DQ Rings	2310	Wildfire DQ	0	3000.00	2.00	3000.00	2.00	0	0	9400	11	0	1	52	0	0	TIER X ITEM\nYou become one with the Wildfire, incinerating anything that stands in your way. Requires 5.11 or higher to use		
 PRODUCT	43	Emote Colors	2314	Wildfire Emote	0	3000.00	2.00	3000.00	2.00	0	0	9400	11	0	1	52	0	0	TIER X ITEM\nYou become one with the Wildfire, incinerating anything that stands in your way. Requires 5.11 or higher to use		
-PRODUCT	22	Force Colors	2311	Wildfire Force	1	25000.00	7.00	45000.00	13.00	85047	1	9400	11	0	1	52	0	0	TIER X ITEM\nYou become one with the Wildfire, incinerating anything that stands in your way. Requires 5.11 or higher to use		
+PRODUCT	22	Force Colors	2311	Wildfire Force	0	45000.00	13.00	45000.00	13.00	0	1	9400	11	0	1	52	0	0	TIER X ITEM\nYou become one with the Wildfire, incinerating anything that stands in your way. Requires 5.11 or higher to use		
 PRODUCT	11	Ghost Colors	2309	Wildfire Ghost	0	15000.00	6.00	15000.00	6.00	0	0	9400	11	0	1	52	0	0	TIER X ITEM\nYou become one with the Wildfire, incinerating anything that stands in your way. Requires 5.11 or higher to use		
 PRODUCT	41	Grip Colors	2313	Wildfire Grip	0	3000.00	2.00	3000.00	2.00	0	0	9400	11	0	1	52	0	0	TIER X ITEM\nYou become one with the Wildfire, incinerating anything that stands in your way. Requires 5.11 or higher to use		
 PRODUCT	73	Hair Color	2315	Wildfire Hair	0	9000.00	4.00	9000.00	4.00	0	0	9400	11	0	1	52	0	0	TIER X ITEM\nREQUIRES A HAIR STYLE TO USE\nColor for your hair style.Requires 5.11 or higher to use		
@@ -2914,6 +2922,7 @@ PRODUCT	78	3d objects	2788	Pile o' Coins	0	0.00	0.00	0.00	0.00	0	0	10000	0	0	1	0
 PRODUCT	1	Blood Colors	146	Pure Blood	0	100000.00	21.00	100000.00	21.00	0	0	10000	12	0	1	50	0	0	ELITE ITEM\nThe holy fire radiates within your being... Burning strong enough to overwhelm the strongest of demons. Set forth and redeem the universe soldier!		
 PRODUCT	43	Emote Colors	560	Pure Emote	0	10000.00	4.00	10000.00	4.00	0	0	10000	12	0	1	50	0	0	ELITE ITEM\nThe holy fire radiates within your being... Burning strong enough to overwhelm the strongest of demons. Set forth and redeem the universe soldier!		
 PRODUCT	22	Force Colors	148	Pure Force	0	150000.00	26.00	150000.00	26.00	0	0	10000	12	0	1	50	0	0	ELITE ITEM\nThe holy fire radiates within your being... Burning strong enough to overwhelm the strongest of demons. Set forth and redeem the universe soldier!		
+PRODUCT	87	Special Effects	3428	Pure Glow	0	50000.00	0.00	50000.00	0.00	0	0	10000	0	0	1	0	0	1	Pure fresnel glow effect for your item.\n\nCan be fused into Force, Relax, Primary Gradient or Head Texture items.		
 PRODUCT	41	Grip Colors	530	Pure Grip	0	10000.00	4.00	10000.00	4.00	0	0	10000	12	0	1	50	0	0	ELITE ITEM\nThe holy fire radiates within your being... Burning strong enough to overwhelm the strongest of demons. Set forth and redeem the universe soldier!		
 PRODUCT	73	Hair Color	1799	Pure Hair	0	30000.00	10.00	30000.00	10.00	0	0	10000	12	0	1	50	0	0	ELITE ITEM\nREQUIRES A HAIR STYLE TO USE\nColor for your hair style.		
 PRODUCT	28	Left Hand Motion Trail	425	Pure Left Hand Motion Trail	0	10000.00	4.00	10000.00	4.00	0	0	10000	12	0	1	50	0	0	ELITE ITEM\nThe holy fire radiates within your being... Burning strong enough to overwhelm the strongest of demons. Set forth and redeem the universe soldier!		
@@ -2998,7 +3007,7 @@ PRODUCT	34	User Text Colour	1336	Mysterio User Text	0	12000.00	5.00	12000.00	5.0
 PRODUCT	1	Blood Colors	1208	Alpha Blood	0	200000.00	35.00	200000.00	35.00	0	0	20000	12	0	1	110	0	0	ELITE ITEM\nAlpha Imperial. A signature item in honor of the great clan Alpha, this is a limited edition color, fused with Imperial to produce a dark finish.		
 PRODUCT	12	DQ Rings	1209	Alpha DQ	0	20000.00	8.00	20000.00	8.00	0	0	20000	12	0	1	110	0	0	ELITE ITEM\nAlpha Imperial. A signature item in honor of the great clan Alpha, this is a limited edition color, fused with Imperial to produce a dark finish.		
 PRODUCT	43	Emote Colors	1207	Alpha Emote	0	20000.00	8.00	20000.00	8.00	0	0	20000	12	0	1	110	0	0	ELITE ITEM\nAlpha Imperial. A signature item in honor of the great clan Alpha, this is a limited edition color, fused with Imperial to produce a dark finish.		
-PRODUCT	22	Force Colors	1206	Alpha Force	0	300000.00	43.00	300000.00	43.00	344247	1	20000	12	0	1	110	0	0	ELITE ITEM\nAlpha Imperial. A signature item in honor of the great clan Alpha, this is a limited edition color, fused with Imperial to produce a dark finish.		
+PRODUCT	22	Force Colors	1206	Alpha Force	0	300000.00	43.00	300000.00	43.00	0	1	20000	12	0	1	110	0	0	ELITE ITEM\nAlpha Imperial. A signature item in honor of the great clan Alpha, this is a limited edition color, fused with Imperial to produce a dark finish.		
 PRODUCT	11	Ghost Colors	1205	Alpha Ghost	0	100000.00	25.00	100000.00	25.00	0	0	20000	12	0	1	110	0	0	ELITE ITEM\nAlpha Imperial. A signature item in honor of the great clan Alpha, this is a limited edition color, fused with Imperial to produce a dark finish.		
 PRODUCT	41	Grip Colors	1210	Alpha Grip	0	20000.00	8.00	20000.00	8.00	0	0	20000	12	0	1	110	0	0	ELITE ITEM\nAlpha Imperial. A signature item in honor of the great clan Alpha, this is a limited edition color, fused with Imperial to produce a dark finish.		
 PRODUCT	73	Hair Color	1757	Alpha Hair	0	60000.00	19.00	60000.00	19.00	0	0	20000	12	0	1	110	0	0	ELITE ITEM\nREQUIRES A HAIR STYLE TO USE\nColor for your hair style.		

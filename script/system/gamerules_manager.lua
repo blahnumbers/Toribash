@@ -75,7 +75,7 @@ do
 		self.options = {}
 		self.dropdown = {}
 		for i,v in pairs(opts) do
-			self.options[i] = { name = v.name, title = v.title }
+			self.options[i] = { name = v.name, title = v.title, value = v.value }
 		end
 	end
 	
@@ -89,6 +89,15 @@ do
 	function Gamerules:getRules()
 		local rulesList = {
 			{ name = "mod", title = "Mod name", type = GAMERULE_STRING, readonly = true },
+			{ name = "numplayers", title = "Num Players", type = GAMERULE_ENUM, 
+				options = {
+					{ value = 1, title = "One Player" },
+					{ value = 2, title = "Two Players" },
+					--{ value = 3, title = "Three Players" },
+					--{ value = 4, title = "Four Players" }
+				},
+				readonly = get_world_state().game_type == 1
+			},
 			{ name = "matchframes", title = "Match Frames", type = GAMERULE_INT },
 			{ name = "turnframes", title = "Turn Frames", type = GAMERULE_STRING },
 			{ name = "flags", title = "Flags", type = GAMERULE_INT, hidden = true },
@@ -374,19 +383,28 @@ do
 			prevInput = grToggle
 		elseif (v.type == GAMERULE_ENUM) then
 			v.dropdown = {}
-			for value,k in pairs(v.options) do
+			local selectedDropdown
+			for num,k in pairs(v.options) do
 				table.insert(v.dropdown, {
 					text = k.title,
 					action = function()
 						if (not changedValues[v.name]) then
 							changedValues[v.name] = Gamerule:new(v)
 						end
-						changedValues[v.name]:setValue(value - 1)
+						changedValues[v.name]:setValue(k.value)
 						if (v.triggerUpdate) then
 							updateFunc()
 						end
 					end
 				})
+				if (changedValues[v.name] and changedValues[v.name].value == k.value) then
+					selectedDropdown = v.dropdown[num]
+				elseif (k.value == tonumber(v.value)) then
+					selectedDropdown = v.dropdown[num]
+				end
+			end
+			if (not selectedDropdown) then
+				selectedDropdown = v.dropdown[1]
 			end
 			local grDropdownOutline = UIElement:new({
 				parent = grValueHolder,
@@ -407,7 +425,7 @@ do
 				shapeType = ROUNDED,
 				rounded = 3
 			})
-			TBMenu:spawnDropdown(grDropdownHolder, v.dropdown, 30, 120, changedValues[v.name] and v.dropdown[changedValues[v.name].value + 1] or v.dropdown[v.value + 1], 0.6, 4, 0.5, 4)
+			TBMenu:spawnDropdown(grDropdownHolder, v.dropdown, 30, 120, selectedDropdown, 0.6, 4, 0.5, 4)
 		elseif (v.type == GAMERULE_SLIDER) then
 			local sliderValue = changedValues[v.name] and changedValues[v.name].value or v.value
 			local sliderSettings = {

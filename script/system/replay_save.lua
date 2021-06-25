@@ -105,7 +105,7 @@ local function saveReplay(newname)
 			TBMenu:showDataError(error, true)
 			return
 		end
-		local rplFile = Files:new("../replay/my replays/" .. newname .. ".rpl")
+		local rplFile = Files:open("../replay/my replays/" .. newname .. ".rpl")
 		if (not rplFile.data) then
 			TBMenu:showDataError(TB_MENU_LOCALIZED.REPLAYSERRORRENAMING, true)
 			quitReplaySave(3)
