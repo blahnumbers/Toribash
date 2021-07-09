@@ -106,6 +106,12 @@ do
 			if (o.downSound) then
 				elem.downSound = o.downSound
 			end
+			if (o.effects) then
+				elem.effectid = o.effects.id or 0
+				elem.glowIntensity = o.effects.glowIntensity or 0
+				elem.glowColor = o.effects.glowColor or 0
+				elem.ditherPixelSize = o.effects.ditherPixelSize or 0
+			end
 			
 			table.insert(UIElement3DManager, elem)
 			if (o.viewport) then
@@ -163,6 +169,9 @@ do
 	end
 	
 	function UIElement3D:display()
+		if (self.effectid) then
+			set_draw_effect(self.effectid, self.glowColor, self.glowIntensity, self.ditherPixelSize)
+		end
 		if (self.viewport) then
 			set_viewport(self.viewport.pos.x, self.viewport.pos.y, self.viewport.size.w, self.viewport.size.h)
 			return
@@ -229,6 +238,9 @@ do
 		end
 		if (self.customDisplay) then
 			self.customDisplay()
+		end
+		if (self.effectid) then
+			set_draw_effect(0)
 		end
 	end
 	

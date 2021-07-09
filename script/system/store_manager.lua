@@ -33,9 +33,9 @@ local ITEM_EMPTY = {
 }
 
 local ITEM_EFFECTS = { 
-	{ id = 1, name = "Toon Shaded", colorid = 11 },
-	{ id = 2, name = " Glow", colorid = 0, use_colorid = true },
-	{ id = 4, name = "Dithering", colorid = 135 }
+	{ id = EFFECTS_TOON, name = "Toon Shaded", colorid = 11 },
+	{ id = EFFECTS_GLOW, name = " Glow", colorid = 0, use_colorid = true },
+	{ id = EFFECTS_DITHER, name = "Dithering", colorid = 135 }
 }
 
 do

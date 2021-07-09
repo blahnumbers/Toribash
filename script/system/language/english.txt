@@ -873,7 +873,7 @@ INVENTORYLOADINGEFFECTS	Loading item effects and effect upgrades
 INVENTORYFUSECONFIRM1	Are you sure you want to fuse 
 INVENTORYFUSECONFIRM2	effect into	
 INVENTORYFUSECONFIRMPRICE	You will be charged
-INVENTORYFUSECONFIRMINFO	Effect fusion is irreversible and your effect item will be destroyed.	
+INVENTORYFUSECONFIRMINFO	^09Effect fusion is irreversible and your effect item will be destroyed.	
 STOREITEMLEVEL	Level	
 INVENTORYCHOOSEITEMUPGRADELEVEL	Choose item upgrade level	
 INVENTORYAPPLYUPGRADE	Apply upgrade	

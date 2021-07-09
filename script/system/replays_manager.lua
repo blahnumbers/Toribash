@@ -1724,12 +1724,12 @@ do
 				uploadButton:uiText(TB_MENU_LOCALIZED.BUTTONUPLOAD)
 			end)
 		uploadButton:addMouseHandlers(nil, function()
+				local overlay = TBMenu:spawnWindowOverlay()
 				Request:queue(function()
 						open_upload_replay(	replayData[1].value[1],
 											replayData[2].value[1],
 											replayData[3].value[1],
 											"replay/" .. replay.filename)
-						local overlay = TBMenu:spawnWindowOverlay()
 						local width = overlay.size.w / 7 * 3
 						local uploadingView = UIElement:new({
 							parent = overlay,

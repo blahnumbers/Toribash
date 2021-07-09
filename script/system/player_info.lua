@@ -257,6 +257,38 @@ do
 		return objs
 	end
 	
+	function PlayerInfo:getEffects(data)
+		local effects = {
+			force = { _id = 0, id = EFFECTS_NONE },
+			relax = { _id = 1, id = EFFECTS_NONE },
+			body = { _id = 2, id = EFFECTS_NONE },
+			head = { _id = 3, id = EFFECTS_NONE }
+		}
+		if (not data) then
+			effects.default = true
+			return effects
+		end
+		
+		for i, ln in pairs(data) do
+			-- Only check activated
+			if (string.match(ln, "^EFFECT%d 0; 1")) then
+				ln = ln:gsub("^EFFECT(%d+) 0; 1(.*)$", "%1%2 ")
+				local _, values = ln:gsub(" ", "")
+				local data = { ln:match(("([^ ]*) "):rep(values)) }
+				
+				for i,v in pairs(effects) do
+					if (v._id == tonumber(data[1])) then
+						v.id = data[2]
+						v.glowColor = data[3]
+						v.glowIntensity = data[4]
+						v.ditherPixelSize = data[5]
+					end
+				end
+			end
+		end
+		return effects
+	end
+	
 	function PlayerInfo:getItems(player, colorsOnly)
 		local player = player and player or "tori"
 		local items = {
@@ -272,6 +304,7 @@ do
 		if (not colorsOnly) then
 			items.textures = PlayerInfo:getTextures(customsData)
 			items.objs = PlayerInfo:getObjs(customsData)
+			items.effects = PlayerInfo:getEffects(customsData)
 		end
 		return items
 	end

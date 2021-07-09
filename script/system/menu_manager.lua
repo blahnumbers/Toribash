@@ -1827,7 +1827,8 @@ do
 			size = { 0.5, 0, 0 },
 			shapeType = SPHERE,
 			viewport = true,
-			bgColor = { color.r, color.g, color.b, 1 }
+			bgColor = { color.r, color.g, color.b, 1 },
+			effects = TB_MENU_PLAYER_INFO.items.effects.force
 		})
 		local headTexture = { "../../custom/tori/head.tga", "../../custom/tori/head.tga" }
 		if (TB_MENU_PLAYER_INFO.items.textures.head.equipped) then
@@ -1841,7 +1842,8 @@ do
 			size = { 0.9, 0, 0 },
 			bgColor = { 1, 1, 1, 1 },
 			bgImage = headTexture,
-			viewport = true
+			viewport = true,
+			effects = TB_MENU_PLAYER_INFO.items.effects.head
 		})
 		if (TB_MENU_PLAYER_INFO.items.objs.head.equipped) then
 			local objScale = TB_MENU_PLAYER_INFO.items.objs.head.dynamic and 2 or 10
