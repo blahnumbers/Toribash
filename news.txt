@@ -1,15 +1,16 @@
-//NEWSID 1;
-//TITLE 0;Head Texture of the Month: Love
-//SUBTITLE 0;Why celebrate love on Valentine's Day, when it should be celebrated every single day of the year!
-//IMAGE 0;htotmlove2021.tga
-//URL 0;https://forum.toribash.com/showthread.php?t=647885
+NEWSID 1;
+TITLE 0;Item Effects now available!
+SUBTITLE 0;Upgrade your items with Glow effect now!
+IMAGE 0;store/glowpromo.tga
+URL 0;https://forum.toribash.com/tori_shop.php?cid=87
+STORE 0;3429
 
-NEWSID 11;
-TITLE 0;Armet 3D item now available!
-SUBTITLE 0;Item Forgers' newest upgradeable 3D item is here!
-IMAGE 0;store/armetpromo.tga
-URL 0;https://forum.toribash.com/tori_shop_item.php?id=3416
-STORE 0;3416
+NEWSID 1;
+TITLE 0;Item Effects now available!
+SUBTITLE 0;Upgrade your items with Toon Shading effect now!
+IMAGE 0;store/toonpromo.tga
+URL 0;https://forum.toribash.com/tori_shop.php?cid=87
+STORE 0;3426
 
 NEWSID 3;
 TITLE 0;No events live now, but you can still replay any ended event in all events menu!
