@@ -1,5 +1,7 @@
 -- Settings Manager Class
 
+SETTINGS_LIST_SHIFT = SETTINGS_LIST_SHIFT or { 0, 0, 1 }
+
 local SETTINGS_GRAPHICS = 1
 local SETTINGS_EFFECTS = 2
 local SETTINGS_AUDIO = 3
@@ -22,6 +24,7 @@ local RAYTRACING = 6
 local BODYTEXTURES = 7
 local HIGHDPI = 8
 local BORDERLESS = 9
+local ITEMEFFECTS = 10
 
 local TB_MENU_MAIN_SETTINGS = {}
 
@@ -262,7 +265,173 @@ do
 	end
 	
 	function Settings:getSettingsData(id)
+		local shaders = TB_MENU_MAIN_SETTINGS.shaders and TB_MENU_MAIN_SETTINGS.shaders.value or get_option("shaders")
+		
 		if (id == SETTINGS_GRAPHICS) then
+			local advancedItems = {
+				{
+					name = TB_MENU_LOCALIZED.SETTINGSSHADERS,
+					type = TOGGLE,
+					action = function(val) 
+							TB_MENU_MAIN_SETTINGS.shaders = { value = val, id = SHADERS, graphics = true }
+							Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
+						end,
+					val = { TB_MENU_MAIN_SETTINGS.shaders and TB_MENU_MAIN_SETTINGS.shaders.value or get_option("shaders") },
+					reload = true
+				}
+			}
+			
+			if (shaders == 1) then
+				table.insert(advancedItems, {
+					name = TB_MENU_LOCALIZED.SETTINGSRAYTRACING,
+					type = TOGGLE,
+					action = function(val) 
+							TB_MENU_MAIN_SETTINGS.raytracing = { value = val, id = RAYTRACING, graphics = true }
+						end,
+					val = { get_option("raytracing") },
+					reload = true
+				})
+			end
+			
+			table.insert(advancedItems, {
+				name = TB_MENU_LOCALIZED.SETTINGSFRAMERATE,
+				type = DROPDOWN,
+				selectedAction = function()
+						local framerate = get_option("framerate")
+						local fixedframerate = get_option("fixedframerate")
+						if (fixedframerate == 1) then
+							if (framerate == 30) then
+								return 1
+							elseif (framerate == 60) then
+								return 2
+							else
+								return 3
+							end
+						end
+						return 3
+					end,
+				dropdown = {
+					{
+						text = "30 " .. TB_MENU_LOCALIZED.SETTINGSFPS,
+						action = function()
+								TB_MENU_MAIN_SETTINGS.framerate = { value = 30 }
+								TB_MENU_MAIN_SETTINGS.fixedframerate = { value = 1 }
+								Settings:settingsApplyActivate()
+							end
+					},
+					{
+						text = "60 " .. TB_MENU_LOCALIZED.SETTINGSFPS,
+						action = function()
+								TB_MENU_MAIN_SETTINGS.framerate = { value = 60 }
+								TB_MENU_MAIN_SETTINGS.fixedframerate = { value = 1 }
+								Settings:settingsApplyActivate()
+							end
+					},
+					{
+						text = "75 " .. TB_MENU_LOCALIZED.SETTINGSFPS,
+						action = function()
+								TB_MENU_MAIN_SETTINGS.framerate = { value = 75 }
+								TB_MENU_MAIN_SETTINGS.fixedframerate = { value = 1 }
+								Settings:settingsApplyActivate()
+							end
+					},
+					--[[{
+						text = TB_MENU_LOCALIZED.SETTINGSFPSUNCAPPED,
+						action = function()
+								TB_MENU_MAIN_SETTINGS.framerate = { value = 60 }
+								TB_MENU_MAIN_SETTINGS.fixedframerate = { value = 0 }
+								Settings:settingsApplyActivate()
+							end
+					}]]
+				}
+			})
+			table.insert(advancedItems, {
+				name = TB_MENU_LOCALIZED.SETTINGSBLOOD,
+				type = DROPDOWN,
+				selectedAction = function() return get_option("blood") + 1 end,
+				dropdown = {
+					{
+						text = TB_MENU_LOCALIZED.WORDNONE,
+						action = function()
+							TB_MENU_MAIN_SETTINGS.blood = { value = 0 }
+							Settings:settingsApplyActivate()
+						end
+					},
+					{
+						text = TB_MENU_LOCALIZED.SETTINGSVANILLA,
+						action = function()
+							TB_MENU_MAIN_SETTINGS.blood = { value = 1 }
+							Settings:settingsApplyActivate()
+						end
+					},
+					{
+						text = TB_MENU_LOCALIZED.SETTINGSMODERN,
+						action = function()
+							TB_MENU_MAIN_SETTINGS.blood = { value = 2 }
+							Settings:settingsApplyActivate()
+						end
+					},
+				}
+			})
+			
+			if (shaders == 1) then
+				table.insert(advancedItems, {
+					name = TB_MENU_LOCALIZED.SETTINGSFLUIDBLOOD,
+					type = TOGGLE,
+					action = function(val) 
+							TB_MENU_MAIN_SETTINGS.fluid = { value = val, id = FLUIDBLOOD, graphics = true }
+						end,
+					val = { get_option("fluid") },
+					reload = true
+				})
+				table.insert(advancedItems, {
+					name = TB_MENU_LOCALIZED.SETTINGSFLOORREFLECTIONS,
+					type = TOGGLE,
+					action = function(val) 
+							TB_MENU_MAIN_SETTINGS.reflection = { value = val, id = REFLECTIONS, graphics = true }
+						end,
+					val = { get_option("reflection") },
+					reload = true
+				})
+				table.insert(advancedItems, {
+					name = TB_MENU_LOCALIZED.SETTINGSSOFTSHADOWS,
+					type = TOGGLE,
+					action = function(val) 
+							TB_MENU_MAIN_SETTINGS.softshadow = { value = val, id = SOFTSHADOWS, graphics = true }
+						end,
+					val = { get_option("softshadow") },
+					reload = true
+				})
+				table.insert(advancedItems, {
+					name = TB_MENU_LOCALIZED.SETTINGSAMBIENTOCCLUSION,
+					type = TOGGLE,
+					action = function(val) 
+							TB_MENU_MAIN_SETTINGS.ambientocclusion = { value = val, id = AMBIENTOCCLUSION, graphics = true }
+						end,
+					val = { get_option("ambientocclusion") },
+					reload = true
+				})
+			end
+			
+			table.insert(advancedItems, {
+				name = TB_MENU_LOCALIZED.SETTINGSDISABLEANIMATIONS,
+				type = TOGGLE,
+				action = function(val) 
+						TB_MENU_MAIN_SETTINGS.uilight = { value = val }
+					end,
+				val = { get_option("uilight") },
+				reload = true
+			})
+			table.insert(advancedItems, {
+				name = TB_MENU_LOCALIZED.SETTINGSJOINTFLASH,
+				type = TOGGLE,
+				action = function(val) 
+						TB_MENU_MAIN_SETTINGS.jointflash = { value = val }
+					end,
+				val = { get_option("jointflash") },
+				reload = true
+			})
+			
 			return {
 				{
 					name = TB_MENU_LOCALIZED.SETTINGSGRAPHICSPRESETS,
@@ -451,207 +620,73 @@ do
 				{
 					name = TB_MENU_LOCALIZED.SETTINGSADVANCED,
 					hidden = true,
-					items = {
-						{
-							name = TB_MENU_LOCALIZED.SETTINGSSHADERS,
-							type = TOGGLE,
-							action = function(val) 
-									TB_MENU_MAIN_SETTINGS.shaders = { value = val, id = SHADERS, graphics = true }
-								end,
-							val = { get_option("shaders") },
-							reload = true
-						},
-						{
-							name = TB_MENU_LOCALIZED.SETTINGSRAYTRACING,
-							type = TOGGLE,
-							action = function(val) 
-									TB_MENU_MAIN_SETTINGS.raytracing = { value = val, id = RAYTRACING, graphics = true }
-								end,
-							val = { get_option("raytracing") },
-							reload = true
-						},
-						{
-							name = TB_MENU_LOCALIZED.SETTINGSFRAMERATE,
-							type = DROPDOWN,
-							selectedAction = function()
-									local framerate = get_option("framerate")
-									local fixedframerate = get_option("fixedframerate")
-									if (fixedframerate == 1) then
-										if (framerate == 30) then
-											return 1
-										elseif (framerate == 60) then
-											return 2
-										else
-											return 3
-										end
-									end
-									return 3
-								end,
-							dropdown = {
-								{
-									text = "30 " .. TB_MENU_LOCALIZED.SETTINGSFPS,
-									action = function()
-											TB_MENU_MAIN_SETTINGS.framerate = { value = 30 }
-											TB_MENU_MAIN_SETTINGS.fixedframerate = { value = 1 }
-											Settings:settingsApplyActivate()
-										end
-								},
-								{
-									text = "60 " .. TB_MENU_LOCALIZED.SETTINGSFPS,
-									action = function()
-											TB_MENU_MAIN_SETTINGS.framerate = { value = 60 }
-											TB_MENU_MAIN_SETTINGS.fixedframerate = { value = 1 }
-											Settings:settingsApplyActivate()
-										end
-								},
-								{
-									text = "75 " .. TB_MENU_LOCALIZED.SETTINGSFPS,
-									action = function()
-											TB_MENU_MAIN_SETTINGS.framerate = { value = 75 }
-											TB_MENU_MAIN_SETTINGS.fixedframerate = { value = 1 }
-											Settings:settingsApplyActivate()
-										end
-								},
-								--[[{
-									text = TB_MENU_LOCALIZED.SETTINGSFPSUNCAPPED,
-									action = function()
-											TB_MENU_MAIN_SETTINGS.framerate = { value = 60 }
-											TB_MENU_MAIN_SETTINGS.fixedframerate = { value = 0 }
-											Settings:settingsApplyActivate()
-										end
-								}]]
-							}
-						},
-						{
-							name = TB_MENU_LOCALIZED.SETTINGSBLOOD,
-							type = DROPDOWN,
-							selectedAction = function() return get_option("blood") + 1 end,
-							dropdown = {
-								{
-									text = TB_MENU_LOCALIZED.WORDNONE,
-									action = function()
-										TB_MENU_MAIN_SETTINGS.blood = { value = 0 }
-										Settings:settingsApplyActivate()
-									end
-								},
-								{
-									text = TB_MENU_LOCALIZED.SETTINGSVANILLA,
-									action = function()
-										TB_MENU_MAIN_SETTINGS.blood = { value = 1 }
-										Settings:settingsApplyActivate()
-									end
-								},
-								{
-									text = TB_MENU_LOCALIZED.SETTINGSMODERN,
-									action = function()
-										TB_MENU_MAIN_SETTINGS.blood = { value = 2 }
-										Settings:settingsApplyActivate()
-									end
-								},
-							}
-						},
-						{
-							name = TB_MENU_LOCALIZED.SETTINGSFLUIDBLOOD,
-							type = TOGGLE,
-							action = function(val) 
-									TB_MENU_MAIN_SETTINGS.fluid = { value = val, id = FLUIDBLOOD, graphics = true }
-								end,
-							val = { get_option("fluid") },
-							reload = true
-						},
-						{
-							name = TB_MENU_LOCALIZED.SETTINGSFLOORREFLECTIONS,
-							type = TOGGLE,
-							action = function(val) 
-									TB_MENU_MAIN_SETTINGS.reflection = { value = val, id = REFLECTIONS, graphics = true }
-								end,
-							val = { get_option("reflection") },
-							reload = true
-						},
-						{
-							name = TB_MENU_LOCALIZED.SETTINGSSOFTSHADOWS,
-							type = TOGGLE,
-							action = function(val) 
-									TB_MENU_MAIN_SETTINGS.softshadow = { value = val, id = SOFTSHADOWS, graphics = true }
-								end,
-							val = { get_option("softshadow") },
-							reload = true
-						},
-						{
-							name = TB_MENU_LOCALIZED.SETTINGSAMBIENTOCCLUSION,
-							type = TOGGLE,
-							action = function(val) 
-									TB_MENU_MAIN_SETTINGS.ambientocclusion = { value = val, id = AMBIENTOCCLUSION, graphics = true }
-								end,
-							val = { get_option("ambientocclusion") },
-							reload = true
-						},
-						{
-							name = TB_MENU_LOCALIZED.SETTINGSDISABLEANIMATIONS,
-							type = TOGGLE,
-							action = function(val) 
-									TB_MENU_MAIN_SETTINGS.uilight = { value = val }
-								end,
-							val = { get_option("uilight") },
-							reload = true
-						},
-						{
-							name = TB_MENU_LOCALIZED.SETTINGSJOINTFLASH,
-							type = TOGGLE,
-							action = function(val) 
-									TB_MENU_MAIN_SETTINGS.jointflash = { value = val }
-								end,
-							val = { get_option("jointflash") },
-							reload = true
-						}
-					}
+					items = advancedItems
 				}
 			}
 		elseif (id == SETTINGS_EFFECTS) then
-			return {
-				{
-					name = TB_MENU_LOCALIZED.SETTINGSGENERAL,
-					items = {
-						{
-							name = TB_MENU_LOCALIZED.SETTINGSEFFECTSINFO,
-							type = DROPDOWN,
-							selectedAction = function()
-									local effects = get_option("effects")
-									if (effects == 0) then
-										return 1
-									elseif (effects == 1) then
-										return 2
-									else
-										return 3
-									end
-								end,
-							dropdown = {
-								{
-									text = TB_MENU_LOCALIZED.SETTINGSDISABLED,
-									action = function()
-											TB_MENU_MAIN_SETTINGS.effects = { value = 0 }
-											Settings:settingsApplyActivate()
-										end
-								},
-								{
-									text = TB_MENU_LOCALIZED.SETTINGSREPLAYSONLY,
-									action = function()
-											TB_MENU_MAIN_SETTINGS.effects = { value = 1 }
-											Settings:settingsApplyActivate()
-										end
-								},
-								{
-									text = TB_MENU_LOCALIZED.SETTINGSENABLED,
-									action = function()
-											TB_MENU_MAIN_SETTINGS.effects = { value = 3 }
-											Settings:settingsApplyActivate()
-										end
-								},
-							}
-						}
-					}
-				},
-				{
+			local generalItems = { }
+			if (shaders == 1) then
+				table.insert(generalItems, {
+					name = TB_MENU_LOCALIZED.SETTINGSITEMEFFECTS,
+					type = TOGGLE,
+					action = function(val) 
+							TB_MENU_MAIN_SETTINGS.itemeffects = { value = val, id = ITEMEFFECTS, graphics = true }
+						end,
+					val = { get_option("itemeffects") },
+					reload = true
+				})
+			end
+			table.insert(generalItems, {
+				name = TB_MENU_LOCALIZED.SETTINGSEFFECTSINFO,
+				type = DROPDOWN,
+				selectedAction = function()
+						local effects = TB_MENU_MAIN_SETTINGS.effects and TB_MENU_MAIN_SETTINGS.effects.value or get_option("effects")
+						if (effects == 0) then
+							return 1
+						elseif (effects == 1) then
+							return 2
+						else
+							return 3
+						end
+					end,
+				dropdown = {
+					{
+						text = TB_MENU_LOCALIZED.SETTINGSDISABLED,
+						value = 0,
+						name = "effects",
+						action = function()
+								TB_MENU_MAIN_SETTINGS.effects = { value = 0 }
+								Settings:settingsApplyActivate()
+								Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
+							end
+					},
+					{
+						text = TB_MENU_LOCALIZED.SETTINGSREPLAYSONLY,
+						value = 1,
+						name = "effects",
+						action = function()
+								TB_MENU_MAIN_SETTINGS.effects = { value = 1 }
+								Settings:settingsApplyActivate()
+								Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
+							end
+					},
+					{
+						text = TB_MENU_LOCALIZED.SETTINGSENABLED,
+						value = 3,
+						name = "effects",
+						action = function()
+								TB_MENU_MAIN_SETTINGS.effects = { value = 3 }
+								Settings:settingsApplyActivate()
+								Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
+							end
+					},
+				}
+			})
+			
+			local settingsCustomization = nil
+			local effects = TB_MENU_MAIN_SETTINGS.effects and TB_MENU_MAIN_SETTINGS.effects.value or get_option("effects")
+			if (effects > 0) then
+				settingsCustomization = {
 					name = TB_MENU_LOCALIZED.SETTINGSPLAYERCUSTOMIZATION,
 					items = {
 						{
@@ -689,6 +724,14 @@ do
 						},
 					}
 				}
+			end
+			
+			return {
+				{
+					name = TB_MENU_LOCALIZED.SETTINGSGENERAL,
+					items = generalItems
+				},
+				settingsCustomization
 			}
 		elseif (id == SETTINGS_AUDIO) then
 			return {
@@ -1575,8 +1618,20 @@ do
 	end
 	
 	function Settings:showSettings(id, keepStoredSettings)
+		if (tbMenuCurrentSection.settingsInitialized == false) then return end
+		tbMenuCurrentSection.settingsInitialized = false
 		TB_MENU_SETTINGS_SCREEN_ACTIVE = id
+		
+		local targetListShift = keepStoredSettings and ((tbMenuCurrentSection.settingsListingHolder.shift.y < 0 and -tbMenuCurrentSection.settingsListingHolder.shift.y or tbMenuCurrentSection.settingsListingHolder.size.h) - tbMenuCurrentSection.settingsListingHolder.size.h) or -1
+		
+		local applySettingsButtonActive = tbMenuApplySettingsButton and tbMenuApplySettingsButton.isactive
+		local applySettingsButtonText = applySettingsButtonActive and tbMenuApplySettingsButton.str
+		
 		tbMenuCurrentSection:kill(true)
+		
+		local lastListHeight = SETTINGS_LIST_SHIFT[2]
+		local lastListProgress = SETTINGS_LIST_SHIFT[1] > 0 and SETTINGS_LIST_SHIFT[1] / SETTINGS_LIST_SHIFT[3] or 0
+		
 		local settingsData = Settings:getSettingsData(id)
 		local settingsMain = UIElement:new({
 			parent = tbMenuCurrentSection,
@@ -1652,6 +1707,11 @@ do
 				end
 			end)
 		tbMenuApplySettingsButton:deactivate(true)
+		
+		if (applySettingsButtonActive) then
+			tbMenuApplySettingsButton:activate(true)
+			tbMenuApplySettingsButton:addAdaptedText(false, applySettingsButtonText)
+		end
 		
 		local listElements = {}
 		for i,section in pairs(settingsData) do
@@ -1797,7 +1857,7 @@ do
 			parent = listingHolder,
 			pos = { 0, #listElements * elementHeight + elementHeight / 2 },
 			size = { listingHolder.size.w, elementHeight / 2 },
-			bgColor = botBar.bgColor
+			bgColor = listingHolder.bgColor
 		})
 		table.insert(listElements, lastElement)
 		for i,v in pairs(listElements) do
@@ -1805,7 +1865,16 @@ do
 		end
 		local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
 		listingHolder.scrollBar = scrollBar
-		scrollBar:makeScrollBar(listingHolder, listElements, toReload)
+		
+		SETTINGS_LIST_SHIFT[2] = #listElements * elementHeight
+		targetListShift = targetListShift > SETTINGS_LIST_SHIFT[2] - listingHolder.size.h and SETTINGS_LIST_SHIFT[2] - listingHolder.size.h or targetListShift
+		SETTINGS_LIST_SHIFT[3] = scrollBar.parent.size.h - scrollBar.size.h
+		SETTINGS_LIST_SHIFT[1] = targetListShift / (SETTINGS_LIST_SHIFT[2] - listingHolder.size.h) * SETTINGS_LIST_SHIFT[3]
+		tbMenuCurrentSection.settingsListingHolder = listingHolder
+		
+		scrollBar:makeScrollBar(listingHolder, listElements, toReload, SETTINGS_LIST_SHIFT)
+		
+		tbMenuCurrentSection.settingsInitialized = true
 	end
 	
 	function Settings:showMain()

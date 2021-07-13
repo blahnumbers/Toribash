@@ -1314,19 +1314,7 @@ do
 	end
 
 	function UIElement:debugEcho(mixed, msg)
-		local msg = msg and msg .. ": " or ""
-		if (type(mixed) == "table") then
-			echo("entering table " .. msg)
-			for i,v in pairs(mixed) do
-				UIElement:debugEcho(v, i)
-			end
-		elseif (type(mixed) == "boolean") then
-			echo(msg .. (mixed and "true" or "false"))
-		elseif (type(mixed) == "number" or type(mixed) == "string") then
-			echo(msg .. mixed)
-		else
-			echo(msg .. "[" .. type(mixed) .. "]")
-		end
+		debugEcho(mixed, msg)
 	end
 
 	function UIElement:qsort(arr, sort, desc, includeZeros)
@@ -1594,8 +1582,20 @@ do
 		return unpack(indexedTable)
 	end
 	
-	function debugEcho(a, b)
-		UIElement:debugEcho(a, b)
+	function debugEcho(mixed, msg, noEcho)
+		local msg = msg and msg .. ": " or ""
+		if (type(mixed) == "table") then
+			echo("entering table " .. msg)
+			for i,v in pairs(mixed) do
+				UIElement:debugEcho(v, i)
+			end
+		elseif (type(mixed) == "boolean") then
+			echo(msg .. (mixed and "true" or "false"))
+		elseif (type(mixed) == "number" or type(mixed) == "string") then
+			echo(msg .. mixed)
+		else
+			echo(msg .. "[" .. type(mixed) .. "]")
+		end
 	end
 	
 	function strEsc(str)

@@ -430,7 +430,7 @@ SETTINGSFRAMERATE	Frame Rate
 SETTINGSFPS	Frames Per Second	
 SETTINGSFPSUNCAPPED	Uncapped	
 SETTINGSGENERAL	General	
-SETTINGSEFFECTSINFO	Effects Display Settings	
+SETTINGSEFFECTSINFO	Customizations Display Settings	
 SETTINGSDISABLED	Disabled	
 SETTINGSENABLED	Enabled	
 SETTINGSREPLAYSONLY	Only on replays	
@@ -884,3 +884,6 @@ STOREDIALOGCHANGELEVEL1	Are you sure you want to set level
 STOREDIALOGCHANGELEVEL2	upgrade for your	
 INVENTORYSETEFFECTCONFIRM	Are you sure you want to apply selected effect upgrades for your	
 INVENTORYSETEFFECTNOTICE	If you had any paid upgrades applied, you may need to purchase them again.	
+STOREYOUHAVEPURCHASEDITEM	You have successfully purchased	
+STOREPURCHASEDITEMPLACEDININVENTORY	It has been added to your deactivated inventory.	
+SETTINGSITEMEFFECTS	Item Effects	
