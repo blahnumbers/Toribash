@@ -4734,7 +4734,7 @@ do
 		
 		local function downloadFile(i)
 			if (i > #itemslist) then
-				if (tbStoreItemInfoHolder == nil or tbStoreItemInfoHolder.destroyed or tbStoreItemInfoHolder.itemid ~= item.itemid) then
+				if (tbStoreItemInfoHolder == nil or tbStoreItemInfoHolder.destroyed or tbStoreItemInfoHolder.itemid ~= itemslist[1].itemid) then
 					return
 				end
 				local sectionTime = (tbStoreItemInfoHolder and not tbStoreItemInfoHolder.destroyed) and tbStoreItemInfoHolder.updated or 0
@@ -5942,7 +5942,7 @@ do
 		local itemInfo = itemid and Torishop:getItemInfo(itemid)
 		local section = itemid and Torishop:getItemMainSection(itemInfo) or section
 		local sectionInfo = Torishop:getStoreSection(section)
-		local sectionid = itemid and Torishop:getItemSectionid(sectionInfo.list, itemInfo) or sectionid
+		local sectionid = (itemid and type(sectionInfo) == "table") and Torishop:getItemSectionid(sectionInfo.list, itemInfo) or sectionid
 		
 		TB_LAST_STORE_SECTION = section
 		TB_LAST_STORE_SECTIONID = sectionid

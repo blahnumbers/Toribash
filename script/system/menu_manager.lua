@@ -328,7 +328,12 @@ do
 
 			-- Auto-rotate event announcements
 			local rotateTime = 100
-			featuredEventData.action = function() featuredEventData.initAction() rotateClock.pause = true end
+			featuredEventData.action = function()
+				if (featuredEventData.initAction) then
+					featuredEventData.initAction()
+				end
+				rotateClock.pause = true
+			end
 			local timeData = eventItems[1].button.pos.y > eventItems[1].image.pos.y + eventItems[1].image.size.h and { x = eventItems[1].image.pos.x, width = eventItems[1].image.size.w } or { x = eventItems[1].button.pos.x + 10, width = eventItems[1].button.size.w - 20 } 
 			eventDisplayTime:addCustomDisplay(true, function()
 					if (not rotateClock.pause) then

@@ -1,5 +1,6 @@
 -- Atmospheres 2.0 manager
 -- Do not modify this file
+require("system/atmospheres_defines")
 
 DEFAULT_SHADER = nil
 ATMO_STORED_OPTS = ATMO_STORED_OPTS or {}
