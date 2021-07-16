@@ -2610,7 +2610,8 @@ do
 			shapeType = ROUNDED,
 			rounded = topBar.size.h
 		})
-		TBMenu:displayHelpPopup(helpButton, TB_MENU_LOCALIZED.REPLAYSCOMMUNITYDOUBLECLICKINFO, true)
+		local popup = TBMenu:displayHelpPopup(helpButton, TB_MENU_LOCALIZED.REPLAYSCOMMUNITYDOUBLECLICKINFO, true)
+		popup:moveTo(topBar.size.h - 15, -(popup.size.h - topBar.size.h + 20) / 2, true)
 
 		local listTitle = UIElement:new({
 			parent = topBar,
@@ -2806,7 +2807,7 @@ do
 			scrollBar.btnDown(4, 0, -SELECTED_SERVER_REPLAY.displayid)
 		end
 
-		if (not SELECTED_SERVER_REPLAY.replay) then
+		if (not SELECTED_SERVER_REPLAY.replay and tempHolder) then
 			SELECTED_SERVER_REPLAY = { element = tempHolder, color = { unpack(tempHolder.bgColor) }, id = SERVER_REPLAYS[1].id, replay = SERVER_REPLAYS[1], displayid = 1 }
 			tempHolder.bgColor = tempHolder.pressedColor
 		end

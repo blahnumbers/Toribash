@@ -1173,7 +1173,7 @@ do
 					"shaders", "fluid", "framerate", "reflection", "softshadow", "ambientocclusion", "bumpmapping", "raytracing", "trails", "hair", "hairquality", "obj", "effects", "particles", "bodytextures"
 				}
 				local presets = {
-					"0030000000000000", "0060000001100111", "1060000101101311", "1160111101111311", "1160111111111311"
+					"0030000000000000", "0060000001100111", "1060000101101311", "1175111101111311", "1175111111111311"
 				}
 				local userSetting = ""
 				for i,v in pairs(options) do
@@ -1763,7 +1763,8 @@ do
 						hoverColor = TB_MENU_DEFAULT_LIGHTEST_COLOR,
 						pressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR
 					})
-					TBMenu:displayHelpPopup(hintIcon, item.hint, true)
+					local popup = TBMenu:displayHelpPopup(hintIcon, item.hint, true)
+					popup:moveTo(itemView.size.h - 9, -(popup.size.h - itemView.size.h + 14) / 2, true)
 					shiftX = shiftX + hintIcon.size.w + 5
 				end
 				local itemName = UIElement:new({

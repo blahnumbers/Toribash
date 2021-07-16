@@ -2805,17 +2805,19 @@ do
 			rounded = 5
 		})
 
-		if (messageElement.pos.x < 0) then
-			messageElement:moveTo(messageElement:getLocalPos(10, 0).x)
-		end
-		if (messageElement.pos.y < 0) then
-			messageElement:moveTo(nil, messageElement:getLocalPos(0, 10).y)
-		end
-		if (messageElement.pos.x + messageElement.size.w > WIN_W) then
-			messageElement:moveTo((WIN_W - messageElement.pos.x - messageElement.size.w) - 10, nil, true)
-		end
-		if (messageElement.pos.y + messageElement.size.h > WIN_H) then
-			messageElement:moveTo(nil, (WIN_H - messageElement.pos.y - messageElement.size.h) - 10, true)
+		if (not forceManualPosCheck) then
+			if (messageElement.pos.x < 0) then
+				messageElement:moveTo(messageElement:getLocalPos(10, 0).x)
+			end
+			if (messageElement.pos.y < 0) then
+				messageElement:moveTo(nil, messageElement:getLocalPos(0, 10).y)
+			end
+			if (messageElement.pos.x + messageElement.size.w > WIN_W) then
+				messageElement:moveTo((WIN_W - messageElement.pos.x - messageElement.size.w) - 10, nil, true)
+			end
+			if (messageElement.pos.y + messageElement.size.h > WIN_H) then
+				messageElement:moveTo(nil, (WIN_H - messageElement.pos.y - messageElement.size.h) - 10, true)
+			end
 		end
 
 		local messageText = UIElement:new({
