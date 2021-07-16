@@ -51,7 +51,7 @@ do
 		else
 			table.insert(navigation, {
 				text = TB_MENU_LOCALIZED.REPLAYSCOMMUNITY,
-				action = function() Replays:getServerReplays() end,
+				action = function() usage_event("replaysonline") Replays:getServerReplays() end,
 				width = get_string_length(TB_MENU_LOCALIZED.REPLAYSCOMMUNITY, FONTS.BIG) * 0.65 + 30,
 				right = true
 			})
@@ -3275,6 +3275,7 @@ do
 	end
 
 	function Replays:showMain(viewElement)
+		usage_event("replays")
 		tbMenuNavigationBar:kill(true)
 		TBMenu:showNavigationBar(Replays:getNavigationButtons(), true)
 		viewElement:kill(true)

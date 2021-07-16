@@ -437,6 +437,7 @@ do
 	end
 	
 	function FriendsList:showMain(viewElement, noWait)
+		usage_event("friendslist")
 		viewElement:kill(true)
 		TB_MENU_SPECIAL_SCREEN_ISOPEN = 8
 		local friendsView = UIElement:new({

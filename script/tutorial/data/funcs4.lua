@@ -45,6 +45,7 @@ local function outroOverlay(viewElement, reqTable)
 end
 
 local function launchUkeBehavior()
+	usage_event("tutorial4fight")
 	dofile("system/movememory_manager.lua")
 	
 	local moveBase = {

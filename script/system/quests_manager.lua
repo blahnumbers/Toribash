@@ -530,6 +530,7 @@ do
 	end
 	
 	function Quests:showGlobalQuests(questsData, completed)
+		usage_event("questsglobal")
 		tbMenuCurrentSection:kill(true)
 		local completed = completed or false
 		
@@ -694,6 +695,7 @@ do
 	end
 	
 	function Quests:showMain(reload)
+		usage_event("quests")
 		tbMenuCurrentSection:kill(true)
 		if (QUESTS_DATA and not reload and not TB_MENU_DEBUG) then
 			Quests:showQuests()

@@ -550,6 +550,8 @@ do
 		TB_ITEM_DETAILS = item
 
 		local bottomSmudge = TBMenu:addBottomBloodSmudge(inventoryItemView, 2)
+		
+		if (not item) then return end
 		local itemData = TB_STORE_DATA[item.itemid]
 		
 		if (item.itemid == ITEM_SET) then
@@ -2240,13 +2242,17 @@ do
 			end]]
 		end
 		
-		for i,v in pairs(listElements) do
-			v:hide()
+		if (#listElements > 0) then
+			for i,v in pairs(listElements) do
+				v:hide()
+			end
+			local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
+			listingHolder.scrollBar = scrollBar
+			scrollBar:makeScrollBar(listingHolder, listElements, toReload, INVENTORY_LIST_SHIFT)
+		else
+			listingHolder:addAdaptedText(false, TB_MENU_LOCALIZED.STOREINVENTORYEMPTY)
 		end
-		local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
-		listingHolder.scrollBar = scrollBar
-		scrollBar:makeScrollBar(listingHolder, listElements, toReload, INVENTORY_LIST_SHIFT)
-		
+			
 		Torishop:showInventoryItem(TB_ITEM_DETAILS or inventoryItems[invStartShift])
 
 		--[[local lineItems = math.floor(inventoryPage.size.w / itemScale)
@@ -2396,13 +2402,25 @@ do
 	end
 
 	function Torishop:showInventory(viewElement, mode, showSets)
+		usage_event("storeinventory")
 		viewElement:kill(true)
 		if (mode) then
 			TB_ITEM_DETAILS = nil
 		end
 		local mode = mode and mode or TB_INVENTORY_MODE
+		
+		local playerInventory
+		if (mode == INVENTORY_STARTUP) then
+			mode = INVENTORY_DEACTIVATED
+			playerInventory = Torishop:getInventory(INVENTORY_DEACTIVATED)
+			if (#playerInventory == 0) then
+				mode = INVENTORY_ACTIVATED
+				playerInventory = Torishop:getInventory(INVENTORY_ACTIVATED)
+			end
+		else
+			playerInventory = Torishop:getInventory(mode)
+		end
 		TB_INVENTORY_MODE = mode
-		local playerInventory = Torishop:getInventory(mode)
 		
 		SHOW_EMPTY_SETS = showSets and showSets or SHOW_EMPTY_SETS
 		if (SHOW_EMPTY_SETS == 0) then
@@ -3795,6 +3813,55 @@ do
 					end
 				end
 			end
+		elseif (item.catid == 87) then
+			-- Effects items
+			local fcolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.force)
+			local effectid = EFFECTS_NONE
+			if (item.colorid > 0) then
+				effectid = EFFECTS_GLOW
+			elseif (item.colorid == -1) then
+				effectid = EFFECTS_TOON
+			elseif (item.colorid == -2) then
+				effectid = EFFECTS_DITHER
+			end
+			
+			local force = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = CUSTOMOBJ,
+				objModel = "../models/store/presets/force",
+				pos = { 0, 0, 0 },
+				size = { 1 * scaleMultiplier, 1 * scaleMultiplier, 1 * scaleMultiplier },
+				rot = { 10, 90, 40 },
+				bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
+				viewport = true,
+				effects = {
+					id = bit.bor(TB_MENU_PLAYER_INFO.items.effects.force.id, effectid),
+					glowIntensity = effectid == EFFECTS_GLOW and 20 or TB_MENU_PLAYER_INFO.items.effects.force.glowIntensity,
+					glowColor = effectid == EFFECTS_GLOW and item.colorid or TB_MENU_PLAYER_INFO.items.effects.force.glowColor,
+					ditherPixelSize = effectid == EFFECTS_DITHER and 1 or TB_MENU_PLAYER_INFO.items.effects.force.ditherPixelSize
+				}
+			})
+			local headTexture = { "../../custom/tori/head.tga", "../../custom/tori/head.tga" }
+			if (TB_MENU_PLAYER_INFO.items.textures.head.equipped) then
+				headTexture[1] = "../../custom/" .. TB_MENU_PLAYER_INFO.username .. "/head.tga"
+			end
+			local relax = UIElement3D:new({
+				parent = previewHolder,
+				shapeType = SPHERE,
+				pos = { 0, 0, 0 },
+				size = { 0.8, 0.8, 0.8 },
+				rot = { 0, 0, -10 },
+				bgColor = { 1, 1, 1, 1 },
+				viewport = true,
+				bgImage = headTexture,
+				effects = {
+					id = bit.bor(TB_MENU_PLAYER_INFO.items.effects.head.id, effectid),
+					glowIntensity = effectid == EFFECTS_GLOW and 20 or TB_MENU_PLAYER_INFO.items.effects.head.glowIntensity,
+					glowColor = effectid == EFFECTS_GLOW and item.colorid or TB_MENU_PLAYER_INFO.items.effects.head.glowColor,
+					ditherPixelSize = effectid == EFFECTS_DITHER and 1 or TB_MENU_PLAYER_INFO.items.effects.head.ditherPixelSize
+				}
+			})
+			return true
 		end
 		viewport:kill()
 		background:kill()
@@ -4667,6 +4734,9 @@ do
 		
 		local function downloadFile(i)
 			if (i > #itemslist) then
+				if (tbStoreItemInfoHolder == nil or tbStoreItemInfoHolder.destroyed or tbStoreItemInfoHolder.itemid ~= item.itemid) then
+					return
+				end
 				local sectionTime = (tbStoreItemInfoHolder and not tbStoreItemInfoHolder.destroyed) and tbStoreItemInfoHolder.updated or 0
 				if (updatedFunc) then
 					updatedFunc()
@@ -5085,9 +5155,11 @@ do
 	end
 	
 	function Torishop:showStoreItemInfo(item, noReload, updateOverride)
+		usage_event("storeitem")
 		STORE_DOWNLOADS_COMPLETE = noReload and true or false
 		tbStoreItemInfoHolder:kill(true)
 		tbStoreItemInfoHolder.updated = os.clock()
+		tbStoreItemInfoHolder.itemid = item.itemid
 		TBMenu:addBottomBloodSmudge(tbStoreItemInfoHolder, 3)
 		
 		if (not item) then
@@ -5866,6 +5938,7 @@ do
 	
 	function Torishop:showStoreSection(viewElement, section, sectionid, itemid)
 		TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
+		usage_event("storesection")
 		local itemInfo = itemid and Torishop:getItemInfo(itemid)
 		local section = itemid and Torishop:getItemMainSection(itemInfo) or section
 		local sectionInfo = Torishop:getStoreSection(section)
@@ -6262,6 +6335,7 @@ do
 			return
 		end
 		
+		usage_event("store")
 		local saleItems = Torishop:getSaleItems()
 		local saleFeatured, saleColor = nil, {}
 		for i,v in pairs(saleItems) do

@@ -111,6 +111,7 @@ do
 	end
 	
 	function Settings:showAbout()
+		usage_event("settingsabout")
 		tbMenuUserBar:hide()
 		UIScrollbarIgnore = true
 		local whiteOverlay = UIElement:new({
@@ -750,9 +751,7 @@ do
 							end,
 							onMouseUp = function(slider)
 								local volume = get_option("soundvolume")
-								set_option("soundvolume", slider.label.labelText[1])
-								play_sound(36)
-								set_volume("soundvolume", volume)
+								play_sound(36, slider.label.labelText[1])
 							end
 						},
 						{
@@ -767,9 +766,7 @@ do
 							end,
 							onMouseUp = function(slider)
 								local volume = get_option("soundvolume")
-								set_option("soundvolume", slider.label.labelText[1])
-								play_sound(36)
-								set_volume("soundvolume", volume)
+								play_sound(36, slider.label.labelText[1])
 							end
 						},
 						--[[{
@@ -1148,6 +1145,21 @@ do
 										end
 								},
 							}
+						}
+					}
+				},
+				{
+					name = TB_MENU_LOCALIZED.SETTINGSUSAGEREPORTING,
+					items = {
+						{
+							name = TB_MENU_LOCALIZED.SETTINGSSUBMITUSAGE,
+							hint = TB_MENU_LOCALIZED.SETTINGSSUBMITUSAGEDESC,
+							type = TOGGLE,
+							systemname = "usagestats",
+							action = function(val)
+								TB_MENU_MAIN_SETTINGS.tooltip = { value = val }
+							end,
+							val = { get_option("usagestats") }
 						}
 					}
 				}
@@ -1618,6 +1630,9 @@ do
 	end
 	
 	function Settings:showSettings(id, keepStoredSettings)
+		if (not keepStoredSettings) then
+			usage_event("settings" .. id)
+		end
 		if (tbMenuCurrentSection.settingsInitialized == false) then return end
 		tbMenuCurrentSection.settingsInitialized = false
 		TB_MENU_SETTINGS_SCREEN_ACTIVE = id
@@ -1748,7 +1763,7 @@ do
 						hoverColor = TB_MENU_DEFAULT_LIGHTEST_COLOR,
 						pressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR
 					})
-					TBMenu:displayHelpPopup(hintIcon, TB_MENU_LOCALIZED.HINTREQUIRESRESTART, true)
+					TBMenu:displayHelpPopup(hintIcon, item.hint, true)
 					shiftX = shiftX + hintIcon.size.w + 5
 				end
 				local itemName = UIElement:new({

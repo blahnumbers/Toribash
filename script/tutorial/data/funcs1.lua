@@ -158,6 +158,7 @@ local function prepareClassicCamera()
 end
 
 local function drawWASDStatic(viewElement, reqTable, shift, fade)
+	usage_event("tutorial1wasd")
 	drawWASD(viewElement, nil, shift, fade or INTRO)
 end
 
@@ -222,6 +223,7 @@ local function outroOverlaySlow(viewElement, reqTable)
 end
 
 local function drawSingleKeyC(viewElement, reqTable)
+	usage_event("tutorial1ckey")
 	drawSingleKey(viewElement, reqTable, "c")
 end
 

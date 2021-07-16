@@ -208,7 +208,6 @@ do
 		if (not tbMenuCurrentSection) then
 			TBMenu:createCurrentSectionView()
 		end
-		set_option("newshopitem", 0)
 		
 		-- Table to store event announcement data
 		local newsData = News:getNews()
@@ -232,6 +231,8 @@ do
 			return
 		end
 		
+		usage_event("news");
+		set_option("newshopitem", 0)
 		-- Create and load regular announcements view
 		-- Featured event banner needs to have even borders, make sure it's scaled accordingly to 775x512 default size
 		local rightSideWidth = (tbMenuCurrentSection.size.h * 0.7 - 10) * 1.513 + 10
@@ -309,7 +310,7 @@ do
 				hoverSound = 31
 			})
 			if (v.initAction) then
-				v.action = function() v.initAction() rotateClock.pause = true end
+				v.action = function() usage_event("newsview" .. v.title) v.initAction() rotateClock.pause = true end
 			end
 			TBMenu:showHomeButton(eventItems[i], v, 1)
 			if (i ~= TB_MENU_HOME_CURRENT_ANNOUNCEMENT) then
@@ -1891,45 +1892,75 @@ do
 		local tbMenuUserTcView = UIElement:new( {
 			parent = tbMenuUserBar,
 			pos = { 80, 65 },
-			size = { 170, 25 },
+			size = { 170, 26 },
+			bgColor = cloneTable(TB_MENU_DEFAULT_BG_COLOR),
+			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
 			interactive = true,
-			hoverSound = 31
+			hoverSound = 31,
+			shapeType = ROUNDED,
+			rounded = 13
 		})
-		tbMenuUserTcView:addCustomDisplay(true, function() end)
-		TBMenu:displayHelpPopup(tbMenuUserTcView, TB_MENU_LOCALIZED.USERBARTCINFO, nil, true)
+		tbMenuUserTcView.bgColor[4] = 0.01
+		local tcPopup = TBMenu:displayHelpPopup(tbMenuUserTcView, TB_MENU_LOCALIZED.USERBARTCINFO, nil, true)
+		tbMenuUserTcView:addMouseHandlers(nil, function()
+				if (TB_STORE_DATA.ready) then
+					Torishop:showStoreSection(tbMenuCurrentSection, 4, 1)
+					tcPopup:reload(true)
+				end
+			end)
+		tcPopup:moveTo(nil, 36, true)
+		
 		local tbMenuUserTcIcon = UIElement:new( {
 			parent = tbMenuUserTcView,
-			pos = { 0, 0 },
-			size = { tbMenuUserTcView.size.h, tbMenuUserTcView.size.h },
+			pos = { 0, -tbMenuUserTcView.size.h - 1.5 },
+			size = { tbMenuUserTcView.size.h + 3, tbMenuUserTcView.size.h + 3 },
 			bgImage = "../textures/store/toricredit_tiny.tga"
 		})
 		local tbMenuUserTcBalance = UIElement:new( {
 			parent = tbMenuUserTcView,
-			pos = { 30, 0 },
+			pos = { tbMenuUserTcView.size.h + 10, 0 },
 			size = { tbMenuUserTcView.size.w - tbMenuUserTcIcon.size.w - 5, tbMenuUserTcView.size.h }
 		})
-		tbMenuUserTcBalance:addAdaptedText(true, PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.tc), nil, 1, 2, 6, 0.9)
+		tbMenuUserTcBalance:addAdaptedText(true, PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.tc), nil, nil, 2, 6, 0.9)
+		tbMenuUserTcView.size.w = get_string_length(tbMenuUserTcBalance.dispstr[1], tbMenuUserTcBalance.textFont) * tbMenuUserTcBalance.textScale + 50
+		
 		local tbMenuUserStView = UIElement:new( {
 			parent = tbMenuUserBar,
 			pos = { 255, 65 },
-			size = { 100, 25 },
+			size = { 100, 26 },
+			bgColor = cloneTable(TB_MENU_DEFAULT_BG_COLOR),
+			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
 			interactive = true,
-			hoverSound = 31
+			hoverSound = 31,
+			shapeType = ROUNDED,
+			rounded = 13
 		})
-		tbMenuUserStView:addCustomDisplay(true, function() end)
-		TBMenu:displayHelpPopup(tbMenuUserStView, TB_MENU_LOCALIZED.USERBARSTINFO, nil, true)
+		tbMenuUserStView.bgColor[4] = 0.01
+		local stPopup = TBMenu:displayHelpPopup(tbMenuUserStView, TB_MENU_LOCALIZED.USERBARSTINFO, nil, true)
+		tbMenuUserStView:addMouseHandlers(nil, function()
+				if (TB_STORE_DATA.ready) then
+					Torishop:showStoreSection(tbMenuCurrentSection, 4, 2)
+					stPopup:reload(true)
+				end
+			end)
+		stPopup:moveTo(nil, 36, true)
+		
 		local tbMenuUserStIcon = UIElement:new( {
 			parent = tbMenuUserStView,
-			pos = { 0, 0 },
-			size = { tbMenuUserStView.size.h, tbMenuUserStView.size.h },
+			pos = { 0, -tbMenuUserStView.size.h - 1.5 },
+			size = { tbMenuUserStView.size.h + 3, tbMenuUserStView.size.h + 3},
 			bgImage = "../textures/store/shiaitoken_tiny.tga"
 		})
 		local tbMenuUserStBalance = UIElement:new( {
 			parent = tbMenuUserStView,
-			pos = { 30, 0 },
+			pos = { tbMenuUserStView.size.h + 10, 0 },
 			size = { tbMenuUserStView.size.w - 30, tbMenuUserStView.size.h }
 		})
 		tbMenuUserStBalance:addAdaptedText(true, PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.st), nil, 1, 2, 6, 0.9)
+		tbMenuUserStView.size.w = get_string_length(tbMenuUserStBalance.dispstr[1], tbMenuUserStBalance.textFont) * tbMenuUserStBalance.textScale + 50
+		
 		local tbMenuUserBeltIcon = UIElement:new({
 			parent = tbMenuUserBar,
 			pos = { -130, 0 },
@@ -1951,8 +1982,12 @@ do
 					TB_MENU_PLAYER_INFO.data = PlayerInfo:getUserData()
 					TB_MENU_PLAYER_INFO.items = PlayerInfo:getItems(TB_MENU_PLAYER_INFO.username)
 					TB_MENU_PLAYER_INFO.clan = PlayerInfo:getClan(TB_MENU_PLAYER_INFO.username)
+					
 					tbMenuUserTcBalance:addAdaptedText(true, PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.tc), nil, 1, 2, 6, 0.9)
+					tbMenuUserTcView.size.w = get_string_length(tbMenuUserTcBalance.dispstr[1], tbMenuUserTcBalance.textFont) * tbMenuUserTcBalance.textScale + 50
+					
 					tbMenuUserStBalance:addAdaptedText(true, PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.st), nil, 1, 2, 6, 0.9)
+					tbMenuUserStView.size.w = get_string_length(tbMenuUserStBalance.dispstr[1], tbMenuUserStBalance.textFont) * tbMenuUserStBalance.textScale + 50
 				end
 			end)
 	end
@@ -2239,7 +2274,7 @@ do
 			{ action = function() if (TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 8) then TBMenu:showFriendsList() else FriendsList:quit() end end, image = TB_MENU_FRIENDS_BUTTON, imageHover = TB_MENU_FRIENDS_BUTTON_HOVER, imagePress = TB_MENU_FRIENDS_BUTTON_PRESS },
 			{ action = function() if (TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 4) then TBMenu:showNotifications() else Notifications:quit() end end, image = TB_MENU_NOTIFICATIONS_BUTTON, imageHover = TB_MENU_NOTIFICATIONS_BUTTON_HOVER, imagePress = TB_MENU_NOTIFICATIONS_BUTTON_PRESS },
 			{ action = function() if (TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 7) then TBMenu:showBounties() else Bounty:quit() end end, image = TB_MENU_BOUNTY_BUTTON, imageHover = TB_MENU_BOUNTY_BUTTON_HOVER, imagePress = TB_MENU_BOUNTY_BUTTON_PRESS },
-			{ action = function() open_url("https://toribash.com/discord.php") end, image = TB_MENU_DISCORD_BUTTON, imageHover = TB_MENU_DISCORD_BUTTON_HOVER, imagePress = TB_MENU_DISCORD_BUTTON_PRESS }
+			{ action = function() usage_event("discord") open_url("https://toribash.com/discord.php") end, image = TB_MENU_DISCORD_BUTTON, imageHover = TB_MENU_DISCORD_BUTTON_HOVER, imagePress = TB_MENU_DISCORD_BUTTON_PRESS }
 		}
 		local tbMenuBottomLeftButtons = {}
 		for i, v in pairs(tbMenuBottomLeftButtonsData) do
@@ -2846,6 +2881,8 @@ do
 			})
 			questionmark:addAdaptedText(true, "?", nil, nil, nil, nil, 0.7)
 		end
+		
+		return messageElement
 	end
 	
 	function TBMenu:spawnSlider(parent, x, y, w, h, textWidth, sliderRadius, value, settings, sliderFunc, onMouseDown, onMouseUp)

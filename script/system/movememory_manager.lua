@@ -633,6 +633,9 @@ do
 			MOVEMEMORY_PLAYBACK_ACTIVE[player] = false
 			memorymove.currentturn = false
 			remove_hooks("tbMoveMemoryPlayTurns" .. player)
+			if (not moveMemoryToolbar) then
+				return
+			end
 			if (moveMemoryToolbar[player]) then
 				moveMemoryToolbar[player]:kill()
 				moveMemoryToolbar[player] = nil

@@ -141,6 +141,7 @@ elseif (launchOption:match("clans ")) then
 elseif (launchOption == "register") then
 	TB_MENU_MAIN_ISOPEN = 0
 	dofile("tutorial/tutorial_manager.lua")
+	usage_event("registertutorial")
 	Tutorials:runTutorial(1, true)
 else
 	TBMenu:showMain()

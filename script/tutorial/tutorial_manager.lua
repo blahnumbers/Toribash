@@ -1554,6 +1554,7 @@ do
 
 	function Tutorials:showTutorialEnd(buttonsCustom)
 		TUTORIAL_LEAVEGAME = true
+		usage_event("tutorial" .. CURRENT_TUTORIAL .. "complete")
 		local buttons = {}
 		local nextTutorial = Files:open("../data/tutorials/tutorial" .. (type(CURRENT_TUTORIAL) == "number" and (CURRENT_TUTORIAL + 1) or 'non-existing') .. ".dat")
 		if (type(CURRENT_TUTORIAL) == "number") then
@@ -1696,6 +1697,7 @@ do
 		if (Tutorials:getLocalization(LOCALIZED_MESSAGES, id)) then
 			Tutorials:updateConfig()
 			Tutorials:setDiscordRPC()
+			usage_event("tutorial" .. id .. "begin")
 			Tutorials:runSteps(tutorialSteps, nil, LOCALIZED_MESSAGES)
 		else
 			Tutorials:quit()

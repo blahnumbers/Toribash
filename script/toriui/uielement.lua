@@ -385,6 +385,7 @@ do
 
 	function UIElement:barScroll(listElements, listHolder, toReload, posY, enabled)
 		local sizeH = math.floor(self.size.h / 4)
+		if (#listElements == 0) then return end
 		local listHeight = listElements[1].size.h * #listElements
 
 		if (posY <= 0) then

@@ -1,7 +1,7 @@
 #PLAYER MESSAGES
 SENSEIKICK1	Now that you know how to use your arms, it's time to learn how to kick your opponents using legs.
 SENSEIKICK2	I'll guide you through this simple kick.
-SENSEIKICK3	Hold all joints to prevent yourself from falling down.
+SENSEIKICK3	Hold all joints to prevent yourself from falling down by pressing C.
 SENSEIKICK4	This will be a left leg kick. Contract both your hip and knee to get in position.
 SENSEIKICK5	All right, now finish your turn by pressing space.
 SENSEIKICK6	Good, now you're ready to kick the opponent. Extend your knee and look at your ghost!

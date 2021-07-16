@@ -330,6 +330,7 @@ do
 	end
 	
 	function Notifications:showNotifications(viewElement)
+		usage_event("notifications")
 		local elementHeight = 50
 		local notificationsHolder = UIElement:new({
 			parent = viewElement,

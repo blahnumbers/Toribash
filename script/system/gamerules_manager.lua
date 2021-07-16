@@ -692,6 +692,7 @@ do
 	end
 	
 	function Gamerules:showMain()
+		usage_event("gamerules")
 		local gamerules = Gamerules:getRules()
 		
 		local mainView = UIElement:new({

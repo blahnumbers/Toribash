@@ -378,6 +378,7 @@ end
 local function comebackPractice(viewElement, reqTable)
 	COMEBACKPRACTICE_GAME_END = false
 	CURRENT_STEP.skip = 0
+	usage_event("tutorial5fight")
 	setStartPose()
 	initComebackPractice()
 	loadVisuals(viewElement, reqTable)

@@ -493,7 +493,7 @@ do
 	
 	function Bounty:showMainView(viewElement, userStats)
 		viewElement:kill(true)
-		
+		usage_event("bounties")
 		local headerTitle = UIElement:new({
 			parent = viewElement,
 			pos = { 20, 10 },

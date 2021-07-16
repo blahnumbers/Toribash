@@ -125,6 +125,7 @@ local function showPecsAxis()
 end
 
 local function punchingBag()
+	usage_event("tutorial2lockbag")
 	local groinPos = get_body_info(1, BODYPARTS.GROIN).pos
 	add_hook("enter_frame", "tbTutorialsCustomStatic", function()
 			set_body_pos(1, BODYPARTS.GROIN, groinPos.x, groinPos.y, groinPos.z)
@@ -224,6 +225,7 @@ local function unloadStaticHook(viewElement, reqTable)
 end
 
 local function unloadStaticHookWithAchievement(viewElement, reqTable)
+	usage_event("tutorial2achievement")
 	unloadStaticHook(viewElement, reqTable)
 	award_achievement(788)
 end

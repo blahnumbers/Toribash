@@ -784,6 +784,7 @@ do
 	end
 	
 	function Flames:showMain()
+		usage_event("flameforge")
 		FLAMES_MENU_MINIMIZED = false
 		local mainView = UIElement:new({
 			globalid = TB_MENU_HUB_GLOBALID,
