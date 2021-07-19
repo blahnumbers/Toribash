@@ -322,8 +322,10 @@ do
 
 		local function cancelRecording()
 			remove_hooks("tbMoveMemoryRecordMove")
-			moveMemoryToolbar[0]:kill()
-			moveMemoryToolbar[0] = nil
+			if (moveMemoryToolbar[0]) then
+				moveMemoryToolbar[0]:kill()
+				moveMemoryToolbar[0] = nil
+			end
 		end
 		local function saveRecording(exitAction, discard)
 			MoveMemory:showSaveRecordingComplete(exitAction, discard)
@@ -643,7 +645,7 @@ do
 		end
 
 		local turn = spawnHook and (MOVEMEMORY_FIRSTTURN and 1 or worldstate.match_turn + 1) or memorymove.currentturn
-		if (memorymove.turns < turn) then
+		if (type(turn) ~= "number" or memorymove.turns < turn) then
 			playMoveQuit()
 			return
 		end
@@ -895,12 +897,6 @@ do
 						end
 					end
 				end
-				--[[if (string.char(key) == "q") then
-					if (TB_MOVEMEMORY_ISOPEN == 1) then
-						MoveMemory:quit()
-					end
-					MoveMemory:unloadHotkeyListener()
-				end]]
 			end)
 	end
 

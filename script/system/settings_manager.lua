@@ -1265,8 +1265,9 @@ do
 					reload = true,
 					val = { optionWidth },
 					valueVerifyAction = function(val)
+						local val = tonumber(val) or 0
 						local maxWidth, maxHeight = get_maximum_window_size()
-						return (tonumber(val) > maxWidth and maxWidth or val)
+						return (val > maxWidth and maxWidth or val)
 					end
 				},
 				{
@@ -1276,8 +1277,9 @@ do
 					reload = true,
 					val = { optionHeight },
 					valueVerifyAction = function(val)
+						local val = tonumber(val) or 0
 						local maxWidth, maxHeight = get_maximum_window_size()
-						return (tonumber(val) > maxHeight and maxHeight or val)
+						return (val > maxHeight and maxHeight or val)
 					end
 				},
 				{
@@ -1464,7 +1466,7 @@ do
 		elseif (key >= 400) then
 			return "???"
 		else
-			return string.char(key)
+			return string.schar(key)
 		end
 	end
 	

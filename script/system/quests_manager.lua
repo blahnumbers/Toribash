@@ -682,15 +682,26 @@ do
 			pos = { globalQuests.size.w + globalQuests.shift.x + 5, 0 },
 			size = { tbMenuCurrentSection.size.w - globalQuests.size.w - globalQuests.shift.x - 5, tbMenuCurrentSection.size.h }
 		})
-		for i, quest in pairs(QUESTS_DATA) do
+		if (QUESTS_DATA) then
+			for i, quest in pairs(QUESTS_DATA) do
+				local questView = UIElement:new({
+					parent = questsHolder,
+					pos = { 5 + (i - 1) * questsHolder.size.w / #QUESTS_DATA, 0 },
+					size = { questsHolder.size.w / #QUESTS_DATA - 10, questsHolder.size.h },
+					bgColor = TB_MENU_DEFAULT_BG_COLOR
+				})
+				local bottomSmudge = TBMenu:addBottomBloodSmudge(questView, i)
+				Quests:showQuest(questView, quest, bottomSmudge)
+			end
+		else
 			local questView = UIElement:new({
 				parent = questsHolder,
-				pos = { 5 + (i - 1) * questsHolder.size.w / #QUESTS_DATA, 0 },
-				size = { questsHolder.size.w / #QUESTS_DATA - 10, questsHolder.size.h },
+				pos = { 5, 0 },
+				size = { questsHolder.size.w - 10, questsHolder.size.h },
 				bgColor = TB_MENU_DEFAULT_BG_COLOR
 			})
 			local bottomSmudge = TBMenu:addBottomBloodSmudge(questView, i)
-			Quests:showQuest(questView, quest, bottomSmudge)
+			questView:addAdaptedText(false, TB_MENU_LOCALIZED.QUESTSGLOBALEMPTY)
 		end
 	end
 	

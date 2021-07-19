@@ -306,9 +306,11 @@ do
 		end
 
 		if (checkPos > 0 and checkPos * listElementHeight + listHolder.shift.y + self.size.h > 0) then
-			listElements[checkPos]:show()
-			listElements[checkPos].listDisplayed = true
-			table.insert(enabled, listElements[checkPos])
+			if (listElements[checkPos]) then
+				listElements[checkPos]:show()
+				listElements[checkPos].listDisplayed = true
+				table.insert(enabled, listElements[checkPos])
+			end
 		end
 		while (listHolder.shift.y + self.size.h + checkPos * listElementHeight >= 0 and listHolder.shift.y + checkPos * listElementHeight <= 0 and checkPos < #listElements) do
 			listElements[checkPos + 1]:show()
@@ -888,7 +890,7 @@ do
 			elseif (key == 267) then
 				self:textfieldUpdate("/")
 			elseif (key >= 97 and key <= 122 and (get_shift_key_state() > 0)) then
-				self:textfieldUpdate(string.char(key - 32))
+				self:textfieldUpdate(string.schar(key - 32))
 			elseif (key == 13 or key == 271) then
 				if (not self.textfieldsingleline) then
 					self:textfieldUpdate("\n")
@@ -902,7 +904,7 @@ do
 			elseif (key == 46 and (self.textfieldindex == 0 or self.textfieldstr[1]:find("%."))) then
 				return
 			else
-				self:textfieldUpdate(string.char(key))
+				self:textfieldUpdate(string.schar(key))
 			end
 			self.textfieldindex = self.textfieldindex + 1
 		end
@@ -1637,4 +1639,18 @@ do
 			return string.format('%x', v)
 		end)
 	end
+	
+	-- string.char() causes a crash when invalid data is fed to it
+	-- We want a safe function that can be used with keyboard input
+	function schar(...)
+		local result = ''
+		local arg = { ... }
+		for i,v in ipairs(arg) do
+			local char = ''
+			pcall(function() char = string.char(v) end)
+			result = result .. char
+		end
+		return result
+	end
+	_G.string.schar = schar
 end

@@ -75,7 +75,7 @@ local function requireKeyPress(viewElement, reqTable, key, show)
 	end
 	
 	add_hook("key_up", "tbTutorialsCustom", function(s, code)
-			if (string.char(s) == key or (code > 3 and code < 30 and string.char(code + 93) == key)) then
+			if (string.schar(s) == key or (code > 3 and code < 30 and string.schar(code + 93) == key)) then
 				if (show and button.hoverState) then
 					button.hoverState = false
 					req.ready = true
@@ -87,7 +87,7 @@ local function requireKeyPress(viewElement, reqTable, key, show)
 			end
 		end)
 	add_hook("key_down", "tbTutorialsCustom", function(s, code)
-			if ((string.char(s) == key or (code > 3 and code < 30 and string.char(code + 93) == key)) and show) then
+			if ((string.schar(s) == key or (code > 3 and code < 30 and string.schar(code + 93) == key)) and show) then
 				button.hoverState = BTN_HVR
 			end
 		end)

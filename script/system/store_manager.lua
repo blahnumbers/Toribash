@@ -521,7 +521,12 @@ do
 	end
 	
 	function Torishop:getItemToDeactivate(item)
-		for i,v in pairs(Torishop:getInventoryRaw()) do
+		local inventoryRaw = Torishop:getInventoryRaw()
+		if (not inventoryRaw) then
+			return false
+		end
+		
+		for i,v in pairs(inventoryRaw) do
 			if (v.active) then
 				if (TB_STORE_DATA[item.itemid].catid == TB_STORE_DATA[v.itemid].catid) then
 					if (TB_STORE_DATA[item.itemid].catid == 78 and TB_STORE_MODELS[v.itemid]) then
@@ -5159,7 +5164,7 @@ do
 		STORE_DOWNLOADS_COMPLETE = noReload and true or false
 		tbStoreItemInfoHolder:kill(true)
 		tbStoreItemInfoHolder.updated = os.clock()
-		tbStoreItemInfoHolder.itemid = item.itemid
+		tbStoreItemInfoHolder.itemid = item and item.itemid or nil
 		TBMenu:addBottomBloodSmudge(tbStoreItemInfoHolder, 3)
 		
 		if (not item) then
@@ -5965,7 +5970,7 @@ do
 			pos = { 10, 10 },
 			size = { topBar.size.w - 20, topBar.size.h - 20 }
 		})
-		sectionTitle:addAdaptedText(true, sectionInfo.name, nil, nil, FONTS.BIG)
+		sectionTitle:addAdaptedText(true, sectionInfo and sectionInfo.name or "undef", nil, nil, FONTS.BIG)
 		TBMenu:addBottomBloodSmudge(botBar, 1)
 		
 		tbStoreItemInfoHolder = UIElement:new({
@@ -5980,9 +5985,14 @@ do
 			size = { viewElement.size.w / 2 - 10, viewElement.size.h },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
-		Torishop:showSectionItems(sectionItemsView, sectionInfo.list[sectionid or 1], nil, nil, itemid and true or false)
+		Torishop:showSectionItems(sectionItemsView, sectionInfo and sectionInfo.list[sectionid or 1] or nil, nil, nil, itemid and true or false)
 		if (itemid) then
 			Torishop:showStoreItemInfo(itemInfo)
+		end
+		
+		if (not sectionInfo) then
+			Torishop:showSearchBar(viewElement)
+			return
 		end
 		
 		local listElements = {}

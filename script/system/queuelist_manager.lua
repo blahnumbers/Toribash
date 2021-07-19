@@ -793,8 +793,9 @@ do
 		return maxW
 	end
 
-	function QueueList:show(info, bout, id)		
-		if (not info) then
+	function QueueList:show(info, bout, id)
+		local userinfo = QueueList:getCurrentPlayerInfo()
+		if (not info or not userinfo) then
 			return
 		end
 		local pName = PlayerInfo:getUser(info.nick)
@@ -835,7 +836,7 @@ do
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
 		queuelistBox.size.h = QueueList:addPlayerInfos(queuelistBox, info, bout)
-		queuelistBox.size.h = QueueList:addPlayerControls(queuelistBox, info, QueueList:getCurrentPlayerInfo(), bout, id)
+		queuelistBox.size.h = QueueList:addPlayerControls(queuelistBox, info, userinfo, bout, id)
 		
 		
 		queuelistBoxBG.size.h = queuelistBox.size.h + 2

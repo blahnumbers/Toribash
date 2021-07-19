@@ -316,7 +316,8 @@ do
 		-- Update once per 2 minutes or with force reload
 		if (TB_MENU_NOTIFICATIONS_LASTUPDATE.count + 120 < os.clock() or forceReload) then
 			Request:queue(function() get_notifications_count() end, "net_notifications", function()
-					TB_MENU_NOTIFICATIONS_NET_COUNT = string.gsub(get_network_response(), "TOTALMSGS; ", "") + 0
+					TB_MENU_NOTIFICATIONS_NET_COUNT = string.gsub(get_network_response(), "TOTALMSGS[^%d]*(%d+)[^%d]*", "%1")
+					TB_MENU_NOTIFICATIONS_NET_COUNT = tonumber(TB_MENU_NOTIFICATIONS_NET_COUNT) or 0
 					if (TB_MENU_NOTIFICATIONS_NET_COUNT > 0) then
 						local notificationsCountWidth = get_string_length(TB_MENU_NOTIFICATIONS_COUNT + TB_MENU_NOTIFICATIONS_NET_COUNT, 4)
 						notificationsCountWidth = notificationsCountWidth > tbMenuNotificationsCount.size.h and (notificationsCountWidth > tbMenuNotificationsCount.size.h * 2 and tbMenuNotificationsCount.size.h * 2 or notificationsCountWidth) or tbMenuNotificationsCount.size.h

@@ -91,6 +91,7 @@ do
 	function Files:close()
 		if (self.data) then
 			self.data:close()
+			self.data = nil
 		end
 	end
 end

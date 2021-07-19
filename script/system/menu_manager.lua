@@ -397,7 +397,9 @@ do
 								if (viewElement:isDisplayed()) then
 									viewElement:kill(true)
 									TBMenu:showHomeButton(viewElement, buttonData, hasSmudge, extraElements, lockedMessage)
-									viewElement.parent.toReload:reload()
+									if (viewElement.parent and viewElement.parent.toReload) then
+										viewElement.parent.toReload:reload()
+									end
 								else
 									local reloader = UIElement:new({
 										parent = viewElement,
@@ -2660,7 +2662,9 @@ do
 							return
 						end
 						selectedItem = v
-						v.action()
+						if (v.action) then
+							v.action()
+						end
 					end)
 			end
 		end
