@@ -864,7 +864,7 @@ do
 			tbMenuDataErrorMessage:kill()
 			tbMenuDataErrorMessage = nil
 		end
-		local dataErrorY = tbMenuMain.pos.y > 0 and (-tbMenuMain.pos.y) or WIN_H
+		local dataErrorY = (tbMenuMain and tbMenuMain.pos.y > 0) and (-tbMenuMain.pos.y) or WIN_H
 		local messageWidth = WIN_W / 2 > 800 and 800 or WIN_W / 2
 		tbMenuDataErrorMessage = UIElement:new({
 			globalid = noParent and TB_MENU_HUB_GLOBALID,
@@ -1885,17 +1885,16 @@ do
 		tbMenuLogoutButton:addMouseHandlers(nil, function()
 				open_menu(18)
 			end, nil)
-
+			
+		local tbMenuClan = UIElement:new( {
+			parent = tbMenuUserBar,
+			pos = { 80, 45 },
+			size = { 350, 20 }
+		})
 		if (TB_MENU_PLAYER_INFO.clan.id ~= 0) then
-			local tbMenuClan = UIElement:new( {
-				parent = tbMenuUserBar,
-				pos = { 80, 45 },
-				size = { 350, 20 }
-			})
-			tbMenuClan:addCustomDisplay(false, function()
-					tbMenuClan:uiText(TB_MENU_LOCALIZED.MAINMENUUSERCLAN .. ": " .. TB_MENU_PLAYER_INFO.clan.tag .. "  |  " .. TB_MENU_PLAYER_INFO.clan.name, nil, nil, 4, 0, 0.6)
-				end)
+			tbMenuClan:addAdaptedText(true, TB_MENU_LOCALIZED.MAINMENUUSERCLAN .. ": " .. TB_MENU_PLAYER_INFO.clan.tag .. "  |  " .. TB_MENU_PLAYER_INFO.clan.name, nil, nil, 4, 0, 0.6)
 		end
+		
 		local tbMenuUserTcView = UIElement:new( {
 			parent = tbMenuUserBar,
 			pos = { 80, 65 },
@@ -1986,15 +1985,17 @@ do
 				if (TB_MENU_CUSTOMS_REFRESHED) then
 					TB_MENU_CUSTOMS_REFRESHED = false
 					
-					TB_MENU_PLAYER_INFO.data = PlayerInfo:getUserData()
-					TB_MENU_PLAYER_INFO.items = PlayerInfo:getItems(TB_MENU_PLAYER_INFO.username)
-					TB_MENU_PLAYER_INFO.clan = PlayerInfo:getClan(TB_MENU_PLAYER_INFO.username)
-					
 					tbMenuUserTcBalance:addAdaptedText(true, PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.tc), nil, 1, 2, 6, 0.9)
 					tbMenuUserTcView.size.w = get_string_length(tbMenuUserTcBalance.dispstr[1], tbMenuUserTcBalance.textFont) * tbMenuUserTcBalance.textScale + 50
 					
 					tbMenuUserStBalance:addAdaptedText(true, PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.st), nil, 1, 2, 6, 0.9)
 					tbMenuUserStView.size.w = get_string_length(tbMenuUserStBalance.dispstr[1], tbMenuUserStBalance.textFont) * tbMenuUserStBalance.textScale + 50
+					
+					if (TB_MENU_PLAYER_INFO.clan.id ~= 0) then
+						tbMenuClan:addAdaptedText(true, TB_MENU_LOCALIZED.MAINMENUUSERCLAN .. ": " .. TB_MENU_PLAYER_INFO.clan.tag .. "  |  " .. TB_MENU_PLAYER_INFO.clan.name, nil, nil, 4, 0, 0.6)
+					end
+					tbMenuUserBeltIcon:updateImage(TB_MENU_PLAYER_INFO.data.belt.icon)
+					tbMenuUserQi:addAdaptedText(true, TB_MENU_PLAYER_INFO.data.belt.name .. " belt", nil, nil, 2, nil, nil, nil, nil, 1)
 				end
 			end)
 	end

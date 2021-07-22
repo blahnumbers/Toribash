@@ -645,7 +645,7 @@ do
 		end
 
 		local turn = spawnHook and (MOVEMEMORY_FIRSTTURN and 1 or worldstate.match_turn + 1) or memorymove.currentturn
-		if (type(turn) ~= "number" or memorymove.turns < turn) then
+		if (type(turn) ~= "number" or type(memorymove.turns) ~= "number" or memorymove.turns < turn) then
 			playMoveQuit()
 			return
 		end

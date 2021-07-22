@@ -350,7 +350,7 @@ do
 			ranking.rank = master.rank
 			PlayerInfo:getRankTier(ranking)
 		end
-		return ranking		
+		return ranking
 	end
 	
 	function PlayerInfo:getClan(player, tag)
@@ -526,56 +526,6 @@ do
 		customs:close()
 		return userData
 	end
-	
-	--[[function PlayerInfo:getPlayerinfo(username)
-		local playerinfo = {}
-		local localized = TB_MENU_LOCALIZED or {}
-		local function success(userinfo)
-			local response = get_network_response()
-			for ln in response:gmatch("[^\n]*\n?") do
-				local ln = ln:gsub("\n$", '')
-				if (ln:find("^USERNAME 0;")) then
-					table.insert(userinfo, {
-						name = localized.ACCOUNTUSERNAME or "Username",
-						value = ln:gsub("^USERNAME 0;", "")
-					})
-				elseif (ln:find("^USERID 0;")) then
-					table.insert(userinfo, {
-						name = localized.ACCOUNTUSERID or "User ID",
-						value = ln:gsub("^USERID 0;", "")
-					})
-				elseif (ln:find("^QI 0;")) then
-					local qi = ln:gsub("^QI 0;", "")
-					qi = qi:len() > 0 and qi + 0 or 0
-					local belt = PlayerInfo:getBeltFromQi(qi)
-					table.insert(userinfo, {
-						name = "Qi",
-						value = qi .. " (" .. belt.name .. " Belt)"
-					})
-				elseif (ln:find("^TODAYGAMES 0;")) then
-					table.insert(userinfo, {
-						name = localized.ACCOUNTGAMESPLAYEDTODAY or "Games Played Today",
-						value = ln:gsub("^TODAYGAMES 0;", "")
-					})
-				elseif (ln:find("^TODAYWINS 0;")) then
-					table.insert(userinfo, {
-						name = localized.ACCOUNTGAMESWONTODAY or "Games Won Today",
-						value = ln:gsub("^TODAYWINS 0;", "")
-					})
-				end
-			end
-			userinfo.ready = true
-			if (not username) then
-				playerinfo = userinfo
-			end
-		end
-		if (username) then
-			get_player_userinfo(PlayerInfo:getUser(username) .. "?do=stats")
-			return Request:new("playerinfo", success)
-		end
-		playerinfo.ready = true
-		return playerinfo
-	end]]
 	
 	function PlayerInfo:getServerUserinfo(username, reload)
 		local localized = TB_MENU_LOCALIZED or {}

@@ -730,7 +730,7 @@ do
 						size = { contextButton.size.w - 30, contextButton.size.h - 10 }
 					})
 					textHolder:addAdaptedText(true, v.text, nil, nil, 4, LEFTMID)
-					contextButton:addMouseHandlers(nil, function() v.action(pName) QueueList:quit() end)
+					contextButton:addMouseHandlers(nil, function() if (not v.action(pName, contextButton)) then QueueList:quit() end end)
 					infoH = infoH + buttonH
 				end
 			end

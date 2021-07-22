@@ -47,7 +47,7 @@ do
 	function Torishop:getItems()
 		local file = Files:new("../data/store.txt")
 		if (not file.data) then
-			if (get_option('autoupdate') == 0 and not file:isDownloading()) then
+			if (not file:isDownloading()) then
 				download_torishop()
 			end
 			return { failed = true }
@@ -187,7 +187,10 @@ do
 		if (TB_STORE_DATA[itemid]) then
 			return TB_STORE_DATA[itemid]
 		end
-		download_torishop()
+		
+		if (get_option("autoupdate") ~= 0) then
+			download_torishop()
+		end
 		TB_STORE_DATA.requireReload = true
 		return ITEM_EMPTY
 	end
@@ -567,10 +570,12 @@ do
 			})
 
 			local numItemsStr = "(" .. TB_MENU_LOCALIZED.STORESETEMPTY .. ")"
-			if (#item.contents == 1) then
-				numItemsStr = "(1 " .. TB_MENU_LOCALIZED.STOREITEM .. ")"
-			elseif (#item.contents > 1) then
-				numItemsStr = "(" .. #item.contents .. " " .. TB_MENU_LOCALIZED.STOREITEMS .. ")"
+			if (item.contents) then
+				if (#item.contents == 1) then
+					numItemsStr = "(1 " .. TB_MENU_LOCALIZED.STOREITEM .. ")"
+				elseif (#item.contents > 1) then
+					numItemsStr = "(" .. #item.contents .. " " .. TB_MENU_LOCALIZED.STOREITEMS .. ")"
+				end
 			end
 
 			itemName:addAdaptedText(true, item.name .. " " .. numItemsStr, nil, nil, FONTS.BIG, nil, 0.6, nil, 0.2)
@@ -587,7 +592,7 @@ do
 				pos = { 10, itemName.size.h + setName.size.h + 10 },
 				size = { inventoryItemView.size.w - 20, inventoryViewHeight }
 			})
-			if (#item.contents > 0) then
+			if (item.contents and #item.contents > 0) then
 				Torishop:showSetDetailsItems(inventoryView, item.contents)
 			else
 				inventoryView:addAdaptedText(true, itemData.description, nil, nil, 4, LEFTMID, 0.7)
@@ -893,7 +898,7 @@ do
 				bgImage = { "../textures/store/inventory/" .. item.inventid .. ".tga", "../textures/store/inventory/noise.tga" }
 			})
 			itemImage:addCustomDisplay(false, function()
-					if (itemImage.requireReload) then
+					if (itemImage.requireReload and item.iconElement) then
 						item.iconElement:updateImage(nil)
 						itemImage:updateImage("../textures/store/inventory/" .. item.inventid .. ".tga", "../textures/store/inventory/noise.tga")
 						item.iconElement:updateImage("../textures/store/inventory/" .. item.inventid .. ".tga", "../textures/store/inventory/noise.tga")
@@ -4607,6 +4612,12 @@ do
 	end
 	
 	function Torishop:drawObjItem(item, previewHolder, scaleMultiplier, objPath, bodyInfos, cameraMove, level)
+		if (not TB_STORE_MODELS[item.itemid]) then
+			if (get_option("autoupdate") ~= 0) then
+				download_torishop()
+			end
+			return
+		end
 		local modelInfo = TB_STORE_MODELS[item.itemid].upgradeable and TB_STORE_MODELS[item.itemid][level or 1] or TB_STORE_MODELS[item.itemid]
 		local color = get_color_info(modelInfo.colorid)
 		local scaleMultiplier = scaleMultiplier * (modelInfo.dynamic and 1 or 5)
@@ -4717,7 +4728,7 @@ do
 			if (objModel.data) then
 				objModel:close()
 				itemHolder = Torishop:drawObjItem(item, previewHolder, scaleMultiplier, objPath, bodyInfos, cameraMove, level)
-				modelDrawn = true
+				modelDrawn = itemHolder and true or false
 			end
 		end
 		if (noReload) then
@@ -4865,7 +4876,15 @@ do
 	end
 	
 	function Torishop:previewHairVanilla(item)
-		download_server_info("get_hair&itemid=" .. item.itemid)
+		if (STORE_HAIR_CACHE[item.itemid]) then
+			for i = 0, 15 do
+				local hr = STORE_HAIR_CACHE[item.itemid][i] or { i, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+				set_hair_settings(0, hr[1], hr[2], hr[3], hr[4], hr[5], hr[6], hr[7], hr[8], hr[9], hr[10], hr[11], hr[12], hr[13], hr[14], hr[15], hr[16], hr[17])
+			end
+			reset_hair(0)
+			set_hair_color(0, 0)
+			return
+		end
 		if (storeVanillaLoading) then
 			storeVanillaLoading:kill()
 			storeVanillaLoading = nil
@@ -4877,16 +4896,21 @@ do
 			uiColor = UICOLORBLACK
 		})
 		TBMenu:displayLoadingMarkSmall(storeVanillaLoading, "Loading")
-		Request:new("storevanillahair", function()
+		Request:queue(function() download_server_info("get_hair&itemid=" .. item.itemid) end, "storevanillahair", function()
 				local response = get_network_response()
 				storeVanillaLoading:kill()
 				if (response:find("ERROR")) then
 					TBMenu:showDataError(TB_MENU_LOCALIZED.STOREREQUESTNOTHAIRSTYLE)
 				end
+				STORE_HAIR_CACHE[item.itemid] = {}
 				local id = 0
 				for ln in response:gmatch("[^\n]+\n?") do
 					local hr = { ln:match(("(%d+) ?"):rep(17)) }
+					for i = 1, #hr do
+						hr[i] = tonumber(hr[i]) or 0
+					end
 					set_hair_settings(0, hr[1], hr[2], hr[3], hr[4], hr[5], hr[6], hr[7], hr[8], hr[9], hr[10], hr[11], hr[12], hr[13], hr[14], hr[15], hr[16], hr[17])
+					STORE_HAIR_CACHE[item.itemid][id] = hr
 					id = id + 1
 				end
 				for i = id, 15 do
@@ -5034,6 +5058,7 @@ do
 						end)
 					edit_game()
 					dismember_joint(0, 3)
+					dismember_joint(0, 2)
 					run_frames(12)
 					add_hook("draw2d", "storevanillapreview", function()
 							if (get_world_state().match_frame >= 20) then
@@ -5970,7 +5995,7 @@ do
 			pos = { 10, 10 },
 			size = { topBar.size.w - 20, topBar.size.h - 20 }
 		})
-		sectionTitle:addAdaptedText(true, sectionInfo and sectionInfo.name or "undef", nil, nil, FONTS.BIG)
+		sectionTitle:addAdaptedText(true, sectionInfo and sectionInfo.name or TB_MENU_LOCALIZED.UNDEF, nil, nil, FONTS.BIG)
 		TBMenu:addBottomBloodSmudge(botBar, 1)
 		
 		tbStoreItemInfoHolder = UIElement:new({
@@ -6013,7 +6038,7 @@ do
 				pos = { 10, 0 },
 				size = { section.size.w - 20, section.size.h }
 			})
-			sectionText:addAdaptedText(true, TB_STORE_SECTIONS[v].name, nil, nil, nil, LEFTMID)
+			sectionText:addAdaptedText(true, TB_STORE_SECTIONS[v] and TB_STORE_SECTIONS[v].name or TB_MENU_LOCALIZED.UNDEF, nil, nil, nil, LEFTMID)
 			section:addMouseHandlers(nil, function()
 					selectedSection.bgColor = TB_MENU_DEFAULT_BG_COLOR
 					selectedSection = section

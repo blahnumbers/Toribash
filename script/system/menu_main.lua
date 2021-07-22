@@ -76,6 +76,7 @@ TBMenu:create()
 
 dofile("system/menu_backend_defines.lua")
 require("system/network_request")
+require("system/downloader_manager")
 require("system/store_manager")
 require("system/player_info")
 --dofile("system/matchmake_manager.lua")
@@ -98,6 +99,7 @@ TB_MENU_PLAYER_INFO.data = PlayerInfo:getUserData()
 TB_MENU_PLAYER_INFO.ranking = PlayerInfo:getRanking()
 TB_MENU_PLAYER_INFO.clan = PlayerInfo:getClan(TB_MENU_PLAYER_INFO.username)
 TB_MENU_PLAYER_INFO.items = PlayerInfo:getItems(TB_MENU_PLAYER_INFO.username)
+TB_MENU_CUSTOMS_REFRESHED = false
 
 if (not TB_STORE_DATA) then
 	TB_STORE_DATA = {}
@@ -110,13 +112,6 @@ end
 if (PlayerInfo:getLoginRewards().available and TB_STORE_DATA.ready and not TB_MENU_NOTIFICATION_LOGINREWARDS) then
 	TB_MENU_NOTIFICATIONS_COUNT = TB_MENU_NOTIFICATIONS_COUNT + 1
 	TB_MENU_NOTIFICATION_LOGINREWARDS = true
-end
-
-if (TB_MENU_CUSTOMS_REFRESHED) then
-	TB_MENU_CUSTOMS_REFRESHED = false
-	TB_MENU_PLAYER_INFO.data = PlayerInfo:getUserData()
-	TB_MENU_PLAYER_INFO.items = PlayerInfo:getItems(TB_MENU_PLAYER_INFO.username)
-	TB_MENU_PLAYER_INFO.clan = PlayerInfo:getClan(TB_MENU_PLAYER_INFO.username)
 end
 
 local launchOption = ARG
@@ -147,76 +142,43 @@ else
 	TBMenu:showMain()
 end
 
--- Wait for customs update on client start
-if (os.clock() < 10) then
-	add_hook("draw2d", "playerinfoUpdate", function()
-		for i,v in pairs(get_downloads()) do
-			if (v:find("item.dat")) then
-				return
-			end
-		end
-		TB_MENU_PLAYER_INFO.data = PlayerInfo:getUserData()
-		TB_MENU_PLAYER_INFO.items = PlayerInfo:getItems(TB_MENU_PLAYER_INFO.username)
-		TB_MENU_PLAYER_INFO.clan = PlayerInfo:getClan(TB_MENU_PLAYER_INFO.username)
-		download_quest(TB_MENU_PLAYER_INFO.username)
-		download_global_quests()
-		if (TB_MENU_MAIN_ISOPEN == 1) then
-			TBMenu:showUserBar()
-		end
-		add_hook("draw2d", "playerinfoUpdate", function()
-				if (#get_downloads() == 0) then
-					TB_MENU_PLAYER_INFO.ranking = PlayerInfo:getRanking()
-					TB_STORE_DATA, TB_STORE_SECTIONS = Torishop:getItems()
-					TB_STORE_MODELS = Torishop:getModelsData()
-					QUESTS_DATA = Quests:getQuests()
-					QUESTS_GLOBAL_DATA = Quests:getGlobalQuests()
-					download_clan()
-					if (not is_steam()) then
-						Request:queue(function() get_latest_version() end,"versioncheck", function()
-								local latestVersion = get_network_response()
-								local currentVersion = tonumber(TORIBASH_VERSION)
-								latestVersion = tonumber(latestVersion)
-								if (currentVersion < latestVersion) then
-									TBMenu:showConfirmationWindow("Toribash " .. latestVersion .. " is now available.\nWould you like to download it now?", function() open_url("https://www.toribash.com/downloads.php") end)
-								end
-							end)
-					end
-					add_hook("draw2d", "playerinfoUpdate", function()
-						if (get_network_task() == 0) then
-							download_server_file("news" .. (is_steam() and "light" or ("&ver=" .. TORIBASH_VERSION)), 0)
-							add_hook("draw2d", "playerinfoUpdate", function()
-									if (#get_downloads() == 0) then
-										if (PlayerInfo:getLoginRewards().available) then
-											if (TB_MENU_MAIN_ISOPEN == 1 and TB_MENU_SPECIAL_SCREEN_ISOPEN == 0 and TB_MENU_IGNORE_REWARDS == 0) then
-												if (not TB_MENU_NOTIFICATION_LOGINREWARDS) then
-													TB_MENU_NOTIFICATIONS_COUNT = TB_MENU_NOTIFICATIONS_COUNT + 1
-													TB_MENU_NOTIFICATION_LOGINREWARDS = true
-												end
-												TBMenu:showNotifications()
-											-- else
-											-- Need to add some way to display the reward has been claimed first
-											-- 	claim_reward()
-											-- 	Request:new("loginreward", function() update_tc_balance() end)
-											end
-										end
-										remove_hooks("playerinfoUpdate")
-									end
-								end)
-						end
-					end)
+local newsRefreshPeriod = get_option("autoupdate") == 1 and 600 or 86400
+if (TB_MENU_NEWS_REFRESH < os.clock() + newsRefreshPeriod) then
+	-- Refresh news periodically so players can get the events / new promos without restarting client
+	Request:queue(function() download_server_file("news" .. (is_steam() and "light" or ("&ver=" .. TORIBASH_VERSION)), 0) end, "refreshnews")
+end
+
+-- Only called on first menu launch
+if (not DEFAULT_ATMOSPHERE_ISSET) then
+	Downloader:init()
+	if (not is_steam()) then
+		Request:queue(function() get_latest_version() end, "versioncheck", function()
+				local latestVersion = get_network_response()
+				local currentVersion = tonumber(TORIBASH_VERSION)
+				latestVersion = tonumber(latestVersion)
+				if (currentVersion < latestVersion) then
+					TBMenu:showConfirmationWindow("Toribash " .. latestVersion .. " is now available.\nWould you like to download it now?", function() open_url("https://www.toribash.com/downloads.php") end)
 				end
 			end)
-	end)
-	
-	-- Set default atmosphere from a draw2d hook so that shader settings are applied properly
-	if (not DEFAULT_ATMOSPHERE_ISSET) then
-		add_hook("draw2d", "atmodefault", function()
-				dofile("system/atmospheres_defines.lua")
-				dofile("system/atmospheres_manager.lua")
-				Atmospheres:loadDefaultAtmo()
-				remove_hooks("atmodefault")
-			end)
 	end
+	add_hook("draw2d", "atmodefault", function()
+			dofile("system/atmospheres_defines.lua")
+			dofile("system/atmospheres_manager.lua")
+			Atmospheres:loadDefaultAtmo()
+			remove_hooks("atmodefault")
+		end)
+	local loginRewardWaiter = UIElement:new({
+		parent = tbMenuMain,
+		pos = { 0, 0 },
+		size = { 0, 0 }
+	})
+	loginRewardWaiter:addCustomDisplay(true, function()
+			if (PlayerInfo:getLoginRewards().available and TB_STORE_DATA.ready and not TB_MENU_NOTIFICATION_LOGINREWARDS) then
+				TB_MENU_NOTIFICATIONS_COUNT = TB_MENU_NOTIFICATIONS_COUNT + 1
+				TB_MENU_NOTIFICATION_LOGINREWARDS = true
+				TBMenu:showNotifications()
+			end
+		end)
 end
 
 UIElement:mouseHooks()
@@ -232,8 +194,30 @@ add_hook("console", "tbMainMenuStatic", function(s, i)
 		end
 	end)
 add_hook("downloader_complete", "tbMainMenuStatic", function(filename)
+		if (filename:find("custom/.*/item.dat") and not filename:find(TB_MENU_PLAYER_INFO.username)) then
+			-- Most files we'll download will be from custom, sort them out so we don't run checks on them
+			return
+		end
+		
 		if (filename:find("custom/" .. TB_MENU_PLAYER_INFO.username .. "/item.dat")) then
+			Downloader:safeCall(function()
+				TB_MENU_PLAYER_INFO.data = PlayerInfo:getUserData()
+				TB_MENU_PLAYER_INFO.items = PlayerInfo:getItems(TB_MENU_PLAYER_INFO.username)
+				TB_MENU_PLAYER_INFO.clan = PlayerInfo:getClan(TB_MENU_PLAYER_INFO.username)
+			end)
 			TB_MENU_CUSTOMS_REFRESHED = true
+		elseif (filename:find("data/store.txt")) then
+			Downloader:safeCall(function() TB_STORE_DATA, TB_STORE_SECTIONS = Torishop:getItems() end)
+		elseif (filename:find("data/store_obj.txt")) then
+			Downloader:safeCall(function() TB_STORE_MODELS = Torishop:getModelsData() end)
+		elseif (filename:find("data/quest.txt")) then
+			Downloader:safeCall(function() QUESTS_DATA = Quests:getQuests() end)
+		elseif (filename:find("data/quest_global.dat")) then
+			Downloader:safeCall(function()
+				QUESTS_GLOBAL_DATA = Quests:getGlobalQuests()
+				QUESTS_LASTUPDATE_GLOBAL.time = os.time()
+				QUESTS_LASTUPDATE_GLOBAL.qi = TB_MENU_PLAYER_INFO.data.qi
+			end)
 		end
 	end)
 	

@@ -891,3 +891,4 @@ STOREINVENTORYEMPTY	No items to display in inventory.\nYou can purchase items in
 SETTINGSUSAGEREPORTING	Usage reporting	
 SETTINGSSUBMITUSAGE	Submit usage statistics to Toribash servers	
 SETTINGSSUBMITUSAGEDESC	We collect data on general game client usage to better understand what our players like and don't like doing and improve your overall experience.	
+UNDEF	Undefined	

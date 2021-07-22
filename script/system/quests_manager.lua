@@ -7,7 +7,7 @@ do
 	function Quests:getQuests()
 		TB_MENU_QUESTS_COUNT = 0
 		local file = Files:open("../data/quest.txt")
-		if (not file.data) then
+		if (not file.data and not file:isDownloading()) then
 			download_quest(TB_MENU_PLAYER_INFO.username)
 			return false
 		end

@@ -1316,8 +1316,8 @@ do
 		remove_hooks("UIManagerSkipEcho")
 	end
 
-	function UIElement:debugEcho(mixed, msg)
-		debugEcho(mixed, msg)
+	function UIElement:debugEcho(mixed, msg, returnString)
+		return debugEcho(mixed, msg, returnString)
 	end
 
 	function UIElement:qsort(arr, sort, desc, includeZeros)
@@ -1585,20 +1585,30 @@ do
 		return unpack(indexedTable)
 	end
 	
-	function debugEcho(mixed, msg, noEcho)
+	function debugEcho(mixed, msg, returnString, rec)
 		local msg = msg and msg .. ": " or ""
+		local buildRet = returnString and function(str) _G.DEBUGECHOMSG = _G.DEBUGECHOMSG .. str .. "\n" end or echo
+		if (not rec) then
+			_G.DEBUGECHOMSG = ""
+		end
 		if (type(mixed) == "table") then
-			echo("entering table " .. msg)
+			buildRet("entering table " .. msg)
 			for i,v in pairs(mixed) do
-				UIElement:debugEcho(v, i)
+				debugEcho(v, i, returnString, true)
 			end
 		elseif (type(mixed) == "boolean") then
-			echo(msg .. (mixed and "true" or "false"))
+			buildRet(msg .. (mixed and "true" or "false"))
 		elseif (type(mixed) == "number" or type(mixed) == "string") then
-			echo(msg .. mixed)
+			buildRet(msg .. mixed)
 		else
-			echo(msg .. "[" .. type(mixed) .. "]")
+			buildRet(msg .. "[" .. type(mixed) .. "]")
 		end
+		if (returnString and not rec) then
+			local msg = _G.DEBUGECHOMSG
+			_G.DEBUGECHOMSG = nil
+			return msg
+		end
+		return nil
 	end
 	
 	function strEsc(str)

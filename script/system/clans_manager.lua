@@ -303,7 +303,7 @@ do
 					pos = { 0, clanInfo.size.h / 4 * 3 },
 					size = { clanInfo.size.w, clanInfo.size.h / 4 }
 				})
-				if (#ClanData[clanid].leaders > 1) then
+				if (ClanData[clanid] and #ClanData[clanid].leaders > 1) then
 					local leader1 = math.random(1, #ClanData[clanid].leaders)
 					while (ClanData[clanid].leaders[leader1]:lower() == TB_MENU_PLAYER_INFO.username:lower()) do
 						leader1 = math.random(1, #ClanData[clanid].leaders)
@@ -339,7 +339,7 @@ do
 					pos = { 0, clanInfo.size.h / 4 * 3 },
 					size = { clanInfo.size.w, clanInfo.size.h / 4 }
 				})
-				if (#ClanData[clanid].members > 1) then
+				if (ClanData[clanid] and #ClanData[clanid].members > 1) then
 					local member1 = math.random(1, #ClanData[clanid].members)
 					while (ClanData[clanid].members[member1]:lower() == TB_MENU_PLAYER_INFO.username:lower()) do
 						member1 = math.random(1, #ClanData[clanid].members)
@@ -1071,9 +1071,9 @@ do
 			pressedColor = { 1, 0, 0, 0.1 }
 		})
 		clanWars:addAdaptedText(false, TB_MENU_LOCALIZED.CLANSVIEWWARSFORUM, nil, nil, FONTS.BIG, nil, 0.8, nil, 0.6)
-		clanWars:addMouseHandlers(true, function()
+		clanWars:addMouseHandlers(nil, function()
 				open_url("http://forum.toribash.com/clan_war.php?clanid=" .. clanid)
-			end, nil)
+			end)
 		local clanTopAchievement = UIElement:new({
 			parent = viewElement,
 			pos = { 30, -(viewElement.size.h - 120) / 2 },
@@ -1193,7 +1193,6 @@ do
 		local shaders = get_option("shaders")
 		local avatarWidth = shaders * 40
 		local rosterEntryHeight = 40
-		
 		
 		local toReload, rosterTop, rosterBottom, rosterView, rosterMemberHolder, rosterScrollBG = TBMenu:prepareScrollableList(viewElement, 50, rosterEntryHeight, 15, ClanData[clanid].bgcolor)
 		local rosterTitle = UIElement:new({
