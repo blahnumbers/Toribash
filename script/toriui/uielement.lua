@@ -165,6 +165,7 @@ do
 				elem.btnDown = function() end
 				elem.btnUp = function() end
 				elem.btnHover = function() end
+				elem.btnRightUp = function() end
 				table.insert(UIMouseHandler, elem)
 			end
 			if (o.keyboard) then
@@ -205,7 +206,7 @@ do
 		return elem
 	end
 
-	function UIElement:addMouseHandlers(btnDown, btnUp, btnHover)
+	function UIElement:addMouseHandlers(btnDown, btnUp, btnHover, btnRightUp)
 		if (btnDown) then
 			self.btnDown = btnDown
 		end
@@ -214,6 +215,9 @@ do
 		end
 		if (btnHover) then
 			self.btnHover = btnHover
+		end
+		if (btnRightUp) then
+			self.btnRightUp = btnRightUp
 		end
 	end
 
@@ -996,14 +1000,25 @@ do
 
 	function UIElement:handleMouseUp(s, x, y)
 		for i, v in pairs(tableReverse(UIMouseHandler)) do
-			if (v.hoverState == BTN_DN and v.isactive) then
-				if (v.upSound) then
-					play_sound(v.upSound)
+			if (v.isactive) then
+				if (v.hoverState == BTN_DN and s == 1) then
+					if (v.upSound) then
+						play_sound(v.upSound)
+					end
+					v.hoverState = BTN_HVR
+					v.btnUp(s, x, y)
+					set_mouse_cursor(1)
+					return
 				end
-				v.hoverState = BTN_HVR
-				v.btnUp(s, x, y)
-				set_mouse_cursor(1)
-				return
+				if (s == 3) then
+					if (x > v.pos.x and x < v.pos.x + v.size.w and y > v.pos.y and y < v.pos.y + v.size.h) then
+						if (v.upSound) then
+							play_sound(v.upSound)
+						end
+						v.btnRightUp(s, x, y)
+						return
+					end
+				end
 			end
 		end
 	end

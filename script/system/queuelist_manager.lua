@@ -18,7 +18,9 @@ do
 			chat_input_activate()
 		end
 		
-		QUEUELISTMENU:kill()
+		if (QUEUELISTMENU) then
+			QUEUELISTMENU:kill()
+		end
 		QUEUELISTMENU = nil
 	end
 
@@ -817,9 +819,7 @@ do
 			interactive = true
 		})
 		QUEUELISTMENU = queuelistMenuHolder
-		QUEUELISTMENU:addMouseHandlers(nil, function()
-				QueueList:quit()
-			end)
+		QUEUELISTMENU:addMouseHandlers(nil, function() QueueList:quit() end, nil, function() QueueList:quit() end)
 		local hShift = QueueList:getHorizontalShift()
 		local posX = MOUSE_X > WIN_W - 30 - hShift and WIN_W - 30 - hShift or MOUSE_X
 		local queuelistBoxBG = UIElement:new({
