@@ -804,7 +804,6 @@ do
 		local customs = Files:open("../custom/" .. pName .. "/item.dat", FILES_MODE_READONLY)
 		if (not customs.data) then
 			download_head(pName)
-			TB_MENU_DOWNLOAD_INACTION = true
 		end
 		customs:close()
 		

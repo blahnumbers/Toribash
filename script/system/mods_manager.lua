@@ -33,13 +33,17 @@ do
 		end
 		listingHolder:kill(true)
 		listingHolder:moveTo(nil, 0)
-		topBar:kill(true)
+		if (topBar.title) then
+			topBar.title:kill()
+			topBar.title = nil
+		end
 		local modsFolderName = UIElement:new({
 			parent = topBar,
-			pos = { 10, 0 },
-			size = { topBar.size.w - 20, topBar.size.h }
+			pos = { 10, 35 },
+			size = { topBar.size.w - 20, topBar.size.h - 40 }
 		})
-		modsFolderName:addAdaptedText(true, data.name:gsub("^data/mod", "Mods"):gsub("/", " :: "), nil, nil, FONTS.BIG, nil, 0.6)
+		topBar.title = modsFolderName
+		modsFolderName:addAdaptedText(true, data.name:gsub("^data/mod", "Mods"):gsub("/", " :: "), nil, nil, FONTS.BIG, nil, 0.6, nil, 0.5)
 
 		local searchString = search.textfieldstr[1]
 		local listElements = {}
@@ -268,10 +272,27 @@ do
 		})
 		MODS_MENU_MAIN_ELEMENT = mainView
 		MODS_MENU_POS = mainView.pos
-		local mainMoverHolder = UIElement:new({
+		
+		local mainList = UIElement:new({
 			parent = mainView,
 			pos = { 0, 0 },
-			size = { mainView.size.w, 30 },
+			size = { mainView.size.w, mainView.size.h },
+			bgColor = TB_MENU_DEFAULT_BG_COLOR,
+			shapeType = mainView.shapeType,
+			rounded = mainView.rounded
+		})
+		local elementHeight = 25
+		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(mainList, 75, 70, 15)
+		
+		topBar.shapeType = mainView.shapeType
+		topBar.rounded = mainView.rounded
+		botBar.shapeType = mainView.shapeType
+		botBar.rounded = mainView.rounded
+		
+		local mainMoverHolder = UIElement:new({
+			parent = topBar,
+			pos = { 0, 0 },
+			size = { topBar.size.w, 30 },
 			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 			shapeType = mainView.shapeType,
 			rounded = mainView.rounded
@@ -305,7 +326,7 @@ do
 			end)
 
 		local modNewGameToggleView = UIElement:new({
-			parent = mainView,
+			parent = botBar,
 			pos = { 0, -35 },
 			size = { mainView.size.w, 30 }
 		})
@@ -347,41 +368,10 @@ do
 			size = { modNewGameToggleView.size.w - modNewGameToggleBG.shift.x * 3 - modNewGameToggleBG.size.w, modNewGameToggleView.size.h }
 		})
 		modNewGameText:addAdaptedText(true, TB_MENU_LOCALIZED.MODSRESTARTGAME, nil, nil, 4, LEFTMID)
-		--[[local modDownloadHolder = UIElement:new({
-			parent = mainView,
-			pos = { 0, -55 },
-			size = { mainView.size.w, 55 },
-			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
-			shapeType = ROUNDED,
-			rounded = 4
-		})
-		local modDownloadButton = UIElement:new({
-			parent = modDownloadHolder,
-			pos = { 5, 10 },
-			size = { modDownloadHolder.size.w - 10, modDownloadHolder.size.h - 15 },
-			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
-			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-			interactive = true,
-			shapeType = ROUNDED,
-			rounded = 5
-		})
-		modDownloadButton:addAdaptedText(false, "Get more mods")
-		modDownloadButton:addMouseHandlers(nil, function()
-			end)]]
-
-		local mainList = UIElement:new({
-			parent = mainView,
-			pos = { 0, mainMoverHolder.size.h },
-			size = { mainView.size.w, mainView.size.h - mainMoverHolder.size.h - modNewGameToggleView.size.h - 5 },
-			bgColor = TB_MENU_DEFAULT_BG_COLOR
-		})
-		local elementHeight = 25
-		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(mainList, 50, 35, 15)
 
 		add_hook("key_up", "tbModsKeyboard", function(s) return(UIElement:handleKeyUp(s)) end)
 		add_hook("key_down", "tbModsKeyboard", function(s) return(UIElement:handleKeyDown(s)) end)
-		local search = TBMenu:spawnTextField(botBar, 5, 5, botBar.size.w - 10, botBar.size.h - 10, nil, nil, 1, nil, nil, TB_MENU_LOCALIZED.SEARCHNOTE)
+		local search = TBMenu:spawnTextField(botBar, 5, 5, botBar.size.w - 10, botBar.size.h - 40, nil, nil, 1, nil, nil, TB_MENU_LOCALIZED.SEARCHNOTE)
 		search:addKeyboardHandlers(nil, function()
 				MODS_LIST_SHIFT[1] = 0
 				Mods:spawnMainList(listingHolder, toReload, topBar, elementHeight, CURRENT_MOD_FOLDER, search)

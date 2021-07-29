@@ -252,7 +252,6 @@ do
 					TBMenu:displayLoadingMark(questView, "Claiming Quest")
 					Request:queue(function() claim_quest(quest.id) end, "questclaim", function()
 						update_tc_balance()
-						TB_MENU_DOWNLOAD_INACTION = true
 						tcUpdate = true
 						if (customClaimFunc) then
 							customClaimFunc()

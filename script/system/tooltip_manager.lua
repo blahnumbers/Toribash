@@ -167,6 +167,10 @@ do
 		if (TB_TOOLTIP_GRABDISPLAY) then
 			return
 		end
+		PLAYERINFO = TB_MENU_PLAYER_INFO.items or PLAYERINFO
+		local forceInfo = get_color_info(PLAYERINFO.colors.force)
+		local relaxInfo = get_color_info(PLAYERINFO.colors.relax)
+		PLAYERINFO = { rgbForce = { forceInfo.r, forceInfo.g, forceInfo.b, 1 }, rgbRelax = { relaxInfo.r, relaxInfo.g, relaxInfo.b, 1 }, default = PLAYERINFO.colors.default }
 		TB_TOOLTIP_GLOBALID = TB_TOOLTIP_GLOBALID or 1010
 		if (PLAYERINFO.default) then
 			PLAYERINFO = PlayerInfo:getItems(PlayerInfo:getUser())

@@ -181,7 +181,6 @@ do
 								rewardClaim:deactivate()
 								update_tc_balance()
 								TB_MENU_NOTIFICATIONS_COUNT = TB_MENU_NOTIFICATIONS_COUNT - 1
-								TB_MENU_DOWNLOAD_INACTION = true
 								tbMenuNavigationBar:kill(true)
 								TBMenu:showNavigationBar(Notifications:getNavigationButtons(false, true), true, true, TB_MENU_NOTIFICATIONS_LASTSCREEN)
 								

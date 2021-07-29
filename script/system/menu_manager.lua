@@ -50,9 +50,13 @@ do
 		if (not file) then
 			file = io.open("data/script/system/language/english.txt", "r", 1)
 			if (not file) then
-				echo("^04Localization file not found, exiting main menu")
+				echo("^04Localization data not found, exiting main menu")
+				if (is_steam()) then
+					echo("^07If this error persists, please verify integrity of game files in your Steam Library")
+				else
+					echo("^07If this error persists, please reinstall Toribash to repair system files")
+				end
 				TBMenu:quit()
-				set_option("newmenu", 0)
 				return
 			end
 		end
@@ -98,8 +102,8 @@ do
 	function TBMenu:createCurrentSectionView()
 		tbMenuCurrentSection = UIElement:new( {
 			parent = tbMenuMain,
-			pos = { 75, 140 + WIN_H / 16 },
-			size = { WIN_W - 150, WIN_H - 250 - WIN_H / 16 }
+			pos = { 75 * TB_MENU_GLOBAL_SCALE, 140 * TB_MENU_GLOBAL_SCALE + WIN_H / 16 },
+			size = { WIN_W - 150 * TB_MENU_GLOBAL_SCALE, WIN_H - 250 * TB_MENU_GLOBAL_SCALE - WIN_H / 16 }
 		})
 	end
 
@@ -613,6 +617,7 @@ do
 			size = { scrollWidth, listingView.size.h },
 			bgColor = accentColor or TB_MENU_DEFAULT_DARKER_COLOR
 		})
+		listingHolder.scrollBG = listingScrollBG
 		return toReload, topBar, botBar, listingView, listingHolder, listingScrollBG
 	end
 
@@ -879,7 +884,7 @@ do
 		if (noParent) then
 			set_option("hint", 0)
 		end
-		local startTime = os.clock()
+		tbMenuDataErrorMessage.startTime = os.clock()
 		local moveRad = math.pi / 4
 		tbMenuDataErrorMessage:addCustomDisplay(false, function()
 				if (tbMenuDataErrorMessage.pos.y > WIN_H - tbMenuDataErrorMessage.size.h - 10) then
@@ -890,7 +895,7 @@ do
 					uiColor[4] = transparency
 				else
 					tbMenuDataErrorMessage:addCustomDisplay(false, function()
-							if (os.clock() - startTime > 5) then
+							if (os.clock() - tbMenuDataErrorMessage.startTime > 5) then
 								transparency = transparency - 0.05
 								bgColor[4] = 0.8 * transparency
 								uiColor[4] = transparency
@@ -910,6 +915,7 @@ do
 			size = { tbMenuDataErrorMessage.size.w * 0.8, tbMenuDataErrorMessage.size.h * 0.8 }
 		})
 		errorMessageView:addAdaptedText(true, message, nil, nil, 4, nil, 0.9, nil, nil, nil, uiColor)
+		return errorMessageView
 	end
 
 	function TBMenu:showTorishopMain()
@@ -1448,7 +1454,7 @@ do
 		if (not parentElement) then
 			return false
 		end
-		local scale = scale or 64
+		local scale = (scale or 64) * TB_MENU_GLOBAL_SCALE
 		local bottomSmudge = TB_MENU_BOTTOM_SMUDGE_BIG
 		if (parentElement.size.w < 400) then
 			if (num % 2 == 1) then
@@ -1719,8 +1725,8 @@ do
 	function TBMenu:showGameLogo()
 		local logo = TB_MENU_GAME_LOGO
 		local gametitle = TB_MENU_GAME_TITLE
-		local logoSize = math.min(WIN_W / 15, 90)
-		local gameTitleSize = math.min(WIN_W / 5, 256)
+		local logoSize = 90 * TB_MENU_GLOBAL_SCALE
+		local gameTitleSize = 256 * TB_MENU_GLOBAL_SCALE
 		local customLogo = io.open("custom/" .. TB_MENU_PLAYER_INFO.username .. "/logo.tga", "r", 1)
 		if (customLogo) then
 			logo = "../../custom/" .. TB_MENU_PLAYER_INFO.username .. "/logo.tga"
@@ -1771,7 +1777,7 @@ do
 	end
 
 	function TBMenu:showUserBar()
-		local tbMenuTopBarWidth = 512
+		local tbMenuTopBarWidth = math.ceil(512 * (TB_MENU_GLOBAL_SCALE or 1))
 		if (tbMenuUserBar) then
 			tbMenuUserBar:kill()
 			tbMenuUserBar = nil
@@ -1785,19 +1791,19 @@ do
 		local tbMenuUserBarBottomSplat2 = UIElement:new( {
 			parent = tbMenuUserBar,
 			pos = {-tbMenuTopBarWidth, 0},
-			size = {512, 128},
+			size = {tbMenuTopBarWidth, tbMenuTopBarWidth / 4},
 			bgImage = TB_MENU_USERBAR_MAIN
 		})
 		local tbMenuUserBarSplat = UIElement:new( {
 			parent = tbMenuUserBar,
-			pos = { -tbMenuTopBarWidth - 128, 0 },
-			size = { 128, 128 },
+			pos = { math.ceil(-tbMenuTopBarWidth * 1.25), 0 },
+			size = { tbMenuTopBarWidth / 4, tbMenuTopBarWidth / 4 },
 			bgImage = TB_MENU_USERBAR_LEFT
 		})
 		local tbMenuUserHeadAvatarViewport = UIElement:new( {
 			parent = tbMenuUserBar,
-			pos = { -tbMenuUserBar.size.w - 30, 0 },
-			size = { 100, 100 },
+			pos = { -tbMenuUserBar.size.w - tbMenuTopBarWidth / 16, 0 },
+			size = { tbMenuTopBarWidth / 5, tbMenuTopBarWidth / 5 },
 			viewport = true
 		})
 		local tbMenuUserHeadAvatarViewport3D = UIElement3D:new({
@@ -1873,32 +1879,35 @@ do
 		end
 		local tbMenuUserName = UIElement:new( {
 			parent = tbMenuUserBar,
-			pos = { 80, 10 },
-			size = { 350, 25 }
+			pos = { tbMenuTopBarWidth / 6, tbMenuTopBarWidth / 50 },
+			size = { tbMenuTopBarWidth / 1.5, tbMenuTopBarWidth / 20 }
 		})
 		local displayName = TB_MENU_PLAYER_INFO.username == "" and "Tori" or TB_MENU_PLAYER_INFO.username
 		tbMenuUserName:addCustomDisplay(false, function()
 				tbMenuUserName:uiText(displayName, tbMenuUserName.pos.x + 2, tbMenuUserName.pos.y + 2, 0, 0, 0.55, nil, nil, {0,0,0,0.2}, nil, 0)
 				tbMenuUserName:uiText(displayName, nil, nil, 0, 0, 0.55, nil, nil, nil, nil, 0.5)
 			end)
-		local tbMenuLogoutButton = TBMenu:createImageButtons(tbMenuUserBar, 85 + get_string_length(displayName, 0) * 0.55, 15, 25, 25, TB_MENU_LOGOUT_BUTTON, TB_MENU_LOGOUT_BUTTON_HOVER, TB_MENU_LOGOUT_BUTTON_PRESS)
+		local tbMenuLogoutButton = TBMenu:createImageButtons(tbMenuUserBar, tbMenuTopBarWidth / 6 + 10 + get_string_length(displayName, 0) * 0.55, tbMenuTopBarWidth / 34, tbMenuTopBarWidth / 20, tbMenuTopBarWidth / 20, TB_MENU_LOGOUT_BUTTON, TB_MENU_LOGOUT_BUTTON_HOVER, TB_MENU_LOGOUT_BUTTON_PRESS)
 		tbMenuLogoutButton:addMouseHandlers(nil, function()
 				open_menu(18)
 			end, nil)
-			
+		
 		local tbMenuClan = UIElement:new( {
 			parent = tbMenuUserBar,
-			pos = { 80, 45 },
-			size = { 350, 20 }
+			pos = { tbMenuTopBarWidth / 6, tbMenuTopBarWidth / 11.5 },
+			size = { tbMenuTopBarWidth / 1.5, tbMenuTopBarWidth / 25 }
 		})
+		if (TB_MENU_GLOBAL_SCALE < 1) then
+			tbMenuClan:hide()
+		end
 		if (TB_MENU_PLAYER_INFO.clan.id ~= 0) then
-			tbMenuClan:addAdaptedText(true, TB_MENU_LOCALIZED.MAINMENUUSERCLAN .. ": " .. TB_MENU_PLAYER_INFO.clan.tag .. "  |  " .. TB_MENU_PLAYER_INFO.clan.name, nil, nil, 4, 0, 0.6)
+			tbMenuClan:addAdaptedText(true, TB_MENU_LOCALIZED.MAINMENUUSERCLAN .. ": " .. TB_MENU_PLAYER_INFO.clan.tag .. ((TB_MENU_PLAYER_INFO.clan.name ~= '') and ("  |  " .. TB_MENU_PLAYER_INFO.clan.name) or ''), nil, nil, 4, 0, 0.6)
 		end
 		
 		local tbMenuUserTcView = UIElement:new( {
 			parent = tbMenuUserBar,
-			pos = { 80, 65 },
-			size = { 170, 26 },
+			pos = { tbMenuTopBarWidth / 6, tbMenuTopBarWidth / 8 },
+			size = { tbMenuTopBarWidth / 3, tbMenuTopBarWidth / 20 },
 			bgColor = cloneTable(TB_MENU_DEFAULT_BG_COLOR),
 			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
@@ -1933,8 +1942,8 @@ do
 		
 		local tbMenuUserStView = UIElement:new( {
 			parent = tbMenuUserBar,
-			pos = { 255, 65 },
-			size = { 100, 26 },
+			pos = { tbMenuTopBarWidth / 2, tbMenuTopBarWidth / 8 },
+			size = { tbMenuTopBarWidth / 5, tbMenuTopBarWidth / 20 },
 			bgColor = cloneTable(TB_MENU_DEFAULT_BG_COLOR),
 			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
@@ -1969,14 +1978,14 @@ do
 		
 		local tbMenuUserBeltIcon = UIElement:new({
 			parent = tbMenuUserBar,
-			pos = { -130, 0 },
-			size = { 110, 110 },
+			pos = { -tbMenuTopBarWidth / 4, 0 },
+			size = { tbMenuTopBarWidth / 4.5, tbMenuTopBarWidth / 4.5 },
 			bgImage = TB_MENU_PLAYER_INFO.data.belt.icon
 		})
 		local tbMenuUserQi = UIElement:new( {
 			parent = tbMenuUserBar,
-			pos = { -130, 50 },
-			size = { 110, 40 }
+			pos = { -tbMenuTopBarWidth / 4, tbMenuTopBarWidth / 10 },
+			size = { tbMenuTopBarWidth / 4.5, tbMenuTopBarWidth / 13 }
 		})
 		tbMenuUserQi:addAdaptedText(true, TB_MENU_PLAYER_INFO.data.belt.name .. " belt", nil, nil, 2, nil, nil, nil, nil, 1)
 		
@@ -1992,7 +2001,7 @@ do
 					tbMenuUserStView.size.w = get_string_length(tbMenuUserStBalance.dispstr[1], tbMenuUserStBalance.textFont) * tbMenuUserStBalance.textScale + 50
 					
 					if (TB_MENU_PLAYER_INFO.clan.id ~= 0) then
-						tbMenuClan:addAdaptedText(true, TB_MENU_LOCALIZED.MAINMENUUSERCLAN .. ": " .. TB_MENU_PLAYER_INFO.clan.tag .. "  |  " .. TB_MENU_PLAYER_INFO.clan.name, nil, nil, 4, 0, 0.6)
+						tbMenuClan:addAdaptedText(true, TB_MENU_LOCALIZED.MAINMENUUSERCLAN .. ": " .. TB_MENU_PLAYER_INFO.clan.tag .. ((TB_MENU_PLAYER_INFO.clan.name ~= '') and ("  |  " .. TB_MENU_PLAYER_INFO.clan.name) or ''), nil, nil, 4, 0, 0.6)
 					end
 					tbMenuUserBeltIcon:updateImage(TB_MENU_PLAYER_INFO.data.belt.icon)
 					tbMenuUserQi:addAdaptedText(true, TB_MENU_PLAYER_INFO.data.belt.name .. " belt", nil, nil, 2, nil, nil, nil, nil, 1)
@@ -2073,8 +2082,8 @@ do
 		local navX = { l = { 30 } , r = { -30 } }
 		tbMenuNavigationBar = tbMenuNavigationBar or UIElement:new({
 			parent = tbMenuMain,
-			pos = { 50, 130 },
-			size = { WIN_W - 100, navHeight },
+			pos = { 50 * TB_MENU_GLOBAL_SCALE, 130 * TB_MENU_GLOBAL_SCALE },
+			size = { WIN_W - 100 * TB_MENU_GLOBAL_SCALE, navHeight },
 			bgColor = { 0, 0, 0, 0.9 },
 			shapeType = ROUNDED,
 			rounded = 10
@@ -2261,11 +2270,11 @@ do
 	end
 
 	function TBMenu:showBottomBar(leftOnly)
-		local buttonSize = math.min(WIN_W / 25, 50)
+		local buttonSize = 50 * TB_MENU_GLOBAL_SCALE
 		tbMenuBottomLeftBar = tbMenuBottomLeftBar or UIElement:new( {
 			parent = tbMenuMain,
-			pos = { 45, -buttonSize / 5 * 7 },
-			size = { 110, buttonSize }
+			pos = { 45 * TB_MENU_GLOBAL_SCALE, -buttonSize / 5 * 7 },
+			size = { 110 * TB_MENU_GLOBAL_SCALE, buttonSize }
 		})
 		local shopCheckExit = function()
 			if (STORE_VANILLA_PREVIEW) then
@@ -2318,8 +2327,8 @@ do
 
 		tbMenuBottomRightBar = tbMenuBottomRightBar or UIElement:new({
 			parent = tbMenuMain,
-			pos = { -145, -buttonSize / 5 * 7 },
-			size = { 110, buttonSize }
+			pos = { -145 * TB_MENU_GLOBAL_SCALE, -buttonSize / 5 * 7 },
+			size = { 110 * TB_MENU_GLOBAL_SCALE, buttonSize }
 		})
 		local tbMenuBottomRightButtonsData = {
 			{ action = function() open_menu(4) end, image = TB_MENU_QUIT_BUTTON, imageHover = TB_MENU_QUIT_BUTTON_HOVER, imagePress = TB_MENU_QUIT_BUTTON_PRESS },
@@ -2373,20 +2382,18 @@ do
 		tbMenuCurrentSection.child = {}
 		local rad = math.pi / 3
 		currentSectionMover:addCustomDisplay(true, function()
-				if (-currentSectionMover.pos.x >= currentSectionMover.size.w * 1.2) then
+				if (-currentSectionMover.pos.x >= currentSectionMover.size.w) then
 					currentSectionMover:kill()
 				end
 				currentSectionMover:moveTo(-WIN_W / 10 * math.sin(rad) * speedMod, nil, true)
-				rad = rad + math.pi / 50
 			end)
 			
 		tbMenuCurrentSection:moveTo(WIN_W)
-		local rad2 = math.pi / 3
 		tbMenuCurrentSection:addCustomDisplay(true, function()
-				tbMenuCurrentSection:moveTo(-WIN_W / 10 * math.sin(rad2) * speedMod, nil, true)
+				tbMenuCurrentSection:moveTo(-WIN_W / 10 * math.sin(rad) * speedMod, nil, true)
 				rad2 = rad + math.pi / 50
-				if (tbMenuCurrentSection.shift.x <= 75) then
-					tbMenuCurrentSection:moveTo(75)
+				if (tbMenuCurrentSection.shift.x <= 75 * TB_MENU_GLOBAL_SCALE) then
+					tbMenuCurrentSection:moveTo(75 * TB_MENU_GLOBAL_SCALE)
 					tbMenuCurrentSection:addCustomDisplay(true, function() end)
 				end
 		end)
@@ -2686,6 +2693,12 @@ do
 			scrollScale = 0.1
 		end
 
+		local scrollBackground = UIElement:new({
+			parent = holderElement.parent,
+			pos = { -holderElement.parent.size.w + holderElement.size.w, 0 },
+			size = { holderElement.parent.size.w - holderElement.size.w, holderElement.size.h },
+			bgColor = holderElement.scrollBG and holderElement.scrollBG.bgColor
+		})
 		local scrollView = UIElement:new({
 			parent = holderElement.parent,
 			pos = { -(holderElement.parent.size.w - holderElement.size.w) / 4 * 3, 5 },
@@ -2703,6 +2716,7 @@ do
 			shapeType = ROUNDED,
 			rounded = 10
 		})
+		scrollBar.holder = scrollBackground
 		return scrollBar
 	end
 

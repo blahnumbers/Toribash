@@ -32,7 +32,6 @@ TB_MENU_CLANS_OPENCLANID = TB_MENU_CLANS_OPENCLANID or 0
 TB_MENU_NOTIFICATIONS_ISOPEN = 0
 TB_MENU_NOTIFICATIONS_COUNT = TB_MENU_NOTIFICATIONS_COUNT or 0
 TB_MENU_REPLAYS_ONLINE = TB_MENU_REPLAYS_ONLINE or 0
-TB_MENU_DOWNLOAD_INACTION = TB_MENU_DOWNLOAD_INACTION or false
 TB_MENU_KEYBOARD_ENABLED = false
 TB_LAST_MENU_SCREEN_OPEN = TB_LAST_MENU_SCREEN_OPEN or (get_option("newshopitem") == 1 and 1 or 2)
 TB_MENU_HOME_CURRENT_ANNOUNCEMENT = TB_MENU_HOME_CURRENT_ANNOUNCEMENT or 1
@@ -61,13 +60,9 @@ end
 
 dofile("toriui/uielement3d.lua")
 
--- Set old UI and return
-if (WIN_W < 950 or WIN_H < 600) then
-	echo("Screen resolution needs to be at least 950x600 for modern gui to work")
-	echo("Switching to classic menu")
-	set_option("newmenu", "0")
-	return
-end
+-- We no longer reset to old menu as of 5.52
+-- Just get the scale we want to use and go with it
+TB_MENU_GLOBAL_SCALE = math.min(WIN_H > 720 and 1 or WIN_H / 720, WIN_W > 1280 and 1 or WIN_W / 1280)
 
 dofile("system/menu_defines.lua")
 require("system/menu_manager")
@@ -187,12 +182,6 @@ add_hook("key_down", "tbMenuKeyboardHandler", function(s) UIElement:handleKeyDow
 add_hook("draw2d", "tbMainMenuVisual", function() UIElement:drawVisuals(TB_MENU_MAIN_GLOBALID) end)
 add_hook("draw_viewport", "tbMainMenuVisual", function() UIElement3D:drawViewport(TB_MENU_MAIN_GLOBALID) end)
 
-add_hook("console", "tbMainMenuStatic", function(s, i)
-		if (s == "Download complete" and TB_MENU_DOWNLOAD_INACTION) then
-			TB_MENU_DOWNLOAD_INACTION = false
-			return 1
-		end
-	end)
 add_hook("downloader_complete", "tbMainMenuStatic", function(filename)
 		if (filename:find("custom/.*/item.dat") and not filename:find(TB_MENU_PLAYER_INFO.username)) then
 			-- Most files we'll download will be from custom, sort them out so we don't run checks on them
@@ -204,12 +193,17 @@ add_hook("downloader_complete", "tbMainMenuStatic", function(filename)
 				TB_MENU_PLAYER_INFO.data = PlayerInfo:getUserData()
 				TB_MENU_PLAYER_INFO.items = PlayerInfo:getItems(TB_MENU_PLAYER_INFO.username)
 				TB_MENU_PLAYER_INFO.clan = PlayerInfo:getClan(TB_MENU_PLAYER_INFO.username)
+				TB_MENU_CUSTOMS_REFRESHED = true
 			end)
-			TB_MENU_CUSTOMS_REFRESHED = true
 		elseif (filename:find("data/store.txt")) then
 			Downloader:safeCall(function() TB_STORE_DATA, TB_STORE_SECTIONS = Torishop:getItems() end)
 		elseif (filename:find("data/store_obj.txt")) then
 			Downloader:safeCall(function() TB_STORE_MODELS = Torishop:getModelsData() end)
+		elseif (filename:find("clans/clans.txt")) then
+			Downloader:safeCall(function()
+				TB_MENU_PLAYER_INFO.clan = PlayerInfo:getClan(TB_MENU_PLAYER_INFO.username)
+				TB_MENU_CUSTOMS_REFRESHED = true
+			end)
 		elseif (filename:find("data/quest.txt")) then
 			Downloader:safeCall(function() QUESTS_DATA = Quests:getQuests() end)
 		elseif (filename:find("data/quest_global.dat")) then

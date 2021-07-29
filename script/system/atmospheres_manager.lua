@@ -730,10 +730,28 @@ do
 		})
 		ATMO_MENU_MAIN_ELEMENT = mainView
 		ATMO_MENU_POS = mainView.pos
-		local mainMoverHolder = UIElement:new({
+		
+		local mainList = UIElement:new({
 			parent = mainView,
 			pos = { 0, 0 },
-			size = { mainView.size.w, 30 },
+			size = { mainView.size.w, mainView.size.h },
+			shapeType = mainView.shapeType,
+			rounded = mainView.rounded
+		})
+		local elementHeight = 25
+		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(mainList, 75, 70, 15)
+		
+		topBar.shapeType = mainView.shapeType
+		topBar.rounded = mainView.rounded
+		botBar.shapeType = mainView.shapeType
+		botBar.rounded = mainView.rounded
+		
+		local search = TBMenu:spawnTextField(botBar, 5, 5, botBar.size.w - 10, botBar.size.h - 45, nil, nil, 1, nil, nil, "Start typing to search...")
+		
+		local mainMoverHolder = UIElement:new({
+			parent = topBar,
+			pos = { 0, 0 },
+			size = { topBar.size.w, 30 },
 			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 			shapeType = mainView.shapeType,
 			rounded = mainView.rounded
@@ -767,19 +785,19 @@ do
 			end)
 		
 		local shaderEditorHolder = UIElement:new({
-			parent = mainView,
-			pos = { 0, -55 },
-			size = { mainView.size.w, 55 },
+			parent = botBar,
+			pos = { 0, -35 },
+			size = { mainView.size.w, 35 },
 			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 			shapeType = ROUNDED,
 			rounded = 4
 		})
 		local shaderEditorButton = UIElement:new({
 			parent = shaderEditorHolder,
-			pos = { 5, 10 },
-			size = { shaderEditorHolder.size.w - 10, shaderEditorHolder.size.h - 15 },
-			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
-			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			pos = { 5, 0 },
+			size = { shaderEditorHolder.size.w - 10, shaderEditorHolder.size.h - 5 },
+			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			hoverColor = TB_MENU_DEFAULT_BG_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
 			interactive = true,
 			shapeType = ROUNDED,
@@ -792,28 +810,27 @@ do
 				ATMO_MENU_MAIN_ELEMENT = nil
 				Atmospheres:showShaderControls()
 			end)
-			
-		local mainList = UIElement:new({
-			parent = mainView,
-			pos = { 0, mainMoverHolder.size.h },
-			size = { mainView.size.w, mainView.size.h - mainMoverHolder.size.h - shaderEditorHolder.size.h + 5 }
-		})
-		local elementHeight = 25
-		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(mainList, 50, 35, 15)
-		
-		local search = TBMenu:spawnTextField(botBar, 5, 5, botBar.size.w - 10, botBar.size.h - 10, nil, nil, 1, nil, nil, "Start typing to search...")
 		
 		local mainList = {
 			{ text = TB_MENU_LOCALIZED.SHADERSATMOSNAME, action = function(searchText, noreload) if (not noreload) then ATMO_LIST_SHIFT[1] = 0 end ATMO_SELECTED_SCREEN = 1 Atmospheres:spawnMainList(listingHolder, toReload, elementHeight, "data/atmospheres", "atmo", function(file) Atmospheres:loadAtmo(file) Atmospheres:setDefaultAtmo(file) end, search) end },
 			{ text = TB_MENU_LOCALIZED.SHADERSNAME, action = function(searchText, noreload) if (not noreload) then ATMO_LIST_SHIFT[1] = 0 end ATMO_SELECTED_SCREEN = 2 Atmospheres:spawnMainList(listingHolder, toReload, elementHeight, "data/shader", "inc", function(file) DEFAULT_SHADER = file UIElement:runCmd("lws " .. file) end, search) end }
 		}
 		mainList[ATMO_SELECTED_SCREEN].action(nil, true)
-		local dropdownView = UIElement:new({
+		local dropdownBackground = UIElement:new({
 			parent = topBar,
-			pos = { 5, 5 },
-			size = { topBar.size.w - 10, topBar.size.h - 10 },
+			pos = { 5, 35 },
+			size = { topBar.size.w - 10, topBar.size.h - 40 },
+			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			shapeType = ROUNDED,
-			rounded = 5
+			rounded = 3
+		})
+		local dropdownView = UIElement:new({
+			parent = dropdownBackground,
+			pos = { 1, 1 },
+			size = { dropdownBackground.size.w - 2, dropdownBackground.size.h - 2 },
+			bgColor = TB_MENU_DEFAULT_BG_COLOR,
+			shapeType = dropdownBackground.shapeType,
+			rounded = dropdownBackground.rounded
 		})
 		TBMenu:spawnDropdown(dropdownView, mainList, 40, WIN_H - 100, mainList[ATMO_SELECTED_SCREEN], 0.6, FONTS.BIG, 0.8, FONTS.MEDIUM)
 		

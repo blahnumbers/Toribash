@@ -742,7 +742,7 @@ do
 					TBMenu:showDataError(TB_MENU_LOCALIZED.BOUNTYERRORNOUSER)
 					return
 				end
-				if (tonumber(bountyAddData.amount[1]) < 100) then
+				if (tonumber(bountyAddData.amount[1]) == nil or tonumber(bountyAddData.amount[1]) < 100) then
 					TBMenu:showDataError(TB_MENU_LOCALIZED.BOUNTYERRORAMOUNT)
 					return
 				end
@@ -809,7 +809,6 @@ do
 								overlay:kill()
 								if (reload) then
 									update_tc_balance()
-									TB_MENU_DOWNLOAD_INACTION = true
 									TB_MENU_PLAYER_INFO.data.tc = TB_MENU_PLAYER_INFO.data.tc - bountyAddData.amount[1]
 									TBMenu:showUserBar()
 									Bounty:prepare(true)

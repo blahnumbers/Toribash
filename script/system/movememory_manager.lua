@@ -625,7 +625,7 @@ do
 		local worldstate = get_world_state()
 		local player = player or worldstate.selected_player
 		if (player < 0) then
-			TBMenu:showDataError("Please select a player to run the opener")
+			TBMenu:showDataError("Please select a player to run the opener", true)
 			return false
 		end
 

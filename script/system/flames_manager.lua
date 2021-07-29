@@ -801,10 +801,17 @@ do
 			parent = mainView,
 			pos = { 0, 0 },
 			size = { mainView.size.w, mainView.size.h},
-			bgColor = TB_MENU_DEFAULT_BG_COLOR
+			bgColor = TB_MENU_DEFAULT_BG_COLOR,
+			shapeType = mainView.shapeType,
+			rounded = mainView.rounded
 		})
 		local elementHeight = 40
 		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(mainList, 80, 80, 15, TB_MENU_DEFAULT_BG_COLOR)
+		
+		topBar.shapeType = mainView.shapeType
+		topBar.rounded = mainView.rounded
+		botBar.shapeType = mainView.shapeType
+		botBar.rounded = mainView.rounded
 		
 		local mainMoverHolder = UIElement:new({
 			parent = topBar,
@@ -1028,7 +1035,6 @@ do
 											Flames:quit()
 											Torishop:spawnInventoryUpdateWaiter(TB_MENU_HUB_GLOBALID)
 											update_tc_balance()
-											TB_MENU_DOWNLOAD_INACTION = true
 											show_dialog_box(INVENTORY_ACTIVATE, TB_MENU_LOCALIZED.STOREDIALOGACTIVATE1 .. " " .. name  .. (TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 .. "?"), invid)
 										end)
 								end, function()

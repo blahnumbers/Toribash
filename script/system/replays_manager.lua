@@ -153,7 +153,8 @@ do
 		replayUpdateWindow.replayfolders = replayUpdateWindow.replayfolders or {}
 		replayUpdateWindow:addCustomDisplay(true, function()
 				if (not replayUpdateWindow.customDisplayTrue) then
-					replayUpdateWindow:uiText(TB_MENU_LOCALIZED.REPLAYSUPDATINGCACHE .. " (" .. folder .. " folder)\n" .. math.ceil(count / #files * 100) .. "% " .. TB_MENU_LOCALIZED.WORDDONE, nil, nil, nil, nil, 0.8)
+					replayUpdateWindow.parent.startTime = os.clock()
+					replayUpdateWindow:uiText(TB_MENU_LOCALIZED.REPLAYSUPDATINGCACHE .. " (" .. folder .. " folder)\n" .. math.min(math.ceil(count / #files * 100), 100) .. "% " .. TB_MENU_LOCALIZED.WORDDONE, nil, nil, nil, nil, 0.8)
 				end
 
 				while (1) do
@@ -252,6 +253,7 @@ do
 							SELECTED_FOLDER = TB_MENU_REPLAYS
 						end
 						TB_MENU_REPLAYS_LOADED = true
+						replayUpdateWindow.parent:kill()
 					end
 				end
 				frame = frame + 1
@@ -391,12 +393,7 @@ do
 				uploaded = tonumber(data_stream[9])
 			}
 		end
-		replayUpdateWindow = UIElement:new({
-			parent = parentElement,
-			pos = { parentElement.size.w / 3, -100 },
-			size = { parentElement.size.w / 3, 100 },
-			bgColor = { 0, 0, 0, 0.6 }
-		})
+		replayUpdateWindow = TBMenu:showDataError("")
 		Replays:fetchReplayData(nil, nil, file, filedata, includeEventTemp)
 	end
 
@@ -1569,7 +1566,7 @@ do
 		saveButton:addMouseHandlers(nil, spawnNewFolder)
 	end
 
-	function Replays:showUploadWindow(replayInfoView, replay)
+	function Replays:showUploadWindow(replay)
 		local uploadOverlay = TBMenu:spawnWindowOverlay()
 		local uploadView = UIElement:new({
 			parent = uploadOverlay,
@@ -1761,7 +1758,7 @@ do
 						end
 					end, function()
 						overlay:kill()
-						TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.REPLAYUPLOADFAILED, function() showUploadWindow(viewElement, reqTable) end, function() CURRENT_STEP.fallbackrequirement = false reqTable.ready = true end)
+						TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.REPLAYUPLOADFAILED, function() uploadOverlay:kill() Replays:showUploadWindow(replay) end, function() uploadOverlay:kill() end)
 					end)
 			end)
 	end
@@ -2261,7 +2258,7 @@ do
 			})
 			replayUploadButton:addAdaptedText(false, TB_MENU_LOCALIZED.BUTTONUPLOAD)
 			replayUploadButton:addMouseHandlers(nil, function()
-					Replays:showUploadWindow(viewElement, replay)
+					Replays:showUploadWindow(replay)
 				end)
 			posY = replayUploadButton.shift.y
 		end

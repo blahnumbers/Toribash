@@ -333,6 +333,9 @@ do
 		listHolder.shift.y = listHolder.shift.y == 0 and -listHolder.size.h or listHolder.shift.y
 		self.pressedPos = { x = 0, y = 0 }
 		
+		self.listReload = function() toReload:reload() end
+		self.scrollReload = function() if (self.holder) then self.holder:reload() end self:reload() end
+		
 		self:barScroll(listElements, listHolder, toReload, posShift[1], enabled)
 		
 		self:addMouseHandlers(
@@ -355,7 +358,9 @@ do
 					UIScrollbarIgnore = true
 				end
 				return scrollSuccessful
-			end, nil,
+			end, function()
+				self.scrollReload()
+			end,
 			function(x, y)
 				if (self.hoverState == BTN_DN) then
 					local posY = self:getLocalPos(x,y).y - self.pressedPos.y + self.shift.y
@@ -363,8 +368,6 @@ do
 					posShift[1] = self.shift.y
 				end
 			end)
-			
-		self.listReload = function() toReload:reload() end
 		
 		if (not self.isScrollBar) then
 			self.isScrollBar = true
@@ -387,6 +390,7 @@ do
 			self:moveTo(self.shift.x, (self.parent.size.h - self.size.h) * scrollProgress)
 		end
 		listHolder.parent:reloadListElements(listHolder, listElements, toReload, enabled)
+		self.scrollReload()
 	end
 
 	function UIElement:barScroll(listElements, listHolder, toReload, posY, enabled)

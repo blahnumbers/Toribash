@@ -461,6 +461,7 @@ do
 	
 	function Clans:showClanListFilters(viewElement, opt)
 		viewElement:kill(true)
+		TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
 		local options = {}
 		if (opt) then
 			options = opt
@@ -729,6 +730,7 @@ do
 	
 	function Clans:showClanList(viewElement, options)
 		viewElement:kill(true)
+		TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
 		if (CLANSEARCHFILTERS and type(CLANSEARCHFILTERS.desc) ~= "boolean") then
 			CLANSEARCHFILTERS.isactive = CLANSEARCHFILTERS.isactive - 1
 			CLANSEARCHFILTERS.desc = CLANSEARCHFILTERS.desc % 2 == 0 and true or false
@@ -1124,7 +1126,6 @@ do
 			if (id < #avatars) then
 				id = id + 1
 				download_head(avatars[id].player)
-				TB_MENU_DOWNLOAD_INACTION = true
 				reloader:addCustomDisplay(false, function() Clans:downloadHead(reloader, avatars, id) end)
 			else 
 				reloader:kill()
@@ -1143,7 +1144,6 @@ do
 			if (avatars[1].player) then
 				download_head(avatars[1].player)
 			end
-			TB_MENU_DOWNLOAD_INACTION = true
 			local reloader = UIElement:new({
 				parent = tbMenuCurrentSection,
 				pos = { 0, 0 },
@@ -1398,7 +1398,6 @@ do
 		end
 		
 		download_clan_logo(clanid)
-		TB_MENU_DOWNLOAD_INACTION = true
 		local rotation = 0
 		local scale = 0
 		local transparency = { 0.8 }

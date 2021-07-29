@@ -96,7 +96,8 @@ do
 					--{ value = 3, title = "Three Players" },
 					--{ value = 4, title = "Four Players" }
 				},
-				readonly = get_world_state().game_type == 1
+				readonly = get_world_state().game_type == 1,
+				triggerUpdate = true
 			},
 			{ name = "matchframes", title = "Match Frames", type = GAMERULE_INT },
 			{ name = "turnframes", title = "Turn Frames", type = GAMERULE_STRING },
@@ -244,6 +245,19 @@ do
 			local grValue = get_gamerule(v.name)
 			if (v.name == "mod") then
 				grValue = grValue:find("%.tbm$") and grValue or (grValue .. ".tbm")
+				if (grValue:find("%w:")) then
+					-- Mod is loaded from disk, escape
+					local cnt = 0
+					grValue, cnt = grValue:gsub("^.*(data/mod)%/", '')
+					if (cnt == 0) then
+						grValue = grValue:gsub("^.*%/", '')
+					end
+					cnt = 0
+					grValue, cnt = grValue:gsub("^.*(data\\mod)%\\", '')
+					if (cnt == 0) then
+						grValue = grValue:gsub("^.*%\\", '')
+					end
+				end
 			end
 			gameRule:setValue(grValue)
 			v.section = v.section or GAMERULES_SECTION_DEFAULT
@@ -397,10 +411,12 @@ do
 						end
 					end
 				})
-				if (changedValues[v.name] and changedValues[v.name].value == k.value) then
-					selectedDropdown = v.dropdown[num]
-				elseif (k.value == tonumber(v.value)) then
-					selectedDropdown = v.dropdown[num]
+				if (not selectedDropdown) then
+					if (changedValues[v.name] and changedValues[v.name].value == k.value) then
+						selectedDropdown = v.dropdown[num]
+					elseif (k.value == tonumber(v.value)) then
+						selectedDropdown = v.dropdown[num]
+					end
 				end
 			end
 			if (not selectedDropdown) then
@@ -536,37 +552,40 @@ do
 					counter = counter + 1
 				end
 				
-				local grValueHolderNewlineHolder2 = UIElement:new({
-					parent = listingHolder,
-					pos = { 0, #listElements * elementHeight },
-					size = { listingHolder.size.w, elementHeight },
-					bgColor = TB_MENU_DEFAULT_BG_COLOR
-				})
-				table.insert(listElements, grValueHolderNewlineHolder2)
-				local grValueHolderNewline2 = UIElement:new({
-					parent = grValueHolderNewlineHolder2,
-					pos = { 6, 0 },
-					size = { grValueHolderNewlineHolder2.size.w - 9, grValueHolderNewlineHolder2.size.h - 2 },
-					bgColor = TB_MENU_DEFAULT_DARKER_COLOR
-				})
-				local grValueTitle2 = UIElement:new({
-					parent = grValueHolderNewline2,
-					pos = { 10, 0 },
-					size = { grValueHolderNewline2.size.w / 5, grValueHolderNewline2.size.h }
-				})
-				grValueTitle2:addAdaptedText(true, 'Uke', nil, nil, nil, LEFTMID, 0.8)
-				local grValueInputsHolder2 = UIElement:new({
-					parent = grValueHolderNewline2,
-					pos = { grValueTitle2.shift.x + grValueTitle2.size.w + 5, 0 },
-					size = { grValueHolderNewline2.size.w - grValueTitle2.shift.x - grValueTitle2.size.w - 15, grValueHolderNewline2.size.h },
-					shapeType = ROUNDED,
-					rounded = 3
-				})
-				counter = 0
-				for j,k in pairs(v.value[2]) do
-					local grInput = TBMenu:spawnTextField(grValueInputsHolder2, (grValueInputsHolder2.size.w / 3 + 2.5) * counter, 2, grValueInputsHolder2.size.w / 3 - 5, grValueInputsHolder2.size.h - 4, k.value, { isNumeric = true, allowDecimal = true, allowNegative = true }, 4, 0.7, UICOLORWHITE, k.title, CENTERMID, nil, nil, true)
-					table.insert(engageInputs, grInput)
-					counter = counter + 1
+				local num_players = changedValues["numplayers"] and changedValues["numplayers"].gameValue or get_gamerule("numplayers")
+				if (tonumber(num_players) > 1) then
+					local grValueHolderNewlineHolder2 = UIElement:new({
+						parent = listingHolder,
+						pos = { 0, #listElements * elementHeight },
+						size = { listingHolder.size.w, elementHeight },
+						bgColor = TB_MENU_DEFAULT_BG_COLOR
+					})
+					table.insert(listElements, grValueHolderNewlineHolder2)
+					local grValueHolderNewline2 = UIElement:new({
+						parent = grValueHolderNewlineHolder2,
+						pos = { 6, 0 },
+						size = { grValueHolderNewlineHolder2.size.w - 9, grValueHolderNewlineHolder2.size.h - 2 },
+						bgColor = TB_MENU_DEFAULT_DARKER_COLOR
+					})
+					local grValueTitle2 = UIElement:new({
+						parent = grValueHolderNewline2,
+						pos = { 10, 0 },
+						size = { grValueHolderNewline2.size.w / 5, grValueHolderNewline2.size.h }
+					})
+					grValueTitle2:addAdaptedText(true, 'Uke', nil, nil, nil, LEFTMID, 0.8)
+					local grValueInputsHolder2 = UIElement:new({
+						parent = grValueHolderNewline2,
+						pos = { grValueTitle2.shift.x + grValueTitle2.size.w + 5, 0 },
+						size = { grValueHolderNewline2.size.w - grValueTitle2.shift.x - grValueTitle2.size.w - 15, grValueHolderNewline2.size.h },
+						shapeType = ROUNDED,
+						rounded = 3
+					})
+					counter = 0
+					for j,k in pairs(v.value[2]) do
+						local grInput = TBMenu:spawnTextField(grValueInputsHolder2, (grValueInputsHolder2.size.w / 3 + 2.5) * counter, 2, grValueInputsHolder2.size.w / 3 - 5, grValueInputsHolder2.size.h - 4, k.value, { isNumeric = true, allowDecimal = true, allowNegative = true }, 4, 0.7, UICOLORWHITE, k.title, CENTERMID, nil, nil, true)
+						table.insert(engageInputs, grInput)
+						counter = counter + 1
+					end
 				end
 				
 				for j,grInput in pairs(engageInputs) do
@@ -709,11 +728,19 @@ do
 		local mainList = UIElement:new({
 			parent = mainView,
 			pos = { 0, 0 },
-			size = { mainView.size.w, mainView.size.h},
-			bgColor = TB_MENU_DEFAULT_BG_COLOR
+			size = { mainView.size.w, mainView.size.h },
+			bgColor = TB_MENU_DEFAULT_BG_COLOR,
+			shapeType = mainView.shapeType,
+			rounded = mainView.rounded
 		})
+		
 		local elementHeight = 36
 		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(mainList, 80, 70, 15, TB_MENU_DEFAULT_BG_COLOR)
+		
+		topBar.shapeType = mainView.shapeType
+		topBar.rounded = mainView.rounded
+		botBar.shapeType = mainView.shapeType
+		botBar.rounded = mainView.rounded
 		
 		local mainMoverHolder = UIElement:new({
 			parent = topBar,

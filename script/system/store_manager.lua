@@ -728,7 +728,7 @@ do
 					end)
 			end
 			buttonYPos = buttonYPos - buttonHeight * 1.2
-		elseif (#item.contents > 0) then
+		elseif (item.contents and #item.contents > 0) then
 			local viewSet = UIElement:new({
 				parent = inventoryItemView,
 				pos = { 10, buttonYPos },
@@ -741,7 +741,8 @@ do
 			viewSet:addAdaptedText(nil, TB_MENU_LOCALIZED.STOREVIEWSETITEMS)
 			viewSet:addMouseHandlers(nil, function()
 					INVENTORY_LIST_SHIFT[1] = 0
-					Torishop:showInventoryPage(item.contents, nil, mode, TB_MENU_LOCALIZED.STOREITEMSINSET .. ": " .. item.setname, "invid" .. item.inventid, nil, true)
+					TB_ITEM_DETAILS = nil
+					Torishop:showInventoryPage(item.contents, nil, nil, TB_MENU_LOCALIZED.STOREITEMSINSET .. ": " .. item.setname, "invid" .. item.inventid, nil, true)
 				end, nil)
 			buttonYPos = buttonYPos - buttonHeight * 1.2
 		end
@@ -860,7 +861,7 @@ do
 			pos = { 50, 10 },
 			size = { customizeHolder.size.w - 100, 40 }
 		})
-		customizeTitle:addAdaptedText(true, "Customizing " .. item.name, nil, nil, FONTS.BIG)
+		customizeTitle:addAdaptedText(true, TB_MENU_LOCALIZED.INVENTORYCUSTOMIZING .. " " .. item.name, nil, nil, FONTS.BIG)
 		local closeButton = UIElement:new({
 			parent = customizeHolder,
 			pos = { -40, 10 },
@@ -1098,7 +1099,6 @@ do
 						Torishop:spawnInventoryUpdateWaiter(nil, function()
 								overlay:kill()
 								update_tc_balance()
-								TB_MENU_DOWNLOAD_INACTION = true
 							end)
 						show_dialog_box(INVENTORY_UPGRADE, TB_MENU_LOCALIZED.STOREDIALOGCHANGELEVEL1 .. " " .. targetLevel .. " " .. TB_MENU_LOCALIZED.STOREDIALOGCHANGELEVEL2 .. " " .. item.name .. "?", item.inventid .. ";0;" .. targetLevel)
 					end)
@@ -1129,7 +1129,6 @@ do
 						Torishop:spawnInventoryUpdateWaiter(nil, function()
 								overlay:kill()
 								update_tc_balance()
-								TB_MENU_DOWNLOAD_INACTION = true
 							end)
 						show_dialog_box(INVENTORY_UPGRADE, TB_MENU_LOCALIZED.STOREDIALOGUPGRADE1 .. "\n" .. item.name .. " ".. TB_MENU_LOCALIZED.STOREDIALOGUPGRADE2 .. " " .. (item.upgrade_level + 1) .. "?", item.inventid .. ";" .. item.upgrade_price .. ";0")
 					end)
@@ -1279,7 +1278,6 @@ do
 											requestInProgress:kill()
 											customizeItemEffect()
 											update_tc_balance()
-											TB_MENU_DOWNLOAD_INACTION = true
 										end
 									end)
 							end)
@@ -2052,7 +2050,8 @@ do
 						local clock = os.clock()
 						if (invItemHolder.lastClick + 0.5 > clock) then
 							INVENTORY_LIST_SHIFT[1] = 0
-							Torishop:showInventoryPage(inventoryItems[i].contents, nil, mode, TB_MENU_LOCALIZED.STOREITEMSINSET .. ": " .. inventoryItems[i].setname, "invid" .. inventoryItems[i].inventid, nil, true)
+							TB_ITEM_DETAILS = nil
+							Torishop:showInventoryPage(inventoryItems[i].contents, nil, nil, TB_MENU_LOCALIZED.STOREITEMSINSET .. ": " .. inventoryItems[i].setname, "invid" .. inventoryItems[i].inventid, nil, true)
 						end
 						invItemHolder.lastClick = clock
 					end
@@ -2399,7 +2398,6 @@ do
 		if (reload or not TB_INVENTORY_LOADED) then
 			download_inventory()
 			TB_INVENTORY_LOADED = true
-			TB_MENU_DOWNLOAD_INACTION = true
 			add_hook("downloader_complete", "torishop_inventory_download", function(name)
 					if (name:find("^.*/torishop/invent%.txt$")) then
 						remove_hooks("torishop_inventory_download")
@@ -4834,7 +4832,6 @@ do
 							local itemid = response:gsub("^ITEMID 0;", "")
 							local item = Torishop:getItemInfo(itemid)
 							update_tc_balance()
-							TB_MENU_DOWNLOAD_INACTION = true
 							if (#item.contents > 0) then
 								Torishop:spawnInventoryUpdateWaiter()
 								show_dialog_box(INVENTORY_UNPACK, TB_MENU_LOCALIZED.STOREPURCHASECONGRATULATIONSRECEIVED .. " " .. item.itemname .. "!\n" .. TB_MENU_LOCALIZED.STOREDIALOGUNPACK1 .. " " .. item.itemname .. (TB_MENU_LOCALIZED.STOREDIALOGUNPACK2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGUNPACK2 .. "?") .. "\n" .. TB_MENU_LOCALIZED.STOREDIALOGUNPACKINFO, invid)
@@ -4857,7 +4854,6 @@ do
 				return
 			end
 			update_tc_balance()
-			TB_MENU_DOWNLOAD_INACTION = true
 			if (#item.contents > 0) then
 				Torishop:spawnInventoryUpdateWaiter()
 				show_dialog_box(INVENTORY_UNPACK, TB_MENU_LOCALIZED.STOREPURCHASECONGRATULATIONS .. "\n" .. TB_MENU_LOCALIZED.STOREPURCHASEWOULDYOULIKETOUNPACK1 .. " " .. item.itemname .. (TB_MENU_LOCALIZED.STOREPURCHASEWOULDYOULIKETOUNPACK2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREPURCHASEWOULDYOULIKETOUNPACK2 .. "?") .. "\n" .. TB_MENU_LOCALIZED.STOREDIALOGUNPACKINFO, invid)
@@ -6038,7 +6034,7 @@ do
 				pos = { 10, 0 },
 				size = { section.size.w - 20, section.size.h }
 			})
-			sectionText:addAdaptedText(true, TB_STORE_SECTIONS[v] and TB_STORE_SECTIONS[v].name or TB_MENU_LOCALIZED.UNDEF, nil, nil, nil, LEFTMID)
+			sectionText:addAdaptedText(true, (TB_STORE_SECTIONS and TB_STORE_SECTIONS[v]) and TB_STORE_SECTIONS[v].name or TB_MENU_LOCALIZED.UNDEF, nil, nil, nil, LEFTMID)
 			section:addMouseHandlers(nil, function()
 					selectedSection.bgColor = TB_MENU_DEFAULT_BG_COLOR
 					selectedSection = section

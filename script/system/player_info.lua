@@ -577,7 +577,7 @@ do
 						value = (localized.ACCOUNTSUSPENDED or "Suspended") .. " (" .. ln:gsub("^BANNED 0; ?", "") .. ")",
 						customColor = UICOLORRED,
 						hint = localized.ACCOUNTSUSPENDEDINFO or "Your account has been suspended by Toribash moderators. You can appeal your ban on forums.",
-						action = function() open_url("http://forum.toribash.com/forumdisplay.php?f=594") end
+						action = function() open_url("https://forum.toribash.com/forumdisplay.php?f=594") end
 					})
 				elseif (ln:find("^GREYLIST 0;")) then
 					table.insert(userinfo, {
@@ -587,7 +587,7 @@ do
 						customHoverColor = TB_MENU_DEFAULT_DARKER_ORANGE,
 						customUiColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 						hint = localized.ACCOUNTGREYLISTEDINFO or "Your account has limited trading capabilities. You can wait your greylist period out or contact an administrator to lift it earlier.",
-						action = function() open_url("http://discord.gg/toribash") end
+						action = function() open_url("https://www.toribash.com/discord.php") end
 					})
 				elseif (ln:find("^EMAILERR 0;")) then
 					table.insert(userinfo, {
@@ -597,7 +597,7 @@ do
 						customHoverColor = TB_MENU_DEFAULT_DARKER_ORANGE,
 						customUiColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 						hint = localized.ACCOUNTEMAILERRORINFO or "Your account's capabilities will be limited until you connect an email to your account and confirm it.",
-						action = function() open_url("http://forum.toribash.com/profile.php?do=editpassword") end
+						action = function() open_url("https://forum.toribash.com/profile.php?do=editpassword") end
 					})
 				elseif (ln:find("^EMAILERR 1;")) then
 					table.insert(userinfo, {
@@ -607,7 +607,7 @@ do
 						customHoverColor = TB_MENU_DEFAULT_DARKER_ORANGE,
 						customUiColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 						hint = localized.ACCOUNTEMAILERRORINFO or "Your account's capabilities will be limited until you connect an email to your account and confirm it.",
-						action = function() open_url("http://forum.toribash.com/profile.php?do=editpassword") end
+						action = function() open_url("https://forum.toribash.com/profile.php?do=editpassword") end
 					})
 				elseif (ln:find("^SUBSCRIPTION %d+;")) then
 					local subInfo = ln:gsub("^SUBSCRIPTION %d+; ?", "")
