@@ -601,7 +601,10 @@ do
 							if (not changedValues[v.name]) then
 								changedValues[v.name] = Gamerule:new(v)
 							end
-							local engage = engageInputs[1].textfieldstr[1] .. "," .. engageInputs[2].textfieldstr[1] .. "," .. engageInputs[3].textfieldstr[1] .. "," .. engageInputs[4].textfieldstr[1] .. "," .. engageInputs[5].textfieldstr[1] .. "," .. engageInputs[6].textfieldstr[1]
+							local engage = ''
+							for k,input in pairs(engageInputs) do
+								engage = engage .. (engage == '' and '' or ",") .. input.textfieldstr[1]
+							end
 							changedValues[v.name]:setValue(engage)
 						end)
 					grInput.name = v.name .. j
