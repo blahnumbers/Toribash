@@ -507,7 +507,10 @@ do
 
 	-- Clears navigation bar and current section element for side modules
 	function TBMenu:clearNavSection()
-		tbMenuNavigationBar:kill(true)
+		if (tbMenuNavigationBar) then
+			tbMenuNavigationBar:kill(true)
+			tbMenuNavigationBar = nil
+		end
 		if (not tbMenuCurrentSection) then
 			TBMenu:createCurrentSectionView()
 		else
