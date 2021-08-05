@@ -175,7 +175,7 @@ do
 						rounded = titleDisplay.rounded
 					})
 					local helpPopup = TBMenu:displayHelpPopup(helpPopupHolder, v.desc, nil, true)
-					helpPopup:moveTo(-titleDisplay.size.w + (titleDisplay.size.w - helpPopup.size.w) / 2)
+					helpPopup:moveTo(math.min(-titleDisplay.size.w + (titleDisplay.size.w - helpPopup.size.w) / 2, helpPopup.shift.x))
 					helpPopup:moveTo(nil, 25, true)
 				end
 				titleShift.x = titleShift.x + titleDisplay.size.w + 5
@@ -817,8 +817,8 @@ do
 			})
 			local globalControlsHolder = UIElement:new({
 				parent = globalControls,
-				pos = { 2, 0 },
-				size = { viewElement.size.w - 4, buttonH },
+				pos = { 0, 0 },
+				size = { viewElement.size.w, buttonH },
 				bgColor = TB_MENU_DEFAULT_BG_COLOR
 			})
 			TBMenu:spawnDropdown(globalControlsHolder, gButtons, buttonH, nil, nil, 0.6, nil, 0.6)
