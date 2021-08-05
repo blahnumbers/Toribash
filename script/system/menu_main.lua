@@ -65,6 +65,7 @@ dofile("toriui/uielement3d.lua")
 TB_MENU_GLOBAL_SCALE = math.min(WIN_H > 720 and 1 or WIN_H / 720, WIN_W > 1280 and 1 or WIN_W / 1280)
 
 dofile("system/menu_defines.lua")
+require("system/iofiles")
 require("system/menu_manager")
 TBMenu:getTranslation(get_language())
 TBMenu:create()

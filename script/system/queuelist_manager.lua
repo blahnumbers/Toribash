@@ -129,6 +129,71 @@ do
 			-- Reload to ensure clan button is above head viewport holder
 			clanHolder:reload()
 		end
+		
+		local infoFields = {
+			{ title = "legend", color = "BB9600", text = TB_MENU_LOCALIZED.QUEUELISTLEGENDTITLE, desc = TB_MENU_LOCALIZED.QUEUELISTLEGENDDESC },
+			{ title = "muted", color = "808080", text = TB_MENU_LOCALIZED.QUEUELISTMUTEDTITLE, desc = TB_MENU_LOCALIZED.QUEUELISTMUTEDDESC },
+			{ title = "helsquad", color = "FA7E1A", text = TB_MENU_LOCALIZED.QUEUELISTTORIAGENTTITLE, desc = TB_MENU_LOCALIZED.QUEUELISTTORIAGENTDESC },
+			{ title = "marketsquad", color = "3FA741", text = TB_MENU_LOCALIZED.QUEUELISTMARKETSQUADTITLE, desc = TB_MENU_LOCALIZED.QUEUELISTMARKETSQUADDESC },
+			{ title = "eventsquad", color = "690069", text = TB_MENU_LOCALIZED.QUEUELISTEVENTSQUADTITLE, desc = TB_MENU_LOCALIZED.QUEUELISTEVENTSQUADDESC },
+			{ title = "admin", color = "FF0000", text = TB_MENU_LOCALIZED.QUEUELISTINGAMEADMINTITLE, desc = TB_MENU_LOCALIZED.QUEUELISTINGAMEADMINDESC },
+			{ title = "operator", color = "00FF00", text = TB_MENU_LOCALIZED.QUEUELISTROOMOPTITLE, desc = TB_MENU_LOCALIZED.QUEUELISTROOMOPDESC }
+		}
+		local titleHolder = UIElement:new({
+			parent = viewElement,
+			pos = { 0, infosH + 5 },
+			size = { viewElement.size.w, 25 }
+		})
+		local titleShift = { x = 15, y = 0 }
+		local displayed = 0
+		for i,v in pairs(infoFields) do
+			if (type(info[v.title]) == "number" and info[v.title] > 0) then
+				local r, g, b = unpack(get_color_from_hex(v.color))
+				local color = { r = r, g = g, b = b }
+				local titleDisplay = UIElement:new({
+					parent = titleHolder,
+					pos = { titleShift.x, titleShift.y },
+					size = { 150, 20 },
+					bgColor = { color.r, color.g, color.b, 1 },
+					shapeType = ROUNDED,
+					rounded = 10,
+					uiColor = (math.max(color.r, color.g, color.b) > 0.95 or (color.r + color.g + color.b > 2)) and UICOLORBLACK or UICOLORWHITE
+				})
+				titleDisplay:addAdaptedText(false, v.text, 10, nil, 4, LEFTMID, 0.6)
+				local titleTextLen = get_string_length(titleDisplay.dispstr[1], titleDisplay.textFont) * titleDisplay.textScale + 20
+				titleDisplay.size.w = titleTextLen
+				if (v.desc) then
+					local helpPopupHolder = UIElement:new({
+						parent = titleDisplay,
+						pos = { 0, 0 },
+						size = { titleDisplay.size.w, titleDisplay.size.h },
+						interactive = true,
+						bgColor = { 0, 0, 0, 0.01 },
+						hoverColor = { 1, 1, 1, 0.2 },
+						uiColor = UICOLORWHITE,
+						shapeType = titleDisplay.shapeType,
+						rounded = titleDisplay.rounded
+					})
+					local helpPopup = TBMenu:displayHelpPopup(helpPopupHolder, v.desc, nil, true)
+					helpPopup:moveTo(-titleDisplay.size.w + (titleDisplay.size.w - helpPopup.size.w) / 2)
+					helpPopup:moveTo(nil, 25, true)
+				end
+				titleShift.x = titleShift.x + titleDisplay.size.w + 5
+				if (titleShift.x > titleHolder.size.w) then
+					titleShift.y = titleShift.y + titleDisplay.size.h + 3
+					titleDisplay:moveTo(15, titleShift.y)
+					titleShift.x = titleDisplay.size.w + 20
+				end
+				displayed = displayed + 1
+			end
+		end
+		if (displayed > 0) then
+			titleHolder.size.h = titleShift.y + 25
+			infosH = infosH + titleHolder.size.h + 5
+		else
+			titleHolder:kill()
+		end
+		
 		return infosH
 	end
 

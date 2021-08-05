@@ -476,7 +476,9 @@ do
 			viewElement:addMouseHandlers(function()
 					overlay.bgColor = cloneTable(viewElement.pressedColor)
 					for i,v in pairs(extraElements) do
-						v.bgColor = cloneTable(viewElement.pressedColor)
+						if (type(v) == "table") then
+							v.bgColor = cloneTable(viewElement.pressedColor)
+						end
 					end
 				end, function()
 					if (buttonData.quit) then
@@ -485,7 +487,9 @@ do
 					buttonData.action()
 					overlay.bgColor = viewElement.animateColor
 					for i,v in pairs(extraElements) do
-						v.bgColor = viewElement.animateColor
+						if (type(v) == "table") then
+							v.bgColor = viewElement.animateColor
+						end
 					end
 				end)
 		else
@@ -509,7 +513,6 @@ do
 	function TBMenu:clearNavSection()
 		if (tbMenuNavigationBar) then
 			tbMenuNavigationBar:kill(true)
-			tbMenuNavigationBar = nil
 		end
 		if (not tbMenuCurrentSection) then
 			TBMenu:createCurrentSectionView()
@@ -1669,7 +1672,9 @@ do
 	-- end
 
 	function TBMenu:openMenu(screenId)
-		tbMenuBottomLeftBar:show()
+		if (tbMenuBottomLeftBar) then
+			tbMenuBottomLeftBar:show()
+		end
 		
 		-- If last used screen was matchmaking, disable search and disconnect from lobby
 		if (TB_MATCHMAKER_SEARCHSTATUS) then
@@ -1864,7 +1869,7 @@ do
 		})
 		if (TB_MENU_PLAYER_INFO.items.objs.head.equipped) then
 			local objScale = TB_MENU_PLAYER_INFO.items.objs.head.dynamic and 2 or 10
-			if (TB_MENU_PLAYER_INFO.items.objs.head.partless) then
+			if (TB_MENU_PLAYER_INFO.items.objs.head.partless and headAvatarHead) then
 				headAvatarHead:kill()
 			end
 			local modelColor = get_color_info(TB_MENU_PLAYER_INFO.items.objs.head.colorid)
@@ -2058,7 +2063,7 @@ do
 		})
 		if (customs.objs.head.equipped) then
 			local objScale = customs.objs.head.dynamic and 2 or 10
-			if (customs.objs.head.partless) then
+			if (customs.objs.head.partless and headAvatarHead) then
 				headAvatarHead:kill()
 			end
 			local modelColor = get_color_info(customs.objs.head.colorid)

@@ -893,3 +893,17 @@ SETTINGSSUBMITUSAGE	Submit usage statistics to Toribash servers
 SETTINGSSUBMITUSAGEDESC	We collect data on general game client usage to better understand what our players like and don't like doing and improve your overall experience.	
 UNDEF	Undefined	
 INVENTORYCUSTOMIZING	Customizing	
+QUEUELISTLEGENDTITLE	Legend	
+QUEUELISTLEGENDDESC	This player is one of the most outstanding users of Toribash community	
+QUEUELISTTORIAGENTTITLE	Tori Agent	
+QUEUELISTTORIAGENTDESC	Tori Agents moderate Toribash rooms, handle general reports and assist players in Support	
+QUEUELISTMARKETSQUADTITLE	Market Squad	
+QUEUELISTMARKETSQUADDESC	Market Squad members manage Toribash Market and deal with market-related scams	
+QUEUELISTINGAMEADMINTITLE	Game Admin	
+QUEUELISTINGAMEADMINDESC	Game administrators manage Toribash rooms, as well as moderate the game and forums	
+QUEUELISTEVENTSQUADTITLE	Event Squad	
+QUEUELISTEVENTSQUADDESC	Event Squad members host events and moderate Toribash rooms	
+QUEUELISTROOMOPTITLE	Room Operator	
+QUEUELISTROOMOPDESC	Room operators can modify room settings, change mods and control players inside	
+QUEUELISTMUTEDTITLE	Muted	
+QUEUELISTMUTEDDESC	This user can't talk :(	

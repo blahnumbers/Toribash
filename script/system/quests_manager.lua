@@ -1,3 +1,5 @@
+require("system/iofiles")
+
 do
 	Quests = {}
 	Quests.__index = Quests

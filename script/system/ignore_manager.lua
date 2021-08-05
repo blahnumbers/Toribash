@@ -32,6 +32,8 @@ do
 		if (msgType >= MESSAGE_ROOM and TB_MENU_CHAT_IGNORE_SETTINGS.wordfilter) then
 			local replaced = false
 			local nameStart, nameEnd = line:find('%b<>')
+			nameStart = nameStart or 0
+			nameEnd = nameEnd or 0
 			for i, word in pairs(ChatIgnore:bannedWords()) do
 				local wStart, wEnd = line:find(word, nameEnd)
 				if (wStart) then

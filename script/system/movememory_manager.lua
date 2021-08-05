@@ -652,9 +652,11 @@ do
 		if (memorymove.movements[turn]) then
 			for joint, state in pairs(memorymove.movements[turn]) do
 				if (joint < 20) then
+					local state = math.min(math.max(state, 1), 4)
 					set_joint_state(player, joint, state)
 				else
 					-- Hand ids are 11 and 12, in data files we use 20 and 21
+					local state = math.min(math.max(state, 0), 1)
 					set_grip_info(player, joint - 9, state)
 				end
 			end

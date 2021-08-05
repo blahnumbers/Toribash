@@ -251,7 +251,10 @@ do
 					end
 				end
 				if (string.find(matchlwr, "%[/url") == 1) then
-					attachments[#attachments].word = string.sub(message, lastPos, sPos - 1)
+					-- Safety check for broken links
+					if (attachments[#attachments] and not attachments[#attachments].word) then
+						attachments[#attachments].word = string.sub(message, lastPos, sPos - 1)
+					end
 				end
 				
 				if (string.find(matchlwr, "%[quote") == 1) then

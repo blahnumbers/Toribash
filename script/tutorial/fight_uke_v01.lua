@@ -672,7 +672,7 @@ function check_victory()
 			unload_tutorial()
 			unload_icons()
 		end
-		refresh_chat_cache()
+		--refresh_chat_cache()
 	end
 	add_hook("new_game", "redirect", redirect)
 end
