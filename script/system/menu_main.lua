@@ -139,9 +139,12 @@ else
 end
 
 local newsRefreshPeriod = get_option("autoupdate") == 1 and 600 or 86400
-if (TB_MENU_NEWS_REFRESH < os.clock() + newsRefreshPeriod) then
+if (TB_MENU_NEWS_REFRESH < os.clock() - newsRefreshPeriod) then
 	-- Refresh news periodically so players can get the events / new promos without restarting client
-	Request:queue(function() download_server_file("news" .. (is_steam() and "light" or ("&ver=" .. TORIBASH_VERSION)), 0) end, "refreshnews")
+	Request:queue(function()
+		download_server_file("news" .. (is_steam() and "light" or ("&ver=" .. TORIBASH_VERSION)), 0)
+		TB_MENU_NEWS_REFRESH = os.clock()
+	end, "refreshnews")
 end
 
 -- Only called on first menu launch

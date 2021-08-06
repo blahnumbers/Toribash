@@ -1,6 +1,7 @@
-dofile("system/quests_manager.lua")
+if (not UIElement or not TB_MENU_LOCALIZED) then return end
+require("system/quests_manager")
 
-local DELAY = 5
+local DELAY = 2.5
 local QUEST_POPUP_CLAIM = false
 
 local inputData = ARG
@@ -29,9 +30,9 @@ local function showPopup(i)
 	if (oldProgress > quest.progress) then
 		DELAY = 0
 	elseif (quest.progress >= quest.requirement) then
-		DELAY = 10
+		DELAY = 8
 	else
-		DELAY = 5
+		DELAY = 2.5
 	end
 	local percentageThreshold = math.floor(oldProgress / quest.requirement * 10)
 	if (math.floor(quest.progress / quest.requirement * 10) == percentageThreshold) then
@@ -152,7 +153,7 @@ local function showPopup(i)
 				trans = trans - 0.025
 				grow = grow + 0.5
 				if (trans < 0) then
-					questIcon:addCustomDisplay(false, function() end)
+					questIcon:addCustomDisplay(false, function() end, true)
 					questProgress:kill()
 					popupClose:kill()
 					questProgressNotificationHolder.interactive = true
@@ -210,7 +211,7 @@ local function showPopup(i)
 							if (quest.progress >= quest.requirement) then
 								showClaim(quest)
 							end
-							questProgress:addCustomDisplay(false, function() end)
+							questProgress:addCustomDisplay(false, function() end, true)
 						end
 					end, true)
 				questProgressNotificationHolder:addCustomDisplay(false, function()

@@ -128,7 +128,7 @@ do
 				elem.keyUp = function(key) elem:textfieldKeyUp(key) end
 				table.insert(UIKeyboardHandler, elem)
 			end
-			if (o.innerShadow) then
+			if (o.innerShadow and o.shadowColor) then
 				elem.shadowColor = {}
 				if (type(o.shadowColor[1]) == "table") then
 					elem.shadowColor = o.shadowColor
@@ -1399,6 +1399,10 @@ do
 	end
 
 	function cloneTable(table)
+		if (type(table) ~= "table") then
+			return nil
+		end
+		
 		local newTable = {}
 		for i,v in pairs(table) do
 			if (type(v) == "table") then

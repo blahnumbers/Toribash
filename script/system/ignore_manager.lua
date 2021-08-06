@@ -23,7 +23,7 @@ do
 		}
 	end
 	
-	function ChatIgnore:checkLine(line, msgType)
+	function ChatIgnore:checkLine(line, msgType, tabId)
 		local randomCut = math.random(1, string.len("!@#$^&*"))
 		local grawlix = string.sub("!@#$^&*", randomCut) .. string.sub("!@#$^&*", 0, randomCut - 1)
 		if (msgType == MESSAGE_ECHO and TB_MENU_CHAT_IGNORE_SETTINGS.hideecho) then
@@ -43,9 +43,9 @@ do
 			end
 			if (replaced) then
 				if (msgType == MESSAGE_PLAYER) then
-					echo("^02" .. TB_MENU_LOCALIZED.CHATCENSOREDMESSAGE)
+					echo("^02" .. TB_MENU_LOCALIZED.CHATCENSOREDMESSAGE, tabId)
 				end
-				echo(line)
+				echo(line, tabId)
 				return true
 			end
 		end
@@ -53,8 +53,8 @@ do
 	
 	function ChatIgnore:activate()
 		CHATIGNORE_ACTIVE = true
-		add_hook("console", "tbMenuChatCensorIgnore", function(s, i)
-				if (ChatIgnore:checkLine(s, i)) then
+		add_hook("console", "tbMenuChatCensorIgnore", function(s, i, t)
+				if (ChatIgnore:checkLine(s, i, t)) then
 					return 1
 				end
 			end)

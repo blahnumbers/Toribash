@@ -2,7 +2,7 @@
 require("system/network_request")
 
 BROADCAST_DISPLAYED = false
-BROADCAST_DELAY = 10
+BROADCAST_DELAY = 12
 LAST_BROADCAST = 0
 
 do
@@ -33,8 +33,8 @@ do
 		BROADCAST_DISPLAYED = true
 		local notificationHolder = UIElement:new({
 			globalid = TB_MENU_HUB_GLOBALID,
-			pos = { WIN_W, WIN_H - 200 },
-			size = { 450, 140 },
+			pos = { WIN_W, WIN_H - 360 },
+			size = { 450, 300 },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR,
 			shapeType = ROUNDED,
 			rounded = 5,
@@ -79,6 +79,11 @@ do
 			size = { broadcastInfo.size.w, broadcastInfo.size.h - broadcastTitle.size.h }
 		})
 		broadcastText:addAdaptedText(true, broadcast.msg, nil, nil, nil, LEFTMID)
+		broadcastText.size.h = math.max(#broadcastText.dispstr * 10 * getFontMod(broadcastText.textFont) * broadcastText.textScale + 5, 45)
+		broadcastInfo.size.h = broadcastTitle.size.h + broadcastText.size.h
+		notificationHolder.size.h = broadcastInfo.size.h + (broadcast.room and 55 or 15)
+		notificationHolder:moveTo(nil, WIN_H - notificationHolder.size.h - 60)
+		
 		if (broadcast.room) then
 			local broadcastRoom = UIElement:new({
 				parent = notificationHolder,
