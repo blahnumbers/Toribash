@@ -3097,30 +3097,25 @@ do
 			pos = { 0, 0 },
 			size = { listingHolder.size.w, listingHolder.size.h }
 		})
-		local rot, scale = 0, 0
-		download_replay_comments(replay.id)
-		local commentsFile = Files:open("../data/script/system/rplcomments.txt", FILES_MODE_READONLY)
-		downloadWait:addCustomDisplay(true, function()
-				set_color(1, 1, 1, 0.8)
-				draw_disk(downloadWait.pos.x + downloadWait.size.w / 2, downloadWait.pos.y + downloadWait.size.h / 2, 20, 30, 200, 1, rot, scale, 0)
-				rot = rot + 2.5
-				scale = scale > 359 and -360 or scale + 5
-				if (not commentsFile:isDownloading()) then
-					commentsFile:reopen()
-					local comments = Replays:getReplayComments(commentsFile:readAll())
-					commentsFile:close()
-					topBarTitle:addAdaptedText(true, replay.rplname .. " " .. TB_MENU_LOCALIZED.REPLAYSREPLAY .. " " .. replay.uploader, nil, nil, FONTS.BIG, LEFTMID, 0.65)
-					local frame = 0
-					downloadWait:addCustomDisplay(true, function()
-							downloadWait:uiText(TB_MENU_LOCALIZED.REPLAYSCOMMENTSDOWNLOADING)
-							frame = frame + 1
-							if (frame >= 5) then
+		TBMenu:displayLoadingMark(downloadWait, TB_MENU_LOCALIZED.REPLAYSCOMMENTSDOWNLOADING)
+		add_hook("downloader_complete", "communityReplaysComments" .. replay.id, function(filename)
+				if (filename:find("system/rplcomments.txt")) then
+					Downloader:safeCall(function()
+							if (not downloadWait or downloadWait.destroyed) then
+								return
+							end
+							local commentsFile = Files:open("../data/script/system/rplcomments.txt", FILES_MODE_READONLY)
+							if (commentsFile.data) then
+								local comments = Replays:getReplayComments(commentsFile:readAll())
+								commentsFile:close()
 								downloadWait:kill()
+								topBarTitle:addAdaptedText(true, replay.rplname .. " " .. TB_MENU_LOCALIZED.REPLAYSREPLAY .. " " .. replay.uploader, nil, nil, FONTS.BIG, LEFTMID, 0.65)
 								Replays:showReplayCommentList(listingHolder, toReload, elementHeight, comments)
 							end
 						end)
 				end
 			end)
+		download_replay_comments(replay.id)
 
 		local backButton = UIElement:new({
 			parent = botBar,

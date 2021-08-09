@@ -624,7 +624,7 @@ do
 		-- Plays a move for current turn
 		local worldstate = get_world_state()
 		local player = player or worldstate.selected_player
-		if (player < 0) then
+		if (player < 0 or player >= worldstate.num_players) then
 			TBMenu:showDataError("Please select a player to run the opener", true)
 			return false
 		end

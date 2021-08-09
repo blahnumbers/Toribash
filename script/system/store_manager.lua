@@ -50,7 +50,7 @@ do
 			if (not file:isDownloading()) then
 				download_torishop()
 			end
-			return { failed = true }
+			return { failed = true }, { }
 		end
 		local data_types = {
 			{ "catid", numeric = true },
@@ -193,6 +193,17 @@ do
 		end
 		TB_STORE_DATA.requireReload = true
 		return ITEM_EMPTY
+	end
+	
+	function Torishop:getSectionInfo(sectionid)
+		local sectionid = tonumber(sectionid)
+		if (not TB_STORE_SECTIONS) then
+			_, TB_STORE_SECTIONS = Torishop:getItems()
+		end
+		if (not TB_STORE_SECTIONS[sectionid]) then
+			return { name = TB_MENU_LOCALIZED.UNDEF }
+		end
+		return TB_STORE_SECTIONS[sectionid]
 	end
 	
 	function Torishop:isTextureItem(itemid)
@@ -5021,6 +5032,11 @@ do
 			end
 			file:close()
 			local modelInfo = cloneTable(TB_STORE_MODELS[item.itemid])
+			if (not modelInfo) then
+				-- TB_STORE_MODELS is missing data, redownload torishop data and refresh models table
+				download_torishop()
+				return
+			end
 			if (modelInfo.upgradeable) then
 				modelInfo = modelInfo[1]
 			end
@@ -5091,7 +5107,7 @@ do
 			if (v == catid) then
 				displaysectionid = i
 			end
-			table.insert(previewableSections, { text = TB_STORE_SECTIONS[v].name, action = function() Torishop:spawnMinSectionView(v) end })
+			table.insert(previewableSections, { text = Torishop:getSectionInfo(v).name, action = function() Torishop:spawnMinSectionView(v) end })
 		end
 		local sectionsDropdownBG = UIElement:new({
 			parent = topBar,
@@ -5697,7 +5713,7 @@ do
 			pos = { 10, 10 },
 			size = { topBar.size.w - 20, topBar.size.h - 20 }
 		})
-		sectionTitle:addAdaptedText(true, TB_MENU_LOCALIZED.STOREVIEWING .. " " .. TB_STORE_SECTIONS[catid].name, nil, nil, FONTS.BIG)
+		sectionTitle:addAdaptedText(true, TB_MENU_LOCALIZED.STOREVIEWING .. " " .. Torishop:getSectionInfo(catid).name, nil, nil, FONTS.BIG)
 		
 		local stItems = not in_array(sectionItems[1].catid, CATEGORIES_ACCOUNT)
 		local listElements = {}
@@ -5949,7 +5965,7 @@ do
 				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
 			})
 			table.insert(listElements, section)
-			section:addAdaptedText(nil, TB_STORE_SECTIONS[v].name)
+			section:addAdaptedText(nil, Torishop:getSectionInfo(v).name)
 			section:addMouseHandlers(nil, function()
 					Torishop:showSectionItems(sectionItemsView, searchResults.list[i], searchString, searchResults.items[i])
 				end)
@@ -6034,7 +6050,7 @@ do
 				pos = { 10, 0 },
 				size = { section.size.w - 20, section.size.h }
 			})
-			sectionText:addAdaptedText(true, (TB_STORE_SECTIONS and TB_STORE_SECTIONS[v]) and TB_STORE_SECTIONS[v].name or TB_MENU_LOCALIZED.UNDEF, nil, nil, nil, LEFTMID)
+			sectionText:addAdaptedText(true, Torishop:getSectionInfo(v).name, nil, nil, nil, LEFTMID)
 			section:addMouseHandlers(nil, function()
 					selectedSection.bgColor = TB_MENU_DEFAULT_BG_COLOR
 					selectedSection = section
@@ -6377,7 +6393,7 @@ do
 			end
 		end
 		saleColor = UIElement:qsort(saleColor, 'catid') --Do this to prevent incorrect name detection when first item is a pack
-		local saleColorInfo = #saleColor > 0 and { colorid = saleColor[1].colorid, colorname = saleColor[1].itemname:gsub(" " .. TB_STORE_SECTIONS[saleColor[1].catid].name:sub(1, -8) .. ".*$", "") } or false
+		local saleColorInfo = #saleColor > 0 and { colorid = saleColor[1].colorid, colorname = saleColor[1].itemname:gsub(" " .. Torishop:getSectionInfo(saleColor[1].catid).name:sub(1, -8) .. ".*$", "") } or false
 		
 		--[[local featuredPromos = {
 			{

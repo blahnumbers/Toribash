@@ -161,13 +161,14 @@ local function showPopup(i)
 					questProgressNotificationHolder.pressedColor = { 0.902, 0.738, 0.269, 1 }
 					questProgressNotificationHolder.hoverColor = { 0.969, 0.781, 0.199, 1 }
 					questProgressNotificationHolder:activate()
+					-- Populate all handler functions with something - they're all nil by default and will cause errors if hit
 					questProgressNotificationHolder:addMouseHandlers(function() end, function()
 							buttonClicked = true
 							QUEST_POPUP_CLAIM = false
 							Request:queue(function() claim_quest(quest.id) end, "questclaim", function()
 								update_tc_balance()
 							end)
-						end, function() end)
+						end, function() end, function() end)
 				end
 				if (trans <= 0.5) then
 					set_color(unpack(questProgressNotificationHolder.bgColor))

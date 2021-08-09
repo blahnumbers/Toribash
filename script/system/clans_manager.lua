@@ -1352,11 +1352,12 @@ do
 		viewElement:kill(true)
 		TBMenu:clearNavSection()
 		TBMenu:showNavigationBar(Clans:getNavigationButtons(true), true)
-				
+		
+		ClanData[clanid] = ClanData[clanid] or { }
 		local clanView = UIElement:new({
 			parent = viewElement,
 			pos = { 0, 0 },
-			size = { viewElement.size.w, viewElement.size.h + ((ClanData[clanid] and ClanData[clanid].bgcolor) and 25 or 0) },
+			size = { viewElement.size.w, viewElement.size.h + (ClanData[clanid].bgcolor and 25 or 0) },
 			uiColor = ClanData[clanid].colorNegative and UICOLORBLACK,
 			uiShadowColor = ClanData[clanid].colorNegative and UICOLORWHITE,
 		})
@@ -1364,7 +1365,7 @@ do
 			parent = clanView,
 			pos = { 5, 0 },
 			size = { 276, clanView.size.h },
-			bgColor = (ClanData[clanid] and ClanData[clanid].bgcolor) or TB_MENU_DEFAULT_BG_COLOR
+			bgColor = ClanData[clanid].bgcolor or TB_MENU_DEFAULT_BG_COLOR
 		})
 		Clans:showClanInfoLeft(clanInfoLeftView, clanid)
 		local memberlistWidth = (clanView.size.w - clanInfoLeftView.size.w - 30) / 3 * 2 < 200 and 200 or (clanView.size.w - clanInfoLeftView.size.w - 30) / 3
@@ -1373,14 +1374,14 @@ do
 			parent = clanView,
 			pos = { -memberlistWidth - 5, 0 },
 			size = { memberlistWidth, clanView.size.h },
-			bgColor = (ClanData[clanid] and ClanData[clanid].bgcolor) or TB_MENU_DEFAULT_BG_COLOR
+			bgColor = ClanData[clanid].bgcolor or TB_MENU_DEFAULT_BG_COLOR
 		})
 		Clans:showClanMemberlist(clanInfoMemberlistView, clanid)
 		local clanInfoMidView = UIElement:new({
 			parent = clanView,
 			pos = { clanInfoLeftView.size.w + clanInfoLeftView.shift.x + 10, 0 },
 			size = { clanView.size.w - clanInfoLeftView.size.w - clanInfoMemberlistView.size.w - 30, clanView.size.h },
-			bgColor = (ClanData[clanid] and ClanData[clanid].bgcolor) or TB_MENU_DEFAULT_BG_COLOR
+			bgColor = ClanData[clanid].bgcolor or TB_MENU_DEFAULT_BG_COLOR
 		})
 		Clans:showClanInfoMid(clanInfoMidView, clanid)
 	end

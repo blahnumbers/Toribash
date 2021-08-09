@@ -432,7 +432,9 @@ do
 
 	function UIElement:kill(childOnly)
 		for i,v in pairs(self.child) do
-			v:kill()
+			if (v.kill) then
+				v:kill()
+			end
 		end
 		if (childOnly) then
 			self.child = {}
