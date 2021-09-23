@@ -907,3 +907,4 @@ QUEUELISTROOMOPTITLE	Room Operator
 QUEUELISTROOMOPDESC	Room operators can modify room settings, change mods and control players inside	
 QUEUELISTMUTEDTITLE	Muted	
 QUEUELISTMUTEDDESC	This user can't talk :(	
+SETTINGSAPPLIEDAFTERRESTART	Some settings will be applied after game restart

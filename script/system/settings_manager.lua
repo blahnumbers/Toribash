@@ -1309,11 +1309,12 @@ do
 				type = TOGGLE,
 				action = function(val)
 						TB_MENU_MAIN_SETTINGS.dpiawareness = { value = val }
-						if (get_option("borderless") == 1 and val == 0) then
+						-- Don't touch borderless - we risk ending up with a borderless window in top left corner
+						--[[if (get_option("borderless") == 1 and val == 0) then
 							TB_MENU_MAIN_SETTINGS.borderless = { id = BORDERLESS, value = 0, graphics = true }
 						elseif (get_option("borderless") == 0 and val == 1) then
 							TB_MENU_MAIN_SETTINGS.borderless = { id = BORDERLESS, value = 1, graphics = true }
-						end
+						end]]
 					end,
 				val = { get_option("dpiawareness") },
 				hint = TB_MENU_LOCALIZED.HINTREQUIRESRESTART
@@ -1694,6 +1695,9 @@ do
 						end
 						if (v.reload) then
 							reload = true
+						end
+						if (i == 'dpiawareness') then
+							TBMenu:showDataError(TB_MENU_LOCALIZED.SETTINGSAPPLIEDAFTERRESTART)
 						end
 					end
 				end
