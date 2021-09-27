@@ -1,19 +1,20 @@
 NEWSID 1;
-TITLE 0;Item Effects now available!
-SUBTITLE 0;Upgrade your items with Glow effect now!
-IMAGE 0;store/glowpromo.tga
-URL 0;https://forum.toribash.com/tori_shop.php?cid=87
-STORE 0;3429
+TITLE 0;Cube. Head.
+SUBTITLE 0;Now available in Torishop!
+IMAGE 0;store/cubeheadpromo.tga
+URL 0;https://forum.toribash.com/tori_shop.php?cid=78
+STORE 0;3443
 
-NEWSID 1;
-TITLE 0;Item Effects now available!
-SUBTITLE 0;Upgrade your items with Toon Shading effect now!
-IMAGE 0;store/toonpromo.tga
-URL 0;https://forum.toribash.com/tori_shop.php?cid=87
-STORE 0;3426
+//NEWSID 1;
+//TITLE 0;Item Effects now available!
+//SUBTITLE 0;Upgrade your items with Toon Shading effect now!
+//IMAGE 0;store/toonpromo.tga
+//URL 0;https://forum.toribash.com/tori_shop.php?cid=87
+//STORE 0;3426
 
 NEWSID 3;
-TITLE 0;No events live now, but you can still replay any ended event in all events menu!
+TITLE 0;No events live now, but you can still replay any ended event in all
+events menu!
 IMAGE 0;openerchallenge20sum.tga
 FEATURED 0;
 
@@ -63,13 +64,24 @@ BTNHVRCOL 0;505050
 BTNDNCOL 0;92041f
 DESCDATA 0;1Description
 DESCDATAIMGTITLE 0;1oc_description.tga
-DESCDATATEXT 0;1The Event Squad is proud to present Opener Challenge!\nIn this event we provide you with a pre-made opener to edit after a set number of frames in order to complete the challenges described.\nThis time we want you to show us your tricking skills and do as many tricks as you can!
+DESCDATATEXT 0;1The Event Squad is proud to present Opener Challenge!\nIn this
+event we provide you with a pre-made opener to edit after a set number of
+frames in order to complete the challenges described.\nThis time we want you
+to show us your tricking skills and do as many tricks as you can!
 DESCDATA 0;2Rules
 DESCDATAIMGTITLE 0;2oc_rules.tga
-DESCDATATEXT 0;2- Replay hacking is strictly forbidden\n- Do not steal other players' replays\n- Do not edit any of the game rules except turn and match frames\n- Do not try to enter the event with multiple accounts
+DESCDATATEXT 0;2- Replay hacking is strictly forbidden\n- Do not steal other
+players' replays\n- Do not edit any of the game rules except turn and match
+frames\n- Do not try to enter the event with multiple accounts
 DESCDATA 0;3How to Enter
 DESCDATAIMGTITLE 0;3oc_howtoenter.tga
-DESCDATATEXT 0;3You can participate in Opener Challenge by pressing "Participate" button on bottom right, completing the challenge and submitting your replay to Toribash servers.\nAlternatively, you can download the opener from the event thread on forums, edit it according to the rules and post your replay back in event thread - if you just upload it to Toribash Community Replays then it won't be judged.\n^02Only one replay per player will be judged.
+DESCDATATEXT 0;3You can participate in Opener Challenge by pressing
+"Participate" button on bottom right, completing the challenge and submitting
+your replay to Toribash servers.\nAlternatively, you can download the opener
+from the event thread on forums, edit it according to the rules and post your
+replay back in event thread - if you just upload it to Toribash Community
+Replays then it won't be judged.\n^02Only one replay per player will be
+judged.
 DESCDATA 0;4Deadline
 DESCDATAIMGTITLE 0;4oc_deadline.tga
 DESCDATATEXT 0;4We will stop accepting new entries on August 3rd, 16:00 UTC
@@ -103,13 +115,26 @@ BTNHVRCOL 0;005471
 BTNDNCOL 0;01befe
 DESCDATA 0;1Description
 //DESCDATAIMGTITLE 0;1frf4-description.tga
-DESCDATATEXT 0;1Welcome to Wipeout Warrior!\nRun through the obstacle course and press the button to finish as fast as you can!\nYou can pick either of two paths, you'll only receive better prizes if you get inside the blue zone!\nThere are two main prizes this time - one for the most stylish replay and another for the fastest one!
+DESCDATATEXT 0;1Welcome to Wipeout Warrior!\nRun through the obstacle course
+and press the button to finish as fast as you can!\nYou can pick either of two
+paths, you'll only receive better prizes if you get inside the blue
+zone!\nThere are two main prizes this time - one for the most stylish replay
+and another for the fastest one!
 DESCDATA 0;2Rules
 //DESCDATAIMGTITLE 0;2frf4-rules.tga
-DESCDATATEXT 0;2- Replay hacking is forbidden\n- Do not steal other players' replays\n- Do not edit any of the game rules except turn and match frames\n- Do not try to enter the event with multiple accounts
+DESCDATATEXT 0;2- Replay hacking is forbidden\n- Do not steal other players'
+replays\n- Do not edit any of the game rules except turn and match frames\n-
+Do not try to enter the event with multiple accounts
 DESCDATA 0;3How to Enter
 //DESCDATAIMGTITLE 0;3frf4-howtoenter.tga
-DESCDATATEXT 0;3Press the "Participate" button on bottom right, complete the challenge and submit your replay to Toribash servers!\nAlternatively, you can download event mod from the thread on forums, make a replay according to rules and post your replay back in event thread - if you just upload it to Toribash Community Replays then it won't be judged.\nIf you decide to switch your replay for advanced objective completion or best replay nomination, make sure you ^02post ^02it ^02on ^02forums.\n^02You may submit as ^02many ^02replays ^02for ^02fastest ^02replay ^02nomination ^02as ^02you ^02want.
+DESCDATATEXT 0;3Press the "Participate" button on bottom right, complete the
+challenge and submit your replay to Toribash servers!\nAlternatively, you can
+download event mod from the thread on forums, make a replay according to rules
+and post your replay back in event thread - if you just upload it to Toribash
+Community Replays then it won't be judged.\nIf you decide to switch your
+replay for advanced objective completion or best replay nomination, make sure
+you ^02post ^02it ^02on ^02forums.\n^02You may submit as ^02many ^02replays
+^02for ^02fastest ^02replay ^02nomination ^02as ^02you ^02want.
 DESCDATA 0;4Deadline
 //DESCDATAIMGTITLE 0;4frf4-deadline.tga
 DESCDATATEXT 0;4We will stop accepting new entries on June 11th at 16:00 UTC
@@ -141,13 +166,23 @@ BTNHVRCOL 0;0057b2
 BTNDNCOL 0;8000a5
 DESCDATA 0;1Description
 DESCDATAIMGTITLE 0;1headwall_description.tga
-DESCDATATEXT 0;1The Event Squad is proud to present Head in the Wall!\nAll you have to do is throw your head into one of the holes, how hard can that be? If you can make it through you may just win a prize! If you do it the most stylish way, we've got something extra for you.
+DESCDATATEXT 0;1The Event Squad is proud to present Head in the Wall!\nAll you
+have to do is throw your head into one of the holes, how hard can that be? If
+you can make it through you may just win a prize! If you do it the most
+stylish way, we've got something extra for you.
 DESCDATA 0;2Rules
 DESCDATAIMGTITLE 0;2headwall_rules.tga
-DESCDATATEXT 0;2- Replay hacking is strictly forbidden\n- Do not steal other players' replays\n- Do not edit any of the game rules except turn and match frames\n- Do not try to enter the event with multiple accounts
+DESCDATATEXT 0;2- Replay hacking is strictly forbidden\n- Do not steal other
+players' replays\n- Do not edit any of the game rules except turn and match
+frames\n- Do not try to enter the event with multiple accounts
 DESCDATA 0;3How to Enter
 DESCDATAIMGTITLE 0;3headwall_howtoenter.tga
-DESCDATATEXT 0;3You can play the event by pressing "Participate" button on bottom right, completing the challenge and submitting your replay to Toribash servers.\nAlternatively, you can download the mod from the event thread on forums, make your replay according to the rules and post it back in event thread - if you just upload it to Toribash Community Replays then it won't be judged.\n^07Only one replay per player will be judged.
+DESCDATATEXT 0;3You can play the event by pressing "Participate" button on
+bottom right, completing the challenge and submitting your replay to Toribash
+servers.\nAlternatively, you can download the mod from the event thread on
+forums, make your replay according to the rules and post it back in event
+thread - if you just upload it to Toribash Community Replays then it won't be
+judged.\n^07Only one replay per player will be judged.
 DESCDATA 0;4Deadline
 DESCDATAIMGTITLE 0;4headwall_deadline.tga
 DESCDATATEXT 0;4We will stop accepting new entries on December 5th, 16:00 UTC
@@ -179,13 +214,24 @@ BTNHVRCOL 0;bd5500
 BTNDNCOL 0;ff2d00
 DESCDATA 0;1Description
 DESCDATAIMGTITLE 0;1fil_description.tga
-DESCDATATEXT 0;1The Event Squad is proud to present Floor is Lava!\nIn this event you'll need to get to Uke without getting fried! Run straight to the red zone or take a detour through the extra blue checkpoint area for a better prize!\nAs usual, best replay will receive extra rewards so give your replay some love!\nGood luck at freerunning!
+DESCDATATEXT 0;1The Event Squad is proud to present Floor is Lava!\nIn this
+event you'll need to get to Uke without getting fried! Run straight to the red
+zone or take a detour through the extra blue checkpoint area for a better
+prize!\nAs usual, best replay will receive extra rewards so give your replay
+some love!\nGood luck at freerunning!
 DESCDATA 0;2Rules
 DESCDATAIMGTITLE 0;2fil_rules.tga
-DESCDATATEXT 0;2- Replay hacking is strictly forbidden\n- Do not steal other players' replays\n- Do not edit any of the game rules except turn and match frames\n- Do not try to enter the event with multiple accounts
+DESCDATATEXT 0;2- Replay hacking is strictly forbidden\n- Do not steal other
+players' replays\n- Do not edit any of the game rules except turn and match
+frames\n- Do not try to enter the event with multiple accounts
 DESCDATA 0;3How to Enter
 DESCDATAIMGTITLE 0;3fil_howtoenter.tga
-DESCDATATEXT 0;3You can participate in Floor is Lava by pressing "Participate" button on bottom right, completing the challenge and submitting your replay to Toribash servers.\nAlternatively, you can download event mod from event thread on forums, make a replay according to the rules and post your replay back in event thread - if you just upload it to Toribash Community Replays then it won't be judged.\n^02Only one replay per player is allowed.
+DESCDATATEXT 0;3You can participate in Floor is Lava by pressing "Participate"
+button on bottom right, completing the challenge and submitting your replay to
+Toribash servers.\nAlternatively, you can download event mod from event thread
+on forums, make a replay according to the rules and post your replay back in
+event thread - if you just upload it to Toribash Community Replays then it
+won't be judged.\n^02Only one replay per player is allowed.
 DESCDATA 0;4Deadline
 DESCDATAIMGTITLE 0;4fil_deadline.tga
 DESCDATATEXT 0;4We will stop accepting new entries on March 19th, 16:00 UTC
@@ -212,11 +258,16 @@ UICOLOR 0;FFFFFF
 BTNHVRCOL 0;ffba43
 BTNDNCOL 0;fff8e9
 DESCDATA 0;1Description
-DESCDATATEXT 0;1Mod Mania is a series of mod championships.\nPlay in modmania rooms, win games and climb up ranks and get rewards!\nEach mod will stay in modmania rooms for 1 week and then will be changed to the next one.
+DESCDATATEXT 0;1Mod Mania is a series of mod championships.\nPlay in modmania
+rooms, win games and climb up ranks and get rewards!\nEach mod will stay in
+modmania rooms for 1 week and then will be changed to the next one.
 DESCDATA 0;2Mod Rotation
-DESCDATATEXT 0;2This week's mod is rk-mma.tbm\nrk-mma is similar to lenshu3ng but has lighter gravity with lower dismember threshold, longer DQ timeout and smaller dojo!
+DESCDATATEXT 0;2This week's mod is rk-mma.tbm\nrk-mma is similar to lenshu3ng
+but has lighter gravity with lower dismember threshold, longer DQ timeout and
+smaller dojo!
 DESCDATA 0;3How to Participate
-DESCDATATEXT 0;3Play in any modmania room until the event is over - there are new rewards to get each week!
+DESCDATATEXT 0;3Play in any modmania room until the event is over - there are
+new rewards to get each week!
 PRIZEDATA 0;1Top 10 players (by games won, prize listed is for 1st place)
 PRIZETC 0;150000
 PRIZEST 0;15

@@ -1265,6 +1265,9 @@ do
 					reload = true,
 					val = { optionWidth },
 					valueVerifyAction = function(val)
+						if (val == '') then
+							return val
+						end
 						local val = tonumber(val) or 0
 						local maxWidth, maxHeight = get_maximum_window_size()
 						return (val > maxWidth and maxWidth or val)
@@ -1277,6 +1280,9 @@ do
 					reload = true,
 					val = { optionHeight },
 					valueVerifyAction = function(val)
+						if (val == '') then
+							return val
+						end
 						local val = tonumber(val) or 0
 						local maxWidth, maxHeight = get_maximum_window_size()
 						return (val > maxHeight and maxHeight or val)
@@ -1822,8 +1828,12 @@ do
 								if (item.valueVerifyAction) then
 									textField.textfieldstr[1] = item.valueVerifyAction(textField.textfieldstr[1]) .. ''
 								end
-								TB_MENU_MAIN_SETTINGS[item.systemname] = { value = tonumber(textField.textfieldstr[1]), reload = item.reload }
-								Settings:settingsApplyActivate(item.reload)
+								if (textField.textfieldstr[1] == '') then
+									TB_MENU_MAIN_SETTINGS[item.systemname] = nil
+								else
+									TB_MENU_MAIN_SETTINGS[item.systemname] = { value = tonumber(textField.textfieldstr[1]), reload = item.reload }
+									Settings:settingsApplyActivate(item.reload)
+								end
 							end)
 					end
 				elseif (item.type == DROPDOWN) then
