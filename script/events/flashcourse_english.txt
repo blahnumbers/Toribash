@@ -1,0 +1,10 @@
+#Messages
+INTRO1	Hi and welcome to Flash Course!
+INTRO2	Complete the map by reaching the glowing red area and get rewards!
+INTRO3	Hi again! Let's get back to your auto-saved replay!
+UPLOADSUCCESS1	Hooray, you've successfully uploaded your entry!
+UPLOADSUCCESS2	Check your notifications - there should be a message from Event Squad with the list of prizes you've got!
+UPLOADSUCCESS3	If you make a better replay, feel free to submit it any time to claim even better prizes!
+UPLOADSUCCESS4	Thanks for participating and see you next time!
+#Tasks
+EVTTASK1	Complete the map

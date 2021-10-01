@@ -1739,28 +1739,36 @@ do
 			end
 		end
 
-		local buttons = (event.action and TB_MENU_PLAYER_INFO.username ~= '') and 2 or 1
-		local eventForumLink = UIElement:new({
-			parent = eventForumLinkHolder,
-			pos = { buttons == 2 and viewElement.size.w / 20 or viewElement.size.w * 0.1, 10 },
-			size = { buttons == 2 and viewElement.size.w * 0.425 or viewElement.size.w * 0.8, eventForumLinkHolder.size.h - 20 },
-			interactive = true,
-			bgColor = viewElement.uiColor,
-			hoverColor = buttonHColor,
-			pressedColor = buttonPColor,
-			shapeType = ROUNDED,
-			rounded = 3
-		})
-		table.insert(pbotBar.child, eventForumLink)
-		TBMenu:showTextExternal(eventForumLink, "View event on forums")
-		eventForumLink:addMouseHandlers(nil, function()
-				open_url(event.forumlink)
-			end)
+		local buttons = 0
+		if (event.forumlink) then
+			buttons = buttons + 1
+		end
+		if (event.action and TB_MENU_PLAYER_INFO.username ~= '') then
+			buttons = buttons + 1
+		end
+		if (event.forumlink) then
+			local eventForumLink = UIElement:new({
+				parent = eventForumLinkHolder,
+				pos = { buttons == 2 and viewElement.size.w / 20 or viewElement.size.w * 0.1, 10 },
+				size = { buttons == 2 and viewElement.size.w * 0.425 or viewElement.size.w * 0.8, eventForumLinkHolder.size.h - 20 },
+				interactive = true,
+				bgColor = viewElement.uiColor,
+				hoverColor = buttonHColor,
+				pressedColor = buttonPColor,
+				shapeType = ROUNDED,
+				rounded = 3
+			})
+			table.insert(pbotBar.child, eventForumLink)
+			TBMenu:showTextExternal(eventForumLink, "View event on forums")
+			eventForumLink:addMouseHandlers(nil, function()
+					open_url(event.forumlink)
+				end)
+		end
 		if (event.action and TB_MENU_PLAYER_INFO.username ~= '') then
 			local eventActionButton = UIElement:new({
 				parent = eventForumLinkHolder,
-				pos = { viewElement.size.w * 0.525, 10 },
-				size = { viewElement.size.w * 0.425, eventForumLinkHolder.size.h - 20 },
+				pos = { buttons == 2 and viewElement.size.w * 0.525 or viewElement.size.w * 0.1, 10 },
+				size = { buttons == 2 and viewElement.size.w * 0.425 or viewElement.size.w * 0.8, eventForumLinkHolder.size.h - 20 },
 				interactive = true,
 				bgColor = viewElement.uiColor,
 				hoverColor = buttonHColor,

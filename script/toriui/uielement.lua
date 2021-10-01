@@ -1341,7 +1341,7 @@ do
 		return debugEcho(mixed, msg, returnString)
 	end
 
-	function UIElement:qsort(arr, sort, desc, includeZeros)
+	function qsort(arr, sort, desc, includeZeros)
 		local a = {}
 		local desc = desc and 1 or -1
 		for i, v in pairs(arr) do
@@ -1377,6 +1377,10 @@ do
 				return cmpRes
 			end)
 		return a
+	end
+
+	function UIElement:qsort(arr, sort, desc, includeZeros)
+		return qsort(arr, sort, desc, includeZeros)
 	end
 	
 	function getFontMod(font)
@@ -1593,6 +1597,33 @@ do
 		end
 		color[4] = 1
 		return color
+	end
+	
+	function tableCmp(table1, table2)
+		if (type(table1) ~= type(table2)) then
+			return false
+		end
+		
+		local cnt1, cnt2 = 0, 0
+		for _ in pairs(table1) do cnt1 = cnt1 + 1 end
+		for _ in pairs(table2) do cnt2 = cnt2 + 1 end
+		if (cnt1 ~= cnt2) then
+			return false
+		end
+		
+		for i,v in pairs(table1) do
+			if (v ~= table2[i]) then
+				if (type(v) == type(table2[i]) and type(v) == "table") then
+					if (not tableCmp(table1[i], table2[i])) then
+						return false
+					end
+				else
+					return false
+				end
+			end
+		end
+		
+		return true
 	end
 	
 	function empty(table)

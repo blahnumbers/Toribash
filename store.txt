@@ -307,7 +307,7 @@ PRODUCT	80	Full Toris	2440	Blind Warrior Head Texture (256px)	0	10000.00	4.00	10
 PRODUCT	80	Full Toris	2441	Blind Warrior Head Texture (512px)	0	20000.00	7.00	20000.00	7.00	0	0	0	0	0	0	0	1	0	This Pack contains a 512x512 preloaded Blind Warrior head texture by jusmi.\n\nUnlock it to unpack all items in your inventory.	1567	
 PRODUCT	72	Hair Styles	1987	BlondieTinTest	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0			
 PRODUCT	18	Collectibles	724	Blood Vodka	0	0.00	35.00	0.00	35.00	0	0	0	0	0	0	0	0	0	Blood Vodka was originally made in the middle of the Raging Luerio War. Right when there seemed no hope of a victory, a battalion right in the heat of the battle created the most astonishing vodka of them all... Blood Vodka, named for their fallen. It was with this vodka, the ToriEruopi managed to win their war.		
-PRODUCT	44	Color Packs	2354	Blossom Pack	1	0.00	8.00	0.00	17.00	596883	0	0	0	0	0	53	0	0	This pack contains a full set of Blossom items.\nUNLOCK this into your inventory.	2337 2338 2339 2340 2341 2342 2343 2344 2345 2346 2347 2348 2349 2350 2351 2352 2353	
+PRODUCT	44	Color Packs	2354	Blossom Pack	0	0.00	17.00	0.00	17.00	0	0	0	0	0	0	53	0	0	This pack contains a full set of Blossom items.\nUNLOCK this into your inventory.	2337 2338 2339 2340 2341 2342 2343 2344 2345 2346 2347 2348 2349 2350 2351 2352 2353 3436	
 PRODUCT	78	3d objects	2242	Blue Beanie	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Unleash your inner hipster with these commercial, mass-produced Beanies.		
 PRODUCT	7	Secret	97	Body Texture	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	0	Players can upload textures onto the torso.		
 PRODUCT	78	3d objects	2134	Bomb Head (addon)	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	This fully-featured fuse turns your head into a bomb! Kamikaze anyone?		
@@ -417,7 +417,7 @@ PRODUCT	78	3d objects	2471	Cel Shaded Right Pec	0	0.00	0.00	0.00	0.00	0	0	0	0	0	
 PRODUCT	78	3d objects	2481	Cel Shaded Right Shin	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1			
 PRODUCT	78	3d objects	2479	Cel Shaded Right Thigh	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1			
 PRODUCT	78	3d objects	2466	Cel Shaded Stomach	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1			
-PRODUCT	80	Full Toris	2484	Cel Shaded Tori	0	75000.00	30.00	75000.00	30.00	0	1	0	0	0	0	0	0	0	The Cel Shaded Tori set, created by cappuccino\n\nLow Restock!	2463 2464 2465 2466 2467 2468 2469 2470 2471 2472 2473 2474 2475 2476 2477 2478 2479 2480 2481 2482 2483	
+PRODUCT	80	Full Toris	2484	Cel Shaded Tori	0	150000.00	30.00	150000.00	30.00	0	1	0	0	0	0	0	0	0	The Cel Shaded Tori set, created by cappuccino\n\nLow Restock!	2463 2464 2465 2466 2467 2468 2469 2470 2471 2472 2473 2474 2475 2476 2477 2478 2479 2480 2481 2482 2483	
 PRODUCT	72	Hair Styles	1749	Centurion-broken	0	0.00	50.00	0.00	50.00	0	0	0	0	0	1	0	1	0	One of a kind, first hair ever to grow out of a Tori.		
 PRODUCT	78	3d objects	2145	Cereal Box	0	5000.00	3.00	5000.00	3.00	0	0	0	0	0	1	0	1	1	Second place in the Head in a Box event[Karstnator's Box]		
 PRODUCT	8	Withdrawn	200	Cevius' Left Tit	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	0	0	This is the tit, that was cut off Cevius in the Battle against the AI ChaosLazor Machine battle!		
@@ -486,6 +486,7 @@ PRODUCT	7	Secret	745	Cretor's head	0	0.00	999999.00	0.00	999999.00	0	0	0	0	0	0	0
 PRODUCT	44	Color Packs	1071	Crimson Pack	0	0.00	35.00	0.00	35.00	0	0	0	0	0	0	57	0	0	This pack contains a full set of Crimson items.\nUNLOCK this into your inventory.	687 686 688 689 690 691 692 693 694 695 696 697 698 699 700 701 1769	
 PRODUCT	44	Color Packs	2944	Crusher Pack	0	0.00	45.00	0.00	45.00	0	0	0	0	0	0	129	0	0	LIMITED EDITION\nForged from the blood of its creators, it grants the power to crush your opponent's will to live.	2927 2928 2929 2930 2931 2932 2933 2934 2936 2937 2938 2939 2940 2941 2942 2943 2935	
 PRODUCT	78	3d objects	3117	Crystallized Sword	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	placeholder description		
+PRODUCT	78	3d objects	3443	Cube Head	0	30000.00	4.00	30000.00	4.00	0	0	0	0	0	1	0	0	0	Right Angled Quadrilateral Prism		
 PRODUCT	78	3d objects	2753	custom test	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	HALLOWEEN SPECIAL\n\nHmm, yummy!		
 PRODUCT	80	Full Toris	2525	Cyborg	0	1000000.00	100.00	1000000.00	100.00	0	1	0	0	0	0	0	0	0	You have been assembled to destroy.\n\nLow restock!	2513 2514 2515 2516 2517 2518 2519 2520 2521 2522 2523 2524	
 PRODUCT	78	3d objects	2514	Cyborg Chest	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	You have been assembled to destroy.		
@@ -520,7 +521,7 @@ PRODUCT	47	Secret	1459	Demon Force + Relax Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	
 PRODUCT	78	3d objects	3292	Demon Head	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	Ooh aah, demon head!		
 PRODUCT	78	3d objects	3296	Demon L Foot	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0			
 PRODUCT	78	3d objects	3293	Demon L Hand	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	a		
-PRODUCT	44	Color Packs	729	Demon Pack	0	0.00	150.00	0.00	150.00	0	0	0	0	0	0	30	0	0	This pack contains a full set of Demon items. Unlock these items into your inventory.	71 72 157 181 201 223 248 277 430 330 355 405 464 510 540 70 1771	
+PRODUCT	44	Color Packs	729	Demon Pack	0	0.00	150.00	0.00	150.00	0	0	0	0	0	0	30	0	0	This pack contains a full set of Demon items. Unlock these items into your inventory.	71 72 157 181 201 223 248 277 430 330 355 405 464 510 540 70 1771 3432	
 PRODUCT	47	Secret	1563	Demon Pure Supernova Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	  \n\n\n*Image is a reference for joint colors only. Sets designed by Mrama & Vermine. Texture sets are sold separately.\n\n\nIn this pack, you get:\n\n\n16 Demon items\n14 Pure items\n16 Supernova\nClick Unlock to unpack these items into your inventory!	729 1194 928	
 PRODUCT	78	3d objects	3297	Demon R Foot	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0			
 PRODUCT	78	3d objects	3294	Demon R Hand	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	aa		
@@ -582,7 +583,7 @@ PRODUCT	71	Sounds	1712	DQ Sound	0	0.00	5.00	0.00	5.00	0	0	0	0	0	1	0	0	0	Sound pl
 PRODUCT	4	Textures	561	DQ Texture	0	50000.00	0.00	50000.00	0.00	0	0	0	0	0	0	0	0	0	Allows you to upload textures to your DQ RING. \n\n \nBUY ONLY ONCE & NON-TRADEABLE		
 PRODUCT	47	Secret	1504	Dragon Force + Relax Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	This pack contains 1 x Dragon Force and 1 x Dragon Relax.	79 80	
 PRODUCT	44	Color Packs	2074	Dragon Pack	0	0.00	18.00	0.00	18.00	0	0	0	0	0	0	31	0	0	This pack contains a full set of Dragon items.\nUNLOCK this into your inventory.	74 80 129 158 182 224 249 79 278 356 406 431 331 465 511 541 1772	
-PRODUCT	80	Full Toris	2728	Drake	0	0.00	20.00	0.00	20.00	0	0	0	0	0	0	0	0	0	Dragon soul gives you ultimate strength and incinerates all of your enemies.	2713 2715 2717 2719 2721 2723 2731 2729	
+PRODUCT	80	Full Toris	2728	Drake	0	0.00	20.00	0.00	20.00	0	1	0	0	0	0	0	0	0	Dragon soul gives you ultimate strength and incinerates all of your enemies.	2713 2715 2717 2719 2721 2723 2731 2729	
 PRODUCT	78	3d objects	2713	Drake Horns	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1			
 PRODUCT	78	3d objects	2721	Drake Left Foot	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1			
 PRODUCT	78	3d objects	2729	Drake Left Hand	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1			
@@ -639,7 +640,7 @@ PRODUCT	78	3d objects	3193	Ectotori - Right Wrist	0	0.00	0.00	0.00	0.00	0	0	0	0	
 PRODUCT	78	3d objects	3213	Ectotori - Stomach	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	Covered in Goo!		
 PRODUCT	72	Hair Styles	1932	ed's item	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	test		
 PRODUCT	47	Secret	1462	Elf Force + Relax Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	This pack contains 1 x Elf Force and 1x Elf Relax.	144 145	
-PRODUCT	44	Color Packs	1070	Elf Pack	0	0.00	100.00	0.00	100.00	0	0	0	0	0	0	32	0	0	This pack consist of a full set of Elf items. UNLOCK this into your inventory.	143 183 542 144 159 512 407 332 225 145 357 432 250 279 1069 466 1774	
+PRODUCT	44	Color Packs	1070	Elf Pack	0	0.00	100.00	0.00	100.00	0	0	0	0	0	0	32	0	0	This pack consist of a full set of Elf items. UNLOCK this into your inventory.	143 183 542 144 159 512 407 332 225 145 357 432 250 279 1069 466 1774 3435	
 PRODUCT	49	Premium Packs	1552	Elf Platinum Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	0	\n\n\n*Image is a reference for joint colors only. Set belongs to Evil. Texture sets are sold separately.\n\n\nIn this pack, you get:\n\n\n16 Elf items\n16 Platinum items\nClick Unlock to unpack these items into your inventory!	1070 926	
 PRODUCT	49	Premium Packs	1554	Elf Pure Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	0	\n\n\n*Image is a reference for joint colors only. Set belongs to Evil. Texture sets are sold separately.\n\n\nIn this pack, you get:\n\n\n16 Elf items\n14 Pure items\nClick Unlock to unpack these items into your inventory!	1070 1194	
 PRODUCT	46	Tier Packs	2090	Elite Tier Pack	0	0.00	500.00	0.00	500.00	0	0	0	0	0	0	0	0	0	This pack contains all Elite Tier color packs.\n\nColors inside: Pure, Static, Vortex, Elf, Mysterio, Alpha, Demon & Void\n\nEXTRA RARE: NO RESTOCKS\n	1070 1073 1194 1270 1400 2070 1270 1389 729	
@@ -685,7 +686,7 @@ PRODUCT	80	Full Toris	2152	Flame: Water	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	3756	1
 PRODUCT	78	3d objects	2112	Flammable Box	0	5000.00	3.00	5000.00	3.00	0	0	0	0	0	1	0	1	1	Keep away from fire!!!		
 PRODUCT	78	3d objects	2220	Flip Flop L	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	Type of open-toed footwear sandal, typically worn as a form of casual wear.		
 PRODUCT	78	3d objects	2219	Flip Flop R	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	Type of open-toed footwear sandal, typically worn as a form of casual wear.		
-PRODUCT	80	Full Toris	2550	Flip Flops	0	20000.00	7.00	20000.00	7.00	0	1	0	0	0	0	0	0	0	Unpack this to get the following items:\n\nFlip Flop R\n\nFlip Flop L	2219 2220	
+PRODUCT	80	Full Toris	2550	Flip Flops	0	30000.00	4.00	30000.00	4.00	0	1	0	0	0	0	0	0	0	Unpack this to get the following items:\n\nFlip Flop R\n\nFlip Flop L	2219 2220	
 PRODUCT	78	3d objects	2255	Flower Crown	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	"Pretty wreath, a headdress made of leaves, grasses, flowers or branches. It is typically worn in festive occasions and on holy days"		
 PRODUCT	71	Sounds	1704	Foot Step Sound	0	10000.00	0.00	10000.00	0.00	0	0	0	0	0	1	0	1	0	Upload .wav file (v 3.91 and above)		
 PRODUCT	7	Secret	3424	Force and Relax of Choice	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1			
@@ -724,7 +725,7 @@ PRODUCT	78	3d objects	2755	GC	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1
 PRODUCT	83	Collectors Cards	3100	Gentleman - WC2018	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	0			
 PRODUCT	80	Full Toris	2413	Geo Head Texture (256px)	0	10000.00	4.00	10000.00	4.00	0	0	0	0	0	0	0	1	0	This Pack contains a 256x256 preloaded Geo head texture by AHD.\n\nUnlock it to unpack all items in your inventory.	1566	
 PRODUCT	80	Full Toris	2416	Geo Head Texture (512px)	0	20000.00	7.00	20000.00	7.00	0	0	0	0	0	0	0	1	0	This Pack contains a 512x512 preloaded Geo head texture by AHD.\n\nUnlock it to unpack all items in your inventory.	1567	
-PRODUCT	80	Full Toris	2527	Geta	0	0.00	6.00	0.00	6.00	0	1	0	0	0	0	0	0	0	Unpack this to get the following items:\n\nGeta R\n\nGeta L	2049 2050	
+PRODUCT	80	Full Toris	2527	Geta	0	0.00	5.00	0.00	5.00	0	1	0	0	0	0	0	0	0	Unpack this to get the following items:\n\nGeta R\n\nGeta L	2049 2050	
 PRODUCT	78	3d objects	2050	Geta L	0	0.00	3.00	0.00	3.00	0	0	0	0	0	1	0	1	1	I had a friend once, but he called my Fumikomi no Keri a pair of wooden sandals, so I teleported behind him and slashed him in half with my wooden katana. Nothing personal, kid.		
 PRODUCT	78	3d objects	2049	Geta R	0	0.00	3.00	0.00	3.00	0	0	0	0	0	1	0	1	1	I had a friend once, but he called my Fumikomi no Keri a pair of wooden sandals, so I teleported behind him and slashed him in half with my wooden katana. Nothing personal, kid.		
 PRODUCT	1	Blood Colors	87	Gladiator Blood	0	50.00	0.00	50.00	0.00	0	0	0	1	0	1	44	0	0	BEGINNER ITEM\nAscend over your opponent and taste the thrill of combat		
@@ -779,7 +780,6 @@ PRODUCT	44	Color Packs	2372	Hawk Pack	0	0.00	40.00	0.00	40.00	0	0	0	0	0	0	55	0	0
 PRODUCT	78	3d objects	3420	Hazard Mask (QR3 Edition)	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Toribash x Quarantined Rapport 3 exclusive item.\n\nGet Toribash Twitch Drops by linking your Twitch account and viewing eligible streams.\n\nWant some of that Cyber-Gothic look? You can have that now!		
 PRODUCT	78	3d objects	2106	Head Arrow	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	..."ouch"...		
 PRODUCT	10	Avatars	151	Head Avatar	0	1500.00	0.00	1500.00	0.00	0	0	0	0	0	1	0	0	0	For good luck and ingame companionship.\nUses your current head texture and appears under your nickname.		
-PRODUCT	50	Flames	961	Head Flame	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	0	0			
 PRODUCT	78	3d objects	3273	Head Stars	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	...ouch.		
 PRODUCT	4	Textures	204	Head Texture	0	20000.00	0.00	20000.00	0.00	0	0	0	0	0	0	0	0	0	Allows you to upload skins to your HEAD.\n\n \nBUY ONLY ONCE & NON-TRADEABLE		
 PRODUCT	83	Collectors Cards	3386	heat - WC2020	0	10000.00	2.00	10000.00	2.00	0	0	0	0	0	0	0	1	1			
@@ -803,12 +803,52 @@ PRODUCT	44	Color Packs	1192	Hot Pink Pack	0	0.00	25.00	0.00	25.00	0	0	0	0	0	0	10
 PRODUCT	44	Color Packs	2068	Hunter Pack	0	0.00	18.00	0.00	18.00	0	0	0	0	0	0	95	0	0	This pack contains a full set of Hunter items. UNLOCK this into your inventory.	1576 1584 1589 1579 1575 1583 1578 1588 1585 1581 1586 1582 1590 1580 1577 1780 1587	
 PRODUCT	47	Secret	945	Hydra and Titan Set	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	This pack contains\n\n\nFull Hydra\n\n\nFull Titan\n\n\nUNPACK items in your inventory!	496 187 555 205 163 525 420 345 238 495 370 445 263 283 497 479 534 196 558 533 172 528 423 348 920 241 532 373 448 266 293 531 482	
 PRODUCT	44	Color Packs	2073	Hydra Pack	0	0.00	25.00	0.00	25.00	0	0	0	0	0	0	45	0	0	This pack contains a full set of Hydra items.\nUNLOCK this into your inventory.	496 495 497 163 187 238 263 205 283 370 420 445 345 479 525 555 1781	
+PRODUCT	78	3d objects	3447	Ice Abs	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Freezing Cold &#10054;		
+PRODUCT	78	3d objects	3445	Ice Breast	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Freezing Cold &#10054;		
+PRODUCT	78	3d objects	3491	Ice Chest	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Freezing Cold &#10054;		
+PRODUCT	78	3d objects	3446	Ice Groin	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Freezing Cold &#10054;		
+PRODUCT	78	3d objects	3448	Ice Head	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Freezing Cold &#10054;		
+PRODUCT	78	3d objects	3449	Ice Left Ankle	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Freezing Cold &#10054;		
+PRODUCT	78	3d objects	3450	Ice Left Axilla	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Freezing Cold &#10054;		
+PRODUCT	78	3d objects	3451	Ice Left Biceps	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Freezing Cold &#10054;		
+PRODUCT	78	3d objects	3452	Ice Left Elbow	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Freezing Cold &#10054;		
+PRODUCT	78	3d objects	3453	Ice Left Foot	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Freezing Cold &#10054;		
+PRODUCT	78	3d objects	3454	Ice Left Glute	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Freezing Cold &#10054;		
+PRODUCT	78	3d objects	3455	Ice Left Hand	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Freezing Cold &#10054;		
+PRODUCT	78	3d objects	3456	Ice Left Hip	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Freezing Cold &#10054;		
+PRODUCT	78	3d objects	3457	Ice Left Knee	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Freezing Cold &#10054;		
+PRODUCT	78	3d objects	3458	Ice Left Leg	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Freezing Cold &#10054;		
+PRODUCT	78	3d objects	3459	Ice Left Pecs	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Freezing Cold &#10054;		
+PRODUCT	78	3d objects	3460	Ice Left Shoulder	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Freezing Cold &#10054;		
+PRODUCT	78	3d objects	3461	Ice Left Thigh	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Freezing Cold &#10054;		
+PRODUCT	78	3d objects	3462	Ice Left Triceps	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Freezing Cold &#10054;		
+PRODUCT	78	3d objects	3463	Ice Left Wrist	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Freezing Cold &#10054;		
+PRODUCT	78	3d objects	3464	Ice Lumbar	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Freezing Cold &#10054;		
+PRODUCT	78	3d objects	3465	Ice Neck	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Freezing Cold &#10054;		
+PRODUCT	78	3d objects	3466	Ice Right Ankle	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Freezing Cold &#10054;		
+PRODUCT	78	3d objects	3467	Ice Right Axilla	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Freezing Cold &#10054;		
+PRODUCT	78	3d objects	3468	Ice Right Bicep	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Freezing Cold &#10054;		
+PRODUCT	78	3d objects	3469	Ice Right Elbow	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Freezing Cold &#10054;		
+PRODUCT	78	3d objects	3470	Ice Right Foot	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Freezing Cold &#10054;		
+PRODUCT	78	3d objects	3471	Ice Right Glute	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Freezing Cold &#10054;		
+PRODUCT	78	3d objects	3472	Ice Right Hand	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Freezing Cold &#10054;		
+PRODUCT	78	3d objects	3473	Ice Right Hip	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Freezing Cold &#10054;		
+PRODUCT	78	3d objects	3474	Ice Right Knee	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Freezing Cold &#10054;		
+PRODUCT	78	3d objects	3475	Ice Right Leg	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Freezing Cold &#10054;		
+PRODUCT	78	3d objects	3476	Ice Right Pecs	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Freezing Cold &#10054;		
+PRODUCT	78	3d objects	3477	Ice Right Shoulder	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Freezing Cold &#10054;		
+PRODUCT	78	3d objects	3478	Ice Right Thigh	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Freezing Cold &#10054;		
+PRODUCT	78	3d objects	3479	Ice Right Triceps	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Freezing Cold &#10054;		
+PRODUCT	78	3d objects	3480	Ice Right Wrist	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Freezing Cold &#10054;		
+PRODUCT	78	3d objects	3482	Ice Splex	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Freezing Cold &#10054;		
+PRODUCT	78	3d objects	3481	Ice Stomach	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Freezing Cold &#10054;		
+PRODUCT	80	Full Toris	3495	Ice Tori	0	400000.00	60.00	400000.00	60.00	0	0	0	0	0	0	0	1	1	Freezing Cold &#10054;	3445 3446 3447 3448 3449 3450 3451 3452 3453 3454 3455 3456 3457 3458 3459 3460 3461 3462 3463 3464 3465 3466 3467 3468 3469 3470 3471 3472 3473 3474 3475 3476 3477 3478 3479 3480 3481 3482 3491	
 PRODUCT	4	Textures	600	ICON	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	0	1	FOR WORLD CHAMPIONS and the ELITE		
 PRODUCT	55	Misc Textures	1423	Icon	0	0.00	20.00	0.00	20.00	0	0	0	0	0	1	0	0	0	With this item, you can have a customized icon to appear alongside your name during a fight!		
 PRODUCT	72	Hair Styles	1899	Imp Horns	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0			
 PRODUCT	49	Premium Packs	1555	Imperial Demolition Pure Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	0	\n\n\n*Image is a reference for joint colors only. Texture sets are sold separately.\n\n\nIn this pack, you get:\n\n\n16 Demolition items\n16 Imperial items\n14 Pure items\nClick Unlock to unpack these items into your inventory!	1386 1070 929	
 PRODUCT	47	Secret	1463	Imperial Force + Relax Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	This pack contains 1 x Imperial Force and 1 x Imperial Relax.	782 788	
-PRODUCT	44	Color Packs	929	Imperial Pack	0	0.00	55.00	0.00	55.00	0	0	0	0	0	0	86	0	0	This pack contains a full set of Imperial items.\nUNLOCK this into your inventory.	780 779 781 782 783 784 785 786 787 788 789 790 791 792 793 794 1782	
+PRODUCT	44	Color Packs	929	Imperial Pack	0	0.00	55.00	0.00	55.00	0	0	0	0	0	0	86	0	0	This pack contains a full set of Imperial items.\nUNLOCK this into your inventory.	780 779 781 782 783 784 785 786 787 788 789 790 791 792 793 794 1782 3433	
 PRODUCT	1	Blood Colors	2999	Impure Blood	0	80000.00	8.00	80000.00	8.00	0	0	0	0	0	1	125	0	0	LIMITED EDITION\nTainted by forces beyond your imagination.		
 PRODUCT	12	DQ Rings	3003	Impure DQ	0	8000.00	1.00	8000.00	1.00	0	0	0	0	0	1	125	0	0	LIMITED EDITION\nTainted by forces beyond your imagination.		
 PRODUCT	43	Emote Colors	3014	Impure Emote	0	8000.00	1.00	8000.00	1.00	0	0	0	0	0	1	125	0	0	LIMITED EDITION\nTainted by forces beyond your imagination.		
@@ -870,7 +910,7 @@ PRODUCT	78	3d objects	2978	Khakkhara	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	Onc
 PRODUCT	71	Sounds	1887	Kiai Sound	0	1000.00	0.00	1000.00	0.00	0	0	0	0	0	1	0	0	0	Kiai! Your shout echoes through the dojo. Strengthening your moral and weakening your opponents knees.		
 PRODUCT	78	3d objects	1981	Kickin' Kick L	0	0.00	3.00	0.00	3.00	0	0	0	0	0	1	0	1	1	Very stylish.		
 PRODUCT	78	3d objects	1982	Kickin' Kick R	0	0.00	3.00	0.00	3.00	0	0	0	0	0	1	0	1	1	Very stylish.		
-PRODUCT	80	Full Toris	2558	Kickin' Kicks	0	0.00	10.00	0.00	10.00	0	1	0	0	0	0	0	0	0	Unpack this to get the following items:\n\nKickin' Kick R\n\nKickin' Kick L	1981 1982	
+PRODUCT	80	Full Toris	2558	Kickin' Kicks	0	0.00	4.00	0.00	4.00	0	1	0	0	0	0	0	0	0	Unpack this to get the following items:\n\nKickin' Kick R\n\nKickin' Kick L	1981 1982	
 PRODUCT	44	Color Packs	1391	Knox Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	121	1	0	This pack contains a full set of Knox items. Unlock these items into your inventory.	1355 1354 1356 1357 1358 1359 1360 1361 1362 1363 1364 1365 1366 1367 1368 1369 1786	
 PRODUCT	78	3d objects	3272	Krakenstache	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	Toribash Movember 2019 grand prize		
 PRODUCT	78	3d objects	3325	Kung Fu Arm Rings - Left	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	Used by many traditional Kung Fu schools, these rings are worn on your forearms as you practice your forms.\nNot only do they add weight to build up your arm muscles, they harden your forearms for serious blocking!		
@@ -885,12 +925,10 @@ PRODUCT	72	Hair Styles	1751	lampshade	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	0
 PRODUCT	4	Textures	206	Left Bicep Texture	0	15000.00	0.00	15000.00	0.00	0	0	0	0	0	0	0	0	0	Allows you to upload skins to your LEFT BICEP. \n\n \nBUY ONLY ONCE & NON-TRADEABLE		
 PRODUCT	78	3d objects	2110	Left Box-ing Glove	0	5000.00	3.00	5000.00	3.00	0	0	0	0	0	1	0	1	1	For Box-ing!		
 PRODUCT	4	Textures	269	Left Foot Texture	0	10000.00	0.00	10000.00	0.00	0	0	0	0	0	0	0	0	0	Allows you to upload skins to your LEFT FOOT.\\n\n \nBUY ONLY ONCE & NON-TRADEABLE		
-PRODUCT	50	Flames	962	Left Hand Flame	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	0	0			
 PRODUCT	15	Body Text	217	Left Hand Tattoo	0	1000000.00	0.00	1000000.00	0.00	0	0	0	0	0	0	0	0	0	You need this item to set tattoo to your ingame character.		
 PRODUCT	4	Textures	486	Left Hand Texture	0	15000.00	0.00	15000.00	0.00	0	0	0	0	0	0	0	0	0	Allows you to upload skins to your LEFT HAND. \n\n \nBUY ONLY ONCE & NON-TRADEABLE		
 PRODUCT	4	Textures	502	Left Hand Texture Trail	0	35000.00	0.00	35000.00	0.00	0	0	0	0	0	0	0	0	0	Allows you to upload textured trails to your LEFT HAND. \n\n \nBUY ONLY ONCE & NON-TRADEABLE		
 PRODUCT	36	Left Hand Texture Trail	457	Left Hand Trail Texture	0	20000.00	0.00	20000.00	0.00	0	0	0	0	0	0	0	0	0	Allows you to upload textured trails to your LEFT HAND. \n\n \nBUY ONLY ONCE & NON-TRADEABLE		
-PRODUCT	50	Flames	964	Left Leg Flame	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	0	0			
 PRODUCT	4	Textures	212	Left Leg Texture	0	25000.00	0.00	25000.00	0.00	0	0	0	0	0	0	0	0	0	Allows you to upload skins to your LEFT SHIN. \n\n \nBUY ONLY ONCE & NON-TRADEABLE		
 PRODUCT	4	Textures	504	Left Leg Texture Trail	0	35000.00	0.00	35000.00	0.00	0	0	0	0	0	0	0	0	0	Allows you to upload textured trails to your LEFT LEG. \n\n \nBUY ONLY ONCE & NON-TRADEABLE		
 PRODUCT	38	Left Leg Texture Trail	459	Left Leg Trail Texture	0	20000.00	0.00	20000.00	0.00	0	0	0	0	0	0	0	0	0	Allows you to upload textured trails to your LEFT LEG.\n\n \nBUY ONLY ONCE & NON-TRADEABLE		
@@ -944,6 +982,8 @@ PRODUCT	34	User Text Colour	3039	Mana User Text	0	14000.00	2.00	14000.00	2.00	0	
 PRODUCT	78	3d objects	3023	Manamaster Cauldron	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	An immense strength is seeping out of this cauldron, but it may just be the garlic.		
 PRODUCT	78	3d objects	2252	Manklet	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Manklets are jewelry too.\nBreaking the meta.		
 PRODUCT	44	Color Packs	2067	Marine Pack	0	0.00	2.00	0.00	2.00	0	0	0	0	0	0	34	0	0	This pack contains a full set of Marine items. UNLOCK this into your inventory.	42 48 133 164 188 227 252 47 284 359 409 434 334 468 514 544 1788	
+PRODUCT	76	Uncategorized	3437	Market No-Qi Purchase Fee	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	Shiai Tokens spent for purchasing an item that requires more Qi than you have		
+PRODUCT	76	Uncategorized	3438	Market Purchase Fee	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	Toricredits spent for purchasing an item via Market		
 PRODUCT	18	Collectibles	740	Marlboro Lights	0	0.00	30.00	0.00	30.00	0	0	0	0	0	0	0	0	0	These are extreme smokes!		
 PRODUCT	18	Collectibles	726	Master siku's Toy Piano	0	0.00	50.00	0.00	50.00	0	0	0	0	0	0	0	0	0	THAS AS THA TAY PAANA THAT ANCA BALANGAD TA THA LAGANDARY MASTAR SIKU. WHAN SIKU DASAPPAARAD APAN AXPLARATAAN AF A BLACKHALA, HAS ATAMS WARA AACTAANAD AFF. THAS AS ANA AF THA FAW ATAMS AP FAR PABLAC AACTAAN.		
 PRODUCT	78	3d objects	2019	Masters of Realism Bracelet	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Item for the winner Artist of the Masters of Realism event hosted by GATA		
@@ -965,9 +1005,9 @@ PRODUCT	78	3d objects	2457	Mecha Arm (Left Hand)	0	0.00	0.00	0.00	0.00	0	0	0	0	0
 PRODUCT	78	3d objects	2462	Mecha Arm (Right Biceps)	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	If you have been Dismembered we can rearm you.		
 PRODUCT	78	3d objects	2460	Mecha Arm (Right Forearm)	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	If you have been Dismembered we can rearm you.		
 PRODUCT	78	3d objects	2458	Mecha Arm (Right Hand)	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	If you have been Dismembered we can rearm you.		
-PRODUCT	80	Full Toris	2509	Mecha Arm Left	0	40000.00	14.00	40000.00	14.00	0	1	0	0	0	0	0	0	0	If you have been Dismembered we can rearm you.\nCreated by Dengue.	2457 2459 2461	
-PRODUCT	80	Full Toris	2510	Mecha Arm Right	0	40000.00	14.00	40000.00	14.00	0	1	0	0	0	0	0	0	0	If you have been Dismembered we can rearm you.\nCreated by Dengue.	2458 2460 2462	
-PRODUCT	80	Full Toris	2511	Mecha Arms	0	100000.00	20.00	100000.00	20.00	0	1	0	0	0	0	0	0	0	If you have been Dismembered we can rearm you.\nCreated by Dengue.	2461 2459 2457 2462 2460 2458	
+PRODUCT	80	Full Toris	2509	Mecha Arm Left	0	60000.00	7.00	60000.00	7.00	0	1	0	0	0	0	0	0	0	If you have been Dismembered we can rearm you.\nCreated by Dengue.	2457 2459 2461	
+PRODUCT	80	Full Toris	2510	Mecha Arm Right	0	60000.00	7.00	60000.00	7.00	0	1	0	0	0	0	0	0	0	If you have been Dismembered we can rearm you.\nCreated by Dengue.	2458 2460 2462	
+PRODUCT	80	Full Toris	2511	Mecha Arms	0	100000.00	12.00	100000.00	12.00	0	1	0	0	0	0	0	0	0	If you have been Dismembered we can rearm you.\nCreated by Dengue.	2461 2459 2457 2462 2460 2458	
 PRODUCT	78	3d objects	3306	Melog Sword - Melog	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	Melog's actual sword		
 PRODUCT	78	3d objects	3422	Melog's Reaver	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	Melog's actual sword - retextured by Gang		
 PRODUCT	83	Collectors Cards	3390	melrose - WC2020	0	10000.00	2.00	10000.00	2.00	0	0	0	0	0	0	0	1	1			
@@ -1091,7 +1131,6 @@ PRODUCT	47	Secret	3255	Neon Pauldrons	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	0	A 
 PRODUCT	78	3d objects	3252	Neon Pauldrons L	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	A vent that uses excess neon energy for shielding.		
 PRODUCT	78	3d objects	3254	Neon Pauldrons R	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	A vent that uses excess neon energy for shielding.		
 PRODUCT	44	Color Packs	916	Neptune Pack	0	0.00	11.00	0.00	11.00	0	0	0	0	0	0	11	0	0	This pack contains a full set of Neptune items.\nUNLOCK this into your inventory.	622 621 623 624 625 626 627 628 629 630 631 632 633 634 635 636 1791	
-PRODUCT	78	3d objects	2135	Nerd Glasses	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	You wouldn't hit a guy with glasses would you?!?		
 PRODUCT	83	Collectors Cards	3093	Nerfpls - WC2018	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	0			
 PRODUCT	83	Collectors Cards	3101	Nervau - WC2018	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	0			
 PRODUCT	78	3d objects	2682	Ninja Claw - Left Hand	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Use it to climb walls or scratch out your enemies' eyes... your choice!		
@@ -1110,6 +1149,8 @@ PRODUCT	47	Secret	957	Null Interim Feb Toribooster-100 Promo	0	0.00	0.00	0.00	0.
 PRODUCT	78	3d objects	2688	Nunchaku	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Origins of the wood this nunchaku's chukon-bu is made with remain unclear, yet it is strong enough to create a long lasting bruise and to block direct attacks.		
 PRODUCT	83	Collectors Cards	3244	Obey - Clan League 2019	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	0			
 PRODUCT	78	3d objects	3352	Odd Mask (Twitch Halloween Edition)	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Get Toribash Twitch Drops by linking your Twitch account and viewing eligible streams.\n\nIf Azazel and a crow had a love child, he'd probably look like you\n\nOdlov's legendary item		
+PRODUCT	76	Uncategorized	3440	Offer Cancellation	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	Toricredits receiveved after cancelling a purchase offer on Market		
+PRODUCT	76	Uncategorized	3439	Offer Price Update	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	Toricredits receiveved or spent after updating a market offer		
 PRODUCT	78	3d objects	2009	Officer Cap	0	5000.00	1.00	5000.00	1.00	0	1	0	0	0	1	0	0	0	Item based on Noir's winning entry of the Coiffure Salon event.		
 PRODUCT	47	Secret	1512	Old Gold Force + Relax + Blood Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	This pack contains 1 x Old Gold Force, 1 x Old Gold Relax and 1 x Old Gold Blood.	1486 1489 1495	
 PRODUCT	44	Color Packs	1502	Old Gold Pack	0	0.00	18.00	0.00	18.00	0	0	0	0	0	0	100	0	0	This pack contains a full set of Old Gold items. Unlock these items into your inventory.	1486 1487 1488 1489 1490 1491 1492 1493 1494 1495 1496 1497 1498 1499 1500 1501 1793	
@@ -1180,17 +1221,18 @@ PRODUCT	72	Hair Styles	2227	Pony Tail	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0
 PRODUCT	72	Hair Styles	2228	Pony Tail	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0			
 PRODUCT	78	3d objects	2805	Pot o' Gold	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	A leprechaun's pot of gold. Don't let him catch you with it!		
 PRODUCT	78	3d objects	2159	Present from Santa	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	You have been a good boy		
-PRODUCT	18	Collectibles	3120	Pricy 4 bytes	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	0	Woooooooaaaaaaaah.		
+PRODUCT	18	Collectibles	3120	Pricy 4 bytes	0	0.00	200.00	0.00	200.00	0	0	0	0	0	0	0	1	0	Woooooooaaaaaaaah.		
+PRODUCT	78	3d objects	3444	Pride Bracelet	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Show Your Pride in Style!		
 PRODUCT	78	3d objects	1986	Propeller Hat	0	10000.00	2.00	10000.00	2.00	0	1	0	0	0	1	0	0	0	Chuckachuckachuckachucka		
 PRODUCT	80	Full Toris	2274	Punk Dude	0	180000.00	65.00	180000.00	65.00	0	0	0	0	0	0	0	1	1	Just don't take any photos, you might regret them later.	1767 1578 1579 1589 1590 967 971 975 1981 2055 1982 2054 1820	
 PRODUCT	78	3d objects	2055	Punkspike L	0	0.00	3.00	0.00	3.00	0	0	0	0	0	1	0	1	1	Noobclap damage +10\n\nMoshpit presence +20\n\nParental approval -5\n		
 PRODUCT	78	3d objects	2054	Punkspike R	0	0.00	3.00	0.00	3.00	0	0	0	0	0	1	0	1	1	Noobclap damage +10\n\nMoshpit presence +20\n\nParental approval -5\n		
-PRODUCT	80	Full Toris	2560	Punkspikes	0	10000.00	4.00	10000.00	4.00	0	1	0	0	0	0	0	0	0	Unpack this to get the following items:\n\nPunkspike R\n\nPunkspike L	2054 2055	
+PRODUCT	80	Full Toris	2560	Punkspikes	0	15000.00	3.00	15000.00	3.00	0	1	0	0	0	0	0	0	0	Unpack this to get the following items:\n\nPunkspike R\n\nPunkspike L	2054 2055	
 PRODUCT	44	Color Packs	2581	Pure + Demon Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	0		729 1194	
 PRODUCT	49	Premium Packs	1556	Pure Azurite Supernova Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	0	\n\n\n*Image is a reference for joint colors only. Set designed by hanz0. Texture sets are sold separately.\n\n\nIn this pack, you get:\n\n\n16 Azurite items\n16 Supernova items\n14 Pure items\nClick Unlock to unpack these items into your inventory!	1204 1194 928	
 PRODUCT	44	Color Packs	2762	Pure Elf Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	0		1070 1194	
 PRODUCT	47	Secret	1460	Pure Force + Relax Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	This pack contains 1 x Pure Force and 1 x Pure Relax.	148 147	
-PRODUCT	44	Color Packs	1194	Pure Pack	0	0.00	90.00	0.00	90.00	0	0	0	0	0	0	50	0	0	This pack contains a full set of Pure items. UNLOCK this into your inventory.	146 560 148 530 425 350 243 147 375 450 268 288 149 484 1799	
+PRODUCT	44	Color Packs	1194	Pure Pack	0	0.00	90.00	0.00	90.00	0	0	0	0	0	0	50	0	0	This pack contains a full set of Pure items. UNLOCK this into your inventory.	146 560 148 530 425 350 243 147 375 450 268 288 149 484 1799 3428	
 PRODUCT	78	3d objects	2247	Purple Beanie	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Unleash your inner hipster with these commercial, mass-produced Beanies.		
 PRODUCT	68	Qi	1612	Qi 1000	0	0.00	6.00	0.00	6.00	0	1	0	0	0	0	0	0	0	Qi points are earned by playing games and they affect your belt.\n\n\nPurchasing this will add 1000 Qi to your user account.\n\nIf you are a White Belt fighter, that'd instantly make you a Black Belt.		
 PRODUCT	68	Qi	1614	Qi 10000	0	0.00	48.00	0.00	48.00	0	1	0	0	0	0	0	0	0	Qi points are earned by playing games and they affect your belt.\n\n\nPurchasing this will add 10000 Qi to your user account.\n\nIf you are a White Belt fighter, that'd instantly make you a 10th Dan Black Belt.		
@@ -1218,6 +1260,7 @@ PRODUCT	47	Secret	3166	Random Elite Tier Joints	0	0.00	0.00	0.00	0.00	0	0	0	0	0	
 PRODUCT	85	Random item packs	3338	Random Hairstyle	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	0			
 PRODUCT	85	Random item packs	3351	Random Halloween Item	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	0	HALLOWEEN SPECIAL\n\nThis pack drops a random Halloween themed item upon unpacking		
 PRODUCT	85	Random item packs	3421	Random Item (Tier IV)	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	0			
+PRODUCT	85	Random item packs	3496	Random Item (Tier VI - VIII)	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	0	Contains a random Force, Relax or Blood item of Tiers 6 to 8		
 PRODUCT	85	Random item packs	3331	Random Item (Tier VII - IX)	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1			
 PRODUCT	85	Random item packs	3354	Random Spooky Twitch Item	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	0	Drops a random Halloween 2020 Twitch item:\n\n- Odd Mask (75% rate)\n\n- Fear Potion (25% rate)		
 PRODUCT	47	Secret	3184	Random Stone Relax	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1			
@@ -1241,12 +1284,10 @@ PRODUCT	78	3d objects	3246	Retrowave Helmet	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	
 PRODUCT	4	Textures	207	Right Bicep Texture	0	15000.00	0.00	15000.00	0.00	0	0	0	0	0	0	0	0	0	Allows you to upload skins to your RIGHT BICEP. \n\n \nBUY ONLY ONCE & NON-TRADEABLE		
 PRODUCT	78	3d objects	2111	Right Box-ing Glove	0	5000.00	3.00	5000.00	3.00	0	0	0	0	0	1	0	1	1	For Box-ing!		
 PRODUCT	4	Textures	270	Right Foot Texture	0	10000.00	0.00	10000.00	0.00	0	0	0	0	0	0	0	0	0	Allows you to upload skins to your RIGHT FOOT. \n\n \nBUY ONLY ONCE & NON-TRADEABLE		
-PRODUCT	50	Flames	963	Right Hand Flame	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	0	0			
 PRODUCT	15	Body Text	216	Right Hand Tattoo	0	1000000.00	0.00	1000000.00	0.00	0	0	0	0	0	0	0	0	0	You need this item to set tattoo to your ingame character.		
 PRODUCT	4	Textures	485	Right Hand Texture	0	15000.00	0.00	15000.00	0.00	0	0	0	0	0	0	0	0	0	Allows you to upload skins to your RIGHT HAND. \n\n \nBUY ONLY ONCE & NON-TRADEABLE		
 PRODUCT	4	Textures	503	Right Hand Texture Trail	0	35000.00	0.00	35000.00	0.00	0	0	0	0	0	0	0	0	0	Allows you to upload textured trails to your RIGHT HAND. \n\n \nBUY ONLY ONCE & NON-TRADEABLE		
 PRODUCT	35	Right Hand Texture Trail	456	Right Hand Trail Texture	0	20000.00	0.00	20000.00	0.00	0	0	0	0	0	0	0	0	0	Allows you to upload textured trails to your RIGHT HAND. \n\n \nBUY ONLY ONCE & NON-TRADEABLE		
-PRODUCT	50	Flames	965	Right Leg Flame	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	0	0			
 PRODUCT	4	Textures	213	Right Leg Texture	0	25000.00	0.00	25000.00	0.00	0	0	0	0	0	0	0	0	0	Allows you to upload skins to your RIGHT LEG.\n\n \nBUY ONLY ONCE & NON-TRADEABLE		
 PRODUCT	4	Textures	505	Right Leg Texture Trail	0	35000.00	0.00	35000.00	0.00	0	0	0	0	0	0	0	0	0	Allows you to upload textured trails to your RIGHT LEG. \n\n \nBUY ONLY ONCE & NON-TRADEABLE		
 PRODUCT	37	Right Leg Texture Trail	458	Right Leg Trail Texture	0	20000.00	0.00	20000.00	0.00	0	0	0	0	0	0	0	0	0	Allows you to upload textured trails to your RIGHT LEG. \n\n \nBUY ONLY ONCE & NON-TRADEABLE		
@@ -1277,6 +1318,14 @@ PRODUCT	21	Secondary Gradients	2965	Sakura Secondary Gradient	0	0.00	0.00	0.00	0
 PRODUCT	24	Timers	2966	Sakura Timer	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	132	1	0	LIMITED EDITION\n\nSakura bloom and die fast. Some may think of it as a flaw, - but certainly not the true Sakura-bito.		
 PRODUCT	5	Torso Colors	2961	Sakura Torso	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	132	1	0	LIMITED EDITION\n\nSakura bloom and die fast. Some may think of it as a flaw, - but certainly not the true Sakura-bito.		
 PRODUCT	34	User Text Colour	2971	Sakura User Text	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	132	1	0	LIMITED EDITION\n\nSakura bloom and die fast. Some may think of it as a flaw, - but certainly not the true Sakura-bito.		
+PRODUCT	78	3d objects	3487	Samurai Haidate L	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	&#20365;		
+PRODUCT	78	3d objects	3488	Samurai Haidate R	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	&#20365;		
+PRODUCT	78	3d objects	3483	Samurai Kabuto	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	&#20365;		
+PRODUCT	78	3d objects	3486	Samurai Kusazuri	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	&#20365;		
+PRODUCT	78	3d objects	3484	Samurai Sode L	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	&#20365;		
+PRODUCT	78	3d objects	3485	Samurai Sode R	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	&#20365;		
+PRODUCT	78	3d objects	3489	Samurai Suneate L	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	&#20365;		
+PRODUCT	78	3d objects	3490	Samurai Suneate R	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	&#20365;		
 PRODUCT	78	3d objects	2190	Samurai War Banner	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Clan League Champion Prize for Relax All clan.		
 PRODUCT	72	Hair Styles	1936	Santa Beard	0	5000.00	1.00	5000.00	1.00	0	0	0	0	0	1	0	1	0	Nothing brings Saami groupies for Santa likes his beard. It was forged over centuries, in the freezing cold of Lapland.		
 PRODUCT	72	Hair Styles	1935	Santa Hat	0	10000.00	2.00	10000.00	2.00	0	0	0	0	0	1	0	1	0	Spread joy and positive vibes using a Santa Hat while shoveling through snow in a drunken rage from the heart of Finland, home of Siku.		
@@ -1309,7 +1358,7 @@ PRODUCT	47	Secret	1547	Shaman Quicksilver Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0
 PRODUCT	78	3d objects	2809	Shamrock Hat	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	50	1	0	A big green hat with a Shamrock!		
 PRODUCT	78	3d objects	2260	Sharko Jr. L	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1			
 PRODUCT	78	3d objects	2259	Sharko Jr. R	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1			
-PRODUCT	78	3d objects	3256	Shattered Head	0	50000.00	6.00	50000.00	6.00	0	0	0	0	0	1	0	0	0	Maybe parkour just isn't your thing, you know.		
+PRODUCT	78	3d objects	3256	Shattered Head	0	50000.00	6.00	50000.00	6.00	0	1	0	0	0	1	0	0	0	Maybe parkour just isn't your thing, you know.		
 PRODUCT	77	Tokens	2528	Shiai Token	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	The currency of the winners.\n\nCan be exchanged for ST-exclusive items.		
 PRODUCT	78	3d objects	3133	Shoulder of Erth	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0			
 PRODUCT	71	Sounds	1729	Shout Sound	0	10000.00	0.00	10000.00	0.00	0	0	0	0	0	1	0	1	0	Upload .wav file (v 3.91 and above)		
@@ -1346,6 +1395,7 @@ PRODUCT	78	3d objects	2146	Smile Box	0	5000.00	3.00	5000.00	3.00	0	0	0	0	0	1	0	1
 PRODUCT	18	Collectibles	1673	Snowman	0	0.00	3.00	0.00	3.00	0	0	0	0	0	0	0	1	0	Oh wow, just as advertised your Pumpking turned into a snowman! Shame it's a bit on the derpy side.		
 PRODUCT	78	3d objects	3278	Snowman Head	0	25000.00	4.00	25000.00	4.00	0	0	0	0	0	1	0	1	1	Oh no, what happened to Frosty!		
 PRODUCT	78	3d objects	2880	Soccer Goal	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	GOOOOOOOOOAAAAAAAALLLLLLL!		
+PRODUCT	78	3d objects	3442	Soccer Head	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Kick Balls.		
 PRODUCT	71	Sounds	1696	Soft Impact 1 Sound	0	10000.00	0.00	10000.00	0.00	0	0	0	0	0	1	0	1	0	Upload .wav file (v 3.91 and above)		
 PRODUCT	71	Sounds	1697	Soft Impact 2 Sound	0	10000.00	0.00	10000.00	0.00	0	0	0	0	0	1	0	1	0	Upload .wav file (v 3.91 and above)		
 PRODUCT	78	3d objects	2004	Sonic Head Cap	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	They wear spiky caps of the color blue\n\nRed and white dons their shoe\n\nTheir fighting skills are elite and vast\n\nBut their specialty? Running fast!\n		
@@ -1389,7 +1439,7 @@ PRODUCT	5	Torso Colors	2891	Spring Torso	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	10	1	
 PRODUCT	34	User Text Colour	2902	Spring User Text	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	10	1	0	LIMITED EDITION\nThe greenest green of all greens. Spring time has come!		
 PRODUCT	18	Collectibles	1918	ST (deprecated)	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	0	1	The currency of the old age, used to unlock powerful items and the admiration of your friends. It's also shiny.		
 PRODUCT	78	3d objects	3345	Staff of Death	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0			
-PRODUCT	44	Color Packs	2070	Static Pack	0	0.00	100.00	0.00	100.00	0	0	0	0	0	0	9	0	0	This pack contains a full set of Static items.\nUNLOCK this into your inventory.	1592 1600 1605 1595 1591 1599 1603 1594 1604 1601 1597 1602 1598 1606 1596 1593 1807	
+PRODUCT	44	Color Packs	2070	Static Pack	0	0.00	100.00	0.00	100.00	0	0	0	0	0	0	9	0	0	This pack contains a full set of Static items.\nUNLOCK this into your inventory.	1592 1600 1605 1595 1591 1599 1603 1594 1604 1601 1597 1602 1598 1606 1596 1593 1807 3441	
 PRODUCT	78	3d objects	3269	Static's Sword	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	The SWORD OF STATIC!		
 PRODUCT	80	Full Toris	2946	Steampunk Joints	0	250000.00	50.00	250000.00	50.00	0	0	0	0	0	0	0	0	0	An ancient technology allowing for drastically improved torque.	2910 2911 2912 2913 2914 2915 2916 2917 2918 2919 2920 2921 2922	
 PRODUCT	78	3d objects	2922	Steampunk Joints - Left Ankle	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	An ancient technology allowing for drastically improved torque.		
@@ -1450,7 +1500,7 @@ PRODUCT	78	3d objects	2114	Sumo Belt	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1
 PRODUCT	78	3d objects	2136	Sunglasses	0	25000.00	4.00	25000.00	4.00	0	1	0	0	0	1	0	0	0	Protect your precious eyes from that awesome shader!		
 PRODUCT	44	Color Packs	1390	Superfly Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	120	1	0	This pack contains a full set of Superfly items. Unlock these items into your inventory.	1339 1338 1340 1341 1342 1343 1344 1345 1346 1347 1348 1349 1350 1351 1352 1353 1808	
 PRODUCT	44	Color Packs	2672	Superior Pack	0	1000000.00	150.00	1000000.00	150.00	0	0	0	0	0	0	130	0	0	ELITE ITEM\n\nYears of evolution has led to the creation of the most superior creature, the Parro-Wait...This isn't TK?	2657 2656 2658 2659 2660 2661 2662 2655 2664 2665 2666 2667 2668 2669 2670 2671 2663	
-PRODUCT	44	Color Packs	928	Supernova Pack	0	0.00	30.00	0.00	30.00	0	0	0	0	0	0	71	0	0	This pack contains a full set of Supernova items.\nUNLOCK this into your inventory.	671 670 672 673 674 675 676 677 678 679 680 681 682 683 684 685 1809	
+PRODUCT	44	Color Packs	928	Supernova Pack	0	0.00	30.00	0.00	30.00	0	0	0	0	0	0	71	0	0	This pack contains a full set of Supernova items.\nUNLOCK this into your inventory.	671 670 672 673 674 675 676 677 678 679 680 681 682 683 684 685 1809 3429	
 PRODUCT	52	Survey	1122	Survey	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	0	0	used in transaction history		
 PRODUCT	83	Collectors Cards	3289	Swaves - WC2019	0	10000.00	2.00	10000.00	2.00	0	0	0	0	0	0	0	1	1			
 PRODUCT	71	Sounds	1702	Swoosh Feet Sound	0	10000.00	0.00	10000.00	0.00	0	0	0	0	0	1	0	1	0	Upload .wav file (v 3.91 and above)		
@@ -1528,8 +1578,9 @@ PRODUCT	78	3d objects	2324	Tori Armor - R_Triceps	0	0.00	0.00	0.00	0.00	0	0	0	0	
 PRODUCT	80	Full Toris	2627	Tori Armor V2	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	0	Season One Winner Prize		
 PRODUCT	78	3d objects	2149	Tori Box	0	5000.00	3.00	5000.00	3.00	0	0	0	0	0	1	0	1	1	Fifth place in the Head in a Box event[Albus's Box]		
 PRODUCT	72	Hair Styles	1888	Tori Hair	0	200.00	0.00	200.00	0.00	0	0	0	0	0	1	0	0	0	The spirit of the Tori resides in those who wear this hair. Requires 4.0		
-PRODUCT	80	Full Toris	2710	Tori Ninja	0	0.00	20.00	0.00	20.00	0	0	0	0	0	0	0	0	0	Become the stealthy assassin armed with the deadliest weapons the Toriworld seen yet.	2678 2700 2682 2683 2686 2687 2676 2688 2690 2692 2694 2696 2698 147 969	
+PRODUCT	80	Full Toris	2710	Tori Ninja	1	0.00	12.00	0.00	20.00	237042	1	0	0	0	0	0	0	0	Become the stealthy assassin armed with the deadliest weapons the Toriworld seen yet.	2678 2700 2682 2683 2686 2687 2676 2688 2690 2692 2694 2696 2698 147 969	
 PRODUCT	80	Full Toris	2624	Tori Pirate	0	0.00	25.00	0.00	25.00	0	0	0	0	0	0	0	0	0	YARR!	2231 2266 2542 2544 2539	
+PRODUCT	80	Full Toris	3492	Tori Samurai	0	200000.00	25.00	200000.00	25.00	0	0	0	0	0	0	0	0	0	&#20365;	3483 3484 3485 3486 3487 3488 3489 3490	
 PRODUCT	18	Collectibles	3303	Tori Surprise [April Fools 2020]	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	Surprise mechanic item		
 PRODUCT	78	3d objects	2882	Tori Sweatband	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Feeling sweaty? Wear these!		
 PRODUCT	18	Collectibles	2063	Tori Team Discount Coupon	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	This coupon allows you to get a 25% discount while purchasing a single tori team hat item for shiai tokens. Up to two coupons may be used at once (for 50% discount). To use a coupon, send it to the gamemaster you're claiming the hat from. DISCLAIMER: These coupons will become invalid in August 2015, all unredeemed coupons will be removed from your inventory.		
@@ -1545,7 +1596,6 @@ PRODUCT	78	3d objects	2039	Tori Team | Tank's Ushanka	0	0.00	0.00	0.00	0.00	0	0	
 PRODUCT	80	Full Toris	2308	ToriArmor	0	200000.00	40.00	200000.00	40.00	0	1	0	0	0	0	0	0	0	The Tori Armour set, created by DumbN00b	2324 2325 2326 2327 2328 2329 2330 2331 2332 2333 2334 2335 2336	
 PRODUCT	18	Collectibles	720	Toribash Controller	0	0.00	40.00	0.00	40.00	0	0	0	0	0	0	0	1	0	This controller was created by the ancient ToriMaster Gfuerti. It has been known to weld the powers of all the Tori in the land.\nBut to others, it's simply a very expensive paperweight.		
 PRODUCT	47	Secret	494	Toribash Lottery	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	The biggest lottery yet, with the prize being ONE MILLION TORICREDITS!\nThis will be drawn two weeks after we reach 500,000 posts.\nThe lottery has been drawn. Thank you.		
-PRODUCT	77	Tokens	2557	Toribash Next Coin	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	This coin can in the future be traded to the Toribash Next crypto currency.		
 PRODUCT	83	Collectors Cards	3304	Toribash Season Pass [April Fools 2020]	0	10000.00	0.00	10000.00	0.00	0	0	0	0	0	0	0	1	1			
 PRODUCT	76	Uncategorized	3392	Toribash x QR3 ticket	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	Payment for entering QR3 event		
 PRODUCT	18	Collectibles	3318	TORIBASH x QUARANTINED RAPPORT 2 Ticket	0	0.00	3.00	0.00	3.00	0	0	0	0	0	0	0	1	1	A ticket to join TBxQR2 charity tournament		
@@ -1553,15 +1603,15 @@ PRODUCT	18	Collectibles	721	ToriBeer	0	0.00	50.00	0.00	50.00	0	0	0	0	0	0	0	0	0	T
 PRODUCT	79	Subscriptions	2033	ToriBooster-100	0	0.00	10.00	0.00	10.00	0	0	0	0	4	0	0	0	0	Buying this subscription will make you earn 100 TC for each fight you win during a month.		
 PRODUCT	79	Subscriptions	3327	ToriBooster-100 (1 day)	0	0.00	0.00	0.00	0.00	0	0	0	0	4	0	0	1	1	This subscription will make you earn 100 TC for each fight won for 1 day		
 PRODUCT	47	Secret	930	ToriBooster-100 Promo	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	January ToriBooster-100 Pack with matching sets!\n\n\nFull Beetle\n\n\nFull Copper\n\n\nFull Neptune\n\n\nFull Acid.\n\n\nGet this pack only in January! UNPACK items in your inventory!	913 919 917 916	
-PRODUCT	79	Subscriptions	2035	ToriBooster-1000	0	0.00	100.00	0.00	100.00	0	1	0	0	6	0	0	0	0	Buying this subscription will make you earn 1000 TC for each fight you win during a month.		
+PRODUCT	79	Subscriptions	2035	ToriBooster-1000	0	0.00	100.00	0.00	100.00	0	0	0	0	6	0	0	0	0	Buying this subscription will make you earn 1000 TC for each fight you win during a month.		
 PRODUCT	47	Secret	934	ToriBooster-1000 Promo	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	January ToriBooster-1000 Pack with matching sets!\n\n\nFull Imperial\n\n\nFull Plasma\n\n\nFull Platinum\n\n\nFull Supernova.\n\n\nGet this pack only in January! UNPACK items in your inventory!	929 927 926 928	
-PRODUCT	79	Subscriptions	2037	ToriBooster-10000	0	0.00	100.00	0.00	100.00	0	1	0	0	9	0	0	0	0	Buying this subscription will make you earn 10000 TC for each fight you win for a day. That's a lot of money!		
+PRODUCT	79	Subscriptions	2037	ToriBooster-10000	0	0.00	100.00	0.00	100.00	0	0	0	0	9	0	0	0	0	Buying this subscription will make you earn 10000 TC for each fight you win for a day. That's a lot of money!		
 PRODUCT	79	Subscriptions	2034	ToriBooster-200	0	0.00	20.00	0.00	20.00	0	0	0	0	5	0	0	0	0	Buying this subscription will make you earn 200 TC for each fight you win during a month.		
 PRODUCT	47	Secret	932	ToriBooster-200 Promo	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	January ToriBooster-200 Pack with matching sets!\n\n\nFull Adamantium\n\n\nFull Cobra\n\n\nFull Pharos\n\n\nFull Titan.\n\n\nGet this pack only in January! UNPACK items in your inventory!	923 922 921 920	
 PRODUCT	79	Subscriptions	2032	ToriBooster-50	0	0.00	5.00	0.00	5.00	0	0	0	0	3	0	0	0	0	Buying this subscription will make you earn 50 TC for each fight you win during a month.		
 PRODUCT	79	Subscriptions	3326	ToriBooster-50 (1 day)	0	0.00	0.00	0.00	0.00	0	0	0	0	3	0	0	1	1	This subscription will make you earn 50 TC for each fight won for 1 day		
 PRODUCT	47	Secret	931	ToriBooster-50 Promo	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	January ToriBooster-50 Promo Pack with matching sets!\n\n\nFull Aqua\n\n\nFull Bronze.\n\n\nGet this pack only in January! UNPACK items in your inventory!	914 915	
-PRODUCT	79	Subscriptions	2038	ToriBooster-500	0	0.00	50.00	0.00	50.00	0	0	0	0	11	0	0	0	0	Buying this subscription will make you earn 500 TC for each fight you win during a month.		
+PRODUCT	79	Subscriptions	2038	ToriBooster-500	0	0.00	50.00	0.00	50.00	0	1	0	0	11	0	0	0	0	Buying this subscription will make you earn 500 TC for each fight you win during a month.		
 PRODUCT	47	Secret	933	ToriBooster-500 Promo	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	January 100k Pack with matching sets!\n\n\nFull Plasma\n\n\nFull Platinum\n\n\nFull Aurora\n\n\nFull Raptor.\n\n\nGet this pack only in January! UNPACK items in your inventory!	925 927 926 924	
 PRODUCT	18	Collectibles	725	ToriBurger	0	0.00	50.00	0.00	50.00	0	0	0	0	0	0	0	0	0	ToriBurger comes from the Restaurant at the end of the Universe. Some say it doesn't actually exist... but others say you must believe. For if you believe there is a ToriBurger, there shall be a ToriBurger		
 PRODUCT	47	Secret	1677	Toriprime/VIP Subscription	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	This item was used as a lottery prize.		
@@ -1570,7 +1620,7 @@ PRODUCT	78	3d objects	2123	Totally 3D! (glasses)	0	1500.00	0.00	1500.00	0.00	0	0
 PRODUCT	67	Tournament	1611	Tournament	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	0	0			
 PRODUCT	67	Tournament	1620	Tournament Fee (buy in)	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	0	0			
 PRODUCT	67	Tournament	1615	Tournament Sponsor	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	0	0			
-PRODUCT	44	Color Packs	1115	Toxic Pack	0	0.00	10.00	0.00	10.00	0	0	0	0	0	0	40	0	0	This pack consist of a full set of Toxic items. UNLOCK this into your inventory.	45 197 550 67 173 520 415 340 233 68 365 440 258 294 141 474 1811	
+PRODUCT	44	Color Packs	1115	Toxic Pack	0	0.00	10.00	0.00	10.00	0	0	0	0	0	0	40	0	0	This pack consist of a full set of Toxic items. UNLOCK this into your inventory.	45 197 550 67 173 520 415 340 233 68 365 440 258 294 141 474 1811 3434	
 PRODUCT	80	Full Toris	2404	Trancebot Body Texture Pack (128px)	0	0.00	4.00	0.00	4.00	0	0	0	0	0	0	0	1	1	This Pack contains all 128x128 body textures with a preloaded Trancebot set by Marrez.\n\nUnlock it to unpack all items in your inventory.	1337 1405 1406 1407 1408 1409 1410 1411 1412 1413 1414 1415 1416 1417 1418 1419 1420 1421 1422	
 PRODUCT	80	Full Toris	2403	Trancebot Body Texture Pack (256px)	0	0.00	20.00	0.00	20.00	0	0	0	0	0	0	0	1	1	This Pack contains all 256x256 body textures with a preloaded Trancebot set by Marrez.\n\nUnlock it to unpack all items in your inventory.	1566 1625 1626 1627 1628 1629 1630 1631 1632 1633 1634 1635 1636 1637 1638 1639 1640 1641 1642	
 PRODUCT	80	Full Toris	2402	Trancebot Body Texture Pack (512px)	0	0.00	40.00	0.00	40.00	0	0	0	0	0	0	0	1	1	This Pack contains all 512x512 body textures with a preloaded Trancebot set by Marrez.\n\nUnlock it to unpack all items in your inventory.	1567 1643 1644 1645 1646 1647 1648 1649 1650 1651 1652 1653 1654 1655 1656 1657 1658 1659 1660	
@@ -1653,7 +1703,7 @@ PRODUCT	78	3d objects	2564	White Straw Hat - Frosy	0	0.00	0.00	0.00	0.00	0	0	0	0
 PRODUCT	79	Subscriptions	2737	Wibbles	0	13370.00	0.00	13370.00	0.00	0	0	0	0	13	0	0	1	1	Purchase this subscription to gain a 10-year-long Wibbles board access.		
 PRODUCT	79	Subscriptions	2738	Wibbles Anonymous	0	42000.00	0.00	42000.00	0.00	0	0	0	0	14	0	0	1	1	Purchase this subscription to appear anonymous in Wibbles for 90 days!\n\nTHIS DOES NOT GIVE YOU WIBBLES ACCESS		
 PRODUCT	78	3d objects	2908	Wife's Rainbow Katana	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	A Japanese trademark weapon brought to Toriworld by hampa-san during the Gold Age.		
-PRODUCT	44	Color Packs	2323	Wildfire Pack	0	0.00	55.00	0.00	55.00	0	0	0	0	0	0	52	0	0	This pack contains a full set of Wildfire items.\nUNLOCK this into your inventory.	2290 2289 2299 2309 2310 2316 2317 2311 2312 2318 2319 2320 2321 2322 2314 2315 2313	
+PRODUCT	44	Color Packs	2323	Wildfire Pack	1	0.00	27.00	0.00	55.00	237042	0	0	0	0	0	52	0	0	This pack contains a full set of Wildfire items.\nUNLOCK this into your inventory.	2290 2289 2299 2309 2310 2316 2317 2311 2312 2318 2319 2320 2321 2322 2314 2315 2313 3493	
 PRODUCT	83	Collectors Cards	3245	win - Clan League 2019	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	0			
 PRODUCT	71	Sounds	1711	Win Sound	0	50000.00	0.00	50000.00	0.00	0	0	0	0	0	1	0	0	0	You shout out in triumph for you have fought and won. Another victory and another step closer to the top.		
 PRODUCT	78	3d objects	2654	Winged Halo	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	The legend says that an angel shall visit the Tori realm to stop the fighting, and they shall do so through fighting.		
@@ -1934,7 +1984,7 @@ PRODUCT	24	Timers	294	Toxic Timer	0	1200.00	0.00	1200.00	0.00	0	0	100	4	0	1	40	0
 PRODUCT	5	Torso Colors	141	Toxic Torso	0	1800.00	0.00	1800.00	0.00	0	0	100	4	0	1	40	0	0	TIER III ITEM\nToribashians who underwent horrific experiments in the name of science... and came out the other side something new....		
 PRODUCT	34	User Text Colour	474	Toxic User Text	0	1200.00	0.00	1200.00	0.00	0	0	100	4	0	1	40	0	0	TIER III ITEM\nToribashians who underwent horrific experiments in the name of science... and came out the other side something new...		
 PRODUCT	33	Advanced Ghosts	453	Turnframe Ghost	0	5000.00	0.00	5000.00	0.00	0	0	100	0	0	1	0	0	0			
-PRODUCT	78	3d objects	3045	Ug-Gar's Hair	0	25000.00	4.00	25000.00	4.00	337683	1	100	0	0	1	0	0	0	Messy, smelly hair with a bone to top it all off!		
+PRODUCT	78	3d objects	3045	Ug-Gar's Hair	0	25000.00	4.00	25000.00	4.00	0	1	100	0	0	1	0	0	0	Messy, smelly hair with a bone to top it all off!		
 PRODUCT	78	3d objects	2785	Zombie Hand	0	5000.00	1.00	5000.00	1.00	0	0	100	0	0	1	0	1	1	HALLOWEEN SPECIAL\n\nWho could know that those zombies have such a strong grip?		
 PRODUCT	1	Blood Colors	44	Acid Blood	0	6000.00	1.00	6000.00	1.00	0	0	200	5	0	1	26	0	0	TIER IV ITEM\nThose who hold this have the power to burn their hits deep into their enemies, melting almost anything that stands in their way.		
 PRODUCT	12	DQ Rings	176	Acid DQ	0	600.00	0.00	600.00	0.00	0	0	200	5	0	1	26	0	0	TIER IV ITEM\nThose who hold this have the power to burn their hits deep into their enemies, melting almost anything that stands in their way.		
@@ -2142,7 +2192,7 @@ PRODUCT	24	Timers	840	Adamantium Timer	0	1600.00	0.00	1600.00	0.00	0	0	500	6	0	1
 PRODUCT	5	Torso Colors	841	Adamantium Torso	0	2400.00	1.00	2400.00	1.00	0	0	500	6	0	1	75	0	0	TIER V ITEM\nBelieved to be harnessed from a creature from another universe, Adamantium is an extremely rare mineral. Harness the unbreakable, nearly indestructible powers of this mineral.		
 PRODUCT	34	User Text Colour	842	Adamantium User Text	0	1600.00	0.00	1600.00	0.00	0	0	500	6	0	1	75	0	0	TIER V ITEM\nBelieved to be harnessed from a creature from another universe, Adamantium is an extremely rare mineral. Harness the unbreakable, nearly indestructible powers of this mineral.		
 PRODUCT	78	3d objects	3312	Antlers	0	40000.00	6.00	40000.00	6.00	0	0	500	0	0	1	0	1	1	Oh, deer! Suggested by Avenue.		
-PRODUCT	78	3d objects	3308	Baby Dragon	1	30000.00	4.00	50000.00	7.00	164883	1	500	0	0	1	0	0	0	He just wants YOUR love. Suggested by Suikensan.		
+PRODUCT	78	3d objects	3308	Baby Dragon	0	50000.00	7.00	50000.00	7.00	0	1	500	0	0	1	0	0	0	He just wants YOUR love. Suggested by Suikensan.		
 PRODUCT	78	3d objects	3132	Bo Staff	0	30000.00	5.00	30000.00	5.00	0	1	500	0	0	1	0	0	0	UPGRADEABLE ITEM\nTrademark Japanese weapon made of finest Torikinawan bamboo.		
 PRODUCT	1	Blood Colors	2374	Boreal Blood	0	6000.00	1.00	6000.00	1.00	0	0	500	6	0	1	51	0	0	TIER V ITEM\n Find your place in the ecosystem. Top the food chain. Requires 5.11 or higher to use		
 PRODUCT	12	DQ Rings	2378	Boreal DQ	0	650.00	0.00	650.00	0.00	0	0	500	0	0	1	51	0	0	TIER V ITEM\n Find your place in the ecosystem. Top the food chain. Requires 5.11 or higher to use		
@@ -2220,7 +2270,7 @@ PRODUCT	78	3d objects	2454	Kid Popstar	0	15000.00	3.00	15000.00	3.00	0	1	500	0	0
 PRODUCT	78	3d objects	3313	Knight's Gear	0	40000.00	6.00	40000.00	6.00	0	0	500	0	0	1	0	0	0	Never enter battle without gearing up. Suggested by Inuyahsha.		
 PRODUCT	33	Advanced Ghosts	454	Long Ghost	0	5000.00	0.00	5000.00	0.00	0	0	500	0	0	1	0	0	0			
 PRODUCT	72	Hair Styles	1988	Mayan Warrior	0	20000.00	3.00	20000.00	3.00	0	0	500	0	0	1	0	0	0	Fabled fighter of old.		
-PRODUCT	78	3d objects	2051	Mullet	0	10000.00	2.00	10000.00	2.00	0	0	500	0	0	1	0	1	1	Business in the front, party in the back.		
+PRODUCT	78	3d objects	2051	Mullet	0	10000.00	2.00	10000.00	2.00	0	1	500	0	0	1	0	0	0	Business in the front, party in the back.		
 PRODUCT	78	3d objects	3305	Old Eastern Hair	0	30000.00	5.00	30000.00	5.00	0	1	500	0	0	1	0	0	0	A lovely hairstyle from the East!		
 PRODUCT	78	3d objects	2539	Pirate Belt	0	40000.00	6.00	40000.00	6.00	0	1	500	0	0	1	0	0	0	Yarr!		
 PRODUCT	78	3d objects	2266	Pirate Hat	0	25000.00	4.00	25000.00	4.00	0	1	500	0	0	1	0	0	0	Ahoy!		
@@ -2353,7 +2403,7 @@ PRODUCT	78	3d objects	3237	Grandmaster's Beard	0	15000.00	3.00	15000.00	3.00	0	0
 PRODUCT	78	3d objects	3309	Grappler's Belt	0	40000.00	7.00	40000.00	7.00	0	1	1000	0	0	1	0	0	0	Hokay guys, don't let anyone pull reverse de la worm guard on you with this thing. Suggested by Footlox.		
 PRODUCT	78	3d objects	1977	Green Hat	0	0.00	0.00	0.00	0.00	0	0	1000	0	0	1	10	1	1	Despite being useless for hand to hand combat, it redeems itself by being green and a hat. Everything Fish has ever dreamed of.		
 PRODUCT	78	3d objects	2674	Head Axe	0	15000.00	3.00	15000.00	3.00	0	1	1000	0	0	1	50	0	0	Heads up!		
-PRODUCT	78	3d objects	3235	Head Hunter's Strap	0	50000.00	8.00	50000.00	8.00	596883	1	1000	0	0	1	0	0	0	Years of head hunting taught you that fear is among strongest weapons against your foes. And dried heads of those you defeated drive people into fear just right.		
+PRODUCT	78	3d objects	3235	Head Hunter's Strap	0	50000.00	8.00	50000.00	8.00	0	1	1000	0	0	1	0	0	0	Years of head hunting taught you that fear is among strongest weapons against your foes. And dried heads of those you defeated drive people into fear just right.		
 PRODUCT	78	3d objects	2199	Hidden Blade	0	20000.00	4.00	20000.00	4.00	0	1	1000	0	0	1	0	0	0	Signature weapon of an assassin. Kill without leaving a trace, because the shadows are your best disguise.		
 PRODUCT	1	Blood Colors	1141	Hot Pink Blood	0	24000.00	5.00	24000.00	5.00	0	0	1000	7	0	1	105	0	0	TIER VI ITEM\nPour les femmes. For the month we celebrate women in Toribash)		
 PRODUCT	12	DQ Rings	1140	Hot Pink DQ	0	2400.00	1.00	2400.00	1.00	0	0	1000	7	0	1	105	0	0	TIER VI ITEM\nPour les femmes. For the month we celebrate women in Toribash).		
@@ -2396,6 +2446,7 @@ PRODUCT	21	Secondary Gradients	633	Neptune Secondary Gradient	0	1200.00	0.00	120
 PRODUCT	24	Timers	634	Neptune Timer	0	800.00	0.00	800.00	0.00	0	0	1000	7	0	1	11	0	0	TIER VI ITEM\nLet the spirit of Poseidon guide your every move. The healing calm of water fused with the destructive power of tidal waves flow through your veins.Low Restock.		
 PRODUCT	5	Torso Colors	635	Neptune Torso	0	1200.00	0.00	1200.00	0.00	0	0	1000	7	0	1	11	0	0	TIER VI ITEM\nLet the spirit of Poseidon guide your every move. The healing calm of water fused with the destructive power of tidal waves flow through your veins.		
 PRODUCT	34	User Text Colour	636	Neptune User Text	0	800.00	0.00	800.00	0.00	0	0	1000	7	0	1	11	0	0	TIER VI ITEM\nLet the spirit of Poseidon guide your every move. The healing calm of water fused with the destructive power of tidal waves flow through your veins.		
+PRODUCT	78	3d objects	2135	Nerd Glasses	0	15000.00	3.00	15000.00	3.00	0	1	1000	0	0	1	0	0	0	You wouldn't hit a guy with glasses would you?!?		
 PRODUCT	1	Blood Colors	1486	Old Gold Blood	0	7000.00	2.00	7000.00	2.00	0	0	1000	7	0	1	100	0	0	TIER VI ITEM\nExclusive and bold, a perfect match with void and demon for that ancient look.		
 PRODUCT	12	DQ Rings	1487	Old Gold DQ	0	700.00	0.00	700.00	0.00	0	0	1000	7	0	1	100	0	0	TIER VI ITEM\nExclusive and bold, a perfect match with void and demon for that ancient look.		
 PRODUCT	43	Emote Colors	1488	Old Gold Emote	0	700.00	0.00	700.00	0.00	0	0	1000	7	0	1	100	0	0	TIER VI ITEM\nExclusive and bold, a perfect match with void and demon for that ancient look.		
@@ -2483,18 +2534,18 @@ PRODUCT	34	User Text Colour	1139	Velvet User Text	0	2800.00	1.00	2800.00	1.00	0	
 PRODUCT	78	3d objects	3017	Viking Shield	0	25000.00	5.00	25000.00	5.00	0	1	1000	0	0	1	0	0	0	To protect against invaders!		
 PRODUCT	78	3d objects	2708	War Bonnet	0	20000.00	4.00	20000.00	4.00	0	1	1000	0	0	1	0	0	0	For the great warriors who have earned a place of great respect in their Tori-tribe.		
 PRODUCT	19	Tournament	718	World Championships 2008	0	10000.00	0.00	10000.00	0.00	0	0	1000	0	0	0	0	1	0	Toribash World Championships 2008 Ticket.		
-PRODUCT	1	Blood Colors	2337	Blossom Blood	1	6600.00	2.00	10000.00	3.00	596883	0	2000	8	0	1	53	0	0	TIER VII ITEM\nSakura only blooms for a few days in spring. As the petals fall, so do your enemies. Requires 5.11 or higher to use		
+PRODUCT	1	Blood Colors	2337	Blossom Blood	0	10000.00	3.00	10000.00	3.00	0	0	2000	8	0	1	53	0	0	TIER VII ITEM\nSakura only blooms for a few days in spring. As the petals fall, so do your enemies. Requires 5.11 or higher to use		
 PRODUCT	12	DQ Rings	2341	Blossom DQ	0	1000.00	0.00	1000.00	0.00	0	0	2000	8	0	1	53	0	0	TIER VII ITEM\nSakura only blooms for a few days in spring. As the petals fall, so do your enemies. Requires 5.11 or higher to use		
 PRODUCT	43	Emote Colors	2352	Blossom Emote	0	1000.00	0.00	1000.00	0.00	0	0	2000	8	0	1	53	0	0	TIER VII ITEM\nSakura only blooms for a few days in spring. As the petals fall, so do your enemies. Requires 5.11 or higher to use		
-PRODUCT	22	Force Colors	2344	Blossom Force	1	9000.00	2.00	15000.00	4.00	596883	0	2000	8	0	1	53	0	0	TIER VII ITEM\nSakura only blooms for a few days in spring. As the petals fall, so do your enemies. Requires 5.11 or higher to use		
-PRODUCT	11	Ghost Colors	2340	Blossom Ghost	1	3300.00	2.00	5000.00	2.00	596883	0	2000	8	0	1	53	0	0	TIER VII ITEM\nSakura only blooms for a few days in spring. As the petals fall, so do your enemies. Requires 5.11 or higher to use		
-PRODUCT	87	Item Effects	3436	Blossom Glow	1	4200.00	2.00	5000.00	2.00	596883	0	2000	0	0	0	53	0	0	Blossom fresnel glow effect for your item.\n\nCan be fused into Force, Relax, Primary Gradient or Head Texture items.		
+PRODUCT	22	Force Colors	2344	Blossom Force	0	15000.00	4.00	15000.00	4.00	0	0	2000	8	0	1	53	0	0	TIER VII ITEM\nSakura only blooms for a few days in spring. As the petals fall, so do your enemies. Requires 5.11 or higher to use		
+PRODUCT	11	Ghost Colors	2340	Blossom Ghost	0	5000.00	2.00	5000.00	2.00	0	0	2000	8	0	1	53	0	0	TIER VII ITEM\nSakura only blooms for a few days in spring. As the petals fall, so do your enemies. Requires 5.11 or higher to use		
+PRODUCT	87	Item Effects	3436	Blossom Glow	0	5000.00	2.00	5000.00	2.00	0	0	2000	0	0	0	53	0	0	Blossom fresnel glow effect for your item.\n\nCan be fused into Force, Relax, Primary Gradient or Head Texture items.		
 PRODUCT	41	Grip Colors	2351	Blossom Grip	0	1000.00	0.00	1000.00	0.00	0	0	2000	8	0	1	53	0	0	TIER VII ITEM\nSakura only blooms for a few days in spring. As the petals fall, so do your enemies. Requires 5.11 or higher to use		
 PRODUCT	73	Hair Color	2353	Blossom Hair	0	3000.00	1.00	3000.00	1.00	0	0	2000	8	0	1	53	0	0	TIER VI ITEM\nREQUIRES A HAIR STYLE TO USE\nColor for your hair style. Requires 5.11 or higher to use		
 PRODUCT	28	Left Hand Motion Trail	2347	Blossom Left Hand Motion Trail	0	1000.00	0.00	1000.00	0.00	0	0	2000	8	0	1	53	0	0	TIER VII ITEM\nSakura only blooms for a few days in spring. As the petals fall, so do your enemies. Requires 5.11 or higher to use		
 PRODUCT	30	Left Leg Motion Trail	2349	Blossom Left Leg Motion Trail	0	1000.00	0.00	1000.00	0.00	0	0	2000	8	0	1	53	0	0	TIER VII ITEM\nSakura only blooms for a few days in spring. As the petals fall, so do your enemies. Requires 5.11 or higher to use		
 PRODUCT	20	Primary Gradients	2342	Blossom Primary Gradient	0	3000.00	1.00	3000.00	1.00	0	0	2000	8	0	1	53	0	0	TIER VII ITEM\nSakura only blooms for a few days in spring. As the petals fall, so do your enemies. Requires 5.11 or higher to use		
-PRODUCT	2	Relax Colors	2338	Blossom Relax	1	6600.00	2.00	10000.00	3.00	596883	0	2000	8	0	1	53	0	0	TIER VII ITEM\nSakura only blooms for a few days in spring. As the petals fall, so do your enemies. Requires 5.11 or higher to use		
+PRODUCT	2	Relax Colors	2338	Blossom Relax	0	10000.00	3.00	10000.00	3.00	0	0	2000	8	0	1	53	0	0	TIER VII ITEM\nSakura only blooms for a few days in spring. As the petals fall, so do your enemies. Requires 5.11 or higher to use		
 PRODUCT	27	Right Hand Motion Trail	2346	Blossom Right Hand Motion Trail	0	1000.00	0.00	1000.00	0.00	0	0	2000	8	0	1	53	0	0	TIER VII ITEM\nSakura only blooms for a few days in spring. As the petals fall, so do your enemies. Requires 5.11 or higher to use		
 PRODUCT	29	Right Leg Motion Trail	2348	Blossom Right Leg Motion Trail	0	1000.00	0.00	1000.00	0.00	0	0	2000	8	0	1	53	0	0	TIER VII ITEM\nSakura only blooms for a few days in spring. As the petals fall, so do your enemies. Requires 5.11 or higher to use		
 PRODUCT	21	Secondary Gradients	2343	Blossom Secondary Gradient	0	3000.00	1.00	3000.00	1.00	0	0	2000	8	0	1	53	0	0	TIER VII ITEM\nSakura only blooms for a few days in spring. As the petals fall, so do your enemies. Requires 5.11 or higher to use		
@@ -2902,20 +2953,21 @@ PRODUCT	21	Secondary Gradients	1317	Warrior Secondary Gradient	0	18000.00	6.00	1
 PRODUCT	24	Timers	1318	Warrior Timer	0	12000.00	4.00	12000.00	4.00	0	0	7500	11	0	1	116	0	0	TIER X ITEM\nThe adrenaline rush, the gorilla press drop, the running powerslam. All hallmarks of the legendary Warrior in the ring.		
 PRODUCT	5	Torso Colors	1319	Warrior Torso	0	18000.00	6.00	18000.00	6.00	0	0	7500	11	0	1	116	0	0	TIER X ITEM\nThe adrenaline rush, the gorilla press drop, the running powerslam. All hallmarks of the legendary Warrior in the ring.		
 PRODUCT	34	User Text Colour	1320	Warrior User Text	0	12000.00	4.00	12000.00	4.00	0	0	7500	11	0	1	116	0	0	TIER X ITEM\nThe adrenaline rush, the gorilla press drop, the running powerslam. All hallmarks of the legendary Warrior in the ring.		
-PRODUCT	1	Blood Colors	2290	Wildfire Blood	0	30000.00	10.00	30000.00	10.00	0	0	9400	11	0	1	52	0	0	TIER X ITEM\nYou become one with the Wildfire, incinerating anything that stands in your way. Requires 5.11 or higher to use		
+PRODUCT	1	Blood Colors	2290	Wildfire Blood	1	18000.00	6.00	30000.00	10.00	237042	0	9400	11	0	1	52	0	0	TIER X ITEM\nYou become one with the Wildfire, incinerating anything that stands in your way. Requires 5.11 or higher to use		
 PRODUCT	12	DQ Rings	2310	Wildfire DQ	0	3000.00	2.00	3000.00	2.00	0	0	9400	11	0	1	52	0	0	TIER X ITEM\nYou become one with the Wildfire, incinerating anything that stands in your way. Requires 5.11 or higher to use		
 PRODUCT	43	Emote Colors	2314	Wildfire Emote	0	3000.00	2.00	3000.00	2.00	0	0	9400	11	0	1	52	0	0	TIER X ITEM\nYou become one with the Wildfire, incinerating anything that stands in your way. Requires 5.11 or higher to use		
-PRODUCT	22	Force Colors	2311	Wildfire Force	0	45000.00	13.00	45000.00	13.00	0	1	9400	11	0	1	52	0	0	TIER X ITEM\nYou become one with the Wildfire, incinerating anything that stands in your way. Requires 5.11 or higher to use		
-PRODUCT	11	Ghost Colors	2309	Wildfire Ghost	0	15000.00	6.00	15000.00	6.00	0	0	9400	11	0	1	52	0	0	TIER X ITEM\nYou become one with the Wildfire, incinerating anything that stands in your way. Requires 5.11 or higher to use		
+PRODUCT	22	Force Colors	2311	Wildfire Force	1	25000.00	7.00	45000.00	13.00	237042	0	9400	11	0	1	52	0	0	TIER X ITEM\nYou become one with the Wildfire, incinerating anything that stands in your way. Requires 5.11 or higher to use		
+PRODUCT	11	Ghost Colors	2309	Wildfire Ghost	1	9000.00	4.00	15000.00	6.00	237042	0	9400	11	0	1	52	0	0	TIER X ITEM\nYou become one with the Wildfire, incinerating anything that stands in your way. Requires 5.11 or higher to use		
+PRODUCT	87	Item Effects	3493	Wildfire Glow	1	13000.00	5.00	15000.00	6.00	237042	0	9400	0	0	0	52	0	0	Wildfire fresnel glow effect for your item.\n\nCan be fused into Force, Relax, Primary Gradient or Head Texture items.		
 PRODUCT	41	Grip Colors	2313	Wildfire Grip	0	3000.00	2.00	3000.00	2.00	0	0	9400	11	0	1	52	0	0	TIER X ITEM\nYou become one with the Wildfire, incinerating anything that stands in your way. Requires 5.11 or higher to use		
 PRODUCT	73	Hair Color	2315	Wildfire Hair	0	9000.00	4.00	9000.00	4.00	0	0	9400	11	0	1	52	0	0	TIER X ITEM\nREQUIRES A HAIR STYLE TO USE\nColor for your hair style.Requires 5.11 or higher to use		
 PRODUCT	28	Left Hand Motion Trail	2319	Wildfire Left Hand Motion Trail	0	3000.00	2.00	3000.00	2.00	0	0	9400	11	0	1	52	0	0	TIER X ITEM\nYou become one with the Wildfire, incinerating anything that stands in your way. Requires 5.11 or higher to use		
 PRODUCT	30	Left Leg Motion Trail	2321	Wildfire Left Leg Motion Trail	0	3000.00	2.00	3000.00	2.00	0	0	9400	11	0	1	52	0	0	TIER X ITEM\nYou become one with the Wildfire, incinerating anything that stands in your way. Requires 5.11 or higher to use		
-PRODUCT	20	Primary Gradients	2316	Wildfire Primary Gradient	0	9000.00	4.00	9000.00	4.00	0	0	9400	11	0	1	52	0	0	TIER X ITEM\nYou become one with the Wildfire, incinerating anything that stands in your way. Requires 5.11 or higher to use		
-PRODUCT	2	Relax Colors	2289	Wildfire Relax	0	30000.00	10.00	30000.00	10.00	0	0	9400	11	0	1	52	0	0	TIER X ITEM\nYou become one with the Wildfire, incinerating anything that stands in your way. Requires 5.11 or higher to use		
+PRODUCT	20	Primary Gradients	2316	Wildfire Primary Gradient	1	6500.00	3.00	9000.00	4.00	237042	0	9400	11	0	1	52	0	0	TIER X ITEM\nYou become one with the Wildfire, incinerating anything that stands in your way. Requires 5.11 or higher to use		
+PRODUCT	2	Relax Colors	2289	Wildfire Relax	1	18000.00	6.00	30000.00	10.00	237042	0	9400	11	0	1	52	0	0	TIER X ITEM\nYou become one with the Wildfire, incinerating anything that stands in your way. Requires 5.11 or higher to use		
 PRODUCT	27	Right Hand Motion Trail	2318	Wildfire Right Hand Motion Trail	0	3000.00	2.00	3000.00	2.00	0	0	9400	11	0	1	52	0	0	TIER X ITEM\nYou become one with the Wildfire, incinerating anything that stands in your way. Requires 5.11 or higher to use		
 PRODUCT	29	Right Leg Motion Trail	2320	Wildfire Right Leg Motion Trail	0	3000.00	2.00	3000.00	2.00	0	0	9400	11	0	1	52	0	0	TIER X ITEM\nYou become one with the Wildfire, incinerating anything that stands in your way. Requires 5.11 or higher to use		
-PRODUCT	21	Secondary Gradients	2317	Wildfire Secondary Gradient	0	9000.00	4.00	9000.00	4.00	0	0	9400	11	0	1	52	0	0	TIER X ITEM\nYou become one with the Wildfire, incinerating anything that stands in your way. Requires 5.11 or higher to use		
+PRODUCT	21	Secondary Gradients	2317	Wildfire Secondary Gradient	1	6500.00	3.00	9000.00	4.00	237042	0	9400	11	0	1	52	0	0	TIER X ITEM\nYou become one with the Wildfire, incinerating anything that stands in your way. Requires 5.11 or higher to use		
 PRODUCT	24	Timers	2312	Wildfire Timer	0	6000.00	3.00	6000.00	3.00	0	0	9400	11	0	1	52	0	0	TIER X ITEM\nYou become one with the Wildfire, incinerating anything that stands in your way. Requires 5.11 or higher to use		
 PRODUCT	5	Torso Colors	2299	Wildfire Torso	0	9000.00	4.00	9000.00	4.00	0	0	9400	11	0	1	52	0	0	TIER X ITEM\nYou become one with the Wildfire, incinerating anything that stands in your way. Requires 5.11 or higher to use		
 PRODUCT	34	User Text Colour	2322	Wildfire User Text	0	6000.00	3.00	6000.00	3.00	0	0	9400	11	0	1	52	0	0	TIER X ITEM\nYou become one with the Wildfire, incinerating anything that stands in your way. Requires 5.11 or higher to use		
@@ -2941,8 +2993,9 @@ PRODUCT	34	User Text Colour	484	Pure User Text	0	20000.00	7.00	20000.00	7.00	0	0
 PRODUCT	1	Blood Colors	1592	Static Blood	0	100000.00	21.00	100000.00	21.00	0	0	10000	12	0	1	9	0	0	ELITE ITEM\nAs the electricity builds within you, you strike down all your enemies with lightning speed.		
 PRODUCT	12	DQ Rings	1591	Static DQ	0	10000.00	4.00	10000.00	4.00	0	0	10000	12	0	1	9	0	0	ELITE ITEM\nAs the electricity builds within you, you strike down all your enemies with lightning speed.		
 PRODUCT	43	Emote Colors	1593	Static Emote	0	20000.00	7.00	20000.00	7.00	0	0	10000	12	0	1	9	0	0	ELITE ITEM\nAs the electricity builds within you, you strike down all your enemies with lightning speed.		
-PRODUCT	22	Force Colors	1594	Static Force	0	150000.00	26.00	150000.00	26.00	0	1	10000	12	0	1	9	0	0	ELITE ITEM\nAs the electricity builds within you, you strike down all your enemies with lightning speed.		
+PRODUCT	22	Force Colors	1594	Static Force	0	150000.00	26.00	150000.00	26.00	0	0	10000	12	0	1	9	0	0	ELITE ITEM\nAs the electricity builds within you, you strike down all your enemies with lightning speed.		
 PRODUCT	11	Ghost Colors	1595	Static Ghost	0	50000.00	15.00	50000.00	15.00	0	0	10000	12	0	1	9	0	0	ELITE ITEM\nAs the electricity builds within you, you strike down all your enemies with lightning speed.		
+PRODUCT	87	Item Effects	3441	Static Glow	0	50000.00	15.00	50000.00	15.00	0	0	10000	0	0	0	9	0	0	Static fresnel glow effect for your item.\n\nCan be fused into Force, Relax, Primary Gradient or Head Texture items.		
 PRODUCT	41	Grip Colors	1596	Static Grip	0	10000.00	4.00	10000.00	4.00	0	0	10000	12	0	1	9	0	0	ELITE ITEM\nAs the electricity builds within you, you strike down all your enemies with lightning speed.		
 PRODUCT	73	Hair Color	1807	Static Hair	0	30000.00	10.00	30000.00	10.00	0	0	10000	12	0	1	9	0	0	ELITE ITEM\nREQUIRES A HAIR STYLE TO USE\nColor for your hair style.		
 PRODUCT	28	Left Hand Motion Trail	1597	Static Left Hand Motion Trail	0	10000.00	4.00	10000.00	4.00	0	0	10000	12	0	1	9	0	0	ELITE ITEM\nAs the electricity builds within you, you strike down all your enemies with lightning speed.		
@@ -3167,6 +3220,7 @@ PRODUCT	78	3d objects	2303	Creator Tori Armor - R_Foot	0	0.00	0.00	0.00	0.00	0	0
 PRODUCT	78	3d objects	2305	Creator Tori Armor - R_Shin	0	0.00	0.00	0.00	0.00	0	0	1000000	0	0	1	0	1	1	This is the Armor Piece of the Tori Armor for the Right Shin. It belongs to it's one and only creator!		
 PRODUCT	78	3d objects	2306	Creator Tori Armor - R_Thigh	0	0.00	0.00	0.00	0.00	0	0	1000000	0	0	1	0	1	1	This is the Armor Piece of the Tori Armor for the Right Thigh. It belongs to it's one and only creator!		
 PRODUCT	78	3d objects	2307	Creator Tori Armor - R_Triceps	0	0.00	0.00	0.00	0.00	0	0	1000000	0	0	1	0	1	1	This is the Armor Piece of the Tori Armor for the Right Triceps. It belongs to it's one and only creator!		
+PRODUCT	78	3d objects	3494	Cube Head (HTOTM)	0	0.00	0.00	0.00	0.00	0	0	1000000	0	0	1	0	1	1	Right Angled Quadrilateral Prism - HTOTM Special		
 PRODUCT	78	3d objects	2650	Dirty Shoes L	0	0.00	0.00	0.00	0.00	0	0	1000000	0	0	1	0	1	1	After a long night of partying your fancy shoes aren't looking too good.		
 PRODUCT	78	3d objects	2651	Dirty Shoes R	0	0.00	0.00	0.00	0.00	0	0	1000000	0	0	1	0	1	1	After a long night of partying your fancy shoes aren't looking too good.		
 PRODUCT	78	3d objects	2200	Event Artist Badge	0	0.00	0.00	0.00	0.00	0	0	1000000	0	0	1	0	1	1			
@@ -3175,8 +3229,11 @@ PRODUCT	78	3d objects	2529	Event Squad Badge L	0	0.00	0.00	0.00	0.00	0	0	1000000
 PRODUCT	78	3d objects	2546	Garara's Gourd	0	0.00	0.00	0.00	0.00	0	0	1000000	0	0	1	0	1	1	An ancient gourd passed down through the sand village holding within a sand beast		
 PRODUCT	18	Collectibles	2202	Green Pad	0	0.00	0.00	0.00	0.00	0	0	1000000	0	0	0	0	1	1			
 PRODUCT	78	3d objects	2887	Hair &amp; Glasses Combo	0	0.00	0.00	0.00	0.00	0	0	1000000	0	0	1	0	1	1	Hair & Glasses Combo, bought by Flesh		
+PRODUCT	50	Flames	961	Head Flame	0	0.00	0.00	0.00	0.00	0	0	1000000	0	0	1	0	0	0			
 PRODUCT	78	3d objects	2787	Help Squad Badge	0	0.00	0.00	0.00	0.00	0	0	1000000	0	0	1	0	1	1			
 PRODUCT	78	3d objects	2193	Item Forger Badge	0	0.00	0.00	0.00	0.00	0	0	1000000	0	0	1	0	1	1			
+PRODUCT	50	Flames	962	Left Hand Flame	0	0.00	0.00	0.00	0.00	0	0	1000000	0	0	1	0	0	0			
+PRODUCT	50	Flames	964	Left Leg Flame	0	0.00	0.00	0.00	0.00	0	0	1000000	0	0	1	0	0	0			
 PRODUCT	78	3d objects	2138	Low-polly	0	0.00	0.00	0.00	0.00	0	0	1000000	0	0	1	0	1	0	This fantastic Parrot is the pet of one legendary man named Moop. It is a mooptastic companion for a mooptastic man.		
 PRODUCT	78	3d objects	2250	Market Squid Badge	0	0.00	0.00	0.00	0.00	0	0	1000000	0	0	1	0	1	1			
 PRODUCT	78	3d objects	2210	Mod Maker Badge	0	0.00	0.00	0.00	0.00	0	0	1000000	0	0	1	0	1	1			
@@ -3186,6 +3243,8 @@ PRODUCT	78	3d objects	2653	Party Hat	0	0.00	0.00	0.00	0.00	0	0	1000000	0	0	1	0	1
 PRODUCT	78	3d objects	2786	Plague doc test	0	0.00	0.00	0.00	0.00	0	0	1000000	0	0	1	0	1	1	Test of doc mask		
 PRODUCT	78	3d objects	2198	R.I.P. Dog	0	0.00	0.00	0.00	0.00	0	0	1000000	0	0	1	0	1	0	TGS puppies, when love is above reality.		
 PRODUCT	18	Collectibles	2204	Red Pad	0	0.00	0.00	0.00	0.00	0	0	1000000	0	0	0	0	1	1			
+PRODUCT	50	Flames	963	Right Hand Flame	0	0.00	0.00	0.00	0.00	0	0	1000000	0	0	1	0	0	0			
+PRODUCT	50	Flames	965	Right Leg Flame	0	0.00	0.00	0.00	0.00	0	0	1000000	0	0	1	0	0	0			
 PRODUCT	78	3d objects	3274	Right Tori Agent Badge	0	0.00	0.00	0.00	0.00	0	0	1000000	0	0	1	0	1	1			
 PRODUCT	18	Collectibles	2056	Seishin	0	0.00	0.00	0.00	0.00	0	0	1000000	0	0	0	0	1	1	Joke item from April 1 2015\n\nDismemberthreshold: +10\n\nDamage: x1.1		
 PRODUCT	78	3d objects	2714	Shiai Drake Horns	0	0.00	0.00	0.00	0.00	0	0	1000000	0	0	1	0	1	1	Shiai Item - untradeable\n		
@@ -3266,6 +3325,7 @@ PRODUCT	78	3d objects	2232	sorry	0	0.00	0.00	0.00	0.00	0	0	1000000	0	0	1	0	1	1	o
 PRODUCT	78	3d objects	2301	Steakhouse	0	0.00	0.00	0.00	0.00	0	0	1000000	0	0	1	0	1	0	These majestic wings certainly belong to a superior bird.		
 PRODUCT	78	3d objects	2288	Super Moderator Badge	0	0.00	0.00	0.00	0.00	0	0	1000000	0	0	1	0	1	1			
 PRODUCT	78	3d objects	3307	TFC Belt	0	0.00	0.00	0.00	0.00	0	0	1000000	0	0	1	0	1	0	The Ultimate Prize! Awarded to the undisputed champion of TFC.		
+PRODUCT	77	Tokens	2557	Toribash Next Coin	0	0.00	0.00	0.00	0.00	0	0	1000000	0	0	0	0	1	1	This coin can in the future be traded to the Toribash Next crypto currency.		
 PRODUCT	18	Collectibles	1999	Totem of Mwah	0	0.00	0.00	0.00	0.00	0	0	1000000	0	0	0	0	1	1			
 PRODUCT	78	3d objects	2183	Viking Helm	0	0.00	0.00	0.00	0.00	0	0	1000000	0	0	1	0	1	1	Solax's legend item.		
 PRODUCT	78	3d objects	2001	Weathered GM Badge	0	0.00	0.00	0.00	0.00	0	0	1000000	0	0	1	0	1	1			

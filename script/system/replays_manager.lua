@@ -393,7 +393,7 @@ do
 				uploaded = tonumber(data_stream[9])
 			}
 		end
-		replayUpdateWindow = TBMenu:showDataError("")
+		replayUpdateWindow = TBMenu:showDataError("", TB_MENU_MAIN_ISOPEN == 0)
 		Replays:fetchReplayData(nil, nil, file, filedata, includeEventTemp)
 	end
 

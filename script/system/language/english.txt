@@ -908,3 +908,26 @@ QUEUELISTROOMOPDESC	Room operators can modify room settings, change mods and con
 QUEUELISTMUTEDTITLE	Muted	
 QUEUELISTMUTEDDESC	This user can't talk :(	
 SETTINGSAPPLIEDAFTERRESTART	Some settings will be applied after game restart
+EVENTFRAMESELAPSED	frames elapsed	
+NAVBUTTONMARKET	Market	
+MARKETLOADINGDATA	Loading market data...	
+MARKETERRORLOADINGSHOP	Error loading shop data, please try again later	
+MARKETUPGRADEPREMIUM	Upgrade shop to Premium	
+MARKETUPGRADEPREMIUMDESC	Market Premium subscription allows you to set shop promo image and description, sell items without market tax and sell no-Qi items.
+MARKETSHOPSTATS	Shop Statistics	
+MARKETSTATSSALES	sales	
+MARKETSTATSPURCHASES	purchases
+MARKETSTATSTOTAL	Total earnings
+MARKETNEWSALEOFFER	New sale offer	
+MARKETNEWPURCHASEOFFER	New purchase request	
+MARKETVIEWMYSHOP	View my shop	
+MARKETLOADINGOFFERS	Loading offers...
+MARKETSALEOFFERS	Sale offers
+MARKETPOPULARSALEOFFERS	Popular sale offers
+MARKETPURCHASEREQUESTS	Purchase requests
+MARKETRECENTPURCHASEREQUESTS	Recent purchase requests
+MARKETOFFERS	offers	
+MARKETPRICESTARTINGAT	Starting at	
+MARKETSELL	Sell	
+MARKETOFFERBY	Placed by	
+MARKETOFFERPLACEDON	on	
