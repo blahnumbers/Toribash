@@ -22,9 +22,9 @@ LEFTMID = 6
 CENTERMID = 7
 RIGHTMID = 8
 
-BTN_DN = 1
-BTN_HVR = 2
-BTN_FOCUS = 3
+BTN_HVR = 1
+BTN_FOCUS = 2
+BTN_DN = 3
 
 DEFTEXTURE = "../textures/menu/logos/toribash.tga"
 TEXTURECACHE = TEXTURECACHE or {}
@@ -115,7 +115,7 @@ do
 			if (o.textfield) then
 				-- Textfield value is a table to allow proper initiation / use after obj is created
 				elem.textfield = o.textfield
-				elem.textfieldstr = o.textfieldstr and (type(o.textfieldstr) == "table" and o.textfieldstr or { o.textfieldstr }) or { "" }
+				elem.textfieldstr = o.textfieldstr and (type(o.textfieldstr) == "table" and o.textfieldstr or { o.textfieldstr .. '' }) or { "" }
 				elem.textfieldindex = elem.textfieldstr[1]:len()
 				elem.textfieldsingleline = o.textfieldsingleline
 				elem.keyDown = function(key) elem:textfieldKeyDown(key, o.isNumeric, o.allowNegative, o.allowDecimal) end
@@ -135,10 +135,9 @@ do
 				else
 					elem.shadowColor = { o.shadowColor, o.shadowColor }
 				end
-				elem.innerShadow = o.innerShadow
+				elem.innerShadow = type(o.innerShadow) == "table" and o.innerShadow or { o.innerShadow, o.innerShadow }
 			end
-			if (o.shapeType) then
-				elem.shapeType = o.shapeType
+			if (o.shapeType and o.rounded) then
 				if (o.rounded * 2 > elem.size.w or o.rounded * 2 > elem.size.h) then
 					if (elem.size.w > elem.size.h) then
 						elem.rounded = elem.size.h / 2
@@ -147,6 +146,10 @@ do
 					end
 				else
 					elem.rounded = o.rounded
+				end
+				if (not UIMODE_LIGHT or elem.rounded > elem.size.w / 4) then
+					-- Light UI mode - don't add rounded corners if it's just for cosmetics
+					elem.shapeType = o.shapeType
 				end
 			end
 			if (o.interactive) then
@@ -204,6 +207,24 @@ do
 		end
 
 		return elem
+	end
+	
+	function UIElement:addChild(o, copyShape)
+		if (o.shift) then
+			o.pos = { o.shift[1], o.shift[2] }
+			o.size = { self.size.w - o.shift[1] * 2, self.size.h - o.shift[2] * 2 }
+		else
+			o.pos = o.pos and o.pos or { 0, 0 }
+			o.size = o.size and o.size or { self.size.w, self.size.h }
+		end
+		
+		if (copyShape) then
+			o.shapeType = o.shapeType and o.shapeType or self.shapeType
+			o.rounded = o.rounded and o.rounded or self.rounded
+		end
+		
+		o.parent = self
+		return UIElement:new(o)
 	end
 
 	function UIElement:addMouseHandlers(btnDown, btnUp, btnHover, btnRightUp)
@@ -378,6 +399,7 @@ do
 	function UIElement:mouseScroll(listElements, listHolder, toReload, scroll, enabled)
 		local elementHeight = listElements[1].size.h
 		local listHeight = #listElements * elementHeight
+		local oldShift = listHolder.shift.y
 		if (listHolder.shift.y + scroll * elementHeight > -listHolder.size.h) then
 			self:moveTo(self.shift.x, 0)
 			listHolder:moveTo(listHolder.shift.x, -listHolder.size.h)
@@ -389,8 +411,10 @@ do
 			local scrollProgress = -(listHolder.size.h + listHolder.shift.y) / (listHeight - listHolder.size.h)
 			self:moveTo(self.shift.x, (self.parent.size.h - self.size.h) * scrollProgress)
 		end
-		listHolder.parent:reloadListElements(listHolder, listElements, toReload, enabled)
-		self.scrollReload()
+		if (oldShift ~= listHolder.shift.y) then
+			listHolder.parent:reloadListElements(listHolder, listElements, toReload, enabled)
+			self.scrollReload()
+		end
 	end
 
 	function UIElement:barScroll(listElements, listHolder, toReload, posY, enabled)
@@ -914,7 +938,9 @@ do
 			elseif (key == 46 and (self.textfieldindex == 0 or self.textfieldstr[1]:find("%."))) then
 				return
 			else
-				self:textfieldUpdate(string.schar(key))
+				local char = string.schar(key)
+				if (char == '') then return end
+				self:textfieldUpdate(char)
 			end
 			self.textfieldindex = self.textfieldindex + 1
 		end
@@ -1341,21 +1367,33 @@ do
 		return debugEcho(mixed, msg, returnString)
 	end
 
-	function qsort(arr, sort, desc, includeZeros)
+	function qsort(arr, sort, order, includeZeros)
 		local a = {}
-		local desc = desc and 1 or -1
+		if (type(arr) ~= "table") then
+			return arr
+		end
+		
+		if (type(order) ~= "table") then
+			order = { order and 1 or -1 }
+		else
+			for i,v in pairs(order) do
+				v = v and 1 or -1
+			end
+		end
+		
 		for i, v in pairs(arr) do
 			table.insert(a, v)
 		end
 		if (type(sort) ~= "table") then
 			sort = { sort }
 		end
+		
 		tableReverse(sort)
 		table.sort(a, function(a,b)
 				local cmpRes = false
 				for i,v in pairs(sort) do
-					local val1 = a[v] == 0 and (includeZeros and 0 or b[v] - desc) or a[v]
-					local val2 = b[v] == 0 and (includeZeros and 0 or a[v] - desc) or b[v]
+					local val1 = a[v] == 0 and (includeZeros and 0 or b[v] - (order[i] and order[i] or order[1])) or a[v]
+					local val2 = b[v] == 0 and (includeZeros and 0 or a[v] - (order[i] and order[i] or order[1])) or b[v]
 					if (type(val1) == "string" or type(val2) == "string") then
 						val1 = val1:lower()
 						val2 = val2:lower()
@@ -1367,7 +1405,7 @@ do
 						val2 = val2 and 1 or -1
 					end
 					if (val1 ~= val2) then
-						if (desc == 1) then
+						if ((order[i] and order[i] or order[1]) == 1) then
 							return val1 > val2
 						else
 							return val1 < val2
@@ -1478,7 +1516,9 @@ do
 		end
 		
 		local newline = false
-		while (str ~= "") do
+		local maxIterations = 1000
+		while (str ~= "" and maxIterations > 0) do
+			maxIterations = maxIterations - 1
 			if (not attemptPrediction or newStr ~= "") then
 				-- Match words followed by newlines separately to allow newline spacing
 				word = buildString(str)
@@ -1503,8 +1543,11 @@ do
 				else
 					while (words > 0 and get_string_length(word:gsub("%s*$", ""), font) * scale > maxWidth) do
 						local pos = word:find("%s")
+						if (pos == word:len()) then
+							break
+						end
 						word = word:sub(1, pos)
-					end					
+					end
 					while (get_string_length(word:gsub("%s*$", ""), font) * scale > maxWidth) do
 						word = word:sub(1, word:len() - 1)
 					end

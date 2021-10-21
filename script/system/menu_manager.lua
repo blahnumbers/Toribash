@@ -341,8 +341,8 @@ do
 			local timeData = eventItems[1].button.pos.y > eventItems[1].image.pos.y + eventItems[1].image.size.h and { x = eventItems[1].image.pos.x, width = eventItems[1].image.size.w } or { x = eventItems[1].button.pos.x + 10, width = eventItems[1].button.size.w - 20 } 
 			eventDisplayTime:addCustomDisplay(true, function()
 					if (not rotateClock.pause) then
-						set_color(1,1,1,1)
-						draw_quad(timeData.x, eventItems[1].button.pos.y > eventItems[1].image.pos.y + eventItems[1].image.size.h and eventItems[1].image.pos.y + eventItems[1].image.size.h or eventItems[1].button.pos.y - 5, (os.clock() * 10 - rotateClock.start) % rotateTime / rotateTime * timeData.width, 5)
+						set_color(1,1,1,0.6)
+						draw_quad(timeData.x, eventItems[1].image.pos.y + eventItems[1].image.size.h - 5, (os.clock() * 10 - rotateClock.start) % rotateTime / rotateTime * timeData.width, 5)
 					end
 				end)
 			homeAnnouncements:addCustomDisplay(false, function()
@@ -389,6 +389,7 @@ do
 			bgImage = selectedIcon,
 			uiColor = TB_MENU_DEFAULT_DARKEST_COLOR
 		})
+		TBMenu:addOuterRounding(itemIcon, viewElement.animateColor)
 		
 		if (type(selectedIcon) == "table") then
 			local filename = selectedIcon[1]:gsub(".*/", "")
@@ -526,6 +527,13 @@ do
 			TBMenu:createCurrentSectionView()
 		end
 		Clans:showMain(tbMenuCurrentSection, clantag)
+	end
+
+	function TBMenu:showMarket()
+		if (not tbMenuCurrentSection) then
+			TBMenu:createCurrentSectionView()
+		end
+		Market:showMain(tbMenuCurrentSection)
 	end
 
 	function TBMenu:showReplays()
@@ -729,7 +737,8 @@ do
 		return returnval 
 	end
 
-	function TBMenu:spawnWindowOverlay(globalid)
+	function TBMenu:spawnWindowOverlay(globalid, withMouseHandler)
+		TB_MENU_POPUPS_DISABLED = true
 		local globalid = globalid or nil
 		UIScrollbarIgnore = true
 		local overlay = UIElement:new({
@@ -740,7 +749,15 @@ do
 			interactive = true,
 			bgColor = { 0, 0, 0, 0.4 }
 		})
-		overlay.killAction = function() UIScrollbarIgnore = false end
+		overlay.killAction = function()
+			UIScrollbarIgnore = false
+			TB_MENU_POPUPS_DISABLED = false
+		end
+		if (withMouseHandler) then
+			overlay:addMouseHandlers(nil, function()
+					overlay:kill()
+				end)
+		end
 		return overlay
 	end
 
@@ -751,7 +768,9 @@ do
 			parent = confirmOverlay,
 			pos = { confirmOverlay.size.w / 4, confirmOverlay.size.h / 2 - 80 - subtitleSet * 20 },
 			size = { confirmOverlay.size.w / 2, 160 + subtitleSet * 20 },
-			bgColor = TB_MENU_DEFAULT_BG_COLOR
+			bgColor = TB_MENU_DEFAULT_BG_COLOR,
+			shapeType = ROUNDED,
+			rounded = 5
 		})
 		local confirmBoxTitle = UIElement:new({
 			parent = confirmBoxView,
@@ -767,7 +786,7 @@ do
 			})
 			confirmBoxSubtitle:addAdaptedText(true, subtitle, nil, nil, 4, nil, 0.6)
 		end
-		local textField = TBMenu:spawnTextField(confirmBoxView, 10, confirmBoxTitle.shift.y + confirmBoxTitle.size.h + subtitleSet * 25 + 5, confirmBoxView.size.w - 20, 40, nil, nil, 1, nil, nil, inputInfo)
+		local textField = TBMenu:spawnTextField(confirmBoxView, 10, confirmBoxTitle.shift.y + confirmBoxTitle.size.h + subtitleSet * 25 + 10, confirmBoxView.size.w - 20, 30, nil, nil, 1, nil, nil, inputInfo)
 		local cancelButton = UIElement:new({
 			parent = confirmBoxView,
 			pos = { 10, -50 },
@@ -775,7 +794,9 @@ do
 			interactive = true,
 			bgColor = { 0, 0, 0, 0.1 },
 			hoverColor = { 0, 0, 0, 0.3 },
-			pressedColor = { 1, 1, 1, 0.2 }
+			pressedColor = { 1, 1, 1, 0.2 },
+			shapeType = ROUNDED,
+			rounded = 4
 		})
 		cancelButton:addAdaptedText(false, TB_MENU_LOCALIZED.BUTTONCANCEL)
 		cancelButton:addMouseHandlers(nil, function()
@@ -791,7 +812,9 @@ do
 			interactive = true,
 			bgColor = { 0, 0, 0, 0.1 },
 			hoverColor = { 0, 0, 0, 0.3 },
-			pressedColor = { 1, 1, 1, 0.2 }
+			pressedColor = { 1, 1, 1, 0.2 },
+			shapeType = cancelButton.shapeType,
+			rounded = cancelButton.rounded
 		})
 		acceptButton:addAdaptedText(false, TB_MENU_LOCALIZED.BUTTONCONTINUE)
 		acceptButton:addMouseHandlers(nil, function()
@@ -808,7 +831,9 @@ do
 			parent = confirmOverlay,
 			pos = { (confirmOverlay.size.w - width) / 2, confirmOverlay.size.h / 2 - confirmOverlay.size.h / 10 },
 			size = { width, confirmOverlay.size.h / 5 },
-			bgColor = TB_MENU_DEFAULT_BG_COLOR
+			bgColor = TB_MENU_DEFAULT_BG_COLOR,
+			shapeType = ROUNDED,
+			rounded = 5
 		})
 		local confirmBoxMessage = UIElement:new({
 			parent = confirmBoxView,
@@ -817,14 +842,23 @@ do
 		})
 		local actions = thirdAction and 3 or 2
 		confirmBoxMessage:addAdaptedText(true, message)
+		while (confirmBoxMessage.textScale < 0.8 and confirmBoxView.size.h < confirmOverlay.size.h * 0.75) do
+			confirmBoxView.size.h = confirmBoxView.size.h + 50
+			confirmBoxMessage.size.h = (confirmBoxView.size.h - 20) / 3 * 2
+			confirmBoxView:moveTo(nil, -25, true)
+			confirmBoxMessage.str = nil
+			confirmBoxMessage:addAdaptedText(true, message)
+		end
 		local cancelButton = UIElement:new({
 			parent = confirmBoxView,
 			pos = { 10, -(confirmBoxView.size.h - 20) / 3 + 5 },
 			size = { confirmBoxView.size.w / actions - 15, (confirmBoxView.size.h - 20) / 4 },
 			interactive = true,
-			bgColor = { 0, 0, 0, 0.1 },
-			hoverColor = { 0, 0, 0, 0.3 },
-			pressedColor = { 1, 1, 1, 0.2 }
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+			shapeType = ROUNDED,
+			rounded = 4
 		})
 		cancelButton:addAdaptedText(false, TB_MENU_LOCALIZED.BUTTONCANCEL)
 		cancelButton:addMouseHandlers(nil, function()
@@ -838,9 +872,11 @@ do
 			pos = { -confirmBoxView.size.w / actions + 5, -(confirmBoxView.size.h - 20) / 3 + 5 },
 			size = { confirmBoxView.size.w / actions - 15, (confirmBoxView.size.h - 20) / 4 },
 			interactive = true,
-			bgColor = { 0, 0, 0, 0.1 },
-			hoverColor = { 0, 0, 0, 0.3 },
-			pressedColor = { 1, 1, 1, 0.2 }
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+			shapeType = ROUNDED,
+			rounded = 4
 		})
 		acceptButton:addAdaptedText(false, TB_MENU_LOCALIZED.BUTTONCONTINUE)
 		acceptButton:addMouseHandlers(nil, function()
@@ -853,9 +889,11 @@ do
 				pos = { confirmBoxView.size.w / actions + 5, -(confirmBoxView.size.h - 20) / 3 + 5 },
 				size = { confirmBoxView.size.w / actions - 10, (confirmBoxView.size.h - 20) / 4 },
 				interactive = true,
-				bgColor = { 0, 0, 0, 0.1 },
-				hoverColor = { 0, 0, 0, 0.3 },
-				pressedColor = { 1, 1, 1, 0.2 }
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+				shapeType = ROUNDED,
+				rounded = 4
 			})
 			if (thirdButtonText) then
 				thirdButton:addAdaptedText(false, thirdButtonText)
@@ -868,7 +906,7 @@ do
 		return confirmOverlay
 	end
 
-	function TBMenu:showDataError(message, noParent)
+	function TBMenu:showDataError(message, noParent, time)
 		local transparency = 0
 		local bgColor, uiColor = { 0, 0, 0, transparency }, { 1, 1, 1, transparency }
 		if (tbMenuDataErrorMessage) then
@@ -886,22 +924,37 @@ do
 			shapeType = ROUNDED,
 			rounded = 5
 		})
+		local errorMessageView = UIElement:new({
+			parent = tbMenuDataErrorMessage,
+			pos = { tbMenuDataErrorMessage.size.w / 10, tbMenuDataErrorMessage.size.h / 10 },
+			size = { tbMenuDataErrorMessage.size.w * 0.8, tbMenuDataErrorMessage.size.h * 0.8 }
+		})
+		errorMessageView:addAdaptedText(true, message, nil, nil, 4, nil, 0.9, nil, nil, nil, uiColor)
+		
+		while (errorMessageView.textScale < 0.65) do
+			tbMenuDataErrorMessage.size.h = tbMenuDataErrorMessage.size.h + 10
+			errorMessageView.size.h = tbMenuDataErrorMessage.size.h * 0.8
+			errorMessageView.str = ''
+			errorMessageView:addAdaptedText(true, message, nil, nil, 4, nil, 0.9, nil, nil, nil, uiColor)
+		end
+		
 		local option = get_option("hint")
 		if (noParent) then
 			set_option("hint", 0)
 		end
 		tbMenuDataErrorMessage.startTime = os.clock()
 		local moveRad = math.pi / 4
+		local time = time and time or 5
 		tbMenuDataErrorMessage:addCustomDisplay(false, function()
 				if (tbMenuDataErrorMessage.pos.y > WIN_H - tbMenuDataErrorMessage.size.h - 10) then
-					tbMenuDataErrorMessage:moveTo(nil, -6 * math.sin(moveRad), true)
+					tbMenuDataErrorMessage:moveTo(nil, -(tbMenuDataErrorMessage.size.h / 9) * math.sin(moveRad), true)
 					moveRad = moveRad + (math.pi / 20)
 					transparency = transparency + (math.pi / 40)
 					bgColor[4] = 0.8 * transparency
 					uiColor[4] = transparency
 				else
 					tbMenuDataErrorMessage:addCustomDisplay(false, function()
-							if (os.clock() - tbMenuDataErrorMessage.startTime > 5) then
+							if (os.clock() - tbMenuDataErrorMessage.startTime > time) then
 								transparency = transparency - 0.05
 								bgColor[4] = 0.8 * transparency
 								uiColor[4] = transparency
@@ -915,12 +968,6 @@ do
 						end)
 				end
 			end)
-		local errorMessageView = UIElement:new({
-			parent = tbMenuDataErrorMessage,
-			pos = { tbMenuDataErrorMessage.size.w / 10, tbMenuDataErrorMessage.size.h / 10 },
-			size = { tbMenuDataErrorMessage.size.w * 0.8, tbMenuDataErrorMessage.size.h * 0.8 }
-		})
-		errorMessageView:addAdaptedText(true, message, nil, nil, 4, nil, 0.9, nil, nil, nil, uiColor)
 		return errorMessageView
 	end
 
@@ -934,7 +981,26 @@ do
 	function TBMenu:showAccountMain(reload)
 		if (not tbMenuCurrentSection) then
 			TBMenu:createCurrentSectionView()
+		else
+			tbMenuCurrentSection:kill(true)
 		end
+		
+		local lastSpecialScreen = TB_MENU_SPECIAL_SCREEN_ISOPEN
+		TBMenu:clearNavSection()
+		TBMenu:showNavigationBar({
+			{
+				text = TB_MENU_LOCALIZED.NAVBUTTONBACK,
+				action = function() 
+					TB_MENU_SPECIAL_SCREEN_ISOPEN = lastSpecialScreen
+					tbMenuCurrentSection:kill(true)
+					tbMenuNavigationBar:kill(true)
+					TBMenu:showNavigationBar()
+					TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
+				end,
+			}
+		}, true)
+		TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
+		
 		local accountView = UIElement:new({
 			parent = tbMenuCurrentSection,
 			pos = { 5, 0 },
@@ -1555,6 +1621,8 @@ do
 			TBMenu:showMatchmaking()
 		elseif (screenId == 9) then
 			TBMenu:showClans()
+		elseif (screenId == 10) then
+			TBMenu:showMarket()
 		elseif (screenId == 101) then
 			TBMenu:showNotifications()
 		elseif (screenId == 102) then
@@ -1723,14 +1791,42 @@ do
 			size = { tbMenuTopBarWidth / 1.5, tbMenuTopBarWidth / 20 }
 		})
 		local displayName = TB_MENU_PLAYER_INFO.username == "" and "Tori" or TB_MENU_PLAYER_INFO.username
+		tbMenuUserName.size.w = get_string_length(displayName, 0) * 0.55 + 10
 		tbMenuUserName:addCustomDisplay(false, function()
 				tbMenuUserName:uiText(displayName, tbMenuUserName.pos.x + 2, tbMenuUserName.pos.y + 2, 0, 0, 0.55, nil, nil, {0,0,0,0.2}, nil, 0)
 				tbMenuUserName:uiText(displayName, nil, nil, 0, 0, 0.55, nil, nil, nil, nil, 0.5)
 			end)
+			
+		local accountButton = UIElement:new({
+			parent = tbMenuUserBar,
+			pos = { tbMenuUserName.shift.x + tbMenuUserName.size.w, tbMenuUserName.shift.y + 3 },
+			size = { tbMenuUserBar.size.w - tbMenuUserName.shift.x * 2, tbMenuUserName.size.h },
+			interactive = true,
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			pressedColor = TB_MENU_DEFAULT_DARKER_ORANGE,
+			shapeType = ROUNDED,
+			rounded = tbMenuUserName.size.h
+		})
+		accountButton:addAdaptedText(nil, TB_MENU_LOCALIZED.NAVBUTTONACCOUNT, 15, nil, 4, LEFTMID, 0.7)
+		accountButton.size.w = get_string_length(accountButton.dispstr[1], accountButton.textFont) * accountButton.textScale + 30
+		accountButton:addCustomDisplay(false, function() end)
+		local accountButtonText = UIElement:new({
+			parent = accountButton,
+			pos = { 10, accountButton.size.h * 0.05 },
+			size = { accountButton.size.w - 20, accountButton.size.h * 0.9 }
+		})
+		TBMenu:showTextWithImage(accountButtonText, TB_MENU_LOCALIZED.NAVBUTTONACCOUNT, 4, accountButtonText.size.h * 0.75, TB_MENU_LOGOUT_BUTTON)
+		accountButton:addMouseHandlers(nil, function()
+				TBMenu:showAccountMain()
+			end)
+		
+		--[[
 		local tbMenuLogoutButton = TBMenu:createImageButtons(tbMenuUserBar, tbMenuTopBarWidth / 6 + 10 + get_string_length(displayName, 0) * 0.55, tbMenuTopBarWidth / 34, tbMenuTopBarWidth / 20, tbMenuTopBarWidth / 20, TB_MENU_LOGOUT_BUTTON, TB_MENU_LOGOUT_BUTTON_HOVER, TB_MENU_LOGOUT_BUTTON_PRESS)
 		tbMenuLogoutButton:addMouseHandlers(nil, function()
 				open_menu(18)
 			end, nil)
+		]]
 		
 		local tbMenuClan = UIElement:new( {
 			parent = tbMenuUserBar,
@@ -2095,10 +2191,10 @@ do
 			{ text = TB_MENU_LOCALIZED.NAVBUTTONPLAY, sectionId = 2 },
 			{ text = TB_MENU_LOCALIZED.NAVBUTTONPRACTICE, sectionId = 3 },
 			{ text = TB_MENU_LOCALIZED.NAVBUTTONSTORE, sectionId = 6 },
+			{ text = TB_MENU_LOCALIZED.NAVBUTTONMARKET, sectionId = 10 },
 			{ text = TB_MENU_LOCALIZED.MAINMENUCLANSNAME, sectionId = 9 },
 			{ text = TB_MENU_LOCALIZED.NAVBUTTONTOOLS, sectionId = 5, right = true },
-			{ text = TB_MENU_LOCALIZED.NAVBUTTONACCOUNT, sectionId = 7, right = true },
-		--	{ text = TB_MENU_LOCALIZED.MAINMENURANKEDNAME, sectionId = 8, right = true },
+			--{ text = TB_MENU_LOCALIZED.NAVBUTTONACCOUNT, sectionId = 7, right = true },
 		}
 		if (TB_MENU_PLAYER_INFO.username == '') then
 			buttonData[6] = nil
@@ -2347,7 +2443,7 @@ do
 				local id = TBMenu:getNearbyMenu(s == 5)
 				if (id) then
 					TB_LAST_MENU_SCREEN_OPEN = id
-					TBMenu:playMenuSwitchAnimation()
+					--TBMenu:playMenuSwitchAnimation()
 					TBMenu:clearNavSection()
 					TBMenu:showNavigationBar()
 					TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
@@ -2399,7 +2495,7 @@ do
 			end)
 	end
 
-	function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHeight, selectedItem, textScale, fontid, textScale2, fontid2)
+	function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHeight, selectedItem, textScale, fontid, textScale2, fontid2, keepFocus, noOverlaying)
 		local listElementsDisplay = {}
 		for i,v in pairs(listElements) do
 			if (not v.default) then
@@ -2421,7 +2517,7 @@ do
 			parent = holderElement,
 			pos = { 0, 0 },
 			size = { WIN_W, WIN_H },
-			interactive = true,
+			interactive = not keepFocus,
 			scrollEnabled = true
 		})
 		local dropdownView = UIElement:new({
@@ -2445,13 +2541,15 @@ do
 				updatePos(v)
 			end
 		end
+		
+		local addedShift = noOverlaying and elementHeight or 0
 		dropdownView:addCustomDisplay(false, function()
 				overlay.pos.x = 0
 				overlay.pos.y = 0
 				for i,v in pairs(overlay.child) do
 					v:updateChildPos()
 				end
-				local dropdownPosY = holderElement.pos.y + maxHeight > WIN_H - 10 and WIN_H - 10 - maxHeight or holderElement.pos.y
+				local dropdownPosY = holderElement.pos.y + addedShift + maxHeight > WIN_H - 25 and (holderElement.pos.y - maxHeight < 25 and WIN_H - 25 - maxHeight - addedShift or holderElement.pos.y - maxHeight) or holderElement.pos.y + addedShift
 				dropdownView:moveTo(holderElement.pos.x, dropdownPosY)
 				dropdownView.pos.x = overlay.pos.x + dropdownView.shift.x
 				dropdownView.pos.y = overlay.pos.y + dropdownView.shift.y
@@ -2483,43 +2581,91 @@ do
 			size = { selectedElement.size.h, selectedElement.size.h },
 			bgImage = "../textures/menu/general/buttons/arrowbotwhite.tga"
 		})
-		if (#listElementsDisplay * elementHeight <= maxHeight) then
-			for i,v in pairs(listElementsDisplay) do
-				local element = UIElement:new({
-					parent = dropdownView,
-					pos = { 2, 2 + (i - 1) * elementHeight },
-					size = { dropdownView.size.w - 4, elementHeight },
-					interactive = true,
-					bgColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-					hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
-					pressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR,
-					inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR,
-					shapeType = holderElement.shapeType,
-					rounded = holderElement.rounded
-				})
-				if (v.locked) then
-					element.uiColor = cloneTable(UICOLORBLACK)
-					element:deactivate(true)
-				end
-				element:addAdaptedText(false, v.text:upper(), nil, nil, fontid2, nil, textScale2)
-				element:addMouseHandlers(nil, function()
-						overlay:hide(true)
-						selectedElementText:addAdaptedText(false, v.text:upper(), nil, nil, fontid, LEFTMID, textScale)
-						selectedElement:show()
-						if (selectedItem == v) then
-							return
-						end
-						selectedItem = v
-						if (v.action) then
-							v.action()
-						end
-					end)
-			end
+		
+		local toReload, topBar, botBar, listingView, listingHolder
+		if (#listElementsDisplay * elementHeight > maxHeight) then
+			toReload, topBar, botBar, listingView, listingHolder = TBMenu:prepareScrollableList(dropdownView, elementHeight, elementHeight, 15, TB_MENU_DEFAULT_LIGHTER_COLOR)
+			local topEdge = UIElement:new({
+				parent = topBar,
+				pos = { 0, -topBar.size.h - dropdownView.rounded },
+				size = { topBar.size.w, topBar.size.h * 1.5 },
+				bgColor = topBar.bgColor,
+				innerShadow = elementHeight / 2,
+				shadowColor = { holderElement.bgColor, { 0, 0, 0, 0 } },
+				shapeType = dropdownView.shapeType,
+				rounded = dropdownView.rounded
+			})
+			local botEdge = UIElement:new({
+				parent = botBar,
+				pos = { 0, -botBar.size.h * 1.5 + dropdownView.rounded },
+				size = { botBar.size.w, botBar.size.h * 1.5 },
+				bgColor = botBar.bgColor,
+				innerShadow = elementHeight / 2,
+				shadowColor = { { 0, 0, 0, 0 }, holderElement.bgColor },
+				shapeType = dropdownView.shapeType,
+				rounded = dropdownView.rounded
+			})
+		else
+			listingHolder = dropdownView
 		end
+		
+		local listElements = {}
+		for i,v in pairs(listElementsDisplay) do
+			local element = UIElement:new({
+				parent = listingHolder,
+				pos = { 2, 2 + (i - 1) * elementHeight },
+				size = { listingHolder.size.w - 4, elementHeight },
+				interactive = true,
+				bgColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+				hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				pressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR,
+				inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
+				shapeType = holderElement.shapeType,
+				rounded = holderElement.rounded
+			})
+			table.insert(listElements, element)
+			if (v.locked) then
+				element.uiColor = cloneTable(UICOLORBLACK)
+				element:deactivate(true)
+			end
+			element:addAdaptedText(false, v.text:upper(), nil, nil, fontid2, nil, textScale2)
+			element:addMouseHandlers(nil, function()
+					overlay:hide(true)
+					selectedElementText:addAdaptedText(false, v.text:upper(), nil, nil, fontid, LEFTMID, textScale)
+					selectedElement:show()
+					if (selectedItem == v) then
+						return
+					end
+					selectedItem = v
+					if (v.action) then
+						v.action()
+					end
+				end)
+		end
+		
+		if (#listElements * elementHeight > maxHeight) then
+			local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
+			listingHolder.scrollBar = scrollBar
+			scrollBar:makeScrollBar(listingHolder, listElements, toReload)
+			
+			overlay.listElements = listElements
+			overlay.listHolder = listingHolder
+			overlay.listReload = toReload
+		end
+		
 		selectedElement:addMouseHandlers(nil, function()
 				overlay:show(true)
+				if (overlay.listElements) then
+					for i,v in pairs(overlay.listElements) do
+						v:hide()
+					end
+					overlay.listHolder.scrollBar:makeScrollBar(overlay.listHolder, overlay.listElements, overlay.listReload)
+				end
 			end)
 		overlay:hide(true)
+		
+		overlay.selectedElement = selectedElement
+		return overlay
 	end
 
 	-- Spawns default menu scroll bar
@@ -2559,6 +2705,24 @@ do
 		scrollBar.holder = scrollBackground
 		return scrollBar
 	end
+	
+	-- Draws quarter disks that cover element's corners for a fake rounded effect
+	-- Designed to use with images on single color backgrounds
+	-- To make regular UIElements rounded, use shapeType and rounded params
+	function TBMenu:addOuterRounding(e, color, rounding)
+		if (UIMODE_LIGHT) then return end
+		
+		local color = color or TB_MENU_DEFAULT_BG_COLOR
+		local rounding = rounding or 5
+		local roundingWidth = rounding * 1.4
+		e:addChild({}):addCustomDisplay(true, function()
+				set_color(unpack(color))
+				draw_disk(e.pos.x + rounding, e.pos.y + rounding, rounding, roundingWidth, 100, 1, -180, 90, 0)
+				draw_disk(e.pos.x + e.size.w - rounding, e.pos.y + rounding, rounding, roundingWidth, 100, 1, 90, 90, 0)
+				draw_disk(e.pos.x + rounding, e.pos.y + e.size.h - rounding, rounding, roundingWidth, 100, 1, 0, -90, 0)
+				draw_disk(e.pos.x + e.size.w - rounding, e.pos.y + e.size.h - rounding, rounding, roundingWidth, 100, 1, 0, 90, 0)
+			end)
+	end
 
 	function TBMenu:displayLoadingMark(element, message, size)
 		local size = size or 20
@@ -2587,7 +2751,7 @@ do
 		end
 	end
 	
-	function TBMenu:displayLoadingMarkSmall(viewElement, message, fontid, loadScale)
+	function TBMenu:displayLoadingMarkSmall(viewElement, message, fontid, loadScale, fontScale)
 		local fontid = fontid or FONTS.MEDIUM
 		local loadScale = loadScale or 26
 		if (loadScale > viewElement.size.h) then
@@ -2596,20 +2760,20 @@ do
 		local textView = UIElement:new({
 			parent = viewElement,
 			pos = { loadScale * 0.8, 0 },
-			size = { viewElement.size.w - loadScale * 1.15, viewElement.size.h }
+			size = { viewElement.size.w - loadScale * 1.2, viewElement.size.h }
 		})
-		textView:addAdaptedText(false, message, loadScale * 0.7, nil, fontid)
+		textView:addAdaptedText(false, message, loadScale * 0.7, nil, fontid, nil, fontScale)
 		local fontid = textView.textFont
 		local posX = get_string_length(textView.dispstr[1], fontid) * textView.textScale
 		local loadElement = UIElement:new({
 			parent = textView,
-			pos = { (textView.size.w - posX - loadScale) / 2, (textView.size.h - loadScale) / 2 },
+			pos = { (textView.size.w - posX - loadScale * 1.2) / 2, (textView.size.h - loadScale) / 2 },
 			size = { loadScale, loadScale }
 		})
 		local grow, rotate = 0, 0
 		loadElement:addCustomDisplay(true, function()
 				set_color(unpack(loadElement.uiColor))
-				draw_disk(loadElement.pos.x + loadElement.size.w / 2, loadElement.pos.y + loadElement.size.h / 2, loadScale / 5, loadScale / 2, 360, 1, rotate, grow, 0)
+				draw_disk(loadElement.pos.x + loadElement.size.w / 2, loadElement.pos.y + loadElement.size.h / 2, loadScale / 3, loadScale / 2, 360, 1, rotate, grow, 0)
 				grow = grow + 4
 				rotate = rotate + 2
 				if (grow >= 360) then
@@ -2658,8 +2822,9 @@ do
 		local messageElement = UIElement:new({
 			parent = element,
 			pos = { 0, 0 },
-			size = { WIN_W / 3, WIN_H / 10 },
+			size = { WIN_W / 3, WIN_H / 7 },
 			bgColor = { 0, 0, 0, 0.8 },
+			uiColor = UICOLORWHITE,
 			shapeType = ROUNDED,
 			rounded = 5
 		})
@@ -2685,7 +2850,10 @@ do
 			size = { messageElement.size.w - 20, messageElement.size.h - 10 }
 		})
 		messageText:addAdaptedText(true, message, nil, nil, 4, nil, 0.7)
-		local textWidth = get_string_length(message, messageText.textFont) * messageText.textScale
+		local textWidth = get_string_length(messageText.dispstr[1], messageText.textFont) * messageText.textScale
+		for i = 2, #messageText.dispstr do
+			textWidth = math.max(textWidth, get_string_length(messageText.dispstr[i], messageText.textFont) * messageText.textScale)
+		end
 		if (textWidth + 20 < messageText.size.w) then
 			messageElement.size.w = textWidth + 40
 			messageText.size.w = textWidth + 20
@@ -2702,8 +2870,9 @@ do
 
 		if (forceManualPosCheck) then
 			element:addCustomDisplay(false, function()
-					if (MOUSE_X > element.pos.x and MOUSE_Y > element.pos.y and MOUSE_X < element.pos.x + element.size.w and MOUSE_Y < element.pos.y + element.size.h) then
-						element.hoverState = BTN_HVR
+					if (not messageElement or messageElement.destroyed) then return end
+					if (not TB_MENU_POPUPS_DISABLED and MOUSE_X > element.pos.x and MOUSE_Y > element.pos.y and MOUSE_X < element.pos.x + element.size.w and MOUSE_Y < element.pos.y + element.size.h) then
+						element.hoverState = element.hoverState == nil and BTN_HVR or element.hoverState
 						if (not popupShown) then
 							pressTime = pressTime + 0.07
 							if (pressTime > 1) then
@@ -2712,16 +2881,15 @@ do
 							end
 						end
 					elseif (popupShown) then
-						if (MOUSE_X < messageElement.pos.x or MOUSE_X > messageElement.pos.x + messageElement.size.w or MOUSE_Y < messageElement.pos.y or MOUSE_Y > messageElement.pos.y + messageElement.size.h) then
-							messageElement:hide(true)
-							pressTime = 0
-							popupShown = false
-						end
+						messageElement:hide(true)
+						pressTime = 0
+						popupShown = false
 					end
-				end)
+				end, true)
 		else
 			element:addCustomDisplay(false, function()
-					if (element.hoverState == BTN_HVR) then
+					if (not messageElement or messageElement.destroyed) then return end
+					if (not TB_MENU_POPUPS_DISABLED and element.hoverState == BTN_HVR) then
 						if (not popupShown) then
 							pressTime = pressTime + 0.07
 							if (pressTime > 1) then
@@ -2736,7 +2904,7 @@ do
 							popupShown = false
 						end
 					end
-				end)
+				end, true)
 		end
 		
 		if (not noMark) then
@@ -3028,13 +3196,14 @@ do
 			interactive = true,
 			bgColor = darkerMode and TB_MENU_DEFAULT_BG_COLOR or TB_MENU_DEFAULT_LIGHTER_COLOR,
 			hoverColor = darkerMode and TB_MENU_DEFAULT_LIGHTER_COLOR or TB_MENU_DEFAULT_LIGHTEST_COLOR,
+			inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
 			shapeType = textBg.shapeType,
 			rounded = textBg.rounded
 		})
 		local inputField = UIElement:new({
-			parent = textBg,
-			pos = { 5, 2 },
-			size = { input.size.w - 10, input.size.h - 4 },
+			parent = input,
+			pos = { 4, 1 },
+			size = { input.size.w - 8, input.size.h - 2 },
 			interactive = true,
 			textfield = true,
 			isNumeric = inputSettings.isNumeric,

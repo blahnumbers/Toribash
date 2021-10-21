@@ -43,9 +43,9 @@ TB_MENU_UI_TEXT_COLOR = { 1, 1, 1, 1 }
 TB_MENU_UI_TEXT_SHADOW_COLOR = { 0, 0, 0, 0.6 }
 
 -- Textures
-TB_MENU_GAME_LOGO = "../textures/menu/logos/toribash_small.tga"
-TB_MENU_GAME_LOGO_BIG = "../textures/menu/logos/toribash.tga"
-TB_MENU_GAME_TITLE = "../textures/menu/logos/toribashgametitle.tga"
+TB_MENU_GAME_LOGO = "../textures/menu/logos/toribash_modern_small.tga"
+TB_MENU_GAME_LOGO_BIG = "../textures/menu/logos/toribash_modern.tga"
+TB_MENU_GAME_TITLE = "../textures/menu/logos/toribashgametitle_modern.tga"
 TB_MENU_USERBAR_MAIN = "../textures/menu/general/topbarbgmain.tga"
 TB_MENU_USERBAR_LEFT = "../textures/menu/general/topbarbgleft.tga"
 TB_MENU_BLOODSPLATTER_LEFT = "../textures/menu/general/bloodsplatleft.tga"
@@ -80,6 +80,8 @@ TB_MENU_BOUNTY_BUTTON_PRESS = "../textures/menu/general/buttons/bountyredpress.t
 TB_MENU_CLANFILTERS_BUTTON = "../textures/menu/general/buttons/clanfilters.tga"
 TB_MENU_CLANFILTERS_BUTTON_HOVER = "../textures/menu/general/buttons/clanfiltershover.tga"
 TB_MENU_CLANFILTERS_BUTTON_PRESS = "../textures/menu/general/buttons/clanfilterspressed.tga"
+
+TB_MENU_BUTTON_CROSSWHITE = "../textures/menu/general/buttons/crosswhite.tga"
 
 local overrideActive = false
 

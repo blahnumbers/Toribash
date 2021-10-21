@@ -88,6 +88,7 @@ require("system/scripts_manager")
 require("system/events_manager")
 require("system/events_online_manager")
 require("system/news_manager")
+require("system/market_manager")
 
 TB_MENU_PLAYER_INFO = {}
 TB_MENU_PLAYER_INFO.username = PlayerInfo:getUser()
@@ -209,12 +210,18 @@ add_hook("downloader_complete", "tbMainMenuStatic", function(filename)
 				TB_MENU_CUSTOMS_REFRESHED = true
 			end)
 		elseif (filename:find("data/quest.txt")) then
-			Downloader:safeCall(function() QUESTS_DATA = Quests:getQuests() end)
+			Downloader:safeCall(function()
+				QUESTS_DATA = Quests:getQuests()
+			end)
 		elseif (filename:find("data/quest_global.dat")) then
 			Downloader:safeCall(function()
 				QUESTS_GLOBAL_DATA = Quests:getGlobalQuests()
 				QUESTS_LASTUPDATE_GLOBAL.time = os.time()
 				QUESTS_LASTUPDATE_GLOBAL.qi = TB_MENU_PLAYER_INFO.data.qi
+			end)
+		elseif (filename:find(".*/torishop/invent.txt")) then
+			Downloader:safeCall(function()
+				Torishop:getInventoryRaw(nil, true)
 			end)
 		end
 	end)

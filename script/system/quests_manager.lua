@@ -471,7 +471,7 @@ do
 							questProgressBarState:kill(true)
 							local response = get_network_response()
 							if (response:find("GATEWAY 0; 0")) then
-								TB_MENU_QUESTS_GLOBAL_COUNT = TB_MENU_QUESTS_GLOBAL_COUNT - 1
+								TB_MENU_QUESTS_GLOBAL_COUNT = math.max(0, TB_MENU_QUESTS_GLOBAL_COUNT - 1)
 								quest.claimed = true
 								questProgressBarState.bgColor = TB_MENU_DEFAULT_DARKER_COLOR
 								questProgressBarState.inactiveColor = TB_MENU_DEFAULT_DARKER_COLOR
@@ -621,7 +621,7 @@ do
 		end
 		
 		if (#listElements == 0) then
-			listingHolder:addAdaptedText(true, TB_MENU_LOCALIZED.QUESTSGLOBALEMPTY)
+			listingHolder:addAdaptedText(true, TB_MENU_LOCALIZED.NOTHINGTOSHOW)
 			return
 		end
 		
@@ -636,7 +636,7 @@ do
 		tbMenuCurrentSection:kill(true)
 		if (TB_MENU_QUESTS_NEW) then
 			TB_MENU_QUESTS_NEW = false
-			TB_MENU_NOTIFICATIONS_COUNT = TB_MENU_NOTIFICATIONS_COUNT - 1
+			TB_MENU_NOTIFICATIONS_COUNT = math.max(0, TB_MENU_NOTIFICATIONS_COUNT - 1)
 		end
 		local globalQuests = UIElement:new({
 			parent = tbMenuCurrentSection,
@@ -702,7 +702,7 @@ do
 				bgColor = TB_MENU_DEFAULT_BG_COLOR
 			})
 			local bottomSmudge = TBMenu:addBottomBloodSmudge(questView, i)
-			questView:addAdaptedText(false, TB_MENU_LOCALIZED.QUESTSGLOBALEMPTY)
+			questView:addAdaptedText(false, TB_MENU_LOCALIZED.NOTHINGTOSHOW)
 		end
 	end
 	

@@ -89,6 +89,7 @@ do
 			return
 		end
 		if (EventsOnline:getLocalization(LOCALIZED_MESSAGES, eventName, TB_MENU_LOCALIZED.language, "events/")) then
+			usage_event("event" .. eventName .. "begin")
 			EventsOnline:runSteps(eventSteps, nil, LOCALIZED_MESSAGES)
 		else
 			Tutorials:quit()

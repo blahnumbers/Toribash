@@ -1,5 +1,7 @@
 -- new store manager class
 INVENTORY_LIST_SHIFT = INVENTORY_LIST_SHIFT or { 0 }
+TB_INVENTORY_DATA = TB_INVENTORY_DATA or { }
+
 local CATEGORIES_COLORS = { 44, 22, 2, 20, 21, 1, 5, 11, 12, 24, 27, 28, 29, 30, 34, 41, 43, 73 }
 local CATEGORIES_TEXTURES = { 54, 55, 57, 58, 74 }
 local CATEGORIES_ADVANCED = { 78, 72, 87, 80, 54, 74, 55, 57, 58, 48 }
@@ -32,7 +34,7 @@ local ITEM_EMPTY = {
 	locked = 1
 }
 
-local ITEM_EFFECTS = { 
+local ITEM_EFFECTS = {
 	{ id = EFFECTS_TOON, name = "Toon Shaded", colorid = 11 },
 	{ id = EFFECTS_GLOW, name = " Glow", colorid = 0, use_colorid = true },
 	{ id = EFFECTS_DITHER, name = "Dithering", colorid = 135 }
@@ -43,12 +45,22 @@ do
 	Torishop.__index = Torishop
 	local cln = {}
 	setmetatable(cln, Torishop)
+	
+	function Torishop:download()
+		local downloads = get_downloads()
+		for i,v in pairs(downloads) do
+			if (v:find("store(_obj)?.txt$")) then
+				return false
+			end
+		end
+		download_torishop()
+	end
 
 	function Torishop:getItems()
 		local file = Files:new("../data/store.txt")
 		if (not file.data) then
 			if (not file:isDownloading()) then
-				download_torishop()
+				Torishop:download()
 			end
 			return { failed = true }, { }
 		end
@@ -189,7 +201,7 @@ do
 		end
 		
 		if (get_option("autoupdate") ~= 0) then
-			download_torishop()
+			Torishop:download()
 		end
 		TB_STORE_DATA.requireReload = true
 		return ITEM_EMPTY
@@ -204,6 +216,10 @@ do
 			return { name = TB_MENU_LOCALIZED.UNDEF }
 		end
 		return TB_STORE_SECTIONS[sectionid]
+	end
+	
+	function Torishop:getEffects()
+		return ITEM_EFFECTS
 	end
 	
 	function Torishop:isTextureItem(itemid)
@@ -274,7 +290,24 @@ do
 		return UIElement:qsort(data, "price", false)
 	end
 
-	function Torishop:getInventoryRaw(itemidOnly)
+	function Torishop:getInventoryRaw(itemidOnly, reload)
+		if (TB_INVENTORY_DATA and not reload) then
+			if (itemidOnly) then
+				if (itemidOnly == ITEM_SHIAI_TOKEN) then
+					return { }
+				end
+				
+				local itemInv = {}
+				for i,v in pairs(TB_INVENTORY_DATA) do
+					if (v.itemid == itemidOnly) then
+						table.insert(itemInv, v)
+					end
+				end
+				return itemInv
+			end
+			return TB_INVENTORY_DATA
+		end
+		
 		local file = Files:new("torishop/invent.txt")
 		if (not file.data) then
 			return false
@@ -310,44 +343,26 @@ do
 				local data_stream = { ln:match(("([^\t]*)\t?"):rep(segments)) }
 				local item = {}
 
-				if (itemidOnly) then
-					if (tonumber(data_stream[3]) == itemidOnly) then
-						for i,v in pairs(data_types) do
-							item[v[1]] = data_stream[i + 1]
-							if (v.numeric) then
-								item[v[1]] = tonumber(item[v[1]])
-							end
-							if (v.bool) then
-								item[v[1]] = item[v[1]] == '1' and true or false
-							end
-						end
-						item.name = TB_STORE_DATA[item.itemid].itemname
-						if (item.itemid ~= ITEM_SHIAI_TOKEN) then
-							table.insert(inventory, item)
-						end
+				for i,v in pairs(data_types) do
+					item[v[1]] = data_stream[i + 1]
+					if (v.numeric) then
+						item[v[1]] = tonumber(item[v[1]])
 					end
-				else
-					for i,v in pairs(data_types) do
-						item[v[1]] = data_stream[i + 1]
-						if (v.numeric) then
-							item[v[1]] = tonumber(item[v[1]])
-						end
-						if (v.bool) then
-							item[v[1]] = item[v[1]] == '1' and true or false
-						end
+					if (v.bool) then
+						item[v[1]] = item[v[1]] == '1' and true or false
 					end
-					item.name = TB_STORE_DATA[item.itemid].itemname
-					if (itemUpdated == 0 and type(TB_ITEM_DETAILS) == "table") then
-						if (item.inventid == TB_ITEM_DETAILS.inventid) then
-							TB_ITEM_DETAILS = item
-							itemUpdated = 1
-						end
+				end
+				item.name = TB_STORE_DATA[item.itemid].itemname
+				if (itemUpdated == 0 and type(TB_ITEM_DETAILS) == "table") then
+					if (item.inventid == TB_ITEM_DETAILS.inventid) then
+						TB_ITEM_DETAILS = item
+						itemUpdated = 1
 					end
-					item.upgradeable = item.upgrade_level > 0
-					item.customizable = item.upgradeable or item.uploadable or Torishop:itemSupportsEffects(item.itemid)
-					if (item.itemid ~= ITEM_SHIAI_TOKEN) then
-						table.insert(inventory, item)
-					end
+				end
+				item.upgradeable = item.upgrade_level > 0
+				item.customizable = item.upgradeable or item.uploadable or Torishop:itemSupportsEffects(item.itemid)
+				if (item.itemid ~= ITEM_SHIAI_TOKEN) then
+					table.insert(inventory, item)
 				end
 			end
 		end
@@ -355,7 +370,10 @@ do
 			TB_ITEM_DETAILS = nil
 		end
 		file:close()
-		return inventory
+
+		TB_INVENTORY_DATA = inventory
+		TB_INVENTORY_LOADED = true
+		return itemidOnly and Torishop:getInventoryRaw(itemidOnly) or inventory
 	end
 
 	function Torishop:getInventory(mode)
@@ -374,7 +392,7 @@ do
 			if (v.setid == 0) then
 				if 	(mode == INVENTORY_ACTIVATED and v.active and not v.sale) or
 				 	(mode == INVENTORY_DEACTIVATED and not v.active and not v.sale) or
-					(mode == INVENTORY_MARKET and v.sale) or
+					--(mode == INVENTORY_MARKET and v.sale) or
 					(mode == INVENTORY_ALL) then
 					table.insert(inventory, v)
 				end
@@ -1834,6 +1852,58 @@ do
 				info:uiText(item.name .. setname .. setNumItems, nil, nil, 4, nil, 0.5, nil, nil, { 1 - color[1], 1 - color[2], 1 - color[3], color[4] * 3 })
 			end)
 	end]]
+	
+	function Torishop:showItemEffectCapsules(item, viewElement, capsuleHeight, extraDataShift)
+		if (type(item) == 'table' and item.effectid > 0 and (not TB_STORE_DATA[item.itemid] or TB_STORE_DATA[item.itemid].catid ~= 87)) then
+			local capsuleHeight = capsuleHeight or 20
+			local extraDataShift = extraDataShift or { x = 0, y = (viewElement.size.h - capsuleHeight) / 2 }
+			local initialDataShift = { x = extraDataShift.x, y = extraDataShift.y }
+			local collapsed = {}
+		
+			for j = 1, #ITEM_EFFECTS do
+				if (bit.band(item.effectid, ITEM_EFFECTS[j].id) ~= 0) then
+					local color = get_color_info(ITEM_EFFECTS[j].use_colorid and item.glow_colorid or ITEM_EFFECTS[j].colorid)
+					color.name = color.game_name:gsub("^%l", string.upper)
+					local itemEffect = UIElement:new({
+						parent = viewElement,
+						pos = { extraDataShift.x, extraDataShift.y },
+						size = { viewElement.size.w, capsuleHeight },
+						bgColor = { color.r, color.g, color.b, 1 },
+						shapeType = ROUNDED,
+						rounded = capsuleHeight / 2,
+						uiColor = (math.max(color.r, color.g, color.b) > 0.9 or (color.r + color.g + color.b > 1.5)) and UICOLORBLACK or UICOLORWHITE
+					})
+					itemEffect:addAdaptedText(false, (ITEM_EFFECTS[j].use_colorid and color.name or "") .. ITEM_EFFECTS[j].name, 10, nil, 4, LEFTMID, 0.6)
+					local effectTextLen = get_string_length(itemEffect.dispstr[1], itemEffect.textFont) * itemEffect.textScale + 20
+					itemEffect.size.w = effectTextLen
+					if (extraDataShift.x + effectTextLen + 5 + capsuleHeight * 2 + initialDataShift.x > viewElement.size.w) then
+						table.insert(collapsed, itemEffect.str)
+						itemEffect:kill()
+					else
+						extraDataShift.x = extraDataShift.x + effectTextLen + 5
+					end
+				end
+			end
+			if (#collapsed > 0) then
+				local itemEffect = UIElement:new({
+					parent = viewElement,
+					pos = { extraDataShift.x, extraDataShift.y },
+					size = { capsuleHeight * 2, capsuleHeight },
+					bgColor = UICOLORWHITE,
+					shapeType = ROUNDED,
+					rounded = capsuleHeight / 2,
+					uiColor = UICOLORBLACK
+				})
+				itemEffect:addAdaptedText(false, "+" .. #collapsed, nil, nil, 4)
+				local popupString = collapsed[1]
+				for i = 2, #collapsed do
+					popupString = popupString .. "\n" .. collapsed[i]
+				end
+				local popup = TBMenu:displayHelpPopup(itemEffect, popupString, true, true)
+				popup:moveTo(itemEffect.size.w + 5, -itemEffect.size.h - (popup.size.h - itemEffect.size.h) / 2 )
+			end
+		end
+	end
 
 	function Torishop:showInventoryPage(inventoryItems, pageShift, mode, title, pageid, itemScale, showBack)
 		local showBack = showBack or false
@@ -1848,10 +1918,10 @@ do
 				text = TB_MENU_LOCALIZED.STOREACTIVATEDINVENTORY,
 				action = function() INVENTORY_LIST_SHIFT[1] = 0 Torishop:showInventory(tbMenuCurrentSection, INVENTORY_ACTIVATED) end
 			},
-			{
+			--[[{
 				text = TB_MENU_LOCALIZED.STOREMARKETINVENTORY,
 				action = function() INVENTORY_LIST_SHIFT[1] = 0 Torishop:showInventory(tbMenuCurrentSection, INVENTORY_MARKET) end
-			},
+			},]]
 			{
 				text = TB_MENU_LOCALIZED.STOREINVENTORYALLITEMS,
 				action = function() INVENTORY_LIST_SHIFT[1] = 0 Torishop:showInventory(tbMenuCurrentSection, INVENTORY_ALL) end
@@ -2408,7 +2478,6 @@ do
 		
 		if (reload or not TB_INVENTORY_LOADED) then
 			download_inventory()
-			TB_INVENTORY_LOADED = true
 			add_hook("downloader_complete", "torishop_inventory_download", function(name)
 					if (name:find("^.*/torishop/invent%.txt$")) then
 						remove_hooks("torishop_inventory_download")
@@ -4623,7 +4692,7 @@ do
 	function Torishop:drawObjItem(item, previewHolder, scaleMultiplier, objPath, bodyInfos, cameraMove, level)
 		if (not TB_STORE_MODELS[item.itemid]) then
 			if (get_option("autoupdate") ~= 0) then
-				download_torishop()
+				Torishop:download()
 			end
 			return
 		end
@@ -5034,7 +5103,7 @@ do
 			local modelInfo = cloneTable(TB_STORE_MODELS[item.itemid])
 			if (not modelInfo) then
 				-- TB_STORE_MODELS is missing data, redownload torishop data and refresh models table
-				download_torishop()
+				Torishop:download()
 				return
 			end
 			if (modelInfo.upgradeable) then

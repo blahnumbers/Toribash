@@ -70,6 +70,7 @@ STOREITEMSINSET	Items inside set
 STORESELLMARKET	Sell in market	
 STOREDIALOGMARKETSELL1	Are you sure you want to put	
 STOREDIALOGMARKETSELL2	in market?	
+STOREDIALOGMARKETSELLFOR	in market for	
 STOREITEMDEACTIVATE	Deactivate	
 STOREDIALOGDEACTIVATE1	Are you sure you want to deactivate	
 STOREDIALOGDEACTIVATE2	 	
@@ -246,6 +247,7 @@ WORDFIGHTS	fights
 WORDTIMES	times	
 WORDIN	in	
 WORDTC	TC	
+WORDST	ST	
 WORDDONE	done	
 WORDVS	vs	
 WORDNONE	none	
@@ -753,7 +755,7 @@ QUESTSGLOBALUPDATING	Updating global quests...
 NETWORKLOADING	Loading...
 QUESTSGLOBALCOMPLETED	Completed
 QUESTSGLOBALACTIVE	Active
-QUESTSGLOBALEMPTY	Nothing to show here :(
+NOTHINGTOSHOW	Nothing to show here	
 CLANSUPDATINGWAIT	Updating clans data, please wait...
 QUESTSCLOSEST	Closest quests and quests available for claiming
 QUESTSLOCKED	Locked quests
@@ -931,3 +933,95 @@ MARKETPRICESTARTINGAT	Starting at
 MARKETSELL	Sell	
 MARKETOFFERBY	Placed by	
 MARKETOFFERPLACEDON	on	
+BELTRESTRICTION	Belt restriction	
+MARKETITEMSTOTAL	Items total	
+MARKETOWNEDBY	Owned by	
+MARKETRECENTLYTRADED	Recently traded	
+WORDITEMS	items	
+WORDPLAYERS	players	
+MARKETLOADINGPRICES	Loading prices...
+MARKETSALEOFFERSSTARTINGAT	sale offers starting at	
+MARKETBUYREQUESTSSTARTINGAT	buy requests starting at	
+MARKETPURCHASE	Purchase	
+MARKETSELL	Sell	
+MARKETNOACTIVEOFFERS	No active	
+WORDBY	by	
+ITEMGAMESPLAYED	Games Played	
+MARKETGAMESPLAYEDINFO	Item's games played value\ncan affect available level\nand effect upgrades	
+MARKETSELLFOR	Sell for	
+MARKETCHEAPERTHANSTORE	cheaper than in Store	
+MARKETMOREEXPENSIVETHANSTORE	more expensive than in Store	
+MARKETSTOREPRICE	Store price	
+MARKETINSUFFICIENTFUNDS	You don't have enough TC to purchase this item	
+MARKETBELTREQUIREMENT	You need to get more Qi to purchase this item	
+MARKETBELTSHIAIREQUIREMENT	You need to get more Qi or Shiai Tokens to purchase this item	
+MARKETSHIAIEXPLANATION	Premium shops can sell items that require more Qi than you have with a ST fee	
+MARKETPURCHASEFROM	from	
+MARKETYOUWILLBECHARGED	You will be charged	
+MARKETITEMPURCHASED	Item purchased	
+MARKETITEMCATEGORY	Category	
+GENERALSEARCHFILTERS	Search Filters	
+SEARCHFILTERMINQI	Min Qi	
+SEARCHFILTERMAXQI	Max Qi	
+SEARCHFILTERMINPRICE	Min Price	
+SEARCHFILTERMAXPRICE	Max Price	
+SEARCHFILTERDEFAULTMYQI	My Qi	
+SEARCHFILTERDEFAULTMYTC	My Toricredits	
+SEARCHFILTERLIMIT	Limit	
+SEARCHFILTERORDER	Order by	
+SEARCHFILTERORDERPRICE	Price (cheapest first)	
+SEARCHFILTERORDERPRICEDESC	Price (expensive first)	
+SEARCHFILTERORDERDATE	Date (oldest first)	
+SEARCHFILTERORDERDATEDESC	Date (newest first)	
+MARKETSEARCHGROUPBYITEM	Group results by item	
+MARKETMODIFY	Modify	
+MARKETMODIFYOFFER	Modify Offer	
+MARKETSELECTITEMMODAL	Select an item to continue	
+MARKETOFFERYOUGET	You get	
+MARKETMODALPURCHASEPRICE	Price you will pay for the item	
+MARKETYOURBALANCEERROR	Specified price exceeds your balance:	
+MARKETPRICEEXCEEDSMAX	Specified price is higher than maximum allowed price	
+MARKETPURCHASEOFFERCONFIRM	Are you sure you want to submit a purchase offer for	
+MARKETPURCHASEYOUWILLHAVELEFT2	left after that.	
+MARKETSELECTEDITEMS	Selected items:	
+MARKETSELECTITEMSQUANTITYERROR	You cannot choose more items than you have already selected	
+MARKETINVENTORYEMPTY	No matching items found in deactivated inventory	
+MARKETPRICEBUYERPAYS	Buyer pays	
+MARKETPRICEHINT	Price in TC	
+MARKETSELLPREMIUMPROMO	Upgrade your shop to Premium to sell items without Market tax	
+MARKETLOADINGPRICESUGGESTIONS	Loading price suggestions	
+MARKETPRICELOWESTSALE	Cheapest sale offer	
+MARKETPRICELASTSEEN	Recently sold for	
+MARKETPRICESHOPPRICE	Price in Store	
+MARKETPRICEHIGHESTBUY	Highest purchase offer	
+MARKETDIALOGSELLCONFIRM	Are you sure you want to sell	
+MARKETDIALOGSELLTO	to	
+MARKETMODIFYINGSALEOFFER	Modifying sale offer	
+MARKETCANCELOFFER	Cancel offer	
+MARKETCONFIRMCANCELOFFER	Are you sure you want to cancel	
+MARKETSALEOFFER	sale offer	
+MARKETBUYREQUEST	purchase request	
+MARKETCONFIRMUPDATEOFFER	Are you sure you want to update	
+MARKETCONFIRMUPDATEOFFERPRICE	New offer price:	
+MARKETOFFERCANCELLED	Offer cancelled	
+MARKETMODIFYINGBUYREQUEST	Modifying purchase request	
+MARKETBUYREQUESTLEFT2	left after updating this buy request.	
+MARKETLOADINGSHOPBY	Loading Market Shop information by	
+MARKETPREMIUMSHOP	Premium Shop	
+MARKETPREMIUMSHOPHINT	Premium shops sell items without market fee and no-Qi items (with an added ST price depending on your belt)	
+MARKETSTATSSALEOFFERS	active sale offers	
+MARKETSTATSPURCHASEREQUESTS	active purchase requests	
+MARKETFINISHEDSALESFOR	completed sales for	
+MARKETITEMSONSALE	items currently on sale	
+MARKETLOOKINGTOBUY	Looking to buy	
+SEARCHFILTERSMARKETUSER	Shop owner's name	
+MARKETSEARCHINSHOP	Search for items in this shop	
+MARKETMODIFYSHOP	Modify shop	
+MARKETMODIFYINGSHOPINFO	Modifying shop info	
+MARKETMODIFYSHOPCONFIRM	Are you sure you want to apply changes to your Market shop?	
+MARKETSHOPTITLE	Shop title	
+MARKETSHOPDESC	Shop description	
+MARKETCHOOSENEWSHOPIMAGE	Select new shop promo image	
+GENERALSELECTEDFILE	Selected file	
+MARKETSHOPIMAGEUPDATED	Shop image has been successfully updated.	
+MARKETSHOPIMAGEUPDATEERROR	Error uploading new shop image.	

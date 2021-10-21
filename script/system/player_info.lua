@@ -637,7 +637,9 @@ do
 	end
 	
 	function PlayerInfo:currencyFormat(n)
+		if (not n) then return n end
 		local left, num, right = string.match(n,'^([^%d]*%d)(%d*)(.-)$')
+		if (not num) then return n end
 		return left..(num:reverse():gsub('(%d%d%d)','%1,'):reverse())..right
 	end
 	

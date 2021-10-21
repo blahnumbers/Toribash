@@ -17,6 +17,7 @@ do
 		Downloader:queue(function() download_quest(TB_MENU_PLAYER_INFO.username) end)
 		Downloader:queue(function() download_global_quests() end)
 		Downloader:queue(function() download_clan() end)
+		Downloader:queue(function() download_inventory() end)
 			
 		TB_DOWNLOADER_INITIALIZED = true
 	end
