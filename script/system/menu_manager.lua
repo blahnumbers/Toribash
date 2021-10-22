@@ -2723,6 +2723,120 @@ do
 				draw_disk(e.pos.x + e.size.w - rounding, e.pos.y + e.size.h - rounding, rounding, roundingWidth, 100, 1, 0, 90, 0)
 			end)
 	end
+	
+	function TBMenu:generatePaginationData(totalPages, maxPages, currentPage)
+		local pagesButtonsPre, pagesButtons = {}, {}
+		
+		local showPrev, showNext
+		local pagesNavArr = { 10, 50, 100, 500 }
+		
+		local page = 0
+		local navPages = math.floor(maxPages / 2)
+		
+		-- Potentially slower but produces better results
+		table.insert(pagesButtonsPre, { v = 1 })
+		if (totalPages > 1) then
+			table.insert(pagesButtonsPre, { v = totalPages })
+		end
+		for i = math.max(1, currentPage - 1), math.min(currentPage + 1, totalPages) do
+			table.insert(pagesButtonsPre, { v = i })
+		end
+		for i,v in pairs(pagesNavArr) do
+			if (currentPage - v > 1) then
+				table.insert(pagesButtonsPre, { v = currentPage - v })
+			end
+			if (currentPage + v < totalPages) then
+				table.insert(pagesButtonsPre, { v = currentPage + v })
+			end
+		end
+		
+		local removeDuplicates = function(pages)
+			local sorted = qsort(pages, 'v')
+			for i = #sorted, 2, -1 do
+				if (sorted[i].v == sorted[i - 1].v) then
+					table.remove(sorted, i)
+				end
+			end
+			return sorted
+		end
+		
+		local sorted = removeDuplicates(pagesButtonsPre)
+		if (#sorted < maxPages) then
+			local limit = 2
+			while (#sorted < totalPages) do
+				table.insert(sorted, { v = math.min(currentPage + limit, totalPages) })
+				table.insert(sorted, { v = math.max(1, currentPage - limit) })
+				local new = removeDuplicates(sorted)
+				for i = 1, #sorted do sorted[i] = nil end
+				for i = 1, #new do sorted[i] = new[i] end
+				
+				limit = limit + 1
+				if (#sorted >= maxPages or limit > totalPages) then
+					break
+				end
+			end
+		end
+		
+		local loops = 0
+		while (#sorted > maxPages) do
+			local targetId
+			for i,v in pairs(sorted) do
+				if (v.v == currentPage) then
+					targetId = i
+					break
+				end
+			end
+			local otherId = math.ceil(maxPages / 4)
+			if (targetId + otherId < totalPages) then
+				table.remove(sorted, targetId + otherId)
+			end
+			if (#sorted == maxPages) then
+				break
+			end
+			if (targetId - otherId > 1) then
+				table.remove(sorted, targetId - otherId)
+			end
+			loops = loops + 1
+			if (loops > 100) then
+				break
+			end
+		end
+		
+		for i,v in pairs(sorted) do
+			table.insert(pagesButtons, v.v)
+		end
+		
+		
+		-- Basically what we use for pagination on forums
+		-- Quicker but may not be looking nice - I'm not sure how to properly limit number of buttons
+		--[[while (page < totalPages) do
+			page = page + 1
+			
+			local added = false
+			if (math.abs(page - currentPage) >= navPages) then
+				if (page == 1 or page == totalPages) then
+					table.insert(pagesButtons, page)
+					added = true
+				elseif(in_array(math.abs(page - currentPage), pagesNavArr)) then
+					table.insert(pagesButtons, page)
+					added = true
+				end
+			else
+				table.insert(pagesButtons, page)
+				added = true
+			end
+			
+			if (not added) then
+				if (currentPage > 1 and page == currentPage - 1) then
+					table.insert(pagesButtons, page)
+				elseif (currentPage < totalPages and page == currentPage + 1) then
+					table.insert(pagesButtons, page)
+				end
+			end
+		end]]
+		
+		return pagesButtons
+	end
 
 	function TBMenu:displayLoadingMark(element, message, size)
 		local size = size or 20

@@ -178,18 +178,46 @@ do
 	end
 	
 	function Market:searchItemsInventory(item)
-		local inventoryItems = cloneTable(Torishop:getInventoryRaw())
-		
 		local matchingItems = {}
-		for i,v in pairs(inventoryItems) do
-			if (not v.active and (item == nil or item.itemid == v.itemid)) then
-				local itemInfo = Torishop:getItemInfo(v.itemid)
-				if (Market:itemEligible(itemInfo)) then
-					v.item = itemInfo
-					table.insert(matchingItems, v)
+		
+		local err, text = pcall(function()
+			local inventoryItems = Torishop:getInventoryRaw()
+			
+			for i,v in pairs(inventoryItems) do
+				local v = cloneTable(v)
+				if (not v.active and (item == nil or item.itemid == v.itemid)) then
+					local itemInfo = Torishop:getItemInfo(v.itemid)
+					
+					-- Show all eligible items, no sets
+					--[[if (Market:itemEligible(itemInfo)) then
+						v.item = itemInfo
+						table.insert(matchingItems, v)
+					end]]
+					
+					-- Show eligible items + sets with eligible items inside
+					if (v.itemid == ITEM_SET or (v.setid == 0 and Market:itemEligible(itemInfo))) then
+						v.item = itemInfo
+						if (v.itemid == ITEM_SET) then
+							v.contents = {}
+							for j,k in pairs(inventoryItems) do
+								if (not k.active and k.setid == v.inventid and (item == nil or item.itemid == k.itemid)) then
+									local setItemInfo = Torishop:getItemInfo(k.itemid)
+									if (Market:itemEligible(setItemInfo)) then
+										k.item = setItemInfo
+										table.insert(v.contents, k)
+									end
+								end
+							end
+							if (#v.contents > 0) then
+								table.insert(matchingItems, v)
+							end
+						else
+							table.insert(matchingItems, v)
+						end
+					end
 				end
 			end
-		end
+		end)
 		
 		return matchingItems
 	end
@@ -201,7 +229,7 @@ do
 		end
 	end
 	
-	function Market:confirmWaiterModal(requestName)
+	function Market:confirmWaiterModal(requestName, cancelAction)
 		Market:clearModal()
 		MARKET_ACTIVE_MODAL = TBMenu:spawnWindowOverlay()
 		local loaderView = UIElement:new({
@@ -218,6 +246,9 @@ do
 					if (x < WIN_W / 2) then
 						Request:finalize(requestName)
 						Market:clearModal()
+						if (cancelAction) then
+							cancelAction()
+						end
 					else
 						MARKET_ACTIVE_MODAL.doCheck = false
 					end
@@ -306,7 +337,7 @@ do
 			end)
 	end
 	
-	function Market:doSellItem(selectedItems, targetOffer)
+	function Market:doSellItem(selectedItems, targetOffer, backAction)
 		local message = targetOffer and TB_MENU_LOCALIZED.MARKETDIALOGSELLCONFIRM or TB_MENU_LOCALIZED.STOREDIALOGMARKETSELL1
 		if (#selectedItems > 4) then
 			message = message .. " " .. #selectedItems .. " " .. TB_MENU_LOCALIZED.WORDITEMS
@@ -340,7 +371,7 @@ do
 		data = data:sub(1, data:len() - 1)
 		
 		Market:clearModal()
-		Market:confirmWaiterModal("marketplace_sell")
+		Market:confirmWaiterModal("marketplace_sell", backAction)
 		Request:queue(function()
 				MARKET_ACTIVE_MODAL.doCheck = true
 				show_dialog_box(MARKET_SELL, message, data, true)
@@ -457,13 +488,6 @@ do
 		
 		topBar:addChild({ shift = { 15, 8 } }):addAdaptedText(true, offer and TB_MENU_LOCALIZED.MARKETMODIFYINGSALEOFFER or TB_MENU_LOCALIZED.MARKETNEWSALEOFFER, nil, nil, FONTS.BIG)
 		
-		local pricesSet = {}
-		for i,v in pairs(selectedItems) do
-			if (v.marketPrice) then
-				table.insert(pricesSet, v.inventid)
-			end
-		end
-		
 		local listElements = {}
 		if (MARKET_SHOP_DATA[TB_MENU_PLAYER_INFO.username:lower()].tier == TIER_REGULAR and MARKET_TAX > 0) then
 			local premiumNoticeHolder = listingHolder:addChild({
@@ -494,9 +518,39 @@ do
 			})
 			local itemName = bgTop:addChild({
 				pos = { itemIcon.shift.x * 2 + itemIcon.size.w, itemIcon.shift.y },
-				size = { bgTop.size.w - itemIcon.shift.x * 3 - itemIcon.size.w, (v.games_played > 0 or v.effectid > 0) and math.floor((itemIcon.size.h - 2) / 2) or (itemIcon.size.h - 2) }
+				size = { bgTop.size.w - itemIcon.shift.x * 3 - itemIcon.size.w - elementHeight, (v.games_played > 0 or v.effectid > 0) and math.floor((itemIcon.size.h - 2) / 2) or (itemIcon.size.h - 2) }
 			})
 			itemName:addAdaptedText(true, v.displayName or v.item.itemname, nil, nil, 4, LEFTMID, 0.8)
+			
+			if (not offer) then
+				local cancelButton = bgTop:addChild({
+					pos = { -42, 5 },
+					size = { 32, 32 },
+					interactive = true,
+					bgColor = cloneTable(TB_MENU_DEFAULT_DARKEST_COLOR),
+					hoverColor = TB_MENU_DEFAULT_BG_COLOR,
+					pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+					shapeType = ROUNDED,
+					rounded = 4
+				})
+				cancelButton:addChild({ shift = { 3, 3 }, bgImage = TB_MENU_BUTTON_CROSSWHITE })
+				cancelButton.clicked = false
+				cancelButton:addMouseHandlers(nil, function()
+						cancelButton.clicked = not cancelButton.clicked
+						if (cancelButton.clicked) then
+							cancelButton.bgColor = cloneTable(TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS)
+							for j,k in pairs(selectedItems) do
+								if (v.inventid == k.inventid) then
+									table.remove(selectedItems, j)
+									break
+								end
+							end
+						else
+							cancelButton.bgColor = cloneTable(TB_MENU_DEFAULT_DARKEST_COLOR)
+							table.insert(selectedItems, v)
+						end
+					end)
+			end
 			
 			local extraDataShift = { x = itemIcon.shift.x * 2 + itemIcon.size.w, y = itemName.shift.y + itemName.size.h }
 			if (v.games_played > 0) then
@@ -606,14 +660,6 @@ do
 				priceHolder:addCustomDisplay(nil, function()
 					if (checkDelay(youGetInput) or checkDelay(sellPriceInput, true)) then
 						v.marketPrice = tonumber(sellPriceInput.textfieldstr[1]) or 0
-						for j,k in pairs(pricesSet) do
-							if (k == v.inventid) then
-								table.remove(pricesSet, j)
-							end
-						end
-						if (v.marketPrice > 0) then
-							table.insert(pricesSet, v.inventid)
-						end
 					end
 				end)
 			else
@@ -621,14 +667,6 @@ do
 					if (sellPriceInput.lastPrice ~= sellPriceInput.textfieldstr[1]) then
 						sellPriceInput.lastPrice = sellPriceInput.textfieldstr[1]
 						v.marketPrice = tonumber(sellPriceInput.lastPrice) or 0
-						for j,k in pairs(pricesSet) do
-							if (k == v.inventid) then
-								table.remove(pricesSet, j)
-							end
-						end
-						if (v.marketPrice > 0) then
-							table.insert(pricesSet, v.inventid)
-						end
 					end
 				end)
 			end
@@ -729,11 +767,20 @@ do
 							Market:clearModal()
 						end)
 				else
-					Market:doSellItem(selectedItems)
+					Market:doSellItem(selectedItems, nil, function()
+							Market:spawnPriceSetModal(selectedItems, item, offer)
+						end)
 				end
 			end)
 		submitButton:addCustomDisplay(nil, function()
-				if (#pricesSet == #selectedItems) then
+				local available = #selectedItems > 0
+				for i,v in pairs(selectedItems) do
+					if (not v.marketPrice or v.marketPrice < 1) then
+						available = false
+					end
+				end
+				
+				if (available) then
 					submitButton:activate(true)
 				else
 					submitButton:deactivate(true)
@@ -814,132 +861,266 @@ do
 		local scrollerView = modalView:addChild({ shift = { 0, 5 } })
 		local toReload, topBar, botBar, listingView, listingHolder = TBMenu:prepareScrollableList(scrollerView, elementHeight, 100, 20, TB_MENU_DEFAULT_BG_COLOR)
 		
-		topBar:addChild({ shift = { 15, 2 } }):addAdaptedText(true, TB_MENU_LOCALIZED.MARKETNEWSALEOFFER, nil, nil, FONTS.BIG)
+		topBar:addChild({ pos = { 15, 2 }, size = { topBar.size.w - 30, elementHeight - 4 } }):addAdaptedText(true, TB_MENU_LOCALIZED.MARKETNEWSALEOFFER, nil, nil, FONTS.BIG)
 		
 		local listElements = {}
 		local selectedItems = selectedItems or {}
 		local setsData = {}
-		for i,v in pairs(inventoryItems) do
-			local element = listingHolder:addChild({
-				pos = { 0, #listElements * elementHeight },
-				size = { listingHolder.size.w, elementHeight }
-			})
-			table.insert(listElements, element)
-			local itemHolder = element:addChild({
-				pos = { 10, 2 },
-				size = { element.size.w - 10, element.size.h - 4 },
-				interactive = true,
-				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
-				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-				inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
-				shapeType = ROUNDED,
-				rounded = 4
-			})
-			local itemCancel = itemHolder:addChild({
-				pos = { -itemHolder.size.h + 4, 4 },
-				size = { itemHolder.size.h - 8, itemHolder.size.h - 8 },
-				interactive = true,
-				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
-				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
-			}, true)
-			local itemCancelIcon = itemCancel:addChild({
-				shift = { 4, 4 },
-				bgImage = TB_MENU_BUTTON_CROSSWHITE
-			})
-			itemCancel:addMouseHandlers(nil, function()
-					itemHolder:activate(true)
-					itemCancel:hide(true)
-					for i,v in pairs(selectedItems) do
-						if (v.inventid == v.inventid) then
-							table.remove(selectedItems, i)
-							break
-						end
-					end
-				end)
-			
-			local itemName = itemHolder:addChild({
-				pos = { 10, 2 },
-				size = { itemHolder.size.w - itemCancel.size.h - 20, itemHolder.size.h - 4 }
-			})
-			
-			v.displayName = v.item.itemname
-			if (v.item.itemid == ITEM_FLAME) then
-				v.displayName = v.displayName .. ": " .. v.flamename
+		
+		local addToSelected = function(itemHolder, itemCancel, v)
+			if (#selectedItems >= (targetOffer and 1 or 20)) then
+				TBMenu:showDataError(TB_MENU_LOCALIZED.MARKETSELECTITEMSQUANTITYERROR)
+				return
 			end
-			if (v.setid > 0) then
-				if (#setsData == 0) then
-					setsData = Torishop:getInventoryRaw(ITEM_SET)
+			itemHolder:deactivate(true)
+			itemCancel:show(true)
+			table.insert(selectedItems, v)
+		end
+		
+		local displayPages
+		local showInventoryItems
+		
+		local targetItems = inventoryItems
+		local currentPage = { 1 }
+		local selectedSetid = nil
+		local displayListShift = { 0 }
+		
+		local backToMainHolder = topBar:addChild({
+			pos = { 0, topBar.size.h },
+			size = { topBar.size.w - 20, elementHeight },
+			bgColor = TB_MENU_DEFAULT_BG_COLOR
+		})
+		local backToMainButton = backToMainHolder:addChild({
+			pos = { 10, 2 },
+			size = { backToMainHolder.size.w, elementHeight - 4 },
+			interactive = true,
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+			shapeType = ROUNDED,
+			rounded = 4
+		})
+		backToMainButton:addChild({
+			pos = { 10, 2 },
+			size = { backToMainButton.size.h - 4, backToMainButton.size.h - 4 },
+			bgImage = "../textures/menu/general/back.tga"
+		})
+		local backToMainText = backToMainButton:addChild({
+			pos = { 16 + backToMainButton.size.h, 2 },
+			size = { backToMainButton.size.w - 26 - backToMainButton.size.h, backToMainButton.size.h - 4 }
+		})
+		backToMainText:addAdaptedText(true, TB_MENU_LOCALIZED.NAVBUTTONBACK, nil, nil, nil, LEFTMID)
+		backToMainButton.size.w = get_string_length(backToMainText.dispstr[1], backToMainText.textFont) * backToMainText.textScale + backToMainButton.size.h + 30
+		backToMainButton:addMouseHandlers(nil, function()
+				targetItems = inventoryItems
+				selectedSetid = nil
+				showInventoryItems(currentPage[1])
+			end)
+			
+		local backToMainInfoText = backToMainHolder:addChild({
+			pos = { backToMainButton.shift.x + backToMainButton.size.w + 4, 2 },
+			size = { backToMainHolder.size.w - backToMainButton.shift.x - backToMainButton.size.w - 4, backToMainHolder.size.h - 4 },
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			shapeType = ROUNDED,
+			rounded = 4
+		})
+		
+		showInventoryItems = function(page)
+			for i = 0, #listElements do listElements[i] = nil end
+			
+			if (listingHolder.scrollBar) then
+				listingHolder.scrollBar:kill()
+				listingHolder.scrollBar = nil
+			end
+			listingHolder:kill(true)
+			listingHolder:moveTo(0, 0)
+			
+			if (targetItems == inventoryItems) then
+				backToMainHolder:hide(true)
+			else
+				table.insert(listElements, listingHolder:addChild({
+					pos = { 0, #listElements * elementHeight },
+					size = { listingHolder.size.w, elementHeight }
+				}))
+				backToMainHolder:show(true)
+			end
+			
+			for i = 1 + (page - 1) * 100, math.min((page) * 100, #targetItems) do
+				local v = targetItems[i]
+				local element = listingHolder:addChild({
+					pos = { 0, #listElements * elementHeight },
+					size = { listingHolder.size.w, elementHeight }
+				})
+				table.insert(listElements, element)
+				local itemHolder = element:addChild({
+					pos = { 10, 2 },
+					size = { element.size.w - 10, element.size.h - 4 },
+					interactive = true,
+					bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+					hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+					pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+					inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
+					shapeType = ROUNDED,
+					rounded = 4
+				})
+				local itemCancel = itemHolder:addChild({
+					pos = { -itemHolder.size.h + 4, 4 },
+					size = { itemHolder.size.h - 8, itemHolder.size.h - 8 },
+					interactive = true,
+					bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+					hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+					pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+				}, true)
+				local itemCancelIcon = itemCancel:addChild({
+					shift = { 4, 4 },
+					bgImage = TB_MENU_BUTTON_CROSSWHITE
+				})
+				itemCancel:addMouseHandlers(nil, function()
+						itemHolder:activate(true)
+						itemCancel:hide(true)
+						for i,v in pairs(selectedItems) do
+							if (v.inventid == v.inventid) then
+								table.remove(selectedItems, i)
+								break
+							end
+						end
+					end)
+				
+				local itemName = itemHolder:addChild({
+					pos = { 10, 2 },
+					size = { itemHolder.size.w - itemCancel.size.h - 20, itemHolder.size.h - 4 }
+				})
+				
+				v.displayName = v.item.itemname
+				if (v.item.itemid == ITEM_FLAME) then
+					v.displayName = v.displayName .. ": " .. v.flamename
 				end
-				v.displayName = v.displayName .. " (" .. TB_MENU_LOCALIZED.STORESETITEMNAME .. ": "
-				for j,k in pairs(setsData) do
-					if (k.inventid == v.setid) then
-						v.displayName = v.displayName .. k.setname .. ")"
+				if (v.itemid == ITEM_SET) then
+					v.displayName = v.displayName .. ": " .. v.setname .. " (" .. #v.contents .. " " .. TB_MENU_LOCALIZED.WORDITEMS:lower() .. ")"
+				end
+				
+				itemName:addCustomDisplay(true, function()
+						itemName:uiText(v.displayName, nil, nil, 4, LEFTMID, 0.7)
+					end)
+				if (v.effectid > 0) then
+					itemName.size.w = get_string_length(itemName.dispstr[1], 4) * 0.7 + 1
+					local effectsHolder = itemName:addChild({
+						pos = { itemName.size.w + 5, 0 },
+						size = { itemName.parent.size.w - itemName.shift.x - itemName.size.w - 20 - itemCancel.size.w, itemName.size.h }
+					})
+					Torishop:showItemEffectCapsules(v, effectsHolder)
+				end
+				
+				itemHolder:addMouseHandlers(nil, function()
+						if (v.itemid == ITEM_SET) then
+							targetItems = v.contents
+							selectedSetid = v.setid
+							currentPage[selectedSetid] = currentPage[selectedSetid] or 1
+							backToMainInfoText:addAdaptedText(nil, v.item.itemname .. ": " .. v.setname, nil, nil, 4, nil, 0.8)
+							showInventoryItems(currentPage[selectedSetid])
+						else
+							addToSelected(itemHolder, itemCancel, v)
+						end
+					end)
+					
+				local isSelected = false
+				for j,k in pairs(selectedItems) do
+					if (k.inventid == v.inventid) then
+						isSelected = true
+						itemHolder:deactivate(true)
+						itemCancel:show(true)
 						break
 					end
 				end
-			end
-			
-			itemName:addAdaptedText(true, v.displayName, nil, nil, 4, LEFTMID, 0.7)
-			itemName.size.w = get_string_length(itemName.dispstr[1], itemName.textFont) * itemName.textScale + 1
-			local effectsHolder = itemName:addChild({
-				pos = { itemName.size.w + 5, 0 },
-				size = { itemName.parent.size.w - itemName.shift.x - itemName.size.w - 20 - itemCancel.size.w, itemName.size.h }
-			})
-			Torishop:showItemEffectCapsules(v, effectsHolder)
-			
-			itemHolder:addMouseHandlers(nil, function()
-					if (#selectedItems >= (targetOffer and 1 or 20)) then
-						TBMenu:showDataError(TB_MENU_LOCALIZED.MARKETSELECTITEMSQUANTITYERROR)
-						return
-					end
-					itemHolder:deactivate(true)
-					itemCancel:show(true)
-					table.insert(selectedItems, v)
-				end)
 				
-			local isSelected = false
-			for j,k in pairs(selectedItems) do
-				if (k.inventid == v.inventid) then
-					isSelected = true
-					itemHolder:deactivate(true)
-					itemCancel:show(true)
-					break
+				if (not isSelected) then
+					itemCancel:hide(true)
 				end
 			end
 			
-			if (not isSelected) then
-				itemCancel:hide(true)
-			end
-		end
-		
-		if (#listElements * elementHeight > listingHolder.size.h) then
-			for i,v in pairs(listElements) do
-				v:hide()
+			listingHolder.numElements = #listElements
+			if (#listElements * elementHeight > listingHolder.size.h) then
+				for i,v in pairs(listElements) do
+					v:hide()
+				end
+				
+				local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
+				listingHolder.scrollBar = scrollBar
+				scrollBar:makeScrollBar(listingHolder, listElements, toReload, not selectedSetid and displayListShift, nil, true)
+			else
+				listingHolder:moveTo((listingHolder.parent.size.w - listingHolder.size.w) / 4, nil, true)
 			end
 			
-			local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
-			listingHolder.scrollBar = scrollBar
-			scrollBar:makeScrollBar(listingHolder, listElements, toReload, nil, nil, true)
-		else
-			listingHolder.size.h = #listElements * elementHeight
+			displayPages()
+		end
+		
+		local selectedItemsText = botBar:addChild({
+			pos = { 15, -90 },
+			size = { (botBar.size.w - 30) / (#inventoryItems > 100 and 2 or 0), 30 }
+		})
+		selectedItemsText:addCustomDisplay(true, function()
+				selectedItemsText:uiText(TB_MENU_LOCALIZED.MARKETSELECTEDITEMS .. " " .. #selectedItems, nil, nil, 4, #inventoryItems > 100 and LEFTMID or CENTERMID, 0.75)
+			end)
+		
+		local pagesSelectorText = botBar:addChild({
+			pos = { -selectedItemsText.size.w - selectedItemsText.shift.x, selectedItemsText.shift.y },
+			size = { 70, selectedItemsText.size.h }
+		})
+		pagesSelectorText:addAdaptedText(true, TB_MENU_LOCALIZED.PAGINATIONPAGE .. ":", nil, nil, 4, RIGHTMID, 0.65)
+		local pagesSelectorHolder = botBar:addChild({
+			pos = { -selectedItemsText.size.w + pagesSelectorText.size.w - selectedItemsText.shift.x, selectedItemsText.shift.y },
+			size = { selectedItemsText.size.w - pagesSelectorText.size.w, selectedItemsText.size.h },
+			shapeType = ROUNDED,
+			rounded = 4
+		})
+		
+		local pageButtonWidth = 35
+		displayPages = function()
+			pagesSelectorHolder:kill(true)
+			local pages = math.ceil(#targetItems / 100)
+			local pagesMax = math.floor(pagesSelectorHolder.size.w / pageButtonWidth)
+			
+			local cPage = selectedSetid and currentPage[selectedSetid] or currentPage[1]
+			local pagesData = TBMenu:generatePaginationData(pages, pagesMax, cPage)
+		
+			for i, v in pairs(pagesData) do
+				local pageButton = pagesSelectorHolder:addChild({
+					pos = { (i - 1) * pageButtonWidth, 0 },
+					size = { pageButtonWidth * 0.8, pagesSelectorHolder.size.h },
+					interactive = true,
+					bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+					hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+					pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+					inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS
+				}, true)
+				pageButton:addAdaptedText(nil, v .. '', nil, nil, 4, nil, 0.6)
+				pageButton:addMouseHandlers(nil, function()
+						if (selectedSetid) then
+							currentPage[selectedSetid] = v
+						else
+							currentPage[1] = v
+							displayListShift[1] = 0
+						end
+						showInventoryItems(v)
+					end)
+				if (cPage == v) then
+					pageButton:deactivate(true)
+				end
+			end
+			pagesSelectorHolder:moveTo(-(#pagesData - 0.2) * pageButtonWidth - selectedItemsText.shift.x)
+			pagesSelectorText:moveTo(-(#pagesData - 0.2) * pageButtonWidth - selectedItemsText.shift.x - pagesSelectorText.size.w - 5)
+		end
+		
+		showInventoryItems(currentPage[1])
+		if (listingHolder.numElements * elementHeight < listingHolder.size.h) then
+			listingHolder.size.h = listingHolder.numElements * elementHeight
 			listingView.size.h = listingHolder.size.h
 			listingHolder.scrollBG.size.h = listingHolder.size.h
 			modalView.size.h = topBar.size.h + listingHolder.size.h + botBar.size.h
 			toReload.size.h = modalView.size.h
 			botBar:moveTo(nil, -botBar.size.h)
 			modalView:moveTo(nil, (WIN_H - modalView.size.h) / 2)
-			listingHolder:moveTo((listingHolder.parent.size.w - listingHolder.size.w) / 4, nil, true)
 		end
-		
-		local selectedItemsText = botBar:addChild({
-			pos = { 15, -90 },
-			size = { botBar.size.w - 30, 25 }
-		})
-		selectedItemsText:addCustomDisplay(true, function()
-				selectedItemsText:uiText(TB_MENU_LOCALIZED.MARKETSELECTEDITEMS .. " " .. #selectedItems, nil, nil, 4, nil, 0.75)
-			end)
 		
 		local cancelButton = botBar:addChild({
 			pos = { 15, -50 },
@@ -952,7 +1133,9 @@ do
 			rounded = 4
 		})
 		cancelButton:addChild({ shift = { 15, 5 } }):addAdaptedText(true, TB_MENU_LOCALIZED.BUTTONCANCEL)
-		cancelButton:addMouseHandlers(nil, function() overlay:kill() end)
+		cancelButton:addMouseHandlers(nil, function()
+				overlay:kill()
+			end)
 		
 		local submitButton = botBar:addChild({
 			pos = { cancelButton.shift.x + cancelButton.size.w + 10, cancelButton.shift.y },
@@ -2891,7 +3074,7 @@ do
 					local w = get_string_length(v, shopDescriptionText.textFont) * shopDescriptionText.textScale
 					width = w > width and w or width
 				end
-				shopDescriptionText.size = { w = width + 1, h = #shopDescriptionText.dispstr * getFontMod(shopDescriptionText.textFont) * 10 * shopDescriptionText.textScale + 1 }
+				shopDescriptionText.size = { w = width + 1, h = math.min(shopDescriptionText.size.h, #shopDescriptionText.dispstr * getFontMod(shopDescriptionText.textFont) * 10 * shopDescriptionText.textScale + 1) }
 				shopDescription.size = { w = shopDescriptionText.size.w + shopDescriptionText.shift.x * 2, h = shopDescriptionText.size.h + shopDescriptionText.shift.y * 2 }
 				shopDescription:moveTo(shopDescription.parent.size.w - shopDescription.size.w - shopDescriptionText.shift.x, shopDescription.parent.size.h - shopDescription.size.h - shopDescriptionText.shift.y)
 			else
@@ -3042,8 +3225,9 @@ do
 			
 			local shopData = MARKET_SHOP_DATA[username]
 			local lastElement
+			local premiumShopCapsule
 			if (shopData.tier >= TIER_PREMIUM) then
-				local premiumShopCapsule = shopInfoView:addChild({
+				premiumShopCapsule = shopInfoView:addChild({
 					pos = { 10, 10 },
 					size = { shopInfoView.size.w, 24 },
 					bgColor = TB_MENU_DEFAULT_ORANGE,
@@ -3082,15 +3266,40 @@ do
 			lastElement = shopTitleBy
 			
 			local segmentMaxHeight = (shopInfoView.size.h - lastElement.shift.y - lastElement.size.h) / (isMyShop and 3 or 2)
-			local imageHeight = math.min(segmentMaxHeight, (shopInfoView.size.w - 40) / 2)
+			local imageDrawHeight = (shopInfoView.size.w - 40) / 2
+			local imageHeight = math.min(segmentMaxHeight, imageDrawHeight)
 			if (shopData.tier >= TIER_PREMIUM) then
 				local shopImage = shopInfoView:addChild({
-					pos = { (shopInfoView.size.w - imageHeight * 2) / 2, lastElement.shift.y + lastElement.size.h + 10 },
-					size = { imageHeight * 2, imageHeight },
+					pos = { 20, math.max(20, lastElement.shift.y + lastElement.size.h + 10 - (imageDrawHeight - imageHeight) / 2) },
+					size = { shopInfoView.size.w - 40, imageDrawHeight },
 					bgImage = { "../textures/store/market/" .. string.lower(username) .. ".tga", nil }
 				})
 				lastElement = shopImage
-				TBMenu:addOuterRounding(shopImage, shopInfoView.bgColor, 10)
+				
+				if (imageDrawHeight > imageHeight) then
+					local shopImageTopBar = shopImage:addChild({
+						pos = { 0, 0 },
+						size = { shopImage.size.w, (imageDrawHeight - imageHeight) / 2 },
+						bgColor = TB_MENU_DEFAULT_BG_COLOR
+					})
+					local shopImageBotBar = shopImage:addChild({
+						pos = { 0, -(imageDrawHeight - imageHeight) / 2 },
+						size = { shopImage.size.w, (imageDrawHeight - imageHeight) / 2 },
+						bgColor = TB_MENU_DEFAULT_BG_COLOR
+					})
+					local shopImageOverlay = shopInfoView:addChild({
+						pos = { shopImage.shift.x, shopImage.shift.y + (imageDrawHeight - imageHeight) / 2 },
+						size = { shopImage.size.w, imageHeight }
+					})
+					lastElement = shopImageOverlay
+					
+					if (premiumShopCapsule) then
+						premiumShopCapsule:reload()
+					end
+					shopTitle:reload()
+					shopTitleBy:reload()
+				end
+				TBMenu:addOuterRounding(lastElement, shopInfoView.bgColor, 10)
 				
 				if (refreshImage) then
 					Request:queue(function()
@@ -3114,7 +3323,7 @@ do
 						end)
 				end
 					
-				local shopDescription = shopImage:addChild({
+				local shopDescription = lastElement:addChild({
 					shift = { 10, 10 },
 					shapeType = ROUNDED,
 					rounded = 5,
@@ -3142,7 +3351,7 @@ do
 				lastElement = shopDescription
 			end
 			
-			segmentMaxHeight = math.min(segmentMaxHeight, shopInfoView.size.h - lastElement.size.h - lastElement.shift.y / (isMyShop and 1 or 2))
+			segmentMaxHeight = math.min(segmentMaxHeight, (shopInfoView.size.h - lastElement.size.h - lastElement.shift.y) / (isMyShop and 2 or 1))
 			
 			local dataCount = 0
 			for i,v in pairs(shopData.stats) do
@@ -3152,18 +3361,29 @@ do
 			end
 			
 			if (dataCount > 0) then
-				local thisSegmentMax = math.min(segmentMaxHeight, 120)
+				local thisSegmentMax = math.min(segmentMaxHeight - 10, 120)
 				local shopStatsHolder = shopInfoView:addChild({
 					pos = { 15, isMyShop and (lastElement.shift.y + lastElement.size.h + 10) or -thisSegmentMax },
 					size = { shopInfoView.size.w - 30, thisSegmentMax - (isMyShop and 20 or 0) }
 				})
-				local shopStats = shopStatsHolder:addChild({
-					size = { shopStatsHolder.size.w, 32 }
-				})
-				shopStats:addAdaptedText(true, TB_MENU_LOCALIZED.MARKETSHOPSTATS, nil, nil, FONTS.BIG)
-				lastElement = shopStats
 				
-				local statHeight = math.min((thisSegmentMax - 52) / math.min(3, dataCount), 20)
+				local shopStats
+				-- On small screen height stats become barely readable
+				-- Title isn't too important, it's clear those are stats - hide it
+				if (thisSegmentMax > 90) then
+					shopStats = shopStatsHolder:addChild({
+						size = { shopStatsHolder.size.w, math.min(thisSegmentMax / 3.75, 32) }
+					})
+					shopStats:addAdaptedText(true, TB_MENU_LOCALIZED.MARKETSHOPSTATS, nil, nil, FONTS.BIG)
+					lastElement = shopStats
+				else
+					lastElement = {
+						shift = { x = 0, y = -5 },
+						size = { w = 0, h = 0 }
+					}
+				end
+				
+				local statHeight = math.min((thisSegmentMax - (shopStats and 52 or 20)) / math.min(3, dataCount), 20)
 				if (shopData.stats.SALES and shopData.stats.SALES.count) then
 					local stat = shopData.stats.SALES
 					local finishedSales = shopStatsHolder:addChild({
@@ -3176,7 +3396,7 @@ do
 				if (shopData.stats.offers and shopData.stats.offers.count) then
 					local stat = shopData.stats.offers
 					local activeSales = shopStatsHolder:addChild({
-						pos = { 0, lastElement.shift.y + lastElement.size.h + 5 },
+						pos = { 0, lastElement.shift.y + lastElement.size.h },
 						size = { shopStatsHolder.size.w, statHeight }
 					})
 					activeSales:addAdaptedText(true, stat.count .. " " .. TB_MENU_LOCALIZED.MARKETITEMSONSALE, nil, nil, 4)
@@ -3185,7 +3405,7 @@ do
 				if (shopData.stats.requests and shopData.stats.requests.count) then
 					local stat = shopData.stats.requests
 					local activeRequests = shopStatsHolder:addChild({
-						pos = { 0, lastElement.shift.y + lastElement.size.h + 5 },
+						pos = { 0, lastElement.shift.y + lastElement.size.h },
 						size = { shopStatsHolder.size.w, statHeight }
 					})
 					activeRequests:addAdaptedText(true, TB_MENU_LOCALIZED.MARKETLOOKINGTOBUY .. " " .. stat.count .. " " .. TB_MENU_LOCALIZED.WORDITEMS, nil, nil, 4)
@@ -3201,7 +3421,8 @@ do
 					pos = { 15, -segmentMaxHeight },
 					size = { shopInfoView.size.w - 30, segmentMaxHeight }
 				})
-				local buttonHeight = segmentMaxHeight / 3 - 10
+				local buttonDistance = math.min(segmentMaxHeight / 15, 10)
+				local buttonHeight = segmentMaxHeight / 3 - buttonDistance
 				
 				local saleOfferButton = buttonsHolder:addChild({
 					pos = { 0, 0 },
@@ -3218,7 +3439,7 @@ do
 						Market:spawnInventoryItemSelector()
 					end)
 				local purchaseOfferButton = buttonsHolder:addChild({
-					pos = { 0, buttonHeight + 10 },
+					pos = { 0, buttonHeight + buttonDistance },
 					size = { buttonsHolder.size.w, buttonHeight },
 					interactive = true,
 					bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
@@ -3232,7 +3453,7 @@ do
 						Market:spawnItemSelectorModal()
 					end)
 				local editShopButton = buttonsHolder:addChild({
-					pos = { 0, (buttonHeight + 10) * 2 },
+					pos = { 0, (buttonHeight + buttonDistance) * 2 },
 					size = { buttonsHolder.size.w, buttonHeight },
 					interactive = true,
 					bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
@@ -3526,8 +3747,9 @@ do
 				size = { featuredShopImage.size.w - 20, 25 }
 			})
 			featuredTitleUser:addAdaptedText(true, TB_MENU_LOCALIZED.WORDBY .. " " .. MARKET_FEATURED_SHOP_DATA.user, nil, nil, nil, RIGHT, nil, nil, nil, 1.5)
+			local targetShop = cloneTable(MARKET_FEATURED_SHOP_DATA)
 			featuredShop:addMouseHandlers(nil, function()
-					Market:showUserShop(tbMenuCurrentSection, MARKET_FEATURED_SHOP_DATA.user)
+					Market:showUserShop(tbMenuCurrentSection, targetShop.user)
 				end)
 		end
 		

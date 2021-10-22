@@ -923,7 +923,7 @@ do
 				self:textfieldUpdate("-")
 			elseif (key == 267) then
 				self:textfieldUpdate("/")
-			elseif (key >= 97 and key <= 122 and (get_shift_key_state() > 0)) then
+			elseif (key >= 97 and key <= 122 and bit.bxor(get_shift_key_state() > 0 and 1 or 0, get_keyboard_capslock() > 0 and 1 or 0) == 1) then
 				self:textfieldUpdate(string.schar(key - 32))
 			elseif (key == 13 or key == 271) then
 				if (not self.textfieldsingleline) then

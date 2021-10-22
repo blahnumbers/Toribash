@@ -46,14 +46,24 @@ do
 	local cln = {}
 	setmetatable(cln, Torishop)
 	
+	Torishop.lastDownload = 0
+	
 	function Torishop:download()
+		local clock = os.clock()
+		
+		if (clock - Torishop.lastDownload < 1) then
+			return false
+		end
+		
 		local downloads = get_downloads()
 		for i,v in pairs(downloads) do
 			if (v:find("store(_obj)?.txt$")) then
 				return false
 			end
 		end
+		Torishop.lastDownload = clock
 		download_torishop()
+		return true
 	end
 
 	function Torishop:getItems()
@@ -418,12 +428,14 @@ do
 							break
 						end
 					end
-					for s, n in pairs(inventoryRaw) do
-						if (n.setid == v.parentset.inventid) then
-							table.insert(v.parentset.contents, n)
+					if (v.parentset ~= nil) then
+						for s, n in pairs(inventoryRaw) do
+							if (n.setid == v.parentset.inventid) then
+								table.insert(v.parentset.contents, n)
+							end
 						end
+						table.insert(inventory, v)
 					end
-					table.insert(inventory, v)
 				end
 			end
 		end
