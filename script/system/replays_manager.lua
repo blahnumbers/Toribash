@@ -149,61 +149,34 @@ do
 		end
 
 		local files = get_files(folder, "")
-		local count, frame = 1, 0
+		local count, maxDelay = 1, 1 / (tonumber(get_option("framerate")) or 30) / 1.2
 		replayUpdateWindow.replayfolders = replayUpdateWindow.replayfolders or {}
 		replayUpdateWindow:addCustomDisplay(true, function()
-				if (not replayUpdateWindow.customDisplayTrue) then
-					replayUpdateWindow.parent.startTime = os.clock()
-					replayUpdateWindow:uiText(TB_MENU_LOCALIZED.REPLAYSUPDATINGCACHE .. " (" .. folder .. " folder)\n" .. math.min(math.ceil(count / #files * 100), 100) .. "% " .. TB_MENU_LOCALIZED.WORDDONE, nil, nil, nil, nil, 0.8)
-				end
-
+				replayUpdateWindow.parent.startTime = os.clock()
+				replayUpdateWindow:uiText(TB_MENU_LOCALIZED.REPLAYSUPDATINGCACHE .. " (" .. folder .. " folder)\n" .. math.min(math.ceil(count / #files * 100), 100) .. "% " .. TB_MENU_LOCALIZED.WORDDONE, nil, nil, nil, nil, 0.8)
+				
 				while (1) do
 					local v = files[count]
 					if (not v) then
 						break
 					end
-					if (v:match(REPLAY_TEMPNAME) or v:match(REPLAY_SAVETEMPNAME) or (v:find("^" .. REPLAY_EVENT) and not includeEventTemp)) then
-						count = count + 1
-					elseif (v:match(".rpl$")) then
-						local replaydata = { filename = v:lower() }
-						local replaypath = folder and string.lower(folder .. "/" .. v) or replaydata.filename
-						local replaypathfull = folder and (folder .. "/" .. v) or v
-						local replaydatapath = replaypath:gsub(" ", "_")
-						if (filedata[replaydatapath]) then
-							replaydata.name = filedata[replaydatapath].name
-							replaydata.author = filedata[replaydatapath].author
-							replaydata.mod = filedata[replaydatapath].mod
-							replaydata.bout0 = filedata[replaydatapath].bout0
-							replaydata.bout1 = filedata[replaydatapath].bout1
-							replaydata.tags = filedata[replaydatapath].tags
-							replaydata.hiddentags = filedata[replaydatapath].hiddentags
-							replaydata.uploaded = filedata[replaydatapath].uploaded
-							table.insert(rplTable.replays, {
-								filename = folder == "replay" and replaydata.filename or folder:gsub("^replay/", "") .. "/" .. replaydata.filename,
-								name = replaydata.name,
-								author = replaydata.author,
-								mod = replaydata.mod,
-								bouts = { replaydata.bout0, replaydata.bout1 },
-								tags = replaydata.tags,
-								hiddentags = replaydata.hiddentags,
-								uploaded = replaydata.uploaded == 1
-							})
+					pcall(function()
+						if (v:match(REPLAY_TEMPNAME) or v:match(REPLAY_SAVETEMPNAME) or (v:find("^" .. REPLAY_EVENT) and not includeEventTemp)) then
 							count = count + 1
-						else
-							replayUpdateWindow.customDisplayTrue = false
-							if (frame % 2 == 0) then
-								replaydata = Replays:getReplayInfo(replaypathfull)
-								replaydata.filename = v:lower()
-								file.data:write(replaypath .. "\t" ..
-												replaydata.name .. "\t" ..
-												replaydata.author .. "\t" ..
-												replaydata.mod .. "\t" ..
-												replaydata.bout0 .. "\t" ..
-												replaydata.bout1 .. "\t" ..
-												replaydata.tags .. "\t" ..
-												replaydata.hiddentags .. "\t" ..
-												replaydata.uploaded .. "\t" ..
-												"\n")
+						elseif (v:match(".rpl$")) then
+							local replaydata = { filename = v:lower() }
+							local replaypath = folder and string.lower(folder .. "/" .. v) or replaydata.filename
+							local replaypathfull = folder and (folder .. "/" .. v) or v
+							local replaydatapath = replaypath:gsub(" ", "_")
+							if (filedata[replaydatapath]) then
+								replaydata.name = filedata[replaydatapath].name
+								replaydata.author = filedata[replaydatapath].author
+								replaydata.mod = filedata[replaydatapath].mod
+								replaydata.bout0 = filedata[replaydatapath].bout0
+								replaydata.bout1 = filedata[replaydatapath].bout1
+								replaydata.tags = filedata[replaydatapath].tags
+								replaydata.hiddentags = filedata[replaydatapath].hiddentags
+								replaydata.uploaded = filedata[replaydatapath].uploaded
 								table.insert(rplTable.replays, {
 									filename = folder == "replay" and replaydata.filename or folder:gsub("^replay/", "") .. "/" .. replaydata.filename,
 									name = replaydata.name,
@@ -215,31 +188,54 @@ do
 									uploaded = replaydata.uploaded == 1
 								})
 								count = count + 1
+							else
+									replaydata = Replays:getReplayInfo(replaypathfull)
+									replaydata.filename = v:lower()
+									file.data:write(replaypath .. "\t" ..
+													replaydata.name .. "\t" ..
+													replaydata.author .. "\t" ..
+													replaydata.mod .. "\t" ..
+													replaydata.bout0 .. "\t" ..
+													replaydata.bout1 .. "\t" ..
+													replaydata.tags .. "\t" ..
+													replaydata.hiddentags .. "\t" ..
+													replaydata.uploaded .. "\t" ..
+													"\n")
+									table.insert(rplTable.replays, {
+										filename = folder == "replay" and replaydata.filename or folder:gsub("^replay/", "") .. "/" .. replaydata.filename,
+										name = replaydata.name,
+										author = replaydata.author,
+										mod = replaydata.mod,
+										bouts = { replaydata.bout0, replaydata.bout1 },
+										tags = replaydata.tags,
+										hiddentags = replaydata.hiddentags,
+										uploaded = replaydata.uploaded == 1
+									})
+									count = count + 1
 							end
-							break
+						elseif (not v:find("^%.+[%s%S]*$") and v ~= "system" and not v:find("%.%a+$")) then
+							table.insert(rplTable.folders, {
+								parent = rplTable,
+								name = v,
+								fullname = rplTable.fullname .. "/" .. v
+							})
+							table.insert(replayUpdateWindow.replayfolders, { fname = folder .. "/" .. v, rpltbl = rplTable.folders[#rplTable.folders] })
+							if (rplTable.fullname .. "/" .. v == SELECTED_FOLDER.fullname) then
+								SELECTED_FOLDER = rplTable.folders[#rplTable.folders]
+							end
+							count = count + 1
+						else
+							count = count + 1
 						end
-					elseif (not v:find("^%.+[%s%S]*$") and v ~= "system" and not v:find("%.%a+$")) then
-						table.insert(rplTable.folders, {
-							parent = rplTable,
-							name = v,
-							fullname = rplTable.fullname .. "/" .. v
-						})
-						table.insert(replayUpdateWindow.replayfolders, { fname = folder .. "/" .. v, rpltbl = rplTable.folders[#rplTable.folders] })
-						if (rplTable.fullname .. "/" .. v == SELECTED_FOLDER.fullname) then
-							SELECTED_FOLDER = rplTable.folders[#rplTable.folders]
-						end
-						count = count + 1
-					else
-						count = count + 1
-					end
+					end)
 
-					if (count > #files) then
+					if (count > #files or os.clock() - replayUpdateWindow.parent.startTime > maxDelay) then
 						break
 					end
 				end
 				if (count > #files) then
 					if (rplTable.fullname ~= "replay/autosave") then
-						rplTable.replays = UIElement:qsort(rplTable.replays, "filename")
+						pcall(function() rplTable.replays = UIElement:qsort(rplTable.replays, "filename") end)
 					end
 					if (#replayUpdateWindow.replayfolders > 0) then
 						local fname = replayUpdateWindow.replayfolders[1].fname
@@ -256,7 +252,6 @@ do
 						replayUpdateWindow.parent:kill()
 					end
 				end
-				frame = frame + 1
 			end)
 	end
 
@@ -3300,11 +3295,14 @@ do
 			size = { viewElement.size.w * 0.25 - 10, viewElement.size.h },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
+		TBMenu:displayLoadingMark(replaysList, TB_MENU_LOCALIZED.REPLAYSUPDATINGCACHE)
 		TBMenu:addBottomBloodSmudge(replaysList, 1)
 		TBMenu:addBottomBloodSmudge(replayInfo, 2)
 		replaysList:addCustomDisplay(false, function()
 				if (TB_MENU_REPLAYS_LOADED) then
+					replaysList:kill(true)
 					replaysList:addCustomDisplay(false, function() end)
+					TBMenu:addBottomBloodSmudge(replaysList, 1)
 					Replays:showList(replaysList, replayInfo, SELECTED_FOLDER, TB_MENU_REPLAYS_SEARCH)
 				end
 			end)

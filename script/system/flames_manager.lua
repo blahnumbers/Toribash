@@ -909,7 +909,7 @@ do
 				end
 			})
 		end
-		local flameIdDropdown = TBMenu:spawnDropdown(flameIdHolder, flameSlots, flameIdHolder.size.h / 3 * 2, nil, flameSlots[FLAMES_CURRENT_FLAMEID + 1], 0.6, 4, 0.5, 4)
+		local flameIdDropdown = TBMenu:spawnDropdown(flameIdHolder, flameSlots, flameIdHolder.size.h / 3 * 2, nil, flameSlots[FLAMES_CURRENT_FLAMEID + 1], { scale = 0.6, fontid = 4 }, { scale = 0.5, fontid = 4 })
 		
 		local flamesFlameSave = UIElement:new({
 			parent = topBar,

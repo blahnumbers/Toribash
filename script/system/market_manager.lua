@@ -448,7 +448,51 @@ do
 			end)
 	end
 	
-	function Market:spawnPriceSetModal(selectedItems, item, offer)
+	function Market:showSellInventoryItem(inventoryItems)
+		local selectedItems = {}
+		for i,v in pairs(inventoryItems) do
+			local item = v
+			item.item = Torishop:getItemInfo(item.itemid)
+			table.insert(selectedItems, item)
+		end
+		
+		if (MARKET_SHOP_DATA[TB_MENU_PLAYER_INFO.username:lower()]) then
+			Market:spawnPriceSetModal(selectedItems, nil, nil, true)
+		else
+			local overlay = TBMenu:spawnWindowOverlay(nil, true)
+			local messageHolder = overlay:addChild({
+				shift = { WIN_W / 3, WIN_H / 2 - 100 },
+				bgColor = TB_MENU_DEFAULT_BG_COLOR
+			})
+			TBMenu:displayLoadingMark(messageHolder, TB_MENU_LOCALIZED.MARKETLOADINGDATA)
+			Request:queue(function()
+					download_server_info("marketplace&user=" .. TB_MENU_PLAYER_INFO.username)
+				end, "marketplace_userfetch", function()
+					local response = get_network_response()
+					if (response:find("ERROR")) then
+						if (messageHolder and not messageHolder.destroyed) then
+							messageHolder:kill(true)
+							messageHolder:addAdaptedText(false, TB_MENU_LOCALIZED.MARKETERRORLOADINGSHOP .. ": " .. error)
+						end
+						return
+					end
+					
+					local shopData = Market:parseShopInfo(response)
+					local username = TB_MENU_PLAYER_INFO.username:lower()
+					if (shopData.title) then
+						if (not tableCmp(shopData, MARKET_SHOP_DATA[username])) then
+							local imageReload = not MARKET_SHOP_DATA[username] and true or MARKET_SHOP_DATA[username].imageMD5 ~= shopData.imageMD5
+							MARKET_SHOP_DATA[username] = shopData
+						end
+						Market:spawnPriceSetModal(selectedItems, nil, nil, true)
+					else
+						messageHolder:addAdaptedText(false, TB_MENU_LOCALIZED.MARKETERRORLOADINGSHOP)
+					end
+				end)
+		end
+	end
+	
+	function Market:spawnPriceSetModal(selectedItems, item, offer, noBack)
 		if (#selectedItems == 0) then
 			TBMenu:showDataError(TB_MENU_LOCALIZED.MARKETINVENTORYEMPTY)
 			return
@@ -522,7 +566,7 @@ do
 			})
 			itemName:addAdaptedText(true, v.displayName or v.item.itemname, nil, nil, 4, LEFTMID, 0.8)
 			
-			if (not offer) then
+			if (not offer and not noBack) then
 				local cancelButton = bgTop:addChild({
 					pos = { -42, 5 },
 					size = { 32, 32 },
@@ -722,8 +766,8 @@ do
 			shapeType = ROUNDED,
 			rounded = 4
 		})
-		cancelButton:addChild({ shift = { 15, 5 } }):addAdaptedText(true, offer and TB_MENU_LOCALIZED.BUTTONCANCEL or TB_MENU_LOCALIZED.NAVBUTTONBACK)
-		cancelButton:addMouseHandlers(nil, function() if (offer) then Market:clearModal() else Market:spawnInventoryItemSelector(item, selectedItems) end end)
+		cancelButton:addChild({ shift = { 15, 5 } }):addAdaptedText(true, (offer or noBack) and TB_MENU_LOCALIZED.BUTTONCANCEL or TB_MENU_LOCALIZED.NAVBUTTONBACK)
+		cancelButton:addMouseHandlers(nil, function() if (offer or noBack) then Market:clearModal() else Market:spawnInventoryItemSelector(item, selectedItems) end end)
 		
 		local submitButton = botBar:addChild({
 			pos = { -cancelButton.size.w - cancelButton.shift.x, cancelButton.shift.y },
@@ -1686,7 +1730,7 @@ do
 					return
 				end
 				
-				inputHolder.dropdown = TBMenu:spawnDropdown(inputField, dropdownList, inputHolder.size.h * 0.8, WIN_H / 3, { text = '' }, nil, nil, 0.65, 4, false, true)
+				inputHolder.dropdown = TBMenu:spawnDropdown(inputField, dropdownList, inputHolder.size.h * 0.8, WIN_H / 3, { text = '' }, nil, { scale = 0.65, fontid = 4 }, false, true)
 				inputHolder.dropdown.selectedElement:hide(true)
 				inputHolder.dropdown.selectedElement:btnUp()
 			end)
@@ -2211,7 +2255,7 @@ do
 				end
 				
 				searchBarView.options = dropdownList
-				searchBarView.dropdown = TBMenu:spawnDropdown(searchBarView, dropdownList, searchBarView.size.h * 0.8, WIN_H / 2, { text = '' }, nil, nil, 0.65, 4, true, true)
+				searchBarView.dropdown = TBMenu:spawnDropdown(searchBarView, dropdownList, searchBarView.size.h * 0.8, WIN_H / 2, { text = '' }, nil, { scale = 0.65, fontid = 4 }, true, true)
 				searchBarView.dropdown.selectedElement:hide(true)
 				searchBarView.dropdown.selectedElement:btnUp()
 			end)
@@ -2822,7 +2866,7 @@ do
 					shapeType = filterHolder.shapeType,
 					rounded = filterHolder.rounded
 				})
-				interactiveElem = TBMenu:spawnDropdown(dropdownHolder, dropdownList, filterHolder.size.h, WIN_H / 3, v.defaultId and dropdownList[v.defaultId] or nil, 0.7, 4, 0.6, 4)
+				interactiveElem = TBMenu:spawnDropdown(dropdownHolder, dropdownList, filterHolder.size.h, WIN_H / 3, v.defaultId and dropdownList[v.defaultId] or nil, { scale = 0.7, fontid = 4 }, { scale = 0.6, fontid = 4 })
 			else
 				interactiveElem = TBMenu:spawnTextField(filterHolder, nil, nil, nil, nil, v.value, { isNumeric = not v.text }, 4, 0.7, UICOLORWHITE, v.name, v.search and LEFTMID or CENTERMID, nil, nil, true)
 				if (v.default) then

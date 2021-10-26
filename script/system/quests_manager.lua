@@ -9,10 +9,10 @@ do
 	function Quests:getQuests()
 		TB_MENU_QUESTS_COUNT = 0
 		local file = Files:open("../data/quest.txt")
-		if (not file.data and not file:isDownloading()) then
-			download_quest(TB_MENU_PLAYER_INFO.username)
+		if (not file.data) then
 			return false
 		end
+		
 		local questData = {}
 		local dataTypes = {
 			{ "id", numeric = true },
@@ -30,6 +30,7 @@ do
 			{ "name" },
 			{ "ranked", boolean = true }
 		}
+		
 		for i, ln in pairs(file:readAll()) do
 			if (not ln:find("^#")) then
 				local _, segments = ln:gsub("([^\t]*)\t?", "")
@@ -53,6 +54,7 @@ do
 			end
 		end
 		file:close()
+		
 		return questData
 	end
 	
@@ -634,10 +636,6 @@ do
 	
 	function Quests:showQuests()
 		tbMenuCurrentSection:kill(true)
-		if (TB_MENU_QUESTS_NEW) then
-			TB_MENU_QUESTS_NEW = false
-			TB_MENU_NOTIFICATIONS_COUNT = math.max(0, TB_MENU_NOTIFICATIONS_COUNT - 1)
-		end
 		local globalQuests = UIElement:new({
 			parent = tbMenuCurrentSection,
 			pos = { 5, 0 },

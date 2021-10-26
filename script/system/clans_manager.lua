@@ -16,6 +16,26 @@ do
 	ClanData = ClanData or {}
 	ClanLevelData = ClanLevelData or {}
 	ClanAchievementData = ClanAchievementData or {}
+	
+	Clans.lastDownload = 0
+	
+	function Clans:download()
+		local clock = os.clock()
+		
+		if (clock - Clans.lastDownload < 5) then
+			return false
+		end
+		
+		local downloads = get_downloads()
+		for i,v in pairs(downloads) do
+			if (v:find("clans/clan%w+%.txt$")) then
+				return false
+			end
+		end
+		Clans.lastDownload = clock
+		download_clan()
+		return true
+	end
 		
 	-- Populates clan data table
 	-- clans/clan.txt is fetched from server
@@ -189,7 +209,7 @@ do
 	
 	function Clans:showMain(viewElement, clantag)
 		if (not Clans:getLevelData() or not Clans:getAchievementData() or not Clans:getClanData()) then
-			download_clan()
+			Clans:download()
 			local loader = UIElement:new({
 				parent = viewElement,
 				pos = { 5, 0 },

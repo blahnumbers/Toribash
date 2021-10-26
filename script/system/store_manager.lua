@@ -51,7 +51,7 @@ do
 	function Torishop:download()
 		local clock = os.clock()
 		
-		if (clock - Torishop.lastDownload < 1) then
+		if (clock - Torishop.lastDownload < 5) then
 			return false
 		end
 		
@@ -207,14 +207,14 @@ do
 			end
 		end
 		if (TB_STORE_DATA[itemid]) then
-			return TB_STORE_DATA[itemid]
+			return cloneTable(TB_STORE_DATA[itemid])
 		end
 		
 		if (get_option("autoupdate") ~= 0) then
 			Torishop:download()
 		end
 		TB_STORE_DATA.requireReload = true
-		return ITEM_EMPTY
+		return cloneTable(ITEM_EMPTY)
 	end
 	
 	function Torishop:getSectionInfo(sectionid)
@@ -315,7 +315,7 @@ do
 				end
 				return itemInv
 			end
-			return TB_INVENTORY_DATA
+			return cloneTable(TB_INVENTORY_DATA)
 		end
 		
 		local file = Files:new("torishop/invent.txt")
@@ -383,7 +383,8 @@ do
 
 		TB_INVENTORY_DATA = inventory
 		TB_INVENTORY_LOADED = true
-		return itemidOnly and Torishop:getInventoryRaw(itemidOnly) or inventory
+		check_steam_color(0)
+		return itemidOnly and Torishop:getInventoryRaw(itemidOnly) or cloneTable(inventory)
 	end
 
 	function Torishop:getInventory(mode)
@@ -787,24 +788,22 @@ do
 				end, nil)
 			buttonYPos = buttonYPos - buttonHeight * 1.2
 		end
-		--[[if (item.tradeable) then
+		if (Market:itemEligible(itemData)) then
 			local marketSellButton = UIElement:new({
 				parent = inventoryItemView,
 				pos = { 10, buttonYPos },
-				size = { inventoryItemView.size.w - 20, inventoryItemView.size.h / 8 },
+				size = { inventoryItemView.size.w - 20, buttonHeight },
 				interactive = true,
 				bgColor = { 0, 0, 0, 0.1 },
 				hoverColor = { 0, 0, 0, 0.3 },
 				pressedColor = { 1, 0, 0, 0.3 }
 			})
-			marketSellButton:addCustomDisplay(false, function()
-					marketSellButton:uiText(TB_MENU_LOCALIZED.STORESELLMARKET, nil, nil, nil, nil, nil, nil, nil, nil, nil, 0.2)
-				end)
+			marketSellButton:addAdaptedText(false, TB_MENU_LOCALIZED.STORESELLMARKET)
 			marketSellButton:addMouseHandlers(nil, function()
-					show_dialog_box(INVENTORY_MARKETSELL, item.inventid, TB_MENU_LOCALIZED.STOREDIALOGMARKETSELL1 .. " " .. item.name .. " " .. TB_MENU_LOCALIZED.STOREDIALOGMARKETSELL2)
-				end, nil)
-			buttonYPos = buttonYPos - inventoryItemView.size.h / 7
-		end--]]
+					Market:showSellInventoryItem({ item })
+				end)
+			buttonYPos = buttonYPos - buttonHeight * 1.2
+		end
 		-- Upgrade button is deprecated, we use customize screen now
 		--[[if (item.upgrade_level > 0 and (item.upgrade_games ~= -1 or item.upgrade_price ~= -1 or item.upgrade_level < item.upgrade_max_level) and item.games_played >= item.upgrade_games and item.upgrade_price <= TB_MENU_PLAYER_INFO.data.tc) then
 			local upgradeButton = UIElement:new({
@@ -1118,7 +1117,7 @@ do
 					shapeType = ROUNDED,
 					rounded = 4
 				})
-				local upgradesDropdown = TBMenu:spawnDropdown(upgradesDropdownHolder, currentUpgradesList, upgradesDropdownHolder.size.h, customizeSectionHolder.size.h, currentUpgradesList[targetLevel], 0.7, 4, 0.65, 4)
+				local upgradesDropdown = TBMenu:spawnDropdown(upgradesDropdownHolder, currentUpgradesList, upgradesDropdownHolder.size.h, customizeSectionHolder.size.h, currentUpgradesList[targetLevel], { scale = 0.7, fontid = 4 }, { scale = 0.65, fontid = 4 })
 				local setUpgradeButton = UIElement:new({
 					parent = customizeSectionHolder,
 					pos = { upgradesDropdownHolder.size.w + 10, upgradesDropdownHolder.shift.y },
@@ -1259,7 +1258,7 @@ do
 									shapeType = ROUNDED,
 									rounded = 3
 								})
-								local effectCustomizeDropdown = TBMenu:spawnDropdown(effectCustomizeDropdownHolder, effectCustomizeDropdownOptions[i], effectHolder.size.h, appliedEffectsHolder.size.h, effectCustomizeDropdownActiveIds[i], 0.6, 4, 0.55, 4)
+								local effectCustomizeDropdown = TBMenu:spawnDropdown(effectCustomizeDropdownHolder, effectCustomizeDropdownOptions[i], effectHolder.size.h, appliedEffectsHolder.size.h, effectCustomizeDropdownActiveIds[i], { scale = 0.6, fontid = 4 }, { scale = 0.55, fontid = 4 })
 							end
 							
 							shiftY = shiftY + effectHolder.size.h + 5
@@ -1387,7 +1386,7 @@ do
 					shapeType = ROUNDED,
 					rounded = 4
 				})
-				local fuseEffectDropdown = TBMenu:spawnDropdown(fuseEffectDropdownHolder, availableEffectsDropdown, fuseEffectDropdownHolder.size.h - 5, 300, nil, 0.7, 4, 0.65, 4)
+				local fuseEffectDropdown = TBMenu:spawnDropdown(fuseEffectDropdownHolder, availableEffectsDropdown, fuseEffectDropdownHolder.size.h - 5, 300, nil, { scale = 0.7, fontid = 4 }, { scale = 0.65, fontid = 4 })
 				local fuseEffectButton = UIElement:new({
 					parent = customizeSectionHolder,
 					pos = { fuseEffectDropdownHolder.size.w + 10, fuseEffectDropdownHolder.shift.y },
@@ -1670,7 +1669,7 @@ do
 		local buttonHeight = inventoryItemView.size.h / 10 > 40 and 40 or inventoryItemView.size.h / 10
 		local buttonYPos = -buttonHeight * 1.1
 		
-		local showAddSet, showActivate, showDeactivate, showRemoveSet = true, false, false, false
+		local showAddSet, showActivate, showDeactivate, showRemoveSet, showSellMarket = true, false, false, false, true
 		for i,v in pairs(INVENTORY_SELECTED_ITEMS) do
 			if (v.active) then
 				showDeactivate = true
@@ -1679,6 +1678,9 @@ do
 			end
 			if (v.insideset) then
 				showRemoveSet = true
+			end
+			if (showSellMarket and not Market:itemEligible(Torishop:getItemInfo(v.itemid))) then
+				showSellMarket = false
 			end
 		end
 		
@@ -1738,6 +1740,26 @@ do
 			addSetButton:addAdaptedText(false, TB_MENU_LOCALIZED.STOREITEMADDTOSET)
 			addSetButton:addMouseHandlers(nil, function()
 					Torishop:showSetSelection(false)
+				end)
+			buttonYPos = buttonYPos - buttonHeight * 1.2
+		end
+		
+		if (showSellMarket) then
+			local marketSellButton = UIElement:new({
+				parent = inventoryItemView,
+				pos = { 10, buttonYPos },
+				size = { inventoryItemView.size.w - 20, buttonHeight },
+				interactive = true,
+				bgColor = { 0, 0, 0, 0.1 },
+				hoverColor = { 0, 0, 0, 0.3 },
+				pressedColor = { 1, 0, 0, 0.3 }
+			})
+			marketSellButton:addAdaptedText(false, TB_MENU_LOCALIZED.STORESELLMARKET)
+			marketSellButton:addMouseHandlers(nil, function()
+					for i,v in pairs(INVENTORY_SELECTED_ITEMS) do
+						Files:writeDebug({ v.itemid, v.active, v.inventid })
+					end
+					Market:showSellInventoryItem(INVENTORY_SELECTED_ITEMS)
 				end)
 			buttonYPos = buttonYPos - buttonHeight * 1.2
 		end
@@ -1947,8 +1969,8 @@ do
 
 		inventoryView:kill(true)
 		
-		local elementHeight = 56
-		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(inventoryView, elementHeight, elementHeight - 16, 20, TB_MENU_DEFAULT_BG_COLOR)
+		local elementHeight = math.max(50, WIN_H / 18)
+		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(inventoryView, 56, 40, 20, TB_MENU_DEFAULT_BG_COLOR)
 		local bottomSmudge = TBMenu:addBottomBloodSmudge(botBar, 1)
 		
 		local itemsPerPage = 100
@@ -1970,17 +1992,11 @@ do
 				parent = inventoryTitle,
 				pos = { 0, 0 },
 				size = { inventoryTitle.size.w, inventoryTitle.size.h },
-				bgColor = TB_MENU_DEFAULT_DARKEST_COLOR
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				shapeType = ROUNDED,
+				rounded = 4
 			})
-			local dropdown = UIElement:new({
-				parent = dropdownBG,
-				pos = { 1, 1 },
-				size = { dropdownBG.size.w - 2, dropdownBG.size.h - 2 },
-				bgColor = TB_MENU_DEFAULT_BG_COLOR,
-				hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-				interactive = true,
-			})
-			TBMenu:spawnDropdown(dropdown, inventoryModes, 30, nil, inventoryModes[mode], nil, FONTS.MEDIUM, 0.6)
+			TBMenu:spawnDropdown(dropdownBG, inventoryModes, inventoryTitle.size.h, nil, inventoryModes[mode], { fontid = FONTS.MEDIUM }, { scale = 0.7 })
 		else
 			inventoryTitle:addAdaptedText(true, title, nil, nil, FONTS.BIG)
 		end
@@ -2134,7 +2150,9 @@ do
 				interactive = true,
 				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+				shapeType = ROUNDED,
+				rounded = 4
 			})
 			invItemHolder.lastClick = 0
 			invItemHolder:addMouseHandlers(nil, function()
@@ -2251,7 +2269,7 @@ do
 				itemEffectsHolder.size.h = effectsShift.y + 20
 				itemEffectsHolder:moveTo(nil, (itemEffectsHolder.parent.size.h - itemEffectsHolder.size.h) / 2)
 			end
-			local lShift = 10
+			local lShift = 0
 			if (inventoryItems[i].itemid ~= ITEM_SET) then
 				local itemSelected = false
 				for j,v in pairs(INVENTORY_SELECTED_ITEMS) do
@@ -2260,24 +2278,24 @@ do
 						break
 					end
 				end
-				local selectBox = UIElement:new({
-					parent = invItemHolder,
-					pos = { -40, invItemHolder.size.h / 2 - 15 },
-					size = { 30, 30 },
+				invItemHolder.size.w = invItemHolder.size.w - invItemHolder.size.h - 5
+				local selectBox = invItemHolder.parent:addChild({
+					pos = { -invItemHolder.size.h, invItemHolder.shift.y },
+					size = { invItemHolder.size.h, invItemHolder.size.h },
 					interactive = true,
-					bgColor = TB_MENU_DEFAULT_BG_COLOR,
-					hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR
+					bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+					hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+					shapeType = ROUNDED,
+					rounded = 4
 				})
-				local selectIcon = UIElement:new({
-					parent = selectBox,
-					pos = { 0, 0 },
-					size = { selectBox.size.w, selectBox.size.h },
+				local selectIcon = selectBox:addChild({
+					shift = { selectBox.size.h / 8, selectBox.size.h / 8 },
 					bgImage = "../textures/menu/general/buttons/checkmark.tga"
 				})
 				if (not itemSelected) then
 					selectIcon:hide(true)
 				end
-				lShift = 50
+				lShift = invItemHolder.size.h + 5
 	
 				selectBox:addMouseHandlers(nil, function()
 						for j,v in pairs(INVENTORY_SELECTED_ITEMS) do
@@ -2298,50 +2316,27 @@ do
 					end)
 			end
 			
-			local buttonWidth = 120 > (invItemHolder.size.w / 3 - 50) / 2 and (invItemHolder.size.w / 3 - 50) / 2 or 120
+			local buttonWidth = math.min(get_string_length(inventoryItems[i].active and TB_MENU_LOCALIZED.STOREITEMDEACTIVATE or TB_MENU_LOCALIZED.STOREITEMACTIVATE, FONTS.MEDIUM) + 60, invItemHolder.size.w / 7)
 			if (inventoryItems[i].activateable and not inventoryItems[i].unpackable) then
-				local activateButton = UIElement:new({
-					parent = invItemHolder,
-					pos = { -buttonWidth - lShift, 10 },
-					size = { buttonWidth, invItemHolder.size.h - 20 },
+				invItemHolder.size.w = invItemHolder.size.w - buttonWidth -  5
+				local activateButton = invItemHolder.parent:addChild({
+					pos = { -buttonWidth - lShift, invItemHolder.shift.y },
+					size = { buttonWidth, invItemHolder.size.h },
 					interactive = true,
-					bgColor = TB_MENU_DEFAULT_BG_COLOR,
+					bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 					hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-					pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+					pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+					shapeType = ROUNDED,
+					rounded = 4
 				})
-				local activateText = UIElement:new({
-					parent = activateButton,
-					pos = { 10, 5 },
-					size = { activateButton.size.w - 20, activateButton.size.h - 10 }
-				})
+				local activateText = activateButton:addChild({ shift = { 10, 5 }})
 				activateText:addAdaptedText(true, inventoryItems[i].active and TB_MENU_LOCALIZED.STOREITEMDEACTIVATE or TB_MENU_LOCALIZED.STOREITEMACTIVATE)
 				activateButton:addMouseHandlers(nil, function()
 						Torishop:spawnInventoryUpdateWaiter()
 						show_dialog_box(inventoryItems[i].active and INVENTORY_DEACTIVATE or INVENTORY_ACTIVATE, inventoryItems[i].active and (TB_MENU_LOCALIZED.STOREDIALOGDEACTIVATE1 .. " " .. inventoryItems[i].name .. (TB_MENU_LOCALIZED.STOREDIALOGDEACTIVATE2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGDEACTIVATE2 .. "?")) or (TB_MENU_LOCALIZED.STOREDIALOGACTIVATE1 .. " " .. inventoryItems[i].name .. (TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 .. "?")), inventoryItems[i].inventid)
 					end, nil)
-				lShift = lShift + buttonWidth + 10
+				lShift = lShift + buttonWidth + 5
 			end
-			
-			--[[if (inventoryItems[i].uploadable) then
-				local editButton = UIElement:new({
-					parent = invItemHolder,
-					pos = { -buttonWidth - lShift, 10 },
-					size = { buttonWidth, invItemHolder.size.h - 20 },
-					interactive = true,
-					bgColor = TB_MENU_DEFAULT_BG_COLOR,
-					hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-					pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
-				})
-				local editText = UIElement:new({
-					parent = editButton,
-					pos = { 10, 5 },
-					size = { editButton.size.w - 20, editButton.size.h - 10 }
-				})
-				TBMenu:showTextWithImage(editText, TB_MENU_LOCALIZED.STOREITEMSEDIT, FONTS.MEDIUM, editText.size.h, "../textures/menu/general/buttons/external.tga")
-				editButton:addMouseHandlers(nil, function()
-						open_url("https://forum.toribash.com/tori_item.php?invid=" .. inventoryItems[i].inventid)
-					end)
-			end]]
 		end
 		
 		if (#listElements > 0) then
@@ -2471,34 +2466,23 @@ do
 		tbMenuNavigationBar:kill(true)
 		TBMenu:showNavigationBar(Torishop:getNavigationButtons(), true)
 		
-		local inventoryLoader = UIElement:new({
-			parent = viewElement,
-			pos = { 5, 0 },
-			size = { viewElement.size.w - 10, viewElement.size.h },
-			bgColor = TB_MENU_DEFAULT_BG_COLOR
-		})
-		-- Use waiter with flag instead of direct call from downloader_complete to ensure everything is called from draw2d hook
-		-- Otherwise we'll get a crash in steam code due to multithreading
-		inventoryLoader:addCustomDisplay(false, function()
-				if (inventoryLoader.ready) then
-					Torishop:showInventory(viewElement)
-					check_steam_color(0)
-				end
-			end)
-		TBMenu:addBottomBloodSmudge(inventoryLoader)
-		TBMenu:displayLoadingMark(inventoryLoader, TB_MENU_LOCALIZED.STOREINVENTORYLOADING)
-		
 		if (reload or not TB_INVENTORY_LOADED) then
-			download_inventory()
-			add_hook("downloader_complete", "torishop_inventory_download", function(name)
-					if (name:find("^.*/torishop/invent%.txt$")) then
-						remove_hooks("torishop_inventory_download")
-						inventoryLoader.ready = true
+			local inventoryLoader = viewElement:addChild({
+				shift = { 5, 0 },
+				bgColor = TB_MENU_DEFAULT_BG_COLOR
+			})
+			inventoryLoader:addCustomDisplay(false, function()
+					if (TB_INVENTORY_LOADED) then
+						Torishop:showInventory(viewElement)
 					end
 				end)
-			return
+			TBMenu:addBottomBloodSmudge(inventoryLoader)
+			TBMenu:displayLoadingMark(inventoryLoader, TB_MENU_LOCALIZED.STOREINVENTORYLOADING)
+			
+			download_inventory()
+		else
+			Torishop:showInventory(viewElement)
 		end
-		inventoryLoader.ready = true
 	end
 
 	function Torishop:showInventory(viewElement, mode, showSets)
@@ -5202,7 +5186,7 @@ do
 			size = { sectionsDropdownBG.size.w - 2, sectionsDropdownBG.size.h - 2 },
 			bgColor = TB_MENU_DEFAULT_DARKER_COLOR
 		})
-		TBMenu:spawnDropdown(sectionsDropdown, previewableSections, 25, nil, previewableSections[displaysectionid], nil, nil, 0.7)
+		TBMenu:spawnDropdown(sectionsDropdown, previewableSections, 25, nil, previewableSections[displaysectionid], nil, { scale = 0.7 })
 		
 		local resetButton = UIElement:new({
 			parent = botBar,

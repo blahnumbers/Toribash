@@ -180,7 +180,7 @@ do
 								rewardClaimText:addAdaptedText(false, TB_MENU_LOCALIZED.REWARDSCLAIMSUCCESS, nil, nil, FONTS.BIG)
 								rewardClaim:deactivate()
 								update_tc_balance()
-								TB_MENU_NOTIFICATIONS_COUNT = math.max(TB_MENU_NOTIFICATIONS_COUNT - 1)
+								TB_MENU_NOTIFICATIONS_COUNT = math.max(TB_MENU_NOTIFICATIONS_COUNT - 1, 0)
 								tbMenuNavigationBar:kill(true)
 								TBMenu:showNavigationBar(Notifications:getNavigationButtons(false, true), true, true, TB_MENU_NOTIFICATIONS_LASTSCREEN)
 								

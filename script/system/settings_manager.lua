@@ -1859,7 +1859,7 @@ do
 					if (item.selectedAction) then
 						selectedId = item.selectedAction()
 					end
-					TBMenu:spawnDropdown(itemDropdown, item.dropdown, 30, WIN_H - 100, item.dropdown[selectedId], 0.7, nil, 0.6)
+					TBMenu:spawnDropdown(itemDropdown, item.dropdown, 30, WIN_H - 100, item.dropdown[selectedId], { scale = 0.7 }, { scale = 0.6 })
 				elseif (item.type == BUTTON) then
 					local itemButtonBG = UIElement:new({
 						parent = itemView,

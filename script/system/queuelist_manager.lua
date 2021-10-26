@@ -315,7 +315,7 @@ do
 			hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
 			interactive = true,
 		})
-		TBMenu:spawnDropdown(reportReasonDropdown, reportDropdown, 30, WIN_H - 100, nil, 0.7, nil, 0.6)
+		TBMenu:spawnDropdown(reportReasonDropdown, reportDropdown, 30, WIN_H - 100, nil, { scale = 0.7 }, { scale = 0.6 })
 		local extraMessageHolder = UIElement:new({
 			parent = reportHolder,
 			pos = { 20, reportReasonHolder.size.h + reportReasonHolder.shift.y + reportHeader.shift.y },
@@ -522,7 +522,7 @@ do
 			size = { viewElement.size.w - 10, viewElement.size.h },
 			bgColor = TB_MENU_DEFAULT_DARKER_COLOR
 		})
-		TBMenu:spawnDropdown(dropdownHolder, buttons, 30, nil, nil, 0.6, nil, 0.5)
+		TBMenu:spawnDropdown(dropdownHolder, buttons, 30, nil, nil, { scale = 0.6 }, { scale = 0.5 })
 		--[[for i,v in pairs(buttons) do
 			local button = UIElement:new({
 				parent = viewElement,
@@ -821,7 +821,7 @@ do
 				size = { viewElement.size.w, buttonH },
 				bgColor = TB_MENU_DEFAULT_BG_COLOR
 			})
-			TBMenu:spawnDropdown(globalControlsHolder, gButtons, buttonH, nil, nil, 0.6, nil, 0.6)
+			TBMenu:spawnDropdown(globalControlsHolder, gButtons, buttonH, nil, nil, { scale = 0.6 }, { scale = 0.6 })
 			infoH = infoH + buttonH + 2
 			--[[for i,v in pairs(gButtons) do
 				local contextButton = UIElement:new({

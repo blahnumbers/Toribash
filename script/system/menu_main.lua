@@ -208,6 +208,15 @@ add_hook("downloader_complete", "tbMainMenuStatic", function(filename)
 			Downloader:safeCall(function()
 				TB_MENU_PLAYER_INFO.clan = PlayerInfo:getClan(TB_MENU_PLAYER_INFO.username)
 				TB_MENU_CUSTOMS_REFRESHED = true
+				Clans:getClanData(true)
+			end)
+		elseif (filename:find("clans/clanlevels.txt")) then
+			Downloader:safeCall(function()
+				Clans:getLevelData(true)
+			end)
+		elseif (filename:find("clans/clanachievements.txt")) then
+			Downloader:safeCall(function()
+				Clans:getAchievementData(true)
 			end)
 		elseif (filename:find("data/quest.txt")) then
 			Downloader:safeCall(function()

@@ -441,7 +441,7 @@ do
 				shapeType = ROUNDED,
 				rounded = 3
 			})
-			TBMenu:spawnDropdown(grDropdownHolder, v.dropdown, 30, 120, selectedDropdown, 0.6, 4, 0.5, 4)
+			TBMenu:spawnDropdown(grDropdownHolder, v.dropdown, 30, 120, selectedDropdown, { scale = 0.6, fontid = 4 }, { scale = 0.5, fontid = 4 })
 		elseif (v.type == GAMERULE_SLIDER) then
 			local sliderValue = changedValues[v.name] and changedValues[v.name].value or v.value
 			local sliderSettings = {

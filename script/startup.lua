@@ -72,6 +72,19 @@ function remove_hooks(set_name)
 	end
 end
 
+function get_hooks()
+	-- We don't want to return the real table, only a copy of it
+	local hooks_copy = {}
+	for event, data in pairs(hooks) do
+		hooks_copy[event] = {}
+		for name, func in pairs(data) do
+			hooks_copy[event][name] = func
+		end
+	end
+	
+	return hooks_copy
+end
+
 -- Example
 --[[
 add_hook("new_game", "script_name", some_script_on_key_press)

@@ -2245,7 +2245,7 @@ do
 			rounded = tbMenuBottomLeftBar.size.h
 		})
 		tbMenuNotificationsCount:addCustomDisplay(false, function()
-				tbMenuNotificationsCount:uiText(TB_MENU_NOTIFICATIONS_COUNT + TB_MENU_NOTIFICATIONS_NET_COUNT + TB_MENU_QUESTS_GLOBAL_COUNT + TB_MENU_QUESTS_COUNT, nil, nil, FONTS.MEDIUM, nil, 0.7, 0.4)
+				tbMenuNotificationsCount:uiText(TB_MENU_NOTIFICATIONS_COUNT + TB_MENU_NOTIFICATIONS_NET_COUNT + TB_MENU_QUESTS_GLOBAL_COUNT + TB_MENU_QUESTS_COUNT + TB_MENU_QUEST_NOTIFICATIONS, nil, nil, FONTS.MEDIUM, nil, 0.7, 0.4)
 			end)
 		tbMenuBottomLeftButtons[2]:addCustomDisplay(true, function()
 				if (TB_MENU_NOTIFICATIONS_COUNT + TB_MENU_NOTIFICATIONS_NET_COUNT + TB_MENU_QUESTS_GLOBAL_COUNT + TB_MENU_QUESTS_COUNT == 0) then
@@ -2495,7 +2495,7 @@ do
 			end)
 	end
 
-	function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHeight, selectedItem, textScale, fontid, textScale2, fontid2, keepFocus, noOverlaying)
+	function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHeight, selectedItem, textSettings, listTextSettings, keepFocus, noOverlaying)
 		local listElementsDisplay = {}
 		for i,v in pairs(listElements) do
 			if (not v.default) then
@@ -2511,8 +2511,16 @@ do
 		if (type(selectedItem) ~= "table") then
 			selectedItem = listElements[selectedItem] or listElements[1]
 		end
-		local fontid = fontid or 4
-		local fontid2 = fontid2 or 4
+		local textSettings = textSettings or {}
+		textSettings.fontid = textSettings.fontid or 4
+		textSettings.scale = textSettings.scale or 1
+		textSettings.orientation = textSettings.orientation or LEFTMID
+		
+		local listTextSettings = listTextSettings or {}
+		listTextSettings.fontid = listTextSettings.fontid or 4
+		listTextSettings.scale = listTextSettings.scale or 1
+		listTextSettings.orientation = listTextSettings.orientation or CENTERMID
+		
 		local overlay = UIElement:new({
 			parent = holderElement,
 			pos = { 0, 0 },
@@ -2574,7 +2582,7 @@ do
 			pos = { 10, 2 },
 			size = { selectedElement.size.w - selectedElement.size.h - 10, selectedElement.size.h - 4 }
 		})
-		selectedElementText:addAdaptedText(false, selectedItem.text:upper(), nil, nil, fontid, LEFTMID, textScale)
+		selectedElementText:addAdaptedText(false, selectedItem.text:upper(), nil, nil, textSettings.fontid, textSettings.orientation, textSettings.scale)
 		local selectedElementArrow = UIElement:new({
 			parent = selectedElement,
 			pos = { -selectedElement.size.h, 0 },
@@ -2616,26 +2624,31 @@ do
 				pos = { 2, 2 + (i - 1) * elementHeight },
 				size = { listingHolder.size.w - 4, elementHeight },
 				interactive = true,
-				bgColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+				bgColor = selectedItem == v and TB_MENU_DEFAULT_BG_COLOR or TB_MENU_DEFAULT_LIGHTER_COLOR,
 				hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
 				pressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR,
 				inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
 				shapeType = holderElement.shapeType,
 				rounded = holderElement.rounded
 			})
+			v.element = element
 			table.insert(listElements, element)
 			if (v.locked) then
 				element.uiColor = cloneTable(UICOLORBLACK)
 				element:deactivate(true)
 			end
-			element:addAdaptedText(false, v.text:upper(), nil, nil, fontid2, nil, textScale2)
+			element:addChild({ shift = { 10, 1 }}):addAdaptedText(false, v.text:upper(), nil, nil, listTextSettings.fontid, listTextSettings.orientation, listTextSettings.scale)
 			element:addMouseHandlers(nil, function()
 					overlay:hide(true)
-					selectedElementText:addAdaptedText(false, v.text:upper(), nil, nil, fontid, LEFTMID, textScale)
+					selectedElementText:addAdaptedText(false, v.text:upper(), nil, nil, textSettings.fontid, textSettings.orientation, textSettings.scale)
 					selectedElement:show()
 					if (selectedItem == v) then
 						return
 					end
+					if (selectedItem and selectedItem.element) then
+						selectedItem.element.bgColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+					end
+					v.element.bgColor = TB_MENU_DEFAULT_BG_COLOR
 					selectedItem = v
 					if (v.action) then
 						v.action()

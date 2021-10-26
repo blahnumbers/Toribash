@@ -316,7 +316,7 @@ do
 			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
 			rounded = 5
 		})
-		TBMenu:spawnDropdown(dropdownView, shaderList, 25, WIN_H - 100, nil, 0.7, nil, 0.6)
+		TBMenu:spawnDropdown(dropdownView, shaderList, 25, WIN_H - 100, nil, { scale = 0.7 }, { scale = 0.6 })
 		
 		local closeButton = UIElement:new({
 			parent = viewElement,
@@ -832,7 +832,7 @@ do
 			shapeType = dropdownBackground.shapeType,
 			rounded = dropdownBackground.rounded
 		})
-		TBMenu:spawnDropdown(dropdownView, mainList, 40, WIN_H - 100, mainList[ATMO_SELECTED_SCREEN], 0.6, FONTS.BIG, 0.8, FONTS.MEDIUM)
+		TBMenu:spawnDropdown(dropdownView, mainList, 40, WIN_H - 100, mainList[ATMO_SELECTED_SCREEN], { scale = 0.6, fontid = FONTS.BIG }, { scale = 0.8, fontid = FONTS.MEDIUM })
 		
 		add_hook("key_up", "tbAtmospheresKeyboard", function(s) return(UIElement:handleKeyUp(s)) end)
 		add_hook("key_down", "tbAtmospheresKeyboard", function(s) return(UIElement:handleKeyDown(s)) end)

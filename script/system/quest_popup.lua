@@ -40,23 +40,6 @@ local function showPopup(i)
 			showPopup(i + 1)
 		else
 			download_quest(TB_MENU_PLAYER_INFO.username)
-			local file = Files:open("../data/quest.txt")
-			local questRefresh = UIElement:new({
-				globalid = TB_MENU_HUB_GLOBALID,
-				pos = { 0, 0 },
-				size = { 0, 0 }
-			})
-			questRefresh:addCustomDisplay(false, function()
-					if (not file:isDownloading()) then
-						file:close()
-						QUESTS_DATA = Quests:getQuests()
-						if (QUEST_POPUP_CLAIM and not TB_MENU_QUESTS_NEW) then
-							TB_MENU_NOTIFICATIONS_COUNT = TB_MENU_NOTIFICATIONS_COUNT + 1
-							TB_MENU_QUESTS_NEW = true
-						end
-						questRefresh:kill()
-					end
-				end)
 		end
 		return
 	end 
@@ -165,8 +148,10 @@ local function showPopup(i)
 					questProgressNotificationHolder:addMouseHandlers(function() end, function()
 							buttonClicked = true
 							QUEST_POPUP_CLAIM = false
+							TB_MENU_QUEST_NOTIFICATIONS = math.max(0, TB_MENU_QUEST_NOTIFICATIONS - 1)
 							Request:queue(function() claim_quest(quest.id) end, "questclaim", function()
 								update_tc_balance()
+								download_quest(TB_MENU_PLAYER_INFO.username)
 							end)
 						end, function() end, function() end)
 				end
@@ -211,6 +196,7 @@ local function showPopup(i)
 						else
 							if (quest.progress >= quest.requirement) then
 								showClaim(quest)
+								TB_MENU_QUEST_NOTIFICATIONS = TB_MENU_QUEST_NOTIFICATIONS + 1
 							end
 							questProgress:addCustomDisplay(false, function() end, true)
 						end
@@ -236,28 +222,6 @@ local function showPopup(i)
 											showPopup(i + 1)
 										else
 											download_quest(TB_MENU_PLAYER_INFO.username)
-											local file = Files:open("../data/quest.txt")
-											local questRefresh = UIElement:new({
-												globalid = TB_MENU_HUB_GLOBALID,
-												pos = { 0, 0 },
-												size = { 0, 0 }
-											})
-											local wait = 0
-											questRefresh:addCustomDisplay(true, function()
-													if (wait < 10) then
-														wait = wait + 1
-														return
-													end
-													if (not file:isDownloading()) then
-														file:close()
-														QUESTS_DATA = Quests:getQuests()
-														if (QUEST_POPUP_CLAIM and not TB_MENU_QUESTS_NEW) then
-															TB_MENU_NOTIFICATIONS_COUNT = TB_MENU_NOTIFICATIONS_COUNT + 1
-															TB_MENU_QUESTS_NEW = true
-														end
-														questRefresh:kill()
-													end
-												end)
 										end
 									end
 								end)
