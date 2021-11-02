@@ -432,7 +432,7 @@ SETTINGSFRAMERATE	Frame Rate
 SETTINGSFPS	Frames Per Second	
 SETTINGSFPSUNCAPPED	Uncapped	
 SETTINGSGENERAL	General	
-SETTINGSEFFECTSINFO	Customizations Display Settings	
+SETTINGSEFFECTSINFO	Display player customizations	
 SETTINGSDISABLED	Disabled	
 SETTINGSENABLED	Enabled	
 SETTINGSREPLAYSONLY	Only on replays	
@@ -483,6 +483,7 @@ SETTINGSTOOLTIP	Show Advanced Tooltip
 SETTINGSMOVEMEMORY	Enable MoveMemory	
 SETTINGSBASEHUDONLY	base HUD only	
 SETTINGSWINDOWED	Windowed Mode	
+SETTINGSFULLSCREEN	Fullscreen Mode	
 SETTINGSWIDTH	Width	
 SETTINGSHEIGHT	Height	
 SETTINGSONLYDEFAULTSOUNDS	Only Default Sounds	
@@ -1025,3 +1026,6 @@ MARKETCHOOSENEWSHOPIMAGE	Select new shop promo image
 GENERALSELECTEDFILE	Selected file	
 MARKETSHOPIMAGEUPDATED	Shop image has been successfully updated.	
 MARKETSHOPIMAGEUPDATEERROR	Error uploading new shop image.	
+REPLAYWITHNAMEEXISTSPROMPT	Replay with this name already exists. Are you sure you want to replace it?	
+SETTINGSJOINTOBJOPACITY	Joint Objects Opacity	
+SETTINGSGUISCALING	Gui Scaling	

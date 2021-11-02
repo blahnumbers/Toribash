@@ -49,7 +49,7 @@ local replayFolderPicker = replaySave:addChild({
 	rounded = 4
 }, true)
 local dropdownOptions = {}
-local folderPrefix = ''
+local folderPrefix = REPLAY_FOLDER .. '/'
 local defaultFolderId = nil
 local getFolders
 getFolders = function(dir, level)
@@ -130,7 +130,9 @@ local function saveReplay(newname)
 		return
 	end
 	local filename = folderPrefix .. newname
-	--if (REPLAY_NEWGAME) then
+	
+	local doRenameReplay = function()
+		-- Delete existing replay if it exists
 		local error = rename_replay("my replays/" .. REPLAY_SAVETEMPNAME .. ".rpl", filename .. ".rpl")
 		if (error) then
 			TBMenu:showDataError(error, true)
@@ -154,10 +156,16 @@ local function saveReplay(newname)
 			end
 		end
 		rplFile:close()
-	--[[else
-		UIElement:runCmd("savereplay " .. newname)
-	end]]
-	quitReplaySave()
+		quitReplaySave()
+	end
+	
+	local file = Files:open("../replay" .. filename .. ".rpl")
+	if (file.data) then
+		file:close()
+		TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.REPLAYWITHNAMEEXISTSPROMPT, doRenameReplay)
+	else
+		doRenameReplay()
+	end
 end
 
 replayNameInput:addEnterAction(function() saveReplay(replayNameInput.textfieldstr[1]:gsub("%.rpl$", "")) end)

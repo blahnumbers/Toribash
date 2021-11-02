@@ -723,6 +723,13 @@ do
 							systemname = "obj",
 							val = { get_option("obj") }
 						},
+						{
+							name = TB_MENU_LOCALIZED.SETTINGSJOINTOBJOPACITY,
+							type = SLIDER,
+							maxValue = 100,
+							systemname = "jointobjopacity",
+							val = { get_option("jointobjopacity") }
+						},
 					}
 				}
 			end
@@ -1230,13 +1237,13 @@ do
 		if (fullscreen == 1) then
 			items = {
 				{
-					name = TB_MENU_LOCALIZED.SETTINGSWINDOWED,
+					name = TB_MENU_LOCALIZED.SETTINGSFULLSCREEN and TB_MENU_LOCALIZED.SETTINGSFULLSCREEN or TB_MENU_LOCALIZED.SETTINGSWINDOWED,
 					type = TOGGLE,
 					action = function(val)
-							TB_MENU_MAIN_SETTINGS.fullscreen = { value = 1 - val, reload = true }
+							TB_MENU_MAIN_SETTINGS.fullscreen = { value = TB_MENU_LOCALIZED.SETTINGSFULLSCREEN and val or 1 - val, reload = true }
 							Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
 						end,
-					val = { 1 - fullscreen }
+					val = { TB_MENU_LOCALIZED.SETTINGSFULLSCREEN and fullscreen or 1 - fullscreen }
 				},
 			}
 			if (PLATFORM == "WINDOWS") then
@@ -1289,13 +1296,13 @@ do
 					end
 				},
 				{
-					name = TB_MENU_LOCALIZED.SETTINGSWINDOWED,
+					name = TB_MENU_LOCALIZED.SETTINGSFULLSCREEN and TB_MENU_LOCALIZED.SETTINGSFULLSCREEN or TB_MENU_LOCALIZED.SETTINGSWINDOWED,
 					type = TOGGLE,
 					action = function(val)
-							TB_MENU_MAIN_SETTINGS.fullscreen = { value = 1 - val, reload = true }
+							TB_MENU_MAIN_SETTINGS.fullscreen = { value = TB_MENU_LOCALIZED.SETTINGSFULLSCREEN and val or 1 - val, reload = true }
 							Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
 						end,
-					val = { 1 - fullscreen }
+					val = { TB_MENU_LOCALIZED.SETTINGSFULLSCREEN and fullscreen or 1 - fullscreen }
 				}
 			}
 		end
@@ -1306,6 +1313,24 @@ do
 				action = function(val)
 						TB_MENU_MAIN_SETTINGS.highdpi = { id = HIGHDPI, value = val, graphics = true, reload = true }
 					end,
+				val = { get_option("highdpi") }
+			})
+		else
+			table.insert(items, {
+				name = TB_MENU_LOCALIZED.SETTINGSGUISCALING,
+				minValue = 100,
+				minValueDisp = 1,
+				maxValue = 200,
+				maxValueDisp = 2,
+				type = SLIDER,
+				systemname = "highdpi",
+				onUpdate = function(slider)
+					TB_MENU_MAIN_SETTINGS.highdpi.value = math.floor((tonumber(slider.label.labelText[1]) or 1) / 10 + 0.5)
+					TB_MENU_MAIN_SETTINGS.highdpi.id = HIGHDPI
+					TB_MENU_MAIN_SETTINGS.highdpi.graphics = true
+					TB_MENU_MAIN_SETTINGS.highdpi.reload = true
+					slider.label.labelText[1] = math.floor((tonumber(slider.label.labelText[1]) or 1) / 10 + 0.5) / 10 .. 'x'
+				end,
 				val = { get_option("highdpi") }
 			})
 		end

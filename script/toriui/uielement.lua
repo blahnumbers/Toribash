@@ -1147,7 +1147,7 @@ do
 
 		while (not self:uiText(str, x, y, font, nil, scale, nil, nil, nil, nil, nil, true, nil, nil, textfield) and scale > minscale) do
 			scale = scale - 0.05
-			if (scale < 0.5 and font) then
+			--[[if (scale < 0.5 and font) then
 				if (font == FONTS.BIG) then
 					font = FONTS.MEDIUM
 					scale = 1
@@ -1157,7 +1157,7 @@ do
 					scale = 1
 					minscale = minscale * 2
 				end
-			end
+			end]]
 		end
 
 		self.textScale = scale
@@ -1212,10 +1212,11 @@ do
 		for i = startLine, #str do
 			local xPos = x
 			local yPos = y
+			local strlen = get_string_length(str[i], font) * scale
 			if ((align + 2) % 3 == 0) then
-				xPos = x + (self.size.w - get_string_length(str[i], font) * scale) / 2
+				xPos = x + (self.size.w - strlen) / 2
 			elseif ((align + 1) % 3 == 0) then
-				xPos = x + self.size.w - get_string_length(str[i], font) * scale
+				xPos = x + self.size.w - strlen
 			end
 			if (align >= 3 and align <= 5) then
 				yPos = y + self.size.h - #str * font_mod * 10 * scale
@@ -1228,7 +1229,7 @@ do
 					yPos = yPos + font_mod * 5 * scale
 				end
 			end
-			if (check == true and (self.size.w < get_string_length(str[i], font) * scale or self.size.h < font_mod * 10 * scale)) then
+			if (check == true and (self.size.w < strlen or self.size.h < font_mod * 10 * scale)) then
 				return false
 			elseif (self.size.h > (pos + 2) * font_mod * 10 * scale) then
 				if (check == false) then
@@ -1592,11 +1593,6 @@ do
 			draw_text_angle_scale(str, xPos + shadow, yPos + shadow, angle, scale, font)
 			draw_text_angle_scale(str, xPos, yPos - shadow, angle, scale, font)
 			draw_text_angle_scale(str, xPos, yPos + shadow, angle, scale, font)
-		--[[	if (font ~= 4) then
-				set_color(col2[1], col2[2], col2[3], col2[4] * 2)
-				draw_text_angle_scale(str, xPos + shadow * 2, yPos + shadow * 2, angle, scale, font)
-				draw_text_angle_scale(str, xPos + shadow * 2, yPos + shadow * 2, angle, scale, font)
-			end]]
 		end
 		if (col1) then
 			set_color(unpack(col1))

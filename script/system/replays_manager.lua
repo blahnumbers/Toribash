@@ -164,8 +164,8 @@ do
 						if (v:match(REPLAY_TEMPNAME) or v:match(REPLAY_SAVETEMPNAME) or (v:find("^" .. REPLAY_EVENT) and not includeEventTemp)) then
 							count = count + 1
 						elseif (v:match(".rpl$")) then
-							local replaydata = { filename = v:lower() }
-							local replaypath = folder and string.lower(folder .. "/" .. v) or replaydata.filename
+							local replaydata = { filename = v }
+							local replaypath = string.lower(folder and folder .. "/" .. v or replaydata.filename)
 							local replaypathfull = folder and (folder .. "/" .. v) or v
 							local replaydatapath = replaypath:gsub(" ", "_")
 							if (filedata[replaydatapath]) then
@@ -190,7 +190,7 @@ do
 								count = count + 1
 							else
 									replaydata = Replays:getReplayInfo(replaypathfull)
-									replaydata.filename = v:lower()
+									replaydata.filename = v
 									file.data:write(replaypath .. "\t" ..
 													replaydata.name .. "\t" ..
 													replaydata.author .. "\t" ..

@@ -2030,9 +2030,7 @@ do
 		local totalWidth = tbMenuNavigationBar.size.w
 		local fontScale = 0.65
 		local fontId = FONTS.BIG
-		local temp = UIElement:new({
-			parent = tbMenuNavigationBar,
-			pos = { 0, 0 },
+		local temp = tbMenuNavigationBar:addChild({
 			size = { tbMenuNavigationBar.size.w, tbMenuNavigationBar.size.h / 6 * 4 }
 		})
 		
@@ -2040,12 +2038,13 @@ do
 			totalWidth = 0
 			fontScale = fontScale - 0.05
 			for i,v in pairs(tbMenuNavigationButtonsData) do
-				local string = v.misctext and v.text .. " " .. v.misctext or v.text
-				temp:addAdaptedText(true, string, nil, nil, fontId, nil, fontScale, fontScale, nil, nil, nil, nil, nil, true)
-				if (getFontMod(temp.textFont) * 10 * temp.textScale > temp.size.h) then
+				if (getFontMod(fontId) * 10 * fontScale > temp.size.h) then
 					totalWidth = tbMenuNavigationBar.size.w
 					break
 				end
+				
+				local string = v.misctext and v.text .. " " .. v.misctext or v.text
+				temp:addAdaptedText(true, string, nil, nil, fontId, nil, fontScale, fontScale, nil, nil, nil, nil, nil, true)
 				v.width = get_string_length(temp.dispstr[1] .. "_____", temp.textFont) * temp.textScale
 				totalWidth = totalWidth + v.width
 			end
@@ -2080,11 +2079,7 @@ do
 						draw_line(tbMenuNavigationButtons[i].pos.x + tbMenuNavigationButtons[i].size.w - j, tbMenuNavigationButtons[i].pos.y + tbMenuNavigationBar.size.h - 1, tbMenuNavigationButtons[i].pos.x + tbMenuNavigationButtons[i].size.w, tbMenuNavigationButtons[i].pos.y + tbMenuNavigationBar.size.h - 1 - j, 0.5)
 					end
 				end)
-			local buttonText = UIElement:new({
-				parent = tbMenuNavigationButtons[i],
-				pos = { 15, tbMenuNavigationBar.size.h / 6 },
-				size = { tbMenuNavigationButtons[i].size.w - 30, tbMenuNavigationBar.size.h / 6 * 4 }
-			})
+			local buttonText = tbMenuNavigationButtons[i]:addChild({ shift = { 15, tbMenuNavigationBar.size.h / 6 } })
 			if (v.misctext) then
 				local width = get_string_length(v.misctext .. "__", FONTS.MEDIUM)
 				local miscMark = UIElement:new({
@@ -2728,6 +2723,7 @@ do
 		local color = color or TB_MENU_DEFAULT_BG_COLOR
 		local rounding = rounding or 5
 		local roundingWidth = rounding * 1.4
+		
 		e:addChild({}):addCustomDisplay(true, function()
 				set_color(unpack(color))
 				draw_disk(e.pos.x + rounding, e.pos.y + rounding, rounding, roundingWidth, 100, 1, -180, 90, 0)
