@@ -1197,7 +1197,7 @@ do
 		local tbMenuPlayButtonsData = {
 			{ title = TB_MENU_LOCALIZED.MAINMENUFREEPLAYNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUFREEPLAYDESC, size = 0.5, ratio = 0.5, image = "../textures/menu/freeplay.tga", mode = ORIENTATION_LANDSCAPE, action = function() open_menu(1) end },
 			{ title = TB_MENU_LOCALIZED.MAINMENUREPLAYSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUREPLAYSDESC, size = 0.25, ratio = 1.055, image = "../textures/menu/replays2.tga", mode = ORIENTATION_PORTRAIT, action = function() TBMenu:showReplays() end },
-			{ title = TB_MENU_LOCALIZED.MAINMENUROOMLISTNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUROOMLISTDESC, size = 0.25, ratio = 1.055, image = "../textures/menu/multiplayer.tga", mode = ORIENTATION_PORTRAIT, action = function() open_menu(2) end }
+			{ title = TB_MENU_LOCALIZED.MAINMENUROOMLISTNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUROOMLISTDESC, size = 0.25, ratio = 1.055, image = "../textures/menu/multiplayer.tga", mode = ORIENTATION_PORTRAIT, action = function() set_mouse_cursor(0, true) open_menu(2) end }
 		}
 		
 		if (TB_MENU_PLAYER_INFO.username == '') then

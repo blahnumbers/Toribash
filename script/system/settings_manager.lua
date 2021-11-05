@@ -1259,7 +1259,7 @@ do
 			end
 		else
 			-- Use these values instead of get_option() width/height to get highdpi-adapted values on macOS
-			local optionWidth, optionHeight = get_window_size()
+			local _x, _y, optionWidth, optionHeight = get_window_size()
 			if (SETTINGS_LAST_RESOLUTION) then
 				optionWidth, optionHeight = unpack(SETTINGS_LAST_RESOLUTION)
 			end
@@ -1316,23 +1316,34 @@ do
 				val = { get_option("highdpi") }
 			})
 		else
-			table.insert(items, {
-				name = TB_MENU_LOCALIZED.SETTINGSGUISCALING,
-				minValue = 100,
-				minValueDisp = 1,
-				maxValue = 200,
-				maxValueDisp = 2,
-				type = SLIDER,
-				systemname = "highdpi",
-				onUpdate = function(slider)
-					TB_MENU_MAIN_SETTINGS.highdpi.value = math.floor((tonumber(slider.label.labelText[1]) or 1) / 10 + 0.5)
-					TB_MENU_MAIN_SETTINGS.highdpi.id = HIGHDPI
-					TB_MENU_MAIN_SETTINGS.highdpi.graphics = true
-					TB_MENU_MAIN_SETTINGS.highdpi.reload = true
-					slider.label.labelText[1] = math.floor((tonumber(slider.label.labelText[1]) or 1) / 10 + 0.5) / 10 .. 'x'
-				end,
-				val = { get_option("highdpi") }
-			})
+			-- We need to make sure cpp screens are fully visible
+			-- Biggest screen is login/register, it needs 400x650 space
+			local _w, _h, w, h = get_window_size()
+			local maxHdpi = 100
+			for i = 10, 20 do
+				if (math.min(w / (i / 10) - 400, h / (i / 10) - 650) >= 0) then
+					maxHdpi = i * 10
+				end
+			end
+			if (maxHdpi > 100) then
+				table.insert(items, {
+					name = TB_MENU_LOCALIZED.SETTINGSGUISCALING,
+					minValue = 100,
+					minValueDisp = "1x",
+					maxValue = maxHdpi,
+					maxValueDisp = maxHdpi / 100 .. "x",
+					type = SLIDER,
+					systemname = "highdpi",
+					onUpdate = function(slider)
+						TB_MENU_MAIN_SETTINGS.highdpi.value = math.floor((tonumber(slider.label.labelText[1]) or 1) / 10 + 0.5)
+						TB_MENU_MAIN_SETTINGS.highdpi.id = HIGHDPI
+						TB_MENU_MAIN_SETTINGS.highdpi.graphics = true
+						TB_MENU_MAIN_SETTINGS.highdpi.reload = true
+						slider.label.labelText[1] = math.floor((tonumber(slider.label.labelText[1]) or 1) / 10 + 0.5) / 10 .. 'x'
+					end,
+					val = { math.max(100, math.min(get_option("highdpi") * 10, maxHdpi)) }
+				})
+			end
 		end
 		if (PLATFORM == "WINDOWS" and get_dpiawareness().DPISCALING ~= 1) then
 			table.insert(items, {

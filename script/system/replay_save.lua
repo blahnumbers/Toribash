@@ -162,7 +162,10 @@ local function saveReplay(newname)
 	local file = Files:open("../replay" .. filename .. ".rpl")
 	if (file.data) then
 		file:close()
-		TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.REPLAYWITHNAMEEXISTSPROMPT, doRenameReplay)
+		TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.REPLAYWITHNAMEEXISTSPROMPT, function()
+			delete_replay(filename .. ".rpl")
+			doRenameReplay()
+		end)
 	else
 		doRenameReplay()
 	end
