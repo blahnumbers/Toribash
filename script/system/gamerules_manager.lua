@@ -125,7 +125,7 @@ do
 					{ value = 3, title = "Three Players" },
 					{ value = 4, title = "Four Players" }
 				},
-				readonly = get_world_state().game_type == 1,
+				hidden = get_world_state().game_type == 1,
 				triggerUpdate = true
 			},
 			{ name = "matchframes", title = "Match Frames", type = GAMERULE_INT },

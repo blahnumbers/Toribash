@@ -2590,7 +2590,7 @@ do
 			toReload, topBar, botBar, listingView, listingHolder = TBMenu:prepareScrollableList(dropdownView, elementHeight, elementHeight, 15, TB_MENU_DEFAULT_LIGHTER_COLOR)
 			local topEdge = UIElement:new({
 				parent = topBar,
-				pos = { 0, -topBar.size.h - dropdownView.rounded },
+				pos = { 0, -topBar.size.h - (dropdownView.rounded or 0) },
 				size = { topBar.size.w, topBar.size.h * 1.5 },
 				bgColor = topBar.bgColor,
 				innerShadow = elementHeight / 2,

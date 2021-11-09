@@ -8,11 +8,14 @@ dofile("system/replays_manager.lua")
 REPLAY_GUI = REPLAY_GUI or nil
 
 local function replayGuiToggle(mode)
-	local mode = mode and not mode or not REPLAY_GUI.hidden
-	if (mode == REPLAY_GUI.hidden) then
+	local targetMode = mode and not mode or not REPLAY_GUI.hidden
+	if (targetMode == REPLAY_GUI.hidden) then
 		return
 	end
-	REPLAY_GUI.hidden = mode
+	REPLAY_GUI.hidden = targetMode
+	if (mode == nil) then
+		REPLAY_GUI.manualHidden = targetMode
+	end
 	if (not REPLAY_GUI.hidden) then
 		REPLAY_GUI:show()
 	end
@@ -20,7 +23,18 @@ end
 
 if (REPLAY_GUI == nil) then
 	REPLAY_GUI = Replays:spawnReplayAdvancedGui()
+	REPLAY_GUI.doToggle = replayGuiToggle
 else
 	replayGuiToggle()
 end
+
 add_hook("new_game", "replay_advanced_gui", function() replayGuiToggle(false) end)
+add_hook("pre_draw", "replay_advanced_gui", function()
+	if (REPLAY_GUI.hidden and not REPLAY_GUI.manualHidden) then
+		if (get_replay_cache() > 0) then
+			if (get_world_state().replay_mode == 1) then
+				replayGuiToggle(true)
+			end
+		end
+	end
+end)

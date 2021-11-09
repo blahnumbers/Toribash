@@ -484,6 +484,7 @@ do
 							local imageReload = not MARKET_SHOP_DATA[username] and true or MARKET_SHOP_DATA[username].imageMD5 ~= shopData.imageMD5
 							MARKET_SHOP_DATA[username] = shopData
 						end
+						overlay:kill()
 						Market:spawnPriceSetModal(selectedItems, nil, nil, true)
 					else
 						messageHolder:addAdaptedText(false, TB_MENU_LOCALIZED.MARKETERRORLOADINGSHOP)

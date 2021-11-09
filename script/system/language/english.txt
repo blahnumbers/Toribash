@@ -862,7 +862,7 @@ STOREYOUNEEDTOPLAYGAMES2	more fights with this item equipped
 STOREUPGRADEORPLAYGAMES	or play	
 STOREYOUNEEDTC1	You need to have	
 STOREFUSENEWEFFECT	Fuse new effect	
-INVENTORYNOEFFECTITEMS	No effect items in inventory	
+INVENTORYNOEFFECTITEMS	No suitable effect items in inventory	
 INVENTORYUPLOADNEWTEXTURE	Upload new texture	
 INVENTORYUPLOADTEXTURECONFIRM1	Are you sure you want to upload	
 INVENTORYUPLOADTEXTURECONFIRM2	as texture for your	
@@ -876,7 +876,7 @@ INVENTORYLOADINGEFFECTS	Loading item effects and effect upgrades
 INVENTORYFUSECONFIRM1	Are you sure you want to fuse 
 INVENTORYFUSECONFIRM2	effect into	
 INVENTORYFUSECONFIRMPRICE	You will be charged
-INVENTORYFUSECONFIRMINFO	^09Effect fusion is irreversible and your effect item will be destroyed.	
+INVENTORYFUSECONFIRMINFO	Effect fusion is irreversible and your effect item will be destroyed.	
 STOREITEMLEVEL	Level	
 INVENTORYCHOOSEITEMUPGRADELEVEL	Choose item upgrade level	
 INVENTORYAPPLYUPGRADE	Apply upgrade	
@@ -1029,3 +1029,5 @@ MARKETSHOPIMAGEUPDATEERROR	Error uploading new shop image.
 REPLAYWITHNAMEEXISTSPROMPT	Replay with this name already exists. Are you sure you want to replace it?	
 SETTINGSJOINTOBJOPACITY	Joint Objects Opacity	
 SETTINGSGUISCALING	Gui Scaling	
+STOREPURGEEFFECT	Purge applied effects	
+INVENTORYPURGEEFFECTCONFIRM	Are you sure you want to purge all the effects\ncurrently applied to your	

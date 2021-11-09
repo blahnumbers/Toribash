@@ -362,7 +362,7 @@ do
 						item[v[1]] = item[v[1]] == '1' and true or false
 					end
 				end
-				item.name = TB_STORE_DATA[item.itemid].itemname
+				item.name = Torishop:getItemInfo(item.itemid).itemname
 				if (itemUpdated == 0 and type(TB_ITEM_DETAILS) == "table") then
 					if (item.inventid == TB_ITEM_DETAILS.inventid) then
 						TB_ITEM_DETAILS = item
@@ -473,6 +473,8 @@ do
 		UIElement:runCmd("download " .. TB_MENU_PLAYER_INFO.username)
 		if (showInventory) then
 			Torishop:prepareInventory(tbMenuCurrentSection, true)
+		else
+			download_inventory()
 		end
 	end
 	
@@ -737,7 +739,7 @@ do
 			end]]
 		end
 		
-		local buttonHeight = inventoryItemView.size.h / 10 > 40 and 40 or inventoryItemView.size.h / 10
+		local buttonHeight = inventoryItemView.size.h / 10 > 55 and 55 or inventoryItemView.size.h / 10
 		local buttonYPos = -buttonHeight * 1.1
 		if (item.itemid ~= ITEM_SET) then
 			local addSetButton = UIElement:new({
@@ -747,7 +749,9 @@ do
 				interactive = true,
 				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+				shapeType = ROUNDED,
+				rounded = 4
 			})
 			if (item.insideset) then
 				addSetButton:addAdaptedText(nil, TB_MENU_LOCALIZED.STOREITEMGOTOSET)
@@ -778,7 +782,9 @@ do
 				interactive = true,
 				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+				shapeType = ROUNDED,
+				rounded = 4
 			})
 			viewSet:addAdaptedText(nil, TB_MENU_LOCALIZED.STOREVIEWSETITEMS)
 			viewSet:addMouseHandlers(nil, function()
@@ -794,9 +800,11 @@ do
 				pos = { 10, buttonYPos },
 				size = { inventoryItemView.size.w - 20, buttonHeight },
 				interactive = true,
-				bgColor = { 0, 0, 0, 0.1 },
-				hoverColor = { 0, 0, 0, 0.3 },
-				pressedColor = { 1, 0, 0, 0.3 }
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+				shapeType = ROUNDED,
+				rounded = 4
 			})
 			marketSellButton:addAdaptedText(false, TB_MENU_LOCALIZED.STORESELLMARKET)
 			marketSellButton:addMouseHandlers(nil, function()
@@ -830,7 +838,9 @@ do
 				interactive = true,
 				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+				shapeType = ROUNDED,
+				rounded = 4
 			})
 			customizeButton:addAdaptedText(false, TB_MENU_LOCALIZED.STOREITEMSCUSTOMIZE)
 			--TBMenu:showTextWithImage(customizeButton, TB_MENU_LOCALIZED.STOREITEMSCUSTOMIZE, FONTS.MEDIUM, customizeButton.size.h / 3 * 2, "../textures/menu/general/buttons/external.tga")
@@ -848,7 +858,9 @@ do
 				interactive = true,
 				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+				shapeType = ROUNDED,
+				rounded = 4
 			})
 			if (item.active) then
 				activateButton:addAdaptedText(nil, TB_MENU_LOCALIZED.STOREITEMDEACTIVATE)
@@ -872,7 +884,9 @@ do
 				interactive = true,
 				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+				shapeType = ROUNDED,
+				rounded = 4
 			})
 			unpackButton:addAdaptedText(nil, TB_MENU_LOCALIZED.STOREITEMUNPACK)
 			unpackButton:addMouseHandlers(nil, function()
@@ -1232,31 +1246,28 @@ do
 					appliedEffectsTitle:addAdaptedText(true, TB_MENU_LOCALIZED.STOREAPPLIEDITEMEFFECTS, nil, nil, nil, LEFTMID)
 					for i = 1, #ITEM_EFFECTS do
 						if (bit.band(item.effectid, ITEM_EFFECTS[i].id) ~= 0) then
-							local effectHolder = UIElement:new({
-								parent = appliedEffectsHolder,
+							local effectHolder = appliedEffectsHolder:addChild({
 								pos = { 0, shiftY },
-								size = { appliedEffectsHolder.size.w, 34 },
+								size = { appliedEffectsHolder.size.w, 34 }
+							})
+							local effectNameHolder = effectHolder:addChild({
+								size = { #effectCustomizeDropdownOptions[i] > 0 and effectHolder.size.w * 0.4 or effectHolder.size.w, effectHolder.size.h },
 								bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 								shapeType = ROUNDED,
-								rounded = 3
+								rounded = 4
 							})
-							local effectName = UIElement:new({
-								parent = effectHolder,
-								pos = { 10, 5 },
-								size = { effectHolder.size.w * 0.4 - 15, effectHolder.size.h - 10 }
-							})
+							local effectName = effectHolder:addChild({ shift = { 10, 5 } })
 							local color = get_color_info(ITEM_EFFECTS[i].use_colorid and item.glow_colorid or ITEM_EFFECTS[i].colorid)
 							color.name = color.game_name:gsub("^%l", string.upper)
 							effectName:addAdaptedText(true, (ITEM_EFFECTS[i].use_colorid and color.name or "") .. ITEM_EFFECTS[i].name, nil, nil, 4, LEFTMID, 0.8)
 							
 							if (#effectCustomizeDropdownOptions[i] > 0) then
-								local effectCustomizeDropdownHolder = UIElement:new({
-									parent = effectHolder,
-									pos = { effectHolder.size.w * 0.4 + 5, 4 },
-									size = { effectHolder.size.w * 0.6 - 9, effectHolder.size.h - 8 },
-									bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+								local effectCustomizeDropdownHolder = effectHolder:addChild({
+									pos = { effectNameHolder.size.w + 6, 0 },
+									size = { effectHolder.size.w - effectNameHolder.size.w - 6, effectHolder.size.h },
+									bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 									shapeType = ROUNDED,
-									rounded = 3
+									rounded = 4
 								})
 								local effectCustomizeDropdown = TBMenu:spawnDropdown(effectCustomizeDropdownHolder, effectCustomizeDropdownOptions[i], effectHolder.size.h, appliedEffectsHolder.size.h, effectCustomizeDropdownActiveIds[i], { scale = 0.6, fontid = 4 }, { scale = 0.55, fontid = 4 })
 							end
@@ -1266,8 +1277,8 @@ do
 					end
 					local updateEffectSettingsButton = UIElement:new({
 						parent = appliedEffectsHolder,
-						pos = { 0, shiftY },
-						size = { appliedEffectsHolder.size.w, 40 },
+						pos = { 46, shiftY },
+						size = { appliedEffectsHolder.size.w - 46, 40 },
 						interactive = true,
 						bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 						hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
@@ -1275,14 +1286,27 @@ do
 						shapeType = ROUNDED,
 						rounded = 4
 					})
-					local updateEffectInfoText = UIElement:new({
+					local updateEffectInfo = UIElement:new({
 						parent = appliedEffectsHolder,
-						pos = { 0, shiftY + 45 },
-						size = { appliedEffectsHolder.size.w, 20 }
+						pos = { 0, shiftY },
+						size = { 40, 40 },
+						interactive = true,
+						bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+						hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+						pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+						shapeType = ROUNDED,
+						rounded = 4
 					})
-					shiftY = shiftY + 100
+					updateEffectInfo:addCustomDisplay(nil, function()
+							if (updateEffectInfo.hoverState) then
+								TB_MENU_POPUPS_DISABLED = false
+							else
+								TB_MENU_POPUPS_DISABLED = true
+							end
+						end)
+					shiftY = shiftY + 55
 					updateEffectSettingsButton:hide()
-					updateEffectInfoText:hide()
+					updateEffectInfo:hide()
 					onUpdateEffectSettings = function()
 							updateEffectSettingsButton:show()
 							local buttonText = TB_MENU_LOCALIZED.STOREITEMUPGRADEFOR
@@ -1293,11 +1317,23 @@ do
 							end
 							if (upgradePrice > 0) then
 								buttonText = buttonText .. " " .. upgradePrice .. " " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS
-								updateEffectInfoText:show()
-								updateEffectInfoText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREUPGRADEORPLAYGAMES .. " " .. (maxRequirement - item.games_played) .. " " .. TB_MENU_LOCALIZED.STOREYOUNEEDTOPLAYGAMES2, nil, nil, 4, nil, 0.7)
+								updateEffectInfo:show()
+								if (updateEffectInfo.hint) then
+									updateEffectInfo.hint:kill()
+								end
+								updateEffectInfo.hint = TBMenu:displayHelpPopup(updateEffectInfo, TB_MENU_LOCALIZED.STOREUPGRADEORPLAYGAMES .. " " .. (maxRequirement - item.games_played) .. " " .. TB_MENU_LOCALIZED.STOREYOUNEEDTOPLAYGAMES2)
+								updateEffectInfo.hint:moveTo(44, nil, true)
+								updateEffectSettingsButton:moveTo(46)
+								updateEffectSettingsButton.size.w = appliedEffectsHolder.size.w - 46
 							else
-								updateEffectInfoText:hide()
+								updateEffectInfo:hide()
+								if (updateEffectInfo.hint) then
+									updateEffectInfo.hint:kill()
+									updateEffectInfo.hint = nil
+								end
 								buttonText = buttonText .. " " .. TB_MENU_LOCALIZED.STOREITEMUPGRADEPRICEFREE
+								updateEffectSettingsButton:moveTo(0)
+								updateEffectSettingsButton.size.w = appliedEffectsHolder.size.w
 							end
 							updateEffectSettingsButton:addAdaptedText(false, buttonText)
 						end
@@ -1354,15 +1390,16 @@ do
 				shiftY = shiftY + 35
 				
 				if (#availableEffectsDropdown == 0) then
-					local noEffectsInInventory = UIElement:new({
+					--[[local noEffectsInInventory = UIElement:new({
 						parent = customizeSectionHolder,
 						pos = { 0, shiftY },
 						size = { customizeSectionHolder.size.w, 25 }
 					})
-					noEffectsInInventory:addAdaptedText(true, TB_MENU_LOCALIZED.INVENTORYNOEFFECTITEMS, nil, nil, 4, CENTERBOT, 0.8)
+					shiftY = shiftY + noEffectsInInventory.size.h + 5
+					noEffectsInInventory:addAdaptedText(true, TB_MENU_LOCALIZED.INVENTORYNOEFFECTITEMS, nil, nil, 4, CENTERBOT, 0.8)]]
 					local getInShopButton = UIElement:new({
 						parent = customizeSectionHolder,
-						pos = { 0, shiftY + 30 },
+						pos = { 0, shiftY },
 						size = { customizeSectionHolder.size.w, 40 },
 						interactive = true,
 						bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
@@ -1376,35 +1413,59 @@ do
 							overlay:kill()
 							Torishop:showStoreSection(tbMenuCurrentSection, 3, 3)
 						end)
-					return
+					shiftY = shiftY + getInShopButton.size.h + 20
+				else
+					local fuseEffectDropdownHolder = UIElement:new({
+						parent = customizeSectionHolder,
+						pos = { 0, shiftY },
+						size = { customizeSectionHolder.size.w / 2 - 5, 40 },
+						bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+						shapeType = ROUNDED,
+						rounded = 4
+					})
+					local fuseEffectDropdown = TBMenu:spawnDropdown(fuseEffectDropdownHolder, availableEffectsDropdown, fuseEffectDropdownHolder.size.h - 5, 300, nil, { scale = 0.7, fontid = 4 }, { scale = 0.65, fontid = 4 })
+					local fuseEffectButton = UIElement:new({
+						parent = customizeSectionHolder,
+						pos = { fuseEffectDropdownHolder.size.w + 6, fuseEffectDropdownHolder.shift.y },
+						size = { customizeSectionHolder.size.w - fuseEffectDropdownHolder.size.w - 6, fuseEffectDropdownHolder.size.h },
+						interactive = true,
+						bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+						hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+						pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+						shapeType = ROUNDED,
+						rounded = 4
+					})
+					fuseEffectButton:addAdaptedText(false, TB_MENU_LOCALIZED.STOREFUSEEFFECTFOR .. " " .. (generalInfo.fuseCost > 0 and ((generalInfo.fuseCost / 1000) .. "K " .. TB_MENU_LOCALIZED.WORDTC) or TB_MENU_LOCALIZED.STOREITEMUPGRADEPRICEFREE))
+					fuseEffectButton:addMouseHandlers(nil, function()
+							Torishop:spawnInventoryUpdateWaiter(nil, function() overlay:kill() end)
+							show_dialog_box(INVENTORY_EFFECTFUSE, TB_MENU_LOCALIZED.INVENTORYFUSECONFIRM1 .. " " .. selectedEffect.name .. " " .. TB_MENU_LOCALIZED.INVENTORYFUSECONFIRM2 .. " " .. item.name .. "?\n" .. TB_MENU_LOCALIZED.INVENTORYFUSECONFIRMPRICE .. " " .. generalInfo.fuseCost .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS .. ".\n\n^09" .. TB_MENU_LOCALIZED.INVENTORYFUSECONFIRMINFO, item.inventid .. ";" .. selectedEffect.inventid .. ";" .. generalInfo.fuseCost)
+						end)
+					shiftY = shiftY + fuseEffectDropdownHolder.size.h + 20
 				end
-				local fuseEffectDropdownHolder = UIElement:new({
-					parent = customizeSectionHolder,
-					pos = { 0, shiftY },
-					size = { customizeSectionHolder.size.w / 2 - 5, 40 },
-					bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
-					shapeType = ROUNDED,
-					rounded = 4
-				})
-				local fuseEffectDropdown = TBMenu:spawnDropdown(fuseEffectDropdownHolder, availableEffectsDropdown, fuseEffectDropdownHolder.size.h - 5, 300, nil, { scale = 0.7, fontid = 4 }, { scale = 0.65, fontid = 4 })
-				local fuseEffectButton = UIElement:new({
-					parent = customizeSectionHolder,
-					pos = { fuseEffectDropdownHolder.size.w + 10, fuseEffectDropdownHolder.shift.y },
-					size = { customizeSectionHolder.size.w - fuseEffectDropdownHolder.size.w - 10, fuseEffectDropdownHolder.size.h },
-					interactive = true,
-					bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
-					hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-					pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-					shapeType = ROUNDED,
-					rounded = 4
-				})
-				fuseEffectButton:addAdaptedText(false, TB_MENU_LOCALIZED.STOREFUSEEFFECTFOR .. " " .. (generalInfo.fuseCost > 0 and ((generalInfo.fuseCost / 1000) .. "K " .. TB_MENU_LOCALIZED.WORDTC) or TB_MENU_LOCALIZED.STOREITEMUPGRADEPRICEFREE))
-				fuseEffectButton:addMouseHandlers(nil, function()
-						Torishop:spawnInventoryUpdateWaiter(nil, function()
-								overlay:kill()
-							end)
-						show_dialog_box(INVENTORY_EFFECTFUSE, TB_MENU_LOCALIZED.INVENTORYFUSECONFIRM1 .. " " .. selectedEffect.name .. " " .. TB_MENU_LOCALIZED.INVENTORYFUSECONFIRM2 .. " " .. item.name .. "?\n" .. TB_MENU_LOCALIZED.INVENTORYFUSECONFIRMPRICE .. " " .. generalInfo.fuseCost .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS .. ".\n\n" .. TB_MENU_LOCALIZED.INVENTORYFUSECONFIRMINFO, item.inventid .. ";" .. selectedEffect.inventid .. ";" .. generalInfo.fuseCost)
-					end)
+				
+				if (item.effectid > 0) then
+					local purgeEffectsTitle = customizeSectionHolder:addChild({
+						pos = { 0, shiftY },
+						size = { customizeSectionHolder.size.w, 25 }
+					})
+					purgeEffectsTitle:addAdaptedText(true, TB_MENU_LOCALIZED.STOREPURGEEFFECT, nil, nil, nil, LEFTMID)
+					shiftY = shiftY + 35
+					local purgeEffectsButton = customizeSectionHolder:addChild({
+						pos = { 0, shiftY },
+						size = { customizeSectionHolder.size.w, 40 },
+						interactive = true,
+						bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+						hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+						pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+						shapeType = ROUNDED,
+						rounded = 4
+					})
+					purgeEffectsButton:addAdaptedText(false, TB_MENU_LOCALIZED.STOREPURGEEFFECT)
+					purgeEffectsButton:addMouseHandlers(nil, function()
+							Torishop:spawnInventoryUpdateWaiter(nil, function() overlay:kill() end)
+							show_dialog_box(INVENTORY_EFFECTPURGE, TB_MENU_LOCALIZED.INVENTORYPURGEEFFECTCONFIRM .. " ^16" .. item.name .. "?\n\n^09" .. TB_MENU_LOCALIZED.CONFIRMACTIONCANNOTBEUNDONE, item.inventid)
+						end)
+				end
 			end
 			
 			TBMenu:displayLoadingMark(customizeSectionHolder, TB_MENU_LOCALIZED.INVENTORYLOADINGEFFECTS)
@@ -1471,7 +1532,9 @@ do
 				interactive = true,
 				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+				shapeType = ROUNDED,
+				rounded = 4
 			})
 			v.button = sectionButton
 			sectionButton:addAdaptedText(false, v.name)
@@ -1928,7 +1991,7 @@ do
 					rounded = capsuleHeight / 2,
 					uiColor = UICOLORBLACK
 				})
-				itemEffect:addAdaptedText(false, "+" .. #collapsed, nil, nil, 4)
+				itemEffect:addAdaptedText(false, "+" .. #collapsed, nil, nil, 4, nil, 0.6)
 				local popupString = collapsed[1]
 				for i = 2, #collapsed do
 					popupString = popupString .. "\n" .. collapsed[i]
@@ -1985,7 +2048,7 @@ do
 		local inventoryTitle = UIElement:new({
 			parent = topBar,
 			pos = { 10, 10 },
-			size = { maxPages > 1 and (topBar.size.w / 2 > 320 and topBar.size.w - 330 or topBar.size.w / 2 - 10) or topBar.size.w - 20, topBar.size.h - 20 }
+			size = { topBar.size.w / 2 > 400 and topBar.size.w - 410 or topBar.size.w / 2 - 10, topBar.size.h - 15 }
 		})
 		if (mode) then
 			local dropdownBG = UIElement:new({
@@ -2005,9 +2068,9 @@ do
 			local pagesCount = UIElement:new({
 				parent = topBar,
 				pos = { inventoryTitle.size.w + 10, 10 },
-				size = { topBar.size.w - inventoryTitle.size.w - 20, topBar.size.h - 20 }
+				size = { topBar.size.w - inventoryTitle.size.w - 20, topBar.size.h - 15 }
 			})
-			pagesCount:addAdaptedText(true, TB_MENU_LOCALIZED.PAGINATIONPAGE:upper() .. " " .. TB_INVENTORY_PAGE[pageid] .. " " .. TB_MENU_LOCALIZED.PAGINATIONPAGEOF:upper() .. " " .. maxPages, nil, nil, 4, LEFTMID, 0.6)
+			pagesCount:addAdaptedText(true, TB_MENU_LOCALIZED.PAGINATIONPAGE .. " " .. TB_INVENTORY_PAGE[pageid] .. " " .. TB_MENU_LOCALIZED.PAGINATIONPAGEOF .. " " .. maxPages, nil, nil, 4, LEFTMID, 0.6)
 			local strlen = get_string_length(pagesCount.dispstr[1], pagesCount.textFont) * pagesCount.textScale
 			local pagesButtonsHolder = UIElement:new({
 				parent = pagesCount,
@@ -2056,8 +2119,8 @@ do
 			for i,v in pairs(pagesButtons) do
 				local buttonHolder = UIElement:new({
 					parent = pagesButtonsHolder,
-					pos = { pagesButtonsHolder.size.w - (pagesButtonsCount - #pageButtons) * buttonWidth, 0 },
-					size = { buttonWidth, pagesButtonsHolder.size.h }
+					pos = { pagesButtonsHolder.size.w - (pagesButtonsCount - #pageButtons) * buttonWidth, 5 },
+					size = { buttonWidth, pagesButtonsHolder.size.h - 10 }
 				})
 				table.insert(pageButtons, buttonHolder)
 				local button = UIElement:new({
@@ -2067,7 +2130,9 @@ do
 					interactive = v ~= TB_INVENTORY_PAGE[pageid],
 					bgColor = v == TB_INVENTORY_PAGE[pageid] and TB_MENU_DEFAULT_LIGHTER_COLOR or TB_MENU_DEFAULT_DARKER_COLOR,
 					hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-					pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+					pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+					shapeType = ROUNDED,
+					rounded = 3
 				})
 				button:addAdaptedText(nil, v .. "", nil, nil, 4, nil, 0.6)
 				button:addMouseHandlers(nil, function()
@@ -2123,11 +2188,13 @@ do
 		local refreshInventory = UIElement:new({
 			parent = botBar,
 			pos = { -botBar.size.w / 3, 10 },
-			size = { botBar.size.w / 3 - 10, 35 },
+			size = { botBar.size.w / 3 - 20, 35 },
 			interactive = true,
 			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+			shapeType = ROUNDED,
+			rounded = 3 
 		})
 		refreshInventory:addAdaptedText(nil, TB_MENU_LOCALIZED.STOREINVENTORYRELOAD, nil, nil, nil, nil, 0.9)
 		refreshInventory:addMouseHandlers(nil, function()
@@ -2180,95 +2247,6 @@ do
 			end
 			inventoryItems[i].iconElement = itemIcon
 			
-			local itemInfoHolder = UIElement:new({
-				parent = invItemHolder,
-				pos = { invItemHolder.size.h + 15, 2 },
-				size = { (invItemHolder.size.w - invItemHolder.size.h - 30) / 3 * 2, invItemHolder.size.h - 4 }
-			})
-			
-			local itemNameString = item.itemname
-			if (inventoryItems[i].upgrade_level > 0) then
-				itemNameString = itemNameString .. " (LVL " .. inventoryItems[i].upgrade_level .. ")"
-			end
-			if (inventoryItems[i].flamename ~= '0') then
-				itemNameString = itemNameString .. ": " .. inventoryItems[i].flamename
-			end
-			if (inventoryItems[i].setname ~= '0') then
-				itemNameString = inventoryItems[i].setname
-			end
-			local itemName = nil
-			if (inventoryItems[i].bodypartname ~= '0' or inventoryItems[i].setname ~= '0') then
-				itemName = UIElement:new({
-					parent = itemInfoHolder,
-					pos = { 0, 0 },
-					size = { itemInfoHolder.size.w, itemInfoHolder.size.h / 3 * 2 }
-				})
-				itemName:addAdaptedText(true, itemNameString, nil, nil, FONTS.BIG, LEFTMID, nil, nil, 0.2)
-				local itemExtra = UIElement:new({
-					parent = itemInfoHolder,
-					pos = { 0, itemName.size.h },
-					size = { itemInfoHolder.size.w, itemInfoHolder.size.h - itemName.size.h }
-				})
-				if (inventoryItems[i].bodypartname ~= '0') then
-					local bodypartString = (TB_STORE_MODELS[item.itemid] and TB_MENU_LOCALIZED.INVENTORY3DITEMFOR or TB_MENU_LOCALIZED.STOREFLAMEBODYPART) .. " " .. inventoryItems[i].bodypartname
-					itemExtra:addAdaptedText(true, bodypartString, nil, nil, 4, LEFTMID)
-				else
-					local numItemsStr = TB_MENU_LOCALIZED.STORESETEMPTY .. " " .. TB_MENU_LOCALIZED.STORESETITEMNAME
-					if (#inventoryItems[i].contents == 1) then
-						numItemsStr = "1 " .. TB_MENU_LOCALIZED.STOREITEMSINSET:lower()
-					elseif (#inventoryItems[i].contents > 1) then
-						numItemsStr = #inventoryItems[i].contents .. " " .. TB_MENU_LOCALIZED.STOREITEMSINSET:lower()
-					end
-					itemExtra:addAdaptedText(true, numItemsStr, nil, nil, 4, LEFTMID)
-				end
-			else
-				itemName = UIElement:new({
-					parent = itemInfoHolder,
-					pos = { 0, itemInfoHolder.size.h / 6 },
-					size = { itemInfoHolder.size.w, itemInfoHolder.size.h / 3 * 2 }
-				})
-				itemName:addAdaptedText(true, itemNameString, nil, nil, FONTS.BIG, LEFTMID, nil, nil, 0.2)
-			end
-			if (inventoryItems[i].effectid > 0 and TB_STORE_DATA[inventoryItems[i].itemid].catid ~= 87) then
-				local nameLength = get_string_length(itemName.dispstr[1], itemName.textFont) * itemName.textScale
-				local itemEffectsHolder = UIElement:new({
-					parent = itemInfoHolder,
-					pos = { nameLength + 10, 0 },
-					size = { itemInfoHolder.size.w - nameLength - 20, itemInfoHolder.size.h }
-				})
-				local effectsShift = { x = 0, y = 0 }
-				for j = 1, #ITEM_EFFECTS do
-					if (bit.band(inventoryItems[i].effectid, ITEM_EFFECTS[j].id) ~= 0) then
-						local color = get_color_info(ITEM_EFFECTS[j].use_colorid and inventoryItems[i].glow_colorid or ITEM_EFFECTS[j].colorid)
-						color.name = color.game_name:gsub("^%l", string.upper)
-						local itemEffect = UIElement:new({
-							parent = itemEffectsHolder,
-							pos = { effectsShift.x, effectsShift.y },
-							size = { 150, 20 },
-							bgColor = { color.r, color.g, color.b, 1 },
-							shapeType = ROUNDED,
-							rounded = 10,
-							uiColor = (math.max(color.r, color.g, color.b) > 0.9 or (color.r + color.g + color.b > 1.5)) and UICOLORBLACK or UICOLORWHITE
-						})
-						itemEffect:addAdaptedText(false, (ITEM_EFFECTS[j].use_colorid and color.name or "") .. ITEM_EFFECTS[j].name, 10, nil, 4, LEFTMID, 0.6)
-						local effectTextLen = get_string_length(itemEffect.dispstr[1], itemEffect.textFont) * itemEffect.textScale + 20
-						itemEffect.size.w = effectTextLen
-						effectsShift.x = effectsShift.x + effectTextLen + 10
-						if (effectsShift.x > itemEffectsHolder.size.w) then
-							effectsShift.y = effectsShift.y + itemEffect.size.h + 3
-							if (effectsShift.y + itemEffect.size.h > itemEffectsHolder.size.h) then
-								effectsShift.y = effectsShift.y - itemEffect.size.h - 3
-								itemEffect:kill()
-								break
-							end
-							itemEffect:moveTo(0, effectsShift.y)
-							effectsShift.x = effectTextLen + 10
-						end
-					end
-				end
-				itemEffectsHolder.size.h = effectsShift.y + 20
-				itemEffectsHolder:moveTo(nil, (itemEffectsHolder.parent.size.h - itemEffectsHolder.size.h) / 2)
-			end
 			local lShift = 0
 			if (inventoryItems[i].itemid ~= ITEM_SET) then
 				local itemSelected = false
@@ -2336,6 +2314,60 @@ do
 						show_dialog_box(inventoryItems[i].active and INVENTORY_DEACTIVATE or INVENTORY_ACTIVATE, inventoryItems[i].active and (TB_MENU_LOCALIZED.STOREDIALOGDEACTIVATE1 .. " " .. inventoryItems[i].name .. (TB_MENU_LOCALIZED.STOREDIALOGDEACTIVATE2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGDEACTIVATE2 .. "?")) or (TB_MENU_LOCALIZED.STOREDIALOGACTIVATE1 .. " " .. inventoryItems[i].name .. (TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 .. "?")), inventoryItems[i].inventid)
 					end, nil)
 				lShift = lShift + buttonWidth + 5
+			end
+			
+			local itemInfoHolder = UIElement:new({
+				parent = invItemHolder,
+				pos = { invItemHolder.size.h + 15, 2 },
+				size = { invItemHolder.size.w - itemIcon.shift.x * 2 - itemIcon.size.w - 15, invItemHolder.size.h - 4 }
+			})
+			local itemNameString = item.itemname
+			if (inventoryItems[i].upgrade_level > 0) then
+				itemNameString = itemNameString .. " (LVL " .. inventoryItems[i].upgrade_level .. ")"
+			end
+			if (inventoryItems[i].flamename ~= '0') then
+				itemNameString = itemNameString .. ": " .. inventoryItems[i].flamename
+			end
+			if (inventoryItems[i].setname ~= '0') then
+				itemNameString = inventoryItems[i].setname
+			end
+			local itemName = nil
+			if (inventoryItems[i].bodypartname ~= '0' or inventoryItems[i].setname ~= '0') then
+				itemName = UIElement:new({
+					parent = itemInfoHolder,
+					pos = { 0, 0 },
+					size = { itemInfoHolder.size.w, itemInfoHolder.size.h / 3 * 2 }
+				})
+				itemName:addAdaptedText(true, itemNameString, nil, nil, FONTS.BIG, LEFTMID, nil, nil, 0.2)
+				local itemExtra = UIElement:new({
+					parent = itemInfoHolder,
+					pos = { 0, itemName.size.h },
+					size = { itemInfoHolder.size.w, itemInfoHolder.size.h - itemName.size.h }
+				})
+				if (inventoryItems[i].bodypartname ~= '0') then
+					local bodypartString = (TB_STORE_MODELS[item.itemid] and TB_MENU_LOCALIZED.INVENTORY3DITEMFOR or TB_MENU_LOCALIZED.STOREFLAMEBODYPART) .. " " .. inventoryItems[i].bodypartname
+					itemExtra:addAdaptedText(true, bodypartString, nil, nil, 4, LEFTMID)
+				else
+					local numItemsStr = TB_MENU_LOCALIZED.STORESETEMPTY .. " " .. TB_MENU_LOCALIZED.STORESETITEMNAME
+					if (#inventoryItems[i].contents == 1) then
+						numItemsStr = "1 " .. TB_MENU_LOCALIZED.STOREITEMSINSET:lower()
+					elseif (#inventoryItems[i].contents > 1) then
+						numItemsStr = #inventoryItems[i].contents .. " " .. TB_MENU_LOCALIZED.STOREITEMSINSET:lower()
+					end
+					itemExtra:addAdaptedText(true, numItemsStr, nil, nil, 4, LEFTMID)
+				end
+			else
+				itemName = itemInfoHolder:addChild({ shift = { 0, itemInfoHolder.size.h / 6 } })
+				itemName:addAdaptedText(true, itemNameString, nil, nil, FONTS.BIG, LEFTMID, nil, nil, 0.2)
+			end
+			if (inventoryItems[i].effectid > 0 and TB_STORE_DATA[inventoryItems[i].itemid].catid ~= 87) then
+				local nameLength = get_string_length(itemName.dispstr[1], itemName.textFont) * itemName.textScale
+				local itemEffectsHolder = UIElement:new({
+					parent = itemInfoHolder,
+					pos = { nameLength + 10, 0 },
+					size = { itemInfoHolder.size.w - nameLength - 20, itemInfoHolder.size.h }
+				})
+				Torishop:showItemEffectCapsules(inventoryItems[i], itemEffectsHolder, 20)
 			end
 		end
 		
@@ -2467,18 +2499,21 @@ do
 		TBMenu:showNavigationBar(Torishop:getNavigationButtons(), true)
 		
 		if (reload or not TB_INVENTORY_LOADED) then
+			TB_INVENTORY_LOADED = false
 			local inventoryLoader = viewElement:addChild({
 				shift = { 5, 0 },
 				bgColor = TB_MENU_DEFAULT_BG_COLOR
 			})
-			inventoryLoader:addCustomDisplay(false, function()
-					if (TB_INVENTORY_LOADED) then
-						Torishop:showInventory(viewElement)
-					end
-				end)
 			TBMenu:addBottomBloodSmudge(inventoryLoader)
 			TBMenu:displayLoadingMark(inventoryLoader, TB_MENU_LOCALIZED.STOREINVENTORYLOADING)
 			
+			inventoryLoader:addCustomDisplay(false, function()
+					if (TB_INVENTORY_LOADED) then
+						inventoryLoader:kill()
+						Torishop:showInventory(viewElement)
+					end
+				end)
+				
 			download_inventory()
 		else
 			Torishop:showInventory(viewElement)
@@ -4908,6 +4943,7 @@ do
 							local itemid = response:gsub("^ITEMID 0;", "")
 							local item = Torishop:getItemInfo(itemid)
 							update_tc_balance()
+							download_inventory()
 							if (#item.contents > 0) then
 								Torishop:spawnInventoryUpdateWaiter()
 								show_dialog_box(INVENTORY_UNPACK, TB_MENU_LOCALIZED.STOREPURCHASECONGRATULATIONSRECEIVED .. " " .. item.itemname .. "!\n" .. TB_MENU_LOCALIZED.STOREDIALOGUNPACK1 .. " " .. item.itemname .. (TB_MENU_LOCALIZED.STOREDIALOGUNPACK2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGUNPACK2 .. "?") .. "\n" .. TB_MENU_LOCALIZED.STOREDIALOGUNPACKINFO, invid)
@@ -4915,7 +4951,6 @@ do
 								if (in_array(item.catid, CATEGORIES_COLORS)) then
 									check_steam_color(item.colorid)
 								end
-								Torishop:spawnInventoryUpdateWaiter()
 								show_dialog_box(INVENTORY_ACTIVATE, TB_MENU_LOCALIZED.STOREPURCHASECONGRATULATIONSRECEIVED .. " "  .. item.itemname .. "!\n" .. TB_MENU_LOCALIZED.STOREDIALOGACTIVATE1 .. " " .. item.itemname .. (TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 .. "?"), invid)
 							else
 								TBMenu:showDataError(TB_MENU_LOCALIZED.STOREYOUHAVEPURCHASEDITEM .. " " .. item.itemname .. "!\n" .. TB_MENU_LOCALIZED.STOREPURCHASEDITEMPLACEDININVENTORY)
@@ -4930,6 +4965,7 @@ do
 				return
 			end
 			update_tc_balance()
+			download_inventory()
 			if (#item.contents > 0) then
 				Torishop:spawnInventoryUpdateWaiter()
 				show_dialog_box(INVENTORY_UNPACK, TB_MENU_LOCALIZED.STOREPURCHASECONGRATULATIONS .. "\n" .. TB_MENU_LOCALIZED.STOREPURCHASEWOULDYOULIKETOUNPACK1 .. " " .. item.itemname .. (TB_MENU_LOCALIZED.STOREPURCHASEWOULDYOULIKETOUNPACK2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREPURCHASEWOULDYOULIKETOUNPACK2 .. "?") .. "\n" .. TB_MENU_LOCALIZED.STOREDIALOGUNPACKINFO, invid)

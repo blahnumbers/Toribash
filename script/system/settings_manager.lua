@@ -1260,6 +1260,10 @@ do
 		else
 			-- Use these values instead of get_option() width/height to get highdpi-adapted values on macOS
 			local _x, _y, optionWidth, optionHeight = get_window_size()
+			if (PLATFORM == "APPLE") then
+				optionWidth = _x
+				optionHeight = _y
+			end
 			if (SETTINGS_LAST_RESOLUTION) then
 				optionWidth, optionHeight = unpack(SETTINGS_LAST_RESOLUTION)
 			end

@@ -285,6 +285,9 @@ if (not QueueList) then
 		dofile("system/queuelist_manager.lua")
 	end
 end
+if (not REPLAY_GUI and get_replay_cache() > 0) then
+	dofile("system/replay_hud.lua")
+end
 Notifications:getTotalNotifications()
 
 if (launchOption == 'register') then
