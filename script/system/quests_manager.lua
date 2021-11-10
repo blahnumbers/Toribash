@@ -6,10 +6,29 @@ do
 	local cln = {}
 	setmetatable(cln, Quests)
 	
+	function Quests:download()
+		local clock = os.clock()
+		if (clock - (QUESTS_UPDATE_CLOCK or 0) < 5) then
+			return false
+		end
+		
+		local downloads = get_downloads()
+		for i,v in pairs(downloads) do
+			if (v:find("quest.txt$")) then
+				return false
+			end
+		end
+		
+		QUESTS_UPDATE_CLOCK = clock
+		download_quest(TB_MENU_PLAYER_INFO.username)
+		return true
+	end
+	
 	function Quests:getQuests()
 		TB_MENU_QUESTS_COUNT = 0
 		local file = Files:open("../data/quest.txt")
 		if (not file.data) then
+			Quests:download()
 			return false
 		end
 		
@@ -59,12 +78,12 @@ do
 	end
 	
 	function Quests:getQuestById(id)
-		if (not QUESTS_DATA) then
-			QUESTS_DATA = Quests:getQuests()
-		end
-		for i,v in pairs(QUESTS_DATA) do
-			if (v.id == id) then
-				return v
+		QUESTS_DATA = QUESTS_DATA or Quests:getQuests()
+		if (QUESTS_DATA) then
+			for i,v in pairs(QUESTS_DATA) do
+				if (v.id == id) then
+					return v
+				end
 			end
 		end
 		return false
@@ -711,8 +730,7 @@ do
 			Quests:showQuests()
 		else
 			if (reload or TB_MENU_DEBUG) then
-				QUESTS_UPDATE_CLOCK = os.clock()
-				download_quest(TB_MENU_PLAYER_INFO.username)
+				Quests:download()
 			end
 			local file = Files:open("../data/quest.txt")
 			local waitView = UIElement:new({

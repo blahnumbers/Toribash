@@ -2138,7 +2138,11 @@ do
 		end
 
 		SELECTED_REPLAY.replay = replay
-		SELECTED_REPLAY.element.bgColor = { 1, 1, 1, 0.3 }
+		if (SELECTED_REPLAY.element) then
+			-- Element can be null judging by crash logs but I can't replicate it
+			-- Let's hope having this check doesn't spawn more errors
+			SELECTED_REPLAY.element.bgColor = { 1, 1, 1, 0.3 }
+		end
 
 		local replayName = UIElement:new({
 			parent = viewElement,

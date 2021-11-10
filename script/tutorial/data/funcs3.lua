@@ -177,10 +177,10 @@ local function moveMemoryShow(viewElement, reqTable, static)
 	end
 	moveMemoryMoverHolder:addCustomDisplay(true, function()
 			set_color(unpack(moveMemoryMoverHolder.bgColor))
-			draw_disk(moveMemoryMoverHolder.pos.x + moveMemoryMoverHolder.rounded, moveMemoryMoverHolder.pos.y + moveMemoryMoverHolder.rounded, 0, moveMemoryMoverHolder.rounded, 100, 1, -180, 90, 0)
-			draw_disk(moveMemoryMoverHolder.pos.x + moveMemoryMoverHolder.size.w - moveMemoryMoverHolder.rounded, moveMemoryMoverHolder.pos.y + moveMemoryMoverHolder.rounded, 0, moveMemoryMoverHolder.rounded, 100, 1, 90, 90, 0)
-			draw_quad(moveMemoryMoverHolder.pos.x + moveMemoryMoverHolder.rounded, moveMemoryMoverHolder.pos.y, moveMemoryMoverHolder.size.w - moveMemoryMoverHolder.rounded * 2, moveMemoryMoverHolder.rounded)
-			draw_quad(moveMemoryMoverHolder.pos.x, moveMemoryMoverHolder.pos.y + moveMemoryMoverHolder.rounded, moveMemoryMoverHolder.size.w, moveMemoryMoverHolder.size.h - moveMemoryMoverHolder.rounded)
+			draw_disk(moveMemoryMoverHolder.pos.x + moveMemoryMain.rounded, moveMemoryMoverHolder.pos.y + moveMemoryMain.rounded, 0, moveMemoryMain.rounded, 100, 1, -180, 90, 0)
+			draw_disk(moveMemoryMoverHolder.pos.x + moveMemoryMoverHolder.size.w - moveMemoryMain.rounded, moveMemoryMoverHolder.pos.y + moveMemoryMain.rounded, 0, moveMemoryMain.rounded, 100, 1, 90, 90, 0)
+			draw_quad(moveMemoryMoverHolder.pos.x + moveMemoryMain.rounded, moveMemoryMoverHolder.pos.y, moveMemoryMoverHolder.size.w - moveMemoryMain.rounded * 2, moveMemoryMain.rounded)
+			draw_quad(moveMemoryMoverHolder.pos.x, moveMemoryMoverHolder.pos.y + moveMemoryMain.rounded, moveMemoryMoverHolder.size.w, moveMemoryMoverHolder.size.h - moveMemoryMain.rounded)
 		end)
 	local moveMemoryTitle = UIElement:new({
 		parent = moveMemoryTitleBg,

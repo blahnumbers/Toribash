@@ -149,6 +149,7 @@ do
 					local catMatch, itemMatch = true, true
 					local catName, itemName = v.catname:lower(), v.itemname:lower()
 					for j,k in pairs(words) do
+						local k = k:gsub("([^%w])", "%%%1")
 						if (withCategories) then
 							if (not catName:find(k)) then
 								catMatch = false
@@ -1320,7 +1321,9 @@ do
 					Market:clearModal()
 					
 					offer.price = submitButton.price
-					offer.triggerPriceUpdate()
+					if (offer.triggerPriceUpdate) then
+						offer.triggerPriceUpdate()
+					end
 					update_tc_balance()
 				end, function()
 					TBMenu:showDataError(get_network_error(), not TB_MENU_MAIN_ISOPEN)
@@ -3012,13 +3015,14 @@ do
 				bgColor = TB_MENU_DEFAULT_BG_COLOR_TRANS
 			})
 			offerItemPrice:addAdaptedText(false, PlayerInfo:currencyFormat(v.price) .. " " .. TB_MENU_LOCALIZED.WORDTC, nil, nil, 4, nil, 0.7)
-			while (#offerItemPrice.dispstr > 1) do
-				offerItemPrice.size = offerItemPrice.size.w + 5
-				offerItemName.size = offerItemName.size.w - 5
+			while (#offerItemPrice.dispstr > 1 and offerItemName.size.w > 50) do
+				offerItemName.size.w = offerItemName.size.w - 5
+				offerItemPrice.size.w = offerItemPrice.size.w + 5
 				offerItemPrice:moveTo(-5, nil, true)
-				offerItemPrice:addAdaptedText(true, PlayerInfo:currencyFormat(v.price) .. " " .. TB_MENU_LOCALIZED.WORDTC, nil, nil, 4, nil, 0.7)
+				offerItemPrice.str = ''
+				offerItemPrice:addAdaptedText(false, PlayerInfo:currencyFormat(v.price) .. " " .. TB_MENU_LOCALIZED.WORDTC, nil, nil, 4, nil, 0.7)
 			end
-			offerItemName:addAdaptedText(true, item.shortname, nil, nil, nil, LEFTMID, nil, 0.8, 0.8)
+			offerItemName:addAdaptedText(true, item.shortname, nil, nil, nil, LEFTMID, nil, 0.8, 0.6)
 			local offerSellButton = UIElement:new({
 				parent = offerView,
 				pos = { offerViewBG.shift.x + offerViewBG.size.w + 5, offerViewBG.shift.y },
@@ -3031,12 +3035,7 @@ do
 				shapeType = offerViewBG.shapeType,
 				rounded = offerViewBG.rounded
 			})
-			local offerSellButtonText = UIElement:new({
-				parent = offerSellButton,
-				pos = { 10, 3 },
-				size = { offerSellButton.size.w - 20, offerSellButton.size.h - 6 }
-			})
-			offerSellButtonText:addAdaptedText(true, v.username == TB_MENU_PLAYER_INFO.username and TB_MENU_LOCALIZED.MARKETMODIFY or TB_MENU_LOCALIZED.MARKETSELL, nil, nil, 4, nil, 0.7)
+			offerSellButton:addChild({ shift = { 5, 2 } }):addAdaptedText(true, v.username == TB_MENU_PLAYER_INFO.username and TB_MENU_LOCALIZED.MARKETMODIFY or TB_MENU_LOCALIZED.MARKETSELL, nil, nil, 4, nil, 0.7)
 			offerSellButton:addMouseHandlers(nil, function()
 					if (v.username == TB_MENU_PLAYER_INFO.username) then
 						Market:spawnModifyPurchaseOfferModal(v)

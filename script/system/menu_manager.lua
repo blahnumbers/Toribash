@@ -9,6 +9,7 @@ do
 
 	function TBMenu:create()
 		TB_MENU_MAIN_ISOPEN = 1
+		set_build_version("211110")
 	end
 
 	function TBMenu:setLanguageFontOptions(language)
@@ -2600,7 +2601,7 @@ do
 			})
 			local botEdge = UIElement:new({
 				parent = botBar,
-				pos = { 0, -botBar.size.h * 1.5 + dropdownView.rounded },
+				pos = { 0, -botBar.size.h * 1.5 + (dropdownView.rounded or 0) },
 				size = { botBar.size.w, botBar.size.h * 1.5 },
 				bgColor = botBar.bgColor,
 				innerShadow = elementHeight / 2,

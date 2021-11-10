@@ -556,6 +556,8 @@ do
 						rounded = 3
 					})
 					local counter = 0
+					-- v.value[i] might be empty... make sure it isn't
+					v.value[i] = v.value[i] or { { title = 'x', value = '' }, { title = 'y', value = '' }, { title = 'z', value = '' } }
 					for j,k in pairs(v.value[i]) do
 						local grInput = TBMenu:spawnTextField(grValueInputsHolder, (grValueInputsHolder.size.w / 3 + 2.5) * counter, 2, grValueInputsHolder.size.w / 3 - 5, grValueInputsHolder.size.h - 4, k.value, { isNumeric = true, allowDecimal = true, allowNegative = true }, 4, 0.7, UICOLORWHITE, k.title, CENTERMID, nil, nil, true)
 						table.insert(engageInputs, grInput)
