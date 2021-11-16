@@ -349,13 +349,14 @@ do
 			table.insert(advancedItems, {
 				name = TB_MENU_LOCALIZED.SETTINGSBLOOD,
 				type = DROPDOWN,
-				selectedAction = function() return get_option("blood") + 1 end,
+				selectedAction = function() return TB_MENU_MAIN_SETTINGS.blood and TB_MENU_MAIN_SETTINGS.blood.value + 1 or get_option("blood") + 1 end,
 				dropdown = {
 					{
 						text = TB_MENU_LOCALIZED.WORDNONE,
 						action = function()
 							TB_MENU_MAIN_SETTINGS.blood = { value = 0 }
 							Settings:settingsApplyActivate()
+							Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
 						end
 					},
 					{
@@ -363,6 +364,7 @@ do
 						action = function()
 							TB_MENU_MAIN_SETTINGS.blood = { value = 1 }
 							Settings:settingsApplyActivate()
+							Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
 						end
 					},
 					{
@@ -370,21 +372,24 @@ do
 						action = function()
 							TB_MENU_MAIN_SETTINGS.blood = { value = 2 }
 							Settings:settingsApplyActivate()
+							Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
 						end
 					},
 				}
 			})
 			
 			if (shaders == 1) then
-				table.insert(advancedItems, {
-					name = TB_MENU_LOCALIZED.SETTINGSFLUIDBLOOD,
-					type = TOGGLE,
-					action = function(val) 
-							TB_MENU_MAIN_SETTINGS.fluid = { value = val, id = FLUIDBLOOD, graphics = true }
-						end,
-					val = { get_option("fluid") },
-					reload = true
-				})
+				if ((TB_MENU_MAIN_SETTINGS.blood and TB_MENU_MAIN_SETTINGS.blood.value or get_option("blood")) > 0) then
+					table.insert(advancedItems, {
+						name = TB_MENU_LOCALIZED.SETTINGSFLUIDBLOOD,
+						type = TOGGLE,
+						action = function(val) 
+								TB_MENU_MAIN_SETTINGS.fluid = { value = val, id = FLUIDBLOOD, graphics = true }
+							end,
+						val = { get_option("fluid") },
+						reload = true
+					})
+				end
 				table.insert(advancedItems, {
 					name = TB_MENU_LOCALIZED.SETTINGSFLOORREFLECTIONS,
 					type = TOGGLE,
@@ -413,25 +418,6 @@ do
 					reload = true
 				})
 			end
-			
-			table.insert(advancedItems, {
-				name = TB_MENU_LOCALIZED.SETTINGSDISABLEANIMATIONS,
-				type = TOGGLE,
-				action = function(val) 
-						TB_MENU_MAIN_SETTINGS.uilight = { value = val }
-					end,
-				val = { get_option("uilight") },
-				reload = true
-			})
-			table.insert(advancedItems, {
-				name = TB_MENU_LOCALIZED.SETTINGSJOINTFLASH,
-				type = TOGGLE,
-				action = function(val) 
-						TB_MENU_MAIN_SETTINGS.jointflash = { value = val }
-					end,
-				val = { get_option("jointflash") },
-				reload = true
-			})
 			
 			return {
 				{
@@ -622,6 +608,37 @@ do
 					name = TB_MENU_LOCALIZED.SETTINGSADVANCED,
 					hidden = true,
 					items = advancedItems
+				},
+				{
+					name = TB_MENU_LOCALIZED.SETTINGSGRAPHICSOTHER,
+					items = {
+						{
+							name = TB_MENU_LOCALIZED.SETTINGSSYSTEMCURSOR,
+							hint = TB_MENU_LOCALIZED.SETTINGSSYSTEMCURSORHINT,
+							type = TOGGLE,
+							action = function(val) 
+									TB_MENU_MAIN_SETTINGS.systemcursor = { value = val }
+								end,
+							val = { get_option("systemcursor") }
+						},
+						{
+							name = TB_MENU_LOCALIZED.SETTINGSUILIGHT,
+							hint = TB_MENU_LOCALIZED.SETTINGSUILIGHTHINT,
+							type = TOGGLE,
+							action = function(val) 
+									TB_MENU_MAIN_SETTINGS.uilight = { value = val }
+								end,
+							val = { get_option("uilight") }
+						},
+						{
+							name = TB_MENU_LOCALIZED.SETTINGSJOINTFLASH,
+							type = TOGGLE,
+							action = function(val) 
+									TB_MENU_MAIN_SETTINGS.jointflash = { value = val }
+								end,
+							val = { get_option("jointflash") }
+						}
+					}
 				}
 			}
 		elseif (id == SETTINGS_EFFECTS) then
@@ -1045,12 +1062,14 @@ do
 						},
 						{
 							name = TB_MENU_LOCALIZED.SETTINGSGAMERULES,
+							hint = TB_MENU_LOCALIZED.SETTINGSGAMERULESHINT,
 							type = TOGGLE,
 							systemname = "rememberrules",
 							val = { get_option("rememberrules") }
 						},
 						{
 							name = TB_MENU_LOCALIZED.SETTINGSBACKGROUNDCLICK,
+							hint = TB_MENU_LOCALIZED.SETTINGSBACKGROUNDCLICKHINT,
 							type = TOGGLE,
 							systemname = "backgroundclick",
 							val = { get_option("backgroundclick") }
@@ -1817,7 +1836,7 @@ do
 					})
 					local popup = TBMenu:displayHelpPopup(hintIcon, item.hint, true)
 					popup:moveTo(itemView.size.h - 9, -(popup.size.h - itemView.size.h + 14) / 2, true)
-					shiftX = shiftX + hintIcon.size.w + 5
+					shiftX = shiftX + hintIcon.size.w + 14
 				end
 				local itemName = UIElement:new({
 					parent = itemView,

@@ -893,7 +893,7 @@ SETTINGSITEMEFFECTS	Item Effects
 STOREINVENTORYEMPTY	No items to display in inventory.\nYou can purchase items in Store or win them by completing quests and events.
 SETTINGSUSAGEREPORTING	Usage reporting	
 SETTINGSSUBMITUSAGE	Submit usage statistics to Toribash servers	
-SETTINGSSUBMITUSAGEDESC	We collect data on general game client usage to better understand what our players like and don't like doing and improve your overall experience.	
+SETTINGSSUBMITUSAGEDESC	We collect data on general game client usage to better understand what our players like or dislike doing and improve your overall experience	
 UNDEF	Undefined	
 INVENTORYCUSTOMIZING	Customizing	
 QUEUELISTLEGENDTITLE	Legend	
@@ -1034,3 +1034,10 @@ INVENTORYPURGEEFFECTCONFIRM	Are you sure you want to purge all the effects\ncurr
 REPLAYHUDPREVREPLAY	Previous replay	
 REPLAYHUDNEXTREPLAY	Next replay	
 STOREPURCHASESUCCESSFUL	Congratulations on your purchase! Would you like to activate the item now?
+SETTINGSUILIGHT	Light UI mode	
+SETTINGSSYSTEMCURSOR	Use system cursor	
+SETTINGSGRAPHICSOTHER	Other	
+SETTINGSSYSTEMCURSORHINT	Will be applied after game restart or graphics engine reload	
+SETTINGSUILIGHTHINT	Disables menu animations, rounding and other details to improve performance	
+SETTINGSBACKGROUNDCLICKHINT	Allows background clicks to deselect all players	
+SETTINGSGAMERULESHINT	Save mod and gamerules for the next game session	

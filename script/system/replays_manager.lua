@@ -3564,6 +3564,7 @@ do
 				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+				inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
 				interactive = true,
 				shapeType = ROUNDED,
 				rounded = 3
@@ -3577,6 +3578,7 @@ do
 				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+				inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
 				interactive = true,
 				shapeType = ROUNDED,
 				rounded = 3
@@ -3584,6 +3586,18 @@ do
 			speedUp:addChild({ shift = { 5, 11 }, bgColor = TB_MENU_DEFAULT_LIGHTEST_COLOR }, true)
 			speedUp:addChild({ shift = { 11, 5 }, bgColor = TB_MENU_DEFAULT_LIGHTEST_COLOR }, true)
 			speedUp:addMouseHandlers(nil, function() setButtonSpeed(1) end)
+			
+			speedDn:addCustomDisplay(nil, function()
+					if (speedDn.isactive) then
+						if (get_replay_cache() < 1) then
+							speedDn:deactivate(true)
+							speedUp:deactivate(true)
+						end
+					elseif (get_replay_cache() > 0) then
+						speedDn:activate(true)
+						speedUp:activate(true)
+					end
+				end)
 		end
 		
 		local sliderSettings = {
@@ -3770,13 +3784,13 @@ do
 					end
 					if (replayGuiHolder.hidden) then
 						if (replayGuiHolder.pos.y < WIN_H) then
-							replayGuiHolder:moveTo(nil, 5, true)
+							replayGuiHolder:moveTo(nil, get_option("framerate") == 30 and 10 or 5, true)
 						else
 							replayGuiHolder:hide()
 						end
 					else
 						if (replayGuiHolder.pos.y > WIN_H - 105) then
-							replayGuiHolder:moveTo(nil, -5, true)
+							replayGuiHolder:moveTo(nil, -(get_option("framerate") == 30 and 10 or 5), true)
 						end
 					end
 				end)
