@@ -6174,6 +6174,9 @@ do
 	end
 	
 	function Torishop:showSearchBar(viewElement, searchString)
+		if (not tbMenuBottomLeftBar) then
+			TBMenu:showBottomBar()
+		end
 		local searchHolder = UIElement:new({
 			parent = viewElement,
 			pos = { tbMenuBottomLeftBar.size.w, viewElement.size.h },

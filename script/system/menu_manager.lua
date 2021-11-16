@@ -9,7 +9,6 @@ do
 
 	function TBMenu:create()
 		TB_MENU_MAIN_ISOPEN = 1
-		set_build_version("211110")
 	end
 
 	function TBMenu:setLanguageFontOptions(language)
@@ -3041,6 +3040,10 @@ do
 		end
 		
 		return messageElement
+	end
+	
+	function TBMenu:displayPopup(element, message, forceManualPosCheck)
+		return TBMenu:displayHelpPopup(element, message, forceManualPosCheck, true)
 	end
 	
 	function TBMenu:spawnSlider(parent, x, y, w, h, textWidth, sliderRadius, value, settings, sliderFunc, onMouseDown, onMouseUp)

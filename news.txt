@@ -1,22 +1,41 @@
+//NEWSID 0;
+//TITLE 0;Item Effects giveaway is live this weekend!
+//SUBTITLE 0;Join the giveaway on our Discord server and win one of Item Effects!
+//IMAGE 0;giveawayitemeffects21.tga
+//URL 0;https://www.toribash.com/discord.php
+
+NEWSID 0;
+TITLE 0;Shit just got real
+SUBTITLE 0;5.0 Tori set now available in Store!
+IMAGE 0;store/fiveopromo.tga
+URL 0;https://forum.toribash.com/tori_shop.php?cid=80
+STORE 0;3520
+
 NEWSID 1;
 TITLE 0;Cube. Head.
-SUBTITLE 0;Now available in Torishop!
+SUBTITLE 0;Now available in Store!
 IMAGE 0;store/cubeheadpromo.tga
 URL 0;https://forum.toribash.com/tori_shop.php?cid=78
 STORE 0;3443
 
-NEWSID 1;
+NEWSID 2;
+TITLE 0;Sword and mind must be united
+SUBTITLE 0;Samurai 3D set now available in Store!
+IMAGE 0;store/samuraipromo.tga
+URL 0;https://forum.toribash.com/tori_shop_item.php?id=3492
+STORE 0;3492
+
+NEWSID 3;
 TITLE 0;Head Texture of the Month: Cube Head
 SUBTITLE 0;Make your best texture for the new Cube Head item and get rewards!
 IMAGE 0;htotm21cubehead.tga
 URL 0;https://forum.toribash.com/showthread.php?t=652018
 //STORE 0;3426
 
-//NEWSID 3;
-//TITLE 0;No events live now, but you can still replay any ended event in all
-//events menu!
-//IMAGE 0;openerchallenge20sum.tga
-//FEATURED 0;
+NEWSID 3;
+TITLE 0;No events live now, but you can still replay any ended event in all events menu!
+IMAGE 0;openerchallenge20sum.tga
+FEATURED 0;
 
 //NEWSID 4;
 //TITLE 0;Opener Challenge 8
@@ -51,12 +70,12 @@ URL 0;https://forum.toribash.com/showthread.php?t=652018
 //EVENT 0;2
 //FEATURED 0;
 
-NEWSID 10;
-TITLE 0;Flash Course
-SUBTITLE 0;Run run run!
-IMAGE 0;flashcourse.tga
-EVENT 0;6
-FEATURED 0;
+//NEWSID 10;
+//TITLE 0;Flash Course 3
+//SUBTITLE 0;Can you complete all the checkpoints?
+//IMAGE 0;flashcourse.tga
+//EVENT 0;6
+//FEATURED 0;
 
 EVENTID 1;
 NAME 0;Opener Challenge 8
@@ -308,36 +327,41 @@ PRIZEST 0;93
 
 EVENTID 6;
 NAME 0;Flash Course
-PLAYNAME 0;flashcourse
-OVERLAYTRANS 0;0.6
+//PLAYNAME 0;flashcourse3
+OVERLAYTRANS 0;0
 PLAYTEXT 0;PARTICIPATE
 ACCENTCOLOR 0;42badf
 UICOLOR 0;000000
 BTNHVRCOL 0;005471
 BTNDNCOL 0;01befe
 DESCDATA 0;1Description
-DESCDATATEXT 0;1Welcome to Flash Course!\nAll you need to do is complete the map as quickly as possible!\nThe faster your are, the better prizes you will receive - and the top 5 players will get even better rewards!
+DESCDATATEXT 0;1Welcome to Flash Course 3!\nThis time, completion time isn't as important. What you need to focus on is running through as many blue zones (aka checkpoints) as you can!\nCompleting each checkpoint will allow you to win a better prize - and completing 3 or 4 checkpoints will allow you to compete for the best replay.\nWhen you've finished, run to one of the red buttons located next to the doors and press it to be able to submit your replay!
 DESCDATA 0;2Rules
-DESCDATATEXT 0;2- Replay hacking is forbidden\n- Do not steal other players'replays\n- Do not modify any settings in event mod\n-Do not try to enter the event with multiple accounts
+DESCDATATEXT 0;2- Replay hacking is forbidden\n- Replay stealing is forbidden\n- You cannot modify mod settings or gamerules except for turnframes\n- Do not try to enter the event with multiple accounts
 DESCDATA 0;4Deadline
-DESCDATATEXT 0;4October 8th, 2011\n16:00 (UTC+0 Time)\n9 AM (PDT Time)
+DESCDATATEXT 0;4October 22th, 2021\n16:00 (UTC+0 Time)\n9 AM (PDT Time)
 DESCDATA 0;5
-PRIZEDATA 0;1Fastest replay
-PRIZETC 0;150000
-PRIZEST 0;18
-PRIZEITEMS 0;123496 3432
-PRIZEDATA 0;2Top 5 replays
-PRIZETC 0;215000
-PRIZEST 0;26
-PRIZEITEMS 0;213496
-PRIZEDATA 0;3Finish under 500 frames
-PRIZETC 0;36000
-PRIZEST 0;34
-PRIZEITEMS 0;313496
-PRIZEDATA 0;4Finish under 1000 frames
-PRIZETC 0;43000
-PRIZEST 0;41
-PRIZEITEMS 0;413496
-PRIZEDATA 0;5Complete the map
-PRIZETC 0;51500
-PRIZEST 0;51
+PRIZEDATA 0;1Best replay
+PRIZETC 0;169000
+PRIZEST 0;115
+PRIZEITEMS 0;14608 3331 3496 3351
+PRIZEDATA 0;2Complete 4 checkpoints
+PRIZETC 0;219000
+PRIZEST 0;27
+PRIZEITEMS 0;233331 3496 3351
+PRIZEDATA 0;3Complete 3 checkpoints
+PRIZETC 0;314000
+PRIZEST 0;35
+PRIZEITEMS 0;323496 3351
+PRIZEDATA 0;4Complete 2 checkpoints
+PRIZETC 0;49000
+PRIZEST 0;43
+PRIZEITEMS 0;423496 3351
+PRIZEDATA 0;5Complete 1 checkpoint
+PRIZETC 0;55000
+PRIZEST 0;52
+PRIZEITEMS 0;513351
+PRIZEDATA 0;6Press a red button
+PRIZETC 0;61500
+PRIZEST 0;61
+PRIZEITEMS 0;613351

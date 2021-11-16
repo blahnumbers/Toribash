@@ -48,7 +48,10 @@ if (TB_MENU_MAIN_ISOPEN == 1) then
 	chat_input_activate()
 	
 	TB_MENU_MAIN_ISOPEN = 0
-	tbMenuMain:kill()
+	if (tbMenuMain) then
+		tbMenuMain:kill()
+		tbMenuMain = nil
+	end
 	return
 end
 

@@ -1031,3 +1031,6 @@ SETTINGSJOINTOBJOPACITY	Joint Objects Opacity
 SETTINGSGUISCALING	Gui Scaling	
 STOREPURGEEFFECT	Purge applied effects	
 INVENTORYPURGEEFFECTCONFIRM	Are you sure you want to purge all the effects\ncurrently applied to your	
+REPLAYHUDPREVREPLAY	Previous replay	
+REPLAYHUDNEXTREPLAY	Next replay	
+STOREPURCHASESUCCESSFUL	Congratulations on your purchase! Would you like to activate the item now?

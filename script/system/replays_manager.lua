@@ -3540,6 +3540,51 @@ do
 			size = { replaySpeedHolder.size.w - 30, 25 }
 		})
 		replaySpeedTitle:addAdaptedText(true, "Speed")
+		local textWidth = get_string_length(replaySpeedTitle.dispstr[1], replaySpeedTitle.textFont) * replaySpeedTitle.textScale + 60
+		if (textWidth + 50 < replaySpeedTitle.size.w) then
+			local setButtonSpeed = function(dir)
+				local speed = get_replay_speed()
+				if (math.abs(speed + dir * 0.01) <= 0.1) then
+					speed = speed + dir * 0.01
+				elseif (math.abs(speed + dir * 0.1) <= 1) then
+					speed = speed + dir * 0.1
+				elseif ((dir > 0 and speed + 0.5 <= 4) or (dir < 0 and speed - 0.5 >= -1.5)) then
+					speed = speed + dir * 0.5
+				else
+					return
+				end
+				
+				unfreeze_game()
+				set_replay_speed(speed)
+			end
+		
+			local speedDn = replaySpeedTitle:addChild({
+				pos = { (replaySpeedTitle.size.w - textWidth) / 2 - 25, 0 },
+				size = { 25, 25 },
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+				interactive = true,
+				shapeType = ROUNDED,
+				rounded = 3
+			})
+			speedDn:addChild({ shift = { 5, 11 }, bgColor = TB_MENU_DEFAULT_LIGHTEST_COLOR }, true)
+			speedDn:addMouseHandlers(nil, function() setButtonSpeed(-1) end)
+			
+			local speedUp = replaySpeedTitle:addChild({
+				pos = { -(replaySpeedTitle.size.w - textWidth) / 2, 0 },
+				size = { 25, 25 },
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+				interactive = true,
+				shapeType = ROUNDED,
+				rounded = 3
+			})
+			speedUp:addChild({ shift = { 5, 11 }, bgColor = TB_MENU_DEFAULT_LIGHTEST_COLOR }, true)
+			speedUp:addChild({ shift = { 11, 5 }, bgColor = TB_MENU_DEFAULT_LIGHTEST_COLOR }, true)
+			speedUp:addMouseHandlers(nil, function() setButtonSpeed(1) end)
+		end
 		
 		local sliderSettings = {
 			maxValue = 2,
@@ -3683,25 +3728,45 @@ do
 	
 	function Replays:spawnReplayAdvancedGui(reload)
 		local replayGuiHolder
+		local posX = math.max(65 * TB_MENU_GLOBAL_SCALE, WIN_W * 0.15 - 65 * TB_MENU_GLOBAL_SCALE)
+		local size = { math.min(1600, WIN_W - posX * 2), 65 * TB_MENU_GLOBAL_SCALE }
+		posX = (WIN_W - size[1]) / 2
+		
 		if (reload) then
 			REPLAY_GUI:kill(true)
 			replayGuiHolder = REPLAY_GUI
+			replayGuiHolder:moveTo(posX, REPLAY_GUI.hidden and WIN_H or WIN_H - 105)
+			replayGuiHolder.size.w = size[1]
 			replayGuiHolder:activate(true)
+			replayGuiHolder.spawnRes = { WIN_W, WIN_H }
 		else
 			replayGuiHolder = UIElement:new({
 				globalid = TB_MENU_HUB_GLOBALID,
-				pos = { WIN_W * 0.1, WIN_H },
-				size = { WIN_W * 0.8, 65 },
+				pos = { posX, WIN_H },
+				size = { size[1], size[2] },
 				keyboard = true,
 				permanentListener = true
 			})
 			replayGuiHolder.hidden = false
+			replayGuiHolder.spawnRes = { WIN_W, WIN_H }
 			replayGuiHolder:addCustomDisplay(true, function()
 					if (not REPLAY_GUI) then
 						return
-					end 
-					if (get_world_state().replay_mode == 0) then
+					end
+					local ws = get_world_state()
+					if (ws.replay_mode == 0) then
 						REPLAY_GUI.hidden = true
+					end
+					if (REPLAY_GUI.prevReplay:isDisplayed()) then
+						if (ws.game_type == 1) then
+							REPLAY_GUI.prevReplay:hide(true)
+							REPLAY_GUI.nextReplay:hide(true)
+						end
+					else
+						if (ws.game_type == 0) then
+							REPLAY_GUI.prevReplay:show(true)
+							REPLAY_GUI.nextReplay:show(true)
+						end
 					end
 					if (replayGuiHolder.hidden) then
 						if (replayGuiHolder.pos.y < WIN_H) then
@@ -3716,8 +3781,48 @@ do
 					end
 				end)
 		end
-		progressSlider = Replays:spawnReplayProgressSlider(replayGuiHolder)
-		speedSlider = Replays:spawnReplaySpeedSlider(replayGuiHolder)
+		
+		local prevReplay = replayGuiHolder:addChild({
+			pos = { 0, 0 },
+			size = { replayGuiHolder.size.h / 3 * 2, replayGuiHolder.size.h },
+			bgColor = TB_MENU_DEFAULT_BG_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			interactive = true,
+			shapeType = ROUNDED,
+			rounded = 4
+		})
+		prevReplay:addChild({
+			shift = { prevReplay.size.w / 6, 0 },
+			bgImage = "../textures/menu/general/buttons/arrowleft.tga"
+		})
+		prevReplay:addMouseHandlers(nil, function() play_prev_replay() end)
+		local prevPopup = TBMenu:displayPopup(prevReplay, TB_MENU_LOCALIZED.REPLAYHUDPREVREPLAY)
+		prevPopup:moveTo(-(prevReplay.size.w + prevPopup.size.w) / 2, prevReplay.size.h + 2)
+		replayGuiHolder.prevReplay = prevReplay
+		
+		local nextReplay = replayGuiHolder:addChild({
+			pos = { -prevReplay.size.w, 0 },
+			size = { prevReplay.size.w, replayGuiHolder.size.h },
+			bgColor = TB_MENU_DEFAULT_BG_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			interactive = true,
+			shapeType = ROUNDED,
+			rounded = 4
+		})
+		nextReplay:addChild({
+			shift = { nextReplay.size.w / 6, 0 },
+			bgImage = "../textures/menu/general/buttons/arrowright.tga"
+		})
+		nextReplay:addMouseHandlers(nil, function() play_next_replay() end)
+		local nextPopup = TBMenu:displayPopup(nextReplay, TB_MENU_LOCALIZED.REPLAYHUDNEXTREPLAY)
+		nextPopup:moveTo(-(nextReplay.size.w + nextPopup.size.w) / 2, nextReplay.size.h + 2)
+		replayGuiHolder.nextReplay = nextReplay
+		
+		local slidersHolder = replayGuiHolder:addChild({ shift = { prevReplay.size.w + 10, 0 }})
+		Replays:spawnReplayProgressSlider(slidersHolder)
+		Replays:spawnReplaySpeedSlider(slidersHolder)
 		
 		return replayGuiHolder
 	end

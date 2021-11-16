@@ -446,6 +446,7 @@ do
 					message = (response.is_success and response.success or response.error) .. (warning and ("\n\n" .. warning:gsub("(%w+)", "^37%1")) or '') .. (info and ("\n\n" .. info:gsub("(%w+)", "^39%1")) or '')
 					TBMenu:showDataError(message, not TB_MENU_MAIN_ISOPEN, 10)
 				end
+				usage_event("marketplace_sell")
 			end)
 	end
 	
@@ -1586,6 +1587,7 @@ do
 						local response = Market:parseGatewayResponse(get_network_response())
 						local message = response.is_success and response.success or response.error
 						if (response.is_success) then
+							usage_event("marketplace_purchase")
 							message = message .. (response.warning and ("\n" .. response.warning:gsub("(%w+)", "^37%1")) or '') .. (response.info and ("\n" .. response.info:gsub("(%w+)", "^39%1")) or '')
 						end
 						
@@ -3248,6 +3250,7 @@ do
 	function Market:showUserShop(viewElement, username, backAction)
 		TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
 		viewElement:kill(true)
+		usage_event("marketplace_shop")
 		
 		TBMenu:clearNavSection()
 		TBMenu:showNavigationBar(Market:getSectionNavButtons(viewElement, backAction), true)
@@ -3794,6 +3797,7 @@ do
 			local targetShop = cloneTable(MARKET_FEATURED_SHOP_DATA)
 			featuredShop:addMouseHandlers(nil, function()
 					Market:showUserShop(tbMenuCurrentSection, targetShop.user)
+					usage_event("marketplace_featured_shop")
 				end)
 		end
 		

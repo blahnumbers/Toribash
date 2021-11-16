@@ -1656,18 +1656,27 @@ do
 
 	function Events:getEventInfo(id)
 		local events = News:getEvents()
-
-		events[id].accentColor = events[id].accentColor or TB_MENU_DEFAULT_BG_COLOR
-		return events[id]
+		
+		if (events) then
+			events[id].accentColor = events[id].accentColor or TB_MENU_DEFAULT_BG_COLOR
+			return events[id]
+		else
+			return false
+		end
 	end
 
 	function Events:showEventInfo(id)
 		if (not TB_STORE_DATA.ready) then
-			TBMenu:showDataError("Please wait until Torishop data is ready")
+			TBMenu:showDataError("Please wait until Store data is ready")
 			return false
 		end
-		TB_MENU_SPECIAL_SCREEN_ISOPEN = 10
 		local event = Events:getEventInfo(id or 1)
+		if (not event) then
+			TBMenu:showDataError("Please wait until News data is ready")
+			return false
+		end
+		
+		TB_MENU_SPECIAL_SCREEN_ISOPEN = 10
 		local overlay = TBMenu:spawnWindowOverlay()
 		local viewElement = UIElement:new({
 			parent = overlay,
@@ -1830,8 +1839,10 @@ do
 				TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
 				overlay:kill()
 			end)
-		if (not EventsOnline:checkFiles(event.eventid, event.requireMod)) then
-			download_server_file('tutorial_' .. event.eventid, 0)
+		if (event.eventid) then
+			if (not EventsOnline:checkFiles(event.eventid, event.requireMod)) then
+				download_server_file('tutorial_' .. event.eventid, 0)
+			end
 		end
 	end
 end

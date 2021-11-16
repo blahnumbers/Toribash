@@ -20,6 +20,7 @@ do
 		end
 		
 		QUESTS_UPDATE_CLOCK = clock
+		QUESTS_DATA = nil
 		download_quest(TB_MENU_PLAYER_INFO.username)
 		return true
 	end
@@ -275,11 +276,13 @@ do
 					TBMenu:displayLoadingMark(questView, "Claiming Quest")
 					Request:queue(function() claim_quest(quest.id) end, "questclaim", function()
 						update_tc_balance()
-						tcUpdate = true
+						Quests:download()
+						download_inventory()
+						
 						if (customClaimFunc) then
 							customClaimFunc()
 						else
-							Quests:showMain(true)
+							Quests:showMain()
 						end
 					end)
 				end)
@@ -387,7 +390,7 @@ do
 		TBMenu:clearNavSection()
 		TBMenu:showNavigationBar(Quests:getGlobalQuestsNavigation(), true, true, 1)
 		
-		if (QUESTS_LASTUPDATE_GLOBAL.time + 60 >= os.time() or QUESTS_LASTUPDATE_GLOBAL.qi == TB_MENU_PLAYER_INFO.data.qi and not TB_MENU_DEBUG) then
+		if (QUESTS_LASTUPDATE_GLOBAL.time + 60 >= os.time() or QUESTS_LASTUPDATE_GLOBAL.qi == TB_MENU_PLAYER_INFO.data.qi) then
 			-- Not enough time has passed or they haven't played any games so progress should be same
 			Quests:showGlobalQuests(QUESTS_GLOBAL_DATA)
 			return
@@ -492,6 +495,9 @@ do
 							questProgressBarState:kill(true)
 							local response = get_network_response()
 							if (response:find("GATEWAY 0; 0")) then
+								update_tc_balance()
+								download_inventory()
+								
 								TB_MENU_QUESTS_GLOBAL_COUNT = math.max(0, TB_MENU_QUESTS_GLOBAL_COUNT - 1)
 								quest.claimed = true
 								questProgressBarState.bgColor = TB_MENU_DEFAULT_DARKER_COLOR
@@ -726,13 +732,12 @@ do
 	function Quests:showMain(reload)
 		usage_event("quests")
 		tbMenuCurrentSection:kill(true)
-		if (QUESTS_DATA and not reload and not TB_MENU_DEBUG) then
+		if (QUESTS_DATA and not reload) then
 			Quests:showQuests()
 		else
-			if (reload or TB_MENU_DEBUG) then
+			if (reload) then
 				Quests:download()
 			end
-			local file = Files:open("../data/quest.txt")
 			local waitView = UIElement:new({
 				parent = tbMenuCurrentSection,
 				pos = { 5, 0 },
@@ -742,9 +747,7 @@ do
 			TBMenu:addBottomBloodSmudge(waitView, 1)
 			waitView:addCustomDisplay(false, function()
 					waitView:uiText(TB_MENU_LOCALIZED.QUESTSUPDATING)
-					if (not file:isDownloading()) then
-						file:close()
-						QUESTS_DATA = Quests:getQuests()
+					if (QUESTS_DATA) then
 						QUEST_REFRESH_CLAIMED = false
 						if (waitView and not waitView.destroyed) then
 							Quests:showQuests()
