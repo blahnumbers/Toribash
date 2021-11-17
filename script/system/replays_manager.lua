@@ -349,7 +349,7 @@ do
 
 		local parentFolder = folders[#folders]
 
-		for i,v in pairs(level.folders) do
+		for i,v in pairs(level.folders or {}) do
 			table.insert(folders, { name = v.name, fullname = parentFolder.fullname .. "/" .. v.name, level = levelint })
 			Replays:getReplayFolders(folders, v, levelint + 1)
 		end

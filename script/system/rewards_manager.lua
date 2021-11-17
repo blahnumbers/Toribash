@@ -13,6 +13,7 @@ do
 	RewardData = {}
 	
 	function Rewards:getRewardData()
+		local got_data = false
 		local data_types = { "reward_type", "tc", "item" }
 		local file = io.open("system/loginrewards.txt")
 		if (file == nil) then
@@ -36,11 +37,12 @@ do
 				if (RewardData[days - 1].item ~= '0') then
 					RewardData[days - 1].item = Torishop:getItemInfo(tonumber(RewardData[days - 1].item))
 				end
+				got_data = true
 			end
 		end
 		
 		file:close()
-		return true
+		return got_data
 	end
 	
 	function Rewards:quit()

@@ -1,4 +1,5 @@
 -- Notifications Manager Class
+TB_MENU_NOTIFICATIONS_MESSAGES = TB_MENU_NOTIFICATIONS_MESSAGES or {}
 
 do
 	Notifications = { ver = 1.1 }
@@ -222,48 +223,51 @@ do
 		
 		local message = string.gsub(message, "%'", "\'")
 		string.gsub(message, pattern, function(match)
-				local matchcln = string.gsub(match, "[('.?%[%])]", "%%%1")
-				local sPos, ePos = string.find(message, matchcln, lastPos)
-				local matchlwr = string.lower(match)
-				if (matchlwr == "[/img]") then
-					skipWord = "~IMAGE~"
-				else
-					skipWord = nil
-				end
-				
-				if (not skipWord) then
-					messagebits[#messagebits].text = messagebits[#messagebits].text .. string.sub(message, lastPos, sPos - 1)
-				else
-					messagebits[#messagebits].text = messagebits[#messagebits].text .. skipWord
-				end
-				
-				if (string.find(matchlwr, "%[url=") == 1) then
-					table.insert(attachments, {
-						pos = messagebits[#messagebits].text:len(),
-						url = match:gsub("^%[%w+=['\"]?([^'\"]*)['\"]?%]", "%1"),
-						mbitidx = #messagebits
-					})
-					if (attachments[#attachments].url:find("tori_inventory") ~= nil) then
-						attachments[#attachments].isInventory = true
+				local sPos, ePos
+				pcall(function()
+					local matchcln = string.gsub(match, "[('.?%[%])]", "%%%1")
+					sPos, ePos = string.find(message, matchcln, lastPos)
+					local matchlwr = string.lower(match)
+					if (matchlwr == "[/img]") then
+						skipWord = "~IMAGE~"
+					else
+						skipWord = nil
 					end
-					if (attachments[#attachments].url:find("^http") == nil) then
-						attachments[#attachments].url = "https://" .. attachments[#attachments].url
-					end
-				end
-				if (string.find(matchlwr, "%[/url") == 1) then
-					-- Safety check for broken links
-					if (attachments[#attachments] and not attachments[#attachments].word) then
-						attachments[#attachments].word = string.sub(message, lastPos, sPos - 1)
-					end
-				end
-				
-				if (string.find(matchlwr, "%[quote") == 1) then
-					messagebits[#messagebits + 1] = { text = '', quote = true }
-				end
-				if (string.find(matchlwr, "%[/quote") == 1) then
-					messagebits[#messagebits + 1] = { text = '' }
-				end
 					
+					if (not skipWord) then
+						messagebits[#messagebits].text = messagebits[#messagebits].text .. string.sub(message, lastPos, sPos - 1)
+					else
+						messagebits[#messagebits].text = messagebits[#messagebits].text .. skipWord
+					end
+					
+					if (string.find(matchlwr, "%[url=") == 1) then
+						table.insert(attachments, {
+							pos = messagebits[#messagebits].text:len(),
+							url = match:gsub("^%[%w+=['\"]?([^'\"]*)['\"]?%]", "%1"),
+							mbitidx = #messagebits
+						})
+						if (attachments[#attachments].url:find("tori_inventory") ~= nil) then
+							attachments[#attachments].isInventory = true
+						end
+						if (attachments[#attachments].url:find("^http") == nil) then
+							attachments[#attachments].url = "https://" .. attachments[#attachments].url
+						end
+					end
+					if (string.find(matchlwr, "%[/url") == 1) then
+						-- Safety check for broken links
+						if (attachments[#attachments] and not attachments[#attachments].word) then
+							attachments[#attachments].word = string.sub(message, lastPos, sPos - 1)
+						end
+					end
+					
+					if (string.find(matchlwr, "%[quote") == 1) then
+						messagebits[#messagebits + 1] = { text = '', quote = true }
+					end
+					if (string.find(matchlwr, "%[/quote") == 1) then
+						messagebits[#messagebits + 1] = { text = '' }
+					end
+				end)
+				
 				if (lastPos < ePos) then
 					lastPos = ePos + 1
 				end
@@ -282,6 +286,13 @@ do
 		end
 		
 		viewElement:kill(true)
+		if (TB_MENU_NOTIFICATIONS_MESSAGES[notification.id]) then
+			TB_MENU_NOTIFICATION_MESSAGE_LOADING = false
+			notification.message, notification.attachments = Notifications:fixBBCode(TB_MENU_NOTIFICATIONS_MESSAGES[notification.id])
+			Notifications:showNotificationText(viewElement, notification)
+			return true
+		end
+		
 		local loader = UIElement:new({
 			parent = viewElement,
 			pos = { 30, 50 },
@@ -291,6 +302,7 @@ do
 		Request:queue(function() get_notifications_pmtext(notification.id) end, 'net_notifications', function()
 				if (loader:isDisplayed()) then
 					TB_MENU_NOTIFICATION_MESSAGE_LOADING = false
+					TB_MENU_NOTIFICATIONS_MESSAGES[notification.id] = get_network_response()
 					notification.message, notification.attachments = Notifications:fixBBCode(get_network_response())
 					Notifications:showNotificationText(viewElement, notification)
 					if (newMark) then

@@ -45,7 +45,7 @@ do
 		topBar.title = modsFolderName
 		modsFolderName:addAdaptedText(true, data.name:gsub("^data/mod", "Mods"):gsub("/", " :: "), nil, nil, FONTS.BIG, nil, 0.6, nil, 0.5)
 
-		local searchString = search.textfieldstr[1]
+		local searchString = search.textfieldstr[1]:gsub("([^%w])", "%%%1")
 		local listElements = {}
 		CURRENT_MOD_FOLDER = data
 

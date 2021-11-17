@@ -9,6 +9,7 @@ do
 
 	function TBMenu:create()
 		TB_MENU_MAIN_ISOPEN = 1
+		set_build_version("211117")
 	end
 
 	function TBMenu:setLanguageFontOptions(language)
@@ -2895,7 +2896,7 @@ do
 		})
 		local grow, rotate = 0, 0
 		loadElement:addCustomDisplay(true, function()
-				set_color(unpack(loadElement.uiColor))
+				set_color(unpack(loadElement.uiColor or UICOLORWHITE))
 				draw_disk(loadElement.pos.x + loadElement.size.w / 2, loadElement.pos.y + loadElement.size.h / 2, loadScale / 3, loadScale / 2, 360, 1, rotate, grow, 0)
 				grow = grow + 4
 				rotate = rotate + 2

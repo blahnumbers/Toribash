@@ -365,11 +365,15 @@ do
 					local name = name:gsub("%.inc.?$", "")
 					local function save()
 						local file = Files:open("../data/shader/" .. name .. ".inc", FILES_MODE_WRITE)
-						for i,v in pairs(ATMO_CURRENT_SHADER) do
-							local line = i:lower() .. " " .. v[1] .. " " .. v[2] .. " " .. v[3] .. " " .. v[4]
-							file:writeLine(line)
+						if (file.data) then
+							for i,v in pairs(ATMO_CURRENT_SHADER) do
+								local line = i:lower() .. " " .. v[1] .. " " .. v[2] .. " " .. v[3] .. " " .. v[4]
+								file:writeLine(line)
+							end
+							file:close()
+						else
+							TBMenu:showDataError(TB_MENU_LOCALIZED.ERRORCREATINGFILE, true)
 						end
-						file:close()
 						remove_hooks("tbAtmospheresKeyboard")
 					end
 					local file = Files:open("../data/shader/" .. name .. ".inc", FILES_MODE_READ)
