@@ -1581,7 +1581,7 @@ do
 				Market:confirmWaiterModal("marketplace_purchase")
 				Request:queue(function()
 						MARKET_ACTIVE_MODAL.doCheck = true
-						show_dialog_box(MARKET_BUY, TB_MENU_LOCALIZED.MARKETPURCHASEOFFERCONFIRM .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " " .. PlayerInfo:currencyFormat(submitButton.price) .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS .. "?\n\n" .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT1 .. " " .. PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.tc - submitButton.price) .. " " .. TB_MENU_LOCALIZED.WORDTC .. " " .. TB_MENU_LOCALIZED.MARKETPURCHASEYOUWILLHAVELEFT2, item.itemid .. ":" .. submitButton.price .. ":0:0", true)
+						show_dialog_box(MARKET_BUY, TB_MENU_LOCALIZED.MARKETPURCHASEOFFERCONFIRM .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " " .. PlayerInfo:currencyFormat(submitButton.price) .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS .. "?\n\n" .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT1 .. " " .. PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.tc - submitButton.price) .. " " .. TB_MENU_LOCALIZED.WORDTC .. " " .. TB_MENU_LOCALIZED.MARKETPURCHASEYOUWILLHAVELEFT2, item.itemid .. ":" .. submitButton.price .. ":0:0:0", true)
 					end, "marketplace_purchase", function()
 						Market:clearModal()
 						local response = Market:parseGatewayResponse(get_network_response())
@@ -1754,7 +1754,7 @@ do
 		Market:confirmWaiterModal("marketplace_purchase")
 		Request:queue(function()
 				MARKET_ACTIVE_MODAL.doCheck = true
-				show_dialog_box(MARKET_BUY, confirmMessage, item.itemid .. ":" .. price .. ":" .. shiai .. ":" .. (offer and offer.userid or 0), true)
+				show_dialog_box(MARKET_BUY, confirmMessage, item.itemid .. ":" .. price .. ":" .. shiai .. ":" .. (offer and offer.userid or 0) .. ":" .. offer.offerid, true)
 			end, "marketplace_purchase", function()
 				Market:clearModal()
 				local response = Market:parseGatewayResponse(get_network_response())
