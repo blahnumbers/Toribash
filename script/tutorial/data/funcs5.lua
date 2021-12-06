@@ -359,7 +359,7 @@ local function loadVisuals(viewElement, reqTable)
 			end
 			if ((ws.winner > -1 or COMEBACKPRACTICE_GAME_END) and not leaveGame) then
 				leaveGame = true
-				GAME_COUNT = GAME_COUNT + 1
+				GAME_COUNT = (GAME_COUNT or 0) + 1
 				local stopFrame = frame + 97
 				local leaveGameHook = false
 				add_hook("draw2d", "tbTutorialsCustomStatic", function()
