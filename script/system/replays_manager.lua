@@ -424,14 +424,16 @@ do
 			elseif (not ln:match("^#")) then
 				local segments = 5
 				local data_stream = { ln:match(("([^\t]*)\t"):rep(segments)) }
-				local comment = {
-					id = tonumber(data_stream[1]),
-					user = data_stream[2],
-					score = tonumber(data_stream[3]),
-					comment = data_stream[4]:gsub("\\'", "'"):gsub("\\\"", "\""),
-					date = data_stream[5]
-				}
-				table.insert(comments, comment)
+				pcall(function()
+					local comment = {
+						id = tonumber(data_stream[1]),
+						user = data_stream[2],
+						score = tonumber(data_stream[3]),
+						comment = data_stream[4]:gsub("\\'", "'"):gsub("\\\"", "\""),
+						date = data_stream[5]
+					}
+					table.insert(comments, comment)
+				end)
 			end
 		end
 		return comments
@@ -930,7 +932,7 @@ do
 				end)
 			posY = posY + elementHeight
 		end
-		for i, folder in pairs(rplTable.folders) do
+		for i, folder in pairs(rplTable.folders or {}) do
 			local folderElement = UIElement:new({
 				parent = listingHolder,
 				pos = { 0, posY },
@@ -961,7 +963,7 @@ do
 				end)
 			posY = posY + elementHeight
 		end
-		for i, replay in pairs(rplTable.replays) do
+		for i, replay in pairs(rplTable.replays or {}) do
 			local replayElement = UIElement:new({
 				parent = listingHolder,
 				pos = { 0, posY },

@@ -141,6 +141,7 @@ end
 local function restartGame()
 	TUTORIAL_LEAVEGAME = true
 	UIElement:runCmd("loadmod system/tutorial/comebackpractice.tbm")
+	UIElement:runCmd("set numplayers " .. COMEBACK_SETTINGS.numplayers)
 	UIElement:runCmd("set matchframes " .. COMEBACK_SETTINGS.matchframes)
 	UIElement:runCmd("set turnframes " .. COMEBACK_SETTINGS.turnframes)
 	UIElement:runCmd("set gravity 0.00 0.00 " .. COMEBACK_SETTINGS.gravity)
@@ -253,6 +254,7 @@ local function initComebackPractice()
 		matchframes = 2000,
 		turnframes = 30,
 		gravity = -30,
+		numplayers = 2
 	}
 end
 

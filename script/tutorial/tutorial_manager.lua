@@ -1907,20 +1907,22 @@ do
 				draw_disk(buttonSign.pos.x, buttonSign.pos.y, 0, buttonSign.size.h, 3, 1, 90, 360, 0)
 			end)
 
-		local tutorialProgress = UIElement:new({
-			parent = tbTutorialsOverlay,
-			pos = { 0, -5 },
-			size = { tbTutorialsOverlay.size.w, 5 },
-			bgColor = { 1, 1, 1, 0.5 }
-		})
-		local step = tbTutorialCurrentStep
-		tutorialProgress:addCustomDisplay(false, function()
-				if (step < tbTutorialCurrentStep) then
-					step = step + 0.05
-				end
-				set_color(unpack(TB_MENU_DEFAULT_BG_COLOR))
-				draw_quad(tutorialProgress.pos.x, tutorialProgress.pos.y, tutorialProgress.size.w / tbTutorialTotalSteps * step, tutorialProgress.size.h)
-			end)
+		if (tbTutorialTotalSteps > 0) then
+			local tutorialProgress = UIElement:new({
+				parent = tbTutorialsOverlay,
+				pos = { 0, -5 },
+				size = { tbTutorialsOverlay.size.w, 5 },
+				bgColor = { 1, 1, 1, 0.5 }
+			})
+			local step = tbTutorialCurrentStep
+			tutorialProgress:addCustomDisplay(false, function()
+					if (step < tbTutorialCurrentStep) then
+						step = step + 0.05
+					end
+					set_color(unpack(TB_MENU_DEFAULT_BG_COLOR))
+					draw_quad(tutorialProgress.pos.x, tutorialProgress.pos.y, tutorialProgress.size.w / tbTutorialTotalSteps * step, tutorialProgress.size.h)
+				end)
+		end
 	end
 
 	function Tutorials:getNavigationButtons(showBack)

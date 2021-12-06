@@ -1,3 +1,7 @@
+STEP 0;
+CUSTOMFUNC ComebackInit;
+DELAY 0;
+
 STEP 1;
 OPT autosave 1;
 OPT hud 0;
@@ -8,15 +12,14 @@ OPT feedback 0;
 OPT replaycache 0;
 OPT uke 1;
 OPT tori 1;
-NEWGAME system/tutorial/comebackpractice.tbm;
 EDITGAME;
 GHOSTMODE NONE;
-CUSTOMFUNC IntroOverlay;
+INTROFADE;
 JOINTLOCK;
 KEYBOARDLOCK;
+CUSTOMFUNC SetMod;
 
 STEP 2;
-CUSTOMFUNC ComebackInit;
 SHOWSAYMESSAGE;
 SAY SENSEI;
 MESSAGE SENSEIMSG1;

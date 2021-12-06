@@ -443,7 +443,7 @@ do
 					closeButton:addAdaptedText(nil, TB_MENU_LOCALIZED.BUTTONCLOSEWINDOW)
 					closeButton:addMouseHandlers(nil, function() Market:clearModal() end)
 				else
-					message = (response.is_success and response.success or response.error) .. (warning and ("\n\n" .. warning:gsub("(%w+)", "^37%1")) or '') .. (info and ("\n\n" .. info:gsub("(%w+)", "^39%1")) or '')
+					message = ((response.is_success and response.success or response.error) or TB_MENU_LOCALIZED.REQUESTUNKNOWNERROR) .. (warning and ("\n\n" .. warning:gsub("(%w+)", "^37%1")) or '') .. (info and ("\n\n" .. info:gsub("(%w+)", "^39%1")) or '')
 					TBMenu:showDataError(message, not TB_MENU_MAIN_ISOPEN, 10)
 				end
 				usage_event("marketplace_sell")

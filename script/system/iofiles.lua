@@ -69,8 +69,13 @@ do
 	end
 	
 	function Files:writeLine(line)
+		if (not self.data) then
+			return false
+		end
+		
 		local line = line:find("\n$") and line or (line .. "\n")
 		self.data:write(line)
+		return true
 	end
 	
 	function Files:writeDebug(line, rewrite)

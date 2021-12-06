@@ -347,9 +347,10 @@ do
 		}
 		local inventory = {}
 		local itemUpdated = TB_ITEM_DETAILS and 0 or 1
+		local segments = #data_types + 1
+		
 		for i, ln in pairs(file:readAll()) do
 			if string.match(ln, "^INVITEM") then
-				local segments = #data_types + 1
 				local data_stream = { ln:match(("([^\t]*)\t?"):rep(segments)) }
 				local item = {}
 
