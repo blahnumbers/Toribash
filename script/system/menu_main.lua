@@ -149,6 +149,7 @@ if (TB_MENU_NEWS_REFRESH < os.clock() - newsRefreshPeriod) then
 		download_server_file("news" .. (is_steam() and "light" or ("&ver=" .. TORIBASH_VERSION)), 0)
 		TB_MENU_NEWS_REFRESH = os.clock()
 	end, "refreshnews")
+	Torishop:getPlayerDiscounts()
 end
 
 -- Only called on first menu launch

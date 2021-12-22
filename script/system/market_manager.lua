@@ -2154,7 +2154,7 @@ do
 					popupTextExtra = TB_MENU_LOCALIZED.MARKETSHIAIEXPLANATION:gsub("(%w+)", '^39%1')
 				end
 			end
-			if (TB_MENU_PLAYER_INFO.data.tc < offer.price) then
+			if (TB_MENU_PLAYER_INFO.data.tc < offer.price and offer.username:lower() ~= TB_MENU_PLAYER_INFO.username:lower()) then
 				popupTextExtra = TB_MENU_LOCALIZED.MARKETINSUFFICIENTFUNDS:gsub("(%w+)", '^71%1') .. "\n" .. popupTextExtra
 			end
 			if (popupTextExtra ~= '') then
@@ -2165,10 +2165,6 @@ do
 		if (popupText ~= '') then
 			local popup = TBMenu:displayHelpPopup(actionButton, popupText, true, true)
 			popup:moveTo(actionButton.size.w > popup.size.w and (actionButton.size.w - popup.size.w) / 2 or -actionButton.size.w - (popup.size.w - actionButton.size.w) / 2, actionButton.size.h + 5)
-		end
-		
-		if (not offer.affordable) then
-			actionButton:deactivate(true)
 		end
 		
 		offer.button = actionButton
@@ -2186,6 +2182,9 @@ do
 					end
 				end)
 		elseif (offer.offertype == OFFER_SALE) then
+			if (not offer.affordable) then
+				actionButton:deactivate(true)
+			end
 			actionButtonText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREBUYFOR .. " " .. PlayerInfo:currencyFormat(offer.price) .. " " .. TB_MENU_LOCALIZED.WORDTC .. (offer.shiai > 0 and (" ^39+ " .. offer.shiai .. " " .. TB_MENU_LOCALIZED.WORDST) or ""))
 			actionButton:addMouseHandlers(nil, function()
 					Market:spawnPurchaseModal(offer, item, offer.price, offer.shiai)

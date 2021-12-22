@@ -1,6 +1,7 @@
 -- new store manager class
 INVENTORY_LIST_SHIFT = INVENTORY_LIST_SHIFT or { 0 }
 TB_INVENTORY_DATA = TB_INVENTORY_DATA or { }
+TB_STORE_DISCOUNTS = TB_STORE_DISCOUNTS or { }
 
 local CATEGORIES_COLORS = { 44, 22, 2, 20, 21, 1, 5, 11, 12, 24, 27, 28, 29, 30, 34, 41, 43, 73 }
 local CATEGORIES_TEXTURES = { 54, 55, 57, 58, 74 }
@@ -63,7 +64,28 @@ do
 		end
 		Torishop.lastDownload = clock
 		download_torishop()
+		Torishop:getPlayerDiscounts()
 		return true
+	end
+	
+	function Torishop:getPlayerDiscounts()
+		TB_STORE_DISCOUNTS = {}
+		Request:queue(function() download_server_info("store_discounts&username=" .. TB_MENU_PLAYER_INFO.username) end, "store_discounts", function()
+				local response = get_network_response()
+				if (not response:find("^DISCOUNT")) then
+					return
+				end
+				for ln in response:gmatch("[^\n]+\n?") do
+					local data = { ln:match(("([^\t]*)\t"):rep(6)) }
+					table.insert(TB_STORE_DISCOUNTS, {
+						itemid = tonumber(data[2]),
+						discount = tonumber(data[3]),
+						discountMax = tonumber(data[4]),
+						paymentType = tonumber(data[5]),
+						expiresIn = tonumber(data[6])
+					})
+				end
+			end)
 	end
 
 	function Torishop:getItems()
@@ -297,7 +319,7 @@ do
 		end
 		file:close()
 
-		return UIElement:qsort(data, "price", false)
+		return qsort(data, "price", false)
 	end
 
 	function Torishop:getInventoryRaw(itemidOnly, reload)
@@ -451,7 +473,7 @@ do
 				end
 			end
 		end
-		return UIElement:qsort(inventory, "name", false)
+		return qsort(inventory, "name", false)
 	end
 
 	function Torishop:quit()
@@ -5456,7 +5478,7 @@ do
 					size = { iconScale, iconScale },
 					bgImage = is_steam() and "../textures/menu/logos/steam.tga" or "../textures/menu/logos/paypal.tga"
 				})
-				buyWithStText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREBUYFOR .. " $" .. PlayerInfo:currencyFormat(item.now_usd_price), nil, nil, nil, LEFTMID)
+				buyWithStText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREBUYFOR .. " $" .. PlayerInfo:currencyFormat(item.now_usd_price, 2), nil, nil, nil, LEFTMID)
 				buyWithSt:addMouseHandlers(nil, is_steam() and function()
 						UIElement:runCmd("steam purchase " .. item.itemid)
 					end or function()
@@ -5705,7 +5727,7 @@ do
 			hasTCPrice = true
 		end
 		if (item.now_usd_price > 0) then
-			pricesString = (hasTCPrice and (pricesString .. '\n') or '') .. (not stItem and "$" or '') .. PlayerInfo:currencyFormat(item.now_usd_price) .. (stItem and " ST" or "")
+			pricesString = (hasTCPrice and (pricesString .. '\n') or '') .. (not stItem and "$" or '') .. PlayerInfo:currencyFormat(item.now_usd_price, not stItem and 2) .. (stItem and " ST" or "")
 		end
 		itemPrice:addAdaptedText(true, pricesString, nil, nil, nil, RIGHTMID)
 	end
@@ -5719,7 +5741,7 @@ do
 				end
 			end
 		end
-		sectionItems = UIElement:qsort(sectionItems, {'qi', 'now_usd_price', 'now_tc_price', 'itemname'}, false, true)
+		sectionItems = qsort(sectionItems, {'qi', 'now_usd_price', 'now_tc_price', 'itemname'}, false, true)
 		local listElements = {}
 		for i, item in pairs(sectionItems) do
 			local itemHolder = UIElement:new({
@@ -5784,6 +5806,18 @@ do
 			for i,v in pairs(TB_STORE_DATA) do
 				if (type(i) == "number") then
 					if (v.catid == catid and (v.now_tc_price > 0 or v.now_usd_price > 0) and not (v.locked == 1 and v.hidden == 1)) then
+						local v = cloneTable(v)
+						for j,k in pairs(TB_STORE_DISCOUNTS) do
+							if (k.itemid == 0 or k.itemid == v.itemid) then
+								v.on_sale = 1
+								if (bit.band(k.paymentType, 2) > 0 or bit.band(k.paymentType, 4) > 0) then
+									v.now_usd_price = math.max(v.now_usd_price / 100 * (100 - k.discount), k.discountMax > 0 and v.now_usd_price - k.discountMax / 100 or 0)
+									v.discountExpiresIn = k.expiresIn
+								else
+									v.now_tc_price = math.max(v.now_tc_price / 100 * (100 - k.discount), v.now_tc_price - k.discountMax)
+								end
+							end
+						end
 						table.insert(sectionItems, v)
 					end
 				end
@@ -5803,9 +5837,9 @@ do
 			return
 		end
 		
-		sectionItems = UIElement:qsort(sectionItems, { 'on_sale', 'now_tc_price', 'now_usd_price', 'itemname' }, false, true)
-		sectionItemsDesc = UIElement:qsort(sectionItems, { 'on_sale', 'now_tc_price', 'now_usd_price', 'itemname' }, true, true)
-		sectionItemsQi = UIElement:qsort(sectionItems, { 'on_sale', 'qi', 'now_tc_price', 'now_usd_price', 'itemname' }, false, true)
+		sectionItemsDesc = qsort(sectionItems, { 'on_sale', 'now_tc_price', 'now_usd_price', 'itemname' }, true, true)
+		sectionItemsQi = qsort(sectionItems, { 'on_sale', 'qi', 'now_tc_price', 'now_usd_price', 'itemname' }, false, true)
+		sectionItems = qsort(sectionItems, { 'on_sale', 'now_tc_price', 'now_usd_price', 'itemname' }, { true, false, false, false }, true)
 		
 		local elementHeight = 64
 		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, elementHeight, 48, 20, TB_MENU_DEFAULT_BG_COLOR)
@@ -6384,14 +6418,14 @@ do
 				size = { stPriceHolder.size.w, stPriceHolder.size.h / 7 * 3 }
 			})
 			local stItem = not in_array(item.catid, CATEGORIES_ACCOUNT)
-			stOldPrice:addAdaptedText(true, (stItem and "" or "$") .. item.price_usd .. (stItem and (" " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS) or ""), nil, nil, tScale2[1], CENTERBOT, tScale2[2])
+			stOldPrice:addAdaptedText(true, (stItem and "" or "$") .. PlayerInfo:currencyFormat(item.price_usd, 2) .. (stItem and (" " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS) or ""), nil, nil, tScale2[1], CENTERBOT, tScale2[2])
 			local stNowPrice = UIElement:new({
 				parent = stPriceHolder,
 				pos = { 0, stPriceHolder.size.h / 7 * 3 },
 				size = { stPriceHolder.size.w, stPriceHolder.size.h / 7 * 4 },
 				uiColor = TB_MENU_DEFAULT_YELLOW
 			})
-			stNowPrice:addAdaptedText(true, (stItem and "" or "$") .. item.now_usd_price .. (stItem and (" " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS) or ""), nil, nil, tScale1[1], CENTER, tScale1[2])
+			stNowPrice:addAdaptedText(true, (stItem and "" or "$") .. PlayerInfo:currencyFormat(item.now_usd_price, 2) .. (stItem and (" " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS) or ""), nil, nil, tScale1[1], CENTER, tScale1[2])
 			local len = get_string_length(stOldPrice.dispstr[1], stOldPrice.textFont) * stOldPrice.textScale
 			local fontMod = stOldPrice.textFont == 2 and 2.4 or (stOldPrice.textFont == 0 and 5.6 or (stOldPrice.textFont == 9 and 10 or 2.4))
 			local stOldPriceStrike = UIElement:new({
@@ -6462,6 +6496,99 @@ do
 				Torishop:showStoreSection(tbMenuCurrentSection, nil, nil, item.itemid)
 			end)
 	end
+	
+	function Torishop:showPersonalDiscount(item)
+		tbMenuHide:hide()
+		local itemInfo = Torishop:getItemInfo(item.itemid)
+		local discountView = UIElement:new({
+			parent = tbMenuCurrentSection,
+			pos = { tbMenuBottomLeftBar.shift.x + tbMenuBottomLeftBar.size.w, tbMenuCurrentSection.size.h + (WIN_H - tbMenuCurrentSection.size.h - tbMenuCurrentSection.pos.y) - tbMenuBottomLeftBar.size.h * 1.5 },
+			size = { tbMenuCurrentSection.size.w - (tbMenuBottomLeftBar.shift.x + tbMenuBottomLeftBar.size.w) * 2, math.ceil(tbMenuBottomLeftBar.size.h * 1.25) },
+			interactive = true,
+			bgColor = TB_MENU_DEFAULT_BG_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			shapeType = ROUNDED,
+			rounded = 5
+		})
+		discountView.killAction = function() tbMenuHide:show() end
+		
+		local sideWidth = math.min(discountView.size.w / 3, math.max(discountView.size.w / 4 - 15, 150))
+		local discountTitle = discountView:addChild({
+			pos = { 10, 5 },
+			size = { sideWidth, discountView.size.h - 10 }
+		})
+		discountTitle:addAdaptedText(true, TB_MENU_LOCALIZED.STORELIMITEDOFFER)
+		local endsIn = discountView:addChild({
+			pos = { -sideWidth - 10, discountTitle.shift.y },
+			size = { sideWidth, discountTitle.size.h }
+		})
+		endsIn:addAdaptedText(true, TBMenu:getTime(item.expiresIn, 1) .. " " .. TB_MENU_LOCALIZED.TIMELEFT)
+		endsIn:addCustomDisplay(true, function()
+				endsIn:uiText(TBMenu:getTime(item.expiresIn, 1) .. " " .. TB_MENU_LOCALIZED.TIMELEFT, nil, nil, endsIn.textFont, nil, endsIn.textScale)
+			end)
+		local itemInfoBG = discountView:addChild({
+			shift = { 15 + sideWidth, 5 },
+			bgColor = TB_MENU_DEFAULT_ORANGE,
+			shapeType = ROUNDED,
+			rounded = 10
+		})
+		local itemInfoHolder = itemInfoBG:addChild({
+			shift = { 15, 5 },
+			uiColor = UICOLORBLACK
+		})
+		local itemInfoIcon = itemInfoHolder:addChild({
+			pos = { 0, 0 },
+			size = { itemInfoHolder.size.h, itemInfoHolder.size.h },
+			bgImage = item.itemid > 0 and Torishop:getItemIcon(itemInfo) or Torishop:getItemIcon(1538) -- 5000 TC itemid
+		})
+		local itemInfoName = itemInfoHolder:addChild({
+			pos = { itemInfoIcon.size.w + 10, 5 },
+			size = { (itemInfoHolder.size.w - itemInfoIcon.size.w - 20) / 2, itemInfoHolder.size.h - 10 }
+		})
+		local itemInfoPrice = itemInfoHolder:addChild({
+			pos = { -itemInfoName.size.w - 5, 5 },
+			size = { itemInfoName.size.w - 5, itemInfoName.size.h }
+		})
+		if (item.itemid > 0) then
+			itemInfo.on_sale = 1
+			itemInfoName:addAdaptedText(true, itemInfo.itemname, nil, nil, nil, LEFTMID)
+			if (bit.band(item.paymentType, 2) > 0 or bit.band(item.paymentType, 4) > 0) then
+				itemInfo.now_usd_price = math.max(itemInfo.now_usd_price / 100 * (100 - item.discount), item.discountMax > 0 and itemInfo.now_usd_price - item.discountMax / 100 or 0)
+				itemInfoPrice:addAdaptedText(true, "$" .. PlayerInfo:currencyFormat(itemInfo.now_usd_price, 2), nil, nil, nil, RIGHTMID)
+			else
+				itemInfo.now_tc_price = math.max(itemInfo.now_tc_price / 100 * (100 - item.discount), itemInfo.now_tc_price - item.discountMax)
+				itemInfoPrice:addAdaptedText(true, PlayerInfo:currencyFormat(itemInfo.now_tc_price) .. " " .. TB_MENU_LOCALIZED.WORDTC, nil, nil, nil, RIGHTMID)
+			end
+			discountView:addMouseHandlers(nil, function()
+					Torishop:showStoreSection(tbMenuCurrentSection, nil, nil, itemInfo.itemid)
+					Torishop:showStoreItemInfo(itemInfo)
+				end)
+		else
+			if (bit.band(item.paymentType, 4) > 0) then -- Allows steam purchases
+				itemInfoName:addAdaptedText(true, TB_MENU_LOCALIZED.STORENEXTUSDPURCHASE, nil, nil, nil, LEFTMID)
+				discountView:addMouseHandlers(nil, function()
+						Torishop:showStoreSection(tbMenuCurrentSection, nil, nil, 1538)
+					end)
+			elseif (bit.band(item.paymentType, 2) > 0 and not is_steam()) then -- No steam but allows PayPal purchases
+				itemInfoName:addAdaptedText(true, TB_MENU_LOCALIZED.STORENEXTPAYPALPURCHASE, nil, nil, nil, LEFTMID)
+				discountView:addMouseHandlers(nil, function()
+						Torishop:showStoreSection(tbMenuCurrentSection, nil, nil, 1538)
+					end)
+			elseif (bit.band(item.paymentType, 1) > 0) then
+				itemInfoName:addAdaptedText(true, TB_MENU_LOCALIZED.STORENEXTITEMPURCHASE, nil, nil, nil, LEFTMID)
+				discountView:addMouseHandlers(nil, function()
+						Torishop:showStoreSection(tbMenuCurrentSection, 1)
+					end)
+			else
+				-- This can be either a paypal only discount shown to a steam user or a newly added payment type
+				-- Don't want to show an offer in this case, so destroy the discount view and exit
+				discountView:kill()
+				return
+			end
+			itemInfoPrice:addAdaptedText(true, item.discount .. "% " .. TB_MENU_LOCALIZED.STOREDISCOUNTOFF .. "!", nil, nil, nil, RIGHTMID)
+		end
+	end
 
 	function Torishop:showMain(viewElement)
 		viewElement:kill(true)
@@ -6497,28 +6624,10 @@ do
 				table.insert(saleColor, v)
 			end
 		end
-		saleColor = UIElement:qsort(saleColor, 'catid') --Do this to prevent incorrect name detection when first item is a pack
+		saleColor = qsort(saleColor, 'catid') --Do this to prevent incorrect name detection when first item is a pack
 		local saleColorInfo = #saleColor > 0 and { colorid = saleColor[1].colorid, colorname = saleColor[1].itemname:gsub(" " .. Torishop:getSectionInfo(saleColor[1].catid).name:sub(1, -8) .. ".*$", "") } or false
 		
-		--[[local featuredPromos = {
-			{
-				image = "../textures/menu/promo/store/hairseast.tga",
-				ratio = 0.5,
-				title = "New 3D hairs are now available!",
-				action = function() Torishop:showStoreSection(tbMenuCurrentSection, nil, nil, 3305) end
-			},
-		}
-		--featuredPromoId = math.random(1, 3);
-		featuredPromoId = 1]]
-		
 		local storeButtons = {
-			--[[featured = {
-				title = featuredPromos[featuredPromoId].title,
-				subtitle = featuredPromos[featuredPromoId].subtitle,
-				image = featuredPromos[featuredPromoId].image,
-				ratio = featuredPromos[featuredPromoId].ratio,
-				action = featuredPromos[featuredPromoId].action
-			},]]
 			featured = {
 				title = TB_MENU_LOCALIZED.STOREGOTOINVENTORY,
 				subtitle = TB_MENU_LOCALIZED.STOREINVENTORYDESC,
@@ -6725,5 +6834,10 @@ do
 			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR
 		})
 		TBMenu:showHomeButton(storeAccount, storeButtons.storeaccount, 4)
+		
+		if (TB_STORE_DISCOUNTS and #TB_STORE_DISCOUNTS > 0) then
+			local discountItem = TB_STORE_DISCOUNTS[math.random(1, #TB_STORE_DISCOUNTS)]
+			Torishop:showPersonalDiscount(discountItem)
+		end
 	end
 end

@@ -1378,7 +1378,7 @@ do
 			order = { order and 1 or -1 }
 		else
 			for i,v in pairs(order) do
-				v = v and 1 or -1
+				order[i] = v and 1 or -1
 			end
 		end
 		
@@ -1390,6 +1390,7 @@ do
 		end
 		
 		tableReverse(sort)
+		tableReverse(order)
 		table.sort(a, function(a,b)
 				local cmpRes = false
 				for i,v in pairs(sort) do

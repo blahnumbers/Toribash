@@ -1041,3 +1041,9 @@ SETTINGSSYSTEMCURSORHINT	Will be applied after game restart or graphics engine r
 SETTINGSUILIGHTHINT	Disables menu animations, rounding and other details to improve performance	
 SETTINGSBACKGROUNDCLICKHINT	Allows background clicks to deselect all players	
 SETTINGSGAMERULESHINT	Save mod and gamerules for the next game session	
+TIMELEFT	left	
+STORENEXTUSDPURCHASE	Next USD purchase	
+STORENEXTPAYPALPURCHASE	Next PayPal	purchase	
+STORENEXTITEMPURCHASE	Next item purchase	
+STOREDISCOUNTOFF	Off	
+STORELIMITEDOFFER	Limited time offer!

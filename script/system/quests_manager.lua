@@ -225,9 +225,9 @@ do
 				pos = { questBackground.size.w / 5, -questBackground.size.h / 5 },
 				size = { questBackground.size.w / 5 * 3, questBackground.size.h / 7 }
 			})
-			timeleftText:addAdaptedText(true, TBMenu:getTime(quest.timeleft - (os.time() - quest.timetick), 2) .. " left")
+			timeleftText:addAdaptedText(true, TBMenu:getTime(quest.timeleft - (os.time() - quest.timetick), 2) .. " " .. TB_MENU_LOCALIZED.TIMELEFT)
 			timeleftText:addCustomDisplay(true, function()
-					timeleftText:uiText(TBMenu:getTime(quest.timeleft - (os.time() - quest.timetick), 2) .. " left", nil, nil, nil, nil, timeleftText.textScale)
+					timeleftText:uiText(TBMenu:getTime(quest.timeleft - (os.time() - quest.timetick), 2) .. " " .. TB_MENU_LOCALIZED.TIMELEFT, nil, nil, nil, nil, timeleftText.textScale)
 				end)
 		end
 		local questName = UIElement:new({

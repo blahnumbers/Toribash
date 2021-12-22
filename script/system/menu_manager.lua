@@ -2082,24 +2082,20 @@ do
 				end)
 			local buttonText = tbMenuNavigationButtons[i]:addChild({ shift = { 15, tbMenuNavigationBar.size.h / 6 } })
 			if (v.misctext) then
-				local width = get_string_length(v.misctext .. "__", FONTS.MEDIUM)
+				local width = get_string_length(v.misctext .. "__", fontId) * fontScale * 0.8
 				local miscMark = UIElement:new({
 					parent = buttonText,
 					pos = { -(buttonText.size.w - get_string_length(v.text, fontId) * fontScale + width - 16) / 2, 0 },
-					size = { width, buttonText.size.h },
+					size = { width, buttonText.size.h * 0.75 },
 					bgColor = TB_MENU_DEFAULT_ORANGE,
 					uiColor = UICOLORBLACK,
 					shapeType = ROUNDED,
-					rounded = buttonText.size.h
+					rounded = buttonText.size.h / 2
 				})
-				miscMark:addAdaptedText(false, v.misctext)
-				buttonText:addCustomDisplay(true, function()
-					buttonText:uiText(v.text, -width / 2, nil, fontId, nil, fontScale)
-				end)
+				miscMark:addAdaptedText(false, v.misctext, nil, nil, fontId, nil, nil, nil, 0)
+				buttonText:addAdaptedText(true, v.text, -width / 2, nil, fontId, nil, fontScale)
 			else
-				buttonText:addCustomDisplay(true, function()
-					buttonText:uiText(v.text, nil, nil, fontId, nil, fontScale)
-				end)
+				buttonText:addAdaptedText(true, v.text, nil, nil, fontId, nil, fontScale)
 			end
 			tbMenuNavigationButtons[i]:addMouseHandlers(nil, function()
 					if (not customNav) then
@@ -2182,18 +2178,17 @@ do
 	end
 
 	function TBMenu:getMainNavigationButtons()
+		local storeMiscText = TB_STORE_DISCOUNTS and (#TB_STORE_DISCOUNTS > 0 and (TB_MENU_LOCALIZED.STORESALE1 .. TB_MENU_LOCALIZED.STORESALE2) or nil) or nil
 		local buttonData = {
 			{ text = TB_MENU_LOCALIZED.NAVBUTTONNEWS, sectionId = 1 },
 			{ text = TB_MENU_LOCALIZED.NAVBUTTONPLAY, sectionId = 2 },
 			{ text = TB_MENU_LOCALIZED.NAVBUTTONPRACTICE, sectionId = 3 },
-			{ text = TB_MENU_LOCALIZED.NAVBUTTONSTORE, sectionId = 6 },
-			{ text = TB_MENU_LOCALIZED.NAVBUTTONMARKET, sectionId = 10 },
-			{ text = TB_MENU_LOCALIZED.MAINMENUCLANSNAME, sectionId = 9 },
 			{ text = TB_MENU_LOCALIZED.NAVBUTTONTOOLS, sectionId = 5, right = true },
-			--{ text = TB_MENU_LOCALIZED.NAVBUTTONACCOUNT, sectionId = 7, right = true },
 		}
-		if (TB_MENU_PLAYER_INFO.username == '') then
-			buttonData[6] = nil
+		if (TB_MENU_PLAYER_INFO.username ~= '') then
+			table.insert(buttonData, { text = TB_MENU_LOCALIZED.NAVBUTTONSTORE, sectionId = 6, misctext = storeMiscText })
+			table.insert(buttonData, { text = TB_MENU_LOCALIZED.NAVBUTTONMARKET, sectionId = 10 })
+			table.insert(buttonData, { text = TB_MENU_LOCALIZED.MAINMENUCLANSNAME, sectionId = 9 })
 		end
 		--[[if (TB_MENU_PLAYER_INFO.data.qi >= 500) then
 			table.insert(buttonData, { text = TB_MENU_LOCALIZED.MAINMENURANKEDNAME, sectionId = 8, right = true })

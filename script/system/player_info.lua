@@ -636,11 +636,25 @@ do
 		return SERVER_USER_INFO
 	end
 	
-	function PlayerInfo:currencyFormat(n)
+	function PlayerInfo:currencyFormat(n, decimals)
 		if (not n) then return n end
 		local left, num, right = string.match(n,'^([^%d]*%d)(%d*)(.-)$')
 		if (not num) then return n end
-		return left..(num:reverse():gsub('(%d%d%d)','%1,'):reverse())..right
+		local num = left..(num:reverse():gsub('(%d%d%d)','%1,'):reverse())..right
+		if (decimals and decimals > 0) then
+			local numDecimals = num:match("%.%d+$")
+			if (not numDecimals) then
+				num = num .. "." .. string.rep("0", decimals)
+			else
+				numDecimals = numDecimals:len()
+				if (numDecimals - 1 > decimals) then
+					num = num:sub(0, decimals - numDecimals)
+				elseif (numDecimals - 1 < decimals) then
+					num = num .. string.rep("0", decimals - numDecimals + 1)
+				end
+			end
+		end
+		return num
 	end
 	
 end
