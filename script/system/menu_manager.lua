@@ -2126,55 +2126,35 @@ do
 
 	function TBMenu:getNearbyMenu(dir)
 		local buttons = TBMenu:getMainNavigationButtons()
-		local prev, next, found
+		local reordered, right = {}, {}
+		local found = nil
 		for i,v in pairs(buttons) do
-			if (found) then
-				next = v
-				break
+			if (v.right) then
+				table.insert(right, v)
+			else
+				table.insert(reordered, v)
+				if (v.sectionId == TB_LAST_MENU_SCREEN_OPEN) then
+					found = #reordered
+				end
 			end
+		end
+		for i,v in pairs(tableReverse(right)) do
+			table.insert(reordered, v)
 			if (v.sectionId == TB_LAST_MENU_SCREEN_OPEN) then
-				found = v
-			end
-			if (not found) then
-				prev = v
+				found = #reordered
 			end
 		end
 		if (not found) then
 			return nil
 		end
 		
-		if (dir) then
-			if (found.right) then
-				if (not next) then
-					return prev.sectionId
-				end
-				return buttons[1].sectionId
-			end
-			if (next.right) then
-				return buttons[#buttons].sectionId
-			end
-			return next.sectionId
+		local targetButton = found - 1 * (dir and 1 or -1)
+		if (targetButton > #reordered) then
+			targetButton = 1
+		elseif (targetButton < 1) then
+			targetButton = #reordered
 		end
-		if (found.right) then
-			if (next) then
-				return next.sectionId
-			end
-			local rval
-			for i,v in pairs(buttons) do
-				if (v.right) then
-					return rval
-				end
-				rval = v.sectionId
-			end
-		end
-		if (not prev) then
-			for i,v in pairs(buttons) do
-				if (v.right) then
-					return v.sectionId
-				end
-			end
-		end
-		return prev.sectionId
+		return reordered[targetButton].sectionId
 	end
 
 	function TBMenu:getMainNavigationButtons()
@@ -2183,13 +2163,13 @@ do
 			{ text = TB_MENU_LOCALIZED.NAVBUTTONNEWS, sectionId = 1 },
 			{ text = TB_MENU_LOCALIZED.NAVBUTTONPLAY, sectionId = 2 },
 			{ text = TB_MENU_LOCALIZED.NAVBUTTONPRACTICE, sectionId = 3 },
-			{ text = TB_MENU_LOCALIZED.NAVBUTTONTOOLS, sectionId = 5, right = true },
 		}
 		if (TB_MENU_PLAYER_INFO.username ~= '') then
 			table.insert(buttonData, { text = TB_MENU_LOCALIZED.NAVBUTTONSTORE, sectionId = 6, misctext = storeMiscText })
 			table.insert(buttonData, { text = TB_MENU_LOCALIZED.NAVBUTTONMARKET, sectionId = 10 })
 			table.insert(buttonData, { text = TB_MENU_LOCALIZED.MAINMENUCLANSNAME, sectionId = 9 })
 		end
+		table.insert(buttonData, { text = TB_MENU_LOCALIZED.NAVBUTTONTOOLS, sectionId = 5, right = true })
 		--[[if (TB_MENU_PLAYER_INFO.data.qi >= 500) then
 			table.insert(buttonData, { text = TB_MENU_LOCALIZED.MAINMENURANKEDNAME, sectionId = 8, right = true })
 		end]]
