@@ -615,7 +615,7 @@ do
 					local subTime = subInfo:sub(0, -subName:len() - 1)
 					table.insert(userinfo, {
 						name = subName,
-						value = TBMenu:getTime(subTime + 0, 2)
+						value = TBMenu:getTime(tonumber(subTime) or 0, 2)
 					})
 				end
 			end

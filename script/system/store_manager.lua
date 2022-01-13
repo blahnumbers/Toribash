@@ -5809,11 +5809,12 @@ do
 						local v = cloneTable(v)
 						for j,k in pairs(TB_STORE_DISCOUNTS) do
 							if (k.itemid == 0 or k.itemid == v.itemid) then
-								v.on_sale = 1
-								if (bit.band(k.paymentType, 2) > 0 or bit.band(k.paymentType, 4) > 0) then
+								if ((bit.band(k.paymentType, 2) > 0 or bit.band(k.paymentType, 4) > 0) and in_array(v.catid, CATEGORIES_ACCOUNT)) then
+									v.on_sale = 1
 									v.now_usd_price = math.max(v.now_usd_price / 100 * (100 - k.discount), k.discountMax > 0 and v.now_usd_price - k.discountMax / 100 or 0)
 									v.discountExpiresIn = k.expiresIn
-								else
+								elseif (bit.band(k.paymentType, 1) > 0) then
+									v.on_sale = 1
 									v.now_tc_price = math.max(v.now_tc_price / 100 * (100 - k.discount), v.now_tc_price - k.discountMax)
 								end
 							end

@@ -9,7 +9,7 @@ do
 
 	function TBMenu:create()
 		TB_MENU_MAIN_ISOPEN = 1
-		set_build_version("211117")
+		set_build_version("220113")
 	end
 
 	function TBMenu:setLanguageFontOptions(language)
@@ -26,14 +26,6 @@ do
 			LEFTBOT = 3
 			LEFTMID = 6
 		end
-		
-		-- Scaling for huge screens
-		-- Doesn't look good, scrap it
-		--[[if (WIN_W * WIN_H > 2000000) then
-			UI_HIGH_RESOLUTION_MODE = true
-		else
-			UI_HIGH_RESOLUTION_MODE = false
-		end]]
 	end
 
 	function TBMenu:getTranslation(language)

@@ -1140,24 +1140,9 @@ do
 		local scale = maxscale or 1
 		local minscale = minscale or 0.2
 		local font = font or FONTS.MEDIUM
-		
-		--[[if (UI_HIGH_RESOLUTION_MODE and not ignoreHiresMode) then
-			font = font == FONTS.BIG and FONTS.BIGGER or (font == FONTS.MEDIUM and FONTS.BIG or font)
-		end]]
 
 		while (not self:uiText(str, x, y, font, nil, scale, nil, nil, nil, nil, nil, true, nil, nil, textfield) and scale > minscale) do
 			scale = scale - 0.05
-			--[[if (scale < 0.5 and font) then
-				if (font == FONTS.BIG) then
-					font = FONTS.MEDIUM
-					scale = 1
-					minscale = minscale * 2
-				elseif (font == FONTS.BIGGER) then
-					font = FONTS.BIG
-					scale = 1
-					minscale = minscale * 2
-				end
-			end]]
 		end
 
 		self.textScale = scale
