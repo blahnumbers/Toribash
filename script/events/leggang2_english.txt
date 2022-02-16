@@ -1,0 +1,15 @@
+#Messages
+INTRO1	Hi and welcome to Leggang V2: Return of the Toes!
+INTRO2	Arms are overrated, legs are all you need!
+INTRO3	Choose either the blue or red path and press the button at the end to get rewards!
+INTRO4	Hi again! Let's get back to your auto-saved replay!
+INTRO5	Press the button at the end of either the blue or red path to claim your reward!
+UPLOADSUCCESS1	Hooray, you've successfully uploaded your entry!
+UPLOADSUCCESS2	Check your notifications - there should be a message from Event Squad with the list of prizes you've got!
+UPLOADSUCCESS3	If you make an even better replay, feel free to submit it any time to claim even better prizes!
+UPLOADSUCCESS4	Your replay didn't get you any new rewards, but you can still try to make a better replay and upload later!
+UPLOADSUCCESS5	Thanks for participating and see you next time!
+#Tasks
+EVTTASK1	Press the button to complete the map
+EVTTASKOPT1	Follow the blue path
+EVTTASKOPT2	Follow the red path

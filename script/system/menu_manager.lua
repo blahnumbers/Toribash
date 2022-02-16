@@ -30,7 +30,7 @@ do
 
 	function TBMenu:getTranslation(language)
 		local language = language or "english"
-		local inverse = (language == "arabic" or language == "hebrew") and true 
+		local inverse = (language == "arabic" or language == "hebrew") and true
 		TBMenu:setLanguageFontOptions(language)
 		if (type(TB_MENU_LOCALIZED) ~= "table" or TB_MENU_LOCALIZED.language ~= language or TB_MENU_DEBUG) then
 			TB_MENU_LOCALIZED = {}
@@ -82,12 +82,12 @@ do
 		remove_hooks("tbMainMenuMouse")
 		remove_hooks("tbMenuConsoleIgnore")
 		remove_hooks("tbMenuKeyboardHandler")
-		
+
 		enable_camera_movement()
 		disable_blur()
 		disable_menu_keyboard()
 		chat_input_activate()
-		
+
 		TB_MENU_MAIN_ISOPEN = 0
 		tbMenuMain:kill()
 	end
@@ -205,10 +205,10 @@ do
 		if (not tbMenuCurrentSection) then
 			TBMenu:createCurrentSectionView()
 		end
-		
+
 		-- Table to store event announcement data
 		local newsData = News:getNews()
-		
+
 		-- If download is in progress, show loading screen instead
 		if (newsData.downloading) then
 			local homeView = UIElement:new({
@@ -227,7 +227,7 @@ do
 			TBMenu:displayLoadingMark(homeView, TB_MENU_LOCALIZED.NEWSDOWNLOADING)
 			return
 		end
-		
+
 		usage_event("news");
 		set_option("newshopitem", 0)
 		-- Create and load regular announcements view
@@ -258,7 +258,7 @@ do
 			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			hoverSound = 31
 		})
-		
+
 		local eventsData, featuredEvents, featuredEventData = {}, {}, {}
 		for i,v in pairs(newsData) do
 			if (v.featured) then
@@ -271,13 +271,13 @@ do
 		if (#featuredEvents > 1) then
 			featuredEventData = featuredEvents[math.random(1, #featuredEvents)]
 		end
-		
+
 		local viewEventsButtonData = {
 			title = "View All Events",
 			ratio = 0.3,
 			action = function() Events:showEventsHome(tbMenuCurrentSection) end
 		}
-		
+
 		-- Store all elements that would require reloading when switching event announcements in one table
 		local toReload = UIElement:new({
 			parent = homeAnnouncements,
@@ -288,12 +288,13 @@ do
 
 		local textHeight, descHeight = homeAnnouncements.size.h / 9, homeAnnouncements.size.h / 8
 		local elementWidth, elementHeight, heightShift = unpack(TBMenu:getImageDimensions(homeAnnouncements.size.w, homeAnnouncements.size.h, 0.5, textHeight, descHeight))
-		
+
 		-- Spawn event announcement elements
 		-- Make sure rotateClock is spawned before that
 		local tickTime = os.clock() * 10
 		local rotateClock = { start = math.floor(tickTime), last = math.floor(tickTime) }
 		local eventItems = {}
+		local newsItemShown = false
 		for i, v in pairs(eventsData) do
 			local titleTextScale, subtitleTextScale = 1, 1
 			eventItems[i] = UIElement:new({
@@ -312,7 +313,15 @@ do
 			TBMenu:showHomeButton(eventItems[i], v, 1)
 			if (i ~= TB_MENU_HOME_CURRENT_ANNOUNCEMENT) then
 				eventItems[i]:hide()
+			else
+				newsItemShown = true
 			end
+		end
+
+		if (not newsItemShown) then
+			-- Make sure we don't end up with empty news section if there was a news update while they're playing
+			eventItems[1]:show()
+			TB_MENU_HOME_CURRENT_ANNOUNCEMENT = 1
 		end
 
 		if (#eventsData > 1) then
@@ -331,7 +340,7 @@ do
 				end
 				rotateClock.pause = true
 			end
-			local timeData = eventItems[1].button.pos.y > eventItems[1].image.pos.y + eventItems[1].image.size.h and { x = eventItems[1].image.pos.x, width = eventItems[1].image.size.w } or { x = eventItems[1].button.pos.x + 10, width = eventItems[1].button.size.w - 20 } 
+			local timeData = eventItems[1].button.pos.y > eventItems[1].image.pos.y + eventItems[1].image.size.h and { x = eventItems[1].image.pos.x, width = eventItems[1].image.size.w } or { x = eventItems[1].button.pos.x + 10, width = eventItems[1].button.size.w - 20 }
 			eventDisplayTime:addCustomDisplay(true, function()
 					if (not rotateClock.pause) then
 						set_color(1,1,1,0.6)
@@ -343,7 +352,7 @@ do
 						TBMenu:changeCurrentEvent(homeAnnouncements, eventsData, eventItems, rotateClock, toReload, 1)
 					end
 				end)
-				
+
 			-- Manual announcement change
 			local eventPrevButton = TBMenu:createImageButtons(toReload, 10, 10 + elementHeight / 2 - 32, 32, 64, "../textures/menu/general/buttons/arrowleft.tga", nil, nil, { 0, 0, 0, 0 }, { 0, 0, 0, 0.7 })
 			eventPrevButton:addMouseHandlers(nil, function()
@@ -363,7 +372,7 @@ do
 	function TBMenu:showHomeButton(viewElement, buttonData, hasSmudge, extraElements, lockedMessage)
 		-- Add hover sound by default so it doesn't have to be set for each element manually
 		viewElement.hoverSound = 31
-		
+
 		local titleHeight = buttonData.title and (buttonData.subtitle and viewElement.size.h / 5 or viewElement.size.h / 3) or 0
 		titleHeight = titleHeight > WIN_H / 15 and WIN_H / 15 or titleHeight
 		local descHeight = buttonData.subtitle and viewElement.size.h / 6 or 0
@@ -383,7 +392,7 @@ do
 			uiColor = TB_MENU_DEFAULT_DARKEST_COLOR
 		})
 		TBMenu:addOuterRounding(itemIcon, viewElement.animateColor)
-		
+
 		if (type(selectedIcon) == "table") then
 			local filename = selectedIcon[1]:gsub(".*/", "")
 			for i,v in pairs(NEWS_DOWNLOAD_QUEUE) do
@@ -420,7 +429,7 @@ do
 				end
 			end
 		end
-		
+
 		local buttonOverlay = UIElement:new( {
 			parent = viewElement,
 			pos = { 0, -titleHeight - descHeight - 10 },
@@ -727,7 +736,7 @@ do
 				returnval = returnval:sub(0, ePos - 1)
 			end
 		end
-		return returnval 
+		return returnval
 	end
 
 	function TBMenu:spawnWindowOverlay(globalid, withMouseHandler)
@@ -923,14 +932,14 @@ do
 			size = { tbMenuDataErrorMessage.size.w * 0.8, tbMenuDataErrorMessage.size.h * 0.8 }
 		})
 		errorMessageView:addAdaptedText(true, message, nil, nil, 4, nil, 0.9, nil, nil, nil, uiColor)
-		
+
 		while (errorMessageView.textScale < 0.65) do
 			tbMenuDataErrorMessage.size.h = tbMenuDataErrorMessage.size.h + 10
 			errorMessageView.size.h = tbMenuDataErrorMessage.size.h * 0.8
 			errorMessageView.str = ''
 			errorMessageView:addAdaptedText(true, message, nil, nil, 4, nil, 0.9, nil, nil, nil, uiColor)
 		end
-		
+
 		local option = get_option("hint")
 		if (noParent) then
 			set_option("hint", 0)
@@ -977,13 +986,13 @@ do
 		else
 			tbMenuCurrentSection:kill(true)
 		end
-		
+
 		local lastSpecialScreen = TB_MENU_SPECIAL_SCREEN_ISOPEN
 		TBMenu:clearNavSection()
 		TBMenu:showNavigationBar({
 			{
 				text = TB_MENU_LOCALIZED.NAVBUTTONBACK,
-				action = function() 
+				action = function()
 					TB_MENU_SPECIAL_SCREEN_ISOPEN = lastSpecialScreen
 					tbMenuCurrentSection:kill(true)
 					tbMenuNavigationBar:kill(true)
@@ -993,7 +1002,7 @@ do
 			}
 		}, true)
 		TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
-		
+
 		local accountView = UIElement:new({
 			parent = tbMenuCurrentSection,
 			pos = { 5, 0 },
@@ -1002,7 +1011,7 @@ do
 		})
 		local elementHeight = 50
 		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(accountView, accountView.size.h / 10 > elementHeight and accountView.size.h / 10 or elementHeight, elementHeight - 16, 20, TB_MENU_DEFAULT_BG_COLOR)
-	
+
 		TBMenu:addBottomBloodSmudge(botBar, 1)
 		local accountTitle = UIElement:new({
 			parent = topBar,
@@ -1046,7 +1055,7 @@ do
 		})
 		TBMenu:showTextWithImage(accountSwitch, TB_MENU_LOCALIZED.ACCOUNTSWITCH, FONTS.MEDIUM, 24, TB_MENU_LOGOUT_BUTTON)
 		accountSwitch:addMouseHandlers(nil, function() open_menu(18) end)
-		
+
 		local function showAccountData(data)
 			local listElements = {}
 			for i,v in pairs(data) do
@@ -1101,7 +1110,7 @@ do
 			listingHolder.scrollBar = scrollBar
 			scrollBar:makeScrollBar(listingHolder, listElements, toReload)
 		end
-		
+
 		local accountDatas = PlayerInfo:getServerUserinfo(nil, reload)
 		if (accountDatas.ready) then
 			showAccountData(accountDatas)
@@ -1126,12 +1135,12 @@ do
 						end
 						infoMessage:kill()
 						accountDatas.ready = nil
-						
+
 						showAccountData(accountDatas)
 					end
 				end)
 		end
-		
+
 		--[[local inventoryButton = UIElement:new({
 			parent = tbMenuCurrentSection,
 			pos = { 5 + tbMenuCurrentSection.size.w * 0.667, 0 },
@@ -1156,7 +1165,7 @@ do
 				end
 		}
 		TBMenu:showHomeButton(inventoryButton, inventoryButtonData)
-		
+
 		local clansButton = UIElement:new({
 			parent = tbMenuCurrentSection,
 			pos = { 5 + tbMenuCurrentSection.size.w * 0.667, tbMenuCurrentSection.size.h / 2 + 5 },
@@ -1192,7 +1201,7 @@ do
 			{ title = TB_MENU_LOCALIZED.MAINMENUREPLAYSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUREPLAYSDESC, size = 0.25, ratio = 1.055, image = "../textures/menu/replays2.tga", mode = ORIENTATION_PORTRAIT, action = function() TBMenu:showReplays() end },
 			{ title = TB_MENU_LOCALIZED.MAINMENUROOMLISTNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUROOMLISTDESC, size = 0.25, ratio = 1.055, image = "../textures/menu/multiplayer.tga", mode = ORIENTATION_PORTRAIT, action = function() set_mouse_cursor(0, true) open_menu(2) end }
 		}
-		
+
 		if (TB_MENU_PLAYER_INFO.username == '') then
 			tbMenuPlayButtonsData[3] = nil
 			tbMenuPlayButtonsData[1].size = 0.667
@@ -1206,7 +1215,7 @@ do
 		local tbMenuPracticeButtonsData = Tutorials:getMainMenuButtons()
 		TBMenu:showSection(tbMenuPracticeButtonsData)
 	end
-	
+
 	function TBMenu:showHotkeys()
 		TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
 		local overlay = TBMenu:spawnWindowOverlay()
@@ -1220,7 +1229,7 @@ do
 			size = { WIN_W * 0.8, WIN_H - 200 },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
-		
+
 		local elementHeight = 50
 		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(hotkeysView, elementHeight, elementHeight - 16, 20, TB_MENU_DEFAULT_BG_COLOR)
 		local hotkeysTitle = UIElement:new({
@@ -1243,7 +1252,7 @@ do
 				overlay:kill()
 			end)
 		TBMenu:addBottomBloodSmudge(botBar, 1)
-		
+
 		local hotkeys = {
 			{
 				name = TB_MENU_LOCALIZED.HOTKEYSBASICCONTROLS,
@@ -1379,7 +1388,7 @@ do
 				}
 			}
 		}
-		
+
 		local listElements = {}
 		for i, section in pairs(hotkeys) do
 			local sectionTitle = UIElement:new({
@@ -1537,7 +1546,7 @@ do
 		})
 		return smudgeElement
 	end
-	
+
 	function TBMenu:showSection(buttonsData, shift, lockedMessage)
 		if (not tbMenuCurrentSection) then
 			TBMenu:createCurrentSectionView()
@@ -1566,7 +1575,7 @@ do
 		if (tbMenuBottomLeftBar) then
 			tbMenuBottomLeftBar:show()
 		end
-		
+
 		-- If last used screen was matchmaking, disable search and disconnect from lobby
 		if (TB_MATCHMAKER_SEARCHSTATUS) then
 			TB_MATCHMAKER_SEARCHSTATUS = nil
@@ -1574,7 +1583,7 @@ do
 				UIElement:runCmd("matchmake disconnect")
 			end
 		end
-		
+
 		if (TB_MENU_SPECIAL_SCREEN_ISOPEN == 1) then
 			TBMenu:showTorishopMain()
 			Torishop:prepareInventory(tbMenuCurrentSection)
@@ -1789,7 +1798,7 @@ do
 				tbMenuUserName:uiText(displayName, tbMenuUserName.pos.x + 2, tbMenuUserName.pos.y + 2, 0, 0, 0.55, nil, nil, {0,0,0,0.2}, nil, 0)
 				tbMenuUserName:uiText(displayName, nil, nil, 0, 0, 0.55, nil, nil, nil, nil, 0.5)
 			end)
-			
+
 		local accountButton = UIElement:new({
 			parent = tbMenuUserBar,
 			pos = { tbMenuUserName.shift.x + tbMenuUserName.size.w, tbMenuUserName.shift.y + 3 },
@@ -1813,14 +1822,14 @@ do
 		accountButton:addMouseHandlers(nil, function()
 				TBMenu:showAccountMain()
 			end)
-		
+
 		--[[
 		local tbMenuLogoutButton = TBMenu:createImageButtons(tbMenuUserBar, tbMenuTopBarWidth / 6 + 10 + get_string_length(displayName, 0) * 0.55, tbMenuTopBarWidth / 34, tbMenuTopBarWidth / 20, tbMenuTopBarWidth / 20, TB_MENU_LOGOUT_BUTTON, TB_MENU_LOGOUT_BUTTON_HOVER, TB_MENU_LOGOUT_BUTTON_PRESS)
 		tbMenuLogoutButton:addMouseHandlers(nil, function()
 				open_menu(18)
 			end, nil)
 		]]
-		
+
 		local tbMenuClan = UIElement:new( {
 			parent = tbMenuUserBar,
 			pos = { tbMenuTopBarWidth / 6, tbMenuTopBarWidth / 11.5 },
@@ -1832,7 +1841,7 @@ do
 		if (TB_MENU_PLAYER_INFO.clan.id ~= 0) then
 			tbMenuClan:addAdaptedText(true, TB_MENU_LOCALIZED.MAINMENUUSERCLAN .. ": " .. TB_MENU_PLAYER_INFO.clan.tag .. ((TB_MENU_PLAYER_INFO.clan.name ~= '') and ("  |  " .. TB_MENU_PLAYER_INFO.clan.name) or ''), nil, nil, 4, 0, 0.6)
 		end
-		
+
 		local tbMenuUserTcView = UIElement:new( {
 			parent = tbMenuUserBar,
 			pos = { tbMenuTopBarWidth / 6, tbMenuTopBarWidth / 8 },
@@ -1854,7 +1863,7 @@ do
 				end
 			end)
 		tcPopup:moveTo(nil, 36, true)
-		
+
 		local tbMenuUserTcIcon = UIElement:new( {
 			parent = tbMenuUserTcView,
 			pos = { 0, -tbMenuUserTcView.size.h - 1.5 },
@@ -1868,7 +1877,7 @@ do
 		})
 		tbMenuUserTcBalance:addAdaptedText(true, PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.tc), nil, nil, 2, 6, 0.9)
 		tbMenuUserTcView.size.w = get_string_length(tbMenuUserTcBalance.dispstr[1], tbMenuUserTcBalance.textFont) * tbMenuUserTcBalance.textScale + 50
-		
+
 		local tbMenuUserStView = UIElement:new( {
 			parent = tbMenuUserBar,
 			pos = { tbMenuTopBarWidth / 2, tbMenuTopBarWidth / 8 },
@@ -1890,7 +1899,7 @@ do
 				end
 			end)
 		stPopup:moveTo(nil, 36, true)
-		
+
 		local tbMenuUserStIcon = UIElement:new( {
 			parent = tbMenuUserStView,
 			pos = { 0, -tbMenuUserStView.size.h - 1.5 },
@@ -1904,7 +1913,7 @@ do
 		})
 		tbMenuUserStBalance:addAdaptedText(true, PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.st), nil, 1, 2, 6, 0.9)
 		tbMenuUserStView.size.w = get_string_length(tbMenuUserStBalance.dispstr[1], tbMenuUserStBalance.textFont) * tbMenuUserStBalance.textScale + 50
-		
+
 		local tbMenuUserBeltIcon = UIElement:new({
 			parent = tbMenuUserBar,
 			pos = { -tbMenuTopBarWidth / 4, 0 },
@@ -1917,18 +1926,18 @@ do
 			size = { tbMenuTopBarWidth / 4.5, tbMenuTopBarWidth / 13 }
 		})
 		tbMenuUserQi:addAdaptedText(true, TB_MENU_PLAYER_INFO.data.belt.name .. " belt", nil, nil, 2, nil, nil, nil, nil, 1)
-		
+
 		TB_MENU_CUSTOMS_REFRESHED = false
 		tbMenuUserBar:addCustomDisplay(false, function()
 				if (TB_MENU_CUSTOMS_REFRESHED) then
 					TB_MENU_CUSTOMS_REFRESHED = false
-					
+
 					tbMenuUserTcBalance:addAdaptedText(true, PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.tc), nil, 1, 2, 6, 0.9)
 					tbMenuUserTcView.size.w = get_string_length(tbMenuUserTcBalance.dispstr[1], tbMenuUserTcBalance.textFont) * tbMenuUserTcBalance.textScale + 50
-					
+
 					tbMenuUserStBalance:addAdaptedText(true, PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.st), nil, 1, 2, 6, 0.9)
 					tbMenuUserStView.size.w = get_string_length(tbMenuUserStBalance.dispstr[1], tbMenuUserStBalance.textFont) * tbMenuUserStBalance.textScale + 50
-					
+
 					if (TB_MENU_PLAYER_INFO.clan.id ~= 0) then
 						tbMenuClan:addAdaptedText(true, TB_MENU_LOCALIZED.MAINMENUUSERCLAN .. ": " .. TB_MENU_PLAYER_INFO.clan.tag .. ((TB_MENU_PLAYER_INFO.clan.name ~= '') and ("  |  " .. TB_MENU_PLAYER_INFO.clan.name) or ''), nil, nil, 4, 0, 0.6)
 					end
@@ -1937,7 +1946,7 @@ do
 				end
 			end)
 	end
-	
+
 	function TBMenu:showPlayerHeadAvatar(viewElement, player)
 		local viewportSize = viewElement.size.w > viewElement.size.h and viewElement.size.h or viewElement.size.w
 		local headViewport = UIElement:new( {
@@ -1956,7 +1965,7 @@ do
 			viewport = true
 		})
 		table.insert(headViewport.child, headViewport3D)
-		
+
 		local customs = PlayerInfo:getItems(player)
 		local headTexture = { "../../custom/tori/head.tga", "../../custom/tori/head.tga" }
 		if (customs.textures.head.equipped) then
@@ -2001,12 +2010,12 @@ do
 			})
 		end
 	end
-	
+
 	function TBMenu:showNavigationBar(buttonsData, customNav, customNavHighlight, selectedId)
 		local tbMenuNavigationButtonsData = buttonsData or TBMenu:getMainNavigationButtons()
 		local tbMenuNavigationButtons = {}
 		local selectedId = selectedId or 0
-		
+
 		local navHeight = WIN_H / 16 > 60 and 60 or WIN_H / 16
 		local navX = { l = { 30 } , r = { -30 } }
 		tbMenuNavigationBar = tbMenuNavigationBar or UIElement:new({
@@ -2017,7 +2026,7 @@ do
 			shapeType = ROUNDED,
 			rounded = 10
 		})
-		
+
 		-- Check if total button width doesn't exceed navbar width
 		-- Assign button width accordingly
 		local totalWidth = tbMenuNavigationBar.size.w
@@ -2026,7 +2035,7 @@ do
 		local temp = tbMenuNavigationBar:addChild({
 			size = { tbMenuNavigationBar.size.w, tbMenuNavigationBar.size.h / 6 * 4 }
 		})
-		
+
 		while (totalWidth > tbMenuNavigationBar.size.w - navX.l[1] + navX.r[1]) do
 			totalWidth = 0
 			fontScale = fontScale - 0.05
@@ -2035,7 +2044,7 @@ do
 					totalWidth = tbMenuNavigationBar.size.w
 					break
 				end
-				
+
 				local string = v.misctext and v.text .. " " .. v.misctext or v.text
 				temp:addAdaptedText(true, string, nil, nil, fontId, nil, fontScale, fontScale, nil, nil, nil, nil, nil, true)
 				v.width = get_string_length(temp.dispstr[1] .. "_____", temp.textFont) * temp.textScale
@@ -2043,7 +2052,7 @@ do
 			end
 		end
 		temp:kill()
-		
+
 		for i, v in pairs(tbMenuNavigationButtonsData) do
 			local navX = v.right and navX.r or navX.l
 			tbMenuNavigationButtons[i] = UIElement:new( {
@@ -2139,7 +2148,7 @@ do
 		if (not found) then
 			return nil
 		end
-		
+
 		local targetButton = found - 1 * (dir and 1 or -1)
 		if (targetButton > #reordered) then
 			targetButton = 1
@@ -2265,7 +2274,7 @@ do
 				end
 			end)
 	end
-	
+
 	function TBMenu:playMenuSwitchAnimation()
 		if (UIMODE_LIGHT) then return end
 		local speedMod = get_option("framerate") == 30 and 2 or 1
@@ -2286,7 +2295,7 @@ do
 				end
 				currentSectionMover:moveTo(-WIN_W / 10 * math.sin(rad) * speedMod, nil, true)
 			end)
-			
+
 		tbMenuCurrentSection:moveTo(WIN_W)
 		tbMenuCurrentSection:addCustomDisplay(true, function()
 				tbMenuCurrentSection:moveTo(-WIN_W / 10 * math.sin(rad) * speedMod, nil, true)
@@ -2387,7 +2396,7 @@ do
 			size = { WIN_H - 320, WIN_H - 320 },
 			bgImage = splatCustom and splatLeftImg or TB_MENU_BLOODSPLATTER_RIGHT
 		})
-		
+
 		local menuNavigationScroll = UIElement:new({
 			parent = tbMenuMain,
 			pos = { 0, 0 },
@@ -2413,7 +2422,7 @@ do
 					menuNavigationScroll.lastTime = clocktime
 				end
 			end)
-		
+
 		TBMenu:showGameLogo()
 		TBMenu:showUserBar()
 		TBMenu:showNavigationBar()
@@ -2465,7 +2474,7 @@ do
 				table.insert(listElementsDisplay, v)
 			end
 		end
-		
+
 		local maxHeight = maxHeight or #listElementsDisplay * elementHeight + 4
 		if (maxHeight > #listElementsDisplay * elementHeight + 4) then
 			maxHeight = #listElementsDisplay * elementHeight + 4
@@ -2478,12 +2487,12 @@ do
 		textSettings.fontid = textSettings.fontid or 4
 		textSettings.scale = textSettings.scale or 1
 		textSettings.orientation = textSettings.orientation or LEFTMID
-		
+
 		local listTextSettings = listTextSettings or {}
 		listTextSettings.fontid = listTextSettings.fontid or 4
 		listTextSettings.scale = listTextSettings.scale or 1
 		listTextSettings.orientation = listTextSettings.orientation or CENTERMID
-		
+
 		local overlay = UIElement:new({
 			parent = holderElement,
 			pos = { 0, 0 },
@@ -2512,7 +2521,7 @@ do
 				updatePos(v)
 			end
 		end
-		
+
 		local addedShift = noOverlaying and elementHeight or 0
 		dropdownView:addCustomDisplay(false, function()
 				overlay.pos.x = 0
@@ -2552,7 +2561,7 @@ do
 			size = { selectedElement.size.h, selectedElement.size.h },
 			bgImage = "../textures/menu/general/buttons/arrowbotwhite.tga"
 		})
-		
+
 		local toReload, topBar, botBar, listingView, listingHolder
 		if (#listElementsDisplay * elementHeight > maxHeight) then
 			toReload, topBar, botBar, listingView, listingHolder = TBMenu:prepareScrollableList(dropdownView, elementHeight, elementHeight, 15, TB_MENU_DEFAULT_LIGHTER_COLOR)
@@ -2579,7 +2588,7 @@ do
 		else
 			listingHolder = dropdownView
 		end
-		
+
 		local listElements = {}
 		for i,v in pairs(listElementsDisplay) do
 			local element = UIElement:new({
@@ -2618,17 +2627,17 @@ do
 					end
 				end)
 		end
-		
+
 		if (#listElements * elementHeight > maxHeight) then
 			local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
 			listingHolder.scrollBar = scrollBar
 			scrollBar:makeScrollBar(listingHolder, listElements, toReload)
-			
+
 			overlay.listElements = listElements
 			overlay.listHolder = listingHolder
 			overlay.listReload = toReload
 		end
-		
+
 		selectedElement:addMouseHandlers(nil, function()
 				overlay:show(true)
 				if (overlay.listElements) then
@@ -2639,7 +2648,7 @@ do
 				end
 			end)
 		overlay:hide(true)
-		
+
 		overlay.selectedElement = selectedElement
 		return overlay
 	end
@@ -2681,17 +2690,17 @@ do
 		scrollBar.holder = scrollBackground
 		return scrollBar
 	end
-	
+
 	-- Draws quarter disks that cover element's corners for a fake rounded effect
 	-- Designed to use with images on single color backgrounds
 	-- To make regular UIElements rounded, use shapeType and rounded params
 	function TBMenu:addOuterRounding(e, color, rounding)
 		if (UIMODE_LIGHT) then return end
-		
+
 		local color = color or TB_MENU_DEFAULT_BG_COLOR
 		local rounding = rounding or 5
 		local roundingWidth = rounding * 1.4
-		
+
 		e:addChild({}):addCustomDisplay(true, function()
 				set_color(unpack(color))
 				draw_disk(e.pos.x + rounding, e.pos.y + rounding, rounding, roundingWidth, 100, 1, -180, 90, 0)
@@ -2700,16 +2709,16 @@ do
 				draw_disk(e.pos.x + e.size.w - rounding, e.pos.y + e.size.h - rounding, rounding, roundingWidth, 100, 1, 0, 90, 0)
 			end)
 	end
-	
+
 	function TBMenu:generatePaginationData(totalPages, maxPages, currentPage)
 		local pagesButtonsPre, pagesButtons = {}, {}
-		
+
 		local showPrev, showNext
 		local pagesNavArr = { 10, 50, 100, 500 }
-		
+
 		local page = 0
 		local navPages = math.floor(maxPages / 2)
-		
+
 		-- Potentially slower but produces better results
 		table.insert(pagesButtonsPre, { v = 1 })
 		if (totalPages > 1) then
@@ -2726,7 +2735,7 @@ do
 				table.insert(pagesButtonsPre, { v = currentPage + v })
 			end
 		end
-		
+
 		local removeDuplicates = function(pages)
 			local sorted = qsort(pages, 'v')
 			for i = #sorted, 2, -1 do
@@ -2736,7 +2745,7 @@ do
 			end
 			return sorted
 		end
-		
+
 		local sorted = removeDuplicates(pagesButtonsPre)
 		if (#sorted < maxPages) then
 			local limit = 2
@@ -2746,14 +2755,14 @@ do
 				local new = removeDuplicates(sorted)
 				for i = 1, #sorted do sorted[i] = nil end
 				for i = 1, #new do sorted[i] = new[i] end
-				
+
 				limit = limit + 1
 				if (#sorted >= maxPages or limit > totalPages) then
 					break
 				end
 			end
 		end
-		
+
 		local loops = 0
 		while (#sorted > maxPages) do
 			local targetId
@@ -2778,17 +2787,17 @@ do
 				break
 			end
 		end
-		
+
 		for i,v in pairs(sorted) do
 			table.insert(pagesButtons, v.v)
 		end
-		
-		
+
+
 		-- Basically what we use for pagination on forums
 		-- Quicker but may not be looking nice - I'm not sure how to properly limit number of buttons
 		--[[while (page < totalPages) do
 			page = page + 1
-			
+
 			local added = false
 			if (math.abs(page - currentPage) >= navPages) then
 				if (page == 1 or page == totalPages) then
@@ -2802,7 +2811,7 @@ do
 				table.insert(pagesButtons, page)
 				added = true
 			end
-			
+
 			if (not added) then
 				if (currentPage > 1 and page == currentPage - 1) then
 					table.insert(pagesButtons, page)
@@ -2811,7 +2820,7 @@ do
 				end
 			end
 		end]]
-		
+
 		return pagesButtons
 	end
 
@@ -2841,7 +2850,7 @@ do
 			textView:addAdaptedText(true, message, nil, nil, nil, CENTER)
 		end
 	end
-	
+
 	function TBMenu:displayLoadingMarkSmall(viewElement, message, fontid, loadScale, fontScale)
 		local fontid = fontid or FONTS.MEDIUM
 		local loadScale = loadScale or 26
@@ -2872,7 +2881,7 @@ do
 				end
 			end)
 	end
-	
+
 	function TBMenu:showTextWithImage(viewElement, text, fontid, imgScale, imgWhite, imgBlack, left)
 		local imgScale = imgScale or 26
 		if (imgScale > viewElement.size.h) then
@@ -2885,7 +2894,7 @@ do
 			size = { viewElement.size.w - imgScale * 1.15, viewElement.size.h }
 		})
 		textView:addAdaptedText(true, text, left and imgScale * 0.7 or -imgScale * 0.7, nil, fontid, nil, nil, nil, fontid == FONTS.BIG and 0.5)
-		
+
 		local fontid = textView.textFont
 		local textScale = textView.textScale
 		local posX = 0
@@ -2904,7 +2913,7 @@ do
 			bgImage = bgColorDelta > 1.5 and imgBlack or imgWhite
 		})
 	end
-	
+
 	function TBMenu:showTextExternal(viewElement, text)
 		TBMenu:showTextWithImage(viewElement, text, FONTS.MEDIUM, 26, "../textures/menu/general/buttons/external.tga", "../textures/menu/general/buttons/externalblack.tga")
 	end
@@ -2997,7 +3006,7 @@ do
 					end
 				end, true)
 		end
-		
+
 		if (not noMark) then
 			local questionmark = UIElement:new({
 				parent = element,
@@ -3006,14 +3015,14 @@ do
 			})
 			questionmark:addAdaptedText(true, "?", nil, nil, nil, nil, 0.7)
 		end
-		
+
 		return messageElement
 	end
-	
+
 	function TBMenu:displayPopup(element, message, forceManualPosCheck)
 		return TBMenu:displayHelpPopup(element, message, forceManualPosCheck, true)
 	end
-	
+
 	function TBMenu:spawnSlider(parent, x, y, w, h, textWidth, sliderRadius, value, settings, sliderFunc, onMouseDown, onMouseUp)
 		local x = x or 0
 		local y = y or 0
@@ -3021,7 +3030,7 @@ do
 		local h = h or parent.size.h - y * 2
 		local textWidth = textWidth or w / 8
 		local sliderRadius = sliderRadius or 20
-		
+
 		local settings = settings or {}
 		settings.maxValue = settings.maxValue or 1
 		settings.minValue = settings.minValue or 0
@@ -3029,7 +3038,7 @@ do
 		settings.minValueDisp = settings.minValueDisp or settings.minValue
 		settings.decimal = settings.decimal or 0
 		local value = value or minVal
-		
+
 		local minText = UIElement:new({
 			parent = parent,
 			pos = { x, y },
@@ -3042,7 +3051,7 @@ do
 			size = { textWidth, h }
 		})
 		maxText:addAdaptedText(false, settings.maxValueDisp .. "", nil, nil, 4, LEFTMID, 0.7)
-		
+
 		local sliderBG = UIElement:new({
 			parent = parent,
 			pos = { x + textWidth + 5, y },
@@ -3099,7 +3108,7 @@ do
 						sliderLabel.size.w = targetWidth
 						sliderLabel:moveTo((-sliderRadius - sliderLabel.size.w) / 2)
 					end
-					
+
 					-- If bounding element is defined, we may want to display label below the slider
 					if (settings.boundParent) then
 						if (sliderLabel.lastY ~= sliderLabel.shift.y) then
@@ -3115,7 +3124,7 @@ do
 					end
 				end
 			end, true)
-			
+
 		slider.settings = settings
 		slider.label = sliderLabel
 		slider:addMouseHandlers(function()
@@ -3145,13 +3154,13 @@ do
 						end
 					end
 					slider:moveTo(xPos, nil)
-					
+
 					local val = xPos / (sliderBG.size.w - sliderRadius) * (settings.maxValue - settings.minValue) + settings.minValue
 					local multiplyBy = tonumber('1' .. string.rep('0', settings.decimal))
 					sliderLabel.labelText[1] = (math.floor(val * multiplyBy) / multiplyBy) .. ''
 					sliderLabel.uiColor[4] = 1
 					sliderLabel.bgColor[4] = 1
-					
+
 					if (sliderFunc) then
 						sliderFunc(val, xPos, slider)
 					end
@@ -3160,7 +3169,7 @@ do
 		slider.setValue = function(val, updateLabel)
 			local val = val > settings.maxValue and settings.maxValue or (val < settings.minValue and settings.minValue or val)
 			slider:moveTo(val / settings.maxValue * (sliderBG.size.w - slider.size.w), nil)
-			
+
 			if (updateLabel) then
 				local multiplyBy = tonumber('1' .. string.rep('0', settings.decimal))
 				sliderLabel.labelText[1] = (math.floor(val * multiplyBy) / multiplyBy) .. ''
@@ -3184,26 +3193,26 @@ do
 				end
 			end
 			slider:moveTo(xPos)
-			
+
 			local val = xPos / (sliderBG.size.w - sliderRadius) * (settings.maxValue - settings.minValue) + settings.minValue
 			local multiplyBy = tonumber('1' .. string.rep('0', settings.decimal))
 			sliderLabel.labelText[1] = (math.floor(val * multiplyBy) / multiplyBy) .. ''
 			sliderLabel.uiColor[4] = 1
 			sliderLabel.bgColor[4] = 1
-			
+
 			if (sliderFunc) then
 				sliderFunc(val, xPos, slider)
 			end
 		end)
 		return slider
 	end
-	
+
 	function TBMenu:spawnToggle(parent, x, y, w, h, toggleValue, updateFunc)
 		local x = x or 0
 		local y = y or 0
 		local w = w or parent.size.h
 		local h = h or parent.size.h
-		
+
 		local toggleBG = UIElement:new({
 			parent = parent,
 			pos = { x, y },
@@ -3320,7 +3329,7 @@ do
 		local defaultStr = defaultStr or ""
 		local orientation = orientation or LEFTMID
 		local scale = scale or 1
-		
+
 		element:addAdaptedText(true, defaultStr, nil, nil, fontid, orientation, scale, nil, nil, nil, nil, nil, true)
 		local defaultStringScale = element.textScale
 
@@ -3338,7 +3347,7 @@ do
 					else
 						draw_quad(element.parent.pos.x, element.parent.pos.y, element.parent.size.w, element.parent.size.h)
 					end
-					
+
 					local part1 = element.textfieldstr[1]:sub(0, element.textfieldindex)
 					local part2 = element.textfieldstr[1]:sub(element.textfieldindex + 1)
 					local displayString = part1 .. (noCursor and "" or "|") .. part2

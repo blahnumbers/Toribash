@@ -78,3 +78,5 @@ script/system/movememory.mm
 script/torishop/torishop.cfg
 
 tutorials/config.cfg
+
+flames_stored.dat

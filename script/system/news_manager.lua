@@ -7,14 +7,14 @@ do
 	News.__index = News
 	local cln = {}
 	setmetatable(cln, News)
-	
+
 	function News:getDefaultNews()
 		return {
 			{
 				title = "Welcome to Toribash " .. TORIBASH_VERSION .. "!",
 				subtitle = "",
 				ratio = 0.5,
-				image = "../textures/menu/promo/golem.tga",
+				image = "../textures/menu/promo/toribash.tga",
 				action = function() end
 			},
 			{
@@ -22,12 +22,12 @@ do
 				subtitle = "Go online to participate in Toribash events",
 				ratio = 0.66,
 				featured = true,
-				image = "../textures/menu/promo/holeinthewall.tga",
+				image = "../textures/menu/promo/noevents-placeholder.tga",
 				action = function() end
 			}
 		}
 	end
-	
+
 	function News:addToQueue(imageName)
 		for i,v in pairs(NEWS_DOWNLOAD_QUEUE) do
 			if (v == imageName) then
@@ -36,7 +36,7 @@ do
 		end
 		table.insert(NEWS_DOWNLOAD_QUEUE, imageName)
 	end
-	
+
 	function News:removeFromQueue(imageName)
 		for i,v in pairs(NEWS_DOWNLOAD_QUEUE) do
 			if (imageName:find(".*/" .. v .. "$")) then
@@ -45,7 +45,7 @@ do
 			end
 		end
 	end
-	
+
 	function News:getNews(miniImages)
 		local file = Files:open("../data/news.txt")
 		if (not file.data) then
@@ -58,7 +58,7 @@ do
 		end
 		local lines = file:readAll()
 		file:close()
-		
+
 		local newsData = {}
 		for i,ln in pairs(lines) do
 			local ln = ln:gsub("\r?\n?", '')
@@ -73,7 +73,7 @@ do
 				newsData[#newsData].image = { "../textures/menu/promo/" .. imageName, "../textures/menu/promo/toribashsmall.tga" }
 				newsData[#newsData].ratio = 1
 				newsData[#newsData].hasMiniImage = true
-				
+
 				local imageFile = Files:open("../data/textures/menu/promo/" .. imageName)
 				if (not imageFile.data) then
 					News:addToQueue(imageName)
@@ -87,7 +87,7 @@ do
 				else
 					newsData[#newsData].image = { "../textures/menu/promo/" .. imageName, "../textures/menu/promo/toribash.tga" }
 				end
-				
+
 				local imageFile = Files:open("../data/textures/menu/promo/" .. imageName)
 				if (not imageFile.data) then
 					News:addToQueue(imageName)
@@ -134,7 +134,7 @@ do
 		end
 		return newsData
 	end
-	
+
 	function News:getEvents()
 		local file = Files:open("../data/news.txt")
 		if (not file.data) then
@@ -142,7 +142,7 @@ do
 		end
 		local lines = file:readAll()
 		file:close()
-		
+
 		local eventData = {}
 		local currentID = 1
 		for i,ln in pairs(lines) do

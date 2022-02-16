@@ -825,7 +825,7 @@ do
 			size = { playerStatsHolder.size.w - 40, gamesHolderH / 2 }
 		})
 		playerGamesHolder:addAdaptedText(true, TB_MENU_LOCALIZED.EVENTSGAMESWON .. ": " .. (playerStats.games > 0 and (playerStats.games .. '') or TB_MENU_LOCALIZED.WORDNONE), nil, nil, FONTS.MEDIUM, CENTERBOT)
-		
+
 		local hasRank = (playerStats.ranking.wins + playerStats.ranking.losses) >= 10
 		local playerRankHolder = UIElement:new({
 			parent = playerStatsHolder,
@@ -833,7 +833,7 @@ do
 			size = { playerGamesHolder.size.w, playerGamesHolder.size.h }
 		})
 		playerRankHolder:addAdaptedText(true, TB_MENU_LOCALIZED.MATCHMAKERANK .. (hasRank and (" " .. playerStats.ranking.rank .. ' (' .. playerStats.ranking.elo .. " elo)") or (": " .. TB_MENU_LOCALIZED.MATCHMAKEQUALIFYING)), nil, nil, FONTS.MEDIUM, CENTER)
-		
+
 		if (playerStats.rewards) then
 			local playerGamesRewards = UIElement:new({
 				parent = playerStatsHolder,
@@ -944,7 +944,7 @@ do
 		local elementHeight = 50
 		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(playersToplistHolder, elementHeight * 2, elementHeight - 16, 15, TB_MENU_DEFAULT_BG_COLOR)
 		listingHolder.hasDataLoaded = false
-		
+
 		local toplistTitle = UIElement:new({
 			parent = topBar,
 			pos = { 10, 5 },
@@ -972,7 +972,7 @@ do
 			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR
 		})
 		toplistModeRank:addAdaptedText(false, TB_MENU_LOCALIZED.MATCHMAKERANK)
-		
+
 		toplistModeGames:addMouseHandlers(nil, function()
 				if (listingHolder.hasDataLoaded) then
 					if (listingHolder.scrollBar) then
@@ -1476,7 +1476,7 @@ do
 
 	function Events:showEventDescription(viewElement, event)
 		local elementHeight = 41
-		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 55, 60, 20, event.accentColor)
+		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 55, 60, 20, { 0, 0, 0, 0 })
 		listingView.bgColor = cloneTable(event.accentColor)
 		listingView.bgColor[4] = event.overlaytransparency or 0.7
 
@@ -1501,11 +1501,7 @@ do
 				table.insert(listElements, infoTitle)
 			end
 			if (info.desc) then
-				if (i == 2) then
-					DEBUGGING_ACTIVE = true
-				end
 				local textString = textAdapt(info.desc, 4, 0.9, listingHolder.size.w - 80)
-				DEBUGGING_ACTIVE = false
 				local rows = math.ceil(#textString / 2)
 				for i = 1, rows do
 					local infoRow = UIElement:new({
@@ -1522,7 +1518,7 @@ do
 					table.insert(listElements, infoRow)
 				end
 			end
-			if (i ~= #event.data) then
+			if (i < #event.data) then
 				local emptyRow = UIElement:new({
 					parent = listingHolder,
 					pos = { 10, #listElements * elementHeight },
@@ -1531,16 +1527,21 @@ do
 				table.insert(listElements, emptyRow)
 			end
 		end
-		for i,v in pairs(listElements) do
-			v:hide()
-		end
 
-		local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
-		scrollBar:makeScrollBar(listingHolder, listElements, toReload, nil, nil, true)
-		scrollBar.bgColor = { 0, 0, 0, 0 }
-		scrollBar.hoverColor = { 0, 0, 0, 0 }
-		scrollBar.pressedColor = { 0, 0, 0, 0 }
-		listingScrollBG.bgColor = { 0, 0, 0, 0 }
+		if (#listElements * elementHeight > listingHolder.size.h) then
+			for i,v in pairs(listElements) do
+				v:hide()
+			end
+
+			local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
+			scrollBar:makeScrollBar(listingHolder, listElements, toReload, nil, nil, true)
+			scrollBar.bgColor = { 0, 0, 0, 0 }
+			scrollBar.hoverColor = { 0, 0, 0, 0 }
+			scrollBar.pressedColor = { 0, 0, 0, 0 }
+			listingScrollBG.bgColor = { 0, 0, 0, 0 }
+		else
+			listingHolder:moveTo(0, math.ceil((listingHolder.size.h - #listElements * elementHeight) / 2), true)
+		end
 
 		return topBar, botBar
 	end
@@ -1580,7 +1581,7 @@ do
 
 	function Events:showEventPrizes(viewElement, event)
 		local elementHeight = 41
-		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 55, 60, 20, event.accentColor)
+		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 55, 60, 20, { 0, 0, 0, 0 })
 		listingView.bgColor = cloneTable(event.accentColor)
 		listingView.bgColor[4] = event.overlaytransparency or 0.7
 
@@ -1640,23 +1641,28 @@ do
 				table.insert(listElements, emptyRow)
 			end
 		end
-		for i,v in pairs(listElements) do
-			v:hide()
-		end
 
-		local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
-		scrollBar:makeScrollBar(listingHolder, listElements, toReload, nil, nil, true)
-		scrollBar.bgColor = { 0, 0, 0, 0 }
-		scrollBar.hoverColor = { 0, 0, 0, 0 }
-		scrollBar.pressedColor = { 0, 0, 0, 0 }
-		listingScrollBG.bgColor = { 0, 0, 0, 0 }
+		if (#listElements * elementHeight > listingHolder.size.h) then
+			for i,v in pairs(listElements) do
+				v:hide()
+			end
+
+			local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
+			scrollBar:makeScrollBar(listingHolder, listElements, toReload, nil, nil, true)
+			scrollBar.bgColor = { 0, 0, 0, 0 }
+			scrollBar.hoverColor = { 0, 0, 0, 0 }
+			scrollBar.pressedColor = { 0, 0, 0, 0 }
+			listingScrollBG.bgColor = { 0, 0, 0, 0 }
+		else
+			listingHolder:moveTo(0, math.ceil((listingHolder.size.h - #listElements * elementHeight) / 2), true)
+		end
 
 		return topBar, botBar
 	end
 
 	function Events:getEventInfo(id)
 		local events = News:getEvents()
-		
+
 		if (events) then
 			events[id].accentColor = events[id].accentColor or TB_MENU_DEFAULT_BG_COLOR
 			return events[id]
@@ -1675,7 +1681,7 @@ do
 			TBMenu:showDataError("Please wait until News data is ready")
 			return false
 		end
-		
+
 		TB_MENU_SPECIAL_SCREEN_ISOPEN = 10
 		local overlay = TBMenu:spawnWindowOverlay()
 		local viewElement = UIElement:new({
@@ -1690,12 +1696,12 @@ do
 				overlay:kill()
 			end)
 		local scale = viewElement.size.h * 2 - 200 < viewElement.size.w and viewElement.size.h - 100 or viewElement.size.w / 2
-		if (event.eventid) then
+		if (event.eventid or event.image) then
 			local backgroundImage = UIElement:new({
 				parent = viewElement,
 				pos = { viewElement.size.w / 2 - scale, (viewElement.size.h - scale) / 2 },
 				size = { scale * 2, scale },
-				bgImage = { "../textures/menu/promo/events/" .. event.eventid .. ".tga", "" }
+				bgImage = { event.image ~= nil and event.image or ("../textures/menu/promo/events/" .. event.eventid .. ".tga"), "" }
 			})
 		end
 
