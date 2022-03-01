@@ -14,11 +14,11 @@ do
 	Matchmake.__index = Matchmake
 	local cln = {}
 	setmetatable(cln, Matchmake)
-		
+
 	function Matchmake:getMatchmaker()
 		TB_MATCHMAKER_INFO = get_matchmaker().info
 	end
-	
+
 	-- Connects to matchmake server in idle mode, do not instantly search for a fight
 	function Matchmake:connect()
 		if (get_world_state().game_type == 0) then
@@ -26,25 +26,25 @@ do
 		end
 		Matchmake:getMatchmaker()
 	end
-	
+
 	function Matchmake:quit()
 		TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
 		TB_MATCHMAKER_SEARCHSTATUS = nil
 		if (get_world_state().game_type == 0) then
 			UIElement:runCmd("matchmake disconnect")
 		end
-		tbMenuCurrentSection:kill(true) 
+		tbMenuCurrentSection:kill(true)
 		tbMenuNavigationBar:kill(true)
 		TBMenu:showNavigationBar()
 		TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
 	end
-	
+
 	function Matchmake:getNavigationButtons(showBack)
 		local buttonsData = {
-			-- { 
-			-- 	text = TB_MENU_LOCALIZED.NAVBUTTONTOMAIN, 
-			-- 	action = function() Matchmake:quit() end, 
-			-- 	width = get_string_length(TB_MENU_LOCALIZED.NAVBUTTONTOMAIN, FONTS.BIG) * 0.65 + 30 
+			-- {
+			-- 	text = TB_MENU_LOCALIZED.NAVBUTTONTOMAIN,
+			-- 	action = function() Matchmake:quit() end,
+			-- 	width = get_string_length(TB_MENU_LOCALIZED.NAVBUTTONTOMAIN, FONTS.BIG) * 0.65 + 30
 			-- }
 		}
 		if (showBack) then
@@ -60,7 +60,7 @@ do
 		end
 		return buttonsData
 	end
-	
+
 	function Matchmake:fetchGlobalRanking(lines)
 		local rankingData = {}
 		for i,ln in pairs(lines) do
@@ -79,15 +79,15 @@ do
 		end
 		return rankingData
 	end
-	
+
 	function Matchmake:fetchRankingTrends(lines)
 		local rankingTrends = {}
 		local rankedMods = {}
 		local topElo = 0
 		local minElo = 10000
-		
+
 		local mods = true
-		
+
 		for i, ln in pairs(lines) do
 			if (ln:find("^#NO DATA FOUND")) then
 				break
@@ -126,14 +126,14 @@ do
 		rankingTrends.minElo = minElo
 		return rankingTrends, rankedMods
 	end
-	
+
 	function Matchmake:showRankingTrendsWithHistory(viewElement, refresh)
 		if (refresh) then
 			download_ranking_trends()
 		end
 		local rankingFile = Files:open("../data/ranking_trends.txt")
 		local playerTrends, modTrends = nil, nil
-		
+
 		local dataWait = UIElement:new({
 			parent = viewElement,
 			pos = { 0, 0 },
@@ -146,7 +146,7 @@ do
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
 		dataMessage:addAdaptedText(false, TB_MENU_LOCALIZED.MATCHMAKEUPDATINGTRENDS)
-		
+
 		local function showTrendsWithHistory()
 			local userTrendsView = UIElement:new({
 				parent = viewElement,
@@ -266,7 +266,7 @@ do
 					TBMenu:showTextWithImage(rankTrendChange, rankChange .. " " .. (rankChange == 1 and TB_MENU_LOCALIZED.MATCHMAKESPOT or TB_MENU_LOCALIZED.MATCHMAKESPOTS), 4, scale, trend > 0 and "../textures/menu/general/buttons/doublearrowup.tga" or "../textures/menu/general/buttons/doublearrowdown.tga", nil, true)
 				end
 			end
-			
+
 			if (showMods) then
 				local modTrendsView = UIElement:new({
 					parent = userTrendsView,
@@ -280,7 +280,7 @@ do
 					size = { modTrendsView.size.w - 20, 30 }
 				})
 				modTrendsTitle:addAdaptedText(true, TB_MENU_LOCALIZED.MATCHMAKERANKINGMODS, nil, nil, FONTS.BIG, nil, nil, nil, 0.1)
-				
+
 				local modListView = UIElement:new({
 					parent = modTrendsView,
 					pos = { 0, modTrendsTitle.shift.y + modTrendsTitle.size.h + 5 },
@@ -316,7 +316,7 @@ do
 					modStats:addAdaptedText(true, TB_MENU_LOCALIZED.MATCHMAKERANK .. " " .. v.rank .. ", " .. v.elo .. " " .. TB_MENU_LOCALIZED.MATCHMAKEELO, nil, nil, nil, RIGHTMID, 0.8, nil, 0)
 				end
 			end
-			
+
 			local trendsView = UIElement:new({
 				parent = viewElement,
 				pos = { 0, userTrendsView.size.h + 10 },
@@ -329,14 +329,14 @@ do
 				size = { trendsView.size.w - 20, 35 }
 			})
 			trendsTitle:addAdaptedText(false, TB_MENU_LOCALIZED.MATCHMAKERANKINGTRENDS, nil, nil, FONTS.BIG)
-			
+
 			local trendsChartBG = UIElement:new({
 				parent = trendsView,
 				pos = { 0, trendsTitle.shift.y + trendsTitle.size.h + 20 },
 				size = { trendsView.size.w, trendsView.size.h - trendsTitle.shift.y - trendsTitle.size.h - 20 }
 			})
 			TBMenu:addBottomBloodSmudge(trendsChartBG, 1)
-			
+
 			if (#playerTrends < 4) then
 				trendsChartBG:addAdaptedText(true, TB_MENU_LOCALIZED.MATCHMAKEMOREGAMESREQUIREDFORTRENDS)
 			else
@@ -436,7 +436,7 @@ do
 				end
 			end
 		end
-		
+
 		if (refresh) then
 			dataWait:addCustomDisplay(true, function()
 					if (not rankingFile:isDownloading()) then
@@ -452,16 +452,16 @@ do
 			showTrendsWithHistory()
 		end
 	end
-	
+
 	function Matchmake:showGlobalRankToplist(viewElement)
 		download_ranking_toplist(TB_MENU_PLAYER_INFO.username)
 		local elementHeight = 45
 		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 50, elementHeight - 16, 20, TB_MENU_DEFAULT_BG_COLOR)
 		TBMenu:addBottomBloodSmudge(botBar, 2)
-		
+
 		local rankingFile = Files:open("../data/ranking_toplist.txt")
 		local playerRanking = nil
-		
+
 		local topPlayersTitle = UIElement:new({
 			parent = topBar,
 			pos = { 10, 0 },
@@ -474,7 +474,7 @@ do
 			pos = { 0, 0 },
 			size = { 0, 0 }
 		})
-		
+
 		local function showGlobalList()
 			local listElements = {}
 			if (#playerRanking == 0) then
@@ -515,7 +515,7 @@ do
 					})
 					playerRank:addAdaptedText(true, TB_MENU_LOCALIZED.MATCHMAKERANK .. " " .. player.rank, nil, nil, nil, RIGHTMID)
 				end
-				
+
 				local playerInfoView = UIElement:new({
 					parent = listingHolder,
 					pos = { 0, #listElements * elementHeight },
@@ -550,11 +550,11 @@ do
 			for i,v in pairs(listElements) do
 				v:hide()
 			end
-			
+
 			local listingScrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
 			listingScrollBar:makeScrollBar(listingHolder, listElements, toReload)
 		end
-		
+
 		listingWait:addCustomDisplay(true, function()
 				if (not rankingFile:isDownloading()) then
 					rankingFile:reopen()
@@ -563,13 +563,13 @@ do
 					listingHolder:addCustomDisplay(false, function() end)
 					showGlobalList()
 				end
-			end)		
+			end)
 	end
-	
+
 	function Matchmake:showGlobalRanking()
 		TBMenu:clearNavSection()
 		TBMenu:showNavigationBar(Matchmake:getNavigationButtons(true), true)
-		
+
 		local playerRankingView = UIElement:new({
 			parent = tbMenuCurrentSection,
 			pos = { 5, 0 },
@@ -584,7 +584,7 @@ do
 		else
 			Matchmake:showRankingTrendsWithHistory(playerRankingView)
 		end
-		
+
 		local rankingTopView = UIElement:new({
 			parent = tbMenuCurrentSection,
 			pos = { tbMenuCurrentSection.size.w * 0.65 + 5, 0 },
@@ -593,13 +593,13 @@ do
 		})
 		Matchmake:showGlobalRankToplist(rankingTopView)
 	end
-	
+
 	-- function Matchmake:getRankedSeasonInfo()
 	-- 	local function getRandom(list)
 	-- 		local seed = math.random(1, #list)
 	-- 		return list[seed]
 	-- 	end
-	-- 
+	--
 	-- 	local season = {
 	-- 		{
 	-- 			title = "Description",
@@ -674,7 +674,7 @@ do
 	-- 	}
 	-- 	return season
 	-- end
-	-- 
+	--
 	-- function Matchmake:showSeasonAboutWindow()
 	-- 	local seasonOverlay = TBMenu:spawnWindowOverlay()
 	-- 	local seasonViewHeight = seasonOverlay.size.h / 2 > 532 and 532 or seasonOverlay.size.h / 5 * 3
@@ -698,19 +698,19 @@ do
 	-- 		pos = { seasonViewHeight, 0 },
 	-- 		size = { seasonViewBackground.size.w - seasonViewHeight, seasonViewBackground.size.h }
 	-- 	})
-	-- 
+	--
 	-- 	local seasonInfo = Matchmake:getRankedSeasonInfo()
-	-- 
+	--
 	-- 	local elementHeight = 33.8
 	-- 	local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(seasonView, 40, 45, 20)
-	-- 
+	--
 	-- 	local seasonTitle = UIElement:new({
 	-- 		parent = topBar,
 	-- 		pos = { 10, 0 },
 	-- 		size = { topBar.size.w - 20, topBar.size.h }
 	-- 	})
 	-- 	seasonTitle:addAdaptedText(true, "Toribash Season 5", nil, nil, FONTS.BIG)
-	-- 
+	--
 	-- 	local backButton = UIElement:new({
 	-- 		parent = botBar,
 	-- 		pos = { -botBar.size.w / 3, 5 },
@@ -724,7 +724,7 @@ do
 	-- 	backButton:addMouseHandlers(nil, function()
 	-- 			seasonOverlay:kill()
 	-- 		end)
-	-- 
+	--
 	-- 	local listElements = {}
 	-- 	local count = 0
 	-- 	for i, info in pairs(seasonInfo) do
@@ -897,30 +897,30 @@ do
 	-- 			table.insert(listElements, separator)
 	-- 		end
 	-- 	end
-	-- 
+	--
 	-- 	for i,v in pairs(listElements) do
 	-- 		v:hide()
 	-- 	end
-	-- 
+	--
 	-- 	local seasonInfoScrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
 	-- 	seasonInfoScrollBar:makeScrollBar(listingHolder, listElements, toReload)
 	-- end
-	
-	function Matchmake:showRanked()		
+
+	function Matchmake:showRanked()
 		-- TBMenu:clearNavSection()
 		-- TBMenu:showNavigationBar(Matchmake:getNavigationButtons(), true)
-		
+
 		local rankedButtons = {
 			{
-				title = "Toribash Season 6",
-				image = "../textures/menu/promo/season6.tga",
+				title = "Welcome to Toribash Season 7!",
+				image = "../textures/menu/promo/season7.tga",
 				ratio = 0.5,
 				action = function() Events:showEventInfo(3) end
 			},
 			{
+				ratio = 0.5,
 				title = TB_MENU_LOCALIZED.MATCHMAKEGLOBALRANKING,
 				subtitle = TB_MENU_LOCALIZED.MATCHMAKEGLOBALRANKINGDESC,
-				ratio = 0.5,
 				action = function() Matchmake:showGlobalRanking() end
 			},
 		}
@@ -934,7 +934,7 @@ do
 			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR
 		})
 		TBMenu:showHomeButton(seasonInfo, rankedButtons[1])
-		
+
 		local seasonToplist = UIElement:new({
 			parent = tbMenuCurrentSection,
 			pos = { 5, seasonInfo.size.h + 10 },
@@ -945,8 +945,8 @@ do
 			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR
 		})
 		TBMenu:showHomeButton(seasonToplist, rankedButtons[2], 1)
-		
-		
+
+
 		local viewElement = UIElement:new({
 			parent = tbMenuCurrentSection,
 			pos = { seasonInfo.size.w + 15, 0 },
@@ -954,7 +954,7 @@ do
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
 		TBMenu:addBottomBloodSmudge(viewElement, 2)
-		
+
 		if (TB_MENU_PLAYER_INFO.data.qi < 500) then
 			local scale = viewElement.size.w > viewElement.size.h and viewElement.size.h / 2 or viewElement.size.w / 2
 			local scale = scale > 256 and 256 or scale
@@ -1005,10 +1005,10 @@ do
 						size = { iconScale, iconScale },
 						bgImage = TB_MENU_PLAYER_INFO.ranking.image
 					})
-				else 
+				else
 					iconScale = 0
 				end
-				
+
 				local mmRankedInfoText = UIElement:new({
 					parent = mmRankedInfo,
 					pos = { iconScale, 0 },
@@ -1047,7 +1047,7 @@ do
 				gameInfoStr = winrate and (gameInfoStr .. "\n" .. winrate .. "% " .. TB_MENU_LOCALIZED.MATCHMAKEWINRATE) or gameInfoStr
 				mmRankedInfoGames:addAdaptedText(true, gameInfoStr, nil, nil, 4, CENTER, 0.7)
 			end
-			
+
 			if (TB_MENU_PLAYER_INFO.ranking.nextTierElo) then
 				local gamesHolder = UIElement:new({
 					parent = viewElement,
@@ -1059,18 +1059,18 @@ do
 					pos = { 30, 0 },
 					size = { gamesHolder.size.w - 30, gamesHolder.size.h}
 				})
-				
+
 				local bestAverageOpponent = 1.01 * (TB_MENU_PLAYER_INFO.ranking.elo + 1600) / 2
 				local worstAverageOpponent = (1600 / TB_MENU_PLAYER_INFO.ranking.elo) * (TB_MENU_PLAYER_INFO.ranking.elo + 1600) / 2
-				
+
 				local minGamesToNextTier = math.ceil((TB_MENU_PLAYER_INFO.ranking.nextTierElo - TB_MENU_PLAYER_INFO.ranking.elo) / (ELO_FACTOR * (1 - (1 / ( 1 + (math.pow(TB_MENU_PLAYER_INFO.ranking.elo, (bestAverageOpponent - TB_MENU_PLAYER_INFO.ranking.elo) / ELO_DIVISOR)))))))
 				local maxGamesToNextTier = math.ceil((TB_MENU_PLAYER_INFO.ranking.nextTierElo - TB_MENU_PLAYER_INFO.ranking.elo) / (ELO_FACTOR * (1 - (1 / ( 1 + (math.pow(TB_MENU_PLAYER_INFO.ranking.elo, (worstAverageOpponent - TB_MENU_PLAYER_INFO.ranking.elo) / ELO_DIVISOR)))))))
-				
+
 				local winsToNextTierString = (minGamesToNextTier == maxGamesToNextTier and minGamesToNextTier or (minGamesToNextTier .. " - " .. maxGamesToNextTier)) .. " " .. TB_MENU_LOCALIZED.MATCHMAKEWINSTONEXTTIER
 				gamesToNextTier:addCustomDisplay(false, function()
 						gamesToNextTier:uiText(winsToNextTierString)
 					end)
-				
+
 				local signScale = gamesToNextTier.size.h > 30 and 30 or gamesToNextTier.size.h
 				local maxLen = 0
 				for i,v in pairs(gamesToNextTier.dispstr) do
@@ -1091,7 +1091,7 @@ do
 				})
 				TBMenu:displayHelpPopup(gamesToNextTierInfo, TB_MENU_LOCALIZED.MATCHMAKEELOGAININFO)
 			end
-			
+
 			local rankedPlayers = UIElement:new({
 				parent = viewElement,
 				pos = { 10, -viewElement.size.h / 3 },
@@ -1175,7 +1175,7 @@ do
 					rankedSearchProgress:hide()
 					rankedSearchButtonStop:hide()
 				end)
-			
+
 			UIElement:runCmd("refresh")
 			local roomJoinButton = UIElement:new({
 				parent = viewElement,
@@ -1223,7 +1223,7 @@ do
 					end
 				end)
 		end
-		
+
 		local quests = Quests:getQuests() or {}
 		local rankedQuestData = nil
 		for i,v in pairs(quests) do
@@ -1232,7 +1232,7 @@ do
 				break
 			end
 		end
-		
+
 		local rankedQuest = UIElement:new({
 			parent = tbMenuCurrentSection,
 			pos = { viewElement.shift.x + viewElement.size.w + 10, 0 },
@@ -1269,11 +1269,11 @@ do
 					end)
 			end)
 	end
-	
+
 	function Matchmake:showMain()
 		TB_MENU_SPECIAL_SCREEN_ISOPEN = 2
 		tbMenuCurrentSection:kill(true)
-		
+
 		local mmTimeRefresh = os.time()
 		local refreshLast = mmTimeRefresh
 		local refreshElement = UIElement:new({
@@ -1289,5 +1289,5 @@ do
 			end)
 		Matchmake:showRanked()
 	end
-	
+
 end

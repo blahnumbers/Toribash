@@ -1188,6 +1188,7 @@ do
 	end
 
 	function TBMenu:showMatchmaking()
+		require("system/matchmake_manager")
 		if (not tbMenuCurrentSection) then
 			TBMenu:createCurrentSectionView()
 		end
@@ -2172,9 +2173,9 @@ do
 			table.insert(buttonData, { text = TB_MENU_LOCALIZED.MAINMENUCLANSNAME, sectionId = 9 })
 		end
 		table.insert(buttonData, { text = TB_MENU_LOCALIZED.NAVBUTTONTOOLS, sectionId = 5, right = true })
-		--[[if (TB_MENU_PLAYER_INFO.data.qi >= 500) then
+		if (TB_MENU_PLAYER_INFO.data.qi >= 200) then
 			table.insert(buttonData, { text = TB_MENU_LOCALIZED.MAINMENURANKEDNAME, sectionId = 8, right = true })
-		end]]
+		end
 		return buttonData
 	end
 
