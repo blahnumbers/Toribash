@@ -5,58 +5,72 @@ FILES_MODE_WRITE = 'w+'
 FILES_MODE_APPEND = 'a'
 FILES_MODE_READWRITE = 'r+'
 
+local function filesOpenInternal(path, mode, isroot)
+	if (PLATFORM == "ANDROID") then
+		return read_file(path, mode, isroot)
+	end
+	return io.open(path, mode, isroot)
+end
+
+local function filesReadAllInternal(file)
+	if (PLATFORM == "ANDROID") then
+		return file
+	end
+	return file:read("*all")
+end
+
 do
 	Files = {}
 	Files.__index = Files
-	
+
 	-- Legacy name, will be deprecated in future releases
 	-- For any new scripts use Files:open() instead
 	function Files:new(path, mode)
 		return Files:open(path, mode)
 	end
-	
+
 	function Files:open(path, mode)
 		if (not path) then
 			return false
 		end
 		local mode = mode or FILES_MODE_READONLY
-		
+
 		local File = {}
 		setmetatable(File, self)
-		
+
 		File.mode = mode
-		
+
 		local isroot = path:match("^%.%.%/") and 1 or nil
 		File.isroot = isroot
-		
+
 		local path = path:gsub("^%.%.%/", "")
 		File.path = path
-		
+
 		if (not File:isDownloading()) then
-			File.data = io.open(path, mode, isroot)
+			File.data = filesOpenInternal(path, mode, isroot)
 			return File
 		end
-		
+
 		return File
 	end
-	
+
 	function Files:reopen(mode)
 		self:close()
 		local mode = mode or self.mode
 		if (not self:isDownloading()) then
-			self.data = io.open(self.path, mode, self.isroot)
+			self.data = filesOpenInternal(self.path, mode, self.isroot)
 		end
 	end
-	
+
 	function Files:readAll()
 		if (not self.data) then
 			return { }
 		end
-		local filedata = self.data:read("*all")
-		
+		local filedata = filesReadAllInternal(self.data)
+
 		-- Remove all CRs
 		filedata = filedata:gsub("\r", "")
-		
+
 		local lines = {}
 		-- Replace lines() with gmatch to ensure we only read LF newlines
 		for ln in filedata:gmatch("[^\n]*\n") do
@@ -67,17 +81,17 @@ do
 		end
 		return lines
 	end
-	
+
 	function Files:writeLine(line)
-		if (not self.data) then
+		if (not self.data or PLATFORM == "ANDROID") then
 			return false
 		end
-		
+
 		local line = line:find("\n$") and line or (line .. "\n")
 		self.data:write(line)
 		return true
 	end
-	
+
 	function Files:writeDebug(line, rewrite)
 		local debug = Files:open("../debug.txt", rewrite and FILES_MODE_WRITE or FILES_MODE_APPEND)
 		if (type(line) == "table") then
@@ -87,7 +101,7 @@ do
 		end
 		debug:close()
 	end
-	
+
 	function Files:isDownloading()
 		for i,v in pairs(get_downloads()) do
 			if (v:match(strEsc(self.path:gsub("%.%a+$", "")) .. "%.%a+$")) then
@@ -96,10 +110,12 @@ do
 		end
 		return false
 	end
-	
+
 	function Files:close()
 		if (self.data) then
-			self.data:close()
+			if (PLATFORM ~= "ANDROID") then
+				self.data:close()
+			end
 			self.data = nil
 		end
 	end

@@ -39,9 +39,9 @@ do
 			return
 		end
 
-		local file = io.open("data/script/system/language/" .. language .. ".txt", "r", 1)
-		if (not file) then
-			file = io.open("data/script/system/language/english.txt", "r", 1)
+		local file = Files:open("../data/script/system/language/" .. language .. ".txt", "r")
+		if (not file.data) then
+			file = Files:open("../data/script/system/language/english.txt", "r")
 			if (not file) then
 				echo("^04Localization data not found, exiting main menu")
 				if (is_steam()) then
@@ -54,7 +54,7 @@ do
 			end
 		end
 
-		for ln in file:lines() do
+		for _, ln in pairs(file:readAll()) do
 			if (not ln:match("^#")) then
 				local data_stream = { ln:match(("([^\t]*)\t?"):rep(2)) }
 				TB_MENU_LOCALIZED[data_stream[1]] = inverse and localize_rtl(data_stream[2]) or data_stream[2]
@@ -64,8 +64,8 @@ do
 
 		if (language ~= "english") then
 			-- Make sure there's no missing values
-			local file = io.open("data/script/system/language/english.txt", "r", 1)
-			for ln in file:lines() do
+			local file = Files:open("../data/script/system/language/english.txt", "r")
+			for _, ln in pairs(file:readAll()) do
 				if (not ln:match("^#")) then
 					local data_stream = { ln:match(("([^\t]*)\t?"):rep(2)) }
 					if (not TB_MENU_LOCALIZED[data_stream[1]]) then
@@ -504,7 +504,8 @@ do
 				parent = itemIcon,
 				pos = { 0, 0 },
 				size = { itemIcon.size.w, viewElement.size.h - 20 - titleHeight - descHeight },
-				bgColor = cloneTable(TB_MENU_DEFAULT_BG_COLOR)
+				bgColor = cloneTable(TB_MENU_DEFAULT_BG_COLOR),
+				uiColor = cloneTable(UICOLORWHITE)
 			})
 			lockedMessageView.bgColor[4] = 0.7
 			lockedMessageView:addAdaptedText(nil, lockedMessage)
@@ -1637,14 +1638,14 @@ do
 		local gametitle = TB_MENU_GAME_TITLE
 		local logoSize = 90 * TB_MENU_GLOBAL_SCALE
 		local gameTitleSize = 256 * TB_MENU_GLOBAL_SCALE
-		local customLogo = io.open("custom/" .. TB_MENU_PLAYER_INFO.username .. "/logo.tga", "r", 1)
-		if (customLogo) then
+		local customLogo = Files:open("../custom/" .. TB_MENU_PLAYER_INFO.username .. "/logo.tga")
+		if (customLogo.data) then
 			logo = "../../custom/" .. TB_MENU_PLAYER_INFO.username .. "/logo.tga"
 			logoSize = 120
 			customLogo:close()
 		end
-		local customGametitle = io.open("custom/" .. TB_MENU_PLAYER_INFO.username .. "/header.tga", "r", 1)
-		if (customGametitle) then
+		local customGametitle = Files:open("custom/" .. TB_MENU_PLAYER_INFO.username .. "/header.tga")
+		if (customGametitle.data) then
 			gametitle = "../../custom/" .. TB_MENU_PLAYER_INFO.username .. "/header.tga"
 			customGametitle:close()
 		end

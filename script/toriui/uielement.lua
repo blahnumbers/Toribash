@@ -1,6 +1,11 @@
 -- UI class
 
 WIN_W, WIN_H = get_window_size()
+if (PLATFORM == "ANDROID") then
+	WIN_W = math.max(WIN_W, 900)
+	WIN_H = math.max(WIN_H, 500)
+end
+
 MOUSE_X, MOUSE_Y = 0, 0
 UIMODE_LIGHT = get_option("uilight") == 1
 
