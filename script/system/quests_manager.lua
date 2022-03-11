@@ -173,7 +173,7 @@ do
 				parent = questReward,
 				pos = { (questReward.size.w - textWidth - iconSize - 10) / 2, (questReward.size.h - iconSize) / 2 },
 				size = { iconSize, iconSize },
-				bgImage = quest.rewardid == 0 and "../textures/store/toricredit_tiny.tga" or "../textures/store/items/" .. quest.rewardid .. ".tga"
+				bgImage = quest.rewardid ~= nil and (quest.rewardid == 0 and "../textures/store/toricredit_tiny.tga" or "../textures/store/items/" .. quest.rewardid .. ".tga") or nil
 			})
 		end
 	end
