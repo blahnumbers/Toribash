@@ -2,14 +2,18 @@ local INTRO = 1
 local OUTRO = -1
 
 local loadExistingReplay
-local finalPos = { x = 0, y = -29, z = 1.9, rad = 3, complete = tbTutorialsTaskMark and tbTutorialsTaskMark:isDisplayed() }
+local finalPos = { x = 3.25, y = 45, z = 2, rad = 3, shape = CUBE, size = { 20, 5, 4 }, complete = tbTutorialsTaskMark and tbTutorialsTaskMark:isDisplayed(), visible = true }
 --local trigObjectId = 32
 local checkPoints = {
-	{ x = -9, y = -3.8, z = 10, h = 3, w = 3, zh = 8, rad = 2.3, task = 1, complete = tbTutorialsTask.optional[1] and tbTutorialsTask.optional[1].complete },
-	{ x = 12.3, y = -13.5, z = 10, h = 3, w = 3, zh = 8, rad = 2.3, task = 2, complete = tbTutorialsTask.optional[2] and tbTutorialsTask.optional[2].complete },
+	{ x = 11.5, y = 31.6, z = 6, h = 5, w = 5, zh = 3, shape = CAPSULE, rad = 2.25, color = { 0, 1, 1, 0.5 }, task = 0, complete = false, costModifier = 0 },
+	{ x = 0, y = 0, z = -50, h = 1, w = 1, zh = 1, shape = CUBE, rad = 2.3, color = { 0, 0, 1, 0 }, task = 1, complete = tbTutorialsTask.optional[1] and tbTutorialsTask.optional[1].complete, costModifier = 1 },
 }
 local replayPlaying = false
 local taskToggle = nil
+
+local NUM_JOINTS = 20
+local MIN_CHECKPOINT_JOINTS = 10
+local NUM_JOINTS_OUTSIDE_CHECKPOINT = math.max(0, NUM_JOINTS - MIN_CHECKPOINT_JOINTS)
 
 local function spawnToplist(viewElement)
 	local elementHeight = 30
@@ -59,14 +63,14 @@ local function spawnToplist(viewElement)
 			end
 			EVENT_TOPLIST_DISPLAYED = hideButton.toggleEnabled
 		end)
-		
+
 	local toplistHeader = UIElement:new({
 		parent = topBar,
 		pos = { 25, 5 },
 		size = { topBar.size.w - 50, topBar.size.h - 10 }
 	})
 	toplistHeader:addAdaptedText(true, "Quickest Players")
-	
+
 	local reloadButton = UIElement:new({
 		parent = topBar,
 		pos = { -25, 0 },
@@ -86,9 +90,9 @@ local function spawnToplist(viewElement)
 			toplistHolder:kill()
 			spawnToplist(viewElement)
 		end)
-	
+
 	TBMenu:displayLoadingMark(listingHolder, "Loading Top Players")
-	
+
 	local toplistError = function(noEntries)
 		listingHolder:kill(true)
 		local errorMessage = UIElement:new({
@@ -98,18 +102,18 @@ local function spawnToplist(viewElement)
 		})
 		errorMessage:addAdaptedText(true, noEntries and "No players have submitted their replays yet.\nBe the first to join the event!" or "Something went wrong, please try again later")
 	end
-	
+
 	local toplistSuccess = function()
 		listingHolder:kill(true)
 		local response = get_network_response()
-		
+
 		local listElements = {}
 		local topSpeed = 0
 		for ln in response:gmatch("[^\n]*\n?") do
 			if (not ln:find("^#INFO") and ln:len() > 0) then
-				local _, segments = ln:gsub("\t", "") 
+				local _, segments = ln:gsub("\t", "")
 				local data = { ln:match(("([^\t]*)\t?"):rep(segments)) }
-				
+
 				local playerEntry = UIElement:new({
 					parent = listingHolder,
 					pos = { 0, #listElements * elementHeight },
@@ -122,21 +126,21 @@ local function spawnToplist(viewElement)
 					size = { playerEntry.size.w / 2 - 15, playerEntry.size.h - 5 }
 				})
 				playerName:addAdaptedText(true, data[1], nil, nil, 4, LEFTMID, 0.7)
-				
+
 				local playerResult = UIElement:new({
 					parent = playerEntry,
 					pos = { playerEntry.size.w / 2 + 5, 2 },
 					size = { playerEntry.size.w / 2 - 15, playerEntry.size.h - 5 }
 				})
 				playerResult:addAdaptedText(true, data[2] .. " frames", nil, nil, 4, RIGHTMID, 0.7)
-				
+
 				local playerSeparator = UIElement:new({
 					parent = playerEntry,
 					pos = { 25, -1 },
 					size = { playerEntry.size.w - 50, 0.5 },
 					bgColor = { 1, 1, 1, 0.2 }
 				})
-				
+
 				if (topSpeed == 0) then
 					topSpeed = data[2]
 				end
@@ -152,7 +156,7 @@ local function spawnToplist(viewElement)
 		local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
 		listingHolder.scrollBar = scrollBar
 		scrollBar:makeScrollBar(listingHolder, listElements, toReload)
-		
+
 		local targetFrames = UIElement:new({
 			parent = topBar,
 			pos = { 0, topBar.size.h },
@@ -164,7 +168,7 @@ local function spawnToplist(viewElement)
 				targetFrames:uiText("Top speed: " .. topSpeed .. " frames", -70, 100, FONTS.MEDIUM, nil, 0.8, -90, nil, { 1, 1, 1, targetFrames.bgColor[4] })
 			end)
 	end
-	
+
 	if (Request.queue ~= nil) then
 		Request:queue(function()
 			download_server_info("event_toplist&event=" .. CURRENT_TUTORIAL)
@@ -179,7 +183,7 @@ local function spawnTaskToggle()
 	if (not Tutorials.ver or Tutorials.ver < 1.1 or taskToggle) then
 		return
 	end
-	
+
 	taskToggle = UIElement:new({
 		parent = tbTutorialsTask,
 		pos = { tbTutorialsTask.size.w, 0 },
@@ -204,7 +208,7 @@ local function spawnTaskToggle()
 					rotate_dir = 0
 				end
 			end
-			
+
 			if (taskToggle.spawnTime > 0 and taskToggle.toggleEnabled and taskToggle.spawnTime + 10 < os.clock()) then
 				taskToggle.btnUp()
 			end
@@ -224,6 +228,10 @@ local function spawnTaskToggle()
 end
 
 local function checkpointComplete(check)
+	if (not check or not check.size) then
+		return
+	end
+
 	local grow = 0
 	local rad = 0
 	local colorDir = 1
@@ -245,7 +253,7 @@ local function showOverlay(viewElement, reqTable, out, speed)
 	local speed = speed or 1
 	local req = { type = "transition", ready = false }
 	table.insert(reqTable, req)
-	
+
 	if (tbOutOverlay) then
 		tbOutOverlay:kill()
 	end
@@ -283,19 +291,19 @@ local function outroOverlay(viewElement, reqTable)
 end
 
 local function loadCheckpoints()
-	if (not finalPos.complete) then
+	if (not finalPos.complete and finalPos.visible) then
 		if (finalPos.element) then
 			finalPos.element:kill()
 		end
 		local destinationMark = UIElement3D:new({
 			parent = tbTutorials3DHolder,
 			pos = { finalPos.x, finalPos.y, finalPos.z },
-			size = { finalPos.rad, 500 },
-			shapeType = CAPSULE,
-			bgColor = { 1, 0, 0, 0.5 }
+			size = finalPos.size or { finalPos.rad, 500 },
+			shapeType = finalPos.shape or CAPSULE,
+			bgColor = finalPos.color or { 1, 0, 0, 0.5 }
 		})
 		finalPos.element = destinationMark
-		
+
 		if (trigObjectId) then
 			local overseer = UIElement3D:new({
 				parent = tbTutorials3DHolder,
@@ -307,7 +315,7 @@ local function loadCheckpoints()
 						overseer:kill()
 						return
 					end
-					
+
 					local x, y, z = get_joint_pos(0, 0)
 					local dist = math.pow(finalPos.x - x, 2) + math.pow(finalPos.y - y, 2) + math.pow(finalPos.z - z, 2)
 					if (dist >= 200) then
@@ -322,7 +330,7 @@ local function loadCheckpoints()
 						destinationMark.bgColor[4] = 0.5 / math.log(200 - dist)
 						set_obj_color(trigObjectId - 1, 200 / dist, math.min(1, 1 / (50 - dist)), math.min(1, dist / 50), 1)
 					end
-					
+
 					for i,v in pairs(ORBS_DATA) do
 						if (not v.touched and v.pos) then
 							local x, y, z = get_obj_pos(v.id)
@@ -344,10 +352,10 @@ local function loadCheckpoints()
 			end
 			local checkPoint = UIElement3D:new({
 				parent = tbTutorials3DHolder,
-				pos = { v.x, v.y, v.z + v.zh },
-				size = { v.rad, v.zh * 2 },
-				shapeType = CAPSULE,
-				bgColor = { 0, 0, 1, 0.5 }
+				pos = { v.x, v.y, v.z + (v.shape == CAPSULE and v.zh or 0) },
+				size = v.shape == CUBE and { v.h, v.w, v.zh } or { v.rad, v.zh * 2 },
+				shapeType = v.shape,
+				bgColor = v.color and cloneTable(v.color) or { 0, 0, 1, 0.5 }
 			})
 			v.element = checkPoint
 		end
@@ -356,7 +364,7 @@ end
 
 local function showUploadWindow(viewElement, reqTable)
 	CURRENT_STEP.fallbackrequirement = true
-	
+
 	local function uploadReplay(name)
 		chat_input_deactivate()
 		local name = name:gsub("%.rpl$", ""):gsub("^%/", "")
@@ -370,16 +378,16 @@ local function showUploadWindow(viewElement, reqTable)
 		UIElement:runCmd("savereplay " .. name)
 		local file = Files:open("../replay/my replays/" .. name .. ".rpl", FILES_MODE_APPEND)
 		if (file.data) then
-			local winframe = WIN_FRAME + #checkPoints * 10000
+			local winframe = WIN_FRAME + 10000
 			for i,v in pairs(checkPoints) do
 				if (v.complete == true) then
-					winframe = winframe - 10000
+					winframe = winframe - 10000 * (v.costModifier or i)
 				end
 			end
 			file:writeLine("#ENDFRAME " .. winframe)
 			file:close()
 		end
-		
+
 		local overlay = TBMenu:spawnWindowOverlay()
 		local width = overlay.size.w / 7 * 3
 		local uploadingView = UIElement:new({
@@ -408,20 +416,20 @@ local function showUploadWindow(viewElement, reqTable)
 		end
 		if (Request.queue ~= nil) then
 			Request:queue(function()
-				upload_event_replay(name, "Event Squad's Floor is Lava 3 event entry", "ESEVNT" .. CURRENT_TUTORIAL, "replay/my replays/" .. name .. ".rpl")
+				upload_event_replay(name, "Event Squad's Leggang V2 event entry", "ESEVNT" .. CURRENT_TUTORIAL, "replay/my replays/" .. name .. ".rpl")
 			end, "replayupload", success, error)
 		else
-			upload_event_replay(name, "Event Squad's Floor is Lava 3 event entry", "ESEVNT" .. CURRENT_TUTORIAL, "replay/my replays/" .. name .. ".rpl")
+			upload_event_replay(name, "Event Squad's Leggang V2 event entry", "ESEVNT" .. CURRENT_TUTORIAL, "replay/my replays/" .. name .. ".rpl")
 			Request:new("replayupload", success, error)
 		end
 	end
-	
+
 	local function cancelUpload()
 		chat_input_deactivate()
 		CURRENT_STEP.fallbackrequirement = false
 		reqTable.ready = true
 	end
-	
+
 	add_hook("key_down", "tbTutorialsCustom", function(s) UIElement:handleKeyDown(s) return 1 end)
 	add_hook("key_up", "tbTutorialsCustom", function(s) UIElement:handleKeyUp(s) return 1 end)
 	TBMenu:showConfirmationWindowInput(TB_MENU_LOCALIZED.EVENTSUPLOADINGENTRY, TB_MENU_LOCALIZED.REPLAYSENTERNAME, uploadReplay, cancelUpload)
@@ -429,7 +437,7 @@ end
 
 local function showSubmitButton(viewElement, reqTable, skipAdd)
 	local skipAdd = skipAdd or 0
-	local buttonWidth = WIN_W / 3 > 350 and 350 or WIN_W / 3
+	local buttonWidth = WIN_W / 3 > 420 and 420 or WIN_W / 3
 	local submitButton = UIElement:new({
 		parent = viewElement,
 		pos = { (WIN_W - buttonWidth) / 2, -120 },
@@ -437,7 +445,9 @@ local function showSubmitButton(viewElement, reqTable, skipAdd)
 		bgColor = TB_MENU_DEFAULT_BG_COLOR,
 		hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
 		pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-		interactive = true
+		interactive = true,
+		shapeType = ROUNDED,
+		rounded = 5
 	})
 	submitButton:addAdaptedText(false, TB_MENU_LOCALIZED.BUTTONSUBMIT)
 	submitButton:addMouseHandlers(nil, function()
@@ -453,7 +463,7 @@ local function eventMain(viewElement, reqTable, skipAdd)
 	local skipAdd = skipAdd or 0
 	spawnTaskToggle()
 	TUTORIAL_SPECIAL_RP_IGNORE = true
-	
+
 	loadCheckpoints()
 	chat_input_deactivate()
 	if (skipAdd == 0) then
@@ -475,13 +485,14 @@ local function eventMain(viewElement, reqTable, skipAdd)
 					if (not finalPos.complete) then
 						REPLAY_CAN_BE_SUBMITTED = false
 						WIN_FRAME = 100000
+						tbTutorialsTaskMark:hide(true)
 					end
 					for i,v in pairs(checkPoints) do
-						if (not v.complete) then
+						if (not v.complete and v.task) then
 							Tutorials:taskOptIncomplete(v.task)
-							tbTutorialsTask.optional[i].markFail:hide(true)
 						end
 					end
+					loadCheckpoints()
 					TUTORIAL_LEAVEGAME = false
 					return 1
 				end
@@ -500,13 +511,17 @@ local function eventMain(viewElement, reqTable, skipAdd)
 					TUTORIAL_LEAVEGAME = true
 					rewind_replay()
 					TUTORIAL_LEAVEGAME = false
+
+					finalPos.complete = false
+					for i,v in pairs(checkPoints) do
+						v.complete = false
+					end
 					if (not REPLAY_CAN_BE_SUBMITTED) then
-						finalPos.complete = false
 						tbTutorialsTaskMark:hide(true)
 						for i,v in pairs(checkPoints) do
-							v.complete = false
-							Tutorials:taskOptIncomplete(v.task)
-							tbTutorialsTask.optional[i].markFail:hide(true)
+							if (v.task) then
+								Tutorials:taskOptIncomplete(v.task)
+							end
 						end
 						loadCheckpoints()
 					end
@@ -524,8 +539,9 @@ local function eventMain(viewElement, reqTable, skipAdd)
 					tbTutorialsTaskMark:hide(true)
 					for i,v in pairs(checkPoints) do
 						v.complete = false
-						Tutorials:taskOptIncomplete(v.task)
-						tbTutorialsTask.optional[i].markFail:hide(true)
+						if (v.task) then
+							Tutorials:taskOptIncomplete(v.task)
+						end
 					end
 					loadCheckpoints()
 					REPLAY_CAN_BE_SUBMITTED = false
@@ -552,8 +568,9 @@ local function eventMain(viewElement, reqTable, skipAdd)
 								tbTutorialsTaskMark:hide(true)
 								for i,v in pairs(checkPoints) do
 									v.complete = false
-									Tutorials:taskOptIncomplete(v.task)
-									tbTutorialsTask.optional[i].markFail:hide(true)
+									if (v.task) then
+										Tutorials:taskOptIncomplete(v.task)
+									end
 								end
 								loadExistingReplay(viewElement, reqTable, path)
 								EVENT_REPLAY_BROWSER_ISOPEN = false
@@ -609,7 +626,7 @@ local function eventMain(viewElement, reqTable, skipAdd)
 							gameRulesScreen:kill()
 							gameRulesScreen = nil
 						end)
-					
+
 					local gameRules = get_game_rules()
 					local rules = {}
 					table.insert(rules, { name = "Mod", value = gameRules.mod:gsub("^.*/", "") })
@@ -623,7 +640,7 @@ local function eventMain(viewElement, reqTable, skipAdd)
 						table.insert(rules, { name = "Frac Threshold", value = gameRules.fracturethreshold })
 					end
 					table.insert(rules, { name = "Grip", value = gameRules.grip == '1' and TB_MENU_LOCALIZED.SETTINGSENABLED or TB_MENU_LOCALIZED.SETTINGSDISABLED })
-					
+
 					local posY = rulesTitle.shift.y + rulesTitle.size.h
 					for i,v in pairs(rules) do
 						local ruleHolder = UIElement:new({
@@ -648,7 +665,7 @@ local function eventMain(viewElement, reqTable, skipAdd)
 					return 1
 				end
 			end)
-		
+
 		if (Replays.ver and Replays.ver >= 1.1) then
 			local customReplayButton = UIElement:new({
 				parent = viewElement,
@@ -701,8 +718,9 @@ local function eventMain(viewElement, reqTable, skipAdd)
 							tbTutorialsTaskMark:hide(true)
 							for i,v in pairs(checkPoints) do
 								v.complete = false
-								Tutorials:taskOptIncomplete(v.task)
-								tbTutorialsTask.optional[i].markFail:hide(true)
+								if (v.task) then
+									Tutorials:taskOptIncomplete(v.task)
+								end
 							end
 							loadExistingReplay(viewElement, reqTable, path)
 						end)
@@ -715,7 +733,7 @@ local function eventMain(viewElement, reqTable, skipAdd)
 			loadExistingReplay(viewElement, reqTable)
 		end
 	end
-	
+
 	--[[local framesElapsed = UIElement:new({
 		parent = viewElement,
 		pos = { 0, 50 },
@@ -770,13 +788,21 @@ local function eventMain(viewElement, reqTable, skipAdd)
 								-- apply displacement
 								x = x - 1
 								y = y + 0.1
-								local xR, yR = x - check.x, y - check.y
-								if (xR * xR + yR * yR > check.rad * check.rad) then
-									criteriaMet = criteriaMet + 1
-									--break
+								if (check.shape == CAPSULE) then
+									local xR, yR = x - check.x, y - check.y
+									if (xR * xR + yR * yR > check.rad * check.rad) then
+										criteriaMet = criteriaMet + 1
+										--break
+									end
+								else
+									if (check.x - check.h / 2 > x or check.x + check.h / 2 < x or
+										check.y - check.w / 2 > y or check.y + check.w / 2 < y or
+										check.z - check.zh / 2 > z or check.z + check.zh / 2 < z) then
+										criteriaMet = criteriaMet + 1
+									end
 								end
 							end
-							if (criteriaMet < 10) then
+							if (criteriaMet < NUM_JOINTS_OUTSIDE_CHECKPOINT) then
 								Tutorials:taskOptComplete(check.task)
 								check.complete = true
 								checkpointComplete(check.element)
@@ -789,19 +815,38 @@ local function eventMain(viewElement, reqTable, skipAdd)
 						-- apply displacement
 						x = x - 1
 						y = y + 0.1
-						--[[if (z < finalPos.z - finalPos.rad / 2 or z > finalPos.z + finalPos.rad) then
-							criteriaMet = false
-							break
-						end]]
-						local xR, yR = x - finalPos.x, y - finalPos.y
-						if (xR * xR + yR * yR > finalPos.rad * finalPos.rad) then
-							criteriaMet = criteriaMet + 1
-							--break
+						if (finalPos.shape == CAPSULE) then
+							local xR, yR = x - finalPos.x, y - finalPos.y
+							if (xR * xR + yR * yR > finalPos.rad * finalPos.rad) then
+								criteriaMet = criteriaMet + 1
+							end
+						else
+							if (finalPos.x - finalPos.size[1] / 2 > x or finalPos.x + finalPos.size[1] / 2 < x or
+								finalPos.y - finalPos.size[2] / 2 > y or finalPos.y + finalPos.size[2] / 2 < y or
+								finalPos.z - finalPos.size[3] / 2 > z or finalPos.z + finalPos.size[3] / 2 < z) then
+								criteriaMet = criteriaMet + 1
+							end
 						end
 					end
-					if (criteriaMet < 10) then
+					if (criteriaMet < NUM_JOINTS_OUTSIDE_CHECKPOINT) then
+						WIN_FRAME = ws.match_frame
+						REPLAY_CAN_BE_SUBMITTED = true
 						finalPos.complete = true
-						--checkpointComplete(finalPos.element)
+
+						-- easter festival only
+						local x, y, z = get_obj_pos(7)
+						x = x - 1
+						y = y + 0.1
+						if (finalPos.x - finalPos.size[1] / 2 < x and finalPos.x + finalPos.size[1] / 2 > x and
+							finalPos.y - finalPos.size[2] / 2 < y and finalPos.y + finalPos.size[2] / 2 > y and
+							finalPos.z - finalPos.size[3] / 2 < z and finalPos.z + finalPos.size[3] / 2 > z) then
+							Tutorials:taskOptComplete(checkPoints[2].task)
+							checkPoints[2].complete = true
+							checkpointComplete(checkPoints[2].element)
+						end
+
+						checkpointComplete(finalPos.element)
+						EventsOnline:taskComplete()
 					end
 				end
 				frame_checked = ws.match_frame
@@ -812,20 +857,18 @@ end
 loadExistingReplay = function(viewElement, reqTable, rplFile)
 	local replay = Files:open(rplFile and ("../replay/" .. rplFile) or ("../replay/my replays/--eventtmp" .. CURRENT_TUTORIAL .. ".rpl"))
 	if (not replay.data) then
-		replay = Files:open("../replay/my replays/--eventtmpfloorislava3.rpl")
-		if (not replay.data) then
-			return false
-		end
+		return false
 	end
 	for i,v in pairs(checkPoints) do
 		v.complete = false
-		Tutorials:taskOptIncomplete(v.task)
-		tbTutorialsTask.optional[i].markFail:hide(true)
+		if (v.task) then
+			Tutorials:taskOptIncomplete(v.task)
+		end
 	end
 	loadCheckpoints()
 	local rplData = replay:readAll()
 	replay:close()
-	
+
 	local steps = {}
 	for i, ln in pairs(rplData) do
 		if (ln:find("^FRAME %d+")) then
@@ -866,20 +909,27 @@ loadExistingReplay = function(viewElement, reqTable, rplFile)
 			local ws = get_world_state()
 			for i,check in pairs(checkPoints) do
 				if (not check.complete) then
-					local criteriaMet = true
+					local criteriaMet = 0
 					for i,v in pairs(JOINTS) do
 						local x, y, z = get_joint_pos(0, v)
 						-- apply displacement
 						x = x - 1
 						y = y + 0.1
-						if (--z < check.z - 500 - check.zh / 2 or z > check.z - 500 + check.zh / 2 or
-							x < check.x - check.w / 2 or x > check.x + check.w / 2 or
-							y < check.y - check.h / 2 or y > check.y + check.h / 2) then
-							criteriaMet = false
-							break
+						if (check.shape == CAPSULE) then
+							local xR, yR = x - check.x, y - check.y
+							if (xR * xR + yR * yR > check.rad * check.rad) then
+								criteriaMet = criteriaMet + 1
+								--break
+							end
+						else
+							if (check.x - check.h / 2 > x or check.x + check.h / 2 < x or
+								check.y - check.w / 2 > y or check.y + check.w / 2 < y or
+								check.z - check.zh / 2 > z or check.z + check.zh / 2 < z) then
+								criteriaMet = criteriaMet + 1
+							end
 						end
 					end
-					if (criteriaMet) then
+					if (criteriaMet < NUM_JOINTS_OUTSIDE_CHECKPOINT) then
 						Tutorials:taskOptComplete(check.task)
 						check.complete = true
 						checkpointComplete(check.element)
@@ -909,7 +959,7 @@ end
 
 local function setDiscordRPC()
 	local tutorialNum = CURRENT_TUTORIAL:gsub("%D", "")
-	set_discord_rpc("Floor is Lava " .. tutorialNum, TB_MENU_LOCALIZED.DISCORDRPCPLAYINGSPEVENT or "Playing SP Event")
+	set_discord_rpc("Easter Festival " .. tutorialNum, TB_MENU_LOCALIZED.DISCORDRPCPLAYINGSPEVENT or "Playing SP Event")
 end
 
 local function launchGame(viewElement, reqTable)
@@ -917,7 +967,7 @@ local function launchGame(viewElement, reqTable)
 	table.insert(reqTable, req)
 	TUTORIAL_LEAVEGAME = true
 	setDiscordRPC()
-	
+
 	REPLAY_CAN_BE_SUBMITTED = false
 	WIN_FRAME = 100000
 
@@ -932,7 +982,7 @@ local function launchGame(viewElement, reqTable)
 			end
 		end
 	end
-	
+
 	local reqElement = UIElement:new({
 		parent = viewElement,
 		pos = { 0, 0 },

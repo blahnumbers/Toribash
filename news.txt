@@ -1,15 +1,21 @@
 NEWSID 0;
+TITLE 0;Single Player Cup 2022
+SUBTITLE 0;The grand competition for the title of the best replay maker of the year is on!
+IMAGE 0;singleplayercup22.tga
+URL 0;https://forum.toribash.com/showthread.php?t=655169
+
+NEWSID 1;
 TITLE 0;Nailed it!
 SUBTITLE 0;Head Sign is now available in Store!
 IMAGE 0;store/headsignpromo.tga
 URL 0;https://forum.toribash.com/tori_shop_item.php?id=3536
 STORE 0;3536
 
-NEWSID 2;
-TITLE 0;Head Texture of the Month: Pop Art
-SUBTITLE 0;Make your best pop art stylized head texture and get rewards!
-IMAGE 0;htotmpopart22.tga
-URL 0;https://forum.toribash.com/showthread.php?t=653690
+//NEWSID 2;
+//TITLE 0;Head Texture of the Month: Pop Art
+//SUBTITLE 0;Make your best pop art stylized head texture and get rewards!
+//IMAGE 0;htotmpopart22.tga
+//URL 0;https://forum.toribash.com/showthread.php?t=653690
 
 //NEWSID 3;
 //TITLE 0;No events live now, but you can still replay any ended event in all events menu!
@@ -17,8 +23,8 @@ URL 0;https://forum.toribash.com/showthread.php?t=653690
 //FEATURED 0;
 
 NEWSID 3;
-TITLE 0;Leggang V2: Return of the Toes!
-IMAGE 0;leggang2.tga
+TITLE 0;Easter Festival
+IMAGE 0;easterfestival.tga
 EVENT 0;1
 FEATURED 0;
 
@@ -63,36 +69,36 @@ FEATURED 0;
 //FEATURED 0;
 
 EVENTID 1;
-NAME 0;Leggang v2: Return of the Toes!
-IMAGE 0;leggang.tga
-URL 0;https://forum.toribash.com/showthread.php?t=654309
-PLAYNAME 0;leggang2
+NAME 0;Easter Festival
+//IMAGE 0;leggang.tga
+URL 0;https://forum.toribash.com/showthread.php?t=655190
+PLAYNAME 0;easterfest
 OVERLAYTRANS 0;0.1
 PLAYTEXT 0;PARTICIPATE
-ACCENTCOLOR 0;00dbfe
+ACCENTCOLOR 0;d4d7ec
 UICOLOR 0;000000
-BTNHVRCOL 0;505050
-BTNDNCOL 0;92041f
+BTNHVRCOL 0;1e343b
+BTNDNCOL 0;f9bc71
 DESCDATA 0;1Description
 DESCDATAIMGTITLE 0;1oc_description.tga
-DESCDATATEXT 0;1The Event Squad is proud to present Leggang v2!\n\nYou may ask, what does being LegGang even mean? Well in short, it's making a replay with no arms - and thanks to our very painful *dearming machine* you will not have to go through the trouble of removing them yourself!\n\nI mean, who even needs arms, right?!
+DESCDATATEXT 0;1Hey 'Bashers and welcome to this year's Easter Festival parkour event!\n\nThe challenge is simple, get to the finish line! Parkour your way to the end, picking up the red egg on your way, for more prizes.\n\nBest of luck!
 DESCDATA 0;2Rules
 DESCDATAIMGTITLE 0;2oc_rules.tga
 DESCDATATEXT 0;2- No replay hacking\n- Do not steal others' replays\n- Do not edit any of the mod's game rules\n- Do not enter the event with multiple accounts
 DESCDATA 0;3Deadline
 DESCDATAIMGTITLE 0;3oc_deadline.tga
-DESCDATATEXT 0;3March 9th, 16:00 / 4 PM UTC
+DESCDATATEXT 0;3May 6th, 20:00 / 8 PM UTC
 PRIZEIMG 0;oc_prizes.tga
 PRIZEDATA 0;1Best replay
-PRIZETC 0;1100000
-PRIZEST 0;110
-PRIZEITEMS 0;11 3551
-PRIZEDATA 0;2Complete red path
-PRIZETC 0;212000
-PRIZEST 0;25
-PRIZEDATA 0;3Complete blue path
+PRIZETC 0;175000
+PRIZEST 0;17
+PRIZEITEMS 0;11 925
+PRIZEDATA 0;2Finish with the egg
+PRIZETC 0;210000
+PRIZEST 0;24
+PRIZEDATA 0;3Complete the map
 PRIZETC 0;36000
-PRIZEST 0;32
+PRIZEST 0;33
 
 EVENTID 2;
 NAME 0;Wipeout Warrior
@@ -147,7 +153,7 @@ PRIZEST 0;42
 EVENTID 3;
 NAME 0;Toribash Ranking Season 7
 //IMAGE 0;headinthewall.tga
-URL 0;https://www.toribash.com/season7.php
+URL 0;https://www.toribash.com/season7
 //PLAYNAME 0;headinthewall2
 OVERLAYTRANS 0;0
 //PLAYTEXT 0;PARTICIPATE
