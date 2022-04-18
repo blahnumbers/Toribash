@@ -243,6 +243,7 @@ PRODUCT	78	3d objects	1996	Angel Wings	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0
 PRODUCT	78	3d objects	2957	Anime Bow	0	40000.00	5.00	40000.00	5.00	0	1	0	0	0	1	0	0	0	The kawaii touch your tori needs!		
 PRODUCT	47	Secret	3111	Anime Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	Includes all Anime 3D items!	2953 2954 2956 2957 2947	
 PRODUCT	78	3d objects	2143	Antenna	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Control your Tori with the speed of light. For winners of the monthly Top 32 Tournament.		
+PRODUCT	78	3d objects	3584	Apathetic Man	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	a face portraying the pinnacle of apathy. also known as: fear		
 PRODUCT	77	Tokens	1926	Appreciation Token	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	Thanks!		
 PRODUCT	78	3d objects	3025	Apprentice Wizard Hat	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	"They only get taller from here, rookie!"		
 PRODUCT	44	Color Packs	914	Aqua Pack	0	0.00	2.00	0.00	2.00	0	0	0	0	0	0	28	0	0	This pack contains a full set of Aqua items.\nUNLOCK this into your inventory.	35 178 538 49 154 508 403 328 221 50 353 428 246 274 126 462 1760	
@@ -403,11 +404,11 @@ PRODUCT	4	Textures	1098	Bumpmap Right Triceps Texture	0	10000.00	0.00	10000.00	0
 PRODUCT	56	Bumpmap Textures	1434	Bumpmap Right Triceps Texture	0	10000.00	0.00	10000.00	0.00	0	0	0	0	0	1	0	0	0	Tradeable bumpmaps.		
 PRODUCT	4	Textures	1094	Bumpmap Stomach Texture	0	10000.00	0.00	10000.00	0.00	0	0	0	0	0	0	0	0	0	Allows you to upload a surface map to your ABS/STOMACH.\n\n \nBUY ONLY ONCE & NON-TRADEABLE		
 PRODUCT	56	Bumpmap Textures	1430	Bumpmap Stomach Texture	0	10000.00	0.00	10000.00	0.00	0	0	0	0	0	1	0	0	0	Tradeable bumpmaps.		
-PRODUCT	78	3d objects	2057	Bunny Ears	0	25000.00	4.00	25000.00	4.00	0	0	0	0	0	1	0	1	1	All that was left of Peter Rabbit after Mr. McGregor finally caught him.		
+PRODUCT	78	3d objects	2057	Bunny Ears	1	17000.00	3.00	25000.00	4.00	34906	1	0	0	0	1	0	0	0	All that was left of Peter Rabbit after Mr. McGregor finally caught him.		
 PRODUCT	78	3d objects	2563	Bunny Ears - Frosy	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	All that was left of Peter Rabbit's Goth brother after Mr. McGregor finally caught him.		
-PRODUCT	80	Full Toris	3316	Bunny Slippers	0	40000.00	6.00	40000.00	6.00	0	0	0	0	0	0	0	0	0	Cozy! Suggested by Assassinpro.	3314 3315	
-PRODUCT	78	3d objects	3314	Bunny Slippers Left	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Cozy! Suggested by Assassinpro.		
-PRODUCT	78	3d objects	3315	Bunny Slippers Right	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Cozy!  Suggested by Assassinpro.		
+PRODUCT	80	Full Toris	3316	Bunny Slippers	1	30000.00	4.00	40000.00	6.00	34906	1	0	0	0	0	0	0	0	Cozy! Suggested by Assassinpro.	3314 3315	
+PRODUCT	78	3d objects	3314	Bunny Slippers Left	0	22500.00	3.50	22500.00	3.50	0	0	0	0	0	1	0	0	1	Cozy! Suggested by Assassinpro.		
+PRODUCT	78	3d objects	3315	Bunny Slippers Right	0	22500.00	3.50	22500.00	3.50	0	0	0	0	0	1	0	0	0	Cozy!  Suggested by Assassinpro.		
 PRODUCT	78	3d objects	3250	Burial Mound	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	A respectful resting place for those who have fallen in battle.		
 PRODUCT	78	3d objects	3544	Butterfly Wings	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1			
 PRODUCT	78	3d objects	2742	Button Eyes	0	5000.00	1.00	5000.00	1.00	0	0	0	0	0	1	0	1	1	HALLOWEEN SPECIAL\n\nThe world definitely looks better now... right?		
@@ -416,8 +417,8 @@ PRODUCT	47	Secret	1479	Camo Force + Relax Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0
 PRODUCT	44	Color Packs	1066	Camo Pack	0	0.00	7.00	0.00	7.00	0	0	0	0	0	0	101	0	0	This pack contains a full set of Camo items. UNLOCK this into your inventory.	1031 1030 1032 1033 1034 1035 1036 1037 1038 1039 1040 1041 1042 1043 1044 1045 1765	
 PRODUCT	39	Market	489	Cancel Order	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	0	0			
 PRODUCT	78	3d objects	2142	Cancer	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Don't worry, it does not cause lungcancer.\nAt least a single one shouldn't...		
-PRODUCT	81	Shiai Items	2233	Candy Cane	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	0	0	CHRISTMAS SPECIAL\n\nThe only candy that will really last forever (*).\n\n* because it's stuck to your back. How did you plan to lick it?\nUnlock this pack to get the item inside.		
-PRODUCT	78	3d objects	2793	Candy Cane Staff	0	10000.00	2.00	10000.00	2.00	0	0	0	0	0	1	0	0	0	CHRISTMAS SPECIAL\n\nA staff that used to be held by Santa himself.		
+PRODUCT	81	Shiai Items	2233	Candy Cane	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	CHRISTMAS SPECIAL\n\nThe only candy that will really last forever (*).\n\n* because it's stuck to your back. How did you plan to lick it?\nUnlock this pack to get the item inside.		
+PRODUCT	78	3d objects	2793	Candy Cane Staff	0	10000.00	2.00	10000.00	2.00	0	0	0	0	0	1	0	1	1	CHRISTMAS SPECIAL\n\nA staff that used to be held by Santa himself.		
 PRODUCT	18	Collectibles	1735	Casino Chips	0	0.00	50.00	0.00	50.00	0	0	0	0	0	0	0	0	0	Stack 'em up!		
 PRODUCT	78	3d objects	3241	Cat Ears	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	meow		
 PRODUCT	78	3d objects	2464	Cel Shaded Breast	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1			
@@ -449,7 +450,7 @@ PRODUCT	78	3d objects	2012	Championship Belt	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0
 PRODUCT	83	Collectors Cards	3286	Chax - WC2019	0	10000.00	2.00	10000.00	2.00	0	0	0	0	0	0	0	1	1			
 PRODUCT	83	Collectors Cards	3391	Chax - WC2020	0	10000.00	2.00	10000.00	2.00	0	0	0	0	0	0	0	1	1			
 PRODUCT	4	Textures	595	Chest Texture	0	6000.00	0.00	6000.00	0.00	0	0	0	0	0	0	0	0	1	Allows you to upload skins to your MANLY CHEST.\n\n \nBUY ONLY ONCE & NON-TRADEABLE		
-PRODUCT	81	Shiai Items	2503	Christmas Box	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	0	0	CHRISTMAS SPECIAL\n\nUnlock this pack to get the following items:\n\nSanta Hat\n\nSanta Beard\n\nCandy Cane\n\nLeft and Right Mittens\n\nLeft and Right Silly Slippers\n\nSanta's Machine\n\nRudolph Nose & Antlers\n\nLittle Latching Elf		
+PRODUCT	81	Shiai Items	2503	Christmas Box	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	CHRISTMAS SPECIAL\n\nUnlock this pack to get the following items:\n\nSanta Hat\n\nSanta Beard\n\nCandy Cane\n\nLeft and Right Mittens\n\nLeft and Right Silly Slippers\n\nSanta's Machine\n\nRudolph Nose & Antlers\n\nLittle Latching Elf		
 PRODUCT	86	Lottery Tickets	3358	Christmas Lottery 2020 Ticket - Cheap and Cheerful	0	5000.00	0.00	5000.00	0.00	0	0	0	0	0	0	0	1	0	A cheap and cheerful ticket to join Toribash Christmas Lottery 2020		
 PRODUCT	86	Lottery Tickets	3363	Christmas Lottery 2020 Ticket - Epic	0	20000.00	0.00	20000.00	0.00	0	0	0	0	0	0	0	1	0	An epic ticket to join Toribash Christmas Lottery 2020		
 PRODUCT	86	Lottery Tickets	3360	Christmas Lottery 2020 Ticket - Luxury	0	10000.00	0.00	10000.00	0.00	0	0	0	0	0	0	0	1	0	A luxury ticket to join Toribash Christmas Lottery 2020		
@@ -670,7 +671,7 @@ PRODUCT	78	3d objects	3194	Ectotori - Right Triceps	0	0.00	0.00	0.00	0.00	0	0	0	
 PRODUCT	78	3d objects	3193	Ectotori - Right Wrist	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	Covered in Goo!		
 PRODUCT	78	3d objects	3213	Ectotori - Stomach	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	Covered in Goo!		
 PRODUCT	72	Hair Styles	1932	ed's item	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	test		
-PRODUCT	78	3d objects	3524	El Trofeo!	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	That isn't how you use a trophy, but latin guys broke the standards.		
+PRODUCT	78	3d objects	3589	Egg Splat	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	EASTER SPECIAL\n\nYou should be careful, it's dangerous to be an egg man.		
 PRODUCT	47	Secret	1462	Elf Force + Relax Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	This pack contains 1 x Elf Force and 1x Elf Relax.	144 145	
 PRODUCT	44	Color Packs	1070	Elf Pack	0	0.00	100.00	0.00	100.00	0	0	0	0	0	0	32	0	0	This pack consist of a full set of Elf items. UNLOCK this into your inventory.	143 183 542 144 159 512 407 332 225 145 357 432 250 279 1069 466 1774 3435	
 PRODUCT	49	Premium Packs	1552	Elf Platinum Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	0	\n\n\n*Image is a reference for joint colors only. Set belongs to Evil. Texture sets are sold separately.\n\n\nIn this pack, you get:\n\n\n16 Elf items\n16 Platinum items\nClick Unlock to unpack these items into your inventory!	1070 926	
@@ -944,10 +945,11 @@ PRODUCT	24	Timers	3572	Ivy Timer	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	137	1	1	SEASO
 PRODUCT	5	Torso Colors	3567	Ivy Torso	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	137	1	1	SEASON 7 EXCLUSIVE		
 PRODUCT	34	User Text Colour	3577	Ivy User Text	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	137	1	1	SEASON 7 EXCLUSIVE		
 PRODUCT	72	Hair Styles	2097	Jester Hat	0	2500.00	1.00	2500.00	1.00	0	0	0	0	0	1	0	0	0	WHAT'S RED AND CRUNCHY?... A FIRE ENGINE SANDWICH!!!		
+PRODUCT	18	Collectibles	3587	Jesus Uke	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	Unfortunately he cant turn water into wine :(\n\n\n\nRewarded to Kayakata for winning Best Sticker in the Great Emote Bake Off		
 PRODUCT	71	Sounds	1709	Joint Change Sound	0	10000.00	0.00	10000.00	0.00	0	0	0	0	0	1	0	1	0	Upload .wav file (v 3.91 and above)		
 PRODUCT	71	Sounds	1707	Joint Hold Sound	0	10000.00	0.00	10000.00	0.00	0	0	0	0	0	1	0	1	0	Upload .wav file (v 3.91 and above)		
 PRODUCT	71	Sounds	1708	Joint Over Sound	0	10000.00	0.00	10000.00	0.00	0	0	0	0	0	1	0	1	0	Upload .wav file (v 3.91 and above)		
-PRODUCT	78	3d objects	2795	Jolly Wrap	0	5000.00	1.00	5000.00	1.00	0	0	0	0	0	1	0	0	0	CHRISTMAS SPECIAL\n\nWrap yourself in the holiday spirit!\n\nPress on icon to customize model texture.		
+PRODUCT	78	3d objects	2795	Jolly Wrap	0	5000.00	1.00	5000.00	1.00	0	0	0	0	0	1	0	1	1	CHRISTMAS SPECIAL\n\nWrap yourself in the holiday spirit!\n\nPress on icon to customize model texture.		
 PRODUCT	78	3d objects	2751	Juhas Mahogany Geta L	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	I had a friend once, but he called my Fumikomi no Keri a pair of wooden sandals, so I teleported behind him and slashed him in half with my wooden katana. Nothing personal, kid.		
 PRODUCT	78	3d objects	2750	Juhas Mahogany Geta R	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	I had a friend once, but he called my Fumikomi no Keri a pair of wooden sandals, so I teleported behind him and slashed him in half with my wooden katana. Nothing personal, kid.		
 PRODUCT	46	Tier Packs	2623	July Muay Thai Promo	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	0		2115 2116 2117 2118 2119 2120 2121 2565 1540 752 1314	
@@ -1004,7 +1006,7 @@ PRODUCT	72	Hair Styles	2810	Leprechaun Beard	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0
 PRODUCT	72	Hair Styles	1900	Lesser Demon Horns	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0			
 PRODUCT	79	Subscriptions	2507	Lifetime Wibbles Access	0	0.00	0.00	0.00	0.00	0	0	0	0	13	0	0	1	1	YEEEEEEE		
 PRODUCT	78	3d objects	2244	Light Red Beanie	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Unleash your inner hipster with these commercial, mass-produced Beanies.		
-PRODUCT	78	3d objects	3527	Lil Reindeer	0	25000.00	4.00	25000.00	4.00	0	1	0	0	0	1	0	0	0	CHRISTMAS SPECIAL\n\ncrochet cutie		
+PRODUCT	78	3d objects	3527	Lil Reindeer	0	25000.00	4.00	25000.00	4.00	0	1	0	0	0	1	0	1	1	CHRISTMAS SPECIAL\n\ncrochet cutie		
 PRODUCT	78	3d objects	3419	Limrence	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Limrence		
 PRODUCT	83	Collectors Cards	3284	Lisa - WC2019	0	10000.00	2.00	10000.00	2.00	0	0	0	0	0	0	0	1	1			
 PRODUCT	18	Collectibles	1745	Living Soul	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	0	You've survived in the Deadly Game		
@@ -1106,7 +1108,7 @@ PRODUCT	71	Sounds	1698	Mini Impact 1 Sound	0	10000.00	0.00	10000.00	0.00	0	0	0	0
 PRODUCT	71	Sounds	1699	Mini Impact 2 Sound	0	10000.00	0.00	10000.00	0.00	0	0	0	0	0	1	0	1	0	Upload .wav file (v 3.91 and above)		
 PRODUCT	78	3d objects	3089	Mini Me	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	Clan League 2018 Champion Prize for Alpha clan.		
 PRODUCT	72	Hair Styles	1754	Minihawk	0	800.00	0.00	800.00	0.00	0	0	0	0	0	1	0	0	0	Requires 4.0		
-PRODUCT	81	Shiai Items	2408	Mittens	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	0	0	CHRISTMAS SPECIAL\n\nBe warm, it's cold outside!\nRetexturable items\nUnlock this pack to get the items inside.		
+PRODUCT	81	Shiai Items	2408	Mittens	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	CHRISTMAS SPECIAL\n\nBe warm, it's cold outside!\nRetexturable items\nUnlock this pack to get the items inside.		
 PRODUCT	78	3d objects	3090	Mittens - Left	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	Be warm, it's cold outside! - Re-texturizable Item - Merry Christmas 2018!		
 PRODUCT	78	3d objects	3091	Mittens - Right	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	Be warm, it's cold outside! - Re-texturizable Item - Merry Christmas 2018!		
 PRODUCT	78	3d objects	2258	mittentest_L	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1			
@@ -1200,6 +1202,7 @@ PRODUCT	78	3d objects	3254	Neon Pauldrons R	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	
 PRODUCT	44	Color Packs	916	Neptune Pack	0	0.00	11.00	0.00	11.00	0	0	0	0	0	0	11	0	0	This pack contains a full set of Neptune items.\nUNLOCK this into your inventory.	622 621 623 624 625 626 627 628 629 630 631 632 633 634 635 636 1791	
 PRODUCT	83	Collectors Cards	3093	Nerfpls - WC2018	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	0			
 PRODUCT	83	Collectors Cards	3101	Nervau - WC2018	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	0			
+PRODUCT	18	Collectibles	3586	NFT || Non-Fungible Tori	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	Non-Fungible Tomato &#127813;\n\n\n\nRewarded to Tomato for winning Best Emote in the Great Emote Bake Off		
 PRODUCT	78	3d objects	2682	Ninja Claw - Left Hand	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Use it to climb walls or scratch out your enemies' eyes... your choice!		
 PRODUCT	78	3d objects	2683	Ninja Claw - Left Wrist	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Use it to climb walls or scratch out your enemies' eyes... your choice!		
 PRODUCT	78	3d objects	2686	Ninja Claw - Right Hand	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Use it to climb walls or scratch out your enemies' eyes... your choice!		
@@ -1289,7 +1292,6 @@ PRODUCT	72	Hair Styles	2228	Pony Tail	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0
 PRODUCT	78	3d objects	2805	Pot o' Gold	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	A leprechaun's pot of gold. Don't let him catch you with it!		
 PRODUCT	78	3d objects	2159	Present from Santa	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	You have been a good boy		
 PRODUCT	18	Collectibles	3120	Pricy 4 bytes	0	0.00	200.00	0.00	200.00	0	0	0	0	0	0	0	1	0	Woooooooaaaaaaaah.		
-PRODUCT	78	3d objects	3444	Pride Bracelet	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Show Your Pride in Style!		
 PRODUCT	78	3d objects	1986	Propeller Hat	0	10000.00	2.00	10000.00	2.00	0	1	0	0	0	1	0	0	0	Chuckachuckachuckachucka		
 PRODUCT	80	Full Toris	2274	Punk Dude	0	180000.00	65.00	180000.00	65.00	0	0	0	0	0	0	0	1	1	Just don't take any photos, you might regret them later.	1767 1578 1579 1589 1590 967 971 975 1981 2055 1982 2054 1820	
 PRODUCT	78	3d objects	2055	Punkspike L	0	0.00	3.00	0.00	3.00	0	0	0	0	0	1	0	1	1	Noobclap damage +10\n\nMoshpit presence +20\n\nParental approval -5\n		
@@ -1399,9 +1401,9 @@ PRODUCT	78	3d objects	3490	Samurai Suneate R	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0
 PRODUCT	78	3d objects	2190	Samurai War Banner	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Clan League Champion Prize for Relax All clan.		
 PRODUCT	72	Hair Styles	1936	Santa Beard	0	5000.00	1.00	5000.00	1.00	0	0	0	0	0	1	0	0	0	Nothing brings Saami groupies for Santa likes his beard. It was forged over centuries, in the freezing cold of Lapland.		
 PRODUCT	72	Hair Styles	1935	Santa Hat	0	10000.00	2.00	10000.00	2.00	0	0	0	0	0	1	0	0	0	Spread joy and positive vibes using a Santa Hat while shoveling through snow in a drunken rage from the heart of Finland, home of Siku.		
-PRODUCT	81	Shiai Items	2208	Santa Hat and Beard	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	0	0	CHRISTMAS SPECIAL\n\nSpread joy and positive vibes using Santa Hat and Beard while shoveling through snow in a drunken rage from the heart of Finland, home of Siku.\nUnlock this pack to get the items inside.		
-PRODUCT	78	3d objects	2045	Santa's Hat	0	10000.00	2.00	10000.00	2.00	0	0	0	0	0	1	0	0	0	CHRISTMAS SPECIAL\n\nHeadgear of the greatest elven factories owner ever.		
-PRODUCT	81	Shiai Items	2409	Santa's Machine	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	0	0	CHRISTMAS SPECIAL\n\nNo more reindeers, only magical turbos - Merry Christmas!\nUnlock this pack to get the item inside.		
+PRODUCT	81	Shiai Items	2208	Santa Hat and Beard	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	CHRISTMAS SPECIAL\n\nSpread joy and positive vibes using Santa Hat and Beard while shoveling through snow in a drunken rage from the heart of Finland, home of Siku.\nUnlock this pack to get the items inside.		
+PRODUCT	78	3d objects	2045	Santa's Hat	0	10000.00	2.00	10000.00	2.00	0	0	0	0	0	1	0	1	1	CHRISTMAS SPECIAL\n\nHeadgear of the greatest elven factories owner ever.		
+PRODUCT	81	Shiai Items	2409	Santa's Machine	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	CHRISTMAS SPECIAL\n\nNo more reindeers, only magical turbos - Merry Christmas!\nUnlock this pack to get the item inside.		
 PRODUCT	47	Secret	942	Sapphire and Crimson Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	This pack contains:\n\n\nFull Sapphire\n\n\nFull Crimson\n\n\nGet this set now and UNPACK items in your inventory!	687 686 688 689 690 691 692 693 694 695 696 697 698 699 700 701 73 194 549 75 170 519 414 339 232 76 364 439 257 291 139 473	
 PRODUCT	47	Secret	1548	Sapphire Kevlar Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	\n\n\n*Image is a reference for joint colors only. Texture sets are sold separately.\n\n\nIn this pack, you get:\n\n\n16 Sapphire items\n16 Kevlar items\nClick Unlock to unpack these items into your inventory!	1269 1544	
 PRODUCT	47	Secret	1544	Sapphire Pack	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	This pack contains 1 x Full Sapphire Set. Click UNLOCK to unpack all items into your inventory.	73 194 549 75 170 519 414 339 232 76 364 439 257 291 139 473	
@@ -1437,7 +1439,7 @@ PRODUCT	78	3d objects	2807	Shoveler's Shovel (Duplicate - ignore)	0	0.00	0.00	0.
 PRODUCT	78	3d objects	2545	Shrak!	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1			
 PRODUCT	78	3d objects	2690	Shuriken	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	A classic yet deadly set of stars to throw at your favorite targets!		
 PRODUCT	78	3d objects	3317	Shutter Shades (Twitch Edition)	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Get Toribash Twitch Drops by linking your Twitch account and viewing eligible streams.\n\nFor as long as sunglasses have existed, there have always been those who were not satisfied. Those who didn't want better UV protection, who weren't interested in polarized lenses. No, they wanted more. They needed it, they demanded it. And so the shutter shades were born.		
-PRODUCT	81	Shiai Items	2396	Silly Slippers	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	0	0	CHRISTMAS SPECIAL\n\nComfort is the best thing your Tori can feel.\nRetexturable items\nUnlock this pack to get the items inside.		
+PRODUCT	81	Shiai Items	2396	Silly Slippers	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	CHRISTMAS SPECIAL\n\nComfort is the best thing your Tori can feel.\nRetexturable items\nUnlock this pack to get the items inside.		
 PRODUCT	80	Full Toris	3094	Silly Slippers	0	0.00	2.00	0.00	2.00	0	0	0	0	0	0	0	1	1	Comfort is the best thing your Tori can feel - Re-texturizable Item - Merry Christmas!	3086 3087	
 PRODUCT	78	3d objects	3086	Silly Slippers - Left	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	Comfort is the best thing your Tori can feel - Re-texturizable Item - Merry Christmas 2018!		
 PRODUCT	78	3d objects	3087	Silly Slippers - Right	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	Comfort is the best thing your Tori can feel - Re-texturizable Item - Merry Christmas 2018!		
@@ -1463,7 +1465,7 @@ PRODUCT	71	Sounds	1724	Slowdown Sound	0	10000.00	0.00	10000.00	0.00	0	0	0	0	0	1	
 PRODUCT	78	3d objects	2010	Slugfest Champion	0	0.00	0.00	0.00	0.00	0	0	0	12	0	1	0	1	0	Lets get ready to RUMBLE!&#8482;Awarded to the Summer Slugfest Champion		
 PRODUCT	78	3d objects	2146	Smile Box	0	5000.00	3.00	5000.00	3.00	0	0	0	0	0	1	0	1	1	Third place in the Head in a Box event[xSteelBone's Box]		
 PRODUCT	18	Collectibles	1673	Snowman	0	0.00	3.00	0.00	3.00	0	0	0	0	0	0	0	1	0	Oh wow, just as advertised your Pumpking turned into a snowman! Shame it's a bit on the derpy side.		
-PRODUCT	78	3d objects	3278	Snowman Head	0	15000.00	2.00	15000.00	2.00	0	0	0	0	0	1	0	0	0	CHRISTMAS SPECIAL\n\nOh no, what happened to Frosty!		
+PRODUCT	78	3d objects	3278	Snowman Head	0	15000.00	2.00	15000.00	2.00	0	0	0	0	0	1	0	1	1	CHRISTMAS SPECIAL\n\nOh no, what happened to Frosty!		
 PRODUCT	78	3d objects	2880	Soccer Goal	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	GOOOOOOOOOAAAAAAAALLLLLLL!		
 PRODUCT	78	3d objects	3442	Soccer Head	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Kick Balls.		
 PRODUCT	71	Sounds	1696	Soft Impact 1 Sound	0	10000.00	0.00	10000.00	0.00	0	0	0	0	0	1	0	1	0	Upload .wav file (v 3.91 and above)		
@@ -1607,6 +1609,7 @@ PRODUCT	18	Collectibles	2878	The Great Grey Pixel ~ by Chikin	0	0.00	0.00	0.00	0
 PRODUCT	78	3d objects	2102	The Handy-ken	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	The Handy-ken (no relation to Hadouken) is a flammable liquid applied to the hand, and then lit aflame. Please do not buy this, as we cannot be held liable for any injuries that occur from use.		
 PRODUCT	78	3d objects	2018	The Imperial	0	0.00	0.00	0.00	0.00	0	0	0	12	0	1	0	1	1			
 PRODUCT	78	3d objects	2100	The Kick-Me Box	0	5000.00	3.00	5000.00	3.00	0	0	0	0	0	1	0	1	1	For when your head needs a good kicking! (However you feel like some padding would be nice)		
+PRODUCT	78	3d objects	3585	The Nerdier Nerd Glasses	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Not only do you play Toribash, but your interests are poetry? you deserve those		
 PRODUCT	78	3d objects	2021	The Regal	0	0.00	0.00	0.00	0.00	0	0	0	12	0	1	0	1	1	You're the 2014 Clan League champion! Nice!		
 PRODUCT	72	Hair Styles	2076	The Skulfuk	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0			
 PRODUCT	78	3d objects	3021	The Staff	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	Imbued with ancient magic!		
@@ -1994,7 +1997,7 @@ PRODUCT	21	Secondary Gradients	247	Bronze Secondary Gradient	0	420.00	0.00	420.0
 PRODUCT	24	Timers	275	Bronze Timer	0	280.00	0.00	280.00	0.00	0	0	100	4	0	1	29	0	0	TIER III ITEM\n		
 PRODUCT	5	Torso Colors	127	Bronze Torso	0	420.00	0.00	420.00	0.00	0	0	100	4	0	1	29	0	0	TIER III ITEM\nForged metal that stands the test of time, and so shall you.		
 PRODUCT	34	User Text Colour	463	Bronze User Text	0	280.00	0.00	280.00	0.00	0	0	100	4	0	1	29	0	0	TIER III ITEM\n		
-PRODUCT	78	3d objects	2794	Christmas Tree	0	10000.00	2.00	10000.00	2.00	0	0	100	0	0	1	0	0	0	CHRISTMAS SPECIAL\n\nLook under it!		
+PRODUCT	78	3d objects	2794	Christmas Tree	0	10000.00	2.00	10000.00	2.00	0	0	100	0	0	1	0	1	1	CHRISTMAS SPECIAL\n\nLook under it!		
 PRODUCT	78	3d objects	2673	Clout Goggles	0	5000.00	1.00	5000.00	1.00	0	1	100	0	0	1	0	0	0	For when you want to look cool or just blocking out the sun\n(Forged by Ragey)		
 PRODUCT	78	3d objects	2164	Head Toriboppers	0	5000.00	1.00	5000.00	1.00	0	1	100	0	0	1	0	0	0	Parties aren't memorable until you're wearing a head bopper while crafting memories.		
 PRODUCT	1	Blood Colors	1047	Helios Blood	0	800.00	0.00	800.00	0.00	0	0	100	4	0	1	123	0	0	TIER III ITEM\nLet the spirit of the titans flow through you in combat.		
@@ -2053,7 +2056,7 @@ PRODUCT	24	Timers	294	Toxic Timer	0	1200.00	0.00	1200.00	0.00	0	0	100	4	0	1	40	0
 PRODUCT	5	Torso Colors	141	Toxic Torso	0	1800.00	0.00	1800.00	0.00	0	0	100	4	0	1	40	0	0	TIER III ITEM\nToribashians who underwent horrific experiments in the name of science... and came out the other side something new....		
 PRODUCT	34	User Text Colour	474	Toxic User Text	0	1200.00	0.00	1200.00	0.00	0	0	100	4	0	1	40	0	0	TIER III ITEM\nToribashians who underwent horrific experiments in the name of science... and came out the other side something new...		
 PRODUCT	33	Advanced Ghosts	453	Turnframe Ghost	0	5000.00	0.00	5000.00	0.00	0	0	100	0	0	1	0	0	0			
-PRODUCT	78	3d objects	3045	Ug-Gar's Hair	1	15000.00	2.00	25000.00	4.00	171742	1	100	0	0	1	0	0	0	Messy, smelly hair with a bone to top it all off!		
+PRODUCT	78	3d objects	3045	Ug-Gar's Hair	0	25000.00	4.00	25000.00	4.00	0	1	100	0	0	1	0	0	0	Messy, smelly hair with a bone to top it all off!		
 PRODUCT	78	3d objects	2785	Zombie Hand	0	5000.00	1.00	5000.00	1.00	0	0	100	0	0	1	0	1	1	HALLOWEEN SPECIAL\n\nWho could know that those zombies have such a strong grip?		
 PRODUCT	1	Blood Colors	44	Acid Blood	0	6000.00	1.00	6000.00	1.00	0	0	200	5	0	1	26	0	0	TIER IV ITEM\nThose who hold this have the power to burn their hits deep into their enemies, melting almost anything that stands in their way.		
 PRODUCT	12	DQ Rings	176	Acid DQ	0	600.00	0.00	600.00	0.00	0	0	200	5	0	1	26	0	0	TIER IV ITEM\nThose who hold this have the power to burn their hits deep into their enemies, melting almost anything that stands in their way.		
@@ -2094,7 +2097,7 @@ PRODUCT	21	Secondary Gradients	1042	Camo Secondary Gradient	0	720.00	0.00	720.00
 PRODUCT	24	Timers	1043	Camo Timer	0	480.00	0.00	480.00	0.00	0	0	200	5	0	1	101	0	0	TIER IV ITEM\nStealth, speed and agility. You eliminate your targets silently, then disappear into the night as swiftly as you came...		
 PRODUCT	5	Torso Colors	1044	Camo Torso	0	720.00	0.00	720.00	0.00	0	0	200	5	0	1	101	0	0	TIER IV ITEM\nStealth, speed and agility. You eliminate your targets silently, then disappear into the night as swiftly as you came...		
 PRODUCT	34	User Text Colour	1045	Camo User Text	0	480.00	0.00	480.00	0.00	0	0	200	5	0	1	101	0	0	TIER IV ITEM\nStealth, speed and agility. You eliminate your targets silently, then disappear into the night as swiftly as you came...		
-PRODUCT	78	3d objects	3279	Christmas Scarf	0	25000.00	4.00	25000.00	4.00	0	0	200	0	0	1	0	0	0	CHRISTMAS SPECIAL\n\nTo keep your neck warm!		
+PRODUCT	78	3d objects	3279	Christmas Scarf	0	25000.00	4.00	25000.00	4.00	0	0	200	0	0	1	0	1	1	CHRISTMAS SPECIAL\n\nTo keep your neck warm!		
 PRODUCT	1	Blood Colors	812	Cobra Blood	0	6000.00	1.00	6000.00	1.00	0	0	200	5	0	1	89	0	0	TIER IV ITEM\nStealth, power and speed are hallmarks of the cobra...and not forgetting the ability to kill in a single strike. Draw upon the lethal energies of this creature.		
 PRODUCT	12	DQ Rings	811	Cobra DQ	0	600.00	0.00	600.00	0.00	0	0	200	5	0	1	89	0	0	TIER IV ITEM\nStealth, power and speed are hallmarks of the cobra...and not forgetting the ability to kill in a single strike. Draw upon the lethal energies of this creature.		
 PRODUCT	43	Emote Colors	813	Cobra Emote	0	600.00	0.00	600.00	0.00	0	0	200	5	0	1	89	0	0	TIER IV ITEM\nStealth, power and speed are hallmarks of the cobra...and not forgetting the ability to kill in a single strike. Draw upon the lethal energies of this creature.		
@@ -2130,6 +2133,7 @@ PRODUCT	21	Secondary Gradients	649	Ecto Secondary Gradient	0	300.00	0.00	300.00	
 PRODUCT	24	Timers	650	Ecto Timer	0	200.00	0.00	200.00	0.00	0	0	200	5	0	1	12	0	0	TIER IV ITEM\nPsychokinetic forces surround you as you allow channel spirits to wreak havoc on your opponents.		
 PRODUCT	5	Torso Colors	651	Ecto Torso	0	300.00	0.00	300.00	0.00	0	0	200	5	0	1	12	0	0	TIER IV ITEM\nPsychokinetic forces surround you as you allow channel spirits to wreak havoc on your opponents.		
 PRODUCT	34	User Text Colour	652	Ecto User Text	0	200.00	0.00	200.00	0.00	0	0	200	5	0	1	12	0	0	TIER IV ITEM\nPsychokinetic forces surround you as you allow channel spirits to wreak havoc on your opponents.		
+PRODUCT	78	3d objects	3590	Egg Head	1	17500.00	3.00	25000.00	4.00	34906	1	200	0	0	1	0	0	0	EASTER SPECIAL\n\nI EgG MAN		
 PRODUCT	78	3d objects	3047	Frozen Dino Head	0	20000.00	3.00	20000.00	3.00	0	0	200	0	0	1	0	1	0	Undeniable proof that dinosaurs were, in fact, just giant heads with no lower body.		
 PRODUCT	78	3d objects	3499	Googly Eyes	0	6000.00	1.00	6000.00	1.00	0	1	200	0	0	1	0	0	0	\(O_O)/		
 PRODUCT	78	3d objects	3536	Head Sign	0	10000.00	2.00	10000.00	2.00	0	1	200	0	0	1	0	0	0	Nailed it!		
@@ -2169,7 +2173,7 @@ PRODUCT	24	Timers	1027	Ivory Timer	0	300.00	0.00	300.00	0.00	0	0	200	5	0	1	97	0	
 PRODUCT	5	Torso Colors	1028	Ivory Torso	0	450.00	0.00	450.00	0.00	0	0	200	5	0	1	97	0	0	TIER IV ITEM\nHard, unbreakable and incorruptible. Some say this valuable mineral is matched only by Pure.		
 PRODUCT	34	User Text Colour	1029	Ivory User Text	0	300.00	0.00	300.00	0.00	0	0	200	5	0	1	97	0	0	TIER IV ITEM\nHard, unbreakable and incorruptible. Some say this valuable mineral is matched only by Pure.		
 PRODUCT	78	3d objects	3072	Lil Spooks	0	20000.00	3.00	20000.00	3.00	0	0	200	0	0	1	0	1	1	HALLOWEEN SPECIAL\n\nSpooks you and cheers you up at the same time!		
-PRODUCT	78	3d objects	2161	Little Latching Elf	0	10000.00	2.00	10000.00	2.00	0	0	200	0	0	1	0	0	0	CHRISTMAS SPECIAL\n\nKudos to Wyverneon for the concept		
+PRODUCT	78	3d objects	2161	Little Latching Elf	0	10000.00	2.00	10000.00	2.00	0	0	200	0	0	1	0	1	1	CHRISTMAS SPECIAL\n\nKudos to Wyverneon for the concept		
 PRODUCT	1	Blood Colors	40	Noxious Blood	0	2000.00	0.00	2000.00	0.00	0	0	200	5	0	1	35	0	0	TIER IV ITEM\nA great evil causes this emanation. The flames burn a strong hue... Alluring from afar, devastating from close range. Vanquish them soldier!		
 PRODUCT	12	DQ Rings	189	Noxious DQ	0	200.00	0.00	200.00	0.00	0	0	200	5	0	1	35	0	0	TIER IV ITEM\nA great evil causes this emanation. The flames burn a strong hue... Alluring from afar, devastating from close range. Vanquish them soldier!		
 PRODUCT	43	Emote Colors	545	Noxious Emote	0	200.00	0.00	200.00	0.00	0	0	200	5	0	1	35	0	0	TIER IV ITEM\nA great evil causes this emanation. The flames burn a strong hue... Alluring from afar, devastating from close range. Vanquish them soldier!		
@@ -2284,10 +2288,10 @@ PRODUCT	24	Timers	2390	Boreal Timer	0	1000.00	0.00	1000.00	0.00	0	0	500	6	0	1	51
 PRODUCT	5	Torso Colors	2376	Boreal Torso	0	1500.00	0.00	1500.00	0.00	0	0	500	6	0	1	51	0	0	TIER V ITEM\n Find your place in the ecosystem. Top the food chain. Requires 5.11 or higher to use		
 PRODUCT	34	User Text Colour	2386	Boreal User Text	0	800.00	0.00	800.00	0.00	0	0	500	6	0	1	51	0	0	TIER V ITEM\n Find your place in the ecosystem. Top the food chain. Requires 5.11 or higher to use		
 PRODUCT	78	3d objects	2743	Brain	0	15000.00	3.00	15000.00	3.00	0	0	500	0	0	1	0	1	1	HALLOWEEN SPECIAL\n\nHmm, yummy!		
-PRODUCT	78	3d objects	2046	Candy Cane	0	10000.00	2.00	10000.00	2.00	0	0	500	0	0	1	0	0	0	CHRISTMAS SPECIAL\n\nThe only candy that will really last forever (*).\n\n* because it's stuck to your back. How did you plan to lick it?		
+PRODUCT	78	3d objects	2046	Candy Cane	0	10000.00	2.00	10000.00	2.00	0	0	500	0	0	1	0	1	1	CHRISTMAS SPECIAL\n\nThe only candy that will really last forever (*).\n\n* because it's stuck to your back. How did you plan to lick it?		
 PRODUCT	78	3d objects	2254	Chef Hat	0	15000.00	3.00	15000.00	3.00	0	0	500	0	0	1	0	1	1	Next step: 99 cooking.		
-PRODUCT	78	3d objects	3280	Christmas Globe	0	50000.00	7.00	50000.00	7.00	0	0	500	0	0	1	0	0	0	CHRISTMAS SPECIAL\n\nNow that's what I call Christmas spirit!		
-PRODUCT	78	3d objects	3275	Christmas Ushanka	0	20000.00	3.00	20000.00	3.00	0	0	500	0	0	1	0	0	0	CHRISTMAS SPECIAL\n\nKeep those ears warm!		
+PRODUCT	78	3d objects	3280	Christmas Globe	0	50000.00	7.00	50000.00	7.00	0	0	500	0	0	1	0	1	1	CHRISTMAS SPECIAL\n\nNow that's what I call Christmas spirit!		
+PRODUCT	78	3d objects	3275	Christmas Ushanka	0	20000.00	3.00	20000.00	3.00	0	0	500	0	0	1	0	1	1	CHRISTMAS SPECIAL\n\nKeep those ears warm!		
 PRODUCT	78	3d objects	2263	Court Jester	0	15000.00	3.00	15000.00	3.00	0	0	500	0	0	1	0	1	1	Don't let your teeth make you lose respect by permanently keeping them opened for the sake of being friendly.		
 PRODUCT	78	3d objects	2456	Cowboy Hat	0	15000.00	3.00	15000.00	3.00	0	1	500	0	0	1	0	0	0	Winner of the 3D Showdown Event! A Western Themed Cowboy Hat idea inspired by Code.		
 PRODUCT	72	Hair Styles	1990	Dark Duke	0	40000.00	6.00	40000.00	6.00	0	1	500	0	0	1	0	0	0	9/10 fighters recommend.		
@@ -2341,9 +2345,10 @@ PRODUCT	78	3d objects	3082	Iron Chain	0	10000.00	2.00	10000.00	2.00	0	1	500	0	0	
 PRODUCT	78	3d objects	2700	Katana	0	50000.00	7.00	50000.00	7.00	0	1	500	0	0	1	0	0	0	A Japanese trademark weapon brought to Toriworld by hampa-san during the Gold Age.		
 PRODUCT	78	3d objects	2454	Kid Popstar	0	15000.00	3.00	15000.00	3.00	0	1	500	0	0	1	0	0	0	I'm in love with you forever,\n\nNothing will stand in my way,\n\nAnd of course it doesn't matter\n\nThat you're nine and I am eight.		
 PRODUCT	78	3d objects	3313	Knight's Gear	0	40000.00	6.00	40000.00	6.00	0	0	500	0	0	1	0	0	0	Never enter battle without gearing up. Suggested by Inuyahsha.		
-PRODUCT	78	3d objects	3550	Leggang Statue	0	30000.00	5.00	30000.00	5.00	0	0	500	0	0	1	0	1	1	Never skip leg day		
-PRODUCT	78	3d objects	3551	Leggang Statue With Style	0	0.00	0.00	0.00	0.00	0	0	500	0	0	1	0	1	1	exclusive reward for [event name leggang or something]		
+PRODUCT	78	3d objects	3550	Leggang Statue	0	60000.00	8.00	60000.00	8.00	0	0	500	0	0	1	0	0	0	Never skip leg day		
+PRODUCT	78	3d objects	3551	Leggang Statue With Style	0	0.00	0.00	0.00	0.00	0	0	500	0	0	1	0	1	1	Exclusive reward for the winner of Leggang 2: Return of the Toes!		
 PRODUCT	33	Advanced Ghosts	454	Long Ghost	0	5000.00	0.00	5000.00	0.00	0	0	500	0	0	1	0	0	0			
+PRODUCT	78	3d objects	3588	Lop Bunny Ears	1	20000.00	3.00	25000.00	4.00	34906	1	500	0	0	1	0	0	0	EASTER SPECIAL\n\nCousin Benjamin Bunny lives on to tell the tale of Peter Rabbit.		
 PRODUCT	72	Hair Styles	1988	Mayan Warrior	0	20000.00	3.00	20000.00	3.00	0	1	500	0	0	1	0	0	0	Fabled fighter of old.		
 PRODUCT	78	3d objects	2051	Mullet	0	10000.00	2.00	10000.00	2.00	0	1	500	0	0	1	0	0	0	Business in the front, party in the back.		
 PRODUCT	78	3d objects	3305	Old Eastern Hair	0	30000.00	5.00	30000.00	5.00	0	1	500	0	0	1	0	0	0	A lovely hairstyle from the East!		
@@ -2351,6 +2356,7 @@ PRODUCT	78	3d objects	3548	Pet Collar	0	15000.00	3.00	15000.00	3.00	0	0	500	0	0	
 PRODUCT	78	3d objects	2539	Pirate Belt	0	40000.00	6.00	40000.00	6.00	0	1	500	0	0	1	0	0	0	Yarr!		
 PRODUCT	78	3d objects	2266	Pirate Hat	0	25000.00	4.00	25000.00	4.00	0	1	500	0	0	1	0	0	0	Ahoy!		
 PRODUCT	78	3d objects	2231	Pirate Hook	0	15000.00	3.00	15000.00	3.00	0	1	500	0	0	1	0	0	0	A prosthesis for your Left Hand! Goes well with an Eyepatch.		
+PRODUCT	78	3d objects	3592	Pom the Bunny	1	17500.00	3.00	20000.00	3.00	34906	1	500	0	0	1	0	0	0	EASTER SPECIAL\n\nYour friendly neighbor Pom now follows you through all your adventures!\nMight want to stock up on carrots now...		
 PRODUCT	78	3d objects	2013	Portable Cassette	0	5000.00	1.00	5000.00	1.00	0	1	500	0	0	1	0	0	0	This was once the pinnacle of portable music technology.		
 PRODUCT	78	3d objects	2814	Raygun	0	15000.00	3.00	15000.00	3.00	0	1	500	0	0	1	0	0	0	Blast them suckers! Zap Zap!		
 PRODUCT	78	3d objects	1979	Red Submarine	0	0.00	0.00	0.00	0.00	0	0	500	0	0	1	0	1	1	To rival the green hat, a red sombrero was created. Despite boonana's best efforts, it came out looking like a submarine. So here it is!		
@@ -2358,13 +2364,13 @@ PRODUCT	78	3d objects	2924	Road Fighter	0	15000.00	3.00	15000.00	3.00	0	1	500	0	
 PRODUCT	78	3d objects	3088	Santa's Machine	0	35000.00	5.00	35000.00	5.00	0	0	500	0	0	1	0	1	1	No more reindeers, only magical turbos - Merry Christmas!		
 PRODUCT	47	Secret	948	Shaman, Quicksilver and Neptune Pack	0	0.00	0.00	0.00	0.00	0	0	500	0	0	0	0	1	1	This pack contains\n\n\nFull Shaman\n\n\nFull Quicksilver\n\n\nFull Neptune\n\n\nUNPACK items in your inventory!	622 621 623 624 625 626 627 628 916 629 630 631 632 633 634 635 636 39 192 547 61 168 517 412 337 230 62 362 437 255 289 137 471 562 563 564 565 566 567 568 569 570 571 572 573 574 575 576 577	
 PRODUCT	78	3d objects	1978	Shutter Shades	0	40000.00	9.00	40000.00	9.00	0	1	500	0	0	1	0	0	0	For as long as sunglasses have existed, there have always been those who were not satisfied. Those who didn't want better UV protection, who weren't interested in polarized lenses. No, they wanted more. They needed it, they demanded it. And so the shutter shades were born. With 0 protection from the sun and no vision correction whatsoever, these proud few knew they had the world beat.		
-PRODUCT	78	3d objects	2792	Snowman	0	15000.00	3.00	15000.00	3.00	0	0	500	0	0	1	0	0	0	CHRISTMAS SPECIAL\n\nA nice companion through your cold journeys.		
+PRODUCT	78	3d objects	2792	Snowman	0	15000.00	3.00	15000.00	3.00	0	0	500	0	0	1	0	1	1	CHRISTMAS SPECIAL\n\nA nice companion through your cold journeys.		
 PRODUCT	78	3d objects	2217	Sombrero	0	15000.00	3.00	15000.00	3.00	0	1	500	0	0	1	0	0	0	Wide-brimmed hat popularly worn in Mexico, used to shield from the sun.		
 PRODUCT	78	3d objects	2945	Steampunk Hat	0	40000.00	6.00	40000.00	6.00	0	1	500	0	0	1	0	0	0	From where the cogs and contraptions are plentiful.		
 PRODUCT	78	3d objects	2122	Sumo Hair	0	30000.00	5.00	30000.00	5.00	0	1	500	0	0	1	0	0	0	They're big, they're chubby and coming for YOU!		
 PRODUCT	72	Hair Styles	1908	Surfer's Seishin	0	20000.00	3.00	20000.00	3.00	0	1	500	0	0	1	0	0	0	Out in the water you're free and relaxed. The only things you feel is the pulse of the water and the anticipation for the next big wave.		
 PRODUCT	78	3d objects	3234	The Grand Sakura Tree	0	100000.00	10.00	100000.00	10.00	0	0	500	0	0	1	0	0	0	Take a sit, under the ancient tree!		
-PRODUCT	78	3d objects	3046	The Spear	1	15000.00	2.00	25000.00	4.00	171742	1	500	0	0	1	0	0	0	Sharpened and ready for war!		
+PRODUCT	78	3d objects	3046	The Spear	0	25000.00	4.00	25000.00	4.00	0	1	500	0	0	1	0	0	0	Sharpened and ready for war!		
 PRODUCT	1	Blood Colors	534	Titan Blood	0	5000.00	1.00	5000.00	1.00	0	0	500	6	0	1	48	0	0	TIER V ITEM\nThe spirit of the twelve deities of the golden age is with you. Worn by the champions within the world of Toribash.Limited Edition.		
 PRODUCT	12	DQ Rings	196	Titan DQ	0	500.00	0.00	500.00	0.00	0	0	500	6	0	1	48	0	0	TIER V ITEM\nThe spirit of the twelve deities of the golden age is with you. Worn by the champions within the world of Toribash.		
 PRODUCT	43	Emote Colors	558	Titan Emote	0	500.00	0.00	500.00	0.00	0	0	500	6	0	1	48	0	0	TIER V ITEM\nThe spirit of the twelve deities of the golden age is with you. Worn by the champions within the world of Toribash.		
@@ -2471,7 +2477,7 @@ PRODUCT	34	User Text Colour	890	Copper User Text	0	1400.00	0.00	1400.00	0.00	0	0
 PRODUCT	78	3d objects	2105	Deal With It	0	20000.00	4.00	20000.00	4.00	0	1	1000	0	0	1	0	0	0	You know...it never harmed anyone to just Deal With It.		
 PRODUCT	78	3d objects	1997	Demon Wings	0	50000.00	8.00	50000.00	8.00	0	0	1000	0	0	1	0	1	1	HALLOWEEN SPECIAL\n\nNow you can be cooler - just like Satan!		
 PRODUCT	72	Hair Styles	1989	Dread Tail	0	35000.00	6.00	35000.00	6.00	0	1	1000	0	0	1	0	0	0	I whip my hair back and forth!		
-PRODUCT	78	3d objects	2048	Elven Hat	0	15000.00	3.00	15000.00	3.00	0	0	1000	0	0	1	0	0	0	CHRISTMAS SPECIAL\n\nBy wearing this you are agreeing to work 24/7 fabricating tablets for 7 year olds during next year.\n\nAlso hampa thinks that it looks like a rave hat from 1996.		
+PRODUCT	78	3d objects	2048	Elven Hat	0	15000.00	3.00	15000.00	3.00	0	0	1000	0	0	1	0	1	1	CHRISTMAS SPECIAL\n\nBy wearing this you are agreeing to work 24/7 fabricating tablets for 7 year olds during next year.\n\nAlso hampa thinks that it looks like a rave hat from 1996.		
 PRODUCT	78	3d objects	1991	Eye Patch	0	10000.00	2.00	10000.00	2.00	0	1	1000	0	0	1	0	0	0	Defence +1\n\nDepth perception -2\n\nPiratyness +100		
 PRODUCT	78	3d objects	2725	Forehead Protector	0	15000.00	3.00	15000.00	3.00	0	1	1000	0	0	1	0	0	0	I won't run away anymore, not even with a point lead, that is my ninja way!		
 PRODUCT	78	3d objects	3081	Gold Chain	0	30000.00	5.00	30000.00	5.00	0	1	1000	0	0	1	0	0	0	A massive polished Gold Chain Necklace made of solid 18 karat gold.\nDon't mind the additional weight on your shoulders.		
@@ -2504,7 +2510,7 @@ PRODUCT	72	Hair Styles	1937	Jiyu Dreads	0	50000.00	8.00	50000.00	8.00	0	1	1000	0
 PRODUCT	18	Collectibles	741	Lighter	0	0.00	15.00	0.00	15.00	0	0	1000	0	0	0	0	0	0	This is a lighter to light your Marlboro smokes!		
 PRODUCT	78	3d objects	2186	Love Potion	0	50000.00	8.00	50000.00	8.00	0	1	1000	0	0	1	0	0	0	Extracted Oxytocin, Serotonin and Dopamine guaranteed to beguile your target in deep love.		
 PRODUCT	78	3d objects	3233	Mini Pond	0	20000.00	4.00	20000.00	4.00	0	1	1000	0	0	1	0	0	0	A tranquil pond, surrounded by stone.		
-PRODUCT	80	Full Toris	3095	Mittens	0	25000.00	5.00	25000.00	5.00	0	0	1000	0	0	0	0	0	0	Be warm, it's cold outside! - retexturable Items - Merry Christmas!	3090 3091	
+PRODUCT	80	Full Toris	3095	Mittens	0	25000.00	5.00	25000.00	5.00	0	0	1000	0	0	0	0	1	1	Be warm, it's cold outside! - retexturable Items - Merry Christmas!	3090 3091	
 PRODUCT	1	Blood Colors	622	Neptune Blood	0	4000.00	1.00	4000.00	1.00	0	0	1000	7	0	1	11	0	0	TIER VI ITEM\nLet the spirit of Poseidon guide your every move. The healing calm of water fused with the destructive power of tidal waves flow through your veins.		
 PRODUCT	12	DQ Rings	621	Neptune DQ	0	400.00	0.00	400.00	0.00	0	0	1000	7	0	1	11	0	0	TIER VI ITEM\nLet the spirit of Poseidon guide your every move. The healing calm of water fused with the destructive power of tidal waves flow through your veins.		
 PRODUCT	43	Emote Colors	623	Neptune Emote	0	400.00	0.00	400.00	0.00	0	0	1000	7	0	1	11	0	0	TIER VI ITEM\nLet the spirit of Poseidon guide your every move. The healing calm of water fused with the destructive power of tidal waves flow through your veins.Low Restock.		
@@ -2689,7 +2695,7 @@ PRODUCT	24	Timers	1186	Persian Timer	0	4000.00	1.00	4000.00	1.00	0	0	2000	8	0	1	
 PRODUCT	5	Torso Colors	1187	Persian Torso	0	6000.00	2.00	6000.00	2.00	0	0	2000	8	0	1	114	0	0	TIER VII ITEM\nPersia. The land where the light shines and burns bright.. a symbol of the rich history and culture of the ancient empires.		
 PRODUCT	34	User Text Colour	1188	Persian User Text	0	4000.00	1.00	4000.00	1.00	0	0	2000	8	0	1	114	0	0	TIER VII ITEM\nPersia. The land where the light shines and burns bright.. a symbol of the rich history and culture of the ancient empires.		
 PRODUCT	78	3d objects	2784	Plague Doctor Mask	0	25000.00	6.00	25000.00	6.00	0	0	2000	0	0	1	0	1	1	HALLOWEEN SPECIAL\n\nOriginally used by medieval doctors to protect from plague, this mask also comes in handy when you need to hide your identity from the unsuspecting victims.		
-PRODUCT	78	3d objects	2047	Rudolph Nose and Antlers	0	17500.00	4.00	17500.00	4.00	0	0	2000	0	0	1	0	0	0	CHRISTMAS SPECIAL\n\nCongratulations on becoming a magical reindeer!\n\nNow light your nose and get high!		
+PRODUCT	78	3d objects	2047	Rudolph Nose and Antlers	0	17500.00	4.00	17500.00	4.00	0	0	2000	0	0	1	0	1	1	CHRISTMAS SPECIAL\n\nCongratulations on becoming a magical reindeer!\n\nNow light your nose and get high!		
 PRODUCT	78	3d objects	2256	Side Kitsune Mask	0	15000.00	4.00	15000.00	4.00	0	1	2000	0	0	1	0	0	0	Minimalist version of the Kitsune Mask, placed on the side. Use it if you wish to not hide your face while still praising to the mighty kitsunes. (Forged by Stalker)		
 PRODUCT	78	3d objects	2031	Skull Necklace	0	10000.00	3.00	10000.00	3.00	0	0	2000	0	0	1	0	1	1	HALLOWEEN SPECIAL\n\nA beautiful master piece to show your foes what you reserve for them after their demise.		
 PRODUCT	78	3d objects	2113	Swagtastic Gear	0	30000.00	6.00	30000.00	6.00	0	1	2000	0	0	1	0	0	0	Now with 420% more #SWAG & MLG, and not to forget - weed!		
@@ -3326,6 +3332,7 @@ PRODUCT	78	3d objects	2300	Outback	0	0.00	0.00	0.00	0.00	0	0	1000000	0	0	1	0	1	0
 PRODUCT	78	3d objects	2652	Party Beverage	0	0.00	0.00	0.00	0.00	0	0	1000000	0	0	1	0	1	1	Mandatory party liquid.		
 PRODUCT	78	3d objects	2653	Party Hat	0	0.00	0.00	0.00	0.00	0	0	1000000	0	0	1	0	1	1	You don't remember putting this on.		
 PRODUCT	78	3d objects	2786	Plague doc test	0	0.00	0.00	0.00	0.00	0	0	1000000	0	0	1	0	1	1	Test of doc mask		
+PRODUCT	78	3d objects	3444	Pride Bracelet	0	0.00	0.00	0.00	0.00	0	0	1000000	0	0	1	0	1	1	Show Your Pride in Style!		
 PRODUCT	78	3d objects	2198	R.I.P. Dog	0	0.00	0.00	0.00	0.00	0	0	1000000	0	0	1	0	1	0	TGS puppies, when love is above reality.		
 PRODUCT	18	Collectibles	2204	Red Pad	0	0.00	0.00	0.00	0.00	0	0	1000000	0	0	0	0	1	1			
 PRODUCT	50	Flames	963	Right Hand Flame	0	0.00	0.00	0.00	0.00	0	0	1000000	0	0	1	0	0	0			
@@ -3426,6 +3433,8 @@ PRODUCT	19	Tournament	1938	Clan League Champion	0	0.00	0.00	0.00	0.00	0	0	999999
 PRODUCT	76	Uncategorized	1939	Clan League Second Place (repeated, disregard this	0	0.00	0.00	0.00	0.00	0	0	9999999	0	0	0	0	0	0	Trophy item for those who made it to the Final of the Clans League		
 PRODUCT	18	Collectibles	2158	Crone's Dome	0	0.00	0.00	0.00	0.00	0	0	9999999	0	0	0	0	1	1	If this hat is on your head, then either the hat was stolen from a witch, or you actually are the witch! Tint's Best Aikido Player 2014 Winner.		
 PRODUCT	78	3d objects	2740	Duck's Choice Specs	0	0.00	0.00	0.00	0.00	0	0	9999999	0	0	1	0	1	1	Gotta keep a Calm Mind		
+PRODUCT	78	3d objects	3591	Egg Head QI LOCKED	0	0.00	0.00	0.00	0.00	0	0	9999999	0	0	1	0	1	1	EASTER SPECIAL\n\nI EgG MAN		
+PRODUCT	78	3d objects	3524	El Trofeo!	0	0.00	0.00	0.00	0.00	0	0	9999999	0	0	1	0	1	1	That isn't how you use a trophy, but latin guys broke the standards.		
 PRODUCT	78	3d objects	2797	Fl0wBot	0	0.00	0.00	0.00	0.00	0	0	9999999	0	0	1	0	1	1	The desired companion for all wushu connoisseurs!		
 PRODUCT	47	Secret	1737	Golden Llama	0	0.00	0.00	0.00	0.00	0	0	9999999	0	0	0	0	1	1	You are the cream of the crop, the king of the hill, the best of the best. You are the MvP of the Llamas!		
 PRODUCT	47	Secret	1738	Golden Pony	0	0.00	0.00	0.00	0.00	0	0	9999999	0	0	0	0	1	1	You are the cream of the crop, the king of the hill, the best of the best. You are the MvP of the Ponies!		

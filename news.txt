@@ -28,6 +28,12 @@ IMAGE 0;easterfestival.tga
 EVENT 0;1
 FEATURED 0;
 
+NEWSID 4;
+TITLE 0;Scrambled Eggs
+IMAGE 0;scrambledeggs.tga
+EVENT 0;2
+FEATURED 0;
+
 //NEWSID 4;
 //TITLE 0;Opener Challenge 8
 //SUBTITLE 0;Show off your tricking skills with OC8!
@@ -101,54 +107,37 @@ PRIZETC 0;36000
 PRIZEST 0;33
 
 EVENTID 2;
-NAME 0;Wipeout Warrior
-URL 0;https://forum.toribash.com/showthread.php?t=649950
-//PLAYNAME 0;wipeoutwarrior
-OVERLAYTRANS 0;0
+NAME 0;Scrambled Eggs
+URL 0;https://forum.toribash.com/showthread.php?t=655255
+PLAYNAME 0;easterfest2
+OVERLAYTRANS 0;0.1
 PLAYTEXT 0;PARTICIPATE
-ACCENTCOLOR 0;00dbfe
+ACCENTCOLOR 0;d4d7ec
 UICOLOR 0;000000
-BTNHVRCOL 0;005471
-BTNDNCOL 0;01befe
+BTNHVRCOL 0;1e343b
+BTNDNCOL 0;f9bc71
 DESCDATA 0;1Description
-//DESCDATAIMGTITLE 0;1frf4-description.tga
-DESCDATATEXT 0;1Welcome to Wipeout Warrior!\nRun through the obstacle course
-and press the button to finish as fast as you can!\nYou can pick either of two
-paths, you'll only receive better prizes if you get inside the blue
-zone!\nThere are two main prizes this time - one for the most stylish replay
-and another for the fastest one!
+DESCDATAIMGTITLE 0;1oc_description.tga
+DESCDATATEXT 0;1Hi hello and welcome! Please leave your eggs in the basket next to the door.\n\nIn this event your objective is going to be to throw all the eggs that fell out of the bunny's basket into the basket of your own, and also climb up and get the egg placed on top of it's head while making it look as sexy as possible!\n\nBest of luck!
 DESCDATA 0;2Rules
-//DESCDATAIMGTITLE 0;2frf4-rules.tga
-DESCDATATEXT 0;2- Replay hacking is forbidden\n- Do not steal other players'
-replays\n- Do not edit any of the game rules except turn and match frames\n-
-Do not try to enter the event with multiple accounts
-DESCDATA 0;3How to Enter
-//DESCDATAIMGTITLE 0;3frf4-howtoenter.tga
-DESCDATATEXT 0;3Press the "Participate" button on bottom right, complete the
-challenge and submit your replay to Toribash servers!\nAlternatively, you can
-download event mod from the thread on forums, make a replay according to rules
-and post your replay back in event thread - if you just upload it to Toribash
-Community Replays then it won't be judged.\nIf you decide to switch your
-replay for advanced objective completion or best replay nomination, make sure
-you ^02post ^02it ^02on ^02forums.\n^02You may submit as ^02many ^02replays
-^02for ^02fastest ^02replay ^02nomination ^02as ^02you ^02want.
-DESCDATA 0;4Deadline
-//DESCDATAIMGTITLE 0;4frf4-deadline.tga
-DESCDATATEXT 0;4We will stop accepting new entries on June 11th at 16:00 UTC
-DESCDATA 0;5
-//PRIZEIMG 0;frf4-prizes.tga
-PRIZEDATA 0;1Best replay
-PRIZETC 0;175000
-PRIZEST 0;110
-PRIZEDATA 0;2Fastest replay
-PRIZETC 0;275000
-PRIZEST 0;28
-PRIZEDATA 0;3Run through the blue zone
-PRIZETC 0;38000
-PRIZEST 0;34
-PRIZEDATA 0;4Reach the end zone and press the button
-PRIZETC 0;43000
-PRIZEST 0;42
+DESCDATAIMGTITLE 0;2oc_rules.tga
+DESCDATATEXT 0;2- No replay hacking\n- Do not steal others' replays\n- Do not edit any of the mod's game rules\n- Do not enter the event with multiple accounts
+DESCDATA 0;3Deadline
+DESCDATAIMGTITLE 0;3oc_deadline.tga
+DESCDATATEXT 0;3May 9th, 18:00 / 6 PM UTC
+PRIZEIMG 0;oc_prizes.tga
+PRIZEDATA 0;1Reward per each egg in box
+PRIZETC 0;1800
+PRIZEDATA 0;2Additional reward for 1, 4 and 9 eggs
+PRIZEST 0;21
+PRIZEDATA 0;3Extra reward for the 10th egg
+PRIZETC 0;35000
+PRIZEST 0;32
+PRIZEITEMS 0;31 3589
+PRIZEDATA 0;4Best replay
+PRIZETC 0;4100000
+PRIZEST 0;410
+PRIZEITEMS 0;41 1074
 
 EVENTID 3;
 NAME 0;Toribash Ranking Season 7
