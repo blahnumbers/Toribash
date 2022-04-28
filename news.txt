@@ -1,15 +1,9 @@
 NEWSID 0;
-TITLE 0;Single Player Cup 2022
-SUBTITLE 0;The grand competition for the title of the best replay maker of the year is on!
-IMAGE 0;singleplayercup22.tga
-URL 0;https://forum.toribash.com/showthread.php?t=655169
-
-NEWSID 1;
-TITLE 0;Nailed it!
-SUBTITLE 0;Head Sign is now available in Store!
-IMAGE 0;store/headsignpromo.tga
-URL 0;https://forum.toribash.com/tori_shop_item.php?id=3536
-STORE 0;3536
+TITLE 0;The Kingship Set
+SUBTITLE 0;King Blingo decided to bless you with the all new "Kingship" set, mortals
+IMAGE 0;store/kingshipset.tga
+URL 0;https://forum.toribash.com/tori_shop_item.php?id=3598
+STORE 0;3598
 
 //NEWSID 2;
 //TITLE 0;Head Texture of the Month: Pop Art
@@ -179,40 +173,40 @@ PRIZEDATA 0;7Gold Players
 PRIZEST 0;73
 
 EVENTID 4;
-NAME 0;Floor is Lava 3
-IMAGE 0;floorislava.tga
-//PLAYNAME 0;floorislavaf3
+NAME 0;Single Player Cup 2022
+//PLAYNAME 0;spcup
 OVERLAYTRANS 0;0.7
-PLAYTEXT 0;PARTICIPATE
-ACCENTCOLOR 0;ffbe77
-UICOLOR 0;111111
-BTNHVRCOL 0;bd5500
-BTNDNCOL 0;ff2d00
+URL 0;https://forum.toribash.com/showthread.php?t=655169
+PLAYTEXT 0;SIGN UP (STEAM ONLY)
+ACCENTCOLOR 0;e8c2b1
+UICOLOR 0;080304
+BTNHVRCOL 0;462526
+BTNDNCOL 0;ed6057
 DESCDATA 0;1Description
 DESCDATAIMGTITLE 0;1fil_description.tga
-DESCDATATEXT 0;1The Event Squad is proud to present Floor is Lava!\n\nIn this event you'll need to complete the map without getting fried.\nRun straight to the red zone or take a detour through the extra blue checkpoint areas for a better rewards!\nIf you complete both checkpoints, your entry will be eligible for best replay nomination - winning which means getting extra rewards, so give your replay some love!\n\nGood luck and have fun!
+DESCDATATEXT 0;1Good morning, good afternoon, good evening and good night everyone and welcome to the 2022 Single Player World Cup!\n\nThis event is the top event for single player replay makers across the globe, THE place to throw down and prove you're the best.\nThis event will be an open qualifying round, followed by 5 rounds to narrow down 32 competitors to just 1 winner.\n\nTo qualify all you have to do is submit in your best replay!
 DESCDATA 0;2Rules
 DESCDATAIMGTITLE 0;2fil_rules.tga
-DESCDATATEXT 0;2- Replay hacking is strictly forbidden\n- Do not steal other players' replays\n- Do not try to enter the event with multiple accounts
+DESCDATATEXT 0;2- Replay should be no longer than 750 frames\n\n- ENGAGE DISTANCE must end in a 1\nFor example, the engage distance can be 101, 151, etc\n- If you change player engage position, it should also end with a 1\n\n- Don't steal others' replays\n\n- Hacking is allowed
 DESCDATA 0;4Deadline
 DESCDATAIMGTITLE 0;4fil_deadline.tga
-DESCDATATEXT 0;4We will stop accepting new entries on December 24th, 15:00 UTC
+DESCDATATEXT 0;4April 27th, 18:00 / 6 PM UTC
 DESCDATA 0;5
 PRIZEIMG 0;fil_prizes.tga
-PRIZEDATA 0;1Best replay
-PRIZETC 0;150000
-PRIZEST 0;18
-PRIZEITEMS 0;11 1461
-PRIZEDATA 0;2Complete both checkpoints
-PRIZETC 0;210000
-PRIZEST 0;24
-PRIZEITEMS 0;21 3534
-PRIZEDATA 0;3Complete one checkpoint
-PRIZETC 0;37500
-PRIZEST 0;33
-PRIZEDATA 0;4Complete the map
-PRIZETC 0;45000
-PRIZEST 0;42
+PRIZEDATA 0;1First Place
+PRIZETC 0;1200000
+PRIZEST 0;140
+PRIZEITEMS 0;13 2096 2093 2042
+PRIZEDATA 0;2Second Place
+PRIZETC 0;2100000
+PRIZEST 0;230
+PRIZEITEMS 0;23 2095 2092 2042
+PRIZEDATA 0;3Third Place
+PRIZETC 0;350000
+PRIZEST 0;320
+PRIZEITEMS 0;33 2094 2091 2042
+PRIZEDATA 0;4Join the Cup
+PRIZEITEMS 0;41 3595
 
 EVENTID 5;
 NAME 0;Mod Mania 2021 - Spring
