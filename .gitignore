@@ -27,6 +27,8 @@ textures/clans/
 
 !textures/clans/achievements/
 
+textures/store/market/*tga
+
 models/
 
 script/sdk/
@@ -80,3 +82,5 @@ script/torishop/torishop.cfg
 tutorials/config.cfg
 
 flames_stored.dat
+
+quests_global.dat
