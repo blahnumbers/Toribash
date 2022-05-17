@@ -11,12 +11,12 @@ do
 		setmetatable(cln, EventsOnline)
 		EventsOnline = cln
 	end
-	
+
 	-- Tutorial class function overrides
 	function EventsOnline:loadEvent(eventName)
 		return EventsOnline:loadTutorial(eventName, "events/")
 	end
-	
+
 	function EventsOnline:checkFiles(eventName, requireMod)
 		local event = Files:open("events/" .. eventName .. ".dat")
 		if (not event.data) then
@@ -42,11 +42,11 @@ do
 		end
 		return true
 	end
-	
+
 	function EventsOnline:playEvent(eventName)
 		TUTORIAL_ISACTIVE = true
 		TUTORIAL_LEAVEGAME = true
-		
+
 		if (get_world_state().game_type == 1) then
 			start_new_game()
 		end
@@ -58,16 +58,19 @@ do
 					EventsOnline:quitPopup()
 				end
 			end)
-		add_hook("key_down", "tbTutorialKeyboardHandler", function(key)
+		add_hook("key_down", "tbTutorialKeyboardHandler", function(key, kcode)
 				if (not TB_MENU_INPUT_ISACTIVE) then
-					return Tutorials:ignoreKeyPress(key, true, true)
+					return Tutorials:ignoreKeyPress(key, kcode, true, true)
 				end
 			end)
-		add_hook("key_up", "tbTutorialKeyboardHandler", function(key)
+		add_hook("key_up", "tbTutorialKeyboardHandler", function(key, kcode)
 				if (TB_MENU_INPUT_ISACTIVE) then
 					return
 				end
 				if (key == 13) then
+					if (tbTutorialsMessage) then
+						tbTutorialsMessage.doSkip = true
+					end
 					if (tbTutorialsContinueButton.isactive) then
 						if (tbTutorialsContinueButton.req.ready ~= nil) then
 							tbTutorialsContinueButton.req.ready = true
@@ -76,7 +79,7 @@ do
 						end
 					end
 				else
-					return Tutorials:ignoreKeyPress(key, true, true)
+					return Tutorials:ignoreKeyPress(key, kcode, true, true)
 				end
 			end)
 		EventsOnline:loadOverlay()
@@ -96,11 +99,11 @@ do
 			TBMenu:showDataError("No localization found")
 		end
 	end
-	
+
 	function Tutorials:updateConfig()
 		return 0
 	end
-	
+
 	function EventsOnline:quitPopup()
 		if (tutorialQuitOverlay) then
 			tutorialQuitOverlay:kill()

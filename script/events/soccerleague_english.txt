@@ -1,0 +1,14 @@
+#Messages
+INTRO1	Hi and welcome to Soccer League!
+INTRO2	Score a goal by kicking your own head (aka THE BALL) in either of the gates.
+INTRO3	Scoring in the right gate is trickier but would give you better rewards, so can be worth an extra try!
+INTRO4	Hi again! Let's get back to your auto-saved replay!
+INTRO5	Remember, if you score in the right gate, you'd get you better rewards!
+UPLOADSUCCESS1	Hooray, you've successfully uploaded your entry!
+UPLOADSUCCESS2	Check your notifications - there should be a message from Event Squad with the list of prizes you've got!
+UPLOADSUCCESS3	If you make an even better replay, feel free to submit it any time to claim even better prizes!
+UPLOADSUCCESS4	Your replay didn't get you any new rewards, but you can still try to make a better replay and upload later!
+UPLOADSUCCESS5	Thanks for participating and see you next time!
+#Tasks
+EVTTASK1	Score a goal
+EVTTASKOPT1	Score in the red gate for better reward

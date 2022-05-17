@@ -319,7 +319,7 @@ do
 		end
 		return skip
 	end
-	
+
 	function Tutorials:showOverlay(viewElement, reqTable, out, speed)
 		local speed = speed or 1
 		if (get_option("framerate") == 30) then
@@ -327,7 +327,7 @@ do
 		end
 		local req = { type = "transition", ready = false }
 		table.insert(reqTable, req)
-		
+
 		if (tbOutOverlay) then
 			tbOutOverlay:kill()
 		end
@@ -355,11 +355,11 @@ do
 				draw_quad(overlay.pos.x, overlay.pos.y, overlay.size.w, overlay.size.h)
 			end)
 	end
-	
+
 	function Tutorials:introOverlay(viewElement, reqTable)
 		Tutorials:showOverlay(viewElement, reqTable)
 	end
-	
+
 	function Tutorials:outroOverlay(viewElement, reqTable)
 		Tutorials:showOverlay(viewElement, reqTable, true)
 	end
@@ -572,7 +572,7 @@ do
 					keyPress:addAdaptedText(false, displayKey, nil, nil, 4)
 				end
 			end
-			
+
 			local startpos, endpos = v:find("^[A-ZÉАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ][A-ZÉАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ]+")
 			if (startpos and endpos - startpos > 2) then
 				local displayLineLength = get_string_length(v, 4) * tbTutorialsHintMessage.textScale
@@ -619,6 +619,7 @@ do
 			pos = { 0, 0 },
 			size = { 0, 0 }
 		})
+		tbTutorialsMessage.doSkip = false
 		animationWait:addCustomDisplay(true, function()
 			if (tbTutorialsMessageView.pos.x > WIN_W - tbTutorialsMessageView.size.w) then
 				return
@@ -657,6 +658,9 @@ do
 				local wait = 0
 				local framerate = get_option("framerate")
 				messageBuilder:addCustomDisplay(true, function()
+						if (tbTutorialsMessage.doSkip == true) then
+							sub = message:len()
+						end
 						tbTutorialsMessageView:addAdaptedText(false, message:sub(0,sub), nil, nil, nil, LEFTMID)
 						if (wait > 0) then
 							wait = wait - 1
@@ -1022,7 +1026,7 @@ do
 				end
 			end)
 	end
-	
+
 	function Tutorials:addAdditionalTask(data, taskText)
 		local optTaskColor = cloneTable(TB_MENU_DEFAULT_BG_COLOR)
 		optTaskColor[4] = 0.7
@@ -1057,7 +1061,7 @@ do
 				end
 			end)
 	end
-	
+
 	function Tutorials:taskOptIncomplete(id)
 		for i,v in pairs(tbTutorialsTask.optional) do
 			if (v.id == id) then
@@ -1489,7 +1493,7 @@ do
 		if (level < CURRENT_TUTORIAL or CURRENT_TUTORIAL > 4) then
 			set_tutorial_level(CURRENT_TUTORIAL)
 		end
-		
+
 		local tutorialsConfig = Files:open("../data/tutorials/config.cfg")
 		if (not tutorialsConfig.data) then
 			return false
@@ -1520,7 +1524,7 @@ do
 	function Tutorials:beginnerConnect()
 		dofile("system/friendlist_manager.lua")
 		local players = FriendsList:updateOnline()
-		
+
 		local rooms = { "beginner%d", "public%d" }
 		local roomsOnline = {}
 		for i, online in pairs(players) do
@@ -1651,7 +1655,7 @@ do
 			buttonText:addAdaptedText(true, v.title)
 		end
 	end
-	
+
 	function Tutorials:setDiscordRPC()
 		local currentTutorialname = nil
 		if (CURRENT_TUTORIAL == 1) then
@@ -1667,12 +1671,12 @@ do
 		end
 		set_discord_rpc(currentTutorialname, TB_MENU_LOCALIZED.DISCORDRPCINTUTORIAL)
 	end
-	
+
 	function Tutorials:runTutorial(id, postTutorial)
 		TUTORIAL_ISACTIVE = true
 		TUTORIAL_LEAVEGAME = true
 		TUTORIAL_REQUIRE_CLOSEMENU = false
-		
+
 		if (get_world_state().game_type == 1) then
 			start_new_game()
 		end
@@ -2044,7 +2048,7 @@ do
 			image = tutorials[nextTutorial].image or "../textures/menu/tutorial" .. nextTutorial .. ".tga",
 			mode = ORIENTATION_LANDSCAPE,
 			size = 0.47,
-			ratio = 0.5, 
+			ratio = 0.5,
 			action = function() Tutorials:runTutorial(nextTutorial) end,
 			quit = true
 		}
@@ -2105,6 +2109,9 @@ do
 			end)
 		add_hook("key_up", "tbTutorialKeyboardHandler", function(key, kcode)
 				if (key == 13) then
+					if (tbTutorialsMessage) then
+						tbTutorialsMessage.doSkip = true
+					end
 					if (tbTutorialsContinueButton.isactive) then
 						if (tbTutorialsContinueButton.req.ready ~= nil) then
 							tbTutorialsContinueButton.req.ready = true

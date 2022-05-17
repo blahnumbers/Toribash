@@ -5,6 +5,13 @@ IMAGE 0;store/kingshipset.tga
 URL 0;https://forum.toribash.com/tori_shop_item.php?id=3598
 STORE 0;3598
 
+NEWSID 1;
+TITLE 0;Leggang Statue
+SUBTITLE 0;Now EVERY day is leg day!
+IMAGE 0;store/leggangpromo.tga
+URL 0;https://forum.toribash.com/tori_shop_item.php?id=3550
+STORE 0;3550
+
 //NEWSID 2;
 //TITLE 0;Head Texture of the Month: Pop Art
 //SUBTITLE 0;Make your best pop art stylized head texture and get rewards!
@@ -17,16 +24,16 @@ STORE 0;3598
 //FEATURED 0;
 
 NEWSID 3;
-TITLE 0;Easter Festival
-IMAGE 0;easterfestival.tga
+//TITLE 0;Soccer League
+IMAGE 0;soccerleague.tga
 EVENT 0;1
 FEATURED 0;
 
-NEWSID 4;
-TITLE 0;Scrambled Eggs
-IMAGE 0;scrambledeggs.tga
-EVENT 0;2
-FEATURED 0;
+//NEWSID 4;
+//TITLE 0;Scrambled Eggs
+//IMAGE 0;scrambledeggs.tga
+//EVENT 0;2
+//FEATURED 0;
 
 //NEWSID 4;
 //TITLE 0;Opener Challenge 8
@@ -69,10 +76,10 @@ FEATURED 0;
 //FEATURED 0;
 
 EVENTID 1;
-NAME 0;Easter Festival
+NAME 0;Toribash Soccer League
 //IMAGE 0;leggang.tga
-URL 0;https://forum.toribash.com/showthread.php?t=655190
-PLAYNAME 0;easterfest
+//URL 0;https://forum.toribash.com/showthread.php?t=655190
+PLAYNAME 0;soccerleague
 OVERLAYTRANS 0;0.1
 PLAYTEXT 0;PARTICIPATE
 ACCENTCOLOR 0;d4d7ec
@@ -81,29 +88,26 @@ BTNHVRCOL 0;1e343b
 BTNDNCOL 0;f9bc71
 DESCDATA 0;1Description
 DESCDATAIMGTITLE 0;1oc_description.tga
-DESCDATATEXT 0;1Hey 'Bashers and welcome to this year's Easter Festival parkour event!\n\nThe challenge is simple, get to the finish line! Parkour your way to the end, picking up the red egg on your way, for more prizes.\n\nBest of luck!
+DESCDATATEXT 0;1The Toribash Soccer League majors have come around, now is your time to shine!\n\nYour goal is to lob your recently decapitated head into one of the two goal posts without touching any of the red objects.\n\nBut here's the catch: If you want to make it out with the TLS prizes you will need to best our automated goalie system!\n What does this mean?\nWell, there are two goal posts you can choose from.\nOne will have slow blocks bouncing back and forth, basically a free win right?\nHowever, the second one will have faster blocks and a no-touch zone around the edges.\n\nRemember to avoid touching the head with your hands!
 DESCDATA 0;2Rules
 DESCDATAIMGTITLE 0;2oc_rules.tga
-DESCDATATEXT 0;2- No replay hacking\n- Do not steal others' replays\n- Do not edit any of the mod's game rules\n- Do not enter the event with multiple accounts
+DESCDATATEXT 0;2- No replay hacking\n- Do not steal others' replays\n- Do not modify event mod\n- Do not enter the event with multiple accounts
 DESCDATA 0;3Deadline
 DESCDATAIMGTITLE 0;3oc_deadline.tga
-DESCDATATEXT 0;3May 6th, 20:00 / 8 PM UTC
+DESCDATATEXT 0;3June 7th, 20:00 / 8 PM UTC
 PRIZEIMG 0;oc_prizes.tga
-PRIZEDATA 0;1Best replay
-PRIZETC 0;175000
-PRIZEST 0;17
-PRIZEITEMS 0;11 925
-PRIZEDATA 0;2Finish with the egg
-PRIZETC 0;210000
-PRIZEST 0;24
-PRIZEDATA 0;3Complete the map
-PRIZETC 0;36000
-PRIZEST 0;33
+PRIZEDATA 0;1Score in the red gate
+PRIZETC 0;18000
+PRIZEST 0;14
+PRIZEITEMS 0;11 3442
+PRIZEDATA 0;2Score in the blue gate
+PRIZETC 0;24000
+PRIZEST 0;22
 
 EVENTID 2;
 NAME 0;Scrambled Eggs
 URL 0;https://forum.toribash.com/showthread.php?t=655255
-PLAYNAME 0;easterfest2
+//PLAYNAME 0;easterfest2
 OVERLAYTRANS 0;0.1
 PLAYTEXT 0;PARTICIPATE
 ACCENTCOLOR 0;d4d7ec

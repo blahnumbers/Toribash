@@ -3316,15 +3316,15 @@ do
 
 	function Replays:showCustomReplaySelection(mainElement, mod, action)
 		local function showCustomReplayChoice(viewElement)
-			local holder = UIElement:new({
-				parent = viewElement,
-				pos = { viewElement.size.w / 5, viewElement.size.h / 4 },
-				size = { viewElement.size.w * 0.6, viewElement.size.h / 2 },
-				bgColor = TB_MENU_DEFAULT_BG_COLOR
+			local holder = viewElement:addChild({
+				shift = { viewElement.size.w / 5, viewElement.size.h / 4 },
+				bgColor = TB_MENU_DEFAULT_BG_COLOR,
+				shapeType = ROUNDED,
+				rounded = 4
 			})
 			local replaysToChooseFrom = {}
 			local function checkReplay(v)
-				if ((mod == nil or v.mod == mod) and v.author == TB_MENU_PLAYER_INFO.username) then
+				if ((mod == nil or v.mod == mod) and (v.author == TB_MENU_PLAYER_INFO.username or (v.author == 'autosave' and v.bouts[1] == TB_MENU_PLAYER_INFO.username))) then
 					if (v.name:find("^" .. REPLAY_EVENT)) then
 						v.name = 'Autosaved Replay'
 					end
@@ -3343,20 +3343,26 @@ do
 
 			local elementHeight = 45
 			local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(holder, elementHeight + 15, elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
+			topBar.shapeType = ROUNDED
+			botBar.shapeType = ROUNDED
+			topBar.rounded = 4
+			botBar.rounded = 4
+
 			local topTitle = UIElement:new({
 				parent = topBar,
 				pos = { 10, 5 },
 				size = { topBar.size.w - 20, topBar.size.h - 10 }
 			})
 			topTitle:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSSELECTREPLAYTOPROCEED, nil, nil, FONTS.BIG, nil, nil, nil, 0.5)
-			local botQuit = UIElement:new({
-				parent = botBar,
+			local botQuit = botBar:addChild({
 				pos = { botBar.size.w / 4, 5 },
 				size = { botBar.size.w / 2, botBar.size.h - 10 },
 				interactive = true,
 				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+				shapeType = ROUNDED,
+				rounded = 3
 			})
 			botQuit:addAdaptedText(nil, TB_MENU_LOCALIZED.BUTTONCLOSEWINDOW)
 			botQuit:addMouseHandlers(nil, function()
@@ -3382,7 +3388,9 @@ do
 					interactive = true,
 					bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 					hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-					pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+					pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+					shapeType = ROUNDED,
+					rounded = 3
 				})
 				local replayText = UIElement:new({
 					parent = replayButton,
@@ -3423,7 +3431,9 @@ do
 			parent = customReplayOverlay,
 			pos = { customReplayOverlay.size.w / 5, customReplayOverlay.size.h / 2 - 70 },
 			size = { customReplayOverlay.size.w * 0.6, 140 },
-			bgColor = TB_MENU_DEFAULT_BG_COLOR
+			bgColor = TB_MENU_DEFAULT_BG_COLOR,
+			shapeType = ROUNDED,
+			rounded = 4
 		})
 		customReplayLoading:addAdaptedText(false, TB_MENU_LOCALIZED.MESSAGEPLEASEWAIT or "Please wait...")
 		local waiter = UIElement:new({

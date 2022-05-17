@@ -38,12 +38,12 @@ PRODUCT	47	Secret	1521	1,000 Toricredits	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1
 PRODUCT	86	Lottery Tickets	3359	10 Christmas Lottery Tickets - Cheap and Cheerful	0	45000.00	0.00	45000.00	0.00	0	0	0	0	0	0	0	1	0	Ten cheap and cheerful tickets to join Toribash Christmas Lottery 2020		
 PRODUCT	86	Lottery Tickets	3361	10 Christmas Lottery Tickets - Luxury	0	90000.00	0.00	90000.00	0.00	0	0	0	0	0	0	0	1	0	Ten luxury tickets to join Toribash Christmas Lottery 2020		
 PRODUCT	47	Secret	736	10,000 Toricredits	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	This item allows you to redeem  10,000 TC.		
-PRODUCT	84	Shiai Tokens	3125	100 Shiai Tokens	0	0.00	49.95	0.00	49.95	0	0	0	0	0	0	0	0	0	Buy this to have 100 Shiai Tokens instantly added to your account.		
+PRODUCT	84	Shiai Tokens	3125	100 Shiai Tokens	0	0.00	49.95	0.00	49.95	512166	0	0	0	0	0	0	0	0	Buy this to have 100 Shiai Tokens instantly added to your account.		
 PRODUCT	47	Secret	738	100,000 Toricredits	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	This item allows you to redeem  100,000 TC.		
-PRODUCT	45	Toricredits	1569	100000 ToriCredits	0	0.00	49.95	0.00	49.95	0	0	0	0	0	0	0	0	0	Buy this to have 100,000 ToriCredits instantly added to your account.		
+PRODUCT	45	Toricredits	1569	100000 ToriCredits	0	0.00	49.95	0.00	49.95	512166	0	0	0	0	0	0	0	0	Buy this to have 100,000 ToriCredits instantly added to your account.		
 PRODUCT	47	Secret	1475	11,200 Toricredits	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	This item allows you to redeem  11,200 TC.\nClick REDEEM to receive your Toricredits.		
-PRODUCT	84	Shiai Tokens	3123	12 Shiai Tokens	0	0.00	9.95	0.00	9.95	0	0	0	0	0	0	0	0	0	Buy this to have 12 Shiai Tokens instantly added to your account.		
-PRODUCT	45	Toricredits	1571	12000 ToriCredits	0	0.00	9.95	0.00	9.95	0	0	0	0	0	0	0	0	0	Buy this to have 12,000 ToriCredits instantly added to your account.		
+PRODUCT	84	Shiai Tokens	3123	12 Shiai Tokens	0	0.00	9.95	0.00	9.95	512166	0	0	0	0	0	0	0	0	Buy this to have 12 Shiai Tokens instantly added to your account.		
+PRODUCT	45	Toricredits	1571	12000 ToriCredits	0	0.00	9.95	0.00	9.95	512166	0	0	0	0	0	0	0	0	Buy this to have 12,000 ToriCredits instantly added to your account.		
 PRODUCT	48	Texture Packs	2712	128 Body+Misc Textures	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	0	Items included in this pack:\nFull 128x128 Body Texture Pack with preloaded Goraxx set\n\nTrail Textures\n\n128x128 Ground Texture\n\nFlame Particle Texture\n\nDQ Texture	2400 1448 1449 1450 1451 1424 1425 1426	
 PRODUCT	74	Joint Textures	1825	128x128 Abs joint texture	0	10000.00	0.00	10000.00	0.00	0	0	0	0	0	1	0	0	0	Texture for your Abs		
 PRODUCT	48	Texture Packs	2091	128x128 Body Texture Pack	0	0.00	4.00	0.00	4.00	0	0	0	0	0	0	0	0	0	This pack contains all 128x128 Body Texture items.\nUnlock these items into your inventory.	1337 1405 1406 1407 1408 1409 1410 1411 1412 1413 1414 1415 1416 1417 1418 1419 1420 1421 1422	
@@ -102,9 +102,9 @@ PRODUCT	78	3d objects	3321	2020 Muay Thai Series Champion	0	0.00	0.00	0.00	0.00	
 PRODUCT	78	3d objects	3322	2020 Muay Thai Series Runner-Up	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1			
 PRODUCT	54	Body Textures	2888	2048x1024 Head Texture	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	Tradeable texture.		
 PRODUCT	45	Toricredits	1542	240,000 Toricredits	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	0	\n\n\nIn this pack, you get:\n\n\n240,000 Toricredits\nRedeem your credits to start shopping today!		
-PRODUCT	84	Shiai Tokens	3126	250 Shiai Tokens	0	0.00	99.95	0.00	99.95	0	0	0	0	0	0	0	0	0	Buy this to have 250 Shiai Tokens instantly added to your account.		
+PRODUCT	84	Shiai Tokens	3126	250 Shiai Tokens	0	0.00	99.95	0.00	99.95	512166	0	0	0	0	0	0	0	0	Buy this to have 250 Shiai Tokens instantly added to your account.		
 PRODUCT	47	Secret	739	250,000 Toricredits	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	This item allows you to redeem  250,000 TC.		
-PRODUCT	45	Toricredits	1570	250000 ToriCredits	0	0.00	99.95	0.00	99.95	0	1	0	0	0	0	0	0	0	Buy this to have 250,000 ToriCredits instantly added to your account.\nThat's a lot of TC!		
+PRODUCT	45	Toricredits	1570	250000 ToriCredits	0	0.00	99.95	0.00	99.95	512166	0	0	0	0	0	0	0	0	Buy this to have 250,000 ToriCredits instantly added to your account.\nThat's a lot of TC!		
 PRODUCT	74	Joint Textures	1845	256x256 Abs joint texture	0	25000.00	0.00	25000.00	0.00	0	0	0	0	0	1	0	0	0	256x256 texture for your abs		
 PRODUCT	48	Texture Packs	2092	256x256 Body Texture Pack	0	0.00	20.00	0.00	20.00	0	0	0	0	0	0	0	0	0	This pack contains all 256x256 Body Texture items.\nUnlock these items into your inventory.	1566 1625 1626 1627 1628 1629 1630 1631 1632 1633 1634 1635 1636 1637 1638 1639 1640 1641 1642	
 PRODUCT	54	Body Textures	1625	256x256 Breast Texture	0	10000.00	0.00	10000.00	0.00	0	0	0	0	0	1	0	0	0	Tradeable texture.		
@@ -147,13 +147,13 @@ PRODUCT	74	Joint Textures	1847	256x256 Right shoulder joint texture	0	35000.00	0
 PRODUCT	54	Body Textures	1637	256x256 Right Thigh Texture	0	10000.00	0.00	10000.00	0.00	0	0	0	0	0	1	0	0	0	Tradeable texture.		
 PRODUCT	74	Joint Textures	1852	256x256 Right wrist joint texture	0	25000.00	0.00	25000.00	0.00	0	0	0	0	0	1	0	0	0	256x256 texture for your Right wrist		
 PRODUCT	54	Body Textures	1627	256x256 Stomach Texture	0	10000.00	0.00	10000.00	0.00	0	0	0	0	0	1	0	0	0	Tradeable texture.		
-PRODUCT	84	Shiai Tokens	3124	28 Shiai Tokens	0	0.00	19.95	0.00	19.95	0	1	0	0	0	0	0	0	0	Buy this to have 28 Shiai Tokens instantly added to your account.		
+PRODUCT	84	Shiai Tokens	3124	28 Shiai Tokens	0	0.00	19.95	0.00	19.95	512166	1	0	0	0	0	0	0	0	Buy this to have 28 Shiai Tokens instantly added to your account.		
 PRODUCT	47	Secret	737	28,000 Toricredits	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	This item allows you to redeem  28,000 TC.		
-PRODUCT	45	Toricredits	1568	28000 ToriCredits	0	0.00	19.95	0.00	19.95	0	0	0	0	0	0	0	0	0	Buy this to have 28,000 ToriCredits instantly added to your account.		
+PRODUCT	45	Toricredits	1568	28000 ToriCredits	0	0.00	19.95	0.00	19.95	512166	0	0	0	0	0	0	0	0	Buy this to have 28,000 ToriCredits instantly added to your account.		
 PRODUCT	45	Toricredits	1543	360,000 Toricredits	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	0	\n\n\nIn this pack, you get:\n\n\n360,000 Toricredits\nRedeem your credits to start shopping today!		
 PRODUCT	47	Secret	1471	4,000 Toricredits	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	This item allows you to redeem  4,000 TC.\nClick REDEEM to receive your Toricredits		
 PRODUCT	47	Secret	1472	40,000 Toricredits	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	This item allows you to redeem  40,000 TC.\nClick REDEEM to receive your Toricredits		
-PRODUCT	84	Shiai Tokens	3122	5 Shiai Tokens	0	0.00	5.00	0.00	5.00	0	0	0	0	0	0	0	0	0	Buy this to have 5 Shiai Tokens instantly added to your account.		
+PRODUCT	84	Shiai Tokens	3122	5 Shiai Tokens	0	0.00	5.00	0.00	5.00	512166	0	0	0	0	0	0	0	0	Buy this to have 5 Shiai Tokens instantly added to your account.		
 PRODUCT	47	Secret	911	5,000 Toricredits	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	This item allows you to redeem  5,000 TC.		
 PRODUCT	47	Secret	1515	5,600 Toricredits	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	This item allows you to redeem  5,600 TC.\nClick REDEEM to receive your Toricredits.		
 PRODUCT	78	3d objects	3500	5.0 Breast	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Shit Just Got Real.		
@@ -178,7 +178,7 @@ PRODUCT	78	3d objects	3518	5.0 Stomach	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	S
 PRODUCT	80	Full Toris	3520	5.0 Tori	0	500000.00	60.00	500000.00	60.00	0	0	0	0	0	0	0	0	0	Shit Just Got Real	3500 3501 3502 3503 3504 3505 3506 3507 3508 3509 3510 3511 3512 3513 3514 3515 3516 3517 3518	
 PRODUCT	79	Subscriptions	3240	50 TC Booster - 5 Days	0	0.00	0.00	0.00	0.00	0	0	0	0	3	0	0	1	1	This subscription will make you earn 50 TC for each fight won for 5 days		
 PRODUCT	47	Secret	1514	50,000 Toricredits	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	This item allows you to redeem  50,000 TC.\nClick REDEEM to receive your Toricredits.		
-PRODUCT	45	Toricredits	1538	5000 ToriCredits	0	0.00	5.00	0.00	5.00	0	0	0	0	0	0	0	0	0	Buy this to have 5,000 ToriCredits instantly added to your account.		
+PRODUCT	45	Toricredits	1538	5000 ToriCredits	0	0.00	5.00	0.00	5.00	512166	0	0	0	0	0	0	0	0	Buy this to have 5,000 ToriCredits instantly added to your account.		
 PRODUCT	48	Texture Packs	2711	512 Body+Misc Textures	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	0	Items included in this pack:\nFull 512x512 Body Texture Pack with preloaded Goraxx set\n\nTrail Textures\n\n512x512 Ground Texture\n\nFlame Particle Texture\n\nDQ Texture	2399 1448 1449 1450 1451 1610 1424 1425	
 PRODUCT	74	Joint Textures	1865	512x512 Abs joint texture	0	50000.00	15.00	50000.00	15.00	0	0	0	0	0	1	0	0	0	512x512 texture for your abs		
 PRODUCT	48	Texture Packs	2093	512x512 Body Texture Pack	0	0.00	40.00	0.00	40.00	0	0	0	0	0	0	0	0	0	This pack contains all 512x512 Body Texture items.\nUnlock these items into your inventory.	1643 1644 1645 1646 1647 1648 1649 1650 1651 1652 1653 1654 1655 1656 1657 1658 1659 1660 1567	
@@ -606,7 +606,7 @@ PRODUCT	78	3d objects	2840	Diamond Splex	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0
 PRODUCT	78	3d objects	2855	Diamond Stomach	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	Season 3 exclusive item		
 PRODUCT	47	Secret	2857	Diamond Tori	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	RANKING SEASON DIAMOND TIER EXCLUSIVE REWARD	2817 2818 2819 2820 2821 2822 2823 2824 2825 2826 2827 2828 2829 2830 2833 2832 2834 2835 2836 2837 2838 2839 2840 2841 2842 2843 2844 2845 2846 2847 2848 2849 2850 2851 2852 2853 2854 2855 2856	
 PRODUCT	1	Blood Colors	3543	disregard 2	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	same		
-PRODUCT	1	Blood Colors	3597	disregard 3	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	0	0	so apparently you can't delete items lol\nforgot to set correct category, it's my first time! - avenue		
+PRODUCT	1	Blood Colors	3597	disregard 3	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	so apparently you can't delete items lol\nforgot to set correct category, it's my first time! - avenue		
 PRODUCT	78	3d objects	2229	Divine Watermelone	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Protects you from bruising your head into Uke remains while making replays.\nYou wish.(Awarded to the winner of the Dopener Challenge Mack)		
 PRODUCT	80	Full Toris	3051	DLC Test	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	Test item for DLC		
 PRODUCT	78	3d objects	2059	Doctor's Armband	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	0	In Toribash medicine a common problem as well as a common solution to problems is amputation.		
@@ -1130,7 +1130,7 @@ PRODUCT	78	3d objects	2117	Muay Thai Headband	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	
 PRODUCT	78	3d objects	2118	Muay Thai Left Armband	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1			
 PRODUCT	78	3d objects	2115	Muay Thai Left Foot	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1			
 PRODUCT	78	3d objects	2120	Muay Thai Left Hand	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1			
-PRODUCT	80	Full Toris	2709	Muay Thai Legend	0	0.00	25.00	0.00	25.00	0	1	0	0	0	0	0	0	0	Muay thai legend gear; only those who train vigorously for countless years can develop the incredible skills of yours.	2115 2116 2117 2118 2119 2120 2121	
+PRODUCT	80	Full Toris	2709	Muay Thai Legend	0	0.00	25.00	0.00	25.00	512166	1	0	0	0	0	0	0	0	Muay thai legend gear; only those who train vigorously for countless years can develop the incredible skills of yours.	2115 2116 2117 2118 2119 2120 2121	
 PRODUCT	78	3d objects	2119	Muay Thai Right Armband	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1			
 PRODUCT	78	3d objects	2116	Muay Thai Right Foot	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1			
 PRODUCT	78	3d objects	2121	Muay Thai Right Hand	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1			
@@ -1219,6 +1219,7 @@ PRODUCT	47	Secret	943	Nox and Bronze Set	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1
 PRODUCT	44	Color Packs	2072	Noxious Pack	0	0.00	6.00	0.00	6.00	0	0	0	0	0	0	35	0	0	This pack contains a full set of Noxious items.\nUNLOCK this into your inventory.	40 64 134 165 189 228 253 63 360 410 435 335 469 515 545 285 1792	
 PRODUCT	47	Secret	957	Null Interim Feb Toribooster-100 Promo	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	Interim February Toribooster-100 pack with matching sets!\nFull Amber\n\n\nFull Beetle\n\n\nFull Copper\n\n\nFor one week only! UNPACK items in your inventory!		
 PRODUCT	78	3d objects	2688	Nunchaku	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Origins of the wood this nunchaku's chukon-bu is made with remain unclear, yet it is strong enough to create a long lasting bruise and to block direct attacks.		
+PRODUCT	78	3d objects	3603	Nyx's Hair Needle	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Nyx's Hair Needle, given to Akina		
 PRODUCT	83	Collectors Cards	3244	Obey - Clan League 2019	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	0			
 PRODUCT	78	3d objects	3352	Odd Mask (Twitch Halloween Edition)	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Get Toribash Twitch Drops by linking your Twitch account and viewing eligible streams.\n\nIf Azazel and a crow had a love child, he'd probably look like you\n\nOdlov's legendary item		
 PRODUCT	76	Uncategorized	3440	Offer Cancellation	0	0.00	0.00	0.00	0.00	0	0	0	0	0	0	0	1	1	Toricredits receiveved after cancelling a purchase offer on Market		
@@ -1401,6 +1402,7 @@ PRODUCT	78	3d objects	3485	Samurai Sode R	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	
 PRODUCT	78	3d objects	3489	Samurai Suneate L	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	&#20365;		
 PRODUCT	78	3d objects	3490	Samurai Suneate R	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	&#20365;		
 PRODUCT	78	3d objects	2190	Samurai War Banner	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Clan League Champion Prize for Relax All clan.		
+PRODUCT	78	3d objects	3602	Sandal's Demon Helmet	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	Blue Ghost Runner Helmet		
 PRODUCT	72	Hair Styles	1936	Santa Beard	0	5000.00	1.00	5000.00	1.00	0	0	0	0	0	1	0	0	0	Nothing brings Saami groupies for Santa likes his beard. It was forged over centuries, in the freezing cold of Lapland.		
 PRODUCT	72	Hair Styles	1935	Santa Hat	0	10000.00	2.00	10000.00	2.00	0	0	0	0	0	1	0	0	0	Spread joy and positive vibes using a Santa Hat while shoveling through snow in a drunken rage from the heart of Finland, home of Siku.		
 PRODUCT	81	Shiai Items	2208	Santa Hat and Beard	0	0.00	0.00	0.00	0.00	0	0	0	0	0	1	0	1	1	CHRISTMAS SPECIAL\n\nSpread joy and positive vibes using Santa Hat and Beard while shoveling through snow in a drunken rage from the heart of Finland, home of Siku.\nUnlock this pack to get the items inside.		
@@ -1809,6 +1811,7 @@ PRODUCT	58	GUI Textures	1454	[GUI] Logo	0	1000.00	0.00	1000.00	0.00	0	0	0	0	0	1	
 PRODUCT	58	GUI Textures	1453	[GUI] Splatter	0	1000.00	0.00	1000.00	0.00	0	0	0	0	0	1	0	0	0	Tradeable texture.		
 PRODUCT	78	3d objects	2739	Assassin's Skull Mask	0	0.00	0.00	0.00	0.00	0	0	1	0	0	1	0	1	1	Assassin's Skull Mask		
 PRODUCT	78	3d objects	3319	Omni God Board	0	0.00	0.00	0.00	0.00	0	0	1	0	0	1	0	1	1	It's hard not to get distracted when being constantly watched by the Omni God\n~Revy's Item		
+PRODUCT	78	3d objects	3604	Water Spirit	0	0.00	0.00	0.00	0.00	0	0	1	0	0	1	0	1	1	A Supportive companion of watermagic that brings bad luck to opponent.		
 PRODUCT	1	Blood Colors	35	Aqua Blood	0	800.00	0.00	800.00	0.00	0	0	20	2	0	1	28	0	0	TIER I ITEM\nEmbrace the power of water as you defeat your enemies with fluid motion.		
 PRODUCT	12	DQ Rings	178	Aqua DQ	0	80.00	0.00	80.00	0.00	0	0	20	2	0	1	28	0	0	TIER I ITEM\nEmbrace the power of water as you defeat your enemies with fluid motion.		
 PRODUCT	43	Emote Colors	538	Aqua Emote	0	80.00	0.00	80.00	0.00	0	0	20	2	0	1	28	0	0	TIER I ITEM\nEmbrace the power of water as you defeat your enemies with fluid motion.		
@@ -1860,7 +1863,7 @@ PRODUCT	21	Secondary Gradients	252	Marine Secondary Gradient	0	270.00	0.00	270.0
 PRODUCT	24	Timers	284	Marine Timer	0	180.00	0.00	180.00	0.00	0	0	20	2	0	1	34	0	0	TIER I ITEM\nThe other half of hampanity. Drawing from the tidal forces by the god [MAD]Hampa. You serve the one god only!		
 PRODUCT	5	Torso Colors	133	Marine Torso	0	270.00	0.00	270.00	0.00	0	0	20	2	0	1	34	0	0	TIER I ITEM\nThe other half of hampanity. Drawing from the tidal forces by the god [MAD]Hampa. You serve the one god only!		
 PRODUCT	34	User Text Colour	468	Marine User Text	0	180.00	0.00	180.00	0.00	0	0	20	2	0	1	34	0	0	TIER I ITEM\nThe other half of hampanity. Drawing from the tidal forces by the god [MAD]Hampa. You serve the one god only!		
-PRODUCT	78	3d objects	3598	Blingo the Crown	1	20000.00	3.00	30000.00	5.00	73514	1	50	0	0	1	0	0	0	The next heir to King Trofeo's throne! Just hope he doesn't want you to make eye contact...		
+PRODUCT	78	3d objects	3598	Blingo the Crown	0	30000.00	5.00	30000.00	5.00	0	1	50	0	0	1	0	0	0	The next heir to King Trofeo's throne! Just hope he doesn't want you to make eye contact...		
 PRODUCT	1	Blood Colors	1371	Juryo Blood	0	300.00	0.00	300.00	0.00	0	0	50	3	0	1	21	0	0	TIER II ITEM\nThe Juryo division is a recognition of a fighter's prowess in the art of sumo, ranking just below the Makuuchi division of top-class fighters.		
 PRODUCT	12	DQ Rings	1370	Juryo DQ	0	30.00	0.00	30.00	0.00	0	0	50	3	0	1	21	0	0	TIER II ITEM\nThe Juryo division is a recognition of a fighter's prowess in the art of sumo, ranking just below the Makuuchi division of top-class fighters.		
 PRODUCT	43	Emote Colors	1372	Juryo Emote	0	30.00	0.00	30.00	0.00	0	0	50	3	0	1	21	0	0	TIER II ITEM\nThe Juryo division is a recognition of a fighter's prowess in the art of sumo, ranking just below the Makuuchi division of top-class fighters.		
@@ -1912,7 +1915,7 @@ PRODUCT	21	Secondary Gradients	256	Radioactive Secondary Gradient	0	210.00	0.00	
 PRODUCT	24	Timers	290	Radioactive Timer	0	140.00	0.00	140.00	0.00	0	0	50	3	0	1	38	0	0	TIER II ITEM\n		
 PRODUCT	5	Torso Colors	138	Radioactive Torso	0	210.00	0.00	210.00	0.00	0	0	50	3	0	1	38	0	0	TIER II ITEM\nYour enemies will fall as soon as they come anywhere near your radiating power.		
 PRODUCT	34	User Text Colour	472	Radioactive User Text	0	140.00	0.00	140.00	0.00	0	0	50	3	0	1	38	0	0	TIER II ITEM\n		
-PRODUCT	78	3d objects	3599	Royal Longsword	1	28000.00	3.00	35000.00	5.00	73514	1	50	0	0	1	0	0	0	The ultimate longsword forged for King Blingo. Unfortunately, King Blingo had tiny nibs for hands, so a smaller, shinier version had to be forged.		
+PRODUCT	78	3d objects	3599	Royal Longsword	0	35000.00	5.00	35000.00	5.00	0	1	50	0	0	1	0	0	0	The ultimate longsword forged for King Blingo. Unfortunately, King Blingo had tiny nibs for hands, so a smaller, shinier version had to be forged.		
 PRODUCT	1	Blood Colors	93	Sphinx Blood	0	1000.00	0.00	1000.00	0.00	0	0	50	3	0	1	47	0	0	TIER II ITEM\nGain the power of the Sphinx, from the heart of the Old Egyptian Empire		
 PRODUCT	12	DQ Rings	195	Sphinx DQ	0	100.00	0.00	100.00	0.00	0	0	50	3	0	1	47	0	0	TIER II ITEM\nSpinx colored DQ ring		
 PRODUCT	43	Emote Colors	557	Sphinx Emote	0	100.00	0.00	100.00	0.00	0	0	50	3	0	1	47	0	0	TIER II ITEM\n		
@@ -1947,9 +1950,9 @@ PRODUCT	21	Secondary Gradients	1350	Superfly Secondary Gradient	0	150.00	0.00	15
 PRODUCT	24	Timers	1351	Superfly Timer	0	100.00	0.00	100.00	0.00	0	0	50	3	0	1	120	0	0	TIER II ITEM\nFrom the maker of the superfly splash...		
 PRODUCT	5	Torso Colors	1352	Superfly Torso	0	150.00	0.00	150.00	0.00	0	0	50	3	0	1	120	0	0	TIER II ITEM\nFrom the maker of the superfly splash...		
 PRODUCT	34	User Text Colour	1353	Superfly User Text	0	100.00	0.00	100.00	0.00	0	0	50	3	0	1	120	0	0	TIER II ITEM\nFrom the maker of the superfly splash...		
-PRODUCT	78	3d objects	3600	Taiji Dao Blade	1	17500.00	3.00	25000.00	5.00	73514	1	50	0	0	1	0	0	0	Who said you don't need a little flair whenever you go hunting some decapprizes?		
-PRODUCT	78	3d objects	3601	Throne of King Softrule	1	50000.00	6.00	75000.00	8.00	73514	1	50	0	0	1	0	0	0	By his decree he hereby announces thou shalt comeback when winning, and will not lift when fighting honourably in a dojo.		
-PRODUCT	78	3d objects	3596	Trofeo's Staff	1	35000.00	3.00	50000.00	5.00	73514	1	50	0	0	1	0	0	0	Mm yes, *holds an expensive wine glass*\nNothing's better to do in the morning than to work the shaft and play many games, like what a REAL king would do!		
+PRODUCT	78	3d objects	3600	Taiji Dao Blade	0	25000.00	5.00	25000.00	5.00	0	1	50	0	0	1	0	0	0	Who said you don't need a little flair whenever you go hunting some decapprizes?		
+PRODUCT	78	3d objects	3601	Throne of King Softrule	0	75000.00	8.00	75000.00	8.00	0	1	50	0	0	1	0	0	0	By his decree he hereby announces thou shalt comeback when winning, and will not lift when fighting honourably in a dojo.		
+PRODUCT	78	3d objects	3596	Trofeo's Staff	0	50000.00	5.00	50000.00	5.00	0	1	50	0	0	1	0	0	0	Mm yes, *holds an expensive wine glass*\nNothing's better to do in the morning than to work the shaft and play many games, like what a REAL king would do!		
 PRODUCT	1	Blood Colors	41	Amethyst Blood	0	1200.00	0.00	1200.00	0.00	0	0	100	4	0	1	27	0	0	TIER III ITEM\nThe miraculous powers of amethyst have been sought after since the beginning of time; bringing good fortune in war and the coveted ability to ward off evil.		
 PRODUCT	12	DQ Rings	177	Amethyst DQ	0	120.00	0.00	120.00	0.00	0	0	100	4	0	1	27	0	0	TIER III ITEM\nThe miraculous powers of amethyst have been sought after since the beginning of time; bringing good fortune in war and the coveted ability to ward off evil.		
 PRODUCT	43	Emote Colors	537	Amethyst Emote	0	120.00	0.00	120.00	0.00	0	0	100	4	0	1	27	0	0	TIER III ITEM\nThe miraculous powers of amethyst have been sought after since the beginning of time; bringing good fortune in war and the coveted ability to ward off evil.Limited Edition Item		
@@ -2025,7 +2028,7 @@ PRODUCT	21	Secondary Gradients	1058	Helios Secondary Gradient	0	240.00	0.00	240.
 PRODUCT	24	Timers	1059	Helios Timer	0	160.00	0.00	160.00	0.00	0	0	100	4	0	1	123	0	0	TIER III ITEM\nLet the spirit of the titans flow through you in combat.		
 PRODUCT	5	Torso Colors	1060	Helios Torso	0	240.00	0.00	240.00	0.00	0	0	100	4	0	1	123	0	0	TIER III ITEM\nLet the spirit of the titans flow through you in combat.		
 PRODUCT	34	User Text Colour	1061	Helios User Text	0	160.00	0.00	160.00	0.00	0	0	100	4	0	1	123	0	0	TIER III ITEM\nLet the spirit of the titans flow through you in combat.		
-PRODUCT	78	3d objects	2264	Nailbat	0	15000.00	2.00	15000.00	2.00	0	1	100	0	0	1	0	0	0	A Makeshift Weapon often used to brutally murder Zombies. Very Simple and Easy but extremely deadly!		
+PRODUCT	78	3d objects	2264	Nailbat	1	7500.00	1.00	15000.00	2.00	166566	1	100	0	0	1	0	0	0	A Makeshift Weapon often used to brutally murder Zombies. Very Simple and Easy but extremely deadly!		
 PRODUCT	1	Blood Colors	1256	Olive Blood	0	1400.00	0.00	1400.00	0.00	0	0	100	4	0	1	124	0	0	TIER III ITEM\nThis rich color blends well with any military style suit.		
 PRODUCT	12	DQ Rings	1257	Olive DQ	0	140.00	0.00	140.00	0.00	0	0	100	4	0	1	124	0	0	TIER III ITEM\nThis rich color blends well with any military style suit.		
 PRODUCT	43	Emote Colors	1255	Olive Emote	0	140.00	0.00	140.00	0.00	0	0	100	4	0	1	124	0	0	TIER III ITEM\nThis rich color blends well with any military style suit.		
@@ -2141,7 +2144,7 @@ PRODUCT	21	Secondary Gradients	649	Ecto Secondary Gradient	0	300.00	0.00	300.00	
 PRODUCT	24	Timers	650	Ecto Timer	0	200.00	0.00	200.00	0.00	0	0	200	5	0	1	12	0	0	TIER IV ITEM\nPsychokinetic forces surround you as you allow channel spirits to wreak havoc on your opponents.		
 PRODUCT	5	Torso Colors	651	Ecto Torso	0	300.00	0.00	300.00	0.00	0	0	200	5	0	1	12	0	0	TIER IV ITEM\nPsychokinetic forces surround you as you allow channel spirits to wreak havoc on your opponents.		
 PRODUCT	34	User Text Colour	652	Ecto User Text	0	200.00	0.00	200.00	0.00	0	0	200	5	0	1	12	0	0	TIER IV ITEM\nPsychokinetic forces surround you as you allow channel spirits to wreak havoc on your opponents.		
-PRODUCT	78	3d objects	3590	Egg Head	0	25000.00	4.00	25000.00	4.00	0	1	200	0	0	1	0	0	0	EASTER SPECIAL\n\nI EgG MAN		
+PRODUCT	78	3d objects	3590	Egg Head	0	25000.00	4.00	25000.00	4.00	0	1	200	0	0	1	0	1	1	EASTER SPECIAL\n\nI EgG MAN		
 PRODUCT	78	3d objects	3047	Frozen Dino Head	0	20000.00	3.00	20000.00	3.00	0	0	200	0	0	1	0	1	0	Undeniable proof that dinosaurs were, in fact, just giant heads with no lower body.		
 PRODUCT	78	3d objects	3499	Googly Eyes	0	6000.00	1.00	6000.00	1.00	0	1	200	0	0	1	0	0	0	\(O_O)/		
 PRODUCT	78	3d objects	3536	Head Sign	0	10000.00	2.00	10000.00	2.00	0	1	200	0	0	1	0	0	0	Nailed it!		
@@ -2356,7 +2359,7 @@ PRODUCT	78	3d objects	3313	Knight's Gear	0	40000.00	6.00	40000.00	6.00	0	0	500	0
 PRODUCT	78	3d objects	3550	Leggang Statue	0	60000.00	8.00	60000.00	8.00	0	1	500	0	0	1	0	0	0	Never skip leg day		
 PRODUCT	78	3d objects	3551	Leggang Statue With Style	0	0.00	0.00	0.00	0.00	0	0	500	0	0	1	0	1	1	Exclusive reward for the winner of Leggang 2: Return of the Toes!		
 PRODUCT	33	Advanced Ghosts	454	Long Ghost	0	5000.00	0.00	5000.00	0.00	0	0	500	0	0	1	0	0	0			
-PRODUCT	78	3d objects	3588	Lop Bunny Ears	0	25000.00	4.00	25000.00	4.00	0	1	500	0	0	1	0	0	0	EASTER SPECIAL\n\nCousin Benjamin Bunny lives on to tell the tale of Peter Rabbit.		
+PRODUCT	78	3d objects	3588	Lop Bunny Ears	0	25000.00	4.00	25000.00	4.00	0	1	500	0	0	1	0	1	1	EASTER SPECIAL\n\nCousin Benjamin Bunny lives on to tell the tale of Peter Rabbit.		
 PRODUCT	72	Hair Styles	1988	Mayan Warrior	0	20000.00	3.00	20000.00	3.00	0	1	500	0	0	1	0	0	0	Fabled fighter of old.		
 PRODUCT	78	3d objects	2051	Mullet	0	10000.00	2.00	10000.00	2.00	0	1	500	0	0	1	0	0	0	Business in the front, party in the back.		
 PRODUCT	78	3d objects	3305	Old Eastern Hair	0	30000.00	5.00	30000.00	5.00	0	1	500	0	0	1	0	0	0	A lovely hairstyle from the East!		
@@ -2364,7 +2367,7 @@ PRODUCT	78	3d objects	3548	Pet Collar	0	15000.00	3.00	15000.00	3.00	0	0	500	0	0	
 PRODUCT	78	3d objects	2539	Pirate Belt	0	40000.00	6.00	40000.00	6.00	0	1	500	0	0	1	0	0	0	Yarr!		
 PRODUCT	78	3d objects	2266	Pirate Hat	0	25000.00	4.00	25000.00	4.00	0	1	500	0	0	1	0	0	0	Ahoy!		
 PRODUCT	78	3d objects	2231	Pirate Hook	0	15000.00	3.00	15000.00	3.00	0	1	500	0	0	1	0	0	0	A prosthesis for your Left Hand! Goes well with an Eyepatch.		
-PRODUCT	78	3d objects	3592	Pom the Bunny	0	20000.00	3.00	20000.00	3.00	0	1	500	0	0	1	0	0	0	EASTER SPECIAL\n\nYour friendly neighbor Pom now follows you through all your adventures!\nMight want to stock up on carrots now...		
+PRODUCT	78	3d objects	3592	Pom the Bunny	0	20000.00	3.00	20000.00	3.00	0	1	500	0	0	1	0	1	1	EASTER SPECIAL\n\nYour friendly neighbor Pom now follows you through all your adventures!\nMight want to stock up on carrots now...		
 PRODUCT	78	3d objects	2013	Portable Cassette	0	5000.00	1.00	5000.00	1.00	0	1	500	0	0	1	0	0	0	This was once the pinnacle of portable music technology.		
 PRODUCT	78	3d objects	2814	Raygun	0	15000.00	3.00	15000.00	3.00	0	1	500	0	0	1	0	0	0	Blast them suckers! Zap Zap!		
 PRODUCT	78	3d objects	1979	Red Submarine	0	0.00	0.00	0.00	0.00	0	0	500	0	0	1	0	1	1	To rival the green hat, a red sombrero was created. Despite boonana's best efforts, it came out looking like a submarine. So here it is!		
@@ -2440,7 +2443,7 @@ PRODUCT	19	Tournament	1941	Aikido World Championship 2013 Ticket	0	150000.00	0.0
 PRODUCT	78	3d objects	3310	Ancient Warrior's Helmet	0	50000.00	8.00	50000.00	8.00	0	1	1000	0	0	1	0	0	0	A Gilded Helmet, for the bravest of warriors. Suggested by Karstnator.		
 PRODUCT	78	3d objects	2954	Anime Hair	0	200000.00	16.00	200000.00	16.00	0	1	1000	0	0	1	0	0	0	Embrace your inner vocaloid with hair longer than a spar match!		
 PRODUCT	78	3d objects	2953	Anime Umbrella	0	50000.00	8.00	50000.00	8.00	0	1	1000	0	0	1	0	0	0	An Umbrella. For keeping rain off of your head. Also blood. But mainly rain.		
-PRODUCT	78	3d objects	3416	Armet	0	30000.00	5.00	30000.00	5.00	0	0	1000	0	0	1	0	0	0	Not intended for use as a protective device. Nabi studios is not responsible for any decapitations sustained while product is worn.		
+PRODUCT	78	3d objects	3416	Armet	0	30000.00	5.00	30000.00	5.00	0	1	1000	0	0	1	0	0	0	Not intended for use as a protective device. Nabi studios is not responsible for any decapitations sustained while product is worn.		
 PRODUCT	1	Blood Colors	844	Aurora Blood	0	9000.00	2.00	9000.00	2.00	0	0	1000	7	0	1	22	0	0	TIER VI ITEM\nAncient elves mastered the art of channeling plasma through atomic oxygen, producing tremendous energy surges... what we now know today as auroras.		
 PRODUCT	12	DQ Rings	843	Aurora DQ	0	900.00	0.00	900.00	0.00	0	0	1000	7	0	1	22	0	0	TIER VI ITEM\nAncient elves mastered the art of channeling plasma through atomic oxygen, producing tremendous energy surges... what we now know today as auroras.		
 PRODUCT	43	Emote Colors	845	Aurora Emote	0	900.00	0.00	900.00	0.00	0	0	1000	7	0	1	22	0	0	TIER VI ITEM\nAncient elves mastered the art of channeling plasma through atomic oxygen, producing tremendous energy surges... what we now know today as auroras.		
@@ -2646,7 +2649,7 @@ PRODUCT	0		935	Damaged Item	0	20000.00	0.00	20000.00	0.00	0	0	2000	0	0		0	0	0	Fo
 PRODUCT	78	3d objects	2188	Demon Horns	0	15000.00	4.00	15000.00	4.00	0	0	2000	0	0	1	0	1	1	HALLOWEEN SPECIAL\n\nUnleash the demon within you!		
 PRODUCT	87	Item Effects	3430	Dithering	0	30000.00	6.00	30000.00	6.00	0	0	2000	0	0	0	-2	0	0	Dithering effect for your item.\n\nCan be fused into Force, Relax, Primary Gradient or Head Texture items.		
 PRODUCT	78	3d objects	2184	Fashionable Bow-tie	0	5000.00	2.00	5000.00	2.00	0	0	2000	0	0	1	0	1	1	Now you can wear this nice Valentine-themed bow-tie on your dates, or even give them to your special someone for them to wear as a present! (Original design made by Leanmarkie)		
-PRODUCT	78	3d objects	2562	Fish Friend	0	15000.00	4.00	15000.00	4.00	0	1	2000	0	0	1	0	0	0	I caught my biggest fish but can't post it on Facebook because my wife thinks I'm working.		
+PRODUCT	78	3d objects	2562	Fish Friend	0	15000.00	4.00	15000.00	4.00	339366	1	2000	0	0	1	0	0	0	I caught my biggest fish but can't post it on Facebook because my wife thinks I'm working.		
 PRODUCT	78	3d objects	1980	Headphones	0	0.00	0.00	0.00	0.00	0	0	2000	6	0	1	0	1	1	The music moves through you. Your sense of style is second only to your fighting spirit. Let the canorous melodies carry you to victory and bring the beatdown.		
 PRODUCT	1	Blood Colors	1240	Kevlar Blood	0	16000.00	4.00	16000.00	4.00	0	0	2000	8	0	1	108	0	0	TIER VII ITEM\nStrong and light, kevlar is used by armies worldwide for heavy-duty protection.		
 PRODUCT	12	DQ Rings	1241	Kevlar DQ	0	1600.00	1.00	1600.00	1.00	0	0	2000	8	0	1	108	0	0	TIER VII ITEM\nStrong and light, kevlar is used by armies worldwide for heavy-duty protection.		
