@@ -9,7 +9,7 @@ do
 
 	function TBMenu:create()
 		TB_MENU_MAIN_ISOPEN = 1
-		set_build_version("220311")
+		set_build_version("220517")
 	end
 
 	function TBMenu:setLanguageFontOptions(language)
