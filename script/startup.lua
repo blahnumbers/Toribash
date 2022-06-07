@@ -134,7 +134,7 @@ if (startup == nil) then
 	require = function(path)
 		package.cpath = "" --no loading of c modules
 		package.path = "./data/script/?.lua;./data/script/modules/?.lua;./data/script/modules/?/init.lua"
-		old_require(path)
+		return old_require(path)
 	end
 
 	function read_replay(filename)

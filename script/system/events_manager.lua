@@ -1476,7 +1476,7 @@ do
 
 	function Events:showEventDescription(viewElement, event)
 		local elementHeight = 41
-		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 55, 60, 20, { 0, 0, 0, 0 })
+		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 60, 60, 20, { 0, 0, 0, 0 })
 		listingView.bgColor = cloneTable(event.accentColor)
 		listingView.bgColor[4] = event.overlaytransparency or 0.7
 
@@ -1581,7 +1581,7 @@ do
 
 	function Events:showEventPrizes(viewElement, event)
 		local elementHeight = 41
-		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 55, 60, 20, { 0, 0, 0, 0 })
+		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 60, 60, 20, { 0, 0, 0, 0 })
 		listingView.bgColor = cloneTable(event.accentColor)
 		listingView.bgColor[4] = event.overlaytransparency or 0.7
 
@@ -1605,7 +1605,7 @@ do
 			table.insert(listElements, infoTitle)
 		end
 
-		for i, prize in pairs(event.prizes) do
+		for i, prize in ipairs(event.prizes) do
 			if (prize.info) then
 				local infoRow = UIElement:new({
 					parent = listingHolder,
@@ -1684,23 +1684,23 @@ do
 
 		TB_MENU_SPECIAL_SCREEN_ISOPEN = 10
 		local overlay = TBMenu:spawnWindowOverlay()
+		local windowSize = math.min(WIN_H - 200, (WIN_W - 200) / 2)
 		local viewElement = UIElement:new({
 			parent = overlay,
-			pos = { WIN_W / 10, 100 },
-			size = { WIN_W * 0.8, WIN_H - 200 },
+			pos = { (WIN_W - windowSize * 2 + 200) / 2, (WIN_H - windowSize) / 1.6 },
+			size = { windowSize * 2 - 200, windowSize },
 			bgColor = event.accentColor,
-			uiColor = event.uiColor
+			uiColor = event.uiColor,
+			shapeType = ROUNDED,
+			rounded = 5
 		})
 		overlay:addMouseHandlers(nil, function()
 				TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
 				overlay:kill()
 			end)
-		local scale = viewElement.size.h * 2 - 200 < viewElement.size.w and viewElement.size.h - 100 or viewElement.size.w / 2
 		if (event.eventid or event.image) then
-			local backgroundImage = UIElement:new({
-				parent = viewElement,
-				pos = { viewElement.size.w / 2 - scale, (viewElement.size.h - scale) / 2 },
-				size = { scale * 2, scale },
+			local backgroundImage = viewElement:addChild({
+				shift = { 0, 60 },
 				bgImage = { event.image ~= nil and event.image or ("../textures/menu/promo/events/" .. event.eventid .. ".tga"), "" }
 			})
 		end
@@ -1725,15 +1725,15 @@ do
 			bgColor = event.accentColor
 		})
 		table.insert(ptopBar.child, eventName)
-		eventName:addAdaptedText(false, event.name, nil, nil, FONTS.BIG)
+		eventName:addAdaptedText(false, event.name, nil, nil, FONTS.BIG, nil, 0.75)
 
-		local eventForumLinkHolder = UIElement:new({
-			parent = dbotBar,
-			pos = { 0, 0 },
-			size = { viewElement.size.w, dbotBar.size.h },
+		local eventForumLinkHolderBG = dbotBar:addChild({
+			pos = { 5, 0 },
+			size = { viewElement.size.w - 10, dbotBar.size.h },
 			bgColor = event.accentColor,
 			uiColor = event.accentColor
 		})
+		local eventForumLinkHolder = eventForumLinkHolderBG:addChild({ shift = { 100, 0 } })
 		local buttonHColor, buttonPColor, delta = nil, nil, nil
 		if (event.buttonHoverColor and event.buttonPressedColor) then
 			buttonHColor = event.buttonHoverColor
@@ -1764,8 +1764,8 @@ do
 		if (event.forumlink) then
 			local eventForumLink = UIElement:new({
 				parent = eventForumLinkHolder,
-				pos = { buttons == 2 and viewElement.size.w / 20 or viewElement.size.w * 0.1, 10 },
-				size = { buttons == 2 and viewElement.size.w * 0.425 or viewElement.size.w * 0.8, eventForumLinkHolder.size.h - 20 },
+				pos = { buttons == 2 and 0 or eventForumLinkHolder.size.w * 0.3, 10 },
+				size = { buttons == 2 and eventForumLinkHolder.size.w / 2.2 or eventForumLinkHolder.size.w * 0.4, eventForumLinkHolder.size.h - 20 },
 				interactive = true,
 				bgColor = viewElement.uiColor,
 				hoverColor = buttonHColor,
@@ -1782,8 +1782,8 @@ do
 		if (event.action and TB_MENU_PLAYER_INFO.username ~= '') then
 			local eventActionButton = UIElement:new({
 				parent = eventForumLinkHolder,
-				pos = { buttons == 2 and viewElement.size.w * 0.525 or viewElement.size.w * 0.1, 10 },
-				size = { buttons == 2 and viewElement.size.w * 0.425 or viewElement.size.w * 0.8, eventForumLinkHolder.size.h - 20 },
+				pos = { buttons == 2 and -eventForumLinkHolder.size.w / 2.2 or eventForumLinkHolder.size.w * 0.3, 10 },
+				size = { buttons == 2 and eventForumLinkHolder.size.w / 2.2 or eventForumLinkHolder.size.w * 0.4, eventForumLinkHolder.size.h - 20 },
 				interactive = true,
 				bgColor = viewElement.uiColor,
 				hoverColor = buttonHColor,

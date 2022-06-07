@@ -41,12 +41,12 @@ if (TB_MENU_MAIN_ISOPEN == 1) then
 	remove_hooks("tbMainMenuMouse")
 	remove_hooks("tbMenuConsoleIgnore")
 	remove_hooks("tbMenuKeyboardHandler")
-	
+
 	enable_camera_movement()
 	disable_blur()
 	disable_menu_keyboard()
 	chat_input_activate()
-	
+
 	TB_MENU_MAIN_ISOPEN = 0
 	if (tbMenuMain) then
 		tbMenuMain:kill()
@@ -196,7 +196,7 @@ add_hook("downloader_complete", "tbMainMenuStatic", function(filename)
 			-- Most files we'll download will be from custom, sort them out so we don't run checks on them
 			return
 		end
-		
+
 		if (filename:find("custom/" .. TB_MENU_PLAYER_INFO.username .. "/item.dat")) then
 			Downloader:safeCall(function()
 				TB_MENU_PLAYER_INFO.data = PlayerInfo:getUserData()
@@ -238,7 +238,7 @@ add_hook("downloader_complete", "tbMainMenuStatic", function(filename)
 			end)
 		end
 	end)
-	
+
 add_hook("new_mp_game", "tbMainMenuStatic", function()
 		TB_MATCHMAKER_SEARCHSTATUS = nil
 		set_discord_rpc("", "")

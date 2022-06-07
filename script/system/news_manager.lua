@@ -15,7 +15,8 @@ do
 				subtitle = "",
 				ratio = 0.5,
 				image = "../textures/menu/promo/toribash.tga",
-				action = function() end
+				action = function() end,
+				disableUnload = true
 			},
 			{
 				title = "Toribash Events",
@@ -23,7 +24,8 @@ do
 				ratio = 0.66,
 				featured = true,
 				image = "../textures/menu/promo/noevents-placeholder.tga",
-				action = function() end
+				action = function() end,
+				disableUnload = true
 			}
 		}
 	end
@@ -63,7 +65,7 @@ do
 		for i,ln in pairs(lines) do
 			local ln = ln:gsub("\r?\n?", '')
 			if (ln:find("^NEWSID")) then
-				table.insert(newsData, { ratio = 0.5 })
+				table.insert(newsData, { ratio = 0.5, disableUnload = true })
 			elseif (ln:find("^TITLE 0;")) then
 				newsData[#newsData].title = ln:gsub("^TITLE 0;", "")
 			elseif (ln:find("^SUBTITLE 0;")) then

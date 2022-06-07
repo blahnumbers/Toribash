@@ -111,6 +111,7 @@ do
 				elem.bgColor = o.bgColor
 			end
 			if (o.bgImage) then
+				elem.disableUnload = o.disableUnload
 				if (type(o.bgImage) == "table") then
 					elem:updateImage(o.bgImage[1], o.bgImage[2])
 				else
@@ -213,7 +214,7 @@ do
 
 		return elem
 	end
-	
+
 	function UIElement:addChild(o, copyShape)
 		if (o.shift) then
 			o.pos = { o.shift[1], o.shift[2] }
@@ -222,12 +223,12 @@ do
 			o.pos = o.pos and o.pos or { 0, 0 }
 			o.size = o.size and o.size or { self.size.w, self.size.h }
 		end
-		
+
 		if (copyShape) then
 			o.shapeType = o.shapeType and o.shapeType or self.shapeType
 			o.rounded = o.rounded and o.rounded or self.rounded
 		end
-		
+
 		o.parent = self
 		return UIElement:new(o)
 	end
@@ -263,7 +264,7 @@ do
 	function UIElement:removeEnterAction()
 		self.enteraction = nil
 	end
-	
+
 	function UIElement:addTabAction(func)
 		self.tabaction = func
 	end
@@ -271,27 +272,27 @@ do
 	function UIElement:removeTabAction()
 		self.tabaction = nil
 	end
-	
+
 	function UIElement:addOnLoseTabFocus(func)
 		self.onLoseFocus = func
 	end
-	
+
 	function UIElement:removeOnLoseTabFocus()
 		self.onLoseFocus = nil
 	end
-	
+
 	function UIElement:addOnReceiveTabFocus(func)
 		self.onReceiveFocus = func
 	end
-	
+
 	function UIElement:removeOnReceiveTabFocus()
 		self.onReceiveFocus = nil
 	end
-	
+
 	function UIElement:addTabSwitchPrev(element, btnDownArg)
 		self:addTabSwitch(element, btnDownArg, true)
 	end
-	
+
 	function UIElement:addTabSwitch(element, btnDownArg, prev)
 		local btnDownArg = btnDownArg or {}
 		local action = prev and "tabswitchprevaction" or "tabswitchaction"
@@ -320,7 +321,7 @@ do
 	function UIElement:removeTabSwitch()
 		self.tabswitchaction = nil
 	end
-	
+
 	function UIElement:removeTabSwitchPrev()
 		self.tabswitchprevaction = nil
 	end
@@ -358,12 +359,12 @@ do
 		local enabled = {}
 		listHolder.shift.y = listHolder.shift.y == 0 and -listHolder.size.h or listHolder.shift.y
 		self.pressedPos = { x = 0, y = 0 }
-		
+
 		self.listReload = function() toReload:reload() end
 		self.scrollReload = function() if (self.holder) then self.holder:reload() end self:reload() end
-		
+
 		self:barScroll(listElements, listHolder, toReload, posShift[1], enabled)
-		
+
 		self:addMouseHandlers(
 			function(s, x, y)
 				local scrollIgnore = UIScrollbarIgnore
@@ -374,7 +375,7 @@ do
 				if (s < 4) then
 					self.pressedPos = self:getLocalPos(x,y)
 					self.hoverState = BTN_DN
-				elseif (not UIScrollbarIgnore and ((#UIScrollbarHandler == 1 and listHolder.scrollBar ~= self) or 
+				elseif (not UIScrollbarIgnore and ((#UIScrollbarHandler == 1 and listHolder.scrollBar ~= self) or
 						(MOUSE_X > listHolder.parent.pos.x and MOUSE_X < listHolder.parent.pos.x + listHolder.parent.size.w and MOUSE_Y > listHolder.parent.pos.y and MOUSE_Y < listHolder.parent.pos.y + listHolder.parent.size.h))) then
 					self:mouseScroll(listElements, listHolder, toReload, y * scrollSpeed, enabled)
 					posShift[1] = self.shift.y
@@ -394,7 +395,7 @@ do
 					posShift[1] = self.shift.y
 				end
 			end)
-		
+
 		if (not self.isScrollBar) then
 			self.isScrollBar = true
 			table.insert(UIScrollbarHandler, self)
@@ -472,12 +473,12 @@ do
 		if (self.destroyed) then
 			return true
 		end
-		
+
 		if (self.killAction) then
 			self.killAction()
 		end
 		self:hide(true)
-		if (self.isScrollBar) then 
+		if (self.isScrollBar) then
 			for i,v in pairs(UIScrollbarHandler) do
 				if (self == v) then
 					table.remove(UIScrollbarHandler, i)
@@ -521,7 +522,7 @@ do
 		if (self.menuKeyboardId) then
 			self:disableMenuKeyboard()
 		end]]
-		
+
 		self.destroyed = true
 		self = nil
 	end
@@ -600,7 +601,7 @@ do
 				self.animateColor[i] = self.bgColor[i]
 			end
 		end
-		
+
 		if (not self.customDisplayOnly and (self.bgColor[4] > 0 or self.bgImage or self.interactive)) then
 			if (self.innerShadow[1] > 0 or self.innerShadow[2] > 0) then
 				set_color(unpack(self.shadowColor[1]))
@@ -687,7 +688,7 @@ do
 			end
 			self.isactive = true
 		end
-		
+
 		--[[for i,v in pairs(self.child) do
 			v:activate(noreload)
 		end]]
@@ -697,10 +698,10 @@ do
 		--[[for i,v in pairs(self.child) do
 			v:deactivate(noreload)
 		end]]
-		
+
 		self.hoverState = false
 		self.isactive = false
-		
+
 		if (noreload) then
 			self.noreloadInteractive = true
 		end
@@ -809,7 +810,7 @@ do
 				break
 			end
 		end
-		
+
 		if (self.menuKeyboardId) then
 			self:disableMenuKeyboard()
 		end
@@ -821,7 +822,7 @@ do
 		LONGKEYPRESSED.key = nil
 		LONGKEYPRESSED.time = nil
 		LONGKEYPRESSED.repeats = 0]]
-		
+
 		if ((key == 13 or key == 271) and self.enteraction) then
 			self.enteraction(self.textfieldstr[1])
 		end
@@ -1089,7 +1090,7 @@ do
 			end
 		end
 	end
-	
+
 	-- A generic mouse hooks spawner that we can use from any script without having to worry about disabling some bits of it
 	function UIElement:mouseHooks()
 		add_hook("mouse_button_down", "uiMouseHandler", function(s, x, y)
@@ -1297,7 +1298,7 @@ do
 			end
 		end
 
-		if (not noreload and self.bgImage) then
+		if (not noreload and self.bgImage and not self.disableUnload) then
 			local count, id = 0, 0
 			for i,v in pairs(TEXTURECACHE) do
 				if (v == self.bgImage) then
@@ -1363,7 +1364,7 @@ do
 		if (type(arr) ~= "table") then
 			return arr
 		end
-		
+
 		if (type(order) ~= "table") then
 			order = { order and 1 or -1 }
 		else
@@ -1371,14 +1372,14 @@ do
 				order[i] = v and 1 or -1
 			end
 		end
-		
+
 		for i, v in pairs(arr) do
 			table.insert(a, v)
 		end
 		if (type(sort) ~= "table") then
 			sort = { sort }
 		end
-		
+
 		tableReverse(sort)
 		tableReverse(order)
 		table.sort(a, function(a,b)
@@ -1412,7 +1413,7 @@ do
 	function UIElement:qsort(arr, sort, desc, includeZeros)
 		return qsort(arr, sort, desc, includeZeros)
 	end
-	
+
 	function getFontMod(font)
 		local hires = font >= 10
 		local font_mod = hires and font - 10 or font
@@ -1438,7 +1439,7 @@ do
 		if (type(table) ~= "table") then
 			return nil
 		end
-		
+
 		local newTable = {}
 		for i,v in pairs(table) do
 			if (type(v) == "table") then
@@ -1473,7 +1474,7 @@ do
 			end
 			return word
 		end
-		
+
 		local function buildString(str)
 			if (textfield) then
 				word = str:match("^[^\n]*%S*[^\n]*\n") or str:match("^%s*%S+%s*")
@@ -1482,7 +1483,7 @@ do
 			end
 			return word
 		end
-		
+
 		if (textfield and singleLine) then
 			local strlen = get_string_length(str, font) * scale
 			local targetIndex = 1
@@ -1504,9 +1505,9 @@ do
 				str = str:sub(step, reverseStep)
 				strlen = get_string_length(str, font) * scale
 			end
-			return { str } 
+			return { str }
 		end
-		
+
 		local newline = false
 		local maxIterations = 1000
 		while (str ~= "" and maxIterations > 0) do
@@ -1605,11 +1606,11 @@ do
 		end
 		return tblRev
 	end
-	
+
 	function show_dialog_box(id, msg, data, luaNetwork)
 		return open_dialog_box(id, msg:gsub("%\\n", "\n"), data, luaNetwork)
 	end
-	
+
 	function in_array(needle, haystack)
 		for i,v in pairs(haystack) do
 			if (needle == v) then
@@ -1618,7 +1619,7 @@ do
 		end
 		return false
 	end
-	
+
 	function get_color_from_hex(hex)
 		local color = {}
 		local pattern = hex:len() < 7 and "%w%w" or "%w%w%w"
@@ -1628,19 +1629,19 @@ do
 		color[4] = 1
 		return color
 	end
-	
+
 	function tableCmp(table1, table2)
 		if (type(table1) ~= type(table2)) then
 			return false
 		end
-		
+
 		local cnt1, cnt2 = 0, 0
 		for _ in pairs(table1) do cnt1 = cnt1 + 1 end
 		for _ in pairs(table2) do cnt2 = cnt2 + 1 end
 		if (cnt1 ~= cnt2) then
 			return false
 		end
-		
+
 		for i,v in pairs(table1) do
 			if (v ~= table2[i]) then
 				if (type(v) == type(table2[i]) and type(v) == "table") then
@@ -1652,17 +1653,17 @@ do
 				end
 			end
 		end
-		
+
 		return true
 	end
-	
+
 	function empty(table)
 		if (next(table) == false) then
 			return true
 		end
 		return false
 	end
-	
+
 	function unpackN(tbl)
 		local indexedTable = {}
 		for i,v in pairs(tbl) do
@@ -1670,7 +1671,7 @@ do
 		end
 		return unpack(indexedTable)
 	end
-	
+
 	function debugEcho(mixed, msg, returnString, rec)
 		local msg = msg and msg .. ": " or ""
 		local buildRet = returnString and function(str) _G.DEBUGECHOMSG = _G.DEBUGECHOMSG .. str .. "\n" end or echo
@@ -1696,7 +1697,7 @@ do
 		end
 		return nil
 	end
-	
+
 	function strEsc(str)
 		local str = str
 
@@ -1727,7 +1728,7 @@ do
 		end
 		return str
 	end
-	
+
 	function Guid()
 		local template ='xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
 		return string.gsub(template, '[xy]', function(c)
@@ -1735,7 +1736,7 @@ do
 			return string.format('%x', v)
 		end)
 	end
-	
+
 	-- string.char() causes a crash when invalid data is fed to it
 	-- We want a safe function that can be used with keyboard input
 	function schar(...)

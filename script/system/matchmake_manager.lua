@@ -915,6 +915,7 @@ do
 				title = "Welcome to Toribash Season 7!",
 				image = "../textures/menu/promo/season7.tga",
 				ratio = 0.5,
+				disableUnload = true,
 				action = function() Events:showEventInfo(3) end
 			},
 			{

@@ -9,7 +9,7 @@ do
 
 	function TBMenu:create()
 		TB_MENU_MAIN_ISOPEN = 1
-		set_build_version("220517")
+		set_build_version("220607")
 	end
 
 	function TBMenu:setLanguageFontOptions(language)
@@ -389,6 +389,7 @@ do
 			pos = { (viewElement.size.w - elementWidth) / 2, 10 },
 			size = { elementWidth, elementHeight },
 			bgImage = selectedIcon,
+			disableUnload = buttonData.disableUnload,
 			uiColor = TB_MENU_DEFAULT_DARKEST_COLOR
 		})
 		TBMenu:addOuterRounding(itemIcon, viewElement.animateColor)
@@ -1199,9 +1200,9 @@ do
 
 	function TBMenu:showPlaySection()
 		local tbMenuPlayButtonsData = {
-			{ title = TB_MENU_LOCALIZED.MAINMENUFREEPLAYNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUFREEPLAYDESC, size = 0.5, ratio = 0.5, image = "../textures/menu/freeplay.tga", mode = ORIENTATION_LANDSCAPE, action = function() open_menu(1) end },
-			{ title = TB_MENU_LOCALIZED.MAINMENUREPLAYSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUREPLAYSDESC, size = 0.25, ratio = 1.055, image = "../textures/menu/replays2.tga", mode = ORIENTATION_PORTRAIT, action = function() TBMenu:showReplays() end },
-			{ title = TB_MENU_LOCALIZED.MAINMENUROOMLISTNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUROOMLISTDESC, size = 0.25, ratio = 1.055, image = "../textures/menu/multiplayer.tga", mode = ORIENTATION_PORTRAIT, action = function() set_mouse_cursor(0, true) open_menu(2) end }
+			{ title = TB_MENU_LOCALIZED.MAINMENUFREEPLAYNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUFREEPLAYDESC, size = 0.5, ratio = 0.5, image = "../textures/menu/freeplay.tga", mode = ORIENTATION_LANDSCAPE, action = function() open_menu(1) end, disableUnload = true },
+			{ title = TB_MENU_LOCALIZED.MAINMENUREPLAYSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUREPLAYSDESC, size = 0.25, ratio = 1.055, image = "../textures/menu/replays2.tga", mode = ORIENTATION_PORTRAIT, action = function() TBMenu:showReplays() end, disableUnload = true },
+			{ title = TB_MENU_LOCALIZED.MAINMENUROOMLISTNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUROOMLISTDESC, size = 0.25, ratio = 1.055, image = "../textures/menu/multiplayer.tga", mode = ORIENTATION_PORTRAIT, action = function() set_mouse_cursor(0, true) open_menu(2) end, disableUnload = true }
 		}
 
 		if (TB_MENU_PLAYER_INFO.username == '') then
@@ -1509,10 +1510,10 @@ do
 
 	function TBMenu:showToolsSection()
 		local tbMenuToolsButtonsData = {
-			{ title = TB_MENU_LOCALIZED.MAINMENUMODLISTNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUMODLISTDESC, size = 0.25, ratio = 1.055, image = "../textures/menu/modlist2.tga", action = function() dofile("system/mods.lua") end, quit = true },
-			{ title = TB_MENU_LOCALIZED.MAINMENUGAMERULESNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUGAMERULESDESC, size = 0.25, vsize, ratio = 1.055, image = "../textures/menu/gamerules2.tga", action = function() dofile("system/gamerules.lua") end, quit = true },
-			{ title = TB_MENU_LOCALIZED.MAINMENUMODMAKERNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUMODMAKERDESC, size = 0.25, vsize = 0.5, ratio = 1.055, image = "../textures/menu/modmaker2.tga", ratio2 = 0.5, image2 = "../textures/menu/modmaker3.tga", action = function() open_menu(17) end },
-			{ title = TB_MENU_LOCALIZED.MAINMENUSCRIPTSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUSCRIPTSDESC, size = 0.25, vsize = 0.5, ratio = 1.055, image = "../textures/menu/scripts.tga", ratio2 = 0.5, image2 = "../textures/menu/scripts2.tga", action = function() TBMenu:showScripts() end },
+			{ title = TB_MENU_LOCALIZED.MAINMENUMODLISTNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUMODLISTDESC, size = 0.25, ratio = 1.055, image = "../textures/menu/modlist2.tga", action = function() dofile("system/mods.lua") end, quit = true, disableUnload = true },
+			{ title = TB_MENU_LOCALIZED.MAINMENUGAMERULESNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUGAMERULESDESC, size = 0.25, vsize, ratio = 1.055, image = "../textures/menu/gamerules2.tga", action = function() dofile("system/gamerules.lua") end, quit = true, disableUnload = true },
+			{ title = TB_MENU_LOCALIZED.MAINMENUMODMAKERNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUMODMAKERDESC, size = 0.25, vsize = 0.5, ratio = 1.055, image = "../textures/menu/modmaker2.tga", ratio2 = 0.5, image2 = "../textures/menu/modmaker3.tga", action = function() open_menu(17) end, disableUnload = true },
+			{ title = TB_MENU_LOCALIZED.MAINMENUSCRIPTSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUSCRIPTSDESC, size = 0.25, vsize = 0.5, ratio = 1.055, image = "../textures/menu/scripts.tga", ratio2 = 0.5, image2 = "../textures/menu/scripts2.tga", action = function() TBMenu:showScripts() end, disableUnload = true },
 			{ title = TB_MENU_LOCALIZED.MAINMENUSHADERSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUSHADERSDESC, size = 0.25, vsize = 0.5, ratio = 0.5, image = "../textures/menu/shaders2.tga", action = function()
 					dofile("system/atmospheres_manager.lua")
 					if (ATMO_MENU_MAIN_ELEMENT) then
@@ -1520,8 +1521,8 @@ do
 						ATMO_MENU_MAIN_ELEMENT = nil
 					end
 					Atmospheres:showMain()
-				end, quit = true },
-			{ title = TB_MENU_LOCALIZED.MAINMENUHOTKEYSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUHOTKEYSDESC, size = 0.25, vsize = 0.5, ratio = 1.055, image = "../textures/menu/hotkeys.tga", ratio2 = 0.5, image2 = "../textures/menu/hotkeys2.tga", action = function() TBMenu:showHotkeys() end },
+				end, quit = true, disableUnload = true },
+			{ title = TB_MENU_LOCALIZED.MAINMENUHOTKEYSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUHOTKEYSDESC, size = 0.25, vsize = 0.5, ratio = 1.055, image = "../textures/menu/hotkeys.tga", ratio2 = 0.5, image2 = "../textures/menu/hotkeys2.tga", action = function() TBMenu:showHotkeys() end, disableUnload = true },
 		}
 		TBMenu:showSection(tbMenuToolsButtonsData)
 	end
@@ -1544,7 +1545,8 @@ do
 			parent = parentElement,
 			pos = { 0, -(scale / 2) },
 			size = { parentElement.size.w, scale },
-			bgImage = bottomSmudge
+			bgImage = bottomSmudge,
+			disableUnload = true
 		})
 		return smudgeElement
 	end
@@ -1654,13 +1656,15 @@ do
 			parent = tbMenuMain,
 			pos = { logoSize / 9 * 5, 10 },
 			size = { logoSize, logoSize },
-			bgImage = logo
+			bgImage = logo,
+			disableUnload = true
 		})
 		local tbMenuGameTitle = UIElement:new( {
 			parent = tbMenuMain,
 			pos = { logoSize / 9 * 14 + 5, 15 },
 			size = { gameTitleSize, gameTitleSize },
-			bgImage = gametitle
+			bgImage = gametitle,
+			disableUnload = true
 		})
 	end
 
@@ -1704,13 +1708,15 @@ do
 			parent = tbMenuUserBar,
 			pos = {-tbMenuTopBarWidth, 0},
 			size = {tbMenuTopBarWidth, tbMenuTopBarWidth / 4},
-			bgImage = TB_MENU_USERBAR_MAIN
+			bgImage = TB_MENU_USERBAR_MAIN,
+			disableUnload = true
 		})
 		local tbMenuUserBarSplat = UIElement:new( {
 			parent = tbMenuUserBar,
 			pos = { math.ceil(-tbMenuTopBarWidth * 1.25), 0 },
 			size = { tbMenuTopBarWidth / 4, tbMenuTopBarWidth / 4 },
-			bgImage = TB_MENU_USERBAR_LEFT
+			bgImage = TB_MENU_USERBAR_LEFT,
+			disableUnload = true
 		})
 		local tbMenuUserHeadAvatarViewport = UIElement:new( {
 			parent = tbMenuUserBar,
@@ -1768,6 +1774,7 @@ do
 			size = { 0.9, 0, 0 },
 			bgColor = { 1, 1, 1, 1 },
 			bgImage = headTexture,
+			disableUnload = true,
 			viewport = true,
 			effects = TB_MENU_PLAYER_INFO.items.effects.head
 		})
@@ -1782,6 +1789,7 @@ do
 				parent = playerHeadHolder,
 				shapeType = CUSTOMOBJ,
 				objModel = "../../custom/" .. TB_MENU_PLAYER_INFO.username .. "/head",
+				disableUnload = true,
 				pos = { 0, 0, 0.2 },
 				rot = { 0, 0, 0 },
 				size = { objScale * 0.9, objScale * 0.9, objScale * 0.9 },
@@ -1870,7 +1878,8 @@ do
 			parent = tbMenuUserTcView,
 			pos = { 0, -tbMenuUserTcView.size.h - 1.5 },
 			size = { tbMenuUserTcView.size.h + 3, tbMenuUserTcView.size.h + 3 },
-			bgImage = "../textures/store/toricredit_tiny.tga"
+			bgImage = "../textures/store/toricredit_tiny.tga",
+			disableUnload = true
 		})
 		local tbMenuUserTcBalance = UIElement:new( {
 			parent = tbMenuUserTcView,
@@ -1906,7 +1915,8 @@ do
 			parent = tbMenuUserStView,
 			pos = { 0, -tbMenuUserStView.size.h - 1.5 },
 			size = { tbMenuUserStView.size.h + 3, tbMenuUserStView.size.h + 3},
-			bgImage = "../textures/store/shiaitoken_tiny.tga"
+			bgImage = "../textures/store/shiaitoken_tiny.tga",
+			disableUnload = true
 		})
 		local tbMenuUserStBalance = UIElement:new( {
 			parent = tbMenuUserStView,
@@ -1920,7 +1930,8 @@ do
 			parent = tbMenuUserBar,
 			pos = { -tbMenuTopBarWidth / 4, 0 },
 			size = { tbMenuTopBarWidth / 4.5, tbMenuTopBarWidth / 4.5 },
-			bgImage = TB_MENU_PLAYER_INFO.data.belt.icon
+			bgImage = TB_MENU_PLAYER_INFO.data.belt.icon,
+			disableUnload = true
 		})
 		local tbMenuUserQi = UIElement:new( {
 			parent = tbMenuUserBar,
@@ -2049,7 +2060,7 @@ do
 
 				local string = v.misctext and v.text .. " " .. v.misctext or v.text
 				temp:addAdaptedText(true, string, nil, nil, fontId, nil, fontScale, fontScale, nil, nil, nil, nil, nil, true)
-				v.width = get_string_length(temp.dispstr[1] .. "_____", temp.textFont) * temp.textScale
+				v.width = (get_string_length(temp.dispstr[1], temp.textFont) + 110) * temp.textScale
 				totalWidth = totalWidth + v.width
 			end
 		end
@@ -2085,17 +2096,24 @@ do
 				end)
 			local buttonText = tbMenuNavigationButtons[i]:addChild({ shift = { 15, tbMenuNavigationBar.size.h / 6 } })
 			if (v.misctext) then
-				local width = get_string_length(v.misctext .. "__", fontId) * fontScale * 0.8
+				local width = (get_string_length(v.misctext, fontId) + 40) * fontScale * 0.8
+				buttonText.size.w = buttonText.size.w + width
+				tbMenuNavigationButtons[i].size.w = tbMenuNavigationButtons[i].size.w + width
+				navX[1] = v.right and navX[1] - width or navX[1] + width
+				if (v.right) then
+					tbMenuNavigationButtons[i]:moveTo(-width, nil, true)
+				end
+
 				local miscMark = UIElement:new({
 					parent = buttonText,
-					pos = { -(buttonText.size.w - get_string_length(v.text, fontId) * fontScale + width - 16) / 2, 0 },
+					pos = { -(buttonText.size.w - get_string_length(v.text, fontId) * fontScale + width - 16) / 2, buttonText.size.h * 0.125 },
 					size = { width, buttonText.size.h * 0.75 },
 					bgColor = TB_MENU_DEFAULT_ORANGE,
 					uiColor = UICOLORBLACK,
 					shapeType = ROUNDED,
 					rounded = buttonText.size.h / 2
 				})
-				miscMark:addAdaptedText(false, v.misctext, nil, nil, fontId, nil, nil, nil, 0)
+				miscMark:addAdaptedText(false, v.misctext, nil, nil, fontId, nil, nil, nil, 0.7)
 				buttonText:addAdaptedText(true, v.text, -width / 2, nil, fontId, nil, fontScale)
 			else
 				buttonText:addAdaptedText(true, v.text, nil, nil, fontId, nil, fontScale)
@@ -2390,13 +2408,15 @@ do
 			parent = tbMenuMain,
 			pos = { 10, 200 },
 			size = { WIN_H - 320, WIN_H - 320 },
-			bgImage = splatLeftImg
+			bgImage = splatLeftImg,
+			disableUnload = true
 		})
 		local splatRight = UIElement:new( {
 			parent = tbMenuMain,
 			pos = { -(WIN_H - 320) - 10, 200 },
 			size = { WIN_H - 320, WIN_H - 320 },
-			bgImage = splatCustom and splatLeftImg or TB_MENU_BLOODSPLATTER_RIGHT
+			bgImage = splatCustom and splatLeftImg or TB_MENU_BLOODSPLATTER_RIGHT,
+			disableUnload = true
 		})
 
 		local menuNavigationScroll = UIElement:new({

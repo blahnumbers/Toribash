@@ -6,7 +6,7 @@ do
 	Notifications.__index = Notifications
 	local cln = {}
 	setmetatable(cln, Notifications)
-	
+
 	function Notifications:quit()
 		tbMenuCurrentSection:kill(true)
 		tbMenuNavigationBar:kill(true)
@@ -14,7 +14,7 @@ do
 		TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
 		TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
 	end
-	
+
 	function Notifications:getNavigationButtons(showBack, justClaimed)
 		local navigation = {
 			{
@@ -55,7 +55,7 @@ do
 		end
 		return navigation
 	end
-	
+
 	function Notifications:showLoginRewards()
 		local rewards = PlayerInfo:getLoginRewards()
 		if (rewards.days == 0 and rewards.available == false and rewards.timeLeft == 0) then
@@ -71,11 +71,11 @@ do
 			end
 		end
 	end
-	
+
 	function Notifications:showQuests()
 		Quests:showMain(QUEST_REFRESH_CLAIMED)
 	end
-	
+
 	function Notifications:beautifySystemAccounts(name)
 		local color = { 1, 1, 1, 1 }
 		if (name == "ToriBot") then
@@ -85,10 +85,10 @@ do
 			name = "^32" .. name
 			color = cloneTable(TB_MENU_DEFAULT_ORANGE)
 		end
-		
+
 		return name, color
 	end
-	
+
 	function Notifications:getNetworkNotifications()
 		TB_MENU_NOTIFICATIONS_DATA = {}
 		return pcall(function()
@@ -96,7 +96,7 @@ do
 				local lines = {}
 				local pattern = '([^\n]+)'
 				string.gsub(response, pattern, function(val) table.insert(lines, val) end)
-				
+
 				for i, ln in pairs(lines) do
 					local data_stream = { ln:match(("([^\t]*)\t?"):rep(5)) }
 					data_stream[3], data_stream[6] = Notifications:beautifySystemAccounts(data_stream[3])
@@ -111,10 +111,10 @@ do
 				end
 			end)
 	end
-	
+
 	function Notifications:showNotificationText(viewElement, notification)
 		viewElement:kill(true)
-		
+
 		local messageHolder = UIElement:new({
 			parent = viewElement,
 			pos = { 0, 0 },
@@ -136,29 +136,37 @@ do
 		for i,v in pairs(notification.message) do
 			local messageText = UIElement:new({
 				parent = messageHolder,
-				pos = { 25 + (v.quote and 50 or 0), messageFrom.shift.y + messageFrom.size.h + 10 + shiftY },
-				size = { messageHolder.size.w - (v.quote and 100 or 50), messageHolder.size.h - shiftY - messageFrom.shift.y - messageFrom.size.h - 20 }
+				pos = { 25 + (v.indent and v.indent or 0), messageFrom.shift.y + messageFrom.size.h + 10 + shiftY },
+				size = { messageHolder.size.w - (v.indent and 100 or 50), messageHolder.size.h - shiftY - messageFrom.shift.y - messageFrom.size.h - 20 }
 			})
 			messageText:addAdaptedText(true, v.text, nil, nil, 4, LEFT, 0.8, 0.8)
 			local heightMod = getFontMod(messageText.textFont) * messageText.textScale * 10
 			messageText.size.h = math.ceil(#messageText.dispstr * heightMod) + 1
 			shiftY = shiftY + messageText.size.h + 10
-			
+
 			-- Add quote line after element height adjustments
 			if (v.quote) then
-				local quoteLine = UIElement:new({
-					parent = messageText,
+				local quoteLine = messageText:addChild({
 					pos = { -messageText.size.w - 15, 0 },
 					size = { 3, messageText.size.h },
 					bgColor = UICOLORWHITE
 				})
 			end
-			
+			if (v.list) then
+				local listBullet = messageText:addChild({
+					pos = { -messageText.size.w - 20, 5 },
+					size = { 10, 10 },
+					shapeType = ROUNDED,
+					rounded = 10,
+					bgColor = UICOLORWHITE
+				})
+			end
+
 			if (shiftY > messageHolder.size.h) then
 				messageText.size.h = messageHolder.size.h - messageText.shift.y
 				break
 			end
-			
+
 			for j, attch in pairs(notification.attachments) do
 				if (attch.mbitidx == i) then
 					local pos = 0
@@ -193,7 +201,7 @@ do
 				end
 			end
 		end
-		
+
 		local messageButtons = UIElement:new({
 			parent = viewElement,
 			pos = { 0, messageHolder.size.h + messageHolder.shift.y },
@@ -213,19 +221,19 @@ do
 			end)
 		TBMenu:showTextExternal(messageViewForums, TB_MENU_LOCALIZED.NOTIFICATIONSVIEWPMFORUMS)
 	end
-	
+
 	function Notifications:fixBBCode(message)
 		local pattern = "%[[^%]]+%]"
 		local messagebits = { { text = '' } }
 		local attachments = {}
 		local lastPos = 0
 		local skipWord = nil
-		
+
 		local message = string.gsub(message, "%'", "\'")
 		string.gsub(message, pattern, function(match)
 				local sPos, ePos
 				pcall(function()
-					local matchcln = string.gsub(match, "[('.?%[%])]", "%%%1")
+					local matchcln = string.gsub(match, "[('.?%[%])%*]", "%%%1")
 					sPos, ePos = string.find(message, matchcln, lastPos)
 					local matchlwr = string.lower(match)
 					if (matchlwr == "[/img]") then
@@ -233,13 +241,13 @@ do
 					else
 						skipWord = nil
 					end
-					
+
 					if (not skipWord) then
 						messagebits[#messagebits].text = messagebits[#messagebits].text .. string.sub(message, lastPos, sPos - 1)
 					else
 						messagebits[#messagebits].text = messagebits[#messagebits].text .. skipWord
 					end
-					
+
 					if (string.find(matchlwr, "%[url=") == 1) then
 						table.insert(attachments, {
 							pos = messagebits[#messagebits].text:len(),
@@ -259,24 +267,31 @@ do
 							attachments[#attachments].word = string.sub(message, lastPos, sPos - 1)
 						end
 					end
-					
+
 					if (string.find(matchlwr, "%[quote") == 1) then
-						messagebits[#messagebits + 1] = { text = '', quote = true }
+						messagebits[#messagebits + 1] = { text = '', quote = true, indent = 50 }
 					end
 					if (string.find(matchlwr, "%[/quote") == 1) then
 						messagebits[#messagebits + 1] = { text = '' }
 					end
+
+					if (string.find(matchlwr, "%[%*") == 1) then
+						messagebits[#messagebits + 1] = { text = '', list = true, indent = 30 }
+					end
+					if (string.find(matchlwr, "%[/list") == 1) then
+						messagebits[#messagebits + 1] = { text = '' }
+					end
 				end)
-				
+
 				if (lastPos < ePos) then
 					lastPos = ePos + 1
 				end
 			end)
 		messagebits[#messagebits].text = messagebits[#messagebits].text .. string.sub(message, lastPos)
-		
+
 		return messagebits, attachments
 	end
-	
+
 	function Notifications:loadNotificationText(viewElement, notification, newMark)
 		-- Make sure they can't spam this too much
 		if (TB_MENU_NOTIFICATION_MESSAGE_LOADING) then
@@ -284,7 +299,7 @@ do
 		else
 			TB_MENU_NOTIFICATION_MESSAGE_LOADING = true
 		end
-		
+
 		viewElement:kill(true)
 		if (TB_MENU_NOTIFICATIONS_MESSAGES[notification.id]) then
 			TB_MENU_NOTIFICATION_MESSAGE_LOADING = false
@@ -292,7 +307,7 @@ do
 			Notifications:showNotificationText(viewElement, notification)
 			return true
 		end
-		
+
 		local loader = UIElement:new({
 			parent = viewElement,
 			pos = { 30, 50 },
@@ -326,7 +341,7 @@ do
 			end)
 		return true
 	end
-	
+
 	function Notifications:getTotalNotifications(forceReload)
 		-- Update once per 2 minutes or with force reload
 		if (TB_MENU_NOTIFICATIONS_LASTUPDATE.count + 120 < os.clock() or forceReload) then
@@ -344,7 +359,7 @@ do
 			TB_MENU_NOTIFICATIONS_LASTUPDATE.count = os.clock()
 		end
 	end
-	
+
 	function Notifications:showNotifications(viewElement)
 		usage_event("notifications")
 		local elementHeight = 50
@@ -354,7 +369,7 @@ do
 			size = { viewElement.size.w * 0.4, viewElement.size.h }
 		})
 		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(notificationsHolder, elementHeight, elementHeight - 16, 20, TB_MENU_DEFAULT_BG_COLOR)
-		
+
 		local notificationsHeader = UIElement:new({
 			parent = topBar,
 			pos = { 15, 8 },
@@ -376,26 +391,26 @@ do
 		notificationsReload:addMouseHandlers(nil, function()
 				Notifications:prepareNotifications(true)
 			end)
-		
+
 		local botSmudge = UIElement:new({
 			parent = botBar,
 			pos = { 0, 0 },
 			size = { viewElement.size.w, botBar.size.h }
 		})
 		TBMenu:addBottomBloodSmudge(botSmudge, 1)
-		
+
 		local notificationBody = UIElement:new({
 			parent = viewElement,
 			pos = { notificationsHolder.shift.x + notificationsHolder.size.w, 0 },
 			size = { viewElement.size.w - notificationsHolder.shift.x * 2 - notificationsHolder.size.w, viewElement.size.h }
 		})
 		TBMenu:addBottomBloodSmudge(notificationBody)
-		
+
 		if (#TB_MENU_NOTIFICATIONS_DATA == 0) then
 			listingHolder:addAdaptedText(true, TB_MENU_LOCALIZED.NOTIFICATIONSEMPTY)
 			return
 		end
-		
+
 		local listElements = {}
 		local selectedElement = nil
 		for i, notification in pairs(TB_MENU_NOTIFICATIONS_DATA) do
@@ -414,7 +429,7 @@ do
 				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
 			})
-			
+
 			local shiftX = 0
 			local unreadMark
 			if (not notification.read) then
@@ -451,8 +466,8 @@ do
 				size = { notificationFrom.size.w, notificationFrom.size.h }
 			})
 			notificationDate:addAdaptedText(true, notification.date, nil, nil, 4, RIGHT, 0.6)
-			
-			
+
+
 			notificationBG:addMouseHandlers(nil, function()
 					if (Notifications:loadNotificationText(notificationBody, notification, unreadMark)) then
 						if (selectedElement) then
@@ -469,13 +484,13 @@ do
 		local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
 		scrollBar:makeScrollBar(listingHolder, listElements, toReload)
 	end
-	
+
 	function Notifications:prepareNotifications(forceReload)
 		tbMenuCurrentSection:kill(true)
 		if (forceReload) then
 			TB_MENU_NOTIFICATIONS_LASTUPDATE.data = 0
 		end
-		
+
 		local notificationsMain = UIElement:new({
 			parent = tbMenuCurrentSection,
 			pos = { 5, 0 },
@@ -514,7 +529,7 @@ do
 			Notifications:showNotifications(notificationsMain)
 		end
 	end
-	
+
 	function Notifications:showMain(override)
 		TB_MENU_SPECIAL_SCREEN_ISOPEN = 4
 		local rewards = PlayerInfo:getLoginRewards()

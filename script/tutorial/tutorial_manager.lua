@@ -2050,7 +2050,8 @@ do
 			size = 0.47,
 			ratio = 0.5,
 			action = function() Tutorials:runTutorial(nextTutorial) end,
-			quit = true
+			quit = true,
+			disableUnload = true
 		}
 		local lastTutorialButton = {
 			title = tutorials[lastTutorial].title,
@@ -2060,7 +2061,8 @@ do
 			size = 0.235,
 			ratio = 1.055,
 			action = function() Tutorials:runTutorial(lastTutorial) end,
-			quit = true
+			quit = true,
+			disableUnload = true
 		}
 		local allTutorialsButton = {
 			title = TB_MENU_LOCALIZED.TUTORIALSVIEWALLNAME,
@@ -2074,6 +2076,7 @@ do
 				Tutorials:showAllTutorials(allTutorialsNext)
 				TBMenu:showNavigationBar(Tutorials:getNavigationButtons(), true)
 			end,
+			disableUnload = true
 		}
 
 		if (lastTutorial ~= nextTutorial) then

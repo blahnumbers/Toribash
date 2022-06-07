@@ -17,11 +17,11 @@ do
 	UIElement3DManager = UIElement3DManager or {}
 	UIVisual3DManager = UIVisual3DManager or {}
 	UIVisual3DManagerViewport = UIVisual3DManagerViewport or {}
-	
-	if (not UIElement3D) then 
+
+	if (not UIElement3D) then
 		UIElement3D = UIElement:new()
 	end
-	
+
 	function UIElement3D:new(o)
 		local elem = {
 			globalid = 0,
@@ -35,7 +35,7 @@ do
 		}
 		setmetatable(elem, UIElement3D)
 		self.__index = self
-		
+
 		o = o or nil
 		if (o) then
 			if (o.playerAttach) then
@@ -69,6 +69,7 @@ do
 			elem:updateRotations(elem.rotXYZ)
 			if (o.objModel) then
 				elem.shapeType = CUSTOMOBJ
+				elem.disableUnload = o.disableUnload
 				elem:updateObj(o.objModel)
 			end
 			if (o.bgImage) then
@@ -112,7 +113,7 @@ do
 				elem.glowColor = o.effects.glowColor or 0
 				elem.ditherPixelSize = o.effects.ditherPixelSize or 0
 			end
-			
+
 			table.insert(UIElement3DManager, elem)
 			if (o.viewport) then
 				elem.viewportElement = true
@@ -121,10 +122,10 @@ do
 				table.insert(UIVisual3DManager, elem)
 			end
 		end
-		
+
 		return elem
 	end
-	
+
 	function UIElement3D:kill(childOnly)
 		for i,v in pairs(self.child) do
 			v:kill()
@@ -133,7 +134,7 @@ do
 			self.child = {}
 			return true
 		end
-		
+
 		if (self.bgImage) then self:updateImage(nil) end
 		if (self.objModel) then self:updateObj(nil) end
 		for i,v in pairs(UIMouseHandler) do
@@ -162,12 +163,12 @@ do
 		end
 		self = nil
 	end
-	
+
 	function UIElement3D:addCustomEnterFrame(func)
 		self.customEnterFrameFunc = func
 		func()
 	end
-	
+
 	function UIElement3D:display()
 		if (self.effectid) then
 			set_draw_effect(self.effectid, self.glowColor, self.glowIntensity, self.ditherPixelSize)
@@ -223,7 +224,7 @@ do
 			elseif (self.shapeType == CAPSULE) then
 				if (self.playerAttach) then
 					if (self.attachBodypart) then
-						local body = get_body_info(self.playerAttach, self.attachBodypart)					
+						local body = get_body_info(self.playerAttach, self.attachBodypart)
 						draw_capsule_m(body.pos.x, body.pos.y, body.pos.z, self.size.y, self.size.x, body.rot)
 					elseif (self.attachJoint) then
 						local joint = get_joint_pos2(self.playerAttach, self.attachJoint)
@@ -243,7 +244,7 @@ do
 			set_draw_effect(0)
 		end
 	end
-	
+
 	function UIElement3D:drawBox()
 		if (self.bgImage) then
 			draw_box(self.pos.x, self.pos.y, self.pos.z, self.size.x, self.size.y, self.size.z, self.rot.x, self.rot.y, self.rot.z, self.bgImage)
@@ -251,7 +252,7 @@ do
 			draw_box(self.pos.x, self.pos.y, self.pos.z, self.size.x, self.size.y, self.size.z, self.rot.x, self.rot.y, self.rot.z)
 		end
 	end
-	
+
 	function UIElement3D:drawCapsule()
 		if (self.bgImage) then
 			draw_capsule(self.pos.x, self.pos.y, self.pos.z, self.size.y, self.size.x, self.rot.x, self.rot.y, self.rot.z, self.bgImage)
@@ -259,7 +260,7 @@ do
 			draw_capsule(self.pos.x, self.pos.y, self.pos.z, self.size.y, self.size.x, self.rot.x, self.rot.y, self.rot.z)
 		end
 	end
-	
+
 	function UIElement3D:drawSphere(displaceTable, scale)
 		local drawPos = cloneTable(self.pos)
 		local scale = scale or 1
@@ -274,7 +275,7 @@ do
 			draw_sphere(drawPos.x, drawPos.y, drawPos.z, self.size.x * scale)
 		end
 	end
-	
+
 	function UIElement3D:drawVisuals(globalid)
 		for i, v in pairs(UIVisual3DManager) do
 			if (v.globalid == globalid) then
@@ -290,7 +291,7 @@ do
 			end
 		end
 	end
-	
+
 	function UIElement3D:playFrameFunc(globalid)
 		for i,v in pairs(UIVisual3DManager) do
 			if (v.globalid == globalid) then
@@ -300,7 +301,7 @@ do
 			end
 		end
 	end
-	
+
 	function UIElement3D:isDisplayed()
 		if (not self.viewportElement) then
 			for i,v in pairs(UIVisual3DManager) do
@@ -317,45 +318,45 @@ do
 		end
 		return false
 	end
-	
+
 	function UIElement3D:show(forceReload)
 		local num = nil
-		
+
 		if (self.noreload and not forceReload) then
 			return false
 		elseif (forceReload) then
 			self.noreload = nil
 		end
-		
+
 		for i,v in pairs(self.viewportElement and UIVisual3DManagerViewport or UIVisual3DManager) do
 			if (self == v) then
 				num = i
 				break
 			end
 		end
-		
+
 		if (not num) then
 			table.insert(self.viewportElement and UIVisual3DManagerViewport or UIVisual3DManager, self)
 			if (self.interactive) then
 				table.insert(UIMouseHandler, self)
 			end
 		end
-		
+
 		for i,v in pairs(self.child) do
 			v:show()
 		end
 	end
-	
+
 	function UIElement3D:hide(noreload)
 		local num = nil
 		for i,v in pairs(self.child) do
 			v:hide(noreload)
 		end
-		
-		if (noreload) then 
+
+		if (noreload) then
 			self.noreload = true
 		end
-		
+
 		if (self.interactive) then
 			for i,v in pairs(UIMouseHandler) do
 				if (self == v) then
@@ -367,61 +368,61 @@ do
 				table.remove(UIMouseHandler, num)
 			end
 		end
-		
+
 		for i,v in pairs(self.viewportElement and UIVisual3DManagerViewport or UIVisual3DManager) do
 			if (self == v) then
 				num = i
 				break
 			end
 		end
-		
+
 		if (num) then
 			table.remove(self.viewportElement and UIVisual3DManagerViewport or UIVisual3DManager, num)
 		end
 	end
-	
+
 	function UIElement3D:updatePos()
 		for i,v in pairs(self.child) do
 			v:updateChildPos()
 		end
 	end
-	
+
 	function UIElement3D:setChildShift()
 		local rotMatrix = self.parent.rotMatrix
 		local pos = self.parent.pos
 		local shift = self.shift
-		
+
 		local rotatedShift = UIElement3D:multiply({ { shift.x, shift.y, shift.z } }, rotMatrix)
 		local newShift = rotatedShift[1]
-		
+
 		self.shift.x = newShift[1]
 		self.shift.y = newShift[2]
 		self.shift.z = newShift[3]
-	end 
-	
+	end
+
 	function UIElement3D:updateChildPos(rotMatrix, pos, shift)
 		local rotMatrix = rotMatrix or self.parent.rotMatrix
 		local pos = pos or self.parent.pos
 		local shift = shift and { x = shift.x + self.shift.x, y = shift.y + self.shift.y, z = shift.z + self.shift.z } or self.shift
-		
+
 		local newPos = UIElement3D:multiply({ { shift.x, shift.y, shift.z } }, rotMatrix)
 		local vector = newPos[1]
-		
+
 		local shiftSum = shift or {
 			x = vector[1],
 			y = vector[2],
 			z = vector[3]
 		}
-		
+
 		self.pos.x = pos.x + vector[1]
 		self.pos.y = pos.y + vector[2]
 		self.pos.z = pos.z + vector[3]
-		
+
 		for i,v in pairs(self.child) do
 			v:updateChildPos(rotMatrix, pos, shiftSum)
 		end
 	end
-	
+
 	function UIElement3D:moveTo(x, y, z)
 		if (self.playerAttach) then
 			return
@@ -437,7 +438,7 @@ do
 		end
 		self:updateChildPos()
 	end
-	
+
 	function UIElement3D:rotate(x, y, z)
 		local x = x or 0
 		local y = y or 0
@@ -445,29 +446,29 @@ do
 		if (x == 0 and y == 0 and z == 0) then
 			return
 		end
-		
+
 		local rot = self.rotXYZ
 		rot.x = (rot.x + x) % 360
 		rot.y = (rot.y + y) % 360
 		rot.z = (rot.z + z) % 360
 		self:updateRotations(rot)
-		
+
 		for i,v in pairs(self.child) do
 			v:rotate(x, y, z)
 		end
 		self:updatePos()
 	end
-	
+
 	function UIElement3D:updateRotations(rot)
 		self.rotMatrix = UIElement3D:getRotMatrixFromEulerAngles(math.rad(rot.x), math.rad(rot.y), math.rad(rot.z))
 		local relX, relY, relZ = self:getEulerZYXFromRotationMatrix(self.rotMatrix)
 		self.rot = { x = relX, y = relY, z = relZ }
 	end
-	
+
 	function UIElement3D:getEulerZYXFromRotationMatrix(R)
 		local clamp = R[3][1] > 1 and 1 or (R[3][1] < -1 and -1 or R[3][1])
 		local x, y, z
-		
+
 		y = math.asin(-clamp)
 		if (0.99999 > math.abs(R[3][1])) then
 			x = math.atan2(R[3][2], R[3][3])
@@ -476,19 +477,19 @@ do
 			x = 0
 			z = math.atan2(-R[1][2], R[2][2])
 		end
-		return math.deg(x), math.deg(y), math.deg(z) 
+		return math.deg(x), math.deg(y), math.deg(z)
 	end
-	
+
 	function UIElement3D:getEulerXYZFromRotationMatrix(R)
 		local x, y, z
-		
+
 		x = math.atan2(-R[2][3], R[3][3])
 		y = math.atan2(R[1][3], R[3][3] * math.cos(x) - R[2][3] * math.sin(x))
 		z = math.atan2(R[2][1] * math.cos(x) + R[3][1] * math.sin(x), R[2][2] * math.cos(x) + R[3][2] * math.sin(x))
-		
-		return math.deg(x), math.deg(y), math.deg(z) 
+
+		return math.deg(x), math.deg(y), math.deg(z)
 	end
-	
+
 	function UIElement3D:getEulerAnglesFromMatrixTB(rTB)
 		return UIElement3D:getEulerZYXFromRotationMatrix({
 			{ rTB.r0, rTB.r1, rTB.r2, rTB.r3 },
@@ -497,7 +498,7 @@ do
 			{ rTB.r12, rTB.r13, rTB.r14, rTB.r15 },
 		})
 	end
-	
+
 	function UIElement3D:getRotMatrixFromEulerAngles(x, y, z)
 		local R_x = {
 			{ 1, 0, 0 },
@@ -517,7 +518,7 @@ do
 		local R = UIElement3D:multiply(UIElement3D:multiply(R_y, R_x), R_z)
 		return R
 	end
-	
+
 	function UIElement3D:multiplyByNumber(a, b)
 		local matrix = {}
 		for i,v in pairs(a) do
@@ -528,7 +529,7 @@ do
 		end
 		return matrix
 	end
-	
+
 	function UIElement3D:multiply(a, b)
 		if (type(b) == 'number') then
 			return UIElement3D:multiplyByNumber(a, b)
@@ -536,9 +537,9 @@ do
 		if (#a[1] ~= #b) then
 			return false
 		end
-		
+
 		local matrix = {}
-		
+
 		for aRow = 1, #a do
 			matrix[aRow] = {}
 			for bCol = 1, #b[1] do
@@ -549,10 +550,10 @@ do
 				matrix[aRow][bCol] = sum
 			end
 		end
-		
+
 		return matrix
 	end
-	
+
 	function UIElement:updateObj(model, noreload)
 		local filename = ''
 		if (model) then
@@ -565,8 +566,8 @@ do
 			end
 		end
 		filename = filename .. ".obj"
-		
-		if (not noreload and self.objModel) then
+
+		if (not noreload and self.objModel and not self.disableUnload) then
 			local id = 0
 			for i,v in pairs(OBJMODELCACHE) do
 				if (i == self.objModel) then
@@ -582,17 +583,17 @@ do
 			end
 			self.objModel = nil
 		end
-		
+
 		if (not model) then
 			return true
 		end
-		
+
 		local tempobj = io.open(filename, "r", 1)
 		if (not tempobj) then
 			return false
 		end
 		io.close(tempobj)
-		
+
 		local objid = 0
 		for i = 0, 127 do
 			if (OBJMODELCACHE[i]) then
