@@ -84,3 +84,9 @@ tutorials/config.cfg
 flames_stored.dat
 
 quests_global.dat
+
+/textures/store/inventory/
+.gitignore~
+..gitignore.un~
+/script/*test*.lua
+/script/load*.lua

@@ -23,11 +23,11 @@ STORE 0;3550
 //IMAGE 0;noevents-placeholder.tga
 //FEATURED 0;
 
-NEWSID 3;
+//NEWSID 3;
 //TITLE 0;Soccer League
-IMAGE 0;soccerleague.tga
-EVENT 0;1
-FEATURED 0;
+//IMAGE 0;soccerleague.tga
+//EVENT 0;1
+//FEATURED 0;
 
 NEWSID 4;
 //TITLE 0;Free Run Frenzy 5
@@ -85,7 +85,7 @@ EVENTID 1;
 NAME 0;Toribash Soccer League
 //IMAGE 0;leggang.tga
 //URL 0;https://forum.toribash.com/showthread.php?t=655190
-PLAYNAME 0;soccerleague
+//PLAYNAME 0;soccerleague
 OVERLAYTRANS 0;0.1
 PLAYTEXT 0;PARTICIPATE
 ACCENTCOLOR 0;d4d7ec
@@ -112,7 +112,7 @@ PRIZEST 0;22
 
 EVENTID 2;
 NAME 0;Free Run Frenzy 5
-URL 0;https://forum.toribash.com/showthread.php?t=655255
+URL 0;https://forum.toribash.com/showthread.php?t=656097
 PLAYNAME 0;freerunfrenzy5
 OVERLAYTRANS 0;0.8
 PLAYTEXT 0;PARTICIPATE
@@ -122,7 +122,7 @@ BTNHVRCOL 0;6cffff
 BTNDNCOL 0;fa19eb
 DESCDATA 0;1Description
 DESCDATAIMGTITLE 0;1oc_description.tga
-DESCDATATEXT 0;1Hi and welcome to Event Squad's Free Run Frenzy 5!\n\nIn this parkour event you need to complete the map made by Aliosa and get to the finish zone in order to claim the prize!\nYou can also take a more complicated route and complete the optional checkpoint to get an additional reward!\n\nGood luck and have fun!
+DESCDATATEXT 0;1Hi and welcome to Event Squad's Free Run Frenzy 5!\n\nIn this parkour event you need to complete the map made by Matarika and get to the finish zone in order to claim the prize!\nYou can also take a more complicated route and complete the optional checkpoint to get an additional reward!\n\nGood luck and have fun!
 DESCDATA 0;2Rules
 DESCDATAIMGTITLE 0;2oc_rules.tga
 DESCDATATEXT 0;2- No replay hacking\n- Do not steal others' replays\n- Do not edit any of the mod's game rules\n- Do not enter the event with multiple accounts

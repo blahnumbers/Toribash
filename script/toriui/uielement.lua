@@ -31,6 +31,9 @@ BTN_HVR = 1
 BTN_FOCUS = 2
 BTN_DN = 3
 
+SCROLL_VERTICAL = 1
+SCROLL_HORIZONTAL = 2
+
 DEFTEXTURE = "../textures/menu/logos/toribash.tga"
 TEXTURECACHE = TEXTURECACHE or {}
 TEXTUREINDEX = TEXTUREINDEX or 0
@@ -112,6 +115,7 @@ do
 			end
 			if (o.bgImage) then
 				elem.disableUnload = o.disableUnload
+				elem.imagePatterned = o.imagePatterned and 1 or nil
 				if (type(o.bgImage) == "table") then
 					elem:updateImage(o.bgImage[1], o.bgImage[2])
 				else
@@ -326,9 +330,16 @@ do
 		self.tabswitchprevaction = nil
 	end
 
-	function UIElement:reloadListElements(listHolder, listElements, toReload, enabled)
-		local listElementHeight = listElements[1].size.h
-		local checkPos = math.abs(math.ceil(-(listHolder.shift.y + self.size.h) / listElementHeight))
+	function UIElement:reloadListElements(listHolder, listElements, toReload, enabled, orientation)
+		local listElementSize, shiftVal
+		if (orientation == SCROLL_VERTICAL) then
+			listElementSize = listElements[1].size.h
+			shiftVal = listHolder.shift.y + self.size.h
+		else
+			listElementSize = listElements[1].size.w
+			shiftVal = listHolder.shift.x + self.size.w
+		end
+		local checkPos = math.abs(math.ceil(-shiftVal / listElementSize))
 
 		for i = #enabled, 1, -1 do
 			enabled[i]:hide()
@@ -336,14 +347,14 @@ do
 			table.remove(enabled)
 		end
 
-		if (checkPos > 0 and checkPos * listElementHeight + listHolder.shift.y + self.size.h > 0) then
+		if (checkPos > 0 and checkPos * listElementSize + shiftVal > 0) then
 			if (listElements[checkPos]) then
 				listElements[checkPos]:show()
 				listElements[checkPos].listDisplayed = true
 				table.insert(enabled, listElements[checkPos])
 			end
 		end
-		while (listHolder.shift.y + self.size.h + checkPos * listElementHeight >= 0 and listHolder.shift.y + checkPos * listElementHeight <= 0 and checkPos < #listElements) do
+		while ((shiftVal + checkPos * listElementSize >= 0) and ((orientation == SCROLL_VERTICAL and listHolder.shift.y or listHolder.shift.x) + checkPos * listElementSize <= 0) and (checkPos < #listElements)) do
 			listElements[checkPos + 1]:show()
 			listElements[checkPos + 1].listDisplayed = true
 			table.insert(enabled, listElements[checkPos + 1])
@@ -353,11 +364,21 @@ do
 		toReload:reload()
 	end
 
-	function UIElement:makeScrollBar(listHolder, listElements, toReload, posShift, scrollSpeed, scrollIgnoreOverride)
+	function UIElement:makeHorizontalScrollBar(listHolder, listElements, toReload, posShift, scrollSpeed, scrollIgnoreOverride)
+		self:makeScrollBar(listHolder, listElements, toReload, posShift, scrollSpeed, scrollIgnoreOverride, SCROLL_HORIZONTAL)
+	end
+
+	function UIElement:makeScrollBar(listHolder, listElements, toReload, posShift, scrollSpeed, scrollIgnoreOverride, orientation)
 		local scrollSpeed = scrollSpeed or 1
 		local posShift = posShift or { 0 }
+		self.orientation = orientation or SCROLL_VERTICAL
+
 		local enabled = {}
-		listHolder.shift.y = listHolder.shift.y == 0 and -listHolder.size.h or listHolder.shift.y
+		if (self.orientation == SCROLL_VERTICAL) then
+			listHolder.shift.y = listHolder.shift.y == 0 and -listHolder.size.h or listHolder.shift.y
+		else
+			listHolder.shift.x = listHolder.shift.x == 0 and -listHolder.size.w or listHolder.shift.x
+		end
 		self.pressedPos = { x = 0, y = 0 }
 
 		self.listReload = function() toReload:reload() end
@@ -378,7 +399,7 @@ do
 				elseif (not UIScrollbarIgnore and ((#UIScrollbarHandler == 1 and listHolder.scrollBar ~= self) or
 						(MOUSE_X > listHolder.parent.pos.x and MOUSE_X < listHolder.parent.pos.x + listHolder.parent.size.w and MOUSE_Y > listHolder.parent.pos.y and MOUSE_Y < listHolder.parent.pos.y + listHolder.parent.size.h))) then
 					self:mouseScroll(listElements, listHolder, toReload, y * scrollSpeed, enabled)
-					posShift[1] = self.shift.y
+					posShift[1] = self.orientation == SCROLL_VERTICAL and self.shift.y or self.shift.x
 					scrollSuccessful = true
 				end
 				if (scrollIgnore and not UIScrollbarIgnore) then
@@ -390,9 +411,15 @@ do
 			end,
 			function(x, y)
 				if (self.hoverState == BTN_DN) then
-					local posY = self:getLocalPos(x,y).y - self.pressedPos.y + self.shift.y
-					self:barScroll(listElements, listHolder, toReload, posY, enabled)
-					posShift[1] = self.shift.y
+					if (self.orientation == SCROLL_VERTICAL) then
+						local posY = self:getLocalPos(x,y).y - self.pressedPos.y + self.shift.y
+						self:barScroll(listElements, listHolder, toReload, posY, enabled)
+						posShift[1] = self.shift.y
+					else
+						local posX = self:getLocalPos(x,y).x - self.pressedPos.x + self.shift.x
+						self:barScroll(listElements, listHolder, toReload, posX, enabled)
+						posShift[1] = self.shift.x
+					end
 				end
 			end)
 
@@ -403,49 +430,94 @@ do
 	end
 
 	function UIElement:mouseScroll(listElements, listHolder, toReload, scroll, enabled)
-		local elementHeight = listElements[1].size.h
-		local listHeight = #listElements * elementHeight
-		local oldShift = listHolder.shift.y
-		if (listHolder.shift.y + scroll * elementHeight > -listHolder.size.h) then
-			self:moveTo(self.shift.x, 0)
-			listHolder:moveTo(listHolder.shift.x, -listHolder.size.h)
-		elseif (listHolder.shift.y + scroll * elementHeight < -listHeight) then
-			self:moveTo(self.shift.x, self.parent.size.h - self.size.h)
-			listHolder:moveTo(listHolder.shift.x, -listHeight)
+		if (self.orientation == SCROLL_VERTICAL) then
+			local elementHeight = listElements[1].size.h
+			local listHeight = #listElements * elementHeight
+			local oldShift = listHolder.shift.y
+			if (listHolder.shift.y + scroll * elementHeight > -listHolder.size.h) then
+				self:moveTo(self.shift.x, 0)
+				listHolder:moveTo(listHolder.shift.x, -listHolder.size.h)
+			elseif (listHolder.shift.y + scroll * elementHeight < -listHeight) then
+				self:moveTo(self.shift.x, self.parent.size.h - self.size.h)
+				listHolder:moveTo(listHolder.shift.x, -listHeight)
+			else
+				listHolder:moveTo(listHolder.shift.x, listHolder.shift.y + scroll * elementHeight)
+				local scrollProgress = -(listHolder.size.h + listHolder.shift.y) / (listHeight - listHolder.size.h)
+				self:moveTo(self.shift.x, (self.parent.size.h - self.size.h) * scrollProgress)
+			end
+			if (oldShift ~= listHolder.shift.y) then
+				listHolder.parent:reloadListElements(listHolder, listElements, toReload, enabled, self.orientation)
+				self.scrollReload()
+			end
 		else
-			listHolder:moveTo(listHolder.shift.x, listHolder.shift.y + scroll * elementHeight)
-			local scrollProgress = -(listHolder.size.h + listHolder.shift.y) / (listHeight - listHolder.size.h)
-			self:moveTo(self.shift.x, (self.parent.size.h - self.size.h) * scrollProgress)
-		end
-		if (oldShift ~= listHolder.shift.y) then
-			listHolder.parent:reloadListElements(listHolder, listElements, toReload, enabled)
-			self.scrollReload()
+			local elementWidth = listElements[1].size.w
+			local listWidth = #listElements * elementWidth
+			local oldShift = listHolder.shift.x
+			if (listHolder.shift.x + scroll * elementWidth > -listHolder.size.w) then
+				self:moveTo(0, self.shift.y)
+				listHolder:moveTo(-listHolder.size.w, listHolder.shift.y)
+			elseif (listHolder.shift.x + scroll * elementWidth < -listWidth) then
+				self:moveTo(self.parent.size.w - self.size.w, self.shift.y)
+				listHolder:moveTo(-listWidth, listHolder.shift.y)
+			else
+				listHolder:moveTo(listHolder.shift.x + scroll * elementWidth, listHolder.shift.y)
+				local scrollProgress = -(listHolder.size.w + listHolder.shift.x) / (listWidth - listHolder.size.w)
+				self:moveTo((self.parent.size.w - self.size.w) * scrollProgress, self.shift.y)
+			end
+			if (oldShift ~= listHolder.shift.x) then
+				listHolder.parent:reloadListElements(listHolder, listElements, toReload, enabled, self.orientation)
+				self.scrollReload()
+			end
 		end
 	end
 
-	function UIElement:barScroll(listElements, listHolder, toReload, posY, enabled)
-		local sizeH = math.floor(self.size.h / 4)
+	function UIElement:barScroll(listElements, listHolder, toReload, posShift, enabled)
 		if (#listElements == 0) then return end
-		local listHeight = listElements[1].size.h * #listElements
+		if (self.orientation == SCROLL_VERTICAL) then
+			local sizeH = math.floor(self.size.h / 4)
+			local listHeight = listElements[1].size.h * #listElements
 
-		if (posY <= 0) then
-			if (self.pressedPos.y < sizeH) then
-				self.pressedPos.y = sizeH
+			if (posShift <= 0) then
+				if (self.pressedPos.y < sizeH) then
+					self.pressedPos.y = sizeH
+				end
+				self:moveTo(self.shift.x, 0)
+				listHolder:moveTo(listHolder.shift.x, -listHolder.size.h)
+			elseif (posShift >= self.parent.size.h - self.size.h) then
+				if (self.pressedPos.y > self.parent.size.h - sizeH) then
+					self.pressedPos.y = self.parent.size.h - sizeH
+				end
+				self:moveTo(self.shift.x, self.parent.size.h - self.size.h)
+				listHolder:moveTo(listHolder.shift.x, -listHeight)
+			else
+				self:moveTo(self.shift.x, posShift)
+				local scrollProgress = self.shift.y / (self.parent.size.h - self.size.h)
+				listHolder:moveTo(listHolder.shift.x, -listHolder.size.h + (listHolder.size.h - listHeight) * scrollProgress)
 			end
-			self:moveTo(self.shift.x, 0)
-			listHolder:moveTo(listHolder.shift.x, -listHolder.size.h)
-		elseif (posY >= self.parent.size.h - self.size.h) then
-			if (self.pressedPos.y > self.parent.size.h - sizeH) then
-				self.pressedPos.y = self.parent.size.h - sizeH
-			end
-			self:moveTo(self.shift.x, self.parent.size.h - self.size.h)
-			listHolder:moveTo(listHolder.shift.x, -listHeight)
 		else
-			self:moveTo(self.shift.x, posY)
-			local scrollProgress = self.shift.y / (self.parent.size.h - self.size.h)
-			listHolder:moveTo(listHolder.shift.x, -listHolder.size.h + (listHolder.size.h - listHeight) * scrollProgress)
+			local sizeW = math.floor(self.size.w / 4)
+			local listWidth = listElements[1].size.w * #listElements
+
+			if (posShift <= 0) then
+				if (self.pressedPos.x < sizeW) then
+					self.pressedPos.x = sizeW
+				end
+				self:moveTo(0, self.shift.y)
+				listHolder:moveTo(-listHolder.size.w, listHolder.shift.y)
+			elseif (posShift >= self.parent.size.w - self.size.w) then
+				if (self.pressedPos.x > self.parent.size.w - sizeW) then
+					self.pressedPos.x = self.parent.size.w - sizeW
+				end
+				self:moveTo(self.parent.size.w - self.size.w, self.shift.y)
+				listHolder:moveTo(-listWidth, listHolder.shift.y)
+			else
+				self:moveTo(posShift, self.shift.y)
+				local scrollProgress = self.shift.x / (self.parent.size.w - self.size.w)
+				listHolder:moveTo(-listHolder.size.w + (listHolder.size.w - listWidth) * scrollProgress, listHolder.shift.y)
+			end
 		end
-		listHolder.parent:reloadListElements(listHolder, listElements, toReload, enabled)
+
+		listHolder.parent:reloadListElements(listHolder, listElements, toReload, enabled, self.orientation)
 	end
 
 	function UIElement:addCustomDisplay(funcOnly, func, drawBefore)
@@ -648,7 +720,11 @@ do
 				draw_quad(self.pos.x, self.pos.y + self.innerShadow[1], self.size.w, self.size.h - self.innerShadow[1] - self.innerShadow[2])
 			end
 			if (self.bgImage) then
-				draw_quad(self.pos.x, self.pos.y, self.size.w, self.size.h, self.bgImage)
+				if (self.imagePatterned) then
+					draw_quad(self.pos.x, self.pos.y, self.size.w, self.size.h, self.bgImage, self.imagePatterned)
+				else
+					draw_quad(self.pos.x, self.pos.y, self.size.w, self.size.h, self.bgImage)
+				end
 			end
 		end
 		if (self.customDisplay) then
@@ -1343,7 +1419,7 @@ do
 		end
 	end
 
-	function UIElement:runCmd(command, online, echo)
+	function runCmd(command, online, echo)
 		local online = online and 1 or 0
 		local echo = echo or false
 		if (echo == false) then
@@ -1353,6 +1429,10 @@ do
 		end
 		run_cmd(command .. (online and "\n" or ""), online)
 		remove_hooks("UIManagerSkipEcho")
+	end
+
+	function UIElement:runCmd(command, online, echo)
+		runCmd(command, online, echo)
 	end
 
 	function UIElement:debugEcho(mixed, msg, returnString)

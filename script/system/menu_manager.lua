@@ -9,7 +9,7 @@ do
 
 	function TBMenu:create()
 		TB_MENU_MAIN_ISOPEN = 1
-		set_build_version("220607")
+		set_build_version("220610")
 	end
 
 	function TBMenu:setLanguageFontOptions(language)
@@ -96,7 +96,7 @@ do
 		tbMenuCurrentSection = UIElement:new( {
 			parent = tbMenuMain,
 			pos = { 75 * TB_MENU_GLOBAL_SCALE, 140 * TB_MENU_GLOBAL_SCALE + WIN_H / 16 },
-			size = { WIN_W - 150 * TB_MENU_GLOBAL_SCALE, WIN_H - 250 * TB_MENU_GLOBAL_SCALE - WIN_H / 16 }
+			size = { WIN_W - 150 * TB_MENU_GLOBAL_SCALE, WIN_H - 235 * TB_MENU_GLOBAL_SCALE - WIN_H / 16 }
 		})
 	end
 
@@ -384,6 +384,9 @@ do
 			selectedIcon = buttonData.image2
 		end
 		local extraElements = extraElements or {}
+		if (hasSmudge and not (buttonData.title or buttonData.subtitle)) then
+			TBMenu:addBottomBloodSmudge(viewElement, hasSmudge)
+		end
 		local itemIcon = UIElement:new({
 			parent = viewElement,
 			pos = { (viewElement.size.w - elementWidth) / 2, 10 },
@@ -447,7 +450,7 @@ do
 				bgColor = viewElement.animateColor
 			})
 		end
-		if (hasSmudge) then
+		if (hasSmudge and (buttonData.title or buttonData.subtitle)) then
 			TBMenu:addBottomBloodSmudge(viewElement, hasSmudge)
 		end
 		if (buttonData.title) then
@@ -597,46 +600,67 @@ do
 		end
 	end
 
-	function TBMenu:prepareScrollableList(viewElement, topBarH, botBarH, scrollWidth, accentColor)
-		local topBarH = topBarH or 50
+	function TBMenu:prepareScrollableList(viewElement, firstBarSize, secondBarSize, scrollSize, accentColor, orientation)
+		local firstBarSize = firstBarSize or 50
+		local secondBarSize = secondBarSize or firstBarSize
+		local orientation = orientation or SCROLL_VERTICAL
 		local toReload = UIElement:new({
 			parent = viewElement,
 			pos = { 0, 0 },
 			size = { viewElement.size.w, viewElement.size.h }
 		})
-		local topBar = UIElement:new({
-			parent = toReload,
-			pos = { 0, 0 },
-			size = { viewElement.size.w, topBarH },
-			interactive = true,
-			bgColor = accentColor or TB_MENU_DEFAULT_DARKER_COLOR
-		})
-		local botBar = UIElement:new({
-			parent = toReload,
-			pos = { 0, -botBarH },
-			size = { viewElement.size.w, botBarH },
-			interactive = true,
-			bgColor = accentColor or TB_MENU_DEFAULT_DARKER_COLOR
-		})
+
+		local shiftX, shiftY = 0, 0
+		local firstBar, secondBar
+		if (orientation == SCROLL_VERTICAL) then
+			firstBar = toReload:addChild({
+				pos = { 0, 0 },
+				size = { viewElement.size.w, firstBarSize },
+				interactive = true,
+				bgColor = accentColor or TB_MENU_DEFAULT_DARKER_COLOR
+			})
+			secondBar = toReload:addChild({
+				pos = { 0, -secondBarSize },
+				size = { viewElement.size.w, secondBarSize },
+				interactive = true,
+				bgColor = accentColor or TB_MENU_DEFAULT_DARKER_COLOR
+			})
+			shiftY = firstBarSize
+		else
+			firstBar = toReload:addChild({
+				pos = { 0, 0 },
+				size = { firstBarSize, viewElement.size.h },
+				interactive = true,
+				bgColor = accentColor or TB_MENU_DEFAULT_DARKER_COLOR
+			})
+			secondBar = toReload:addChild({
+				pos = { -secondBarSize, 0 },
+				size = { secondBarSize, viewElement.size.h },
+				interactive = true,
+				bgColor = accentColor or TB_MENU_DEFAULT_DARKER_COLOR
+			})
+			shiftX = firstBarSize
+		end
+
 		local listingView = UIElement:new({
 			parent = viewElement,
-			pos = { 0, topBar.size.h },
-			size = { viewElement.size.w, viewElement.size.h - topBar.size.h - botBar.size.h },
+			pos = { shiftX, shiftY },
+			size = { viewElement.size.w - (shiftX > 0 and (firstBarSize + secondBarSize) or 0), viewElement.size.h - (shiftY > 0 and (firstBarSize + secondBarSize) or 0) },
 			interactive = true
 		})
 		local listingHolder = UIElement:new({
 			parent = listingView,
 			pos = { 0, 0 },
-			size = { listingView.size.w - scrollWidth, listingView.size.h }
+			size = orientation == SCROLL_VERTICAL and { listingView.size.w - scrollSize, listingView.size.h } or { listingView.size.w, listingView.size.h - scrollSize}
 		})
 		local listingScrollBG = UIElement:new({
 			parent = listingView,
-			pos = { -scrollWidth, 0 },
-			size = { scrollWidth, listingView.size.h },
+			pos = orientation == SCROLL_VERTICAL and { -scrollSize, 0 } or { 0, -scrollSize },
+			size = orientation == SCROLL_VERTICAL and { scrollSize, listingView.size.h } or { listingView.size.w, scrollSize },
 			bgColor = accentColor or TB_MENU_DEFAULT_DARKER_COLOR
 		})
 		listingHolder.scrollBG = listingScrollBG
-		return toReload, topBar, botBar, listingView, listingHolder, listingScrollBG
+		return toReload, firstBar, secondBar, listingView, listingHolder, listingScrollBG
 	end
 
 	function TBMenu:getTime(seconds, cut)
@@ -1198,6 +1222,13 @@ do
 		Matchmake:showMain(tbMenuCurrentSection)
 	end
 
+	function TBMenu:showBattlepass()
+		if (not tbMenuCurrentSection) then
+			TBMenu:createCurrentSectionView()
+		end
+		BattlePass:showMain(tbMenuCurrentSection)
+	end
+
 	function TBMenu:showPlaySection()
 		local tbMenuPlayButtonsData = {
 			{ title = TB_MENU_LOCALIZED.MAINMENUFREEPLAYNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUFREEPLAYDESC, size = 0.5, ratio = 0.5, image = "../textures/menu/freeplay.tga", mode = ORIENTATION_LANDSCAPE, action = function() open_menu(1) end, disableUnload = true },
@@ -1543,7 +1574,7 @@ do
 		end
 		local smudgeElement = UIElement:new({
 			parent = parentElement,
-			pos = { 0, -(scale / 2) },
+			pos = { 0, -(scale * 0.75) },
 			size = { parentElement.size.w, scale },
 			bgImage = bottomSmudge,
 			disableUnload = true
@@ -1629,6 +1660,8 @@ do
 			TBMenu:showClans()
 		elseif (screenId == 10) then
 			TBMenu:showMarket()
+		elseif (screenId == 11) then
+			TBMenu:showBattlepass()
 		elseif (screenId == 101) then
 			TBMenu:showNotifications()
 		elseif (screenId == 102) then
@@ -2058,9 +2091,11 @@ do
 					break
 				end
 
-				local string = v.misctext and v.text .. " " .. v.misctext or v.text
-				temp:addAdaptedText(true, string, nil, nil, fontId, nil, fontScale, fontScale, nil, nil, nil, nil, nil, true)
+				temp:addAdaptedText(true, v.text, nil, nil, fontId, nil, fontScale, fontScale, nil, nil, nil, nil, nil, true)
 				v.width = (get_string_length(temp.dispstr[1], temp.textFont) + 110) * temp.textScale
+				if (v.misctext) then
+					v.width = v.width + (get_string_length(v.misctext, temp.textFont) + 40) * temp.textScale * 0.8
+				end
 				totalWidth = totalWidth + v.width
 			end
 		end
@@ -2097,13 +2132,6 @@ do
 			local buttonText = tbMenuNavigationButtons[i]:addChild({ shift = { 15, tbMenuNavigationBar.size.h / 6 } })
 			if (v.misctext) then
 				local width = (get_string_length(v.misctext, fontId) + 40) * fontScale * 0.8
-				buttonText.size.w = buttonText.size.w + width
-				tbMenuNavigationButtons[i].size.w = tbMenuNavigationButtons[i].size.w + width
-				navX[1] = v.right and navX[1] - width or navX[1] + width
-				if (v.right) then
-					tbMenuNavigationButtons[i]:moveTo(-width, nil, true)
-				end
-
 				local miscMark = UIElement:new({
 					parent = buttonText,
 					pos = { -(buttonText.size.w - get_string_length(v.text, fontId) * fontScale + width - 16) / 2, buttonText.size.h * 0.125 },
@@ -2191,9 +2219,9 @@ do
 			table.insert(buttonData, { text = TB_MENU_LOCALIZED.MAINMENUCLANSNAME, sectionId = 9 })
 		end
 		table.insert(buttonData, { text = TB_MENU_LOCALIZED.NAVBUTTONTOOLS, sectionId = 5, right = true })
-		if (TB_MENU_PLAYER_INFO.data.qi >= 200) then
-			table.insert(buttonData, { text = TB_MENU_LOCALIZED.MAINMENURANKEDNAME, sectionId = 8, right = true })
-		end
+		--if (TB_MENU_PLAYER_INFO.data.qi >= 200) then
+			table.insert(buttonData, { text = TB_MENU_LOCALIZED.BATTLEPASSSEASON .. " 8", sectionId = 11, right = true, misctext = "New!" })
+		--end
 		return buttonData
 	end
 
@@ -2676,9 +2704,16 @@ do
 	end
 
 	-- Spawns default menu scroll bar
-	function TBMenu:spawnScrollBar(holderElement, listElements, elementHeight)
+	function TBMenu:spawnScrollBar(holderElement, listElements, elementSize, orientation)
+		local orientation = orientation or SCROLL_VERTICAL
 		local scrollActive = true
-		local scrollScale = listElements > 0 and (holderElement.size.h) / (listElements * elementHeight) or holderElement.size.h
+		local scrollScale
+		if (orientation == SCROLL_VERTICAL) then
+			scrollScale = listElements > 0 and (holderElement.size.h) / (listElements * elementSize) or holderElement.size.h
+		else
+			scrollScale = listElements > 0 and (holderElement.size.w) / (listElements * elementSize) or holderElement.size.w
+		end
+
 		if (scrollScale >= 1) then
 			scrollScale = 1
 			scrollActive = false
@@ -2686,21 +2721,32 @@ do
 			scrollScale = 0.1
 		end
 
-		local scrollBackground = UIElement:new({
-			parent = holderElement.parent,
-			pos = { -holderElement.parent.size.w + holderElement.size.w, 0 },
-			size = { holderElement.parent.size.w - holderElement.size.w, holderElement.size.h },
-			bgColor = holderElement.scrollBG and holderElement.scrollBG.bgColor
-		})
-		local scrollView = UIElement:new({
-			parent = holderElement.parent,
-			pos = { -(holderElement.parent.size.w - holderElement.size.w) / 4 * 3, 5 },
-			size = { (holderElement.parent.size.w - holderElement.size.w) / 2, holderElement.size.h - 10 }
-		})
+		local scrollBackground, scrollView
+		if (orientation == SCROLL_VERTICAL) then
+			scrollBackground = holderElement.parent:addChild({
+				pos = { -holderElement.parent.size.w + holderElement.size.w, 0 },
+				size = { holderElement.parent.size.w - holderElement.size.w, holderElement.size.h },
+				bgColor = holderElement.scrollBG and holderElement.scrollBG.bgColor
+			})
+			scrollView = holderElement.parent:addChild({
+				pos = { -(holderElement.parent.size.w - holderElement.size.w) * 0.75, 5 },
+				size = { (holderElement.parent.size.w - holderElement.size.w) / 2, holderElement.size.h - 10 }
+			})
+		else
+			scrollBackground = holderElement.parent:addChild({
+				pos = { 0, -holderElement.parent.size.h + holderElement.size.h },
+				size = { holderElement.size.w, holderElement.parent.size.h - holderElement.size.h },
+				bgColor = holderElement.scrollBG and holderElement.scrollBG.bgColor
+			})
+			scrollView = holderElement.parent:addChild({
+				pos = { 5, -(holderElement.parent.size.h - holderElement.size.h) * 0.75 },
+				size = { holderElement.size.w - 10, (holderElement.parent.size.h - holderElement.size.h) / 2 }
+			})
+		end
 		local scrollBar = UIElement:new({
 			parent = scrollView,
 			pos = { 0, 0 },
-			size = { scrollView.size.w, scrollView.size.h * scrollScale },
+			size = orientation == SCROLL_VERTICAL and { scrollView.size.w, scrollView.size.h * scrollScale } or { scrollView.size.w * scrollScale, scrollView.size.h },
 			interactive = scrollActive,
 			bgColor = { 0, 0, 0, 0.3 },
 			hoverColor = { 0, 0, 0, 0.5 },

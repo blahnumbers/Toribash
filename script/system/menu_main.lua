@@ -70,7 +70,6 @@ TB_MENU_GLOBAL_SCALE = math.min(WIN_H > 720 and 1 or WIN_H / 720, WIN_W > 1280 a
 dofile("system/menu_defines.lua")
 require("system/iofiles")
 require("system/menu_manager")
-TBMenu:getTranslation(get_language())
 TBMenu:create()
 
 dofile("system/menu_backend_defines.lua")
@@ -78,10 +77,9 @@ require("system/network_request")
 require("system/downloader_manager")
 require("system/store_manager")
 require("system/player_info")
---dofile("system/matchmake_manager.lua")
 require("system/notifications_manager")
 require("system/quests_manager")
-require("system/rewards_manager") --?
+require("system/rewards_manager")
 require("system/clans_manager")
 require("system/friendlist_manager")
 require("system/replays_manager")
@@ -92,6 +90,7 @@ require("system/events_manager")
 require("system/events_online_manager")
 require("system/news_manager")
 require("system/market_manager")
+require("system/battlepass_manager")
 
 TB_MENU_PLAYER_INFO = {}
 TB_MENU_PLAYER_INFO.username = PlayerInfo:getUser()

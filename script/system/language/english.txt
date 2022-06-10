@@ -553,7 +553,7 @@ USERBARTCINFO	Toricredits can be spent on customizations that fit your character
 USERBARSTINFO	Shiai Tokens can be spent on premium customizations and items that require high belts	
 ACCOUNTTITLEINFO	Info about Your Account	
 ACCOUNTGETTINGINFO	Getting your data...	
-ACCOUNTINFOERROR	Something went wrong, try again later	
+ACCOUNTINFOERROR	Something went wrong, please try again later	
 STOREDOWNLOADINGMODEL	Downloading item model...
 STOREDOWNLOADINGSET	Downloading set...	
 STOREGETMORE	Get more	
@@ -1047,3 +1047,11 @@ STORENEXTPAYPALPURCHASE	Next PayPal	purchase
 STORENEXTITEMPURCHASE	Next item purchase	
 STOREDISCOUNTOFF	Off	
 STORELIMITEDOFFER	Limited time offer!
+BATTLEPASSTITLE	Battle Pass	
+BATTLEPASSSEASON	Season	
+BATTLEPASSLOADING	Loading your Battle Pass data, please wait...
+BATTLEPASSQUESTS	Battle Pass Quests	
+BATTLEPASSYOUREXPERIENCE	Battle Pass XP:	
+BATTLEPASSPURCHASELEVEL	Purchase Level	
+BATTLEPASSLEVEL	BP Level	
+BATTLEPASSLVL	Lvl	
