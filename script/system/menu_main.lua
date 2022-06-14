@@ -184,7 +184,6 @@ if (not DEFAULT_ATMOSPHERE_ISSET) then
 		end)
 end
 
-UIElement:mouseHooks()
 add_hook("key_up", "tbMenuKeyboardHandler", function(s) UIElement:handleKeyUp(s) return 1 end)
 add_hook("key_down", "tbMenuKeyboardHandler", function(s) UIElement:handleKeyDown(s) return 1 end)
 add_hook("draw2d", "tbMainMenuVisual", function() UIElement:drawVisuals(TB_MENU_MAIN_GLOBALID) end)

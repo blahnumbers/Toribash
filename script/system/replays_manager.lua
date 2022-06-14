@@ -3344,9 +3344,9 @@ do
 			local elementHeight = 45
 			local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(holder, elementHeight + 15, elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
 			topBar.shapeType = ROUNDED
+			topBar:setRounded(4)
 			botBar.shapeType = ROUNDED
-			topBar.rounded = 4
-			botBar.rounded = 4
+			botBar:setRounded(4)
 
 			local topTitle = UIElement:new({
 				parent = topBar,
@@ -3544,7 +3544,7 @@ do
 			size = { viewElement.size.w * 0.35 - 10, viewElement.size.h },
 			bgColor = cloneTable(TB_MENU_DEFAULT_BG_COLOR),
 			shapeType = ROUNDED,
-			rounded = 4,
+			rounded = 4
 		})
 		local replaySpeedTitle = UIElement:new({
 			parent = replaySpeedHolder,

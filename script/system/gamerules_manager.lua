@@ -24,7 +24,7 @@ do
 	-- Gamerule struct
 	Gamerule = {}
 	Gamerule.__index = Gamerule
-	
+
 	function Gamerule:new(g)
 		local rule = {
 			name = g.name,
@@ -52,13 +52,13 @@ do
 		end
 		return rule
 	end
-	
+
 	function Gamerule:onUpdate(func)
 		self.onSetValue = function()
 			self.value = func(self.value)
 		end
 	end
-	
+
 	function Gamerule:setValue(value)
 		self.value = value
 		self.gameValue = value
@@ -66,11 +66,11 @@ do
 			self.onSetValue()
 		end
 	end
-	
+
 	function Gamerule:setSliderSettings(min, max, isBool, minDisp, maxDisp)
 		self.slider = { minValue = min, maxValue = max, isBoolean = isBool, minValueDisp = minDisp, maxValueDisp = maxDisp }
 	end
-	
+
 	function Gamerule:setOptions(opts)
 		self.options = {}
 		self.dropdown = {}
@@ -78,18 +78,18 @@ do
 			self.options[i] = { name = v.name, title = v.title, value = v.value }
 		end
 	end
-	
-	
+
+
 	-- Gamerules manager class
 	Gamerules = {}
 	Gamerules.__index = Gamerules
 	local cln = {}
 	setmetatable(cln, Gamerules)
-	
+
 	function Gamerules:parseEngageValue(val)
 		local data = { val:match(("([^,]*),?"):rep(12)) }
 		local returnVal = {}
-		
+
 		local toriPos = {}
 		table.insert(toriPos, { title = 'x', value = data[1] })
 		table.insert(toriPos, { title = 'y', value = data[2] })
@@ -106,19 +106,19 @@ do
 		table.insert(p4Pos, { title = 'x', value = data[10] })
 		table.insert(p4Pos, { title = 'y', value = data[11] })
 		table.insert(p4Pos, { title = 'z', value = data[12] })
-		
+
 		table.insert(returnVal, toriPos)
 		table.insert(returnVal, ukePos)
 		table.insert(returnVal, p3Pos)
 		table.insert(returnVal, p4Pos)
-		
+
 		return returnVal
 	end
-	
+
 	function Gamerules:getRules()
 		local rulesList = {
 			{ name = "mod", title = "Mod name", type = GAMERULE_STRING, readonly = true },
-			{ name = "numplayers", title = "Num Players", type = GAMERULE_ENUM, 
+			{ name = "numplayers", title = "Num Players", type = GAMERULE_ENUM,
 				options = {
 					{ value = 1, title = "One Player" },
 					{ value = 2, title = "Two Players" },
@@ -233,7 +233,7 @@ do
 			},
 			{ name = "tearthreshold", title = "Tear Threshold", depends = {"grip", "grabmode"}, dependsAll = true, section = GAMERULES_SECTION_GRAB, type = GAMERULE_INT }
 		}
-		
+
 		local gameRules = {}
 		for i,v in pairs(rulesList) do
 			local gameRule = Gamerule:new(v)
@@ -271,7 +271,7 @@ do
 		end
 		return gameRules
 	end
-	
+
 	function Gamerules:showGamerule(v, listingHolder, elementHeight, listElements, sectionId, ruleId, changedValues, updateFunc, prevInput)
 		local xShift = (not in_array(sectionId, { GAMERULES_SECTION_DEFAULT, GAMERULES_SECTION_MISC}) and ruleId > 1) and 10 or 0
 		local grHolderMain = UIElement:new({
@@ -299,7 +299,7 @@ do
 			shapeType = ROUNDED,
 			rounded = 3
 		})
-		
+
 		local scrollTabFunc = function(input, prev)
 				local dir = prev and 1 or -1
 				local tempX, tempY = MOUSE_X, MOUSE_Y
@@ -320,7 +320,7 @@ do
 				end
 				MOUSE_X, MOUSE_Y = tempX, tempY
 			end
-		
+
 		if (v.type == GAMERULE_INT or v.type == GAMERULE_STRING) then
 			grName.size.w = listingHolder.size.w / 3 * 2 - 10
 			if (not v.readonly) then
@@ -386,7 +386,7 @@ do
 						updateFunc()
 					end
 				end)
-			
+
 			grToggle:addEnterAction(function()
 					GAMERULES_LAST_SELECTED_GAMERULE = v.name
 					grToggle.btnUp()
@@ -469,7 +469,7 @@ do
 				end
 				changedValues[v.name]:setValue(val)
 			end
-			
+
 			local slider = TBMenu:spawnSlider(grValueHolder, 0, 0, nil, nil, 30, 20, sliderValue, sliderSettings, updateFunc)
 		else
 			if (v.name == "gravity") then
@@ -523,11 +523,11 @@ do
 			elseif (v.name == "engageplayerpos" or v.name == "engageplayerrot") then
 				grHolder.size.h = elementHeight - grHolder.shift.y
 				grName.size.w = listingHolder.size.w - 10
-				
+
 				local num_players = changedValues["numplayers"] and changedValues["numplayers"].gameValue or get_gamerule("numplayers")
 				local engageInputs = {}
 				local playerNames = { "Tori", "Uke", "Nage", "P4" }
-				
+
 				for i = 1, num_players do
 					local grValueHolderNewlineHolder = UIElement:new({
 						parent = listingHolder,
@@ -564,7 +564,7 @@ do
 						counter = counter + 1
 					end
 				end
-				
+
 				for j,grInput in pairs(engageInputs) do
 					grInput:addTabAction(scrollTabFunc)
 					if (prevInput) then
@@ -592,12 +592,12 @@ do
 		grName:addAdaptedText(true, v.title, nil, nil, nil, LEFTMID, xShift > 0 and 0.75 or 0.9)
 		return prevInput
 	end
-	
+
 	function Gamerules:findRuleValue(ruleName, gamerules, changedValues)
 		if (changedValues[ruleName]) then
 			return (changedValues[ruleName].gameValue .. '') ~= changedValues[ruleName].null
 		end
-		
+
 		for i,section in pairs(gamerules) do
 			for j,rule in pairs(section) do
 				if (rule.name == ruleName) then
@@ -607,27 +607,27 @@ do
 		end
 		return nil
 	end
-	
+
 	function Gamerules:spawnMainList(listingHolder, toReload, gameRulesName, elementHeight, search, gamerules, changedValues)
 		-- We need these for collapsible sections
 		local lastListHeight = GAMERULES_LIST_SHIFT[2]
 		local lastListProgress = GAMERULES_LIST_SHIFT[1] > 0 and GAMERULES_LIST_SHIFT[1] / GAMERULES_LIST_SHIFT[3] or 0
 		local targetListShift = listingHolder.shift.y < 0 and -listingHolder.shift.y or listingHolder.size.h
 		targetListShift = targetListShift - listingHolder.size.h
-		
+
 		if (listingHolder.scrollBar) then
 			listingHolder.scrollBar:kill()
 		end
 		listingHolder:kill(true)
 		listingHolder:moveTo(nil, 0)
-		
+
 		local searchStr = search and search.textfieldstr[1] or ''
 		gameRulesName:addAdaptedText(true, TB_MENU_LOCALIZED.MAINMENUGAMERULESNAME .. ((search and searchStr ~= "") and (": \"" .. searchStr:sub(0, 16) .. (searchStr:len() > 16 and "..." or '') .. "\"") or ""), nil, nil, FONTS.BIG, nil, 0.6)
-		
+
 		local thisFunc = function()
 			Gamerules:spawnMainList(listingHolder, toReload, gameRulesName, elementHeight, search, gamerules, changedValues)
 		end
-		
+
 		local listElements = {}
 		local lastInput = nil
 		local switchTarget, switchNext = false, false
@@ -673,27 +673,27 @@ do
 			end
 		end
 		GAMERULES_LAST_SELECTED_GAMERULE = nil
-		
+
 		for i,v in pairs(listElements) do
 			v:hide()
 		end
-		
+
 		local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
 		listingHolder.scrollBar = scrollBar
-		
+
 		-- Set shift for collapsible sections
 		GAMERULES_LIST_SHIFT[2] = #listElements * elementHeight
 		targetListShift = targetListShift > GAMERULES_LIST_SHIFT[2] - listingHolder.size.h and GAMERULES_LIST_SHIFT[2] - listingHolder.size.h or targetListShift
 		GAMERULES_LIST_SHIFT[3] = scrollBar.parent.size.h - scrollBar.size.h
 		GAMERULES_LIST_SHIFT[1] = targetListShift / (GAMERULES_LIST_SHIFT[2] - listingHolder.size.h) * GAMERULES_LIST_SHIFT[3]
-		
+
 		scrollBar:makeScrollBar(listingHolder, listElements, toReload, GAMERULES_LIST_SHIFT)
 	end
-	
+
 	function Gamerules:showMain()
 		usage_event("gamerules")
 		local gamerules = Gamerules:getRules()
-		
+
 		local mainView = UIElement:new({
 			globalid = TB_MENU_HUB_GLOBALID,
 			pos = { GAMERULES_MENU_POS.x, GAMERULES_MENU_POS.y },
@@ -704,7 +704,7 @@ do
 		})
 		GAMERULES_MENU_MAIN_ELEMENT = mainView
 		GAMERULES_MENU_POS = mainView.pos
-		
+
 		local mainList = UIElement:new({
 			parent = mainView,
 			pos = { 0, 0 },
@@ -713,15 +713,15 @@ do
 			shapeType = mainView.shapeType,
 			rounded = mainView.rounded
 		})
-		
+
 		local elementHeight = 36
 		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(mainList, 80, 70, 15, TB_MENU_DEFAULT_BG_COLOR)
-		
+
 		topBar.shapeType = mainView.shapeType
-		topBar.rounded = mainView.rounded
+		topBar:setRounded(mainView.rounded)
 		botBar.shapeType = mainView.shapeType
-		botBar.rounded = mainView.rounded
-		
+		botBar:setRounded(mainView.rounded)
+
 		local mainMoverHolder = UIElement:new({
 			parent = topBar,
 			pos = { 0, 0 },
@@ -757,13 +757,13 @@ do
 					mainView:moveTo(x, y)
 				end
 			end)
-		
+
 		local gameRulesName = UIElement:new({
 			parent = topBar,
 			pos = { 10, mainMoverHolder.size.h + mainMoverHolder.shift.y },
 			size = { topBar.size.w - 20, topBar.size.h - mainMoverHolder.size.h - mainMoverHolder.shift.y * 2 }
 		})
-		
+
 		local changedValues = {}
 		add_hook("key_up", "tbGamerulesKeyboard", function(s) return(UIElement:handleKeyUp(s)) end)
 		add_hook("key_down", "tbGamerulesKeyboard", function(s) return(UIElement:handleKeyDown(s)) end)
@@ -780,7 +780,7 @@ do
 				Gamerules:spawnMainList(listingHolder, toReload, gameRulesName, elementHeight, search, gamerules, changedValues)
 			end)
 		Gamerules:spawnMainList(listingHolder, toReload, gameRulesName, elementHeight, nil, gamerules, changedValues)
-		
+
 		local grNewGameToggleView = UIElement:new({
 			parent = botBar,
 			pos = { 0, -35 },
@@ -793,7 +793,7 @@ do
 			size = { grNewGameToggleView.size.w - 10 - grNewGameToggleView.size.h, grNewGameToggleView.size.h }
 		})
 		grNewGameText:addAdaptedText(true, TB_MENU_LOCALIZED.GAMERULESRESTARTGAME, nil, nil, 4, LEFTMID, 0.7)
-		
+
 		local grNewGameButton = UIElement:new({
 			parent = botBar,
 			pos = { botBar.size.w / 2 + 5, -35 },
@@ -841,7 +841,7 @@ do
 					end
 				end
 			end)
-		
+
 		local quitButton = UIElement:new({
 			parent = mainMoverHolder,
 			pos = { -mainMoverHolder.size.h, 0 },

@@ -1,5 +1,6 @@
 -- DO NOT MODIFY THIS FILE
 -- Old UI friends interface
+
 TB_MENU_DEFAULT_BG_COLOR = { 0.67, 0.11, 0.11, 1 }
 TB_MENU_DEFAULT_DARKER_COLOR = { 0.607, 0.109, 0.109, 1 }
 
@@ -45,5 +46,4 @@ TBMenu:showFriendsList()
 
 add_hook("key_up", "tbMenuKeyboardHandler", function(s) UIElement:handleKeyUp(s) if (FRIENDSLIST_OPEN) then return 1 end end)
 add_hook("key_down", "tbMenuKeyboardHandler", function(s) UIElement:handleKeyDown(s) if (FRIENDSLIST_OPEN) then return 1 end end)
-UIElement:mouseHooks()
 add_hook("draw2d", "tbMainMenuVisual", function() UIElement:drawVisuals(1100) end)

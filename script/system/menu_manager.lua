@@ -9,7 +9,7 @@ do
 
 	function TBMenu:create()
 		TB_MENU_MAIN_ISOPEN = 1
-		set_build_version("220610")
+		set_build_version("220614")
 	end
 
 	function TBMenu:setLanguageFontOptions(language)
@@ -33,6 +33,7 @@ do
 		local inverse = (language == "arabic" or language == "hebrew") and true
 		TBMenu:setLanguageFontOptions(language)
 		if (type(TB_MENU_LOCALIZED) ~= "table" or TB_MENU_LOCALIZED.language ~= language or TB_MENU_DEBUG) then
+			---@type string[]
 			TB_MENU_LOCALIZED = {}
 			TB_MENU_LOCALIZED.language = language
 		else
@@ -600,6 +601,19 @@ do
 		end
 	end
 
+	---Prepares all UIElements to make a scrollable list within a specified UIElement viewport
+	---@param viewElement UIElement
+	---@param firstBarSize number Dimensions of the first bar (top bar height for SCROLL_VERTICAL orientation, left bar width for SCROLL_HORIZONTAL)
+	---@param secondBarSize number Dimensions of the second bar (bottom bar height for SCROLL_VERTICAL orientation, right bar width for SCROLL_HORIZONTAL)
+	---@param scrollSize number Scroll bar dimensions
+	---@param accentColor Color Background color for all bars
+	---@param orientation UIElementScrollMode Orientation for the scrollable list. Supported values are SCROLL_VERTICAL or SCROLL_HORIZONTAL.
+	---@return UIElement toReload Object that will be always displayed on top of all list objects. All bars are parented to it.
+	---@return UIElement firstBar
+	---@return UIElement secondBar
+	---@return UIElement listingView
+	---@return UIElement listingHolder Object that will move when interacting with the list. Assign all list elements as its children.
+	---@return UIElement scrollBackground
 	function TBMenu:prepareScrollableList(viewElement, firstBarSize, secondBarSize, scrollSize, accentColor, orientation)
 		local firstBarSize = firstBarSize or 50
 		local secondBarSize = secondBarSize or firstBarSize
@@ -777,9 +791,21 @@ do
 			interactive = true,
 			bgColor = { 0, 0, 0, 0.4 }
 		})
+		for i,v in pairs(tbMenuUserBar.headDisplayObjects) do
+			v.bgColor[1] = v.bgColor[1] - 0.4
+			v.bgColor[2] = v.bgColor[2] - 0.4
+			v.bgColor[3] = v.bgColor[3] - 0.4
+		end
+
 		overlay.killAction = function()
 			UIScrollbarIgnore = false
 			TB_MENU_POPUPS_DISABLED = false
+
+			for i,v in pairs(tbMenuUserBar.headDisplayObjects) do
+				v.bgColor[1] = v.bgColor[1] + 0.4
+				v.bgColor[2] = v.bgColor[2] + 0.4
+				v.bgColor[3] = v.bgColor[3] + 0.4
+			end
 		end
 		if (withMouseHandler) then
 			overlay:addMouseHandlers(nil, function()
@@ -1737,6 +1763,8 @@ do
 			pos = {-tbMenuTopBarWidth, 0},
 			size = {tbMenuTopBarWidth, 100}
 		})
+		tbMenuUserBar.headDisplayObjects = {}
+
 		local tbMenuUserBarBottomSplat2 = UIElement:new( {
 			parent = tbMenuUserBar,
 			pos = {-tbMenuTopBarWidth, 0},
@@ -1795,6 +1823,7 @@ do
 			bgColor = { color.r, color.g, color.b, 1 },
 			effects = TB_MENU_PLAYER_INFO.items.effects.force
 		})
+		table.insert(tbMenuUserBar.headDisplayObjects, headAvatarNeck)
 		local headTexture = { "../../custom/tori/head.tga", "../../custom/tori/head.tga" }
 		if (TB_MENU_PLAYER_INFO.items.textures.head.equipped) then
 			headTexture[1] = "../../custom/" .. TB_MENU_PLAYER_INFO.username .. "/head.tga"
@@ -1811,6 +1840,7 @@ do
 			viewport = true,
 			effects = TB_MENU_PLAYER_INFO.items.effects.head
 		})
+		table.insert(tbMenuUserBar.headDisplayObjects, headAvatarHead)
 		if (TB_MENU_PLAYER_INFO.items.objs.head.equipped) then
 			local objScale = TB_MENU_PLAYER_INFO.items.objs.head.dynamic and 2 or 10
 			if (TB_MENU_PLAYER_INFO.items.objs.head.partless and headAvatarHead) then
@@ -1829,6 +1859,7 @@ do
 				bgColor = { modelColor.r, modelColor.g, modelColor.b, modelColor.a },
 				viewport = true
 			})
+			table.insert(tbMenuUserBar.headDisplayObjects, headObjModel)
 		end
 		local tbMenuUserName = UIElement:new( {
 			parent = tbMenuUserBar,
@@ -2057,6 +2088,21 @@ do
 		end
 	end
 
+	-- TBMenu navigation button data
+	---@class MenuNavButton
+	---@field text string Main button text
+	---@field misctext string Miscellaneous button text, will be displayed in a frame nearby
+	---@field width number Button width assigned by showNavigationBar()
+	---@field action function Function that will be executed when button is pressed
+	---@field right boolean If true, button will be displayed on the right side of the navigation bar
+	---@field sectionId number Menu section id that will be assigned to TB_LAST_MENU_SCREEN_OPEN on button click
+
+	-- Displays navigation bar using the provided data
+	---@param buttonsData MenuNavButton[]|nil Buttons data. If nil, default main menu navigation buttons data will be used instead.
+	---@param customNav? boolean Whether the provided data is not supposed to use TB_LAST_MENU_SCREEN_OPEN to mark the currently active button. *You likely want this set to true*.
+	---@param customNavHighlight? boolean Whether to remember the last selected button and keep it marked as active
+	---@param selectedId? integer Button ID that would be selected by default
+	---@return nil
 	function TBMenu:showNavigationBar(buttonsData, customNav, customNavHighlight, selectedId)
 		local tbMenuNavigationButtonsData = buttonsData or TBMenu:getMainNavigationButtons()
 		local tbMenuNavigationButtons = {}
@@ -2356,7 +2402,6 @@ do
 	end
 
 	function TBMenu:showMain(noload)
-		local mainBgColor = nil
 		tbMenuMain = UIElement:new( {
 			globalid = TB_MENU_MAIN_GLOBALID,
 			pos = { 0, 0 },
@@ -2759,9 +2804,13 @@ do
 		return scrollBar
 	end
 
-	-- Draws quarter disks that cover element's corners for a fake rounded effect
-	-- Designed to use with images on single color backgrounds
-	-- To make regular UIElements rounded, use shapeType and rounded params
+	-- Draws quarter disks that cover element's corners for a fake rounded effect. Designed to use with images on single color backgrounds.
+	--
+	-- *To make regular UIElements rounded, use shapeType and rounded UIElementOptions parameters.*
+	---@param e UIElement UIElement object that we'll be applying the effect to
+	---@param color Color
+	---@param rounding number
+	---@return nil
 	function TBMenu:addOuterRounding(e, color, rounding)
 		if (UIMODE_LIGHT) then return end
 
@@ -2780,14 +2829,8 @@ do
 
 	function TBMenu:generatePaginationData(totalPages, maxPages, currentPage)
 		local pagesButtonsPre, pagesButtons = {}, {}
-
-		local showPrev, showNext
 		local pagesNavArr = { 10, 50, 100, 500 }
 
-		local page = 0
-		local navPages = math.floor(maxPages / 2)
-
-		-- Potentially slower but produces better results
 		table.insert(pagesButtonsPre, { v = 1 })
 		if (totalPages > 1) then
 			table.insert(pagesButtonsPre, { v = totalPages })
@@ -2859,35 +2902,6 @@ do
 		for i,v in pairs(sorted) do
 			table.insert(pagesButtons, v.v)
 		end
-
-
-		-- Basically what we use for pagination on forums
-		-- Quicker but may not be looking nice - I'm not sure how to properly limit number of buttons
-		--[[while (page < totalPages) do
-			page = page + 1
-
-			local added = false
-			if (math.abs(page - currentPage) >= navPages) then
-				if (page == 1 or page == totalPages) then
-					table.insert(pagesButtons, page)
-					added = true
-				elseif(in_array(math.abs(page - currentPage), pagesNavArr)) then
-					table.insert(pagesButtons, page)
-					added = true
-				end
-			else
-				table.insert(pagesButtons, page)
-				added = true
-			end
-
-			if (not added) then
-				if (currentPage > 1 and page == currentPage - 1) then
-					table.insert(pagesButtons, page)
-				elseif (currentPage < totalPages and page == currentPage + 1) then
-					table.insert(pagesButtons, page)
-				end
-			end
-		end]]
 
 		return pagesButtons
 	end

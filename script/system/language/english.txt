@@ -1,743 +1,743 @@
 # New UI Localization file
-NAVBUTTONHOME	Home	
-NAVBUTTONPLAY	Play	
-NAVBUTTONPRACTICE	Tutorials	
-NAVBUTTONMODS	Mods	
-NAVBUTTONTOOLS	Tools	
-NAVBUTTONTOMAIN	To Main	
-NAVBUTTONBACK	Back	
-NAVBUTTONEXIT	Exit	
-NAVBUTTONLOGINREWARDS	Login Rewards	
-NAVBUTTONQUESTS	Quests	
-MAINMENUUSERCLAN	Clan	
-MAINMENUTORISHOPNAME	Torishop	
-MAINMENUTORISHOPDESC	Try out and purchase items for your Tori	
-MAINMENUCLANSNAME	Clans	
-MAINMENUCLANSDESC	Explore Toribash clans	
-MAINMENUREPLAYSNAME	Replays	
-MAINMENUREPLAYSDESC	Watch your downloaded replays	
-MAINMENUFREEPLAYNAME	Free Play	
-MAINMENUFREEPLAYDESC	Practice your skills or make replays in Single Player mode	
-MAINMENURANKEDNAME	Ranked	
-MAINMENURANKEDDESC	Find a quick ranked duel in matchmaking mode	
-MAINMENUMATCHMAKINGNAME	Matchmaking	
-MAINMENUMATCHMAKINGDESC	Quick way to get placed in one-on-one fights	
-MAINMENUROOMLISTNAME	Multiplayer	
-MAINMENUROOMLISTDESC	Create your own online room or join any of the existing ones	
-MAINMENUBEGINNERTUTNAME	Beginner Tutorial	
-MAINMENUBEGINNERTUTDESC	Learn Toribash basics: controls, gameplay and more	
-MAINMENUADVMOVESNAME	Advanced Moves	
-MAINMENUADVMOVESDESC	Discover advanced moves to use in multiplayer	
-MAINMENUFIGHTUKENAME	Fight Uke	
-MAINMENUFIGHTUKEDESC	Put your skills against Tori's ultimate foe	
-MAINMENUCOMEBACKNAME	Comeback Practice	
-MAINMENUCOMEBACKDESC	Keep catching Uke without getting disqualified	
-MAINMENUGAMERULESNAME	Game Rules	
-MAINMENUGAMERULESDESC	Customize gravity and other mod settings	
-MAINMENUMODLISTNAME	Mod List	
-MAINMENUMODLISTDESC	Load one of the downloaded mods	
-MAINMENUMODMAKERNAME	Modmaker	
-MAINMENUMODMAKERDESC	Create your own mod for Toribash	
-MAINMENUMODSDISCOVERNAME	Discover	
-MAINMENUMODSDISCOVERDESC	Search for new mods created by other players	
-MAINMENUSHADERSNAME	Shaders & Atmos	
-MAINMENUSHADERSDESC	Customize lighting and Toribash environment	
-MAINMENUSCRIPTSNAME	Scripts	
-MAINMENUSCRIPTSDESC	Load pre-installed or third-party scripts for Toribash	
-MAINMENUSOUNDSNAME	Sounds	
-MAINMENUSOUNDSDESC	Toggle custom sounds on/off	
-MAINMENUHOTKEYSNAME	Hotkeys	
-MAINMENUHOTKEYSDESC	See the list of Toribash hotkeys	
-MAINMENUSIGNINERROR	You need to log in to be able to	
-DOWNLOADINGFILESWAIT	Downloading files, please wait...	
-STORESETEMPTY	EMPTY	marks an empty set	
-STOREITEM	item	used to display that there's only 1 item in a set	
-STOREITEMS	items	used to display number of items in a set	
-STOREFLAMEBODYPART	Particle flame for your	
-STOREFLAMEID	Flame ID	
-STOREFLAMEFORGEDBY	Forged by	
-STOREITEMINSIDESET	Inside set	
-STOREOBJITEMBODYPART	3D model for	
-STOREITEMNODESCRIPTION	This item has no description	
-STOREITEMGOTOSET	Go to set	
-STORESETITEMNAME	Set	
-STOREITEMADDTOSET	Add to set	
-STOREITEMREMOVEFROMSET	Remove from set	
-STORESETSELECTIONCONTROLS	Selection controls	
-STORESETSELECT	Pick the set	
-STOREVIEWSETITEMS	View set items	
-STOREITEMSINSET	Items inside set	
-STORESELLMARKET	Sell in market	
-STOREDIALOGMARKETSELL1	Are you sure you want to put	
-STOREDIALOGMARKETSELL2	in market?	
-STOREDIALOGMARKETSELLFOR	in market for	
-STOREITEMDEACTIVATE	Deactivate	
-STOREDIALOGDEACTIVATE1	Are you sure you want to deactivate	
-STOREDIALOGDEACTIVATE2	 	
-STOREITEMACTIVATE	Activate	
-STOREDIALOGACTIVATE1	Are you sure you want to activate	
-STOREDIALOGACTIVATE2	 	
-STOREDIALOGCONFLICTSDEACTIVATE	Any conflicting items will be deactivated.	
+NAVBUTTONHOME	Home
+NAVBUTTONPLAY	Play
+NAVBUTTONPRACTICE	Tutorials
+NAVBUTTONMODS	Mods
+NAVBUTTONTOOLS	Tools
+NAVBUTTONTOMAIN	To Main
+NAVBUTTONBACK	Back
+NAVBUTTONEXIT	Exit
+NAVBUTTONLOGINREWARDS	Login Rewards
+NAVBUTTONQUESTS	Quests
+MAINMENUUSERCLAN	Clan
+MAINMENUTORISHOPNAME	Torishop
+MAINMENUTORISHOPDESC	Try out and purchase items for your Tori
+MAINMENUCLANSNAME	Clans
+MAINMENUCLANSDESC	Explore Toribash clans
+MAINMENUREPLAYSNAME	Replays
+MAINMENUREPLAYSDESC	Watch your downloaded replays
+MAINMENUFREEPLAYNAME	Free Play
+MAINMENUFREEPLAYDESC	Practice your skills or make replays in Single Player mode
+MAINMENURANKEDNAME	Ranked
+MAINMENURANKEDDESC	Find a quick ranked duel in matchmaking mode
+MAINMENUMATCHMAKINGNAME	Matchmaking
+MAINMENUMATCHMAKINGDESC	Quick way to get placed in one-on-one fights
+MAINMENUROOMLISTNAME	Multiplayer
+MAINMENUROOMLISTDESC	Create your own online room or join any of the existing ones
+MAINMENUBEGINNERTUTNAME	Beginner Tutorial
+MAINMENUBEGINNERTUTDESC	Learn Toribash basics: controls, gameplay and more
+MAINMENUADVMOVESNAME	Advanced Moves
+MAINMENUADVMOVESDESC	Discover advanced moves to use in multiplayer
+MAINMENUFIGHTUKENAME	Fight Uke
+MAINMENUFIGHTUKEDESC	Put your skills against Tori's ultimate foe
+MAINMENUCOMEBACKNAME	Comeback Practice
+MAINMENUCOMEBACKDESC	Keep catching Uke without getting disqualified
+MAINMENUGAMERULESNAME	Game Rules
+MAINMENUGAMERULESDESC	Customize gravity and other mod settings
+MAINMENUMODLISTNAME	Mod List
+MAINMENUMODLISTDESC	Load one of the downloaded mods
+MAINMENUMODMAKERNAME	Modmaker
+MAINMENUMODMAKERDESC	Create your own mod for Toribash
+MAINMENUMODSDISCOVERNAME	Discover
+MAINMENUMODSDISCOVERDESC	Search for new mods created by other players
+MAINMENUSHADERSNAME	Shaders & Atmos
+MAINMENUSHADERSDESC	Customize lighting and Toribash environment
+MAINMENUSCRIPTSNAME	Scripts
+MAINMENUSCRIPTSDESC	Load pre-installed or third-party scripts for Toribash
+MAINMENUSOUNDSNAME	Sounds
+MAINMENUSOUNDSDESC	Toggle custom sounds on/off
+MAINMENUHOTKEYSNAME	Hotkeys
+MAINMENUHOTKEYSDESC	See the list of Toribash hotkeys
+MAINMENUSIGNINERROR	You need to log in to be able to
+DOWNLOADINGFILESWAIT	Downloading files, please wait...
+STORESETEMPTY	EMPTY	marks an empty set
+STOREITEM	item	used to display that there's only 1 item in a set
+STOREITEMS	items	used to display number of items in a set
+STOREFLAMEBODYPART	Particle flame for your
+STOREFLAMEID	Flame ID
+STOREFLAMEFORGEDBY	Forged by
+STOREITEMINSIDESET	Inside set
+STOREOBJITEMBODYPART	3D model for
+STOREITEMNODESCRIPTION	This item has no description
+STOREITEMGOTOSET	Go to set
+STORESETITEMNAME	Set
+STOREITEMADDTOSET	Add to set
+STOREITEMREMOVEFROMSET	Remove from set
+STORESETSELECTIONCONTROLS	Selection controls
+STORESETSELECT	Pick the set
+STOREVIEWSETITEMS	View set items
+STOREITEMSINSET	Items inside set
+STORESELLMARKET	Sell in market
+STOREDIALOGMARKETSELL1	Are you sure you want to put
+STOREDIALOGMARKETSELL2	in market?
+STOREDIALOGMARKETSELLFOR	in market for
+STOREITEMDEACTIVATE	Deactivate
+STOREDIALOGDEACTIVATE1	Are you sure you want to deactivate
+STOREDIALOGDEACTIVATE2
+STOREITEMACTIVATE	Activate
+STOREDIALOGACTIVATE1	Are you sure you want to activate
+STOREDIALOGACTIVATE2
+STOREDIALOGCONFLICTSDEACTIVATE	Any conflicting items will be deactivated.
 STOREDIALOGITEMCONFLICTDEACTIVATE	conflicts with this item and will be deactivated.
-STOREITEMUNPACK	Unpack	
-STOREDIALOGUNPACK1	Are you sure you want to unpack	
-STOREDIALOGUNPACK2	 	
-STOREDIALOGUNPACKINFO	Unpacked items will be put in a set\nand placed in your deactivated inventory.	
-STOREBUTTONCANCEL	Cancel	
-STOREDIALOGADDTOSET1	Are you sure you want to add	
-STOREDIALOGADDTOSET2	to a set	
-STOREDIALOGREMOVEFROMSET1	Are you sure you want to remove	
-STOREDIALOGREMOVEFROMSET2	from a set	
-STOREACTIVATEDINVENTORY	Activated Inventory	
-STOREDEACTIVATEDINVENTORY	Deactivated Inventory	
-STOREMARKETINVENTORY	Market Inventory	
-STOREINVENTORYALLITEMS	All inventory items	
-PAGINATIONPAGE	Page	
-PAGINATIONPAGEOF	of	
-STOREINVENTORYLOADING	Loading data from Toriverse	
-STOREDATALOADERROR	Error opening Torishop data, please wait until it's updated or check Toribash folder permissions.	
-STOREGOTOSHOP	Open Torishop	
-STORESHOPDESC	Purchase new items for your Tori	
-STOREGOTOINVENTORY	Open Inventory	
-STOREPURCHASETORICREDITS	Purchase Toricredits	
-STOREINVENTORYDESC	Customize your character with purchased items	
-STORESTEAMPURCHASELOADING	Loading	
-STORESTEAMPURCHASEERROR	Something went wrong	
-CLANSMYCLAN	My Clan	
-CLANSCLANLEADER	Clan leader	
-CLANSCLANMEMBER	Clan member	
-CLANSTOGETHERWITH	Together with	
-CLANSVIEWCLAN	View Clan	
-GENERALSTRINGAND	and	
-CLANFILTERSRANK	Rank	
-CLANFILTERSCLANNAME	Name	
-CLANFILTERSCLANTAG	Tag	
-CLANFILTERSCLANID	ID	
-CLANFILTERSOFFICIALSTATUS	Status	
-CLANFILTERSJOINMODE	Join Mode	
-CLANFILTERSDEAD	Dead	
-CLANFILTERSINACTIVE	Inactive	
-CLANFILTERSACTIVE	Active	
-SORTORDERASCENDING	Ascending	
-SORTORDERDESCENDING	Descending	
-CLANFILTERSACTIVITYSTATE	Activity Status	
-CLANFILTERSACTIVITYSTATEDESC	Clans are considered to be active when they have at least 5 members. Clans with no members are marked as dead.	
-CLANFILTERSFFAONLY	Only free for all clans	
-CLANFILTERSFFAONLYDESC	You can join free for all clans any time with one button click. For invite only clans, a custom application process is required.	
-CLANFILTERSOFFICIALONLY	Only official clans	
-CLANFILTERSOFFICIALONLYDESC	Official clans have their own board on Toribash forums and have square tag brackets in game.	
-SORTBYNAME	Sort by	
-SORTORDERNAME	Sort order	
-CLANSSEARCHFILTERS	Search Filters	
-CLANSSEARCH	Search clans	
-CLANSCLANLIST	Clan List	
-CLANSLEGENDRANK	Rank	
-CLANSLEGENDLEVEL	Level	
-CLANSLEGENDXP	XP	
-CLANSLEGENDTAGNAME	Tag and name	
-CLANSLEGENDSTATUS	Status	
-CLANSLEGENDJOINMODE	Join Mode	
-CLANSTATEOFFICIAL	Official	
-CLANSTATEUNOFFICIAL	Unofficial	
-CLANSTATEFREEFORALL	Free for all	
-CLANSTATEINVITEONLY	Invite Only	
-CLANSLISTEMPTYMSG	No clans to display	
-CLANSJOINCLAN	Join clan	
-CLANSRELOADLOGO	Reload logo	
-CLANSUPDATINGLOGO	Updating	
-CLANSTATEUNRANKED	Unranked	
-CLANSVIEWWARSFORUM	View wars on forum	
-CLANSTOPACHMISSING	This clan hasn't chosen an achievement to display	
-CLANSLEGENDROSTER	Roster	
-CLANSMEMBERSEMPTY	This clan has no members	
-CLANSPLAYERCLANLESS	You are currently clanless	
-CLANSPLAYERCLANLESSINFOMSG	You can join an existing clan from the list or create a new one	
-CLANSCREATENEWCLAN	Create new clan	
-CLANLEADERS	Leaders	
-CLANLEADER	Leader	
-CLANMEMBERS	Members	
-CLANMEMBER	Member	
-CLANDATALOADERROR	Error loading clan data, please wait until downloads have finished or check Toribash folder permissions	
-REWARDSDAILYTITLE	Daily Login Reward	
-REWARDSCLAIM	Claim Reward	
-REWARDSCLAIMNETWORKERROR	Error communicating with Toribash servers, please try again later	
-REWARDSCLAIMINPROGRESS	Claiming Reward	
-REWARDSCLAIMSUCCESS	Reward Claimed	
-REWARDSCLAIMNOREWARD	No reward available, try again later	
-REWARDSCLAIMTIMEOUT	Timeout error, restart the game or go online	
-REWARDSCLAIMERROROTHER	Error claiming reward	
-REWARDSNOAVAILABLE	No reward available	
-REWARDSAVAILABLERESTART	Reward will be available on next game launch	
-REWARDSEXPIRED	Your reward expired! :(	
-REWARDSTIMEWEEKS	weeks	
-REWARDSTIMEWEEK	week	
-REWARDSTIMEDAYS	days	
-REWARDSTIMEDAY	day	
-REWARDSTIMEHOURS	hours	
-REWARDSTIMEHOUR	hour	
-REWARDSTIMEMINUTES	minutes	
-REWARDSTIMEMINUTE	minute	
-REWARDSTIMESECONDS	seconds	
-REWARDSNEXTREWARD	Next reward in	
-REWARDSTIMELEFT	left to claim reward	
-MATCHMAKEMODGRAPPLING	Grappling	
-MATCHMAKEMODKICKING	Kicking	
-MATCHMAKEMODSTRIKING	Striking	
-MATCHMAKEMODFUN	Fun	
-MATCHMAKERANKEDBELT	Ranked play is available with Brown Belt	
-MATCHMAKERANKEDMODE	Ranked Mode	
-MATCHMAKERANK	Rank	
-MATCHMAKEELO	elo	
-MATCHMAKEFIGHTSTOTAL	fights total	
-MATCHMAKEWINRATE	win rate	
-MATCHMAKENOPLAYERS	No players currently matchmaking	
-MATCHMAKEPLAYERSEARCHING	player matchmaking	
-MATCHMAKEPLAYERSSEARCHING	players matchmaking	
-MATCHMAKESEARCHING	Searching for a match	
-MATCHMAKESEARCH	Search	
-MATCHMAKESTOPSEARCH	Stop searching	
-MATCHMAKEUNRANKEDMODE	Casual Play	
-MATCHMAKEFINDBESTMATCH1	Find	
-MATCHMAKEFINDBESTMATCH2	best match	
-MATCHMAKESEARCHSETTINGS1	Search	
-MATCHMAKESEARCHSETTINGS2	with settings	
-MATCHMAKESEARCHCUSTOM	custom	
-MATCHMAKEUPDATINGRANK	Updating Ranking Stats...	
-MATCHMAKEQUALIFYING	Qualifying	
-MATCHMAKERANKUNAVAILABLE	Rank Unavailable	
-MATCHMAKEUPDATINGTRENDS	Updating your ranking trends...	
-MATCHMAKEGLOBALRANK	Global Rank	
-MATCHMAKEGLOBALRANKING	Global Ranking	
-MATCHMAKEQUALIFICATIONINFO	You need to play 10 ranked fights within a season to qualify for a rank	
-MATCHMAKEGOLDTIERREQUIREDFORRANKDISPLAY	Only Gold Tier+ ranked players can view their rank	
-MATCHMAKEBESTRANKEDMODS	Best mods	
-MATCHMAKERANKEDMODSEMPTY	No mods to display	
-MATCHMAKERANKEDTOPEMPTY	No players to display... yet	
-MATCHMAKEWINLOSE	W/L	
-MATCHMAKERANKINGTRENDS	Your global ranking trends	
-MATCHMAKEMOREGAMESREQUIREDFORTRENDS	Play more ranked games to view your elo trends	
-MATCHMAKETOPRANKEDPLAYERS	Top ranked players	
-MATCHMAKESEASONABOUT	About	
-MATCHMAKEWINSTONEXTTIER	wins to next tier	
-MATCHMAKEELOGAININFO	You receive different amount of elo for winning games depending on your opponent's rank	
-FRIENDSLISTTITLE	Friends List	
-FRIENDSLISTJOINROOM	Join room	
-FRIENDSLISTLEGENDPLAYER	PLAYER	
-FRIENDSLISTLEGENDROOM	ROOM	
-FRIENDSLISTREFRESH	Refresh	
-FRIENDSLISTADDFRIEND	Add new friend	
-FRIENDSLISTEMPTY	Friends List Empty	
-FRIENDSLISTEMPTYINFO	Add other players or whole clans to your friends list to know when they're online!	
-FRIENDSLISTSEARCHDEFAULT	Type a name or clan tag in brackets	
-BUTTONSAVE	Save	
-BUTTONDISCARD	Discard	
-BUTTONCANCEL	Cancel	
-BUTTONCONTINUE	Continue	
-BUTTONCONTINUENOSAVE	Exit without saving	
-BUTTONADD	Add	
-BUTTONCREATE	Create	
-BUTTONUPLOAD	Upload	
-BUTTONVIEW	View	
-BUTTONSEARCH	Search	
-BUTTONSUBMIT	Submit	
-WORDTOTAL	total	
-WORDTURN	turn	
-WORDGAMES	games	
-WORDFIGHTS	fights	
-WORDTIMES	times	
-WORDIN	in	
-WORDTC	TC	
-WORDST	ST	
-WORDDONE	done	
-WORDVS	vs	
-WORDNONE	none	
-WORDOPTIONAL	optional	
-CHATCENSOREDMESSAGE	Your message contains a banned word and will be censored for other players.	
+STOREITEMUNPACK	Unpack
+STOREDIALOGUNPACK1	Are you sure you want to unpack
+STOREDIALOGUNPACK2
+STOREDIALOGUNPACKINFO	Unpacked items will be put in a set\nand placed in your deactivated inventory.
+STOREBUTTONCANCEL	Cancel
+STOREDIALOGADDTOSET1	Are you sure you want to add
+STOREDIALOGADDTOSET2	to a set
+STOREDIALOGREMOVEFROMSET1	Are you sure you want to remove
+STOREDIALOGREMOVEFROMSET2	from a set
+STOREACTIVATEDINVENTORY	Activated Inventory
+STOREDEACTIVATEDINVENTORY	Deactivated Inventory
+STOREMARKETINVENTORY	Market Inventory
+STOREINVENTORYALLITEMS	All inventory items
+PAGINATIONPAGE	Page
+PAGINATIONPAGEOF	of
+STOREINVENTORYLOADING	Loading data from Toriverse
+STOREDATALOADERROR	Error opening Torishop data, please wait until it's updated or check Toribash folder permissions.
+STOREGOTOSHOP	Open Torishop
+STORESHOPDESC	Purchase new items for your Tori
+STOREGOTOINVENTORY	Open Inventory
+STOREPURCHASETORICREDITS	Purchase Toricredits
+STOREINVENTORYDESC	Customize your character with purchased items
+STORESTEAMPURCHASELOADING	Loading
+STORESTEAMPURCHASEERROR	Something went wrong
+CLANSMYCLAN	My Clan
+CLANSCLANLEADER	Clan leader
+CLANSCLANMEMBER	Clan member
+CLANSTOGETHERWITH	Together with
+CLANSVIEWCLAN	View Clan
+GENERALSTRINGAND	and
+CLANFILTERSRANK	Rank
+CLANFILTERSCLANNAME	Name
+CLANFILTERSCLANTAG	Tag
+CLANFILTERSCLANID	ID
+CLANFILTERSOFFICIALSTATUS	Status
+CLANFILTERSJOINMODE	Join Mode
+CLANFILTERSDEAD	Dead
+CLANFILTERSINACTIVE	Inactive
+CLANFILTERSACTIVE	Active
+SORTORDERASCENDING	Ascending
+SORTORDERDESCENDING	Descending
+CLANFILTERSACTIVITYSTATE	Activity Status
+CLANFILTERSACTIVITYSTATEDESC	Clans are considered to be active when they have at least 5 members. Clans with no members are marked as dead.
+CLANFILTERSFFAONLY	Only free for all clans
+CLANFILTERSFFAONLYDESC	You can join free for all clans any time with one button click. For invite only clans, a custom application process is required.
+CLANFILTERSOFFICIALONLY	Only official clans
+CLANFILTERSOFFICIALONLYDESC	Official clans have their own board on Toribash forums and have square tag brackets in game.
+SORTBYNAME	Sort by
+SORTORDERNAME	Sort order
+CLANSSEARCHFILTERS	Search Filters
+CLANSSEARCH	Search clans
+CLANSCLANLIST	Clan List
+CLANSLEGENDRANK	Rank
+CLANSLEGENDLEVEL	Level
+CLANSLEGENDXP	XP
+CLANSLEGENDTAGNAME	Tag and name
+CLANSLEGENDSTATUS	Status
+CLANSLEGENDJOINMODE	Join Mode
+CLANSTATEOFFICIAL	Official
+CLANSTATEUNOFFICIAL	Unofficial
+CLANSTATEFREEFORALL	Free for all
+CLANSTATEINVITEONLY	Invite Only
+CLANSLISTEMPTYMSG	No clans to display
+CLANSJOINCLAN	Join clan
+CLANSRELOADLOGO	Reload logo
+CLANSUPDATINGLOGO	Updating
+CLANSTATEUNRANKED	Unranked
+CLANSVIEWWARSFORUM	View wars on forum
+CLANSTOPACHMISSING	This clan hasn't chosen an achievement to display
+CLANSLEGENDROSTER	Roster
+CLANSMEMBERSEMPTY	This clan has no members
+CLANSPLAYERCLANLESS	You are currently clanless
+CLANSPLAYERCLANLESSINFOMSG	You can join an existing clan from the list or create a new one
+CLANSCREATENEWCLAN	Create new clan
+CLANLEADERS	Leaders
+CLANLEADER	Leader
+CLANMEMBERS	Members
+CLANMEMBER	Member
+CLANDATALOADERROR	Error loading clan data, please wait until downloads have finished or check Toribash folder permissions
+REWARDSDAILYTITLE	Daily Login Reward
+REWARDSCLAIM	Claim Reward
+REWARDSCLAIMNETWORKERROR	Error communicating with Toribash servers, please try again later
+REWARDSCLAIMINPROGRESS	Claiming Reward
+REWARDSCLAIMSUCCESS	Reward Claimed
+REWARDSCLAIMNOREWARD	No reward available, try again later
+REWARDSCLAIMTIMEOUT	Timeout error, restart the game or go online
+REWARDSCLAIMERROROTHER	Error claiming reward
+REWARDSNOAVAILABLE	No reward available
+REWARDSAVAILABLERESTART	Reward will be available on next game launch
+REWARDSEXPIRED	Your reward expired! :(
+REWARDSTIMEWEEKS	weeks
+REWARDSTIMEWEEK	week
+REWARDSTIMEDAYS	days
+REWARDSTIMEDAY	day
+REWARDSTIMEHOURS	hours
+REWARDSTIMEHOUR	hour
+REWARDSTIMEMINUTES	minutes
+REWARDSTIMEMINUTE	minute
+REWARDSTIMESECONDS	seconds
+REWARDSNEXTREWARD	Next reward in
+REWARDSTIMELEFT	left to claim reward
+MATCHMAKEMODGRAPPLING	Grappling
+MATCHMAKEMODKICKING	Kicking
+MATCHMAKEMODSTRIKING	Striking
+MATCHMAKEMODFUN	Fun
+MATCHMAKERANKEDBELT	Ranked play is available with Brown Belt
+MATCHMAKERANKEDMODE	Ranked Mode
+MATCHMAKERANK	Rank
+MATCHMAKEELO	elo
+MATCHMAKEFIGHTSTOTAL	fights total
+MATCHMAKEWINRATE	win rate
+MATCHMAKENOPLAYERS	No players currently matchmaking
+MATCHMAKEPLAYERSEARCHING	player matchmaking
+MATCHMAKEPLAYERSSEARCHING	players matchmaking
+MATCHMAKESEARCHING	Searching for a match
+MATCHMAKESEARCH	Search
+MATCHMAKESTOPSEARCH	Stop searching
+MATCHMAKEUNRANKEDMODE	Casual Play
+MATCHMAKEFINDBESTMATCH1	Find
+MATCHMAKEFINDBESTMATCH2	best match
+MATCHMAKESEARCHSETTINGS1	Search
+MATCHMAKESEARCHSETTINGS2	with settings
+MATCHMAKESEARCHCUSTOM	custom
+MATCHMAKEUPDATINGRANK	Updating Ranking Stats...
+MATCHMAKEQUALIFYING	Qualifying
+MATCHMAKERANKUNAVAILABLE	Rank Unavailable
+MATCHMAKEUPDATINGTRENDS	Updating your ranking trends...
+MATCHMAKEGLOBALRANK	Global Rank
+MATCHMAKEGLOBALRANKING	Global Ranking
+MATCHMAKEQUALIFICATIONINFO	You need to play 10 ranked fights within a season to qualify for a rank
+MATCHMAKEGOLDTIERREQUIREDFORRANKDISPLAY	Only Gold Tier+ ranked players can view their rank
+MATCHMAKEBESTRANKEDMODS	Best mods
+MATCHMAKERANKEDMODSEMPTY	No mods to display
+MATCHMAKERANKEDTOPEMPTY	No players to display... yet
+MATCHMAKEWINLOSE	W/L
+MATCHMAKERANKINGTRENDS	Your global ranking trends
+MATCHMAKEMOREGAMESREQUIREDFORTRENDS	Play more ranked games to view your elo trends
+MATCHMAKETOPRANKEDPLAYERS	Top ranked players
+MATCHMAKESEASONABOUT	About
+MATCHMAKEWINSTONEXTTIER	wins to next tier
+MATCHMAKEELOGAININFO	You receive different amount of elo for winning games depending on your opponent's rank
+FRIENDSLISTTITLE	Friends List
+FRIENDSLISTJOINROOM	Join room
+FRIENDSLISTLEGENDPLAYER	PLAYER
+FRIENDSLISTLEGENDROOM	ROOM
+FRIENDSLISTREFRESH	Refresh
+FRIENDSLISTADDFRIEND	Add new friend
+FRIENDSLISTEMPTY	Friends List Empty
+FRIENDSLISTEMPTYINFO	Add other players or whole clans to your friends list to know when they're online!
+FRIENDSLISTSEARCHDEFAULT	Type a name or clan tag in brackets
+BUTTONSAVE	Save
+BUTTONDISCARD	Discard
+BUTTONCANCEL	Cancel
+BUTTONCONTINUE	Continue
+BUTTONCONTINUENOSAVE	Exit without saving
+BUTTONADD	Add
+BUTTONCREATE	Create
+BUTTONUPLOAD	Upload
+BUTTONVIEW	View
+BUTTONSEARCH	Search
+BUTTONSUBMIT	Submit
+WORDTOTAL	total
+WORDTURN	turn
+WORDGAMES	games
+WORDFIGHTS	fights
+WORDTIMES	times
+WORDIN	in
+WORDTC	TC
+WORDST	ST
+WORDDONE	done
+WORDVS	vs
+WORDNONE	none
+WORDOPTIONAL	optional
+CHATCENSOREDMESSAGE	Your message contains a banned word and will be censored for other players.
 MOVEMEMORYLOADERROR	Error loading MoveMemory data\nMake sure you have read/write permissions on Toribash folder and try again
-MOVEMEMORYSAVING	Saving move	
-MOVEMEMORYENTERMOVENAME	Enter move name	
-MOVEMEMORYENTERMOVEDESCOPT	Enter move description (optional)	
-MOVEMEMORYENTERMODNAMEOPT	Enter mod name (optional)	
-MOVEMEMORYMODNAMEEMPTYERROR	Move name cannot be empty!	
-MOVEMEMORYMOVESAVEERRORPERMS	Error saving a move, make sure you have write permissions on Toribash folder.	
-MOVEMEMORYERRORNOTINGAME	You have to be playing to record a move.	
-MOVEMEMORYERRORSTOPMOVE	Please stop the currently playing move before recording a new one.	
-MOVEMEMORYRECORDINGMOVE	Recording move	
-MOVEMEMORYERRORUPDATINGDATA	Error updating MoveMemory data file, no changes made.	
-MOVEMEMORYNOMOVESFOUND	No moves found	
-MOVEMEMORYDELETEMOVECONFIRM	Are you sure want to delete this opener? This action cannot be reversed.	
-MOVEMEMORYALLMOVES	ALL MOVES	
-MOVEMEMORYSUGGESTEDMOVES	SUGGESTED MOVES	
-QUESTSNAMETYPE1	Daily Training	
-QUESTSNAMETYPE2	Killer Machine	
-QUESTSNAMETYPE3	Damage Dealer	
-QUESTSNAMETYPE4	Bone Crusher	
-QUESTSNAMETYPEDECAP	Head Hunter	
-QUESTSPLAYREQ	Play	
-QUESTSWINREQ	Win	
-QUESTSGETREQ	Get	
-QUESTSGETREQ2	points across your fights	
-QUESTSDECAPREQ	Decap players	
-QUESTSDISMEMBERREQ	Dismember players	
-QUESTSMATCHMAKEREQ	while in matchmaking	
-QUESTSOFFICIALREQ	while in official rooms	
-QUESTSCLAIMREWARD	Claim Reward	
-QUESTSUPDATING	Updating your quests data...	
-QUESTSBYDECAP	by decapitation	
-LUASCRIPTSNAME	Lua scripts	
-LUASCRIPTSTHIRDPARTYWARNING1	Always pay double attention to third-party scripts you run.	
-LUASCRIPTSTHIRDPARTYWARNING2	Malicious scripts may modify, erase or steal your Toribash data.	
-LUASCRIPTSTHIRDPARTYWARNING3	Only run scripts that have been verified by Toribash staff.	
-LUASCRIPTSFORUMBOARD	Scripts board on forum	
-LUAMALICIOUSWARNING	POSSIBLY MALICIOUS SCRIPT	
-LUAFILEACCESSWARNING	SCRIPT CAN GAIN ACCESS TO OTHER FILES	
-LUAOTHERSCRIPTSWARNING	SCRIPT LOADS OTHER SCRIPTS	
-LUALOADSCRIPT	Load script	
-LUASHOWSOURCE	Show script source	
-LUAVIEWINGSORCE	Viewing script source	
-ERRORCREATINGFILE	Error creating file\nPlease check your folder permissions or run Toribash as admin	
-REPLAYSSAVING	Saving replay	
-REPLAYSDEFAULTPATH	Replay file will be saved to 'my replays' folder	
-REPLAYSENTERNAME	Enter replay name	
-REPLAYSERROREMPTYNAME	Replay name cannot be empty	
-REPLAYSERRORCHARACTERS	Replay name must be alphanumeric and can only contain underscores, spaces or dashes as special characters	
-REPLAYSERRORRENAMING	Error renaming replay, please change replay name with replays menu	
-REPLAYSLOCAL	Local replays	
-REPLAYSSEARCH	Search	
-REPLAYSCOMMUNITY	Community replays	
-REPLAYSUPDATINGCACHE	Updating replay cache	
-REPLAYSERRORREADINGFILE	Error reading replay file	
-REPLAYSERRORUPDATINGFILE	Error updating replay file	
-REPLAYSERRORUPDATINGNAME	Error updating replay name	
-REPLAYSERRORREADINGCACHE	Error reading replay cache file	
-REPLAYSERRORUPDATINGTAGS	Error updating replay tags	
-REPLAYSUPDATINGCOMMUNITY	Downloading replays data,\nplease wait...	
-REPLAYSFILTERSDATE	by upload date	
-REPLAYSFILTERSRATING	by rating	
-REPLAYSFILTERSPOPULARITY	by popularity	
-REPLAYSFILTERSTAGGED	tagged	
-REPLAYSFILTERSBYTAG	by replay tags	
-REPLAYSFILTERSBY	uploaded by	
-REPLAYSFILTERSUPLOADER	by replay uploader	
-REPLAYSBACKTOALLREPLAYS	BACK TO ALL REPLAYS	
-REPLAYSMATCHBY	Match by	
-REPLAYSAUTHORAUTOSAVE	autosave	
-REPLAYSAUTHORBY	by	
-REPLAYSLOADINGREPLAY	Loading replay...	
-REPLAYSADDFOLDER	Add folder	
-REPLAYSTAGSMODIFYING	Modifying	
-REPLAYSTAGSNAME	replay tags	
-REPLAYSPOPULARTAGS	Popular Tags	
-REPLAYSASSIGNEDTAGS	Assigned Tags	
-REPLAYSINPUTTAGHERE	Input your own tag here	
-REPLAYSTAGERRORSHORT	Replay tag should contain at least one letter	
-REPLAYSTAGERRORDUPLICATE	This tag has already been added to the replay	
-REPLAYSMODIFYINGFOLDER	folder	
-REPLAYSFOLDERNAME	Folder name	
-REPLAYSERRORDELETING	Error deleting	
-REPLAYSERRORDELETINGFOLDER	folder	
-REPLAYSERRORMOVING	Error moving	
-REPLAYSERRORMOVINGTO	to	
-REPLAYSFOLDERNOTEMPTYDELETEWARNING	This folder is not empty. Deleting it will move all replays inside to the parent folder. Continue?	
-REPLAYSERRORRENAMINGFOLDER	Error renaming folder	
-REPLAYSERRORRENAMINGREPLAY	Error renaming replay	
-REPLAYSERRORMOVINGREPLAY	Error changing replay folder	
-REPLAYSFOLDERLEVELERROR1	You can't spawn more than	
-REPLAYSFOLDERLEVELERROR2	folder levels	
-REPLAYSADDINGFOLDER	Adding new folder inside	
-REPLAYSNEWFOLDERNAME	New folder name	
-REPLAYSFOLDERALPHANUMERIC	Folder name should be alphanumeric	
-REPLAYSERRORADDINGFOLDER	Error adding replay folder	
-REPLAYSUPLOAD	Upload	
-REPLAYSUPLOADTORIBASHSERVERS	to Toribash servers	
-REPLAYSNAME	Name	
-REPLAYSNAMEINFO	This will be the public replay name	
-REPLAYSDESC	Description	
-REPLAYSDESCINFO	A short description for your replay	
-REPLAYSDESCTIP	Input the description	
-REPLAYSTAGS	Tags	
-REPLAYSTAGSINFO	Space-separated tags for your replay	
-REPLAYSTAGSTIP	Input replay tags	
-REPLAYSUPLOADCONFIRM	This will upload your replay\nto Toribash servers and make it available for everyone.\nContinue?	
-REPLAYSMANAGE	Manage	
-REPLAYSREPLAY	replay	
-REPLAYSREPLAYS	Replays	
-REPLAYSREPLAYNAME	Replay name	
-REPLAYSREPLAYDIR	Replay folder	
-REPLAYSCONFIRMDELETION	Are you sure you want to delete	
-REPLAYSCONFIRMDELETION2	replay?	
-REPLAYSAUTOSAVEOPTION	Auto-save replays	
-REPLAYSEMPTYFOLDER	No replays in this folder	
-REPLAYSBY	by	
-REPLAYSDATACORRUPT	DATA CORRUPT	
-REPLAYSPLAYERS	Players	
-REPLAYSMOD	Mod	
-REPLAYSCOMMUNITYTITLEINFO	Search for replays on Toribash servers	
-REPLAYSDOWNLOADINGREPLAY	Downloading replay...	
-REPLAYSOPENINGREPLAY	Opening replay...	
-REPLAYSREPLAYSAVEDINFO	Replay downloaded and saved in downloads folder	
-REPLAYSCOMMUNITYDOUBLECLICKINFO	Double-click on any replay in the list for quick preview.	
-REPLAYSCOMMUNITYNOFOUND	No replays found	
-REPLAYSLOADPREVIOUS	LOAD PREVIOUS	
-REPLAYSLOADNEXT	LOAD NEXT	
-REPLAYSDOWNLOAD	download	
-REPLAYSDOWNLOADS	downloads	
-REPLAYSVOTINGON	Voting on	
-REPLAYSCOMMENT	Comment	
-REPLAYSVOTECONFIRM1	You're going to give this replay	
-REPLAYSVOTECONFIRM2	out of 5 stars.\nContinue?	
-REPLAYSCOMMENTSDOWNLOADING	Downloading comments...	
-REPLAYSADDCOMMENT	Add comment	
-REPLAYSUPLOADEDON	Uploaded on	
-REPLAYSSAVEREPLAY	Save replay	
-REPLAYSVIEWCOMMENTS	View comments	
-REPLAYSMOREBY	More by	
-REPLAYSREFRESHCACHEPROMPT	This will reset your replays cache.\nAre you sure you want to continue?	
-REPLAYSERRORREFRESHINGCACHE	Error refreshing cache, make sure you have write permissions inside Toribash folder	
-MODSDOWNLOADINGMOD	Downloading mod...	
-NOFILESFOUND	No files found	
-FILENAME	File name	
-MODSRESTARTGAME	Start new game after loading mod	
-SEARCHNOTE	Start typing to search...	
-SHADERSSAVESHADER	Save shader	
-SHADERSSAVING	Saving shader to file	
-SHADERSINPUTNAME	Input shader name	
-SHADERSERRORFILEEXISTS	Shader with this name already exists. This action will overwrite the old file.	
-SHADERSRESETTODEFAULT	Reset to default	
-SHADERSEDITOR	Shader Editor	
-SHADERSATMOSNAME	Atmospheres	
-SHADERSNAME	Shaders	
-SETTINGSOTHER	Game	
-SETTINGSABOUT	About	
-SETTINGSAUDIO	Audio	
-SETTINGSEFFECTS	Effects	
-SETTINGSGRAPHICS	Graphics	
-SETTINGSGRAPHICSPRESETS	Graphics Presets	
-SETTINGSVISUALSQUALITY	Visuals Quality (may require restart)	
-SETTINGSCUSTOM	Custom	
-SETTINGSLOWEST	Potato	
-SETTINGSLOW	Low	
-SETTINGSMEDIUM	Medium	
-SETTINGSHIGH	High	
-SETTINGSHIGHEST	RTX 2080 Ti	
-SETTINGSRESOLUTION	Resolution	
-SETTINGSADVANCED	Advanced	
-SETTINGSSHADERS	Shaders	
-SETTINGSFLUIDBLOOD	Fluid Blood	
-SETTINGSFLOORREFLECTIONS	Floor Reflections	
-SETTINGSSOFTSHADOWS	Soft Shadows	
-SETTINGSAMBIENTOCCLUSION	Ambient Occlusion	
-SETTINGSRAYTRACING	Ray Tracing	
-SETTINGSFRAMERATE	Frame Rate	
-SETTINGSFPS	Frames Per Second	
-SETTINGSFPSUNCAPPED	Uncapped	
-SETTINGSGENERAL	General	
-SETTINGSEFFECTSINFO	Display player customizations	
-SETTINGSDISABLED	Disabled	
-SETTINGSENABLED	Enabled	
-SETTINGSREPLAYSONLY	Only on replays	
-SETTINGSPLAYERCUSTOMIZATION	Player Customizations	
-SETTINGSBODYTEXTURES	Body Textures	
-SETTINGSTRAILS	Trails	
-SETTINGSFLAMES	Flames	
-SETTINGSHAIRS	Hairs	
-SETTINGSOBJMODELS	3D Models	
-SETTINGSEFFECTSVOLUME	Effects Volume	
-SETTINGSMUSICVOLUME	Music Volume	
-SETTINGSVCVOLUME	Voice Chat Volume	
-SETTINGSVCTOGGLE	Voice Chat Toggle	
-SETTINGSSOUNDMASTER	Effect Sounds Master	
-SETTINGSHITEFFECTS	Hit Sounds	
-SETTINGSGAMEOVER	DQ and Win Sounds	
-SETTINGSREADY	Kiai Sound	
-SETTINGSGRIP	Grip Sound	
-SETTINGSALERT	Shout Sound	
-SETTINGSDISMEMBER	Dismember Sound	
-SETTINGSFIGHTALERT	Fight Alert Sound	
-SETTINGSFREEZE	Freeze Sound	
-SETTINGSGRADING	Grading Sound	
-SETTINGSIMPACT	Impact Sound	
-SETTINGSJOINT	Joint Sound	
-SETTINGSMENU	Menu Sound	
-SETTINGSNONE	None Sound	
-SETTINGSPAIN	Pain Sound	
-SETTINGSSELECTPLAYER	Select Player Sound	
-SETTINGSSPLASH	Splash Sound	
-SETTINGSSWOOSH	Swoosh Sound	
-SETTINGSLANGUAGE	Language	
-SETTINGSGAMELANGUAGE	Game Language	
-SETTINGSCHAT	Chat settings	
-SETTINGSCHATTOGGLE	Chat Length Toggle	
-SETTINGSPROFANITYFILTER	Profanity Filter	
-SETTINGSHIDEECHO	Hide system messages	
-SETTINGSGAMEPLAY	Gameplay	
-SETTINGSMOUSEBUTTONS	Mouse controls mode	
-SETTINGSMOUSEBUTTONS0	Contract / Extend only	
-SETTINGSMOUSEBUTTONS1	All four joint modes	
-SETTINGSMOUSEBUTTONS2	Hold / Relax only	
-SETTINGSBACKGROUNDCLICK	Background click	
-SETTINGSAUTOSAVE	Autosave Replays	
-SETTINGSGAMERULES	Remember Game Rules	
-SETTINGSMODERNHUD	Advanced HUD	
-SETTINGSTOOLTIP	Show Advanced Tooltip	
-SETTINGSMOVEMEMORY	Enable MoveMemory	
-SETTINGSBASEHUDONLY	base HUD only	
-SETTINGSWINDOWED	Windowed Mode	
-SETTINGSFULLSCREEN	Fullscreen Mode	
-SETTINGSWIDTH	Width	
-SETTINGSHEIGHT	Height	
-SETTINGSONLYDEFAULTSOUNDS	Only Default Sounds	
-SETTINGSAPPLY	Apply changes	
-SETTINGSRESTARTREQUIRED	may require restart	
-SETTINGSNOCHANGES	No changes made	
-HOTKEYSBASICCONTROLS	Basic Controls	
-HOTKEYSCAMERACONTROLS	Camera Controls	
-HOTKEYSHOLDALL	Hold All / Relax All	
-HOTKEYSHOLDRELAX	Hold / Relax Joint	
-HOTKEYSCONTRACTEXTEND	Contract / Extend Joint	
-HOTKEYSGRABUNGRAB	Toggle Hand State (Grab / Ungrab)	
-HOTKEYSGRABALL	Toggle Both Hands' States	
-HOTKEYSSAVEREPLAY	Save Replay	
-HOTKEYSTORIGHOST	Toggle Player's Ghost	
-HOTKEYSPLAYERSGHOST	Toggle Both Players' Ghosts	
-HOTKEYSTURN	Finish Turn / Skip One Frame	
-HOTKEYSCHAT	Chat Controls	
-HOTKEYSOPENCHAT	Open Chat Box	
-HOTKEYSTOGGLECHAT	Show More Chat Lines	
-HOTKEYSSCROLLCHAT	Scroll Chat Up / Down	
-HOTKEYSSCROLLCHATMAX	Scroll Chat to Beginning / End	
-HOTKEYSREPLAYS	Replays Hotkeys	
-HOTKEYSREPLAYRESTART	Restart Replay	
-HOTKEYSREPLAYPAUSE	Pause Replay	
-HOTKEYSREPLAYEDIT	Edit Replay	
-HOTKEYSREPLAYKEYFRAME	Save Keyframe	
-HOTKEYSREPLAYKEYFRAMESCLEAR	Clear Keyframes	
-HOTKEYSREPLAYNEXT	Play Next Replay	
-HOTKEYSREPLAYPREV	Play Previous Replay	
-HOTKEYSOTHER	Other Hotkeys	
-HOTKEYSMODLIST	Open Mod List	
-HOTKEYSSHADERS	Open Shaders & Atmospheres	
-HOTKEYSGAMERULES	Open Game Rules	
-HOTKEYSFULLSCREEN	Enter Fullscreen Mode	
-HOTKEYSCAMERAMODES	Change Camera Modes	
-TUTORIALSLEAVINGPROMPT	Leaving tutorial mode.\nCurrent tutorial will have to be restarted from the beginning if you proceed.	
-EVENTSLEAVINGPROMPT	Quitting SP Event replay creator.\nCurrent replay will be saved so you can continue editing it later.	
-TUTORIALSCONTINUETONEXT	Continue to next tutorial	
-TUTORIALSBACKTOMAIN	Return to main menu	
-TUTORIALSINTRONAME	Introduction to Toribash	
-TUTORIALSINTRODESC	Meet Sensei and start your Toribash journey	
-TUTORIALSPUNCHNAME	Punching Tutorial	
-TUTORIALSPUNCHDESC	Learn the basics of punching in Toribash	
-TUTORIALSKICKNAME	Kicking Tutorial	
-TUTORIALSKICKDESC	Learn how to attack your opponents with legs	
-TUTORIALSCHALLENGEUKENAME	Challenge Uke	
-TUTORIALSCHALLENGEUKEDESC	Test your skills in a fight against Uke	
-TUTORIALSCOMEBACKPRACTICENAME	Comeback Practice	
-TUTORIALSCOMEBACKPRACTICEDESC	Practice your comeback skills while catching Uke	
-TUTORIALSLOCKED	Complete other tutorials or gain more Qi to unlock this	
-TUTORIALSVIEWALLNAME	View all tutorials	
-TUTORIALSVIEWALLDESC	Access any tutorial you've already finished	
-DISCORDRPCINTUTORIAL	Tutorial Mode	
-NAVBUTTONNEWS	News	
-NAVBUTTONSTORE	Store	
-NAVBUTTONACCOUNT	Account	
-REWARDSTIMEMONTHS	months	
-REWARDSTIMEYEAR	year	
-REWARDSTIMEYEARS	years	
-SETTINGSREPLAYCACHE	Enable replay speed	
+MOVEMEMORYSAVING	Saving move
+MOVEMEMORYENTERMOVENAME	Enter move name
+MOVEMEMORYENTERMOVEDESCOPT	Enter move description (optional)
+MOVEMEMORYENTERMODNAMEOPT	Enter mod name (optional)
+MOVEMEMORYMODNAMEEMPTYERROR	Move name cannot be empty!
+MOVEMEMORYMOVESAVEERRORPERMS	Error saving a move, make sure you have write permissions on Toribash folder.
+MOVEMEMORYERRORNOTINGAME	You have to be playing to record a move.
+MOVEMEMORYERRORSTOPMOVE	Please stop the currently playing move before recording a new one.
+MOVEMEMORYRECORDINGMOVE	Recording move
+MOVEMEMORYERRORUPDATINGDATA	Error updating MoveMemory data file, no changes made.
+MOVEMEMORYNOMOVESFOUND	No moves found
+MOVEMEMORYDELETEMOVECONFIRM	Are you sure want to delete this opener? This action cannot be reversed.
+MOVEMEMORYALLMOVES	ALL MOVES
+MOVEMEMORYSUGGESTEDMOVES	SUGGESTED MOVES
+QUESTSNAMETYPE1	Daily Training
+QUESTSNAMETYPE2	Killer Machine
+QUESTSNAMETYPE3	Damage Dealer
+QUESTSNAMETYPE4	Bone Crusher
+QUESTSNAMETYPEDECAP	Head Hunter
+QUESTSPLAYREQ	Play
+QUESTSWINREQ	Win
+QUESTSGETREQ	Get
+QUESTSGETREQ2	points across your fights
+QUESTSDECAPREQ	Decap players
+QUESTSDISMEMBERREQ	Dismember players
+QUESTSMATCHMAKEREQ	while in matchmaking
+QUESTSOFFICIALREQ	while in official rooms
+QUESTSCLAIMREWARD	Claim Reward
+QUESTSUPDATING	Updating your quests data...
+QUESTSBYDECAP	by decapitation
+LUASCRIPTSNAME	Lua scripts
+LUASCRIPTSTHIRDPARTYWARNING1	Always pay double attention to third-party scripts you run.
+LUASCRIPTSTHIRDPARTYWARNING2	Malicious scripts may modify, erase or steal your Toribash data.
+LUASCRIPTSTHIRDPARTYWARNING3	Only run scripts that have been verified by Toribash staff.
+LUASCRIPTSFORUMBOARD	Scripts board on forum
+LUAMALICIOUSWARNING	POSSIBLY MALICIOUS SCRIPT
+LUAFILEACCESSWARNING	SCRIPT CAN GAIN ACCESS TO OTHER FILES
+LUAOTHERSCRIPTSWARNING	SCRIPT LOADS OTHER SCRIPTS
+LUALOADSCRIPT	Load script
+LUASHOWSOURCE	Show script source
+LUAVIEWINGSORCE	Viewing script source
+ERRORCREATINGFILE	Error creating file\nPlease check your folder permissions or run Toribash as admin
+REPLAYSSAVING	Saving replay
+REPLAYSDEFAULTPATH	Replay file will be saved to 'my replays' folder
+REPLAYSENTERNAME	Enter replay name
+REPLAYSERROREMPTYNAME	Replay name cannot be empty
+REPLAYSERRORCHARACTERS	Replay name must be alphanumeric and can only contain underscores, spaces or dashes as special characters
+REPLAYSERRORRENAMING	Error renaming replay, please change replay name with replays menu
+REPLAYSLOCAL	Local replays
+REPLAYSSEARCH	Search
+REPLAYSCOMMUNITY	Community replays
+REPLAYSUPDATINGCACHE	Updating replay cache
+REPLAYSERRORREADINGFILE	Error reading replay file
+REPLAYSERRORUPDATINGFILE	Error updating replay file
+REPLAYSERRORUPDATINGNAME	Error updating replay name
+REPLAYSERRORREADINGCACHE	Error reading replay cache file
+REPLAYSERRORUPDATINGTAGS	Error updating replay tags
+REPLAYSUPDATINGCOMMUNITY	Downloading replays data,\nplease wait...
+REPLAYSFILTERSDATE	by upload date
+REPLAYSFILTERSRATING	by rating
+REPLAYSFILTERSPOPULARITY	by popularity
+REPLAYSFILTERSTAGGED	tagged
+REPLAYSFILTERSBYTAG	by replay tags
+REPLAYSFILTERSBY	uploaded by
+REPLAYSFILTERSUPLOADER	by replay uploader
+REPLAYSBACKTOALLREPLAYS	BACK TO ALL REPLAYS
+REPLAYSMATCHBY	Match by
+REPLAYSAUTHORAUTOSAVE	autosave
+REPLAYSAUTHORBY	by
+REPLAYSLOADINGREPLAY	Loading replay...
+REPLAYSADDFOLDER	Add folder
+REPLAYSTAGSMODIFYING	Modifying
+REPLAYSTAGSNAME	replay tags
+REPLAYSPOPULARTAGS	Popular Tags
+REPLAYSASSIGNEDTAGS	Assigned Tags
+REPLAYSINPUTTAGHERE	Input your own tag here
+REPLAYSTAGERRORSHORT	Replay tag should contain at least one letter
+REPLAYSTAGERRORDUPLICATE	This tag has already been added to the replay
+REPLAYSMODIFYINGFOLDER	folder
+REPLAYSFOLDERNAME	Folder name
+REPLAYSERRORDELETING	Error deleting
+REPLAYSERRORDELETINGFOLDER	folder
+REPLAYSERRORMOVING	Error moving
+REPLAYSERRORMOVINGTO	to
+REPLAYSFOLDERNOTEMPTYDELETEWARNING	This folder is not empty. Deleting it will move all replays inside to the parent folder. Continue?
+REPLAYSERRORRENAMINGFOLDER	Error renaming folder
+REPLAYSERRORRENAMINGREPLAY	Error renaming replay
+REPLAYSERRORMOVINGREPLAY	Error changing replay folder
+REPLAYSFOLDERLEVELERROR1	You can't spawn more than
+REPLAYSFOLDERLEVELERROR2	folder levels
+REPLAYSADDINGFOLDER	Adding new folder inside
+REPLAYSNEWFOLDERNAME	New folder name
+REPLAYSFOLDERALPHANUMERIC	Folder name should be alphanumeric
+REPLAYSERRORADDINGFOLDER	Error adding replay folder
+REPLAYSUPLOAD	Upload
+REPLAYSUPLOADTORIBASHSERVERS	to Toribash servers
+REPLAYSNAME	Name
+REPLAYSNAMEINFO	This will be the public replay name
+REPLAYSDESC	Description
+REPLAYSDESCINFO	A short description for your replay
+REPLAYSDESCTIP	Input the description
+REPLAYSTAGS	Tags
+REPLAYSTAGSINFO	Space-separated tags for your replay
+REPLAYSTAGSTIP	Input replay tags
+REPLAYSUPLOADCONFIRM	This will upload your replay\nto Toribash servers and make it available for everyone.\nContinue?
+REPLAYSMANAGE	Manage
+REPLAYSREPLAY	replay
+REPLAYSREPLAYS	Replays
+REPLAYSREPLAYNAME	Replay name
+REPLAYSREPLAYDIR	Replay folder
+REPLAYSCONFIRMDELETION	Are you sure you want to delete
+REPLAYSCONFIRMDELETION2	replay?
+REPLAYSAUTOSAVEOPTION	Auto-save replays
+REPLAYSEMPTYFOLDER	No replays in this folder
+REPLAYSBY	by
+REPLAYSDATACORRUPT	DATA CORRUPT
+REPLAYSPLAYERS	Players
+REPLAYSMOD	Mod
+REPLAYSCOMMUNITYTITLEINFO	Search for replays on Toribash servers
+REPLAYSDOWNLOADINGREPLAY	Downloading replay...
+REPLAYSOPENINGREPLAY	Opening replay...
+REPLAYSREPLAYSAVEDINFO	Replay downloaded and saved in downloads folder
+REPLAYSCOMMUNITYDOUBLECLICKINFO	Double-click on any replay in the list for quick preview.
+REPLAYSCOMMUNITYNOFOUND	No replays found
+REPLAYSLOADPREVIOUS	LOAD PREVIOUS
+REPLAYSLOADNEXT	LOAD NEXT
+REPLAYSDOWNLOAD	download
+REPLAYSDOWNLOADS	downloads
+REPLAYSVOTINGON	Voting on
+REPLAYSCOMMENT	Comment
+REPLAYSVOTECONFIRM1	You're going to give this replay
+REPLAYSVOTECONFIRM2	out of 5 stars.\nContinue?
+REPLAYSCOMMENTSDOWNLOADING	Downloading comments...
+REPLAYSADDCOMMENT	Add comment
+REPLAYSUPLOADEDON	Uploaded on
+REPLAYSSAVEREPLAY	Save replay
+REPLAYSVIEWCOMMENTS	View comments
+REPLAYSMOREBY	More by
+REPLAYSREFRESHCACHEPROMPT	This will reset your replays cache.\nAre you sure you want to continue?
+REPLAYSERRORREFRESHINGCACHE	Error refreshing cache, make sure you have write permissions inside Toribash folder
+MODSDOWNLOADINGMOD	Downloading mod...
+NOFILESFOUND	No files found
+FILENAME	File name
+MODSRESTARTGAME	Start new game after loading mod
+SEARCHNOTE	Start typing to search...
+SHADERSSAVESHADER	Save shader
+SHADERSSAVING	Saving shader to file
+SHADERSINPUTNAME	Input shader name
+SHADERSERRORFILEEXISTS	Shader with this name already exists. This action will overwrite the old file.
+SHADERSRESETTODEFAULT	Reset to default
+SHADERSEDITOR	Shader Editor
+SHADERSATMOSNAME	Atmospheres
+SHADERSNAME	Shaders
+SETTINGSOTHER	Game
+SETTINGSABOUT	About
+SETTINGSAUDIO	Audio
+SETTINGSEFFECTS	Effects
+SETTINGSGRAPHICS	Graphics
+SETTINGSGRAPHICSPRESETS	Graphics Presets
+SETTINGSVISUALSQUALITY	Visuals Quality (may require restart)
+SETTINGSCUSTOM	Custom
+SETTINGSLOWEST	Potato
+SETTINGSLOW	Low
+SETTINGSMEDIUM	Medium
+SETTINGSHIGH	High
+SETTINGSHIGHEST	RTX 2080 Ti
+SETTINGSRESOLUTION	Resolution
+SETTINGSADVANCED	Advanced
+SETTINGSSHADERS	Shaders
+SETTINGSFLUIDBLOOD	Fluid Blood
+SETTINGSFLOORREFLECTIONS	Floor Reflections
+SETTINGSSOFTSHADOWS	Soft Shadows
+SETTINGSAMBIENTOCCLUSION	Ambient Occlusion
+SETTINGSRAYTRACING	Ray Tracing
+SETTINGSFRAMERATE	Frame Rate
+SETTINGSFPS	Frames Per Second
+SETTINGSFPSUNCAPPED	Uncapped
+SETTINGSGENERAL	General
+SETTINGSEFFECTSINFO	Display player customizations
+SETTINGSDISABLED	Disabled
+SETTINGSENABLED	Enabled
+SETTINGSREPLAYSONLY	Only on replays
+SETTINGSPLAYERCUSTOMIZATION	Player Customizations
+SETTINGSBODYTEXTURES	Body Textures
+SETTINGSTRAILS	Trails
+SETTINGSFLAMES	Flames
+SETTINGSHAIRS	Hairs
+SETTINGSOBJMODELS	3D Models
+SETTINGSEFFECTSVOLUME	Effects Volume
+SETTINGSMUSICVOLUME	Music Volume
+SETTINGSVCVOLUME	Voice Chat Volume
+SETTINGSVCTOGGLE	Voice Chat Toggle
+SETTINGSSOUNDMASTER	Effect Sounds Master
+SETTINGSHITEFFECTS	Hit Sounds
+SETTINGSGAMEOVER	DQ and Win Sounds
+SETTINGSREADY	Kiai Sound
+SETTINGSGRIP	Grip Sound
+SETTINGSALERT	Shout Sound
+SETTINGSDISMEMBER	Dismember Sound
+SETTINGSFIGHTALERT	Fight Alert Sound
+SETTINGSFREEZE	Freeze Sound
+SETTINGSGRADING	Grading Sound
+SETTINGSIMPACT	Impact Sound
+SETTINGSJOINT	Joint Sound
+SETTINGSMENU	Menu Sound
+SETTINGSNONE	None Sound
+SETTINGSPAIN	Pain Sound
+SETTINGSSELECTPLAYER	Select Player Sound
+SETTINGSSPLASH	Splash Sound
+SETTINGSSWOOSH	Swoosh Sound
+SETTINGSLANGUAGE	Language
+SETTINGSGAMELANGUAGE	Game Language
+SETTINGSCHAT	Chat settings
+SETTINGSCHATTOGGLE	Chat Length Toggle
+SETTINGSPROFANITYFILTER	Profanity Filter
+SETTINGSHIDEECHO	Hide system messages
+SETTINGSGAMEPLAY	Gameplay
+SETTINGSMOUSEBUTTONS	Mouse controls mode
+SETTINGSMOUSEBUTTONS0	Contract / Extend only
+SETTINGSMOUSEBUTTONS1	All four joint modes
+SETTINGSMOUSEBUTTONS2	Hold / Relax only
+SETTINGSBACKGROUNDCLICK	Background click
+SETTINGSAUTOSAVE	Autosave Replays
+SETTINGSGAMERULES	Remember Game Rules
+SETTINGSMODERNHUD	Advanced HUD
+SETTINGSTOOLTIP	Show Advanced Tooltip
+SETTINGSMOVEMEMORY	Enable MoveMemory
+SETTINGSBASEHUDONLY	base HUD only
+SETTINGSWINDOWED	Windowed Mode
+SETTINGSFULLSCREEN	Fullscreen Mode
+SETTINGSWIDTH	Width
+SETTINGSHEIGHT	Height
+SETTINGSONLYDEFAULTSOUNDS	Only Default Sounds
+SETTINGSAPPLY	Apply changes
+SETTINGSRESTARTREQUIRED	may require restart
+SETTINGSNOCHANGES	No changes made
+HOTKEYSBASICCONTROLS	Basic Controls
+HOTKEYSCAMERACONTROLS	Camera Controls
+HOTKEYSHOLDALL	Hold All / Relax All
+HOTKEYSHOLDRELAX	Hold / Relax Joint
+HOTKEYSCONTRACTEXTEND	Contract / Extend Joint
+HOTKEYSGRABUNGRAB	Toggle Hand State (Grab / Ungrab)
+HOTKEYSGRABALL	Toggle Both Hands' States
+HOTKEYSSAVEREPLAY	Save Replay
+HOTKEYSTORIGHOST	Toggle Player's Ghost
+HOTKEYSPLAYERSGHOST	Toggle Both Players' Ghosts
+HOTKEYSTURN	Finish Turn / Skip One Frame
+HOTKEYSCHAT	Chat Controls
+HOTKEYSOPENCHAT	Open Chat Box
+HOTKEYSTOGGLECHAT	Show More Chat Lines
+HOTKEYSSCROLLCHAT	Scroll Chat Up / Down
+HOTKEYSSCROLLCHATMAX	Scroll Chat to Beginning / End
+HOTKEYSREPLAYS	Replays Hotkeys
+HOTKEYSREPLAYRESTART	Restart Replay
+HOTKEYSREPLAYPAUSE	Pause Replay
+HOTKEYSREPLAYEDIT	Edit Replay
+HOTKEYSREPLAYKEYFRAME	Save Keyframe
+HOTKEYSREPLAYKEYFRAMESCLEAR	Clear Keyframes
+HOTKEYSREPLAYNEXT	Play Next Replay
+HOTKEYSREPLAYPREV	Play Previous Replay
+HOTKEYSOTHER	Other Hotkeys
+HOTKEYSMODLIST	Open Mod List
+HOTKEYSSHADERS	Open Shaders & Atmospheres
+HOTKEYSGAMERULES	Open Game Rules
+HOTKEYSFULLSCREEN	Enter Fullscreen Mode
+HOTKEYSCAMERAMODES	Change Camera Modes
+TUTORIALSLEAVINGPROMPT	Leaving tutorial mode.\nCurrent tutorial will have to be restarted from the beginning if you proceed.
+EVENTSLEAVINGPROMPT	Quitting SP Event replay creator.\nCurrent replay will be saved so you can continue editing it later.
+TUTORIALSCONTINUETONEXT	Continue to next tutorial
+TUTORIALSBACKTOMAIN	Return to main menu
+TUTORIALSINTRONAME	Introduction to Toribash
+TUTORIALSINTRODESC	Meet Sensei and start your Toribash journey
+TUTORIALSPUNCHNAME	Punching Tutorial
+TUTORIALSPUNCHDESC	Learn the basics of punching in Toribash
+TUTORIALSKICKNAME	Kicking Tutorial
+TUTORIALSKICKDESC	Learn how to attack your opponents with legs
+TUTORIALSCHALLENGEUKENAME	Challenge Uke
+TUTORIALSCHALLENGEUKEDESC	Test your skills in a fight against Uke
+TUTORIALSCOMEBACKPRACTICENAME	Comeback Practice
+TUTORIALSCOMEBACKPRACTICEDESC	Practice your comeback skills while catching Uke
+TUTORIALSLOCKED	Complete other tutorials or gain more Qi to unlock this
+TUTORIALSVIEWALLNAME	View all tutorials
+TUTORIALSVIEWALLDESC	Access any tutorial you've already finished
+DISCORDRPCINTUTORIAL	Tutorial Mode
+NAVBUTTONNEWS	News
+NAVBUTTONSTORE	Store
+NAVBUTTONACCOUNT	Account
+REWARDSTIMEMONTHS	months
+REWARDSTIMEYEAR	year
+REWARDSTIMEYEARS	years
+SETTINGSREPLAYCACHE	Enable replay speed
 SETTINGSREPLAYCACHESECONDPLAYTHROUGH	Enable on second replay playthrough
-SETTINGSREPLAYMEMSIZE	Replay cache memory size	
-SETTINGSREPLAYFRAMES	frames	
-HOTKEYSREPLAYSPEED	Modify replay speed	
-USERBARTCINFO	Toricredits can be spent on customizations that fit your character belt	
-USERBARSTINFO	Shiai Tokens can be spent on premium customizations and items that require high belts	
-ACCOUNTTITLEINFO	Info about Your Account	
-ACCOUNTGETTINGINFO	Getting your data...	
-ACCOUNTINFOERROR	Something went wrong, please try again later	
+SETTINGSREPLAYMEMSIZE	Replay cache memory size
+SETTINGSREPLAYFRAMES	frames
+HOTKEYSREPLAYSPEED	Modify replay speed
+USERBARTCINFO	Toricredits can be spent on customizations that fit your character belt
+USERBARSTINFO	Shiai Tokens can be spent on premium customizations and items that require high belts
+ACCOUNTTITLEINFO	Info about Your Account
+ACCOUNTGETTINGINFO	Getting your data...
+ACCOUNTINFOERROR	Something went wrong, please try again later
 STOREDOWNLOADINGMODEL	Downloading item model...
-STOREDOWNLOADINGSET	Downloading set...	
-STOREGETMORE	Get more	
-STOREBUYFOR	Buy for	
-STOREPURCHASECONFIRM	Are you sure you want to purchase	
-STOREPURCHASEFOR	for	
-STOREPURCHASEYOUWILLHAVELEFT1	You will have	
-STOREPURCHASEYOUWILLHAVELEFT2	left after purchase.	
-STOREREQUIRES	Requires	
-STOREREQUIRESQI	more Qi	
-STOREVIEWING	Viewing	
-STOREAVAILABLEITEMS	Available Items	
-STOREEXPENSIVEITEMS	Expensive Items	
-STOREUSDITEMS	USD Items	
-STORELOCKEDITEMS	Unavailable or Locked Items	
-STORESEARCHNOITEMS	There are no items that match your search!	
-STORESEARCHSTRINGSHORT	Search string is too short, try something that's longer than 3 symbols!	
-SEARCHRESULTS1		
-SEARCHRESULTS2	search results	
-WORDSEARCH	Search	
-STORESEARCHHINT	Start typing item name to search	
-STOREDISCOUNTEDPRICE	Discounted Price	
-WORDTORICREDITS	Toricredits	
-WORDSHIAITOKENS	Shiai Tokens	
-STOREBUYWITH	Buy with	
-STOREVIEWIN1	View	
-STOREVIEWIN2	in Store	
-STORELOADING	Loading Store data, please wait...	
-STORESALE1		
-STORESALE2	sale	
-STORENOCOLORSALE	No colors on sale for now, come back later!	
+STOREDOWNLOADINGSET	Downloading set...
+STOREGETMORE	Get more
+STOREBUYFOR	Buy for
+STOREPURCHASECONFIRM	Are you sure you want to purchase
+STOREPURCHASEFOR	for
+STOREPURCHASEYOUWILLHAVELEFT1	You will have
+STOREPURCHASEYOUWILLHAVELEFT2	left after purchase.
+STOREREQUIRES	Requires
+STOREREQUIRESQI	more Qi
+STOREVIEWING	Viewing
+STOREAVAILABLEITEMS	Available Items
+STOREEXPENSIVEITEMS	Expensive Items
+STOREUSDITEMS	USD Items
+STORELOCKEDITEMS	Unavailable or Locked Items
+STORESEARCHNOITEMS	There are no items that match your search!
+STORESEARCHSTRINGSHORT	Search string is too short, try something that's longer than 3 symbols!
+SEARCHRESULTS1
+SEARCHRESULTS2	search results
+WORDSEARCH	Search
+STORESEARCHHINT	Start typing item name to search
+STOREDISCOUNTEDPRICE	Discounted Price
+WORDTORICREDITS	Toricredits
+WORDSHIAITOKENS	Shiai Tokens
+STOREBUYWITH	Buy with
+STOREVIEWIN1	View
+STOREVIEWIN2	in Store
+STORELOADING	Loading Store data, please wait...
+STORESALE1
+STORESALE2	sale
+STORENOCOLORSALE	No colors on sale for now, come back later!
 STORENOSALE	No items on sale for now, come back later!
-STORECOLORS	Colors	
-STORECOLORSNAME	Color Items	
-STORECOLORSDESC	Joints, gradients and other color items	
-STORETEXTURES	Textures	
-STORETEXTURESNAME	Texture Slots	
-STORETEXTURESDESC	Texture items to give your Tori a unique look	
-STOREADVANCED	Advanced	
-STOREADVANCEDNAME	Advanced Customizations	
-STOREADVANCEDDESC	3D items, hairs, textures and other items for your Tori	
-STOREACCOUNT	Account	
-STOREACCOUNTDESC	In-game currency, boosters and subscriptions	
-STOREPURCHASINGITEM	Purchasing item...	
-STOREPURCHASEERROR	Purchase error	
-STOREPURCHASESERVERERROR	Server error, please try again later	
+STORECOLORS	Colors
+STORECOLORSNAME	Color Items
+STORECOLORSDESC	Joints, gradients and other color items
+STORETEXTURES	Textures
+STORETEXTURESNAME	Texture Slots
+STORETEXTURESDESC	Texture items to give your Tori a unique look
+STOREADVANCED	Advanced
+STOREADVANCEDNAME	Advanced Customizations
+STOREADVANCEDDESC	3D items, hairs, textures and other items for your Tori
+STOREACCOUNT	Account
+STOREACCOUNTDESC	In-game currency, boosters and subscriptions
+STOREPURCHASINGITEM	Purchasing item...
+STOREPURCHASEERROR	Purchase error
+STOREPURCHASESERVERERROR	Server error, please try again later
 STOREPURCHASEERRORUNDEF	Undefined purchase error. Please contact an administrator.
-STOREITEMPURCHASESUCCESSFUL	has been purchased successfully!	
-SETTINGSAUTOUPDATE	Auto-update players customs and data files	
-ACCOUNTUSERNAME	Username	
-ACCOUNTUSERID	User ID	
-ACCOUNTGAMESPLAYEDTODAY	Games Played Today	
-ACCOUNTGAMESWONTODAY	Games Won Today	
-ACCOUNTTCEARNINGSTODAY	Today's Fights Earnings	
-ACCOUNTQIRESETS	Daily Qi Limit resets in	
-ACCOUNTSTATUS	Account Status	
-ACCOUNTSUSPENDED	Suspended	
-ACCOUNTGREYLISTED	Trading Greylisted	
-ACCOUNTNOEMAIL	No Email Set	
-ACCOUNTAWAITINGCONFIRMATION	Awaiting Email Confirmation	
-ACCOUNTSUSPENDEDINFO	Your account has been suspended by Toribash moderators. You can appeal your ban on forums.	
-ACCOUNTGREYLISTEDINFO	Your account has limited trading capabilities. You can wait your greylist period out or contact an administrator to lift it earlier.	
-ACCOUNTEMAILERRORINFO	Your account's capabilities will be limited until you connect an email to your account and confirm it.	
-STOREITEMUNAVAILABLE	This item cannot be bought	
-REPLAYUPLOADERROR	Replay upload error	
-REPLAYUPLOADFAILED	Replay upload failed, please try again later.	
-REPLAYUPLOADINPROGRESS	Uploading your replay...	
-ACCOUNTSWITCH	Switch Account	
-REPLAYUPLOADSUCCESSFUL	Your replay has been uploaded!	
-EVENTSUPLOADINGENTRY	Uploading event entry	
-EVENTSTRYNOTGETDISMEMBERED	Try not to get dismembered next time!	
-EVENTSTRYSTAYONPLATFORM	Try to stay on the moving platform next time!	
-EVENTSNEWGAME	New game	
-EVENTSREWIND	Rewind this replay	
-TUTORIALNODATAFOUND	No data found, please try again after downloads have completed	
-STOREDISCOUNTCHEAPER1		
-STOREDISCOUNTCHEAPER2	cheaper	
-WORDRANKED	ranked	
-QUESTSRANKEDMODE	in ranked mode	
+STOREITEMPURCHASESUCCESSFUL	has been purchased successfully!
+SETTINGSAUTOUPDATE	Auto-update players customs and data files
+ACCOUNTUSERNAME	Username
+ACCOUNTUSERID	User ID
+ACCOUNTGAMESPLAYEDTODAY	Games Played Today
+ACCOUNTGAMESWONTODAY	Games Won Today
+ACCOUNTTCEARNINGSTODAY	Today's Fights Earnings
+ACCOUNTQIRESETS	Daily Qi Limit resets in
+ACCOUNTSTATUS	Account Status
+ACCOUNTSUSPENDED	Suspended
+ACCOUNTGREYLISTED	Trading Greylisted
+ACCOUNTNOEMAIL	No Email Set
+ACCOUNTAWAITINGCONFIRMATION	Awaiting Email Confirmation
+ACCOUNTSUSPENDEDINFO	Your account has been suspended by Toribash moderators. You can appeal your ban on forums.
+ACCOUNTGREYLISTEDINFO	Your account has limited trading capabilities. You can wait your greylist period out or contact an administrator to lift it earlier.
+ACCOUNTEMAILERRORINFO	Your account's capabilities will be limited until you connect an email to your account and confirm it.
+STOREITEMUNAVAILABLE	This item cannot be bought
+REPLAYUPLOADERROR	Replay upload error
+REPLAYUPLOADFAILED	Replay upload failed, please try again later.
+REPLAYUPLOADINPROGRESS	Uploading your replay...
+ACCOUNTSWITCH	Switch Account
+REPLAYUPLOADSUCCESSFUL	Your replay has been uploaded!
+EVENTSUPLOADINGENTRY	Uploading event entry
+EVENTSTRYNOTGETDISMEMBERED	Try not to get dismembered next time!
+EVENTSTRYSTAYONPLATFORM	Try to stay on the moving platform next time!
+EVENTSNEWGAME	New game
+EVENTSREWIND	Rewind this replay
+TUTORIALNODATAFOUND	No data found, please try again after downloads have completed
+STOREDISCOUNTCHEAPER1
+STOREDISCOUNTCHEAPER2	cheaper
+WORDRANKED	ranked
+QUESTSRANKEDMODE	in ranked mode
 NEWSDOWNLOADING	Downloading latest news, please wait...
 MATCHMAKERANKINGMODS	Ranking by mods
-MATCHMAKESPOT	spot	
-MATCHMAKESPOTS	spots	
-DISCORDRPCMATCHMAKING	Matchmaking	
-MATCHMAKECANTSEARCH	Can't search while in multiplayer	
-MATCHMAKENORANKCHANGES	No rank changes in past	
+MATCHMAKESPOT	spot
+MATCHMAKESPOTS	spots
+DISCORDRPCMATCHMAKING	Matchmaking
+MATCHMAKECANTSEARCH	Can't search while in multiplayer
+MATCHMAKENORANKCHANGES	No rank changes in past
 MATCHMAKEGLOBALRANKINGDESC	View your ranking details and season's top players
 MATCHMAKENORANKEDQUEST	You don't have any ranked quests.\nPlease refresh your quests to get one.
 MATCHMAKEVIEWQUESTS	View your quests
-QUEUELISTDROPDOWNCLANLEADER	Leader	
-QUEUELISTDROPDOWNADDFRIEND	Add Friend	
-QUEUELISTDROPDOWNREMOVEFRIEND	Remove Friend	
-QUEUELISTDROPDOWNREPORT	Report User	
-QUEUELISTDROPDOWNKICK	Kick	
-QUEUELISTDROPDOWNBAN	Ban	
-QUEUELISTDROPDOWNIPBAN	IP Ban	
-QUEUELISTDROPDOWNOP	Make Operator	
-QUEUELISTDROPDOWNDEOP	Remove Op	
-QUEUELISTDROPDOWNWHISPER	Whisper	
-QUEUELISTDROPDOWNMUTE	Mute	
-QUEUELISTDROPDOWNUNMUTE	Unmute	
-QUEUELISTDROPDOWNSPECTATEALL	Force Spectate All	
-QUEUELISTDROPDOWNSPECALLCONFIRM	Are you sure you want to fspec all players? You won't be able to fenter everyone to same positions automatically.	
-QUEUELISTDROPDOWNMUTEALL	Mute All	
-QUEUELISTDROPDOWNUNMUTEALL	Unmute All	
-QUEUELISTDROPDOWNFSPEC	Force Spectate	
-QUEUELISTDROPDOWNFENTER	Force Enter	
-QUEUELISTDROPDOWNIGNORE	Ignore	
-QUEUELISTDROPDOWNNUDGE	Nudge	
-QUEUELISTDROPDOWNNUDGEUP	Nudge Up	
-QUEUELISTDROPDOWNNUDGEDOWN	Nudge Down	
-QUEUELISTDROPDOWNNUDGETOPOSITION	Nudge	
-QUEUELISTDROPDOWNNUDGECHOOSE	Choose Position	
-QUEUELISTDROPDOWNNUDGECUSTOM	Custom Position	
-QUEUELISTDROPDOWNUNIGNORE	Unignore	
-QUEUELISTDROPDOWNMASSCONTROLS	Mass Controls	
-QUEUELISTDROPDOWNSCRAMBLE	Scramble queue list	
-QUEUELISTDROPDOWNSCRAMBLECONFIRM	Are you sure you want to scramble queue list? You won't be able to revert to current player order automatically.	
-REPORTSREPORTINGPLAYER	Reporting Player	
-REPORTSREPORTREASON	Report reason:	
-REPORTSREASONHARASSMENT	Harassment / Toxicity	
-REPORTSREASONSPAM	Spam	
-REPORTSREASONCHEATING	Cheating (prize rigging, ranked fight evading, etc)	
-REPORTSREASONSCAMMING	Scamming 
-REPORTSREASONOTHER	Other	
-REPORTSSUCCESSDEFAULT	Your report has been successfully submitted, Toribash staff will get to it as soon as possible.\nIf your issue requires immediate action, you can also contact staff on Toribash Discord.	
-REPORTSSUCCESSSCAMMING	Your report has been successfully submitted, Market Squad will get to it as soon as possible.\nMake sure you keep an eye on your report until it's resolved in case there are any extra questions. If you want to add any extra replays, screenshots or other information to the report, please do so in the thread.	
-REPORTSEXTRAMESSAGE	Extra message:	
-REPORTSEXTRAMESSAGETIP	Add any extra information that you think may be useful	
+QUEUELISTDROPDOWNCLANLEADER	Leader
+QUEUELISTDROPDOWNADDFRIEND	Add Friend
+QUEUELISTDROPDOWNREMOVEFRIEND	Remove Friend
+QUEUELISTDROPDOWNREPORT	Report User
+QUEUELISTDROPDOWNKICK	Kick
+QUEUELISTDROPDOWNBAN	Ban
+QUEUELISTDROPDOWNIPBAN	IP Ban
+QUEUELISTDROPDOWNOP	Make Operator
+QUEUELISTDROPDOWNDEOP	Remove Op
+QUEUELISTDROPDOWNWHISPER	Whisper
+QUEUELISTDROPDOWNMUTE	Mute
+QUEUELISTDROPDOWNUNMUTE	Unmute
+QUEUELISTDROPDOWNSPECTATEALL	Force Spectate All
+QUEUELISTDROPDOWNSPECALLCONFIRM	Are you sure you want to fspec all players? You won't be able to fenter everyone to same positions automatically.
+QUEUELISTDROPDOWNMUTEALL	Mute All
+QUEUELISTDROPDOWNUNMUTEALL	Unmute All
+QUEUELISTDROPDOWNFSPEC	Force Spectate
+QUEUELISTDROPDOWNFENTER	Force Enter
+QUEUELISTDROPDOWNIGNORE	Ignore
+QUEUELISTDROPDOWNNUDGE	Nudge
+QUEUELISTDROPDOWNNUDGEUP	Nudge Up
+QUEUELISTDROPDOWNNUDGEDOWN	Nudge Down
+QUEUELISTDROPDOWNNUDGETOPOSITION	Nudge
+QUEUELISTDROPDOWNNUDGECHOOSE	Choose Position
+QUEUELISTDROPDOWNNUDGECUSTOM	Custom Position
+QUEUELISTDROPDOWNUNIGNORE	Unignore
+QUEUELISTDROPDOWNMASSCONTROLS	Mass Controls
+QUEUELISTDROPDOWNSCRAMBLE	Scramble queue list
+QUEUELISTDROPDOWNSCRAMBLECONFIRM	Are you sure you want to scramble queue list? You won't be able to revert to current player order automatically.
+REPORTSREPORTINGPLAYER	Reporting Player
+REPORTSREPORTREASON	Report reason:
+REPORTSREASONHARASSMENT	Harassment / Toxicity
+REPORTSREASONSPAM	Spam
+REPORTSREASONCHEATING	Cheating (prize rigging, ranked fight evading, etc)
+REPORTSREASONSCAMMING	Scamming
+REPORTSREASONOTHER	Other
+REPORTSSUCCESSDEFAULT	Your report has been successfully submitted, Toribash staff will get to it as soon as possible.\nIf your issue requires immediate action, you can also contact staff on Toribash Discord.
+REPORTSSUCCESSSCAMMING	Your report has been successfully submitted, Market Squad will get to it as soon as possible.\nMake sure you keep an eye on your report until it's resolved in case there are any extra questions. If you want to add any extra replays, screenshots or other information to the report, please do so in the thread.
+REPORTSEXTRAMESSAGE	Extra message:
+REPORTSEXTRAMESSAGETIP	Add any extra information that you think may be useful
 REPORTSCHATLOGINFO	Room chat logs and latest fight's replay will be also automatically attached to the report.
-REPORTSABUSENOTICE	Abusing reports system will get you banned from Toribash forums and game servers.	
-MESSAGEPLEASEWAIT	Please wait...	
-BUTTONCLOSEWINDOW	Close Window	
-INVENTORY3DITEMFOR	3D item for	your	
-STOREITEMSEDIT	Edit	
-STOREITEMSCUSTOMIZE	Customize	
-STORESHOWEMPTYSETS	Show empty sets	
-STOREITEMUPGRADEFOR	Upgrade for	
-STOREITEMUPGRADEPRICEFREE	FREE	
-STOREINVENTORYRELOAD	Reload inventory	
-STOREITEMRETEXTURABLE	Retexturable	
-STOREITEMSCLEANSELECTION	Clear Selection	
-STOREDIALOGUPGRADE1	Are you sure you want to upgrade	
-STOREDIALOGUPGRADE2	to level	
-DISCORDSERVER	Toribash Discord	
-REPORTSREPORTTHREAD	Report Thread	
-STOREITEMPREVIEW	Preview	
-REQUESTUNKNOWNERROR	Unknown Error	
-REQUESTCONNECTIONERROR	Connection Error	
-STOREREQUESTNOTHAIRSTYLE	This item is not a hairstyle	
-STOREVANILLAENTERMP	Previewing the item on your Tori will disconnect you from current Multiplayer room.	
-DISCORDRPCPLAYINGSPEVENT	Playing Single Player Event	
-EVENTSVIEWIGNALLEVENTS	Viewing all Events	
-EVENTSLIVE	Live	
-EVENTSALLEVENTS	All Events	
-EVENTSALLEVENTSDESC	View ended events' winners and replay ended events	
-EVENTSWONBY	Event won by	
-EVENTSJUDGINGINPROGRESS	Event judging still in progress	
-EVENTSVIEWMOREINFO	View more info	
-EVENTSPLAY	Play	
-EVENTSENDSIN	Ends in	
-EVENTSENDED	Ended	
-EVENTSENDEDAGO	ago	
-EVENTSLOADING	Loading event info...	
-EVENTSMYSTATS	My stats	
-EVENTSCOMMUNITYOBJECTIVE	Global Community Objective	
-EVENTSGAMESWON	Games won	
-EVENTSGLOBALPRIZEWILLBESENT	Global objective reward will be applied to your account after event is over if you played 10 or more games	
-EVENTSLOADINGTOPPLAYERS	Loading top players...	
-EVENTSTOPLIST	Top players	
-EVENTSCOMPLETED	Completed	
-EVENTSCLAIM	Claim	
-EVENTSCLAIMALL	Claim All Rewards	
-EVENTSPRIZESLOCKED	Locked Prizes	
-EVENTSWINSTOUNLOCK	wins to unlock	
-EVENTSALLREWARDSCLAIMED	All rewards have been claimed!	
-EVENTSKEEPPLAYINGTOGETINTOPLIST	Keep playing to get in top list to receive even better rewards at the end of the championship!	
-EVENTSLOADCUSTOMREPLAY	Load replay (CTRL + L)	
-REPLAYSAUTOSAVEDREPLAY	Autosaved Replay	
-REPLAYSSELECTREPLAYTOPROCEED	Select a Replay to Proceed	
-SETTINGSBROADCASTS	Broadcast Popups	
-SETTINGSSHOWINMP	Only show in Multiplayer	
-SETTINGSALWAYSSHOW	Always show	
-REPORTSCONFIRMATION	Are you sure you want to report	
+REPORTSABUSENOTICE	Abusing reports system will get you banned from Toribash forums and game servers.
+MESSAGEPLEASEWAIT	Please wait...
+BUTTONCLOSEWINDOW	Close Window
+INVENTORY3DITEMFOR	3D item for	your
+STOREITEMSEDIT	Edit
+STOREITEMSCUSTOMIZE	Customize
+STORESHOWEMPTYSETS	Show empty sets
+STOREITEMUPGRADEFOR	Upgrade for
+STOREITEMUPGRADEPRICEFREE	FREE
+STOREINVENTORYRELOAD	Reload inventory
+STOREITEMRETEXTURABLE	Retexturable
+STOREITEMSCLEANSELECTION	Clear Selection
+STOREDIALOGUPGRADE1	Are you sure you want to upgrade
+STOREDIALOGUPGRADE2	to level
+DISCORDSERVER	Toribash Discord
+REPORTSREPORTTHREAD	Report Thread
+STOREITEMPREVIEW	Preview
+REQUESTUNKNOWNERROR	Unknown Error
+REQUESTCONNECTIONERROR	Connection Error
+STOREREQUESTNOTHAIRSTYLE	This item is not a hairstyle
+STOREVANILLAENTERMP	Previewing the item on your Tori will disconnect you from current Multiplayer room.
+DISCORDRPCPLAYINGSPEVENT	Playing Single Player Event
+EVENTSVIEWIGNALLEVENTS	Viewing all Events
+EVENTSLIVE	Live
+EVENTSALLEVENTS	All Events
+EVENTSALLEVENTSDESC	View ended events' winners and replay ended events
+EVENTSWONBY	Event won by
+EVENTSJUDGINGINPROGRESS	Event judging still in progress
+EVENTSVIEWMOREINFO	View more info
+EVENTSPLAY	Play
+EVENTSENDSIN	Ends in
+EVENTSENDED	Ended
+EVENTSENDEDAGO	ago
+EVENTSLOADING	Loading event info...
+EVENTSMYSTATS	My stats
+EVENTSCOMMUNITYOBJECTIVE	Global Community Objective
+EVENTSGAMESWON	Games won
+EVENTSGLOBALPRIZEWILLBESENT	Global objective reward will be applied to your account after event is over if you played 10 or more games
+EVENTSLOADINGTOPPLAYERS	Loading top players...
+EVENTSTOPLIST	Top players
+EVENTSCOMPLETED	Completed
+EVENTSCLAIM	Claim
+EVENTSCLAIMALL	Claim All Rewards
+EVENTSPRIZESLOCKED	Locked Prizes
+EVENTSWINSTOUNLOCK	wins to unlock
+EVENTSALLREWARDSCLAIMED	All rewards have been claimed!
+EVENTSKEEPPLAYINGTOGETINTOPLIST	Keep playing to get in top list to receive even better rewards at the end of the championship!
+EVENTSLOADCUSTOMREPLAY	Load replay (CTRL + L)
+REPLAYSAUTOSAVEDREPLAY	Autosaved Replay
+REPLAYSSELECTREPLAYTOPROCEED	Select a Replay to Proceed
+SETTINGSBROADCASTS	Broadcast Popups
+SETTINGSSHOWINMP	Only show in Multiplayer
+SETTINGSALWAYSSHOW	Always show
+REPORTSCONFIRMATION	Are you sure you want to report
 REPORTSLONGWAITMESSAGE	Taking a bit longer than usual...\nThis window can be closed, you'll receive a notification when your report gets submitted.
 REPLAYSERRORLOADINGCACHE	Error loading replay cache, this may mean the data has been corrupted or you don't have read/write permissions on your Toribash folder.
 WORDERROR	Error
@@ -756,7 +756,7 @@ QUESTSGLOBALUPDATING	Updating global quests...
 NETWORKLOADING	Loading...
 QUESTSGLOBALCOMPLETED	Completed
 QUESTSGLOBALACTIVE	Active
-NOTHINGTOSHOW	Nothing to show here	
+NOTHINGTOSHOW	Nothing to show here
 CLANSUPDATINGWAIT	Updating clans data, please wait...
 QUESTSCLOSEST	Closest quests and quests available for claiming
 QUESTSLOCKED	Locked quests
@@ -787,271 +787,281 @@ BOUNTYSUCCESS2	in a fight will receive
 BOUNTYERROR1	Failed to add a
 BOUNTYERROR2	TC bounty on
 BOUNTYUPDATINGLIST	Updating bounty list...
-EVENTSLIVEEVENTS	Live events	
-EVENTSENDEDEVENTS	Ended events	
-EVENTSPLAYAGAIN	Play again	
-GAMERULESRESTARTGAME	Start New Game	
+EVENTSLIVEEVENTS	Live events
+EVENTSENDEDEVENTS	Ended events
+EVENTSPLAYAGAIN	Play again
+GAMERULESRESTARTGAME	Start New Game
 SETTINGSHIGHDPI	High DPI Mode
-SETTINGSJOINTFLASH	Joint state change flash	
-ERRORINSUFFICIENTFUNDS	Error: insufficient funds	
-ERRORBUYINGITEM	Error purchasing item	
-ERRORTRANSFERRINGMONEY	Error transferring money	
-FLAMESERRORPRICEMISMATCH	Flame cost mismatch, forging cancelled	
-FLAMESERRORSPAWNING	Error spawning flame with specified settings	
-FLAMESBROWSE	Browse	
-FLAMESFORGERTITLE	Flame Forger	
-FLAMESBROWSERTITLE	Flame Browser	
-FLAMESFORGEFLAME	Forge Flame	
-FLAMESFLAMENAME	Flame name	
-FLAMESSPAWNCOST	Spawn cost	
-FLAMESFORGEDATE	Forge date	
-FLAMESOWNER	Current owner	
+SETTINGSJOINTFLASH	Joint state change flash
+ERRORINSUFFICIENTFUNDS	Error: insufficient funds
+ERRORBUYINGITEM	Error purchasing item
+ERRORTRANSFERRINGMONEY	Error transferring money
+FLAMESERRORPRICEMISMATCH	Flame cost mismatch, forging cancelled
+FLAMESERRORSPAWNING	Error spawning flame with specified settings
+FLAMESBROWSE	Browse
+FLAMESFORGERTITLE	Flame Forger
+FLAMESBROWSERTITLE	Flame Browser
+FLAMESFORGEFLAME	Forge Flame
+FLAMESFLAMENAME	Flame name
+FLAMESSPAWNCOST	Spawn cost
+FLAMESFORGEDATE	Forge date
+FLAMESOWNER	Current owner
 FLAMESERROROPENINGSTORAGE	Error opening flame storage data file\nPlease make sure you have write permissions on your Toribash data folder and try again
 FLAMESSTORAGESUCCESS	Flame stored successfully!\nYou can now load it for preview using Flame Browser
-FLAMESSTOREDFLAMES	Stored flames	
-FLAMESBODYPARTFOR	for	
-FLAMESSEARCHNONEFOUND	No flames found that fit your search	
-FLAMESSEARCHNAME1	Flames with 
-FLAMESSEARCHNAME2	in their name	
-FLAMESSEARCHFORGER	Flames forged by	
-FLAMESSEARCHOWNER	Flames owned by	
-FLAMESSECTIONGENERAL	General	
-FLAMESSECTIONCOLOR	Color	
-FLAMESSECTIONSIZE	Size	
-FLAMESSECTIONGRAVITYDISPLACEMENT	Gravity & displacement	
-FLAMESSECTIONADVANCED	Advanced	
-FLAMESPRICEESTIMATE	Flame price estimate	
-FLAMESSEARCHRESULTS	Search results for	
-FLAMESSLOTID	Flame slot	
-FLAMESSAVINGFLAME	Saving flame to local cache	
-FLAMESSAVINGEMPTYDATE	Leave empty to save with current date as flame name	
-FLAMESFORGINGFLAME	Forging your flame	
-FLAMESFORGINGNAMEEMPTY	Flame name cannot be empty	
-FLAMESFORGINGCONFIRM1	Forging	
-FLAMESFORGINGCONFIRM2	flame for	
-FLAMESFORGINGCHARGED1	You will be charged	
-FLAMESFORGINGCHARGED2	for spawning the flame	
-FLAMESSEARCHFLAMES	Search flames	
-STOREITEMOWNEDBY	Owned by	
-FLAMESFORGEDANDOWNEDBY	Forged and owned\nby	
-FLAMESDELETESTOREDCONFIRM	Are you sure you want to delete your stored flame design	
+FLAMESSTOREDFLAMES	Stored flames
+FLAMESBODYPARTFOR	for
+FLAMESSEARCHNONEFOUND	No flames found that fit your search
+FLAMESSEARCHNAME1	Flames with
+FLAMESSEARCHNAME2	in their name
+FLAMESSEARCHFORGER	Flames forged by
+FLAMESSEARCHOWNER	Flames owned by
+FLAMESSECTIONGENERAL	General
+FLAMESSECTIONCOLOR	Color
+FLAMESSECTIONSIZE	Size
+FLAMESSECTIONGRAVITYDISPLACEMENT	Gravity & displacement
+FLAMESSECTIONADVANCED	Advanced
+FLAMESPRICEESTIMATE	Flame price estimate
+FLAMESSEARCHRESULTS	Search results for
+FLAMESSLOTID	Flame slot
+FLAMESSAVINGFLAME	Saving flame to local cache
+FLAMESSAVINGEMPTYDATE	Leave empty to save with current date as flame name
+FLAMESFORGINGFLAME	Forging your flame
+FLAMESFORGINGNAMEEMPTY	Flame name cannot be empty
+FLAMESFORGINGCONFIRM1	Forging
+FLAMESFORGINGCONFIRM2	flame for
+FLAMESFORGINGCHARGED1	You will be charged
+FLAMESFORGINGCHARGED2	for spawning the flame
+FLAMESSEARCHFLAMES	Search flames
+STOREITEMOWNEDBY	Owned by
+FLAMESFORGEDANDOWNEDBY	Forged and owned\nby
+FLAMESDELETESTOREDCONFIRM	Are you sure you want to delete your stored flame design
 CONFIRMACTIONCANNOTBEUNDONE	This action cannot be undone.
-CONFIRMAREYOUSURE	Are you sure?	
-SETTINGSBLOOD	Blood	
-SETTINGSVANILLA	Vanilla (only joints)	
+CONFIRMAREYOUSURE	Are you sure?
+SETTINGSBLOOD	Blood
+SETTINGSVANILLA	Vanilla (only joints)
 SETTINGSMODERN	Modern (more bleeds)
-SETTINGSBORDERLESS	Borderless Mode	
-SETTINGSREPLAYHUDTOGGLE	Replay HUD Toggle	
-STOREFLAMEFORGE	Flame Forge	
-STOREFLAMEFORGEDESC	Spawn your own flames or browse existing ones	
-SETTINGSPLAYERTEXTUCUSTOM	Show your messages in a different color	
-SETTINGSDISABLEANIMATIONS	Disable menu animations	
-SETTINGSDPIAWARENESS	Ignore Windows graphics scaling	
-HINTREQUIRESRESTART	Requires game restart	
-EVENTSEVENTINFO	Event Info	
-STOREPURCHASECONGRATULATIONSRECEIVED	Congratulations, you have received	
+SETTINGSBORDERLESS	Borderless Mode
+SETTINGSREPLAYHUDTOGGLE	Replay HUD Toggle
+STOREFLAMEFORGE	Flame Forge
+STOREFLAMEFORGEDESC	Spawn your own flames or browse existing ones
+SETTINGSPLAYERTEXTUCUSTOM	Show your messages in a different color
+SETTINGSDISABLEANIMATIONS	Disable menu animations
+SETTINGSDPIAWARENESS	Ignore Windows graphics scaling
+HINTREQUIRESRESTART	Requires game restart
+EVENTSEVENTINFO	Event Info
+STOREPURCHASECONGRATULATIONSRECEIVED	Congratulations, you have received
 STOREPURCHASECONGRATULATIONS	Congratulations on your purchase!
-STOREPURCHASEWOULDYOULIKETOACTIVATE1	Would you like to activate	
-STOREPURCHASEWOULDYOULIKETOACTIVATE2	 	
-STOREPURCHASEWOULDYOULIKETOUNPACK1	Would you like to unpack	
-STOREPURCHASEWOULDYOULIKETOUNPACK2	 	
-INVENTORYNOTEXTUREUPLOADED	No texture uploaded	
-STOREAPPLIEDITEMEFFECTS	Applied item effects	
-STOREYOUNEEDTOPLAYGAMES1	You need to play	
-STOREYOUNEEDTOPLAYGAMES2	more fights with this item equipped	
-STOREUPGRADEORPLAYGAMES	or play	
-STOREYOUNEEDTC1	You need to have	
-STOREFUSENEWEFFECT	Fuse new effect	
-INVENTORYNOEFFECTITEMS	No suitable effect items in inventory	
-INVENTORYUPLOADNEWTEXTURE	Upload new texture	
-INVENTORYUPLOADTEXTURECONFIRM1	Are you sure you want to upload	
-INVENTORYUPLOADTEXTURECONFIRM2	as texture for your	
-INVENTORYUPLOADTEXTUREOVERWRITENOTICE	Any existing texture will be overwritten.	
-INVENTORYUPLOADINGFILE	Uploading file to Toribash servers	
-INVENTORYRESETTEXTURE	Reset texture	
-INVENTORYTEXTURERESETCONFIRM	Are you sure you want to reset this item's texture?\nAny currently uploaded texture will be lost.	
-STOREPURCHASEINSTORE	Purchase in Store	
-STOREFUSEEFFECTFOR	Fuse for	
-INVENTORYLOADINGEFFECTS	Loading item effects and effect upgrades	
-INVENTORYFUSECONFIRM1	Are you sure you want to fuse 
-INVENTORYFUSECONFIRM2	effect into	
+STOREPURCHASEWOULDYOULIKETOACTIVATE1	Would you like to activate
+STOREPURCHASEWOULDYOULIKETOACTIVATE2
+STOREPURCHASEWOULDYOULIKETOUNPACK1	Would you like to unpack
+STOREPURCHASEWOULDYOULIKETOUNPACK2
+INVENTORYNOTEXTUREUPLOADED	No texture uploaded
+STOREAPPLIEDITEMEFFECTS	Applied item effects
+STOREYOUNEEDTOPLAYGAMES1	You need to play
+STOREYOUNEEDTOPLAYGAMES2	more fights with this item equipped
+STOREUPGRADEORPLAYGAMES	or play
+STOREYOUNEEDTC1	You need to have
+STOREFUSENEWEFFECT	Fuse new effect
+INVENTORYNOEFFECTITEMS	No suitable effect items in inventory
+INVENTORYUPLOADNEWTEXTURE	Upload new texture
+INVENTORYUPLOADTEXTURECONFIRM1	Are you sure you want to upload
+INVENTORYUPLOADTEXTURECONFIRM2	as texture for your
+INVENTORYUPLOADTEXTUREOVERWRITENOTICE	Any existing texture will be overwritten.
+INVENTORYUPLOADINGFILE	Uploading file to Toribash servers
+INVENTORYRESETTEXTURE	Reset texture
+INVENTORYTEXTURERESETCONFIRM	Are you sure you want to reset this item's texture?\nAny currently uploaded texture will be lost.
+STOREPURCHASEINSTORE	Purchase in Store
+STOREFUSEEFFECTFOR	Fuse for
+INVENTORYLOADINGEFFECTS	Loading item effects and effect upgrades
+INVENTORYFUSECONFIRM1	Are you sure you want to fuse
+INVENTORYFUSECONFIRM2	effect into
 INVENTORYFUSECONFIRMPRICE	You will be charged
-INVENTORYFUSECONFIRMINFO	Effect fusion is irreversible and your effect item will be destroyed.	
-STOREITEMLEVEL	Level	
-INVENTORYCHOOSEITEMUPGRADELEVEL	Choose item upgrade level	
-INVENTORYAPPLYUPGRADE	Apply upgrade	
-INVENTORYUPGRADEITEMNEXTLEVEL	Upgrade item to next level	
-STORENOITEMSTODISPLAY	No items to display	
-STORESELECTITEMTOVIEWDETAILS	Select an item to view its details	
-STOREDIALOGCHANGELEVEL1	Are you sure you want to set level	
-STOREDIALOGCHANGELEVEL2	upgrade for your	
-INVENTORYSETEFFECTCONFIRM	Are you sure you want to apply selected effect upgrades for your	
-INVENTORYSETEFFECTNOTICE	If you had any paid upgrades applied, you may need to purchase them again.	
-STOREYOUHAVEPURCHASEDITEM	You have successfully purchased	
-STOREPURCHASEDITEMPLACEDININVENTORY	It has been added to your deactivated inventory.	
-SETTINGSITEMEFFECTS	Item Effects	
+INVENTORYFUSECONFIRMINFO	Effect fusion is irreversible and your effect item will be destroyed.
+STOREITEMLEVEL	Level
+INVENTORYCHOOSEITEMUPGRADELEVEL	Choose item upgrade level
+INVENTORYAPPLYUPGRADE	Apply upgrade
+INVENTORYUPGRADEITEMNEXTLEVEL	Upgrade item to next level
+STORENOITEMSTODISPLAY	No items to display
+STORESELECTITEMTOVIEWDETAILS	Select an item to view its details
+STOREDIALOGCHANGELEVEL1	Are you sure you want to set level
+STOREDIALOGCHANGELEVEL2	upgrade for your
+INVENTORYSETEFFECTCONFIRM	Are you sure you want to apply selected effect upgrades for your
+INVENTORYSETEFFECTNOTICE	If you had any paid upgrades applied, you may need to purchase them again.
+STOREYOUHAVEPURCHASEDITEM	You have successfully purchased
+STOREPURCHASEDITEMPLACEDININVENTORY	It has been added to your deactivated inventory.
+SETTINGSITEMEFFECTS	Item Effects
 STOREINVENTORYEMPTY	No items to display in inventory.\nYou can purchase items in Store or win them by completing quests and events.
-SETTINGSUSAGEREPORTING	Usage reporting	
-SETTINGSSUBMITUSAGE	Submit usage statistics to Toribash servers	
-SETTINGSSUBMITUSAGEDESC	We collect data on general game client usage to better understand what our players like or dislike doing and improve your overall experience	
-UNDEF	Undefined	
-INVENTORYCUSTOMIZING	Customizing	
-QUEUELISTLEGENDTITLE	Legend	
-QUEUELISTLEGENDDESC	This player is one of the most outstanding users of Toribash community	
-QUEUELISTTORIAGENTTITLE	Tori Agent	
-QUEUELISTTORIAGENTDESC	Tori Agents moderate Toribash rooms, handle general reports and assist players in Support	
-QUEUELISTMARKETSQUADTITLE	Market Squad	
-QUEUELISTMARKETSQUADDESC	Market Squad members manage Toribash Market and deal with market-related scams	
-QUEUELISTINGAMEADMINTITLE	Game Admin	
-QUEUELISTINGAMEADMINDESC	Game administrators manage Toribash rooms, as well as moderate the game and forums	
-QUEUELISTEVENTSQUADTITLE	Event Squad	
-QUEUELISTEVENTSQUADDESC	Event Squad members host events and moderate Toribash rooms	
-QUEUELISTROOMOPTITLE	Room Operator	
-QUEUELISTROOMOPDESC	Room operators can modify room settings, change mods and control players inside	
-QUEUELISTMUTEDTITLE	Muted	
-QUEUELISTMUTEDDESC	This user can't talk :(	
+SETTINGSUSAGEREPORTING	Usage reporting
+SETTINGSSUBMITUSAGE	Submit usage statistics to Toribash servers
+SETTINGSSUBMITUSAGEDESC	We collect data on general game client usage to better understand what our players like or dislike doing and improve your overall experience
+UNDEF	Undefined
+INVENTORYCUSTOMIZING	Customizing
+QUEUELISTLEGENDTITLE	Legend
+QUEUELISTLEGENDDESC	This player is one of the most outstanding users of Toribash community
+QUEUELISTTORIAGENTTITLE	Tori Agent
+QUEUELISTTORIAGENTDESC	Tori Agents moderate Toribash rooms, handle general reports and assist players in Support
+QUEUELISTMARKETSQUADTITLE	Market Squad
+QUEUELISTMARKETSQUADDESC	Market Squad members manage Toribash Market and deal with market-related scams
+QUEUELISTINGAMEADMINTITLE	Game Admin
+QUEUELISTINGAMEADMINDESC	Game administrators manage Toribash rooms, as well as moderate the game and forums
+QUEUELISTEVENTSQUADTITLE	Event Squad
+QUEUELISTEVENTSQUADDESC	Event Squad members host events and moderate Toribash rooms
+QUEUELISTROOMOPTITLE	Room Operator
+QUEUELISTROOMOPDESC	Room operators can modify room settings, change mods and control players inside
+QUEUELISTMUTEDTITLE	Muted
+QUEUELISTMUTEDDESC	This user can't talk :(
 SETTINGSAPPLIEDAFTERRESTART	Some settings will be applied after game restart
-EVENTFRAMESELAPSED	frames elapsed	
-NAVBUTTONMARKET	Market	
-MARKETLOADINGDATA	Loading market data...	
-MARKETERRORLOADINGSHOP	Error loading shop data, please try again later	
-MARKETUPGRADEPREMIUM	Upgrade shop to Premium	
+EVENTFRAMESELAPSED	frames elapsed
+NAVBUTTONMARKET	Market
+MARKETLOADINGDATA	Loading market data...
+MARKETERRORLOADINGSHOP	Error loading shop data, please try again later
+MARKETUPGRADEPREMIUM	Upgrade shop to Premium
 MARKETUPGRADEPREMIUMDESC	Market Premium subscription allows you to set shop promo image and description, sell items without market tax and sell no-Qi items.
-MARKETSHOPSTATS	Shop Statistics	
-MARKETSTATSSALES	sales	
+MARKETSHOPSTATS	Shop Statistics
+MARKETSTATSSALES	sales
 MARKETSTATSPURCHASES	purchases
 MARKETSTATSTOTAL	Total earnings
-MARKETNEWSALEOFFER	New sale offer	
-MARKETNEWPURCHASEOFFER	New purchase request	
-MARKETVIEWMYSHOP	View my shop	
+MARKETNEWSALEOFFER	New sale offer
+MARKETNEWPURCHASEOFFER	New purchase request
+MARKETVIEWMYSHOP	View my shop
 MARKETLOADINGOFFERS	Loading offers...
 MARKETSALEOFFERS	Sale offers
 MARKETPOPULARSALEOFFERS	Popular sale offers
 MARKETPURCHASEREQUESTS	Purchase requests
 MARKETRECENTPURCHASEREQUESTS	Recent purchase requests
-MARKETOFFERS	offers	
-MARKETPRICESTARTINGAT	Starting at	
-MARKETSELL	Sell	
-MARKETOFFERBY	Placed by	
-MARKETOFFERPLACEDON	on	
-BELTRESTRICTION	Belt restriction	
-MARKETITEMSTOTAL	Items total	
-MARKETOWNEDBY	Owned by	
-MARKETRECENTLYTRADED	Recently traded	
-WORDITEMS	items	
-WORDPLAYERS	players	
+MARKETOFFERS	offers
+MARKETPRICESTARTINGAT	Starting at
+MARKETSELL	Sell
+MARKETOFFERBY	Placed by
+MARKETOFFERPLACEDON	on
+BELTRESTRICTION	Belt restriction
+MARKETITEMSTOTAL	Items total
+MARKETOWNEDBY	Owned by
+MARKETRECENTLYTRADED	Recently traded
+WORDITEMS	items
+WORDPLAYERS	players
 MARKETLOADINGPRICES	Loading prices...
-MARKETSALEOFFERSSTARTINGAT	sale offers starting at	
-MARKETBUYREQUESTSSTARTINGAT	buy requests starting at	
-MARKETPURCHASE	Purchase	
-MARKETSELL	Sell	
-MARKETNOACTIVEOFFERS	No active	
-WORDBY	by	
-ITEMGAMESPLAYED	Games Played	
-MARKETGAMESPLAYEDINFO	Item's games played value\ncan affect available level\nand effect upgrades	
-MARKETSELLFOR	Sell for	
-MARKETCHEAPERTHANSTORE	cheaper than in Store	
-MARKETMOREEXPENSIVETHANSTORE	more expensive than in Store	
-MARKETSTOREPRICE	Store price	
-MARKETINSUFFICIENTFUNDS	You don't have enough TC to purchase this item	
-MARKETBELTREQUIREMENT	You need to get more Qi to purchase this item	
-MARKETBELTSHIAIREQUIREMENT	You need to get more Qi or Shiai Tokens to purchase this item	
-MARKETSHIAIEXPLANATION	Premium shops can sell items that require more Qi than you have with a ST fee	
-MARKETPURCHASEFROM	from	
-MARKETYOUWILLBECHARGED	You will be charged	
-MARKETITEMPURCHASED	Item purchased	
-MARKETITEMCATEGORY	Category	
-GENERALSEARCHFILTERS	Search Filters	
-SEARCHFILTERMINQI	Min Qi	
-SEARCHFILTERMAXQI	Max Qi	
-SEARCHFILTERMINPRICE	Min Price	
-SEARCHFILTERMAXPRICE	Max Price	
-SEARCHFILTERDEFAULTMYQI	My Qi	
-SEARCHFILTERDEFAULTMYTC	My Toricredits	
-SEARCHFILTERLIMIT	Limit	
-SEARCHFILTERORDER	Order by	
-SEARCHFILTERORDERPRICE	Price (cheapest first)	
-SEARCHFILTERORDERPRICEDESC	Price (expensive first)	
-SEARCHFILTERORDERDATE	Date (oldest first)	
-SEARCHFILTERORDERDATEDESC	Date (newest first)	
-MARKETSEARCHGROUPBYITEM	Group results by item	
-MARKETMODIFY	Modify	
-MARKETMODIFYOFFER	Modify Offer	
-MARKETSELECTITEMMODAL	Select an item to continue	
-MARKETOFFERYOUGET	You get	
-MARKETMODALPURCHASEPRICE	Price you will pay for the item	
-MARKETYOURBALANCEERROR	Specified price exceeds your balance:	
-MARKETPRICEEXCEEDSMAX	Specified price is higher than maximum allowed price	
-MARKETPURCHASEOFFERCONFIRM	Are you sure you want to submit a purchase offer for	
-MARKETPURCHASEYOUWILLHAVELEFT2	left after that.	
-MARKETSELECTEDITEMS	Selected items:	
-MARKETSELECTITEMSQUANTITYERROR	You cannot choose more items than you have already selected	
-MARKETINVENTORYEMPTY	No matching items found in deactivated inventory	
-MARKETPRICEBUYERPAYS	Buyer pays	
-MARKETPRICEHINT	Price in TC	
-MARKETSELLPREMIUMPROMO	Upgrade your shop to Premium to sell items without Market tax	
-MARKETLOADINGPRICESUGGESTIONS	Loading price suggestions	
-MARKETPRICELOWESTSALE	Cheapest sale offer	
-MARKETPRICELASTSEEN	Recently sold for	
-MARKETPRICESHOPPRICE	Price in Store	
-MARKETPRICEHIGHESTBUY	Highest purchase offer	
-MARKETDIALOGSELLCONFIRM	Are you sure you want to sell	
-MARKETDIALOGSELLTO	to	
-MARKETMODIFYINGSALEOFFER	Modifying sale offer	
-MARKETCANCELOFFER	Cancel offer	
-MARKETCONFIRMCANCELOFFER	Are you sure you want to cancel	
-MARKETSALEOFFER	sale offer	
-MARKETBUYREQUEST	purchase request	
-MARKETCONFIRMUPDATEOFFER	Are you sure you want to update	
-MARKETCONFIRMUPDATEOFFERPRICE	New offer price:	
-MARKETOFFERCANCELLED	Offer cancelled	
-MARKETMODIFYINGBUYREQUEST	Modifying purchase request	
-MARKETBUYREQUESTLEFT2	left after updating this buy request.	
-MARKETLOADINGSHOPBY	Loading Market Shop information by	
-MARKETPREMIUMSHOP	Premium Shop	
-MARKETPREMIUMSHOPHINT	Premium shops sell items without market fee and no-Qi items (with an added ST price depending on your belt)	
-MARKETSTATSSALEOFFERS	active sale offers	
-MARKETSTATSPURCHASEREQUESTS	active purchase requests	
-MARKETFINISHEDSALESFOR	completed sales for	
-MARKETITEMSONSALE	items currently on sale	
-MARKETLOOKINGTOBUY	Looking to buy	
-SEARCHFILTERSMARKETUSER	Shop owner's name	
-MARKETSEARCHINSHOP	Search for items in this shop	
-MARKETMODIFYSHOP	Modify shop	
-MARKETMODIFYINGSHOPINFO	Modifying shop info	
-MARKETMODIFYSHOPCONFIRM	Are you sure you want to apply changes to your Market shop?	
-MARKETSHOPTITLE	Shop title	
-MARKETSHOPDESC	Shop description	
-MARKETCHOOSENEWSHOPIMAGE	Select new shop promo image	
-GENERALSELECTEDFILE	Selected file	
-MARKETSHOPIMAGEUPDATED	Shop image has been successfully updated.	
-MARKETSHOPIMAGEUPDATEERROR	Error uploading new shop image.	
-REPLAYWITHNAMEEXISTSPROMPT	Replay with this name already exists. Are you sure you want to replace it?	
-SETTINGSJOINTOBJOPACITY	Joint Objects Opacity	
-SETTINGSGUISCALING	Gui Scaling	
-STOREPURGEEFFECT	Purge applied effects	
-INVENTORYPURGEEFFECTCONFIRM	Are you sure you want to purge all the effects\ncurrently applied to your	
-REPLAYHUDPREVREPLAY	Previous replay	
-REPLAYHUDNEXTREPLAY	Next replay	
+MARKETSALEOFFERSSTARTINGAT	sale offers starting at
+MARKETBUYREQUESTSSTARTINGAT	buy requests starting at
+MARKETPURCHASE	Purchase
+MARKETSELL	Sell
+MARKETNOACTIVEOFFERS	No active
+WORDBY	by
+ITEMGAMESPLAYED	Games Played
+MARKETGAMESPLAYEDINFO	Item's games played value\ncan affect available level\nand effect upgrades
+MARKETSELLFOR	Sell for
+MARKETCHEAPERTHANSTORE	cheaper than in Store
+MARKETMOREEXPENSIVETHANSTORE	more expensive than in Store
+MARKETSTOREPRICE	Store price
+MARKETINSUFFICIENTFUNDS	You don't have enough TC to purchase this item
+MARKETBELTREQUIREMENT	You need to get more Qi to purchase this item
+MARKETBELTSHIAIREQUIREMENT	You need to get more Qi or Shiai Tokens to purchase this item
+MARKETSHIAIEXPLANATION	Premium shops can sell items that require more Qi than you have with a ST fee
+MARKETPURCHASEFROM	from
+MARKETYOUWILLBECHARGED	You will be charged
+MARKETITEMPURCHASED	Item purchased
+MARKETITEMCATEGORY	Category
+GENERALSEARCHFILTERS	Search Filters
+SEARCHFILTERMINQI	Min Qi
+SEARCHFILTERMAXQI	Max Qi
+SEARCHFILTERMINPRICE	Min Price
+SEARCHFILTERMAXPRICE	Max Price
+SEARCHFILTERDEFAULTMYQI	My Qi
+SEARCHFILTERDEFAULTMYTC	My Toricredits
+SEARCHFILTERLIMIT	Limit
+SEARCHFILTERORDER	Order by
+SEARCHFILTERORDERPRICE	Price (cheapest first)
+SEARCHFILTERORDERPRICEDESC	Price (expensive first)
+SEARCHFILTERORDERDATE	Date (oldest first)
+SEARCHFILTERORDERDATEDESC	Date (newest first)
+MARKETSEARCHGROUPBYITEM	Group results by item
+MARKETMODIFY	Modify
+MARKETMODIFYOFFER	Modify Offer
+MARKETSELECTITEMMODAL	Select an item to continue
+MARKETOFFERYOUGET	You get
+MARKETMODALPURCHASEPRICE	Price you will pay for the item
+MARKETYOURBALANCEERROR	Specified price exceeds your balance:
+MARKETPRICEEXCEEDSMAX	Specified price is higher than maximum allowed price
+MARKETPURCHASEOFFERCONFIRM	Are you sure you want to submit a purchase offer for
+MARKETPURCHASEYOUWILLHAVELEFT2	left after that.
+MARKETSELECTEDITEMS	Selected items:
+MARKETSELECTITEMSQUANTITYERROR	You cannot choose more items than you have already selected
+MARKETINVENTORYEMPTY	No matching items found in deactivated inventory
+MARKETPRICEBUYERPAYS	Buyer pays
+MARKETPRICEHINT	Price in TC
+MARKETSELLPREMIUMPROMO	Upgrade your shop to Premium to sell items without Market tax
+MARKETLOADINGPRICESUGGESTIONS	Loading price suggestions
+MARKETPRICELOWESTSALE	Cheapest sale offer
+MARKETPRICELASTSEEN	Recently sold for
+MARKETPRICESHOPPRICE	Price in Store
+MARKETPRICEHIGHESTBUY	Highest purchase offer
+MARKETDIALOGSELLCONFIRM	Are you sure you want to sell
+MARKETDIALOGSELLTO	to
+MARKETMODIFYINGSALEOFFER	Modifying sale offer
+MARKETCANCELOFFER	Cancel offer
+MARKETCONFIRMCANCELOFFER	Are you sure you want to cancel
+MARKETSALEOFFER	sale offer
+MARKETBUYREQUEST	purchase request
+MARKETCONFIRMUPDATEOFFER	Are you sure you want to update
+MARKETCONFIRMUPDATEOFFERPRICE	New offer price:
+MARKETOFFERCANCELLED	Offer cancelled
+MARKETMODIFYINGBUYREQUEST	Modifying purchase request
+MARKETBUYREQUESTLEFT2	left after updating this buy request.
+MARKETLOADINGSHOPBY	Loading Market Shop information by
+MARKETPREMIUMSHOP	Premium Shop
+MARKETPREMIUMSHOPHINT	Premium shops sell items without market fee and no-Qi items (with an added ST price depending on your belt)
+MARKETSTATSSALEOFFERS	active sale offers
+MARKETSTATSPURCHASEREQUESTS	active purchase requests
+MARKETFINISHEDSALESFOR	completed sales for
+MARKETITEMSONSALE	items currently on sale
+MARKETLOOKINGTOBUY	Looking to buy
+SEARCHFILTERSMARKETUSER	Shop owner's name
+MARKETSEARCHINSHOP	Search for items in this shop
+MARKETMODIFYSHOP	Modify shop
+MARKETMODIFYINGSHOPINFO	Modifying shop info
+MARKETMODIFYSHOPCONFIRM	Are you sure you want to apply changes to your Market shop?
+MARKETSHOPTITLE	Shop title
+MARKETSHOPDESC	Shop description
+MARKETCHOOSENEWSHOPIMAGE	Select new shop promo image
+GENERALSELECTEDFILE	Selected file
+MARKETSHOPIMAGEUPDATED	Shop image has been successfully updated.
+MARKETSHOPIMAGEUPDATEERROR	Error uploading new shop image.
+REPLAYWITHNAMEEXISTSPROMPT	Replay with this name already exists. Are you sure you want to replace it?
+SETTINGSJOINTOBJOPACITY	Joint Objects Opacity
+SETTINGSGUISCALING	Gui Scaling
+STOREPURGEEFFECT	Purge applied effects
+INVENTORYPURGEEFFECTCONFIRM	Are you sure you want to purge all the effects\ncurrently applied to your
+REPLAYHUDPREVREPLAY	Previous replay
+REPLAYHUDNEXTREPLAY	Next replay
 STOREPURCHASESUCCESSFUL	Congratulations on your purchase! Would you like to activate the item now?
-SETTINGSUILIGHT	Light UI mode	
-SETTINGSSYSTEMCURSOR	Use system cursor	
-SETTINGSGRAPHICSOTHER	Other	
-SETTINGSSYSTEMCURSORHINT	Will be applied after game restart or graphics engine reload	
-SETTINGSUILIGHTHINT	Disables menu animations, rounding and other details to improve performance	
-SETTINGSBACKGROUNDCLICKHINT	Allows background clicks to deselect all players	
-SETTINGSGAMERULESHINT	Save mod and gamerules for the next game session	
-TIMELEFT	left	
-STORENEXTUSDPURCHASE	Next USD purchase	
-STORENEXTPAYPALPURCHASE	Next PayPal	purchase	
-STORENEXTITEMPURCHASE	Next item purchase	
-STOREDISCOUNTOFF	Off	
+SETTINGSUILIGHT	Light UI mode
+SETTINGSSYSTEMCURSOR	Use system cursor
+SETTINGSGRAPHICSOTHER	Other
+SETTINGSSYSTEMCURSORHINT	Will be applied after game restart or graphics engine reload
+SETTINGSUILIGHTHINT	Disables menu animations, rounding and other details to improve performance
+SETTINGSBACKGROUNDCLICKHINT	Allows background clicks to deselect all players
+SETTINGSGAMERULESHINT	Save mod and gamerules for the next game session
+TIMELEFT	left
+STORENEXTUSDPURCHASE	Next USD purchase
+STORENEXTPAYPALPURCHASE	Next PayPal	purchase
+STORENEXTITEMPURCHASE	Next item purchase
+STOREDISCOUNTOFF	Off
 STORELIMITEDOFFER	Limited time offer!
-BATTLEPASSTITLE	Battle Pass	
-BATTLEPASSSEASON	Season	
+BUTTONOK	OK
+BATTLEPASSTITLE	Battle Pass
+BATTLEPASSSEASON	Season
 BATTLEPASSLOADING	Loading your Battle Pass data, please wait...
-BATTLEPASSQUESTS	Battle Pass Quests	
-BATTLEPASSYOUREXPERIENCE	Battle Pass XP:	
-BATTLEPASSPURCHASELEVEL	Purchase Level	
-BATTLEPASSLEVEL	BP Level	
-BATTLEPASSLVL	Lvl	
+BATTLEPASSQUESTS	Battle Pass Quests
+BATTLEPASSYOUREXPERIENCE	Battle Pass XP:
+BATTLEPASSPURCHASELEVEL	Purchase Level
+BATTLEPASSPURCHASELEVELTITLE	Purchase Battle Pass levels
+BATTLEPASSPURCHASEPREMIUM	Upgrade to premium
+BATTLEPASSLEVEL	BP Level
+BATTLEPASSLVL	Lvl
+BATTLEPASSCLAIMREWARD	Claim rewards
+BATTLEPASSCLAIMREWARDTITLE	Claim your Battle Pass rewards
+BATTLEPASSCLAIMSUCCESS	Congratulations, you have claimed your Battle Pass rewards!
+BATTLEPASSCLAIMERROR	Error claiming rewards, please try again later
+BATTLEPASSANDMORE1	&
+BATTLEPASSANDMORE2	more
+BATTLEPASSYOUWILLRECEIVEREWARDS	You will receive the following rewards:

@@ -30,7 +30,7 @@ function DiscordRPC:quit(viewElement, buttons)
 	for i,v in pairs(buttons) do
 		v:deactivate()
 	end
-	
+
 	local progress = math.pi / 60
 	viewElement:addCustomDisplay(false, function()
 			if (viewElement.pos.x > -viewElement.size.w) then
@@ -75,9 +75,9 @@ function DiscordRPC:show()
 	while (#circles < 30) do
 		local whites = math.random(40, 90) / 100
 		local blues = 1
-		local circle = { 
-			color = { whites, whites, blues, 1 }, 
-			size = math.random(20, 60) / 10, 
+		local circle = {
+			color = { whites, whites, blues, 1 },
+			size = math.random(20, 60) / 10,
 			x = math.random(math.random(15, discordOverlay.size.w - 15), discordOverlay.size.w - 15),
 		 	y = math.random(math.random(15, discordOverlay.size.h - 15), discordOverlay.size.h - 15)
 		}
@@ -87,9 +87,9 @@ function DiscordRPC:show()
 			while (#circles < 30) do
 				local whites = math.random(40, 90) / 100
 				local blues = 1
-				local circle = { 
-					color = { whites, whites, blues, 1 }, 
-					size = math.random(20, 60) / 10, 
+				local circle = {
+					color = { whites, whites, blues, 1 },
+					size = math.random(20, 60) / 10,
 					x = math.random(math.random(15, discordOverlay.size.w - 15), discordOverlay.size.w - 15),
 				 	y = discordOverlay.size.h - 40
 				}
@@ -157,7 +157,7 @@ function DiscordRPC:show()
 		pressedColor = DiscordColorRedPress
 	})
 	table.insert(buttons, discordDecline)
-	
+
 	discordAccept:addAdaptedText(false, "Accept")
 	discordAccept:addMouseHandlers(nil, function()
 			DiscordRPC:quit(discordOverlay, buttons)
@@ -170,7 +170,6 @@ function DiscordRPC:show()
 		end)
 end
 
-UIElement:mouseHooks()
 add_hook("draw2d", "tbDiscordRPCVisuals", function() UIElement:drawVisuals(DISCORD_GLOBALID) end)
 
 DiscordRPC:show()

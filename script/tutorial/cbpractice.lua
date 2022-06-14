@@ -19,13 +19,13 @@ end
 function ComebackPractice:teleportUke(maxDisplace)
 	local playerStomachPos = get_body_info(0, BODYPARTS.STOMACH).pos
 	local stomachPos = get_body_info(1, BODYPARTS.STOMACH).pos
-	
+
 	-- Make sure Uke isn't spawned too close to player
 	local randomDisplace = { x = math.random(-maxDisplace * 1000, maxDisplace * 1000) / 1000 + 1, y = math.random(-maxDisplace * 1000, maxDisplace * 1000) / 1000 - 0.1 }
 	while (math.abs(randomDisplace.x - playerStomachPos.x) < maxDisplace * 0.8 or math.abs(randomDisplace.y - playerStomachPos.y) < maxDisplace * 0.8) do
 		randomDisplace = { x = math.random(-maxDisplace * 1000, maxDisplace * 1000) / 1000 + 1, y = math.random(-maxDisplace * 1000, maxDisplace * 1000) / 1000 - 0.1 }
 	end
-	
+
 	-- Move Uke
 	local relPos = get_body_info(1, BODYPARTS.STOMACH).pos
 	for i,v in pairs(BODYPARTS) do
@@ -40,7 +40,7 @@ function ComebackPractice:checkCollision()
 		local ws = get_world_state()
 		if (ws.winner == -1 and ws.replay_mode == 0) then
 			ComebackPractice:teleportUke(COMEBACK_DISPLACE)
-		
+
 			-- Increment teleport distance and comeback score after every teleporting
 			COMEBACK_SCORE = COMEBACK_SCORE + 1
 			COMEBACK_DISPLACE = COMEBACK_DISPLACE >= 6 and COMEBACK_DISPLACE or COMEBACK_DISPLACE + 0.5
@@ -114,10 +114,10 @@ function ComebackPractice:spawnSettings(viewElement)
 	for i,v in pairs(COMEBACK_SETTINGS) do
 		settingsState[i] = v
 	end
-	
+
 	local cbsettings =
  	{
-		matchframes = { 
+		matchframes = {
 			{ val = 2000 },
 			{ val = 4000 },
 			{ val = 8000 },
@@ -134,7 +134,7 @@ function ComebackPractice:spawnSettings(viewElement)
 			{ val = -30.00 }
 		}
 	}
-	
+
 	local canApply = false
 	local applySettings = UIElement:new({
 		parent = viewElement,
@@ -148,7 +148,7 @@ function ComebackPractice:spawnSettings(viewElement)
 		upSound = 50
 	})
 	applySettings:deactivate()
-	
+
 	local settingCount = 0
 	for i,v in pairs(cbsettings) do
 		local settingName = UIElement:new({
@@ -331,7 +331,7 @@ function ComebackPractice:drawUI()
 		bgImage = "../textures/menu/general/buttons/restart.tga"
 	})
 	restart:addMouseHandlers(nil, function()
-			ComebackPractice:showConfirmation(function() 
+			ComebackPractice:showConfirmation(function()
 					ComebackPractice:reset()
 				end)
 		end)
@@ -392,7 +392,7 @@ function ComebackPractice:reset()
 		turnframes = 30,
 		gravity = -30,
 	}
-	
+
 	ComebackPractice:setMod()
 	ComebackPractice:setStartPose()
 	set_ghost(2)
@@ -405,7 +405,7 @@ function ComebackPractice:init()
 		v = get_option(i)
 		set_option(i, 0)
 	end
-	
+
 	ComebackPractice:reset()
 	ComebackPractice:drawUI()
 end
@@ -457,4 +457,3 @@ end
 
 add_hook("draw3d", "comebackTutorial", hook3D)
 add_hook("draw2d", "comebackTutorial", function() ComebackPractice:drawVisuals() end)
-UIElement:mouseHooks()

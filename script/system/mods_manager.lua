@@ -272,7 +272,7 @@ do
 		})
 		MODS_MENU_MAIN_ELEMENT = mainView
 		MODS_MENU_POS = mainView.pos
-		
+
 		local mainList = UIElement:new({
 			parent = mainView,
 			pos = { 0, 0 },
@@ -283,12 +283,12 @@ do
 		})
 		local elementHeight = 25
 		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(mainList, 75, 70, 15)
-		
+
 		topBar.shapeType = mainView.shapeType
-		topBar.rounded = mainView.rounded
+		topBar:setRounded(mainView.rounded)
 		botBar.shapeType = mainView.shapeType
-		botBar.rounded = mainView.rounded
-		
+		botBar:setRounded(mainView.rounded)
+
 		local mainMoverHolder = UIElement:new({
 			parent = topBar,
 			pos = { 0, 0 },

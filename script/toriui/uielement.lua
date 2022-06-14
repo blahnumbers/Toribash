@@ -1,22 +1,66 @@
--- UI class
+-- Toribash UI manager
+-- Created by sir @ Nabi Studios
 
+-- Window width that UIElement class currently operates with. **This value does not update live and may not represent the actual window size**.
+WIN_W = nil
+-- Window height that UIElement class currently operates with. **This value does not update live and may not represent the actual window size**.
+WIN_H = nil
 WIN_W, WIN_H = get_window_size()
+
 if (PLATFORM == "ANDROID") then
 	WIN_W = math.max(WIN_W, 900)
 	WIN_H = math.max(WIN_H, 500)
 end
 
 MOUSE_X, MOUSE_Y = 0, 0
+
+-- True if uilight option is currently enabled\
+-- Disables animations and some unimportant effects to improve GUI performance on lower end machines
 UIMODE_LIGHT = get_option("uilight") == 1
 
-FONTS.BIGGER = 9
+-- Default Toribash fonts
+---@class FONTS
+---@field BIG number Badaboom big font (default score font)
+---@field SMALL number Arial small (default chat font)
+---@field MEDIUM number Badaboom medium font (default player name font)
+---@field BIGGER number Badaboom giant font (twice as big as FONTS.BIG)
+FONTS = {
+	BIG = 0,
+	SMALL = 1,
+	MEDIUM = 2,
+	BIGGER = 9
+}
+
+---@alias fontid
+---| 0 # FONTS.BIG | Badaboom big
+---| 1 # FONTS.SMALL | Arial small (chat default)
+---| 2 # FONTS.MEDIUM | Badaboom medium
+---| 3 # Bedrock medium
+---| 4 # Arial Bold medium
+---| 5 # Kanji supported small
+---| 6 # Kanji supported medium
+---| 7 # SimHei small
+---| 8 # SimHei medium
+---| 9 # FONTS.BIGGER | Badaboom giant
 
 KEYBOARDGLOBALIGNORE = KEYBOARDGLOBALIGNORE or false
---LONGKEYPRESSED = { status = false, key = nil, time = nil, repeats = 0 }
 
+---@alias UIElementShape
+---| 1 # SQUARE
+---| 2 # ROUNDED
 SQUARE = 1
 ROUNDED = 2
 
+---@alias UIElementTextAlign
+---| 0 # LEFT | Top Left
+---| 1 # CENTER | Top Center
+---| 2 # RIGHT | Top Right
+---| 3 # LEFTBOT | Bottom Left
+---| 4 # CENTERBOT | Bottom Center
+---| 5 # RIGHTBOT | Bottom Right
+---| 6 # LEFTMID | Middle Left
+---| 7 # CENTERMID | Middle Center
+---| 8 # RIGHTMID | Middle Right
 LEFT = 0
 CENTER = 1
 RIGHT = 2
@@ -27,43 +71,223 @@ LEFTMID = 6
 CENTERMID = 7
 RIGHTMID = 8
 
+---@alias UIElementBtnState
+---| false # Default UIElement button state
+---| 1 # Hover state
+---| 2 # Focused state - only used with keyboard controls
+---| 3 # Down state
+BTN_NONE = false
 BTN_HVR = 1
 BTN_FOCUS = 2
 BTN_DN = 3
 
+---@alias UIElementScrollMode
+---| 1 # SCROLL_VERTICAL
+---| 2 # SCROLL_HORIZONTAL
 SCROLL_VERTICAL = 1
 SCROLL_HORIZONTAL = 2
 
+-- Default texture that will be used for fallback by UIElement:updateTexture()
 DEFTEXTURE = "../textures/menu/logos/toribash.tga"
 TEXTURECACHE = TEXTURECACHE or {}
 TEXTUREINDEX = TEXTUREINDEX or 0
-DEFTEXTCOLOR = DEFTEXTCOLOR or { 1, 1, 1, 1 }
-DEFSHADOWCOLOR = DEFSHADOWCOLOR or { 0, 0, 0, 0.6 }
 
 STEAM_INT_ID = 3449
 
+---@alias Color number[]
+---@type Color
 UICOLORWHITE = {1,1,1,1}
+---@type Color
 UICOLORBLACK = {0,0,0,1}
+---@type Color
 UICOLORRED = {1,0,0,1}
+---@type Color
 UICOLORGREEN = {0,1,0,1}
+---@type Color
 UICOLORBLUE = {0,0,1,1}
+---@type Color
 UICOLORTORI = {0.58,0,0,1}
+---@type Color
+DEFTEXTCOLOR = DEFTEXTCOLOR or { 1, 1, 1, 1 }
+---@type Color
+DEFSHADOWCOLOR = DEFSHADOWCOLOR or { 0, 0, 0, 0.6 }
+
+---@class Vector2
+---@field x number
+---@field y number
+
+---@class Vector3 : Vector2
+---@field z number
 
 do
+	---@type UIElement[]
 	UIElementManager = UIElementManager or {}
+	---@type UIElement[]
 	UIVisualManager = UIVisualManager or {}
+	---@type UIElement[]
 	UIViewportManager = UIViewportManager or {}
+	---@type UIElement[]
 	UIMouseHandler = UIMouseHandler or {}
+	---@type UIElement[]
 	UIKeyboardHandler = UIKeyboardHandler or {}
+	---@type UIElement[]
 	UIScrollbarHandler = UIScrollbarHandler or {}
 
 	if (not UIElement) then
-		UIElement = {}
+		---@class UIElementSize
+		---@field w number
+		---@field h number
+
+		-- Options to use to spawn the new UIElement object\
+		-- Majority of options are the same as UIElement class fields
+		---@class UIElementOptions
+		---@field globalid number
+		---@field parent UIElement Specifying a parent will set its globalid and some other settings automatically
+		---@field pos number[] Object's target position (relative to parent, if applicable). Negative values imply offset from the opposite direction.
+		---@field size number[]
+		---@field shift number[] Object's padding (horizontal and vertical). *Only used when spawning an object with UIElement:addChild()*.
+		---@field rot number[] Object's rotation (relative to parent, if applicable). *Only used for objects that are parented to a 3D viewport element*.
+		---@field radius number *Only used for objects that are parented to a 3D viewport element*.
+		---@field interactive boolean
+		---@field bgColor Color
+		---@field hoverColor Color
+		---@field pressedColor Color
+		---@field inactiveColor Color
+		---@field uiColor Color
+		---@field uiShadowColor Color
+		---@field viewport boolean
+		---@field bgImage string|string[] Image path for the object. Alternatively, can be an array with two elements for main texture and fallback option in case main texture file is missing.
+		---@field disableUnload boolean
+		---@field imagePatterned boolean
+		---@field imageColor Color
+		---@field textfield boolean Whether the object will be used as a text field
+		---@field textfieldstr string|string[]
+		---@field textfieldsingleline boolean
+		---@field isNumeric boolean Whether the textfield object should only accept numeric values
+		---@field allowNegative boolean Whether the numeric only textfield should accept negative values
+		---@field allowDecimal boolean Whether the numeric only textfield should accept decimal values
+		---@field toggle boolean Whether the object will be used as a toggle
+		---@field innerShadow number|number[]
+		---@field shadowColor Color|Color[]
+		---@field shapeType UIElementShape
+		---@field rounded number|number[] Rounding size to use for an object with ROUNDED (2) shapeType
+		---@field scrollEnabled boolean
+		---@field keyboard boolean True if we want to spawn the object with default keyboard handlers
+		---@field permanentListener boolean
+		---@field hoverSound number
+		---@field upSound number
+		---@field downSound number
+		---@field clickThrough boolean
+
+		-- Toribash GUI elements manager class
+		--
+		-- **Ver 1.4**
+		-- * UIElement:mouseHooks() is now initialized when this script is loaded to ensure it isn't required in every script that requires UIElements
+		-- * Moved scrollable list update on mouse bar scroll from mouse_move hook to pre_draw for better performance
+		-- * Different top/bottom rounding support and roundedInternal UIElement field
+		-- * Added EmmyLua annotations for some methods
+		---@class UIElement
+		---@field globalid number Global ID to use for UIElement internal update / display loops
+		---@field parent UIElement Parent element
+		---@field child UIElement[] Table containing the list of all children of an object
+		---@field pos Vector2|Vector3 Object's **absolute** position
+		---@field shift? Vector2 Object position **relative to its parent**
+		---@field size UIElementSize Object size
+		---@field rot? Vector3 *Only applicable to elements displayed in a 3D viewport*
+		---@field radius? number *Only applicable to elements displayed in a 3D viewport*
+		---@field uiColor Color Default text color to be used for uiText() calls
+		---@field uiShadowColor Color Default text shadow color to be used for uiText() calls
+		---@field viewport boolean True for UIElement objects that act as a 3D viewport holder
+		---@field bgColor Color Object's background color
+		---@field hoverColor Color Object's background color when in hover state. *Only used when object is interactive*.
+		---@field pressedColor Color Object's background color when in pressed state. *Only used when object is interactive*.
+		---@field inactiveColor Color Object's background color when in disabled state. *Only used when object is interactive*.
+		---@field animateColor Color Object's current background color when in normal or hover state. *Only used when object is interactive and UI animations are enabled*.
+		---@field interactive boolean Whether the object is interactive
+		---@field bgImage string Object's image ID obtained from load_texture() call
+		---@field disableUnload boolean True if object's image should not get unloaded when object is destroyed. **Only use this if you know what you're doing**.
+		---@field imagePatterned boolean True if object's image should be drawn in patterned mode
+		---@field imageColor Color Color modifier that should be applied to object's image. Default is white { 1, 1, 1, 1 }.
+		---@field keyboard boolean True for objects that currently handle keyboard events
+		---@field textfield boolean Internal value to modify behavior for elements that are going to be used as text fields
+		---@field textfieldstr string[] Text field data. Stored as a table to be able to access data by its reference. **Access UIElement.textfieldstr[1] for the actual string data of a text field**. *Only used for textfield objects*.
+		---@field textfieldindex number Current input index (cursor position) for the text field. *Only used for textfield objects*.
+		---@field textfieldsingleline boolean Whether the text field should accept multiline input. *Only used for textfield objects*.
+		---@field toggle boolean Internal value to modify behavior for elements that are going to be used as toggles
+		---@field innerShadow number[] Table containing top and bottom inner shadow size
+		---@field shadowColor Color[] Table containing top and bottom inner shadow colors
+		---@field shapeType UIElementShape Object's shape type. Can be either SQUARE (1) or ROUNDED (2).
+		---@field roundedInternal number[] Values that the object will use for rounding edges (top and bottom)
+		---@field rounded number Max value out of UIElement.roundedInternal values
+		---@field isactive boolean Internal value to tell if an interactive object is currently active
+		---@field scrollEnabled boolean If true, an interactive object will also handle mouse scroll events in its UIElement.btnDown() callback
+		---@field hoverState UIElementBtnState Current mouse hover state of an object
+		---@field pressedPos Vector2 Internal table containing relative cursor position at the moment of UIElement.btnDown() call on an active scroll bar
+		---@field permanentListener boolean True if we want an object with keyboard handlers to react to all keyboard events, even when not in focus. Permanent keyboard listeners will also not exit keyboard loop early.
+		---@field hoverSound number Sound ID to play when object enters BTN_HVR mouse hover state
+		---@field upSound number Sound ID to play when object exits BTN_DN mouse hover state
+		---@field downSound number Sound ID to play when object enters BTN_DN mouse hover state
+		---@field clickThrough boolean If true, successful click on an object will not exit mouse loop early
+		---@field displayed boolean Whether the object is currently displayed
+		---@field destroyed boolean Internal flag to indicate the object has been destroyed. Use this to check whether the UIElement still exists when a UIElement:kill() function may have been called on its reference elsewhere.
+		---@field killAction function Additional callback to be executed when object is being destroyed
+		UIElement = { ver = 1.4 }
 		UIElement.__index = UIElement
+
+		-- Whether UIElement:mouseHooks() has already been called to spawn mouse hooks
+		---@type boolean
+		UIElement.__mouseHooks = nil
 	end
 
-	-- Spawns new UI Element
+	-- Callback function triggered on any keyboard key down event while UIElement is active
+	---@param key number Pressed key's keycode
+	---@return number|nil
+	UIElement.keyDown = function(key) end
+
+	-- Callback function triggered on any keyboard key up event while UIElement is active
+	---@param key number Pressed key's keycode
+	---@return number|nil
+	UIElement.keyUp = function(key) end
+
+	-- Custom callback function triggered on any keyboard key down event while UIElement is active
+	---@param key number Pressed key's keycode
+	---@return number|nil
+	UIElement.keyDownCustom = function(key) end
+
+	-- Custom callback function triggered on any keyboard key up event while UIElement is active
+	---@param key number Pressed key's keycode
+	---@return number|nil
+	UIElement.keyUpCustom = function(key) end
+
+	-- Callback function triggered on mouse button down event when cursor is within object transform
+	---@param buttonId number Mouse button ID associated with the event
+	---@param x number Mouse cursor X position associated with the event
+	---@param y number Mouse cursor Y position associated with the event
+	UIElement.btnDown = function(buttonId, x, y) end
+
+	-- Callback function triggered on mouse button up event when cursor is within object transform
+	---@param buttonId number Mouse button ID associated with the event
+	---@param x number Mouse cursor X position associated with the event
+	---@param y number Mouse cursor Y position associated with the event
+	UIElement.btnUp = function(buttonId, x, y) end
+
+	-- Callback function triggered on mouse move event when cursor is within object transform
+	---@param x number Mouse cursor X position associated with the event
+	---@param y number Mouse cursor Y position associated with the event
+	UIElement.btnHover = function(x, y) end
+
+	-- Callback function triggered on right mouse button up event when cursor is within object transform\
+	-- We use a separate event because normally right mouse clicks do not produce events so behavior won't be the same
+	---@param buttonId number Mouse button ID associated with the event
+	---@param x number Mouse cursor X position associated with the event
+	---@param y number Mouse cursor Y position associated with the event
+	UIElement.btnRightUp = function(buttonId, x, y) end
+
+	-- Spawn a new UI Element
+	---@param o UIElementOptions Options to use for spawning the new object
+	---@return UIElement
 	function UIElement:new(o)
+		---@type UIElement
 		local elem = {	globalid = 0,
 						parent = nil,
 						child = {},
@@ -116,14 +340,16 @@ do
 			if (o.bgImage) then
 				elem.disableUnload = o.disableUnload
 				elem.imagePatterned = o.imagePatterned and 1 or nil
+				elem.imageColor = o.imageColor or { 1, 1, 1, 1 }
 				if (type(o.bgImage) == "table") then
 					elem:updateImage(o.bgImage[1], o.bgImage[2])
 				else
 					elem:updateImage(o.bgImage)
 				end
 			end
+
+			-- Textfield value is a table to allow proper initiation / use after obj is created
 			if (o.textfield) then
-				-- Textfield value is a table to allow proper initiation / use after obj is created
 				elem.textfield = o.textfield
 				elem.textfieldstr = o.textfieldstr and (type(o.textfieldstr) == "table" and o.textfieldstr or { o.textfieldstr .. '' }) or { "" }
 				elem.textfieldindex = elem.textfieldstr[1]:len()
@@ -134,7 +360,7 @@ do
 			end
 			if (o.toggle) then
 				elem.toggle = o.toggle
-				elem.keyDown = function() end
+				elem.keyDown = function(key) end
 				elem.keyUp = function(key) elem:textfieldKeyUp(key) end
 				table.insert(UIKeyboardHandler, elem)
 			end
@@ -147,18 +373,11 @@ do
 				end
 				elem.innerShadow = type(o.innerShadow) == "table" and o.innerShadow or { o.innerShadow, o.innerShadow }
 			end
-			if (o.shapeType and o.rounded) then
-				if (o.rounded * 2 > elem.size.w or o.rounded * 2 > elem.size.h) then
-					if (elem.size.w > elem.size.h) then
-						elem.rounded = elem.size.h / 2
-					else
-						elem.rounded = elem.size.w / 2
-					end
-				else
-					elem.rounded = o.rounded
-				end
+			if (o.shapeType == ROUNDED and o.rounded) then
+				elem.setRounded(elem, o.rounded)
+
+				-- Light UI mode - don't add rounded corners if it's just for cosmetics
 				if (not UIMODE_LIGHT or elem.rounded > elem.size.w / 4) then
-					-- Light UI mode - don't add rounded corners if it's just for cosmetics
 					elem.shapeType = o.shapeType
 				end
 			end
@@ -173,20 +392,20 @@ do
 				for i = 1, 4 do
 					elem.animateColor[i] = elem.bgColor[i]
 				end
-				elem.hoverState = false
+				elem.hoverState = BTN_NONE
 				elem.pressedPos = { x = nil, y = nil }
-				elem.btnDown = function() end
-				elem.btnUp = function() end
-				elem.btnHover = function() end
-				elem.btnRightUp = function() end
+				elem.btnDown = function(buttonId, x, y) end
+				elem.btnUp = function(buttonId, x, y) end
+				elem.btnHover = function(x, y) end
+				elem.btnRightUp = function(buttonId, x, y) end
 				table.insert(UIMouseHandler, elem)
 			end
 			if (o.keyboard) then
 				elem.permanentListener = o.permanentListener
-				elem.keyDown = function() end
-				elem.keyUp = function() end
-				elem.keyDownCustom = function() end
-				elem.keyUpCustom = function() end
+				elem.keyDown = function(key) end
+				elem.keyUp = function(key) end
+				elem.keyDownCustom = function(key) end
+				elem.keyUpCustom = function(key) end
 				table.insert(UIKeyboardHandler, elem)
 			end
 			if (o.hoverSound) then
@@ -208,6 +427,7 @@ do
 			if (elem.viewport or (elem.parent and elem.parent.viewport)) then
 				table.insert(UIViewportManager, elem)
 			else
+				-- Visual manager no longer used, we just stick to isDisplayed property
 				table.insert(UIVisualManager, elem)
 			end
 
@@ -219,6 +439,10 @@ do
 		return elem
 	end
 
+	-- Spawns a new UIElement and sets the calling object as its parent
+	---@param o UIElementOptions
+	---@param copyShape? boolean Whether to copy shapeType and rounded values to the new object
+	---@return UIElement
 	function UIElement:addChild(o, copyShape)
 		if (o.shift) then
 			o.pos = { o.shift[1], o.shift[2] }
@@ -230,13 +454,38 @@ do
 
 		if (copyShape) then
 			o.shapeType = o.shapeType and o.shapeType or self.shapeType
-			o.rounded = o.rounded and o.rounded or self.rounded
+			o.rounded = o.rounded and o.rounded or cloneTable(self.roundedInternal)
 		end
 
 		o.parent = self
 		return UIElement:new(o)
 	end
 
+	-- Specifies rounding value to be used for UIElements with ROUNDED shape type
+	---@param rounded number|number[]
+	---@return nil
+	function UIElement:setRounded(rounded)
+		if (type(rounded) ~= "table") then
+			self.roundedInternal = { rounded, rounded }
+		else
+			self.roundedInternal = { rounded[1], rounded[#rounded] }
+		end
+		local minRounded = math.min(self.size.w, self.size.h) / 2
+		self.rounded = 0
+		for i,v in pairs(self.roundedInternal) do
+			if (v > minRounded) then
+				self.roundedInternal[i] = minRounded
+			end
+			self.rounded = math.max(self.rounded, self.roundedInternal[i])
+		end
+	end
+
+	-- Adds mouse handlers to use for an interactive UIElement object
+	---@param btnDown? function Button down callback function
+	---@param btnUp? function Button up callback function
+	---@param btnHover? function Mouse hover callback function
+	---@param btnRightUp? function Right mouse button up callback function
+	---@return nil
 	function UIElement:addMouseHandlers(btnDown, btnUp, btnHover, btnRightUp)
 		if (btnDown) then
 			self.btnDown = btnDown
@@ -252,6 +501,10 @@ do
 		end
 	end
 
+	-- Adds keyboard handlers to use for an interactive UIElement object
+	---@param keyDown? function Keyboard key down callback function
+	---@param keyUp? function Keyboard key up callback function
+	---@return nil
 	function UIElement:addKeyboardHandlers(keyDown, keyUp)
 		if (keyDown) then
 			self.keyDownCustom = keyDown
@@ -261,18 +514,28 @@ do
 		end
 	end
 
+	-- Adds enter key handler for an interactive UIElement object
+	---@param func function
+	---@return nil
 	function UIElement:addEnterAction(func)
 		self.enteraction = func
 	end
 
+	-- Removes currently set enter key handler
+	---@return nil
 	function UIElement:removeEnterAction()
 		self.enteraction = nil
 	end
 
+	-- Adds tab key handler for an interactive UIElement object
+	---@param func function
+	---@return nil
 	function UIElement:addTabAction(func)
 		self.tabaction = func
 	end
 
+	-- Removes currently set tab key handler
+	---@return nil
 	function UIElement:removeTabAction()
 		self.tabaction = nil
 	end
@@ -385,6 +648,7 @@ do
 		self.scrollReload = function() if (self.holder) then self.holder:reload() end self:reload() end
 
 		self:barScroll(listElements, listHolder, toReload, posShift[1], enabled)
+		local targetPos = nil
 
 		self:addMouseHandlers(
 			function(s, x, y)
@@ -412,12 +676,10 @@ do
 			function(x, y)
 				if (self.hoverState == BTN_DN) then
 					if (self.orientation == SCROLL_VERTICAL) then
-						local posY = self:getLocalPos(x,y).y - self.pressedPos.y + self.shift.y
-						self:barScroll(listElements, listHolder, toReload, posY, enabled)
+						targetPos = self:getLocalPos(x,y).y - self.pressedPos.y + self.shift.y
 						posShift[1] = self.shift.y
 					else
-						local posX = self:getLocalPos(x,y).x - self.pressedPos.x + self.shift.x
-						self:barScroll(listElements, listHolder, toReload, posX, enabled)
+						targetPos = self:getLocalPos(x,y).x - self.pressedPos.x + self.shift.x
 						posShift[1] = self.shift.x
 					end
 				end
@@ -427,6 +689,16 @@ do
 			self.isScrollBar = true
 			table.insert(UIScrollbarHandler, self)
 		end
+
+		local barScroller = self:addChild({})
+		barScroller.uid = Guid()
+		barScroller.killAction = function() remove_hooks("barScroller" .. barScroller.uid) end
+		add_hook("pre_draw", "barScroller" .. barScroller.uid, function()
+				if (targetPos ~= nil) then
+					self:barScroll(listElements, listHolder, toReload, targetPos, enabled)
+					targetPos = nil
+				end
+			end)
 	end
 
 	function UIElement:mouseScroll(listElements, listHolder, toReload, scroll, enabled)
@@ -520,7 +792,19 @@ do
 		listHolder.parent:reloadListElements(listHolder, listElements, toReload, enabled, self.orientation)
 	end
 
+	-- Sets the specified function to run when UIElement is displayed
+	---@param funcOnly boolean|nil If true, will not run default UIElement:display() functionality and only run the specified function
+	---@param func function Custom function to run when object is displayed
+	---@param drawBefore? boolean If true, will assign a function to run **before** the main UIElement:display() function
+	---@return nil
+	---@overload fun(self: UIElement, func: function, drawBefore?: boolean)
 	function UIElement:addCustomDisplay(funcOnly, func, drawBefore)
+		if (type(funcOnly) == "function") then
+			drawBefore = func
+			func = funcOnly
+			funcOnly = false
+		end
+
 		self.customDisplayOnly = funcOnly
 		if (drawBefore) then
 			self.customDisplayBefore = func
@@ -532,6 +816,9 @@ do
 		end
 	end
 
+	-- Destroys current UIElement object
+	---@param childOnly? boolean If true, will only destroy current object's children and keep the object itself
+	---@return nil
 	function UIElement:kill(childOnly)
 		for i,v in pairs(self.child) do
 			if (v.kill) then
@@ -565,35 +852,6 @@ do
 				break
 			end
 		end
-		-- These are already handled in hide()
-		--[[
-		for i,v in pairs(UIMouseHandler) do
-			if (self == v) then
-				table.remove(UIMouseHandler, i)
-				break
-			end
-		end
-		for i,v in pairs(UIKeyboardHandler) do
-			if (self == v) then
-				table.remove(UIKeyboardHandler, i)
-				break
-			end
-		end
-		for i,v in pairs(UIVisualManager) do
-			if (self == v) then
-				table.remove(UIVisualManager, i)
-				break
-			end
-		end
-		for i,v in pairs(UIViewportManager) do
-			if (self == v) then
-				table.remove(UIViewportManager, i)
-				break
-			end
-		end
-		if (self.menuKeyboardId) then
-			self:disableMenuKeyboard()
-		end]]
 
 		self.destroyed = true
 		self = nil
@@ -612,7 +870,13 @@ do
 		end
 	end
 
+	-- Internal UIElement loop that updates objects' position and displays them. *Must be run from draw2d hook.*
+	--
+	-- ***TODO:*** *add caching for active globalids so we don't need to run separate loops for each one.*
+	---@param globalid? number Global ID that the objects to display belong to
+	---@return nil
 	function UIElement:drawVisuals(globalid)
+		local globalid = globalid or self.globalid
 		for i, v in pairs(UIElementManager) do
 			if (v.globalid == globalid) then
 				v:updatePos()
@@ -626,6 +890,7 @@ do
 	end
 
 	function UIElement:drawViewport(globalid)
+		local globalid = globalid or self.globalid
 		for i, v in pairs(UIViewportManager) do
 			if (v.globalid == globalid) then
 				v:displayViewport()
@@ -678,15 +943,15 @@ do
 			if (self.innerShadow[1] > 0 or self.innerShadow[2] > 0) then
 				set_color(unpack(self.shadowColor[1]))
 				if (self.shapeType == ROUNDED) then
-					draw_disk(self.pos.x + self.rounded, self.pos.y + self.rounded, 0, self.rounded, 100, 1, -180, 90, 0)
-					draw_disk(self.pos.x + self.size.w - self.rounded, self.pos.y + self.rounded, 0, self.rounded, 100, 1, 90, 90, 0)
-					draw_quad(self.pos.x + self.rounded, self.pos.y, self.size.w - self.rounded * 2, self.rounded)
-					draw_quad(self.pos.x, self.pos.y + self.rounded, self.size.w, self.size.h / 2 - self.rounded)
+					draw_disk(self.pos.x + self.roundedInternal[1], self.pos.y + self.roundedInternal[1], 0, self.roundedInternal[1], 100, 1, -180, 90, 0)
+					draw_disk(self.pos.x + self.size.w - self.roundedInternal[1], self.pos.y + self.roundedInternal[1], 0, self.roundedInternal[1], 100, 1, 90, 90, 0)
+					draw_quad(self.pos.x + self.roundedInternal[1], self.pos.y, self.size.w - self.roundedInternal[1] * 2, self.roundedInternal[1])
+					draw_quad(self.pos.x, self.pos.y + self.roundedInternal[1], self.size.w, self.size.h / 2 - self.roundedInternal[1])
 					set_color(unpack(self.shadowColor[2]))
-					draw_disk(self.pos.x + self.rounded, self.pos.y + self.size.h - self.rounded, 0, self.rounded, 100, 1, -90, 90, 0)
-					draw_disk(self.pos.x + self.size.w - self.rounded, self.pos.y + self.size.h - self.rounded, 0, self.rounded, 100, 1, 0, 90, 0)
-					draw_quad(self.pos.x, self.pos.y + self.size.h / 2, self.size.w, self.size.h / 2 - self.rounded)
-					draw_quad(self.pos.x + self.rounded, self.pos.y + self.size.h - self.rounded, self.size.w - self.rounded * 2, self.rounded)
+					draw_disk(self.pos.x + self.roundedInternal[2], self.pos.y + self.size.h - self.roundedInternal[2], 0, self.roundedInternal[2], 100, 1, -90, 90, 0)
+					draw_disk(self.pos.x + self.size.w - self.roundedInternal[2], self.pos.y + self.size.h - self.roundedInternal[2], 0, self.roundedInternal[2], 100, 1, 0, 90, 0)
+					draw_quad(self.pos.x, self.pos.y + self.size.h / 2, self.size.w, self.size.h / 2 - self.roundedInternal[2])
+					draw_quad(self.pos.x + self.roundedInternal[2], self.pos.y + self.size.h - self.roundedInternal[2], self.size.w - self.roundedInternal[2] * 2, self.roundedInternal[2])
 				else
 					draw_quad(self.pos.x, self.pos.y, self.size.w, self.size.h / 2)
 					set_color(unpack(self.shadowColor[2]))
@@ -709,21 +974,21 @@ do
 				set_color(unpack(self.bgColor))
 			end
 			if (self.shapeType == ROUNDED) then
-				draw_disk(self.pos.x + self.rounded, self.pos.y + self.rounded + self.innerShadow[1], 0, self.rounded, 500, 1, -180, 90, 0)
-				draw_disk(self.pos.x + self.rounded, self.pos.y + self.size.h - self.rounded - self.innerShadow[2], 0, self.rounded, 500, 1, -90, 90, 0)
-				draw_disk(self.pos.x + self.size.w - self.rounded, self.pos.y + self.rounded + self.innerShadow[1], 0, self.rounded, 500, 1, 90, 90, 0)
-				draw_disk(self.pos.x + self.size.w - self.rounded, self.pos.y + self.size.h - self.rounded - self.innerShadow[2], 0, self.rounded, 500, 1, 0, 90, 0)
-				draw_quad(self.pos.x + self.rounded, self.pos.y + self.innerShadow[1], self.size.w - self.rounded * 2, self.rounded)
-				draw_quad(self.pos.x, self.pos.y + self.rounded + self.innerShadow[1], self.size.w, self.size.h - self.rounded * 2 - self.innerShadow[2] - self.innerShadow[1])
-				draw_quad(self.pos.x + self.rounded, self.pos.y + self.size.h - self.rounded - self.innerShadow[2], self.size.w - self.rounded * 2, self.rounded)
+				draw_disk(self.pos.x + self.roundedInternal[1], self.pos.y + self.roundedInternal[1] + self.innerShadow[1], 0, self.roundedInternal[1], 500, 1, -180, 90, 0)
+				draw_disk(self.pos.x + self.roundedInternal[2], self.pos.y + self.size.h - self.roundedInternal[2] - self.innerShadow[2], 0, self.roundedInternal[2], 500, 1, -90, 90, 0)
+				draw_disk(self.pos.x + self.size.w - self.roundedInternal[1], self.pos.y + self.roundedInternal[1] + self.innerShadow[1], 0, self.roundedInternal[1], 500, 1, 90, 90, 0)
+				draw_disk(self.pos.x + self.size.w - self.roundedInternal[2], self.pos.y + self.size.h - self.roundedInternal[2] - self.innerShadow[2], 0, self.roundedInternal[2], 500, 1, 0, 90, 0)
+				draw_quad(self.pos.x + self.roundedInternal[1], self.pos.y + self.innerShadow[1], self.size.w - self.roundedInternal[1] * 2, self.roundedInternal[1])
+				draw_quad(self.pos.x, self.pos.y + self.roundedInternal[1] + self.innerShadow[1], self.size.w, self.size.h - self.roundedInternal[2] - self.roundedInternal[1] - self.innerShadow[2] - self.innerShadow[1])
+				draw_quad(self.pos.x + self.roundedInternal[2], self.pos.y + self.size.h - self.roundedInternal[2] - self.innerShadow[2], self.size.w - self.roundedInternal[2] * 2, self.roundedInternal[2])
 			else
 				draw_quad(self.pos.x, self.pos.y + self.innerShadow[1], self.size.w, self.size.h - self.innerShadow[1] - self.innerShadow[2])
 			end
 			if (self.bgImage) then
 				if (self.imagePatterned) then
-					draw_quad(self.pos.x, self.pos.y, self.size.w, self.size.h, self.bgImage, self.imagePatterned)
+					draw_quad(self.pos.x, self.pos.y, self.size.w, self.size.h, self.bgImage, self.imagePatterned, self.imageColor[1], self.imageColor[2], self.imageColor[3], self.imageColor[4])
 				else
-					draw_quad(self.pos.x, self.pos.y, self.size.w, self.size.h, self.bgImage)
+					draw_quad(self.pos.x, self.pos.y, self.size.w, self.size.h, self.bgImage, 0, self.imageColor[1], self.imageColor[2], self.imageColor[3], self.imageColor[4])
 				end
 			end
 		end
@@ -756,7 +1021,7 @@ do
 		end
 		if (not num) then
 			if (self.interactive) then
-				self.hoverState = false
+				self.hoverState = BTN_NONE
 				table.insert(UIMouseHandler, self)
 			end
 			if (self.keyboard) then
@@ -775,7 +1040,7 @@ do
 			v:deactivate(noreload)
 		end]]
 
-		self.hoverState = false
+		self.hoverState = BTN_NONE
 		self.isactive = false
 
 		if (noreload) then
@@ -1084,6 +1349,11 @@ do
 		end
 	end
 
+	-- UIElement internal function to handle mouse down event for an object
+	---@param s number Mouse button ID
+	---@param x number Mouse cursor X position
+	---@param y number Mouse cursor Y position
+	---@return number|nil
 	function UIElement:handleMouseDn(s, x, y)
 		enable_camera_movement()
 		for i, v in pairs(UIKeyboardHandler) do
@@ -1112,6 +1382,11 @@ do
 		end
 	end
 
+	-- UIElement internal function to handle mouse up event for an object
+	---@param s number Mouse button ID
+	---@param x number Mouse cursor X position
+	---@param y number Mouse cursor Y position
+	---@return nil
 	function UIElement:handleMouseUp(s, x, y)
 		for i, v in pairs(tableReverse(UIMouseHandler)) do
 			if (v.isactive) then
@@ -1137,6 +1412,10 @@ do
 		end
 	end
 
+	-- UIElement internal function to handle mouse movement event for an object
+	---@param x number Mouse cursor X position
+	---@param y number Mouse cursor Y position
+	---@return nil
 	function UIElement:handleMouseHover(x, y)
 		local disable = nil
 		MOUSE_X, MOUSE_Y = x, y
@@ -1147,7 +1426,7 @@ do
 					disable = true
 					v.btnHover(x,y)
 				elseif (disable) then
-					v.hoverState = false
+					v.hoverState = BTN_NONE
 				elseif (x > v.pos.x and x < v.pos.x + v.size.w and y > v.pos.y and y < v.pos.y + v.size.h) then
 					if (v.hoverState == false and v.hoverSound) then
 						play_sound(v.hoverSound)
@@ -1161,13 +1440,14 @@ do
 					v.btnHover(x,y)
 					set_mouse_cursor(1)
 				else
-					v.hoverState = false
+					v.hoverState = BTN_NONE
 				end
 			end
 		end
 	end
 
-	-- A generic mouse hooks spawner that we can use from any script without having to worry about disabling some bits of it
+	-- A generic internal function that spawns mouse hooks required for mouse event handling
+	---@return nil
 	function UIElement:mouseHooks()
 		add_hook("mouse_button_down", "uiMouseHandler", function(s, x, y)
 				local toReturn = TB_MENU_MAIN_ISOPEN == 1 and 1 or 0
@@ -1175,17 +1455,19 @@ do
 				return toReturn
 			end)
 		add_hook("mouse_button_up", "uiMouseHandler", function(s, x, y)
-				local toReturn = 0
-				toReturn = UIElement:handleMouseUp(s, x, y) or toReturn
-				return toReturn
+				UIElement:handleMouseUp(s, x, y)
 			end)
 		add_hook("mouse_move", "uiMouseHandler", function(x, y)
-				local toReturn = TB_MENU_MAIN_ISOPEN == 1 and 1 or 0
-				toReturn = UIElement:handleMouseHover(x, y) or toReturn
-				return toReturn
+				UIElement:handleMouseHover(x, y)
 			end)
+
+		UIElement.__mouseHooks = true
 	end
 
+	-- Moves a UIElement to specified coordinates
+	---@param x number|nil New X shift value for the object
+	---@param y number|nil New Y shift value for the object
+	---@param relative? boolean If true, will shift the object relatively to its current position instead of using specified coordinates as new anchor
 	function UIElement:moveTo(x, y, relative)
 		if (self.parent) then
 			if (x) then self.shift.x = relative and ((self.shift.x + x < 0 and self.shift.x >= 0) and (self.shift.x + x - self.parent.size.w) or (self.shift.x + x)) or x end
@@ -1212,7 +1494,38 @@ do
 		end
 	end
 
-	function UIElement:addAdaptedText(override, str, x, y, font, align, maxscale, minscale, intensity, shadow, col1, col2, textfield, ignoreHiresMode)
+	-- Adapts the specified string to fit inside UIElement object and sets custom display to draw it every frame
+	---@param override boolean|nil Whether to disable the default UIElement:display() functionality
+	---@param str string Text to display in an object
+	---@param x? number X offset for the displayed text
+	---@param y? number Y offset for the displayed text
+	---@param font? fontid Font to use for drawing text
+	---@param align? UIElementTextAlign Text alignment mode
+	---@param maxscale? number Maximum allowed text scale
+	---@param minscale? number Minimum allowed text scale. Any text that still doesn't fit inside the object at this scale value will be cut.
+	---@param intensity? number Text color intensity, only used for FONTS.BIG and FONTS.BIGGER. Use values from 0 to 1.
+	---@param shadow? number Text shadow grow value. It is recommended to keep this value relatively low (<10) for best looks.
+	---@param col1? Color Main text color. Uses UIElement.uiColor by default.
+	---@param col2? Color Text shadow color. Uses UIElement.uiShadowColor by default.
+	---@param textfield? boolean Whether this text is supposed to be a part of text box input
+	---@return nil
+	---@overload fun(self, str: string, x?: number, y?: number, font?: fontid, align?: UIElementTextAlign, maxscale?: number, minscale?: number, intensity?: number, shadow?: number, col1?: Color, col2?: Color, textfield?: boolean)
+	function UIElement:addAdaptedText(override, str, x, y, font, align, maxscale, minscale, intensity, shadow, col1, col2, textfield)
+		if (type(override) == "string") then
+			textfield = col2
+			col2 = col1
+			col1 = shadow
+			shadow = intensity
+			intensity = minscale
+			minscale = maxscale
+			maxscale = align
+			align = font
+			font = y
+			y = x
+			x = str
+			str = override
+			override = false
+		end
 		if (not str) then
 			if (TB_MENU_DEBUG) then
 				echo("Error: string is undefined")
@@ -1359,8 +1672,11 @@ do
 		return pos
 	end
 
-	-- Used to update background texture
-	-- Image can be either a string with texture path or a table where image[1] is a path and image[2] is default icon path
+	-- Updates a texture associated with an object and caches it for later use
+	---@param image string Main texture path
+	---@param default? string Fallback texture path
+	---@param noreload? boolean If true, will not check if existing texture should be unloaded
+	---@return nil
 	function UIElement:updateImage(image, default, noreload)
 		local default = default or DEFTEXTURE
 		local filename
@@ -1398,6 +1714,9 @@ do
 			self.bgImage = load_texture(DEFTEXTURE)
 			return false
 		end
+		if (not self.imageColor) then
+			self.imageColor = { 1, 1, 1, 1 }
+		end
 
 		local tempicon = io.open(filename, "r", 1)
 		if (not tempicon) then
@@ -1431,10 +1750,14 @@ do
 		remove_hooks("UIManagerSkipEcho")
 	end
 
+	---@deprecated
+	---Will be removed with future releases, use runCmd() instead
 	function UIElement:runCmd(command, online, echo)
 		runCmd(command, online, echo)
 	end
 
+	---@deprecated
+	---Will be removed with future releases, use debugEcho() instead
 	function UIElement:debugEcho(mixed, msg, returnString)
 		return debugEcho(mixed, msg, returnString)
 	end
@@ -1515,7 +1838,11 @@ do
 		return font_mod * (hires and 2 or 1)
 	end
 
-	function cloneTable(table)
+	---@generic T table
+	-- Returns a copy of a table with its contents reversed
+	---@param table T
+	---@return T
+	_G.cloneTable = function(table)
 		if (type(table) ~= "table") then
 			return nil
 		end
@@ -1531,7 +1858,7 @@ do
 		return newTable
 	end
 
-	function textAdapt(str, font, scale, maxWidth, check, textfield, singleLine, textfieldIndex)
+	_G.textAdapt = function(str, font, scale, maxWidth, check, textfield, singleLine, textfieldIndex)
 		local clockdebug = TB_MENU_DEBUG and os.clock() or nil
 
 		local destStr = {}
@@ -1648,7 +1975,7 @@ do
 		return destStr
 	end
 
-	function draw_text_new(str, xPos, yPos, angle, scale, font, shadow, col1, col2, intensity, smoothing)
+	_G.draw_text_new = function(str, xPos, yPos, angle, scale, font, shadow, col1, col2, intensity, smoothing)
 		local shadow = shadow or nil
 		local xPos = smoothing and math.floor(xPos) or xPos
 		local yPos = smoothing and math.floor(yPos) or yPos
@@ -1679,7 +2006,11 @@ do
 		end
 	end
 
-	function tableReverse(tbl)
+	---@generic T table|UIElement[]
+	-- Returns a copy of a table with its contents reversed
+	---@param tbl T
+	---@return T
+	_G.tableReverse = function(tbl)
 		local tblRev = {}
 		for i, v in pairs(tbl) do
 			table.insert(tblRev, 1, v)
@@ -1687,7 +2018,7 @@ do
 		return tblRev
 	end
 
-	function show_dialog_box(id, msg, data, luaNetwork)
+	_G.show_dialog_box = function(id, msg, data, luaNetwork)
 		return open_dialog_box(id, msg:gsub("%\\n", "\n"), data, luaNetwork)
 	end
 
@@ -1830,4 +2161,8 @@ do
 		return result
 	end
 	_G.string.schar = schar
+end
+
+if (not UIElement.__mouseHooks) then
+	UIElement:mouseHooks();
 end

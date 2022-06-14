@@ -1,4 +1,5 @@
 -- network_request.lua
+---@type RequestData[]
 TB_NETWORK_REQUEST_QUEUE = TB_NETWORK_REQUEST_QUEUE or {}
 TB_NETWORK_LASTREQUEST = TB_NETWORK_LASTREQUEST or nil
 

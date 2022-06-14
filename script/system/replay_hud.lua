@@ -4,7 +4,7 @@ if (TBMenu == nil) then
 end
 
 require("toriui/uielement")
-dofile("system/replays_manager.lua")
+require("system/replays_manager")
 REPLAY_GUI = REPLAY_GUI or nil
 
 local function replayGuiToggle(mode)

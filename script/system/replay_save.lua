@@ -111,7 +111,7 @@ replayCancelButton:addAdaptedText(false, TB_MENU_LOCALIZED.BUTTONCANCEL)
 replayCancelButton:addMouseHandlers(nil, function()
 		quitReplaySave()
 	end)
-	
+
 local replayNameBackground = replaySave:addChild({
 	pos = { replayFolderPicker.shift.x + replayFolderPicker.size.w + 10, replayFolderPicker.shift.y },
 	size = { replaySave.size.w - replayFolderPicker.shift.x - replayFolderPicker.size.w - 20, replayFolderPicker.size.h },
@@ -130,7 +130,7 @@ local function saveReplay(newname)
 		return
 	end
 	local filename = folderPrefix .. newname
-	
+
 	local doRenameReplay = function()
 		-- Delete existing replay if it exists
 		local error = rename_replay("my replays/" .. REPLAY_SAVETEMPNAME .. ".rpl", filename .. ".rpl")
@@ -144,7 +144,7 @@ local function saveReplay(newname)
 			quitReplaySave()
 			return
 		end
-		
+
 		local fileData = rplFile:readAll()
 		rplFile.mode = FILES_MODE_WRITE
 		rplFile:reopen()
@@ -158,7 +158,7 @@ local function saveReplay(newname)
 		rplFile:close()
 		quitReplaySave()
 	end
-	
+
 	local file = Files:open("../replay" .. filename .. ".rpl")
 	if (file.data) then
 		file:close()
@@ -176,7 +176,6 @@ replaySaveButton:addMouseHandlers(nil, function()
 		saveReplay(replayNameInput.textfieldstr[1]:gsub("%.rpl$", ""))
 	end)
 
-UIElement:mouseHooks()
 add_hook("key_up", "replaySaveHandler", function(s) UIElement:handleKeyUp(s) return 1 end)
 add_hook("key_down", "replaySaveHandler", function(s) UIElement:handleKeyDown(s) return 1 end)
 --add_hook("new_game_mp", "replaySaveHandler", function() REPLAY_NEWGAME = true end)

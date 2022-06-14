@@ -13,7 +13,7 @@ do
 	Atmospheres.__index = Atmospheres
 	local cln = {}
 	setmetatable(cln, Atmospheres)
-	
+
 	function Atmospheres:quit()
 		for i,v in pairs(ATMO_STORED_OPTS) do
 			set_option(v.name, v.value)
@@ -32,7 +32,7 @@ do
 		end
 		remove_hook("draw3d", "atmospheres")
 	end
-	
+
 	function Atmospheres:readAtmoFile(data)
 		local atmosphere = { entities = {}, shaderopts = {}, opts = {} }
 		for i, ln in pairs(data) do
@@ -141,7 +141,7 @@ do
 		end
 		return atmosphere
 	end
-	
+
 	function Atmospheres:getWorldShader()
 		local file = Files:open("../custom.cfg")
 		local data = file:readAll()
@@ -157,7 +157,7 @@ do
 			end
 		end
 	end
-	
+
 	function Atmospheres:spawnToggle(viewElement, x, y, w, h, toggleTable, i)
 		local maxVal = toggleTable.maxValue or 1
 		local minVal = toggleTable.minValue or 0
@@ -252,7 +252,7 @@ do
 		end)
 		return toggle
 	end
-	
+
 	function Atmospheres:showShaderControls()
 		if (not SHADER_OPTIONS.FLOOR_COLOR) then
 			return
@@ -285,13 +285,13 @@ do
 		})
 		local currentControl = {}
 		local shaderList = {}
-		
+
 		local function spawnToggles()
 			for i = 1, currentControl.count do
 				Atmospheres:spawnToggle(toggleView, (i - 1) * toggleView.size.w / currentControl.count + 5, 0, toggleView.size.w / currentControl.count - 10, toggleView.size.h, currentControl, i)
 			end
 		end
-		
+
 		for i,v in pairs(SHADER_OPTIONS) do
 			if (v < 16) then
 				local dropAction = function()
@@ -304,7 +304,7 @@ do
 		end
 		currentControl = ATMO_CURRENT_SHADER.BACKGROUND_COLOR
 		spawnToggles()
-		
+
 		local dropdownView = UIElement:new({
 			parent = viewElement,
 			pos = { 10, 10 },
@@ -317,7 +317,7 @@ do
 			rounded = 5
 		})
 		TBMenu:spawnDropdown(dropdownView, shaderList, 25, WIN_H - 100, nil, { scale = 0.7 }, { scale = 0.6 })
-		
+
 		local closeButton = UIElement:new({
 			parent = viewElement,
 			pos = { -viewElement.size.h + 10, 10 },
@@ -386,12 +386,12 @@ do
 				end, function() remove_hooks("tbAtmospheresKeyboard") end)
 			end)
 	end
-	
+
 	function Atmospheres:setShaderInfo()
 		ATMO_CURRENT_SHADER = {}
 		Atmospheres:getShaderOpts()
 	end
-	
+
 	function Atmospheres:getShaderOptName(id)
 		for i,v in pairs(SHADER_OPTIONS) do
 			if (id == v) then
@@ -399,7 +399,7 @@ do
 			end
 		end
 	end
-	
+
 	function Atmospheres:getShaderOpts(id)
 		local id = id or 0
 		add_hook("console", "atmospheresSystem", function(ln)
@@ -422,7 +422,7 @@ do
 			end)
 		UIElement:runCmd("worldshader " .. id, false, true)
 	end
-	
+
 	function Atmospheres:getShaderOptionData(opt)
 		if (opt.id == 2) then
 			opt.count = 4
@@ -447,13 +447,13 @@ do
 			opt.names = { "R", "G", "B" }
 		end
 	end
-	
+
 	function Atmospheres:setDefaultAtmo(filename)
 		local config = Files:open("../data/atmospheres/atmo.cfg", FILES_MODE_WRITE)
 		config:writeLine(filename)
 		config:close()
 	end
-	
+
 	function Atmospheres:loadDefaultAtmo()
 		local config = Files:open("../data/atmospheres/atmo.cfg")
 		if (not config.data) then
@@ -463,13 +463,13 @@ do
 		config:close()
 		DEFAULT_ATMOSPHERE_ISSET = true
 	end
-	
+
 	function Atmospheres:loadAtmo(filename)
 		Atmospheres:quit()
 		if (filename:lower() == "default.atmo") then
 			return
 		end
-		
+
 		add_hook("draw3d", "atmospheres", function() UIElement3D:drawVisuals(TB_ATMOSPHERES_GLOBALID) end)
 		_ATMO = {}
 		if (not DEFAULT_SHADER) then
@@ -486,18 +486,18 @@ do
 		entityHolder:addCustomDisplay(true, function()
 			ATMOSPHERES_ANIMATED = (get_world_state().game_paused==0 and is_game_frozen()==1 and get_world_state().replay_mode==1) or (get_world_state().game_paused==0 and is_game_frozen()==0 and get_world_state().replay_mode==0 ) or (get_world_state().replay_mode==2 and get_world_state().game_paused==0)
 		end)
-		
+
 		local file = Files:open("../data/atmospheres/" .. filename)
 		if (not file.data) then
 			return false
 		end
-		
+
 		local atmoData = Atmospheres:readAtmoFile(file:readAll())
 		file:close()
-		
+
 		local entityList = {}
 		for i, entity in pairs(atmoData.entities) do
-			if (entity.count) then					
+			if (entity.count) then
 				for i = 1, entity.count do
 					local entityRandom = cloneTable(entity)
 					entityRandom.name = entity.name .. i
@@ -529,7 +529,7 @@ do
 				Atmospheres:spawnObject(entityHolder, entityList, entity)
 			end
 		end
-		
+
 		if (atmoData.shader) then
 			UIElement:runCmd("lws " .. atmoData.shader)
 		end
@@ -550,7 +550,7 @@ do
 			set_option(v.name, v.value)
 		end
 	end
-	
+
 	function Atmospheres:spawnObject(entityHolder, entityList, entity)
 		local item = UIElement3D:new({
 			parent = entity.parent and entityList[entity.parent] or entityHolder,
@@ -608,7 +608,7 @@ do
 				end)
 		end
 	end
-	
+
 	function Atmospheres:getFunction(i, v, entity, obj, ftype)
 		local r
 		if (type(v) == "number") then
@@ -640,19 +640,19 @@ do
 			end
 		end
 		return r
-	end	
-	
+	end
+
 	function Atmospheres:spawnMainList(listingHolder, toReload, elementHeight, path, ext, func, searchField)
 		if (listingHolder.scrollBar) then
 			listingHolder.scrollBar:kill()
 		end
 		listingHolder:kill(true)
 		listingHolder:moveTo(nil, 0)
-		
+
 		local search = searchField and searchField.textfieldstr[1] or ""
 		local listElements = {}
 		local atmos = get_files(path, ext)
-		
+
 		local default = UIElement:new({
 			parent = listingHolder,
 			pos = { 0, 0 },
@@ -686,7 +686,7 @@ do
 					Atmospheres:spawnMainList(listingHolder, toReload, elementHeight, path, ext, func, searchField)
 				end)
 		end
-		
+
 		for i, file in pairs(atmos) do
 			if (file:lower():find(search) and not (file:lower():match("default")) and not (file:lower():match("atmo.cfg"))) then
 				local element = UIElement:new({
@@ -721,7 +721,7 @@ do
 		listingHolder.scrollBar = scrollBar
 		scrollBar:makeScrollBar(listingHolder, listElements, toReload, ATMO_LIST_SHIFT)
 	end
-	
+
 	function Atmospheres:showMain()
 		Atmospheres:setShaderInfo()
 		local mainView = UIElement:new({
@@ -734,7 +734,7 @@ do
 		})
 		ATMO_MENU_MAIN_ELEMENT = mainView
 		ATMO_MENU_POS = mainView.pos
-		
+
 		local mainList = UIElement:new({
 			parent = mainView,
 			pos = { 0, 0 },
@@ -744,14 +744,14 @@ do
 		})
 		local elementHeight = 25
 		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(mainList, 75, 70, 15)
-		
+
 		topBar.shapeType = mainView.shapeType
-		topBar.rounded = mainView.rounded
+		topBar:setRounded(mainView.rounded)
 		botBar.shapeType = mainView.shapeType
-		botBar.rounded = mainView.rounded
-		
+		botBar:setRounded(mainView.rounded)
+
 		local search = TBMenu:spawnTextField(botBar, 5, 5, botBar.size.w - 10, botBar.size.h - 45, nil, nil, 1, nil, nil, "Start typing to search...")
-		
+
 		local mainMoverHolder = UIElement:new({
 			parent = topBar,
 			pos = { 0, 0 },
@@ -787,7 +787,7 @@ do
 					mainView:moveTo(x, y)
 				end
 			end)
-		
+
 		local shaderEditorHolder = UIElement:new({
 			parent = botBar,
 			pos = { 0, -35 },
@@ -814,7 +814,7 @@ do
 				ATMO_MENU_MAIN_ELEMENT = nil
 				Atmospheres:showShaderControls()
 			end)
-		
+
 		local mainList = {
 			{ text = TB_MENU_LOCALIZED.SHADERSATMOSNAME, action = function(searchText, noreload) if (not noreload) then ATMO_LIST_SHIFT[1] = 0 end ATMO_SELECTED_SCREEN = 1 Atmospheres:spawnMainList(listingHolder, toReload, elementHeight, "data/atmospheres", "atmo", function(file) Atmospheres:loadAtmo(file) Atmospheres:setDefaultAtmo(file) end, search) end },
 			{ text = TB_MENU_LOCALIZED.SHADERSNAME, action = function(searchText, noreload) if (not noreload) then ATMO_LIST_SHIFT[1] = 0 end ATMO_SELECTED_SCREEN = 2 Atmospheres:spawnMainList(listingHolder, toReload, elementHeight, "data/shader", "inc", function(file) DEFAULT_SHADER = file UIElement:runCmd("lws " .. file) end, search) end }
@@ -837,13 +837,13 @@ do
 			rounded = dropdownBackground.rounded
 		})
 		TBMenu:spawnDropdown(dropdownView, mainList, 40, WIN_H - 100, mainList[ATMO_SELECTED_SCREEN], { scale = 0.6, fontid = FONTS.BIG }, { scale = 0.8, fontid = FONTS.MEDIUM })
-		
+
 		add_hook("key_up", "tbAtmospheresKeyboard", function(s) return(UIElement:handleKeyUp(s)) end)
 		add_hook("key_down", "tbAtmospheresKeyboard", function(s) return(UIElement:handleKeyDown(s)) end)
 		search:addKeyboardHandlers(nil, function()
 				mainList[ATMO_SELECTED_SCREEN].action(search.textfieldstr[1])
 			end)
-		
+
 		local quitButton = UIElement:new({
 			parent = mainMoverHolder,
 			pos = { -mainMoverHolder.size.h, 0 },
