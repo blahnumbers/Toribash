@@ -90,3 +90,4 @@ quests_global.dat
 ..gitignore.un~
 /script/*test*.lua
 /script/load*.lua
+bounties.txt

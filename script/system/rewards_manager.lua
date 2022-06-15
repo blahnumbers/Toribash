@@ -11,7 +11,7 @@ do
 	setmetatable(cln, Rewards)
 
 	RewardData = {}
-	
+
 	function Rewards:getRewardData()
 		local got_data = false
 		local data_types = { "reward_type", "tc", "item" }
@@ -19,18 +19,18 @@ do
 		if (file == nil) then
 			return false
 		end
-		
+
 		for ln in file:lines() do
 			if string.match(ln, "^REWARD") then
 				local segments = 5
 				local data_stream = { ln:match(("([^\t]*)\t"):rep(segments)) }
 				local days = tonumber(data_stream[2])
 				RewardData[days - 1] = {}
-				
+
 				for i, v in ipairs(data_types) do
 					if (i < 3) then
 						RewardData[days - 1][v] = tonumber(data_stream[i + 2])
-					else 
+					else
 						RewardData[days - 1][v] = data_stream[i + 2]
 					end
 				end
@@ -40,11 +40,11 @@ do
 				got_data = true
 			end
 		end
-		
+
 		file:close()
 		return got_data
 	end
-	
+
 	function Rewards:quit()
 		if (get_option("newmenu") == 0 or TB_MENU_MAIN_ISOPEN == 0) then
 			tbMenuMain:kill()
@@ -52,31 +52,31 @@ do
 			remove_hooks("tbMainMenuVisual")
 			return
 		end
-		tbMenuCurrentSection:kill(true) 
+		tbMenuCurrentSection:kill(true)
 		tbMenuNavigationBar:kill(true)
 		TB_MENU_SPECIAL_SCREEN_ISOPEN = 4
 		TBMenu:showNavigationBar()
 		TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
 	end
-	
+
 	function Rewards:getNavigationButtons()
 		local buttonText = (get_option("newmenu") == 0 or TB_MENU_MAIN_ISOPEN == 0) and TB_MENU_LOCALIZED.NAVBUTTONEXIT or TB_MENU_LOCALIZED.NAVBUTTONTOMAIN
 		local buttonsData = {
-			{ 
-				text = buttonText, 
+			{
+				text = buttonText,
 				action = function() Rewards:quit() end
 			}
 		}
 		return buttonsData
 	end
-	
+
 	function Rewards:showMain(viewElement, rewardData)
 		viewElement:kill(true)
 		if (rewardData.days > 6) then
 			rewardData.days = rewardData.days % 7
 		end
-		
-		local loginView = UIElement:new({	
+
+		local loginView = UIElement:new({
 			parent = viewElement,
 			pos = { 5, 0 },
 			size = { viewElement.size.w - 10, viewElement.size.h },
@@ -98,11 +98,11 @@ do
 		})
 		local dayRewardWidth = dayRewardsView.size.w / 7
 		local dayReward = {}
-		
+
 		for i = 0, 6 do
 			local bgImg = RewardData[i].item ~= '0' and "../textures/store/items/" .. RewardData[i].item.itemid .. "_big.tga" or "../textures/store/toricredit.tga"
 			local iconSize = dayRewardWidth - 40 > dayRewardsView.size.h / 2 and dayRewardsView.size.h / 2 - 20 or dayRewardWidth - 60
-			
+
 			dayReward[i] = {}
 			dayReward[i].main = UIElement:new({
 				parent = dayRewardsView,
@@ -184,8 +184,8 @@ do
 								update_tc_balance()
 								TB_MENU_NOTIFICATIONS_COUNT = math.max(TB_MENU_NOTIFICATIONS_COUNT - 1, 0)
 								tbMenuNavigationBar:kill(true)
-								TBMenu:showNavigationBar(Notifications:getNavigationButtons(false, true), true, true, TB_MENU_NOTIFICATIONS_LASTSCREEN)
-								
+								TBMenu:showNavigationBar(Notifications:getNavigationButtons(nil, true), true, true, TB_MENU_NOTIFICATIONS_LASTSCREEN)
+
 								-- Let's update balance instantly, no need to wait for update_tc_balance() to finish downloading customs
 								if (RewardData[rewardData.days].tc ~= 0) then
 									TB_MENU_PLAYER_INFO.data.tc = TB_MENU_PLAYER_INFO.data.tc + RewardData[rewardData.days].tc
@@ -204,16 +204,16 @@ do
 			rewardClaimText:addAdaptedText(false, TB_MENU_LOCALIZED.REWARDSNOAVAILABLE, nil, nil, FONTS.BIG)
 		end
 	end
-	
+
 	function Rewards:getTime(timetonext, isClaimed)
 		if (timetonext <= 0 and not isClaimed) then
 			return TB_MENU_LOCALIZED.REWARDSAVAILABLERESTART
 		elseif (timetonext <= 0 and isClaimed) then
 			return TB_MENU_LOCALIZED.REWARDSEXPIRED
 		end
-		
+
 		local returnval = TBMenu:getTime(timetonext)
-		
+
 		if (not isClaimed) then
 			return TB_MENU_LOCALIZED.REWARDSNEXTREWARD .. " " .. returnval
 		end

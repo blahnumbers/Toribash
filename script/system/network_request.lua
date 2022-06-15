@@ -73,7 +73,7 @@ do
 		end
 
 		---@type RequestPromise
-		local response = { ready = false, id = Guid() }
+		local response = { ready = false, id = generate_uid() }
 		local name = name or "netrequest"
 		local success = success or function() end
 		local error = error or function() end

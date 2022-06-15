@@ -194,7 +194,6 @@ add_hook("downloader_complete", "tbMainMenuStatic", function(filename)
 			-- Most files we'll download will be from custom, sort them out so we don't run checks on them
 			return
 		end
-
 		if (filename:find("custom/" .. TB_MENU_PLAYER_INFO.username .. "/item.dat")) then
 			Downloader:safeCall(function()
 				TB_MENU_PLAYER_INFO.data = PlayerInfo:getUserData()
@@ -222,13 +221,11 @@ add_hook("downloader_complete", "tbMainMenuStatic", function(filename)
 			end)
 		elseif (filename:find("data/quest.txt")) then
 			Downloader:safeCall(function()
-				QUESTS_DATA = Quests:getQuests()
+				Quests:getQuests()
 			end)
-		elseif (filename:find("data/quest_global.dat")) then
+		elseif (filename:find("data/quests_global.dat")) then
 			Downloader:safeCall(function()
-				QUESTS_GLOBAL_DATA = Quests:getGlobalQuests()
-				QUESTS_LASTUPDATE_GLOBAL.time = os.time()
-				QUESTS_LASTUPDATE_GLOBAL.qi = TB_MENU_PLAYER_INFO.data.qi
+				Quests:getGlobalQuests()
 			end)
 		elseif (filename:find(".*/torishop/invent.txt")) then
 			Downloader:safeCall(function()

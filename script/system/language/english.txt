@@ -751,6 +751,7 @@ NOTIFICATIONSEMPTY	You don't have any notifications
 ERRORTRYAGAIN	Something went wrong, please try again
 QUESTSGLOBAL	Global quests
 QUESTSGLOBALDESC	Global objectives for your account
+QUESTSREGULAR	Regular quests
 WORDREWARD	Reward
 QUESTSGLOBALUPDATING	Updating global quests...
 NETWORKLOADING	Loading...
@@ -1065,3 +1066,4 @@ BATTLEPASSCLAIMERROR	Error claiming rewards, please try again later
 BATTLEPASSANDMORE1	&
 BATTLEPASSANDMORE2	more
 BATTLEPASSYOUWILLRECEIVEREWARDS	You will receive the following rewards:
+QUESTSDEFAULTQUESTNAME	Toribash Quest

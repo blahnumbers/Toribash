@@ -160,7 +160,7 @@ do
 	---@return boolean
 	function File:isDownloading()
 		for i,v in pairs(get_downloads()) do
-			if (v:match(strEsc(self.path:gsub("%.%a+$", "")) .. "%.%a+$")) then
+			if (v:match(string.escape(self.path:gsub("%.%a+$", "")) .. "%.%a+$")) then
 				return true
 			end
 		end

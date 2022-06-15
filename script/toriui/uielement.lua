@@ -87,6 +87,12 @@ BTN_DN = 3
 SCROLL_VERTICAL = 1
 SCROLL_HORIZONTAL = 2
 
+---@alias sort
+---| true # SORT_DESCENDING
+---| false # SORT_ASCENDING
+SORT_DESCENDIGN = true
+SORT_ASCENDING = false
+
 -- Default texture that will be used for fallback by UIElement:updateTexture()
 DEFTEXTURE = "../textures/menu/logos/toribash.tga"
 TEXTURECACHE = TEXTURECACHE or {}
@@ -160,6 +166,8 @@ do
 		---@field disableUnload boolean
 		---@field imagePatterned boolean
 		---@field imageColor Color
+		---@field imageHoverColor Color
+		---@field imagePressedColor Color
 		---@field textfield boolean Whether the object will be used as a text field
 		---@field textfieldstr string|string[]
 		---@field textfieldsingleline boolean
@@ -181,7 +189,13 @@ do
 
 		-- Toribash GUI elements manager class
 		--
-		-- **Ver 1.4**
+		-- **Ver 1.5 updates:**
+		-- * imageHoverColor and imagePressedColor support
+		-- * UIElement:qsort() marked as deprecated
+		-- * unpackN() is now unpack_all()
+		-- * strEsc() is now string.escape()
+		--
+		-- **Ver 1.4 updates:**
 		-- * UIElement:mouseHooks() is now initialized when this script is loaded to ensure it isn't required in every script that requires UIElements
 		-- * Moved scrollable list update on mouse bar scroll from mouse_move hook to pre_draw for better performance
 		-- * Different top/bottom rounding support and roundedInternal UIElement field
@@ -207,7 +221,10 @@ do
 		---@field bgImage string Object's image ID obtained from load_texture() call
 		---@field disableUnload boolean True if object's image should not get unloaded when object is destroyed. **Only use this if you know what you're doing**.
 		---@field imagePatterned boolean True if object's image should be drawn in patterned mode
-		---@field imageColor Color Color modifier that should be applied to object's image. Default is white { 1, 1, 1, 1 }.
+		---@field imageColor Color Color modifier that should be applied to object's image. Default is `{ 1, 1, 1, 1 }`.
+		---@field imageHoverColor Color Target image color modifier when UIElement is in hover state. *Only used when object is interactive*.
+		---@field imagePressedColor Color Image color modifier when UIElement is in pressed state. *Only used when object is interactive*.
+		---@field imageAnimateColor Color Current image color modifier when in normal or hover state. *Only used when object is interactive and UI animations are enabled*.
 		---@field keyboard boolean True for objects that currently handle keyboard events
 		---@field textfield boolean Internal value to modify behavior for elements that are going to be used as text fields
 		---@field textfieldstr string[] Text field data. Stored as a table to be able to access data by its reference. **Access UIElement.textfieldstr[1] for the actual string data of a text field**. *Only used for textfield objects*.
@@ -388,9 +405,11 @@ do
 				elem.hoverColor = o.hoverColor or nil
 				elem.pressedColor = o.pressedColor or nil
 				elem.inactiveColor = o.inactiveColor or o.bgColor
-				elem.animateColor = {}
-				for i = 1, 4 do
-					elem.animateColor[i] = elem.bgColor[i]
+				elem.animateColor = table.clone(elem.bgColor)
+				if (elem.bgImage) then
+					elem.imageHoverColor = o.imageHoverColor or nil
+					elem.imagePressedColor = o.imagePressedColor or nil
+					elem.imageAnimateColor = table.clone(elem.imageColor)
 				end
 				elem.hoverState = BTN_NONE
 				elem.pressedPos = { x = nil, y = nil }
@@ -454,7 +473,7 @@ do
 
 		if (copyShape) then
 			o.shapeType = o.shapeType and o.shapeType or self.shapeType
-			o.rounded = o.rounded and o.rounded or cloneTable(self.roundedInternal)
+			o.rounded = o.rounded and o.rounded or table.clone(self.roundedInternal)
 		end
 
 		o.parent = self
@@ -499,6 +518,34 @@ do
 		if (btnRightUp) then
 			self.btnRightUp = btnRightUp
 		end
+	end
+
+	---Shorthand function to add mouse button down handler
+	---@param func function
+	---@return nil
+	function UIElement:addMouseDownHandler(func)
+		self:addMouseHandlers(func)
+	end
+
+	---Shorthand function to add mouse button up handler
+	---@param func function
+	---@return nil
+	function UIElement:addMouseUpHandler(func)
+		self:addMouseHandlers(nil, func)
+	end
+
+	---Shorthand function to add mouse move handler
+	---@param func function
+	---@return nil
+	function UIElement:addMouseMoveHandler(func)
+		self:addMouseHandlers(nil, nil, func)
+	end
+
+	---Shorthand function to add mouse right button up handler
+	---@param func function
+	---@return nil
+	function UIElement:addMouseUpRightHandler(func)
+		self:addMouseHandlers(nil, nil, nil, func)
 	end
 
 	-- Adds keyboard handlers to use for an interactive UIElement object
@@ -691,7 +738,7 @@ do
 		end
 
 		local barScroller = self:addChild({})
-		barScroller.uid = Guid()
+		barScroller.uid = generate_uid()
 		barScroller.killAction = function() remove_hooks("barScroller" .. barScroller.uid) end
 		add_hook("pre_draw", "barScroller" .. barScroller.uid, function()
 				if (targetPos ~= nil) then
@@ -921,21 +968,43 @@ do
 		if (self.customDisplayBefore) then
 			self.customDisplayBefore()
 		end
-		if (self.hoverState ~= false and self.hoverColor) then
-			if (UIMODE_LIGHT) then
-				for i = 1, 4 do
-					self.animateColor[i] = self.hoverColor[i]
-				end
-			else
-				for i = 1, 4 do
-					if ((self.bgColor[i] > self.hoverColor[i] and self.animateColor[i] > self.hoverColor[i]) or (self.bgColor[i] < self.hoverColor[i] and self.animateColor[i] < self.hoverColor[i])) then
-						self.animateColor[i] = self.animateColor[i] - math.floor((self.bgColor[i] - self.hoverColor[i]) * 150) / 1000
+		if (self.hoverState ~= false) then
+			if (self.hoverColor) then
+				if (UIMODE_LIGHT) then
+					for i = 1, 4 do
+						self.animateColor[i] = self.hoverColor[i]
+					end
+				else
+					for i = 1, 4 do
+						if ((self.bgColor[i] > self.hoverColor[i] and self.animateColor[i] > self.hoverColor[i]) or (self.bgColor[i] < self.hoverColor[i] and self.animateColor[i] < self.hoverColor[i])) then
+							self.animateColor[i] = self.animateColor[i] - math.floor((self.bgColor[i] - self.hoverColor[i]) * 150) / 1000
+						end
 					end
 				end
 			end
-		elseif (self.animateColor) then
-			for i = 1, 4 do
-				self.animateColor[i] = self.bgColor[i]
+			if (self.imageHoverColor) then
+				if (UIMODE_LIGHT) then
+					for i = 1, 4 do
+						self.imageAnimateColor[i] = self.imageHoverColor[i]
+					end
+				else
+					for i = 1, 4 do
+						if ((self.imageColor[i] > self.imageHoverColor[i] and self.imageAnimateColor[i] > self.imageHoverColor[i]) or (self.imageColor[i] < self.imageHoverColor[i] and self.imageAnimateColor[i] < self.imageHoverColor[i])) then
+							self.imageAnimateColor[i] = self.imageAnimateColor[i] - math.floor((self.imageColor[i] - self.imageHoverColor[i]) * 150) / 1000
+						end
+					end
+				end
+			end
+		else
+			if (self.animateColor) then
+				for i = 1, 4 do
+					self.animateColor[i] = self.bgColor[i]
+				end
+			end
+			if (self.imageAnimateColor) then
+				for i = 1, 4 do
+					self.imageAnimateColor[i] = self.imageColor[i]
+				end
 			end
 		end
 
@@ -962,16 +1031,17 @@ do
 				set_color(unpack(self.inactiveColor))
 			elseif (self.hoverState == BTN_HVR and self.hoverColor) then
 				set_color(unpack(self.animateColor))
-				set_mouse_cursor(1)
 			elseif (self.hoverState == BTN_FOCUS and self.hoverColor) then
 				set_color(unpack(self.animateColor))
 			elseif (self.hoverState == BTN_DN and self.pressedColor) then
 				set_color(unpack(self.pressedColor))
-				set_mouse_cursor(1)
 			elseif (self.interactive) then
 				set_color(unpack(self.animateColor))
 			else
 				set_color(unpack(self.bgColor))
+			end
+			if (self.interactive and (self.hoverState == BTN_HVR or self.hoverState == BTN_DN) and (self.hoverColor or self.imageHoverColor)) then
+				set_mouse_cursor(1)
 			end
 			if (self.shapeType == ROUNDED) then
 				draw_disk(self.pos.x + self.roundedInternal[1], self.pos.y + self.roundedInternal[1] + self.innerShadow[1], 0, self.roundedInternal[1], 500, 1, -180, 90, 0)
@@ -985,10 +1055,11 @@ do
 				draw_quad(self.pos.x, self.pos.y + self.innerShadow[1], self.size.w, self.size.h - self.innerShadow[1] - self.innerShadow[2])
 			end
 			if (self.bgImage) then
+				local targetImageColor = self.interactive and ((self.hoverState == BTN_HVR or self.hoverState == BTN_FOCUS) and self.imageAnimateColor or (self.hoverState == BTN_DN and self.imagePressedColor or self.imageColor)) or self.imageColor
 				if (self.imagePatterned) then
-					draw_quad(self.pos.x, self.pos.y, self.size.w, self.size.h, self.bgImage, self.imagePatterned, self.imageColor[1], self.imageColor[2], self.imageColor[3], self.imageColor[4])
+					draw_quad(self.pos.x, self.pos.y, self.size.w, self.size.h, self.bgImage, self.imagePatterned, targetImageColor[1], targetImageColor[2], targetImageColor[3], targetImageColor[4])
 				else
-					draw_quad(self.pos.x, self.pos.y, self.size.w, self.size.h, self.bgImage, 0, self.imageColor[1], self.imageColor[2], self.imageColor[3], self.imageColor[4])
+					draw_quad(self.pos.x, self.pos.y, self.size.w, self.size.h, self.bgImage, 0, targetImageColor[1], targetImageColor[2], targetImageColor[3], targetImageColor[4])
 				end
 			end
 		end
@@ -1762,7 +1833,13 @@ do
 		return debugEcho(mixed, msg, returnString)
 	end
 
-	function qsort(arr, sort, order, includeZeros)
+	---Runs a quicksort by specified key(s) on a table with multikey data
+	---@param arr table Table with the data that we want to sort
+	---@param sort string[]|string Table keys which values will be used for sorting
+	---@param order? sort[]|sort Sorting order. Defaults to `SORT_ASCENDING`.
+	---@param includeZeros any
+	---@return table
+	_G.qsort = function(arr, sort, order, includeZeros)
 		local a = {}
 		if (type(arr) ~= "table") then
 			return arr
@@ -1813,6 +1890,8 @@ do
 		return a
 	end
 
+	---@deprecated
+	---Use global qsort() function instead
 	function UIElement:qsort(arr, sort, desc, includeZeros)
 		return qsort(arr, sort, desc, includeZeros)
 	end
@@ -1836,26 +1915,6 @@ do
 			font_mod = 9.6
 		end
 		return font_mod * (hires and 2 or 1)
-	end
-
-	---@generic T table
-	-- Returns a copy of a table with its contents reversed
-	---@param table T
-	---@return T
-	_G.cloneTable = function(table)
-		if (type(table) ~= "table") then
-			return nil
-		end
-
-		local newTable = {}
-		for i,v in pairs(table) do
-			if (type(v) == "table") then
-				newTable[i] = cloneTable(v)
-			else
-				newTable[i] = v
-			end
-		end
-		return newTable
 	end
 
 	_G.textAdapt = function(str, font, scale, maxWidth, check, textfield, singleLine, textfieldIndex)
@@ -2006,23 +2065,21 @@ do
 		end
 	end
 
-	---@generic T table|UIElement[]
-	-- Returns a copy of a table with its contents reversed
-	---@param tbl T
-	---@return T
-	_G.tableReverse = function(tbl)
-		local tblRev = {}
-		for i, v in pairs(tbl) do
-			table.insert(tblRev, 1, v)
-		end
-		return tblRev
-	end
-
+	---Wrapper function for `open_dialog_box()` that properly parses newlines
+	---@param id integer Dialog box type ID
+	---@param msg string Information message that will be displayed to the user
+	---@param data string
+	---@param luaNetwork? boolean
+	---@return nil
 	_G.show_dialog_box = function(id, msg, data, luaNetwork)
 		return open_dialog_box(id, msg:gsub("%\\n", "\n"), data, luaNetwork)
 	end
 
-	function in_array(needle, haystack)
+	---Checks whether a value is part of the table
+	---@param needle any
+	---@param haystack table
+	---@return boolean
+	_G.in_array = function(needle, haystack)
 		for i,v in pairs(haystack) do
 			if (needle == v) then
 				return true
@@ -2031,8 +2088,13 @@ do
 		return false
 	end
 
-	function get_color_from_hex(hex)
+	---Returns a Toribash color data from HEX input.\
+	---*Supports `RRRGGGBBB` codes to go over the 255 RGB values for glowy colors.*
+	---@param hex string
+	---@return Color
+	_G.get_color_from_hex = function(hex)
 		local color = {}
+		local hex = hex:gsub("^#", '')
 		local pattern = hex:len() < 7 and "%w%w" or "%w%w%w"
 		for col in hex:gmatch(pattern) do
 			table.insert(color, tonumber(col, 16) / 256)
@@ -2041,22 +2103,66 @@ do
 		return color
 	end
 
-	function tableCmp(table1, table2)
-		if (type(table1) ~= type(table2)) then
+	-- Returns a copy of a table with its contents reversed
+	---@generic T table|UIElement[]
+	---@param table T
+	---@return T
+	_G.table.reverse = function(table)
+		local tblRev = {}
+		for i, v in pairs(table) do
+			_G.table.insert(tblRev, 1, v)
+		end
+		return tblRev
+	end
+
+	---@deprecated
+	---Use table.reverse() instead
+	_G.tableReverse = function(table) return _G.table.reverse(table) end
+
+	-- Returns a copy of a table
+	---@generic T table|UIElement[]
+	---@param table T
+	---@return T
+	_G.table.clone = function(table)
+		if (type(table) ~= "table") then
+			return nil
+		end
+
+		local newTable = {}
+		for i,v in pairs(table) do
+			if (type(v) == "table") then
+				newTable[i] = _G.table.clone(v)
+			else
+				newTable[i] = v
+			end
+		end
+		return newTable
+	end
+
+	---@deprecated
+	---Use table.clone() instead
+	_G.cloneTable = function(table) return _G.table.clone(table) end
+
+	---Comapres whether two tables contain identical data
+	---@param self table
+	---@param table2 table
+	---@return boolean
+	_G.table.compare = function(self, table2)
+		if (type(self) ~= type(table2)) then
 			return false
 		end
 
 		local cnt1, cnt2 = 0, 0
-		for _ in pairs(table1) do cnt1 = cnt1 + 1 end
+		for _ in pairs(self) do cnt1 = cnt1 + 1 end
 		for _ in pairs(table2) do cnt2 = cnt2 + 1 end
 		if (cnt1 ~= cnt2) then
 			return false
 		end
 
-		for i,v in pairs(table1) do
+		for i,v in pairs(self) do
 			if (v ~= table2[i]) then
 				if (type(v) == type(table2[i]) and type(v) == "table") then
-					if (not tableCmp(table1[i], table2[i])) then
+					if (not self[i]:compare(table2[i])) then
 						return false
 					end
 				else
@@ -2068,14 +2174,21 @@ do
 		return true
 	end
 
-	function empty(table)
+	---Checks whether the table is empty
+	---@param table table
+	---@return boolean
+	_G.empty = function(table)
 		if (next(table) == false) then
 			return true
 		end
 		return false
 	end
 
-	function unpackN(tbl)
+	---Alternative to unpack() function that returns all table values.\
+	---**Use with caution, this will ***not*** always preserve key order**.
+	---@param tbl table
+	---@return table
+	_G.unpack_all = function(tbl)
 		local indexedTable = {}
 		for i,v in pairs(tbl) do
 			table.insert(indexedTable, v)
@@ -2083,7 +2196,13 @@ do
 		return unpack(indexedTable)
 	end
 
-	function debugEcho(mixed, msg, returnString, rec)
+	---Internal function to output provided data as a string. You're looking for `debugEcho()`.
+	---@param mixed any
+	---@param returnString? boolean
+	---@param msg? string String that will preceed the output
+	---@param rec? boolean Internal parameter to indicate recursive calls
+	---@return string|nil
+	_G.debugEchoInternal = function(mixed, returnString, msg, rec)
 		local msg = msg and msg .. ": " or ""
 		local buildRet = returnString and function(str) _G.DEBUGECHOMSG = _G.DEBUGECHOMSG .. str .. "\n" end or echo
 		if (not rec) then
@@ -2092,7 +2211,7 @@ do
 		if (type(mixed) == "table") then
 			buildRet("entering table " .. msg)
 			for i,v in pairs(mixed) do
-				debugEcho(v, i, returnString, true)
+				debugEchoInternal(v, returnString, msg .. i, true)
 			end
 		elseif (type(mixed) == "boolean") then
 			buildRet(msg .. (mixed and "true" or "false"))
@@ -2109,7 +2228,41 @@ do
 		return nil
 	end
 
-	function strEsc(str)
+	---Outputs or returns any provided data as a string
+	---@param data any Data to parse and output
+	---@param returnString? boolean Whether we should return the generated string or use `echo()` to print it in chat
+	---@return string|nil
+	_G.debugEcho = function(data, returnString)
+		return debugEchoInternal(data, returnString)
+	end
+
+	---Generates a unique ID
+	---@return string
+	_G.generate_uid = function()
+		local template ='xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
+		return string.gsub(template, '[xy]', function(c)
+			local v = (c == 'x') and math.random(0, 0xf) or math.random(8, 0xb)
+			return string.format('%x', v)
+		end)
+	end
+
+	-- string.char() causes a crash when invalid data is fed to it
+	-- We want a safe function that can be used with keyboard input
+	_G.string.schar = function(...)
+		local result = ''
+		local arg = { ... }
+		for i,v in ipairs(arg) do
+			local char = ''
+			pcall(function() char = string.char(v) end)
+			result = result .. char
+		end
+		return result
+	end
+
+	---Escapes all special characters in a specified string
+	---@param str string
+	---@return string
+	_G.string.escape = function(str)
 		local str = str
 
 		-- escape % symbols
@@ -2139,28 +2292,6 @@ do
 		end
 		return str
 	end
-
-	function Guid()
-		local template ='xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
-		return string.gsub(template, '[xy]', function(c)
-			local v = (c == 'x') and math.random(0, 0xf) or math.random(8, 0xb)
-			return string.format('%x', v)
-		end)
-	end
-
-	-- string.char() causes a crash when invalid data is fed to it
-	-- We want a safe function that can be used with keyboard input
-	function schar(...)
-		local result = ''
-		local arg = { ... }
-		for i,v in ipairs(arg) do
-			local char = ''
-			pcall(function() char = string.char(v) end)
-			result = result .. char
-		end
-		return result
-	end
-	_G.string.schar = schar
 end
 
 if (not UIElement.__mouseHooks) then

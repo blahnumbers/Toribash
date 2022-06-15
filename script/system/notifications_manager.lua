@@ -1,8 +1,12 @@
--- Notifications Manager Class
 TB_MENU_NOTIFICATIONS_MESSAGES = TB_MENU_NOTIFICATIONS_MESSAGES or {}
 
 do
-	Notifications = { ver = 1.1 }
+	-- Notifications manager class
+	--
+	-- **Ver 1.2 updates:**
+	-- * Notifications:getNavigationButtons() will now swap out "To Main" button with "Back" if showBack param is true
+	-- * Notifications:getNavigationButtons() backAction argument support for custom functionality when showBack is set to true
+	Notifications = { ver = 1.2 }
 	Notifications.__index = Notifications
 	local cln = {}
 	setmetatable(cln, Notifications)
@@ -15,7 +19,7 @@ do
 		TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
 	end
 
-	function Notifications:getNavigationButtons(showBack, justClaimed)
+	function Notifications:getNavigationButtons(showBack, justClaimed, backAction)
 		local navigation = {
 			{
 				text = TB_MENU_LOCALIZED.NAVBUTTONTOMAIN,
@@ -47,11 +51,14 @@ do
 			local back = {
 				text = TB_MENU_LOCALIZED.NAVBUTTONBACK,
 				action = function()
-					Notifications:showMain()
-				end,
-				width = 130
+					if (backAction) then
+						backAction()
+					else
+						Notifications:showMain()
+					end
+				end
 			}
-			table.insert(navigation, back)
+			navigation[1] = back
 		end
 		return navigation
 	end
@@ -73,7 +80,7 @@ do
 	end
 
 	function Notifications:showQuests()
-		Quests:showMain(QUEST_REFRESH_CLAIMED)
+		Quests:showMain()
 	end
 
 	function Notifications:beautifySystemAccounts(name)
@@ -95,7 +102,7 @@ do
 				local response = get_network_response()
 				local lines = {}
 				local pattern = '([^\n]+)'
-				string.gsub(response, pattern, function(val) table.insert(lines, val) end)
+				local _ = string.gsub(response, pattern, function(val) table.insert(lines, val) end)
 
 				for i, ln in pairs(lines) do
 					local data_stream = { ln:match(("([^\t]*)\t?"):rep(5)) }
@@ -230,7 +237,7 @@ do
 		local skipWord = nil
 
 		local message = string.gsub(message, "%'", "\'")
-		string.gsub(message, pattern, function(match)
+		local _ = string.gsub(message, pattern, function(match)
 				local sPos, ePos
 				pcall(function()
 					local matchcln = string.gsub(match, "[('.?%[%])%*]", "%%%1")

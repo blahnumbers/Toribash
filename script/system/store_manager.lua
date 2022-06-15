@@ -1334,7 +1334,7 @@ do
 							updateEffectSettingsButton:show()
 							local buttonText = TB_MENU_LOCALIZED.STOREITEMUPGRADEFOR
 							local upgradePrice = 0
-							local maxRequirement = math.max(unpackN(effectUpdateRequirements.gamesPlayed))
+							local maxRequirement = math.max(unpack_all(effectUpdateRequirements.gamesPlayed))
 							for i,v in pairs(effectUpdateRequirements.upgradePrice) do
 								upgradePrice = upgradePrice + v
 							end

@@ -9,7 +9,7 @@ do
 
 	function TBMenu:create()
 		TB_MENU_MAIN_ISOPEN = 1
-		set_build_version("220614")
+		set_build_version("220615")
 	end
 
 	function TBMenu:setLanguageFontOptions(language)
@@ -118,10 +118,23 @@ do
 		return { elementWidth, elementHeight, heightShift }
 	end
 
+	---@deprecated
+	---Legacy method to create image buttons.\
+	---Use a single UIElement with a white sprite and different imageColor / imageHoverColor / imagePressedColor values instead.
+	---@param parentElement UIElement
+	---@param x number
+	---@param y number
+	---@param w number
+	---@param h number
+	---@param img string
+	---@param imgHvr? string
+	---@param imgPress? string
+	---@param col? Color
+	---@param colHvr? Color
+	---@param colPress? Color
+	---@param round? number
+	---@return UIElement
 	function TBMenu:createImageButtons(parentElement, x, y, w, h, img, imgHvr, imgPress, col, colHvr, colPress, round)
-		if (not parentElement or not x or not y or not w or not h or not img) then
-			return false
-		end
 		local imgHvr = imgHvr or img
 		local imgPress = imgPress or img
 		local col = col or nil
@@ -603,11 +616,11 @@ do
 
 	---Prepares all UIElements to make a scrollable list within a specified UIElement viewport
 	---@param viewElement UIElement
-	---@param firstBarSize number Dimensions of the first bar (top bar height for SCROLL_VERTICAL orientation, left bar width for SCROLL_HORIZONTAL)
-	---@param secondBarSize number Dimensions of the second bar (bottom bar height for SCROLL_VERTICAL orientation, right bar width for SCROLL_HORIZONTAL)
-	---@param scrollSize number Scroll bar dimensions
-	---@param accentColor Color Background color for all bars
-	---@param orientation UIElementScrollMode Orientation for the scrollable list. Supported values are SCROLL_VERTICAL or SCROLL_HORIZONTAL.
+	---@param firstBarSize? number Dimensions of the first bar (top bar height for SCROLL_VERTICAL orientation, left bar width for SCROLL_HORIZONTAL). Defaults to `50`.
+	---@param secondBarSize? number Dimensions of the second bar (bottom bar height for SCROLL_VERTICAL orientation, right bar width for SCROLL_HORIZONTAL). Defaults to `firstBarSize` value.
+	---@param scrollSize? number Scroll bar dimensions. Defaults to `20`.
+	---@param accentColor? Color Background color for all bars. Defaults to `TB_MENU_DEFAULT_DARKER_COLOR`.
+	---@param orientation? UIElementScrollMode Orientation for the scrollable list. Supported values are SCROLL_VERTICAL or SCROLL_HORIZONTAL. Defaults to `SCROLL_VERTICAL`.
 	---@return UIElement toReload Object that will be always displayed on top of all list objects. All bars are parented to it.
 	---@return UIElement firstBar
 	---@return UIElement secondBar
@@ -617,7 +630,10 @@ do
 	function TBMenu:prepareScrollableList(viewElement, firstBarSize, secondBarSize, scrollSize, accentColor, orientation)
 		local firstBarSize = firstBarSize or 50
 		local secondBarSize = secondBarSize or firstBarSize
+		local scrollSize = scrollSize or 20
+		local accentColor = accentColor or cloneTable(TB_MENU_DEFAULT_DARKER_COLOR)
 		local orientation = orientation or SCROLL_VERTICAL
+
 		local toReload = UIElement:new({
 			parent = viewElement,
 			pos = { 0, 0 },
@@ -631,13 +647,13 @@ do
 				pos = { 0, 0 },
 				size = { viewElement.size.w, firstBarSize },
 				interactive = true,
-				bgColor = accentColor or TB_MENU_DEFAULT_DARKER_COLOR
+				bgColor = accentColor
 			})
 			secondBar = toReload:addChild({
 				pos = { 0, -secondBarSize },
 				size = { viewElement.size.w, secondBarSize },
 				interactive = true,
-				bgColor = accentColor or TB_MENU_DEFAULT_DARKER_COLOR
+				bgColor = accentColor
 			})
 			shiftY = firstBarSize
 		else
@@ -645,13 +661,13 @@ do
 				pos = { 0, 0 },
 				size = { firstBarSize, viewElement.size.h },
 				interactive = true,
-				bgColor = accentColor or TB_MENU_DEFAULT_DARKER_COLOR
+				bgColor = accentColor
 			})
 			secondBar = toReload:addChild({
 				pos = { -secondBarSize, 0 },
 				size = { secondBarSize, viewElement.size.h },
 				interactive = true,
-				bgColor = accentColor or TB_MENU_DEFAULT_DARKER_COLOR
+				bgColor = accentColor
 			})
 			shiftX = firstBarSize
 		end
@@ -671,7 +687,7 @@ do
 			parent = listingView,
 			pos = orientation == SCROLL_VERTICAL and { -scrollSize, 0 } or { 0, -scrollSize },
 			size = orientation == SCROLL_VERTICAL and { scrollSize, listingView.size.h } or { listingView.size.w, scrollSize },
-			bgColor = accentColor or TB_MENU_DEFAULT_DARKER_COLOR
+			bgColor = accentColor
 		})
 		listingHolder.scrollBG = listingScrollBG
 		return toReload, firstBar, secondBar, listingView, listingHolder, listingScrollBG
@@ -2290,20 +2306,29 @@ do
 			end
 		end
 		local tbMenuBottomLeftButtonsData = {
-			{ action = function() if (TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 8) then TBMenu:showFriendsList() else FriendsList:quit() end end, image = TB_MENU_FRIENDS_BUTTON, imageHover = TB_MENU_FRIENDS_BUTTON_HOVER, imagePress = TB_MENU_FRIENDS_BUTTON_PRESS },
-			{ action = function() if (TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 4) then TBMenu:showNotifications() else Notifications:quit() end end, image = TB_MENU_NOTIFICATIONS_BUTTON, imageHover = TB_MENU_NOTIFICATIONS_BUTTON_HOVER, imagePress = TB_MENU_NOTIFICATIONS_BUTTON_PRESS },
-			{ action = function() if (TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 7) then TBMenu:showBounties() else Bounty:quit() end end, image = TB_MENU_BOUNTY_BUTTON, imageHover = TB_MENU_BOUNTY_BUTTON_HOVER, imagePress = TB_MENU_BOUNTY_BUTTON_PRESS },
-			{ action = function() usage_event("discord") open_url("https://toribash.com/discord.php") end, image = TB_MENU_DISCORD_BUTTON, imageHover = TB_MENU_DISCORD_BUTTON_HOVER, imagePress = TB_MENU_DISCORD_BUTTON_PRESS }
+			{ action = function() if (TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 8) then TBMenu:showFriendsList() else FriendsList:quit() end end, image = TB_MENU_FRIENDS_BUTTON },
+			{ action = function() if (TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 4) then TBMenu:showNotifications() else Notifications:quit() end end, image = TB_MENU_NOTIFICATIONS_BUTTON },
+			{ action = function() if (TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 7) then TBMenu:showBounties() else Bounty:quit() end end, image = TB_MENU_BOUNTY_BUTTON },
+			{ action = function() usage_event("discord") open_url("https://toribash.com/discord.php") end, image = TB_MENU_DISCORD_BUTTON }
 		}
 		local tbMenuBottomLeftButtons = {}
 		for i, v in pairs(tbMenuBottomLeftButtonsData) do
-			tbMenuBottomLeftButtons[i] = TBMenu:createImageButtons(tbMenuBottomLeftBar, (i - 1) * (tbMenuBottomLeftBar.size.h + 10), 0, tbMenuBottomLeftBar.size.h, tbMenuBottomLeftBar.size.h, v.image, v.imageHover, v.imagePress)
+			tbMenuBottomLeftButtons[i] = tbMenuBottomLeftBar:addChild({
+				pos = { (i - 1) * (tbMenuBottomLeftBar.size.h + 10), 0 },
+				size = { tbMenuBottomLeftBar.size.h, tbMenuBottomLeftBar.size.h },
+				bgImage = v.image,
+				imageColor = TB_MENU_DEFAULT_BG_COLOR,
+				imageHoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+				imagePressedColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				disableUnload = true,
+				interactive = true
+			})
+			--tbMenuBottomLeftButtons[i] = TBMenu:createImageButtons(tbMenuBottomLeftBar, (i - 1) * (tbMenuBottomLeftBar.size.h + 10), 0, tbMenuBottomLeftBar.size.h, tbMenuBottomLeftBar.size.h, v.image, v.imageHover, v.imagePress)
 			tbMenuBottomLeftButtons[i]:addMouseHandlers(nil, function() shopCheckExit() v.action() end, nil)
 		end
 		local notificationsCountWidth = get_string_length(TB_MENU_NOTIFICATIONS_COUNT + TB_MENU_NOTIFICATIONS_NET_COUNT + TB_MENU_QUESTS_GLOBAL_COUNT + TB_MENU_QUESTS_COUNT, FONTS.MEDIUM) * 0.9
 		notificationsCountWidth = notificationsCountWidth > tbMenuBottomLeftBar.size.h / 2 and (notificationsCountWidth > tbMenuBottomLeftBar.size.h and tbMenuBottomLeftBar.size.h or notificationsCountWidth) or tbMenuBottomLeftBar.size.h / 2
-		tbMenuNotificationsCount = UIElement:new({
-			parent = tbMenuBottomLeftButtons[2],
+		tbMenuNotificationsCount = tbMenuBottomLeftButtons[2]:addChild({
 			pos = { -notificationsCountWidth, 0 },
 			size = { notificationsCountWidth, tbMenuBottomLeftBar.size.h / 2 },
 			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
@@ -2313,7 +2338,7 @@ do
 		tbMenuNotificationsCount:addCustomDisplay(false, function()
 				tbMenuNotificationsCount:uiText(TB_MENU_NOTIFICATIONS_COUNT + TB_MENU_NOTIFICATIONS_NET_COUNT + TB_MENU_QUESTS_GLOBAL_COUNT + TB_MENU_QUESTS_COUNT + TB_MENU_QUEST_NOTIFICATIONS, nil, nil, FONTS.MEDIUM, nil, 0.7, 0.4)
 			end)
-		tbMenuBottomLeftButtons[2]:addCustomDisplay(true, function()
+		tbMenuBottomLeftButtons[2]:addCustomDisplay(function()
 				if (TB_MENU_NOTIFICATIONS_COUNT + TB_MENU_NOTIFICATIONS_NET_COUNT + TB_MENU_QUESTS_GLOBAL_COUNT + TB_MENU_QUESTS_COUNT == 0) then
 					tbMenuNotificationsCount:hide()
 					tbMenuNotificationsCount.hidden = true
@@ -2333,12 +2358,22 @@ do
 			size = { 110 * TB_MENU_GLOBAL_SCALE, buttonSize }
 		})
 		local tbMenuBottomRightButtonsData = {
-			{ action = function() open_menu(4) end, image = TB_MENU_QUIT_BUTTON, imageHover = TB_MENU_QUIT_BUTTON_HOVER, imagePress = TB_MENU_QUIT_BUTTON_PRESS },
-			{ action = function() TBMenu:showSettings() end, image = TB_MENU_SETTINGS_BUTTON, imageHover = TB_MENU_SETTINGS_BUTTON_HOVER, imagePress = TB_MENU_SETTINGS_BUTTON_PRESS }
+			{ action = function() open_menu(4) end, image = TB_MENU_QUIT_BUTTON },
+			{ action = function() TBMenu:showSettings() end, image = TB_MENU_SETTINGS_BUTTON }
 		}
 		local tbMenuBottomRightButtons = {}
 		for i,v in pairs(tbMenuBottomRightButtonsData) do
-			tbMenuBottomRightButtons[i] = TBMenu:createImageButtons(tbMenuBottomRightBar, -i * (tbMenuBottomRightBar.size.h + 10), 0, tbMenuBottomRightBar.size.h, tbMenuBottomRightBar.size.h, v.image, v.imageHover, v.imagePress)
+			tbMenuBottomRightButtons[i] = tbMenuBottomRightBar:addChild({
+				pos = { -i * (tbMenuBottomRightBar.size.h + 10), 0 },
+				size = { tbMenuBottomRightBar.size.h, tbMenuBottomRightBar.size.h },
+				bgImage = v.image,
+				imageColor = TB_MENU_DEFAULT_BG_COLOR,
+				imageHoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+				imagePressedColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				disableUnload = true,
+				interactive = true
+			})
+			--tbMenuBottomRightButtons[i] = TBMenu:createImageButtons(tbMenuBottomRightBar, -i * (tbMenuBottomRightBar.size.h + 10), 0, tbMenuBottomRightBar.size.h, tbMenuBottomRightBar.size.h, v.image, v.imageHover, v.imagePress)
 			tbMenuBottomRightButtons[i]:addMouseHandlers(nil, function() shopCheckExit() v.action() end, nil)
 		end
 		local tbMenuDownloads = UIElement:new({

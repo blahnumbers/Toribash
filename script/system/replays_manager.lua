@@ -305,7 +305,7 @@ do
 
 		local filedata = {}
 		for ln in file.data:lines() do
-			if (ln:find("^" .. strEsc("replay/" .. replay.filename))) then
+			if (ln:find("^" .. string.escape("replay/" .. replay.filename))) then
 				if (newreplay and not matchFound) then
 					matchFound = true
 					table.insert(filedata,
