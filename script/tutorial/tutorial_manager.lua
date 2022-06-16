@@ -125,7 +125,7 @@ do
 
 		local steps = {}
 		for i, ln in pairs(tutorialData) do
-			ln = ln:gsub(";\n$", "")
+			ln = ln:gsub(";$", "")
 			if (ln:find("^STEP")) then
 				if (ln:find("^STEPSKIP")) then
 					steps[#steps].skip = ln:gsub("STEPSKIP ", "") + 0
