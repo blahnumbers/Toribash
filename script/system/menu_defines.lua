@@ -33,7 +33,6 @@ TB_TOOLTIP_GLOBALID = 1010
 
 TB_MENU_DEFAULT_BG_COLOR = { 0.67, 0.11, 0.11, 1 }
 TB_MENU_DEFAULT_BG_COLOR_TRANS = { 0.67, 0.11, 0.11, 0.5 }
-TB_NAVBAR_DEFAULT_BG_COLOR = { 0.7, 0.11, 0.11, 1 }
 TB_MENU_DEFAULT_DARKER_COLOR = { 0.607, 0.109, 0.109, 1 }
 TB_MENU_DEFAULT_DARKEST_COLOR = { 0.55, 0.05, 0.05, 1 }
 TB_MENU_DEFAULT_LIGHTER_COLOR = { 0.8, 0.25, 0.25, 1 }
@@ -98,18 +97,18 @@ TB_MENU_BUTTON_CROSSWHITE = "../textures/menu/general/buttons/crosswhite.tga"
 local overrideActive = false
 
 function setDefinesOverrides()
-	--[[TB_MENU_DEFAULT_BG_COLOR = { 0.735, 0.487, 0.265, 1 }
-	TB_MENU_DEFAULT_BG_COLOR_TRANS = { 0.735, 0.487, 0.265, 0.5 }
-	TB_MENU_DEFAULT_DARKER_COLOR = { 0.68, 0.438, 0.218, 1 }
-	TB_MENU_DEFAULT_DARKEST_COLOR = { 0.6, 0.38, 0.16, 1 }
-	TB_NAVBAR_DEFAULT_BG_COLOR = { 0.835, 0.576, 0.349, 1 }
-	TB_MENU_DEFAULT_LIGHTER_COLOR = { 0.877, 0.614, 0.384, 1 }
-	TB_MENU_DEFAULT_LIGHTEST_COLOR = { 0.934, 0.666, 0.433, 1 }
+	TB_MENU_DEFAULT_BG_COLOR = { 0.15, 0.15, 0.15, 1 }
+	TB_MENU_DEFAULT_BG_COLOR_TRANS = { 0.15, 0.15, 0.15, 0.5 }
+	TB_MENU_DEFAULT_DARKER_COLOR = { 0.1, 0.1, 0.1, 1 }
+	TB_MENU_DEFAULT_DARKEST_COLOR = { 0.06, 0.06, 0.06, 1 }
+	--TB_NAVBAR_DEFAULT_BG_COLOR = { 0.835, 0.576, 0.349, 1 }
+	TB_MENU_DEFAULT_LIGHTER_COLOR = { 0.2, 0.2, 0.20, 1 }
+	TB_MENU_DEFAULT_LIGHTEST_COLOR = { 0.25, 0.25, 0.25, 1 }
 
 	TB_MENU_UI_TEXT_COLOR = { 1, 1, 1, 1 }
 	TB_MENU_UI_TEXT_SHADOW_COLOR = { 0, 0, 0, 0.6 }
 
-	TB_MENU_GAME_LOGO = "../textures/menu/logos/toribash_halloween_small.tga"
+	--[[TB_MENU_GAME_LOGO = "../textures/menu/logos/toribash_halloween_small.tga"
 	TB_MENU_USERBAR_MAIN = "../textures/menu/general/topbarbgmain_halloween.tga"
 	TB_MENU_USERBAR_LEFT = "../textures/menu/general/topbarbgleft_halloween.tga"
 	TB_MENU_BLOODSPLATTER_LEFT = "../textures/menu/general/batsleft_halloween.tga"

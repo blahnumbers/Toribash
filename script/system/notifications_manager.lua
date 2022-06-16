@@ -121,6 +121,7 @@ do
 
 	function Notifications:showNotificationText(viewElement, notification)
 		viewElement:kill(true)
+		TBMenu:addBottomBloodSmudge(viewElement, 2)
 
 		local messageHolder = UIElement:new({
 			parent = viewElement,
@@ -237,6 +238,7 @@ do
 		local skipWord = nil
 
 		local message = string.gsub(message, "%'", "\'")
+		message = string.gsub(message, "\n", "\n")
 		local _ = string.gsub(message, pattern, function(match)
 				local sPos, ePos
 				pcall(function()
@@ -315,6 +317,7 @@ do
 			return true
 		end
 
+		TBMenu:addBottomBloodSmudge(viewElement, 2)
 		local loader = UIElement:new({
 			parent = viewElement,
 			pos = { 30, 50 },
@@ -369,13 +372,16 @@ do
 
 	function Notifications:showNotifications(viewElement)
 		usage_event("notifications")
+		viewElement:kill(true)
+
 		local elementHeight = 50
 		local notificationsHolder = UIElement:new({
 			parent = viewElement,
-			pos = { 0, 0 },
-			size = { viewElement.size.w * 0.4, viewElement.size.h }
+			pos = { 5, 0 },
+			size = { viewElement.size.w * 0.4 - 10, viewElement.size.h },
+			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
-		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(notificationsHolder, elementHeight, elementHeight - 16, 20, TB_MENU_DEFAULT_BG_COLOR)
+		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(notificationsHolder, elementHeight, elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
 
 		local notificationsHeader = UIElement:new({
 			parent = topBar,
@@ -398,20 +404,15 @@ do
 		notificationsReload:addMouseHandlers(nil, function()
 				Notifications:prepareNotifications(true)
 			end)
-
-		local botSmudge = UIElement:new({
-			parent = botBar,
-			pos = { 0, 0 },
-			size = { viewElement.size.w, botBar.size.h }
-		})
-		TBMenu:addBottomBloodSmudge(botSmudge, 1)
+		TBMenu:addBottomBloodSmudge(botBar, 1)
 
 		local notificationBody = UIElement:new({
 			parent = viewElement,
-			pos = { notificationsHolder.shift.x + notificationsHolder.size.w, 0 },
-			size = { viewElement.size.w - notificationsHolder.shift.x * 2 - notificationsHolder.size.w, viewElement.size.h }
+			pos = { notificationsHolder.shift.x + notificationsHolder.size.w + 10, 0 },
+			size = { viewElement.size.w - notificationsHolder.shift.x * 2 - notificationsHolder.size.w - 10, viewElement.size.h },
+			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
-		TBMenu:addBottomBloodSmudge(notificationBody)
+		TBMenu:addBottomBloodSmudge(notificationBody, 2)
 
 		if (#TB_MENU_NOTIFICATIONS_DATA == 0) then
 			listingHolder:addAdaptedText(true, TB_MENU_LOCALIZED.NOTIFICATIONSEMPTY)
@@ -478,10 +479,10 @@ do
 			notificationBG:addMouseHandlers(nil, function()
 					if (Notifications:loadNotificationText(notificationBody, notification, unreadMark)) then
 						if (selectedElement) then
-							selectedElement.bgColor = cloneTable(TB_MENU_DEFAULT_DARKER_COLOR)
+							selectedElement.bgColor = table.clone(TB_MENU_DEFAULT_DARKER_COLOR)
 						end
 						selectedElement = notificationBG
-						selectedElement.bgColor = cloneTable(TB_MENU_DEFAULT_LIGHTER_COLOR)
+						selectedElement.bgColor = table.clone(TB_MENU_DEFAULT_LIGHTER_COLOR)
 					end
 				end)
 		end
@@ -498,19 +499,15 @@ do
 			TB_MENU_NOTIFICATIONS_LASTUPDATE.data = 0
 		end
 
-		local notificationsMain = UIElement:new({
-			parent = tbMenuCurrentSection,
-			pos = { 5, 0 },
-			size = { tbMenuCurrentSection.size.w - 10, tbMenuCurrentSection.size.h },
-			bgColor = TB_MENU_DEFAULT_BG_COLOR
-		})
-		TBMenu:addBottomBloodSmudge(notificationsMain, 1)
 		if (TB_MENU_NOTIFICATIONS_LASTUPDATE.data + 60 < os.time()) then
 			Notifications:getTotalNotifications(true)
-			local loader = UIElement:new({
-				parent = notificationsMain,
-				pos = { notificationsMain.size.w / 5, notificationsMain.size.h / 5 },
-				size = { notificationsMain.size.w * 0.6, notificationsMain.size.h * 0.6 }
+			local notificationsMain = tbMenuCurrentSection:addChild({
+				shift = { 5, 0 },
+				bgColor = TB_MENU_DEFAULT_BG_COLOR
+			})
+			TBMenu:addBottomBloodSmudge(notificationsMain, 1)
+			local loader = notificationsMain:addChild({
+				shift = { notificationsMain.size.w / 5, notificationsMain.size.h / 5 }
 			})
 			TBMenu:displayLoadingMark(loader, TB_MENU_LOCALIZED.NOTIFICATIONSLOADING)
 			Request:queue(function() get_notifications() end, "net_notifications", function()
@@ -518,8 +515,7 @@ do
 						if (Notifications:getNetworkNotifications()) then
 							tbMenuNavigationBar:kill(true)
 							TBMenu:showNavigationBar(Notifications:getNavigationButtons(), true, true, TB_MENU_NOTIFICATIONS_LASTSCREEN)
-							notificationsMain:kill(true)
-							Notifications:showNotifications(notificationsMain)
+							Notifications:showNotifications(tbMenuCurrentSection)
 							TB_MENU_NOTIFICATIONS_LASTUPDATE.data = os.time()
 						else
 							loader:kill(true)
@@ -533,7 +529,7 @@ do
 					end
 				end)
 		else
-			Notifications:showNotifications(notificationsMain)
+			Notifications:showNotifications(tbMenuCurrentSection)
 		end
 	end
 

@@ -338,7 +338,7 @@ do
 
 	function Events:showMovemberToplist(viewElement, toplistData)
 		local elementHeight = 38
-		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 50, elementHeight - 20, 20, TB_MENU_DEFAULT_BG_COLOR)
+		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 50, elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
 		TBMenu:addBottomBloodSmudge(botBar, 2)
 
 		local toplistTitle = UIElement:new({
@@ -942,7 +942,7 @@ do
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
 		local elementHeight = 50
-		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(playersToplistHolder, elementHeight * 2, elementHeight - 16, 15, TB_MENU_DEFAULT_BG_COLOR)
+		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(playersToplistHolder, elementHeight * 2, elementHeight, 15, TB_MENU_DEFAULT_BG_COLOR)
 		listingHolder.hasDataLoaded = false
 
 		local toplistTitle = UIElement:new({
@@ -1285,7 +1285,7 @@ do
 		})
 
 		local elementHeight = 50
-		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(eventsListHolder, elementHeight, elementHeight - 16, 20, TB_MENU_DEFAULT_BG_COLOR)
+		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(eventsListHolder, elementHeight, elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
 		TBMenu:addBottomBloodSmudge(botBar, 1)
 
 		local allEventsTitle = UIElement:new({

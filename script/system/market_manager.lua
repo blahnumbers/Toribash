@@ -482,7 +482,7 @@ do
 					local shopData = Market:parseShopInfo(response)
 					local username = TB_MENU_PLAYER_INFO.username:lower()
 					if (shopData.title) then
-						if (not tableCmp(shopData, MARKET_SHOP_DATA[username])) then
+						if (not table.compare(shopData, MARKET_SHOP_DATA[username])) then
 							local imageReload = not MARKET_SHOP_DATA[username] and true or MARKET_SHOP_DATA[username].imageMD5 ~= shopData.imageMD5
 							MARKET_SHOP_DATA[username] = shopData
 						end
@@ -3540,7 +3540,7 @@ do
 
 					local shopData = Market:parseShopInfo(response)
 					if (shopData.title) then
-						if (not tableCmp(shopData, MARKET_SHOP_DATA[username])) then
+						if (not table.compare(shopData, MARKET_SHOP_DATA[username])) then
 							shopInfoView:kill(true)
 							TBMenu:addBottomBloodSmudge(shopInfoView, 1)
 							local imageReload = not MARKET_SHOP_DATA[username] and true or MARKET_SHOP_DATA[username].imageMD5 ~= shopData.imageMD5
@@ -3658,7 +3658,7 @@ do
 				local myShopData = Market:parseShopInfo(response)
 				if (myShopData.title) then
 					-- We don't really need to reload this if all the data is the same
-					if (not tableCmp(myShopData, MARKET_SHOP_DATA[TB_MENU_PLAYER_INFO.username:lower()])) then
+					if (not table.compare(myShopData, MARKET_SHOP_DATA[TB_MENU_PLAYER_INFO.username:lower()])) then
 						-- Data is different but it may be just some stats / base info
 						-- Check if image md5 has changed to see whether we need to redownload promo image
 						myShopView:kill(true)

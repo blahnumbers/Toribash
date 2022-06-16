@@ -67,7 +67,7 @@ do
 	function Request:queue(netcall, name, success, error)
 		if (type(netcall) ~= "function") then
 			if (TB_MENU_DEBUG) then
-				debugEcho("Usage Request:queue(function netCall, string callName, function onSuccess, function onError)")
+				print_r("Usage Request:queue(function netCall, string callName, function onSuccess, function onError)")
 			end
 			return false
 		end
@@ -83,11 +83,11 @@ do
 
 		if (#TB_NETWORK_REQUEST_QUEUE > 1) then
 			if (TB_MENU_DEBUG) then
-				debugEcho("Queueing a request (guid " .. request.response.id .. ")")
+				print_r("Queueing a request (guid " .. request.response.id .. ")")
 			end
 		else
 			if (TB_MENU_DEBUG) then
-				debugEcho("Launching a request (guid " .. request.response.id .. ")")
+				print_r("Launching a request (guid " .. request.response.id .. ")")
 			end
 			Request:finalize('netrequest')
 		end
@@ -111,14 +111,14 @@ do
 						remove_hook("draw2d", "netrequest_wait")
 						local request = TB_NETWORK_REQUEST_QUEUE[1]
 						if (TB_MENU_DEBUG) then
-							debugEcho("Queueing next request")
-							debugEcho(request)
+							print_r("Queueing next request")
+							print_r(request)
 						end
 						Request:new(request.name, request.success, request.error, request.response)
 						local completed, msg = pcall(request.netcall)
 						if (not completed) then
 							if (TB_MENU_DEBUG) then
-								debugEcho("netcall error: " .. (type(msg) == "string" and msg or ''))
+								print_r("netcall error: " .. (type(msg) == "string" and msg or ''))
 							end
 							Request:cancelCurrentRequest()
 						end

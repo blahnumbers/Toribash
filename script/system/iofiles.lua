@@ -149,7 +149,7 @@ do
 	function Files:writeDebug(line, rewrite)
 		local debug = Files:open("../debug.txt", rewrite and FILES_MODE_WRITE or FILES_MODE_APPEND)
 		if (type(line) == "table") then
-			debug:writeLine(os.clock() .. ': ' .. debugEcho(line, nil, true))
+			debug:writeLine(os.clock() .. ': ' .. print_r(line, true))
 		else
 			debug:writeLine(os.clock() .. ': ' .. line)
 		end

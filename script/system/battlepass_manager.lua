@@ -24,6 +24,7 @@ if (BattlePass == nil or TB_MENU_DEBUG) then
 	---@field level_premium integer Highest premium level that user has claimed rewards for
 	---@field level_available integer Target level according to BP XP owned by user
 	---@field qi integer Player Qi at the moment of last data fetching
+	---@field upgrade_price integer Shiai Token price for upgrading to next BP level
 
 	---@class BattlePassReward
 	---@field tc integer
@@ -41,7 +42,10 @@ if (BattlePass == nil or TB_MENU_DEBUG) then
 	---@class BattlePass
 	---@field LevelData BattlePassLevel[] Level data for the Battle Pass
 	---@field UserData BattlePassUserData Current user's data for the Battle Pass
-	BattlePass = { __index = {}, ver = 1.0 }
+	BattlePass = {
+		__index = {},
+		ver = 1.0
+	}
 	setmetatable({}, BattlePass)
 end
 
@@ -81,7 +85,8 @@ function BattlePass:getLevelData()
 			BattlePass.LevelData = {}
 			for ln in response:gmatch("[^\n]+\n?") do
 				if (not ln:find("^LEVEL")) then
-					local data = { ln:match(("([^\t]*)\t?"):rep(9)) }
+					local _, segments = ln:gsub("([^\t]*)\t?", "")
+					local data = { ln:match(("([^\t]*)\t?"):rep(segments)) }
 					table.insert(BattlePass.LevelData, {
 						level = tonumber(data[1]) or 0,
 						xp = tonumber(data[2]) or 0,
@@ -120,13 +125,15 @@ function BattlePass:getUserData(viewElement)
 				end
 				return
 			end
-			local data = { response:match(("([^\t]*)\t?"):rep(5)) }
+			local _, segments = response:gsub("([^\t]*)\t?", "")
+			local data = { response:match(("([^\t]*)\t?"):rep(segments)) }
 			BattlePass.UserData = {
 				level = tonumber(data[2]) or 0,
 				xp = tonumber(data[3]) or 0,
 				premium = tonumber(data[4]) == 1,
 				level_premium = tonumber(data[5]) or 0,
-				qi = TB_MENU_PLAYER_INFO.data.qi
+				qi = TB_MENU_PLAYER_INFO.data.qi,
+				upgrade_price = tonumber(data[6]) or 0
 			}
 			for i,v in ipairs(BattlePass.LevelData) do
 				if (v.xp_total <= BattlePass.UserData.xp) then
@@ -179,7 +186,7 @@ function BattlePass:showProgress(viewElement)
 		pos = { sideShift, 10 },
 		size = { playerExpBarHolder.size.w / 3, (playerExpBarHolder.size.h - 20) / 2 }
 	})
-	playerExpInfo:addAdaptedText(true, TB_MENU_LOCALIZED.BATTLEPASSYOUREXPERIENCE .. "^35 " .. PlayerInfo:currencyFormat(BattlePass.UserData.xp) .. (BattlePass.LevelData[BattlePass.UserData.level + 1] and (" / " .. PlayerInfo:currencyFormat(BattlePass.LevelData[BattlePass.UserData.level + 1].xp_total)) or ''), nil, nil, 4, LEFTBOT, 0.75)
+	playerExpInfo:addAdaptedText(true, TB_MENU_LOCALIZED.BATTLEPASSEXPERIENCE .. ":^35 " .. PlayerInfo:currencyFormat(BattlePass.UserData.xp) .. (BattlePass.LevelData[BattlePass.UserData.level + 1] and (" / " .. PlayerInfo:currencyFormat(BattlePass.LevelData[BattlePass.UserData.level + 1].xp_total)) or ''), nil, nil, 4, LEFTBOT, 0.75)
 	local playerExpBarBG = playerExpBarHolder:addChild({
 		pos = { sideShift, playerExpInfo.shift.y * 2 + playerExpInfo.size.h },
 		size = { playerExpBarHolder.size.w - sideShift * 2, 8 },
@@ -213,10 +220,10 @@ function BattlePass:showProgress(viewElement)
 	})
 	local purchaseLevelOrClaimRewardButtonText = purchaseLevelOrClaimRewardButton:addChild({ shift = { 10, 5 } })
 	if (BattlePass.UserData.level == BattlePass.UserData.level_available) then
-		purchaseLevelOrClaimRewardButton:addMouseHandlers(nil, BattlePass.spawnPurchaseLevelWindow)
+		purchaseLevelOrClaimRewardButton:addMouseUpHandler(BattlePass.spawnPurchaseLevelWindow)
 		purchaseLevelOrClaimRewardButtonText:addAdaptedText(true, TB_MENU_LOCALIZED.BATTLEPASSPURCHASELEVEL)
 	else
-		purchaseLevelOrClaimRewardButton:addMouseHandlers(nil, BattlePass.spawnPrizeClaimWindow)
+		purchaseLevelOrClaimRewardButton:addMouseUpHandler(BattlePass.spawnPrizeClaimWindow)
 		purchaseLevelOrClaimRewardButtonText:addAdaptedText(true, TB_MENU_LOCALIZED.BATTLEPASSCLAIMREWARD)
 	end
 
@@ -236,6 +243,7 @@ function BattlePass:showProgress(viewElement)
 			rounded = 4
 		})
 		local purchasePremiumButtonText = purchasePremiumButton:addChild({ shift = { 10, 5 } })
+		purchasePremiumButton:addMouseUpHandler(BattlePass.spawnPurchasePrimeWindow)
 		purchasePremiumButtonText:addAdaptedText(true, TB_MENU_LOCALIZED.BATTLEPASSPURCHASEPREMIUM)
 	end
 
@@ -252,20 +260,23 @@ function BattlePass:showProgress(viewElement)
 end
 
 -- Returns a table with currently available BP rewards for the user
+---@param override? table Allows to override user's actual `level_available` and `premium` values
 ---@return BattlePassReward[]
-function BattlePass:getUserAvailableRewards()
+function BattlePass:getUserAvailableRewards(override)
 	local claimRewards = {}
 	local tcReward, stReward = 0, 0
+	local levelAvailable = (override and override.level) and override.level or BattlePass.UserData.level_available
+	local premiumAvailable = (override and override.premium) and override.premium or BattlePass.UserData.premium
 	for i,v in ipairs(BattlePass.LevelData) do
-		if (v.level > BattlePass.UserData.level and v.level <= BattlePass.UserData.level_available) then
+		if (v.level > BattlePass.UserData.level and v.level <= levelAvailable) then
 			tcReward = tcReward + v.tc
 			stReward = stReward + v.st
 			if (v.itemid > 0) then
 				table.insert(claimRewards, { itemid = v.itemid, static = true })
 			end
 		end
-		if (BattlePass.UserData.premium) then
-			if (v.level > BattlePass.UserData.level_premium and v.level <= BattlePass.UserData.level_available) then
+		if (premiumAvailable) then
+			if (v.level > BattlePass.UserData.level_premium and v.level <= levelAvailable) then
 				tcReward = tcReward + v.tc_premium
 				stReward = stReward + v.st_premium
 				if (v.itemid_premium > 0) then
@@ -285,26 +296,73 @@ function BattlePass:getUserAvailableRewards()
 end
 
 ---@return nil
-function BattlePass:spawnPurchaseLevelWindow()
+function BattlePass:spawnPurchasePrimeWindow()
+	local item = Torishop:getItemInfo(BATTLEPASS_SUBSCRIPTION_ITEM)
+	local targetLevel = BattlePass.UserData.level_available + 1
 	local claimWindowBackground
-	claimWindowBackground = BattlePass:spawnPrizeConfrimationWindow(
-		TB_MENU_LOCALIZED.BATTLEPASSPURCHASELEVELTITLE,
-		TB_MENU_LOCALIZED.BATTLEPASSYOUWILLRECEIVEREWARDS,
+	claimWindowBackground = BattlePass:spawnPrizeConfirmationWindow(
+		TB_MENU_LOCALIZED.BATTLEPASSPURCHASEPREMIUM,
+		TB_MENU_LOCALIZED.STOREPURCHASECONFIRM .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " $" .. PlayerInfo:currencyFormat(item.now_usd_price) .. "?",
 		function()
-			claimWindowBackground:kill(true)
-			TBMenu:displayLoadingMark(claimWindowBackground, TB_MENU_LOCALIZED.REWARDSCLAIMINPROGRESS)
-			Request:queue(function() battlepass_claim_reward() end, "battlepass_purchaselevel", function()
-					local response = get_network_response()
-					if (response:find("^GATEWAY 0; 0")) then
-						claimWindowBackground.parent:kill()
-						TBMenu:showDataError(TB_MENU_LOCALIZED.BATTLEPASSCLAIMSUCCESS)
+			if (is_steam()) then
+				runCmd("steam purchase " .. item.itemid)
+				claimWindowBackground:kill(true)
+				claimWindowBackground.size.h = 150
+				claimWindowBackground:moveTo(nil, (WIN_H - claimWindowBackground.size.h) / 2)
+				TBMenu:displayLoadingMark(claimWindowBackground, TB_MENU_LOCALIZED.STOREPROCESSINGSTEAMPURCHASE)
+				claimWindowBackground.parent:addMouseMoveHandler(function()
+					claimWindowBackground.parent:kill()
+					if (get_purchase_done() == 1) then
+						TBMenu:showDataError(TB_MENU_LOCALIZED.BATTLEPASSPURCHASEPREMIUMSUCCESS)
 						BattlePass.UserData = nil
 						BattlePass:showMain()
 					else
+						TBMenu:showDataError(TB_MENU_LOCALIZED.STOREPURCHASESTEAMCANCELLED)
+					end
+				end)
+			else
+				open_url("https://forum.toribash.com/tori_shop.php?action=process&item=" .. item.itemid)
+			end
+		end,
+		{ premium = true })
+end
+
+---@return nil
+function BattlePass:spawnPurchaseLevelWindow()
+	---@type UIElement
+	local claimWindowBackground
+	local targetLevel = BattlePass.UserData.level_available + 1
+	claimWindowBackground = BattlePass:spawnPrizeConfirmationWindow(
+		TB_MENU_LOCALIZED.BATTLEPASSPURCHASELEVELTITLE .. " " .. targetLevel,
+		TB_MENU_LOCALIZED.BATTLEPASSPURCHASELEVELINFO .. "\n\n" .. TB_MENU_LOCALIZED.BATTLEPASSYOUWILLRECEIVEREWARDS,
+		function()
+			Request:queue(function()
+				claimWindowBackground:kill(true)
+				claimWindowBackground:hide()
+				claimWindowBackground.parent:addMouseMoveHandler(function(x)
+						if (x < WIN_W / 2) then
+							Request:finalize("battlepass_purchaselevel")
+							claimWindowBackground.parent:kill()
+						else
+							claimWindowBackground.parent:addMouseMoveHandler(function() end)
+							claimWindowBackground:show()
+							TBMenu:displayLoadingMarkSmall(claimWindowBackground, TB_MENU_LOCALIZED.NETWORKLOADING)
+						end
+					end)
+				show_dialog_box(BATTLEPASS_PURCHASE_LEVEL, "Are you sure you want to upgrade your Battle Pass to level " .. targetLevel .. "?\n\n^35" .. TB_MENU_LOCALIZED.MARKETYOUWILLBECHARGED .. " " .. BattlePass.UserData.upgrade_price .. " " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS, BattlePass.UserData.upgrade_price, true)
+			end, "battlepass_purchaselevel", function()
+					local response = get_network_response()
+					if (response:find("^GATEWAY 0; 0")) then
+						claimWindowBackground.parent:kill()
+						TBMenu:showDataError(TB_MENU_LOCALIZED.BATTLEPASSPURCHASELEVELSUCCESS)
+						BattlePass.UserData = nil
+						BattlePass:showMain()
+					else
+						local error = response:gsub("^GATEWAY %d; %d", "")
 						claimWindowBackground:kill(true)
 						local textBG = claimWindowBackground:addChild({ shift = { 30, 80 }})
 						textBG:moveTo(nil, -40, true)
-						textBG:addAdaptedText(true, TB_MENU_LOCALIZED.BATTLEPASSCLAIMERROR)
+						textBG:addAdaptedText(true, error)
 						local okButton = claimWindowBackground:addChild({
 							pos = { claimWindowBackground.size.w / 4, -claimWindowBackground.size.h / 7 - 10 },
 							size = { claimWindowBackground.size.w / 2, claimWindowBackground.size.h / 7 },
@@ -319,13 +377,14 @@ function BattlePass:spawnPurchaseLevelWindow()
 						okButton:addMouseHandlers(nil, function() claimWindowBackground.parent:kill() end)
 					end
 				end)
-		end)
+		end,
+		{ level = BattlePass.UserData.level_available + 1 })
 end
 
 ---@return nil
 function BattlePass:spawnPrizeClaimWindow()
 	local claimWindowBackground
-	claimWindowBackground = BattlePass:spawnPrizeConfrimationWindow(
+	claimWindowBackground = BattlePass:spawnPrizeConfirmationWindow(
 		TB_MENU_LOCALIZED.BATTLEPASSCLAIMREWARDTITLE,
 		TB_MENU_LOCALIZED.BATTLEPASSYOUWILLRECEIVEREWARDS,
 		function()
@@ -364,8 +423,9 @@ end
 ---@param title string
 ---@param message string
 ---@param onConfirm function Function that will be executed on confirm button press
+---@param override? table Overrides to get available rewards
 ---@return UIElement
-function BattlePass:spawnPrizeConfrimationWindow(title, message, onConfirm)
+function BattlePass:spawnPrizeConfirmationWindow(title, message, onConfirm, override)
 	local overlay = TBMenu:spawnWindowOverlay()
 	local windowHeight = math.min(300, WIN_H / 2)
 	local claimWindowBackground = overlay:addChild({
@@ -381,17 +441,17 @@ function BattlePass:spawnPrizeConfrimationWindow(title, message, onConfirm)
 	claimWindowText:addAdaptedText(true, title, nil, nil, FONTS.BIG)
 	local claimWindowInfoText = claimWindowBackground:addChild({
 		pos = { 20, claimWindowText.shift.y * 1.6 + claimWindowText.size.h },
-		size = { claimWindowBackground.size.w - 40, claimWindowBackground.size.h / 10 }
+		size = { claimWindowBackground.size.w - 40, claimWindowBackground.size.h / 4 }
 	})
-	claimWindowInfoText:addAdaptedText(true, message, nil, nil, 4, nil, 0.9)
+	claimWindowInfoText:addAdaptedText(true, message, nil, nil, 4, nil, 0.8)
 	local claimWindowRewards = claimWindowBackground:addChild({
 		pos = { 20, claimWindowInfoText.shift.y + claimWindowInfoText.size.h + claimWindowText.shift.y },
-		size = { claimWindowBackground.size.w - 40, claimWindowBackground.size.h / 2.3 }
+		size = { claimWindowBackground.size.w - 40, claimWindowBackground.size.h / 4 }
 	})
 
-	local claimRewards = BattlePass:getUserAvailableRewards()
+	local claimRewards = BattlePass:getUserAvailableRewards(override)
 
-	local prizeDisplaySize = 80
+	local prizeDisplaySize = math.min(80, claimWindowRewards.size.h)
 	local maxRewards = math.floor(claimWindowRewards.size.w / (prizeDisplaySize + 5))
 	local startPos = (claimWindowRewards.size.w - math.min(maxRewards, #claimRewards) * (prizeDisplaySize + 5)) / 2 + 2.5
 	for i,v in pairs(claimRewards) do
@@ -421,7 +481,7 @@ function BattlePass:spawnPrizeConfrimationWindow(title, message, onConfirm)
 	end
 
 	local cancelButton = claimWindowBackground:addChild({
-		pos = { claimWindowBackground.size.w * 0.08, claimWindowRewards.shift.y + claimWindowRewards.size.h + claimWindowBackground.size.h / 30 },
+		pos = { claimWindowBackground.size.w * 0.08, -claimWindowBackground.size.h / 7 - 15 },
 		size = { claimWindowBackground.size.w * 0.4, claimWindowBackground.size.h / 7 },
 		interactive = true,
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
@@ -433,7 +493,7 @@ function BattlePass:spawnPrizeConfrimationWindow(title, message, onConfirm)
 	cancelButton:addAdaptedText(false, TB_MENU_LOCALIZED.BUTTONCANCEL)
 	cancelButton:addMouseHandlers(nil, function() overlay:kill() end)
 	local acceptButton = claimWindowBackground:addChild({
-		pos = { -claimWindowBackground.size.w * 0.48, claimWindowRewards.shift.y + claimWindowRewards.size.h + claimWindowBackground.size.h / 30 },
+		pos = { -claimWindowBackground.size.w * 0.48, -claimWindowBackground.size.h / 7 - 15 },
 		size = { claimWindowBackground.size.w * 0.4, claimWindowBackground.size.h / 7 },
 		interactive = true,
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
@@ -782,6 +842,16 @@ function BattlePass:showMain()
 	TBMenu:showHomeButton(battlePassQuestsButton, {
 		image = "../textures/menu/battlepass/battlepassquests.tga",
 		ratio = 1,
-		action = function() end
+		action = function()
+			Quests:showMain(true, function()
+					TBMenu:clearNavSection()
+					TBMenu:showNavigationBar()
+					BattlePass:showMain()
+				end)
+		end
 	}, 2)
+end
+
+if (not BattlePass.UserData) then
+	BattlePass:getUserData()
 end

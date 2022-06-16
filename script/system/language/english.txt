@@ -755,8 +755,8 @@ QUESTSREGULAR	Regular quests
 WORDREWARD	Reward
 QUESTSGLOBALUPDATING	Updating global quests...
 NETWORKLOADING	Loading...
-QUESTSGLOBALCOMPLETED	Completed
-QUESTSGLOBALACTIVE	Active
+QUESTSGLOBALCOMPLETED	Completed global quests
+QUESTSGLOBALACTIVE	Active global quests
 NOTHINGTOSHOW	Nothing to show here
 CLANSUPDATINGWAIT	Updating clans data, please wait...
 QUESTSCLOSEST	Closest quests and quests available for claiming
@@ -1053,17 +1053,27 @@ BATTLEPASSTITLE	Battle Pass
 BATTLEPASSSEASON	Season
 BATTLEPASSLOADING	Loading your Battle Pass data, please wait...
 BATTLEPASSQUESTS	Battle Pass Quests
-BATTLEPASSYOUREXPERIENCE	Battle Pass XP:
+BATTLEPASSEXPERIENCE	Battle Pass XP
 BATTLEPASSPURCHASELEVEL	Purchase Level
-BATTLEPASSPURCHASELEVELTITLE	Purchase Battle Pass levels
+BATTLEPASSPURCHASELEVELTITLE	Upgrade your BP to level
+BATTLEPASSPURCHASELEVELINFO	Purchasing a Battle Pass level upgrade will instantly\nraise your BP XP to the next level's required XP
+BATTLEPASSPURCHASECONFIRM	Are you sure you want to upgrade your Battle Pass to level
 BATTLEPASSPURCHASEPREMIUM	Upgrade to premium
 BATTLEPASSLEVEL	BP Level
 BATTLEPASSLVL	Lvl
 BATTLEPASSCLAIMREWARD	Claim rewards
 BATTLEPASSCLAIMREWARDTITLE	Claim your Battle Pass rewards
 BATTLEPASSCLAIMSUCCESS	Congratulations, you have claimed your Battle Pass rewards!
+BATTLEPASSPURCHASELEVELSUCCESS	Congratulations, you have successfully purchased a Battle Pass level upgrade!
+BATTLEPASSPURCHASEPREMIUMSUCCESS	Congratulations, you have successfully upgraded your Battle Pass to Premium!
 BATTLEPASSCLAIMERROR	Error claiming rewards, please try again later
 BATTLEPASSANDMORE1	&
 BATTLEPASSANDMORE2	more
 BATTLEPASSYOUWILLRECEIVEREWARDS	You will receive the following rewards:
 QUESTSDEFAULTQUESTNAME	Toribash Quest
+QUESTSREPEATING	Repeating quests
+QUESTSLIMITED	Limited time quests
+QUESTSRANKED	Ranked quests
+QUESTSBATTLEPASS	Battle Pass quests
+STOREPROCESSINGSTEAMPURCHASE	Processing your Steam purchase...
+STOREPURCHASESTEAMCANCELLED	Steam purchase has been cancelled

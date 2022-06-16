@@ -90,7 +90,7 @@ SCROLL_HORIZONTAL = 2
 ---@alias sort
 ---| true # SORT_DESCENDING
 ---| false # SORT_ASCENDING
-SORT_DESCENDIGN = true
+SORT_DESCENDING = true
 SORT_ASCENDING = false
 
 -- Default texture that will be used for fallback by UIElement:updateTexture()
@@ -190,15 +190,17 @@ do
 		-- Toribash GUI elements manager class
 		--
 		-- **Ver 1.5 updates:**
-		-- * imageHoverColor and imagePressedColor support
-		-- * UIElement:qsort() marked as deprecated
-		-- * unpackN() is now unpack_all()
-		-- * strEsc() is now string.escape()
+		-- * `imageHoverColor` and `imagePressedColor` support
+		-- * `UIElement:qsort()`, `UIElement:runCmd()` marked as deprecated
+		-- * New `table.qsort()`, `table.reverse()`, `table.clone()`, `table.compare()`, `table.empty()`, `table.unpack_all()` functions to replace legacy names
+		-- * New `string.escape()` to replace legacy strEsc() function
+		-- * Guid() is now `generate_uid()` to prevent confusion with a potential class name
+		-- * debugEcho() is now `print_r(mixed data, boolean returnString)`
 		--
 		-- **Ver 1.4 updates:**
-		-- * UIElement:mouseHooks() is now initialized when this script is loaded to ensure it isn't required in every script that requires UIElements
+		-- * `UIElement:mouseHooks()` is now initialized when this script is loaded to ensure it isn't required in every script that requires UIElements
 		-- * Moved scrollable list update on mouse bar scroll from mouse_move hook to pre_draw for better performance
-		-- * Different top/bottom rounding support and roundedInternal UIElement field
+		-- * Different top/bottom rounding support and `roundedInternal` UIElement field
 		-- * Added EmmyLua annotations for some methods
 		---@class UIElement
 		---@field globalid number Global ID to use for UIElement internal update / display loops
@@ -1828,22 +1830,19 @@ do
 	end
 
 	---@deprecated
-	---Will be removed with future releases, use debugEcho() instead
+	---Will be removed with future releases, use print_r() instead
 	function UIElement:debugEcho(mixed, msg, returnString)
-		return debugEcho(mixed, msg, returnString)
+		return print_r(mixed, returnString)
 	end
 
 	---Runs a quicksort by specified key(s) on a table with multikey data
-	---@param arr table Table with the data that we want to sort
+	---@param self table Table with the data that we want to sort
 	---@param sort string[]|string Table keys which values will be used for sorting
-	---@param order? sort[]|sort Sorting order. Defaults to `SORT_ASCENDING`.
+	---@param order? (sort)[]|sort Sorting order. Defaults to `SORT_ASCENDING`.
 	---@param includeZeros any
 	---@return table
-	_G.qsort = function(arr, sort, order, includeZeros)
-		local a = {}
-		if (type(arr) ~= "table") then
-			return arr
-		end
+	_G.table.qsort = function(self, sort, order, includeZeros)
+		local arr = {}
 
 		if (type(order) ~= "table") then
 			order = { order and 1 or -1 }
@@ -1853,16 +1852,16 @@ do
 			end
 		end
 
-		for i, v in pairs(arr) do
-			table.insert(a, v)
+		for i, v in pairs(self) do
+			table.insert(arr, v)
 		end
 		if (type(sort) ~= "table") then
 			sort = { sort }
 		end
 
-		tableReverse(sort)
-		tableReverse(order)
-		table.sort(a, function(a,b)
+		sort = table.reverse(sort)
+		order = table.reverse(order)
+		table.sort(arr, function(a,b)
 				local cmpRes = false
 				for i,v in pairs(sort) do
 					local val1 = a[v] == 0 and (includeZeros and 0 or b[v] - (order[i] and order[i] or order[1])) or a[v]
@@ -1887,13 +1886,22 @@ do
 				end
 				return cmpRes
 			end)
-		return a
+		return arr
+	end
+
+	---@deprecated
+	---Use table.qsort() instead
+	_G.qsort = function(arr, sort, desc, includeZeros)
+		if (type(arr) ~= "table") then
+			return arr
+		end
+		return _G.table.qsort(arr, sort, desc, includeZeros)
 	end
 
 	---@deprecated
 	---Use global qsort() function instead
 	function UIElement:qsort(arr, sort, desc, includeZeros)
-		return qsort(arr, sort, desc, includeZeros)
+		return table.qsort(arr, sort, desc, includeZeros)
 	end
 
 	function getFontMod(font)
@@ -2177,18 +2185,22 @@ do
 	---Checks whether the table is empty
 	---@param table table
 	---@return boolean
-	_G.empty = function(table)
+	_G.table.empty = function(table)
 		if (next(table) == false) then
 			return true
 		end
 		return false
 	end
 
+	---@deprecated
+	---Use table.empty() instead
+	_G.empty = function(table) return _G.table.empty(table) end
+
 	---Alternative to unpack() function that returns all table values.\
 	---**Use with caution, this will ***not*** always preserve key order**.
 	---@param tbl table
 	---@return table
-	_G.unpack_all = function(tbl)
+	_G.table.unpack_all = function(tbl)
 		local indexedTable = {}
 		for i,v in pairs(tbl) do
 			table.insert(indexedTable, v)
@@ -2196,7 +2208,11 @@ do
 		return unpack(indexedTable)
 	end
 
-	---Internal function to output provided data as a string. You're looking for `debugEcho()`.
+	---@deprecated
+	---Use table.unpack_all() instead
+	_G.unpack_all = function(tbl) return _G.table.unpack_all(tbl) end
+
+	---Internal function to output provided data as a string. You're looking for `print_r()`.
 	---@param mixed any
 	---@param returnString? boolean
 	---@param msg? string String that will preceed the output
@@ -2232,7 +2248,7 @@ do
 	---@param data any Data to parse and output
 	---@param returnString? boolean Whether we should return the generated string or use `echo()` to print it in chat
 	---@return string|nil
-	_G.debugEcho = function(data, returnString)
+	_G.print_r = function(data, returnString)
 		return debugEchoInternal(data, returnString)
 	end
 
@@ -2295,5 +2311,5 @@ do
 end
 
 if (not UIElement.__mouseHooks) then
-	UIElement:mouseHooks();
+	UIElement:mouseHooks()
 end

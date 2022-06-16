@@ -153,7 +153,6 @@ end
 
 -- Only called on first menu launch
 if (not DEFAULT_ATMOSPHERE_ISSET) then
-	Downloader:init()
 	if (not is_steam()) then
 		Request:queue(function() get_latest_version() end, "versioncheck", function()
 				local latestVersion = get_network_response()

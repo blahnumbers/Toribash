@@ -14,18 +14,41 @@ local TAB_TEXTURES = 2
 local TAB_ADVANCED = 3
 local TAB_ACCOUNT = 4
 
+---Toribash store item
+---@class Item
+---@field catid integer Item's category ID
+---@field catname string Item's category name
+---@field itemid integer
+---@field itemname string
+---@field on_sale boolean Whether the item is currently on sale
+---@field now_tc_price integer Current TC price of an item
+---@field now_usd_price integer Current ST or USD price of an item
+---@field price integer Default TC price of an item
+---@field price_usd integer Default ST or USD price of an item
+---@field sale_time integer Time left before the sale on this item is over
+---@field sale_promotion boolean Whether the sale item should be featured in shop
+---@field qi integer Qi requirement for the item
+---@field tier integer Tier ID of the item
+---@field subscriptionid integer Subscription ID of an item
+---@field ingame boolean Whether the item can be equipped on a character
+---@field colorid integer Color ID of the item
+---@field hidden boolean Whether the item is currently hidden from the shop
+---@field locked boolean Whether the item is currently unavailable for purchase
+
+---A placeholder item object with empty data
+---@type Item
 local ITEM_EMPTY = {
 	catid = 0,
 	catname = "undef",
 	itemid = 0,
 	itemname = "undefined",
-	on_sale = 0,
+	on_sale = false,
 	now_tc_price = 0,
 	now_usd_price = 0,
 	price = 0,
 	price_usd = 0,
 	sale_time = 0,
-	sale_promotion = 0,
+	sale_promotion = false,
 	qi = 0,
 	tier = 0,
 	subscriptionid = 0,
@@ -101,20 +124,20 @@ do
 			{ "catname" },
 			{ "itemid", numeric = true },
 			{ "itemname" },
-			{ "on_sale", numeric = true },
+			{ "on_sale", boolean = true },
 			{ "now_tc_price", numeric = true },
 			{ "now_usd_price", numeric = true },
 			{ "price", numeric = true },
 			{ "price_usd", numeric = true },
 			{ "sale_time", numeric = true },
-			{ "sale_promotion", numeric = true },
+			{ "sale_promotion", boolean = true },
 			{ "qi", numeric = true },
 			{ "tier", numeric = true },
 			{ "subscriptionid", numeric = true },
-			{ "ingame", numeric = true },
+			{ "ingame", boolean = true },
 			{ "colorid", numeric = true },
-			{ "hidden", numeric = true },
-			{ "locked", numeric = true },
+			{ "hidden", boolean = true },
+			{ "locked", boolean = true },
 			{ "description" },
 			{ "contents" }
 		}
@@ -131,6 +154,9 @@ do
 					if (v.numeric) then
 						item[v[1]] = tonumber(item[v[1]])
 					end
+					if (v.boolean) then
+						item[v[1]] = item[v[1]] == "1"
+					end
 				end
 				local contents = item.contents
 				item.contents = {}
@@ -141,7 +167,7 @@ do
 				TorishopSections[item.catid] = { name = item.catname }
 				item.itemname = item.itemname:gsub("&amp;", "&")
 				item.shortname = item.itemname:gsub("Motion Trail", "Trail")
-				if (item.locked == 1) then
+				if (item.locked) then
 					item.now_tc_price = 0
 					item.now_usd_price = 0
 				end
@@ -281,7 +307,7 @@ do
 			if (featured) then
 				for i,v in pairs(TB_STORE_DATA) do
 					if (type(v) == "table") then
-						if (v.on_sale == 1 and v.sale_promotion == 1) then
+						if (v.on_sale and v.sale_promotion) then
 							return v
 						end
 					end
@@ -290,7 +316,7 @@ do
 				local saleItems = {}
 				for i,v in pairs(TB_STORE_DATA) do
 					if (type(v) == "table") then
-						if (v.on_sale == 1) then
+						if (v.on_sale) then
 							table.insert(saleItems, v)
 						end
 					end
@@ -4970,7 +4996,7 @@ do
 							if (#item.contents > 0) then
 								Torishop:spawnInventoryUpdateWaiter()
 								show_dialog_box(INVENTORY_UNPACK, TB_MENU_LOCALIZED.STOREPURCHASECONGRATULATIONSRECEIVED .. " " .. item.itemname .. "!\n" .. TB_MENU_LOCALIZED.STOREDIALOGUNPACK1 .. " " .. item.itemname .. (TB_MENU_LOCALIZED.STOREDIALOGUNPACK2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGUNPACK2 .. "?") .. "\n" .. TB_MENU_LOCALIZED.STOREDIALOGUNPACKINFO, invid)
-							elseif (item.ingame == 1) then
+							elseif (item.ingame) then
 								if (in_array(item.catid, CATEGORIES_COLORS)) then
 									check_steam_color(item.colorid)
 								end
@@ -4992,7 +5018,7 @@ do
 			if (#item.contents > 0) then
 				Torishop:spawnInventoryUpdateWaiter()
 				show_dialog_box(INVENTORY_UNPACK, TB_MENU_LOCALIZED.STOREPURCHASECONGRATULATIONS .. "\n" .. TB_MENU_LOCALIZED.STOREPURCHASEWOULDYOULIKETOUNPACK1 .. " " .. item.itemname .. (TB_MENU_LOCALIZED.STOREPURCHASEWOULDYOULIKETOUNPACK2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREPURCHASEWOULDYOULIKETOUNPACK2 .. "?") .. "\n" .. TB_MENU_LOCALIZED.STOREDIALOGUNPACKINFO, invid)
-			elseif (item.ingame == 1) then
+			elseif (item.ingame) then
 				if (in_array(item.catid, CATEGORIES_COLORS)) then
 					check_steam_color(item.colorid)
 				end
@@ -5340,7 +5366,7 @@ do
 		end
 
 		local saleBackground
-		if (item.on_sale == 1) then
+		if (item.on_sale) then
 			saleBackground = UIElement:new({
 				parent = tbStoreItemInfoHolder,
 				pos = { 0, 0 },
@@ -5354,7 +5380,7 @@ do
 			size = { tbStoreItemInfoHolder.size.w - 20, 44 },
 			uiShadowColor = TB_MENU_DEFAULT_BG_COLOR
 		})
-		itemName:addAdaptedText(true, item.itemname, nil, nil, FONTS.BIG, nil, nil, nil, nil, item.on_sale == 1 and 2)
+		itemName:addAdaptedText(true, item.itemname, nil, nil, FONTS.BIG, nil, nil, nil, nil, item.on_sale and 2)
 
 		local scale = tbStoreItemInfoHolder.size.w - 50
 		if (scale > tbStoreItemInfoHolder.size.h / 3) then
@@ -5376,14 +5402,14 @@ do
 		local itemDesc = UIElement:new({
 			parent = itemInfo,
 			pos = { 0, 0 },
-			size = { itemInfo.size.w, item.on_sale == 1 and itemInfo.size.h / 5 or itemInfo.size.h / 3 }
+			size = { itemInfo.size.w, item.on_sale and itemInfo.size.h / 5 or itemInfo.size.h / 3 }
 		})
 		if (item.qi <= TB_MENU_PLAYER_INFO.data.qi) then
 			itemDesc.size.h = itemDesc.size.h + itemInfo.size.h / 8
 		end
 		itemDesc:addAdaptedText(true, item.description, nil, nil, 4, CENTERMID, nil, 0.6)
 
-		if (item.on_sale == 1) then
+		if (item.on_sale) then
 			local discountInfo = UIElement:new({
 				parent = itemInfo,
 				pos = { 10, itemDesc.size.h },
@@ -5640,10 +5666,10 @@ do
 			pos = { 10, 2.5 },
 			size = { itemHolder.size.w - 10, itemHolder.size.h - 5 },
 			interactive = true,
-			bgColor = item.on_sale == 1 and TB_MENU_DEFAULT_ORANGE or TB_MENU_DEFAULT_DARKER_COLOR,
-			hoverColor = item.on_sale == 1 and TB_MENU_DEFAULT_DARKER_ORANGE or TB_MENU_DEFAULT_DARKEST_COLOR,
+			bgColor = item.on_sale and TB_MENU_DEFAULT_ORANGE or TB_MENU_DEFAULT_DARKER_COLOR,
+			hoverColor = item.on_sale and TB_MENU_DEFAULT_DARKER_ORANGE or TB_MENU_DEFAULT_DARKEST_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-			uiColor = item.on_sale == 1 and TB_MENU_DEFAULT_DARKEST_COLOR
+			uiColor = item.on_sale and TB_MENU_DEFAULT_DARKEST_COLOR
 		})
 		local itemIconPath = Torishop:getItemIcon(item.itemid)
 		local itemIconFilePath = itemIconPath:gsub("^%.%./", "../data/")
@@ -5703,7 +5729,7 @@ do
 				bgImage = "../textures/menu/general/buttons/locked.tga"
 			})
 
-			if (item.qi > TB_MENU_PLAYER_INFO.data.qi and item.locked == 0) then
+			if (item.qi > TB_MENU_PLAYER_INFO.data.qi and not item.locked) then
 				itemLocked:addAdaptedText(true, TB_MENU_LOCALIZED.STOREREQUIRES .. " " .. item.qi .. " Qi", nil, nil, 4, LEFTMID)
 			else
 				itemLocked:addAdaptedText(true, TB_MENU_LOCALIZED.STOREITEMUNAVAILABLE, nil, nil, 4, LEFTMID)
@@ -5736,7 +5762,7 @@ do
 		local sectionItems = {}
 		for i,v in pairs(TB_STORE_DATA) do
 			if (type(i) == "number") then
-				if (v.catid == catid and (v.now_tc_price > 0 or v.now_usd_price > 0) and v.hidden == 0) then
+				if (v.catid == catid and (v.now_tc_price > 0 or v.now_usd_price > 0) and not v.hidden) then
 					table.insert(sectionItems, v)
 				end
 			end
@@ -5805,16 +5831,16 @@ do
 		else
 			for i,v in pairs(TB_STORE_DATA) do
 				if (type(i) == "number") then
-					if (v.catid == catid and (v.now_tc_price > 0 or v.now_usd_price > 0) and not (v.locked == 1 and v.hidden == 1)) then
+					if (v.catid == catid and (v.now_tc_price > 0 or v.now_usd_price > 0) and not (v.locked and v.hidden)) then
 						local v = cloneTable(v)
 						for j,k in pairs(TB_STORE_DISCOUNTS) do
 							if (k.itemid == 0 or k.itemid == v.itemid) then
 								if ((bit.band(k.paymentType, 2) > 0 or bit.band(k.paymentType, 4) > 0) and in_array(v.catid, CATEGORIES_ACCOUNT)) then
-									v.on_sale = 1
+									v.on_sale = true
 									v.now_usd_price = math.max(v.now_usd_price / 100 * (100 - k.discount), k.discountMax > 0 and v.now_usd_price - k.discountMax / 100 or 0)
 									v.discountExpiresIn = k.expiresIn
 								elseif (bit.band(k.paymentType, 1) > 0) then
-									v.on_sale = 1
+									v.on_sale = true
 									v.now_tc_price = math.max(v.now_tc_price / 100 * (100 - k.discount), v.now_tc_price - k.discountMax)
 								end
 							end
@@ -5857,7 +5883,7 @@ do
 		local cnt = 0
 		local itemShown = itemShown or false
 		for i, item in pairs(sectionItemsDesc) do
-			if (((item.qi <= TB_MENU_PLAYER_INFO.data.qi and (item.now_tc_price > 0 and item.now_tc_price <= TB_MENU_PLAYER_INFO.data.tc)) or (stItems and item.now_usd_price > 0 and item.now_usd_price <= TB_MENU_PLAYER_INFO.data.st)) and (item.locked == 0 and item.hidden == 0)) then
+			if (((item.qi <= TB_MENU_PLAYER_INFO.data.qi and (item.now_tc_price > 0 and item.now_tc_price <= TB_MENU_PLAYER_INFO.data.tc)) or (stItems and item.now_usd_price > 0 and item.now_usd_price <= TB_MENU_PLAYER_INFO.data.st)) and (not item.locked and not item.hidden)) then
 				if (cnt == 0) then
 					local separatorAffordable = UIElement:new({
 						parent = listingHolder,
@@ -5885,7 +5911,7 @@ do
 		cnt = 0
 		if (stItems) then
 			for i, item in pairs(sectionItems) do
-				if (((item.qi <= TB_MENU_PLAYER_INFO.data.qi and item.now_tc_price > TB_MENU_PLAYER_INFO.data.tc and (item.now_usd_price == 0 or item.now_usd_price > TB_MENU_PLAYER_INFO.data.st)) or ((item.qi > TB_MENU_PLAYER_INFO.data.qi or item.now_tc_price == 0) and item.now_usd_price > TB_MENU_PLAYER_INFO.data.st)) and (item.locked == 0 and item.hidden == 0)) then
+				if (((item.qi <= TB_MENU_PLAYER_INFO.data.qi and item.now_tc_price > TB_MENU_PLAYER_INFO.data.tc and (item.now_usd_price == 0 or item.now_usd_price > TB_MENU_PLAYER_INFO.data.st)) or ((item.qi > TB_MENU_PLAYER_INFO.data.qi or item.now_tc_price == 0) and item.now_usd_price > TB_MENU_PLAYER_INFO.data.st)) and (not item.locked and not item.hidden)) then
 					if (cnt == 0) then
 						local separatorUnavailable = UIElement:new({
 							parent = listingHolder,
@@ -5911,7 +5937,7 @@ do
 			end
 		else
 			for i, item in pairs(sectionItems) do
-				if (item.now_tc_price == 0 and item.now_usd_price > 0 and (item.locked == 0 and item.hidden == 0)) then
+				if (item.now_tc_price == 0 and item.now_usd_price > 0 and (not item.locked and not item.hidden)) then
 					if (cnt == 0) then
 						local separatorUnavailable = UIElement:new({
 							parent = listingHolder,
@@ -5939,7 +5965,7 @@ do
 
 		cnt = 0
 		for i, item in pairs(sectionItemsQi) do
-			if ((item.qi > TB_MENU_PLAYER_INFO.data.qi and item.now_usd_price == 0 and item.now_tc_price > 0 and item.hidden == 0 and item.locked == 0) or (searchString ~= "" and (item.hidden == 1 or item.locked == 1))) then
+			if ((item.qi > TB_MENU_PLAYER_INFO.data.qi and item.now_usd_price == 0 and item.now_tc_price > 0 and (not item.hidden and not item.locked) or (searchString ~= "" and (item.hidden or item.locked)))) then
 				if (cnt == 0) then
 					local separatorLocked = UIElement:new({
 						parent = listingHolder,
@@ -6016,7 +6042,7 @@ do
 
 		for i,v in pairs(TB_STORE_DATA) do
 			if (type(i) == "number") then
-				if ((v.itemname:lower()):find(searchString) and not (v.itemname:lower()):find("test") and (not isSale and true or v.on_sale == 1)) then
+				if ((v.itemname:lower()):find(searchString) and not (v.itemname:lower()):find("test") and (not isSale and true or v.on_sale)) then
 					local catid = Torishop:getSearchCategory(v)
 					if (catid) then
 						if (not searchResults.list[catid]) then
@@ -6552,7 +6578,7 @@ do
 			size = { itemInfoName.size.w - 5, itemInfoName.size.h }
 		})
 		if (item.itemid > 0) then
-			itemInfo.on_sale = 1
+			itemInfo.on_sale = true
 			itemInfoName:addAdaptedText(true, itemInfo.itemname, nil, nil, nil, LEFTMID)
 			if (bit.band(item.paymentType, 2) > 0 or bit.band(item.paymentType, 4) > 0) then
 				itemInfo.now_usd_price = math.max(itemInfo.now_usd_price / 100 * (100 - item.discount), item.discountMax > 0 and itemInfo.now_usd_price - item.discountMax / 100 or 0)
@@ -6619,7 +6645,7 @@ do
 		local saleItems = Torishop:getSaleItems()
 		local saleFeatured, saleColor = nil, {}
 		for i,v in pairs(saleItems) do
-			if (v.sale_promotion == 1) then
+			if (v.sale_promotion) then
 				saleFeatured = v
 			elseif (in_array(v.catid, CATEGORIES_COLORS)) then
 				table.insert(saleColor, v)

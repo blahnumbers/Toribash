@@ -1078,7 +1078,7 @@ do
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
 		local elementHeight = 50
-		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(accountView, accountView.size.h / 10 > elementHeight and accountView.size.h / 10 or elementHeight, elementHeight - 16, 20, TB_MENU_DEFAULT_BG_COLOR)
+		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(accountView, accountView.size.h / 10 > elementHeight and accountView.size.h / 10 or elementHeight, elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
 
 		TBMenu:addBottomBloodSmudge(botBar, 1)
 		local accountTitle = UIElement:new({
@@ -1307,7 +1307,7 @@ do
 		})
 
 		local elementHeight = 50
-		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(hotkeysView, elementHeight, elementHeight - 16, 20, TB_MENU_DEFAULT_BG_COLOR)
+		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(hotkeysView, elementHeight, elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
 		local hotkeysTitle = UIElement:new({
 			parent = topBar,
 			pos = { 10, 0 },
@@ -1619,7 +1619,8 @@ do
 			pos = { 0, -(scale * 0.75) },
 			size = { parentElement.size.w, scale },
 			bgImage = bottomSmudge,
-			disableUnload = true
+			disableUnload = true,
+			imageColor = parentElement.interactive and parentElement.animateColor or parentElement.bgColor
 		})
 		return smudgeElement
 	end
@@ -1774,28 +1775,29 @@ do
 			tbMenuUserBar = nil
 		end
 
-		tbMenuUserBar = UIElement:new( {
+		tbMenuUserBar = UIElement:new({
 			parent = tbMenuMain,
-			pos = {-tbMenuTopBarWidth, 0},
-			size = {tbMenuTopBarWidth, 100}
+			pos = { -tbMenuTopBarWidth, 0 },
+			size = { tbMenuTopBarWidth, 100 }
 		})
 		tbMenuUserBar.headDisplayObjects = {}
 
-		local tbMenuUserBarBottomSplat2 = UIElement:new( {
-			parent = tbMenuUserBar,
-			pos = {-tbMenuTopBarWidth, 0},
-			size = {tbMenuTopBarWidth, tbMenuTopBarWidth / 4},
+		local tbMenuUserBarBottomSplat = tbMenuUserBar:addChild({
+			pos = { -tbMenuTopBarWidth * 1.25 + 1, 0 },
+			size = { tbMenuTopBarWidth * 1.25, tbMenuTopBarWidth / 4 },
 			bgImage = TB_MENU_USERBAR_MAIN,
-			disableUnload = true
+			disableUnload = true,
+			imageColor = TB_MENU_DEFAULT_BG_COLOR
 		})
-		local tbMenuUserBarSplat = UIElement:new( {
+		--[[local tbMenuUserBarSplat = UIElement:new({
 			parent = tbMenuUserBar,
 			pos = { math.ceil(-tbMenuTopBarWidth * 1.25), 0 },
 			size = { tbMenuTopBarWidth / 4, tbMenuTopBarWidth / 4 },
 			bgImage = TB_MENU_USERBAR_LEFT,
-			disableUnload = true
-		})
-		local tbMenuUserHeadAvatarViewport = UIElement:new( {
+			--disableUnload = true,
+			imageColor = TB_MENU_DEFAULT_BG_COLOR
+		})]]
+		local tbMenuUserHeadAvatarViewport = UIElement:new({
 			parent = tbMenuUserBar,
 			pos = { -tbMenuUserBar.size.w - tbMenuTopBarWidth / 16, 0 },
 			size = { tbMenuTopBarWidth / 5, tbMenuTopBarWidth / 5 },
@@ -2126,6 +2128,10 @@ do
 
 		local navHeight = WIN_H / 16 > 60 and 60 or WIN_H / 16
 		local navX = { l = { 30 } , r = { -30 } }
+
+		if (tbMenuNavigationBar and not tbMenuNavigationBar.destroyed) then
+			tbMenuNavigationBar:kill(true)
+		end
 		tbMenuNavigationBar = tbMenuNavigationBar or UIElement:new({
 			parent = tbMenuMain,
 			pos = { 50 * TB_MENU_GLOBAL_SCALE, 130 * TB_MENU_GLOBAL_SCALE },
@@ -2171,13 +2177,13 @@ do
 				size = { v.width, tbMenuNavigationBar.size.h },
 				bgColor = { 0.2, 0.2, 0.2, 0 },
 				interactive = true,
-				hoverColor = TB_NAVBAR_DEFAULT_BG_COLOR,
+				hoverColor = TB_MENU_DEFAULT_BG_COLOR,
 				pressedColor = TB_MENU_DEFAULT_DARKER_COLOR,
 				hoverSound = 31
 			})
 			navX[1] = v.right and navX[1] - v.width or navX[1] + v.width
 			if ((not customNav and TB_LAST_MENU_SCREEN_OPEN == v.sectionId) or (customNav and customNavHighlight and selectedId == v.sectionId)) then
-				tbMenuNavigationButtons[i].bgColor = TB_NAVBAR_DEFAULT_BG_COLOR
+				tbMenuNavigationButtons[i].bgColor = TB_MENU_DEFAULT_BG_COLOR
 			end
 			tbMenuNavigationButtons[i]:addCustomDisplay(false, function()
 					set_color(tbMenuNavigationButtons[i].animateColor[1] - 0.1, tbMenuNavigationButtons[i].animateColor[2], tbMenuNavigationButtons[i].animateColor[3], tbMenuNavigationButtons[i].animateColor[4])
@@ -2216,7 +2222,7 @@ do
 							for i, v in pairs(tbMenuNavigationButtons) do
 								v.bgColor = { 0.2, 0.2, 0.2, 0 }
 							end
-							tbMenuNavigationButtons[i].bgColor = TB_NAVBAR_DEFAULT_BG_COLOR
+							tbMenuNavigationButtons[i].bgColor = TB_MENU_DEFAULT_BG_COLOR
 							TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
 						end
 					else
@@ -2226,7 +2232,7 @@ do
 								for i, v in pairs(tbMenuNavigationButtons) do
 									v.bgColor = { 0.2, 0.2, 0.2, 0 }
 								end
-								tbMenuNavigationButtons[i].bgColor = TB_NAVBAR_DEFAULT_BG_COLOR
+								tbMenuNavigationButtons[i].bgColor = TB_MENU_DEFAULT_BG_COLOR
 							end
 						end
 						v.action()
@@ -2281,9 +2287,9 @@ do
 			table.insert(buttonData, { text = TB_MENU_LOCALIZED.MAINMENUCLANSNAME, sectionId = 9 })
 		end
 		table.insert(buttonData, { text = TB_MENU_LOCALIZED.NAVBUTTONTOOLS, sectionId = 5, right = true })
-		--if (TB_MENU_PLAYER_INFO.data.qi >= 200) then
+		if (TB_MENU_PLAYER_INFO.data.qi >= 100) then
 			table.insert(buttonData, { text = TB_MENU_LOCALIZED.BATTLEPASSSEASON .. " 8", sectionId = 11, right = true, misctext = "New!" })
-		--end
+		end
 		return buttonData
 	end
 
@@ -2512,19 +2518,19 @@ do
 			splatCustom = true
 			customLogo:close()
 		end
-		local splatLeft = UIElement:new( {
-			parent = tbMenuMain,
+		local splatLeft = tbMenuMain:addChild({
 			pos = { 10, 200 },
 			size = { WIN_H - 320, WIN_H - 320 },
 			bgImage = splatLeftImg,
-			disableUnload = true
+			disableUnload = true,
+			imageColor = TB_MENU_DEFAULT_BG_COLOR
 		})
-		local splatRight = UIElement:new( {
-			parent = tbMenuMain,
+		local splatRight = tbMenuMain:addChild({
 			pos = { -(WIN_H - 320) - 10, 200 },
 			size = { WIN_H - 320, WIN_H - 320 },
 			bgImage = splatCustom and splatLeftImg or TB_MENU_BLOODSPLATTER_RIGHT,
-			disableUnload = true
+			disableUnload = true,
+			imageColor = TB_MENU_DEFAULT_BG_COLOR
 		})
 
 		local menuNavigationScroll = UIElement:new({
