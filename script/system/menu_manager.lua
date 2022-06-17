@@ -386,6 +386,7 @@ do
 	function TBMenu:showHomeButton(viewElement, buttonData, hasSmudge, extraElements, lockedMessage)
 		-- Add hover sound by default so it doesn't have to be set for each element manually
 		viewElement.hoverSound = 31
+		local lockedMessage = lockedMessage or buttonData.lockedMessage
 
 		local titleHeight = buttonData.title and (buttonData.subtitle and viewElement.size.h / 5 or viewElement.size.h / 3) or 0
 		titleHeight = titleHeight > WIN_H / 15 and WIN_H / 15 or titleHeight
@@ -409,7 +410,6 @@ do
 			disableUnload = buttonData.disableUnload,
 			uiColor = TB_MENU_DEFAULT_DARKEST_COLOR
 		})
-		TBMenu:addOuterRounding(itemIcon, viewElement.animateColor)
 
 		if (type(selectedIcon) == "table") then
 			local filename = selectedIcon[1]:gsub(".*/", "")
@@ -518,16 +518,38 @@ do
 		end
 		if (buttonData.locked and lockedMessage) then
 			viewElement:deactivate()
-			local lockedMessageView = UIElement:new({
-				parent = itemIcon,
+			local lockedMessageView = itemIcon:addChild({
 				pos = { 0, 0 },
 				size = { itemIcon.size.w, viewElement.size.h - 20 - titleHeight - descHeight },
-				bgColor = cloneTable(TB_MENU_DEFAULT_BG_COLOR),
-				uiColor = cloneTable(UICOLORWHITE)
+				bgColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
+				uiColor = UICOLORWHITE
 			})
-			lockedMessageView.bgColor[4] = 0.7
-			lockedMessageView:addAdaptedText(nil, lockedMessage)
+			local lockedMessageTextBG = lockedMessageView:addChild({
+				pos = { lockedMessageView.size.w * 0.1, lockedMessageView.size.h / 5 * 3 },
+				size = { lockedMessageView.size.w * 0.8, lockedMessageView.size.h / 3 },
+				bgColor = { 0, 0, 0, 0.5 },
+				shapeType = ROUNDED,
+				rounded = 5
+			})
+			local lockedMessageText = lockedMessageTextBG:addChild({
+				shift = { 10, 5 }
+			})
+			lockedMessageText:addAdaptedText(nil, lockedMessage)
+
+			local maxLen, lines = 0, 0
+			for i,v in pairs(lockedMessageText.dispstr) do
+				maxLen = math.max(maxLen, get_string_length(v, lockedMessageText.textFont) * lockedMessageText.textScale)
+				lines = lines + 1
+			end
+			lockedMessageTextBG.size.w = math.min(lockedMessageTextBG.size.w, maxLen + 40)
+			lockedMessageTextBG.size.h = math.min(lockedMessageTextBG.size.h, lines * getFontMod(lockedMessageText.textFont) * lockedMessageText.textScale * 10 + 20)
+			lockedMessageText.size.w = lockedMessageTextBG.size.w - 20
+			lockedMessageText.size.h = lockedMessageTextBG.size.h - 10
+			lockedMessageTextBG:moveTo((lockedMessageView.size.w - lockedMessageTextBG.size.w) / 2, lockedMessageView.size.h / 15 * 14 - lockedMessageTextBG.size.h)
 		end
+
+		-- Add rounding after everything else to make sure any added elements are covered
+		TBMenu:addOuterRounding(itemIcon, viewElement.animateColor)
 		return titleHeight, descHeight
 	end
 
@@ -2288,7 +2310,20 @@ do
 		end
 		table.insert(buttonData, { text = TB_MENU_LOCALIZED.NAVBUTTONTOOLS, sectionId = 5, right = true })
 		if (TB_MENU_PLAYER_INFO.data.qi >= 100) then
-			table.insert(buttonData, { text = TB_MENU_LOCALIZED.BATTLEPASSSEASON .. " 8", sectionId = 11, right = true, misctext = "New!" })
+			---@type MenuNavButton
+			local battlePassButton = {
+				text = TB_MENU_LOCALIZED.BATTLEPASSTITLE,
+				sectionId = 11,
+				right = true
+			}
+			if (BattlePass.UserData) then
+				if (BattlePass.UserData.level == 0 and not BattlePass.wasOpened) then
+					battlePassButton.misctext = "New!"
+				elseif (BattlePass.UserData.level_available > BattlePass.UserData.level) then
+					battlePassButton.misctext = "!"
+				end
+			end
+			table.insert(buttonData, battlePassButton)
 		end
 		return buttonData
 	end
@@ -2849,8 +2884,8 @@ do
 	--
 	-- *To make regular UIElements rounded, use shapeType and rounded UIElementOptions parameters.*
 	---@param e UIElement UIElement object that we'll be applying the effect to
-	---@param color Color
-	---@param rounding number
+	---@param color? Color
+	---@param rounding? number
 	---@return nil
 	function TBMenu:addOuterRounding(e, color, rounding)
 		if (UIMODE_LIGHT) then return end

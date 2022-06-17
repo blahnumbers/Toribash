@@ -335,7 +335,7 @@ do
 			parent = out and tbTutorialsOverlay or viewElement,
 			pos = { 0, 0 },
 			size = { viewElement.size.w, viewElement.size.h },
-			bgColor = cloneTable(UICOLORWHITE)
+			bgColor = table.clone(UICOLORWHITE)
 		})
 		if (out) then
 			tbOutOverlay = overlay
@@ -632,8 +632,8 @@ do
 					tbTutorialsMessageAuthor:updateImage(headTexture)
 					local color = get_color_info(TB_MENU_PLAYER_INFO.items.colors.force or 23)
 					tbTutorialsMessageAuthorNeck.bgColor = { color.r, color.g, color.b, 1 }
-					tbTutorialsMessageAuthorNameBackground.bgColor = cloneTable(TB_MENU_DEFAULT_BG_COLOR)
-					tbTutorialsMessageBackground.shadowColor[2] = cloneTable(TB_MENU_DEFAULT_BG_COLOR)
+					tbTutorialsMessageAuthorNameBackground.bgColor = table.clone(TB_MENU_DEFAULT_BG_COLOR)
+					tbTutorialsMessageBackground.shadowColor[2] = table.clone(TB_MENU_DEFAULT_BG_COLOR)
 					tbTutorialsMessageAuthorName:addAdaptedText(true, TB_MENU_PLAYER_INFO.username or "Tori", nil, nil, 2)
 				else
 					tbTutorialsMessageAuthorName:addAdaptedText(true, messageby, nil, nil, 2)
@@ -970,7 +970,7 @@ do
 	end
 
 	function Tutorials:addOptionalTask(data, taskText)
-		local optTaskColor = cloneTable(TB_MENU_DEFAULT_BG_COLOR)
+		local optTaskColor = table.clone(TB_MENU_DEFAULT_BG_COLOR)
 		optTaskColor[4] = 0.7
 
 		local optTaskView = UIElement:new({
@@ -1028,7 +1028,7 @@ do
 	end
 
 	function Tutorials:addAdditionalTask(data, taskText)
-		local optTaskColor = cloneTable(TB_MENU_DEFAULT_BG_COLOR)
+		local optTaskColor = table.clone(TB_MENU_DEFAULT_BG_COLOR)
 		optTaskColor[4] = 0.7
 
 		local optTaskView = UIElement:new({
@@ -1236,8 +1236,8 @@ do
 						tbTutorialsMessageAuthorNeck.bgColor[4] = tbTutorialsMessageAuthorNeck.bgColor[4] - tbTutorialsMessageAuthorNeck.bgColor[4] * 0.15 * math.sin(rad)
 						rad = rad + math.pi / 50
 					else
-						tbTutorialsMessageAuthorNameBackground.bgColor = cloneTable(tbTutorialsMessageBackground.accentColor)
-						tbTutorialsMessageBackground.shadowColor[2] = cloneTable(tbTutorialsMessageBackground.accentColor)
+						tbTutorialsMessageAuthorNameBackground.bgColor = table.clone(tbTutorialsMessageBackground.accentColor)
+						tbTutorialsMessageBackground.shadowColor[2] = table.clone(tbTutorialsMessageBackground.accentColor)
 						tbTutorialsMessageView:addCustomDisplay(false, function() end)
 						tbTutorialsMessageAuthorName:addCustomDisplay(false, function() end)
 						tbTutorialsMessage:moveTo(tbTutorialsMessage.parent.size.w)
@@ -1610,7 +1610,7 @@ do
 				parent = buttonHolder,
 				pos = { shift + v.shift, 0 },
 				size = { buttonHolder.size.w * v.size - 20, buttonHolder.size.h },
-				bgColor = cloneTable(TB_MENU_DEFAULT_BG_COLOR),
+				bgColor = table.clone(TB_MENU_DEFAULT_BG_COLOR),
 				interactive = true,
 				hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
 				pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR
@@ -1632,7 +1632,7 @@ do
 							parent = button,
 							pos = { 10, 10 },
 							size = { imageSizeW, imageSizeH },
-							bgColor = cloneTable(button.bgColor),
+							bgColor = table.clone(button.bgColor),
 							bgImage = v.image
 						})
 						buttonImage:addCustomDisplay(false, function()
@@ -1994,8 +1994,8 @@ do
 				tutorials[featuredTutorial].ratio = 1.055
 			end
 			if (featuredTutorial % 2 == 0) then
-				local temp = cloneTable(tutorials[featuredTutorial])
-				tutorials[featuredTutorial] = cloneTable(tutorials[featuredTutorial - 1])
+				local temp = table.clone(tutorials[featuredTutorial])
+				tutorials[featuredTutorial] = table.clone(tutorials[featuredTutorial - 1])
 				tutorials[featuredTutorial - 1] = temp
 			end
 		end

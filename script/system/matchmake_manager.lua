@@ -54,7 +54,7 @@ do
 					tbMenuCurrentSection:kill(true)
 					tbMenuNavigationBar:kill(true)
 					TBMenu:showNavigationBar()
-					Matchmake:showRanked()
+					TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
 				end
 			})
 		end

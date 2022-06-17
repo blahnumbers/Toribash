@@ -5,7 +5,7 @@ do
 	FriendsList.__index = FriendsList
 	local cln = {}
 	setmetatable(cln, FriendsList)
-	
+
 	function FriendsList:quit()
 		if (get_option("newmenu") == 0) then
 			FRIENDSLIST_OPEN = false
@@ -19,45 +19,45 @@ do
 		TBMenu:showNavigationBar()
 		TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
 	end
-	
+
 	function FriendsList:getNavigationButtons()
 		local buttonText = get_option("newmenu") == 0 and TB_MENU_LOCALIZED.NAVBUTTONEXIT or TB_MENU_LOCALIZED.NAVBUTTONTOMAIN
 		local navigation = {
-			{ 
-				text = buttonText, 
-				action = function() FriendsList:quit() end, 
-				width = get_string_length(buttonText, FONTS.BIG) * 0.65 + 30 
+			{
+				text = buttonText,
+				action = function() FriendsList:quit() end,
+				width = get_string_length(buttonText, FONTS.BIG) * 0.65 + 30
 			}
 		}
 		return navigation
 	end
-	
+
 	-- Run /sa * command to fetch all online players
 	function FriendsList:updateOnline()
 		local playersOnline = {}
 		add_hook("console", "friendsListConsoleIgnore", function(s, i)
 			-- Ignore the info message and lobbies
-			if (s:match("Searching for") or s:match("Players:%d")) then 
+			if (s:match("Searching for") or s:match("Players:%d")) then
 				return 1
 			end
-			
+
 			local data = { s:match(("([^ ]+) *"):rep(2)) }
 			table.insert(playersOnline, { room = data[1]:lower(), player = data[2]:lower() })
 			return 1
 		end)
-		UIElement:runCmd("sa *", false, true)
+		runCmd("sa *", false, true)
 		remove_hooks("friendsListConsoleIgnore")
 		-- Remove the command echo
 		table.remove(playersOnline)
 		return playersOnline
 	end
-	
+
 	function FriendsList:getOnline(viewElement, noWait)
 		FRIENDSLIST_IS_REFRESHED = false
 		add_hook("console", "friendsListConsoleIgnore", function(s, i) if (s == "refreshing server list") then return 1 end end)
-		UIElement:runCmd("refresh")
+		runCmd("refresh")
 		remove_hooks("friendsListConsoleIgnore")
-		
+
 		local waitBlock = UIElement:new({
 			parent = viewElement,
 			pos = { 0, 0 },
@@ -69,13 +69,13 @@ do
 				-- Wait animation
 				set_color(1, 1, 1, 0.8)
 				draw_disk(waitBlock.pos.x + waitBlock.size.w / 2, waitBlock.pos.y + waitBlock.size.h / 2, waitBlock.size.h / 30, waitBlock.size.h / 15, 500, 1, timediff * 180, timediff * 360, 0)
-				
+
 				if (timediff >= 1 or noWait) then
 					FRIENDSLIST_PLAYERS_ONLINE = FriendsList:updateOnline()
 					FRIENDSLIST_IS_REFRESHED = true
 					FRIENDSLIST_REFRESH_TIME = os.clock()
 					local clanFriends = {}
-					
+
 					for i,v in pairs(FRIENDSLIST_FRIENDS) do
 						for k,n in pairs(FRIENDSLIST_PLAYERS_ONLINE) do
 							if (PlayerInfo:getUser(n.player) == v.username) then
@@ -90,7 +90,7 @@ do
 							end
 						end
 					end
-					
+
 					-- Remove duplicate entries when one of friends is also found during clan friends search
 					for i,v in pairs(FRIENDSLIST_FRIENDS) do
 						for n = #clanFriends, 1, -1 do
@@ -107,25 +107,25 @@ do
 				end
 			end)
 	end
-	
+
 	function FriendsList:getFriends()
 		local file = Files:open("../data/buddies.txt")
 		if (not file.data) then
-			UIElement:runCmd("ab testuser")
+			runCmd("ab testuser")
 			file:reopen()
 			if (not file.data) then
 				return false
 			end
-			UIElement:runCmd("rb testuser")
+			runCmd("rb testuser")
 		end
 		FRIENDSLIST_FRIENDS = {}
-		
+
 		for i, ln in pairs(file:readAll()) do
 			local segments = 3
 			local data_stream = { ln:match(("([^ ]+) *"):rep(segments)) }
 			table.insert(FRIENDSLIST_FRIENDS, { username = data_stream[1], online = false, room = false })
 		end
-		
+
 		file:close()
 		FRIENDSLIST_IGNORE = {}
 		local ignoreFile = Files:open("../ignorelist.txt")
@@ -135,10 +135,10 @@ do
 			end
 			ignoreFile:close()
 		end
-		
+
 		return true
 	end
-	
+
 	function FriendsList:addFriend(player)
 		local friend = { username = player:lower() }
 		if (FRIENDSLIST_PLAYERS_ONLINE) then
@@ -151,9 +151,9 @@ do
 			end
 		end
 		table.insert(FRIENDSLIST_FRIENDS, friend)
-		UIElement:runCmd("addbuddy " .. player:lower())
+		runCmd("addbuddy " .. player:lower())
 	end
-	
+
 	function FriendsList:removeFriend(player)
 		for i,v in pairs(FRIENDSLIST_FRIENDS) do
 			if (v.username == player) then
@@ -161,15 +161,15 @@ do
 				break
 			end
 		end
-		UIElement:runCmd("removebuddy " .. player)
+		runCmd("removebuddy " .. player)
 	end
-	
+
 	function FriendsList:addIgnore(player)
 		local player = player:lower()
 		table.insert(FRIENDSLIST_IGNORE, player)
-		UIElement:runCmd("ignore add " .. player)
+		runCmd("ignore add " .. player)
 	end
-	
+
 	function FriendsList:removeIgnore(player)
 		local player = player:lower()
 		for i,v in pairs(FRIENDSLIST_IGNORE) do
@@ -178,18 +178,18 @@ do
 				break
 			end
 		end
-		UIElement:runCmd("ignore remove " .. player)
+		runCmd("ignore remove " .. player)
 	end
-	
+
 	function FriendsList:showFriendsList(viewElement)
 		local entryHeight = 35
-		
+
 		local toReload = UIElement:new({
 			parent = viewElement,
 			pos = { 0, 0 },
 			size = { viewElement.size.w, viewElement.size.h}
 		})
-		
+
 		local friendsTopBar = UIElement:new({
 			parent = toReload,
 			pos = { 0, 0 },
@@ -203,7 +203,7 @@ do
 			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 		})
 		TBMenu:addBottomBloodSmudge(friendsBotBar, 1)
-		
+
 		local friendsMain = UIElement:new({
 			parent = viewElement,
 			pos = { 0, friendsTopBar.size.h },
@@ -214,9 +214,9 @@ do
 			pos = { 0, 0 },
 			size = { friendsMain.size.w - 20, friendsMain.size.h }
 		})
-		
+
 		local friendsElements = {}
-		for i,v in pairs(UIElement:qsort(FRIENDSLIST_FRIENDS, "online", true)) do
+		for i,v in pairs(table.qsort(FRIENDSLIST_FRIENDS, "online", true)) do
 			local friendElement = UIElement:new({
 				parent = friendsView,
 				pos = { 0, (i - 1) * entryHeight },
@@ -262,7 +262,7 @@ do
 						friendRoomJoinButton:uiText(TB_MENU_LOCALIZED.FRIENDSLISTJOINROOM, nil, nil, nil, nil, 0.8)
 					end)
 				friendRoomJoinButton:addMouseHandlers(nil, function()
-						UIElement:runCmd("jo " .. v.room)
+						runCmd("jo " .. v.room)
 						close_menu()
 					end)
 			end
@@ -297,21 +297,21 @@ do
 			})
 			friendsMessageBot:addAdaptedText(true, TB_MENU_LOCALIZED.FRIENDSLISTEMPTYINFO, nil, nil, nil, CENTER)
 		end
-			
+
 		for i,v in pairs(friendsElements) do
 			v:hide()
 		end
-		
+
 		local friendsScrollBG = UIElement:new({
 			parent = friendsMain,
 			pos = { -(friendsMain.size.w - friendsView.size.w), 0 },
 			size = { friendsMain.size.w - friendsView.size.w, friendsView.size.h },
 			bgColor = TB_MENU_DEFAULT_DARKER_COLOR
 		})
-		
+
 		local friendsScrollBar = TBMenu:spawnScrollBar(friendsView, #friendsElements, entryHeight)
 		friendsScrollBar:makeScrollBar(friendsView, friendsElements, toReload)
-		
+
 		local legendInfo = {
 			{ name = "", width = friendsView.size.w / 40 + entryHeight},
 			{ name = TB_MENU_LOCALIZED.FRIENDSLISTLEGENDPLAYER, width = friendsView.size.w / 3 },
@@ -349,7 +349,7 @@ do
 				end
 			end)
 	end
-	
+
 	function FriendsList:showFriends(viewElement)
 		viewElement:kill(true)
 		local headerTitle = UIElement:new({
@@ -364,7 +364,7 @@ do
 		headerTitle:addCustomDisplay(true, function()
 				headerTitle:uiText(TB_MENU_LOCALIZED.FRIENDSLISTTITLE, nil, nil, FONTS.BIG, nil, titleTextScale)
 			end)
-		
+
 		local friendsView = UIElement:new({
 			parent = viewElement,
 			pos = { 0, headerTitle.size.h },
@@ -372,7 +372,7 @@ do
 		})
 		FriendsList:showFriendsList(friendsView)
 	end
-	
+
 	function FriendsList:showMenu(viewElement)
 		local friendAddView = UIElement:new({
 			parent = viewElement,
@@ -435,7 +435,7 @@ do
 				FriendsList:showMain(viewElement.parent, true)
 			end)
 	end
-	
+
 	function FriendsList:showMain(viewElement, noWait)
 		usage_event("friendslist")
 		viewElement:kill(true)
@@ -450,7 +450,7 @@ do
 		if (FriendsList:getFriends()) then
 			FriendsList:getOnline(friendsView, noWait)
 		end
-		
+
 		local friendsMenu = UIElement:new({
 			parent = viewElement,
 			pos = { friendsView.size.w + 15, 0 },

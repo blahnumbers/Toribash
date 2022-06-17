@@ -1867,8 +1867,8 @@ do
 					local val1 = a[v] == 0 and (includeZeros and 0 or b[v] - (order[i] and order[i] or order[1])) or a[v]
 					local val2 = b[v] == 0 and (includeZeros and 0 or a[v] - (order[i] and order[i] or order[1])) or b[v]
 					if (type(val1) == "string" or type(val2) == "string") then
-						val1 = val1:lower()
-						val2 = val2:lower()
+						val1 = in_array(type(val1), { "number", "string" }) and string.lower(val1) or ""
+						val2 = in_array(type(val2), { "number", "string" }) and string.lower(val2) or ""
 					end
 					if (type(val1) == "boolean") then
 						val1 = val1 and 1 or -1
