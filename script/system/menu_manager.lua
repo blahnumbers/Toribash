@@ -1821,8 +1821,8 @@ do
 		})]]
 		local tbMenuUserHeadAvatarViewport = UIElement:new({
 			parent = tbMenuUserBar,
-			pos = { -tbMenuUserBar.size.w - tbMenuTopBarWidth / 16, 0 },
-			size = { tbMenuTopBarWidth / 5, tbMenuTopBarWidth / 5 },
+			pos = { -tbMenuUserBar.size.w - tbMenuTopBarWidth / 16 * 5, -tbMenuUserBar.size.h * 2.35 },
+			size = { tbMenuTopBarWidth * 0.7, tbMenuTopBarWidth * 0.7 },
 			viewport = true
 		})
 		local tbMenuUserHeadAvatarViewport3D = UIElement3D:new({
@@ -1838,7 +1838,7 @@ do
 		local playerHeadHolder = UIElement3D:new({
 			parent = tbMenuUserHeadAvatarViewport3D,
 			shapeType = SPHERE,
-			pos = { 0, 0, 9.7 },
+			pos = { 0, 6, 9.7 },
 			size = { 0.6, 0.6, 0.6 },
 			rot = { 0, 0, 0 },
 			viewport = true
