@@ -17,7 +17,7 @@ do
 			remove_hooks("queuelistKeyboard")
 			chat_input_activate()
 		end
-		
+
 		if (QUEUELISTMENU) then
 			QUEUELISTMENU:kill()
 		end
@@ -33,7 +33,7 @@ do
 			size = { viewElement.size.w - 90, 35 }
 		})
 		nameHolder:addAdaptedText(nil, pName, nil, nil, FONTS.BIG, LEFTMID)
-		
+
 		local beltInfo = PlayerInfo:getBeltFromQi(info.games_played)
 		local beltHolder = UIElement:new({
 			parent = viewElement,
@@ -42,7 +42,7 @@ do
 		})
 		infosH = infosH + beltHolder.size.h
 		beltHolder:addAdaptedText(true, beltInfo.name .. " Belt, " .. info.games_played .. " Qi", nil, nil, nil, LEFTMID)
-		
+
 		local pClan = PlayerInfo:getClan(pName, PlayerInfo:getClanTag(info.nick))
 		local clanHolder = nil
 		if (pClan.id > 0) then
@@ -69,7 +69,7 @@ do
 					open_menu(19)
 				end)
 		end
-		
+
 		local headPosY = (infosH - 60) / 2
 		if (headPosY < 0) then
 			headPosY = 0
@@ -124,12 +124,12 @@ do
 				bgColor = { modelColor.r, modelColor.g, modelColor.b, playerItems.objs.head.alpha / 255 }
 			})
 		end
-		
+
 		if (clanHolder) then
 			-- Reload to ensure clan button is above head viewport holder
 			clanHolder:reload()
 		end
-		
+
 		local infoFields = {
 			{ title = "legend", color = "BB9600", text = TB_MENU_LOCALIZED.QUEUELISTLEGENDTITLE, desc = TB_MENU_LOCALIZED.QUEUELISTLEGENDDESC },
 			{ title = "muted", color = "808080", text = TB_MENU_LOCALIZED.QUEUELISTMUTEDTITLE, desc = TB_MENU_LOCALIZED.QUEUELISTMUTEDDESC },
@@ -193,7 +193,7 @@ do
 		else
 			titleHolder:kill()
 		end
-		
+
 		return infosH
 	end
 
@@ -227,12 +227,12 @@ do
 			end)
 		UIElement:runCmd("status " .. pName, true)
 	end
-	
+
 	function QueueList:report(pName)
 		add_hook("key_up", "reportsubmitKeyboard", function(s) UIElement:handleKeyUp(s) return 1 end)
 		add_hook("key_down", "reportsubmitKeyboard", function(s) UIElement:handleKeyDown(s) return 1 end)
 		chat_input_deactivate()
-		
+
 		local overlay = TBMenu:spawnWindowOverlay()
 		overlay:addMouseHandlers(nil, function() overlay:kill() remove_hooks("reportsubmitKeyboard") chat_input_activate() end)
 		local reportHolder = UIElement:new({
@@ -374,7 +374,7 @@ do
 								size = { waitOverlay.size.w - 40, waitOverlay.size.h / 2 - 10 }
 							})
 							successMessage:addAdaptedText(true, reportReasonId == 3 and TB_MENU_LOCALIZED.REPORTSSUCCESSSCAMMING or TB_MENU_LOCALIZED.REPORTSSUCCESSDEFAULT, nil, nil, nil, CENTERBOT)
-							
+
 							local shiftH, buttonH = 10, (waitOverlay.size.h / 2 - 20) / 2 > 50 and 50 or (waitOverlay.size.h / 2 - 20) / 2
 							if (reportReasonId == 3) then
 								local reportThreadId = response:gsub("GATEWAY 0; 0 ", "")
@@ -409,11 +409,11 @@ do
 									pos = { discordButton.size.w / 20, discordButton.size.h / 8 },
 									size = { discordButton.size.w * 0.9, discordButton.size.h / 8 * 6 }
 								})
-								TBMenu:showTextWithImage(discordButtonText, TB_MENU_LOCALIZED.DISCORDSERVER, FONTS.MEDIUM, discordButtonText.size.h, "..//textures/menu/logos/discord.tga")
+								TBMenu:showTextWithImage(discordButtonText, TB_MENU_LOCALIZED.DISCORDSERVER, FONTS.MEDIUM, discordButtonText.size.h, "../textures/menu/logos/discord.tga")
 								discordButton:addMouseHandlers(nil, function() open_url("https://discord.gg/toribash") end)
 							end
 							shiftH = shiftH * 2 + buttonH
-							
+
 							local exitButton = UIElement:new({
 								parent = waitOverlay,
 								pos = { waitOverlay.size.w / 4, waitOverlay.size.h / 2 + shiftH },
@@ -484,7 +484,7 @@ do
 				TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.REPORTSCONFIRMATION .. " " .. pName .. "?\n" .. TB_MENU_LOCALIZED.REPORTSABUSENOTICE, showSubmitReport)
 			end)
 	end
-	
+
 	function QueueList:showNudge(pName, viewElement, info)
 		viewElement:kill(true)
 		viewElement:deactivate()
@@ -542,13 +542,13 @@ do
 			button:addMouseHandlers(nil, v.action)
 		end]]
 	end
-	
+
 	function QueueList:showNudgeToPosition(pName, viewElement, info)
 		viewElement:kill(true)
 		add_hook("key_up", "queuelistKeyboard", function(s) UIElement:handleKeyUp(s) return 1 end)
 		add_hook("key_down", "queuelistKeyboard", function(s) UIElement:handleKeyDown(s) return 1 end)
 		chat_input_deactivate()
-		
+
 		local textField = TBMenu:spawnTextField(viewElement, 5, 0, viewElement.size.w - 100, viewElement.size.h, (info.id - 1) .. "", true, FONTS.SMALL, 1, nil, TB_MENU_LOCALIZED.QUEUELISTDROPDOWNNUDGETOPOSITION, LEFTMID)
 		local function nudge()
 			UIElement:runCmd("nudge " .. pName .. " " .. textField.textfieldstr[1], true)
@@ -589,7 +589,7 @@ do
 				isIgnored = true
 			end
 		end
-		
+
 		local showControls, showAdvControls = false, false
 		if (userinfo.admin ~= 0 or userinfo.eventsquad ~= 0 or userinfo.helpsquad ~= 0) then
 			userinfo.ingameadmin = true
@@ -601,9 +601,9 @@ do
 		if (info.admin ~= 0 or info.eventsquad ~= 0 or info.helpsquad ~= 0) then
 			info.ingameadmin = true
 		end
-		
+
 		local isUser = TB_MENU_PLAYER_INFO.username:lower() == pName:lower()
-		
+
 		local buttons = {
 			{
 				name = "whisper",
@@ -731,7 +731,7 @@ do
 				action = function(s) UIElement:runCmd("unmuteall", true) QueueList:quit() end
 			},
 		}
-		
+
 		local infoH, buttonH = viewElement.size.h + 5, 25
 		if (not isUser) then
 			local separator = UIElement:new({
@@ -740,7 +740,7 @@ do
 				size = { viewElement.size.w - 40, 1 },
 				bgColor = TB_MENU_DEFAULT_DARKEST_COLOR
 			})
-			
+
 			for i,v in pairs(buttons) do
 				if (v.show) then
 					local contextButton = UIElement:new({
@@ -770,7 +770,7 @@ do
 				end
 			end
 		end
-			
+
 		if (showControls) then
 			local cSeparator = UIElement:new({
 				parent = viewElement,
@@ -779,7 +779,7 @@ do
 				bgColor = TB_MENU_DEFAULT_DARKEST_COLOR
 			})
 			infoH = infoH + 5
-			
+
 			for i,v in pairs(cButtons) do
 				if (v.show) then
 					local contextButton = UIElement:new({
@@ -801,7 +801,7 @@ do
 					infoH = infoH + buttonH
 				end
 			end
-			
+
 			local gSeparator = UIElement:new({
 				parent = viewElement,
 				pos = { 20, infoH + 2 },
@@ -809,7 +809,7 @@ do
 				bgColor = TB_MENU_DEFAULT_DARKEST_COLOR
 			})
 			infoH = infoH + 5
-			
+
 			local globalControls = UIElement:new({
 				parent = viewElement,
 				pos = { 0, infoH },
@@ -843,10 +843,10 @@ do
 				infoH = infoH + buttonH
 			end]]
 		end
-		
+
 		return infoH
 	end
-	
+
 	function QueueList:getHorizontalShift()
 		local maxW = 0
 		for i,v in pairs(get_bouts()) do
@@ -871,7 +871,7 @@ do
 			download_head(pName)
 		end
 		customs:close()
-		
+
 		WIN_W, WIN_H = get_window_size()
 		if (QUEUELISTMENU) then
 			QueueList:quit()
@@ -901,8 +901,8 @@ do
 		})
 		queuelistBox.size.h = QueueList:addPlayerInfos(queuelistBox, info, bout)
 		queuelistBox.size.h = QueueList:addPlayerControls(queuelistBox, info, userinfo, bout, id)
-		
-		
+
+
 		queuelistBoxBG.size.h = queuelistBox.size.h + 2
 		if (queuelistBoxBG.size.h + queuelistBoxBG.pos.y + 10 > WIN_H) then
 			queuelistBoxBG:moveTo(nil, WIN_H - queuelistBoxBG.size.h - 10)

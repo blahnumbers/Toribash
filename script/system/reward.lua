@@ -18,48 +18,48 @@ local seconds_to_next = ARG:gsub("^%d%s%d%s", "")
 local function showRewards()
 	function TBMenu:addBottomBloodSmudge() end
 	TBMenu:getTranslation(get_language())
-	
+
 	TB_MENU_PLAYER_INFO = {}
 	TB_MENU_PLAYER_INFO.username = PlayerInfo:getUser()
 	TB_MENU_PLAYER_INFO.data = PlayerInfo:getUserData()
-	
-	tbMenuMain = UIElement:new({
+
+	TBMenu.MenuMain = UIElement:new({
 		globalid = 1105,
 		pos = { WIN_W / 10, WIN_H / 7 },
 		size = { WIN_W / 10 * 8, WIN_H / 7 * 5 },
 	})
 	local navBarBG = UIElement:new({
-		parent = tbMenuMain,
+		parent = TBMenu.MenuMain,
 		pos = { 0, 0 },
-		size = { tbMenuMain.size.w, 30 },
+		size = { TBMenu.MenuMain.size.w, 30 },
 		bgColor = { 0, 0, 0, 0.95 }
 	})
-	tbMenuNavigationBar = UIElement:new({
+	TBMenu.NavigationBar = UIElement:new({
 		parent = navBarBG,
 		pos = { 0, 0 },
 		size = { navBarBG.size.w, navBarBG.size.h }
 	})
-	
-	tbMenuCurrentSection = UIElement:new({
-		parent = tbMenuMain,
+
+	TBMenu.CurrentSection = UIElement:new({
+		parent = TBMenu.MenuMain,
 		pos = { 0, navBarBG.size.h },
-		size = { tbMenuMain.size.w, tbMenuMain.size.h - navBarBG.size.h },
+		size = { TBMenu.MenuMain.size.w, TBMenu.MenuMain.size.h - navBarBG.size.h },
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR
 	})
-	
+
 	if (Notifications:showLoginRewards() == 0) then
 		local startTime = os.time()
-		tbMenuCurrentSection:addCustomDisplay(false, function()
-				tbMenuCurrentSection:uiText("Updating data" .. string.rep(".", os.time() - startTime % 4, nil), nil, nil, FONTS.BIG)
+		TBMenu.CurrentSection:addCustomDisplay(false, function()
+				TBMenu.CurrentSection:uiText("Updating data" .. string.rep(".", os.time() - startTime % 4, nil), nil, nil, FONTS.BIG)
 				if (Notifications:showLoginRewards() ~= 0) then
-					tbMenuCurrentSection:addCustomDisplay(false, function() end)
+					TBMenu.CurrentSection:addCustomDisplay(false, function() end)
 				end
 			end)
 	end
 	TBMenu:showNavigationBar({
-		{ 
-			text = TB_MENU_LOCALIZED.NAVBUTTONEXIT, 
-			action = function() remove_hooks("tbMainMenuVisual") tbMenuMain:kill() end,
+		{
+			text = TB_MENU_LOCALIZED.NAVBUTTONEXIT,
+			action = function() remove_hooks("tbMainMenuVisual") TBMenu.MenuMain:kill() end,
 			width = get_string_length(TB_MENU_LOCALIZED.NAVBUTTONEXIT, FONTS.BIG) * 0.65 + 30
 		}
 	}, true)

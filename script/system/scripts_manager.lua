@@ -5,15 +5,15 @@ do
 	Scripts.__index = Scripts
 	local cln = {}
 	setmetatable(cln, Scripts)
-	
+
 	function Scripts:quit()
 		TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
-		tbMenuCurrentSection:kill(true)
-		tbMenuNavigationBar:kill(true)
+		TBMenu.CurrentSection:kill(true)
+		TBMenu.NavigationBar:kill(true)
 		TBMenu:showNavigationBar()
 		TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
 	end
-	
+
 	function Scripts:getNavigationButtons()
 		local navigation = {
 			{
@@ -24,7 +24,7 @@ do
 		}
 		return navigation
 	end
-	
+
 	function Settings:isDefaultFolder(folder)
 		local defaultFolders = {
 			"system", "toriui", "tutorial", "torishop", "modules", "gui", "examples", "clans", "events"
@@ -36,7 +36,7 @@ do
 		end
 		return false
 	end
-	
+
 	function Scripts:getScriptFiles(path)
 		local path = path or "data/script"
 		local data = { name = path, files = {}, folders = {}, contents = {} }
@@ -51,13 +51,13 @@ do
 		end
 		return data
 	end
-	
+
 	function Scripts:showScriptsList(viewElement, infoView, files)
 		viewElement:kill(true)
 		local elementHeight = 30
 		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 60, elementHeight, 20)
 		TBMenu:addBottomBloodSmudge(botBar, 1)
-		
+
 		local windowTitle = UIElement:new({
 			parent = topBar,
 			pos = { 10, 5 },
@@ -65,8 +65,8 @@ do
 		})
 		local shortPath = files.name:gsub("^data/script[/]?", "")
 		windowTitle:addAdaptedText(true, TB_MENU_LOCALIZED.LUASCRIPTSNAME .. (shortPath ~= "" and ": " .. shortPath or ""), nil, nil, FONTS.BIG, LEFTMID, 0.65)
-		
-		local listElements = {} 
+
+		local listElements = {}
 		if (shortPath ~= "") then
 			local default = UIElement:new({
 				parent = listingHolder,
@@ -139,7 +139,7 @@ do
 		listingHolder.scrollBar = scrollBar
 		scrollBar:makeScrollBar(listingHolder, listElements, toReload)
 	end
-	
+
 	function Scripts:showThirdPartyWarning(thirdPartyWarningView)
 		local thirdPartyWarning1 = UIElement:new({
 			parent = thirdPartyWarningView,
@@ -159,7 +159,7 @@ do
 			size = { thirdPartyWarningView.size.w - 20, thirdPartyWarningView.size.h / 4 }
 		})
 		thirdPartyWarning3:addAdaptedText(true, TB_MENU_LOCALIZED.LUASCRIPTSTHIRDPARTYWARNING3, nil, nil, nil, CENTER)
-		
+
 		local scriptsBoardButton = UIElement:new({
 			parent = thirdPartyWarningView,
 			pos = { 10, thirdPartyWarningView.size.h / 4 * 3 + thirdPartyWarningView.size.h / 16 },
@@ -169,12 +169,12 @@ do
 			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
 		})
-		TBMenu:showTextExternal(scriptsBoardButton, TB_MENU_LOCALIZED.LUASCRIPTSFORUMBOARD)
+		TBMenu:showTextExternal(scriptsBoardButton, TB_MENU_LOCALIZED.LUASCRIPTSFORUMBOARD, true)
 		scriptsBoardButton:addMouseHandlers(nil, function()
 				open_url("http://forum.toribash.com/forumdisplay.php?f=65")
 			end)
 	end
-	
+
 	function Scripts:showSource(info)
 		local overlay = TBMenu:spawnWindowOverlay()
 		local scriptData = UIElement:new({
@@ -236,7 +236,7 @@ do
 		local scriptDataScroll = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
 		scriptDataScroll:makeScrollBar(listingHolder, listElements, toReload)
 	end
-	
+
 	function Scripts:showScriptInfo(viewElement, file)
 		local scriptName = UIElement:new({
 			parent = viewElement,
@@ -244,15 +244,15 @@ do
 			size = { viewElement.size.w - 20, viewElement.size.h / 6 - 10 }
 		})
 		scriptName:addAdaptedText(true, file:gsub("^.*/", ""))
-		
+
 		local scriptFile = Files:open(file)
 		local scriptSource = scriptFile:readAll()
 		scriptFile:close()
-		
+
 		local vulnerabilityAlert = false
 		local fileAccessAlert = false
 		local loadScriptAlert = false
-		
+
 		for i, info in pairs(scriptSource) do
 			if (info:find("tb_login")) then
 				vulnerabilityAlert = true
@@ -264,7 +264,7 @@ do
 				loadScriptAlert = true
 			end
 		end
-		
+
 		if (vulnerabilityAlert or fileAccessAlert or loadScriptAlert) then
 			local alertMessage = UIElement:new({
 				parent = viewElement,
@@ -285,7 +285,7 @@ do
 				alertMessage:addAdaptedText(true, alertMsg, nil, nil, 4)
 			end
 		end
-		
+
 		local viewSourceButton = UIElement:new({
 			parent = viewElement,
 			pos = { 10, viewElement.size.h / 6 * 4 },
@@ -314,38 +314,38 @@ do
 				close_menu()
 			end)
 	end
-	
+
 	function Scripts:showRightView(viewElement, file)
 		viewElement:kill(true)
 		TBMenu:addBottomBloodSmudge(viewElement, 2)
-		
+
 		if (not file) then
 			Scripts:showThirdPartyWarning(viewElement)
 			return
 		end
 		Scripts:showScriptInfo(viewElement, file)
 	end
-	
+
 	function Scripts:showMain()
 		usage_event("scripts")
 		TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
-		tbMenuCurrentSection:kill(true)
+		TBMenu.CurrentSection:kill(true)
 		local scriptFiles = Scripts:getScriptFiles()
-		
+
 		local rightView = UIElement:new({
-			parent = tbMenuCurrentSection,
-			pos = { tbMenuCurrentSection.size.w * 0.7 + 5, 0 },
-			size = { tbMenuCurrentSection.size.w * 0.3 - 10, tbMenuCurrentSection.size.h },
+			parent = TBMenu.CurrentSection,
+			pos = { TBMenu.CurrentSection.size.w * 0.7 + 5, 0 },
+			size = { TBMenu.CurrentSection.size.w * 0.3 - 10, TBMenu.CurrentSection.size.h },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
 		Scripts:showRightView(rightView)
-		
+
 		local mainList = UIElement:new({
-			parent = tbMenuCurrentSection,
+			parent = TBMenu.CurrentSection,
 			pos = { 5, 0 },
-			size = { tbMenuCurrentSection.size.w * 0.7 - 10, tbMenuCurrentSection.size.h },
+			size = { TBMenu.CurrentSection.size.w * 0.7 - 10, TBMenu.CurrentSection.size.h },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
-		Scripts:showScriptsList(mainList, rightView, scriptFiles)		
+		Scripts:showScriptsList(mainList, rightView, scriptFiles)
 	end
 end

@@ -47,13 +47,13 @@ do
 
 	function Rewards:quit()
 		if (get_option("newmenu") == 0 or TB_MENU_MAIN_ISOPEN == 0) then
-			tbMenuMain:kill()
+			TBMenu.MenuMain:kill()
 			TB_MENU_SPECIAL_SCREEN_ISOPEN = 4
 			remove_hooks("tbMainMenuVisual")
 			return
 		end
-		tbMenuCurrentSection:kill(true)
-		tbMenuNavigationBar:kill(true)
+		TBMenu.CurrentSection:kill(true)
+		TBMenu.NavigationBar:kill(true)
 		TB_MENU_SPECIAL_SCREEN_ISOPEN = 4
 		TBMenu:showNavigationBar()
 		TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
@@ -183,7 +183,7 @@ do
 								rewardClaim:deactivate()
 								update_tc_balance()
 								TB_MENU_NOTIFICATIONS_COUNT = math.max(TB_MENU_NOTIFICATIONS_COUNT - 1, 0)
-								tbMenuNavigationBar:kill(true)
+								TBMenu.NavigationBar:kill(true)
 								TBMenu:showNavigationBar(Notifications:getNavigationButtons(nil, true), true, true, TB_MENU_NOTIFICATIONS_LASTSCREEN)
 
 								-- Let's update balance instantly, no need to wait for update_tc_balance() to finish downloading customs

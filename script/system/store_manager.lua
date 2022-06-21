@@ -503,13 +503,13 @@ do
 	end
 
 	function Torishop:quit()
-		tbMenuCurrentSection:kill(true)
-		tbMenuNavigationBar:kill(true)
+		TBMenu.CurrentSection:kill(true)
+		TBMenu.NavigationBar:kill(true)
 		if (STORE_VANILLA_PREVIEW) then
 			STORE_VANILLA_PREVIEW = false
 			remove_hooks("storevanillapreview")
 			set_option("uke", 1)
-			tbMenuHide:show()
+			TBMenu.HideButton:show()
 			storeVanillaHolder:kill()
 			STORE_VANILLA_POST = true
 			start_new_game()
@@ -521,7 +521,7 @@ do
 	function Torishop:refreshInventory(showInventory)
 		UIElement:runCmd("download " .. TB_MENU_PLAYER_INFO.username)
 		if (showInventory) then
-			Torishop:prepareInventory(tbMenuCurrentSection, true)
+			Torishop:prepareInventory(TBMenu.CurrentSection, true)
 		else
 			download_inventory()
 		end
@@ -581,7 +581,7 @@ do
 				text = TB_MENU_LOCALIZED.NAVBUTTONBACK,
 				action = function()
 					TB_SET_PAGE = 1
-					Torishop:showInventory(tbMenuCurrentSection, nil, SHOW_EMPTY_SETS)
+					Torishop:showInventory(TBMenu.CurrentSection, nil, SHOW_EMPTY_SETS)
 				end,
 				width = 130
 			}
@@ -1460,7 +1460,7 @@ do
 					getInShopButton:addAdaptedText(false, TB_MENU_LOCALIZED.STOREPURCHASEINSTORE)
 					getInShopButton:addMouseHandlers(nil, function()
 							overlay:kill()
-							Torishop:showStoreSection(tbMenuCurrentSection, 3, 3)
+							Torishop:showStoreSection(TBMenu.CurrentSection, 3, 3)
 						end)
 					shiftY = shiftY + getInShopButton.size.h + 20
 				else
@@ -1812,7 +1812,7 @@ do
 				for i = #INVENTORY_SELECTED_ITEMS, 1, -1 do
 					table.remove(INVENTORY_SELECTED_ITEMS, i)
 				end
-				Torishop:showInventory(tbMenuCurrentSection)
+				Torishop:showInventory(TBMenu.CurrentSection)
 				Torishop:showInventoryItem(TB_ITEM_DETAILS)
 			end)
 		buttonYPos = buttonYPos - buttonHeight * 1.2
@@ -2058,25 +2058,25 @@ do
 		local inventoryModes = {
 			{
 				text = TB_MENU_LOCALIZED.STOREDEACTIVATEDINVENTORY,
-				action = function() INVENTORY_LIST_SHIFT[1] = 0 Torishop:showInventory(tbMenuCurrentSection, INVENTORY_DEACTIVATED) end
+				action = function() INVENTORY_LIST_SHIFT[1] = 0 Torishop:showInventory(TBMenu.CurrentSection, INVENTORY_DEACTIVATED) end
 			},
 			{
 				text = TB_MENU_LOCALIZED.STOREACTIVATEDINVENTORY,
-				action = function() INVENTORY_LIST_SHIFT[1] = 0 Torishop:showInventory(tbMenuCurrentSection, INVENTORY_ACTIVATED) end
+				action = function() INVENTORY_LIST_SHIFT[1] = 0 Torishop:showInventory(TBMenu.CurrentSection, INVENTORY_ACTIVATED) end
 			},
 			--[[{
 				text = TB_MENU_LOCALIZED.STOREMARKETINVENTORY,
-				action = function() INVENTORY_LIST_SHIFT[1] = 0 Torishop:showInventory(tbMenuCurrentSection, INVENTORY_MARKET) end
+				action = function() INVENTORY_LIST_SHIFT[1] = 0 Torishop:showInventory(TBMenu.CurrentSection, INVENTORY_MARKET) end
 			},]]
 			{
 				text = TB_MENU_LOCALIZED.STOREINVENTORYALLITEMS,
-				action = function() INVENTORY_LIST_SHIFT[1] = 0 Torishop:showInventory(tbMenuCurrentSection, INVENTORY_ALL) end
+				action = function() INVENTORY_LIST_SHIFT[1] = 0 Torishop:showInventory(TBMenu.CurrentSection, INVENTORY_ALL) end
 			}
 		}
 
 		TB_INVENTORY_PAGE[pageid] = TB_INVENTORY_PAGE[pageid] or 1
 
-		tbMenuNavigationBar:kill(true)
+		TBMenu.NavigationBar:kill(true)
 		TBMenu:showNavigationBar(Torishop:getNavigationButtons(showBack), true)
 
 		inventoryView:kill(true)
@@ -2228,10 +2228,10 @@ do
 		})
 		showEmptySetsText:addAdaptedText(nil, TB_MENU_LOCALIZED.STORESHOWEMPTYSETS, nil, nil, nil, LEFTMID)
 		showEmptySetsIconBG:addMouseHandlers(nil, function()
-				Torishop:showInventory(tbMenuCurrentSection, nil, math.abs(SHOW_EMPTY_SETS - 1))
+				Torishop:showInventory(TBMenu.CurrentSection, nil, math.abs(SHOW_EMPTY_SETS - 1))
 			end)
 		showEmptySetsText:addMouseHandlers(nil, function()
-				Torishop:showInventory(tbMenuCurrentSection, nil, math.abs(SHOW_EMPTY_SETS - 1))
+				Torishop:showInventory(TBMenu.CurrentSection, nil, math.abs(SHOW_EMPTY_SETS - 1))
 			end)
 
 		local refreshInventory = UIElement:new({
@@ -2247,7 +2247,7 @@ do
 		})
 		refreshInventory:addAdaptedText(nil, TB_MENU_LOCALIZED.STOREINVENTORYRELOAD, nil, nil, nil, nil, 0.9)
 		refreshInventory:addMouseHandlers(nil, function()
-				Torishop:prepareInventory(tbMenuCurrentSection, true)
+				Torishop:prepareInventory(TBMenu.CurrentSection, true)
 			end)
 
 		local listElements = {}
@@ -2544,7 +2544,7 @@ do
 		TB_MENU_SPECIAL_SCREEN_ISOPEN = 1
 		viewElement:kill(true)
 
-		tbMenuNavigationBar:kill(true)
+		TBMenu.NavigationBar:kill(true)
 		TBMenu:showNavigationBar(Torishop:getNavigationButtons(), true)
 
 		if (reload or not TB_INVENTORY_LOADED) then
@@ -2634,7 +2634,7 @@ do
 					end
 					UIElement:runCmd("steam purchase " .. v.itemid)
 					local waitNotification = UIElement:new({
-						parent = tbMenuMain,
+						parent = TBMenu.MenuMain,
 						pos = { WIN_W / 2 - 200, WIN_H / 2 - 50 },
 						size = { 400, 100 },
 						bgColor = TB_MENU_DEFAULT_DARKER_COLOR
@@ -5216,7 +5216,7 @@ do
 		add_hook("draw2d", "storevanillapreview", function()
 				if (get_world_state().match_frame >= 15) then
 					add_hook("leave_game", "storevanillapreview", function()
-							tbMenuHide.btnUp()
+							TBMenu.HideButton.btnUp()
 						end)
 					edit_game()
 					dismember_joint(0, 3)
@@ -5298,7 +5298,7 @@ do
 
 	function Torishop:spawnVanillaControls(item)
 		storeVanillaHolder = UIElement:new({
-			parent = tbMenuMain,
+			parent = TBMenu.MenuMain,
 			pos = { 0, -WIN_H * 2 },
 			size = { WIN_W, WIN_H }
 		})
@@ -5337,8 +5337,8 @@ do
 		else
 			Torishop:spawnMinSectionView(item.catid)
 		end
-		tbMenuHide.btnUp()
-		for i,v in pairs(tbMenuHide.child) do
+		TBMenu.HideButton.btnUp()
+		for i,v in pairs(TBMenu.HideButton.child) do
 			v:hide()
 		end
 		close_menu()
@@ -5456,7 +5456,7 @@ do
 			})
 			getMoreQiText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREGETMORE .. " Qi", nil, nil, nil, LEFTMID)
 			getMoreQi:addMouseHandlers(nil, function()
-				Torishop:showStoreSection(tbMenuCurrentSection, 4, 3)
+				Torishop:showStoreSection(TBMenu.CurrentSection, 4, 3)
 			end)
 			buttonPos = buttonPos - buttonH * 1.2
 		end
@@ -5487,7 +5487,7 @@ do
 				if (item.now_usd_price > TB_MENU_PLAYER_INFO.data.st) then
 					buyWithStText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREGETMORE .. " ST", nil, nil, nil, LEFTMID)
 					buyWithSt:addMouseHandlers(nil, function()
-							Torishop:showStoreSection(tbMenuCurrentSection, 4, 2)
+							Torishop:showStoreSection(TBMenu.CurrentSection, 4, 2)
 						end)
 				else
 					buyWithStText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREBUYFOR .. " " .. PlayerInfo:currencyFormat(item.now_usd_price) .. " ST", nil, nil, nil, LEFTMID)
@@ -5537,7 +5537,7 @@ do
 			if (item.now_tc_price > TB_MENU_PLAYER_INFO.data.tc) then
 				buyWithTcText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREGETMORE .. " TC", nil, nil, nil, LEFTMID)
 				buyWithTc:addMouseHandlers(nil, function()
-					Torishop:showStoreSection(tbMenuCurrentSection, 4, 1)
+					Torishop:showStoreSection(TBMenu.CurrentSection, 4, 1)
 				end)
 			else
 				buyWithTcText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREBUYFOR .. " " .. PlayerInfo:currencyFormat(item.now_tc_price) .. " TC", nil, nil, nil, LEFTMID)
@@ -6236,13 +6236,13 @@ do
 	end
 
 	function Torishop:showSearchBar(viewElement, searchString)
-		if (not tbMenuBottomLeftBar) then
+		if (not TBMenu.BottomLeftBar) then
 			TBMenu:showBottomBar()
 		end
 		local searchHolder = UIElement:new({
 			parent = viewElement,
-			pos = { tbMenuBottomLeftBar.size.w, viewElement.size.h },
-			size = { viewElement.size.w - tbMenuBottomLeftBar.size.w * 2, 120 },
+			pos = { TBMenu.BottomLeftBar.size.w, viewElement.size.h },
+			size = { viewElement.size.w - TBMenu.BottomLeftBar.size.w * 2, 120 },
 			interactive = true
 		})
 		local searchBar = UIElement:new({
@@ -6421,7 +6421,7 @@ do
 				purchaseText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREGETMORE .. " TC")
 				purchaseButton:addMouseHandlers(nil, function()
 					overlay:kill()
-					Torishop:showStoreSection(tbMenuCurrentSection, 4, 1)
+					Torishop:showStoreSection(TBMenu.CurrentSection, 4, 1)
 				end)
 			else
 				purchaseText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREBUYWITH .. " TC")
@@ -6488,7 +6488,7 @@ do
 				purchaseText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREGETMORE .. " ST")
 				purchaseButton:addMouseHandlers(nil, function()
 					overlay:kill()
-					Torishop:showStoreSection(tbMenuCurrentSection, 4, 2)
+					Torishop:showStoreSection(TBMenu.CurrentSection, 4, 2)
 				end)
 			elseif (not stItem) then
 				purchaseText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREBUYWITH .. " " .. (is_steam() and "Steam" or "PayPal"))
@@ -6520,17 +6520,17 @@ do
 		TBMenu:showTextWithImage(viewStoreButton, TB_MENU_LOCALIZED.STOREVIEWIN1 .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.STOREVIEWIN2, FONTS.MEDIUM, viewStoreButton.size.h * 0.7 > 64 and 64 or viewStoreButton.size.h * 0.7, Torishop:getItemIcon(item))
 		viewStoreButton:addMouseHandlers(nil, function()
 				overlay:kill()
-				Torishop:showStoreSection(tbMenuCurrentSection, nil, nil, item.itemid)
+				Torishop:showStoreSection(TBMenu.CurrentSection, nil, nil, item.itemid)
 			end)
 	end
 
 	function Torishop:showPersonalDiscount(item)
-		tbMenuHide:hide()
+		TBMenu.HideButton:hide()
 		local itemInfo = Torishop:getItemInfo(item.itemid)
 		local discountView = UIElement:new({
-			parent = tbMenuCurrentSection,
-			pos = { tbMenuBottomLeftBar.shift.x + tbMenuBottomLeftBar.size.w, tbMenuCurrentSection.size.h + (WIN_H - tbMenuCurrentSection.size.h - tbMenuCurrentSection.pos.y) - tbMenuBottomLeftBar.size.h * 1.5 },
-			size = { tbMenuCurrentSection.size.w - (tbMenuBottomLeftBar.shift.x + tbMenuBottomLeftBar.size.w) * 2, math.ceil(tbMenuBottomLeftBar.size.h * 1.25) },
+			parent = TBMenu.CurrentSection,
+			pos = { TBMenu.BottomLeftBar.shift.x + TBMenu.BottomLeftBar.size.w, TBMenu.CurrentSection.size.h + (WIN_H - TBMenu.CurrentSection.size.h - TBMenu.CurrentSection.pos.y) - TBMenu.BottomLeftBar.size.h * 1.5 },
+			size = { TBMenu.CurrentSection.size.w - (TBMenu.BottomLeftBar.shift.x + TBMenu.BottomLeftBar.size.w) * 2, math.ceil(TBMenu.BottomLeftBar.size.h * 1.25) },
 			interactive = true,
 			bgColor = TB_MENU_DEFAULT_BG_COLOR,
 			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
@@ -6538,7 +6538,7 @@ do
 			shapeType = ROUNDED,
 			rounded = 5
 		})
-		discountView.killAction = function() tbMenuHide:show() end
+		discountView.killAction = function() TBMenu.HideButton:show() end
 
 		local sideWidth = math.min(discountView.size.w / 3, math.max(discountView.size.w / 4 - 15, 150))
 		local discountTitle = discountView:addChild({
@@ -6588,24 +6588,24 @@ do
 				itemInfoPrice:addAdaptedText(true, PlayerInfo:currencyFormat(itemInfo.now_tc_price) .. " " .. TB_MENU_LOCALIZED.WORDTC, nil, nil, nil, RIGHTMID)
 			end
 			discountView:addMouseHandlers(nil, function()
-					Torishop:showStoreSection(tbMenuCurrentSection, nil, nil, itemInfo.itemid)
+					Torishop:showStoreSection(TBMenu.CurrentSection, nil, nil, itemInfo.itemid)
 					Torishop:showStoreItemInfo(itemInfo)
 				end)
 		else
 			if (bit.band(item.paymentType, 4) > 0) then -- Allows steam purchases
 				itemInfoName:addAdaptedText(true, TB_MENU_LOCALIZED.STORENEXTUSDPURCHASE, nil, nil, nil, LEFTMID)
 				discountView:addMouseHandlers(nil, function()
-						Torishop:showStoreSection(tbMenuCurrentSection, nil, nil, 1538)
+						Torishop:showStoreSection(TBMenu.CurrentSection, nil, nil, 1538)
 					end)
 			elseif (bit.band(item.paymentType, 2) > 0 and not is_steam()) then -- No steam but allows PayPal purchases
 				itemInfoName:addAdaptedText(true, TB_MENU_LOCALIZED.STORENEXTPAYPALPURCHASE, nil, nil, nil, LEFTMID)
 				discountView:addMouseHandlers(nil, function()
-						Torishop:showStoreSection(tbMenuCurrentSection, nil, nil, 1538)
+						Torishop:showStoreSection(TBMenu.CurrentSection, nil, nil, 1538)
 					end)
 			elseif (bit.band(item.paymentType, 1) > 0) then
 				itemInfoName:addAdaptedText(true, TB_MENU_LOCALIZED.STORENEXTITEMPURCHASE, nil, nil, nil, LEFTMID)
 				discountView:addMouseHandlers(nil, function()
-						Torishop:showStoreSection(tbMenuCurrentSection, 1)
+						Torishop:showStoreSection(TBMenu.CurrentSection, 1)
 					end)
 			else
 				-- This can be either a paypal only discount shown to a steam user or a newly added payment type
@@ -6663,7 +6663,7 @@ do
 				disableUnload = true,
 				action = function()
 						if (TB_STORE_DATA.ready) then
-							Torishop:prepareInventory(tbMenuCurrentSection)
+							Torishop:prepareInventory(TBMenu.CurrentSection)
 						else
 							TBMenu:showDataError(TB_MENU_LOCALIZED.STOREDATALOADERROR)
 						end
@@ -6681,7 +6681,7 @@ do
 				image = "../textures/menu/store/sale.tga",
 				ratio = 0.5,
 				disableUnload = true,
-				action = function() if (saleFeatured) then Torishop:showStoreSection(tbMenuCurrentSection, nil, nil, saleFeatured.itemid) end end
+				action = function() if (saleFeatured) then Torishop:showStoreSection(TBMenu.CurrentSection, nil, nil, saleFeatured.itemid) end end
 			},
 			storecolors = {
 				title = TB_MENU_LOCALIZED.STORECOLORS,

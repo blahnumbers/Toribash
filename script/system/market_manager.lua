@@ -20,8 +20,8 @@ do
 	setmetatable(cln, Market)
 
 	function Market:quit()
-		tbMenuCurrentSection:kill(true)
-		tbMenuNavigationBar:kill(true)
+		TBMenu.CurrentSection:kill(true)
+		TBMenu.NavigationBar:kill(true)
 		TBMenu:showNavigationBar()
 		TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
 	end
@@ -1894,10 +1894,10 @@ do
 		end
 
 		offerViewBG:addMouseHandlers(nil, function()
-				Market:showItemPage(tbMenuCurrentSection, item, backAction)
+				Market:showItemPage(TBMenu.CurrentSection, item, backAction)
 			end)
 		offerExtraViewBG:addMouseHandlers(nil, function()
-				Market:showItemPage(tbMenuCurrentSection, item, backAction)
+				Market:showItemPage(TBMenu.CurrentSection, item, backAction)
 			end)
 
 		return { offerView, offerExtraView }
@@ -1960,7 +1960,7 @@ do
 				end
 			end)
 		offerBy:addMouseHandlers(nil, function()
-				Market:showUserShop(tbMenuCurrentSection, offer.username, backAction)
+				Market:showUserShop(TBMenu.CurrentSection, offer.username, backAction)
 			end)
 
 		itemNameWidth = offerBG.size.w - itemNameShift - offerBy.size.w - 25
@@ -2015,7 +2015,7 @@ do
 				end
 			end)
 		itemName:addMouseHandlers(nil, function()
-				Market:showItemPage(tbMenuCurrentSection, item, backAction)
+				Market:showItemPage(TBMenu.CurrentSection, item, backAction)
 			end)
 
 		local collapsed = {}
@@ -2211,16 +2211,16 @@ do
 	end
 
 	function Market:showSearchBar(searchString, searchOptions, hint)
-		tbMenuHide:hide()
+		TBMenu.HideButton:hide()
 		local searchBarView = UIElement:new({
-			parent = tbMenuCurrentSection,
-			pos = { tbMenuBottomLeftBar.shift.x + tbMenuBottomLeftBar.size.w, tbMenuCurrentSection.size.h + (WIN_H - tbMenuCurrentSection.size.h - tbMenuCurrentSection.pos.y) - tbMenuBottomLeftBar.size.h * 1.3 },
-			size = { tbMenuCurrentSection.size.w - (tbMenuBottomLeftBar.shift.x + tbMenuBottomLeftBar.size.w) * 2, tbMenuBottomLeftBar.size.h * 0.8 },
+			parent = TBMenu.CurrentSection,
+			pos = { TBMenu.BottomLeftBar.shift.x + TBMenu.BottomLeftBar.size.w, TBMenu.CurrentSection.size.h + (WIN_H - TBMenu.CurrentSection.size.h - TBMenu.CurrentSection.pos.y) - TBMenu.BottomLeftBar.size.h * 1.3 },
+			size = { TBMenu.CurrentSection.size.w - (TBMenu.BottomLeftBar.shift.x + TBMenu.BottomLeftBar.size.w) * 2, TBMenu.BottomLeftBar.size.h * 0.8 },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR,
 			shapeType = ROUNDED,
 			rounded = 5
 		})
-		searchBarView.killAction = function() tbMenuHide:show() end
+		searchBarView.killAction = function() TBMenu.HideButton:show() end
 
 		local searchInput = TBMenu:spawnTextField(searchBarView, nil, nil, nil, nil, searchString, nil, 4, 0.7, UICOLORWHITE, hint and hint or TB_MENU_LOCALIZED.STORESEARCHHINT, CENTERMID, nil, nil, true)
 		searchInput:addKeyboardHandlers(function()
@@ -2241,7 +2241,7 @@ do
 						table.insert(dropdownList, {
 							text = TB_MENU_LOCALIZED.MARKETITEMCATEGORY .. ": " .. v.name,
 							action = function()
-								Market:showSearchOffers(tbMenuCurrentSection, v.name, searchOptions or { distinct = 1 })
+								Market:showSearchOffers(TBMenu.CurrentSection, v.name, searchOptions or { distinct = 1 })
 							end
 						})
 						searchBarView.hasCategories = true
@@ -2251,7 +2251,7 @@ do
 					for i,v in pairs(qsort(searchResults.items, 'itemname')) do
 						table.insert(dropdownList, {
 							text = v.itemname,
-							action = function() Market:showItemPage(tbMenuCurrentSection, v) end
+							action = function() Market:showItemPage(TBMenu.CurrentSection, v) end
 						})
 					end
 				end
@@ -2273,7 +2273,7 @@ do
 				if (showDistinct == 0) then
 					showDistinct = searchBarView.options and (#searchBarView.options > 1 and 1 or 0) or 0
 				end
-				Market:showSearchOffers(tbMenuCurrentSection, inputText, searchOptions or { distinct = showDistinct })
+				Market:showSearchOffers(TBMenu.CurrentSection, inputText, searchOptions or { distinct = showDistinct })
 			end)
 	end
 
@@ -2990,7 +2990,7 @@ do
 				rounded = 4
 			})
 			offerViewBG:addMouseHandlers(nil, function()
-					Market:showItemPage(tbMenuCurrentSection, item)
+					Market:showItemPage(TBMenu.CurrentSection, item)
 				end)
 			local offerIcon = UIElement:new({
 				parent = offerViewBG,
@@ -3238,7 +3238,7 @@ do
 		})
 		viewShopButton:addAdaptedText(false, TB_MENU_LOCALIZED.MARKETVIEWMYSHOP)
 		viewShopButton:addMouseHandlers(nil, function()
-				Market:showUserShop(tbMenuCurrentSection, TB_MENU_PLAYER_INFO.username)
+				Market:showUserShop(TBMenu.CurrentSection, TB_MENU_PLAYER_INFO.username)
 			end)
 	end
 
@@ -3791,7 +3791,7 @@ do
 			featuredTitleUser:addAdaptedText(true, TB_MENU_LOCALIZED.WORDBY .. " " .. MARKET_FEATURED_SHOP_DATA.user, nil, nil, nil, RIGHT, nil, nil, nil, 1.5)
 			local targetShop = cloneTable(MARKET_FEATURED_SHOP_DATA)
 			featuredShop:addMouseHandlers(nil, function()
-					Market:showUserShop(tbMenuCurrentSection, targetShop.user)
+					Market:showUserShop(TBMenu.CurrentSection, targetShop.user)
 					usage_event("marketplace_featured_shop")
 				end)
 		end

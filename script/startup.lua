@@ -81,7 +81,7 @@ function get_hooks()
 			hooks_copy[event][name] = func
 		end
 	end
-	
+
 	return hooks_copy
 end
 
@@ -108,7 +108,7 @@ if (startup == nil) then
 		if(datadir == nil) then dir = dir .. "data/script/" end
 		return old_dofile(dir.. filename)
 	end
-	
+
 	local old_loadfile = loadfile
 	loadfile = function (filename, datadir)
 		local dir = "./"
@@ -119,17 +119,17 @@ if (startup == nil) then
 	local old_io_open = io.open
 	io.open = function (filename, mode, datadir)
 		-- Simple check for valid access
-		
+
 		local dir = "./"
 		if(datadir == nil) then dir = dir .. "data/script/" end
 
 		if string.find(filename:lower(), "tb_login.dat", 1, true) or string.find(filename, "../", 1, true) or string.find(filename, "..\\", 1, true) or string.find(filename:lower(), "startup.lua", 1, true) then
 			return nil, "invalid access"
 		end
-		
+
 		return old_io_open(dir .. filename, mode);
 	end
-	
+
 	local old_require = require
 	require = function(path)
 		package.cpath = "" --no loading of c modules
@@ -140,7 +140,7 @@ if (startup == nil) then
 	function read_replay(filename)
 		return old_io_open("./replay/" .. filename, "r")
 	end
-	
+
 	--commands that can be abused.
 	os.execute = nil
 	os.exit = nil

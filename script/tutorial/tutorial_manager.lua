@@ -115,7 +115,7 @@ do
 			download_server_file("tutorial_" .. id .. "&language=" .. TB_MENU_LOCALIZED.language, 0)
 			TBMenu:showDataError(TB_MENU_LOCALIZED.TUTORIALNODATAFOUND)
 			Tutorials:quit()
-			tbMenuDataErrorMessage:reload()
+			TBMenu.StatusMessage:reload()
 			return false
 		end
 		local tutorialData = tutorial:readAll()
@@ -1934,8 +1934,8 @@ do
 			{
 				text = TB_MENU_LOCALIZED.NAVBUTTONTOMAIN,
 				action = function()
-						tbMenuCurrentSection:kill(true)
-						tbMenuNavigationBar:kill(true)
+						TBMenu.CurrentSection:kill(true)
+						TBMenu.NavigationBar:kill(true)
 						TBMenu:showNavigationBar()
 						TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
 					end,
@@ -2099,14 +2099,15 @@ do
 	end
 
 	function Tutorials:loadHooks()
-		add_hook("mouse_button_down", "uiMouseHandler", function(s, x, y)
+		-- These are already handled in UIElement:mouseHooks()
+		--[[add_hook("mouse_button_down", "uiMouseHandler", function(s, x, y)
 				UIElement:handleMouseDn(s, x, y)
 				if (TUTORIALJOINTLOCK or (not TUTORIALJOINTLOCK and TUTORIALKEYBOARDLOCK)) then
 					return Tutorials:ignoreMouseClick()
 				end
 			end)
 		add_hook("mouse_button_up", "uiMouseHandler", function(s, x, y) UIElement:handleMouseUp(s, x, y) end)
-		add_hook("mouse_move", "uiMouseHandler", function(x, y) UIElement:handleMouseHover(x, y) end)
+		add_hook("mouse_move", "uiMouseHandler", function(x, y) UIElement:handleMouseHover(x, y) end)]]
 		add_hook("key_down", "tbTutorialKeyboardHandler", function(key, kcode)
 				return Tutorials:ignoreKeyPress(key, kcode, true, true)
 			end)

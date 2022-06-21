@@ -42,16 +42,16 @@ do
 
 		TB_NETWORK_LASTREQUEST = response.id
 		add_hook("network_error", name, function()
-				if (TB_MENU_DEBUG) then echo(get_network_error()) end
+				if (TB_MENU_DEBUG) then print_r(get_network_error()) end
 				Request:finalize(name)
 				response.failed = true
-				pcall(function() error(response) end)
+				error(response)
 				response.ready = true
 			end)
 		add_hook("network_complete", name, function()
-				if (TB_MENU_DEBUG) then echo(get_network_response()) end
+				if (TB_MENU_DEBUG) then print_r(get_network_response()) end
 				Request:finalize(name)
-				pcall(function() success(response) end)
+				success(response)
 				response.ready = true
 			end)
 

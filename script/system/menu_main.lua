@@ -48,9 +48,9 @@ if (TB_MENU_MAIN_ISOPEN == 1) then
 	chat_input_activate()
 
 	TB_MENU_MAIN_ISOPEN = 0
-	if (tbMenuMain) then
-		tbMenuMain:kill()
-		tbMenuMain = nil
+	if (TBMenu.MenuMain) then
+		TBMenu.MenuMain:kill()
+		TBMenu.MenuMain = nil
 	end
 	return
 end
@@ -70,7 +70,7 @@ TB_MENU_GLOBAL_SCALE = math.min(WIN_H > 720 and 1 or WIN_H / 720, WIN_W > 1280 a
 dofile("system/menu_defines.lua")
 require("system/iofiles")
 require("system/menu_manager")
-TBMenu:create()
+TBMenu:open()
 
 dofile("system/menu_backend_defines.lua")
 require("system/network_request")
@@ -124,9 +124,9 @@ if (launchOption == "15") then
 elseif (launchOption == "friendslist") then
 	TBMenu:showMain(true)
 	TBMenu:showFriendsList()
-elseif (launchOption == "matchmake" and TB_MENU_SPECIAL_SCREEN_ISOPEN == 2) then
+--[[elseif (launchOption == "matchmake" and TB_MENU_SPECIAL_SCREEN_ISOPEN == 2) then
 	TBMenu:showMain(true)
-	TBMenu:showMatchmaking()
+	TBMenu:showMatchmaking()]]
 elseif (launchOption:match("clans ")) then
 	TBMenu:showMain(true)
 	local clantag = launchOption:gsub("clans ", "")
@@ -170,7 +170,7 @@ if (not DEFAULT_ATMOSPHERE_ISSET) then
 			remove_hooks("atmodefault")
 		end)
 	local loginRewardWaiter = UIElement:new({
-		parent = tbMenuMain,
+		parent = TBMenu.MenuMain,
 		pos = { 0, 0 },
 		size = { 0, 0 }
 	})
@@ -199,6 +199,9 @@ add_hook("downloader_complete", "tbMainMenuStatic", function(filename)
 				TB_MENU_PLAYER_INFO.items = PlayerInfo:getItems(TB_MENU_PLAYER_INFO.username)
 				TB_MENU_PLAYER_INFO.clan = PlayerInfo:getClan(TB_MENU_PLAYER_INFO.username)
 				TB_MENU_CUSTOMS_REFRESHED = true
+				if (TB_MENU_MAIN_ISOPEN == 1) then
+					TBMenu:showUserBar()
+				end
 			end)
 		elseif (filename:find("data/store.txt")) then
 			Downloader:safeCall(function() TB_STORE_DATA, TB_STORE_SECTIONS = Torishop:getItems() end)
@@ -233,12 +236,9 @@ add_hook("downloader_complete", "tbMainMenuStatic", function(filename)
 		end
 	end)
 
+-- Clear any custom discord RPC message that was set earlier
 add_hook("new_mp_game", "tbMainMenuStatic", function()
-		TB_MATCHMAKER_SEARCHSTATUS = nil
 		set_discord_rpc("", "")
-		if (TB_MENU_MAIN_ISOPEN == 1) then
-			close_menu()
-		end
 	end)
 
 -- Keep hub elements always displayed above tooltip and movememory

@@ -4,7 +4,7 @@ require("system/menu_defines")
 require("system/menu_manager")
 require("system/store_manager")
 require("system/player_info")
-require("system/matchmake_manager")
+require("system/ranking_manager")
 
 if (BattlePass == nil or TB_MENU_DEBUG) then
 	---@class BattlePassLevel
@@ -60,7 +60,7 @@ function BattlePass:getNavigationButtons(showBack)
 	local buttonsData = {
 		{
 			text = TB_MENU_LOCALIZED.NAVBUTTONTOMAIN,
-			action = function() Matchmake:quit() end,
+			action = function() Ranking:quit() end,
 			width = get_string_length(TB_MENU_LOCALIZED.NAVBUTTONTOMAIN, FONTS.BIG) * 0.65 + 30
 		}
 	}
@@ -68,8 +68,8 @@ function BattlePass:getNavigationButtons(showBack)
 		table.insert(buttonsData, {
 			text = TB_MENU_LOCALIZED.NAVBUTTONBACK,
 			action = function()
-				tbMenuCurrentSection:kill(true)
-				tbMenuNavigationBar:kill(true)
+				TBMenu.CurrentSection:kill(true)
+				TBMenu.NavigationBar:kill(true)
 				TBMenu:showNavigationBar()
 				TBMenu:showBattlepass()
 			end
@@ -150,7 +150,7 @@ function BattlePass:getUserData(viewElement)
 			if (viewElement and not viewElement.destroyed) then
 				BattlePass:showMain()
 			elseif (TB_MENU_MAIN_ISOPEN == 1 and TB_MENU_SPECIAL_SCREEN_ISOPEN == 0) then
-				tbMenuNavigationBar:kill(true)
+				TBMenu.NavigationBar:kill(true)
 				TBMenu:showNavigationBar()
 			end
 		end)
@@ -794,10 +794,10 @@ end
 ---Displays Battle Pass main screen
 ---@return nil
 function BattlePass:showMain()
-	tbMenuCurrentSection:kill(true)
+	TBMenu.CurrentSection:kill(true)
 
 	if (not BattlePass.UserData or BattlePass.UserData.qi ~= TB_MENU_PLAYER_INFO.data.qi) then
-		local battlePassLoading = tbMenuCurrentSection:addChild({
+		local battlePassLoading = TBMenu.CurrentSection:addChild({
 			shift = { 5, 0 },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
@@ -807,11 +807,11 @@ function BattlePass:showMain()
 		return
 	end
 
-	local leftHeight = (tbMenuCurrentSection.size.h - 90) / 3 - 5
-	local leftWidth = math.min(leftHeight * 2.5, tbMenuCurrentSection.size.w * 0.3)
-	local battlePassProgressHolder = tbMenuCurrentSection:addChild({
+	local leftHeight = (TBMenu.CurrentSection.size.h - 90) / 3 - 5
+	local leftWidth = math.min(leftHeight * 2.5, TBMenu.CurrentSection.size.w * 0.3)
+	local battlePassProgressHolder = TBMenu.CurrentSection:addChild({
 		pos = { 5, 0 },
-		size = { tbMenuCurrentSection.size.w - 10, 80 },
+		size = { TBMenu.CurrentSection.size.w - 10, 80 },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR,
 		bgImage = "../textures/menu/battlepass/romanpattern2.tga",
 		imagePatterned = true,
@@ -819,30 +819,16 @@ function BattlePass:showMain()
 	})
 	BattlePass:showProgress(battlePassProgressHolder)
 
-	local battlePassPrizesHolder = tbMenuCurrentSection:addChild(({
+	local battlePassPrizesHolder = TBMenu.CurrentSection:addChild(({
 		pos = { 5, battlePassProgressHolder.size.h + 10 },
-		size = { tbMenuCurrentSection.size.w - leftWidth - 20, tbMenuCurrentSection.size.h - battlePassProgressHolder.size.h - 10 },
+		size = { TBMenu.CurrentSection.size.w - leftWidth - 20, TBMenu.CurrentSection.size.h - battlePassProgressHolder.size.h - 10 },
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR
 	}))
 	TBMenu:addBottomBloodSmudge(battlePassPrizesHolder, 1)
 	BattlePass:showPrizes(battlePassPrizesHolder)
 
-	local battlePassInfoButton = tbMenuCurrentSection:addChild({
+	local battlePassSeasonButton = TBMenu.CurrentSection:addChild({
 		pos = { battlePassPrizesHolder.shift.x + battlePassPrizesHolder.size.w + 10, battlePassProgressHolder.size.h + 10 },
-		size = { leftWidth, leftHeight },
-		bgColor = TB_MENU_DEFAULT_BG_COLOR,
-		interactive = true,
-		hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
-		pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-		hoverSound = 31
-	})
-	TBMenu:showHomeButton(battlePassInfoButton, {
-		image = "../textures/menu/battlepass/battlepass.tga",
-		ratio = 0.375,
-		action = function() end
-	})
-	local battlePassSeasonButton = tbMenuCurrentSection:addChild({
-		pos = { battlePassInfoButton.shift.x, battlePassInfoButton.shift.y + battlePassInfoButton.size.h + 10 },
 		size = { leftWidth, leftHeight },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR,
 		interactive = true,
@@ -856,10 +842,10 @@ function BattlePass:showMain()
 		disableUnload = true,
 		locked = TB_MENU_PLAYER_INFO.data.qi < 200,
 		lockedMessage = "Unlocks at Blue Belt",
-		action = Matchmake.showGlobalRanking
+		action = Ranking.showGlobalRanking
 	})
-	local battlePassQuestsButton = tbMenuCurrentSection:addChild({
-		pos = { battlePassInfoButton.shift.x, battlePassSeasonButton.shift.y + battlePassSeasonButton.size.h + 10 },
+	local battlePassQuestsButton = TBMenu.CurrentSection:addChild({
+		pos = { battlePassSeasonButton.shift.x, battlePassSeasonButton.shift.y + battlePassSeasonButton.size.h + 10 },
 		size = { leftWidth, leftHeight },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR,
 		interactive = true,
@@ -870,6 +856,7 @@ function BattlePass:showMain()
 	TBMenu:showHomeButton(battlePassQuestsButton, {
 		image = "../textures/menu/battlepass/battlepassquests.tga",
 		ratio = 0.375,
+		disableUnload = true,
 		action = function()
 			Quests:showMain(true, function()
 					TBMenu:clearNavSection()
@@ -877,6 +864,23 @@ function BattlePass:showMain()
 					BattlePass:showMain()
 				end)
 		end
+	})
+	local battlePassInfoButton = TBMenu.CurrentSection:addChild({
+		pos = { battlePassSeasonButton.shift.x, battlePassQuestsButton.shift.y + battlePassQuestsButton.size.h + 10 },
+		size = { leftWidth, leftHeight },
+		bgColor = TB_MENU_DEFAULT_BG_COLOR,
+		interactive = true,
+		hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		hoverSound = 31
+	})
+	TBMenu:showHomeButton(battlePassInfoButton, {
+		image = "../textures/menu/battlepass/battlepassinfo.tga",
+		ratio = 0.375,
+		disableUnload = true,
+		action = function()
+				Events:showEventInfo(3)
+			end
 	}, 2)
 end
 

@@ -1525,6 +1525,9 @@ do
 		add_hook("mouse_button_down", "uiMouseHandler", function(s, x, y)
 				local toReturn = TB_MENU_MAIN_ISOPEN == 1 and 1 or 0
 				toReturn = UIElement:handleMouseDn(s, x, y) or toReturn
+				if (Tutorials and (TUTORIALJOINTLOCK or (not TUTORIALJOINTLOCK and TUTORIALKEYBOARDLOCK))) then
+					toReturn = Tutorials:ignoreMouseClick() or toReturn
+				end
 				return toReturn
 			end)
 		add_hook("mouse_button_up", "uiMouseHandler", function(s, x, y)

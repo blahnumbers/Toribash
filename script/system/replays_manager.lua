@@ -16,12 +16,12 @@ do
 		TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
 		if (get_option("newmenu") == 0) then
 			FRIENDSLIST_OPEN = false
-			tbMenuMain:kill()
+			TBMenu.MenuMain:kill()
 			remove_hooks("tbMainMenuVisual")
 			return
 		end
-		tbMenuCurrentSection:kill(true)
-		tbMenuNavigationBar:kill(true)
+		TBMenu.CurrentSection:kill(true)
+		TBMenu.NavigationBar:kill(true)
 		TBMenu:showNavigationBar()
 		TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
 	end
@@ -38,7 +38,7 @@ do
 		if (isOnline) then
 			table.insert(navigation, {
 				text = TB_MENU_LOCALIZED.REPLAYSLOCAL,
-				action = function() Replays:showMain(tbMenuCurrentSection) end,
+				action = function() Replays:showMain(TBMenu.CurrentSection) end,
 				width = get_string_length(TB_MENU_LOCALIZED.REPLAYSLOCAL, FONTS.BIG) * 0.65 + 30,
 				right = true
 			})
@@ -357,7 +357,7 @@ do
 	end
 
 	function Replays:getReplayFiles(parentElement, includeEventTemp)
-		local parentElement = parentElement or tbMenuMain
+		local parentElement = parentElement or TBMenu.MenuMain
 		TB_MENU_REPLAYS_LOADED = false
 
 		-- Make sure replays table is flushed first
@@ -800,7 +800,7 @@ do
 		file:close()
 		TB_MENU_REPLAYS = { name = "replay", fullname = "replay" }
 		SELECTED_FOLDER = { fullname = "replay" }
-		Replays:showMain(tbMenuCurrentSection)
+		Replays:showMain(TBMenu.CurrentSection)
 	end
 
 	function Replays:showList(viewElement, replayInfo, level, doSearch)
@@ -1341,7 +1341,7 @@ do
 					replay.tags = newreplay.tags
 				end
 				tagsOverlay:kill()
-				Replays:showMain(tbMenuCurrentSection)
+				Replays:showMain(TBMenu.CurrentSection)
 			end)
 	end
 
@@ -1408,7 +1408,7 @@ do
 				if (#SELECTED_FOLDER.replays == 0 and #SELECTED_FOLDER.folders == 0) then
 					delete_folder(SELECTED_FOLDER)
 					editFolderOverlay:kill()
-					Replays:showMain(tbMenuCurrentSection)
+					Replays:showMain(TBMenu.CurrentSection)
 				else
 					local function delete_folder_with_files(folder, targetFolder)
 						local targetFolder = targetFolder or folder.fullname:gsub("^replay/", ""):gsub(folder.name .. ".*$", "")
@@ -1424,7 +1424,7 @@ do
 						end
 						delete_folder(folder)
 					end
-					TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.REPLAYSFOLDERNOTEMPTYDELETEWARNING, function() delete_folder_with_files(SELECTED_FOLDER) editFolderOverlay:kill() Replays:showMain(tbMenuCurrentSection) end)
+					TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.REPLAYSFOLDERNOTEMPTYDELETEWARNING, function() delete_folder_with_files(SELECTED_FOLDER) editFolderOverlay:kill() Replays:showMain(TBMenu.CurrentSection) end)
 				end
 			end)
 		local cancelButton = UIElement:new({
@@ -1468,7 +1468,7 @@ do
 				end
 				SELECTED_FOLDER = { fullname = parentFolder .. newFolderName }
 				editFolderOverlay:kill()
-				Replays:showMain(tbMenuCurrentSection)
+				Replays:showMain(TBMenu.CurrentSection)
 			end)
 	end
 
@@ -1557,7 +1557,7 @@ do
 			end
 			newFolderOverlay:kill()
 			SELECTED_FOLDER = { fullname = "replay/" .. newFolderName }
-			Replays:showMain(tbMenuCurrentSection)
+			Replays:showMain(TBMenu.CurrentSection)
 		end
 		newFolderInput:addEnterAction(spawnNewFolder)
 		saveButton:addMouseHandlers(nil, spawnNewFolder)
@@ -1771,7 +1771,7 @@ do
 		end
 
 		local dropdownOverlay = UIElement:new({
-			parent = tbMenuMain,
+			parent = TBMenu.MenuMain,
 			pos = { 0, 0 },
 			size = { WIN_W, WIN_H },
 			interactive = true
@@ -2022,7 +2022,7 @@ do
 					Replays:updateReplayCache(replay, newReplay)
 					manageOverlay:kill()
 					SELECTED_REPLAY.replay = newReplay
-					Replays:showMain(tbMenuCurrentSection)
+					Replays:showMain(TBMenu.CurrentSection)
 				end
 			end)
 
@@ -2046,7 +2046,7 @@ do
 						manageOverlay:kill()
 						Replays:updateReplayCache(replay, nil)
 						SELECTED_REPLAY.replay = nil
-						Replays:showMain(tbMenuCurrentSection)
+						Replays:showMain(TBMenu.CurrentSection)
 					end)
 			end)
 	end
@@ -2550,9 +2550,9 @@ do
 
 	function Replays:showReplayDownloadPopup(rplname)
 		local notificationView = UIElement:new({
-			parent = tbMenuMain,
-			pos = { tbMenuMain.size.w / 3, -60 },
-			size = { tbMenuMain.size.w / 3, 60 },
+			parent = TBMenu.MenuMain,
+			pos = { TBMenu.MenuMain.size.w / 3, -60 },
+			size = { TBMenu.MenuMain.size.w / 3, 60 },
 			bgColor = { 0, 0, 0, 0.8 }
 		})
 		notificationView:addAdaptedText(false, TB_MENU_LOCALIZED.REPLAYSDOWNLOADINGREPLAY, nil, nil, nil, nil, nil, nil, nil, nil, { 1, 1, 1, notificationView.bgColor[4] })
@@ -2980,9 +2980,9 @@ do
 				local info = replay.id .. ";" .. replayVote.score .. ";" .. voteCommentInput.textfieldstr[1]
 				show_dialog_box(REPLAY_VOTE, TB_MENU_LOCALIZED.REPLAYSVOTECONFIRM1 .. " " .. replayVote.score .. " " .. TB_MENU_LOCALIZED.REPLAYSVOTECONFIRM2, info)
 				local waitOverlay = UIElement:new({
-					parent = tbMenuMain,
+					parent = TBMenu.MenuMain,
 					pos = { 0, 0 },
-					size = { tbMenuMain.size.w, tbMenuMain.size.h },
+					size = { TBMenu.MenuMain.size.w, TBMenu.MenuMain.size.h },
 					interactive = true
 				})
 				waitOverlay:addMouseHandlers(nil, nil, function(x)
@@ -3075,11 +3075,11 @@ do
 	end
 
 	function Replays:showReplayComments(replay)
-		tbMenuCurrentSection:kill(true)
+		TBMenu.CurrentSection:kill(true)
 		local commentsView = UIElement:new({
-			parent = tbMenuCurrentSection,
+			parent = TBMenu.CurrentSection,
 			pos = { 5, 0 },
-			size = { tbMenuCurrentSection.size.w - 10, tbMenuCurrentSection.size.h },
+			size = { TBMenu.CurrentSection.size.w - 10, TBMenu.CurrentSection.size.h },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
 		local elementHeight = 31
@@ -3248,9 +3248,9 @@ do
 	end
 
 	function Replays:showServerReplays()
-		local viewElement = tbMenuCurrentSection
+		local viewElement = TBMenu.CurrentSection
 		viewElement:kill(true)
-		tbMenuNavigationBar:kill(true)
+		TBMenu.NavigationBar:kill(true)
 		TBMenu:showNavigationBar(Replays:getNavigationButtons(true), true)
 
 		local replaysList = UIElement:new({
@@ -3271,7 +3271,7 @@ do
 
 	function Replays:showMain(viewElement)
 		usage_event("replays")
-		tbMenuNavigationBar:kill(true)
+		TBMenu.NavigationBar:kill(true)
 		TBMenu:showNavigationBar(Replays:getNavigationButtons(), true)
 		viewElement:kill(true)
 		local status, error = pcall(function() Replays:getReplayFiles() end)

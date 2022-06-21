@@ -19,7 +19,7 @@ do
 	UIVisual3DManagerViewport = UIVisual3DManagerViewport or {}
 
 	if (not UIElement3D) then
-		UIElement3D = UIElement:new()
+		UIElement3D = UIElement:new(nil)
 	end
 
 	function UIElement3D:new(o)

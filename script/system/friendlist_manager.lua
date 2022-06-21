@@ -9,13 +9,13 @@ do
 	function FriendsList:quit()
 		if (get_option("newmenu") == 0) then
 			FRIENDSLIST_OPEN = false
-			tbMenuMain:kill()
+			TBMenu.MenuMain:kill()
 			remove_hooks("tbMainMenuVisual")
 			return
 		end
 		TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
-		tbMenuCurrentSection:kill(true)
-		tbMenuNavigationBar:kill(true)
+		TBMenu.CurrentSection:kill(true)
+		TBMenu.NavigationBar:kill(true)
 		TBMenu:showNavigationBar()
 		TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
 	end

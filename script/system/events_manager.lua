@@ -7,8 +7,8 @@ do
 	setmetatable(cln, Events)
 
 	function Events:quit()
-		tbMenuCurrentSection:kill(true)
-		tbMenuNavigationBar:kill(true)
+		TBMenu.CurrentSection:kill(true)
+		TBMenu.NavigationBar:kill(true)
 		TBMenu:showNavigationBar()
 		TB_MENU_EVENTS_OPEN = false
 		TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
@@ -25,7 +25,7 @@ do
 		if (showBack) then
 			table.insert(navigation, {
 				text = TB_MENU_LOCALIZED.NAVBUTTONBACK,
-				action = function() Events:showEventsHome(tbMenuCurrentSection) end
+				action = function() Events:showEventsHome(TBMenu.CurrentSection) end
 			})
 		end
 		if (showEventid) then
@@ -297,7 +297,7 @@ do
 								background:kill()
 							else
 								background:kill()
-								Events:loadMovember(tbMenuCurrentSection)
+								Events:loadMovember(TBMenu.CurrentSection)
 							end
 						end)
 				end)
@@ -1477,8 +1477,6 @@ do
 	function Events:showEventDescription(viewElement, event)
 		local elementHeight = 41
 		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 60, 60, 20, { 0, 0, 0, 0 })
-		listingView.bgColor = cloneTable(event.accentColor)
-		listingView.bgColor[4] = event.overlaytransparency or 0.7
 
 		local listElements = {}
 		for i, info in pairs(event.data) do
@@ -1491,7 +1489,7 @@ do
 					bgImage = info.imagetitle
 				})
 				table.insert(listElements, infoTitle)
-			elseif (info.title) then
+			elseif (info.title ~= '') then
 				local infoTitle = UIElement:new({
 					parent = listingHolder,
 					pos = { 10, #listElements * elementHeight },
@@ -1582,8 +1580,6 @@ do
 	function Events:showEventPrizes(viewElement, event)
 		local elementHeight = 41
 		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 60, 60, 20, { 0, 0, 0, 0 })
-		listingView.bgColor = cloneTable(event.accentColor)
-		listingView.bgColor[4] = event.overlaytransparency or 0.7
 
 		local listElements = {}
 		if (event.prizes.imagetitle) then
@@ -1701,22 +1697,27 @@ do
 		if (event.eventid or event.image) then
 			local backgroundImage = viewElement:addChild({
 				shift = { 0, 60 },
-				bgImage = { event.image ~= nil and event.image or ("../textures/menu/promo/events/" .. event.eventid .. ".tga"), "" }
+				bgImage = { event.image ~= nil and event.image or ("../textures/menu/promo/events/" .. event.eventid .. ".tga"), "" },
+				imageColor = event.overlaytransparency and { 1, 1, 1, 1 - event.overlaytransparency } or nil,
+				disableUnload = true
 			})
 		end
 
 		local descriptionView = UIElement:new({
 			parent = viewElement,
 			pos = { 0, 0 },
-			size = { viewElement.size.w * 0.6, viewElement.size.h }
+			size = { event.prizes and viewElement.size.w * 0.6 or viewElement.size.w, viewElement.size.h }
 		})
 		local dtopBar, dbotBar = Events:showEventDescription(descriptionView, event)
-		local prizesView = UIElement:new({
-			parent = viewElement,
-			pos = { descriptionView.size.w, 0 },
-			size = { viewElement.size.w - descriptionView.size.w, viewElement.size.h }
-		})
-		local ptopBar, pbotBar = Events:showEventPrizes(prizesView, event)
+		local ptopBar, pbotBar = dtopBar, dbotBar
+		if (event.prizes) then
+			local prizesView = UIElement:new({
+				parent = viewElement,
+				pos = { descriptionView.size.w, 0 },
+				size = { viewElement.size.w - descriptionView.size.w, viewElement.size.h }
+			})
+			ptopBar, pbotBar = Events:showEventPrizes(prizesView, event)
+		end
 
 		local eventName = UIElement:new({
 			parent = dtopBar,
@@ -1724,8 +1725,10 @@ do
 			size = { viewElement.size.w - (dtopBar.size.h - 30), dtopBar.size.h - 10 },
 			bgColor = event.accentColor
 		})
-		table.insert(ptopBar.child, eventName)
-		eventName:addAdaptedText(false, event.name, nil, nil, FONTS.BIG, nil, 0.75)
+		if (event.prizes) then
+			table.insert(ptopBar.child, eventName)
+		end
+		eventName:addAdaptedText(true, event.name, nil, nil, FONTS.BIG, nil, 0.75, nil, 0.5)
 
 		local eventForumLinkHolderBG = dbotBar:addChild({
 			pos = { 5, 0 },
@@ -1774,7 +1777,7 @@ do
 				rounded = 3
 			})
 			table.insert(pbotBar.child, eventForumLink)
-			TBMenu:showTextExternal(eventForumLink, "View event on forums")
+			TBMenu:showTextExternal(eventForumLink, "View event on forums", true)
 			eventForumLink:addMouseHandlers(nil, function()
 					open_url(event.forumlink)
 				end)
@@ -1830,15 +1833,12 @@ do
 			shapeType = ROUNDED,
 			interactive = true
 		})
-		local closeTexture = "../textures/menu/general/buttons/crosswhite.tga"
-		if (delta > 1.5) then
-			closeTexture = "../textures/menu/general/buttons/crossblack.tga"
-		end
 		local closeImage = UIElement:new({
 			parent = closeButton,
 			pos = { 5, 5 },
 			size = { closeButton.size.w - 10, closeButton.size.h - 10 },
-			bgImage = closeTexture
+			bgImage = "../textures/menu/general/buttons/crosswhite.tga",
+			imageColor = viewElement.bgColor
 		})
 		table.insert(dtopBar.child, closeButton)
 		closeButton:addMouseHandlers(nil, function()

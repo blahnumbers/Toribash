@@ -47,13 +47,13 @@ do
 
 	function Bounty:quit()
 		if (get_option("newmenu") == 0) then
-			tbMenuMain:kill()
+			TBMenu.MenuMain:kill()
 			remove_hooks("tbMainMenuVisual")
 			return
 		end
 		TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
-		tbMenuCurrentSection:kill(true)
-		tbMenuNavigationBar:kill(true)
+		TBMenu.CurrentSection:kill(true)
+		TBMenu.NavigationBar:kill(true)
 		TBMenu:showNavigationBar()
 		TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
 	end
@@ -827,11 +827,11 @@ do
 					return 1
 				end
 			end)
-		tbMenuCurrentSection:kill(true)
+		TBMenu.CurrentSection:kill(true)
 		local mainView = UIElement:new({
-			parent = tbMenuCurrentSection,
+			parent = TBMenu.CurrentSection,
 			pos = { 5, 0 },
-			size = { tbMenuCurrentSection.size.w / 5 * 3 - 10, tbMenuCurrentSection.size.h },
+			size = { TBMenu.CurrentSection.size.w / 5 * 3 - 10, TBMenu.CurrentSection.size.h },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
 		local playerStatsView = UIElement:new({
@@ -871,9 +871,9 @@ do
 			end)
 
 		local bountyList = UIElement:new({
-			parent = tbMenuCurrentSection,
+			parent = TBMenu.CurrentSection,
 			pos = { mainView.size.w + 15, 0 },
-			size = { tbMenuCurrentSection.size.w / 5 * 2 - 10, tbMenuCurrentSection.size.h },
+			size = { TBMenu.CurrentSection.size.w / 5 * 2 - 10, TBMenu.CurrentSection.size.h },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
 		Bounty:showBountyList(bountyList)
@@ -901,7 +901,7 @@ do
 	end
 
 	function Bounty:prepare(reload)
-		tbMenuCurrentSection:kill(true)
+		TBMenu.CurrentSection:kill(true)
 
 		PlayerBounties = {}
 		TB_MENU_SPECIAL_SCREEN_ISOPEN = 7
@@ -912,9 +912,9 @@ do
 		end
 
 		local loadOverlay = UIElement:new({
-			parent = tbMenuCurrentSection,
+			parent = TBMenu.CurrentSection,
 			pos = { 5, 0 },
-			size = { tbMenuCurrentSection.size.w - 10, tbMenuCurrentSection.size.h },
+			size = { TBMenu.CurrentSection.size.w - 10, TBMenu.CurrentSection.size.h },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
 		TBMenu:addBottomBloodSmudge(loadOverlay, 1)

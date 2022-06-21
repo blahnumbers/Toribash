@@ -493,7 +493,7 @@ end
 ---@return nil
 function Quests:prepareGlobalQuests()
 	TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
-	tbMenuCurrentSection:kill(true)
+	TBMenu.CurrentSection:kill(true)
 	TBMenu:clearNavSection()
 	TBMenu:showNavigationBar(Quests:getGlobalQuestsNavigation(), true, true, 1)
 
@@ -505,9 +505,9 @@ function Quests:prepareGlobalQuests()
 
 	download_global_quests()
 	local loader = UIElement:new({
-		parent = tbMenuCurrentSection,
+		parent = TBMenu.CurrentSection,
 		pos = { 5, 0 },
-		size = { tbMenuCurrentSection.size.w - 10, tbMenuCurrentSection.size.h },
+		size = { TBMenu.CurrentSection.size.w - 10, TBMenu.CurrentSection.size.h },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR
 	})
 	TBMenu:addBottomBloodSmudge(loader, 1)
@@ -709,14 +709,14 @@ end
 ---@return nil
 function Quests:showGlobalQuests(questsData, completed)
 	usage_event("questsglobal")
-	tbMenuCurrentSection:kill(true)
+	TBMenu.CurrentSection:kill(true)
 	local completed = completed or false
 
 	local elementHeight = 60
 	local mainHolder = UIElement:new({
-		parent = tbMenuCurrentSection,
+		parent = TBMenu.CurrentSection,
 		pos = { 5, 0 },
-		size = { tbMenuCurrentSection.size.w - 10, tbMenuCurrentSection.size.h },
+		size = { TBMenu.CurrentSection.size.w - 10, TBMenu.CurrentSection.size.h },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR
 	})
 	local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(mainHolder, elementHeight, elementHeight - 16, 20, TB_MENU_DEFAULT_BG_COLOR)
@@ -810,15 +810,14 @@ function Quests:showGlobalQuests(questsData, completed)
 end
 
 ---Displays the legacy Quests screen
----@deprecated
 ---@return nil
-function Quests:showQuestsLegacy()
-	tbMenuCurrentSection:kill(true)
-	local tbMenuCurrentSection = tbMenuCurrentSection:addChild({ shift = { 0, 0 }})
+--[[function Quests:showQuestsLegacy()
+	TBMenu.CurrentSection:kill(true)
+	local TBMenu.CurrentSection = TBMenu.CurrentSection:addChild({ shift = { 0, 0 }})
 	local globalQuests = UIElement:new({
-		parent = tbMenuCurrentSection,
+		parent = TBMenu.CurrentSection,
 		pos = { 5, 0 },
-		size = { tbMenuCurrentSection.size.w / 7 * 2 - 10, tbMenuCurrentSection.size.h },
+		size = { TBMenu.CurrentSection.size.w / 7 * 2 - 10, TBMenu.CurrentSection.size.h },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR,
 		interactive = true,
 		hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
@@ -855,11 +854,11 @@ function Quests:showQuestsLegacy()
 		questsToClaimIcon:show()
 	end
 
-	local questsHolderWidth = math.max(tbMenuCurrentSection.size.w - globalQuests.size.w - globalQuests.shift.x - 5, #Quests.QuestsData * WIN_H / 3)
+	local questsHolderWidth = math.max(TBMenu.CurrentSection.size.w - globalQuests.size.w - globalQuests.shift.x - 5, #Quests.QuestsData * WIN_H / 3)
 	local questsHolder = UIElement:new({
-		parent = tbMenuCurrentSection,
+		parent = TBMenu.CurrentSection,
 		pos = { globalQuests.size.w + globalQuests.shift.x + 5, 0 },
-		size = { questsHolderWidth, tbMenuCurrentSection.size.h }
+		size = { questsHolderWidth, TBMenu.CurrentSection.size.h }
 	})
 	if (Quests.QuestsData) then
 		for i, quest in pairs(Quests.QuestsData) do
@@ -872,35 +871,35 @@ function Quests:showQuestsLegacy()
 			local bottomSmudge = TBMenu:addBottomBloodSmudge(questView, i)
 			Quests:showQuest(questView, quest, bottomSmudge)
 		end
-		if (tbMenuCurrentSection.size.w - globalQuests.size.w - globalQuests.shift.x - 5 < questsHolderWidth) then
-			local scrollRight = TBMenu:createImageButtons(tbMenuCurrentSection.parent, tbMenuCurrentSection.shift.x + tbMenuCurrentSection.size.w - 32, tbMenuCurrentSection.shift.y + tbMenuCurrentSection.size.h / 2 - 32, 32, 64, "../textures/menu/general/buttons/arrowright.tga", nil, nil, { 0, 0, 0, 0.4 }, { 0, 0, 0, 0.7 }, { 0, 0, 0, 0.6 }, 8)
-			local scrollLeft = TBMenu:createImageButtons(tbMenuCurrentSection.parent, 0, tbMenuCurrentSection.shift.y + tbMenuCurrentSection.size.h / 2 - 32, 32, 64, "../textures/menu/general/buttons/arrowleft.tga", nil, nil, { 0, 0, 0, 0.4 }, { 0, 0, 0, 0.7 }, { 0, 0, 0, 0.6 }, 8)
+		if (TBMenu.CurrentSection.size.w - globalQuests.size.w - globalQuests.shift.x - 5 < questsHolderWidth) then
+			local scrollRight = TBMenu:createImageButtons(TBMenu.CurrentSection.parent, TBMenu.CurrentSection.shift.x + TBMenu.CurrentSection.size.w - 32, TBMenu.CurrentSection.shift.y + TBMenu.CurrentSection.size.h / 2 - 32, 32, 64, "../textures/menu/general/buttons/arrowright.tga", nil, nil, { 0, 0, 0, 0.4 }, { 0, 0, 0, 0.7 }, { 0, 0, 0, 0.6 }, 8)
+			local scrollLeft = TBMenu:createImageButtons(TBMenu.CurrentSection.parent, 0, TBMenu.CurrentSection.shift.y + TBMenu.CurrentSection.size.h / 2 - 32, 32, 64, "../textures/menu/general/buttons/arrowleft.tga", nil, nil, { 0, 0, 0, 0.4 }, { 0, 0, 0, 0.7 }, { 0, 0, 0, 0.6 }, 8)
 
 			scrollRight:addMouseHandlers(nil, function()
-					local animator = tbMenuCurrentSection:addChild({ shift = { 0, 0 } })
-					local targetPoint = _G.tbMenuCurrentSection.pos.x + tbMenuCurrentSection.size.w
+					local animator = TBMenu.CurrentSection:addChild({ shift = { 0, 0 } })
+					local targetPoint = _G.TBMenu.CurrentSection.pos.x + TBMenu.CurrentSection.size.w
 					animator:addCustomDisplay(true, function()
 						scrollRight:hide()
 						if (questsHolder.pos.x - 50 + questsHolder.size.w < targetPoint) then
-							tbMenuCurrentSection:moveTo(-questsHolder.shift.x - questsHolder.size.w)
+							TBMenu.CurrentSection:moveTo(-questsHolder.shift.x - questsHolder.size.w)
 							animator:kill()
 							scrollLeft:show()
 						else
-							tbMenuCurrentSection:moveTo(-50, nil, true)
+							TBMenu.CurrentSection:moveTo(-50, nil, true)
 						end
 					end)
 				end, nil)
 			scrollLeft:addMouseHandlers(nil, function()
-					local animator = tbMenuCurrentSection:addChild({ shift = { 0, 0 } })
-					local targetPoint = _G.tbMenuCurrentSection.pos.x
+					local animator = TBMenu.CurrentSection:addChild({ shift = { 0, 0 } })
+					local targetPoint = _G.TBMenu.CurrentSection.pos.x
 					animator:addCustomDisplay(true, function()
 						scrollLeft:hide()
-						if (tbMenuCurrentSection.pos.x + 50 > targetPoint) then
-							tbMenuCurrentSection:moveTo(0)
+						if (TBMenu.CurrentSection.pos.x + 50 > targetPoint) then
+							TBMenu.CurrentSection:moveTo(0)
 							animator:kill()
 							scrollRight:show()
 						else
-							tbMenuCurrentSection:moveTo(50, nil, true)
+							TBMenu.CurrentSection:moveTo(50, nil, true)
 						end
 					end)
 				end, nil)
@@ -916,7 +915,7 @@ function Quests:showQuestsLegacy()
 		TBMenu:addBottomBloodSmudge(questView, i)
 		questView:addAdaptedText(false, TB_MENU_LOCALIZED.NOTHINGTOSHOW)
 	end
-end
+end]]
 
 ---Displays Quests screen home. If quests data is missing, queues download and shows loading screen first.
 ---@deprecated
@@ -924,7 +923,7 @@ end
 ---@return nil
 function Quests:showMainLegacy(reload)
 	usage_event("quests")
-	tbMenuCurrentSection:kill(true)
+	TBMenu.CurrentSection:kill(true)
 	if (Quests.QuestsData and not reload) then
 		Quests:showQuestsLegacy()
 	else
@@ -932,9 +931,9 @@ function Quests:showMainLegacy(reload)
 			Quests:download()
 		end
 		local waitView = UIElement:new({
-			parent = tbMenuCurrentSection,
+			parent = TBMenu.CurrentSection,
 			pos = { 5, 0 },
-			size = { tbMenuCurrentSection.size.w - 10, tbMenuCurrentSection.size.h },
+			size = { TBMenu.CurrentSection.size.w - 10, TBMenu.CurrentSection.size.h },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
 		TBMenu:addBottomBloodSmudge(waitView, 1)
@@ -1183,14 +1182,14 @@ function Quests:showQuests(navBack, backFunc)
 	TBMenu:clearNavSection()
 	TBMenu:showNavigationBar(Notifications:getNavigationButtons(navBack, nil, backFunc), true, true, 2)
 
-	local questTypesView = tbMenuCurrentSection:addChild({
+	local questTypesView = TBMenu.CurrentSection:addChild({
 		pos = { 5, 0 },
-		size = { tbMenuCurrentSection.size.w / 4 - 10, tbMenuCurrentSection.size.h },
+		size = { TBMenu.CurrentSection.size.w / 4 - 10, TBMenu.CurrentSection.size.h },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR
 	})
-	local questListView = tbMenuCurrentSection:addChild({
+	local questListView = TBMenu.CurrentSection:addChild({
 		pos = { questTypesView.shift.x + questTypesView.size.w + 10, 0 },
-		size = { tbMenuCurrentSection.size.w - questTypesView.shift.x - questTypesView.size.w - 15, tbMenuCurrentSection.size.h },
+		size = { TBMenu.CurrentSection.size.w - questTypesView.shift.x - questTypesView.size.w - 15, TBMenu.CurrentSection.size.h },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR
 	})
 	Quests:showMainQuestTypes(questTypesView, questListView)
@@ -1203,7 +1202,7 @@ end
 ---@return nil
 function Quests:showMain(navBack, backFunc)
 	usage_event("quests")
-	tbMenuCurrentSection:kill(true)
+	TBMenu.CurrentSection:kill(true)
 
 	if (Quests.QuestsData and not Quests:requiresGlobalDataUpdate()) then
 		Quests:showQuests(navBack, backFunc)
@@ -1214,7 +1213,7 @@ function Quests:showMain(navBack, backFunc)
 
 	Quests:download()
 	Quests:downloadGlobal()
-	local updatingView = tbMenuCurrentSection:addChild({
+	local updatingView = TBMenu.CurrentSection:addChild({
 		shift = { 5, 0 },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR
 	})

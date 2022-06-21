@@ -8,37 +8,37 @@ dofile("toriui/uielement.lua")
 dofile("system/menu_manager.lua")
 dofile("system/friendlist_manager.lua")
 
-if (tbMenuMain) then
+if (TBMenu.MenuMain) then
 	FRIENDSLIST_OPEN = false
-	tbMenuMain:kill()
+	TBMenu.MenuMain:kill()
 end
 
 FRIENDSLIST_OPEN = true
-TBMenu:create()
+TBMenu:open()
 function TBMenu:addBottomBloodSmudge() end
 TBMenu:getTranslation(get_language())
 
-tbMenuMain = UIElement:new({
+TBMenu.MenuMain = UIElement:new({
 	globalid = 1100,
 	pos = { WIN_W / 8, WIN_H / 5 },
 	size = { WIN_W / 8 * 6, WIN_H / 5 * 3 },
 })
 local navBarBG = UIElement:new({
-	parent = tbMenuMain,
+	parent = TBMenu.MenuMain,
 	pos = { 0, 0 },
-	size = { tbMenuMain.size.w, 50 },
+	size = { TBMenu.MenuMain.size.w, 50 },
 	bgColor = { 0, 0, 0, 0.95 }
 })
-tbMenuNavigationBar = UIElement:new({
+TBMenu.NavigationBar = UIElement:new({
 	parent = navBarBG,
 	pos = { 0, 0 },
 	size = { navBarBG.size.w, navBarBG.size.h }
 })
 
-tbMenuCurrentSection = UIElement:new({
-	parent = tbMenuMain,
+TBMenu.CurrentSection = UIElement:new({
+	parent = TBMenu.MenuMain,
 	pos = { 0, 50 },
-	size = { tbMenuMain.size.w, tbMenuMain.size.h - 50 },
+	size = { TBMenu.MenuMain.size.w, TBMenu.MenuMain.size.h - 50 },
 	bgColor = TB_MENU_DEFAULT_DARKER_COLOR
 })
 

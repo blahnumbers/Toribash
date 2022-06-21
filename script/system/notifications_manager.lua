@@ -12,8 +12,8 @@ do
 	setmetatable(cln, Notifications)
 
 	function Notifications:quit()
-		tbMenuCurrentSection:kill(true)
-		tbMenuNavigationBar:kill(true)
+		TBMenu.CurrentSection:kill(true)
+		TBMenu.NavigationBar:kill(true)
 		TBMenu:showNavigationBar()
 		TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
 		TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
@@ -72,7 +72,7 @@ do
 		TB_MENU_PLAYER_INFO.rewards = rewards
 		if (Rewards:getRewardData()) then
 			if (TB_STORE_DATA.ready) then
-				Rewards:showMain(tbMenuCurrentSection, TB_MENU_PLAYER_INFO.rewards)
+				Rewards:showMain(TBMenu.CurrentSection, TB_MENU_PLAYER_INFO.rewards)
 			else
 				TBMenu:showDataError(TB_MENU_LOCALIZED.STOREDATALOADERROR)
 			end
@@ -193,7 +193,7 @@ do
 							button:addMouseHandlers(nil, function()
 									if (attch.isInventory) then
 										Notifications:quit()
-										Torishop:prepareInventory(tbMenuCurrentSection)
+										Torishop:prepareInventory(TBMenu.CurrentSection)
 									else
 										open_url(attch.url)
 									end
@@ -227,7 +227,7 @@ do
 		messageViewForums:addMouseHandlers(nil, function()
 				open_url("https://forum.toribash.com/private.php?do=showpm&pmid=" .. notification.id)
 			end)
-		TBMenu:showTextExternal(messageViewForums, TB_MENU_LOCALIZED.NOTIFICATIONSVIEWPMFORUMS)
+		TBMenu:showTextExternal(messageViewForums, TB_MENU_LOCALIZED.NOTIFICATIONSVIEWPMFORUMS, true)
 	end
 
 	function Notifications:fixBBCode(message)
@@ -337,7 +337,7 @@ do
 						notification.read = true
 						if (TB_MENU_NOTIFICATIONS_NET_COUNT > 0) then
 							TB_MENU_NOTIFICATIONS_NET_COUNT = TB_MENU_NOTIFICATIONS_NET_COUNT - 1
-							tbMenuNavigationBar:kill(true)
+							TBMenu.NavigationBar:kill(true)
 							TBMenu:showNavigationBar(Notifications:getNavigationButtons(), true, true, TB_MENU_NOTIFICATIONS_LASTSCREEN)
 						end
 					end
@@ -494,14 +494,14 @@ do
 	end
 
 	function Notifications:prepareNotifications(forceReload)
-		tbMenuCurrentSection:kill(true)
+		TBMenu.CurrentSection:kill(true)
 		if (forceReload) then
 			TB_MENU_NOTIFICATIONS_LASTUPDATE.data = 0
 		end
 
 		if (TB_MENU_NOTIFICATIONS_LASTUPDATE.data + 60 < os.time()) then
 			Notifications:getTotalNotifications(true)
-			local notificationsMain = tbMenuCurrentSection:addChild({
+			local notificationsMain = TBMenu.CurrentSection:addChild({
 				shift = { 5, 0 },
 				bgColor = TB_MENU_DEFAULT_BG_COLOR
 			})
@@ -513,9 +513,9 @@ do
 			Request:queue(function() get_notifications() end, "net_notifications", function()
 					if (loader:isDisplayed()) then
 						if (Notifications:getNetworkNotifications()) then
-							tbMenuNavigationBar:kill(true)
+							TBMenu.NavigationBar:kill(true)
 							TBMenu:showNavigationBar(Notifications:getNavigationButtons(), true, true, TB_MENU_NOTIFICATIONS_LASTSCREEN)
-							Notifications:showNotifications(tbMenuCurrentSection)
+							Notifications:showNotifications(TBMenu.CurrentSection)
 							TB_MENU_NOTIFICATIONS_LASTUPDATE.data = os.time()
 						else
 							loader:kill(true)
@@ -529,7 +529,7 @@ do
 					end
 				end)
 		else
-			Notifications:showNotifications(tbMenuCurrentSection)
+			Notifications:showNotifications(TBMenu.CurrentSection)
 		end
 	end
 

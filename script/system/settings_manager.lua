@@ -35,16 +35,16 @@ do
 	Settings.__index = Settings
 	local cln = {}
 	setmetatable(cln, Settings)
-	
+
 	function Settings:quit()
 		TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
 		TB_MENU_SETTINGS_SCREEN_ACTIVE = 1
-		tbMenuCurrentSection:kill(true)
-		tbMenuNavigationBar:kill(true)
+		TBMenu.CurrentSection:kill(true)
+		TBMenu.NavigationBar:kill(true)
 		TBMenu:showNavigationBar()
 		TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
 	end
-	
+
 	function Settings:getNavigationButtons(showBack)
 		local navigation = {
 			{
@@ -109,13 +109,13 @@ do
 		end
 		return navigation
 	end
-	
+
 	function Settings:showAbout()
 		usage_event("settingsabout")
-		tbMenuUserBar:hide()
+		TBMenu.UserBar:hide()
 		UIScrollbarIgnore = true
 		local whiteOverlay = UIElement:new({
-			parent = tbMenuMain,
+			parent = TBMenu.MenuMain,
 			pos = { 0, 0 },
 			size = { WIN_W, WIN_H },
 			bgColor = cloneTable(UICOLORWHITE),
@@ -126,7 +126,7 @@ do
 		local speedMultiplier = get_option('framerate') == 30 and 2 or 1
 		whiteOverlay:addMouseHandlers(nil, function()
 				whiteOverlay:kill()
-				tbMenuUserBar:show()
+				TBMenu.UserBar:show()
 			end, function() slowMode = false end)
 		local aboutMover = UIElement:new({
 			parent = whiteOverlay,
@@ -162,7 +162,7 @@ do
 			size = { aboutMover.size.w, 40 },
 		})
 		tbToribashTeam:addAdaptedText(true, "Current Team", nil, nil, FONTS.BIG, nil, nil, nil, 0.2)
-		
+
 		-- Keep hampa in the middle and others on sides
 		local tbTeam = { 'hagan', 'hampa', 'sir' }
 		local teamScale = aboutMover.size.w / #tbTeam
@@ -182,15 +182,15 @@ do
 			})
 			teamMemberName:addAdaptedText(true, v, nil, nil, FONTS.BIG, CENTERBOT, 0.55, nil, nil, 2)
 		end
-		
-		
+
+
 		local tbSpecialThanks = UIElement:new({
 			parent = aboutMover,
 			pos = { 0, tbToribashTeam.shift.y + tbToribashTeam.size.h + teamScale + 60 },
 			size = { aboutMover.size.w, 40 },
 		})
 		tbSpecialThanks:addAdaptedText(true, "Special Thanks To", nil, nil, FONTS.BIG, nil, nil, nil, 0.2)
-		
+
 		local tbMusicBy = UIElement:new({
 			parent = aboutMover,
 			pos = { 0, tbSpecialThanks.shift.y + tbSpecialThanks.size.h + 20 },
@@ -216,7 +216,7 @@ do
 			size = { tbMusicBy.size.w, tbMusicBy.size.h - tbMusicTMMRW.size.h }
 		})
 		tbMusicDesc:addAdaptedText(true, "for making Toribash background music")
-		
+
 		local tbStaff = UIElement:new({
 			parent = aboutMover,
 			pos = { 0, tbMusicBy.size.h + tbMusicBy.shift.y + 40 },
@@ -229,7 +229,7 @@ do
 			size = { aboutMover.size.w, 25 }
 		})
 		tbStaffAbout:addAdaptedText(true, "for helping us maintain Toribash across the years")
-		
+
 		local tbPlayer = UIElement:new({
 			parent = aboutMover,
 			pos = { 0, tbStaffAbout.size.h + tbStaffAbout.shift.y + 40 },
@@ -242,7 +242,7 @@ do
 			size = { aboutMover.size.w, 25 }
 		})
 		tbPlayerThanks:addAdaptedText(true, "for playing Toribash!")
-		
+
 		local lastElement = UIElement:new({
 			parent = tbPlayerThanks,
 			pos = { 0, 0 },
@@ -253,7 +253,7 @@ do
 					whiteOverlay.bgColor[4] = whiteOverlay.bgColor[4] - 0.05
 					if (whiteOverlay.bgColor[4] <= 0) then
 						whiteOverlay:kill()
-						tbMenuUserBar:show()
+						TBMenu.UserBar:show()
 					end
 				end)
 		end
@@ -264,16 +264,16 @@ do
 				end
 			end)
 	end
-	
+
 	function Settings:getSettingsData(id)
 		local shaders = TB_MENU_MAIN_SETTINGS.shaders and TB_MENU_MAIN_SETTINGS.shaders.value or get_option("shaders")
-		
+
 		if (id == SETTINGS_GRAPHICS) then
 			local advancedItems = {
 				{
 					name = TB_MENU_LOCALIZED.SETTINGSSHADERS,
 					type = TOGGLE,
-					action = function(val) 
+					action = function(val)
 							TB_MENU_MAIN_SETTINGS.shaders = { value = val, id = SHADERS, graphics = true }
 							Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
 						end,
@@ -281,19 +281,19 @@ do
 					reload = true
 				}
 			}
-			
+
 			if (shaders == 1) then
 				table.insert(advancedItems, {
 					name = TB_MENU_LOCALIZED.SETTINGSRAYTRACING,
 					type = TOGGLE,
-					action = function(val) 
+					action = function(val)
 							TB_MENU_MAIN_SETTINGS.raytracing = { value = val, id = RAYTRACING, graphics = true }
 						end,
 					val = { get_option("raytracing") },
 					reload = true
 				})
 			end
-			
+
 			table.insert(advancedItems, {
 				name = TB_MENU_LOCALIZED.SETTINGSFRAMERATE,
 				type = DROPDOWN,
@@ -377,13 +377,13 @@ do
 					},
 				}
 			})
-			
+
 			if (shaders == 1) then
 				if ((TB_MENU_MAIN_SETTINGS.blood and TB_MENU_MAIN_SETTINGS.blood.value or get_option("blood")) > 0) then
 					table.insert(advancedItems, {
 						name = TB_MENU_LOCALIZED.SETTINGSFLUIDBLOOD,
 						type = TOGGLE,
-						action = function(val) 
+						action = function(val)
 								TB_MENU_MAIN_SETTINGS.fluid = { value = val, id = FLUIDBLOOD, graphics = true }
 							end,
 						val = { get_option("fluid") },
@@ -393,7 +393,7 @@ do
 				table.insert(advancedItems, {
 					name = TB_MENU_LOCALIZED.SETTINGSFLOORREFLECTIONS,
 					type = TOGGLE,
-					action = function(val) 
+					action = function(val)
 							TB_MENU_MAIN_SETTINGS.reflection = { value = val, id = REFLECTIONS, graphics = true }
 						end,
 					val = { get_option("reflection") },
@@ -402,7 +402,7 @@ do
 				table.insert(advancedItems, {
 					name = TB_MENU_LOCALIZED.SETTINGSSOFTSHADOWS,
 					type = TOGGLE,
-					action = function(val) 
+					action = function(val)
 							TB_MENU_MAIN_SETTINGS.softshadow = { value = val, id = SOFTSHADOWS, graphics = true }
 						end,
 					val = { get_option("softshadow") },
@@ -411,14 +411,14 @@ do
 				table.insert(advancedItems, {
 					name = TB_MENU_LOCALIZED.SETTINGSAMBIENTOCCLUSION,
 					type = TOGGLE,
-					action = function(val) 
+					action = function(val)
 							TB_MENU_MAIN_SETTINGS.ambientocclusion = { value = val, id = AMBIENTOCCLUSION, graphics = true }
 						end,
 					val = { get_option("ambientocclusion") },
 					reload = true
 				})
 			end
-			
+
 			return {
 				{
 					name = TB_MENU_LOCALIZED.SETTINGSGRAPHICSPRESETS,
@@ -616,7 +616,7 @@ do
 							name = TB_MENU_LOCALIZED.SETTINGSSYSTEMCURSOR,
 							hint = TB_MENU_LOCALIZED.SETTINGSSYSTEMCURSORHINT,
 							type = TOGGLE,
-							action = function(val) 
+							action = function(val)
 									TB_MENU_MAIN_SETTINGS.systemcursor = { value = val }
 								end,
 							val = { get_option("systemcursor") }
@@ -625,7 +625,7 @@ do
 							name = TB_MENU_LOCALIZED.SETTINGSUILIGHT,
 							hint = TB_MENU_LOCALIZED.SETTINGSUILIGHTHINT,
 							type = TOGGLE,
-							action = function(val) 
+							action = function(val)
 									TB_MENU_MAIN_SETTINGS.uilight = { value = val }
 								end,
 							val = { get_option("uilight") }
@@ -633,7 +633,7 @@ do
 						{
 							name = TB_MENU_LOCALIZED.SETTINGSJOINTFLASH,
 							type = TOGGLE,
-							action = function(val) 
+							action = function(val)
 									TB_MENU_MAIN_SETTINGS.jointflash = { value = val }
 								end,
 							val = { get_option("jointflash") }
@@ -647,7 +647,7 @@ do
 				table.insert(generalItems, {
 					name = TB_MENU_LOCALIZED.SETTINGSITEMEFFECTS,
 					type = TOGGLE,
-					action = function(val) 
+					action = function(val)
 							TB_MENU_MAIN_SETTINGS.itemeffects = { value = val, id = ITEMEFFECTS, graphics = true }
 						end,
 					val = { get_option("itemeffects") },
@@ -700,7 +700,7 @@ do
 					},
 				}
 			})
-			
+
 			local settingsCustomization = nil
 			local effects = TB_MENU_MAIN_SETTINGS.effects and TB_MENU_MAIN_SETTINGS.effects.value or get_option("effects")
 			if (effects > 0) then
@@ -710,7 +710,7 @@ do
 						{
 							name = TB_MENU_LOCALIZED.SETTINGSBODYTEXTURES,
 							type = TOGGLE,
-							action = function(val) 
+							action = function(val)
 									TB_MENU_MAIN_SETTINGS.bodytextures = { value = val, id = BODYTEXTURES, graphics = true }
 								end,
 							val = { get_option("bodytextures") },
@@ -750,7 +750,7 @@ do
 					}
 				}
 			end
-			
+
 			return {
 				{
 					name = TB_MENU_LOCALIZED.SETTINGSGENERAL,
@@ -1192,7 +1192,7 @@ do
 			}
 		end
 	end
-	
+
 	function Settings:getGraphicsPreset()
 		return function()
 				local options = {
@@ -1213,7 +1213,7 @@ do
 				return 1
 			end
 	end
-	
+
 	function Settings:getLanguageDropdown()
 		local languages = {}
 		local dropdown = {}
@@ -1249,7 +1249,7 @@ do
 		end
 		return dropdown
 	end
-	
+
 	function Settings:getResolutionItems()
 		local fullscreen = TB_MENU_MAIN_SETTINGS.fullscreen and TB_MENU_MAIN_SETTINGS.fullscreen.value or get_option("fullscreen")
 		local items
@@ -1286,7 +1286,7 @@ do
 			if (SETTINGS_LAST_RESOLUTION) then
 				optionWidth, optionHeight = unpack(SETTINGS_LAST_RESOLUTION)
 			end
-			
+
 			items = {
 				{
 					name = TB_MENU_LOCALIZED.SETTINGSWIDTH,
@@ -1387,7 +1387,7 @@ do
 		end
 		return items
 	end
-	
+
 	function Settings:getAdvancedAudioOptionMaster()
 		return function()
 				local state, stateDef = get_sound_category(0)
@@ -1407,7 +1407,7 @@ do
 				return 4
 			end
 	end
-	
+
 	function Settings:getAdvancedAudioDropdownMaster()
 		return {
 			{
@@ -1445,7 +1445,7 @@ do
 			},
 		}
 	end
-	
+
 	function Settings:getAdvancedAudioOption(option)
 		return function()
 				local opt, default = get_sound_category(option)
@@ -1459,7 +1459,7 @@ do
 				return 3
 			end
 	end
-	
+
 	function Settings:getAdvancedAudioDropdown(option)
 		return {
 			{
@@ -1485,7 +1485,7 @@ do
 			},
 		}
 	end
-	
+
 	function Settings:getKeyName(key)
 		if (key == 8) then
 			return "Backspace"
@@ -1535,7 +1535,7 @@ do
 			return string.schar(key)
 		end
 	end
-	
+
 	function Settings:spawnSlider(viewElement, sliderTable)
 		local slider
 		slider = TBMenu:spawnSlider(viewElement, nil, nil, nil, nil, nil, nil, sliderTable.val[1], sliderTable, function(val)
@@ -1631,7 +1631,7 @@ do
 		end)
 		return slider]]
 	end
-	
+
 	function Settings:spawnToggle(viewElement, toggle, i)
 		local toggleTable = toggle.val
 		local toggleBG = UIElement:new({
@@ -1677,54 +1677,54 @@ do
 				Settings:settingsApplyActivate(toggle.reload)
 			end)
 	end
-	
+
 	function Settings:settingsApplyActivate(restart)
 		if (not tbMenuApplySettingsButton.isactive or restart) then
 			tbMenuApplySettingsButton:activate(true)
 			tbMenuApplySettingsButton:addAdaptedText(false, TB_MENU_LOCALIZED.SETTINGSAPPLY .. (restart and " (" .. TB_MENU_LOCALIZED.SETTINGSRESTARTREQUIRED .. ")" or ""))
-		end	
+		end
 	end
-	
+
 	function Settings:setChatCensorSettings()
 		if (not TB_MENU_MAIN_SETTINGS.chatcensor and not TB_MENU_MAIN_SETTINGS.chatcensorhidesystem) then
 			return
 		end
-		
+
 		local chatcensor = get_option("chatcensor")
 		local wordfilter, hidesystem = TB_MENU_MAIN_SETTINGS.chatcensor and TB_MENU_MAIN_SETTINGS.chatcensor.value or (chatcensor % 2), TB_MENU_MAIN_SETTINGS.chatcensorhidesystem and TB_MENU_MAIN_SETTINGS.chatcensorhidesystem.value or (chatcensor > 1 and 1 or 0)
 
 		TB_MENU_MAIN_SETTINGS.chatcensorhidesystem = nil
 		TB_MENU_MAIN_SETTINGS.chatcensor = { value = wordfilter + hidesystem * 2 }
 	end
-	
+
 	function Settings:showSettings(id, keepStoredSettings)
 		if (not keepStoredSettings) then
 			usage_event("settings" .. id)
 		end
-		if (tbMenuCurrentSection.settingsInitialized == false) then return end
-		tbMenuCurrentSection.settingsInitialized = false
+		if (TBMenu.CurrentSection.settingsInitialized == false) then return end
+		TBMenu.CurrentSection.settingsInitialized = false
 		TB_MENU_SETTINGS_SCREEN_ACTIVE = id
-		
-		local targetListShift = keepStoredSettings and ((tbMenuCurrentSection.settingsListingHolder.shift.y < 0 and -tbMenuCurrentSection.settingsListingHolder.shift.y or tbMenuCurrentSection.settingsListingHolder.size.h) - tbMenuCurrentSection.settingsListingHolder.size.h) or -1
-		
+
+		local targetListShift = keepStoredSettings and ((TBMenu.CurrentSection.settingsListingHolder.shift.y < 0 and -TBMenu.CurrentSection.settingsListingHolder.shift.y or TBMenu.CurrentSection.settingsListingHolder.size.h) - TBMenu.CurrentSection.settingsListingHolder.size.h) or -1
+
 		local applySettingsButtonActive = tbMenuApplySettingsButton and tbMenuApplySettingsButton.isactive
 		local applySettingsButtonText = applySettingsButtonActive and tbMenuApplySettingsButton.str
-		
-		tbMenuCurrentSection:kill(true)
-		
+
+		TBMenu.CurrentSection:kill(true)
+
 		local lastListHeight = SETTINGS_LIST_SHIFT[2]
 		local lastListProgress = SETTINGS_LIST_SHIFT[1] > 0 and SETTINGS_LIST_SHIFT[1] / SETTINGS_LIST_SHIFT[3] or 0
-		
+
 		local settingsData = Settings:getSettingsData(id)
 		local settingsMain = UIElement:new({
-			parent = tbMenuCurrentSection,
+			parent = TBMenu.CurrentSection,
 			pos = { 5, 0 },
-			size = { tbMenuCurrentSection.size.w - 10, tbMenuCurrentSection.size.h },
+			size = { TBMenu.CurrentSection.size.w - 10, TBMenu.CurrentSection.size.h },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
 		local elementHeight = 50
 		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(settingsMain, elementHeight, elementHeight, 20)
-		
+
 		TBMenu:addBottomBloodSmudge(botBar, 1)
 		tbMenuApplySettingsButton = UIElement:new({
 			parent = botBar,
@@ -1793,12 +1793,12 @@ do
 				end
 			end)
 		tbMenuApplySettingsButton:deactivate(true)
-		
+
 		if (applySettingsButtonActive) then
 			tbMenuApplySettingsButton:activate(true)
 			tbMenuApplySettingsButton:addAdaptedText(false, applySettingsButtonText)
 		end
-		
+
 		local listElements = {}
 		for i,section in pairs(settingsData) do
 			local sectionName = UIElement:new({
@@ -1956,18 +1956,18 @@ do
 		end
 		local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
 		listingHolder.scrollBar = scrollBar
-		
+
 		SETTINGS_LIST_SHIFT[2] = #listElements * elementHeight
 		targetListShift = targetListShift > SETTINGS_LIST_SHIFT[2] - listingHolder.size.h and SETTINGS_LIST_SHIFT[2] - listingHolder.size.h or targetListShift
 		SETTINGS_LIST_SHIFT[3] = scrollBar.parent.size.h - scrollBar.size.h
 		SETTINGS_LIST_SHIFT[1] = targetListShift / (SETTINGS_LIST_SHIFT[2] - listingHolder.size.h) * SETTINGS_LIST_SHIFT[3]
-		tbMenuCurrentSection.settingsListingHolder = listingHolder
-		
+		TBMenu.CurrentSection.settingsListingHolder = listingHolder
+
 		scrollBar:makeScrollBar(listingHolder, listElements, toReload, SETTINGS_LIST_SHIFT)
-		
-		tbMenuCurrentSection.settingsInitialized = true
+
+		TBMenu.CurrentSection.settingsInitialized = true
 	end
-	
+
 	function Settings:showMain()
 		TB_MENU_SPECIAL_SCREEN_ISOPEN = 6
 		Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE or 1)

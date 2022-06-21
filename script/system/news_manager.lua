@@ -99,8 +99,8 @@ do
 				newsData[#newsData].action = function() open_url(ln:gsub("^URL 0;", "")) end
 			elseif (ln:find("^STORE 0;")) then
 				local itemid = ln:gsub("^STORE 0;", "") + 0
-				newsData[#newsData].action = function() Torishop:showStoreSection(tbMenuCurrentSection, nil, nil, itemid) end
-				newsData[#newsData].initAction = function() Torishop:showStoreSection(tbMenuCurrentSection, nil, nil, itemid) end
+				newsData[#newsData].action = function() Torishop:showStoreSection(TBMenu.CurrentSection, nil, nil, itemid) end
+				newsData[#newsData].initAction = function() Torishop:showStoreSection(TBMenu.CurrentSection, nil, nil, itemid) end
 			elseif (ln:find("^EVENT 0;")) then
 				local eventid = ln:gsub("^EVENT 0;", "") + 0
 				newsData[#newsData].isEvent = true
@@ -110,11 +110,11 @@ do
 			elseif (ln:find("^MODCHAMPIONSHIP 0;")) then
 				local eventid = newsData[#newsData].eventid
 				newsData[#newsData].isEvent = true
-				newsData[#newsData].action = function() Events:loadModChampionship(tbMenuCurrentSection, eventid) end
-				newsData[#newsData].initAction = function() Events:loadModChampionship(tbMenuCurrentSection, eventid) end
+				newsData[#newsData].action = function() Events:loadModChampionship(TBMenu.CurrentSection, eventid) end
+				newsData[#newsData].initAction = function() Events:loadModChampionship(TBMenu.CurrentSection, eventid) end
 			elseif (ln:find("^MOVEMBER 0;")) then
-				newsData[#newsData].action = function() Events:loadMovember(tbMenuCurrentSection) end
-				newsData[#newsData].initAction = function() Events:loadMovember(tbMenuCurrentSection) end
+				newsData[#newsData].action = function() Events:loadMovember(TBMenu.CurrentSection) end
+				newsData[#newsData].initAction = function() Events:loadMovember(TBMenu.CurrentSection) end
 			elseif (ln:find("^SEASONPASS 0;")) then
 				newsData[#newsData].action = function() Torishop:showSeasonPassAprilFools() end
 				newsData[#newsData].initAction = function() Torishop:showSeasonPassAprilFools() end
