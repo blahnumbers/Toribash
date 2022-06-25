@@ -491,7 +491,9 @@ do
 		else
 			self.roundedInternal = { rounded[1], rounded[#rounded] }
 		end
-		local minRounded = math.min(self.size.w, self.size.h) / 2
+
+		local minRounded = self.roundedInternal[1] + self.roundedInternal[2] > math.min(self.size.w + self.size.h, self.size.w * 2) and math.min(table.unpack_all(self.size)) / 2 or math.max(unpack(self.roundedInternal))
+
 		self.rounded = 0
 		for i,v in pairs(self.roundedInternal) do
 			if (v > minRounded) then

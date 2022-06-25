@@ -1,6 +1,12 @@
-require("toriui/uielement")
-require("system/iofiles")
-require("system/battlepass_manager")
+require("system.menu_backend_defines")
+require("toriui.uielement")
+require("system.iofiles")
+require("system.battlepass_manager")
+
+---@alias QuestDQMode
+---| 0 # QUESTS_DQ_ANY | Default
+---| 1 # QUESTS_DQ | Win by point score
+---| 2 # QUESTS_POINTS | Win by disqualification
 
 ---@class QuestData
 ---@field id integer
@@ -14,6 +20,7 @@ require("system/battlepass_manager")
 ---@field decap boolean If true, quest requires the player to decap an opponent during the fight
 ---@field matchmake boolean If true, quest requires the fight to be played in matchmaking mode
 ---@field official boolean If true, quest requires the fight to be played in an official (static) room. *Regular quests only*.
+---@field dq QuestDQMode Whether this quest requires the fight to end in a specific way
 ---@field reward integer Reward amount
 ---@field rewardid integer Item ID of the reward. If zero, `reward` value indicates TC reward.
 ---@field bp_xp integer Battle Pass XP awarded for completing the quest
@@ -48,26 +55,38 @@ if (Quests == nil or TB_MENU_DEBUG) then
 	setmetatable({}, Quests)
 end
 
----Downloads quests data file and stores last update time to QUESTS_UPDATE_CLOCK.\
+---Downloads quests data file and stores last update time to QUESTS_LASTUPDATE.time\
 ---Will not queue the file for download if it's already in download queue or has been downloaded within past 5 seconds.
 ---@param override? boolean If true, will force the update even if update clock says it's too early to do so
 ---@return boolean #Whether file download has been initiated
 function Quests:download(override)
-	local clock = os.clock()
-	if (not override and clock - (QUESTS_UPDATE_CLOCK or 0) < 5) then
+	local clock = os.time()
+	if (not override and clock - (QUESTS_LASTUPDATE.time or 0) < 5) then
 		return false
 	end
 
 	local downloads = get_downloads()
+	local downloadingQuest, downloadingGlobalQuest
 	for i,v in pairs(downloads) do
 		if (v:find("quest.txt$")) then
-			return false
+			downloadingQuest = true
+		elseif (v:find("quests_global.txt$")) then
+			downloadingGlobalQuest = true
 		end
 	end
 
-	QUESTS_UPDATE_CLOCK = clock
-	Quests.QuestsData = nil
-	download_quest(TB_MENU_PLAYER_INFO.username)
+	if (downloadingQuest and downloadingGlobalQuest) then
+		return false
+	end
+
+	QUESTS_LASTUPDATE.time = clock
+	if (not downloadingQuest) then
+		Quests.QuestsData = nil
+		download_quest(TB_MENU_PLAYER_INFO.username)
+	end
+	if (not downloadingGlobalQuest) then
+		Quests:downloadGlobal()
+	end
 	return true
 end
 
@@ -99,7 +118,9 @@ function Quests:getQuests()
 		{ "rewardid", numeric = true },
 		{ "name" },
 		{ "ranked", boolean = true },
-		{ "bp_xp", numeric = true }
+		{ "dq", numeric = true },
+		{ "bp_xp", numeric = true },
+		{ "description" }
 	}
 
 	for i, ln in pairs(file:readAll()) do
@@ -118,17 +139,25 @@ function Quests:getQuests()
 				end
 			end
 			quest.name = quest.name:len() > 0 and quest.name or Quests:getQuestName(quest)
-			quest.description = Quests:getQuestObjective(quest)
+			quest.description = quest.description:len() > 0 and quest.description or Quests:getQuestObjective(quest)
 			quest.progresspercentage = math.min(1, quest.progress / quest.requirement)
 			table.insert(questData, quest)
 
 			if (quest.progress >= quest.requirement) then
-				TB_MENU_QUESTS_COUNT = TB_MENU_QUESTS_COUNT + 1
+				-- Handle special quest types
+				-- These are claimed automatically upon reaching the objective, so mark them as claimed
+				if (quest.type >= 1000) then
+					quest.claimed = true
+					quest.requirement = quest.progress + 1
+				else
+					TB_MENU_QUESTS_COUNT = TB_MENU_QUESTS_COUNT + 1
+				end
 			end
 		end
 	end
 	file:close()
 
+	---@type QuestData[]
 	Quests.QuestsData = table.qsort(questData, "progresspercentage", SORT_DESCENDING)
 end
 
@@ -142,7 +171,7 @@ function Quests:getQuestById(id)
 	if (Quests.QuestsData) then
 		for i,v in pairs(Quests.QuestsData) do
 			if (v.id == id) then
-				return v
+				return Quests.QuestsData[i]
 			end
 		end
 	end
@@ -154,6 +183,7 @@ end
 ---@return nil
 function Quests:setQuestProgress(quest, progress)
 	quest.progress = quest.requirement < progress and quest.requirement or progress
+	quest.progresspercentage = quest.progress / quest.requirement
 end
 
 ---Returns a printable quest name depending on its type
@@ -175,6 +205,8 @@ function Quests:getQuestName(quest)
 		else
 			return TB_MENU_LOCALIZED.QUESTSNAMETYPE4
 		end
+	elseif (quest.type == 7) then
+		return TB_MENU_LOCALIZED.QUESTNAMETYPEMARKET
 	end
 	return TB_MENU_LOCALIZED.QUESTSDEFAULTQUESTNAME
 end
@@ -184,22 +216,33 @@ end
 ---@return string
 function Quests:getQuestObjective(quest)
 	local targetText = ""
+	local requirementFormatted = PlayerInfo:currencyFormat(quest.requirement)
 	if (quest.type == 1) then
-		targetText = TB_MENU_LOCALIZED.QUESTSPLAYREQ .. " " .. quest.requirement .. " " .. (quest.ranked and TB_MENU_LOCALIZED.WORDRANKED .. " " or "") .. TB_MENU_LOCALIZED.WORDGAMES
+		targetText = (quest.dq == QUESTS_DQ and TB_MENU_LOCALIZED.QUESTSDQREQGAME or TB_MENU_LOCALIZED.QUESTSPLAYREQ) .. " " .. requirementFormatted .. " " .. (quest.ranked and TB_MENU_LOCALIZED.WORDRANKED .. " " or "") .. TB_MENU_LOCALIZED.WORDGAMES
 	elseif (quest.type == 2) then
-		targetText = TB_MENU_LOCALIZED.QUESTSWINREQ .. " " .. quest.requirement .. " " .. (quest.ranked and TB_MENU_LOCALIZED.WORDRANKED .. " " or "") .. TB_MENU_LOCALIZED.WORDFIGHTS
+		targetText = (quest.dq == QUESTS_DQ and TB_MENU_LOCALIZED.QUESTSDQREQ or TB_MENU_LOCALIZED.QUESTSWINREQ) .. " " .. requirementFormatted .. " " .. (quest.ranked and TB_MENU_LOCALIZED.WORDRANKED .. " " or "") .. TB_MENU_LOCALIZED.WORDFIGHTS
+		if (quest.dq == QUESTS_POINTS) then
+			targetText = targetText .. " " .. TB_MENU_LOCALIZED.QUESTSPOINTSREQ
+		end
 		if (quest.decap) then
 			targetText = targetText .. " " .. TB_MENU_LOCALIZED.QUESTSBYDECAP .. (quest.ranked and " " .. TB_MENU_LOCALIZED.QUESTSRANKEDMODE or "")
 		end
 	elseif (quest.type == 3) then
-		targetText = TB_MENU_LOCALIZED.QUESTSGETREQ .. " " .. quest.requirement .. " " .. TB_MENU_LOCALIZED.QUESTSGETREQ2 .. (quest.ranked and " " .. TB_MENU_LOCALIZED.QUESTSRANKEDMODE or "")
+		targetText = TB_MENU_LOCALIZED.QUESTSGETREQ .. " " .. requirementFormatted .. " " .. TB_MENU_LOCALIZED.QUESTSGETREQ2 .. (quest.ranked and " " .. TB_MENU_LOCALIZED.QUESTSRANKEDMODE or "")
 	elseif (quest.type == 4) then
 		if (quest.decap) then
-			targetText = TB_MENU_LOCALIZED.QUESTSDECAPREQ .. " " .. quest.requirement .. " " .. TB_MENU_LOCALIZED.WORDTIMES .. (quest.ranked and " " .. TB_MENU_LOCALIZED.QUESTSRANKEDMODE or "")
+			targetText = TB_MENU_LOCALIZED.QUESTSDECAPREQ .. " " .. requirementFormatted .. " " .. TB_MENU_LOCALIZED.WORDTIMES .. (quest.ranked and " " .. TB_MENU_LOCALIZED.QUESTSRANKEDMODE or "")
 		else
-			targetText = TB_MENU_LOCALIZED.QUESTSDISMEMBERREQ .. " " .. quest.requirement .. " " .. TB_MENU_LOCALIZED.WORDTIMES .. (quest.ranked and " " .. TB_MENU_LOCALIZED.QUESTSRANKEDMODE or "")
+			targetText = TB_MENU_LOCALIZED.QUESTSDISMEMBERREQ .. " " .. requirementFormatted .. " " .. TB_MENU_LOCALIZED.WORDTIMES .. (quest.ranked and " " .. TB_MENU_LOCALIZED.QUESTSRANKEDMODE or "")
 		end
+	elseif (quest.type == 5) then
+		targetText = TB_MENU_LOCALIZED.QUESTSBOUNTYCLAIMREQ1 .. " " .. requirementFormatted .. " " ..  TB_MENU_LOCALIZED.QUESTSBOUNTYCLAIMREQ2
+	elseif (quest.type == 6) then
+		targetText = TB_MENU_LOCALIZED.QUESTSBOUNTYGET1 .. " " .. requirementFormatted .. " " .. TB_MENU_LOCALIZED.QUESTSBOUNTYGET2
+	elseif (quest.type == 7) then
+		targetText = TB_MENU_LOCALIZED.QUESTSMARKETSPEND1 .. " " .. requirementFormatted .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS .. " " .. TB_MENU_LOCALIZED.QUESTSMARKETSPEND2
 	end
+
 	if (quest.modid ~= 0) then
 		targetText = targetText .. " " .. TB_MENU_LOCALIZED.WORDIN .. " " .. quest.modname
 	end
@@ -249,6 +292,37 @@ function Quests:drawRewardText(quest, viewElement)
 			bgImage = quest.rewardid ~= nil and (quest.rewardid == 0 and "../textures/store/toricredit_tiny.tga" or "../textures/store/items/" .. quest.rewardid .. ".tga") or nil
 		})
 	end
+end
+
+function Quests:claim(quest, successFunc, errorFunc)
+	Request:queue(function() claim_quest(quest.id) end, "questclaim" .. quest.id, function()
+		local response = get_network_response()
+		if (response:find("^GATEWAY 0; 0")) then
+			update_tc_balance()
+			Quests:download()
+			if (quest.rewardid and quest.rewardid > 0 and quest.rewardid ~= ITEM_SHIAI_TOKEN) then
+				download_inventory()
+			end
+			if (quest.bp_xp) then
+				BattlePass:getUserData()
+			end
+			if (successFunc) then
+				successFunc()
+			end
+		else
+			local errorMessage = response:gsub("GATEWAY 0;.*", "")
+			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REWARDSCLAIMERROROTHER .. ": " .. errorMessage, TB_MENU_MAIN_ISOPEN == 0)
+
+			if (errorFunc) then
+				errorFunc()
+			end
+		end
+	end, function()
+		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.ERRORTRYAGAIN, TB_MENU_MAIN_ISOPEN == 0)
+		if (errorFunc) then
+			errorFunc()
+		end
+	end)
 end
 
 ---Displays quest information in a UIElement viewport
@@ -353,11 +427,7 @@ function Quests:showQuest(questView, quest, bottomSmudge, customClaimFunc)
 				questView:kill(true)
 				TBMenu:addBottomBloodSmudge(questView, 1)
 				TBMenu:displayLoadingMark(questView, "Claiming Quest")
-				Request:queue(function() claim_quest(quest.id) end, "questclaim", function()
-					update_tc_balance()
-					Quests:download()
-					download_inventory()
-
+				Quests:claim(quest, function()
 					if (customClaimFunc) then
 						customClaimFunc()
 					else
@@ -388,7 +458,7 @@ function Quests:showQuest(questView, quest, bottomSmudge, customClaimFunc)
 end
 
 function Quests:requiresGlobalDataUpdate()
-	return not Quests.QuestsGlobalData or QUESTS_LASTUPDATE_GLOBAL.time + 300 < os.time() or QUESTS_LASTUPDATE_GLOBAL.qi ~= TB_MENU_PLAYER_INFO.data.qi
+	return (not Quests.QuestsGlobalData or QUESTS_LASTUPDATE.time + 300 < os.time() or QUESTS_LASTUPDATE.qi ~= TB_MENU_PLAYER_INFO.data.qi) or QUESTS_LASTUPDATE.requireUpdate
 end
 
 function Quests:downloadGlobal()
@@ -410,7 +480,7 @@ function Quests:getGlobalQuests(fileData)
 	local fileData = fileData or Files:open("../data/quests_global.dat")
 
 	if (not fileData.data and not fileData:isDownloading()) then
-		QUESTS_LASTUPDATE_GLOBAL.time = 0
+		QUESTS_LASTUPDATE.time = 0
 		Quests:downloadGlobal()
 		Quests.QuestDataErrors = Quests.QuestDataErrors + 1
 		return
@@ -460,8 +530,8 @@ function Quests:getGlobalQuests(fileData)
 	fileData:close()
 
 	Quests.QuestsGlobalData = table.qsort(globalQuests, { "type", "progresspercentage" }, { SORT_ASCENDING, SORT_DESCENDING })
-	QUESTS_LASTUPDATE_GLOBAL.time = os.time()
-	QUESTS_LASTUPDATE_GLOBAL.qi = TB_MENU_PLAYER_INFO.data.qi
+	QUESTS_LASTUPDATE.time = os.time()
+	QUESTS_LASTUPDATE.qi = TB_MENU_PLAYER_INFO.data.qi
 end
 
 ---Returns navigation data for legacy Global Quests screen
@@ -497,7 +567,7 @@ function Quests:prepareGlobalQuests()
 	TBMenu:clearNavSection()
 	TBMenu:showNavigationBar(Quests:getGlobalQuestsNavigation(), true, true, 1)
 
-	if (QUESTS_LASTUPDATE_GLOBAL.time + 60 >= os.time() or QUESTS_LASTUPDATE_GLOBAL.qi == TB_MENU_PLAYER_INFO.data.qi) then
+	if (QUESTS_LASTUPDATE.time + 60 >= os.time() or QUESTS_LASTUPDATE.qi == TB_MENU_PLAYER_INFO.data.qi) then
 		-- Not enough time has passed or they haven't played any games so progress should be same
 		Quests:showGlobalQuests(Quests.QuestsGlobalData)
 		return
@@ -544,7 +614,7 @@ function Quests:showQuestButton(quest, listingHolder, listElements, elementHeigh
 		shapeType = ROUNDED,
 		rounded = { 4, 0 }
 	})
-	if (not quest.description) then
+	if (not quest.description and (quest.timeleft and quest.timeleft < 0)) then
 		questBackground.size.h = questBackground.size.h - 3
 		questBackground:setRounded(4)
 	end
@@ -630,13 +700,13 @@ function Quests:showQuestButton(quest, listingHolder, listElements, elementHeigh
 							questProgressBarState.shadowColor = { TB_MENU_DEFAULT_LIGHTER_COLOR, TB_MENU_DEFAULT_DARKEST_COLOR }
 							questProgressText:addAdaptedText(true, TB_MENU_LOCALIZED.REWARDSCLAIMSUCCESS, nil, nil, nil, nil, nil, nil, nil, 1)
 						else
-							TBMenu:showDataError(TB_MENU_LOCALIZED.ERRORTRYAGAIN)
+							TBMenu:showStatusMessage(TB_MENU_LOCALIZED.ERRORTRYAGAIN)
 							questProgressBarState:activate()
 							questProgressText:addAdaptedText(true, TB_MENU_LOCALIZED.QUESTSCLAIMREWARD, nil, nil, nil, nil, nil, nil, nil, 1)
 						end
 					end, function()
 						questProgressBarState:kill(true)
-						TBMenu:showDataError(TB_MENU_LOCALIZED.ERRORTRYAGAIN)
+						TBMenu:showStatusMessage(TB_MENU_LOCALIZED.ERRORTRYAGAIN)
 						questProgressBarState:activate()
 						questProgressText:addAdaptedText(true, TB_MENU_LOCALIZED.QUESTSCLAIMREWARD, nil, nil, nil, nil, nil, nil, nil, 1)
 					end)
@@ -648,23 +718,34 @@ function Quests:showQuestButton(quest, listingHolder, listElements, elementHeigh
 		rewardText = rewardText .. (rewardText:len() > 0 and "\n" or "") .. quest.bp_xp .. " " .. TB_MENU_LOCALIZED.BATTLEPASSEXPERIENCE
 	end
 	if (rewardText ~= "") then
-		if (not quest.description) then
+		local rewardIcon = quest.rewardid > 0 and (quest.rewardid == ITEM_SHIAI_TOKEN and "../textures/store/shiaitoken.tga" or Torishop:getItemIcon(quest.rewardid)) or (quest.reward > 0 and "../textures/store/toricredit.tga" or nil)
+		local shiftX = 0
+		if (rewardIcon ~= nil) then
+			local questRewardIcon = questBackground:addChild({
+				pos = { -questBackground.size.h, 5 },
+				size = { questBackground.size.h - 10, questBackground.size.h - 10 },
+				bgImage = rewardIcon
+			})
+			shiftX = shiftX + questRewardIcon.size.w
+		end
+		if (quest.bp_xp and quest.bp_xp > 0) then
+			local questBPIcon = questBackground:addChild({
+				pos = { -questBackground.size.h - shiftX, 5 },
+				size = { questBackground.size.h - 10, questBackground.size.h - 10 },
+				bgImage = "../textures/menu/battlepass/experience.tga"
+			})
+			shiftX = shiftX + questBPIcon.size.w
+		end
+		if (not quest.description and (quest.timeleft and quest.timeleft <= 0)) then
 			questBackground:addChild({
 				pos = { questProgressOutline.shift.x + questProgressOutline.size.w + 10, questTitle.shift.y },
-				size = { questBackground.size.w - questProgressOutline.size.w - questProgressOutline.shift.x - 30 - questTitle.size.h, questTitle.size.h }
+				size = { questBackground.size.w - questProgressOutline.size.w - questProgressOutline.shift.x - 30 - shiftX, questTitle.size.h }
 			}):addAdaptedText(true, TB_MENU_LOCALIZED.WORDREWARD ..  ":\n" .. rewardText, nil, nil, 4, RIGHTMID, 0.7)
 		end
-		local rewardIcon = quest.rewardid == 0 and "../textures/store/toricredit.tga" or (quest.rewardid == ITEM_SHIAI_TOKEN and "../textures/store/shiaitoken.tga" or Torishop:getItemIcon(quest.rewardid))
-		local questRewardIcon = questBackground:addChild({
-			pos = { -questBackground.size.h, 5 },
-			size = { questBackground.size.h - 10, questBackground.size.h - 10 },
-			bgImage = rewardIcon
-		})
 	end
 
-	if (quest.description) then
-		local questDescHolder = UIElement:new({
-			parent = listingHolder,
+	if (quest.description or (quest.timeleft and quest.timeleft > 0)) then
+		local questDescHolder = listingHolder:addChild({
 			pos = { 0, #listElements * elementHeight },
 			size = { listingHolder.size.w, elementHeight }
 		})
@@ -676,12 +757,41 @@ function Quests:showQuestButton(quest, listingHolder, listElements, elementHeigh
 			shapeType = ROUNDED,
 			rounded = { 0, 4 }
 		})
-		local questDescText = UIElement:new({
-			parent = questDescBackground,
-			pos = { 10, 0 },
-			size = { questProgressOutline.shift.x + questProgressOutline.size.w - 20, questDescBackground.size.h - 5 }
-		})
-		questDescText:addAdaptedText(true, quest.description, nil, nil, 4, LEFTMID, 0.7)
+		local shiftY = 0
+		if (quest.description) then
+			local questDescText = questDescBackground:addChild({
+				pos = { 10, 0 },
+				size = { questProgressOutline.shift.x + questProgressOutline.size.w - 20, questDescBackground.size.h - 5 }
+			})
+			if (quest.timeleft and quest.timeleft > 0) then
+				questDescText.size.h = questDescText.size.h * 0.65
+				shiftY = questDescText.size.h
+			end
+			questDescText:addAdaptedText(true, quest.description, nil, nil, 4, (quest.timeleft and quest.timeleft > 0) and LEFT or LEFTMID, 0.7)
+		end
+		if (quest.timeleft and quest.timeleft > 0) then
+			local questTimeleftText = questDescBackground:addChild({
+				pos = { 10, shiftY },
+				size = { questProgressOutline.shift.x + questProgressOutline.size.w - 20, questDescBackground.size.h - shiftY - 5 },
+				uiColor = { 1, 1, 1, 0.75 }
+			})
+			questTimeleftText:addCustomDisplay(true, function()
+				local timeleft = quest.timeleft - (os.time() - QUESTS_LASTUPDATE.time)
+				if (timeleft > 0) then
+					questTimeleftText:uiText(TB_MENU_LOCALIZED.QUESTEXPIRESIN .. " " .. TBMenu:getTime(timeleft, 2), nil, nil, 4, LEFTMID, 0.6)
+				else
+					questProgressBar.bgColor = table.clone(TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS)
+					if (questProgressBarState) then
+						questProgressBarState:deactivate()
+						questProgressBarState.bgColor = table.clone(TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS)
+						questProgressBarState.innerShadow[1] = 0
+						questProgressBarState.innerShadow[2] = 0
+					end
+					questTimeleftText:addAdaptedText(true, TB_MENU_LOCALIZED.QUESTEXPIREDMSG, nil, nil, 4, LEFTMID, 0.6)
+					QUESTS_LASTUPDATE.requireUpdate = true
+				end
+			end)
+		end
 
 		if (rewardText ~= "") then
 			questDescBackground:addChild({
@@ -984,8 +1094,9 @@ end
 ---@param listElements UIElement[]
 ---@param elementHeight number
 ---@param listView UIElement Viewport for quests display that will get reloaded on button click
+---@param sectionIdx? integer Section id to store last active quests tab
 ---@return nil
-function Quests:displayMainQuestTypeButton(listingHolder, v, listElements, elementHeight, listView)
+function Quests:displayMainQuestTypeButton(listingHolder, v, listElements, elementHeight, listView, sectionIdx)
 	if (#v.quests > 0) then
 		local listButton = listingHolder:addChild({
 			pos = { 0, #listElements * elementHeight },
@@ -1026,11 +1137,12 @@ function Quests:displayMainQuestTypeButton(listingHolder, v, listElements, eleme
 			})
 		end
 		buttonHolder:addMouseUpHandler(function()
-				if (listingHolder.selectedButton ~= buttonHolder) then
+				if (listingHolder.selectedButton and listingHolder.selectedButton ~= buttonHolder) then
 					listingHolder.selectedButton.bgColor = table.clone(TB_MENU_DEFAULT_DARKER_COLOR)
 					listingHolder.selectedButton = buttonHolder
 					listingHolder.selectedButton.bgColor = table.clone(TB_MENU_DEFAULT_DARKEST_COLOR)
 					Quests:showMainQuestList(listView, v)
+					TB_MENU_QUESTS_ACTIVE_SECTION = sectionIdx
 				end
 			end)
 
@@ -1053,7 +1165,6 @@ function Quests:showMainQuestTypes(viewElement, listView)
 		{
 			name = TB_MENU_LOCALIZED.QUESTSREPEATING,
 			quests = {},
-			selected = true,
 			canBeClaimed = 0
 		},
 		{
@@ -1072,31 +1183,23 @@ function Quests:showMainQuestTypes(viewElement, listView)
 			canBeClaimed = 0
 		}
 	}
+
+	local function putQuestInSection(quest, section)
+		table.insert(regularQuestList[section].quests, quest)
+		if (quest.progress >= quest.requirement) then
+			regularQuestList[section].canBeClaimed = regularQuestList[section].canBeClaimed + 1
+		end
+	end
+
 	for i,v in pairs(Quests.QuestsData) do
-		if (v.timeleft < 0 and v.ranked == false and v.bp_xp == 0) then
-			table.insert(regularQuestList[REGULAR].quests, v)
-			if (v.progress >= v.requirement) then
-				regularQuestList[REGULAR].canBeClaimed = regularQuestList[REGULAR].canBeClaimed + 1
-			end
+		if (v.ranked) then
+			putQuestInSection(v, RANKED)
+		elseif (v.bp_xp > 0) then
+			putQuestInSection(v, BATTLEPASS)
+		elseif (v.timeleft > 0) then
+			putQuestInSection(v, LIMITED)
 		else
-			if (v.timeleft > 0) then
-				table.insert(regularQuestList[LIMITED].quests, v)
-				if (v.progress >= v.requirement) then
-					regularQuestList[LIMITED].canBeClaimed = regularQuestList[LIMITED].canBeClaimed + 1
-				end
-			end
-			if (v.ranked) then
-				table.insert(regularQuestList[RANKED].quests, v)
-				if (v.progress >= v.requirement) then
-					regularQuestList[RANKED].canBeClaimed = regularQuestList[RANKED].canBeClaimed + 1
-				end
-			end
-			if (v.bp_xp > 0) then
-				table.insert(regularQuestList[BATTLEPASS].quests, v)
-				if (v.progress >= v.requirement) then
-					regularQuestList[BATTLEPASS].canBeClaimed = regularQuestList[BATTLEPASS].canBeClaimed + 1
-				end
-			end
+			putQuestInSection(v, REGULAR)
 		end
 	end
 
@@ -1139,8 +1242,9 @@ function Quests:showMainQuestTypes(viewElement, listView)
 	table.insert(listElements, regularQuestsTitle)
 	regularQuestsTitle:addChild({ shift = { 15, 5 }}):addAdaptedText(TB_MENU_LOCALIZED.QUESTSREGULAR, nil, nil, FONTS.BIG, LEFTMID)
 
+	regularQuestList[TB_MENU_QUESTS_ACTIVE_SECTION].selected = true
 	for i,v in pairs(regularQuestList) do
-		Quests:displayMainQuestTypeButton(listingHolder, v, listElements, elementHeight, listView)
+		Quests:displayMainQuestTypeButton(listingHolder, v, listElements, elementHeight, listView, i)
 	end
 
 	table.insert(listElements, listingHolder:addChild({
@@ -1171,7 +1275,7 @@ function Quests:showMainQuestTypes(viewElement, listView)
 		listingHolder:moveTo((listingHolder.parent.size.w - listingHolder.size.w) / 4, nil, true)
 	end
 
-	Quests:showMainQuestList(listView, regularQuestList[REGULAR])
+	Quests:showMainQuestList(listView, regularQuestList[TB_MENU_QUESTS_ACTIVE_SECTION])
 end
 
 ---Displays the main Quests screen
@@ -1212,7 +1316,6 @@ function Quests:showMain(navBack, backFunc)
 	TBMenu:showNavigationBar(Notifications:getNavigationButtons(navBack, nil, backFunc), true, true, 2)
 
 	Quests:download()
-	Quests:downloadGlobal()
 	local updatingView = TBMenu.CurrentSection:addChild({
 		shift = { 5, 0 },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR

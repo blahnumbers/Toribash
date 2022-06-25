@@ -18,7 +18,7 @@ end
 TB_MENU_DEBUG = get_option("menudebug") == 1
 if (TB_MENU_DEBUG) then
 	require = function(file)
-		dofile(file .. ".lua")
+		dofile(file:gsub("%.", "/") .. ".lua")
 	end
 end
 

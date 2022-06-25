@@ -275,6 +275,9 @@ QUESTSNAMETYPE4	Bone Crusher
 QUESTSNAMETYPEDECAP	Head Hunter
 QUESTSPLAYREQ	Play
 QUESTSWINREQ	Win
+QUESTSPOINTSREQ	by points
+QUESTSDQREQ	Disqualify an opponent in
+QUESTSDQREQGAME	Disqualify an opponent or get disqualified in
 QUESTSGETREQ	Get
 QUESTSGETREQ2	points across your fights
 QUESTSDECAPREQ	Decap players
@@ -777,6 +780,7 @@ BOUNTYADDBOUNTYTITLE	Add a bounty on another player
 BOUNTYADDUSERNAME	User name
 BOUNTYADDAMOUNT	Bounty amount
 BOUNTYADDTEXT	* Bounty text (optional)
+BOUNTYADDCLAIMTEXT	* Bounty after claim text (optional, +2000 TC price)
 BOUNTYADDBOUNTY	Add bounty
 BOUNTYERRORNOUSER	You need to specify user's name
 BOUNTYERRORAMOUNT	Bounty has to be at least 100 Toricredits
@@ -1080,3 +1084,12 @@ STOREPURCHASESTEAMCANCELLED	Steam purchase has been cancelled
 WORDELO	Elo
 RANKINGTRENDSLEGENDLASTGAMES1	Last
 RANKINGTRENDSLEGENDLASTGAMES2	games
+QUESTSBOUNTYCLAIMREQ1	Claim
+QUESTSBOUNTYCLAIMREQ2	bounties placed on other players
+QUESTSBOUNTYGET1	Get
+QUESTSBOUNTYGET2	bounties added on your head by other players
+QUESTSMARKETSPEND1	Spend
+QUESTSMARKETSPEND2	purchasing items in Market
+QUESTNAMETYPEMARKET	Pocket money
+QUESTEXPIRESIN	Expires in
+QUESTEXPIREDMSG	This quest has expired!

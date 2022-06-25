@@ -703,33 +703,45 @@ do
 	end
 
 	function Bounty:displayBountyAdd(viewElement)
-		local displayHolder = UIElement:new({
-			parent = viewElement,
-			pos = { 20, viewElement.size.h > 120 and (viewElement.size.h - 120) / 4 or 0 },
-			size = { viewElement.size.w - 40, viewElement.size.h > 120 and 120 or viewElement.size.h }
+		local displayHolder = viewElement:addChild({
+			pos = { 20, viewElement.size.h / 20 },
+			size = { viewElement.size.w - 40, viewElement.size.h * 0.8 }
 		})
 		local bountyAddTitle = UIElement:new({
 			parent = displayHolder,
 			pos = { 0, 0 },
-			size = { displayHolder.size.w, displayHolder.size.h / 3 }
+			size = { displayHolder.size.w, displayHolder.size.h / 4 }
 		})
 		bountyAddTitle:addAdaptedText(true, TB_MENU_LOCALIZED.BOUNTYADDBOUNTYTITLE, nil, nil, nil, LEFTMID)
 
-		local bountyAddData = { name = { "" }, text = { "" }, amount = { "" }}
-		bountyAddNameTextfield = TBMenu:spawnTextField(displayHolder, 0, bountyAddTitle.size.h, displayHolder.size.w / 2 - 5, (displayHolder.size.h - bountyAddTitle.size.h) / 2 - 5, bountyAddData.name, false, 4, 0.75, UICOLORWHITE, TB_MENU_LOCALIZED.BOUNTYADDUSERNAME, nil, nil, nil, true)
-		bountyAddAmountTextfield = TBMenu:spawnTextField(displayHolder, displayHolder.size.w / 2 + 5, bountyAddTitle.size.h, displayHolder.size.w / 2 - 5, (displayHolder.size.h - bountyAddTitle.size.h) / 2 - 5, bountyAddData.amount, true, 4, 0.75, UICOLORWHITE, TB_MENU_LOCALIZED.BOUNTYADDAMOUNT, nil, nil, nil, true)
-		bountyAddTextTextfield = TBMenu:spawnTextField(displayHolder, 0, bountyAddNameTextfield.size.h + bountyAddTitle.size.h + 15, displayHolder.size.w / 3 * 2 - 5, (displayHolder.size.h - bountyAddTitle.size.h) / 2 - 5, bountyAddData.text, false, 4, 0.75, UICOLORWHITE, TB_MENU_LOCALIZED.BOUNTYADDTEXT, nil, nil, nil, true)
+		local bountyAddData = { name = { "" }, text = { "" }, claimtext = { "" }, amount = { "" } }
+		bountyAddNameTextfield = TBMenu:spawnTextField(displayHolder, 0, bountyAddTitle.size.h, displayHolder.size.w / 2 - 5, (displayHolder.size.h - bountyAddTitle.size.h) / 3 - 5, bountyAddData.name, false, 4, 0.75, UICOLORWHITE, TB_MENU_LOCALIZED.BOUNTYADDUSERNAME, nil, nil, nil, true)
+		bountyAddAmountTextfield = TBMenu:spawnTextField(displayHolder, displayHolder.size.w / 2 + 5, bountyAddTitle.size.h, displayHolder.size.w / 2 - 5, (displayHolder.size.h - bountyAddTitle.size.h) / 3 - 5, bountyAddData.amount, true, 4, 0.75, UICOLORWHITE, TB_MENU_LOCALIZED.BOUNTYADDAMOUNT, nil, nil, nil, true)
+		bountyAddTextTextfield = TBMenu:spawnTextField(displayHolder, 0, bountyAddNameTextfield.size.h + bountyAddTitle.size.h + 15, displayHolder.size.w / 3 * 2 - 5, (displayHolder.size.h - bountyAddTitle.size.h) / 3 - 5, bountyAddData.text, false, 4, 0.75, UICOLORWHITE, TB_MENU_LOCALIZED.BOUNTYADDTEXT, nil, nil, nil, true)
 		bountyAddTextTextfield:addKeyboardHandlers(function()
+				local replacements
+				bountyAddTextTextfield.textfieldstr[1], replacements =  bountyAddTextTextfield.textfieldstr[1]:gsub(";", "")
+				bountyAddTextTextfield.textfieldindex = bountyAddTextTextfield.textfieldindex - replacements
 				if (bountyAddTextTextfield.textfieldstr[1]:len() > 32) then
 					bountyAddTextTextfield.textfieldstr[1] = bountyAddTextTextfield.textfieldstr[1]:sub(0, 32)
 					bountyAddTextTextfield.textfieldindex = bountyAddTextTextfield.textfieldindex - 1
+				end
+			end)
+		bountyAddClaimTextTextfield = TBMenu:spawnTextField(displayHolder, 0, bountyAddNameTextfield.size.h + bountyAddTitle.size.h * 2 + 20, displayHolder.size.w / 3 * 2 - 5, (displayHolder.size.h - bountyAddTitle.size.h) / 3 - 5, bountyAddData.claimtext, false, 4, 0.75, UICOLORWHITE, TB_MENU_LOCALIZED.BOUNTYADDCLAIMTEXT, nil, nil, nil, true)
+		bountyAddClaimTextTextfield:addKeyboardHandlers(function()
+				local replacements
+				bountyAddClaimTextTextfield.textfieldstr[1], replacements =  bountyAddClaimTextTextfield.textfieldstr[1]:gsub(";", "")
+				bountyAddClaimTextTextfield.textfieldindex = bountyAddClaimTextTextfield.textfieldindex - replacements
+				if (bountyAddClaimTextTextfield.textfieldstr[1]:len() > 32) then
+					bountyAddClaimTextTextfield.textfieldstr[1] = bountyAddClaimTextTextfield.textfieldstr[1]:sub(0, 32)
+					bountyAddClaimTextTextfield.textfieldindex = bountyAddClaimTextTextfield.textfieldindex - 1
 				end
 			end)
 
 		bountyAddButton = UIElement:new({
 			parent = displayHolder,
 			pos = { bountyAddTextTextfield.size.w + 20, bountyAddNameTextfield.size.h + bountyAddTitle.size.h + 15 },
-			size = { displayHolder.size.w - bountyAddTextTextfield.size.w - 20, (displayHolder.size.h - bountyAddTitle.size.h) / 2 - 5 },
+			size = { displayHolder.size.w - bountyAddTextTextfield.size.w - 20, (displayHolder.size.h - bountyAddTitle.size.h) / 3 * 2 },
 			interactive = true,
 			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			hoverColor = TB_MENU_DEFAULT_BG_COLOR,
@@ -755,9 +767,13 @@ do
 				})
 				TBMenu:displayLoadingMarkSmall(loadingMark, TB_MENU_LOCALIZED.REQUESTFINISHINGACTIVE)
 				Request:queue(function()
+						local bountyPrice = bountyAddData.amount[1]
+						if (string.len(bountyAddData.claimtext[1]) > 0) then
+							bountyPrice = bountyPrice + 2000
+						end
 						show_dialog_box(BOUNTY_ADD_ACTION,
-							TB_MENU_LOCALIZED.BOUNTYCONFIRM1 .. " " .. bountyAddData.amount[1] .. " " .. TB_MENU_LOCALIZED.BOUNTYCONFIRM2 .. " " .. bountyAddData.name[1] .. "?",
-							bountyAddData.name[1] .. ";" .. bountyAddData.amount[1] .. ";" .. bountyAddData.text[1],
+							TB_MENU_LOCALIZED.BOUNTYCONFIRM1 .. " " .. bountyAddData.amount[1] .. " " .. TB_MENU_LOCALIZED.WORDTC .. " " .. TB_MENU_LOCALIZED.BOUNTYCONFIRM2 .. " " .. bountyAddData.name[1] .. "?" .. (string.len(bountyAddData.claimtext[1]) > 0 and ("\n\n^33" .. TB_MENU_LOCALIZED.MARKETYOUWILLBECHARGED .. " " .. bountyPrice .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS .. ".") or ''),
+							bountyAddData.name[1] .. ";" .. bountyAddData.amount[1] .. ";" .. bountyAddData.text[1] .. ";" .. bountyAddData.claimtext[1],
 							true)
 						loadingMark:kill(true)
 						TBMenu:displayLoadingMarkSmall(loadingMark, TB_MENU_LOCALIZED.NETWORKLOADING)
@@ -837,7 +853,7 @@ do
 		local playerStatsView = UIElement:new({
 			parent = mainView,
 			pos = { 0, 0 },
-			size = { mainView.size.w, mainView.size.h * 0.7 }
+			size = { mainView.size.w, mainView.size.h - math.min(mainView.size.h * 0.4, 200) }
 		})
 		TBMenu:displayLoadingMark(playerStatsView, TB_MENU_LOCALIZED.BOUNTYREFRESHINGSTATS)
 		local bountyAddView = UIElement:new({
@@ -846,8 +862,8 @@ do
 			size = { mainView.size.w, mainView.size.h - playerStatsView.size.h },
 			bgColor = TB_MENU_DEFAULT_DARKER_COLOR
 		})
+		TBMenu:addBottomBloodSmudge(bountyAddView, 1)
 		Bounty:displayBountyAdd(bountyAddView)
-		TBMenu:addBottomBloodSmudge(mainView, 1)
 
 		Request:queue(function()
 				download_server_info("bountystats&username=" .. TB_MENU_PLAYER_INFO.username)
