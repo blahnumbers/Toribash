@@ -1093,3 +1093,5 @@ QUESTSMARKETSPEND2	purchasing items in Market
 QUESTNAMETYPEMARKET	Pocket money
 QUESTEXPIRESIN	Expires in
 QUESTEXPIREDMSG	This quest has expired!
+QUESTSBOUNTYPLAY	with an active bounty on you
+SETTINGSBROADCASTSAUTO	Display auto tourney broadcast popups

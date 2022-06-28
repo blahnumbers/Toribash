@@ -241,6 +241,8 @@ function Quests:getQuestObjective(quest)
 		targetText = TB_MENU_LOCALIZED.QUESTSBOUNTYGET1 .. " " .. requirementFormatted .. " " .. TB_MENU_LOCALIZED.QUESTSBOUNTYGET2
 	elseif (quest.type == 7) then
 		targetText = TB_MENU_LOCALIZED.QUESTSMARKETSPEND1 .. " " .. requirementFormatted .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS .. " " .. TB_MENU_LOCALIZED.QUESTSMARKETSPEND2
+	elseif (quest.type == 8) then
+		targetText = TB_MENU_LOCALIZED.QUESTSWINREQ .. " " .. requirementFormatted .. " " .. (quest.ranked and TB_MENU_LOCALIZED.WORDRANKED .. " " or "") .. TB_MENU_LOCALIZED.WORDFIGHTS .. " " .. TB_MENU_LOCALIZED.QUESTSBOUNTYPLAY
 	end
 
 	if (quest.modid ~= 0) then
@@ -684,7 +686,9 @@ function Quests:showQuestButton(quest, listingHolder, listElements, elementHeigh
 							if (quest.bp_xp > 0) then
 								BattlePass:getUserData()
 							end
-							download_inventory()
+							if (quest.rewardid > 0 and quest.rewardid ~= ITEM_SHIAI_TOKEN) then
+								download_inventory()
+							end
 							return
 						end
 						questProgressBarState:kill(true)
@@ -1031,7 +1035,7 @@ end]]
 ---@deprecated
 ---@param reload? boolean
 ---@return nil
-function Quests:showMainLegacy(reload)
+--[[function Quests:showMainLegacy(reload)
 	usage_event("quests")
 	TBMenu.CurrentSection:kill(true)
 	if (Quests.QuestsData and not reload) then
@@ -1056,7 +1060,7 @@ function Quests:showMainLegacy(reload)
 				end
 			end)
 	end
-end
+end]]
 
 ---Displays the list of player's quests
 ---@param viewElement UIElement
@@ -1242,6 +1246,9 @@ function Quests:showMainQuestTypes(viewElement, listView)
 	table.insert(listElements, regularQuestsTitle)
 	regularQuestsTitle:addChild({ shift = { 15, 5 }}):addAdaptedText(TB_MENU_LOCALIZED.QUESTSREGULAR, nil, nil, FONTS.BIG, LEFTMID)
 
+	if (#regularQuestList[TB_MENU_QUESTS_ACTIVE_SECTION].quests < 1) then
+		TB_MENU_QUESTS_ACTIVE_SECTION = 1
+	end
 	regularQuestList[TB_MENU_QUESTS_ACTIVE_SECTION].selected = true
 	for i,v in pairs(regularQuestList) do
 		Quests:displayMainQuestTypeButton(listingHolder, v, listElements, elementHeight, listView, i)

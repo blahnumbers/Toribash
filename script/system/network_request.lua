@@ -1,5 +1,5 @@
 -- Network class manager based on 5.41+ network hooks
-require("toriui/uielement")
+require("toriui.uielement")
 
 do
 	-- **Ver 1.2 updates:**

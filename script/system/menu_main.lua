@@ -68,29 +68,29 @@ dofile("toriui/uielement3d.lua")
 TB_MENU_GLOBAL_SCALE = math.min(WIN_H > 720 and 1 or WIN_H / 720, WIN_W > 1280 and 1 or WIN_W / 1280)
 
 dofile("system/menu_defines.lua")
-require("system/iofiles")
-require("system/menu_manager")
+require("system.iofiles")
+require("system.menu_manager")
 TBMenu:open()
 
 dofile("system/menu_backend_defines.lua")
-require("system/network_request")
-require("system/downloader_manager")
-require("system/store_manager")
-require("system/player_info")
-require("system/notifications_manager")
-require("system/quests_manager")
-require("system/rewards_manager")
-require("system/clans_manager")
-require("system/friendlist_manager")
-require("system/replays_manager")
-require("system/bounty_manager")
-require("system/settings_manager")
-require("system/scripts_manager")
-require("system/events_manager")
-require("system/events_online_manager")
-require("system/news_manager")
-require("system/market_manager")
-require("system/battlepass_manager")
+require("system.network_request")
+require("system.downloader_manager")
+require("system.store_manager")
+require("system.player_info")
+require("system.notifications_manager")
+require("system.quests_manager")
+require("system.rewards_manager")
+require("system.clans_manager")
+require("system.friendlist_manager")
+require("system.replays_manager")
+require("system.bounty_manager")
+require("system.settings_manager")
+require("system.scripts_manager")
+require("system.events_manager")
+require("system.events_online_manager")
+require("system.news_manager")
+require("system.market_manager")
+require("system.battlepass_manager")
 
 TB_MENU_PLAYER_INFO = {}
 TB_MENU_PLAYER_INFO.username = PlayerInfo:getUser()
@@ -272,16 +272,12 @@ if (get_option("tooltip") == 1 and not TOOLTIP_ACTIVE) then
 	dofile("system/tooltip_manager.lua")
 	Tooltip:create()
 end
-if (get_option("showbroadcast") and not BROADCASTS_ACTIVE) then
+if (get_option("showbroadcast") and (not Broadcasts or not Broadcasts.HOOKS_ACTIVE)) then
 	dofile("system/broadcast_manager.lua")
 	Broadcasts:activate()
 end
 if (not QueueList) then
-	local qmF = Files:open('system/queuelist_manager.lua')
-	if (qmF.data) then
-		qmF:close()
-		dofile("system/queuelist_manager.lua")
-	end
+	dofile("system/queuelist_manager.lua")
 end
 if (not REPLAY_GUI and get_replay_cache() > 0) then
 	dofile("system/replay_hud.lua")

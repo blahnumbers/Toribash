@@ -3,8 +3,8 @@ if (TBMenu == nil) then
 	close_menu()
 end
 
-require("toriui/uielement")
-require("system/replays_manager")
+require("toriui.uielement")
+require("system.replays_manager")
 REPLAY_GUI = REPLAY_GUI or nil
 
 local function replayGuiToggle(mode)

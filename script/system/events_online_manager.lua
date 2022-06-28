@@ -1,6 +1,6 @@
 -- Online events manager class
 -- Inherits a lot of functionality from tutorials
-require('tutorial/tutorial_manager')
+require('tutorial.tutorial_manager')
 
 do
 	if (not EventsOnline) then

@@ -1,5 +1,5 @@
 -- daily login manager class
-require("system/store_manager")
+require("system.store_manager")
 
 do
 	TC = 0

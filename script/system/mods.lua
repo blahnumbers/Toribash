@@ -6,9 +6,9 @@ if (TBMenu == nil) then
 	close_menu()
 end
 
-require("toriui/uielement3d")
-require("system/iofiles")
-require("system/menu_manager")
+require("toriui.uielement3d")
+require("system.iofiles")
+require("system.menu_manager")
 dofile("system/mods_manager.lua")
 
 if (MODS_MENU_MAIN_ELEMENT) then

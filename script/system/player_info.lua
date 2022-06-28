@@ -1,7 +1,7 @@
 -- Player info fetcher
-require("system/iofiles")
-require("system/network_request")
-require("system/ranking_manager")
+require("system.iofiles")
+require("system.network_request")
+require("system.ranking_manager")
 
 if (PlayerInfo == nil) then
 	PlayerInfo = {

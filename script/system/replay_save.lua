@@ -3,8 +3,8 @@ if (TBMenu == nil) then
 	close_menu()
 end
 
-require("toriui/uielement")
-require("system/menu_manager")
+require("toriui.uielement")
+require("system.menu_manager")
 
 REPLAY_SAVETEMPNAME = "--localreplaytempfile"
 REPLAY_FOLDER = REPLAY_FOLDER or '/my replays'

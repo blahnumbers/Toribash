@@ -1,5 +1,5 @@
 -- Files I/O manager
-require("toriui/uielement")
+require("toriui.uielement")
 
 FILES_MODE_READONLY = 'r'
 FILES_MODE_WRITE = 'w+'

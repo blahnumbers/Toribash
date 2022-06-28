@@ -1146,7 +1146,11 @@ do
 							type = DROPDOWN,
 							systemname = "showbroadcast",
 							selectedAction = function()
-									return get_option("showbroadcast") + 1
+									local showbroadcast = get_option("showbroadcast")
+									if (showbroadcast > 2) then
+										showbroadcast = bit.bxor(get_option("showbroadcast"), 4)
+									end
+									return showbroadcast + 1
 								end,
 							dropdown = {
 								{
@@ -1159,18 +1163,31 @@ do
 								{
 									text = TB_MENU_LOCALIZED.SETTINGSSHOWINMP,
 									action = function()
-											TB_MENU_MAIN_SETTINGS.showbroadcast = { value = 1 }
+											TB_MENU_MAIN_SETTINGS.showbroadcast = { value = 1 + bit.band(TB_MENU_MAIN_SETTINGS["showbroadcast"] and TB_MENU_MAIN_SETTINGS["showbroadcast"].value or get_option("showbroadcast"), 4) }
 											Settings:settingsApplyActivate()
 										end
 								},
 								{
 									text = TB_MENU_LOCALIZED.SETTINGSALWAYSSHOW,
 									action = function()
-											TB_MENU_MAIN_SETTINGS.showbroadcast = { value = 2 }
+											TB_MENU_MAIN_SETTINGS.showbroadcast = { value = 2 + bit.band(TB_MENU_MAIN_SETTINGS["showbroadcast"] and TB_MENU_MAIN_SETTINGS["showbroadcast"].value or get_option("showbroadcast"), 4) }
 											Settings:settingsApplyActivate()
 										end
 								},
 							}
+						},
+						{
+							name = TB_MENU_LOCALIZED.SETTINGSBROADCASTSAUTO,
+							type = TOGGLE,
+							systemname = "showbroadcast",
+							action = function(val)
+								local showbroadcast = TB_MENU_MAIN_SETTINGS["showbroadcast"] and TB_MENU_MAIN_SETTINGS["showbroadcast"].value or get_option("showbroadcast")
+								if (showbroadcast >= 4) then
+									showbroadcast = showbroadcast - 4
+								end
+								TB_MENU_MAIN_SETTINGS.showbroadcast = { value = (1 - val) * 4 + showbroadcast }
+							end,
+							val = { bit.band(get_option("showbroadcast"), 4) == 0 and 1 or 0 }
 						}
 					}
 				},
@@ -1762,7 +1779,7 @@ do
 							reload = true
 						end
 						if (i == 'dpiawareness') then
-							TBMenu:showDataError(TB_MENU_LOCALIZED.SETTINGSAPPLIEDAFTERRESTART)
+							TBMenu:showStatusMessage(TB_MENU_LOCALIZED.SETTINGSAPPLIEDAFTERRESTART)
 						end
 					end
 				end
@@ -1776,7 +1793,7 @@ do
 				end
 				if (TB_MENU_MAIN_SETTINGS.showbroadcast) then
 					dofile("system/broadcast_manager.lua")
-					if (TB_MENU_MAIN_SETTINGS.showbroadcast.value > 0) then
+					if (not in_array(TB_MENU_MAIN_SETTINGS.showbroadcast.value, { 0, 4 })) then
 						Broadcasts:activate()
 					else
 						Broadcasts:deactivate()

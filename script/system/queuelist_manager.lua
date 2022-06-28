@@ -1,8 +1,8 @@
 -- Queuelist Dropdown Menu
-require("system/player_info")
-require("toriui/uielement3d")
-require("system/friendlist_manager")
-require("system/iofiles")
+require("system.player_info")
+require("toriui.uielement3d")
+require("system.friendlist_manager")
+require("system.iofiles")
 
 QUEUELISTMENU = nil
 

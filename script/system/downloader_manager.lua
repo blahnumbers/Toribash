@@ -1,4 +1,4 @@
-require("toriui/uielement")
+require("toriui.uielement")
 
 if (Downloader == nil) then
 	---Downloader manager class

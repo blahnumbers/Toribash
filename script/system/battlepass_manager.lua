@@ -1,10 +1,10 @@
 -- Battle Pass manager class
 -- DO NOT MODIFY THIS FILE
-require("system/menu_defines")
-require("system/menu_manager")
-require("system/store_manager")
-require("system/player_info")
-require("system/ranking_manager")
+require("system.menu_defines")
+require("system.menu_manager")
+require("system.store_manager")
+require("system.player_info")
+require("system.ranking_manager")
 
 if (BattlePass == nil or TB_MENU_DEBUG) then
 	---@class BattlePassLevel
@@ -858,6 +858,7 @@ function BattlePass:showMain()
 		ratio = 0.375,
 		disableUnload = true,
 		action = function()
+			TB_MENU_QUESTS_ACTIVE_SECTION = 4
 			Quests:showMain(true, function()
 					TBMenu:clearNavSection()
 					TBMenu:showNavigationBar()

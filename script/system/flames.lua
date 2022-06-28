@@ -6,12 +6,12 @@ if (TBMenu == nil) then
 	close_menu()
 end
 
-require("toriui/uielement3d")
-require("system/menu_manager")
-require("system/player_info")
-require("system/iofiles")
 dofile("system/menu_backend_defines.lua")
-dofile("system/flames_manager.lua")
+require("toriui.uielement3d")
+require("system.menu_manager")
+require("system.player_info")
+require("system.iofiles")
+require("system.flames_manager")
 
 if (FLAMES_MENU_MAIN_ELEMENT) then
 	if (get_shift_key_state() == 0) then
