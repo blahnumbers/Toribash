@@ -1095,3 +1095,6 @@ QUESTEXPIRESIN	Expires in
 QUESTEXPIREDMSG	This quest has expired!
 QUESTSBOUNTYPLAY	with an active bounty on you
 SETTINGSBROADCASTSAUTO	Display auto tourney broadcast popups
+WORDDELETE	Delete
+NOTIFICATIONSDELETECONFIRM1	Are you sure you want to delete this message by
+NOTIFICATIONSDELETECONFIRM2	from your inbox?

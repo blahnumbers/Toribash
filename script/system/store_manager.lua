@@ -2082,7 +2082,7 @@ do
 		inventoryView:kill(true)
 
 		local elementHeight = math.max(50, WIN_H / 18)
-		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(inventoryView, 56, 40, 20, TB_MENU_DEFAULT_BG_COLOR)
+		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(inventoryView, math.max(56, elementHeight), elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
 		local bottomSmudge = TBMenu:addBottomBloodSmudge(botBar, 1)
 
 		local itemsPerPage = 100

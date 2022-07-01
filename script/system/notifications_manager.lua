@@ -87,10 +87,10 @@ do
 		local color = { 1, 1, 1, 1 }
 		if (name == "ToriBot") then
 			name = "^27" .. name
-			color = cloneTable(TB_MENU_DEFAULT_ORANGE)
+			color = table.clone(TB_MENU_DEFAULT_ORANGE)
 		elseif (name == "Event Squad") then
 			name = "^32" .. name
-			color = cloneTable(TB_MENU_DEFAULT_ORANGE)
+			color = table.clone(TB_MENU_DEFAULT_ORANGE)
 		end
 
 		return name, color
@@ -215,19 +215,46 @@ do
 			pos = { 0, messageHolder.size.h + messageHolder.shift.y },
 			size = { viewElement.size.w, viewElement.size.h - messageHolder.size.h - messageHolder.shift.y * 2 }
 		})
-		local messageViewForums = UIElement:new({
-			parent = messageButtons,
-			pos = { messageButtons.size.w / 4, 10 },
+		local messageViewForums = messageButtons:addChild({
+			pos = { messageButtons.size.w / 8, 10 },
 			size = { messageButtons.size.w / 2, messageButtons.size.h - 30 },
 			interactive = true,
 			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+			shapeType = ROUNDED,
+			rounded = 4
 		})
-		messageViewForums:addMouseHandlers(nil, function()
+		messageViewForums:addMouseUpHandler(function()
 				open_url("https://forum.toribash.com/private.php?do=showpm&pmid=" .. notification.id)
 			end)
 		TBMenu:showTextExternal(messageViewForums, TB_MENU_LOCALIZED.NOTIFICATIONSVIEWPMFORUMS, true)
+		local messageDelete = messageButtons:addChild({
+			pos = { messageViewForums.shift.x + messageViewForums.size.w + 20, 10 },
+			size = { messageButtons.size.w - (messageViewForums.shift.x * 2 + messageViewForums.size.w + 20), messageButtons.size.h - 30 },
+			interactive = true,
+			bgColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
+			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+			shapeType = ROUNDED,
+			rounded = 4
+		})
+		messageDelete:addMouseUpHandler(function()
+				TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.NOTIFICATIONSDELETECONFIRM1 .. " " .. notification.user .. "\n" .. TB_MENU_LOCALIZED.NOTIFICATIONSDELETECONFIRM2, function()
+					Request:queue(function() delete_notification(notification.id) end, "notifications_delete_" .. notification.id, function()
+							local response = get_network_response();
+							local success = response:gsub("%D", '')
+							if (success == '1') then
+								Notifications:prepareNotifications(true)
+								return
+							end
+							TBMenu:showStatusMessage(TB_MENU_LOCALIZED.ERRORTRYAGAIN)
+						end, function()
+							TBMenu:showStatusMessage(TB_MENU_LOCALIZED.ERRORTRYAGAIN)
+						end)
+					end)
+			end)
+		messageDelete:addAdaptedText(TB_MENU_LOCALIZED.WORDDELETE)
 	end
 
 	function Notifications:fixBBCode(message)

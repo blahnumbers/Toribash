@@ -18,10 +18,10 @@ STORE 0;3550
 //IMAGE 0;htotmpopart22.tga
 //URL 0;https://forum.toribash.com/showthread.php?t=653690
 
-//NEWSID 3;
-//TITLE 0;No events live now, but you can still replay any ended event in all events menu!
-//IMAGE 0;noevents-placeholder.tga
-//FEATURED 0;
+NEWSID 3;
+TITLE 0;No events live now, but you can still replay any ended event in all events menu!
+IMAGE 0;noevents-placeholder.tga
+FEATURED 0;
 
 //NEWSID 3;
 //TITLE 0;Soccer League
@@ -29,11 +29,11 @@ STORE 0;3550
 //EVENT 0;1
 //FEATURED 0;
 
-NEWSID 4;
+//NEWSID 4;
 //TITLE 0;Free Run Frenzy 5
-IMAGE 0;freerunfrenzy5.tga
-EVENT 0;2
-FEATURED 0;
+//IMAGE 0;freerunfrenzy5.tga
+//EVENT 0;2
+//FEATURED 0;
 
 //NEWSID 4;
 //TITLE 0;Scrambled Eggs
