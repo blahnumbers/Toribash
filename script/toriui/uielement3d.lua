@@ -1,5 +1,5 @@
 -- 3D UI class
-dofile('toriui/uielement.lua')
+require('toriui.uielement')
 
 CUBE = 1
 SPHERE = 2
@@ -555,6 +555,7 @@ do
 	end
 
 	function UIElement:updateObj(model, noreload)
+		require("system.iofiles")
 		local filename = ''
 		if (model) then
 			if (model:find("%.%./", 4)) then
@@ -565,7 +566,6 @@ do
 				filename = "data/script/" .. model:gsub("^/", "")
 			end
 		end
-		filename = filename .. ".obj"
 
 		if (not noreload and self.objModel and not self.disableUnload) then
 			local id = 0
@@ -588,11 +588,11 @@ do
 			return true
 		end
 
-		local tempobj = io.open(filename, "r", 1)
-		if (not tempobj) then
+		local objFile = Files:open("../" .. filename .. ".obj")
+		if (not objFile.data) then
 			return false
 		end
-		io.close(tempobj)
+		objFile:close()
 
 		local objid = 0
 		for i = 0, 127 do
@@ -613,8 +613,16 @@ do
 				break
 			end
 		end
-		if (load_obj(objid, model)) then
-			self.objModel = objid
+		-- We don't yet know the exact build version when it'd be supported
+		-- Require the first build of 2023
+		if (tonumber(BUILD_VERSION) > 230101) then
+			if (load_obj(objid, "../" .. filename, 1)) then
+				self.objModel = objid
+			end
+		else
+			if (load_obj(objid, model)) then
+				self.objModel = objid
+			end
 		end
 		OBJMODELCACHE[objid] = { name = filename, count = 1 }
 		OBJMODELINDEX = OBJMODELINDEX + 1

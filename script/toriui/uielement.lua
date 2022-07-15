@@ -501,6 +501,7 @@ do
 			end
 			self.rounded = math.max(self.rounded, self.roundedInternal[i])
 		end
+		self.diskSlices = math.min(self.rounded * 5, 50)
 	end
 
 	-- Adds mouse handlers to use for an interactive UIElement object
@@ -1016,13 +1017,13 @@ do
 			if (self.innerShadow[1] > 0 or self.innerShadow[2] > 0) then
 				set_color(unpack(self.shadowColor[1]))
 				if (self.shapeType == ROUNDED) then
-					draw_disk(self.pos.x + self.roundedInternal[1], self.pos.y + self.roundedInternal[1], 0, self.roundedInternal[1], 100, 1, -180, 90, 0)
-					draw_disk(self.pos.x + self.size.w - self.roundedInternal[1], self.pos.y + self.roundedInternal[1], 0, self.roundedInternal[1], 100, 1, 90, 90, 0)
+					draw_disk(self.pos.x + self.roundedInternal[1], self.pos.y + self.roundedInternal[1], 0, self.roundedInternal[1], self.diskSlices, 1, -180, 90, 0)
+					draw_disk(self.pos.x + self.size.w - self.roundedInternal[1], self.pos.y + self.roundedInternal[1], 0, self.roundedInternal[1], self.diskSlices, 1, 90, 90, 0)
 					draw_quad(self.pos.x + self.roundedInternal[1], self.pos.y, self.size.w - self.roundedInternal[1] * 2, self.roundedInternal[1])
 					draw_quad(self.pos.x, self.pos.y + self.roundedInternal[1], self.size.w, self.size.h / 2 - self.roundedInternal[1])
 					set_color(unpack(self.shadowColor[2]))
-					draw_disk(self.pos.x + self.roundedInternal[2], self.pos.y + self.size.h - self.roundedInternal[2], 0, self.roundedInternal[2], 100, 1, -90, 90, 0)
-					draw_disk(self.pos.x + self.size.w - self.roundedInternal[2], self.pos.y + self.size.h - self.roundedInternal[2], 0, self.roundedInternal[2], 100, 1, 0, 90, 0)
+					draw_disk(self.pos.x + self.roundedInternal[2], self.pos.y + self.size.h - self.roundedInternal[2], 0, self.roundedInternal[2], self.diskSlices, 1, -90, 90, 0)
+					draw_disk(self.pos.x + self.size.w - self.roundedInternal[2], self.pos.y + self.size.h - self.roundedInternal[2], 0, self.roundedInternal[2], self.diskSlices, 1, 0, 90, 0)
 					draw_quad(self.pos.x, self.pos.y + self.size.h / 2, self.size.w, self.size.h / 2 - self.roundedInternal[2])
 					draw_quad(self.pos.x + self.roundedInternal[2], self.pos.y + self.size.h - self.roundedInternal[2], self.size.w - self.roundedInternal[2] * 2, self.roundedInternal[2])
 				else
@@ -1048,10 +1049,10 @@ do
 				set_mouse_cursor(1)
 			end
 			if (self.shapeType == ROUNDED) then
-				draw_disk(self.pos.x + self.roundedInternal[1], self.pos.y + self.roundedInternal[1] + self.innerShadow[1], 0, self.roundedInternal[1], 500, 1, -180, 90, 0)
-				draw_disk(self.pos.x + self.roundedInternal[2], self.pos.y + self.size.h - self.roundedInternal[2] - self.innerShadow[2], 0, self.roundedInternal[2], 500, 1, -90, 90, 0)
-				draw_disk(self.pos.x + self.size.w - self.roundedInternal[1], self.pos.y + self.roundedInternal[1] + self.innerShadow[1], 0, self.roundedInternal[1], 500, 1, 90, 90, 0)
-				draw_disk(self.pos.x + self.size.w - self.roundedInternal[2], self.pos.y + self.size.h - self.roundedInternal[2] - self.innerShadow[2], 0, self.roundedInternal[2], 500, 1, 0, 90, 0)
+				draw_disk(self.pos.x + self.roundedInternal[1], self.pos.y + self.roundedInternal[1] + self.innerShadow[1], 0, self.roundedInternal[1], self.diskSlices, 1, -180, 90, 0)
+				draw_disk(self.pos.x + self.roundedInternal[2], self.pos.y + self.size.h - self.roundedInternal[2] - self.innerShadow[2], 0, self.roundedInternal[2], self.diskSlices, 1, -90, 90, 0)
+				draw_disk(self.pos.x + self.size.w - self.roundedInternal[1], self.pos.y + self.roundedInternal[1] + self.innerShadow[1], 0, self.roundedInternal[1], self.diskSlices, 1, 90, 90, 0)
+				draw_disk(self.pos.x + self.size.w - self.roundedInternal[2], self.pos.y + self.size.h - self.roundedInternal[2] - self.innerShadow[2], 0, self.roundedInternal[2], self.diskSlices, 1, 0, 90, 0)
 				draw_quad(self.pos.x + self.roundedInternal[1], self.pos.y + self.innerShadow[1], self.size.w - self.roundedInternal[1] * 2, self.roundedInternal[1])
 				draw_quad(self.pos.x, self.pos.y + self.roundedInternal[1] + self.innerShadow[1], self.size.w, self.size.h - self.roundedInternal[2] - self.roundedInternal[1] - self.innerShadow[2] - self.innerShadow[1])
 				draw_quad(self.pos.x + self.roundedInternal[2], self.pos.y + self.size.h - self.roundedInternal[2] - self.innerShadow[2], self.size.w - self.roundedInternal[2] * 2, self.roundedInternal[2])
@@ -1756,6 +1757,7 @@ do
 	---@param noreload? boolean If true, will not check if existing texture should be unloaded
 	---@return nil
 	function UIElement:updateImage(image, default, noreload)
+		require("system.iofiles")
 		local default = default or DEFTEXTURE
 		local filename
 		if (image) then
@@ -1796,8 +1798,8 @@ do
 			self.imageColor = { 1, 1, 1, 1 }
 		end
 
-		local tempicon = io.open(filename, "r", 1)
-		if (not tempicon) then
+		local tempicon = Files:open("../" .. filename)
+		if (not tempicon.data) then
 			local textureid = load_texture(default)
 			self.bgImage = textureid
 			TEXTUREINDEX = TEXTUREINDEX > textureid and TEXTUREINDEX or textureid
@@ -1812,7 +1814,7 @@ do
 			end
 			TEXTUREINDEX = TEXTUREINDEX > textureid and TEXTUREINDEX or textureid
 			table.insert(TEXTURECACHE, self.bgImage)
-			io.close(tempicon)
+			tempicon:close()
 		end
 	end
 

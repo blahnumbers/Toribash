@@ -301,7 +301,7 @@ function PlayerInfo:getClan(player, tag)
 				return clanInfo
 			end
 		end
-		for ln in customs.data:lines() do
+		for i,ln in pairs(customs:readAll()) do
 			if string.match(ln, "^CLAN 0;") then
 				ln = string.gsub(ln, "CLAN 0;", "")
 				local clanid = ln:match("%d+");
@@ -324,7 +324,7 @@ function PlayerInfo:getClan(player, tag)
 	if (not clans.data) then
 		return clanInfo
 	end
-	for ln in clans.data:lines() do
+	for i,ln in pairs(clans:readAll()) do
 		if string.match(ln, "^CLAN") then
 			local segments, found = 14, false
 			local data_stream = { ln:match(("([^\t]*)\t"):rep(segments)) }
@@ -440,7 +440,7 @@ function PlayerInfo:getUserData(player)
 	if (not customs.data) then
 		return userData
 	end
-	for ln in customs.data:lines() do
+	for i,ln in pairs(customs:readAll()) do
 		if string.match(ln, "^BELT 0;") then
 			userData.qi = string.gsub(ln, "BELT 0;", "")
 			userData.qi = tonumber(userData.qi)

@@ -37,9 +37,9 @@ if (TBMenu == nil) then
 	setmetatable({}, TBMenu)
 end
 
-function TBMenu:open()
+function TBMenu:init(version)
 	TB_MENU_MAIN_ISOPEN = 1
-	set_build_version("220628")
+	set_build_version(version)
 end
 
 function TBMenu:setLanguageFontOptions(language)
@@ -447,29 +447,31 @@ function TBMenu:showHomeButton(viewElement, buttonData, hasSmudge, extraElements
 				TBMenu:displayLoadingMark(itemIcon, nil, elementHeight / 5)
 				add_hook("downloader_complete", "menuMain" .. filename, function(name)
 						if (name:find(filename .. "$")) then
-							News:removeFromQueue(name)
-							if (viewElement:isDisplayed()) then
-								viewElement:kill(true)
-								TBMenu:showHomeButton(viewElement, buttonData, hasSmudge, extraElements, lockedMessage)
-								if (viewElement.parent and viewElement.parent.toReload) then
-									viewElement.parent.toReload:reload()
+							Downloader:safeCall(function()
+								News:removeFromQueue(name)
+								if (viewElement:isDisplayed()) then
+									viewElement:kill(true)
+									TBMenu:showHomeButton(viewElement, buttonData, hasSmudge, extraElements, lockedMessage)
+									if (viewElement.parent and viewElement.parent.toReload) then
+										viewElement.parent.toReload:reload()
+									end
+								else
+									local reloader = UIElement:new({
+										parent = viewElement,
+										pos = { 0, 0 },
+										size = { 0, 0 }
+									})
+									reloader:hide()
+									reloader:addCustomDisplay(true, function()
+											if (reloader:isDisplayed()) then
+												viewElement:kill(true)
+												TBMenu:showHomeButton(viewElement, buttonData, hasSmudge, extraElements, lockedMessage)
+												viewElement.parent.toReload:reload()
+											end
+										end)
 								end
-							else
-								local reloader = UIElement:new({
-									parent = viewElement,
-									pos = { 0, 0 },
-									size = { 0, 0 }
-								})
-								reloader:hide()
-								reloader:addCustomDisplay(true, function()
-										if (reloader:isDisplayed()) then
-											viewElement:kill(true)
-											TBMenu:showHomeButton(viewElement, buttonData, hasSmudge, extraElements, lockedMessage)
-											viewElement.parent.toReload:reload()
-										end
-									end)
-							end
-							remove_hooks("menuMain" .. filename)
+								remove_hooks("menuMain" .. filename)
+							end)
 						end
 					end)
 				break
@@ -1970,7 +1972,11 @@ function TBMenu:showUserBar()
 	})
 	TBMenu:showTextWithImage(accountButtonText, TB_MENU_LOCALIZED.NAVBUTTONACCOUNT, 4, accountButtonText.size.h * 0.75, TB_MENU_LOGOUT_BUTTON)
 	accountButton:addMouseHandlers(nil, function()
-			TBMenu:showAccountMain()
+			if (string.len(PlayerInfo:getUser()) > 0) then
+				TBMenu:showAccountMain()
+			else
+				open_menu(18)
+			end
 		end)
 
 	--[[
@@ -2387,12 +2393,14 @@ function TBMenu:showBottomBar(leftOnly)
 			start_new_game()
 		end
 	end
-	local tbMenuBottomLeftButtonsData = {
-		{ action = function() if (TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 8) then TBMenu:showFriendsList() else FriendsList:quit() end end, image = TB_MENU_FRIENDS_BUTTON },
-		{ action = function() if (TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 4) then TBMenu:showNotifications() else Notifications:quit() end end, image = TB_MENU_NOTIFICATIONS_BUTTON },
-		{ action = function() if (TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 7) then TBMenu:showBounties() else Bounty:quit() end end, image = TB_MENU_BOUNTY_BUTTON },
-		{ action = function() usage_event("discord") open_url("https://toribash.com/discord.php") end, image = TB_MENU_DISCORD_BUTTON }
-	}
+	local tbMenuBottomLeftButtonsData = { }
+	if (string.len(TB_MENU_PLAYER_INFO.username) > 0) then
+		table.insert(tbMenuBottomLeftButtonsData, { action = function() if (TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 8) then TBMenu:showFriendsList() else FriendsList:quit() end end, image = TB_MENU_FRIENDS_BUTTON })
+		table.insert(tbMenuBottomLeftButtonsData, { action = function() if (TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 4) then TBMenu:showNotifications() else Notifications:quit() end end, image = TB_MENU_NOTIFICATIONS_BUTTON })
+		table.insert(tbMenuBottomLeftButtonsData, { action = function() if (TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 7) then TBMenu:showBounties() else Bounty:quit() end end, image = TB_MENU_BOUNTY_BUTTON })
+	end
+	table.insert(tbMenuBottomLeftButtonsData, { action = function() usage_event("discord") open_url("https://toribash.com/discord.php") end, image = TB_MENU_DISCORD_BUTTON })
+
 	local tbMenuBottomLeftButtons = {}
 	for i, v in pairs(tbMenuBottomLeftButtonsData) do
 		tbMenuBottomLeftButtons[i] = TBMenu.BottomLeftBar:addChild({
@@ -2408,27 +2416,29 @@ function TBMenu:showBottomBar(leftOnly)
 		--tbMenuBottomLeftButtons[i] = TBMenu:createImageButtons(TBMenu.BottomLeftBar, (i - 1) * (TBMenu.BottomLeftBar.size.h + 10), 0, TBMenu.BottomLeftBar.size.h, TBMenu.BottomLeftBar.size.h, v.image, v.imageHover, v.imagePress)
 		tbMenuBottomLeftButtons[i]:addMouseHandlers(nil, function() shopCheckExit() v.action() end, nil)
 	end
-	local notificationsCountWidth = get_string_length(TB_MENU_NOTIFICATIONS_COUNT + TB_MENU_NOTIFICATIONS_NET_COUNT + TB_MENU_QUESTS_GLOBAL_COUNT + TB_MENU_QUESTS_COUNT, FONTS.MEDIUM) * 0.9
-	notificationsCountWidth = notificationsCountWidth > TBMenu.BottomLeftBar.size.h / 2 and (notificationsCountWidth > TBMenu.BottomLeftBar.size.h and TBMenu.BottomLeftBar.size.h or notificationsCountWidth) or TBMenu.BottomLeftBar.size.h / 2
-	tbMenuNotificationsCount = tbMenuBottomLeftButtons[2]:addChild({
-		pos = { -notificationsCountWidth, 0 },
-		size = { notificationsCountWidth, TBMenu.BottomLeftBar.size.h / 2 },
-		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
-		shapeType = ROUNDED,
-		rounded = TBMenu.BottomLeftBar.size.h
-	})
-	tbMenuNotificationsCount:addCustomDisplay(false, function()
-			tbMenuNotificationsCount:uiText(TB_MENU_NOTIFICATIONS_COUNT + TB_MENU_NOTIFICATIONS_NET_COUNT + TB_MENU_QUESTS_GLOBAL_COUNT + TB_MENU_QUESTS_COUNT + TB_MENU_QUEST_NOTIFICATIONS, nil, nil, FONTS.MEDIUM, nil, 0.7, 0.4)
-		end)
-	tbMenuBottomLeftButtons[2]:addCustomDisplay(function()
-			if (TB_MENU_NOTIFICATIONS_COUNT + TB_MENU_NOTIFICATIONS_NET_COUNT + TB_MENU_QUESTS_GLOBAL_COUNT + TB_MENU_QUESTS_COUNT == 0) then
-				tbMenuNotificationsCount:hide()
-				tbMenuNotificationsCount.hidden = true
-			elseif (tbMenuNotificationsCount.hidden) then
-				tbMenuNotificationsCount:show()
-				tbMenuNotificationsCount.hidden = false
-			end
-		end)
+	if (string.len(TB_MENU_PLAYER_INFO.username) > 0) then
+		local notificationsCountWidth = get_string_length(TB_MENU_NOTIFICATIONS_COUNT + TB_MENU_NOTIFICATIONS_NET_COUNT + TB_MENU_QUESTS_GLOBAL_COUNT + TB_MENU_QUESTS_COUNT, FONTS.MEDIUM) * 0.9
+		notificationsCountWidth = notificationsCountWidth > TBMenu.BottomLeftBar.size.h / 2 and (notificationsCountWidth > TBMenu.BottomLeftBar.size.h and TBMenu.BottomLeftBar.size.h or notificationsCountWidth) or TBMenu.BottomLeftBar.size.h / 2
+		tbMenuNotificationsCount = tbMenuBottomLeftButtons[2]:addChild({
+			pos = { -notificationsCountWidth, 0 },
+			size = { notificationsCountWidth, TBMenu.BottomLeftBar.size.h / 2 },
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			shapeType = ROUNDED,
+			rounded = TBMenu.BottomLeftBar.size.h
+		})
+		tbMenuNotificationsCount:addCustomDisplay(false, function()
+				tbMenuNotificationsCount:uiText(TB_MENU_NOTIFICATIONS_COUNT + TB_MENU_NOTIFICATIONS_NET_COUNT + TB_MENU_QUESTS_GLOBAL_COUNT + TB_MENU_QUESTS_COUNT + TB_MENU_QUEST_NOTIFICATIONS, nil, nil, FONTS.MEDIUM, nil, 0.7, 0.4)
+			end)
+		tbMenuBottomLeftButtons[2]:addCustomDisplay(function()
+				if (TB_MENU_NOTIFICATIONS_COUNT + TB_MENU_NOTIFICATIONS_NET_COUNT + TB_MENU_QUESTS_GLOBAL_COUNT + TB_MENU_QUESTS_COUNT == 0) then
+					tbMenuNotificationsCount:hide()
+					tbMenuNotificationsCount.hidden = true
+				elseif (tbMenuNotificationsCount.hidden) then
+					tbMenuNotificationsCount:show()
+					tbMenuNotificationsCount.hidden = false
+				end
+			end)
+	end
 	TBMenu.BottomLeftBar.size.w = #tbMenuBottomLeftButtonsData * (TBMenu.BottomLeftBar.size.h + 10)
 	if (leftOnly) then
 		return
@@ -2949,13 +2959,14 @@ function TBMenu:addOuterRounding(e, color, rounding)
 	local color = color or TB_MENU_DEFAULT_BG_COLOR
 	local rounding = rounding or 5
 	local roundingWidth = rounding * 1.4
+	local roundingSlices = math.min(rounding * 4, 50)
 
 	e:addChild({}):addCustomDisplay(true, function()
 			set_color(unpack(color))
-			draw_disk(e.pos.x + rounding, e.pos.y + rounding, rounding, roundingWidth, 100, 1, -180, 90, 0)
-			draw_disk(e.pos.x + e.size.w - rounding, e.pos.y + rounding, rounding, roundingWidth, 100, 1, 90, 90, 0)
-			draw_disk(e.pos.x + rounding, e.pos.y + e.size.h - rounding, rounding, roundingWidth, 100, 1, 0, -90, 0)
-			draw_disk(e.pos.x + e.size.w - rounding, e.pos.y + e.size.h - rounding, rounding, roundingWidth, 100, 1, 0, 90, 0)
+			draw_disk(e.pos.x + rounding, e.pos.y + rounding, rounding, roundingWidth, roundingSlices, 1, -180, 90, 0)
+			draw_disk(e.pos.x + e.size.w - rounding, e.pos.y + rounding, rounding, roundingWidth, roundingSlices, 1, 90, 90, 0)
+			draw_disk(e.pos.x + rounding, e.pos.y + e.size.h - rounding, rounding, roundingWidth, roundingSlices, 1, 0, -90, 0)
+			draw_disk(e.pos.x + e.size.w - rounding, e.pos.y + e.size.h - rounding, rounding, roundingWidth, roundingSlices, 1, 0, 90, 0)
 		end)
 end
 

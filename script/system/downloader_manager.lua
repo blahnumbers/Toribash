@@ -1,4 +1,5 @@
 require("toriui.uielement")
+require("system.player_info")
 
 if (Downloader == nil) then
 	---Downloader manager class
@@ -34,10 +35,11 @@ end
 ---@return nil
 function Downloader:init()
 	if (Downloader.initialized) then return end
-	Downloader:queue(function() download_quest(TB_MENU_PLAYER_INFO.username) end)
-	Downloader:queue(function() download_global_quests() end)
+	if (string.len(PlayerInfo:getUser()) > 0) then
+		Downloader:queue(function() download_global_quests() end)
+		Downloader:queue(function() download_inventory() end)
+	end
 	Downloader:queue(function() download_clan() end)
-	Downloader:queue(function() download_inventory() end)
 
 	Downloader.initialized = true
 end

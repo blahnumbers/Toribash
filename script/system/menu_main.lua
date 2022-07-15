@@ -61,18 +61,18 @@ if (get_option("newmenu") == 0) then
 	return
 end
 
-dofile("toriui/uielement3d.lua")
+require("toriui.uielement3d")
 
 -- We no longer reset to old menu as of 5.52
 -- Just get the scale we want to use and go with it
 TB_MENU_GLOBAL_SCALE = math.min(WIN_H > 720 and 1 or WIN_H / 720, WIN_W > 1280 and 1 or WIN_W / 1280)
 
-dofile("system/menu_defines.lua")
+require("system.menu_defines")
 require("system.iofiles")
 require("system.menu_manager")
-TBMenu:open()
+TBMenu:init("220715")
 
-dofile("system/menu_backend_defines.lua")
+require("system.menu_backend_defines")
 require("system.network_request")
 require("system.downloader_manager")
 require("system.store_manager")

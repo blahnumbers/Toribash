@@ -388,7 +388,7 @@ do
 				uploaded = tonumber(data_stream[9])
 			}
 		end
-		replayUpdateWindow = TBMenu:showDataError("", TB_MENU_MAIN_ISOPEN == 0)
+		replayUpdateWindow = TBMenu:showStatusMessage("", TB_MENU_MAIN_ISOPEN == 0)
 		Replays:fetchReplayData(nil, nil, file, filedata, includeEventTemp)
 	end
 
@@ -3271,7 +3271,6 @@ do
 
 	function Replays:showMain(viewElement)
 		usage_event("replays")
-		TBMenu.NavigationBar:kill(true)
 		TBMenu:showNavigationBar(Replays:getNavigationButtons(), true)
 		viewElement:kill(true)
 		local status, error = pcall(function() Replays:getReplayFiles() end)

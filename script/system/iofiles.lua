@@ -26,7 +26,7 @@ FILES_MODE_READWRITE = 'r+'
 ---@param isroot integer|nil If 1, will start looking for file in Toribash root folder instead of data/script
 ---@return file*|string[]|nil
 local function filesOpenInternal(path, mode, isroot)
-	if (PLATFORM == "ANDROID") then
+	if (PLATFORM == "ANDROID" or PLATFORM == "IPHONEOS") then
 		return read_file(path, mode, isroot)
 	end
 	return io.open(path, mode, isroot)
@@ -36,7 +36,7 @@ end
 ---@param file file*|string[] File data we received after filesOpenInternal() call
 ---@return string[]
 local function filesReadAllInternal(file)
-	if (PLATFORM == "ANDROID") then
+	if (PLATFORM == "ANDROID" or PLATFORM == "IPHONEOS") then
 		return file
 	end
 	return file:read("*all")
@@ -87,7 +87,6 @@ do
 
 		if (not file:isDownloading()) then
 			file.data = filesOpenInternal(path, mode, isroot)
-			return file
 		end
 
 		return file
@@ -133,7 +132,7 @@ do
 	---@param line string String to write to the file
 	---@return boolean
 	function File:writeLine(line)
-		if (not self.data or PLATFORM == "ANDROID") then
+		if (not self.data or PLATFORM == "ANDROID" or PLATFORM == "IPHONEOS") then
 			return false
 		end
 
@@ -171,7 +170,7 @@ do
 	---@return nil
 	function File:close()
 		if (self.data) then
-			if (PLATFORM ~= "ANDROID") then
+			if (PLATFORM ~= "ANDROID" and PLATFORM ~= "IPHONEOS") then
 				self.data:close()
 			end
 			self.data = nil

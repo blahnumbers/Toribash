@@ -1476,7 +1476,7 @@ do
 
 	function Events:showEventDescription(viewElement, event)
 		local elementHeight = 41
-		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 60, 60, 20, { 0, 0, 0, 0 })
+		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 60, 60, 20, event.accentColor)
 
 		local listElements = {}
 		for i, info in pairs(event.data) do
@@ -1579,7 +1579,7 @@ do
 
 	function Events:showEventPrizes(viewElement, event)
 		local elementHeight = 41
-		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 60, 60, 20, { 0, 0, 0, 0 })
+		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 60, 60, 20, event.accentColor)
 
 		local listElements = {}
 		if (event.prizes.imagetitle) then

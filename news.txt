@@ -5,18 +5,24 @@
 //URL 0;https://forum.toribash.com/tori_shop_item.php?id=3598
 //STORE 0;3598
 
+NEWSID 0;
+TITLE 0;Toribash x Makeship
+SUBTITLE 0;Uke Plush is now available for preorders!
+IMAGE 0;makeship2.tga
+URL 0;https://www.toribash.com/makeship
+
 NEWSID 1;
+TITLE 0;Rags 2 Riches
+SUBTITLE 0;This is a chance for you marketeers to put your money where your mouth is and battle it out to earn the most TC!
+IMAGE 0;ragstoriches22.tga
+URL 0;https://forum.toribash.com/showthread.php?t=656540
+
+NEWSID 2;
 TITLE 0;Leggang Statue
 SUBTITLE 0;Now EVERY day is leg day!
 IMAGE 0;store/leggangpromo.tga
 URL 0;https://forum.toribash.com/tori_shop_item.php?id=3550
 STORE 0;3550
-
-//NEWSID 2;
-//TITLE 0;Head Texture of the Month: Pop Art
-//SUBTITLE 0;Make your best pop art stylized head texture and get rewards!
-//IMAGE 0;htotmpopart22.tga
-//URL 0;https://forum.toribash.com/showthread.php?t=653690
 
 NEWSID 3;
 TITLE 0;No events live now, but you can still replay any ended event in all events menu!
@@ -113,7 +119,7 @@ PRIZEST 0;22
 EVENTID 2;
 NAME 0;Free Run Frenzy 5
 URL 0;https://forum.toribash.com/showthread.php?t=656097
-PLAYNAME 0;freerunfrenzy5
+//PLAYNAME 0;freerunfrenzy5
 OVERLAYTRANS 0;0.8
 PLAYTEXT 0;PARTICIPATE
 ACCENTCOLOR 0;831835
@@ -218,37 +224,29 @@ PRIZEDATA 0;4Join the Cup
 PRIZEITEMS 0;41 3595
 
 EVENTID 5;
-NAME 0;Mod Mania 2021 - Spring
-URL 0;https://forum.toribash.com/showthread.php?t=649614
+NAME 0;Mod Mania 2022 - July
+//URL 0;https://forum.toribash.com/showthread.php?t=649614
 OVERLAYTRANS 0;0.7
 ACCENTCOLOR 0;bd0637
 UICOLOR 0;FFFFFF
 BTNHVRCOL 0;ffba43
 BTNDNCOL 0;fff8e9
 DESCDATA 0;1Description
-DESCDATATEXT 0;1Mod Mania is a series of mod championships.\nPlay in modmania
-rooms, win games and climb up ranks and get rewards!\nEach mod will stay in
-modmania rooms for 1 week and then will be changed to the next one.
-DESCDATA 0;2Mod Rotation
-DESCDATATEXT 0;2This week's mod is rk-mma.tbm\nrk-mma is similar to lenshu3ng
-but has lighter gravity with lower dismember threshold, longer DQ timeout and
-smaller dojo!
+DESCDATATEXT 0;1Welcome to Mod Mania 2022!\n\nMod Mania is a multiplayer championship focused around a specific mod.\nPlay in modmania rooms, win games and climb up ranks and get rewards!
+DESCDATA 0;2Mod
+DESCDATATEXT 0;2This time the mod you'll play is lowkido_brutal.tbm, made by avenue.\n\nIn its core, it's a variation of aikido.tbm - but with -45 gravity, DQ timeout and increased distance between players.
 DESCDATA 0;3How to Participate
-DESCDATATEXT 0;3Play in any modmania room until the event is over - there are
-new rewards to get each week!
+DESCDATATEXT 0;3Play in any modmania room until the event is over and get rewards based on how many games you've won!\n\nThere's also a global objective for the event - if that is hit before the deadline, all Mod Mania participants will receive an additional reward!
 PRIZEDATA 0;1Top 10 players (by games won, prize listed is for 1st place)
 PRIZETC 0;150000
 PRIZEST 0;15
 PRIZEDATA 0;2Global rank 1
-PRIZEITEMS 0;213423
 PRIZETC 0;2100000
 PRIZEST 0;210
 PRIZEDATA 0;3Global rank 2
-PRIZEITEMS 0;313424
 PRIZETC 0;375000
 PRIZEST 0;38
 PRIZEDATA 0;4Global rank 3
-PRIZEITEMS 0;413425
 PRIZETC 0;450000
 PRIZEST 0;46
 PRIZEDATA 0;5Global ranks 4 - 8
@@ -257,15 +255,6 @@ PRIZEST 0;54
 PRIZEDATA 0;6Global ranks 9 - 20
 PRIZETC 0;615000
 PRIZEST 0;63
-PRIZEDATA 0;7Mod rank 1
-PRIZETC 0;735000
-PRIZEST 0;75
-PRIZEDATA 0;8Mod rank 2
-PRIZETC 0;825000
-PRIZEST 0;84
-PRIZEDATA 0;9Mod rank 3
-PRIZETC 0;915000
-PRIZEST 0;93
 
 EVENTID 6;
 NAME 0;Flash Course

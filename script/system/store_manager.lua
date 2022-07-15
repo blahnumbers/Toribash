@@ -5869,7 +5869,7 @@ do
 		sectionItems = qsort(sectionItems, { 'on_sale', 'now_tc_price', 'now_usd_price', 'itemname' }, { true, false, false, false }, true)
 
 		local elementHeight = 64
-		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, elementHeight, 48, 20, TB_MENU_DEFAULT_BG_COLOR)
+		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, elementHeight, elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
 
 		local sectionTitle = UIElement:new({
 			parent = topBar,
