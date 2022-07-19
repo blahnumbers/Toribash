@@ -557,6 +557,7 @@ do
 	function UIElement:updateObj(model, noreload)
 		require("system.iofiles")
 		local filename = ''
+		local absPath = true
 		if (model) then
 			if (model:find("%.%./", 4)) then
 				filename = model:gsub("%.%./%.%./", "")
@@ -564,6 +565,7 @@ do
 				filename = model:gsub("%.%./", "data/")
 			else
 				filename = "data/script/" .. model:gsub("^/", "")
+				absPath = false
 			end
 		end
 

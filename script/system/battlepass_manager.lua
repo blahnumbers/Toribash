@@ -138,7 +138,8 @@ function BattlePass:getUserData(viewElement)
 				premium = tonumber(data[4]) == 1,
 				level_premium = tonumber(data[5]) or 0,
 				qi = TB_MENU_PLAYER_INFO.data.qi,
-				upgrade_price = tonumber(data[6]) or 0
+				upgrade_price = tonumber(data[6]) or 0,
+				level_available = 0
 			}
 			for i,v in ipairs(BattlePass.LevelData) do
 				if (v.xp_total <= BattlePass.UserData.xp) then
@@ -534,23 +535,31 @@ function BattlePass:showPrizeItem(viewElement, prize)
 	local prizeBackground = prizeBackgroundOutline:addChild({
 		shift = { 2, 2 },
 		bgColor = prize.bgColor or (prize.premium and TB_MENU_DEFAULT_DARKER_BLUE or TB_MENU_DEFAULT_DARKER_ORANGE),
-		interactive = not prize.static and not prize.locked and not prize.claimed,
-		hoverColor = prize.hoverColor or (prize.premium and TB_MENU_DEFAULT_BLUE or TB_MENU_DEFAULT_ORANGE),
-		pressedColor = prize.bgColor or (prize.premium and TB_MENU_DEFAULT_DARKER_BLUE or TB_MENU_DEFAULT_DARKER_ORANGE)
+		interactive = not prize.static and true and not prize.claimed,
+		hoverColor = prize.hoverColor or (prize.locked and (prize.premium and TB_MENU_DEFAULT_DARKER_BLUE or TB_MENU_DEFAULT_DARKER_ORANGE) or (prize.premium and TB_MENU_DEFAULT_BLUE or TB_MENU_DEFAULT_ORANGE)),
+		pressedColor = prize.bgColor or (prize.locked and (prize.premium and TB_MENU_DEFAULT_DARKER_BLUE or TB_MENU_DEFAULT_DARKER_ORANGE) or (prize.premium and TB_MENU_DEFAULT_DARKER_BLUE or TB_MENU_DEFAULT_DARKER_ORANGE))
 	}, true)
 
-	local prizeIcon, prizeAmount
+	local prizeIcon, prizeAmount, prizeTooltip
 	-- Some free reward levels will have multiple rewards, we want TC/ST to be shown
 	if (prize.tc) then
 		prizeIcon = "../textures/store/toricredit.tga"
 		prizeAmount = PlayerInfo:currencyFormat(prize.tc)
+		prizeTooltip = TBMenu:displayPopup(prizeBackground, prizeAmount .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS, true)
 	elseif (prize.st) then
 		prizeIcon = "../textures/store/shiaitoken.tga"
 		prizeAmount = PlayerInfo:currencyFormat(prize.st)
+		prizeTooltip = TBMenu:displayPopup(prizeBackground, prizeAmount .. " " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS, true)
 	elseif (prize.itemid) then
 		 prizeIcon = Torishop:getItemIcon(prize.itemid)
+		 prizeTooltip = TBMenu:displayPopup(prizeBackground, Torishop:getItemInfo(prize.itemid).itemname, true)
 	else
 		return
+	end
+	if (prizeBackground.size.w > prizeTooltip.size.w) then
+		prizeTooltip:moveTo((prizeBackground.size.w - prizeTooltip.size.w) / 2, prizeBackground.size.h + 5)
+	else
+		prizeTooltip:moveTo(-prizeBackground.size.w - (prizeTooltip.size.w - prizeBackground.size.w) / 2, prizeBackground.size.h + 5)
 	end
 
 	local prizeIcon = prizeBackground:addChild({
@@ -560,7 +569,7 @@ function BattlePass:showPrizeItem(viewElement, prize)
 
 	if (prize.locked or prize.claimed) then
 		local colorOverlay = prizeBackground:addChild({
-			bgColor = cloneTable(prizeBackground.bgColor)
+			bgColor = table.clone(prizeBackground.bgColor)
 		}, true)
 		colorOverlay.bgColor[4] = 0.4
 
@@ -673,21 +682,19 @@ function BattlePass:showPrizes(viewElement)
 	local toReload, leftBar, rightBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, prizeHolderSize, prizeHolderSize, 20, TB_MENU_DEFAULT_DARKER_COLOR, SCROLL_HORIZONTAL)
 
 	---@type BattlePassLevel
-	local closest10LevelReward = BattlePass.LevelData[#BattlePass.LevelData]
+	local closest10LevelReward
 	local listElements = {}
-	for j = 1, 10 do
-		for i,v in ipairs(BattlePass.LevelData) do
-			local prizeHolder = UIElement:new({
-				parent = listingHolder,
-				pos = { #listElements * prizeHolderSize, 0 },
-				size = { prizeHolderSize, listingHolder.size.h },
-			})
-			table.insert(listElements, prizeHolder)
-			BattlePass:showLevelPrize(prizeHolder, v)
+	for i,v in ipairs(BattlePass.LevelData) do
+		local prizeHolder = UIElement:new({
+			parent = listingHolder,
+			pos = { #listElements * prizeHolderSize, 0 },
+			size = { prizeHolderSize, listingHolder.size.h },
+		})
+		table.insert(listElements, prizeHolder)
+		BattlePass:showLevelPrize(prizeHolder, v)
 
-			if (not closest10LevelReward and v.level % 10 == 0 and BattlePass.UserData.level <= v.level) then
-				closest10LevelReward = v
-			end
+		if (not closest10LevelReward and v.level % 10 == 0 and BattlePass.UserData.level <= v.level) then
+			closest10LevelReward = v
 		end
 	end
 
@@ -696,7 +703,9 @@ function BattlePass:showPrizes(viewElement)
 	end
 	local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, prizeHolderSize, SCROLL_HORIZONTAL)
 	listingHolder.scrollBar = scrollBar
-	scrollBar:makeHorizontalScrollBar(listingHolder, listElements, toReload, nil, 0.4)
+	local totalSize = #listElements * prizeHolderSize
+	local shift = { BattlePass.UserData.level / #BattlePass.LevelData * totalSize / (totalSize - listingHolder.size.w) * (scrollBar.parent.size.w - scrollBar.size.w) }
+	scrollBar:makeHorizontalScrollBar(listingHolder, listElements, toReload, shift, 0.4)
 
 	local leftBarFade = leftBar:addChild({
 		pos = { leftBar.size.w, 0 },
