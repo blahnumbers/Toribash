@@ -84,16 +84,16 @@ do
 	end
 
 	function Notifications:beautifySystemAccounts(name)
-		local color = { 1, 1, 1, 1 }
+		local nameColor = nil
 		if (name == "ToriBot") then
-			name = "^27" .. name
-			color = table.clone(TB_MENU_DEFAULT_ORANGE)
+			nameColor = get_color_from_hex("E430E4")
 		elseif (name == "Event Squad") then
-			name = "^32" .. name
-			color = table.clone(TB_MENU_DEFAULT_ORANGE)
+			nameColor = get_color_from_hex("AD36AF")
+		elseif (name == "Market Squad") then
+			nameColor = get_color_from_hex("3FA741")
 		end
 
-		return name, color
+		return nameColor, nameColor == nil and { 1, 1, 1, 1 } or TB_MENU_DEFAULT_YELLOW
 	end
 
 	function Notifications:getNetworkNotifications()
@@ -106,14 +106,15 @@ do
 
 				for i, ln in pairs(lines) do
 					local data_stream = { ln:match(("([^\t]*)\t?"):rep(5)) }
-					data_stream[3], data_stream[6] = Notifications:beautifySystemAccounts(data_stream[3])
+					data_stream[6], data_stream[7] = Notifications:beautifySystemAccounts(data_stream[3])
 					table.insert(TB_MENU_NOTIFICATIONS_DATA, {
 						id = data_stream[1] + 0,
 						title = data_stream[2],
 						user = data_stream[3],
 						read = data_stream[4] ~= '0',
 						date = data_stream[5],
-						color = data_stream[6]
+						nameColor = data_stream[6],
+						textColor = data_stream[7]
 					})
 				end
 			end)
@@ -123,73 +124,82 @@ do
 		viewElement:kill(true)
 		TBMenu:addBottomBloodSmudge(viewElement, 2)
 
-		local messageHolder = UIElement:new({
-			parent = viewElement,
-			pos = { 0, 0 },
-			size = { viewElement.size.w, viewElement.size.h - 70 }
-		})
-		local messageTitle = UIElement:new({
-			parent = messageHolder,
-			pos = { 25, 0 },
-			size = { messageHolder.size.w - 50, 50 }
-		})
-		messageTitle:addAdaptedText(true, notification.title, nil, nil, nil, LEFTMID)
-		local messageFrom = UIElement:new({
-			parent = messageHolder,
-			pos = { 25, messageTitle.shift.y + messageTitle.size.h },
-			size = { messageHolder.size.w - 50, 40 }
-		})
-		messageFrom:addAdaptedText(true, "Sent by " .. notification.user .. "\n" .. notification.date, nil, nil, 4, LEFTMID)
-		local shiftY = 0
-		for i,v in pairs(notification.message) do
-			local messageText = UIElement:new({
-				parent = messageHolder,
-				pos = { 25 + (v.indent and v.indent or 0), messageFrom.shift.y + messageFrom.size.h + 10 + shiftY },
-				size = { messageHolder.size.w - (v.indent and 100 or 50), messageHolder.size.h - shiftY - messageFrom.shift.y - messageFrom.size.h - 20 }
-			})
-			messageText:addAdaptedText(true, v.text, nil, nil, 4, LEFT, 0.8, 0.8)
-			local heightMod = getFontMod(messageText.textFont) * messageText.textScale * 10
-			messageText.size.h = math.ceil(#messageText.dispstr * heightMod) + 1
-			shiftY = shiftY + messageText.size.h + 10
+		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 60, 70, 20, TB_MENU_DEFAULT_BG_COLOR)
 
-			-- Add quote line after element height adjustments
-			if (v.quote) then
-				local quoteLine = messageText:addChild({
-					pos = { -messageText.size.w - 15, 0 },
-					size = { 3, messageText.size.h },
-					bgColor = UICOLORWHITE
+		local messageTitle = topBar:addChild({
+			parent = topBar,
+			pos = { 25, 5 },
+			size = { (topBar.size.w - 50) * 0.65, topBar.size.h - 10 }
+		})
+		messageTitle:addAdaptedText(true, notification.title, nil, nil, FONTS.BIG, LEFTMID, 0.65, nil, 0.2)
+
+		local messageFrom = topBar:addChild({
+			pos = { messageTitle.shift.x + messageTitle.size.w, messageTitle.shift.y },
+			size = { (topBar.size.w - 50) - messageTitle.size.w, messageTitle.size.h / 2 }
+		})
+		messageFrom:addAdaptedText(true, notification.user, nil, nil, 4, RIGHTBOT, 0.8)
+		local messageDate = topBar:addChild({
+			pos = { messageFrom.shift.x, messageFrom.shift.y + messageFrom.size.h },
+			size = { messageFrom.size.w, messageFrom.size.h },
+			uiColor = { 1, 1, 1, 0.8 }
+		})
+		messageDate:addAdaptedText(true, notification.date, nil, nil, 4, RIGHTBOT, 0.6)
+
+		local listElements = {}
+		local elementHeight = 25
+		local attachments = table.clone(notification.attachments)
+		for id, v in pairs(notification.message) do
+			local textString = textAdapt(v.text, 4, 0.8, listingHolder.size.w - (v.indent and 100 or 50))
+			local textLength = 0
+			for i = 1, #textString do
+				textLength = textLength + textString[i]:len()
+				local messageText = listingHolder:addChild({
+					pos = { 25 + (v.indent and v.indent or 0), #listElements * elementHeight },
+					size = { listingHolder.size.w - (v.indent and 100 or 50), elementHeight }
 				})
-			end
-			if (v.list) then
-				local listBullet = messageText:addChild({
-					pos = { -messageText.size.w - 20, 5 },
-					size = { 10, 10 },
-					shapeType = ROUNDED,
-					rounded = 10,
-					bgColor = UICOLORWHITE
-				})
-			end
+				table.insert(listElements, messageText)
+				messageText:addAdaptedText(true, textString[i], nil, nil, 4, LEFT, 0.8, 0.8)
 
-			if (shiftY > messageHolder.size.h) then
-				messageText.size.h = messageHolder.size.h - messageText.shift.y
-				break
-			end
+				-- Add quote line after element height adjustments
+				if (v.quote) then
+					local quoteLine = messageText:addChild({
+						pos = { -messageText.size.w - 15, 0 },
+						size = { 3, messageText.size.h },
+						bgColor = UICOLORWHITE
+					})
+				end
+				if (v.list) then
+					local listBullet = messageText:addChild({
+						pos = { -messageText.size.w - 20, 5 },
+						size = { 10, 10 },
+						shapeType = ROUNDED,
+						rounded = 10,
+						bgColor = UICOLORWHITE
+					})
+				end
 
-			for j, attch in pairs(notification.attachments) do
-				if (attch.mbitidx == i) then
-					local pos = 0
-					for k = 1, #messageText.dispstr do
-						if (pos + messageText.dispstr[k]:len() > attch.pos) then
-							local xPosAt = get_string_length(messageText.dispstr[k]:sub(0, attch.pos - pos), messageText.textFont) * messageText.textScale
-							local button = UIElement:new({
-								parent = messageText,
-								pos = { xPosAt, heightMod * (k - 1) },
-								size = { math.ceil(get_string_length(attch.word, messageText.textFont) * messageText.textScale), math.ceil(heightMod) },
-								bgColor = TB_MENU_DEFAULT_BLUE,
-								hoverColor = TB_MENU_DEFAULT_DARKER_ORANGE,
-								pressedColor = TB_MENU_DEFAULT_YELLOW,
+				local heightMod = getFontMod(messageText.textFont) * messageText.textScale * 10
+				for j, attch in pairs(attachments) do
+					if (attch.mbitidx == id) then
+						if (textLength > attch.pos and attch.pos - textLength + textString[i]:len() >= 0) then
+							local xPosAt = get_string_length(messageText.dispstr[1]:sub(0, attch.pos - textLength + textString[i]:len()), messageText.textFont) * messageText.textScale
+							local linkText = attch.word
+							attachments[j].buttons = attachments[j].buttons or {}
+							if (math.ceil(get_string_length(attch.word, messageText.textFont) * messageText.textScale) > messageText.size.w - xPosAt) then
+								local lines = textAdapt(attch.word, messageText.textFont, messageText.textScale, messageText.size.w - xPosAt)
+								linkText = lines[1]
+								attachments[j].word = attachments[j].word:gsub("^" .. linkText, "")
+								attachments[j].pos = attachments[j].pos + linkText:len()
+							end
+							local button = messageText:addChild({
+								pos = { xPosAt, 0 },
+								size = { math.ceil(get_string_length(linkText, messageText.textFont) * messageText.textScale), messageText.size.h },
+								bgColor = attch.isInventory and TB_MENU_DEFAULT_ORANGE or TB_MENU_DEFAULT_DARKER_BLUE,
+								hoverColor = attch.isInventory and TB_MENU_DEFAULT_DARKER_ORANGE or TB_MENU_DEFAULT_DARKEST_BLUE,
+								pressedColor = attch.isInventory and TB_MENU_DEFAULT_YELLOW or TB_MENU_DEFAULT_BLUE,
 								interactive = true
 							})
+							table.insert(attachments[j].buttons, button)
 							button:addMouseHandlers(nil, function()
 									if (attch.isInventory) then
 										Notifications:quit()
@@ -199,22 +209,34 @@ do
 									end
 								end)
 							button:addCustomDisplay(true, function()
-									button:uiText(attch.word, nil, nil, messageText.textFont, LEFT, messageText.textScale, nil, nil, button:getButtonColor())
+									for i,v in pairs(attachments[j].buttons) do
+										button.hoverState = math.max(button.hoverState or 0, v.hoverState or 0)
+									end
+									if (button.hoverState == BTN_HVR) then
+										set_mouse_cursor(1)
+									end
+								end, true)
+							button:addCustomDisplay(true, function()
+									button:uiText(linkText, nil, nil, messageText.textFont, LEFT, messageText.textScale, nil, nil, button:getButtonColor())
 								end)
 							break
 						end
-						pos = pos + messageText.dispstr[k]:len()
 					end
-					break
 				end
 			end
 		end
 
-		local messageButtons = UIElement:new({
-			parent = viewElement,
-			pos = { 0, messageHolder.size.h + messageHolder.shift.y },
-			size = { viewElement.size.w, viewElement.size.h - messageHolder.size.h - messageHolder.shift.y * 2 }
-		})
+		if (#listElements * elementHeight > listingHolder.size.h) then
+			for i,v in pairs(listElements) do
+				v:hide()
+			end
+
+			local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
+			scrollBar:makeScrollBar(listingHolder, listElements, toReload, nil, nil, true)
+		end
+
+
+		local messageButtons = botBar
 		local messageViewForums = messageButtons:addChild({
 			pos = { messageButtons.size.w / 8, 10 },
 			size = { messageButtons.size.w / 2, messageButtons.size.h - 30 },
@@ -284,7 +306,7 @@ do
 						messagebits[#messagebits].text = messagebits[#messagebits].text .. skipWord
 					end
 
-					if (string.find(matchlwr, "%[url=") == 1) then
+					if (string.find(matchlwr, "%[url=") == 1 and string.find(match, "toribash.com") ~= nil) then
 						table.insert(attachments, {
 							pos = messagebits[#messagebits].text:len(),
 							url = match:gsub("^%[%w+=['\"]?([^'\"]*)['\"]?%]", "%1"),
@@ -433,8 +455,7 @@ do
 			end)
 		TBMenu:addBottomBloodSmudge(botBar, 1)
 
-		local notificationBody = UIElement:new({
-			parent = viewElement,
+		local notificationBody = viewElement:addChild({
 			pos = { notificationsHolder.shift.x + notificationsHolder.size.w + 10, 0 },
 			size = { viewElement.size.w - notificationsHolder.shift.x * 2 - notificationsHolder.size.w - 10, viewElement.size.h },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
@@ -457,12 +478,14 @@ do
 			table.insert(listElements, notificationElement)
 			local notificationBG = UIElement:new({
 				parent = notificationElement,
-				pos = { 10, 5 },
-				size = { notificationElement.size.w - 12, notificationElement.size.h - 10 },
+				pos = { 10, 2 },
+				size = { notificationElement.size.w - 12, notificationElement.size.h - 4 },
 				interactive = true,
 				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+				shapeType = ROUNDED,
+				rounded = 4
 			})
 
 			local shiftX = 0
@@ -483,24 +506,24 @@ do
 				parent = notificationBG,
 				pos = { 10 + shiftX, 2 },
 				size = { notificationBG.size.w / 3 * 2 - 15 - shiftX, notificationBG.size.h - 4 },
-				uiColor = notification.color
+				uiColor = notification.textColor
 			})
 			notificationTitle:addAdaptedText(true, notification.title, nil, nil, 4, LEFTMID, 0.7)
 			if (unreadMark) then
 				unreadMark.pmTitle = notificationTitle
 			end
-			local notificationFrom = UIElement:new({
-				parent = notificationBG,
+			local notificationFrom = notificationBG:addChild({
 				pos = { notificationTitle.size.w + notificationTitle.shift.x + 10, 2 },
-				size = { notificationBG.size.w - (notificationTitle.size.w + notificationTitle.shift.x + 10) - 10, notificationBG.size.h / 2 - 2 }
+				size = { notificationBG.size.w - (notificationTitle.size.w + notificationTitle.shift.x + 10) - 10, notificationBG.size.h / 2 - 2 },
+				uiColor = notification.nameColor
 			})
-			notificationFrom:addAdaptedText(true, notification.user, nil, nil, 4, RIGHTBOT, 0.7)
-			local notificationDate = UIElement:new({
-				parent = notificationBG,
-				pos = { notificationFrom.shift.x, notificationFrom.shift.y + notificationFrom.size.h + 2 },
-				size = { notificationFrom.size.w, notificationFrom.size.h }
+			notificationFrom:addAdaptedText(notification.user, nil, nil, 4, RIGHTBOT, 0.7)
+			local notificationDate = notificationBG:addChild({
+				pos = { notificationTitle.size.w + notificationTitle.shift.x + 10, notificationFrom.shift.y + notificationFrom.size.h + 2 },
+				size = { notificationBG.size.w - (notificationTitle.size.w + notificationTitle.shift.x + 10) - 10, notificationFrom.size.h },
+				uiColor = { 1, 1, 1, 0.7}
 			})
-			notificationDate:addAdaptedText(true, notification.date, nil, nil, 4, RIGHT, 0.6)
+			notificationDate:addAdaptedText(true, notification.date, nil, nil, 4, RIGHT, 0.5)
 
 
 			notificationBG:addMouseHandlers(nil, function()
@@ -509,9 +532,13 @@ do
 							selectedElement.bgColor = table.clone(TB_MENU_DEFAULT_DARKER_COLOR)
 						end
 						selectedElement = notificationBG
-						selectedElement.bgColor = table.clone(TB_MENU_DEFAULT_LIGHTER_COLOR)
+						selectedElement.bgColor = table.clone(TB_MENU_DEFAULT_DARKEST_COLOR)
 					end
 				end)
+
+			if (i == 1) then
+				notificationBG.btnUp()
+			end
 		end
 		for i,v in pairs(listElements) do
 			v:hide()

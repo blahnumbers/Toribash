@@ -226,11 +226,21 @@ function BattlePass:showProgress(viewElement)
 		pressedColor = BattlePass.UserData.level == BattlePass.UserData.level_available and TB_MENU_DEFAULT_DARKER_COLOR or TB_MENU_DEFAULT_DARKER_ORANGE,
 		shapeType = ROUNDED,
 		uiColor = BattlePass.UserData.level == BattlePass.UserData.level_available and UICOLORWHITE or UICOLORBLACK,
+		inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
 		rounded = 4
 	})
 	local purchaseLevelOrClaimRewardButtonText = purchaseLevelOrClaimRewardButton:addChild({ shift = { 10, 5 } })
 	if (BattlePass.UserData.level == BattlePass.UserData.level_available) then
-		purchaseLevelOrClaimRewardButton:addMouseUpHandler(BattlePass.spawnPurchaseLevelWindow)
+		if (BattlePass.UserData.level == #BattlePass.LevelData) then
+			purchaseLevelOrClaimRewardButton:deactivate()
+			local popup = TBMenu:displayPopup(purchaseLevelOrClaimRewardButton, TB_MENU_LOCALIZED.BATTLEPASSREACHEDMAXLEVEL, true)
+			popup:moveTo(-purchaseLevelOrClaimRewardButton.size.w - (popup.size.w - purchaseLevelOrClaimRewardButton.size.w) / 2, purchaseLevelOrClaimRewardButton.size.h + 5)
+			if (popup.pos.x + popup.size.w >= WIN_W - 10) then
+				popup:moveTo(-(popup.pos.x + popup.size.w - (WIN_W - 10)), nil, true)
+			end
+		else
+			purchaseLevelOrClaimRewardButton:addMouseUpHandler(BattlePass.spawnPurchaseLevelWindow)
+		end
 		purchaseLevelOrClaimRewardButtonText:addAdaptedText(true, TB_MENU_LOCALIZED.BATTLEPASSPURCHASELEVEL)
 	else
 		purchaseLevelOrClaimRewardButton:addMouseUpHandler(BattlePass.spawnPrizeClaimWindow)
@@ -324,12 +334,14 @@ function BattlePass:spawnPurchasePrimeWindow()
 				claimWindowBackground.parent:addMouseMoveHandler(function()
 					claimWindowBackground.parent:kill()
 					if (get_purchase_done() == 1) then
-						TBMenu:showDataError(TB_MENU_LOCALIZED.BATTLEPASSPURCHASEPREMIUMSUCCESS)
+						TBMenu:showStatusMessage(TB_MENU_LOCALIZED.BATTLEPASSPURCHASEPREMIUMSUCCESS)
 						BattlePass.UserData = nil
 						BattlePass:showMain()
+						update_tc_balance()
+						download_inventory()
 						Notifications:getTotalNotifications(true)
 					else
-						TBMenu:showDataError(TB_MENU_LOCALIZED.STOREPURCHASESTEAMCANCELLED)
+						TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STOREPURCHASESTEAMCANCELLED)
 					end
 				end)
 			else
@@ -366,7 +378,7 @@ function BattlePass:spawnPurchaseLevelWindow()
 					local response = get_network_response()
 					if (response:find("^GATEWAY 0; 0")) then
 						claimWindowBackground.parent:kill()
-						TBMenu:showDataError(TB_MENU_LOCALIZED.BATTLEPASSPURCHASELEVELSUCCESS)
+						TBMenu:showStatusMessage(TB_MENU_LOCALIZED.BATTLEPASSPURCHASELEVELSUCCESS)
 						BattlePass.UserData = nil
 						BattlePass:showMain()
 					else
@@ -406,9 +418,11 @@ function BattlePass:spawnPrizeClaimWindow()
 					local response = get_network_response()
 					if (response:find("^GATEWAY 0; 0")) then
 						claimWindowBackground.parent:kill()
-						TBMenu:showDataError(TB_MENU_LOCALIZED.BATTLEPASSCLAIMSUCCESS)
+						TBMenu:showStatusMessage(TB_MENU_LOCALIZED.BATTLEPASSCLAIMSUCCESS)
 						BattlePass.UserData = nil
 						BattlePass:showMain()
+						update_tc_balance()
+						download_inventory()
 					else
 						claimWindowBackground:kill(true)
 						local textBG = claimWindowBackground:addChild({ shift = { 30, 80 }})
