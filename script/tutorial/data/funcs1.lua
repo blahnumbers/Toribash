@@ -3,9 +3,10 @@ local OUTRO = -1
 local FPS_MULTIPLIER = get_option("framerate") == 30 and 2 or 1
 
 local function drawSingleKey(viewElement, reqTable, key)
+	usage_event("tutorial1" .. key .. "key")
 	local BUTTON_DEFAULT_COLOR = { unpack(TB_MENU_DEFAULT_BG_COLOR) }
 	local BUTTON_HOVER_COLOR = { unpack(TB_MENU_DEFAULT_LIGHTEST_COLOR) }
-	
+
 	local button = UIElement:new({
 		parent = viewElement,
 		pos = { 200, -WIN_H / 3 - 35 },
@@ -19,10 +20,10 @@ local function drawSingleKey(viewElement, reqTable, key)
 	button:deactivate()
 	button.isactive = true
 	button:addAdaptedText(false, key)
-	
+
 	local req = { type = "keypresscontrol", ready = false }
 	table.insert(reqTable, req)
-	
+
 	add_hook("key_up", "tbTutorialsCustom", function(s, code)
 			if ((string.schar(s) == key or (code > 3 and code < 30 and string.schar(code + 93) == key)) and button.hoverState) then
 				button.hoverState = false
@@ -46,8 +47,8 @@ local function drawWASD(viewElement, reqTable, shift, fade)
 		pos = { 100, -320 },
 		size = { 300, 200 }
 	})
-	
-	local keysToPress = { 
+
+	local keysToPress = {
 		w = { pressed = false, pos = 2 },
 		a = { pressed = false, pos = 4 },
 		s = { pressed = false, pos = 5 },
@@ -93,11 +94,11 @@ local function drawWASD(viewElement, reqTable, shift, fade)
 				end
 			end)
 	end
-	
+
 	if (reqTable) then
 		local req = { type = "cameracontrols", ready = false }
 		table.insert(reqTable, req)
-		
+
 		add_hook("key_up", "tbTutorialsCustom", function(key, code)
 				if (shift and get_shift_key_state() == 0) then
 					keysToPress.shift.keyButton.hoverState = false
@@ -181,7 +182,7 @@ local function showOverlay(viewElement, reqTable, out, speed)
 	local speed = speed or 1
 	local req = { type = "transition", ready = false }
 	table.insert(reqTable, req)
-	
+
 	if (tbOutOverlay) then
 		tbOutOverlay:kill()
 	end
@@ -223,7 +224,6 @@ local function outroOverlaySlow(viewElement, reqTable)
 end
 
 local function drawSingleKeyC(viewElement, reqTable)
-	usage_event("tutorial1ckey")
 	drawSingleKey(viewElement, reqTable, "c")
 end
 
@@ -236,15 +236,16 @@ local function drawSingleKeyX(viewElement, reqTable)
 end
 
 local function fractureToriKnee()
+	usage_event("tutorial1cbreakleg")
 	fracture_joint(0, JOINTS.L_KNEE)
 end
 
 local function checkMouseCameraControls(viewElement, reqTable)
 	local req = { type = "cameramouse", ready = false }
 	table.insert(reqTable, req)
-	
+
 	local mousePressed = false
-	
+
 	add_hook("mouse_button_down", "tbTutorialsCustom", function()
 			mousePressed = true
 		end)

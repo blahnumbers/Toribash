@@ -2163,7 +2163,7 @@ do
 	---@param table2 table
 	---@return boolean
 	_G.table.compare = function(self, table2)
-		if (type(self) ~= type(table2)) then
+		if (self == nil or table2 == nil or type(self) ~= type(table2)) then
 			return false
 		end
 
@@ -2177,7 +2177,7 @@ do
 		for i,v in pairs(self) do
 			if (v ~= table2[i]) then
 				if (type(v) == type(table2[i]) and type(v) == "table") then
-					if (not self[i]:compare(table2[i])) then
+					if (not table.compare(self[i], table2[i])) then
 						return false
 					end
 				else

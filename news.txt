@@ -149,23 +149,20 @@ PRIZEST 0;310
 PRIZEITEMS 0;31 3234
 
 EVENTID 3;
-NAME 0;Toribash Ranking Season 7
-//IMAGE 0;headinthewall.tga
-URL 0;https://www.toribash.com/season7
-//PLAYNAME 0;headinthewall2
-OVERLAYTRANS 0;0
-//PLAYTEXT 0;PARTICIPATE
-ACCENTCOLOR 0;ab1c1c
+NAME 0;Toribash Season 8
+IMAGE 0;season8.tga
+URL 0;https://www.toribash.com/season8
+OVERLAYTRANS 0;1
+ACCENTCOLOR 0;806170
 UICOLOR 0;ffffff
-BTNHVRCOL 0;fff3ca
-BTNDNCOL 0;c22b0c
+BTNHVRCOL 0;322f43
+BTNDNCOL 0;f5d5bc
 DESCDATA 0;1Description
-DESCDATAIMGTITLE 0;1headwall_description.tga
-DESCDATATEXT 0;1After a very long wait, Toribash is ready to unveil its 7th season!\nBe prepared to perform 200 IQ plays on your opponents to rank up and get exclusive rewards!
-DESCDATA 0;2How to enter
-DESCDATAIMGTITLE 0;2headwall_howtoenter.tga
-DESCDATATEXT 0;2All Green Belt+ players can participate in Season 7 by playing ranked games in special ranked rooms or by the in-game matchmaking system.\nYou will be unranked for your first 10 games and placed in a rank according to your Elo based on how you played while unranked.\n\nAfter playing your qualification matches, you will receive a rank tier depending on your Elo:\n\nElo Hell (0 - 1550)\nBronze (1550 - 1575)\nSilver (1575 - 1595)\nGold III (1595 - 1615)\nGold II (1615 - 1630)\nGold I (1630 - 1645)\nPlatinum III (1645 - 1660)\nPlatinum II (1660 - 1675)\nPlatinum I (1675 - 1690)\nDiamond (1690+)
-PRIZEIMG 0;headwall_prizes.tga
+DESCDATATEXT 0;1Hello hello! Nabi Studios are very excited to announce our most ambitious project ever.\nSeason 8 will feature the very first Battlepass ever, and the prizes are so good we can't wait to show you!\nBe prepared to have the most fun you will ever have.
+DESCDATA 0;2How it works
+DESCDATATEXT 0;2All Green Belt+ players can participate in Season 8 by playing ranked games in special ranked rooms.\nYou will be unranked for your first 10 games and placed in a rank according to your Elo based on how you played while unranked.\n\nAfter playing your qualification matches, you will receive a rank tier depending on your Elo:\n\nElo Hell (0 - 1550)\nBronze (1550 - 1575)\nSilver (1575 - 1595)\nGold III (1595 - 1615)\nGold II (1615 - 1630)\nGold I (1630 - 1645)\nPlatinum III (1645 - 1660)\nPlatinum II (1660 - 1675)\nPlatinum I (1675 - 1690)\nDiamond (1690+)
+DESCDATA 0;3Battle Pass
+DESCDATATEXT 0;3As part of Season 8, we are incredibly excited to announce to you our brand new BATTLEPASS.\nIf you've played other modern games then you probably know what's up however for those that don't, we'll explain briefly.\n\nThe Battlepass is a way you can earn rewards just from playing the game.\nVarious aspects of the game grant you xp towards the Battlepass such as ranked, tournaments, quests and even just playing with your friends normally.\nAs you gain XP you gain levels along with it, as you hit these levels you unlock rewards at every tier.\n\nWe have two versions of the Battlepass, a free version and a premium version which costs $10 early bird and $15 later on.\nPurchasing the premium Battlepass allows you to gain both sets of rewards.\n\nPrizes for this battlepass include exclusive new variations of existing items, as well as all new 3d items, flames and colours!\nSome flames even have rarer variants which have a percentage chance to drop when claimed!\n\nIf grinding isn't your thing, it is possible to purchase levels throughout the Battlepass using Shiai Tokens, too.\n\nThis is the very first season we're launching a Battlepass and we hope to do one with every ranked season moving forward.\nNaturally there may be some improvements to be made over time, especially with this being the first of its kind in Toribash! But we'll monitor how it goes and keep working hard to improve as we move forward.\n\nA lot of people put a lot of hours into this and we're incredibly proud of what we've come up with and we cannot wait for you to see it!
 PRIZEDATA 0;1#1 Ranked Player
 PRIZETC 0;11250000
 PRIZEST 0;1100

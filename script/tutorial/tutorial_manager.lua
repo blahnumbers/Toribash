@@ -1,4 +1,6 @@
 -- Tutorials manager
+require("system.iofiles")
+
 if (get_option("tooltip") == 0 or not TOOLTIP_ACTIVE) then
 	dofile("system/tooltip_manager.lua")
 	Tooltip:create()
@@ -37,7 +39,7 @@ do
 		remove_hooks("tbTutorialsCustomStatic")
 		remove_hooks("tbMoveMemoryPlayTurns0")
 		remove_hooks("tbMoveMemoryPlayTurns1")
-		UIElement:runCmd("lm classic")
+		runCmd("lm classic")
 		if (TUTORIAL_TOOLTIP_ACTIVE) then
 			Tooltip:quit()
 			TUTORIAL_TOOLTIP_ACTIVE = false
@@ -65,7 +67,18 @@ do
 			TUTORIAL_QUITPOPUP_IGNORE = false
 			return
 		end
-		tutorialQuitOverlay = TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.TUTORIALSLEAVINGPROMPT, function() close_menu() Tutorials:quit() end, function() close_menu() TUTORIAL_LEAVEGAME = false end, nil, nil, TB_TUTORIAL_MODERN_GLOBALID)
+		tutorialQuitOverlay = TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.TUTORIALSLEAVINGPROMPT,
+			function()
+				close_menu()
+				Tutorials:quit()
+			end,
+			function()
+				close_menu()
+				TUTORIAL_LEAVEGAME = false
+			end,
+			nil,
+			nil,
+			TB_TUTORIAL_MODERN_GLOBALID)
 	end
 
 	function Tutorials:getLocalization(TUTORIAL_LOCALIZED, id, language, path)
@@ -1581,7 +1594,7 @@ do
 					size = 0.66,
 					shift = 0,
 					image = "../textures/menu/tutorial" .. CURRENT_TUTORIAL + 1 .. ".tga",
-					action = function() Tutorials:runTutorial(CURRENT_TUTORIAL + 1) end
+					action = function() Tutorials:runTutorial(CURRENT_TUTORIAL + 1, TUTORIAL_REQUIRE_CLOSEMENU) end
 				})
 				nextTutorial:close()
 			end
@@ -1590,7 +1603,7 @@ do
 				size = #buttons == 0 and 0.66 or 0.33,
 				shift = #buttons == 0 and buttonHolder.size.w * 0.17 + 20 or 0,
 				image = #buttons == 0 and "../textures/menu/freeplay.tga" or "../textures/menu/multiplayer.tga",
-				action = function() Tutorials:quit() end
+				action = function() if (TUTORIAL_REQUIRE_CLOSEMENU) then close_menu() end Tutorials:quit() end
 			})
 		else
 			buttons = buttonsCustom

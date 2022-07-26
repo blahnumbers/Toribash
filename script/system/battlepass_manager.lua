@@ -863,8 +863,8 @@ function BattlePass:showMain()
 		image = "../textures/menu/battlepass/season8.tga",
 		ratio = 0.375,
 		disableUnload = true,
-		locked = TB_MENU_PLAYER_INFO.data.qi < 200,
-		lockedMessage = "Unlocks at Blue Belt",
+		locked = TB_MENU_PLAYER_INFO.data.qi < 100,
+		lockedMessage = "Unlocks at Green Belt",
 		action = Ranking.showGlobalRanking
 	})
 	local battlePassQuestsButton = TBMenu.CurrentSection:addChild({

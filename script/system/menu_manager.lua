@@ -526,17 +526,19 @@ function TBMenu:showHomeButton(viewElement, buttonData, hasSmudge, extraElements
 	end
 	if (overlay) then
 		viewElement:addMouseHandlers(function()
-				overlay.bgColor = cloneTable(viewElement.pressedColor)
+				overlay.bgColor = table.clone(viewElement.pressedColor)
 				for i,v in pairs(extraElements) do
 					if (type(v) == "table") then
-						v.bgColor = cloneTable(viewElement.pressedColor)
+						v.bgColor = table.clone(viewElement.pressedColor)
 					end
 				end
 			end, function()
 				if (buttonData.quit) then
 					close_menu()
 				end
-				buttonData.action()
+				if (buttonData.action) then
+					buttonData.action()
+				end
 				overlay.bgColor = viewElement.animateColor
 				for i,v in pairs(extraElements) do
 					if (type(v) == "table") then
@@ -545,7 +547,14 @@ function TBMenu:showHomeButton(viewElement, buttonData, hasSmudge, extraElements
 				end
 			end)
 	else
-		viewElement:addMouseHandlers(nil, function() if (buttonData.quit) then close_menu() end buttonData.action() end)
+		viewElement:addMouseHandlers(nil, function()
+			if (buttonData.quit) then
+				close_menu()
+			end
+			if (buttonData.action) then
+				buttonData.action()
+			end
+		end)
 	end
 	if (buttonData.locked and lockedMessage) then
 		viewElement:deactivate()
@@ -860,16 +869,19 @@ function TBMenu:spawnWindowOverlay(globalid, withMouseHandler)
 		interactive = true,
 		bgColor = { 0, 0, 0, 0.4 }
 	})
-	for i,v in pairs(TBMenu.UserBar.headDisplayObjects) do
-		v.bgColor[1] = v.bgColor[1] - 0.4
-		v.bgColor[2] = v.bgColor[2] - 0.4
-		v.bgColor[3] = v.bgColor[3] - 0.4
+	if (TBMenu.UserBar ~= nil) then
+		for i,v in pairs(TBMenu.UserBar.headDisplayObjects) do
+			v.bgColor[1] = v.bgColor[1] - 0.4
+			v.bgColor[2] = v.bgColor[2] - 0.4
+			v.bgColor[3] = v.bgColor[3] - 0.4
+		end
 	end
 
 	overlay.killAction = function()
 		UIScrollbarIgnore = false
 		TB_MENU_POPUPS_DISABLED = false
 
+		if (TBMenu.UserBar == nil) then return end
 		for i,v in pairs(TBMenu.UserBar.headDisplayObjects) do
 			v.bgColor[1] = v.bgColor[1] + 0.4
 			v.bgColor[2] = v.bgColor[2] + 0.4
@@ -2352,7 +2364,7 @@ function TBMenu:getMainNavigationButtons()
 		table.insert(buttonData, { text = TB_MENU_LOCALIZED.MAINMENUCLANSNAME, sectionId = 9 })
 	end
 	table.insert(buttonData, { text = TB_MENU_LOCALIZED.NAVBUTTONTOOLS, sectionId = 5, right = true })
-	if (TB_MENU_PLAYER_INFO.data.qi >= 100) then
+	if (TB_MENU_PLAYER_INFO.data.qi >= 20) then
 		---@type MenuNavButton
 		local battlePassButton = {
 			text = TB_MENU_LOCALIZED.BATTLEPASSTITLE,

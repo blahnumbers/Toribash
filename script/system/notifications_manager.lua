@@ -126,6 +126,7 @@ do
 
 		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 60, 70, 20, TB_MENU_DEFAULT_BG_COLOR)
 
+		topBar.bgColor = TB_MENU_DEFAULT_DARKER_COLOR
 		local messageTitle = topBar:addChild({
 			parent = topBar,
 			pos = { 25, 5 },
@@ -145,8 +146,8 @@ do
 		})
 		messageDate:addAdaptedText(true, notification.date, nil, nil, 4, RIGHTBOT, 0.6)
 
-		local listElements = {}
 		local elementHeight = 25
+		local listElements = { listingHolder:addChild({ pos = { 0, 0 }, size = { listingHolder.size.w, elementHeight }}) }
 		local attachments = table.clone(notification.attachments)
 		for id, v in pairs(notification.message) do
 			local textString = textAdapt(v.text, 4, 0.8, listingHolder.size.w - (v.indent and 100 or 50))

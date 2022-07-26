@@ -1246,7 +1246,7 @@ function Quests:showMainQuestTypes(viewElement, listView)
 	table.insert(listElements, regularQuestsTitle)
 	regularQuestsTitle:addChild({ shift = { 15, 5 }}):addAdaptedText(TB_MENU_LOCALIZED.QUESTSREGULAR, nil, nil, FONTS.BIG, LEFTMID)
 
-	if (#regularQuestList[TB_MENU_QUESTS_ACTIVE_SECTION].quests < 1) then
+	if (regularQuestList[TB_MENU_QUESTS_ACTIVE_SECTION] == nil or #regularQuestList[TB_MENU_QUESTS_ACTIVE_SECTION].quests < 1) then
 		TB_MENU_QUESTS_ACTIVE_SECTION = 1
 	end
 	regularQuestList[TB_MENU_QUESTS_ACTIVE_SECTION].selected = true

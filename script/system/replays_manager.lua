@@ -810,7 +810,7 @@ do
 		local rplTable = level or TB_MENU_REPLAYS
 		SELECTED_FOLDER = rplTable
 
-		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 50, elementHeight, 20)
+		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 50, 50, 20)
 
 		local bottomSmudge = TBMenu:addBottomBloodSmudge(botBar, 1)
 
@@ -878,7 +878,7 @@ do
 				end)
 		end
 
-		local searchInputField = TBMenu:spawnTextField(botBar, 10, 10, botBar.size.w - 20, botBar.size.h - 5, TB_MENU_REPLAYS_SEARCH, nil, nil, 0.65, UICOLORWHITE, TB_MENU_LOCALIZED.SEARCHNOTE)
+		local searchInputField = TBMenu:spawnTextField(botBar, 10, 10, botBar.size.w - 20, botBar.size.h - 20, TB_MENU_REPLAYS_SEARCH, nil, nil, 0.65, UICOLORWHITE, TB_MENU_LOCALIZED.SEARCHNOTE)
 
 
 		local searchFunction = function()
@@ -3250,7 +3250,6 @@ do
 	function Replays:showServerReplays()
 		local viewElement = TBMenu.CurrentSection
 		viewElement:kill(true)
-		TBMenu.NavigationBar:kill(true)
 		TBMenu:showNavigationBar(Replays:getNavigationButtons(true), true)
 
 		local replaysList = UIElement:new({

@@ -143,7 +143,7 @@ do
 
 	-- Writes a line to the debug.txt file located in Toribash root folder
 	---@param line string
-	---@param rewrite boolean If true, will open output file with FILES_MODE_WRITE mode to clear its previous contents
+	---@param rewrite? boolean If true, will open output file with FILES_MODE_WRITE mode to clear its previous contents
 	---@return nil
 	function Files:writeDebug(line, rewrite)
 		local debug = Files:open("../debug.txt", rewrite and FILES_MODE_WRITE or FILES_MODE_APPEND)

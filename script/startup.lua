@@ -41,7 +41,8 @@ local events = {
 	"network_error",
 	"post_draw3d",
 	"downloader_complete",
-	"filebrowser_select"
+	"filebrowser_select",
+	"mod_trigger"
 }
 
 function call_hook(event, ...)
