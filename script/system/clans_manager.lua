@@ -960,7 +960,7 @@ do
 		local clanTag = ClanData[clanid].isofficial == 1 and "[" .. ClanData[clanid].tag .. "]" or "(" .. ClanData[clanid].tag .. ")"
 		clanName:addAdaptedText(true, clanTag .. " " .. ClanData[clanid].name, nil, nil, FONTS.BIG, nil, 0.6, nil, 0.2)
 		local joinInteractive = false
-		if (ClanData[clanid].isfreeforall == 1 and TB_MENU_PLAYER_INFO.clan.id == 0 and (ClanData[clanid].memberstotal < ClanLevelData[ClanData[clanid].level + 1].maxmembers or Clans:isBeginnerClan(clanid))) then
+		if (ClanData[clanid].isfreeforall == 1 and TB_MENU_PLAYER_INFO.clan.id ~= 0 and (ClanData[clanid].memberstotal < ClanLevelData[math.min(#ClanLevelData, ClanData[clanid].level + 1)].maxmembers or Clans:isBeginnerClan(clanid))) then
 			joinInteractive = true
 		end
 		local clanJoin = UIElement:new({

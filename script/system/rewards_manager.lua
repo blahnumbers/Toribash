@@ -1,5 +1,6 @@
 -- daily login manager class
 require("system.store_manager")
+require("system.quests_manager")
 
 do
 	TC = 0
@@ -194,6 +195,8 @@ do
 									TB_MENU_PLAYER_INFO.data.st = TB_MENU_PLAYER_INFO.data.st + 1
 									TBMenu:showUserBar()
 								end
+								Quests:updateLoginQuestStatus(true)
+								BattlePass:getUserData()
 							end
 						end, function()
 							rewardClaimText:addAdaptedText(false, TB_MENU_LOCALIZED.REWARDSCLAIMERROROTHER, nil, nil, FONTS.BIG)

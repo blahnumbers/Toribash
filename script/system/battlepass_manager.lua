@@ -381,6 +381,7 @@ function BattlePass:spawnPurchaseLevelWindow()
 						TBMenu:showStatusMessage(TB_MENU_LOCALIZED.BATTLEPASSPURCHASELEVELSUCCESS)
 						BattlePass.UserData = nil
 						BattlePass:showMain()
+						Notifications:getTotalNotifications(true)
 					else
 						local error = response:gsub("^GATEWAY %d; %d", "")
 						claimWindowBackground:kill(true)
@@ -423,6 +424,7 @@ function BattlePass:spawnPrizeClaimWindow()
 						BattlePass:showMain()
 						update_tc_balance()
 						download_inventory()
+						Notifications:getTotalNotifications(true)
 					else
 						claimWindowBackground:kill(true)
 						local textBG = claimWindowBackground:addChild({ shift = { 30, 80 }})

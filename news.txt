@@ -152,11 +152,11 @@ EVENTID 3;
 NAME 0;Toribash Season 8
 IMAGE 0;season8.tga
 URL 0;https://www.toribash.com/season8
-OVERLAYTRANS 0;1
-ACCENTCOLOR 0;806170
+OVERLAYTRANS 0;0.75
+ACCENTCOLOR 0;2d2c41
 UICOLOR 0;ffffff
-BTNHVRCOL 0;322f43
-BTNDNCOL 0;f5d5bc
+BTNHVRCOL 0;f4d4bb
+BTNDNCOL 0;c2a289
 DESCDATA 0;1Description
 DESCDATATEXT 0;1Hello hello! Nabi Studios are very excited to announce our most ambitious project ever.\nSeason 8 will feature the very first Battlepass ever, and the prizes are so good we can't wait to show you!\nBe prepared to have the most fun you will ever have.
 DESCDATA 0;2How it works

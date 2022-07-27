@@ -1478,6 +1478,7 @@ do
 		local elementHeight = 41
 		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 60, 60, 20, event.accentColor)
 
+		listingScrollBG.bgColor = { 0, 0, 0, 0 }
 		local listElements = {}
 		for i, info in pairs(event.data) do
 			if (info.imagetitle) then
@@ -1536,7 +1537,6 @@ do
 			scrollBar.bgColor = { 0, 0, 0, 0 }
 			scrollBar.hoverColor = { 0, 0, 0, 0 }
 			scrollBar.pressedColor = { 0, 0, 0, 0 }
-			listingScrollBG.bgColor = { 0, 0, 0, 0 }
 		else
 			listingHolder:moveTo(0, math.ceil((listingHolder.size.h - #listElements * elementHeight) / 2), true)
 		end
@@ -1581,6 +1581,7 @@ do
 		local elementHeight = 41
 		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 60, 60, 20, event.accentColor)
 
+		listingScrollBG.bgColor = { 0, 0, 0, 0 }
 		local listElements = {}
 		if (event.prizes.imagetitle) then
 			local imageScale = elementHeight * 8 > listingHolder.size.w - 20 and (listingHolder.size.w - 20) / 8 or elementHeight
@@ -1648,7 +1649,6 @@ do
 			scrollBar.bgColor = { 0, 0, 0, 0 }
 			scrollBar.hoverColor = { 0, 0, 0, 0 }
 			scrollBar.pressedColor = { 0, 0, 0, 0 }
-			listingScrollBG.bgColor = { 0, 0, 0, 0 }
 		else
 			listingHolder:moveTo(0, math.ceil((listingHolder.size.h - #listElements * elementHeight) / 2), true)
 		end

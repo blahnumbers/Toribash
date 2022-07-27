@@ -183,7 +183,8 @@ function Ranking:parseRankingTrends(data)
 
 	for ln in data:gmatch("[^\n]+\n?") do
 		if (ln:find("^#NO DATA FOUND")) then
-			return false
+			-- User hasn't played ranked yet, exit with empty data
+			return true
 		end
 		if (ln:find("^#ELO")) then
 			mods = false

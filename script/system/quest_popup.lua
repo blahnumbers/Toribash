@@ -95,7 +95,7 @@ local function showPopup(i)
 		rounded = 3
 	})
 	local questProgressBar = questProgressBarOutline:addChild({ shift = { 1, 1 }, bgColor = table.clone(TB_MENU_DEFAULT_BG_COLOR) }, true)
-	local pSize = math.max(questProgressBar.rounded * 2, oldProgress == 0 and 1 or questProgressBar.size.w * (oldProgress / quest.requirement))
+	local pSize = math.max(questProgressBarOutline.rounded * 2, oldProgress == 0 and 1 or questProgressBar.size.w * (oldProgress / quest.requirement))
 	local questProgress = questProgressBar:addChild({
 		pos = { 0, 0 },
 		size = { pSize, questProgressBar.size.h },

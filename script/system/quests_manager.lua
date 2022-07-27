@@ -157,8 +157,49 @@ function Quests:getQuests()
 	end
 	file:close()
 
+	local loginRewardsAvailable = PlayerInfo:getLoginRewards().available
+	if (loginRewardsAvailable) then
+		table.insert(questData, {
+			id = 2000,
+			name = TB_MENU_LOCALIZED.QUESTSDAILYPLAYER,
+			description = "Log in and claim login rewards",
+			progresspercentage = loginRewardsAvailable and 0 or 1,
+			requirement = loginRewardsAvailable and 1 or 2,
+			progress = loginRewardsAvailable and 0 or 1,
+			claimed = not loginRewardsAvailable,
+			type = 0,
+			timeleft = -1,
+			modid = 0,
+			modname = '',
+			reward = 0,
+			rewardid = 0,
+			bp_xp = 5
+		})
+	end
+
 	---@type QuestData[]
 	Quests.QuestsData = table.qsort(questData, "progresspercentage", SORT_DESCENDING)
+end
+
+---Updates daily login quest status
+---@param completed boolean
+---@return boolean
+function Quests:updateLoginQuestStatus(completed)
+	if (not Quests.QuestsData) then
+		return false
+	end
+
+	for i,v in pairs(Quests.QuestsData) do
+		if (v.id == 2000) then
+			Quests.QuestsData[i].requirement = completed and 2 or 1
+			Quests.QuestsData[i].progress = completed and 1 or 0
+			Quests.QuestsData[i].progresspercentage = completed and 1 or 0
+			Quests.QuestsData[i].claimed = completed
+			Quests.QuestsData = table.qsort(Quests.QuestsData, "progresspercentage", SORT_DESCENDING)
+			return true
+		end
+	end
+	return false
 end
 
 ---Returns quest data with the matching quest id. If no quest is found, returns `false`.
@@ -680,7 +721,11 @@ function Quests:showQuestButton(quest, listingHolder, listElements, elementHeigh
 							add_hook("downloader_complete", "net_questclaim_post", function(filename)
 									if (filename:find("data/quest.txt")) then
 										remove_hooks("net_questclaim_post")
-										Downloader:safeCall(Quests.showMain)
+										Downloader:safeCall(function()
+											if (questProgressBarState and not questProgressBarState.destroyed) then
+												Quests:showMain()
+											end
+										end)
 									end
 								end)
 							if (quest.bp_xp > 0) then
