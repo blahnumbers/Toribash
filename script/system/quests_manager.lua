@@ -1358,8 +1358,6 @@ end
 ---@return nil
 function Quests:showMain(navBack, backFunc)
 	usage_event("quests")
-	TBMenu.CurrentSection:kill(true)
-
 	if (Quests.QuestsData and not Quests:requiresGlobalDataUpdate()) then
 		Quests:showQuests(navBack, backFunc)
 		return

@@ -1369,7 +1369,6 @@ do
 	function Clans:showClan(viewElement, clanid)
 		TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
 		TB_MENU_CLANS_OPENCLANID = clanid
-		viewElement:kill(true)
 		TBMenu:clearNavSection()
 		TBMenu:showNavigationBar(Clans:getNavigationButtons(true), true)
 

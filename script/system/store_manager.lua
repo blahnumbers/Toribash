@@ -6063,7 +6063,6 @@ do
 
 	function Torishop:showSearchResults(viewElement, searchResults, searchString)
 		TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
-		viewElement:kill(true)
 		TBMenu:clearNavSection()
 		TBMenu:showNavigationBar(Torishop:getSectionNavButtons(viewElement, 0), true)
 		Torishop:showSearchBar(viewElement, searchString)
@@ -6155,7 +6154,6 @@ do
 
 		TB_LAST_STORE_SECTION = section
 		TB_LAST_STORE_SECTIONID = sectionid
-		viewElement:kill(true)
 		TBMenu:clearNavSection()
 		TBMenu:showNavigationBar(Torishop:getSectionNavButtons(viewElement, section), true, true, TB_LAST_STORE_SECTION)
 

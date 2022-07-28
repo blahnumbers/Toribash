@@ -640,7 +640,7 @@ end
 
 function TBMenu:showNotifications()
 	if (not TB_STORE_DATA.ready) then
-		TBMenu:showDataError(TB_MENU_LOCALIZED.STOREDATALOADERROR)
+		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STOREDATALOADERROR)
 		return
 	end
 	TBMenu:clearNavSection()
@@ -1120,12 +1120,6 @@ function TBMenu:showTorishopMain()
 end
 
 function TBMenu:showAccountMain(reload)
-	if (TBMenu.CurrentSection == nil or TBMenu.CurrentSection.destroyed) then
-		TBMenu:createCurrentSectionView()
-	else
-		TBMenu.CurrentSection:kill(true)
-	end
-
 	local lastSpecialScreen = TB_MENU_SPECIAL_SCREEN_ISOPEN
 	TBMenu:clearNavSection()
 	TBMenu:showNavigationBar({
