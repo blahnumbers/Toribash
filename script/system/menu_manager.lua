@@ -124,6 +124,7 @@ function TBMenu:quit()
 end
 
 function TBMenu:createCurrentSectionView()
+	if (TBMenu.MenuMain == nil or TBMenu.MenuMain.destroyed) then return end
 	TBMenu.CurrentSection = TBMenu.MenuMain:addChild({
 		pos = { 75 * TB_MENU_GLOBAL_SCALE, 140 * TB_MENU_GLOBAL_SCALE + WIN_H / 16 },
 		size = { WIN_W - 150 * TB_MENU_GLOBAL_SCALE, WIN_H - 235 * TB_MENU_GLOBAL_SCALE - WIN_H / 16 }
