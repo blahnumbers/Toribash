@@ -1275,15 +1275,17 @@ do
 							message = message .. (response.warning and ("\n" .. response.warning:gsub("(%w+)", "^37%1")) or '') .. (response.info and ("\n" .. response.info:gsub("(%w+)", "^39%1")) or '')
 						end
 
-						TBMenu:showDataError(message, not TB_MENU_MAIN_ISOPEN, 10)
+						TBMenu:showStatusMessage(message, not TB_MENU_MAIN_ISOPEN, 10)
 						Market:clearModal()
 
-						offer.button:kill(true)
-						offer.button:addChild({ shift = { 10, 3 } }):addAdaptedText(true, TB_MENU_LOCALIZED.MARKETOFFERCANCELLED)
-						offer.button:deactivate(true)
+						if (offer.button ~= nil) then
+							offer.button:kill(true)
+							offer.button:addChild({ shift = { 10, 3 } }):addAdaptedText(true, TB_MENU_LOCALIZED.MARKETOFFERCANCELLED)
+							offer.button:deactivate(true)
+						end
 						update_tc_balance()
 					end, function()
-						TBMenu:showDataError(get_network_error(), not TB_MENU_MAIN_ISOPEN)
+						TBMenu:showStatusMessage(get_network_error(), not TB_MENU_MAIN_ISOPEN)
 						Market:clearModal()
 					end)
 			end)
@@ -1711,7 +1713,7 @@ do
 				local searchResults = Market:searchItemsByString(inputField.textfieldstr[1])
 				local dropdownList = {}
 				local maxId = math.floor(WIN_H / 3 / (inputHolder.size.h * 0.8))
-				for i,v in pairs(qsort(searchResults, 'itemname')) do
+				for i,v in pairs(table.qsort(searchResults, 'itemname')) do
 					if (v.qi <= TB_MENU_PLAYER_INFO.data.qi) then
 						table.insert(dropdownList, {
 							text = v.itemname,
@@ -1775,10 +1777,10 @@ do
 				end
 
 				update_tc_balance()
-				TBMenu:showDataError(message, not TB_MENU_MAIN_ISOPEN, 10)
+				TBMenu:showStatusMessage(message, not TB_MENU_MAIN_ISOPEN, 10)
 				Market:clearModal()
 			end, function()
-				TBMenu:showDataError(get_network_error(), not TB_MENU_MAIN_ISOPEN)
+				TBMenu:showStatusMessage(get_network_error(), not TB_MENU_MAIN_ISOPEN)
 				Market:clearModal()
 			end)
 	end
@@ -1799,19 +1801,8 @@ do
 			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
 			shapeType = ROUNDED,
-			rounded = 4
+			rounded = { 4, 0 }
 		})
-		if (offerViewBG.shapeType == ROUNDED) then
-			local offerBGExtra = UIElement:new({
-				parent = offerViewBG,
-				pos = { 0, offerViewBG.size.h - offerViewBG.rounded },
-				size = { offerViewBG.size.w, offerViewBG.rounded },
-				bgColor = offerViewBG.animateColor
-			})
-			offerBGExtra:addCustomDisplay(false, function()
-					offerBGExtra.bgColor = offerViewBG.hoverState ~= BTN_DN and offerViewBG.animateColor or offerViewBG.pressedColor
-				end, true)
-		end
 		local offerItemIcon = UIElement:new({
 			parent = offerViewBG,
 			pos = { 10, 5 },
@@ -1846,19 +1837,8 @@ do
 			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
 			shapeType = ROUNDED,
-			rounded = 4
+			rounded = { 0, 4 }
 		})
-		if (offerExtraViewBG.shapeType == ROUNDED) then
-			local offerBGExtra = UIElement:new({
-				parent = offerExtraViewBG,
-				pos = { 0, 0 },
-				size = { offerExtraViewBG.size.w, offerExtraViewBG.rounded },
-				bgColor = offerExtraViewBG.animateColor
-			})
-			offerBGExtra:addCustomDisplay(false, function()
-					offerBGExtra.bgColor = offerExtraViewBG.hoverState ~= BTN_DN and offerExtraViewBG.animateColor or offerExtraViewBG.pressedColor
-				end, true)
-		end
 		offerViewBG:addCustomDisplay(nil, function()
 				if (offerExtraViewBG.hoverState ~= offerViewBG.hoverState and offerExtraViewBG:isDisplayed()) then
 					local stateA = offerViewBG.hoverState and offerViewBG.hoverState or 0
@@ -2337,7 +2317,6 @@ do
 		end
 
 		TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
-		viewElement:kill(true)
 
 		TBMenu:clearNavSection()
 		TBMenu:showNavigationBar(Market:getSectionNavButtons(viewElement, backAction), true)
@@ -2632,8 +2611,6 @@ do
 	end
 
 	function Market:showSearchOffers(viewElement, search, options)
-		viewElement:kill(true)
-
 		TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
 		TBMenu:clearNavSection()
 		TBMenu:showNavigationBar(Market:getSectionNavButtons(viewElement), true)
@@ -3125,7 +3102,7 @@ do
 					size = { myShopView.size.w - 50, math.min(myShopView.size.h / 10, 40) },
 					interactive = true,
 					bgColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
-					hoverColor = cloneTable(TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS),
+					hoverColor = table.clone(TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS),
 					pressedColor = TB_MENU_DEFAULT_DARKER_COLOR,
 					shapeType = ROUNDED,
 					rounded = 4
@@ -3138,7 +3115,7 @@ do
 				})
 				premiumUpgradeButtonText:addAdaptedText(false, TB_MENU_LOCALIZED.MARKETUPGRADEPREMIUM)
 				premiumUpgradeButton:addMouseHandlers(nil, function()
-						open_url("https://forum.toribash.com/payments.php")
+						Torishop:showStoreSection(TBMenu.CurrentSection, nil, nil, 3793)
 					end)
 				local premiumUpgradeInfo = UIElement:new({
 					parent = myShopView,
@@ -3244,7 +3221,6 @@ do
 
 	function Market:showUserShop(viewElement, username, backAction)
 		TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
-		viewElement:kill(true)
 		usage_event("marketplace_shop")
 
 		TBMenu:clearNavSection()
@@ -3747,7 +3723,7 @@ do
 				MARKET_OFFERS_HOME = offersData
 				MARKET_OFFERS_HOME.refreshTime = os.clock()
 			end, function()
-				TBMenu:showDataError(get_network_error())
+				TBMenu:showStatusMessage(get_network_error())
 			end)
 
 		local featuredShop = UIElement:new({
@@ -3822,6 +3798,10 @@ do
 					if (featuredLoader) then
 						featuredLoader:kill()
 						featuredShopImage:updateImage("../textures/store/market/" .. featuredShopData.user .. ".tga", "../textures/store/inventory/noise.tga")
+						featuredShop:addMouseHandlers(nil, function()
+							Market:showUserShop(TBMenu.CurrentSection, featuredShopData.user)
+							usage_event("marketplace_featured_shop")
+						end)
 					end
 				end
 				featuredShop.killAction = function() remove_hooks("tbMarketplaceDownloader") end

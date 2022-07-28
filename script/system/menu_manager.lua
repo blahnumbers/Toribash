@@ -3509,14 +3509,14 @@ end
 
 function TBMenu:spawnTextField(parent, x, y, w, h, textFieldString, inputSettings, fontid, scale, color, defaultStr, orientation, noCursor, multiLine, darkerMode)
 	if (not parent) then
-		return false
+		return parent
 	end
 	local x = x or 0
 	local y = y or 0
 	local w = w or parent.size.w
 	local h = h or parent.size.h
 	local fontid = fontid or 4
-	local color = color or cloneTable(UICOLORBLACK)
+	local color = color or table.clone(UICOLORBLACK)
 	local inputSettings = type(inputSettings) == "table" and inputSettings or { isNumeric = inputSettings }
 
 	local textBg = UIElement:new({

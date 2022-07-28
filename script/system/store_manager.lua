@@ -112,7 +112,7 @@ do
 	end
 
 	function Torishop:getItems()
-		local file = Files:new("../data/store.txt")
+		local file = Files:open("../data/store.txt")
 		if (not file.data) then
 			if (not file:isDownloading()) then
 				Torishop:download()
@@ -185,7 +185,7 @@ do
 	end
 
 	function Torishop:getModelsData()
-		local file = Files:new("../data/store_obj.txt")
+		local file = Files:open("../data/store_obj.txt")
 		if (not file.data) then
 			return { failed = true }
 		end
@@ -255,14 +255,14 @@ do
 			end
 		end
 		if (TB_STORE_DATA[itemid]) then
-			return cloneTable(TB_STORE_DATA[itemid])
+			return table.clone(TB_STORE_DATA[itemid])
 		end
 
-		if (get_option("autoupdate") ~= 0) then
+		--if (get_option("autoupdate") ~= 0) then
 			Torishop:download()
-		end
+		--end
 		TB_STORE_DATA.requireReload = true
-		return cloneTable(ITEM_EMPTY)
+		return table.clone(ITEM_EMPTY)
 	end
 
 	function Torishop:getSectionInfo(sectionid)
@@ -329,7 +329,7 @@ do
 
 	function Torishop:getTcSales()
 		local data = {}
-		local file = Files:new("../data/store.txt")
+		local file = Files:open("../data/store.txt")
 		if (not file.data) then
 			return
 		end
@@ -345,7 +345,7 @@ do
 		end
 		file:close()
 
-		return qsort(data, "price", false)
+		return table.qsort(data, "price", SORT_ASCENDING)
 	end
 
 	function Torishop:getInventoryRaw(itemidOnly, reload)
@@ -363,10 +363,10 @@ do
 				end
 				return itemInv
 			end
-			return cloneTable(TB_INVENTORY_DATA)
+			return table.clone(TB_INVENTORY_DATA)
 		end
 
-		local file = Files:new("torishop/invent.txt")
+		local file = Files:open("torishop/invent.txt")
 		if (not file.data) then
 			return false
 		end
@@ -433,7 +433,7 @@ do
 		TB_INVENTORY_DATA = inventory
 		TB_INVENTORY_LOADED = true
 		check_steam_color(0)
-		return itemidOnly and Torishop:getInventoryRaw(itemidOnly) or cloneTable(inventory)
+		return itemidOnly and Torishop:getInventoryRaw(itemidOnly) or table.clone(inventory)
 	end
 
 	function Torishop:getInventory(mode)
@@ -499,7 +499,7 @@ do
 				end
 			end
 		end
-		return qsort(inventory, "name", false)
+		return table.qsort(inventory, "name", SORT_ASCENDING)
 	end
 
 	function Torishop:quit()
@@ -519,7 +519,7 @@ do
 	end
 
 	function Torishop:refreshInventory(showInventory)
-		UIElement:runCmd("download " .. TB_MENU_PLAYER_INFO.username)
+		runCmd("download " .. TB_MENU_PLAYER_INFO.username)
 		if (showInventory) then
 			Torishop:prepareInventory(TBMenu.CurrentSection, true)
 		else
@@ -617,6 +617,10 @@ do
 	end
 
 	function Torishop:getItemToDeactivate(item)
+		if (item.itemid == 0) then
+			return false
+		end
+
 		local inventoryRaw = Torishop:getInventoryRaw()
 		if (not inventoryRaw) then
 			return false
@@ -653,7 +657,7 @@ do
 		local bottomSmudge = TBMenu:addBottomBloodSmudge(inventoryItemView, 2)
 
 		if (not item) then return end
-		local itemData = TB_STORE_DATA[item.itemid]
+		local itemData = Torishop:getItemInfo(item.itemid)
 
 		if (item.itemid == ITEM_SET) then
 			local itemName = UIElement:new({
@@ -1032,7 +1036,7 @@ do
 					if (not response:find("^ERROR")) then
 						if (not forceReload) then
 							-- Check if we already have the file from cache first
-							local textureFile = Files:new("../data/textures/store/inventory/" .. item.inventid .. ".tga")
+							local textureFile = Files:open("../data/textures/store/inventory/" .. item.inventid .. ".tga")
 							if (textureFile.data) then
 								onImageDownloaded()
 								textureFile:close()
@@ -1360,7 +1364,7 @@ do
 							updateEffectSettingsButton:show()
 							local buttonText = TB_MENU_LOCALIZED.STOREITEMUPGRADEFOR
 							local upgradePrice = 0
-							local maxRequirement = math.max(unpack_all(effectUpdateRequirements.gamesPlayed))
+							local maxRequirement = math.max(table.unpack_all(effectUpdateRequirements.gamesPlayed))
 							for i,v in pairs(effectUpdateRequirements.upgradePrice) do
 								upgradePrice = upgradePrice + v
 							end
@@ -1417,7 +1421,7 @@ do
 				local selectedEffect
 				local availableEffectsDropdown = {}
 				for i,v in pairs(Torishop:getInventory(INVENTORY_DEACTIVATED)) do
-					if (TB_STORE_DATA[v.itemid].catid == 87 and bit.band(item.effectid, v.effectid) == 0) then
+					if (Torishop:getItemInfo(v.itemid).catid == 87 and bit.band(item.effectid, v.effectid) == 0) then
 						table.insert(availableEffectsDropdown, {
 							text = v.name,
 							action = function()
@@ -1589,10 +1593,10 @@ do
 			sectionButton:addAdaptedText(false, v.name)
 			sectionButton:addMouseHandlers(nil, function()
 					if (selectedButton) then
-						selectedButton.bgColor = cloneTable(TB_MENU_DEFAULT_DARKER_COLOR)
+						selectedButton.bgColor = table.clone(TB_MENU_DEFAULT_DARKER_COLOR)
 					end
 					selectedButton = sectionButton
-					selectedButton.bgColor = cloneTable(TB_MENU_DEFAULT_DARKEST_COLOR)
+					selectedButton.bgColor = table.clone(TB_MENU_DEFAULT_DARKEST_COLOR)
 					v.action()
 				end)
 		end
@@ -2632,7 +2636,7 @@ do
 						TBMenu:showLoginError(tcPurchaseView.parent, TB_MENU_LOCALIZED.STOREPURCHASETORICREDITS)
 						return
 					end
-					UIElement:runCmd("steam purchase " .. v.itemid)
+					runCmd("steam purchase " .. v.itemid)
 					local waitNotification = UIElement:new({
 						parent = TBMenu.MenuMain,
 						pos = { WIN_W / 2 - 200, WIN_H / 2 - 50 },
@@ -3900,7 +3904,7 @@ do
 				if (TB_STORE_MODELS[v] and not TB_STORE_MODELS[item.itemid]) then
 					if (TB_STORE_MODELS[v].upgradeable) then
 						item.upgradeable = true
-						TB_STORE_MODELS[item.itemid] = cloneTable(TB_STORE_MODELS[v])
+						TB_STORE_MODELS[item.itemid] = table.clone(TB_STORE_MODELS[v])
 					end
 				end
 				local newItem = Torishop:getItemInfo(v)
@@ -4882,7 +4886,7 @@ do
 		local itemHolder = nil
 		for i, item in pairs(itemslist) do
 			local objPath = "../models/store/" .. item.itemid .. (level > 1 and ("_" .. level) or '')
-			local objModel = Files:new("../data/models/store/" .. item.itemid .. (level > 1 and ("_" .. level) or '') .. ".obj")
+			local objModel = Files:open("../data/models/store/" .. item.itemid .. (level > 1 and ("_" .. level) or '') .. ".obj")
 			if (objModel.data) then
 				objModel:close()
 				itemHolder = Torishop:drawObjItem(item, previewHolder, scaleMultiplier, objPath, bodyInfos, cameraMove, level)
@@ -5129,7 +5133,7 @@ do
 					draw_sphere(rHand.pos.x - 0.12, rHand.pos.y - 0.07, rHand.pos.z + 0.02, 0.08)
 				end)
 		elseif (item.catid == 43) then
-			UIElement:runCmd("em " .. (item.colorid > 99 and ("%" .. item.colorid) or (item.colorid > 9 and ("^" .. item.colorid) or ("^0" .. item.colorid))) .. item.itemname)
+			runCmd("em " .. (item.colorid > 99 and ("%" .. item.colorid) or (item.colorid > 9 and ("^" .. item.colorid) or ("^0" .. item.colorid))) .. item.itemname)
 		elseif (item.catid == 44) then
 			set_blood_color(0, item.colorid)
 			set_joint_relax_color(0, item.colorid)
@@ -5154,13 +5158,13 @@ do
 					set_color(rgb.r, rgb.g, rgb.b, 0.7)
 					draw_sphere(rHand.pos.x + 0.12, rHand.pos.y + 0.07, rHand.pos.z + 0.02, 0.08)
 				end)
-			UIElement:runCmd("em " .. (item.colorid > 99 and ("%" .. item.colorid) or (item.colorid > 9 and ("^" .. item.colorid) or ("^0" .. item.colorid))) .. item.itemname)
+			runCmd("em " .. (item.colorid > 99 and ("%" .. item.colorid) or (item.colorid > 9 and ("^" .. item.colorid) or ("^0" .. item.colorid))) .. item.itemname)
 		elseif (item.catid == 72) then
 			Torishop:previewHairVanilla(item)
 		elseif (item.catid == 73) then
 			set_hair_color(0, item.colorid)
 		elseif (item.catid == 78) then
-			local file = Files:new("../data/models/store/" .. item.itemid .. ".obj")
+			local file = Files:open("../data/models/store/" .. item.itemid .. ".obj")
 			download_server_file(item.itemid, 1)
 			if (not file.data) then
 				TBMenu:showDataError("No model found, starting download")
@@ -5181,7 +5185,7 @@ do
 				return
 			end
 			file:close()
-			local modelInfo = cloneTable(TB_STORE_MODELS[item.itemid])
+			local modelInfo = table.clone(TB_STORE_MODELS[item.itemid])
 			if (not modelInfo) then
 				-- TB_STORE_MODELS is missing data, redownload torishop data and refresh models table
 				Torishop:download()
@@ -5191,11 +5195,11 @@ do
 				modelInfo = modelInfo[1]
 			end
 			if (modelInfo.bodyid < 21) then
-				UIElement:runCmd("obj load data/models/store/" .. item.itemid .. ".obj 0 " .. modelInfo.bodyid .. " " .. modelInfo.colorid .. " " .. modelInfo.alpha .. " 1 " .. (modelInfo.dynamic and 1 or 0) .. " " .. (modelInfo.partless and 1 or 0))
+				runCmd("obj load data/models/store/" .. item.itemid .. ".obj 0 " .. modelInfo.bodyid .. " " .. modelInfo.colorid .. " " .. modelInfo.alpha .. " 1 " .. (modelInfo.dynamic and 1 or 0) .. " " .. (modelInfo.partless and 1 or 0))
 			elseif (modelInfo.bodyid < 41) then
-				UIElement:runCmd("objjoint load data/models/store/" .. item.itemid .. ".obj 0 " .. (modelInfo.bodyid - 21) .. " " .. modelInfo.colorid .. " " .. modelInfo.alpha .. " 1 " .. (modelInfo.dynamic and 1 or 0) .. " " .. (modelInfo.partless and 1 or 0))
+				runCmd("objjoint load data/models/store/" .. item.itemid .. ".obj 0 " .. (modelInfo.bodyid - 21) .. " " .. modelInfo.colorid .. " " .. modelInfo.alpha .. " 1 " .. (modelInfo.dynamic and 1 or 0) .. " " .. (modelInfo.partless and 1 or 0))
 			else
-				UIElement:runCmd("objfloor load data/models/store/" .. item.itemid .. ".obj 0 " .. (modelInfo.bodyid - 41))
+				runCmd("objfloor load data/models/store/" .. item.itemid .. ".obj 0 " .. (modelInfo.bodyid - 41))
 			end
 		elseif (item.catid == 80) then
 			for i,v in pairs(item.contents) do
@@ -5506,7 +5510,7 @@ do
 				})
 				buyWithStText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREBUYFOR .. " $" .. PlayerInfo:currencyFormat(item.now_usd_price, 2), nil, nil, nil, LEFTMID)
 				buyWithSt:addMouseHandlers(nil, is_steam() and function()
-						UIElement:runCmd("steam purchase " .. item.itemid)
+						runCmd("steam purchase " .. item.itemid)
 					end or function()
 						open_url("http://forum.toribash.com/tori_shop.php?action=process&item=" .. item.itemid)
 					end)
@@ -5673,7 +5677,7 @@ do
 		})
 		local itemIconPath = Torishop:getItemIcon(item.itemid)
 		local itemIconFilePath = itemIconPath:gsub("^%.%./", "../data/")
-		local itemIconFile = Files:new(itemIconFilePath)
+		local itemIconFile = Files:open(itemIconFilePath)
 		local hasIcon = itemIconFile.data and true or false
 		itemIconFile:close()
 
@@ -5701,7 +5705,7 @@ do
 		end
 		itemSection:addMouseHandlers(function()
 				if (iconOverlay) then
-					iconOverlay.bgColor = cloneTable(itemSection.pressedColor)
+					iconOverlay.bgColor = table.clone(itemSection.pressedColor)
 				end
 			end, function()
 				Torishop:showStoreItemInfo(item)
@@ -5767,7 +5771,7 @@ do
 				end
 			end
 		end
-		sectionItems = qsort(sectionItems, {'qi', 'now_usd_price', 'now_tc_price', 'itemname'}, false, true)
+		sectionItems = table.qsort(sectionItems, {'qi', 'now_usd_price', 'now_tc_price', 'itemname'}, SORT_ASCENDING, true)
 		local listElements = {}
 		for i, item in pairs(sectionItems) do
 			local itemHolder = UIElement:new({
@@ -5832,7 +5836,7 @@ do
 			for i,v in pairs(TB_STORE_DATA) do
 				if (type(i) == "number") then
 					if (v.catid == catid and (v.now_tc_price > 0 or v.now_usd_price > 0) and not (v.locked and v.hidden)) then
-						local v = cloneTable(v)
+						local v = table.clone(v)
 						for j,k in pairs(TB_STORE_DISCOUNTS) do
 							if (k.itemid == 0 or k.itemid == v.itemid) then
 								if ((bit.band(k.paymentType, 2) > 0 or bit.band(k.paymentType, 4) > 0) and in_array(v.catid, CATEGORIES_ACCOUNT)) then
@@ -5864,9 +5868,9 @@ do
 			return
 		end
 
-		sectionItemsDesc = qsort(sectionItems, { 'on_sale', 'now_tc_price', 'now_usd_price', 'itemname' }, true, true)
-		sectionItemsQi = qsort(sectionItems, { 'on_sale', 'qi', 'now_tc_price', 'now_usd_price', 'itemname' }, false, true)
-		sectionItems = qsort(sectionItems, { 'on_sale', 'now_tc_price', 'now_usd_price', 'itemname' }, { true, false, false, false }, true)
+		sectionItemsDesc = table.qsort(sectionItems, { 'on_sale', 'now_tc_price', 'now_usd_price', 'itemname' }, SORT_DESCENDING, true)
+		sectionItemsQi = table.qsort(sectionItems, { 'on_sale', 'qi', 'now_tc_price', 'now_usd_price', 'itemname' }, SORT_ASCENDING, true)
+		sectionItems = table.qsort(sectionItems, { 'on_sale', 'now_tc_price', 'now_usd_price', 'itemname' }, { SORT_DESCENDING, SORT_ASCENDING, SORT_ASCENDING, SORT_ASCENDING }, true)
 
 		local elementHeight = 64
 		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, elementHeight, elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
@@ -6494,7 +6498,7 @@ do
 				purchaseText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREBUYWITH .. " " .. (is_steam() and "Steam" or "PayPal"))
 				purchaseButton:addMouseHandlers(nil, function()
 						advancedPreview.child[1]:hide()
-						TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASECONFIRM .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " $" .. PlayerInfo:currencyFormat(item.now_usd_price) .. "?", function() if (is_steam()) then UIElement:runCmd("steam purchase " .. item.itemid) else open_url("http://forum.toribash.com/tori_shop.php?action=process&item=" .. item.itemid) end advancedPreview:show() end, function() advancedPreview:show() end)
+						TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASECONFIRM .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " $" .. PlayerInfo:currencyFormat(item.now_usd_price) .. "?", function() if (is_steam()) then runCmd("steam purchase " .. item.itemid) else open_url("http://forum.toribash.com/tori_shop.php?action=process&item=" .. item.itemid) end advancedPreview:show() end, function() advancedPreview:show() end)
 					end)
 			else
 				purchaseText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREBUYWITH .. " st")
@@ -6651,7 +6655,7 @@ do
 				table.insert(saleColor, v)
 			end
 		end
-		saleColor = qsort(saleColor, 'catid') --Do this to prevent incorrect name detection when first item is a pack
+		saleColor = table.qsort(saleColor, 'catid') --Do this to prevent incorrect name detection when first item is a pack
 		local saleColorInfo = #saleColor > 0 and { colorid = saleColor[1].colorid, colorname = saleColor[1].itemname:gsub(" " .. Torishop:getSectionInfo(saleColor[1].catid).name:sub(1, -8) .. ".*$", "") } or false
 
 		local storeButtons = {

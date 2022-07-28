@@ -1846,7 +1846,7 @@ do
 	---@param self table Table with the data that we want to sort
 	---@param sort string[]|string Table keys which values will be used for sorting
 	---@param order? (sort)[]|sort Sorting order. Defaults to `SORT_ASCENDING`.
-	---@param includeZeros any
+	---@param includeZeros? boolean
 	---@return table
 	_G.table.qsort = function(self, sort, order, includeZeros)
 		local arr = {}
