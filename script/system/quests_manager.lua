@@ -138,8 +138,8 @@ function Quests:getQuests()
 					quest[v[1]] = quest[v[1]] == '1'
 				end
 			end
-			quest.name = quest.name:len() > 0 and quest.name or Quests:getQuestName(quest)
-			quest.description = quest.description:len() > 0 and quest.description or Quests:getQuestObjective(quest)
+			quest.name = (quest.name and quest.name:len() > 0) and quest.name or Quests:getQuestName(quest)
+			quest.description = (quest.description and quest.description:len() > 0) and quest.description or Quests:getQuestObjective(quest)
 			quest.progresspercentage = math.min(1, quest.progress / quest.requirement)
 			table.insert(questData, quest)
 

@@ -72,6 +72,10 @@ do
 	end
 
 	function Rewards:showMain(viewElement, rewardData)
+		if (viewElement == nil or viewElement.destroyed) then
+			return
+		end
+
 		viewElement:kill(true)
 		if (rewardData.days > 6) then
 			rewardData.days = rewardData.days % 7

@@ -11,13 +11,13 @@ do
 	Tooltip.__index = Tooltip
 	local cln = {}
 	setmetatable(cln, Tooltip)
-	
+
 	function Tooltip:quit()
 		TOOLTIP_ACTIVE = false
 		remove_hooks("tbSystemTooltip")
 		Tooltip:destroy()
 	end
-	
+
 	function Tooltip:destroy()
 		-- Force destroy all objects assigned to TB_TOOLTIP_GLOBALID global id
 		TB_TOOLTIP_GLOBALID = TB_TOOLTIP_GLOBALID or 1010
@@ -26,7 +26,7 @@ do
 				v:kill()
 			end
 		end]]
-		
+
 		-- Method above looks to be not reliable enough
 		local destroyed = false
 		while (not destroyed) do
@@ -45,7 +45,7 @@ do
 		end
 		TB_TOOLTIP_LASTSTATE = -1
 	end
-	
+
 	function Tooltip:create()
 		TB_TOOLTIP_GLOBALID = TB_TOOLTIP_GLOBALID or 1010
 		PLAYERINFO = PlayerInfo:getItems(PlayerInfo:getUser(), true)
@@ -60,12 +60,12 @@ do
 			end)
 		TOOLTIP_ACTIVE = true
 	end
-	
+
 	function Tooltip:reload()
 		Tooltip:quit()
 		Tooltip:create()
 	end
-	
+
 	function Tooltip:showTooltipBody(player, body)
 		TB_TOOLTIP_GLOBALID = TB_TOOLTIP_GLOBALID or 1010
 		TB_TOOLTIP_GRABDISPLAY = false
@@ -80,12 +80,12 @@ do
 		if (body > -1) then
 			local bodyInfo = get_body_info(player, body)
 			bodyInfo.name = bodyInfo.name:gsub("^R_", "RIGHT "):gsub("^L_", "LEFT ")
-			
+
 			local height = (body == 11 or body == 12) and 70 or 40
-			local width = get_string_length(bodyInfo.name, FONTS.MEDIUM) + 20 
+			local width = get_string_length(bodyInfo.name, FONTS.MEDIUM) + 20
 			width = width < 200 and 200 or width
 			local heightMod = (body == 11 or body == 12) and 3 or 2
-			
+
 			tbTooltip = UIElement:new({
 				globalid = TB_TOOLTIP_GLOBALID,
 				pos = { MOUSE_X + 15, MOUSE_Y - 15 },
@@ -112,7 +112,7 @@ do
 			if (tbTooltip.pos.y + tbTooltip.size.h > WIN_H - 10) then
 				tbTooltip:moveTo(nil, WIN_H - 10 - tbTooltip.size.h)
 			end
-			
+
 			local tbTooltipOutline = UIElement:new({
 				parent = tbTooltip,
 				pos = { 0, 0 },
@@ -135,7 +135,7 @@ do
 				size = { tbTooltipView.size.w - 20, tbTooltipView.size.h / heightMod * 2 - 10 }
 			})
 			jointTooltipName:addAdaptedText(true, bodyInfo.name, nil, nil, nil, LEFTMID)
-			
+
 			if (body == 11 or body == 12) then
 				TB_TOOLTIP_GRABDISPLAY = true
 				local jointTooltipState = UIElement:new({
@@ -153,7 +153,7 @@ do
 						draw_disk(tbTooltipView.pos.x + 10 + jointTooltipState.size.h / 6 * 5, jointTooltipState.pos.y + jointTooltipState.size.h / 3 * 2, 0, jointTooltipState.size.h / 3, 500, 1, 0, 360, 1)
 					end
 				end
-				
+
 				jointTooltipState:addCustomDisplay(true, function()
 						local grab = get_grip_info(player, body)
 						drawGrabState(grab)
@@ -162,7 +162,7 @@ do
 			end
 		end
 	end
-	
+
 	function Tooltip:showTooltipJoint(player, joint)
 		if (TB_TOOLTIP_GRABDISPLAY) then
 			return
@@ -190,10 +190,10 @@ do
 			local jointInfo = get_joint_info(player, joint)
 			jointInfo.pos = {}
 			jointInfo.pos.x, jointInfo.pos.y, jointInfo.pos.z = get_joint_pos(player, joint)
-			
-			local width = get_string_length(jointInfo.name, FONTS.MEDIUM) + 20 
+
+			local width = get_string_length(jointInfo.name, FONTS.MEDIUM) + 20
 			width = width < 200 and 200 or width
-			
+
 			tbTooltip = UIElement:new({
 				globalid = TB_TOOLTIP_GLOBALID,
 				pos = { MOUSE_X + 15, MOUSE_Y - 15 },
@@ -242,7 +242,7 @@ do
 				size = { tbTooltipView.size.w - 20, tbTooltipView.size.h / 3 * 2 - 10 }
 			})
 			jointTooltipName:addAdaptedText(true, jointInfo.name, nil, nil, nil, LEFTMID)
-			
+
 			local jointTooltipState = UIElement:new({
 				parent = tbTooltipView,
 				pos = { tbTooltipView.size.h / 3 + 10, jointTooltipName.shift.y + jointTooltipName.size.h },

@@ -602,8 +602,9 @@ function TBMenu:clearNavSection()
 	end
 	if (TBMenu.CurrentSection == nil or TBMenu.CurrentSection.destroyed) then
 		TBMenu:createCurrentSectionView()
+	else
+		TBMenu.CurrentSection:kill(true)
 	end
-	TBMenu.CurrentSection:kill(true)
 end
 
 function TBMenu:showClans(clantag)
