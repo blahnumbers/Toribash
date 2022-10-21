@@ -1436,7 +1436,7 @@ do
 			v.keyboard = v.permanentListener
 			KEYBOARDGLOBALIGNORE = false
 		end
-		for i, v in pairs(tableReverse(UIMouseHandler)) do
+		for i, v in pairs(table.reverse(UIMouseHandler)) do
 			if (v.isactive) then
 				if (x > v.pos.x and x < v.pos.x + v.size.w and y > v.pos.y and y < v.pos.y + v.size.h and s < 4) then
 					if (v.downSound) then
@@ -2049,12 +2049,24 @@ do
 		return destStr
 	end
 
-	_G.draw_text_new = function(str, xPos, yPos, angle, scale, font, shadow, col1, col2, intensity, smoothing)
+	---Draws text with some additional functionality
+	---@param str string
+	---@param xPos number
+	---@param yPos number
+	---@param angle number
+	---@param scale number
+	---@param font fontid
+	---@param shadow number Text shadow thickness
+	---@param color Color
+	---@param shadowColor Color
+	---@param intensity number
+	---@param pixelPerfect boolean Whether to floor the text position to make sure we don't start mid-pixel
+	_G.draw_text_new = function(str, xPos, yPos, angle, scale, font, shadow, color, shadowColor, intensity, pixelPerfect)
 		local shadow = shadow or nil
-		local xPos = smoothing and math.floor(xPos) or xPos
-		local yPos = smoothing and math.floor(yPos) or yPos
-		local col1 = col1 or DEFTEXTCOLOR
-		local col2 = col2 or DEFSHADOWCOLOR
+		local xPos = pixelPerfect and math.floor(xPos) or xPos
+		local yPos = pixelPerfect and math.floor(yPos) or yPos
+		local col1 = color or DEFTEXTCOLOR
+		local col2 = shadowColor or DEFSHADOWCOLOR
 		local intensity = intensity or col1[4]
 		if (shadow) then
 			set_color(unpack(col2))

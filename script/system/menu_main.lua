@@ -70,7 +70,7 @@ TB_MENU_GLOBAL_SCALE = math.min(WIN_H > 720 and 1 or WIN_H / 720, WIN_W > 1280 a
 require("system.menu_defines")
 require("system.iofiles")
 require("system.menu_manager")
-TBMenu:init("220729")
+TBMenu:init("221021")
 
 require("system.menu_backend_defines")
 require("system.network_request")
@@ -241,11 +241,16 @@ add_hook("new_mp_game", "tbMainMenuStatic", function()
 		set_discord_rpc("", "")
 	end)
 
+dofile("system/tooltip_manager.lua")
+--if (get_option("tooltip") == 1 and not Tooltip.IsActive) then
+	Tooltip:reload()
+--end
+
 -- Keep hub elements always displayed above tooltip and movememory
 add_hook("draw2d", "tbMainHubVisual", function()
 		if (TB_MENU_MAIN_ISOPEN == 0) then
-			if (TOOLTIP_ACTIVE) then
-				UIElement:drawVisuals(TB_TOOLTIP_GLOBALID)
+			if (Tooltip.IsActive) then
+				UIElement:drawVisuals(Tooltip.Globalid)
 			end
 			if (TB_MOVEMEMORY_ISOPEN == 1) then
 				UIElement:drawVisuals(TB_MOVEMEMORY_GLOBALID)
@@ -267,10 +272,6 @@ end
 if (get_option("movememory") == 1 and not MOVEMEMORY_ACTIVE) then
 	dofile("system/movememory_manager.lua")
 	MoveMemory:spawnHotkeyListener()
-end
-if (get_option("tooltip") == 1 and not TOOLTIP_ACTIVE) then
-	dofile("system/tooltip_manager.lua")
-	Tooltip:create()
 end
 if (get_option("showbroadcast") and (not Broadcasts or not Broadcasts.HOOKS_ACTIVE)) then
 	dofile("system/broadcast_manager.lua")
