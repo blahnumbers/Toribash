@@ -392,12 +392,14 @@ do
 		local pos = self.parent.pos
 		local shift = self.shift
 
-		local rotatedShift = UIElement3D:multiply({ { shift.x, shift.y, shift.z } }, rotMatrix)
-		local newShift = rotatedShift[1]
+		local rotatedShift = UIElement3D.multiply({ { shift.x, shift.y, shift.z } }, rotMatrix)
+		if (rotatedShift) then
+			local newShift = rotatedShift[1]
 
-		self.shift.x = newShift[1]
-		self.shift.y = newShift[2]
-		self.shift.z = newShift[3]
+			self.shift.x = newShift[1]
+			self.shift.y = newShift[2]
+			self.shift.z = newShift[3]
+		end
 	end
 
 	function UIElement3D:updateChildPos(rotMatrix, pos, shift)
@@ -405,18 +407,21 @@ do
 		local pos = pos or self.parent.pos
 		local shift = shift and { x = shift.x + self.shift.x, y = shift.y + self.shift.y, z = shift.z + self.shift.z } or self.shift
 
-		local newPos = UIElement3D:multiply({ { shift.x, shift.y, shift.z } }, rotMatrix)
-		local vector = newPos[1]
+		local newPos = UIElement3D.multiply({ { shift.x, shift.y, shift.z } }, rotMatrix)
+		local shiftSum = shift
+		if (newPos) then
+			local vector = newPos[1]
 
-		local shiftSum = shift or {
-			x = vector[1],
-			y = vector[2],
-			z = vector[3]
-		}
+			shiftSum = shift or {
+				x = vector[1],
+				y = vector[2],
+				z = vector[3]
+			}
 
-		self.pos.x = pos.x + vector[1]
-		self.pos.y = pos.y + vector[2]
-		self.pos.z = pos.z + vector[3]
+			self.pos.x = pos.x + vector[1]
+			self.pos.y = pos.y + vector[2]
+			self.pos.z = pos.z + vector[3]
+		end
 
 		for i,v in pairs(self.child) do
 			v:updateChildPos(rotMatrix, pos, shiftSum)
@@ -460,12 +465,12 @@ do
 	end
 
 	function UIElement3D:updateRotations(rot)
-		self.rotMatrix = UIElement3D:getRotMatrixFromEulerAngles(math.rad(rot.x), math.rad(rot.y), math.rad(rot.z))
-		local relX, relY, relZ = self:getEulerZYXFromRotationMatrix(self.rotMatrix)
+		self.rotMatrix = UIElement3D.getRotMatrixFromEulerAngles(math.rad(rot.x), math.rad(rot.y), math.rad(rot.z), "xyz")
+		local relX, relY, relZ = UIElement3D.getEulerZYXFromRotationMatrix(self.rotMatrix)
 		self.rot = { x = relX, y = relY, z = relZ }
 	end
 
-	function UIElement3D:getEulerZYXFromRotationMatrix(R)
+	function UIElement3D.getEulerZYXFromRotationMatrix(R)
 		local clamp = R[3][1] > 1 and 1 or (R[3][1] < -1 and -1 or R[3][1])
 		local x, y, z
 
@@ -480,7 +485,7 @@ do
 		return math.deg(x), math.deg(y), math.deg(z)
 	end
 
-	function UIElement3D:getEulerXYZFromRotationMatrix(R)
+	function UIElement3D.getEulerXYZFromRotationMatrix(R)
 		local x, y, z
 
 		x = math.atan2(-R[2][3], R[3][3])
@@ -490,8 +495,8 @@ do
 		return math.deg(x), math.deg(y), math.deg(z)
 	end
 
-	function UIElement3D:getEulerAnglesFromMatrixTB(rTB)
-		return UIElement3D:getEulerZYXFromRotationMatrix({
+	function UIElement3D.getEulerAnglesFromMatrixTB(rTB)
+		return UIElement3D.getEulerZYXFromRotationMatrix({
 			{ rTB.r0, rTB.r1, rTB.r2, rTB.r3 },
 			{ rTB.r4, rTB.r5, rTB.r6, rTB.r7 },
 			{ rTB.r8, rTB.r9, rTB.r10, rTB.r11 },
@@ -499,27 +504,34 @@ do
 		})
 	end
 
-	function UIElement3D:getRotMatrixFromEulerAngles(x, y, z)
-		local R_x = {
-			{ 1, 0, 0 },
-			{ 0, math.cos(x), -math.sin(x) },
-			{ 0, math.sin(x), math.cos(x) }
-		}
-		local R_y = {
-			{ math.cos(y), 0, math.sin(y) },
-			{ 0, 1, 0 },
-			{ -math.sin(y), 0, math.cos(y) }
-		}
-		local R_z = {
-			{ math.cos(z), -math.sin(z), 0 },
-			{ math.sin(z), math.cos(z), 0 },
-			{ 0, 0, 1 }
-		}
-		local R = UIElement3D:multiply(UIElement3D:multiply(R_y, R_x), R_z)
+	function UIElement3D.getRotMatrixFromEulerAngles(x, y, z, order)
+		local order = order or "xyz"
+		local c1 = math.cos(x)
+		local s1 = math.sin(x)
+		local c2 = math.cos(y)
+		local s2 = math.sin(y)
+		local c3 = math.cos(z)
+		local s3 = math.sin(z)
+
+		local R
+		if (order == 'xyz') then
+			R = {
+				{ c2 * c3, -c2 * s3, s2 },
+				{ c1 * s3 + c3 * s1 * s2, c1 * c3 - s1 * s2 * s3, -c2 * s1 },
+				{ s1 * s3 - c1 * c3 * s2, c3 * s1 + c1 * s2 * s3, c1 * c2 }
+			}
+		elseif (order == 'zyx') then
+			R = {
+				{ c1 * c2, c1 * s2 * s3 - c3 * s1, s1 * s3 + c1 * c3 * s2 },
+				{ c2 * s1, c1 * c3 + s1 * s2 * s3, c3 * s1 * s2 - c1 * s3 },
+				{-s2, c2 * s3, c2 * c3 }
+			}
+		end
+
 		return R
 	end
 
-	function UIElement3D:multiplyByNumber(a, b)
+	function UIElement3D.multiplyByNumber(a, b)
 		local matrix = {}
 		for i,v in pairs(a) do
 			matrix[i] = {}
@@ -530,9 +542,9 @@ do
 		return matrix
 	end
 
-	function UIElement3D:multiply(a, b)
+	function UIElement3D.multiply(a, b)
 		if (type(b) == 'number') then
-			return UIElement3D:multiplyByNumber(a, b)
+			return UIElement3D.multiplyByNumber(a, b)
 		end
 		if (#a[1] ~= #b) then
 			return false
@@ -617,8 +629,8 @@ do
 		end
 		-- We don't yet know the exact build version when it'd be supported
 		-- Require the first build of 2023
-		if (tonumber(BUILD_VERSION) > 230101) then
-			if (load_obj(objid, "../" .. filename, 1)) then
+		if (tonumber(BUILD_VERSION) > 221020) then
+			if (load_obj(objid, filename, 1)) then
 				self.objModel = objid
 			end
 		else
