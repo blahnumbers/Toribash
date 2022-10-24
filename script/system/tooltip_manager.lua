@@ -1,3 +1,6 @@
+require("toriui.uielement")
+require("toriui.uitween")
+
 if (Tooltip == nil) then
 	local bgColor = table.clone(TB_MENU_DEFAULT_DARKEST_COLOR)
 	bgColor[4] = 0.6
@@ -7,6 +10,7 @@ if (Tooltip == nil) then
 	---**Ver 2.0**
 	---* All global variables used by tooltip are now fields of Tooltip class
 	---* Mobile controls on joint hold
+	---* Tooltip hooks are now never unloaded, use tooltip option value to detect whether we should display tooltip ui
 	---@class Tooltip
 	---@field Globalid integer Globalid for UIElement display
 	---@field GrabDisplayActive boolean Whether grab display is currently active
@@ -16,11 +20,12 @@ if (Tooltip == nil) then
 	---@field FractureColor Color
 	---@field DismemberColor Color
 	---@field BackgroundColor Color Tooltip UI background color
-	---@field MouseHold boolean Whether user has current input - used for touch only
 	---@field WaitForTouchInput boolean Whether we're waiting for touch input
 	---@field TouchInputTargetPlayer integer Touch input targeted player id
 	---@field TouchInputTargetJoint integer Touch input targeted joint id
 	---@field TouchInputPosition table Touch position for the last touch control wheel trigger
+	---@field TouchInputDelay number Delay in seconds before touch control ring will start appearing
+	---@field TouchInputGrowDuration number Duration in seconds for touch control ring to finish animation
 	Tooltip = {
 		Globalid = 1010,
 		GrabDisplayActive = false,
@@ -30,12 +35,13 @@ if (Tooltip == nil) then
 		FractureColor = { 0.44, 0.41, 1, 1 },
 		DismemberColor = { 1, 0, 0, 1 },
 		BackgroundColor = table.clone(bgColor),
-		MouseHold = false,
 		WaitForTouchInput = false,
 		TouchInputTargetPlayer = -1,
 		TouchInputTargetJoint = -1,
 		TouchInputPosition = nil,
-		version = 2,
+		TouchInputDelay = 0.1,
+		TouchInputGrowDuration = 0.15,
+		version = 2.0,
 		__index = {}
 	}
 	setmetatable({}, Tooltip)
@@ -50,7 +56,7 @@ end
 ---Exits the Tooltip and destroys all related UIElements
 function Tooltip:quit()
 	Tooltip.IsActive = false
-	remove_hooks(Tooltip.HookName)
+	--remove_hooks(Tooltip.HookName)
 	Tooltip:destroy()
 end
 
@@ -78,20 +84,19 @@ end
 function Tooltip:create()
 	add_hook("joint_select", Tooltip.HookName, function(player, joint)
 			Tooltip:showTooltipJoint(player, joint)
-			--if (PLATFORM == "ANDROID" or PLATFORM == "IPHONEOS") then
-				Tooltip:showTouchControls(player, joint)
-			--end
 		end)
 	add_hook("body_select", Tooltip.HookName, function(player, body)
-			Tooltip:showTooltipBody(player, body)
+			if (get_option("tooltip") == 1 and Tooltip.IsActive) then
+				Tooltip:showTooltipBody(player, body)
+			end
 		end)
 	--if (PLATFORM == "ANDROID" or PLATFORM == "IPHONEOS") then
 		add_hook("mouse_button_down", Tooltip.HookName, function()
-				Tooltip.MouseHold = true
+				Tooltip:showTouchControls()
 			end)
 		add_hook("mouse_button_up", Tooltip.HookName, function()
 				Tooltip:setTouchJointState()
-				Tooltip.MouseHold = false
+				Tooltip:destroy()
 			end)
 	--end
 	Tooltip.IsActive = true
@@ -108,12 +113,8 @@ end
 ---@param body integer Body id
 function Tooltip:showTooltipBody(player, body)
 	Tooltip.GrabDisplayActive = false
-	if (get_option("tooltip") == 0) then
-		Tooltip:quit()
-		return
-	end
-
 	Tooltip:destroy()
+
 	local worldstate = get_world_state()
 	if (worldstate.replay_mode == 1) then
 		return
@@ -213,17 +214,20 @@ function Tooltip:showTooltipJoint(player, joint)
 	if (Tooltip.GrabDisplayActive) then
 		return
 	end
-	if (get_option("tooltip") == 0) then
-		Tooltip:quit()
-		return
-	end
-
 	Tooltip:destroy()
+
 	local worldstate = get_world_state()
 	if (worldstate.replay_mode == 1) then
 		return
 	end
 	if (joint > -1 and joint < 20) then
+		Tooltip.TouchInputTargetPlayer = player
+		Tooltip.TouchInputTargetJoint = joint
+
+		if (get_option("tooltip") == 0 or not Tooltip.IsActive) then
+			return
+		end
+
 		local jointInfo = get_joint_info(player, joint)
 		jointInfo.pos = {}
 		jointInfo.pos.x, jointInfo.pos.y, jointInfo.pos.z = get_joint_pos(player, joint)
@@ -347,15 +351,14 @@ function Tooltip:showTooltipJoint(player, joint)
 end
 
 ---Displays touch controls wheel
----@param player integer Player id
----@param joint integer Joint id
-function Tooltip:showTouchControls(player, joint)
-	if (Tooltip.GrabDisplayActive or joint < 0 or joint >= 20) then
+function Tooltip:showTouchControls()
+	if (Tooltip.GrabDisplayActive or Tooltip.TouchInputTargetPlayer < 0 or Tooltip.TouchInputTargetJoint >= 20) then
 		return
 	end
+	Tooltip:destroy()
 	disable_mouse_camera_movement()
 
-	local jointPos = { get_joint_screen_pos(player, joint) }
+	local jointPos = { get_joint_screen_pos(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint) }
 	Tooltip.TouchInputPosition = {
 		x = jointPos[1],
 		y = jointPos[2]
@@ -370,73 +373,110 @@ function Tooltip:showTouchControls(player, joint)
 		bgColor = UICOLORWHITE
 	})
 	touchControlsHolder.pressTimer = os.clock()
-	local startRad, animRad = math.pi / 3, math.pi / 20
+	touchControlsHolder.firstPlay = true
 	touchControlsHolder:addCustomDisplay(function()
-			if (not Tooltip.MouseHold) then
-				if (touchControlsVisual:isDisplayed()) then
-					touchControlsVisual:hide()
-				end
-				return
-			end
-			if (not touchControlsVisual:isDisplayed()) then
-				touchControlsHolder.pressTimer = os.clock()
-				touchControlsVisual:show()
-			end
 			if (touchControlsVisual.size.w == touchControlsHolder.size.w) then
 				Tooltip.WaitForTouchInput = true
-				Tooltip.TouchInputTargetPlayer = player
-				Tooltip.TouchInputTargetJoint = joint
 				return
 			end
-			if (os.clock() - touchControlsHolder.pressTimer < 0.2) then
+			if (os.clock() - touchControlsHolder.pressTimer < Tooltip.TouchInputDelay) then
 				return
+			end
+			if (play_haptics and touchControlsHolder.firstPlay) then
+				touchControlsHolder.firstPlay = false
+				play_haptics(0.6, 500)
 			end
 
-			local animModifier = math.sin(startRad)
-			startRad = startRad + animRad
-			touchControlsVisual.size.w = math.floor(math.min(touchControlsHolder.size.w, touchControlsVisual.size.w + 20 * animModifier))
+			local ratio = (os.clock() - touchControlsHolder.pressTimer - Tooltip.TouchInputDelay) / Tooltip.TouchInputGrowDuration
+			touchControlsVisual.size.w = touchControlsHolder.size.w * UITween.EaseIn(ratio)
 			touchControlsVisual.size.h = touchControlsVisual.size.w
 			local moveTarget = math.floor((touchControlsHolder.size.w - touchControlsVisual.size.w) / 2)
 			touchControlsVisual:moveTo(moveTarget, moveTarget)
 		end)
 
 	touchControlsVisual:addCustomDisplay(true, function()
-			set_color(255, 255, 255, 1)
 			local centerPoint = {
 				x = touchControlsHolder.pos.x + touchControlsHolder.size.w / 2,
 				y = touchControlsHolder.pos.y + touchControlsHolder.size.h / 2
 			}
+
 			local ringSize = touchControlsVisual.size.w / 2
 			local ringStartSize = ringSize * 0.7
-			draw_disk(centerPoint.x, centerPoint.y, ringStartSize, ringSize, 10, 1, 50, 80, 1) -- right
-			draw_disk(centerPoint.x, centerPoint.y, ringStartSize, ringSize, 10, 1, 140, 80, 1) -- top
-			draw_disk(centerPoint.x, centerPoint.y, ringStartSize, ringSize, 10, 1, 230, 80, 1) -- left
-			draw_disk(centerPoint.x, centerPoint.y, ringStartSize, ringSize, 10, 1, 320, 80, 1) -- bottom
+			set_color(0, 0, 0, 1)
+			draw_disk(centerPoint.x, centerPoint.y, ringStartSize, ringSize, 10, 1, 50, 80, 0) -- right
+			draw_disk(centerPoint.x, centerPoint.y, ringStartSize, ringSize, 10, 1, 140, 80, 0) -- top
+			draw_disk(centerPoint.x, centerPoint.y, ringStartSize, ringSize, 10, 1, 230, 80, 0) -- left
+			draw_disk(centerPoint.x, centerPoint.y, ringStartSize, ringSize, 10, 1, 320, 80, 0) -- bottom
+
+			ringSize = ringSize - 1
+			ringStartSize = ringStartSize + 1
+			set_color(255, 255, 255, 1)
+			draw_disk(centerPoint.x, centerPoint.y, ringStartSize, ringSize, 10, 1, 51, 78, 0) -- right
+			draw_disk(centerPoint.x, centerPoint.y, ringStartSize, ringSize, 10, 1, 141, 78, 0) -- top
+			draw_disk(centerPoint.x, centerPoint.y, ringStartSize, ringSize, 10, 1, 231, 78, 0) -- left
+			draw_disk(centerPoint.x, centerPoint.y, ringStartSize, ringSize, 10, 1, 321, 78, 0) -- bottom
+
+			local mouseDelta = Tooltip:getTouchMouseDelta()
+			if (mouseDelta.x ~= 0 or mouseDelta.y ~= 0) then
+				set_color(unpack(TB_MENU_DEFAULT_DARKER_COLOR))
+				if (math.abs(mouseDelta.x) > math.abs(mouseDelta.y)) then
+					if (mouseDelta.x > 0) then
+						draw_disk(centerPoint.x, centerPoint.y, ringStartSize * 0.95, ringSize * 1.1, 10, 1, 45, 90, 0) -- right
+					else
+						draw_disk(centerPoint.x, centerPoint.y, ringStartSize * 0.95, ringSize * 1.1, 10, 1, 225, 90, 0) -- left
+					end
+				else
+					if (mouseDelta.y > 0) then
+						draw_disk(centerPoint.x, centerPoint.y, ringStartSize * 0.95, ringSize * 1.1, 10, 1, 315, 90, 0) -- bottom
+					else
+						draw_disk(centerPoint.x, centerPoint.y, ringStartSize * 0.95, ringSize * 1.1, 10, 1, 135, 90, 0) -- top
+					end
+				end
+			end
 		end)
+end
+
+---Returns normalized touch input delta
+---@return Vector2
+function Tooltip:getTouchMouseDelta()
+	if (Tooltip.TouchInputPosition == nil) then
+		return { x = 0, y = 0 }
+	end
+
+	local mouseDelta = {
+		x = MOUSE_X - Tooltip.TouchInputPosition.x,
+		y = MOUSE_Y - Tooltip.TouchInputPosition.y
+	}
+	-- We don't want to do anything if input was within "dead" zone
+ 	if (math.max(math.abs(mouseDelta.x), math.abs(mouseDelta.y)) < 50) then
+		return { x = 0, y = 0 }
+	end
+
+	-- Now normalize the delta so we can do a simple check later
+	local mouseDeltaNormalized = {
+		x = math.min(math.abs(mouseDelta.x / mouseDelta.y), 1) * (mouseDelta.x / math.abs(mouseDelta.x)),
+		y = math.min(math.abs(mouseDelta.y / mouseDelta.x), 1) * (mouseDelta.y / math.abs(mouseDelta.y))
+	}
+	return mouseDeltaNormalized
 end
 
 ---Sets the joint state based on touch input wheel
 function Tooltip:setTouchJointState()
 	if (Tooltip.TouchInputTargetPlayer > -1 and Tooltip.TouchInputTargetJoint > -1 and Tooltip.TouchInputPosition) then
-		local mouseDelta = {
-			x = MOUSE_X - Tooltip.TouchInputPosition.x,
-			y = MOUSE_Y - Tooltip.TouchInputPosition.y
-		}
-		local mouseDeltaNormalized = {
-			x = math.min(math.abs(mouseDelta.x / mouseDelta.y), 1) * (mouseDelta.x / math.abs(mouseDelta.x)),
-			y = math.min(math.abs(mouseDelta.y / mouseDelta.x), 1) * (mouseDelta.y / math.abs(mouseDelta.y))
-		}
-		if (math.abs(mouseDeltaNormalized.x) > math.abs(mouseDeltaNormalized.y)) then
-			if (mouseDeltaNormalized.x > 0) then
-				set_joint_state(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint, 1)
+		local mouseDeltaNormalized = Tooltip:getTouchMouseDelta()
+		if (mouseDeltaNormalized.x ~= 0 or mouseDeltaNormalized.y ~= 0) then
+			if (math.abs(mouseDeltaNormalized.x) > math.abs(mouseDeltaNormalized.y)) then
+				if (mouseDeltaNormalized.x > 0) then
+					set_joint_state(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint, 1)
+				else
+					set_joint_state(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint, 2)
+				end
 			else
-				set_joint_state(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint, 2)
-			end
-		else
-			if (mouseDeltaNormalized.y > 0) then
-				set_joint_state(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint, 3)
-			else
-				set_joint_state(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint, 4)
+				if (mouseDeltaNormalized.y > 0) then
+					set_joint_state(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint, 3)
+				else
+					set_joint_state(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint, 4)
+				end
 			end
 		end
 	end
@@ -445,3 +485,5 @@ function Tooltip:setTouchJointState()
 	Tooltip.TouchInputPosition = nil
 	enable_mouse_camera_movement()
 end
+
+Tooltip:create()

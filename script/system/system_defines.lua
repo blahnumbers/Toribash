@@ -30,3 +30,8 @@ function enable_mouse_camera_movement() end
 
 ---Disables mouse / touch camera movement
 function disable_mouse_camera_movement() end
+
+---Returns screen position of a specified player joint
+---@param player integer
+---@param joint integer
+function get_joint_screen_pos(player, joint) end
