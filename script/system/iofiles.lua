@@ -21,40 +21,62 @@ FILES_MODE_READWRITE = 'r+'
 ---| 'a+b'
 
 -- Internal cross-platform function to open a file
----@param path string File path
----@param mode mode File open mode
+---@param path string
+---@param mode mode
 ---@param isroot integer|nil If 1, will start looking for file in Toribash root folder instead of data/script
----@return file*|string[]|nil
+---@return file*|integer|nil #Lua `file*` object on desktop platforms, file index on mobile or nil on failure
 local function filesOpenInternal(path, mode, isroot)
 	if (PLATFORM == "ANDROID" or PLATFORM == "IPHONEOS") then
-		return read_file(path, mode, isroot)
+		return file_open(path, mode, isroot)
 	end
 	return io.open(path, mode, isroot)
 end
 
 -- Internal cross-platform function to read all contents of a file
----@param file file*|string[] File data we received after filesOpenInternal() call
----@return string[]
+---@param file file*|integer File interface or file index on mobile platforms
+---@return string
 local function filesReadAllInternal(file)
-	if (PLATFORM == "ANDROID" or PLATFORM == "IPHONEOS") then
-		return file
+	if (type(file) == "integer") then
+		return file_read(file)
 	end
 	return file:read("*all")
 end
 
+-- Internal cross-platform function to write data to a file
+---@param file file*|integer File interface or file index on mobile platforms
+---@param data string Data to write to the file
+local function filesWriteInternal(file, data)
+	if (type(file) == "integer") then
+		file_write(file, data)
+	end
+	file:write(line)
+end
+
+-- Internal cross-platform function to close a file
+---@param file file*|integer File interface or file index on mobile platforms
+local function filesCloseInternal(file)
+	if (type(file) == "integer") then
+		file_close(file)
+	end
+	file:close()
+end
+
 do
+	-- **Ver 1.2**
+	-- * Reworked file IO for mobile platforms with full read/write support
+	--
 	-- **Ver 1.1**
 	-- * Semantic updates to use Files class as a static alternative to spawn new File class objects
 	-- * EmmyLua annotations
 	---@class Files
-	Files = { ver = 1.1 }
+	Files = { ver = 1.2 }
 	Files.__index = Files
 
 	---@class File
 	---@field path string File path
 	---@field isroot integer|nil If 1, file lookup started at Toribash root folder
 	---@field mode mode Mode the file was opened with
-	---@field data file*|string[] File pointer received from io.open() call or a string array on Android
+	---@field data file*|integer File pointer received from `io.open()` call or a file index retrieved by `file_open()` on mobile
 	File = {}
 	File.__index = File
 
@@ -69,9 +91,6 @@ do
 	---@param mode? mode Mode to open the file with. Defaults to `FILES_MODE_READONLY`.
 	---@return File
 	function Files:open(path, mode)
-		if (not path) then
-			return false
-		end
 		local mode = mode or FILES_MODE_READONLY
 
 		local file = {}
@@ -94,7 +113,6 @@ do
 
 	-- Reopens the File object we received earlier
 	---@param mode? mode New mode to open file with
-	---@return File
 	function File:reopen(mode)
 		self:close()
 		local mode = mode or self.mode
@@ -127,24 +145,21 @@ do
 	end
 
 	-- Writes a line to an opened file. Appends newline at the end if it's missing.
-	--
-	-- *Currently not supported on Android devices*
 	---@param line string String to write to the file
 	---@return boolean
 	function File:writeLine(line)
-		if (not self.data or PLATFORM == "ANDROID" or PLATFORM == "IPHONEOS") then
+		if (not self.data) then
 			return false
 		end
 
 		local line = line:find("\n$") and line or (line .. "\n")
-		self.data:write(line)
+		filesWriteInternal(self.data, line)
 		return true
 	end
 
 	-- Writes a line to the debug.txt file located in Toribash root folder
 	---@param line string
 	---@param rewrite? boolean If true, will open output file with FILES_MODE_WRITE mode to clear its previous contents
-	---@return nil
 	function Files:writeDebug(line, rewrite)
 		local debug = Files:open("../debug.txt", rewrite and FILES_MODE_WRITE or FILES_MODE_APPEND)
 		if (type(line) == "table") then
@@ -167,12 +182,9 @@ do
 	end
 
 	-- Closes the file
-	---@return nil
 	function File:close()
 		if (self.data) then
-			if (PLATFORM ~= "ANDROID" and PLATFORM ~= "IPHONEOS") then
-				self.data:close()
-			end
+			filesCloseInternal(self.data)
 			self.data = nil
 		end
 	end

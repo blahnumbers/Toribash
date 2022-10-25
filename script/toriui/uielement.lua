@@ -1,35 +1,27 @@
 -- Toribash UI manager
 -- Created by sir @ Nabi Studios
 
--- Window width that UIElement class currently operates with. **This value does not update live and may not represent the actual window size**.
-WIN_W = nil
--- Window height that UIElement class currently operates with. **This value does not update live and may not represent the actual window size**.
-WIN_H = nil
-WIN_W, WIN_H = get_window_size()
+local w, h = get_window_size()
+---Window width that UIElement class currently operates with. \
+---**This value does not update live and may not represent the actual window size**.
+WIN_W = w
+---Window height that UIElement class currently operates with. \
+---**This value does not update live and may not represent the actual window size**.
+WIN_H = h
 
 if (PLATFORM == "ANDROID") then
 	WIN_W = math.max(WIN_W, 900)
 	WIN_H = math.max(WIN_H, 500)
 end
 
-MOUSE_X, MOUSE_Y = 0, 0
+---Current cursor X coordinate
+MOUSE_X = 0
+---Current cursor Y coordinate
+MOUSE_Y = 0
 
--- True if uilight option is currently enabled\
--- Disables animations and some unimportant effects to improve GUI performance on lower end machines
+---True if uilight option is currently enabled \
+---Disables animations and some unimportant effects to improve GUI performance on lower end machines
 UIMODE_LIGHT = get_option("uilight") == 1
-
--- Default Toribash fonts
----@class FONTS
----@field BIG number Badaboom big font (default score font)
----@field SMALL number Arial small (default chat font)
----@field MEDIUM number Badaboom medium font (default player name font)
----@field BIGGER number Badaboom giant font (twice as big as FONTS.BIG)
-FONTS = {
-	BIG = 0,
-	SMALL = 1,
-	MEDIUM = 2,
-	BIGGER = 9
-}
 
 ---@alias fontid
 ---| 0 # FONTS.BIG | Badaboom big
@@ -308,7 +300,6 @@ do
 	function UIElement:new(o)
 		---@type UIElement
 		local elem = {	globalid = 0,
-						parent = nil,
 						child = {},
 						pos = {},
 						shift = {},
@@ -358,7 +349,7 @@ do
 			end
 			if (o.bgImage) then
 				elem.disableUnload = o.disableUnload
-				elem.imagePatterned = o.imagePatterned and 1 or nil
+				elem.imagePatterned = o.imagePatterned or false
 				elem.imageColor = o.imageColor or { 1, 1, 1, 1 }
 				if (type(o.bgImage) == "table") then
 					elem:updateImage(o.bgImage[1], o.bgImage[2])
@@ -403,7 +394,7 @@ do
 			if (o.interactive) then
 				elem.interactive = o.interactive
 				elem.isactive = true
-				elem.scrollEnabled = o.scrollEnabled or nil
+				elem.scrollEnabled = o.scrollEnabled or false
 				elem.hoverColor = o.hoverColor or nil
 				elem.pressedColor = o.pressedColor or nil
 				elem.inactiveColor = o.inactiveColor or o.bgColor
@@ -484,7 +475,6 @@ do
 
 	-- Specifies rounding value to be used for UIElements with ROUNDED shape type
 	---@param rounded number|number[]
-	---@return nil
 	function UIElement:setRounded(rounded)
 		if (type(rounded) ~= "table") then
 			self.roundedInternal = { rounded, rounded }
@@ -509,7 +499,6 @@ do
 	---@param btnUp? function Button up callback function
 	---@param btnHover? function Mouse hover callback function
 	---@param btnRightUp? function Right mouse button up callback function
-	---@return nil
 	function UIElement:addMouseHandlers(btnDown, btnUp, btnHover, btnRightUp)
 		if (btnDown) then
 			self.btnDown = btnDown
@@ -527,28 +516,24 @@ do
 
 	---Shorthand function to add mouse button down handler
 	---@param func function
-	---@return nil
 	function UIElement:addMouseDownHandler(func)
 		self:addMouseHandlers(func)
 	end
 
 	---Shorthand function to add mouse button up handler
 	---@param func function
-	---@return nil
 	function UIElement:addMouseUpHandler(func)
 		self:addMouseHandlers(nil, func)
 	end
 
 	---Shorthand function to add mouse move handler
 	---@param func function
-	---@return nil
 	function UIElement:addMouseMoveHandler(func)
 		self:addMouseHandlers(nil, nil, func)
 	end
 
 	---Shorthand function to add mouse right button up handler
 	---@param func function
-	---@return nil
 	function UIElement:addMouseUpRightHandler(func)
 		self:addMouseHandlers(nil, nil, nil, func)
 	end
@@ -556,7 +541,6 @@ do
 	-- Adds keyboard handlers to use for an interactive UIElement object
 	---@param keyDown? function Keyboard key down callback function
 	---@param keyUp? function Keyboard key up callback function
-	---@return nil
 	function UIElement:addKeyboardHandlers(keyDown, keyUp)
 		if (keyDown) then
 			self.keyDownCustom = keyDown
@@ -568,26 +552,22 @@ do
 
 	-- Adds enter key handler for an interactive UIElement object
 	---@param func function
-	---@return nil
 	function UIElement:addEnterAction(func)
 		self.enteraction = func
 	end
 
 	-- Removes currently set enter key handler
-	---@return nil
 	function UIElement:removeEnterAction()
 		self.enteraction = nil
 	end
 
 	-- Adds tab key handler for an interactive UIElement object
 	---@param func function
-	---@return nil
 	function UIElement:addTabAction(func)
 		self.tabaction = func
 	end
 
 	-- Removes currently set tab key handler
-	---@return nil
 	function UIElement:removeTabAction()
 		self.tabaction = nil
 	end
@@ -848,7 +828,6 @@ do
 	---@param funcOnly boolean|nil If true, will not run default UIElement:display() functionality and only run the specified function
 	---@param func function Custom function to run when object is displayed
 	---@param drawBefore? boolean If true, will assign a function to run **before** the main UIElement:display() function
-	---@return nil
 	---@overload fun(self: UIElement, func: function, drawBefore?: boolean)
 	function UIElement:addCustomDisplay(funcOnly, func, drawBefore)
 		if (type(funcOnly) == "function") then
@@ -870,7 +849,6 @@ do
 
 	-- Destroys current UIElement object
 	---@param childOnly? boolean If true, will only destroy current object's children and keep the object itself
-	---@return nil
 	function UIElement:kill(childOnly)
 		for i,v in pairs(self.child) do
 			if (v.kill) then
@@ -926,7 +904,6 @@ do
 	--
 	-- ***TODO:*** *add caching for active globalids so we don't need to run separate loops for each one.*
 	---@param globalid? number Global ID that the objects to display belong to
-	---@return nil
 	function UIElement:drawVisuals(globalid)
 		local globalid = globalid or self.globalid
 		for i, v in pairs(UIElementManager) do
@@ -1462,9 +1439,8 @@ do
 	---@param s number Mouse button ID
 	---@param x number Mouse cursor X position
 	---@param y number Mouse cursor Y position
-	---@return nil
 	function UIElement:handleMouseUp(s, x, y)
-		for i, v in pairs(tableReverse(UIMouseHandler)) do
+		for i, v in pairs(table.reverse(UIMouseHandler)) do
 			if (v.isactive) then
 				if (v.hoverState == BTN_DN and s == 1) then
 					if (v.upSound) then
@@ -1491,7 +1467,6 @@ do
 	-- UIElement internal function to handle mouse movement event for an object
 	---@param x number Mouse cursor X position
 	---@param y number Mouse cursor Y position
-	---@return nil
 	function UIElement:handleMouseHover(x, y)
 		local disable = nil
 		MOUSE_X, MOUSE_Y = x, y
@@ -1523,7 +1498,6 @@ do
 	end
 
 	-- A generic internal function that spawns mouse hooks required for mouse event handling
-	---@return nil
 	function UIElement:mouseHooks()
 		add_hook("mouse_button_down", "uiMouseHandler", function(s, x, y)
 				local toReturn = TB_MENU_MAIN_ISOPEN == 1 and 1 or 0
@@ -1587,7 +1561,6 @@ do
 	---@param col1? Color Main text color. Uses UIElement.uiColor by default.
 	---@param col2? Color Text shadow color. Uses UIElement.uiShadowColor by default.
 	---@param textfield? boolean Whether this text is supposed to be a part of text box input
-	---@return nil
 	---@overload fun(self, str: string, x?: number, y?: number, font?: fontid, align?: UIElementTextAlign, maxscale?: number, minscale?: number, intensity?: number, shadow?: number, col1?: Color, col2?: Color, textfield?: boolean)
 	function UIElement:addAdaptedText(override, str, x, y, font, align, maxscale, minscale, intensity, shadow, col1, col2, textfield)
 		if (type(override) == "string") then
@@ -1752,10 +1725,9 @@ do
 	end
 
 	-- Updates a texture associated with an object and caches it for later use
-	---@param image string Main texture path
+	---@param image string|string[]|nil Main texture path
 	---@param default? string Fallback texture path
 	---@param noreload? boolean If true, will not check if existing texture should be unloaded
-	---@return nil
 	function UIElement:updateImage(image, default, noreload)
 		require("system.iofiles")
 		local default = default or DEFTEXTURE
@@ -1792,7 +1764,7 @@ do
 
 		if (TEXTUREINDEX > 253) then
 			self.bgImage = load_texture(DEFTEXTURE)
-			return false
+			return
 		end
 		if (not self.imageColor) then
 			self.imageColor = { 1, 1, 1, 1 }
@@ -2097,7 +2069,6 @@ do
 	---@param msg string Information message that will be displayed to the user
 	---@param data string
 	---@param luaNetwork? boolean
-	---@return nil
 	_G.show_dialog_box = function(id, msg, data, luaNetwork)
 		return open_dialog_box(id, msg:gsub("%\\n", "\n"), data, luaNetwork)
 	end
