@@ -2373,8 +2373,8 @@ function TBMenu:getMainNavigationButtons()
 			elseif (BattlePass.UserData.level_available > BattlePass.UserData.level) then
 				battlePassButton.misctext = "!"
 			end
+			table.insert(buttonData, battlePassButton)
 		end
-		table.insert(buttonData, battlePassButton)
 	end
 	return buttonData
 end
