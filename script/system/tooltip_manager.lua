@@ -95,8 +95,8 @@ function Tooltip:create()
 				Tooltip:showTouchControls()
 			end)
 		add_hook("mouse_button_up", Tooltip.HookName, function()
-				Tooltip:setTouchJointState()
 				Tooltip:destroy()
+				return Tooltip:setTouchJointState()
 			end)
 	--end
 	Tooltip.IsActive = true
@@ -296,15 +296,10 @@ function Tooltip:showTooltipJoint(player, joint)
 			set_color(unpack(Tooltip.FractureColor))
 			draw_disk(tbTooltipView.pos.x + 10 + jointTooltipState.size.h / 2, jointTooltipState.pos.y + jointTooltipState.size.h / 2, 0, jointTooltipState.size.h / 2, 500, 1, 0, 360, 0)
 		end
-		local jointColors = get_joint_color(player, joint)
-		if (not jointColors.joint) then
-			return
-		end
 
-		local forceColor = get_color_info(jointColors.joint.force)
-		forceColor = { forceColor.r, forceColor.g, forceColor.b, 1 }
-		local relaxColor = get_color_info(jointColors.joint.relax)
-		relaxColor = { relaxColor.r, relaxColor.g, relaxColor.b, 1 }
+		local force, relax = get_joint_colors(player, joint)
+		local forceColor = get_color_rgba(force)
+		local relaxColor = get_color_rgba(relax)
 
 		local function drawJointState(state)
 			if (state ~= 3) then
@@ -369,6 +364,33 @@ function Tooltip:showTouchControls()
 		size = { 2, 2 },
 		bgColor = UICOLORWHITE
 	})
+
+	local jointStateTextColor = { 0, 0, 0, 0 }
+	local jointStateShadowColor = { 255, 255, 255, 0 }
+	local touchControlsTopTitle = touchControlsHolder:addChild({
+		pos = { -touchControlsHolder.size.w - 150, -touchControlsHolder.size.h - 50 },
+		size = { 300 + touchControlsHolder.size.w, 30 }
+	})
+	touchControlsTopTitle:addAdaptedText(true, get_joint_state_name(Tooltip.TouchInputTargetJoint, 3), nil, nil, FONTS.BIG, CENTERBOT, 0.6, nil, nil, 2, jointStateTextColor, jointStateShadowColor);
+
+	local touchControlsBotTitle = touchControlsHolder:addChild({
+		pos = { -touchControlsHolder.size.w - 150, touchControlsHolder.size.h + 20 },
+		size = { 300 + touchControlsHolder.size.w, 30 }
+	})
+	touchControlsBotTitle:addAdaptedText(true, get_joint_state_name(Tooltip.TouchInputTargetJoint, 4), nil, nil, FONTS.BIG, CENTER, 0.6, nil, nil, 2, jointStateTextColor, jointStateShadowColor);
+
+	local touchControlsRightTitle = touchControlsHolder:addChild({
+		pos = { touchControlsHolder.size.w + 20, touchControlsHolder.size.h / 2 - 15 },
+		size = { 250, 30 }
+	})
+	touchControlsRightTitle:addAdaptedText(true, get_joint_state_name(Tooltip.TouchInputTargetJoint, 1), nil, nil, FONTS.BIG, LEFTMID, 0.6, nil, nil, 2, jointStateTextColor, jointStateShadowColor);
+
+	local touchControlsLeftTitle = touchControlsHolder:addChild({
+		pos = { -touchControlsHolder.size.w - 270, touchControlsHolder.size.h / 2 - 15 },
+		size = { 250, 30 }
+	})
+	touchControlsLeftTitle:addAdaptedText(true, get_joint_state_name(Tooltip.TouchInputTargetJoint, 2), nil, nil, FONTS.BIG, RIGHTMID, 0.6, nil, nil, 2, jointStateTextColor, jointStateShadowColor);
+
 	touchControlsHolder.pressTimer = os.clock()
 	touchControlsHolder.firstPlay = true
 	touchControlsHolder:addCustomDisplay(function()
@@ -385,10 +407,14 @@ function Tooltip:showTouchControls()
 			end
 
 			local ratio = (os.clock() - touchControlsHolder.pressTimer - Tooltip.TouchInputDelay) / Tooltip.TouchInputGrowDuration
-			touchControlsVisual.size.w = touchControlsHolder.size.w * UITween.EaseIn(ratio)
+			local tweenRatio = UITween.EaseIn(ratio)
+			touchControlsVisual.size.w = touchControlsHolder.size.w * tweenRatio
 			touchControlsVisual.size.h = touchControlsVisual.size.w
 			local moveTarget = math.floor((touchControlsHolder.size.w - touchControlsVisual.size.w) / 2)
 			touchControlsVisual:moveTo(moveTarget, moveTarget)
+
+			jointStateTextColor[4] = 0.7 * tweenRatio
+			jointStateShadowColor[4] = 0.8 * tweenRatio
 		end)
 
 	touchControlsVisual:addCustomDisplay(true, function()
@@ -458,29 +484,38 @@ function Tooltip:getTouchMouseDelta()
 end
 
 ---Sets the joint state based on touch input wheel
+---@return integer
 function Tooltip:setTouchJointState()
+	local jointStateChanged = false
 	if (Tooltip.TouchInputTargetPlayer > -1 and Tooltip.TouchInputTargetJoint > -1 and Tooltip.TouchInputPosition) then
 		local mouseDeltaNormalized = Tooltip:getTouchMouseDelta()
 		if (mouseDeltaNormalized.x ~= 0 or mouseDeltaNormalized.y ~= 0) then
 			if (math.abs(mouseDeltaNormalized.x) > math.abs(mouseDeltaNormalized.y)) then
 				if (mouseDeltaNormalized.x > 0) then
+					-- Right
 					set_joint_state(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint, 1)
 				else
+					-- Left
 					set_joint_state(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint, 2)
 				end
 			else
 				if (mouseDeltaNormalized.y > 0) then
-					set_joint_state(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint, 3)
-				else
+					-- Top
 					set_joint_state(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint, 4)
+				else
+					-- Bottom
+					set_joint_state(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint, 3)
 				end
 			end
 		end
+		jointStateChanged = true
 	end
 	Tooltip.TouchInputTargetPlayer = -1
 	Tooltip.TouchInputTargetJoint = -1
 	Tooltip.TouchInputPosition = nil
 	enable_mouse_camera_movement()
+
+	return jointStateChanged and 1 or 0
 end
 
 Tooltip:create()

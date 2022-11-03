@@ -217,6 +217,30 @@ function get_body_info(player, body) end
 ---@return JointInfo
 function get_joint_info(player, joint) end
 
+---Returns joint dismember state
+---@param player integer
+---@param joint integer
+---@return boolean
+function get_joint_dismember(player, joint) end
+
+---Returns joint fracture state
+---@param player integer
+---@param joint integer
+---@return boolean
+function get_joint_fracture(player, joint) end
+
+---Sets joint state for the specified player
+---@param player integer
+---@param joint integer
+---@param state integer
+function set_joint_state(player, joint, state) end
+
+---Returns a joint-specific readable state name
+---@param joint integer
+---@param state integer
+---@return string
+function get_joint_state_name(joint, state) end
+
 ---Returns player grip state
 ---@param player integer
 ---@param hand integer
@@ -238,10 +262,26 @@ function get_replay_cache() end
 ---@return integer #Relax color ID
 function get_joint_colors(player, joint) end
 
-
 ---@deprecated
 ---This function will be removed in future releases
 function get_joint_color(player, joint) end
+
+---@class ColorInfo
+---@field name string
+---@field game_name string
+---@field r number
+---@field g number
+---@field b number
+
+---Returns information about a Toribash color
+---@param colorid integer
+---@return ColorInfo
+function get_color_info(colorid) end
+
+---Returns RGBA values of a Toribash color
+---@param colorid integer
+---@return Color
+function get_color_rgba(colorid) end
 
 --[[ MOBILE FILE IO ]]
 
@@ -352,3 +392,81 @@ function usage_event(event, value) end
 ---@param state string
 ---@param detail string
 function set_discord_rpc(state, detail) end
+
+---Triggers haptics with the specified settings on supported devices
+---@param strength number
+---@param duration integer Duration in milliseconds
+function play_haptics(strength, duration) end
+
+
+--[[ CALLBACK / HOOK FUNCTIONS ]]
+
+---@alias LuaCallback
+---| "new_game" #Called on new game or world initialization
+---| "new_mp_game" #Called when user joins a multiplayer room
+---| "enter_frame" #Called in physics stepper before running frame events
+---| "end_game" #Called on game end
+---| "leave_game" #Called before leaving current game. May be triggered before new game, on replay load, etc.
+---| "enter_freeze" #Called when we enter edit mode during the fight
+---| "exit_freeze" #Called when we exit edit mode during the fight
+---| "match_begin" #Called shortly before the new game
+---| "key_up" #Called on keyboard key up event
+---| "key_down" #Called on keyboard key down event
+---| "mouse_button_up" #Called on mouse button / touch up event
+---| "mouse_button_down" #Called on mouse button / touch down event
+---| "mouse_move" #Called on mouse move / swipe event
+---| "player_select" #Called when a new player is selected (including empty player selection)
+---| "joint_select" #Called when new joint is selected (including empty joint selection)
+---| "body_select" #Called when new bodypart is selected (including empty bodypart selection)
+---| "spec_select_player" #Called when clicking on a player while being a spectator in Multiplayer
+---| "draw2d" #Main 2D graphics loop
+---| "draw3d" #Main 3D graphics loop
+---| "play" #Part of the old Torishop, deprecated
+---| "camera" #Main camera loop
+---| "console" #Called when chat receives a new message
+---| "bout_mouse_down" #Called on mouse button down event for room queue bout list
+---| "bout_mouse_up" #Called on mouse button up event for room queue bout list
+---| "bout_mouse_over" #deprecated
+---| "bout_mouse_outside" #deprecated
+---| "spec_mouse_down" #Called on mouse button down event for room queue spec list
+---| "spec_mouse_up" #Called on mouse button up event for room queue spec list
+---| "spec_mouse_over" #deprecated
+---| "spec_mouse_outside" #deprecated
+---| "command" #Called when an unused /command is entered
+---| "unload" #Called when loading a new script
+---| "draw_viewport" #Main viewport graphics loop
+---| "key_hold" #Called when holding a keyboard key
+---| "pre_draw" #Called before any other drawing callbacks
+---| "new_game_mp" #Called on new multiplayer game
+---| "network_complete" #Called on successful network request completion
+---| "network_error" #Called on network request error
+---| "post_draw3d" #Additional 3D graphics loop, executed after all other drawing is done
+---| "downloader_complete" #Called when a file from the queue has finished downloading
+---| "filebrowser_select" #Called on platform-specific file browser exit
+---| "mod_trigger" #Called when a mod trigger is invoked
+
+---Adds a Lua callback listener \
+---*Only one function per event / set_name pair is supported*
+---@param event LuaCallback
+---@param set_name string Hook set name to allow better hook management and unloading
+---@param func function
+function add_hook(event, set_name, func) end
+
+---Removes a single Lua callback listener for the specified event / set_name pair
+---@param event LuaCallback
+---@param set_name string
+function remove_hook(event, set_name) end
+
+---Removes all Lua callbacks associated with the specified set_name
+---@param set_name string
+function remove_hooks(set_name) end
+
+---Returns all currently loaded Lua callbacks
+---@return function[][]
+function get_hooks() end
+
+---Simulates a Lua callback invocation \
+---*This will not trigger any non-Lua exclusive game functionality associated with the relative hook*
+---@param event string
+---@param ... any Callback arguments
+function call_hook(event, ...) end
