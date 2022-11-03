@@ -157,28 +157,40 @@ function Quests:getQuests()
 	end
 	file:close()
 
-	local loginRewardsAvailable = PlayerInfo:getLoginRewards().available
-	if (loginRewardsAvailable) then
-		table.insert(questData, {
-			id = 2000,
-			name = TB_MENU_LOCALIZED.QUESTSDAILYPLAYER,
-			description = "Log in and claim login rewards",
-			progresspercentage = loginRewardsAvailable and 0 or 1,
-			requirement = loginRewardsAvailable and 1 or 2,
-			progress = loginRewardsAvailable and 0 or 1,
-			claimed = not loginRewardsAvailable,
-			type = 0,
-			timeleft = -1,
-			modid = 0,
-			modname = '',
-			reward = 0,
-			rewardid = 0,
-			bp_xp = 5
-		})
-	end
-
 	---@type QuestData[]
 	Quests.QuestsData = table.qsort(questData, "progresspercentage", SORT_DESCENDING)
+
+	if (BattlePass.UserData) then
+		Quests:addBattlePassQuests()
+	end
+end
+
+---Adds hardcoded Battle Pass quests that automark themselves on completion
+function Quests:addBattlePassQuests()
+	for i,v in pairs(Quests.QuestsData) do
+		if (v.id == 2000) then
+			return
+		end
+	end
+
+	local loginRewardsAvailable = PlayerInfo:getLoginRewards().available
+	table.insert(Quests.QuestsData, {
+		id = 2000,
+		name = TB_MENU_LOCALIZED.QUESTSDAILYPLAYER,
+		description = "Log in and claim login rewards",
+		progresspercentage = loginRewardsAvailable and 0 or 1,
+		requirement = loginRewardsAvailable and 1 or 2,
+		progress = loginRewardsAvailable and 0 or 1,
+		claimed = not loginRewardsAvailable,
+		type = 0,
+		timeleft = -1,
+		modid = 0,
+		modname = '',
+		reward = 0,
+		rewardid = 0,
+		bp_xp = 5
+	})
+	Quests.QuestsData = table.qsort(Quests.QuestsData, "progresspercentage", SORT_DESCENDING)
 end
 
 ---Updates daily login quest status
@@ -785,7 +797,7 @@ function Quests:showQuestButton(quest, listingHolder, listElements, elementHeigh
 			})
 			shiftX = shiftX + questBPIcon.size.w
 		end
-		if (not quest.description and (quest.timeleft and quest.timeleft <= 0)) then
+		if (not quest.description and ((quest.timeleft and quest.timeleft <= 0) or quest.global)) then
 			questBackground:addChild({
 				pos = { questProgressOutline.shift.x + questProgressOutline.size.w + 10, questTitle.shift.y },
 				size = { questBackground.size.w - questProgressOutline.size.w - questProgressOutline.shift.x - 30 - shiftX, questTitle.size.h }

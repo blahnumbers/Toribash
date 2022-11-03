@@ -5,17 +5,17 @@
 //URL 0;https://forum.toribash.com/tori_shop_item.php?id=3598
 //STORE 0;3598
 
-NEWSID 0;
-TITLE 0;Toribash x Makeship
-SUBTITLE 0;Uke Plush is now available for preorders!
-IMAGE 0;makeship2.tga
-URL 0;https://www.toribash.com/makeship
+//NEWSID 0;
+//TITLE 0;Toribash x Makeship
+//SUBTITLE 0;Uke Plush is now available for preorders!
+//IMAGE 0;makeship2.tga
+//URL 0;https://www.toribash.com/makeship
 
-NEWSID 1;
-TITLE 0;Rags 2 Riches
-SUBTITLE 0;This is a chance for you marketeers to put your money where your mouth is and battle it out to earn the most TC!
-IMAGE 0;ragstoriches22.tga
-URL 0;https://forum.toribash.com/showthread.php?t=656540
+//NEWSID 1;
+//TITLE 0;Rags 2 Riches
+//SUBTITLE 0;This is a chance for you marketeers to put your money where your mouth is and battle it out to earn the most TC!
+//IMAGE 0;ragstoriches22.tga
+//URL 0;https://forum.toribash.com/showthread.php?t=656540
 
 NEWSID 2;
 TITLE 0;Leggang Statue
