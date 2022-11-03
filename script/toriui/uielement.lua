@@ -117,6 +117,24 @@ DEFSHADOWCOLOR = DEFSHADOWCOLOR or { 0, 0, 0, 0.6 }
 ---@class Vector3 : Vector2
 ---@field z number
 
+---@class Matrix4x4
+---@field r0 number
+---@field r1 number
+---@field r2 number
+---@field r3 number
+---@field r4 number
+---@field r5 number
+---@field r6 number
+---@field r7 number
+---@field r8 number
+---@field r9 number
+---@field r10 number
+---@field r11 number
+---@field r12 number
+---@field r13 number
+---@field r14 number
+---@field r15 number
+
 do
 	---@type UIElement[]
 	UIElementManager = UIElementManager or {}

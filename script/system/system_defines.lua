@@ -98,6 +98,15 @@ function set_viewport(pos_x, pos_y, size_x, size_y) end
 ---@param texture_id ?integer Texture id retrieved from `load_texture()` call
 function draw_sphere(pos_x, pos_y, pos_z, radius, rotation_x, rotation_y, rotation_z, texture_id) end
 
+--[[ TEXT FUNCTIONS ]]
+
+---Returns on-screen text length in pixels according to specified settings
+---@param message string
+---@param font fontid
+---@param raw ?boolean If true, will ignore current graphics DPI setting
+---@return number
+function get_string_length(message, font, raw) end
+
 --[[ CAMERA CONTROLS ]]
 
 ---Enables keyboard / touch camera movement
@@ -142,6 +151,98 @@ function get_joint_screen_pos(player, joint) end
 ---@return integer z
 function get_body_screen_pos(player, body) end
 
+--[[ GAME FUNCTIONS ]]
+
+---@alias WorldStateGameType
+---| 0 #Single Player
+---| 1 #Multi Player
+
+---@alias WorldStateWinner
+---| -1 #No winner | Draw
+---| 0 #Tori
+---| 1 #Uke
+
+---@class WorldState
+---@field game_type WorldStateGameType
+---@field game_paused integer
+---@field replay_mode integer
+---@field match_frame integer Current frame
+---@field turn_frame integer
+---@field turn_timeout integer
+---@field reaction_time integer Current reaction time
+---@field game_frame integer Total match length
+---@field frame_tick integer
+---@field num_players integer
+---@field num_bouts integer
+---@field selected_player integer
+---@field selected_joint integer
+---@field selected_body integer
+---@field match_turn integer
+---@field match_turn_frame integer
+---@field winner WorldStateWinner
+
+---Returns world state information
+---@return WorldState
+function get_world_state() end
+
+---@class BodyInfo
+---@field name string
+---@field mod_name string
+---@field pos Vector3
+---@field rot Matrix4x4
+---@field sides Vector3
+
+---Returns player body information
+---@param player integer
+---@param body integer
+---@return BodyInfo
+function get_body_info(player, body) end
+
+---@alias JointInfoState
+---| 0 #None
+---| 1 #Forward
+---| 2 #Backward
+---| 3 #Hold
+---| 4 #Relax
+
+---@class JointInfo
+---@field state JointInfoState
+---@field screen_state string Adapted readable state name
+---@field name string
+---@field mod_name string
+
+---Returns player joint information
+---@param player integer
+---@param joint integer
+---@return JointInfo
+function get_joint_info(player, joint) end
+
+---Returns player grip state
+---@param player integer
+---@param hand integer
+---@return integer
+function get_grip_info(player, hand) end
+
+--[[ REPLAY FUNCTIONS ]]
+
+---Returns currently used replay cache value
+---@return number
+function get_replay_cache() end
+
+--[[ CUSTOMIZATION RELATED FUNCTIONS ]]
+
+---Returns joint color IDs
+---@param player any
+---@param joint any
+---@return integer #Force color ID
+---@return integer #Relax color ID
+function get_joint_colors(player, joint) end
+
+
+---@deprecated
+---This function will be removed in future releases
+function get_joint_color(player, joint) end
+
 --[[ MOBILE FILE IO ]]
 
 ---Attempts to open a file at location and returns the index on success or nil on failure
@@ -166,7 +267,41 @@ function file_write(fileidx, data) end
 ---@param fileidx integer
 function file_close(fileidx) end
 
+--[[ NETWORKING ]]
+
+---Downloads a data file from Toribash servers
+---@param request string
+---@param mode integer
+function download_server_file(request, mode) end
+
+---Fetches information from Toribash servers
+---@param request string
+function download_server_info(request) end
+
+---Sends a request to retrieve the latest available game version
+function get_latest_version() end
+
+---Returns received data from the last network request
+---@return string
+function get_network_response() end
+
+---Returns last network request error
+---@return string
+function get_network_error() end
+
+---Reports whether we have an active network task
+---@return integer
+function get_network_task() end
+
+---Opens a webpage with user's default browser \
+---*Only Toribash links are supported*
+---@param url string
+function open_url(url) end
+
 --[[ OTHER FUNCTIONS ]]
+
+---@return boolean
+function is_steam() end
 
 ---Retrieves a list of currently active downloads
 ---@return string[]
@@ -176,3 +311,44 @@ function get_downloads() end
 ---@param value string
 ---@return string
 function get_option(value) end
+
+---Sets value for the specified Toribash option
+---@param option string
+---@param value integer
+function set_option(option, value) end
+
+---Enables chat input hotkey
+function chat_input_activate() end
+
+---Disables chat input hotkey
+function chat_input_deactivate() end
+
+---Attempts to enable screen blur
+---@return integer #1 if blur is supported, 0 if not
+function enable_blur() end
+
+---Disables screen blur
+function disable_blur() end
+
+---Enables Lua menu keyboard callbacks \
+---*On mobile platforms, this will also bring up on-screen keyboard*
+function enable_menu_keyboard() end
+
+---Disables Lua menu keyboard callbacks \
+---*On mobile platforms, this will also hide on-screen keyboard*
+function disable_menu_keyboard() end
+
+---Prints a local chat message
+---@param message string
+---@param tab ?integer
+function echo(message, tab) end
+
+---@param event string
+---@param value ?integer
+function usage_event(event, value) end
+
+---Sets Discord Rich Presence state \
+---*Only supported on Windows*
+---@param state string
+---@param detail string
+function set_discord_rpc(state, detail) end

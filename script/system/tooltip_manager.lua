@@ -229,9 +229,6 @@ function Tooltip:showTooltipJoint(player, joint)
 		end
 
 		local jointInfo = get_joint_info(player, joint)
-		jointInfo.pos = {}
-		jointInfo.pos.x, jointInfo.pos.y, jointInfo.pos.z = get_joint_pos(player, joint)
-
 		local width = get_string_length(jointInfo.name, FONTS.MEDIUM) + 20
 		width = width < 200 and 200 or width
 

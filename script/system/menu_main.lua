@@ -155,9 +155,8 @@ end
 if (not DEFAULT_ATMOSPHERE_ISSET) then
 	if (not is_steam()) then
 		Request:queue(function() get_latest_version() end, "versioncheck", function()
-				local latestVersion = get_network_response()
+				local latestVersion = tonumber(get_network_response())
 				local currentVersion = tonumber(TORIBASH_VERSION)
-				latestVersion = tonumber(latestVersion)
 				if (currentVersion < latestVersion) then
 					TBMenu:showConfirmationWindow("Toribash " .. latestVersion .. " is now available.\nWould you like to download it now?", function() open_url("https://www.toribash.com/downloads.php") end)
 				end
