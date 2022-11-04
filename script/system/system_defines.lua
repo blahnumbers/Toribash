@@ -233,7 +233,8 @@ function get_joint_fracture(player, joint) end
 ---@param player integer
 ---@param joint integer
 ---@param state integer
-function set_joint_state(player, joint, state) end
+---@param with_onchange_effects ?boolean Whether to automatically rewind ghost and play joint change state sound
+function set_joint_state(player, joint, state, with_onchange_effects) end
 
 ---Returns a joint-specific readable state name
 ---@param joint integer
@@ -338,6 +339,21 @@ function get_network_task() end
 ---@param url string
 function open_url(url) end
 
+
+-- [[ KEYBOARD FUNCTIONS ]]
+
+---Enables Lua menu keyboard callbacks \
+---*On mobile platforms, this will also bring up on-screen keyboard*
+function enable_menu_keyboard() end
+
+---Disables Lua menu keyboard callbacks \
+---*On mobile platforms, this will also hide on-screen keyboard*
+function disable_menu_keyboard() end
+
+---Check whether either of shift keys is currently down
+---@return integer
+function get_shift_key_state() end
+
 --[[ OTHER FUNCTIONS ]]
 
 ---@return boolean
@@ -369,14 +385,6 @@ function enable_blur() end
 
 ---Disables screen blur
 function disable_blur() end
-
----Enables Lua menu keyboard callbacks \
----*On mobile platforms, this will also bring up on-screen keyboard*
-function enable_menu_keyboard() end
-
----Disables Lua menu keyboard callbacks \
----*On mobile platforms, this will also hide on-screen keyboard*
-function disable_menu_keyboard() end
 
 ---Prints a local chat message
 ---@param message string

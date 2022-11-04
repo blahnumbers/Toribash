@@ -83,22 +83,25 @@ end
 ---Initializes Tooltip hooks and enables the module
 function Tooltip:create()
 	add_hook("joint_select", Tooltip.HookName, function(player, joint)
-			Tooltip:showTooltipJoint(player, joint)
+			local discard = Tooltip:showTooltipJoint(player, joint)
+			if (PLATFORM == "ANDROID" or PLATFORM == "IPHONEOS") then
+				return discard
+			end
 		end)
 	add_hook("body_select", Tooltip.HookName, function(player, body)
 			if (get_option("tooltip") == 1 and Tooltip.IsActive) then
 				Tooltip:showTooltipBody(player, body)
 			end
 		end)
-	--if (PLATFORM == "ANDROID" or PLATFORM == "IPHONEOS") then
+	if (PLATFORM == "ANDROID" or PLATFORM == "IPHONEOS") then
 		add_hook("mouse_button_down", Tooltip.HookName, function()
 				Tooltip:showTouchControls()
 			end)
 		add_hook("mouse_button_up", Tooltip.HookName, function()
 				Tooltip:destroy()
-				return Tooltip:setTouchJointState()
+				Tooltip:setTouchJointState()
 			end)
-	--end
+	end
 	Tooltip.IsActive = true
 end
 
@@ -108,10 +111,44 @@ function Tooltip:reload()
 	Tooltip:create()
 end
 
+---A uniform function to generate main tooltip element
+---@param width integer
+---@param height integer
+---@param x integer
+---@param y integer
+---@return UIElement
+function Tooltip:spawnTooltipMain(frame, width, height, x, y)
+	local tbTooltip = Tooltip.HolderElement:addChild({
+		pos = { x + 15, y - 5 },
+		size = { width, height }
+	})
+	tbTooltip.killAction = function() Tooltip.IsDisplayed = false end
+	Tooltip.IsDisplayed = true
+
+	if (tbTooltip.pos.x + tbTooltip.size.w > WIN_W - 10) then
+		tbTooltip:moveTo(WIN_W - 10 - tbTooltip.size.w)
+	end
+	if (tbTooltip.pos.y + tbTooltip.size.h > WIN_H - 10) then
+		tbTooltip:moveTo(nil, WIN_H - 10 - tbTooltip.size.h)
+	end
+
+	tbTooltip:addCustomDisplay(true, function()
+			local ws = get_world_state()
+			if (ws.replay_mode == 1 or ws.match_frame ~= frame or TB_MENU_MAIN_ISOPEN == 1 or ws.selected_player < 0) then
+				Tooltip:destroy()
+				return
+			end
+		end)
+
+	return tbTooltip
+end
+
 ---Displays Tooltip for a bodypart at current cursor position
 ---@param player integer Player id
 ---@param body integer Body id
 function Tooltip:showTooltipBody(player, body)
+	Tooltip.TouchInputTargetPlayer = player
+	Tooltip.TouchInputTargetJoint = -1
 	Tooltip.GrabDisplayActive = false
 	Tooltip:destroy()
 
@@ -128,35 +165,7 @@ function Tooltip:showTooltipBody(player, body)
 		width = width < 200 and 200 or width
 		local heightMod = (body == 11 or body == 12) and 3 or 2
 
-		local tbTooltip = Tooltip.HolderElement:addChild({
-			pos = { MOUSE_X + 15, MOUSE_Y - 15 },
-			size = { width, height }
-		})
-		tbTooltip.killAction = function() Tooltip.IsDisplayed = false end
-		Tooltip.IsDisplayed = true
-
-		local frame = worldstate.match_frame
-		tbTooltip:addCustomDisplay(true, function()
-				local ws = get_world_state()
-				if (ws.replay_mode == 1 or ws.match_frame ~= frame or TB_MENU_MAIN_ISOPEN == 1 or ws.selected_player < 0) then
-					Tooltip:destroy()
-					return
-				end
-				tbTooltip:moveTo(MOUSE_X + 15, MOUSE_Y - 15)
-				if (tbTooltip.pos.x + tbTooltip.size.w > WIN_W - 10) then
-					tbTooltip:moveTo(WIN_W - 10 - tbTooltip.size.w)
-				end
-				if (tbTooltip.pos.y + tbTooltip.size.h > WIN_H - 10) then
-					tbTooltip:moveTo(nil, WIN_H - 10 - tbTooltip.size.h)
-				end
-			end)
-		if (tbTooltip.pos.x + tbTooltip.size.w > WIN_W - 10) then
-			tbTooltip:moveTo(WIN_W - 10 - tbTooltip.size.w)
-		end
-		if (tbTooltip.pos.y + tbTooltip.size.h > WIN_H - 10) then
-			tbTooltip:moveTo(nil, WIN_H - 10 - tbTooltip.size.h)
-		end
-
+		local tbTooltip = Tooltip:spawnTooltipMain(worldstate.match_frame, width, height, get_body_screen_pos(player, body))
 		local tbTooltipOutline = UIElement:new({
 			parent = tbTooltip,
 			pos = { 0, 0 },
@@ -210,56 +219,36 @@ end
 ---Displays Tooltip for a joint at current cursor position
 ---@param player integer Player id
 ---@param joint integer Joint id
+---@return integer
 function Tooltip:showTooltipJoint(player, joint)
+	Tooltip.TouchInputTargetPlayer = player
+	Tooltip.TouchInputTargetJoint = joint
+
 	if (Tooltip.GrabDisplayActive) then
-		return
+		return 0
+	end
+	if (Tooltip.TouchInputPosition ~= nil) then
+		return 1
 	end
 	Tooltip:destroy()
 
 	local worldstate = get_world_state()
 	if (worldstate.replay_mode == 1) then
-		return
+		return 0
 	end
 	if (joint > -1 and joint < 20) then
 		Tooltip.TouchInputTargetPlayer = player
 		Tooltip.TouchInputTargetJoint = joint
 
 		if (get_option("tooltip") == 0 or not Tooltip.IsActive) then
-			return
+			return 0
 		end
 
 		local jointInfo = get_joint_info(player, joint)
 		local width = get_string_length(jointInfo.name, FONTS.MEDIUM) + 20
 		width = width < 200 and 200 or width
 
-		local tbTooltip = Tooltip.HolderElement:addChild({
-			pos = { MOUSE_X + 15, MOUSE_Y - 15 },
-			size = { width, 70 }
-		})
-		tbTooltip.killAction = function() Tooltip.IsDisplayed = false end
-		Tooltip.IsDisplayed = true
-
-		local frame = worldstate.match_frame
-		tbTooltip:addCustomDisplay(true, function()
-				local ws = get_world_state()
-				if (ws.replay_mode == 1 or ws.match_frame ~= frame or TB_MENU_MAIN_ISOPEN == 1 or ws.selected_player < 0) then
-					Tooltip:destroy()
-					return
-				end
-				tbTooltip:moveTo(MOUSE_X + 15, MOUSE_Y - 15)
-				if (tbTooltip.pos.x + tbTooltip.size.w > WIN_W - 10) then
-					tbTooltip:moveTo(WIN_W - 10 - tbTooltip.size.w)
-				end
-				if (tbTooltip.pos.y + tbTooltip.size.h > WIN_H - 10) then
-					tbTooltip:moveTo(nil, WIN_H - 10 - tbTooltip.size.h)
-				end
-			end)
-		if (tbTooltip.pos.x + tbTooltip.size.w > WIN_W - 10) then
-			tbTooltip:moveTo(WIN_W - 10 - tbTooltip.size.w)
-		end
-		if (tbTooltip.pos.y + tbTooltip.size.h > WIN_H - 10) then
-			tbTooltip:moveTo(nil, WIN_H - 10 - tbTooltip.size.h)
-		end
+		local tbTooltip = Tooltip:spawnTooltipMain(worldstate.match_frame, width, 70, get_joint_screen_pos(player, joint))
 		local tbTooltipOutline = UIElement:new({
 			parent = tbTooltip,
 			pos = { 0, 0 },
@@ -339,12 +328,15 @@ function Tooltip:showTooltipJoint(player, joint)
 				drawJointState(jInfo.state)
 				jointTooltipState:uiText(jInfo.screen_state, nil, nil, 4, LEFTMID, 0.7)
 			end)
+		return 1
 	end
+
+	return 0
 end
 
 ---Displays touch controls wheel
 function Tooltip:showTouchControls()
-	if (Tooltip.GrabDisplayActive or Tooltip.TouchInputTargetPlayer < 0 or Tooltip.TouchInputTargetJoint >= 20) then
+	if (Tooltip.GrabDisplayActive or Tooltip.TouchInputTargetPlayer < 0 or Tooltip.TouchInputTargetJoint < 0 or Tooltip.TouchInputTargetJoint >= 20) then
 		return
 	end
 	Tooltip:destroy()
@@ -440,8 +432,8 @@ function Tooltip:showTouchControls()
 			draw_disk(centerPoint.x, centerPoint.y, ringStartSize, ringSize, 10, 1, 321, 78, 0) -- bottom
 
 			local mouseDelta = Tooltip:getTouchMouseDelta()
+			set_color(unpack(TB_MENU_DEFAULT_DARKER_COLOR))
 			if (mouseDelta.x ~= 0 or mouseDelta.y ~= 0) then
-				set_color(unpack(TB_MENU_DEFAULT_DARKER_COLOR))
 				if (math.abs(mouseDelta.x) > math.abs(mouseDelta.y)) then
 					if (mouseDelta.x > 0) then
 						draw_disk(centerPoint.x, centerPoint.y, ringStartSize * 0.95, ringSize * 1.1, 10, 1, 45, 90, 0) -- right
@@ -454,6 +446,17 @@ function Tooltip:showTouchControls()
 					else
 						draw_disk(centerPoint.x, centerPoint.y, ringStartSize * 0.95, ringSize * 1.1, 10, 1, 135, 90, 0) -- top
 					end
+				end
+			else
+				local jointState = get_joint_info(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint).state
+				if (jointState == 1) then
+					draw_disk(centerPoint.x, centerPoint.y, ringStartSize * 0.95, ringSize * 1.1, 10, 1, 45, 90, 0) -- right
+				elseif (jointState == 2) then
+					draw_disk(centerPoint.x, centerPoint.y, ringStartSize * 0.95, ringSize * 1.1, 10, 1, 225, 90, 0) -- left
+				elseif (jointState == 3) then
+					draw_disk(centerPoint.x, centerPoint.y, ringStartSize * 0.95, ringSize * 1.1, 10, 1, 135, 90, 0) -- top
+				else
+					draw_disk(centerPoint.x, centerPoint.y, ringStartSize * 0.95, ringSize * 1.1, 10, 1, 315, 90, 0) -- bottom
 				end
 			end
 		end)
@@ -484,38 +487,59 @@ function Tooltip:getTouchMouseDelta()
 end
 
 ---Sets the joint state based on touch input wheel
----@return integer
 function Tooltip:setTouchJointState()
-	local jointStateChanged = false
-	if (Tooltip.TouchInputTargetPlayer > -1 and Tooltip.TouchInputTargetJoint > -1 and Tooltip.TouchInputPosition) then
-		local mouseDeltaNormalized = Tooltip:getTouchMouseDelta()
-		if (mouseDeltaNormalized.x ~= 0 or mouseDeltaNormalized.y ~= 0) then
-			if (math.abs(mouseDeltaNormalized.x) > math.abs(mouseDeltaNormalized.y)) then
-				if (mouseDeltaNormalized.x > 0) then
-					-- Right
-					set_joint_state(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint, 1)
+	if (Tooltip.TouchInputTargetPlayer > -1 and Tooltip.TouchInputTargetJoint > -1) then
+		if (Tooltip.TouchInputPosition) then
+			local mouseDeltaNormalized = Tooltip:getTouchMouseDelta()
+			if (mouseDeltaNormalized.x ~= 0 or mouseDeltaNormalized.y ~= 0) then
+				if (math.abs(mouseDeltaNormalized.x) > math.abs(mouseDeltaNormalized.y)) then
+					if (mouseDeltaNormalized.x > 0) then
+						-- Right
+						set_joint_state(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint, 1)
+					else
+						-- Left
+						set_joint_state(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint, 2)
+					end
 				else
-					-- Left
-					set_joint_state(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint, 2)
-				end
-			else
-				if (mouseDeltaNormalized.y > 0) then
-					-- Top
-					set_joint_state(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint, 4)
-				else
-					-- Bottom
-					set_joint_state(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint, 3)
+					if (mouseDeltaNormalized.y > 0) then
+						-- Top
+						set_joint_state(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint, 4)
+					else
+						-- Bottom
+						set_joint_state(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint, 3)
+					end
 				end
 			end
+		else
+			Tooltip:toggleJointState(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint)
 		end
-		jointStateChanged = true
 	end
-	Tooltip.TouchInputTargetPlayer = -1
-	Tooltip.TouchInputTargetJoint = -1
+
 	Tooltip.TouchInputPosition = nil
 	enable_mouse_camera_movement()
+end
 
-	return jointStateChanged and 1 or 0
+---Toggles joint state according to current game settings \
+---*This is essentially a copy of the cpp code*
+---@param player integer
+---@param joint integer
+function Tooltip:toggleJointState(player, joint)
+	local targetJointState = nil
+	local mousebuttons = get_option("mousebuttons")
+	local jointState = get_joint_info(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint).state
+	if (mousebuttons == 1) then
+		if (get_shift_key_state() == 1) then
+			targetJointState = (jointState - 1) % 4
+		else
+			targetJointState = jointState % 4 + 1
+		end
+	elseif (mousebuttons == 2) then
+		targetJointState = jointState == 3 and 4 or 3
+	else
+		targetJointState = jointState == 1 and 2 or 1
+	end
+
+	set_joint_state(player, joint, targetJointState, true)
 end
 
 Tooltip:create()
