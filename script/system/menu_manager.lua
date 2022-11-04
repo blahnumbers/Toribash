@@ -131,7 +131,13 @@ function TBMenu:createCurrentSectionView()
 	})
 end
 
--- Get image based on screen and element size
+-- Calculates image dimensions based on screen and element size
+---@param width number
+---@param height number
+---@param ratio number
+---@param shift1 number
+---@param shift2 number
+---@return number[]
 function TBMenu:getImageDimensions(width, height, ratio, shift1, shift2)
 	local elementWidth = width - 20
 	if (elementWidth * ratio > height - 20) then
@@ -145,7 +151,6 @@ function TBMenu:getImageDimensions(width, height, ratio, shift1, shift2)
 	else
 		return { elementWidth, elementHeight, shift1 + shift2 }
 	end
-	return { elementWidth, elementHeight, heightShift }
 end
 
 ---@deprecated
@@ -240,6 +245,7 @@ function TBMenu:changeCurrentEvent(viewElement, eventsData, eventItems, clock, r
 			clock.start = math.floor(tickTime)
 			clock.last = math.floor(tickTime)
 			clock.pause = false
+			UIElement:handleMouseHover(MOUSE_X, MOUSE_Y)
 			break
 		end
 	end
@@ -398,12 +404,38 @@ function TBMenu:showHome()
 			end)
 
 		-- Manual announcement change
-		local eventPrevButton = TBMenu:createImageButtons(toReload, 10, 10 + elementHeight / 2 - 32, 32, 64, "../textures/menu/general/buttons/arrowleft.tga", nil, nil, { 0, 0, 0, 0 }, { 0, 0, 0, 0.7 })
+		local btnBgColor = table.clone(TB_MENU_DEFAULT_BG_COLOR)
+		btnBgColor[4] = 0
+		local eventPrevButton = toReload:addChild({
+			pos = { 10, 10 + elementHeight / 2 - 32 },
+			size = { 32, 64 },
+			bgImage = "../textures/menu/general/buttons/arrowleft.tga",
+			imageColor = { 0, 0, 0, 1 },
+			imageHoverColor = { 255, 255, 255, 1 },
+			imagePressedColor = { 255, 255, 255, 1 },
+			bgColor = btnBgColor,
+			hoverColor = TB_MENU_DEFAULT_BG_COLOR_TRANS,
+			pressedColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			interactive = true,
+			hoverThrough = true
+		})
 		eventPrevButton:addMouseHandlers(nil, function()
 				TBMenu:changeCurrentEvent(homeAnnouncements, eventsData, eventItems, rotateClock, toReload, -1)
 				eventPrevButton.hoverState = BTN_HVR
 			end, nil)
-		local eventNextButton = TBMenu:createImageButtons(toReload, toReload.size.w - 42, 10 + elementHeight / 2 - 32, 32, 64, "../textures/menu/general/buttons/arrowright.tga", nil, nil, { 0, 0, 0, 0 }, { 0, 0, 0, 0.7 })
+		local eventNextButton = toReload:addChild({
+			pos = { toReload.size.w - 42, 10 + elementHeight / 2 - 32 },
+			size = { 32, 64 },
+			bgImage = "../textures/menu/general/buttons/arrowright.tga",
+			imageColor = { 0, 0, 0, 1 },
+			imageHoverColor = { 255, 255, 255, 1 },
+			imagePressedColor = { 255, 255, 255, 1 },
+			bgColor = btnBgColor,
+			hoverColor = TB_MENU_DEFAULT_BG_COLOR_TRANS,
+			pressedColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			interactive = true,
+			hoverThrough = true
+		})
 		eventNextButton:addMouseHandlers(nil, function()
 				TBMenu:changeCurrentEvent(homeAnnouncements, eventsData, eventItems, rotateClock, toReload, 1)
 				eventNextButton.hoverState = BTN_HVR
@@ -480,6 +512,10 @@ function TBMenu:showHomeButton(viewElement, buttonData, hasSmudge, extraElements
 		end
 	end
 
+	-- Make sure we spawn it before buttonOverlay element so that subsequent show() calls on parent don't make blood smudge overlay the text
+	if (hasSmudge and (buttonData.title or buttonData.subtitle)) then
+		TBMenu:addBottomBloodSmudge(viewElement, hasSmudge)
+	end
 	local buttonOverlay = UIElement:new( {
 		parent = viewElement,
 		pos = { 0, -titleHeight - descHeight - 10 },
@@ -495,9 +531,6 @@ function TBMenu:showHomeButton(viewElement, buttonData, hasSmudge, extraElements
 			size = { itemIcon.size.w, -buttonOverlay.shift.y - itemIcon.shift.y - (viewElement.size.h - 20 - itemIcon.size.h) },
 			bgColor = viewElement.animateColor
 		})
-	end
-	if (hasSmudge and (buttonData.title or buttonData.subtitle)) then
-		TBMenu:addBottomBloodSmudge(viewElement, hasSmudge)
 	end
 	if (buttonData.title) then
 		local buttonTitleView = UIElement:new( {
@@ -695,7 +728,7 @@ function TBMenu:prepareScrollableList(viewElement, firstBarSize, secondBarSize, 
 	local firstBarSize = firstBarSize or 50
 	local secondBarSize = secondBarSize or firstBarSize
 	local scrollSize = scrollSize or 20
-	local accentColor = accentColor or cloneTable(TB_MENU_DEFAULT_DARKER_COLOR)
+	local accentColor = accentColor or table.clone(TB_MENU_DEFAULT_DARKER_COLOR)
 	local orientation = orientation or SCROLL_VERTICAL
 
 	local toReload = UIElement:new({

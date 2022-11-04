@@ -98,6 +98,16 @@ function set_viewport(pos_x, pos_y, size_x, size_y) end
 ---@param texture_id ?integer Texture id retrieved from `load_texture()` call
 function draw_sphere(pos_x, pos_y, pos_z, radius, rotation_x, rotation_y, rotation_z, texture_id) end
 
+---Loads a TGA texture by the specified path and returns texture id or -1 on error
+---@param path string
+---@return integer
+function load_texture(path) end
+
+---Unloads a texture with the specified id
+---@param id integer
+function unload_texture(id) end
+
+
 --[[ TEXT FUNCTIONS ]]
 
 ---Returns on-screen text length in pixels according to specified settings
@@ -106,6 +116,11 @@ function draw_sphere(pos_x, pos_y, pos_z, radius, rotation_x, rotation_y, rotati
 ---@param raw ?boolean If true, will ignore current graphics DPI setting
 ---@return number
 function get_string_length(message, font, raw) end
+
+---Localizes a RTL string
+---@param text string
+function localize_rtl(text) end
+
 
 --[[ CAMERA CONTROLS ]]
 
@@ -354,6 +369,133 @@ function disable_menu_keyboard() end
 ---@return integer
 function get_shift_key_state() end
 
+---Check whether either of ctrl keys is currently down
+---@return integer
+function get_keyboard_ctrl() end
+
+---Check whether caps lock is currently on
+---@return integer
+function get_keyboard_capslock() end
+
+
+--[[ BITWISE LUA FUNCTIONS ]]
+
+---@class bitlib
+bit = {}
+
+---Normalizes a number to the numeric range for bit operations and returns it.
+---
+---This function is usually not needed since all bit operations already normalize all of their input arguments. Check the [operational semantics](https://bitop.luajit.org/semantics.html) for details.
+---
+---[View documentation](https://bitop.luajit.org/api.html#tobit)
+---@param x integer
+---@return integer
+function bit.tobit(x) end
+
+---Returns the bitwise **not** of its argument.
+---
+---[View documentation](https://bitop.luajit.org/api.html#bnot)
+---@param x integer
+---@return integer
+function bit.bnot(x) end
+
+---Returns the bitwise **and** of all of its arguments. \
+---Note that more than two arguments are allowed.
+---
+---[View documentation](https://bitop.luajit.org/api.html#band)
+---@param x1 integer
+---@param ... integer
+---@return integer
+function bit.band(x1, ...) end
+
+---Returns the bitwise **or** of all of its arguments. \
+---Note that more than two arguments are allowed.
+---
+---[View documentation](https://bitop.luajit.org/api.html#bor)
+---@param x1 integer
+---@param ... integer
+---@return integer
+function bit.bor(x1, ...) end
+
+---Returns the bitwise **xor** of all of its arguments. \
+---Note that more than two arguments are allowed.
+---
+---[View documentation](https://bitop.luajit.org/api.html#bxor)
+---@param x1 integer
+---@param ... integer
+---@return integer
+function bit.bxor(x1, ...) end
+
+---Returns the bitwise **logical left-shift** of its first argument by the number of bits given by the second argument.
+---
+---Treats the first argument as an unsigned number and shift in 0-bits. \
+---Only the lower 5 bits of the shift count are used (reduces to the range [0..31]).
+---
+---[View documentation](https://bitop.luajit.org/api.html#lshift)
+---@param x integer
+---@param n integer
+---@return integer
+function bit.lshift(x, n) end
+
+---Returns the bitwise **logical right-shift** of its first argument by the number of bits given by the second argument.
+---
+---Treats the first argument as an unsigned number and shift in 0-bits. \
+---Only the lower 5 bits of the shift count are used (reduces to the range [0..31]).
+---
+---[View documentation](https://bitop.luajit.org/api.html#rshift)
+---@param x integer
+---@param n integer
+---@return integer
+function bit.rshift(x, n) end
+
+---Returns the bitwise **arithmetic right-shift** of its first argument by the number of bits given by the second argument.
+---
+---Treats the most-significant bit as a sign bit and replicates it. \
+---Only the lower 5 bits of the shift count are used (reduces to the range [0..31]).
+---
+---[View documentation](https://bitop.luajit.org/api.html#arshift)
+---@param x integer
+---@param n integer
+---@return integer
+function bit.arshift(x, n) end
+
+---Returns the bitwise **left rotation** of its first argument by the number of bits given by the second argument. Bits shifted out on one side are shifted back in on the other side. \
+---Only the lower 5 bits of the rotate count are used (reduces to the range [0..31]).
+---
+---[View documentation](https://bitop.luajit.org/api.html#rol)
+---@param x integer
+---@param n integer
+---@return integer
+function bit.rol(x, n) end
+
+---Returns the bitwise **right rotation** of its first argument by the number of bits given by the second argument. Bits shifted out on one side are shifted back in on the other side. \
+---Only the lower 5 bits of the rotate count are used (reduces to the range [0..31]).
+---
+---[View documentation](https://bitop.luajit.org/api.html#ror)
+---@param x integer
+---@param n integer
+---@return integer
+function bit.ror(x, n) end
+
+---Swaps the bytes of its argument and returns it. \
+---This can be used to convert little-endian 32 bit numbers to big-endian 32 bit numbers or vice versa.
+---
+---[View documentation](https://bitop.luajit.org/api.html#bswap)
+---@param x integer
+---@return integer
+function bit.bswap(x) end
+
+---Converts its first argument to a hex string.
+---
+---The number of hex digits is given by the absolute value of the optional second argument. Positive numbers between 1 and 8 generate lowercase hex digits. Negative numbers generate uppercase hex digits. Only the least-significant 4*|n| bits are used. The default is to generate 8 lowercase hex digits.
+---
+---[View documentation](https://bitop.luajit.org/api.html#tohex)
+---@param x integer
+---@param n ?integer
+---@return integer
+function bit.tohex(x, n) end
+
+
 --[[ OTHER FUNCTIONS ]]
 
 ---@return boolean
@@ -391,6 +533,12 @@ function disable_blur() end
 ---@param tab ?integer
 function echo(message, tab) end
 
+---Runs a game command
+---@param command string
+---@param online ?integer
+---@param silent ?boolean
+function run_cmd(command, online, silent) end
+
 ---@param event string
 ---@param value ?integer
 function usage_event(event, value) end
@@ -405,6 +553,21 @@ function set_discord_rpc(state, detail) end
 ---@param strength number
 ---@param duration integer Duration in milliseconds
 function play_haptics(strength, duration) end
+
+---Sets a build version for error reporter
+---@param version string
+function set_build_version(version) end
+
+---Sets mouse cursor state override
+---@param state integer
+function set_mouse_cursor(state) end
+
+---Closes current game menu
+function close_menu() end
+
+---Plays a Toribash sound by its ID
+---@param soundid integer
+function play_sound(soundid) end
 
 
 --[[ CALLBACK / HOOK FUNCTIONS ]]

@@ -49,3 +49,12 @@ function UITween.SineEaseOut(ratio)
 	if (exit) then return ratio end
 	return math.sin(ratio * (math.pi / 2));
 end
+
+---@param x number
+---@param y number
+---@param ratio number
+---@return number
+function UITween.SineTween(x, y, ratio)
+	local ratio = clamp(ratio)
+	return x * UITween.SineEaseOut(1 - ratio) + y * UITween.SineEaseIn(ratio)
+end
