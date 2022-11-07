@@ -42,7 +42,8 @@ local events = {
 	"post_draw3d",
 	"downloader_complete",
 	"filebrowser_select",
-	"mod_trigger"
+	"mod_trigger",
+	"resolution_changed"
 }
 
 function call_hook(event, ...)

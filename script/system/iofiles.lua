@@ -36,7 +36,7 @@ end
 ---@param file file*|integer File interface or file index on mobile platforms
 ---@return string
 local function filesReadAllInternal(file)
-	if (type(file) == "integer") then
+	if (type(file) == "number") then
 		return file_read(file)
 	end
 	return file:read("*all")
@@ -46,8 +46,9 @@ end
 ---@param file file*|integer File interface or file index on mobile platforms
 ---@param data string Data to write to the file
 local function filesWriteInternal(file, data)
-	if (type(file) == "integer") then
+	if (type(file) == "number") then
 		file_write(file, data)
+		return
 	end
 	file:write(line)
 end
@@ -55,8 +56,8 @@ end
 -- Internal cross-platform function to close a file
 ---@param file file*|integer File interface or file index on mobile platforms
 local function filesCloseInternal(file)
-	if (type(file) == "integer") then
-		file_close(file)
+	if (type(file) == "number") then
+		return file_close(file)
 	end
 	file:close()
 end

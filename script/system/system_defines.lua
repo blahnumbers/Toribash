@@ -615,6 +615,7 @@ function play_sound(soundid) end
 ---| "downloader_complete" #Called when a file from the queue has finished downloading
 ---| "filebrowser_select" #Called on platform-specific file browser exit
 ---| "mod_trigger" #Called when a mod trigger is invoked
+---| "resolution_changed" #Called when game resolution is updated
 
 ---Adds a Lua callback listener \
 ---*Only one function per event / set_name pair is supported*

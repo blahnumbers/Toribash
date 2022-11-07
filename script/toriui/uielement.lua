@@ -9,6 +9,8 @@ WIN_W = w
 ---**This value does not update live and may not represent the actual window size**.
 WIN_H = h
 
+add_hook("resolution_changed", "uiResolutionUpdater", function() WIN_W, WIN_H = get_window_size() end)
+
 if (PLATFORM == "ANDROID") then
 	WIN_W = math.max(WIN_W, 900)
 	WIN_H = math.max(WIN_H, 500)
