@@ -489,24 +489,24 @@ end
 ---Sets the joint state based on touch input wheel
 function Tooltip:setTouchJointState()
 	if (Tooltip.TouchInputTargetPlayer > -1 and Tooltip.TouchInputTargetJoint > -1) then
-		if (Tooltip.TouchInputPosition) then
+		if (Tooltip.TouchInputPosition and Tooltip.WaitForTouchInput) then
 			local mouseDeltaNormalized = Tooltip:getTouchMouseDelta()
 			if (mouseDeltaNormalized.x ~= 0 or mouseDeltaNormalized.y ~= 0) then
 				if (math.abs(mouseDeltaNormalized.x) > math.abs(mouseDeltaNormalized.y)) then
 					if (mouseDeltaNormalized.x > 0) then
 						-- Right
-						set_joint_state(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint, 1)
+						set_joint_state(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint, 1, true)
 					else
 						-- Left
-						set_joint_state(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint, 2)
+						set_joint_state(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint, 2, true)
 					end
 				else
 					if (mouseDeltaNormalized.y > 0) then
 						-- Top
-						set_joint_state(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint, 4)
+						set_joint_state(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint, 4, true)
 					else
 						-- Bottom
-						set_joint_state(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint, 3)
+						set_joint_state(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint, 3, true)
 					end
 				end
 			end
@@ -516,6 +516,7 @@ function Tooltip:setTouchJointState()
 	end
 
 	Tooltip.TouchInputPosition = nil
+	Tooltip.WaitForTouchInput = false
 	enable_mouse_camera_movement()
 end
 
