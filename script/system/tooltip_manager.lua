@@ -503,7 +503,7 @@ end
 function Tooltip:setTouchJointState()
 	if (Tooltip.TouchInputTargetPlayer > -1 and Tooltip.TouchInputTargetJoint > -1) then
 		if (Tooltip.TouchInputPosition and Tooltip.WaitForTouchInput) then
-			local mouseDeltaNormalized = Tooltip:getTouchMouseDelta()
+			--[[local mouseDeltaNormalized = Tooltip:getTouchMouseDelta()
 			if (mouseDeltaNormalized.x ~= 0 or mouseDeltaNormalized.y ~= 0) then
 				if (math.abs(mouseDeltaNormalized.x) > math.abs(mouseDeltaNormalized.y)) then
 					if (mouseDeltaNormalized.x > 0) then
@@ -522,7 +522,7 @@ function Tooltip:setTouchJointState()
 						set_joint_state(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint, 3, true)
 					end
 				end
-			end
+			end]]
 		else
 			Tooltip:toggleJointState(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint)
 		end

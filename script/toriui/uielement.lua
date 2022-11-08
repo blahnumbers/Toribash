@@ -1412,7 +1412,7 @@ end
 
 function UIElement:enableMenuKeyboard()
 	TB_MENU_INPUT_ISACTIVE = true
-	enable_menu_keyboard()
+	enable_menu_keyboard(self.pos.x, self.pos.y, self.size.w, self.size.h)
 	local id = 1
 	for i,v in pairs(UIKeyboardHandler) do
 		if (v.menuKeyboardId == id) then

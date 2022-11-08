@@ -363,9 +363,14 @@ function open_url(url) end
 
 -- [[ KEYBOARD FUNCTIONS ]]
 
----Enables Lua menu keyboard callbacks \
----*On mobile platforms, this will also bring up on-screen keyboard*
-function enable_menu_keyboard() end
+---Enables Lua menu keyboard callbacks. On mobile platforms, this will also bring up on-screen keyboard. \
+---It is recommended to pass input element's position and size on mobile platforms to ensure input field is in focus.
+---@overload fun()
+---@param inputX integer
+---@param inputY integer
+---@param inputWidth integer
+---@param inputHeight integer
+function enable_menu_keyboard(inputX, inputY, inputWidth, inputHeight) end
 
 ---Disables Lua menu keyboard callbacks \
 ---*On mobile platforms, this will also hide on-screen keyboard*
