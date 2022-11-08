@@ -440,10 +440,10 @@ function Tooltip:showTouchControls()
 				if (math.abs(mouseDelta.x) > math.abs(mouseDelta.y)) then
 					if (mouseDelta.x > 0) then
 						draw_disk(centerPoint.x, centerPoint.y, ringStartSize * 0.95, ringSize * 1.1, 10, 1, 45, 90, 0) -- right
-						targetJointState = 2
+						targetJointState = 1
 					else
 						draw_disk(centerPoint.x, centerPoint.y, ringStartSize * 0.95, ringSize * 1.1, 10, 1, 225, 90, 0) -- left
-						targetJointState = 1
+						targetJointState = 2
 					end
 				else
 					if (mouseDelta.y > 0) then
