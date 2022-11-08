@@ -44,6 +44,12 @@ _G.MSGTYPE = {
 	PLAYER = 16
 }
 
+---Haptics types
+_G.HAPTICS = {
+	IMPACT = 0,
+	SELECTION = 1
+}
+
 
 --[[ DRAWING FUNCTIONS ]]
 
@@ -549,10 +555,11 @@ function usage_event(event, value) end
 ---@param detail string
 function set_discord_rpc(state, detail) end
 
----Triggers haptics with the specified settings on supported devices
+---Triggers haptics with the specified settings on supported devices. \
+---See `HAPTICS` table for supported haptics types.
 ---@param strength number
----@param duration integer Duration in milliseconds
-function play_haptics(strength, duration) end
+---@param type ?integer
+function play_haptics(strength, type) end
 
 ---Sets a build version for error reporter
 ---@param version string

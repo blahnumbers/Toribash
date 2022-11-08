@@ -383,22 +383,22 @@ function Tooltip:showTouchControls()
 	})
 	touchControlsLeftTitle:addAdaptedText(true, get_joint_state_name(Tooltip.TouchInputTargetJoint, 2), nil, nil, FONTS.BIG, RIGHTMID, 0.6, nil, nil, 2, jointStateTextColor, jointStateShadowColor);
 
-	touchControlsHolder.pressTimer = os.clock()
+	touchControlsHolder.pressTimer = UIElement.clock
 	touchControlsHolder.firstPlay = true
 	touchControlsHolder:addCustomDisplay(function()
 			if (touchControlsVisual.size.w == touchControlsHolder.size.w) then
 				Tooltip.WaitForTouchInput = true
 				return
 			end
-			if (os.clock() - touchControlsHolder.pressTimer < Tooltip.TouchInputDelay) then
+			if (UIElement.clock - touchControlsHolder.pressTimer < Tooltip.TouchInputDelay) then
 				return
 			end
-			if (play_haptics and touchControlsHolder.firstPlay) then
+			if (touchControlsHolder.firstPlay) then
 				touchControlsHolder.firstPlay = false
-				play_haptics(0.6, 500)
+				play_haptics(0.2, HAPTICS.IMPACT)
 			end
 
-			local ratio = (os.clock() - touchControlsHolder.pressTimer - Tooltip.TouchInputDelay) / Tooltip.TouchInputGrowDuration
+			local ratio = (UIElement.clock - touchControlsHolder.pressTimer - Tooltip.TouchInputDelay) / Tooltip.TouchInputGrowDuration
 			local tweenRatio = UITween.EaseIn(ratio)
 			touchControlsVisual.size.w = touchControlsHolder.size.w * tweenRatio
 			touchControlsVisual.size.h = touchControlsVisual.size.w
@@ -409,6 +409,8 @@ function Tooltip:showTouchControls()
 			jointStateShadowColor[4] = 0.8 * tweenRatio
 		end)
 
+	local lastJointState = get_joint_info(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint).state
+	local fallbackJointState = lastJointState
 	touchControlsVisual:addCustomDisplay(true, function()
 			local centerPoint = {
 				x = touchControlsHolder.pos.x + touchControlsHolder.size.w / 2,
@@ -433,31 +435,42 @@ function Tooltip:showTouchControls()
 
 			local mouseDelta = Tooltip:getTouchMouseDelta()
 			set_color(unpack(TB_MENU_DEFAULT_DARKER_COLOR))
+			local targetJointState = lastJointState
 			if (mouseDelta.x ~= 0 or mouseDelta.y ~= 0) then
 				if (math.abs(mouseDelta.x) > math.abs(mouseDelta.y)) then
 					if (mouseDelta.x > 0) then
 						draw_disk(centerPoint.x, centerPoint.y, ringStartSize * 0.95, ringSize * 1.1, 10, 1, 45, 90, 0) -- right
+						targetJointState = 2
 					else
 						draw_disk(centerPoint.x, centerPoint.y, ringStartSize * 0.95, ringSize * 1.1, 10, 1, 225, 90, 0) -- left
+						targetJointState = 1
 					end
 				else
 					if (mouseDelta.y > 0) then
 						draw_disk(centerPoint.x, centerPoint.y, ringStartSize * 0.95, ringSize * 1.1, 10, 1, 315, 90, 0) -- bottom
+						targetJointState = 4
 					else
 						draw_disk(centerPoint.x, centerPoint.y, ringStartSize * 0.95, ringSize * 1.1, 10, 1, 135, 90, 0) -- top
+						targetJointState = 3
 					end
 				end
 			else
-				local jointState = get_joint_info(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint).state
-				if (jointState == 1) then
+				if (fallbackJointState == 1) then
 					draw_disk(centerPoint.x, centerPoint.y, ringStartSize * 0.95, ringSize * 1.1, 10, 1, 45, 90, 0) -- right
-				elseif (jointState == 2) then
+				elseif (fallbackJointState == 2) then
 					draw_disk(centerPoint.x, centerPoint.y, ringStartSize * 0.95, ringSize * 1.1, 10, 1, 225, 90, 0) -- left
-				elseif (jointState == 3) then
+				elseif (fallbackJointState == 3) then
 					draw_disk(centerPoint.x, centerPoint.y, ringStartSize * 0.95, ringSize * 1.1, 10, 1, 135, 90, 0) -- top
 				else
 					draw_disk(centerPoint.x, centerPoint.y, ringStartSize * 0.95, ringSize * 1.1, 10, 1, 315, 90, 0) -- bottom
 				end
+				targetJointState = fallbackJointState
+			end
+
+			if (lastJointState ~= targetJointState) then
+				play_haptics(0.6, HAPTICS.SELECTION)
+				set_joint_state(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint, targetJointState, true)
+				lastJointState = targetJointState
 			end
 		end)
 end

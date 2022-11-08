@@ -240,10 +240,10 @@ add_hook("new_mp_game", "tbMainMenuStatic", function()
 		set_discord_rpc("", "")
 	end)
 
-dofile("system/tooltip_manager.lua")
---if (get_option("tooltip") == 1 and not Tooltip.IsActive) then
+require("system.tooltip_manager")
+if (get_option("tooltip") == 1 and not Tooltip.IsActive) then
 	Tooltip:reload()
---end
+end
 
 -- Keep hub elements always displayed above tooltip and movememory
 add_hook("draw2d", "tbMainHubVisual", function()
