@@ -58,6 +58,8 @@ function TBMenu:setLanguageFontOptions(language)
 	end
 end
 
+---Caches localization data to `TB_MENU_LOCALIZED` table for the provided language
+---@param language string
 function TBMenu:getTranslation(language)
 	local language = language and string.lower(language) or "english"
 	local inverse = (language == "arabic" or language == "hebrew") and true
@@ -176,18 +178,25 @@ function TBMenu:createImageButtons(parentElement, x, y, w, h, img, imgHvr, imgPr
 	local colHvr = colHvr or col
 	local colPress = colPress or colHvr
 	local round = round or nil
-	local buttonMain = UIElement:new( {
+	local buttonMain = UIElement:new({
 		parent = parentElement,
 		pos = { x, y },
 		size = { w, h },
 		interactive = true,
-		bgColor = col,
-		hoverColor = colHvr,
-		pressedColor = colPress,
 		hoverSound = 31,
 		shapeType = round and ROUNDED or SQUARE,
 		rounded = round and round or 0
 	})
+	if (col) then
+		buttonMain.bgColor = col
+	end
+	if (colHvr) then
+		buttonMain.hoverColor = colHvr
+	end
+	if (colPress) then
+		buttonMain.pressedColor = colPress
+	end
+
 	local buttonImage = UIElement:new( {
 		parent = buttonMain,
 		pos = { 0, 0 },
@@ -1108,7 +1117,7 @@ function TBMenu:showStatusMessage(message, noParent, time)
 		errorMessageView:addAdaptedText(true, message, nil, nil, 4, nil, 0.9, nil, nil, nil, uiColor)
 	end
 
-	local option = get_option("hint")
+	local option = get_option("hint") + 0
 	if (noParent) then
 		set_option("hint", 0)
 	end
@@ -1685,7 +1694,7 @@ end
 function TBMenu:showToolsSection()
 	local tbMenuToolsButtonsData = {
 		{ title = TB_MENU_LOCALIZED.MAINMENUMODLISTNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUMODLISTDESC, size = 0.25, ratio = 1.055, image = "../textures/menu/modlist2.tga", action = function() dofile("system/mods.lua") end, quit = true, disableUnload = true },
-		{ title = TB_MENU_LOCALIZED.MAINMENUGAMERULESNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUGAMERULESDESC, size = 0.25, vsize, ratio = 1.055, image = "../textures/menu/gamerules2.tga", action = function() dofile("system/gamerules.lua") end, quit = true, disableUnload = true },
+		{ title = TB_MENU_LOCALIZED.MAINMENUGAMERULESNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUGAMERULESDESC, size = 0.25, ratio = 1.055, image = "../textures/menu/gamerules2.tga", action = function() dofile("system/gamerules.lua") end, quit = true, disableUnload = true },
 		{ title = TB_MENU_LOCALIZED.MAINMENUMODMAKERNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUMODMAKERDESC, size = 0.25, vsize = 0.5, ratio = 1.055, image = "../textures/menu/modmaker2.tga", ratio2 = 0.5, image2 = "../textures/menu/modmaker3.tga", action = function() open_menu(17) end, disableUnload = true },
 		{ title = TB_MENU_LOCALIZED.MAINMENUSCRIPTSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUSCRIPTSDESC, size = 0.25, vsize = 0.5, ratio = 1.055, image = "../textures/menu/scripts.tga", ratio2 = 0.5, image2 = "../textures/menu/scripts2.tga", action = function() TBMenu:showScripts() end, disableUnload = true },
 		{ title = TB_MENU_LOCALIZED.MAINMENUSHADERSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUSHADERSDESC, size = 0.25, vsize = 0.5, ratio = 0.5, image = "../textures/menu/shaders2.tga", action = function()
@@ -1798,8 +1807,8 @@ function TBMenu:openMenu(screenId)
 		TBMenu:showTorishopMain()
 	elseif (screenId == 7) then
 		TBMenu:showAccountMain()
-	elseif (screenId == 8) then
-		TBMenu:showMatchmaking()
+	--[[elseif (screenId == 8) then
+		TBMenu:showMatchmaking()]]
 	elseif (screenId == 9) then
 		TBMenu:showClans()
 	elseif (screenId == 10) then
@@ -2056,7 +2065,7 @@ function TBMenu:showUserBar()
 	tbMenuUserTcView:addMouseHandlers(nil, function()
 			if (TB_STORE_DATA.ready) then
 				Torishop:showStoreSection(TBMenu.CurrentSection, 4, 1)
-				tcPopup:reload(true)
+				tcPopup:reload()
 			end
 		end)
 	tcPopup:moveTo(nil, 36, true)
@@ -2080,7 +2089,7 @@ function TBMenu:showUserBar()
 		parent = TBMenu.UserBar,
 		pos = { tbMenuTopBarWidth / 2, tbMenuTopBarWidth / 8 },
 		size = { tbMenuTopBarWidth / 5, tbMenuTopBarWidth / 20 },
-		bgColor = cloneTable(TB_MENU_DEFAULT_BG_COLOR),
+		bgColor = table.clone(TB_MENU_DEFAULT_BG_COLOR),
 		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
 		interactive = true,
@@ -2093,7 +2102,7 @@ function TBMenu:showUserBar()
 	tbMenuUserStView:addMouseHandlers(nil, function()
 			if (TB_STORE_DATA.ready) then
 				Torishop:showStoreSection(TBMenu.CurrentSection, 4, 2)
-				stPopup:reload(true)
+				stPopup:reload()
 			end
 		end)
 	stPopup:moveTo(nil, 36, true)
@@ -2193,8 +2202,8 @@ function TBMenu:showPlayerHeadAvatar(viewElement, player)
 	})
 	if (customs.objs.head.equipped) then
 		local objScale = customs.objs.head.dynamic and 2 or 10
-		if (customs.objs.head.partless and headAvatarHead) then
-			headAvatarHead:kill()
+		if (customs.objs.head.partless and playerHeadHolder) then
+			playerHeadHolder:kill()
 		end
 		local modelColor = get_color_info(customs.objs.head.colorid)
 		modelColor.a = customs.objs.head.alpha / 255
@@ -2265,7 +2274,7 @@ function TBMenu:showNavigationBar(buttonsData, customNav, customNavHighlight, se
 				break
 			end
 
-			temp:addAdaptedText(true, v.text, nil, nil, fontId, nil, fontScale, fontScale, nil, nil, nil, nil, nil, true)
+			temp:addAdaptedText(true, v.text, nil, nil, fontId, nil, fontScale, fontScale)
 			v.width = (get_string_length(temp.dispstr[1], temp.textFont) + 110) * temp.textScale
 			if (v.misctext) then
 				v.width = v.width + (get_string_length(v.misctext, temp.textFont) + 40) * temp.textScale * 0.8
@@ -2361,7 +2370,7 @@ function TBMenu:getNearbyMenu(dir)
 			end
 		end
 	end
-	for i,v in pairs(tableReverse(right)) do
+	for i,v in pairs(table.reverse(right)) do
 		table.insert(reordered, v)
 		if (v.sectionId == TB_LAST_MENU_SCREEN_OPEN) then
 			found = #reordered
@@ -2458,7 +2467,7 @@ function TBMenu:showBottomBar(leftOnly)
 		tbMenuBottomLeftButtons[i]:addMouseHandlers(nil, function() shopCheckExit() v.action() end, nil)
 	end
 	if (string.len(TB_MENU_PLAYER_INFO.username) > 0) then
-		local notificationsCountWidth = get_string_length(TB_MENU_NOTIFICATIONS_COUNT + TB_MENU_NOTIFICATIONS_NET_COUNT + TB_MENU_QUESTS_GLOBAL_COUNT + TB_MENU_QUESTS_COUNT, FONTS.MEDIUM) * 0.9
+		local notificationsCountWidth = get_string_length("" .. (TB_MENU_NOTIFICATIONS_COUNT + TB_MENU_NOTIFICATIONS_NET_COUNT + TB_MENU_QUESTS_GLOBAL_COUNT + TB_MENU_QUESTS_COUNT), FONTS.MEDIUM) * 0.9
 		notificationsCountWidth = notificationsCountWidth > TBMenu.BottomLeftBar.size.h / 2 and (notificationsCountWidth > TBMenu.BottomLeftBar.size.h and TBMenu.BottomLeftBar.size.h or notificationsCountWidth) or TBMenu.BottomLeftBar.size.h / 2
 		tbMenuNotificationsCount = tbMenuBottomLeftButtons[2]:addChild({
 			pos = { -notificationsCountWidth, 0 },
@@ -2494,10 +2503,12 @@ function TBMenu:showBottomBar(leftOnly)
 		TBMenu.BottomRightBar:kill(true)
 	end
 
-	local tbMenuBottomRightButtonsData = {
-		{ action = function() open_menu(4) end, image = TB_MENU_QUIT_BUTTON },
-		{ action = function() TBMenu:showSettings() end, image = TB_MENU_SETTINGS_BUTTON }
-	}
+	local tbMenuBottomRightButtonsData = { }
+	if (not is_mobile()) then
+		table.insert(tbMenuBottomRightButtonsData, { action = function() open_menu(4) end, image = TB_MENU_QUIT_BUTTON })
+	end
+	table.insert(tbMenuBottomRightButtonsData, { action = function() TBMenu:showSettings() end, image = TB_MENU_SETTINGS_BUTTON })
+
 	local tbMenuBottomRightButtons = {}
 	for i,v in pairs(tbMenuBottomRightButtonsData) do
 		tbMenuBottomRightButtons[i] = TBMenu.BottomRightBar:addChild({
@@ -2510,7 +2521,6 @@ function TBMenu:showBottomBar(leftOnly)
 			disableUnload = true,
 			interactive = true
 		})
-		--tbMenuBottomRightButtons[i] = TBMenu:createImageButtons(TBMenu.BottomRightBar, -i * (TBMenu.BottomRightBar.size.h + 10), 0, TBMenu.BottomRightBar.size.h, TBMenu.BottomRightBar.size.h, v.image, v.imageHover, v.imagePress)
 		tbMenuBottomRightButtons[i]:addMouseHandlers(nil, function() shopCheckExit() v.action() end, nil)
 	end
 	local tbMenuDownloads = UIElement:new({
@@ -2591,7 +2601,6 @@ function TBMenu:showMain(noload)
 	else
 		BLURENABLED = true
 	end
-	--TBMenu.HideButton = TBMenu:createImageButtons(TBMenu.MenuMain, WIN_W / 2 - 32, -74, 64, 64, "../textures/menu/general/buttons/arrowbot.tga", nil, nil, {0, 0, 0, 0}, { 0, 0, 0, 0.2 }, { 0, 0, 0, 0.4}, 32)
 	TBMenu.HideButton = TBMenu.MenuMain:addChild({
 		pos = { TBMenu.MenuMain.size.w / 2 - 32, -74 },
 		size = { 64, 64 },
@@ -2884,7 +2893,7 @@ function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHei
 		v.element = element
 		table.insert(listElements, element)
 		if (v.locked) then
-			element.uiColor = cloneTable(UICOLORBLACK)
+			element.uiColor = table.clone(UICOLORBLACK)
 			element:deactivate(true)
 		end
 		element:addChild({ shift = { 10, 1 }}):addAdaptedText(false, v.text:upper(), nil, nil, listTextSettings.fontid, listTextSettings.orientation, listTextSettings.scale)
@@ -2913,7 +2922,11 @@ function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHei
 
 		overlay.listElements = listElements
 		overlay.listHolder = listingHolder
-		overlay.listReload = toReload
+		overlay.listToReload = toReload
+
+		---Hack to register overlay.listHolder.scrollBar for EmmyLua
+		---@type UIElement
+		overlay.listHolder.scrollBar = overlay.listHolder.scrollBar
 	end
 
 	selectedElement:addMouseHandlers(nil, function()
@@ -2922,7 +2935,7 @@ function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHei
 				for i,v in pairs(overlay.listElements) do
 					v:hide()
 				end
-				overlay.listHolder.scrollBar:makeScrollBar(overlay.listHolder, overlay.listElements, overlay.listReload)
+				overlay.listHolder.scrollBar:makeScrollBar(overlay.listHolder, overlay.listElements, overlay.listToReload)
 			end
 		end)
 	overlay:hide(true)
@@ -3032,7 +3045,7 @@ function TBMenu:generatePaginationData(totalPages, maxPages, currentPage)
 	end
 
 	local removeDuplicates = function(pages)
-		local sorted = qsort(pages, 'v')
+		local sorted = table.qsort(pages, { 'v' })
 		for i = #sorted, 2, -1 do
 			if (sorted[i].v == sorted[i - 1].v) then
 				table.remove(sorted, i)
@@ -3300,7 +3313,7 @@ function TBMenu:spawnSlider(parent, x, y, w, h, textWidth, sliderRadius, value, 
 	settings.maxValueDisp = settings.maxValueDisp or settings.maxValue
 	settings.minValueDisp = settings.minValueDisp or settings.minValue
 	settings.decimal = settings.decimal or 0
-	local value = value or minVal
+	local value = value or settings.minValue
 
 	local minText = UIElement:new({
 		parent = parent,
@@ -3345,8 +3358,8 @@ function TBMenu:spawnSlider(parent, x, y, w, h, textWidth, sliderRadius, value, 
 		parent = slider,
 		pos = { -sliderRadius - 5, -slider.size.h - sliderRadius },
 		size = { sliderRadius + 10, sliderRadius },
-		bgColor = cloneTable(TB_MENU_DEFAULT_LIGHTER_COLOR),
-		uiColor = cloneTable(UICOLORWHITE),
+		bgColor = table.clone(TB_MENU_DEFAULT_LIGHTER_COLOR),
+		uiColor = table.clone(UICOLORWHITE),
 		shapeType = ROUNDED,
 		rounded = 4
 	})

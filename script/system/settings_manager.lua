@@ -53,7 +53,6 @@ do
 			},
 			{
 				text = TB_MENU_LOCALIZED.SETTINGSABOUT,
-				action = function() end,
 				right = true,
 				sectionId = -1,
 				action = function()
@@ -62,7 +61,6 @@ do
 			},
 			{
 				text = TB_MENU_LOCALIZED.SETTINGSOTHER,
-				action = function() end,
 				right = true,
 				sectionId = SETTINGS_OTHER,
 				action = function()
@@ -71,7 +69,6 @@ do
 			},
 			{
 				text = TB_MENU_LOCALIZED.SETTINGSAUDIO,
-				action = function() end,
 				right = true,
 				sectionId = SETTINGS_AUDIO,
 				action = function()
@@ -80,7 +77,6 @@ do
 			},
 			{
 				text = TB_MENU_LOCALIZED.SETTINGSEFFECTS,
-				action = function() end,
 				right = true,
 				sectionId = SETTINGS_EFFECTS,
 				action = function()
@@ -89,7 +85,6 @@ do
 			},
 			{
 				text = TB_MENU_LOCALIZED.SETTINGSGRAPHICS,
-				action = function() end,
 				right = true,
 				sectionId = SETTINGS_GRAPHICS,
 				action = function()
@@ -118,7 +113,7 @@ do
 			parent = TBMenu.MenuMain,
 			pos = { 0, 0 },
 			size = { WIN_W, WIN_H },
-			bgColor = cloneTable(UICOLORWHITE),
+			bgColor = table.clone(UICOLORWHITE),
 			interactive = true
 		})
 		whiteOverlay.killAction = function() UIScrollbarIgnore = false end
@@ -278,7 +273,8 @@ do
 							Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
 						end,
 					val = { TB_MENU_MAIN_SETTINGS.shaders and TB_MENU_MAIN_SETTINGS.shaders.value or get_option("shaders") },
-					reload = true
+					reload = true,
+					hidden = is_mobile()
 				}
 			}
 
@@ -619,7 +615,8 @@ do
 							action = function(val)
 									TB_MENU_MAIN_SETTINGS.systemcursor = { value = val }
 								end,
-							val = { get_option("systemcursor") }
+							val = { get_option("systemcursor") },
+							hidden = is_mobile()
 						},
 						{
 							name = TB_MENU_LOCALIZED.SETTINGSUILIGHT,
@@ -1121,7 +1118,7 @@ do
 							systemname = "tooltip",
 							action = function(val)
 								TB_MENU_MAIN_SETTINGS.tooltip = { value = val }
-								if (val == 1 and not TOOLTIP_ACTIVE) then
+								if (val == 1 and not Tooltip.IsActive) then
 									dofile("system/tooltip_manager.lua")
 									Tooltip:create()
 								end
@@ -1146,9 +1143,9 @@ do
 							type = DROPDOWN,
 							systemname = "showbroadcast",
 							selectedAction = function()
-									local showbroadcast = get_option("showbroadcast")
+									local showbroadcast = get_option("showbroadcast") + 0
 									if (showbroadcast > 2) then
-										showbroadcast = bit.bxor(get_option("showbroadcast"), 4)
+										showbroadcast = bit.bxor(get_option("showbroadcast") + 0, 4)
 									end
 									return showbroadcast + 1
 								end,
@@ -1187,7 +1184,7 @@ do
 								end
 								TB_MENU_MAIN_SETTINGS.showbroadcast = { value = (1 - val) * 4 + showbroadcast }
 							end,
-							val = { bit.band(get_option("showbroadcast"), 4) == 0 and 1 or 0 }
+							val = { bit.band(get_option("showbroadcast") + 0, 4) == 0 and 1 or 0 }
 						}
 					}
 				},
@@ -1268,6 +1265,10 @@ do
 	end
 
 	function Settings:getResolutionItems()
+		if (is_mobile()) then
+			return {}
+		end
+
 		local fullscreen = TB_MENU_MAIN_SETTINGS.fullscreen and TB_MENU_MAIN_SETTINGS.fullscreen.value or get_option("fullscreen")
 		local items
 		if (fullscreen == 1) then
@@ -1767,7 +1768,7 @@ do
 				for i,v in pairs(TB_MENU_MAIN_SETTINGS) do
 					if (i:find("soundcat")) then
 						local catid = i:gsub("^soundcat", "")
-						set_sound_category(tonumber(catid), v.value, v.default)
+						set_sound_category(tonumber(catid) + 0, v.value, v.default)
 					else
 						if (v.graphics) then
 							set_graphics_option(v.id, v.value)
@@ -1818,146 +1819,150 @@ do
 
 		local listElements = {}
 		for i,section in pairs(settingsData) do
-			local sectionName = UIElement:new({
-				parent = listingHolder,
-				pos = { 20, #listElements * elementHeight },
-				size = { listingHolder.size.w - 40, elementHeight }
-			})
-			sectionName:addAdaptedText(true, section.name, nil, -3, FONTS.BIG, LEFTBOT, 0.6)
-			table.insert(listElements, sectionName)
-			for i,item in pairs(section.items) do
-				local itemHolder = UIElement:new({
+			if (#section.items > 0) then
+				local sectionName = UIElement:new({
 					parent = listingHolder,
-					pos = { 0, #listElements * elementHeight },
-					size = { listingHolder.size.w, elementHeight }
+					pos = { 20, #listElements * elementHeight },
+					size = { listingHolder.size.w - 40, elementHeight }
 				})
-				table.insert(listElements, itemHolder)
-				local itemView = UIElement:new({
-					parent = itemHolder,
-					pos = { 20, 3 },
-					size = { itemHolder.size.w - 40, itemHolder.size.h - 6 },
-					bgColor = TB_MENU_DEFAULT_DARKER_COLOR
-				})
-				local shiftX = 20
-				if (item.hint) then
-					local hintIcon = UIElement:new({
-						parent = itemView,
-						pos = { shiftX, 7 },
-						size = { itemView.size.h - 14, itemView.size.h - 14 },
-						interactive = true,
-						shapeType = ROUNDED,
-						rounded = itemView.size.h,
-						bgColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-						hoverColor = TB_MENU_DEFAULT_LIGHTEST_COLOR,
-						pressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR
-					})
-					local popup = TBMenu:displayHelpPopup(hintIcon, item.hint, true)
-					popup:moveTo(itemView.size.h - 9, -(popup.size.h - itemView.size.h + 14) / 2, true)
-					shiftX = shiftX + hintIcon.size.w + 14
-				end
-				local itemName = UIElement:new({
-					parent = itemView,
-					pos = { shiftX, 0 },
-					size = { itemView.size.w / 2 - 10 - shiftX, itemView.size.h }
-				})
-				itemName:addAdaptedText(true, item.name, nil, nil, nil, LEFTMID)
-				if (item.type == SLIDER) then
-					local itemSlider = UIElement:new({
-						parent = itemView,
-						pos = { itemView.size.w / 2 + 10, 5 },
-						size = { itemView.size.w / 2 - 30, itemView.size.h - 10 }
-					})
-					Settings:spawnSlider(itemSlider, item)
-				elseif (item.type == TOGGLE) then
-					local itemToggle = UIElement:new({
-						parent = itemView,
-						pos = { -itemView.size.h - 10, 5 },
-						size = { itemView.size.h - 10, itemView.size.h - 10 }
-					})
-					if (not item.action) then
-						item.action = function(val)
-							TB_MENU_MAIN_SETTINGS[item.systemname] = { value = val }
+				sectionName:addAdaptedText(true, section.name, nil, -3, FONTS.BIG, LEFTBOT, 0.6)
+				table.insert(listElements, sectionName)
+				for i,item in pairs(section.items) do
+					if (not item.hidden) then
+						local itemHolder = UIElement:new({
+							parent = listingHolder,
+							pos = { 0, #listElements * elementHeight },
+							size = { listingHolder.size.w, elementHeight }
+						})
+						table.insert(listElements, itemHolder)
+						local itemView = UIElement:new({
+							parent = itemHolder,
+							pos = { 20, 3 },
+							size = { itemHolder.size.w - 40, itemHolder.size.h - 6 },
+							bgColor = TB_MENU_DEFAULT_DARKER_COLOR
+						})
+						local shiftX = 20
+						if (item.hint) then
+							local hintIcon = UIElement:new({
+								parent = itemView,
+								pos = { shiftX, 7 },
+								size = { itemView.size.h - 14, itemView.size.h - 14 },
+								interactive = true,
+								shapeType = ROUNDED,
+								rounded = itemView.size.h,
+								bgColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+								hoverColor = TB_MENU_DEFAULT_LIGHTEST_COLOR,
+								pressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR
+							})
+							local popup = TBMenu:displayHelpPopup(hintIcon, item.hint, true)
+							popup:moveTo(itemView.size.h - 9, -(popup.size.h - itemView.size.h + 14) / 2, true)
+							shiftX = shiftX + hintIcon.size.w + 14
+						end
+						local itemName = UIElement:new({
+							parent = itemView,
+							pos = { shiftX, 0 },
+							size = { itemView.size.w / 2 - 10 - shiftX, itemView.size.h }
+						})
+						itemName:addAdaptedText(true, item.name, nil, nil, nil, LEFTMID)
+						if (item.type == SLIDER) then
+							local itemSlider = UIElement:new({
+								parent = itemView,
+								pos = { itemView.size.w / 2 + 10, 5 },
+								size = { itemView.size.w / 2 - 30, itemView.size.h - 10 }
+							})
+							Settings:spawnSlider(itemSlider, item)
+						elseif (item.type == TOGGLE) then
+							local itemToggle = UIElement:new({
+								parent = itemView,
+								pos = { -itemView.size.h - 10, 5 },
+								size = { itemView.size.h - 10, itemView.size.h - 10 }
+							})
+							if (not item.action) then
+								item.action = function(val)
+									TB_MENU_MAIN_SETTINGS[item.systemname] = { value = val }
+								end
+							end
+							Settings:spawnToggle(itemToggle, item, 1)
+						elseif (item.type == INPUT) then
+							local itemInput = UIElement:new({
+								parent = itemView,
+								pos = { itemView.size.w / 3 * 2 - 20, 5 },
+								size = { itemView.size.w / 3, itemView.size.h - 10 },
+								bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+								shapeType = ROUNDED,
+								rounded = 3
+							})
+							if (item.inputspecial) then
+								local textField = TBMenu:spawnTextField(itemInput, nil, nil, nil, nil, Settings:getKeyName(item.val[1]), true, nil, 0.8, UICOLORWHITE, item.name, CENTERMID, true)
+								textField:addKeyboardHandlers(function(key)
+										textField.textfieldstr[1] = Settings:getKeyName(key)
+										textField.pressedKeyId = key
+									end, function()
+										TB_MENU_MAIN_SETTINGS[item.systemname] = { value = textField.pressedKeyId, reload = item.reload }
+										Settings:settingsApplyActivate(item.reload)
+									end)
+							else
+								local textField = TBMenu:spawnTextField(itemInput, nil, nil, nil, nil, item.val[1] .. "", true, nil, 0.8, UICOLORWHITE, item.name, CENTERMID)
+								textField:addKeyboardHandlers(nil, function()
+										if (item.valueVerifyAction) then
+											textField.textfieldstr[1] = item.valueVerifyAction(textField.textfieldstr[1]) .. ''
+										end
+										if (textField.textfieldstr[1] == '') then
+											TB_MENU_MAIN_SETTINGS[item.systemname] = nil
+										else
+											TB_MENU_MAIN_SETTINGS[item.systemname] = { value = tonumber(textField.textfieldstr[1]), reload = item.reload }
+											Settings:settingsApplyActivate(item.reload)
+										end
+									end)
+							end
+						elseif (item.type == DROPDOWN) then
+							local itemDropdownBG = UIElement:new({
+								parent = itemView,
+								pos = { itemView.size.w / 3 * 2 - 20, 5 },
+								size = { itemView.size.w / 3, itemView.size.h - 10 },
+								bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+								shapeType = ROUNDED,
+								rounded = 3
+							})
+							local itemDropdown = UIElement:new({
+								parent = itemDropdownBG,
+								pos = { 1, 1 },
+								size = { itemDropdownBG.size.w - 2, itemDropdownBG.size.h - 2 },
+								bgColor = TB_MENU_DEFAULT_BG_COLOR,
+								hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+								interactive = true,
+								shapeType = ROUNDED,
+								rounded = 3
+							})
+							local selectedId = 1
+							if (item.selectedAction) then
+								selectedId = item.selectedAction()
+							end
+							TBMenu:spawnDropdown(itemDropdown, item.dropdown, 30, WIN_H - 100, item.dropdown[selectedId], { scale = 0.7 }, { scale = 0.6 })
+						elseif (item.type == BUTTON) then
+							local itemButtonBG = UIElement:new({
+								parent = itemView,
+								pos = { itemView.size.w / 3 * 2 - 20, 5 },
+								size = { itemView.size.w / 3, itemView.size.h - 10 },
+								bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+								shapeType = ROUNDED,
+								rounded = 3
+							})
+							local itemButton = UIElement:new({
+								parent = itemButtonBG,
+								pos = { 1, 1 },
+								size = { itemButtonBG.size.w - 2, itemButtonBG.size.h - 2 },
+								bgColor = TB_MENU_DEFAULT_BG_COLOR,
+								hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+								pressedColor = TB_MENU_DEFAULT_DARKER_COLOR,
+								interactive = true,
+								shapeType = ROUNDED,
+								rounded = 3
+							})
+							itemButton:addMouseHandlers(nil, item.action)
+							itemButton:addAdaptedText(false, string.upper("Press to show"), nil, nil, 4, nil, 0.7)
 						end
 					end
-					Settings:spawnToggle(itemToggle, item, 1)
-				elseif (item.type == INPUT) then
-					local itemInput = UIElement:new({
-						parent = itemView,
-						pos = { itemView.size.w / 3 * 2 - 20, 5 },
-						size = { itemView.size.w / 3, itemView.size.h - 10 },
-						bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-						shapeType = ROUNDED,
-						rounded = 3
-					})
-					if (item.inputspecial) then
-						local textField = TBMenu:spawnTextField(itemInput, nil, nil, nil, nil, Settings:getKeyName(item.val[1]), true, nil, 0.8, UICOLORWHITE, item.name, CENTERMID, true)
-						textField:addKeyboardHandlers(function(key)
-								textField.textfieldstr[1] = Settings:getKeyName(key)
-								textField.pressedKeyId = key
-							end, function()
-								TB_MENU_MAIN_SETTINGS[item.systemname] = { value = textField.pressedKeyId, reload = item.reload }
-								Settings:settingsApplyActivate(item.reload)
-							end)
-					else
-						local textField = TBMenu:spawnTextField(itemInput, nil, nil, nil, nil, item.val[1] .. "", true, nil, 0.8, UICOLORWHITE, item.name, CENTERMID)
-						textField:addKeyboardHandlers(nil, function()
-								if (item.valueVerifyAction) then
-									textField.textfieldstr[1] = item.valueVerifyAction(textField.textfieldstr[1]) .. ''
-								end
-								if (textField.textfieldstr[1] == '') then
-									TB_MENU_MAIN_SETTINGS[item.systemname] = nil
-								else
-									TB_MENU_MAIN_SETTINGS[item.systemname] = { value = tonumber(textField.textfieldstr[1]), reload = item.reload }
-									Settings:settingsApplyActivate(item.reload)
-								end
-							end)
-					end
-				elseif (item.type == DROPDOWN) then
-					local itemDropdownBG = UIElement:new({
-						parent = itemView,
-						pos = { itemView.size.w / 3 * 2 - 20, 5 },
-						size = { itemView.size.w / 3, itemView.size.h - 10 },
-						bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-						shapeType = ROUNDED,
-						rounded = 3
-					})
-					local itemDropdown = UIElement:new({
-						parent = itemDropdownBG,
-						pos = { 1, 1 },
-						size = { itemDropdownBG.size.w - 2, itemDropdownBG.size.h - 2 },
-						bgColor = TB_MENU_DEFAULT_BG_COLOR,
-						hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-						interactive = true,
-						shapeType = ROUNDED,
-						rounded = 3
-					})
-					local selectedId = 1
-					if (item.selectedAction) then
-						selectedId = item.selectedAction()
-					end
-					TBMenu:spawnDropdown(itemDropdown, item.dropdown, 30, WIN_H - 100, item.dropdown[selectedId], { scale = 0.7 }, { scale = 0.6 })
-				elseif (item.type == BUTTON) then
-					local itemButtonBG = UIElement:new({
-						parent = itemView,
-						pos = { itemView.size.w / 3 * 2 - 20, 5 },
-						size = { itemView.size.w / 3, itemView.size.h - 10 },
-						bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-						shapeType = ROUNDED,
-						rounded = 3
-					})
-					local itemButton = UIElement:new({
-						parent = itemButtonBG,
-						pos = { 1, 1 },
-						size = { itemButtonBG.size.w - 2, itemButtonBG.size.h - 2 },
-						bgColor = TB_MENU_DEFAULT_BG_COLOR,
-						hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-						pressedColor = TB_MENU_DEFAULT_DARKER_COLOR,
-						interactive = true,
-						shapeType = ROUNDED,
-						rounded = 3
-					})
-					itemButton:addMouseHandlers(nil, item.action)
-					itemButton:addAdaptedText(false, string.upper("Press to show"), nil, nil, 4, nil, 0.7)
 				end
 			end
 		end

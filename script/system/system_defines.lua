@@ -21,6 +21,10 @@ _G.REPLAY_VIEWER = nil
 ---@type string
 _G.TORIBASH_VERSION = nil
 
+---Current game beta version, if defined
+---@type string|nil
+_G.BETA_VERSION = nil
+
 ---Current build version
 ---@type string
 _G.BUILD_VERSION = nil
@@ -61,6 +65,14 @@ _G.HAPTICS = {
 ---@param a number
 function set_color(r, g, b, a) end
 
+---Default function to draw lines
+---@param x1 number Line start X coordinate
+---@param y1 number Line start Y coordinate
+---@param x2 number Line end X coordinate
+---@param y2 number Line end Y coordinate
+---@param width number Line width in pixels
+function draw_line(x1, y1, x2, y2, width) end
+
 ---Default function to draw rectangles
 ---@param pos_x number X coordinate of the top left corner
 ---@param pos_y number Y coordinate of the top left corner
@@ -85,6 +97,15 @@ function draw_quad(pos_x, pos_y, width, height, texture_id, tiled, r, g, b, a) e
 ---@param sweep number Disk length in degrees
 ---@param blend integer
 function draw_disk(pos_x, pos_y, inner, outer, slices, loops, start, sweep, blend) end
+
+---Draws text with the specified scale and rotation
+---@param text string
+---@param pos_x number
+---@param pos_y number
+---@param angle number
+---@param scale number
+---@param font_type ?FontId
+function draw_text_angle_scale(text, pos_x, pos_y, angle, scale, font_type) end
 
 ---Activates a 3D viewport for subsequent draw calls
 ---@param pos_x number
@@ -118,7 +139,7 @@ function unload_texture(id) end
 
 ---Returns on-screen text length in pixels according to specified settings
 ---@param message string
----@param font fontid
+---@param font FontId
 ---@param raw ?boolean If true, will ignore current graphics DPI setting
 ---@return number
 function get_string_length(message, font, raw) end
@@ -155,6 +176,14 @@ function get_window_size() end
 ---@return integer width
 ---@return integer height
 function get_maximum_window_size() end
+
+---@class DpiAwarenessInfo
+---@field ISDPIAWARE integer
+---@field DPISCALING number
+
+---Returns dpi awareness info on Windows
+---@return DpiAwarenessInfo
+function get_dpiawareness() end
 
 ---Returns screen position of a specified player joint
 ---@param player integer
@@ -268,6 +297,16 @@ function get_joint_state_name(joint, state) end
 ---@param hand integer
 ---@return integer
 function get_grip_info(player, hand) end
+
+---Starts a new game
+function start_new_game() end
+
+---Pauses game
+function freeze_game() end
+
+---Unpauses game
+function unfreeze_game() end
+
 
 --[[ REPLAY FUNCTIONS ]]
 
@@ -507,14 +546,10 @@ function bit.bswap(x) end
 function bit.tohex(x, n) end
 
 
---[[ OTHER FUNCTIONS ]]
+--[[ OPTION FUNCTIONS ]]
 
----@return boolean
-function is_steam() end
-
----Retrieves a list of currently active downloads
----@return string[]
-function get_downloads() end
+---Saves current settings to config file
+function save_custom_config() end
 
 ---Retrieves a value of the specified Toribash option
 ---@param value string
@@ -525,6 +560,78 @@ function get_option(value) end
 ---@param option string
 ---@param value integer
 function set_option(option, value) end
+
+---@alias GraphicsOption
+---| 0 Shaders
+---| 1 Fluid blood
+---| 2 Floor reflections
+---| 3 Soft shadows
+---| 4 Ambient occlusion
+---| 5 Bumpmapping
+---| 6 Ray tracing
+---| 7 Body textures
+---| 8 High dpi mode
+---| 9 Borderless window mode
+---| 10 Item effects
+
+---Sets value for the specified graphics option \
+---Changes will be applied on next `reload_graphics()` call
+---@param option GraphicsOption
+---@param value string|number
+function set_graphics_option(option, value) end
+
+---Reloads graphics and applies changes set by `set_graphics_option()`
+function reload_graphics() end
+
+---@alias SoundCategoryId
+---| 0 Shout
+---| 1 Dismember
+---| 2 Fight alert
+---| 3 Freeze
+---| 4 Game over
+---| 5 Grading
+---| 6 Grip
+---| 7 Hit
+---| 8 Impact
+---| 9 Joint
+---| 10 Menu
+---| 11 None
+---| 12 Pain
+---| 13 Ready
+---| 14 Select player
+---| 15 Splash
+---| 16 Swoosh
+
+---Sets sound category options
+---@param id SoundCategoryId
+---@param enable integer
+---@param default integer
+function set_sound_category(id, enable, default) end
+
+---Returns sound category options
+---@param id SoundCategoryId
+---@return integer enabled
+---@return integer default
+function get_sound_category(id) end
+
+
+--[[ OTHER FUNCTIONS ]]
+
+---@return boolean
+function is_steam() end
+
+---@return boolean
+function is_mobile() end
+
+---Retrieves a list of currently active downloads
+---@return string[]
+function get_downloads() end
+
+---Returns a list of files in specified directory
+---@param directory string
+---@param suffix string
+---@return string[]
+function get_files(directory, suffix) end
 
 ---Enables chat input hotkey
 function chat_input_activate() end
@@ -572,14 +679,57 @@ function set_build_version(version) end
 
 ---Sets mouse cursor state override
 ---@param state integer
-function set_mouse_cursor(state) end
+---@param instant ?boolean
+function set_mouse_cursor(state, instant) end
 
 ---Closes current game menu
 function close_menu() end
 
 ---Plays a Toribash sound by its ID
 ---@param soundid integer
-function play_sound(soundid) end
+---@param volume ?number
+function play_sound(soundid, volume) end
+
+---Returns current game language
+---@return string
+function get_language() end
+
+---Changes language to the specified one if it's available
+---@param language string
+---@param deferred ?integer
+function set_language(language, deferred) end
+
+---@alias MenuId
+---| 1 DISPLAY_FREE
+---| 2 DISPLAY_MULTI
+---| 3 DISPLAY_SETUP
+---| 4 DISPLAY_QUIT
+---| 5 DISPLAY_RULES
+---| 6 DISPLAY_REPLAY
+---| 7 DISPLAY_MODS
+---| 8 DISPLAY_SCRIPTS
+---| 9 DISPLAY_SHADERS
+---| 10 DISPLAY_SAVE
+---| 11 DEPRECATED
+---| 12 DISPLAY_CUSTOM_PLAYER
+---| 13 DISPLAY_SUBMENU_TUTORIAL
+---| 14 DISPLAY_ABOUT
+---| 15 DISPLAY_BUY_CREDIT
+---| 16 DISPLAY_SOUNDS
+---| 17 DISPLAY_MOD_MAKER
+---| 18 DISPLAY_LOGIN
+---| 19 DISPLAY_MAIN
+
+---Opens a game menu
+---@param id MenuId
+function open_menu(id) end
+
+---Internal function to trigger a confirmation box
+---@param action integer
+---@param message string
+---@param data ?string
+---@param useLuaNetwork ?boolean
+function open_dialog_box(action, message, data, useLuaNetwork) end
 
 
 --[[ CALLBACK / HOOK FUNCTIONS ]]

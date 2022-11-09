@@ -25,7 +25,7 @@ MOUSE_Y = 0
 ---Disables animations and some unimportant effects to improve GUI performance on lower end machines
 UIMODE_LIGHT = get_option("uilight") == 1
 
----@alias fontid
+---@alias FontId
 ---| 0 # FONTS.BIG | Badaboom big
 ---| 1 # FONTS.SMALL | Arial small (chat default)
 ---| 2 # FONTS.MEDIUM | Badaboom medium
@@ -385,6 +385,7 @@ function UIElement:new(o)
 			if (type(o.bgImage) == "table") then
 				elem:updateImage(o.bgImage[1], o.bgImage[2])
 			else
+				---@diagnostic disable-next-line: param-type-mismatch
 				elem:updateImage(o.bgImage)
 			end
 		end
@@ -392,6 +393,7 @@ function UIElement:new(o)
 		-- Textfield value is a table to allow proper initiation / use after obj is created
 		if (o.textfield) then
 			elem.textfield = o.textfield
+			---@diagnostic disable-next-line: assign-type-mismatch
 			elem.textfieldstr = o.textfieldstr and (type(o.textfieldstr) == "table" and o.textfieldstr or { o.textfieldstr .. '' }) or { "" }
 			elem.textfieldindex = elem.textfieldstr[1]:len()
 			elem.textfieldsingleline = o.textfieldsingleline
@@ -412,6 +414,7 @@ function UIElement:new(o)
 			else
 				elem.shadowColor = { o.shadowColor, o.shadowColor }
 			end
+			---@diagnostic disable-next-line: assign-type-mismatch
 			elem.innerShadow = type(o.innerShadow) == "table" and o.innerShadow or { o.innerShadow, o.innerShadow }
 		end
 		if (o.shapeType == ROUNDED and o.rounded) then
@@ -1594,7 +1597,7 @@ end
 ---@param str string Text to display in an object
 ---@param x? number X offset for the displayed text
 ---@param y? number Y offset for the displayed text
----@param font? fontid Font to use for drawing text
+---@param font? FontId Font to use for drawing text
 ---@param align? UIElementTextAlign Text alignment mode
 ---@param maxscale? number Maximum allowed text scale
 ---@param minscale? number Minimum allowed text scale. Any text that still doesn't fit inside the object at this scale value will be cut.
@@ -1603,19 +1606,24 @@ end
 ---@param col1? Color Main text color. Uses UIElement.uiColor by default.
 ---@param col2? Color Text shadow color. Uses UIElement.uiShadowColor by default.
 ---@param textfield? boolean Whether this text is supposed to be a part of text box input
----@overload fun(self, str: string, x?: number, y?: number, font?: fontid, align?: UIElementTextAlign, maxscale?: number, minscale?: number, intensity?: number, shadow?: number, col1?: Color, col2?: Color, textfield?: boolean)
+---@overload fun(self, str: string, x?: number, y?: number, font?: FontId, align?: UIElementTextAlign, maxscale?: number, minscale?: number, intensity?: number, shadow?: number, col1?: Color, col2?: Color, textfield?: boolean)
 function UIElement:addAdaptedText(override, str, x, y, font, align, maxscale, minscale, intensity, shadow, col1, col2, textfield)
 	if (type(override) == "string") then
+		---@diagnostic disable-next-line: cast-local-type
 		textfield = col2
 		col2 = col1
+		---@diagnostic disable-next-line: cast-local-type
 		col1 = shadow
 		shadow = intensity
 		intensity = minscale
 		minscale = maxscale
 		maxscale = align
+		---@diagnostic disable-next-line: cast-local-type
 		align = font
+		---@diagnostic disable-next-line: cast-local-type
 		font = y
 		y = x
+		---@diagnostic disable-next-line: cast-local-type
 		x = str
 		str = override
 		override = false
@@ -1881,6 +1889,7 @@ function table.qsort(list, sort, order, includeZeros)
 	end
 
 	sort = table.reverse(sort)
+	---@diagnostic disable-next-line: cast-local-type
 	order = table.reverse(order)
 	table.sort(arr, function(a,b)
 			local cmpRes = false
@@ -1940,7 +1949,7 @@ function getFontMod(font)
 		font_mod = 3
 	elseif (font == 6 or font == 8) then
 		font_mod = 4.8
-	elseif (fonts == 9) then
+	elseif (font == 9) then
 		font_mod = 9.6
 	end
 	return font_mod * (hires and 2 or 1)
@@ -2069,7 +2078,7 @@ end
 ---@param yPos number
 ---@param angle number
 ---@param scale number
----@param font fontid
+---@param font FontId
 ---@param shadow number Text shadow thickness
 ---@param color Color
 ---@param shadowColor Color
@@ -2145,8 +2154,8 @@ end
 
 -- Returns a copy of a table with its contents reversed
 ---@generic T table|UIElement[]
----@param table T
----@return T
+---@param table T[]
+---@return T[]
 _G.table.reverse = function(table)
 	local tblRev = {}
 	for i, v in pairs(table) do
@@ -2215,7 +2224,8 @@ _G.table.compare = function(self, table2)
 end
 
 ---Checks whether the table is empty
----@param table table
+---@generic T
+---@param table T[]
 ---@return boolean
 _G.table.empty = function(table)
 	if (next(table) == false) then
@@ -2230,11 +2240,12 @@ _G.empty = function(table) return _G.table.empty(table) end
 
 ---Alternative to unpack() function that returns all table values.\
 ---**Use with caution, this will ***not*** always preserve key order**.
----@param tbl table
----@return table
-_G.table.unpack_all = function(tbl)
+---@generic T
+---@param list T[]
+---@return T ...
+_G.table.unpack_all = function(list)
 	local indexedTable = {}
-	for i,v in pairs(tbl) do
+	for i,v in pairs(list) do
 		table.insert(indexedTable, v)
 	end
 	return unpack(indexedTable)
