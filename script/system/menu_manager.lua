@@ -711,13 +711,9 @@ function TBMenu:showFriendsList()
 end
 
 function TBMenu:showBounties()
-	if (TB_BOUNTIES_DEFINED) then
-		TBMenu:clearNavSection()
-		Bounty:prepare()
-		TBMenu:showNavigationBar(Bounty:getNavigationButtons(), true)
-	else
-		open_url("http://forum.toribash.com/tori_bounty.php")
-	end
+	TBMenu:clearNavSection()
+	Bounty:prepare()
+	TBMenu:showNavigationBar(Bounty:getNavigationButtons(), true)
 end
 
 ---Prepares all UIElements to make a scrollable list within a specified UIElement viewport
@@ -2565,6 +2561,7 @@ function TBMenu:playMenuSwitchAnimation()
 	end
 	TBMenu.CurrentSection.child = {}
 	local rad = math.pi / 3
+	local rad2
 	currentSectionMover:addCustomDisplay(true, function()
 			if (-currentSectionMover.pos.x >= currentSectionMover.size.w) then
 				currentSectionMover:kill()
@@ -3045,7 +3042,7 @@ function TBMenu:generatePaginationData(totalPages, maxPages, currentPage)
 	end
 
 	local removeDuplicates = function(pages)
-		local sorted = table.qsort(pages, { 'v' })
+		local sorted = table.qsort(pages, 'v')
 		for i = #sorted, 2, -1 do
 			if (sorted[i].v == sorted[i - 1].v) then
 				table.remove(sorted, i)

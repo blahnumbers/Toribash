@@ -1869,6 +1869,8 @@ end
 ---@param order? sort Sorting order, defaults to `SORT_ASCENDING`
 ---@param includeZeros? boolean
 ---@overload fun(sort: string[], order?: boolean[], includeZeros?: boolean)
+---@overload fun(sort: string, order?: boolean[], includeZeros?: boolean)
+---@overload fun(sort: string, order?: sort, includeZeros?: boolean)
 ---@return T
 function table.qsort(list, sort, order, includeZeros)
 	local arr = {}

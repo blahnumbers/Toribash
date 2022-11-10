@@ -344,6 +344,7 @@ function get_color_info(colorid) end
 ---@return Color
 function get_color_rgba(colorid) end
 
+
 --[[ MOBILE FILE IO ]]
 
 ---Attempts to open a file at location and returns the index on success or nil on failure
@@ -369,6 +370,9 @@ function file_write(fileidx, data) end
 function file_close(fileidx) end
 
 --[[ NETWORKING ]]
+
+---Launches a network request to update current user's TC and ST balance
+function update_tc_balance() end
 
 ---Downloads a data file from Toribash servers
 ---@param request string
@@ -398,6 +402,9 @@ function get_network_task() end
 ---*Only Toribash links are supported*
 ---@param url string
 function open_url(url) end
+
+---Downloads bounties data for the current user
+function download_fetch_bounties() end
 
 
 -- [[ KEYBOARD FUNCTIONS ]]
@@ -730,6 +737,17 @@ function open_menu(id) end
 ---@param data ?string
 ---@param useLuaNetwork ?boolean
 function open_dialog_box(action, message, data, useLuaNetwork) end
+
+
+--[[ DISCORD FUNCTIONS ]]
+
+---Accepts Discord join request
+---@param discordId string
+function discord_accept_join(discordId) end
+
+---Refuses Discord join request
+---@param discordId string
+function discord_reject_join(discordId) end
 
 
 --[[ CALLBACK / HOOK FUNCTIONS ]]
