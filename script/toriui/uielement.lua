@@ -189,7 +189,7 @@ if (not UIElement) then
 	---@field innerShadow number|number[]
 	---@field shadowColor Color|Color[]
 	---@field shapeType UIElementShape
-	---@field rounded number|number[] Rounding size to use for an object with ROUNDED (2) shapeType
+	---@field rounded number|number[] Rounding size to use for an object with `ROUNDED` shapeType
 	---@field scrollEnabled boolean
 	---@field keyboard boolean True if we want to spawn the object with default keyboard handlers
 	---@field permanentListener boolean
@@ -284,38 +284,45 @@ end
 -- Callback function triggered on any keyboard key down event while UIElement is active
 ---@param key number Pressed key's keycode
 ---@return number|nil
+---@overload fun(key?: number)
 UIElement.keyDown = function(key) end
 
 -- Callback function triggered on any keyboard key up event while UIElement is active
 ---@param key number Pressed key's keycode
 ---@return number|nil
+---@overload fun(key?: number)
 UIElement.keyUp = function(key) end
 
 -- Custom callback function triggered on any keyboard key down event while UIElement is active
 ---@param key number Pressed key's keycode
 ---@return number|nil
+---@overload fun(key?: number)
 UIElement.keyDownCustom = function(key) end
 
 -- Custom callback function triggered on any keyboard key up event while UIElement is active
 ---@param key number Pressed key's keycode
 ---@return number|nil
+---@overload fun(key?: number)
 UIElement.keyUpCustom = function(key) end
 
 -- Callback function triggered on mouse button down event when cursor is within object transform
 ---@param buttonId number Mouse button ID associated with the event
 ---@param x number Mouse cursor X position associated with the event
 ---@param y number Mouse cursor Y position associated with the event
+---@overload fun(buttonId?: number, x?: number, y?: number)
 UIElement.btnDown = function(buttonId, x, y) end
 
 -- Callback function triggered on mouse button up event when cursor is within object transform
 ---@param buttonId number Mouse button ID associated with the event
 ---@param x number Mouse cursor X position associated with the event
 ---@param y number Mouse cursor Y position associated with the event
+---@overload fun(buttonId?: number, x?: number, y?: number)
 UIElement.btnUp = function(buttonId, x, y) end
 
 -- Callback function triggered on mouse move event when cursor is within object transform
 ---@param x number Mouse cursor X position associated with the event
 ---@param y number Mouse cursor Y position associated with the event
+---@overload fun(x?: number, y?: number)
 UIElement.btnHover = function(x, y) end
 
 -- Callback function triggered on right mouse button up event when cursor is within object transform\
@@ -323,6 +330,7 @@ UIElement.btnHover = function(x, y) end
 ---@param buttonId number Mouse button ID associated with the event
 ---@param x number Mouse cursor X position associated with the event
 ---@param y number Mouse cursor Y position associated with the event
+---@overload fun(buttonId?: number, x?: number, y?: number)
 UIElement.btnRightUp = function(buttonId, x, y) end
 
 -- Spawn a new UI Element
@@ -1868,9 +1876,9 @@ end
 ---@param sort string[] Key or keys which values will be used for sorting
 ---@param order? sort Sorting order, defaults to `SORT_ASCENDING`
 ---@param includeZeros? boolean
----@overload fun(sort: string[], order?: boolean[], includeZeros?: boolean)
----@overload fun(sort: string, order?: boolean[], includeZeros?: boolean)
----@overload fun(sort: string, order?: sort, includeZeros?: boolean)
+---@overload fun(list: table, sort: string[], order?: boolean[], includeZeros?: boolean)
+---@overload fun(list: table, sort: string, order?: boolean[], includeZeros?: boolean)
+---@overload fun(list: table, sort: string, order?: sort, includeZeros?: boolean)
 ---@return T
 function table.qsort(list, sort, order, includeZeros)
 	local arr = {}

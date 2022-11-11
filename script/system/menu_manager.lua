@@ -1922,7 +1922,7 @@ function TBMenu:showUserBar()
 	local playerHeadHolder = UIElement3D:new({
 		parent = tbMenuUserHeadAvatarViewport3D,
 		shapeType = SPHERE,
-		pos = { 0, 6, 9.7 },
+		pos = { 0, 6, 5.7 + 4 * TB_MENU_GLOBAL_SCALE },
 		size = { 0.6, 0.6, 0.6 },
 		rot = { 0, 0, 0 },
 		viewport = true
@@ -3594,6 +3594,7 @@ function TBMenu:spawnTextField(parent, x, y, w, h, textFieldString, inputSetting
 	inputField:addMouseHandlers(function()
 			inputField:enableMenuKeyboard()
 		end)
+	inputField.killAction = function() inputField:disableMenuKeyboard() end
 	TBMenu:displayTextfield(inputField, fontid, scale, color, defaultStr, orientation, noCursor)
 	return inputField
 end

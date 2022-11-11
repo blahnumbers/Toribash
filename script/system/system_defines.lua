@@ -163,6 +163,10 @@ function enable_mouse_camera_movement() end
 ---Disables mouse / touch camera movement
 function disable_mouse_camera_movement() end
 
+---Sets field of view
+---@param field_of_view number
+function set_fov(field_of_view) end
+
 --[[ SCREEN RELATED FUNCTIONS ]]
 
 ---Returns screen resolution values
@@ -171,6 +175,14 @@ function disable_mouse_camera_movement() end
 ---@return integer width_raw Raw screen width
 ---@return integer height_raw Raw screen height
 function get_window_size() end
+
+---Returns screen safe size \
+---This is useful on mobile devices with rounded screen corners and cutouts / notches
+---@return integer x DPI adapted X shift
+---@return integer y DPI adapted Y shift
+---@return integer width DPI adapted safe screen width
+---@return integer height DPI adapted safe screen height
+function get_window_safe_size() end
 
 ---Returns maximum supported screen resolution
 ---@return integer width
@@ -306,6 +318,45 @@ function freeze_game() end
 
 ---Unpauses game
 function unfreeze_game() end
+
+---Steps game \
+---Pass `true` to simulate SHIFT + SPACE behavior
+---@param single_frame ?boolean
+function step_game(single_frame) end
+
+---Sets the value for the specified gamerule
+---@param gamerule string
+---@param value string
+function set_gamerule(gamerule, value) end
+
+---Returns current value for the specified gamerule
+---@param gamerule string
+---@return string
+function get_gamerule(gamerule) end
+
+---@class FightPlayerInfo
+---@field name string
+---@field injury number
+---@field score number
+---@field num_textures integer
+
+---Returns information on specified player or nil on error
+---@param playerid integer
+---@return FightPlayerInfo|nil
+function get_player_info(playerid) end
+
+---@alias GhostMode
+---| 0 GHOST_NONE
+---| 1 GHOST_SELECTED
+---| 2 GHOST_BOTH
+
+---Returns current ghost mode
+---@return GhostMode
+function get_ghost() end
+
+---Sets ghost mode to the specified value
+---@param mode GhostMode
+function set_ghost(mode) end
 
 
 --[[ REPLAY FUNCTIONS ]]

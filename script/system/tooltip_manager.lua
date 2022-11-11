@@ -287,6 +287,12 @@ function Tooltip:showTooltipJoint(player, joint)
 		end
 
 		local force, relax = get_joint_colors(player, joint)
+		if (force == 0) then
+			force = 23
+		end
+		if (relax == 0) then
+			relax = 21
+		end
 		local forceColor = get_color_rgba(force)
 		local relaxColor = get_color_rgba(relax)
 

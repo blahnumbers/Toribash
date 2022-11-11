@@ -452,8 +452,8 @@ do
 			local sliderSettings = {
 				maxValue = v.slider.maxValue or 1,
 				minValue = v.slider.minValue or 0,
-				maxValueDisp = v.slider.maxValueDisp or maxVal,
-				minValueDisp = v.slider.minValueDisp or minVal,
+				maxValueDisp = v.slider.maxValueDisp or v.slider.maxValue,
+				minValueDisp = v.slider.minValueDisp or v.slider.minValue,
 				isBoolean = v.slider.isBoolean
 			}
 			if (sliderSettings.maxValueDisp == 128) then
@@ -702,6 +702,7 @@ do
 			shapeType = ROUNDED,
 			rounded = 4
 		})
+		mainView.killAction = function() remove_hooks("tbGamerulesKeyboard") end
 		GAMERULES_MENU_MAIN_ELEMENT = mainView
 		GAMERULES_MENU_POS = mainView.pos
 
@@ -820,7 +821,6 @@ do
 					end
 				end
 				if (GAMERULES_MENU_START_NEW_GAME == 1) then
-					remove_hooks("tbGamerulesKeyboard")
 					mainView:kill()
 					GAMERULES_MENU_MAIN_ELEMENT = nil
 					if (get_world_state().game_type == 1) then
@@ -833,7 +833,7 @@ do
 						delayedResetter:addCustomDisplay(true, function()
 								if (delayedResetter.spawnTime + 0.5 <= os.clock()) then
 									delayedResetter:kill()
-									UIElement:runCmd("reset")
+									runCmd("reset")
 								end
 							end)
 					else
@@ -860,7 +860,6 @@ do
 			bgImage = "../textures/menu/general/buttons/crosswhite.tga"
 		})
 		quitButton:addMouseHandlers(nil, function()
-				remove_hooks("tbGamerulesKeyboard")
 				mainView:kill()
 				GAMERULES_MENU_MAIN_ELEMENT = nil
 			end)

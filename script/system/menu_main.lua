@@ -91,6 +91,11 @@ require("system.events_online_manager")
 require("system.news_manager")
 require("system.market_manager")
 require("system.battlepass_manager")
+--if (PLATFORM == "IPHONEOS" or PLATFORM == "ANDROID") then
+	--require("system.hud_manager")
+	dofile("system/hud_manager.lua")
+	TBHud:init()
+--end
 
 TB_MENU_PLAYER_INFO = {}
 TB_MENU_PLAYER_INFO.username = PlayerInfo:getUser()
