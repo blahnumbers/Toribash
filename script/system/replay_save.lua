@@ -10,10 +10,9 @@ REPLAY_SAVETEMPNAME = "--localreplaytempfile"
 REPLAY_FOLDER = REPLAY_FOLDER or '/my replays'
 REPLAY_SELECTOR_SHIFT = REPLAY_SELECTOR_SHIFT or { 0 }
 
-rploptions = { hint = get_option("hint"), feedback = get_option("feedback") }
---local REPLAY_NEWGAME = false
+local rploptions = { hint = tonumber(get_option("hint")), feedback = tonumber(get_option("feedback")) }
 
-for i,v in pairs(rploptions) do
+for i,_ in pairs(rploptions) do
 	set_option(i, 0)
 end
 
@@ -22,20 +21,19 @@ local function quitReplaySave()
 	for i,v in pairs(rploptions) do
 		set_option(i, v)
 	end
-	replaySaveOverlay:kill()
+	TBMenu.ReplaySaveOverlay:kill()
+	TBMenu.ReplaySaveOverlay = nil
 end
 
-replaySaveOverlay = TBMenu:spawnWindowOverlay(TB_MENU_HUB_GLOBALID)
-local replaySave = UIElement:new({
-	parent = replaySaveOverlay,
-	pos = { WIN_W / 4, WIN_H / 2 - 90 },
-	size = { WIN_W / 2, 180 },
+TBMenu.ReplaySaveOverlay = TBMenu:spawnWindowOverlay(TB_MENU_HUB_GLOBALID)
+local replaySave = TBMenu.ReplaySaveOverlay:addChild({
+	shift = { WIN_W / 4, WIN_H / 2 - 90 },
 	bgColor = TB_MENU_DEFAULT_BG_COLOR,
 	shapeType = ROUNDED,
 	rounded = 5,
 	interactive = true
 })
-UIElement:runCmd("savereplay " .. REPLAY_SAVETEMPNAME)
+runCmd("savereplay " .. REPLAY_SAVETEMPNAME, nil, CMD_ECHO_FORCE_DISABLED)
 
 local replaySaveTitle = replaySave:addChild({
 	pos = { 10, 0 },
@@ -79,7 +77,7 @@ if (#dropdownOptions > 0) then
 			for i,v in pairs(dropdown.listElements) do
 				v:hide()
 			end
-			dropdown.listHolder.scrollBar:makeScrollBar(dropdown.listHolder, dropdown.listElements, dropdown.listReload, REPLAY_SELECTOR_SHIFT, nil, true)
+			dropdown.listHolder.scrollBar:makeScrollBar(dropdown.listHolder, dropdown.listElements, dropdown.listToReload, REPLAY_SELECTOR_SHIFT, nil, true)
 		end
 	end)
 else
@@ -118,15 +116,20 @@ local replayNameBackground = replaySave:addChild({
 	bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 	rounded = 4
 }, true)
-local replayNameInput = TBMenu:spawnTextField(replayNameBackground, nil, nil, nil, nil, nil, nil, 4, 0.7, UICOLORWHITE, TB_MENU_LOCALIZED.REPLAYSENTERNAME, CENTERMID, nil, nil, true)
+local replayNameInput = TBMenu:spawnTextField2(replayNameBackground, { }, nil, TB_MENU_LOCALIZED.REPLAYSENTERNAME, {
+	fontId = 4,
+	textScale = 0.7,
+	textAlign = CENTERMID,
+	darkerMode = true
+})
 
 local function saveReplay(newname)
 	if (newname == "" or not newname) then
-		TBMenu:showDataError(TB_MENU_LOCALIZED.REPLAYSERROREMPTYNAME, true)
+		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERROREMPTYNAME, true)
 		return
 	end
 	if (newname:find("[^%d%a-_ ]") or not newname:find("[%a%d]")) then
-		TBMenu:showDataError(TB_MENU_LOCALIZED.REPLAYSERRORCHARACTERS, true)
+		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORCHARACTERS, true)
 		return
 	end
 	local filename = folderPrefix .. newname
@@ -135,19 +138,18 @@ local function saveReplay(newname)
 		-- Delete existing replay if it exists
 		local error = rename_replay("my replays/" .. REPLAY_SAVETEMPNAME .. ".rpl", filename .. ".rpl")
 		if (error) then
-			TBMenu:showDataError(error, true)
+			TBMenu:showStatusMessage(error, true)
 			return
 		end
 		local rplFile = Files:open("../replay" .. filename .. ".rpl")
 		if (not rplFile.data) then
-			TBMenu:showDataError(TB_MENU_LOCALIZED.REPLAYSERRORRENAMING, true)
+			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORRENAMING, true)
 			quitReplaySave()
 			return
 		end
 
 		local fileData = rplFile:readAll()
-		rplFile.mode = FILES_MODE_WRITE
-		rplFile:reopen()
+		rplFile:reopen(FILES_MODE_WRITE)
 		for i,ln in pairs(fileData) do
 			if (ln:find("^FIGHTNAME %d;")) then
 				rplFile:writeLine("FIGHTNAME 0; " .. newname)
@@ -156,6 +158,8 @@ local function saveReplay(newname)
 			end
 		end
 		rplFile:close()
+
+		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSSAVEREPLAYSUCCESS .. " " .. filename:sub(2) .. ".rpl", true)
 		quitReplaySave()
 	end
 
@@ -175,10 +179,6 @@ replayNameInput:addEnterAction(function() saveReplay(replayNameInput.textfieldst
 replaySaveButton:addMouseHandlers(nil, function()
 		saveReplay(replayNameInput.textfieldstr[1]:gsub("%.rpl$", ""))
 	end)
-
-add_hook("key_up", "replaySaveHandler", function(s) UIElement:handleKeyUp(s) return 1 end)
-add_hook("key_down", "replaySaveHandler", function(s) UIElement:handleKeyDown(s) return 1 end)
---add_hook("new_game_mp", "replaySaveHandler", function() REPLAY_NEWGAME = true end)
 
 replayNameInput:btnDown()
 replayNameInput.keyboard = true

@@ -1100,3 +1100,4 @@ NOTIFICATIONSDELETECONFIRM1	Are you sure you want to delete this message by
 NOTIFICATIONSDELETECONFIRM2	from your inbox?
 BATTLEPASSREACHEDMAXLEVEL	You have reached the maximum Battle Pass level
 QUESTSDAILYPLAYER	Daily Player
+REPLAYSSAVEREPLAYSUCCESS	Saved replay as:

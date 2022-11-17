@@ -84,7 +84,7 @@ end
 function Tooltip:create()
 	add_hook("joint_select", Tooltip.HookName, function(player, joint)
 			local discard = Tooltip:showTooltipJoint(player, joint)
-			if (PLATFORM == "ANDROID" or PLATFORM == "IPHONEOS") then
+			if (is_mobile()) then
 				return discard
 			end
 		end)
@@ -93,7 +93,7 @@ function Tooltip:create()
 				Tooltip:showTooltipBody(player, body)
 			end
 		end)
-	if (PLATFORM == "ANDROID" or PLATFORM == "IPHONEOS") then
+	if (is_mobile()) then
 		add_hook("mouse_button_down", Tooltip.HookName, function()
 				Tooltip:showTouchControls()
 			end)

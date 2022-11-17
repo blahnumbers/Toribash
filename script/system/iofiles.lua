@@ -26,7 +26,7 @@ FILES_MODE_READWRITE = 'r+'
 ---@param isroot integer|nil If 1, will start looking for file in Toribash root folder instead of data/script
 ---@return file*|integer|nil #Lua `file*` object on desktop platforms, file index on mobile or nil on failure
 local function filesOpenInternal(path, mode, isroot)
-	if (PLATFORM == "ANDROID" or PLATFORM == "IPHONEOS") then
+	if (is_mobile()) then
 		return file_open(path, mode, isroot)
 	end
 	return io.open(path, mode, isroot)
@@ -50,7 +50,7 @@ local function filesWriteInternal(file, data)
 		file_write(file, data)
 		return
 	end
-	file:write(line)
+	file:write(data)
 end
 
 -- Internal cross-platform function to close a file
@@ -164,7 +164,7 @@ do
 	function Files:writeDebug(line, rewrite)
 		local debug = Files:open("../debug.txt", rewrite and FILES_MODE_WRITE or FILES_MODE_APPEND)
 		if (type(line) == "table") then
-			debug:writeLine(os.clock() .. ': ' .. print_r(line, true))
+			debug:writeLine(os.clock() .. ': ' .. print(line, true))
 		else
 			debug:writeLine(os.clock() .. ': ' .. line)
 		end

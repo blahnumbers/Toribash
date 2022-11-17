@@ -11,11 +11,6 @@ WIN_H = h
 
 add_hook("resolution_changed", "uiResolutionUpdater", function() WIN_W, WIN_H = get_window_size() end)
 
-if (PLATFORM == "ANDROID") then
-	WIN_W = math.max(WIN_W, 900)
-	WIN_H = math.max(WIN_H, 500)
-end
-
 ---Current cursor X coordinate
 MOUSE_X = 0
 ---Current cursor Y coordinate
@@ -119,6 +114,10 @@ DEFSHADOWCOLOR = DEFSHADOWCOLOR or { 0, 0, 0, 0.6 }
 ---@class Vector3 : Vector2
 ---@field z number
 
+---@class Rect : Vector2
+---@field w number
+---@field h number
+
 ---@class Matrix4x4
 ---@field r0 number
 ---@field r1 number
@@ -201,6 +200,12 @@ if (not UIElement) then
 
 	-- Toribash GUI elements manager class
 	--
+	-- **Ver 2.0 updates:**
+	-- * Rewritten all keyboard handlers to make better use of SDL text input events
+	-- * `UIElement.keyboardHooks()` to initialize generic text field handlers on start
+	-- * `UIElement.mouseHooks()` is now an abstract class function
+	-- * `print_r` renamed to `print` to match default Lua function name
+	--
 	-- **Ver 1.6 updates:**
 	-- * `hoverThrough` support
 	-- * `UIElement.clock` value to store last graphics update time tick
@@ -269,17 +274,25 @@ if (not UIElement) then
 	---@field displayed boolean Whether the object is currently displayed
 	---@field destroyed boolean Internal flag to indicate the object has been destroyed. Use this to check whether the UIElement still exists when a UIElement:kill() function may have been called on its reference elsewhere.
 	---@field killAction function Additional callback to be executed when object is being destroyed
+	---@field scrollBar UIElement Reference to scrollable list holder's scroll bar
 	UIElement = {
-		ver = 1.6,
+		ver = 2.0,
 		clock = os.clock(),
 		animationDuration = 0.1
 	}
 	UIElement.__index = UIElement
 
-	-- Whether UIElement:mouseHooks() has already been called to spawn mouse hooks
+	-- Whether UIElement.mouseHooks() has already been called to spawn mouse hooks
 	---@type boolean
 	UIElement.__mouseHooks = nil
+
+	---Whether UIElement.keyboardHooks() has been called to initialize keyboard hooks
+	UIElement.__keyboardHooks = nil
 end
+
+---Callback function triggered on text input event while UIElement is active and focused
+---@param input string
+UIElement.textInput = function(input) end
 
 -- Callback function triggered on any keyboard key down event while UIElement is active
 ---@param key number Pressed key's keycode
@@ -405,7 +418,8 @@ function UIElement:new(o)
 			elem.textfieldstr = o.textfieldstr and (type(o.textfieldstr) == "table" and o.textfieldstr or { o.textfieldstr .. '' }) or { "" }
 			elem.textfieldindex = elem.textfieldstr[1]:len()
 			elem.textfieldsingleline = o.textfieldsingleline
-			elem.keyDown = function(key) elem:textfieldKeyDown(key, o.isNumeric, o.allowNegative, o.allowDecimal) end
+			elem.textInput = function(input) elem:textfieldInput(input, o.isNumeric, o.allowNegative, o.allowDecimal) end
+			elem.keyDown = function(key) elem:textfieldKeyDown(key) end
 			elem.keyUp = function(key) elem:textfieldKeyUp(key) end
 			table.insert(UIKeyboardHandler, elem)
 		end
@@ -618,26 +632,39 @@ function UIElement:removeTabAction()
 	self.tabaction = nil
 end
 
+---Adds a function to be executed when a focusable element is tabbed out of
+---@param func function
 function UIElement:addOnLoseTabFocus(func)
 	self.onLoseFocus = func
 end
 
+---Removes a function that is executed when a focusable element is tabbed out of
 function UIElement:removeOnLoseTabFocus()
 	self.onLoseFocus = nil
 end
 
+---Adds a function to be executed when a focusable element is tabbed into
+---@param func function
 function UIElement:addOnReceiveTabFocus(func)
 	self.onReceiveFocus = func
 end
 
+---Removes a function that is executed when a focusable element is tabbed into
 function UIElement:removeOnReceiveTabFocus()
 	self.onReceiveFocus = nil
 end
 
+---Sets the previous element to switch focus to when pressing `SHIFT` + `TAB`
+---@param element UIElement
+---@param btnDownArg ?table Any additional arguments to be used by element's `btnDown()` event
 function UIElement:addTabSwitchPrev(element, btnDownArg)
 	self:addTabSwitch(element, btnDownArg, true)
 end
 
+---Sets the element to switch focus to when pressing `TAB`
+---@param element UIElement
+---@param btnDownArg ?table Any additional arguments to be used by element's `btnDown()` event
+---@param prev ?boolean
 function UIElement:addTabSwitch(element, btnDownArg, prev)
 	local btnDownArg = btnDownArg or {}
 	local action = prev and "tabswitchprevaction" or "tabswitchaction"
@@ -663,14 +690,23 @@ function UIElement:addTabSwitch(element, btnDownArg, prev)
 	end
 end
 
+---Clears the currently set `TAB` switch action
 function UIElement:removeTabSwitch()
 	self.tabswitchaction = nil
 end
 
+---Clears the currently set `SHIFT` + `TAB` switch action
 function UIElement:removeTabSwitchPrev()
 	self.tabswitchprevaction = nil
 end
 
+---Internal function to reload scrollable list elements. \
+---*You likely don't need to call it manually.*
+---@param listHolder UIElement
+---@param listElements UIElement[]
+---@param toReload UIElement
+---@param enabled UIElement[]
+---@param orientation UIElementScrollMode
 function UIElement:reloadListElements(listHolder, listElements, toReload, enabled, orientation)
 	local listElementSize, shiftVal
 	if (orientation == SCROLL_VERTICAL) then
@@ -705,10 +741,25 @@ function UIElement:reloadListElements(listHolder, listElements, toReload, enable
 	toReload:reload()
 end
 
+---Shorthand function to initialize a horizontal scrollable list with a scroll bar
+---@param listHolder UIElement
+---@param listElements UIElement[]
+---@param toReload UIElement
+---@param posShift ?number[]
+---@param scrollSpeed ?number
+---@param scrollIgnoreOverride ?boolean
 function UIElement:makeHorizontalScrollBar(listHolder, listElements, toReload, posShift, scrollSpeed, scrollIgnoreOverride)
 	self:makeScrollBar(listHolder, listElements, toReload, posShift, scrollSpeed, scrollIgnoreOverride, SCROLL_HORIZONTAL)
 end
 
+---Function to initialize a scrollable list with a scroll bar
+---@param listHolder UIElement
+---@param listElements UIElement[]
+---@param toReload UIElement
+---@param posShift ?number[]
+---@param scrollSpeed ?number
+---@param scrollIgnoreOverride ?boolean
+---@param orientation ?UIElementScrollMode
 function UIElement:makeScrollBar(listHolder, listElements, toReload, posShift, scrollSpeed, scrollIgnoreOverride, orientation)
 	local scrollSpeed = scrollSpeed or 1
 	local posShift = posShift or { 0 }
@@ -779,6 +830,13 @@ function UIElement:makeScrollBar(listHolder, listElements, toReload, posShift, s
 		end)
 end
 
+---Internal function to handle mouse wheel scrolling for lists. \
+---*You likely don't need to call this manually.*
+---@param listElements UIElement[]
+---@param listHolder UIElement
+---@param toReload UIElement
+---@param scroll number
+---@param enabled UIElement[]
 function UIElement:mouseScroll(listElements, listHolder, toReload, scroll, enabled)
 	if (self.orientation == SCROLL_VERTICAL) then
 		local elementHeight = listElements[1].size.h
@@ -821,6 +879,13 @@ function UIElement:mouseScroll(listElements, listHolder, toReload, scroll, enabl
 	end
 end
 
+---Internal function to handle scroll bar scrolling for lists. \
+---*You likely don't need to call this manually.*
+---@param listElements UIElement[]
+---@param listHolder UIElement
+---@param toReload UIElement
+---@param posShift number
+---@param enabled UIElement[]
 function UIElement:barScroll(listElements, listHolder, toReload, posShift, enabled)
 	if (#listElements == 0) then return end
 	if (self.orientation == SCROLL_VERTICAL) then
@@ -935,12 +1000,14 @@ function UIElement:kill(childOnly)
 	self = nil
 end
 
+---Updates position for all children of current UIElement
 function UIElement:updatePos()
 	if (self.parent) then
 		self:updateChildPos()
 	end
 end
 
+---Clears text field data and resets index to 0
 function UIElement:clearTextfield()
 	if (self.textfield) then
 		self.textfieldstr[1] = ""
@@ -948,10 +1015,9 @@ function UIElement:clearTextfield()
 	end
 end
 
--- Internal UIElement loop that updates objects' position and displays them. *Must be run from draw2d hook.*
---
--- ***TODO:*** *add caching for active globalids so we don't need to run separate loops for each one.*
----@param globalid? number Global ID that the objects to display belong to
+---Main UIElement loop that updates objects' position and displays them. \
+---*Must be run from `draw2d` hook.*
+---@param globalid ?number Global ID that the objects to display belong to
 function UIElement:drawVisuals(globalid)
 	UIElement.clock = os.clock()
 	local globalid = globalid or self.globalid
@@ -967,6 +1033,9 @@ function UIElement:drawVisuals(globalid)
 	end
 end
 
+---Main UIElement loop that displays viewport elements. \
+---*Must be run from `draw_viewport` hook.*
+---@param globalid ?number Global ID that the objects to display belong to
 function UIElement:drawViewport(globalid)
 	local globalid = globalid or self.globalid
 	for i, v in pairs(UIViewportManager) do
@@ -976,6 +1045,10 @@ function UIElement:drawViewport(globalid)
 	end
 end
 
+---Internal function that's used to draw a viewport UIElement. \
+---*You likely don't need to call this manually.* \
+---@see UIElement.drawViewport
+---@see UIElement.addCustomDisplay
 function UIElement:displayViewport()
 	if (self.customDisplayBefore) then
 		self.customDisplayBefore()
@@ -995,6 +1068,10 @@ function UIElement:displayViewport()
 	end
 end
 
+---Internal function that's used to draw a regular UIElement. \
+---*You likely don't need to call this manually.* \
+---@see UIElement.drawVisuals
+---@see UIElement.addCustomDisplay
 function UIElement:display()
 	if (self.customDisplayBefore) then
 		self.customDisplayBefore()
@@ -1100,11 +1177,15 @@ function UIElement:display()
 	end
 end
 
+---Reloads a UIElement by consecutively calling `hide()` and `show()` methods on it
 function UIElement:reload()
 	self:hide()
 	self:show()
 end
 
+---Activates current interactive UIElement and pushes it back in relevant handler queues. \
+---*This method is non-recursive: any deactivated interactive children of this UIElement will remain as they are.*
+---@param forceReload ?boolean Whether to override `noreloadInteractive` value set by previous `deactivate()` call
 function UIElement:activate(forceReload)
 	local num = nil
 	if (self.isactive) then
@@ -1132,17 +1213,12 @@ function UIElement:activate(forceReload)
 		end
 		self.isactive = true
 	end
-
-	--[[for i,v in pairs(self.child) do
-		v:activate(noreload)
-	end]]
 end
 
+---Deactivates current interactive UIElement and removes it from handler queues. \
+---*This function is non-recursive: any active interactive children of this UIElement will remain as they are.*
+---@param noreload ?boolean Whether this UIElement should ignore subsequent `activate()` calls that don't have override on
 function UIElement:deactivate(noreload)
-	--[[for i,v in pairs(self.child) do
-		v:deactivate(noreload)
-	end]]
-
 	self.hoverState = BTN_NONE
 	self.isactive = false
 
@@ -1167,6 +1243,8 @@ function UIElement:deactivate(noreload)
 	end
 end
 
+---Whether current UIElement is being displayed
+---@return boolean
 function UIElement:isDisplayed()
 	return self.displayed;
 	--[[local viewport = (self.viewport or (self.parent and self.parent.viewport)) and true or false
@@ -1187,12 +1265,15 @@ function UIElement:isDisplayed()
 	return false]]
 end
 
+---Enables current UIElement and all its children for display
+---@param forceReload ?boolean Whether to override `noreload` value set by previous `hide()` calls
+---@return boolean
 function UIElement:show(forceReload)
 	local num = nil
 	local viewport = (self.viewport or (self.parent and self.parent.viewport)) and true or false
 
 	if (self.noreload and not forceReload) then
-		return false
+		return self.displayed
 	elseif (forceReload) then
 		self.noreload = nil
 	end
@@ -1225,10 +1306,12 @@ function UIElement:show(forceReload)
 		v:show(forceReload)
 	end
 	self.displayed = true
+	return self.displayed
 end
 
+---Disables display of current UIElement and all its children
+---@param noreload ?boolean Whether this UIElement should ignore subsequent `show()` calls that don't have override on
 function UIElement:hide(noreload)
-	local num = nil
 	for i,v in pairs(self.child) do
 		v:hide(noreload)
 	end
@@ -1261,12 +1344,11 @@ function UIElement:hide(noreload)
 	self.displayed = false
 end
 
+---Key up event handler for text field elements. \
+---*You likely don't need to call this function manually.*
+---@param key integer
+---@see UIElement.keyboardHooks
 function UIElement:textfieldKeyUp(key)
-	--[[LONGKEYPRESSED.status = false
-	LONGKEYPRESSED.key = nil
-	LONGKEYPRESSED.time = nil
-	LONGKEYPRESSED.repeats = 0]]
-
 	if ((key == 13 or key == 271) and self.enteraction) then
 		self.enteraction(self.textfieldstr[1])
 	end
@@ -1290,114 +1372,99 @@ function UIElement:textfieldKeyUp(key)
 	end
 end
 
-function UIElement:textfieldUpdate(symbol)
-	local part1 = self.textfieldstr[1]:sub(0, self.textfieldindex)
-	local part2 = self.textfieldstr[1]:sub(self.textfieldindex + 1)
-	self.textfieldstr[1] = part1 .. symbol .. part2
-	if (self.textfieldstr[1]:find("\\n") and self.textfieldsingleline) then
-		self.textfieldstr[1] = self.textfieldstr[1]:gsub("\\n", "")
-		self.textfieldindex = self.textfieldindex - 2
+---Updates text field with retrieved input \
+---*You likely don't need to call this function manually.*
+---@param input string
+---@param consumeSymbols ?integer How many symbols before the cursor have to be consumed
+---@param consumeSymbolsAfter ?integer How many symbols after the cursor have to be consumed
+function UIElement:textfieldUpdate(input, consumeSymbols, consumeSymbolsAfter)
+	local consumeSymbols = consumeSymbols or 0
+	local consumeSymbolsAfter = consumeSymbolsAfter or 0
+	local part1 = self.textfieldstr[1]:sub(0, self.textfieldindex - consumeSymbols)
+	local part2 = self.textfieldstr[1]:sub(self.textfieldindex + 1 + consumeSymbolsAfter)
+	self.textfieldstr[1] = part1 .. input .. part2
+	self.textfieldindex = self.textfieldindex - consumeSymbols + string.len(input)
+
+	-- Double check we didn't get any newlines if content was pasted
+	if (self.textfieldsingleline) then
+		local replacements = 0
+		self.textfieldstr[1], replacements = string.gsub(self.textfieldstr[1], "\\n", "")
+		self.textfieldindex = self.textfieldindex - 2 * replacements
+		self.textfieldstr[1], replacements = string.gsub(self.textfieldstr[1], "\n", "")
+		self.textfieldindex = self.textfieldindex - replacements
 	end
 end
 
-function UIElement:textfieldKeyDown(key, isNumeric, allowNegative, allowDecimal)
-	local isNumeric = isNumeric or false
-	local allowNegative = allowNegative or false
-	local allowDecimal = allowDecimal or false
-
-	--[[if (LONGKEYPRESSED.status == false or key ~= LONGKEYPRESSED.key) then
-		LONGKEYPRESSED.status = true
-		LONGKEYPRESSED.key = key
-		LONGKEYPRESSED.time = os.clock()
-		LONGKEYPRESSED.repeats = 1
-	elseif (os.clock() - LONGKEYPRESSED.time > 0.5 and (LONGKEYPRESSED.repeats < 15 or LONGKEYPRESSED.key == 8 or LONGKEYPRESSED.key == 127 or LONGKEYPRESSED.key == 266) ) then
-		LONGKEYPRESSED.repeats = LONGKEYPRESSED.repeats + 1
-	else
-		return 1
-	end]]
-	if (isNumeric and
-		(get_shift_key_state() > 0 or key < 48 or (key > 57 and (key < 256 or key > 266))) and
-		key ~= 8 and key ~= 127 and key ~= 266 and
-		key ~= 276 and key ~= 275 and
-		not (key == 46 and allowDecimal) and
-		not ((key == 45 or key == 269) and self.textfieldindex == 0 and allowNegative)) then
+---Text field input handler function \
+---*You likely don't need to call this function manually.*
+---@param input string
+---@param isNumeric boolean
+---@param allowNegative boolean
+---@param allowDecimal boolean
+---@see UIElement.keyboardHooks
+function UIElement:textfieldInput(input, isNumeric, allowNegative, allowDecimal)
+	local replaceSymbols = 0
+	local replaceSymbolsAfter = 0
+	local negativeSign = false
+	local clipboardPaste = get_clipboard_text() == input
+	if (isNumeric) then
+		if (allowNegative and input:find("^-")) then
+			negativeSign = true
+		end
+		local regexMatch = "[^0-9" .. (allowDecimal and "%." or "") .. "]"
+		input = string.gsub(input, regexMatch, "")
+	end
+	if (string.len(input) == 0 and not negativeSign) then
+		return
+	elseif (string.len(input) > 1 and not clipboardPaste) then
+		-- We are likely dealing with keyboard autocompletion
+		-- Let's try to guess which part of the text we need to replace
+		local text = self.textfieldstr[1]:sub(0, self.textfieldindex)
+		local lastWordStart = string.gsub(text, ".*(%w+)$", "%1")
+		local textFromLastWord = self.textfieldstr[1]:sub(self.textfieldindex - string.len(lastWordStart))
+		local lastWord = string.gsub(textFromLastWord, "^(%w)", "%1")
+		if (lastWord ~= nil) then
+			replaceSymbols = string.len(lastWordStart)
+			replaceSymbolsAfter = string.len(lastWord) - replaceSymbols
+		end
+	end
+	if (negativeSign and self.textfieldindex - replaceSymbols == 0) then
+		input = "-" .. input
+	end
+	if (string.len(input) == 0) then
 		return
 	end
-	if (key == 8) then
+	self:textfieldUpdate(input, replaceSymbols, replaceSymbolsAfter)
+end
+
+---Key down event handler for text field elements. \
+---*You likely don't need to call this function manually.*
+---@param key integer
+---@see UIElement.keyboardHooks
+function UIElement:textfieldKeyDown(key)
+	if (key == 8) then -- SDLK_BACKSPACE
 		if (self.textfieldindex > 0) then
 			self.textfieldstr[1] = self.textfieldstr[1]:sub(1, self.textfieldindex - 1) .. self.textfieldstr[1]:sub(self.textfieldindex + 1)
 			self.textfieldindex = self.textfieldindex - 1
 		end
-	elseif (key == 127 or key == 266) then
+	elseif (key == 127 or key == 266) then -- SDLK_DELETE
 		self.textfieldstr[1] = self.textfieldstr[1]:sub(1, self.textfieldindex) .. self.textfieldstr[1]:sub(self.textfieldindex + 2)
-	elseif (key == 276) then
+	elseif (key == 276) then -- arrow left
 		self.textfieldindex = self.textfieldindex > 0 and self.textfieldindex - 1 or 0
-	elseif (key == 275) then
+	elseif (key == 275) then -- arrow right
 		self.textfieldindex = self.textfieldindex < self.textfieldstr[1]:len() and self.textfieldindex + 1 or self.textfieldindex
-	else
-		if ((key == string.byte('-')) and (get_shift_key_state() > 0)) then
-			self:textfieldUpdate("_")
-		elseif ((key == string.byte('1')) and (get_shift_key_state() > 0)) then
-			self:textfieldUpdate("!")
-		elseif ((key == string.byte('2')) and (get_shift_key_state() > 0)) then
-			self:textfieldUpdate("@")
-		elseif ((key == string.byte('3')) and (get_shift_key_state() > 0)) then
-			self:textfieldUpdate("#")
-		elseif ((key == string.byte('4')) and (get_shift_key_state() > 0)) then
-			self:textfieldUpdate("$")
-		elseif ((key == string.byte('5')) and (get_shift_key_state() > 0)) then
-			self:textfieldUpdate("%")
-		elseif ((key == string.byte('6')) and (get_shift_key_state() > 0)) then
-			self:textfieldUpdate("^")
-		elseif ((key == string.byte('7')) and (get_shift_key_state() > 0)) then
-			self:textfieldUpdate("&")
-		elseif ((key == string.byte('8')) and (get_shift_key_state() > 0) or key == 268) then
-			self:textfieldUpdate("*")
-		elseif ((key == string.byte('9')) and (get_shift_key_state() > 0)) then
-			self:textfieldUpdate("(")
-		elseif ((key == string.byte('0')) and (get_shift_key_state() > 0)) then
-			self:textfieldUpdate(")")
-		elseif ((key == string.byte('=')) and (get_shift_key_state() > 0) or key == 270) then
-			self:textfieldUpdate("+")
-		elseif ((key == string.byte('/')) and (get_shift_key_state() > 0)) then
-			self:textfieldUpdate("?")
-		elseif ((key == string.byte('\'')) and (get_shift_key_state() > 0)) then
-			self:textfieldUpdate("\"")
-		elseif ((key == string.byte(';')) and (get_shift_key_state() > 0)) then
-			self:textfieldUpdate(":")
-		elseif (key == 44 and get_shift_key_state() > 0) then
-			self:textfieldUpdate("<")
-		elseif (key == 46 and get_shift_key_state() > 0) then
-			self:textfieldUpdate(">")
-		elseif (key == 269) then
-			self:textfieldUpdate("-")
-		elseif (key == 267) then
-			self:textfieldUpdate("/")
-		elseif (key >= 97 and key <= 122 and bit.bxor(get_shift_key_state() > 0 and 1 or 0, get_keyboard_capslock() > 0 and 1 or 0) == 1) then
-			self:textfieldUpdate(string.schar(key - 32))
-		elseif (key == 13 or key == 271) then
-			if (not self.textfieldsingleline) then
-				self:textfieldUpdate("\n")
-			else
-				return
-			end
-		elseif (key > 255 and key < 266) then
-			self:textfieldUpdate(key - 256)
-		elseif (key > 300) then
-			return
-		elseif (key == 46 and (self.textfieldindex == 0 or self.textfieldstr[1]:find("%."))) then
-			return
-		else
-			local char = string.schar(key)
-			if (char == '') then return end
-			self:textfieldUpdate(char)
-		end
-		self.textfieldindex = self.textfieldindex + 1
+	elseif (key == 13 or key == 271 and not self.textfieldsingleline) then -- newline
+		self:textfieldUpdate("\n")
 	end
 end
 
-function UIElement:handleKeyUp(key)
-	for i, v in pairs(table.reverse(UIKeyboardHandler)) do
+---Internal UIElement loop to handle key up callback. \
+---*You likely don't need to call this function manually.*
+---@param key integer
+---@return integer
+---@see UIElement.keyboardHooks
+function UIElement.handleKeyUp(key)
+	for _, v in pairs(table.reverse(UIKeyboardHandler)) do
 		if (v.keyboard == true) then
 			v.keyUp(key)
 			if (v.keyUpCustom) then
@@ -1406,10 +1473,16 @@ function UIElement:handleKeyUp(key)
 			return v.permanentListener and 0 or 1
 		end
 	end
+	return 0
 end
 
-function UIElement:handleKeyDown(key)
-	for i, v in pairs(table.reverse(UIKeyboardHandler)) do
+---Internal UIElement loop to handle key down callback. \
+---*You likely don't need to call this function manually.*
+---@param key integer
+---@return integer
+---@see UIElement.keyboardHooks
+function UIElement.handleKeyDown(key)
+	for _, v in pairs(table.reverse(UIKeyboardHandler)) do
 		if (v.keyboard == true) then
 			KEYBOARDGLOBALIGNORE = true
 			v.keyDown(key)
@@ -1419,8 +1492,25 @@ function UIElement:handleKeyDown(key)
 			return 1
 		end
 	end
+	return 0
 end
 
+---Internal UIElement loop to handle text input callback. \
+---*You likely don't need to call this function manually.*
+---@param input string
+---@return integer
+---@see UIElement.keyboardHooks
+function UIElement.handleInput(input)
+	for i,v in pairs(table.reverse(UIKeyboardHandler)) do
+		if (v.keyboard == true) then
+			v.textInput(input)
+			return 1
+		end
+	end
+	return 0
+end
+
+---Generic method to enable keyboard input handlers for current UIElement
 function UIElement:enableMenuKeyboard()
 	TB_MENU_INPUT_ISACTIVE = true
 	enable_menu_keyboard(self.pos.x, self.pos.y, self.size.w, self.size.h)
@@ -1438,6 +1528,7 @@ function UIElement:enableMenuKeyboard()
 	end
 end
 
+---Generic method to disable keyboard input handlers for current UIElement
 function UIElement:disableMenuKeyboard()
 	self.menuKeyboardId = nil
 	for i,v in pairs(UIKeyboardHandler) do
@@ -1452,32 +1543,53 @@ function UIElement:disableMenuKeyboard()
 	end
 end
 
--- UIElement internal function to handle mouse down event for an object
----@param s number Mouse button ID
----@param x number Mouse cursor X position
----@param y number Mouse cursor Y position
----@return number|nil
-function UIElement:handleMouseDn(s, x, y)
+---Internal UIElement function to activate generic text input handler hooks
+function UIElement.keyboardHooks()
+	add_hook("key_down", "uiKeyboardHandler", function(key)
+			if (TB_MENU_INPUT_ISACTIVE) then
+				return UIElement.handleKeyDown(key)
+			end
+		end)
+	add_hook("key_up", "uiKeyboardHandler", function(key)
+			if (TB_MENU_INPUT_ISACTIVE) then
+				return UIElement.handleKeyUp(key)
+			end
+		end)
+	add_hook("text_input", "uiKeyboardHandler", function(input)
+			if (TB_MENU_INPUT_ISACTIVE) then
+				return UIElement.handleInput(input)
+			end
+		end)
+
+	UIElement.__keyboardHooks = true
+end
+
+---UIElement internal function to handle mouse down event for an object. \
+---*You likely don't need to call this function manually.*
+---@param btn number Mouse button ID
+---@param x number
+---@param y number
+function UIElement:handleMouseDn(btn, x, y)
 	enable_camera_movement()
-	for i, v in pairs(UIKeyboardHandler) do
+	for _, v in pairs(UIKeyboardHandler) do
 		v.keyboard = v.permanentListener
 		KEYBOARDGLOBALIGNORE = false
 	end
-	for i, v in pairs(table.reverse(UIMouseHandler)) do
+	for _, v in pairs(table.reverse(UIMouseHandler)) do
 		if (v.isactive) then
-			if (x > v.pos.x and x < v.pos.x + v.size.w and y > v.pos.y and y < v.pos.y + v.size.h and s < 4) then
+			if (x > v.pos.x and x < v.pos.x + v.size.w and y > v.pos.y and y < v.pos.y + v.size.h and btn < 4) then
 				if (v.downSound) then
 					play_sound(v.downSound)
 				end
 				v.hoverState = BTN_DN
-				v.btnDown(s, x, y)
+				v.btnDown(btn, x, y)
 				if (v.textfield == true) then
 					v.keyboard = true
 					disable_camera_movement()
 				end
 				return v.clickThrough and 0 or 1
-			elseif (s >= 4 and v.scrollEnabled == true) then
-				if (v.btnDown(s, x, y)) then
+			elseif (btn >= 4 and v.scrollEnabled == true) then
+				if (v.btnDown(btn, x, y)) then
 					return
 				end
 			end
@@ -1485,28 +1597,29 @@ function UIElement:handleMouseDn(s, x, y)
 	end
 end
 
--- UIElement internal function to handle mouse up event for an object
----@param s number Mouse button ID
----@param x number Mouse cursor X position
----@param y number Mouse cursor Y position
-function UIElement:handleMouseUp(s, x, y)
-	for i, v in pairs(table.reverse(UIMouseHandler)) do
+---UIElement internal function to handle mouse up event for an object. \
+---*You likely don't need to call this function manually.*
+---@param btn number Mouse button ID
+---@param x number
+---@param y number
+function UIElement:handleMouseUp(btn, x, y)
+	for _, v in pairs(table.reverse(UIMouseHandler)) do
 		if (v.isactive) then
-			if (v.hoverState == BTN_DN and s == 1) then
+			if (v.hoverState == BTN_DN and btn == 1) then
 				if (v.upSound) then
 					play_sound(v.upSound)
 				end
 				v.hoverState = BTN_HVR
-				v.btnUp(s, x, y)
+				v.btnUp(btn, x, y)
 				set_mouse_cursor(1)
 				return
 			end
-			if (s == 3) then
+			if (btn == 3) then
 				if (x > v.pos.x and x < v.pos.x + v.size.w and y > v.pos.y and y < v.pos.y + v.size.h) then
 					if (v.upSound) then
 						play_sound(v.upSound)
 					end
-					v.btnRightUp(s, x, y)
+					v.btnRightUp(btn, x, y)
 					return
 				end
 			end
@@ -1514,14 +1627,15 @@ function UIElement:handleMouseUp(s, x, y)
 	end
 end
 
--- UIElement internal function to handle mouse movement event for an object
----@param x number Mouse cursor X position
----@param y number Mouse cursor Y position
+---UIElement internal function to handle mouse movement event for an object. \
+---*You likely don't need to call this function manually.*
+---@param x number
+---@param y number
 function UIElement:handleMouseHover(x, y)
 	local disable = nil
 	MOUSE_X, MOUSE_Y = x, y
 
-	for i, v in pairs(table.reverse(UIMouseHandler)) do
+	for _, v in pairs(table.reverse(UIMouseHandler)) do
 		if (v.isactive) then
 			if (v.hoverState == BTN_DN) then
 				disable = v.hoverThrough ~= true
@@ -1550,8 +1664,8 @@ function UIElement:handleMouseHover(x, y)
 	end
 end
 
--- A generic internal function that spawns mouse hooks required for mouse event handling
-function UIElement:mouseHooks()
+---Internal UIElement function to activate generic mouse handler hooks
+function UIElement.mouseHooks()
 	add_hook("mouse_button_down", "uiMouseHandler", function(s, x, y)
 			local toReturn = TB_MENU_MAIN_ISOPEN == 1 and 1 or 0
 			toReturn = UIElement:handleMouseDn(s, x, y) or toReturn
@@ -1570,10 +1684,10 @@ function UIElement:mouseHooks()
 	UIElement.__mouseHooks = true
 end
 
--- Moves a UIElement to specified coordinates
----@param x number|nil New X shift value for the object
----@param y number|nil New Y shift value for the object
----@param relative? boolean If true, will shift the object relatively to its current position instead of using specified coordinates as new anchor
+---Moves current UIElement to specified coordinates
+---@param x number|nil
+---@param y number|nil
+---@param relative ?boolean Shift the object relatively to its current position if `true`, set new anchor point otherwise
 function UIElement:moveTo(x, y, relative)
 	if (self.parent) then
 		if (x) then self.shift.x = relative and ((self.shift.x + x < 0 and self.shift.x >= 0) and (self.shift.x + x - self.parent.size.w) or (self.shift.x + x)) or x end
@@ -1584,6 +1698,7 @@ function UIElement:moveTo(x, y, relative)
 	end
 end
 
+---Internal function to update position of current UIElement based on its parent movement
 function UIElement:updateChildPos()
 	if (self.parent.viewport) then
 		return
@@ -1600,16 +1715,16 @@ function UIElement:updateChildPos()
 	end
 end
 
--- Adapts the specified string to fit inside UIElement object and sets custom display to draw it every frame
----@param override boolean|nil Whether to disable the default UIElement:display() functionality
+---Adapts the specified string to fit inside UIElement object and sets custom display function to draw it
+---@param override boolean|nil Whether to disable the default `display()` functionality
 ---@param str string Text to display in an object
 ---@param x? number X offset for the displayed text
 ---@param y? number Y offset for the displayed text
----@param font? FontId Font to use for drawing text
----@param align? UIElementTextAlign Text alignment mode
----@param maxscale? number Maximum allowed text scale
----@param minscale? number Minimum allowed text scale. Any text that still doesn't fit inside the object at this scale value will be cut.
----@param intensity? number Text color intensity, only used for FONTS.BIG and FONTS.BIGGER. Use values from 0 to 1.
+---@param font? FontId
+---@param align? UIElementTextAlign
+---@param maxscale? number
+---@param minscale? number Any text that still doesn't fit inside the object at this scale value will be cut
+---@param intensity? number Text color intensity, only used for `FONTS.BIG` and `FONTS.BIGGER`. Use values from `0` to `1`.
 ---@param shadow? number Text shadow grow value. It is recommended to keep this value relatively low (<10) for best looks.
 ---@param col1? Color Main text color. Uses UIElement.uiColor by default.
 ---@param col2? Color Text shadow color. Uses UIElement.uiShadowColor by default.
@@ -1617,21 +1732,26 @@ end
 ---@overload fun(self, str: string, x?: number, y?: number, font?: FontId, align?: UIElementTextAlign, maxscale?: number, minscale?: number, intensity?: number, shadow?: number, col1?: Color, col2?: Color, textfield?: boolean)
 function UIElement:addAdaptedText(override, str, x, y, font, align, maxscale, minscale, intensity, shadow, col1, col2, textfield)
 	if (type(override) == "string") then
-		---@diagnostic disable-next-line: cast-local-type
+		---@type boolean
+		---@diagnostic disable-next-line: assign-type-mismatch
 		textfield = col2
 		col2 = col1
-		---@diagnostic disable-next-line: cast-local-type
+		---@type Color
+		---@diagnostic disable-next-line: assign-type-mismatch
 		col1 = shadow
 		shadow = intensity
 		intensity = minscale
 		minscale = maxscale
 		maxscale = align
-		---@diagnostic disable-next-line: cast-local-type
+		---@type UIElementTextAlign
+		---@diagnostic disable-next-line: assign-type-mismatch
 		align = font
-		---@diagnostic disable-next-line: cast-local-type
+		---@type FontId
+		---@diagnostic disable-next-line: assign-type-mismatch
 		font = y
 		y = x
-		---@diagnostic disable-next-line: cast-local-type
+		---@type number
+		---@diagnostic disable-next-line: assign-type-mismatch
 		x = str
 		str = override
 		override = false
@@ -1657,9 +1777,26 @@ function UIElement:addAdaptedText(override, str, x, y, font, align, maxscale, mi
 		end)
 end
 
-function UIElement:uiText(str, x, y, font, align, scale, angle, shadow, col1, col2, intensity, check, refresh, nosmooth, textfield)
+---Generic function to display text within current UIElement using specified settings
+---@param input string Text to display in an object
+---@param x ?number X offset for the displayed text
+---@param y ?number Y offset for the displayed text
+---@param font ?FontId
+---@param align ?UIElementTextAlign
+---@param scale ?number
+---@param angle ?number Text rotation in degrees
+---@param shadow ?number Text shadow grow value. It is recommended to keep this value relatively low (<10) for best looks.
+---@param col1 ?Color Primary text color, uses `uiColor` value by default
+---@param col2 ?Color Text shadow color, uses `uiShadowColor` value by default
+---@param intensity ?number Text color intensity, only used for `FONTS.BIG` and `FONTS.BIGGER`. Use values from `0` to `1`.
+---@param check ?boolean Whether this call is only to be used for checking whether text fits the object with current settings
+---@param refresh ?boolean Deprecated
+---@param nosmooth ?boolean Whether to disable pixel perfect text drawing
+---@param textfield ?boolean Whether this function is being used as part of text field display routine
+---@return boolean
+function UIElement:uiText(input, x, y, font, align, scale, angle, shadow, col1, col2, intensity, check, refresh, nosmooth, textfield)
 	if (not scale and check) then
-		echo("^04UIElement error: ^07uiText cannot take undefined scale argument with check enabled")
+		echo("^04UIElement error: ^07uiText() cannot take undefined scale argument with check enabled")
 		return true
 	end
 	local font = font or FONTS.MEDIUM
@@ -1673,15 +1810,14 @@ function UIElement:uiText(str, x, y, font, align, scale, angle, shadow, col1, co
 	local col1 = col1 or self.uiColor
 	local col2 = col2 or self.uiShadowColor
 	local check = check or false
-	local refresh = refresh or false
 	local smoothing = not nosmooth
 
+	local str
 	if (check) then
-		str = textAdapt(str, font, scale, self.size.w, true, textfield, self.textfieldsingleline, self.textfieldindex)
+		str = textAdapt(input, font, scale, self.size.w, true, textfield, self.textfieldsingleline, self.textfieldindex)
 	else
-		local strunformatted = str
-		str = self.str == strunformatted and self.dispstr or textAdapt(str, font, scale, self.size.w, nil, textfield, self.textfieldsingleline, self.textfieldindex)
-		self.str, self.dispstr = strunformatted, str
+		str = self.str == input and self.dispstr or textAdapt(input, font, scale, self.size.w, nil, textfield, self.textfieldsingleline, self.textfieldindex)
+		self.str, self.dispstr = input, str
 	end
 
 	local startLine = 1
@@ -1742,8 +1878,11 @@ function UIElement:uiText(str, x, y, font, align, scale, angle, shadow, col1, co
 			end
 		end
 	end
+	return false
 end
 
+---Returns current UIElement main color
+---@return Color
 function UIElement:getButtonColor()
 	if (self.hoverState == BTN_DN) then
 		return self.pressedColor
@@ -1754,14 +1893,21 @@ function UIElement:getButtonColor()
 	end
 end
 
+---Returns current UIElement position relative to its parent
+---@return number[]
 function UIElement:getPos()
-	local pos = {self.shift.x, self.shift.y}
-	return pos
+	return { self.shift.x, self.shift.y }
 end
 
+---Returns local position of a point within current UIElement
+---@param xPos ?number X position of a point. Defaults to current cursor X position.
+---@param yPos ?number Y position of a point. Defaults to current cursor Y position.
+---@param pos ?Vector2
+---@return Vector2
 function UIElement:getLocalPos(xPos, yPos, pos)
 	local xPos = xPos or MOUSE_X
 	local yPos = yPos or MOUSE_Y
+	---@type Vector2
 	local pos = pos or { x = xPos, y = yPos}
 	if (self.parent) then
 		pos = self.parent:getLocalPos(xPos, yPos, pos)
@@ -1782,7 +1928,7 @@ function UIElement:getLocalPos(xPos, yPos, pos)
 	return pos
 end
 
--- Updates a texture associated with an object and caches it for later use
+---Updates a texture associated with an object and caches it for later use
 ---@param image string|nil Main texture path
 ---@param default? string Fallback texture path
 ---@param noreload? boolean If true, will not check if existing texture should be unloaded
@@ -1848,26 +1994,42 @@ function UIElement:updateImage(image, default, noreload)
 	end
 end
 
+CMD_ECHO_ENABLED = true
+CMD_ECHO_DISABLED = false
+CMD_ECHO_FORCE_DISABLED = -1
+
+---@alias CmdEchoMode
+---| true CMD_ECHO_ENABLED
+---| false CMD_ECHO_DISABLED
+---| -1 CMD_ECHO_FORCE_DISABLED
+
 ---Wrapper function for `run_cmd()` that automatically appends newline at the end of online commands
 ---@param command string
 ---@param online ?boolean
----@param echo ?boolean
+---@param echo ?CmdEchoMode
 _G.runCmd = function(command, online, echo)
 	local online = online and 1 or 0
-	local echo = echo or false
-	run_cmd(command .. (online and "\n" or ""), online, not echo)
+	local silent = echo ~= CMD_ECHO_ENABLED
+
+	if (echo == CMD_ECHO_FORCE_DISABLED) then
+		add_hook("console", "runCmdIgnore", function() return 1 end)
+	end
+	run_cmd(command .. (online and "\n" or ""), online, silent)
+	remove_hooks("runCmdIgnore")
 end
 
 ---@deprecated
----Will be removed with future releases, use runCmd() instead
+---Will be removed with future releases, use `runCmd()` instead \
+---@see runCmd
 function UIElement:runCmd(command, online, echo)
 	runCmd(command, online, echo)
 end
 
 ---@deprecated
----Will be removed with future releases, use print_r() instead
+---Will be removed with future releases, use print() instead \
+---@see print
 function UIElement:debugEcho(mixed, msg, returnString)
-	return print_r(mixed, returnString)
+	return print(mixed, returnString)
 end
 
 ---Runs a quicksort by specified key(s) on a table with multikey data
@@ -1930,7 +2092,8 @@ function table.qsort(list, sort, order, includeZeros)
 end
 
 ---@deprecated
----Use table.qsort() instead
+---Use `table.qsort()` instead
+---@see table.qsort
 _G.qsort = function(arr, sort, desc, includeZeros)
 	if (type(arr) ~= "table") then
 		return arr
@@ -1939,12 +2102,16 @@ _G.qsort = function(arr, sort, desc, includeZeros)
 end
 
 ---@deprecated
----Use global qsort() function instead
+---Use `table.qsort()` instead
+---@see table.qsort
 function UIElement:qsort(arr, sort, desc, includeZeros)
 	return table.qsort(arr, sort, desc, includeZeros)
 end
 
-function getFontMod(font)
+---Helper function to retrieve an approximated font height modifier value
+---@param font FontId
+---@return number
+_G.getFontMod = function(font)
 	local hires = font >= 10
 	local font_mod = hires and font - 10 or font
 	if (font == 0) then
@@ -1965,6 +2132,17 @@ function getFontMod(font)
 	return font_mod * (hires and 2 or 1)
 end
 
+---Helper function to split text into lines to fit the specified width. \
+---*You are probably looking for `UIElement:addAdaptedText()` or `UIElement:uiText()`.*
+---@param str string
+---@param font FontId
+---@param scale number
+---@param maxWidth number
+---@param check ?boolean
+---@param textfield ?boolean
+---@param singleLine ?boolean
+---@param textfieldIndex ?integer
+---@return string[]
 _G.textAdapt = function(str, font, scale, maxWidth, check, textfield, singleLine, textfieldIndex)
 	local clockdebug = TB_MENU_DEBUG and os.clock() or nil
 
@@ -1972,15 +2150,15 @@ _G.textAdapt = function(str, font, scale, maxWidth, check, textfield, singleLine
 	local newStr = ""
 	local word = ''
 	-- Fix newlines, remove redundant spaces and ensure the string is in fact a string
-	local str, cnt = string.gsub(str, "\\n", "\n")
+	local str, _ = string.gsub(str, "\\n", "\n")
 	str = str:gsub("^%s*", "")
 	str = str:gsub("%s*$", "")
 
 	local attemptPrediction = font == FONTS.SMALL and true or false
 
-	local function getWord(str)
-		local newlined = str:match("^.*\n")
-		word = str:match("^%s*%S+%s*")
+	local function getWord(checkstr)
+		local newlined = checkstr:match("^.*\n")
+		word = checkstr:match("^%s*%S+%s*")
 		if (newlined) then
 			if (newlined:len() < word:len()) then
 				word = newlined
@@ -1989,11 +2167,11 @@ _G.textAdapt = function(str, font, scale, maxWidth, check, textfield, singleLine
 		return word
 	end
 
-	local function buildString(str)
+	local function buildString(checkstr)
 		if (textfield) then
-			word = str:match("^[^\n]*%S*[^\n]*\n") or str:match("^%s*%S+%s*")
+			word = checkstr:match("^[^\n]*%S*[^\n]*\n") or checkstr:match("^%s*%S+%s*")
 		else
-			word = getWord(str)
+			word = getWord(checkstr)
 		end
 		return word
 	end
@@ -2082,18 +2260,19 @@ _G.textAdapt = function(str, font, scale, maxWidth, check, textfield, singleLine
 	return destStr
 end
 
----Draws text with some additional functionality
+---Helper function to draw text with some additional functionality. \
+---*You are probably looking for `UIElement:addAdaptedText()` or `UIElement:uiText()`.*
 ---@param str string
 ---@param xPos number
 ---@param yPos number
 ---@param angle number
 ---@param scale number
 ---@param font FontId
----@param shadow number Text shadow thickness
----@param color Color
----@param shadowColor Color
----@param intensity number
----@param pixelPerfect boolean Whether to floor the text position to make sure we don't start mid-pixel
+---@param shadow ?number Text shadow thickness
+---@param color ?Color
+---@param shadowColor ?Color
+---@param intensity ?number
+---@param pixelPerfect ?boolean Whether to floor the text position to make sure we don't start mid-pixel
 _G.draw_text_new = function(str, xPos, yPos, angle, scale, font, shadow, color, shadowColor, intensity, pixelPerfect)
 	local shadow = shadow or nil
 	local xPos = pixelPerfect and math.floor(xPos) or xPos
@@ -2162,7 +2341,7 @@ _G.get_color_from_hex = function(hex)
 	return color
 end
 
--- Returns a copy of a table with its contents reversed
+---Returns a copy of a table with its contents reversed
 ---@generic T table|UIElement[]
 ---@param table T[]
 ---@return T[]
@@ -2175,7 +2354,8 @@ _G.table.reverse = function(table)
 end
 
 ---@deprecated
----Use table.reverse() instead
+---Use `table.reverse()` instead \
+---@see table.reverse
 _G.tableReverse = function(table) return _G.table.reverse(table) end
 
 -- Returns a copy of a table
@@ -2199,7 +2379,8 @@ _G.table.clone = function(table)
 end
 
 ---@deprecated
----Use table.clone() instead
+---Use `table.clone()` instead \
+---@see table.clone
 _G.cloneTable = function(table) return _G.table.clone(table) end
 
 ---Comapres whether two tables contain identical data
@@ -2245,11 +2426,12 @@ _G.table.empty = function(table)
 end
 
 ---@deprecated
----Use table.empty() instead
+---Use `table.empty()` instead \
+---@see table.empty
 _G.empty = function(table) return _G.table.empty(table) end
 
 ---Alternative to unpack() function that returns all table values.\
----**Use with caution, this will ***not*** always preserve key order**.
+---*Use with caution, this will ***not*** preserve key order*.
 ---@generic T
 ---@param list T[]
 ---@return T ...
@@ -2262,10 +2444,12 @@ _G.table.unpack_all = function(list)
 end
 
 ---@deprecated
----Use table.unpack_all() instead
+---Use `table.unpack_all()` instead \
+---@see table.unpack_all
 _G.unpack_all = function(tbl) return _G.table.unpack_all(tbl) end
 
----Internal function to output provided data as a string. You're looking for `print_r()`.
+---Internal function to output provided data as a string. \
+---*You are likely looking for `print()`.*
 ---@param mixed any
 ---@param returnString? boolean
 ---@param msg? string String that will preceed the output
@@ -2301,8 +2485,15 @@ end
 ---@param data any Data to parse and output
 ---@param returnString? boolean Whether we should return the generated string or use `echo()` to print it in chat
 ---@return string|nil
-_G.print_r = function(data, returnString)
+_G.print = function(data, returnString)
 	return debugEchoInternal(data, returnString)
+end
+
+---@deprecated
+---Use `print()` instead \
+---@see print
+_G.print_r = function(data, returnString)
+	return print(data, returnString)
 end
 
 ---Generates a unique ID
@@ -2316,12 +2507,13 @@ _G.generate_uid = function()
 	return uid
 end
 
--- string.char() causes a crash when invalid data is fed to it
--- We want a safe function that can be used with keyboard input
+---A safe alternative to `string.char()` which doesn't throw an error on invalid data
+---@param ... integer
+---@return string
 _G.string.schar = function(...)
 	local result = ''
 	local arg = { ... }
-	for i,v in ipairs(arg) do
+	for _,v in ipairs(arg) do
 		local char = ''
 		pcall(function() char = string.char(v) end)
 		result = result .. char
@@ -2364,5 +2556,8 @@ _G.string.escape = function(str)
 end
 
 if (not UIElement.__mouseHooks) then
-	UIElement:mouseHooks()
+	UIElement.mouseHooks()
+end
+if (not UIElement.__keyboardHooks) then
+	UIElement.keyboardHooks()
 end

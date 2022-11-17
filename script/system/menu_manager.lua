@@ -961,7 +961,7 @@ function TBMenu:showConfirmationWindowInput(title, inputInfo, confirmAction, can
 		})
 		confirmBoxSubtitle:addAdaptedText(true, subtitle, nil, nil, 4, nil, 0.6)
 	end
-	local textField = TBMenu:spawnTextField(confirmBoxView, 10, confirmBoxTitle.shift.y + confirmBoxTitle.size.h + subtitleSet * 25 + 10, confirmBoxView.size.w - 20, 30, nil, nil, 1, nil, nil, inputInfo)
+	local textField = TBMenu:spawnTextField2(confirmBoxView, { x = 10, y = confirmBoxTitle.shift.y + confirmBoxTitle.size.h + subtitleSet * 25 + 10, w = confirmBoxView.size.w - 20, h = 30 }, nil, inputInfo)
 	local cancelButton = UIElement:new({
 		parent = confirmBoxView,
 		pos = { 10, -50 },
@@ -3546,22 +3546,42 @@ function TBMenu:spawnToggle(parent, x, y, w, h, toggleValue, updateFunc)
 	return toggleView
 end
 
-function TBMenu:spawnTextField(parent, x, y, w, h, textFieldString, inputSettings, fontid, scale, color, defaultStr, orientation, noCursor, multiLine, darkerMode)
-	if (not parent) then
-		return parent
-	end
-	local x = x or 0
-	local y = y or 0
-	local w = w or parent.size.w
-	local h = h or parent.size.h
-	local fontid = fontid or 4
-	local color = color or table.clone(UICOLORBLACK)
-	local inputSettings = type(inputSettings) == "table" and inputSettings or { isNumeric = inputSettings }
+---@class TextFieldInputSettings
+---@field fontId FontId
+---@field textAlign UIElementTextAlign
+---@field textScale number
+---@field textColor Color
+---@field isNumeric boolean
+---@field allowDecimal boolean
+---@field allowNegative boolean
+---@field allowMultiline boolean
+---@field darkerMode boolean
+---@field noCursor boolean
 
+---@type TextFieldInputSettings
+local TextFieldDefaultInputSettings = {
+	fontId = FONTS.SMALL,
+	textAlign = LEFTMID,
+	textScale = 1,
+	textColor = table.clone(UICOLORBLACK),
+	isNumeric = false,
+	allowMultiline = false,
+	noCursor = false
+}
+
+---Generates a generic text field UIElement.
+---@param parent UIElement
+---@param rect Rect
+---@param textFieldString ?string|string[]
+---@param defaultString ?string
+---@param inputSettings ?TextFieldInputSettings
+---@return UIElement
+function TBMenu:spawnTextField2(parent, rect, textFieldString, defaultString, inputSettings)
+	local inputSettings = inputSettings or TextFieldDefaultInputSettings
 	local textBg = UIElement:new({
 		parent = parent,
-		pos = { x, y },
-		size = { w, h },
+		pos = { rect.x or 0, rect.y or 0 },
+		size = { rect.w or parent.size.w, rect.h or parent.size.h },
 		bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 		shapeType = parent.shapeType,
 		rounded = parent.rounded
@@ -3571,8 +3591,8 @@ function TBMenu:spawnTextField(parent, x, y, w, h, textFieldString, inputSetting
 		pos = { 1, 1 },
 		size = { textBg.size.w - 2, textBg.size.h - 2 },
 		interactive = true,
-		bgColor = darkerMode and TB_MENU_DEFAULT_BG_COLOR or TB_MENU_DEFAULT_LIGHTER_COLOR,
-		hoverColor = darkerMode and TB_MENU_DEFAULT_LIGHTER_COLOR or TB_MENU_DEFAULT_LIGHTEST_COLOR,
+		bgColor = inputSettings.darkerMode and TB_MENU_DEFAULT_BG_COLOR or TB_MENU_DEFAULT_LIGHTER_COLOR,
+		hoverColor = inputSettings.darkerMode and TB_MENU_DEFAULT_LIGHTER_COLOR or TB_MENU_DEFAULT_LIGHTEST_COLOR,
 		inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
 		shapeType = textBg.shapeType,
 		rounded = textBg.rounded
@@ -3586,17 +3606,58 @@ function TBMenu:spawnTextField(parent, x, y, w, h, textFieldString, inputSetting
 		isNumeric = inputSettings.isNumeric,
 		allowDecimal = inputSettings.allowDecimal,
 		allowNegative = inputSettings.allowNegative,
-		textfieldstr = textFieldString,
-		textfieldsingleline = not multiLine,
+		textfieldstr = textFieldString or "",
+		textfieldsingleline = not inputSettings.allowMultiline,
 		shapeType = textBg.shapeType,
-		rounded = textBg.rounded
+		rounded = textBg.rounded,
+		uiColor = parent.uiColor or UICOLORWHITE
 	})
 	inputField:addMouseHandlers(function()
 			inputField:enableMenuKeyboard()
 		end)
 	inputField.killAction = function() inputField:disableMenuKeyboard() end
-	TBMenu:displayTextfield(inputField, fontid, scale, color, defaultStr, orientation, noCursor)
+	TBMenu:displayTextfield(inputField, inputSettings.fontId or 4, inputSettings.textScale, inputSettings.textColor or inputField.uiColor, defaultString, inputSettings.textAlign, inputSettings.noCursor)
 	return inputField
+end
+
+---@deprecated
+---Use `TBMenu:spawnTextField2()` instead.
+---@param parent UIElement
+---@param x ?number
+---@param y ?number
+---@param w ?number
+---@param h ?number
+---@param textFieldString ?string|string[]
+---@param inputSettings ?TextFieldInputSettings|boolean
+---@param fontid ?FontId
+---@param scale ?number
+---@param color ?Color
+---@param defaultStr ?string
+---@param orientation ?UIElementTextAlign
+---@param noCursor ?boolean
+---@param multiLine ?boolean
+---@param darkerMode ?boolean
+---@return UIElement
+function TBMenu:spawnTextField(parent, x, y, w, h, textFieldString, inputSettings, fontid, scale, color, defaultStr, orientation, noCursor, multiLine, darkerMode)
+	if (not parent) then
+		return parent
+	end
+	local rect = {
+		x = x or 0,
+		y = y or 0,
+		w = w or parent.size.w,
+		h = h or parent.size.h
+	}
+	local inputSettings = type(inputSettings) == "table" and inputSettings or { isNumeric = inputSettings }
+	inputSettings.noCursor = noCursor or false
+	inputSettings.allowMultiline = multiLine or false
+	inputSettings.darkerMode = darkerMode or false
+	inputSettings.fontId = fontid or 4
+	inputSettings.textScale = scale or 1
+	inputSettings.textColor = color or table.clone(UICOLORBLACK)
+	inputSettings.textAlign = orientation or LEFTMID
+
+	return TBMenu:spawnTextField2(parent, rect, textFieldString, defaultStr, inputSettings)
 end
 
 function TBMenu:displayTextfield(element, fontid, scale, color, defaultStr, orientation, noCursor)

@@ -91,11 +91,12 @@ require("system.events_online_manager")
 require("system.news_manager")
 require("system.market_manager")
 require("system.battlepass_manager")
---if (PLATFORM == "IPHONEOS" or PLATFORM == "ANDROID") then
+--if (is_mobile()) then
 	--require("system.hud_manager")
 	dofile("system/hud_manager.lua")
 	TBHud:init()
 --end
+require("system.ignore_manager")
 
 TB_MENU_PLAYER_INFO = {}
 TB_MENU_PLAYER_INFO.username = PlayerInfo:getUser()
@@ -187,8 +188,6 @@ if (not DEFAULT_ATMOSPHERE_ISSET) then
 		end)
 end
 
-add_hook("key_up", "tbMenuKeyboardHandler", function(s) UIElement:handleKeyUp(s) return 1 end)
-add_hook("key_down", "tbMenuKeyboardHandler", function(s) UIElement:handleKeyDown(s) return 1 end)
 add_hook("draw2d", "tbMainMenuVisual", function() UIElement:drawVisuals(TB_MENU_MAIN_GLOBALID) end)
 add_hook("draw_viewport", "tbMainMenuVisual", function() UIElement3D:drawViewport(TB_MENU_MAIN_GLOBALID) end)
 
@@ -269,10 +268,10 @@ add_hook("draw_viewport", "tbMainHubVisual", function()
 	end)
 
 -- Load miscellaneous scripts
-if (get_option("chatcensor") > 0 and not CHATIGNORE_ACTIVE) then
+--[[if (get_option("chatcensor") > 0 and not CHATIGNORE_ACTIVE) then
 	dofile("system/ignore_manager.lua")
 	ChatIgnore:activate()
-end
+end]]
 if (get_option("movememory") == 1 and not MOVEMEMORY_ACTIVE) then
 	dofile("system/movememory_manager.lua")
 	MoveMemory:spawnHotkeyListener()

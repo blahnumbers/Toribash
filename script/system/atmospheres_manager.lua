@@ -9,10 +9,11 @@ ATMO_MENU_POS = ATMO_MENU_POS or { x = 10, y = 10 }
 ATMO_LIST_SHIFT = ATMO_LIST_SHIFT or { 0 }
 
 do
-	Atmospheres = {}
+	Atmospheres = {
+		DebugHolder2D = nil
+	}
 	Atmospheres.__index = Atmospheres
-	local cln = {}
-	setmetatable(cln, Atmospheres)
+	setmetatable({}, Atmospheres)
 
 	function Atmospheres:quit()
 		for i,v in pairs(ATMO_STORED_OPTS) do
@@ -24,11 +25,11 @@ do
 			entityHolder:kill()
 		end
 		if (DEFAULT_SHADER) then
-			UIElement:runCmd("lws " .. DEFAULT_SHADER:gsub("^data/shader/", ""))
+			runCmd("lws " .. DEFAULT_SHADER:gsub("^data/shader/", ""))
 		end
-		if (TB_MENU_DEBUG and atmoDebug2dHolder) then
-			atmoDebug2dHolder:kill()
-			atmoDebug2dHolder = nil
+		if (TB_MENU_DEBUG and Atmospheres.DebugHolder2D ~= nil) then
+			Atmospheres.DebugHolder2D:kill()
+			Atmospheres.DebugHolder2D = nil
 		end
 		remove_hook("draw3d", "atmospheres")
 	end
@@ -211,7 +212,7 @@ do
 				toggle.pressedPos = toggle:getLocalPos()
 			end, function()
 				toggle.pressed = false
-				UIElement:runCmd("worldshader " .. toggleTable.id .. " " .. toggleTable[1] .. " " .. toggleTable[2] .. " " .. toggleTable[3] .. " " .. toggleTable[4])
+				runCmd("worldshader " .. toggleTable.id .. " " .. toggleTable[1] .. " " .. toggleTable[2] .. " " .. toggleTable[3] .. " " .. toggleTable[4])
 			end, function()
 				if (toggle.pressed) then
 					local xPos = MOUSE_X - toggleView.pos.x - toggle.pressedPos.x
@@ -248,7 +249,7 @@ do
 			end
 			toggle:moveTo(xPos)
 			toggleTable[i] = xPos / (toggleView.size.w - 10) * (maxVal - minVal) + minVal
-			UIElement:runCmd("worldshader " .. toggleTable.id .. " " .. toggleTable[1] .. " " .. toggleTable[2] .. " " .. toggleTable[3] .. " " .. toggleTable[4])
+			runCmd("worldshader " .. toggleTable.id .. " " .. toggleTable[1] .. " " .. toggleTable[2] .. " " .. toggleTable[3] .. " " .. toggleTable[4])
 		end)
 		return toggle
 	end
@@ -359,8 +360,6 @@ do
 		})
 		saveButton:addAdaptedText(false, TB_MENU_LOCALIZED.SHADERSSAVESHADER)
 		saveButton:addMouseHandlers(nil, function()
-				add_hook("key_up", "tbAtmospheresKeyboard", function(s) UIElement:handleKeyUp(s) return 1 end)
-				add_hook("key_down", "tbAtmospheresKeyboard", function(s) UIElement:handleKeyDown(s) return 1 end)
 				TBMenu:showConfirmationWindowInput(TB_MENU_LOCALIZED.SHADERSSAVING, TB_MENU_LOCALIZED.SHADERSINPUTNAME, function(name)
 					local name = name:gsub("%.inc.?$", "")
 					local function save()
@@ -372,18 +371,17 @@ do
 							end
 							file:close()
 						else
-							TBMenu:showDataError(TB_MENU_LOCALIZED.ERRORCREATINGFILE, true)
+							TBMenu:showStatusMessage(TB_MENU_LOCALIZED.ERRORCREATINGFILE, true)
 						end
-						remove_hooks("tbAtmospheresKeyboard")
 					end
-					local file = Files:open("../data/shader/" .. name .. ".inc", FILES_MODE_READ)
+					local file = Files:open("../data/shader/" .. name .. ".inc")
 					if (file.data) then
 						file:close()
 						TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.SHADERSERRORFILEEXISTS, save)
 					else
 						save()
 					end
-				end, function() remove_hooks("tbAtmospheresKeyboard") end)
+				end)
 			end)
 	end
 
@@ -420,7 +418,7 @@ do
 					return 1
 				end
 			end)
-		UIElement:runCmd("worldshader " .. id, false, true)
+		runCmd("worldshader " .. id, false, true)
 	end
 
 	function Atmospheres:getShaderOptionData(opt)
@@ -459,9 +457,12 @@ do
 		if (not config.data) then
 			return
 		end
-		Atmospheres:loadAtmo(config:readAll()[1]:gsub("\r", ""):gsub("\n", ""))
+		local configData = config:readAll()
+		if (configData ~= nil and configData[1] ~= nil) then
+			Atmospheres:loadAtmo(configData[1])
+			DEFAULT_ATMOSPHERE_ISSET = true
+		end
 		config:close()
-		DEFAULT_ATMOSPHERE_ISSET = true
 	end
 
 	function Atmospheres:loadAtmo(filename)
@@ -499,7 +500,7 @@ do
 		for i, entity in pairs(atmoData.entities) do
 			if (entity.count) then
 				for i = 1, entity.count do
-					local entityRandom = cloneTable(entity)
+					local entityRandom = table.clone(entity)
 					entityRandom.name = entity.name .. i
 					if (entity.rpos) then
 						entityRandom.pos = {
@@ -531,10 +532,10 @@ do
 		end
 
 		if (atmoData.shader) then
-			UIElement:runCmd("lws " .. atmoData.shader)
+			runCmd("lws " .. atmoData.shader)
 		end
 		for i,v in pairs(atmoData.shaderopts) do
-			UIElement:runCmd("worldshader " .. i .. " " .. v[1] .. " " .. v[2] .. " " .. v[3] .. " " .. v[4])
+			runCmd("worldshader " .. i .. " " .. v[1] .. " " .. v[2] .. " " .. v[3] .. " " .. v[4])
 		end
 		Atmospheres:setShaderInfo()
 		for i,v in pairs(atmoData.opts) do
@@ -563,15 +564,13 @@ do
 		})
 		entityList[entity.name] = item
 		if (TB_MENU_DEBUG) then
-			atmoDebug2dHolder = atmoDebug2dHolder and atmoDebug2dHolder or UIElement:new({
+			Atmospheres.DebugHolder2D = Atmospheres.DebugHolder2D or UIElement:new({
 				globalid = TB_MENU_HUB_GLOBALID,
 				pos = { 0, 0 },
 				size = { 0, 0 }
 			})
-			atmoDebug2dHolder:addCustomDisplay(true, function() end)
-			local itemText = UIElement:new({
-				parent = atomDebug2dHolder,
-				pos = { 0, 0 },
+			Atmospheres.DebugHolder2D:addCustomDisplay(true, function() end)
+			local itemText = Atmospheres.DebugHolder2D:addChild({
 				size = { 60, 20 }
 			})
 			itemText:addAdaptedText(true, entity.name)
@@ -633,7 +632,7 @@ do
 			_ATMO[entity.name .. "info"] = { pos = obj.pos, size = obj.size }
 			r = function()
 				local f, err = loadstring(v)
-				if (not err) then
+				if (f ~= nil and not err) then
 					return f()
 				end
 				return 0
@@ -750,7 +749,12 @@ do
 		botBar.shapeType = mainView.shapeType
 		botBar:setRounded(mainView.rounded)
 
-		local search = TBMenu:spawnTextField(botBar, 5, 5, botBar.size.w - 10, botBar.size.h - 45, nil, nil, 1, nil, nil, "Start typing to search...")
+		local search = TBMenu:spawnTextField2(botBar, {
+			x = 5,
+			y = 5,
+			w = botBar.size.w - 10,
+			h = botBar.size.h - 45
+		}, nil, "Start typing to search...")
 
 		local mainMoverHolder = UIElement:new({
 			parent = topBar,
@@ -809,7 +813,6 @@ do
 		})
 		shaderEditorButton:addAdaptedText(false, TB_MENU_LOCALIZED.SHADERSEDITOR)
 		shaderEditorButton:addMouseHandlers(nil, function()
-				remove_hooks("tbAtmospheresKeyboard")
 				mainView:kill()
 				ATMO_MENU_MAIN_ELEMENT = nil
 				Atmospheres:showShaderControls()
@@ -817,7 +820,7 @@ do
 
 		local mainList = {
 			{ text = TB_MENU_LOCALIZED.SHADERSATMOSNAME, action = function(searchText, noreload) if (not noreload) then ATMO_LIST_SHIFT[1] = 0 end ATMO_SELECTED_SCREEN = 1 Atmospheres:spawnMainList(listingHolder, toReload, elementHeight, "data/atmospheres", "atmo", function(file) Atmospheres:loadAtmo(file) Atmospheres:setDefaultAtmo(file) end, search) end },
-			{ text = TB_MENU_LOCALIZED.SHADERSNAME, action = function(searchText, noreload) if (not noreload) then ATMO_LIST_SHIFT[1] = 0 end ATMO_SELECTED_SCREEN = 2 Atmospheres:spawnMainList(listingHolder, toReload, elementHeight, "data/shader", "inc", function(file) DEFAULT_SHADER = file UIElement:runCmd("lws " .. file) end, search) end }
+			{ text = TB_MENU_LOCALIZED.SHADERSNAME, action = function(searchText, noreload) if (not noreload) then ATMO_LIST_SHIFT[1] = 0 end ATMO_SELECTED_SCREEN = 2 Atmospheres:spawnMainList(listingHolder, toReload, elementHeight, "data/shader", "inc", function(file) DEFAULT_SHADER = file runCmd("lws " .. file) end, search) end }
 		}
 		mainList[ATMO_SELECTED_SCREEN].action(nil, true)
 		local dropdownBackground = UIElement:new({
@@ -838,8 +841,6 @@ do
 		})
 		TBMenu:spawnDropdown(dropdownView, mainList, 40, WIN_H - 100, mainList[ATMO_SELECTED_SCREEN], { scale = 0.6, fontid = FONTS.BIG }, { scale = 0.8, fontid = FONTS.MEDIUM })
 
-		add_hook("key_up", "tbAtmospheresKeyboard", function(s) return(UIElement:handleKeyUp(s)) end)
-		add_hook("key_down", "tbAtmospheresKeyboard", function(s) return(UIElement:handleKeyDown(s)) end)
 		search:addKeyboardHandlers(nil, function()
 				mainList[ATMO_SELECTED_SCREEN].action(search.textfieldstr[1])
 			end)
@@ -862,7 +863,6 @@ do
 			bgImage = "../textures/menu/general/buttons/crosswhite.tga"
 		})
 		quitButton:addMouseHandlers(nil, function()
-				remove_hooks("tbAtmospheresKeyboard")
 				mainView:kill()
 				ATMO_MENU_MAIN_ELEMENT = nil
 			end)

@@ -1784,14 +1784,14 @@ do
 						end
 					end
 				end
-				if (TB_MENU_MAIN_SETTINGS.chatcensor) then
+				--[[if (TB_MENU_MAIN_SETTINGS.chatcensor) then
 					dofile("system/ignore_manager.lua")
 					if (TB_MENU_MAIN_SETTINGS.chatcensor.value > 0) then
 						ChatIgnore:activate()
 					else
 						ChatIgnore:deactivate()
 					end
-				end
+				end]]
 				if (TB_MENU_MAIN_SETTINGS.showbroadcast) then
 					dofile("system/broadcast_manager.lua")
 					if (not in_array(TB_MENU_MAIN_SETTINGS.showbroadcast.value, { 0, 4 })) then

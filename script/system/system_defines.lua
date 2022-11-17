@@ -38,6 +38,14 @@ _G.FONTS = {
 	BIGGER = 9
 }
 
+---@alias ChatMessageType
+---| 0 MSGTYPE.NONE
+---| 1 MSGTYPE.SERVER
+---| 2 MSGTYPE.URL
+---| 4 MSGTYPE.INGAME
+---| 8 MSGTYPE.USER
+---| 16 MSGTYPE.PLAYER
+
 ---Message types
 _G.MSGTYPE = {
 	NONE = 0,
@@ -113,6 +121,17 @@ function draw_text_angle_scale(text, pos_x, pos_y, angle, scale, font_type) end
 ---@param size_x number
 ---@param size_y number
 function set_viewport(pos_x, pos_y, size_x, size_y) end
+
+---Draws a 3D line from point A to point B with the specified width. \
+---*This function doesn't get batched in backend so you likely want to call it from `post_draw3d` hook instead of `draw3d` to ensure proper rendering*
+---@param start_x number
+---@param start_y number
+---@param start_z number
+---@param end_x number
+---@param end_y number
+---@param end_z number
+---@param width number
+function draw_line_3d(start_x, start_y, start_z, end_x, end_y, end_z, width) end
 
 ---Draws a 3D sphere with the specified settings
 ---@param pos_x number
@@ -319,6 +338,10 @@ function freeze_game() end
 ---Unpauses game
 function unfreeze_game() end
 
+---Returns value depending on game freeze state
+---@return integer
+function is_game_frozen() end
+
 ---Steps game \
 ---Pass `true` to simulate SHIFT + SPACE behavior
 ---@param single_frame ?boolean
@@ -365,6 +388,17 @@ function set_ghost(mode) end
 ---@return number
 function get_replay_cache() end
 
+---Renames a replay file
+---@param filename string
+---@param new_filename string
+---@return any result
+function rename_replay(filename, new_filename) end
+
+---Deletes a replay file
+---@param filename string
+---@return any result
+function delete_replay(filename) end
+
 --[[ CUSTOMIZATION RELATED FUNCTIONS ]]
 
 ---Returns joint color IDs
@@ -396,7 +430,17 @@ function get_color_info(colorid) end
 function get_color_rgba(colorid) end
 
 
---[[ MOBILE FILE IO ]]
+--[[ MOBILE FILE IO AND GENERAL FILE IO OVERRIDES ]]
+
+---Opens a file, in the mode specified in the string `mode`. \
+---*This is a modified version of default `io.open()` function that starts file lookup at `data/script` directory by default.* \
+---[View documents](command:extension.lua.doc?["en-us/51/manual.html/pdf-io.open"])
+---@param filename string
+---@param mode?    openmode
+---@param root?    integer Pass `1` to open file at Toribash root folder
+---@return file*?
+---@return string? errmsg
+function io.open(filename, mode, root) end
 
 ---Attempts to open a file at location and returns the index on success or nil on failure
 ---@param path string
@@ -484,6 +528,10 @@ function get_keyboard_ctrl() end
 ---Check whether caps lock is currently on
 ---@return integer
 function get_keyboard_capslock() end
+
+---Returns current clipboard text contents
+---@return string|nil
+function get_clipboard_text() end
 
 
 --[[ BITWISE LUA FUNCTIONS ]]
@@ -777,6 +825,7 @@ function set_language(language, deferred) end
 ---| 17 DISPLAY_MOD_MAKER
 ---| 18 DISPLAY_LOGIN
 ---| 19 DISPLAY_MAIN
+---| 20 DISPLAY_CHAT
 
 ---Opens a game menu
 ---@param id MenuId
@@ -788,6 +837,15 @@ function open_menu(id) end
 ---@param data ?string
 ---@param useLuaNetwork ?boolean
 function open_dialog_box(action, message, data, useLuaNetwork) end
+
+---Returns screen coordinates of a point in 3D world
+---@param pos_x number
+---@param pos_y number
+---@param pos_z number
+---@return integer x
+---@return integer y
+---@return integer z
+function get_screen_pos(pos_x, pos_y, pos_z) end
 
 
 --[[ DISCORD FUNCTIONS ]]
@@ -847,6 +905,8 @@ function discord_reject_join(discordId) end
 ---| "filebrowser_select" #Called on platform-specific file browser exit
 ---| "mod_trigger" #Called when a mod trigger is invoked
 ---| "resolution_changed" #Called when game resolution is updated
+---| "console_post" #Called after a non-discarded console hook call
+---| "text_input" #Called when text input event is received
 
 ---Adds a Lua callback listener \
 ---*Only one function per event / set_name pair is supported*
@@ -873,3 +933,49 @@ function get_hooks() end
 ---@param event string
 ---@param ... any Callback arguments
 function call_hook(event, ...) end
+
+
+--[[ RAY CASTING ]]
+
+---@alias ODEBodyType
+---| 0 Sphere
+---| 1 Box
+---| 2 Capped Cylinder
+
+---Creates a geometry body that can be used for Lua raycasting and returns its id on success
+---@param type ODEBodyType
+---@param pos_x number
+---@param pos_y number
+---@param pos_z number
+---@param size_x number Radius for sphere or ccylinder, X dimension for box
+---@param size_y ?number Length for ccylinder, Y dimension for box
+---@param size_z ?number Z dimension for box
+---@param rot_x ?number
+---@param rot_y ?number
+---@param rot_z ?number
+---@return integer|nil
+function create_raycast_body(type, pos_x, pos_y, pos_z, size_x, size_y, size_z, rot_x, rot_y, rot_z) end
+
+---Destroys a geometry body created by `create_raycast_body()` call
+---@param geomid integer
+function destroy_raycast_body(geomid) end
+
+---Shoots a ray from `start` to `end`
+---@param start_x number
+---@param start_y number
+---@param start_z number
+---@param end_x number
+---@param end_y number
+---@param end_z number
+---@param ... integer Geom ids that should be ignored during raycasting
+---@return integer|nil geomId Geom id that was hit first
+---@return number|nil distance Distance from point `start` to the returned `geomId`
+function shoot_ray(start_x, start_y, start_z, end_x, end_y, end_z, ...) end
+
+---Shoots a ray from current camera position to a position in the world that corresponds to provided screen position
+---@param pos_x integer
+---@param pos_y integer
+---@param length ?number Maximum ray length
+---@return integer|nil geomId Geom id that was hit first
+---@return number|nil distance Distance from camera to the returned `geomId`
+function shoot_camera_ray(pos_x, pos_y, length) end
