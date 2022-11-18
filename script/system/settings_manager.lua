@@ -1255,6 +1255,7 @@ do
 				text = v.newMenuDisabled and v.name .. " (" .. TB_MENU_LOCALIZED.SETTINGSBASEHUDONLY .. ")" or v.name,
 				action = function()
 						set_language(v.name)
+						TBMenu:getTranslation(get_language())
 						save_custom_config()
 						reload_graphics()
 						Settings:settingsApplyActivate()

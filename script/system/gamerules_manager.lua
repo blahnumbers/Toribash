@@ -803,10 +803,14 @@ function Gamerules:showMain()
 		rounded = 3
 	})
 	local search = TBMenu:spawnTextField2(searchHolder, { x = 5, y = 5, w = searchHolder.size.w - 10, h = searchHolder.size.h - 45 }, nil, TB_MENU_LOCALIZED.SEARCHNOTE)
+	local lastSearch = search.textfieldstr[1]
 	search:addKeyboardHandlers(nil, function()
-			GAMERULES_LIST_SHIFT[1] = 0
-			Gamerules:spawnMainList(listingHolder, toReload, gameRulesName, elementHeight, search, gamerules, changedValues)
-			search.btnDown()
+			if (lastSearch ~= search.textfieldstr[1]) then
+				lastSearch = search.textfieldstr[1]
+				GAMERULES_LIST_SHIFT[1] = 0
+				Gamerules:spawnMainList(listingHolder, toReload, gameRulesName, elementHeight, search, gamerules, changedValues)
+				search.btnDown()
+			end
 		end)
 	Gamerules:spawnMainList(listingHolder, toReload, gameRulesName, elementHeight, nil, gamerules, changedValues)
 
