@@ -272,8 +272,8 @@ if (not UIElement) then
 	---@field downSound integer Sound ID to play when object enters BTN_DN mouse hover state
 	---@field clickThrough boolean If true, successful click on an object will not exit mouse loop early
 	---@field hoverThrough boolean If true, hovering over an object will not exit mouse loop early
-	---@field displayed boolean Whether the object is currently displayed
-	---@field destroyed boolean Internal flag to indicate the object has been destroyed. Use this to check whether the UIElement still exists when a UIElement:kill() function may have been called on its reference elsewhere.
+	---@field displayed boolean Read-only value to tell if the object is currently being displayed
+	---@field destroyed boolean Read-only value to indicate the object has been destroyed. Use this to check whether the UIElement still exists when a UIElement:kill() function may have been called on its reference elsewhere.
 	---@field killAction function Additional callback to be executed when object is being destroyed
 	---@field scrollBar UIElement Reference to scrollable list holder's scroll bar
 	UIElement = {
@@ -294,6 +294,9 @@ end
 ---Callback function triggered on text input event while UIElement is active and focused
 ---@param input string
 UIElement.textInput = function(input) end
+
+---Custom callback function triggered on text input event while UIElement is active and focused
+UIElement.textInputCustom = function() end
 
 -- Callback function triggered on any keyboard key down event while UIElement is active
 ---@param key number Pressed key's keycode
@@ -420,7 +423,13 @@ function UIElement:new(o)
 			elem.textfieldindex = UTF8.Len(elem.textfieldstr[1])
 			elem.textfieldsingleline = o.textfieldsingleline
 			elem.textInput = function(input) elem:textfieldInput(input, o.isNumeric, o.allowNegative, o.allowDecimal) end
-			elem.keyDown = function(key) elem:textfieldKeyDown(key) end
+			elem.keyDown = function(key)
+					if (elem:textfieldKeyDown(key) and elem.textInputCustom) then
+						-- We have updated textfield input and have a custom text input function defined
+						-- Fire a textInputCustom() call for seamless behavior across all input field actions
+						elem.textInputCustom()
+					end
+				end
 			elem.keyUp = function(key) elem:textfieldKeyUp(key) end
 			table.insert(UIKeyboardHandler, elem)
 		end
@@ -611,6 +620,14 @@ function UIElement:addKeyboardHandlers(keyDown, keyUp)
 	end
 end
 
+---Adds input handler to use for a textfield object
+---@param func? function
+function UIElement:addInputCallback(func)
+	if (func) then
+		self.textInputCustom = func
+	end
+end
+
 -- Adds enter key handler for an interactive UIElement object
 ---@param func function
 function UIElement:addEnterAction(func)
@@ -720,21 +737,18 @@ function UIElement:reloadListElements(listHolder, listElements, toReload, enable
 	local checkPos = math.abs(math.ceil(-shiftVal / listElementSize))
 
 	for i = #enabled, 1, -1 do
-		enabled[i]:hide()
-		enabled[i].listDisplayed = false
+		enabled[i]:hide(true)
 		table.remove(enabled)
 	end
 
 	if (checkPos > 0 and checkPos * listElementSize + shiftVal > 0) then
 		if (listElements[checkPos]) then
-			listElements[checkPos]:show()
-			listElements[checkPos].listDisplayed = true
+			listElements[checkPos]:show(true)
 			table.insert(enabled, listElements[checkPos])
 		end
 	end
 	while ((shiftVal + checkPos * listElementSize >= 0) and ((orientation == SCROLL_VERTICAL and listHolder.shift.y or listHolder.shift.x) + checkPos * listElementSize <= 0) and (checkPos < #listElements)) do
-		listElements[checkPos + 1]:show()
-		listElements[checkPos + 1].listDisplayed = true
+		listElements[checkPos + 1]:show(true)
 		table.insert(enabled, listElements[checkPos + 1])
 		checkPos = checkPos + 1
 	end
@@ -1320,6 +1334,9 @@ function UIElement:hide(noreload)
 	if (noreload) then
 		self.noreload = true
 	end
+	if (self.displayed == false) then
+		return
+	end
 
 	if (self.interactive or self.keyboard) then
 		self:deactivate()
@@ -1429,12 +1446,14 @@ function UIElement:textfieldInput(input, isNumeric, allowNegative, allowDecimal)
 		-- We are likely dealing with keyboard autocompletion
 		-- Let's try to guess which part of the text we need to replace
 		local text = UTF8.Sub(self.textfieldstr[1], 0, self.textfieldindex)
-		local lastWordStart = string.gsub(text, ".*(%w+)$", "%1")
-		local textFromLastWord = UTF8.Sub(self.textfieldstr[1], self.textfieldindex - UTF8.Len(lastWordStart))
-		local lastWord = string.gsub(textFromLastWord, "^(%w)", "%1")
-		if (lastWord ~= nil) then
-			replaceSymbols = UTF8.Len(lastWordStart)
-			replaceSymbolsAfter = UTF8.Len(lastWord) - replaceSymbols
+		local lastWordStart, lastWordReplacements = string.gsub(text, ".*(%w+)$", "%1")
+		if (lastWordReplacements ~= 0) then
+			local textFromLastWord = UTF8.Sub(self.textfieldstr[1], self.textfieldindex - UTF8.Len(lastWordStart))
+			local lastWord, replacements = string.gsub(textFromLastWord, "^(%w)", "%1")
+			if (lastWord ~= nil and replacements ~= 0) then
+				replaceSymbols = UTF8.Len(lastWordStart)
+				replaceSymbolsAfter = UTF8.Len(lastWord) - replaceSymbols
+			end
 		end
 	end
 	if (negativeSign and self.textfieldindex - replaceSymbols == 0) then
@@ -1450,27 +1469,33 @@ end
 ---Key down event handler for text field elements. \
 ---*You likely don't need to call this function manually.*
 ---@param key integer
+---@return boolean
 ---@see UIElement.keyboardHooks
 function UIElement:textfieldKeyDown(key)
 	if (key == 8) then -- SDLK_BACKSPACE
 		if (self.textfieldindex > 0) then
 			self.textfieldstr[1] = UTF8.Sub(self.textfieldstr[1], 0, self.textfieldindex - 1) .. UTF8.Sub(self.textfieldstr[1], self.textfieldindex + 1)
 			self.textfieldindex = self.textfieldindex - 1
+			return true
 		end
 	elseif (key == 127 or key == 266) then -- SDLK_DELETE
 		self.textfieldstr[1] = UTF8.Sub(self.textfieldstr[1], 0, self.textfieldindex) .. UTF8.Sub(self.textfieldstr[1], self.textfieldindex + 2)
+		return true
 	elseif (key == 276) then -- arrow left
 		self.textfieldindex = self.textfieldindex > 0 and self.textfieldindex - 1 or 0
 	elseif (key == 275) then -- arrow right
 		self.textfieldindex = self.textfieldindex < UTF8.Len(self.textfieldstr[1]) and self.textfieldindex + 1 or self.textfieldindex
 	elseif (key == 13 or key == 271 and not self.textfieldsingleline) then -- newline
 		self:textfieldUpdate("\n")
+		return true
 	elseif (key == 118 and get_keyboard_ctrl()) then -- CTRL + V
 		local clipboard = get_clipboard_text()
 		if (clipboard ~= nil) then
 			self:textfieldUpdate(clipboard)
+			return true
 		end
 	end
+	return false
 end
 
 ---Internal UIElement loop to handle key up callback. \
@@ -1519,6 +1544,9 @@ function UIElement.handleInput(input)
 	for i,v in pairs(table.reverse(UIKeyboardHandler)) do
 		if (v.keyboard == true) then
 			v.textInput(input)
+			if (v.textInputCustom) then
+				v.textInputCustom()
+			end
 			return 1
 		end
 	end

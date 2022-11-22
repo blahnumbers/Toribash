@@ -129,9 +129,9 @@ do
 	end
 
 	-- Emergency exit for currently active network request
-	---@return RequestData #RequestData table for the cancelled request
+	---@return RequestData|nil
 	function Request:cancelCurrentRequest()
-		for i,v in pairs(TB_NETWORK_REQUEST_QUEUE) do
+		for _ ,v in pairs(TB_NETWORK_REQUEST_QUEUE) do
 			if (v.response.id == TB_NETWORK_LASTREQUEST) then
 				Request:finalize(v.name)
 				return v

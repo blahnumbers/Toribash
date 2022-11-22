@@ -2716,7 +2716,9 @@ function TBMenu:showMain(noload)
 	end
 end
 
--- Displays login error
+---Displays login error. Typically used to block large UI buttons that are only available for logged in users.
+---@param viewElement UIElement
+---@param actionStr string
 function TBMenu:showLoginError(viewElement, actionStr)
 	viewElement:kill(true)
 	local background = UIElement:new({
@@ -2751,6 +2753,29 @@ function TBMenu:showLoginError(viewElement, actionStr)
 		end)
 end
 
+---@class DropdownElement
+---@field default boolean
+---@field text string
+---@field action function
+---@field element UIElement
+
+---@class DropdownSettings
+---@field fontid FontId
+---@field scale number
+---@field alignment UIElementTextAlign
+---@field orientation UIElementTextAlign Deprecated, use `alignment` instead. Will be removed with future releases.
+---@field uppercase boolean
+
+---@param holderElement UIElement
+---@param listElements DropdownElement
+---@param elementHeight number
+---@param maxHeight ?number
+---@param selectedItem ?integer|DropdownElement
+---@param textSettings ?DropdownSettings
+---@param listTextSettings ?DropdownSettings
+---@param keepFocus ?boolean
+---@param noOverlaying ?boolean
+---@return UIElement
 function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHeight, selectedItem, textSettings, listTextSettings, keepFocus, noOverlaying)
 	local listElementsDisplay = {}
 	for i,v in pairs(listElements) do
@@ -2770,12 +2795,14 @@ function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHei
 	local textSettings = textSettings or {}
 	textSettings.fontid = textSettings.fontid or 4
 	textSettings.scale = textSettings.scale or 1
-	textSettings.orientation = textSettings.orientation or LEFTMID
+	textSettings.alignment = textSettings.alignment or textSettings.orientation or LEFTMID
+	textSettings.uppercase = textSettings.uppercase == nil and true or textSettings.uppercase
 
 	local listTextSettings = listTextSettings or {}
 	listTextSettings.fontid = listTextSettings.fontid or 4
 	listTextSettings.scale = listTextSettings.scale or 1
-	listTextSettings.orientation = listTextSettings.orientation or CENTERMID
+	listTextSettings.alignment = listTextSettings.alignment or listTextSettings.orientation or CENTERMID
+	listTextSettings.uppercase = listTextSettings.uppercase == nil and true or listTextSettings.uppercase
 
 	local overlay = UIElement:new({
 		parent = holderElement,
@@ -2838,7 +2865,7 @@ function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHei
 		pos = { 10, 2 },
 		size = { selectedElement.size.w - selectedElement.size.h - 10, selectedElement.size.h - 4 }
 	})
-	selectedElementText:addAdaptedText(false, selectedItem.text:upper(), nil, nil, textSettings.fontid, textSettings.orientation, textSettings.scale)
+	selectedElementText:addAdaptedText(false, textSettings.uppercase and selectedItem.text:upper() or selectedItem.text, nil, nil, textSettings.fontid, textSettings.alignment, textSettings.scale)
 	local selectedElementArrow = UIElement:new({
 		parent = selectedElement,
 		pos = { -selectedElement.size.h, 0 },
@@ -2893,10 +2920,10 @@ function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHei
 			element.uiColor = table.clone(UICOLORBLACK)
 			element:deactivate(true)
 		end
-		element:addChild({ shift = { 10, 1 }}):addAdaptedText(false, v.text:upper(), nil, nil, listTextSettings.fontid, listTextSettings.orientation, listTextSettings.scale)
+		element:addChild({ shift = { 10, 1 }}):addAdaptedText(false, listTextSettings.uppercase and v.text:upper() or v.text, nil, nil, listTextSettings.fontid, listTextSettings.alignment, listTextSettings.scale)
 		element:addMouseHandlers(nil, function()
 				overlay:hide(true)
-				selectedElementText:addAdaptedText(false, v.text:upper(), nil, nil, textSettings.fontid, textSettings.orientation, textSettings.scale)
+				selectedElementText:addAdaptedText(false, listTextSettings.uppercase and v.text:upper() or v.text, nil, nil, textSettings.fontid, textSettings.alignment, textSettings.scale)
 				selectedElement:show()
 				if (selectedItem == v) then
 					return
@@ -3571,12 +3598,13 @@ local TextFieldDefaultInputSettings = {
 
 ---Generates a generic text field UIElement.
 ---@param parent UIElement
----@param rect Rect
+---@param rect ?Rect
 ---@param textFieldString ?string|string[]
 ---@param defaultString ?string
 ---@param inputSettings ?TextFieldInputSettings
 ---@return UIElement
 function TBMenu:spawnTextField2(parent, rect, textFieldString, defaultString, inputSettings)
+	local rect = rect or { }
 	local inputSettings = inputSettings or TextFieldDefaultInputSettings
 	local textBg = UIElement:new({
 		parent = parent,
