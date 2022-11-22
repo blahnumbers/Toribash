@@ -1317,8 +1317,8 @@ function UIElement:show(forceReload)
 		end
 	end
 
-	for i,v in pairs(self.child) do
-		v:show(forceReload)
+	for _, v in pairs(self.child) do
+		v:show()
 	end
 	self.displayed = true
 	return self.displayed
@@ -1327,8 +1327,8 @@ end
 ---Disables display of current UIElement and all its children
 ---@param noreload ?boolean Whether this UIElement should ignore subsequent `show()` calls that don't have override on
 function UIElement:hide(noreload)
-	for i,v in pairs(self.child) do
-		v:hide(noreload)
+	for _, v in pairs(self.child) do
+		v:hide()
 	end
 
 	if (noreload) then

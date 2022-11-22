@@ -342,6 +342,10 @@ end
 
 ---Displays touch controls wheel
 function Tooltip:showTouchControls()
+	if (get_world_state().replay_mode == 1) then
+		Tooltip.TouchInputTargetJoint = -1
+		Tooltip.TouchInputTargetPlayer = -1
+	end
 	if (Tooltip.GrabDisplayActive or Tooltip.TouchInputTargetPlayer < 0 or Tooltip.TouchInputTargetJoint < 0 or Tooltip.TouchInputTargetJoint >= 20) then
 		return
 	end
