@@ -652,6 +652,112 @@ function bit.bswap(x) end
 function bit.tohex(x, n) end
 
 
+--[[ UTF8 FUNCTIONS ]]
+
+---**UTF-8 module for Lua 5.x** \
+---Many of the functions are identical to [stringlib](command:extension.lua.doc?["en-us/51/manual.html/pdf-string"]) in terms of use.
+---
+---[View more on GitHub](https://github.com/starwing/luautf8)
+---@class utf8lib
+utf8 = {}
+
+---Returns a string with length equal to the number of arguments, in which each character has the internal numeric code equal to its corresponding argument.
+---@param s  string
+---@param i? integer
+---@param j? integer
+---@return integer ...
+---@nodiscard
+function utf8.byte(s, i, j) end
+
+---Returns a string with length equal to the number of arguments, in which each character has the internal numeric code equal to its corresponding argument.
+---@param byte integer
+---@param ... integer
+---@return string
+---@nodiscard
+function utf8.char(byte, ...) end
+
+---Looks for the first match of `pattern` (see [§6.4.1](command:extension.lua.doc?["en-us/51/manual.html/6.4.1"])) in the string.
+---@param s       string
+---@param pattern string
+---@param init?   integer
+---@param plain?  boolean
+---@return integer start
+---@return integer end
+---@return any ... captured
+---@nodiscard
+function utf8.find(s, pattern, init, plain) end
+
+---Returns an iterator function that, each time it is called, returns the next captures from `pattern` (see [§6.4.1](command:extension.lua.doc?["en-us/51/manual.html/6.4.1"])) over the string s.
+---@param s       string
+---@param pattern string
+---@return fun():string, ...
+---@nodiscard
+function utf8.gmatch(s, pattern) end
+
+---Returns a copy of s in which all (or the first `n`, if given) occurrences of the `pattern` (see [§6.4.1](command:extension.lua.doc?["en-us/51/manual.html/6.4.1"])) have been replaced by a replacement string specified by `repl`.
+---@param s       string
+---@param pattern string
+---@param repl    string|number|table|function
+---@param n?      integer
+---@return string
+---@return integer count
+---@nodiscard
+function utf8.gsub(s, pattern, repl, n) end
+
+---Returns its length.
+---@param s string
+---@return integer
+---@nodiscard
+function utf8.len(s) end
+
+---Returns a copy of this string with all uppercase letters changed to lowercase.
+---@param s string
+---@return string
+---@nodiscard
+function utf8.lower(s) end
+
+---Looks for the first match of `pattern` (see [§6.4.1](command:extension.lua.doc?["en-us/51/manual.html/6.4.1"])) in the string.
+---@param s       string
+---@param pattern string
+---@param init?   integer
+---@return any ...
+---@nodiscard
+function utf8.match(s, pattern, init) end
+
+---Returns a string that is the string `s` reversed.
+---@param s string
+---@return string
+---@nodiscard
+function utf8.reverse(s) end
+
+---Returns the substring of the string that starts at `i` and continues until `j`.
+---@param s  string
+---@param i  integer
+---@param j? integer
+---@return string
+---@nodiscard
+function utf8.sub(s, i, j) end
+
+---Returns a copy of this string with all lowercase letters changed to uppercase.
+---@param s string
+---@return string
+---@nodiscard
+function utf8.upper(s) end
+
+---Escapes a str to UTF-8 format string. Supported formats:
+--- -`%ddd` - which ddd is a decimal number at any length: change Unicode code point to UTF-8 format.
+--- - `%{ddd}` - same as `%nnn` but has bracket around.
+--- - `%uddd` - same as `%ddd`, u stands Unicode
+--- - `%u{ddd}` - same as `%{ddd}`
+--- - `%xhhh` - hexadigit version of `%ddd`
+--- - `%x{hhh}` same as `%xhhh`.
+--- `%?` - '?' stands for any other character: escape this character.
+---@param str string
+---@return string
+---@nodiscard
+function utf8.escape(str) end
+
+
 --[[ OPTION FUNCTIONS ]]
 
 ---Saves current settings to config file

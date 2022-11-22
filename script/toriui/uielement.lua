@@ -1,6 +1,5 @@
 -- Toribash UI manager
 -- Created by sir @ Nabi Studios
-require("toriui.utf8")
 
 local w, h = get_window_size()
 ---Window width that UIElement class currently operates with. \
@@ -420,7 +419,7 @@ function UIElement:new(o)
 			elem.textfield = o.textfield
 			---@diagnostic disable-next-line: assign-type-mismatch
 			elem.textfieldstr = o.textfieldstr and (type(o.textfieldstr) == "table" and o.textfieldstr or { o.textfieldstr .. '' }) or { "" }
-			elem.textfieldindex = UTF8.Len(elem.textfieldstr[1])
+			elem.textfieldindex = utf8.len(elem.textfieldstr[1])
 			elem.textfieldsingleline = o.textfieldsingleline
 			elem.textInput = function(input) elem:textfieldInput(input, o.isNumeric, o.allowNegative, o.allowDecimal) end
 			elem.keyDown = function(key)
@@ -1396,23 +1395,21 @@ end
 ---@param consumeSymbols ?integer How many symbols before the cursor have to be consumed
 ---@param consumeSymbolsAfter ?integer How many symbols after the cursor have to be consumed
 function UIElement:textfieldUpdate(input, consumeSymbols, consumeSymbolsAfter)
-	-- First make sure we don't have any broken symbols
-	local utf8Input = UTF8.Force(input)
-	local strLen = UTF8.Len(utf8Input) -- Should be safe to discard result, string is UTF8 compliant
+	local strLen = utf8.len(input)
 
 	local consumeSymbols = consumeSymbols or 0
 	local consumeSymbolsAfter = consumeSymbolsAfter or 0
-	local part1 = UTF8.Sub(self.textfieldstr[1], 0, self.textfieldindex - consumeSymbols)
-	local part2 = UTF8.Sub(self.textfieldstr[1], self.textfieldindex + 1 + consumeSymbolsAfter)
-	self.textfieldstr[1] = part1 .. utf8Input .. part2
+	local part1 = utf8.sub(self.textfieldstr[1], 0, self.textfieldindex - consumeSymbols)
+	local part2 = utf8.sub(self.textfieldstr[1], self.textfieldindex + 1 + consumeSymbolsAfter)
+	self.textfieldstr[1] = part1 .. input .. part2
 	self.textfieldindex = self.textfieldindex - consumeSymbols + strLen
 
 	-- Double check we didn't get any newlines if content was pasted
 	if (self.textfieldsingleline) then
 		local replacements = 0
-		self.textfieldstr[1], replacements = string.gsub(self.textfieldstr[1], "\\n", "")
+		self.textfieldstr[1], replacements = utf8.gsub(self.textfieldstr[1], "\\n", "")
 		self.textfieldindex = self.textfieldindex - 2 * replacements
-		self.textfieldstr[1], replacements = string.gsub(self.textfieldstr[1], "\n", "")
+		self.textfieldstr[1], replacements = utf8.gsub(self.textfieldstr[1], "\n", "")
 		self.textfieldindex = self.textfieldindex - replacements
 	end
 end
@@ -1430,32 +1427,30 @@ function UIElement:textfieldInput(input, isNumeric, allowNegative, allowDecimal)
 	local negativeSign = false
 	local clipboardPaste = get_clipboard_text() == input
 
-	-- Make sure input is a UTF8 string
-	local input = UTF8.Force(input)
-	local strLen = UTF8.Len(input)
+	local strLen = utf8.len(input)
 	if (isNumeric) then
 		if (allowNegative and input:find("^-")) then
 			negativeSign = true
 		end
 		local regexMatch = "[^0-9" .. (allowDecimal and "%." or "") .. "]"
-		input = string.gsub(input, regexMatch, "")
+		input = utf8.gsub(input, regexMatch, "")
 	end
 	if (strLen == 0 and not negativeSign) then
 		return
 	elseif (strLen > 1 and not clipboardPaste) then
 		-- We are likely dealing with keyboard autocompletion
 		-- Let's try to guess which part of the text we need to replace
-		local text = UTF8.Sub(self.textfieldstr[1], 0, self.textfieldindex)
-		local lastWordStart, lastWordReplacements = string.gsub(text, "^.*[^%'%w]([%w%']+)$", "%1")
+		local text = utf8.sub(self.textfieldstr[1], 0, self.textfieldindex)
+		local lastWordStart, lastWordReplacements = utf8.gsub(text, "^.*[^%'%w]([%w%']+)$", "%1")
 		if (lastWordReplacements == 0) then
-			lastWordStart, lastWordReplacements = string.gsub(text, "^([%w%']+)$", "%1")
+			lastWordStart, lastWordReplacements = utf8.gsub(text, "^([%w%']+)$", "%1")
 		end
 		if (lastWordReplacements ~= 0) then
-			local textFromLastWord = UTF8.Sub(self.textfieldstr[1], self.textfieldindex - UTF8.Len(lastWordStart) + 1)
-			local lastWord, replacements = string.gsub(textFromLastWord, "^([%w%'])", "%1")
+			local textFromLastWord = utf8.sub(self.textfieldstr[1], self.textfieldindex - utf8.len(lastWordStart) + 1)
+			local lastWord, replacements = utf8.gsub(textFromLastWord, "^([%w%'])", "%1")
 			if (lastWord ~= nil and replacements ~= 0) then
-				replaceSymbols = UTF8.Len(lastWordStart)
-				replaceSymbolsAfter = UTF8.Len(lastWord) - replaceSymbols
+				replaceSymbols = utf8.len(lastWordStart)
+				replaceSymbolsAfter = utf8.len(lastWord) - replaceSymbols
 			end
 		end
 	end
@@ -1463,7 +1458,7 @@ function UIElement:textfieldInput(input, isNumeric, allowNegative, allowDecimal)
 		input = "-" .. input
 	end
 
-	if (UTF8.Len(input) == 0) then
+	if (utf8.len(input) == 0) then
 		return
 	end
 	self:textfieldUpdate(input, replaceSymbols, replaceSymbolsAfter)
@@ -1477,17 +1472,17 @@ end
 function UIElement:textfieldKeyDown(key)
 	if (key == 8) then -- SDLK_BACKSPACE
 		if (self.textfieldindex > 0) then
-			self.textfieldstr[1] = UTF8.Sub(self.textfieldstr[1], 0, self.textfieldindex - 1) .. UTF8.Sub(self.textfieldstr[1], self.textfieldindex + 1)
+			self.textfieldstr[1] = utf8.sub(self.textfieldstr[1], 0, self.textfieldindex - 1) .. utf8.sub(self.textfieldstr[1], self.textfieldindex + 1)
 			self.textfieldindex = self.textfieldindex - 1
 			return true
 		end
 	elseif (key == 127 or key == 266) then -- SDLK_DELETE
-		self.textfieldstr[1] = UTF8.Sub(self.textfieldstr[1], 0, self.textfieldindex) .. UTF8.Sub(self.textfieldstr[1], self.textfieldindex + 2)
+		self.textfieldstr[1] = utf8.sub(self.textfieldstr[1], 0, self.textfieldindex) .. utf8.sub(self.textfieldstr[1], self.textfieldindex + 2)
 		return true
 	elseif (key == 276) then -- arrow left
 		self.textfieldindex = self.textfieldindex > 0 and self.textfieldindex - 1 or 0
 	elseif (key == 275) then -- arrow right
-		self.textfieldindex = self.textfieldindex < UTF8.Len(self.textfieldstr[1]) and self.textfieldindex + 1 or self.textfieldindex
+		self.textfieldindex = self.textfieldindex < utf8.len(self.textfieldstr[1]) and self.textfieldindex + 1 or self.textfieldindex
 	elseif (key == 13 or key == 271 and not self.textfieldsingleline) then -- newline
 		self:textfieldUpdate("\n")
 		return true
@@ -1870,7 +1865,7 @@ function UIElement:uiText(input, x, y, font, align, scale, angle, shadow, col1, 
 	if (self.textfield and font_mod * 10 * scale * #str > self.size.h) then
 		local tfstrlen = 0
 		for i, v in pairs(str) do
-			tfstrlen = tfstrlen + UTF8.Len(v)
+			tfstrlen = tfstrlen + utf8.len(v)
 			if (self.textfieldindex < tfstrlen) then
 				startLine = i - math.floor(self.size.h / font_mod / 10 / scale) + 1
 				if (startLine < 1) then
@@ -2204,7 +2199,7 @@ _G.textAdapt = function(str, font, scale, maxWidth, check, textfield, singleLine
 		local newlined = checkstr:match("^.*\n")
 		word = checkstr:match("^%s*%S+%s*")
 		if (newlined) then
-			if (UTF8.Len(newlined) < UTF8.Len(word)) then
+			if (utf8.len(newlined) < utf8.len(word)) then
 				word = newlined
 			end
 		end
@@ -2225,7 +2220,7 @@ _G.textAdapt = function(str, font, scale, maxWidth, check, textfield, singleLine
 		local targetIndex = 1
 		while (strlen > maxWidth) do
 			local step = 2
-			local len = UTF8.Len(str)
+			local len = utf8.len(str)
 			local reverseStep = len
 			if (strlen > maxWidth) then
 				step = len - math.ceil(len / strlen * maxWidth)
@@ -2238,7 +2233,7 @@ _G.textAdapt = function(str, font, scale, maxWidth, check, textfield, singleLine
 					break
 				end
 			end
-			str = UTF8.Sub(str, step, reverseStep)
+			str = utf8.sub(str, step, reverseStep)
 			strlen = get_string_length(str, font) * scale
 		end
 		return { str }
@@ -2255,18 +2250,18 @@ _G.textAdapt = function(str, font, scale, maxWidth, check, textfield, singleLine
 			local _, words = word:gsub("%s", "")
 			if (words == 0) then
 				while (get_string_length(word:gsub("%s*$", ""), font) * scale > maxWidth) do
-					word = UTF8.Sub(word, 1, UTF8.Len(word) - 1)
+					word = utf8.sub(word, 1, utf8.len(word) - 1)
 				end
 			else
 				while (words > 0 and get_string_length(word:gsub("%s*$", ""), font) * scale > maxWidth) do
 					local pos = word:find("%s")
-					if (pos == UTF8.Len(word)) then
+					if (pos == utf8.len(word)) then
 						break
 					end
-					word = UTF8.Sub(word, 1, pos)
+					word = utf8.sub(word, 1, pos)
 				end
 				while (get_string_length(word:gsub("%s*$", ""), font) * scale > maxWidth) do
-					word = UTF8.Sub(word, 1, UTF8.Len(word) - 1)
+					word = utf8.sub(word, 1, utf8.len(word) - 1)
 				end
 			end
 		end
@@ -2277,7 +2272,7 @@ _G.textAdapt = function(str, font, scale, maxWidth, check, textfield, singleLine
 		else
 			newStr = newStr .. word
 		end
-		str = UTF8.Sub(str, UTF8.Len(word) + 1)
+		str = utf8.sub(str, utf8.len(word) + 1)
 		newline = word:match("\n") or word:match("\\n")
 	end
 	table.insert(destStr, newStr)
@@ -2285,7 +2280,7 @@ _G.textAdapt = function(str, font, scale, maxWidth, check, textfield, singleLine
 	if (TB_MENU_DEBUG) then
 		local clockdebugend = os.clock()
 		if (clockdebugend - clockdebug > 0.01) then
-			echo("Warning: slow text adapt call on string " .. UTF8.Sub(destStr[1], 1, 10) .. " - " .. clockdebugend - clockdebug .. " seconds")
+			echo("Warning: slow text adapt call on string " .. utf8.sub(destStr[1], 1, 10) .. " - " .. clockdebugend - clockdebug .. " seconds")
 		end
 	end
 

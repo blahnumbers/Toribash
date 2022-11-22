@@ -3711,8 +3711,8 @@ function TBMenu:displayTextfield(element, fontid, scale, color, defaultStr, orie
 					draw_quad(element.parent.pos.x, element.parent.pos.y, element.parent.size.w, element.parent.size.h)
 				end
 
-				local part1 = UTF8.Sub(element.textfieldstr[1], 0, element.textfieldindex)
-				local part2 = UTF8.Sub(element.textfieldstr[1], element.textfieldindex + 1)
+				local part1 = utf8.sub(element.textfieldstr[1], 0, element.textfieldindex)
+				local part2 = utf8.sub(element.textfieldstr[1], element.textfieldindex + 1)
 				local displayString = part1 .. (noCursor and "" or "|") .. part2
 				element:uiText(displayString, nil, nil, fontid, orientation, scale, nil, nil, color, nil, nil, nil, nil, nil, true)
 			else
