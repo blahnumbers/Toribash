@@ -1446,10 +1446,13 @@ function UIElement:textfieldInput(input, isNumeric, allowNegative, allowDecimal)
 		-- We are likely dealing with keyboard autocompletion
 		-- Let's try to guess which part of the text we need to replace
 		local text = UTF8.Sub(self.textfieldstr[1], 0, self.textfieldindex)
-		local lastWordStart, lastWordReplacements = string.gsub(text, ".*(%w+)$", "%1")
+		local lastWordStart, lastWordReplacements = string.gsub(text, "^.*[^%'%w]([%w%']+)$", "%1")
+		if (lastWordReplacements == 0) then
+			lastWordStart, lastWordReplacements = string.gsub(text, "^([%w%']+)$", "%1")
+		end
 		if (lastWordReplacements ~= 0) then
-			local textFromLastWord = UTF8.Sub(self.textfieldstr[1], self.textfieldindex - UTF8.Len(lastWordStart))
-			local lastWord, replacements = string.gsub(textFromLastWord, "^(%w)", "%1")
+			local textFromLastWord = UTF8.Sub(self.textfieldstr[1], self.textfieldindex - UTF8.Len(lastWordStart) + 1)
+			local lastWord, replacements = string.gsub(textFromLastWord, "^([%w%'])", "%1")
 			if (lastWord ~= nil and replacements ~= 0) then
 				replaceSymbols = UTF8.Len(lastWordStart)
 				replaceSymbolsAfter = UTF8.Len(lastWord) - replaceSymbols
