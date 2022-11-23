@@ -7,17 +7,22 @@ require("system.ignore_manager")
 ---@field shouldBeDisplayed function
 
 ---@class ChatMessage
----@field text string
----@field tab integer
----@field clock number
+---@field text string Message text string
+---@field tab integer Chat tab the message should belong to
+---@field clock number Timestamp of when the message was received
+---@field adaptedText string[]
 
 if (TBHud == nil) then
 	---Touch HUD class
 	---@class TBHud
 	---@field MainElement UIElement
 	---@field ChatHolder UIElement
-	---@field ChatMessages ChatMessage[]
+	---@field ChatMiniHolder UIElement
 	---@field ChatSize UIElementSize
+	---@field ChatMaxHistory integer Maximum number of messages that will be displayed in chat
+	---@field ChatMiniMaxMessages integer Maximum number of messages that can be shown in mini chat at a time
+	---@field ChatMiniDisplayPeriod number Maximum time in seconds that messages in mini chat will be displayed for
+	---@field ChatMiniUpdateTime integer Last update time for mini chat
 	---@field WorldState WorldState Cached WorldState instance, updated every frame
 	---@field ButtonsToRefresh TBHudButton[]
 	---@field DefaultButtonColor Color
@@ -28,8 +33,12 @@ if (TBHud == nil) then
 	TBHud = {
 		MainElement = nil,
 		ChatHolder = nil,
-		ChatMessages = {},
+		ChatMiniHolder = nil,
 		ChatSize = { w = 0, h = 0},
+		ChatMaxHistory = 2000,
+		ChatMiniMaxMessages = 10,
+		ChatMiniDisplayPeriod = 20,
+		ChatMiniUpdateTime = 0,
 		WorldState = nil,
 		ButtonsToRefresh = {},
 		DefaultButtonSize = nil,
@@ -44,7 +53,14 @@ end
 
 ---Internal subclass for **TBHud** that holds utility functions we won't need elsewhere
 ---@class TBHudInternal
-local TBHudInternal = {}
+---@field ChatMessages ChatMessage[]
+---@field ChatMessageHistory string[] User chat message history
+---@field ChatMessageHistoryIndex integer
+local TBHudInternal = {
+	ChatMessages = {},
+	ChatMessageHistory = {},
+	ChatMessageHistoryIndex = 1
+}
 setmetatable({}, TBHudInternal)
 
 ---Generates a default button for touch interface
@@ -150,7 +166,13 @@ function TBHud:spawnCommitButton()
 		size = { TBHud.DefaultButtonSize, TBHud.DefaultButtonSize }
 	})
 	local commitStepButton = TBHudInternal.generateTouchButton(commitStepButtonHolder)
-	commitStepButton:addMouseUpHandler(function() step_game() end)
+	commitStepButton:addMouseUpHandler(function()
+		if (TBHud.WorldState.replay_mode == 1) then
+			start_new_game()
+		else
+			step_game()
+		end
+	end)
 
 	local commitStepButtonText = commitStepButton:addChild({
 		shift = { commitStepButton.size.w / 6, commitStepButton.size.h / 2.6 },
@@ -212,15 +234,29 @@ end
 ---@param tab integer
 function TBHud:pushChatMessage(msg, type, tab)
 	local message = get_option("chatcensor") % 2 == 1 and ChatIgnore:filterInput(msg) or msg
-	table.insert(TBHud.ChatMessages, {
+	---@type ChatMessage
+	local chatMessage = {
 		text = message,
 		tab = tab,
 		clock = os.clock()
-	})
+	}
+	table.insert(TBHudInternal.ChatMessages, chatMessage)
+	if (#TBHudInternal.ChatMessages > TBHud.ChatMaxHistory) then
+		table.remove(TBHudInternal.ChatMessages, 1)
+		TBHud.ChatHolderItems[1]:kill()
+		table.remove(TBHud.ChatHolderItems, 1)
+		for _, v in pairs(TBHud.ChatHolderItems) do
+			v:moveTo(nil, -v.size.h, true)
+		end
+	end
 
 	if (TBHud.ChatHolder:isDisplayed()) then
 		TBHud:refreshChat()
 	else
+		for _, v in pairs(TBHud.ChatHolderItems) do
+			v:hide()
+		end
+		TBHud.ChatMiniUpdateTime = 0
 		TBHud.RequiresChatRefresh = true
 	end
 end
@@ -253,11 +289,11 @@ function TBHud:refreshChat()
 			uiColor = TB_MENU_DEFAULT_DARKEST_COLOR
 		})
 		chatMessagesHolder.bgColor[4] = 0.7
-		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(chatMessagesHolder, 30, 150, 16, UICOLORWHITE)
+		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(chatMessagesHolder, elementHeight, 70, 16, { 0, 0, 0, 0 })
 
 		---@type UIElement[]
 		TBHud.ChatHolderItems = {}
-		for _, message in pairs(TBHud.ChatMessages) do
+		for _, message in pairs(TBHudInternal.ChatMessages) do
 			local messageStrings = textAdapt(message.text, FONTS.SMALL, 1, listingHolder.size.w - 32)
 			for _, string in pairs(messageStrings) do
 				local chatMessage = listingHolder:addChild({
@@ -314,6 +350,18 @@ function TBHud:refreshChat()
 				---@diagnostic disable-next-line: undefined-field
 				chatInputField.suggestionsDropdown.selectedElement:btnUp()
 			end)
+		-- Don't need chat history for mobile for now
+		--[[chatInputField:addKeyboardHandlers(nil, function(key)
+				if (key == 273 or key == 274) then -- arrow up or down
+					if (key == 273) then
+						TBHudInternal.ChatMessageHistoryIndex = math.min(TBHudInternal.ChatMessageHistoryIndex + 1, #TBHudInternal.ChatMessageHistory)
+					else
+						TBHudInternal.ChatMessageHistoryIndex = math.max(TBHudInternal.ChatMessageHistoryIndex - 1, 1)
+					end[TBHudInternal.ChatMessageHistoryIndex])
+					chatInputField.textfieldstr[1] = TBHudInternal.ChatMessageHistory[TBHudInternal.ChatMessageHistoryIndex]
+					chatInputField.textfieldindex = utf8.len(chatInputField.textfieldstr[1])
+				end
+			end)]]
 		chatInputField:addEnterAction(function()
 				if (string.find(chatInputField.textfieldstr[1], "^/")) then
 					local cmd = chatInputField.textfieldstr[1]:gsub("^/(.+)", "%1")
@@ -322,6 +370,7 @@ function TBHud:refreshChat()
 					---@diagnostic disable-next-line: undefined-global
 					send_chat_message(chatInputField.textfieldstr[1])
 				end
+				table.insert(TBHudInternal.ChatMessageHistory, #TBHudInternal.ChatMessageHistory - 2, chatInputField.textfieldstr[1])
 				chatInputField:clearTextfield()
 			end)
 
@@ -329,7 +378,7 @@ function TBHud:refreshChat()
 		TBHud.ChatHolderListing = listingHolder
 		TBHud.ChatHolderTopBar = topBar
 	else
-		for i, message in pairs(TBHud.ChatMessages) do
+		for i, message in pairs(TBHudInternal.ChatMessages) do
 			if (i > #TBHud.ChatHolderItems) then
 				local messageStrings = textAdapt(message.text, FONTS.SMALL, 1, TBHud.ChatHolderListing.size.w - 32)
 				for _, string in pairs(messageStrings) do
@@ -339,6 +388,10 @@ function TBHud:refreshChat()
 					})
 					chatMessage:addAdaptedText(true, string, nil, nil, FONTS.SMALL, LEFT, 1, 1)
 					table.insert(TBHud.ChatHolderItems, chatMessage)
+
+					if (TBHud.ChatHolderScrollBar ~= nil) then
+						chatMessage:hide(true)
+					end
 				end
 			end
 		end
@@ -374,7 +427,7 @@ end
 
 function TBHud:toggleChat(state)
 	if (state == true) then
-		TBHud.ChatHolder:show()
+		TBHud.ChatHolder:show(true)
 		if (TBHud.RequiresChatRefresh) then
 			TBHud:refreshChat()
 		end
@@ -387,12 +440,64 @@ function TBHud:toggleChat(state)
 
 		if (tweenValue == 1) then
 			if (state == false) then
-				TBHud.ChatHolder:hide()
+				TBHud.ChatHolder:hide(true)
 			else
 				TBHud.ChatHolder:addCustomDisplay(true, function() end)
 			end
 		end
 	end)
+end
+
+function TBHud:spawnMiniChat()
+	if (TBHud.ChatMiniHolder ~= nil) then
+		TBHud.ChatMiniHolder:kill()
+	end
+	TBHud.ChatMiniHolder = TBHud.MainElement:addChild({
+		pos = { TBHud.DefaultSmallerButtonSize * 1.7, 0 },
+		size = { TBHud.ChatSize.w, WIN_H - TBHud.DefaultButtonSize * 0.35 }
+	})
+
+	---@type ChatMessage[]
+	local messagesToDisplay = {}
+	local refreshMiniChat = function()
+		messagesToDisplay = {}
+		for i = #TBHudInternal.ChatMessages, 1, -1 do
+			if (TBHudInternal.ChatMessages[i].clock < os.clock() - TBHud.ChatMiniDisplayPeriod) then
+				break
+			end
+			table.insert(messagesToDisplay, TBHudInternal.ChatMessages[i])
+			if (#messagesToDisplay == TBHud.ChatMiniMaxMessages) then
+				break
+			end
+		end
+		for i, v in pairs(messagesToDisplay) do
+			messagesToDisplay[i].adaptedText = textAdapt(v.text, FONTS.SMALL, 1, TBHud.ChatMiniHolder.size.w)
+		end
+		TBHud.ChatMiniUpdateTime = os.time()
+	end
+
+	TBHud.ChatMiniHolder:addCustomDisplay(function()
+			if (TBHud.ChatHolder:isDisplayed()) then return end
+			if (os.time() ~= TBHud.ChatMiniUpdateTime) then
+				refreshMiniChat()
+			end
+			local linesPrinted = 0
+			local clock = os.clock()
+			for _, v in pairs(messagesToDisplay) do
+				local textOpacity = UITween.SineEaseOut((v.clock - clock + (TBHud.ChatMiniDisplayPeriod - 1)) / 3)
+				for i = #v.adaptedText, 1, -1 do
+					TBHud.ChatMiniHolder:uiText(v.adaptedText[i], nil, -linesPrinted * 20, FONTS.SMALL, LEFTBOT, 1, nil, nil, { TB_MENU_DEFAULT_DARKEST_COLOR[1], TB_MENU_DEFAULT_DARKEST_COLOR[2], TB_MENU_DEFAULT_DARKEST_COLOR[3], textOpacity })
+					linesPrinted = linesPrinted + 1
+					if (linesPrinted > TBHud.ChatMiniMaxMessages) then
+						return
+					end
+				end
+			end
+		end)
+end
+
+function TBHud:loadChatHistory()
+	TBHudInternal.ChatMessageHistory = get_chat_history()
 end
 
 function TBHud:spawnChat()
@@ -405,8 +510,11 @@ function TBHud:spawnChat()
 		size = { TBHud.MainElement.size.w, TBHud.MainElement.size.h },
 		interactive = true
 	})
+	TBHud.ChatHolder:hide(true)
 	TBHud.ChatHolder:addMouseUpHandler(function() TBHud:toggleChat(false) end)
 	TBHud:refreshChat()
+	TBHud:spawnMiniChat()
+	TBHud:loadChatHistory()
 end
 
 add_hook("resolution_changed", "tbHudTouchInterface", function() TBHud:init() end)

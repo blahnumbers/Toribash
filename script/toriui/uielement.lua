@@ -275,6 +275,7 @@ if (not UIElement) then
 	---@field destroyed boolean Read-only value to indicate the object has been destroyed. Use this to check whether the UIElement still exists when a UIElement:kill() function may have been called on its reference elsewhere.
 	---@field killAction function Additional callback to be executed when object is being destroyed
 	---@field scrollBar UIElement Reference to scrollable list holder's scroll bar
+	---@field positionDirty boolean Read-only value to tell the UIElement internal loops to refresh element position
 	UIElement = {
 		ver = 2.0,
 		clock = os.clock(),
@@ -360,6 +361,7 @@ function UIElement:new(o)
 					shift = {},
 					bgColor = { 1, 1, 1, 0 },
 					innerShadow = { 0, 0 },
+					positionDirty = true
 					}
 	setmetatable(elem, self)
 
@@ -502,13 +504,15 @@ function UIElement:new(o)
 			elem.hoverThrough = o.hoverThrough
 		end
 
-		table.insert(UIElementManager, elem)
+		---Only add root elements to UIElementManager to decrease table traversal speed
+		if (elem.parent == nil) then
+			table.insert(UIElementManager, elem)
+		end
 
 		-- Display is enabled by default, comment this out to disable
 		if (elem.viewport or (elem.parent and elem.parent.viewport)) then
 			table.insert(UIViewportManager, elem)
 		else
-			-- Visual manager no longer used, we just stick to isDisplayed property
 			table.insert(UIVisualManager, elem)
 		end
 
@@ -781,9 +785,9 @@ function UIElement:makeScrollBar(listHolder, listElements, toReload, posShift, s
 
 	local enabled = {}
 	if (self.orientation == SCROLL_VERTICAL) then
-		listHolder.shift.y = listHolder.shift.y == 0 and -listHolder.size.h or listHolder.shift.y
+		listHolder:moveTo(0, listHolder.shift.y == 0 and -listHolder.size.h or listHolder.shift.y)
 	else
-		listHolder.shift.x = listHolder.shift.x == 0 and -listHolder.size.w or listHolder.shift.x
+		listHolder:moveTo(listHolder.shift.x == 0 and -listHolder.size.w or listHolder.shift.x)
 	end
 	self.pressedPos = { x = 0, y = 0 }
 
@@ -1019,6 +1023,9 @@ function UIElement:updatePos()
 	if (self.parent) then
 		self:updateChildPos()
 	end
+	for _, v in pairs(self.child) do
+		v:updatePos()
+	end
 end
 
 ---Clears text field data and resets index to 0
@@ -1035,12 +1042,12 @@ end
 function UIElement:drawVisuals(globalid)
 	UIElement.clock = os.clock()
 	local globalid = globalid or self.globalid
-	for i, v in pairs(UIElementManager) do
+	for _, v in pairs(UIElementManager) do
 		if (v.globalid == globalid) then
 			v:updatePos()
 		end
 	end
-	for i, v in pairs(UIVisualManager) do
+	for _, v in pairs(UIVisualManager) do
 		if (v.globalid == globalid) then
 			v:display()
 		end
@@ -1737,11 +1744,12 @@ function UIElement:moveTo(x, y, relative)
 		if (x) then self.pos.x = relative and self.pos.x + x or x end
 		if (y) then self.pos.y = relative and self.pos.y + y or y end
 	end
+	self.positionDirty = true
 end
 
 ---Internal function to update position of current UIElement based on its parent movement
 function UIElement:updateChildPos()
-	if (self.parent.viewport) then
+	if (self.parent.viewport or not self.positionDirty) then
 		return
 	end
 	if (self.shift.x < 0) then

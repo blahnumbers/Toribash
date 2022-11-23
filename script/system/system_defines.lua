@@ -851,6 +851,10 @@ function chat_input_activate() end
 ---Disables chat input hotkey
 function chat_input_deactivate() end
 
+---Returns the last 100 messages sent from current client
+---@return string[]
+function get_chat_history() end
+
 ---Attempts to enable screen blur
 ---@return integer #1 if blur is supported, 0 if not
 function enable_blur() end
