@@ -102,7 +102,7 @@ for i,v in ipairs(events) do
 end
 ------- End of quick hack ------
 
--- Replace some of the default functions --
+-- Replace some of the default functions
 if (startup == nil) then
 	local old_dofile = dofile
 	dofile = function (filename, datadir)
