@@ -91,11 +91,9 @@ require("system.events_online_manager")
 require("system.news_manager")
 require("system.market_manager")
 require("system.battlepass_manager")
---if (is_mobile()) then
-	--require("system.hud_manager")
-	dofile("system/hud_manager.lua")
-	TBHud:init()
---end
+if (is_mobile()) then
+	require("system.hud_manager")
+end
 require("system.ignore_manager")
 
 TB_MENU_PLAYER_INFO = {}

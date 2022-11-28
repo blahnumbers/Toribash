@@ -118,14 +118,6 @@ function TBHud:init()
 	end
 
 	local x, y, w, h = get_window_safe_size()
-	if (PLATFORM == "WINDOWS") then
-		x = 0
-		y = 0
-		w = WIN_W
-		h = WIN_H
-	else
-		echo("Safe zone: " .. x .. " " .. y .. " " .. w .. " " .. h)
-	end
 	TBHud.MainElement = UIElement:new({
 		globalid = TB_MENU_HUB_GLOBALID,
 		pos = { x, y },
@@ -521,6 +513,7 @@ function TBHud:spawnChat()
 	TBHud.ChatHolder:hide(true)
 end
 
+TBHud:init()
 add_hook("resolution_changed", "tbHudTouchInterface", function() TBHud:init() end)
 add_hook("new_game", "tbHudTouchInterface", function() TBHud:refreshButtons() end)
 add_hook("console_post", "tbHudChatInterface", function(msg, type, tab)
