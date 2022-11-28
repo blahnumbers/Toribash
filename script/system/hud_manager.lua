@@ -13,7 +13,10 @@ require("system.ignore_manager")
 ---@field adaptedText string[]
 
 if (TBHud == nil) then
-	---Touch HUD class
+	---**Touch HUD class**
+	---
+	---**Version 1.0**
+	--- - Base implementation for gameplay buttons (ready, ghost control, chat)
 	---@class TBHud
 	---@field MainElement UIElement
 	---@field ChatHolder UIElement
@@ -510,11 +513,12 @@ function TBHud:spawnChat()
 		size = { TBHud.MainElement.size.w, TBHud.MainElement.size.h },
 		interactive = true
 	})
-	TBHud.ChatHolder:hide(true)
 	TBHud.ChatHolder:addMouseUpHandler(function() TBHud:toggleChat(false) end)
 	TBHud:refreshChat()
 	TBHud:spawnMiniChat()
 	TBHud:loadChatHistory()
+
+	TBHud.ChatHolder:hide(true)
 end
 
 add_hook("resolution_changed", "tbHudTouchInterface", function() TBHud:init() end)
