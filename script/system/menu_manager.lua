@@ -3584,6 +3584,7 @@ end
 ---@field allowMultiline boolean
 ---@field darkerMode boolean
 ---@field noCursor boolean
+---@field keepFocusOnHide boolean
 
 ---@type TextFieldInputSettings
 local TextFieldDefaultInputSettings = {
@@ -3593,7 +3594,8 @@ local TextFieldDefaultInputSettings = {
 	textColor = table.clone(UICOLORBLACK),
 	isNumeric = false,
 	allowMultiline = false,
-	noCursor = false
+	noCursor = false,
+	keepFocusOnHide = false
 }
 
 ---Generates a generic text field UIElement.
@@ -3636,6 +3638,7 @@ function TBMenu:spawnTextField2(parent, rect, textFieldString, defaultString, in
 		allowNegative = inputSettings.allowNegative,
 		textfieldstr = textFieldString or "",
 		textfieldsingleline = not inputSettings.allowMultiline,
+		textfieldkeepfocusonhide = inputSettings.keepFocusOnHide,
 		shapeType = textBg.shapeType,
 		rounded = textBg.rounded,
 		uiColor = parent.uiColor or UICOLORWHITE

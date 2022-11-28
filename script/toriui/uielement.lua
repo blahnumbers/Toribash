@@ -181,6 +181,7 @@ if (not UIElement) then
 	---@field textfield boolean Whether the object will be used as a text field
 	---@field textfieldstr string|string[]
 	---@field textfieldsingleline boolean
+	---@field textfieldkeepfocusonhide boolean
 	---@field isNumeric boolean Whether the textfield object should only accept numeric values
 	---@field allowNegative boolean Whether the numeric only textfield should accept negative values
 	---@field allowDecimal boolean Whether the numeric only textfield should accept decimal values
@@ -254,6 +255,7 @@ if (not UIElement) then
 	---@field textfieldstr string[] Text field data. Stored as a table to be able to access data by its reference. **Access UIElement.textfieldstr[1] for the actual string data of a text field**. *Only used for textfield objects*.
 	---@field textfieldindex number Current input index (cursor position) for the text field. *Only used for textfield objects*.
 	---@field textfieldsingleline boolean Whether the text field should accept multiline input. *Only used for textfield objects*.
+	---@field textfieldkeepfocusonhide boolean Whether text field should keep or lose focus when hide() is called on it. Default is `false`.
 	---@field toggle boolean Internal value to modify behavior for elements that are going to be used as toggles
 	---@field innerShadow number[] Table containing top and bottom inner shadow size
 	---@field shadowColor Color[] Table containing top and bottom inner shadow colors
@@ -423,6 +425,7 @@ function UIElement:new(o)
 			elem.textfieldstr = o.textfieldstr and (type(o.textfieldstr) == "table" and o.textfieldstr or { o.textfieldstr .. '' }) or { "" }
 			elem.textfieldindex = utf8.len(elem.textfieldstr[1])
 			elem.textfieldsingleline = o.textfieldsingleline
+			elem.textfieldkeepfocusonhide = o.textfieldkeepfocusonhide
 			elem.textInput = function(input) elem:textfieldInput(input, o.isNumeric, o.allowNegative, o.allowDecimal) end
 			elem.keyDown = function(key)
 					if (elem:textfieldKeyDown(key) and elem.textInputCustom) then
@@ -1362,7 +1365,7 @@ function UIElement:hide(noreload)
 		end
 	end
 
-	if (self.menuKeyboardId) then
+	if (self.menuKeyboardId and not self.textfieldkeepfocusonhide) then
 		self:disableMenuKeyboard()
 	end
 	self.displayed = false
@@ -1493,7 +1496,7 @@ function UIElement:textfieldKeyDown(key)
 	elseif (key == 13 or key == 271 and not self.textfieldsingleline) then -- newline
 		self:textfieldUpdate("\n")
 		return true
-	elseif (key == 118 and get_keyboard_ctrl()) then -- CTRL + V
+	elseif (key == 118 and get_keyboard_ctrl() > 0) then -- CTRL + V
 		local clipboard = get_clipboard_text()
 		if (clipboard ~= nil) then
 			self:textfieldUpdate(clipboard)

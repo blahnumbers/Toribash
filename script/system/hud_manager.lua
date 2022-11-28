@@ -117,11 +117,10 @@ function TBHud:init()
 		TBHud.MainElement:kill()
 	end
 
-	local x, y, w, h = get_window_safe_size()
 	TBHud.MainElement = UIElement:new({
 		globalid = TB_MENU_HUB_GLOBALID,
-		pos = { x, y },
-		size = { w, h }
+		pos = { 0, 0 },
+		size = { WIN_W, WIN_H }
 	})
 	TBHud.MainElement:addCustomDisplay(true, function()
 		TBHud.WorldState = get_world_state()
@@ -162,7 +161,7 @@ function TBHud:spawnCommitButton()
 	})
 	local commitStepButton = TBHudInternal.generateTouchButton(commitStepButtonHolder)
 	commitStepButton:addMouseUpHandler(function()
-		if (TBHud.WorldState.replay_mode == 1) then
+		if (TBHud.WorldState.replay_mode ~= 0) then
 			start_new_game()
 		else
 			step_game()
@@ -266,6 +265,15 @@ function TBHud:spawnChatButton()
 	})
 	local chatButton = TBHudInternal.generateTouchButton(chatButtonHolder, "../textures/menu/general/buttons/chat.tga")
 
+	chatButtonHolder:addCustomDisplay(function()
+		if (TBHud.ChatHolder ~= nil) then
+			if (chatButton:isDisplayed() and TBHud.ChatHolder:isDisplayed()) then
+				chatButton:hide()
+			elseif (not chatButton:isDisplayed() and not TBHud.ChatHolder:isDisplayed()) then
+				chatButton:show()
+			end
+		end
+	end)
 	chatButton:addMouseUpHandler(function()
 		TBHud:toggleChat(true)
 	end)
@@ -277,8 +285,9 @@ function TBHud:refreshChat()
 
 	if (TBHud.ChatHolderItems == nil) then
 		-- Do the initial setup
+		local x, y, w, h = get_window_safe_size()
 		local chatMessagesHolder = TBHud.ChatHolder:addChild({
-			pos = { 15, -TBHud.ChatSize.h },
+			pos = { x, -TBHud.ChatSize.h },
 			size = { TBHud.ChatSize.w, TBHud.ChatSize.h },
 			bgColor = table.clone(UICOLORWHITE),
 			uiColor = TB_MENU_DEFAULT_DARKEST_COLOR
@@ -307,12 +316,21 @@ function TBHud:refreshChat()
 			rounded = 4,
 			uiColor = UICOLORWHITE
 		})
-		local chatInputField = TBMenu:spawnTextField2(chatInputHolder)
+		local chatInputField = TBMenu:spawnTextField2(chatInputHolder, nil, nil, nil, {
+			fontId = FONTS.SMALL,
+			textAlign = LEFTMID,
+			textScale = 1,
+			textColor = table.clone(UICOLORBLACK),
+			keepFocusOnHide = true
+		})
+		local destroySuggestions = function()
+			if (chatInputField.suggestionsDropdown ~= nil) then
+				chatInputField.suggestionsDropdown:kill()
+				chatInputField.suggestionsDropdown = nil
+			end
+		end
 		chatInputField:addInputCallback(function()
-				if (chatInputField.suggestionsDropdown ~= nil) then
-					chatInputField.suggestionsDropdown:kill()
-					chatInputField.suggestionsDropdown = nil
-				end
+				destroySuggestions()
 
 				local typeCommand, replacements = chatInputField.textfieldstr[1]:gsub("^/(%w+).*", "%1")
 				if (replacements == 0) then
@@ -367,6 +385,7 @@ function TBHud:refreshChat()
 				end
 				table.insert(TBHudInternal.ChatMessageHistory, #TBHudInternal.ChatMessageHistory - 2, chatInputField.textfieldstr[1])
 				chatInputField:clearTextfield()
+				destroySuggestions()
 			end)
 
 		TBHud.ChatHolderToReload = toReload
