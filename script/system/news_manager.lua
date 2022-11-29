@@ -81,6 +81,7 @@ do
 					News:addToQueue(imageName)
 					Request:queue(function() download_server_file("get_event_image&name=" .. imageName, 0) end, "newsDownload" .. #newsData)
 				end
+				imageFile:close()
 			elseif (ln:find("^IMAGE 0;")) then
 				local imageName = ln:gsub("^IMAGE 0;", "")
 				if (newsData[#newsData].image) then
@@ -95,6 +96,7 @@ do
 					News:addToQueue(imageName)
 					Request:queue(function() download_server_file("get_event_image&name=" .. imageName, 0) end, "newsDownload" .. #newsData)
 				end
+				imageFile:close()
 			elseif (ln:find("^URL 0;")) then
 				newsData[#newsData].action = function() open_url(ln:gsub("^URL 0;", "")) end
 			elseif (ln:find("^STORE 0;")) then
