@@ -278,6 +278,7 @@ if (not UIElement) then
 	---@field killAction function Additional callback to be executed when object is being destroyed
 	---@field scrollBar UIElement Reference to scrollable list holder's scroll bar
 	---@field positionDirty boolean Read-only value to tell the UIElement internal loops to refresh element position
+	---@field scrollableListTouchScrollActive boolean Read-only value used for scrollable list view elements on touch devices
 	UIElement = {
 		ver = 2.0,
 		clock = os.clock(),
@@ -842,13 +843,53 @@ function UIElement:makeScrollBar(listHolder, listElements, toReload, posShift, s
 
 	local barScroller = self:addChild({})
 	barScroller.uid = generate_uid()
-	barScroller.killAction = function() remove_hooks("barScroller" .. barScroller.uid) end
+	barScroller.killAction = function()
+		remove_hooks("barScroller" .. barScroller.uid)
+		remove_hooks("touchScroller" .. barScroller.uid)
+	end
 	add_hook("pre_draw", "barScroller" .. barScroller.uid, function()
 			if (targetPos ~= nil) then
 				self:barScroll(listElements, listHolder, toReload, targetPos, enabled)
 				targetPos = nil
 			end
 		end)
+
+	if (is_mobile()) then
+		local lastListHolderVal = -1
+		local deltaChange = 0
+		local lastClock = UIElement.clock
+		listHolder.parent:addMouseHandlers(function(_, x, y)
+				listHolder.parent.scrollableListTouchScrollActive = true
+				lastListHolderVal = (self.orientation == SCROLL_VERTICAL) and y or x
+			end, function()
+				listHolder.parent.scrollableListTouchScrollActive = false
+				lastListHolderVal = -1
+			end, function(x, y)
+				if (listHolder.parent.scrollableListTouchScrollActive) then
+					lastClock = UIElement.clock
+					local targetValue = (self.orientation == SCROLL_VERTICAL) and y or x
+					deltaChange = lastListHolderVal - targetValue
+					lastListHolderVal = targetValue
+				end
+			end)
+		add_hook("pre_draw", "touchScroller" .. barScroller.uid, function()
+				if (listHolder.parent.scrollableListTouchScrollActive and listHolder.parent.hoverState == BTN_NONE) then
+					listHolder.parent.scrollableListTouchScrollActive = false
+					lastListHolderVal = -1
+				elseif (listHolder.parent.hoverState == BTN_DN and UIElement.clock > lastClock + 0.035) then
+					local targetValue = (self.orientation == SCROLL_VERTICAL) and MOUSE_Y or MOUSE_X
+					deltaChange = lastListHolderVal - targetValue
+					lastListHolderVal = targetValue
+				end
+
+				if (math.abs(deltaChange) > 0) then
+					if (lastListHolderVal < 0) then
+						deltaChange = UITween.SineTween(deltaChange, 0, (UIElement.clock - lastClock) * 2)
+					end
+					self:touchScroll(listElements, listHolder, toReload, deltaChange, enabled)
+				end
+			end)
+	end
 end
 
 ---Internal function to handle mouse wheel scrolling for lists. \
@@ -954,6 +995,53 @@ function UIElement:barScroll(listElements, listHolder, toReload, posShift, enabl
 	end
 
 	listHolder.parent:reloadListElements(listHolder, listElements, toReload, enabled, self.orientation)
+end
+
+---Internal function to handle list scrolling with touch input. \
+---*You likely don't need to call this manually.*
+---@param listElements UIElement[]
+---@param listHolder UIElement
+---@param toReload UIElement
+---@param scrollDelta number
+---@param enabled UIElement[]
+function UIElement:touchScroll(listElements, listHolder, toReload, scrollDelta, enabled)
+	if (#listElements == 0) then return end
+
+	if (self.orientation == SCROLL_VERTICAL) then
+		local listHeight = #listElements * listElements[1].size.h
+
+		if (scrollDelta > 0) then
+			scrollDelta = -1 * math.min(scrollDelta, listHeight + listHolder.shift.y)
+		else
+			scrollDelta = -1 * math.max(scrollDelta, listHolder.shift.y + listHolder.size.h)
+		end
+
+		if (scrollDelta ~= 0) then
+			listHolder:moveTo(listHolder.shift.x, scrollDelta, true)
+
+			local scrollProgress = -(listHolder.size.h + listHolder.shift.y) / (listHeight - listHolder.size.h)
+			self:moveTo(self.shift.x, (self.parent.size.h - self.size.h) * scrollProgress)
+
+			listHolder.parent:reloadListElements(listHolder, listElements, toReload, enabled, self.orientation)
+		end
+	else
+		local listWidth = #listElements * listElements[1].size.w
+
+		if (scrollDelta > 0) then
+			scrollDelta = -1 * math.min(scrollDelta, listWidth + listHolder.shift.x)
+		else
+			scrollDelta = -1 * math.max(scrollDelta, listHolder.shift.x + listHolder.size.w)
+		end
+
+		if (scrollDelta ~= 0) then
+			listHolder:moveTo(scrollDelta, listHolder.shift.y, true)
+
+			local scrollProgress = -(listHolder.size.w + listHolder.shift.x) / (listWidth - listHolder.size.w)
+			self:moveTo((self.parent.size.w - self.size.w) * scrollProgress, self.shift.y)
+
+			listHolder.parent:reloadListElements(listHolder, listElements, toReload, enabled, self.orientation)
+		end
+	end
 end
 
 -- Sets the specified function to run when UIElement is displayed
@@ -1654,18 +1742,21 @@ end
 ---@param x number
 ---@param y number
 function UIElement:handleMouseUp(btn, x, y)
+	local actionTriggered = false
 	for _, v in pairs(table.reverse(UIMouseHandler)) do
 		if (v.isactive) then
 			if (v.hoverState == BTN_DN and btn == 1) then
-				if (v.upSound) then
-					play_sound(v.upSound)
+				v.hoverState = BTN_NONE
+				if (not actionTriggered and x > v.pos.x and x < v.pos.x + v.size.w and y > v.pos.y and y < v.pos.y + v.size.h) then
+					v.hoverState = BTN_HVR
+					if (v.upSound) then
+						play_sound(v.upSound)
+					end
+					v.btnUp(btn, x, y)
+					actionTriggered = true
+					set_mouse_cursor(1)
 				end
-				v.hoverState = BTN_HVR
-				v.btnUp(btn, x, y)
-				set_mouse_cursor(1)
-				return
-			end
-			if (btn == 3) then
+			elseif (btn == 3) then
 				if (x > v.pos.x and x < v.pos.x + v.size.w and y > v.pos.y and y < v.pos.y + v.size.h) then
 					if (v.upSound) then
 						play_sound(v.upSound)
@@ -1691,7 +1782,7 @@ function UIElement:handleMouseHover(x, y)
 			if (v.hoverState == BTN_DN) then
 				disable = v.hoverThrough ~= true
 				v.btnHover(x,y)
-			elseif (disable) then
+			elseif (disable and not v.scrollableListTouchScrollActive) then
 				v.hoverState = BTN_NONE
 			elseif (x > v.pos.x and x < v.pos.x + v.size.w and y > v.pos.y and y < v.pos.y + v.size.h) then
 				if (v.hoverState == false and v.hoverSound) then
@@ -1708,6 +1799,8 @@ function UIElement:handleMouseHover(x, y)
 				end
 				v.btnHover(x,y)
 				set_mouse_cursor(1)
+			elseif (v.scrollableListTouchScrollActive and v.hoverState == BTN_DN) then
+				v.btnHover(x, y)
 			else
 				v.hoverState = BTN_NONE
 			end
