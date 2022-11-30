@@ -657,13 +657,14 @@ do
 			pos = { 0, 0 },
 			size = { listingHolder.size.w, elementHeight },
 			interactive = true,
+			clickThrough = true,
+			hoverThrough = true,
 			bgColor = TB_MENU_DEFAULT_BG_COLOR,
 			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
 			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR
 		})
 		table.insert(listElements, default)
-		local defaultIcon = UIElement:new({
-			parent = default,
+		default:addChild({
 			pos = { 5, 0 },
 			size = { elementHeight, elementHeight },
 			bgImage = "../textures/menu/general/back.tga"
@@ -686,13 +687,15 @@ do
 				end)
 		end
 
-		for i, file in pairs(atmos) do
-			if (file:lower():find(search) and not (file:lower():match("default")) and not (file:lower():match("atmo.cfg"))) then
-				local element = UIElement:new({
-					parent = listingHolder,
+		for _, file in pairs(atmos) do
+			local fileLower = utf8.lower(file)
+			if (utf8.find(fileLower, search) and not (utf8.match(fileLower, "default")) and not (utf8.match(fileLower, "atmo.cfg"))) then
+				local element = listingHolder:addChild({
 					pos = { 0, #listElements * elementHeight },
 					size = { listingHolder.size.w, elementHeight },
 					interactive = true,
+					clickThrough = true,
+					hoverThrough = true,
 					bgColor = TB_MENU_DEFAULT_BG_COLOR,
 					hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
 					pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR
@@ -780,13 +783,16 @@ do
 				draw_quad(posX, mainMover.pos.y + 18, 30, 2)
 			end)
 		mainMover:addMouseHandlers(function(s, x, y)
-					mainMover.pressedPos.x = x - mainMover.pos.x
-					mainMover.pressedPos.y = y - mainMover.pos.y
-				end, nil, function(x, y)
+				disable_mouse_camera_movement()
+				mainMover.pressedPos.x = x - mainMover.pos.x
+				mainMover.pressedPos.y = y - mainMover.pos.y
+			end, function ()
+				enable_mouse_camera_movement()
+			end, function(x, y)
 				if (mainMover.hoverState == BTN_DN) then
 					local x = x - mainMover.pressedPos.x
 					local y = y - mainMover.pressedPos.y
-						x = x < 0 and 0 or (x + mainView.size.w > WIN_W and WIN_W - mainView.size.w or x)
+					x = x < 0 and 0 or (x + mainView.size.w > WIN_W and WIN_W - mainView.size.w or x)
 					y = y < 0 and 0 or (y + mainView.size.h > WIN_H and WIN_H - mainView.size.h or y)
 					mainView:moveTo(x, y)
 				end

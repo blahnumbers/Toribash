@@ -804,7 +804,7 @@ function UIElement:makeScrollBar(listHolder, listElements, toReload, posShift, s
 	self:addMouseHandlers(
 		function(s, x, y)
 			if (is_mobile()) then
-				disable_camera_movement()
+				disable_mouse_camera_movement()
 			end
 			local scrollIgnore = UIScrollbarIgnore
 			if (scrollIgnoreOverride and scrollIgnore) then
@@ -827,7 +827,7 @@ function UIElement:makeScrollBar(listHolder, listElements, toReload, posShift, s
 		end, function()
 			self.scrollReload()
 			if (is_mobile()) then
-				enable_camera_movement()
+				enable_mouse_camera_movement()
 			end
 		end,
 		function(x, y)
@@ -865,13 +865,13 @@ function UIElement:makeScrollBar(listHolder, listElements, toReload, posShift, s
 		local deltaChange = 0
 		local lastClock = UIElement.clock
 		listHolder.parent:addMouseHandlers(function(_, x, y)
-				disable_camera_movement()
+				disable_mouse_camera_movement()
 				listHolder.parent.scrollableListTouchScrollActive = true
 				lastListHolderVal = (self.orientation == SCROLL_VERTICAL) and y or x
 			end, function()
 				listHolder.parent.scrollableListTouchScrollActive = false
 				lastListHolderVal = -1
-				enable_camera_movement()
+				enable_mouse_camera_movement()
 			end, function(x, y)
 				if (listHolder.parent.scrollableListTouchScrollActive) then
 					lastClock = UIElement.clock
@@ -1660,7 +1660,7 @@ end
 ---Generic method to enable keyboard input handlers for current UIElement
 function UIElement:enableMenuKeyboard()
 	TB_MENU_INPUT_ISACTIVE = true
-	enable_menu_keyboard(self.pos.x, self.pos.y, self.size.w, self.size.h)
+	enable_menu_keyboard(self.pos.x, self.pos.y, self.size.w, self.size.h + 10)
 	local id = 1
 	for i,v in pairs(UIKeyboardHandler) do
 		if (v.menuKeyboardId == id) then
@@ -1734,7 +1734,9 @@ function UIElement:handleMouseDn(btn, x, y)
 					v.keyboard = true
 					disable_camera_movement()
 				end
-				return v.clickThrough and 0 or 1
+				if (not v.clickThrough) then
+					return 1
+				end
 			elseif (btn >= 4 and v.scrollEnabled == true) then
 				if (v.btnDown(btn, x, y)) then
 					return
