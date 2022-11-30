@@ -710,9 +710,9 @@ do
 			pos = { 0, 0 },
 			size = { 0, 0 }
 		})
-		local spawnTime = os.clock()
+		local spawnTime = os.clock_real()
 		reqElement:addCustomDisplay(true, function()
-				if (os.clock() - spawnTime > delay) then
+				if (os.clock_real() - spawnTime > delay) then
 					req.ready = true
 					reqTable.ready = checkRequirements(reqTable)
 					reqElement:kill()

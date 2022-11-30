@@ -1384,12 +1384,12 @@ function Quests:showMain(navBack, backFunc)
 	})
 	TBMenu:displayLoadingMark(updatingView, TB_MENU_LOCALIZED.QUESTSUPDATING)
 	TBMenu:addBottomBloodSmudge(updatingView, 1)
-	local spawnClock = os.clock()
+	local spawnClock = os.clock_real()
 	updatingView:addCustomDisplay(function()
 			if (Quests.QuestsData and Quests.QuestsGlobalData) then
 				Quests:showQuests(navBack, backFunc)
 			end
-			if (os.clock() - spawnClock > 10 and Quests.QuestDataErrors > 0) then
+			if (os.clock_real() - spawnClock > 10 and Quests.QuestDataErrors > 0) then
 				updatingView:kill(true)
 				updatingView:addAdaptedText(TB_MENU_LOCALIZED.ERRORTRYAGAIN)
 				TBMenu:addBottomBloodSmudge(updatingView, 1)

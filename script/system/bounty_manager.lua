@@ -920,7 +920,7 @@ function Bounty:prepare(reload)
 	TB_MENU_SPECIAL_SCREEN_ISOPEN = 7
 	runCmd("refresh")
 
-	if (BOUNTIES_LAST_UPDATE + 300 < os.clock() or reload) then
+	if (BOUNTIES_LAST_UPDATE + 300 < os.clock_real() or reload) then
 		download_fetch_bounties()
 	end
 
@@ -938,7 +938,7 @@ function Bounty:prepare(reload)
 				bountyFile:reopen()
 				Bounty:getBountyData(bountyFile:readAll())
 				Bounty:showBounties()
-				BOUNTIES_LAST_UPDATE = os.clock()
+				BOUNTIES_LAST_UPDATE = os.clock_real()
 			end
 		end)
 end

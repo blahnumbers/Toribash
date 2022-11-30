@@ -330,7 +330,8 @@ function get_joint_state_name(joint, state) end
 function get_grip_info(player, hand) end
 
 ---Starts a new game
-function start_new_game() end
+---@param safe ?boolean If `true` is passed, will report ready event when in multiplayer instead of starting new free play game
+function start_new_game(safe) end
 
 ---Pauses game
 function freeze_game() end
@@ -1043,6 +1044,10 @@ function get_hooks() end
 ---@param event string
 ---@param ... any Callback arguments
 function call_hook(event, ...) end
+
+---Returns real time in seconds since application launch
+---@return number
+function os.clock_real() end
 
 
 --[[ RAY CASTING ]]

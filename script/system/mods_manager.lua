@@ -130,14 +130,14 @@ do
 							element:addAdaptedText(false, file:gsub("%.tbm$", ""), elementHeight * 1.5 + 5, nil, 4, LEFTMID, 0.8, 0.8)
 							element:addMouseHandlers(nil, function()
 									if (not MODS_MENU_LAST_CLICKED) then
-										MODS_MENU_LAST_CLICKED = { time = os.clock(), mod = file }
-									elseif (MODS_MENU_LAST_CLICKED.time + 0.5 > os.clock() and MODS_MENU_LAST_CLICKED.mod == file) then
+										MODS_MENU_LAST_CLICKED = { time = os.clock_real(), mod = file }
+									elseif (MODS_MENU_LAST_CLICKED.time + 0.5 > os.clock_real() and MODS_MENU_LAST_CLICKED.mod == file) then
 										UIElement:runCmd("loadmod " .. file)
 										if (MODS_MENU_START_NEW_GAME and get_world_state().game_type == 1) then
 											UIElement:runCmd("reset")
 										end
 									else
-										MODS_MENU_LAST_CLICKED = { time = os.clock(), mod = file }
+										MODS_MENU_LAST_CLICKED = { time = os.clock_real(), mod = file }
 									end
 								end)
 						end
@@ -165,14 +165,14 @@ do
 				element:addAdaptedText(false, file:gsub("%.tbm$", ""), 10, nil, 4, LEFTMID, 0.8, 0.8)
 				element:addMouseHandlers(nil, function()
 						if (not MODS_MENU_LAST_CLICKED) then
-							MODS_MENU_LAST_CLICKED = { time = os.clock(), mod = file }
-						elseif (MODS_MENU_LAST_CLICKED.time + 0.5 > os.clock() and MODS_MENU_LAST_CLICKED.mod == file) then
+							MODS_MENU_LAST_CLICKED = { time = os.clock_real(), mod = file }
+						elseif (MODS_MENU_LAST_CLICKED.time + 0.5 > os.clock_real() and MODS_MENU_LAST_CLICKED.mod == file) then
 							UIElement:runCmd("loadmod " .. file)
 							if (MODS_MENU_START_NEW_GAME and get_world_state().game_type == 1) then
 								UIElement:runCmd("reset")
 							end
 						else
-							MODS_MENU_LAST_CLICKED = { time = os.clock(), mod = file }
+							MODS_MENU_LAST_CLICKED = { time = os.clock_real(), mod = file }
 						end
 					end)
 			end
@@ -225,14 +225,14 @@ do
 						element:addAdaptedText(false, file:gsub("%.tbm$", ""), elementHeight * 1.5 + 5, nil, 4, LEFTMID, 0.8, 0.8)
 						element:addMouseHandlers(nil, function()
 								if (not MODS_MENU_LAST_CLICKED) then
-									MODS_MENU_LAST_CLICKED = { time = os.clock(), mod = file }
-								elseif (MODS_MENU_LAST_CLICKED.time + 0.5 <= os.clock() and MODS_MENU_LAST_CLICKED.mod == file) then
+									MODS_MENU_LAST_CLICKED = { time = os.clock_real(), mod = file }
+								elseif (MODS_MENU_LAST_CLICKED.time + 0.5 <= os.clock_real() and MODS_MENU_LAST_CLICKED.mod == file) then
 									UIElement:runCmd("loadmod " .. file)
 									if (MODS_MENU_START_NEW_GAME and get_world_state().game_type == 1) then
 										UIElement:runCmd("reset")
 									end
 								else
-									MODS_MENU_LAST_CLICKED = { time = os.clock(), mod = file }
+									MODS_MENU_LAST_CLICKED = { time = os.clock_real(), mod = file }
 								end
 							end)
 					end

@@ -70,7 +70,7 @@ TB_MENU_GLOBAL_SCALE = math.min(WIN_H > 720 and 1 or WIN_H / 720, WIN_W > 1280 a
 require("system.menu_defines")
 require("system.iofiles")
 require("system.menu_manager")
-TBMenu:init("221021")
+TBMenu:init("221130")
 
 require("system.menu_backend_defines")
 require("system.network_request")
@@ -146,11 +146,11 @@ else
 end
 
 local newsRefreshPeriod = get_option("autoupdate") == 1 and 600 or 86400
-if (TB_MENU_NEWS_REFRESH < os.clock() - newsRefreshPeriod) then
+if (TB_MENU_NEWS_REFRESH < os.clock_real() - newsRefreshPeriod) then
 	-- Refresh news periodically so players can get the events / new promos without restarting client
 	Request:queue(function()
 		download_server_file("news" .. (is_steam() and "light" or ("&ver=" .. TORIBASH_VERSION)), 0)
-		TB_MENU_NEWS_REFRESH = os.clock()
+		TB_MENU_NEWS_REFRESH = os.clock_real()
 	end, "refreshnews")
 	Torishop:getPlayerDiscounts()
 end

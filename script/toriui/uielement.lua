@@ -281,7 +281,7 @@ if (not UIElement) then
 	---@field scrollableListTouchScrollActive boolean Read-only value used for scrollable list view elements on touch devices
 	UIElement = {
 		ver = 2.0,
-		clock = os.clock(),
+		clock = os.clock_real(),
 		animationDuration = 0.1
 	}
 	UIElement.__index = UIElement
@@ -803,6 +803,9 @@ function UIElement:makeScrollBar(listHolder, listElements, toReload, posShift, s
 
 	self:addMouseHandlers(
 		function(s, x, y)
+			if (is_mobile()) then
+				disable_camera_movement()
+			end
 			local scrollIgnore = UIScrollbarIgnore
 			if (scrollIgnoreOverride and scrollIgnore) then
 				UIScrollbarIgnore = false
@@ -823,6 +826,9 @@ function UIElement:makeScrollBar(listHolder, listElements, toReload, posShift, s
 			return scrollSuccessful
 		end, function()
 			self.scrollReload()
+			if (is_mobile()) then
+				enable_camera_movement()
+			end
 		end,
 		function(x, y)
 			if (self.hoverState == BTN_DN) then
@@ -859,11 +865,13 @@ function UIElement:makeScrollBar(listHolder, listElements, toReload, posShift, s
 		local deltaChange = 0
 		local lastClock = UIElement.clock
 		listHolder.parent:addMouseHandlers(function(_, x, y)
+				disable_camera_movement()
 				listHolder.parent.scrollableListTouchScrollActive = true
 				lastListHolderVal = (self.orientation == SCROLL_VERTICAL) and y or x
 			end, function()
 				listHolder.parent.scrollableListTouchScrollActive = false
 				lastListHolderVal = -1
+				enable_camera_movement()
 			end, function(x, y)
 				if (listHolder.parent.scrollableListTouchScrollActive) then
 					lastClock = UIElement.clock
@@ -1131,7 +1139,7 @@ end
 ---*Must be run from `draw2d` hook.*
 ---@param globalid ?number Global ID that the objects to display belong to
 function UIElement:drawVisuals(globalid)
-	UIElement.clock = os.clock()
+	UIElement.clock = os.clock_real()
 	local globalid = globalid or self.globalid
 	for _, v in pairs(UIElementManager) do
 		if (v.globalid == globalid) then
@@ -1790,7 +1798,7 @@ function UIElement:handleMouseHover(x, y)
 				end
 				if (v.hoverState ~= BTN_DN) then
 					if (v.hoverState == BTN_NONE) then
-						v.hoverClock = os.clock()
+						v.hoverClock = os.clock_real()
 					end
 					v.hoverState = BTN_HVR
 					if (not v.textfield) then
@@ -2289,7 +2297,7 @@ end
 ---@param textfieldIndex ?integer
 ---@return string[]
 _G.textAdapt = function(str, font, scale, maxWidth, check, textfield, singleLine, textfieldIndex)
-	local clockdebug = TB_MENU_DEBUG and os.clock() or nil
+	local clockdebug = TB_MENU_DEBUG and os.clock_real() or nil
 
 	local destStr = {}
 	local newStr = ""
@@ -2382,7 +2390,7 @@ _G.textAdapt = function(str, font, scale, maxWidth, check, textfield, singleLine
 	table.insert(destStr, newStr)
 
 	if (TB_MENU_DEBUG) then
-		local clockdebugend = os.clock()
+		local clockdebugend = os.clock_real()
 		if (clockdebugend - clockdebug > 0.01) then
 			echo("Warning: slow text adapt call on string " .. utf8.sub(destStr[1], 1, 10) .. " - " .. clockdebugend - clockdebug .. " seconds")
 		end

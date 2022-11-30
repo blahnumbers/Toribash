@@ -250,7 +250,7 @@ function TBMenu:changeCurrentEvent(viewElement, eventsData, eventItems, clock, r
 			end
 			viewElement:addMouseHandlers(nil, behavior, nil)
 			reloadElement:reload()
-			local tickTime = os.clock() * 10
+			local tickTime = os.clock_real() * 10
 			clock.start = math.floor(tickTime)
 			clock.last = math.floor(tickTime)
 			clock.pause = false
@@ -350,7 +350,7 @@ function TBMenu:showHome()
 
 	-- Spawn event announcement elements
 	-- Make sure rotateClock is spawned before that
-	local tickTime = os.clock() * 10
+	local tickTime = os.clock_real() * 10
 	local rotateClock = { start = math.floor(tickTime), last = math.floor(tickTime) }
 	local eventItems = {}
 	local newsItemShown = false
@@ -403,11 +403,11 @@ function TBMenu:showHome()
 		eventDisplayTime:addCustomDisplay(true, function()
 				if (not rotateClock.pause) then
 					set_color(1,1,1,0.6)
-					draw_quad(timeData.x, eventItems[1].image.pos.y + eventItems[1].image.size.h - 5, (os.clock() * 10 - rotateClock.start) % rotateTime / rotateTime * timeData.width, 5)
+					draw_quad(timeData.x, eventItems[1].image.pos.y + eventItems[1].image.size.h - 5, (os.clock_real() * 10 - rotateClock.start) % rotateTime / rotateTime * timeData.width, 5)
 				end
 			end)
 		homeAnnouncements:addCustomDisplay(false, function()
-				if ((math.floor(os.clock() * 10) - rotateClock.start) % rotateTime == 0 and math.floor(os.clock() * 10) ~= rotateClock.last and not rotateClock.pause) then
+				if ((math.floor(os.clock_real() * 10) - rotateClock.start) % rotateTime == 0 and math.floor(os.clock_real() * 10) ~= rotateClock.last and not rotateClock.pause) then
 					TBMenu:changeCurrentEvent(homeAnnouncements, eventsData, eventItems, rotateClock, toReload, 1)
 				end
 			end)
@@ -1081,7 +1081,13 @@ function TBMenu:showConfirmationWindow(message, confirmAction, cancelAction, thi
 	return confirmOverlay
 end
 
+---Displays a popup message on the bottom of the screen
+---@param message string Message that will be displayed to the user
+---@param noParent ?boolean Use `true` if you intend to use the popup outside main menu
+---@param time ?number Duration during which the message will be displayed
+---@return UIElement
 function TBMenu:showStatusMessage(message, noParent, time)
+	local time = time or 5
 	local transparency = 0
 	local bgColor, uiColor = { 0, 0, 0, transparency }, { 1, 1, 1, transparency }
 	if (TBMenu.StatusMessage) then
@@ -1091,7 +1097,7 @@ function TBMenu:showStatusMessage(message, noParent, time)
 	local dataErrorY = (TBMenu.MenuMain and TBMenu.MenuMain.pos.y > 0) and (-TBMenu.MenuMain.pos.y) or WIN_H
 	local messageWidth = WIN_W / 2 > 800 and 800 or WIN_W / 2
 	TBMenu.StatusMessage = UIElement:new({
-		globalid = noParent and TB_MENU_HUB_GLOBALID,
+		globalid = noParent and TB_MENU_HUB_GLOBALID or TB_MENU_MAIN_GLOBALID,
 		parent = TBMenu.MenuMain,
 		pos = { (WIN_W - messageWidth) / 2, dataErrorY },
 		size = { messageWidth, 54 },
@@ -1117,20 +1123,20 @@ function TBMenu:showStatusMessage(message, noParent, time)
 	if (noParent) then
 		set_option("hint", 0)
 	end
-	TBMenu.StatusMessage.startTime = os.clock()
-	local moveRad = math.pi / 4
-	local time = time and time or 5
+	TBMenu.StatusMessage.startTime = UIElement.clock
+	local targetOffsetY = WIN_H - TBMenu.StatusMessage.size.h - 10
 	TBMenu.StatusMessage:addCustomDisplay(false, function()
-			if (TBMenu.StatusMessage.pos.y > WIN_H - TBMenu.StatusMessage.size.h - 10) then
-				TBMenu.StatusMessage:moveTo(nil, -(TBMenu.StatusMessage.size.h / 9) * math.sin(moveRad), true)
-				moveRad = moveRad + (math.pi / 20)
-				transparency = transparency + (math.pi / 40)
+			if (TBMenu.StatusMessage.pos.y > targetOffsetY) then
+				local tweenRatio = UIElement.clock - TBMenu.StatusMessage.startTime
+				TBMenu.StatusMessage:moveTo(nil, UITween.SineTween(TBMenu.StatusMessage.pos.y, targetOffsetY, tweenRatio))
+				transparency = UITween.SineEaseIn(tweenRatio * 2)
 				bgColor[4] = 0.8 * transparency
 				uiColor[4] = transparency
 			else
 				TBMenu.StatusMessage:addCustomDisplay(false, function()
-						if (os.clock() - TBMenu.StatusMessage.startTime > time) then
-							transparency = transparency - 0.05
+						local displayDuration = UIElement.clock - TBMenu.StatusMessage.startTime
+						if (displayDuration > time) then
+							transparency = 1 - UITween.SineEaseOut(displayDuration - time)
 							bgColor[4] = 0.8 * transparency
 							uiColor[4] = transparency
 						end
@@ -1147,7 +1153,7 @@ function TBMenu:showStatusMessage(message, noParent, time)
 end
 
 ---@deprecated
----Use TBMenu:showStatusMessage() instead
+---Use `TBMenu:showStatusMessage()` instead
 function TBMenu:showDataError(message, noParent, time)
 	TBMenu:showStatusMessage(message, noParent, time)
 end
@@ -2691,7 +2697,7 @@ function TBMenu:showMain(noload)
 	menuNavigationScroll.lastTime = 0
 	menuNavigationScroll:addCustomDisplay(true, function() end)
 	menuNavigationScroll:addMouseHandlers(function(s)
-			local clocktime = math.floor(os.clock() * 2 + 0.5) / 2
+			local clocktime = math.floor(os.clock_real() * 2 + 0.5) / 2
 			-- Mouse scroll can trigger multiple times per frame for some reason, we don't want that
 			if (menuNavigationScroll.lastTime == clocktime or TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 0) then
 				return

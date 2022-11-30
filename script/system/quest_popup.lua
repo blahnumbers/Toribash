@@ -169,7 +169,7 @@ local function showPopup(i)
 				questProgressNotificationHolder:moveTo(-questProgressNotificationHolder.size.w * 0.07 * math.sin(progress), nil, true)
 				progress = progress + math.pi / 30
 			else
-				local clock = os.clock()
+				local clock = os.clock_real()
 				questProgress:addCustomDisplay(false, function()
 						if (questProgress.size.w < (questProgressBar.size.w * (quest.progress / quest.requirement))) then
 							questProgress.size.w = questProgress.size.w + sizeDifference * 0.02 * math.sin(barProgress)
@@ -185,8 +185,8 @@ local function showPopup(i)
 						end
 					end, true)
 				questProgressNotificationHolder:addCustomDisplay(false, function()
-						questProgressTimer.size.w = math.max(questProgressNotificationHolder.size.w * math.min(1, (os.clock() - clock) / DELAY), questProgressTimer.size.w)
-						if (clock + DELAY < os.clock() or buttonClicked) then
+						questProgressTimer.size.w = math.max(questProgressNotificationHolder.size.w * math.min(1, (os.clock_real() - clock) / DELAY), questProgressTimer.size.w)
+						if (clock + DELAY < os.clock_real() or buttonClicked) then
 							local progress = math.pi / 10
 							questProgressNotificationHolder:addCustomDisplay(false, function()
 								if (questProgressNotificationHolder.pos.x < WIN_W) then

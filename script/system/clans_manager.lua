@@ -20,7 +20,7 @@ do
 	Clans.lastDownload = 0
 
 	function Clans:download()
-		local clock = os.clock()
+		local clock = os.clock_real()
 
 		if (clock - Clans.lastDownload < 5) then
 			return false

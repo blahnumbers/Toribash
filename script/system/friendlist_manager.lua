@@ -63,9 +63,9 @@ do
 			pos = { 0, 0 },
 			size = { viewElement.size.w, viewElement.size.h }
 		})
-		local waitBlockStartTime = os.clock()
+		local waitBlockStartTime = os.clock_real()
 		waitBlock:addCustomDisplay(true, function()
-				local timediff = os.clock() - waitBlockStartTime
+				local timediff = os.clock_real() - waitBlockStartTime
 				-- Wait animation
 				set_color(1, 1, 1, 0.8)
 				draw_disk(waitBlock.pos.x + waitBlock.size.w / 2, waitBlock.pos.y + waitBlock.size.h / 2, waitBlock.size.h / 30, waitBlock.size.h / 15, 500, 1, timediff * 180, timediff * 360, 0)
@@ -73,7 +73,7 @@ do
 				if (timediff >= 1 or noWait) then
 					FRIENDSLIST_PLAYERS_ONLINE = FriendsList:updateOnline()
 					FRIENDSLIST_IS_REFRESHED = true
-					FRIENDSLIST_REFRESH_TIME = os.clock()
+					FRIENDSLIST_REFRESH_TIME = os.clock_real()
 					local clanFriends = {}
 
 					for i,v in pairs(FRIENDSLIST_FRIENDS) do

@@ -149,7 +149,7 @@ do
 			size = { loginView.size.w, loginView.size.h / 11 }
 		})
 		rewardNextTime:addCustomDisplay(true, function()
-			rewardNextTime:uiText(Rewards:getTime(rewardData.timeLeft - math.ceil(os.clock()), rewardData.available))
+			rewardNextTime:uiText(Rewards:getTime(rewardData.timeLeft - math.ceil(os.clock_real()), rewardData.available))
 		end)
 		local rewardClaim = UIElement:new({
 			parent = loginView,

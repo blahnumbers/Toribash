@@ -552,12 +552,12 @@ function PlayerInfo:getServerUserinfo(username, reload)
 		userinfo.ready = true
 		if (not username) then
 			SERVER_USER_INFO = userinfo
-			SERVER_USER_INFO.updated = os.clock()
+			SERVER_USER_INFO.updated = os.clock_real()
 		end
 	end
 	local reload = reload or false
 	if (not username and not reload) then
-		reload = SERVER_USER_INFO.updated < os.clock() - 300
+		reload = SERVER_USER_INFO.updated < os.clock_real() - 300
 	end
 	if (username or reload) then
 		return Request:queue(get_player_userinfo, "userinfo", success)

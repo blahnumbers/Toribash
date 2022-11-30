@@ -4,7 +4,12 @@ if (TBMenu == nil) then
 end
 
 require("toriui.uielement")
+if (is_mobile()) then
+	require("system.hud_manager")
+end
 require("system.replays_manager")
+
+---@type UIElement
 REPLAY_GUI = REPLAY_GUI or nil
 
 local function replayGuiToggle(mode)
@@ -13,6 +18,7 @@ local function replayGuiToggle(mode)
 		return
 	end
 	REPLAY_GUI.hidden = targetMode
+	REPLAY_GUI.toggleClock = UIElement.clock
 	if (mode == nil) then
 		REPLAY_GUI.manualHidden = targetMode
 	end
@@ -39,6 +45,7 @@ add_hook("pre_draw", "replay_advanced_gui", function()
 		end
 	elseif (not REPLAY_GUI.hidden) then
 		local w, h = get_window_size()
+		---@diagnostic disable-next-line: undefined-field
 		if (REPLAY_GUI.spawnRes[1] ~= w or REPLAY_GUI.spawnRes[2] ~= h) then
 			WIN_W, WIN_H = w, h
 			Replays:spawnReplayAdvancedGui(true)

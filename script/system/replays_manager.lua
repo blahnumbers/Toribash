@@ -152,7 +152,7 @@ do
 		local count, maxDelay = 1, 1 / (tonumber(get_option("framerate")) or 30) / 1.2
 		replayUpdateWindow.replayfolders = replayUpdateWindow.replayfolders or {}
 		replayUpdateWindow:addCustomDisplay(true, function()
-				replayUpdateWindow.parent.startTime = os.clock()
+				replayUpdateWindow.parent.startTime = os.clock_real()
 				replayUpdateWindow:uiText(TB_MENU_LOCALIZED.REPLAYSUPDATINGCACHE .. " (" .. folder .. " folder)\n" .. math.min(math.ceil(count / #files * 100), 100) .. "% " .. TB_MENU_LOCALIZED.WORDDONE, nil, nil, nil, nil, 0.8)
 
 				while (1) do
@@ -229,7 +229,7 @@ do
 						end
 					end)
 
-					if (count > #files or os.clock() - replayUpdateWindow.parent.startTime > maxDelay) then
+					if (count > #files or os.clock_real() - replayUpdateWindow.parent.startTime > maxDelay) then
 						break
 					end
 				end
@@ -478,13 +478,13 @@ do
 			infoMessage = TB_MENU_LOCALIZED.REPLAYSFILTERSBY .. " " .. searchStr
 		end
 		local serverReplays = Files:open("../data/script/system/rplres.txt", FILES_MODE_READONLY)
-		local rot, scale, time = 10, 90, os.clock()
+		local rot, scale, time = 10, 90, os.clock_real()
 		waitAnimation:addCustomDisplay(true, function()
 				set_color(1, 1, 1, 0.8)
 				draw_disk(waitAnimation.pos.x + waitAnimation.size.w / 2, waitAnimation.pos.y + waitAnimation.size.w / 2, waitAnimation.size.w / 4, waitAnimation.size.w / 2, 200, 1, rot, scale, 0)
 				rot = rot + 2.5
 				scale = scale > 359 and -360 or scale + 5
-				if (os.clock() - time > 0.5) then
+				if (os.clock_real() - time > 0.5) then
 					if (not serverReplays:isDownloading()) then
 						serverReplays:reopen()
 						local filedata = serverReplays:readAll()
@@ -650,11 +650,11 @@ do
 						SELECTED_REPLAY.defaultColor = { replayElement.bgColor[1], replayElement.bgColor[2], replayElement.bgColor[3], replayElement.bgColor[4] }
 					end
 					replayElement:addMouseHandlers(nil, function()
-							if (SELECTED_REPLAY.element == replayElement and SELECTED_REPLAY.time + 0.5 > os.clock()) then
+							if (SELECTED_REPLAY.element == replayElement and SELECTED_REPLAY.time + 0.5 > os.clock_real()) then
 								Replays:playReplay(replay)
 								return
 							end
-							SELECTED_REPLAY.time = os.clock()
+							SELECTED_REPLAY.time = os.clock_real()
 							SELECTED_REPLAY.element.bgColor = { SELECTED_REPLAY.defaultColor[1], SELECTED_REPLAY.defaultColor[2], SELECTED_REPLAY.defaultColor[3], SELECTED_REPLAY.defaultColor[4] }
 							SELECTED_REPLAY.element = replayElement
 							SELECTED_REPLAY.defaultColor = { replayElement.bgColor[1], replayElement.bgColor[2], replayElement.bgColor[3], replayElement.bgColor[4] }
@@ -978,11 +978,11 @@ do
 				SELECTED_REPLAY.defaultColor = { replayElement.bgColor[1], replayElement.bgColor[2], replayElement.bgColor[3], replayElement.bgColor[4] }
 			end
 			replayElement:addMouseHandlers(nil, function()
-					if (SELECTED_REPLAY.element == replayElement and SELECTED_REPLAY.time + 0.5 > os.clock()) then
+					if (SELECTED_REPLAY.element == replayElement and SELECTED_REPLAY.time + 0.5 > os.clock_real()) then
 						Replays:playReplay(replay)
 						return
 					end
-					SELECTED_REPLAY.time = os.clock()
+					SELECTED_REPLAY.time = os.clock_real()
 					SELECTED_REPLAY.element.bgColor = { SELECTED_REPLAY.defaultColor[1], SELECTED_REPLAY.defaultColor[2], SELECTED_REPLAY.defaultColor[3], SELECTED_REPLAY.defaultColor[4] }
 					SELECTED_REPLAY.element = replayElement
 					SELECTED_REPLAY.defaultColor = { replayElement.bgColor[1], replayElement.bgColor[2], replayElement.bgColor[3], replayElement.bgColor[4] }
@@ -1742,9 +1742,9 @@ do
 								pos = { 0, 0 },
 								size = { 0, 0 },
 							})
-							local spawnTime = os.clock()
+							local spawnTime = os.clock_real()
 							uploadClose:addCustomDisplay(true, function()
-									if (spawnTime + 1.5 < os.clock()) then
+									if (spawnTime + 1.5 < os.clock_real()) then
 										overlay:kill()
 										uploadOverlay:kill()
 									end
@@ -2747,12 +2747,12 @@ do
 				replayElementHolder.lastPress = 0
 				replayElementHolder:addMouseHandlers(nil, function(s, x, y)
 						if (y < botBar.pos.y and y > topBar.pos.y + topBar.size.h) then
-							if (os.clock() - replayElementHolder.lastPress < 0.5) then
+							if (os.clock_real() - replayElementHolder.lastPress < 0.5) then
 								download_replay(v.id, REPLAY_TEMPNAME)
 								Replays:showServerReplayPreview()
 								return
 							end
-							replayElementHolder.lastPress = os.clock()
+							replayElementHolder.lastPress = os.clock_real()
 							if (SELECTED_SERVER_REPLAY.element) then
 								SELECTED_SERVER_REPLAY.element.bgColor = { unpack(SELECTED_SERVER_REPLAY.color) }
 							end
@@ -3697,7 +3697,7 @@ do
 		speedMarks:addCustomDisplay(true, function()
 				set_color(unpack(speedMarks.bgColor))
 				-- -1 speed
-				local clock = os.clock()
+				local clock = os.clock_real()
 				draw_line(speedMarks.pos.x + speedMarks.size.w * 0.083, speedMarks.pos.y, speedMarks.pos.x + speedMarks.size.w * 0.083, speedMarks.pos.y + speedMarks.size.h, 2)
 
 				draw_line(speedMarks.pos.x + speedMarks.size.w * 0.1455, speedMarks.pos.y + speedMarks.size.h * 0.333, speedMarks.pos.x + speedMarks.size.w * 0.1455, speedMarks.pos.y + speedMarks.size.h * 0.667, 2)
@@ -3752,7 +3752,7 @@ do
 
 	function Replays:spawnReplayAdvancedGui(reload)
 		local replayGuiHolder
-		local posX = math.max(65 * TB_MENU_GLOBAL_SCALE, WIN_W * 0.15 - 65 * TB_MENU_GLOBAL_SCALE)
+		local posX = is_mobile() and TBHud.SafeAreaOffset or math.max(65 * TB_MENU_GLOBAL_SCALE, WIN_W * 0.15 - 65 * TB_MENU_GLOBAL_SCALE)
 		local size = { math.min(1600, WIN_W - posX * 2), 65 * TB_MENU_GLOBAL_SCALE }
 		posX = (WIN_W - size[1]) / 2
 
@@ -3773,6 +3773,7 @@ do
 			})
 			replayGuiHolder.hidden = false
 			replayGuiHolder.spawnRes = { WIN_W, WIN_H }
+			replayGuiHolder.toggleClock = UIElement.clock
 			replayGuiHolder:addCustomDisplay(true, function()
 					if (not REPLAY_GUI) then
 						return
@@ -3794,13 +3795,13 @@ do
 					end
 					if (replayGuiHolder.hidden) then
 						if (replayGuiHolder.pos.y < WIN_H) then
-							replayGuiHolder:moveTo(nil, get_option("framerate") == 30 and 10 or 5, true)
+							replayGuiHolder:moveTo(nil, UITween.SineTween(replayGuiHolder.pos.y, WIN_H, UIElement.clock - replayGuiHolder.toggleClock))
 						else
 							replayGuiHolder:hide()
 						end
 					else
 						if (replayGuiHolder.pos.y > WIN_H - 105) then
-							replayGuiHolder:moveTo(nil, -(get_option("framerate") == 30 and 10 or 5), true)
+							replayGuiHolder:moveTo(nil, UITween.SineTween(replayGuiHolder.pos.y, WIN_H - 105, UIElement.clock - replayGuiHolder.toggleClock))
 						end
 					end
 				end)

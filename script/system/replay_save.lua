@@ -132,7 +132,7 @@ local function saveReplay(newname)
 		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERROREMPTYNAME, true)
 		return
 	end
-	if (newname:find("[^%d%a-_ ]") or not newname:find("[%a%d]")) then
+	if (utf8.find(newname, "[^%d%a-_ ]") or not utf8.find(newname, "[%a%d]")) then
 		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORCHARACTERS, true)
 		return
 	end

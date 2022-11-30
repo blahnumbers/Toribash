@@ -3677,7 +3677,7 @@ do
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
 
-		if (MARKET_OFFERS_HOME == nil or os.clock() - MARKET_OFFERS_HOME.refreshTime > 300) then
+		if (MARKET_OFFERS_HOME == nil or os.clock_real() - MARKET_OFFERS_HOME.refreshTime > 300) then
 			MARKET_OFFERS_HOME = nil
 			local popularSaleOffersTitle = UIElement:new({
 				parent = popularSaleOffersView,
@@ -3721,7 +3721,7 @@ do
 						end)
 				end
 				MARKET_OFFERS_HOME = offersData
-				MARKET_OFFERS_HOME.refreshTime = os.clock()
+				MARKET_OFFERS_HOME.refreshTime = os.clock_real()
 			end, function()
 				TBMenu:showStatusMessage(get_network_error())
 			end)

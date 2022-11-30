@@ -861,9 +861,9 @@ function Gamerules:showMain()
 						pos = { 0, 0 },
 						size = { 0, 0 }
 					})
-					delayedResetter.spawnTime = os.clock()
+					delayedResetter.spawnTime = os.clock_real()
 					delayedResetter:addCustomDisplay(true, function()
-							if (delayedResetter.spawnTime + 0.5 <= os.clock()) then
+							if (delayedResetter.spawnTime + 0.5 <= os.clock_real()) then
 								delayedResetter:kill()
 								runCmd("reset")
 							end

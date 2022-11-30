@@ -128,10 +128,10 @@ function Broadcasts:showBroadcast(broadcast)
 				notificationHolder:moveTo(-notificationHolder.size.w * 0.07 * math.sin(progress), nil, true)
 				progress = progress + math.pi / 30
 			else
-				local clock = os.clock()
+				local clock = os.clock_real()
 				notificationHolder:addCustomDisplay(false, function()
-						broadcastDisplayTimer.size.w = math.max(notificationHolder.size.w * math.min(1, (os.clock() - clock) / Broadcasts.DISPLAY_DURATION), broadcastDisplayTimer.size.w)
-						if (clock + Broadcasts.DISPLAY_DURATION < os.clock() or buttonClicked) then
+						broadcastDisplayTimer.size.w = math.max(notificationHolder.size.w * math.min(1, (os.clock_real() - clock) / Broadcasts.DISPLAY_DURATION), broadcastDisplayTimer.size.w)
+						if (clock + Broadcasts.DISPLAY_DURATION < os.clock_real() or buttonClicked) then
 							local progress = math.pi / 10
 							notificationHolder:addCustomDisplay(false, function()
 									if (notificationHolder.pos.x < WIN_W) then
@@ -211,8 +211,8 @@ function Broadcasts:addListener()
 	local clock = -60
 	add_hook("draw2d", "broadcast_manager", function()
 			if (get_world_state().game_type == 0 and not TUTORIAL_ISACTIVE) then
-				if (clock < os.clock() - 60) then
-					clock = os.clock()
+				if (clock < os.clock_real() - 60) then
+					clock = os.clock_real()
 					Broadcasts:fetchBroadcast()
 				end
 			end

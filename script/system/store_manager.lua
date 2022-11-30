@@ -73,7 +73,7 @@ do
 	Torishop.lastDownload = 0
 
 	function Torishop:download()
-		local clock = os.clock()
+		local clock = os.clock_real()
 
 		if (clock - Torishop.lastDownload < 5) then
 			return false
@@ -1137,11 +1137,11 @@ do
 								bgColor = TB_MENU_DEFAULT_BG_COLOR_TRANS,
 								interactive = true
 							})
-							uploadInProgress.clock = os.clock()
+							uploadInProgress.clock = os.clock_real()
 							TBMenu:displayLoadingMark(uploadInProgress, TB_MENU_LOCALIZED.MESSAGEPLEASEWAIT)
 							uploadInProgress:addCustomDisplay(false, function()
 									-- Give server some time to reset the texture as we don't know when main cURL request is finished
-									if (uploadInProgress.clock + 2 < os.clock()) then
+									if (uploadInProgress.clock + 2 < os.clock_real()) then
 										uploadInProgress:kill()
 										customizeItemTexture(true)
 									end
@@ -1399,11 +1399,11 @@ do
 									bgColor = TB_MENU_DEFAULT_BG_COLOR_TRANS,
 									interactive = true
 								})
-								requestInProgress.clock = os.clock()
+								requestInProgress.clock = os.clock_real()
 								TBMenu:displayLoadingMark(requestInProgress, TB_MENU_LOCALIZED.MESSAGEPLEASEWAIT)
 								requestInProgress:addCustomDisplay(false, function()
 										-- Give server some time to reset the texture as we don't know when main cURL request is finished
-										if (requestInProgress.clock + 2 < os.clock()) then
+										if (requestInProgress.clock + 2 < os.clock_real()) then
 											requestInProgress:kill()
 											customizeItemEffect()
 											update_tc_balance()
@@ -2278,7 +2278,7 @@ do
 			invItemHolder:addMouseHandlers(nil, function()
 					Torishop:showInventoryItem(inventoryItems[i])
 					if (inventoryItems[i].itemid == ITEM_SET and #inventoryItems[i].contents > 0) then
-						local clock = os.clock()
+						local clock = os.clock_real()
 						if (invItemHolder.lastClick + 0.5 > clock) then
 							INVENTORY_LIST_SHIFT[1] = 0
 							TB_ITEM_DETAILS = nil
@@ -5354,7 +5354,7 @@ do
 		usage_event("storeitem")
 		STORE_DOWNLOADS_COMPLETE = noReload and true or false
 		tbStoreItemInfoHolder:kill(true)
-		tbStoreItemInfoHolder.updated = os.clock()
+		tbStoreItemInfoHolder.updated = os.clock_real()
 		tbStoreItemInfoHolder.itemid = item and item.itemid or nil
 		TBMenu:addBottomBloodSmudge(tbStoreItemInfoHolder, 3)
 

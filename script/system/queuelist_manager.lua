@@ -441,14 +441,14 @@ do
 			end
 			if (get_network_task() == 0) then
 				doReport()
-				local spawnTime = os.clock()
+				local spawnTime = os.clock_real()
 				local messageChanger = UIElement:new({
 					parent = reportHolder,
 					pos = { 0, 0 },
 					size = { 0, 0 }
 				})
 				messageChanger:addCustomDisplay(true, function()
-						if (spawnTime < os.clock() - 5) then
+						if (spawnTime < os.clock_real() - 5) then
 							waitOverlay:kill(true)
 							TBMenu:displayLoadingMark(waitOverlay, TB_MENU_LOCALIZED.REPORTSLONGWAITMESSAGE)
 						end
@@ -462,14 +462,14 @@ do
 				waiter:addCustomDisplay(true, function()
 						if (get_network_task() == 0) then
 							waiter:kill()
-							local spawnTime = os.clock()
+							local spawnTime = os.clock_real()
 							local messageChanger = UIElement:new({
 								parent = reportHolder,
 								pos = { 0, 0 },
 								size = { 0, 0 }
 							})
 							messageChanger:addCustomDisplay(true, function()
-									if (spawnTime < os.clock() - 5) then
+									if (spawnTime < os.clock_real() - 5) then
 										waitOverlay:kill(true)
 										TBMenu:displayLoadingMark(waitOverlay, TB_MENU_LOCALIZED.REPORTSLONGWAITMESSAGE)
 									end

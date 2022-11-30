@@ -44,14 +44,18 @@ if (TBHud == nil) then
 		ChatMiniUpdateTime = 0,
 		WorldState = nil,
 		ButtonsToRefresh = {},
-		DefaultButtonSize = nil,
+		DefaultButtonSize = math.max(100, WIN_H / 10),
 		DeafultSmallerButtonSize = nil,
 		DefaultButtonColor = table.clone(TB_MENU_DEFAULT_BG_COLOR),
 		RequiresChatRefresh = false,
+		SafeAreaOffset = 0,
 		ver = 1.0,
 		__index = {}
 	}
 	setmetatable({}, TBHud)
+
+	TBHud.DefaultSmallerButtonSize = TBHud.DefaultButtonSize * 0.7
+	TBHud.SafeAreaOffset = TBHud.DefaultButtonSize * 3
 end
 
 ---Internal subclass for **TBHud** that holds utility functions we won't need elsewhere
@@ -112,6 +116,53 @@ function TBHudInternal.isPlaying()
 	return false
 end
 
+---Refreshes `TBHud.ButtonsToRefresh` elements' visibility state depending on their settings
+function TBHudInternal.refreshButtons()
+	for _, v in pairs(TBHud.ButtonsToRefresh) do
+		if (v.shouldBeDisplayed()) then
+			if (not v.button:isDisplayed()) then
+				v.button:show()
+			end
+		elseif (v.button:isDisplayed()) then
+			v.button:hide()
+		end
+	end
+end
+
+---Method that handles all incoming chat messages and pushes them for display
+---@param msg string
+---@param type integer
+---@param tab integer
+function TBHudInternal.pushChatMessage(msg, type, tab)
+	local message = get_option("chatcensor") % 2 == 1 and ChatIgnore:filterInput(msg) or msg
+	---@type ChatMessage
+	local chatMessage = {
+		text = message,
+		tab = tab,
+		clock = os.clock_real()
+	}
+	table.insert(TBHudInternal.ChatMessages, chatMessage)
+	if (#TBHudInternal.ChatMessages > TBHud.ChatMaxHistory) then
+		table.remove(TBHudInternal.ChatMessages, 1)
+		TBHud.ChatHolderItems[1]:kill()
+		table.remove(TBHud.ChatHolderItems, 1)
+		for _, v in pairs(TBHud.ChatHolderItems) do
+			v:moveTo(nil, -v.size.h, true)
+		end
+	end
+
+	if (TBHud.ChatHolder:isDisplayed()) then
+		TBHud:refreshChat()
+	else
+		for _, v in pairs(TBHud.ChatHolderItems) do
+			v:hide()
+		end
+		TBHud.ChatMiniUpdateTime = 0
+		TBHud.RequiresChatRefresh = true
+	end
+end
+
+---Initializes HUD main elements
 function TBHud:init()
 	if (TBHud.MainElement ~= nil) then
 		TBHud.MainElement:kill()
@@ -127,8 +178,9 @@ function TBHud:init()
 	end)
 
 	TBHud.ButtonsToRefresh = {}
-	TBHud.DefaultButtonSize = math.max(100, WIN_H / 10)
-	TBHud.DefaultSmallerButtonSize = TBHud.DefaultButtonSize * 0.7
+
+	set_option("feedback", 0)
+	set_option("hint", 0)
 
 	TBHud:spawnCommitButton()
 	TBHud:spawnGhostButon()
@@ -140,18 +192,7 @@ function TBHud:init()
 	TBHud:spawnChat()
 end
 
-function TBHud:refreshButtons()
-	for _, v in pairs(TBHud.ButtonsToRefresh) do
-		if (v.shouldBeDisplayed()) then
-			if (not v.button:isDisplayed()) then
-				v.button:show()
-			end
-		elseif (v.button:isDisplayed()) then
-			v.button:hide()
-		end
-	end
-end
-
+---Spawns turn commit button and
 function TBHud:spawnCommitButton()
 	if (TBHud.MainElement == nil) then return end
 
@@ -162,7 +203,7 @@ function TBHud:spawnCommitButton()
 	local commitStepButton = TBHudInternal.generateTouchButton(commitStepButtonHolder)
 	commitStepButton:addMouseUpHandler(function()
 		if (TBHud.WorldState.replay_mode ~= 0) then
-			start_new_game()
+			start_new_game(true)
 		else
 			step_game()
 		end
@@ -220,39 +261,6 @@ function TBHud:getChatCommands()
 		set = { command = "/set ^46gamerule ^47value" },
 		opt = { command = "/opt ^46option ^47value" }
 	}
-end
-
----Method that handles all incoming chat messages and pushes them for display
----@param msg string
----@param type integer
----@param tab integer
-function TBHud:pushChatMessage(msg, type, tab)
-	local message = get_option("chatcensor") % 2 == 1 and ChatIgnore:filterInput(msg) or msg
-	---@type ChatMessage
-	local chatMessage = {
-		text = message,
-		tab = tab,
-		clock = os.clock()
-	}
-	table.insert(TBHudInternal.ChatMessages, chatMessage)
-	if (#TBHudInternal.ChatMessages > TBHud.ChatMaxHistory) then
-		table.remove(TBHudInternal.ChatMessages, 1)
-		TBHud.ChatHolderItems[1]:kill()
-		table.remove(TBHud.ChatHolderItems, 1)
-		for _, v in pairs(TBHud.ChatHolderItems) do
-			v:moveTo(nil, -v.size.h, true)
-		end
-	end
-
-	if (TBHud.ChatHolder:isDisplayed()) then
-		TBHud:refreshChat()
-	else
-		for _, v in pairs(TBHud.ChatHolderItems) do
-			v:hide()
-		end
-		TBHud.ChatMiniUpdateTime = 0
-		TBHud.RequiresChatRefresh = true
-	end
 end
 
 ---Spawns the chat button for touch UI
@@ -447,9 +455,9 @@ function TBHud:toggleChat(state)
 		end
 	end
 
-	local clock = os.clock()
+	local clock = os.clock_real()
 	TBHud.ChatHolder:addCustomDisplay(true, function()
-		local tweenValue = UITween.SineEaseIn((os.clock() - clock) * 6)
+		local tweenValue = UITween.SineEaseIn((os.clock_real() - clock) * 6)
 		TBHud.ChatHolder:moveTo(nil, state and TBHud.ChatHolder.size.h - tweenValue * TBHud.ChatHolder.size.h or tweenValue * TBHud.ChatHolder.size.h)
 
 		if (tweenValue == 1) then
@@ -476,7 +484,7 @@ function TBHud:spawnMiniChat()
 	local refreshMiniChat = function()
 		messagesToDisplay = {}
 		for i = #TBHudInternal.ChatMessages, 1, -1 do
-			if (TBHudInternal.ChatMessages[i].clock < os.clock() - TBHud.ChatMiniDisplayPeriod) then
+			if (TBHudInternal.ChatMessages[i].clock < os.clock_real() - TBHud.ChatMiniDisplayPeriod) then
 				break
 			end
 			table.insert(messagesToDisplay, TBHudInternal.ChatMessages[i])
@@ -496,7 +504,7 @@ function TBHud:spawnMiniChat()
 				refreshMiniChat()
 			end
 			local linesPrinted = 0
-			local clock = os.clock()
+			local clock = os.clock_real()
 			for _, v in pairs(messagesToDisplay) do
 				local textOpacity = UITween.SineEaseOut((v.clock - clock + (TBHud.ChatMiniDisplayPeriod - 1)) / 3)
 				for i = #v.adaptedText, 1, -1 do
@@ -534,7 +542,7 @@ end
 
 TBHud:init()
 add_hook("resolution_changed", "tbHudTouchInterface", function() TBHud:init() end)
-add_hook("new_game", "tbHudTouchInterface", function() TBHud:refreshButtons() end)
+add_hook("new_game", "tbHudTouchInterface", function() TBHudInternal.refreshButtons() end)
 add_hook("console_post", "tbHudChatInterface", function(msg, type, tab)
-	TBHud:pushChatMessage(msg, type, tab)
+	TBHudInternal.pushChatMessage(msg, type, tab)
 end)
