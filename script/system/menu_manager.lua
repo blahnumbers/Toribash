@@ -128,11 +128,12 @@ end
 function TBMenu:createCurrentSectionView()
 	if (TBMenu.MenuMain == nil or TBMenu.MenuMain.destroyed) then return end
 
-	local safeX, safeY, safeW, safeH = get_window_safe_size()
+	local safeX = get_window_safe_size()
 	if (SCREEN_RATIO > 2) then
+		local offsetX = math.max(safeX, 50 * TB_MENU_GLOBAL_SCALE) + 25 * TB_MENU_GLOBAL_SCALE
 		TBMenu.CurrentSection = TBMenu.MenuMain:addChild({
-			pos = { math.max(safeX, 75) * TB_MENU_GLOBAL_SCALE + math.min(WIN_W / 8, 300), 130 * TB_MENU_GLOBAL_SCALE },
-			size = { WIN_W - math.max(safeX, 75) - 75 * TB_MENU_GLOBAL_SCALE - math.min(WIN_W / 8, 300), WIN_H - 235 * TB_MENU_GLOBAL_SCALE }
+			pos = { offsetX + math.min(WIN_W / 8, 300), 130 * TB_MENU_GLOBAL_SCALE },
+			size = { WIN_W - offsetX - 75 * TB_MENU_GLOBAL_SCALE - math.min(WIN_W / 8, 300), WIN_H - 235 * TB_MENU_GLOBAL_SCALE }
 		})
 	else
 		TBMenu.CurrentSection = TBMenu.MenuMain:addChild({
@@ -2259,9 +2260,10 @@ function TBMenu:showMobileNavigationBar(buttonsData, customNav, customNavHighlig
 		TBMenu.NavigationBar:kill(true)
 		TBMenu.NavigationBar = nil
 	end
+	local safeX = get_window_safe_size()
 	TBMenu.NavigationBar = UIElement:new({
 		parent = TBMenu.MenuMain,
-		pos = { 50 * TB_MENU_GLOBAL_SCALE, 130 * TB_MENU_GLOBAL_SCALE },
+		pos = { math.max(safeX, 50 * TB_MENU_GLOBAL_SCALE), 130 * TB_MENU_GLOBAL_SCALE },
 		size = { navWidth, WIN_H - 220 * TB_MENU_GLOBAL_SCALE },
 		bgColor = { 0, 0, 0, 0.9 },
 		shapeType = ROUNDED,

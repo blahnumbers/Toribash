@@ -193,6 +193,7 @@ function set_fov(field_of_view) end
 ---@return integer height DPI adapted screen height
 ---@return integer width_raw Raw screen width
 ---@return integer height_raw Raw screen height
+---@nodiscard
 function get_window_size() end
 
 ---Returns screen safe size \
@@ -201,11 +202,13 @@ function get_window_size() end
 ---@return integer y DPI adapted Y shift
 ---@return integer width DPI adapted safe screen width
 ---@return integer height DPI adapted safe screen height
+---@nodiscard
 function get_window_safe_size() end
 
 ---Returns maximum supported screen resolution
 ---@return integer width
 ---@return integer height
+---@nodiscard
 function get_maximum_window_size() end
 
 ---@class DpiAwarenessInfo
