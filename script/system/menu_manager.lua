@@ -127,10 +127,19 @@ end
 
 function TBMenu:createCurrentSectionView()
 	if (TBMenu.MenuMain == nil or TBMenu.MenuMain.destroyed) then return end
-	TBMenu.CurrentSection = TBMenu.MenuMain:addChild({
-		pos = { 75 * TB_MENU_GLOBAL_SCALE, 140 * TB_MENU_GLOBAL_SCALE + WIN_H / 16 },
-		size = { WIN_W - 150 * TB_MENU_GLOBAL_SCALE, WIN_H - 235 * TB_MENU_GLOBAL_SCALE - WIN_H / 16 }
-	})
+
+	local safeX, safeY, safeW, safeH = get_window_safe_size()
+	if (SCREEN_RATIO > 2) then
+		TBMenu.CurrentSection = TBMenu.MenuMain:addChild({
+			pos = { math.max(safeX, 75) * TB_MENU_GLOBAL_SCALE + math.min(WIN_W / 8, 300), 130 * TB_MENU_GLOBAL_SCALE },
+			size = { WIN_W - math.max(safeX, 75) - 75 * TB_MENU_GLOBAL_SCALE - math.min(WIN_W / 8, 300), WIN_H - 235 * TB_MENU_GLOBAL_SCALE }
+		})
+	else
+		TBMenu.CurrentSection = TBMenu.MenuMain:addChild({
+			pos = { math.max(safeX, 75) * TB_MENU_GLOBAL_SCALE, 140 * TB_MENU_GLOBAL_SCALE + math.min(WIN_H / 16, 60) },
+			size = { WIN_W - math.max(safeX, 75) * TB_MENU_GLOBAL_SCALE, WIN_H - 235 * TB_MENU_GLOBAL_SCALE - math.min(WIN_H / 16, 60) }
+		})
+	end
 end
 
 -- Calculates image dimensions based on screen and element size
@@ -2231,13 +2240,134 @@ end
 ---@field right boolean If true, button will be displayed on the right side of the navigation bar
 ---@field sectionId number Menu section id that will be assigned to TB_LAST_MENU_SCREEN_OPEN on button click
 
--- Displays navigation bar using the provided data
+---Displays mobile navigation bar using the provided data
+---@see TBMenu.showNavigationBar
+---@param buttonsData MenuNavButton[]|nil Buttons data. If nil, default main menu navigation buttons data will be used instead.
+---@param customNav? boolean Whether the provided data is not supposed to use TB_LAST_MENU_SCREEN_OPEN to mark the currently active button. *You likely want this set to true*.
+---@param customNavHighlight? boolean Whether to remember the last selected button and keep it marked as active
+---@param selectedId? integer Button ID that would be selected by default \
+---@return nil
+function TBMenu:showMobileNavigationBar(buttonsData, customNav, customNavHighlight, selectedId)
+	local tbMenuNavigationButtonsData = buttonsData or TBMenu:getMainNavigationButtons()
+	local tbMenuNavigationButtons = {}
+	local selectedId = selectedId or 0
+
+	local navWidth = math.min(WIN_W / 8, 300)
+	local navY = { t = { 10 } , b = { -10 } }
+
+	if (TBMenu.NavigationBar and not TBMenu.NavigationBar.destroyed) then
+		TBMenu.NavigationBar:kill(true)
+		TBMenu.NavigationBar = nil
+	end
+	TBMenu.NavigationBar = UIElement:new({
+		parent = TBMenu.MenuMain,
+		pos = { 50 * TB_MENU_GLOBAL_SCALE, 130 * TB_MENU_GLOBAL_SCALE },
+		size = { navWidth, WIN_H - 220 * TB_MENU_GLOBAL_SCALE },
+		bgColor = { 0, 0, 0, 0.9 },
+		shapeType = ROUNDED,
+		rounded = 10
+	})
+
+	---Unlike with horizontal menu, button height and width is always the same
+	---We only need to calculate target font scale so that we can render all captions at the same size
+
+	local buttonHeight = math.min(TBMenu.NavigationBar.size.h / #tbMenuNavigationButtonsData, 60)
+	local fontScale = 0.6
+	local fontId = FONTS.BIG
+	local temp = TBMenu.NavigationBar:addChild({
+		size = { TBMenu.NavigationBar.size.w, buttonHeight }
+	})
+
+	for _, v in pairs(tbMenuNavigationButtonsData) do
+		temp:addAdaptedText(true, v.text, nil, nil, fontId, nil, fontScale)
+		fontScale = math.min(fontScale, temp.textScale)
+	end
+	temp:kill()
+
+	for i, v in pairs(tbMenuNavigationButtonsData) do
+		local navY = v.right and navY.b or navY.t
+		tbMenuNavigationButtons[i] = UIElement:new({
+			parent = TBMenu.NavigationBar,
+			pos = { 0, v.right and navY[1] - buttonHeight or navY[1] },
+			size = { TBMenu.NavigationBar.size.w, buttonHeight },
+			bgColor = { 0.2, 0.2, 0.2, 0 },
+			interactive = true,
+			hoverColor = TB_MENU_DEFAULT_BG_COLOR,
+			pressedColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			hoverSound = 31
+		})
+		navY[1] = v.right and navY[1] - buttonHeight or navY[1] + buttonHeight
+		if ((not customNav and TB_LAST_MENU_SCREEN_OPEN == v.sectionId) or (customNav and customNavHighlight and selectedId == v.sectionId)) then
+			tbMenuNavigationButtons[i].bgColor = TB_MENU_DEFAULT_BG_COLOR
+		end
+		tbMenuNavigationButtons[i]:addCustomDisplay(false, function()
+				set_color(tbMenuNavigationButtons[i].animateColor[1] - 0.1, tbMenuNavigationButtons[i].animateColor[2], tbMenuNavigationButtons[i].animateColor[3], tbMenuNavigationButtons[i].animateColor[4])
+				for j = buttonHeight - 10, 10, -10 do
+					draw_line(tbMenuNavigationButtons[i].pos.x, tbMenuNavigationButtons[i].pos.y - 1 + j, tbMenuNavigationButtons[i].pos.x + j, tbMenuNavigationButtons[i].pos.y + 1, 0.5)
+				end
+				for j = 0, tbMenuNavigationButtons[i].size.w - buttonHeight, 10 do
+					draw_line(tbMenuNavigationButtons[i].pos.x + buttonHeight + j, tbMenuNavigationButtons[i].pos.y + 1, tbMenuNavigationButtons[i].pos.x + j, tbMenuNavigationButtons[i].pos.y + buttonHeight - 1, 0.5)
+				end
+				for j = buttonHeight - 10, 10, -10 do
+					draw_line(tbMenuNavigationButtons[i].pos.x + tbMenuNavigationButtons[i].size.w - j, tbMenuNavigationButtons[i].pos.y + buttonHeight - 1, tbMenuNavigationButtons[i].pos.x + tbMenuNavigationButtons[i].size.w, tbMenuNavigationButtons[i].pos.y + buttonHeight - 1 - j, 0.5)
+				end
+			end)
+		local buttonText = tbMenuNavigationButtons[i]:addChild({ shift = { 15, buttonHeight / 6 } })
+		if (v.misctext) then
+			local width = (get_string_length(v.misctext, fontId) + 40) * fontScale * 0.8
+			local miscMark = UIElement:new({
+				parent = buttonText,
+				pos = { -(buttonText.size.w - get_string_length(v.text, fontId) * fontScale + width - 16) / 2, buttonText.size.h * 0.125 },
+				size = { width, buttonText.size.h * 0.75 },
+				bgColor = TB_MENU_DEFAULT_ORANGE,
+				uiColor = UICOLORBLACK,
+				shapeType = ROUNDED,
+				rounded = buttonText.size.h / 2
+			})
+			miscMark:addAdaptedText(false, v.misctext, nil, nil, fontId, nil, nil, nil, 0.7)
+			buttonText:addAdaptedText(true, v.text, -width / 2, nil, fontId, nil, fontScale)
+		else
+			buttonText:addAdaptedText(true, v.text, nil, nil, fontId, nil, fontScale)
+		end
+		tbMenuNavigationButtons[i]:addMouseHandlers(nil, function()
+				if (not customNav) then
+					if (v.sectionId ~= TB_LAST_MENU_SCREEN_OPEN) then
+						TBMenu.CurrentSection:kill(true)
+						TB_LAST_MENU_SCREEN_OPEN = v.sectionId
+						for i, v in pairs(tbMenuNavigationButtons) do
+							v.bgColor = { 0.2, 0.2, 0.2, 0 }
+						end
+						tbMenuNavigationButtons[i].bgColor = TB_MENU_DEFAULT_BG_COLOR
+						TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
+					end
+				else
+					if (customNavHighlight) then
+						if (v.sectionId ~= selectedId and v.sectionId ~= -1) then
+							selectedId = v.sectionId
+							for i, v in pairs(tbMenuNavigationButtons) do
+								v.bgColor = { 0.2, 0.2, 0.2, 0 }
+							end
+							tbMenuNavigationButtons[i].bgColor = TB_MENU_DEFAULT_BG_COLOR
+						end
+					end
+					v.action()
+				end
+			end, nil)
+	end
+end
+
+---Displays navigation bar using the provided data
 ---@param buttonsData MenuNavButton[]|nil Buttons data. If nil, default main menu navigation buttons data will be used instead.
 ---@param customNav? boolean Whether the provided data is not supposed to use TB_LAST_MENU_SCREEN_OPEN to mark the currently active button. *You likely want this set to true*.
 ---@param customNavHighlight? boolean Whether to remember the last selected button and keep it marked as active
 ---@param selectedId? integer Button ID that would be selected by default
 ---@return nil
 function TBMenu:showNavigationBar(buttonsData, customNav, customNavHighlight, selectedId)
+	if (SCREEN_RATIO > 2) then
+		TBMenu:showMobileNavigationBar(buttonsData, customNav, customNavHighlight, selectedId)
+		return
+	end
+
 	local tbMenuNavigationButtonsData = buttonsData or TBMenu:getMainNavigationButtons()
 	local tbMenuNavigationButtons = {}
 	local selectedId = selectedId or 0
@@ -2594,6 +2724,7 @@ function TBMenu:showMain(noload)
 		uiColor = TB_MENU_UI_TEXT_COLOR,
 		uiShadowColor = TB_MENU_UI_TEXT_SHADOW_COLOR
 	})
+	TBMenu:createCurrentSectionView()
 	local tbMenuBackground = TBMenu.MenuMain:addChild({
 		pos = { 0, - WIN_H * 2 },
 		size = { WIN_W, WIN_H * 3 },
@@ -2671,16 +2802,17 @@ function TBMenu:showMain(noload)
 		splatCustom = true
 		customLogo:close()
 	end
+	local splatRes = (WIN_H - 320) * TB_MENU_GLOBAL_SCALE
 	local splatLeft = TBMenu.MenuMain:addChild({
-		pos = { 10, 200 },
-		size = { WIN_H - 320, WIN_H - 320 },
+		pos = { TBMenu.CurrentSection.shift.x - 60 * TB_MENU_GLOBAL_SCALE, TBMenu.CurrentSection.shift.y },
+		size = { splatRes, splatRes },
 		bgImage = splatLeftImg,
 		disableUnload = true,
 		imageColor = TB_MENU_DEFAULT_BG_COLOR
 	})
 	local splatRight = TBMenu.MenuMain:addChild({
-		pos = { -(WIN_H - 320) - 10, 200 },
-		size = { WIN_H - 320, WIN_H - 320 },
+		pos = { -splatRes - splatLeft.shift.x, splatLeft.shift.y },
+		size = { splatRes, splatRes },
 		bgImage = splatCustom and splatLeftImg or TB_MENU_BLOODSPLATTER_RIGHT,
 		disableUnload = true,
 		imageColor = TB_MENU_DEFAULT_BG_COLOR

@@ -63,8 +63,7 @@ end
 
 require("toriui.uielement3d")
 
--- We no longer reset to old menu as of 5.52
--- Just get the scale we want to use and go with it
+---Global menu scale that adapts to user's current screen resolution
 TB_MENU_GLOBAL_SCALE = math.min(WIN_H > 720 and 1 or WIN_H / 720, WIN_W > 1280 and 1 or WIN_W / 1280)
 
 require("system.menu_defines")

@@ -2,14 +2,17 @@
 -- Created by sir @ Nabi Studios
 
 local w, h = get_window_size()
----Window width that UIElement class currently operates with. \
----**This value does not update live and may not represent the actual window size**.
+---Window width that UIElement class currently operates with
 WIN_W = w
----Window height that UIElement class currently operates with. \
----**This value does not update live and may not represent the actual window size**.
+---Window height that UIElement class currently operates with
 WIN_H = h
+---Current screen ratio
+SCREEN_RATIO = WIN_W / WIN_H
 
-add_hook("resolution_changed", "uiResolutionUpdater", function() WIN_W, WIN_H = get_window_size() end)
+add_hook("resolution_changed", "uiResolutionUpdater", function()
+	WIN_W, WIN_H = get_window_size()
+	SCREEN_RATIO = WIN_W / WIN_H
+end)
 
 ---Current cursor X coordinate
 MOUSE_X = 0
