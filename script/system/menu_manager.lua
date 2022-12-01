@@ -218,7 +218,7 @@ function TBMenu:createImageButtons(parentElement, x, y, w, h, img, imgHvr, imgPr
 		bgImage = imgPress
 	})
 	buttonImagePress:addCustomDisplay(true, function()
-			if (buttonMain.hoverState == false) then
+			if (buttonMain.hoverState == BTN_NONE) then
 				draw_quad(buttonMain.pos.x, buttonMain.pos.y, buttonMain.size.w, buttonMain.size.h, buttonImage.bgImage)
 			elseif (buttonMain.hoverState == BTN_HVR) then
 				draw_quad(buttonMain.pos.x, buttonMain.pos.y, buttonMain.size.w, buttonMain.size.h, buttonImageHover.bgImage)
@@ -254,7 +254,7 @@ function TBMenu:changeCurrentEvent(viewElement, eventsData, eventItems, clock, r
 			clock.start = math.floor(tickTime)
 			clock.last = math.floor(tickTime)
 			clock.pause = false
-			UIElement:handleMouseHover(MOUSE_X, MOUSE_Y)
+			UIElement.handleMouseHover(MOUSE_X, MOUSE_Y)
 			break
 		end
 	end
@@ -3295,7 +3295,7 @@ function TBMenu:displayHelpPopup(element, message, forceManualPosCheck, noMark)
 	else
 		element:addCustomDisplay(false, function()
 				if (not messageElement or messageElement.destroyed) then return end
-				if (not TB_MENU_POPUPS_DISABLED and element.hoverState == BTN_HVR) then
+				if (not TB_MENU_POPUPS_DISABLED and element.hoverState >= BTN_HVR) then
 					if (not popupShown) then
 						pressTime = pressTime + 0.07
 						if (pressTime > 1) then
@@ -3304,7 +3304,7 @@ function TBMenu:displayHelpPopup(element, message, forceManualPosCheck, noMark)
 						end
 					end
 				elseif (popupShown) then
-					if (not element.hoverState) then
+					if (element.hoverState == BTN_NONE) then
 						messageElement:hide(true)
 						pressTime = 0
 						popupShown = false
@@ -3540,7 +3540,7 @@ function TBMenu:spawnToggle(parent, x, y, w, h, toggleValue, updateFunc)
 		toggle = true
 	})
 	toggleView:addCustomDisplay(nil, function()
-			if (toggleView.keyboard and not toggleView.hoverState) then
+			if (toggleView.keyboard and toggleView.hoverState == BTN_NONE) then
 				toggleView.hoverState = BTN_FOCUS
 			end
 		end, true)
@@ -3552,7 +3552,7 @@ function TBMenu:spawnToggle(parent, x, y, w, h, toggleValue, updateFunc)
 	toggleView:addOnLoseTabFocus(function()
 			toggleView:disableMenuKeyboard()
 			toggleView.keyboard = false
-			toggleView.hoverState = false
+			toggleView.hoverState = BTN_NONE
 		end)
 	local toggleIcon = UIElement:new({
 		parent = toggleView,

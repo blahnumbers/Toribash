@@ -7,7 +7,7 @@ local function showOverlay(viewElement, reqTable, out, speed)
 	local speed = speed or 1
 	local req = { type = "transition", ready = false }
 	table.insert(reqTable, req)
-	
+
 	if (tbOutOverlay) then
 		tbOutOverlay:kill()
 	end
@@ -47,7 +47,7 @@ end
 local function requireKeyPress(viewElement, reqTable, key, show)
 	local req = { type = "keypress", ready = false }
 	table.insert(reqTable, req)
-	
+
 	local button = nil
 	if (show) then
 		local displayKey = key
@@ -58,7 +58,7 @@ local function requireKeyPress(viewElement, reqTable, key, show)
 		end
 		local BUTTON_DEFAULT_COLOR = { unpack(TB_MENU_DEFAULT_BG_COLOR) }
 		local BUTTON_HOVER_COLOR = { unpack(TB_MENU_DEFAULT_LIGHEST_COLOR) }
-		
+
 		button = UIElement:new({
 			parent = viewElement,
 			pos = { 250 - width / 2, -200 },
@@ -73,11 +73,11 @@ local function requireKeyPress(viewElement, reqTable, key, show)
 		button.isactive = true
 		button:addAdaptedText(false, displayKey)
 	end
-	
+
 	add_hook("key_up", "tbTutorialsCustom", function(s, code)
 			if (string.schar(s) == key or (code > 3 and code < 30 and string.schar(code + 93) == key)) then
-				if (show and button.hoverState) then
-					button.hoverState = false
+				if (show and button.hoverState ~= BTN_NONE) then
+					button.hoverState = BTN_NONE
 					req.ready = true
 					reqTable.ready = Tutorials:checkRequirements(reqTable)
 				elseif (not show) then
@@ -208,13 +208,13 @@ local function moveMemoryShow(viewElement, reqTable, static)
 						moveMemoryAddMove.size.w - 8,
 						2	)
 		end)
-	
+
 	local openersHolder = UIElement:new({
 		parent = moveMemoryHolder,
 		pos = { 0, featuredHolder and featuredHolder.shift.y + featuredHolder.size.h or moveMemoryTitle.size.h },
 		size = { moveMemoryHolder.size.w, featuredHolder and moveMemoryHolder.size.h - featuredHolder.size.h - featuredHolder.shift.y or moveMemoryHolder.size.h - moveMemoryTitle.size.h }
 	})
-	
+
 	-- prevent interactions
 	local clickOverlay = UIElement:new({
 		parent = moveMemoryMain,
@@ -283,7 +283,7 @@ local function moveMemoryMovesShow(viewElement, reqTable, rpt)
 				"TURN 1; 0 3 8 4 1 3 15 3 3 3 16 3 5 4 17 3 6 2 13 3 7 3 19 3 4 3 18 3 11 3 2 3 10 3 9 2 14 3 12 3 20 0 21 0",
 				"TURN 2; 0 3 8 4 1 2 15 3 3 3 16 3 5 2 17 3 6 1 13 3 7 3 19 3 4 2 18 3 11 3 2 3 10 1 9 2 14 3 12 3 20 0 21 0"
 			}
-			
+
 		},
 		{
 			name = "High Kick",
@@ -304,7 +304,7 @@ local function moveMemoryMovesShow(viewElement, reqTable, rpt)
 					draw_quad(v.pos.x - (0.5 - trans) * 10, v.pos.y - (0.5 - trans) * 10, v.size.w + (0.5 - trans) * 20, v.size.h + (0.5 - trans) * 20)
 					if (trans <= 0) then
 						v:addCustomDisplay(false, function() end)
-					end 
+					end
 					trans = trans - 0.02
 				end)
 		end
@@ -337,12 +337,12 @@ end
 local function checkJointStates(viewElement, reqTable)
 	local req = { type = "jointstatecheck", ready = false }
 	table.insert(reqTable, req)
-	
+
 	local states = {}
 	for i,v in pairs(JOINTS) do
 		states[v] = get_joint_info(0, v).state
 	end
-	
+
 	local checker = UIElement:new({
 		parent = viewElement,
 		pos = { 0, 0 },

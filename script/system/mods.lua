@@ -11,10 +11,9 @@ require("system.iofiles")
 require("system.menu_manager")
 dofile("system/mods_manager.lua")
 
-if (MODS_MENU_MAIN_ELEMENT) then
-	MODS_MENU_MAIN_ELEMENT:kill()
-	MODS_MENU_MAIN_ELEMENT = nil
-	remove_hooks("tbModsKeyboard")
+if (Mods.MainElement) then
+	Mods.MainElement:kill()
+	Mods.MainElement = nil
 	return
 end
 

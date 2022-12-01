@@ -1351,7 +1351,7 @@ do
 						rounded = 4
 					})
 					updateEffectInfo:addCustomDisplay(nil, function()
-							if (updateEffectInfo.hoverState) then
+							if (updateEffectInfo.hoverState ~= BTN_NONE) then
 								TB_MENU_POPUPS_DISABLED = false
 							else
 								TB_MENU_POPUPS_DISABLED = true

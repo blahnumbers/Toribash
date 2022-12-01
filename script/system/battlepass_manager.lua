@@ -6,7 +6,7 @@ require("system.store_manager")
 require("system.player_info")
 require("system.ranking_manager")
 
-if (BattlePass == nil or TB_MENU_DEBUG) then
+if (BattlePass == nil) then
 	---@class BattlePassLevel
 	---@field level integer Battle Pass level ID
 	---@field xp integer XP required to get to this level from previous one

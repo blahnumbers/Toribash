@@ -3492,7 +3492,7 @@ do
 					return
 				end
 				if (slider.value ~= worldstate.match_frame) then
-					if (slider.hoverState or slider.parent.hoverState == BTN_DN) then
+					if (slider.hoverState ~= BTN_NONE or slider.parent.hoverState == BTN_DN) then
 						return
 					end
 					slider.setValue(worldstate.match_frame, false)
@@ -3736,7 +3736,7 @@ do
 		replaySpeedHolder:addCustomDisplay(nil, function()
 				local replay_speed = get_replay_speed()
 				if (slider.value ~= replay_speed) then
-					if (slider.hoverState or slider.parent.hoverState == BTN_DN) then
+					if (slider.hoverState ~= BTN_NONE or slider.parent.hoverState == BTN_DN) then
 						return
 					end
 					local perc = getSliderSpeedPercentage(replay_speed)

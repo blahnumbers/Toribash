@@ -7,7 +7,7 @@ local function showOverlay(viewElement, reqTable, out, speed)
 	local speed = speed or 1
 	local req = { type = "transition", ready = false }
 	table.insert(reqTable, req)
-	
+
 	if (tbOutOverlay) then
 		tbOutOverlay:kill()
 	end
@@ -47,7 +47,7 @@ end
 local function requireKeyPress(viewElement, reqTable, key, show)
 	local req = { type = "keypress", ready = false }
 	table.insert(reqTable, req)
-	
+
 	local button = nil
 	if (show) then
 		local displayKey = key
@@ -58,7 +58,7 @@ local function requireKeyPress(viewElement, reqTable, key, show)
 		end
 		local BUTTON_DEFAULT_COLOR = { unpack(TB_MENU_DEFAULT_BG_COLOR) }
 		local BUTTON_HOVER_COLOR = { unpack(TB_MENU_DEFAULT_LIGHEST_COLOR) }
-		
+
 		button = UIElement:new({
 			parent = viewElement,
 			pos = { 250 - width / 2, -200 },
@@ -73,11 +73,11 @@ local function requireKeyPress(viewElement, reqTable, key, show)
 		button.isactive = true
 		button:addAdaptedText(false, displayKey)
 	end
-	
+
 	add_hook("key_up", "tbTutorialsCustom", function(s, code)
 			if (string.schar(s) == key or (code > 3 and code < 30 and string.schar(code + 93) == key)) then
-				if (show and button.hoverState) then
-					button.hoverState = false
+				if (show and button.hoverState ~= BTN_NONE) then
+					button.hoverState = BTN_NONE
 					req.ready = true
 					reqTable.ready = Tutorials:checkRequirements(reqTable)
 				elseif (not show) then
@@ -165,7 +165,7 @@ local function showTimer()
 	local start_frame = get_world_state().match_frame
 	local textColor = cloneTable(UICOLORTORI)
 	textColor[4] = 0
-	
+
 	t2Timer = UIElement:new({
 		parent = tbTutorialsOverlay,
 		pos = { 0, 0 },
@@ -187,7 +187,7 @@ local function showTimer()
 	t2Timer:addCustomDisplay(true, function()
 			local current_frame = get_world_state().match_frame
 			local frame = 500 - (current_frame - start_frame)
-			
+
 			set_color(1, (500 - (current_frame - start_frame)) / 650, 0, t2Timer.bgColor[4] / 3)
 			draw_disk(t2Timer.pos.x + t2Timer.size.w / 2, t2Timer.pos.y + t2Timer.size.h / 2 + 3, t2Timer.size.h / 10, t2Timer.size.h / 2 - 5, 500, 1, 180 + (current_frame - start_frame) / 50 * 36, (500 - (current_frame - start_frame)) / 50 * 36, 0)
 			t2Timer:uiText(frame < 0 and 0 or frame, nil, nil, FONTS.BIG, nil, 1, nil, 1, { 1, 0.8, 0, 1 }, { 1, 1, 1, 0.4 }, 0)
@@ -197,7 +197,7 @@ end
 local function hideDamageAndTimerBars(viewElement, reqTable)
 	local req = { type = "animationOutro", ready = false }
 	table.insert(reqTable, req)
-	
+
 	local transparencyAnimation = UIElement:new({
 		parent = t2DamageMeter,
 		pos = { 0, 0 },

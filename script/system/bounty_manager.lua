@@ -390,7 +390,7 @@ function Bounty:showHalloweenAboutEvent(headObject, bountyList)
 						})
 						itemDescription:addAdaptedText(false, item.name, nil, nil, 4, nil, 0.7, nil, nil, nil, UICOLORBLACK)
 						itemDisplay:addCustomDisplay(false, function()
-								if (itemDisplay.hoverState) then
+								if (itemDisplay.hoverState ~= BTN_NONE) then
 									itemInfo:show()
 								else
 									itemInfo:hide()

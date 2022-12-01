@@ -277,7 +277,7 @@ do
 
 				suggestion:addCustomDisplay(true, function()
 						suggestion:uiText(suggestion.str, nil, nil, suggestion.textFont, math.floor(displayed / 2) % 2 == 0 and LEFTMID or RIGHTMID, suggestion.textScale, nil, nil, suggestion:getButtonColor())
-						if (suggestion.hoverState) then
+						if (suggestion.hoverState ~= BTN_NONE) then
 							set_mouse_cursor(1)
 						end
 					end)
@@ -1841,12 +1841,12 @@ do
 		})
 		offerViewBG:addCustomDisplay(nil, function()
 				if (offerExtraViewBG.hoverState ~= offerViewBG.hoverState and offerExtraViewBG:isDisplayed()) then
-					local stateA = offerViewBG.hoverState and offerViewBG.hoverState or 0
-					local stateB = offerExtraViewBG.hoverState and offerExtraViewBG.hoverState or 0
-					if (stateA > stateB) then
+					if (offerViewBG.hoverState > offerExtraViewBG.hoverState) then
 						offerExtraViewBG.hoverState = offerViewBG.hoverState
-					elseif (stateB > 0) then
+						offerExtraViewBG.hoverClock = offerViewBG.hoverClock
+					else
 						offerViewBG.hoverState = offerExtraViewBG.hoverState
+						offerViewBG.hoverClock = offerExtraViewBG.hoverClock
 					end
 				end
 			end, true)
@@ -1935,7 +1935,7 @@ do
 		offerBy.size.h = elementHeight
 		offerBy:addCustomDisplay(true, function()
 				offerBy:uiText(TB_MENU_LOCALIZED.WORDBY .. " " .. offer.username, nil, nil, 4, nil, 0.65, nil, nil, offerBy:getButtonColor())
-				if (offerBy.hoverState) then
+				if (offerBy.hoverState ~= BTN_NONE) then
 					set_mouse_cursor(1)
 				end
 			end)
@@ -1990,7 +1990,7 @@ do
 		end
 		itemName:addCustomDisplay(true, function()
 				itemName:uiText(itemName.str, nil, nil, itemName.textFont, LEFTMID, itemName.textScale, nil, nil, itemName:getButtonColor())
-				if (itemName.hoverState) then
+				if (itemName.hoverState ~= BTN_NONE) then
 					set_mouse_cursor(1)
 				end
 			end)
@@ -2178,12 +2178,12 @@ do
 
 		offerBG:addCustomDisplay(nil, function()
 				if (offerBG2.hoverState ~= offerBG.hoverState and offerBG2:isDisplayed()) then
-					local stateA = offerBG.hoverState and offerBG.hoverState or 0
-					local stateB = offerBG2.hoverState and offerBG2.hoverState or 0
-					if (stateA > stateB) then
+					if (offerBG.hoverState > offerBG2.hoverState) then
 						offerBG2.hoverState = offerBG.hoverState
-					elseif (stateB > 0) then
+						offerBG2.hoverClock = offerBG.hoverClock
+					else
 						offerBG.hoverState = offerBG2.hoverState
+						offerBG.hoverClock = offerBG2.hoverClock
 					end
 				end
 			end, true)
@@ -2873,7 +2873,7 @@ do
 					interactiveElem:addCustomDisplay(nil, function()
 							if (interactiveElem.keyboard == true and string.find(v.default, interactiveElem.textfieldstr[1]) and (v.default .. '') ~= interactiveElem.textfieldstr[1]) then
 								defaultValue:show(true)
-							elseif (not defaultValue.hoverState) then
+							elseif (defaultValue.hoverState == BTN_NONE) then
 								defaultValue:hide(true)
 							end
 						end, true)

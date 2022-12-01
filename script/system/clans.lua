@@ -67,8 +67,5 @@ else
 end
 
 
-add_hook("mouse_button_down", "uiMouseHandler", function(s, x, y) UIElement:handleMouseDn(s, x, y) end)
-add_hook("mouse_button_up", "uiMouseHandler", function(s, x, y) UIElement:handleMouseUp(s, x, y) end)
-add_hook("mouse_move", "uiMouseHandler", function(x, y) UIElement:handleMouseHover(x, y) end)
 add_hook("draw2d", "tbMainMenuVisual", function() UIElement:drawVisuals(1101) end)
 add_hook("draw_viewport", "tbMainMenuVisual", function() UIElement:drawViewport(1101) end)

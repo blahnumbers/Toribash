@@ -2111,15 +2111,6 @@ do
 	end
 
 	function Tutorials:loadHooks()
-		-- These are already handled in UIElement:mouseHooks()
-		--[[add_hook("mouse_button_down", "uiMouseHandler", function(s, x, y)
-				UIElement:handleMouseDn(s, x, y)
-				if (TUTORIALJOINTLOCK or (not TUTORIALJOINTLOCK and TUTORIALKEYBOARDLOCK)) then
-					return Tutorials:ignoreMouseClick()
-				end
-			end)
-		add_hook("mouse_button_up", "uiMouseHandler", function(s, x, y) UIElement:handleMouseUp(s, x, y) end)
-		add_hook("mouse_move", "uiMouseHandler", function(x, y) UIElement:handleMouseHover(x, y) end)]]
 		add_hook("key_down", "tbTutorialKeyboardHandler", function(key, kcode)
 				return Tutorials:ignoreKeyPress(key, kcode, true, true)
 			end)

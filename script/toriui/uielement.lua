@@ -61,11 +61,11 @@ CENTERMID = 7
 RIGHTMID = 8
 
 ---@alias UIElementBtnState
----| false # Default UIElement button state
+---| 0 # Default UIElement button state
 ---| 1 # Hover state
 ---| 2 # Focused state - only used with keyboard controls
 ---| 3 # Down state
-BTN_NONE = false
+BTN_NONE = 0
 BTN_HVR = 1
 BTN_FOCUS = 2
 BTN_DN = 3
@@ -427,7 +427,9 @@ function UIElement:new(o)
 			elem.textfieldindex = utf8.len(elem.textfieldstr[1])
 			elem.textfieldsingleline = o.textfieldsingleline
 			elem.textfieldkeepfocusonhide = o.textfieldkeepfocusonhide
+			---@diagnostic disable-next-line: duplicate-set-field
 			elem.textInput = function(input) elem:textfieldInput(input, o.isNumeric, o.allowNegative, o.allowDecimal) end
+			---@diagnostic disable-next-line: duplicate-set-field
 			elem.keyDown = function(key)
 					if (elem:textfieldKeyDown(key) and elem.textInputCustom) then
 						-- We have updated textfield input and have a custom text input function defined
@@ -435,12 +437,13 @@ function UIElement:new(o)
 						elem.textInputCustom()
 					end
 				end
+			---@diagnostic disable-next-line: duplicate-set-field
 			elem.keyUp = function(key) elem:textfieldKeyUp(key) end
 			table.insert(UIKeyboardHandler, elem)
 		end
 		if (o.toggle) then
 			elem.toggle = o.toggle
-			elem.keyDown = function(key) end
+			---@diagnostic disable-next-line: duplicate-set-field
 			elem.keyUp = function(key) elem:textfieldKeyUp(key) end
 			table.insert(UIKeyboardHandler, elem)
 		end
@@ -478,18 +481,10 @@ function UIElement:new(o)
 			elem.hoverState = BTN_NONE
 			elem.hoverClock = UIElement.clock
 			elem.pressedPos = { x = 0, y = 0 }
-			elem.btnDown = function(buttonId, x, y) end
-			elem.btnUp = function(buttonId, x, y) end
-			elem.btnHover = function(x, y) end
-			elem.btnRightUp = function(buttonId, x, y) end
 			table.insert(UIMouseHandler, elem)
 		end
 		if (o.keyboard) then
 			elem.permanentListener = o.permanentListener
-			elem.keyDown = function(key) end
-			elem.keyUp = function(key) end
-			elem.keyDownCustom = function(key) end
-			elem.keyUpCustom = function(key) end
 			table.insert(UIKeyboardHandler, elem)
 		end
 		if (o.hoverSound) then
@@ -1196,7 +1191,7 @@ function UIElement:display()
 	if (self.customDisplayBefore) then
 		self.customDisplayBefore()
 	end
-	if (self.hoverState ~= false) then
+	if (self.hoverState ~= BTN_NONE) then
 		local animateRatio = (UIElement.clock - (self.hoverClock or 0)) / UIElement.animationDuration
 		if (self.hoverColor) then
 			if (UIMODE_LIGHT) then
@@ -1716,7 +1711,7 @@ end
 ---@param btn number Mouse button ID
 ---@param x number
 ---@param y number
-function UIElement:handleMouseDn(btn, x, y)
+function UIElement.handleMouseDn(btn, x, y)
 	enable_camera_movement()
 	for _, v in pairs(UIKeyboardHandler) do
 		v.keyboard = v.permanentListener
@@ -1751,7 +1746,7 @@ end
 ---@param btn number Mouse button ID
 ---@param x number
 ---@param y number
-function UIElement:handleMouseUp(btn, x, y)
+function UIElement.handleMouseUp(btn, x, y)
 	local actionTriggered = false
 	for _, v in pairs(table.reverse(UIMouseHandler)) do
 		if (v.isactive) then
@@ -1783,7 +1778,7 @@ end
 ---*You likely don't need to call this function manually.*
 ---@param x number
 ---@param y number
-function UIElement:handleMouseHover(x, y)
+function UIElement.handleMouseHover(x, y)
 	local disable = nil
 	MOUSE_X, MOUSE_Y = x, y
 
@@ -1795,7 +1790,7 @@ function UIElement:handleMouseHover(x, y)
 			elseif (disable and not v.scrollableListTouchScrollActive) then
 				v.hoverState = BTN_NONE
 			elseif (x > v.pos.x and x < v.pos.x + v.size.w and y > v.pos.y and y < v.pos.y + v.size.h) then
-				if (v.hoverState == false and v.hoverSound) then
+				if (v.hoverState == BTN_NONE and v.hoverSound) then
 					play_sound(v.hoverSound)
 				end
 				if (v.hoverState ~= BTN_DN) then
@@ -1822,17 +1817,17 @@ end
 function UIElement.mouseHooks()
 	add_hook("mouse_button_down", "uiMouseHandler", function(s, x, y)
 			local toReturn = TB_MENU_MAIN_ISOPEN == 1 and 1 or 0
-			toReturn = UIElement:handleMouseDn(s, x, y) or toReturn
+			toReturn = UIElement.handleMouseDn(s, x, y) or toReturn
 			if (Tutorials and (TUTORIALJOINTLOCK or (not TUTORIALJOINTLOCK and TUTORIALKEYBOARDLOCK))) then
 				toReturn = Tutorials:ignoreMouseClick() or toReturn
 			end
 			return toReturn
 		end)
 	add_hook("mouse_button_up", "uiMouseHandler", function(s, x, y)
-			UIElement:handleMouseUp(s, x, y)
+			UIElement.handleMouseUp(s, x, y)
 		end)
 	add_hook("mouse_move", "uiMouseHandler", function(x, y)
-			UIElement:handleMouseHover(x, y)
+			UIElement.handleMouseHover(x, y)
 		end)
 
 	UIElement.__mouseHooks = true

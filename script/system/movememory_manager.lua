@@ -286,7 +286,7 @@ do
 
 		add_hook("mouse_button_down", "moveSaveMouseHandler", function(s, x, y)
 			if (TB_MENU_MAIN_ISOPEN == 0) then
-				UIElement:handleMouseDn(s, x, y)
+				UIElement.handleMouseDn(s, x, y)
 				return 1
 			end
 		end)
@@ -704,8 +704,8 @@ do
 				end
 			end)
 		openerDelete:addCustomDisplay(false, function()
-				if (not buttonHolder.hoverState) then
-					if (openerDelete.hoverState) then
+				if (buttonHolder.hoverState == BTN_NONE) then
+					if (openerDelete.hoverState ~= BTN_NONE) then
 						buttonHolder.hoverState = BTN_HVR
 						return
 					end

@@ -1,33 +1,136 @@
 -- Mods manager
 
-MODS_MENU_POS = MODS_MENU_POS or { x = 10, y = 10 }
-MODS_LIST_SHIFT = MODS_LIST_SHIFT or { 0 }
-MODS_MENU_LAST_CLICKED = nil
-MODS_MENU_START_NEW_GAME = MODS_MENU_START_NEW_GAME == nil and true or MODS_MENU_START_NEW_GAME
-
 if (Mods == nil) then
+	local x, y = get_window_safe_size()
+
+	---@class ModsListEntryInfo
+	---@field time number Click time in seconds
+	---@field mod string
+
+	---@class ModFolder
+	---@field name string
+	---@field mods string[]
+	---@field folders string[]
+	---@field contents ModFolder[]
+	---@field parent ModFolder|nil
+
+	---**Mod browser class**
+	---
+	---**Version 1.1**
+	--- - Moved globals to be Mods class fields
+	--- - Updates for touch input and new UIElement functionality
+	--- - Visuals update to match modern style
+	---@class Mods
+	---@field MainElement UIElement
+	---@field DisplayPos Vector2 Current target position for mod browser window
+	---@field LastShift number[] Last scroll list shift
+	---@field LastMenu ModsListEntryInfo Last clicked menu button
+	---@field StartNewGame boolean Whether to automatically start new game after loading mod
+	---@field CurrentFolder ModFolder Last opened mod folder
 	Mods = {
+		MainElement = nil,
+		DisplayPos = { x = x + 10, y = y + 10 },
+		ListShift = { 0 },
+		LastMenu = nil,
+		StartNewGame = true,
+		CurrentFolder = nil,
 		__index = {}
 	}
 	setmetatable({}, Mods)
 end
 
-function Mods:getModFiles(path)
+---Generic function to execute on mod button click
+---@param file string
+function Mods.buttonClick(file)
+	local clock = os.clock_real()
+	if (not Mods.LastMenu) then
+		---@type ModsListEntryInfo
+		Mods.LastMenu = { time = clock, mod = file }
+	elseif (Mods.LastMenu.time + 0.5 > clock and Mods.LastMenu.mod == file) then
+		runCmd("loadmod " .. file)
+		if (Mods.StartNewGame and get_world_state().game_type == 1) then
+			runCmd("reset")
+		end
+	else
+		---@type ModsListEntryInfo
+		Mods.LastMenu = { time = clock, mod = file }
+	end
+end
+
+---Internal function to get and cache all mods within a directory
+---@param path ?string
+---@return ModFolder
+function Mods.getModFiles(path)
 	local path = path or "data/mod"
+	---@type ModFolder
 	local data = { name = path, mods = {}, folders = {}, contents = {} }
 	for i,v in pairs(get_files(path, "")) do
 		if (v:match(".tbm$")) then
 			table.insert(data.mods, v)
 		elseif (not v:find("^%.+[%s%S]*$") and v ~= "system" and v ~= "modmaker_draft" and not v:find("%.%a+$")) then
 			table.insert(data.folders, v)
-			data.contents[#data.folders] = Mods:getModFiles(path .. "/" .. v)
+			data.contents[#data.folders] = Mods.getModFiles(path .. "/" .. v)
 			data.contents[#data.folders].parent = data
 		end
 	end
 	return data
 end
 
-function Mods:spawnMainList(listingHolder, toReload, topBar, elementHeight, data, search)
+---Generic function to spawn a list button
+---@param listingHolder UIElement
+---@param listElements UIElement[]
+---@param elementHeight number
+---@param icon string|nil
+---@param text string
+---@param pressFunc function
+---@param iconHalfWidth ?boolean
+---@return UIElement
+function Mods.spawnListButton(listingHolder, listElements, elementHeight, icon, text, pressFunc, iconHalfWidth)
+	local buttonHolder = listingHolder:addChild({
+		pos = { 0, #listElements * elementHeight },
+		size = { listingHolder.size.w, elementHeight }
+	})
+	table.insert(listElements, buttonHolder)
+	local button = buttonHolder:addChild({
+		pos = { 5, 2 },
+		size = { buttonHolder.size.w - 5, buttonHolder.size.h - 4 },
+		interactive = true,
+		clickThrough = true,
+		hoverThrough = true,
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+		shapeType = ROUNDED,
+		rounded = 3
+	})
+
+	local shiftModifier = 0
+	if (icon ~= nil) then
+		local buttonIcon = button:addChild({
+			pos = { 5, 0 },
+			size = { iconHalfWidth and button.size.h / 2 or button.size.h, button.size.h },
+			bgImage = icon
+		})
+		shiftModifier = buttonIcon.size.w + buttonIcon.shift.x
+	end
+	local buttonText = button:addChild({
+		pos = { shiftModifier + 5, 0 },
+		size = { button.size.w - shiftModifier - 10, button.size.h }
+	})
+	buttonText:addAdaptedText(false, text, nil, nil, 4, LEFTMID, 0.8, 0.8)
+	button:addMouseUpHandler(pressFunc)
+
+	return buttonHolder
+end
+
+---Function to spawn the main list with mods
+---@param listingHolder UIElement
+---@param toReload UIElement
+---@param topBar UIElement
+---@param elementHeight number
+---@param data ModFolder
+---@param search UIElement
+function Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, data, search)
 	if (listingHolder.scrollBar) then
 		listingHolder.scrollBar:kill()
 	end
@@ -37,47 +140,25 @@ function Mods:spawnMainList(listingHolder, toReload, topBar, elementHeight, data
 		topBar.title:kill()
 		topBar.title = nil
 	end
-	local modsFolderName = UIElement:new({
-		parent = topBar,
-		pos = { 10, 35 },
-		size = { topBar.size.w - 20, topBar.size.h - 40 }
+	local modsFolderName = topBar:addChild({
+		---@diagnostic disable-next-line: undefined-field
+		pos = { topBar.helpPopup.size.w + topBar.helpPopup.shift.x + 5, 35 },
+		---@diagnostic disable-next-line: undefined-field
+		size = { topBar.size.w - 15 - (topBar.helpPopup.size.w + topBar.helpPopup.shift.x), topBar.size.h - 40 }
 	})
 	topBar.title = modsFolderName
-	modsFolderName:addAdaptedText(true, data.name:gsub("^data/mod", "Mods"):gsub("/", " :: "), nil, nil, FONTS.BIG, nil, 0.6, nil, 0.5)
+	modsFolderName:addAdaptedText(true, data.name:gsub("^data/mod", "Mods"):gsub("/", " :: "), nil, nil, FONTS.BIG, LEFTMID, 0.6, nil, 0.5)
 
-	local searchString = search.textfieldstr[1]:gsub("([^%w])", "%%%1")
+	local searchString = utf8.gsub(search.textfieldstr[1], "([^%w])", "%%%1")
 	local listElements = {}
-	CURRENT_MOD_FOLDER = data
+	Mods.CurrentFolder = data
 
 	if (data.name ~= "data/mod" or searchString ~= "") then
-		local default = UIElement:new({
-			parent = listingHolder,
-			pos = { 0, 0 },
-			size = { listingHolder.size.w, elementHeight },
-			interactive = true,
-			clickThrough = true,
-			hoverThrough = true,
-			bgColor = TB_MENU_DEFAULT_BG_COLOR,
-			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
-			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR
-		})
-		table.insert(listElements, default)
-		local defaultIcon = UIElement:new({
-			parent = default,
-			pos = { 5, 0 },
-			size = { elementHeight, elementHeight },
-			bgImage = "../textures/menu/general/back.tga"
-		})
-		local defaultText = UIElement:new({
-			parent = default,
-			pos = { elementHeight, 0 },
-			size = { default.size.w - elementHeight, elementHeight }
-		})
-		defaultText:addAdaptedText(false, TB_MENU_LOCALIZED.NAVBUTTONBACK, 10, nil, 4, LEFTMID, 0.8, 0.8)
-		default:addMouseHandlers(nil, function()
-				search:clearTextfield()
-				Mods:spawnMainList(listingHolder, toReload, topBar, elementHeight, data.parent and data.parent or data, search)
-			end)
+		Mods.spawnListButton(listingHolder, listElements, elementHeight, "../textures/menu/general/back.tga", TB_MENU_LOCALIZED.NAVBUTTONBACK, function()
+			Mods.ListShift[1] = 0
+			search:clearTextfield()
+			Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, data.parent and data.parent or data, search)
+		end)
 	end
 
 	local modmakerId = 0
@@ -85,28 +166,12 @@ function Mods:spawnMainList(listingHolder, toReload, topBar, elementHeight, data
 		if (folder == "modmaker") then
 			modmakerId = i
 		else
-			local element = UIElement:new({
-				parent = listingHolder,
-				pos = { 0, #listElements * elementHeight },
-				size = { listingHolder.size.w, elementHeight },
-				interactive = true,
-				clickThrough = true,
-				hoverThrough = true,
-				bgColor = TB_MENU_DEFAULT_BG_COLOR,
-				hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
-				pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR
-			})
-			element:addAdaptedText(false, folder:sub(0, 1):upper() .. folder:sub(2), elementHeight + 15, nil, 4, LEFTMID, 0.8, 0.8)
-			element:addMouseHandlers(nil, function()
-					search:clearTextfield()
-					Mods:spawnMainList(listingHolder, toReload, topBar, elementHeight, data.contents[i], search)
-				end)
-			local folderIcon = UIElement:new({
-				parent = element,
-				pos = { 10, 0 },
-				size = { elementHeight, elementHeight },
-				bgImage = "../textures/menu/general/folder.tga"
-			})
+			local element = Mods.spawnListButton(listingHolder, listElements, elementHeight, "../textures/menu/general/folder.tga", folder, function()
+				Mods.ListShift[1] = 0
+				search:clearTextfield()
+				Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, data.contents[i], search)
+			end)
+			table.remove(listElements)
 			local inserted = false
 			if (searchString ~= "") then
 				for i, file in pairs(data.contents[i].mods) do
@@ -115,37 +180,8 @@ function Mods:spawnMainList(listingHolder, toReload, topBar, elementHeight, data
 							inserted = true
 							table.insert(listElements, element)
 						end
-						local element = UIElement:new({
-							parent = listingHolder,
-							pos = { 0, #listElements * elementHeight },
-							size = { listingHolder.size.w, elementHeight },
-							interactive = true,
-							clickThrough = true,
-							hoverThrough = true,
-							bgColor = TB_MENU_DEFAULT_BG_COLOR,
-							hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
-							pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR
-						})
-						local elementIcon = UIElement:new({
-							parent = element,
-							pos = { elementHeight, 0 },
-							size = { elementHeight / 2, elementHeight },
-							bgImage = "../textures/menu/general/buttons/arrowright.tga"
-						})
-						table.insert(listElements, element)
-						element:addAdaptedText(false, file:gsub("%.tbm$", ""), elementHeight * 1.5 + 5, nil, 4, LEFTMID, 0.8, 0.8)
-						element:addMouseHandlers(nil, function()
-								if (not MODS_MENU_LAST_CLICKED) then
-									MODS_MENU_LAST_CLICKED = { time = os.clock_real(), mod = file }
-								elseif (MODS_MENU_LAST_CLICKED.time + 0.5 > os.clock_real() and MODS_MENU_LAST_CLICKED.mod == file) then
-									runCmd("loadmod " .. file)
-									if (MODS_MENU_START_NEW_GAME and get_world_state().game_type == 1) then
-										runCmd("reset")
-									end
-								else
-									MODS_MENU_LAST_CLICKED = { time = os.clock_real(), mod = file }
-								end
-							end)
+						local filename = file:gsub("%.tbm$", "")
+						Mods.spawnListButton(listingHolder, listElements, elementHeight, "../textures/menu/general/buttons/arrowright.tga", filename, function() Mods.buttonClick(file) end, true)
 					end
 				end
 				if (not inserted) then
@@ -156,58 +192,19 @@ function Mods:spawnMainList(listingHolder, toReload, topBar, elementHeight, data
 			end
 		end
 	end
-	for i, file in pairs(data.mods) do
+	for _, file in pairs(data.mods) do
 		if (file:lower():find(searchString)) then
-			local element = UIElement:new({
-				parent = listingHolder,
-				pos = { 0, #listElements * elementHeight },
-				size = { listingHolder.size.w, elementHeight },
-				interactive = true,
-				clickThrough = true,
-				hoverThrough = true,
-				bgColor = TB_MENU_DEFAULT_BG_COLOR,
-				hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
-				pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR
-			})
-			table.insert(listElements, element)
-			element:addAdaptedText(false, file:gsub("%.tbm$", ""), 10, nil, 4, LEFTMID, 0.8, 0.8)
-			element:addMouseHandlers(nil, function()
-					if (not MODS_MENU_LAST_CLICKED) then
-						MODS_MENU_LAST_CLICKED = { time = os.clock_real(), mod = file }
-					elseif (MODS_MENU_LAST_CLICKED.time + 0.5 > os.clock_real() and MODS_MENU_LAST_CLICKED.mod == file) then
-						runCmd("loadmod " .. file)
-						if (MODS_MENU_START_NEW_GAME and get_world_state().game_type == 1) then
-							runCmd("reset")
-						end
-					else
-						MODS_MENU_LAST_CLICKED = { time = os.clock_real(), mod = file }
-					end
-				end)
+			local filename = file:gsub("%.tbm$", "")
+			Mods.spawnListButton(listingHolder, listElements, elementHeight, nil, filename, function() Mods.buttonClick(file) end)
 		end
 	end
 	if (modmakerId > 0) then
-		local element = UIElement:new({
-			parent = listingHolder,
-			pos = { 0, #listElements * elementHeight },
-			size = { listingHolder.size.w, elementHeight },
-			interactive = true,
-			clickThrough = true,
-			hoverThrough = true,
-			bgColor = TB_MENU_DEFAULT_BG_COLOR,
-			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
-			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR
-		})
-		element:addAdaptedText(false, data.folders[modmakerId], elementHeight + 15, nil, 4, LEFTMID, 0.8, 0.8)
-		element:addMouseHandlers(nil, function()
-				search:clearTextfield()
-				Mods:spawnMainList(listingHolder, toReload, topBar, elementHeight, data.contents[modmakerId], search)
-			end)
-		local folderIcon = UIElement:new({
-			parent = element,
-			pos = { 10, 0 },
-			size = { elementHeight, elementHeight },
-			bgImage = "../textures/menu/general/folder.tga"
-		})
+		local element = Mods.spawnListButton(listingHolder, listElements, elementHeight, "../textures/menu/general/folder.tga", data.folders[modmakerId], function()
+			Mods.ListShift[1] = 0
+			search:clearTextfield()
+			Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, data.contents[modmakerId], search)
+		end)
+		table.remove(listElements)
 		local inserted = false
 		if (searchString ~= "") then
 			for i, file in pairs(data.contents[modmakerId].mods) do
@@ -216,37 +213,8 @@ function Mods:spawnMainList(listingHolder, toReload, topBar, elementHeight, data
 						inserted = true
 						table.insert(listElements, element)
 					end
-					local element = UIElement:new({
-						parent = listingHolder,
-						pos = { 0, #listElements * elementHeight },
-						size = { listingHolder.size.w, elementHeight },
-						interactive = true,
-						clickThrough = true,
-						hoverThrough = true,
-						bgColor = TB_MENU_DEFAULT_BG_COLOR,
-						hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
-						pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR
-					})
-					local elementIcon = UIElement:new({
-						parent = element,
-						pos = { elementHeight, 0 },
-						size = { elementHeight / 2, elementHeight },
-						bgImage = "../textures/menu/general/buttons/arrowright.tga"
-					})
-					table.insert(listElements, element)
-					element:addAdaptedText(false, file:gsub("%.tbm$", ""), elementHeight * 1.5 + 5, nil, 4, LEFTMID, 0.8, 0.8)
-					element:addMouseHandlers(nil, function()
-							if (not MODS_MENU_LAST_CLICKED) then
-								MODS_MENU_LAST_CLICKED = { time = os.clock_real(), mod = file }
-							elseif (MODS_MENU_LAST_CLICKED.time + 0.5 <= os.clock_real() and MODS_MENU_LAST_CLICKED.mod == file) then
-								runCmd("loadmod " .. file)
-								if (MODS_MENU_START_NEW_GAME and get_world_state().game_type == 1) then
-									runCmd("reset")
-								end
-							else
-								MODS_MENU_LAST_CLICKED = { time = os.clock_real(), mod = file }
-							end
-						end)
+					local filename = file:gsub("%.tbm$", "")
+					Mods.spawnListButton(listingHolder, listElements, elementHeight, "../textures/menu/general/buttons/arrowright.tga", filename, function() Mods.buttonClick(file) end, true)
 				end
 			end
 			if (not inserted) then
@@ -270,49 +238,46 @@ function Mods:spawnMainList(listingHolder, toReload, topBar, elementHeight, data
 	end
 	local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
 	listingHolder.scrollBar = scrollBar
-	scrollBar:makeScrollBar(listingHolder, listElements, toReload, MODS_LIST_SHIFT)
+	scrollBar:makeScrollBar(listingHolder, listElements, toReload, Mods.ListShift)
 end
 
-function Mods:showMain()
-	local mainView = UIElement:new({
+---Creates mod browser window
+function Mods.showMain()
+	-- Safety check just in case this wasn't called from mods.lua so that we don't get stuck with two browsers on screen
+	if (Mods.MainElement ~= nil) then
+		Mods.MainElement:kill()
+		Mods.MainElement = nil
+	end
+
+	local mainViewBackground = UIElement:new({
 		globalid = TB_MENU_HUB_GLOBALID,
-		pos = { MODS_MENU_POS.x, MODS_MENU_POS.y },
-		size = { WIN_W / 4, WIN_H / 4 * 3 },
+		pos = { Mods.DisplayPos.x, Mods.DisplayPos.y },
+		size = { math.min(400, WIN_W / 4), math.min(math.max(WIN_H / 2, 650), WIN_H - 20) },
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 		shapeType = ROUNDED,
 		rounded = 4
 	})
-	MODS_MENU_MAIN_ELEMENT = mainView
-	MODS_MENU_POS = mainView.pos
+	Mods.MainElement = mainViewBackground
+	Mods.DisplayPos = mainViewBackground.pos
 
-	local mainList = UIElement:new({
-		parent = mainView,
-		pos = { 0, 0 },
-		size = { mainView.size.w, mainView.size.h },
-		bgColor = TB_MENU_DEFAULT_BG_COLOR,
-		shapeType = mainView.shapeType,
-		rounded = mainView.rounded
-	})
-	local elementHeight = 25
-	local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(mainList, 75, 70, 15)
+	local mainView = mainViewBackground:addChild({
+		shift = { 2, 2 },
+		bgColor = TB_MENU_DEFAULT_BG_COLOR
+	}, true)
+
+	local elementHeight = 36
+	local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(mainView, 75, 70, 20, mainView.bgColor)
 
 	topBar.shapeType = mainView.shapeType
 	topBar:setRounded(mainView.rounded)
 	botBar.shapeType = mainView.shapeType
 	botBar:setRounded(mainView.rounded)
 
-	local mainMoverHolder = UIElement:new({
-		parent = topBar,
-		pos = { 0, 0 },
+	local mainMoverHolder = topBar:addChild({
 		size = { topBar.size.w, 30 },
-		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
-		shapeType = mainView.shapeType,
-		rounded = mainView.rounded
-	})
-	local mainMover = UIElement:new({
-		parent = mainMoverHolder,
-		pos = { 0, 0 },
-		size = { mainMoverHolder.size.w, mainMoverHolder.size.h },
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR
+	}, true)
+	local mainMover = mainMoverHolder:addChild({
 		interactive = true,
 		bgColor = UICOLORWHITE,
 		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
@@ -334,80 +299,89 @@ function Mods:showMain()
 			if (mainMover.hoverState == BTN_DN) then
 				local x = x - mainMover.pressedPos.x
 				local y = y - mainMover.pressedPos.y
-					x = x < 0 and 0 or (x + mainView.size.w > WIN_W and WIN_W - mainView.size.w or x)
-				y = y < 0 and 0 or (y + mainView.size.h > WIN_H and WIN_H - mainView.size.h or y)
-				mainView:moveTo(x, y)
+					x = x < 0 and 0 or (x + Mods.MainElement.size.w > WIN_W and WIN_W - Mods.MainElement.size.w or x)
+				y = y < 0 and 0 or (y + Mods.MainElement.size.h > WIN_H and WIN_H - Mods.MainElement.size.h or y)
+				Mods.MainElement:moveTo(x, y)
 			end
 		end)
 
-	local modNewGameToggleView = UIElement:new({
-		parent = botBar,
+	local helpPopupSize = topBar.size.h - mainMoverHolder.size.h - 10
+	local helpPopupHolder = topBar:addChild({
+		pos = { 5, mainMoverHolder.size.h + 5 },
+		size = { helpPopupSize, helpPopupSize },
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		interactive = true,
+		shapeType = ROUNDED,
+		rounded = helpPopupSize
+	})
+	topBar.helpPopup = helpPopupHolder
+	local helpPopup = TBMenu:displayHelpPopup(helpPopupHolder, "Double click on a mod to load it")
+	helpPopup:moveTo(helpPopupSize + 5, (helpPopupSize - helpPopup.size.h) / 2, true)
+
+	local modNewGameToggleView = botBar:addChild({
 		pos = { 0, -35 },
 		size = { mainView.size.w, 30 }
-	})
-	local modNewGameToggleBG = UIElement:new({
-		parent = modNewGameToggleView,
+	}, true)
+	local modNewGameToggleBG = modNewGameToggleView:addChild({
 		pos = { 5, 2 },
 		size = { modNewGameToggleView.size.h - 4, modNewGameToggleView.size.h - 4 },
 		bgColor = TB_MENU_DEFAULT_DARKEST_COLOR
-	})
-	local modNewGameToggle = UIElement:new({
-		parent = modNewGameToggleBG,
-		pos = { 1, 1 },
-		size = { modNewGameToggleBG.size.w - 2, modNewGameToggleBG.size.h - 2 },
+	}, true)
+	local modNewGameToggle = modNewGameToggleBG:addChild({
+		shift = { 1, 1 },
 		interactive = true,
 		bgColor = TB_MENU_DEFAULT_BG_COLOR,
 		hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
 		pressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR
-	})
-	local modNewGameToggleIcon = UIElement:new({
-		parent = modNewGameToggle,
-		pos = { 0, 0 },
-		size = { modNewGameToggle.size.w, modNewGameToggle.size.h },
+	}, true)
+	local modNewGameToggleIcon = modNewGameToggle:addChild({
 		bgImage = "../textures/menu/general/buttons/checkmark.tga"
 	})
-	if (not MODS_MENU_START_NEW_GAME) then
-		modNewGameToggleIcon:hide()
+	if (not Mods.StartNewGame) then
+		modNewGameToggleIcon:hide(true)
 	end
-	modNewGameToggle:addMouseHandlers(nil, function()
-			MODS_MENU_START_NEW_GAME = not MODS_MENU_START_NEW_GAME
-			if (not MODS_MENU_START_NEW_GAME) then
-				modNewGameToggleIcon:hide()
+	modNewGameToggle:addMouseUpHandler(function()
+		Mods.StartNewGame = not Mods.StartNewGame
+			if (not Mods.StartNewGame) then
+				modNewGameToggleIcon:hide(true)
 			else
-				modNewGameToggleIcon:show()
+				modNewGameToggleIcon:show(true)
 			end
 		end)
-	local modNewGameText = UIElement:new({
-		parent = modNewGameToggleView,
+	local modNewGameText = modNewGameToggleView:addChild({
 		pos = { modNewGameToggleBG.shift.x * 2 + modNewGameToggleBG.size.w, 0 },
 		size = { modNewGameToggleView.size.w - modNewGameToggleBG.shift.x * 3 - modNewGameToggleBG.size.w, modNewGameToggleView.size.h }
 	})
-	modNewGameText:addAdaptedText(true, TB_MENU_LOCALIZED.MODSRESTARTGAME, nil, nil, 4, LEFTMID)
+	modNewGameText:addAdaptedText(true, TB_MENU_LOCALIZED.MODSRESTARTGAME, nil, nil, 4, LEFTMID, 0.7)
 
-	local search = TBMenu:spawnTextField2(botBar, { x = 5, y = 5, w = botBar.size.w - 10, h = botBar.size.h - 40 }, nil, TB_MENU_LOCALIZED.SEARCHNOTE)
+	local search = TBMenu:spawnTextField2(botBar, { x = 5, y = 5, w = botBar.size.w - 10, h = botBar.size.h - 40 }, nil, TB_MENU_LOCALIZED.SEARCHNOTE, { fontId = 4, textScale = 0.65, textAlign = LEFTMID, keepFocusOnHide = true, darkerMode = true })
+	local lastText = search.textfieldstr[1]
 	search:addKeyboardHandlers(nil, function()
-			MODS_LIST_SHIFT[1] = 0
-			Mods:spawnMainList(listingHolder, toReload, topBar, elementHeight, CURRENT_MOD_FOLDER, search)
+			if (lastText ~= search.textfieldstr[1]) then
+				Mods.ListShift[1] = 0
+				Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, Mods.CurrentFolder, search)
+				lastText = search.textfieldstr[1]
+			end
 		end)
-	CURRENT_MOD_FOLDER = Mods:getModFiles()
-	Mods:spawnMainList(listingHolder, toReload, topBar, elementHeight, CURRENT_MOD_FOLDER, search)
+	Mods.CurrentFolder = Mods.getModFiles()
+	Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, Mods.CurrentFolder, search)
 
 	local quitButton = mainMoverHolder:addChild({
 		pos = { -mainMoverHolder.size.h, 0 },
-		size = { mainMoverHolder.size.h , mainMoverHolder.size.h },
+		size = { mainMoverHolder.size.h, mainMoverHolder.size.h },
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-		interactive = true,
-		shapeType = ROUNDED,
-		rounded = 4
-	})
+		interactive = true
+	}, true)
 	quitButton:addChild({
 		shift = { 2, 2 },
 		bgImage = "../textures/menu/general/buttons/crosswhite.tga"
 	})
 	quitButton:addMouseHandlers(nil, function()
-			mainView:kill()
-			MODS_MENU_MAIN_ELEMENT = nil
+			Mods.MainElement:kill()
+			Mods.MainElement = nil
 		end)
 end

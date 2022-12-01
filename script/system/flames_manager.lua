@@ -529,7 +529,7 @@ do
 					interactive = true
 				})
 				TBMenu:displayLoadingMarkSmall(flameLoaderOverlay, TB_MENU_LOCALIZED.NETWORKLOADING)
-				flameLoaderOverlay:handleMouseDn(0, -1, 0)
+				UIElement.handleMouseDn(0, -1, 0)
 
 				Request:queue(function()
 						download_server_info("flame_fetch_settings&flameid=" .. flameIdLoaderInput.textfieldstr[1])
@@ -1134,7 +1134,7 @@ do
 		})
 		flamesSearchButton:addAdaptedText(nil, TB_MENU_LOCALIZED.BUTTONSEARCH)
 		local doSearch = function(str)
-			flamesSearchTextfield:handleMouseDn(0, -1, 0)
+			UIElement.handleMouseDn(0, -1, 0)
 			Request:queue(function()
 				flamesSearchTextfield:deactivate(true)
 				flamesSearchButton:deactivate(true)

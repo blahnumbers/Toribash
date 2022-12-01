@@ -182,7 +182,7 @@ function UIElement3D:display()
 		set_viewport(self.viewport.pos.x, self.viewport.pos.y, self.viewport.size.w, self.viewport.size.h)
 		return
 	end
-	if (self.hoverState ~= false and self.hoverColor) then
+	if (self.hoverState ~= BTN_NONE and self.hoverColor) then
 		for i = 1, 4 do
 			if ((self.bgColor[i] > self.hoverColor[i] and self.animateColor[i] > self.hoverColor[i]) or (self.bgColor[i] < self.hoverColor[i] and self.animateColor[i] < self.hoverColor[i])) then
 				self.animateColor[i] = self.animateColor[i] - math.floor((self.bgColor[i] - self.hoverColor[i]) * 150) / 1000
