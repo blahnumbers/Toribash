@@ -204,7 +204,7 @@ if (not UIElement) then
 
 	-- Toribash GUI elements manager class
 	--
-	-- **Ver 2.0 updates:**
+	-- **Ver 5.60 updates:**
 	-- * Rewritten all keyboard handlers to make better use of SDL text input events
 	-- * `UIElement.keyboardHooks()` to initialize generic text field handlers on start
 	-- * `UIElement.mouseHooks()` is now an abstract class function
@@ -283,7 +283,7 @@ if (not UIElement) then
 	---@field positionDirty boolean Read-only value to tell the UIElement internal loops to refresh element position
 	---@field scrollableListTouchScrollActive boolean Read-only value used for scrollable list view elements on touch devices
 	UIElement = {
-		ver = 2.0,
+		ver = 5.60,
 		clock = os.clock_real(),
 		animationDuration = 0.1
 	}

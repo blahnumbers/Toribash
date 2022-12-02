@@ -15,7 +15,7 @@ require("system.ignore_manager")
 if (TBHud == nil) then
 	---**Touch HUD class**
 	---
-	---**Version 1.0**
+	---**Version 5.60**
 	--- - Base implementation for gameplay buttons (ready, ghost control, chat)
 	---@class TBHud
 	---@field MainElement UIElement
@@ -49,7 +49,7 @@ if (TBHud == nil) then
 		DefaultButtonColor = table.clone(TB_MENU_DEFAULT_BG_COLOR),
 		RequiresChatRefresh = false,
 		SafeAreaOffset = 0,
-		ver = 1.0,
+		ver = 5.60,
 		__index = {}
 	}
 	setmetatable({}, TBHud)

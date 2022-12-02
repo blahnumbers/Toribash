@@ -21,7 +21,7 @@ UIVisual3DManagerViewport = UIVisual3DManagerViewport or {}
 
 if (not UIElement3D) then
 	UIElement3D = {
-		ver = 2.0,
+		ver = 5.60,
 		__index = UIElement
 	}
 	setmetatable(UIElement3D, UIElement)

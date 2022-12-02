@@ -26,15 +26,14 @@ if (TB_MENU_SPECIAL_SCREEN_ISOPEN == IGNORE_NAVBAR_SCROLL) then
 	TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
 end
 
+---Global flag to tell if main menu is currently open
 TB_MENU_MAIN_ISOPEN = TB_MENU_MAIN_ISOPEN or 0
 TB_MENU_SPECIAL_SCREEN_ISOPEN = TB_MENU_SPECIAL_SCREEN_ISOPEN or 0
 TB_MENU_CLANS_OPENCLANID = TB_MENU_CLANS_OPENCLANID or 0
-TB_MENU_NOTIFICATIONS_ISOPEN = 0
 TB_MENU_NOTIFICATIONS_COUNT = TB_MENU_NOTIFICATIONS_COUNT or 0
 TB_MENU_REPLAYS_ONLINE = TB_MENU_REPLAYS_ONLINE or 0
 TB_MENU_KEYBOARD_ENABLED = false
 TB_LAST_MENU_SCREEN_OPEN = TB_LAST_MENU_SCREEN_OPEN or (get_option("newshopitem") == 1 and 1 or 2)
-TB_MENU_HOME_CURRENT_ANNOUNCEMENT = TB_MENU_HOME_CURRENT_ANNOUNCEMENT or 1
 
 if (TB_MENU_MAIN_ISOPEN == 1) then
 	remove_hooks("tbMainMenuVisual")
@@ -69,7 +68,7 @@ TB_MENU_GLOBAL_SCALE = math.min(WIN_H > 720 and 1 or WIN_H / 720, WIN_W > 1280 a
 require("system.menu_defines")
 require("system.iofiles")
 require("system.menu_manager")
-TBMenu:init("221201")
+TBMenu.init("221202")
 
 require("system.menu_backend_defines")
 require("system.network_request")

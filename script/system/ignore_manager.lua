@@ -1,6 +1,6 @@
 if (ChatIgnore == nil) then
 	---Helper class that filters chat according to current game settings \
-	---**Version 2.0**
+	---**Version 5.60**
 	---* Class can now be used as a submodule to filter input
 	---* Updated
 	---@class ChatIgnore
@@ -8,7 +8,7 @@ if (ChatIgnore == nil) then
 	---@field BannedWords string[] List of words that we don't want to have displayed in chat
 	---@field IsActive boolean
 	ChatIgnore = {
-		ver = 2.0,
+		ver = 5.60,
 		BannedWords = {},
 		__index = {}
 	}

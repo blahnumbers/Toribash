@@ -8,7 +8,7 @@ local m_backS = 1.70158;
 if (UITween == nil) then
 	---Manager class to allow generic smooth transitions
 	UITween = {
-		ver = 1.0,
+		ver = 5.60,
 		__index = {}
 	}
 	setmetatable({}, UITween)

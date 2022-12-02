@@ -4,7 +4,7 @@
 if (TBMenu == nil) then
 	---Toribash main menu class
 	---
-	---**Ver 1.7**
+	---**Ver 5.60**
 	---* All global UIElement holders are now fields of TBMenu class
 	---* User bar player display will now automatically reload on customs update
 	---* Increased UIElement viewport size (user bar head preview) to make sure custom obj doesn't get cut
@@ -23,25 +23,37 @@ if (TBMenu == nil) then
 	---@field BottomLeftBar UIElement Bottom left bar UIElement holder
 	---@field BottomRightBar UIElement Bottom right bar UIElement holder
 	---@field StatusMessage UIElement Status message UIElement holder
+	---@field CurrentAnnouncementId integer Active home tab announcement ID
 	TBMenu = {
 		__index = {},
-		ver = 1.7,
+		ver = 5.60,
 		MenuMain = nil,
 		UserBar = nil,
 		CurrentSection = nil,
 		NavigationBar = nil,
 		BottomLeftBar = nil,
 		BottomRightBar = nil,
-		StatusMessage = nil
+		StatusMessage = nil,
+		CurrentAnnouncementId = 1
 	}
 	setmetatable({}, TBMenu)
 end
 
-function TBMenu:init(version)
+---Internal functions used by TBMenu
+---@class TBMenuInternal
+local TBMenuInternal = {
+	__index = {}
+}
+setmetatable({}, TBMenuInternal)
+
+---@param version string
+function TBMenu.init(version)
 	TB_MENU_MAIN_ISOPEN = 1
 	set_build_version(version)
 end
 
+---Adjusts some internal settings for fonts to accompany for RTL languages
+---@param language string
 function TBMenu:setLanguageFontOptions(language)
 	if (language == "hebrew" or language == "arabic") then
 		FONTS.BIG = 4
@@ -58,7 +70,8 @@ function TBMenu:setLanguageFontOptions(language)
 	end
 end
 
----Caches localization data to `TB_MENU_LOCALIZED` table for the provided language
+---Caches localization data to `TB_MENU_LOCALIZED` table for the provided language. \
+---In case of incomplete data, uses English to make sure there are no missing localization strings.
 ---@param language string
 function TBMenu:getTranslation(language)
 	local language = language and string.lower(language) or "english"
@@ -110,6 +123,7 @@ function TBMenu:getTranslation(language)
 	end
 end
 
+---Exits main menu and unloads all related hooks
 function TBMenu:quit()
 	remove_hooks("tbMainMenuVisual")
 	remove_hooks("tbMainMenuMouse")
@@ -125,6 +139,7 @@ function TBMenu:quit()
 	TBMenu.MenuMain:kill()
 end
 
+---Creates `TBMenu.CurrentSection` object to be used by main menu
 function TBMenu:createCurrentSectionView()
 	if (TBMenu.MenuMain == nil or TBMenu.MenuMain.destroyed) then return end
 
@@ -165,9 +180,9 @@ function TBMenu:getImageDimensions(width, height, ratio, shift1, shift2)
 	end
 end
 
----@deprecated
----Legacy method to create image buttons.\
----Use a single UIElement with a white sprite and different imageColor / imageHoverColor / imagePressedColor values instead.
+---Shorthand method to create an image button.
+---
+---Only use this if you need to use different sprites for different button states, otherwise use a single UIElement with a white sprite and different `imageColor` / `imageHoverColor` / `imagePressedColor` values.
 ---@param parentElement UIElement
 ---@param x number
 ---@param y number
@@ -241,20 +256,27 @@ function TBMenu:createImageButtons(parentElement, x, y, w, h, img, imgHvr, imgPr
 	return buttonMain
 end
 
-function TBMenu:changeCurrentEvent(viewElement, eventsData, eventItems, clock, reloadElement, direction)
+---Internal TBMenu function to rotate News section displayed event
+---@param viewElement any
+---@param eventsData any
+---@param eventItems any
+---@param clock any
+---@param reloadElement any
+---@param direction any
+function TBMenuInternal.changeCurrentEvent(viewElement, eventsData, eventItems, clock, reloadElement, direction)
 	for i, v in pairs(eventItems) do
-		if (i == TB_MENU_HOME_CURRENT_ANNOUNCEMENT) then
+		if (i == TBMenu.CurrentAnnouncementId) then
 			v:hide()
-			TB_MENU_HOME_CURRENT_ANNOUNCEMENT = TB_MENU_HOME_CURRENT_ANNOUNCEMENT + direction
-			if (TB_MENU_HOME_CURRENT_ANNOUNCEMENT > #eventItems) then
-				TB_MENU_HOME_CURRENT_ANNOUNCEMENT = TB_MENU_HOME_CURRENT_ANNOUNCEMENT - #eventItems
-			elseif (TB_MENU_HOME_CURRENT_ANNOUNCEMENT < 1) then
-				TB_MENU_HOME_CURRENT_ANNOUNCEMENT = #eventItems
+			TBMenu.CurrentAnnouncementId = TBMenu.CurrentAnnouncementId + direction
+			if (TBMenu.CurrentAnnouncementId > #eventItems) then
+				TBMenu.CurrentAnnouncementId = TBMenu.CurrentAnnouncementId - #eventItems
+			elseif (TBMenu.CurrentAnnouncementId < 1) then
+				TBMenu.CurrentAnnouncementId = #eventItems
 			end
-			eventItems[TB_MENU_HOME_CURRENT_ANNOUNCEMENT]:show()
+			eventItems[TBMenu.CurrentAnnouncementId]:show()
 			local function behavior()
-				eventsData[TB_MENU_HOME_CURRENT_ANNOUNCEMENT].action()
-				if (eventsData[TB_MENU_HOME_CURRENT_ANNOUNCEMENT].stop) then
+				eventsData[TBMenu.CurrentAnnouncementId].action()
+				if (eventsData[TBMenu.CurrentAnnouncementId].stop) then
 					clock.pause = true
 				end
 			end
@@ -380,7 +402,7 @@ function TBMenu:showHome()
 			v.action = function() usage_event("newsview" .. v.title) v.initAction() rotateClock.pause = true end
 		end
 		TBMenu:showHomeButton(eventItems[i], v, 1)
-		if (i ~= TB_MENU_HOME_CURRENT_ANNOUNCEMENT) then
+		if (i ~= TBMenu.CurrentAnnouncementId) then
 			eventItems[i]:hide()
 		else
 			newsItemShown = true
@@ -390,7 +412,7 @@ function TBMenu:showHome()
 	if (not newsItemShown) then
 		-- Make sure we don't end up with empty news section if there was a news update while they're playing
 		eventItems[1]:show()
-		TB_MENU_HOME_CURRENT_ANNOUNCEMENT = 1
+		TBMenu.CurrentAnnouncementId = 1
 	end
 
 	if (#eventsData > 1) then
@@ -2235,11 +2257,11 @@ end
 -- TBMenu navigation button data
 ---@class MenuNavButton
 ---@field text string Main button text
----@field misctext string Miscellaneous button text, will be displayed in a frame nearby
+---@field misctext string|nil Miscellaneous button text, will be displayed in a frame nearby
 ---@field width number Button width assigned by showNavigationBar()
 ---@field action function Function that will be executed when button is pressed
 ---@field right boolean If true, button will be displayed on the right side of the navigation bar
----@field sectionId number Menu section id that will be assigned to TB_LAST_MENU_SCREEN_OPEN on button click
+---@field sectionId number|nil Menu section id that will be assigned to TB_LAST_MENU_SCREEN_OPEN on button click
 
 ---Displays mobile navigation bar using the provided data
 ---@see TBMenu.showNavigationBar
@@ -2601,7 +2623,7 @@ function TBMenu:showBottomBar(leftOnly)
 		tbMenuBottomLeftButtons[i]:addMouseHandlers(nil, function() shopCheckExit() v.action() end, nil)
 	end
 	if (string.len(TB_MENU_PLAYER_INFO.username) > 0) then
-		local notificationsCountWidth = get_string_length("" .. (TB_MENU_NOTIFICATIONS_COUNT + TB_MENU_NOTIFICATIONS_NET_COUNT + TB_MENU_QUESTS_GLOBAL_COUNT + TB_MENU_QUESTS_COUNT), FONTS.MEDIUM) * 0.9
+		local notificationsCountWidth = get_string_length("" .. (TB_MENU_NOTIFICATIONS_COUNT + TB_MENU_NOTIFICATIONS_UNREAD_COUNT + TB_MENU_QUESTS_GLOBAL_COUNT + TB_MENU_QUESTS_COUNT), FONTS.MEDIUM) * 0.9
 		notificationsCountWidth = notificationsCountWidth > TBMenu.BottomLeftBar.size.h / 2 and (notificationsCountWidth > TBMenu.BottomLeftBar.size.h and TBMenu.BottomLeftBar.size.h or notificationsCountWidth) or TBMenu.BottomLeftBar.size.h / 2
 		tbMenuNotificationsCount = tbMenuBottomLeftButtons[2]:addChild({
 			pos = { -notificationsCountWidth, 0 },
@@ -2611,10 +2633,10 @@ function TBMenu:showBottomBar(leftOnly)
 			rounded = TBMenu.BottomLeftBar.size.h
 		})
 		tbMenuNotificationsCount:addCustomDisplay(false, function()
-				tbMenuNotificationsCount:uiText(TB_MENU_NOTIFICATIONS_COUNT + TB_MENU_NOTIFICATIONS_NET_COUNT + TB_MENU_QUESTS_GLOBAL_COUNT + TB_MENU_QUESTS_COUNT + TB_MENU_QUEST_NOTIFICATIONS, nil, nil, FONTS.MEDIUM, nil, 0.7, 0.4)
+				tbMenuNotificationsCount:uiText(TB_MENU_NOTIFICATIONS_COUNT + TB_MENU_NOTIFICATIONS_UNREAD_COUNT + TB_MENU_QUESTS_GLOBAL_COUNT + TB_MENU_QUESTS_COUNT + TB_MENU_QUEST_NOTIFICATIONS, nil, nil, FONTS.MEDIUM, nil, 0.7, 0.4)
 			end)
 		tbMenuBottomLeftButtons[2]:addCustomDisplay(function()
-				if (TB_MENU_NOTIFICATIONS_COUNT + TB_MENU_NOTIFICATIONS_NET_COUNT + TB_MENU_QUESTS_GLOBAL_COUNT + TB_MENU_QUESTS_COUNT == 0) then
+				if (TB_MENU_NOTIFICATIONS_COUNT + TB_MENU_NOTIFICATIONS_UNREAD_COUNT + TB_MENU_QUESTS_GLOBAL_COUNT + TB_MENU_QUESTS_COUNT == 0) then
 					tbMenuNotificationsCount:hide()
 					tbMenuNotificationsCount.hidden = true
 				elseif (tbMenuNotificationsCount.hidden) then

@@ -3762,7 +3762,6 @@ do
 			replayGuiHolder:moveTo(posX, REPLAY_GUI.hidden and WIN_H or WIN_H - 105)
 			replayGuiHolder.size.w = size[1]
 			replayGuiHolder:activate(true)
-			replayGuiHolder.spawnRes = { WIN_W, WIN_H }
 		else
 			replayGuiHolder = UIElement:new({
 				globalid = TB_MENU_HUB_GLOBALID,
@@ -3772,7 +3771,6 @@ do
 				permanentListener = true
 			})
 			replayGuiHolder.hidden = false
-			replayGuiHolder.spawnRes = { WIN_W, WIN_H }
 			replayGuiHolder.toggleClock = UIElement.clock
 			replayGuiHolder:addCustomDisplay(true, function()
 					if (not REPLAY_GUI) then
@@ -3800,8 +3798,8 @@ do
 							replayGuiHolder:hide()
 						end
 					else
-						if (replayGuiHolder.pos.y > WIN_H - 105) then
-							replayGuiHolder:moveTo(nil, UITween.SineTween(replayGuiHolder.pos.y, WIN_H - 105, UIElement.clock - replayGuiHolder.toggleClock))
+						if (replayGuiHolder.pos.y > WIN_H - 115) then
+							replayGuiHolder:moveTo(nil, UITween.SineTween(replayGuiHolder.pos.y, WIN_H - 115, UIElement.clock - replayGuiHolder.toggleClock))
 						end
 					end
 				end)

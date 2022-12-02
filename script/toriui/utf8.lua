@@ -3,7 +3,7 @@
 if (UTF8 == nil) then
 	---@class UTF8
 	UTF8 = {
-		ver = 1.0
+		ver = 5.60
 	}
 	UTF8.__index = UTF8
 	setmetatable({ }, UTF8);

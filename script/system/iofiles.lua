@@ -63,14 +63,14 @@ local function filesCloseInternal(file)
 end
 
 do
-	-- **Ver 1.2**
+	-- **Ver 5.60**
 	-- * Reworked file IO for mobile platforms with full read/write support
 	--
 	-- **Ver 1.1**
 	-- * Semantic updates to use Files class as a static alternative to spawn new File class objects
 	-- * EmmyLua annotations
 	---@class Files
-	Files = { ver = 1.2 }
+	Files = { ver = 5.60 }
 	Files.__index = Files
 
 	---@class File

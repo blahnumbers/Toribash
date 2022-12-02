@@ -403,6 +403,12 @@ function rename_replay(filename, new_filename) end
 ---@return any result
 function delete_replay(filename) end
 
+---Plays the next replay in current folder
+function play_next_replay() end
+
+---Plays the previous replay in current folder
+function play_prev_replay() end
+
 --[[ CUSTOMIZATION RELATED FUNCTIONS ]]
 
 ---Returns joint color IDs
@@ -444,6 +450,7 @@ function get_color_rgba(colorid) end
 ---@param root?    integer Pass `1` to open file at Toribash root folder
 ---@return file*?
 ---@return string? errmsg
+---@diagnostic disable-next-line: duplicate-set-field
 function io.open(filename, mode, root) end
 
 ---Attempts to open a file at location and returns the index on success or nil on failure
@@ -504,6 +511,27 @@ function open_url(url) end
 
 ---Downloads bounties data for the current user
 function download_fetch_bounties() end
+
+---Downloads quests data for the specified user
+---@param username string
+function download_quest(username) end
+
+
+-- [[ NOTIFICATIONS ]]
+
+---Sends a network request to fetch total number of unread notifications for the user
+function get_notifications_count() end
+
+---Sends a network request to fetch general data about user's inbox
+function get_notifications() end
+
+---Sends a network request to download contents of a private message from user's inbox
+---@param pmid integer
+function get_notifications_pmtext(pmid) end
+
+---Sends a network request to delete private message located in user's inbox
+---@param pmid integer
+function delete_notification(pmid) end
 
 
 -- [[ KEYBOARD FUNCTIONS ]]

@@ -1,7 +1,7 @@
 if (UnicodeString == nil) then
 	---@class UnicodeString
 	---@field data string|nil Unicode symbols for the string
-	UnicodeString = { ver = 1.0 }
+	UnicodeString = { ver = 5.60 }
 	UnicodeString.__index = UnicodeString
 end
 
