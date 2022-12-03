@@ -30,7 +30,7 @@ function Rewards.getRewardData()
 		return false
 	end
 
-	for ln in file:readAll() do
+	for _, ln in pairs(file:readAll()) do
 		if string.match(ln, "^REWARD") then
 			local segments = 5
 			local data_stream = { ln:match(("([^\t]*)\t"):rep(segments)) }
