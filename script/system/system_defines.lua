@@ -62,6 +62,63 @@ _G.HAPTICS = {
 	SELECTION = 1
 }
 
+---Joint names
+_G.JOINTS = {
+	NECK = 0,
+	CHEST = 1,
+	LUMBAR = 2,
+	ABS = 3,
+	R_PECS = 4,
+	R_SHOULDER = 5,
+	R_ELBOW = 6,
+	L_PECS = 7,
+	L_SHOULDER = 8,
+	L_ELBOW = 9,
+	R_WRIST = 10,
+	L_WRIST = 11,
+	R_GLUTE = 12,
+	L_GLUTE = 13,
+	R_HIP = 14,
+	L_HIP = 15,
+	R_KNEE = 16,
+	L_KNEE = 17,
+	R_ANKLE = 18,
+	L_ANKLE = 19
+}
+
+---Joint states
+_G.JOINT_STATE = {
+	FORWARD = 1,
+	BACK = 2,
+	HOLD = 3,
+	RELAX = 4
+}
+
+---Bodypart names
+_G.BODYPARTS = {
+	HEAD = 0,
+	BREAST = 1,
+	CHEST = 2,
+	STOMACH = 3,
+	GROIN = 4,
+	R_PECS = 5,
+	R_BICEPS = 6,
+	R_TRICEPS = 7,
+	L_PECS = 8,
+	L_BICEPS = 9,
+	L_TRICEPS = 10,
+	R_HAND = 11,
+	L_HAND = 12,
+	R_BUTT = 13,
+	L_BUTT = 14,
+	R_THIGH = 15,
+	L_THIGH = 16,
+	L_LEG = 17,
+	R_LEG = 18,
+	R_FOOT = 19,
+	L_FOOT = 20
+}
+
 
 --[[ DRAWING FUNCTIONS ]]
 
@@ -332,6 +389,15 @@ function get_joint_state_name(joint, state) end
 ---@return integer
 function get_grip_info(player, hand) end
 
+---Returns joint position in 3D world
+---@param player integer
+---@param joint integer
+---@return number x
+---@return number y
+---@return number z
+---@nodiscard
+function get_joint_pos(player, joint) end
+
 ---Starts a new game
 ---@param safe ?boolean If `true` is passed, will report ready event when in multiplayer instead of starting new free play game
 function start_new_game(safe) end
@@ -351,15 +417,64 @@ function is_game_frozen() end
 ---@param single_frame ?boolean
 function step_game(single_frame) end
 
----Sets the value for the specified gamerule
----@param gamerule string
----@param value string
-function set_gamerule(gamerule, value) end
+---Rewinds the replay to the beginning
+function rewind_replay() end
+
+---Rewinds the replay to the specified frame
+---@param frame number
+function rewind_replay_to_frame(frame) end
+
+---Enters replay edit mode
+function edit_game() end
+
+---An aggregated value that's built based on disqualification, grip, dismemberment and fracture values
+---@alias GamerulesFlags
+---| 0 None
+---| 1 DQ
+---| 2 Dismemberment
+---| 3 DQ + Dismemberment
+---| 4 No grip
+---| 5 DQ + No grip
+---| 6 Dismemberment + No grip
+---| 7 DQ + Dismemberment + No grip
+---| 8 Fracture
+---| 9 DQ + Fracture
+---| 10 Dismemberment + Fracture
+---| 11 DQ + Dismemberment + Fracture
+---| 12 No grip + Fracture
+---| 13 DQ + No grip + Fracture
+---| 14 Dismemberment + No grip + Fracture
+---| 15 DQ + Dismemberment + No grip + Fracture
+
+---@class Gamerules
+---@field mod					string			Mod file name
+---@field matchframes			integer			Maximum match frames
+---@field turnframes			string			Turn frames, comma-separated
+---@field flags					GamerulesFlags	Mod flags
+---@field grip					integer			Whether grips are enabled
+---@field dismemberment			integer			Whether dismemberment is enabled
+---@field fracture				integer			Whether fracture is enabled
+---@field disqualification		integer			Whether disqualification is enabled
+---@field dqtimeout				integer			Disqualification timeout
+---@field dismemberthreshold	integer			Joint dismemberment threshold
+---@field fracturethreshold		integer			Joint fracture threshold
+---@field pointthreshold		integer			Whether the mod uses regular scoring system or point-based system
+---@field winpoint				integer			Points threshold to win the match, 0 is no limit
+---@field dojotype				integer			0 - square dojo, 1 - round dojo
+
+---Returns current game rules
+---@return Gamerules
+function get_game_rules() end
 
 ---Returns current value for the specified gamerule
 ---@param gamerule string
 ---@return string
 function get_gamerule(gamerule) end
+
+---Sets the value for the specified gamerule
+---@param gamerule string
+---@param value string
+function set_gamerule(gamerule, value) end
 
 ---@class FightPlayerInfo
 ---@field name string
@@ -386,6 +501,141 @@ function get_ghost() end
 function set_ghost(mode) end
 
 
+--[[ MOD FUNCTIONS ]]
+
+---Returns the position of the specified environment object
+---@param obj_id integer
+---@return number x
+---@return number y
+---@return number z
+---@nodiscard
+function get_obj_pos(obj_id) end
+
+---Sets the position for the specified environment object
+---@param obj_id integer
+---@param x number
+---@param y number
+---@param z number
+function set_obj_pos(obj_id, x, y, z) end
+
+---Returns size of the specified environment object. \
+---This function will always return 3 values but they vary depending on object shape:
+---* Box: regular xyz dimensions
+---* Sphere: `x` contains shape radius
+---* Cylinder: `x` contains shape radius, `y` contains length
+---@param obj_id integer
+---@return number x
+---@return number y
+---@return number z
+function get_obj_sides(obj_id) end
+
+---Sets the size for the specified environment object
+---@param obj_id integer
+---@param x number
+---@param y number
+---@param z number
+function set_obj_sides(obj_id, x, y, z) end
+
+---Returns the rotation matrix of the specified environment object \
+---@see UIElement3D.getEulerAnglesFromMatrixTB
+---@param obj_id integer
+---@return number[]
+function get_obj_rot(obj_id) end
+
+---Sets the rotation for the specified environment object
+---@param obj_id integer
+---@param x number
+---@param y number
+---@param z number
+function set_obj_rot(obj_id, x, y, z) end
+
+---Applies force to the specified environment object
+---@param obj_id integer
+---@param x number
+---@param y number
+---@param z number
+function set_obj_force(obj_id, x, y, z) end
+
+---Sets color for the specified environment object
+---@param obj_id integer
+---@param r number
+---@param g number
+---@param b number
+---@param a number
+function set_obj_color(obj_id, r, g, b, a) end
+
+---Returns linear velocity of the specified environment object
+---@param obj_id integer
+---@return number x
+---@return number y
+---@return number z
+---@nodiscard
+function get_obj_linear_vel(obj_id) end
+
+---Sets linear velocity for the specified environment object \
+---*You might be looking for `set_obj_force()` instead*
+---@param obj_id integer
+---@param x number
+---@param y number
+---@param z number
+function set_obj_linear_vel(obj_id, x, y, z) end
+
+---Returns angular velocity of the specified environment object
+---@param obj_id integer
+---@return number x
+---@return number y
+---@return number z
+---@nodiscard
+function get_obj_angular_vel(obj_id) end
+
+---Sets angular velocity for the specified environment object
+---@param obj_id integer
+---@param x number
+---@param y number
+---@param z number
+function set_obj_angular_vel(obj_id, x, y, z) end
+
+---Returns flag value for the specified environment object
+---@param obj_id integer
+---@return integer
+function get_obj_flag(obj_id) end
+
+---Sets flag value for the specified environment object
+---@param obj_id integer
+---@param flag integer
+function set_obj_flag(obj_id, flag) end
+
+---Returns visiblity value for the specified environment object
+---@param obj_id integer
+---@return integer
+function get_obj_vis(obj_id) end
+
+---Sets visibility value for the specified environment object
+---@param obj_id integer
+---@param visibility integer
+function set_obj_vis(obj_id, visibility) end
+
+---Returns bounce value for the specified environment object
+---@param obj_id integer
+---@return number
+function get_obj_bounce(obj_id) end
+
+---Sets bounce value for the specified environment object
+---@param obj_id integer
+---@param bounce number
+function set_obj_bounce(obj_id, bounce) end
+
+---Returns mass value for the specified environment object
+---@param obj_id integer
+---@return number
+function get_obj_nass(obj_id) end
+
+---Sets mass value for the specified environment object
+---@param obj_id integer
+---@param mass number
+function set_obj_mass(obj_id, mass) end
+
+
 --[[ REPLAY FUNCTIONS ]]
 
 ---Returns currently used replay cache value
@@ -408,6 +658,14 @@ function play_next_replay() end
 
 ---Plays the previous replay in current folder
 function play_prev_replay() end
+
+---Returns current replay playback speed
+---@return number
+function get_replay_speed() end
+
+---Sets current replay playback speed
+---@param speed number
+function set_replay_speed(speed) end
 
 --[[ CUSTOMIZATION RELATED FUNCTIONS ]]
 
@@ -516,6 +774,13 @@ function download_fetch_bounties() end
 ---@param username string
 function download_quest(username) end
 
+---Initiates a network request to upload an event replay to Toribash servers
+---@param name string
+---@param description string
+---@param tags string
+---@param filename string
+function upload_event_replay(name, description, tags, filename) end
+
 
 -- [[ NOTIFICATIONS ]]
 
@@ -549,17 +814,21 @@ function enable_menu_keyboard(inputX, inputY, inputWidth, inputHeight) end
 ---*On mobile platforms, this will also hide on-screen keyboard*
 function disable_menu_keyboard() end
 
----Check whether either of shift keys is currently down
+---Returns whether either of shift keys is currently down
 ---@return integer
 function get_shift_key_state() end
 
----Check whether either of ctrl keys is currently down
+---Returns whether either of ctrl keys is currently down
 ---@return integer
 function get_keyboard_ctrl() end
 
----Check whether caps lock is currently on
+---Returns whether caps lock is currently on
 ---@return integer
 function get_keyboard_capslock() end
+
+---Returns whether either of alt keys is currently on
+---@return integer
+function get_keyboard_alt() end
 
 ---Returns current clipboard text contents
 ---@return string|nil

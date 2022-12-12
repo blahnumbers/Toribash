@@ -500,7 +500,23 @@ function UIElement3D.getEulerXYZFromRotationMatrix(R)
 	return math.deg(x), math.deg(y), math.deg(z)
 end
 
+---Makes sure the provided table is a Toribash rotation table
+---@param rTB Matrix4x4|number[]
+---@return Matrix4x4
+function UIElement3D.verifyRotMatrixTB(rTB)
+	if (rTB.r0 ~= nil) then
+		return rTB
+	end
+	return {
+		r0 = rTB[1],	r1 = rTB[2],	r2 = rTB[3],	r3 = rTB[4],
+		r4 = rTB[5],	r5 = rTB[6],	r6 = rTB[7],	r7 = rTB[8],
+		r8 = rTB[9],	r9 = rTB[10],	r10 = rTB[11],	r11 = rTB[12],
+		r12 = 0,		r13 = 0,		r14 = 0,		r15 = 1
+	}
+end
+
 function UIElement3D.getEulerAnglesFromMatrixTB(rTB)
+	local rTB = UIElement3D.verifyRotMatrixTB(rTB)
 	return UIElement3D.getEulerZYXFromRotationMatrix({
 		{ rTB.r0, rTB.r1, rTB.r2, rTB.r3 },
 		{ rTB.r4, rTB.r5, rTB.r6, rTB.r7 },
