@@ -389,6 +389,12 @@ function get_joint_state_name(joint, state) end
 ---@return integer
 function get_grip_info(player, hand) end
 
+---Sets player grip state
+---@param player integer
+---@param hand integer
+---@param state integer
+function set_grip_info(player, hand, state) end
+
 ---Returns joint position in 3D world
 ---@param player integer
 ---@param joint integer
@@ -412,8 +418,8 @@ function unfreeze_game() end
 ---@return integer
 function is_game_frozen() end
 
----Steps game \
----Pass `true` to simulate SHIFT + SPACE behavior
+---Steps the game simulation. \
+---*Pass `true` to simulate SHIFT + SPACE behavior*
 ---@param single_frame ?boolean
 function step_game(single_frame) end
 
@@ -426,6 +432,10 @@ function rewind_replay_to_frame(frame) end
 
 ---Enters replay edit mode
 function edit_game() end
+
+---Simulates the game for the specified number of frames
+---@param frames integer
+function run_frames(frames) end
 
 ---An aggregated value that's built based on disqualification, grip, dismemberment and fracture values
 ---@alias GamerulesFlags
@@ -460,7 +470,25 @@ function edit_game() end
 ---@field fracturethreshold		integer			Joint fracture threshold
 ---@field pointthreshold		integer			Whether the mod uses regular scoring system or point-based system
 ---@field winpoint				integer			Points threshold to win the match, 0 is no limit
----@field dojotype				integer			0 - square dojo, 1 - round dojo
+---@field dojotype				integer			`0` - square dojo, `1` - round dojo
+---@field dojosize				integer			Dojo size
+---@field engagedistance		integer			Starting distance between players
+---@field engageheight			integer			Starting height for players
+---@field engagerotation		integer			Starting rotation for players
+---@field engageplayerpos		string			Per-player position coordinates. If specified, this will override `engagedistance`, `engageheight` and `engagerotation` values
+---@field engageplayerrot		string			Per-player rotations. Requires `engageplayerpos` to be specified.
+---@field damage				integer			Damage scoring mode. `0` - opponent damage only, `1` - self and opponent damage, `2` - self damage only.
+---@field gravity				string			World gravity
+---@field sumo					integer			Which bodyparts are exampted from DQing or getting damage. `0` - classic (feet and hands), `1` - sumo (wrists, feet and hands).
+---@field reactiontime			integer			Reaction time for a turn (used in Multiplayer only)
+---@field drawwinner			integer			Determines which player will be considered a winner on Draw. `0` - default (no winner), `1` - Tori wins, `2` - Uke wins.
+---@field maxcontacts			integer			Determines collision accuracy, higher value means more simultaneous collisions support
+---@field ghostlength			integer			Maximum ghost length
+---@field ghostspeed			integer			Ghost display speed
+---@field ghostcustom			integer			Internal value to specify whether to use `ghostlength` and `ghostspeed` values
+---@field grabmode				integer			`0` - classic grabs (fixed), `1` - ball joint (rotatable) grabs
+---@field tearthreshold			integer			Ball joint grabs' break threshold
+---@field numplayers			integer			Player count for the mod
 
 ---Returns current game rules
 ---@return Gamerules
