@@ -1,5 +1,12 @@
 require('toriui.uielement')
 
+---@alias UIElement3DShape
+---| 1 CUBE
+---| 2 SPHERE
+---| 3 CAPSULE
+---| 4 CUSTOMOBJ
+---| 5 VIEWPORT
+
 CUBE = 1
 SPHERE = 2
 CAPSULE = 3

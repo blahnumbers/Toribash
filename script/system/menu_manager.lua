@@ -146,14 +146,16 @@ function TBMenu:createCurrentSectionView()
 	local safeX = get_window_safe_size()
 	if (SCREEN_RATIO > 2) then
 		local offsetX = math.max(safeX, 50 * TB_MENU_GLOBAL_SCALE) + 25 * TB_MENU_GLOBAL_SCALE
+		local sizeOffset = math.min(WIN_W / 8, 300)
 		TBMenu.CurrentSection = TBMenu.MenuMain:addChild({
-			pos = { offsetX + math.min(WIN_W / 8, 300), 130 * TB_MENU_GLOBAL_SCALE },
-			size = { WIN_W - offsetX - 75 * TB_MENU_GLOBAL_SCALE - math.min(WIN_W / 8, 300), WIN_H - 235 * TB_MENU_GLOBAL_SCALE }
+			pos = { offsetX + sizeOffset, 130 * TB_MENU_GLOBAL_SCALE },
+			size = { WIN_W - offsetX - 75 * TB_MENU_GLOBAL_SCALE - sizeOffset * 2, WIN_H - 235 * TB_MENU_GLOBAL_SCALE }
 		})
 	else
+		local sizeOffset = math.max(safeX, 75) * TB_MENU_GLOBAL_SCALE
 		TBMenu.CurrentSection = TBMenu.MenuMain:addChild({
-			pos = { math.max(safeX, 75) * TB_MENU_GLOBAL_SCALE, 140 * TB_MENU_GLOBAL_SCALE + math.min(WIN_H / 16, 60) },
-			size = { WIN_W - math.max(safeX, 75) * TB_MENU_GLOBAL_SCALE, WIN_H - 235 * TB_MENU_GLOBAL_SCALE - math.min(WIN_H / 16, 60) }
+			pos = { sizeOffset, 140 * TB_MENU_GLOBAL_SCALE + math.min(WIN_H / 16, 60) },
+			size = { WIN_W - sizeOffset * 2, WIN_H - 235 * TB_MENU_GLOBAL_SCALE - math.min(WIN_H / 16, 60) }
 		})
 	end
 end
@@ -3347,21 +3349,35 @@ function TBMenu:displayLoadingMarkSmall(viewElement, message, fontid, loadScale,
 		end)
 end
 
-function TBMenu:showTextWithImage(viewElement, text, fontid, imgScale, imgWhite, useUiColor, left)
-	local imgScale = imgScale or 26
-	if (imgScale > viewElement.size.h) then
-		imgScale = viewElement.size.h
-	end
+---@class MenuTextImageOptions
+---@field useUiColor boolean
+---@field textLeft boolean
+---@field maxTextScale number
+
+---Generic method to display a text string with an image on the side
+---@param viewElement UIElement
+---@param text string
+---@param fontid FontId
+---@param imgScale? number
+---@param imgWhite string
+---@param textImageOptions? MenuTextImageOptions
+---@param left? boolean Deprecated, use `textImageOptions.textLeft` instead
+function TBMenu:showTextWithImage(viewElement, text, fontid, imgScale, imgWhite, textImageOptions, left)
+	local textImageOptions = type(textImageOptions) == "table" and textImageOptions or {
+		useUiColor = textImageOptions,
+		textLeft = left
+	}
+	local imgScale = math.min(viewElement.size.h, imgScale or 26)
 	local textView = viewElement:addChild({
 		pos = { imgScale * 0.8, 0 },
 		size = { viewElement.size.w - imgScale * 1.15, viewElement.size.h }
 	})
-	textView:addAdaptedText(true, text, left and imgScale * 0.7 or -imgScale * 0.7, nil, fontid, nil, nil, nil, fontid == FONTS.BIG and 0.5)
+	textView:addAdaptedText(true, text, textImageOptions.textLeft and imgScale * 0.7 or -imgScale * 0.7, nil, fontid, nil, textImageOptions.maxTextScale or 1, nil, fontid == FONTS.BIG and 0.5 or 1)
 
 	local fontid = textView.textFont
 	local textScale = textView.textScale
 	local posX = 0
-	for i,v in pairs(textView.dispstr) do
+	for _, v in pairs(textView.dispstr) do
 		local lineWidth = get_string_length(v, fontid)
 		if (lineWidth > posX) then
 			posX = lineWidth
@@ -3369,10 +3385,10 @@ function TBMenu:showTextWithImage(viewElement, text, fontid, imgScale, imgWhite,
 	end
 	posX = posX * textScale
 	local imageElement = textView:addChild({
-		pos = { (left and (-textView.size.w - (posX + imgScale)) or (textView.size.w + (posX - imgScale))) / 2, (textView.size.h - imgScale) / 2 },
+		pos = { (textImageOptions.textLeft and (-textView.size.w - (posX + imgScale)) or (textView.size.w + (posX - imgScale))) / 2, (textView.size.h - imgScale) / 2 },
 		size = { imgScale, imgScale },
 		bgImage = imgWhite,
-		imageColor = useUiColor and viewElement.uiColor
+		imageColor = textImageOptions.useUiColor and viewElement.uiColor or { 1, 1, 1, 1 }
 	})
 end
 

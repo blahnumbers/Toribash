@@ -496,7 +496,7 @@ function Notifications:loadNotificationText(viewElement, notification, newMark)
 end
 
 ---Queues a network request to refresh total unread messages count
----@param forceReload boolean
+---@param forceReload? boolean
 function Notifications:getTotalNotifications(forceReload)
 	-- Update once per 2 minutes or with force reload
 	if (Notifications.LastUpdate.count + 120 < os.clock_real() or forceReload) then

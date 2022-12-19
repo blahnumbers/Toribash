@@ -19,6 +19,8 @@ if (TBHud == nil) then
 	--- - Base implementation for gameplay buttons (ready, ghost control, chat)
 	---@class TBHud
 	---@field MainElement UIElement
+	---@field HubHolder UIElement
+	---@field HubSize UIElementSize
 	---@field ChatHolder UIElement
 	---@field ChatMiniHolder UIElement
 	---@field ChatSize UIElementSize
@@ -35,6 +37,8 @@ if (TBHud == nil) then
 	---@field ver number
 	TBHud = {
 		MainElement = nil,
+		HubHolder = nil,
+		HubSize = { w = 0, h = 0 },
 		ChatHolder = nil,
 		ChatMiniHolder = nil,
 		ChatSize = { w = 0, h = 0},
@@ -164,50 +168,131 @@ end
 
 ---Initializes HUD main elements
 function TBHud:init()
-	if (TBHud.MainElement ~= nil) then
-		TBHud.MainElement:kill()
+	if (self.MainElement ~= nil) then
+		self.MainElement:kill()
 	end
 
-	TBHud.MainElement = UIElement:new({
+	self.MainElement = UIElement:new({
 		globalid = TB_MENU_HUB_GLOBALID,
 		pos = { 0, 0 },
 		size = { WIN_W, WIN_H }
 	})
-	TBHud.MainElement:addCustomDisplay(true, function()
-		TBHud.WorldState = get_world_state()
+	self.MainElement:addCustomDisplay(true, function()
+		self.WorldState = get_world_state()
 	end)
 
-	TBHud.ButtonsToRefresh = {}
+	self.ButtonsToRefresh = {}
 
 	set_option("feedback", 0)
 	set_option("hint", 0)
 
-	TBHud:spawnCommitButton()
-	TBHud:spawnGhostButon()
-	TBHud:spawnOptionsButton()
-	TBHud:spawnChatButton()
+	self:spawnCommitButton()
+	self:spawnGhostButon()
+	self:spawnHoldRelaxAllButton()
 
-	TBHud.ChatSize.w = WIN_W * 0.4 > 600 and 600 or WIN_W * 0.4
-	TBHud.ChatSize.h = WIN_H
-	TBHud:spawnChat()
+	self:spawnHubButton()
+	self.HubSize.w = WIN_W * 0.3 > 400 and 400 or WIN_W * 0.3
+	self.HubSize.h = WIN_H
+	self:spawnHub()
+
+	self:spawnChatButton()
+	self.ChatSize.w = WIN_W * 0.4 > 600 and 600 or WIN_W * 0.4
+	self.ChatSize.h = WIN_H
+	self:spawnChat()
 end
 
 ---Spawns turn commit button and
 function TBHud:spawnCommitButton()
-	if (TBHud.MainElement == nil) then return end
+	if (self.MainElement == nil) then return end
 
-	local commitStepButtonHolder = TBHud.MainElement:addChild({
-		pos = { -TBHud.DefaultButtonSize * 2.2, -TBHud.DefaultButtonSize * 1.5 },
-		size = { TBHud.DefaultButtonSize, TBHud.DefaultButtonSize }
+	local commitStepButtonHolder = self.MainElement:addChild({
+		pos = { -self.DefaultButtonSize * 2.2, -self.DefaultButtonSize * 1.5 },
+		size = { self.DefaultButtonSize, self.DefaultButtonSize }
 	})
 	local commitStepButton = TBHudInternal.generateTouchButton(commitStepButtonHolder)
+
+	local clickClock = 0
+	local stepSingleFrame = false
 	commitStepButton:addMouseUpHandler(function()
-		if (TBHud.WorldState.replay_mode ~= 0) then
+		if (self.WorldState.replay_mode ~= 0) then
 			start_new_game(true)
 		else
-			step_game()
+			step_game(self.WorldState.game_type == 0 and stepSingleFrame)
 		end
+		clickClock = 0
 	end)
+	commitStepButton:addMouseDownHandler(function() clickClock = os.clock_real() end)
+	commitStepButton:addCustomDisplay(function()
+			if (clickClock > 0 and UIElement.clock - clickClock > 0.5) then
+				clickClock = 0
+				local optionsHolder = commitStepButtonHolder:addChild({
+					pos = { -commitStepButton.size.w * 1.8, -commitStepButton.size.h * 2 },
+					size = { commitStepButton.size.w * 2.6, commitStepButton.size.h * 0.9 },
+					bgColor = TB_MENU_DEFAULT_BG_COLOR_TRANS,
+					shapeType = ROUNDED,
+					rounded = 5
+				})
+				---Setup invisible element that would kill our object on mouse up event
+				local optionsKiller = optionsHolder:addChild({
+					pos = { -WIN_W * 2, -WIN_H * 2 },
+					size = { WIN_W * 4, WIN_H * 4 },
+					interactive = true
+				})
+				optionsKiller.hoverState = BTN_DN
+				optionsKiller:addMouseUpHandler(function() optionsHolder:kill() end)
+
+				local stepSingleFrameButton = optionsHolder:addChild({
+					pos = { 2, 2 },
+					size = { optionsHolder.size.w - 4, (optionsHolder.size.h - 6) / 2 },
+					interactive = true,
+					bgColor = TB_MENU_DEFAULT_BG_COLOR,
+					pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+					hoverThrough = true,
+					clickThrough = true
+				}, true)
+				stepSingleFrameButton:addCustomDisplay(function()
+					if (not (
+						MOUSE_X >= stepSingleFrameButton.pos.x and MOUSE_X <= stepSingleFrameButton.pos.x + stepSingleFrameButton.size.w and
+						MOUSE_Y >= stepSingleFrameButton.pos.y and MOUSE_Y <= stepSingleFrameButton.pos.y + stepSingleFrameButton.size.h)) then
+						stepSingleFrameButton.hoverState = BTN_NONE
+					end
+				end, true)
+				stepSingleFrameButton:addChild({
+					shift = { 10, 3 }
+				}):addAdaptedText("Step single frame once", nil, nil, FONTS.LMEDIUM, nil, 0.7)
+				stepSingleFrameButton:addMouseMoveHandler(function()
+					stepSingleFrameButton.hoverState = BTN_DN
+				end)
+				stepSingleFrameButton:addMouseUpHandler(function()
+					step_game(true)
+				end)
+
+				local stepSingleFrameButtonToggle = optionsHolder:addChild({
+					pos = { stepSingleFrameButton.shift.x, stepSingleFrameButton.shift.y * 2 + stepSingleFrameButton.size.h },
+					size = { stepSingleFrameButton.size.w, stepSingleFrameButton.size.h },
+					interactive = true,
+					bgColor = TB_MENU_DEFAULT_BG_COLOR,
+					pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+					hoverThrough = true,
+					clickThrough = true
+				}, true)
+				stepSingleFrameButtonToggle:addCustomDisplay(function()
+					if (not (
+						MOUSE_X >= stepSingleFrameButtonToggle.pos.x and MOUSE_X <= stepSingleFrameButtonToggle.pos.x + stepSingleFrameButtonToggle.size.w and
+						MOUSE_Y >= stepSingleFrameButtonToggle.pos.y and MOUSE_Y <= stepSingleFrameButtonToggle.pos.y + stepSingleFrameButtonToggle.size.h)) then
+							stepSingleFrameButtonToggle.hoverState = BTN_NONE
+					end
+				end, true)
+				local iconScale = stepSingleFrameButtonToggle.size.h * 0.6
+				TBMenu:showTextWithImage(stepSingleFrameButtonToggle:addChild({ shift = { 10, 3 } }), "Single frame stepping", FONTS.LMEDIUM, iconScale, stepSingleFrame and "../textures/menu/general/buttons/checkmark.tga" or "../textures/menu/general/buttons/crosswhite.tga", { maxTextScale = 0.7 })
+				stepSingleFrameButtonToggle:addMouseMoveHandler(function()
+					stepSingleFrameButtonToggle.hoverState = BTN_DN
+				end)
+				stepSingleFrameButtonToggle:addMouseUpHandler(function()
+					stepSingleFrame = not stepSingleFrame
+				end)
+			end
+		end)
 
 	local commitStepButtonText = commitStepButton:addChild({
 		shift = { commitStepButton.size.w / 6, commitStepButton.size.h / 2.6 },
@@ -215,21 +300,21 @@ function TBHud:spawnCommitButton()
 		rounded = 4,
 		bgColor = TB_MENU_DEFAULT_BG_COLOR
 	})
-	commitStepButtonText:addAdaptedText("Ready", nil, nil, 4, nil, 0.5)
+	commitStepButtonText:addAdaptedText("Ready", nil, nil, 4, nil, 0.6)
 
 	-- This button shouldn't always be available, attach a handler for it
-	table.insert(TBHud.ButtonsToRefresh, {
+	table.insert(self.ButtonsToRefresh, {
 		button = commitStepButtonHolder,
 		shouldBeDisplayed = TBHudInternal.isPlaying
 	})
 end
 
 function TBHud:spawnGhostButon()
-	if (TBHud.MainElement == nil) then return end
+	if (self.MainElement == nil) then return end
 
-	local ghostButtonHolder = TBHud.MainElement:addChild({
-		pos = { -TBHud.DefaultButtonSize * 3.1, -TBHud.DefaultSmallerButtonSize * 1.5 },
-		size = { TBHud.DefaultSmallerButtonSize, TBHud.DefaultSmallerButtonSize }
+	local ghostButtonHolder = self.MainElement:addChild({
+		pos = { -self.DefaultButtonSize * 3.1, -self.DefaultSmallerButtonSize * 1.5 },
+		size = { self.DefaultSmallerButtonSize, self.DefaultSmallerButtonSize }
 	})
 	local ghostButton = TBHudInternal.generateTouchButton(ghostButtonHolder, "../textures/menu/general/buttons/ghost.tga")
 
@@ -246,14 +331,165 @@ function TBHud:spawnGhostButon()
 		end)
 end
 
-function TBHud:spawnOptionsButton()
-	if (TBHud.MainElement == nil) then return end
+function TBHud:spawnHoldRelaxAllButton()
+	if (self.MainElement == nil) then return end
 
-	local settingsButtonHolder = TBHud.MainElement:addChild({
-		pos = { -TBHud.DefaultSmallerButtonSize * 1.4, -TBHud.DefaultSmallerButtonSize * 1.5 },
-		size = { TBHud.DefaultSmallerButtonSize, TBHud.DefaultSmallerButtonSize }
+	local holdRelaxAllButtonHolder = self.MainElement:addChild({
+		pos = { -self.DefaultButtonSize * 2.9, -self.DefaultSmallerButtonSize * 2.8 },
+		size = { self.DefaultSmallerButtonSize, self.DefaultSmallerButtonSize }
 	})
-	local settingsButton = TBHudInternal.generateTouchButton(settingsButtonHolder, "../textures/menu/general/buttons/options.tga")
+
+	local holdAll = false
+	local holdRelaxAllButton = TBHudInternal.generateTouchButton(holdRelaxAllButtonHolder)
+	local relaxAllText = holdRelaxAllButton:addChild({
+		shift = { 5, holdRelaxAllButton.size.h / 3 },
+		shapeType = ROUNDED,
+		rounded = 4,
+		bgColor = TB_MENU_DEFAULT_BG_COLOR
+	})
+	relaxAllText:addAdaptedText("Relax All", nil, nil, FONTS.LMEDIUM, nil, 0.5)
+	relaxAllText:hide()
+	local holdAllText = holdRelaxAllButton:addChild({
+		shift = { 5, holdRelaxAllButton.size.h / 3 },
+		shapeType = ROUNDED,
+		rounded = 4,
+		bgColor = TB_MENU_DEFAULT_BG_COLOR
+	})
+	holdAllText:addAdaptedText("Hold All", nil, nil, FONTS.LMEDIUM, nil, 0.5)
+	holdRelaxAllButton:addMouseUpHandler(function()
+		for _, v in pairs(JOINTS) do
+			set_joint_state(self.WorldState.selected_player, v, holdAll and JOINT_STATE.HOLD or JOINT_STATE.RELAX, true)
+		end
+		holdAll = not holdAll
+		if (holdAll) then
+			relaxAllText:hide()
+			holdAllText:show()
+		else
+			relaxAllText:show()
+			holdAllText:hide()
+		end
+	end)
+	holdRelaxAllButtonHolder:addCustomDisplay(true, function()
+		local shouldBeDisplayed = TBHud.WorldState.replay_mode == 0 and TBHudInternal.isPlaying()
+		if (shouldBeDisplayed and not holdRelaxAllButton:isDisplayed()) then
+			holdRelaxAllButton:show()
+		elseif (not shouldBeDisplayed and holdRelaxAllButton:isDisplayed()) then
+			holdRelaxAllButton:hide()
+		end
+	end)
+end
+
+function TBHud:spawnHubButton()
+	if (self.MainElement == nil) then return end
+
+	local settingsButtonHolder = self.MainElement:addChild({
+		pos = { -self.DefaultSmallerButtonSize * 1.4, -self.DefaultSmallerButtonSize * 1.5 },
+		size = { self.DefaultSmallerButtonSize, self.DefaultSmallerButtonSize }
+	})
+	TBHudInternal.generateTouchButton(settingsButtonHolder, "../textures/menu/general/buttons/options.tga"):addMouseUpHandler(function()
+		TBHud:toggleHub(true)
+	end)
+end
+
+function TBHud:spawnHub()
+	if (self.MainElement == nil or self.HubHolder ~= nil) then return end
+
+	self.HubHolder = UIElement:new({
+		globalid = TB_MENU_HUB_GLOBALID,
+		pos = { self.MainElement.pos.x + self.MainElement.size.w, self.MainElement.pos.y },
+		size = { self.MainElement.size.w, self.MainElement.size.h },
+		bgColor = UICOLORBLACK,
+		interactive = true
+	})
+	self.HubHolder:addMouseUpHandler(function() self:toggleHub(false) end)
+
+	local hubBackground = self.HubHolder:addChild({
+		pos = { -self.HubSize.w, 0 },
+		size = { self.HubSize.w, self.HubSize.h },
+		bgColor = { 1, 1, 1, 0.7 },
+		shapeType = ROUNDED,
+		rounded = 5,
+		interactive = true
+	})
+	local topRowButtons = {
+		{
+			title = TB_MENU_LOCALIZED.MAINMENUMODLISTNAME,
+			image = "../textures/menu/general/mods_icon.tga",
+			action = function() dofile("system/mods.lua") end
+		},
+		{
+			title = TB_MENU_LOCALIZED.MAINMENUGAMERULESNAME,
+			image = "../textures/menu/general/gamerules_icon.tga",
+			action = function() dofile("system/gamerules.lua") end
+		},
+		{
+			title = TB_MENU_LOCALIZED.MAINMENUSHADERSNAME,
+			image = "../textures/menu/general/shaders_icon.tga",
+			action = function()
+				dofile("system/atmospheres_manager.lua")
+				if (ATMO_MENU_MAIN_ELEMENT) then
+					ATMO_MENU_MAIN_ELEMENT:kill()
+					ATMO_MENU_MAIN_ELEMENT = nil
+				end
+				Atmospheres:showMain()
+			end
+		}
+	}
+	local buttonSize = (hubBackground.size.w - 20) / #topRowButtons - 10
+	local topButtonsHolder = hubBackground:addChild({
+		pos = { 10, 50 },
+		size = { hubBackground.size.w - 20, buttonSize }
+	})
+	for i, v in pairs(topRowButtons) do
+		local buttonElement = topButtonsHolder:addChild({
+			pos = { (i - 1) * (buttonSize + 10), 0 },
+			size = { buttonSize, buttonSize },
+			bgImage = "../textures/menu/button_backdrop.tga",
+			imageColor = TB_MENU_DEFAULT_BG_COLOR,
+			imageHoverColor = TB_MENU_DEFAULT_DARKER_ORANGE,
+			imagePressedColor = TB_MENU_DEFAULT_DARKER_ORANGE,
+			interactive = true
+		})
+		buttonElement:addMouseUpHandler(function()
+			self:toggleHub(false)
+			v.action()
+		end)
+		buttonElement:addChild({
+			shift = { 10, 10 },
+			bgImage = v.image
+		})
+		local buttonTitleHolder = buttonElement:addChild({
+			pos = { 0, -30 },
+			size = { buttonElement.size.w, 30 },
+			bgColor = buttonElement.imageAnimateColor,
+			shapeType = ROUNDED,
+			rounded = { 0, 5 }
+		})
+		buttonTitleHolder:addChild({ shift = { 5, 2 }}):addAdaptedText(false, v.title)
+	end
+
+	self.HubHolder:hide(true)
+end
+
+function TBHud:toggleHub(state)
+	if (state == true) then
+		self.HubHolder:show(true)
+	end
+
+	local clock = os.clock_real()
+	local safe_x = get_window_safe_size()
+	self.HubHolder:addCustomDisplay(true, function()
+		local tweenValue = UITween.SineEaseIn((UIElement.clock - clock) * 6)
+		self.HubHolder:moveTo(state and self.HubSize.w - tweenValue * (self.HubSize.w + safe_x) or tweenValue * (self.HubSize.w + safe_x), nil)
+
+		if (tweenValue == 1) then
+			if (state == false) then
+				self.HubHolder:hide(true)
+			else
+				self.HubHolder:addCustomDisplay(true, function() end)
+			end
+		end
+	end)
 end
 
 function TBHud:getChatCommands()
@@ -265,25 +501,25 @@ end
 
 ---Spawns the chat button for touch UI
 function TBHud:spawnChatButton()
-	if (TBHud.MainElement == nil) then return end
+	if (self.MainElement == nil) then return end
 
-	local chatButtonHolder = TBHud.MainElement:addChild({
-		pos = { TBHud.DefaultSmallerButtonSize * 0.4, -TBHud.DefaultSmallerButtonSize * 1.5 },
-		size = { TBHud.DefaultSmallerButtonSize, TBHud.DefaultSmallerButtonSize }
+	local chatButtonHolder = self.MainElement:addChild({
+		pos = { self.DefaultSmallerButtonSize * 0.4, -self.DefaultSmallerButtonSize * 1.5 },
+		size = { self.DefaultSmallerButtonSize, self.DefaultSmallerButtonSize }
 	})
 	local chatButton = TBHudInternal.generateTouchButton(chatButtonHolder, "../textures/menu/general/buttons/chat.tga")
 
 	chatButtonHolder:addCustomDisplay(function()
-		if (TBHud.ChatHolder ~= nil) then
-			if (chatButton:isDisplayed() and TBHud.ChatHolder:isDisplayed()) then
+		if (self.ChatHolder ~= nil) then
+			if (chatButton:isDisplayed() and self.ChatHolder:isDisplayed()) then
 				chatButton:hide()
-			elseif (not chatButton:isDisplayed() and not TBHud.ChatHolder:isDisplayed()) then
+			elseif (not chatButton:isDisplayed() and not self.ChatHolder:isDisplayed()) then
 				chatButton:show()
 			end
 		end
 	end)
 	chatButton:addMouseUpHandler(function()
-		TBHud:toggleChat(true)
+		self:toggleChat(true)
 	end)
 end
 
@@ -291,12 +527,12 @@ end
 function TBHud:refreshChat()
 	local elementHeight = 18
 
-	if (TBHud.ChatHolderItems == nil) then
+	if (self.ChatHolderItems == nil) then
 		-- Do the initial setup
 		local x, y, w, h = get_window_safe_size()
-		local chatMessagesHolder = TBHud.ChatHolder:addChild({
-			pos = { x, -TBHud.ChatSize.h },
-			size = { TBHud.ChatSize.w, TBHud.ChatSize.h },
+		local chatMessagesHolder = self.ChatHolder:addChild({
+			pos = { x, -self.ChatSize.h },
+			size = { self.ChatSize.w, self.ChatSize.h },
 			bgColor = table.clone(UICOLORWHITE),
 			uiColor = TB_MENU_DEFAULT_DARKEST_COLOR
 		})
@@ -304,16 +540,16 @@ function TBHud:refreshChat()
 		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(chatMessagesHolder, elementHeight, 70, 16, { 0, 0, 0, 0 })
 
 		---@type UIElement[]
-		TBHud.ChatHolderItems = {}
+		self.ChatHolderItems = {}
 		for _, message in pairs(TBHudInternal.ChatMessages) do
 			local messageStrings = textAdapt(message.text, FONTS.SMALL, 1, listingHolder.size.w - 32)
 			for _, string in pairs(messageStrings) do
 				local chatMessage = listingHolder:addChild({
-					pos = { 16, #TBHud.ChatHolderItems * elementHeight },
+					pos = { 16, #self.ChatHolderItems * elementHeight },
 					size = { listingHolder.size.w - 32, elementHeight }
 				})
 				chatMessage:addAdaptedText(true, string, nil, nil, FONTS.SMALL, LEFT, 1, 1)
-				table.insert(TBHud.ChatHolderItems, chatMessage)
+				table.insert(self.ChatHolderItems, chatMessage)
 			end
 		end
 
@@ -345,7 +581,7 @@ function TBHud:refreshChat()
 					return
 				end
 
-				local commands = TBHud:getChatCommands()
+				local commands = self:getChatCommands()
 				local targetCommands = {}
 				for cmd, _ in pairs(commands) do
 					if (cmd:find("^" .. typeCommand)) then
@@ -386,7 +622,7 @@ function TBHud:refreshChat()
 		chatInputField:addEnterAction(function()
 				if (string.find(chatInputField.textfieldstr[1], "^/")) then
 					local cmd = chatInputField.textfieldstr[1]:gsub("^/(.+)", "%1")
-					runCmd(cmd, TBHud.WorldState.game_type == 1)
+					runCmd(cmd, self.WorldState.game_type == 1)
 				else
 					---@diagnostic disable-next-line: undefined-global
 					send_chat_message(chatInputField.textfieldstr[1])
@@ -396,22 +632,22 @@ function TBHud:refreshChat()
 				destroySuggestions()
 			end)
 
-		TBHud.ChatHolderToReload = toReload
-		TBHud.ChatHolderListing = listingHolder
-		TBHud.ChatHolderTopBar = topBar
+		self.ChatHolderToReload = toReload
+		self.ChatHolderListing = listingHolder
+		self.ChatHolderTopBar = topBar
 	else
 		for i, message in pairs(TBHudInternal.ChatMessages) do
-			if (i > #TBHud.ChatHolderItems) then
-				local messageStrings = textAdapt(message.text, FONTS.SMALL, 1, TBHud.ChatHolderListing.size.w - 32)
+			if (i > #self.ChatHolderItems) then
+				local messageStrings = textAdapt(message.text, FONTS.SMALL, 1, self.ChatHolderListing.size.w - 32)
 				for _, string in pairs(messageStrings) do
-					local chatMessage = TBHud.ChatHolderListing:addChild({
-						pos = { 16, #TBHud.ChatHolderItems * elementHeight },
-						size = { TBHud.ChatHolderListing.size.w - 32, elementHeight }
+					local chatMessage = self.ChatHolderListing:addChild({
+						pos = { 16, #self.ChatHolderItems * elementHeight },
+						size = { self.ChatHolderListing.size.w - 32, elementHeight }
 					})
 					chatMessage:addAdaptedText(true, string, nil, nil, FONTS.SMALL, LEFT, 1, 1)
-					table.insert(TBHud.ChatHolderItems, chatMessage)
+					table.insert(self.ChatHolderItems, chatMessage)
 
-					if (TBHud.ChatHolderScrollBar ~= nil) then
+					if (self.ChatHolderScrollBar ~= nil) then
 						chatMessage:hide(true)
 					end
 				end
@@ -419,64 +655,64 @@ function TBHud:refreshChat()
 		end
 	end
 
-	if (TBHud.ChatHolderItems[1] ~= nil) then
-		local listingHolder = TBHud.ChatHolderListing
-		if (#TBHud.ChatHolderItems * elementHeight > listingHolder.size.h) then
-			if (TBHud.ChatHolderScrollBar == nil) then
-				for _, v in pairs(TBHud.ChatHolderItems) do
+	if (self.ChatHolderItems[1] ~= nil) then
+		local listingHolder = self.ChatHolderListing
+		if (#self.ChatHolderItems * elementHeight > listingHolder.size.h) then
+			if (self.ChatHolderScrollBar == nil) then
+				for _, v in pairs(self.ChatHolderItems) do
 					v:hide(true)
 				end
 
 				-- Don't forget to move listing holder back in place
-				listingHolder:moveTo(nil, TBHud.ChatHolderTopBar.size.w)
-				TBHud.ChatHolderScrollBar = TBMenu:spawnScrollBar(listingHolder, #TBHud.ChatHolderItems, elementHeight)
-				TBHud.ChatHolderScrollBar:makeScrollBar(listingHolder, TBHud.ChatHolderItems, TBHud.ChatHolderToReload)
+				listingHolder:moveTo(nil, self.ChatHolderTopBar.size.w)
+				self.ChatHolderScrollBar = TBMenu:spawnScrollBar(listingHolder, #self.ChatHolderItems, elementHeight)
+				self.ChatHolderScrollBar:makeScrollBar(listingHolder, self.ChatHolderItems, self.ChatHolderToReload)
 			else
-				TBHud.ChatHolderScrollBar.size.h = math.max(0.1, math.min(1, (listingHolder.size.h) / (#TBHud.ChatHolderItems * elementHeight) or listingHolder.size.h)) * TBHud.ChatHolderScrollBar.parent.size.h
+				self.ChatHolderScrollBar.size.h = math.max(0.1, math.min(1, (listingHolder.size.h) / (#self.ChatHolderItems * elementHeight) or listingHolder.size.h)) * self.ChatHolderScrollBar.parent.size.h
 			end
 
-			local hoverState = TBHud.ChatHolderScrollBar.hoverState
-			TBHud.ChatHolderScrollBar.hoverState = BTN_DN
-			TBHud.ChatHolderScrollBar.btnHover(TBHud.ChatHolderScrollBar.parent.pos.x + 1, TBHud.ChatHolderScrollBar.parent.pos.y + TBHud.ChatHolderScrollBar.parent.size.h - 2)
-			TBHud.ChatHolderScrollBar.hoverState = hoverState
+			local hoverState = self.ChatHolderScrollBar.hoverState
+			self.ChatHolderScrollBar.hoverState = BTN_DN
+			self.ChatHolderScrollBar.btnHover(self.ChatHolderScrollBar.parent.pos.x + 1, self.ChatHolderScrollBar.parent.pos.y + self.ChatHolderScrollBar.parent.size.h - 2)
+			self.ChatHolderScrollBar.hoverState = hoverState
 		else
-			listingHolder:moveTo(nil, listingHolder.parent.size.h - elementHeight * #TBHud.ChatHolderItems)
+			listingHolder:moveTo(nil, listingHolder.parent.size.h - elementHeight * #self.ChatHolderItems)
 		end
 	end
 
-	TBHud.RequiresChatRefresh = false
+	self.RequiresChatRefresh = false
 end
 
 function TBHud:toggleChat(state)
 	if (state == true) then
-		TBHud.ChatHolder:show(true)
-		if (TBHud.RequiresChatRefresh) then
-			TBHud:refreshChat()
+		self.ChatHolder:show(true)
+		if (self.RequiresChatRefresh) then
+			self:refreshChat()
 		end
 	end
 
 	local clock = os.clock_real()
-	TBHud.ChatHolder:addCustomDisplay(true, function()
+	self.ChatHolder:addCustomDisplay(true, function()
 		local tweenValue = UITween.SineEaseIn((os.clock_real() - clock) * 6)
-		TBHud.ChatHolder:moveTo(nil, state and TBHud.ChatHolder.size.h - tweenValue * TBHud.ChatHolder.size.h or tweenValue * TBHud.ChatHolder.size.h)
+		self.ChatHolder:moveTo(nil, state and self.ChatHolder.size.h - tweenValue * self.ChatHolder.size.h or tweenValue * self.ChatHolder.size.h)
 
 		if (tweenValue == 1) then
 			if (state == false) then
-				TBHud.ChatHolder:hide(true)
+				self.ChatHolder:hide(true)
 			else
-				TBHud.ChatHolder:addCustomDisplay(true, function() end)
+				self.ChatHolder:addCustomDisplay(true, function() end)
 			end
 		end
 	end)
 end
 
 function TBHud:spawnMiniChat()
-	if (TBHud.ChatMiniHolder ~= nil) then
-		TBHud.ChatMiniHolder:kill()
+	if (self.ChatMiniHolder ~= nil) then
+		self.ChatMiniHolder:kill()
 	end
-	TBHud.ChatMiniHolder = TBHud.MainElement:addChild({
-		pos = { TBHud.DefaultSmallerButtonSize * 1.7, 0 },
-		size = { TBHud.ChatSize.w, WIN_H - TBHud.DefaultButtonSize * 0.35 }
+	self.ChatMiniHolder = self.MainElement:addChild({
+		pos = { self.DefaultSmallerButtonSize * 1.7, 0 },
+		size = { self.ChatSize.w, WIN_H - self.DefaultButtonSize * 0.35 }
 	})
 
 	---@type ChatMessage[]
@@ -484,33 +720,33 @@ function TBHud:spawnMiniChat()
 	local refreshMiniChat = function()
 		messagesToDisplay = {}
 		for i = #TBHudInternal.ChatMessages, 1, -1 do
-			if (TBHudInternal.ChatMessages[i].clock < os.clock_real() - TBHud.ChatMiniDisplayPeriod) then
+			if (TBHudInternal.ChatMessages[i].clock < os.clock_real() - self.ChatMiniDisplayPeriod) then
 				break
 			end
 			table.insert(messagesToDisplay, TBHudInternal.ChatMessages[i])
-			if (#messagesToDisplay == TBHud.ChatMiniMaxMessages) then
+			if (#messagesToDisplay == self.ChatMiniMaxMessages) then
 				break
 			end
 		end
 		for i, v in pairs(messagesToDisplay) do
-			messagesToDisplay[i].adaptedText = textAdapt(v.text, FONTS.SMALL, 1, TBHud.ChatMiniHolder.size.w)
+			messagesToDisplay[i].adaptedText = textAdapt(v.text, FONTS.SMALL, 1, self.ChatMiniHolder.size.w)
 		end
-		TBHud.ChatMiniUpdateTime = os.time()
+		self.ChatMiniUpdateTime = os.time()
 	end
 
-	TBHud.ChatMiniHolder:addCustomDisplay(function()
-			if (TBHud.ChatHolder:isDisplayed()) then return end
-			if (os.time() ~= TBHud.ChatMiniUpdateTime) then
+	self.ChatMiniHolder:addCustomDisplay(function()
+			if (self.ChatHolder:isDisplayed()) then return end
+			if (os.time() ~= self.ChatMiniUpdateTime) then
 				refreshMiniChat()
 			end
 			local linesPrinted = 0
 			local clock = os.clock_real()
 			for _, v in pairs(messagesToDisplay) do
-				local textOpacity = UITween.SineEaseOut((v.clock - clock + (TBHud.ChatMiniDisplayPeriod - 1)) / 3)
+				local textOpacity = UITween.SineEaseOut((v.clock - clock + (self.ChatMiniDisplayPeriod - 1)) / 3)
 				for i = #v.adaptedText, 1, -1 do
-					TBHud.ChatMiniHolder:uiText(v.adaptedText[i], nil, -linesPrinted * 20, FONTS.SMALL, LEFTBOT, 1, nil, nil, { TB_MENU_DEFAULT_DARKEST_COLOR[1], TB_MENU_DEFAULT_DARKEST_COLOR[2], TB_MENU_DEFAULT_DARKEST_COLOR[3], textOpacity })
+					self.ChatMiniHolder:uiText(v.adaptedText[i], nil, -linesPrinted * 20, FONTS.SMALL, LEFTBOT, 1, nil, nil, { TB_MENU_DEFAULT_DARKEST_COLOR[1], TB_MENU_DEFAULT_DARKEST_COLOR[2], TB_MENU_DEFAULT_DARKEST_COLOR[3], textOpacity })
 					linesPrinted = linesPrinted + 1
-					if (linesPrinted > TBHud.ChatMiniMaxMessages) then
+					if (linesPrinted > self.ChatMiniMaxMessages) then
 						return
 					end
 				end
@@ -523,21 +759,21 @@ function TBHud:loadChatHistory()
 end
 
 function TBHud:spawnChat()
-	if (TBHud.MainElement == nil or TBHud.ChatHolder ~= nil) then return end
+	if (self.MainElement == nil or self.ChatHolder ~= nil) then return end
 
 	set_option("chat", 0)
-	TBHud.ChatHolder = UIElement:new({
+	self.ChatHolder = UIElement:new({
 		globalid = TB_MENU_HUB_GLOBALID,
-		pos = { TBHud.MainElement.pos.x, TBHud.MainElement.pos.y + TBHud.MainElement.size.h },
-		size = { TBHud.MainElement.size.w, TBHud.MainElement.size.h },
+		pos = { self.MainElement.pos.x, self.MainElement.pos.y + self.MainElement.size.h },
+		size = { self.MainElement.size.w, self.MainElement.size.h },
 		interactive = true
 	})
-	TBHud.ChatHolder:addMouseUpHandler(function() TBHud:toggleChat(false) end)
-	TBHud:refreshChat()
-	TBHud:spawnMiniChat()
-	TBHud:loadChatHistory()
+	self.ChatHolder:addMouseUpHandler(function() self:toggleChat(false) end)
+	self:refreshChat()
+	self:spawnMiniChat()
+	self:loadChatHistory()
 
-	TBHud.ChatHolder:hide(true)
+	self.ChatHolder:hide(true)
 end
 
 TBHud:init()

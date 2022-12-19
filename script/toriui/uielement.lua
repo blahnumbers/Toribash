@@ -1761,7 +1761,7 @@ function UIElement.handleMouseUp(btn, x, y)
 						play_sound(v.upSound)
 					end
 					v.btnUp(btn, x, y)
-					actionTriggered = true
+					actionTriggered = not v.clickThrough
 					set_mouse_cursor(1)
 				end
 			elseif (btn == 3) then

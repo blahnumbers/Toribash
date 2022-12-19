@@ -12,6 +12,8 @@ local tbTutorialsJointsIgnore = {}
 local tbTutorialTotalSteps = 0
 local tbTutorialCurrentStep = 0
 
+---@class TutorialStepRequirements
+
 do
 	Tutorials = { ver = 1.3 }
 	Tutorials.__index = Tutorials
