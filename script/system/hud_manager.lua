@@ -348,19 +348,13 @@ function TBHud:spawnHoldRelaxAllButton()
 		bgColor = TB_MENU_DEFAULT_BG_COLOR
 	})
 	relaxAllText:addAdaptedText("Relax All", nil, nil, FONTS.LMEDIUM, nil, 0.5)
-	relaxAllText:hide()
 	local holdAllText = holdRelaxAllButton:addChild({
 		shift = { 5, holdRelaxAllButton.size.h / 3 },
 		shapeType = ROUNDED,
 		rounded = 4,
 		bgColor = TB_MENU_DEFAULT_BG_COLOR
 	})
-	holdAllText:addAdaptedText("Hold All", nil, nil, FONTS.LMEDIUM, nil, 0.5)
-	holdRelaxAllButton:addMouseUpHandler(function()
-		for _, v in pairs(JOINTS) do
-			set_joint_state(self.WorldState.selected_player, v, holdAll and JOINT_STATE.HOLD or JOINT_STATE.RELAX, true)
-		end
-		holdAll = not holdAll
+	local function toggleButtonsDisplay()
 		if (holdAll) then
 			relaxAllText:hide()
 			holdAllText:show()
@@ -368,6 +362,14 @@ function TBHud:spawnHoldRelaxAllButton()
 			relaxAllText:show()
 			holdAllText:hide()
 		end
+	end
+	holdAllText:addAdaptedText("Hold All", nil, nil, FONTS.LMEDIUM, nil, 0.5)
+	holdRelaxAllButton:addMouseUpHandler(function()
+		for _, v in pairs(JOINTS) do
+			set_joint_state(self.WorldState.selected_player, v, holdAll and JOINT_STATE.HOLD or JOINT_STATE.RELAX, true)
+		end
+		holdAll = not holdAll
+		toggleButtonsDisplay()
 	end)
 	holdRelaxAllButtonHolder:addCustomDisplay(true, function()
 		local shouldBeDisplayed = TBHud.WorldState.replay_mode == 0 and TBHudInternal.isPlaying()
@@ -377,6 +379,7 @@ function TBHud:spawnHoldRelaxAllButton()
 			holdRelaxAllButton:hide()
 		end
 	end)
+	toggleButtonsDisplay()
 end
 
 function TBHud:spawnHubButton()
@@ -478,11 +481,18 @@ function TBHud:toggleHub(state)
 
 	local clock = os.clock_real()
 	local safe_x = get_window_safe_size()
+	if (state == true) then
+		self.HubHolder:moveTo(self.HubSize.w)
+	end
 	self.HubHolder:addCustomDisplay(true, function()
-		local tweenValue = UITween.SineEaseIn((UIElement.clock - clock) * 6)
-		self.HubHolder:moveTo(state and self.HubSize.w - tweenValue * (self.HubSize.w + safe_x) or tweenValue * (self.HubSize.w + safe_x), nil)
+		local tweenValue = (UIElement.clock - clock) * 6
+		if (state) then
+			self.HubHolder:moveTo(UITween.SineTween(self.HubHolder.pos.x, 0, tweenValue))
+		else
+			self.HubHolder:moveTo(UITween.SineTween(self.HubHolder.pos.x, self.HubSize.w + safe_x, tweenValue))
+		end
 
-		if (tweenValue == 1) then
+		if (tweenValue >= 1) then
 			if (state == false) then
 				self.HubHolder:hide(true)
 			else
@@ -537,7 +547,7 @@ function TBHud:refreshChat()
 			uiColor = TB_MENU_DEFAULT_DARKEST_COLOR
 		})
 		chatMessagesHolder.bgColor[4] = 0.7
-		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(chatMessagesHolder, elementHeight, 70, 16, { 0, 0, 0, 0 })
+		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(chatMessagesHolder, elementHeight, 40 + math.max(30, y), 16, { 0, 0, 0, 0 })
 
 		---@type UIElement[]
 		self.ChatHolderItems = {}
@@ -554,18 +564,20 @@ function TBHud:refreshChat()
 		end
 
 		local chatInputHolder = botBar:addChild({
-			pos = { 20, botBar.size.h - 60 },
+			pos = { 20, botBar.size.h - 30 - math.max(y, 30) },
 			size = { botBar.size.w - 40, 30 },
 			shapeType = ROUNDED,
 			rounded = 4,
-			uiColor = UICOLORWHITE
+			uiColor = UICOLORWHITE,
+			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR
 		})
-		local chatInputField = TBMenu:spawnTextField2(chatInputHolder, nil, nil, nil, {
+		local chatInputField = TBMenu:spawnTextField2(chatInputHolder, { x = 30, w = chatInputHolder.size.w - 120 }, nil, nil, {
 			fontId = FONTS.SMALL,
 			textAlign = LEFTMID,
 			textScale = 1,
-			textColor = table.clone(UICOLORBLACK),
-			keepFocusOnHide = true
+			textColor = table.clone(UICOLORWHITE),
+			keepFocusOnHide = true,
+			darkerMode = true
 		})
 		local destroySuggestions = function()
 			if (chatInputField.suggestionsDropdown ~= nil) then
@@ -608,17 +620,17 @@ function TBHud:refreshChat()
 				chatInputField.suggestionsDropdown.selectedElement:btnUp()
 			end)
 		-- Don't need chat history for mobile for now
-		--[[chatInputField:addKeyboardHandlers(nil, function(key)
+		chatInputField:addKeyboardHandlers(nil, function(key)
 				if (key == 273 or key == 274) then -- arrow up or down
 					if (key == 273) then
 						TBHudInternal.ChatMessageHistoryIndex = math.min(TBHudInternal.ChatMessageHistoryIndex + 1, #TBHudInternal.ChatMessageHistory)
 					else
 						TBHudInternal.ChatMessageHistoryIndex = math.max(TBHudInternal.ChatMessageHistoryIndex - 1, 1)
-					end[TBHudInternal.ChatMessageHistoryIndex])
+					end
 					chatInputField.textfieldstr[1] = TBHudInternal.ChatMessageHistory[TBHudInternal.ChatMessageHistoryIndex]
 					chatInputField.textfieldindex = utf8.len(chatInputField.textfieldstr[1])
 				end
-			end)]]
+			end)
 		chatInputField:addEnterAction(function()
 				if (string.find(chatInputField.textfieldstr[1], "^/")) then
 					local cmd = chatInputField.textfieldstr[1]:gsub("^/(.+)", "%1")
@@ -628,9 +640,36 @@ function TBHud:refreshChat()
 					send_chat_message(chatInputField.textfieldstr[1])
 				end
 				table.insert(TBHudInternal.ChatMessageHistory, #TBHudInternal.ChatMessageHistory - 2, chatInputField.textfieldstr[1])
+				TBHudInternal.ChatMessageHistoryIndex = #TBHudInternal.ChatMessageHistory
 				chatInputField:clearTextfield()
 				destroySuggestions()
 			end)
+		local chatMessagePrevious = chatInputHolder:addChild({
+			pos = { 0, 0 },
+			size = { chatInputField.parent.parent.shift.x, chatInputHolder.size.h },
+			interactive = true,
+			bgColor = TB_MENU_DEFAULT_BG_COLOR,
+			hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+		}, true)
+		chatMessagePrevious:addChild({
+			shift = { chatMessagePrevious.size.w / 2 - (chatMessagePrevious.size.h - 4) / 4, 2 },
+			bgImage = "../textures/menu/general/buttons/arrowleft.tga"
+		})
+		chatMessagePrevious:addMouseUpHandler(function()
+			---Simulate key up press
+			chatInputField.keyUpCustom(273)
+		end)
+		local chatInputSubmit = chatInputHolder:addChild({
+			pos = { chatInputField.parent.parent.shift.x + chatInputField.parent.parent.size.w, 0 },
+			size = { chatInputHolder.size.w - chatInputField.parent.parent.shift.x - chatInputField.parent.parent.size.w, chatInputHolder.size.h },
+			interactive = true,
+			bgColor = TB_MENU_DEFAULT_BG_COLOR,
+			hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+		}, true)
+		chatInputSubmit:addChild({ shift = { 10, 3 }}):addAdaptedText("Submit")
+		chatInputSubmit:addMouseUpHandler(chatInputField.enteraction)
 
 		self.ChatHolderToReload = toReload
 		self.ChatHolderListing = listingHolder
@@ -693,10 +732,14 @@ function TBHud:toggleChat(state)
 
 	local clock = os.clock_real()
 	self.ChatHolder:addCustomDisplay(true, function()
-		local tweenValue = UITween.SineEaseIn((os.clock_real() - clock) * 6)
-		self.ChatHolder:moveTo(nil, state and self.ChatHolder.size.h - tweenValue * self.ChatHolder.size.h or tweenValue * self.ChatHolder.size.h)
+		local tweenValue = (UIElement.clock - clock) * 6
+		if (state) then
+			self.ChatHolder:moveTo(nil, UITween.SineTween(self.ChatHolder.pos.y, 0, tweenValue))
+		else
+			self.ChatHolder:moveTo(nil, UITween.SineTween(self.ChatHolder.pos.y, self.ChatHolder.size.h, tweenValue))
+		end
 
-		if (tweenValue == 1) then
+		if (tweenValue >= 1) then
 			if (state == false) then
 				self.ChatHolder:hide(true)
 			else
