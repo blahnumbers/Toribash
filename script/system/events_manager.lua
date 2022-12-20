@@ -115,7 +115,7 @@ do
 				parent = mainView,
 				pos = { 20, 0 },
 				size = { mainView.size.w - 40, mainView.size.h / 10 },
-				uiColor = cloneTable(TB_MENU_UI_TEXT_COLOR)
+				uiColor = table.clone(TB_MENU_UI_TEXT_COLOR)
 			})
 			local welcomeTitleText = UIElement:new({
 				parent = welcomeTitle,
@@ -126,7 +126,7 @@ do
 				parent = mainView,
 				pos = { 20, welcomeTitle.shift.y + welcomeTitle.size.h },
 				size = { mainView.size.w - 40, mainView.size.h / 4 },
-				uiColor = cloneTable(TB_MENU_UI_TEXT_COLOR)
+				uiColor = table.clone(TB_MENU_UI_TEXT_COLOR)
 			})
 			local imageSize = mainView.size.h / 9 * 5
 			local welcomeImage = UIElement:new({
@@ -139,17 +139,17 @@ do
 				parent = welcomeImage,
 				pos = { 0, 0 },
 				size = { welcomeImage.size.w, welcomeImage.size.h },
-				bgColor = cloneTable(TB_MENU_DEFAULT_BG_COLOR)
+				bgColor = table.clone(TB_MENU_DEFAULT_BG_COLOR)
 			})
 			local welcomeButton = UIElement:new({
 				parent = mainView,
 				pos = { mainView.size.w / 4, welcomeImage.shift.y + welcomeImage.size.h },
 				size = { mainView.size.w / 2, mainView.size.h / 12 },
 				interactive = true,
-				bgColor = cloneTable(TB_MENU_DEFAULT_DARKER_COLOR),
+				bgColor = table.clone(TB_MENU_DEFAULT_DARKER_COLOR),
 				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-				uiColor = cloneTable(TB_MENU_UI_TEXT_COLOR)
+				uiColor = table.clone(TB_MENU_UI_TEXT_COLOR)
 			})
 			welcomeTitleText:addAdaptedText(true, "Welcome to Toribash Movember!", nil, nil, FONTS.BIG)
 			welcomeText:addAdaptedText(true, "Movember is an annual event involving the growing of moustaches to raise awareness of men's health issues.\nThis year, you can be a part of the movement by wearing your free moustache item in Toribash!\nUpgrade your stache to max level until the end of November and get the grand prize - limited Krakenstache item!", nil, nil, 4)
@@ -374,8 +374,8 @@ do
 				size = { topEntry2.size.w - topEntry2.size.h * 2 - 20, topEntry2.size.h * 0.8 }
 			})
 			local pts, lvl = Events:getStacheLevelPoints(v.points, true)
-			lvl = lvl == 6 and 'MAX Level' or 'Level ' .. lvl
-			entryPoints:addAdaptedText(true, lvl .. ", " .. v.points .. " points", nil, nil, 4, LEFTMID, 0.7)
+			local levelString = lvl == 6 and 'MAX Level' or 'Level ' .. lvl
+			entryPoints:addAdaptedText(true, levelString .. ", " .. v.points .. " points", nil, nil, 4, LEFTMID, 0.7)
 
 			local userBelt = PlayerInfo:getBeltFromQi(v.qi)
 			local entryUserbelt = UIElement:new({
@@ -486,7 +486,7 @@ do
 		TBMenu:clearNavSection()
 		TBMenu:showNavigationBar(Events:getNavigationButtons(TB_MENU_EVENTS_OPEN, eventid), true)
 		add_hook("console", "friendsListConsoleIgnore", function(s, i) if (s == "refreshing server list") then return 1 end end)
-		UIElement:runCmd("refresh")
+		runCmd("refresh")
 		remove_hooks("friendsListConsoleIgnore")
 
 		local loadingView = UIElement:new({
@@ -543,7 +543,7 @@ do
 					end
 				end
 				if (playerData.rewards) then
-					playerData.rewards = UIElement:qsort(playerData.rewards, 'requirement')
+					playerData.rewards = table.qsort(playerData.rewards, 'requirement')
 				end
 				if (loadingView:isDisplayed()) then
 					loadingView:kill()
@@ -593,7 +593,9 @@ do
 				rewardName = TB_MENU_LOCALIZED.EVENTSCLAIMALL
 			end
 			local rewardIcon = prizesToClaim[#prizesToClaim].itemid > 0 and Torishop:getItemIcon(prizesToClaim[#prizesToClaim].itemid) or (prizesToClaim[#prizesToClaim].st > 0 and "../textures/store/shiaitoken.tga" or (prizesToClaim[#prizesToClaim].tc > 0 and "../textures/store/toricredit.tga"))
-			TBMenu:showTextWithImage(prizesClaimButton, rewardName, 2, 35, rewardIcon)
+			if (rewardIcon ~= false) then
+				TBMenu:showTextWithImage(prizesClaimButton, rewardName, 2, 35, rewardIcon)
+			end
 			prizesClaimButton:addMouseHandlers(nil, function()
 					prizesClaimButton:deactivate()
 					prizesClaimButton:addCustomDisplay(false, function() end)
@@ -666,7 +668,9 @@ do
 					rewardName = rewardName == "" and Torishop:getItemInfo(v.itemid).itemname or (rewardName:gsub("Toricredits", "TC"):gsub("Shiai Tokens", "ST") .. " & " .. Torishop:getItemInfo(v.itemid).itemname)
 				end
 				local rewardIcon = v.itemid > 0 and Torishop:getItemIcon(v.itemid) or (v.st > 0 and "../textures/store/shiaitoken.tga" or (v.tc > 0 and "../textures/store/toricredit.tga"))
-				TBMenu:showTextWithImage(prizeName, rewardName, 2, nil, rewardIcon)
+				if (rewardIcon ~= false) then
+					TBMenu:showTextWithImage(prizeName, rewardName, 2, nil, rewardIcon)
+				end
 				local prizeRequirement = UIElement:new({
 					parent = prizeHolder,
 					pos = { 0, prizeName.size.h + prizeName.shift.y },
@@ -709,20 +713,20 @@ do
 		for i, room in pairs(roomsOnline) do
 			room.name = i
 		end
-		roomsOnline = UIElement:qsort(roomsOnline, "players", true)
+		roomsOnline = table.qsort(roomsOnline, "players", true)
 		if (#roomsOnline > 0) then
 			for i, room in pairs(roomsOnline) do
 				if (room.players > 1 and room.players < 5) then
 					close_menu()
-					UIElement:runCmd("jo " .. room.name)
+					runCmd("jo " .. room.name)
 					return
 				end
 			end
 			close_menu()
-			UIElement:runCmd("jo " .. roomsOnline[1].name)
+			runCmd("jo " .. roomsOnline[1].name)
 		else
 			close_menu()
-			UIElement:runCmd("jo " .. defaultRoom)
+			runCmd("jo " .. defaultRoom)
 		end
 	end
 
@@ -877,8 +881,8 @@ do
 		local questImage = "../textures/menu/general/quests/qtype2.tga"
 		if (progress > 1) then
 			progress = 1
-			questBackground.bgColor = cloneTable(TB_MENU_DEFAULT_DARKER_ORANGE)
-			questBackground.uiColor = cloneTable(TB_MENU_DEFAULT_ORANGE)
+			questBackground.bgColor = table.clone(TB_MENU_DEFAULT_DARKER_ORANGE)
+			questBackground.uiColor = table.clone(TB_MENU_DEFAULT_ORANGE)
 			questImage = "../textures/menu/general/buttons/checkmarkbig.tga"
 		end
 
@@ -957,7 +961,7 @@ do
 			pos = { 10, toplistTitle.shift.y + toplistTitle.size.h + 5 },
 			size = { topBar.size.w / 2 - 15, topBar.size.h - toplistTitle.size.h - toplistTitle.shift.y - 10 },
 			interactive = true,
-			bgColor = cloneTable(TB_MENU_DEFAULT_BG_COLOR),
+			bgColor = table.clone(TB_MENU_DEFAULT_BG_COLOR),
 			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
 			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR
 		})
@@ -967,7 +971,7 @@ do
 			pos = { toplistModeGames.shift.x * 2 + toplistModeGames.size.w, toplistModeGames.shift.y },
 			size = { toplistModeGames.size.w, toplistModeGames.size.h },
 			interactive = true,
-			bgColor = cloneTable(TB_MENU_DEFAULT_BG_COLOR),
+			bgColor = table.clone(TB_MENU_DEFAULT_BG_COLOR),
 			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
 			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR
 		})
@@ -980,8 +984,8 @@ do
 						listingHolder:kill(true)
 					end
 					listingHolder.scrollBar = Events:showModChampionshipToplist(toReload, listingHolder, elementHeight, toplist, 0)
-					toplistModeGames.bgColor = cloneTable(TB_MENU_DEFAULT_DARKEST_COLOR)
-					toplistModeRank.bgColor = cloneTable(TB_MENU_DEFAULT_BG_COLOR)
+					toplistModeGames.bgColor = table.clone(TB_MENU_DEFAULT_DARKEST_COLOR)
+					toplistModeRank.bgColor = table.clone(TB_MENU_DEFAULT_BG_COLOR)
 				end
 			end)
 		toplistModeRank:addMouseHandlers(nil, function()
@@ -991,8 +995,8 @@ do
 						listingHolder:kill(true)
 					end
 					listingHolder.scrollBar = Events:showModChampionshipToplist(toReload, listingHolder, elementHeight, toplist, 1)
-					toplistModeRank.bgColor = cloneTable(TB_MENU_DEFAULT_DARKEST_COLOR)
-					toplistModeGames.bgColor = cloneTable(TB_MENU_DEFAULT_BG_COLOR)
+					toplistModeRank.bgColor = table.clone(TB_MENU_DEFAULT_DARKEST_COLOR)
+					toplistModeGames.bgColor = table.clone(TB_MENU_DEFAULT_BG_COLOR)
 				end
 			end)
 
@@ -1041,7 +1045,7 @@ do
 	function Events:getPassedEventInfo(filename)
 		local eventInfo = { shortname = filename:gsub("%.dat$", '') }
 		eventInfo.name = eventInfo.shortname
-		local file = Files:open("../data/script/events/" .. filename, FILES_MODE_READ)
+		local file = Files:open("../data/script/events/" .. filename, FILES_MODE_READONLY)
 		if (not file.data) then
 			return eventInfo
 		end
@@ -1295,12 +1299,18 @@ do
 		})
 		allEventsTitle:addAdaptedText(true, TB_MENU_LOCALIZED.EVENTSVIEWIGNALLEVENTS, nil, nil, FONTS.BIG)
 
-		local eventsList = get_files("data/script/events", "dat")
+		local eventsListData = get_files("data/script/events", "dat")
+		local eventsList = { }
 
 		local eventsData = News:getEvents()
-		for i = 1, #eventsList do
-			local shortname = eventsList[i]:gsub("%.dat$", '')
-			eventsList[i] = { file = eventsList[i], live = 0 }
+		if (table.empty(eventsData)) then
+			listingHolder:addAdaptedText(TB_MENU_LOCALIZED.NOTHINGTOSHOW, nil, nil, FONTS.BIG, nil, 0.75)
+			return
+		end
+
+		for i = 1, #eventsListData do
+			local shortname = eventsListData[i]:gsub("%.dat$", '')
+			eventsList[i] = { file = eventsListData[i], live = 0 }
 			for j,v in pairs(eventsData) do
 				if (v.eventid == shortname) then
 					eventsList[i].live = -1
@@ -1312,7 +1322,7 @@ do
 			v.info = Events:getPassedEventInfo(v.file)
 			v.name = v.info.name
 		end
-		eventsList = UIElement:qsort(eventsList, { 'live', 'name' }, false)
+		eventsList = table.qsort(eventsList, { 'name', 'live' }, false)
 
 		local selectedButton = nil
 		local listElements = {}
@@ -1366,8 +1376,8 @@ do
 			local eventInfo = v.info
 			listEvent:addMouseHandlers(nil, function()
 					Events:showPassedEventInfo(eventInfoHolder, eventInfo.shortname, v.activeId)
-					selectedButton.bgColor = cloneTable(TB_MENU_DEFAULT_DARKER_COLOR)
-					listEvent.bgColor = cloneTable(TB_MENU_DEFAULT_DARKEST_COLOR)
+					selectedButton.bgColor = table.clone(TB_MENU_DEFAULT_DARKER_COLOR)
+					listEvent.bgColor = table.clone(TB_MENU_DEFAULT_DARKEST_COLOR)
 					selectedButton = listEvent
 				end)
 			local shiftX = 0
@@ -1393,7 +1403,7 @@ do
 
 			if (i == 1) then
 				selectedButton = listEvent
-				selectedButton.bgColor = cloneTable(TB_MENU_DEFAULT_DARKEST_COLOR)
+				selectedButton.bgColor = table.clone(TB_MENU_DEFAULT_DARKEST_COLOR)
 				Events:showPassedEventInfo(eventInfoHolder, eventInfo.shortname, v.activeId)
 			end
 		end
@@ -1659,7 +1669,7 @@ do
 	function Events:getEventInfo(id)
 		local events = News:getEvents()
 
-		if (events) then
+		if (not table.empty(events)) then
 			events[id].accentColor = events[id].accentColor or TB_MENU_DEFAULT_BG_COLOR
 			return events[id]
 		else
@@ -1669,12 +1679,12 @@ do
 
 	function Events:showEventInfo(id)
 		if (not TB_STORE_DATA.ready) then
-			TBMenu:showDataError("Please wait until Store data is ready")
+			TBMenu:showStatusMessage("Please wait until Store data is ready")
 			return false
 		end
 		local event = Events:getEventInfo(id or 1)
 		if (not event) then
-			TBMenu:showDataError("Please wait until News data is ready")
+			TBMenu:showStatusMessage("Please wait until News data is ready")
 			return false
 		end
 
@@ -1743,8 +1753,8 @@ do
 			buttonPColor = event.buttonPressedColor
 			delta = buttonHColor[1] + buttonHColor[2] + buttonHColor[3]
 		else
-			buttonHColor = cloneTable(viewElement.uiColor)
-			buttonPColor = cloneTable(viewElement.uiColor)
+			buttonHColor = table.clone(viewElement.uiColor)
+			buttonPColor = table.clone(viewElement.uiColor)
 			local delta = buttonHColor[1] + buttonHColor[2] + buttonHColor[3]
 			if (delta > 1.5) then
 				buttonHColor[2] = (buttonHColor[2] - math.abs(0.8 - buttonHColor[2]))

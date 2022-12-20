@@ -243,6 +243,20 @@ function disable_mouse_camera_movement() end
 ---@param field_of_view number
 function set_fov(field_of_view) end
 
+---@alias CameraMode
+---| 0 CAMERA_NORMAL
+---| 1 CAMERA_TORI
+---| 2 CAMERA_UKE
+---| 3 CAMERA_FREE
+---| 4 CAMERA_FREEORB
+---| 5 CAMERA_FREEORB_DEBUG
+---| 6 CAMERA_TORISHOP
+---| 7 CAMERA_FOCUS
+
+---Activates the specified camera mode
+---@param mode CameraMode
+function set_camera_mode(mode) end
+
 --[[ SCREEN RELATED FUNCTIONS ]]
 
 ---Returns screen resolution values
@@ -404,6 +418,14 @@ function set_grip_info(player, hand, state) end
 ---@nodiscard
 function get_joint_pos(player, joint) end
 
+---Selects player with the corresponding id
+---@param player integer Player ID or `-1` to deselect all players
+function select_player(player) end
+
+---Disables selection of player with the corresponding id
+---@param player integer Player ID or `-1` to enable selection for all players
+function disable_player_select(player) end
+
 ---Starts a new game
 ---@param safe ?boolean If `true` is passed, will report ready event when in multiplayer instead of starting new free play game
 function start_new_game(safe) end
@@ -422,6 +444,11 @@ function is_game_frozen() end
 ---*Pass `true` to simulate SHIFT + SPACE behavior*
 ---@param single_frame ?boolean
 function step_game(single_frame) end
+
+---Opens and plays the replay
+---@param filename string
+---@param cache? integer
+function open_replay(filename, cache) end
 
 ---Rewinds the replay to the beginning
 function rewind_replay() end
@@ -766,6 +793,10 @@ function file_close(fileidx) end
 ---Launches a network request to update current user's TC and ST balance
 function update_tc_balance() end
 
+---Queues player's head texture for download
+---@param username string
+function download_head(username) end
+
 ---Downloads a data file from Toribash servers
 ---@param request string
 ---@param mode integer
@@ -801,6 +832,10 @@ function download_fetch_bounties() end
 ---Downloads quests data for the specified user
 ---@param username string
 function download_quest(username) end
+
+---Sends a request to claim quest reward
+---@param questid integer
+function claim_quest(questid) end
 
 ---Initiates a network request to upload an event replay to Toribash servers
 ---@param name string
@@ -1092,13 +1127,143 @@ function utf8.escape(str) end
 ---Saves current settings to config file
 function save_custom_config() end
 
+---@alias GameOption
+---| "altimeter"
+---| "speedometer"
+---| "damagemeter"
+---| "scoringmeter"
+---| "hud"
+---| "gui"
+---| "score"
+---| "timer"
+---| "chat"
+---| "spectator"
+---| "debug"
+---| "name"
+---| "emote"
+---| "shout"
+---| "button"
+---| "text"
+---| "hint"
+---| "feedback"
+---| "message"
+---| "info"
+---| "replayspeed"
+---| "cursor"
+---| "p4"
+---| "p3"
+---| "uke"
+---| "tori"
+---| "blood"
+---| "sound"
+---| "mousebuttons"
+---| "backgroundclick"
+---| "rumble"
+---| "music"
+---| "smartcam"
+---| "width"
+---| "height"
+---| "antialiasing"
+---| "benchmark"
+---| "fullscreen"
+---| "autosave"
+---| "rememberrules"
+---| "autoupdate"
+---| "bruise"
+---| "motionblur"
+---| "bloodstains"
+---| "exhibition"
+---| "reflection"
+---| "smoothcam"
+---| "framerate"
+---| "avatar"
+---| "fluid"
+---| "softshadow"
+---| "ambientocclusion"
+---| "bumpmapping"
+---| "bodytextures"
+---| "depthoffield"
+---| "anaglyphic"
+---| "shaders"
+---| "noreload"
+---| "equipment"
+---| "money"
+---| "turnalert"
+---| "beginner"
+---| "animatedhead"
+---| "floortexture"
+---| "fixedframerate"
+---| "particles"
+---| "trails"
+---| "keyframes"
+---| "ghostcache"
+---| "replaycache"
+---| "bloodstainremove"
+---| "chatcache"
+---| "filesort"
+---| "raytracing"
+---| "hair"
+---| "obj"
+---| "grip"
+---| "flag"
+---| "dl"
+---| "hairquality"
+---| "language"
+---| "languagesteam"
+---| "worldshader"
+---| "effects"
+---| "ghostenvobj"
+---| "realtimeghost"
+---| "newshopitem"
+---| "matchmakerx"
+---| "matchmakery"
+---| "matchmakerhidden"
+---| "chatfocus"
+---| "clanuipopup"
+---| "gleeinit"
+---| "blur"
+---| "newmenu"
+---| "memsize"
+---| "matchmakechat"
+---| "discordjoin"
+---| "comicfx"
+---| "highdpi"
+---| "keyboardlayout"
+---| "focuscam"
+---| "personal"
+---| "tooltip"
+---| "movememory"
+---| "soundvolume"
+---| "musicvolume"
+---| "voicevolume"
+---| "chattoggle"
+---| "voicetoggle"
+---| "chatcensor"
+---| "objshadow"
+---| "showbroadcast"
+---| "uilight"
+---| "menudebug"
+---| "jointflash"
+---| "grnewgame"
+---| "replayhudtoggle"
+---| "borderless"
+---| "dpiscale"
+---| "playertext"
+---| "dpiawareness"
+---| "itemeffects"
+---| "usagestats"
+---| "jointobjopacity"
+---| "systemcursor"
+---| "aidifficulty" Toribash builds with AI fight mode only
+---| "hudoffset" Mobile platforms only
+
 ---Retrieves a value of the specified Toribash option
----@param value string
+---@param value GameOption
 ---@return string
 function get_option(value) end
 
 ---Sets value for the specified Toribash option
----@param option string
+---@param option GameOption
 ---@param value integer
 function set_option(option, value) end
 
@@ -1285,6 +1450,13 @@ function open_dialog_box(action, message, data, useLuaNetwork) end
 ---@return integer y
 ---@return integer z
 function get_screen_pos(pos_x, pos_y, pos_z) end
+
+---Returns current tutorial level. *Steam only.*
+function get_tutorial_level() end
+
+---Sets highest tutorial level. *Steam only.*
+---@param value integer
+function set_tutorial_level(value) end
 
 
 --[[ DISCORD FUNCTIONS ]]

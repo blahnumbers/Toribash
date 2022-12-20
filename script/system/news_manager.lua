@@ -142,7 +142,7 @@ do
 	function News:getEvents()
 		local file = Files:open("../data/news.txt")
 		if (not file.data) then
-			return false
+			return {}
 		end
 		local lines = file:readAll()
 		file:close()
@@ -152,13 +152,13 @@ do
 		for i,ln in pairs(lines) do
 			local ln = ln:gsub("\r?\n?", '')
 			if (ln:find("^EVENTID")) then
-				currentID = ln:gsub("%D", "")
-				currentID = tonumber(currentID)
+				local tempId = ln:gsub("%D", "")
+				currentID = tonumber(tempId) or 0
 				eventData[currentID] = {
-					uiColor = cloneTable(UICOLORWHITE),
-					accentColor = cloneTable(TB_MENU_DEFAULT_BG_COLOR),
-					buttonHoverColor = cloneTable(TB_MENU_DEFAULT_DARKER_COLOR),
-					buttonPressedColor = cloneTable(TB_MENU_DEFAULT_DARKEST_COLOR),
+					uiColor = table.clone(UICOLORWHITE),
+					accentColor = table.clone(TB_MENU_DEFAULT_BG_COLOR),
+					buttonHoverColor = table.clone(TB_MENU_DEFAULT_DARKER_COLOR),
+					buttonPressedColor = table.clone(TB_MENU_DEFAULT_DARKEST_COLOR),
 					overlaytransparency = 0
 				}
 			elseif (#eventData > 0) then
@@ -194,11 +194,11 @@ do
 				elseif (ln:find("^DESCDATA 0;")) then
 					evt.data = evt.data or {}
 					local ln = ln:gsub("^DESCDATA 0;", "")
-					local id = tonumber(ln:sub(1, 1))
+					local id = tonumber(ln:sub(1, 1)) or 0
 					evt.data[id] = { title = ln:sub(2) }
 				elseif (ln:find("^DESCDATAIMGTITLE 0;")) then
 					local ln = ln:gsub("^DESCDATAIMGTITLE 0;", "")
-					local id = tonumber(ln:sub(1, 1))
+					local id = tonumber(ln:sub(1, 1)) or 0
 					local imgtitle = ln:sub(2)
 					local file = Files:open("../data/textures/menu/promo/events/" .. imgtitle)
 					if (file.data) then
@@ -207,13 +207,13 @@ do
 					end
 				elseif (ln:find("^DESCDATATEXT 0;")) then
 					local ln = ln:gsub("^DESCDATATEXT 0;", "")
-					local id = tonumber(ln:sub(1, 1))
+					local id = tonumber(ln:sub(1, 1)) or 0
 					local text = ln:sub(2)
 					evt.data[id].desc = text
 				elseif (ln:find("^PRIZEDATA 0;")) then
 					evt.prizes = evt.prizes or {}
 					local ln = ln:gsub("^PRIZEDATA 0;", "")
-					local id = tonumber(ln:sub(1, 1))
+					local id = tonumber(ln:sub(1, 1)) or 0
 					evt.prizes[id] = { info = ln:sub(2) }
 				elseif (ln:find("^PRIZEIMG 0;")) then
 					evt.prizes = evt.prizes or {}
@@ -225,18 +225,18 @@ do
 					end
 				elseif (ln:find("^PRIZETC 0;")) then
 					local ln = ln:gsub("^PRIZETC 0;", "")
-					local id = tonumber(ln:sub(1, 1))
+					local id = tonumber(ln:sub(1, 1)) or 0
 					local tc = tonumber(ln:sub(2))
 					evt.prizes[id].tc = tc
 				elseif (ln:find("^PRIZEST 0;")) then
 					local ln = ln:gsub("^PRIZEST 0;", "")
-					local id = tonumber(ln:sub(1, 1))
+					local id = tonumber(ln:sub(1, 1)) or 0
 					local st = tonumber(ln:sub(2))
 					evt.prizes[id].st = st
 				elseif (ln:find("^PRIZEITEMS 0;")) then
 					local ln = ln:gsub("^PRIZEITEMS 0;", "")
-					local id = tonumber(ln:sub(1, 1))
-					local cnt = tonumber(ln:sub(2, 2))
+					local id = tonumber(ln:sub(1, 1)) or 0
+					local cnt = tonumber(ln:sub(2, 2)) or 0
 					local items = ln:sub(3)
 					evt.prizes[id].itemids = { items:match(("(%d+) ?"):rep(cnt)) }
 				end

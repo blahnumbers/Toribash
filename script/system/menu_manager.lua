@@ -149,7 +149,7 @@ function TBMenu:createCurrentSectionView()
 		local sizeOffset = math.min(WIN_W / 8, 300)
 		TBMenu.CurrentSection = TBMenu.MenuMain:addChild({
 			pos = { offsetX + sizeOffset, 130 * TB_MENU_GLOBAL_SCALE },
-			size = { WIN_W - offsetX - 75 * TB_MENU_GLOBAL_SCALE - sizeOffset * 2, WIN_H - 235 * TB_MENU_GLOBAL_SCALE }
+			size = { WIN_W - offsetX - 75 * TB_MENU_GLOBAL_SCALE - sizeOffset, WIN_H - 235 * TB_MENU_GLOBAL_SCALE }
 		})
 	else
 		local sizeOffset = math.max(safeX, 75) * TB_MENU_GLOBAL_SCALE
