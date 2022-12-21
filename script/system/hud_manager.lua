@@ -339,7 +339,7 @@ function TBHud:spawnHoldRelaxAllButton()
 		size = { self.DefaultSmallerButtonSize, self.DefaultSmallerButtonSize }
 	})
 
-	local holdAll = false
+	local holdAll = true
 	local holdRelaxAllButton = TBHudInternal.generateTouchButton(holdRelaxAllButtonHolder)
 	local relaxAllText = holdRelaxAllButton:addChild({
 		shift = { 5, holdRelaxAllButton.size.h / 3 },
@@ -371,6 +371,7 @@ function TBHud:spawnHoldRelaxAllButton()
 		holdAll = not holdAll
 		toggleButtonsDisplay()
 	end)
+	toggleButtonsDisplay()
 	holdRelaxAllButtonHolder:addCustomDisplay(true, function()
 		local shouldBeDisplayed = TBHud.WorldState.replay_mode == 0 and TBHudInternal.isPlaying()
 		if (shouldBeDisplayed and not holdRelaxAllButton:isDisplayed()) then
@@ -379,7 +380,6 @@ function TBHud:spawnHoldRelaxAllButton()
 			holdRelaxAllButton:hide()
 		end
 	end)
-	toggleButtonsDisplay()
 end
 
 function TBHud:spawnHubButton()

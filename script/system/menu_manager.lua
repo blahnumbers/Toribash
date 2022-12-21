@@ -2298,17 +2298,25 @@ function TBMenu:showMobileNavigationBar(buttonsData, customNav, customNavHighlig
 	---We only need to calculate target font scale so that we can render all captions at the same size
 
 	local buttonHeight = math.min(TBMenu.NavigationBar.size.h / #tbMenuNavigationButtonsData, 60)
-	local fontScale = 0.6
+	local fontScale = 0.65
 	local fontId = FONTS.BIG
-	local temp = TBMenu.NavigationBar:addChild({
-		size = { TBMenu.NavigationBar.size.w, buttonHeight }
-	})
 
-	for _, v in pairs(tbMenuNavigationButtonsData) do
-		temp:addAdaptedText(true, v.text, nil, nil, fontId, nil, fontScale)
-		fontScale = math.min(fontScale, temp.textScale)
+	local targetWidth = 500000
+	while (targetWidth > TBMenu.NavigationBar.size.w) do
+		fontScale = fontScale - 0.05
+		local runMaxWidth = 0
+		for _, v in pairs(tbMenuNavigationButtonsData) do
+			local currentWidth = get_string_length(v.text, fontId) * fontScale + 20
+			if (v.misctext) then
+				currentWidth = currentWidth + get_string_length(v.misctext, fontId) * fontScale * 0.8 + 20
+			end
+			runMaxWidth = math.max(runMaxWidth, currentWidth)
+			if (runMaxWidth > TBMenu.NavigationBar.size.w) then
+				break
+			end
+		end
+		targetWidth = math.min(targetWidth, runMaxWidth)
 	end
-	temp:kill()
 
 	for i, v in pairs(tbMenuNavigationButtonsData) do
 		local navY = v.right and navY.b or navY.t
@@ -2340,7 +2348,7 @@ function TBMenu:showMobileNavigationBar(buttonsData, customNav, customNavHighlig
 			end)
 		local buttonText = tbMenuNavigationButtons[i]:addChild({ shift = { 15, buttonHeight / 6 } })
 		if (v.misctext) then
-			local width = (get_string_length(v.misctext, fontId) + 40) * fontScale * 0.8
+			local width = get_string_length(v.misctext, fontId) * fontScale * 0.8 + 20
 			local miscMark = UIElement:new({
 				parent = buttonText,
 				pos = { -(buttonText.size.w - get_string_length(v.text, fontId) * fontScale + width - 16) / 2, buttonText.size.h * 0.125 },
@@ -2350,7 +2358,7 @@ function TBMenu:showMobileNavigationBar(buttonsData, customNav, customNavHighlig
 				shapeType = ROUNDED,
 				rounded = buttonText.size.h / 2
 			})
-			miscMark:addAdaptedText(false, v.misctext, nil, nil, fontId, nil, nil, nil, 0.7)
+			miscMark:addAdaptedText(false, v.misctext, nil, nil, fontId, nil, fontScale * 0.8, nil, 0.7)
 			buttonText:addAdaptedText(true, v.text, -width / 2, nil, fontId, nil, fontScale)
 		else
 			buttonText:addAdaptedText(true, v.text, nil, nil, fontId, nil, fontScale)
