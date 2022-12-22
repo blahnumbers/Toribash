@@ -5630,7 +5630,9 @@ do
 				for i,v in pairs(STORE_ICONS_DOWNLOAD_QUEUE) do
 					if (fileName:find(".*/store/items/" .. v.itemid .. "%.tga$")) then
 						if (not STORE_ICONS_DOWNLOAD_QUEUE[i].element.destroyed) then
-							STORE_ICONS_DOWNLOAD_QUEUE[i].element:updateImage(Torishop:getItemIcon(STORE_ICONS_DOWNLOAD_QUEUE[i].itemid))
+							Downloader:safeCall(function()
+								STORE_ICONS_DOWNLOAD_QUEUE[i].element:updateImage(Torishop:getItemIcon(STORE_ICONS_DOWNLOAD_QUEUE[i].itemid))
+							end)
 						end
 						table.remove(STORE_ICONS_DOWNLOAD_QUEUE, i)
 						if (#STORE_ICONS_DOWNLOAD_QUEUE == 0) then
