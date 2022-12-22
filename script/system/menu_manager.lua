@@ -442,7 +442,7 @@ function TBMenu:showHome()
 			end)
 		homeAnnouncements:addCustomDisplay(false, function()
 				if ((math.floor(os.clock_real() * 10) - rotateClock.start) % rotateTime == 0 and math.floor(os.clock_real() * 10) ~= rotateClock.last and not rotateClock.pause) then
-					TBMenu:changeCurrentEvent(homeAnnouncements, eventsData, eventItems, rotateClock, toReload, 1)
+					TBMenuInternal.changeCurrentEvent(homeAnnouncements, eventsData, eventItems, rotateClock, toReload, 1)
 				end
 			end)
 
@@ -463,7 +463,7 @@ function TBMenu:showHome()
 			hoverThrough = true
 		})
 		eventPrevButton:addMouseHandlers(nil, function()
-				TBMenu:changeCurrentEvent(homeAnnouncements, eventsData, eventItems, rotateClock, toReload, -1)
+				TBMenuInternal.changeCurrentEvent(homeAnnouncements, eventsData, eventItems, rotateClock, toReload, -1)
 				eventPrevButton.hoverState = BTN_HVR
 			end, nil)
 		local eventNextButton = toReload:addChild({
@@ -480,7 +480,7 @@ function TBMenu:showHome()
 			hoverThrough = true
 		})
 		eventNextButton:addMouseHandlers(nil, function()
-				TBMenu:changeCurrentEvent(homeAnnouncements, eventsData, eventItems, rotateClock, toReload, 1)
+				TBMenuInternal.changeCurrentEvent(homeAnnouncements, eventsData, eventItems, rotateClock, toReload, 1)
 				eventNextButton.hoverState = BTN_HVR
 			end, nil)
 	end
