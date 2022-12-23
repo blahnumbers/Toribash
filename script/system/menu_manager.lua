@@ -2365,6 +2365,10 @@ function TBMenu:showMobileNavigationBar(buttonsData, customNav, customNavHighlig
 		end
 		tbMenuNavigationButtons[i]:addMouseHandlers(nil, function()
 				if (not customNav) then
+					if (v.sectionId == -1) then
+						close_menu()
+						return
+					end
 					if (v.sectionId ~= TB_LAST_MENU_SCREEN_OPEN) then
 						TBMenu.CurrentSection:kill(true)
 						TB_LAST_MENU_SCREEN_OPEN = v.sectionId
@@ -2567,7 +2571,11 @@ function TBMenu:getMainNavigationButtons()
 		table.insert(buttonData, { text = TB_MENU_LOCALIZED.NAVBUTTONMARKET, sectionId = 10 })
 		table.insert(buttonData, { text = TB_MENU_LOCALIZED.MAINMENUCLANSNAME, sectionId = 9 })
 	end
-	table.insert(buttonData, { text = TB_MENU_LOCALIZED.NAVBUTTONTOOLS, sectionId = 5, right = true })
+	if (is_mobile() == false) then
+		table.insert(buttonData, { text = TB_MENU_LOCALIZED.NAVBUTTONTOOLS, sectionId = 5, right = true })
+	else
+		table.insert(buttonData, { text = TB_MENU_LOCALIZED.MAINMENUCLOSE, sectionId = -1, right = true })
+	end
 	if (TB_MENU_PLAYER_INFO.data.qi >= 20) then
 		---@type MenuNavButton
 		local battlePassButton = {
@@ -3579,7 +3587,7 @@ function TBMenu:spawnSlider(parent, x, y, w, h, textWidth, sliderRadius, value, 
 	sliderLabel:addCustomDisplay(false, function()
 			if (sliderLabel.uiColor[4] > 0) then
 				sliderLabel:uiText(sliderLabel.labelText[1], nil, nil, 4, nil, 0.5)
-				if (not slider.pressed) then
+				if (slider.hoverState ~= BTN_DN) then
 					sliderLabel.uiColor[4] = sliderLabel.uiColor[4] - 0.02
 					sliderLabel.bgColor[4] = sliderLabel.bgColor[4] - 0.02
 				end
@@ -3613,19 +3621,20 @@ function TBMenu:spawnSlider(parent, x, y, w, h, textWidth, sliderRadius, value, 
 
 	slider.settings = settings
 	slider.label = sliderLabel
+	slider.lastVal = nil
 	slider:addMouseHandlers(function()
-			slider.pressed = true
 			slider.pressedPos = slider:getLocalPos()
 			if (onMouseDown) then
 				onMouseDown()
 			end
-		end, function()
-			slider.pressed = false
 			if (onMouseUp) then
-				onMouseUp()
+				add_hook("mouse_button_up", "uiMenuSlider", function()
+					onMouseUp()
+					remove_hook("mouse_button_up", "uiMenuSlider")
+				end)
 			end
-		end, function()
-			if (slider.pressed) then
+		end, nil, function()
+			if (slider.hoverState == BTN_DN) then
 				local xPos = MOUSE_X - sliderBG.pos.x - slider.pressedPos.x
 				if (xPos < 0) then
 					xPos = 0
@@ -3647,9 +3656,10 @@ function TBMenu:spawnSlider(parent, x, y, w, h, textWidth, sliderRadius, value, 
 				sliderLabel.uiColor[4] = 1
 				sliderLabel.bgColor[4] = 1
 
-				if (sliderFunc) then
+				if (sliderFunc and slider.lastVal ~= val) then
 					sliderFunc(val, xPos, slider)
 				end
+				slider.lastVal = val
 			end
 		end)
 	slider.setValue = function(val, updateLabel)

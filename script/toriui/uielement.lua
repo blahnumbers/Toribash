@@ -361,7 +361,7 @@ UIElement.btnRightUp = function(buttonId, x, y) end
 ---@return UIElement
 function UIElement:new(o)
 	---@type UIElement
-	local elem = {	globalid = 0,
+	local elem = {	globalid = 1000,
 					child = {},
 					pos = {},
 					shift = {},
@@ -462,7 +462,6 @@ function UIElement:new(o)
 		end
 		if (o.shapeType == ROUNDED and o.rounded) then
 			elem.setRounded(elem, o.rounded)
-
 			-- Light UI mode - don't add rounded corners if it's just for cosmetics
 			if (not UIMODE_LIGHT or elem.rounded > elem.size.w / 4) then
 				elem.shapeType = o.shapeType
@@ -1365,22 +1364,14 @@ end
 ---@return boolean
 function UIElement:isDisplayed()
 	return self.displayed;
-	--[[local viewport = (self.viewport or (self.parent and self.parent.viewport)) and true or false
+end
 
-	if (not viewport) then
-		for i,v in pairs(UIVisualManager) do
-			if (self == v) then
-				return true
-			end
-		end
+function UIElement:shouldReceiveInput()
+	if (TB_MENU_MAIN_ISOPEN == 1) then
+		return self.globalid == TB_MENU_MAIN_GLOBALID
 	else
-		for i,v in pairs(UIViewportManager) do
-			if (self == v) then
-				return true
-			end
-		end
+		return self.globalid ~= TB_MENU_MAIN_GLOBALID
 	end
-	return false]]
 end
 
 ---Enables current UIElement and all its children for display
@@ -1721,7 +1712,7 @@ function UIElement.handleMouseDn(btn, x, y)
 		KEYBOARDGLOBALIGNORE = false
 	end
 	for _, v in pairs(table.reverse(UIMouseHandler)) do
-		if (v.isactive) then
+		if (v:shouldReceiveInput()) then
 			if (x > v.pos.x and x < v.pos.x + v.size.w and y > v.pos.y and y < v.pos.y + v.size.h and btn < 4) then
 				if (v.downSound) then
 					play_sound(v.downSound)
@@ -1752,7 +1743,7 @@ end
 function UIElement.handleMouseUp(btn, x, y)
 	local actionTriggered = false
 	for _, v in pairs(table.reverse(UIMouseHandler)) do
-		if (v.isactive) then
+		if (v:shouldReceiveInput()) then
 			if (v.hoverState == BTN_DN and btn == 1) then
 				v.hoverState = BTN_NONE
 				if (not actionTriggered and x > v.pos.x and x < v.pos.x + v.size.w and y > v.pos.y and y < v.pos.y + v.size.h) then
@@ -1786,7 +1777,7 @@ function UIElement.handleMouseHover(x, y)
 	MOUSE_X, MOUSE_Y = x, y
 
 	for _, v in pairs(table.reverse(UIMouseHandler)) do
-		if (v.isactive) then
+		if (v:shouldReceiveInput()) then
 			if (v.hoverState == BTN_DN) then
 				disable = v.hoverThrough ~= true
 				v.btnHover(x,y)

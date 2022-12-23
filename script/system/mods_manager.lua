@@ -34,6 +34,7 @@ if (Mods == nil) then
 		LastMenu = nil,
 		StartNewGame = true,
 		CurrentFolder = nil,
+		ver = 5.60,
 		__index = {}
 	}
 	setmetatable({}, Mods)
@@ -252,7 +253,7 @@ function Mods.showMain()
 	local mainViewBackground = UIElement:new({
 		globalid = TB_MENU_HUB_GLOBALID,
 		pos = { Mods.DisplayPos.x, Mods.DisplayPos.y },
-		size = { math.min(400, WIN_W / 4), math.min(math.max(WIN_H / 2, 650), WIN_H - 20) },
+		size = { math.min(400, WIN_W / 4), math.min(math.max(WIN_H / 2, 650), WIN_H - 100) },
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 		shapeType = ROUNDED,
 		rounded = 4

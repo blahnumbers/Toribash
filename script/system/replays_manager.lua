@@ -3453,7 +3453,7 @@ do
 			parent = viewElement,
 			pos = { 0, 0 },
 			size = { viewElement.size.w * 0.65, viewElement.size.h },
-			bgColor = cloneTable(TB_MENU_DEFAULT_BG_COLOR),
+			bgColor = table.clone(TB_MENU_DEFAULT_BG_COLOR),
 			shapeType = ROUNDED,
 			rounded = 4,
 		})
@@ -3466,7 +3466,7 @@ do
 
 		local worldstate = get_world_state()
 		local sliderSettings = {
-			maxValue = worldstate.game_frame + 99,
+			maxValue = worldstate.game_frame + 98,
 			minValue = 0
 		}
 		local replaySpeed = 1
@@ -3487,7 +3487,7 @@ do
 
 		replayProgressHolder:addCustomDisplay(nil, function()
 				local worldstate = get_world_state()
-				if (slider.settings.maxValue ~= worldstate.game_frame + 99) then
+				if (slider.settings.maxValue ~= worldstate.game_frame + 98) then
 					Replays:spawnReplayAdvancedGui(true)
 					return
 				end
@@ -3512,7 +3512,8 @@ do
 					end
 				end
 			end)
-		local keyframes = get_camera_keyframes()
+		-- A bit useless now, we can't control them and it only shits up the timeline
+		--[[local keyframes = get_camera_keyframes()
 		for i = 1, #keyframes do
 			local kf = keyframes[i]
 			local keyframeButton = UIElement:new({
@@ -3529,7 +3530,7 @@ do
 			bgColor = { 1, 1, 1, 0.8 },
 			shapeType = ROUNDED,
 			rounded = 6
-		})
+		})]]
 		slider:reload()
 
 		return slider
@@ -3540,7 +3541,7 @@ do
 			parent = viewElement,
 			pos = { viewElement.size.w * 0.65 + 10, 0 },
 			size = { viewElement.size.w * 0.35 - 10, viewElement.size.h },
-			bgColor = cloneTable(TB_MENU_DEFAULT_BG_COLOR),
+			bgColor = table.clone(TB_MENU_DEFAULT_BG_COLOR),
 			shapeType = ROUNDED,
 			rounded = 4
 		})

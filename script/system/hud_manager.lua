@@ -70,7 +70,7 @@ end
 local TBHudInternal = {
 	ChatMessages = {},
 	ChatMessageHistory = {},
-	ChatMessageHistoryIndex = 1
+	ChatMessageHistoryIndex = -1
 }
 setmetatable({}, TBHudInternal)
 
@@ -396,6 +396,7 @@ end
 
 function TBHud:spawnHub()
 	if (self.MainElement == nil or self.HubHolder ~= nil) then return end
+	local safe_x, safe_y = get_window_safe_size()
 
 	self.HubHolder = UIElement:new({
 		globalid = TB_MENU_HUB_GLOBALID,
@@ -470,6 +471,16 @@ function TBHud:spawnHub()
 		})
 		buttonTitleHolder:addChild({ shift = { 5, 2 }}):addAdaptedText(false, v.title)
 	end
+
+	local mainMenuButton = hubBackground:addChild({
+		pos = { 10, -40 - math.max(safe_y, 20) },
+		size = { hubBackground.size.w - 20, 40 },
+		interactive = true,
+		bgColor = TB_MENU_DEFAULT_BG_COLOR,
+		pressedColor = TB_MENU_DEFAULT_DARKER_COLOR
+	})
+	mainMenuButton:addChild({ shift = { 10, 5 }}):addAdaptedText("> To main menu")
+	mainMenuButton:addMouseUpHandler(function() open_menu(19) TBHud:toggleHub(false) end)
 
 	self.HubHolder:hide(true)
 end
@@ -620,12 +631,12 @@ function TBHud:refreshChat()
 				chatInputField.suggestionsDropdown.selectedElement:btnUp()
 			end)
 		-- Don't need chat history for mobile for now
-		chatInputField:addKeyboardHandlers(nil, function(key)
+		chatInputField:addKeyboardHandlers(function(key)
 				if (key == 273 or key == 274) then -- arrow up or down
 					if (key == 273) then
-						TBHudInternal.ChatMessageHistoryIndex = math.min(TBHudInternal.ChatMessageHistoryIndex + 1, #TBHudInternal.ChatMessageHistory)
-					else
 						TBHudInternal.ChatMessageHistoryIndex = math.max(TBHudInternal.ChatMessageHistoryIndex - 1, 1)
+					else
+						TBHudInternal.ChatMessageHistoryIndex = math.min(TBHudInternal.ChatMessageHistoryIndex + 1, #TBHudInternal.ChatMessageHistory)
 					end
 					chatInputField.textfieldstr[1] = TBHudInternal.ChatMessageHistory[TBHudInternal.ChatMessageHistoryIndex]
 					chatInputField.textfieldindex = utf8.len(chatInputField.textfieldstr[1])
@@ -639,7 +650,8 @@ function TBHud:refreshChat()
 					---@diagnostic disable-next-line: undefined-global
 					send_chat_message(chatInputField.textfieldstr[1])
 				end
-				table.insert(TBHudInternal.ChatMessageHistory, #TBHudInternal.ChatMessageHistory - 2, chatInputField.textfieldstr[1])
+				add_chat_history(chatInputField.textfieldstr[1])
+				table.insert(TBHudInternal.ChatMessageHistory, #TBHudInternal.ChatMessageHistory, chatInputField.textfieldstr[1])
 				TBHudInternal.ChatMessageHistoryIndex = #TBHudInternal.ChatMessageHistory
 				chatInputField:clearTextfield()
 				destroySuggestions()
@@ -658,7 +670,7 @@ function TBHud:refreshChat()
 		})
 		chatMessagePrevious:addMouseUpHandler(function()
 			---Simulate key up press
-			chatInputField.keyUpCustom(273)
+			chatInputField.keyDownCustom(273)
 		end)
 		local chatInputSubmit = chatInputHolder:addChild({
 			pos = { chatInputField.parent.parent.shift.x + chatInputField.parent.parent.size.w, 0 },
@@ -799,6 +811,8 @@ end
 
 function TBHud:loadChatHistory()
 	TBHudInternal.ChatMessageHistory = get_chat_history()
+	table.insert(TBHudInternal.ChatMessageHistory, "")
+	TBHudInternal.ChatMessageHistoryIndex = #TBHudInternal.ChatMessageHistory
 end
 
 function TBHud:spawnChat()

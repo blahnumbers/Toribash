@@ -1349,6 +1349,10 @@ function chat_input_deactivate() end
 ---@return string[]
 function get_chat_history() end
 
+---Adds the message to the chat history
+---@param msg string
+function add_chat_history(msg) end
+
 ---Attempts to enable screen blur
 ---@return integer #1 if blur is supported, 0 if not
 function enable_blur() end
