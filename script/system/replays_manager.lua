@@ -68,7 +68,7 @@ do
 
 		if (replay.data) then
 			pcall(function()
-				for ln in replay.data:lines() do
+				for _, ln in pairs(replay:readAll()) do
 					if (ln:match("FIGHTNAME 0;")) then
 						-- We base version off second replay line instead of actual VERSION
 						version = 10
@@ -191,7 +191,7 @@ do
 							else
 									replaydata = Replays:getReplayInfo(replaypathfull)
 									replaydata.filename = v
-									file.data:write(replaypath .. "\t" ..
+									file:writeLine(	replaypath .. "\t" ..
 													replaydata.name .. "\t" ..
 													replaydata.author .. "\t" ..
 													replaydata.mod .. "\t" ..
@@ -199,8 +199,7 @@ do
 													replaydata.bout1 .. "\t" ..
 													replaydata.tags .. "\t" ..
 													replaydata.hiddentags .. "\t" ..
-													replaydata.uploaded .. "\t" ..
-													"\n")
+													replaydata.uploaded .. "\t")
 									table.insert(rplTable.replays, {
 										filename = folder == "replay" and replaydata.filename or folder:gsub("^replay/", "") .. "/" .. replaydata.filename,
 										name = replaydata.name,
@@ -262,7 +261,7 @@ do
 			return false
 		end
 		local replaydata = {}
-		for ln in file.data:lines() do
+		for _, ln in pairs(file:readAll()) do
 			if (ln:find("^FIGHTNAME %d;")) then
 				table.insert(replaydata, ln:gsub(";.*$", "; ") .. replay.name)
 			elseif (ln:find("^FIGHT %d;")) then
@@ -278,8 +277,8 @@ do
 			TBMenu:showDataError(TB_MENU_LOCALIZED.REPLAYSERRORUPDATINGFILE)
 			return false
 		end
-		for i, line in pairs(replaydata) do
-			file.data:write(line .. "\n")
+		for _,line in pairs(replaydata) do
+			file:writeLine(line)
 		end
 		file:close()
 
@@ -304,7 +303,7 @@ do
 		end
 
 		local filedata = {}
-		for ln in file.data:lines() do
+		for _, ln in pairs(file:readAll()) do
 			if (ln:find("^" .. string.escape("replay/" .. replay.filename))) then
 				if (newreplay and not matchFound) then
 					matchFound = true
@@ -330,8 +329,8 @@ do
 			TBMenu:showDataError(TB_MENU_LOCALIZED.REPLAYSERRORUPDATINGTAGS)
 			return false
 		end
-		for i, line in pairs(filedata) do
-			file.data:write(line .. "\n")
+		for _, line in pairs(filedata) do
+			file:writeLine(line)
 		end
 		file:close()
 
