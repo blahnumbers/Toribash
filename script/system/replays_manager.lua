@@ -592,7 +592,7 @@ do
 
 	function Replays:showSearchList(viewElement, replayInfo, toReload, replays)
 		viewElement:kill(true)
-		local posY, elementHeight = 0, 40
+		local elementHeight = 40
 
 		local listingHolder = UIElement:new({
 			parent = viewElement,
@@ -600,31 +600,31 @@ do
 			size = { viewElement.size.w - 20, viewElement.size.h }
 		})
 
-		local listing = {}
+		local listElements = {}
 		local goBack = UIElement:new({
 			parent = listingHolder,
-			pos = { 0, posY },
+			pos = { 0, #listElements * elementHeight },
 			size = { listingHolder.size.w, elementHeight },
 			interactive = true,
-			bgColor = { 0, 0, 0, 0.3 },
-			hoverColor = { 0, 0, 0, 0.5 },
-			pressedColor = { 1, 1, 1, 0.3 }
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
 		})
+		table.insert(listElements, goBack)
 		goBack:addAdaptedText(false, TB_MENU_LOCALIZED.REPLAYSBACKTOALLREPLAYS, nil, nil, 4, nil, 0.6)
 		goBack:addMouseHandlers(nil, function()
 				TB_MENU_REPLAYS_SEARCH = nil
 				Replays:showList(viewElement.parent, replayInfo, SELECTED_FOLDER)
 			end)
-		posY = posY + elementHeight
-		table.insert(listing, goBack)
 
 		for section, replayList in pairs(replays) do
 			if (#replayList > 0) then
 				local sectionName = UIElement:new({
 					parent = listingHolder,
-					pos = { 10, posY },
+					pos = { 10, #listElements * elementHeight },
 					size = { listingHolder.size.w - 20, elementHeight }
 				})
+				table.insert(listElements, sectionName)
 				local sectionStr = TB_MENU_LOCALIZED.REPLAYSMATCHBY .. " " .. section
 				if (section == "hiddentags") then
 					sectionStr = "hidden tags"
@@ -632,17 +632,23 @@ do
 				sectionName:addCustomDisplay(true, function()
 						sectionName:uiText(sectionStr, nil, nil, nil, LEFTMID)
 					end)
-				posY = posY + elementHeight
-				table.insert(listing, sectionName)
 				for i, replay in pairs(replayList) do
-					local replayElement = UIElement:new({
-						parent = listingHolder,
-						pos = { 0, posY },
-						size = { listingHolder.size.w, elementHeight },
+					local replayElementHolder = listingHolder:addChild({
+						pos = { 0, #listElements * elementHeight },
+						size = { listingHolder.size.w, elementHeight }
+					})
+					table.insert(listElements, replayElementHolder)
+					local replayElement = replayElementHolder:addChild({
+						pos = { 6, 2 },
+						size = { replayElementHolder.size.w - 6, replayElementHolder.size.h - 4 },
 						interactive = true,
-						bgColor = i % 2 ~= 0 and TB_MENU_DEFAULT_DARKER_COLOR or TB_MENU_DEFAULT_BG_COLOR,
-						hoverColor = { 0, 0, 0, 0.3 },
-						pressedColor = { 1, 1, 1, 0.2 }
+						clickThrough = true,
+						hoverThrough = true,
+						bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+						hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+						pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+						shapeType = ROUNDED,
+						rounded = 3
 					})
 					if (SELECTED_REPLAY.replay and SELECTED_REPLAY.replay.filename == replay.filename or i == 1) then
 						SELECTED_REPLAY.element = replayElement
@@ -659,7 +665,6 @@ do
 							SELECTED_REPLAY.defaultColor = { replayElement.bgColor[1], replayElement.bgColor[2], replayElement.bgColor[3], replayElement.bgColor[4] }
 							Replays:showReplayInfo(replayInfo, replay)
 						end)
-					table.insert(listing, replayElement)
 
 					local replayName = UIElement:new({
 						parent = replayElement,
@@ -698,23 +703,21 @@ do
 					replayMod:addCustomDisplay(true, function()
 							replayMod:uiText(replay.mod, nil, nil, 4, nil, 0.65)
 						end)
-					posY = posY + elementHeight
 				end
 			end
 		end
 
-		for i,v in pairs(listing) do
+		for _, v in pairs(listElements) do
 			v:hide()
 		end
 
-		local listingScrollBG = UIElement:new({
-			parent = viewElement,
+		local listingScrollBG = viewElement:addChild({
 			pos = { -(viewElement.size.w - listingHolder.size.w), 0 },
 			size = { viewElement.size.w - listingHolder.size.w, viewElement.size.h },
-			bgColor = TB_MENU_DEFAULT_DARKER_COLOR
+			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
-		local listingScrollBar = TBMenu:spawnScrollBar(listingHolder, #listing, elementHeight)
-		listingScrollBar:makeScrollBar(listingHolder, listing, toReload)
+		local listingScrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
+		listingScrollBar:makeScrollBar(listingHolder, listElements, toReload)
 	end
 
 	function Replays:playReplay(replay)
@@ -805,13 +808,13 @@ do
 	function Replays:showList(viewElement, replayInfo, level, doSearch)
 		viewElement:kill(true)
 
-		local posY, elementHeight = 0, 35
+		local elementHeight = 40
 		local rplTable = level or TB_MENU_REPLAYS
 		SELECTED_FOLDER = rplTable
 
-		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 50, 50, 20)
+		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 50, 50, 20, TB_MENU_DEFAULT_BG_COLOR)
 
-		local bottomSmudge = TBMenu:addBottomBloodSmudge(botBar, 1)
+		TBMenu:addBottomBloodSmudge(botBar, 1)
 
 		local replaysTitle = UIElement:new({
 			parent = topBar,
@@ -877,7 +880,17 @@ do
 				end)
 		end
 
-		local searchInputField = TBMenu:spawnTextField(botBar, 10, 10, botBar.size.w - 20, botBar.size.h - 20, TB_MENU_REPLAYS_SEARCH, nil, nil, 0.65, UICOLORWHITE, TB_MENU_LOCALIZED.SEARCHNOTE)
+		local inputFieldHolder = botBar:addChild({
+			shift = { 10, 10 },
+			shapeType = ROUNDED,
+			rounded = 4
+		})
+		local searchInputField = TBMenu:spawnTextField2(inputFieldHolder, nil, TB_MENU_REPLAYS_SEARCH, TB_MENU_LOCALIZED.SEARCHNOTE, {
+			darkerMode = true,
+			fontId = FONTS.LSMALL,
+			textScale = 0.65,
+			textColor = UICOLORWHITE
+		})
 
 
 		local searchFunction = function()
@@ -899,18 +912,25 @@ do
 			return
 		end
 
-		local listing = {}
+		local listElements = {}
 		if (rplTable.fullname ~= TB_MENU_REPLAYS.fullname) then
-			local folderElement = UIElement:new({
-				parent = listingHolder,
-				pos = { 0, posY },
-				size = { listingHolder.size.w, elementHeight },
-				interactive = true,
-				bgColor = posY % (elementHeight * 2) == 0 and TB_MENU_DEFAULT_BG_COLOR or TB_MENU_DEFAULT_DARKER_COLOR,
-				hoverColor = { 0, 0, 0, 0.3 },
-				pressedColor = { 1, 1, 1, 0.2 }
+			local folderElementHolder = listingHolder:addChild({
+				pos = { 0, #listElements * elementHeight },
+				size = { listingHolder.size.w, elementHeight }
 			})
-			table.insert(listing, folderElement)
+			table.insert(listElements, folderElementHolder)
+			local folderElement = folderElementHolder:addChild({
+				pos = { 6, 2 },
+				size = { folderElementHolder.size.w - 6, folderElementHolder.size.h - 4 },
+				interactive = true,
+				clickThrough = true,
+				hoverThrough = true,
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+				shapeType = ROUNDED,
+				rounded = 3
+			})
 			folderElement:addMouseHandlers(nil, function()
 					SELECTED_REPLAY.replay = nil
 					Replays:showList(viewElement, replayInfo, rplTable.parent)
@@ -929,19 +949,25 @@ do
 			folderName:addCustomDisplay(true, function()
 					folderName:uiText(rplTable.parent.name, nil, nil, 4, LEFTMID, 0.8)
 				end)
-			posY = posY + elementHeight
 		end
-		for i, folder in pairs(rplTable.folders or {}) do
-			local folderElement = UIElement:new({
-				parent = listingHolder,
-				pos = { 0, posY },
-				size = { listingHolder.size.w, elementHeight },
-				interactive = true,
-				bgColor = posY % (elementHeight * 2) == 0 and TB_MENU_DEFAULT_BG_COLOR or TB_MENU_DEFAULT_DARKER_COLOR,
-				hoverColor = { 0, 0, 0, 0.3 },
-				pressedColor = { 1, 1, 1, 0.2 }
+		for _, folder in pairs(rplTable.folders or {}) do
+			local folderElementHolder = listingHolder:addChild({
+				pos = { 0, #listElements * elementHeight },
+				size = { listingHolder.size.w, elementHeight }
 			})
-			table.insert(listing, folderElement)
+			table.insert(listElements, folderElementHolder)
+			local folderElement = folderElementHolder:addChild({
+				pos = { 6, 2 },
+				size = { folderElementHolder.size.w - 6, folderElementHolder.size.h - 4 },
+				interactive = true,
+				clickThrough = true,
+				hoverThrough = true,
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+				shapeType = ROUNDED,
+				rounded = 3
+			})
 			folderElement:addMouseHandlers(nil, function()
 					SELECTED_REPLAY.replay = nil
 					Replays:showList(viewElement, replayInfo, folder)
@@ -960,17 +986,24 @@ do
 			folderName:addCustomDisplay(true, function()
 					folderName:uiText(folder.name, nil, nil, 4, LEFTMID, 0.8)
 				end)
-			posY = posY + elementHeight
 		end
 		for i, replay in pairs(rplTable.replays or {}) do
-			local replayElement = UIElement:new({
-				parent = listingHolder,
-				pos = { 0, posY },
-				size = { listingHolder.size.w, elementHeight },
+			local replayElementHolder = listingHolder:addChild({
+				pos = { 0, #listElements * elementHeight },
+				size = { listingHolder.size.w, elementHeight }
+			})
+			table.insert(listElements, replayElementHolder)
+			local replayElement = replayElementHolder:addChild({
+				pos = { 6, 2 },
+				size = { replayElementHolder.size.w - 6, replayElementHolder.size.h - 4 },
 				interactive = true,
-				bgColor = posY % (elementHeight * 2) == 0 and TB_MENU_DEFAULT_BG_COLOR or TB_MENU_DEFAULT_DARKER_COLOR,
-				hoverColor = { 0, 0, 0, 0.3 },
-				pressedColor = { 1, 1, 1, 0.2 }
+				clickThrough = true,
+				hoverThrough = true,
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+				shapeType = ROUNDED,
+				rounded = 3
 			})
 			if (SELECTED_REPLAY.replay and SELECTED_REPLAY.replay.filename == replay.filename or i == 1) then
 				SELECTED_REPLAY.element = replayElement
@@ -987,7 +1020,6 @@ do
 					SELECTED_REPLAY.defaultColor = { replayElement.bgColor[1], replayElement.bgColor[2], replayElement.bgColor[3], replayElement.bgColor[4] }
 					Replays:showReplayInfo(replayInfo, replay)
 				end)
-			table.insert(listing, replayElement)
 
 			local replayName = UIElement:new({
 				parent = replayElement,
@@ -1026,15 +1058,14 @@ do
 			replayMod:addCustomDisplay(true, function()
 					replayMod:uiText(replay.mod, nil, nil, 4, nil, 0.65)
 				end)
-			posY = posY + elementHeight
 		end
 
-		for i,v in pairs(listing) do
+		for _, v in pairs(listElements) do
 			v:hide()
 		end
 
-		local listingScrollBar = TBMenu:spawnScrollBar(listingHolder, #listing, elementHeight)
-		listingScrollBar:makeScrollBar(listingHolder, listing, toReload)
+		local listingScrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
+		listingScrollBar:makeScrollBar(listingHolder, listElements, toReload)
 		Replays:showReplayInfo(replayInfo, SELECTED_REPLAY.replay or rplTable.replays[1])
 	end
 
