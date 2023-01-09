@@ -285,7 +285,8 @@ if (not UIElement) then
 	UIElement = {
 		ver = 5.60,
 		clock = os.clock_real(),
-		animationDuration = 0.1
+		animationDuration = 0.1,
+		longPressDuration = 0.25
 	}
 	UIElement.__index = UIElement
 

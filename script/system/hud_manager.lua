@@ -227,7 +227,8 @@ function TBHud:spawnCommitButton()
 		end
 	end)
 	commitStepButton:addCustomDisplay(function()
-			if (clickClock > 0 and UIElement.clock - clickClock > 0.5) then
+			if (clickClock > 0 and UIElement.clock - clickClock > UIElement.longPressDuration) then
+				disable_mouse_camera_movement()
 				play_haptics(0.2, HAPTICS.IMPACT)
 				clickClock = 0
 				local optionsHolder = commitStepButtonHolder:addChild({
@@ -244,7 +245,7 @@ function TBHud:spawnCommitButton()
 					interactive = true
 				})
 				optionsKiller.hoverState = BTN_DN
-				optionsKiller:addMouseUpHandler(function() optionsHolder:kill() end)
+				optionsKiller:addMouseUpHandler(function() optionsHolder:kill() enable_mouse_camera_movement() end)
 
 				local stepSingleFrameButton = optionsHolder:addChild({
 					pos = { 2, 2 },
@@ -266,7 +267,9 @@ function TBHud:spawnCommitButton()
 					shift = { 10, 3 }
 				}):addAdaptedText("Step single frame once", nil, nil, FONTS.LMEDIUM, nil, 0.7)
 				stepSingleFrameButton:addMouseMoveHandler(function()
-					play_haptics(0.6, HAPTICS.SELECTION)
+					if (stepSingleFrameButton.hoverState ~= BTN_DN) then
+						play_haptics(0.6, HAPTICS.SELECTION)
+					end
 					stepSingleFrameButton.hoverState = BTN_DN
 				end)
 				stepSingleFrameButton:addMouseUpHandler(function()
@@ -292,7 +295,9 @@ function TBHud:spawnCommitButton()
 				local iconScale = stepSingleFrameButtonToggle.size.h * 0.6
 				TBMenu:showTextWithImage(stepSingleFrameButtonToggle:addChild({ shift = { 10, 3 } }), "Single frame stepping", FONTS.LMEDIUM, iconScale, stepSingleFrame and "../textures/menu/general/buttons/checkmark.tga" or "../textures/menu/general/buttons/crosswhite.tga", { maxTextScale = 0.7 })
 				stepSingleFrameButtonToggle:addMouseMoveHandler(function()
-					play_haptics(0.6, HAPTICS.SELECTION)
+					if (stepSingleFrameButtonToggle.hoverState ~= BTN_DN) then
+						play_haptics(0.6, HAPTICS.SELECTION)
+					end
 					stepSingleFrameButtonToggle.hoverState = BTN_DN
 				end)
 				stepSingleFrameButtonToggle:addMouseUpHandler(function()
