@@ -155,7 +155,7 @@ end
 
 -- Only called on first menu launch
 if (not DEFAULT_ATMOSPHERE_ISSET) then
-	if (not is_steam()) then
+	if (not is_steam() and not is_mobile()) then
 		Request:queue(function() get_latest_version() end, "versioncheck", function()
 				local latestVersion = tonumber(get_network_response())
 				local currentVersion = tonumber(TORIBASH_VERSION)

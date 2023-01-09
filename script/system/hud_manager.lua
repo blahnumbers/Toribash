@@ -221,9 +221,14 @@ function TBHud:spawnCommitButton()
 		end
 		clickClock = 0
 	end)
-	commitStepButton:addMouseDownHandler(function() clickClock = os.clock_real() end)
+	commitStepButton:addMouseDownHandler(function()
+		if (self.WorldState.replay_mode == 0 and self.WorldState.game_type == 0) then
+			clickClock = os.clock_real()
+		end
+	end)
 	commitStepButton:addCustomDisplay(function()
 			if (clickClock > 0 and UIElement.clock - clickClock > 0.5) then
+				play_haptics(0.2, HAPTICS.IMPACT)
 				clickClock = 0
 				local optionsHolder = commitStepButtonHolder:addChild({
 					pos = { -commitStepButton.size.w * 1.8, -commitStepButton.size.h * 2 },
@@ -261,6 +266,7 @@ function TBHud:spawnCommitButton()
 					shift = { 10, 3 }
 				}):addAdaptedText("Step single frame once", nil, nil, FONTS.LMEDIUM, nil, 0.7)
 				stepSingleFrameButton:addMouseMoveHandler(function()
+					play_haptics(0.6, HAPTICS.SELECTION)
 					stepSingleFrameButton.hoverState = BTN_DN
 				end)
 				stepSingleFrameButton:addMouseUpHandler(function()
@@ -286,6 +292,7 @@ function TBHud:spawnCommitButton()
 				local iconScale = stepSingleFrameButtonToggle.size.h * 0.6
 				TBMenu:showTextWithImage(stepSingleFrameButtonToggle:addChild({ shift = { 10, 3 } }), "Single frame stepping", FONTS.LMEDIUM, iconScale, stepSingleFrame and "../textures/menu/general/buttons/checkmark.tga" or "../textures/menu/general/buttons/crosswhite.tga", { maxTextScale = 0.7 })
 				stepSingleFrameButtonToggle:addMouseMoveHandler(function()
+					play_haptics(0.6, HAPTICS.SELECTION)
 					stepSingleFrameButtonToggle.hoverState = BTN_DN
 				end)
 				stepSingleFrameButtonToggle:addMouseUpHandler(function()
@@ -395,9 +402,13 @@ function TBHud:spawnHubButton()
 end
 
 function TBHud:spawnHub()
-	if (self.MainElement == nil or self.HubHolder ~= nil) then return end
+	if (self.MainElement == nil) then return end
 	local safe_x, safe_y = get_window_safe_size()
 
+
+	if (self.HubHolder ~= nil) then
+		self.HubHolder:kill()
+	end
 	self.HubHolder = UIElement:new({
 		globalid = TB_MENU_HUB_GLOBALID,
 		pos = { self.MainElement.pos.x + self.MainElement.size.w, self.MainElement.pos.y },
@@ -773,7 +784,9 @@ function TBHud:spawnMiniChat()
 	---@type ChatMessage[]
 	local messagesToDisplay = {}
 	local refreshMiniChat = function()
-		messagesToDisplay = {}
+		while (#messagesToDisplay > 0) do
+			table.remove(messagesToDisplay)
+		end
 		for i = #TBHudInternal.ChatMessages, 1, -1 do
 			if (TBHudInternal.ChatMessages[i].clock < os.clock_real() - self.ChatMiniDisplayPeriod) then
 				break
@@ -795,9 +808,8 @@ function TBHud:spawnMiniChat()
 				refreshMiniChat()
 			end
 			local linesPrinted = 0
-			local clock = os.clock_real()
 			for _, v in pairs(messagesToDisplay) do
-				local textOpacity = UITween.SineEaseOut((v.clock - clock + (self.ChatMiniDisplayPeriod - 1)) / 3)
+				local textOpacity = UITween.SineEaseOut((v.clock - UIElement.clock + (self.ChatMiniDisplayPeriod - 1)) / 3)
 				for i = #v.adaptedText, 1, -1 do
 					self.ChatMiniHolder:uiText(v.adaptedText[i], nil, -linesPrinted * 20, FONTS.SMALL, LEFTBOT, 1, nil, nil, { TB_MENU_DEFAULT_DARKEST_COLOR[1], TB_MENU_DEFAULT_DARKEST_COLOR[2], TB_MENU_DEFAULT_DARKEST_COLOR[3], textOpacity })
 					linesPrinted = linesPrinted + 1
@@ -816,9 +828,12 @@ function TBHud:loadChatHistory()
 end
 
 function TBHud:spawnChat()
-	if (self.MainElement == nil or self.ChatHolder ~= nil) then return end
+	if (self.MainElement == nil) then return end
 
 	set_option("chat", 0)
+	if (self.ChatHolder ~= nil) then
+		self.ChatHolder:kill()
+	end
 	self.ChatHolder = UIElement:new({
 		globalid = TB_MENU_HUB_GLOBALID,
 		pos = { self.MainElement.pos.x, self.MainElement.pos.y + self.MainElement.size.h },

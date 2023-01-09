@@ -5502,18 +5502,30 @@ do
 						end)
 				end
 			else
-				local buyWithStIcon = UIElement:new({
+				local purchaseIconImage = "../textures/menu/logos/paypal.tga"
+				if (is_steam()) then
+					purchaseIconImage = "../textures/menu/logos/steam.tga"
+				elseif (_G.PLATFORM == "IPHONEOS") then
+					purchaseIconImage = "../textures/menu/logos/apple.tga"
+				elseif (_G.PLATFORM == "ANDROID") then
+					purchaseIconImage = "../textures/menu/logos/android.tga"
+				end
+				local buyWithUSDIcon = UIElement:new({
 					parent = buyWithSt,
 					pos = { -buyWithSt.size.h + (buyWithSt.size.h - iconScale) / 2 - 5, (buyWithSt.size.h - iconScale) / 2 },
 					size = { iconScale, iconScale },
-					bgImage = is_steam() and "../textures/menu/logos/steam.tga" or "../textures/menu/logos/paypal.tga"
+					bgImage = purchaseIconImage
 				})
 				buyWithStText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREBUYFOR .. " $" .. PlayerInfo:currencyFormat(item.now_usd_price, 2), nil, nil, nil, LEFTMID)
+				if (not is_mobile()) then
 				buyWithSt:addMouseHandlers(nil, is_steam() and function()
 						runCmd("steam purchase " .. item.itemid)
 					end or function()
 						open_url("http://forum.toribash.com/tori_shop.php?action=process&item=" .. item.itemid)
 					end)
+				else
+					buyWithSt:deactivate()
+				end
 			end
 		end
 		if (item.now_tc_price > 0 and item.qi <= TB_MENU_PLAYER_INFO.data.qi) then
@@ -6482,11 +6494,23 @@ do
 				pos = { 10, 5 },
 				size = { purchaseButton.size.w - iconScale - 30, purchaseButton.size.h - 10 }
 			})
+			local purchaseIconImage = "../textures/store/shiaitoken.tga"
+			if (not stItem) then
+				if (is_steam()) then
+					purchaseIconImage = "../textures/menu/logos/steam.tga"
+				elseif (_G.PLATFORM == "IPHONEOS") then
+					purchaseIconImage = "../textures/menu/logos/apple.tga"
+				elseif (_G.PLATFORM == "ANDROID") then
+					purchaseIconImage = "../textures/menu/logos/android.tga"
+				else
+					purchaseIconImage = "../textures/menu/logos/paypal.tga"
+				end
+			end
 			local purchaseIcon = UIElement:new({
 				parent = purchaseButton,
 				pos = { -iconScale - 10, (purchaseButton.size.h - iconScale) / 2 },
 				size = { iconScale, iconScale },
-				bgImage = stItem and "../textures/store/shiaitoken.tga" or (is_steam() and "../textures/menu/logos/steam.tga" or "../textures/menu/logos/paypal.tga")
+				bgImage = purchaseIconImage
 			})
 			if (stItem and item.now_usd_price > TB_MENU_PLAYER_INFO.data.st) then
 				purchaseText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREGETMORE .. " ST")
@@ -6495,11 +6519,16 @@ do
 					Torishop:showStoreSection(TBMenu.CurrentSection, 4, 2)
 				end)
 			elseif (not stItem) then
-				purchaseText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREBUYWITH .. " " .. (is_steam() and "Steam" or "PayPal"))
-				purchaseButton:addMouseHandlers(nil, function()
-						advancedPreview.child[1]:hide()
-						TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASECONFIRM .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " $" .. PlayerInfo:currencyFormat(item.now_usd_price) .. "?", function() if (is_steam()) then runCmd("steam purchase " .. item.itemid) else open_url("http://forum.toribash.com/tori_shop.php?action=process&item=" .. item.itemid) end advancedPreview:show() end, function() advancedPreview:show() end)
-					end)
+				if (is_mobile()) then
+					purchaseText:addAdaptedText(true, "Not yet available")
+					purchaseButton:deactivate()
+				else
+					purchaseText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREBUYWITH .. " " .. (is_steam() and "Steam" or "PayPal"))
+					purchaseButton:addMouseHandlers(nil, function()
+							advancedPreview.child[1]:hide()
+							TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASECONFIRM .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " $" .. PlayerInfo:currencyFormat(item.now_usd_price) .. "?", function() if (is_steam()) then runCmd("steam purchase " .. item.itemid) else open_url("https://forum.toribash.com/tori_shop.php?action=process&item=" .. item.itemid) end advancedPreview:show() end, function() advancedPreview:show() end)
+						end)
+				end
 			else
 				purchaseText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREBUYWITH .. " st")
 				purchaseButton:addMouseHandlers(nil, function()

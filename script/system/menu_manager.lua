@@ -2501,6 +2501,10 @@ function TBMenu:showNavigationBar(buttonsData, customNav, customNavHighlight, se
 		end
 		tbMenuNavigationButtons[i]:addMouseHandlers(nil, function()
 				if (not customNav) then
+					if (v.sectionId == -1) then
+						close_menu()
+						return
+					end
 					if (v.sectionId ~= TB_LAST_MENU_SCREEN_OPEN) then
 						TBMenu.CurrentSection:kill(true)
 						TB_LAST_MENU_SCREEN_OPEN = v.sectionId
