@@ -167,7 +167,7 @@ if (not DEFAULT_ATMOSPHERE_ISSET) then
 	add_hook("draw2d", "atmodefault", function()
 			dofile("system/atmospheres_defines.lua")
 			dofile("system/atmospheres_manager.lua")
-			Atmospheres:loadDefaultAtmo()
+			Atmospheres.loadDefaultAtmo()
 			remove_hooks("atmodefault")
 		end)
 	local loginRewardWaiter = UIElement:new({

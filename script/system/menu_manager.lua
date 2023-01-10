@@ -1734,12 +1734,7 @@ function TBMenu:showToolsSection()
 		{ title = TB_MENU_LOCALIZED.MAINMENUMODMAKERNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUMODMAKERDESC, size = 0.25, vsize = 0.5, ratio = 1.055, image = "../textures/menu/modmaker2.tga", ratio2 = 0.5, image2 = "../textures/menu/modmaker3.tga", action = function() open_menu(17) end, disableUnload = true },
 		{ title = TB_MENU_LOCALIZED.MAINMENUSCRIPTSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUSCRIPTSDESC, size = 0.25, vsize = 0.5, ratio = 1.055, image = "../textures/menu/scripts.tga", ratio2 = 0.5, image2 = "../textures/menu/scripts2.tga", action = function() TBMenu:showScripts() end, disableUnload = true },
 		{ title = TB_MENU_LOCALIZED.MAINMENUSHADERSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUSHADERSDESC, size = 0.25, vsize = 0.5, ratio = 0.5, image = "../textures/menu/shaders2.tga", action = function()
-				dofile("system/atmospheres_manager.lua")
-				if (ATMO_MENU_MAIN_ELEMENT) then
-					ATMO_MENU_MAIN_ELEMENT:kill()
-					ATMO_MENU_MAIN_ELEMENT = nil
-				end
-				Atmospheres:showMain()
+				dofile("system/atmo.lua")
 			end, quit = true, disableUnload = true },
 		{ title = TB_MENU_LOCALIZED.MAINMENUHOTKEYSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUHOTKEYSDESC, size = 0.25, vsize = 0.5, ratio = 1.055, image = "../textures/menu/hotkeys.tga", ratio2 = 0.5, image2 = "../textures/menu/hotkeys2.tga", action = function() TBMenu:showHotkeys() end, disableUnload = true },
 	}
@@ -3521,13 +3516,34 @@ function TBMenu:displayPopup(element, message, forceManualPosCheck)
 	return TBMenu:displayHelpPopup(element, message, forceManualPosCheck, true)
 end
 
-function TBMenu:spawnSlider(parent, x, y, w, h, textWidth, sliderRadius, value, settings, sliderFunc, onMouseDown, onMouseUp)
-	local x = x or 0
-	local y = y or 0
-	local w = w or parent.size.w - x * 2
-	local h = h or parent.size.h - y * 2
-	local textWidth = textWidth or w / 8
-	local sliderRadius = sliderRadius or 20
+---@class SliderSettings
+---@field boundParent UIElement
+---@field maxValue number
+---@field minValue number
+---@field maxValueDisp number|string Display override for max value
+---@field minValueDisp number|string Display override for min value
+---@field decimal integer
+---@field isBoolean boolean
+---@field darkerMode boolean
+---@field displayName string
+---@field textWidth number
+---@field sliderRadius number
+
+---Spawns a generic slider with callbacks
+---@param parent UIElement
+---@param rect ?Rect
+---@param value ?number
+---@param settings ?SliderSettings
+---@param sliderFunc ?function
+---@param onMouseDown ?function
+---@param onMouseUp ?function
+---@return UIElement
+function TBMenu:spawnSlider2(parent, rect, value, settings, sliderFunc, onMouseDown, onMouseUp)
+	local rect = rect or {}
+	rect.x = rect.x or 0
+	rect.y = rect.y or 0
+	rect.w = rect.w or parent.size.w - rect.x * 2
+	rect.h = rect.h or parent.size.h - rect.y * 2
 
 	local settings = settings or {}
 	settings.maxValue = settings.maxValue or 1
@@ -3535,51 +3551,60 @@ function TBMenu:spawnSlider(parent, x, y, w, h, textWidth, sliderRadius, value, 
 	settings.maxValueDisp = settings.maxValueDisp or settings.maxValue
 	settings.minValueDisp = settings.minValueDisp or settings.minValue
 	settings.decimal = settings.decimal or 0
+	settings.textWidth = settings.textWidth or rect.w / 8
+	settings.sliderRadius = settings.sliderRadius or math.min(20, parent.size.h)
+
 	local value = value or settings.minValue
 
-	local minText = UIElement:new({
-		parent = parent,
-		pos = { x, y },
-		size = { textWidth, h }
+	local minText = parent:addChild({
+		pos = { rect.x, rect.y },
+		size = { settings.textWidth, rect.h }
 	})
-	minText:addAdaptedText(false, settings.minValueDisp .. "", nil, nil, 4, RIGHTMID, 0.7)
-	local maxText = UIElement:new({
-		parent = parent,
-		pos = { -textWidth - x, y },
-		size = { textWidth, h }
+	minText:addAdaptedText(true, settings.minValueDisp .. "", nil, nil, 4, RIGHTMID, 0.7)
+	local maxText = parent:addChild({
+		pos = { -settings.textWidth - rect.x, rect.y },
+		size = { settings.textWidth, rect.h }
 	})
-	maxText:addAdaptedText(false, settings.maxValueDisp .. "", nil, nil, 4, LEFTMID, 0.7)
+	maxText:addAdaptedText(true, settings.maxValueDisp .. "", nil, nil, 4, LEFTMID, 0.7)
+
+	if (settings.displayName) then
+		local displayNameText = parent:addChild({
+			pos = { rect.x + rect.w / 3, rect.y },
+			size = { rect.w / 3, rect.h / 2 }
+		})
+		displayNameText:addAdaptedText(true, settings.displayName, nil, nil, 4, nil, 0.7)
+	end
 
 	local sliderBG = UIElement:new({
 		parent = parent,
-		pos = { x + textWidth + 5, y },
-		size = { w - (textWidth + 5) * 2, h },
+		pos = { rect.x + settings.textWidth + 5, rect.y },
+		size = { rect.w - (settings.textWidth + 5) * 2, rect.h },
 		bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 		interactive = true
 	})
 	sliderBG:addCustomDisplay(true, function()
 			set_color(unpack(sliderBG.bgColor))
-			draw_quad(sliderBG.pos.x, sliderBG.pos.y + h / 2 - 3, sliderBG.size.w, 6)
+			draw_quad(sliderBG.pos.x, sliderBG.pos.y + rect.h / 2 - 3, sliderBG.size.w, 6)
 		end)
 	local sliderPos = 0
 	value = value > settings.maxValue and 1 or (-settings.minValue + value) / (-settings.minValue + settings.maxValue)
-	sliderPos = value * (sliderBG.size.w - sliderRadius)
+	sliderPos = value * (sliderBG.size.w - settings.sliderRadius)
 	local slider = UIElement:new({
 		parent = sliderBG,
-		pos = { sliderPos, (-sliderBG.size.h - sliderRadius) / 2 },
-		size = { sliderRadius, sliderRadius },
+		pos = { sliderPos, (-sliderBG.size.h - settings.sliderRadius) / 2 },
+		size = { settings.sliderRadius, settings.sliderRadius },
 		interactive = true,
-		bgColor = TB_MENU_DEFAULT_BG_COLOR,
+		bgColor = settings.darkerMode and TB_MENU_DEFAULT_DARKER_COLOR or TB_MENU_DEFAULT_BG_COLOR,
 		hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
 		pressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR,
-		inactiveColor = { 0.5, 0.5, 0.5, 1 },
+		inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR,
 		shapeType = ROUNDED,
-		rounded = sliderRadius
+		rounded = settings.sliderRadius
 	})
 	local sliderLabel = UIElement:new({
 		parent = slider,
-		pos = { -sliderRadius - 5, -slider.size.h - sliderRadius },
-		size = { sliderRadius + 10, sliderRadius },
+		pos = { -settings.sliderRadius - 5, -slider.size.h - settings.sliderRadius },
+		size = { settings.sliderRadius + 10, settings.sliderRadius },
 		bgColor = table.clone(TB_MENU_DEFAULT_LIGHTER_COLOR),
 		uiColor = table.clone(UICOLORWHITE),
 		shapeType = ROUNDED,
@@ -3601,20 +3626,20 @@ function TBMenu:spawnSlider(parent, x, y, w, h, textWidth, sliderRadius, value, 
 			if (sliderLabel.uiColor[4] > 0) then
 				-- Adapt label width to be able to fit the text
 				local textWidth = get_string_length(sliderLabel.labelText[1], 4) * 0.5 + 16
-				local targetWidth = textWidth > sliderRadius + 10 and textWidth or sliderRadius + 10
+				local targetWidth = textWidth > settings.sliderRadius + 10 and textWidth or settings.sliderRadius + 10
 				if (targetWidth ~= sliderLabel.size.w) then
 					sliderLabel.size.w = targetWidth
-					sliderLabel:moveTo((-sliderRadius - sliderLabel.size.w) / 2)
+					sliderLabel:moveTo((-settings.sliderRadius - sliderLabel.size.w) / 2)
 				end
 
 				-- If bounding element is defined, we may want to display label below the slider
 				if (settings.boundParent) then
 					if (sliderLabel.lastY ~= sliderLabel.shift.y) then
-						if (settings.boundParent.pos.y >= slider.pos.y - sliderRadius) then
+						if (settings.boundParent.pos.y >= slider.pos.y - settings.sliderRadius) then
 							sliderLabel:moveTo(nil, slider.size.h)
 							sliderLabel:reload()
 						else
-							sliderLabel:moveTo(nil, -slider.size.h - sliderRadius)
+							sliderLabel:moveTo(nil, -slider.size.h - settings.sliderRadius)
 							sliderLabel:reload()
 						end
 						sliderLabel.lastY = sliderLabel.pos.y
@@ -3654,7 +3679,7 @@ function TBMenu:spawnSlider(parent, x, y, w, h, textWidth, sliderRadius, value, 
 				end
 				slider:moveTo(xPos, nil)
 
-				local val = xPos / (sliderBG.size.w - sliderRadius) * (settings.maxValue - settings.minValue) + settings.minValue
+				local val = xPos / (sliderBG.size.w - settings.sliderRadius) * (settings.maxValue - settings.minValue) + settings.minValue
 				local multiplyBy = tonumber('1' .. string.rep('0', settings.decimal))
 				sliderLabel.labelText[1] = (math.floor(val * multiplyBy) / multiplyBy) .. ''
 				sliderLabel.uiColor[4] = 1
@@ -3677,7 +3702,7 @@ function TBMenu:spawnSlider(parent, x, y, w, h, textWidth, sliderRadius, value, 
 			sliderLabel.bgColor[4] = 1
 		end
 	end
-	sliderBG:addMouseHandlers(function()
+	sliderBG:addMouseDownHandler(function()
 		local pos = sliderBG:getLocalPos()
 		local xPos = pos.x - slider.size.w / 2
 		if (xPos < 0) then
@@ -3694,7 +3719,7 @@ function TBMenu:spawnSlider(parent, x, y, w, h, textWidth, sliderRadius, value, 
 		end
 		slider:moveTo(xPos)
 
-		local val = xPos / (sliderBG.size.w - sliderRadius) * (settings.maxValue - settings.minValue) + settings.minValue
+		local val = xPos / (sliderBG.size.w - settings.sliderRadius) * (settings.maxValue - settings.minValue) + settings.minValue
 		local multiplyBy = tonumber('1' .. string.rep('0', settings.decimal))
 		sliderLabel.labelText[1] = (math.floor(val * multiplyBy) / multiplyBy) .. ''
 		sliderLabel.uiColor[4] = 1
@@ -3705,6 +3730,31 @@ function TBMenu:spawnSlider(parent, x, y, w, h, textWidth, sliderRadius, value, 
 		end
 	end)
 	return slider
+end
+
+---Legacy function to spawn sliders. Use `TBMenu:spawnSlider2()` instead.
+---@param parent UIElement
+---@param x ?number
+---@param y ?number
+---@param w ?number
+---@param h ?number
+---@param textWidth ?number
+---@param sliderRadius ?number
+---@param value ?number
+---@param settings SliderSettings
+---@param sliderFunc any
+---@param onMouseDown any
+---@param onMouseUp any
+---@deprecated
+function TBMenu:spawnSlider(parent, x, y, w, h, textWidth, sliderRadius, value, settings, sliderFunc, onMouseDown, onMouseUp)
+	settings = settings or {}
+	---@diagnostic disable-next-line: assign-type-mismatch
+	settings.textWidth = textWidth
+	---@diagnostic disable-next-line: assign-type-mismatch
+	settings.sliderRadius = sliderRadius
+
+	---@diagnostic disable-next-line: assign-type-mismatch
+	return TBMenu:spawnSlider2(parent, { x = x, y = y, w = w, h = h }, value, settings, sliderFunc, onMouseDown, onMouseUp)
 end
 
 function TBMenu:spawnToggle(parent, x, y, w, h, toggleValue, updateFunc)

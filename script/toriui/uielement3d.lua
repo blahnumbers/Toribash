@@ -38,7 +38,7 @@ if (not UIElement3D) then
 	---Options to use to spawn the new UIElement3D object.\
 	---*Majority of these are the same as UIElement3D class fields.*
 	---@class UIElement3DOptions : UIElementOptions
-	---@field parent UIElement3D Parent element
+	---@field parent UIElement3D|UIElement Parent element
 	---@field playerAttach integer Target player id to attach the object to. Should be used with either `attachBodypart` or `attachJoint`.
 	---@field attachBodypart integer Target bodypart id to attach the object to. Requires a valid `playerAttach` value.
 	---@field attachJoint integer Target joint id to attach the object to. Requires a valid `playerAttach` value.
@@ -47,8 +47,8 @@ if (not UIElement3D) then
 	---@field effects UIElement3DOptionsEffect Rendering effects for the object
 
 	---@class UIElement3D : UIElement
-	---@field parent UIElement3D Parent element
-	---@field viewport UIElement3D Viewport element
+	---@field parent UIElement3D|UIElement Parent element
+	---@field viewport UIElement3D|UIElement Viewport element
 	---@field rotXYZ Vector3 Object rotation in [Euler angles](https://en.wikipedia.org/wiki/Euler_angles)
 	---@field shapeType UIElement3DShape
 	---@field effectid RenderEffectId Element's rendering effect ID

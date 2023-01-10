@@ -16,4 +16,4 @@ if (ATMO_MENU_MAIN_ELEMENT) then
 	ATMO_MENU_MAIN_ELEMENT = nil
 	return
 end
-Atmospheres:showMain()
+Atmospheres.showMain()
