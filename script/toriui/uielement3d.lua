@@ -6,13 +6,15 @@ require('toriui.uielement')
 ---| 3 CAPSULE
 ---| 4 CUSTOMOBJ
 ---| 5 VIEWPORT
-
 CUBE = 1
 SPHERE = 2
 CAPSULE = 3
 CUSTOMOBJ = 4
 VIEWPORT = 5
 
+---@alias UIElement3DAttachPlayerId
+---| 0 TORI
+---| 1 UKE
 TORI = 0
 UKE = 1
 
@@ -27,6 +29,33 @@ UIVisual3DManager = UIVisual3DManager or {}
 UIVisual3DManagerViewport = UIVisual3DManagerViewport or {}
 
 if (not UIElement3D) then
+	---@class UIElement3DOptionsEffect
+	---@field id RenderEffectId Effect id
+	---@field glowColor ColorId Glow color id
+	---@field glowIntensity number Glow intensity
+	---@field ditherPixelSize integer Dithering effect pixel size
+
+	---Options to use to spawn the new UIElement3D object.\
+	---*Majority of these are the same as UIElement3D class fields.*
+	---@class UIElement3DOptions : UIElementOptions
+	---@field parent UIElement3D Parent element
+	---@field playerAttach integer Target player id to attach the object to. Should be used with either `attachBodypart` or `attachJoint`.
+	---@field attachBodypart integer Target bodypart id to attach the object to. Requires a valid `playerAttach` value.
+	---@field attachJoint integer Target joint id to attach the object to. Requires a valid `playerAttach` value.
+	---@field objModel string Filename of the custom obj model
+	---@field shapeType UIElement3DShape
+	---@field effects UIElement3DOptionsEffect Rendering effects for the object
+
+	---@class UIElement3D : UIElement
+	---@field parent UIElement3D Parent element
+	---@field viewport UIElement3D Viewport element
+	---@field rotXYZ Vector3 Object rotation in [Euler angles](https://en.wikipedia.org/wiki/Euler_angles)
+	---@field shapeType UIElement3DShape
+	---@field effectid RenderEffectId Element's rendering effect ID
+	---@field glowIntensity number Element's glow intensity
+	---@field glowColor ColorId Element's glow color ID
+	---@field ditherPixelSize integer Element's dithering effect pixel size
+	---@field customEnterFrameFunc function Function to be executed on `enter_frame` callback
 	UIElement3D = {
 		ver = 5.60,
 		__index = UIElement
@@ -34,10 +63,13 @@ if (not UIElement3D) then
 	setmetatable(UIElement3D, UIElement)
 end
 
+---Creates a new UIElement3D object
+---@param o UIElement3DOptions
+---@return UIElement3D
 function UIElement3D:new(o)
+	---@type UIElement3D
 	local elem = {
-		globalid = 0,
-		parent = nil,
+		globalid = 1000,
 		child = {},
 		rotXYZ = { x = 0, y = 0, z = 0 },
 		pos = {},
@@ -62,8 +94,8 @@ function UIElement3D:new(o)
 			elem.shift = { x = o.pos[1], y = o.pos[2], z = o.pos[3] }
 			elem.rotXYZ = { x = elem.parent.rotXYZ.x, y = elem.parent.rotXYZ.y, z = elem.parent.rotXYZ.z }
 			elem:setChildShift()
-			for i,v in pairs(elem.shift) do
-				elem.pos[i] = elem.parent.pos[i] + elem.shift[i]
+			for i, v in pairs(elem.shift) do
+				elem.pos[i] = elem.parent.pos[i] + v
 			end
 		else
 			if (o.shapeType == VIEWPORT) then
@@ -88,6 +120,7 @@ function UIElement3D:new(o)
 			if (type(o.bgImage) == "table") then
 				elem:updateImage(o.bgImage[1], o.bgImage[2])
 			else
+				---@diagnostic disable-next-line: param-type-mismatch
 				elem:updateImage(o.bgImage)
 			end
 		end
@@ -138,49 +171,51 @@ function UIElement3D:new(o)
 	return elem
 end
 
+---Destroys current UIElement3D object
+---@param childOnly? boolean If true, will only destroy current object's children and keep the object itself
 function UIElement3D:kill(childOnly)
-	for i,v in pairs(self.child) do
-		v:kill()
+	for _,v in pairs(self.child) do
+		if (v.kill) then
+			v:kill()
+		end
 	end
 	if (childOnly) then
 		self.child = {}
-		return true
+		return
 	end
+	if (self.destroyed) then
+		return
+	end
+
+	if (self.killAction) then
+		self.killAction()
+	end
+	self:hide(true)
 
 	if (self.bgImage) then self:updateImage(nil) end
 	if (self.objModel) then self:updateObj(nil) end
-	for i,v in pairs(UIMouseHandler) do
-		if (self == v) then
-			table.remove(UIMouseHandler, i)
-			break
-		end
-	end
-	for i,v in pairs(UIVisual3DManager) do
-		if (self == v) then
-			table.remove(UIVisual3DManager, i)
-			break
-		end
-	end
-	for i,v in pairs(UIVisual3DManagerViewport) do
-		if (self == v) then
-			table.remove(UIVisual3DManagerViewport, i)
-			break
-		end
-	end
 	for i,v in pairs(UIElement3DManager) do
 		if (self == v) then
 			table.remove(UIElement3DManager, i)
 			break
 		end
 	end
+
+	self.destroyed = true
 	self = nil
 end
 
-function UIElement3D:addCustomEnterFrame(func)
+---Specifies a function to be executed on `enter_frame` event callback
+---@param func function
+function UIElement3D:addOnEnterFrame(func)
 	self.customEnterFrameFunc = func
-	func()
 end
 
+---Internal function that's used to draw the UIElement3D. \
+---*You likely don't need to call this manually.* \
+---@see UIElement3D.drawVisuals
+---@see UIElement3D.addCustomDisplay
+---@see UIElement3D.addOnEnterFrame
 function UIElement3D:display()
 	if (self.effectid) then
 		set_draw_effect(self.effectid, self.glowColor, self.glowIntensity, self.ditherPixelSize)
@@ -189,10 +224,20 @@ function UIElement3D:display()
 		set_viewport(self.viewport.pos.x, self.viewport.pos.y, self.viewport.size.w, self.viewport.size.h)
 		return
 	end
+	if (self.customDisplayBefore) then
+		self.customDisplayBefore()
+	end
 	if (self.hoverState ~= BTN_NONE and self.hoverColor) then
-		for i = 1, 4 do
-			if ((self.bgColor[i] > self.hoverColor[i] and self.animateColor[i] > self.hoverColor[i]) or (self.bgColor[i] < self.hoverColor[i] and self.animateColor[i] < self.hoverColor[i])) then
-				self.animateColor[i] = self.animateColor[i] - math.floor((self.bgColor[i] - self.hoverColor[i]) * 150) / 1000
+		local animateRatio = (UIElement.clock - (self.hoverClock or 0)) / UIElement.animationDuration
+		if (UIMODE_LIGHT) then
+			for i = 1, 4 do
+				self.animateColor[i] = self.hoverColor[i]
+			end
+		else
+			for i = 1, 4 do
+				if (self.animateColor[i] ~= self.hoverColor[i]) then
+					self.animateColor[i] = UITween.SineTween(self.bgColor[i], self.hoverColor[i], animateRatio)
+				end
 			end
 		end
 	else
@@ -202,10 +247,8 @@ function UIElement3D:display()
 			end
 		end
 	end
-	if (self.customDisplayBefore) then
-		self.customDisplayBefore()
-	end
-	if (not self.customDisplayOnly) then
+
+	if (not self.customDisplayOnly and (self.bgColor[4] > 0 or self.interactive)) then
 		if (self.hoverState == BTN_HVR and self.hoverColor) then
 			set_color(unpack(self.animateColor))
 		elseif (self.hoverState == BTN_DN and self.pressedColor) then
@@ -214,37 +257,11 @@ function UIElement3D:display()
 			set_color(unpack(self.bgColor))
 		end
 		if (self.shapeType == CUBE) then
-			if (self.playerAttach) then
-				local body = get_body_info(self.playerAttach, self.attachBodypart)
-				draw_box_m(body.pos.x + self.pos.x, body.pos.y + self.pos.y, body.pos.z + self.pos.z, self.size.x, self.size.y, self.size.z, body.rot)
-			else
-				self:drawBox()
-			end
+			self:drawBox()
 		elseif (self.shapeType == SPHERE) then
-			if (self.playerAttach) then
-				if (self.attachBodypart) then
-					local body = get_body_info(self.playerAttach, self.attachBodypart)
-					draw_sphere_m(body.pos.x + self.pos.x, body.pos.y + self.pos.y, body.pos.z + self.pos.z, self.size.x, body.rot)
-				elseif (self.attachJoint) then
-					local joint = get_joint_pos2(self.playerAttach, self.attachJoint)
-					local radius = get_joint_radius(self.playerAttach, self.attachJoint)
-					self:drawSphere(joint, radius)
-				end
-			else
-				self:drawSphere()
-			end
+			self:drawSphere()
 		elseif (self.shapeType == CAPSULE) then
-			if (self.playerAttach) then
-				if (self.attachBodypart) then
-					local body = get_body_info(self.playerAttach, self.attachBodypart)
-					draw_capsule_m(body.pos.x, body.pos.y, body.pos.z, self.size.y, self.size.x, body.rot)
-				elseif (self.attachJoint) then
-					local joint = get_joint_pos2(self.playerAttach, self.attachJoint)
-					draw_capsule(joint.x, joint.y, joint.z, self.size.y, self.size.x, self.rot.x, self.rot.y, self.rot.z)
-				end
-			else
-				self:drawCapsule()
-			end
+			self:drawCapsule()
 		elseif (self.shapeType == CUSTOMOBJ and self.objModel ~= nil) then
 			draw_obj(self.objModel, self.pos.x, self.pos.y, self.pos.z, self.size.x, self.size.y, self.size.z, self.rot.x, self.rot.y, self.rot.z)
 		end
@@ -257,55 +274,100 @@ function UIElement3D:display()
 	end
 end
 
+---Generic internal function to draw a cube UIElement3D object. \
+---*You likely don't need to run this manually.*
 function UIElement3D:drawBox()
-	if (self.bgImage) then
-		draw_box(self.pos.x, self.pos.y, self.pos.z, self.size.x, self.size.y, self.size.z, self.rot.x, self.rot.y, self.rot.z, self.bgImage)
+	if (self.playerAttach) then
+		local body = get_body_info(self.playerAttach, self.attachBodypart)
+		if (self.bgImage) then
+			draw_box_m(body.pos.x + self.pos.x, body.pos.y + self.pos.y, body.pos.z + self.pos.z, self.size.x, self.size.y, self.size.z, body.rot, self.bgImage)
+		else
+			draw_box_m(body.pos.x + self.pos.x, body.pos.y + self.pos.y, body.pos.z + self.pos.z, self.size.x, self.size.y, self.size.z, body.rot)
+		end
 	else
-		draw_box(self.pos.x, self.pos.y, self.pos.z, self.size.x, self.size.y, self.size.z, self.rot.x, self.rot.y, self.rot.z)
+		if (self.bgImage) then
+			draw_box(self.pos.x, self.pos.y, self.pos.z, self.size.x, self.size.y, self.size.z, self.rot.x, self.rot.y, self.rot.z, self.bgImage)
+		else
+			draw_box(self.pos.x, self.pos.y, self.pos.z, self.size.x, self.size.y, self.size.z, self.rot.x, self.rot.y, self.rot.z)
+		end
 	end
 end
 
+---Generic internal function to draw a capsule UIElement3D object. \
+---*You likely don't need to run this manually.*
 function UIElement3D:drawCapsule()
-	if (self.bgImage) then
-		draw_capsule(self.pos.x, self.pos.y, self.pos.z, self.size.y, self.size.x, self.rot.x, self.rot.y, self.rot.z, self.bgImage)
+	if (self.playerAttach and self.attachBodypart) then
+		local body = get_body_info(self.playerAttach, self.attachBodypart)
+		if (self.bgImage) then
+			draw_capsule_m(body.pos.x, body.pos.y, body.pos.z, self.size.y, self.size.x, body.rot, self.bgImage)
+		else
+			draw_capsule_m(body.pos.x, body.pos.y, body.pos.z, self.size.y, self.size.x, body.rot)
+		end
 	else
-		draw_capsule(self.pos.x, self.pos.y, self.pos.z, self.size.y, self.size.x, self.rot.x, self.rot.y, self.rot.z)
+		local drawPos = (self.playerAttach and self.attachJoint) and get_joint_pos2(self.playerAttach, self.attachJoint) or self.pos
+
+		if (self.bgImage) then
+			draw_capsule(drawPos.x, drawPos.y, drawPos.z, self.size.y, self.size.x, self.rot.x, self.rot.y, self.rot.z, self.bgImage)
+		else
+			draw_capsule(drawPos.x, drawPos.y, drawPos.z, self.size.y, self.size.x, self.rot.x, self.rot.y, self.rot.z)
+		end
 	end
 end
 
-function UIElement3D:drawSphere(displaceTable, scale)
-	local drawPos = cloneTable(self.pos)
-	local scale = scale or 1
-	if (displaceTable) then
-		drawPos.x = displaceTable.x
-		drawPos.y = displaceTable.y
-		drawPos.z = displaceTable.z
-	end
-	if (self.bgImage) then
-		draw_sphere(drawPos.x, drawPos.y, drawPos.z, self.size.x * scale, self.rot.x, self.rot.y, self.rot.z, self.bgImage)
+---Generic internal function to draw a sphere UIElement3D object. \
+---*You likely don't need to run this manually.*
+function UIElement3D:drawSphere()
+	if (self.playerAttach and self.attachBodypart) then
+		local body = get_body_info(self.playerAttach, self.attachBodypart)
+		if (self.bgImage) then
+			draw_sphere_m(body.pos.x + self.pos.x, body.pos.y + self.pos.y, body.pos.z + self.pos.z, self.size.x, body.rot, self.bgImage)
+		else
+			draw_sphere_m(body.pos.x + self.pos.x, body.pos.y + self.pos.y, body.pos.z + self.pos.z, self.size.x, body.rot)
+		end
 	else
-		draw_sphere(drawPos.x, drawPos.y, drawPos.z, self.size.x * scale)
+		local drawPos = (self.playerAttach and self.attachJoint) and get_joint_pos2(self.playerAttach, self.attachJoint) or self.pos
+		local scale = (self.playerAttach and self.attachJoint) and get_joint_radius(self.playerAttach, self.attachJoint) or 1
+
+		if (self.bgImage) then
+			draw_sphere(drawPos.x, drawPos.y, drawPos.z, self.size.x * scale, self.rot.x, self.rot.y, self.rot.z, self.bgImage)
+		else
+			draw_sphere(drawPos.x, drawPos.y, drawPos.z, self.size.x * scale)
+		end
 	end
 end
 
+---Main UIElement3D loop that displays the objects. \
+---*Must be run from either `draw3d` or `post_draw3d` hook.*
+---@param globalid ?integer Global ID that the objects to display belong to
 function UIElement3D:drawVisuals(globalid)
-	for i, v in pairs(UIVisual3DManager) do
+	local globalid = globalid or self.globalid
+	for _, v in pairs(UIVisual3DManager) do
 		if (v.globalid == globalid) then
 			v:display()
 		end
 	end
 end
 
+---Main UIElement3D loop that displays viewport elements. \
+---*Must be run from `draw_viewport` hook.*
+---@param globalid ?integer Global ID that the objects to display belong to
 function UIElement3D:drawViewport(globalid)
-	for i, v in pairs(UIVisual3DManagerViewport) do
+	local globalid = globalid or self.globalid
+	for _, v in pairs(UIVisual3DManagerViewport) do
 		if (v.globalid == globalid) then
 			v:display()
 		end
 	end
 end
 
-function UIElement3D:playFrameFunc(globalid)
-	for i,v in pairs(UIVisual3DManager) do
+---Main UIElement3D loop to trigger UIElement3D functionality on `enter_frame` hook. \
+---**This does not support viewport elements.**
+---
+---*Must be run from `enter_frame` hook.*
+---@param globalid ?integer Global ID that the objects to display belong to
+function UIElement3D:drawEnterFrame(globalid)
+	local globalid = globalid or self.globalid
+	for _, v in pairs(UIVisual3DManager) do
 		if (v.globalid == globalid) then
 			if (v.customEnterFrameFunc ~= nil) then
 				v.customEnterFrameFunc()
@@ -314,33 +376,20 @@ function UIElement3D:playFrameFunc(globalid)
 	end
 end
 
-function UIElement3D:isDisplayed()
-	if (not self.viewportElement) then
-		for i,v in pairs(UIVisual3DManager) do
-			if (self == v) then
-				return true
-			end
-		end
-	else
-		for i,v in pairs(UIVisual3DManagerViewport) do
-			if (self == v) then
-				return true
-			end
-		end
-	end
-	return false
-end
-
+---Enables current UIElement3D and all its children for display
+---@param forceReload ?boolean Whether to override `noreload` value set by previous `hide()` calls
+---@return boolean
 function UIElement3D:show(forceReload)
 	local num = nil
 
 	if (self.noreload and not forceReload) then
-		return false
+		return self.displayed
 	elseif (forceReload) then
 		self.noreload = nil
 	end
 
-	for i,v in pairs(self.viewportElement and UIVisual3DManagerViewport or UIVisual3DManager) do
+	local targetManager = self.viewportElement and UIVisual3DManagerViewport or UIVisual3DManager
+	for i,v in pairs(targetManager) do
 		if (self == v) then
 			num = i
 			break
@@ -348,72 +397,84 @@ function UIElement3D:show(forceReload)
 	end
 
 	if (not num) then
-		table.insert(self.viewportElement and UIVisual3DManagerViewport or UIVisual3DManager, self)
+		table.insert(targetManager, self)
 		if (self.interactive) then
-			table.insert(UIMouseHandler, self)
+			self:activate()
 		end
 	end
 
-	for i,v in pairs(self.child) do
+	for _ ,v in pairs(self.child) do
 		v:show()
 	end
+	self.displayed = true
+	return self.displayed
 end
 
+---Disables display of current UIElement3D and all its children
+---@param noreload ?boolean Whether this UIElement3D should ignore subsequent `show()` calls that don't have override on
 function UIElement3D:hide(noreload)
-	local num = nil
-	for i,v in pairs(self.child) do
-		v:hide(noreload)
+	for _ ,v in pairs(self.child) do
+		v:hide()
 	end
 
 	if (noreload) then
 		self.noreload = true
 	end
-
-	if (self.interactive) then
-		for i,v in pairs(UIMouseHandler) do
-			if (self == v) then
-				num = i
-				break
-			end
-		end
-		if (num) then
-			table.remove(UIMouseHandler, num)
-		end
+	if (self.displayed == false) then
+		return
 	end
 
-	for i,v in pairs(self.viewportElement and UIVisual3DManagerViewport or UIVisual3DManager) do
+	if (self.interactive) then
+		self:deactivate()
+	end
+
+	local targetManager = self.viewportElement and UIVisual3DManagerViewport or UIVisual3DManager
+	for i,v in pairs(targetManager) do
 		if (self == v) then
-			num = i
+			table.remove(targetManager, i)
 			break
 		end
 	end
-
-	if (num) then
-		table.remove(self.viewportElement and UIVisual3DManagerViewport or UIVisual3DManager, num)
-	end
+	self.displayed = false
 end
 
+---Not yet implemented \
+---@see create_raycast_body
+---@see shoot_camera_ray
+function UIElement3D:activate()
+end
+
+---Not yet implemented \
+---@see create_raycast_body
+---@see shoot_camera_ray
+function UIElement3D:deactivate()
+end
+
+---Internal function to update positions of all the current UIElement3D object's children
 function UIElement3D:updatePos()
-	for i,v in pairs(self.child) do
+	for _, v in pairs(self.child) do
 		v:updateChildPos()
 	end
 end
 
+---Internal function to set the shift of the current UIElement3D in relation to its parent
 function UIElement3D:setChildShift()
 	local rotMatrix = self.parent.rotMatrix
-	local pos = self.parent.pos
 	local shift = self.shift
 
 	local rotatedShift = UIElement3D.multiply({ { shift.x, shift.y, shift.z } }, rotMatrix)
 	if (rotatedShift) then
 		local newShift = rotatedShift[1]
-
 		self.shift.x = newShift[1]
 		self.shift.y = newShift[2]
 		self.shift.z = newShift[3]
 	end
 end
 
+---Internal function to update the absolute position of the UIElement3D object
+---@param rotMatrix ?number[][]
+---@param pos ?Vector3
+---@param shift ?Vector3
 function UIElement3D:updateChildPos(rotMatrix, pos, shift)
 	local rotMatrix = rotMatrix or self.parent.rotMatrix
 	local pos = pos or self.parent.pos
@@ -435,11 +496,15 @@ function UIElement3D:updateChildPos(rotMatrix, pos, shift)
 		self.pos.z = pos.z + vector[3]
 	end
 
-	for i,v in pairs(self.child) do
+	for _, v in pairs(self.child) do
 		v:updateChildPos(rotMatrix, pos, shiftSum)
 	end
 end
 
+---Moves the UIElement3D object and updates its and its children's absolute positions accordingly
+---@param x number
+---@param y number
+---@param z number
 function UIElement3D:moveTo(x, y, z)
 	if (self.playerAttach) then
 		return
@@ -453,9 +518,14 @@ function UIElement3D:moveTo(x, y, z)
 		if (y) then self.pos.y = self.pos.y + y end
 		if (z) then self.pos.y = self.pos.z + z end
 	end
+
 	self:updateChildPos()
 end
 
+---Rotates the UIElement3D object and updates all its children accordingly
+---@param x ?number
+---@param y ?number
+---@param z ?number
 function UIElement3D:rotate(x, y, z)
 	local x = x or 0
 	local y = y or 0
@@ -470,18 +540,28 @@ function UIElement3D:rotate(x, y, z)
 	rot.z = (rot.z + z) % 360
 	self:updateRotations(rot)
 
-	for i,v in pairs(self.child) do
+	for _, v in pairs(self.child) do
 		v:rotate(x, y, z)
 	end
 	self:updatePos()
 end
 
+---Internal function to update the rotation matrix of the UIElement3D object and set the proper `rot` values in Euler angles. \
+---*You likely don't need to run this manually.* \
+---@see UIElement3D.rotate
+---@param rot Vector3
 function UIElement3D:updateRotations(rot)
 	self.rotMatrix = UIElement3D.getRotMatrixFromEulerAngles(math.rad(rot.x), math.rad(rot.y), math.rad(rot.z), "xyz")
 	local relX, relY, relZ = UIElement3D.getEulerZYXFromRotationMatrix(self.rotMatrix)
 	self.rot = { x = relX, y = relY, z = relZ }
 end
 
+---Helper function to get the Euler angles (ZYX) from a rotation matrix
+---@param R number[][]
+---@return number
+---@return number
+---@return number
+---@nodiscard
 function UIElement3D.getEulerZYXFromRotationMatrix(R)
 	local clamp = R[3][1] > 1 and 1 or (R[3][1] < -1 and -1 or R[3][1])
 	local x, y, z
@@ -497,6 +577,12 @@ function UIElement3D.getEulerZYXFromRotationMatrix(R)
 	return math.deg(x), math.deg(y), math.deg(z)
 end
 
+---Helper function to get the Euler angles (XYZ) from a rotation matrix
+---@param R number[][]
+---@return number
+---@return number
+---@return number
+---@nodiscard
 function UIElement3D.getEulerXYZFromRotationMatrix(R)
 	local x, y, z
 
@@ -507,7 +593,7 @@ function UIElement3D.getEulerXYZFromRotationMatrix(R)
 	return math.deg(x), math.deg(y), math.deg(z)
 end
 
----Makes sure the provided table is a Toribash rotation table
+---Helper function to make sure the provided table is a Toribash rotation table
 ---@param rTB Matrix4x4|number[]
 ---@return Matrix4x4
 function UIElement3D.verifyRotMatrixTB(rTB)
@@ -522,6 +608,12 @@ function UIElement3D.verifyRotMatrixTB(rTB)
 	}
 end
 
+---Helper function to get the rotation in Euler angles from a Toribash rotation matrix
+---@param rTB Matrix4x4
+---@return number
+---@return number
+---@return number
+---@nodiscard
 function UIElement3D.getEulerAnglesFromMatrixTB(rTB)
 	local rTB = UIElement3D.verifyRotMatrixTB(rTB)
 	return UIElement3D.getEulerZYXFromRotationMatrix({
@@ -532,8 +624,19 @@ function UIElement3D.getEulerAnglesFromMatrixTB(rTB)
 	})
 end
 
+---@alias EulerAnglesOrder
+---| 'xyz'
+---| 'zyx'
+
+---Helper function to get the rotation matrix from Euler angles with the specified convention. \
+---*Only `XYZ` and `ZYX` are currently supported as that's what we'd need when working with Toribash rotation matrices.*
+---@param x number
+---@param y number
+---@param z number
+---@param order EulerAnglesOrder
+---@return number[][]|nil
 function UIElement3D.getRotMatrixFromEulerAngles(x, y, z, order)
-	local order = order or "xyz"
+	local order = order or 'xyz'
 	local c1 = math.cos(x)
 	local s1 = math.sin(x)
 	local c2 = math.cos(y)
@@ -541,7 +644,7 @@ function UIElement3D.getRotMatrixFromEulerAngles(x, y, z, order)
 	local c3 = math.cos(z)
 	local s3 = math.sin(z)
 
-	local R
+	local R = nil
 	if (order == 'xyz') then
 		R = {
 			{ c2 * c3, -c2 * s3, s2 },
@@ -559,6 +662,10 @@ function UIElement3D.getRotMatrixFromEulerAngles(x, y, z, order)
 	return R
 end
 
+---Helper function to multiply a 2-dimensional matrix by a number
+---@param a number[][]
+---@param b number
+---@return number[][]
 function UIElement3D.multiplyByNumber(a, b)
 	local matrix = {}
 	for i,v in pairs(a) do
@@ -570,12 +677,16 @@ function UIElement3D.multiplyByNumber(a, b)
 	return matrix
 end
 
+---Helper function to multiply 2-dimensional matrices
+---@param a number[][]
+---@param b number[][]|number[]|number
+---@return number[][]|number[]|nil
 function UIElement3D.multiply(a, b)
 	if (type(b) == 'number') then
 		return UIElement3D.multiplyByNumber(a, b)
 	end
 	if (#a[1] ~= #b) then
-		return false
+		return nil
 	end
 
 	local matrix = {}
@@ -594,10 +705,13 @@ function UIElement3D.multiply(a, b)
 	return matrix
 end
 
+---Updates a 3D model associated with an object and caches it for later use
+---@param model string|nil Model path
+---@param noreload ?boolean If true, will not check if existing model should be unloaded
+---@return boolean
 function UIElement:updateObj(model, noreload)
 	require("system.iofiles")
 	local filename = ''
-	local absPath = true
 	if (model) then
 		if (model:find("%.%./", 4)) then
 			filename = model:gsub("%.%./%.%./", "")
@@ -605,13 +719,12 @@ function UIElement:updateObj(model, noreload)
 			filename = model:gsub("%.%./", "data/")
 		else
 			filename = "data/script/" .. model:gsub("^/", "")
-			absPath = false
 		end
 	end
 
 	if (not noreload and self.objModel and not self.disableUnload) then
 		local id = 0
-		for i,v in pairs(OBJMODELCACHE) do
+		for i, _ in pairs(OBJMODELCACHE) do
 			if (i == self.objModel) then
 				id = i
 				break
@@ -629,6 +742,9 @@ function UIElement:updateObj(model, noreload)
 	if (not model) then
 		return true
 	end
+	if (OBJMODELINDEX > 126) then
+		return false
+	end
 
 	local objFile = Files:open("../" .. filename .. ".obj")
 	if (not objFile.data) then
@@ -636,7 +752,7 @@ function UIElement:updateObj(model, noreload)
 	end
 	objFile:close()
 
-	local objid = 0
+	local objid = -1
 	for i = 0, 127 do
 		if (OBJMODELCACHE[i]) then
 			if (OBJMODELCACHE[i].name == filename) then
@@ -644,29 +760,15 @@ function UIElement:updateObj(model, noreload)
 				OBJMODELCACHE[i].count = OBJMODELCACHE[i].count + 1
 				return true
 			end
-		end
-	end
-	if (OBJMODELINDEX > 126) then
-		return false
-	end
-	for i = 0, 127 do
-		if (not OBJMODELCACHE[i]) then
+		elseif (objid < 0) then
 			objid = i
-			break
 		end
 	end
-	-- We don't yet know the exact build version when it'd be supported
-	-- Require the first build of 2023
-	if (tonumber(BUILD_VERSION) > 221020) then
-		if (load_obj(objid, filename, 1)) then
-			self.objModel = objid
-		end
-	else
-		if (load_obj(objid, model)) then
-			self.objModel = objid
-		end
+
+	if (load_obj(objid, filename, 1)) then
+		self.objModel = objid
 	end
 	OBJMODELCACHE[objid] = { name = filename, count = 1 }
-	OBJMODELINDEX = OBJMODELINDEX + 1
+	OBJMODELINDEX = math.max(OBJMODELINDEX, objid)
 	return true
 end

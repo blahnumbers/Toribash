@@ -183,6 +183,189 @@ function draw_text_angle_scale(text, pos_x, pos_y, angle, scale, font_type) end
 ---@param size_y number
 function set_viewport(pos_x, pos_y, size_x, size_y) end
 
+---@alias ColorId
+---| 0	COLOR_NONE
+---| 1	COLOR_WHITE
+---| 2	COLOR_RED
+---| 3	COLOR_DARK_RED
+---| 4	COLOR_BLUE | Vortex
+---| 5	COLOR_DARK_BLUE
+---| 6	COLOR_PURPLE
+---| 7	COLOR_BLACK
+---| 8	COLOR_GREY
+---| 9	COLOR_YELLOW | Static
+---| 10	COLOR_GREEN | Spring
+---| 11	COLOR_NEPTUNE
+---| 12	COLOR_ECTO
+---| 13	COLOR_SPRING
+---| 14	COLOR_VIOLET
+---| 15	COLOR_PINK
+---| 16	COLOR_ORANGE | Copper
+---| 17	COLOR_SKIN
+---| 18	COLOR_LIGHT_ORANGE
+---| 19	COLOR_BROWN
+---| 20	COLOR_BLOOD
+---| 21	COLOR_RELAX | Juryo
+---| 22	COLOR_RELAX_SEL | Aurora
+---| 23	COLOR_HOLD
+---| 24	COLOR_HOLD_SEL
+---| 25	COLOR_FRACTURE
+---| 26	COLOR_ACID
+---| 27	COLOR_AMETHYST
+---| 28	COLOR_AQUA
+---| 29	COLOR_BRONZE
+---| 30	COLOR_DEMON
+---| 31	COLOR_DRAGON
+---| 32	COLOR_ELF
+---| 33	COLOR_GOLD
+---| 34	COLOR_MARINE
+---| 35	COLOR_NOXIOUS
+---| 36	COLOR_ORC
+---| 37	COLOR_QUICKSILVER
+---| 38	COLOR_RADIOACTIVE
+---| 39	COLOR_SAPPHIRE
+---| 40	COLOR_TOXIC
+---| 41	COLOR_VAMPIRE
+---| 42	COLOR_CHRONOS
+---| 43	COLOR_GAIA
+---| 44	COLOR_GLADIATOR
+---| 45	COLOR_HYDRA
+---| 46	COLOR_PHAROS
+---| 47	COLOR_SPHINX
+---| 48	COLOR_TITAN
+---| 49	COLOR_TYPHON
+---| 50	COLOR_PURE
+---| 51	COLOR_BOREAL
+---| 52	COLOR_WILDFIRE
+---| 53	COLOR_BLOSSOM
+---| 54	COLOR_TESLA
+---| 55	COLOR_HAWK
+---| 56	COLOR_DBLUE
+---| 57	COLOR_GARNET | Crimson
+---| 58	COLOR_HPINK | Raptor
+---| 59	COLOR_CERULEAN | Plasma
+---| 60	COLOR_LPINK
+---| 61	COLOR_PUMPKIN | Amber
+---| 62	COLOR_AZURITE
+---| 63	COLOR_IVORY
+---| 64	COLOR_PARROT | Viridian
+---| 65	COLOR_SHAMAN
+---| 66	COLOR_SAKURA
+---| 67	COLOR_PEACH
+---| 68	COLOR_FLAME
+---| 69	COLOR_DEEP | Onyx
+---| 70	COLOR_RUBY
+---| 71	COLOR_CRIMSON | Supernova
+---| 72	COLOR_NOVA
+---| 73	COLOR_MAROON
+---| 74	COLOR_CORAL
+---| 75	COLOR_INDIGO | Adamantium
+---| 76	COLOR_SANGRIA
+---| 77	COLOR_TEXT
+---| 78	COLOR_TEXT_BG
+---| 79	COLOR_TEXT_SEL
+---| 80	COLOR_TEXT_DISABLED
+---| 81	COLOR_MENU_TEXT
+---| 82	COLOR_MENU_TEXT_BG
+---| 83	COLOR_MENU_TEXT_SEL
+---| 84	COLOR_MENU_TEXT_DISABLED
+---| 85	COLOR_MSG_NOTYPE | Void
+---| 86	COLOR_MSG_WHISPER | Imperial
+---| 87	COLOR_MSG_SERVER | Platinum
+---| 88	COLOR_MSG_SRVURL
+---| 89	COLOR_MSG_INGAME | Cobra
+---| 90	COLOR_MSG_GAMURL
+---| 91	COLOR_MSG_USER
+---| 92	COLOR_MSG_PLAYER
+---| 93	COLOR_MSG_URL
+---| 94	COLOR_MSG_URLSEL
+---| 95	COLOR_OPAL | Hunter
+---| 96	COLOR_VOID
+---| 97	COLOR_ANTIQUEWHITE2 | Ivory
+---| 98	COLOR_CADETBLUE3
+---| 99	COLOR_CHOCOLATE
+---| 100	COLOR_DARKGOLDENROD4 | Old Gold
+---| 101	COLOR_DARKOLIVEGREEN | Camo
+---| 102	COLOR_DARKSLATEBLUE | Magnetite
+---| 103	COLOR_DARKSEAGREEN1
+---| 104	COLOR_DARKSLATEGREY | Vulcan
+---| 105	COLOR_DEEPPINK3 | Hot Pink
+---| 106	COLOR_DODGERBLUE4 | Raider
+---| 107	COLOR_HOTPINK4 | Tyrian
+---| 108	COLOR_LEMONCHIFFON4 | Kevlar
+---| 109	COLOR_LIGHTBLUE3 | Maya
+---| 110	COLOR_MIDNIGHTBLUE | Alpha
+---| 111	COLOR_PALEVIOLETRED4
+---| 112	COLOR_VIOLETRED4
+---| 113	COLOR_PURPLE4 | Demolition
+---| 114	COLOR_MEDIUMORCHID4 | Persia
+---| 115	COLOR_MAGENTA4 | Velvet
+---| 116	COLOR_MEDIUMPURPLE3 | Warrior
+---| 117	COLOR_THISTLE4
+---| 118	COLOR_FIREBRICK3 | Mysterio
+---| 119	COLOR_AQUAMARINE
+---| 120	COLOR_BURLYWOOD4 | Superfly
+---| 121	COLOR_LIGHTPINK4 | Knox
+---| 122	COLOR_MEDIUMSPRINGGREEN
+---| 123	COLOR_PALEGREEN | Helios
+---| 124	COLOR_SGIOLIVEDRAB | Olive
+---| 125	COLOR_MONOCHROME | Impure
+---| 126	COLOR_OMNI
+---| 127	COLOR_ZEAL
+---| 128	COLOR_MAGMA
+---| 129	COLOR_CRUSHER
+---| 130	COLOR_SUPERIOR
+---| 131	COLOR_DARK_PURPLE | Astro
+---| 132	COLOR_SAKURA2 | Sakura
+---| 133	COLOR_MANA
+---| 134	COLOR_FOSSIL
+---| 135	COLOR_METEOR
+---| 136	COLOR_DIAMOND
+---| 137	COLOR_IVY
+---| 138	COLOR_RUIN
+---| 139	COLOR_HERA
+
+---@alias RenderEffectId
+---| 0 None
+---| 1 Cel Shaded
+---| 2 Fresnel Glow
+---| 3 Cel Shaded + Fresnel Glow
+---| 4 Dithering
+---| 5 Cel Shaded + Dithering
+---| 6 Fresnel Glow + Dithering
+---| 7 Cel Shaded + Fresnel Glow + Dithering
+
+---Sets the rendering effects for subsequent 3D drawing calls
+---@param effectid RenderEffectId
+---@param glow_colorid ?ColorId
+---@param glow_intensity ?number
+---@param dither_pixelsize ?integer
+function set_draw_effect(effectid, glow_colorid, glow_intensity, dither_pixelsize) end
+
+---Draws a 3D cube with the specified settings (use Euler angles)
+---@param pos_x number
+---@param pos_y number
+---@param pos_z number
+---@param size_x number
+---@param size_y number
+---@param size_z number
+---@param rot_x ?number
+---@param rot_y ?number
+---@param rot_z ?number
+---@param texture_id ?integer Texture id retrieved from `load_texture()` call
+function draw_box(pos_x, pos_y, pos_z, size_x, size_y, size_z, rot_x, rot_y, rot_z, texture_id) end
+
+---Draws a 3D cube with the specified settings (use rotation matrix)
+---@param pos_x number
+---@param pos_y number
+---@param pos_z number
+---@param size_x number
+---@param size_y number
+---@param size_z number
+---@param rot_matrix ?Matrix4x4
+---@param texture_id ?integer Texture id retrieved from `load_texture()` call
+function draw_box_m(pos_x, pos_y, pos_z, size_x, size_y, size_z, rot_matrix, texture_id) end
+
 ---Draws a 3D line from point A to point B with the specified width. \
 ---*This function doesn't get batched in backend so you likely want to call it from `post_draw3d` hook instead of `draw3d` to ensure proper rendering*
 ---@param start_x number
@@ -194,7 +377,7 @@ function set_viewport(pos_x, pos_y, size_x, size_y) end
 ---@param width number
 function draw_line_3d(start_x, start_y, start_z, end_x, end_y, end_z, width) end
 
----Draws a 3D sphere with the specified settings
+---Draws a 3D sphere with the specified settings (use Euler angles)
 ---@param pos_x number
 ---@param pos_y number
 ---@param pos_z number
@@ -205,6 +388,61 @@ function draw_line_3d(start_x, start_y, start_z, end_x, end_y, end_z, width) end
 ---@param texture_id ?integer Texture id retrieved from `load_texture()` call
 function draw_sphere(pos_x, pos_y, pos_z, radius, rotation_x, rotation_y, rotation_z, texture_id) end
 
+---Draws a 3D sphere with the specified settings (use rotation matrix)
+---@param pos_x number
+---@param pos_y number
+---@param pos_z number
+---@param radius number
+---@param rotation_matrix ?Matrix4x4
+---@param texture_id ?integer Texture id retrieved from `load_texture()` call
+function draw_sphere_m(pos_x, pos_y, pos_z, radius, rotation_matrix, texture_id) end
+
+---Draws a 3D capsule with the specified settings (use Euler angles)
+---@param pos_x number
+---@param pos_y number
+---@param pos_z number
+---@param length number
+---@param radius number
+---@param rot_x ?number
+---@param rot_y ?number
+---@param rot_z ?number
+---@param texture_id ?integer Texture id retrieved from `load_texture()` call
+function draw_capsule(pos_x, pos_y, pos_z, length, radius, rot_x, rot_y, rot_z, texture_id) end
+
+---Draws a 3D capsule with the specified settings (use rotation matrix)
+---@param pos_x number
+---@param pos_y number
+---@param pos_z number
+---@param length number
+---@param radius number
+---@param rot_matrix ?Matrix4x4
+---@param texture_id ?integer Texture id retrieved from `load_texture()` call
+function draw_capsule_m(pos_x, pos_y, pos_z, length, radius, rot_matrix, texture_id) end
+
+---Draws a 3D model with the specified settings (use Euler angles)
+---@param model_id integer Object id retrieved from `load_obj()`
+---@param pos_x number
+---@param pos_y number
+---@param pos_z number
+---@param size_x number
+---@param size_y number
+---@param size_z number
+---@param rot_x ?number
+---@param rot_y ?number
+---@param rot_z ?number
+function draw_obj(model_id, pos_x, pos_y, pos_z, size_x, size_y, size_z, rot_x, rot_y, rot_z) end
+
+---Draws a 3D model with the specified settings (use rotation matrix)
+---@param model_id integer Object id retrieved from `load_obj()`
+---@param pos_x number
+---@param pos_y number
+---@param pos_z number
+---@param size_x number
+---@param size_y number
+---@param size_z number
+---@param rot_matrix ?Matrix4x4
+function draw_obj_m(model_id, pos_x, pos_y, pos_z, size_x, size_y, size_z, rot_matrix) end
+
 ---Loads a TGA texture by the specified path and returns texture id or -1 on error
 ---@param path string
 ---@return integer
@@ -213,6 +451,17 @@ function load_texture(path) end
 ---Unloads a texture with the specified id
 ---@param id integer
 function unload_texture(id) end
+
+---Loads a 3D model and all associated textures from the specified path and links it on success
+---@param obj_id integer Object id the model will be linked to
+---@param filename string
+---@param absolute integer If `1`, will use the `filename` as an absolute path to the model
+---@return boolean
+function load_obj(obj_id, filename, absolute) end
+
+---Unloads the 3D model linked to the specified id
+---@param obj_id integer
+function unload_obj(obj_id) end
 
 
 --[[ TEXT FUNCTIONS ]]
@@ -421,6 +670,19 @@ function set_grip_info(player, hand, state) end
 ---@return number z
 ---@nodiscard
 function get_joint_pos(player, joint) end
+
+---Returns joint position in 3D world as Vector3
+---@param player integer
+---@param joint integer
+---@return Vector3
+---@nodiscard
+function get_joint_pos2(player, joint) end
+
+---Returns joint radius
+---@param player integer
+---@param joint integer
+---@return number
+function get_joint_radius(player, joint) end
 
 ---Selects player with the corresponding id
 ---@param player integer Player ID or `-1` to deselect all players
@@ -747,12 +1009,12 @@ function get_joint_color(player, joint) end
 ---@field b number
 
 ---Returns information about a Toribash color
----@param colorid integer
+---@param colorid ColorId
 ---@return ColorInfo
 function get_color_info(colorid) end
 
 ---Returns RGBA values of a Toribash color
----@param colorid integer
+---@param colorid ColorId
 ---@return Color
 function get_color_rgba(colorid) end
 

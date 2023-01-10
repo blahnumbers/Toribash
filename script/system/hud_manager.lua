@@ -265,7 +265,7 @@ function TBHud:spawnCommitButton()
 				end, true)
 				stepSingleFrameButton:addChild({
 					shift = { 10, 3 }
-				}):addAdaptedText("Step single frame once", nil, nil, FONTS.LMEDIUM, nil, 0.7)
+				}):addAdaptedText(stepSingleFrame and TB_MENU_LOCALIZED.HUDSTEPFRAMEFULL or TB_MENU_LOCALIZED.HUDSTEPFRAMESINGLE, nil, nil, FONTS.LMEDIUM, nil, 0.7)
 				stepSingleFrameButton:addMouseMoveHandler(function()
 					if (stepSingleFrameButton.hoverState ~= BTN_DN) then
 						play_haptics(0.6, HAPTICS.SELECTION)
@@ -273,7 +273,7 @@ function TBHud:spawnCommitButton()
 					stepSingleFrameButton.hoverState = BTN_DN
 				end)
 				stepSingleFrameButton:addMouseUpHandler(function()
-					step_game(true)
+					step_game(not stepSingleFrame)
 				end)
 
 				local stepSingleFrameButtonToggle = optionsHolder:addChild({
@@ -292,8 +292,8 @@ function TBHud:spawnCommitButton()
 							stepSingleFrameButtonToggle.hoverState = BTN_NONE
 					end
 				end, true)
-				local iconScale = stepSingleFrameButtonToggle.size.h * 0.6
-				TBMenu:showTextWithImage(stepSingleFrameButtonToggle:addChild({ shift = { 10, 3 } }), "Single frame stepping", FONTS.LMEDIUM, iconScale, stepSingleFrame and "../textures/menu/general/buttons/checkmark.tga" or "../textures/menu/general/buttons/crosswhite.tga", { maxTextScale = 0.7 })
+				local iconScale = stepSingleFrameButtonToggle.size.h * 0.5
+				TBMenu:showTextWithImage(stepSingleFrameButtonToggle:addChild({ shift = { 10, 3 } }), TB_MENU_LOCALIZED.HUDSTEPSINGLETOGGLE, FONTS.LMEDIUM, iconScale, stepSingleFrame and "../textures/menu/general/buttons/checkmark.tga" or "../textures/menu/general/buttons/crosswhite.tga", { maxTextScale = 0.7 })
 				stepSingleFrameButtonToggle:addMouseMoveHandler(function()
 					if (stepSingleFrameButtonToggle.hoverState ~= BTN_DN) then
 						play_haptics(0.6, HAPTICS.SELECTION)
@@ -443,16 +443,9 @@ function TBHud:spawnHub()
 			action = function() dofile("system/gamerules.lua") end
 		},
 		{
-			title = TB_MENU_LOCALIZED.MAINMENUSHADERSNAME,
+			title = TB_MENU_LOCALIZED.SHADERSATMOSNAME,
 			image = "../textures/menu/general/shaders_icon.tga",
-			action = function()
-				dofile("system/atmospheres_manager.lua")
-				if (ATMO_MENU_MAIN_ELEMENT) then
-					ATMO_MENU_MAIN_ELEMENT:kill()
-					ATMO_MENU_MAIN_ELEMENT = nil
-				end
-				Atmospheres:showMain()
-			end
+			action = function() dofile("system/atmo.lua") end
 		}
 	}
 	local buttonSize = (hubBackground.size.w - 20) / #topRowButtons - 10
@@ -789,9 +782,7 @@ function TBHud:spawnMiniChat()
 	---@type ChatMessage[]
 	local messagesToDisplay = {}
 	local refreshMiniChat = function()
-		while (#messagesToDisplay > 0) do
-			table.remove(messagesToDisplay)
-		end
+		messagesToDisplay = {}
 		for i = #TBHudInternal.ChatMessages, 1, -1 do
 			if (TBHudInternal.ChatMessages[i].clock < os.clock_real() - self.ChatMiniDisplayPeriod) then
 				break

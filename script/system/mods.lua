@@ -9,7 +9,7 @@ end
 require("toriui.uielement3d")
 require("system.iofiles")
 require("system.menu_manager")
-dofile("system/mods_manager.lua")
+require("system.mods_manager")
 
 if (Mods.MainElement) then
 	Mods.MainElement:kill()

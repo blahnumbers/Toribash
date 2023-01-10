@@ -157,10 +157,10 @@ if (not UIElement) then
 	---@field w number
 	---@field h number
 
-	-- Options to use to spawn the new UIElement object\
-	-- Majority of options are the same as UIElement class fields
+	---Options to use to spawn the new UIElement object.\
+	---*Majority of these are the same as UIElement class fields.*
 	---@class UIElementOptions
-	---@field globalid number
+	---@field globalid integer
 	---@field parent UIElement Specifying a parent will set its globalid and some other settings automatically
 	---@field pos number[] Object's target position (relative to parent, if applicable). Negative values imply offset from the opposite direction.
 	---@field size number[]
@@ -229,7 +229,7 @@ if (not UIElement) then
 	-- * Different top/bottom rounding support and `roundedInternal` UIElement field
 	-- * Added EmmyLua annotations for some methods
 	---@class UIElement
-	---@field globalid number Global ID to use for UIElement internal update / display loops
+	---@field globalid integer Global ID to use for UIElement internal update / display loops
 	---@field parent UIElement Parent element
 	---@field child UIElement[] Table containing the list of all children of an object
 	---@field pos Vector2|Vector3 Object's **absolute** position
@@ -1078,17 +1078,17 @@ end
 -- Destroys current UIElement object
 ---@param childOnly? boolean If true, will only destroy current object's children and keep the object itself
 function UIElement:kill(childOnly)
-	for i,v in pairs(self.child) do
+	for _, v in pairs(self.child) do
 		if (v.kill) then
 			v:kill()
 		end
 	end
 	if (childOnly) then
 		self.child = {}
-		return true
+		return
 	end
 	if (self.destroyed) then
-		return true
+		return
 	end
 
 	if (self.killAction) then
@@ -1135,7 +1135,7 @@ end
 
 ---Main UIElement loop that updates objects' position and displays them. \
 ---*Must be run from `draw2d` hook.*
----@param globalid ?number Global ID that the objects to display belong to
+---@param globalid ?integer Global ID that the objects to display belong to
 function UIElement:drawVisuals(globalid)
 	UIElement.clock = os.clock_real()
 	local globalid = globalid or self.globalid
@@ -1153,10 +1153,10 @@ end
 
 ---Main UIElement loop that displays viewport elements. \
 ---*Must be run from `draw_viewport` hook.*
----@param globalid ?number Global ID that the objects to display belong to
+---@param globalid ?integer Global ID that the objects to display belong to
 function UIElement:drawViewport(globalid)
 	local globalid = globalid or self.globalid
-	for i, v in pairs(UIViewportManager) do
+	for _, v in pairs(UIViewportManager) do
 		if (v.globalid == globalid) then
 			v:displayViewport()
 		end
@@ -2123,7 +2123,7 @@ function UIElement:updateImage(image, default, noreload)
 	if (not tempicon.data) then
 		local textureid = load_texture(default)
 		self.bgImage = textureid
-		TEXTUREINDEX = TEXTUREINDEX > textureid and TEXTUREINDEX or textureid
+		TEXTUREINDEX = math.max(TEXTUREINDEX, textureid)
 		table.insert(TEXTURECACHE, self.bgImage)
 	else
 		local textureid = load_texture(image)
@@ -2133,7 +2133,7 @@ function UIElement:updateImage(image, default, noreload)
 		else
 			self.bgImage = textureid
 		end
-		TEXTUREINDEX = TEXTUREINDEX > textureid and TEXTUREINDEX or textureid
+		TEXTUREINDEX = math.max(TEXTUREINDEX, textureid)
 		table.insert(TEXTURECACHE, self.bgImage)
 		tempicon:close()
 	end
