@@ -39,6 +39,7 @@ if (not UIElement3D) then
 	---*Majority of these are the same as UIElement3D class fields.*
 	---@class UIElement3DOptions : UIElementOptions
 	---@field parent UIElement3D|UIElement Parent element
+	---@field rot number[] Object's relative rotation to its parent, in Euler angles
 	---@field playerAttach integer Target player id to attach the object to. Should be used with either `attachBodypart` or `attachJoint`.
 	---@field attachBodypart integer Target bodypart id to attach the object to. Requires a valid `playerAttach` value.
 	---@field attachJoint integer Target joint id to attach the object to. Requires a valid `playerAttach` value.
@@ -49,6 +50,9 @@ if (not UIElement3D) then
 	---@class UIElement3D : UIElement
 	---@field parent UIElement3D|UIElement Parent element
 	---@field viewport UIElement3D|UIElement Viewport element
+	---@field pos Vector3 Object's **absolute** position in the world
+	---@field size Vector3 Object size
+	---@field rot Vector3 Object rotation
 	---@field rotXYZ Vector3 Object rotation in [Euler angles](https://en.wikipedia.org/wiki/Euler_angles)
 	---@field shapeType UIElement3DShape
 	---@field effectid RenderEffectId Element's rendering effect ID
@@ -74,7 +78,7 @@ function UIElement3D:new(o)
 		rotXYZ = { x = 0, y = 0, z = 0 },
 		pos = {},
 		shift = {},
-		bgColor = { 1, 1, 1, 1 },
+		bgColor = { 1, 1, 1, 0 },
 		shapeType = CUBE
 	}
 	setmetatable(elem, UIElement3D)
@@ -169,6 +173,19 @@ function UIElement3D:new(o)
 	end
 
 	return elem
+end
+
+---Spawns a new UIElement3D and sets the calling object as its parent.
+---
+---*Unlike `UIElement:addChild()`, this doesn't support `shift` value and is only a shortcut method to initialize an object with a predefined parent.*
+---@param o UIElement3DOptions
+---@return UIElement3D
+function UIElement3D:addChild(o)
+	o.pos = o.pos and o.pos or { 0, 0, 0 }
+	o.size = o.size and o.size or { self.size.x, self.size.y, self.size.z }
+	o.viewport = o.viewport or self.viewport
+	o.parent = self
+	return UIElement3D:new(o)
 end
 
 ---Destroys current UIElement3D object

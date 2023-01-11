@@ -1953,7 +1953,7 @@ function TBMenu:showUserBar()
 		rot = { 0, 0, 0 },
 		viewport = true
 	})
-	table.insert(tbMenuUserHeadAvatarViewport.child, tbMenuUserHeadAvatarViewport3D)
+	--table.insert(tbMenuUserHeadAvatarViewport.child, tbMenuUserHeadAvatarViewport3D)
 	local playerHeadHolder = UIElement3D:new({
 		parent = tbMenuUserHeadAvatarViewport3D,
 		shapeType = SPHERE,

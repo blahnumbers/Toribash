@@ -91,3 +91,5 @@ quests_global.dat
 /script/*test*.lua
 /script/load*.lua
 bounties.txt
+mod/modmaker.tbm
+news.txt

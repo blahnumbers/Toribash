@@ -535,7 +535,6 @@ function Atmospheres.loadDefaultAtmo()
 	local configData = config:readAll()
 	if (configData ~= nil and configData[1] ~= nil) then
 		Atmospheres.loadAtmo(configData[1])
-		DEFAULT_ATMOSPHERE_ISSET = true
 	end
 	config:close()
 end
@@ -949,3 +948,5 @@ function Atmospheres.showMain()
 			ATMO_MENU_MAIN_ELEMENT = nil
 		end)
 end
+
+Atmospheres.loadDefaultAtmo()

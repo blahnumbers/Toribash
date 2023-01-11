@@ -1712,7 +1712,8 @@ function open_menu(id) end
 ---@param useLuaNetwork ?boolean
 function open_dialog_box(action, message, data, useLuaNetwork) end
 
----Returns screen coordinates of a point in 3D world
+---Returns screen coordinates of a point in 3D world. \
+---**Must be called from a `draw3d` callback.**
 ---@param pos_x number
 ---@param pos_y number
 ---@param pos_z number

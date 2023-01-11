@@ -165,8 +165,6 @@ if (not UIElement) then
 	---@field pos number[] Object's target position (relative to parent, if applicable). Negative values imply offset from the opposite direction.
 	---@field size number[]
 	---@field shift number[] Object's padding (horizontal and vertical). *Only used when spawning an object with UIElement:addChild()*.
-	---@field rot number[] Object's rotation (relative to parent, if applicable). *Only used for objects that are parented to a 3D viewport element*.
-	---@field radius number *Only used for objects that are parented to a 3D viewport element*.
 	---@field interactive boolean
 	---@field bgColor Color
 	---@field hoverColor Color
@@ -232,11 +230,9 @@ if (not UIElement) then
 	---@field globalid integer Global ID to use for UIElement internal update / display loops
 	---@field parent UIElement Parent element
 	---@field child UIElement[] Table containing the list of all children of an object
-	---@field pos Vector2|Vector3 Object's **absolute** position
+	---@field pos Vector2 Object's **absolute** position
 	---@field shift? Vector2 Object position **relative to its parent**
 	---@field size UIElementSize Object size
-	---@field rot? Vector3 *Only applicable to elements displayed in a 3D viewport*
-	---@field radius? number *Only applicable to elements displayed in a 3D viewport*
 	---@field uiColor Color Default text color to be used for uiText() calls
 	---@field uiShadowColor Color Default text shadow color to be used for uiText() calls
 	---@field viewport boolean True for UIElement objects that act as a 3D viewport holder
@@ -384,8 +380,6 @@ function UIElement:new(o)
 				elem.pos.x = o.pos[1]
 				elem.pos.y = o.pos[2]
 				elem.pos.z = o.pos[3]
-				elem.rot = { x = o.rot[1], y = o.rot[2], z = o.rot[3] }
-				elem.radius = o.radius
 			else
 				elem.shift.x = o.pos[1]
 				elem.shift.y = o.pos[2]
@@ -1151,22 +1145,25 @@ function UIElement:drawVisuals(globalid)
 	end
 end
 
----Main UIElement loop that displays viewport elements. \
----*Must be run from `draw_viewport` hook.*
----@param globalid ?integer Global ID that the objects to display belong to
+---Legacy UIElement loop to display viewport elements. \
+---***UIElement*** *class is no longer used for viewport handling as of version 5.60.* \
+---@see UIElement3D.drawViewport
+---@deprecated
 function UIElement:drawViewport(globalid)
 	local globalid = globalid or self.globalid
 	for _, v in pairs(UIViewportManager) do
 		if (v.globalid == globalid) then
+			---@diagnostic disable-next-line: deprecated
 			v:displayViewport()
 		end
 	end
 end
 
----Internal function that's used to draw a viewport UIElement. \
----*You likely don't need to call this manually.* \
+---Legacy internal function that was used to draw a viewport UIElement. \
+---***UIElement*** *class is no longer used for viewport handling as of version 5.60.* \
 ---@see UIElement.drawViewport
 ---@see UIElement.addCustomDisplay
+---@deprecated
 function UIElement:displayViewport()
 	if (self.customDisplayBefore) then
 		self.customDisplayBefore()

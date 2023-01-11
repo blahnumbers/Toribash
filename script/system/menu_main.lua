@@ -93,6 +93,7 @@ if (is_mobile()) then
 	require("system.hud_manager")
 end
 require("system.ignore_manager")
+require("system.atmospheres_manager")
 
 TB_MENU_PLAYER_INFO = {}
 TB_MENU_PLAYER_INFO.username = PlayerInfo:getUser()
@@ -154,9 +155,9 @@ if (TB_MENU_NEWS_REFRESH < os.clock_real() - newsRefreshPeriod) then
 end
 
 -- Only called on first menu launch
-if (not DEFAULT_ATMOSPHERE_ISSET) then
+if (not _G.FIRST_LAUNCH) then
 	if (not is_steam() and not is_mobile()) then
-		Request:queue(function() get_latest_version() end, "versioncheck", function()
+		Request:queue(get_latest_version, "versioncheck", function()
 				local latestVersion = tonumber(get_network_response())
 				local currentVersion = tonumber(TORIBASH_VERSION)
 				if (currentVersion < latestVersion) then
@@ -164,24 +165,14 @@ if (not DEFAULT_ATMOSPHERE_ISSET) then
 				end
 			end)
 	end
-	add_hook("draw2d", "atmodefault", function()
-			dofile("system/atmospheres_defines.lua")
-			dofile("system/atmospheres_manager.lua")
-			Atmospheres.loadDefaultAtmo()
-			remove_hooks("atmodefault")
-		end)
-	local loginRewardWaiter = UIElement:new({
-		parent = TBMenu.MenuMain,
-		pos = { 0, 0 },
-		size = { 0, 0 }
-	})
-	loginRewardWaiter:addCustomDisplay(true, function()
+	TBMenu.MenuMain:addChild({}):addCustomDisplay(true, function()
 			if (PlayerInfo:getLoginRewards().available and TB_STORE_DATA.ready and not TB_MENU_NOTIFICATION_LOGINREWARDS) then
 				TB_MENU_NOTIFICATIONS_COUNT = TB_MENU_NOTIFICATIONS_COUNT + 1
 				TB_MENU_NOTIFICATION_LOGINREWARDS = true
 				TBMenu:showNotifications()
 			end
 		end)
+	_G.FIRST_LAUNCH = true
 end
 
 add_hook("draw2d", "tbMainMenuVisual", function() UIElement:drawVisuals(TB_MENU_MAIN_GLOBALID) end)
@@ -247,39 +238,36 @@ end
 
 -- Keep hub elements always displayed above tooltip and movememory
 add_hook("draw2d", "tbMainHubVisual", function()
-		if (TB_MENU_MAIN_ISOPEN == 0) then
-			if (Tooltip.IsActive) then
-				UIElement:drawVisuals(Tooltip.Globalid)
-			end
-			if (TB_MOVEMEMORY_ISOPEN == 1) then
-				UIElement:drawVisuals(TB_MOVEMEMORY_GLOBALID)
-			end
-			UIElement:drawVisuals(TB_MENU_HUB_GLOBALID)
+		if (TB_MENU_MAIN_ISOPEN == 1) then return end
+		if (Tooltip.IsActive) then
+			UIElement:drawVisuals(Tooltip.Globalid)
 		end
+		if (TB_MOVEMEMORY_ISOPEN == 1) then
+			UIElement:drawVisuals(TB_MOVEMEMORY_GLOBALID)
+		end
+		UIElement:drawVisuals(TB_MENU_HUB_GLOBALID)
 	end)
 add_hook("draw_viewport", "tbMainHubVisual", function()
-		if (TB_MENU_MAIN_ISOPEN == 0) then
-			UIElement3D:drawViewport(TB_MENU_HUB_GLOBALID)
-		end
+		if (TB_MENU_MAIN_ISOPEN == 1) then return end
+		UIElement3D:drawViewport(TB_MENU_HUB_GLOBALID)
+	end)
+add_hook("draw3d", "tbMainHudVisual", function()
+		UIElement3D:drawVisuals(TB_MENU_HUB_GLOBALID)
 	end)
 
 -- Load miscellaneous scripts
---[[if (get_option("chatcensor") > 0 and not CHATIGNORE_ACTIVE) then
-	dofile("system/ignore_manager.lua")
-	ChatIgnore:activate()
-end]]
 if (get_option("movememory") == 1 and not MOVEMEMORY_ACTIVE) then
-	dofile("system/movememory_manager.lua")
+	require("system.movememory_manager")
 	MoveMemory:spawnHotkeyListener()
 end
 if (get_option("showbroadcast") and (not Broadcasts or not Broadcasts.HOOKS_ACTIVE)) then
-	dofile("system/broadcast_manager.lua")
+	require("system.broadcast_manager")
 	Broadcasts:activate()
 end
 if (not QueueList) then
-	dofile("system/queuelist_manager.lua")
+	require("system.queuelist_manager")
 end
-if (not REPLAY_GUI and get_replay_cache() > 0) then
+if (not REPLAY_GUI and get_option("replaycache") ~= 0) then
 	dofile("system/replay_hud.lua")
 end
 Notifications:getTotalNotifications()

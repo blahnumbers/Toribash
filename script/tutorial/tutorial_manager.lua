@@ -1896,19 +1896,28 @@ function Tutorials:loadOverlay()
 		size = { headBackground.size.w + 20, headBackground.size.h + 20 },
 		viewport = true
 	})
-	local colors = get_color_info(23)
-	tbTutorialsMessageAuthorNeck = UIElement:new({
+	local headViewport3D = UIElement3D:new({
+		globalid = TB_TUTORIAL_MODERN_GLOBALID,
+		shapeType = VIEWPORT,
 		parent = headViewport,
+		pos = { 0, 0, 0 },
+		size = { 0, 0, 0 },
+		rot = { 0, 0, 0 },
+		viewport = true
+	})
+	local colors = get_color_info(23)
+	tbTutorialsMessageAuthorNeck = headViewport3D:addChild({
+		shapeType = SPHERE,
 		pos = { 0, 0.1, 9.65 },
 		rot = { 0, 0, 0 },
-		radius = 0.54,
+		size = { 0.54, 0, 0 },
 		bgColor = { colors.r, colors.g, colors.b, 0 }
 	})
-	tbTutorialsMessageAuthor = UIElement:new({
-		parent = headViewport,
+	tbTutorialsMessageAuthor = headViewport3D:addChild({
+		shapeType = SPHERE,
 		pos = { 0, 0, 10.3 },
 		rot = { 0, 0, -10 },
-		radius = 0.95,
+		size = { 0.95, 0, 0 },
 		bgColor = { 1, 1, 1, 0 },
 		bgImage = { "../../custom/tori/head.tga", "../../custom/tori/head.tga" }
 	})
@@ -2177,7 +2186,7 @@ function Tutorials:loadHooks()
 		end)
 	add_hook("draw_viewport", "tbTutorialsVisual", function()
 			if (TB_MENU_MAIN_ISOPEN == 0) then
-				UIElement:drawViewport(TB_TUTORIAL_MODERN_GLOBALID)
+				UIElement3D:drawViewport(TB_TUTORIAL_MODERN_GLOBALID)
 			end
 		end)
 
