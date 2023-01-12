@@ -36,7 +36,7 @@ end
 
 add_hook("new_game", "replay_advanced_gui", function() replayGuiToggle(false) end)
 add_hook("pre_draw", "replay_advanced_gui", function()
-	if (REPLAY_GUI.hidden and not REPLAY_GUI.manualHidden) then
+	if (REPLAY_GUI.hidden and not REPLAY_GUI.manualHidden and not TUTORIAL_ISACTIVE) then
 		if (get_replay_cache() > 0) then
 			local ws = get_world_state()
 			if (ws.replay_mode > 0 and ws.game_type == 0) then

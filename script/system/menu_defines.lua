@@ -85,7 +85,7 @@ TB_MENU_BUTTON_CROSSWHITE = "../textures/menu/general/buttons/crosswhite.tga"
 
 local overrideActive = false
 
-function setDefinesOverrides()
+local function setDefinesOverrides()
 	TB_MENU_DEFAULT_BG_COLOR = { 0.15, 0.15, 0.15, 1 }
 	TB_MENU_DEFAULT_BG_COLOR_TRANS = { 0.15, 0.15, 0.15, 0.5 }
 	TB_MENU_DEFAULT_DARKER_COLOR = { 0.1, 0.1, 0.1, 1 }
