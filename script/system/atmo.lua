@@ -11,9 +11,9 @@ require("system.iofiles")
 require("system.menu_manager")
 require("system.atmospheres_manager")
 
-if (ATMO_MENU_MAIN_ELEMENT) then
-	ATMO_MENU_MAIN_ELEMENT:kill()
-	ATMO_MENU_MAIN_ELEMENT = nil
+if (Atmospheres.MainElement ~= nil) then
+	Atmospheres.MainElement:kill()
+	Atmospheres.MainElement = nil
 	return
 end
 Atmospheres.showMain()

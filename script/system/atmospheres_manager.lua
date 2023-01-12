@@ -2,8 +2,6 @@
 -- Do not modify this file
 require("system.atmospheres_defines")
 
-ATMO_SELECTED_SCREEN = ATMO_SELECTED_SCREEN or 2
-
 ---@class ShaderOption
 ---@field id integer
 ---@field name string Option name
@@ -13,19 +11,23 @@ if (Atmospheres == nil) then
 	local x, y = get_window_safe_size()
 
 	---@class Atmospheres
+	---@field MainElement UIElement
 	---@field StoredOptions ShaderOption[] Initial values of the options that were modified by the current shader
 	---@field CurrentShader ShaderOption[] Current shader values
 	---@field DisplayPos Vector2 Window display offset
 	---@field ListShift number[] Scroll bar state
 	---@field DefaultShader string Default shader name
+	---@field SelectedScreen integer Selected screen id
 	---@field DebugHolder2D UIElement UIElement holder for debug info
 	Atmospheres = {
+		MainElement = nil,
 		EntityHolder = nil,
 		StoredOptions = {},
 		CurrentShader = {},
 		DisplayPos = { x = x + 10, y = y + 10 },
 		ListShift = { 0 },
 		DefaultShader = nil,
+		SelectedScreen = 1,
 		DebugHolder2D = nil,
 		ver = 5.60
 	}
@@ -318,14 +320,18 @@ function Atmospheres.showShaderControls()
 		set_option(v.name, v.value)
 	end
 
-	local x, y = get_window_safe_size()
-	local viewElement = UIElement:new({
+	local x, y, w, h = get_window_safe_size()
+	local viewElementHolder = UIElement:new({
 		globalid = TB_MENU_HUB_GLOBALID,
-		pos = { WIN_W / 10, WIN_H - math.max(y, 50) - 20 },
-		size = { WIN_W / 10 * 8, 60 },
+		pos = { 0, y + h - 90 },
+		size = { WIN_W, 90 },
+		bgColor = { 1, 1, 1, 0.35 }
+	})
+	local viewElement = viewElementHolder:addChild({
+		shift = { WIN_W / 10, 15 },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR,
 		shapeType = ROUNDED,
-		rounded = 10
+		rounded = 4
 	})
 	local toggleView = viewElement:addChild({
 		shift = { viewElement.size.w / 4, 5 },
@@ -410,7 +416,7 @@ function Atmospheres.showShaderControls()
 		bgImage = "../textures/menu/general/buttons/crosswhite.tga"
 	})
 	closeButton:addMouseHandlers(nil, function()
-			viewElement:kill()
+			viewElementHolder:kill()
 			for i,v in pairs(options) do
 				for j,k in pairs(Atmospheres.StoredOptions) do
 					if (v.name == k.name) then
@@ -727,25 +733,29 @@ function Atmospheres.spawnMainList(listingHolder, toReload, elementHeight, path,
 	local listElements = {}
 	local atmos = get_files(path, ext)
 
-	local default = UIElement:new({
-		parent = listingHolder,
-		pos = { 0, 0 },
-		size = { listingHolder.size.w, elementHeight },
+	local defaultHolder = listingHolder:addChild({
+		pos = { 0, #listElements * elementHeight },
+		size = { listingHolder.size.w, elementHeight }
+	})
+	table.insert(listElements, defaultHolder)
+	local default = defaultHolder:addChild({
+		pos = { 5, 2 },
+		size = { defaultHolder.size.w - 5, defaultHolder.size.h - 4 },
 		interactive = true,
 		clickThrough = true,
 		hoverThrough = true,
-		bgColor = TB_MENU_DEFAULT_BG_COLOR,
-		hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
-		pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+		shapeType = ROUNDED,
+		rounded = 3
 	})
-	table.insert(listElements, default)
 	default:addChild({
-		pos = { 5, 0 },
-		size = { elementHeight, elementHeight },
+		pos = { 5, 2 },
+		size = { elementHeight - 5, elementHeight - 5 },
 		bgImage = "../textures/menu/general/back.tga"
 	})
-	local defaultText = UIElement:new({
-		parent = default,
+	local defaultText = default:addChild({
 		pos = { elementHeight, 0 },
 		size = { default.size.w - elementHeight, elementHeight }
 	})
@@ -765,33 +775,35 @@ function Atmospheres.spawnMainList(listingHolder, toReload, elementHeight, path,
 	for _, file in pairs(atmos) do
 		local fileLower = utf8.lower(file)
 		if (utf8.find(fileLower, search) and not (utf8.match(fileLower, "default")) and not (utf8.match(fileLower, "atmo.cfg"))) then
-			local element = listingHolder:addChild({
+			local buttonHolder = listingHolder:addChild({
 				pos = { 0, #listElements * elementHeight },
-				size = { listingHolder.size.w, elementHeight },
+				size = { listingHolder.size.w, elementHeight }
+			})
+			table.insert(listElements, buttonHolder)
+			local button = buttonHolder:addChild({
+				pos = { 5, 2 },
+				size = { buttonHolder.size.w - 5, buttonHolder.size.h - 4 },
 				interactive = true,
 				clickThrough = true,
 				hoverThrough = true,
-				bgColor = TB_MENU_DEFAULT_BG_COLOR,
-				hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
-				pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+				shapeType = ROUNDED,
+				rounded = 3
 			})
-			table.insert(listElements, element)
-			element:addAdaptedText(false, file:gsub("%." .. ext .. "$", ""), 10, nil, 4, LEFTMID, 0.8, 0.8)
-			element:addMouseHandlers(nil, function()
+			button:addAdaptedText(false, file:gsub("%." .. ext .. "$", ""), 10, nil, 4, LEFTMID, 0.8, 0.8)
+			button:addMouseHandlers(nil, function()
 					func(file)
 				end)
 		end
 	end
 	if (#listElements == 0) then
-		local element = UIElement:new({
-			parent = listingHolder,
-			pos = { 0, 0 },
-			size = { listingHolder.size.w, listingHolder.size.h },
-		})
+		local element = listingHolder:addChild({})
 		table.insert(listElements, element)
 		element:addAdaptedText(false, TB_MENU_LOCALIZED.NOFILESFOUND .. " :(")
 	end
-	for i,v in pairs(listElements) do
+	for _, v in pairs(listElements) do
 		v:hide()
 	end
 	local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
@@ -801,7 +813,10 @@ end
 
 function Atmospheres.showMain()
 	Atmospheres.setShaderInfo()
-	local mainView = UIElement:new({
+	if (Atmospheres.MainElement ~= nil) then
+		Atmospheres.MainElement:kill()
+	end
+	Atmospheres.MainElement = UIElement:new({
 		globalid = TB_MENU_HUB_GLOBALID,
 		pos = { Atmospheres.DisplayPos.x, Atmospheres.DisplayPos.y },
 		size = { WIN_W / 4, WIN_H / 4 * 3 },
@@ -809,43 +824,35 @@ function Atmospheres.showMain()
 		shapeType = ROUNDED,
 		rounded = 4
 	})
-	ATMO_MENU_MAIN_ELEMENT = mainView
-	Atmospheres.DisplayPos = mainView.pos
+	Atmospheres.DisplayPos = Atmospheres.MainElement.pos
 
-	local mainList = UIElement:new({
-		parent = mainView,
-		pos = { 0, 0 },
-		size = { mainView.size.w, mainView.size.h },
-		shapeType = mainView.shapeType,
-		rounded = mainView.rounded
-	})
-	local elementHeight = 25
-	local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(mainList, 75, 70, 15)
+	local mainList = Atmospheres.MainElement:addChild({}, true)
+	local elementHeight = 36
+	local toReload, topBar, botBar, listingView, listingHolder = TBMenu:prepareScrollableList(mainList, 75, 80, 20, Atmospheres.MainElement.bgColor)
 
-	topBar.shapeType = mainView.shapeType
-	topBar:setRounded(mainView.rounded)
-	botBar.shapeType = mainView.shapeType
-	botBar:setRounded(mainView.rounded)
+	topBar.shapeType = mainList.shapeType
+	topBar:setRounded(mainList.rounded)
+	botBar.shapeType = mainList.shapeType
+	botBar:setRounded(mainList.rounded)
 
 	local search = TBMenu:spawnTextField2(botBar, {
 		x = 5,
 		y = 5,
 		w = botBar.size.w - 10,
-		h = botBar.size.h - 45
-	}, nil, "Start typing to search...")
-
-	local mainMoverHolder = UIElement:new({
-		parent = topBar,
-		pos = { 0, 0 },
-		size = { topBar.size.w, 30 },
-		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
-		shapeType = mainView.shapeType,
-		rounded = mainView.rounded
+		h = botBar.size.h - 50
+	}, nil, TB_MENU_LOCALIZED.SEARCHNOTE, {
+		fontId = 4,
+		textScale = 0.65,
+		textAlign = LEFTMID,
+		keepFocusOnHide = true,
+		darkerMode = true
 	})
-	local mainMover = UIElement:new({
-		parent = mainMoverHolder,
-		pos = { 0, 0 },
-		size = { mainMoverHolder.size.w, mainMoverHolder.size.h },
+
+	local mainMoverHolder = topBar:addChild({
+		size = { topBar.size.w, 30 },
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR
+	}, true)
+	local mainMover = mainMoverHolder:addChild({
 		interactive = true,
 		bgColor = UICOLORWHITE,
 		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
@@ -867,67 +874,94 @@ function Atmospheres.showMain()
 			if (mainMover.hoverState == BTN_DN) then
 				local x = x - mainMover.pressedPos.x
 				local y = y - mainMover.pressedPos.y
-				x = x < 0 and 0 or (x + mainView.size.w > WIN_W and WIN_W - mainView.size.w or x)
-				y = y < 0 and 0 or (y + mainView.size.h > WIN_H and WIN_H - mainView.size.h or y)
-				mainView:moveTo(x, y)
+				x = x < 0 and 0 or (x + Atmospheres.MainElement.size.w > WIN_W and WIN_W - Atmospheres.MainElement.size.w or x)
+				y = y < 0 and 0 or (y + Atmospheres.MainElement.size.h > WIN_H and WIN_H - Atmospheres.MainElement.size.h or y)
+				Atmospheres.MainElement:moveTo(x, y)
 			end
 		end)
 
-	local shaderEditorHolder = UIElement:new({
-		parent = botBar,
-		pos = { 0, -35 },
-		size = { mainView.size.w, 35 },
+	local shaderEditorButton = botBar:addChild({
+		pos = { 5, botBar.size.h - 40 },
+		size = { botBar.size.w - 10, 35 },
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
-		shapeType = ROUNDED,
-		rounded = 4
-	})
-	local shaderEditorButton = UIElement:new({
-		parent = shaderEditorHolder,
-		pos = { 5, 0 },
-		size = { shaderEditorHolder.size.w - 10, shaderEditorHolder.size.h - 5 },
-		bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-		hoverColor = TB_MENU_DEFAULT_BG_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-		interactive = true,
-		shapeType = ROUNDED,
-		rounded = 5
-	})
+		interactive = true
+	}, true)
 	shaderEditorButton:addAdaptedText(false, TB_MENU_LOCALIZED.SHADERSEDITOR)
 	shaderEditorButton:addMouseHandlers(nil, function()
-			mainView:kill()
-			ATMO_MENU_MAIN_ELEMENT = nil
+			Atmospheres.MainElement:kill()
+			Atmospheres.MainElement = nil
 			Atmospheres.showShaderControls()
 		end)
 
 	local mainList = {
-		{ text = TB_MENU_LOCALIZED.SHADERSATMOSNAME, action = function(searchText, noreload) if (not noreload) then Atmospheres.ListShift[1] = 0 end ATMO_SELECTED_SCREEN = 1 Atmospheres.spawnMainList(listingHolder, toReload, elementHeight, "data/atmospheres", "atmo", function(file) Atmospheres.loadAtmo(file) Atmospheres.setDefaultAtmo(file) end, search) end },
-		{ text = TB_MENU_LOCALIZED.SHADERSNAME, action = function(searchText, noreload) if (not noreload) then Atmospheres.ListShift[1] = 0 end ATMO_SELECTED_SCREEN = 2 Atmospheres.spawnMainList(listingHolder, toReload, elementHeight, "data/shader", "inc", function(file) Atmospheres.DefaultShader = file runCmd("lws " .. file) end, search) end }
+		{
+			text = TB_MENU_LOCALIZED.SHADERSNAME,
+			action = function(noreload)
+					if (not noreload) then
+						Atmospheres.ListShift[1] = 0
+					end
+					Atmospheres.SelectedScreen = 1
+					Atmospheres.spawnMainList(listingHolder, toReload, elementHeight, "data/shader", "inc", function(file)
+							Atmospheres.DefaultShader = file
+							runCmd("lws " .. file)
+						end, search)
+				end
+		},
+		{
+			text = TB_MENU_LOCALIZED.SHADERSATMOSNAME,
+			action = function(noreload)
+					if (not noreload) then
+						Atmospheres.ListShift[1] = 0
+					end
+					Atmospheres.SelectedScreen = 2
+					Atmospheres.spawnMainList(listingHolder, toReload, elementHeight, "data/atmospheres", "atmo", function(file)
+							Atmospheres.loadAtmo(file)
+							Atmospheres.setDefaultAtmo(file)
+						end, search)
+				end
+		}
 	}
-	mainList[ATMO_SELECTED_SCREEN].action(nil, true)
-	local dropdownBackground = UIElement:new({
-		parent = topBar,
-		pos = { 5, 35 },
-		size = { topBar.size.w - 10, topBar.size.h - 40 },
-		bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-		shapeType = ROUNDED,
-		rounded = 3
-	})
-	local dropdownView = UIElement:new({
-		parent = dropdownBackground,
-		pos = { 1, 1 },
-		size = { dropdownBackground.size.w - 2, dropdownBackground.size.h - 2 },
-		bgColor = TB_MENU_DEFAULT_BG_COLOR,
-		shapeType = dropdownBackground.shapeType,
-		rounded = dropdownBackground.rounded
-	})
-	TBMenu:spawnDropdown(dropdownView, mainList, 40, WIN_H - 100, mainList[ATMO_SELECTED_SCREEN], { scale = 0.6, fontid = FONTS.BIG }, { scale = 0.8, fontid = FONTS.MEDIUM })
 
-	search:addKeyboardHandlers(nil, function()
-			mainList[ATMO_SELECTED_SCREEN].action(search.textfieldstr[1])
+	local modeSwitchHolder = topBar:addChild({
+		pos = { 0, 35 },
+		size = { topBar.size.w, topBar.size.h - 40 },
+		bgColor = TB_MENU_DEFAULT_BG_COLOR
+	})
+	local buttonWidth = (modeSwitchHolder.size.w - ((#mainList + 1) * 10)) / #mainList
+	for i, v in pairs(mainList) do
+		local button = modeSwitchHolder:addChild({
+			pos = { 10 + (10 + buttonWidth) * (i - 1), 0 },
+			size = { buttonWidth, modeSwitchHolder.size.h },
+			interactive = true,
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+			inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
+			shapeType = ROUNDED,
+			rounded = 4
+		})
+		v.element = button
+		button:addChild({ shift = { 5, 2 }}):addAdaptedText(true, v.text)
+		button:addMouseUpHandler(function()
+			mainList[Atmospheres.SelectedScreen].element:activate(true)
+			v.action()
+			button:deactivate(true)
 		end)
 
-	local quitButton = UIElement:new({
-		parent = mainMoverHolder,
+		if (i == Atmospheres.SelectedScreen) then
+			button:deactivate(true)
+			v.action(true)
+		end
+	end
+
+	search:addKeyboardHandlers(nil, function()
+			mainList[Atmospheres.SelectedScreen].action()
+			search.btnDown()
+		end)
+
+	local quitButton = mainMoverHolder:addChild({
 		pos = { -mainMoverHolder.size.h, 0 },
 		size = { mainMoverHolder.size.h , mainMoverHolder.size.h },
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
@@ -937,15 +971,13 @@ function Atmospheres.showMain()
 		shapeType = ROUNDED,
 		rounded = 4
 	})
-	local quitIcon = UIElement:new({
-		parent = quitButton,
-		pos = { 2, 2 },
-		size = { quitButton.size.w - 4, quitButton.size.h - 4 },
+	quitButton:addChild({
+		shift = { 2, 2 },
 		bgImage = "../textures/menu/general/buttons/crosswhite.tga"
 	})
 	quitButton:addMouseHandlers(nil, function()
-			mainView:kill()
-			ATMO_MENU_MAIN_ELEMENT = nil
+			Atmospheres.MainElement:kill()
+			Atmospheres.MainElement = nil
 		end)
 end
 
