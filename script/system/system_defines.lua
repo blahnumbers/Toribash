@@ -167,6 +167,13 @@ function draw_quad(pos_x, pos_y, width, height, texture_id, tiled, r, g, b, a) e
 ---@param blend integer
 function draw_disk(pos_x, pos_y, inner, outer, slices, loops, start, sweep, blend) end
 
+---Generates font style based on the source font id
+---@param source_fontid FontId
+---@param scale number
+---@param outline integer
+---@return integer --Generated font id or `-1` on error
+function generate_font(source_fontid, scale, outline) end
+
 ---Draws text with the specified scale and rotation
 ---@param text string
 ---@param pos_x number

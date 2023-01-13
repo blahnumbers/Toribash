@@ -1914,6 +1914,9 @@ function UIElement:addAdaptedText(override, str, x, y, font, align, maxscale, mi
 
 	self.textScale = scale
 	self.textFont = font
+	if (shadow) then
+		self.shadowFontid = generate_font(self.textFont, 1, shadow)
+	end
 	self:addCustomDisplay(override, function()
 			self:uiText(str, x, y, font, align, scale, nil, shadow, col1, col2, intensity, nil, nil, nil, textfield)
 		end)
@@ -1927,7 +1930,7 @@ end
 ---@param align ?UIElementTextAlign
 ---@param scale ?number
 ---@param angle ?number Text rotation in degrees
----@param shadow ?number Text shadow grow value. It is recommended to keep this value relatively low (<10) for best looks.
+---@param shadow ?number Text outline thickness in pixels
 ---@param col1 ?Color Primary text color, uses `uiColor` value by default
 ---@param col2 ?Color Text shadow color, uses `uiShadowColor` value by default
 ---@param intensity ?number Text color intensity, only used for `FONTS.BIG` and `FONTS.BIGGER`. Use values from `0` to `1`.
@@ -2001,7 +2004,7 @@ function UIElement:uiText(input, x, y, font, align, scale, angle, shadow, col1, 
 			return false
 		elseif (self.size.h > (pos + 2) * font_mod * 10 * scale) then
 			if (check == false) then
-				draw_text_new(str[i], xPos, yPos + (pos * font_mod * 10 * scale), angle, scale, font, shadow, col1, col2, intensity, smoothing)
+				draw_text_new(str[i], xPos, yPos + (pos * font_mod * 10 * scale), angle, scale, font, shadow, col1, col2, intensity, smoothing, self.shadowFontid)
 			elseif (#str == i) then
 				return true
 			end
@@ -2010,11 +2013,11 @@ function UIElement:uiText(input, x, y, font, align, scale, angle, shadow, col1, 
 			if (check == true) then
 				return false
 			end
-			draw_text_new(str[i]:gsub(".$", "..."), xPos, yPos + (pos * font_mod * 10 * scale), angle, scale, font, shadow, col1, col2, intensity, smoothing)
+			draw_text_new(str[i]:gsub(".$", "..."), xPos, yPos + (pos * font_mod * 10 * scale), angle, scale, font, shadow, col1, col2, intensity, smoothing, self.shadowFontid)
 			break
 		else
 			if (check == false) then
-				draw_text_new(str[i], xPos, yPos + (pos * font_mod * 10 * scale), angle, scale, font, shadow, col1, col2, intensity, smoothing)
+				draw_text_new(str[i], xPos, yPos + (pos * font_mod * 10 * scale), angle, scale, font, shadow, col1, col2, intensity, smoothing, self.shadowFontid)
 			else
 				return true
 			end
@@ -2396,12 +2399,13 @@ end
 ---@param angle number
 ---@param scale number
 ---@param font FontId
----@param shadow ?number Text shadow thickness
+---@param shadow ?number Outline thickness in pixels
 ---@param color ?Color
 ---@param shadowColor ?Color
 ---@param intensity ?number
 ---@param pixelPerfect ?boolean Whether to floor the text position to make sure we don't start mid-pixel
-_G.draw_text_new = function(str, xPos, yPos, angle, scale, font, shadow, color, shadowColor, intensity, pixelPerfect)
+---@param shadowFontId ?integer Font id for text shadow retrieved from `generate_font()`
+_G.draw_text_new = function(str, xPos, yPos, angle, scale, font, shadow, color, shadowColor, intensity, pixelPerfect, shadowFontId)
 	local shadow = shadow or nil
 	local xPos = pixelPerfect and math.floor(xPos) or xPos
 	local yPos = pixelPerfect and math.floor(yPos) or yPos
@@ -2410,14 +2414,7 @@ _G.draw_text_new = function(str, xPos, yPos, angle, scale, font, shadow, color, 
 	local intensity = intensity or col1[4]
 	if (shadow) then
 		set_color(unpack(col2))
-		draw_text_angle_scale(str, xPos - shadow, yPos, angle, scale, font)
-		draw_text_angle_scale(str, xPos - shadow, yPos - shadow, angle, scale, font)
-		draw_text_angle_scale(str, xPos - shadow, yPos + shadow, angle, scale, font)
-		draw_text_angle_scale(str, xPos + shadow, yPos, angle, scale, font)
-		draw_text_angle_scale(str, xPos + shadow, yPos - shadow, angle, scale, font)
-		draw_text_angle_scale(str, xPos + shadow, yPos + shadow, angle, scale, font)
-		draw_text_angle_scale(str, xPos, yPos - shadow, angle, scale, font)
-		draw_text_angle_scale(str, xPos, yPos + shadow, angle, scale, font)
+		draw_text_angle_scale(str, xPos - shadow / 2, yPos - shadow / 2, angle, scale, shadowFontId or generate_font(font, 1, shadow))
 	end
 	if (col1) then
 		set_color(unpack(col1))
