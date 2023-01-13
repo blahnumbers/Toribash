@@ -324,11 +324,12 @@ function Atmospheres.showShaderControls()
 	local viewElementHolder = UIElement:new({
 		globalid = TB_MENU_HUB_GLOBALID,
 		pos = { 0, y + h - 90 },
-		size = { WIN_W, 90 },
-		bgColor = { 1, 1, 1, 0.35 }
+		size = { WIN_W, WIN_H - y - h + 90 },
+		bgColor = is_mobile() and { 1, 1, 1, 0.85 } or { 1, 1, 1, 0 }
 	})
 	local viewElement = viewElementHolder:addChild({
-		shift = { WIN_W / 10, 15 },
+		pos = { WIN_W / 10, 15 },
+		size = { WIN_W * 0.8, 60 },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR,
 		shapeType = ROUNDED,
 		rounded = 4
