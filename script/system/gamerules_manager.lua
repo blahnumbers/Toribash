@@ -538,16 +538,19 @@ function Gamerules.showGamerule(v, listingHolder, elementHeight, listElements, s
 		TBMenu:spawnDropdown(grDropdownHolder, v.dropdown, 30, 124, selectedDropdown, { scale = 0.6, fontid = 4 }, { scale = 0.5, fontid = 4 })
 	elseif (v.type == GAMERULE_SLIDER) then
 		local sliderValue = changedValues[v.name] and changedValues[v.name].value or v.value
+		---@type SliderSettings
 		local sliderSettings = {
 			maxValue = v.slider.maxValue or 1,
 			minValue = v.slider.minValue or 0,
 			maxValueDisp = v.slider.maxValueDisp or v.slider.maxValue,
 			minValueDisp = v.slider.minValueDisp or v.slider.minValue,
-			isBoolean = v.slider.isBoolean
+			isBoolean = v.slider.isBoolean,
+			textWidth = 30,
+			sliderRadius = 20
 		}
-		if (sliderSettings.maxValueDisp == 128) then
+		--[[if (sliderSettings.maxValueDisp == 128) then
 			sliderSettings.maxValueDisp = "100"
-		end
+		end]]
 		local updateFunc = function(val, xPos, slider)
 			if (not changedValues[v.name]) then
 				changedValues[v.name] = Gamerule:new(v)
@@ -559,7 +562,7 @@ function Gamerules.showGamerule(v, listingHolder, elementHeight, listElements, s
 			changedValues[v.name]:setValue(val)
 		end
 
-		TBMenu:spawnSlider(grValueHolder, 0, 0, nil, nil, 30, 20, sliderValue, sliderSettings, updateFunc)
+		TBMenu:spawnSlider2(grValueHolder, {}, sliderValue, sliderSettings, updateFunc)
 	else
 		if (v.name == "gravity") then
 			grHolder.size.h = elementHeight - grHolder.shift.y

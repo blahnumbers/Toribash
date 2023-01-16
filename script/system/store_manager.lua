@@ -432,7 +432,7 @@ do
 
 		TB_INVENTORY_DATA = inventory
 		TB_INVENTORY_LOADED = true
-		check_steam_color(0)
+		check_color_achievement()
 		return itemidOnly and Torishop:getInventoryRaw(itemidOnly) or table.clone(inventory)
 	end
 
@@ -5002,7 +5002,7 @@ do
 								show_dialog_box(INVENTORY_UNPACK, TB_MENU_LOCALIZED.STOREPURCHASECONGRATULATIONSRECEIVED .. " " .. item.itemname .. "!\n" .. TB_MENU_LOCALIZED.STOREDIALOGUNPACK1 .. " " .. item.itemname .. (TB_MENU_LOCALIZED.STOREDIALOGUNPACK2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGUNPACK2 .. "?") .. "\n" .. TB_MENU_LOCALIZED.STOREDIALOGUNPACKINFO, invid)
 							elseif (item.ingame) then
 								if (in_array(item.catid, CATEGORIES_COLORS)) then
-									check_steam_color(item.colorid)
+									check_color_achievement(item.colorid)
 								end
 								show_dialog_box(INVENTORY_ACTIVATE, TB_MENU_LOCALIZED.STOREPURCHASECONGRATULATIONSRECEIVED .. " "  .. item.itemname .. "!\n" .. TB_MENU_LOCALIZED.STOREDIALOGACTIVATE1 .. " " .. item.itemname .. (TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 .. "?"), invid)
 							else
@@ -5024,7 +5024,7 @@ do
 				show_dialog_box(INVENTORY_UNPACK, TB_MENU_LOCALIZED.STOREPURCHASECONGRATULATIONS .. "\n" .. TB_MENU_LOCALIZED.STOREPURCHASEWOULDYOULIKETOUNPACK1 .. " " .. item.itemname .. (TB_MENU_LOCALIZED.STOREPURCHASEWOULDYOULIKETOUNPACK2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREPURCHASEWOULDYOULIKETOUNPACK2 .. "?") .. "\n" .. TB_MENU_LOCALIZED.STOREDIALOGUNPACKINFO, invid)
 			elseif (item.ingame) then
 				if (in_array(item.catid, CATEGORIES_COLORS)) then
-					check_steam_color(item.colorid)
+					check_color_achievement(item.colorid)
 				end
 				Torishop:spawnInventoryUpdateWaiter()
 				show_dialog_box(INVENTORY_ACTIVATE, TB_MENU_LOCALIZED.STOREPURCHASECONGRATULATIONS .. "\n" .. TB_MENU_LOCALIZED.STOREPURCHASEWOULDYOULIKETOACTIVATE1 .. " " .. item.itemname .. (TB_MENU_LOCALIZED.STOREPURCHASEWOULDYOULIKETOACTIVATE2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREPURCHASEWOULDYOULIKETOACTIVATE2 .. "?"), invid)

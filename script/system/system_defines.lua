@@ -1,4 +1,8 @@
 ---@meta
+---This file contains documentation for all Toribash-specific Lua functions and global variables
+---You DO NOT need to include this file in any of your scripts, it is only used by EmmyLua plugins
+---
+---Updated as of Toribash 5.60
 
 --[[ GLOBAL VARIABLES ]]
 
@@ -66,6 +70,28 @@ _G.HAPTICS = {
 	SELECTION = 1
 }
 
+---@alias PlayerJoint
+---| 0	JOINTS.NECK
+---| 1	JOINTS.CHEST
+---| 2	JOINTS.LUMBAR
+---| 3	JOINTS.ABS
+---| 4	JOINTS.R_PECS
+---| 5	JOINTS.R_SHOULDER
+---| 6	JOINTS.R_ELBOW
+---| 7	JOINTS.L_PECS
+---| 8	JOINTS.L_SHOULDER
+---| 9	JOINTS.L_ELBOW
+---| 10	JOINTS.R_WRIST
+---| 11	JOINTS.L_WRIST
+---| 12	JOINTS.R_GLUTE
+---| 13	JOINTS.L_GLUTE
+---| 14	JOINTS.R_HIP
+---| 15	JOINTS.L_HIP
+---| 16	JOINTS.R_KNEE
+---| 17	JOINTS.L_KNEE
+---| 18	JOINTS.R_ANKLE
+---| 19	JOINTS.L_ANKLE
+
 ---Joint names
 _G.JOINTS = {
 	NECK = 0,
@@ -90,6 +116,12 @@ _G.JOINTS = {
 	L_ANKLE = 19
 }
 
+---@alias PlayerJointState
+---| 1	JOINT_STATE.FORWARD
+---| 2	JOINT_STATE.BACK
+---| 3	JOINT_STATE.HOLD
+---| 4	JOINT_STATE.RELAX
+
 ---Joint states
 _G.JOINT_STATE = {
 	FORWARD = 1,
@@ -97,6 +129,29 @@ _G.JOINT_STATE = {
 	HOLD = 3,
 	RELAX = 4
 }
+
+---@alias PlayerBody
+---| 0	BODYPARTS.HEAD
+---| 1	BODYPARTS.BREAST
+---| 2	BODYPARTS.CHEST
+---| 3	BODYPARTS.STOMACH
+---| 4	BODYPARTS.GROIN
+---| 5	BODYPARTS.R_PECS
+---| 6	BODYPARTS.R_BICEPS
+---| 7	BODYPARTS.R_TRICEPS
+---| 8	BODYPARTS.L_PECS
+---| 9	BODYPARTS.L_BICEPS
+---| 10	BODYPARTS.L_TRICEPS
+---| 11	BODYPARTS.R_HAND
+---| 12	BODYPARTS.L_HAND
+---| 13	BODYPARTS.R_BUTT
+---| 14	BODYPARTS.L_BUTT
+---| 15	BODYPARTS.R_THIGH
+---| 16	BODYPARTS.L_THIGH
+---| 17	BODYPARTS.L_LEG
+---| 18	BODYPARTS.R_LEG
+---| 19	BODYPARTS.R_FOOT
+---| 20	BODYPARTS.L_FOOT
 
 ---Bodypart names
 _G.BODYPARTS = {
@@ -167,12 +222,44 @@ function draw_quad(pos_x, pos_y, width, height, texture_id, tiled, r, g, b, a) e
 ---@param blend integer
 function draw_disk(pos_x, pos_y, inner, outer, slices, loops, start, sweep, blend) end
 
+---Default function to draw triangles
+---@param x1 number
+---@param y1 number
+---@param z1 number
+---@param x2 number
+---@param y2 number
+---@param z2 number
+---@param x3 number
+---@param y3 number
+---@param z3 number
+function draw_triangle(x1, y1, z1, x2, y2, z2, x3, y3, z3) end
+
 ---Generates font style based on the source font id
 ---@param source_fontid FontId
 ---@param scale number
 ---@param outline integer
 ---@return integer --Generated font id or `-1` on error
 function generate_font(source_fontid, scale, outline) end
+
+---Draws text at the specified position
+---@param text string
+---@param pos_x number
+---@param pos_y number
+---@param font_type ?FontId
+function draw_text(text, pos_x, pos_y, font_type) end
+
+---Draws right-aligned text from the specified position
+---@param text string
+---@param pos_x number
+---@param pos_y number
+---@param font_type ?FontId
+function draw_right_text(text, pos_x, pos_y, font_type) end
+
+---Draws centered text at the specified height
+---@param text string
+---@param pos_y number
+---@param font_type ?FontId
+function draw_centered_text(text, pos_y, font_type) end
 
 ---Draws text with the specified scale and rotation
 ---@param text string
@@ -182,6 +269,28 @@ function generate_font(source_fontid, scale, outline) end
 ---@param scale number
 ---@param font_type ?FontId
 function draw_text_angle_scale(text, pos_x, pos_y, angle, scale, font_type) end
+
+---Built-in function to draw text in a box
+---@param text string
+---@param pos_x number
+---@param pos_y number
+---@param box_width number
+---@param box_height number
+---@param line_height number
+---@param font_type ?FontId
+function draw_boxed_text(text, pos_x, pos_y, box_width, box_height, line_height, font_type) end
+
+---Draws text in 3D world
+---@param text string
+---@param x number
+---@param y number
+---@param z number
+---@param ax number
+---@param ay number
+---@param az number
+---@param size number
+---@param font_type FontId
+function draw_text_3d(text, x, y, z, ax, ay, az, size, font_type) end
 
 ---Activates a 3D viewport for subsequent draw calls
 ---@param pos_x number
@@ -384,6 +493,19 @@ function draw_box_m(pos_x, pos_y, pos_z, size_x, size_y, size_z, rot_matrix, tex
 ---@param width number
 function draw_line_3d(start_x, start_y, start_z, end_x, end_y, end_z, width) end
 
+---Draws a 2D disk in a 3D world
+---@param pos_x number Center X position for drawing
+---@param pos_y number Center Y position for drawing
+---@param pos_z number Center Z position for drawing
+---@param inner number Pixel offset from center to start the drawing from
+---@param outer number Pixel offset from center to end the drawing at
+---@param slices integer Number of slices for the drawn disk (higher amount = smoother edge)
+---@param loops integer
+---@param start number Start angle for the drawing
+---@param sweep number Disk length in degrees
+---@param blend integer
+function draw_disk_3d(pos_x, pos_y, pos_z, inner, outer, slices, loops, start, sweep, blend) end
+
 ---Draws a 3D sphere with the specified settings (use Euler angles)
 ---@param pos_x number
 ---@param pos_y number
@@ -450,10 +572,23 @@ function draw_obj(model_id, pos_x, pos_y, pos_z, size_x, size_y, size_z, rot_x, 
 ---@param rot_matrix ?Matrix4x4
 function draw_obj_m(model_id, pos_x, pos_y, pos_z, size_x, size_y, size_z, rot_matrix) end
 
----Loads a TGA texture by the specified path and returns texture id or -1 on error
+---Loads a TGA texture by the specified path
 ---@param path string
----@return integer
+---@return integer #Texture id or -1 on error
 function load_texture(path) end
+
+---Generates a texture gradient between two specified colors
+---@param r1 number
+---@param g1 number
+---@param b1 number
+---@param a1 number
+---@param r2 number
+---@param g2 number
+---@param b2 number
+---@param a2 number
+---@param body ?PlayerBody
+---@overload fun(col1:ColorId, col2:ColorId, body:PlayerBody?)
+function generate_texture_gradient(r1, g1, b1, a1, r2, g2, b2, a2, body) end
 
 ---Unloads a texture with the specified id
 ---@param id integer
@@ -470,6 +605,15 @@ function load_obj(obj_id, filename, absolute) end
 ---@param obj_id integer
 function unload_obj(obj_id) end
 
+---Draws a DQ ring for the specified player
+---@param player integer
+---@param age ?number
+function draw_ground_impact(player, age) end
+
+---Clears DQ ring for the specified player or all players by default
+---@param player ?integer
+function clear_ground_impact(player) end
+
 
 --[[ TEXT FUNCTIONS ]]
 
@@ -479,6 +623,10 @@ function unload_obj(obj_id) end
 ---@param raw ?boolean If true, will ignore current graphics DPI setting
 ---@return number
 function get_string_length(message, font, raw) end
+
+---Converts an RTL string
+---@param text string
+function convert_rtl(text) end
 
 ---Localizes a RTL string
 ---@param text string
@@ -504,18 +652,84 @@ function disable_mouse_camera_movement() end
 function set_fov(field_of_view) end
 
 ---@alias CameraMode
----| 0 CAMERA_NORMAL
----| 1 CAMERA_TORI
----| 2 CAMERA_UKE
----| 3 CAMERA_FREE
----| 4 CAMERA_FREEORB
----| 5 CAMERA_FREEORB_DEBUG
----| 6 CAMERA_TORISHOP
----| 7 CAMERA_FOCUS
+---| 0 Normal camera
+---| 1 Tori camera
+---| 2 Uke camera
+---| 3 Free camera
+---| 4 Free orbital camera
 
 ---Activates the specified camera mode
 ---@param mode CameraMode
 function set_camera_mode(mode) end
+
+---Resets camera back to Normal mode
+---@param factor number
+function reset_camera(factor) end
+
+---Activates Torishop camera mode and sets the specified angle
+---@param angle number
+function start_torishop_camera(angle) end
+
+---@class CameraInfoMisc
+---@field hyp number
+---@field angle number
+
+---@class CameraInfo
+---@field pos Vector3 Camera look from point
+---@field lookat Vector3 Camera look at point
+---@field perp Vector3
+---@field other CameraInfoMisc
+
+---Returns current camera information
+---@return CameraInfo
+function get_camera_info() end
+
+---Sets look from position for the camera
+---@param x number
+---@param y number
+---@param z number
+function set_camera_pos(x, y, z) end
+
+---Sets look at position for the camera
+---@param x number
+---@param y number
+---@param z number
+function set_camera_lookat(x, y, z) end
+
+---Sets camera range
+---@param min number
+---@param max number
+---@param speed ?number
+function set_camera_range(min, max, speed) end
+
+---Sets camera angle in degrees
+---@param angle number
+function set_camera_angle(angle) end
+
+---@class CameraKeyFrame
+---@field frame number
+---@field pos Vector3
+---@field lookat Vector3
+
+---Returns a table containing information on all store camera keyframes
+---@return CameraKeyFrame[]
+function get_camera_keyframes() end
+
+---@class CameraDepthOfFieldInfo
+---@field supported integer
+---@field focal_length number
+---@field fstop number
+
+---Enables depth of field on supported devices
+---@param focal_length number
+---@param fstop number
+---@return CameraDepthOfFieldInfo
+function enable_depth_of_field(focal_length, fstop) end
+
+---Disables depth of field
+---@return CameraDepthOfFieldInfo
+function disable_depth_of_field() end
+
 
 --[[ SCREEN RELATED FUNCTIONS ]]
 
@@ -552,7 +766,7 @@ function get_dpiawareness() end
 
 ---Returns screen position of a specified player joint
 ---@param player integer
----@param joint integer
+---@param joint PlayerJoint
 ---@return integer x
 ---@return integer y
 ---@return integer z
@@ -560,7 +774,7 @@ function get_joint_screen_pos(player, joint) end
 
 ---Returns screen position of a specified player bodypart
 ---@param player integer
----@param body integer
+---@param body PlayerBody
 ---@return integer x
 ---@return integer y
 ---@return integer z
@@ -569,13 +783,13 @@ function get_body_screen_pos(player, body) end
 --[[ GAME FUNCTIONS ]]
 
 ---@alias WorldStateGameType
----| 0 #Single Player
----| 1 #Multi Player
+---| 0 Single Player
+---| 1 Multi Player
 
 ---@alias WorldStateWinner
----| -1 #No winner | Draw
----| 0 #Tori
----| 1 #Uke
+---| -1	No winner | Draw
+---| 0	Tori
+---| 1	Uke
 
 ---@class WorldState
 ---@field game_type WorldStateGameType
@@ -609,9 +823,57 @@ function get_world_state() end
 
 ---Returns player body information
 ---@param player integer
----@param body integer
+---@param body PlayerBody
 ---@return BodyInfo
 function get_body_info(player, body) end
+
+---Returns player body linear velocity
+---@param player integer
+---@param body PlayerBody
+---@return number x
+---@return number y
+---@return number z
+function get_body_linear_vel(player, body) end
+
+---Sets player body linear velocity
+---@param player integer
+---@param body PlayerBody
+---@param x number
+---@param y number
+---@param z number
+function set_body_linear_vel(player, body, x, y, z) end
+
+---Returns player body angular velocity
+---@param player integer
+---@param body PlayerBody
+---@return number x
+---@return number y
+---@return number z
+function get_body_angular_vel(player, body) end
+
+---Sets player body angular velocity
+---@param player integer
+---@param body PlayerBody
+---@param x number
+---@param y number
+---@param z number
+function set_body_angular_vel(player, body, x, y, z) end
+
+---Applies force to player body
+---@param player integer
+---@param body PlayerBody
+---@param x number
+---@param y number
+---@param z number
+function set_body_force(player, body, x, y, z) end
+
+---Sets torque for the player body
+---@param player integer
+---@param body PlayerBody
+---@param x number
+---@param y number
+---@param z number
+function set_body_torque(player, body, x, y, z) end
 
 ---@alias JointInfoState
 ---| 0 #None
@@ -628,32 +890,32 @@ function get_body_info(player, body) end
 
 ---Returns player joint information
 ---@param player integer
----@param joint integer
+---@param joint PlayerJoint
 ---@return JointInfo
 function get_joint_info(player, joint) end
 
 ---Returns joint dismember state
 ---@param player integer
----@param joint integer
+---@param joint PlayerJoint
 ---@return boolean
 function get_joint_dismember(player, joint) end
 
 ---Returns joint fracture state
 ---@param player integer
----@param joint integer
+---@param joint PlayerJoint
 ---@return boolean
 function get_joint_fracture(player, joint) end
 
 ---Sets joint state for the specified player
 ---@param player integer
----@param joint integer
----@param state integer
+---@param joint PlayerJoint
+---@param state PlayerJointState
 ---@param with_onchange_effects ?boolean Whether to automatically rewind ghost and play joint change state sound
 function set_joint_state(player, joint, state, with_onchange_effects) end
 
 ---Returns a joint-specific readable state name
----@param joint integer
----@param state integer
+---@param joint PlayerJoint
+---@param state PlayerJointState
 ---@return string
 function get_joint_state_name(joint, state) end
 
@@ -671,7 +933,7 @@ function set_grip_info(player, hand, state) end
 
 ---Returns joint position in 3D world
 ---@param player integer
----@param joint integer
+---@param joint PlayerJoint
 ---@return number x
 ---@return number y
 ---@return number z
@@ -680,14 +942,14 @@ function get_joint_pos(player, joint) end
 
 ---Returns joint position in 3D world as Vector3
 ---@param player integer
----@param joint integer
+---@param joint PlayerJoint
 ---@return Vector3
 ---@nodiscard
 function get_joint_pos2(player, joint) end
 
 ---Returns joint radius
 ---@param player integer
----@param joint integer
+---@param joint PlayerJoint
 ---@return number
 function get_joint_radius(player, joint) end
 
@@ -721,7 +983,8 @@ function step_game(single_frame) end
 ---Opens and plays the replay
 ---@param filename string
 ---@param cache? integer
-function open_replay(filename, cache) end
+---@param check_integrity_threshold? number Replay integrity checker threshold. Lower value means higher precision.
+function open_replay(filename, cache, check_integrity_threshold) end
 
 ---Rewinds the replay to the beginning
 function rewind_replay() end
@@ -739,22 +1002,22 @@ function run_frames(frames) end
 
 ---An aggregated value that's built based on disqualification, grip, dismemberment and fracture values
 ---@alias GamerulesFlags
----| 0 None
----| 1 DQ
----| 2 Dismemberment
----| 3 DQ + Dismemberment
----| 4 No grip
----| 5 DQ + No grip
----| 6 Dismemberment + No grip
----| 7 DQ + Dismemberment + No grip
----| 8 Fracture
----| 9 DQ + Fracture
----| 10 Dismemberment + Fracture
----| 11 DQ + Dismemberment + Fracture
----| 12 No grip + Fracture
----| 13 DQ + No grip + Fracture
----| 14 Dismemberment + No grip + Fracture
----| 15 DQ + Dismemberment + No grip + Fracture
+---| 0	None
+---| 1	DQ
+---| 2	Dismemberment
+---| 3	DQ + Dismemberment
+---| 4	No grip
+---| 5	DQ + No grip
+---| 6	Dismemberment + No grip
+---| 7	DQ + Dismemberment + No grip
+---| 8	Fracture
+---| 9	DQ + Fracture
+---| 10	Dismemberment + Fracture
+---| 11	DQ + Dismemberment + Fracture
+---| 12	No grip + Fracture
+---| 13	DQ + No grip + Fracture
+---| 14	Dismemberment + No grip + Fracture
+---| 15	DQ + Dismemberment + No grip + Fracture
 
 ---@class Gamerules
 ---@field mod					string			Mod file name
@@ -827,6 +1090,54 @@ function get_ghost() end
 ---Sets ghost mode to the specified value
 ---@param mode GhostMode
 function set_ghost(mode) end
+
+---Sets score for the specified player
+---@param player integer
+---@param score integer
+function set_score(player, score) end
+
+---Returns current player score
+---@return number
+function get_score(player) end
+
+---Disqualifies the specified player
+---@param player integer
+function set_dq(player) end
+
+---Forces the specified player to relax all joints
+---@param player integer
+function relax_player(player) end
+
+
+--[[ BLOOD ]]
+
+---Returns ids of all active blood particles
+---@return integer[]
+function get_active_bloods() end
+
+---Returns age of the specified blood particle id
+---@param particle_id integer
+---@return number
+function get_blood_age(particle_id) end
+
+---Returns radius of the specified blood particle
+---@param particle_id integer
+---@return number
+function get_blood_radius(particle_id) end
+
+---Returns blood particle position
+---@param particle_id integer
+---@return number x
+---@return number y
+---@return number z
+function get_blood_pos(particle_id) end
+
+---Returns blood particle linear velocity
+---@param particle_id integer
+---@return number x
+---@return number y
+---@return number z
+function get_blood_vel(particle_id) end
 
 
 --[[ MOD FUNCTIONS ]]
@@ -998,13 +1309,16 @@ function set_replay_speed(speed) end
 --[[ CUSTOMIZATION RELATED FUNCTIONS ]]
 
 ---Returns joint color IDs
----@param player any
----@param joint any
----@return integer #Force color ID
----@return integer #Relax color ID
+---@param player integer
+---@param joint PlayerJoint
+---@return ColorId force_color
+---@return ColorId relax_color
 function get_joint_colors(player, joint) end
 
 ---@deprecated
+---@param player integer
+---@param joint PlayerJoint
+---@return table
 ---This function will be removed in future releases
 function get_joint_color(player, joint) end
 
@@ -1063,6 +1377,46 @@ function file_close(fileidx) end
 
 --[[ NETWORKING ]]
 
+---Retrieves a list of currently active downloads
+---@return string[]
+function get_downloads() end
+
+---Clears download queue. This **will not** cancel the ongoing download request.
+function clear_download() end
+
+---Downloads a Toribash mod by its name
+---@param modname string
+function download_mod(modname) end
+
+---Downloads a Toribash replay by its id and saves it using the specified name
+---@param id integer
+---@param name string
+function download_replay(id, name) end
+
+---Fetches the list of replays that match the provided settings\
+---@see Request
+---@param start_id integer
+---@param offset integer
+---@param search ?string
+function fetch_replay_results(start_id, offset, search) end
+
+---@deprecated
+---To be removed in future releases, use `fetch_replay_results()` instead
+---@param id integer
+---@param offset integer
+---@param search string
+function download_replay_result(id, offset, search) end
+
+---Fetches comments for the specified replay id \
+---@see Request
+---@param id integer
+function fetch_replay_comments(id) end
+
+---@deprecated
+---To be removed in future releases, use `fetch_replay_comments()` instead
+---@param id integer
+function download_replay_comments(id) end
+
 ---Launches a network request to update current user's TC and ST balance
 function update_tc_balance() end
 
@@ -1075,22 +1429,32 @@ function download_head(username) end
 ---@param mode integer
 function download_server_file(request, mode) end
 
----Fetches information from Toribash servers
+---Fetches information from Toribash servers\
+---@see Request
 ---@param request string
 function download_server_info(request) end
 
----Sends a request to retrieve the latest available game version
+---Fetches Market-specific information from Toribash servers\
+---@see Request
+---@param request string
+function download_market_info(request) end
+
+---Sends a request to retrieve the latest available game version\
+---@see Request
 function get_latest_version() end
 
----Returns received data from the last network request
+---Returns received data from the last network request\
+---@see Request
 ---@return string
 function get_network_response() end
 
----Returns last network request error
+---Returns last network request error\
+---@see Request
 ---@return string
 function get_network_error() end
 
----Reports whether we have an active network task
+---Reports whether we have an active network task\
+---@see Request
 ---@return integer
 function get_network_task() end
 
@@ -1099,7 +1463,7 @@ function get_network_task() end
 ---@param url string
 function open_url(url) end
 
----Downloads bounties data for the current user
+---Downloads bounties data and saves it as `data/bounties.txt`
 function download_fetch_bounties() end
 
 ---Downloads quests data for the specified user
@@ -1110,12 +1474,93 @@ function download_quest(username) end
 ---@param questid integer
 function claim_quest(questid) end
 
+---Downloads global quests data for the current user and saves it as `data/quests_global.dat`
+function download_global_quests() end
+
+---Downloads general Torishop data and models data
+function download_torishop() end
+
+---Downloads inventory datafile for the specified user or current user if no username is specified.
+---
+---*Current user's inventory is saved to `data/script/torishop/invent.txt`* \
+---*Other users' inventory is saved to `data/script/torishop/uinvent.tmp`*
+---@param username ?string
+function download_inventory(username) end
+
+---Initiates a network request to upload a replay to Toribash servers
+---@param name string
+---@param description string
+---@param tags string
+---@param filename string
+function upload_replay(name, description, tags, filename) end
+
 ---Initiates a network request to upload an event replay to Toribash servers
 ---@param name string
 ---@param description string
 ---@param tags string
 ---@param filename string
 function upload_event_replay(name, description, tags, filename) end
+
+---Downloads clans datafile
+function download_clan() end
+
+---Downloads clan logo texture by the specified clan id. \
+---*Texture will be saved to `data/textures/clans` directory as `%clanid%.tga`*
+---@param clanid integer
+function download_clan_logo(clanid) end
+
+---Claims daily login reward, if available
+function claim_reward() end
+
+---Claims all available Battle Pass rewards
+function battlepass_claim_reward() end
+
+---Fetches ranking toplist for the specified user or the current user by default\
+---@see Request
+---@param username ?string
+function fetch_ranking_toplist(username) end
+
+---Fetches ranking trends for the current user\
+---@see Request
+function fetch_ranking_trends() end
+
+---Sends a network request to check whether current user qualifies for the specified color's achievement
+---@param colorid ?ColorId
+function check_color_achievement(colorid) end
+
+---Sends a network request to check whether current user qualifies for global achievements
+function check_global_achievements() end
+
+---Submits a player report
+---@param name string
+---@param reason string
+---@param message string
+---@param filename ?string
+function report_player(name, reason, message, filename) end
+
+---Starts texture upload for the specified inventory item
+---@param inventid integer
+---@param filepath string
+function upload_item_texture(inventid, filepath) end
+
+---Starts texture upload for the specified target
+---@param target string
+---@param filepath string
+function upload_texture_image(target, filepath) end
+
+---Submits item purchase request for Toricredits
+---@param data string
+function buy_tc(data) end
+
+---Submits item purchase request for Shiai Tokens
+---@param data string
+function buy_st(data) end
+
+---Queries information about the specified user from Toribash servers. \
+---*Leave username empty to request current user info.* \
+---@see PlayerInfo.getServerUserinfo
+---@param username ?string
+function get_player_userinfo(username) end
 
 
 -- [[ NOTIFICATIONS ]]
@@ -1158,13 +1603,29 @@ function get_shift_key_state() end
 ---@return integer
 function get_keyboard_ctrl() end
 
+---Returns whether either of ctrl keys is currently down
+---@return integer
+function get_keyboard_shift() end
+
 ---Returns whether caps lock is currently on
 ---@return integer
 function get_keyboard_capslock() end
 
+---Returns whether num lock is currently on
+---@return integer
+function get_keyboard_numlock() end
+
+---Returns whether scroll lock is currently on
+---@return integer
+function get_keyboard_scrolllock() end
+
 ---Returns whether either of alt keys is currently on
 ---@return integer
 function get_keyboard_alt() end
+
+---Returns whether either of gui keys is currently down
+---@return integer
+function get_keyboard_gui() end
 
 ---Returns current clipboard text contents
 ---@return string|nil
@@ -1594,29 +2055,58 @@ function set_sound_category(id, enable, default) end
 function get_sound_category(id) end
 
 
---[[ OTHER FUNCTIONS ]]
+--[[ ROOM QUEUE FUNCTIONS ]]
 
----@return boolean
-function is_steam() end
+---@class QueuePlayerInfo
+---@field nick string Player name
+---@field games_played integer Player Qi
+---@field rank integer Player rank
+---@field streak integer Current win streak
+---@field custombeltname string Custom belt name (players with 20,000 Qi or more)
+---@field admin boolean Whether this user is an in-game administrator
+---@field op boolean Whether this user is a room operator
+---@field halfop boolean Whether this user is a half-operator
+---@field legend boolean Whether this user is a legend
+---@field eventsquad boolean Whether this user is a part of Event Squad
+---@field helpsquad boolean Whether this user is a part of Help Squad
+---@field marketsquad boolean Whether this user is a part of Market Squad
+---@field muted boolean Whether this user is muted
+---@field afk boolean Whether this user is afk
+---@field multiclient boolean Whether this user is currently multiclienting
 
----@return boolean
-function is_mobile() end
-
----Retrieves a list of currently active downloads
+---Returns a list of all queue players' names for the room
 ---@return string[]
-function get_downloads() end
+function get_bouts() end
 
----Returns a list of files in specified directory
----@param directory string
----@param suffix string
+---Returns information about queue player by their id in the list
+---@param bout_id integer
+---@return QueuePlayerInfo
+function get_bout_info(bout_id) end
+
+---Returns a list of all spectators' names for the room
 ---@return string[]
-function get_files(directory, suffix) end
+function get_spectators() end
+
+---Returns information about queue spectator by their id in the list
+---@param spectator_id integer
+---@return QueuePlayerInfo
+function get_spectator_info(spectator_id) end
+
+
+--[[ CHAT FUNCTIONS ]]
 
 ---Enables chat input hotkey
 function chat_input_activate() end
 
 ---Disables chat input hotkey
 function chat_input_deactivate() end
+
+---Returns chat input active state
+---@return boolean
+function chat_input_is_active() end
+
+---Clears chat input
+function chat_input_clear() end
 
 ---Returns the last 100 messages sent from current client
 ---@return string[]
@@ -1626,27 +2116,58 @@ function get_chat_history() end
 ---@param msg string
 function add_chat_history(msg) end
 
----Attempts to enable screen blur
----@return integer #1 if blur is supported, 0 if not
-function enable_blur() end
+---Draws default chat messages at the specified position
+---@param x number
+---@param y number
+function draw_chat_messages(x, y) end
 
----Disables screen blur
-function disable_blur() end
+---Draws the specified message id at a position
+---@param id integer
+---@param x number
+---@param y number
+function draw_chat_message(id, x, y) end
 
----Prints a local chat message
----@param message string
----@param tab ?integer
-function echo(message, tab) end
+---@return integer
+function get_total_chat_lines() end
 
----Runs a game command
----@param command string
----@param online ?integer
----@param silent ?boolean
-function run_cmd(command, online, silent) end
+---@return integer
+function get_cur_chat_lines() end
 
----@param event string
----@param value ?integer
-function usage_event(event, value) end
+---@return integer
+function get_compact_chat_lines() end
+
+---@return integer
+function get_full_mode_chat_lines() end
+
+---Returns message type for the specified message id
+---@param id integer
+---@return ChatMessageType
+function get_chat_type(id) end
+
+
+--[[ SOUND FUNCTIONS ]]
+
+---Plays a Toribash sound by its ID
+---@param soundid integer
+---@param volume ?number
+function play_sound(soundid, volume) end
+
+---Returns current game volume level
+---@return integer
+function get_volume() end
+
+---Sets game volume level
+---@param volume integer
+function set_volume(volume) end
+
+---Disables all game sounds
+function disable_sound() end
+
+---Enables game sounds
+function enable_sound() end
+
+
+--[[ DISCORD FUNCTIONS ]]
 
 ---Sets Discord Rich Presence state \
 ---*Only supported on Windows*
@@ -1654,96 +2175,13 @@ function usage_event(event, value) end
 ---@param detail string
 function set_discord_rpc(state, detail) end
 
----Triggers haptics with the specified settings on supported devices. \
----See `HAPTICS` table for supported haptics types.
----@param strength number
----@param type ?HapticsType
-function play_haptics(strength, type) end
-
----Sets a build version for error reporter
----@param version string
-function set_build_version(version) end
-
----Sets mouse cursor state override
----@param state integer
----@param instant ?boolean
-function set_mouse_cursor(state, instant) end
-
----Closes current game menu
-function close_menu() end
-
----Plays a Toribash sound by its ID
----@param soundid integer
----@param volume ?number
-function play_sound(soundid, volume) end
-
----Returns current game language
----@return string
-function get_language() end
-
----Changes language to the specified one if it's available
----@param language string
----@param deferred ?integer
-function set_language(language, deferred) end
-
----@alias MenuId
----| 1 DISPLAY_FREE
----| 2 DISPLAY_MULTI
----| 3 DISPLAY_SETUP
----| 4 DISPLAY_QUIT
----| 5 DISPLAY_RULES
----| 6 DISPLAY_REPLAY
----| 7 DISPLAY_MODS
----| 8 DISPLAY_SCRIPTS
----| 9 DISPLAY_SHADERS
----| 10 DISPLAY_SAVE
----| 11 DEPRECATED
----| 12 DISPLAY_CUSTOM_PLAYER
----| 13 DISPLAY_SUBMENU_TUTORIAL
----| 14 DISPLAY_ABOUT
----| 15 DISPLAY_BUY_CREDIT
----| 16 DISPLAY_SOUNDS
----| 17 DISPLAY_MOD_MAKER
----| 18 DISPLAY_LOGIN
----| 19 DISPLAY_MAIN
----| 20 DISPLAY_CHAT
-
----Opens a game menu
----@param id MenuId
-function open_menu(id) end
-
----Internal function to trigger a confirmation box
----@param action integer
----@param message string
----@param data ?string
----@param useLuaNetwork ?boolean
-function open_dialog_box(action, message, data, useLuaNetwork) end
-
----Returns screen coordinates of a point in 3D world. \
----**Must be called from a `draw3d` callback.**
----@param pos_x number
----@param pos_y number
----@param pos_z number
----@return integer x
----@return integer y
----@return integer z
-function get_screen_pos(pos_x, pos_y, pos_z) end
-
----Returns current tutorial level. *Steam only.*
-function get_tutorial_level() end
-
----Sets highest tutorial level. *Steam only.*
----@param value integer
-function set_tutorial_level(value) end
-
-
---[[ DISCORD FUNCTIONS ]]
-
----Accepts Discord join request
+---Accepts Discord join request \
+---*Only supported on Windows*
 ---@param discordId string
 function discord_accept_join(discordId) end
 
----Refuses Discord join request
+---Refuses Discord join request \
+---*Only supported on Windows*
 ---@param discordId string
 function discord_reject_join(discordId) end
 
@@ -1796,6 +2234,7 @@ function discord_reject_join(discordId) end
 ---| "resolution_changed" #Called when game resolution is updated
 ---| "console_post" #Called after a non-discarded console hook call
 ---| "text_input" #Called when text input event is received
+---| "replaycheck" #Called when replay hacking is detected during replay playthrough with check_integrity mode enabled
 
 ---Adds a Lua callback listener \
 ---*Only one function per event / set_name pair is supported*
@@ -1872,3 +2311,197 @@ function shoot_ray(start_x, start_y, start_z, end_x, end_y, end_z, ...) end
 ---@return integer|nil geomId Geom id that was hit first
 ---@return number|nil distance Distance from camera to the returned `geomId`
 function shoot_camera_ray(pos_x, pos_y, length) end
+
+
+--[[ OTHER FUNCTIONS ]]
+
+---@return boolean
+function is_steam() end
+
+---@return boolean
+function is_steam_logon() end
+
+---@return boolean
+function is_mobile() end
+
+---@alias PlayerMasterOption
+---| 'nick'
+---| 'rank'
+---| 'elo'
+---| 'season_win'
+---| 'season_lose'
+---| 'days'
+---| 'available'
+---| 'seconds'
+---| 'tc'
+---| 'st'
+---| 'qi'
+---| 'clanid'
+---| 'clan_name'
+
+---@class PlayerMasterInfo
+---@field nick string Current user's name
+---@field rank integer Current user's rank
+---@field elo number Current user's elo rating
+---@field season_win integer Current user's ranked wins this season
+---@field season_lose integer Current user's ranked losses this season
+---@field days integer Current user's login reward streak
+---@field available integer Login reward availability status
+---@field seconds integer Time left until daily reward expiry
+---@field tc integer Current user's ToriCredit balance
+---@field st integer Current user's Shiai Token balance
+---@field qi integer Current user's Qi
+---@field clanid integer Current user's clan id
+---@field clan_name string Current user's clan name
+
+---@class PlayerMaster
+---@field master PlayerMasterInfo
+
+---Returns master info about the current user
+---@return PlayerMaster
+function get_master() end
+
+---@class MatchmakerInfo
+---@field matching integer Total number of players searching for a match
+---@field ranked integer
+---@field grappling integer
+---@field kicking integer
+---@field striking integer
+
+---@class MatchmakerData
+---@field info MatchmakerInfo
+
+---Returns matchmaker information
+---@return MatchmakerData
+function get_matchmaker() end
+
+---Returns a list of files in specified directory
+---@param directory string
+---@param suffix string
+---@return string[]
+function get_files(directory, suffix) end
+
+---Attempts to enable screen blur
+---@return boolean #Whether blur is supported
+function enable_blur() end
+
+---Disables screen blur
+function disable_blur() end
+
+---Prints a local chat message
+---@param message string
+---@param tab ?integer
+function echo(message, tab) end
+
+---Executes a game command
+---@param command string
+---@param online ?integer
+---@param silent ?boolean
+function run_cmd(command, online, silent) end
+
+---Executes a `/reset` command in a Multiplayer room
+function reset_server() end
+
+---@param event string
+---@param value ?integer
+function usage_event(event, value) end
+
+---Triggers haptics with the specified settings on supported devices. \
+---See `HAPTICS` table for supported haptics types.
+---@param strength number
+---@param type ?HapticsType
+function play_haptics(strength, type) end
+
+---Sets a build version for error reporter
+---@param version string
+function set_build_version(version) end
+
+---Sets mouse cursor state override
+---@param state integer
+---@param instant ?boolean
+function set_mouse_cursor(state, instant) end
+
+---Closes current game menu
+function close_menu() end
+
+---Returns current game language
+---@return string
+function get_language() end
+
+---Changes language to the specified one if it's available
+---@param language string
+---@param deferred ?integer
+function set_language(language, deferred) end
+
+---@alias MenuId
+---| 1 DISPLAY_FREE
+---| 2 DISPLAY_MULTI
+---| 3 DISPLAY_SETUP
+---| 4 DISPLAY_QUIT
+---| 5 DISPLAY_RULES
+---| 6 DISPLAY_REPLAY
+---| 7 DISPLAY_MODS
+---| 8 DISPLAY_SCRIPTS
+---| 9 DISPLAY_SHADERS
+---| 10 DISPLAY_SAVE
+---| 11 DEPRECATED
+---| 12 DISPLAY_CUSTOM_PLAYER
+---| 13 DISPLAY_SUBMENU_TUTORIAL
+---| 14 DISPLAY_ABOUT
+---| 15 DISPLAY_BUY_CREDIT
+---| 16 DISPLAY_SOUNDS
+---| 17 DISPLAY_MOD_MAKER
+---| 18 DISPLAY_LOGIN
+---| 19 DISPLAY_MAIN
+---| 20 DISPLAY_CHAT
+
+---Opens a game menu
+---@param id MenuId
+function open_menu(id) end
+
+---Internal function to trigger a confirmation box
+---@param action integer
+---@param message string
+---@param data ?string
+---@param useLuaNetwork ?boolean
+function open_dialog_box(action, message, data, useLuaNetwork) end
+
+---Returns screen coordinates of a point in 3D world. \
+---**Must be called from a `draw3d` callback.**
+---@param pos_x number
+---@param pos_y number
+---@param pos_z number
+---@return integer x
+---@return integer y
+---@return integer z
+function get_screen_pos(pos_x, pos_y, pos_z) end
+
+---Returns current tutorial level. *Steam only.*
+function get_tutorial_level() end
+
+---Sets highest tutorial level. *Steam only.*
+---@param value integer
+function set_tutorial_level(value) end
+
+---Returns Steam stat value by its name
+---@param name string
+---@return number|nil
+function get_steam_stat(name) end
+
+---Awards an achievement to user if prerequisites are met
+---@param id integer
+function award_achievement(id) end
+
+---Returns in-app purchase finalized status
+function get_purchase_done() end
+
+---Runs a legacy tutorial by its id
+---@param id integer
+function run_tutorial(id) end
+
+---Opens platform-specific file browser to select a file that matches the specified extensions
+---@param description ?string
+---@param extensions ?string `;`-separated list of supported file extensions
+---@param ... string Additional description + extension pairs
+---@return boolean #Whether file browser is supported on current platform
+function open_file_browser(description, extensions, ...) end

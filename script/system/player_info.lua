@@ -10,17 +10,17 @@ if (PlayerInfo == nil) then
 	setmetatable({}, PlayerInfo)
 end
 
+---Shortcut function to retrieve a setting from `get_master()`
+---@param option ?PlayerMasterOption
+---@return boolean|number|string
+---@overload fun():PlayerMasterInfo
 local getMaster = function(option)
-	add_hook("console", "playerInfoFetchConsoleIgnore", function(s,i)
-		return 1
-	end)
 	local returnVal = nil
 	if (option) then
 		returnVal = get_master().master[option]
 	else
 		returnVal = get_master().master
 	end
-	remove_hooks("playerInfoFetchConsoleIgnore")
 	return returnVal
 end
 
@@ -54,10 +54,6 @@ function PlayerInfo:getClanTag(player)
 	return tag
 end
 
-function PlayerInfo:getLoginRewardStatus()
-	return getMaster("reward_result")
-end
-
 ---@class LoginRewards
 ---@field days integer Current login day streak
 ---@field available boolean Whether the reward is currently available for claiming
@@ -72,10 +68,6 @@ function PlayerInfo:getLoginRewards()
 		available = master.available == 1 and true or false,
 		timeLeft = master.seconds,
 	}
-end
-
-function PlayerInfo:getLoginRewardError()
-	return getMaster("reward_error")
 end
 
 function PlayerInfo:getTextures(data)

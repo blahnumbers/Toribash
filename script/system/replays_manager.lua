@@ -974,14 +974,14 @@ do
 				end)
 			local folderIcon = UIElement:new({
 				parent = folderElement,
-				pos = { 10, 0 },
-				size = { folderElement.size.h, folderElement.size.h },
+				pos = { 10, folderElement.size.h / 4 },
+				size = { folderElement.size.h / 2, folderElement.size.h / 2 },
 				bgImage = "../textures/menu/general/folder.tga"
 			})
 			local folderName = UIElement:new({
 				parent = folderElement,
-				pos = { folderIcon.shift.x * 2 + folderElement.size.h, 0 },
-				size = { folderElement.size.w - folderElement.size.h - folderIcon.shift.x * 3, folderElement.size.h }
+				pos = { folderIcon.shift.x * 2 + folderIcon.size.w, 0 },
+				size = { folderElement.size.w - folderIcon.size.w - folderIcon.shift.x * 3, folderElement.size.h }
 			})
 			folderName:addCustomDisplay(true, function()
 					folderName:uiText(folder.name, nil, nil, 4, LEFTMID, 0.8)
@@ -1060,12 +1060,15 @@ do
 				end)
 		end
 
-		for _, v in pairs(listElements) do
-			v:hide()
+		if (#listElements * elementHeight > listingHolder.size.h) then
+			for _, v in pairs(listElements) do
+				v:hide()
+			end
+			local listingScrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
+			listingScrollBar:makeScrollBar(listingHolder, listElements, toReload)
+		else
+			listingHolder:moveTo((listingView.size.w - listingHolder.size.w) / 4)
 		end
-
-		local listingScrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
-		listingScrollBar:makeScrollBar(listingHolder, listElements, toReload)
 		Replays:showReplayInfo(replayInfo, SELECTED_REPLAY.replay or rplTable.replays[1])
 	end
 
@@ -1758,10 +1761,10 @@ do
 				})
 				TBMenu:displayLoadingMark(uploadingView, TB_MENU_LOCALIZED.REPLAYUPLOADINPROGRESS)
 				Request:queue(function()
-						open_upload_replay(	replayData[1].value[1],
-											replayData[2].value[1],
-											replayData[3].value[1],
-											"replay/" .. replay.filename)
+						upload_replay(	replayData[1].value[1],
+										replayData[2].value[1],
+										replayData[3].value[1],
+										"replay/" .. replay.filename)
 					end, "replayupload", function()
 						local response = get_network_response()
 						if (response:find("^SUCCESS")) then
@@ -2010,9 +2013,9 @@ do
 				local errors = 0
 				local fileMove = false
 				local newDirectory = nil
-				local newReplay = cloneTable(replay)
+				local newReplay = table.clone(replay)
 
-				for i, v in pairs(tableReverse(replayData)) do
+				for _, v in pairs(table.reverse(replayData)) do
 					if (v.sysname == "dir") then
 						local directory = v.dirlevel == 0 and "replay" or "replay/" .. replay.filename:gsub("/.+$", "")
 						if (directory ~= v.value) then
@@ -2027,19 +2030,18 @@ do
 						if (v.value[1] ~= replay.filename:gsub("^.*/", ""):gsub("%.rpl$", "") or fileMove) then
 							local fileDirectory = replay.filename:find("/") and replay.filename:gsub("/.+$", "/") or ""
 							local newname = (newDirectory or fileDirectory) .. v.value[1] .. ".rpl"
+							local result = rename_replay(replay.filename, newname)
 							if (not fileMove) then
-								local result = rename_replay(replay.filename, newname)
 								if (result) then
 									errors = errors + 1
-									TBMenu:showDataError(TB_MENU_LOCALIZED.REPLAYSERRORRENAMINGREPLAY .. ": " .. result)
+									TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORRENAMINGREPLAY .. ": " .. result)
 								else
 									newReplay.filename = newname
 								end
 							else
-								local result = move_replay(replay.filename, newname)
 								if (result) then
 									errors = errors + 1
-									TBMenu:showDataError(TB_MENU_LOCALIZED.REPLAYSERRORMOVINGREPLAY .. ": " .. result)
+									TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORMOVINGREPLAY .. ": " .. result)
 								else
 									newReplay.filename = newname
 									SELECTED_FOLDER = { fullname = "replay/" .. newDirectory:gsub("/$", "") }
