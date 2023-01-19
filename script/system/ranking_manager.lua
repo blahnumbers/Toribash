@@ -256,7 +256,7 @@ function Ranking:showRankingTrendsWithHistory(viewElement)
 	local rankingTierIcon = rankingTierIconHolder:addChild({
 		shift = { (iconFieldScale - iconScale) / 2, 0 },
 		bgImage = TB_MENU_PLAYER_INFO.ranking.tier.image,
-		imageColor = TB_MENU_PLAYER_INFO.ranking.qualifying and { 0.2, 0.2, 0.2, 1 } or nil
+		imageColor = TB_MENU_PLAYER_INFO.ranking.qualifying and { 0.2, 0.2, 0.2, 1 } or UICOLORWHITE
 	})
 	rankingTierIcon:moveTo(nil, -iconScale * 0.1, true)
 	local rankingTierTitle = rankingTierIcon:addChild({

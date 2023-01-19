@@ -44,37 +44,10 @@ if (BattlePass == nil) then
 	---@field UserData BattlePassUserData Current user's data for the Battle Pass
 	---@field wasOpened boolean Whether the user has opened the Battle Pass screen during this session
 	BattlePass = {
-		__index = {},
 		ver = 1.0,
-		LevelData = nil,
-		UserData = nil,
 		wasOpened = false
 	}
-	setmetatable({}, BattlePass)
-end
-
----@param showBack? boolean Whether to display the "back" button. Assumed false by default.
----@return MenuNavButton[] #Navigation buttons data to be used for TBMenu:showNavigationBar()
-function BattlePass:getNavigationButtons(showBack)
-	local buttonsData = {
-		{
-			text = TB_MENU_LOCALIZED.NAVBUTTONTOMAIN,
-			action = function() Ranking:quit() end,
-			width = get_string_length(TB_MENU_LOCALIZED.NAVBUTTONTOMAIN, FONTS.BIG) * 0.65 + 30
-		}
-	}
-	if (showBack) then
-		table.insert(buttonsData, {
-			text = TB_MENU_LOCALIZED.NAVBUTTONBACK,
-			action = function()
-				TBMenu.CurrentSection:kill(true)
-				TBMenu.NavigationBar:kill(true)
-				TBMenu:showNavigationBar()
-				TBMenu:showBattlepass()
-			end
-		})
-	end
-	return buttonsData
+	BattlePass.__index = BattlePass
 end
 
 -- Queues a network request to download BP level information and stores it in BattlePass.LevelData
@@ -269,7 +242,7 @@ function BattlePass:showProgress(viewElement)
 		purchasePremiumButtonText:addAdaptedText(true, TB_MENU_LOCALIZED.BATTLEPASSPURCHASEPREMIUM)
 	end
 
-	local lineColor = cloneTable(TB_MENU_DEFAULT_DARKER_ORANGE)
+	local lineColor = table.clone(TB_MENU_DEFAULT_DARKER_ORANGE)
 	lineColor[4] = 0.7
 	local lineShift = 3
 	local lineThickness = 2
@@ -375,7 +348,7 @@ function BattlePass:spawnPurchaseLevelWindow()
 							TBMenu:displayLoadingMarkSmall(claimWindowBackground, TB_MENU_LOCALIZED.NETWORKLOADING)
 						end
 					end)
-				show_dialog_box(BATTLEPASS_PURCHASE_LEVEL, "Are you sure you want to upgrade your Battle Pass to level " .. targetLevel .. "?\n\n^35" .. TB_MENU_LOCALIZED.MARKETYOUWILLBECHARGED .. " " .. BattlePass.UserData.upgrade_price .. " " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS, BattlePass.UserData.upgrade_price, true)
+				show_dialog_box(BATTLEPASS_PURCHASE_LEVEL, "Are you sure you want to upgrade your Battle Pass to level " .. targetLevel .. "?\n\n^35" .. TB_MENU_LOCALIZED.MARKETYOUWILLBECHARGED .. " " .. BattlePass.UserData.upgrade_price .. " " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS, BattlePass.UserData.upgrade_price .. "", true)
 			end, "battlepass_purchaselevel", function()
 					local response = get_network_response()
 					if (response:find("^GATEWAY 0; 0")) then
@@ -560,15 +533,15 @@ function BattlePass:showPrizeItem(viewElement, prize)
 
 	local prizeIcon, prizeAmount, prizeTooltip
 	-- Some free reward levels will have multiple rewards, we want TC/ST to be shown
-	if (prize.tc) then
+	if (prize.tc ~= 0) then
 		prizeIcon = "../textures/store/toricredit.tga"
 		prizeAmount = numberFormat(prize.tc)
 		prizeTooltip = TBMenu:displayPopup(prizeBackground, prizeAmount .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS, true)
-	elseif (prize.st) then
+	elseif (prize.st ~= 0) then
 		prizeIcon = "../textures/store/shiaitoken.tga"
 		prizeAmount = numberFormat(prize.st)
 		prizeTooltip = TBMenu:displayPopup(prizeBackground, prizeAmount .. " " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS, true)
-	elseif (prize.itemid) then
+	elseif (prize.itemid ~= 0) then
 		 prizeIcon = Torishop:getItemIcon(prize.itemid)
 		 prizeTooltip = TBMenu:displayPopup(prizeBackground, Torishop:getItemInfo(prize.itemid).itemname, true)
 	else
@@ -645,9 +618,9 @@ function BattlePass:showLevelPrize(prizeHolder, levelData)
 			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR
 		})
 		BattlePass:showPrizeItem(freePrizeHolder:addChild({ shift = { 15, 10 } }), {
-			tc = levelData.tc > 0 and levelData.tc or nil,
-			st = levelData.st > 0 and levelData.st or nil,
-			itemid = levelData.itemid > 0 and levelData.itemid or nil,
+			tc = levelData.tc,
+			st = levelData.st,
+			itemid = levelData.itemid,
 			locked = BattlePass.UserData.level_available < levelData.level,
 			claimed = BattlePass.UserData.level >= levelData.level
 		})

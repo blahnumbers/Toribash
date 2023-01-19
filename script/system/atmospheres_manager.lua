@@ -29,7 +29,6 @@ if (Atmospheres == nil) then
 		ver = 5.60
 	}
 	Atmospheres.__index = Atmospheres
-	setmetatable({}, Atmospheres)
 end
 
 ---Reverts all shader options to their initial state, destroys all atmo objects and unloads the draw3d hook

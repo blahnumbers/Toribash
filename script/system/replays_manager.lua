@@ -9,8 +9,6 @@ do
 
 	Replays = { ver = 1.1 }
 	Replays.__index = Replays
-	local cln = {}
-	setmetatable(cln, Replays)
 
 	function Replays:quit()
 		TB_MENU_SPECIAL_SCREEN_ISOPEN = 0

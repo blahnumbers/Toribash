@@ -1851,8 +1851,7 @@ function TBMenu:showUserBar()
 		TBMenu.UserBar = nil
 	end
 
-	TBMenu.UserBar = UIElement:new({
-		parent = TBMenu.MenuMain,
+	TBMenu.UserBar = TBMenu.MenuMain:addChild({
 		pos = { -tbMenuTopBarWidth, 0 },
 		size = { tbMenuTopBarWidth, 100 }
 	})
@@ -1865,16 +1864,7 @@ function TBMenu:showUserBar()
 		disableUnload = true,
 		imageColor = TB_MENU_DEFAULT_BG_COLOR
 	})
-	--[[local tbMenuUserBarSplat = UIElement:new({
-		parent = TBMenu.UserBar,
-		pos = { math.ceil(-tbMenuTopBarWidth * 1.25), 0 },
-		size = { tbMenuTopBarWidth / 4, tbMenuTopBarWidth / 4 },
-		bgImage = TB_MENU_USERBAR_LEFT,
-		--disableUnload = true,
-		imageColor = TB_MENU_DEFAULT_BG_COLOR
-	})]]
-	local tbMenuUserHeadAvatarViewport = UIElement:new({
-		parent = TBMenu.UserBar,
+	local tbMenuUserHeadAvatarViewport = TBMenu.UserBar:addChild({
 		pos = { -TBMenu.UserBar.size.w - tbMenuTopBarWidth / 16 * 5, -TBMenu.UserBar.size.h * 2.35 },
 		size = { tbMenuTopBarWidth * 0.7, tbMenuTopBarWidth * 0.7 },
 		viewport = true
@@ -1888,7 +1878,6 @@ function TBMenu:showUserBar()
 		rot = { 0, 0, 0 },
 		viewport = true
 	})
-	--table.insert(tbMenuUserHeadAvatarViewport.child, tbMenuUserHeadAvatarViewport3D)
 	local playerHeadHolder = UIElement3D:new({
 		parent = tbMenuUserHeadAvatarViewport3D,
 		shapeType = SPHERE,

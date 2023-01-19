@@ -46,16 +46,15 @@ if (PlayerInfo == nil) then
 	---@field data PlayerInfoData
 	---@field __isCurrentUser boolean Internal flag that will be set to `true` if this data belongs to the currently logged in user
 	PlayerInfo = {
-		ver = 5.60,
-		__index = {}
+		ver = 5.60
 	}
-	setmetatable({}, PlayerInfo)
+	PlayerInfo.__index = PlayerInfo
 end
 
-local PlayerInfoInternal = {
-	__index = {}
-}
-setmetatable({}, PlayerInfoInternal)
+---**PlayerInfo** helper class \
+---@see PlayerInfo
+---@class PlayerInfoInternal
+local PlayerInfoInternal = {}
 
 ---Shortcut function to retrieve a setting from `get_master()`
 ---@param option ?PlayerMasterOption
@@ -373,14 +372,14 @@ end
 
 ---Parses provided **item.dat** lines and returns information about player's equipped effects
 ---@param data ?string[]
----@return RenderEffect
+---@return PlayerInfoCustomEffects
 function PlayerInfoInternal.getEffects(data)
-	---@type RenderEffect
+	---@type PlayerInfoCustomEffects
 	local effects = {
-		force = { effectId = EFFECTS_NONE },
-		relax = { effectId = EFFECTS_NONE },
-		body = { effectId = EFFECTS_NONE },
-		head = { effectId = EFFECTS_NONE }
+		force = { __id = 0, effectId = EFFECTS_NONE },
+		relax = { __id = 1, effectId = EFFECTS_NONE },
+		body = { __id = 2, effectId = EFFECTS_NONE },
+		head = { __id = 3, effectId = EFFECTS_NONE }
 	}
 	if (not data) then
 		effects.default = true
@@ -394,8 +393,8 @@ function PlayerInfoInternal.getEffects(data)
 			local _, values = ln:gsub(" ", "")
 			local data = { ln:match(("([^ ]*) "):rep(values)) }
 
-			for i, v in pairs(effects) do
-				if (i == tonumber(data[1])) then
+			for _, v in pairs(effects) do
+				if (v.__id == tonumber(data[1])) then
 					v.id = tonumber(data[2]) or EFFECTS_NONE
 					v.glowColor = tonumber(data[3]) or 0
 					v.glowIntensity = tonumber(data[4]) or 0
@@ -446,10 +445,10 @@ function PlayerInfo:getItems(player, scope)
 	customs:close()
 
 	scope = scope or PLAYERINFO_CSCOPE_COLORS
-	items.colors = PlayerInfo:getColors(bit.band(PLAYERINFO_CSCOPE_COLORS, scope) > 0 and customsData or nil)
-	items.textures = PlayerInfo:getTextures(bit.band(PLAYERINFO_CSCOPE_TEXTURES, scope) > 0 and customsData or nil)
-	items.objs = PlayerInfo:getObjs(bit.band(PLAYERINFO_CSCOPE_OBJECTS, scope) > 0 and customsData or nil)
-	items.effects = PlayerInfo:getEffects(bit.band(PLAYERINFO_CSCOPE_EFFECTS, scope) > 0 and customsData or nil)
+	items.colors = PlayerInfoInternal.getColors(bit.band(PLAYERINFO_CSCOPE_COLORS, scope) > 0 and customsData or nil)
+	items.textures = PlayerInfoInternal.getTextures(bit.band(PLAYERINFO_CSCOPE_TEXTURES, scope) > 0 and customsData or nil)
+	items.objs = PlayerInfoInternal.getObjs(bit.band(PLAYERINFO_CSCOPE_OBJECTS, scope) > 0 and customsData or nil)
+	items.effects = PlayerInfoInternal.getEffects(bit.band(PLAYERINFO_CSCOPE_EFFECTS, scope) > 0 and customsData or nil)
 
 	return items
 end
