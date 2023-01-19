@@ -1,4 +1,5 @@
 --Bounty manager class
+require("system.playerinfo_manager")
 
 if (Bounty == nil) then
 	Bounty = {
@@ -14,12 +15,12 @@ function Bounty:getBountyData(data)
 	-- Don't display multiple bounties on same user; only first one will be claimed when user is defeated
 	local useridList = {}
 
-	for i,ln in pairs(data) do
+	for i, ln in pairs(data) do
 		if (not ln:find("^#?USERID")) then
 			local data_stream = { ln:match(("([^\t]*)\t"):rep(#data_types)) }
 			local online = false
-			for i,v in pairs(onlinePlayers) do
-				if (PlayerInfo:getUser(v.player):lower() == data_stream[2]:lower()) then
+			for _, v in pairs(onlinePlayers) do
+				if (PlayerInfo.Get(v.player).username:lower() == data_stream[2]:lower()) then
 					online = v.room
 				end
 			end

@@ -1,6 +1,7 @@
 -- modern main menu UI
 -- DO NOT MODIFY THIS FILE
 
+--is_mobile = function() return true end
 -- If tutorials are active, ESC press launches tutorial exit popup instead of main menu
 if (TUTORIAL_ISACTIVE) then
 	return
@@ -68,13 +69,13 @@ TB_MENU_GLOBAL_SCALE = math.min(WIN_H > 720 and 1 or WIN_H / 720, WIN_W > 1280 a
 require("system.menu_defines")
 require("system.iofiles")
 require("system.menu_manager")
-TBMenu.init("221202")
+TBMenu.init("230119")
 
 require("system.menu_backend_defines")
 require("system.network_request")
 require("system.downloader_manager")
 require("system.store_manager")
-require("system.player_info")
+require("system.playerinfo_manager")
 require("system.notifications_manager")
 require("system.quests_manager")
 require("system.rewards_manager")
@@ -95,12 +96,10 @@ end
 require("system.ignore_manager")
 require("system.atmospheres_manager")
 
-TB_MENU_PLAYER_INFO = {}
-TB_MENU_PLAYER_INFO.username = PlayerInfo:getUser()
-TB_MENU_PLAYER_INFO.data = PlayerInfo:getUserData()
-TB_MENU_PLAYER_INFO.ranking = PlayerInfo:getRanking()
-TB_MENU_PLAYER_INFO.clan = PlayerInfo:getClan(TB_MENU_PLAYER_INFO.username)
-TB_MENU_PLAYER_INFO.items = PlayerInfo:getItems(TB_MENU_PLAYER_INFO.username)
+TB_MENU_PLAYER_INFO = PlayerInfo.Get(PLAYERINFO_SCOPE_GENERAL)
+TB_MENU_PLAYER_INFO:getClan()
+TB_MENU_PLAYER_INFO:getRanking()
+TB_MENU_PLAYER_INFO:getItems(PLAYERINFO_CSCOPE_ALL)
 TB_MENU_CUSTOMS_REFRESHED = false
 
 if (not TB_STORE_DATA) then
@@ -120,6 +119,7 @@ local launchOption = ARG
 if (launchOption == "" and ARG1) then
 	launchOption = ARG1
 end
+---@diagnostic disable-next-line: assign-type-mismatch
 ARG, ARG1 = nil, nil
 if (launchOption == "15") then
 	TBMenu:showMain(true)
@@ -132,9 +132,8 @@ elseif (launchOption == "friendslist") then
 	TBMenu:showMatchmaking()]]
 elseif (launchOption:match("clans ")) then
 	TBMenu:showMain(true)
-	local clantag = launchOption:gsub("clans ", "")
-	clantag = PlayerInfo:getClanTag(clantag)
-	TBMenu:showClans(clantag)
+	local player = launchOption:gsub("clans ", "")
+	TBMenu:showClans(PlayerInfo.Get(player).clan.tag)
 elseif (launchOption == "register") then
 	TB_MENU_MAIN_ISOPEN = 0
 	dofile("tutorial/tutorial_manager.lua")
@@ -185,9 +184,9 @@ add_hook("downloader_complete", "tbMainMenuStatic", function(filename)
 		end
 		if (filename:find("custom/" .. TB_MENU_PLAYER_INFO.username .. "/item.dat")) then
 			Downloader:safeCall(function()
-				TB_MENU_PLAYER_INFO.data = PlayerInfo:getUserData()
-				TB_MENU_PLAYER_INFO.items = PlayerInfo:getItems(TB_MENU_PLAYER_INFO.username)
-				TB_MENU_PLAYER_INFO.clan = PlayerInfo:getClan(TB_MENU_PLAYER_INFO.username)
+				TB_MENU_PLAYER_INFO:getUserData()
+				TB_MENU_PLAYER_INFO:getItems(PLAYERINFO_CSCOPE_ALL)
+				TB_MENU_PLAYER_INFO:getClan()
 				TB_MENU_CUSTOMS_REFRESHED = true
 				if (TB_MENU_MAIN_ISOPEN == 1) then
 					TBMenu:showUserBar()
@@ -199,9 +198,9 @@ add_hook("downloader_complete", "tbMainMenuStatic", function(filename)
 			Downloader:safeCall(function() TB_STORE_MODELS = Torishop:getModelsData() end)
 		elseif (filename:find("clans/clans.txt")) then
 			Downloader:safeCall(function()
-				TB_MENU_PLAYER_INFO.clan = PlayerInfo:getClan(TB_MENU_PLAYER_INFO.username)
-				TB_MENU_CUSTOMS_REFRESHED = true
 				Clans:getClanData(true)
+				TB_MENU_PLAYER_INFO:getClan()
+				TB_MENU_CUSTOMS_REFRESHED = true
 			end)
 		elseif (filename:find("clans/clanlevels.txt")) then
 			Downloader:safeCall(function()

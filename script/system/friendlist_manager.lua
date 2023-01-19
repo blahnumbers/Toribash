@@ -76,15 +76,16 @@ do
 					FRIENDSLIST_REFRESH_TIME = os.clock_real()
 					local clanFriends = {}
 
-					for i,v in pairs(FRIENDSLIST_FRIENDS) do
-						for k,n in pairs(FRIENDSLIST_PLAYERS_ONLINE) do
-							if (PlayerInfo:getUser(n.player) == v.username) then
+					for _, v in pairs(FRIENDSLIST_FRIENDS) do
+						for _, n in pairs(FRIENDSLIST_PLAYERS_ONLINE) do
+							local playerInfo = PlayerInfo.Get(n.player)
+							if (playerInfo.username == v.username) then
 								v.online = true
 								v.room = n.room
 								break
 							end
 							if (v.username:match("%b()") or v.username:match("%b[]") or v.username:match("%b{}")) then
-								if (PlayerInfo:getClanTag(n.player) == v.username:gsub("%W", "")) then
+								if (playerInfo.clan.tag == v.username:gsub("%W", "")) then
 									table.insert(clanFriends, { username = n.player, online = true, room = n.room })
 								end
 							end
@@ -92,14 +93,14 @@ do
 					end
 
 					-- Remove duplicate entries when one of friends is also found during clan friends search
-					for i,v in pairs(FRIENDSLIST_FRIENDS) do
+					for _, v in pairs(FRIENDSLIST_FRIENDS) do
 						for n = #clanFriends, 1, -1 do
-							if (v.username == PlayerInfo:getUser(clanFriends[n].username)) then
+							if (v.username == PlayerInfo.Get(clanFriends[n].username).username) then
 								table.remove(clanFriends, n)
 							end
 						end
 					end
-					for i,v in pairs(clanFriends) do
+					for _, v in pairs(clanFriends) do
 						table.insert(FRIENDSLIST_FRIENDS, v)
 					end
 					waitBlock:kill()

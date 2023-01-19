@@ -1106,3 +1106,4 @@ MAINMENUCLOSE	Close menu
 HUDSTEPFRAMESINGLE	Step single frame
 HUDSTEPFRAMEFULL	Step a full turn
 HUDSTEPSINGLETOGGLE	Single frame stepping
+WORDQI	Qi

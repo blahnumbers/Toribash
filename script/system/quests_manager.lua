@@ -173,7 +173,7 @@ function Quests:addBattlePassQuests()
 		end
 	end
 
-	local loginRewardsAvailable = PlayerInfo:getLoginRewards().available
+	local loginRewardsAvailable = PlayerInfo.getLoginRewards().available
 	table.insert(Quests.QuestsData, {
 		id = 2000,
 		name = TB_MENU_LOCALIZED.QUESTSDAILYPLAYER,
@@ -269,7 +269,7 @@ end
 ---@return string
 function Quests:getQuestObjective(quest)
 	local targetText = ""
-	local requirementFormatted = PlayerInfo:currencyFormat(quest.requirement)
+	local requirementFormatted = numberFormat(quest.requirement)
 	if (quest.type == 1) then
 		targetText = (quest.dq == QUESTS_DQ and TB_MENU_LOCALIZED.QUESTSDQREQGAME or TB_MENU_LOCALIZED.QUESTSPLAYREQ) .. " " .. requirementFormatted .. " " .. (quest.ranked and TB_MENU_LOCALIZED.WORDRANKED .. " " or "") .. TB_MENU_LOCALIZED.WORDGAMES
 	elseif (quest.type == 2) then

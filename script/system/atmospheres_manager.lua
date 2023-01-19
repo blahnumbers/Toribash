@@ -5,13 +5,14 @@ require("system.atmospheres_defines")
 ---@class ShaderOption
 ---@field id integer
 ---@field name string Option name
----@field value number|number[] Option value
+---@field value integer Option value
 
 if (Atmospheres == nil) then
 	local x, y = get_window_safe_size()
 
 	---@class Atmospheres
 	---@field MainElement UIElement
+	---@field EntityHolder UIElement3D
 	---@field StoredOptions ShaderOption[] Initial values of the options that were modified by the current shader
 	---@field CurrentShader ShaderOption[] Current shader values
 	---@field DisplayPos Vector2 Window display offset
@@ -20,15 +21,11 @@ if (Atmospheres == nil) then
 	---@field SelectedScreen integer Selected screen id
 	---@field DebugHolder2D UIElement UIElement holder for debug info
 	Atmospheres = {
-		MainElement = nil,
-		EntityHolder = nil,
 		StoredOptions = {},
 		CurrentShader = {},
 		DisplayPos = { x = x + 10, y = y + 10 },
 		ListShift = { 0 },
-		DefaultShader = nil,
 		SelectedScreen = 1,
-		DebugHolder2D = nil,
 		ver = 5.60
 	}
 	Atmospheres.__index = Atmospheres

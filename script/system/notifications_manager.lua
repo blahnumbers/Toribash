@@ -1,7 +1,7 @@
 require("toriui.uielement")
 require("system.network_request")
 require("system.menu_manager")
-require("system.player_info")
+require("system.playerinfo_manager")
 require("system.quests_manager")
 
 if (Notifications == nil) then
@@ -55,7 +55,7 @@ end
 ---@field NotificationsData NotificationMessage[]
 ---@field NotificationsMessages string[] Table containing cached text for user messages
 local NotificationsInternal = {
-	NotificationsUser = PlayerInfo:getUser(),
+	NotificationsUser = PlayerInfo.Get().username,
 	NotificationsData = {},
 	NotificationsMessages = {},
 	__index = {}
@@ -84,7 +84,7 @@ function Notifications:getNavigationButtons(showBack, justClaimed, backAction)
 		},
 		{
 			text = TB_MENU_LOCALIZED.NAVBUTTONLOGINREWARDS,
-			misctext = (PlayerInfo:getLoginRewards().available and not justClaimed) and "!" or nil,
+			misctext = (PlayerInfo.getLoginRewards().available and not justClaimed) and "!" or nil,
 			action = function() Notifications:showLoginRewards() TB_MENU_NOTIFICATIONS_LASTSCREEN = 1 end,
 			right = true,
 			sectionId = 1
@@ -122,7 +122,7 @@ end
 
 ---Displays login rewards screen
 function Notifications:showLoginRewards()
-	local rewards = PlayerInfo:getLoginRewards()
+	local rewards = PlayerInfo.getLoginRewards()
 	if (rewards.days == 0 and rewards.available == false and rewards.timeLeft == 0) then
 		rewards.available = true
 		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REWARDSCLAIMNETWORKERROR)
@@ -157,7 +157,7 @@ end
 ---Parses notifications data from network response
 ---@return boolean
 function Notifications:getNetworkNotifications()
-	local currentUser = PlayerInfo:getUser()
+	local currentUser = PlayerInfo.Get().username
 	if (NotificationsInternal.NotificationsUser ~= currentUser) then
 		NotificationsInternal.NotificationsData = {}
 		NotificationsInternal.NotificationsUser = currentUser
@@ -653,7 +653,7 @@ function Notifications:prepareNotifications(forceReload)
 		TBMenu.CurrentSection:kill(true)
 	end
 
-	if (forceReload or NotificationsInternal.NotificationsUser ~= PlayerInfo:getUser()) then
+	if (forceReload or NotificationsInternal.NotificationsUser ~= PlayerInfo.Get().username) then
 		Notifications.LastUpdate.data = 0
 	end
 
@@ -695,7 +695,7 @@ end
 ---If user has unclaimed login rewards, will always open rewards screen.
 function Notifications:showMain()
 	TB_MENU_SPECIAL_SCREEN_ISOPEN = 4
-	local rewards = PlayerInfo:getLoginRewards()
+	local rewards = PlayerInfo.getLoginRewards()
 	local navButtons = Notifications:getNavigationButtons()
 	if (rewards.available) then
 		Notifications:showLoginRewards()

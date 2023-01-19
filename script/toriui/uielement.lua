@@ -1164,24 +1164,7 @@ end
 ---@see UIElement.drawViewport
 ---@see UIElement.addCustomDisplay
 ---@deprecated
-function UIElement:displayViewport()
-	if (self.customDisplayBefore) then
-		self.customDisplayBefore()
-	end
-	if (self.viewport) then
-		set_viewport(self.pos.x, self.pos.y, self.size.w, self.size.h)
-	elseif (not self.customDisplayOnly) then
-		set_color(unpack(self.bgColor))
-		if (self.bgImage) then
-			draw_sphere(self.pos.x, self.pos.y, self.pos.z, self.radius, self.rot.x, self.rot.y, self.rot.z, self.bgImage)
-		else
-			draw_sphere(self.pos.x, self.pos.y, self.pos.z, self.radius, self.rot.x, self.rot.y, self.rot.z)
-		end
-	end
-	if (self.customDisplay) then
-		self.customDisplay()
-	end
-end
+function UIElement:displayViewport() end
 
 ---Internal function that's used to draw a regular UIElement. \
 ---*You likely don't need to call this manually.* \
@@ -2191,6 +2174,7 @@ function table.qsort(list, sort, order, includeZeros)
 	local arr = {}
 
 	if (type(order) ~= "table") then
+		---@diagnostic disable-next-line: cast-local-type
 		order = { order and 1 or -1 }
 	else
 		for i,v in pairs(order) do
@@ -2466,6 +2450,14 @@ _G.get_color_from_hex = function(hex)
 	return color
 end
 
+---Returns contrast ratio (0-1) for the specified color
+---using some [*magic maths*](https://24ways.org/2010/calculating-color-contrast)
+---@param color Color
+---@return number
+_G.get_color_contrast_ratio = function(color)
+	return (color[1] * 299 + color[2] * 587 + color[3] * 114) / 1000
+end
+
 ---Returns a copy of a table with its contents reversed
 ---@generic T table|UIElement[]
 ---@param table T[]
@@ -2537,6 +2529,18 @@ _G.table.compare = function(self, table2)
 	end
 
 	return true
+end
+
+---Returns count of all table fields
+---@generic T
+---@param table T[]
+---@return integer
+_G.table.size = function(table)
+	local size = 0
+	for _, _ in pairs(table) do
+		size = size + 1
+	end
+	return size
 end
 
 ---Checks whether the table is empty
@@ -2678,6 +2682,32 @@ _G.string.escape = function(str)
 		end
 	end
 	return str
+end
+
+---Formats the specified number as a monetary value and rounds it to the specified decimal precision
+---@param n string|number
+---@param decimals ?integer
+---@return string
+_G.numberFormat = function(n, decimals)
+	if (not n) then return n end
+	n = n .. "" -- make sure n is a string
+	local left, num, right = string.match(n,'^([^%d]*%d)(%d*)(.-)$')
+	if (not num) then return n end
+	local num = left..(num:reverse():gsub('(%d%d%d)','%1,'):reverse())..right
+	if (decimals and decimals > 0) then
+		local numDecimals = num:match("%.%d+$")
+		if (not numDecimals) then
+			num = num .. "." .. string.rep("0", decimals)
+		else
+			numDecimals = numDecimals:len()
+			if (numDecimals - 1 > decimals) then
+				num = num:sub(0, decimals - numDecimals)
+			elseif (numDecimals - 1 < decimals) then
+				num = num .. string.rep("0", decimals - numDecimals + 1)
+			end
+		end
+	end
+	return num
 end
 
 if (not UIElement.__mouseHooks) then

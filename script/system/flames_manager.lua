@@ -564,7 +564,7 @@ do
 									table.insert(data, val)
 								end
 								table.insert(flameData.displayInfo, { title = TB_MENU_LOCALIZED.STOREFLAMEFORGEDBY, val = data[1] })
-								table.insert(flameData.displayInfo, { title = TB_MENU_LOCALIZED.FLAMESSPAWNCOST, val = PlayerInfo:currencyFormat(data[2]) .. " TC" })
+								table.insert(flameData.displayInfo, { title = TB_MENU_LOCALIZED.FLAMESSPAWNCOST, val = numberFormat(data[2]) .. " TC" })
 							elseif (line:match("^FLAMEDATE;.*")) then
 								local date = line:gsub("^FLAMEDATE;", "")
 								table.insert(flameData.displayInfo, { title = TB_MENU_LOCALIZED.FLAMESFORGEDATE, val = date })
@@ -731,7 +731,7 @@ do
 												table.insert(data, val)
 											end
 											table.insert(flameData.displayInfo, { title = TB_MENU_LOCALIZED.STOREFLAMEFORGEDBY, val = data[1] })
-											table.insert(flameData.displayInfo, { title = TB_MENU_LOCALIZED.FLAMESSPAWNCOST, val = PlayerInfo:currencyFormat(data[2]) .. " TC" })
+											table.insert(flameData.displayInfo, { title = TB_MENU_LOCALIZED.FLAMESSPAWNCOST, val = numberFormat(data[2]) .. " TC" })
 										elseif (line:match("^FLAMEDATE;.*")) then
 											local date = line:gsub("^FLAMEDATE;", "")
 											table.insert(flameData.displayInfo, { title = TB_MENU_LOCALIZED.FLAMESFORGEDATE, val = date })

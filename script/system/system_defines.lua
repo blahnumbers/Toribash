@@ -33,6 +33,14 @@ _G.BETA_VERSION = nil
 ---@type string
 _G.BUILD_VERSION = nil
 
+---Script launch argument will be here
+---@type string
+_G.ARG = nil
+
+---Additional launch argument used by main menu
+---@type string
+_G.ARG1 = nil
+
 ---Default Toribash fonts
 _G.FONTS = {
 	BIG = 0,

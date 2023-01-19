@@ -22,17 +22,7 @@ if (Ranking == nil) then
 	---@field minElo number Minimum Elo value for this tier, inclusive
 	---@field image string Texture path for tier's icon
 
-	---@class RankingPlayer
-	---@field rank integer
-	---@field elo number
-	---@field wins integer
-	---@field loses integer
-	---@field games integer
-	---@field tier RankingTier
-	---@field nextTierElo number
-	---@field qualifying boolean
-
-	---@class RankingTopPlayer : RankingPlayer
+	---@class RankingTopPlayer : PlayerInfoRanking
 	---@field username string
 
 	---Toribash seasonal ranking manager class
@@ -49,7 +39,6 @@ if (Ranking == nil) then
 		__index = {},
 		EloFactor = 1,
 		EloDivisor = 400,
-		PlayerData = nil,
 		PlayerTrends = {},
 		PlayerModRanking = {},
 		RankingTiers = {
@@ -528,8 +517,8 @@ function Ranking:showGlobalRankToplist(viewElement, playerRanking)
 		listingHolder:addAdaptedText(true, TB_MENU_LOCALIZED.MATCHMAKERANKEDTOPEMPTY)
 		return
 	end
-	for i, player in pairs(playerRanking) do
-		PlayerInfo:getRankTier(player)
+	for _, player in pairs(playerRanking) do
+		PlayerInfo.getRankTier(player)
 		local playerView = listingHolder:addChild({
 			pos = { 0, #listElements * elementHeight },
 			size = { listingHolder.size.w, elementHeight }

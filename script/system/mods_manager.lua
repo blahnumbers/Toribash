@@ -28,12 +28,9 @@ if (Mods == nil) then
 	---@field StartNewGame boolean Whether to automatically start new game after loading mod
 	---@field CurrentFolder ModFolder Last opened mod folder
 	Mods = {
-		MainElement = nil,
 		DisplayPos = { x = x + 10, y = y + 10 },
 		ListShift = { 0 },
-		LastMenu = nil,
 		StartNewGame = true,
-		CurrentFolder = nil,
 		ver = 5.60,
 		__index = {}
 	}

@@ -36,17 +36,12 @@ if (TBHud == nil) then
 	---@field RequiresChatRefresh boolean
 	---@field ver number
 	TBHud = {
-		MainElement = nil,
-		HubHolder = nil,
 		HubSize = { w = 0, h = 0 },
-		ChatHolder = nil,
-		ChatMiniHolder = nil,
 		ChatSize = { w = 0, h = 0},
 		ChatMaxHistory = 2000,
 		ChatMiniMaxMessages = 10,
 		ChatMiniDisplayPeriod = 20,
 		ChatMiniUpdateTime = 0,
-		WorldState = nil,
 		ButtonsToRefresh = {},
 		DefaultButtonSize = math.max(100, WIN_H / 10),
 		DeafultSmallerButtonSize = nil,
@@ -110,9 +105,9 @@ function TBHudInternal.isPlaying()
 	if (TBHud.WorldState.game_type == 0) then
 		return true
 	end
-	local user = PlayerInfo:getUser()
-	local tori = PlayerInfo:getUser(get_player_info(0).name)
-	local uke = PlayerInfo:getUser(get_player_info(1).name)
+	local user = PlayerInfo.Get().username
+	local tori = PlayerInfo.Get(get_player_info(0).name).username
+	local uke = PlayerInfo.Get(get_player_info(1).name).username
 
 	if (user == tori or user == uke) then
 		return true
@@ -201,7 +196,7 @@ function TBHud:init()
 	self:spawnChat()
 end
 
----Spawns turn commit button and
+---Spawns commit turn / new game button and its corresponding longpress menu
 function TBHud:spawnCommitButton()
 	if (self.MainElement == nil) then return end
 
@@ -343,6 +338,7 @@ function TBHud:spawnGhostButon()
 		end)
 end
 
+---Spawns hold all / relax all button and its corresponding longpress menu
 function TBHud:spawnHoldRelaxAllButton()
 	if (self.MainElement == nil) then return end
 
@@ -406,6 +402,7 @@ function TBHud:spawnHubButton()
 	end)
 end
 
+---Spawns right side hud hub menu
 function TBHud:spawnHub()
 	if (self.MainElement == nil) then return end
 	local safe_x, safe_y = get_window_safe_size()
@@ -522,10 +519,17 @@ function TBHud:toggleHub(state)
 	end)
 end
 
+---@class HudChatCommand
+---@field command string Example command displayed in UI
+---@field regex string Regex expression to match input against
+---@field replacement string String to replace with
+
+---Returns the list of chat commands data that will be used for chat autofilling
+---@return HudChatCommand[]
 function TBHud:getChatCommands()
 	return {
-		set = { command = "/set ^46gamerule ^47value" },
-		opt = { command = "/opt ^46option ^47value" }
+		set = { command = "/set ^46gamerule ^47value", regex = "^(/%w+) ?(%w+ )?(%w+ )?.*", replacement = "%1 %2%3" },
+		opt = { command = "/opt ^46option ^47value", regex = "^(/%w+) ?(%w+ )?(%w+ )?.*", replacement = "%1 %2%3" }
 	}
 end
 
@@ -770,6 +774,7 @@ function TBHud:toggleChat(state)
 	end)
 end
 
+---Spawns mini chat holder
 function TBHud:spawnMiniChat()
 	if (self.ChatMiniHolder ~= nil) then
 		self.ChatMiniHolder:kill()

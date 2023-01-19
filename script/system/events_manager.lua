@@ -377,7 +377,7 @@ do
 			local levelString = lvl == 6 and 'MAX Level' or 'Level ' .. lvl
 			entryPoints:addAdaptedText(true, levelString .. ", " .. v.points .. " points", nil, nil, 4, LEFTMID, 0.7)
 
-			local userBelt = PlayerInfo:getBeltFromQi(v.qi)
+			local userBelt = PlayerInfo.getBeltFromQi(v.qi)
 			local entryUserbelt = UIElement:new({
 				parent = topEntry2,
 				pos = { -topEntry2.size.h * 2, -topEntry2.size.h * 2 },
@@ -1164,8 +1164,8 @@ do
 			prizeText:addAdaptedText(true, text, nil, nil, FONTS.BIG, nil, 0.6, nil, 0.5)
 		end
 		local posShift = data.itemid == 0 and 0.5 or 0
-		showPrize("../textures/store/toricredit.tga", PlayerInfo:currencyFormat(data.tc) .. " Toricredits", 1 + posShift)
-		showPrize("../textures/store/shiaitoken.tga", PlayerInfo:currencyFormat(data.st) .. " Shiai Tokens", 2 + posShift)
+		showPrize("../textures/store/toricredit.tga", numberFormat(data.tc) .. " Toricredits", 1 + posShift)
+		showPrize("../textures/store/shiaitoken.tga", numberFormat(data.st) .. " Shiai Tokens", 2 + posShift)
 		if (data.itemid ~= 0) then
 			local itemInfo = Torishop:getItemInfo(data.itemid)
 			showPrize(Torishop:getItemIcon(itemInfo), itemInfo.itemname, 3)
@@ -1623,7 +1623,7 @@ do
 				table.insert(listElements, infoRow)
 			end
 			if (prize.tc) then
-				local itemShopInfo = { itemname = PlayerInfo:currencyFormat(prize.tc) .. " Toricredits", icon = "../textures/store/toricredit.tga" }
+				local itemShopInfo = { itemname = numberFormat(prize.tc) .. " Toricredits", icon = "../textures/store/toricredit.tga" }
 				local itemRewardView = Events:showPrizeInfo(itemShopInfo, listingHolder, #listElements, elementHeight)
 				table.insert(listElements, itemRewardView)
 			end

@@ -74,7 +74,7 @@ do
 						version = 10
 					elseif (ln:match("AUTHOR 0;")) then
 						rplInfo.author = ln:gsub("AUTHOR 0;", "")
-						rplInfo.author = PlayerInfo:getUser(rplInfo.author:gsub("^ ", ""):gsub("\r", ""))
+						rplInfo.author = PlayerInfo.Get(rplInfo.author:gsub("^ +", ""):gsub("\r", "")).username
 					elseif (ln:match("NEWGAME %d;")) then
 						local mod = ln:gsub("NEWGAME %d;", ""):gsub("\r", "")
 						rplInfo.mod = mod:match("/*%S*%.tbm")
@@ -93,17 +93,17 @@ do
 							rplInfo.name = rplInfo.name:gsub("^ ", ""):gsub("\r", "")
 						elseif (ln:match("BOUT 0;")) then
 							rplInfo.bout0 = ln:gsub("BOUT 0;", ""):gsub("\r", "")
-							rplInfo.bout0 = PlayerInfo:getUser(rplInfo.bout0:gsub("^ ", ""))
+							rplInfo.bout0 = PlayerInfo.Get(rplInfo.bout0:gsub("^ ", "")).username
 						elseif (ln:match("BOUT 1;")) then
 							rplInfo.bout1 = ln:gsub("BOUT 1;", ""):gsub("\r", "")
-							rplInfo.bout1 = PlayerInfo:getUser(rplInfo.bout1:gsub("^ ", ""))
+							rplInfo.bout1 = PlayerInfo.Get(rplInfo.bout1:gsub("^ ", "")).username
 						end
 					else
 						if (ln:match("FIGHT %d;")) then
 							local info = ln:gsub("FIGHT %d; ", ""):gsub("\r", "")
-							rplInfo.bout1 = PlayerInfo:getUser(info:match("[^ ]+$"))
+							rplInfo.bout1 = PlayerInfo.Get(info:match("[^ ]+$")).username
 							info = info:gsub(" [^ ]+$", "")
-							rplInfo.bout0 = PlayerInfo:getUser(info:match("[^ ]+$"))
+							rplInfo.bout0 = PlayerInfo.Get(info:match("[^ ]+$")).username
 							rplInfo.name = info:gsub(" [^ ]+$", "")
 						end
 					end

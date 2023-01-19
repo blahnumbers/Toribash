@@ -2781,9 +2781,9 @@ do
 				cardPurchaseButtonTC:deactivate()
 				cardPurchaseButtonTC.uiColor = { 0.4, 0.4, 0.4, 1 }
 			end
-			cardPurchaseButtonTC:addAdaptedText(false, "Get Season Pass for " .. PlayerInfo:currencyFormat(item.now_tc_price) .. " TC", nil, -2)
+			cardPurchaseButtonTC:addAdaptedText(false, "Get Season Pass for " .. numberFormat(item.now_tc_price) .. " TC", nil, -2)
 			cardPurchaseButtonTC:addMouseHandlers(nil, function()
-				TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASECONFIRM .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " " .. PlayerInfo:currencyFormat(item.now_tc_price) .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS .. "?\n" .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT1 .. " " .. PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.tc - item.now_tc_price) .. " TC " .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT2, function()
+				TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASECONFIRM .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " " .. numberFormat(item.now_tc_price) .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS .. "?\n" .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT1 .. " " .. numberFormat(TB_MENU_PLAYER_INFO.data.tc - item.now_tc_price) .. " TC " .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT2, function()
 						Torishop:buyItem(item, MODE_TC)
 					end)
 			end)
@@ -2850,9 +2850,9 @@ do
 				lootboxPurchaseButtonTC:deactivate()
 				lootboxPurchaseButtonTC.uiColor = { 0.4, 0.4, 0.4, 1 }
 			end
-			lootboxPurchaseButtonTC:addAdaptedText(false, "Buy for " .. PlayerInfo:currencyFormat(lootBox.now_tc_price) .. " TC", nil, -2)
+			lootboxPurchaseButtonTC:addAdaptedText(false, "Buy for " .. numberFormat(lootBox.now_tc_price) .. " TC", nil, -2)
 			lootboxPurchaseButtonTC:addMouseHandlers(nil, function()
-				TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASECONFIRM .. " " .. lootBox.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " " .. PlayerInfo:currencyFormat(lootBox.now_tc_price) .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS .. "?\n" .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT1 .. " " .. PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.tc - lootBox.now_tc_price) .. " TC " .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT2, function()
+				TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASECONFIRM .. " " .. lootBox.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " " .. numberFormat(lootBox.now_tc_price) .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS .. "?\n" .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT1 .. " " .. numberFormat(TB_MENU_PLAYER_INFO.data.tc - lootBox.now_tc_price) .. " TC " .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT2, function()
 						Request:queue(function()
 								buy_tc(lootBox.itemid .. ":" .. lootBox.now_tc_price)
 							end, "torishop_purchase", function()
@@ -2881,7 +2881,7 @@ do
 			end
 			lootboxPurchaseButtonST:addAdaptedText(false, "Buy for " .. lootBox.now_usd_price .. " ST", nil, -2)
 			lootboxPurchaseButtonST:addMouseHandlers(nil, function()
-				TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASECONFIRM .. " " .. lootBox.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " " .. PlayerInfo:currencyFormat(lootBox.now_usd_price) .. " " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS .. "?\n" .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT1 .. " " .. PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.st - lootBox.now_usd_price) .. " ST " .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT2, function()
+				TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASECONFIRM .. " " .. lootBox.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " " .. numberFormat(lootBox.now_usd_price) .. " " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS .. "?\n" .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT1 .. " " .. numberFormat(TB_MENU_PLAYER_INFO.data.st - lootBox.now_usd_price) .. " ST " .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT2, function()
 						Request:queue(function()
 								buy_st(lootBox.itemid .. ":" .. lootBox.now_usd_price)
 							end, "torishop_purchase", function()
@@ -3085,7 +3085,7 @@ do
 		end
 		cardPurchaseButtonTC:addAdaptedText(false, "Buy for " .. item.now_tc_price / 1000 .. "K TC", nil, -2)
 		cardPurchaseButtonTC:addMouseHandlers(nil, function()
-			TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASECONFIRM .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " " .. PlayerInfo:currencyFormat(item.now_tc_price) .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS .. "?\n" .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT1 .. " " .. PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.tc - item.now_tc_price) .. " TC " .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT2, function()
+			TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASECONFIRM .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " " .. numberFormat(item.now_tc_price) .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS .. "?\n" .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT1 .. " " .. numberFormat(TB_MENU_PLAYER_INFO.data.tc - item.now_tc_price) .. " TC " .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT2, function()
 					Torishop:buyItem(item, MODE_TC)
 				end)
 		end)
@@ -3109,7 +3109,7 @@ do
 		end
 		cardPurchaseButtonST:addAdaptedText(false, "Buy for " .. item.now_usd_price .. " ST", nil, -2)
 		cardPurchaseButtonST:addMouseHandlers(nil, function()
-			TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASECONFIRM .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " " .. PlayerInfo:currencyFormat(item.now_usd_price) .. " " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS .. "?\n" .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT1 .. " " .. PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.st - item.now_usd_price) .. " ST " .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT2, function()
+			TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASECONFIRM .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " " .. numberFormat(item.now_usd_price) .. " " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS .. "?\n" .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT1 .. " " .. numberFormat(TB_MENU_PLAYER_INFO.data.st - item.now_usd_price) .. " ST " .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT2, function()
 					Torishop:buyItem(item, MODE_ST)
 				end)
 		end)
@@ -5494,9 +5494,9 @@ do
 							Torishop:showStoreSection(TBMenu.CurrentSection, 4, 2)
 						end)
 				else
-					buyWithStText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREBUYFOR .. " " .. PlayerInfo:currencyFormat(item.now_usd_price) .. " ST", nil, nil, nil, LEFTMID)
+					buyWithStText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREBUYFOR .. " " .. numberFormat(item.now_usd_price) .. " ST", nil, nil, nil, LEFTMID)
 					buyWithSt:addMouseHandlers(nil, function()
-							TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASECONFIRM .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " " .. PlayerInfo:currencyFormat(item.now_usd_price) .. " " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS .. "?\n" .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT1 ..  " " .. PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.st - item.now_usd_price) .. " ST " .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT2, function()
+							TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASECONFIRM .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " " .. numberFormat(item.now_usd_price) .. " " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS .. "?\n" .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT1 ..  " " .. numberFormat(TB_MENU_PLAYER_INFO.data.st - item.now_usd_price) .. " ST " .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT2, function()
 									Torishop:buyItem(item, MODE_ST)
 								end)
 						end)
@@ -5516,7 +5516,7 @@ do
 					size = { iconScale, iconScale },
 					bgImage = purchaseIconImage
 				})
-				buyWithStText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREBUYFOR .. " $" .. PlayerInfo:currencyFormat(item.now_usd_price, 2), nil, nil, nil, LEFTMID)
+				buyWithStText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREBUYFOR .. " $" .. numberFormat(item.now_usd_price, 2), nil, nil, nil, LEFTMID)
 				if (not is_mobile()) then
 				buyWithSt:addMouseHandlers(nil, is_steam() and function()
 						runCmd("steam purchase " .. item.itemid)
@@ -5556,9 +5556,9 @@ do
 					Torishop:showStoreSection(TBMenu.CurrentSection, 4, 1)
 				end)
 			else
-				buyWithTcText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREBUYFOR .. " " .. PlayerInfo:currencyFormat(item.now_tc_price) .. " TC", nil, nil, nil, LEFTMID)
+				buyWithTcText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREBUYFOR .. " " .. numberFormat(item.now_tc_price) .. " TC", nil, nil, nil, LEFTMID)
 				buyWithTc:addMouseHandlers(nil, function()
-					TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASECONFIRM .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " " .. PlayerInfo:currencyFormat(item.now_tc_price) .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS .. "?\n" .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT1 .. " " .. PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.tc - item.now_tc_price) .. " TC " .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT2, function()
+					TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASECONFIRM .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " " .. numberFormat(item.now_tc_price) .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS .. "?\n" .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT1 .. " " .. numberFormat(TB_MENU_PLAYER_INFO.data.tc - item.now_tc_price) .. " TC " .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT2, function()
 							Torishop:buyItem(item, MODE_TC)
 						end)
 				end)
@@ -5767,11 +5767,11 @@ do
 		})
 		local pricesString, hasTCPrice = '', false
 		if (item.now_tc_price > 0) then
-			pricesString = PlayerInfo:currencyFormat(item.now_tc_price) .. " TC"
+			pricesString = numberFormat(item.now_tc_price) .. " TC"
 			hasTCPrice = true
 		end
 		if (item.now_usd_price > 0) then
-			pricesString = (hasTCPrice and (pricesString .. '\n') or '') .. (not stItem and "$" or '') .. PlayerInfo:currencyFormat(item.now_usd_price, not stItem and 2) .. (stItem and " ST" or "")
+			pricesString = (hasTCPrice and (pricesString .. '\n') or '') .. (not stItem and "$" or '') .. numberFormat(item.now_usd_price, not stItem and 2) .. (stItem and " ST" or "")
 		end
 		itemPrice:addAdaptedText(true, pricesString, nil, nil, nil, RIGHTMID)
 	end
@@ -6396,7 +6396,7 @@ do
 				size = { tcPriceHolder.size.w, tcPriceHolder.size.h / 7 * 4 },
 				uiColor = TB_MENU_DEFAULT_YELLOW
 			})
-			tcNowPrice:addAdaptedText(true, PlayerInfo:currencyFormat(item.now_tc_price) .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS, nil, nil, FONTS.BIG, CENTER)
+			tcNowPrice:addAdaptedText(true, numberFormat(item.now_tc_price) .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS, nil, nil, FONTS.BIG, CENTER)
 			if (tcNowPrice.textFont == tcOldPrice.textFont and tcOldPrice.textScale >= tcNowPrice.textScale) then
 				tcOldPrice:addAdaptedText(true, item.price .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS, nil, nil, tcNowPrice.textFont, CENTERBOT, tcNowPrice.textScale - 0.2)
 			end
@@ -6443,7 +6443,7 @@ do
 				purchaseText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREBUYWITH .. " TC")
 				purchaseButton:addMouseHandlers(nil, function()
 						advancedPreview.child[1]:hide()
-						TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASECONFIRM .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " " .. PlayerInfo:currencyFormat(item.now_tc_price) .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS .. "?\n" .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT1 .. " " .. PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.tc - item.now_tc_price) .. " TC " .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT2, function() advancedPreview:show()
+						TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASECONFIRM .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " " .. numberFormat(item.now_tc_price) .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS .. "?\n" .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT1 .. " " .. numberFormat(TB_MENU_PLAYER_INFO.data.tc - item.now_tc_price) .. " TC " .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT2, function() advancedPreview:show()
 							Torishop:buyItem(item, MODE_TC)
 						end, function() advancedPreview:show() end)
 					end)
@@ -6461,14 +6461,14 @@ do
 				size = { stPriceHolder.size.w, stPriceHolder.size.h / 7 * 3 }
 			})
 			local stItem = not in_array(item.catid, CATEGORIES_ACCOUNT)
-			stOldPrice:addAdaptedText(true, (stItem and "" or "$") .. PlayerInfo:currencyFormat(item.price_usd, 2) .. (stItem and (" " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS) or ""), nil, nil, tScale2[1], CENTERBOT, tScale2[2])
+			stOldPrice:addAdaptedText(true, (stItem and "" or "$") .. numberFormat(item.price_usd, 2) .. (stItem and (" " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS) or ""), nil, nil, tScale2[1], CENTERBOT, tScale2[2])
 			local stNowPrice = UIElement:new({
 				parent = stPriceHolder,
 				pos = { 0, stPriceHolder.size.h / 7 * 3 },
 				size = { stPriceHolder.size.w, stPriceHolder.size.h / 7 * 4 },
 				uiColor = TB_MENU_DEFAULT_YELLOW
 			})
-			stNowPrice:addAdaptedText(true, (stItem and "" or "$") .. PlayerInfo:currencyFormat(item.now_usd_price, 2) .. (stItem and (" " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS) or ""), nil, nil, tScale1[1], CENTER, tScale1[2])
+			stNowPrice:addAdaptedText(true, (stItem and "" or "$") .. numberFormat(item.now_usd_price, 2) .. (stItem and (" " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS) or ""), nil, nil, tScale1[1], CENTER, tScale1[2])
 			local len = get_string_length(stOldPrice.dispstr[1], stOldPrice.textFont) * stOldPrice.textScale
 			local fontMod = stOldPrice.textFont == 2 and 2.4 or (stOldPrice.textFont == 0 and 5.6 or (stOldPrice.textFont == 9 and 10 or 2.4))
 			local stOldPriceStrike = UIElement:new({
@@ -6526,14 +6526,14 @@ do
 					purchaseText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREBUYWITH .. " " .. (is_steam() and "Steam" or "PayPal"))
 					purchaseButton:addMouseHandlers(nil, function()
 							advancedPreview.child[1]:hide()
-							TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASECONFIRM .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " $" .. PlayerInfo:currencyFormat(item.now_usd_price) .. "?", function() if (is_steam()) then runCmd("steam purchase " .. item.itemid) else open_url("https://forum.toribash.com/tori_shop.php?action=process&item=" .. item.itemid) end advancedPreview:show() end, function() advancedPreview:show() end)
+							TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASECONFIRM .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " $" .. numberFormat(item.now_usd_price) .. "?", function() if (is_steam()) then runCmd("steam purchase " .. item.itemid) else open_url("https://forum.toribash.com/tori_shop.php?action=process&item=" .. item.itemid) end advancedPreview:show() end, function() advancedPreview:show() end)
 						end)
 				end
 			else
 				purchaseText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREBUYWITH .. " st")
 				purchaseButton:addMouseHandlers(nil, function()
 						advancedPreview.child[1]:hide()
-						TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASECONFIRM .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " " .. PlayerInfo:currencyFormat(item.now_usd_price) .. " " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS .. "?\n" .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT1 .. " " .. PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.st - item.now_usd_price) .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT2, function() advancedPreview:show()
+						TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASECONFIRM .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " " .. numberFormat(item.now_usd_price) .. " " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS .. "?\n" .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT1 .. " " .. numberFormat(TB_MENU_PLAYER_INFO.data.st - item.now_usd_price) .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT2, function() advancedPreview:show()
 							Torishop:buyItem(item, MODE_ST)
 						end, function() advancedPreview:show() end)
 					end)
@@ -6615,10 +6615,10 @@ do
 			itemInfoName:addAdaptedText(true, itemInfo.itemname, nil, nil, nil, LEFTMID)
 			if (bit.band(item.paymentType, 2) > 0 or bit.band(item.paymentType, 4) > 0) then
 				itemInfo.now_usd_price = math.max(itemInfo.now_usd_price / 100 * (100 - item.discount), item.discountMax > 0 and itemInfo.now_usd_price - item.discountMax / 100 or 0)
-				itemInfoPrice:addAdaptedText(true, "$" .. PlayerInfo:currencyFormat(itemInfo.now_usd_price, 2), nil, nil, nil, RIGHTMID)
+				itemInfoPrice:addAdaptedText(true, "$" .. numberFormat(itemInfo.now_usd_price, 2), nil, nil, nil, RIGHTMID)
 			else
 				itemInfo.now_tc_price = math.max(itemInfo.now_tc_price / 100 * (100 - item.discount), itemInfo.now_tc_price - item.discountMax)
-				itemInfoPrice:addAdaptedText(true, PlayerInfo:currencyFormat(itemInfo.now_tc_price) .. " " .. TB_MENU_LOCALIZED.WORDTC, nil, nil, nil, RIGHTMID)
+				itemInfoPrice:addAdaptedText(true, numberFormat(itemInfo.now_tc_price) .. " " .. TB_MENU_LOCALIZED.WORDTC, nil, nil, nil, RIGHTMID)
 			end
 			discountView:addMouseHandlers(nil, function()
 					Torishop:showStoreSection(TBMenu.CurrentSection, nil, nil, itemInfo.itemid)

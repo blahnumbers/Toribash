@@ -3,7 +3,6 @@
 require("system.menu_defines")
 require("system.menu_manager")
 require("system.store_manager")
-require("system.player_info")
 require("system.ranking_manager")
 
 if (BattlePass == nil) then
@@ -198,7 +197,7 @@ function BattlePass:showProgress(viewElement)
 		pos = { sideShift, 10 },
 		size = { playerExpBarHolder.size.w / 3, (playerExpBarHolder.size.h - 20) / 2 }
 	})
-	playerExpInfo:addAdaptedText(true, TB_MENU_LOCALIZED.BATTLEPASSEXPERIENCE .. ":^35 " .. PlayerInfo:currencyFormat(BattlePass.UserData.xp) .. (BattlePass.LevelData[BattlePass.UserData.level + 1] and (" / " .. PlayerInfo:currencyFormat(BattlePass.LevelData[BattlePass.UserData.level + 1].xp_total)) or ''), nil, nil, 4, LEFTBOT, 0.75)
+	playerExpInfo:addAdaptedText(true, TB_MENU_LOCALIZED.BATTLEPASSEXPERIENCE .. ":^35 " .. numberFormat(BattlePass.UserData.xp) .. (BattlePass.LevelData[BattlePass.UserData.level + 1] and (" / " .. numberFormat(BattlePass.LevelData[BattlePass.UserData.level + 1].xp_total)) or ''), nil, nil, 4, LEFTBOT, 0.75)
 	local playerExpBarBG = playerExpBarHolder:addChild({
 		pos = { sideShift, playerExpInfo.shift.y * 2 + playerExpInfo.size.h },
 		size = { playerExpBarHolder.size.w - sideShift * 2, 8 },
@@ -325,7 +324,7 @@ function BattlePass:spawnPurchasePrimeWindow()
 	local claimWindowBackground
 	claimWindowBackground = BattlePass:spawnPrizeConfirmationWindow(
 		TB_MENU_LOCALIZED.BATTLEPASSPURCHASEPREMIUM,
-		TB_MENU_LOCALIZED.STOREPURCHASECONFIRM .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " $" .. PlayerInfo:currencyFormat(item.now_usd_price) .. "?",
+		TB_MENU_LOCALIZED.STOREPURCHASECONFIRM .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " $" .. numberFormat(item.now_usd_price) .. "?",
 		function()
 			if (is_steam()) then
 				runCmd("steam purchase " .. item.itemid)
@@ -563,11 +562,11 @@ function BattlePass:showPrizeItem(viewElement, prize)
 	-- Some free reward levels will have multiple rewards, we want TC/ST to be shown
 	if (prize.tc) then
 		prizeIcon = "../textures/store/toricredit.tga"
-		prizeAmount = PlayerInfo:currencyFormat(prize.tc)
+		prizeAmount = numberFormat(prize.tc)
 		prizeTooltip = TBMenu:displayPopup(prizeBackground, prizeAmount .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS, true)
 	elseif (prize.st) then
 		prizeIcon = "../textures/store/shiaitoken.tga"
-		prizeAmount = PlayerInfo:currencyFormat(prize.st)
+		prizeAmount = numberFormat(prize.st)
 		prizeTooltip = TBMenu:displayPopup(prizeBackground, prizeAmount .. " " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS, true)
 	elseif (prize.itemid) then
 		 prizeIcon = Torishop:getItemIcon(prize.itemid)

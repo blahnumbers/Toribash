@@ -18,6 +18,12 @@ VIEWPORT = 5
 TORI = 0
 UKE = 1
 
+---@class RenderEffect
+---@field id RenderEffectId Effect id
+---@field glowColor ColorId Glow color id
+---@field glowIntensity number Glow intensity
+---@field ditherPixelSize integer Dithering effect pixel size
+
 OBJMODELCACHE = OBJMODELCACHE or {}
 OBJMODELINDEX = OBJMODELINDEX or 0
 
@@ -29,12 +35,6 @@ UIVisual3DManager = UIVisual3DManager or {}
 UIVisual3DManagerViewport = UIVisual3DManagerViewport or {}
 
 if (not UIElement3D) then
-	---@class UIElement3DOptionsEffect
-	---@field id RenderEffectId Effect id
-	---@field glowColor ColorId Glow color id
-	---@field glowIntensity number Glow intensity
-	---@field ditherPixelSize integer Dithering effect pixel size
-
 	---Options to use to spawn the new UIElement3D object.\
 	---*Majority of these are the same as UIElement3D class fields.*
 	---@class UIElement3DOptions : UIElementOptions
@@ -45,14 +45,16 @@ if (not UIElement3D) then
 	---@field attachJoint integer Target joint id to attach the object to. Requires a valid `playerAttach` value.
 	---@field objModel string Filename of the custom obj model
 	---@field shapeType UIElement3DShape
-	---@field effects UIElement3DOptionsEffect Rendering effects for the object
+	---@field effects RenderEffect Rendering effects for the object
 
 	---@class UIElement3D : UIElement
 	---@field parent UIElement3D|UIElement Parent element
 	---@field viewport UIElement3D|UIElement Viewport element
 	---@field pos Vector3 Object's **absolute** position in the world
+	---@field shift Vector3 Object **relative** position relative to its parent
 	---@field size Vector3 Object size
 	---@field rot Vector3 Object rotation
+	---@field rotMatrix number[][] Rotation matrix of the object
 	---@field rotXYZ Vector3 Object rotation in [Euler angles](https://en.wikipedia.org/wiki/Euler_angles)
 	---@field shapeType UIElement3DShape
 	---@field effectid RenderEffectId Element's rendering effect ID
@@ -183,7 +185,7 @@ end
 function UIElement3D:addChild(o)
 	o.pos = o.pos and o.pos or { 0, 0, 0 }
 	o.size = o.size and o.size or { self.size.x, self.size.y, self.size.z }
-	o.viewport = o.viewport or self.viewport
+	o.viewport = o.viewport or self.viewport ~= nil
 	o.parent = self
 	return UIElement3D:new(o)
 end
@@ -568,6 +570,7 @@ end
 ---@see UIElement3D.rotate
 ---@param rot Vector3
 function UIElement3D:updateRotations(rot)
+	---@diagnostic disable-next-line: assign-type-mismatch
 	self.rotMatrix = UIElement3D.getRotMatrixFromEulerAngles(math.rad(rot.x), math.rad(rot.y), math.rad(rot.z), "xyz")
 	local relX, relY, relZ = UIElement3D.getEulerZYXFromRotationMatrix(self.rotMatrix)
 	self.rot = { x = relX, y = relY, z = relZ }

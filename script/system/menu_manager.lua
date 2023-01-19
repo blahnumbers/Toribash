@@ -25,16 +25,9 @@ if (TBMenu == nil) then
 	---@field StatusMessage UIElement Status message UIElement holder
 	---@field CurrentAnnouncementId integer Active home tab announcement ID
 	TBMenu = {
-		__index = {},
+		CurrentAnnouncementId = 1,
 		ver = 5.60,
-		MenuMain = nil,
-		UserBar = nil,
-		CurrentSection = nil,
-		NavigationBar = nil,
-		BottomLeftBar = nil,
-		BottomRightBar = nil,
-		StatusMessage = nil,
-		CurrentAnnouncementId = 1
+		__index = {}
 	}
 	setmetatable({}, TBMenu)
 end
@@ -78,7 +71,6 @@ function TBMenu:getTranslation(language)
 	local inverse = (language == "arabic" or language == "hebrew") and true
 	TBMenu:setLanguageFontOptions(language)
 	if (type(TB_MENU_LOCALIZED) ~= "table" or TB_MENU_LOCALIZED.language ~= language or TB_MENU_DEBUG) then
-		---@type string[]
 		TB_MENU_LOCALIZED = {}
 		TB_MENU_LOCALIZED.language = language
 	else
@@ -1324,79 +1316,22 @@ function TBMenu:showAccountMain(reload)
 		scrollBar:makeScrollBar(listingHolder, listElements, toReload)
 	end
 
-	local accountDatas = PlayerInfo:getServerUserinfo(nil, reload)
-	if (accountDatas.ready) then
-		showAccountData(accountDatas)
-	else
-		local infoMessage = UIElement:new({
-			parent = listingHolder,
-			pos = { 0, 0 },
-			size = { listingHolder.size.w, listingHolder.size.h }
-		})
-		TBMenu:displayLoadingMark(infoMessage, TB_MENU_LOCALIZED.ACCOUNTGETTINGINFO)
-		local infoUpdater = UIElement:new({
-			parent = infoMessage,
-			pos = { 0, 0 },
-			size = { 0, 0 }
-		})
-		infoUpdater:addCustomDisplay(true, function()
-				if (accountDatas.ready) then
-					if (accountDatas.failed) then
-						infoMessage:kill(true)
-						infoMessage:addAdaptedText(true, TB_MENU_LOCALIZED.ACCOUNTINFOERROR)
-						return
-					end
-					infoMessage:kill()
-					accountDatas.ready = nil
-
-					showAccountData(accountDatas)
+	local accountDatas = PlayerInfo:getServerUserinfo()
+	local infoMessage = listingHolder:addChild({})
+	TBMenu:displayLoadingMark(infoMessage, TB_MENU_LOCALIZED.ACCOUNTGETTINGINFO)
+	infoMessage:addChild({}):addCustomDisplay(true, function()
+			if (accountDatas.ready) then
+				if (accountDatas.failed) then
+					infoMessage:kill(true)
+					infoMessage:addAdaptedText(true, TB_MENU_LOCALIZED.ACCOUNTINFOERROR)
+					return
 				end
-			end)
-	end
+				infoMessage:kill()
+				accountDatas.ready = nil
 
-	--[[local inventoryButton = UIElement:new({
-		parent = TBMenu.CurrentSection,
-		pos = { 5 + TBMenu.CurrentSection.size.w * 0.667, 0 },
-		size = { TBMenu.CurrentSection.size.w * 0.333 - 10, TBMenu.CurrentSection.size.h / 2 - 5 },
-		bgColor = TB_MENU_DEFAULT_BG_COLOR,
-		hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
-		pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-		hoverSound = 31,
-		interactive = true
-	})
-	local inventoryButtonData = {
-		title = TB_MENU_LOCALIZED.STOREGOTOINVENTORY,
-		subtitle = TB_MENU_LOCALIZED.STOREINVENTORYDESC,
-		image = "../textures/menu/inventory.tga",
-		ratio = 0.435,
-		action = function()
-				if (TB_STORE_DATA.ready) then
-					Torishop:prepareInventory(TBMenu.CurrentSection)
-				else
-					TBMenu:showDataError(TB_MENU_LOCALIZED.STOREDATALOADERROR)
-				end
+				showAccountData(accountDatas)
 			end
-	}
-	TBMenu:showHomeButton(inventoryButton, inventoryButtonData)
-
-	local clansButton = UIElement:new({
-		parent = TBMenu.CurrentSection,
-		pos = { 5 + TBMenu.CurrentSection.size.w * 0.667, TBMenu.CurrentSection.size.h / 2 + 5 },
-		size = { TBMenu.CurrentSection.size.w * 0.333 - 10, TBMenu.CurrentSection.size.h / 2 - 5 },
-		bgColor = TB_MENU_DEFAULT_BG_COLOR,
-		hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
-		pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-		hoverSound = 31,
-		interactive = true
-	})
-	local clansButtonData = {
-		title = TB_MENU_LOCALIZED.MAINMENUCLANSNAME,
-		subtitle = TB_MENU_LOCALIZED.MAINMENUCLANSDESC,
-		image = "../textures/menu/clans.tga",
-		ratio = 0.5,
-		action = function() TBMenu:showClans() end
-	}
-	TBMenu:showHomeButton(clansButton, clansButtonData, 2)]]
+		end)
 end
 
 ---@deprecated
@@ -2053,7 +1988,7 @@ function TBMenu:showUserBar()
 	})
 	TBMenu:showTextWithImage(accountButtonText, TB_MENU_LOCALIZED.NAVBUTTONACCOUNT, 4, accountButtonText.size.h * 0.75, TB_MENU_LOGOUT_BUTTON)
 	accountButton:addMouseHandlers(nil, function()
-			if (string.len(PlayerInfo:getUser()) > 0) then
+			if (string.len(PlayerInfo.Get().username) > 0) then
 				TBMenu:showAccountMain()
 			else
 				open_menu(18)
@@ -2113,7 +2048,7 @@ function TBMenu:showUserBar()
 		pos = { tbMenuUserTcView.size.h + 10, 0 },
 		size = { tbMenuUserTcView.size.w - tbMenuUserTcIcon.size.w - 5, tbMenuUserTcView.size.h }
 	})
-	tbMenuUserTcBalance:addAdaptedText(true, PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.tc), nil, nil, 2, 6, 0.9)
+	tbMenuUserTcBalance:addAdaptedText(true, numberFormat(TB_MENU_PLAYER_INFO.data.tc), nil, nil, 2, 6, 0.9)
 	tbMenuUserTcView.size.w = get_string_length(tbMenuUserTcBalance.dispstr[1], tbMenuUserTcBalance.textFont) * tbMenuUserTcBalance.textScale + 50
 
 	local tbMenuUserStView = UIElement:new( {
@@ -2150,7 +2085,7 @@ function TBMenu:showUserBar()
 		pos = { tbMenuUserStView.size.h + 10, 0 },
 		size = { tbMenuUserStView.size.w - 30, tbMenuUserStView.size.h }
 	})
-	tbMenuUserStBalance:addAdaptedText(true, PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.st), nil, 1, 2, 6, 0.9)
+	tbMenuUserStBalance:addAdaptedText(true, numberFormat(TB_MENU_PLAYER_INFO.data.st), nil, 1, 2, 6, 0.9)
 	tbMenuUserStView.size.w = get_string_length(tbMenuUserStBalance.dispstr[1], tbMenuUserStBalance.textFont) * tbMenuUserStBalance.textScale + 50
 
 	local tbMenuUserBeltIcon = UIElement:new({
@@ -2172,10 +2107,10 @@ function TBMenu:showUserBar()
 			if (TB_MENU_CUSTOMS_REFRESHED) then
 				TB_MENU_CUSTOMS_REFRESHED = false
 
-				tbMenuUserTcBalance:addAdaptedText(true, PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.tc), nil, 1, 2, 6, 0.9)
+				tbMenuUserTcBalance:addAdaptedText(true, numberFormat(TB_MENU_PLAYER_INFO.data.tc), nil, 1, 2, 6, 0.9)
 				tbMenuUserTcView.size.w = get_string_length(tbMenuUserTcBalance.dispstr[1], tbMenuUserTcBalance.textFont) * tbMenuUserTcBalance.textScale + 50
 
-				tbMenuUserStBalance:addAdaptedText(true, PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.st), nil, 1, 2, 6, 0.9)
+				tbMenuUserStBalance:addAdaptedText(true, numberFormat(TB_MENU_PLAYER_INFO.data.st), nil, 1, 2, 6, 0.9)
 				tbMenuUserStView.size.w = get_string_length(tbMenuUserStBalance.dispstr[1], tbMenuUserStBalance.textFont) * tbMenuUserStBalance.textScale + 50
 
 				if (TB_MENU_PLAYER_INFO.clan.id ~= 0) then
@@ -2187,6 +2122,10 @@ function TBMenu:showUserBar()
 		end)
 end
 
+---Generic function to display player head in a viewport
+---@param viewElement UIElement
+---@param player PlayerInfo
+---@overload fun(self:TBMenu, viewElement:UIElement, player:string)
 function TBMenu:showPlayerHeadAvatar(viewElement, player)
 	local viewportSize = viewElement.size.w > viewElement.size.h and viewElement.size.h or viewElement.size.w
 	local headViewport = UIElement:new( {
@@ -2206,30 +2145,37 @@ function TBMenu:showPlayerHeadAvatar(viewElement, player)
 	})
 	table.insert(headViewport.child, headViewport3D)
 
-	local customs = PlayerInfo:getItems(player)
+	local customs = player.items
+	if (type(player) == "string") then
+		customs = PlayerInfo:getItems(player, PLAYERINFO_CSCOPE_ALL)
+	elseif (player.items == nil or
+			player.items.colors == nil or
+			player.items.effects == nil or
+			player.items.objs == nil or
+			player.items.textures == nil) then
+		customs = player:getItems(PLAYERINFO_CSCOPE_ALL)
+	end
+
 	local headTexture = { "../../custom/tori/head.tga", "../../custom/tori/head.tga" }
 	if (customs.textures.head.equipped) then
 		headTexture[1] = "../../custom/" .. player .. "/head.tga"
 	end
 	local color = get_color_info(customs.colors.force)
-	local playerNeckHolder = UIElement3D:new({
-		parent = headViewport3D,
+	local playerNeckHolder = headViewport3D:addChild({
 		shapeType = SPHERE,
 		pos = { -0.04, 0.18, 9.22},
-		rot = { 0, 0, 0 },
 		size = { 0.5, 0, 0 },
-		viewport = true,
-		bgColor = { color.r, color.g, color.b, 1 }
+		bgColor = { color.r, color.g, color.b, 1 },
+		effects = customs.effects.force
 	})
-	local playerHeadHolder = UIElement3D:new({
-		parent = headViewport3D,
+	local playerHeadHolder = headViewport3D:addChild({
 		shapeType = SPHERE,
 		pos = { 0, 0, 9.9 },
 		size = { 0.9, 0, 0 },
 		rot = { 0, 0, -10 },
 		bgColor = { 1, 1, 1, 1 },
 		bgImage = headTexture,
-		viewport = true
+		effects = customs.effects.head
 	})
 	if (customs.objs.head.equipped) then
 		local objScale = customs.objs.head.dynamic and 2 or 10
@@ -2238,15 +2184,13 @@ function TBMenu:showPlayerHeadAvatar(viewElement, player)
 		end
 		local modelColor = get_color_info(customs.objs.head.colorid)
 		modelColor.a = customs.objs.head.alpha / 255
-		local headObjModel = UIElement3D:new({
-			parent = headViewport3D,
+		local headObjModel = headViewport3D:addChild({
 			shapeType = CUSTOMOBJ,
 			objModel = "../../custom/" .. player .. "/head",
 			pos = { 0, 0, 9.7 },
 			rot = { 0, 0, -10 },
 			size = { objScale * 0.9, objScale * 0.9, objScale * 0.9 },
-			bgColor = { modelColor.r, modelColor.g, modelColor.b, modelColor.a },
-			viewport = true
+			bgColor = { modelColor.r, modelColor.g, modelColor.b, modelColor.a }
 		})
 	end
 end
@@ -3330,7 +3274,9 @@ function TBMenu:displayLoadingMark(element, message, size)
 			size = { loadMark.size.w - 20, loadMark.size.h }
 		})
 		textView:addAdaptedText(true, message, nil, nil, nil, CENTER)
+		loadMark.textView = textView
 	end
+	return loadMark
 end
 
 function TBMenu:displayLoadingMarkSmall(viewElement, message, fontid, loadScale, fontScale)
@@ -3909,7 +3855,7 @@ end
 ---@param w ?number
 ---@param h ?number
 ---@param textFieldString ?string|string[]
----@param inputSettings ?TextFieldInputSettings|boolean
+---@param inputSettings ?TextFieldInputSettings
 ---@param fontid ?FontId
 ---@param scale ?number
 ---@param color ?Color
@@ -3919,6 +3865,7 @@ end
 ---@param multiLine ?boolean
 ---@param darkerMode ?boolean
 ---@return UIElement
+---@overload fun(self:TBMenu, parent:UIElement, x?:number, y?:number, w?:number, h?:number, textFieldString?:string|string[], isNumeric?:boolean, fontid?:FontId, scale?:number, color?:Color, defaultStr?:string, orientation?:UIElementTextAlign, noCursor?:boolean, multiLine?:boolean, darkerMode?:boolean):UIElement
 function TBMenu:spawnTextField(parent, x, y, w, h, textFieldString, inputSettings, fontid, scale, color, defaultStr, orientation, noCursor, multiLine, darkerMode)
 	if (not parent) then
 		return parent
