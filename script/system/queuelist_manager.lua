@@ -3,12 +3,14 @@ require("system.playerinfo_manager")
 require("toriui.uielement3d")
 require("system.friendlist_manager")
 require("system.iofiles")
---require("system.flag_manager")
-dofile("system/flag_manager.lua")
+require("system.flag_manager")
 
 ---@class QueueListPlayerInfo : QueuePlayerInfo
 ---@field button UIElement UI button associated with the player
 ---@field id integer Player id in the queue
+---@field spectator boolean Whether this player is a spectator
+---@field isMe boolean
+---@field pInfo PlayerInfo
 
 ---@class QueueListCachePlayers
 ---@field Bouts QueueListPlayerInfo[]
@@ -40,7 +42,7 @@ end
 ---**Queue List** helper class
 ---@class QueueListInternal
 local QueueListInternal = {
-	listButtonHeight = 20
+	listButtonHeight = 25
 }
 setmetatable({}, QueueListInternal)
 
@@ -106,16 +108,19 @@ function QueueList.DestroyPopup()
 	end
 end
 
-function QueueList:addPlayerInfos(viewElement, info, bout)
-	local playerInfo = PlayerInfo.Get(info.nick)
-	playerInfo:getClan()
+---Adds information about player to display
+---@param viewElement UIElement
+---@param info QueueListPlayerInfo
+---@return number #Added elements' height
+function QueueList:addPlayerInfos(viewElement, info)
+	info.pInfo:getClan()
 
 	local infosH = 35
 	local nameHolder = viewElement:addChild({
 		pos = { 75, 0 },
 		size = { viewElement.size.w - 90, 35 }
 	})
-	nameHolder:addAdaptedText(nil, playerInfo.username, nil, nil, FONTS.BIG, LEFTMID)
+	nameHolder:addAdaptedText(nil, info.pInfo.username, nil, nil, FONTS.BIG, LEFTMID)
 
 	local beltInfo = PlayerInfo.getBeltFromQi(info.games_played)
 	local beltHolder = viewElement:addChild({
@@ -126,7 +131,7 @@ function QueueList:addPlayerInfos(viewElement, info, bout)
 	beltHolder:addAdaptedText(true, beltInfo.name .. " Belt, " .. info.games_played .. " Qi", nil, nil, nil, LEFTMID)
 
 	local clanHolder = nil
-	if (playerInfo.clan.id > 0) then
+	if (info.pInfo.clan.id > 0) then
 		clanHolder = UIElement:new({
 			parent = viewElement,
 			pos = { 0, infosH },
@@ -142,7 +147,7 @@ function QueueList:addPlayerInfos(viewElement, info, bout)
 			pos = { 75, 5 },
 			size = { clanHolder.size.w - 90, clanHolder.size.h - 10 }
 		})
-		clanNameHolder:addAdaptedText(true, playerInfo.clan.tag .. " " .. playerInfo.clan.name .. (playerInfo.clan.isleader and " (" .. TB_MENU_LOCALIZED.QUEUELISTDROPDOWNCLANLEADER .. ")" or ""), nil, nil, 4, LEFTMID, nil, 0.6)
+		clanNameHolder:addAdaptedText(true, info.pInfo.clan.tag .. " " .. info.pInfo.clan.name .. (info.pInfo.clan.isleader and " (" .. TB_MENU_LOCALIZED.QUEUELISTDROPDOWNCLANLEADER .. ")" or ""), nil, nil, 4, LEFTMID, nil, 0.6)
 		clanHolder:addMouseHandlers(nil, function()
 				QueueList.DestroyPopup()
 				ARG1 = "clans " .. info.nick
@@ -165,7 +170,7 @@ function QueueList:addPlayerInfos(viewElement, info, bout)
 		pos = { -70, -70 },
 		size = { 80, 80 }
 	})
-	TBMenu:showPlayerHeadAvatar(headViewport, playerInfo)
+	TBMenu:showPlayerHeadAvatar(headViewport, info.pInfo)
 
 	if (clanHolder) then
 		-- Reload to ensure clan button is above head viewport holder
@@ -231,17 +236,16 @@ function QueueList:addPlayerInfos(viewElement, info, bout)
 end
 
 ---Loops through all players in the room to find current player and returns its info
----@return QueuePlayerInfo|nil
+---@return QueueListPlayerInfo|nil
 function QueueList:getCurrentPlayerInfo()
-	local currentPlayerLower = PlayerInfo.Get().username:lower()
-	for i, v in pairs(get_bouts()) do
-		if (PlayerInfo.Get(v).username:lower() == currentPlayerLower) then
-			return get_bout_info(i - 1)
+	for _, v in pairs(QueueList.Cache.Players.Bouts) do
+		if (v.isMe) then
+			return v
 		end
 	end
-	for i, v in pairs(get_spectators()) do
-		if (PlayerInfo.Get(v).username:lower() == currentPlayerLower) then
-			return get_spectator_info(i - 1)
+	for _, v in pairs(QueueList.Cache.Players.Specs) do
+		if (v.isMe) then
+			return v
 		end
 	end
 	return nil
@@ -563,22 +567,20 @@ end
 ---@param viewElement UIElement
 ---@param info QueueListPlayerInfo Target player's queue info
 ---@param userinfo QueuePlayerInfo Local player's queue info
----@param bout boolean
 ---@return integer #Added buttons' height
-function QueueList:addPlayerControls(viewElement, info, userinfo, bout)
-	local pName = PlayerInfo.Get(info.nick).username:lower()
+function QueueList:addPlayerControls(viewElement, info, userinfo)
 	if (not FRIENDSLIST_FRIENDS) then
 		FriendsList:getFriends()
 	end
 	local isFriend = false
 	for _, v in pairs(FRIENDSLIST_FRIENDS) do
-		if (v.username:lower() == pName) then
+		if (v.username:lower() == info.pInfo.username) then
 			isFriend = true
 		end
 	end
 	local isIgnored = false
 	for _, v in pairs(FRIENDSLIST_IGNORE) do
-		if (v:lower() == pName) then
+		if (v:lower() == info.pInfo.username) then
 			isIgnored = true
 		end
 	end
@@ -594,8 +596,6 @@ function QueueList:addPlayerControls(viewElement, info, userinfo, bout)
 	if (info.admin ~= 0 or info.eventsquad ~= 0 or info.helpsquad ~= 0) then
 		info.ingameadmin = true
 	end
-
-	local isUser = PlayerInfo.Get().username:lower() == pName
 
 	local buttons = {
 		{
@@ -662,19 +662,19 @@ function QueueList:addPlayerControls(viewElement, info, userinfo, bout)
 		},
 		{
 			name = "fspec",
-			show = bout,
+			show = not info.spectator,
 			text = TB_MENU_LOCALIZED.QUEUELISTDROPDOWNFSPEC,
 			action = function(s) runCmd("fspec " .. s, true) end
 		},
 		{
 			name = "fenter",
-			show = not bout,
+			show = info.spectator,
 			text = TB_MENU_LOCALIZED.QUEUELISTDROPDOWNFENTER,
 			action = function(s) runCmd("fenter " .. s, true) end
 		},
 		{
 			name = "nudge",
-			show = bout and info.id > 1,
+			show = not info.spectator and info.id > get_game_rules().numplayers,
 			text = TB_MENU_LOCALIZED.QUEUELISTDROPDOWNNUDGETOPOSITION,
 			action = function(s, b) QueueList:showNudge(s, b, info) return 1 end
 		},
@@ -726,7 +726,7 @@ function QueueList:addPlayerControls(viewElement, info, userinfo, bout)
 	}
 
 	local infoH, buttonH = viewElement.size.h + 5, 25
-	if (not isUser) then
+	if (not info.isMe) then
 		local separator = viewElement:addChild({
 			pos = { 20, viewElement.size.h + 2 },
 			size = { viewElement.size.w - 40, 1 },
@@ -748,7 +748,7 @@ function QueueList:addPlayerControls(viewElement, info, userinfo, bout)
 				})
 				textHolder:addAdaptedText(true, v.text, nil, nil, 4, LEFTMID)
 				contextButton:addMouseHandlers(nil, function()
-						local rVal = v.action(pName)
+						local rVal = v.action(info.pInfo.username)
 						if (not rVal) then
 							QueueList.DestroyPopup()
 						elseif (rVal == 2) then
@@ -784,7 +784,7 @@ function QueueList:addPlayerControls(viewElement, info, userinfo, bout)
 				})
 				textHolder:addAdaptedText(true, v.text, nil, nil, 4, LEFTMID)
 				contextButton:addMouseHandlers(nil, function()
-						if (not v.action(pName)) then
+						if (not v.action(info.pInfo.username)) then
 							QueueList.DestroyPopup()
 						end
 					end)
@@ -836,8 +836,7 @@ end
 
 ---Spawns player info display window
 ---@param info QueueListPlayerInfo
----@param bout boolean
-function QueueList:show(info, bout)
+function QueueList:show(info)
 	local userinfo = QueueList:getCurrentPlayerInfo()
 	if (not info or not userinfo) then
 		return
@@ -875,8 +874,8 @@ function QueueList:show(info, bout)
 		size = { queuelistBoxBG.size.w - 2, queuelistBoxBG.size.h - 2 },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR
 	})
-	queuelistBox.size.h = QueueList:addPlayerInfos(queuelistBox, info, bout)
-	queuelistBox.size.h = QueueList:addPlayerControls(queuelistBox, info, userinfo, bout)
+	queuelistBox.size.h = QueueList:addPlayerInfos(queuelistBox, info)
+	queuelistBox.size.h = QueueList:addPlayerControls(queuelistBox, info, userinfo)
 
 
 	queuelistBoxBG.size.h = queuelistBox.size.h + 2
@@ -901,7 +900,7 @@ function QueueList.ReloadMainView()
 	end
 
 	local x, y, w, h = get_window_safe_size()
-	local x = math.max(x, WIN_W - w - x, 150)
+	local x = math.max(x, WIN_W - w - x) + 30
 	local listWidth = 500
 	QueueList.MainElement = UIElement:new({
 		globalid = TB_MENU_HUB_GLOBALID,
@@ -928,6 +927,9 @@ function QueueListInternal.getBoutInfo(id)
 	end
 
 	bout.id = id
+	bout.spectator = false
+	bout.pInfo = PlayerInfo.Get(bout.nick)
+	bout.isMe = bout.pInfo.username == TB_MENU_PLAYER_INFO.username
 	return bout
 end
 
@@ -947,6 +949,9 @@ function QueueListInternal.getSpecInfo(id)
 	end
 
 	spec.id = id
+	spec.spectator = true
+	spec.pInfo = PlayerInfo.Get(spec.nick)
+	spec.isMe = spec.pInfo.username == TB_MENU_PLAYER_INFO.username
 	return spec
 end
 
@@ -965,21 +970,50 @@ end
 ---Returns name color for the player
 ---@param playerInfo QueueListPlayerInfo
 function QueueListInternal.getNameColor(playerInfo)
-	if (playerInfo.admin) then
+	if (playerInfo.admin ~= 0) then
 		return { 0.55, 0.05, 0.05, 1 } -- TB_MENU_DEFAULT_DARKER_COLOR
-	elseif (playerInfo.eventsquad) then
+	elseif (playerInfo.eventsquad ~= 0) then
 		return { 0.684, 0.129, 0.949, 1 }
-	elseif (playerInfo.helpsquad) then
+	elseif (playerInfo.helpsquad ~= 0) then
 		return { 0.996, 0.496, 0.031, 1 }
-	elseif (playerInfo.marketsquad) then
+	elseif (playerInfo.marketsquad ~= 0) then
 		return { 0.027, 0.598, 0, 1 }
-	elseif (playerInfo.eventsquad_trial) then
+	elseif (playerInfo.eventsquad_trial ~= 0) then
 		return { 0.625, 0.395, 0.719, 1 }
-	elseif (playerInfo.op) then
-		return UICOLORGREEN
-	elseif (playerInfo.halfop) then
-		return { 0.965, 0.725, 0.172, 1 } -- TB_MENU_DEFAULT_ORANGE
+	elseif (playerInfo.isMe) then
+		return { 0, 1, 0, 1 }
+	elseif (not playerInfo.spectator and playerInfo.id == 0) then
+		return { 0.67, 0.11, 0.11, 1 } -- Tori, TB_MENU_DEFAULT_BG_COLOR
+	elseif (not playerInfo.spectator and playerInfo.id == 1) then
+		return { 0.242, 0.626, 1, 1 } -- Uke, TB_MENU_DEFAULT_BLUE
 	end
+	return { 0, 0, 0, 1 }
+end
+
+---Returns status icon atlas information for the user
+---@param info QueueListPlayerInfo
+---@return AtlasData|nil
+function QueueListInternal.GetStatusIcon(info)
+	---@type Rect
+	local atlasInfo = { y = 0, h = 64, w = 64 }
+	if (info.admin ~= 0) then
+		atlasInfo.x = 0
+	elseif (info.eventsquad ~= 0 or info.eventsquad_trial ~= 0) then
+		atlasInfo.x = 64
+	elseif (info.marketsquad ~= 0) then
+		atlasInfo.x = 128
+	elseif (info.helpsquad ~= 0) then
+		atlasInfo.x = 192
+	elseif (info.legend ~= 0) then
+		atlasInfo.x = 256
+	else
+		return nil
+	end
+
+	return {
+		filename = "../textures/statusicons.tga",
+		atlas = atlasInfo
+	}
 end
 
 ---Adds a player to the queue list cache
@@ -1023,22 +1057,25 @@ function QueueList.AddPlayer(id, name, bouts, spectator)
 	playerInfo.button.pressedColor = table.clone(playerInfo.button.hoverColor)
 
 	---Cache text caption
-	playerInfo.button:addAdaptedText(false, name, nil, nil, FONTS.LMEDIUM, RIGHTMID, 0.7)
+	playerInfo.button:addAdaptedText(true, name, nil, nil, FONTS.SMALL, RIGHTMID, 1)
 	playerInfo.button:addCustomDisplay(true, function()
-			local scale = playerInfo.button.textScale
+			local shadow = nil
 			if (playerInfo.button.hoverState ~= BTN_NONE) then
 				set_mouse_cursor(1)
-				scale = UITween.SineTween(playerInfo.button.textScale, 0.9, (UIElement.clock - playerInfo.button.hoverClock) / UIElement.animationDuration)
+				shadow = 1
 			end
 
-			playerInfo.button:uiText(playerInfo.button.str, nil, nil, playerInfo.button.textFont, RIGHTMID, scale, nil, nil, playerInfo.button:getButtonColor())
+			---Shift it 2 pixels up because otherwise it looks kinda off with our font
+			local buttonColor = playerInfo.button:getButtonColor()
+			local shadowColor = { buttonColor[1], buttonColor[2], buttonColor[3], 0.5 }
+			playerInfo.button:uiText(playerInfo.button.str, nil, -2, playerInfo.button.textFont, RIGHTMID, playerInfo.button.textScale, nil, shadow, buttonColor, shadowColor)
 		end)
 
 	playerInfo.button:addMouseUpHandler(function()
-			QueueList:show(playerInfo, not spectator)
+			QueueList:show(playerInfo)
 		end)
 	playerInfo.button:addMouseUpRightHandler(function()
-			QueueList:show(playerInfo, not spectator)
+			QueueList:show(playerInfo)
 		end)
 
 	playerInfo.button.size.w = get_string_length(playerInfo.button.dispstr[1], playerInfo.button.textFont) * playerInfo.button.textScale + 5
@@ -1053,6 +1090,17 @@ function QueueList.AddPlayer(id, name, bouts, spectator)
 		imageAtlas = true,
 		atlas = flagInfo.atlas
 	})
+
+	local statusIcon = QueueListInternal.GetStatusIcon(playerInfo)
+	if (statusIcon ~= nil) then
+		local playerStatus = playerInfo.button:addChild({
+			pos = { -playerInfo.button.size.w - playerInfo.button.size.h + 2, 0 },
+			size = { playerInfo.button.size.h, playerInfo.button.size.h },
+			bgImage = statusIcon.filename,
+			imageAtlas = true,
+			atlas = statusIcon.atlas
+		})
+	end
 end
 
 ---Reloads queue list display with the new values
@@ -1101,7 +1149,8 @@ function QueueList.Init()
 end
 
 QueueList.Init()
-add_hook("leave_game", "queuelistManager", QueueList.Reload)
+add_hook("new_game", "queuelistManager", QueueList.Reload)
+add_hook("new_mp_game", "queuelistManager", QueueList.Reload)
 add_hook("bout_update", "queuelistManager", QueueList.Reload)
 add_hook("spec_update", "queuelistManager", QueueList.Reload)
 add_hook("resolution_changed", "queuelistManager", QueueList.Reload)

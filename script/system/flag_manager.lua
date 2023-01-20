@@ -9,7 +9,7 @@ if (FlagManager == nil) then
 	FlagManager.__index = FlagManager
 end
 
----@class FlagAtlasData
+---@class AtlasData
 ---@field filename string
 ---@field atlas Rect
 
@@ -61,7 +61,7 @@ FlagManagerInternal.FlagCache = {
 
 ---Returns flag texture information from country code
 ---@param code string
----@return FlagAtlasData
+---@return AtlasData
 function FlagManager.GetFlagInfoByCode(code)
 	local flagId = 1
 	for i, v in pairs(FlagManagerInternal.FlagCache) do
@@ -75,7 +75,7 @@ function FlagManager.GetFlagInfoByCode(code)
 	local flagLine = math.ceil(flagId / FlagManagerInternal.FlagTextureSize.y) - 1
 	local flagSpot = (flagId - 1) % FlagManagerInternal.FlagTextureSize.x
 
-	---@type FlagAtlasData
+	---@type AtlasData
 	local flagData = {
 		filename = FlagManagerInternal.FlagFiles[fileId + 1],
 		atlas = {
