@@ -176,7 +176,9 @@ if (not UIElement) then
 	---@field bgImage string|string[] Image path for the object. Alternatively, can be an array with two elements for main texture and fallback option in case main texture file is missing.
 	---@field disableUnload boolean
 	---@field imagePatterned boolean
+	---@field imageAtlas boolean
 	---@field imageColor Color
+	---@field atlas Rect
 	---@field imageHoverColor Color
 	---@field imagePressedColor Color
 	---@field textfield boolean Whether the object will be used as a text field
@@ -244,7 +246,8 @@ if (not UIElement) then
 	---@field interactive boolean Whether the object is interactive
 	---@field bgImage integer Object's image ID obtained from load_texture() call
 	---@field disableUnload boolean True if object's image should not get unloaded when object is destroyed. **Only use this if you know what you're doing**.
-	---@field imagePatterned boolean True if object's image should be drawn in patterned mode
+	---@field drawMode integer Draw mode for normal (quad) objects
+	---@field atlas Rect Atlas settings for patterned and atlas objects
 	---@field imageColor Color Color modifier that should be applied to object's image. Default is `{ 1, 1, 1, 1 }`.
 	---@field imageHoverColor Color Target image color modifier when UIElement is in hover state. *Only used when object is interactive*.
 	---@field imagePressedColor Color Image color modifier when UIElement is in pressed state. *Only used when object is interactive*.
@@ -407,8 +410,16 @@ function UIElement:new(o)
 		end
 		if (o.bgImage) then
 			elem.disableUnload = o.disableUnload
-			elem.imagePatterned = o.imagePatterned or false
+			elem.drawMode = o.imagePatterned and 1 or 0
+			elem.drawMode = o.imageAtlas and 2 or elem.drawMode
 			elem.imageColor = o.imageColor or { 1, 1, 1, 1 }
+
+			elem.atlas = o.atlas or {}
+			elem.atlas.x = elem.atlas.x or 0
+			elem.atlas.y = elem.atlas.y or 0
+			elem.atlas.w = elem.atlas.w or elem.size.w
+			elem.atlas.h = elem.atlas.h or elem.size.h
+
 			if (type(o.bgImage) == "table") then
 				elem:updateImage(o.bgImage[1], o.bgImage[2])
 			else
@@ -1263,10 +1274,12 @@ function UIElement:display()
 		end
 		if (self.bgImage) then
 			local targetImageColor = self.interactive and ((self.hoverState == BTN_HVR or self.hoverState == BTN_FOCUS) and self.imageAnimateColor or (self.hoverState == BTN_DN and self.imagePressedColor or self.imageColor)) or self.imageColor
-			if (self.imagePatterned) then
-				draw_quad(self.pos.x, self.pos.y, self.size.w, self.size.h, self.bgImage, self.imagePatterned, targetImageColor[1], targetImageColor[2], targetImageColor[3], targetImageColor[4])
+			if (self.drawMode == 2) then
+				draw_quad(self.pos.x, self.pos.y, self.atlas.w, self.atlas.h, self.bgImage, self.drawMode, targetImageColor[1], targetImageColor[2], targetImageColor[3], targetImageColor[4], self.size.w, self.size.h, self.atlas.x, self.atlas.y)
+			elseif (self.drawMode == 1) then
+				draw_quad(self.pos.x, self.pos.y, self.atlas.w, self.atlas.h, self.bgImage, self.drawMode, targetImageColor[1], targetImageColor[2], targetImageColor[3], targetImageColor[4], self.size.w, self.size.h)
 			else
-				draw_quad(self.pos.x, self.pos.y, self.size.w, self.size.h, self.bgImage, false, targetImageColor[1], targetImageColor[2], targetImageColor[3], targetImageColor[4])
+				draw_quad(self.pos.x, self.pos.y, self.size.w, self.size.h, self.bgImage, self.drawMode, targetImageColor[1], targetImageColor[2], targetImageColor[3], targetImageColor[4])
 			end
 		end
 	end

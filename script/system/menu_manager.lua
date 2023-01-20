@@ -1878,13 +1878,10 @@ function TBMenu:showUserBar()
 		rot = { 0, 0, 0 },
 		viewport = true
 	})
-	local playerHeadHolder = UIElement3D:new({
-		parent = tbMenuUserHeadAvatarViewport3D,
+	local playerHeadHolder = tbMenuUserHeadAvatarViewport3D:addChild({
 		shapeType = SPHERE,
 		pos = { 0, 6, 5.7 + 4 * TB_MENU_GLOBAL_SCALE },
-		size = { 0.6, 0.6, 0.6 },
-		rot = { 0, 0, 0 },
-		viewport = true
+		size = { 0.6, 0.6, 0.6 }
 	})
 	if (UIMODE_LIGHT) then
 		playerHeadHolder:rotate(0, 0, -16)
@@ -1896,13 +1893,10 @@ function TBMenu:showUserBar()
 			end)
 	end
 	local color = get_color_info(TB_MENU_PLAYER_INFO.items.colors.force)
-	local headAvatarNeck = UIElement3D:new({
-		parent = playerHeadHolder,
+	local headAvatarNeck = playerHeadHolder:addChild({
 		pos = { 0, 0.2, -0.48},
-		rot = { 0, 0, 0 },
 		size = { 0.5, 0, 0 },
 		shapeType = SPHERE,
-		viewport = true,
 		bgColor = { color.r, color.g, color.b, 1 },
 		effects = TB_MENU_PLAYER_INFO.items.effects.force
 	})
@@ -1911,16 +1905,13 @@ function TBMenu:showUserBar()
 	if (TB_MENU_PLAYER_INFO.items.textures.head.equipped) then
 		headTexture[1] = "../../custom/" .. TB_MENU_PLAYER_INFO.username .. "/head.tga"
 	end
-	local headAvatarHead = UIElement3D:new({
-		parent = playerHeadHolder,
+	local headAvatarHead = playerHeadHolder:addChild({
 		shapeType = SPHERE,
 		pos = { 0, 0, 0.2 },
-		rot = { 0, 0, 0 },
 		size = { 0.9, 0, 0 },
 		bgColor = { 1, 1, 1, 1 },
 		bgImage = headTexture,
 		disableUnload = true,
-		viewport = true,
 		effects = TB_MENU_PLAYER_INFO.items.effects.head
 	})
 	table.insert(TBMenu.UserBar.headDisplayObjects, headAvatarHead)
@@ -1931,21 +1922,17 @@ function TBMenu:showUserBar()
 		end
 		local modelColor = get_color_info(TB_MENU_PLAYER_INFO.items.objs.head.colorid)
 		modelColor.a = TB_MENU_PLAYER_INFO.items.objs.head.alpha / 255
-		local headObjModel = UIElement3D:new({
-			parent = playerHeadHolder,
+		local headObjModel = playerHeadHolder:addChild({
 			shapeType = CUSTOMOBJ,
 			objModel = "../../custom/" .. TB_MENU_PLAYER_INFO.username .. "/head",
 			disableUnload = true,
 			pos = { 0, 0, 0.2 },
-			rot = { 0, 0, 0 },
 			size = { objScale * 0.9, objScale * 0.9, objScale * 0.9 },
-			bgColor = { modelColor.r, modelColor.g, modelColor.b, modelColor.a },
-			viewport = true
+			bgColor = { modelColor.r, modelColor.g, modelColor.b, modelColor.a }
 		})
 		table.insert(TBMenu.UserBar.headDisplayObjects, headObjModel)
 	end
-	local tbMenuUserName = UIElement:new( {
-		parent = TBMenu.UserBar,
+	local tbMenuUserName = TBMenu.UserBar:addChild( {
 		pos = { tbMenuTopBarWidth / 6, tbMenuTopBarWidth / 50 },
 		size = { tbMenuTopBarWidth / 1.5, tbMenuTopBarWidth / 20 }
 	})
@@ -2117,14 +2104,13 @@ end
 ---@overload fun(self:TBMenu, viewElement:UIElement, player:string)
 function TBMenu:showPlayerHeadAvatar(viewElement, player)
 	local viewportSize = viewElement.size.w > viewElement.size.h and viewElement.size.h or viewElement.size.w
-	local headViewport = UIElement:new( {
-		parent = viewElement,
+	local headViewport = viewElement:addChild( {
 		pos = { (viewElement.size.w - viewportSize) / 2, (viewElement.size.h - viewportSize) / 2 },
 		size = { viewportSize, viewportSize },
 		viewport = true
 	})
 	local headViewport3D = UIElement3D:new({
-		globalid = TB_MENU_MAIN_GLOBALID,
+		globalid = viewElement.globalid,
 		shapeType = VIEWPORT,
 		parent = headViewport,
 		pos = { 0, 0, 0 },
@@ -2132,22 +2118,26 @@ function TBMenu:showPlayerHeadAvatar(viewElement, player)
 		rot = { 0, 0, 0 },
 		viewport = true
 	})
-	table.insert(headViewport.child, headViewport3D)
 
+	local playerName = ""
 	local customs = player.items
 	if (type(player) == "string") then
 		customs = PlayerInfo:getItems(player, PLAYERINFO_CSCOPE_ALL)
-	elseif (player.items == nil or
+		playerName = player
+	else
+		if (player.items == nil or
 			player.items.colors == nil or
 			player.items.effects == nil or
 			player.items.objs == nil or
 			player.items.textures == nil) then
-		customs = player:getItems(PLAYERINFO_CSCOPE_ALL)
+			customs = player:getItems(PLAYERINFO_CSCOPE_ALL)
+		end
+		playerName = player.username
 	end
 
 	local headTexture = { "../../custom/tori/head.tga", "../../custom/tori/head.tga" }
 	if (customs.textures.head.equipped) then
-		headTexture[1] = "../../custom/" .. player .. "/head.tga"
+		headTexture[1] = "../../custom/" .. playerName .. "/head.tga"
 	end
 	local color = get_color_info(customs.colors.force)
 	local playerNeckHolder = headViewport3D:addChild({
@@ -2175,7 +2165,7 @@ function TBMenu:showPlayerHeadAvatar(viewElement, player)
 		modelColor.a = customs.objs.head.alpha / 255
 		local headObjModel = headViewport3D:addChild({
 			shapeType = CUSTOMOBJ,
-			objModel = "../../custom/" .. player .. "/head",
+			objModel = "../../custom/" .. playerName .. "/head",
 			pos = { 0, 0, 9.7 },
 			rot = { 0, 0, -10 },
 			size = { objScale * 0.9, objScale * 0.9, objScale * 0.9 },

@@ -3,9 +3,22 @@ require("system.playerinfo_manager")
 require("toriui.uielement3d")
 require("system.friendlist_manager")
 require("system.iofiles")
+--require("system.flag_manager")
+dofile("system/flag_manager.lua")
 
 ---@class QueueListPlayerInfo : QueuePlayerInfo
+---@field button UIElement UI button associated with the player
 ---@field id integer Player id in the queue
+
+---@class QueueListCachePlayers
+---@field Bouts QueueListPlayerInfo[]
+---@field Specs QueueListPlayerInfo[]
+---@field total integer Cached total number of bouts + specs
+---@field list UIElement
+
+---@class QueueListCache
+---@field Room OnlineRoomInfo
+---@field Players QueueListCachePlayers
 
 if (QueueList == nil) then
 	---**Queue list manager class**
@@ -14,17 +27,21 @@ if (QueueList == nil) then
 	---* Updates to match new language design
 	---* Added documentation with EmmyLua annotations
 	---@class QueueList
-	---@field MainElement UIElement
+	---@field MainWindow UIElement
+	---@field PopupWindow UIElement
+	---@field Cache QueueListCache
 	QueueList = {
 		ver = 5.60,
 		__index = {}
 	}
 	QueueList.__index = QueueList
-	local cln = {}
-	setmetatable(cln, QueueList)
 end
 
-local QueueListInternal = {}
+---**Queue List** helper class
+---@class QueueListInternal
+local QueueListInternal = {
+	listButtonHeight = 20
+}
 setmetatable({}, QueueListInternal)
 
 ---@class QueueListInfoField
@@ -81,17 +98,11 @@ QueueListInternal.InfoFields = {
 	}
 }
 
----Destroys currently displayed QueueList window
----@param keepHook ?boolean
-function QueueList:quit(keepHook)
-	if (not keepHook) then
-		remove_hooks("queuelistKeyboard")
-		chat_input_activate()
-	end
-
-	if (QueueList.MainElement) then
-		QueueList.MainElement:kill()
-		QueueList.MainElement = nil
+---Destroys currently displayed QueueList popup window
+function QueueList.DestroyPopup()
+	if (QueueList.PopupWindow) then
+		QueueList.PopupWindow:kill()
+		QueueList.PopupWindow = nil
 	end
 end
 
@@ -133,7 +144,7 @@ function QueueList:addPlayerInfos(viewElement, info, bout)
 		})
 		clanNameHolder:addAdaptedText(true, playerInfo.clan.tag .. " " .. playerInfo.clan.name .. (playerInfo.clan.isleader and " (" .. TB_MENU_LOCALIZED.QUEUELISTDROPDOWNCLANLEADER .. ")" or ""), nil, nil, 4, LEFTMID, nil, 0.6)
 		clanHolder:addMouseHandlers(nil, function()
-				QueueList:quit()
+				QueueList.DestroyPopup()
 				ARG1 = "clans " .. info.nick
 				open_menu(19)
 			end)
@@ -152,8 +163,7 @@ function QueueList:addPlayerInfos(viewElement, info, bout)
 	local headViewport = UIElement:new( {
 		parent = headHolder,
 		pos = { -70, -70 },
-		size = { 80, 80 },
-		viewport = true
+		size = { 80, 80 }
 	})
 	TBMenu:showPlayerHeadAvatar(headViewport, playerInfo)
 
@@ -491,12 +501,12 @@ function QueueList:showNudge(pName, viewElement, info)
 		{
 			name = "nudgeup",
 			text = TB_MENU_LOCALIZED.QUEUELISTDROPDOWNNUDGEUP,
-			action = function() runCmd("nudgeup " .. pName, true) QueueList:quit() end
+			action = function() runCmd("nudgeup " .. pName, true) QueueList.DestroyPopup() end
 		},
 		{
 			name = "nudgedown",
 			text = TB_MENU_LOCALIZED.QUEUELISTDROPDOWNNUDGEDOWN,
-			action = function() runCmd("nudgedown " .. pName, true) QueueList:quit() end
+			action = function() runCmd("nudgedown " .. pName, true) QueueList.DestroyPopup() end
 		},
 		{
 			name = "nudgetopos",
@@ -546,7 +556,7 @@ function QueueList:showNudgeToPosition(pName, viewElement, info)
 		shift = { 15, 5 }
 	})
 	buttonText:addAdaptedText(true, TB_MENU_LOCALIZED.QUEUELISTDROPDOWNNUDGE, nil, nil, 4)
-	button:addMouseHandlers(nil, function() nudge() QueueList:quit() end)
+	button:addMouseHandlers(nil, function() nudge() QueueList.DestroyPopup() end)
 end
 
 ---Spawns main QueueList window controls
@@ -696,22 +706,22 @@ function QueueList:addPlayerControls(viewElement, info, userinfo, bout)
 		{
 			name = "scramble",
 			text = TB_MENU_LOCALIZED.QUEUELISTDROPDOWNSCRAMBLE,
-			action = function() TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.QUEUELISTDROPDOWNSCRAMBLECONFIRM, function() runCmd("scramble", true) QueueList:quit() end) return 1 end
+			action = function() TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.QUEUELISTDROPDOWNSCRAMBLECONFIRM, function() runCmd("scramble", true) QueueList.DestroyPopup() end) return 1 end
 		},
 		{
 			name = "specall",
 			text = TB_MENU_LOCALIZED.QUEUELISTDROPDOWNSPECTATEALL,
-			action = function() TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.QUEUELISTDROPDOWNSPECALLCONFIRM, function() runCmd("specall", true) QueueList:quit() end) return 1 end
+			action = function() TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.QUEUELISTDROPDOWNSPECALLCONFIRM, function() runCmd("specall", true) QueueList.DestroyPopup() end) return 1 end
 		},
 		{
 			name = "muteall",
 			text = TB_MENU_LOCALIZED.QUEUELISTDROPDOWNMUTEALL,
-			action = function() runCmd("muteall", true) QueueList:quit() end
+			action = function() runCmd("muteall", true) QueueList.DestroyPopup() end
 		},
 		{
 			name = "unmuteall",
 			text = TB_MENU_LOCALIZED.QUEUELISTDROPDOWNUNMUTEALL,
-			action = function() runCmd("unmuteall", true) QueueList:quit() end
+			action = function() runCmd("unmuteall", true) QueueList.DestroyPopup() end
 		},
 	}
 
@@ -740,9 +750,9 @@ function QueueList:addPlayerControls(viewElement, info, userinfo, bout)
 				contextButton:addMouseHandlers(nil, function()
 						local rVal = v.action(pName)
 						if (not rVal) then
-							QueueList:quit()
+							QueueList.DestroyPopup()
 						elseif (rVal == 2) then
-							QueueList:quit(true)
+							QueueList.DestroyPopup()
 						end
 					end)
 				infoH = infoH + buttonH
@@ -775,7 +785,7 @@ function QueueList:addPlayerControls(viewElement, info, userinfo, bout)
 				textHolder:addAdaptedText(true, v.text, nil, nil, 4, LEFTMID)
 				contextButton:addMouseHandlers(nil, function()
 						if (not v.action(pName)) then
-							QueueList:quit()
+							QueueList.DestroyPopup()
 						end
 					end)
 				infoH = infoH + buttonH
@@ -827,8 +837,7 @@ end
 ---Spawns player info display window
 ---@param info QueueListPlayerInfo
 ---@param bout boolean
----@param id integer
-function QueueList:show(info, bout, id)
+function QueueList:show(info, bout)
 	local userinfo = QueueList:getCurrentPlayerInfo()
 	if (not info or not userinfo) then
 		return
@@ -840,21 +849,21 @@ function QueueList:show(info, bout, id)
 	end
 	customs:close()
 
-	if (QueueList.MainElement ~= nil) then
-		QueueList:quit()
+	if (QueueList.PopupWindow ~= nil) then
+		QueueList.DestroyPopup()
 	end
-	QueueList.MainElement = UIElement:new({
+	QueueList.PopupWindow = UIElement:new({
 		globalid = TB_MENU_HUB_GLOBALID,
 		pos = { 0, 0 },
 		size = { WIN_W, WIN_H },
 		interactive = true
 	})
-	QueueList.MainElement:addMouseHandlers(nil, QueueList.quit, nil, QueueList.quit)
+	QueueList.PopupWindow:addMouseHandlers(nil, QueueList.DestroyPopup, nil, QueueList.DestroyPopup)
 
 	local hShift = QueueList:getHorizontalShift()
 	local posX = MOUSE_X > WIN_W - 30 - hShift and WIN_W - 30 - hShift or MOUSE_X
 
-	local queuelistBoxBG = QueueList.MainElement:addChild({
+	local queuelistBoxBG = QueueList.PopupWindow:addChild({
 		pos = { posX - WIN_W / 5, MOUSE_Y - 10 },
 		size = { WIN_W / 5, 60 }, -- 60 is basic player info, for other buttons it's going to be incremented as they're added
 		bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
@@ -876,6 +885,33 @@ function QueueList:show(info, bout, id)
 	end
 end
 
+function QueueList.Destroy()
+	QueueList.DestroyPopup()
+	if (QueueList.MainElement) then
+		QueueList.MainElement:kill()
+		QueueList.MainElement = nil
+	end
+	QueueList.ResetCache()
+end
+
+function QueueList.ReloadMainView()
+	if (QueueList.MainElement ~= nil) then
+		QueueList.MainElement:kill()
+		QueueList.MainElement = nil
+	end
+
+	local x, y, w, h = get_window_safe_size()
+	local x = math.max(x, WIN_W - w - x, 150)
+	local listWidth = 500
+	QueueList.MainElement = UIElement:new({
+		globalid = TB_MENU_HUB_GLOBALID,
+		pos = { WIN_W - listWidth - x, 150 },
+		size = { listWidth, WIN_H - 500 }
+	})
+	local toReload, topBar, botBar, listingView, listingHolder = TBMenu:prepareScrollableList(QueueList.MainElement, QueueListInternal.listButtonHeight, QueueListInternal.listButtonHeight, 4, { 0, 0, 0, 0 })
+	QueueList.Cache.Players.list = listingHolder
+end
+
 ---Wrapper function to retrieve bout information by id
 ---@param id integer
 ---@return QueueListPlayerInfo|nil
@@ -895,7 +931,7 @@ function QueueListInternal.getBoutInfo(id)
 	return bout
 end
 
----Wrapper functio nto retrieve spec information by id
+---Wrapper function to retrieve spec information by id
 ---@param id integer
 ---@return QueueListPlayerInfo|nil
 function QueueListInternal.getSpecInfo(id)
@@ -903,19 +939,169 @@ function QueueListInternal.getSpecInfo(id)
 		return nil
 	end
 
-	---@diagnostic disable-next-line: return-type-mismatch
-	return get_spectator_info(id)
+	---@type QueueListPlayerInfo
+	---@diagnostic disable-next-line: assign-type-mismatch
+	local spec = get_spectator_info(id)
+	if (spec == nil) then
+		return nil
+	end
+
+	spec.id = id
+	return spec
 end
 
-add_hook("bout_mouse_up", "queuelistManager", function(id)
-	local boutInfo = QueueListInternal.getBoutInfo(id)
-	if (boutInfo ~= nil) then
-		QueueList:show(boutInfo, true, id)
+---Resets cache to its default state
+function QueueList.ResetCache()
+	QueueList.Cache = {
+		Players = {
+			Bouts = { },
+			Specs = { },
+			total = 0
+		},
+		Room = nil
+	}
+end
+
+---Returns name color for the player
+---@param playerInfo QueueListPlayerInfo
+function QueueListInternal.getNameColor(playerInfo)
+	if (playerInfo.admin) then
+		return { 0.55, 0.05, 0.05, 1 } -- TB_MENU_DEFAULT_DARKER_COLOR
+	elseif (playerInfo.eventsquad) then
+		return { 0.684, 0.129, 0.949, 1 }
+	elseif (playerInfo.helpsquad) then
+		return { 0.996, 0.496, 0.031, 1 }
+	elseif (playerInfo.marketsquad) then
+		return { 0.027, 0.598, 0, 1 }
+	elseif (playerInfo.eventsquad_trial) then
+		return { 0.625, 0.395, 0.719, 1 }
+	elseif (playerInfo.op) then
+		return UICOLORGREEN
+	elseif (playerInfo.halfop) then
+		return { 0.965, 0.725, 0.172, 1 } -- TB_MENU_DEFAULT_ORANGE
 	end
-end)
-add_hook("spec_mouse_up", "queuelistManager", function(id)
-	local specInfo = QueueListInternal.getSpecInfo(id)
-	if (specInfo ~= nil) then
-		QueueList:show(specInfo, false, id)
+end
+
+---Adds a player to the queue list cache
+---@param id integer
+---@param name string
+---@param bouts integer
+---@param spectator ?boolean
+function QueueList.AddPlayer(id, name, bouts, spectator)
+	local playerInfo = spectator and QueueListInternal.getSpecInfo(id - 1) or QueueListInternal.getBoutInfo(id - 1)
+	if (playerInfo == nil) then
+		return
 	end
-end)
+
+	local targetTable = spectator and QueueList.Cache.Players.Specs or QueueList.Cache.Players.Bouts
+	if (targetTable[id] ~= nil) then
+		if (targetTable[id].button ~= nil) then
+			targetTable[id].button:kill()
+			targetTable[id].button = nil
+		end
+		targetTable[id] = playerInfo
+		return
+	end
+	table.insert(targetTable, id, playerInfo)
+
+	local listId = playerInfo.id
+	if (spectator) then
+		listId = bouts + playerInfo.id
+	end
+
+	playerInfo.button = QueueList.MainElement:addChild({
+		pos = { 0, listId * QueueListInternal.listButtonHeight },
+		size = { QueueList.MainElement.size.w, QueueListInternal.listButtonHeight },
+		bgColor = QueueListInternal.getNameColor(playerInfo),
+		hoverColor = TB_MENU_DEFAULT_BLUE,
+		pressedColor = TB_MENU_DEFAULT_ORANGE,
+		interactive = true
+	})
+	playerInfo.button.bgColor[4] = spectator and 0.5 or 0.9
+	playerInfo.button.hoverColor = table.clone(playerInfo.button.bgColor)
+	playerInfo.button.hoverColor[4] = playerInfo.button.hoverColor[4] + 0.1
+	playerInfo.button.pressedColor = table.clone(playerInfo.button.hoverColor)
+
+	---Cache text caption
+	playerInfo.button:addAdaptedText(false, name, nil, nil, FONTS.LMEDIUM, RIGHTMID, 0.7)
+	playerInfo.button:addCustomDisplay(true, function()
+			local scale = playerInfo.button.textScale
+			if (playerInfo.button.hoverState ~= BTN_NONE) then
+				set_mouse_cursor(1)
+				scale = UITween.SineTween(playerInfo.button.textScale, 0.9, (UIElement.clock - playerInfo.button.hoverClock) / UIElement.animationDuration)
+			end
+
+			playerInfo.button:uiText(playerInfo.button.str, nil, nil, playerInfo.button.textFont, RIGHTMID, scale, nil, nil, playerInfo.button:getButtonColor())
+		end)
+
+	playerInfo.button:addMouseUpHandler(function()
+			QueueList:show(playerInfo, not spectator)
+		end)
+	playerInfo.button:addMouseUpRightHandler(function()
+			QueueList:show(playerInfo, not spectator)
+		end)
+
+	playerInfo.button.size.w = get_string_length(playerInfo.button.dispstr[1], playerInfo.button.textFont) * playerInfo.button.textScale + 5
+	playerInfo.button:moveTo(-playerInfo.button.size.w)
+
+	local flagInfo = FlagManager.GetFlagInfoByCode(playerInfo.flag_code)
+	local flagScale = 16
+	local playerFlag = playerInfo.button:addChild({
+		pos = { playerInfo.button.size.w + 5, (playerInfo.button.size.h - flagScale) / 2 },
+		size = { flagScale, flagScale },
+		bgImage = flagInfo.filename,
+		imageAtlas = true,
+		atlas = flagInfo.atlas
+	})
+end
+
+---Reloads queue list display with the new values
+function QueueList.Reload()
+	local roomInfo = get_room_info()
+	if (roomInfo == nil) then
+		QueueList.Destroy()
+		return
+	end
+
+	QueueList.ReloadMainView()
+	if (QueueList.Cache.Room == nil or roomInfo.ip ~= QueueList.Cache.Room.ip) then
+		---This is the first launch or we are in a new room, reset cache
+		QueueList.ResetCache()
+	end
+
+	local bouts = get_bouts()
+	for i, v in pairs(bouts) do
+		if (QueueList.Cache.Players.Bouts[i] == nil or v ~= QueueList.Cache.Players.Bouts[i].nick) then
+			QueueList.AddPlayer(i, v, #bouts)
+		end
+	end
+	while (QueueList.Cache.Players.Bouts[#bouts + 1] ~= nil) do
+		QueueList.Cache.Players.Bouts[#bouts + 1].button:kill()
+		table.remove(QueueList.Cache.Players.Bouts, #bouts + 1)
+	end
+
+	local spectators = get_spectators()
+	for i, v in pairs(spectators) do
+		if (QueueList.Cache.Players.Specs[i] == nil or v ~= QueueList.Cache.Players.Specs[i].nick) then
+			QueueList.AddPlayer(i, v, #bouts, true)
+		end
+	end
+	while (QueueList.Cache.Players.Specs[#spectators + 1] ~= nil) do
+		QueueList.Cache.Players.Specs[#spectators + 1].button:kill()
+		table.remove(QueueList.Cache.Players.Specs, #spectators + 1)
+	end
+
+	QueueList.Cache.Players.total = #QueueList.Cache.Players.Bouts + #QueueList.Cache.Players.Specs
+end
+
+---Initializes the script and sets the default values
+function QueueList.Init()
+	QueueList.ResetCache()
+	QueueList.Reload()
+end
+
+QueueList.Init()
+add_hook("leave_game", "queuelistManager", QueueList.Reload)
+add_hook("bout_update", "queuelistManager", QueueList.Reload)
+add_hook("spec_update", "queuelistManager", QueueList.Reload)
+add_hook("resolution_changed", "queuelistManager", QueueList.Reload)

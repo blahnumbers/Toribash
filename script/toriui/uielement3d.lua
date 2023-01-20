@@ -185,7 +185,7 @@ end
 function UIElement3D:addChild(o)
 	o.pos = o.pos and o.pos or { 0, 0, 0 }
 	o.size = o.size and o.size or { self.size.x, self.size.y, self.size.z }
-	o.viewport = o.viewport or self.viewport ~= nil
+	o.viewport = o.viewport or self.viewportElement
 	o.parent = self
 	return UIElement3D:new(o)
 end

@@ -205,18 +205,25 @@ function set_color(r, g, b, a) end
 ---@param width number Line width in pixels
 function draw_line(x1, y1, x2, y2, width) end
 
+---@alias Draw2DQuadMode
+---| 0 Normal
+---| 1 Patterned
+---| 2 Atlas
+
 ---Default function to draw rectangles
 ---@param pos_x number X coordinate of the top left corner
 ---@param pos_y number Y coordinate of the top left corner
 ---@param width number
 ---@param height number
 ---@param texture_id ?integer Texture id retrieved from `load_texture()` call
----@param tiled ?boolean If true, applied texture will repeat itself instead of being stretched
----@param r ?number Override color's `R` value
----@param g ?number Override color's `G` value
----@param b ?number Override color's `B` value
----@param a ?number Override color's alpha
-function draw_quad(pos_x, pos_y, width, height, texture_id, tiled, r, g, b, a) end
+---@param draw_mode ?Draw2DQuadMode
+---@param r ?number
+---@param g ?number
+---@param b ?number
+---@param a ?number
+---@overload fun(pos_x:number, pos_y:number, atlas_width:number, atlas_width:number, texture_id:integer, draw_mode:1, r:number, g:number, b:number, a:number, width:number, height:number)
+---@overload fun(pos_x:number, pos_y:number, atlas_width:number, atlas_width:number, texture_id:integer, draw_mode:2, r:number, g:number, b:number, a:number, width:number, height:number, atlas_anchor_x:number, atlas_anchor_y:number)
+function draw_quad(pos_x, pos_y, width, height, texture_id, draw_mode, r, g, b, a) end
 
 ---Default function to draw disks or circles
 ---@param pos_x number Center X position for drawing
@@ -2067,7 +2074,8 @@ function get_sound_category(id) end
 
 ---@class QueuePlayerInfo
 ---@field nick string Player name
----@field games_played integer Player Qi
+---@field is_fighter boolean|nil Whether this player is currently playing
+---@field games_played integer Player's total Qi
 ---@field rank integer Player rank
 ---@field streak integer Current win streak
 ---@field custombeltname string Custom belt name (players with 20,000 Qi or more)
@@ -2076,11 +2084,17 @@ function get_sound_category(id) end
 ---@field halfop boolean Whether this user is a half-operator
 ---@field legend boolean Whether this user is a legend
 ---@field eventsquad boolean Whether this user is a part of Event Squad
+---@field eventsquad_trial boolean Whether this user is a trial Event Squad member
 ---@field helpsquad boolean Whether this user is a part of Help Squad
 ---@field marketsquad boolean Whether this user is a part of Market Squad
 ---@field muted boolean Whether this user is muted
 ---@field afk boolean Whether this user is afk
 ---@field multiclient boolean Whether this user is currently multiclienting
+---@field elo number Player elo rating
+---@field rank_title string Player rank title
+---@field flag_code string Flag code
+---@field extra_qi integer Player's added Qi
+---@field join_date string Join date in `YYYY-MM-DD` format
 
 ---Returns a list of all queue players' names for the room
 ---@return string[]
@@ -2242,7 +2256,9 @@ function discord_reject_join(discordId) end
 ---| "resolution_changed" #Called when game resolution is updated
 ---| "console_post" #Called after a non-discarded console hook call
 ---| "text_input" #Called when text input event is received
----| "replaycheck" #Called when replay hacking is detected during replay playthrough with check_integrity mode enabled
+---| "replay_integrity_fail" #Called when replay hacking is detected during replay playthrough with check_integrity mode enabled
+---| "bout_update" #Called after bout list update is finished
+---| "spec_update" #Called when spectator status update is received
 
 ---Adds a Lua callback listener \
 ---*Only one function per event / set_name pair is supported*
@@ -2409,6 +2425,15 @@ function run_cmd(command, online, silent) end
 
 ---Executes a `/reset` command in a Multiplayer room
 function reset_server() end
+
+---General information about a multiplayer room
+---@class OnlineRoomInfo
+---@field name string
+---@field ip string
+
+---Returns current multiplayer room name
+---@return OnlineRoomInfo|nil
+function get_room_info() end
 
 ---@param event string
 ---@param value ?integer

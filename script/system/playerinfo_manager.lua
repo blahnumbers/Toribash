@@ -87,7 +87,7 @@ function PlayerInfoInternal.escapeName(name)
 		end
 	end
 
-	return player_name, ""
+	return player_name, clan_tag
 end
 
 ---Fetches current user's cleaned name or purifies a specified username. \
