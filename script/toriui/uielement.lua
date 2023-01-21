@@ -1275,7 +1275,7 @@ function UIElement:display()
 		if (self.bgImage) then
 			local targetImageColor = self.interactive and ((self.hoverState == BTN_HVR or self.hoverState == BTN_FOCUS) and self.imageAnimateColor or (self.hoverState == BTN_DN and self.imagePressedColor or self.imageColor)) or self.imageColor
 			if (self.drawMode == 2) then
-				draw_quad(self.pos.x, self.pos.y, self.atlas.w, self.atlas.h, self.bgImage, self.drawMode, targetImageColor[1], targetImageColor[2], targetImageColor[3], targetImageColor[4], self.size.w, self.size.h, self.atlas.x, self.atlas.y)
+				draw_quad(self.pos.x, self.pos.y, self.size.w, self.size.h, self.bgImage, self.drawMode, targetImageColor[1], targetImageColor[2], targetImageColor[3], targetImageColor[4], self.atlas.w, self.atlas.h, self.atlas.x, self.atlas.y)
 			elseif (self.drawMode == 1) then
 				draw_quad(self.pos.x, self.pos.y, self.atlas.w, self.atlas.h, self.bgImage, self.drawMode, targetImageColor[1], targetImageColor[2], targetImageColor[3], targetImageColor[4], self.size.w, self.size.h)
 			else
