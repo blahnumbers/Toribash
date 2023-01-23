@@ -10,7 +10,8 @@ require("system.ignore_manager")
 ---@field text string Message text string
 ---@field tab integer Chat tab the message should belong to
 ---@field clock number Timestamp of when the message was received
----@field adaptedText string[]
+---@field adaptedTextMini string[] Adapted string for the mini chat
+---@field lines integer Lines this message will take in regular chat
 
 if (TBHud == nil) then
 	---**Touch HUD class**
@@ -38,6 +39,7 @@ if (TBHud == nil) then
 	TBHud = {
 		HubSize = { w = 0, h = 0 },
 		ChatSize = { w = 0, h = 0},
+		ListShift = { 0 },
 		ChatMaxHistory = 2000,
 		ChatMiniMaxMessages = 10,
 		ChatMiniDisplayPeriod = 20,
@@ -138,7 +140,8 @@ function TBHudInternal.pushChatMessage(msg, type, tab)
 	local chatMessage = {
 		text = message,
 		tab = tab,
-		clock = os.clock_real()
+		clock = os.clock_real(),
+		lines = 0
 	}
 	table.insert(TBHudInternal.ChatMessages, chatMessage)
 	if (#TBHudInternal.ChatMessages > TBHud.ChatMaxHistory) then
@@ -528,8 +531,8 @@ end
 ---@return HudChatCommand[]
 function TBHud:getChatCommands()
 	return {
-		set = { command = "/set ^46gamerule ^47value", regex = "^(/%w+) ?(%w+ )?(%w+ )?.*", replacement = "%1 %2%3" },
-		opt = { command = "/opt ^46option ^47value", regex = "^(/%w+) ?(%w+ )?(%w+ )?.*", replacement = "%1 %2%3" }
+		--set = { command = "/set ^46gamerule ^47value", regex = "^(/%w+) ?(%w+ )?(%w+ )?.*", replacement = "%1 %2%3" },
+		--opt = { command = "/opt ^46option ^47value", regex = "^(/%w+) ?(%w+ )?(%w+ )?.*", replacement = "%1 %2%3" }
 	}
 end
 
@@ -563,7 +566,7 @@ function TBHud:refreshChat()
 
 	if (self.ChatHolderItems == nil) then
 		-- Do the initial setup
-		local x, y, w, h = get_window_safe_size()
+		local x, y = get_window_safe_size()
 		local chatMessagesHolder = self.ChatHolder:addChild({
 			pos = { x, -self.ChatSize.h },
 			size = { self.ChatSize.w, self.ChatSize.h },
@@ -584,6 +587,7 @@ function TBHud:refreshChat()
 				})
 				chatMessage:addAdaptedText(true, string, nil, nil, FONTS.SMALL, LEFT, 1, 1)
 				table.insert(self.ChatHolderItems, chatMessage)
+				message.lines = message.lines + 1
 			end
 		end
 
@@ -656,6 +660,7 @@ function TBHud:refreshChat()
 				end
 			end)
 		chatInputField:addEnterAction(function()
+				if (utf8.len(chatInputField.textfieldstr[1]) == 0) then return end
 				if (string.find(chatInputField.textfieldstr[1], "^/")) then
 					local cmd = chatInputField.textfieldstr[1]:gsub("^/(.+)", "%1")
 					runCmd(cmd, self.WorldState.game_type == 1)
@@ -700,7 +705,12 @@ function TBHud:refreshChat()
 		self.ChatHolderListing = listingHolder
 		self.ChatHolderTopBar = topBar
 	else
-		for i, message in pairs(TBHudInternal.ChatMessages) do
+		local i = 1
+		if (-self.ChatHolderListing.shift.y >= #self.ChatHolderItems * elementHeight) then
+			TBHud.ListShift[1] = 0
+		end
+
+		for _, message in pairs(TBHudInternal.ChatMessages) do
 			if (i > #self.ChatHolderItems) then
 				local messageStrings = textAdapt(message.text, FONTS.SMALL, 1, self.ChatHolderListing.size.w - 32)
 				for _, string in pairs(messageStrings) do
@@ -710,12 +720,14 @@ function TBHud:refreshChat()
 					})
 					chatMessage:addAdaptedText(true, string, nil, nil, FONTS.SMALL, LEFT, 1, 1)
 					table.insert(self.ChatHolderItems, chatMessage)
+					message.lines = message.lines + 1
 
 					if (self.ChatHolderScrollBar ~= nil) then
 						chatMessage:hide(true)
 					end
 				end
 			end
+			i = i + message.lines
 		end
 	end
 
@@ -730,15 +742,17 @@ function TBHud:refreshChat()
 				-- Don't forget to move listing holder back in place
 				listingHolder:moveTo(nil, self.ChatHolderTopBar.size.w)
 				self.ChatHolderScrollBar = TBMenu:spawnScrollBar(listingHolder, #self.ChatHolderItems, elementHeight)
-				self.ChatHolderScrollBar:makeScrollBar(listingHolder, self.ChatHolderItems, self.ChatHolderToReload)
+				self.ChatHolderScrollBar:makeScrollBar(listingHolder, self.ChatHolderItems, self.ChatHolderToReload, TBHud.ListShift)
 			else
 				self.ChatHolderScrollBar.size.h = math.max(0.1, math.min(1, (listingHolder.size.h) / (#self.ChatHolderItems * elementHeight) or listingHolder.size.h)) * self.ChatHolderScrollBar.parent.size.h
 			end
 
-			local hoverState = self.ChatHolderScrollBar.hoverState
-			self.ChatHolderScrollBar.hoverState = BTN_DN
-			self.ChatHolderScrollBar.btnHover(self.ChatHolderScrollBar.parent.pos.x + 1, self.ChatHolderScrollBar.parent.pos.y + self.ChatHolderScrollBar.parent.size.h - 2)
-			self.ChatHolderScrollBar.hoverState = hoverState
+			if (TBHud.ListShift[1] == 0) then
+				local hoverState = self.ChatHolderScrollBar.hoverState
+				self.ChatHolderScrollBar.hoverState = BTN_DN
+				self.ChatHolderScrollBar.btnHover(self.ChatHolderScrollBar.parent.pos.x + 1, self.ChatHolderScrollBar.parent.pos.y + self.ChatHolderScrollBar.parent.size.h - 2)
+				self.ChatHolderScrollBar.hoverState = hoverState
+			end
 		else
 			listingHolder:moveTo(nil, listingHolder.parent.size.h - elementHeight * #self.ChatHolderItems)
 		end
@@ -798,7 +812,7 @@ function TBHud:spawnMiniChat()
 			end
 		end
 		for i, v in pairs(messagesToDisplay) do
-			messagesToDisplay[i].adaptedText = textAdapt(v.text, FONTS.SMALL, 1, self.ChatMiniHolder.size.w)
+			messagesToDisplay[i].adaptedTextMini = textAdapt(v.text, FONTS.SMALL, 1, self.ChatMiniHolder.size.w)
 		end
 		self.ChatMiniUpdateTime = os.time()
 	end
@@ -811,8 +825,8 @@ function TBHud:spawnMiniChat()
 			local linesPrinted = 0
 			for _, v in pairs(messagesToDisplay) do
 				local textOpacity = UITween.SineEaseOut((v.clock - UIElement.clock + (self.ChatMiniDisplayPeriod - 1)) / 3)
-				for i = #v.adaptedText, 1, -1 do
-					self.ChatMiniHolder:uiText(v.adaptedText[i], nil, -linesPrinted * 20, FONTS.SMALL, LEFTBOT, 1, nil, nil, { TB_MENU_DEFAULT_DARKEST_COLOR[1], TB_MENU_DEFAULT_DARKEST_COLOR[2], TB_MENU_DEFAULT_DARKEST_COLOR[3], textOpacity })
+				for i = #v.adaptedTextMini, 1, -1 do
+					self.ChatMiniHolder:uiText(v.adaptedTextMini[i], nil, -linesPrinted * 20, FONTS.SMALL, LEFTBOT, 1, nil, nil, { TB_MENU_DEFAULT_DARKEST_COLOR[1], TB_MENU_DEFAULT_DARKEST_COLOR[2], TB_MENU_DEFAULT_DARKEST_COLOR[3], textOpacity })
 					linesPrinted = linesPrinted + 1
 					if (linesPrinted > self.ChatMiniMaxMessages) then
 						return

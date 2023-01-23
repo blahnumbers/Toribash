@@ -1514,7 +1514,7 @@ function UIElement:textfieldInput(input, isNumeric, allowNegative, allowDecimal)
 	local replaceSymbols = 0
 	local replaceSymbolsAfter = 0
 	local negativeSign = false
-	local clipboardPaste = get_clipboard_text() == input
+	local clipboardPaste = utf8.len(input) > 1 and get_clipboard_text() == input or false
 
 	local strLen = utf8.len(input)
 	if (isNumeric) then
