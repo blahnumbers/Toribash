@@ -51,8 +51,8 @@ if (TBHud == nil) then
 		RequiresChatRefresh = false,
 		SafeAreaOffset = 0,
 		ver = 5.60,
-		__index = {}
 	}
+	TBHud.__index = TBHud
 	setmetatable({}, TBHud)
 
 	TBHud.DefaultSmallerButtonSize = TBHud.DefaultButtonSize * 0.7
@@ -140,16 +140,17 @@ function TBHudInternal.pushChatMessage(msg, type, tab)
 	local chatMessage = {
 		text = message,
 		tab = tab,
-		clock = os.clock_real(),
-		lines = 0
+		clock = os.clock_real()
 	}
 	table.insert(TBHudInternal.ChatMessages, chatMessage)
 	if (#TBHudInternal.ChatMessages > TBHud.ChatMaxHistory) then
 		table.remove(TBHudInternal.ChatMessages, 1)
-		TBHud.ChatHolderItems[1]:kill()
-		table.remove(TBHud.ChatHolderItems, 1)
-		for _, v in pairs(TBHud.ChatHolderItems) do
-			v:moveTo(nil, -v.size.h, true)
+		if (TBHud.ChatHolderItems ~= nil) then
+			TBHud.ChatHolderItems[1]:kill()
+			table.remove(TBHud.ChatHolderItems, 1)
+			for _, v in pairs(TBHud.ChatHolderItems) do
+				v:moveTo(nil, -v.size.h, true)
+			end
 		end
 	end
 
@@ -167,7 +168,7 @@ end
 ---Initializes HUD main elements
 function TBHud:init()
 	if (self.MainElement ~= nil) then
-		self.MainElement:kill()
+		return
 	end
 
 	self.MainElement = UIElement:new({
@@ -197,6 +198,23 @@ function TBHud:init()
 	self.ChatSize.w = WIN_W * 0.4 > 600 and 600 or WIN_W * 0.4
 	self.ChatSize.h = WIN_H
 	self:spawnChat()
+end
+
+function TBHud:reload()
+	if (self.MainElement ~= nil) then
+		self.MainElement:kill()
+		self.MainElement = nil
+		self.ChatHolder = nil
+		self.ChatHolderItems = nil
+		self.ChatMiniHolder = nil
+		self.ChatHolderListing = nil
+		self.ChatHolderScrollBar = nil
+		self.ChatHolderToReload = nil
+		self.ChatHolderTopBar = nil
+		self.HubHolder = nil
+	end
+
+	TBHud:init()
 end
 
 ---Spawns commit turn / new game button and its corresponding longpress menu
@@ -414,9 +432,8 @@ function TBHud:spawnHub()
 	if (self.HubHolder ~= nil) then
 		self.HubHolder:kill()
 	end
-	self.HubHolder = UIElement:new({
-		globalid = TB_MENU_HUB_GLOBALID,
-		pos = { self.MainElement.pos.x + self.MainElement.size.w, self.MainElement.pos.y },
+	self.HubHolder = self.MainElement:addChild({
+		pos = { self.MainElement.size.w, 0 },
 		size = { self.MainElement.size.w, self.MainElement.size.h },
 		bgColor = UICOLORBLACK,
 		interactive = true
@@ -486,7 +503,10 @@ function TBHud:spawnHub()
 		size = { hubBackground.size.w - 20, 40 },
 		interactive = true,
 		bgColor = TB_MENU_DEFAULT_BG_COLOR,
-		pressedColor = TB_MENU_DEFAULT_DARKER_COLOR
+		hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+		pressedColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		shapeType = ROUNDED,
+		rounded = 4
 	})
 	mainMenuButton:addChild({ shift = { 10, 5 }}):addAdaptedText("> To main menu")
 	mainMenuButton:addMouseUpHandler(function() open_menu(19) TBHud:toggleHub(false) end)
@@ -579,6 +599,7 @@ function TBHud:refreshChat()
 		---@type UIElement[]
 		self.ChatHolderItems = {}
 		for _, message in pairs(TBHudInternal.ChatMessages) do
+			message.lines = 0
 			local messageStrings = textAdapt(message.text, FONTS.SMALL, 1, listingHolder.size.w - 32)
 			for _, string in pairs(messageStrings) do
 				local chatMessage = listingHolder:addChild({
@@ -849,9 +870,8 @@ function TBHud:spawnChat()
 	if (self.ChatHolder ~= nil) then
 		self.ChatHolder:kill()
 	end
-	self.ChatHolder = UIElement:new({
-		globalid = TB_MENU_HUB_GLOBALID,
-		pos = { self.MainElement.pos.x, self.MainElement.pos.y + self.MainElement.size.h },
+	self.ChatHolder = self.MainElement:addChild({
+		pos = { 0, self.MainElement.size.h },
 		size = { self.MainElement.size.w, self.MainElement.size.h },
 		interactive = true
 	})
@@ -863,8 +883,8 @@ function TBHud:spawnChat()
 	self.ChatHolder:hide(true)
 end
 
-TBHud:init()
-add_hook("resolution_changed", "tbHudTouchInterface", function() TBHud:init() end)
+TBHud:reload()
+add_hook("resolution_changed", "tbHudTouchInterface", function() TBHud:reload() end)
 add_hook("new_game", "tbHudTouchInterface", function() TBHudInternal.refreshButtons() end)
 add_hook("console_post", "tbHudChatInterface", function(msg, type, tab)
 	TBHudInternal.pushChatMessage(msg, type, tab)

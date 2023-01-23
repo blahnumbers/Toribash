@@ -54,7 +54,7 @@ function Downloader:safeCall(func)
 	end
 
 	local id = generate_uid and generate_uid() or ("dldr" .. math.random(0, 1000000))
-	add_hook("pre_draw", id, function() func() remove_hooks(id) end)
+	add_hook("pre_draw", id, function() func() remove_hook("pre_draw", id) end)
 	return id
 end
 

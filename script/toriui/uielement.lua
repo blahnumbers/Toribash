@@ -1628,7 +1628,7 @@ end
 ---@return integer
 ---@see UIElement.keyboardHooks
 function UIElement.handleInput(input)
-	for i,v in pairs(table.reverse(UIKeyboardHandler)) do
+	for _, v in pairs(table.reverse(UIKeyboardHandler)) do
 		if (v.keyboard == true) then
 			v.textInput(input)
 			if (v.textInputCustom) then
@@ -1645,7 +1645,7 @@ function UIElement:enableMenuKeyboard()
 	TB_MENU_INPUT_ISACTIVE = true
 	enable_menu_keyboard(self.pos.x, self.pos.y, self.size.w, self.size.h + 10)
 	local id = 1
-	for i,v in pairs(UIKeyboardHandler) do
+	for _, v in pairs(UIKeyboardHandler) do
 		if (v.menuKeyboardId == id) then
 			id = id + 1
 		else
@@ -1661,7 +1661,7 @@ end
 ---Generic method to disable keyboard input handlers for current UIElement
 function UIElement:disableMenuKeyboard()
 	self.menuKeyboardId = nil
-	for i,v in pairs(UIKeyboardHandler) do
+	for _, v in pairs(UIKeyboardHandler) do
 		if (v.menuKeyboardId) then
 			return
 		end
