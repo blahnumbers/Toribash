@@ -2107,6 +2107,9 @@ function UIElement:updateImage(image, default, noreload)
 		return
 	end
 
+	-- Make sure drawMode has a valid value if this was first called from outside the constructor
+	self.drawMode = self.drawMode or 0
+
 	if (TEXTUREINDEX > 253) then
 		self.bgImage = load_texture(DEFTEXTURE)
 		return
