@@ -84,21 +84,25 @@ end
 ---Initializes Tooltip hooks and enables the module
 function Tooltip:create()
 	add_hook("joint_select", Tooltip.HookName, function(player, joint)
+			if (players_accept_input() == false) then return end
 			local discard = Tooltip:showTooltipJoint(player, joint)
 			if (is_mobile()) then
 				return discard
 			end
 		end)
 	add_hook("body_select", Tooltip.HookName, function(player, body)
+			if (players_accept_input() == false) then return end
 			if (get_option("tooltip") == 1 and Tooltip.IsActive) then
 				Tooltip:showTooltipBody(player, body)
 			end
 		end)
 	if (is_mobile()) then
 		add_hook("mouse_button_down", Tooltip.HookName, function()
+				if (players_accept_input() == false) then return end
 				Tooltip:showTouchControls()
 			end)
 		add_hook("mouse_button_up", Tooltip.HookName, function()
+				if (players_accept_input() == false) then return end
 				Tooltip:destroy()
 				Tooltip:setTouchJointState()
 			end)

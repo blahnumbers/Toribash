@@ -11,6 +11,7 @@ require("system.ignore_manager")
 ---@field tab integer Chat tab the message should belong to
 ---@field clock number Timestamp of when the message was received
 ---@field adaptedTextMini string[] Adapted string for the mini chat
+---@field textColorMini Color[] Cached text display color for mini chat
 ---@field lines integer Lines this message will take in regular chat
 
 if (TBHud == nil) then
@@ -580,6 +581,21 @@ function TBHud:spawnChatButton()
 	end)
 end
 
+---Parses a string and checks the last used color for the string
+---@param str string
+---@return Color|nil
+function TBHudInternal.getLastColorFromString(str)
+	local color, rpl = string.gsub(str, ".*[%^%%](%d%d+).*", "%1")
+	if (rpl == 1 and string.len(color) > 0) then
+		local colid = tonumber(color)
+		if (colid) then
+			local colinfo = get_color_info(colid)
+			return { colinfo.r, colinfo.g, colinfo.b, 1 }
+		end
+	end
+	return nil
+end
+
 ---Reloads chat display
 function TBHud:refreshChat()
 	local elementHeight = 18
@@ -601,13 +617,16 @@ function TBHud:refreshChat()
 		for _, message in pairs(TBHudInternal.ChatMessages) do
 			message.lines = 0
 			local messageStrings = textAdapt(message.text, FONTS.SMALL, 1, listingHolder.size.w - 32)
-			for _, string in pairs(messageStrings) do
+			local nextColor = nil
+			for _, str in pairs(messageStrings) do
 				local chatMessage = listingHolder:addChild({
 					pos = { 16, #self.ChatHolderItems * elementHeight },
-					size = { listingHolder.size.w - 32, elementHeight }
+					size = { listingHolder.size.w - 32, elementHeight },
+					uiColor = nextColor
 				})
-				chatMessage:addAdaptedText(true, string, nil, nil, FONTS.SMALL, LEFT, 1, 1)
+				chatMessage:addAdaptedText(true, str, nil, nil, FONTS.SMALL, LEFT, 1, 1)
 				table.insert(self.ChatHolderItems, chatMessage)
+				nextColor = TBHudInternal.getLastColorFromString(str)
 				message.lines = message.lines + 1
 			end
 		end
@@ -735,13 +754,16 @@ function TBHud:refreshChat()
 			if (i > #self.ChatHolderItems) then
 				local messageStrings = textAdapt(message.text, FONTS.SMALL, 1, self.ChatHolderListing.size.w - 32)
 				message.lines = 0
-				for _, string in pairs(messageStrings) do
+				local nextColor = nil
+				for _, str in pairs(messageStrings) do
 					local chatMessage = self.ChatHolderListing:addChild({
 						pos = { 16, #self.ChatHolderItems * elementHeight },
-						size = { self.ChatHolderListing.size.w - 32, elementHeight }
+						size = { self.ChatHolderListing.size.w - 32, elementHeight },
+						uiColor = nextColor
 					})
-					chatMessage:addAdaptedText(true, string, nil, nil, FONTS.SMALL, LEFT, 1, 1)
+					chatMessage:addAdaptedText(true, str, nil, nil, FONTS.SMALL, LEFT, 1, 1)
 					table.insert(self.ChatHolderItems, chatMessage)
+					nextColor = TBHudInternal.getLastColorFromString(str)
 					message.lines = message.lines + 1
 
 					if (self.ChatHolderScrollBar ~= nil) then
@@ -838,6 +860,12 @@ function TBHud:spawnMiniChat()
 		end
 		for i, v in pairs(messagesToDisplay) do
 			messagesToDisplay[i].adaptedTextMini = textAdapt(v.text, FONTS.SMALL, 1, self.ChatMiniHolder.size.w)
+			messagesToDisplay[i].textColorMini = { nil }
+			local displayColor = nil
+			for j, line in pairs(messagesToDisplay[i].adaptedTextMini) do
+				displayColor = TBHudInternal.getLastColorFromString(line) or displayColor
+				messagesToDisplay[i].textColorMini[j + 1] = displayColor
+			end
 		end
 		self.ChatMiniUpdateTime = os.time()
 	end
@@ -851,7 +879,9 @@ function TBHud:spawnMiniChat()
 			for _, v in pairs(messagesToDisplay) do
 				local textOpacity = UITween.SineEaseOut((v.clock - UIElement.clock + (self.ChatMiniDisplayPeriod - 1)) / 3)
 				for i = #v.adaptedTextMini, 1, -1 do
-					self.ChatMiniHolder:uiText(v.adaptedTextMini[i], nil, -linesPrinted * 20, FONTS.SMALL, LEFTBOT, 1, nil, nil, { TB_MENU_DEFAULT_DARKEST_COLOR[1], TB_MENU_DEFAULT_DARKEST_COLOR[2], TB_MENU_DEFAULT_DARKEST_COLOR[3], textOpacity })
+					local displayColor = table.clone(v.textColorMini[i] or TB_MENU_DEFAULT_DARKEST_COLOR)
+					displayColor[4] = textOpacity
+					self.ChatMiniHolder:uiText(v.adaptedTextMini[i], nil, -linesPrinted * 20, FONTS.SMALL, LEFTBOT, 1, nil, nil, displayColor)
 					linesPrinted = linesPrinted + 1
 					if (linesPrinted > self.ChatMiniMaxMessages) then
 						return

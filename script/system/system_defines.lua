@@ -990,6 +990,10 @@ function unfreeze_game() end
 ---@return integer
 function is_game_frozen() end
 
+---Returns whether currently selected player accepts input
+---@return boolean
+function players_accept_input() end
+
 ---Steps the game simulation. \
 ---*Pass `true` to simulate SHIFT + SPACE behavior*
 ---@param single_frame ?boolean

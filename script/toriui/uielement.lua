@@ -1526,7 +1526,7 @@ function UIElement:textfieldInput(input, isNumeric, allowNegative, allowDecimal)
 	end
 	if (strLen == 0 and not negativeSign) then
 		return
-	elseif (strLen > 1 and not clipboardPaste) then
+	elseif (strLen > 1 and not clipboardPaste and input:sub(1, 1) ~= ' ') then
 		-- We are likely dealing with keyboard autocompletion
 		-- Let's try to guess which part of the text we need to replace
 		local text = utf8.sub(self.textfieldstr[1], 0, self.textfieldindex)
