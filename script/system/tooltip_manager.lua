@@ -22,7 +22,7 @@ if (Tooltip == nil) then
 	---@field BackgroundColor Color Tooltip UI background color
 	---@field WaitForTouchInput boolean Whether we're waiting for touch input
 	---@field TouchInputTargetPlayer integer Touch input targeted player id
-	---@field TouchInputTargetJoint integer Touch input targeted joint id
+	---@field TouchInputTargetJoint PlayerJoint Touch input targeted joint id
 	---@field TouchInputPosition table Touch position for the last touch control wheel trigger
 	---@field TouchInputDelay number Delay in seconds before touch control ring will start appearing
 	---@field TouchInputGrowDuration number Duration in seconds for touch control ring to finish animation
@@ -37,14 +37,15 @@ if (Tooltip == nil) then
 		BackgroundColor = table.clone(bgColor),
 		WaitForTouchInput = false,
 		TouchInputTargetPlayer = -1,
+		---@diagnostic disable-next-line: assign-type-mismatch
 		TouchInputTargetJoint = -1,
-		TouchInputPosition = nil,
 		TouchInputDelay = 0.1,
 		TouchInputGrowDuration = 0.15,
-		version = 2.0,
-		__index = {}
+		version = 5.60
 	}
+	Tooltip.__index = Tooltip
 	setmetatable({}, Tooltip)
+
 	Tooltip.HolderElement = UIElement:new({
 		globalid = Tooltip.Globalid,
 		pos = { 0, 0 },
@@ -352,6 +353,7 @@ function Tooltip:showTouchControls()
 	Tooltip:destroy()
 	disable_mouse_camera_movement()
 
+	---@diagnostic disable-next-line: param-type-mismatch
 	local jointPos = { get_joint_screen_pos(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint) }
 	Tooltip.TouchInputPosition = {
 		x = jointPos[1],
@@ -373,24 +375,28 @@ function Tooltip:showTouchControls()
 		pos = { -touchControlsHolder.size.w - 150, -touchControlsHolder.size.h - 50 },
 		size = { 300 + touchControlsHolder.size.w, 30 }
 	})
+	---@diagnostic disable-next-line: param-type-mismatch
 	touchControlsTopTitle:addAdaptedText(true, get_joint_state_name(Tooltip.TouchInputTargetJoint, 3), nil, nil, FONTS.BIG, CENTERBOT, 0.6, nil, nil, 2, jointStateTextColor, jointStateShadowColor);
 
 	local touchControlsBotTitle = touchControlsHolder:addChild({
 		pos = { -touchControlsHolder.size.w - 150, touchControlsHolder.size.h + 20 },
 		size = { 300 + touchControlsHolder.size.w, 30 }
 	})
+	---@diagnostic disable-next-line: param-type-mismatch
 	touchControlsBotTitle:addAdaptedText(true, get_joint_state_name(Tooltip.TouchInputTargetJoint, 4), nil, nil, FONTS.BIG, CENTER, 0.6, nil, nil, 2, jointStateTextColor, jointStateShadowColor);
 
 	local touchControlsRightTitle = touchControlsHolder:addChild({
 		pos = { touchControlsHolder.size.w + 20, touchControlsHolder.size.h / 2 - 15 },
 		size = { 250, 30 }
 	})
+	---@diagnostic disable-next-line: param-type-mismatch
 	touchControlsRightTitle:addAdaptedText(true, get_joint_state_name(Tooltip.TouchInputTargetJoint, 1), nil, nil, FONTS.BIG, LEFTMID, 0.6, nil, nil, 2, jointStateTextColor, jointStateShadowColor);
 
 	local touchControlsLeftTitle = touchControlsHolder:addChild({
 		pos = { -touchControlsHolder.size.w - 270, touchControlsHolder.size.h / 2 - 15 },
 		size = { 250, 30 }
 	})
+	---@diagnostic disable-next-line: param-type-mismatch
 	touchControlsLeftTitle:addAdaptedText(true, get_joint_state_name(Tooltip.TouchInputTargetJoint, 2), nil, nil, FONTS.BIG, RIGHTMID, 0.6, nil, nil, 2, jointStateTextColor, jointStateShadowColor);
 
 	touchControlsHolder.pressTimer = UIElement.clock
@@ -419,6 +425,7 @@ function Tooltip:showTouchControls()
 			jointStateShadowColor[4] = 0.8 * tweenRatio
 		end)
 
+	---@diagnostic disable-next-line: param-type-mismatch
 	local lastJointState = get_joint_info(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint).state
 	local fallbackJointState = lastJointState
 	touchControlsVisual:addCustomDisplay(true, function()
@@ -479,6 +486,7 @@ function Tooltip:showTouchControls()
 
 			if (lastJointState ~= targetJointState) then
 				play_haptics(0.6, HAPTICS.SELECTION)
+				---@diagnostic disable-next-line: param-type-mismatch
 				set_joint_state(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint, targetJointState, true)
 				lastJointState = targetJointState
 			end
@@ -550,6 +558,7 @@ end
 function Tooltip:toggleJointState(player, joint)
 	local targetJointState = nil
 	local mousebuttons = get_option("mousebuttons")
+	---@diagnostic disable-next-line: param-type-mismatch
 	local jointState = get_joint_info(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint).state
 	if (mousebuttons == 1) then
 		if (get_shift_key_state() == 1) then

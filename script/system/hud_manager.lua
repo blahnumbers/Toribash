@@ -594,7 +594,7 @@ function TBHud:refreshChat()
 			uiColor = TB_MENU_DEFAULT_DARKEST_COLOR
 		})
 		chatMessagesHolder.bgColor[4] = 0.7
-		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(chatMessagesHolder, elementHeight, 40 + math.max(30, y), 16, { 0, 0, 0, 0 })
+		local toReload, topBar, botBar, listingView, listingHolder = TBMenu:prepareScrollableList(chatMessagesHolder, elementHeight, 40 + math.max(30, y), 16, { 0, 0, 0, 0 })
 
 		---@type UIElement[]
 		self.ChatHolderItems = {}
@@ -654,7 +654,7 @@ function TBHud:refreshChat()
 				end
 
 				local dropdownList = {}
-				for cmd, cmdInfo in pairs(targetCommands) do
+				for _, cmdInfo in pairs(targetCommands) do
 					table.insert(dropdownList, {
 						text = cmdInfo.command,
 						action = function() end
@@ -734,6 +734,7 @@ function TBHud:refreshChat()
 		for _, message in pairs(TBHudInternal.ChatMessages) do
 			if (i > #self.ChatHolderItems) then
 				local messageStrings = textAdapt(message.text, FONTS.SMALL, 1, self.ChatHolderListing.size.w - 32)
+				message.lines = 0
 				for _, string in pairs(messageStrings) do
 					local chatMessage = self.ChatHolderListing:addChild({
 						pos = { 16, #self.ChatHolderItems * elementHeight },
