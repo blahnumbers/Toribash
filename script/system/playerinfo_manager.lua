@@ -891,8 +891,8 @@ end
 ---@param username ?string Leave empty to request information about currently logged in user
 ---@return RequestPromise
 function PlayerInfo.getServerUserinfo(username)
-	if (username == nil) then
-		return Request:queue(get_player_userinfo, "playerInfoServerUserinfo", PlayerInfoInternal.parseServerUserinfo)
+	if (type(username) ~= "string") then
+		return Request:queue(function() get_player_userinfo() end, "playerInfoServerUserinfo", PlayerInfoInternal.parseServerUserinfo)
 	end
 	return Request:queue(function() get_player_userinfo(username) end, "playerInfoServerUserinfo_" .. username, PlayerInfoInternal.parseServerUserinfo)
 end

@@ -1316,7 +1316,7 @@ function TBMenu:showAccountMain(reload)
 		scrollBar:makeScrollBar(listingHolder, listElements, toReload)
 	end
 
-	local accountDatas = PlayerInfo:getServerUserinfo()
+	local accountDatas = PlayerInfo.getServerUserinfo()
 	local infoMessage = listingHolder:addChild({})
 	TBMenu:displayLoadingMark(infoMessage, TB_MENU_LOCALIZED.ACCOUNTGETTINGINFO)
 	infoMessage:addChild({}):addCustomDisplay(true, function()
