@@ -1514,9 +1514,9 @@ function UIElement:textfieldInput(input, isNumeric, allowNegative, allowDecimal)
 	local replaceSymbols = 0
 	local replaceSymbolsAfter = 0
 	local negativeSign = false
-	local clipboardPaste = utf8.len(input) > 1 and get_clipboard_text() == input or false
-
 	local strLen = utf8.len(input)
+	local clipboardPaste = strLen > 1 and get_clipboard_text() == input
+
 	if (isNumeric) then
 		if (allowNegative and input:find("^-")) then
 			negativeSign = true
@@ -1597,7 +1597,9 @@ function UIElement.handleKeyUp(key)
 			if (v.keyUpCustom) then
 				v.keyUpCustom(key)
 			end
-			return v.permanentListener and 0 or 1
+			if (not v.permanentListener) then
+				return 1
+			end
 		end
 	end
 	return 0
@@ -1616,7 +1618,9 @@ function UIElement.handleKeyDown(key)
 			if (v.keyDownCustom) then
 				v.keyDownCustom(key)
 			end
-			return 1
+			if (not v.permanentListener) then
+				return 1
+			end
 		end
 	end
 	return 0
@@ -1634,7 +1638,9 @@ function UIElement.handleInput(input)
 			if (v.textInputCustom) then
 				v.textInputCustom()
 			end
-			return 1
+			if (not v.permanentListener) then
+				return 1
+			end
 		end
 	end
 	return 0

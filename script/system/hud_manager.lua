@@ -774,6 +774,9 @@ function TBHud:refreshChat()
 				self.ChatHolderScrollBar.hoverState = BTN_DN
 				self.ChatHolderScrollBar.btnHover(self.ChatHolderScrollBar.parent.pos.x + 1, self.ChatHolderScrollBar.parent.pos.y + self.ChatHolderScrollBar.parent.size.h - 2)
 				self.ChatHolderScrollBar.hoverState = hoverState
+			else
+				local scrollProgress = -(self.ChatHolderListing.size.h + self.ChatHolderListing.shift.y) / (#self.ChatHolderItems * elementHeight - self.ChatHolderListing.size.h)
+				self.ChatHolderScrollBar:moveTo(nil, (self.ChatHolderScrollBar.parent.size.h - self.ChatHolderScrollBar.size.h) * scrollProgress)
 			end
 		else
 			listingHolder:moveTo(nil, listingHolder.parent.size.h - elementHeight * #self.ChatHolderItems)
