@@ -32,9 +32,10 @@ if (QueueList == nil) then
 	---@field MainWindow UIElement
 	---@field PopupWindow UIElement
 	---@field Cache QueueListCache
+	---@field Globalid integer
 	QueueList = {
-		ver = 5.60,
-		__index = {}
+		Globalid = 1012,
+		ver = 5.60
 	}
 	QueueList.__index = QueueList
 end
@@ -852,7 +853,7 @@ function QueueList:show(info)
 		QueueList.DestroyPopup()
 	end
 	QueueList.PopupWindow = UIElement:new({
-		globalid = TB_MENU_HUB_GLOBALID,
+		globalid = QueueList.Globalid,
 		pos = { 0, 0 },
 		size = { WIN_W, WIN_H },
 		interactive = true
@@ -903,7 +904,7 @@ function QueueList.ReloadMainView()
 	local x = math.max(x, WIN_W - w - x) + 30
 	local listWidth = 500
 	QueueList.MainElement = UIElement:new({
-		globalid = TB_MENU_HUB_GLOBALID,
+		globalid = QueueList.Globalid,
 		pos = { WIN_W - listWidth - x, 150 },
 		size = { listWidth, WIN_H - 500 }
 	})
@@ -1019,7 +1020,7 @@ end
 ---Adds a player to the queue list cache
 ---@param id integer
 ---@param name string
----@param bouts integer
+---@param bouts ?integer
 ---@param spectator ?boolean
 function QueueList.AddPlayer(id, name, bouts, spectator)
 	local playerInfo = spectator and QueueListInternal.getSpecInfo(id - 1) or QueueListInternal.getBoutInfo(id - 1)
@@ -1034,9 +1035,9 @@ function QueueList.AddPlayer(id, name, bouts, spectator)
 			targetTable[id].button = nil
 		end
 		targetTable[id] = playerInfo
-		return
+	else
+		table.insert(targetTable, id, playerInfo)
 	end
-	table.insert(targetTable, id, playerInfo)
 
 	local listId = playerInfo.id
 	if (spectator) then
@@ -1104,34 +1105,41 @@ function QueueList.AddPlayer(id, name, bouts, spectator)
 end
 
 ---Reloads queue list display with the new values
-function QueueList.Reload()
+---@param reinit ?boolean
+function QueueList.Reload(reinit)
 	local roomInfo = get_room_info()
 	if (roomInfo == nil) then
 		QueueList.Destroy()
 		return
 	end
 
-	QueueList.ReloadMainView()
 	if (QueueList.Cache.Room == nil or roomInfo.ip ~= QueueList.Cache.Room.ip) then
 		---This is the first launch or we are in a new room, reset cache
+		QueueList.ReloadMainView()
 		QueueList.ResetCache()
+	elseif (QueueList.MainElement == nil or reinit == true) then
+		QueueList.ReloadMainView()
 	end
+	QueueList.Cache.Room = roomInfo
 
 	local bouts = get_bouts()
+	local numBouts = #bouts
 	for i, v in pairs(bouts) do
 		if (QueueList.Cache.Players.Bouts[i] == nil or v ~= QueueList.Cache.Players.Bouts[i].nick) then
-			QueueList.AddPlayer(i, v, #bouts)
+			QueueList.AddPlayer(i, v)
 		end
 	end
-	while (QueueList.Cache.Players.Bouts[#bouts + 1] ~= nil) do
-		QueueList.Cache.Players.Bouts[#bouts + 1].button:kill()
+	while (QueueList.Cache.Players.Bouts[numBouts + 1] ~= nil) do
+		QueueList.Cache.Players.Bouts[numBouts + 1].button:kill()
 		table.remove(QueueList.Cache.Players.Bouts, #bouts + 1)
 	end
 
 	local spectators = get_spectators()
 	for i, v in pairs(spectators) do
 		if (QueueList.Cache.Players.Specs[i] == nil or v ~= QueueList.Cache.Players.Specs[i].nick) then
-			QueueList.AddPlayer(i, v, #bouts, true)
+			QueueList.AddPlayer(i, v, numBouts, true)
+		else
+			QueueList.Cache.Players.Specs[i].button:moveTo(nil, (numBouts + i - 1) * QueueListInternal.listButtonHeight)
 		end
 	end
 	while (QueueList.Cache.Players.Specs[#spectators + 1] ~= nil) do
@@ -1140,6 +1148,10 @@ function QueueList.Reload()
 	end
 
 	QueueList.Cache.Players.total = #QueueList.Cache.Players.Bouts + #QueueList.Cache.Players.Specs
+
+	if (QueueList.PopupWindow ~= nil) then
+		QueueList.PopupWindow:reload()
+	end
 end
 
 ---Initializes the script and sets the default values
@@ -1153,4 +1165,4 @@ add_hook("new_game", "queuelistManager", QueueList.Reload)
 add_hook("new_mp_game", "queuelistManager", QueueList.Reload)
 add_hook("bout_update", "queuelistManager", QueueList.Reload)
 add_hook("spec_update", "queuelistManager", QueueList.Reload)
-add_hook("resolution_changed", "queuelistManager", QueueList.Reload)
+add_hook("resolution_changed", "queuelistManager", function() QueueList.Reload(true) end)

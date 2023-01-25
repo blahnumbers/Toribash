@@ -235,7 +235,8 @@ if (get_option("tooltip") == 1 and not Tooltip.IsActive) then
 	Tooltip:reload()
 end
 
--- Keep hub elements always displayed above tooltip and movememory
+---Spawn generic display hooks
+---We want Tooltip and QueueList to stay below main elements to ensure they aren't blocking the view
 add_hook("draw2d", "tbMainHubVisual", function()
 		if (TB_MENU_MAIN_ISOPEN == 1) then return end
 		if (Tooltip.IsActive) then
@@ -244,10 +245,20 @@ add_hook("draw2d", "tbMainHubVisual", function()
 		if (TB_MOVEMEMORY_ISOPEN == 1) then
 			UIElement:drawVisuals(TB_MOVEMEMORY_GLOBALID)
 		end
+		UIElement:drawVisuals(QueueList.Globalid)
 		UIElement:drawVisuals(TB_MENU_HUB_GLOBALID)
 	end)
+if (is_mobile()) then
+	---Spawn mobile HUD separately and make sure it's above all other elements
+	---This setup *will* work because we're now using deterministic execution order for hooks
+	add_hook("draw2d", "tbMobileHudVisual", function()
+		if (TB_MENU_MAIN_ISOPEN == 1) then return end
+		UIElement:drawVisuals(TBHud.Globalid)
+	end)
+end
 add_hook("draw_viewport", "tbMainHubVisual", function()
 		if (TB_MENU_MAIN_ISOPEN == 1) then return end
+		UIElement3D:drawViewport(QueueList.Globalid)
 		UIElement3D:drawViewport(TB_MENU_HUB_GLOBALID)
 	end)
 add_hook("draw3d", "tbMainHudVisual", function()

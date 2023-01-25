@@ -1145,7 +1145,7 @@ function UIElement:drawVisuals(globalid)
 	UIElement.clock = os.clock_real()
 	local globalid = globalid or self.globalid
 	for _, v in pairs(UIElementManager) do
-		if (v.globalid == globalid) then
+		if (v.globalid == globalid and v.parent == nil) then
 			v:updatePos()
 		end
 	end

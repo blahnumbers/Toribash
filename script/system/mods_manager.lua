@@ -1,7 +1,9 @@
 -- Mods manager
 
 if (Mods == nil) then
-	local x, y = get_window_safe_size()
+	local x, y, w, h = get_window_safe_size()
+	x = math.max(x, WIN_W - x - w)
+	y = math.max(y, WIN_H - y - h)
 
 	---@class ModsListEntryInfo
 	---@field time number Click time in seconds
@@ -16,7 +18,7 @@ if (Mods == nil) then
 
 	---**Mod browser class**
 	---
-	---**Version 1.1**
+	---**Version 5.60**
 	--- - Moved globals to be Mods class fields
 	--- - Updates for touch input and new UIElement functionality
 	--- - Visuals update to match modern style
@@ -168,7 +170,7 @@ function Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, data
 				Mods.ListShift[1] = 0
 				search:clearTextfield()
 				Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, data.contents[i], search)
-			end)
+			end, true)
 			table.remove(listElements)
 			local inserted = false
 			if (searchString ~= "") then

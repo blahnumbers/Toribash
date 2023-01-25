@@ -26,8 +26,7 @@ if (TBMenu == nil) then
 	---@field CurrentAnnouncementId integer Active home tab announcement ID
 	TBMenu = {
 		CurrentAnnouncementId = 1,
-		ver = 5.60,
-		__index = {}
+		ver = 5.60
 	}
 	setmetatable({}, TBMenu)
 end

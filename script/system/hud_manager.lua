@@ -38,6 +38,7 @@ if (TBHud == nil) then
 	---@field RequiresChatRefresh boolean
 	---@field ver number
 	TBHud = {
+		Globalid = 1013,
 		HubSize = { w = 0, h = 0 },
 		ChatSize = { w = 0, h = 0},
 		ListShift = { 0 },
@@ -173,7 +174,7 @@ function TBHud:init()
 	end
 
 	self.MainElement = UIElement:new({
-		globalid = TB_MENU_HUB_GLOBALID,
+		globalid = self.Globalid,
 		pos = { 0, 0 },
 		size = { WIN_W, WIN_H }
 	})
@@ -403,7 +404,7 @@ function TBHud:spawnHoldRelaxAllButton()
 	end)
 	toggleButtonsDisplay()
 	holdRelaxAllButtonHolder:addCustomDisplay(true, function()
-		local shouldBeDisplayed = TBHud.WorldState.replay_mode == 0 and TBHudInternal.isPlaying()
+		local shouldBeDisplayed = players_accept_input()
 		if (shouldBeDisplayed and not holdRelaxAllButton:isDisplayed()) then
 			holdRelaxAllButton:show()
 		elseif (not shouldBeDisplayed and holdRelaxAllButton:isDisplayed()) then
