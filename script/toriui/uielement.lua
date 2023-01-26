@@ -201,6 +201,8 @@ if (not UIElement) then
 	---@field downSound number
 	---@field clickThrough boolean
 	---@field hoverThrough boolean
+	---@field bgGradient Color[] List of two colors to generate gradient with
+	---@field bgGradientMode PlayerBody Toribash bodypart id to base gradient UV on
 
 	-- Toribash GUI elements manager class
 	--
@@ -208,7 +210,8 @@ if (not UIElement) then
 	-- * Rewritten all keyboard handlers to make better use of SDL text input events
 	-- * `UIElement.keyboardHooks()` to initialize generic text field handlers on start
 	-- * `UIElement.mouseHooks()` is now an abstract class function
-	-- * `print_r` renamed to `print` to match default Lua function name
+	-- * `print` and `print_r` functions for easier debug
+	-- * Gradient generation support for generated UIElements
 	--
 	-- **Ver 1.6 updates:**
 	-- * `hoverThrough` support
@@ -305,61 +308,57 @@ UIElement.textInput = function(input) end
 UIElement.textInputCustom = function() end
 
 -- Callback function triggered on any keyboard key down event while UIElement is active
----@param key number Pressed key's keycode
+---@param key ?number Pressed key's keycode
 ---@return number|nil
----@overload fun(key?: number)
 UIElement.keyDown = function(key) end
 
 -- Callback function triggered on any keyboard key up event while UIElement is active
----@param key number Pressed key's keycode
+---@param key ?number Pressed key's keycode
 ---@return number|nil
----@overload fun(key?: number)
 UIElement.keyUp = function(key) end
 
 -- Custom callback function triggered on any keyboard key down event while UIElement is active
----@param key number Pressed key's keycode
+---@param key ?number Pressed key's keycode
 ---@return number|nil
----@overload fun(key?: number)
 UIElement.keyDownCustom = function(key) end
 
 -- Custom callback function triggered on any keyboard key up event while UIElement is active
----@param key number Pressed key's keycode
+---@param key ?number Pressed key's keycode
 ---@return number|nil
----@overload fun(key?: number)
 UIElement.keyUpCustom = function(key) end
 
 -- Callback function triggered on mouse button down event when cursor is within object transform
----@param buttonId number Mouse button ID associated with the event
----@param x number Mouse cursor X position associated with the event
----@param y number Mouse cursor Y position associated with the event
----@overload fun(buttonId?: number, x?: number, y?: number)
+---@param buttonId ?number Mouse button ID associated with the event
+---@param x ?number Mouse cursor X position associated with the event
+---@param y ?number Mouse cursor Y position associated with the event
 UIElement.btnDown = function(buttonId, x, y) end
 
 -- Callback function triggered on mouse button up event when cursor is within object transform
----@param buttonId number Mouse button ID associated with the event
----@param x number Mouse cursor X position associated with the event
----@param y number Mouse cursor Y position associated with the event
----@overload fun(buttonId?: number, x?: number, y?: number)
+---@param buttonId ?number Mouse button ID associated with the event
+---@param x ?number Mouse cursor X position associated with the event
+---@param y ?number Mouse cursor Y position associated with the event
 UIElement.btnUp = function(buttonId, x, y) end
 
 -- Callback function triggered on mouse move event when cursor is within object transform
----@param x number Mouse cursor X position associated with the event
----@param y number Mouse cursor Y position associated with the event
----@overload fun(x?: number, y?: number)
+---@param x ?number Mouse cursor X position associated with the event
+---@param y ?number Mouse cursor Y position associated with the event
 UIElement.btnHover = function(x, y) end
 
 -- Callback function triggered on right mouse button up event when cursor is within object transform\
 -- We use a separate event because normally right mouse clicks do not produce events so behavior won't be the same
----@param buttonId number Mouse button ID associated with the event
----@param x number Mouse cursor X position associated with the event
----@param y number Mouse cursor Y position associated with the event
----@overload fun(buttonId?: number, x?: number, y?: number)
+---@param buttonId ?number Mouse button ID associated with the event
+---@param x ?number Mouse cursor X position associated with the event
+---@param y ?number Mouse cursor Y position associated with the event
 UIElement.btnRightUp = function(buttonId, x, y) end
 
 -- Spawn a new UI Element
 ---@param o UIElementOptions Options to use for spawning the new object
 ---@return UIElement
 function UIElement:new(o)
+	if (o == nil) then
+		error("Invalid argument #1 provided to UIElement:new(o: UIElementOptions)")
+	end
+
 	---@type UIElement
 	local elem = {	globalid = 1000,
 					child = {},
@@ -371,162 +370,161 @@ function UIElement:new(o)
 					}
 	setmetatable(elem, self)
 
-	o = o or nil
-	if (o) then
-		if (o.parent) then
-			elem.globalid = o.parent.globalid
-			elem.parent = o.parent
-			elem.uiColor = o.parent.uiColor
-			elem.uiShadowColor = o.parent.uiShadowColor
-			table.insert(elem.parent.child, elem)
-			if (o.parent.viewport) then
-				elem.pos.x = o.pos[1]
-				elem.pos.y = o.pos[2]
-				elem.pos.z = o.pos[3]
-			else
-				elem.shift.x = o.pos[1]
-				elem.shift.y = o.pos[2]
-				elem.size = { w = o.size[1], h = o.size[2] }
-			end
-		else
+	if (o.parent) then
+		elem.globalid = o.parent.globalid
+		elem.parent = o.parent
+		elem.uiColor = o.parent.uiColor
+		elem.uiShadowColor = o.parent.uiShadowColor
+		table.insert(elem.parent.child, elem)
+		if (o.parent.viewport) then
 			elem.pos.x = o.pos[1]
 			elem.pos.y = o.pos[2]
+			elem.pos.z = o.pos[3]
+		else
+			elem.shift.x = o.pos[1]
+			elem.shift.y = o.pos[2]
 			elem.size = { w = o.size[1], h = o.size[2] }
 		end
-		if (o.globalid) then
-			elem.globalid = o.globalid
-		end
-		if (o.uiColor) then
-			elem.uiColor = o.uiColor
-		end
-		if (o.uiShadowColor) then
-			elem.uiShadowColor = o.uiShadowColor
-		end
-		if (o.viewport) then
-			elem.viewport = o.viewport
-		end
-		if (o.bgColor) then
-			elem.bgColor = o.bgColor
-		end
-		if (o.bgImage) then
-			elem.disableUnload = o.disableUnload
-			elem.drawMode = o.imagePatterned and 1 or 0
-			elem.drawMode = o.imageAtlas and 2 or elem.drawMode
-			elem.imageColor = o.imageColor or { 1, 1, 1, 1 }
-
-			elem.atlas = o.atlas or {}
-			elem.atlas.x = elem.atlas.x or 0
-			elem.atlas.y = elem.atlas.y or 0
-			elem.atlas.w = elem.atlas.w or elem.size.w
-			elem.atlas.h = elem.atlas.h or elem.size.h
-
-			if (type(o.bgImage) == "table") then
-				elem:updateImage(o.bgImage[1], o.bgImage[2])
-			else
-				---@diagnostic disable-next-line: param-type-mismatch
-				elem:updateImage(o.bgImage)
-			end
-		end
-
-		-- Textfield value is a table to allow proper initiation / use after obj is created
-		if (o.textfield) then
-			elem.textfield = o.textfield
-			---@diagnostic disable-next-line: assign-type-mismatch
-			elem.textfieldstr = o.textfieldstr and (type(o.textfieldstr) == "table" and o.textfieldstr or { o.textfieldstr .. '' }) or { "" }
-			elem.textfieldindex = utf8.len(elem.textfieldstr[1])
-			elem.textfieldsingleline = o.textfieldsingleline
-			elem.textfieldkeepfocusonhide = o.textfieldkeepfocusonhide
-			---@diagnostic disable-next-line: duplicate-set-field
-			elem.textInput = function(input) elem:textfieldInput(input, o.isNumeric, o.allowNegative, o.allowDecimal) end
-			---@diagnostic disable-next-line: duplicate-set-field
-			elem.keyDown = function(key)
-					if (elem:textfieldKeyDown(key) and elem.textInputCustom) then
-						-- We have updated textfield input and have a custom text input function defined
-						-- Fire a textInputCustom() call for seamless behavior across all input field actions
-						elem.textInputCustom()
-					end
-				end
-			---@diagnostic disable-next-line: duplicate-set-field
-			elem.keyUp = function(key) elem:textfieldKeyUp(key) end
-			table.insert(UIKeyboardHandler, elem)
-		end
-		if (o.toggle) then
-			elem.toggle = o.toggle
-			---@diagnostic disable-next-line: duplicate-set-field
-			elem.keyUp = function(key) elem:textfieldKeyUp(key) end
-			table.insert(UIKeyboardHandler, elem)
-		end
-		if (o.innerShadow and o.shadowColor) then
-			elem.shadowColor = {}
-			if (type(o.shadowColor[1]) == "table") then
-				elem.shadowColor = o.shadowColor
-			else
-				elem.shadowColor = { o.shadowColor, o.shadowColor }
-			end
-			---@diagnostic disable-next-line: assign-type-mismatch
-			elem.innerShadow = type(o.innerShadow) == "table" and o.innerShadow or { o.innerShadow, o.innerShadow }
-		end
-		if (o.shapeType == ROUNDED and o.rounded) then
-			elem.setRounded(elem, o.rounded)
-			-- Light UI mode - don't add rounded corners if it's just for cosmetics
-			if (not UIMODE_LIGHT or elem.rounded > elem.size.w / 4) then
-				elem.shapeType = o.shapeType
-			end
-		end
-		if (o.interactive) then
-			elem.interactive = o.interactive
-			elem.isactive = true
-			elem.scrollEnabled = o.scrollEnabled or false
-			elem.hoverColor = o.hoverColor or nil
-			elem.pressedColor = o.pressedColor or nil
-			elem.inactiveColor = o.inactiveColor or o.bgColor
-			elem.animateColor = table.clone(elem.bgColor)
-			if (elem.bgImage) then
-				elem.imageHoverColor = o.imageHoverColor or nil
-				elem.imagePressedColor = o.imagePressedColor or nil
-				elem.imageAnimateColor = table.clone(elem.imageColor)
-			end
-			elem.hoverState = BTN_NONE
-			elem.hoverClock = UIElement.clock
-			elem.pressedPos = { x = 0, y = 0 }
-			table.insert(UIMouseHandler, elem)
-		end
-		if (o.keyboard) then
-			elem.permanentListener = o.permanentListener
-			table.insert(UIKeyboardHandler, elem)
-		end
-		if (o.hoverSound) then
-			elem.hoverSound = o.hoverSound
-		end
-		if (o.upSound) then
-			elem.upSound = o.upSound
-		end
-		if (o.downSound) then
-			elem.downSound = o.downSound
-		end
-		if (o.clickThrough) then
-			elem.clickThrough = o.clickThrough
-		end
-		if (o.hoverThrough) then
-			elem.hoverThrough = o.hoverThrough
-		end
-
-		---Only add root elements to UIElementManager to decrease table traversal speed
-		if (elem.parent == nil) then
-			table.insert(UIElementManager, elem)
-		end
-
-		-- Display is enabled by default, comment this out to disable
-		if (elem.viewport or (elem.parent and elem.parent.viewport)) then
-			table.insert(UIViewportManager, elem)
-		else
-			table.insert(UIVisualManager, elem)
-		end
-
-		-- Force update global x/y pos when spawning element
-		elem:updatePos()
-		elem.displayed = true
+	else
+		elem.pos.x = o.pos[1]
+		elem.pos.y = o.pos[2]
+		elem.size = { w = o.size[1], h = o.size[2] }
 	end
+	if (o.globalid) then
+		elem.globalid = o.globalid
+	end
+	if (o.uiColor) then
+		elem.uiColor = o.uiColor
+	end
+	if (o.uiShadowColor) then
+		elem.uiShadowColor = o.uiShadowColor
+	end
+	if (o.viewport) then
+		elem.viewport = o.viewport
+	end
+	if (o.bgGradient) then
+		elem:updateImageGradient(o.bgGradient[1], o.bgGradient[2], o.bgGradientMode)
+	elseif (o.bgColor) then
+		elem.bgColor = o.bgColor
+	end
+	if (o.bgImage) then
+		elem.disableUnload = o.disableUnload
+		elem.drawMode = o.imagePatterned and 1 or 0
+		elem.drawMode = o.imageAtlas and 2 or elem.drawMode
+		elem.imageColor = o.imageColor or { 1, 1, 1, 1 }
+
+		elem.atlas = o.atlas or {}
+		elem.atlas.x = elem.atlas.x or 0
+		elem.atlas.y = elem.atlas.y or 0
+		elem.atlas.w = elem.atlas.w or elem.size.w
+		elem.atlas.h = elem.atlas.h or elem.size.h
+
+		if (type(o.bgImage) == "table") then
+			elem:updateImage(o.bgImage[1], o.bgImage[2])
+		else
+			---@diagnostic disable-next-line: param-type-mismatch
+			elem:updateImage(o.bgImage)
+		end
+	end
+
+	-- Textfield value is a table to allow proper initiation / use after obj is created
+	if (o.textfield) then
+		elem.textfield = o.textfield
+		---@diagnostic disable-next-line: assign-type-mismatch
+		elem.textfieldstr = o.textfieldstr and (type(o.textfieldstr) == "table" and o.textfieldstr or { o.textfieldstr .. '' }) or { "" }
+		elem.textfieldindex = utf8.len(elem.textfieldstr[1])
+		elem.textfieldsingleline = o.textfieldsingleline
+		elem.textfieldkeepfocusonhide = o.textfieldkeepfocusonhide
+		---@diagnostic disable-next-line: duplicate-set-field
+		elem.textInput = function(input) elem:textfieldInput(input, o.isNumeric, o.allowNegative, o.allowDecimal) end
+		---@diagnostic disable-next-line: duplicate-set-field
+		elem.keyDown = function(key)
+				if (elem:textfieldKeyDown(key) and elem.textInputCustom) then
+					-- We have updated textfield input and have a custom text input function defined
+					-- Fire a textInputCustom() call for seamless behavior across all input field actions
+					elem.textInputCustom()
+				end
+			end
+		---@diagnostic disable-next-line: duplicate-set-field
+		elem.keyUp = function(key) elem:textfieldKeyUp(key) end
+		table.insert(UIKeyboardHandler, elem)
+	end
+	if (o.toggle) then
+		elem.toggle = o.toggle
+		---@diagnostic disable-next-line: duplicate-set-field
+		elem.keyUp = function(key) elem:textfieldKeyUp(key) end
+		table.insert(UIKeyboardHandler, elem)
+	end
+	if (o.innerShadow and o.shadowColor) then
+		elem.shadowColor = {}
+		if (type(o.shadowColor[1]) == "table") then
+			elem.shadowColor = o.shadowColor
+		else
+			elem.shadowColor = { o.shadowColor, o.shadowColor }
+		end
+		---@diagnostic disable-next-line: assign-type-mismatch
+		elem.innerShadow = type(o.innerShadow) == "table" and o.innerShadow or { o.innerShadow, o.innerShadow }
+	end
+	if (o.shapeType == ROUNDED and o.rounded) then
+		elem.setRounded(elem, o.rounded)
+		-- Light UI mode - don't add rounded corners if it's just for cosmetics
+		if (not UIMODE_LIGHT or elem.rounded > elem.size.w / 4) then
+			elem.shapeType = o.shapeType
+		end
+	end
+	if (o.interactive) then
+		elem.interactive = o.interactive
+		elem.isactive = true
+		elem.scrollEnabled = o.scrollEnabled or false
+		elem.hoverColor = o.hoverColor or nil
+		elem.pressedColor = o.pressedColor or nil
+		elem.inactiveColor = o.inactiveColor or o.bgColor
+		elem.animateColor = table.clone(elem.bgColor)
+		if (elem.bgImage) then
+			elem.imageHoverColor = o.imageHoverColor or nil
+			elem.imagePressedColor = o.imagePressedColor or nil
+			elem.imageAnimateColor = table.clone(elem.imageColor)
+		end
+		elem.hoverState = BTN_NONE
+		elem.hoverClock = UIElement.clock
+		elem.pressedPos = { x = 0, y = 0 }
+		table.insert(UIMouseHandler, elem)
+	end
+	if (o.keyboard) then
+		elem.permanentListener = o.permanentListener
+		table.insert(UIKeyboardHandler, elem)
+	end
+	if (o.hoverSound) then
+		elem.hoverSound = o.hoverSound
+	end
+	if (o.upSound) then
+		elem.upSound = o.upSound
+	end
+	if (o.downSound) then
+		elem.downSound = o.downSound
+	end
+	if (o.clickThrough) then
+		elem.clickThrough = o.clickThrough
+	end
+	if (o.hoverThrough) then
+		elem.hoverThrough = o.hoverThrough
+	end
+
+	---Only add root elements to UIElementManager to decrease table traversal speed
+	if (elem.parent == nil) then
+		table.insert(UIElementManager, elem)
+	end
+
+	-- Display is enabled by default, comment this out to disable
+	if (elem.viewport or (elem.parent and elem.parent.viewport)) then
+		table.insert(UIViewportManager, elem)
+	else
+		table.insert(UIVisualManager, elem)
+	end
+
+	-- Force update global x/y pos when spawning element
+	elem:updatePos()
+	elem.displayed = true
 
 	return elem
 end
@@ -798,7 +796,7 @@ function UIElement:makeScrollBar(listHolder, listElements, toReload, posShift, s
 	end
 	self.pressedPos = { x = 0, y = 0 }
 
-	self.listReload = function() toReload:reload() end
+	self.listReload = function() listHolder.parent:reloadListElements(listHolder, listElements, toReload, enabled, self.orientation) end
 	self.scrollReload = function() if (self.holder) then self.holder:reload() end self:reload() end
 
 	self:barScroll(listElements, listHolder, toReload, posShift[1], enabled)
@@ -863,7 +861,7 @@ function UIElement:makeScrollBar(listHolder, listElements, toReload, posShift, s
 			end
 		end)
 
-	if (is_mobile()) then
+	--if (is_mobile()) then
 		local lastListHolderVal = -1
 		local deltaChange = 0
 		local lastClock = UIElement.clock
@@ -900,7 +898,7 @@ function UIElement:makeScrollBar(listHolder, listElements, toReload, posShift, s
 					self:touchScroll(listElements, listHolder, toReload, deltaChange, enabled)
 				end
 			end)
-	end
+	--end
 end
 
 ---Internal function to handle mouse wheel scrolling for lists. \
@@ -914,6 +912,9 @@ function UIElement:mouseScroll(listElements, listHolder, toReload, scroll, enabl
 	if (self.orientation == SCROLL_VERTICAL) then
 		local elementHeight = listElements[1].size.h
 		local listHeight = #listElements * elementHeight
+		if (listHeight <= listHolder.size.h) then
+			return
+		end
 		local oldShift = listHolder.shift.y
 		if (listHolder.shift.y + scroll * elementHeight > -listHolder.size.h) then
 			self:moveTo(self.shift.x, 0)
@@ -927,12 +928,15 @@ function UIElement:mouseScroll(listElements, listHolder, toReload, scroll, enabl
 			self:moveTo(self.shift.x, (self.parent.size.h - self.size.h) * scrollProgress)
 		end
 		if (oldShift ~= listHolder.shift.y) then
-			listHolder.parent:reloadListElements(listHolder, listElements, toReload, enabled, self.orientation)
+			self.listReload()
 			self.scrollReload()
 		end
 	else
 		local elementWidth = listElements[1].size.w
 		local listWidth = #listElements * elementWidth
+		if (listWidth <= listHolder.size.w) then
+			return
+		end
 		local oldShift = listHolder.shift.x
 		if (listHolder.shift.x + scroll * elementWidth > -listHolder.size.w) then
 			self:moveTo(0, self.shift.y)
@@ -946,7 +950,7 @@ function UIElement:mouseScroll(listElements, listHolder, toReload, scroll, enabl
 			self:moveTo((self.parent.size.w - self.size.w) * scrollProgress, self.shift.y)
 		end
 		if (oldShift ~= listHolder.shift.x) then
-			listHolder.parent:reloadListElements(listHolder, listElements, toReload, enabled, self.orientation)
+			self.listReload()
 			self.scrollReload()
 		end
 	end
@@ -964,6 +968,9 @@ function UIElement:barScroll(listElements, listHolder, toReload, posShift, enabl
 	if (self.orientation == SCROLL_VERTICAL) then
 		local sizeH = math.floor(self.size.h / 4)
 		local listHeight = listElements[1].size.h * #listElements
+		if (listHeight <= listHolder.size.h) then
+			return
+		end
 
 		if (posShift <= 0) then
 			if (self.pressedPos.y < sizeH) then
@@ -985,6 +992,9 @@ function UIElement:barScroll(listElements, listHolder, toReload, posShift, enabl
 	else
 		local sizeW = math.floor(self.size.w / 4)
 		local listWidth = listElements[1].size.w * #listElements
+		if (listWidth <= listHolder.size.w) then
+			return
+		end
 
 		if (posShift <= 0) then
 			if (self.pressedPos.x < sizeW) then
@@ -1020,6 +1030,9 @@ function UIElement:touchScroll(listElements, listHolder, toReload, scrollDelta, 
 
 	if (self.orientation == SCROLL_VERTICAL) then
 		local listHeight = #listElements * listElements[1].size.h
+		if (listHeight <= listHolder.size.h) then
+			return
+		end
 
 		if (scrollDelta > 0) then
 			scrollDelta = -1 * math.min(scrollDelta, listHeight + listHolder.shift.y)
@@ -1033,10 +1046,13 @@ function UIElement:touchScroll(listElements, listHolder, toReload, scrollDelta, 
 			local scrollProgress = -(listHolder.size.h + listHolder.shift.y) / (listHeight - listHolder.size.h)
 			self:moveTo(self.shift.x, (self.parent.size.h - self.size.h) * scrollProgress)
 
-			listHolder.parent:reloadListElements(listHolder, listElements, toReload, enabled, self.orientation)
+			self.listReload()
 		end
 	else
 		local listWidth = #listElements * listElements[1].size.w
+		if (listWidth <= listHolder.size.w) then
+			return
+		end
 
 		if (scrollDelta > 0) then
 			scrollDelta = -1 * math.min(scrollDelta, listWidth + listHolder.shift.x)
@@ -1050,7 +1066,7 @@ function UIElement:touchScroll(listElements, listHolder, toReload, scrollDelta, 
 			local scrollProgress = -(listHolder.size.w + listHolder.shift.x) / (listWidth - listHolder.size.w)
 			self:moveTo((self.parent.size.w - self.size.w) * scrollProgress, self.shift.y)
 
-			listHolder.parent:reloadListElements(listHolder, listElements, toReload, enabled, self.orientation)
+			self.listReload()
 		end
 	end
 end
@@ -1275,11 +1291,11 @@ function UIElement:display()
 		if (self.bgImage) then
 			local targetImageColor = self.interactive and ((self.hoverState == BTN_HVR or self.hoverState == BTN_FOCUS) and self.imageAnimateColor or (self.hoverState == BTN_DN and self.imagePressedColor or self.imageColor)) or self.imageColor
 			if (self.drawMode == 2) then
-				draw_quad(self.pos.x, self.pos.y, self.size.w, self.size.h, self.bgImage, self.drawMode, targetImageColor[1], targetImageColor[2], targetImageColor[3], targetImageColor[4], self.atlas.w, self.atlas.h, self.atlas.x, self.atlas.y)
+				draw_quad(self.pos.x, self.pos.y, self.size.w, self.size.h, self.bgImage, 2, targetImageColor[1], targetImageColor[2], targetImageColor[3], targetImageColor[4], self.atlas.w, self.atlas.h, self.atlas.x, self.atlas.y)
 			elseif (self.drawMode == 1) then
-				draw_quad(self.pos.x, self.pos.y, self.atlas.w, self.atlas.h, self.bgImage, self.drawMode, targetImageColor[1], targetImageColor[2], targetImageColor[3], targetImageColor[4], self.size.w, self.size.h)
+				draw_quad(self.pos.x, self.pos.y, self.atlas.w, self.atlas.h, self.bgImage, 1, targetImageColor[1], targetImageColor[2], targetImageColor[3], targetImageColor[4], self.size.w, self.size.h)
 			else
-				draw_quad(self.pos.x, self.pos.y, self.size.w, self.size.h, self.bgImage, self.drawMode, targetImageColor[1], targetImageColor[2], targetImageColor[3], targetImageColor[4])
+				draw_quad(self.pos.x, self.pos.y, self.size.w, self.size.h, self.bgImage, 0, targetImageColor[1], targetImageColor[2], targetImageColor[3], targetImageColor[4])
 			end
 		end
 	end
@@ -2113,9 +2129,6 @@ function UIElement:updateImage(image, default, noreload)
 		return
 	end
 
-	-- Make sure drawMode has a valid value if this was first called from outside the constructor
-	self.drawMode = self.drawMode or 0
-
 	if (TEXTUREINDEX > 253) then
 		self.bgImage = load_texture(DEFTEXTURE)
 		return
@@ -2144,14 +2157,37 @@ function UIElement:updateImage(image, default, noreload)
 	end
 end
 
-CMD_ECHO_ENABLED = true
-CMD_ECHO_DISABLED = false
-CMD_ECHO_FORCE_DISABLED = -1
+---Generates an image gradient to use for the object and stores it in image cache
+---@param color1 Color
+---@param color2 Color
+---@param gradientMode ?PlayerBody
+function UIElement:updateImageGradient(color1, color2, gradientMode)
+	if (color1 == nil or color2 == nil) then return end
+	if (self.bgImage ~= nil) then
+		self:updateImage(nil)
+	end
+	if (TEXTUREINDEX > 253) then
+		return
+	end
+	if (not self.imageColor) then
+		self.imageColor = { 1, 1, 1, 1 }
+	end
+
+	local textureid = generate_texture_gradient(color1[1], color1[2], color1[3], color1[4], color2[1], color2[2], color2[3], color2[4], gradientMode or 0)
+	if (textureid >= 0) then
+		self.bgImage = textureid
+		TEXTUREINDEX = math.max(TEXTUREINDEX, textureid)
+		table.insert(TEXTURECACHE, self.bgImage)
+	end
+end
 
 ---@alias CmdEchoMode
 ---| true CMD_ECHO_ENABLED
 ---| false CMD_ECHO_DISABLED
 ---| -1 CMD_ECHO_FORCE_DISABLED
+CMD_ECHO_ENABLED = true
+CMD_ECHO_DISABLED = false
+CMD_ECHO_FORCE_DISABLED = -1
 
 ---Wrapper function for `run_cmd()` that automatically appends newline at the end of online commands
 ---@param command string

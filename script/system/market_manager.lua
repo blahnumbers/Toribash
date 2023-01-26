@@ -1003,6 +1003,8 @@ do
 					pos = { 10, 2 },
 					size = { element.size.w - 10, element.size.h - 4 },
 					interactive = true,
+					clickThrough = true,
+					hoverThrough = true,
 					bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 					hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 					pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
@@ -1705,7 +1707,7 @@ do
 			rounded = 4
 		}, true)
 		local inputField = TBMenu:spawnTextField(inputHolder, nil, nil, nil, nil, nil, nil, 4, 0.7, UICOLORWHITE, TB_MENU_LOCALIZED.STORESEARCHHINT, CENTERMID)
-		inputField:addKeyboardHandlers(function()
+		inputField:addInputCallback(function()
 				if (inputHolder.dropdown) then
 					inputHolder.dropdown:kill()
 				end
@@ -1738,7 +1740,7 @@ do
 					return
 				end
 
-				inputHolder.dropdown = TBMenu:spawnDropdown(inputField, dropdownList, inputHolder.size.h * 0.8, WIN_H / 3, { text = '' }, nil, { scale = 0.65, fontid = 4 }, false, true)
+				inputHolder.dropdown = TBMenu:spawnDropdown(inputField, dropdownList, inputHolder.size.h * 0.8, WIN_H / 3, { text = '' }, nil, { scale = 0.65, fontid = 4 }, true, true, is_mobile())
 				inputHolder.dropdown.selectedElement:hide(true)
 				inputHolder.dropdown.selectedElement:btnUp()
 			end)
@@ -1797,6 +1799,8 @@ do
 			pos = { 10, 2 },
 			size = { offerView.size.w - 10, offerView.size.h - 1.9 }, -- Leave 0.1px overlap so mouse_move hook doesn't point to nowhere
 			interactive = true,
+			clickThrough = true,
+			hoverThrough = true,
 			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
@@ -1833,6 +1837,8 @@ do
 			pos = { 10, 0 },
 			size = { offerExtraView.size.w - 10, offerExtraView.size.h - 2 },
 			interactive = true,
+			clickThrough = true,
+			hoverThrough = true,
 			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
@@ -1923,6 +1929,8 @@ do
 			pos = { itemNameShift + itemNameWidth + 5, 3 },
 			size = { itemNameWidth - 10, offerBG.size.h * 0.6 },
 			interactive = true,
+			clickThrough = true,
+			hoverThrough = true,
 			bgColor = UICOLORWHITE,
 			hoverColor = TB_MENU_DEFAULT_YELLOW,
 			pressedColor = TB_MENU_DEFAULT_ORANGE
@@ -2097,6 +2105,8 @@ do
 			pos = { 10, 5 },
 			size = { offerBG2.size.w - 20, offerBG2.size.h - 12 },
 			interactive = true,
+			clickThrough = true,
+			hoverThrough = true,
 			bgColor = TB_MENU_DEFAULT_BG_COLOR,
 			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
@@ -2228,7 +2238,7 @@ do
 					end
 				end
 				if (searchResults.items) then
-					for i,v in pairs(qsort(searchResults.items, 'itemname')) do
+					for i,v in pairs(table.qsort(searchResults.items, 'itemname')) do
 						table.insert(dropdownList, {
 							text = v.itemname,
 							action = function() Market:showItemPage(TBMenu.CurrentSection, v) end
@@ -2960,6 +2970,8 @@ do
 				pos = { 10, 2 },
 				size = { (offerView.size.w - 10) / 5 * 4, offerView.size.h - 4 },
 				interactive = true,
+				clickThrough = true,
+				hoverThrough = true,
 				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
@@ -2997,18 +3009,17 @@ do
 				offerItemPrice:addAdaptedText(false, numberFormat(v.price) .. " " .. TB_MENU_LOCALIZED.WORDTC, nil, nil, 4, nil, 0.7)
 			end
 			offerItemName:addAdaptedText(true, item.shortname, nil, nil, nil, LEFTMID, nil, 0.8, 0.6)
-			local offerSellButton = UIElement:new({
-				parent = offerView,
+			local offerSellButton = offerView:addChild({
 				pos = { offerViewBG.shift.x + offerViewBG.size.w + 5, offerViewBG.shift.y },
 				size = { offerView.size.w - (offerViewBG.shift.x + offerViewBG.size.w) - 5, offerViewBG.size.h },
 				interactive = true,
+				clickThrough = true,
+				hoverThrough = true,
 				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-				inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
-				shapeType = offerViewBG.shapeType,
-				rounded = offerViewBG.rounded
-			})
+				inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS
+			}, true)
 			offerSellButton:addChild({ shift = { 5, 2 } }):addAdaptedText(true, v.username == TB_MENU_PLAYER_INFO.username and TB_MENU_LOCALIZED.MARKETMODIFY or TB_MENU_LOCALIZED.MARKETSELL, nil, nil, 4, nil, 0.7)
 			offerSellButton:addMouseHandlers(nil, function()
 					if (v.username == TB_MENU_PLAYER_INFO.username) then

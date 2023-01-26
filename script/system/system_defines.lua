@@ -602,7 +602,8 @@ function load_texture(path) end
 ---@param b2 number
 ---@param a2 number
 ---@param body ?PlayerBody
----@overload fun(col1:ColorId, col2:ColorId, body:PlayerBody?)
+---@return integer
+---@overload fun(col1:ColorId, col2:ColorId, body:PlayerBody?):integer
 function generate_texture_gradient(r1, g1, b1, a1, r2, g2, b2, a2, body) end
 
 ---Unloads a texture with the specified id

@@ -202,18 +202,18 @@ function TBHud:init()
 	self:spawnChat()
 end
 
-function TBHud:reload()
-	if (self.MainElement ~= nil) then
-		self.MainElement:kill()
-		self.MainElement = nil
-		self.ChatHolder = nil
-		self.ChatHolderItems = nil
-		self.ChatMiniHolder = nil
-		self.ChatHolderListing = nil
-		self.ChatHolderScrollBar = nil
-		self.ChatHolderToReload = nil
-		self.ChatHolderTopBar = nil
-		self.HubHolder = nil
+function TBHud.Reload()
+	if (TBHud.MainElement ~= nil) then
+		TBHud.MainElement:kill()
+		TBHud.MainElement = nil
+		TBHud.ChatHolder = nil
+		TBHud.ChatHolderItems = nil
+		TBHud.ChatMiniHolder = nil
+		TBHud.ChatHolderListing = nil
+		TBHud.ChatHolderScrollBar = nil
+		TBHud.ChatHolderToReload = nil
+		TBHud.ChatHolderTopBar = nil
+		TBHud.HubHolder = nil
 	end
 
 	TBHud:init()
@@ -611,7 +611,7 @@ function TBHud:refreshChat()
 			uiColor = TB_MENU_DEFAULT_DARKEST_COLOR
 		})
 		chatMessagesHolder.bgColor[4] = 0.7
-		local toReload, topBar, botBar, listingView, listingHolder = TBMenu:prepareScrollableList(chatMessagesHolder, elementHeight, 40 + math.max(30, y), 16, { 0, 0, 0, 0 })
+		local toReload, topBar, botBar, listingView, listingHolder = TBMenu:prepareScrollableList(chatMessagesHolder, 1, 40 + math.max(30, y), 16, { 0, 0, 0, 0 })
 
 		---@type UIElement[]
 		self.ChatHolderItems = {}
@@ -632,6 +632,16 @@ function TBHud:refreshChat()
 			end
 		end
 
+		local botBarGradient = botBar:addChild({
+			pos = { 0, -botBar.size.h - 5 },
+			size = { botBar.size.w, 10 },
+			bgGradient = { UICOLORWHITE, { 1, 1, 1, 0 } }
+		})
+		local botBarBackdrop = botBar:addChild({
+			pos = { 0, 5 },
+			size = { botBar.size.w, botBar.size.h - 5 },
+			bgColor = UICOLORWHITE
+		})
 		local chatInputHolder = botBar:addChild({
 			pos = { 20, botBar.size.h - 30 - math.max(y, 30) },
 			size = { botBar.size.w - 40, 30 },
@@ -918,9 +928,8 @@ function TBHud:spawnChat()
 	self.ChatHolder:hide(true)
 end
 
-TBHud:reload()
-add_hook("resolution_changed", "tbHudTouchInterface", function() TBHud:reload() end)
-add_hook("new_game", "tbHudTouchInterface", function() TBHudInternal.refreshButtons() end)
-add_hook("console_post", "tbHudChatInterface", function(msg, type, tab)
-	TBHudInternal.pushChatMessage(msg, type, tab)
-end)
+TBHud.Reload()
+add_hook("resolution_changed", "tbHudTouchInterface", TBHud.Reload)
+add_hook("new_game", "tbHudTouchInterface", TBHudInternal.refreshButtons)
+add_hook("spec_update", "tbHudTouchInterface", TBHudInternal.refreshButtons)
+add_hook("console_post", "tbHudChatInterface", TBHudInternal.pushChatMessage)

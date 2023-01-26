@@ -17,6 +17,7 @@ require("system.flag_manager")
 ---@field Specs QueueListPlayerInfo[]
 ---@field total integer Cached total number of bouts + specs
 ---@field list UIElement
+---@field listElements UIElement[]
 
 ---@class QueueListCache
 ---@field Room OnlineRoomInfo
@@ -40,7 +41,7 @@ if (QueueList == nil) then
 	QueueList.__index = QueueList
 end
 
----**Queue List** helper class
+---Helper class for **QueueList** manager
 ---@class QueueListInternal
 local QueueListInternal = {
 	listButtonHeight = 25
@@ -901,15 +902,19 @@ function QueueList.ReloadMainView()
 	end
 
 	local x, y, w, h = get_window_safe_size()
-	local x = math.max(x, WIN_W - w - x) + 30
+	local x = math.max(x, WIN_W - w - x) + 15
 	local listWidth = 500
 	QueueList.MainElement = UIElement:new({
 		globalid = QueueList.Globalid,
 		pos = { WIN_W - listWidth - x, 150 },
-		size = { listWidth, WIN_H - 500 }
+		size = { listWidth, WIN_H - 400 }
 	})
-	local toReload, topBar, botBar, listingView, listingHolder = TBMenu:prepareScrollableList(QueueList.MainElement, QueueListInternal.listButtonHeight, QueueListInternal.listButtonHeight, 4, { 0, 0, 0, 0 })
-	QueueList.Cache.Players.list = listingHolder
+	local toReload, topBar, botBar, listingView, listingHolder = TBMenu:prepareScrollableList(QueueList.MainElement, 1, 1, 8, { 0, 0, 0, 0 })
+	QueueListInternal.ListHolder = listingHolder
+	QueueListInternal.ListElements = {}
+
+	QueueListInternal.ListScrollbar = TBMenu:spawnScrollBar(QueueListInternal.ListHolder, 100, QueueListInternal.listButtonHeight)
+	QueueListInternal.ListScrollbar:makeScrollBar(QueueListInternal.ListHolder, QueueListInternal.ListElements, toReload)
 end
 
 ---Wrapper function to retrieve bout information by id
@@ -1044,13 +1049,13 @@ function QueueList.AddPlayer(id, name, bouts, spectator)
 		listId = bouts + playerInfo.id
 	end
 
-	playerInfo.button = QueueList.MainElement:addChild({
+	playerInfo.button = QueueListInternal.ListHolder:addChild({
 		pos = { 0, listId * QueueListInternal.listButtonHeight },
 		size = { QueueList.MainElement.size.w, QueueListInternal.listButtonHeight },
 		bgColor = QueueListInternal.getNameColor(playerInfo),
-		hoverColor = TB_MENU_DEFAULT_BLUE,
-		pressedColor = TB_MENU_DEFAULT_ORANGE,
-		interactive = true
+		interactive = true,
+		clickThrough = true,
+		hoverThrough = true
 	})
 	playerInfo.button.bgColor[4] = spectator and 0.5 or 0.9
 	playerInfo.button.hoverColor = table.clone(playerInfo.button.bgColor)
@@ -1079,11 +1084,11 @@ function QueueList.AddPlayer(id, name, bouts, spectator)
 			QueueList:show(playerInfo)
 		end)
 
+	local flagScale = 16
 	playerInfo.button.size.w = get_string_length(playerInfo.button.dispstr[1], playerInfo.button.textFont) * playerInfo.button.textScale + 5
-	playerInfo.button:moveTo(-playerInfo.button.size.w)
+	playerInfo.button:moveTo(-playerInfo.button.size.w - flagScale - 10)
 
 	local flagInfo = FlagManager.GetFlagInfoByCode(playerInfo.flag_code)
-	local flagScale = 16
 	local playerFlag = playerInfo.button:addChild({
 		pos = { playerInfo.button.size.w + 5, (playerInfo.button.size.h - flagScale) / 2 },
 		size = { flagScale, flagScale },
@@ -1115,8 +1120,8 @@ function QueueList.Reload(reinit)
 
 	if (QueueList.Cache.Room == nil or roomInfo.ip ~= QueueList.Cache.Room.ip) then
 		---This is the first launch or we are in a new room, reset cache
-		QueueList.ReloadMainView()
 		QueueList.ResetCache()
+		QueueList.ReloadMainView()
 	elseif (QueueList.MainElement == nil or reinit == true) then
 		QueueList.ReloadMainView()
 	end
@@ -1145,6 +1150,26 @@ function QueueList.Reload(reinit)
 	while (QueueList.Cache.Players.Specs[#spectators + 1] ~= nil) do
 		QueueList.Cache.Players.Specs[#spectators + 1].button:kill()
 		table.remove(QueueList.Cache.Players.Specs, #spectators + 1)
+	end
+
+	for i = #QueueListInternal.ListElements, 1, -1 do
+		table.remove(QueueListInternal.ListElements, i)
+	end
+	for _, v in pairs(QueueList.Cache.Players.Bouts) do
+		table.insert(QueueListInternal.ListElements, v.button)
+		v.button:hide(true)
+	end
+	for _, v in pairs(QueueList.Cache.Players.Specs) do
+		table.insert(QueueListInternal.ListElements, v.button)
+		v.button:hide(true)
+	end
+
+	QueueListInternal.ListScrollbar.size.h = math.max(0.1, math.min(1, (QueueListInternal.ListHolder.size.h) / (#QueueListInternal.ListElements * QueueListInternal.listButtonHeight) or QueueListInternal.ListHolder.size.h)) * QueueListInternal.ListScrollbar.parent.size.h
+	QueueListInternal.ListScrollbar.listReload()
+	if (QueueListInternal.ListScrollbar.size.h == QueueListInternal.ListScrollbar.parent.size.h) then
+		QueueListInternal.ListScrollbar:hide(true)
+	else
+		QueueListInternal.ListScrollbar:show(true)
 	end
 
 	QueueList.Cache.Players.total = #QueueList.Cache.Players.Bouts + #QueueList.Cache.Players.Specs

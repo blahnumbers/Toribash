@@ -2854,6 +2854,12 @@ function TBMenu:showLoginError(viewElement, actionStr)
 		end)
 end
 
+---@class UIDropdown : UIElement
+---@field listElements UIElement[]
+---@field listHolder UIElement
+---@field listToReload UIElement
+---@field selectedElement UIElement
+
 ---@class DropdownElement
 ---@field default boolean
 ---@field text string
@@ -2876,10 +2882,11 @@ end
 ---@param listTextSettings ?DropdownSettings
 ---@param keepFocus ?boolean
 ---@param noOverlaying ?boolean
----@return UIElement
-function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHeight, selectedItem, textSettings, listTextSettings, keepFocus, noOverlaying)
+---@param forceDisplayAbove ?boolean
+---@return UIDropdown
+function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHeight, selectedItem, textSettings, listTextSettings, keepFocus, noOverlaying, forceDisplayAbove)
 	local listElementsDisplay = {}
-	for i,v in pairs(listElements) do
+	for _, v in pairs(listElements) do
 		if (not v.default) then
 			table.insert(listElementsDisplay, v)
 		end
@@ -2905,21 +2912,17 @@ function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHei
 	listTextSettings.alignment = listTextSettings.alignment or listTextSettings.orientation or CENTERMID
 	listTextSettings.uppercase = listTextSettings.uppercase == nil and true or listTextSettings.uppercase
 
-	local overlay = UIElement:new({
-		parent = holderElement,
-		pos = { 0, 0 },
+	---@type UIDropdown
+	---@diagnostic disable-next-line: assign-type-mismatch
+	local overlay = holderElement:addChild({
 		size = { WIN_W, WIN_H },
 		interactive = not keepFocus,
 		scrollEnabled = true
 	})
-	local dropdownView = UIElement:new({
-		parent = overlay,
-		pos = { 0, 0 },
+	local dropdownView = overlay:addChild({
 		size = { holderElement.size.w, maxHeight },
-		bgColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-		shapeType = holderElement.shapeType,
-		rounded = holderElement.rounded and holderElement.rounded * 4 / 3 or 0
-	})
+		bgColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+	}, true)
 	overlay:addMouseHandlers(function(s)
 			if (s >= 4) then
 				overlay:hide(true)
@@ -2929,7 +2932,7 @@ function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHei
 		end)
 	local function updatePos(t)
 		t:updateChildPos()
-		for i,v in pairs(t.child) do
+		for _, v in pairs(t.child) do
 			updatePos(v)
 		end
 	end
@@ -2938,14 +2941,22 @@ function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHei
 	dropdownView:addCustomDisplay(false, function()
 			overlay.pos.x = 0
 			overlay.pos.y = 0
-			for i,v in pairs(overlay.child) do
+			for _, v in pairs(overlay.child) do
 				v:updateChildPos()
 			end
-			local dropdownPosY = holderElement.pos.y + addedShift + maxHeight > WIN_H - 25 and (holderElement.pos.y - maxHeight < 25 and WIN_H - 25 - maxHeight - addedShift or holderElement.pos.y - maxHeight) or holderElement.pos.y + addedShift
+			local dropdownPosY = holderElement.pos.y + addedShift
+			if (forceDisplayAbove or (holderElement.pos.y + addedShift + maxHeight > WIN_H - 25)) then
+				if (holderElement.pos.y - maxHeight < 25) then
+					dropdownPosY = WIN_H - 25 - maxHeight - addedShift
+				else
+					dropdownPosY = holderElement.pos.y - maxHeight
+				end
+			end
+
 			dropdownView:moveTo(holderElement.pos.x, dropdownPosY)
 			dropdownView.pos.x = overlay.pos.x + dropdownView.shift.x
 			dropdownView.pos.y = overlay.pos.y + dropdownView.shift.y
-			for i,v in pairs(dropdownView.child) do
+			for _, v in pairs(dropdownView.child) do
 				updatePos(v)
 			end
 		end, true)
@@ -3057,7 +3068,7 @@ function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHei
 	selectedElement:addMouseHandlers(nil, function()
 			overlay:show(true)
 			if (overlay.listElements) then
-				for i,v in pairs(overlay.listElements) do
+				for _, v in pairs(overlay.listElements) do
 					v:hide()
 				end
 				overlay.listHolder.scrollBar:makeScrollBar(overlay.listHolder, overlay.listElements, overlay.listToReload)

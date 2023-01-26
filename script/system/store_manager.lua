@@ -5723,7 +5723,7 @@ do
 				end
 			end, function()
 				Torishop:showStoreItemInfo(item)
-				storeListingScrollBar.listReload()
+				storeListingScrollBar.toReload:reload()
 				if (iconOverlay) then
 					iconOverlay.bgColor = itemSection.animateColor
 				end
@@ -6015,6 +6015,7 @@ do
 		storeListingScrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
 		listingHolder.scrollBar = storeListingScrollBar
 		storeListingScrollBar:makeScrollBar(listingHolder, listElements, toReload)
+		storeListingScrollBar.toReload = toReload
 
 		TBMenu:addBottomBloodSmudge(botBar, 2)
 	end
