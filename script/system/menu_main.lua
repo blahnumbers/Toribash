@@ -230,6 +230,7 @@ add_hook("new_mp_game", "tbMainMenuStatic", function()
 		set_discord_rpc("", "")
 	end)
 
+require("system.movememory_manager")
 require("system.tooltip_manager")
 if (get_option("tooltip") == 1 and not Tooltip.IsActive) then
 	Tooltip:reload()
@@ -241,9 +242,6 @@ add_hook("draw2d", "tbMainHubVisual", function()
 		if (TB_MENU_MAIN_ISOPEN == 1) then return end
 		if (Tooltip.IsActive) then
 			UIElement:drawVisuals(Tooltip.Globalid)
-		end
-		if (TB_MOVEMEMORY_ISOPEN == 1) then
-			UIElement:drawVisuals(TB_MOVEMEMORY_GLOBALID)
 		end
 		UIElement:drawVisuals(QueueList.Globalid)
 		UIElement:drawVisuals(TB_MENU_HUB_GLOBALID)
@@ -266,10 +264,6 @@ add_hook("draw3d", "tbMainHudVisual", function()
 	end)
 
 -- Load miscellaneous scripts
-if (get_option("movememory") == 1 and not MOVEMEMORY_ACTIVE) then
-	require("system.movememory_manager")
-	MoveMemory:spawnHotkeyListener()
-end
 if (get_option("showbroadcast") and (not Broadcasts or not Broadcasts.HOOKS_ACTIVE)) then
 	require("system.broadcast_manager")
 	Broadcasts:activate()

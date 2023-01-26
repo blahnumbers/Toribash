@@ -83,9 +83,9 @@ end
 ---@param icon string|nil
 ---@param text string
 ---@param pressFunc function
----@param iconHalfWidth ?boolean
+---@param iconScale ?UIElementSize
 ---@return UIElement
-function Mods.spawnListButton(listingHolder, listElements, elementHeight, icon, text, pressFunc, iconHalfWidth)
+function Mods.spawnListButton(listingHolder, listElements, elementHeight, icon, text, pressFunc, iconScale)
 	local buttonHolder = listingHolder:addChild({
 		pos = { 0, #listElements * elementHeight },
 		size = { listingHolder.size.w, elementHeight }
@@ -106,9 +106,10 @@ function Mods.spawnListButton(listingHolder, listElements, elementHeight, icon, 
 
 	local shiftModifier = 0
 	if (icon ~= nil) then
+		local iconScale = iconScale and { iconScale.w or button.size.h, iconScale.h or button.size.h } or { button.size.h, button.size.h }
 		local buttonIcon = button:addChild({
-			pos = { 5, 0 },
-			size = { iconHalfWidth and button.size.h / 2 or button.size.h, button.size.h },
+			pos = { 5, (button.size.h - iconScale[2]) / 2 },
+			size = iconScale,
 			bgImage = icon
 		})
 		shiftModifier = buttonIcon.size.w + buttonIcon.shift.x
@@ -158,7 +159,7 @@ function Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, data
 			Mods.ListShift[1] = 0
 			search:clearTextfield()
 			Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, data.parent and data.parent or data, search)
-		end)
+		end, { w = elementHeight * 0.5, h = elementHeight * 0.5 })
 	end
 
 	local modmakerId = 0
@@ -170,7 +171,7 @@ function Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, data
 				Mods.ListShift[1] = 0
 				search:clearTextfield()
 				Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, data.contents[i], search)
-			end, true)
+			end, { w = elementHeight * 0.5, h = elementHeight * 0.5 })
 			table.remove(listElements)
 			local inserted = false
 			if (searchString ~= "") then
@@ -181,7 +182,7 @@ function Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, data
 							table.insert(listElements, element)
 						end
 						local filename = file:gsub("%.tbm$", "")
-						Mods.spawnListButton(listingHolder, listElements, elementHeight, "../textures/menu/general/buttons/arrowright.tga", filename, function() Mods.buttonClick(file) end, true)
+						Mods.spawnListButton(listingHolder, listElements, elementHeight, "../textures/menu/general/buttons/arrowright.tga", filename, function() Mods.buttonClick(file) end, { w = elementHeight / 2 })
 					end
 				end
 				if (not inserted) then
@@ -214,7 +215,7 @@ function Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, data
 						table.insert(listElements, element)
 					end
 					local filename = file:gsub("%.tbm$", "")
-					Mods.spawnListButton(listingHolder, listElements, elementHeight, "../textures/menu/general/buttons/arrowright.tga", filename, function() Mods.buttonClick(file) end, true)
+					Mods.spawnListButton(listingHolder, listElements, elementHeight, "../textures/menu/general/buttons/arrowright.tga", filename, function() Mods.buttonClick(file) end, { w = elementHeight / 2 })
 				end
 			end
 			if (not inserted) then

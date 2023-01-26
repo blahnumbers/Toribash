@@ -1,5 +1,6 @@
 -- Tutorials manager
 require("system.iofiles")
+require("system.movememory_manager")
 
 local tbTutorialsKeysIgnore = {}
 local tbTutorialsJointsIgnore = {}
@@ -63,7 +64,7 @@ function Tutorials:quit()
 	tbTutorials3DHolder:kill()
 	TUTORIALJOINTLOCK = false
 	TUTORIALKEYBOARDLOCK = false
-	MOVEMEMORY_TUTORIAL_MODE = false
+	MoveMemory.TutorialMode = false
 	TUTORIAL_ISACTIVE = false
 	TUTORIAL_LEAVEGAME = false
 	CURRENT_STEP = {}

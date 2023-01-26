@@ -106,7 +106,7 @@ local function requireKeyPressB(viewElement, reqTable)
 end
 
 local function requireKeyPressM(viewElement, reqTable)
-	MOVEMEMORY_TUTORIAL_MODE = true
+	MoveMemory.TutorialMode = true
 	requireKeyPress(viewElement, reqTable, "m")
 end
 
@@ -330,8 +330,8 @@ local function moveMemoryShowExit(viewElement)
 				toAnimate[1]:kill()
 			end
 		end)
-	MOVEMEMORY_PLAYBACK_ACTIVE[0] = false
-	MOVEMEMORY_PLAYBACK_ACTIVE[1] = false
+	MoveMemory.PlaybackActive[0] = false
+	MoveMemory.PlaybackActive[1] = false
 end
 
 local function checkJointStates(viewElement, reqTable)

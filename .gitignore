@@ -93,3 +93,5 @@ quests_global.dat
 bounties.txt
 mod/modmaker.tbm
 news.txt
+script/events/
+textures/menu/promo

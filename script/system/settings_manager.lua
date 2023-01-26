@@ -1118,10 +1118,6 @@ do
 							systemname = "tooltip",
 							action = function(val)
 								TB_MENU_MAIN_SETTINGS.tooltip = { value = val }
-								if (val == 1 and not Tooltip.IsActive) then
-									dofile("system/tooltip_manager.lua")
-									Tooltip:create()
-								end
 							end,
 							val = { get_option("tooltip") }
 						},
@@ -1131,10 +1127,6 @@ do
 							systemname = "movememory",
 							action = function(val)
 								TB_MENU_MAIN_SETTINGS.movememory = { value = val }
-								if (val == 1 and not MOVEMEMORY_ACTIVE) then
-									dofile("system/movememory_manager.lua")
-									MoveMemory:spawnHotkeyListener()
-								end
 							end,
 							val = { get_option("movememory") }
 						},

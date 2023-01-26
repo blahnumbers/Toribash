@@ -2588,7 +2588,7 @@ _G.empty = function(table) return _G.table.empty(table) end
 ---@return T ...
 _G.table.unpack_all = function(list)
 	local indexedTable = {}
-	for i,v in pairs(list) do
+	for _, v in pairs(list) do
 		table.insert(indexedTable, v)
 	end
 	return unpack(indexedTable)
@@ -2599,14 +2599,14 @@ end
 ---@see table.unpack_all
 _G.unpack_all = function(tbl) return _G.table.unpack_all(tbl) end
 
----Internal function to output provided data as a string. \
----*You are likely looking for `print()`.*
+local debugEchoInternal
+---Internal function to output provided data as a string
 ---@param mixed any
 ---@param returnString? boolean
 ---@param msg? string String that will preceed the output
 ---@param rec? boolean Internal parameter to indicate recursive calls
 ---@return string|nil
-_G.debugEchoInternal = function(mixed, returnString, msg, rec)
+debugEchoInternal = function(mixed, returnString, msg, rec)
 	local msg = msg and msg .. ": " or ""
 	local buildRet = returnString and function(str) _G.DEBUGECHOMSG = _G.DEBUGECHOMSG .. str .. "\n" end or echo
 	if (not rec) then
@@ -2632,19 +2632,29 @@ _G.debugEchoInternal = function(mixed, returnString, msg, rec)
 	return nil
 end
 
----Outputs or returns any provided data as a string
+---Outputs or returns any provided data as a string. \
+---@see print_r
 ---@param data any Data to parse and output
----@param returnString? boolean Whether we should return the generated string or use `echo()` to print it in chat
----@return string|nil
+---@param returnString boolean Whether we should return the generated string or use `echo()` to print it in chat
+---@return string
+---@overload fun(data:any):nil
 _G.print = function(data, returnString)
-	return debugEchoInternal(data, returnString)
+	local dataString = tostring(data)
+	if (returnString) then
+		return dataString
+	end
+	echo(dataString)
 end
 
----@deprecated
----Use `print()` instead \
+---Outputs or returns provided data as a string. \
+---*This function goes recursively over any encountered table to output all values inside.* \
 ---@see print
+---@param data any Data to parse and output
+---@param returnString boolean Whether we should return the output as a string
+---@return string
+---@overload fun(data:any):nil
 _G.print_r = function(data, returnString)
-	return print(data, returnString)
+	return debugEchoInternal(data, returnString)
 end
 
 ---Generates a unique ID
