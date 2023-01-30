@@ -851,6 +851,9 @@ function UIElement:makeScrollBar(listHolder, listElements, toReload, posShift, s
 	local barScroller = self:addChild({})
 	barScroller.uid = generate_uid()
 	barScroller.killAction = function()
+		if (listHolder.parent.scrollableListTouchScrollActive) then
+			listHolder.parent.btnUp()
+		end
 		remove_hooks("barScroller" .. barScroller.uid)
 		remove_hooks("touchScroller" .. barScroller.uid)
 	end
@@ -896,6 +899,12 @@ function UIElement:makeScrollBar(listHolder, listElements, toReload, posShift, s
 						deltaChange = UITween.SineTween(deltaChange, 0, (UIElement.clock - lastClock) * 2)
 					end
 					self:touchScroll(listElements, listHolder, toReload, deltaChange, enabled)
+				end
+			end)
+		---Make sure we properly exit camera lock and mark touch scroller holder inactive even when mouse up event was outside the area
+		add_hook("mouse_button_up", "touchScroller" .. barScroller.uid, function()
+				if (listHolder.parent.scrollableListTouchScrollActive) then
+					listHolder.parent.btnUp()
 				end
 			end)
 	--end

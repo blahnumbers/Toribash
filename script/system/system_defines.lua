@@ -947,6 +947,18 @@ function get_grip_info(player, hand) end
 ---@param state integer
 function set_grip_info(player, hand, state) end
 
+---Returns information about gripped object when in edit mode. \
+---*This function will only return `-1` if player isn't grabbing anything*
+---@param player integer
+---@param hand integer
+---@return integer playerId
+---@return integer ?bodyType
+---@return integer ?limbId
+---@return integer ?anchor_x
+---@return integer ?anchor_y
+---@return integer ?anchor_z
+function get_grip_lock(player, hand) end
+
 ---Returns joint position in 3D world
 ---@param player integer
 ---@param joint PlayerJoint
