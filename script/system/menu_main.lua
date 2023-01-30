@@ -233,7 +233,7 @@ add_hook("new_mp_game", "tbMainMenuStatic", function()
 require("system.movememory_manager")
 require("system.tooltip_manager")
 if (get_option("tooltip") == 1 and not Tooltip.IsActive) then
-	Tooltip:reload()
+	Tooltip.Reload()
 end
 
 ---Spawn generic display hooks

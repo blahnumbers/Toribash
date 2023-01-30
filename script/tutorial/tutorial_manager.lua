@@ -1438,9 +1438,9 @@ function Tutorials:runSteps(steps, currentStep, LOCALIZED_MESSAGES)
 	end
 	if (Tutorials.TooltipOverride) then
 		if (steps[currentStep].showtooltip) then
-			Tooltip:create()
+			Tooltip.Init()
 		elseif (steps[currentStep].hidetooltip) then
-			Tooltip:quit()
+			Tooltip.Quit()
 		end
 	end
 	if (steps[currentStep].taskoptcomplete) then

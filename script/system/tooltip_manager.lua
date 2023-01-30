@@ -54,31 +54,15 @@ if (Tooltip == nil) then
 	Tooltip.HolderElement:addCustomDisplay(true, function() end)
 end
 
----Exits the Tooltip and destroys all related UIElements
-function Tooltip:quit()
+---Calls Destroy() method and marks Tooltip class inactive
+function Tooltip.Quit()
+	Tooltip.Destroy()
 	Tooltip.IsActive = false
-	--remove_hooks(Tooltip.HookName)
-	Tooltip:destroy()
 end
 
----Destroys all related UIElements
-function Tooltip:destroy()
+---Destroys Tooltip elements
+function Tooltip.Destroy()
 	Tooltip.HolderElement:kill(true)
-	--[[local destroyed = false
-	while (not destroyed) do
-		destroyed = true
-		for _,v in pairs(UIElementManager) do
-			if (v.globalid == Tooltip.Globalid) then
-				local topParent = v
-				while (topParent and topParent.parent) do
-					topParent = topParent.parent;
-				end
-				topParent:kill()
-				destroyed = false
-				break
-			end
-		end
-	end]]
 end
 
 ---Initializes Tooltip hooks and enables the module
@@ -103,17 +87,18 @@ function Tooltip:create()
 			end)
 		add_hook("mouse_button_up", Tooltip.HookName, function()
 				if (players_accept_input() == false) then return end
-				Tooltip:destroy()
+				Tooltip.Destroy()
 				Tooltip:setTouchJointState()
 			end)
+		add_hook("exit_freeze", Tooltip.HookName, Tooltip.Destroy)
 	end
 	Tooltip.IsActive = true
 end
 
 ---Reloads the Tooltip by exiting it and initializing again
-function Tooltip:reload()
-	Tooltip:quit()
-	Tooltip:create()
+function Tooltip.Reload()
+	Tooltip.Quit()
+	Tooltip.Init()
 end
 
 ---A uniform function to generate main tooltip element
@@ -140,7 +125,7 @@ function Tooltip:spawnTooltipMain(frame, width, height, x, y)
 	tbTooltip:addCustomDisplay(true, function()
 			local ws = get_world_state()
 			if (ws.replay_mode == 1 or ws.match_frame ~= frame or TB_MENU_MAIN_ISOPEN == 1 or ws.selected_player < 0) then
-				Tooltip:destroy()
+				Tooltip.Destroy()
 				return
 			end
 		end)
@@ -155,7 +140,7 @@ function Tooltip:showTooltipBody(player, body)
 	Tooltip.TouchInputTargetPlayer = player
 	Tooltip.TouchInputTargetJoint = -1
 	Tooltip.GrabDisplayActive = false
-	Tooltip:destroy()
+	Tooltip.Destroy()
 
 	local worldstate = get_world_state()
 	if (worldstate.replay_mode == 1) then
@@ -235,7 +220,7 @@ function Tooltip:showTooltipJoint(player, joint)
 	if (Tooltip.TouchInputPosition ~= nil) then
 		return 1
 	end
-	Tooltip:destroy()
+	Tooltip.Destroy()
 
 	local worldstate = get_world_state()
 	if (worldstate.replay_mode == 1) then
@@ -354,8 +339,7 @@ function Tooltip:showTouchControls()
 	if (Tooltip.GrabDisplayActive or Tooltip.TouchInputTargetPlayer < 0 or Tooltip.TouchInputTargetJoint < 0 or Tooltip.TouchInputTargetJoint >= 20) then
 		return
 	end
-	Tooltip:destroy()
-	disable_mouse_camera_movement()
+	Tooltip.Destroy()
 
 	---@diagnostic disable-next-line: param-type-mismatch
 	local jointPos = { get_joint_screen_pos(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint) }
@@ -367,6 +351,8 @@ function Tooltip:showTouchControls()
 		pos = { jointPos[1] - 75, jointPos[2] - 75 },
 		size = { 150, 150 }
 	})
+	disable_mouse_camera_movement()
+	touchControlsHolder.killAction = enable_mouse_camera_movement
 	local touchControlsVisual = touchControlsHolder:addChild({
 		pos = { 74, 74 },
 		size = { 2, 2 },
@@ -552,7 +538,6 @@ function Tooltip:setTouchJointState()
 
 	Tooltip.TouchInputPosition = nil
 	Tooltip.WaitForTouchInput = false
-	enable_mouse_camera_movement()
 end
 
 ---Toggles joint state according to current game settings \

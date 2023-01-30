@@ -1165,7 +1165,9 @@ function QueueList.Reload(reinit)
 	end
 
 	QueueListInternal.ListScrollbar.size.h = math.max(0.1, math.min(1, (QueueListInternal.ListHolder.size.h) / (#QueueListInternal.ListElements * QueueListInternal.listButtonHeight) or QueueListInternal.ListHolder.size.h)) * QueueListInternal.ListScrollbar.parent.size.h
-	QueueListInternal.ListScrollbar.listReload()
+	if (#QueueListInternal.ListElements > 0) then
+		QueueListInternal.ListScrollbar.listReload()
+	end
 	if (QueueListInternal.ListScrollbar.size.h == QueueListInternal.ListScrollbar.parent.size.h) then
 		QueueListInternal.ListScrollbar:hide(true)
 	else
