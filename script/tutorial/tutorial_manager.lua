@@ -76,7 +76,7 @@ function Tutorials:quit()
 	remove_hooks("tbMoveMemoryPlayTurns1")
 	runCmd("lm classic")
 	if (Tutorials.TooltipOverride) then
-		Tooltip:quit()
+		Tooltip.Quit()
 		Tutorials.TooltipOverride = false
 	end
 	if (tutorialQuitOverlay) then

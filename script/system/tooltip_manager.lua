@@ -66,7 +66,7 @@ function Tooltip.Destroy()
 end
 
 ---Initializes Tooltip hooks and enables the module
-function Tooltip:create()
+function Tooltip.Init()
 	add_hook("joint_select", Tooltip.HookName, function(player, joint)
 			if (players_accept_input() == false) then return end
 			local discard = Tooltip:showTooltipJoint(player, joint)
@@ -564,4 +564,4 @@ function Tooltip:toggleJointState(player, joint)
 	set_joint_state(player, joint, targetJointState, true)
 end
 
-Tooltip:create()
+Tooltip.Init()
