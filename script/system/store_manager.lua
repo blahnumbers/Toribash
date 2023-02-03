@@ -5641,11 +5641,15 @@ do
 				local fileName = load:gsub("^.* ", '')
 				for i,v in pairs(STORE_ICONS_DOWNLOAD_QUEUE) do
 					if (fileName:find(".*/store/items/" .. v.itemid .. "%.tga$")) then
-						if (not STORE_ICONS_DOWNLOAD_QUEUE[i].element.destroyed) then
-							Downloader:safeCall(function()
-								STORE_ICONS_DOWNLOAD_QUEUE[i].element:updateImage(Torishop:getItemIcon(STORE_ICONS_DOWNLOAD_QUEUE[i].itemid))
-							end)
-						end
+						---These reference *will* be invalid after we remove data from table
+						---Make sure we cache both the itemid and UIElement we're going to modify
+						local itemid = STORE_ICONS_DOWNLOAD_QUEUE[i].itemid
+						local element = STORE_ICONS_DOWNLOAD_QUEUE[i].element
+						Downloader:safeCall(function()
+							if (element ~= nil and not element.destroyed) then
+								element:updateImage(Torishop:getItemIcon(itemid))
+							end
+						end)
 						table.remove(STORE_ICONS_DOWNLOAD_QUEUE, i)
 						if (#STORE_ICONS_DOWNLOAD_QUEUE == 0) then
 							remove_hooks("store_icon_downloader")
