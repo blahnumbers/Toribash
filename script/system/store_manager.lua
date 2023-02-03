@@ -5626,19 +5626,21 @@ do
 
 		table.insert(STORE_ICONS_DOWNLOAD_QUEUE, { path = path, itemid = item.itemid, element = element })
 		add_hook("downloader_complete", "store_icon_downloader", function(load)
-				local fileName = load:gsub("^.* ", '')
-				for i,v in pairs(STORE_ICONS_DOWNLOAD_QUEUE) do
-					if (fileName:find(".*/store/items/" .. v.itemid .. "%.tga$")) then
-						if (not STORE_ICONS_DOWNLOAD_QUEUE[i].element.destroyed) then
-							STORE_ICONS_DOWNLOAD_QUEUE[i].element:updateImage(Torishop:getItemIcon(STORE_ICONS_DOWNLOAD_QUEUE[i].itemid))
+				Downloader:safeCall(function()
+					local fileName = load:gsub("^.* ", '')
+					for i,v in pairs(STORE_ICONS_DOWNLOAD_QUEUE) do
+						if (fileName:find(".*/store/items/" .. v.itemid .. "%.tga$")) then
+							if (not STORE_ICONS_DOWNLOAD_QUEUE[i].element.destroyed) then
+								STORE_ICONS_DOWNLOAD_QUEUE[i].element:updateImage(Torishop:getItemIcon(STORE_ICONS_DOWNLOAD_QUEUE[i].itemid))
+							end
+							table.remove(STORE_ICONS_DOWNLOAD_QUEUE, i)
+							if (#STORE_ICONS_DOWNLOAD_QUEUE == 0) then
+								remove_hooks("store_icon_downloader")
+							end
+							return
 						end
-						table.remove(STORE_ICONS_DOWNLOAD_QUEUE, i)
-						if (#STORE_ICONS_DOWNLOAD_QUEUE == 0) then
-							remove_hooks("store_icon_downloader")
-						end
-						return
 					end
-				end
+				end)
 			end)
 		Request:queue(function()
 				download_server_file("get_icon&itemid=" .. item.itemid, 0)

@@ -3148,11 +3148,11 @@ function TBMenu:showTextExternal(viewElement, text, useUiColor)
 	TBMenu:showTextWithImage(viewElement, text, FONTS.MEDIUM, 26, "../textures/menu/general/buttons/external.tga", useUiColor)
 end
 
-function TBMenu:displayHelpPopup(element, message, forceManualPosCheck, noMark)
+function TBMenu:displayHelpPopup(element, message, forceManualPosCheck, noMark, maxHeight)
 	local messageElement = UIElement:new({
 		parent = element,
 		pos = { 0, 0 },
-		size = { WIN_W / 3, WIN_H / 7 },
+		size = { WIN_W / 3, maxHeight or WIN_H / 7 },
 		bgColor = { 0, 0, 0, 0.8 },
 		uiColor = UICOLORWHITE,
 		shapeType = ROUNDED,
@@ -3249,8 +3249,8 @@ function TBMenu:displayHelpPopup(element, message, forceManualPosCheck, noMark)
 	return messageElement
 end
 
-function TBMenu:displayPopup(element, message, forceManualPosCheck)
-	return TBMenu:displayHelpPopup(element, message, forceManualPosCheck, true)
+function TBMenu:displayPopup(element, message, forceManualPosCheck, maxHeight)
+	return TBMenu:displayHelpPopup(element, message, forceManualPosCheck, true, maxHeight)
 end
 
 function TBMenu:spawnSlider(parent, x, y, w, h, textWidth, sliderRadius, value, settings, sliderFunc, onMouseDown, onMouseUp)

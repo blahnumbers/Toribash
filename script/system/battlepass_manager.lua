@@ -169,9 +169,9 @@ function BattlePass:showProgress(viewElement)
 		size = { viewElement.size.w / 5, viewElement.size.h },
 		bgColor = TB_MENU_DEFAULT_DARKER_ORANGE,
 		uiColor = UICOLORBLACK,
-		bgImage = "../textures/menu/battlepass/romanpattern2.tga",
+		bgImage = "../textures/menu/battlepass/tcpattern.tga",
 		imagePatterned = true,
-		imageColor = { 0.555, 0.362, 0.24, 0.3 }
+		--imageColor = { 0.555, 0.362, 0.24, 0.3 }
 	})
 	local playerLevelDisplay = playerLevelHolder:addChild({
 		pos = { 5, 5 },
@@ -571,7 +571,8 @@ function BattlePass:showPrizeItem(viewElement, prize)
 		prizeTooltip = TBMenu:displayPopup(prizeBackground, prizeAmount .. " " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS, true)
 	elseif (prize.itemid) then
 		 prizeIcon = Torishop:getItemIcon(prize.itemid)
-		 prizeTooltip = TBMenu:displayPopup(prizeBackground, Torishop:getItemInfo(prize.itemid).itemname, true)
+		 local itemInfo = Torishop:getItemInfo(prize.itemid)
+		 prizeTooltip = TBMenu:displayPopup(prizeBackground, itemInfo.itemname .. (string.len(itemInfo.description) > 0 and ("\n\n" .. itemInfo.description) or ''), true, 500)
 	else
 		return
 	end
@@ -701,7 +702,7 @@ function BattlePass:showPrizes(viewElement)
 	local toReload, leftBar, rightBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, prizeHolderSize, prizeHolderSize, 20, TB_MENU_DEFAULT_DARKER_COLOR, SCROLL_HORIZONTAL)
 
 	---@type BattlePassLevel
-	local closest10LevelReward
+	local closestMilestoneReward
 	local listElements = {}
 	for i,v in ipairs(BattlePass.LevelData) do
 		local prizeHolder = UIElement:new({
@@ -712,8 +713,8 @@ function BattlePass:showPrizes(viewElement)
 		table.insert(listElements, prizeHolder)
 		BattlePass:showLevelPrize(prizeHolder, v)
 
-		if (not closest10LevelReward and v.level % 10 == 0 and BattlePass.UserData.level <= v.level) then
-			closest10LevelReward = v
+		if (not closestMilestoneReward and v.level % 5 == 0 and BattlePass.UserData.level <= v.level) then
+			closestMilestoneReward = v
 		end
 	end
 
@@ -746,56 +747,56 @@ function BattlePass:showPrizes(viewElement)
 		pos = { 10, rightBar.size.h / 40 },
 		size = { rightBar.size.w - 20, rightBar.size.h / 10 }
 	})
-	levelName:addAdaptedText(true, TB_MENU_LOCALIZED.BATTLEPASSLVL .. " " .. closest10LevelReward.level, nil, nil, FONTS.BIG, nil, 0.7)
+	levelName:addAdaptedText(true, TB_MENU_LOCALIZED.BATTLEPASSLVL .. " " .. closestMilestoneReward.level, nil, nil, FONTS.BIG, nil, 0.7)
 
 	local availablePrizes = {}
-	if (closest10LevelReward.st > 0) then
+	if (closestMilestoneReward.st > 0) then
 		table.insert(availablePrizes, {
-			st = closest10LevelReward.st,
-			locked = BattlePass.UserData.level_available < closest10LevelReward.level,
-			claimed = BattlePass.UserData.level >= closest10LevelReward.level,
+			st = closestMilestoneReward.st,
+			locked = BattlePass.UserData.level_available < closestMilestoneReward.level,
+			claimed = BattlePass.UserData.level >= closestMilestoneReward.level,
 			static = true
 		})
 	end
-	if (closest10LevelReward.tc > 0) then
+	if (closestMilestoneReward.tc > 0) then
 		table.insert(availablePrizes, {
-			tc = closest10LevelReward.tc,
-			locked = BattlePass.UserData.level_available < closest10LevelReward.level,
-			claimed = BattlePass.UserData.level >= closest10LevelReward.level,
+			tc = closestMilestoneReward.tc,
+			locked = BattlePass.UserData.level_available < closestMilestoneReward.level,
+			claimed = BattlePass.UserData.level >= closestMilestoneReward.level,
 			static = true
 		})
 	end
-	if (closest10LevelReward.itemid > 0) then
+	if (closestMilestoneReward.itemid > 0) then
 		table.insert(availablePrizes, {
-			itemid = closest10LevelReward.itemid,
-			locked = BattlePass.UserData.level_available < closest10LevelReward.level,
-			claimed = BattlePass.UserData.level >= closest10LevelReward.level,
+			itemid = closestMilestoneReward.itemid,
+			locked = BattlePass.UserData.level_available < closestMilestoneReward.level,
+			claimed = BattlePass.UserData.level >= closestMilestoneReward.level,
 			static = true
 		})
 	end
-	if (closest10LevelReward.st_premium > 0) then
+	if (closestMilestoneReward.st_premium > 0) then
 		table.insert(availablePrizes, {
-			st = closest10LevelReward.st_premium,
-			locked = not BattlePass.UserData.premium or BattlePass.UserData.level_available < closest10LevelReward.level,
-			claimed = BattlePass.UserData.level_premium >= closest10LevelReward.level,
+			st = closestMilestoneReward.st_premium,
+			locked = not BattlePass.UserData.premium or BattlePass.UserData.level_available < closestMilestoneReward.level,
+			claimed = BattlePass.UserData.level_premium >= closestMilestoneReward.level,
 			premium = true,
 			static = true
 		})
 	end
-	if (closest10LevelReward.tc_premium > 0) then
+	if (closestMilestoneReward.tc_premium > 0) then
 		table.insert(availablePrizes, {
-			tc = closest10LevelReward.tc_premium,
-			locked = not BattlePass.UserData.premium or BattlePass.UserData.level_available < closest10LevelReward.level,
-			claimed = BattlePass.UserData.level_premium >= closest10LevelReward.level,
+			tc = closestMilestoneReward.tc_premium,
+			locked = not BattlePass.UserData.premium or BattlePass.UserData.level_available < closestMilestoneReward.level,
+			claimed = BattlePass.UserData.level_premium >= closestMilestoneReward.level,
 			premium = true,
 			static = true
 		})
 	end
-	if (closest10LevelReward.itemid_premium > 0) then
+	if (closestMilestoneReward.itemid_premium > 0) then
 		table.insert(availablePrizes, {
-			itemid = closest10LevelReward.itemid_premium,
-			locked = not BattlePass.UserData.premium or BattlePass.UserData.level_available < closest10LevelReward.level,
-			claimed = BattlePass.UserData.level_premium >= closest10LevelReward.level,
+			itemid = closestMilestoneReward.itemid_premium,
+			locked = not BattlePass.UserData.premium or BattlePass.UserData.level_available < closestMilestoneReward.level,
+			claimed = BattlePass.UserData.level_premium >= closestMilestoneReward.level,
 			premium = true,
 			static = true
 		})
@@ -835,15 +836,16 @@ function BattlePass:showMain()
 		return
 	end
 
+	local isSeason = false
 	local leftHeight = (TBMenu.CurrentSection.size.h - 90) / 3 - 5
 	local leftWidth = math.min(leftHeight * 2.5, TBMenu.CurrentSection.size.w * 0.3)
 	local battlePassProgressHolder = TBMenu.CurrentSection:addChild({
 		pos = { 5, 0 },
 		size = { TBMenu.CurrentSection.size.w - 10, 80 },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR,
-		bgImage = "../textures/menu/battlepass/romanpattern2.tga",
+		bgImage = "../textures/menu/battlepass/tcpattern.tga",
 		imagePatterned = true,
-		imageColor = { 0.824, 0.749, 0.482, 0.2 }
+		imageColor = { 0.824, 0.749, 0.482, 1 }
 	})
 	BattlePass:showProgress(battlePassProgressHolder)
 
@@ -855,25 +857,30 @@ function BattlePass:showMain()
 	TBMenu:addBottomBloodSmudge(battlePassPrizesHolder, 1)
 	BattlePass:showPrizes(battlePassPrizesHolder)
 
-	local battlePassSeasonButton = TBMenu.CurrentSection:addChild({
-		pos = { battlePassPrizesHolder.shift.x + battlePassPrizesHolder.size.w + 10, battlePassProgressHolder.size.h + 10 },
-		size = { leftWidth, leftHeight },
-		bgColor = TB_MENU_DEFAULT_BG_COLOR,
-		interactive = true,
-		hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
-		pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-		hoverSound = 31
-	})
-	TBMenu:showHomeButton(battlePassSeasonButton, {
-		image = "../textures/menu/battlepass/season8.tga",
-		ratio = 0.375,
-		disableUnload = true,
-		locked = TB_MENU_PLAYER_INFO.data.qi < 100,
-		lockedMessage = "Unlocks at Green Belt",
-		action = Ranking.showGlobalRanking
-	})
+	local buttonShiftX = battlePassPrizesHolder.shift.x + battlePassPrizesHolder.size.w + 10
+	local buttonShiftY = battlePassProgressHolder.size.h + 10
+	if (isSeason) then
+		local battlePassSeasonButton = TBMenu.CurrentSection:addChild({
+			pos = { buttonShiftX, battlePassProgressHolder.size.h + 10 },
+			size = { leftWidth, leftHeight },
+			bgColor = TB_MENU_DEFAULT_BG_COLOR,
+			interactive = true,
+			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			hoverSound = 31
+		})
+		TBMenu:showHomeButton(battlePassSeasonButton, {
+			image = "../textures/menu/battlepass/season8.tga",
+			ratio = 0.375,
+			disableUnload = true,
+			locked = TB_MENU_PLAYER_INFO.data.qi < 100,
+			lockedMessage = "Unlocks at Green Belt",
+			action = Ranking.showGlobalRanking
+		})
+		buttonShiftY = buttonShiftY + battlePassSeasonButton.size.h + 10
+	end
 	local battlePassQuestsButton = TBMenu.CurrentSection:addChild({
-		pos = { battlePassSeasonButton.shift.x, battlePassSeasonButton.shift.y + battlePassSeasonButton.size.h + 10 },
+		pos = { buttonShiftX, buttonShiftY },
 		size = { leftWidth, leftHeight },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR,
 		interactive = true,
@@ -882,8 +889,10 @@ function BattlePass:showMain()
 		hoverSound = 31
 	})
 	TBMenu:showHomeButton(battlePassQuestsButton, {
-		image = "../textures/menu/battlepass/battlepassquests.tga",
-		ratio = 0.375,
+		--image = isSeason and "../textures/menu/battlepass/battlepassquests.tga" or "../textures/menu/battlepass/battlepassquestslarge.tga",
+		ratio = isSeason and 0.375 or 0.5,
+		title = TB_MENU_LOCALIZED.BATTLEPASSQUESTS,
+		subtitle = TB_MENU_LOCALIZED.BATTLEPASSQUESTSDESC,
 		disableUnload = true,
 		action = function()
 			TB_MENU_QUESTS_ACTIVE_SECTION = 4
@@ -895,8 +904,8 @@ function BattlePass:showMain()
 		end
 	})
 	local battlePassInfoButton = TBMenu.CurrentSection:addChild({
-		pos = { battlePassSeasonButton.shift.x, battlePassQuestsButton.shift.y + battlePassQuestsButton.size.h + 10 },
-		size = { leftWidth, leftHeight },
+		pos = { buttonShiftX, battlePassQuestsButton.shift.y + battlePassQuestsButton.size.h + 10 },
+		size = { leftWidth, isSeason and leftHeight or leftHeight * 2 },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR,
 		interactive = true,
 		hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
@@ -904,11 +913,11 @@ function BattlePass:showMain()
 		hoverSound = 31
 	})
 	TBMenu:showHomeButton(battlePassInfoButton, {
-		image = "../textures/menu/battlepass/battlepassinfo.tga",
-		ratio = 0.375,
+		image = isSeason and "../textures/menu/battlepass/battlepassinfo.tga" or "../textures/menu/battlepass/battlepassinfolarge.tga",
+		ratio = isSeason and 0.375 or 0.639,
 		disableUnload = true,
 		action = function()
-				Events:showEventInfo(3)
+				Events:showBattlepassInfo()
 			end
 	}, 2)
 end

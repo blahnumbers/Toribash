@@ -1667,6 +1667,15 @@ do
 		end
 	end
 
+	function Events:showBattlepassInfo()
+		local allNews = News:getNews()
+		for _,v in pairs(allNews) do
+			if (v.isBattlePass) then
+				Events:showEventInfo(v.eventid)
+			end
+		end
+	end
+
 	function Events:showEventInfo(id)
 		if (not TB_STORE_DATA.ready) then
 			TBMenu:showDataError("Please wait until Store data is ready")
