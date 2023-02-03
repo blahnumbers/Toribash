@@ -69,7 +69,7 @@ TB_MENU_GLOBAL_SCALE = math.min(WIN_H > 720 and 1 or WIN_H / 720, WIN_W > 1280 a
 require("system.menu_defines")
 require("system.iofiles")
 require("system.menu_manager")
-TBMenu.init("230119")
+TBMenu:init("230203")
 
 require("system.menu_backend_defines")
 require("system.network_request")

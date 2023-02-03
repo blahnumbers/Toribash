@@ -1057,6 +1057,7 @@ BATTLEPASSTITLE	Battle Pass
 BATTLEPASSSEASON	Season
 BATTLEPASSLOADING	Loading your Battle Pass data, please wait...
 BATTLEPASSQUESTS	Battle Pass Quests
+BATTLEPASSQUESTSDESC	Complete quests to get additional Battle Pass XP
 BATTLEPASSEXPERIENCE	Battle Pass XP
 BATTLEPASSPURCHASELEVEL	Purchase Level
 BATTLEPASSPURCHASELEVELTITLE	Upgrade your BP to level

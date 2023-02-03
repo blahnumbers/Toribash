@@ -117,9 +117,15 @@ do
 			elseif (ln:find("^MOVEMBER 0;")) then
 				newsData[#newsData].action = function() Events:loadMovember(TBMenu.CurrentSection) end
 				newsData[#newsData].initAction = function() Events:loadMovember(TBMenu.CurrentSection) end
-			elseif (ln:find("^SEASONPASS 0;")) then
-				newsData[#newsData].action = function() Torishop:showSeasonPassAprilFools() end
-				newsData[#newsData].initAction = function() Torishop:showSeasonPassAprilFools() end
+			elseif (ln:find("^BATTLEPASS 0;")) then
+				newsData[#newsData].isBattlePass = true
+				newsData[#newsData].action = function()
+					TB_LAST_MENU_SCREEN_OPEN = 11
+					TBMenu:clearNavSection()
+					TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
+					TBMenu:showNavigationBar()
+				end
+				newsData[#newsData].initAction = newsData[#newsData].action
 			elseif (ln:find("^COLLECTORCARDS %d+;")) then
 				local id = ln:gsub("^COLLECTORCARDS (%d+);", "%1") + 0
 				newsData[#newsData].action = function() Torishop:showCollectorsCards(id) end
