@@ -188,7 +188,7 @@ function Quests:addBattlePassQuests()
 		modname = '',
 		reward = 0,
 		rewardid = 0,
-		bp_xp = 5
+		bp_xp = 10
 	})
 	Quests.QuestsData = table.qsort(Quests.QuestsData, "progresspercentage", SORT_DESCENDING)
 end
