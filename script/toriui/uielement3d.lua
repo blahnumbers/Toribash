@@ -617,7 +617,7 @@ do
 		end
 		-- We don't yet know the exact build version when it'd be supported
 		-- Require the first build of 2023
-		if (tonumber(BUILD_VERSION) > 230101) then
+		if (tonumber(TORIBASH_VERSION) >= 5.60) then
 			if (load_obj(objid, "../" .. filename, 1)) then
 				self.objModel = objid
 			end
