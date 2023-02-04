@@ -39,7 +39,7 @@ local TBMenuInternal = {
 setmetatable({}, TBMenuInternal)
 
 ---@param version string
-function TBMenu.init(version)
+function TBMenu.Init(version)
 	TB_MENU_MAIN_ISOPEN = 1
 	set_build_version(version)
 end

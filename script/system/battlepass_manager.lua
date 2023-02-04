@@ -533,15 +533,15 @@ function BattlePass:showPrizeItem(viewElement, prize)
 
 	local prizeIcon, prizeAmount, prizeTooltip
 	-- Some free reward levels will have multiple rewards, we want TC/ST to be shown
-	if (prize.tc ~= 0) then
+	if (prize.tc ~= nil and prize.tc > 0) then
 		prizeIcon = "../textures/store/toricredit.tga"
 		prizeAmount = numberFormat(prize.tc)
 		prizeTooltip = TBMenu:displayPopup(prizeBackground, prizeAmount .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS, true)
-	elseif (prize.st ~= 0) then
+	elseif (prize.st ~= nil and prize.st > 0) then
 		prizeIcon = "../textures/store/shiaitoken.tga"
 		prizeAmount = numberFormat(prize.st)
 		prizeTooltip = TBMenu:displayPopup(prizeBackground, prizeAmount .. " " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS, true)
-	elseif (prize.itemid ~= 0) then
+	elseif (prize.itemid ~= nil and prize.itemid > 0) then
 		 prizeIcon = Torishop:getItemIcon(prize.itemid)
 		 local itemInfo = Torishop:getItemInfo(prize.itemid)
 		 prizeTooltip = TBMenu:displayPopup(prizeBackground, itemInfo.itemname .. (string.len(itemInfo.description) > 0 and ("\n\n" .. itemInfo.description) or ''), true, 500)
