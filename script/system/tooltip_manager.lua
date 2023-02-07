@@ -40,7 +40,7 @@ if (Tooltip == nil) then
 		---@diagnostic disable-next-line: assign-type-mismatch
 		TouchInputTargetJoint = -1,
 		TouchInputDelay = 0.1,
-		TouchInputGrowDuration = 0.15,
+		TouchInputGrowDuration = 0.1,
 		version = 5.60
 	}
 	Tooltip.__index = Tooltip

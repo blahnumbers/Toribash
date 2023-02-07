@@ -84,6 +84,7 @@ function TBHudInternal.generateTouchButton(holder, icon)
 		bgImage = "../textures/menu/general/buttons/hudtouchbutton.tga",
 		imageColor = TBHud.DefaultButtonColor,
 		imagePressedColor = TB_MENU_DEFAULT_BG_COLOR_TRANS,
+		disableUnload = true
 	})
 	if (icon ~= nil) then
 		local buttonIcon = touchButton:addChild({
@@ -196,7 +197,7 @@ function TBHud:init()
 	set_option("hint", 0)
 
 	self:spawnCommitButton()
-	self:spawnGhostButon()
+	self:spawnGhostButton()
 	self:spawnHoldRelaxAllButton()
 
 	self:spawnHubButton()
@@ -347,7 +348,7 @@ function TBHud:spawnCommitButton()
 	})
 end
 
-function TBHud:spawnGhostButon()
+function TBHud:spawnGhostButton()
 	if (self.MainElement == nil) then return end
 
 	local ghostButtonHolder = self.MainElement:addChild({
@@ -357,7 +358,7 @@ function TBHud:spawnGhostButon()
 	local ghostButton = TBHudInternal.generateTouchButton(ghostButtonHolder, "../textures/menu/general/buttons/ghost.tga")
 
 	ghostButtonHolder:addCustomDisplay(true, function()
-		local shouldBeDisplayed = TBHud.WorldState.replay_mode == 0
+		local shouldBeDisplayed = TBHud.WorldState.replay_mode == 0 and is_game_frozen() == 1
 		if (shouldBeDisplayed and not ghostButton:isDisplayed()) then
 			ghostButton:show()
 		elseif (not shouldBeDisplayed and ghostButton:isDisplayed()) then
