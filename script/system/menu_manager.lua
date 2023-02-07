@@ -1764,8 +1764,8 @@ function TBMenu:openMenu(screenId)
 		TBMenu:showPlaySection()
 	elseif (screenId == 3) then
 		TBMenu:showPracticeSection()
-	elseif (screenId == 4) then
-		TBMenu:showModsSection()
+	--elseif (screenId == 4) then
+		--TBMenu:showModsSection()
 	elseif (screenId == 5) then
 		TBMenu:showToolsSection()
 	elseif (screenId == 6) then

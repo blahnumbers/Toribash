@@ -284,6 +284,8 @@ if (not UIElement) then
 	---@field scrollBar UIElement Reference to scrollable list holder's scroll bar
 	---@field positionDirty boolean Read-only value to tell the UIElement internal loops to refresh element position
 	---@field scrollableListTouchScrollActive boolean Read-only value used for scrollable list view elements on touch devices
+	---@field prevInput UIElement Previous input element, set with UIElement:addTabSwitchPrev()
+	---@field nextInput UIElement Next input element, set with UIElement:addTabSwitch()
 	UIElement = {
 		ver = 5.60,
 		clock = os.clock_real(),
@@ -797,6 +799,7 @@ function UIElement:makeScrollBar(listHolder, listElements, toReload, posShift, s
 	self.pressedPos = { x = 0, y = 0 }
 
 	self.listReload = function() listHolder.parent:reloadListElements(listHolder, listElements, toReload, enabled, self.orientation) end
+	---@diagnostic disable-next-line: undefined-field
 	self.scrollReload = function() if (self.holder) then self.holder:reload() end self:reload() end
 
 	self:barScroll(listElements, listHolder, toReload, posShift[1], enabled)

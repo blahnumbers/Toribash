@@ -904,17 +904,21 @@ INVENTORYCUSTOMIZING	Customizing
 QUEUELISTLEGENDTITLE	Legend
 QUEUELISTLEGENDDESC	This player is one of the most outstanding users of Toribash community
 QUEUELISTTORIAGENTTITLE	Tori Agent
-QUEUELISTTORIAGENTDESC	Tori Agents moderate Toribash rooms, handle general reports and assist players in Support
+QUEUELISTTORIAGENTDESC	Tori Agents moderate Toribash rooms, handle general reports and can assist you with issues
 QUEUELISTMARKETSQUADTITLE	Market Squad
 QUEUELISTMARKETSQUADDESC	Market Squad members manage Toribash Market and deal with market-related scams
 QUEUELISTINGAMEADMINTITLE	Game Admin
-QUEUELISTINGAMEADMINDESC	Game administrators manage Toribash rooms, as well as moderate the game and forums
+QUEUELISTINGAMEADMINDESC	Administrators can manage any Toribash room and act as global moderators
 QUEUELISTEVENTSQUADTITLE	Event Squad
 QUEUELISTEVENTSQUADDESC	Event Squad members host events and moderate Toribash rooms
+QUEUELISTEVENTSQUADTRIALTITLE	ES Trial
+QUEUELISTEVENTSQUADTRIALDESC	This user is an Event Squad member in training
 QUEUELISTROOMOPTITLE	Room Operator
-QUEUELISTROOMOPDESC	Room operators can modify room settings, change mods and control players inside
+QUEUELISTROOMOPDESC	This user can modify room settings, change mods and control players inside
 QUEUELISTMUTEDTITLE	Muted
 QUEUELISTMUTEDDESC	This user can't talk :(
+QUEUELISTITEMFORGERTITLE	Item Forger
+QUEUELISTITEMFORGERDESC	Item Forgers make 3D items for Toribash and are a subdivision of Event Squad
 SETTINGSAPPLIEDAFTERRESTART	Some settings will be applied after game restart
 EVENTFRAMESELAPSED	frames elapsed
 NAVBUTTONMARKET	Market

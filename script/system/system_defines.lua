@@ -2096,6 +2096,7 @@ function get_sound_category(id) end
 ---@field rank integer Player rank
 ---@field streak integer Current win streak
 ---@field custombeltname string Custom belt name (players with 20,000 Qi or more)
+---@field perms_bitfield integer Player permissions bit field
 ---@field admin boolean Whether this user is an in-game administrator
 ---@field op boolean Whether this user is a room operator
 ---@field halfop boolean Whether this user is a half-operator
@@ -2104,6 +2105,7 @@ function get_sound_category(id) end
 ---@field eventsquad_trial boolean Whether this user is a trial Event Squad member
 ---@field helpsquad boolean Whether this user is a part of Help Squad
 ---@field marketsquad boolean Whether this user is a part of Market Squad
+---@field itemforger boolean Whether this user is an Item Forger
 ---@field muted boolean Whether this user is muted
 ---@field afk boolean Whether this user is afk
 ---@field multiclient boolean Whether this user is currently multiclienting

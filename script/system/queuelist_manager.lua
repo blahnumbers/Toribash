@@ -36,9 +36,13 @@ if (QueueList == nil) then
 	---@field Globalid integer
 	QueueList = {
 		Globalid = 1012,
+		ListWidth = math.min(WIN_W * 0.22, 450),
 		ver = 5.60
 	}
 	QueueList.__index = QueueList
+	add_hook("resolution_changed", "queueListResolutionStatic", function()
+			QueueList.ListWidth = math.min(WIN_W * 0.22, 450)
+		end)
 end
 
 ---Helper class for **QueueList** manager
@@ -50,55 +54,71 @@ setmetatable({}, QueueListInternal)
 
 ---@class QueueListInfoField
 ---@field title string Internal title for the info field
----@field color string HEX encoded color for the badge
+---@field color Color Badge color
 ---@field text string Main text to show on the badge
 ---@field desc string Description text for the badge
 ---@field icon string Icon path
+---@field atlasX integer Icon spreadsheet X shift
 
 ---List of all badges a user can have displayed
 ---@type QueueListInfoField
 QueueListInternal.InfoFields = {
 	{
-		title = "legend",
-		color = "BB9600",
-		text = TB_MENU_LOCALIZED.QUEUELISTLEGENDTITLE,
-		desc = TB_MENU_LOCALIZED.QUEUELISTLEGENDDESC
-	},
-	{
-		title = "muted",
-		color = "808080",
-		text = TB_MENU_LOCALIZED.QUEUELISTMUTEDTITLE,
-		desc = TB_MENU_LOCALIZED.QUEUELISTMUTEDDESC
-	},
-	{
-		title = "helpsquad",
-		color = "FA7E1A",
-		text = TB_MENU_LOCALIZED.QUEUELISTTORIAGENTTITLE,
-		desc = TB_MENU_LOCALIZED.QUEUELISTTORIAGENTDESC
-	},
-	{
-		title = "marketsquad",
-		color = "3FA741",
-		text = TB_MENU_LOCALIZED.QUEUELISTMARKETSQUADTITLE,
-		desc = TB_MENU_LOCALIZED.QUEUELISTMARKETSQUADDESC
+		title = "admin",
+		color = { 0.55, 0.05, 0.05, 1 },
+		text = TB_MENU_LOCALIZED.QUEUELISTINGAMEADMINTITLE,
+		desc = TB_MENU_LOCALIZED.QUEUELISTINGAMEADMINDESC,
+		atlasX = 0
 	},
 	{
 		title = "eventsquad",
-		color = "690069",
+		color = { 0.684, 0.129, 0.949, 1 },
 		text = TB_MENU_LOCALIZED.QUEUELISTEVENTSQUADTITLE,
-		desc = TB_MENU_LOCALIZED.QUEUELISTEVENTSQUADDESC
+		desc = TB_MENU_LOCALIZED.QUEUELISTEVENTSQUADDESC,
+		atlasX = 64
 	},
 	{
-		title = "admin",
-		color = "FF0000",
-		text = TB_MENU_LOCALIZED.QUEUELISTINGAMEADMINTITLE,
-		desc = TB_MENU_LOCALIZED.QUEUELISTINGAMEADMINDESC
+		title = "helpsquad",
+		color = { 0.996, 0.496, 0.031, 1 },
+		text = TB_MENU_LOCALIZED.QUEUELISTTORIAGENTTITLE,
+		desc = TB_MENU_LOCALIZED.QUEUELISTTORIAGENTDESC,
+		atlasX = 192
+	},
+	{
+		title = "marketsquad",
+		color = { 0.027, 0.598, 0, 1 },
+		text = TB_MENU_LOCALIZED.QUEUELISTMARKETSQUADTITLE,
+		desc = TB_MENU_LOCALIZED.QUEUELISTMARKETSQUADDESC,
+		atlasX = 128
+	},
+	{
+		title = "eventsquad_trial",
+		color = { 0.625, 0.395, 0.719, 1 },
+		text = TB_MENU_LOCALIZED.QUEUELISTEVENTSQUADTRIALTITLE,
+		desc = TB_MENU_LOCALIZED.QUEUELISTEVENTSQUADTRIALDESC,
+		atlasX = 64
+	},
+	{
+		title = "itemforger",
+		text = TB_MENU_LOCALIZED.QUEUELISTITEMFORGERTITLE,
+		desc = TB_MENU_LOCALIZED.QUEUELISTITEMFORGERDESC,
+		atlasX = 320
+	},
+	{
+		title = "legend",
+		text = TB_MENU_LOCALIZED.QUEUELISTLEGENDTITLE,
+		desc = TB_MENU_LOCALIZED.QUEUELISTLEGENDDESC,
+		atlasX = 256
 	},
 	{
 		title = "op",
-		color = "00FF00",
 		text = TB_MENU_LOCALIZED.QUEUELISTROOMOPTITLE,
 		desc = TB_MENU_LOCALIZED.QUEUELISTROOMOPDESC
+	},
+	{
+		title = "muted",
+		text = TB_MENU_LOCALIZED.QUEUELISTMUTEDTITLE,
+		desc = TB_MENU_LOCALIZED.QUEUELISTMUTEDDESC
 	}
 }
 
@@ -116,6 +136,20 @@ end
 ---@return number #Added elements' height
 function QueueList:addPlayerInfos(viewElement, info)
 	info.pInfo:getClan()
+
+	--[[local bgBackdrop = viewElement:addChild({
+		size = { viewElement.size.w, viewElement.size.h },
+		bgImage = "../textures/menu/bgtest.tga",
+		imagePatterned = true,
+		atlas = { x = 0, y = 0, w = 450, h = 450 / viewElement.size.w * viewElement.size.h }
+	})
+	local fadeToColor = table.clone(TB_MENU_DEFAULT_BG_COLOR)
+	fadeToColor[4] = 0
+	local bgBackdropGradient = bgBackdrop:addChild({
+		pos = { 0, -60 },
+		size = { bgBackdrop.size.w, 60 },
+		bgGradient = { TB_MENU_DEFAULT_BG_COLOR, fadeToColor }
+	})]]
 
 	local infosH = 35
 	local nameHolder = viewElement:addChild({
@@ -164,14 +198,14 @@ function QueueList:addPlayerInfos(viewElement, info)
 	local headHolder = UIElement:new({
 		parent = viewElement,
 		pos = { 0, headPosY },
-		size = { 60, 60 },
-		bgColor = TB_MENU_DEFAULT_BG_COLOR
+		size = { 60, 60 }
 	})
 	local headViewport = UIElement:new( {
 		parent = headHolder,
 		pos = { -70, -70 },
 		size = { 80, 80 }
 	})
+	viewElement.headViewport = headViewport
 	TBMenu:showPlayerHeadAvatar(headViewport, info.pInfo)
 
 	if (clanHolder) then
@@ -181,48 +215,62 @@ function QueueList:addPlayerInfos(viewElement, info)
 
 	local titleHolder = UIElement:new({
 		parent = viewElement,
-		pos = { 0, infosH + 5 },
-		size = { viewElement.size.w, 25 }
+		pos = { 10, infosH + 5 },
+		size = { viewElement.size.w - 20, 25 }
 	})
-	local titleShift = { x = 15, y = 0 }
+	local titleShift = { x = 0, y = 0 }
 	local displayed = 0
 	for _, v in pairs(QueueListInternal.InfoFields) do
-		if (type(info[v.title]) == "number" and info[v.title] > 0) then
-			local r, g, b = unpack(get_color_from_hex(v.color))
-			local color = { r = r, g = g, b = b }
-			local titleDisplay = UIElement:new({
-				parent = titleHolder,
+		if (info[v.title] == true) then
+			local color = v.color or table.clone(TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS)
+			local titleDisplay = titleHolder:addChild({
 				pos = { titleShift.x, titleShift.y },
 				size = { 150, 20 },
-				bgColor = { color.r, color.g, color.b, 1 },
+				bgColor = color,
 				shapeType = ROUNDED,
 				rounded = 10,
-				uiColor = (math.max(color.r, color.g, color.b) > 0.95 or (color.r + color.g + color.b > 2)) and UICOLORBLACK or UICOLORWHITE
+				uiColor = get_color_contrast_ratio(color) > 0.66 and UICOLORBLACK or UICOLORWHITE
 			})
-			titleDisplay:addAdaptedText(false, v.text, 10, nil, 4, LEFTMID, 0.6)
-			local titleTextLen = get_string_length(titleDisplay.dispstr[1], titleDisplay.textFont) * titleDisplay.textScale + 20
-			titleDisplay.size.w = titleTextLen
+			if (v.atlasX ~= nil) then
+				local atlasData = QueueListInternal.GetRoleIcon(v.title)
+				if (atlasData) then
+					titleDisplay:addChild({
+						pos = { 0, 0 },
+						size = { titleDisplay.size.h, titleDisplay.size.h },
+						bgImage = atlasData.filename,
+						imageAtlas = true,
+						atlas = atlasData.atlas
+					})
+					local titleText = titleDisplay:addChild({
+						pos = { titleDisplay.size.h, 0 },
+						size = { titleDisplay.size.w - titleDisplay.size.h, titleDisplay.size.h }
+					})
+					titleText:addAdaptedText(true, v.text, 5, nil, 4, LEFTMID, 0.6)
+					local titleTextLen = get_string_length(titleText.dispstr[1], titleText.textFont) * titleText.textScale + 15
+					titleText.size.w = titleTextLen
+					titleDisplay.size.w = titleText.size.w + titleDisplay.size.h
+				end
+			else
+				titleDisplay:addAdaptedText(false, v.text, 10, nil, 4, LEFTMID, 0.6)
+				local titleTextLen = get_string_length(titleDisplay.dispstr[1], titleDisplay.textFont) * titleDisplay.textScale + 20
+				titleDisplay.size.w = titleTextLen
+			end
 			if (v.desc) then
-				local helpPopupHolder = UIElement:new({
-					parent = titleDisplay,
-					pos = { 0, 0 },
-					size = { titleDisplay.size.w, titleDisplay.size.h },
+				local helpPopupHolder = titleDisplay:addChild({
 					interactive = true,
 					bgColor = { 0, 0, 0, 0.01 },
 					hoverColor = { 1, 1, 1, 0.2 },
-					uiColor = UICOLORWHITE,
-					shapeType = titleDisplay.shapeType,
-					rounded = titleDisplay.rounded
-				})
+					uiColor = UICOLORWHITE
+				}, true)
 				local helpPopup = TBMenu:displayHelpPopup(helpPopupHolder, v.desc, nil, true)
 				helpPopup:moveTo(math.min(-titleDisplay.size.w + (titleDisplay.size.w - helpPopup.size.w) / 2, helpPopup.shift.x))
-				helpPopup:moveTo(nil, 25, true)
+				helpPopup:moveTo(nil, titleDisplay.size.h + 5, true)
 			end
 			titleShift.x = titleShift.x + titleDisplay.size.w + 5
 			if (titleShift.x > titleHolder.size.w) then
 				titleShift.y = titleShift.y + titleDisplay.size.h + 3
-				titleDisplay:moveTo(15, titleShift.y)
-				titleShift.x = titleDisplay.size.w + 20
+				titleDisplay:moveTo(0, titleShift.y)
+				titleShift.x = titleDisplay.size.w + 5
 			end
 			displayed = displayed + 1
 		end
@@ -234,6 +282,8 @@ function QueueList:addPlayerInfos(viewElement, info)
 		titleHolder:kill()
 	end
 
+	--[[bgBackdrop.size.h = math.min(450 / viewElement.size.w * 200, infosH)
+	bgBackdrop.atlas.h = 450 / viewElement.size.w * bgBackdrop.size.h]]
 	return infosH
 end
 
@@ -588,14 +638,14 @@ function QueueList:addPlayerControls(viewElement, info, userinfo)
 	end
 
 	local showControls, showAdvControls = false, false
-	if (userinfo.admin ~= 0 or userinfo.eventsquad ~= 0 or userinfo.helpsquad ~= 0) then
+	if (userinfo.admin or userinfo.eventsquad or userinfo.helpsquad) then
 		userinfo.ingameadmin = true
 		showControls = true
 		showAdvControls = true
-	elseif (userinfo.op ~= 0) then
+	elseif (userinfo.op) then
 		showControls = true
 	end
-	if (info.admin ~= 0 or info.eventsquad ~= 0 or info.helpsquad ~= 0) then
+	if (info.admin or info.eventsquad or info.helpsquad) then
 		info.ingameadmin = true
 	end
 
@@ -640,25 +690,25 @@ function QueueList:addPlayerControls(viewElement, info, userinfo)
 	local cButtons = {
 		{
 			name = "mute",
-			show = info.muted == 0 and info.op == 0 and not info.ingameadmin,
+			show = not info.muted and not info.op and not info.ingameadmin,
 			text = TB_MENU_LOCALIZED.QUEUELISTDROPDOWNMUTE,
 			action = function(s) runCmd("mute " .. s, true) end
 		},
 		{
 			name = "unmute",
-			show = info.muted ~= 0,
+			show = info.muted,
 			text = TB_MENU_LOCALIZED.QUEUELISTDROPDOWNUNMUTE,
 			action = function(s) runCmd("unmute " .. s, true) end
 		},
 		{
 			name = "op",
-			show = info.op == 0 and not info.ingameadmin,
+			show = not info.op and not info.ingameadmin,
 			text = TB_MENU_LOCALIZED.QUEUELISTDROPDOWNOP,
 			action = function(s) runCmd("op " .. s, true) end
 		},
 		{
 			name = "deop",
-			show = info.op ~= 0 and not info.ingameadmin,
+			show = info.op and not info.ingameadmin,
 			text = TB_MENU_LOCALIZED.QUEUELISTDROPDOWNDEOP,
 			action = function(s) runCmd("deop " .. s, true) end
 		},
@@ -821,21 +871,6 @@ function QueueList:addPlayerControls(viewElement, info, userinfo)
 	return infoH
 end
 
----Returns length of the longest name in the queue list
----@return number
-function QueueList:getHorizontalShift()
-	local maxW = 0
-	for _, v in pairs(get_bouts()) do
-		local w = get_string_length(v, FONTS.SMALL)
-		maxW = math.max(maxW, w)
-	end
-	for _, v in pairs(get_spectators()) do
-		local w = get_string_length(v, FONTS.SMALL)
-		maxW = math.max(maxW, w)
-	end
-	return maxW
-end
-
 ---Spawns player info display window
 ---@param info QueueListPlayerInfo
 function QueueList:show(info)
@@ -843,12 +878,6 @@ function QueueList:show(info)
 	if (not info or not userinfo) then
 		return
 	end
-	local pName = PlayerInfo.Get(info.nick).username
-	local customs = Files:open("../custom/" .. pName:lower() .. "/item.dat", FILES_MODE_READONLY)
-	if (not customs.data) then
-		download_head(pName)
-	end
-	customs:close()
 
 	if (QueueList.PopupWindow ~= nil) then
 		QueueList.DestroyPopup()
@@ -861,28 +890,45 @@ function QueueList:show(info)
 	})
 	QueueList.PopupWindow:addMouseHandlers(nil, QueueList.DestroyPopup, nil, QueueList.DestroyPopup)
 
-	local hShift = QueueList:getHorizontalShift()
-	local posX = MOUSE_X > WIN_W - 30 - hShift and WIN_W - 30 - hShift or MOUSE_X
-
 	local queuelistBoxBG = QueueList.PopupWindow:addChild({
-		pos = { posX - WIN_W / 5, MOUSE_Y - 10 },
-		size = { WIN_W / 5, 60 }, -- 60 is basic player info, for other buttons it's going to be incremented as they're added
-		bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-		interactive = true
+		pos = { MOUSE_X - 50 - QueueList.ListWidth, MOUSE_Y - 20 },
+		size = { QueueList.ListWidth, 60 }, -- 60 is required for base player info
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		interactive = true,
+		shapeType = ROUNDED,
+		rounded = 4
 	})
-	local queuelistBox = UIElement:new({
-		parent = queuelistBoxBG,
-		pos = { 1, 1 },
-		size = { queuelistBoxBG.size.w - 2, queuelistBoxBG.size.h - 2 },
+	local queuelistBox = queuelistBoxBG:addChild({
+		shift = { 2, 2 },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR
-	})
+	}, true)
+	queuelistBox.headViewport = nil
+
+	local pName = string.lower(info.pInfo.username)
+	local customs = Files:open("../custom/" .. pName .. "/item.dat", FILES_MODE_READONLY)
+	if (not customs.data) then
+		download_head(pName)
+		add_hook("downloader_complete", "queueListPlayerDownloader", function(file)
+				if (string.find(file, pName .. "/item.dat")) then
+					Downloader:safeCall(function()
+							if (queuelistBox ~= nil and not queuelistBox.destroyed and
+								queuelistBox.headViewport ~= nil and not queuelistBox.headViewport.destroyed) then
+								queuelistBox.headViewport:kill(true)
+								TBMenu:showPlayerHeadAvatar(queuelistBox.headViewport, info.pInfo)
+							end
+						end)
+				end
+			end)
+	end
+	customs:close()
 	queuelistBox.size.h = QueueList:addPlayerInfos(queuelistBox, info)
 	queuelistBox.size.h = QueueList:addPlayerControls(queuelistBox, info, userinfo)
 
 
-	queuelistBoxBG.size.h = queuelistBox.size.h + 2
-	if (queuelistBoxBG.size.h + queuelistBoxBG.pos.y + 10 > WIN_H) then
-		queuelistBoxBG:moveTo(nil, WIN_H - queuelistBoxBG.size.h - 10)
+	queuelistBoxBG.size.h = queuelistBox.size.h + queuelistBox.shift.y * 2
+	local x, y, w, h = get_window_safe_size()
+	if (queuelistBoxBG.size.h + queuelistBoxBG.pos.y + 10 > y + h) then
+		queuelistBoxBG:moveTo(nil, y + h - queuelistBoxBG.size.h - 10)
 	end
 end
 
@@ -902,7 +948,7 @@ function QueueList.ReloadMainView()
 	end
 
 	local x, y, w, h = get_window_safe_size()
-	local x = math.max(x, WIN_W - w - x) + 15
+	local x = math.max(x, WIN_W - w - x) + 5
 	local listWidth = 500
 	QueueList.MainElement = UIElement:new({
 		globalid = QueueList.Globalid,
@@ -910,6 +956,12 @@ function QueueList.ReloadMainView()
 		size = { listWidth, WIN_H - 400 }
 	})
 	local toReload, topBar, botBar, listingView, listingHolder = TBMenu:prepareScrollableList(QueueList.MainElement, 1, 1, 8, { 0, 0, 0, 0 })
+
+	---Make sure we don't block mouse clicks on player
+	topBar.clickThrough = true
+	botBar.clickThrough = true
+	listingView.clickThrough = true
+
 	QueueListInternal.ListHolder = listingHolder
 	QueueListInternal.ListElements = {}
 
@@ -976,17 +1028,13 @@ end
 ---Returns name color for the player
 ---@param playerInfo QueueListPlayerInfo
 function QueueListInternal.getNameColor(playerInfo)
-	if (playerInfo.admin ~= 0) then
-		return { 0.55, 0.05, 0.05, 1 } -- TB_MENU_DEFAULT_DARKER_COLOR
-	elseif (playerInfo.eventsquad ~= 0) then
-		return { 0.684, 0.129, 0.949, 1 }
-	elseif (playerInfo.helpsquad ~= 0) then
-		return { 0.996, 0.496, 0.031, 1 }
-	elseif (playerInfo.marketsquad ~= 0) then
-		return { 0.027, 0.598, 0, 1 }
-	elseif (playerInfo.eventsquad_trial ~= 0) then
-		return { 0.625, 0.395, 0.719, 1 }
-	elseif (playerInfo.isMe) then
+	for _,v in pairs(QueueListInternal.InfoFields) do
+		if (playerInfo[v.title] == true and v.color ~= nil) then
+			return table.clone(v.color)
+		end
+	end
+
+	if (playerInfo.isMe) then
 		return { 0, 1, 0, 1 }
 	elseif (not playerInfo.spectator and playerInfo.id == 0) then
 		return { 0.67, 0.11, 0.11, 1 } -- Tori, TB_MENU_DEFAULT_BG_COLOR
@@ -996,30 +1044,41 @@ function QueueListInternal.getNameColor(playerInfo)
 	return { 0, 0, 0, 1 }
 end
 
+---@class QueueListIcon
+---@field atlasData AtlasData
+---@field infoField QueueListInfoField
+
 ---Returns status icon atlas information for the user
 ---@param info QueueListPlayerInfo
----@return AtlasData|nil
+---@return QueueListIcon|nil
 function QueueListInternal.GetStatusIcon(info)
-	---@type Rect
-	local atlasInfo = { y = 0, h = 64, w = 64 }
-	if (info.admin ~= 0) then
-		atlasInfo.x = 0
-	elseif (info.eventsquad ~= 0 or info.eventsquad_trial ~= 0) then
-		atlasInfo.x = 64
-	elseif (info.marketsquad ~= 0) then
-		atlasInfo.x = 128
-	elseif (info.helpsquad ~= 0) then
-		atlasInfo.x = 192
-	elseif (info.legend ~= 0) then
-		atlasInfo.x = 256
-	else
-		return nil
+	for _,v in pairs(QueueListInternal.InfoFields) do
+		if (info[v.title] == true and v.atlasX ~= nil) then
+			return {
+				infoField = v,
+				atlasData = {
+					filename = "../textures/statusicons.tga",
+					atlas = { x = v.atlasX, y = 0, h = 64, w = 64 }
+				}
+			}
+		end
 	end
+	return nil
+end
 
-	return {
-		filename = "../textures/statusicons.tga",
-		atlas = atlasInfo
-	}
+---Returns status icon atlas information for a given role
+---@param role string
+---@return AtlasData|nil
+function QueueListInternal.GetRoleIcon(role)
+	for _,v in pairs(QueueListInternal.InfoFields) do
+		if (v.title == role and v.atlasX ~= nil) then
+			return {
+				filename = "../textures/statusicons.tga",
+				atlas = { x = v.atlasX, y = 0, h = 64, w = 64 }
+			}
+		end
+	end
+	return nil
 end
 
 ---Adds a player to the queue list cache
@@ -1102,10 +1161,13 @@ function QueueList.AddPlayer(id, name, bouts, spectator)
 		local playerStatus = playerInfo.button:addChild({
 			pos = { -playerInfo.button.size.w - playerInfo.button.size.h + 2, 0 },
 			size = { playerInfo.button.size.h, playerInfo.button.size.h },
-			bgImage = statusIcon.filename,
+			bgImage = statusIcon.atlasData.filename,
 			imageAtlas = true,
-			atlas = statusIcon.atlas
+			atlas = statusIcon.atlasData.atlas,
+			interactive = true
 		})
+		local infoPopup = TBMenu:displayPopup(playerStatus, statusIcon.infoField.text, nil, playerInfo.button.size.h)
+		infoPopup:moveTo(-playerStatus.size.w - infoPopup.size.w - 5)
 	end
 end
 
@@ -1141,7 +1203,11 @@ function QueueList.Reload(reinit)
 
 	local spectators = get_spectators()
 	for i, v in pairs(spectators) do
-		if (QueueList.Cache.Players.Specs[i] == nil or v ~= QueueList.Cache.Players.Specs[i].nick) then
+		local playerInfo = QueueListInternal.getSpecInfo(i - 1) or {}
+		if (QueueList.Cache.Players.Specs[i] == nil or
+			v ~= QueueList.Cache.Players.Specs[i].nick or
+			playerInfo.perms_bitfield ~= QueueList.Cache.Players.Specs[i].perms_bitfield or
+			playerInfo.flag_code ~= QueueList.Cache.Players.Specs[i].flag_code) then
 			QueueList.AddPlayer(i, v, numBouts, true)
 		else
 			QueueList.Cache.Players.Specs[i].button:moveTo(nil, (numBouts + i - 1) * QueueListInternal.listButtonHeight)
