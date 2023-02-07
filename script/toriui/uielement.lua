@@ -1053,10 +1053,10 @@ function UIElement:touchScroll(listElements, listHolder, toReload, scrollDelta, 
 		end
 
 		if (scrollDelta ~= 0) then
-			listHolder:moveTo(listHolder.shift.x, scrollDelta, true)
+			listHolder:moveTo(nil, scrollDelta, true)
 
 			local scrollProgress = -(listHolder.size.h + listHolder.shift.y) / (listHeight - listHolder.size.h)
-			self:moveTo(self.shift.x, (self.parent.size.h - self.size.h) * scrollProgress)
+			self:moveTo(nil, (self.parent.size.h - self.size.h) * scrollProgress)
 
 			self.listReload()
 		end
@@ -1073,10 +1073,10 @@ function UIElement:touchScroll(listElements, listHolder, toReload, scrollDelta, 
 		end
 
 		if (scrollDelta ~= 0) then
-			listHolder:moveTo(scrollDelta, listHolder.shift.y, true)
+			listHolder:moveTo(scrollDelta, nil, true)
 
 			local scrollProgress = -(listHolder.size.w + listHolder.shift.x) / (listWidth - listHolder.size.w)
-			self:moveTo((self.parent.size.w - self.size.w) * scrollProgress, self.shift.y)
+			self:moveTo((self.parent.size.w - self.size.w) * scrollProgress, nil)
 
 			self.listReload()
 		end

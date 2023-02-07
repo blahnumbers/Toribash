@@ -36,12 +36,12 @@ if (QueueList == nil) then
 	---@field Globalid integer
 	QueueList = {
 		Globalid = 1012,
-		ListWidth = math.min(WIN_W * 0.22, 450),
+		PopupWidth = math.min(WIN_W * 0.22, 450),
 		ver = 5.60
 	}
 	QueueList.__index = QueueList
 	add_hook("resolution_changed", "queueListResolutionStatic", function()
-			QueueList.ListWidth = math.min(WIN_W * 0.22, 450)
+			QueueList.PopupWidth = math.min(WIN_W * 0.22, 450)
 		end)
 end
 
@@ -891,8 +891,8 @@ function QueueList:show(info)
 	QueueList.PopupWindow:addMouseHandlers(nil, QueueList.DestroyPopup, nil, QueueList.DestroyPopup)
 
 	local queuelistBoxBG = QueueList.PopupWindow:addChild({
-		pos = { MOUSE_X - 50 - QueueList.ListWidth, MOUSE_Y - 20 },
-		size = { QueueList.ListWidth, 60 }, -- 60 is required for base player info
+		pos = { MOUSE_X - 50 - QueueList.PopupWidth, MOUSE_Y - 20 },
+		size = { QueueList.PopupWidth, 60 }, -- 60 is required for base player info
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 		interactive = true,
 		shapeType = ROUNDED,
@@ -953,7 +953,7 @@ function QueueList.ReloadMainView()
 	QueueList.MainElement = UIElement:new({
 		globalid = QueueList.Globalid,
 		pos = { WIN_W - listWidth - x, 150 },
-		size = { listWidth, WIN_H - 350 }
+		size = { listWidth, y + h - 350 }
 	})
 	local toReload, topBar, botBar, listingView, listingHolder = TBMenu:prepareScrollableList(QueueList.MainElement, 1, 1, 8, { 0, 0, 0, 0 })
 
@@ -1122,7 +1122,7 @@ function QueueList.AddPlayer(id, name, bouts, spectator)
 	playerInfo.button.pressedColor = table.clone(playerInfo.button.hoverColor)
 
 	---Cache text caption
-	playerInfo.button:addAdaptedText(true, name, nil, nil, FONTS.SMALL, RIGHTMID, 1)
+	playerInfo.button:addAdaptedText(true, name, nil, nil, FONTS.SMALL, RIGHTMID, 1, 1)
 	playerInfo.button:addCustomDisplay(true, function()
 			local shadow = nil
 			if (playerInfo.button.hoverState ~= BTN_NONE) then
@@ -1164,7 +1164,9 @@ function QueueList.AddPlayer(id, name, bouts, spectator)
 			bgImage = statusIcon.atlasData.filename,
 			imageAtlas = true,
 			atlas = statusIcon.atlasData.atlas,
-			interactive = true
+			interactive = true,
+			clickThrough = true,
+			hoverThrough = true
 		})
 		local infoPopup = TBMenu:displayPopup(playerStatus, statusIcon.infoField.text, nil, playerInfo.button.size.h)
 		infoPopup:moveTo(-playerStatus.size.w - infoPopup.size.w - 5)
@@ -1221,12 +1223,15 @@ function QueueList.Reload(reinit)
 	for i = #QueueListInternal.ListElements, 1, -1 do
 		table.remove(QueueListInternal.ListElements, i)
 	end
+	local maxButtonWidth = 0
 	for _, v in pairs(QueueList.Cache.Players.Bouts) do
 		table.insert(QueueListInternal.ListElements, v.button)
+		maxButtonWidth = math.max(v.button.size.w, maxButtonWidth)
 		v.button:hide(true)
 	end
 	for _, v in pairs(QueueList.Cache.Players.Specs) do
 		table.insert(QueueListInternal.ListElements, v.button)
+		maxButtonWidth = math.max(v.button.size.w, maxButtonWidth)
 		v.button:hide(true)
 	end
 
@@ -1239,6 +1244,11 @@ function QueueList.Reload(reinit)
 	else
 		QueueListInternal.ListScrollbar:show(true)
 	end
+
+	maxButtonWidth = maxButtonWidth + QueueListInternal.listButtonHeight * 2
+	QueueListInternal.ListHolder.parent.size.w = maxButtonWidth
+	QueueListInternal.ListHolder.parent:moveTo(QueueListInternal.ListHolder.parent.parent.size.w - maxButtonWidth)
+	QueueListInternal.ListHolder:moveTo(-maxButtonWidth - math.abs(QueueListInternal.ListHolder.size.w - maxButtonWidth) - QueueListInternal.ListScrollbar.parent.size.w * 2)
 
 	QueueList.Cache.Players.total = #QueueList.Cache.Players.Bouts + #QueueList.Cache.Players.Specs
 
