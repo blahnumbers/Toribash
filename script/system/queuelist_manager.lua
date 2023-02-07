@@ -949,11 +949,11 @@ function QueueList.ReloadMainView()
 
 	local x, y, w, h = get_window_safe_size()
 	local x = math.max(x, WIN_W - w - x) + 5
-	local listWidth = 500
+	local listWidth = 400
 	QueueList.MainElement = UIElement:new({
 		globalid = QueueList.Globalid,
 		pos = { WIN_W - listWidth - x, 150 },
-		size = { listWidth, WIN_H - 400 }
+		size = { listWidth, WIN_H - 350 }
 	})
 	local toReload, topBar, botBar, listingView, listingHolder = TBMenu:prepareScrollableList(QueueList.MainElement, 1, 1, 8, { 0, 0, 0, 0 })
 

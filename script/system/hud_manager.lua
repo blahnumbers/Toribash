@@ -134,9 +134,17 @@ end
 
 ---Method that handles all incoming chat messages and pushes them for display
 ---@param msg string
----@param type integer
+---@param type ChatMessageType
 ---@param tab integer
 function TBHudInternal.pushChatMessage(msg, type, tab)
+	---Colorize first symbol if needed
+	if (type > MSGTYPE.SERVER) then
+		local match, matchEnd = utf8.find(msg, "(^?%%?%d+)>")
+		if (match ~= nil) then
+			msg = utf8.sub(msg, match, matchEnd - 1) .. msg
+		end
+	end
+
 	local message = get_option("chatcensor") % 2 == 1 and ChatIgnore:filterInput(msg) or msg
 	---@type ChatMessage
 	local chatMessage = {
