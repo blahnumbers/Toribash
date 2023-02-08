@@ -948,7 +948,7 @@ function QueueList.ReloadMainView()
 	end
 
 	local x, y, w, h = get_window_safe_size()
-	local x = math.max(x, WIN_W - w - x) + 5
+	local x = math.max(x, WIN_W - w - x)
 	local listWidth = 400
 	QueueList.MainElement = UIElement:new({
 		globalid = QueueList.Globalid,

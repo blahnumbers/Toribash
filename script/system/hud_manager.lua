@@ -452,12 +452,14 @@ function TBHud:spawnHub()
 	self.HubHolder:addMouseUpHandler(function() self:toggleHub(false) end)
 
 	local hubBackground = self.HubHolder:addChild({
-		pos = { -self.HubSize.w, 0 },
-		size = { self.HubSize.w, self.HubSize.h },
+		pos = { -self.HubSize.w - safe_x, 0 },
+		size = { self.HubSize.w + safe_x, self.HubSize.h },
 		bgColor = { 1, 1, 1, 0.7 },
-		shapeType = ROUNDED,
-		rounded = 5,
 		interactive = true
+	})
+	local hubMainHolder = hubBackground:addChild({
+		pos = { 0, 0 },
+		size = { self.HubSize.w, self.HubSize.h }
 	})
 	local topRowButtons = {
 		{
@@ -476,10 +478,10 @@ function TBHud:spawnHub()
 			action = function() dofile("system/atmo.lua") end
 		}
 	}
-	local buttonSize = (hubBackground.size.w - 20) / #topRowButtons - 10
-	local topButtonsHolder = hubBackground:addChild({
+	local buttonSize = (hubMainHolder.size.w - 20) / #topRowButtons - 10
+	local topButtonsHolder = hubMainHolder:addChild({
 		pos = { 10, 50 },
-		size = { hubBackground.size.w - 20, buttonSize }
+		size = { hubMainHolder.size.w - 20, buttonSize }
 	})
 	for i, v in pairs(topRowButtons) do
 		local buttonElement = topButtonsHolder:addChild({
@@ -509,9 +511,9 @@ function TBHud:spawnHub()
 		buttonTitleHolder:addChild({ shift = { 5, 2 }}):addAdaptedText(false, v.title)
 	end
 
-	local mainMenuButton = hubBackground:addChild({
+	local mainMenuButton = hubMainHolder:addChild({
 		pos = { 10, -40 - math.max(safe_y, 20) },
-		size = { hubBackground.size.w - 20, 40 },
+		size = { hubMainHolder.size.w - 20, 40 },
 		interactive = true,
 		bgColor = TB_MENU_DEFAULT_BG_COLOR,
 		hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
@@ -544,10 +546,10 @@ function TBHud:toggleHub(state)
 		end
 
 		if (tweenValue >= 1) then
-			if (state == false) then
-				self.HubHolder:hide(true)
-			else
+			if (state) then
 				self.HubHolder:addCustomDisplay(true, function() end)
+			else
+				self.HubHolder:hide(true)
 			end
 		end
 	end)
