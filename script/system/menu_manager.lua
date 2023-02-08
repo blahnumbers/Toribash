@@ -66,7 +66,7 @@ end
 ---In case of incomplete data, uses English to make sure there are no missing localization strings.
 ---@param language string
 function TBMenu:getTranslation(language)
-	local language = language and string.lower(language) or "english"
+	local language = language or "english"
 	local inverse = (language == "arabic" or language == "hebrew") and true
 	TBMenu:setLanguageFontOptions(language)
 	if (type(TB_MENU_LOCALIZED) ~= "table" or TB_MENU_LOCALIZED.language ~= language or TB_MENU_DEBUG) then
