@@ -797,6 +797,12 @@ end
 function BattlePass:showMain()
 	TBMenu.CurrentSection:kill(true)
 
+	if (self.wasOpened == false and self.UserData.level == 0) then
+		self.wasOpened = true
+		TBMenu:showNavigationBar()
+	end
+	self.wasOpened = true
+
 	if (not BattlePass.UserData or BattlePass.UserData.qi ~= TB_MENU_PLAYER_INFO.data.qi) then
 		local battlePassLoading = TBMenu.CurrentSection:addChild({
 			shift = { 5, 0 },

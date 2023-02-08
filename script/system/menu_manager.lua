@@ -1857,8 +1857,8 @@ function TBMenu:showUserBar()
 	TBMenu.UserBar.headDisplayObjects = {}
 
 	local tbMenuUserBarBottomSplat = TBMenu.UserBar:addChild({
-		pos = { -tbMenuTopBarWidth * 1.25 + 1, 0 },
-		size = { tbMenuTopBarWidth * 1.25, tbMenuTopBarWidth / 4 },
+		pos = { math.floor(-tbMenuTopBarWidth * 1.25) + 1, 0 },
+		size = { math.ceil(tbMenuTopBarWidth * 1.25), math.ceil(tbMenuTopBarWidth / 4) },
 		bgImage = TB_MENU_USERBAR_MAIN,
 		disableUnload = true,
 		imageColor = TB_MENU_DEFAULT_BG_COLOR
@@ -2214,7 +2214,7 @@ function TBMenu:showMobileNavigationBar(buttonsData, customNav, customNavHighlig
 	---Unlike with horizontal menu, button height and width is always the same
 	---We only need to calculate target font scale so that we can render all captions at the same size
 
-	local buttonHeight = math.min(TBMenu.NavigationBar.size.h / #tbMenuNavigationButtonsData, 60)
+	local buttonHeight = math.min((TBMenu.NavigationBar.size.h - navY.t[1] - navY.b[1]) / (#tbMenuNavigationButtonsData + 1), 60)
 	local fontScale = 0.65
 	local fontId = FONTS.BIG
 
@@ -2232,7 +2232,12 @@ function TBMenu:showMobileNavigationBar(buttonsData, customNav, customNavHighlig
 				break
 			end
 		end
-		targetWidth = math.min(targetWidth, runMaxWidth)
+		if (fontScale < 0.55 and fontId == FONTS.BIG) then
+			fontId = FONTS.MEDIUM
+			fontScale = 1.05
+		else
+			targetWidth = math.min(targetWidth, runMaxWidth)
+		end
 	end
 
 	for i, v in pairs(tbMenuNavigationButtonsData) do
@@ -2502,7 +2507,7 @@ function TBMenu:getMainNavigationButtons()
 		local battlePassButton = {
 			text = TB_MENU_LOCALIZED.BATTLEPASSTITLE,
 			sectionId = 11,
-			right = true
+			right = not is_mobile()
 		}
 		if (BattlePass.UserData) then
 			if (BattlePass.UserData.level == 0 and not BattlePass.wasOpened) then
@@ -2774,7 +2779,7 @@ function TBMenu:showMain(noload)
 		imageColor = TB_MENU_DEFAULT_BG_COLOR
 	})
 	local splatRight = TBMenu.MenuMain:addChild({
-		pos = { -splatRes - splatLeft.shift.x, splatLeft.shift.y },
+		pos = { TBMenu.CurrentSection.shift.x + TBMenu.CurrentSection.size.w + 60 * TB_MENU_GLOBAL_SCALE - splatRes, splatLeft.shift.y },
 		size = { splatRes, splatRes },
 		bgImage = splatCustom and splatLeftImg or TB_MENU_BLOODSPLATTER_RIGHT,
 		disableUnload = true,
