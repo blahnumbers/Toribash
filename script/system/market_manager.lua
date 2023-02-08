@@ -3619,11 +3619,11 @@ do
 
 		local myShopView = UIElement:new({
 			parent = viewElement,
-			pos = { 0, 0 },
+			pos = { 5, 0 },
 			size = { 0, viewElement.size.h },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
-		myShopView.size.w = math.min(viewElement.size.w / 3, 375)
+		myShopView.size.w = math.min(viewElement.size.w / 4, 375)
 		TBMenu:addBottomBloodSmudge(myShopView, 1)
 
 		Request:queue(function()
@@ -3677,7 +3677,7 @@ do
 		local popularSaleOffersView = UIElement:new({
 			parent = viewElement,
 			pos = { myShopViewShift, 0 },
-			size = { viewElement.size.w - featuredImageSize - myShopViewShift, viewElement.size.h },
+			size = { viewElement.size.w - featuredImageSize - myShopViewShift - 15, viewElement.size.h },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
 

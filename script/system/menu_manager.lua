@@ -316,16 +316,16 @@ function TBMenu:showHome()
 	set_option("newshopitem", 0)
 	-- Create and load regular announcements view
 	-- Featured event banner needs to have even borders, make sure it's scaled accordingly to 775x512 default size
-	local rightSideWidth = (TBMenu.CurrentSection.size.h * 0.7 - 10) * 1.513 + 10
+	local rightSideWidth = math.min((TBMenu.CurrentSection.size.h * 0.7 - 15) * 1.513, WIN_W / 3) - 10
 	local homeAnnouncements = UIElement:new( {
 		parent = TBMenu.CurrentSection,
 		pos = { 5, 0 },
-		size = { TBMenu.CurrentSection.size.w - rightSideWidth - 10, TBMenu.CurrentSection.size.h }
+		size = { TBMenu.CurrentSection.size.w - rightSideWidth - 30, TBMenu.CurrentSection.size.h }
 	})
 	local featuredEvent = UIElement:new({
 		parent = TBMenu.CurrentSection,
-		pos = { homeAnnouncements.size.w + 15, 0 },
-		size = { rightSideWidth, TBMenu.CurrentSection.size.h * 0.7 },
+		pos = { homeAnnouncements.shift.x + homeAnnouncements.size.w + 10, 0 },
+		size = { rightSideWidth + 10, rightSideWidth / 1.513 + 10 },
 		interactive = true,
 		bgColor = TB_MENU_DEFAULT_BG_COLOR,
 		hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
@@ -334,8 +334,8 @@ function TBMenu:showHome()
 	})
 	local viewEventsButton = UIElement:new({
 		parent = TBMenu.CurrentSection,
-		pos = { featuredEvent.shift.x, TBMenu.CurrentSection.size.h * 0.7 + 10 },
-		size = { rightSideWidth, TBMenu.CurrentSection.size.h * 0.3 - 10 },
+		pos = { featuredEvent.shift.x, featuredEvent.shift.y + featuredEvent.size.h + 10 },
+		size = { featuredEvent.size.w, TBMenu.CurrentSection.size.h - featuredEvent.shift.y - featuredEvent.size.h - 10 },
 		interactive = true,
 		bgColor = TB_MENU_DEFAULT_BG_COLOR,
 		hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
@@ -357,7 +357,7 @@ function TBMenu:showHome()
 	end
 
 	local viewEventsButtonData = {
-		title = "View All Events",
+		title = TB_MENU_LOCALIZED.EVENTSALLEVENTS,
 		ratio = 0.3,
 		action = function() Events:showEventsHome(TBMenu.CurrentSection) end
 	}
@@ -475,6 +475,10 @@ function TBMenu:showHome()
 				eventNextButton.hoverState = BTN_HVR
 			end, nil)
 	end
+
+	---Do not show any text for featured events, promo image only
+	featuredEventData.title = nil
+	featuredEventData.subtitle = nil
 	TBMenu:showHomeButton(featuredEvent, featuredEventData)
 	TBMenu:showHomeButton(viewEventsButton, viewEventsButtonData, 2)
 end
