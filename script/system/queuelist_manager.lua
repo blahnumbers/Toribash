@@ -989,7 +989,7 @@ function QueueListInternal.getBoutInfo(id)
 	bout.id = id
 	bout.spectator = false
 	bout.pInfo = PlayerInfo.Get(bout.nick)
-	bout.isMe = bout.pInfo.username == TB_MENU_PLAYER_INFO.username
+	bout.isMe = bout.netid == get_current_netid()
 	return bout
 end
 
@@ -1011,7 +1011,7 @@ function QueueListInternal.getSpecInfo(id)
 	spec.id = id
 	spec.spectator = true
 	spec.pInfo = PlayerInfo.Get(spec.nick)
-	spec.isMe = spec.pInfo.username == TB_MENU_PLAYER_INFO.username
+	spec.isMe = spec.netid == get_current_netid()
 	return spec
 end
 
@@ -1085,11 +1085,10 @@ end
 
 ---Adds a player to the queue list cache
 ---@param id integer
----@param name string
+---@param playerInfo ?QueueListPlayerInfo
 ---@param bouts ?integer
 ---@param spectator ?boolean
-function QueueList.AddPlayer(id, name, bouts, spectator)
-	local playerInfo = spectator and QueueListInternal.getSpecInfo(id - 1) or QueueListInternal.getBoutInfo(id - 1)
+function QueueList.AddPlayer(id, playerInfo, bouts, spectator)
 	if (playerInfo == nil) then
 		return
 	end
@@ -1124,7 +1123,18 @@ function QueueList.AddPlayer(id, name, bouts, spectator)
 	playerInfo.button.pressedColor = table.clone(playerInfo.button.hoverColor)
 
 	---Cache text caption
-	playerInfo.button:addAdaptedText(true, name, nil, nil, FONTS.SMALL, RIGHTMID, 1, 1)
+	local playerDisplayName = playerInfo.nick
+	local playerInfoStatus = ""
+	if (spectator and playerInfo.afk) then
+		playerInfoStatus = "[afk]"
+	end
+	if (playerInfo.multiclient) then
+		playerInfoStatus = playerInfoStatus .. "[MC]"
+	end
+	if (playerInfoStatus:len() > 0) then
+		playerDisplayName = playerDisplayName .. " ^08" .. playerInfoStatus
+	end
+	playerInfo.button:addAdaptedText(true, playerDisplayName, nil, nil, FONTS.SMALL, RIGHTMID, 1, 1)
 	playerInfo.button:addCustomDisplay(true, function()
 			local shadow = nil
 			if (playerInfo.button.hoverState ~= BTN_NONE) then
@@ -1175,6 +1185,22 @@ function QueueList.AddPlayer(id, name, bouts, spectator)
 	end
 end
 
+---Generic function to check if cached player info has changed
+---@param playerInfo QueueListPlayerInfo
+---@param cachedData QueueListPlayerInfo
+function QueueListInternal.InfoChanged(playerInfo, cachedData)
+	-- table.compare() won't work here due to potential UIElement field (?)
+	if (cachedData == nil) then
+		return true
+	end
+	local changed = playerInfo.nick ~= cachedData.nick or
+					playerInfo.perms_bitfield ~= cachedData.perms_bitfield or
+					playerInfo.afk ~= cachedData.afk or
+					playerInfo.muted ~= cachedData.muted or
+					playerInfo.multiclient ~= cachedData.multiclient
+	return changed
+end
+
 ---Reloads queue list display with the new values
 ---@param reinit ?boolean
 function QueueList.Reload(reinit)
@@ -1196,8 +1222,11 @@ function QueueList.Reload(reinit)
 	local bouts = get_bouts()
 	local numBouts = #bouts
 	for i, v in pairs(bouts) do
-		if (QueueList.Cache.Players.Bouts[i] == nil or v ~= QueueList.Cache.Players.Bouts[i].nick) then
-			QueueList.AddPlayer(i, v)
+		local playerInfo = QueueListInternal.getBoutInfo(i - 1)
+		if (playerInfo) then
+			if (QueueListInternal.InfoChanged(playerInfo, QueueList.Cache.Players.Bouts[i])) then
+				QueueList.AddPlayer(i, playerInfo)
+			end
 		end
 	end
 	while (QueueList.Cache.Players.Bouts[numBouts + 1] ~= nil) do
@@ -1207,14 +1236,13 @@ function QueueList.Reload(reinit)
 
 	local spectators = get_spectators()
 	for i, v in pairs(spectators) do
-		local playerInfo = QueueListInternal.getSpecInfo(i - 1) or {}
-		if (QueueList.Cache.Players.Specs[i] == nil or
-			v ~= QueueList.Cache.Players.Specs[i].nick or
-			playerInfo.perms_bitfield ~= QueueList.Cache.Players.Specs[i].perms_bitfield or
-			playerInfo.flag_code ~= QueueList.Cache.Players.Specs[i].flag_code) then
-			QueueList.AddPlayer(i, v, numBouts, true)
-		else
-			QueueList.Cache.Players.Specs[i].button:moveTo(nil, (numBouts + i - 1) * QueueListInternal.listButtonHeight)
+		local playerInfo = QueueListInternal.getSpecInfo(i - 1)
+		if (playerInfo) then
+			if (QueueListInternal.InfoChanged(playerInfo, QueueList.Cache.Players.Specs[i])) then
+				QueueList.AddPlayer(i, playerInfo, numBouts, true)
+			else
+				QueueList.Cache.Players.Specs[i].button:moveTo(nil, (numBouts + i - 1) * QueueListInternal.listButtonHeight)
+			end
 		end
 	end
 	while (QueueList.Cache.Players.Specs[#spectators + 1] ~= nil) do

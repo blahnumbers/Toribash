@@ -2091,6 +2091,7 @@ function get_sound_category(id) end
 
 ---@class QueuePlayerInfo
 ---@field nick string Player name
+---@field netid integer Network id of a player
 ---@field is_fighter boolean|nil Whether this player is currently playing
 ---@field games_played integer Player's total Qi
 ---@field rank integer Player rank
@@ -2132,6 +2133,10 @@ function get_spectators() end
 ---@param spectator_id integer
 ---@return QueuePlayerInfo
 function get_spectator_info(spectator_id) end
+
+---Returns current user's network id
+---@return integer
+function get_current_netid() end
 
 
 --[[ CHAT FUNCTIONS ]]
