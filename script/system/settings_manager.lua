@@ -1258,87 +1258,85 @@ do
 	end
 
 	function Settings:getResolutionItems()
-		if (is_mobile()) then
-			return {}
-		end
-
 		local fullscreen = TB_MENU_MAIN_SETTINGS.fullscreen and TB_MENU_MAIN_SETTINGS.fullscreen.value or get_option("fullscreen")
-		local items
-		if (fullscreen == 1) then
-			items = {
-				{
-					name = TB_MENU_LOCALIZED.SETTINGSFULLSCREEN and TB_MENU_LOCALIZED.SETTINGSFULLSCREEN or TB_MENU_LOCALIZED.SETTINGSWINDOWED,
-					type = TOGGLE,
-					action = function(val)
-							TB_MENU_MAIN_SETTINGS.fullscreen = { value = TB_MENU_LOCALIZED.SETTINGSFULLSCREEN and val or 1 - val, reload = true }
-							Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
-						end,
-					val = { TB_MENU_LOCALIZED.SETTINGSFULLSCREEN and fullscreen or 1 - fullscreen }
-				},
-			}
-			if (PLATFORM == "WINDOWS") then
-				table.insert(items, {
-					name = TB_MENU_LOCALIZED.SETTINGSBORDERLESS,
-					type = TOGGLE,
-					action = function(val)
-							TB_MENU_MAIN_SETTINGS.borderless = { id = BORDERLESS, value = val, graphics = true }
-						end,
-					val = { TB_MENU_MAIN_SETTINGS["borderless"] and TB_MENU_MAIN_SETTINGS["borderless"].value or get_option("borderless") },
-					inactive = get_dpiawareness().DPISCALING ~= 1
-				})
-			end
-		else
-			-- Use these values instead of get_option() width/height to get highdpi-adapted values on macOS
-			local _x, _y, optionWidth, optionHeight = get_window_size()
-			if (PLATFORM == "APPLE") then
-				optionWidth = _x
-				optionHeight = _y
-			end
-			if (SETTINGS_LAST_RESOLUTION) then
-				optionWidth, optionHeight = unpack(SETTINGS_LAST_RESOLUTION)
-			end
-
-			items = {
-				{
-					name = TB_MENU_LOCALIZED.SETTINGSWIDTH,
-					type = INPUT,
-					systemname = "width",
-					reload = true,
-					val = { optionWidth },
-					valueVerifyAction = function(val)
-						if (val == '') then
-							return val
-						end
-						local val = tonumber(val) or 0
-						local maxWidth, maxHeight = get_maximum_window_size()
-						return (val > maxWidth and maxWidth or val)
-					end
-				},
-				{
-					name = TB_MENU_LOCALIZED.SETTINGSHEIGHT,
-					type = INPUT,
-					systemname = "height",
-					reload = true,
-					val = { optionHeight },
-					valueVerifyAction = function(val)
-						if (val == '') then
-							return val
-						end
-						local val = tonumber(val) or 0
-						local maxWidth, maxHeight = get_maximum_window_size()
-						return (val > maxHeight and maxHeight or val)
-					end
-				},
-				{
-					name = TB_MENU_LOCALIZED.SETTINGSFULLSCREEN and TB_MENU_LOCALIZED.SETTINGSFULLSCREEN or TB_MENU_LOCALIZED.SETTINGSWINDOWED,
-					type = TOGGLE,
-					action = function(val)
-							TB_MENU_MAIN_SETTINGS.fullscreen = { value = TB_MENU_LOCALIZED.SETTINGSFULLSCREEN and val or 1 - val, reload = true }
-							Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
-						end,
-					val = { TB_MENU_LOCALIZED.SETTINGSFULLSCREEN and fullscreen or 1 - fullscreen }
+		local items = {}
+		if (not is_mobile()) then
+			if (fullscreen == 1) then
+				items = {
+					{
+						name = TB_MENU_LOCALIZED.SETTINGSFULLSCREEN and TB_MENU_LOCALIZED.SETTINGSFULLSCREEN or TB_MENU_LOCALIZED.SETTINGSWINDOWED,
+						type = TOGGLE,
+						action = function(val)
+								TB_MENU_MAIN_SETTINGS.fullscreen = { value = TB_MENU_LOCALIZED.SETTINGSFULLSCREEN and val or 1 - val, reload = true }
+								Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
+							end,
+						val = { TB_MENU_LOCALIZED.SETTINGSFULLSCREEN and fullscreen or 1 - fullscreen }
+					},
 				}
-			}
+				if (PLATFORM == "WINDOWS") then
+					table.insert(items, {
+						name = TB_MENU_LOCALIZED.SETTINGSBORDERLESS,
+						type = TOGGLE,
+						action = function(val)
+								TB_MENU_MAIN_SETTINGS.borderless = { id = BORDERLESS, value = val, graphics = true }
+							end,
+						val = { TB_MENU_MAIN_SETTINGS["borderless"] and TB_MENU_MAIN_SETTINGS["borderless"].value or get_option("borderless") },
+						inactive = get_dpiawareness().DPISCALING ~= 1
+					})
+				end
+			else
+				-- Use these values instead of get_option() width/height to get highdpi-adapted values on macOS
+				local _x, _y, optionWidth, optionHeight = get_window_size()
+				if (PLATFORM == "APPLE") then
+					optionWidth = _x
+					optionHeight = _y
+				end
+				if (SETTINGS_LAST_RESOLUTION) then
+					optionWidth, optionHeight = unpack(SETTINGS_LAST_RESOLUTION)
+				end
+
+				items = {
+					{
+						name = TB_MENU_LOCALIZED.SETTINGSWIDTH,
+						type = INPUT,
+						systemname = "width",
+						reload = true,
+						val = { optionWidth },
+						valueVerifyAction = function(val)
+							if (val == '') then
+								return val
+							end
+							local val = tonumber(val) or 0
+							local maxWidth, maxHeight = get_maximum_window_size()
+							return (val > maxWidth and maxWidth or val)
+						end
+					},
+					{
+						name = TB_MENU_LOCALIZED.SETTINGSHEIGHT,
+						type = INPUT,
+						systemname = "height",
+						reload = true,
+						val = { optionHeight },
+						valueVerifyAction = function(val)
+							if (val == '') then
+								return val
+							end
+							local val = tonumber(val) or 0
+							local maxWidth, maxHeight = get_maximum_window_size()
+							return (val > maxHeight and maxHeight or val)
+						end
+					},
+					{
+						name = TB_MENU_LOCALIZED.SETTINGSFULLSCREEN and TB_MENU_LOCALIZED.SETTINGSFULLSCREEN or TB_MENU_LOCALIZED.SETTINGSWINDOWED,
+						type = TOGGLE,
+						action = function(val)
+								TB_MENU_MAIN_SETTINGS.fullscreen = { value = TB_MENU_LOCALIZED.SETTINGSFULLSCREEN and val or 1 - val, reload = true }
+								Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
+							end,
+						val = { TB_MENU_LOCALIZED.SETTINGSFULLSCREEN and fullscreen or 1 - fullscreen }
+					}
+				}
+			end
 		end
 		if (PLATFORM == "APPLE") then
 			table.insert(items, {
