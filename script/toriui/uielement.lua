@@ -802,7 +802,7 @@ function UIElement:makeScrollBar(listHolder, listElements, toReload, posShift, s
 	---@diagnostic disable-next-line: undefined-field
 	self.scrollReload = function() if (self.holder) then self.holder:reload() end self:reload() end
 
-	self:barScroll(listElements, listHolder, toReload, posShift[1], enabled)
+	self:barScroll(listElements, listHolder, toReload, posShift[1], enabled, true)
 	local targetPos = nil
 
 	self:addMouseHandlers(
@@ -975,12 +975,13 @@ end
 ---@param toReload UIElement
 ---@param posShift number
 ---@param enabled UIElement[]
-function UIElement:barScroll(listElements, listHolder, toReload, posShift, enabled)
+---@param override ?boolean
+function UIElement:barScroll(listElements, listHolder, toReload, posShift, enabled, override)
 	if (#listElements == 0) then return end
 	if (self.orientation == SCROLL_VERTICAL) then
 		local sizeH = math.floor(self.size.h / 4)
 		local listHeight = listElements[1].size.h * #listElements
-		if (listHeight <= listHolder.size.h) then
+		if (listHeight <= listHolder.size.h and not override) then
 			return
 		end
 

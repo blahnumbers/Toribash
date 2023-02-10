@@ -1506,6 +1506,10 @@ function download_quest(username) end
 ---@param questid integer
 function claim_quest(questid) end
 
+---Sends a request to claim global quest reward
+---@param questid integer
+function claim_quest_global(questid) end
+
 ---Downloads global quests data for the current user and saves it as `data/quests_global.dat`
 function download_global_quests() end
 

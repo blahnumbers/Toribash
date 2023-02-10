@@ -523,7 +523,6 @@ do
 	end
 
 	function Replays:findReplays(str, rplTable, searchResults)
-		local replays = rplTable or TB_MENU_REPLAYS
 		local searchResults = searchResults or { name = {}, filename = {}, author = {}, bouts = {}, mod = {}, tags = {}, hiddentags = {} }
 		local searchStringRaw = type(str) == "table" and str[1]:lower() or str:lower()
 		local searchStrings = {}
@@ -531,10 +530,10 @@ do
 			table.insert(searchStrings, i)
 		end
 
-		for i, folder in pairs(rplTable.folders) do
+		for _, folder in pairs(rplTable.folders) do
 			Replays:findReplays(searchStringRaw, folder, searchResults)
 		end
-		for i, replay in pairs(rplTable.replays) do
+		for _, replay in pairs(rplTable.replays) do
 			if (string.find(replay.name:lower(), searchStrings[1])) then
 				table.insert(searchResults.name, replay)
 			elseif (string.find(replay.filename:lower(), searchStrings[1])) then
@@ -548,7 +547,7 @@ do
 			elseif (string.find(replay.hiddentags:lower(), searchStrings[1])) then
 				table.insert(searchResults.hiddentags, replay)
 			else
-				for k, bout in pairs(replay.bouts) do
+				for _, bout in pairs(replay.bouts) do
 					if (string.find(bout:lower(), searchStrings[1])) then
 						table.insert(searchResults.bouts, replay)
 					end
@@ -560,7 +559,7 @@ do
 			for i = 2, #searchStrings do
 				for j, searchFolder in pairs(searchResults) do
 					cleanedFolder = {}
-					for k, replay in pairs(searchFolder) do
+					for _, replay in pairs(searchFolder) do
 						local match = false
 						if (string.find(replay.name:lower(), searchStrings[i]) or
 							string.find(replay.filename:lower(), searchStrings[i]) or
@@ -571,7 +570,7 @@ do
 						) then
 							match = true
 						else
-							for x, bout in pairs(replay.bouts) do
+							for _, bout in pairs(replay.bouts) do
 								if (string.find(bout:lower(), searchStrings[i])) then
 									match = true
 								end
@@ -3360,10 +3359,10 @@ do
 				end
 			end
 			local function checkFolder(folder)
-				for i,v in pairs(folder.replays) do
+				for _, v in pairs(folder.replays) do
 					checkReplay(v)
 				end
-				for i,v in pairs(folder.folders) do
+				for _, v in pairs(folder.folders) do
 					checkFolder(v)
 				end
 			end
@@ -3402,7 +3401,7 @@ do
 			end
 
 			local listElements = {}
-			for i,v in pairs(replaysToChooseFrom) do
+			for _, v in pairs(replaysToChooseFrom) do
 				local replayFile = UIElement:new({
 					parent = listingHolder,
 					pos = { 0, #listElements * elementHeight },
@@ -3431,7 +3430,7 @@ do
 						action(v.path)
 					end)
 			end
-			for i,v in pairs(listElements) do
+			for _, v in pairs(listElements) do
 				v:hide()
 			end
 			local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
@@ -3440,7 +3439,7 @@ do
 
 		local status, error = pcall(function() Replays:getReplayFiles(mainElement, true) end)
 		if (not status) then
-			TBMenu:showDataError("Error loading replay cache: " .. error)
+			TBMenu:showStatusMessage("Error loading replay cache: " .. error)
 			return
 		end
 

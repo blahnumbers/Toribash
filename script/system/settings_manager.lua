@@ -453,6 +453,7 @@ do
 												if (v.graphics) then
 													set_graphics_option(v.id, v.val)
 												else
+													---@diagnostic disable-next-line: param-type-mismatch
 													set_option(v.opt, v.val)
 												end
 											end
@@ -486,6 +487,7 @@ do
 											if (v.graphics) then
 												set_graphics_option(v.id, v.val)
 											else
+												---@diagnostic disable-next-line: param-type-mismatch
 												set_option(v.opt, v.val)
 											end
 										end
@@ -519,6 +521,7 @@ do
 											if (v.graphics) then
 												set_graphics_option(v.id, v.val)
 											else
+												---@diagnostic disable-next-line: param-type-mismatch
 												set_option(v.opt, v.val)
 											end
 										end
@@ -552,6 +555,7 @@ do
 											if (v.graphics) then
 												set_graphics_option(v.id, v.val)
 											else
+												---@diagnostic disable-next-line: param-type-mismatch
 												set_option(v.opt, v.val)
 											end
 										end
@@ -585,6 +589,7 @@ do
 											if (v.graphics) then
 												set_graphics_option(v.id, v.val)
 											else
+												---@diagnostic disable-next-line: param-type-mismatch
 												set_option(v.opt, v.val)
 											end
 										end
@@ -1224,25 +1229,24 @@ do
 		local languages = {}
 		local dropdown = {}
 		local files = get_files("data/language", "txt")
-		for i,v in pairs(files) do
+		for _, v in pairs(files) do
 			table.insert(languages, { name = v:gsub("%.txt$", "") })
 		end
 		local currentLang, langFile = get_language(), nil
-		for i,v in pairs(languages) do
-			if (v.name == currentLang) then
+		for i, v in pairs(languages) do
+			if (string.lower(v.name) == string.lower(currentLang)) then
 				langFile = v
 				table.remove(languages, i)
 				break
 			end
 		end
 		table.insert(languages, 1, langFile)
-		for i,v in pairs(languages) do
+		for _, v in pairs(languages) do
 			local newMenuFile = Files:open("system/language/" .. v.name .. ".txt")
 			if (not newMenuFile.data) then
 				v.newMenuDisabled = true
-			else
-				newMenuFile:close()
 			end
+			newMenuFile:close()
 			table.insert(dropdown, {
 				text = v.newMenuDisabled and v.name .. " (" .. TB_MENU_LOCALIZED.SETTINGSBASEHUDONLY .. ")" or v.name,
 				action = function()
@@ -1559,86 +1563,6 @@ do
 				end
 			end)
 		return slider
-		--[[
-		local maxVal = sliderTable.maxValue or 1
-		local minVal = sliderTable.minValue or 0
-		local minText = UIElement:new({
-			parent = viewElement,
-			pos = { 0, 0 },
-			size = { 30, viewElement.size.h }
-		})
-		minText:addAdaptedText(false, minVal .. "", nil, nil, 4, RIGHTMID, 0.7)
-		local maxText = UIElement:new({
-			parent = viewElement,
-			pos = { -30, 0 },
-			size = { 30, viewElement.size.h }
-		})
-		maxText:addAdaptedText(false, maxVal == 128 and 100 or maxVal .. "", nil, nil, 4, LEFTMID, 0.7)
-		local sliderBG = UIElement:new({
-			parent = viewElement,
-			pos = { 35, 0 },
-			size = { viewElement.size.w - 70, viewElement.size.h },
-			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-			interactive = true
-		})
-		sliderBG:addCustomDisplay(true, function()
-				set_color(unpack(sliderBG.bgColor))
-				draw_quad(sliderBG.pos.x, sliderBG.pos.y + viewElement.size.h / 2 - 3, sliderBG.size.w, 6)
-			end)
-		local sliderPos = 0
-		sliderTable.val[1] = sliderTable.val[1] > maxVal and 1 or sliderTable.val[1] / maxVal
-		sliderPos = sliderTable.val[1] * (sliderBG.size.w - 20)
-		local slider = UIElement:new({
-			parent = sliderBG,
-			pos = { sliderPos, -sliderBG.size.h / 2 - 10 },
-			size = { 20, 20 },
-			interactive = true,
-			bgColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-			hoverColor = TB_MENU_DEFAULT_LIGHTEST_COLOR,
-			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-			shapeType = ROUNDED,
-			rounded = 20
-		})
-		slider:addMouseHandlers(function()
-				slider.pressed = true
-				slider.pressedPos = slider:getLocalPos()
-			end, function()
-				slider.pressed = false
-			end, function()
-				if (slider.pressed) then
-					local xPos = MOUSE_X - sliderBG.pos.x - slider.pressedPos.x
-					if (xPos < 0) then
-						xPos = 0
-					elseif (xPos > sliderBG.size.w - slider.size.w) then
-						xPos = sliderBG.size.w - slider.size.w
-					end
-					if (sliderTable.boolean) then
-						if (xPos + slider.size.w / 2 > sliderBG.size.w / 2) then
-							xPos = sliderBG.size.w - slider.size.w
-						else
-							xPos = 0
-						end
-					end
-					slider:moveTo(xPos, nil)
-					sliderTable.val[1] = xPos / (sliderBG.size.w - 20) * (maxVal - minVal) + minVal
-					TB_MENU_MAIN_SETTINGS[sliderTable.systemname] = { value = sliderTable.val[1] }
-					Settings:settingsApplyActivate()
-				end
-			end)
-		sliderBG:addMouseHandlers(function()
-			local pos = sliderBG:getLocalPos()
-			local xPos = pos.x - slider.size.w / 2
-			if (xPos < 0) then
-				xPos = 0
-			elseif (xPos > sliderBG.size.w - slider.size.w) then
-				xPos = sliderBG.size.w - slider.size.w
-			end
-			slider:moveTo(xPos)
-			sliderTable.val[1] = xPos / (sliderBG.size.w - 20) * (maxVal - minVal) + minVal
-			TB_MENU_MAIN_SETTINGS[sliderTable.systemname] = { value = sliderTable.val[1] }
-			Settings:settingsApplyActivate()
-		end)
-		return slider]]
 	end
 
 	function Settings:spawnToggle(viewElement, toggle, i)

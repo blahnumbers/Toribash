@@ -1318,7 +1318,7 @@ do
 				end
 			end
 		end
-		for i,v in pairs(eventsList) do
+		for _, v in pairs(eventsList) do
 			v.info = Events:getPassedEventInfo(v.file)
 			v.name = v.info.name
 		end
@@ -1358,20 +1358,22 @@ do
 				})
 				endedEventsCaptionText:addAdaptedText(true, TB_MENU_LOCALIZED.EVENTSENDEDEVENTS, 10, nil, FONTS.BIG, LEFTMID, 0.6, nil, 0.4)
 			end
-			local listEventHolder = UIElement:new({
-				parent = listingHolder,
+			local listEventHolder = listingHolder:addChild({
 				pos = { 0, #listElements * elementHeight },
 				size = { listingHolder.size.w, elementHeight }
 			})
 			table.insert(listElements, listEventHolder)
-			local listEvent = UIElement:new({
-				parent = listEventHolder,
-				pos = { 5, 3 },
-				size = { listEventHolder.size.w - 5, listEventHolder.size.h - 6 },
+			local listEvent = listEventHolder:addChild({
+				pos = { 10, 2 },
+				size = { listEventHolder.size.w - 10, listEventHolder.size.h - 4 },
 				interactive = true,
+				clickThrough = true,
+				hoverThrough = true,
 				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+				shapeType = ROUNDED,
+				rounded = 4
 			})
 			local eventInfo = v.info
 			listEvent:addMouseHandlers(nil, function()
@@ -1383,15 +1385,15 @@ do
 			local shiftX = 0
 			if (v.live ~= 0) then
 				local length = get_string_length(TB_MENU_LOCALIZED.EVENTSLIVE:upper(), 4) * 0.5
-				local liveCaption = UIElement:new({
-					parent = listEvent,
-					pos = { 10, 12 },
-					size = { length + 10, listEvent.size.h - 24 },
-					bgColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+				local liveCaption = listEvent:addChild({
+					pos = { 10, listEvent.size.h / 4 },
+					size = { length + 15, listEvent.size.h / 2 },
+					bgColor = TB_MENU_DEFAULT_BLUE,
+					uiShadowColor = TB_MENU_DEFAULT_DARKEST_BLUE,
 					shapeType = ROUNDED,
-					rounded = 5
+					rounded = listEvent.size.h / 4
 				})
-				liveCaption:addAdaptedText(nil, TB_MENU_LOCALIZED.EVENTSLIVE:upper(), nil, nil, 4, nil, 0.5)
+				liveCaption:addAdaptedText(nil, TB_MENU_LOCALIZED.EVENTSLIVE:upper(), nil, nil, 4, nil, 0.5, 0.5, nil, 2)
 				shiftX = shiftX + liveCaption.shift.x + liveCaption.size.w
 			end
 			local listEventName = UIElement:new({
@@ -1407,7 +1409,7 @@ do
 				Events:showPassedEventInfo(eventInfoHolder, eventInfo.shortname, v.activeId)
 			end
 		end
-		for i,v in pairs(listElements) do
+		for _, v in pairs(listElements) do
 			v:hide()
 		end
 		local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)

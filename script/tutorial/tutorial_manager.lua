@@ -1111,7 +1111,7 @@ function Tutorials:addAdditionalTask(data, taskText)
 end
 
 function Tutorials:taskOptIncomplete(id)
-	for i,v in pairs(tbTutorialsTask.optional) do
+	for _, v in pairs(tbTutorialsTask.optional) do
 		if (v.id == id) then
 			v.mark:hide(true)
 			v.markFail:hide(true)
@@ -1121,10 +1121,13 @@ function Tutorials:taskOptIncomplete(id)
 end
 
 function Tutorials:taskOptComplete(id)
-	for i,v in pairs(tbTutorialsTask.optional) do
+	for _, v in pairs(tbTutorialsTask.optional) do
 		if (v.id == id) then
-			v.mark:show(true)
 			v.complete = true
+			if (v.mark:isDisplayed()) then
+				return
+			end
+			v.mark:show(true)
 			local animationScale = v.mark.size.w / 3
 			local rad = math.pi / 3
 			local transparency = 0.7

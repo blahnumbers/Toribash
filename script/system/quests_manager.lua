@@ -31,8 +31,11 @@ require("system.battlepass_manager")
 ---@field progresspercentage number Quest progress percentage
 ---@field description string Additional information about the quest
 
-if (Quests == nil or TB_MENU_DEBUG) then
+if (Quests == nil) then
 	-- Quests manager class
+	--
+	-- **Version 5.60 updates:**
+	-- Added EmmyLua annotations
 	--
 	-- **Ver 1.3 updates:**
 	-- * Updated visuals to show all quests same as global quests from previous versions
@@ -46,10 +49,7 @@ if (Quests == nil or TB_MENU_DEBUG) then
 	---@field QuestsGlobalData QuestData[] Table containing information on all global quests for the user
 	---@field QuestDataErrors integer Will be non-zero if quest data file parsing resulted in an error
 	Quests = {
-		__index = {},
-		ver = 1.3,
-		QuestsData = nil,
-		QuestsGlobalData = nil,
+		ver = 5.60,
 		QuestDataErrors = 0
 	}
 	setmetatable({}, Quests)
@@ -167,7 +167,7 @@ end
 
 ---Adds hardcoded Battle Pass quests that automark themselves on completion
 function Quests:addBattlePassQuests()
-	for i,v in pairs(Quests.QuestsData) do
+	for _, v in pairs(Quests.QuestsData) do
 		if (v.id == 2000) then
 			return
 		end
@@ -183,7 +183,7 @@ function Quests:addBattlePassQuests()
 		progress = loginRewardsAvailable and 0 or 1,
 		claimed = not loginRewardsAvailable,
 		type = 0,
-		timeleft = -1,
+		timeleft = PlayerInfo.getLoginRewards().timeLeft,
 		modid = 0,
 		modname = '',
 		reward = 0,
@@ -341,10 +341,16 @@ function Quests:drawRewardText(quest, viewElement)
 			end
 		end
 
+		local iconPath = nil
+		if (quest.rewardid == 0) then
+			iconPath = "../textures/store/toricredit_tiny.tga"
+		elseif (quest.rewardid > 0) then
+			iconPath = Torishop:getItemIcon(quest.rewardid)
+		end
 		local questRewardIcon = viewElement:addChild({
 			pos = { (viewElement.size.w - textWidth - iconSize - 10) / 2, (viewElement.size.h - iconSize) / 2 },
 			size = { iconSize, iconSize },
-			bgImage = quest.rewardid ~= nil and (quest.rewardid == 0 and "../textures/store/toricredit_tiny.tga" or "../textures/store/items/" .. quest.rewardid .. ".tga") or nil
+			bgImage = iconPath
 		})
 	end
 end
@@ -572,7 +578,8 @@ function Quests:getGlobalQuests(fileData)
 				end
 			end
 			quest.global = true
-			quest.description = quest.description ~= '' and quest.description or false
+			---@diagnostic disable-next-line: assign-type-mismatch
+			quest.description = quest.description ~= '' and quest.description or nil
 			quest.progresspercentage = math.min(1, quest.progress / quest.requirement)
 			table.insert(globalQuests, quest)
 
@@ -702,13 +709,13 @@ function Quests:showQuestButton(quest, listingHolder, listElements, elementHeigh
 							questProgressText:addAdaptedText(true, TB_MENU_LOCALIZED.REWARDSCLAIMSUCCESS, nil, nil, nil, nil, nil, nil, nil, 1)
 						else
 							TBMenu:showStatusMessage(TB_MENU_LOCALIZED.ERRORTRYAGAIN)
-							questProgressBarState:activate()
+							questProgressBarState:activate(true)
 							questProgressText:addAdaptedText(true, TB_MENU_LOCALIZED.QUESTSCLAIMREWARD, nil, nil, nil, nil, nil, nil, nil, 1)
 						end
 					end, function()
 						questProgressBarState:kill(true)
-						TBMenu:showStatusMessage(TB_MENU_LOCALIZED.ERRORTRYAGAIN)
-						questProgressBarState:activate()
+						TBMenu:showStatusMessage(TB_MENU_LOCALIZED.ERRORTRYAGAIN .. ": " .. get_network_error())
+						questProgressBarState:activate(true)
 						questProgressText:addAdaptedText(true, TB_MENU_LOCALIZED.QUESTSCLAIMREWARD, nil, nil, nil, nil, nil, nil, nil, 1)
 					end)
 			end)
