@@ -248,7 +248,7 @@ function UIElement3D:display()
 	end
 	if (self.hoverState ~= BTN_NONE and self.hoverColor) then
 		local animateRatio = (UIElement.clock - (self.hoverClock or 0)) / UIElement.animationDuration
-		if (UIMODE_LIGHT) then
+		if (UIElement.lightUIMode) then
 			for i = 1, 4 do
 				self.animateColor[i] = self.hoverColor[i]
 			end

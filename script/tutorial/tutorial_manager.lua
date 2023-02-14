@@ -707,19 +707,19 @@ function Tutorials:showMessage(viewElement, reqTable, message, messageby)
 			local framerate = get_option("framerate")
 			messageBuilder:addCustomDisplay(true, function()
 					if (tbTutorialsMessage.doSkip == true) then
-						sub = message:len()
+						sub = utf8.len(message)
 					end
-					tbTutorialsMessageView:addAdaptedText(false, message:sub(0,sub), nil, nil, nil, LEFTMID)
+					tbTutorialsMessageView:addAdaptedText(false, utf8.sub(message, 0, sub), nil, nil, nil, LEFTMID)
 					if (wait > 0) then
 						wait = wait - 1
 						return
 					end
-					if (message:sub(sub, sub):find("[.,?!:;]")) then
+					if (utf8.find(utf8.sub(message, sub, sub), "[.,?!:;]")) then
 						wait = 5 * (framerate == 60 and 2 or 1)
 					end
-					if (sub < message:len()) then
+					if (sub < utf8.len(message)) then
 						sub = sub + 1
-						local strbyte = string.byte(message:sub(sub, sub))
+						local strbyte = utf8.byte(utf8.sub(message, sub, sub))
 						if (strbyte == 208 or strbyte == 208) then
 							sub = sub + 1
 						end

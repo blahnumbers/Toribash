@@ -90,23 +90,18 @@ function Rewards:showMain(viewElement, rewardData)
 		rewardData.days = rewardData.days % 7
 	end
 
-	local loginView = UIElement:new({
-		parent = viewElement,
-		pos = { 5, 0 },
-		size = { viewElement.size.w - 10, viewElement.size.h },
+	local loginView = viewElement:addChild({
+		shift = { 5, 0 },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR
 	})
-	local bloodSmudge = TBMenu:addBottomBloodSmudge(loginView, 1)
-	local loginViewTitle = UIElement:new({
-		parent = loginView,
-		pos = { 0, 0 },
+	TBMenu:addBottomBloodSmudge(loginView, 1)
+	local loginViewTitle = loginView:addChild({
 		size = { loginView.size.w, loginView.size.h / 8 }
 	})
 	loginViewTitle:addCustomDisplay(false, function()
 		loginViewTitle:uiText(TB_MENU_LOCALIZED.REWARDSDAILYTITLE, nil, nil, FONTS.BIG, CENTERMID, 0.8, nil, nil, nil, nil, 0.5)
 	end)
-	local dayRewardsView = UIElement:new({
-		parent = loginView,
+	local dayRewardsView = loginView:addChild({
 		pos = { 20, loginViewTitle.size.h },
 		size = { loginView.size.w - 40, loginView.size.h * 0.62 }
 	})
@@ -118,50 +113,43 @@ function Rewards:showMain(viewElement, rewardData)
 		local iconSize = dayRewardWidth - 40 > dayRewardsView.size.h / 2 and dayRewardsView.size.h / 2 - 20 or dayRewardWidth - 60
 
 		dayReward[i] = {}
-		dayReward[i].main = UIElement:new({
-			parent = dayRewardsView,
+		dayReward[i].main = dayRewardsView:addChild({
 			pos = { 0 + i * dayRewardWidth, 0 },
 			size = { dayRewardWidth - 20, dayRewardsView.size.h },
 			bgColor = i == rewardData.days and { 0, 0, 0, 0.5 } or { 0, 0, 0, 0.3 }
 		})
-		dayReward[i].day = UIElement:new({
-			parent = dayReward[i].main,
+		dayReward[i].day = dayReward[i].main:addChild({
 			pos = { 5, 0 },
 			size = { dayReward[i].main.size.w - 10, dayReward[i].main.size.h / 7 }
 		})
 		dayReward[i].day:addAdaptedText(true, rewardData.days == i and (rewardData.available and "Today" or "Tomorrow") or TB_MENU_LOCALIZED.REWARDSTIMEDAY .. " " .. i + 1, nil, nil, FONTS.BIG, nil, 0.55, nil, 0.2)
 		if (iconSize > 32) then
 			iconSize = i == rewardData.days and iconSize + 20 or iconSize
-			dayReward[i].icon = UIElement:new({
-				parent = dayReward[i].main,
+			dayReward[i].icon = dayReward[i].main:addChild({
 				pos = { (dayReward[i].main.size.w - iconSize) / 2, (dayReward[i].main.size.h - iconSize) / 2 - 10 },
 				size = { iconSize, iconSize },
 				bgImage = bgImg
 			})
 		end
-		dayReward[i].title = UIElement:new({
-			parent = dayReward[i].main,
+		dayReward[i].title = dayReward[i].main:addChild({
 			pos = { dayReward[i].main.size.w / 10, -dayReward[i].main.size.h / 4 },
 			size = { dayReward[i].main.size.w * 0.8, dayReward[i].main.size.h / 5 }
 		})
 		local rewardStr = Rewards.RewardData[i].item.itemid ~= 0 and Rewards.RewardData[i].item.itemname or Rewards.RewardData[i].tc .. " TC"
-		local textScaleModifier = 0
 		if (rewardData.days == i) then
 			dayReward[i].title:addAdaptedText(true, rewardStr, nil, nil, FONTS.BIG)
 		else
 			dayReward[i].title:addAdaptedText(true, rewardStr)
 		end
 	end
-	local rewardNextTime = UIElement:new( {
-		parent = loginView,
+	local rewardNextTime = loginView:addChild({
 		pos = { 0, -loginView.size.h / 7 - loginView.size.h / 10 },
 		size = { loginView.size.w, loginView.size.h / 11 }
 	})
 	rewardNextTime:addCustomDisplay(true, function()
 		rewardNextTime:uiText(Rewards:getTime(rewardData.timeLeft - math.ceil(os.clock_real()), rewardData.available))
 	end)
-	local rewardClaim = UIElement:new({
-		parent = loginView,
+	local rewardClaim = loginView:addChild({
 		pos = { loginView.size.w / 6, -loginView.size.h / 7 },
 		size = { loginView.size.w / 6 * 4, loginView.size.h / 8 },
 		interactive = rewardData.available,
@@ -170,10 +158,8 @@ function Rewards:showMain(viewElement, rewardData)
 		pressedColor = { 1, 0, 0, 0.2 },
 		downSound = 31
 	})
-	local rewardClaimText = UIElement:new({
-		parent = rewardClaim,
-		pos = { rewardClaim.size.w / 20, rewardClaim.size.h / 7 },
-		size = { rewardClaim.size.w * 0.9, rewardClaim.size.h / 7 * 5 }
+	local rewardClaimText = rewardClaim:addChild({
+		shift = { rewardClaim.size.w / 20, rewardClaim.size.h / 7 },
 	})
 	if (rewardData.available) then
 		rewardClaimText:addAdaptedText(false, TB_MENU_LOCALIZED.REWARDSCLAIM, nil, nil, FONTS.BIG)
@@ -184,6 +170,10 @@ function Rewards:showMain(viewElement, rewardData)
 						response = response:gsub("REWARDS 0; ", "")
 						local rewardRes = { response:match(("(%d+)%s?"):rep(3)) }
 						if (rewardRes[1] == '1') then
+							if (not rewardClaimText or rewardClaimText.destroyed) then
+								return
+							end
+
 							if (rewardRes[2] == '0') then
 								rewardClaimText:addAdaptedText(false, TB_MENU_LOCALIZED.REWARDSNOAVAILABLE, nil, nil, FONTS.BIG)
 							elseif (rewardRes[2] == '1') then
@@ -193,27 +183,36 @@ function Rewards:showMain(viewElement, rewardData)
 							end
 							rewardClaim:deactivate()
 						elseif (rewardRes[1] == '0') then
-							rewardClaimText:addAdaptedText(false, TB_MENU_LOCALIZED.REWARDSCLAIMSUCCESS, nil, nil, FONTS.BIG)
-							rewardClaim:deactivate()
 							update_tc_balance()
 							TB_MENU_NOTIFICATIONS_COUNT = math.max(TB_MENU_NOTIFICATIONS_COUNT - 1, 0)
-							TBMenu.NavigationBar:kill(true)
-							TBMenu:showNavigationBar(Notifications:getNavigationButtons(nil, true), true, true, TB_MENU_NOTIFICATIONS_LASTSCREEN)
+
+							if (rewardClaimText and not rewardClaimText.destroyed) then
+								rewardClaimText:addAdaptedText(false, TB_MENU_LOCALIZED.REWARDSCLAIMSUCCESS, nil, nil, FONTS.BIG)
+								rewardClaim:deactivate()
+								TBMenu.NavigationBar:kill(true)
+								TBMenu:showNavigationBar(Notifications:getNavigationButtons(nil, true), true, true, TB_MENU_NOTIFICATIONS_LASTSCREEN)
+							end
 
 							-- Let's update balance instantly, no need to wait for update_tc_balance() to finish downloading customs
 							if (Rewards.RewardData[rewardData.days].tc ~= 0) then
 								TB_MENU_PLAYER_INFO.data.tc = TB_MENU_PLAYER_INFO.data.tc + Rewards.RewardData[rewardData.days].tc
-								TBMenu:showUserBar()
+								if (TBMenu.MenuMain and not TBMenu.MenuMain.destroyed) then
+									TBMenu:showUserBar()
+								end
 							elseif (Rewards.RewardData[rewardData.days].item.itemid == 2528) then
 								TB_MENU_PLAYER_INFO.data.st = TB_MENU_PLAYER_INFO.data.st + 1
-								TBMenu:showUserBar()
+								if (TBMenu.MenuMain and not TBMenu.MenuMain.destroyed) then
+									TBMenu:showUserBar()
+								end
 							end
 							Quests:updateLoginQuestStatus(true)
 							BattlePass:getUserData()
 						end
 					end, function()
-						rewardClaimText:addAdaptedText(false, TB_MENU_LOCALIZED.REWARDSCLAIMERROROTHER, nil, nil, FONTS.BIG)
-						rewardClaim:deactivate()
+						if (rewardClaimText and not rewardClaimText.destroyed) then
+							rewardClaimText:addAdaptedText(false, TB_MENU_LOCALIZED.REWARDSCLAIMERROROTHER, nil, nil, FONTS.BIG)
+							rewardClaim:deactivate()
+						end
 					end)
 			end)
 	else
@@ -221,6 +220,10 @@ function Rewards:showMain(viewElement, rewardData)
 	end
 end
 
+---Returns a string with time left / status information based on provided login info data
+---@param timetonext integer
+---@param isClaimed boolean
+---@return string
 function Rewards:getTime(timetonext, isClaimed)
 	if (timetonext <= 0 and not isClaimed) then
 		return TB_MENU_LOCALIZED.REWARDSAVAILABLERESTART

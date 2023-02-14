@@ -2,12 +2,15 @@ if (TBMenu == nil) then
 	open_menu(19)
 	close_menu()
 end
+if (TBMenu.ReplaySaveOverlay ~= nil) then
+	return
+end
 
 require("toriui.uielement")
 require("system.menu_manager")
 
 REPLAY_SAVETEMPNAME = "--localreplaytempfile"
-REPLAY_FOLDER = REPLAY_FOLDER or '/my replays'
+REPLAY_FOLDER = REPLAY_FOLDER or 'my replays'
 REPLAY_SELECTOR_SHIFT = REPLAY_SELECTOR_SHIFT or { 0 }
 
 local rploptions = { hint = tonumber(get_option("hint")), feedback = tonumber(get_option("feedback")) }
@@ -51,19 +54,22 @@ local folderPrefix = REPLAY_FOLDER .. '/'
 local defaultFolderId = nil
 local getFolders
 getFolders = function(dir, level)
-	for i,v in pairs(get_files('replay' .. dir, '')) do
-		if (not v:match(".rpl$") and (dir .. "/" .. v ~= '/system') and not v:find("^%.+[%s%S]*$") and not v:find("%.%a+$")) then
+	if (utf8.len(dir) > 0) then
+		dir = dir .. "/"
+	end
+	for _, v in pairs(get_files('replay/' .. dir, '')) do
+		if (not utf8.match(v, ".rpl$") and (dir .. v ~= 'system') and not utf8.find(v, "^%.+[%s%S]*$") and not utf8.find(v, "%.%a+$")) then
 			table.insert(dropdownOptions, {
 				text = (level > 0 and ('' .. string.rep(" ", level * 2)) or '') .. v .. '',
 				action = function()
-					REPLAY_FOLDER = dir .. "/" .. v
+					REPLAY_FOLDER = dir .. v
 					folderPrefix = REPLAY_FOLDER .. '/'
 				end
 			})
-			if ((dir .. "/" .. v) == REPLAY_FOLDER) then
+			if ((dir .. v) == REPLAY_FOLDER) then
 				defaultFolderId = #dropdownOptions
 			end
-			getFolders(dir .. '/' .. v, level + 1)
+			getFolders(dir .. v, level + 1)
 		end
 	end
 end
@@ -132,20 +138,19 @@ local function saveReplay(newname)
 		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERROREMPTYNAME, true)
 		return
 	end
-	if (string.find(newname, "[^%d%a-_ ]") or not string.find(newname, "[%a%d]")) then
+	if (utf8.find(newname, "[^%d%a-_ ]") or not utf8.find(newname, "[%a%d]")) then
 		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORCHARACTERS, true)
 		return
 	end
 	local filename = folderPrefix .. newname
 
 	local doRenameReplay = function()
-		-- Delete existing replay if it exists
 		local error = rename_replay("my replays/" .. REPLAY_SAVETEMPNAME .. ".rpl", filename .. ".rpl")
 		if (error) then
 			TBMenu:showStatusMessage(error, true)
 			return
 		end
-		local rplFile = Files:open("../replay" .. filename .. ".rpl")
+		local rplFile = Files:open("../replay/" .. filename .. ".rpl")
 		if (not rplFile.data) then
 			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORRENAMING, true)
 			quitReplaySave()
@@ -154,7 +159,7 @@ local function saveReplay(newname)
 
 		local fileData = rplFile:readAll()
 		rplFile:reopen(FILES_MODE_WRITE)
-		for i,ln in pairs(fileData) do
+		for _, ln in pairs(fileData) do
 			if (ln:find("^FIGHTNAME %d;")) then
 				rplFile:writeLine("FIGHTNAME 0; " .. newname)
 			else
@@ -163,11 +168,11 @@ local function saveReplay(newname)
 		end
 		rplFile:close()
 
-		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSSAVEREPLAYSUCCESS .. " " .. filename:sub(2) .. ".rpl", true)
+		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSSAVEREPLAYSUCCESS .. " " .. filename .. ".rpl", true)
 		quitReplaySave()
 	end
 
-	local file = Files:open("../replay" .. filename .. ".rpl")
+	local file = Files:open("../replay/" .. filename .. ".rpl")
 	if (file.data) then
 		file:close()
 		TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.REPLAYWITHNAMEEXISTSPROMPT, function()

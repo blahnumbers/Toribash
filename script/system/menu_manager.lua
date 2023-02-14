@@ -1886,7 +1886,7 @@ function TBMenu:showUserBar()
 		pos = { 0, 6, 5.7 + 4 * TB_MENU_GLOBAL_SCALE },
 		size = { 0.6, 0.6, 0.6 }
 	})
-	if (UIMODE_LIGHT) then
+	if (UIElement.lightUIMode) then
 		playerHeadHolder:rotate(0, 0, -16)
 	else
 		local headRotation = math.pi / 2
@@ -2656,7 +2656,7 @@ function TBMenu:showBottomBar(leftOnly)
 end
 
 function TBMenu:playMenuSwitchAnimation()
-	if (UIMODE_LIGHT) then return end
+	if (UIElement.lightUIMode) then return end
 	local speedMod = get_option("framerate") == 30 and 2 or 1
 	local currentSectionMover = UIElement:new({
 		parent = TBMenu.MenuMain,
@@ -2997,8 +2997,7 @@ function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHei
 	local toReload, topBar, botBar, listingView, listingHolder
 	if (#listElementsDisplay * elementHeight > maxHeight) then
 		toReload, topBar, botBar, listingView, listingHolder = TBMenu:prepareScrollableList(dropdownView, elementHeight, elementHeight, 15, TB_MENU_DEFAULT_LIGHTER_COLOR)
-		local topEdge = UIElement:new({
-			parent = topBar,
+		local topEdge = topBar:addChild({
 			pos = { 0, -topBar.size.h - (dropdownView.rounded or 0) },
 			size = { topBar.size.w, topBar.size.h * 1.5 },
 			bgColor = topBar.bgColor,
@@ -3007,8 +3006,7 @@ function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHei
 			shapeType = dropdownView.shapeType,
 			rounded = dropdownView.rounded
 		})
-		local botEdge = UIElement:new({
-			parent = botBar,
+		local botEdge = botBar:addChild({
 			pos = { 0, -botBar.size.h * 1.5 + (dropdownView.rounded or 0) },
 			size = { botBar.size.w, botBar.size.h * 1.5 },
 			bgColor = botBar.bgColor,
@@ -3022,12 +3020,14 @@ function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHei
 	end
 
 	local listElements = {}
-	for i,v in pairs(listElementsDisplay) do
+	for i, v in pairs(listElementsDisplay) do
 		local element = UIElement:new({
 			parent = listingHolder,
-			pos = { 2, 2 + (i - 1) * elementHeight },
+			pos = { 2, #listElements * elementHeight },
 			size = { listingHolder.size.w - 4, elementHeight },
 			interactive = true,
+			clickThrough = toReload ~= nil,
+			hoverThrough = toReload ~= nil,
 			bgColor = selectedItem == v and TB_MENU_DEFAULT_BG_COLOR or TB_MENU_DEFAULT_LIGHTER_COLOR,
 			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR,
@@ -3153,7 +3153,7 @@ end
 ---@param rounding? number
 ---@return nil
 function TBMenu:addOuterRounding(e, color, rounding)
-	if (UIMODE_LIGHT) then return end
+	if (UIElement.lightUIMode) then return end
 
 	local color = color or TB_MENU_DEFAULT_BG_COLOR
 	local rounding = rounding or 5

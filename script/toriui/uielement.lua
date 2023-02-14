@@ -19,10 +19,6 @@ MOUSE_X = 0
 ---Current cursor Y coordinate
 MOUSE_Y = 0
 
----True if uilight option is currently enabled \
----Disables animations and some unimportant effects to improve GUI performance on lower end machines
-UIMODE_LIGHT = get_option("uilight") == 1
-
 ---@alias FontId
 ---| 0 # FONTS.BIG | Badaboom big
 ---| 1 # FONTS.SMALL | Arial small (chat default)
@@ -232,6 +228,7 @@ if (not UIElement) then
 	-- * Different top/bottom rounding support and `roundedInternal` UIElement field
 	-- * Added EmmyLua annotations for some methods
 	---@class UIElement
+	---@field lightUIMode boolean Disables animations and some unimportant effects to improve GUI performance on lower end machines, this is based on `uilight` option
 	---@field globalid integer Global ID to use for UIElement internal update / display loops
 	---@field parent UIElement Parent element
 	---@field child UIElement[] Table containing the list of all children of an object
@@ -290,7 +287,8 @@ if (not UIElement) then
 		ver = 5.60,
 		clock = os.clock_real(),
 		animationDuration = 0.1,
-		longPressDuration = 0.25
+		longPressDuration = 0.25,
+		lightUIMode = get_option("uilight") == 1
 	}
 	UIElement.__index = UIElement
 
@@ -299,7 +297,12 @@ if (not UIElement) then
 	UIElement.__mouseHooks = nil
 
 	---Whether UIElement.keyboardHooks() has been called to initialize keyboard hooks
+	---@type boolean
 	UIElement.__keyboardHooks = nil
+
+	---Whether UIElement.drawHooks() has been called to initialize helper drawing hook
+	---@type boolean
+	UIElement.__drawHooks = nil
 end
 
 ---Callback function triggered on text input event while UIElement is active and focused
@@ -470,7 +473,7 @@ function UIElement:new(o)
 	if (o.shapeType == ROUNDED and o.rounded) then
 		elem.setRounded(elem, o.rounded)
 		-- Light UI mode - don't add rounded corners if it's just for cosmetics
-		if (not UIMODE_LIGHT or elem.rounded > elem.size.w / 4) then
+		if (not UIElement.lightUIMode or elem.rounded > elem.size.w / 4) then
 			elem.shapeType = o.shapeType
 		end
 	end
@@ -557,7 +560,7 @@ end
 ---@param rounded number|number[]
 function UIElement:setRounded(rounded)
 	if (type(rounded) ~= "table") then
-		self.roundedInternal = { rounded, rounded }
+		self.roundedInternal = { tonumber(rounded) or 0, tonumber(rounded) or 0 }
 	else
 		self.roundedInternal = { rounded[1], rounded[#rounded] }
 	end
@@ -1171,7 +1174,6 @@ end
 ---*Must be run from `draw2d` hook.*
 ---@param globalid ?integer Global ID that the objects to display belong to
 function UIElement:drawVisuals(globalid)
-	UIElement.clock = os.clock_real()
 	local globalid = globalid or self.globalid
 	for _, v in pairs(UIElementManager) do
 		if (v.globalid == globalid and v.parent == nil) then
@@ -1217,7 +1219,7 @@ function UIElement:display()
 	if (self.hoverState ~= BTN_NONE) then
 		local animateRatio = (UIElement.clock - (self.hoverClock or 0)) / UIElement.animationDuration
 		if (self.hoverColor) then
-			if (UIMODE_LIGHT) then
+			if (UIElement.lightUIMode) then
 				for i = 1, 4 do
 					self.animateColor[i] = self.hoverColor[i]
 				end
@@ -1230,7 +1232,7 @@ function UIElement:display()
 			end
 		end
 		if (self.imageHoverColor) then
-			if (UIMODE_LIGHT) then
+			if (UIElement.lightUIMode) then
 				for i = 1, 4 do
 					self.imageAnimateColor[i] = self.imageHoverColor[i]
 				end
@@ -1727,6 +1729,15 @@ function UIElement.keyboardHooks()
 		end)
 
 	UIElement.__keyboardHooks = true
+end
+
+function UIElement.drawHooks()
+	add_hook("draw2d", "uiDrawInternalsHandler", function()
+		UIElement.lightUIMode = get_option("uilight") == 1
+		UIElement.clock = os.clock_real()
+	end)
+
+	UIElement.__drawHooks = true
 end
 
 ---UIElement internal function to handle mouse down event for an object. \
@@ -2796,4 +2807,7 @@ if (not UIElement.__mouseHooks) then
 end
 if (not UIElement.__keyboardHooks) then
 	UIElement.keyboardHooks()
+end
+if (not UIElement.__drawHooks) then
+	UIElement.drawHooks()
 end
