@@ -1549,22 +1549,6 @@ do
 		end
 	end
 
-	function Settings:spawnSlider(viewElement, sliderTable)
-		local slider
-		slider = TBMenu:spawnSlider(viewElement, nil, nil, nil, nil, nil, nil, sliderTable.val[1], sliderTable, function(val)
-				TB_MENU_MAIN_SETTINGS[sliderTable.systemname] = { value = val }
-				Settings:settingsApplyActivate()
-				if (sliderTable.onUpdate) then
-					sliderTable.onUpdate(slider)
-				end
-			end, nil, function()
-				if (sliderTable.onMouseUp) then
-					sliderTable.onMouseUp(slider)
-				end
-			end)
-		return slider
-	end
-
 	function Settings:spawnToggle(viewElement, toggle, i)
 		local toggleTable = toggle.val
 		local toggleBG = UIElement:new({
@@ -1733,7 +1717,7 @@ do
 		end
 
 		local listElements = {}
-		for i,section in pairs(settingsData) do
+		for _, section in pairs(settingsData) do
 			if (#section.items > 0) then
 				local sectionName = UIElement:new({
 					parent = listingHolder,
@@ -1785,7 +1769,18 @@ do
 								pos = { itemView.size.w / 2 + 10, 5 },
 								size = { itemView.size.w / 2 - 30, itemView.size.h - 10 }
 							})
-							Settings:spawnSlider(itemSlider, item)
+							local slider
+							slider = TBMenu:spawnSlider2(itemSlider, nil, tonumber(item.val[1]) or 0, item, function(val)
+								TB_MENU_MAIN_SETTINGS[item.systemname] = { value = val }
+								Settings:settingsApplyActivate()
+								if (item.onUpdate) then
+									item.onUpdate(slider)
+								end
+							end, nil, function()
+								if (item.onMouseUp) then
+									item.onMouseUp(slider)
+								end
+							end)
 						elseif (item.type == TOGGLE) then
 							local itemToggle = UIElement:new({
 								parent = itemView,

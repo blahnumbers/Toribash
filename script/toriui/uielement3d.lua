@@ -57,11 +57,15 @@ if (not UIElement3D) then
 	---@field rotMatrix number[][] Rotation matrix of the object
 	---@field rotXYZ Vector3 Object rotation in [Euler angles](https://en.wikipedia.org/wiki/Euler_angles)
 	---@field shapeType UIElement3DShape
+	---@field playerAttach integer Target player id this object is attached to
+	---@field attachBodypart integer Target bodypart id this object is attached to
+	---@field attachJoint integer Target joint id this object is attached to
 	---@field effectid RenderEffectId Element's rendering effect ID
 	---@field glowIntensity number Element's glow intensity
 	---@field glowColor ColorId Element's glow color ID
 	---@field ditherPixelSize integer Element's dithering effect pixel size
 	---@field customEnterFrameFunc function Function to be executed on `enter_frame` callback
+	---@field viewportElement boolean Whether this object is displayed in a viewport
 	UIElement3D = {
 		ver = 5.60,
 		__index = UIElement

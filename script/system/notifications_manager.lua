@@ -648,7 +648,7 @@ end
 ---@param forceReload? boolean
 function Notifications:prepareNotifications(forceReload)
 	if (TBMenu.CurrentSection == nil or TBMenu.CurrentSection.destroyed) then
-		TBMenu:createCurrentSectionView()
+		TBMenu.CreateCurrentSectionView()
 	else
 		TBMenu.CurrentSection:kill(true)
 	end

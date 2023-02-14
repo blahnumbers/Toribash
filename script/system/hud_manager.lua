@@ -702,7 +702,7 @@ function TBHud:refreshChat()
 					})
 				end
 
-				chatInputField.suggestionsDropdown = TBMenu:spawnDropdown(chatInputHolder, dropdownList, chatInputField.size.h, WIN_H / 3, { text = '' }, nil, { scale = 0.65, fontid = 4, uppercase = false, alignment = LEFTMID }, true, true)
+				chatInputField.suggestionsDropdown = TBMenu:spawnDropdown(chatInputHolder, dropdownList, chatInputField.size.h, WIN_H / 3, { text = '' }, nil, { scale = 0.65, fontid = 4, uppercase = false, alignment = LEFTMID }, true, true, true)
 				chatInputField.suggestionsDropdown.uiColor = UICOLORWHITE
 				---@diagnostic disable-next-line: undefined-field
 				chatInputField.suggestionsDropdown.selectedElement:hide(true)

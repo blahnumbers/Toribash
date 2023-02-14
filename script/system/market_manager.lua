@@ -1740,7 +1740,7 @@ do
 					return
 				end
 
-				inputHolder.dropdown = TBMenu:spawnDropdown(inputField, dropdownList, inputHolder.size.h * 0.8, WIN_H / 3, { text = '' }, nil, { scale = 0.65, fontid = 4 }, true, true, is_mobile())
+				inputHolder.dropdown = TBMenu:spawnDropdown(inputField, dropdownList, inputHolder.size.h * 0.8, WIN_H / 3, { text = '' }, nil, { scale = 0.65, fontid = 4 }, true, true, true)
 				inputHolder.dropdown.selectedElement:hide(true)
 				inputHolder.dropdown.selectedElement:btnUp()
 			end)
@@ -2250,7 +2250,7 @@ do
 				end
 
 				searchBarView.options = dropdownList
-				searchBarView.dropdown = TBMenu:spawnDropdown(searchBarView, dropdownList, searchBarView.size.h * 0.8, WIN_H / 2, { text = '' }, nil, { scale = 0.65, fontid = 4 }, true, true)
+				searchBarView.dropdown = TBMenu:spawnDropdown(searchBarView, dropdownList, searchBarView.size.h * 0.8, WIN_H / 2, { text = '' }, nil, { scale = 0.65, fontid = 4 }, true, true, true)
 				searchBarView.dropdown.selectedElement:hide(true)
 				searchBarView.dropdown.selectedElement:btnUp()
 			end)

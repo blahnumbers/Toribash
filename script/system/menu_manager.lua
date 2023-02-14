@@ -46,7 +46,7 @@ end
 
 ---Adjusts some internal settings for fonts to accompany for RTL languages
 ---@param language string
-function TBMenu:setLanguageFontOptions(language)
+function TBMenuInternal.SetLanguageFontOptions(language)
 	if (language == "hebrew" or language == "arabic") then
 		FONTS.BIG = 4
 		FONTS.MEDIUM = 4
@@ -68,7 +68,7 @@ end
 function TBMenu:getTranslation(language)
 	local language = language or "english"
 	local inverse = (language == "arabic" or language == "hebrew") and true
-	TBMenu:setLanguageFontOptions(language)
+	TBMenuInternal.SetLanguageFontOptions(language)
 	if (type(TB_MENU_LOCALIZED) ~= "table" or TB_MENU_LOCALIZED.language ~= language or TB_MENU_DEBUG) then
 		TB_MENU_LOCALIZED = {}
 		TB_MENU_LOCALIZED.language = language
@@ -86,7 +86,7 @@ function TBMenu:getTranslation(language)
 			else
 				echo("^07If this error persists, please reinstall Toribash to repair system files")
 			end
-			TBMenu:quit()
+			TBMenu.Quit()
 			return
 		end
 	end
@@ -115,7 +115,7 @@ function TBMenu:getTranslation(language)
 end
 
 ---Exits main menu and unloads all related hooks
-function TBMenu:quit()
+function TBMenu.Quit()
 	remove_hooks("tbMainMenuVisual")
 	remove_hooks("tbMainMenuMouse")
 	remove_hooks("tbMenuConsoleIgnore")
@@ -131,7 +131,7 @@ function TBMenu:quit()
 end
 
 ---Creates `TBMenu.CurrentSection` object to be used by main menu
-function TBMenu:createCurrentSectionView()
+function TBMenu.CreateCurrentSectionView()
 	if (TBMenu.MenuMain == nil or TBMenu.MenuMain.destroyed) then return end
 
 	local safeX = get_window_safe_size()
@@ -256,7 +256,7 @@ end
 ---@param clock any
 ---@param reloadElement any
 ---@param direction any
-function TBMenuInternal.changeCurrentEvent(viewElement, eventsData, eventItems, clock, reloadElement, direction)
+function TBMenuInternal.ChangeCurrentEvent(viewElement, eventsData, eventItems, clock, reloadElement, direction)
 	for i, v in pairs(eventItems) do
 		if (i == TBMenu.CurrentAnnouncementId) then
 			v:hide()
@@ -287,7 +287,7 @@ end
 
 function TBMenu:showHome()
 	if (TBMenu.CurrentSection == nil or TBMenu.CurrentSection.destroyed) then
-		TBMenu:createCurrentSectionView()
+		TBMenu.CreateCurrentSectionView()
 	end
 
 	-- Table to store event announcement data
@@ -295,10 +295,8 @@ function TBMenu:showHome()
 
 	-- If download is in progress, show loading screen instead
 	if (newsData.downloading) then
-		local homeView = UIElement:new({
-			parent = TBMenu.CurrentSection,
-			pos = { 5, 0 },
-			size = { TBMenu.CurrentSection.size.w - 10, TBMenu.CurrentSection.size.h },
+		local homeView = TBMenu.CurrentSection:addChild({
+			shift = { 5, 0 },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
 		homeView:addCustomDisplay(false, function()
@@ -380,7 +378,6 @@ function TBMenu:showHome()
 	local eventItems = {}
 	local newsItemShown = false
 	for i, v in pairs(eventsData) do
-		local titleTextScale, subtitleTextScale = 1, 1
 		eventItems[i] = UIElement:new({
 			parent = homeAnnouncements,
 			pos = { 0, 0 },
@@ -433,7 +430,7 @@ function TBMenu:showHome()
 			end)
 		homeAnnouncements:addCustomDisplay(false, function()
 				if ((math.floor(os.clock_real() * 10) - rotateClock.start) % rotateTime == 0 and math.floor(os.clock_real() * 10) ~= rotateClock.last and not rotateClock.pause) then
-					TBMenuInternal.changeCurrentEvent(homeAnnouncements, eventsData, eventItems, rotateClock, toReload, 1)
+					TBMenuInternal.ChangeCurrentEvent(homeAnnouncements, eventsData, eventItems, rotateClock, toReload, 1)
 				end
 			end)
 
@@ -454,7 +451,7 @@ function TBMenu:showHome()
 			hoverThrough = true
 		})
 		eventPrevButton:addMouseHandlers(nil, function()
-				TBMenuInternal.changeCurrentEvent(homeAnnouncements, eventsData, eventItems, rotateClock, toReload, -1)
+				TBMenuInternal.ChangeCurrentEvent(homeAnnouncements, eventsData, eventItems, rotateClock, toReload, -1)
 				eventPrevButton.hoverState = BTN_HVR
 			end, nil)
 		local eventNextButton = toReload:addChild({
@@ -471,7 +468,7 @@ function TBMenu:showHome()
 			hoverThrough = true
 		})
 		eventNextButton:addMouseHandlers(nil, function()
-				TBMenuInternal.changeCurrentEvent(homeAnnouncements, eventsData, eventItems, rotateClock, toReload, 1)
+				TBMenuInternal.ChangeCurrentEvent(homeAnnouncements, eventsData, eventItems, rotateClock, toReload, 1)
 				eventNextButton.hoverState = BTN_HVR
 			end, nil)
 	end
@@ -513,7 +510,7 @@ function TBMenu:showHomeButton(viewElement, buttonData, hasSmudge, extraElements
 
 	if (type(selectedIcon) == "table") then
 		local filename = selectedIcon[1]:gsub(".*/", "")
-		for i,v in pairs(NEWS_DOWNLOAD_QUEUE) do
+		for _, v in pairs(NEWS_DOWNLOAD_QUEUE) do
 			if (v:find(filename)) then
 				TBMenu:displayLoadingMark(itemIcon, nil, elementHeight / 5)
 				add_hook("downloader_complete", "menuMain" .. filename, function(name)
@@ -649,7 +646,7 @@ function TBMenu:showHomeButton(viewElement, buttonData, hasSmudge, extraElements
 		lockedMessageText:addAdaptedText(nil, lockedMessage)
 
 		local maxLen, lines = 0, 0
-		for i,v in pairs(lockedMessageText.dispstr) do
+		for _, v in pairs(lockedMessageText.dispstr) do
 			maxLen = math.max(maxLen, get_string_length(v, lockedMessageText.textFont) * lockedMessageText.textScale)
 			lines = lines + 1
 		end
@@ -672,7 +669,7 @@ function TBMenu:clearNavSection()
 		TBMenu.NavigationBar = nil
 	end
 	if (TBMenu.CurrentSection == nil or TBMenu.CurrentSection.destroyed) then
-		TBMenu:createCurrentSectionView()
+		TBMenu.CreateCurrentSectionView()
 	else
 		TBMenu.CurrentSection:kill(true)
 	end
@@ -680,14 +677,14 @@ end
 
 function TBMenu:showClans(clantag)
 	if (TBMenu.CurrentSection == nil or TBMenu.CurrentSection.destroyed) then
-		TBMenu:createCurrentSectionView()
+		TBMenu.CreateCurrentSectionView()
 	end
 	Clans:showMain(TBMenu.CurrentSection, clantag)
 end
 
 function TBMenu:showMarket()
 	if (TBMenu.CurrentSection == nil or TBMenu.CurrentSection.destroyed) then
-		TBMenu:createCurrentSectionView()
+		TBMenu.CreateCurrentSectionView()
 	end
 	Market:showMain(TBMenu.CurrentSection)
 end
@@ -939,7 +936,7 @@ function TBMenu:spawnWindowOverlay(globalid, withMouseHandler)
 		bgColor = { 0, 0, 0, 0.4 }
 	})
 	if (TBMenu.UserBar ~= nil) then
-		for i,v in pairs(TBMenu.UserBar.headDisplayObjects) do
+		for _, v in pairs(TBMenu.UserBar.headDisplayObjects) do
 			v.bgColor[1] = v.bgColor[1] - 0.4
 			v.bgColor[2] = v.bgColor[2] - 0.4
 			v.bgColor[3] = v.bgColor[3] - 0.4
@@ -951,7 +948,7 @@ function TBMenu:spawnWindowOverlay(globalid, withMouseHandler)
 		TB_MENU_POPUPS_DISABLED = false
 
 		if (TBMenu.UserBar == nil) then return end
-		for i,v in pairs(TBMenu.UserBar.headDisplayObjects) do
+		for _, v in pairs(TBMenu.UserBar.headDisplayObjects) do
 			v.bgColor[1] = v.bgColor[1] + 0.4
 			v.bgColor[2] = v.bgColor[2] + 0.4
 			v.bgColor[3] = v.bgColor[3] + 0.4
@@ -1182,14 +1179,15 @@ function TBMenu:showStatusMessage(message, noParent, time)
 end
 
 ---@deprecated
----Use `TBMenu:showStatusMessage()` instead
+---Use `TBMenu:showStatusMessage()` instead \
+---@see TBMenu.showStatusMessage
 function TBMenu:showDataError(message, noParent, time)
 	TBMenu:showStatusMessage(message, noParent, time)
 end
 
 function TBMenu:showTorishopMain()
 	if (TBMenu.CurrentSection == nil or TBMenu.CurrentSection.destroyed) then
-		TBMenu:createCurrentSectionView()
+		TBMenu.CreateCurrentSectionView()
 	end
 	Torishop:showMain(TBMenu.CurrentSection)
 end
@@ -1341,7 +1339,7 @@ end
 function TBMenu:showMatchmaking()
 	--[[require("system/matchmake_manager")
 	if (not TBMenu.CurrentSection) then
-		TBMenu:createCurrentSectionView()
+		TBMenu.CreateCurrentSectionView()
 	end
 	-- Connect user to matchmake server
 	Ranking:connect()
@@ -1350,7 +1348,7 @@ end
 
 function TBMenu:showBattlepass()
 	if (TBMenu.CurrentSection == nil or TBMenu.CurrentSection.destroyed) then
-		TBMenu:createCurrentSectionView()
+		TBMenu.CreateCurrentSectionView()
 	end
 	BattlePass:showMain()
 end
@@ -1706,7 +1704,7 @@ end
 
 function TBMenu:showSection(buttonsData, shift, lockedMessage)
 	if (TBMenu.CurrentSection == nil or TBMenu.CurrentSection.destroyed) then
-		TBMenu:createCurrentSectionView()
+		TBMenu.CreateCurrentSectionView()
 	end
 	local sectionX = shift and shift + 15 or 5
 	local sectionY = 0
@@ -2696,7 +2694,7 @@ function TBMenu:showMain(noload)
 		uiColor = TB_MENU_UI_TEXT_COLOR,
 		uiShadowColor = TB_MENU_UI_TEXT_SHADOW_COLOR
 	})
-	TBMenu:createCurrentSectionView()
+	TBMenu.CreateCurrentSectionView()
 	local tbMenuBackground = TBMenu.MenuMain:addChild({
 		pos = { 0, - WIN_H * 2 },
 		size = { WIN_W, WIN_H * 3 },
@@ -2901,9 +2899,9 @@ function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHei
 		end
 	end
 
-	local maxHeight = maxHeight or #listElementsDisplay * elementHeight + 4
-	if (maxHeight > #listElementsDisplay * elementHeight + 4) then
-		maxHeight = #listElementsDisplay * elementHeight + 4
+	local maxHeight = maxHeight or #listElementsDisplay * elementHeight + 6
+	if (maxHeight > #listElementsDisplay * elementHeight + 6) then
+		maxHeight = #listElementsDisplay * elementHeight + 6
 	end
 	local selectedItem = selectedItem or listElements[1]
 	if (type(selectedItem) ~= "table") then
@@ -2925,11 +2923,16 @@ function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHei
 	---@diagnostic disable-next-line: assign-type-mismatch
 	local overlay = holderElement:addChild({
 		size = { WIN_W, WIN_H },
-		interactive = not keepFocus,
-		scrollEnabled = true
+		interactive = not keepFocus
 	})
-	local dropdownView = overlay:addChild({
+	local dropdownViewBackdrop = overlay:addChild({
 		size = { holderElement.size.w, maxHeight },
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		shapeType = holderElement.shapeType,
+		rounded = holderElement.rounded
+	})
+	local dropdownView = dropdownViewBackdrop:addChild({
+		shift = { 1, 1 },
 		bgColor = TB_MENU_DEFAULT_LIGHTER_COLOR
 	}, true)
 	overlay:addMouseHandlers(function(s)
@@ -2939,36 +2942,23 @@ function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHei
 		end, function()
 			overlay:hide(true)
 		end)
-	local function updatePos(t)
-		t:updateChildPos()
-		for _, v in pairs(t.child) do
-			updatePos(v)
+
+	local function fixPosition()
+		overlay:moveTo(-overlay.parent.size.w - overlay.parent.pos.x, -overlay.parent.size.h - overlay.parent.pos.y)
+		overlay:updatePos()
+
+		local addedShift = noOverlaying and elementHeight or 0
+		local dropdownPosY = holderElement.pos.y + addedShift
+		if (forceDisplayAbove or (holderElement.pos.y + addedShift + maxHeight > WIN_H - 25)) then
+			if (holderElement.pos.y - maxHeight < 25) then
+				dropdownPosY = WIN_H - 25 - maxHeight - addedShift
+			else
+				dropdownPosY = holderElement.pos.y - maxHeight
+			end
 		end
+		dropdownViewBackdrop:moveTo(holderElement.pos.x, dropdownPosY)
 	end
 
-	local addedShift = noOverlaying and elementHeight or 0
-	dropdownView:addCustomDisplay(false, function()
-			overlay.pos.x = 0
-			overlay.pos.y = 0
-			for _, v in pairs(overlay.child) do
-				v:updateChildPos()
-			end
-			local dropdownPosY = holderElement.pos.y + addedShift
-			if (forceDisplayAbove or (holderElement.pos.y + addedShift + maxHeight > WIN_H - 25)) then
-				if (holderElement.pos.y - maxHeight < 25) then
-					dropdownPosY = WIN_H - 25 - maxHeight - addedShift
-				else
-					dropdownPosY = holderElement.pos.y - maxHeight
-				end
-			end
-
-			dropdownView:moveTo(holderElement.pos.x, dropdownPosY)
-			dropdownView.pos.x = overlay.pos.x + dropdownView.shift.x
-			dropdownView.pos.y = overlay.pos.y + dropdownView.shift.y
-			for _, v in pairs(dropdownView.child) do
-				updatePos(v)
-			end
-		end, true)
 	local selectedElement = UIElement:new({
 		parent = holderElement,
 		pos = { 0, 0 },
@@ -2987,16 +2977,15 @@ function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHei
 		size = { selectedElement.size.w - selectedElement.size.h - 10, selectedElement.size.h - 4 }
 	})
 	selectedElementText:addAdaptedText(false, textSettings.uppercase and selectedItem.text:upper() or selectedItem.text, nil, nil, textSettings.fontid, textSettings.alignment, textSettings.scale)
-	local selectedElementArrow = UIElement:new({
-		parent = selectedElement,
+	local selectedElementArrow = selectedElement:addChild({
 		pos = { -selectedElement.size.h, 0 },
 		size = { selectedElement.size.h, selectedElement.size.h },
 		bgImage = "../textures/menu/general/buttons/arrowbotwhite.tga"
 	})
 
-	local toReload, topBar, botBar, listingView, listingHolder
+	local toReload, topBar, botBar, listingHolder
 	if (#listElementsDisplay * elementHeight > maxHeight) then
-		toReload, topBar, botBar, listingView, listingHolder = TBMenu:prepareScrollableList(dropdownView, elementHeight, elementHeight, 15, TB_MENU_DEFAULT_LIGHTER_COLOR)
+		toReload, topBar, botBar, _, listingHolder = TBMenu:prepareScrollableList(dropdownView:addChild({ shift = { 0, 2 } }), elementHeight, elementHeight, 15, TB_MENU_DEFAULT_LIGHTER_COLOR)
 		local topEdge = topBar:addChild({
 			pos = { 0, -topBar.size.h - (dropdownView.rounded or 0) },
 			size = { topBar.size.w, topBar.size.h * 1.5 },
@@ -3016,15 +3005,19 @@ function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHei
 			rounded = dropdownView.rounded
 		})
 	else
-		listingHolder = dropdownView
+		listingHolder = dropdownView:addChild({ shift = { 0, 2 } })
 	end
 
 	local listElements = {}
+	local selectedItemId = 1
 	for i, v in pairs(listElementsDisplay) do
-		local element = UIElement:new({
-			parent = listingHolder,
-			pos = { 2, #listElements * elementHeight },
-			size = { listingHolder.size.w - 4, elementHeight },
+		local elementHolder = listingHolder:addChild({
+			pos = { 0, #listElements * elementHeight },
+			size = { listingHolder.size.w, elementHeight }
+		})
+		table.insert(listElements, elementHolder)
+		local element = elementHolder:addChild({
+			shift = { 3, 1 },
 			interactive = true,
 			clickThrough = toReload ~= nil,
 			hoverThrough = toReload ~= nil,
@@ -3036,10 +3029,12 @@ function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHei
 			rounded = holderElement.rounded
 		})
 		v.element = element
-		table.insert(listElements, element)
 		if (v.locked) then
 			element.uiColor = table.clone(UICOLORBLACK)
 			element:deactivate(true)
+		end
+		if (selectedItem == v) then
+			selectedItemId = i
 		end
 		element:addChild({ shift = { 10, 1 }}):addAdaptedText(false, listTextSettings.uppercase and v.text:upper() or v.text, nil, nil, listTextSettings.fontid, listTextSettings.alignment, listTextSettings.scale)
 		element:addMouseHandlers(nil, function()
@@ -3061,9 +3056,13 @@ function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHei
 	end
 
 	if (#listElements * elementHeight > maxHeight) then
+		for _, v in pairs(listElements) do
+			v:hide(true)
+		end
 		local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
 		listingHolder.scrollBar = scrollBar
-		scrollBar:makeScrollBar(listingHolder, listElements, toReload)
+		local targetShift = { (scrollBar.parent.size.h - scrollBar.size.h) * ((selectedItemId - 1) / (#listElementsDisplay - 1)) }
+		scrollBar:makeScrollBar(listingHolder, listElements, toReload, targetShift)
 
 		overlay.listElements = listElements
 		overlay.listHolder = listingHolder
@@ -3075,12 +3074,10 @@ function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHei
 	end
 
 	selectedElement:addMouseHandlers(nil, function()
+			fixPosition()
 			overlay:show(true)
-			if (overlay.listElements) then
-				for _, v in pairs(overlay.listElements) do
-					v:hide()
-				end
-				overlay.listHolder.scrollBar:makeScrollBar(overlay.listHolder, overlay.listElements, overlay.listToReload)
+			if (overlay.listToReload ~= nil) then
+				overlay.listToReload:reload()
 			end
 		end)
 	overlay:hide(true)
@@ -3519,8 +3516,7 @@ function TBMenu:spawnSlider2(parent, rect, value, settings, sliderFunc, onMouseD
 		displayNameText:addAdaptedText(true, settings.displayName, nil, nil, 4, nil, 0.7)
 	end
 
-	local sliderBG = UIElement:new({
-		parent = parent,
+	local sliderBG = parent:addChild({
 		pos = { rect.x + settings.textWidth + 5, rect.y },
 		size = { rect.w - (settings.textWidth + 5) * 2, rect.h },
 		bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
@@ -3533,8 +3529,7 @@ function TBMenu:spawnSlider2(parent, rect, value, settings, sliderFunc, onMouseD
 	local sliderPos = 0
 	value = value > settings.maxValue and 1 or (-settings.minValue + value) / (-settings.minValue + settings.maxValue)
 	sliderPos = value * (sliderBG.size.w - settings.sliderRadius)
-	local slider = UIElement:new({
-		parent = sliderBG,
+	local slider = sliderBG:addChild({
 		pos = { sliderPos, (-sliderBG.size.h - settings.sliderRadius) / 2 },
 		size = { settings.sliderRadius, settings.sliderRadius },
 		interactive = true,
@@ -3545,8 +3540,7 @@ function TBMenu:spawnSlider2(parent, rect, value, settings, sliderFunc, onMouseD
 		shapeType = ROUNDED,
 		rounded = settings.sliderRadius
 	})
-	local sliderLabel = UIElement:new({
-		parent = slider,
+	local sliderLabel = slider:addChild({
 		pos = { -settings.sliderRadius - 5, -slider.size.h - settings.sliderRadius },
 		size = { settings.sliderRadius + 10, settings.sliderRadius },
 		bgColor = table.clone(TB_MENU_DEFAULT_LIGHTER_COLOR),
@@ -3557,12 +3551,13 @@ function TBMenu:spawnSlider2(parent, rect, value, settings, sliderFunc, onMouseD
 	sliderLabel.bgColor[4] = 0
 	sliderLabel.uiColor[4] = 0
 	sliderLabel.labelText = { "" }
+	local sliderLabelOutClock = UIElement.clock
 	sliderLabel:addCustomDisplay(false, function()
 			if (sliderLabel.uiColor[4] > 0) then
 				sliderLabel:uiText(sliderLabel.labelText[1], nil, nil, 4, nil, 0.5)
 				if (slider.hoverState ~= BTN_DN) then
-					sliderLabel.uiColor[4] = sliderLabel.uiColor[4] - 0.02
-					sliderLabel.bgColor[4] = sliderLabel.bgColor[4] - 0.02
+					sliderLabel.uiColor[4] = UITween.SineTween(sliderLabel.uiColor[4], 0, UIElement.clock - sliderLabelOutClock)
+					sliderLabel.bgColor[4] = sliderLabel.uiColor[4]
 				end
 			end
 		end)
@@ -3603,10 +3598,13 @@ function TBMenu:spawnSlider2(parent, rect, value, settings, sliderFunc, onMouseD
 			if (onMouseUp) then
 				add_hook("mouse_button_up", "uiMenuSlider", function()
 					onMouseUp()
+					slider.btnUp()
 					remove_hook("mouse_button_up", "uiMenuSlider")
 				end)
 			end
-		end, nil, function()
+		end, function()
+			sliderLabelOutClock = UIElement.clock
+		end, function()
 			if (slider.hoverState == BTN_DN) then
 				local xPos = MOUSE_X - sliderBG.pos.x - slider.pressedPos.x
 				if (xPos < 0) then
@@ -3624,12 +3622,12 @@ function TBMenu:spawnSlider2(parent, rect, value, settings, sliderFunc, onMouseD
 				slider:moveTo(xPos, nil)
 
 				local val = xPos / (sliderBG.size.w - settings.sliderRadius) * (settings.maxValue - settings.minValue) + settings.minValue
-				local multiplyBy = tonumber('1' .. string.rep('0', settings.decimal))
-				sliderLabel.labelText[1] = (math.floor(val * multiplyBy) / multiplyBy) .. ''
 				sliderLabel.uiColor[4] = 1
 				sliderLabel.bgColor[4] = 1
 
 				if (sliderFunc and slider.lastVal ~= val) then
+					local multiplyBy = tonumber('1' .. string.rep('0', settings.decimal))
+					sliderLabel.labelText[1] = (math.floor(val * multiplyBy) / multiplyBy) .. ''
 					sliderFunc(val, xPos, slider)
 				end
 				slider.lastVal = val

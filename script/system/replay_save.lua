@@ -76,20 +76,7 @@ end
 pcall(function() getFolders('', 0) end)
 
 if (#dropdownOptions > 0) then
-	local dropdown = TBMenu:spawnDropdown(replayFolderPicker, dropdownOptions, 30, WIN_H / 3, defaultFolderId, { scale = 0.8 }, { scale = 0.6, orientation = LEFTMID })
-	---@diagnostic disable-next-line: undefined-field
-	dropdown.selectedElement:addMouseHandlers(nil, function()
-		dropdown:show(true)
-		---@diagnostic disable-next-line: undefined-field
-		if (dropdown.listElements) then
-			---@diagnostic disable-next-line: undefined-field
-			for i,v in pairs(dropdown.listElements) do
-				v:hide()
-			end
-			---@diagnostic disable-next-line: undefined-field
-			dropdown.listHolder.scrollBar:makeScrollBar(dropdown.listHolder, dropdown.listElements, dropdown.listToReload, REPLAY_SELECTOR_SHIFT, nil, true)
-		end
-	end)
+	TBMenu:spawnDropdown(replayFolderPicker, dropdownOptions, 30, WIN_H / 3, defaultFolderId, { scale = 0.8 }, { scale = 0.6, orientation = LEFTMID })
 else
 	replayFolderPicker.size.w = 0
 	replayFolderPicker:moveTo(0)

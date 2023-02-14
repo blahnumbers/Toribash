@@ -780,10 +780,11 @@ function UIElement:makeHorizontalScrollBar(listHolder, listElements, toReload, p
 	self:makeScrollBar(listHolder, listElements, toReload, posShift, scrollSpeed, scrollIgnoreOverride, SCROLL_HORIZONTAL)
 end
 
----Function to initialize a scrollable list with a scroll bar
----@param listHolder UIElement
----@param listElements UIElement[]
----@param toReload UIElement
+---Function to initialize a scrollable list with a scroll bar. \
+---**Important: all list elements must have the same height / width depending on list orientation.**
+---@param listHolder UIElement Holder element for all list elements
+---@param listElements UIElement[] List of elements that should be scrollable
+---@param toReload UIElement Holder element that should be rendered on top of scrollable elements
 ---@param posShift ?number[]
 ---@param scrollSpeed ?number
 ---@param scrollIgnoreOverride ?boolean
@@ -1879,7 +1880,14 @@ function UIElement:moveTo(x, y, relative)
 		if (x) then self.pos.x = relative and self.pos.x + x or x end
 		if (y) then self.pos.y = relative and self.pos.y + y or y end
 	end
+	self:invalidatePosition()
+end
+
+function UIElement:invalidatePosition()
 	self.positionDirty = true
+	for _, v in pairs(self.child) do
+		v:invalidatePosition()
+	end
 end
 
 ---Internal function to update position of current UIElement based on its parent movement
@@ -1897,6 +1905,7 @@ function UIElement:updateChildPos()
 	else
 		self.pos.y = self.parent.pos.y + self.shift.y
 	end
+	self.positionDirty = false
 end
 
 ---Adapts the specified string to fit inside UIElement object and sets custom display function to draw it
