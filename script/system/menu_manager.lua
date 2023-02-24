@@ -1357,7 +1357,7 @@ function TBMenu:showPlaySection()
 	local tbMenuPlayButtonsData = {
 		{ title = TB_MENU_LOCALIZED.MAINMENUFREEPLAYNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUFREEPLAYDESC, size = 0.5, ratio = 0.5, image = "../textures/menu/freeplay.tga", mode = ORIENTATION_LANDSCAPE, action = function() open_menu(1) end, disableUnload = true },
 		{ title = TB_MENU_LOCALIZED.MAINMENUREPLAYSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUREPLAYSDESC, size = 0.25, ratio = 1.055, image = "../textures/menu/replays2.tga", mode = ORIENTATION_PORTRAIT, action = function() TBMenu:showReplays() end, disableUnload = true },
-		{ title = TB_MENU_LOCALIZED.MAINMENUROOMLISTNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUROOMLISTDESC, size = 0.25, ratio = 1.055, image = "../textures/menu/multiplayer.tga", mode = ORIENTATION_PORTRAIT, action = function() set_mouse_cursor(0, true) open_menu(2) end, disableUnload = true }
+		{ title = TB_MENU_LOCALIZED.MAINMENUROOMLISTNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUROOMLISTDESC, size = 0.25, ratio = 1.055, image = "../textures/menu/multiplayer.tga", mode = ORIENTATION_PORTRAIT, action = function() RoomList:showMain() end, disableUnload = true }
 	}
 
 	if (TB_MENU_PLAYER_INFO.username == '') then
@@ -1677,9 +1677,14 @@ function TBMenu:showToolsSection()
 	TBMenu:showSection(tbMenuToolsButtonsData)
 end
 
+---Adds a generic blood smudge at the bottom of the specified UIElement
+---@param parentElement UIElement
+---@param num ?integer
+---@param scale ?integer
+---@return UIElement|nil
 function TBMenu:addBottomBloodSmudge(parentElement, num, scale)
 	if (not parentElement) then
-		return false
+		return nil
 	end
 	local scale = (scale or 64) * TB_MENU_GLOBAL_SCALE
 	local bottomSmudge = TB_MENU_BOTTOM_SMUDGE_BIG
@@ -2004,7 +2009,7 @@ function TBMenu:showUserBar()
 		rounded = 13
 	})
 	tbMenuUserTcView.bgColor[4] = 0.01
-	local tcPopup = TBMenu:displayHelpPopup(tbMenuUserTcView, TB_MENU_LOCALIZED.USERBARTCINFO, nil, true)
+	local tcPopup = TBMenu:displayPopup(tbMenuUserTcView, TB_MENU_LOCALIZED.USERBARTCINFO)
 	tbMenuUserTcView:addMouseHandlers(nil, function()
 			if (TB_STORE_DATA.ready) then
 				Torishop:showStoreSection(TBMenu.CurrentSection, 4, 1)
@@ -2041,7 +2046,7 @@ function TBMenu:showUserBar()
 		rounded = 13
 	})
 	tbMenuUserStView.bgColor[4] = 0.01
-	local stPopup = TBMenu:displayHelpPopup(tbMenuUserStView, TB_MENU_LOCALIZED.USERBARSTINFO, nil, true)
+	local stPopup = TBMenu:displayPopup(tbMenuUserStView, TB_MENU_LOCALIZED.USERBARSTINFO)
 	tbMenuUserStView:addMouseHandlers(nil, function()
 			if (TB_STORE_DATA.ready) then
 				Torishop:showStoreSection(TBMenu.CurrentSection, 4, 2)
@@ -2077,7 +2082,7 @@ function TBMenu:showUserBar()
 		pos = { -tbMenuTopBarWidth / 4, tbMenuTopBarWidth / 10 },
 		size = { tbMenuTopBarWidth / 4.5, tbMenuTopBarWidth / 13 }
 	})
-	tbMenuUserQi:addAdaptedText(true, TB_MENU_PLAYER_INFO.data.belt.name .. " belt", nil, nil, 2, nil, nil, nil, nil, 1)
+	tbMenuUserQi:addAdaptedText(true, TB_MENU_PLAYER_INFO.data.belt.name .. " " .. TB_MENU_LOCALIZED.WORDBELT, nil, nil, 2, nil, nil, nil, nil, 1)
 
 	TB_MENU_CUSTOMS_REFRESHED = false
 	TBMenu.UserBar:addCustomDisplay(false, function()
@@ -3245,17 +3250,18 @@ function TBMenu:generatePaginationData(totalPages, maxPages, currentPage)
 	return pagesButtons
 end
 
+---Displays a generic message with a spinning wheel element within a specified viewport
+---@param element UIElement
+---@param message ?string
+---@param size ?number
+---@return UIElement
 function TBMenu:displayLoadingMark(element, message, size)
 	local size = size or 20
-	local loadMark = UIElement:new({
-		parent = element,
-		pos = { 0, 0 },
-		size = { element.size.w, element.size.h }
-	})
+	local loadMark = element:addChild({})
 	local grow, rotate = 0, 0
 	loadMark:addCustomDisplay(true, function()
 			set_color(unpack(loadMark.uiColor or UICOLORWHITE))
-			draw_disk(loadMark.pos.x + loadMark.size.w / 2, loadMark.pos.y + loadMark.size.h / 2 - (message and 40 or 0), size * 0.6, size, 500, 1, rotate, grow, 0)
+			draw_disk(loadMark.pos.x + loadMark.size.w / 2, loadMark.pos.y + loadMark.size.h / 2 - (message and 40 or 0), size * 0.6, size, 20, 1, rotate, grow, 0)
 			grow = grow + 4
 			rotate = rotate + 2
 			if (grow >= 360) then
@@ -3263,8 +3269,7 @@ function TBMenu:displayLoadingMark(element, message, size)
 			end
 		end)
 	if (message) then
-		local textView = UIElement:new({
-			parent = loadMark,
+		local textView = loadMark:addChild({
 			pos = { 10, loadMark.size.h / 2 },
 			size = { loadMark.size.w - 20, loadMark.size.h }
 		})
@@ -3453,6 +3458,12 @@ function TBMenu:displayHelpPopup(element, message, forceManualPosCheck, noMark, 
 	return messageElement
 end
 
+---Generic method to display a text popup on mouse hover over the specified object
+---@param element UIElement
+---@param message string
+---@param forceManualPosCheck ?boolean
+---@param maxHeight ?number
+---@return UIElement
 function TBMenu:displayPopup(element, message, forceManualPosCheck, maxHeight)
 	return TBMenu:displayHelpPopup(element, message, forceManualPosCheck, true, maxHeight)
 end

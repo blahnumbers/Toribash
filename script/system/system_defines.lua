@@ -1051,7 +1051,7 @@ function run_frames(frames) end
 ---| 14	Dismemberment + No grip + Fracture
 ---| 15	DQ + Dismemberment + No grip + Fracture
 
----@class Gamerules
+---@class GameRules
 ---@field mod					string			Mod file name
 ---@field matchframes			integer			Maximum match frames
 ---@field turnframes			string			Turn frames, comma-separated
@@ -1086,7 +1086,7 @@ function run_frames(frames) end
 ---@field numplayers			integer			Player count for the mod
 
 ---Returns current game rules
----@return Gamerules
+---@return GameRules
 function get_game_rules() end
 
 ---Returns current value for the specified gamerule
@@ -1597,6 +1597,45 @@ function buy_st(data) end
 ---@see PlayerInfo.getServerUserinfo
 ---@param username ?string
 function get_player_userinfo(username) end
+
+
+-- [[ ROOM LIST ]]
+
+---Queues an asynchronous room list refresh request. \
+---On completion, will trigger `roomlist_update` hook callback with error (if any).
+function refresh_roomlist() end
+
+---Returns number of cached rooms or `nil` on error
+---@return integer|nil
+function get_roomlist_num_rooms() end
+
+---@class RoomListInfo
+---@field id integer Room id in the cache
+---@field name string Room name
+---@field desc string Room description
+---@field hostname string Public room address in `ip:port` format
+---@field num_players integer Current number of players in the room
+---@field max_clients integer Maximum allowed number of players in the room
+---@field players string[] List of players currently in the room
+---@field min_belt integer Minimum belt requirement to join the room
+---@field max_belt integer Maximum belt requirement to join the room
+---@field min_rank integer Minimum player rank requirement to join the room
+---@field max_rank integer Maximum player rank requirement to join the room
+---@field min_elo number Minimum elo requirement to join the room
+---@field max_elo number Maximum elo requirement to join the room
+---@field min_bet integer Room minimum bet amount
+---@field entry_fee integer Room entry fee
+---@field gamerules GameRules Room game rules
+---@field is_official boolean
+---@field is_ranked boolean
+---@field is_duel_mode boolean
+---@field is_password_protected boolean
+---@field is_tournament boolean
+
+---Returns information about a room with the specified id or `nil` on error
+---@param room_id integer
+---@return RoomListInfo|nil
+function get_roomlist_room_info(room_id) end
 
 
 -- [[ NOTIFICATIONS ]]
@@ -2287,6 +2326,7 @@ function discord_reject_join(discordId) end
 ---| "replay_integrity_fail" #Called when replay hacking is detected during replay playthrough with check_integrity mode enabled
 ---| "bout_update" #Called after bout list update is finished
 ---| "spec_update" #Called when spectator status update is received
+---| "roomlist_update" #Called on room list info request completion
 
 ---Adds a Lua callback listener \
 ---*Only one function per event / set_name pair is supported*

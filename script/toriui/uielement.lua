@@ -75,7 +75,7 @@ BTN_DN = 3
 SCROLL_VERTICAL = 1
 SCROLL_HORIZONTAL = 2
 
----@alias sort
+---@alias SortOrder
 ---| true # SORT_DESCENDING
 ---| false # SORT_ASCENDING
 SORT_DESCENDING = true
@@ -285,7 +285,6 @@ if (not UIElement) then
 	---@field nextInput UIElement Next input element, set with UIElement:addTabSwitch()
 	UIElement = {
 		ver = 5.60,
-		clock = os.clock_real(),
 		animationDuration = 0.1,
 		longPressDuration = 0.25,
 		lightUIMode = get_option("uilight") == 1
@@ -303,6 +302,10 @@ if (not UIElement) then
 	---Whether UIElement.drawHooks() has been called to initialize helper drawing hook
 	---@type boolean
 	UIElement.__drawHooks = nil
+
+	---Last rendering cycle timestamp
+	---@type number
+	UIElement.clock = os.clock_real()
 end
 
 ---Callback function triggered on text input event while UIElement is active and focused
@@ -536,7 +539,7 @@ end
 
 -- Spawns a new UIElement and sets the calling object as its parent
 ---@param o UIElementOptions
----@param copyShape? boolean Whether to copy shapeType and rounded values to the new object
+---@param copyShape? boolean Whether to copy `shapeType` and `rounded` values to the new object
 ---@return UIElement
 function UIElement:addChild(o, copyShape)
 	if (o.shift) then
@@ -2255,25 +2258,26 @@ end
 ---@generic T
 ---@param list T Table with the data that we want to sort
 ---@param sort string[] Key or keys which values will be used for sorting
----@param order? sort Sorting order, defaults to `SORT_ASCENDING`
+---@param order? SortOrder Sorting order, defaults to `SORT_ASCENDING`
 ---@param includeZeros? boolean
 ---@overload fun(list: table, sort: string[], order?: boolean[], includeZeros?: boolean)
 ---@overload fun(list: table, sort: string, order?: boolean[], includeZeros?: boolean)
----@overload fun(list: table, sort: string, order?: sort, includeZeros?: boolean)
+---@overload fun(list: table, sort: string, order?: SortOrder, includeZeros?: boolean)
 ---@return T
-function table.qsort(list, sort, order, includeZeros)
+function table.qsort(list, sort, _order, includeZeros)
 	local arr = {}
+	local order = {}
 
-	if (type(order) ~= "table") then
+	if (type(_order) ~= "table") then
 		---@diagnostic disable-next-line: cast-local-type
-		order = { order and 1 or -1 }
+		order = { _order and 1 or -1 }
 	else
-		for i,v in pairs(order) do
+		for i, v in pairs(_order) do
 			order[i] = v and 1 or -1
 		end
 	end
 
-	for i, v in pairs(list) do
+	for _, v in pairs(list) do
 		table.insert(arr, v)
 	end
 	if (type(sort) ~= "table") then
@@ -2281,11 +2285,10 @@ function table.qsort(list, sort, order, includeZeros)
 	end
 
 	sort = table.reverse(sort)
-	---@diagnostic disable-next-line: cast-local-type
 	order = table.reverse(order)
 	table.sort(arr, function(a,b)
 			local cmpRes = false
-			for i,v in pairs(sort) do
+			for i, v in pairs(sort) do
 				local val1 = a[v] == 0 and (includeZeros and 0 or b[v] - (order[i] and order[i] or order[1])) or a[v]
 				local val2 = b[v] == 0 and (includeZeros and 0 or a[v] - (order[i] and order[i] or order[1])) or b[v]
 				if (type(val1) == "string" or type(val2) == "string") then
@@ -2491,9 +2494,9 @@ _G.draw_text_new = function(str, xPos, yPos, angle, scale, font, shadow, color, 
 		set_color(unpack(col2))
 		draw_text_angle_scale(str, xPos - shadow / 2, yPos - shadow / 2, angle, scale, shadowFontId or generate_font(font, 1, shadow))
 	end
-	if (col1) then
-		set_color(unpack(col1))
-	end
+
+	if (col1[4] == 0) then return end
+	set_color(unpack(col1))
 	draw_text_angle_scale(str, xPos, yPos, angle, scale, font)
 	if (font == 0 or font == 9) then
 		set_color(col1[1], col1[2], col1[3], intensity)
@@ -2555,7 +2558,7 @@ end
 ---@return T[]
 _G.table.reverse = function(table)
 	local tblRev = {}
-	for i, v in pairs(table) do
+	for _, v in pairs(table) do
 		_G.table.insert(tblRev, 1, v)
 	end
 	return tblRev

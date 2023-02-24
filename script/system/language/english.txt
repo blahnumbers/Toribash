@@ -1112,3 +1112,25 @@ HUDSTEPFRAMESINGLE	Step single frame
 HUDSTEPFRAMEFULL	Step a full turn
 HUDSTEPSINGLETOGGLE	Single frame stepping
 WORDQI	Qi
+ROOMLISTUPDATING	Updating room list, please wait...
+ROOMLISTUPDATEFAIL	Failed to retrieve room list
+ROOMLISTEMPTY	No rooms currently online, please try again later
+WORDREFRESHACTION	Refresh
+WORDBELT	Belt
+ROOMLISTOFFICIALROOMS	Official Rooms
+ROOMLISTPRIVATEROOMS	Private Rooms
+ROOMLISTPRIVATEINFO	Password protected room
+ROOMLISTOFFICIALROOMSINFO	Official rooms have increased daily Qi limits and award ToriCredits for every fight you win
+ROOMLISTCREATEROOM	Create new room
+ROOMLISTROOMNAME	Room
+ROOMLISTROOMMOD	Mod
+ROOMLISTROOMPLAYERS	Players
+ROOMLISTROOMID	#
+ROOMLISTROOMDESC	Description
+ROOMLISTROOMMINBELT	Min Belt
+ROOMLISTROOMMAXBELT	Max Belt
+ROOMLISTTOURNAMENT	Tournament room
+ROOMLISTDUELMODEON	Duel mode on
+ROOMLISTRANKED	Ranked room
+ROOMLISTQUICKREACTIONROOM	Low reaction time room
+ROOMLISTFILTERS	Filters
