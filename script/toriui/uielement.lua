@@ -1092,20 +1092,20 @@ function UIElement:touchScroll(listElements, listHolder, toReload, scrollDelta, 
 end
 
 -- Sets the specified function to run when UIElement is displayed
----@param funcOnly boolean|nil If true, will not run default UIElement:display() functionality and only run the specified function
+---@param overrideDefault boolean|nil If true, will disable default UIElement rendering and only run the specified function
 ---@param func function Custom function to run when object is displayed
----@param drawBefore? boolean If true, will assign a function to run **before** the main UIElement:display() function
+---@param drawBefore? boolean If true, will assign a function to run **before** the default rendering function
 ---@overload fun(self: UIElement, func: function, drawBefore?: boolean)
-function UIElement:addCustomDisplay(funcOnly, func, drawBefore)
+function UIElement:addCustomDisplay(overrideDefault, func, drawBefore)
 	---@type boolean|function|nil
 	local drawBeforeFunc = drawBefore
-	if (type(funcOnly) == "function") then
+	if (type(overrideDefault) == "function") then
 		drawBeforeFunc = func
-		func = funcOnly
-		funcOnly = false
+		func = overrideDefault
+		overrideDefault = false
 	end
 
-	self.customDisplayOnly = funcOnly
+	self.customDisplayOnly = overrideDefault
 	if (drawBeforeFunc) then
 		self.customDisplayBefore = func
 	else
@@ -2258,7 +2258,7 @@ end
 ---@generic T
 ---@param list T Table with the data that we want to sort
 ---@param sort string[] Key or keys which values will be used for sorting
----@param order? SortOrder Sorting order, defaults to `SORT_ASCENDING`
+---@param _order? SortOrder Sorting order, defaults to `SORT_ASCENDING`
 ---@param includeZeros? boolean
 ---@overload fun(list: table, sort: string[], order?: boolean[], includeZeros?: boolean)
 ---@overload fun(list: table, sort: string, order?: boolean[], includeZeros?: boolean)

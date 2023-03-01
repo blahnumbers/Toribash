@@ -2886,7 +2886,7 @@ end
 ---@field uppercase boolean
 
 ---@param holderElement UIElement
----@param listElements DropdownElement
+---@param listElements DropdownElement[]
 ---@param elementHeight number
 ---@param maxHeight ?number
 ---@param selectedItem ?integer|DropdownElement

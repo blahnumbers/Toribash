@@ -14,6 +14,8 @@ local FILTER_ON = true
 ---@field MatchesBelt RoomListFilterState
 ---@field PasswordProtected RoomListFilterState
 ---@field IsTournament RoomListFilterState
+---@field IsOfficial RoomListFilterState
+---@field IsRanked RoomListFilterState
 ---@field DuelMode RoomListFilterState
 ---@field HasEntryFee RoomListFilterState
 ---@field SortBy string[]
@@ -43,6 +45,7 @@ end
 ---@class RoomListInfoExtended : RoomListInfo
 ---@field id integer Room id incremented by 1 to match Lua style
 ---@field desc_clean string Color-coding free room description
+---@field mod string Mod name, this is identical to `gamerules.mod`
 
 ---**Room List internal helper class**
 ---@class RoomListInternal
@@ -77,6 +80,7 @@ function RoomListInternal.CacheRooms()
 				roomInfo.desc_clean = utf8.gsub(roomInfo.desc, "%^%d%d", "")
 				roomInfo.desc_clean = utf8.gsub(roomInfo.desc_clean, "%%%d%d%d", "")
 				roomInfo.id = roomInfo.id + 1 ---Make ids match Lua style
+				roomInfo.mod = roomInfo.gamerules.mod
 				table.insert(RoomListInternal.Cache, roomInfo)
 			end
 		end
@@ -263,8 +267,8 @@ function RoomList:showRoomListLegend(viewElement)
 	local minScale = 1
 	for _, v in pairs(datasToDisplay) do
 		local infoBit = legendHolder:addChild({
-			pos = { shiftX, 0 },
-			size = { availableAreaX * v.width, legendHolder.size.h },
+			pos = { shiftX, 6 },
+			size = { availableAreaX * v.width, legendHolder.size.h - 6 },
 			interactive = true,
 			bgColor = UICOLORWHITE,
 			hoverColor = TB_MENU_DEFAULT_ORANGE,
@@ -307,6 +311,7 @@ end
 ---@param room RoomListInfoExtended
 ---@return UIElement
 function RoomList:showRoomListButton(viewElement, room)
+	local matchesBelt = room.min_belt <= TB_MENU_PLAYER_INFO.data.qi and (room.max_belt == 0 or room.max_belt >= TB_MENU_PLAYER_INFO.data.qi)
 	local roomButton = viewElement:addChild({
 		pos = { 10, 2 },
 		size = { viewElement.size.w - 12, viewElement.size.h - 4 },
@@ -317,7 +322,8 @@ function RoomList:showRoomListButton(viewElement, room)
 		rounded = 4,
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+		uiColor = matchesBelt and { 1, 1, 1, 1 } or { 1, 1, 1, 0.6 }
 	})
 	roomButton:addMouseUpHandler(function()
 			if (roomButton.lastClick ~= nil and roomButton.lastClick + 0.5 > UIElement.clock) then
@@ -327,9 +333,10 @@ function RoomList:showRoomListButton(viewElement, room)
 			roomButton.lastClick = UIElement.clock
 
 			if (self.SelectedButton ~= nil and not self.SelectedButton.destroyed) then
-				self.SelectedButton.bgColor = table.clone(TB_MENU_DEFAULT_DARKER_COLOR)
+				self.SelectedButton.bgColor = table.clone(self.SelectedButton.defaultBgColor)
 			end
 			self.SelectedButton = roomButton
+			self.SelectedButton.defaultBgColor = table.clone(self.SelectedButton.bgColor)
 			self.SelectedButton.bgColor = table.clone(TB_MENU_DEFAULT_LIGHTER_COLOR)
 			self:showRoomInfo(room)
 		end)
@@ -393,7 +400,8 @@ function RoomList:showRoomListButton(viewElement, room)
 		if (v.icon) then
 			local iconHolder = infoBit:addChild({
 				shift = { (infoBit.size.w - infoBit.size.h) / 2, 0 },
-				bgImage = v.icon
+				bgImage = v.icon,
+				imageColor = matchesBelt and { 1, 1, 1, 1 } or { 1, 1, 1, 0.6 }
 			})
 			local popup = TBMenu:displayPopup(iconHolder, v.value .. "", true)
 			popup:moveTo(-iconHolder.size.w - (popup.size.w - iconHolder.size.w) / 2, iconHolder.size.h)
@@ -403,7 +411,8 @@ function RoomList:showRoomListButton(viewElement, room)
 				local iconHolder = infoBit:addChild({
 					pos = { -infoBit.size.w - infoBit.size.h / 4, 0 },
 					size = { infoBit.size.h, infoBit.size.h },
-					bgImage = v.textIcon
+					bgImage = v.textIcon,
+					imageColor = matchesBelt and { 1, 1, 1, 1 } or { 1, 1, 1, 0.6 }
 				})
 				local popup = TBMenu:displayPopup(iconHolder, v.textIconHint, true)
 				popup:moveTo(iconHolder.size.w + 5)
@@ -437,6 +446,10 @@ function RoomList:getFilteredList()
 			hasMatch = false
 		elseif (self.Filters.IsTournament ~= FILTER_ANY and self.Filters.IsTournament ~= v.is_tournament) then
 			hasMatch = false
+		elseif (self.Filters.IsOfficial ~= FILTER_ANY and self.Filters.IsOfficial ~= v.is_official) then
+			hasMatch = false
+		elseif (self.Filters.IsRanked ~= FILTER_ANY and self.Filters.IsRanked ~= v.is_ranked) then
+			hasMatch = false
 		end
 
 		if (hasMatch) then
@@ -462,9 +475,15 @@ function RoomList:showRoomList(viewElement)
 	local listElements = {}
 	local unofficialCaptionDisplayed = false
 	local roomsList = self:getFilteredList()
+
+	if (#roomsList == 0) then
+		listingHolder:addChild({ shift = { 20, 30 }}):addAdaptedText(true, TB_MENU_LOCALIZED.ROOMLISTNOMATCHINGROOMSFOUND)
+		return
+	end
+
 	for i, room in pairs(roomsList) do
 		if (self.Filters.IsDefault) then
-			if (#listElements == 0) then
+			if (#listElements == 0 and room.is_official == true) then
 				local listElement = listingHolder:addChild({
 					pos = { 0, #listElements * elementHeight },
 					size = { listingHolder.size.w, elementHeight }
@@ -540,21 +559,60 @@ end
 
 ---Sets the default filters for the room list
 function RoomList:resetFilters()
-	self.Filters.MatchesBelt = FILTER_ON
-	self.Filters.PasswordProtected = FILTER_ANY
-	self.Filters.IsTournament = FILTER_ANY
-	self.Filters.DuelMode = FILTER_ANY
-	self.Filters.HasEntryFee = FILTER_ANY
+	if (self.Filters.SortBy == nil) then
+		self.Filters.MatchesBelt = FILTER_ON
+		self.Filters.PasswordProtected = FILTER_ANY
+		self.Filters.IsTournament = FILTER_ANY
+		self.Filters.DuelMode = FILTER_ANY
+		self.Filters.HasEntryFee = FILTER_ANY
+		self.Filters.IsOfficial = FILTER_ANY
+		self.Filters.IsRanked = FILTER_ANY
+	end
+
 	self.Filters.SortBy = { "is_official", "id" }
 	self.Filters.SortOrder = { SORT_DESCENDING, SORT_ASCENDING }
 	self.Filters.IsDefault = true
 end
 
 function RoomList:showFilters()
+	local filterOptions = {
+		{
+			text = TB_MENU_LOCALIZED.ROOMLISTFILTERBELTMATCH,
+			targetField = "MatchesBelt"
+		},
+		{
+			text = TB_MENU_LOCALIZED.ROOMLISTFILTEROFFICIALONLY,
+			targetField = "IsOfficial"
+		},
+		{
+			text = TB_MENU_LOCALIZED.ROOMLISTFILTERPASSWORDPROTECTED,
+			targetField = "PasswordProtected"
+		},
+		{
+			text = TB_MENU_LOCALIZED.ROOMLISTTOURNAMENT,
+			targetField = "IsTournament"
+		},
+		{
+			text = TB_MENU_LOCALIZED.ROOMLISTRANKED,
+			targetField = "IsRanked"
+		},
+		{
+			text = TB_MENU_LOCALIZED.ROOMLISTFILTERDUELROOM,
+			targetField = "DuelMode"
+		},
+		{
+			text = TB_MENU_LOCALIZED.ROOMLISTFILTERHASENTRYFEE,
+			targetField = "HasEntryFee"
+		}
+	}
+	local defaultListHeight = TBMenu.CurrentSection.size.h + 15 - 4
+	local buttonHeight = math.min((defaultListHeight - 20) / #filterOptions, 45)
+	local targetListHeight = buttonHeight * #filterOptions + 20 + 4
+
 	local overlayBackdrop = TBMenu:spawnWindowOverlay(nil, true)
 	local filtersHolderBackground = overlayBackdrop:addChild({
-		pos = (SCREEN_RATIO > 2) and { TBMenu.NavigationBar.shift.x + TBMenu.NavigationBar.size.w + 5, TBMenu.NavigationBar.shift.y } or { TBMenu.NavigationBar.shift.x + TBMenu.NavigationBar.size.w - 500, TBMenu.NavigationBar.shift.y + TBMenu.NavigationBar.size.h + 5 },
-		size = { 500, TBMenu.CurrentSection.size.h + 15 },
+		pos = (SCREEN_RATIO > 2) and { TBMenu.NavigationBar.shift.x + TBMenu.NavigationBar.size.w + 5, TBMenu.NavigationBar.shift.y + TBMenu.CurrentSection.size.h + 15 - targetListHeight } or { TBMenu.NavigationBar.shift.x + TBMenu.NavigationBar.size.w - 500, TBMenu.NavigationBar.shift.y + TBMenu.NavigationBar.size.h + 5 },
+		size = { 500, targetListHeight },
 		bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 		shapeType = ROUNDED,
 		rounded = 4,
@@ -565,16 +623,56 @@ function RoomList:showFilters()
 		bgColor = TB_MENU_DEFAULT_BG_COLOR
 	}, true)
 
-	local filterOptions = {
-		{
-			text = TB_MENU_LOCALIZED.ROOMLISTTOURNAMENT,
-			targetField = "IsTournament"
-		}
-	}
+	local reloadList = function()
+		overlayBackdrop:kill()
+		self:showRoomList(self.MainListHolder)
+		self:showFilters()
+	end
 
-	local buttonHeight = math.min(filtersHolder.size.h / #filterOptions, 45)
 	for i, v in pairs(filterOptions) do
+		local filterElement = filtersHolder:addChild({
+			pos = { 10, 10 + (i - 1) * buttonHeight },
+			size = { filtersHolder.size.w - 20, buttonHeight }
+		})
+		local filterLegend = filterElement:addChild({
+			pos = { 0, 3 },
+			size = { filterElement.size.w / 3 * 2 - 10, filterElement.size.h - 6 }
+		})
+		filterLegend:addAdaptedText(true, v.text, nil, nil, nil, LEFTMID)
+		local filterDropdownHolder = filterElement:addChild({
+			pos = { filterLegend.size.w + 10, 3 },
+			size = { filterElement.size.w - filterLegend.size.w - 10, filterElement.size.h - 6 },
+			shapeType = ROUNDED,
+			rounded = 3,
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR
+		})
 
+		---@type DropdownElement[]
+		local dropdownOptions = {
+			{
+				text = TB_MENU_LOCALIZED.SETTINGSENABLED,
+				action = function()
+					self.Filters[v.targetField] = FILTER_ON
+					reloadList()
+				end
+			},
+			{
+				text = TB_MENU_LOCALIZED.SETTINGSDISABLED,
+				action = function()
+					self.Filters[v.targetField] = FILTER_OFF
+					reloadList()
+				end
+			},
+			{
+				text = TB_MENU_LOCALIZED.ROOMLISTFILTERANY,
+				action = function()
+					self.Filters[v.targetField] = FILTER_ANY
+					reloadList()
+				end
+			}
+		}
+		local selectedId = self.Filters[v.targetField] == nil and 3 or (self.Filters[v.targetField] == true and 1 or 2)
+		local filterDropdown = TBMenu:spawnDropdown(filterDropdownHolder, dropdownOptions, filterDropdownHolder.size.h, nil, selectedId, { fontid = FONTS.MEDIUM }, { fontid = 4, scale = 0.65 })
 	end
 end
 
