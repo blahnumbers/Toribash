@@ -9,7 +9,7 @@ if (Bounty == nil) then
 end
 
 function Bounty:getBountyData(data)
-	local onlinePlayers = FriendsList:updateOnline()
+	local onlinePlayers = RoomList.GetPlayers()
 	local data_types = { "userid", "player", "tc", "since", "claimed", "claimedby", "decap" }
 
 	-- Don't display multiple bounties on same user; only first one will be claimed when user is defeated
@@ -18,9 +18,9 @@ function Bounty:getBountyData(data)
 	for i, ln in pairs(data) do
 		if (not ln:find("^#?USERID")) then
 			local data_stream = { ln:match(("([^\t]*)\t"):rep(#data_types)) }
-			local online = false
+			local online = nil
 			for _, v in pairs(onlinePlayers) do
-				if (PlayerInfo.Get(v.player).username:lower() == data_stream[2]:lower()) then
+				if (PlayerInfo.Get(v.username).username:lower() == data_stream[2]:lower()) then
 					online = v.room
 				end
 			end
@@ -651,14 +651,14 @@ function Bounty:showBountyList(viewElement)
 				size = { bountyInfo.size.h - 8, bountyInfo.size.h - 8 },
 				shapeType = ROUNDED,
 				rounded = bountyInfo.size.h,
-				bgColor = v.room == false and UICOLORRED or UICOLORGREEN
+				bgColor = not v.room and UICOLORRED or UICOLORGREEN
 			})
 			local onlineStatus = UIElement:new({
 				parent = bountyInfo,
 				pos = { onlineStatusIcon.shift.x + onlineStatusIcon.size.w + 5, 3 },
 				size = { bountyInfo.size.w - onlineStatusIcon.shift.x - onlineStatusIcon.size.w - 5, bountyInfo.size.h - 8 }
 			})
-			onlineStatus:addAdaptedText(true, (v.room == false and TB_MENU_LOCALIZED.BOUNTYOFFLINE or (TB_MENU_LOCALIZED.BOUNTYONLINEIN .. " " .. v.room)), nil, nil, 4, LEFTMID)
+			onlineStatus:addAdaptedText(true, (not v.room and TB_MENU_LOCALIZED.BOUNTYOFFLINE or (TB_MENU_LOCALIZED.BOUNTYONLINEIN .. " " .. v.room)), nil, nil, 4, LEFTMID)
 			if (v.room) then
 				bgBottom.size.h = holderBottom.size.h
 				local holderBottomJoin = UIElement:new({
@@ -919,7 +919,7 @@ function Bounty:prepare(reload)
 
 	PlayerBounties = {}
 	TB_MENU_SPECIAL_SCREEN_ISOPEN = 7
-	runCmd("refresh")
+	RoomList.RefreshIfNeeded()
 
 	if (BOUNTIES_LAST_UPDATE + 300 < os.clock_real() or reload) then
 		download_fetch_bounties()

@@ -2814,6 +2814,15 @@ _G.numberFormat = function(n, decimals)
 	return num
 end
 
+---Removes Toribash color notations from the specified string
+---@param str string
+---@return string
+_G.stripColors = function(str)
+	local str_clean = utf8.gsub(str, "%^%d%d", "")
+	str_clean = utf8.gsub(str_clean, "%%%d%d%d", "")
+	return str_clean
+end
+
 if (not UIElement.__mouseHooks) then
 	UIElement.mouseHooks()
 end

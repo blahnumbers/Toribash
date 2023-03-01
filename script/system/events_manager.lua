@@ -1,4 +1,8 @@
 -- Events manager class
+require('toriui.uielement')
+require('system.menu_manager')
+require('system.store_manager')
+require('system.friends_manager')
 
 do
 	Events = {}
@@ -485,9 +489,7 @@ do
 		TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
 		TBMenu:clearNavSection()
 		TBMenu:showNavigationBar(Events:getNavigationButtons(TB_MENU_EVENTS_OPEN, eventid), true)
-		add_hook("console", "friendsListConsoleIgnore", function(s, i) if (s == "refreshing server list") then return 1 end end)
-		runCmd("refresh")
-		remove_hooks("friendsListConsoleIgnore")
+		RoomList.RefreshIfNeeded()
 
 		local loadingView = UIElement:new({
 			parent = viewElement,
@@ -696,8 +698,7 @@ do
 	end
 
 	function Events:modChampionshipConnect()
-		dofile("system/friendlist_manager.lua")
-		local players = FriendsList:updateOnline()
+		local players = RoomList.GetPlayers()
 
 		local defaultRoom, rooms = "modmania1", { "modmania%d" }
 		local roomsOnline = {}

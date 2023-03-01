@@ -1,8 +1,6 @@
 -- Player info fetcher
 require("system.iofiles")
 require("system.network_request")
-require("system.ranking_manager")
-require("system.clans_manager")
 
 ---@alias PlayerInfoScope
 ---| 0 None | PLAYERINFO_SCOPE_NONE
@@ -79,9 +77,9 @@ function PlayerInfoInternal.escapeName(name)
 	local braces = { "[]", "()", "{}" }
 
 	for _, v in pairs(braces) do
-		clan_tag = name:match("%b" .. v)
-		if (clan_tag) then
-			clan_tag = clan_tag:gsub("%W", "")
+		local tag_match = name:match("%b" .. v)
+		if (tag_match) then
+			clan_tag = tag_match:gsub("%W", "")
 			player_name = player_name:gsub(".*%b" .. v, "")
 			break
 		end
@@ -138,18 +136,18 @@ function PlayerInfo.Get(username, scope)
 	local scope = scope or PLAYERINFO_SCOPE_NONE
 
 	---@type PlayerInfo
-	local playerInfo = {
+	local pInfo = {
 		username = name_clean,
 		clan = { tag = clan_tag },
 		__isCurrentUser = username == nil
 	}
-	setmetatable(playerInfo, PlayerInfo)
+	setmetatable(pInfo, PlayerInfo)
 
-	if (bit.band(scope, PLAYERINFO_SCOPE_GENERAL)) then
-		playerInfo.data = playerInfo:getUserData()
+	if (bit.band(scope, PLAYERINFO_SCOPE_GENERAL) ~= 0) then
+		pInfo.data = pInfo:getUserData()
 	end
 
-	return playerInfo
+	return pInfo
 end
 
 ---@class LoginRewards
@@ -752,6 +750,8 @@ end
 ---@return PlayerInfoData
 ---@overload fun(self:PlayerInfo):PlayerInfoData
 function PlayerInfo:getUserData(player)
+	player = player or self.username
+
 	---@type PlayerInfoData
 	local userData = { tc = 0, qi = 0, st = 0 }
 	if (self.username ~= nil) then

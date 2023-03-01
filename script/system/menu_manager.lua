@@ -732,8 +732,8 @@ end
 
 function TBMenu:showFriendsList()
 	TBMenu:clearNavSection()
-	FriendsList:showMain(TBMenu.CurrentSection)
-	TBMenu:showNavigationBar(FriendsList:getNavigationButtons(), true)
+	Friends:showMain(TBMenu.CurrentSection)
+	TBMenu:showNavigationBar(Friends:getNavigationButtons(), true)
 end
 
 function TBMenu:showBounties()
@@ -1747,6 +1747,8 @@ function TBMenu:openMenu(screenId)
 	if (TB_MENU_SPECIAL_SCREEN_ISOPEN == 1) then
 		TBMenu:showTorishopMain()
 		Torishop:prepareInventory(TBMenu.CurrentSection)
+	elseif (TB_MENU_SPECIAL_SCREEN_ISOPEN == 2) then
+		RoomList:showMain()
 	--[[elseif (TB_MENU_SPECIAL_SCREEN_ISOPEN == 3) then
 		TBMenu:showClans()
 		if (TB_MENU_CLANS_OPENCLANID ~= 0) then
@@ -2552,7 +2554,7 @@ function TBMenu:showBottomBar(leftOnly)
 	end
 	local tbMenuBottomLeftButtonsData = { }
 	if (string.len(TB_MENU_PLAYER_INFO.username) > 0) then
-		table.insert(tbMenuBottomLeftButtonsData, { action = function() if (TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 8) then TBMenu:showFriendsList() else FriendsList:quit() end end, image = TB_MENU_FRIENDS_BUTTON })
+		table.insert(tbMenuBottomLeftButtonsData, { action = function() if (TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 8) then TBMenu:showFriendsList() else Friends:quit() end end, image = TB_MENU_FRIENDS_BUTTON })
 		table.insert(tbMenuBottomLeftButtonsData, { action = function() if (TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 4) then TBMenu:showNotifications() else Notifications:quit() end end, image = TB_MENU_NOTIFICATIONS_BUTTON })
 		table.insert(tbMenuBottomLeftButtonsData, { action = function() if (TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 7) then TBMenu:showBounties() else Bounty:quit() end end, image = TB_MENU_BOUNTY_BUTTON })
 	end

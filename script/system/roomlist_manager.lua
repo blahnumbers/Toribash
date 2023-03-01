@@ -1,6 +1,3 @@
-require('toriui.uielement')
-require('system.menu_manager')
-
 local FILTER_ANY = nil
 local FILTER_OFF = false
 local FILTER_ON = true
@@ -77,15 +74,16 @@ function RoomListInternal.CacheRooms()
 		for i = 0, numRooms - 1 do
 			local roomInfo = get_roomlist_room_info(i)
 			if (roomInfo ~= nil) then
-				roomInfo.desc_clean = utf8.gsub(roomInfo.desc, "%^%d%d", "")
-				roomInfo.desc_clean = utf8.gsub(roomInfo.desc_clean, "%%%d%d%d", "")
+				roomInfo.desc_clean = stripColors(roomInfo.desc)
 				roomInfo.id = roomInfo.id + 1 ---Make ids match Lua style
 				roomInfo.mod = roomInfo.gamerules.mod
 				table.insert(RoomListInternal.Cache, roomInfo)
 			end
 		end
 	end
-	RoomList:showMain()
+	if (TB_MENU_SPECIAL_SCREEN_ISOPEN == 2) then
+		RoomList:showMain()
+	end
 end
 
 ---Connects to the specified room and closes menu
@@ -104,6 +102,7 @@ function RoomListInternal.GetNavigationButtons()
 		{
 			text = TB_MENU_LOCALIZED.NAVBUTTONTOMAIN,
 			action = function()
+				TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
 				TBMenu:clearNavSection()
 				TBMenu:showNavigationBar()
 				TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
@@ -460,6 +459,32 @@ function RoomList:getFilteredList()
 	return table.qsort(roomsList, self.Filters.SortBy, self.Filters.SortOrder, true)
 end
 
+---Displays featured buttons for the rooms list
+---@param roomsList RoomListInfoExtended[]
+---@param viewElement UIElement
+---@param listElements UIElement[]
+---@param elementHeight integer
+function RoomList:showRoomListFeatured(roomsList, viewElement, listElements, elementHeight)
+	local featuredRooms = {}
+	local hasEventRoom, hasAutoTourney, hasFavourite, hasQuickLobby, hasFriendRoom = false, false, false, false, false
+	for _, v in pairs(roomsList) do
+		local nameLower = utf8.lower(v.name)
+		if (not hasEventRoom and
+			(nameLower == "etourney" or
+			nameLower == "ehotseat" or
+			nameLower == "eduel" or
+			nameLower == "ebets")) then
+			table.insert(featuredRooms, v)
+			hasEventRoom = true
+		elseif (not hasAutoTourney and v.is_tournament and v.is_official) then
+			table.insert(featuredRooms, v)
+			hasAutoTourney = true
+		elseif (not hasFriendRoom) then
+
+		end
+	end
+end
+
 ---Displays the main list with room information
 ---@param viewElement UIElement
 function RoomList:showRoomList(viewElement)
@@ -483,6 +508,7 @@ function RoomList:showRoomList(viewElement)
 
 	for i, room in pairs(roomsList) do
 		if (self.Filters.IsDefault) then
+			self:showRoomListFeatured(roomsList, listingHolder, listElements, elementHeight)
 			if (#listElements == 0 and room.is_official == true) then
 				local listElement = listingHolder:addChild({
 					pos = { 0, #listElements * elementHeight },
@@ -535,6 +561,36 @@ function RoomList:showRoomList(viewElement)
 	scrollBar:makeScrollBar(listingHolder, listElements, toReload)
 end
 
+function RoomList:createRoom()
+	local backdropOverlay = TBMenu:spawnWindowOverlay(nil, true)
+	local roomCreateSize = { math.min(WIN_W - TBMenu.NavigationBar.shift.x * 2, 900), math.min(WIN_H - TBMenu.NavigationBar.shift.y * 2, 500) }
+	local createRoomBackground = backdropOverlay:addChild({
+		shift = { (backdropOverlay.size.w - roomCreateSize[1]) / 2, (backdropOverlay.size.h - roomCreateSize[2]) / 2 },
+		bgColor = TB_MENU_DEFAULT_BG_COLOR,
+		interactive = true,
+		shapeType = ROUNDED,
+		rounded = 4
+	})
+	local closeButton = createRoomBackground:addChild({
+		pos = { -50, 10 },
+		size = { 40, 40 },
+		interactive = true,
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+	}, true)
+	closeButton:addChild({
+		shift = { 10, 10 },
+		bgImage = "../textures/menu/general/buttons/crosswhite.tga"
+	})
+	closeButton:addMouseUpHandler(function() backdropOverlay:kill() end)
+	local createRoomTitle = createRoomBackground:addChild({
+		pos = { 60, 10 },
+		size = { createRoomBackground.size.w - 120, 40 }
+	})
+	createRoomTitle:addAdaptedText(true, TB_MENU_LOCALIZED.ROOMLISTCREATEROOMTITLE, nil, nil, FONTS.BIG)
+end
+
 ---Prepares the right side of Room List menu with room info and misc buttons
 ---@param viewElement UIElement
 function RoomList:prepareInfoView(viewElement)
@@ -555,6 +611,7 @@ function RoomList:prepareInfoView(viewElement)
 		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
 	})
 	newRoomButton:addChild({ shift = { 10, 5 }}):addAdaptedText(true, TB_MENU_LOCALIZED.ROOMLISTCREATEROOM)
+	newRoomButton:addMouseUpHandler(function() self:createRoom() end)
 end
 
 ---Sets the default filters for the room list
@@ -676,8 +733,42 @@ function RoomList:showFilters()
 	end
 end
 
+---Refreshes the list if it's gotten stale
+---@return boolean
+function RoomList.RefreshIfNeeded()
+	if (RoomListInternal.UpdateTimestamp + RoomList.RefreshPeriod < UIElement.clock) then
+		RoomListInternal.RefreshData()
+		return true
+	end
+	return false
+end
+
+---Returns a copy of room list cache
+---@return RoomListInfoExtended[]
+function RoomList.GetRooms()
+	return table.clone(RoomListInternal.Cache)
+end
+
+---@class RoomListPlayer
+---@field username string
+---@field room string
+
+---Returns list of all players currently online
+---@return RoomListPlayer[]
+function RoomList.GetPlayers()
+	---@type RoomListPlayer[]
+	local playersList = {}
+	for _, room in pairs(RoomListInternal.Cache) do
+		for _, player in pairs(room.players) do
+			table.insert(playersList, { username = player, room = room.name })
+		end
+	end
+	return playersList
+end
+
 ---Displays Room List menu
 function RoomList:showMain()
+	TB_MENU_SPECIAL_SCREEN_ISOPEN = 2
 	TBMenu:clearNavSection()
 	TBMenu:showNavigationBar(RoomListInternal.GetNavigationButtons(), true)
 	self:resetFilters()

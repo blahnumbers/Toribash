@@ -181,7 +181,7 @@ function Notifications:getNetworkNotifications()
 					data_stream[6], data_stream[7] = Notifications:beautifySystemAccounts(data_stream[3])
 					table.insert(NotificationsInternal.NotificationsData, {
 						id = pmId,
-						title = data_stream[2],
+						title = stripColors(data_stream[2]),
 						user = data_stream[3],
 						read = data_stream[4] ~= '0',
 						date = data_stream[5],

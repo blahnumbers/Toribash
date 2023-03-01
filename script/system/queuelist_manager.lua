@@ -1,9 +1,9 @@
 -- Queuelist Dropdown Menu
+require("system.iofiles")
 require("system.playerinfo_manager")
 require("toriui.uielement3d")
-require("system.friendlist_manager")
-require("system.iofiles")
 require("system.flag_manager")
+require("system.friends_manager")
 
 ---@class QueueListPlayerInfo : QueuePlayerInfo
 ---@field button UIElement UI button associated with the player
@@ -623,21 +623,8 @@ end
 ---@param userinfo QueuePlayerInfo Local player's queue info
 ---@return integer #Added buttons' height
 function QueueList:addPlayerControls(viewElement, info, userinfo)
-	if (not FRIENDSLIST_FRIENDS) then
-		FriendsList:getFriends()
-	end
-	local isFriend = false
-	for _, v in pairs(FRIENDSLIST_FRIENDS) do
-		if (v.username:lower() == info.pInfo.username) then
-			isFriend = true
-		end
-	end
-	local isIgnored = false
-	for _, v in pairs(FRIENDSLIST_IGNORE) do
-		if (v:lower() == info.pInfo.username) then
-			isIgnored = true
-		end
-	end
+	local isFriend = Friends:isFriend(info.pInfo.username)
+	local isIgnored = Friends:isIgnored(info.pInfo.username)
 
 	local showControls, showAdvControls = false, false
 	if (userinfo.admin or userinfo.eventsquad or userinfo.helpsquad) then
@@ -662,25 +649,25 @@ function QueueList:addPlayerControls(viewElement, info, userinfo)
 			name = "addfriend",
 			show = not isFriend,
 			text = TB_MENU_LOCALIZED.QUEUELISTDROPDOWNADDFRIEND,
-			action = function(s) FriendsList:addFriend(s) end
+			action = function(s) Friends:addFriend(s) end
 		},
 		{
 			name = "removefriend",
 			show = isFriend,
 			text = TB_MENU_LOCALIZED.QUEUELISTDROPDOWNREMOVEFRIEND,
-			action = function(s) FriendsList:removeFriend(s) end
+			action = function(s) Friends:removeFriend(s) end
 		},
 		{
 			name = "ignore",
 			show = not isIgnored,
 			text = TB_MENU_LOCALIZED.QUEUELISTDROPDOWNIGNORE,
-			action = function(s) FriendsList:addIgnore(s) end
+			action = function(s) Friends:addIgnore(s) end
 		},
 		{
 			name = "unignore",
 			show = isIgnored,
 			text = TB_MENU_LOCALIZED.QUEUELISTDROPDOWNUNIGNORE,
-			action = function(s) FriendsList:removeIgnore(s) end
+			action = function(s) Friends:removeIgnore(s) end
 		},
 		{
 			name = "report",

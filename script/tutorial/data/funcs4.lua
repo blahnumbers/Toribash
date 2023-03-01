@@ -6,7 +6,7 @@ local function showOverlay(viewElement, reqTable, out, speed)
 	local speed = speed or 1
 	local req = { type = "transition", ready = false }
 	table.insert(reqTable, req)
-	
+
 	if (tbOutOverlay) then
 		tbOutOverlay:kill()
 	end
@@ -47,7 +47,7 @@ end
 local function launchUkeBehavior()
 	usage_event("tutorial4fight")
 	dofile("system/movememory_manager.lua")
-	
+
 	local moveBase = {
 		{
 			name = "G-Kick",
@@ -116,7 +116,7 @@ local function launchUkeBehavior()
 			{ grip = { 1, 1 }, joint = { 4, 1, 1, 4, 1, 2, 4, 2, 1, 4, 4, 4, 2, 1, 1, 1, 1, 1, 4, 1 } },
 		}
 	}
-	
+
 	local comboId = math.random(1, #moveBase)
 	local selectedMove = moveBase[comboId]
 	local ukeMove = { turns = #selectedMove, movements = {}, name = selectedMove.name, mod = selectedMove.mod, desc = selectedMove.desc, message = selectedMove.message }
@@ -130,9 +130,9 @@ local function launchUkeBehavior()
 			ukeMove.movements[i][21] = turn.grip[2]
 		end
 	end
-	
+
 	FIGHTUKE_MOVE = ukeMove
-	
+
 	MoveMemory:playMove(ukeMove, true, 1, true)
 end
 
@@ -143,7 +143,7 @@ local function challengeUke(viewElement, reqTable)
 	FIGHTUKE_MOVE = nil
 	local endless = false
 	local leaveGame = false
-	
+
 	launchUkeBehavior()
 	local configTutorial = Tutorials:getConfig()
 	if (configTutorial > CURRENT_TUTORIAL) then
@@ -207,9 +207,7 @@ local function setMessage()
 end
 
 local function showEndScreen()
-	add_hook("console", "friendsListConsoleIgnore", function(s, i) if (s == "refreshing server list") then return 1 end end)
-	UIElement:runCmd("refresh")
-	remove_hooks("friendsListConsoleIgnore")
+	RoomList.RefreshIfNeeded()
 	local buttons = {
 		{ title = "Keep fighting Uke to train your skills and unlock new moves", size = 0.5, shift = 0, image = "../textures/menu/tutorial4.tga", action = function() Tutorials:runTutorial(CURRENT_TUTORIAL) end },
 		{ title = "Put your skills against real players online", size = 0.25, shift = 0, image = "../textures/menu/matchmaking.tga", action = function() Tutorials:beginnerConnect() end },

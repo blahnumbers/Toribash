@@ -1,5 +1,7 @@
--- Ranking manager class
--- DO NOT MODIFY THIS FILE
+require('toriui.uielement')
+require('system.menu_manager')
+require('system.playerinfo_manager')
+require('system.roomlist_manager')
 
 if (Ranking == nil) then
 	---@class RankingPlayerData
@@ -918,7 +920,7 @@ function Ranking:showRankedLegacy()
 				rankedSearchButtonStop:hide()
 			end)
 
-		UIElement:runCmd("refresh")
+		RoomList.RefreshIfNeeded()
 		local roomJoinButton = UIElement:new({
 			parent = viewElement,
 			pos = { rankedSearchButton.shift.x, -viewElement.size.h / 8 },
@@ -933,8 +935,7 @@ function Ranking:showRankedLegacy()
 				UIElement:runCmd("matchmake on 8 0 1")
 				set_discord_rpc("", "")
 				TB_MATCHMAKER_SEARCHSTATUS = nil
-				dofile("system/friendlist_manager.lua")
-				local players = FriendsList:updateOnline()
+				local players = RoomList.GetPlayers()
 				local rooms = { "ranked%d" }
 				local roomsOnline = {}
 				for i, online in pairs(players) do

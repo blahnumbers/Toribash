@@ -1,6 +1,7 @@
 -- Tutorials manager
 require("system.iofiles")
 require("system.movememory_manager")
+require("system.friends_manager")
 
 local tbTutorialsKeysIgnore = {}
 local tbTutorialsJointsIgnore = {}
@@ -1573,8 +1574,7 @@ function Tutorials:updateConfig(next)
 end
 
 function Tutorials:beginnerConnect()
-	dofile("system/friendlist_manager.lua")
-	local players = FriendsList:updateOnline()
+	local players = RoomList.GetPlayers()
 
 	local rooms = { "beginner%d", "public%d" }
 	local roomsOnline = {}
