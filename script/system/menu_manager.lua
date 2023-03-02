@@ -3154,22 +3154,39 @@ end
 -- *To make regular UIElements rounded, use shapeType and rounded UIElementOptions parameters.*
 ---@param e UIElement UIElement object that we'll be applying the effect to
 ---@param color? Color
----@param rounding? number
+---@param rounding? number[]|number
 ---@return nil
 function TBMenu:addOuterRounding(e, color, rounding)
 	if (UIElement.lightUIMode) then return end
 
 	local color = color or TB_MENU_DEFAULT_BG_COLOR
 	local rounding = rounding or 5
-	local roundingWidth = rounding * 1.4
-	local roundingSlices = math.min(rounding * 4, 50)
+	if (type(rounding) ~= "table") then
+		rounding = { rounding }
+	end
+	rounding[2] = rounding[2] or rounding[1]
+	rounding[3] = rounding[3] or rounding[1]
+	rounding[4] = rounding[4] or rounding[1]
+
+	local roundingWidth = {
+		rounding[1] * 1.4,
+		rounding[2] * 1.4,
+		rounding[3] * 1.4,
+		rounding[4] * 1.4
+	}
+	local roundingSlices = {
+		math.min(rounding[1] * 4, 50),
+		math.min(rounding[2] * 4, 50),
+		math.min(rounding[3] * 4, 50),
+		math.min(rounding[4] * 4, 50)
+	}
 
 	e:addChild({}):addCustomDisplay(true, function()
 			set_color(unpack(color))
-			draw_disk(e.pos.x + rounding, e.pos.y + rounding, rounding, roundingWidth, roundingSlices, 1, -180, 90, 0)
-			draw_disk(e.pos.x + e.size.w - rounding, e.pos.y + rounding, rounding, roundingWidth, roundingSlices, 1, 90, 90, 0)
-			draw_disk(e.pos.x + rounding, e.pos.y + e.size.h - rounding, rounding, roundingWidth, roundingSlices, 1, 0, -90, 0)
-			draw_disk(e.pos.x + e.size.w - rounding, e.pos.y + e.size.h - rounding, rounding, roundingWidth, roundingSlices, 1, 0, 90, 0)
+			draw_disk(e.pos.x + rounding[1], e.pos.y + rounding[1], rounding[1], roundingWidth[1], roundingSlices[1], 1, -180, 90, 0)
+			draw_disk(e.pos.x + e.size.w - rounding[2], e.pos.y + rounding[2], rounding[2], roundingWidth[2], roundingSlices[2], 1, 90, 90, 0)
+			draw_disk(e.pos.x + rounding[3], e.pos.y + e.size.h - rounding[3], rounding[3], roundingWidth[3], roundingSlices[3], 1, 0, -90, 0)
+			draw_disk(e.pos.x + e.size.w - rounding[4], e.pos.y + e.size.h - rounding[4], rounding[4], roundingWidth[4], roundingSlices[4], 1, 0, 90, 0)
 		end)
 end
 

@@ -466,22 +466,133 @@ end
 ---@param elementHeight integer
 function RoomList:showRoomListFeatured(roomsList, viewElement, listElements, elementHeight)
 	local featuredRooms = {}
-	local hasEventRoom, hasAutoTourney, hasFavourite, hasQuickLobby, hasFriendRoom = false, false, false, false, false
-	for _, v in pairs(roomsList) do
+	local hasEventRoom, hasAutoTourney, hasFavourite, hasQuickLobby, hasFriendRoom, hasAiFightRoom, hasPublicRoom = false, false, false, false, false, false, false
+	local roomListShuffled = table.shuffle(roomsList)
+	for _, v in pairs(roomListShuffled) do
 		local nameLower = utf8.lower(v.name)
-		if (not hasEventRoom and
-			(nameLower == "etourney" or
-			nameLower == "ehotseat" or
-			nameLower == "eduel" or
-			nameLower == "ebets")) then
-			table.insert(featuredRooms, v)
-			hasEventRoom = true
-		elseif (not hasAutoTourney and v.is_tournament and v.is_official) then
-			table.insert(featuredRooms, v)
-			hasAutoTourney = true
-		elseif (not hasFriendRoom) then
-
+		if (v.num_players > 0) then ---There's no need to show empty rooms in featured list
+			if (not hasEventRoom and
+				(nameLower == "etourney" or
+				nameLower == "ehotseat" or
+				nameLower == "eduel" or
+				nameLower == "ebets" or
+				nameLower == "elounge")) then
+				table.insert(featuredRooms, v)
+				hasEventRoom = true
+			elseif (not hasAutoTourney and v.is_tournament and v.is_official) then
+				table.insert(featuredRooms, v)
+				hasAutoTourney = true
+			elseif (not hasQuickLobby and utf8.find(v.name, "^qa%d") and v.num_players < v.max_clients) then
+				table.insert(featuredRooms, v)
+				hasQuickLobby = true
+			elseif (not hasPublicRoom and utf8.find(v.name, "^public%d") and v.num_players < v.max_clients / 2) then
+				table.insert(featuredRooms, v)
+				hasPublicRoom = true
+			elseif (not hasAiFightRoom and utf8.find(v.name, "^aifight%d")) then
+				table.insert(featuredRooms, v)
+				hasAiFightRoom = true
+			else
+				if (not hasFriendRoom) then
+					for _, player in pairs(v.players) do
+						if (Friends:isFriend(player)) then
+							table.insert(featuredRooms, v)
+							hasFriendRoom = true
+							break
+						end
+					end
+				end
+			end
 		end
+	end
+
+	if (#featuredRooms == 0) then
+		return
+	end
+
+	local buttonWidth = elementHeight * 6
+	local maxButtons = math.floor(viewElement.size.w / (buttonWidth + 10))
+
+	---Buttons take multiple list lines
+	---This is done so we don't need to make huge list borders on top and bottom
+	for _ = 1, 2 do
+		local lineElement = viewElement:addChild({
+			pos = { 10, #listElements * elementHeight },
+			size = { viewElement.size.w - 10, elementHeight }
+		})
+		table.insert(listElements, lineElement)
+	end
+	for i = 1, math.min(maxButtons, #featuredRooms) do
+		local room = featuredRooms[i]
+		local imageModName = utf8.gsub(room.gamerules.mod, "(%a+).*", "%1")
+		local topRowLine = listElements[1]:addChild({
+			pos = { (i - 1) * (buttonWidth + 10), 0 },
+			size = { buttonWidth, elementHeight },
+			interactive = true,
+			bgImage = "../textures/menu/multiplayer/" .. imageModName .. "-featured.tga",
+			imageAtlas = true,
+			atlas = { x = 0, y = 0, w = 900, h = 150 },
+			imageColor = { 1, 1, 1, 0.8 },
+			imageHoverColor = { 1, 1, 1, 1 },
+			imagePressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR,
+			disableUnload = true
+		})
+		TBMenu:addOuterRounding(topRowLine, TB_MENU_DEFAULT_BG_COLOR, { 4, 4, 0, 0 })
+		local midRowLine = listElements[2]:addChild({
+			pos = { (i - 1) * (buttonWidth + 10), 0 },
+			size = { buttonWidth, elementHeight },
+			interactive = true,
+			bgImage = "../textures/menu/multiplayer/" .. imageModName .. "-featured.tga",
+			imageAtlas = true,
+			atlas = { x = 0, y = 150, w = 900, h = 150 },
+			imageColor = topRowLine.imageColor,
+			imageHoverColor = topRowLine.imageHoverColor,
+			imagePressedColor = topRowLine.imagePressedColor,
+			disableUnload = true
+		})
+		TBMenu:addOuterRounding(midRowLine, TB_MENU_DEFAULT_BG_COLOR, { 0, 0, 4, 4 })
+
+		topRowLine:addCustomDisplay(function()
+			if (midRowLine.hoverState ~= topRowLine.hoverState and midRowLine:isDisplayed()) then
+				if (topRowLine.hoverState > midRowLine.hoverState) then
+					midRowLine.hoverState = topRowLine.hoverState
+					midRowLine.hoverClock = topRowLine.hoverClock
+				else
+					topRowLine.hoverState = midRowLine.hoverState
+					topRowLine.hoverClock = midRowLine.hoverClock
+				end
+			end
+		end, true)
+
+		local joinRoom = function()
+			if (topRowLine.lastClick ~= nil and topRowLine.lastClick + 0.5 > UIElement.clock) then
+				RoomListInternal.Connect(room)
+				return
+			end
+			topRowLine.lastClick = UIElement.clock
+
+			if (self.SelectedButton ~= nil and not self.SelectedButton.destroyed) then
+				---@diagnostic disable-next-line: undefined-field
+				self.SelectedButton.bgColor = table.clone(self.SelectedButton.defaultBgColor)
+			end
+			self.SelectedButton = nil
+			self:showRoomInfo(room)
+		end
+		topRowLine:addMouseUpHandler(joinRoom)
+		midRowLine:addMouseUpHandler(joinRoom)
+
+		local roomNameHolder = midRowLine:addChild({
+			pos = { 10, 0 },
+			size = { midRowLine.size.w - 20, midRowLine.size.h / 2 },
+			uiColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			uiShadowColor = UICOLORWHITE
+		})
+		roomNameHolder:addAdaptedText(true, room.name .. "  (" .. room.num_players .. "/" .. room.max_clients .. ")", nil, nil, FONTS.MEDIUM, LEFTMID, 0.9, nil, nil, 2)
+		midRowLine:addChild({
+			pos = { 10, roomNameHolder.size.h },
+			size = { roomNameHolder.size.w, midRowLine.size.h - roomNameHolder.size.h },
+			uiColor = roomNameHolder.uiColor,
+			uiShadowColor = roomNameHolder.uiShadowColor
+		}):addAdaptedText(true, room.gamerules.mod, nil, nil, 1, LEFT, 1, nil, nil, 1)
 	end
 end
 
@@ -506,10 +617,12 @@ function RoomList:showRoomList(viewElement)
 		return
 	end
 
+	if (self.Filters.IsDefault) then
+		self:showRoomListFeatured(roomsList, listingHolder, listElements, elementHeight)
+	end
 	for i, room in pairs(roomsList) do
 		if (self.Filters.IsDefault) then
-			self:showRoomListFeatured(roomsList, listingHolder, listElements, elementHeight)
-			if (#listElements == 0 and room.is_official == true) then
+			if (i == 1 and room.is_official == true) then
 				local listElement = listingHolder:addChild({
 					pos = { 0, #listElements * elementHeight },
 					size = { listingHolder.size.w, elementHeight }

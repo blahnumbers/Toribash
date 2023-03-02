@@ -2264,7 +2264,7 @@ end
 ---@overload fun(list: table, sort: string, order?: boolean[], includeZeros?: boolean)
 ---@overload fun(list: table, sort: string, order?: SortOrder, includeZeros?: boolean)
 ---@return T
-function table.qsort(list, sort, _order, includeZeros)
+_G.table.qsort = function(list, sort, _order, includeZeros)
 	local arr = {}
 	local order = {}
 
@@ -2670,6 +2670,18 @@ end
 ---Use `table.unpack_all()` instead \
 ---@see table.unpack_all
 _G.unpack_all = function(tbl) return _G.table.unpack_all(tbl) end
+
+---Shuffles the table's numbered fields
+---@generic T
+---@param list T[]
+---@return T
+_G.table.shuffle = function(list)
+	local shuffled = {}
+	for _, v in ipairs(list) do
+		table.insert(shuffled, math.random(1, #shuffled + 1), v)
+	end
+	return shuffled
+end
 
 local debugEchoInternal
 ---Internal function to output provided data as a string
