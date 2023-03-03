@@ -122,11 +122,11 @@ local replayNameInput = TBMenu:spawnTextField2(replayNameBackground, { }, nil, T
 
 local function saveReplay(newname)
 	if (newname == "" or not newname) then
-		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERROREMPTYNAME, true)
+		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERROREMPTYNAME)
 		return
 	end
 	if (utf8.find(newname, "[^%d%a-_ ]") or not utf8.find(newname, "[%a%d]")) then
-		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORCHARACTERS, true)
+		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORCHARACTERS)
 		return
 	end
 	local filename = folderPrefix .. newname
@@ -134,12 +134,12 @@ local function saveReplay(newname)
 	local doRenameReplay = function()
 		local error = rename_replay("my replays/" .. REPLAY_SAVETEMPNAME .. ".rpl", filename .. ".rpl")
 		if (error) then
-			TBMenu:showStatusMessage(error, true)
+			TBMenu:showStatusMessage(error)
 			return
 		end
 		local rplFile = Files:open("../replay/" .. filename .. ".rpl")
 		if (not rplFile.data) then
-			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORRENAMING, true)
+			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORRENAMING)
 			quitReplaySave()
 			return
 		end
@@ -155,7 +155,7 @@ local function saveReplay(newname)
 		end
 		rplFile:close()
 
-		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSSAVEREPLAYSUCCESS .. " " .. filename .. ".rpl", true)
+		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSSAVEREPLAYSUCCESS .. " " .. filename .. ".rpl")
 		quitReplaySave()
 	end
 

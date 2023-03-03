@@ -447,7 +447,7 @@ function Atmospheres.showShaderControls()
 						end
 						file:close()
 					else
-						TBMenu:showStatusMessage(TB_MENU_LOCALIZED.ERRORCREATINGFILE, true)
+						TBMenu:showStatusMessage(TB_MENU_LOCALIZED.ERRORCREATINGFILE)
 					end
 				end
 				local file = Files:open("../data/shader/" .. name .. ".inc")

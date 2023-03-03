@@ -505,10 +505,10 @@ function Notifications:getTotalNotifications(forceReload)
 				TB_MENU_NOTIFICATIONS_UNREAD_COUNT = tonumber(count) or 0
 				if (TB_MENU_NOTIFICATIONS_UNREAD_COUNT > 0) then
 					local notificationsCountWidth = get_string_length("" .. (TB_MENU_NOTIFICATIONS_COUNT + TB_MENU_NOTIFICATIONS_UNREAD_COUNT), 4)
-					notificationsCountWidth = notificationsCountWidth > tbMenuNotificationsCount.size.h and (notificationsCountWidth > tbMenuNotificationsCount.size.h * 2 and tbMenuNotificationsCount.size.h * 2 or notificationsCountWidth) or tbMenuNotificationsCount.size.h
-					tbMenuNotificationsCount.size.w = notificationsCountWidth
-					tbMenuNotificationsCount:moveTo(-notificationsCountWidth)
-					tbMenuNotificationsCount:show()
+					notificationsCountWidth = notificationsCountWidth > TBMenu.NotificationsCount.size.h and (notificationsCountWidth > TBMenu.NotificationsCount.size.h * 2 and TBMenu.NotificationsCount.size.h * 2 or notificationsCountWidth) or TBMenu.NotificationsCount.size.h
+					TBMenu.NotificationsCount.size.w = notificationsCountWidth
+					TBMenu.NotificationsCount:moveTo(-notificationsCountWidth)
+					TBMenu.NotificationsCount:show()
 				end
 			end)
 		Notifications.LastUpdate.count = os.clock_real()

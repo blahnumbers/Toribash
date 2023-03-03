@@ -13,7 +13,6 @@ do
 	function Replays:quit()
 		TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
 		if (get_option("newmenu") == 0) then
-			FRIENDSLIST_OPEN = false
 			TBMenu.MenuMain:kill()
 			remove_hooks("tbMainMenuVisual")
 			return
@@ -148,10 +147,10 @@ do
 
 		local files = get_files(folder, "")
 		local count, maxDelay = 1, 1 / (tonumber(get_option("framerate")) or 30) / 1.2
-		replayUpdateWindow.replayfolders = replayUpdateWindow.replayfolders or {}
-		replayUpdateWindow:addCustomDisplay(true, function()
-				replayUpdateWindow.parent.startTime = os.clock_real()
-				replayUpdateWindow:uiText(TB_MENU_LOCALIZED.REPLAYSUPDATINGCACHE .. " (" .. folder .. " folder)\n" .. math.min(math.ceil(count / #files * 100), 100) .. "% " .. TB_MENU_LOCALIZED.WORDDONE, nil, nil, nil, nil, 0.8)
+		replayStatusMessage.replayfolders = replayStatusMessage.replayfolders or {}
+		replayStatusMessage:addCustomDisplay(true, function()
+				replayStatusMessage.parent.startTime = UIElement.clock
+				replayStatusMessage:uiText(TB_MENU_LOCALIZED.REPLAYSUPDATINGCACHE .. " (" .. folder .. " folder)\n" .. math.min(math.ceil(count / #files * 100), 100) .. "% " .. TB_MENU_LOCALIZED.WORDDONE, nil, nil, nil, nil, 0.8)
 
 				while (1) do
 					local v = files[count]
@@ -216,7 +215,7 @@ do
 								name = v,
 								fullname = rplTable.fullname .. "/" .. v
 							})
-							table.insert(replayUpdateWindow.replayfolders, { fname = folder .. "/" .. v, rpltbl = rplTable.folders[#rplTable.folders] })
+							table.insert(replayStatusMessage.replayfolders, { fname = folder .. "/" .. v, rpltbl = rplTable.folders[#rplTable.folders] })
 							if (rplTable.fullname .. "/" .. v == SELECTED_FOLDER.fullname) then
 								SELECTED_FOLDER = rplTable.folders[#rplTable.folders]
 							end
@@ -226,7 +225,7 @@ do
 						end
 					end)
 
-					if (count > #files or os.clock_real() - replayUpdateWindow.parent.startTime > maxDelay) then
+					if (count > #files or os.clock_real() - replayStatusMessage.parent.startTime > maxDelay) then
 						break
 					end
 				end
@@ -234,19 +233,19 @@ do
 					if (rplTable.fullname ~= "replay/autosave") then
 						pcall(function() rplTable.replays = UIElement:qsort(rplTable.replays, "filename") end)
 					end
-					if (#replayUpdateWindow.replayfolders > 0) then
-						local fname = replayUpdateWindow.replayfolders[1].fname
-						local rpltbl = replayUpdateWindow.replayfolders[1].rpltbl
-						table.remove(replayUpdateWindow.replayfolders, 1)
+					if (#replayStatusMessage.replayfolders > 0) then
+						local fname = replayStatusMessage.replayfolders[1].fname
+						local rpltbl = replayStatusMessage.replayfolders[1].rpltbl
+						table.remove(replayStatusMessage.replayfolders, 1)
 						Replays:fetchReplayData(fname, rpltbl, file, filedata, includeEventTemp)
 					else
 						file:close()
-						replayUpdateWindow:kill()
+						replayStatusMessage:kill()
 						if (not SELECTED_FOLDER.name) then
 							SELECTED_FOLDER = TB_MENU_REPLAYS
 						end
 						TB_MENU_REPLAYS_LOADED = true
-						replayUpdateWindow.parent:kill()
+						replayStatusMessage.parent:kill()
 					end
 				end
 			end)
@@ -255,7 +254,7 @@ do
 	function Replays:updateReplayFile(replay)
 		local file = Files:open("../replay/" .. replay.filename, FILES_MODE_READONLY)
 		if (not file.data) then
-			TBMenu:showDataError(TB_MENU_LOCALIZED.REPLAYSERRORREADINGFILE)
+			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORREADINGFILE)
 			return false
 		end
 		local replaydata = {}
@@ -272,7 +271,7 @@ do
 
 		local file = Files:open("../replay/" .. replay.filename, FILES_MODE_WRITE)
 		if (not file.data) then
-			TBMenu:showDataError(TB_MENU_LOCALIZED.REPLAYSERRORUPDATINGFILE)
+			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORUPDATINGFILE)
 			return false
 		end
 		for _,line in pairs(replaydata) do
@@ -288,7 +287,7 @@ do
 		if (newreplay) then
 			if (replay.name ~= newreplay.name) then
 				if (not Replays:updateReplayFile(newreplay)) then
-					TBMenu:showDataError(TB_MENU_LOCALIZED.REPLAYSERRORUPDATINGNAME)
+					TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORUPDATINGNAME)
 					return false
 				end
 			end
@@ -296,7 +295,7 @@ do
 
 		local file = Files:open("../replay/replaycache.dat", FILES_MODE_READONLY)
 		if (not file.data) then
-			TBMenu:showDataError(TB_MENU_LOCALIZED.REPLAYSERRORREADINGCACHE)
+			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORREADINGCACHE)
 			return false
 		end
 
@@ -324,7 +323,7 @@ do
 
 		local file = Files:open("../replay/replaycache.dat", FILES_MODE_WRITE)
 		if (not file.data) then
-			TBMenu:showDataError(TB_MENU_LOCALIZED.REPLAYSERRORUPDATINGTAGS)
+			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORUPDATINGTAGS)
 			return false
 		end
 		for _, line in pairs(filedata) do
@@ -364,7 +363,7 @@ do
 		if (not file.data) then
 			file = Files:open("../replay/replaycache.dat", FILES_MODE_WRITE)
 			if (not file.data) then
-				TBMenu:showDataError("replaycache.dat: " .. TB_MENU_LOCALIZED.ERRORCREATINGFILE)
+				TBMenu:showStatusMessage("replaycache.dat: " .. TB_MENU_LOCALIZED.ERRORCREATINGFILE)
 				return
 			end
 		end
@@ -385,7 +384,7 @@ do
 				uploaded = tonumber(data_stream[9])
 			}
 		end
-		replayUpdateWindow = TBMenu:showStatusMessage("", TB_MENU_MAIN_ISOPEN == 0)
+		replayStatusMessage = TBMenu:showStatusMessage("")
 		Replays:fetchReplayData(nil, nil, file, filedata, includeEventTemp)
 	end
 
@@ -794,7 +793,7 @@ do
 	function Replays:resetCache()
 		local file = Files:open("../replay/replaycache.dat", FILES_MODE_WRITE)
 		if (not file.data) then
-			TBMenu:showDataError(TB_MENU_LOCALIZED.REPLAYSERRORREFRESHINGCACHE)
+			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORREFRESHINGCACHE)
 		end
 		file:close()
 		TB_MENU_REPLAYS = { name = "replay", fullname = "replay" }
@@ -1290,12 +1289,12 @@ do
 		local tagAddFunction = function()
 				local tagString = tagInputField.textfieldstr[1]
 				if (tagString:gsub("%A", "") == "" or tagString:len() < 2) then
-					TBMenu:showDataError(TB_MENU_LOCALIZED.REPLAYSTAGERRORSHORT)
+					TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSTAGERRORSHORT)
 					return
 				end
 				for i,v in pairs(updatedTags) do
 					if (v == tagString) then
-						TBMenu:showDataError(TB_MENU_LOCALIZED.REPLAYSTAGERRORDUPLICATE)
+						TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSTAGERRORDUPLICATE)
 						return
 					end
 				end
@@ -1430,7 +1429,7 @@ do
 					local parentFolder = folder.fullname:gsub("/" .. folder.name .. "$", "")
 					local error = remove_replay_subfolder(folder.fullname:gsub("^replay/", ""))
 					if (error) then
-						TBMenu:showDataError(TB_MENU_LOCALIZED.REPLAYSERRORDELETING .. " " .. TB_MENU_LOCALIZED.REPLAYSERRORDELETINGFOLDER .. " " .. folder.fullname .. ": " .. error)
+						TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORDELETING .. " " .. TB_MENU_LOCALIZED.REPLAYSERRORDELETINGFOLDER .. " " .. folder.fullname .. ": " .. error)
 						return
 					end
 					SELECTED_FOLDER = { fullname = parentFolder }
@@ -1442,13 +1441,14 @@ do
 				else
 					local function delete_folder_with_files(folder, targetFolder)
 						local targetFolder = targetFolder or folder.fullname:gsub("^replay/", ""):gsub(folder.name .. ".*$", "")
-						for i,v in pairs(folder.folders) do
+						for _, v in pairs(folder.folders) do
 							delete_folder_with_files(v, targetFolder)
 						end
-						for i,v in pairs(folder.replays) do
-							local error = move_replay(v.filename, targetFolder .. v.filename:gsub("^.*/", ""))
+						for _, v in pairs(folder.replays) do
+							local newFilename = targetFolder .. v.filename:gsub("^.*/", "")
+							local error = rename_replay(v.filename, newFilename)
 							if (error) then
-								TBMenu:showDataError(TB_MENU_LOCALIZED.REPLAYSERRORMOVING .. " " .. v.filename .. " " .. TB_MENU_LOCALIZED.REPLAYSERRORMOVINGTO .. " " .. newPath .. ": " .. error)
+								TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORMOVING .. " " .. v.filename .. " " .. TB_MENU_LOCALIZED.REPLAYSERRORMOVINGTO .. " " .. newFilename .. ": " .. error)
 								return
 							end
 						end
@@ -1493,7 +1493,7 @@ do
 				end
 				local error = rename_replay_subfolder(SELECTED_FOLDER.fullname:gsub("^replay/", ""), parentFolder:gsub("^replay/", "") .. newFolderName)
 				if (error) then
-					TBMenu:showDataError(TB_MENU_LOCALIZED.REPLAYSERRORRENAMINGFOLDER .. ": " .. error)
+					TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORRENAMINGFOLDER .. ": " .. error)
 					return
 				end
 				SELECTED_FOLDER = { fullname = parentFolder .. newFolderName }
@@ -1505,7 +1505,7 @@ do
 	function Replays:showNewFolderWindow()
 		local _, level = SELECTED_FOLDER.fullname:gsub("/", "")
 		if (level > MAXFOLDERLEVELS - 1) then
-			TBMenu:showDataError(TB_MENU_LOCALIZED.REPLAYSFOLDERLEVELERROR1 ..  " " .. MAXFOLDERLEVELS .. " " .. TB_MENU_LOCALIZED.REPLAYSFOLDERLEVELERROR2)
+			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSFOLDERLEVELERROR1 ..  " " .. MAXFOLDERLEVELS .. " " .. TB_MENU_LOCALIZED.REPLAYSFOLDERLEVELERROR2)
 			return
 		end
 		local newFolderOverlay = TBMenu:spawnWindowOverlay()
@@ -1574,7 +1574,7 @@ do
 			end)
 		local function spawnNewFolder()
 			if (newFolderInput.textfieldstr[1] ~= newFolderInput.textfieldstr[1]:match("[^ ][%w+ ]+")) then
-				TBMenu:showDataError(TB_MENU_LOCALIZED.REPLAYSFOLDERALPHANUMERIC)
+				TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSFOLDERALPHANUMERIC)
 				return
 			end
 			local parentFolder = SELECTED_FOLDER.fullname:gsub("^replay/*", "")
@@ -1582,7 +1582,7 @@ do
 			local newFolderName = parentFolder .. newFolderInput.textfieldstr[1]:gsub(" +$", "")
 			local result = add_replay_subfolder(newFolderName)
 			if (result) then
-				TBMenu:showDataError(TB_MENU_LOCALIZED.REPLAYSERRORADDINGFOLDER .. ": " .. result)
+				TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORADDINGFOLDER .. ": " .. result)
 				return
 			end
 			newFolderOverlay:kill()
@@ -2069,7 +2069,7 @@ do
 				TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.REPLAYSCONFIRMDELETION .. " " .. replay.filename .. " " .. TB_MENU_LOCALIZED.REPLAYSCONFIRMDELETION2, function()
 						local result = delete_replay(replay.filename)
 						if (result) then
-							TBMenu:showDataError(TB_MENU_LOCALIZED.REPLAYSERRORDELETING .. " " .. TB_MENU_LOCALIZED.REPLAYSREPLAY)
+							TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORDELETING .. " " .. TB_MENU_LOCALIZED.REPLAYSREPLAY)
 							return
 						end
 						manageOverlay:kill()

@@ -23,6 +23,7 @@ if (TBMenu == nil) then
 	---@field BottomLeftBar UIElement Bottom left bar UIElement holder
 	---@field BottomRightBar UIElement Bottom right bar UIElement holder
 	---@field StatusMessage UIElement Status message UIElement holder
+	---@field NotificationsCount UIElement Notifications count display UIElement
 	---@field CurrentAnnouncementId integer Active home tab announcement ID
 	TBMenu = {
 		CurrentAnnouncementId = 1,
@@ -128,6 +129,7 @@ function TBMenu.Quit()
 
 	TB_MENU_MAIN_ISOPEN = 0
 	TBMenu.MenuMain:kill()
+	TBMenu.MenuMain = nil
 end
 
 ---Creates `TBMenu.CurrentSection` object to be used by main menu
@@ -250,12 +252,12 @@ function TBMenu:createImageButtons(parentElement, x, y, w, h, img, imgHvr, imgPr
 end
 
 ---Internal TBMenu function to rotate News section displayed event
----@param viewElement any
----@param eventsData any
----@param eventItems any
----@param clock any
----@param reloadElement any
----@param direction any
+---@param viewElement UIElement
+---@param eventsData NewsItemData[]
+---@param eventItems UIElement[]
+---@param clock table
+---@param reloadElement UIElement
+---@param direction integer
 function TBMenuInternal.ChangeCurrentEvent(viewElement, eventsData, eventItems, clock, reloadElement, direction)
 	for i, v in pairs(eventItems) do
 		if (i == TBMenu.CurrentAnnouncementId) then
@@ -269,9 +271,9 @@ function TBMenuInternal.ChangeCurrentEvent(viewElement, eventsData, eventItems, 
 			eventItems[TBMenu.CurrentAnnouncementId]:show()
 			local function behavior()
 				eventsData[TBMenu.CurrentAnnouncementId].action()
-				if (eventsData[TBMenu.CurrentAnnouncementId].stop) then
+				--[[if (eventsData[TBMenu.CurrentAnnouncementId].stop) then
 					clock.pause = true
-				end
+				end]]
 			end
 			viewElement:addMouseHandlers(nil, behavior, nil)
 			reloadElement:reload()
@@ -285,6 +287,7 @@ function TBMenuInternal.ChangeCurrentEvent(viewElement, eventsData, eventItems, 
 	end
 end
 
+---Displays Home menu with announcements
 function TBMenu:showHome()
 	if (TBMenu.CurrentSection == nil or TBMenu.CurrentSection.destroyed) then
 		TBMenu.CreateCurrentSectionView()
@@ -480,6 +483,14 @@ function TBMenu:showHome()
 	TBMenu:showHomeButton(viewEventsButton, viewEventsButtonData, 2)
 end
 
+---Generic function to display a main menu section button
+---@param viewElement UIElement
+---@param buttonData MenuSectionButton
+---@param hasSmudge ?integer
+---@param extraElements ?UIElement[]
+---@param lockedMessage ?string
+---@return number
+---@return number
 function TBMenu:showHomeButton(viewElement, buttonData, hasSmudge, extraElements, lockedMessage)
 	-- Add hover sound by default so it doesn't have to be set for each element manually
 	viewElement.hoverSound = 31
@@ -507,6 +518,9 @@ function TBMenu:showHomeButton(viewElement, buttonData, hasSmudge, extraElements
 		disableUnload = buttonData.disableUnload,
 		uiColor = TB_MENU_DEFAULT_DARKEST_COLOR
 	})
+
+	---Hack to register toReload field for EmmyLua
+	viewElement.parent.toReload = viewElement.parent.toReload
 
 	if (type(selectedIcon) == "table") then
 		local filename = selectedIcon[1]:gsub(".*/", "")
@@ -662,7 +676,7 @@ function TBMenu:showHomeButton(viewElement, buttonData, hasSmudge, extraElements
 	return titleHeight, descHeight
 end
 
--- Clears navigation bar and current section element for side modules
+---Clears navigation bar and current section element for side modules
 function TBMenu:clearNavSection()
 	if (TBMenu.NavigationBar and not TBMenu.NavigationBar.destroyed) then
 		TBMenu.NavigationBar:kill()
@@ -675,6 +689,7 @@ function TBMenu:clearNavSection()
 	end
 end
 
+---Displays Clans menu
 function TBMenu:showClans(clantag)
 	if (TBMenu.CurrentSection == nil or TBMenu.CurrentSection.destroyed) then
 		TBMenu.CreateCurrentSectionView()
@@ -682,6 +697,7 @@ function TBMenu:showClans(clantag)
 	Clans:showMain(TBMenu.CurrentSection, clantag)
 end
 
+---Displays Market menu
 function TBMenu:showMarket()
 	if (TBMenu.CurrentSection == nil or TBMenu.CurrentSection.destroyed) then
 		TBMenu.CreateCurrentSectionView()
@@ -689,6 +705,7 @@ function TBMenu:showMarket()
 	Market:showMain(TBMenu.CurrentSection)
 end
 
+---Displays Replays menu
 function TBMenu:showReplays()
 	TBMenu.BottomLeftBar:hide()
 	TBMenu:clearNavSection()
@@ -708,6 +725,7 @@ function TBMenu:showReplays()
 	TB_MENU_SPECIAL_SCREEN_ISOPEN = 5
 end
 
+---Displays Notifications menu
 function TBMenu:showNotifications()
 	if (not TB_STORE_DATA.ready) then
 		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STOREDATALOADERROR)
@@ -717,12 +735,14 @@ function TBMenu:showNotifications()
 	Notifications:showMain()
 end
 
+---Displays Scripts menu
 function TBMenu:showScripts()
 	TBMenu:clearNavSection()
 	Scripts:showMain()
 	TBMenu:showNavigationBar(Scripts:getNavigationButtons(), true)
 end
 
+---Displays Settings menu
 function TBMenu:showSettings()
 	TBMenu.BottomLeftBar:hide()
 	TBMenu:clearNavSection()
@@ -730,12 +750,14 @@ function TBMenu:showSettings()
 	TBMenu:showNavigationBar(Settings:getNavigationButtons(), true, true, TB_MENU_SETTINGS_SCREEN_ACTIVE or 1)
 end
 
+---Displays Friends menu
 function TBMenu:showFriendsList()
 	TBMenu:clearNavSection()
 	Friends:showMain(TBMenu.CurrentSection)
 	TBMenu:showNavigationBar(Friends:getNavigationButtons(), true)
 end
 
+---Displays Bounties menu
 function TBMenu:showBounties()
 	TBMenu:clearNavSection()
 	Bounty:prepare()
@@ -821,6 +843,10 @@ function TBMenu:prepareScrollableList(viewElement, firstBarSize, secondBarSize, 
 	return toReload, firstBar, secondBar, listingView, listingHolder, listingScrollBG
 end
 
+---Returns a human readable string from specified number of seconds
+---@param seconds integer
+---@param cut ?integer
+---@return string
 function TBMenu:getTime(seconds, cut)
 	local returnval = ""
 	local timeleft = 0
@@ -915,7 +941,7 @@ function TBMenu:getTime(seconds, cut)
 	end
 	returnval = returnval:gsub("^ ", "")
 	if (cut) then
-		local sPos, ePos = returnval:find(("%d+%s%S+%s"):rep(cut))
+		local _, ePos = returnval:find(("%d+%s%S+%s"):rep(cut))
 		if (ePos) then
 			returnval = returnval:sub(0, ePos - 1)
 		end
@@ -923,12 +949,17 @@ function TBMenu:getTime(seconds, cut)
 	return returnval
 end
 
+---Spawns an overlay that slightly dims main menu
+---@param globalid ?integer
+---@param withMouseHandler ?boolean
+---@return UIElement
 function TBMenu:spawnWindowOverlay(globalid, withMouseHandler)
 	TB_MENU_POPUPS_DISABLED = true
 	local globalid = globalid or nil
 	UIScrollbarIgnore = true
 	local overlay = UIElement:new({
-		globalid = TB_MENU_MAIN_ISOPEN == 0 and (globalid or TB_MENU_HUB_GLOBALID),
+		---@diagnostic disable-next-line: assign-type-mismatch
+		globalid = TB_MENU_MAIN_ISOPEN == 0 and (globalid or TB_MENU_HUB_GLOBALID) or nil,
 		parent = TBMenu.MenuMain,
 		pos = { 0, 0 },
 		size = { WIN_W, WIN_H },
@@ -962,6 +993,14 @@ function TBMenu:spawnWindowOverlay(globalid, withMouseHandler)
 	return overlay
 end
 
+---Displays a generic confirmation window with a text input field
+---@param title string
+---@param inputInfo string
+---@param confirmAction function
+---@param cancelAction ?function
+---@param subtitle ?string
+---@param globalid ?integer
+---@return UIElement
 function TBMenu:showConfirmationWindowInput(title, inputInfo, confirmAction, cancelAction, subtitle, globalid)
 	local subtitleSet = subtitle and 1 or 0
 	local confirmOverlay = TBMenu:spawnWindowOverlay(globalid)
@@ -1025,6 +1064,14 @@ function TBMenu:showConfirmationWindowInput(title, inputInfo, confirmAction, can
 	return confirmOverlay
 end
 
+---Generic function to display a confirmation window
+---@param message string
+---@param confirmAction function
+---@param cancelAction ?function
+---@param thirdAction ?function
+---@param thirdButtonText ?string
+---@param globalid ?integer
+---@return UIElement
 function TBMenu:showConfirmationWindow(message, confirmAction, cancelAction, thirdAction, thirdButtonText, globalid)
 	local confirmOverlay = TBMenu:spawnWindowOverlay(globalid)
 	local width = thirdAction and confirmOverlay.size.w / 7 * 4 or confirmOverlay.size.w / 7 * 3
@@ -1036,8 +1083,7 @@ function TBMenu:showConfirmationWindow(message, confirmAction, cancelAction, thi
 		shapeType = ROUNDED,
 		rounded = 5
 	})
-	local confirmBoxMessage = UIElement:new({
-		parent = confirmBoxView,
+	local confirmBoxMessage = confirmBoxView:addChild({
 		pos = { 10, 10 },
 		size = { confirmBoxView.size.w - 20, (confirmBoxView.size.h - 20) / 3 * 2 }
 	})
@@ -1109,10 +1155,9 @@ end
 
 ---Displays a popup message on the bottom of the screen
 ---@param message string Message that will be displayed to the user
----@param noParent ?boolean Use `true` if you intend to use the popup outside main menu
 ---@param time ?number Duration during which the message will be displayed
 ---@return UIElement
-function TBMenu:showStatusMessage(message, noParent, time)
+function TBMenu:showStatusMessage(message, time)
 	local time = time or 5
 	local transparency = 0
 	local bgColor, uiColor = { 0, 0, 0, transparency }, { 1, 1, 1, transparency }
@@ -1123,7 +1168,8 @@ function TBMenu:showStatusMessage(message, noParent, time)
 	local dataErrorY = (TBMenu.MenuMain and TBMenu.MenuMain.pos.y > 0) and (-TBMenu.MenuMain.pos.y) or WIN_H
 	local messageWidth = WIN_W / 2 > 800 and 800 or WIN_W / 2
 	TBMenu.StatusMessage = UIElement:new({
-		globalid = noParent and TB_MENU_HUB_GLOBALID or TB_MENU_MAIN_GLOBALID,
+		---@diagnostic disable-next-line: assign-type-mismatch
+		globalid = TB_MENU_MAIN_ISOPEN == 0 and TB_MENU_HUB_GLOBALID or nil,
 		parent = TBMenu.MenuMain,
 		pos = { (WIN_W - messageWidth) / 2, dataErrorY },
 		size = { messageWidth, 54 },
@@ -1131,8 +1177,7 @@ function TBMenu:showStatusMessage(message, noParent, time)
 		shapeType = ROUNDED,
 		rounded = 5
 	})
-	local errorMessageView = UIElement:new({
-		parent = TBMenu.StatusMessage,
+	local errorMessageView = TBMenu.StatusMessage:addChild({
 		pos = { TBMenu.StatusMessage.size.w / 10, TBMenu.StatusMessage.size.h / 10 },
 		size = { TBMenu.StatusMessage.size.w * 0.8, TBMenu.StatusMessage.size.h * 0.8 }
 	})
@@ -1145,10 +1190,6 @@ function TBMenu:showStatusMessage(message, noParent, time)
 		errorMessageView:addAdaptedText(true, message, nil, nil, 4, nil, 0.9, nil, nil, nil, uiColor)
 	end
 
-	local option = get_option("hint") + 0
-	if (noParent) then
-		set_option("hint", 0)
-	end
 	TBMenu.StatusMessage.startTime = UIElement.clock
 	local targetOffsetY = WIN_H - TBMenu.StatusMessage.size.h - 10
 	TBMenu.StatusMessage:addCustomDisplay(false, function()
@@ -1168,9 +1209,6 @@ function TBMenu:showStatusMessage(message, noParent, time)
 						end
 						if (transparency <= 0) then
 							TBMenu.StatusMessage:kill()
-							if (noParent) then
-								set_option("hint", option)
-							end
 						end
 					end)
 			end
@@ -1182,9 +1220,10 @@ end
 ---Use `TBMenu:showStatusMessage()` instead \
 ---@see TBMenu.showStatusMessage
 function TBMenu:showDataError(message, noParent, time)
-	TBMenu:showStatusMessage(message, noParent, time)
+	TBMenu:showStatusMessage(message, time)
 end
 
+---Displays Store menu
 function TBMenu:showTorishopMain()
 	if (TBMenu.CurrentSection == nil or TBMenu.CurrentSection.destroyed) then
 		TBMenu.CreateCurrentSectionView()
@@ -1192,7 +1231,8 @@ function TBMenu:showTorishopMain()
 	Torishop:showMain(TBMenu.CurrentSection)
 end
 
-function TBMenu:showAccountMain(reload)
+---Displays Account menu
+function TBMenu:showAccountMain()
 	local lastSpecialScreen = TB_MENU_SPECIAL_SCREEN_ISOPEN
 	TBMenu:clearNavSection()
 	TBMenu:showNavigationBar({
@@ -1244,7 +1284,7 @@ function TBMenu:showAccountMain(reload)
 	})
 	accountDataRefresh:addMouseHandlers(nil, function()
 			if (get_network_task() == 0) then
-				TBMenu:showAccountMain(true)
+				TBMenu:showAccountMain()
 			end
 		end)
 	local switchButtonSize = topBar.size.w / 2 - 55 > 250 and 250 or topBar.size.w / 2 - 55
@@ -1346,6 +1386,7 @@ function TBMenu:showMatchmaking()
 	Ranking:showMain(TBMenu.CurrentSection)]]
 end
 
+---Displays Battle Pass menu
 function TBMenu:showBattlepass()
 	if (TBMenu.CurrentSection == nil or TBMenu.CurrentSection.destroyed) then
 		TBMenu.CreateCurrentSectionView()
@@ -1353,6 +1394,7 @@ function TBMenu:showBattlepass()
 	BattlePass:showMain()
 end
 
+---Displays Play menu
 function TBMenu:showPlaySection()
 	local tbMenuPlayButtonsData = {
 		{ title = TB_MENU_LOCALIZED.MAINMENUFREEPLAYNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUFREEPLAYDESC, size = 0.5, ratio = 0.5, image = "../textures/menu/freeplay.tga", mode = ORIENTATION_LANDSCAPE, action = function() open_menu(1) end, disableUnload = true },
@@ -1368,12 +1410,14 @@ function TBMenu:showPlaySection()
 	TBMenu:showSection(tbMenuPlayButtonsData)
 end
 
+---Displays Tutorials menu
 function TBMenu:showPracticeSection()
 	dofile("tutorial/tutorial_manager.lua")
 	local tbMenuPracticeButtonsData = Tutorials:getMainMenuButtons()
 	TBMenu:showSection(tbMenuPracticeButtonsData)
 end
 
+---Displays Toribash hotkeys
 function TBMenu:showHotkeys()
 	TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
 	local overlay = TBMenu:spawnWindowOverlay()
@@ -1638,7 +1682,7 @@ function TBMenu:showHotkeys()
 			end
 		end
 	end
-	for i,v in pairs(listElements) do
+	for _, v in pairs(listElements) do
 		v:hide()
 	end
 	local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
@@ -1663,7 +1707,24 @@ end
 -- 	TBMenu:showSection(tbMenuModsButtonsData)
 -- end
 
+---@class MenuSectionButton
+---@field title string Button heading text
+---@field subtitle string Button description text
+---@field lockedMessage string Locked button information string
+---@field locked boolean Whether this button should be locked
+---@field size number Horizontal button scale (percentage of total section width)
+---@field vsize number Vertical button scale (percentage of total section height)
+---@field ratio number Image proportions ratio
+---@field image string|string[] Image path
+---@field ratio2 number Alternative image proportions ratio
+---@field image2 string|string[] Alternative image path
+---@field action function Function that will be executed on button click
+---@field quit boolean Whether pressing this button should exit main menu
+---@field disableUnload boolean Whether button image shouldn't be unloaded on UIElement destruction
+
+---Displays Tools screen
 function TBMenu:showToolsSection()
+	---@type MenuSectionButton[]
 	local tbMenuToolsButtonsData = {
 		{ title = TB_MENU_LOCALIZED.MAINMENUMODLISTNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUMODLISTDESC, size = 0.25, ratio = 1.055, image = "../textures/menu/modlist2.tga", action = function() dofile("system/mods.lua") end, quit = true, disableUnload = true },
 		{ title = TB_MENU_LOCALIZED.MAINMENUGAMERULESNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUGAMERULESDESC, size = 0.25, ratio = 1.055, image = "../textures/menu/gamerules2.tga", action = function() dofile("system/gamerules.lua") end, quit = true, disableUnload = true },
@@ -1707,6 +1768,10 @@ function TBMenu:addBottomBloodSmudge(parentElement, num, scale)
 	return smudgeElement
 end
 
+---Generic function to build a main menu screen using the provided buttons data
+---@param buttonsData MenuSectionButton[]
+---@param shift ?number
+---@param lockedMessage ?string
 function TBMenu:showSection(buttonsData, shift, lockedMessage)
 	if (TBMenu.CurrentSection == nil or TBMenu.CurrentSection.destroyed) then
 		TBMenu.CreateCurrentSectionView()
@@ -1727,10 +1792,12 @@ function TBMenu:showSection(buttonsData, shift, lockedMessage)
 		sectionY = v.vsize and sectionY + buttonView.size.h + 10 or sectionY
 		sectionY = sectionY >= TBMenu.CurrentSection.size.h and 0 or sectionY
 		sectionX = sectionY == 0 and sectionX + buttonView.size.w + 10 or sectionX
-		TBMenu:showHomeButton(buttonView, v, sectionY == 0 and i, nil, lockedMessage)
+		TBMenu:showHomeButton(buttonView, v, sectionY == 0 and i or nil, nil, lockedMessage)
 	end
 end
 
+---Opens main menu screen by its id or a screen with the corresponding `TB_MENU_SPECIAL_SCREEN_ISOPEN` in case it's valid value.
+---@param screenId integer
 function TBMenu:openMenu(screenId)
 	if (TBMenu.BottomLeftBar) then
 		TBMenu.BottomLeftBar:show()
@@ -1796,6 +1863,7 @@ function TBMenu:openMenu(screenId)
 	end
 end
 
+---Displays Toribash (or user custom loaded) logo on top left
 function TBMenu:showGameLogo()
 	local logo = TB_MENU_GAME_LOGO
 	local gametitle = TB_MENU_GAME_TITLE
@@ -1812,15 +1880,13 @@ function TBMenu:showGameLogo()
 		gametitle = "../../custom/" .. TB_MENU_PLAYER_INFO.username .. "/header.tga"
 		customGametitle:close()
 	end
-	local tbMenuLogo = UIElement:new( {
-		parent = TBMenu.MenuMain,
+	local tbMenuLogo = TBMenu.MenuMain:addChild({
 		pos = { logoSize / 9 * 5, 10 },
 		size = { logoSize, logoSize },
 		bgImage = logo,
 		disableUnload = true
 	})
-	local tbMenuGameTitle = UIElement:new( {
-		parent = TBMenu.MenuMain,
+	local tbMenuGameTitle = TBMenu.MenuMain:addChild({
 		pos = { logoSize / 9 * 14 + 5, 15 },
 		size = { gameTitleSize, gameTitleSize },
 		bgImage = gametitle,
@@ -1828,30 +1894,7 @@ function TBMenu:showGameLogo()
 	})
 end
 
-function TBMenu:buttonGrowHover(viewElement, iconElement)
-	local scale = 1.1
-	local growth = 0.4
-	if (viewElement.hoverState == BTN_HVR) then
-		if (iconElement.size.h < viewElement.size.h * scale) then
-			iconElement.size.h = iconElement.size.h + growth
-			iconElement.size.w = iconElement.size.h
-			if (iconElement.shift.x >= 0) then
-				iconElement:moveTo(-viewElement.size.w - growth / 2, -viewElement.size.h - growth / 2)
-			else
-				iconElement:moveTo(iconElement.shift.x - growth / 2, iconElement.shift.y - growth / 2)
-			end
-		end
-	elseif (viewElement.hoverState == BTN_DN) then
-		iconElement.size.h = viewElement.size.h * scale
-		iconElement.size.w = iconElement.size.h
-		iconElement:moveTo(-viewElement.size.w - viewElement.size.h * (scale - 1) / 2, -viewElement.size.h - viewElement.size.h * (scale - 1) / 2)
-	else
-		iconElement.size.h = viewElement.size.h
-		iconElement.size.w = iconElement.size.h
-		iconElement:moveTo(0, 0)
-	end
-end
-
+---Displays top right user bar
 function TBMenu:showUserBar()
 	local tbMenuTopBarWidth = math.ceil(512 * (TB_MENU_GLOBAL_SCALE or 1))
 	if (TBMenu.UserBar) then
@@ -2189,11 +2232,11 @@ end
 ---@field width number Button width assigned by showNavigationBar()
 ---@field action function Function that will be executed when button is pressed
 ---@field right boolean If true, button will be displayed on the right side of the navigation bar
----@field sectionId number|nil Menu section id that will be assigned to TB_LAST_MENU_SCREEN_OPEN on button click
+---@field sectionId integer Menu section id that will be assigned to TB_LAST_MENU_SCREEN_OPEN on button click
 
 ---Displays mobile navigation bar using the provided data
 ---@see TBMenu.showNavigationBar
----@param buttonsData MenuNavButton[]|nil Buttons data. If nil, default main menu navigation buttons data will be used instead.
+---@param buttonsData? MenuNavButton[] Buttons data. If not specified, default main menu navigation buttons data will be used instead.
 ---@param customNav? boolean Whether the provided data is not supposed to use TB_LAST_MENU_SCREEN_OPEN to mark the currently active button. *You likely want this set to true*.
 ---@param customNavHighlight? boolean Whether to remember the last selected button and keep it marked as active
 ---@param selectedId? integer Button ID that would be selected by default \
@@ -2326,7 +2369,7 @@ function TBMenu:showMobileNavigationBar(buttonsData, customNav, customNavHighlig
 end
 
 ---Displays navigation bar using the provided data
----@param buttonsData MenuNavButton[]|nil Buttons data. If nil, default main menu navigation buttons data will be used instead.
+---@param buttonsData? MenuNavButton[] Buttons data. If not specified, default main menu navigation buttons data will be used instead.
 ---@param customNav? boolean Whether the provided data is not supposed to use TB_LAST_MENU_SCREEN_OPEN to mark the currently active button. *You likely want this set to true*.
 ---@param customNavHighlight? boolean Whether to remember the last selected button and keep it marked as active
 ---@param selectedId? integer Button ID that would be selected by default
@@ -2461,11 +2504,15 @@ function TBMenu:showNavigationBar(buttonsData, customNav, customNavHighlight, se
 	end
 end
 
-function TBMenu:getNearbyMenu(dir)
+---Helper function to get closest menu in a specified direction
+---@deprecated
+---@param dir boolean
+---@return MenuNavButton?
+function TBMenuInternal.GetNearbyMenu(dir)
 	local buttons = TBMenu:getMainNavigationButtons()
 	local reordered, right = {}, {}
 	local found = nil
-	for i,v in pairs(buttons) do
+	for _, v in pairs(buttons) do
 		if (v.right) then
 			table.insert(right, v)
 		else
@@ -2475,7 +2522,7 @@ function TBMenu:getNearbyMenu(dir)
 			end
 		end
 	end
-	for i,v in pairs(table.reverse(right)) do
+	for _, v in pairs(table.reverse(right)) do
 		table.insert(reordered, v)
 		if (v.sectionId == TB_LAST_MENU_SCREEN_OPEN) then
 			found = #reordered
@@ -2494,6 +2541,8 @@ function TBMenu:getNearbyMenu(dir)
 	return reordered[targetButton].sectionId
 end
 
+---Returns default navigation buttons data
+---@return MenuNavButton[]
 function TBMenu:getMainNavigationButtons()
 	local storeMiscText = TB_STORE_DISCOUNTS and (#TB_STORE_DISCOUNTS > 0 and (TB_MENU_LOCALIZED.STORESALE1 .. TB_MENU_LOCALIZED.STORESALE2) or nil) or nil
 	local buttonData = {
@@ -2530,6 +2579,8 @@ function TBMenu:getMainNavigationButtons()
 	return buttonData
 end
 
+---Displays main menu bottom bar buttons
+---@param leftOnly ?boolean
 function TBMenu:showBottomBar(leftOnly)
 	local buttonSize = 50 * TB_MENU_GLOBAL_SCALE
 	if (TBMenu.BottomLeftBar == nil or TBMenu.BottomLeftBar.destroyed) then
@@ -2572,29 +2623,29 @@ function TBMenu:showBottomBar(leftOnly)
 			disableUnload = true,
 			interactive = true
 		})
-		--tbMenuBottomLeftButtons[i] = TBMenu:createImageButtons(TBMenu.BottomLeftBar, (i - 1) * (TBMenu.BottomLeftBar.size.h + 10), 0, TBMenu.BottomLeftBar.size.h, TBMenu.BottomLeftBar.size.h, v.image, v.imageHover, v.imagePress)
 		tbMenuBottomLeftButtons[i]:addMouseHandlers(nil, function() shopCheckExit() v.action() end, nil)
 	end
 	if (string.len(TB_MENU_PLAYER_INFO.username) > 0) then
 		local notificationsCountWidth = get_string_length("" .. (TB_MENU_NOTIFICATIONS_COUNT + TB_MENU_NOTIFICATIONS_UNREAD_COUNT + TB_MENU_QUESTS_GLOBAL_COUNT + TB_MENU_QUESTS_COUNT), FONTS.MEDIUM) * 0.9
 		notificationsCountWidth = notificationsCountWidth > TBMenu.BottomLeftBar.size.h / 2 and (notificationsCountWidth > TBMenu.BottomLeftBar.size.h and TBMenu.BottomLeftBar.size.h or notificationsCountWidth) or TBMenu.BottomLeftBar.size.h / 2
-		tbMenuNotificationsCount = tbMenuBottomLeftButtons[2]:addChild({
+		TBMenu.NotificationsCount = tbMenuBottomLeftButtons[2]:addChild({
 			pos = { -notificationsCountWidth, 0 },
 			size = { notificationsCountWidth, TBMenu.BottomLeftBar.size.h / 2 },
 			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 			shapeType = ROUNDED,
 			rounded = TBMenu.BottomLeftBar.size.h
 		})
-		tbMenuNotificationsCount:addCustomDisplay(false, function()
-				tbMenuNotificationsCount:uiText(TB_MENU_NOTIFICATIONS_COUNT + TB_MENU_NOTIFICATIONS_UNREAD_COUNT + TB_MENU_QUESTS_GLOBAL_COUNT + TB_MENU_QUESTS_COUNT + TB_MENU_QUEST_NOTIFICATIONS, nil, nil, FONTS.MEDIUM, nil, 0.7, 0.4)
+		TBMenu.NotificationsCount:addCustomDisplay(false, function()
+				local totalCount = tostring(TB_MENU_NOTIFICATIONS_COUNT + TB_MENU_NOTIFICATIONS_UNREAD_COUNT + TB_MENU_QUESTS_GLOBAL_COUNT + TB_MENU_QUESTS_COUNT + TB_MENU_QUEST_NOTIFICATIONS)
+				TBMenu.NotificationsCount:uiText(totalCount, nil, nil, FONTS.MEDIUM, nil, 0.7, 0.4)
 			end)
 		tbMenuBottomLeftButtons[2]:addCustomDisplay(function()
 				if (TB_MENU_NOTIFICATIONS_COUNT + TB_MENU_NOTIFICATIONS_UNREAD_COUNT + TB_MENU_QUESTS_GLOBAL_COUNT + TB_MENU_QUESTS_COUNT == 0) then
-					tbMenuNotificationsCount:hide()
-					tbMenuNotificationsCount.hidden = true
-				elseif (tbMenuNotificationsCount.hidden) then
-					tbMenuNotificationsCount:show()
-					tbMenuNotificationsCount.hidden = false
+					TBMenu.NotificationsCount:hide()
+					TBMenu.NotificationsCount.hidden = true
+				elseif (TBMenu.NotificationsCount.hidden) then
+					TBMenu.NotificationsCount:show()
+					TBMenu.NotificationsCount.hidden = false
 				end
 			end)
 	end
@@ -2660,6 +2711,8 @@ function TBMenu:showBottomBar(leftOnly)
 		end)
 end
 
+---Plays main menu section switch animation
+---@deprecated
 function TBMenu:playMenuSwitchAnimation()
 	if (UIElement.lightUIMode) then return end
 	local speedMod = get_option("framerate") == 30 and 2 or 1
@@ -2674,7 +2727,6 @@ function TBMenu:playMenuSwitchAnimation()
 	end
 	TBMenu.CurrentSection.child = {}
 	local rad = math.pi / 3
-	local rad2
 	currentSectionMover:addCustomDisplay(true, function()
 			if (-currentSectionMover.pos.x >= currentSectionMover.size.w) then
 				currentSectionMover:kill()
@@ -2693,6 +2745,9 @@ function TBMenu:playMenuSwitchAnimation()
 	end)
 end
 
+---Prepares and displays Main Menu. \
+---Executing this with `noload` enabled will only prepare main menu root elements without opening last active menu screen.
+---@param noload ?boolean
 function TBMenu:showMain(noload)
 	TBMenu.MenuMain = UIElement:new({
 		globalid = TB_MENU_MAIN_GLOBALID,
@@ -2811,7 +2866,7 @@ function TBMenu:showMain(noload)
 			if (menuNavigationScroll.lastTime == clocktime or TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 0) then
 				return
 			end
-			local id = TBMenu:getNearbyMenu(s == 5)
+			local id = TBMenuInternal.GetNearbyMenu(s == 5)
 			if (id) then
 				TB_LAST_MENU_SCREEN_OPEN = id
 				--TBMenu:playMenuSwitchAnimation()
@@ -3093,15 +3148,20 @@ function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHei
 	return overlay
 end
 
--- Spawns default menu scroll bar
-function TBMenu:spawnScrollBar(holderElement, listElements, elementSize, orientation)
+---Spawns default menu scroll bar
+---@param holderElement UIElement
+---@param numElements integer
+---@param elementSize number
+---@param orientation ?UIElementScrollMode
+---@return UIElement
+function TBMenu:spawnScrollBar(holderElement, numElements, elementSize, orientation)
 	local orientation = orientation or SCROLL_VERTICAL
 	local scrollActive = true
 	local scrollScale
 	if (orientation == SCROLL_VERTICAL) then
-		scrollScale = listElements > 0 and (holderElement.size.h) / (listElements * elementSize) or holderElement.size.h
+		scrollScale = numElements > 0 and (holderElement.size.h) / (numElements * elementSize) or holderElement.size.h
 	else
-		scrollScale = listElements > 0 and (holderElement.size.w) / (listElements * elementSize) or holderElement.size.w
+		scrollScale = numElements > 0 and (holderElement.size.w) / (numElements * elementSize) or holderElement.size.w
 	end
 
 	if (scrollScale >= 1) then
@@ -3110,6 +3170,10 @@ function TBMenu:spawnScrollBar(holderElement, listElements, elementSize, orienta
 	elseif (scrollScale < 0.1) then
 		scrollScale = 0.1
 	end
+
+	---Hack to register scrollBG as a valid holderElement field
+	---@type UIElement
+	holderElement.scrollBG = holderElement.scrollBG
 
 	local scrollBackground, scrollView
 	if (orientation == SCROLL_VERTICAL) then
@@ -3133,9 +3197,7 @@ function TBMenu:spawnScrollBar(holderElement, listElements, elementSize, orienta
 			size = { holderElement.size.w - 10, (holderElement.parent.size.h - holderElement.size.h) / 2 }
 		})
 	end
-	local scrollBar = UIElement:new({
-		parent = scrollView,
-		pos = { 0, 0 },
+	local scrollBar = scrollView:addChild({
 		size = orientation == SCROLL_VERTICAL and { scrollView.size.w, scrollView.size.h * scrollScale } or { scrollView.size.w * scrollScale, scrollView.size.h },
 		interactive = scrollActive,
 		bgColor = { 0, 0, 0, 0.3 },
@@ -3151,7 +3213,7 @@ end
 
 -- Draws quarter disks that cover element's corners for a fake rounded effect. Designed to use with images on single color backgrounds.
 --
--- *To make regular UIElements rounded, use shapeType and rounded UIElementOptions parameters.*
+-- *To make regular UIElements rounded, use `shapeType` and `rounded` UIElementOptions parameters.*
 ---@param e UIElement UIElement object that we'll be applying the effect to
 ---@param color? Color
 ---@param rounding? number[]|number
@@ -3190,6 +3252,11 @@ function TBMenu:addOuterRounding(e, color, rounding)
 		end)
 end
 
+---Generic function to generate pagination data
+---@param totalPages integer
+---@param maxPages integer
+---@param currentPage integer
+---@return table
 function TBMenu:generatePaginationData(totalPages, maxPages, currentPage)
 	local pagesButtonsPre, pagesButtons = {}, {}
 	local pagesNavArr = { 10, 50, 100, 500 }
@@ -3262,7 +3329,7 @@ function TBMenu:generatePaginationData(totalPages, maxPages, currentPage)
 		end
 	end
 
-	for i,v in pairs(sorted) do
+	for _, v in pairs(sorted) do
 		table.insert(pagesButtons, v.v)
 	end
 
@@ -3298,6 +3365,12 @@ function TBMenu:displayLoadingMark(element, message, size)
 	return loadMark
 end
 
+---Generic function to display a small spinning wheel with text in a specified viewport
+---@param viewElement UIElement
+---@param message string
+---@param fontid ?FontId
+---@param loadScale ?number
+---@param fontScale ?number
 function TBMenu:displayLoadingMarkSmall(viewElement, message, fontid, loadScale, fontScale)
 	local fontid = fontid or FONTS.MEDIUM
 	local loadScale = loadScale or 26
@@ -3372,10 +3445,23 @@ function TBMenu:showTextWithImage(viewElement, text, fontid, imgScale, imgWhite,
 	})
 end
 
+---Shorthand function to display text with "external" icon nearby \
+---@see TBMenu.showTextWithImage
+---@param viewElement UIElement
+---@param text string
+---@param useUiColor ?boolean
 function TBMenu:showTextExternal(viewElement, text, useUiColor)
-	TBMenu:showTextWithImage(viewElement, text, FONTS.MEDIUM, 26, "../textures/menu/general/buttons/external.tga", useUiColor)
+	TBMenu:showTextWithImage(viewElement, text, FONTS.MEDIUM, 26, "../textures/menu/general/buttons/external.tga", { useUiColor = useUiColor or false })
 end
 
+---Generic method to display a question mark with a help popup on mouse hover over the specified object \
+---@see TBMenu.displayPopup
+---@param element UIElement
+---@param message string
+---@param forceManualPosCheck ?boolean
+---@param noMark ?boolean
+---@param maxHeight ?number
+---@return UIElement
 function TBMenu:displayHelpPopup(element, message, forceManualPosCheck, noMark, maxHeight)
 	local messageElement = UIElement:new({
 		parent = element,
@@ -3729,32 +3815,37 @@ function TBMenu:spawnSlider(parent, x, y, w, h, textWidth, sliderRadius, value, 
 	return TBMenu:spawnSlider2(parent, { x = x, y = y, w = w, h = h }, value, settings, sliderFunc, onMouseDown, onMouseUp)
 end
 
+---Spawns a generic toggle with callbacks
+---@param parent UIElement
+---@param x ?number
+---@param y ?number
+---@param w ?number
+---@param h ?number
+---@param toggleValue ?string|number|boolean
+---@param updateFunc ?function
+---@return UIElement
 function TBMenu:spawnToggle(parent, x, y, w, h, toggleValue, updateFunc)
-	local x = x or 0
-	local y = y or 0
-	local w = w or parent.size.h
-	local h = h or parent.size.h
+	---@type Rect
+	local rect = {
+		x = x or 0,
+		y = y or 0,
+		w = w or parent.size.h,
+		h = h or parent.size.h
+	}
 
-	local toggleBG = UIElement:new({
-		parent = parent,
-		pos = { x, y },
-		size = { w, h },
-		shapeType = parent.shapeType,
-		rounded = parent.rounded,
+	local toggleBG = parent:addChild({
+		pos = { rect.x, rect.y },
+		size = { rect.w, rect.h },
 		bgColor = TB_MENU_DEFAULT_DARKEST_COLOR
-	})
-	local toggleView = UIElement:new({
-		parent = toggleBG,
-		pos = { 1, 1 },
-		size = { toggleBG.size.w - 2, toggleBG.size.h - 2 },
-		shapeType = parent.shapeType,
-		rounded = parent.rounded,
+	}, true)
+	local toggleView = toggleBG:addChild({
+		shift = { 1, 1 },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR,
 		hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
 		pressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR,
 		interactive = true,
 		toggle = true
-	})
+	}, true)
 	toggleView:addCustomDisplay(nil, function()
 			if (toggleView.keyboard and toggleView.hoverState == BTN_NONE) then
 				toggleView.hoverState = BTN_FOCUS
@@ -3770,13 +3861,9 @@ function TBMenu:spawnToggle(parent, x, y, w, h, toggleValue, updateFunc)
 			toggleView.keyboard = false
 			toggleView.hoverState = BTN_NONE
 		end)
-	local toggleIcon = UIElement:new({
-		parent = toggleView,
-		pos = { 0, 0 },
-		size = { toggleView.size.w, toggleView.size.h },
-		bgImage = "../textures/menu/general/buttons/checkmark.tga"
-	})
-	if (toggleValue == '0' or toggleValue == 0 or toggleValue == false) then
+	local toggleIcon = toggleView:addChild({ bgImage = "../textures/menu/general/buttons/checkmark.tga" })
+
+	if (tonumber(toggleValue) == 0 or toggleValue == false) then
 		toggleIcon:hide(true)
 	end
 	toggleView:addMouseHandlers(nil, function(s, x, y)
@@ -3790,7 +3877,9 @@ function TBMenu:spawnToggle(parent, x, y, w, h, toggleValue, updateFunc)
 			else
 				toggleIcon:hide(true)
 			end
-			updateFunc(toggleValue)
+			if (updateFunc ~= nil) then
+				updateFunc(toggleValue)
+			end
 		end)
 	return toggleView
 end
@@ -3807,6 +3896,7 @@ end
 ---@field darkerMode boolean
 ---@field noCursor boolean
 ---@field keepFocusOnHide boolean
+---@field maxLength integer
 
 ---@type TextFieldInputSettings
 local TextFieldDefaultInputSettings = {
@@ -3817,59 +3907,50 @@ local TextFieldDefaultInputSettings = {
 	isNumeric = false,
 	allowMultiline = false,
 	noCursor = false,
-	keepFocusOnHide = false
+	keepFocusOnHide = false,
+	maxLength = 0
 }
 
 ---Generates a generic text field UIElement.
----@param parent UIElement
+---@param viewElement UIElement
 ---@param rect ?Rect
 ---@param textFieldString ?string|string[]
 ---@param defaultString ?string
 ---@param inputSettings ?TextFieldInputSettings
 ---@return UIElement
-function TBMenu:spawnTextField2(parent, rect, textFieldString, defaultString, inputSettings)
+function TBMenu:spawnTextField2(viewElement, rect, textFieldString, defaultString, inputSettings)
 	local rect = rect or { }
 	local inputSettings = inputSettings or TextFieldDefaultInputSettings
-	local textBg = UIElement:new({
-		parent = parent,
+	local textBg = viewElement:addChild({
 		pos = { rect.x or 0, rect.y or 0 },
-		size = { rect.w or parent.size.w, rect.h or parent.size.h },
-		bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-		shapeType = parent.shapeType,
-		rounded = parent.rounded
-	})
-	local input = UIElement:new({
-		parent = textBg,
-		pos = { 1, 1 },
-		size = { textBg.size.w - 2, textBg.size.h - 2 },
+		size = { rect.w or viewElement.size.w, rect.h or viewElement.size.h },
+		bgColor = TB_MENU_DEFAULT_DARKEST_COLOR
+	}, true)
+	local input = textBg:addChild({
+		shift = { 1, 1 },
 		interactive = true,
 		bgColor = inputSettings.darkerMode and TB_MENU_DEFAULT_BG_COLOR or TB_MENU_DEFAULT_LIGHTER_COLOR,
 		hoverColor = inputSettings.darkerMode and TB_MENU_DEFAULT_LIGHTER_COLOR or TB_MENU_DEFAULT_LIGHTEST_COLOR,
-		inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
-		shapeType = textBg.shapeType,
-		rounded = textBg.rounded
-	})
-	local inputField = UIElement:new({
-		parent = input,
-		pos = { 4, 1 },
-		size = { input.size.w - 8, input.size.h - 2 },
+		inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS
+	}, true)
+	local inputField = input:addChild({
+		shift = { 4, 1 },
 		interactive = true,
 		textfield = true,
 		isNumeric = inputSettings.isNumeric,
 		allowDecimal = inputSettings.allowDecimal,
 		allowNegative = inputSettings.allowNegative,
+		maxLength = inputSettings.maxLength,
 		textfieldstr = textFieldString or "",
 		textfieldsingleline = not inputSettings.allowMultiline,
 		textfieldkeepfocusonhide = inputSettings.keepFocusOnHide,
-		shapeType = textBg.shapeType,
-		rounded = textBg.rounded,
-		uiColor = parent.uiColor or UICOLORWHITE
-	})
+		uiColor = viewElement.uiColor or UICOLORWHITE
+	}, true)
 	inputField:addMouseHandlers(function()
 			inputField:enableMenuKeyboard()
 		end)
 	inputField.killAction = function() inputField:disableMenuKeyboard() end
-	TBMenu:displayTextfield(inputField, inputSettings.fontId or 4, inputSettings.textScale, inputSettings.textColor or inputField.uiColor, defaultString, inputSettings.textAlign, inputSettings.noCursor)
+	TBMenuInternal.DisplayTextfield(inputField, inputSettings.fontId or 4, inputSettings.textScale, inputSettings.textColor or inputField.uiColor, defaultString, inputSettings.textAlign, inputSettings.noCursor)
 	return inputField
 end
 
@@ -3914,10 +3995,17 @@ function TBMenu:spawnTextField(parent, x, y, w, h, textFieldString, inputSetting
 	return TBMenu:spawnTextField2(parent, rect, textFieldString, defaultStr, inputSettings)
 end
 
-function TBMenu:displayTextfield(element, fontid, scale, color, defaultStr, orientation, noCursor)
+---Internal method to display text field
+---@param element UIElement
+---@param fontid FontId
+---@param scale number
+---@param color Color
+---@param defaultStr ?string
+---@param orientation ?UIElementTextAlign
+---@param noCursor ?boolean
+function TBMenuInternal.DisplayTextfield(element, fontid, scale, color, defaultStr, orientation, noCursor)
 	local defaultStr = defaultStr or ""
 	local orientation = orientation or LEFTMID
-	local scale = scale or 1
 
 	element:addAdaptedText(true, defaultStr, nil, nil, fontid, orientation, scale, nil, nil, nil, nil, nil, true)
 	local defaultStringScale = element.textScale

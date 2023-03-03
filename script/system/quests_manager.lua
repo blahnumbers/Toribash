@@ -372,14 +372,14 @@ function Quests:claim(quest, successFunc, errorFunc)
 			end
 		else
 			local errorMessage = response:gsub("GATEWAY 0;.*", "")
-			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REWARDSCLAIMERROROTHER .. ": " .. errorMessage, TB_MENU_MAIN_ISOPEN == 0)
+			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REWARDSCLAIMERROROTHER .. ": " .. errorMessage)
 
 			if (errorFunc) then
 				errorFunc()
 			end
 		end
 	end, function()
-		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.ERRORTRYAGAIN, TB_MENU_MAIN_ISOPEN == 0)
+		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.ERRORTRYAGAIN)
 		if (errorFunc) then
 			errorFunc()
 		end

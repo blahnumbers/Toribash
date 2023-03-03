@@ -48,6 +48,14 @@ do
 		end
 	end
 
+	---@class NewsItemData : MenuSectionButton
+	---@field hasMiniImage boolean
+	---@field initAction function
+	---@field isEvent boolean
+	---@field eventid integer
+	---@field isBattlePass boolean
+	---@field featured boolean
+
 	function News:getNews(miniImages)
 		local file = Files:open("../data/news.txt")
 		if (not file.data) then
@@ -61,8 +69,9 @@ do
 		local lines = file:readAll()
 		file:close()
 
+		---@type NewsItemData[]
 		local newsData = {}
-		for i,ln in pairs(lines) do
+		for _, ln in pairs(lines) do
 			local ln = ln:gsub("\r?\n?", '')
 			if (ln:find("^NEWSID")) then
 				table.insert(newsData, { ratio = 0.5, disableUnload = true })

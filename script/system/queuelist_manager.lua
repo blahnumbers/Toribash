@@ -463,7 +463,7 @@ function QueueList:report(pName)
 				local response = get_network_response()
 				if (response:find("GATEWAY 0; 0")) then
 					if (waitOverlay.destroyed or not waitOverlay:isDisplayed()) then
-						TBMenu:showStatusMessage(reportReasonId == 3 and TB_MENU_LOCALIZED.REPORTSSUCCESSSCAMMING or TB_MENU_LOCALIZED.REPORTSSUCCESSDEFAULT, true)
+						TBMenu:showStatusMessage(reportReasonId == 3 and TB_MENU_LOCALIZED.REPORTSSUCCESSSCAMMING or TB_MENU_LOCALIZED.REPORTSSUCCESSDEFAULT)
 						return
 					end
 					waitOverlay:kill(true)
@@ -521,11 +521,11 @@ function QueueList:report(pName)
 					exitButton:addMouseHandlers(nil, overlay.btnUp)
 				else
 					waitOverlay:kill()
-					TBMenu:showStatusMessage(TB_MENU_LOCALIZED.ACCOUNTINFOERROR, true)
+					TBMenu:showStatusMessage(TB_MENU_LOCALIZED.ACCOUNTINFOERROR)
 				end
 			end, function()
 				waitOverlay:kill()
-				TBMenu:showStatusMessage(TB_MENU_LOCALIZED.ACCOUNTINFOERROR, true)
+				TBMenu:showStatusMessage(TB_MENU_LOCALIZED.ACCOUNTINFOERROR)
 			end)
 
 		local slowResponseWaiter = waitOverlay:addChild({})

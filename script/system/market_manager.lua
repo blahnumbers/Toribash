@@ -1277,7 +1277,7 @@ do
 							message = message .. (response.warning and ("\n" .. response.warning:gsub("(%w+)", "^37%1")) or '') .. (response.info and ("\n" .. response.info:gsub("(%w+)", "^39%1")) or '')
 						end
 
-						TBMenu:showStatusMessage(message, not TB_MENU_MAIN_ISOPEN, 10)
+						TBMenu:showStatusMessage(message, 10)
 						Market:clearModal()
 
 						if (offer.button ~= nil) then
@@ -1287,7 +1287,7 @@ do
 						end
 						update_tc_balance()
 					end, function()
-						TBMenu:showStatusMessage(get_network_error(), not TB_MENU_MAIN_ISOPEN)
+						TBMenu:showStatusMessage(get_network_error())
 						Market:clearModal()
 					end)
 			end)
@@ -1779,10 +1779,10 @@ do
 				end
 
 				update_tc_balance()
-				TBMenu:showStatusMessage(message, not TB_MENU_MAIN_ISOPEN, 10)
+				TBMenu:showStatusMessage(message, 10)
 				Market:clearModal()
 			end, function()
-				TBMenu:showStatusMessage(get_network_error(), not TB_MENU_MAIN_ISOPEN)
+				TBMenu:showStatusMessage(get_network_error())
 				Market:clearModal()
 			end)
 	end

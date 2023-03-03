@@ -84,13 +84,13 @@ function MoveMemory:getOpeners()
 	if (not file.data) then
 		if (not is_mobile()) then
 			if (pcall(MoveMemoryInternal.checkLegacyCache) == false) then
-				TBMenu:showStatusMessage(TB_MENU_LOCALIZED.MOVEMEMORYLOADERROR, true)
+				TBMenu:showStatusMessage(TB_MENU_LOCALIZED.MOVEMEMORYLOADERROR)
 				return self.StoragePopulated
 			end
 			file = Files:open("system/movememory.mm", FILES_MODE_READONLY)
 		end
 		if (not file.data) then
-			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.MOVEMEMORYLOADERROR, true)
+			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.MOVEMEMORYLOADERROR)
 			return self.StoragePopulated
 		end
 	end
@@ -313,12 +313,12 @@ function MoveMemory:showSaveRecordingComplete(successAction, discard)
 
 	local function saveMove(name, description, mod)
 		if (name:len() == 0) then
-			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.MOVEMEMORYMODNAMEEMPTYERROR, true)
+			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.MOVEMEMORYMODNAMEEMPTYERROR)
 			return
 		end
 		local file = Files:open("system/movememory.mm", FILES_MODE_APPEND)
 		if (not file.data) then
-			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.MOVEMEMORYMOVESAVEERRORPERMS, true)
+			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.MOVEMEMORYMOVESAVEERRORPERMS)
 			return
 		end
 		file:writeLine("")
@@ -349,11 +349,11 @@ function MoveMemory:recordMove()
 	local ws = get_world_state()
 	local player = ws.selected_player
 	if (player < 0) then
-		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.MOVEMEMORYERRORNOTINGAME, true)
+		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.MOVEMEMORYERRORNOTINGAME)
 		return false
 	end
 	if (MoveMemory.PlaybackActive[player]) then
-		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.MOVEMEMORYERRORSTOPMOVE, true)
+		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.MOVEMEMORYERRORSTOPMOVE)
 		return false
 	end
 	local turn = ws.match_turn + 1
@@ -395,7 +395,7 @@ function MoveMemory:deleteMove(memorymove)
 
 	local file = Files:open("system/movememory.mm", FILES_MODE_WRITE)
 	if (not file.data) then
-		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.MOVEMEMORYERRORUPDATINGDATA, true)
+		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.MOVEMEMORYERRORUPDATINGDATA)
 		return false
 	end
 
@@ -418,7 +418,7 @@ function MoveMemory:showMain()
 	local status, error = pcall(function() MoveMemory:getOpeners() end)
 	if (not status) then
 		echo("Error getting openers")
-		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.WORDERROR .. " " .. error, true)
+		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.WORDERROR .. " " .. error)
 		return
 	end
 	if (not MoveMemory.StoragePopulated) then
@@ -631,7 +631,7 @@ function MoveMemory:playMove(memorymove, spawnHook, player, noToolbar)
 	local worldstate = get_world_state()
 	local player = player or worldstate.selected_player
 	if (player < 0 or player >= worldstate.num_players) then
-		TBMenu:showStatusMessage("Please select a player to run the opener", true)
+		TBMenu:showStatusMessage("Please select a player to run the opener")
 		return
 	end
 
