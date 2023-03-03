@@ -1142,3 +1142,5 @@ ROOMLISTFILTEROFFICIALONLY	Official room
 ROOMLISTFILTERHASENTRYFEE	Has entry fee
 ROOMLISTFILTERDUELROOM	Duel room
 ROOMLISTCREATEROOMTITLE	Creating new room
+BATTLEPASSTIMELEFT	Time left until Battle Pass reset:
+BATTLEPASSTIMEOVER	This Battle Pass period is over, please come back later!
