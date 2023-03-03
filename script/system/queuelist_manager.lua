@@ -1147,13 +1147,17 @@ function QueueList.AddPlayer(id, playerInfo, bouts, spectator)
 	playerInfo.button:moveTo(-playerInfo.button.size.w - flagScale - 10)
 
 	local flagInfo = FlagManager.GetFlagInfoByCode(playerInfo.flag_code)
-	local playerFlag = playerInfo.button:addChild({
-		pos = { playerInfo.button.size.w + 5, (playerInfo.button.size.h - flagScale) / 2 },
-		size = { flagScale, flagScale },
-		bgImage = flagInfo.filename,
-		imageAtlas = true,
-		atlas = flagInfo.atlas
-	})
+	if (spectator) then
+		playerInfo.button:moveTo(flagScale, nil, true)
+	else
+		local playerFlag = playerInfo.button:addChild({
+			pos = { playerInfo.button.size.w + 5, (playerInfo.button.size.h - flagScale) / 2 },
+			size = { flagScale, flagScale },
+			bgImage = flagInfo.filename,
+			imageAtlas = true,
+			atlas = flagInfo.atlas
+		})
+	end
 
 	local statusIcon = QueueListInternal.GetStatusIcon(playerInfo)
 	if (statusIcon ~= nil) then
@@ -1208,7 +1212,7 @@ function QueueList.Reload(reinit)
 
 	local bouts = get_bouts()
 	local numBouts = #bouts
-	for i, v in pairs(bouts) do
+	for i, _ in pairs(bouts) do
 		local playerInfo = QueueListInternal.getBoutInfo(i - 1)
 		if (playerInfo) then
 			if (QueueListInternal.InfoChanged(playerInfo, QueueList.Cache.Players.Bouts[i])) then
@@ -1222,7 +1226,7 @@ function QueueList.Reload(reinit)
 	end
 
 	local spectators = get_spectators()
-	for i, v in pairs(spectators) do
+	for i, _ in pairs(spectators) do
 		local playerInfo = QueueListInternal.getSpecInfo(i - 1)
 		if (playerInfo) then
 			if (QueueListInternal.InfoChanged(playerInfo, QueueList.Cache.Players.Specs[i])) then
@@ -1252,7 +1256,7 @@ function QueueList.Reload(reinit)
 		v.button:hide(true)
 	end
 
-	QueueListInternal.ListScrollbar.size.h = math.max(0.1, math.min(1, (QueueListInternal.ListHolder.size.h) / (#QueueListInternal.ListElements * QueueListInternal.listButtonHeight) or QueueListInternal.ListHolder.size.h)) * QueueListInternal.ListScrollbar.parent.size.h
+	QueueListInternal.ListScrollbar.size.h = math.ceil(math.max(0.1, math.min(1, (QueueListInternal.ListHolder.size.h) / (#QueueListInternal.ListElements * QueueListInternal.listButtonHeight) or QueueListInternal.ListHolder.size.h)) * 100) / 100 * QueueListInternal.ListScrollbar.parent.size.h
 	if (#QueueListInternal.ListElements > 0) then
 		QueueListInternal.ListScrollbar.listReload()
 	end
