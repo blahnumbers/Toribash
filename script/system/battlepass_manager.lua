@@ -42,9 +42,11 @@ if (BattlePass == nil) then
 	---@class BattlePass
 	---@field LevelData BattlePassLevel[] Level data for the Battle Pass
 	---@field UserData BattlePassUserData Current user's data for the Battle Pass
+	---@field TimeLeft integer Time left in seconds until this BP is over
 	---@field wasOpened boolean Whether the user has opened the Battle Pass screen during this session
 	BattlePass = {
 		ver = 1.0,
+		TimeLeft = -1,
 		wasOpened = false
 	}
 	BattlePass.__index = BattlePass
@@ -113,6 +115,8 @@ function BattlePass:getUserData(viewElement)
 				upgrade_price = tonumber(data[6]) or 0,
 				level_available = 0
 			}
+			BattlePass.TimeLeft = tonumber(data[7]) or 0
+			BattlePass.UpdateTimestamp = os.time()
 			for i,v in ipairs(BattlePass.LevelData) do
 				if (v.xp_total <= BattlePass.UserData.xp) then
 					BattlePass.UserData.level_available = v.level
@@ -544,7 +548,7 @@ function BattlePass:showPrizeItem(viewElement, prize)
 	elseif (prize.itemid ~= nil and prize.itemid > 0) then
 		 prizeIcon = Torishop:getItemIcon(prize.itemid)
 		 local itemInfo = Torishop:getItemInfo(prize.itemid)
-		 prizeTooltip = TBMenu:displayPopup(prizeBackground, itemInfo.itemname .. (string.len(itemInfo.description) > 0 and ("\n\n" .. itemInfo.description) or ''), true, 500)
+		 prizeTooltip = TBMenu:displayPopup(prizeBackground, itemInfo.itemname .. (string.len(itemInfo.description or "") > 0 and ("\n\n" .. itemInfo.description) or ''), true, 500)
 	else
 		return
 	end
@@ -827,12 +831,27 @@ function BattlePass:showMain()
 	})
 	BattlePass:showProgress(battlePassProgressHolder)
 
-	local battlePassPrizesHolder = TBMenu.CurrentSection:addChild(({
+	local battlePassPrizesView = TBMenu.CurrentSection:addChild(({
 		pos = { 5, battlePassProgressHolder.size.h + 10 },
 		size = { TBMenu.CurrentSection.size.w - leftWidth - 20, TBMenu.CurrentSection.size.h - battlePassProgressHolder.size.h - 10 },
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR
 	}))
-	TBMenu:addBottomBloodSmudge(battlePassPrizesHolder, 1)
+	TBMenu:addBottomBloodSmudge(battlePassPrizesView, 1)
+	local battlePassTimeLeft = battlePassPrizesView:addChild({
+		pos = { 0, -50 },
+		size = { battlePassPrizesView.size.w, 40 }
+	})
+	battlePassTimeLeft:addCustomDisplay(true, function()
+			local bpTimeLeft = BattlePass.TimeLeft + BattlePass.UpdateTimestamp - os.time()
+			if (bpTimeLeft > 0) then
+				battlePassTimeLeft:uiText(TB_MENU_LOCALIZED.BATTLEPASSTIMELEFT .. " " .. TBMenu:getTime(bpTimeLeft, 3))
+			else
+				battlePassTimeLeft:addAdaptedText(true, TB_MENU_LOCALIZED.BATTLEPASSTIMEOVER)
+			end
+		end)
+	local battlePassPrizesHolder = battlePassPrizesView:addChild({
+		size = { battlePassPrizesView.size.w, battlePassPrizesView.size.h + battlePassTimeLeft.shift.y }
+	})
 	BattlePass:showPrizes(battlePassPrizesHolder)
 
 	local buttonShiftX = battlePassPrizesHolder.shift.x + battlePassPrizesHolder.size.w + 10
