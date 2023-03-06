@@ -130,8 +130,10 @@ end
 ---@param topBar UIElement
 ---@param elementHeight number
 ---@param data ModFolder
----@param search UIElement
-function Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, data, search)
+---@param search ?UIElement
+---@param modLoadCustomFunc ?function
+---@param scrollOverride ?boolean
+function Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, data, search, modLoadCustomFunc, scrollOverride)
 	if (listingHolder.scrollBar) then
 		listingHolder.scrollBar:kill()
 	end
@@ -141,24 +143,33 @@ function Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, data
 		topBar.title:kill()
 		topBar.title = nil
 	end
+
+	local extraShift = { x = 0, y = 0 }
+	topBar.helpPopup = topBar.helpPopup
+	if (topBar.helpPopup ~= nil) then
+		extraShift.x = topBar.helpPopup.size.w + topBar.helpPopup.shift.x
+		extraShift.y = topBar.helpPopup.shift.y
+	else
+		extraShift.y = -elementHeight
+	end
 	local modsFolderName = topBar:addChild({
-		---@diagnostic disable-next-line: undefined-field
-		pos = { topBar.helpPopup.size.w + topBar.helpPopup.shift.x + 5, 35 },
-		---@diagnostic disable-next-line: undefined-field
-		size = { topBar.size.w - 15 - (topBar.helpPopup.size.w + topBar.helpPopup.shift.x), topBar.size.h - 40 }
+		pos = { extraShift.x + 5, extraShift.y },
+		size = { topBar.size.w - 15 - extraShift.x, elementHeight }
 	})
 	topBar.title = modsFolderName
-	modsFolderName:addAdaptedText(true, data.name:gsub("^data/mod", "Mods"):gsub("/", " :: "), nil, nil, FONTS.BIG, LEFTMID, 0.6, nil, 0.5)
+	modsFolderName:addAdaptedText(true, data.name:gsub("^data/mod", "Mods"):gsub("/", " :: "), nil, nil, topBar.helpPopup and FONTS.BIG or FONTS.MEDIUM, LEFTMID, topBar.helpPopup and 0.6 or 1, nil, 0.5)
 
-	local searchString = utf8.gsub(search.textfieldstr[1], "([^%w])", "%%%1")
+	local searchString = search and utf8.gsub(search.textfieldstr[1], "([^%w])", "%%%1") or ""
 	local listElements = {}
 	Mods.CurrentFolder = data
 
 	if (data.name ~= "data/mod" or searchString ~= "") then
 		Mods.spawnListButton(listingHolder, listElements, elementHeight, "../textures/menu/general/back.tga", TB_MENU_LOCALIZED.NAVBUTTONBACK, function()
 			Mods.ListShift[1] = 0
-			search:clearTextfield()
-			Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, data.parent and data.parent or data, search)
+			if (search ~= nil) then
+				search:clearTextfield()
+			end
+			Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, data.parent and data.parent or data, search, modLoadCustomFunc, scrollOverride)
 		end, { w = elementHeight * 0.5, h = elementHeight * 0.5 })
 	end
 
@@ -169,8 +180,10 @@ function Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, data
 		else
 			local element = Mods.spawnListButton(listingHolder, listElements, elementHeight, "../textures/menu/general/folder.tga", folder, function()
 				Mods.ListShift[1] = 0
-				search:clearTextfield()
-				Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, data.contents[i], search)
+				if (search ~= nil) then
+					search:clearTextfield()
+				end
+				Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, data.contents[i], search, modLoadCustomFunc, scrollOverride)
 			end, { w = elementHeight * 0.5, h = elementHeight * 0.5 })
 			table.remove(listElements)
 			local inserted = false
@@ -182,7 +195,13 @@ function Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, data
 							table.insert(listElements, element)
 						end
 						local filename = file:gsub("%.tbm$", "")
-						Mods.spawnListButton(listingHolder, listElements, elementHeight, "../textures/menu/general/buttons/arrowright.tga", filename, function() Mods.buttonClick(file) end, { w = elementHeight / 2 })
+						Mods.spawnListButton(listingHolder, listElements, elementHeight, "../textures/menu/general/buttons/arrowright.tga", filename, function()
+							if (modLoadCustomFunc) then
+								modLoadCustomFunc(file)
+							else
+								Mods.buttonClick(file)
+							end
+						end, { w = elementHeight / 2 })
 					end
 				end
 				if (not inserted) then
@@ -196,15 +215,23 @@ function Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, data
 	for _, file in pairs(data.mods) do
 		if (file:lower():find(searchString)) then
 			local filename = file:gsub("%.tbm$", "")
-			Mods.spawnListButton(listingHolder, listElements, elementHeight, nil, filename, function() Mods.buttonClick(file) end)
+			Mods.spawnListButton(listingHolder, listElements, elementHeight, nil, filename, function()
+				if (modLoadCustomFunc) then
+					modLoadCustomFunc(file)
+				else
+					Mods.buttonClick(file)
+				end
+			end)
 		end
 	end
 	if (modmakerId > 0) then
 		local element = Mods.spawnListButton(listingHolder, listElements, elementHeight, "../textures/menu/general/folder.tga", data.folders[modmakerId], function()
 			Mods.ListShift[1] = 0
-			search:clearTextfield()
-			Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, data.contents[modmakerId], search)
-		end)
+			if (search ~= nil) then
+				search:clearTextfield()
+			end
+			Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, data.contents[modmakerId], search, modLoadCustomFunc, scrollOverride)
+		end, { w = elementHeight * 0.5, h = elementHeight * 0.5 })
 		table.remove(listElements)
 		local inserted = false
 		if (searchString ~= "") then
@@ -215,7 +242,13 @@ function Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, data
 						table.insert(listElements, element)
 					end
 					local filename = file:gsub("%.tbm$", "")
-					Mods.spawnListButton(listingHolder, listElements, elementHeight, "../textures/menu/general/buttons/arrowright.tga", filename, function() Mods.buttonClick(file) end, { w = elementHeight / 2 })
+					Mods.spawnListButton(listingHolder, listElements, elementHeight, "../textures/menu/general/buttons/arrowright.tga", filename, function()
+						if (modLoadCustomFunc) then
+							modLoadCustomFunc(file)
+						else
+							Mods.buttonClick(file)
+						end
+					end, { w = elementHeight / 2 })
 				end
 			end
 			if (not inserted) then
@@ -239,7 +272,7 @@ function Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, data
 	end
 	local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
 	listingHolder.scrollBar = scrollBar
-	scrollBar:makeScrollBar(listingHolder, listElements, toReload, Mods.ListShift)
+	scrollBar:makeScrollBar(listingHolder, listElements, toReload, Mods.ListShift, nil, scrollOverride)
 end
 
 ---Creates mod browser window

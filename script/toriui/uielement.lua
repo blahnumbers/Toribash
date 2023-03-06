@@ -184,6 +184,7 @@ if (not UIElement) then
 	---@field isNumeric boolean Whether the textfield object should only accept numeric values
 	---@field allowNegative boolean Whether the numeric only textfield should accept negative values
 	---@field allowDecimal boolean Whether the numeric only textfield should accept decimal values
+	---@field customRegex string Custom regex string to match textfield input against
 	---@field toggle boolean Whether the object will be used as a toggle
 	---@field innerShadow number|number[]
 	---@field shadowColor Color|Color[]
@@ -444,7 +445,7 @@ function UIElement:new(o)
 		elem.textfieldsingleline = o.textfieldsingleline
 		elem.textfieldkeepfocusonhide = o.textfieldkeepfocusonhide
 		---@diagnostic disable-next-line: duplicate-set-field
-		elem.textInput = function(input) elem:textfieldInput(input, o.isNumeric, o.allowNegative, o.allowDecimal) end
+		elem.textInput = function(input) elem:textfieldInput(input, o.isNumeric, o.allowNegative, o.allowDecimal, o.customRegex) end
 		---@diagnostic disable-next-line: duplicate-set-field
 		elem.keyDown = function(key)
 				if (elem:textfieldKeyDown(key) and elem.textInputCustom) then
@@ -1544,11 +1545,17 @@ end
 ---@param isNumeric boolean
 ---@param allowNegative boolean
 ---@param allowDecimal boolean
+---@param customRegexCheck ?string
 ---@see UIElement.keyboardHooks
-function UIElement:textfieldInput(input, isNumeric, allowNegative, allowDecimal)
+function UIElement:textfieldInput(input, isNumeric, allowNegative, allowDecimal, customRegexCheck)
 	local replaceSymbols = 0
 	local replaceSymbolsAfter = 0
 	local negativeSign = false
+
+	if (customRegexCheck) then
+		input = utf8.match(input, customRegexCheck)
+	end
+
 	local strLen = utf8.len(input)
 	local clipboardPaste = strLen > 1 and get_clipboard_text() == input
 

@@ -3904,6 +3904,7 @@ end
 ---@field noCursor boolean
 ---@field keepFocusOnHide boolean
 ---@field maxLength integer
+---@field customRegex string
 
 ---@type TextFieldInputSettings
 local TextFieldDefaultInputSettings = {
@@ -3947,6 +3948,7 @@ function TBMenu:spawnTextField2(viewElement, rect, textFieldString, defaultStrin
 		isNumeric = inputSettings.isNumeric,
 		allowDecimal = inputSettings.allowDecimal,
 		allowNegative = inputSettings.allowNegative,
+		customRegex = inputSettings.customRegex,
 		maxLength = inputSettings.maxLength,
 		textfieldstr = textFieldString or "",
 		textfieldsingleline = not inputSettings.allowMultiline,

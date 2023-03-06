@@ -414,15 +414,12 @@ end
 
 ---Displays MoveMemory main window
 function MoveMemory:showMain()
-	echo("Echo showing main")
 	local status, error = pcall(function() MoveMemory:getOpeners() end)
 	if (not status) then
-		echo("Error getting openers")
 		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.WORDERROR .. " " .. error)
 		return
 	end
 	if (not MoveMemory.StoragePopulated) then
-		echo("Not populated, exiting")
 		return
 	end
 

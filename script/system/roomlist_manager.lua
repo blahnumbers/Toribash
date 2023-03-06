@@ -536,7 +536,7 @@ function RoomList:showRoomListFeatured(roomsList, viewElement, listElements, ele
 			imagePressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR,
 			disableUnload = true
 		})
-		TBMenu:addOuterRounding(topRowLine, TB_MENU_DEFAULT_BG_COLOR, { 4, 4, 0, 0 })
+		TBMenu:addOuterRounding(topRowLine, TB_MENU_DEFAULT_BG_COLOR, { 10, 10, 0, 0 })
 		local midRowLine = listElements[2]:addChild({
 			pos = { (i - 1) * (buttonWidth + 10), 0 },
 			size = { buttonWidth, elementHeight },
@@ -549,7 +549,7 @@ function RoomList:showRoomListFeatured(roomsList, viewElement, listElements, ele
 			imagePressedColor = topRowLine.imagePressedColor,
 			disableUnload = true
 		})
-		TBMenu:addOuterRounding(midRowLine, TB_MENU_DEFAULT_BG_COLOR, { 0, 0, 4, 4 })
+		TBMenu:addOuterRounding(midRowLine, TB_MENU_DEFAULT_BG_COLOR, { 0, 0, 10, 10 })
 
 		topRowLine:addCustomDisplay(function()
 			if (midRowLine.hoverState ~= topRowLine.hoverState and midRowLine:isDisplayed()) then
@@ -674,9 +674,44 @@ function RoomList:showRoomList(viewElement)
 	scrollBar:makeScrollBar(listingHolder, listElements, toReload)
 end
 
+---Displays mod selection for the new room
+---@param viewElement UIElement
+---@return string[]
+function RoomList:displayCreateRoomMods(viewElement, mainListBotBar)
+	local elementHeight = 36
+	local toReload, topBar, botBar, listingView, listingHolder, scrollBarBG = TBMenu:prepareScrollableList(viewElement, elementHeight + 40, 0, 20, TB_MENU_DEFAULT_BG_COLOR)
+	table.insert(toReload.child, mainListBotBar)
+
+	local modInputHolder = topBar:addChild({
+		pos = { 5, 3 },
+		size = { topBar.size.w - 20, 34 },
+		shapeType = viewElement.shapeType,
+		rounded = viewElement.rounded
+	})
+	local modInputField = TBMenu:spawnTextField2(modInputHolder, nil, nil, "Room mod", {
+		textAlign = LEFTMID, darkerMode = true, fontId = 4, textScale = 0.7, keepFocusOnHide = true, customRegex = "[%a%d%.-_]+"
+	})
+	local lastText = modInputField.textfieldstr[1]
+	local onSelectFunc = function(modname)
+		modInputField:clearTextfield()
+		modInputField.textInput(modname)
+	end
+	modInputField:addKeyboardHandlers(nil, function()
+			if (lastText ~= modInputField.textfieldstr[1]) then
+				Mods.ListShift[1] = 0
+				Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, Mods.CurrentFolder, modInputField, onSelectFunc, true)
+				lastText = modInputField.textfieldstr[1]
+			end
+		end)
+	Mods.CurrentFolder = Mods.getModFiles()
+	Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, Mods.CurrentFolder, modInputField, onSelectFunc, true)
+
+	return modInputField.textfieldstr
+end
+
 function RoomList:createRoom()
 	local backdropOverlay = TBMenu:spawnWindowOverlay(nil, true)
-	local roomCreateSize = { math.min(WIN_W - TBMenu.NavigationBar.shift.x * 2, 900), math.min(WIN_H - TBMenu.NavigationBar.shift.y * 2, 500) }
+	local roomCreateSize = { math.min(WIN_W - TBMenu.NavigationBar.shift.x * 2, 1000), math.min(WIN_H - TBMenu.NavigationBar.shift.y * 2, 500) }
 	local createRoomBackground = backdropOverlay:addChild({
 		shift = { (backdropOverlay.size.w - roomCreateSize[1]) / 2, (backdropOverlay.size.h - roomCreateSize[2]) / 2 },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR,
@@ -691,6 +726,8 @@ function RoomList:createRoom()
 	topBar:setRounded({ 4, 0 })
 	botBar.shapeType = ROUNDED
 	botBar:setRounded({ 0, 4 })
+	listingView.size.w = createRoomBackground.size.w / 3 * 2
+	listingHolder.size.w = listingView.size.w - scrollBarBG.size.w
 	local closeButton = topBar:addChild({
 		pos = { -10 - elementHeight, 10 },
 		size = { elementHeight, elementHeight },
@@ -723,34 +760,37 @@ function RoomList:createRoom()
 	---@field targetValue string[]|number[]
 	---@field required boolean
 	---@field errorMessage string
+	---@field customRegex string
 
 	---@type CreateRoomOption[]
 	local createRoomFields = {
 		{
-			title = "Room name",
+			title = TB_MENU_LOCALIZED.ROOMLISTCREATEROOMNAME,
 			type = TYPE_INPUT,
 			action = function(val) runCmd("join " .. val, true) end,
 			required = true,
-			errorMessage = "Room name shouldn't be empty"
+			errorMessage = TB_MENU_LOCALIZED.ROOMLISTCREATEROOMNAMEEMPTYERROR,
+			customRegex = "[%a%d]+"
 		},
 		{
-			title = "Room description",
+			title = TB_MENU_LOCALIZED.ROOMLISTCREATEROOMDESC,
 			default = TB_MENU_PLAYER_INFO.username .. "'s server",
 			type = TYPE_INPUT,
-			action = function(val) runCmd("desc " .. val, true) end
+			action = function(val) runCmd("desc " .. val, true) end,
+			customRegex = "[%C%Z]+"
 		},
 		{
-			title = "Password",
-			default = "Specify a password to make your room private",
+			title = TB_MENU_LOCALIZED.ROOMLISTCREATEROOMPASS,
+			default = TB_MENU_LOCALIZED.ROOMLISTCREATEROOMPASSINFO,
 			type = TYPE_INPUT,
 			action = function(val) runCmd("passwd " .. val, true) end
 		},
 		{
-			title = "Min belt",
+			title = TB_MENU_LOCALIZED.ROOMLISTCREATEROOMMINBELT,
 			type = TYPE_DROPDOWN,
 			options = {
 				{
-					text = "No restriction",
+					text = TB_MENU_LOCALIZED.ROOMLISTCREATENORESTRICTIONS,
 					value = 0
 				},
 				{
@@ -797,11 +837,11 @@ function RoomList:createRoom()
 			action = function(val) runCmd("minbelt " .. val, true) end
 		},
 		{
-			title = "Max belt",
+			title = TB_MENU_LOCALIZED.ROOMLISTCREATEROOMMAXBELT,
 			type = TYPE_DROPDOWN,
 			options = {
 				{
-					text = "No restriction",
+					text = TB_MENU_LOCALIZED.ROOMLISTCREATENORESTRICTIONS,
 					value = 0
 				},
 				{
@@ -877,7 +917,8 @@ function RoomList:createRoom()
 				fontId = 4,
 				darkerMode = true,
 				textAlign = LEFTMID,
-				textScale = 0.7
+				textScale = 0.7,
+				customRegex = v.customRegex
 			})
 			if (v.required) then
 				textField:addInputCallback(function()
@@ -936,11 +977,17 @@ function RoomList:createRoom()
 		end
 		local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
 		listingHolder.scrollBar = scrollBar
-		scrollBar:makeScrollBar(listingHolder, listElements, toReload)
+		scrollBar:makeScrollBar(listingHolder, listElements, toReload, nil, nil, true)
 	else
 		scrollBarBG:hide()
 		listingHolder:moveTo((listingView.size.w - listingHolder.size.w) / 2)
 	end
+
+	local createRoomModHolder = createRoomBackground:addChild({
+		pos = { listingView.size.w, topBar.size.h },
+		size = { createRoomBackground.size.w - listingView.size.w, createRoomBackground.size.h - topBar.size.h * 2 }
+	}, true)
+	local targetMod = self:displayCreateRoomMods(createRoomModHolder, botBar)
 
 	local createRoomButtonSize = math.min(350, botBar.size.w / 2)
 	local createRoomButtonBackdrop = botBar:addChild({
@@ -959,10 +1006,14 @@ function RoomList:createRoom()
 	createRoomButton:addAdaptedText("Create room")
 	createRoomButton:addMouseUpHandler(function()
 			createRoomBackground:kill(true)
-			TBMenu:displayLoadingMark(createRoomBackground, "Creating your room, please wait...")
+			TBMenu:displayLoadingMark(createRoomBackground, TB_MENU_LOCALIZED.ROOMLISTCREATEPLEASEWAIT)
 			createRoomFields[1].action(createRoomFields[1].targetValue[1])
 			add_hook("new_mp_game", "roomListMultiplayerCreateJoinRoom", function()
 				remove_hooks("roomListMultiplayerCreateJoinRoom")
+				if (targetMod[1] ~= "") then
+					runCmd("loadmod " .. targetMod[1], true)
+					runCmd("reset", true)
+				end
 				for i, v in pairs(createRoomFields) do
 					if (i > 1 and v.targetValue[1] ~= "") then
 						v.action(v.targetValue[1])
@@ -972,7 +1023,7 @@ function RoomList:createRoom()
 				close_menu()
 			end)
 		end)
-	createRoomButton:deactivate()
+	createRoomButton:deactivate(true)
 
 	local createRoomTooltip
 	createRoomTooltip = TBMenu:displayPopup(createRoomButtonBackdrop, createRoomFields[1].errorMessage)
@@ -980,7 +1031,7 @@ function RoomList:createRoom()
 	updateCreateRoomButton = function()
 		for _, v in pairs(createRoomFields) do
 			if (v.required and v.targetValue[1] == "") then
-				createRoomButton:deactivate()
+				createRoomButton:deactivate(true)
 
 				if (createRoomTooltip ~= nil) then
 					createRoomTooltip:kill()
@@ -991,7 +1042,7 @@ function RoomList:createRoom()
 				return
 			end
 		end
-		createRoomButton:activate()
+		createRoomButton:activate(true)
 		if (createRoomTooltip ~= nil) then
 			createRoomTooltip:kill()
 			createRoomTooltip = nil
