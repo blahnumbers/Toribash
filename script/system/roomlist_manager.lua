@@ -684,9 +684,16 @@ function RoomList:createRoom()
 		shapeType = ROUNDED,
 		rounded = 4
 	})
-	local closeButton = createRoomBackground:addChild({
-		pos = { -50, 10 },
-		size = { 40, 40 },
+	local elementHeight = 40
+	local toReload, topBar, botBar, listingView, listingHolder, scrollBarBG = TBMenu:prepareScrollableList(createRoomBackground, elementHeight + 20, elementHeight + 20, 20, TB_MENU_DEFAULT_BG_COLOR)
+
+	topBar.shapeType = ROUNDED
+	topBar:setRounded({ 4, 0 })
+	botBar.shapeType = ROUNDED
+	botBar:setRounded({ 0, 4 })
+	local closeButton = topBar:addChild({
+		pos = { -10 - elementHeight, 10 },
+		size = { elementHeight, elementHeight },
 		interactive = true,
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
@@ -697,11 +704,271 @@ function RoomList:createRoom()
 		bgImage = "../textures/menu/general/buttons/crosswhite.tga"
 	})
 	closeButton:addMouseUpHandler(function() backdropOverlay:kill() end)
-	local createRoomTitle = createRoomBackground:addChild({
+	local createRoomTitle = topBar:addChild({
 		pos = { 60, 10 },
-		size = { createRoomBackground.size.w - 120, 40 }
+		size = { createRoomBackground.size.w - 120, elementHeight }
 	})
 	createRoomTitle:addAdaptedText(true, TB_MENU_LOCALIZED.ROOMLISTCREATEROOMTITLE, nil, nil, FONTS.BIG)
+
+	local TYPE_INPUT = 0
+	local TYPE_DROPDOWN = 1
+	local TYPE_CHECKBOX = 2
+
+	---@class CreateRoomOption
+	---@field title string
+	---@field default string
+	---@field type integer
+	---@field action function
+	---@field options DropdownElement[]
+	---@field targetValue string[]|number[]
+	---@field required boolean
+	---@field errorMessage string
+
+	---@type CreateRoomOption[]
+	local createRoomFields = {
+		{
+			title = "Room name",
+			type = TYPE_INPUT,
+			action = function(val) runCmd("join " .. val, true) end,
+			required = true,
+			errorMessage = "Room name shouldn't be empty"
+		},
+		{
+			title = "Room description",
+			default = TB_MENU_PLAYER_INFO.username .. "'s server",
+			type = TYPE_INPUT,
+			action = function(val) runCmd("desc " .. val, true) end
+		},
+		{
+			title = "Password",
+			default = "Specify a password to make your room private",
+			type = TYPE_INPUT,
+			action = function(val) runCmd("passwd " .. val, true) end
+		},
+		{
+			title = "Min belt",
+			type = TYPE_DROPDOWN,
+			options = {
+				{
+					text = "No restriction",
+					value = 0
+				},
+				{
+					text = "Yellow Belt",
+					value = 20
+				},
+				{
+					text = "Orange Belt",
+					value = 50
+				},
+				{
+					text = "Green Belt",
+					value = 100
+				},
+				{
+					text = "Blue Belt",
+					value = 200
+				},
+				{
+					text = "Brown Belt",
+					value = 500
+				},
+				{
+					text = "Black Belt",
+					value = 1000
+				},
+				{
+					text = "Master Belt",
+					value = 15000
+				},
+				{
+					text = "Custom Belt",
+					value = 20000
+				},
+				{
+					text = "God Belt",
+					value = 50000
+				},
+				{
+					text = "One Belt",
+					value = 100000
+				}
+			},
+			action = function(val) runCmd("minbelt " .. val, true) end
+		},
+		{
+			title = "Max belt",
+			type = TYPE_DROPDOWN,
+			options = {
+				{
+					text = "No restriction",
+					value = 0
+				},
+				{
+					text = "White Belt",
+					value = 19
+				},
+				{
+					text = "Yellow Belt",
+					value = 49
+				},
+				{
+					text = "Orange Belt",
+					value = 99
+				},
+				{
+					text = "Green Belt",
+					value = 199
+				},
+				{
+					text = "Blue Belt",
+					value = 499
+				},
+				{
+					text = "Brown Belt",
+					value = 999
+				},
+				{
+					text = "Black Belt",
+					value = 1999
+				},
+				{
+					text = "Master Belt",
+					value = 19999
+				},
+				{
+					text = "Custom Belt",
+					value = 49999
+				},
+				{
+					text = "God Belt",
+					value = 99999
+				}
+			},
+			action = function(val) runCmd("maxbelt " .. val, true) end
+		}
+	}
+
+	local updateCreateRoomButton
+
+	local listElements = {}
+	for _, v in pairs(createRoomFields) do
+		local fieldHolder = listingHolder:addChild({
+			pos = { 20, #listElements * elementHeight },
+			size = { listingHolder.size.w - 40, elementHeight },
+			shapeType = ROUNDED,
+			rounded = 3
+		})
+		table.insert(listElements, fieldHolder)
+		local fieldLegend = fieldHolder:addChild({
+			pos = { 0, 4 },
+			size = { fieldHolder.size.w / 3, fieldHolder.size.h - 8 }
+		})
+		fieldLegend:addAdaptedText(true, v.title, nil, nil, nil, LEFTMID)
+
+		v.targetValue = { "" }
+		if (v.type == TYPE_INPUT) then
+			local textField = TBMenu:spawnTextField2(fieldHolder, {
+				x = fieldLegend.size.w,
+				w = fieldHolder.size.w - fieldLegend.size.w,
+				y = 3,
+				h = fieldHolder.size.h - 6
+			}, v.targetValue, v.default, {
+				fontId = 4,
+				darkerMode = true,
+				textAlign = LEFTMID,
+				textScale = 0.7
+			})
+			if (v.required) then
+				textField:addInputCallback(function()
+						updateCreateRoomButton()
+					end)
+			end
+		elseif (v.type == TYPE_DROPDOWN) then
+			local fieldDropdownHolder = fieldHolder:addChild({
+				pos = { fieldLegend.size.w, 3 },
+				size = { fieldHolder.size.w - fieldLegend.size.w, fieldHolder.size.h - 6 },
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR
+			}, true)
+			for _, option in pairs (v.options) do
+				---@diagnostic disable-next-line: undefined-field
+				option.action = function() v.targetValue[1] = option.value end
+			end
+			TBMenu:spawnDropdown(fieldDropdownHolder, v.options, fieldDropdownHolder.size.h, nil, nil, {
+				fontid = 4, scale = 0.7, alignment = LEFTMID, uppercase = false
+			}, {
+				fontid = 4, scale = 0.7, alignment = LEFTMID, uppercase = false
+			})
+		end
+	end
+
+	if (#listElements * elementHeight > listingHolder.size.h) then
+		for _, v in pairs(listElements) do
+			v:hide(true)
+		end
+		local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
+		listingHolder.scrollBar = scrollBar
+		scrollBar:makeScrollBar(listingHolder, listElements, toReload)
+	else
+		scrollBarBG:hide()
+		listingHolder:moveTo((listingView.size.w - listingHolder.size.w) / 2)
+	end
+
+	local createRoomButtonSize = math.min(350, botBar.size.w / 2)
+	local createRoomButtonBackdrop = botBar:addChild({
+		shift = { (botBar.size.w - createRoomButtonSize) / 2, 10 },
+		interactive = true
+	})
+	local createRoomButton = createRoomButtonBackdrop:addChild({
+		interactive = true,
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+		inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
+		shapeType = createRoomBackground.shapeType,
+		rounded = createRoomBackground.rounded
+	})
+	createRoomButton:addAdaptedText("Create room")
+	createRoomButton:addMouseUpHandler(function()
+			createRoomBackground:kill(true)
+			TBMenu:displayLoadingMark(createRoomBackground, "Creating your room, please wait...")
+			createRoomFields[1].action(createRoomFields[1].targetValue[1])
+			add_hook("new_mp_game", "roomListMultiplayerCreateJoinRoom", function()
+				remove_hooks("roomListMultiplayerCreateJoinRoom")
+				for i, v in pairs(createRoomFields) do
+					if (i > 1 and v.targetValue[1] ~= "") then
+						v.action(v.targetValue[1])
+					end
+				end
+				backdropOverlay:kill()
+				close_menu()
+			end)
+		end)
+	createRoomButton:deactivate()
+
+	local createRoomTooltip
+	createRoomTooltip = TBMenu:displayPopup(createRoomButtonBackdrop, createRoomFields[1].errorMessage)
+	createRoomTooltip:moveTo(-createRoomButtonBackdrop.size.w + (createRoomButtonBackdrop.size.w - createRoomTooltip.size.w) / 2, -createRoomButtonBackdrop.size.h - createRoomTooltip.size.h - 5)
+	updateCreateRoomButton = function()
+		for _, v in pairs(createRoomFields) do
+			if (v.required and v.targetValue[1] == "") then
+				createRoomButton:deactivate()
+
+				if (createRoomTooltip ~= nil) then
+					createRoomTooltip:kill()
+					createRoomTooltip = nil
+				end
+				createRoomTooltip = TBMenu:displayPopup(createRoomButtonBackdrop, v.errorMessage)
+				createRoomTooltip:moveTo(-createRoomButtonBackdrop.size.w + (createRoomButtonBackdrop.size.w - createRoomTooltip.size.w) / 2, -createRoomButtonBackdrop.size.h - createRoomTooltip.size.h - 5)
+				return
+			end
+		end
+		createRoomButton:activate()
+		if (createRoomTooltip ~= nil) then
+			createRoomTooltip:kill()
+			createRoomTooltip = nil
+		end
+	end
 end
 
 ---Prepares the right side of Room List menu with room info and misc buttons

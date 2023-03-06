@@ -3510,41 +3510,33 @@ function TBMenu:displayHelpPopup(element, message, forceManualPosCheck, noMark, 
 	messageElement:hide(true)
 
 	local popupShown = false
-	local pressTime = 0
-
 	if (forceManualPosCheck) then
 		element:addCustomDisplay(false, function()
 				if (not messageElement or messageElement.destroyed) then return end
 				if (not TB_MENU_POPUPS_DISABLED and MOUSE_X > element.pos.x and MOUSE_Y > element.pos.y and MOUSE_X < element.pos.x + element.size.w and MOUSE_Y < element.pos.y + element.size.h) then
 					element.hoverState = element.hoverState == nil and BTN_HVR or element.hoverState
-					if (not popupShown) then
-						pressTime = pressTime + 0.07
-						if (pressTime > 1) then
-							messageElement:show(true)
-							popupShown = true
-						end
+					messageElement.hoverClock = messageElement.hoverClock or UIElement.clock
+					if (not popupShown and UIElement.clock - messageElement.hoverClock >= 0.3) then
+						messageElement:show(true)
+						popupShown = true
 					end
 				elseif (popupShown) then
+					messageElement.hoverClock = nil
 					messageElement:hide(true)
-					pressTime = 0
 					popupShown = false
 				end
 			end, true)
 	else
 		element:addCustomDisplay(false, function()
 				if (not messageElement or messageElement.destroyed) then return end
-				if (not TB_MENU_POPUPS_DISABLED and element.hoverState >= BTN_HVR) then
-					if (not popupShown) then
-						pressTime = pressTime + 0.07
-						if (pressTime > 1) then
-							messageElement:show(true)
-							popupShown = true
-						end
+				if (element.hoverState >= BTN_HVR) then
+					if (not popupShown and UIElement.clock - element.hoverClock >= 0.3) then
+						messageElement:show(true)
+						popupShown = true
 					end
 				elseif (popupShown) then
 					if (element.hoverState == BTN_NONE) then
 						messageElement:hide(true)
-						pressTime = 0
 						popupShown = false
 					end
 				end
