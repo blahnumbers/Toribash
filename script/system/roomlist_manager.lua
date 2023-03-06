@@ -887,18 +887,46 @@ function RoomList:createRoom()
 		elseif (v.type == TYPE_DROPDOWN) then
 			local fieldDropdownHolder = fieldHolder:addChild({
 				pos = { fieldLegend.size.w, 3 },
-				size = { fieldHolder.size.w - fieldLegend.size.w, fieldHolder.size.h - 6 },
-				bgColor = TB_MENU_DEFAULT_DARKER_COLOR
+				size = { fieldHolder.size.w - fieldLegend.size.w, fieldHolder.size.h - 6 }
 			}, true)
 			for _, option in pairs (v.options) do
 				---@diagnostic disable-next-line: undefined-field
 				option.action = function() v.targetValue[1] = option.value end
 			end
-			TBMenu:spawnDropdown(fieldDropdownHolder, v.options, fieldDropdownHolder.size.h, nil, nil, {
+			local fieldDropdownParent = fieldDropdownHolder:addChild({
+				shift = { fieldDropdownHolder.size.h * 2, 0 },
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR
+			}, true)
+			local dropdown = TBMenu:spawnDropdown(fieldDropdownParent, v.options, fieldDropdownHolder.size.h, nil, nil, {
 				fontid = 4, scale = 0.7, alignment = LEFTMID, uppercase = false
 			}, {
 				fontid = 4, scale = 0.7, alignment = LEFTMID, uppercase = false
 			})
+			local prevButton = fieldDropdownHolder:addChild({
+				pos = { 0, 0 },
+				size = { fieldDropdownHolder.size.h * 2 - 6, fieldDropdownHolder.size.h },
+				interactive = true,
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+			}, true)
+			prevButton:addAdaptedText("<", nil, nil, FONTS.BIG)
+			prevButton:addMouseUpHandler(function()
+					dropdown.selectItem(dropdown.displayOptions[math.max(1, dropdown.selectedId() - 1)])
+				end)
+
+			local nextButton = fieldDropdownHolder:addChild({
+				pos = { -fieldDropdownHolder.size.h * 2 + 6, 0 },
+				size = { fieldDropdownHolder.size.h * 2 - 6, fieldDropdownHolder.size.h },
+				interactive = true,
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+			}, true)
+			nextButton:addAdaptedText(">", nil, nil, FONTS.BIG)
+			nextButton:addMouseUpHandler(function()
+					dropdown.selectItem(dropdown.displayOptions[math.min(#dropdown.displayOptions, dropdown.selectedId() + 1)])
+				end)
 		end
 	end
 

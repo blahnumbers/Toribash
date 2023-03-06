@@ -2928,12 +2928,16 @@ end
 ---@field listHolder UIElement
 ---@field listToReload UIElement
 ---@field selectedElement UIElement
+---@field selectItem function
+---@field selectedId function
+---@field displayOptions DropdownElement[]
 
 ---@class DropdownElement
 ---@field default boolean
 ---@field text string
 ---@field action function
 ---@field element UIElement
+---@field itemId integer
 
 ---@class DropdownSettings
 ---@field fontid FontId
@@ -3070,8 +3074,28 @@ function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHei
 		listingHolder = dropdownView:addChild({ shift = { 0, 2 } })
 	end
 
-	local listElements = {}
 	local selectedItemId = 1
+
+	---Marks an item as selected and executes its on submit action
+	---@param item DropdownElement
+	overlay.selectItem = function(item)
+			selectedElementText:addAdaptedText(false, listTextSettings.uppercase and item.text:upper() or item.text, nil, nil, textSettings.fontid, textSettings.alignment, textSettings.scale)
+			selectedElement:show()
+			if (selectedItem == item) then
+				return
+			end
+			if (selectedItem and selectedItem.element) then
+				selectedItem.element.bgColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+			end
+			item.element.bgColor = TB_MENU_DEFAULT_BG_COLOR
+			selectedItem = item
+			selectedItemId = item.itemId
+			if (selectedItem.action) then
+				selectedItem.action()
+			end
+		end
+
+	local listElements = {}
 	for i, v in pairs(listElementsDisplay) do
 		local elementHolder = listingHolder:addChild({
 			pos = { 0, #listElements * elementHeight },
@@ -3091,6 +3115,7 @@ function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHei
 			rounded = holderElement.rounded
 		})
 		v.element = element
+		v.itemId = i
 		if (v.locked) then
 			element.uiColor = table.clone(UICOLORBLACK)
 			element:deactivate(true)
@@ -3101,19 +3126,7 @@ function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHei
 		element:addChild({ shift = { 10, 1 }}):addAdaptedText(false, listTextSettings.uppercase and v.text:upper() or v.text, nil, nil, listTextSettings.fontid, listTextSettings.alignment, listTextSettings.scale)
 		element:addMouseHandlers(nil, function()
 				overlay:hide(true)
-				selectedElementText:addAdaptedText(false, listTextSettings.uppercase and v.text:upper() or v.text, nil, nil, textSettings.fontid, textSettings.alignment, textSettings.scale)
-				selectedElement:show()
-				if (selectedItem == v) then
-					return
-				end
-				if (selectedItem and selectedItem.element) then
-					selectedItem.element.bgColor = TB_MENU_DEFAULT_LIGHTER_COLOR
-				end
-				v.element.bgColor = TB_MENU_DEFAULT_BG_COLOR
-				selectedItem = v
-				if (v.action) then
-					v.action()
-				end
+				overlay.selectItem(v)
 			end)
 	end
 
@@ -3144,7 +3157,9 @@ function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHei
 		end)
 	overlay:hide(true)
 
+	overlay.displayOptions = listElementsDisplay
 	overlay.selectedElement = selectedElement
+	overlay.selectedId = function() return selectedItemId end
 	return overlay
 end
 
