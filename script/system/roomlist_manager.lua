@@ -896,7 +896,7 @@ function RoomList:createRoom()
 			minValue = 2,
 			maxValue = 32,
 			default = "12",
-			action = function(val) runCmd("set maxclients " .. val, true) end
+			action = function(val) runCmd("maxclients " .. val, true) end
 		}
 	}
 

@@ -975,12 +975,18 @@ function get_body_screen_pos(player, body) end
 ---@return WorldState
 function get_world_state() end
 
+---@alias ODEBodyShapeType
+---| 0 BODY_SPHERE
+---| 1 BODY_BOX
+---| 2 BODY_CYLINDER
+
 ---@class BodyInfo
 ---@field name string
 ---@field mod_name string
 ---@field pos Vector3
 ---@field rot Matrix4x4
 ---@field sides Vector3
+---@field shape ODEBodyShapeType
 
 ---Returns player body information
 ---@param player integer
@@ -2506,13 +2512,8 @@ function os.clock_real() end
 
 --[[ RAY CASTING ]]
 
----@alias ODEBodyType
----| 0 Sphere
----| 1 Box
----| 2 Capped Cylinder
-
 ---Creates a geometry body that can be used for Lua raycasting and returns its id on success
----@param type ODEBodyType
+---@param type ODEBodyShapeType
 ---@param pos_x number
 ---@param pos_y number
 ---@param pos_z number
