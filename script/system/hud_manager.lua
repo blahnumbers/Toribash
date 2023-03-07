@@ -600,7 +600,7 @@ function TBHudInternal.getLastColorFromString(str)
 	local color, rpl = string.gsub(str, ".*[%^%%](%d%d+).*", "%1")
 	if (rpl == 1 and string.len(color) > 0) then
 		local colid = tonumber(color)
-		if (colid) then
+		if (colid and colid >= 0 and colid < COLORS.NUM_COLORS) then
 			local colinfo = get_color_info(colid)
 			return { colinfo.r, colinfo.g, colinfo.b, 1 }
 		end
