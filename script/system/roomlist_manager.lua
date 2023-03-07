@@ -130,7 +130,7 @@ end
 ---Displays information about the specified room
 ---@param room RoomListInfoExtended
 function RoomList:showRoomInfo(room)
-	local elementHeight = 20
+	local elementHeight = math.max(20, WIN_H / 40)
 	local buttonHeight = math.min(self.RoomInfoView.size.h / 6, 50)
 	local toReload, topBar, botBar, listingView, listingHolder, scrollBarBG = TBMenu:prepareScrollableList(self.RoomInfoView, elementHeight, buttonHeight, 15, TB_MENU_DEFAULT_BG_COLOR)
 
@@ -528,7 +528,7 @@ function RoomList:showRoomListFeatured(roomsList, viewElement, listElements, ele
 			pos = { (i - 1) * (buttonWidth + 10), 0 },
 			size = { buttonWidth, elementHeight },
 			interactive = true,
-			bgImage = "../textures/menu/multiplayer/" .. imageModName .. "-featured.tga",
+			bgImage = { "../textures/menu/multiplayer/" .. imageModName .. "-featured.tga", "../textures/menu/multiplayer/other-featured.tga" },
 			imageAtlas = true,
 			atlas = { x = 0, y = 0, w = 900, h = 150 },
 			imageColor = { 1, 1, 1, 0.8 },
@@ -541,7 +541,7 @@ function RoomList:showRoomListFeatured(roomsList, viewElement, listElements, ele
 			pos = { (i - 1) * (buttonWidth + 10), 0 },
 			size = { buttonWidth, elementHeight },
 			interactive = true,
-			bgImage = "../textures/menu/multiplayer/" .. imageModName .. "-featured.tga",
+			bgImage = { "../textures/menu/multiplayer/" .. imageModName .. "-featured.tga", "../textures/menu/multiplayer/other-featured.tga" },
 			imageAtlas = true,
 			atlas = { x = 0, y = 150, w = 900, h = 150 },
 			imageColor = topRowLine.imageColor,
@@ -603,7 +603,7 @@ function RoomList:showRoomList(viewElement)
 	TBMenu:addBottomBloodSmudge(viewElement, 1)
 
 	self.SelectedButton = nil
-	local elementHeight = 45
+	local elementHeight = math.min(70, math.max(45, WIN_H / 20))
 	local toReload, topBar, botBar, listingView, listingHolder = TBMenu:prepareScrollableList(viewElement, elementHeight, elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
 
 	self:showRoomListLegend(topBar)
@@ -756,11 +756,13 @@ function RoomList:createRoom()
 	---@field default string
 	---@field type integer
 	---@field action function
-	---@field options DropdownElement[]
+	---@field options DropdownElement[]|TextFieldInputSettings
 	---@field targetValue string[]|number[]
 	---@field required boolean
 	---@field errorMessage string
 	---@field customRegex string
+	---@field minValue integer
+	---@field maxValue integer
 
 	---@type CreateRoomOption[]
 	local createRoomFields = {
@@ -770,14 +772,14 @@ function RoomList:createRoom()
 			action = function(val) runCmd("join " .. val, true) end,
 			required = true,
 			errorMessage = TB_MENU_LOCALIZED.ROOMLISTCREATEROOMNAMEEMPTYERROR,
-			customRegex = "[%a%d]+"
+			options = { customRegex = "[%a%d]+" }
 		},
 		{
 			title = TB_MENU_LOCALIZED.ROOMLISTCREATEROOMDESC,
 			default = TB_MENU_PLAYER_INFO.username .. "'s server",
 			type = TYPE_INPUT,
 			action = function(val) runCmd("desc " .. val, true) end,
-			customRegex = "[%C%Z]+"
+			options = { customRegex = "[%C%Z]+" }
 		},
 		{
 			title = TB_MENU_LOCALIZED.ROOMLISTCREATEROOMPASS,
@@ -886,6 +888,15 @@ function RoomList:createRoom()
 				}
 			},
 			action = function(val) runCmd("maxbelt " .. val, true) end
+		},
+		{
+			title = TB_MENU_LOCALIZED.ROOMLISTCREATEROOMMAXCLIENTS,
+			type = TYPE_INPUT,
+			options = { isNumeric = true, allowNegative = false, allowDecimal = false, textAlign = CENTERMID },
+			minValue = 2,
+			maxValue = 32,
+			default = "12",
+			action = function(val) runCmd("set maxclients " .. val, true) end
 		}
 	}
 
@@ -908,21 +919,63 @@ function RoomList:createRoom()
 
 		v.targetValue = { "" }
 		if (v.type == TYPE_INPUT) then
-			local textField = TBMenu:spawnTextField2(fieldHolder, {
-				x = fieldLegend.size.w,
-				w = fieldHolder.size.w - fieldLegend.size.w,
-				y = 3,
-				h = fieldHolder.size.h - 6
-			}, v.targetValue, v.default, {
+			---@type TextFieldInputSettings
+			local options = {
 				fontId = 4,
 				darkerMode = true,
 				textAlign = LEFTMID,
-				textScale = 0.7,
-				customRegex = v.customRegex
-			})
+				textScale = 0.7
+			}
+			if (v.options) then
+				for i, v in pairs(v.options) do
+					options[i] = v
+				end
+			end
+			local hasButtons = options.isNumeric and not options.allowDecimal and v.minValue and v.maxValue
+			local textField = TBMenu:spawnTextField2(fieldHolder, {
+				x = fieldLegend.size.w + (hasButtons and (fieldHolder.size.h - 6) * 2 or 0),
+				w = fieldHolder.size.w - fieldLegend.size.w - (hasButtons and (fieldHolder.size.h - 6) * 4 or 0),
+				y = 3,
+				h = fieldHolder.size.h - 6
+			}, v.targetValue, v.default, options)
 			if (v.required) then
 				textField:addInputCallback(function()
 						updateCreateRoomButton()
+					end)
+			end
+			if (hasButtons) then
+				local prevButton = fieldHolder:addChild({
+					pos = { fieldLegend.size.w, 3 },
+					size = { (fieldHolder.size.h - 6) * 2 - 6, fieldHolder.size.h - 6 },
+					interactive = true,
+					bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+					hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+					pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+				}, true)
+				prevButton:addAdaptedText("<", nil, nil, FONTS.BIG)
+				prevButton:addMouseUpHandler(function()
+						local inputValue = textField.textfieldstr[1] == "" and tonumber(v.default) or tonumber(textField.textfieldstr[1])
+						if (inputValue and inputValue > v.minValue) then
+							textField:clearTextfield()
+							textField.textInput(tostring(inputValue - 1))
+						end
+					end)
+
+				local nextButton = fieldHolder:addChild({
+					pos = { -prevButton.size.w, prevButton.shift.y },
+					size = { prevButton.size.w, prevButton.size.h },
+					interactive = true,
+					bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+					hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+					pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+				}, true)
+				nextButton:addAdaptedText(">", nil, nil, FONTS.BIG)
+				nextButton:addMouseUpHandler(function()
+						local inputValue = textField.textfieldstr[1] == "" and tonumber(v.default) or tonumber(textField.textfieldstr[1])
+						if (inputValue and inputValue < v.maxValue) then
+							textField:clearTextfield()
+							textField.textInput(tostring(inputValue + 1))
+						end
 					end)
 			end
 		elseif (v.type == TYPE_DROPDOWN) then
