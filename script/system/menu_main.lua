@@ -92,6 +92,7 @@ require("system.events_online_manager")
 require("system.news_manager")
 require("system.market_manager")
 require("system.battlepass_manager")
+require("system.queuelist_manager")
 if (is_mobile()) then
 	require("system.hud_manager")
 end
@@ -254,6 +255,7 @@ if (is_mobile()) then
 	add_hook("draw2d", "tbMobileHudVisual", function()
 		if (TB_MENU_MAIN_ISOPEN == 1) then return end
 		UIElement:drawVisuals(TBHud.Globalid)
+		UIElement:drawVisuals(TBHud.HubGlobalid)
 	end)
 end
 add_hook("draw_viewport", "tbMainHubVisual", function()
@@ -269,9 +271,6 @@ add_hook("draw3d", "tbMainHudVisual", function()
 if (get_option("showbroadcast") and (not Broadcasts or not Broadcasts.HOOKS_ACTIVE)) then
 	require("system.broadcast_manager")
 	Broadcasts:activate()
-end
-if (not QueueList) then
-	require("system.queuelist_manager")
 end
 if (not REPLAY_GUI and get_option("replaycache") ~= 0) then
 	dofile("system/replay_hud.lua")

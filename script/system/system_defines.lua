@@ -1144,13 +1144,31 @@ function disable_player_select(player) end
 ---@param safe ?boolean If `true` is passed, will report ready event when in multiplayer instead of starting new free play game
 function start_new_game(safe) end
 
----Pauses game
+---Pauses game. \
+---*This **does not** simulate a pause hotkey behavior*. \
+---@see toggle_game_pause
 function freeze_game() end
 
----Unpauses game
+---Unpauses game. \
+---*This **does not** simulate a pause hotkey behavior*. \
+---@see toggle_game_pause
 function unfreeze_game() end
 
----Returns value depending on game freeze state
+---Simulates `pause` hotkey behavior and pauses or unpauses the game depending on its current state
+function toggle_game_pause() end
+
+---Simulates `pause` hotkey behavior. Will be removed in future releases. \
+---@deprecated
+---@see toggle_game_pause
+function step_to_end() end
+
+---Returns whether game is currently paused
+---@return boolean
+function is_game_paused() end
+
+---Returns value depending on game **freeze** state. \
+---*Not to be confused with `is_game_paused()`* \
+---@see is_game_paused
 ---@return integer
 function is_game_frozen() end
 
@@ -1267,12 +1285,12 @@ function get_player_info(playerid) end
 ---| 2 GHOST_BOTH
 
 ---Returns current ghost mode
----@return GhostMode
+---@return GhostMode ghost_mode
 function get_ghost() end
 
 ---Sets ghost mode to the specified value
----@param mode GhostMode
-function set_ghost(mode) end
+---@param ghost_mode GhostMode
+function set_ghost(ghost_mode) end
 
 ---Sets score for the specified player
 ---@param player integer
@@ -2480,7 +2498,7 @@ function discord_reject_join(discordId) end
 ---| "roomlist_update" #Called on room list info request completion
 
 ---Adds a Lua callback listener \
----*Only one function per event / set_name pair is supported*
+---*Only one function per `event` + `set_name` pair is supported*
 ---@param event LuaCallback
 ---@param set_name string Hook set name to allow better hook management and unloading
 ---@param func function

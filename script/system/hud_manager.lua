@@ -22,6 +22,8 @@ if (TBHud == nil) then
 	---@class TBHud
 	---@field MainElement UIElement
 	---@field HubHolder UIElement
+	---@field HubDynamicButtonsHolder UIElement
+	---@field HubDynamicState WorldState
 	---@field HubSize UIElementSize
 	---@field ChatHolder UIElement
 	---@field ChatMiniHolder UIElement
@@ -39,6 +41,7 @@ if (TBHud == nil) then
 	---@field ver number
 	TBHud = {
 		Globalid = 1013,
+		HubGlobalid = 1014,
 		HubSize = { w = 0, h = 0 },
 		ChatSize = { w = 0, h = 0},
 		ListShift = { 0 },
@@ -73,11 +76,16 @@ local TBHudInternal = {
 }
 setmetatable({}, TBHudInternal)
 
+---@class TBHudButton : UIElement
+---@field icon UIElement
+
 ---Generates a default button for touch interface
 ---@param holder UIElement
 ---@param icon ?string
----@return UIElement
-function TBHudInternal.generateTouchButton(holder, icon)
+---@param atlasRect ?Rect
+---@param imageScale ?number
+---@return TBHudButton
+function TBHudInternal.generateTouchButton(holder, icon, atlasRect, imageScale)
 	local touchButton = holder:addChild({
 		shift = { 0, 0 },
 		interactive = true,
@@ -87,10 +95,15 @@ function TBHudInternal.generateTouchButton(holder, icon)
 		disableUnload = true
 	})
 	if (icon ~= nil) then
+		local imageScale = imageScale or 1
+		local shift = (touchButton.size.w - touchButton.size.w * imageScale) / 2
 		local buttonIcon = touchButton:addChild({
-			shift = { 0, 0 },
+			shift = { shift, shift },
 			bgImage = icon,
 			imageColor = TB_MENU_DEFAULT_BG_COLOR,
+			imageAtlas = atlasRect ~= nil,
+			---@diagnostic disable-next-line: assign-type-mismatch
+			atlas = atlasRect
 		})
 		buttonIcon:addCustomDisplay(function()
 			if (touchButton.hoverState == BTN_DN) then
@@ -99,8 +112,10 @@ function TBHudInternal.generateTouchButton(holder, icon)
 				buttonIcon.imageColor = TB_MENU_DEFAULT_BG_COLOR
 			end
 		end, true)
+		touchButton.icon = buttonIcon
 	end
 
+	---@diagnostic disable-next-line: return-type-mismatch
 	return touchButton
 end
 
@@ -122,6 +137,7 @@ end
 
 ---Refreshes `TBHud.ButtonsToRefresh` elements' visibility state depending on their settings
 function TBHudInternal.refreshButtons()
+	TBHud.WorldState = get_world_state()
 	for _, v in pairs(TBHud.ButtonsToRefresh) do
 		if (v.shouldBeDisplayed()) then
 			if (not v.button:isDisplayed()) then
@@ -131,6 +147,7 @@ function TBHudInternal.refreshButtons()
 			v.button:hide()
 		end
 	end
+	TBHud:reloadHubDynamicButtons()
 end
 
 ---Method that handles all incoming chat messages and pushes them for display
@@ -165,7 +182,7 @@ function TBHudInternal.pushChatMessage(msg, type, tab)
 		end
 	end
 
-	if (TBHud.ChatHolder:isDisplayed()) then
+	if (TBHud.ChatHolder ~= nil and TBHud.ChatHolder:isDisplayed()) then
 		TBHud:refreshChat()
 	else
 		for _, v in pairs(TBHud.ChatHolderItems) do
@@ -199,6 +216,8 @@ function TBHud:init()
 	self:spawnCommitButton()
 	self:spawnGhostButton()
 	self:spawnHoldRelaxAllButton()
+	self:spawnRewindButton()
+	self:spawnPauseButton()
 
 	self:spawnHubButton()
 	self.HubSize.w = WIN_W * 0.3 > 400 and 400 or WIN_W * 0.3
@@ -209,6 +228,8 @@ function TBHud:init()
 	self.ChatSize.w = WIN_W * 0.4 > 600 and 600 or WIN_W * 0.4
 	self.ChatSize.h = WIN_H
 	self:spawnChat()
+
+	TBHudInternal.refreshButtons()
 end
 
 function TBHud.Reload()
@@ -233,7 +254,7 @@ function TBHud:spawnCommitButton()
 	if (self.MainElement == nil) then return end
 
 	local commitStepButtonHolder = self.MainElement:addChild({
-		pos = { -self.DefaultButtonSize * 2.2, -self.DefaultButtonSize * 1.5 },
+		pos = { -self.DefaultButtonSize * 2.2, -self.DefaultButtonSize - self.DefaultSmallerButtonSize * 0.5 },
 		size = { self.DefaultButtonSize, self.DefaultButtonSize }
 	})
 	local commitStepButton = TBHudInternal.generateTouchButton(commitStepButtonHolder)
@@ -253,7 +274,31 @@ function TBHud:spawnCommitButton()
 			clickClock = os.clock_real()
 		end
 	end)
+
+	local commitStepButtonText = commitStepButton:addChild({
+		shift = { commitStepButton.size.w / 6, commitStepButton.size.h / 2.6 },
+		shapeType = ROUNDED,
+		rounded = 4,
+		bgColor = TB_MENU_DEFAULT_BG_COLOR
+	})
+
+	---@param text string
+	local setCommitStepButtonText = function(text)
+		commitStepButtonText.size.w = commitStepButton.size.w
+		commitStepButtonText:addAdaptedText(text, nil, nil, 4, nil, 0.6)
+		commitStepButtonText.size.w = math.min(commitStepButtonText.size.w, get_string_length(commitStepButtonText.dispstr[1], commitStepButtonText.textFont) * commitStepButtonText.textScale + 20)
+		commitStepButtonText:moveTo((commitStepButton.size.w - commitStepButtonText.size.w) / 2)
+	end
+	setCommitStepButtonText(TB_MENU_LOCALIZED.MOBILEHUDREADY)
+
 	commitStepButton:addCustomDisplay(function()
+			if (self.WorldState.game_type == 0 and self.WorldState.replay_mode ~= 0) then
+				if (commitStepButtonText.str ~= TB_MENU_LOCALIZED.MOBILEHUDNEWGAME) then
+					setCommitStepButtonText(TB_MENU_LOCALIZED.MOBILEHUDNEWGAME)
+				end
+			elseif (commitStepButtonText.str ~= TB_MENU_LOCALIZED.MOBILEHUDREADY) then
+				setCommitStepButtonText(TB_MENU_LOCALIZED.MOBILEHUDREADY)
+			end
 			if (clickClock > 0 and UIElement.clock - clickClock > UIElement.longPressDuration) then
 				disable_mouse_camera_movement()
 				play_haptics(0.2, HAPTICS.IMPACT)
@@ -333,14 +378,6 @@ function TBHud:spawnCommitButton()
 			end
 		end)
 
-	local commitStepButtonText = commitStepButton:addChild({
-		shift = { commitStepButton.size.w / 6, commitStepButton.size.h / 2.6 },
-		shapeType = ROUNDED,
-		rounded = 4,
-		bgColor = TB_MENU_DEFAULT_BG_COLOR
-	})
-	commitStepButtonText:addAdaptedText("Ready", nil, nil, 4, nil, 0.6)
-
 	-- This button shouldn't always be available, attach a handler for it
 	table.insert(self.ButtonsToRefresh, {
 		button = commitStepButtonHolder,
@@ -370,12 +407,11 @@ function TBHud:spawnGhostButton()
 		end)
 end
 
----Spawns hold all / relax all button and its corresponding longpress menu
 function TBHud:spawnHoldRelaxAllButton()
 	if (self.MainElement == nil) then return end
 
 	local holdRelaxAllButtonHolder = self.MainElement:addChild({
-		pos = { -self.DefaultButtonSize * 2.9, -self.DefaultSmallerButtonSize * 2.8 },
+		pos = { -self.DefaultButtonSize * 2.9, -self.DefaultSmallerButtonSize * 2.9 },
 		size = { self.DefaultSmallerButtonSize, self.DefaultSmallerButtonSize }
 	})
 
@@ -387,7 +423,7 @@ function TBHud:spawnHoldRelaxAllButton()
 		rounded = 4,
 		bgColor = TB_MENU_DEFAULT_BG_COLOR
 	})
-	relaxAllText:addAdaptedText("Relax All", nil, nil, FONTS.LMEDIUM, nil, 0.5)
+	relaxAllText:addAdaptedText(TB_MENU_LOCALIZED.MOBILEHUDRELAXALL, nil, nil, FONTS.LMEDIUM, nil, 0.5)
 	local holdAllText = holdRelaxAllButton:addChild({
 		shift = { 5, holdRelaxAllButton.size.h / 3 },
 		shapeType = ROUNDED,
@@ -403,7 +439,7 @@ function TBHud:spawnHoldRelaxAllButton()
 			holdAllText:hide()
 		end
 	end
-	holdAllText:addAdaptedText("Hold All", nil, nil, FONTS.LMEDIUM, nil, 0.5)
+	holdAllText:addAdaptedText(TB_MENU_LOCALIZED.MOBILEHUDHOLDALL, nil, nil, FONTS.LMEDIUM, nil, 0.5)
 	holdRelaxAllButton:addMouseUpHandler(function()
 		for _, v in pairs(JOINTS) do
 			set_joint_state(self.WorldState.selected_player, v, holdAll and JOINT_STATE.HOLD or JOINT_STATE.RELAX, true)
@@ -422,6 +458,38 @@ function TBHud:spawnHoldRelaxAllButton()
 	end)
 end
 
+function TBHud:spawnRewindButton()
+	if (self.MainElement == nil) then return end
+
+	local rewindButtonHolder = self.MainElement:addChild({
+		pos = { self.DefaultSmallerButtonSize * 1.7, -self.DefaultSmallerButtonSize * 1.5 },
+		size = { self.DefaultSmallerButtonSize, self.DefaultSmallerButtonSize }
+	})
+	TBHudInternal.generateTouchButton(rewindButtonHolder, "../textures/menu/general/buttons/reload.tga", nil, 0.8):addMouseUpHandler(rewind_replay)
+	table.insert(self.ButtonsToRefresh, {
+		button = rewindButtonHolder,
+		shouldBeDisplayed = function() return self.WorldState.game_type == 0 end
+	})
+end
+
+function TBHud:spawnPauseButton()
+	if (self.MainElement == nil) then return end
+
+	local pauseButtonHolder = self.MainElement:addChild({
+		pos = { self.DefaultSmallerButtonSize * 1.3, -self.DefaultSmallerButtonSize * 2.6 },
+		size = { self.DefaultSmallerButtonSize, self.DefaultSmallerButtonSize }
+	})
+	local pauseButton = TBHudInternal.generateTouchButton(pauseButtonHolder, "../textures/menu/general/buttons/playpause.tga", { x = 0, y = 0, w = 128, h = 128 })
+	pauseButton:addMouseUpHandler(toggle_game_pause)
+	table.insert(self.ButtonsToRefresh, {
+		button = pauseButtonHolder,
+		shouldBeDisplayed = function() return self.WorldState.game_type == 0 and self.WorldState.replay_mode > 0 end
+	})
+	pauseButtonHolder:addCustomDisplay(true, function()
+			pauseButton.icon.atlas.x = is_game_paused() and 0 or pauseButton.icon.atlas.w
+		end)
+end
+
 function TBHud:spawnHubButton()
 	if (self.MainElement == nil) then return end
 
@@ -434,6 +502,119 @@ function TBHud:spawnHubButton()
 	end)
 end
 
+---@class HudDynamicButtonData
+---@field title string
+---@field icon AtlasData
+---@field action function
+---@field displayCondition function
+
+---Reloads Hub's dynamic buttons section. \
+---**This must be executed after QueueList has received the list update.**
+function TBHud:reloadHubDynamicButtons()
+	if (self.HubDynamicButtonsHolder == nil) then return end
+
+	local playerInfoRaw = QueueList:getCurrentPlayerInfo()
+	---@type QueueListPlayerInfo?
+	local playerInfo = playerInfoRaw and {
+		spectator = playerInfoRaw.spectator,
+		admin = playerInfoRaw.admin,
+		halfop = playerInfoRaw.halfop,
+		op = playerInfoRaw.op
+	}
+
+	---First check if we actually need to reload any buttons
+	---We don't want to run this code unless we actually know we'll have to reload buttons
+	if (self.HubDynamicState ~= nil) then
+		if (self.HubDynamicState.game_type == self.WorldState.game_type and
+			self.HubDynamicState.replay_mode == self.WorldState.replay_mode and
+			table.compare(self.HubDynamicState.PlayerInfo or {}, playerInfo or {})) then
+			return
+		end
+	end
+	self.HubDynamicState = table.clone(self.WorldState)
+	self.HubDynamicState.PlayerInfo = playerInfo
+	self.HubDynamicButtonsHolder:kill(true)
+
+	---@type HudDynamicButtonData[]
+	local buttonOptions = {
+		{
+			title = TB_MENU_LOCALIZED.MOBILEHUDHUBSPECTATE,
+			icon = {
+				filename = "../textures/menu/general/spectate_joinqueue_icon.tga",
+				atlas = { x = 0, y = 0, w = 128, h = 128 }
+			},
+			action = function() runCmd("spec", true) end,
+			displayCondition = function()
+				return playerInfo ~= nil and not playerInfo.spectator or false
+			end
+		},
+		{
+			title = TB_MENU_LOCALIZED.MOBILEHUDHUBJOINQUEUE,
+			icon = {
+				filename = "../textures/menu/general/spectate_joinqueue_icon.tga",
+				atlas = { x = 128, y = 0, w = 128, h = 128 }
+			},
+			action = function() runCmd("enter", true) end,
+			displayCondition = function()
+				return playerInfo ~= nil and playerInfo.spectator or false
+			end
+		},
+		{
+			title = TB_MENU_LOCALIZED.REPLAYSSAVEREPLAY,
+			icon = {
+				filename = "../textures/menu/general/buttons/savewhite.tga"
+			},
+			action = function() dofile("system/replay_save.lua") end,
+			displayCondition = function() return true end
+		}
+	}
+
+	local buttonSize = math.min(50, math.floor(self.HubDynamicButtonsHolder.size.h / 5))
+	local buttonsDisplayed = 0
+	for _, v in pairs(buttonOptions) do
+		if (v.displayCondition()) then
+			local buttonHolder = self.HubDynamicButtonsHolder:addChild({
+				pos = { 0, buttonsDisplayed * buttonSize },
+				size = { self.HubDynamicButtonsHolder.size.w, buttonSize }
+			})
+			buttonsDisplayed = buttonsDisplayed + 1
+
+			local button = buttonHolder:addChild({
+				shift = { 0, 3 },
+				interactive = true,
+				bgColor = TB_MENU_DEFAULT_BG_COLOR,
+				hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+				shapeType = ROUNDED,
+				rounded = 5
+			})
+			local buttonIcon = button:addChild({
+				pos = { 10, 10 },
+				size = { button.size.h - 20, button.size.h - 20 },
+				bgImage = v.icon.filename,
+				imageAtlas = v.icon.atlas ~= nil,
+				atlas = v.icon.atlas
+			})
+			local buttonText = button:addChild({
+				pos = { button.size.h, 5 },
+				size = { button.size.w - button.size.h - 5, button.size.h - 10 }
+			})
+			buttonText:addAdaptedText(true, v.title, nil, nil, FONTS.MEDIUM, LEFTMID)
+			button:addMouseUpHandler(function()
+					self:toggleHub(false)
+					v.action()
+				end)
+		end
+	end
+
+	if (not self.HubDynamicButtonsHolder:isDisplayed()) then
+		self.HubDynamicButtonsHolder:show()
+		self.HubDynamicButtonsHolder:hide()
+	else
+		self.HubHolder:reload()
+	end
+end
+
 ---Spawns right side hud hub menu
 function TBHud:spawnHub()
 	if (self.MainElement == nil) then return end
@@ -444,6 +625,7 @@ function TBHud:spawnHub()
 		self.HubHolder:kill()
 	end
 	self.HubHolder = self.MainElement:addChild({
+		globalid = self.HubGlobalid,
 		pos = { self.MainElement.size.w, 0 },
 		size = { self.MainElement.size.w, self.MainElement.size.h },
 		bgColor = UICOLORBLACK,
@@ -478,9 +660,10 @@ function TBHud:spawnHub()
 			action = function() dofile("system/atmo.lua") end
 		}
 	}
-	local buttonSize = (hubMainHolder.size.w - 20) / #topRowButtons - 10
+	local numButtons = #topRowButtons
+	local buttonSize = (hubMainHolder.size.w - 20) / numButtons - 10 * ((numButtons - 1) / numButtons)
 	local topButtonsHolder = hubMainHolder:addChild({
-		pos = { 10, 50 },
+		pos = { 10, math.max(safe_y, 20) },
 		size = { hubMainHolder.size.w - 20, buttonSize }
 	})
 	for i, v in pairs(topRowButtons) do
@@ -512,17 +695,24 @@ function TBHud:spawnHub()
 	end
 
 	local mainMenuButton = hubMainHolder:addChild({
-		pos = { 10, -40 - math.max(safe_y, 20) },
-		size = { hubMainHolder.size.w - 20, 40 },
+		pos = { 10, -50 - math.max(safe_y, 20) },
+		size = { hubMainHolder.size.w - 20, 50 },
 		interactive = true,
 		bgColor = TB_MENU_DEFAULT_BG_COLOR,
-		hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-		pressedColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
 		shapeType = ROUNDED,
-		rounded = 4
+		rounded = 5
 	})
-	mainMenuButton:addChild({ shift = { 10, 5 }}):addAdaptedText("> To main menu")
+	mainMenuButton:addChild({ shift = { 10, 5 }}):addAdaptedText("> " .. TB_MENU_LOCALIZED.MOBILEHUDTOMAINMENU)
 	mainMenuButton:addMouseUpHandler(function() open_menu(19) TBHud:toggleHub(false) end)
+
+	local middleSectionHolder = hubMainHolder:addChild({
+		pos = { topButtonsHolder.shift.x, topButtonsHolder.shift.y + topButtonsHolder.size.h + 20 },
+		size = { topButtonsHolder.size.w, hubMainHolder.size.h - (topButtonsHolder.shift.y + topButtonsHolder.size.h + 20) - (mainMenuButton.size.h + 20 + math.max(safe_y, 20)) }
+	})
+	self.HubDynamicButtonsHolder = middleSectionHolder
+	self:reloadHubDynamicButtons()
 
 	self.HubHolder:hide(true)
 end
@@ -532,7 +722,7 @@ function TBHud:toggleHub(state)
 		self.HubHolder:show(true)
 	end
 
-	local clock = os.clock_real()
+	local clock = UIElement.clock
 	local safe_x = get_window_safe_size()
 	if (state == true) then
 		self.HubHolder:moveTo(self.HubSize.w)
@@ -838,7 +1028,7 @@ function TBHud:toggleChat(state)
 		end
 	end
 
-	local clock = os.clock_real()
+	local clock = UIElement.clock
 	self.ChatHolder:addCustomDisplay(true, function()
 		local tweenValue = (UIElement.clock - clock) * 6
 		if (state) then
@@ -872,7 +1062,7 @@ function TBHud:spawnMiniChat()
 	local refreshMiniChat = function()
 		messagesToDisplay = {}
 		for i = #TBHudInternal.ChatMessages, 1, -1 do
-			if (TBHudInternal.ChatMessages[i].clock < os.clock_real() - self.ChatMiniDisplayPeriod) then
+			if (TBHudInternal.ChatMessages[i].clock < UIElement.clock - self.ChatMiniDisplayPeriod) then
 				break
 			end
 			table.insert(messagesToDisplay, TBHudInternal.ChatMessages[i])
@@ -943,4 +1133,6 @@ TBHud.Reload()
 add_hook("resolution_changed", "tbHudTouchInterface", TBHud.Reload)
 add_hook("new_game", "tbHudTouchInterface", TBHudInternal.refreshButtons)
 add_hook("spec_update", "tbHudTouchInterface", TBHudInternal.refreshButtons)
+add_hook("bout_update", "tbHudTouchInterface", TBHudInternal.refreshButtons)
+add_hook("enter_frame", "tbHudTouchInterface", TBHudInternal.refreshButtons)
 add_hook("console_post", "tbHudChatInterface", TBHudInternal.pushChatMessage)

@@ -3351,13 +3351,18 @@ function TBMenu:generatePaginationData(totalPages, maxPages, currentPage)
 	return pagesButtons
 end
 
+---@class UILoadingMark : UIElement
+---@field textView ?UIElement
+
 ---Displays a generic message with a spinning wheel element within a specified viewport
 ---@param element UIElement
 ---@param message ?string
 ---@param size ?number
----@return UIElement
+---@return UILoadingMark
 function TBMenu:displayLoadingMark(element, message, size)
 	local size = size or 20
+	---@type UILoadingMark
+	---@diagnostic disable-next-line: assign-type-mismatch
 	local loadMark = element:addChild({})
 	local grow, rotate = 0, 0
 	loadMark:addCustomDisplay(true, function()
@@ -3714,6 +3719,7 @@ function TBMenu:spawnSlider2(parent, rect, value, settings, sliderFunc, onMouseD
 	slider.label = sliderLabel
 	slider.lastVal = nil
 	slider:addMouseHandlers(function()
+			disable_mouse_camera_movement()
 			slider.pressedPos = slider:getLocalPos()
 			if (onMouseDown) then
 				onMouseDown()
@@ -3726,6 +3732,7 @@ function TBMenu:spawnSlider2(parent, rect, value, settings, sliderFunc, onMouseD
 				end)
 			end
 		end, function()
+			enable_mouse_camera_movement()
 			sliderLabelOutClock = UIElement.clock
 		end, function()
 			if (slider.hoverState == BTN_DN) then

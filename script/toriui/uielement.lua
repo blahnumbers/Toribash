@@ -137,7 +137,7 @@ DEFSHADOWCOLOR = DEFSHADOWCOLOR or { 0, 0, 0, 0.6 }
 
 ---@type UIElement[]
 UIElementManager = UIElementManager or {}
----@type UIElement[]
+---@type UIElement[][]
 UIVisualManager = UIVisualManager or {}
 ---@type UIElement[]
 UIViewportManager = UIViewportManager or {}
@@ -177,6 +177,7 @@ if (not UIElement) then
 	---@field atlas Rect
 	---@field imageHoverColor Color
 	---@field imagePressedColor Color
+	---@field imageInactiveColor Color
 	---@field textfield boolean Whether the object will be used as a text field
 	---@field textfieldstr string|string[]
 	---@field textfieldsingleline boolean
@@ -253,6 +254,7 @@ if (not UIElement) then
 	---@field imageHoverColor Color Target image color modifier when UIElement is in hover state. *Only used when object is interactive*.
 	---@field imagePressedColor Color Image color modifier when UIElement is in pressed state. *Only used when object is interactive*.
 	---@field imageAnimateColor Color Current image color modifier when in normal or hover state. *Only used when object is interactive and UI animations are enabled*.
+	---@field imageInactiveColor Color Image color modifier when UIElement is in inactive state. *Only used when object is interactive*.
 	---@field keyboard boolean True for objects that currently handle keyboard events
 	---@field textfield boolean Internal value to modify behavior for elements that are going to be used as text fields
 	---@field textfieldstr string[] Text field data. Stored as a table to be able to access data by its reference. **Access UIElement.textfieldstr[1] for the actual string data of a text field**. *Only used for textfield objects*.
@@ -492,6 +494,7 @@ function UIElement:new(o)
 		if (elem.bgImage) then
 			elem.imageHoverColor = o.imageHoverColor or nil
 			elem.imagePressedColor = o.imagePressedColor or nil
+			elem.imageInactiveColor = o.imageInactiveColor or nil
 			elem.imageAnimateColor = table.clone(elem.imageColor)
 		end
 		elem.hoverState = BTN_NONE
@@ -526,9 +529,10 @@ function UIElement:new(o)
 
 	-- Display is enabled by default, comment this out to disable
 	if (elem.viewport or (elem.parent and elem.parent.viewport)) then
-		table.insert(UIViewportManager, elem)
+		--table.insert(UIViewportManager, elem)
 	else
-		table.insert(UIVisualManager, elem)
+		UIVisualManager[elem.globalid] = UIVisualManager[elem.globalid] or { }
+		table.insert(UIVisualManager[elem.globalid], elem)
 	end
 
 	-- Force update global x/y pos when spawning element
@@ -1180,15 +1184,15 @@ end
 ---@param globalid ?integer Global ID that the objects to display belong to
 function UIElement:drawVisuals(globalid)
 	local globalid = globalid or self.globalid
+	if (UIVisualManager[globalid] == nil) then return end
+
 	for _, v in pairs(UIElementManager) do
 		if (v.globalid == globalid and v.parent == nil) then
 			v:updatePos()
 		end
 	end
-	for _, v in pairs(UIVisualManager) do
-		if (v.globalid == globalid) then
-			v:display()
-		end
+	for _, v in pairs(UIVisualManager[globalid]) do
+		v:display()
 	end
 end
 
@@ -1212,6 +1216,22 @@ end
 ---@see UIElement.addCustomDisplay
 ---@deprecated
 function UIElement:displayViewport() end
+
+---Returns UIElement's target image color according to its current state
+---@return Color
+function UIElement:getImageColor()
+	local targetColor = self.imageColor
+	if (self.interactive) then
+		if (self.isactive) then
+			if (self.hoverState ~= BTN_NONE) then
+				targetColor = (self.hoverState == BTN_DN and self.imagePressedColor or self.imageAnimateColor) or targetColor
+			end
+		else
+			targetColor = self.imageInactiveColor or targetColor
+		end
+	end
+	return targetColor
+end
 
 ---Internal function that's used to draw a regular UIElement. \
 ---*You likely don't need to call this manually.* \
@@ -1309,13 +1329,15 @@ function UIElement:display()
 			draw_quad(self.pos.x, self.pos.y + self.innerShadow[1], self.size.w, self.size.h - self.innerShadow[1] - self.innerShadow[2])
 		end
 		if (self.bgImage) then
-			local targetImageColor = self.interactive and ((self.hoverState == BTN_HVR or self.hoverState == BTN_FOCUS) and self.imageAnimateColor or (self.hoverState == BTN_DN and self.imagePressedColor or self.imageColor)) or self.imageColor
-			if (self.drawMode == 2) then
-				draw_quad(self.pos.x, self.pos.y, self.size.w, self.size.h, self.bgImage, 2, targetImageColor[1], targetImageColor[2], targetImageColor[3], targetImageColor[4], self.atlas.w, self.atlas.h, self.atlas.x, self.atlas.y)
-			elseif (self.drawMode == 1) then
-				draw_quad(self.pos.x, self.pos.y, self.atlas.w, self.atlas.h, self.bgImage, 1, targetImageColor[1], targetImageColor[2], targetImageColor[3], targetImageColor[4], self.size.w, self.size.h)
-			else
-				draw_quad(self.pos.x, self.pos.y, self.size.w, self.size.h, self.bgImage, 0, targetImageColor[1], targetImageColor[2], targetImageColor[3], targetImageColor[4])
+			local targetImageColor = self:getImageColor()
+			if (targetImageColor[4] > 0) then
+				if (self.drawMode == 2) then
+					draw_quad(self.pos.x, self.pos.y, self.size.w, self.size.h, self.bgImage, 2, targetImageColor[1], targetImageColor[2], targetImageColor[3], targetImageColor[4], self.atlas.w, self.atlas.h, self.atlas.x, self.atlas.y)
+				elseif (self.drawMode == 1) then
+					draw_quad(self.pos.x, self.pos.y, self.atlas.w, self.atlas.h, self.bgImage, 1, targetImageColor[1], targetImageColor[2], targetImageColor[3], targetImageColor[4], self.size.w, self.size.h)
+				else
+					draw_quad(self.pos.x, self.pos.y, self.size.w, self.size.h, self.bgImage, 0, targetImageColor[1], targetImageColor[2], targetImageColor[3], targetImageColor[4])
+				end
 			end
 		end
 	end
@@ -1390,10 +1412,16 @@ function UIElement:deactivate(noreload)
 	end
 end
 
----Whether current UIElement is being displayed
+---Returns whether UIElement is being displayed
 ---@return boolean
 function UIElement:isDisplayed()
 	return self.displayed;
+end
+
+---Returns whether an interactive UIElement is currently active
+---@return boolean
+function UIElement:isActive()
+	return self.isactive
 end
 
 function UIElement:shouldReceiveInput()
@@ -1417,24 +1445,24 @@ function UIElement:show(forceReload)
 		self.noreload = nil
 	end
 
-	for i,v in pairs(UIVisualManager) do
+	for i,v in pairs(UIVisualManager[self.globalid]) do
 		if (self == v) then
 			num = i
 			break
 		end
 	end
-	for i,v in pairs(UIViewportManager) do
+	--[[for i,v in pairs(UIViewportManager) do
 		if (self == v) then
 			num = i
 			break
 		end
-	end
+	end]]
 
 	if (not num) then
 		if (viewport) then
-			table.insert(UIViewportManager, self)
+			--table.insert(UIViewportManager, self)
 		else
-			table.insert(UIVisualManager, self)
+			table.insert(UIVisualManager[self.globalid], self)
 		end
 		if (self.interactive or self.keyboard) then
 			self:activate()
@@ -1466,19 +1494,19 @@ function UIElement:hide(noreload)
 		self:deactivate()
 	end
 
-	for i,v in pairs(UIVisualManager) do
+	for i,v in pairs(UIVisualManager[self.globalid]) do
 		if (self == v) then
-			table.remove(UIVisualManager, i)
+			table.remove(UIVisualManager[self.globalid], i)
 			break
 		end
 	end
 
-	for i,v in pairs(UIViewportManager) do
+	--[[for i,v in pairs(UIViewportManager) do
 		if (self == v) then
 			table.remove(UIViewportManager, i)
 			break
 		end
-	end
+	end]]
 
 	if (self.menuKeyboardId and not self.textfieldkeepfocusonhide) then
 		self:disableMenuKeyboard()
