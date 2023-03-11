@@ -178,51 +178,6 @@ local function setIntroPlayers()
 	set_torso_color(1, 30)
 end
 
-local function showOverlay(viewElement, reqTable, out, speed)
-	local speed = speed or 1
-	local req = { type = "transition", ready = false }
-	table.insert(reqTable, req)
-
-	if (tbOutOverlay) then
-		tbOutOverlay:kill()
-	end
-	local overlay = UIElement:new({
-		parent = out and tbTutorialsOverlay or viewElement,
-		pos = { 0, 0 },
-		size = { viewElement.size.w, viewElement.size.h },
-		bgColor = cloneTable(UICOLORWHITE)
-	})
-	if (out) then
-		tbOutOverlay = overlay
-	end
-	overlay.bgColor[4] = out and 0 or 1
-	overlay:addCustomDisplay(true, function()
-			overlay.bgColor[4] = overlay.bgColor[4] + (out and 0.02 or -0.02) * speed * FPS_MULTIPLIER
-			if (not out and overlay.bgColor[4] <= 0) then
-				req.ready = true
-				reqTable.ready = Tutorials:checkRequirements(reqTable)
-				overlay:kill()
-			elseif (out and overlay.bgColor[4] >= 1) then
-				req.ready = true
-				reqTable.ready = Tutorials:checkRequirements(reqTable)
-			end
-			set_color(unpack(overlay.bgColor))
-			draw_quad(overlay.pos.x, overlay.pos.y, overlay.size.w, overlay.size.h)
-		end)
-end
-
-local function introOverlay(viewElement, reqTable)
-	showOverlay(viewElement, reqTable)
-end
-
-local function outroOverlay(viewElement, reqTable)
-	showOverlay(viewElement, reqTable, true)
-end
-
-local function outroOverlaySlow(viewElement, reqTable)
-	showOverlay(viewElement, reqTable, true, 0.5)
-end
-
 local function drawSingleKeyC(viewElement, reqTable)
 	drawSingleKey(viewElement, reqTable, "c")
 end
@@ -262,16 +217,13 @@ local function hideWASDcheckMouse(viewElement, reqTable)
 	checkMouseCameraControls(viewElement, reqTable)
 end
 
-functions = {
+return {
 	DrawWASDCameraControls = drawWASD,
 	DrawWASDCameraControlsStatic = drawWASDStatic,
 	DrawWASDShiftCameraControls = drawWASDShift,
 	HideWASDShiftControls = drawWASDShiftStatic,
 	HideCameraKeyboardCheckMouseControls = hideWASDcheckMouse,
 	SetIntroPlayers = setIntroPlayers,
-	IntroOverlay = introOverlay,
-	OutroOverlay = outroOverlay,
-	OutroOverlaySlow = outroOverlaySlow,
 	DrawXKey = drawSingleKeyX,
 	DrawZKey = drawSingleKeyZ,
 	DrawCKey = drawSingleKeyC,

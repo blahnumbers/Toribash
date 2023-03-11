@@ -1,19 +1,26 @@
-require('tutorial.tutorial_manager')
+require('system.tutorial_manager')
 
 if (EventsOnline == nil) then
 	---Manager class for in-game events, based on **Tutorials** class.
 	---@class EventsOnline : Tutorials
 	EventsOnline = {
 		ver = 5.60,
-		__index = {}
+		__index = Tutorials
 	}
-	setmetatable(EventsOnline, { __index = Tutorials })
+	setmetatable(EventsOnline, Tutorials)
 end
 
+---Loads an event located in `data/script/events` directory
+---@param eventName string
+---@return TutorialStep[]?
 function EventsOnline:loadEvent(eventName)
-	return EventsOnline:loadTutorial(eventName, "events/")
+	return Tutorials:loadTutorial(eventName, "events/")
 end
 
+---Runs a check whether all event files are present
+---@param eventName string
+---@param requireMod ?boolean
+---@return boolean
 function EventsOnline:checkFiles(eventName, requireMod)
 	local event = Files:open("events/" .. eventName .. ".dat")
 	if (not event.data) then
@@ -40,83 +47,47 @@ function EventsOnline:checkFiles(eventName, requireMod)
 	return true
 end
 
+---Runs an event with the specified name
+---@param eventName string
 function EventsOnline:playEvent(eventName)
-	TUTORIAL_ISACTIVE = true
-	TUTORIAL_LEAVEGAME = true
-
-	if (get_world_state().game_type == 1) then
-		start_new_game()
-	end
-
-	EventsOnline:loadHooks()
-	-- reload leave_game hook separately to ensure new behavior
-	add_hook("leave_game", "tbTutorialsVisual", function()
-			if (not TUTORIAL_LEAVEGAME and TB_MENU_MAIN_ISOPEN == 0) then
-				EventsOnline:quitPopup()
-			end
-		end)
-	add_hook("key_down", "tbTutorialKeyboardHandler", function(key, kcode)
-			if (not TB_MENU_INPUT_ISACTIVE) then
-				return Tutorials:ignoreKeyPress(key, kcode, true, true)
-			end
-		end)
-	add_hook("key_up", "tbTutorialKeyboardHandler", function(key, kcode)
-			if (TB_MENU_INPUT_ISACTIVE) then
-				return
-			end
-			if (key == 13) then
-				if (tbTutorialsMessage) then
-					tbTutorialsMessage.doSkip = true
-				end
-				if (tbTutorialsContinueButton.isactive) then
-					if (tbTutorialsContinueButton.req.ready ~= nil) then
-						tbTutorialsContinueButton.req.ready = true
-						tbTutorialsContinueButton.reqTable.ready = Tutorials:checkRequirements(tbTutorialsContinueButton.reqTable)
-						tbTutorialsContinueButton:deactivate()
-					end
-				end
-			else
-				return Tutorials:ignoreKeyPress(key, kcode, true, true)
-			end
-		end)
-	EventsOnline:loadOverlay()
-
-	chat_input_deactivate()
-
-	LOCALIZED_MESSAGES = {}
-	local eventSteps = EventsOnline:loadEvent(eventName)
+	Tutorials:setQuitPopupOverride(EventsOnline.QuitPopup)
+	Tutorials:loadOverlay()
+	local eventSteps = self:loadEvent(eventName)
 	if (not eventSteps) then
 		return
 	end
-	if (EventsOnline:getLocalization(LOCALIZED_MESSAGES, eventName, TB_MENU_LOCALIZED.language, "events/")) then
-		usage_event("event" .. eventName .. "begin")
-		EventsOnline:runSteps(eventSteps, nil, LOCALIZED_MESSAGES)
-	else
+
+	if (not Tutorials:getLocalization(eventName, get_language(), "events/")) then
 		Tutorials:quit()
-		TBMenu:showStatusMessage("No localization found")
-	end
-end
-
-function EventsOnline:updateConfig()
-	return 0
-end
-
-function EventsOnline:quitPopup()
-	if (tutorialQuitOverlay) then
-		tutorialQuitOverlay:kill()
-		tutorialQuitOverlay = nil
+		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.TUTORIALSNOLOCALIZATIONFOUND)
 		return
 	end
-	tutorialQuitOverlay = TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.EVENTSLEAVINGPROMPT, function()
+
+	usage_event("event" .. eventName .. "begin")
+	Tutorials:runTutorialBase(eventSteps)
+end
+
+---Quit popup override for Events interface
+function EventsOnline.QuitPopup()
+	if (Tutorials.QuitOverlay) then
+		Tutorials.QuitOverlay:kill()
+		Tutorials.QuitOverlay = nil
+		return
+	end
+	Tutorials.QuitOverlay = TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.EVENTSLEAVINGPROMPT,
+		function()
 			close_menu()
-			runCmd("savereplay --eventtmp" .. CURRENT_TUTORIAL)
+			runCmd("savereplay --eventtmp" .. Tutorials.CurrentTutorial)
 			Tutorials:quit()
-		end, function()
+		end,
+		function()
 			close_menu()
 			TUTORIAL_LEAVEGAME = false
-		end, function()
+		end,
+		function()
 			close_menu()
 			Tutorials:quit()
 		end,
-		TB_MENU_LOCALIZED.BUTTONCONTINUENOSAVE, TB_TUTORIAL_MODERN_GLOBALID)
+		TB_MENU_LOCALIZED.BUTTONCONTINUENOSAVE,
+		Tutorials.Globalid)
 end

@@ -362,6 +362,13 @@ UIElement.btnHover = function(x, y) end
 ---@param y ?number Mouse cursor Y position associated with the event
 UIElement.btnRightUp = function(buttonId, x, y) end
 
+-- Callback function triggered on mouse button up event when object received button down event but
+-- cursor has since moved outside object transform
+---@param buttonId ?number Mouse button ID associated with the event
+---@param x ?number Mouse cursor X position associated with the event
+---@param y ?number Mouse cursor Y position associated with the event
+UIElement.btnUpOutside = function(buttonId, x, y) end
+
 -- Spawn a new UI Element
 ---@param o UIElementOptions Options to use for spawning the new object
 ---@return UIElement
@@ -590,7 +597,8 @@ end
 ---@param btnUp? function Button up callback function
 ---@param btnHover? function Mouse hover callback function
 ---@param btnRightUp? function Right mouse button up callback function
-function UIElement:addMouseHandlers(btnDown, btnUp, btnHover, btnRightUp)
+---@param btnUpOutside? function Outside button up callback function
+function UIElement:addMouseHandlers(btnDown, btnUp, btnHover, btnRightUp, btnUpOutside)
 	if (btnDown) then
 		self.btnDown = btnDown
 	end
@@ -602,6 +610,9 @@ function UIElement:addMouseHandlers(btnDown, btnUp, btnHover, btnRightUp)
 	end
 	if (btnRightUp) then
 		self.btnRightUp = btnRightUp
+	end
+	if (btnUpOutside) then
+		self.btnUpOutside = btnUpOutside
 	end
 end
 
@@ -627,6 +638,12 @@ end
 ---@param func function
 function UIElement:addMouseUpRightHandler(func)
 	self:addMouseHandlers(nil, nil, nil, func)
+end
+
+---Shorthand function to add mouse button up handler when we're while no longer hovering over the object
+---@param func function
+function UIElement:addMouseUpOutsideHandler(func)
+	self:addMouseHandlers(nil ,nil, nil, nil, func)
 end
 
 -- Adds keyboard handlers to use for an interactive UIElement object
@@ -856,6 +873,11 @@ function UIElement:makeScrollBar(listHolder, listElements, toReload, posShift, s
 					posShift[1] = self.shift.x
 				end
 			end
+		end, nil, function()
+			self.scrollReload()
+			if (is_mobile()) then
+				enable_mouse_camera_movement()
+			end
 		end)
 
 	if (not self.isScrollBar) then
@@ -879,50 +901,46 @@ function UIElement:makeScrollBar(listHolder, listElements, toReload, posShift, s
 			end
 		end)
 
-	--if (is_mobile()) then
-		local lastListHolderVal = -1
-		local deltaChange = 0
-		local lastClock = UIElement.clock
-		listHolder.parent:addMouseHandlers(function(_, x, y)
-				disable_mouse_camera_movement()
-				listHolder.parent.scrollableListTouchScrollActive = true
-				lastListHolderVal = (self.orientation == SCROLL_VERTICAL) and y or x
-			end, function()
+	local lastListHolderVal = -1
+	local deltaChange = 0
+	local lastClock = UIElement.clock
+	listHolder.parent:addMouseHandlers(function(_, x, y)
+			disable_mouse_camera_movement()
+			listHolder.parent.scrollableListTouchScrollActive = true
+			lastListHolderVal = (self.orientation == SCROLL_VERTICAL) and y or x
+		end, function()
+			listHolder.parent.scrollableListTouchScrollActive = false
+			lastListHolderVal = -1
+			enable_mouse_camera_movement()
+		end, function(x, y)
+			if (listHolder.parent.scrollableListTouchScrollActive) then
+				lastClock = UIElement.clock
+				local targetValue = (self.orientation == SCROLL_VERTICAL) and y or x
+				deltaChange = lastListHolderVal - targetValue
+				lastListHolderVal = targetValue
+			end
+		end, nil, function()
+			listHolder.parent.scrollableListTouchScrollActive = false
+			lastListHolderVal = -1
+			enable_mouse_camera_movement()
+		end)
+	add_hook("pre_draw", "touchScroller" .. barScroller.uid, function()
+			if (listHolder.parent.scrollableListTouchScrollActive and listHolder.parent.hoverState == BTN_NONE) then
 				listHolder.parent.scrollableListTouchScrollActive = false
 				lastListHolderVal = -1
-				enable_mouse_camera_movement()
-			end, function(x, y)
-				if (listHolder.parent.scrollableListTouchScrollActive) then
-					lastClock = UIElement.clock
-					local targetValue = (self.orientation == SCROLL_VERTICAL) and y or x
-					deltaChange = lastListHolderVal - targetValue
-					lastListHolderVal = targetValue
-				end
-			end)
-		add_hook("pre_draw", "touchScroller" .. barScroller.uid, function()
-				if (listHolder.parent.scrollableListTouchScrollActive and listHolder.parent.hoverState == BTN_NONE) then
-					listHolder.parent.scrollableListTouchScrollActive = false
-					lastListHolderVal = -1
-				elseif (listHolder.parent.hoverState == BTN_DN and UIElement.clock > lastClock + 0.035) then
-					local targetValue = (self.orientation == SCROLL_VERTICAL) and MOUSE_Y or MOUSE_X
-					deltaChange = lastListHolderVal - targetValue
-					lastListHolderVal = targetValue
-				end
+			elseif (listHolder.parent.hoverState == BTN_DN and UIElement.clock > lastClock + 0.035) then
+				local targetValue = (self.orientation == SCROLL_VERTICAL) and MOUSE_Y or MOUSE_X
+				deltaChange = lastListHolderVal - targetValue
+				lastListHolderVal = targetValue
+			end
 
-				if (math.abs(deltaChange) > 0) then
-					if (lastListHolderVal < 0) then
-						deltaChange = UITween.SineTween(deltaChange, 0, (UIElement.clock - lastClock) * 2)
-					end
-					self:touchScroll(listElements, listHolder, toReload, deltaChange, enabled)
+			if (math.abs(deltaChange) > 0) then
+				if (lastListHolderVal < 0) then
+					deltaChange = UITween.SineTween(deltaChange, 0, (UIElement.clock - lastClock) * 2)
 				end
-			end)
-		---Make sure we properly exit camera lock and mark touch scroller holder inactive even when mouse up event was outside the area
-		add_hook("mouse_button_up", "touchScroller" .. barScroller.uid, function()
-				if (listHolder.parent.scrollableListTouchScrollActive) then
-					listHolder.parent.btnUp()
-				end
-			end)
-	--end
+				self:touchScroll(listElements, listHolder, toReload, deltaChange, enabled)
+			end
+		end)
 end
 
 ---Internal function to handle mouse wheel scrolling for lists. \
@@ -1241,7 +1259,7 @@ function UIElement:display()
 	if (self.customDisplayBefore) then
 		self.customDisplayBefore()
 	end
-	if (self.hoverState ~= BTN_NONE) then
+	if (self.hoverState ~= nil and self.hoverState ~= BTN_NONE) then
 		local animateRatio = (UIElement.clock - (self.hoverClock or 0)) / UIElement.animationDuration
 		if (self.hoverColor) then
 			if (UIElement.lightUIMode) then
@@ -1301,16 +1319,14 @@ function UIElement:display()
 				draw_quad(self.pos.x, self.pos.y + self.size.h / 2, self.size.w, self.size.h / 2)
 			end
 		end
-		if (self.interactive and not self.isactive and self.inactiveColor) then
+		if (not self.interactive) then
+			set_color(unpack(self.bgColor))
+		elseif (self.isactive and self.hoverState ~= BTN_DN) then
+			set_color(unpack(self.animateColor))
+		elseif (not self.isactive and self.inactiveColor) then
 			set_color(unpack(self.inactiveColor))
-		elseif (self.hoverState == BTN_HVR and self.hoverColor) then
-			set_color(unpack(self.animateColor))
-		elseif (self.hoverState == BTN_FOCUS and self.hoverColor) then
-			set_color(unpack(self.animateColor))
 		elseif (self.hoverState == BTN_DN and self.pressedColor) then
 			set_color(unpack(self.pressedColor))
-		elseif (self.interactive) then
-			set_color(unpack(self.animateColor))
 		else
 			set_color(unpack(self.bgColor))
 		end
@@ -1350,6 +1366,19 @@ end
 function UIElement:reload()
 	self:hide()
 	self:show()
+end
+
+---Executes UIElement `show()` or `hide()` method depending on state \
+---@see UIElement.show
+---@see UIElement.hide
+---@param state boolean
+---@param override ?boolean
+function UIElement:setVisible(state, override)
+	if (state == true) then
+		self:show(override)
+	else
+		self:hide(override)
+	end
 end
 
 ---Activates current interactive UIElement and pushes it back in relevant handler queues. \
@@ -1451,17 +1480,9 @@ function UIElement:show(forceReload)
 			break
 		end
 	end
-	--[[for i,v in pairs(UIViewportManager) do
-		if (self == v) then
-			num = i
-			break
-		end
-	end]]
 
 	if (not num) then
-		if (viewport) then
-			--table.insert(UIViewportManager, self)
-		else
+		if (not viewport) then
 			table.insert(UIVisualManager[self.globalid], self)
 		end
 		if (self.interactive or self.keyboard) then
@@ -1833,6 +1854,8 @@ function UIElement.handleMouseUp(btn, x, y)
 					v.btnUp(btn, x, y)
 					actionTriggered = not v.clickThrough
 					set_mouse_cursor(1)
+				else
+					v.btnUpOutside(btn, x, y)
 				end
 			elseif (btn == 3) then
 				if (x > v.pos.x and x < v.pos.x + v.size.w and y > v.pos.y and y < v.pos.y + v.size.h) then
@@ -1892,7 +1915,7 @@ function UIElement.mouseHooks()
 			local toReturn = TB_MENU_MAIN_ISOPEN == 1 and 1 or 0
 			toReturn = UIElement.handleMouseDn(s, x, y) or toReturn
 			if (Tutorials and (TUTORIALJOINTLOCK or (not TUTORIALJOINTLOCK and TUTORIALKEYBOARDLOCK))) then
-				toReturn = Tutorials:ignoreMouseClick() or toReturn
+				toReturn = Tutorials.HandleMouseClick() or toReturn
 			end
 			return toReturn
 		end)
@@ -2801,34 +2824,34 @@ _G.string.schar = function(...)
 	return result
 end
 
----Escapes all special characters in a specified string
+---Escapes all special characters in a specified string. \
+---*This actually uses **utf8lib** functions instead of **stringlib**
+---to ensure correct behavior on strings with multibyte symbols.*
 ---@param str string
 ---@return string
 _G.string.escape = function(str)
-	local str = str
-
 	-- escape % symbols
-	str = str:gsub("%%", "%%%%")
+	str = utf8.gsub(str, "%%", "%%%%")
 
 	-- escape other single special characters
 	local chars = ".+-*?^$"
 	for i = 1, #chars do
-		local char = "%" .. chars:sub(i, i)
-		str = str:gsub(char, "%" .. char)
+		local char = "%" .. utf8.sub(chars, i, i)
+		str = utf8.gsub(str, char, "%" .. char)
 	end
 
 	-- escape paired special characters
 	local paired = { {"%[", "%]"}, { "%(", "%)" } }
-	for i,v in pairs(paired) do
+	for _, v in pairs(paired) do
 		local count = 0
-		for j, k in pairs(v) do
-			if (str:find(k)) then
+		for _, k in pairs(v) do
+			if (utf8.find(str, k)) then
 				count = count + 1
 			end
 		end
-		if (count == 2) then
-			for j, k in pairs(v) do
-				str = str:gsub(k, "%" .. k)
+		if (count > 0 and count % 2 == 0) then
+			for _, k in pairs(v) do
+				str = utf8.gsub(str, k, "%" .. k)
 			end
 		end
 	end
@@ -2859,6 +2882,17 @@ _G.numberFormat = function(n, decimals)
 		end
 	end
 	return num
+end
+
+---Returns rounded integral value of a specified number `x`.
+---@param x number
+---@return integer
+_G.math.round = function(x)
+	if (x >= 0) then
+		return math.floor(x + 0.5)
+	else
+		return math.ceil(x - 0.5)
+	end
 end
 
 ---Removes Toribash color notations from the specified string

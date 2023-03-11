@@ -3,11 +3,8 @@
 
 --is_mobile = function() return true end
 -- If tutorials are active, ESC press launches tutorial exit popup instead of main menu
-if (TUTORIAL_ISACTIVE) then
-	return
-end
 -- Also ignore for vanilla store previewer
-if (STORE_VANILLA_PREVIEW) then
+if (TUTORIAL_ISACTIVE or STORE_VANILLA_PREVIEW) then
 	return
 end
 if (STORE_VANILLA_POST) then
@@ -33,7 +30,6 @@ TB_MENU_SPECIAL_SCREEN_ISOPEN = TB_MENU_SPECIAL_SCREEN_ISOPEN or 0
 TB_MENU_CLANS_OPENCLANID = TB_MENU_CLANS_OPENCLANID or 0
 TB_MENU_NOTIFICATIONS_COUNT = TB_MENU_NOTIFICATIONS_COUNT or 0
 TB_MENU_REPLAYS_ONLINE = TB_MENU_REPLAYS_ONLINE or 0
-TB_MENU_KEYBOARD_ENABLED = false
 TB_LAST_MENU_SCREEN_OPEN = TB_LAST_MENU_SCREEN_OPEN or (get_option("newshopitem") == 1 and 1 or 2)
 
 if (TB_MENU_MAIN_ISOPEN == 1) then
@@ -69,7 +65,7 @@ TB_MENU_GLOBAL_SCALE = math.min(WIN_H > 720 and 1 or WIN_H / 720, WIN_W > 1280 a
 require("system.menu_defines")
 require("system.iofiles")
 require("system.menu_manager")
-TBMenu.Init("230203")
+TBMenu.Init("230311")
 
 require("system.menu_backend_defines")
 require("system.network_request")
@@ -87,17 +83,22 @@ require('system.mods_manager')
 require("system.bounty_manager")
 require("system.settings_manager")
 require("system.scripts_manager")
+require('system.tutorial_manager')
 require("system.events_manager")
 require("system.events_online_manager")
 require("system.news_manager")
 require("system.market_manager")
 require("system.battlepass_manager")
+require("system.ignore_manager")
 require("system.queuelist_manager")
 if (is_mobile()) then
 	require("system.hud_manager")
 end
-require("system.ignore_manager")
+require("system.replay_hud")
 require("system.atmospheres_manager")
+require("system.movememory_manager")
+require("system.tooltip_manager")
+require("system.broadcast_manager")
 
 TB_MENU_PLAYER_INFO = PlayerInfo.Get(PLAYERINFO_SCOPE_GENERAL)
 TB_MENU_PLAYER_INFO:getClan()
@@ -139,7 +140,6 @@ elseif (launchOption:match("clans ")) then
 	TBMenu:showClans(PlayerInfo.Get(player).clan.tag)
 elseif (launchOption == "register") then
 	TB_MENU_MAIN_ISOPEN = 0
-	dofile("tutorial/tutorial_manager.lua")
 	usage_event("registertutorial")
 	Tutorials:runTutorial(1, true)
 else
@@ -163,7 +163,7 @@ if (not _G.FIRST_LAUNCH) then
 				local latestVersion = tonumber(get_network_response())
 				local currentVersion = tonumber(TORIBASH_VERSION)
 				if (currentVersion < latestVersion) then
-					TBMenu:showConfirmationWindow("Toribash " .. latestVersion .. " is now available.\nWould you like to download it now?", function() open_url("https://www.toribash.com/downloads.php") end)
+					TBMenu:showConfirmationWindow("Toribash " .. latestVersion .. " is now available.\nWould you like to download it now?", function() open_url("https://www.toribash.com/downloads") end)
 				end
 			end)
 	end
@@ -233,12 +233,6 @@ add_hook("new_mp_game", "tbMainMenuStatic", function()
 		set_discord_rpc("", "")
 	end)
 
-require("system.movememory_manager")
-require("system.tooltip_manager")
-if (get_option("tooltip") == 1 and not Tooltip.IsActive) then
-	Tooltip.Reload()
-end
-
 ---Spawn generic display hooks
 ---We want Tooltip and QueueList to stay below main elements to ensure they aren't blocking the view
 add_hook("draw2d", "tbMainHubVisual", function()
@@ -249,15 +243,6 @@ add_hook("draw2d", "tbMainHubVisual", function()
 		UIElement:drawVisuals(QueueList.Globalid)
 		UIElement:drawVisuals(TB_MENU_HUB_GLOBALID)
 	end)
-if (is_mobile()) then
-	---Spawn mobile HUD separately and make sure it's above all other elements
-	---This setup *will* work because we're now using deterministic execution order for hooks
-	add_hook("draw2d", "tbMobileHudVisual", function()
-		if (TB_MENU_MAIN_ISOPEN == 1) then return end
-		UIElement:drawVisuals(TBHud.Globalid)
-		UIElement:drawVisuals(TBHud.HubGlobalid)
-	end)
-end
 add_hook("draw_viewport", "tbMainHubVisual", function()
 		if (TB_MENU_MAIN_ISOPEN == 1) then return end
 		UIElement3D:drawViewport(QueueList.Globalid)
@@ -267,14 +252,16 @@ add_hook("draw3d", "tbMainHudVisual", function()
 		UIElement3D:drawVisuals(TB_MENU_HUB_GLOBALID)
 	end)
 
--- Load miscellaneous scripts
-if (get_option("showbroadcast") and (not Broadcasts or not Broadcasts.HOOKS_ACTIVE)) then
-	require("system.broadcast_manager")
-	Broadcasts:activate()
+if (is_mobile()) then
+	---Spawn mobile HUD separately and make sure it's above all other elements
+	---This setup *will* work because we're now using deterministic execution order for hooks
+	add_hook("draw2d", "tbMobileHudVisual", function()
+		if (TB_MENU_MAIN_ISOPEN == 1) then return end
+		UIElement:drawVisuals(TBHud.Globalid)
+		UIElement:drawVisuals(TBHud.HubGlobalid)
+	end)
 end
-if (not REPLAY_GUI and get_option("replaycache") ~= 0) then
-	dofile("system/replay_hud.lua")
-end
+
 Notifications:getTotalNotifications()
 
 if (launchOption == 'register') then

@@ -1,48 +1,5 @@
-local INTRO = 1
-local OUTRO = -1
 local SPACEBAR = " "
 local FPS_MULTIPLIER = get_option("framerate") == 30 and 2 or 1
-
-local function showOverlay(viewElement, reqTable, out, speed)
-	local speed = speed or 1
-	local req = { type = "transition", ready = false }
-	table.insert(reqTable, req)
-
-	if (tbOutOverlay) then
-		tbOutOverlay:kill()
-	end
-	local overlay = UIElement:new({
-		parent = out and tbTutorialsOverlay or viewElement,
-		pos = { 0, 0 },
-		size = { viewElement.size.w, viewElement.size.h },
-		bgColor = cloneTable(UICOLORWHITE)
-	})
-	if (out) then
-		tbOutOverlay = overlay
-	end
-	overlay.bgColor[4] = out and 0 or 1
-	overlay:addCustomDisplay(true, function()
-			overlay.bgColor[4] = overlay.bgColor[4] + (out and 0.02 or -0.02) * speed * FPS_MULTIPLIER
-			if (not out and overlay.bgColor[4] <= 0) then
-				req.ready = true
-				reqTable.ready = Tutorials:checkRequirements(reqTable)
-				overlay:kill()
-			elseif (out and overlay.bgColor[4] >= 1) then
-				req.ready = true
-				reqTable.ready = Tutorials:checkRequirements(reqTable)
-			end
-			set_color(unpack(overlay.bgColor))
-			draw_quad(overlay.pos.x, overlay.pos.y, overlay.size.w, overlay.size.h)
-		end)
-end
-
-local function introOverlay(viewElement, reqTable)
-	showOverlay(viewElement, reqTable)
-end
-
-local function outroOverlay(viewElement, reqTable)
-	showOverlay(viewElement, reqTable, true)
-end
 
 local function requireKeyPress(viewElement, reqTable, key, show)
 	local req = { type = "keypress", ready = false }
@@ -56,16 +13,14 @@ local function requireKeyPress(viewElement, reqTable, key, show)
 			displayKey = "SPACEBAR"
 			width = 300
 		end
-		local BUTTON_DEFAULT_COLOR = { unpack(TB_MENU_DEFAULT_BG_COLOR) }
-		local BUTTON_HOVER_COLOR = { unpack(TB_MENU_DEFAULT_LIGHEST_COLOR) }
 
 		button = UIElement:new({
 			parent = viewElement,
 			pos = { 250 - width / 2, -200 },
 			size = { width, 70 },
 			interactive = true,
-			bgColor = BUTTON_DEFAULT_COLOR,
-			hoverColor = BUTTON_HOVER_COLOR,
+			bgColor = table.clone(TB_MENU_DEFAULT_BG_COLOR),
+			hoverColor = table.clone(TB_MENU_DEFAULT_LIGHTEST_COLOR),
 			shapeType = ROUNDED,
 			rounded = 10
 		})
@@ -79,10 +34,10 @@ local function requireKeyPress(viewElement, reqTable, key, show)
 				if (show and button.hoverState ~= BTN_NONE) then
 					button.hoverState = BTN_NONE
 					req.ready = true
-					reqTable.ready = Tutorials:checkRequirements(reqTable)
+					reqTable.ready = Tutorials.CheckRequirements(reqTable)
 				elseif (not show) then
 					req.ready = true
-					reqTable.ready = Tutorials:checkRequirements(reqTable)
+					reqTable.ready = Tutorials.CheckRequirements(reqTable)
 				end
 			end
 		end)
@@ -111,12 +66,12 @@ local function requireKeyPressM(viewElement, reqTable)
 end
 
 local function moveMemoryShow(viewElement, reqTable, static)
-	dofile("system/movememory_manager.lua")
+	require("system.movememory_manager")
 	local moveMemoryMain = UIElement:new({
 		parent = viewElement,
 		pos = { 50, WIN_H / 6 },
 		size = { 250, WIN_H / 3 * 2 },
-		bgColor = cloneTable(TB_MENU_DEFAULT_BG_COLOR_TRANS),
+		bgColor = table.clone(TB_MENU_DEFAULT_BG_COLOR_TRANS),
 		shapeType = ROUNDED,
 		rounded = 4,
 		uiColor = { 0, 0, 0, 1 }
@@ -125,7 +80,7 @@ local function moveMemoryShow(viewElement, reqTable, static)
 		parent = moveMemoryMain,
 		pos = { 0, 0 },
 		size = { moveMemoryMain.size.w, 20 },
-		bgColor = cloneTable(TB_MENU_DEFAULT_BG_COLOR),
+		bgColor = table.clone(TB_MENU_DEFAULT_BG_COLOR),
 		shapeType = moveMemoryMain.shapeType,
 		rounded = moveMemoryMain.rounded
 	})
@@ -154,7 +109,7 @@ local function moveMemoryShow(viewElement, reqTable, static)
 		parent = moveMemoryHolder,
 		pos = { 0, 0 },
 		size = { moveMemoryHolder.size.w, 40 },
-		bgColor = cloneTable(TB_MENU_DEFAULT_BG_COLOR),
+		bgColor = table.clone(TB_MENU_DEFAULT_BG_COLOR),
 		uiColor = UICOLORWHITE
 	})
 	if (not static) then
@@ -211,8 +166,8 @@ local function moveMemoryShow(viewElement, reqTable, static)
 
 	local openersHolder = UIElement:new({
 		parent = moveMemoryHolder,
-		pos = { 0, featuredHolder and featuredHolder.shift.y + featuredHolder.size.h or moveMemoryTitle.size.h },
-		size = { moveMemoryHolder.size.w, featuredHolder and moveMemoryHolder.size.h - featuredHolder.size.h - featuredHolder.shift.y or moveMemoryHolder.size.h - moveMemoryTitle.size.h }
+		pos = { 0, moveMemoryTitle.size.h },
+		size = { moveMemoryHolder.size.w, moveMemoryHolder.size.h - moveMemoryTitle.size.h }
 	})
 
 	-- prevent interactions
@@ -294,7 +249,7 @@ local function moveMemoryMovesShow(viewElement, reqTable, rpt)
 			}
 		}
 	}
-	MoveMemory:spawnOpeners(openersHolder, moves)
+	MoveMemory:spawnOpeners(openersHolder, moves, 1)
 	if (not rpt) then
 		for i = 2, #openersHolder.child do
 			local trans = 0.5
@@ -352,16 +307,14 @@ local function checkJointStates(viewElement, reqTable)
 			for i,v in pairs(JOINTS) do
 				if (get_joint_info(0, v).state ~= states[v]) then
 					req.ready = true
-					reqTable.ready = Tutorials:checkRequirements(reqTable)
+					reqTable.ready = Tutorials.CheckRequirements(reqTable)
 					checker:kill()
 				end
 			end
 		end)
 end
 
-functions = {
-	IntroOverlay = introOverlay,
-	OutroOverlay = outroOverlay,
+return {
 	RequireKeyPressC = requireKeyPressC,
 	RequireKeyPressB = requireKeyPressB,
 	RequireKeyPressM = requireKeyPressM,

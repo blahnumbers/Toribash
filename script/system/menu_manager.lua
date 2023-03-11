@@ -43,6 +43,7 @@ setmetatable({}, TBMenuInternal)
 function TBMenu.Init(version)
 	TB_MENU_MAIN_ISOPEN = 1
 	set_build_version(version)
+	TBMenu.GetTranslation(get_language())
 end
 
 ---Adjusts some internal settings for fonts to accompany for RTL languages
@@ -66,7 +67,7 @@ end
 ---Caches localization data to `TB_MENU_LOCALIZED` table for the provided language. \
 ---In case of incomplete data, uses English to make sure there are no missing localization strings.
 ---@param language string
-function TBMenu:getTranslation(language)
+function TBMenu.GetTranslation(language)
 	local language = language or "english"
 	local inverse = (language == "arabic" or language == "hebrew") and true
 	TBMenuInternal.SetLanguageFontOptions(language)
@@ -3724,16 +3725,12 @@ function TBMenu:spawnSlider2(parent, rect, value, settings, sliderFunc, onMouseD
 			if (onMouseDown) then
 				onMouseDown()
 			end
-			if (onMouseUp) then
-				add_hook("mouse_button_up", "uiMenuSlider", function()
-					onMouseUp()
-					slider.btnUp()
-					remove_hook("mouse_button_up", "uiMenuSlider")
-				end)
-			end
 		end, function()
 			enable_mouse_camera_movement()
 			sliderLabelOutClock = UIElement.clock
+			if (onMouseUp) then
+				onMouseUp()
+			end
 		end, function()
 			if (slider.hoverState == BTN_DN) then
 				local xPos = MOUSE_X - sliderBG.pos.x - slider.pressedPos.x
@@ -3763,6 +3760,7 @@ function TBMenu:spawnSlider2(parent, rect, value, settings, sliderFunc, onMouseD
 				slider.lastVal = val
 			end
 		end)
+	slider:addMouseUpOutsideHandler(slider.btnUp)
 	slider.setValue = function(val, updateLabel)
 		local val = val > settings.maxValue and settings.maxValue or (val < settings.minValue and settings.minValue or val)
 		slider:moveTo(val / settings.maxValue * (sliderBG.size.w - slider.size.w), nil)
@@ -3774,7 +3772,7 @@ function TBMenu:spawnSlider2(parent, rect, value, settings, sliderFunc, onMouseD
 			sliderLabel.bgColor[4] = 1
 		end
 	end
-	sliderBG:addMouseDownHandler(function()
+	sliderBG:addMouseDownHandler(function(s, x, y)
 		local pos = sliderBG:getLocalPos()
 		local xPos = pos.x - slider.size.w / 2
 		if (xPos < 0) then
@@ -3789,17 +3787,12 @@ function TBMenu:spawnSlider2(parent, rect, value, settings, sliderFunc, onMouseD
 				xPos = 0
 			end
 		end
+		sliderBG.hoverState = BTN_NONE
+
 		slider:moveTo(xPos)
-
-		local val = xPos / (sliderBG.size.w - settings.sliderRadius) * (settings.maxValue - settings.minValue) + settings.minValue
-		local multiplyBy = tonumber('1' .. string.rep('0', settings.decimal))
-		sliderLabel.labelText[1] = (math.floor(val * multiplyBy) / multiplyBy) .. ''
-		sliderLabel.uiColor[4] = 1
-		sliderLabel.bgColor[4] = 1
-
-		if (sliderFunc) then
-			sliderFunc(val, xPos, slider)
-		end
+		slider.hoverState = BTN_DN
+		slider.btnDown(s, x, y)
+		slider.btnHover(x, y)
 	end)
 	return slider
 end
@@ -4058,5 +4051,4 @@ function TBMenuInternal.DisplayTextfield(element, fontid, scale, color, defaultS
 		end)
 end
 
--- Get translation here so other scripts that use menu manager have translation data
-TBMenu:getTranslation(get_language())
+TBMenu.GetTranslation(get_language())

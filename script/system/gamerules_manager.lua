@@ -861,9 +861,7 @@ function Gamerules.showMain()
 				disable_mouse_camera_movement()
 				mainMover.pressedPos.x = x - mainMover.pos.x
 				mainMover.pressedPos.y = y - mainMover.pos.y
-			end, function()
-				enable_mouse_camera_movement()
-			end, function(x, y)
+			end, enable_mouse_camera_movement, function(x, y)
 			if (mainMover.hoverState == BTN_DN) then
 				local x = x - mainMover.pressedPos.x
 				local y = y - mainMover.pressedPos.y
@@ -871,7 +869,7 @@ function Gamerules.showMain()
 				y = y < 0 and 0 or (y + Gamerules.MainElement.size.h > WIN_H and WIN_H - Gamerules.MainElement.size.h or y)
 				Gamerules.MainElement:moveTo(x, y)
 			end
-		end)
+		end, nil, enable_mouse_camera_movement)
 
 	local gameRulesName = topBar:addChild({
 		pos = { 10, mainMoverHolder.size.h + mainMoverHolder.shift.y },

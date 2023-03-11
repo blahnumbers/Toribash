@@ -994,6 +994,29 @@ function get_world_state() end
 ---@return BodyInfo
 function get_body_info(player, body) end
 
+
+---Sets player bodypart position
+---@param player_index integer
+---@param body_index PlayerBody
+---@param x number
+---@param y number
+---@param z number
+function set_body_pos(player_index, body_index, x, y, z) end
+
+---Sets player bodypart rotation (Euler angles)
+---@param player_index integer
+---@param body_index PlayerBody
+---@param x number
+---@param y number
+---@param z number
+function set_body_rotation(player_index, body_index, x, y, z) end
+
+---Sets player bodypart rotation (rotation matrix)
+---@param player_index integer
+---@param body_index PlayerBody
+---@param rot Matrix4x4
+function set_body_rotation_m(player_index, body_index, rot) end
+
 ---Returns player body linear velocity
 ---@param player integer
 ---@param body PlayerBody
@@ -1109,6 +1132,16 @@ function set_grip_info(player, hand, state) end
 ---@return integer ?anchor_y
 ---@return integer ?anchor_z
 function get_grip_lock(player, hand) end
+
+---Dismembers the specified player joint
+---@param player integer
+---@param joint PlayerJoint
+function dismember_joint(player, joint) end
+
+---Fractures the specified player joint
+---@param player integer
+---@param joint PlayerJoint
+function fracture_joint(player, joint) end
 
 ---Returns joint position in 3D world
 ---@param player integer
@@ -1523,6 +1556,18 @@ function get_joint_colors(player, joint) end
 ---This function will be removed in future releases
 function get_joint_color(player, joint) end
 
+---Sets joint colors for the specified player
+---@param player integer
+---@param relax_color ColorId
+---@param force_color ColorId
+---@param joint ?PlayerJoint If specified, will only set the colors for that joint id
+function set_joint_color(player, relax_color, force_color, joint) end
+
+---Sets torso color for the specified player
+---@param player integer
+---@param color ColorId
+function set_torso_color(player, color) end
+
 ---@class ColorInfo
 ---@field name string
 ---@field game_name string
@@ -1548,7 +1593,7 @@ function get_color_rgba(colorid) end
 ---[View documents](command:extension.lua.doc?["en-us/51/manual.html/pdf-io.open"])
 ---@param filename string
 ---@param mode?    openmode
----@param root?    integer Pass `1` to open file at Toribash root folder
+---@param root?    integer|boolean If `true`, will open file at Toribash root folder
 ---@return file*?
 ---@return string? errmsg
 ---@diagnostic disable-next-line: duplicate-set-field
@@ -1556,7 +1601,7 @@ function io.open(filename, mode, root) end
 
 ---Attempts to open a file at location and returns the index on success or nil on failure
 ---@param path string
----@param mode ?mode
+---@param mode ?openmode
 ---@param root ?integer|boolean If `true|1`, will look up from Toribash root location instead of data/script
 ---@return integer|nil
 function file_open(path, mode, root) end

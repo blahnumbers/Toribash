@@ -6,24 +6,10 @@ FILES_MODE_WRITE = 'w+'
 FILES_MODE_APPEND = 'a'
 FILES_MODE_READWRITE = 'r+'
 
----@alias mode
----| 'r' # FILES_MODE_READONLY
----| 'w'
----| 'a' # FILES_MODE_APPEND
----| 'r+' # FILES_MODE_READWRITE
----| 'w+' # FILES_MODE_WRITE
----| 'a+'
----| 'rb'
----| 'wb'
----| 'ab'
----| 'r+b'
----| 'w+b'
----| 'a+b'
-
 -- Internal cross-platform function to open a file
 ---@param path string
----@param mode mode
----@param isroot integer|nil If 1, will start looking for file in Toribash root folder instead of data/script
+---@param mode openmode
+---@param isroot boolean If true, will start looking for file in Toribash root folder instead of data/script
 ---@return file*|integer|nil #Lua `file*` object on desktop platforms, file index on mobile or nil on failure
 local function filesOpenInternal(path, mode, isroot)
 	if (is_mobile()) then
@@ -75,9 +61,9 @@ do
 
 	---@class File
 	---@field path string File path
-	---@field isroot integer|nil If 1, file lookup started at Toribash root folder
-	---@field mode mode Mode the file was opened with
-	---@field data file*|integer File pointer received from `io.open()` call or a file index retrieved by `file_open()` on mobile
+	---@field isroot boolean If `true`, file lookup started at Toribash root folder
+	---@field mode openmode Mode the file was opened with
+	---@field data file*|integer|nil File pointer received from `io.open()` call or a file index retrieved by `file_open()` on mobile
 	File = {}
 	File.__index = File
 
@@ -89,31 +75,24 @@ do
 
 	-- Opens a file at a specified path
 	---@param path string Path to the file. In case we want to start file lookup at Toribash root folder, path should start with `../`.
-	---@param mode? mode Mode to open the file with. Defaults to `FILES_MODE_READONLY`.
+	---@param mode? openmode Mode to open the file with. Defaults to `FILES_MODE_READONLY`.
 	---@return File
 	function Files:open(path, mode)
-		local mode = mode or FILES_MODE_READONLY
-
-		local file = {}
+		local file = {
+			mode = mode or FILES_MODE_READONLY,
+			isroot = path:match("^%.%.%/") and true or false,
+			path = path:gsub("^%.%.%/", "")
+		}
 		setmetatable(file, File)
 
-		file.mode = mode
-
-		local isroot = path:match("^%.%.%/") and 1 or nil
-		file.isroot = isroot
-
-		local path = path:gsub("^%.%.%/", "")
-		file.path = path
-
 		if (not file:isDownloading()) then
-			file.data = filesOpenInternal(path, mode, isroot)
+			file.data = filesOpenInternal(file.path, file.mode, file.isroot)
 		end
-
 		return file
 	end
 
 	-- Reopens the File object we received earlier
-	---@param mode? mode New mode to open file with
+	---@param mode? openmode New mode to open file with
 	function File:reopen(mode)
 		self:close()
 		local mode = mode or self.mode
@@ -135,12 +114,12 @@ do
 
 		local lines = {}
 		-- Replace lines() with gmatch to ensure we only read LF newlines
-		for ln in filedata:gmatch("[^\n]*\n") do
+		for ln in filedata:gmatch("[^\n]*\n?") do
 			local line = ln:gsub("\n$", '')
 			table.insert(lines, line)
 		end
-		if (#lines == 0 and filedata:len() > 0) then
-			return { filedata }
+		if (#lines > 1 and lines[#lines] == "") then
+			table.remove(lines, #lines)
 		end
 		return lines
 	end
@@ -174,7 +153,8 @@ do
 	-- Checks whether the file is currently being downloaded or is in download queue
 	---@return boolean
 	function File:isDownloading()
-		for i,v in pairs(get_downloads()) do
+		local downloads = get_downloads()
+		for _, v in pairs(downloads) do
 			if (v:match(string.escape(self.path:gsub("%.%a+$", "")) .. "%.%a+$")) then
 				return true
 			end

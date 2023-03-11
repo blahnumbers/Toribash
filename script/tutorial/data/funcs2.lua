@@ -1,48 +1,5 @@
-local INTRO = 1
-local OUTRO = -1
 local SPACEBAR = " "
 local FPS_MULTIPLIER = get_option("framerate") == 30 and 2 or 1
-
-local function showOverlay(viewElement, reqTable, out, speed)
-	local speed = speed or 1
-	local req = { type = "transition", ready = false }
-	table.insert(reqTable, req)
-
-	if (tbOutOverlay) then
-		tbOutOverlay:kill()
-	end
-	local overlay = UIElement:new({
-		parent = out and tbTutorialsOverlay or viewElement,
-		pos = { 0, 0 },
-		size = { viewElement.size.w, viewElement.size.h },
-		bgColor = cloneTable(UICOLORWHITE)
-	})
-	if (out) then
-		tbOutOverlay = overlay
-	end
-	overlay.bgColor[4] = out and 0 or 1
-	overlay:addCustomDisplay(true, function()
-			overlay.bgColor[4] = overlay.bgColor[4] + (out and 0.02 or -0.02) * speed * FPS_MULTIPLIER
-			if (not out and overlay.bgColor[4] <= 0) then
-				req.ready = true
-				reqTable.ready = Tutorials:checkRequirements(reqTable)
-				overlay:kill()
-			elseif (out and overlay.bgColor[4] >= 1) then
-				req.ready = true
-				reqTable.ready = Tutorials:checkRequirements(reqTable)
-			end
-			set_color(unpack(overlay.bgColor))
-			draw_quad(overlay.pos.x, overlay.pos.y, overlay.size.w, overlay.size.h)
-		end)
-end
-
-local function introOverlay(viewElement, reqTable)
-	showOverlay(viewElement, reqTable)
-end
-
-local function outroOverlay(viewElement, reqTable)
-	showOverlay(viewElement, reqTable, true)
-end
 
 local function requireKeyPress(viewElement, reqTable, key, show)
 	local req = { type = "keypress", ready = false }
@@ -56,16 +13,14 @@ local function requireKeyPress(viewElement, reqTable, key, show)
 			displayKey = "SPACEBAR"
 			width = 300
 		end
-		local BUTTON_DEFAULT_COLOR = { unpack(TB_MENU_DEFAULT_BG_COLOR) }
-		local BUTTON_HOVER_COLOR = { unpack(TB_MENU_DEFAULT_LIGHEST_COLOR) }
 
 		button = UIElement:new({
 			parent = viewElement,
 			pos = { 250 - width / 2, -200 },
 			size = { width, 70 },
 			interactive = true,
-			bgColor = BUTTON_DEFAULT_COLOR,
-			hoverColor = BUTTON_HOVER_COLOR,
+			bgColor = table.clone(TB_MENU_DEFAULT_BG_COLOR),
+			hoverColor = table.clone(TB_MENU_DEFAULT_LIGHTEST_COLOR),
 			shapeType = ROUNDED,
 			rounded = 10
 		})
@@ -105,7 +60,7 @@ local function showPecsAxis()
 	local rPecPos = get_joint_pos2(TORI, JOINTS.R_PECS)
 	local lPecPos = get_joint_pos2(TORI, JOINTS.L_PECS)
 	local rPecAxis = UIElement3D:new({
-		parent = tbTutorials3DHolder,
+		parent = Tutorials.MainView3D,
 		pos = { rPecPos.x, rPecPos.y, rPecPos.z },
 		size = { 1, 1, 1 },
 		objModel = "torishop/models/beaten_halo"
@@ -114,7 +69,7 @@ local function showPecsAxis()
 			rPecAxis:rotate(0, 0, 1)
 		end)
 	local lPecAxis = UIElement3D:new({
-		parent = tbTutorials3DHolder,
+		parent = Tutorials.MainView3D,
 		pos = { lPecPos.x, lPecPos.y, lPecPos.z },
 		size = { 1, 1, 1 },
 		objModel = "torishop/models/beaten_halo"
@@ -134,10 +89,9 @@ local function punchingBag()
 end
 
 local function showDamageBar()
-	local textColor = cloneTable(UICOLORTORI)
+	local textColor = table.clone(UICOLORTORI)
 	textColor[4] = 0
-	t2DamageMeter = UIElement:new({
-		parent = tbTutorialsOverlay,
+	t2DamageMeter = Tutorials.MainView:addChild({
 		pos = { -450, 7 },
 		size = { 440, 40 },
 		bgColor = textColor
@@ -156,20 +110,19 @@ local function showDamageBar()
 		end)
 	t2DamageMeter:addCustomDisplay(true, function()
 			local damage = math.ceil(get_player_info(1).injury)
-			t2DamageMeter:uiText(damage, nil, nil, FONTS.BIG, RIGHTMID, 1, nil, nil, textColor, nil, 0)
+			t2DamageMeter:uiText(tostring(damage), nil, nil, FONTS.BIG, RIGHTMID, 1, nil, nil, textColor, nil, 0)
 			t2DamageMeter:uiText("damage", nil, 35, nil, RIGHTMID, 1, nil, nil, textColor, nil, 0)
 		end)
 end
 
 local function showTimer()
 	local start_frame = get_world_state().match_frame
-	local textColor = cloneTable(UICOLORTORI)
+	local textColor = table.clone(UICOLORTORI)
 	textColor[4] = 0
 
-	t2Timer = UIElement:new({
-		parent = tbTutorialsOverlay,
+	t2Timer = Tutorials.MainView:addChild({
 		pos = { 0, 0 },
-		size = { tbTutorialsOverlay.size.w, 90 },
+		size = { Tutorials.MainView.size.w, 90 },
 		bgColor = textColor
 	})
 	transparencyAnimation = UIElement:new({
@@ -185,12 +138,12 @@ local function showTimer()
 			end
 		end)
 	t2Timer:addCustomDisplay(true, function()
-			local current_frame = get_world_state().match_frame
+			local current_frame = Tutorials.WorldState.match_frame
 			local frame = 500 - (current_frame - start_frame)
 
 			set_color(1, (500 - (current_frame - start_frame)) / 650, 0, t2Timer.bgColor[4] / 3)
 			draw_disk(t2Timer.pos.x + t2Timer.size.w / 2, t2Timer.pos.y + t2Timer.size.h / 2 + 3, t2Timer.size.h / 10, t2Timer.size.h / 2 - 5, 500, 1, 180 + (current_frame - start_frame) / 50 * 36, (500 - (current_frame - start_frame)) / 50 * 36, 0)
-			t2Timer:uiText(frame < 0 and 0 or frame, nil, nil, FONTS.BIG, nil, 1, nil, 1, { 1, 0.8, 0, 1 }, { 1, 1, 1, 0.4 }, 0)
+			t2Timer:uiText(tostring(frame < 0 and 0 or frame), nil, nil, FONTS.BIG, nil, 1, nil, 1, { 1, 0.8, 0, 1 }, { 1, 1, 1, 0.4 }, 0)
 		end)
 end
 
@@ -230,9 +183,7 @@ local function unloadStaticHookWithAchievement(viewElement, reqTable)
 	award_achievement(788)
 end
 
-functions = {
-	IntroOverlay = introOverlay,
-	OutroOverlay = outroOverlay,
+return {
 	RequireKeyPressC = requireKeyPressC,
 	RequireKeyPressSpace = showKeyPressSpace,
 	DisplayAxisPecs = showPecsAxis,

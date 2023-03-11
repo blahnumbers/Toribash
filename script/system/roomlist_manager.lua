@@ -322,7 +322,7 @@ function RoomList:showRoomListButton(viewElement, room)
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-		uiColor = matchesBelt and { 1, 1, 1, 1 } or { 1, 1, 1, 0.6 }
+		uiColor =  { 1, 1, 1, matchesBelt and 1 or 0.6 }
 	})
 	roomButton:addMouseUpHandler(function()
 			if (roomButton.lastClick ~= nil and roomButton.lastClick + 0.5 > UIElement.clock) then
@@ -342,6 +342,13 @@ function RoomList:showRoomListButton(viewElement, room)
 
 	local minBeltInfo = PlayerInfo.getBeltFromQi(room.min_belt)
 	local maxBeltInfo = PlayerInfo.getBeltFromQi(room.max_belt)
+	local minBeltString, maxBeltString = TB_MENU_LOCALIZED.ROOMLISTCREATENORESTRICTIONS, TB_MENU_LOCALIZED.ROOMLISTCREATENORESTRICTIONS
+	if (room.min_belt > 0) then
+		minBeltString = room.min_belt .. " " .. TB_MENU_LOCALIZED.WORDQI .. "\n" .. minBeltInfo.name .. " " .. TB_MENU_LOCALIZED.WORDBELT
+	end
+	if (room.max_belt > 0) then
+		maxBeltString = room.max_belt .. " " .. TB_MENU_LOCALIZED.WORDQI .. "\n" .. maxBeltInfo.name .. " " .. TB_MENU_LOCALIZED.WORDBELT
+	end
 	local datasToDisplay = {
 		{
 			value = room.id, width = 0.05,				-- 0.05
@@ -363,14 +370,16 @@ function RoomList:showRoomListButton(viewElement, room)
 			width = 0.20								-- 0.75
 		},
 		{
-			value = room.min_belt .. " " .. TB_MENU_LOCALIZED.WORDQI .. "\n" .. minBeltInfo.name .. " " .. TB_MENU_LOCALIZED.WORDBELT,
+			value = minBeltString,
 			icon = minBeltInfo.icon,
+			iconOpacity = room.min_belt == 0 and 0.6 or 1,
 			width = 0.075,								-- 0.825
 			orientation = CENTERMID
 		},
 		{
-			value = room.max_belt .. " " .. TB_MENU_LOCALIZED.WORDQI .. "\n" .. maxBeltInfo.name .. " " .. TB_MENU_LOCALIZED.WORDBELT,
+			value = maxBeltString,
 			icon = maxBeltInfo.icon,
+			iconOpacity = room.max_belt == 0 and 0.6 or 1,
 			width = 0.075,								-- 0.90
 			orientation = CENTERMID
 		},
@@ -400,8 +409,11 @@ function RoomList:showRoomListButton(viewElement, room)
 			local iconHolder = infoBit:addChild({
 				shift = { (infoBit.size.w - infoBit.size.h) / 2, 0 },
 				bgImage = v.icon,
-				imageColor = matchesBelt and { 1, 1, 1, 1 } or { 1, 1, 1, 0.6 }
+				imageColor = { 1, 1, 1, matchesBelt and 1 or 0.6 }
 			})
+			if (v.iconOpacity) then
+				iconHolder.imageColor[4] = iconHolder.imageColor[4] * v.iconOpacity
+			end
 			local popup = TBMenu:displayPopup(iconHolder, v.value .. "", true)
 			popup:moveTo(-iconHolder.size.w - (popup.size.w - iconHolder.size.w) / 2, iconHolder.size.h)
 		else
@@ -411,7 +423,7 @@ function RoomList:showRoomListButton(viewElement, room)
 					pos = { -infoBit.size.w - infoBit.size.h / 4, 0 },
 					size = { infoBit.size.h, infoBit.size.h },
 					bgImage = v.textIcon,
-					imageColor = matchesBelt and { 1, 1, 1, 1 } or { 1, 1, 1, 0.6 }
+					imageColor = { 1, 1, 1, matchesBelt and 1 or 0.6 }
 				})
 				local popup = TBMenu:displayPopup(iconHolder, v.textIconHint, true)
 				popup:moveTo(iconHolder.size.w + 5)
@@ -1355,7 +1367,3 @@ add_hook("roomlist_update", "roomListCacheUpdater", function(error)
 	end
 	RoomListInternal.CacheRooms()
 end)
-
-TB_MENU_DEBUG = true
-TBMenu:getTranslation(get_language())
-TB_MENU_DEBUG = false

@@ -1872,9 +1872,6 @@ do
 			})
 			marketSellButton:addAdaptedText(false, TB_MENU_LOCALIZED.STORESELLMARKET)
 			marketSellButton:addMouseHandlers(nil, function()
-					for i,v in pairs(INVENTORY_SELECTED_ITEMS) do
-						Files:writeDebug({ v.itemid, v.active, v.inventid })
-					end
 					Market:showSellInventoryItem(INVENTORY_SELECTED_ITEMS)
 				end)
 			buttonYPos = buttonYPos - buttonHeight * 1.2

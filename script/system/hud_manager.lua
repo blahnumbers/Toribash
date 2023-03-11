@@ -21,6 +21,9 @@ if (TBHud == nil) then
 	--- - Base implementation for gameplay buttons (ready, ghost control, chat)
 	---@class TBHud
 	---@field MainElement UIElement
+	---@field CommitStepButtonHolder UIElement
+	---@field ChatButtonHolder UIElement
+	---@field MiscButtonHolders UIElement[]
 	---@field HubHolder UIElement
 	---@field HubDynamicButtonsHolder UIElement
 	---@field HubDynamicState WorldState
@@ -50,6 +53,7 @@ if (TBHud == nil) then
 		ChatMiniDisplayPeriod = 20,
 		ChatMiniUpdateTime = 0,
 		ButtonsToRefresh = {},
+		MiscButtonHolders = {},
 		DefaultButtonSize = math.max(100, WIN_H / 10),
 		DeafultSmallerButtonSize = nil,
 		DefaultButtonColor = table.clone(TB_MENU_DEFAULT_BG_COLOR),
@@ -244,6 +248,9 @@ function TBHud.Reload()
 		TBHud.ChatHolderToReload = nil
 		TBHud.ChatHolderTopBar = nil
 		TBHud.HubHolder = nil
+		TBHud.CommitStepButtonHolder = nil
+		TBHud.ChatButtonHolder = nil
+		TBHud.MiscButtonHolders = { }
 	end
 
 	TBHud:init()
@@ -257,6 +264,7 @@ function TBHud:spawnCommitButton()
 		pos = { -self.DefaultButtonSize * 2.2, -self.DefaultButtonSize - self.DefaultSmallerButtonSize * 0.5 },
 		size = { self.DefaultButtonSize, self.DefaultButtonSize }
 	})
+	self.CommitStepButtonHolder = commitStepButtonHolder
 	local commitStepButton = TBHudInternal.generateTouchButton(commitStepButtonHolder)
 
 	local clickClock = 0
@@ -392,6 +400,7 @@ function TBHud:spawnGhostButton()
 		pos = { -self.DefaultButtonSize * 3.1, -self.DefaultSmallerButtonSize * 1.5 },
 		size = { self.DefaultSmallerButtonSize, self.DefaultSmallerButtonSize }
 	})
+	table.insert(self.MiscButtonHolders, ghostButtonHolder)
 	local ghostButton = TBHudInternal.generateTouchButton(ghostButtonHolder, "../textures/menu/general/buttons/ghost.tga")
 
 	ghostButtonHolder:addCustomDisplay(true, function()
@@ -411,9 +420,10 @@ function TBHud:spawnHoldRelaxAllButton()
 	if (self.MainElement == nil) then return end
 
 	local holdRelaxAllButtonHolder = self.MainElement:addChild({
-		pos = { -self.DefaultButtonSize * 2.9, -self.DefaultSmallerButtonSize * 2.9 },
+		pos = { -self.DefaultButtonSize * 2.85, -self.DefaultSmallerButtonSize * 2.6 },
 		size = { self.DefaultSmallerButtonSize, self.DefaultSmallerButtonSize }
 	})
+	table.insert(self.MiscButtonHolders, holdRelaxAllButtonHolder)
 
 	local holdAll = true
 	local holdRelaxAllButton = TBHudInternal.generateTouchButton(holdRelaxAllButtonHolder)
@@ -465,6 +475,7 @@ function TBHud:spawnRewindButton()
 		pos = { self.DefaultSmallerButtonSize * 1.7, -self.DefaultSmallerButtonSize * 1.5 },
 		size = { self.DefaultSmallerButtonSize, self.DefaultSmallerButtonSize }
 	})
+	table.insert(self.MiscButtonHolders, rewindButtonHolder)
 	TBHudInternal.generateTouchButton(rewindButtonHolder, "../textures/menu/general/buttons/reload.tga", nil, 0.8):addMouseUpHandler(rewind_replay)
 	table.insert(self.ButtonsToRefresh, {
 		button = rewindButtonHolder,
@@ -479,7 +490,8 @@ function TBHud:spawnPauseButton()
 		pos = { self.DefaultSmallerButtonSize * 1.3, -self.DefaultSmallerButtonSize * 2.6 },
 		size = { self.DefaultSmallerButtonSize, self.DefaultSmallerButtonSize }
 	})
-	local pauseButton = TBHudInternal.generateTouchButton(pauseButtonHolder, "../textures/menu/general/buttons/playpause.tga", { x = 0, y = 0, w = 128, h = 128 })
+	table.insert(self.MiscButtonHolders, pauseButtonHolder)
+	local pauseButton = TBHudInternal.generateTouchButton(pauseButtonHolder, "../textures/menu/general/buttons/playpause.tga", { x = 0, y = 0, w = 128, h = 128 }, 0.8)
 	pauseButton:addMouseUpHandler(toggle_game_pause)
 	table.insert(self.ButtonsToRefresh, {
 		button = pauseButtonHolder,
@@ -497,6 +509,7 @@ function TBHud:spawnHubButton()
 		pos = { -self.DefaultSmallerButtonSize * 1.4, -self.DefaultSmallerButtonSize * 1.5 },
 		size = { self.DefaultSmallerButtonSize, self.DefaultSmallerButtonSize }
 	})
+	table.insert(self.MiscButtonHolders, settingsButtonHolder)
 	TBHudInternal.generateTouchButton(settingsButtonHolder, "../textures/menu/general/buttons/options.tga"):addMouseUpHandler(function()
 		TBHud:toggleHub(true)
 	end)
@@ -767,6 +780,7 @@ function TBHud:spawnChatButton()
 		pos = { self.DefaultSmallerButtonSize * 0.4, -self.DefaultSmallerButtonSize * 1.5 },
 		size = { self.DefaultSmallerButtonSize, self.DefaultSmallerButtonSize }
 	})
+	self.ChatButtonHolder = chatButtonHolder
 	local chatButton = TBHudInternal.generateTouchButton(chatButtonHolder, "../textures/menu/general/buttons/chat.tga")
 
 	chatButtonHolder:addCustomDisplay(function()

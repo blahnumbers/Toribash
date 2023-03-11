@@ -18,17 +18,21 @@ end
 ---Populates `ChatIgnore.BannedWords` table with banned word strings
 function ChatIgnore:populateBannedWords()
 	local bannedWords = {
-		"nigg", "fuck", "cunt", "retard", "fag", "bitch", "pussy", "dick", "rapist", "cock", "rape"
+		"nigg", "fuck", "cunt", "retard", "fag",
+		"bitch", "pussy", "dick", "rapist", "cock", "rape",
+		"пидop", "хуй", "пиздa", "нerp", "eбaть"
 	}
 	local similars = {
-		e = "[e3]",
-		a = "[a4]",
-		t = "[t7]",
+		e = "[eе3]",
+		a = "[aа4]",
+		t = "[tт7]",
 		g = "[g6]",
-		o = "[o0]",
+		o = "[oо0]",
 		s = "[s5]",
 		z = "[z2]",
-		c = "[ck]"
+		c = "[cсkк]",
+		p = "[pр]",
+		r = "[rг]"
 	}
 	similars["[il]"] = "[il1]"
 
@@ -36,7 +40,7 @@ function ChatIgnore:populateBannedWords()
 	self.BannedWords = {}
 	for _, word in ipairs(bannedWords) do
 		for symbol, replace in pairs(similars) do
-			word = word:gsub(symbol, replace)
+			word = utf8.gsub(word, symbol, replace)
 		end
 		table.insert(self.BannedWords, word)
 	end
