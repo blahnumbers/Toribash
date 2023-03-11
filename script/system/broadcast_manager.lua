@@ -8,26 +8,32 @@ if (not Broadcasts or TB_MENU_DEBUG) then
 	---@field msg string Global message associated with the broadcast
 	---@field room string|nil Room name parsed from global message
 	---@field user string Name of the user who sent out the broadcast
+	---@field time integer Time when this broadcast was retrieved
 
 	---Manager class to handle Toribash global messages popups
+	---
+	---**Version 5.60:**
+	---* Broadcasts are now initialized automatically on script launch
 	---
 	---**Ver 1.1 updates:**
 	--- - All globals are now class fields
 	--- - Tweaked visuals for popups to take less space
 	--- - Do not display auto tourney announcements if user opted out from them
 	---@class Broadcasts
-	---@field HOOKS_ACTIVE boolean Whether surveyor hooks are currently active
-	---@field LAST_BROADCAST integer Last displayed broadcast ID
-	---@field DISPLAY_DURATION integer Popup display duration in seconds
-	---@field IS_DISPLAYED boolean Whether there's a broadcast popup displayed at the moment
+	---@field IsActive boolean Whether Broadcasts manager is currently active
+	---@field LastBroadcast integer Last displayed broadcast ID
+	---@field DisplayDuration integer Popup display duration in seconds
+	---@field IsDisplayed boolean Whether there's a broadcast popup displayed at the moment
+	---@field StalePeriod integer Cutoff in seconds to consider broadcast stale
 	Broadcasts = {
-		_index = {},
-		ver = 1.1,
-		HOOKS_ACTIVE = false,
-		LAST_BROADCAST = 0,
-		DISPLAY_DURATION = 12,
-		IS_DISPLAYED = false
+		ver = 5.60,
+		IsActive = false,
+		LastBroadcast = 0,
+		DisplayDuration = 12,
+		StalePeriod = 600,
+		IsDisplayed = false
 	}
+	Broadcasts.__index = Broadcasts
 	setmetatable({}, Broadcasts)
 end
 
@@ -35,25 +41,26 @@ end
 ---@param broadcast Broadcast
 ---@return boolean #Whether the pop-up has been displayed or queued for display
 function Broadcasts:showBroadcast(broadcast)
-	if (broadcast.id <= Broadcasts.LAST_BROADCAST) then
+	if (broadcast.id <= self.LastBroadcast or broadcast.time + self.StalePeriod < os.time()) then
 		return false
 	end
-	if (Broadcasts.IS_DISPLAYED) then
+
+	if (self.IsDisplayed) then
 		local waiter = UIElement:new({
 			globalid = TB_MENU_HUB_GLOBALID,
 			pos = { 0, 0 },
 			size = { 0, 0 }
 		})
 		waiter:addCustomDisplay(true, function()
-				if (not Broadcasts.IS_DISPLAYED) then
+				if (not self.IsDisplayed) then
 					waiter:kill()
-					Broadcasts:showBroadcast(broadcast)
+					self:showBroadcast(broadcast)
 				end
 			end)
 		return true
 	end
 
-	Broadcasts.IS_DISPLAYED = true
+	self.IsDisplayed = true
 	local notificationHolder = UIElement:new({
 		globalid = TB_MENU_HUB_GLOBALID,
 		pos = { WIN_W, WIN_H - 310 },
@@ -64,6 +71,8 @@ function Broadcasts:showBroadcast(broadcast)
 		innerShadow = { 0, 5 },
 		shadowColor = TB_MENU_DEFAULT_DARKER_COLOR
 	})
+	notificationHolder.killAction = function() self.IsDisplayed = false end
+
 	local popupClose = notificationHolder:addChild({
 		pos = { -35, 5 },
 		size = { 30, 30 },
@@ -122,47 +131,45 @@ function Broadcasts:showBroadcast(broadcast)
 		bgColor = UICOLORWHITE
 	}, true)
 
-	local progress = math.pi / 10
+	local spawnClock = UIElement.clock
 	notificationHolder:addCustomDisplay(false, function()
-			if (notificationHolder.pos.x > WIN_W - notificationHolder.size.w) then
-				notificationHolder:moveTo(-notificationHolder.size.w * 0.07 * math.sin(progress), nil, true)
-				progress = progress + math.pi / 30
-			else
-				local clock = os.clock_real()
+			local ratio = UIElement.clock - spawnClock
+			notificationHolder:moveTo(UITween.SineTween(notificationHolder.shift.x, WIN_W - notificationHolder.size.w, ratio))
+			if (ratio >= 1) then
+				local clock = UIElement.clock
 				notificationHolder:addCustomDisplay(false, function()
-						broadcastDisplayTimer.size.w = math.max(notificationHolder.size.w * math.min(1, (os.clock_real() - clock) / Broadcasts.DISPLAY_DURATION), broadcastDisplayTimer.size.w)
-						if (clock + Broadcasts.DISPLAY_DURATION < os.clock_real() or buttonClicked) then
-							local progress = math.pi / 10
+						local progress = math.min(1, (UIElement.clock - clock) / self.DisplayDuration)
+						broadcastDisplayTimer.size.w = math.max(notificationHolder.size.w * progress, broadcastDisplayTimer.size.w)
+						if (progress == 1 or buttonClicked) then
+							spawnClock = UIElement.clock
 							notificationHolder:addCustomDisplay(false, function()
-									if (notificationHolder.pos.x < WIN_W) then
-										notificationHolder:moveTo(notificationHolder.size.w * 0.07 * math.sin(progress), nil, true)
-										progress = progress + math.pi / 30
-									else
+									local ratio = UIElement.clock - spawnClock
+									notificationHolder:moveTo(UITween.SineTween(notificationHolder.shift.x, WIN_W, ratio))
+									if (ratio >= 1) then
 										notificationHolder:kill()
-										Broadcasts.IS_DISPLAYED = false
 									end
 								end)
 						end
 					end)
 			end
 		end)
-	Broadcasts.LAST_BROADCAST = broadcast.id
+	self.LastBroadcast = broadcast.id
 	return true
 end
 
----Fetches and parses recent broadcast data from Toribash server.\
----If there's a hit, queues the broadcast for display.
----@return nil
+---Fetches and parses recent broadcast data from Toribash server\
+---If there's a hit, queues the broadcast for display
 function Broadcasts:fetchBroadcast()
-	Request:queue(function() download_server_info("last_broadcast") end, "broadcast", function()
+	Request:queue(function() download_server_info("LastBroadcast") end, "broadcast", function()
 			local response = get_network_response()
 			---@type Broadcast
-			local broadcast = { id = 0 }
+			local broadcast = { id = 0, time = os.time() }
 			for ln in response:gmatch("[^\n]*\n?") do
 				local ln = ln:gsub("\n$", '')
 				if (ln:find("^BROADCASTID 0;")) then
-					broadcast.id = ln:gsub("^BROADCASTID 0;", ''):gsub("[^%d]", "")
-					broadcast.id = broadcast.id == '' and 0 or broadcast.id + 0
+					local id = ln:gsub("^BROADCASTID 0;", '')
+					id = id:gsub("[^%d]", "")
+					broadcast.id = tonumber(id) or 0
 				elseif (ln:find("^BROADCASTMSG 0;")) then
 					broadcast.msg = ln:gsub("^BROADCASTMSG 0;", '')
 					broadcast.msg = broadcast.msg:gsub("%^%d%d", '')
@@ -180,33 +187,37 @@ function Broadcasts:fetchBroadcast()
 					broadcast.user = ln:gsub("^BROADCASTUSER 0;", '')
 				end
 			end
-			if (broadcast.room and broadcast.room:find("^tourney%d$") and bit.band(get_option("showbroadcast"), 4) ~= 0) then
-				Broadcasts.LAST_BROADCAST = broadcast.id
+			if (broadcast.room and broadcast.room:find("^tourney%d$") and bit.band(tonumber(get_option("showbroadcast")) or 0, 4) ~= 0) then
+				self.LastBroadcast = broadcast.id
 				return
 			end
 			Broadcasts:showBroadcast(broadcast)
 		end)
 end
 
+---Unloads broadcasts related hooks
+function Broadcasts:deactivate()
+	self.IsActive = false
+	remove_hooks("broadcast_manager")
+end
+
 ---Activates broadcasts surveyor hooks
----@return nil
 function Broadcasts:activate()
-	Broadcasts:deactivate()
-	Broadcasts.HOOKS_ACTIVE = true
+	self:deactivate()
+	self.IsActive = true
 	add_hook("console", "broadcast_manager", function(s, i)
 			if (i == 1) then
-				if (s:find("%[global%]")) then
+				if (utf8.find(s, "%[global%]")) then
 					Broadcasts:fetchBroadcast()
 				end
 			end
 		end)
-	if (bit.band(get_option("showbroadcast"), 2) ~= 0) then
+	if (bit.band(tonumber(get_option("showbroadcast")) or 0, 2) ~= 0) then
 		Broadcasts:addListener()
 	end
 end
 
----Adds a listener draw2d hook that periodically checks for new in-game broadcasts while the user is in Free Play mode
----@return nil
+---Adds a listener hook that periodically checks for new in-game broadcasts while the user is in Free Play mode
 function Broadcasts:addListener()
 	local clock = -60
 	add_hook("draw2d", "broadcast_manager", function()
@@ -219,9 +230,4 @@ function Broadcasts:addListener()
 		end)
 end
 
----Unloads broadcasts related hooks
----@return nil
-function Broadcasts:deactivate()
-	Broadcasts.HOOKS_ACTIVE = false
-	remove_hooks("broadcast_manager")
-end
+Broadcasts:activate()
