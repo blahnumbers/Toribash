@@ -13,7 +13,7 @@ require("system.replays_manager")
 REPLAY_GUI = REPLAY_GUI or nil
 
 local function replayGuiToggle(mode)
-	local targetMode = mode and not mode or not REPLAY_GUI.hidden
+	local targetMode = mode ~= nil and not mode or not REPLAY_GUI.hidden
 	if (targetMode == REPLAY_GUI.hidden) then
 		return
 	end
@@ -29,7 +29,6 @@ end
 
 if (REPLAY_GUI == nil) then
 	REPLAY_GUI = Replays:spawnReplayAdvancedGui()
-	REPLAY_GUI.doToggle = replayGuiToggle
 else
 	replayGuiToggle()
 end

@@ -49,11 +49,59 @@ local function requireKeyPress(viewElement, reqTable, key, show)
 end
 
 local function requireKeyPressC(viewElement, reqTable)
-	requireKeyPress(viewElement, reqTable, "c")
+	if (not is_mobile()) then
+		requireKeyPress(viewElement, reqTable, "c")
+		return
+	end
+
+	local req = { type = "keypress", ready = false }
+	table.insert(reqTable, req)
+
+	local holdAllButton = viewElement:addChild({
+		pos = { TBHud.HoldAllButtonHolder.shift.x, TBHud.HoldAllButtonHolder.shift.y },
+		size = { TBHud.HoldAllButtonHolder.size.w, TBHud.HoldAllButtonHolder.size.h },
+		interactive = true,
+		clickThrough = true
+	})
+
+	local commitButtonDisplayOverride = nil
+	if (not TBHud.CommitStepButtonHolder:isDisplayed()) then
+		TBHud.CommitStepButtonHolder:show(true)
+		commitButtonDisplayOverride = viewElement:addChild({
+			pos = { TBHud.CommitStepButtonHolder.shift.x, TBHud.CommitStepButtonHolder.shift.y },
+			size = { TBHud.CommitStepButtonHolder.size.w, TBHud.CommitStepButtonHolder.size.h },
+			interactive = true
+		})
+	end
+	holdAllButton:addMouseUpHandler(function()
+		req.ready = true
+		reqTable.ready = Tutorials:checkRequirements(reqTable)
+		if (commitButtonDisplayOverride) then
+			commitButtonDisplayOverride:kill()
+			TBHud.CommitStepButtonHolder:hide(true)
+		end
+	end)
 end
 
 local function showKeyPressSpace(viewElement, reqTable)
-	requireKeyPress(viewElement, reqTable, SPACEBAR)
+	if (not is_mobile()) then
+		requireKeyPress(viewElement, reqTable, SPACEBAR)
+		return
+	end
+
+	local req = { type = "keypress", ready = false }
+	table.insert(reqTable, req)
+
+	local commitButton = viewElement:addChild({
+		pos = { TBHud.CommitStepButtonHolder.shift.x, TBHud.CommitStepButtonHolder.shift.y },
+		size = { TBHud.CommitStepButtonHolder.size.w, TBHud.CommitStepButtonHolder.size.h },
+		interactive = true
+	})
+	commitButton:addMouseUpHandler(function()
+		step_game()
+		req.ready = true
+		reqTable.ready = Tutorials:checkRequirements(reqTable)
+	end)
 end
 
 local function showPecsAxis()

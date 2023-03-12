@@ -425,7 +425,7 @@ function UIElement:new(o)
 	elseif (o.bgColor) then
 		elem.bgColor = o.bgColor
 	end
-	if (o.bgImage) then
+	if (o.bgImage or elem.bgImage) then
 		elem.disableUnload = o.disableUnload
 		elem.drawMode = o.imagePatterned and 1 or 0
 		elem.drawMode = o.imageAtlas and 2 or elem.drawMode
@@ -437,11 +437,13 @@ function UIElement:new(o)
 		elem.atlas.w = elem.atlas.w or elem.size.w
 		elem.atlas.h = elem.atlas.h or elem.size.h
 
-		if (type(o.bgImage) == "table") then
-			elem:updateImage(o.bgImage[1], o.bgImage[2])
-		else
-			---@diagnostic disable-next-line: param-type-mismatch
-			elem:updateImage(o.bgImage)
+		if (elem.bgImage == nil) then
+			if (type(o.bgImage) == "table") then
+				elem:updateImage(o.bgImage[1], o.bgImage[2])
+			else
+				---@diagnostic disable-next-line: param-type-mismatch
+				elem:updateImage(o.bgImage)
+			end
 		end
 	end
 
@@ -506,27 +508,17 @@ function UIElement:new(o)
 		end
 		elem.hoverState = BTN_NONE
 		elem.hoverClock = UIElement.clock
+		elem.clickThrough = o.clickThrough
+		elem.hoverThrough = o.hoverThrough
+		elem.hoverSound = o.hoverSound
+		elem.upSound = o.upSound
+		elem.downSound = o.downSound
 		elem.pressedPos = { x = 0, y = 0 }
 		table.insert(UIMouseHandler, elem)
 	end
 	if (o.keyboard) then
 		elem.permanentListener = o.permanentListener
 		table.insert(UIKeyboardHandler, elem)
-	end
-	if (o.hoverSound) then
-		elem.hoverSound = o.hoverSound
-	end
-	if (o.upSound) then
-		elem.upSound = o.upSound
-	end
-	if (o.downSound) then
-		elem.downSound = o.downSound
-	end
-	if (o.clickThrough) then
-		elem.clickThrough = o.clickThrough
-	end
-	if (o.hoverThrough) then
-		elem.hoverThrough = o.hoverThrough
 	end
 
 	---Only add root elements to UIElementManager to decrease table traversal speed
@@ -836,7 +828,7 @@ function UIElement:makeScrollBar(listHolder, listElements, toReload, posShift, s
 
 	self:addMouseHandlers(
 		function(s, x, y)
-			if (is_mobile()) then
+			if (is_mobile() and s < 4) then
 				disable_mouse_camera_movement()
 			end
 			local scrollIgnore = UIScrollbarIgnore
@@ -1914,9 +1906,6 @@ function UIElement.mouseHooks()
 	add_hook("mouse_button_down", "uiMouseHandler", function(s, x, y)
 			local toReturn = TB_MENU_MAIN_ISOPEN == 1 and 1 or 0
 			toReturn = UIElement.handleMouseDn(s, x, y) or toReturn
-			if (Tutorials and (TUTORIALJOINTLOCK or (not TUTORIALJOINTLOCK and TUTORIALKEYBOARDLOCK))) then
-				toReturn = Tutorials.HandleMouseClick() or toReturn
-			end
 			return toReturn
 		end)
 	add_hook("mouse_button_up", "uiMouseHandler", function(s, x, y)

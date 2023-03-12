@@ -33,6 +33,7 @@ if (Tutorials == nil) then
 	---@field MessageHeadViewport UIElement Player message head viewport UIElement
 	---@field TotalSteps integer Total steps that mark visual progression in current tutorial
 	---@field ProgressStep integer Current tutorial visual progression step
+	---@field UnignoredKeys integer[] Keys which should be allowed
 	---@field UnignoredJoints PlayerJoint[] Joint ids which states can be currently modified
 	---@field StoredOptions TutorialOption[] List of modified game options with their original values
 	---@field RequireCloseMenu boolean Internal flag whether main menu needs to be closed
@@ -236,7 +237,7 @@ end
 ---@field optTask integer Optional task id to mark completed
 
 ---@class TutorialOption
----@field name GameOption
+---@field name string
 ---@field value integer
 
 ---@class TutorialStep
@@ -295,6 +296,7 @@ end
 ---@field customfunc string Custom function name for this step
 ---@field opt boolean Whether this step has game options overrides specified
 ---@field opts TutorialOption[] List of game options to set on this step
+---@field cameramode CameraMode Camera mode to set on this step
 
 ---Loads the Tutorial steps data
 ---@param id number|string Tutorial id
@@ -467,6 +469,8 @@ function Tutorials:loadTutorial(id, path)
 			steps[#steps].outroOverlay = true
 		elseif (ln:find("^PLAYERLOCK")) then
 			steps[#steps].playerlock = ln:gsub("PLAYERLOCK ", "") + 0
+		elseif (ln:find("^CAMERAMODE")) then
+			steps[#steps].cameramode = ln:gsub("CAMERAMODE ", "") + 0
 		elseif (ln:find("^CUSTOMFUNC")) then
 			steps[#steps].customfuncfile = TutorialsInternal.LoadFile(cfuncpath .. id .. ".lua")
 			steps[#steps].customfunc = ln:gsub("CUSTOMFUNC ", "")
@@ -614,6 +618,10 @@ end
 ---@param reqTable TutorialStepRequirement[]
 function Tutorials:reqButton(reqTable)
 	local req = TutorialsInternal.AddRequirement("button", reqTable)
+
+	if (not self.ContinueButton:isDisplayed()) then
+		self:showWaitButton()
+	end
 
 	local buttonWait = self.ContinueButton:addChild({})
 	buttonWait:addCustomDisplay(true, function()
@@ -957,7 +965,9 @@ function Tutorials:reqJointMove(viewElement, reqTable, info)
 				end
 				reqTable.ready = TutorialsInternal.CheckRequirements(reqTable)
 				reqElement:kill()
-				jointPulse:kill()
+				if (jointPulse) then
+					jointPulse:kill()
+				end
 			end
 		end)
 end
@@ -1082,17 +1092,9 @@ end
 ---@return integer
 function Tutorials.HandleKeyPress(key, keycode, jointlock, keyboardlock)
 	if ((jointlock and TUTORIALJOINTLOCK) or (keyboardlock and TUTORIALKEYBOARDLOCK)) then
-		for _, v in pairs(Tutorials.IgnoredKeys) do
+		for _, v in pairs(Tutorials.UnignoredKeys) do
 			if (key == v[1] or keycode == v[2]) then
-				if (v[1] == string.byte("z") or v[1] == string.byte("x")) then
-					if (#Tutorials.UnignoredJoints > 0) then
-						return Tutorials.HandleMouseClick()
-					else
-						return 1
-					end
-				else
-					return 0
-				end
+				return 0
 			end
 		end
 		return 1
@@ -1102,24 +1104,31 @@ function Tutorials.HandleKeyPress(key, keycode, jointlock, keyboardlock)
 	return 0
 end
 
----Generic Tutorials mouse input handler
+---Generic Tutorials joint select handler
+---@param _ integer
+---@param joint PlayerJoint
 ---@return integer
-function Tutorials.HandleMouseClick()
-	local ws = get_world_state()
-	if (ws.selected_player == 1) then
-		select_player(0)
-		return 1
-	end
+function Tutorials.HandleJointSelect(_, joint)
 	for _, v in pairs(Tutorials.UnignoredJoints) do
-		if (ws.selected_joint == v) then
+		if (joint == v) then
 			return 0
 		end
 	end
+	Tooltip.TouchDeselect()
+	return 1
+end
+
+---Generic Tutorials body select handler
+---@param _ integer
+---@param body PlayerBody
+---@return integer
+function Tutorials.HandleBodySelect(_, body)
 	if (not TUTORIALJOINTLOCK) then
-		if (ws.selected_body == 11 or ws.selected_body == 12) then
+		if (body == 11 or body == 12) then
 			return 0
 		end
 	end
+	Tooltip.TouchDeselect()
 	return 1
 end
 
@@ -1312,6 +1321,7 @@ function Tutorials:taskOptComplete(id)
 	targetTask.mark:show(true)
 
 	TutorialsInternal.PlayTaskAnimation(targetTask.mark)
+	play_sound(36)
 end
 
 ---Marks the main task complete
@@ -1328,6 +1338,7 @@ function Tutorials:taskComplete(noOptFail)
 	end
 
 	TutorialsInternal.PlayTaskAnimation(self.TaskMark:addChild({ }))
+	play_sound(36)
 end
 
 ---Sets ghost mode
@@ -1518,6 +1529,11 @@ function TutorialsInternal.HandleMobileOption(option)
 			button:setVisible(option.value == 1, true)
 		end
 		TBHud.CommitStepButtonHolder:setVisible(option.value == 1, true)
+		TBHud.HoldAllButtonHolder:setVisible(option.value == 1, true)
+	elseif (option.name == "holdall") then
+		TBHud.HoldAllButtonHolder:setVisible(option.value == 1, true)
+	elseif (option.name == "spacebar") then
+		TBHud.CommitStepButtonHolder:setVisible(option.value == 1, true)
 	end
 end
 
@@ -1557,9 +1573,6 @@ function Tutorials:runSteps(steps, currentStep)
 			end
 		end)
 
-	if (steps[currentStep].customfuncfile ~= nil) then
-		self:runTutorialCustomFunction(stepElement, requirements, steps[currentStep].customfuncfile, steps[currentStep].customfunc)
-	end
 	if (steps[currentStep].opts) then
 		for _, v in pairs(steps[currentStep].opts) do
 			local found = false
@@ -1598,6 +1611,7 @@ function Tutorials:runSteps(steps, currentStep)
 	if (steps[currentStep].jointlock) then
 		TUTORIALJOINTLOCK = true
 		Tutorials.UnignoredJoints = {}
+		TutorialsInternal.HandleMobileOption({ name = "holdall", value = 0 })
 	end
 	if (steps[currentStep].jointunlock) then
 		TUTORIALJOINTLOCK = false
@@ -1607,7 +1621,9 @@ function Tutorials:runSteps(steps, currentStep)
 	end
 	if (steps[currentStep].keyboardlock) then
 		TUTORIALKEYBOARDLOCK = true
-		Tutorials.IgnoredKeys = {}
+		Tutorials.UnignoredKeys = {}
+		TutorialsInternal.HandleMobileOption({ name = "holdall", value = 0 })
+		TutorialsInternal.HandleMobileOption({ name = "spacebar", value = 0 })
 	end
 	if (steps[currentStep].playerlock) then
 		disable_player_select(steps[currentStep].playerlock)
@@ -1638,22 +1654,30 @@ function Tutorials:runSteps(steps, currentStep)
 		self:taskOptComplete(steps[currentStep].taskoptcomplete)
 	end
 	if (steps[currentStep].shiftunlock) then
-		table.insert(Tutorials.IgnoredKeys, { 303 })
-		table.insert(Tutorials.IgnoredKeys, { 304 })
+		table.insert(Tutorials.UnignoredKeys, { 303 })
+		table.insert(Tutorials.UnignoredKeys, { 304 })
 	end
 	if (steps[currentStep].keyboardunlock) then
 		if (steps[currentStep].keystounlock) then
 			for i = 1, steps[currentStep].keystounlock:len() do
 				local key = string.byte(steps[currentStep].keystounlock:sub(i, i))
-				table.insert(Tutorials.IgnoredKeys, { key, (key > 96 and key < 123) and key - 93 or nil })
+				table.insert(Tutorials.UnignoredKeys, { key, (key > 96 and key < 123) and key - 93 or nil })
 				if (key == 97) then
-					table.insert(Tutorials.IgnoredKeys, { 276 })
+					table.insert(Tutorials.UnignoredKeys, { 276 })
 				elseif (key == 119) then
-					table.insert(Tutorials.IgnoredKeys, { 273 })
+					table.insert(Tutorials.UnignoredKeys, { 273 })
 				elseif (key == 100) then
-					table.insert(Tutorials.IgnoredKeys, { 275 })
+					table.insert(Tutorials.UnignoredKeys, { 275 })
 				elseif (key == 115) then
-					table.insert(Tutorials.IgnoredKeys, { 274 })
+					table.insert(Tutorials.UnignoredKeys, { 274 })
+				end
+
+				if (is_mobile()) then
+					if (key == 99) then
+						TutorialsInternal.HandleMobileOption({ name = "holdall", value = 1 })
+					elseif (key == 32) then
+						TutorialsInternal.HandleMobileOption({ name = "spacebar", value = 1 })
+					end
 				end
 			end
 		else
@@ -1664,6 +1688,9 @@ function Tutorials:runSteps(steps, currentStep)
 		enable_mouse_camera_movement()
 	elseif (steps[currentStep].disablecamera) then
 		disable_mouse_camera_movement()
+	end
+	if (steps[currentStep].cameramode) then
+		set_camera_mode(steps[currentStep].cameramode)
 	end
 
 	for reqType, val in pairs(steps[currentStep]) do
@@ -1723,6 +1750,9 @@ function Tutorials:runSteps(steps, currentStep)
 	end
 	if (steps[currentStep].waitbtn) then
 		self:reqButton(requirements)
+	end
+	if (steps[currentStep].customfuncfile ~= nil) then
+		self:runTutorialCustomFunction(stepElement, requirements, steps[currentStep].customfuncfile, steps[currentStep].customfunc)
 	end
 end
 
@@ -1935,10 +1965,7 @@ function Tutorials:runTutorialBase(tutorialSteps, postTutorial)
 
 	TutorialsInternal.LoadHooks(self)
 
-	if (get_world_state().game_type == 1) then
-		start_new_game()
-	end
-
+	start_new_game()
 	chat_input_deactivate()
 	if (is_mobile()) then
 		TBHud.ChatButtonHolder:hide()
@@ -2096,11 +2123,32 @@ function Tutorials:loadOverlay()
 		size = { self.MainView.size.w, self.MainView.size.h - self.ContinueButton.shift.y + 15 },
 		bgColor = { 0, 0, 0, 0 }
 	})
-	local messageViewShift = (self.HintView.size.w - self.ContinueButton.shift.x) * 1.5
-	self.HintMessageView = self.HintView:addChild({
-		pos = { messageViewShift, 5 },
-		size = { self.HintView.size.w - messageViewShift * 2, self.HintView.size.h - math.max(10, safe_y) }
-	})
+	if (not is_mobile()) then
+		local messageViewShift = (self.HintView.size.w - self.ContinueButton.shift.x) * 1.5
+		self.HintMessageView = self.HintView:addChild({
+			pos = { messageViewShift, 5 },
+			size = { self.HintView.size.w - messageViewShift * 2, self.HintView.size.h - math.max(10, safe_y) }
+		})
+	else
+		---On mobile we show the hint on the left side to ensure TBHud buttons are fully visible
+		local hintViewBG = self.HintView:addChild({
+			pos = { 0, 0 },
+			size = { self.HintView.size.w / 2, self.HintView.size.h },
+			bgColor = self.HintView.bgColor
+		})
+		local hintViewGradient = hintViewBG:addChild({
+			pos = { hintViewBG.size.w, 0 },
+			size = { self.ContinueButton.shift.x - hintViewBG.size.w - 20, hintViewBG.size.h },
+			bgGradient = { { 1, 1, 1, 1 }, { 1, 1, 1, 0 } },
+			bgGradientMode = 15,
+			imageColor = self.HintView.bgColor
+		})
+		self.HintMessageView = hintViewBG:addChild({
+			pos = { math.max(safe_x, 20), 5 },
+			size = { hintViewBG.size.w - math.max(safe_x, 20) * 2, hintViewBG.size.h - math.max(10, safe_y) }
+		})
+		self.HintView:addCustomDisplay(true, function() end)
+	end
 
 	self.MessageView = self.MainView:addChild({
 		pos = { self.MainView.size.w, self.ContinueButton.shift.y - 120 },
@@ -2395,7 +2443,17 @@ function TutorialsInternal.LoadHooks(manager)
 				manager:quitPopup()
 			end
 		end)
-	add_hook("console", "tbTutorialsVisual", function()
-			return 1
+	add_hook("console", "tbTutorialsVisual", function() return 1 end)
+	add_hook("mouse_button_down", "tbTutorialKeyboardHandler", function()
+			local ws = get_world_state()
+			if (ws.selected_joint ~= -1) then
+				return Tutorials.HandleJointSelect(ws.selected_player, ws.selected_joint)
+			end
+			return Tutorials.HandleBodySelect(ws.selected_player, ws.selected_body)
 		end)
+	add_hook("joint_select", "tbTutorialKeyboardHandler", Tutorials.HandleJointSelect)
+	add_hook("body_select", "tbTutorialKeyboardHandler", Tutorials.HandleBodySelect)
+
+	--- Reload tooltip so that
+	Tooltip.Init()
 end

@@ -23,6 +23,7 @@ if (TBHud == nil) then
 	---@field MainElement UIElement
 	---@field CommitStepButtonHolder UIElement
 	---@field ChatButtonHolder UIElement
+	---@field HoldAllButtonHolder UIElement
 	---@field MiscButtonHolders UIElement[]
 	---@field HubHolder UIElement
 	---@field HubDynamicButtonsHolder UIElement
@@ -250,6 +251,7 @@ function TBHud.Reload()
 		TBHud.HubHolder = nil
 		TBHud.CommitStepButtonHolder = nil
 		TBHud.ChatButtonHolder = nil
+		TBHud.HoldAllButtonHolder = nil
 		TBHud.MiscButtonHolders = { }
 	end
 
@@ -423,7 +425,7 @@ function TBHud:spawnHoldRelaxAllButton()
 		pos = { -self.DefaultButtonSize * 2.85, -self.DefaultSmallerButtonSize * 2.6 },
 		size = { self.DefaultSmallerButtonSize, self.DefaultSmallerButtonSize }
 	})
-	table.insert(self.MiscButtonHolders, holdRelaxAllButtonHolder)
+	self.HoldAllButtonHolder = holdRelaxAllButtonHolder
 
 	local holdAll = true
 	local holdRelaxAllButton = TBHudInternal.generateTouchButton(holdRelaxAllButtonHolder)
@@ -509,9 +511,12 @@ function TBHud:spawnHubButton()
 		pos = { -self.DefaultSmallerButtonSize * 1.4, -self.DefaultSmallerButtonSize * 1.5 },
 		size = { self.DefaultSmallerButtonSize, self.DefaultSmallerButtonSize }
 	})
-	table.insert(self.MiscButtonHolders, settingsButtonHolder)
 	TBHudInternal.generateTouchButton(settingsButtonHolder, "../textures/menu/general/buttons/options.tga"):addMouseUpHandler(function()
-		TBHud:toggleHub(true)
+		if (TUTORIAL_ISACTIVE) then
+			open_menu(19)
+		else
+			TBHud:toggleHub(true)
+		end
 	end)
 end
 

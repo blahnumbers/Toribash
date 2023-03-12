@@ -65,8 +65,16 @@ function Tooltip.Destroy()
 	Tooltip.HolderElement:kill(true)
 end
 
+---Unsets touch target player and joint
+function Tooltip.TouchDeselect()
+	Tooltip.TouchInputTargetPlayer = -1
+	Tooltip.TouchInputTargetJoint = -1
+end
+
 ---Initializes Tooltip hooks and enables the module
 function Tooltip.Init()
+	Tooltip.TouchDeselect()
+
 	add_hook("joint_select", Tooltip.HookName, function(player, joint)
 			if (players_accept_input() == false) then return end
 			local discard = Tooltip:showTooltipJoint(player, joint)
@@ -333,8 +341,7 @@ end
 ---Displays touch controls wheel
 function Tooltip:showTouchControls()
 	if (get_world_state().replay_mode == 1) then
-		Tooltip.TouchInputTargetJoint = -1
-		Tooltip.TouchInputTargetPlayer = -1
+		Tooltip.TouchDeselect()
 	end
 	if (Tooltip.GrabDisplayActive or Tooltip.TouchInputTargetPlayer < 0 or Tooltip.TouchInputTargetJoint < 0 or Tooltip.TouchInputTargetJoint >= 20) then
 		return
