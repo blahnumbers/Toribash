@@ -24,6 +24,7 @@ if (TBHud == nil) then
 	---@field CommitStepButtonHolder UIElement
 	---@field ChatButtonHolder UIElement
 	---@field HoldAllButtonHolder UIElement
+	---@field GhostButtonHolder UIElement
 	---@field MiscButtonHolders UIElement[]
 	---@field HubHolder UIElement
 	---@field HubDynamicButtonsHolder UIElement
@@ -252,6 +253,7 @@ function TBHud.Reload()
 		TBHud.CommitStepButtonHolder = nil
 		TBHud.ChatButtonHolder = nil
 		TBHud.HoldAllButtonHolder = nil
+		TBHud.GhostButtonHolder = nil
 		TBHud.MiscButtonHolders = { }
 	end
 
@@ -402,7 +404,7 @@ function TBHud:spawnGhostButton()
 		pos = { -self.DefaultButtonSize * 3.1, -self.DefaultSmallerButtonSize * 1.5 },
 		size = { self.DefaultSmallerButtonSize, self.DefaultSmallerButtonSize }
 	})
-	table.insert(self.MiscButtonHolders, ghostButtonHolder)
+	self.GhostButtonHolder = ghostButtonHolder
 	local ghostButton = TBHudInternal.generateTouchButton(ghostButtonHolder, "../textures/menu/general/buttons/ghost.tga")
 
 	ghostButtonHolder:addCustomDisplay(true, function()
@@ -422,7 +424,7 @@ function TBHud:spawnHoldRelaxAllButton()
 	if (self.MainElement == nil) then return end
 
 	local holdRelaxAllButtonHolder = self.MainElement:addChild({
-		pos = { -self.DefaultButtonSize * 2.85, -self.DefaultSmallerButtonSize * 2.6 },
+		pos = { -self.DefaultButtonSize * 2.9, -self.DefaultSmallerButtonSize * 2.7 },
 		size = { self.DefaultSmallerButtonSize, self.DefaultSmallerButtonSize }
 	})
 	self.HoldAllButtonHolder = holdRelaxAllButtonHolder
@@ -474,7 +476,7 @@ function TBHud:spawnRewindButton()
 	if (self.MainElement == nil) then return end
 
 	local rewindButtonHolder = self.MainElement:addChild({
-		pos = { self.DefaultSmallerButtonSize * 1.7, -self.DefaultSmallerButtonSize * 1.5 },
+		pos = { -self.DefaultButtonSize * 2.05, -self.DefaultSmallerButtonSize * 3.15 },
 		size = { self.DefaultSmallerButtonSize, self.DefaultSmallerButtonSize }
 	})
 	table.insert(self.MiscButtonHolders, rewindButtonHolder)
@@ -489,7 +491,7 @@ function TBHud:spawnPauseButton()
 	if (self.MainElement == nil) then return end
 
 	local pauseButtonHolder = self.MainElement:addChild({
-		pos = { self.DefaultSmallerButtonSize * 1.3, -self.DefaultSmallerButtonSize * 2.6 },
+		pos = { -self.DefaultButtonSize * 2.9, -self.DefaultSmallerButtonSize * 2.7 },
 		size = { self.DefaultSmallerButtonSize, self.DefaultSmallerButtonSize }
 	})
 	table.insert(self.MiscButtonHolders, pauseButtonHolder)

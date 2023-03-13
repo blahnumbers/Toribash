@@ -1393,7 +1393,7 @@ function Tutorials:showTaskWindow(reqTable, hide, disableTaskReset)
 			self.TaskMark:hide(true)
 		end
 		self.TaskViewHolder:addCustomDisplay(false, function()
-				local targetShift = -self.TaskViewHolder.parent.size.w - 10
+				local targetShift = -self.TaskViewHolder.parent.size.w
 				if (self.TaskViewHolder.shift.x ~= targetShift) then
 					self.TaskViewHolder:moveTo(UITween.SineTween(self.TaskViewHolder.shift.x, targetShift, UIElement.clock - spawnClock))
 				else
@@ -1530,10 +1530,13 @@ function TutorialsInternal.HandleMobileOption(option)
 		end
 		TBHud.CommitStepButtonHolder:setVisible(option.value == 1, true)
 		TBHud.HoldAllButtonHolder:setVisible(option.value == 1, true)
+		TBHud.GhostButtonHolder:setVisible(option.value == 1, true)
 	elseif (option.name == "holdall") then
 		TBHud.HoldAllButtonHolder:setVisible(option.value == 1, true)
 	elseif (option.name == "spacebar") then
 		TBHud.CommitStepButtonHolder:setVisible(option.value == 1, true)
+	elseif (option.name == "ghost") then
+		TBHud.GhostButtonHolder:setVisible(option.value == 1, true)
 	end
 end
 
@@ -1622,8 +1625,7 @@ function Tutorials:runSteps(steps, currentStep)
 	if (steps[currentStep].keyboardlock) then
 		TUTORIALKEYBOARDLOCK = true
 		Tutorials.UnignoredKeys = {}
-		TutorialsInternal.HandleMobileOption({ name = "holdall", value = 0 })
-		TutorialsInternal.HandleMobileOption({ name = "spacebar", value = 0 })
+		TutorialsInternal.HandleMobileOption({ name = "hud", value = 0 })
 	end
 	if (steps[currentStep].playerlock) then
 		disable_player_select(steps[currentStep].playerlock)
@@ -1675,6 +1677,8 @@ function Tutorials:runSteps(steps, currentStep)
 				if (is_mobile()) then
 					if (key == 99) then
 						TutorialsInternal.HandleMobileOption({ name = "holdall", value = 1 })
+					elseif (key == 98) then
+						TutorialsInternal.HandleMobileOption({ name = "ghost", value = 1})
 					elseif (key == 32) then
 						TutorialsInternal.HandleMobileOption({ name = "spacebar", value = 1 })
 					end
@@ -1711,10 +1715,11 @@ function Tutorials:runSteps(steps, currentStep)
 				local randomNum = utf8.gsub(randomText, "%D", "") + 0
 				val = utf8.gsub(val, "%%d%d+", math.random(1, randomNum))
 			end
+			local message = is_mobile() and (self.LocalizedMessages[val .. "MOBILE"] or self.LocalizedMessages[val]) or self.LocalizedMessages[val]
 			if (steps[currentStep].messageby) then
-				self:showMessage(stepElement, requirements, self.LocalizedMessages[val], steps[currentStep].messageby)
+				self:showMessage(stepElement, requirements, message, steps[currentStep].messageby)
 			else
-				self:showHint(stepElement, requirements, self.LocalizedMessages[val])
+				self:showHint(stepElement, requirements, message)
 			end
 		elseif (reqType == "task") then
 			self:showTask(stepElement, requirements, self.LocalizedMessages[val])
@@ -2049,15 +2054,15 @@ function Tutorials:loadOverlay()
 
 	---@diagnostic disable-next-line: assign-type-mismatch
 	self.TaskViewHolder = self.MainView:addChild({
-		pos = { -self.MainView.size.w - 400, 20 },
-		size = { 400, 50 },
+		pos = { -self.MainView.size.w - 400 - safe_x, 20 },
+		size = { 400 + safe_x, 50 },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR
 	})
 	self.TaskViewHolder.optional = {}
 	self.TaskViewHolder.extra = {}
 
 	local tbTutorialsTaskMarkOutline = self.TaskViewHolder:addChild({
-		pos = { 10, 10 },
+		pos = { safe_x + 10, 10 },
 		size = { 30, 30 },
 		bgColor = { 1, 1, 1, 0.8 },
 		shapeType = ROUNDED,
@@ -2072,8 +2077,8 @@ function Tutorials:loadOverlay()
 	})
 	self.TaskMark:hide(true)
 	self.TaskView = self.TaskViewHolder:addChild({
-		pos = { 50, 5 },
-		size = { self.TaskViewHolder.size.w - 55, self.TaskViewHolder.size.h - 10 }
+		pos = { safe_x + 50, 5 },
+		size = { self.TaskViewHolder.size.w - 55 - safe_x, self.TaskViewHolder.size.h - 10 }
 	})
 
 	---@diagnostic disable-next-line: assign-type-mismatch

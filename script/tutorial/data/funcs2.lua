@@ -242,7 +242,7 @@ local function showWaitButtonMisc(viewElement, reqTable)
 	table.insert(reqTable, req)
 
 	local miniWaitButton = viewElement:addChild({
-		pos = { -TBHud.DefaultButtonSize * 3.1, -TBHud.DefaultSmallerButtonSize * 1.5 },
+		pos = { -TBHud.DefaultButtonSize * 2.05, -TBHud.DefaultSmallerButtonSize * 3.15 },
 		size = { TBHud.DefaultSmallerButtonSize, TBHud.DefaultSmallerButtonSize },
 		shapeType = Tutorials.ContinueButton.shapeType,
 		rounded = Tutorials.ContinueButton.rounded,

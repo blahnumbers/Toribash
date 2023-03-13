@@ -3782,7 +3782,7 @@ do
 
 	function Replays:spawnReplayAdvancedGui(reload)
 		local replayGuiHolder
-		local posX = is_mobile() and TBHud.SafeAreaOffset or math.max(65 * TB_MENU_GLOBAL_SCALE, WIN_W * 0.15 - 65 * TB_MENU_GLOBAL_SCALE)
+		local posX = is_mobile() and TBHud.DefaultButtonSize * 2.5 or math.max(65 * TB_MENU_GLOBAL_SCALE, WIN_W * 0.15 - 65 * TB_MENU_GLOBAL_SCALE)
 		local size = { math.min(1600, WIN_W - posX * 2), 65 * TB_MENU_GLOBAL_SCALE }
 		posX = (WIN_W - size[1]) / 2
 

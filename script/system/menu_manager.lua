@@ -3494,6 +3494,10 @@ function TBMenu:displayHelpPopup(element, message, forceManualPosCheck, noMark, 
 		rounded = 5
 	})
 
+	local safe_x, safe_y, safe_w, safe_h = get_window_safe_size()
+	safe_x = math.max(safe_x, WIN_W - safe_x - safe_w)
+	safe_y = math.max(safe_y, WIN_H - safe_y - safe_h)
+
 	if (not forceManualPosCheck) then
 		if (messageElement.pos.x < 0) then
 			messageElement:moveTo(messageElement:getLocalPos(10, 0).x)
@@ -3501,11 +3505,11 @@ function TBMenu:displayHelpPopup(element, message, forceManualPosCheck, noMark, 
 		if (messageElement.pos.y < 0) then
 			messageElement:moveTo(nil, messageElement:getLocalPos(0, 10).y)
 		end
-		if (messageElement.pos.x + messageElement.size.w > WIN_W) then
-			messageElement:moveTo((WIN_W - messageElement.pos.x - messageElement.size.w) - 10, nil, true)
+		if (messageElement.pos.x + messageElement.size.w > WIN_W - safe_x) then
+			messageElement:moveTo((WIN_W - messageElement.pos.x - messageElement.size.w) - math.max(safe_x, 10), nil, true)
 		end
-		if (messageElement.pos.y + messageElement.size.h > WIN_H) then
-			messageElement:moveTo(nil, (WIN_H - messageElement.pos.y - messageElement.size.h) - 10, true)
+		if (messageElement.pos.y + messageElement.size.h > WIN_H - safe_y) then
+			messageElement:moveTo(nil, (WIN_H - messageElement.pos.y - messageElement.size.h) - math.max(safe_y, 10), true)
 		end
 	end
 
