@@ -2152,8 +2152,10 @@ function Tutorials:loadOverlay()
 
 	self.MessageView = self.MainView:addChild({
 		pos = { self.MainView.size.w, self.ContinueButton.shift.y - 120 },
-		size = { self.MainView.size.w / 2 + safe_x, 100 }
+		size = { self.MainView.size.w / 2 + safe_x, 100 },
+		interactive = true
 	})
+	self.MessageView:addMouseUpHandler(function() self.MessageView.doSkip = true end)
 	self.MessageViewNameBG = self.MessageView:addChild({
 		parent = self.MessageView,
 		pos = { self.MessageView.size.h / 2, -self.MessageView.size.h - 35 },

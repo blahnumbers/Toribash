@@ -231,6 +231,58 @@ local function unloadStaticHookWithAchievement(viewElement, reqTable)
 	award_achievement(788)
 end
 
+local function showWaitButtonMisc(viewElement, reqTable)
+	if (not is_mobile()) then
+		Tutorials:reqButton(reqTable)
+		return
+	end
+
+	---@type TutorialStepRequirement
+	local req = { type = "custom", ready = false }
+	table.insert(reqTable, req)
+
+	local miniWaitButton = viewElement:addChild({
+		pos = { -TBHud.DefaultButtonSize * 3.1, -TBHud.DefaultSmallerButtonSize * 1.5 },
+		size = { TBHud.DefaultSmallerButtonSize, TBHud.DefaultSmallerButtonSize },
+		shapeType = Tutorials.ContinueButton.shapeType,
+		rounded = Tutorials.ContinueButton.rounded,
+		bgColor = Tutorials.ContinueButton.bgColor,
+		hoverColor = Tutorials.ContinueButton.hoverColor,
+		pressedColor = Tutorials.ContinueButton.pressedColor,
+		inactiveColor = Tutorials.ContinueButton.inactiveColor,
+		interactive = true,
+		hoverSound = Tutorials.ContinueButton.hoverSound
+	})
+	local buttonPulse = miniWaitButton:addChild({
+		pos = { miniWaitButton.size.w / 2, miniWaitButton.size.h / 2 },
+		size = { miniWaitButton.size.w / 2, miniWaitButton.size.h / 2 },
+		bgColor = TB_MENU_DEFAULT_DARKEST_COLOR
+	})
+	local pulseClock = 0
+	buttonPulse:addCustomDisplay(true, function()
+			if (pulseClock == 0) then
+				pulseClock = UIElement.clock + 0.2
+			end
+			local pulseRatio = UITween.SineEaseOut(UIElement.clock - pulseClock)
+			local r, g, b, a = unpack(buttonPulse.bgColor)
+			set_color(r, g, b, a - pulseRatio)
+			draw_disk(buttonPulse.pos.x, buttonPulse.pos.y, buttonPulse.size.w, buttonPulse.size.w * (1 + pulseRatio / 2), 50, 1, 0, 360, 0)
+			if (pulseRatio == 1) then
+				pulseClock = UIElement.clock + 0.2
+			end
+		end)
+	miniWaitButton:addChild({
+		shift = { miniWaitButton.size.w / 6, miniWaitButton.size.w / 6 },
+		bgImage = "../textures/menu/general/buttons/playpause.tga",
+		imageAtlas = true,
+		atlas = { x = 0, y = 0, w = 128, h = 128 }
+	})
+	miniWaitButton:addMouseUpHandler(function()
+		req.ready = true
+		reqTable.ready = Tutorials:checkRequirements(reqTable)
+	end)
+end
+
 return {
 	RequireKeyPressC = requireKeyPressC,
 	RequireKeyPressSpace = showKeyPressSpace,
@@ -241,5 +293,6 @@ return {
 	ShowDamageBar = showDamageBar,
 	ShowTimer = showTimer,
 	ShowDamageAndTimer = showDamageAndTimerBars,
-	HideDamageTimer = hideDamageAndTimerBars
+	HideDamageTimer = hideDamageAndTimerBars,
+	WaitButtonMini = showWaitButtonMisc
 }
