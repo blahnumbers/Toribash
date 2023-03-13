@@ -118,7 +118,7 @@ do
 			local line = ln:gsub("\n$", '')
 			table.insert(lines, line)
 		end
-		if (#lines > 1 and lines[#lines] == "") then
+		if (lines[#lines] == "") then
 			table.remove(lines, #lines)
 		end
 		return lines
