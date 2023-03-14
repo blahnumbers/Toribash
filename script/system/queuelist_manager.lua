@@ -418,7 +418,7 @@ function QueueList:report(pName)
 		pos = { 20, reportReasonHolder.size.h + reportReasonHolder.shift.y + reportHeader.shift.y },
 		size = { reportHolder.size.w - 40, reportHolder.size.h - reportReasonHolder.size.h - reportReasonHolder.shift.y - reportHeader.shift.y * 2 - 100 },
 		uiColor = UICOLORWHITE
-	})
+	}, true)
 	local extraMessageTitle = extraMessageHolder:addChild({
 		size = { extraMessageHolder.size.w, 25 },
 		uiColor = { 1, 1, 1, 0.9 }
@@ -488,7 +488,7 @@ function QueueList:report(pName)
 							shift = { reportThread.size.w * 0.05, reportThread.size.h * 0.1 },
 						})
 						TBMenu:showTextWithImage(reportThreadText, TB_MENU_LOCALIZED.REPORTSREPORTTHREAD .. ": ID " .. reportThreadId, FONTS.MEDIUM, reportThreadText.size.h, "../textures/menu/general/buttons/external.tga")
-						reportThread:addMouseHandlers(nil, function() open_url("https://forum.toribash.com/showthread.php?t=" .. reportThreadId) end)
+						reportThread:addMouseUpHandler(function() open_url("https://forum.toribash.com/showthread.php?t=" .. reportThreadId) end)
 					else
 						local discordButton = waitOverlay:addChild({
 							pos = { waitOverlay.size.w / 4, waitOverlay.size.h / 2 + shiftH },
@@ -502,7 +502,7 @@ function QueueList:report(pName)
 							shift = { discordButton.size.w * 0.05, discordButton.size.h * 0.1 },
 						})
 						TBMenu:showTextWithImage(discordButtonText, TB_MENU_LOCALIZED.DISCORDSERVER, FONTS.MEDIUM, discordButtonText.size.h, "../textures/menu/logos/discord.tga")
-						discordButton:addMouseHandlers(nil, function() open_url("https://discord.gg/toribash") end)
+						discordButton:addMouseUpHandler(function() open_url("https://toribash.com/discord") end)
 					end
 					shiftH = shiftH * 2 + buttonH
 
@@ -514,11 +514,11 @@ function QueueList:report(pName)
 						hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 						pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
 					}, true)
-					local exitButtonText = exitButton:new({
+					local exitButtonText = exitButton:addChild({
 						shift = { exitButton.size.w * 0.05, exitButton.size.h * 0.1 },
 					})
 					exitButtonText:addAdaptedText(true, TB_MENU_LOCALIZED.BUTTONCLOSEWINDOW)
-					exitButton:addMouseHandlers(nil, overlay.btnUp)
+					exitButton:addMouseUpHandler(overlay.btnUp)
 				else
 					waitOverlay:kill()
 					TBMenu:showStatusMessage(TB_MENU_LOCALIZED.ACCOUNTINFOERROR)
