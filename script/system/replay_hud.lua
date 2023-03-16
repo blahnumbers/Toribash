@@ -9,9 +9,10 @@ if (is_mobile()) then
 end
 require("system.replays_manager")
 
----@type UIElement
+---@type ReplayHud
 REPLAY_GUI = REPLAY_GUI or nil
 
+---@param mode ?boolean
 local function replayGuiToggle(mode)
 	local targetMode = mode ~= nil and not mode or not REPLAY_GUI.hidden
 	if (targetMode == REPLAY_GUI.hidden) then
