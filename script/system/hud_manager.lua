@@ -179,7 +179,7 @@ function TBHudInternal.pushChatMessage(msg, type, tab)
 	table.insert(TBHudInternal.ChatMessages, chatMessage)
 	if (#TBHudInternal.ChatMessages > TBHud.ChatMaxHistory) then
 		table.remove(TBHudInternal.ChatMessages, 1)
-		if (TBHud.ChatHolderItems ~= nil) then
+		if (TBHud.ChatHolderItems and TBHud.ChatHolderItems[1]) then
 			TBHud.ChatHolderItems[1]:kill()
 			table.remove(TBHud.ChatHolderItems, 1)
 			for _, v in pairs(TBHud.ChatHolderItems) do
@@ -224,6 +224,8 @@ function TBHud:init()
 	self:spawnHoldRelaxAllButton()
 	self:spawnRewindButton()
 	self:spawnPauseButton()
+	self:spawnEditButton()
+	self:spawnGripButton()
 
 	self:spawnHubButton()
 	self.HubSize.w = WIN_W * 0.3 > 400 and 400 or WIN_W * 0.3
@@ -476,7 +478,7 @@ function TBHud:spawnRewindButton()
 	if (self.MainElement == nil) then return end
 
 	local rewindButtonHolder = self.MainElement:addChild({
-		pos = { -self.DefaultButtonSize * 2.05, -self.DefaultSmallerButtonSize * 3.15 },
+		pos = { -self.DefaultButtonSize * 1.2, -self.DefaultSmallerButtonSize * 2.7 },
 		size = { self.DefaultSmallerButtonSize, self.DefaultSmallerButtonSize }
 	})
 	table.insert(self.MiscButtonHolders, rewindButtonHolder)
@@ -491,7 +493,7 @@ function TBHud:spawnPauseButton()
 	if (self.MainElement == nil) then return end
 
 	local pauseButtonHolder = self.MainElement:addChild({
-		pos = { -self.DefaultButtonSize * 2.9, -self.DefaultSmallerButtonSize * 2.7 },
+		pos = { -self.DefaultButtonSize * 2.05, -self.DefaultSmallerButtonSize * 3.15 },
 		size = { self.DefaultSmallerButtonSize, self.DefaultSmallerButtonSize }
 	})
 	table.insert(self.MiscButtonHolders, pauseButtonHolder)
@@ -503,6 +505,55 @@ function TBHud:spawnPauseButton()
 	})
 	pauseButtonHolder:addCustomDisplay(true, function()
 			pauseButton.icon.atlas.x = is_game_paused() and 0 or pauseButton.icon.atlas.w
+		end)
+end
+
+function TBHudInternal.editGame()
+	edit_game()
+	TBHudInternal.refreshButtons()
+end
+
+function TBHud:spawnEditButton()
+	if (self.MainElement == nil) then return end
+
+	local editButtonHolder = self.MainElement:addChild({
+		pos = { -self.DefaultButtonSize * 2.9, -self.DefaultSmallerButtonSize * 2.7 },
+		size = { self.DefaultSmallerButtonSize, self.DefaultSmallerButtonSize }
+	})
+	table.insert(self.MiscButtonHolders, editButtonHolder)
+	TBHudInternal.generateTouchButton(editButtonHolder, "../textures/menu/general/buttons/edit.tga", nil, 0.6):addMouseUpHandler(TBHudInternal.editGame)
+	table.insert(self.ButtonsToRefresh, {
+		button = editButtonHolder,
+		shouldBeDisplayed = function() return self.WorldState.game_type == 0 and self.WorldState.replay_mode > 0 end
+	})
+end
+
+function TBHud:spawnGripButton()
+	if (self.MainElement == nil) then return end
+
+	local gripButtonHolder = self.MainElement:addChild({
+		pos = { -self.DefaultButtonSize * 2.05, -self.DefaultSmallerButtonSize * 3.15 },
+		size = { self.DefaultSmallerButtonSize, self.DefaultSmallerButtonSize }
+	})
+	table.insert(self.MiscButtonHolders, gripButtonHolder)
+	local gripButton = TBHudInternal.generateTouchButton(gripButtonHolder, "../textures/menu/general/buttons/grip.tga", nil, 0.8)
+	gripButton:addMouseUpHandler(function()
+			if (self.WorldState.selected_player == -1) then return end
+			local gripState = 1 - math.max(
+				get_grip_info(self.WorldState.selected_player, BODYPARTS.L_HAND),
+				get_grip_info(self.WorldState.selected_player, BODYPARTS.R_HAND)
+			)
+			set_grip_info(self.WorldState.selected_player, BODYPARTS.L_HAND, gripState)
+			set_grip_info(self.WorldState.selected_player, BODYPARTS.R_HAND, gripState)
+		end)
+
+	gripButtonHolder:addCustomDisplay(true, function()
+			local shouldBeDisplayed = players_accept_input()
+			if (shouldBeDisplayed and not gripButton:isDisplayed()) then
+				gripButton:show()
+			elseif (not shouldBeDisplayed and gripButton:isDisplayed()) then
+				gripButton:hide()
+			end
 		end)
 end
 
@@ -915,10 +966,8 @@ function TBHud:refreshChat()
 
 				chatInputField.suggestionsDropdown = TBMenu:spawnDropdown(chatInputHolder, dropdownList, chatInputField.size.h, WIN_H / 3, { text = '' }, nil, { scale = 0.65, fontid = 4, uppercase = false, alignment = LEFTMID }, true, true, true)
 				chatInputField.suggestionsDropdown.uiColor = UICOLORWHITE
-				---@diagnostic disable-next-line: undefined-field
 				chatInputField.suggestionsDropdown.selectedElement:hide(true)
-				---@diagnostic disable-next-line: undefined-field
-				chatInputField.suggestionsDropdown.selectedElement:btnUp()
+				chatInputField.suggestionsDropdown.selectedElement.btnUp()
 			end)
 		-- Don't need chat history for mobile for now
 		chatInputField:addKeyboardHandlers(function(key)

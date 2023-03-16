@@ -164,24 +164,16 @@ function Tooltip:showTooltipBody(player, body)
 		local heightMod = (body == 11 or body == 12) and 3 or 2
 
 		local tbTooltip = Tooltip:spawnTooltipMain(worldstate.match_frame, width, height, get_body_screen_pos(player, body))
-		local tbTooltipOutline = UIElement:new({
-			parent = tbTooltip,
-			pos = { 0, 0 },
-			size = { tbTooltip.size.w, tbTooltip.size.h },
+		local tbTooltipOutline = tbTooltip:addChild({
 			bgColor = { 1, 1, 1, 0.4 },
 			shapeType = ROUNDED,
 			rounded = 4
 		})
-		local tbTooltipView = UIElement:new({
-			parent = tbTooltipOutline,
-			pos = { 1, 1 },
-			size = { tbTooltipOutline.size.w - 2, tbTooltipOutline.size.h - 2 },
-			bgColor = Tooltip.BackgroundColor,
-			shapeType = tbTooltipOutline.shapeType,
-			rounded = tbTooltipOutline.rounded
-		})
-		local jointTooltipName = UIElement:new({
-			parent = tbTooltipView,
+		local tbTooltipView = tbTooltipOutline:addChild({
+			shift = { 1, 1 },
+			bgColor = Tooltip.BackgroundColor
+		}, true)
+		local jointTooltipName = tbTooltipView:addChild({
 			pos = { 10, 5 },
 			size = { tbTooltipView.size.w - 20, tbTooltipView.size.h / heightMod * 2 - 10 }
 		})
@@ -189,8 +181,7 @@ function Tooltip:showTooltipBody(player, body)
 
 		if (body == 11 or body == 12) then
 			Tooltip.GrabDisplayActive = true
-			local jointTooltipState = UIElement:new({
-				parent = tbTooltipView,
+			local jointTooltipState = tbTooltipView:addChild({
 				pos = { tbTooltipView.size.h / 3 + 10, jointTooltipName.shift.y + jointTooltipName.size.h },
 				size = { tbTooltipView.size.w - tbTooltipView.size.h / 3 - 25, tbTooltipView.size.h / 3 - 5 }
 			})
@@ -247,31 +238,22 @@ function Tooltip:showTooltipJoint(player, joint)
 		width = width < 200 and 200 or width
 
 		local tbTooltip = Tooltip:spawnTooltipMain(worldstate.match_frame, width, 70, get_joint_screen_pos(player, joint))
-		local tbTooltipOutline = UIElement:new({
-			parent = tbTooltip,
-			pos = { 0, 0 },
-			size = { tbTooltip.size.w, tbTooltip.size.h },
+		local tbTooltipOutline = tbTooltip:addChild({
 			bgColor = { 1, 1, 1, 0.4 },
 			shapeType = ROUNDED,
 			rounded = 4
 		})
-		local tbTooltipView = UIElement:new({
-			parent = tbTooltipOutline,
-			pos = { 1, 1 },
-			size = { tbTooltipOutline.size.w - 2, tbTooltipOutline.size.h - 2 },
-			bgColor = Tooltip.BackgroundColor,
-			shapeType = tbTooltipOutline.shapeType,
-			rounded = tbTooltipOutline.rounded
-		})
-		local jointTooltipName = UIElement:new({
-			parent = tbTooltipView,
+		local tbTooltipView = tbTooltipOutline:addChild({
+			shift = { 1, 1 },
+			bgColor = Tooltip.BackgroundColor
+		}, true)
+		local jointTooltipName = tbTooltipView:addChild({
 			pos = { 10, 5 },
 			size = { tbTooltipView.size.w - 20, tbTooltipView.size.h / 3 * 2 - 10 }
 		})
 		jointTooltipName:addAdaptedText(true, jointInfo.name, nil, nil, nil, LEFTMID)
 
-		local jointTooltipState = UIElement:new({
-			parent = tbTooltipView,
+		local jointTooltipState = tbTooltipView:addChild({
 			pos = { tbTooltipView.size.h / 3 + 10, jointTooltipName.shift.y + jointTooltipName.size.h },
 			size = { tbTooltipView.size.w - tbTooltipView.size.h / 3 - 25, tbTooltipView.size.h / 3 - 5 }
 		})

@@ -22,7 +22,7 @@ if (TBMenu == nil) then
 	---@field NavigationBar UIElement Navigation bar UIElement holder
 	---@field BottomLeftBar UIElement Bottom left bar UIElement holder
 	---@field BottomRightBar UIElement Bottom right bar UIElement holder
-	---@field StatusMessage UIElement Status message UIElement holder
+	---@field StatusMessage TBMenuStatusMessage Status message UIElement holder
 	---@field NotificationsCount UIElement Notifications count display UIElement
 	---@field CurrentAnnouncementId integer Active home tab announcement ID
 	TBMenu = {
@@ -1154,10 +1154,14 @@ function TBMenu:showConfirmationWindow(message, confirmAction, cancelAction, thi
 	return confirmOverlay
 end
 
+---@class TBMenuStatusMessage : UIElement
+---@field messageView UIElement
+---@field startTime number
+---@field endTime number
+
 ---Displays a popup message on the bottom of the screen
 ---@param message string Message that will be displayed to the user
 ---@param time ?number Duration during which the message will be displayed
----@return UIElement
 function TBMenu:showStatusMessage(message, time)
 	local time = time or 5
 	local transparency = 0
@@ -1183,6 +1187,7 @@ function TBMenu:showStatusMessage(message, time)
 		size = { TBMenu.StatusMessage.size.w * 0.8, TBMenu.StatusMessage.size.h * 0.8 }
 	})
 	errorMessageView:addAdaptedText(true, message, nil, nil, 4, nil, 0.9, nil, nil, nil, uiColor)
+	TBMenu.StatusMessage.messageView = errorMessageView
 
 	while (errorMessageView.textScale < 0.65) do
 		TBMenu.StatusMessage.size.h = TBMenu.StatusMessage.size.h + 10
@@ -1192,19 +1197,19 @@ function TBMenu:showStatusMessage(message, time)
 	end
 
 	TBMenu.StatusMessage.startTime = UIElement.clock
+	TBMenu.StatusMessage.endTime = UIElement.clock + time + 0.5
 	local targetOffsetY = WIN_H - TBMenu.StatusMessage.size.h - 10
 	TBMenu.StatusMessage:addCustomDisplay(false, function()
 			if (TBMenu.StatusMessage.pos.y > targetOffsetY) then
-				local tweenRatio = UIElement.clock - TBMenu.StatusMessage.startTime
+				local tweenRatio = (UIElement.clock - TBMenu.StatusMessage.startTime) / 2
 				TBMenu.StatusMessage:moveTo(nil, UITween.SineTween(TBMenu.StatusMessage.pos.y, targetOffsetY, tweenRatio))
 				transparency = UITween.SineEaseIn(tweenRatio * 2)
 				bgColor[4] = 0.8 * transparency
 				uiColor[4] = transparency
 			else
 				TBMenu.StatusMessage:addCustomDisplay(false, function()
-						local displayDuration = UIElement.clock - TBMenu.StatusMessage.startTime
-						if (displayDuration > time) then
-							transparency = 1 - UITween.SineEaseOut(displayDuration - time)
+						if (TBMenu.StatusMessage.endTime < UIElement.clock) then
+							transparency = 1 - UITween.SineEaseOut(UIElement.clock - TBMenu.StatusMessage.endTime)
 							bgColor[4] = 0.8 * transparency
 							uiColor[4] = transparency
 						end
@@ -1214,7 +1219,6 @@ function TBMenu:showStatusMessage(message, time)
 					end)
 			end
 		end)
-	return errorMessageView
 end
 
 ---@deprecated
@@ -3603,6 +3607,13 @@ end
 ---@field textWidth number
 ---@field sliderRadius number
 
+---@class TBMenuSlider : UIElement
+---@field label UIElement
+---@field settings SliderSettings
+---@field lastVal number|nil
+---@field pressedPos Vector2
+---@field setValue function
+
 ---Spawns a generic slider with callbacks
 ---@param parent UIElement
 ---@param rect ?Rect
@@ -3611,7 +3622,7 @@ end
 ---@param sliderFunc ?function
 ---@param onMouseDown ?function
 ---@param onMouseUp ?function
----@return UIElement
+---@return TBMenuSlider
 function TBMenu:spawnSlider2(parent, rect, value, settings, sliderFunc, onMouseDown, onMouseUp)
 	local rect = rect or {}
 	rect.x = rect.x or 0
@@ -3662,6 +3673,9 @@ function TBMenu:spawnSlider2(parent, rect, value, settings, sliderFunc, onMouseD
 	local sliderPos = 0
 	value = value > settings.maxValue and 1 or (-settings.minValue + value) / (-settings.minValue + settings.maxValue)
 	sliderPos = value * (sliderBG.size.w - settings.sliderRadius)
+
+	---@type TBMenuSlider
+	---@diagnostic disable-next-line: assign-type-mismatch
 	local slider = sliderBG:addChild({
 		pos = { sliderPos, (-sliderBG.size.h - settings.sliderRadius) / 2 },
 		size = { settings.sliderRadius, settings.sliderRadius },

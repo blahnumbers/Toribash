@@ -176,6 +176,6 @@ replaySaveButton:addMouseHandlers(nil, function()
 		saveReplay(replayNameInput.textfieldstr[1]:gsub("%.rpl$", ""))
 	end)
 
-replayNameInput:btnDown()
+replayNameInput.btnDown()
 replayNameInput.keyboard = true
 disable_camera_movement()

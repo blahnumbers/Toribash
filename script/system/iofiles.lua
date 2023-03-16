@@ -25,6 +25,7 @@ local function filesReadAllInternal(file)
 	if (type(file) == "number") then
 		return file_read(file)
 	end
+	---@diagnostic disable-next-line: param-type-mismatch
 	return file:read("*all")
 end
 
@@ -36,6 +37,7 @@ local function filesWriteInternal(file, data)
 		file_write(file, data)
 		return
 	end
+	---@diagnostic disable-next-line: param-type-mismatch
 	file:write(data)
 end
 
@@ -45,6 +47,7 @@ local function filesCloseInternal(file)
 	if (type(file) == "number") then
 		return file_close(file)
 	end
+	---@diagnostic disable-next-line: param-type-mismatch
 	file:close()
 end
 
