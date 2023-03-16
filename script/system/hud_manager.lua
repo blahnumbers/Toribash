@@ -191,7 +191,7 @@ function TBHudInternal.pushChatMessage(msg, type, tab)
 	if (TBHud.ChatHolder ~= nil and TBHud.ChatHolder:isDisplayed()) then
 		TBHud:refreshChat()
 	else
-		for _, v in pairs(TBHud.ChatHolderItems) do
+		for _, v in pairs(TBHud.ChatHolderItems or {}) do
 			v:hide()
 		end
 		TBHud.ChatMiniUpdateTime = 0

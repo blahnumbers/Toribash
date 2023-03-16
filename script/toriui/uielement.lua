@@ -1433,6 +1433,19 @@ function UIElement:deactivate(noreload)
 	end
 end
 
+---Executes UIElement `activate()` or `deactivate()` method depending on state \
+---@see UIElement.activate
+---@see UIElement.deactivate
+---@param state boolean
+---@param override ?boolean
+function UIElement:setActive(state, override)
+	if (state == true) then
+		self:activate(override)
+	else
+		self:deactivate(override)
+	end
+end
+
 ---Returns whether UIElement is being displayed
 ---@return boolean
 function UIElement:isDisplayed()
@@ -2843,6 +2856,36 @@ _G.string.escape = function(str)
 				str = utf8.gsub(str, k, "%" .. k)
 			end
 		end
+	end
+	return str
+end
+
+---Returns a list of strings, each of which is a substring of `str` formed by splitting it on boundaries formed by the string `delimiter`.
+---@param str string
+---@param delimiter string
+---@return string[]
+_G.utf8.explode = function(str, delimiter)
+	local list = {}
+	local checkLength = utf8.len(delimiter)
+	delimiter = string.escape(delimiter)
+	while (utf8.find(str, ".*" .. delimiter)) do
+		local _, endPos = utf8.find(str, ".*" .. delimiter)
+		table.insert(list, utf8.sub(str, endPos + 1, utf8.len(str)))
+		str = utf8.sub(str, 0, endPos - checkLength)
+	end
+	table.insert(list, str)
+	return table.reverse(list)
+end
+
+---Returns a string representation of all the `list` elements in the same order, with the `delimiter` string between each element. \
+---*Only table fields that are iteratable with `ipairs()` will be joined.*
+---@param list table
+---@param delimiter string
+---@return string
+_G.table.implode = function(list, delimiter)
+	local str = ""
+	for _, v in ipairs(list) do
+		str = str == "" and tostring(v) or (str .. delimiter .. tostring(v))
 	end
 	return str
 end

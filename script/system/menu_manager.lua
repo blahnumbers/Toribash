@@ -951,16 +951,17 @@ function TBMenu:getTime(seconds, cut)
 end
 
 ---Spawns an overlay that slightly dims main menu
----@param globalid ?integer
+---@param globalid ?integer Deprecated
 ---@param withMouseHandler ?boolean
 ---@return UIElement
+---@overload fun(self: TBMenu, withMouseHandler: boolean) : UIElement
 function TBMenu:spawnWindowOverlay(globalid, withMouseHandler)
+	if (type(globalid) == "boolean") then
+		withMouseHandler = globalid
+	end
 	TB_MENU_POPUPS_DISABLED = true
-	local globalid = globalid or nil
 	UIScrollbarIgnore = true
 	local overlay = UIElement:new({
-		---@diagnostic disable-next-line: assign-type-mismatch
-		globalid = TB_MENU_MAIN_ISOPEN == 0 and (globalid or TB_MENU_HUB_GLOBALID) or nil,
 		parent = TBMenu.MenuMain,
 		pos = { 0, 0 },
 		size = { WIN_W, WIN_H },
@@ -2943,6 +2944,7 @@ end
 ---@field action function
 ---@field element UIElement
 ---@field itemId integer
+---@field selected ?boolean
 
 ---@class DropdownSettings
 ---@field fontid FontId
@@ -2974,10 +2976,21 @@ function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHei
 	if (maxHeight > #listElementsDisplay * elementHeight + 6) then
 		maxHeight = #listElementsDisplay * elementHeight + 6
 	end
-	local selectedItem = selectedItem or listElements[1]
-	if (type(selectedItem) ~= "table") then
+
+	if (selectedItem == nil) then
+		for i, v in pairs(listElements) do
+			if (v.selected) then
+				if (selectedItem == nil) then
+					selectedItem = listElements[i]
+				end
+				v.selected = nil
+			end
+		end
+		selectedItem = selectedItem or listElements[1]
+	elseif (type(selectedItem) ~= "table") then
 		selectedItem = listElements[selectedItem] or listElements[1]
 	end
+
 	local textSettings = textSettings or {}
 	textSettings.fontid = textSettings.fontid or 4
 	textSettings.scale = textSettings.scale or 1

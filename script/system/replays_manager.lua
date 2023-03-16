@@ -17,6 +17,16 @@ if (Replays == nil) then
 	Replays.__index = Replays
 end
 
+---@class ReplayInfo
+---@field name string
+---@field filename string
+---@field bouts string[]
+---@field tags string
+---@field hiddentags string
+
+---@class ReplayDirectory
+---@field name string
+
 function Replays:quit()
 	TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
 	if (get_option("newmenu") == 0) then
@@ -110,6 +120,7 @@ function Replays:getReplayInfo(path)
 			end
 		end)
 	end
+	replay:close()
 
 	local infodata = { name = path, bout0 = " ", bout1 = " ", author = "autosave", mod = "classic", tags = " ", hiddentags = " ", uploaded = 0 }
 	for i,v in pairs(infodata) do
@@ -135,7 +146,6 @@ function Replays:getReplayInfo(path)
 		end
 	end
 
-	replay:close()
 	return rplInfo
 end
 
@@ -150,10 +160,18 @@ function Replays:fetchReplayData(folder, level, file, filedata, includeEventTemp
 
 	local files = get_files(folder, "")
 	local count, maxDelay = 1, 1 / (tonumber(get_option("framerate")) or 30) / 2
-	replayStatusMessage.replayfolders = replayStatusMessage.replayfolders or {}
-	replayStatusMessage:addCustomDisplay(true, function()
-			replayStatusMessage.parent.startTime = UIElement.clock
-			replayStatusMessage:uiText(TB_MENU_LOCALIZED.REPLAYSUPDATINGCACHE .. " (" .. folder .. " folder)\n" .. math.min(math.ceil(count / #files * 100), 100) .. "% " .. TB_MENU_LOCALIZED.WORDDONE, nil, nil, nil, nil, 0.8)
+	TBMenu.StatusMessage.replayfolders = TBMenu.StatusMessage.replayfolders or {}
+	if (not TBMenu.StatusMessage.replayUpdater) then
+		TBMenu.StatusMessage.replayUpdater = TBMenu.StatusMessage:addChild({})
+		TBMenu.StatusMessage.replayUpdater.killAction = function() file:close() end
+	end
+
+	TBMenu.StatusMessage.replayUpdater:addCustomDisplay(true, function()
+			TBMenu.StatusMessage.endTime = UIElement.clock + 100
+			local targetText = TB_MENU_LOCALIZED.REPLAYSUPDATINGCACHE .. " (" .. folder .. " folder)\n" .. math.min(math.ceil((count - 1) / #files * 100), 100) .. "% " .. TB_MENU_LOCALIZED.WORDDONE
+			if (TBMenu.StatusMessage.messageView.str ~= targetText) then
+				TBMenu.StatusMessage.messageView:addAdaptedText(true, targetText, nil, nil, 4, nil, 0.8)
+			end
 
 			while (1) do
 				local v = files[count]
@@ -162,7 +180,7 @@ function Replays:fetchReplayData(folder, level, file, filedata, includeEventTemp
 				end
 				pcall(function()
 					if (v:match(REPLAY_TEMPNAME) or v:match(REPLAY_SAVETEMPNAME) or (v:find("^" .. REPLAY_EVENT) and not includeEventTemp)) then
-						count = count + 1
+						---Skip system replay names
 					elseif (v:match(".rpl$")) then
 						local replaydata = { filename = v }
 						local replaypath = string.lower(folder and folder .. "/" .. v or replaydata.filename)
@@ -187,7 +205,6 @@ function Replays:fetchReplayData(folder, level, file, filedata, includeEventTemp
 								hiddentags = replaydata.hiddentags,
 								uploaded = replaydata.uploaded == 1
 							})
-							count = count + 1
 						else
 								replaydata = Replays:getReplayInfo(replaypathfull)
 								replaydata.filename = v
@@ -210,7 +227,6 @@ function Replays:fetchReplayData(folder, level, file, filedata, includeEventTemp
 									hiddentags = replaydata.hiddentags,
 									uploaded = replaydata.uploaded == 1
 								})
-								count = count + 1
 						end
 					elseif (not v:find("^%.+[%s%S]*$") and v ~= "system" and not v:find("%.%a+$")) then
 						table.insert(rplTable.folders, {
@@ -218,37 +234,34 @@ function Replays:fetchReplayData(folder, level, file, filedata, includeEventTemp
 							name = v,
 							fullname = rplTable.fullname .. "/" .. v
 						})
-						table.insert(replayStatusMessage.replayfolders, { fname = folder .. "/" .. v, rpltbl = rplTable.folders[#rplTable.folders] })
+						table.insert(TBMenu.StatusMessage.replayfolders, { fname = folder .. "/" .. v, rpltbl = rplTable.folders[#rplTable.folders] })
 						if (rplTable.fullname .. "/" .. v == SELECTED_FOLDER.fullname) then
 							SELECTED_FOLDER = rplTable.folders[#rplTable.folders]
 						end
-						count = count + 1
-					else
-						count = count + 1
 					end
 				end)
+				count = count + 1
 
-				if (count > #files or os.clock_real() - replayStatusMessage.parent.startTime > maxDelay) then
+				if (count > #files or os.clock_real() - UIElement.clock > maxDelay) then
 					break
 				end
 			end
 			if (count > #files) then
 				if (rplTable.fullname ~= "replay/autosave") then
-					pcall(function() rplTable.replays = UIElement:qsort(rplTable.replays, "filename") end)
+					pcall(function() rplTable.replays = table.qsort(rplTable.replays, "filename") end)
 				end
-				if (#replayStatusMessage.replayfolders > 0) then
-					local fname = replayStatusMessage.replayfolders[1].fname
-					local rpltbl = replayStatusMessage.replayfolders[1].rpltbl
-					table.remove(replayStatusMessage.replayfolders, 1)
+				if (#TBMenu.StatusMessage.replayfolders > 0) then
+					local fname = TBMenu.StatusMessage.replayfolders[1].fname
+					local rpltbl = TBMenu.StatusMessage.replayfolders[1].rpltbl
+					table.remove(TBMenu.StatusMessage.replayfolders, 1)
 					Replays:fetchReplayData(fname, rpltbl, file, filedata, includeEventTemp)
 				else
-					file:close()
-					replayStatusMessage:kill()
+					TBMenu.StatusMessage.replayUpdater:kill()
+					TBMenu.StatusMessage.endTime = UIElement.clock
 					if (not SELECTED_FOLDER.name) then
 						SELECTED_FOLDER = TB_MENU_REPLAYS
 					end
 					TB_MENU_REPLAYS_LOADED = true
-					replayStatusMessage.parent:kill()
 				end
 			end
 		end)
@@ -270,9 +283,8 @@ function Replays:updateReplayFile(replay)
 			table.insert(replaydata, ln)
 		end
 	end
-	file:close()
 
-	local file = Files:open("../replay/" .. replay.filename, FILES_MODE_WRITE)
+	file:reopen(FILES_MODE_WRITE)
 	if (not file.data) then
 		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORUPDATINGFILE)
 		return false
@@ -322,9 +334,8 @@ function Replays:updateReplayCache(replay, newreplay)
 			table.insert(filedata, ln)
 		end
 	end
-	file:close()
 
-	local file = Files:open("../replay/replaycache.dat", FILES_MODE_WRITE)
+	file:reopen(FILES_MODE_WRITE)
 	if (not file.data) then
 		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORUPDATINGTAGS)
 		return false
@@ -337,26 +348,7 @@ function Replays:updateReplayCache(replay, newreplay)
 	return true
 end
 
-function Replays:getReplayFolders(folder, level, levelint)
-	local folders = folder or {}
-	local level = level or TB_MENU_REPLAYS
-	local levelint = levelint or 1
-
-	if (#folders < 1) then
-		table.insert(folders, { name = "replay [root]", fullname = "replay", level = 1 })
-	end
-
-	local parentFolder = folders[#folders]
-
-	for i,v in pairs(level.folders or {}) do
-		table.insert(folders, { name = v.name, fullname = parentFolder.fullname .. "/" .. v.name, level = levelint })
-		Replays:getReplayFolders(folders, v, levelint + 1)
-	end
-	return folders
-end
-
 function Replays:getReplayFiles(parentElement, includeEventTemp)
-	local parentElement = parentElement or TBMenu.MenuMain
 	TB_MENU_REPLAYS_LOADED = false
 
 	-- Make sure replays table is flushed first
@@ -364,7 +356,7 @@ function Replays:getReplayFiles(parentElement, includeEventTemp)
 
 	local file = Files:open("../replay/replaycache.dat", FILES_MODE_READWRITE)
 	if (not file.data) then
-		file = Files:open("../replay/replaycache.dat", FILES_MODE_WRITE)
+		file:reopen(FILES_MODE_WRITE)
 		if (not file.data) then
 			TBMenu:showStatusMessage("replaycache.dat: " .. TB_MENU_LOCALIZED.ERRORCREATINGFILE)
 			return
@@ -387,7 +379,7 @@ function Replays:getReplayFiles(parentElement, includeEventTemp)
 			uploaded = tonumber(data_stream[9])
 		}
 	end
-	replayStatusMessage = TBMenu:showStatusMessage("")
+	TBMenu:showStatusMessage("")
 	Replays:fetchReplayData(nil, nil, file, filedata, includeEventTemp)
 end
 
@@ -504,7 +496,9 @@ function Replays:getServerReplays(action, offset, searchStr)
 		end)
 end
 
-function Replays:getPopularTags()
+---Returns a (hardcoded) list of popular replay tags
+---@return string[]
+function Replays.GetPopularTags()
 	return {
 		"multiplayer",
 		"kick",
@@ -841,7 +835,7 @@ function Replays:showList(viewElement, replayInfo, level, doSearch)
 			})
 			posX = editFolderButton.shift.x
 			editFolderButton:addMouseHandlers(nil, function()
-					Replays:showEditFolderWindow()
+					Replays:showEditFolderWindow(SELECTED_FOLDER)
 				end)
 		elseif (level.fullname == "replay") then
 			local refreshCacheButton = UIElement:new({
@@ -900,8 +894,8 @@ function Replays:showList(viewElement, replayInfo, level, doSearch)
 			TB_MENU_REPLAYS_SEARCH = searchInputField.textfieldstr[1]
 			Replays:showSearchList(listingView, replayInfo, toReload, Replays:findReplays(searchInputField.textfieldstr, rplTable))
 		end
-		searchInputField:btnDown()
-		searchInputField:btnUp()
+		searchInputField.btnDown()
+		searchInputField.btnUp()
 	end
 	--searchInputField:addKeyboardHandlers(nil, searchFunction)
 	searchInputField:addEnterAction(searchFunction)
@@ -1156,146 +1150,178 @@ function Replays:tagButtonActivate(tagAdd)
 	tagAdd.bgColor = { 0, 0, 0, 0.3 }
 end
 
-function Replays:showTags(replayInfoView, replay)
+---Spawns replay tags manager window
+---@param replay ReplayInfo
+function Replays:showTagsModify(replay)
+	---@type string[]
 	local updatedTags = {}
 	for i in string.gmatch(replay.tags, "%S+") do
 		table.insert(updatedTags, i)
 	end
 
+	---@type UIElement[]
+	local popularTagButtons, assignedTagButtons = {}, {}
+
 	local tagsOverlay = TBMenu:spawnWindowOverlay()
-	local tagsView = UIElement:new({
-		parent = tagsOverlay,
-		pos = { tagsOverlay.size.w / 8, tagsOverlay.size.h / 6 },
-		size = { tagsOverlay.size.w / 8 * 6, tagsOverlay.size.h / 6 * 4 },
-		bgColor = TB_MENU_DEFAULT_BG_COLOR
+	local windowSize = { x = math.min(900, tagsOverlay.size.w * 0.7), y = math.min(500, tagsOverlay.size.h * 0.6) }
+	local tagsView = tagsOverlay:addChild({
+		pos = { (tagsOverlay.size.w - windowSize.x) / 2, (tagsOverlay.size.h - windowSize.y) / 2 },
+		size = { windowSize.x, windowSize.y },
+		bgColor = TB_MENU_DEFAULT_BG_COLOR,
+		shapeType = ROUNDED,
+		rounded = 4
 	})
-	local tagsTitle = UIElement:new({
-		parent = tagsView,
-		pos = { 10, 0 },
-		size = { tagsView.size.w - 20, tagsView.size.h / 8 }
+	local tagsTitle = tagsView:addChild({
+		pos = { tagsView.size.h / 8, 0 },
+		size = { tagsView.size.w - tagsView.size.h / 4, tagsView.size.h / 8 }
 	})
-	tagsTitle:addCustomDisplay(true, function()
-			tagsTitle:uiText(TB_MENU_LOCALIZED.REPLAYSTAGSMODIFYING .. " " .. replay.name ..  " " .. TB_MENU_LOCALIZED.REPLAYSTAGSNAME)
-		end)
+	tagsTitle:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSTAGSMODIFYING .. " " .. replay.name ..  " " .. TB_MENU_LOCALIZED.REPLAYSTAGSNAME, nil, nil, FONTS.BIG, nil, 0.75, 0.4, 0.6)
+	local closeButtonSize = math.min(45, tagsTitle.size.h - 20)
+	local closeButton = tagsView:addChild({
+		pos = { -closeButtonSize - 10, 10 },
+		size = { closeButtonSize, closeButtonSize },
+		interactive = true,
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+	}, true)
+	closeButton:addMouseUpHandler(function() tagsOverlay:kill() end)
+	closeButton:addChild({ shift = { closeButtonSize / 5, closeButtonSize / 5 }, bgImage = "../textures/menu/general/buttons/crosswhite.tga" })
 
-	local popularTagsView = UIElement:new({
-		parent = tagsView,
-		pos = { 10, tagsTitle.size.h },
-		size = { tagsView.size.w / 2 - 20, tagsView.size.h - tagsTitle.size.h * 2 - 10 }
+	local elementHeight = 35
+	local popularTagsView = tagsView:addChild({
+		shift = { 10, tagsTitle.shift.y + tagsTitle.size.h }
 	})
-	local replayTags = UIElement:new({
-		parent = tagsView,
-		pos = { tagsView.size.w / 2 + 10, tagsTitle.size.h },
-		size = { tagsView.size.w / 2 - 20, tagsView.size.h / 8 * 7 - tagsTitle.size.h - 10 }
+	popularTagsView.size.h = math.floor(popularTagsView.size.h / 2)
+	local popularTagsTitle = popularTagsView:addChild({
+		pos = { 0, 0 },
+		size = { popularTagsView.size.w, elementHeight }
 	})
-	local tagsSeparator = UIElement:new({
-		parent = tagsView,
-		pos = { tagsView.size.w / 2 - 1, tagsTitle.size.h + 20 },
-		size = { 1, tagsView.size.h - tagsTitle.size.h - 40 },
-		bgColor = { 1, 1, 1, 0.2 }
-	})
+	popularTagsTitle:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSPOPULARTAGS, nil, nil, nil, LEFTMID)
+	---@type Vector2
+	popularTagsView.buttonsShift = { x = 0, y = popularTagsTitle.shift.y + popularTagsTitle.size.h }
 
-	local posY, elementHeight = 30, 30
-	local replayTagListInfo = { y = 0, x = 0 }
+	local currentTagsView = tagsView:addChild({
+		pos = { 10, popularTagsView.shift.y + popularTagsView.size.h },
+		size = { tagsView.size.w - 20, popularTagsView.size.h }
+	})
+	local currentTagsTitle = currentTagsView:addChild({
+		pos = { 0, 0 },
+		size = { currentTagsView.size.w, elementHeight }
+	})
+	currentTagsTitle:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSASSIGNEDTAGS, nil, nil, nil, LEFTMID)
 
-	local popularTagsName = UIElement:new({
-		parent = popularTagsView,
-		pos = { 10, 0 },
-		size = { popularTagsView.size.w - 20, elementHeight }
-	})
-	popularTagsName:addCustomDisplay(true, function()
-			popularTagsName:uiText(TB_MENU_LOCALIZED.REPLAYSPOPULARTAGS)
-		end)
-	local replayTagsName = UIElement:new({
-		parent = replayTags,
-		pos = { 10, 0 },
-		size = { replayTags.size.w - 20, elementHeight }
-	})
-	replayTagsName:addCustomDisplay(true, function()
-			replayTagsName:uiText(TB_MENU_LOCALIZED.REPLAYSASSIGNEDTAGS)
-		end)
-	local replayTagsView = UIElement:new({
-		parent = replayTags,
-		pos = { 0, replayTagsName.size.h },
-		size = { replayTags.size.w, replayTags.size.h - replayTagsName.size.h }
-	})
-
-	local popularTagsButtons = {}
-	for i, tag in pairs(Replays:getPopularTags()) do
-		if (posY + elementHeight < popularTagsView.size.h) then
-			local tagElement = UIElement:new({
-				parent = popularTagsView,
-				pos = { 0, posY },
-				size = { popularTagsView.size.w, elementHeight }
-			})
-			local tagName = UIElement:new({
-				parent = tagElement,
-				pos = { 0, 0 },
-				size = { tagElement.size.w - 30, tagElement.size.h }
-			})
-			tagName:addCustomDisplay(true, function()
-					tagName:uiText(tag, nil, nil, 4, LEFTMID, 0.7)
-				end)
-			local tagAdd = UIElement:new({
-				parent = tagElement,
-				pos = { tagElement.size.w - 24, 3 },
-				size = { 24, 24 },
-				shapeType = ROUNDED,
-				rounded = 3,
-				interactive = true,
-				bgColor = { 0, 0, 0, 0.3 },
-				hoverColor = { 0, 0, 0, 0.5 },
-				pressedColor = { 1, 1, 1, 0.2 }
-			})
-			tagAdd:addMouseHandlers(nil, function()
-					table.insert(updatedTags, tag)
-					Replays:showReplayTaglistTag(replayTagsView, updatedTags, tag, elementHeight, replayTagListInfo, popularTagsButtons)
-					Replays:tagButtonDeactivate(tagAdd)
-				end)
-			if (not replay.tags:find(tag)) then
-				Replays:tagButtonActivate(tagAdd)
-			else
-				Replays:tagButtonDeactivate(tagAdd)
-			end
-			popularTagsButtons[tag] = tagAdd
-		else
-			break
+	local function reloadAssignedTags()
+		---@type Vector2
+		currentTagsView.buttonsShift = { x = 0, y = currentTagsTitle.shift.y + currentTagsTitle.size.h }
+		for _, v in pairs(assignedTagButtons) do
+			v:kill()
 		end
-		posY = posY + elementHeight
+
+		for i, tag in pairs(updatedTags) do
+			local tagViewBG = currentTagsView:addChild({
+				pos = { currentTagsView.buttonsShift.x, currentTagsView.buttonsShift.y },
+				size = { currentTagsView.size.w, elementHeight },
+				bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+				shapeType = ROUNDED,
+				rounded = 4
+			})
+			tagViewBG:addAdaptedText(tag, nil, nil, 4, nil, 0.8)
+			tagViewBG.size.w = get_string_length(tagViewBG.dispstr[1], tagViewBG.textFont) * tagViewBG.textScale + 22 + tagViewBG.size.h
+			tagViewBG:addCustomDisplay(false, function() end)
+
+			if (tagViewBG.size.w > currentTagsView.size.w - currentTagsView.buttonsShift.x) then
+				currentTagsView.buttonsShift.y = currentTagsView.buttonsShift.y + elementHeight + 6
+				if (currentTagsView.buttonsShift.y + elementHeight > currentTagsView.size.h) then
+					tagViewBG:kill()
+					break
+				end
+				tagViewBG:moveTo(0, currentTagsView.buttonsShift.y)
+			end
+			currentTagsView.buttonsShift.x = tagViewBG.shift.x + tagViewBG.size.w + 6
+
+			table.insert(assignedTagButtons, tagViewBG)
+			local tagView = tagViewBG:addChild({
+				shift = { 1, 1 },
+				bgColor = TB_MENU_DEFAULT_BG_COLOR
+			}, true)
+			tagView:addChild({
+				pos = { 0, 0 },
+				size = { tagView.size.w - tagView.size.h, tagView.size.h }
+			}):addAdaptedText(true, tag, nil, nil, tagViewBG.textFont, nil, tagViewBG.textScale)
+			local tagRemoveButton = tagViewBG:addChild({
+				pos = { -tagViewBG.size.h, 0 },
+				size = { tagViewBG.size.h, tagViewBG.size.h },
+				interactive = true,
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+			}, true)
+			tagRemoveButton:addChild({
+				shift = { 5, 5 },
+				bgImage = "../textures/menu/general/buttons/crosswhite.tga"
+			})
+			tagRemoveButton:addMouseUpHandler(function()
+					if (popularTagButtons[tag] ~= nil) then
+						popularTagButtons[tag]:activate()
+					end
+					table.remove(updatedTags, i)
+					reloadAssignedTags()
+				end)
+		end
 	end
 
-	local tagInputFieldView = UIElement:new({
-		parent = tagsView,
-		pos = { 10, -50 },
-		size = { tagsView.size.w / 2 - 100, 40 },
-		bgColor = TB_MENU_DEFAULT_DARKER_COLOR
-	})
-	local tagInputFieldBG = UIElement:new({
-		parent = tagInputFieldView,
-		pos = { 1, 1 },
-		size = { tagInputFieldView.size.w - 2, tagInputFieldView.size.h - 2 },
-		bgColor = { 1, 1, 1, 0.5 }
-	})
-	local tagInputField = UIElement:new({
-		parent = tagInputFieldBG,
-		pos = { 10, 0 },
-		size = { tagInputFieldBG.size.w - 20, tagInputFieldBG.size.h },
-		interactive = true,
-		textfield = true,
-		textfieldsingleline = true
-	})
-	tagInputField:addMouseHandlers(function()
-			tagInputField:enableMenuKeyboard(tagInputField)
-		end)
-	TBMenu:displayTextfield(tagInputField, FONTS.SMALL, 1, UICOLORBLACK, TB_MENU_LOCALIZED.REPLAYSINPUTTAGHERE)
+	for _, tag in pairs(Replays.GetPopularTags()) do
+		local tagButton = popularTagsView:addChild({
+			pos = { popularTagsView.buttonsShift.x, popularTagsView.buttonsShift.y },
+			size = { popularTagsView.size.w, elementHeight },
+			interactive = true,
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+			inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
+			shapeType = ROUNDED,
+			rounded = 4
+		})
+		tagButton:addAdaptedText(tag, nil, nil, 4, nil, 0.8)
+		tagButton:addMouseUpHandler(function()
+				table.insert(updatedTags, tag)
+				tagButton:deactivate()
+				reloadAssignedTags()
+			end)
+		tagButton.size.w = get_string_length(tagButton.dispstr[1], tagButton.textFont) * tagButton.textScale + 30
+		if (tagButton.size.w > popularTagsView.size.w - popularTagsView.buttonsShift.x) then
+			popularTagsView.buttonsShift.y = popularTagsView.buttonsShift.y + elementHeight + 6
+			if (popularTagsView.buttonsShift.y + elementHeight > popularTagsView.size.h) then
+				tagButton:kill()
+				break
+			end
+			tagButton:moveTo(0, popularTagsView.buttonsShift.y)
+		end
+		popularTagButtons[tag] = tagButton
+		popularTagsView.buttonsShift.x = tagButton.shift.x + tagButton.size.w + 6
+		tagButton:setActive(not replay.tags:find(tag))
+	end
+	reloadAssignedTags()
 
+	local tagsInputView = tagsView:addChild({
+		pos = { 10, -50 },
+		size = { tagsView.size.w / 2 - 10, 40 },
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR
+	}, true)
+	local tagInputField = TBMenu:spawnTextField2(tagsInputView, {
+			w = tagsInputView.size.w - 100
+		}, nil, TB_MENU_LOCALIZED.REPLAYSINPUTTAGHERE, {
+			fontId = 4,
+			textScale = 0.8
+		})
 	local tagAddFunction = function()
 			local tagString = tagInputField.textfieldstr[1]
 			if (tagString:gsub("%A", "") == "" or tagString:len() < 2) then
 				TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSTAGERRORSHORT)
 				return
 			end
-			for i,v in pairs(updatedTags) do
+			for _, v in pairs(updatedTags) do
 				if (v == tagString) then
 					TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSTAGERRORDUPLICATE)
 					return
@@ -1303,71 +1329,36 @@ function Replays:showTags(replayInfoView, replay)
 			end
 			tagInputField:clearTextfield()
 			table.insert(updatedTags, tagString)
-			Replays:showReplayTaglistTag(replayTagsView, updatedTags, tagString, elementHeight, replayTagListInfo, popularTagsButtons)
+			reloadAssignedTags()
 		end
 	tagInputField:addEnterAction(tagAddFunction)
 
-	local tagButton = UIElement:new({
-		parent = tagsView,
-		pos = { tagsView.size.w / 2 - 90, -50 },
-		size = { 80, 40 },
+	local tagAddButton = tagsInputView:addChild({
+		pos = { -100, 0 },
+		size = { 100, tagsInputView.size.h },
 		interactive = true,
-		bgColor = { 0, 0, 0, 0.3 },
-		hoverColor = { 0, 0, 0, 0.5 },
-		pressedColor = { 1, 1, 1, 0.2 }
-	})
-	tagButton:addCustomDisplay(false, function()
-			tagButton:uiText(TB_MENU_LOCALIZED.BUTTONADD)
-		end)
-	tagButton:addMouseHandlers(nil, tagAddFunction)
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+	}, true)
+	tagAddButton:addAdaptedText(TB_MENU_LOCALIZED.BUTTONADD)
+	tagAddButton:addMouseUpHandler(tagAddFunction)
 
-
-	for i, tag in pairs(updatedTags) do
-		Replays:showReplayTaglistTag(replayTagsView, updatedTags, tag, elementHeight, replayTagListInfo, popularTagsButtons)
-	end
-
-	local buttonCancel = UIElement:new({
-		parent = tagsView,
-		pos = { tagsView.size.w / 2 + 10, -50 },
-		size = { tagsView.size.w / 4 - 15, 40 },
+	local buttonSave = tagsView:addChild({
+		pos = { tagsView.size.w / 3 * 2, -50 },
+		size = { tagsView.size.w / 3 - 10, 40 },
 		interactive = true,
-		bgColor = { 0, 0, 0, 0.3 },
-		hoverColor = { 0, 0, 0, 0.5 },
-		pressedColor = { 1, 1, 1, 0.2 }
-	})
-	buttonCancel:addCustomDisplay(false, function()
-			buttonCancel:uiText(TB_MENU_LOCALIZED.BUTTONCANCEL)
-		end)
-	buttonCancel:addMouseHandlers(nil, function()
-			tagsOverlay:kill()
-		end)
-	local buttonSave = UIElement:new({
-		parent = tagsView,
-		pos = { tagsView.size.w / 4 * 3, -50 },
-		size = { tagsView.size.w / 4 - 10, 40 },
-		interactive = true,
-		bgColor = { 0, 0, 0, 0.3 },
-		hoverColor = { 0, 0, 0, 0.5 },
-		pressedColor = { 1, 1, 1, 0.2 }
-	})
-	buttonSave:addCustomDisplay(false, function()
-			buttonSave:uiText(TB_MENU_LOCALIZED.BUTTONSAVE)
-		end)
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+	}, true)
+	buttonSave:addAdaptedText(TB_MENU_LOCALIZED.BUTTONSAVE)
 	buttonSave:addMouseHandlers(nil, function()
-			local tagsString
-			for i,v in pairs(updatedTags) do
-				if (i > 1) then
-					tagsString = tagsString .. " " .. v
-				else
-					tagsString = v
-				end
+			local newreplay = table.clone(replay)
+			newreplay.tags = table.implode(updatedTags, " ")
+			if (newreplay.tags == replay.tags) then
+				return
 			end
-			if (not tagsString) then
-				tagsString = " "
-			end
-
-			local newreplay = cloneTable(replay)
-			newreplay.tags = tagsString
 
 			if (Replays:updateReplayCache(replay, newreplay)) then
 				replay.tags = newreplay.tags
@@ -1377,56 +1368,53 @@ function Replays:showTags(replayInfoView, replay)
 		end)
 end
 
-function Replays:showEditFolderWindow()
+---Displays folder manager window
+---@param folder ReplayDirectory
+function Replays:showEditFolderWindow(folder)
 	local editFolderOverlay = TBMenu:spawnWindowOverlay()
-	local editFolderView = UIElement:new({
-		parent = editFolderOverlay,
-		pos = { editFolderOverlay.size.w / 4, editFolderOverlay.size.h / 2 - 100 },
-		size = { editFolderOverlay.size.w / 2, 200 },
-		bgColor = TB_MENU_DEFAULT_BG_COLOR
+	local editFolderView = editFolderOverlay:addChild({
+		shift = { editFolderOverlay.size.w / 4, editFolderOverlay.size.h / 2 - 100 },
+		bgColor = TB_MENU_DEFAULT_BG_COLOR,
+		shapeType = ROUNDED,
+		rounded = 4
 	})
-	local editFolderTitle = UIElement:new({
-		parent = editFolderView,
-		pos = { 10, 0 },
-		size = { editFolderView.size.w - 20, 50 }
-	})
-	editFolderTitle:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSTAGSMODIFYING .. " " .. SELECTED_FOLDER.fullname .. " " .. TB_MENU_LOCALIZED.REPLAYSMODIFYINGFOLDER, nil, nil, FONTS.BIG)
-	local newFolderInputBG = UIElement:new({
-		parent = editFolderView,
-		pos = { 10, editFolderView.size.h / 2 - 20 },
-		size = { editFolderView.size.w - 20, 40 },
-		bgColor = TB_MENU_DEFAULT_DARKER_COLOR
-	})
-	local newFolderInputOverlay = UIElement:new({
-		parent = newFolderInputBG,
-		pos = { 1, 1 },
-		size = { newFolderInputBG.size.w - 2, newFolderInputBG.size.h - 2 },
-		bgColor = { 1, 1, 1, 0.5 }
-	})
-	local newFolderInput = UIElement:new({
-		parent = newFolderInputOverlay,
-		pos = { 10, 0 },
-		size = { newFolderInputOverlay.size.w - 20, newFolderInputOverlay.size.h },
-		interactive = true,
-		textfield = true,
-		textfieldstr = { SELECTED_FOLDER.name }
-	})
-	newFolderInput:addMouseHandlers(function()
-			newFolderInput:enableMenuKeyboard(newFolderInput)
-		end)
-	TBMenu:displayTextfield(newFolderInput, FONTS.SMALL, nil, UICOLORBLACK, TB_MENU_LOCALIZED.REPLAYSFOLDERNAME)
 
-	local posX = 0
-	local deleteButton = UIElement:new({
-		parent = editFolderView,
-		pos = { -50, -50 },
-		size = { 40, 40 },
-		interactive = true,
-		bgColor = { 0, 0, 0, 0.3 },
-		hoverColor = { 0, 0, 0, 0.5 },
-		pressedColor = { 1, 1, 1, 0.2 },
-		bgImage = "../textures/menu/general/buttons/trash.tga"
+	local closeButtonSize = 40
+	local editFolderTitle = editFolderView:addChild({
+		pos = { closeButtonSize * 1.5, 0 },
+		size = { editFolderView.size.w - closeButtonSize * 3, 50 }
 	})
+	editFolderTitle:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSTAGSMODIFYING .. " \"" .. SELECTED_FOLDER.fullname .. "\" " .. TB_MENU_LOCALIZED.REPLAYSMODIFYINGFOLDER, nil, nil, FONTS.BIG)
+
+	local closeButton = editFolderView:addChild({
+		pos = { -closeButtonSize - 10, 10 },
+		size = { closeButtonSize, closeButtonSize },
+		interactive = true,
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+	}, true)
+	closeButton:addMouseUpHandler(function() editFolderOverlay:kill() end)
+	closeButton:addChild({ shift = { closeButtonSize / 5, closeButtonSize / 5 }, bgImage = "../textures/menu/general/buttons/crosswhite.tga" })
+
+	local newFolderInput = TBMenu:spawnTextField2(editFolderView, {
+		x = 10, y = editFolderView.size.h / 2 - 20,
+		w = editFolderView.size.w - 20, h = 40
+	}, SELECTED_FOLDER.name, TB_MENU_LOCALIZED.REPLAYSFOLDERNAME, {
+		textAlign = LEFTMID,
+		fontId = 4,
+		textScale = 0.8
+	})
+
+	local deleteButton = editFolderView:addChild({
+		pos = { 10, -50 },
+		size = { editFolderView.size.w / 3 - 10, 40 },
+		interactive = true,
+		bgColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+	}, true)
+	deleteButton:addAdaptedText(TB_MENU_LOCALIZED.WORDDELETE)
 	deleteButton:addMouseHandlers(nil, function()
 			local function delete_folder(folder)
 				local parentFolder = folder.fullname:gsub("/" .. folder.name .. "$", "")
@@ -1460,33 +1448,16 @@ function Replays:showEditFolderWindow()
 				TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.REPLAYSFOLDERNOTEMPTYDELETEWARNING, function() delete_folder_with_files(SELECTED_FOLDER) editFolderOverlay:kill() Replays:showMain(TBMenu.CurrentSection) end)
 			end
 		end)
-	local cancelButton = UIElement:new({
-		parent = editFolderView,
-		pos = { 10, -50 },
-		size = { editFolderView.size.w / 2 - 40, 40 },
+
+	local saveButton = editFolderView:addChild({
+		pos = { editFolderView.size.w / 3 + 10, -50 },
+		size = { editFolderView.size.w / 3 * 2 - 20, 40 },
 		interactive = true,
-		bgColor = { 0, 0, 0, 0.3 },
-		hoverColor = { 0, 0, 0, 0.5 },
-		pressedColor = { 1, 1, 1, 0.2 }
-	})
-	cancelButton:addCustomDisplay(false, function()
-			cancelButton:uiText(TB_MENU_LOCALIZED.BUTTONCANCEL)
-		end)
-	cancelButton:addMouseHandlers(nil, function()
-			editFolderOverlay:kill()
-		end)
-	local saveButton = UIElement:new({
-		parent = editFolderView,
-		pos = { editFolderView.size.w / 2 - 20, -50 },
-		size = { editFolderView.size.w / 2 - 40, 40 },
-		interactive = true,
-		bgColor = { 0, 0, 0, 0.3 },
-		hoverColor = { 0, 0, 0, 0.5 },
-		pressedColor = { 1, 1, 1, 0.2 }
-	})
-	saveButton:addCustomDisplay(false, function()
-			saveButton:uiText(TB_MENU_LOCALIZED.BUTTONSAVE)
-		end)
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+	}, true)
+	saveButton:addAdaptedText(TB_MENU_LOCALIZED.BUTTONSAVE)
 	saveButton:addMouseHandlers(nil, function()
 			local newFolderName = newFolderInput.textfieldstr[1]:gsub("%s+$", ""):gsub("^%s+", "")
 			local parentFolder = SELECTED_FOLDER.fullname:gsub(SELECTED_FOLDER.name .. "$", "")
@@ -1793,90 +1764,80 @@ function Replays:showUploadWindow(replay)
 		end)
 end
 
-function Replays:showFolderDropdown(viewElement, folderdata)
-	local entries = #folderdata.data
-	local entryHeight = 30
-	local dropdownHeight = entries * entryHeight
-	local dropdownScrollable = false
-	if (dropdownHeight > WIN_H / 2) then
-		dropdownHeight = WIN_H / 2
-		dropdownScrollable = true
-	end
-
-	local dropdownOverlay = UIElement:new({
-		parent = TBMenu.MenuMain,
-		pos = { 0, 0 },
-		size = { WIN_W, WIN_H },
-		interactive = true
-	})
-	local dropdownView = UIElement:new({
-		parent = viewElement,
-		pos = { 0, -viewElement.size.h / 2 - dropdownHeight / 2 },
-		size = { viewElement.size.w, dropdownHeight},
-		bgColor = TB_MENU_DEFAULT_DARKER_COLOR
-	})
-	dropdownOverlay:addMouseHandlers(nil, function()
-			dropdownOverlay:kill()
-			dropdownView:kill()
-		end)
-	if (not dropdownScrollable) then
-		for i,v in pairs(folderdata.data) do
-			local folder = UIElement:new({
-				parent = dropdownView,
-				pos = { 0, (i - 1) * entryHeight },
-				size = { dropdownView.size.w, entryHeight },
-				interactive = true,
-				bgColor = { 0, 0, 0, 0 },
-				hoverColor = { 0, 0, 0, 0.2 },
-				pressedColor = { 1, 1, 1, 0.2 }
-			})
-			local infoHolder = UIElement:new({
-				parent = folder,
-				pos = { (v.level - 1) / 2 * entryHeight, 0 },
-				size = { folder.size.w - (v.level - 1) / 2 * entryHeight, folder.size.h }
-			})
-			local folderIcon = UIElement:new({
-				parent = infoHolder,
-				pos = { 0, 0 },
-				size = { entryHeight, entryHeight },
-				bgImage = "../textures/menu/general/folder.tga"
-			})
-			local folderText = UIElement:new({
-				parent = infoHolder,
-				pos = { entryHeight + 10, 0 },
-				size = { infoHolder.size.w - entryHeight - 20, infoHolder.size.h }
-			})
-			folderText:addCustomDisplay(true, function()
-					folderText:uiText(v.name, nil, nil, 4, LEFTMID, 0.6)
-				end)
-			folder:addMouseHandlers(nil, function()
-					folderdata.value = v.fullname:gsub("^replay/", "")
-					dropdownOverlay:kill()
-					dropdownView:kill()
-				end)
+---Returns `TBMenuDropdown` elements data containing user replay folders hierarchy
+---@param onSelectAction function
+---@param targetFolder ?string
+---@param includeRoot ?boolean
+---@return DropdownElement[]
+function Replays:getReplayFoldersDropdownOptions(onSelectAction, targetFolder, includeRoot)
+	---@type DropdownElement[]
+	local dropdownOptions = {}
+	local getFolders
+	getFolders = function(dir, level)
+		if (utf8.len(dir) > 0) then
+			dir = dir .. "/"
+		end
+		for _, v in pairs(get_files("replay/" .. dir, "")) do
+			if (not utf8.match(v, ".rpl$") and (dir .. v ~= "system") and not utf8.find(v, "^%.+[%s%S]*$") and not utf8.find(v, "%.%a+$")) then
+				local targetPath = (includeRoot and "replay/" or "") .. dir .. v
+				table.insert(dropdownOptions, {
+					text = (level > 0 and ('' .. string.rep(" ", level * 2)) or '') .. v .. '',
+					action = function() onSelectAction(targetPath) end,
+					selected = targetPath == targetFolder
+				})
+				getFolders(dir .. v, level + 1)
+			end
 		end
 	end
+	if (includeRoot) then
+		table.insert(dropdownOptions, {
+			text = "replay",
+			action = function() onSelectAction("replay") end,
+			selected = "replay" == targetFolder
+		})
+	end
+	pcall(function() getFolders('', includeRoot and 1 or 0) end)
+	return dropdownOptions
 end
 
-function Replays:showReplayManageWindow(replayInfoView, replay)
+---Displays replay manage window
+---@param viewElement any Deprecated
+---@param replay ReplayInfo
+---@overload fun(self: Replays, replay: ReplayInfo)
+function Replays:showReplayManageWindow(viewElement, replay)
+	if (replay == nil) then
+		replay = viewElement
+	end
+
 	local manageOverlay = TBMenu:spawnWindowOverlay()
-	local manageView = UIElement:new({
+	local windowSize = { x = math.min(800, manageOverlay.size.w * 0.7), y = math.min(350, manageOverlay.size.h * 0.6) }
+	local manageView = manageOverlay:addChild({
 		parent = manageOverlay,
-		pos = { manageOverlay.size.w / 6, manageOverlay.size.h / 2 - 130 },
-		size = { manageOverlay.size.w / 6 * 4, 260 },
-		bgColor = TB_MENU_DEFAULT_BG_COLOR
+		pos = { (manageOverlay.size.w - windowSize.x) / 2, (manageOverlay.size.h - windowSize.y) / 2 },
+		size = { windowSize.x, windowSize.y },
+		bgColor = TB_MENU_DEFAULT_BG_COLOR,
+		shapeType = ROUNDED,
+		rounded = 4
 	})
-	local manageTitle = UIElement:new({
+
+	local closeButtonSize = 40
+	local manageTitle = manageView:addChild({
 		parent = manageView,
-		pos = { 10, 0 },
-		size = { manageView.size.w - 20, 50 }
+		pos = { closeButtonSize * 1.5, 0 },
+		size = { manageView.size.w - closeButtonSize * 3, manageView.size.h / 7 }
 	})
-	manageTitle:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSMANAGE .. " " .. replay.name .. " " .. TB_MENU_LOCALIZED.REPLAYSREPLAY, nil, nil, FONTS.BIG, nil, 0.7, nil, 0.2)
-	local replayManageInfoView = UIElement:new({
-		parent = manageView,
-		pos = { 10, manageTitle.size.h },
-		size = { manageView.size.w - 20, manageView.size.h * 7 / 8 - manageTitle.size.h }
-	})
+	manageTitle:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSMANAGE .. " \"" .. replay.name .. "\" " .. TB_MENU_LOCALIZED.REPLAYSREPLAY, nil, nil, FONTS.BIG, nil, 0.7, nil, 0.2)
+
+	local closeButton = manageView:addChild({
+		pos = { -closeButtonSize - 10, 10 },
+		size = { closeButtonSize, closeButtonSize },
+		interactive = true,
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+	}, true)
+	closeButton:addMouseUpHandler(function() manageOverlay:kill() end)
+	closeButton:addChild({ shift = { closeButtonSize / 5, closeButtonSize / 5 }, bgImage = "../textures/menu/general/buttons/crosswhite.tga" })
 
 
 	local _, dirlevel = replay.filename:gsub("/", "")
@@ -1896,119 +1857,63 @@ function Replays:showReplayManageWindow(replayInfoView, replay)
 		{
 			name = TB_MENU_LOCALIZED.REPLAYSREPLAYDIR,
 			sysname = "dir",
-			dirlevel = dirlevel,
 			value = dirlevel == 0 and "replay" or "replay/" .. replay.filename:gsub("/[^/]+$", ""),
-			dropdown = true,
-			data = Replays:getReplayFolders()
+			dropdown = true
 		}
 	}
 
+	local elementHeight = manageView.size.h / 7
+	local manageInfoView = manageView:addChild({
+		shift = { 10, math.floor(manageTitle.size.h * 1.5) }
+	})
 
-	posY, elementHeight = 0, 50
-	for i,v in pairs(replayData) do
-		local replayManageInfoHolder = UIElement:new({
-			parent = replayManageInfoView,
-			pos = { 0, posY },
-			size = { replayManageInfoView.size.w, elementHeight }
+	for i, v in pairs(replayData) do
+		local infoHolder = manageInfoView:addChild({
+			pos = { 0, (i - 1) * elementHeight + 5 },
+			size = { manageInfoView.size.w, elementHeight - 10 }
 		})
-		local replayManageInfoNameTitle = UIElement:new({
-			parent = replayManageInfoHolder,
-			pos = { 0, 0 },
-			size = { replayManageInfoHolder.size.w / 3, replayManageInfoHolder.size.h }
+		local infoLegend = infoHolder:addChild({
+			size = { infoHolder.size.w / 3, infoHolder.size.h }
 		})
-		replayManageInfoNameTitle:addCustomDisplay(true, function()
-				replayManageInfoNameTitle:uiText(v.name, nil, nil, nil, LEFTMID)
-			end)
-		local replayManageInfoDataField = UIElement:new({
-			parent = replayManageInfoHolder,
-			pos = { replayManageInfoHolder.size.w * 2 / 5, 0 },
-			size = { replayManageInfoHolder.size.w * 3 / 5, replayManageInfoHolder.size.h }
+		infoLegend:addAdaptedText(true, v.name, nil, nil, nil, LEFTMID)
+
+		local dataFieldHolder = infoHolder:addChild({
+			pos = { infoLegend.size.w + 10, 0 },
+			size = { infoHolder.size.w - infoLegend.size.w - 10, infoHolder.size.h },
+			shapeType = manageView.shapeType,
+			rounded = manageView.rounded
 		})
 		if (v.input) then
-			local replayManageInfoDataInputBG = UIElement:new({
-				parent = replayManageInfoDataField,
-				pos = { 10, 10 },
-				size = { replayManageInfoDataField.size.w - 20, 30 },
-				bgColor = TB_MENU_DEFAULT_DARKER_COLOR
-			})
-			local replayManageInfoDataInputOverlay = UIElement:new({
-				parent = replayManageInfoDataInputBG,
-				pos = { 1, 1 },
-				size = { replayManageInfoDataInputBG.size.w - 2, replayManageInfoDataInputBG.size.h - 2 },
-				bgColor = { 1, 1, 1, 0.5 }
-			})
-			local replayManageInfoDataInput = UIElement:new({
-				parent = replayManageInfoDataInputOverlay,
-				pos = { 10, 5 },
-				size = { replayManageInfoDataInputOverlay.size.w - 20, replayManageInfoDataInputOverlay.size.h - 10 },
-				interactive = true,
-				textfield = true,
-				textfieldstr = v.value,
-				textfieldsingleline = true
-			})
-			replayManageInfoDataInput:addMouseHandlers(function()
-					replayManageInfoDataInput:enableMenuKeyboard(replayManageInfoDataInput)
-				end)
-			TBMenu:displayTextfield(replayManageInfoDataInput, FONTS.SMALL, nil, UICOLORBLACK, v.tip)
+			TBMenu:spawnTextField2(dataFieldHolder, nil, v.value, v.tip, {
+					fontId = 4,
+					textScale = 0.8
+				})
 		elseif (v.dropdown) then
-			local replayManageInfoDataDropdownButtonBG = UIElement:new({
-				parent = replayManageInfoDataField,
-				pos = { 10, 10 },
-				size = { replayManageInfoDataField.size.w - 20, 30 },
-				bgColor = { 0, 0, 0, 0.5}
-			})
-			local replayManageInfoDataDropdownButton = UIElement:new({
-				parent = replayManageInfoDataDropdownButtonBG,
-				pos = { 1, 1 },
-				size = { replayManageInfoDataDropdownButtonBG.size.w - 2, replayManageInfoDataDropdownButtonBG.size.h - 2 },
-				interactive = true,
-				bgColor = TB_MENU_DEFAULT_BG_COLOR,
-				hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
-				pressedColor = { 1, 0.7, 0.7, 0.6 }
-			})
-			local replayManageInfoDataDropdownButtonText = UIElement:new({
-				parent = replayManageInfoDataDropdownButton,
-				pos = { 10, 0 },
-				size = { replayManageInfoDataDropdownButton.size.w - 20, replayManageInfoDataDropdownButton.size.h }
-			})
-			replayManageInfoDataDropdownButtonText:addCustomDisplay(false, function()
-					replayManageInfoDataDropdownButtonText:uiText(v.value, nil, nil, 4, LEFTMID, 0.7)
-				end)
-			replayManageInfoDataDropdownButton:addMouseHandlers(nil, function()
-					Replays:showFolderDropdown(replayManageInfoDataDropdownButtonBG, v)
-				end)
+			echo("Spawning with value " .. v.value)
+			local dropdownOptions = Replays:getReplayFoldersDropdownOptions(function(path)
+					v.value = path
+				end, v.value, true)
+			local dropdownHolder = dataFieldHolder:addChild({
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR
+			}, true)
+			TBMenu:spawnDropdown(dropdownHolder, dropdownOptions, dataFieldHolder.size.h, nil, nil, {
+					scale = 0.8, fontid = 4, uppercase = true, alignment = LEFTMID
+				}, {
+					scale = 0.8, fontid = 4, uppercase = true, alignment = LEFTMID
+				})
 		end
-
-		posY = posY + elementHeight
 	end
 
-	local cancelButton = UIElement:new({
-		parent = manageView,
-		pos = { 10, -50 },
-		size = { manageView.size.w / 2 - 40, 40 },
+	local saveButton = manageView:addChild({
+		pos = { manageView.size.w / 3 + 10, -50 },
+		size = { manageView.size.w / 3 * 2 - 20, 40 },
 		interactive = true,
-		bgColor = { 0, 0, 0, 0.3 },
-		hoverColor = { 0, 0, 0, 0.5 },
-		pressedColor = { 1, 1, 1, 0.2 }
-	})
-	cancelButton:addCustomDisplay(false, function()
-			cancelButton:uiText(TB_MENU_LOCALIZED.BUTTONCANCEL)
-		end)
-	cancelButton:addMouseHandlers(nil, function()
-			manageOverlay:kill()
-		end)
-	local saveButton = UIElement:new({
-		parent = manageView,
-		pos = { manageView.size.w / 2 - 20, -50 },
-		size = { manageView.size.w / 2 - 40, 40 },
-		interactive = true,
-		bgColor = { 0, 0, 0, 0.3 },
-		hoverColor = { 0, 0, 0, 0.5 },
-		pressedColor = { 1, 1, 1, 0.2 }
-	})
-	saveButton:addCustomDisplay(false, function()
-			saveButton:uiText(TB_MENU_LOCALIZED.BUTTONSAVE)
-		end)
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+	}, true)
+	saveButton:addAdaptedText(TB_MENU_LOCALIZED.BUTTONSAVE)
+
 	saveButton:addMouseHandlers(nil, function()
 			local errors = 0
 			local fileMove = false
@@ -2058,16 +1963,15 @@ function Replays:showReplayManageWindow(replayInfoView, replay)
 			end
 		end)
 
-	local deleteButton = UIElement:new({
-		parent = manageView,
-		pos = { -50, -50 },
-		size = { 40, 40 },
+	local deleteButton = manageView:addChild({
+		pos = { 10, -50 },
+		size = { manageView.size.w / 3 - 10, 40 },
 		interactive = true,
-		bgColor = { 0, 0, 0, 0.3 },
-		hoverColor = { 0, 0, 0, 0.5 },
-		pressedColor = { 1, 1, 1, 0.2 },
-		bgImage = "../textures/menu/general/buttons/trash.tga"
-	})
+		bgColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+	}, true)
+	deleteButton:addAdaptedText(TB_MENU_LOCALIZED.WORDDELETE)
 	deleteButton:addMouseHandlers(nil, function()
 			TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.REPLAYSCONFIRMDELETION .. " " .. replay.filename .. " " .. TB_MENU_LOCALIZED.REPLAYSCONFIRMDELETION2, function()
 					local result = delete_replay(replay.filename)
@@ -2254,8 +2158,8 @@ function Replays:showReplayInfo(viewElement, replay)
 						replayTagsAdd.size.w - 8,
 						2	)
 		end)
-	replayTagsAdd:addMouseHandlers(false, function()
-			Replays:showTags(viewElement, replay)
+	replayTagsAdd:addMouseUpHandler(function()
+			Replays:showTagsModify(replay)
 		end)
 
 	local posY = 0
@@ -2275,7 +2179,7 @@ function Replays:showReplayInfo(viewElement, replay)
 	})
 	replayManageButton:addAdaptedText(false, TB_MENU_LOCALIZED.REPLAYSMANAGE)
 	replayManageButton:addMouseHandlers(nil, function()
-			Replays:showReplayManageWindow(viewElement, replay)
+			Replays:showReplayManageWindow(replay)
 		end)
 	posY = replayManageButton.shift.y
 

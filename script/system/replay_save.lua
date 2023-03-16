@@ -49,34 +49,14 @@ local replayFolderPicker = replaySave:addChild({
 	bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 	rounded = 4
 }, true)
-local dropdownOptions = {}
-local folderPrefix = REPLAY_FOLDER .. '/'
-local defaultFolderId = nil
-local getFolders
-getFolders = function(dir, level)
-	if (utf8.len(dir) > 0) then
-		dir = dir .. "/"
-	end
-	for _, v in pairs(get_files('replay/' .. dir, '')) do
-		if (not utf8.match(v, ".rpl$") and (dir .. v ~= 'system') and not utf8.find(v, "^%.+[%s%S]*$") and not utf8.find(v, "%.%a+$")) then
-			table.insert(dropdownOptions, {
-				text = (level > 0 and ('' .. string.rep(" ", level * 2)) or '') .. v .. '',
-				action = function()
-					REPLAY_FOLDER = dir .. v
-					folderPrefix = REPLAY_FOLDER .. '/'
-				end
-			})
-			if ((dir .. v) == REPLAY_FOLDER) then
-				defaultFolderId = #dropdownOptions
-			end
-			getFolders(dir .. v, level + 1)
-		end
-	end
-end
-pcall(function() getFolders('', 0) end)
 
+local folderPrefix = REPLAY_FOLDER .. '/'
+local dropdownOptions = Replays:getReplayFoldersDropdownOptions(function(path)
+		REPLAY_FOLDER = path
+		folderPrefix = REPLAY_FOLDER .. '/'
+	end, REPLAY_FOLDER)
 if (#dropdownOptions > 0) then
-	TBMenu:spawnDropdown(replayFolderPicker, dropdownOptions, 30, WIN_H / 3, defaultFolderId, { scale = 0.8 }, { scale = 0.6, orientation = LEFTMID })
+	TBMenu:spawnDropdown(replayFolderPicker, dropdownOptions, 30, WIN_H / 3, nil, { scale = 0.8 }, { scale = 0.6, orientation = LEFTMID })
 else
 	replayFolderPicker.size.w = 0
 	replayFolderPicker:moveTo(0)
