@@ -1,8 +1,6 @@
 -- Replays manager
 local REPLAY_VOTE = 101
 local SELECTED_REPLAY = { element = nil, defaultColor = nil, time = 0, replay = nil }
-local TB_MENU_REPLAYS = { name = "replay", fullname = "replay" }
-local TB_MENU_REPLAYS_LOADED = false
 local MAXFOLDERLEVELS = 4
 
 if (Replays == nil) then
@@ -10,42 +8,233 @@ if (Replays == nil) then
 	---
 	---**Version 5.60**
 	---* Fixes to make UI work with modern TBMenu class
+	---* Use *utf8lib* when parsing replay files to ensure we handle multibyte symbols correctly
 	---@class Replays
+	---@field RootFolder ReplayDirectory Root replay directory Information
+	---@field CacheReady boolean
 	Replays = {
+		RootFolder = { name = "replay", fullname = "replay" },
+		CacheReady = false,
 		ver = 5.60
 	}
 	Replays.__index = Replays
+
+	---Replay information class
+	---@class ReplayInfo
+	---@field name string Replay name displayed in-game
+	---@field filename string Replay filename
+	---@field author string Replay author
+	---@field bouts string[] List of players in replay
+	---@field mod string Replay mod name
+	---@field tags string Space separated replay tags
+	---@field hiddentags string Space separated replay hidden tags
+	---@field uploaded boolean Whether replay has been uploaded to servers
+	ReplayInfo = {}
+	ReplayInfo.__index = ReplayInfo
 end
 
----@class ReplayInfo
----@field name string
----@field filename string
----@field bouts string[]
----@field tags string
----@field hiddentags string
+---Returns a new `ReplayInfo` object filled with default information
+---@param path string
+---@return ReplayInfo
+---@overload fun() : ReplayInfo
+---@overload fun(source: ReplayInfo): ReplayInfo
+function ReplayInfo.New(path)
+	---@type ReplayInfo
+	local rplInfo
+	if (getmetatable(path) == ReplayInfo) then
+		---@type ReplayInfo
+		---@diagnostic disable-next-line: assign-type-mismatch, cast-local-type
+		path = path
+		rplInfo = table.clone(path)
+	else
+		rplInfo = {
+			filename = path or "",
+			name = path or "",
+			author = "autosave",
+			bouts = {},
+			mod = "classic",
+			tags = "",
+			hiddentags = "",
+			uploaded = false
+		}
+	end
+	setmetatable(rplInfo, ReplayInfo)
+	return rplInfo
+end
+
+---Copies information from `sourceInfo` to current object
+---@param sourceInfo ReplayInfo
+function ReplayInfo:Copy(sourceInfo)
+	self.name = sourceInfo.name
+	self.filename = sourceInfo.filename
+	self.author = sourceInfo.author
+	self.bouts = table.clone(sourceInfo.bouts)
+	self.mod = sourceInfo.mod
+	self.tags = sourceInfo.tags
+	self.hiddentags = sourceInfo.tags
+	self.uploaded = sourceInfo.uploaded
+end
+
+---Returns a string representation of current object to use for cache file
+---@return string
+function ReplayInfo:ToString()
+	local datas = { self.filename, self.name, self.author, self.mod }
+	table.insert(datas, table.implode(self.bouts, " "))
+	table.insert(datas, self.tags)
+	table.insert(datas, self.hiddentags)
+	table.insert(datas, self.uploaded and 1 or 0)
+	return table.implode(datas, "\t") .. "\t"
+end
+
+---Returns a `ReplayInfo` object generated from a cache string
+---@param str string
+function ReplayInfo.FromString(str)
+	local rplInfo = ReplayInfo.New()
+
+	local _, segments = utf8.gsub(str, "([^\t]*)\t", "")
+	local data_stream = { utf8.match(str, ("([^\t]*)\t"):rep(segments)) }
+
+	rplInfo.filename = data_stream[1]
+	rplInfo.name = data_stream[2]
+	rplInfo.author = data_stream[3]
+	rplInfo.mod = data_stream[4]
+
+	---Legacy format went with 2 hardcoded bouts, new one uses a string with all joined player names
+	---We need to be able to handle both correctly
+	if (segments == 9) then
+		table.insert(rplInfo.bouts, data_stream[5])
+		table.insert(rplInfo.bouts, data_stream[6])
+		rplInfo.tags = utf8.lower(data_stream[7])
+		rplInfo.hiddentags = utf8.lower(data_stream[8])
+		rplInfo.uploaded = data_stream[9] == "1"
+	else
+		rplInfo.bouts = utf8.explode(data_stream[5], " ")
+		rplInfo.tags = utf8.lower(data_stream[6])
+		rplInfo.hiddentags = utf8.lower(data_stream[7])
+		rplInfo.uploaded = data_stream[8] == "1"
+	end
+
+	return rplInfo
+end
+
+function ReplayInfo.FromReplay(path)
+	local replay = Files:open("../" .. path, FILES_MODE_READONLY)
+	local replayLines = replay:readAll()
+	replay:close()
+
+	local rplInfo = ReplayInfo.New(path)
+	local hasDecap = false
+	local hasMadman = false
+
+	pcall(function()
+		for _, ln in pairs(replayLines) do
+			if (utf8.find(ln, "^FIGHTNAME 0;")) then
+				rplInfo.name = utf8.gsub(ln, "FIGHTNAME 0; *", "")
+			elseif (utf8.find(ln, "^BOUT %d;")) then
+				local bout = utf8.gsub(ln, "BOUT %d; *", "")
+				table.insert(rplInfo.bouts, PlayerInfo.Get(bout).username)
+			elseif (utf8.find(ln, "^AUTHOR 0;")) then
+				local author = utf8.gsub(ln, "AUTHOR 0; *", "")
+				if (utf8.len(author) > 0) then
+					rplInfo.author = PlayerInfo.Get(author).username
+				end
+			elseif (utf8.find(ln, "^NEWGAME %d;")) then
+				rplInfo.mod = utf8.gsub(ln, "NEWGAME %d;", "")
+				rplInfo.mod = utf8.match(rplInfo.mod, "/*%S*%.tbm")
+				rplInfo.mod = rplInfo.mod and utf8.gsub(rplInfo.mod, "^.*/", "") or "classic"
+			elseif (utf8.find(ln, "^CRUSH %d; 0") and not hasDecap) then
+				rplInfo.hiddentags = table.implode({ rplInfo.hiddentags, "decap" }, " ")
+				hasDecap = true
+			elseif (utf8.find(ln, "^CRUSH %d; %d %d %d %d %d %d") and not hasMadman) then
+				rplInfo.hiddentags = table.implode({ rplInfo.hiddentags, "madman" }, " ")
+				hasMadman = true
+			elseif (utf8.find(ln, "^FIGHT %d;")) then
+				---Legacy replay version support
+				local info = utf8.gsub(ln, "FIGHT %d; *", "")
+				local _, segments = utf8.gsub(info, "([^ ]+) *", "")
+				local data_stream = { utf8.match(info, ("([^ ]+) *"):rep(segments)) }
+				rplInfo.name = data_stream[1]
+				for i = 2, #data_stream do
+					table.insert(rplInfo.bouts, PlayerInfo.Get(data_stream[i]).username)
+				end
+			end
+		end
+	end)
+
+	---Create replay names for autosave replays
+	if (rplInfo.name == "vs") then
+		rplInfo.name = utf8.gsub(rplInfo.filename, "^.*/(.+)%.rpl$", "%1")
+		pcall(function()
+			---This will affect usernames with underscores. Do we care? Probably not.
+			---Alternative is writing a longer regex expression or using bout names
+			---which may not match in case of decapAI replays.
+			local cleaned = utf8.gsub(rplInfo.name, "[_ ]+", " ")
+			rplInfo.name = utf8.gsub(cleaned, "-(%d+) (%d+)", " (%1 - %2)")
+		end)
+	end
+
+	return rplInfo
+end
+
+---Attempts to update replay file with object data. \
+---*Only replay name changing is currently supported.*
+---@return boolean
+---@return string? #Error message in case of failure
+function ReplayInfo:UpdateFile()
+	local file = Files:open("../" .. self.filename)
+	if (not file.data) then
+		return false, TB_MENU_LOCALIZED.REPLAYSERRORREADINGFILE
+	end
+
+	local fileLines = file:readAll()
+	file:close()
+
+	for i, ln in pairs(fileLines) do
+		if (utf8.find(ln, "^FIGHTNAME %d;")) then
+			local changedLine = utf8.gsub(ln, ";.*$", "; ")
+			fileLines[i] = changedLine .. self.name
+		elseif (ln:find("^FIGHT %d;")) then
+			local changedLine = utf8.gsub(ln, ";.*$", "; ")
+			fileLines[i] = changedLine .. self.name .. " " .. table.implode(self.bouts, " ")
+		end
+	end
+
+	file:reopen(FILES_MODE_WRITE)
+	if (not file.data) then
+		return false, TB_MENU_LOCALIZED.REPLAYSERRORUPDATINGFILE
+	end
+	for _, line in pairs(fileLines) do
+		file:writeLine(line)
+	end
+	file:close()
+
+	return true
+end
 
 ---@class ReplayDirectory
----@field name string
+---@field name string Directory name
+---@field fullname string Directory path, relative to Toribash root
+---@field parent ReplayDirectory|nil Parent replay directory
+---@field replays ReplayInfo[] Replays inside this directory
+---@field folders ReplayDirectory[] Other replay directories inside this directory
 
-function Replays:quit()
+---Exits Replays menu and resets navigation bar with main section elements
+function Replays.Quit()
 	TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
-	if (get_option("newmenu") == 0) then
-		TBMenu.MenuMain:kill()
-		remove_hooks("tbMainMenuVisual")
-		return
-	end
-	TBMenu.CurrentSection:kill(true)
-	TBMenu.NavigationBar:kill(true)
+	TBMenu:clearNavSection()
 	TBMenu:showNavigationBar()
 	TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
 end
 
+---Returns custom navigation bar data used for Replays menu
+---@param isOnline ?boolean
+---@return MenuNavButton[]
 function Replays:getNavigationButtons(isOnline)
-	local buttonText = get_option("newmenu") == 0 and TB_MENU_LOCALIZED.NAVBUTTONEXIT or TB_MENU_LOCALIZED.NAVBUTTONTOMAIN
+	---@type MenuNavButton[]
 	local navigation = {
 		{
-			text = buttonText,
-			action = function() Replays:quit() end
+			text = TB_MENU_LOCALIZED.NAVBUTTONTOMAIN,
+			action = Replays.Quit
 		}
 	}
 	if (isOnline) then
@@ -69,97 +258,21 @@ function Replays:getNavigationButtons(isOnline)
 	return navigation
 end
 
-function Replays:getReplayInfo(path)
-	local replay = Files:open("../" .. path, FILES_MODE_READONLY)
-	local rplInfo = {}
-	local hasDecap = false
-	local hasMadman = false
-	local version = 0
-
-	if (replay.data) then
-		pcall(function()
-			for _, ln in pairs(replay:readAll()) do
-				if (ln:match("FIGHTNAME 0;")) then
-					-- We base version off second replay line instead of actual VERSION
-					version = 10
-				elseif (ln:match("AUTHOR 0;")) then
-					rplInfo.author = ln:gsub("AUTHOR 0;", "")
-					rplInfo.author = PlayerInfo.Get(rplInfo.author:gsub("^ +", ""):gsub("\r", "")).username
-				elseif (ln:match("NEWGAME %d;")) then
-					local mod = ln:gsub("NEWGAME %d;", ""):gsub("\r", "")
-					rplInfo.mod = mod:match("/*%S*%.tbm")
-					rplInfo.mod = rplInfo.mod and rplInfo.mod:gsub("^.*/", "") or "classic"
-				elseif (ln:match("CRUSH %d; 0") and not hasDecap) then
-					rplInfo.hiddentags = rplInfo.hiddentags and rplInfo.hiddentags .. " decap" or "decap"
-					hasDecap = true
-				elseif (ln:match("CRUSH %d; %d %d %d %d %d %d") and not hasMadman) then
-					rplInfo.hiddentags = rplInfo.hiddentags and rplInfo.hiddentags .. " madman" or "madman"
-					hasMadman = true
-				end
-
-				if (version > 9) then
-					if (ln:match("FIGHTNAME 0;")) then
-						rplInfo.name = ln:gsub("FIGHTNAME 0;", "")
-						rplInfo.name = rplInfo.name:gsub("^ ", ""):gsub("\r", "")
-					elseif (ln:match("BOUT 0;")) then
-						rplInfo.bout0 = ln:gsub("BOUT 0;", ""):gsub("\r", "")
-						rplInfo.bout0 = PlayerInfo.Get(rplInfo.bout0:gsub("^ ", "")).username
-					elseif (ln:match("BOUT 1;")) then
-						rplInfo.bout1 = ln:gsub("BOUT 1;", ""):gsub("\r", "")
-						rplInfo.bout1 = PlayerInfo.Get(rplInfo.bout1:gsub("^ ", "")).username
-					end
-				else
-					if (ln:match("FIGHT %d;")) then
-						local info = ln:gsub("FIGHT %d; ", ""):gsub("\r", "")
-						rplInfo.bout1 = PlayerInfo.Get(info:match("[^ ]+$")).username
-						info = info:gsub(" [^ ]+$", "")
-						rplInfo.bout0 = PlayerInfo.Get(info:match("[^ ]+$")).username
-						rplInfo.name = info:gsub(" [^ ]+$", "")
-					end
-				end
-			end
-		end)
-	end
-	replay:close()
-
-	local infodata = { name = path, bout0 = " ", bout1 = " ", author = "autosave", mod = "classic", tags = " ", hiddentags = " ", uploaded = 0 }
-	for i,v in pairs(infodata) do
-		if (not rplInfo[i] or rplInfo[i] == "") then
-			rplInfo[i] = v
-		end
-	end
-
-	-- Create replay names for autosave replays
-	if (rplInfo.name == "vs") then
-		if (path:find(".*_vs_.+%d+_%d+")) then
-			local name = path:gsub("^.*/", "")
-			name = name:gsub(".rpl$", "")
-			local score = string.gsub(name:match("%d+_%d+$"), "_", " - ")
-			name = name:sub(0, -string.len(score))
-			local bout1 = string.gsub(name:match("_vs_.*$"), "_vs_", "")
-			local bout0 = string.gsub(name:match("^.*_vs_"), "_vs_", "")
-			bout0 = bout0:gsub("%d+-%d+-", "")
-
-			rplInfo.name = bout0 .. " vs " .. bout1 .. " (" .. score .. ")"
-		else
-			rplInfo.name = string.gsub(path:gsub("^.*/", ""), ".rpl$", "")
-		end
-	end
-
-	return rplInfo
-end
-
-function Replays:fetchReplayData(folder, level, file, filedata, includeEventTemp)
-	local folder = folder or "replay"
-	local rplTable = level or TB_MENU_REPLAYS
-
+---Runs main replay cache data fetcher loop
+---@param folder string
+---@param rplTable ReplayDirectory
+---@param file File
+---@param cacheData ReplayInfo[]
+---@param includeEventTemp ?boolean
+function Replays:fetchReplayData(folder, rplTable, file, cacheData, includeEventTemp)
 	if (not rplTable.replays) then
 		rplTable.replays = {}
 		rplTable.folders = {}
 	end
 
 	local files = get_files(folder, "")
-	local count, maxDelay = 1, 1 / (tonumber(get_option("framerate")) or 30) / 2
+	local count = 1
+	local maxDelay = 1 / (tonumber(get_option("framerate")) or 30) / 2
 	TBMenu.StatusMessage.replayfolders = TBMenu.StatusMessage.replayfolders or {}
 	if (not TBMenu.StatusMessage.replayUpdater) then
 		TBMenu.StatusMessage.replayUpdater = TBMenu.StatusMessage:addChild({})
@@ -175,58 +288,18 @@ function Replays:fetchReplayData(folder, level, file, filedata, includeEventTemp
 
 			while (1) do
 				local v = files[count]
-				if (not v) then
-					break
-				end
 				pcall(function()
 					if (v:match(REPLAY_TEMPNAME) or v:match(REPLAY_SAVETEMPNAME) or (v:find("^" .. REPLAY_EVENT) and not includeEventTemp)) then
 						---Skip system replay names
 					elseif (v:match(".rpl$")) then
-						local replaydata = { filename = v }
-						local replaypath = string.lower(folder and folder .. "/" .. v or replaydata.filename)
 						local replaypathfull = folder and (folder .. "/" .. v) or v
-						local replaydatapath = replaypath:gsub(" ", "_")
-						if (filedata[replaydatapath]) then
-							replaydata.name = filedata[replaydatapath].name
-							replaydata.author = filedata[replaydatapath].author
-							replaydata.mod = filedata[replaydatapath].mod
-							replaydata.bout0 = filedata[replaydatapath].bout0
-							replaydata.bout1 = filedata[replaydatapath].bout1
-							replaydata.tags = filedata[replaydatapath].tags
-							replaydata.hiddentags = filedata[replaydatapath].hiddentags
-							replaydata.uploaded = filedata[replaydatapath].uploaded
-							table.insert(rplTable.replays, {
-								filename = folder == "replay" and replaydata.filename or folder:gsub("^replay/", "") .. "/" .. replaydata.filename,
-								name = replaydata.name,
-								author = replaydata.author,
-								mod = replaydata.mod,
-								bouts = { replaydata.bout0, replaydata.bout1 },
-								tags = replaydata.tags,
-								hiddentags = replaydata.hiddentags,
-								uploaded = replaydata.uploaded == 1
-							})
+						local cacheName = utf8.gsub(utf8.lower(replaypathfull), " ", "_")
+						if (cacheData[cacheName]) then
+							table.insert(rplTable.replays, cacheData[cacheName])
 						else
-								replaydata = Replays:getReplayInfo(replaypathfull)
-								replaydata.filename = v
-								file:writeLine(	replaypath .. "\t" ..
-												replaydata.name .. "\t" ..
-												replaydata.author .. "\t" ..
-												replaydata.mod .. "\t" ..
-												replaydata.bout0 .. "\t" ..
-												replaydata.bout1 .. "\t" ..
-												replaydata.tags .. "\t" ..
-												replaydata.hiddentags .. "\t" ..
-												replaydata.uploaded .. "\t")
-								table.insert(rplTable.replays, {
-									filename = folder == "replay" and replaydata.filename or folder:gsub("^replay/", "") .. "/" .. replaydata.filename,
-									name = replaydata.name,
-									author = replaydata.author,
-									mod = replaydata.mod,
-									bouts = { replaydata.bout0, replaydata.bout1 },
-									tags = replaydata.tags,
-									hiddentags = replaydata.hiddentags,
-									uploaded = replaydata.uploaded == 1
-								})
+							local rplInfo = ReplayInfo.FromReplay(replaypathfull)
+							file:writeLine(rplInfo:ToString())
+							table.insert(rplTable.replays, rplInfo)
 						end
 					elseif (not v:find("^%.+[%s%S]*$") and v ~= "system" and not v:find("%.%a+$")) then
 						table.insert(rplTable.folders, {
@@ -254,57 +327,29 @@ function Replays:fetchReplayData(folder, level, file, filedata, includeEventTemp
 					local fname = TBMenu.StatusMessage.replayfolders[1].fname
 					local rpltbl = TBMenu.StatusMessage.replayfolders[1].rpltbl
 					table.remove(TBMenu.StatusMessage.replayfolders, 1)
-					Replays:fetchReplayData(fname, rpltbl, file, filedata, includeEventTemp)
+					Replays:fetchReplayData(fname, rpltbl, file, cacheData, includeEventTemp)
 				else
 					TBMenu.StatusMessage.replayUpdater:kill()
 					TBMenu.StatusMessage.endTime = UIElement.clock
 					if (not SELECTED_FOLDER.name) then
-						SELECTED_FOLDER = TB_MENU_REPLAYS
+						SELECTED_FOLDER = Replays.RootFolder
 					end
-					TB_MENU_REPLAYS_LOADED = true
+					Replays.CacheReady = true
 				end
 			end
 		end)
 end
 
-function Replays:updateReplayFile(replay)
-	local file = Files:open("../replay/" .. replay.filename, FILES_MODE_READONLY)
-	if (not file.data) then
-		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORREADINGFILE)
-		return false
-	end
-	local replaydata = {}
-	for _, ln in pairs(file:readAll()) do
-		if (ln:find("^FIGHTNAME %d;")) then
-			table.insert(replaydata, ln:gsub(";.*$", "; ") .. replay.name)
-		elseif (ln:find("^FIGHT %d;")) then
-			table.insert(replaydata, ln:gsub(";.*$", "; ") .. replay.name .. " " .. replay.bouts[1] .. " " .. replay.bouts[2])
-		else
-			table.insert(replaydata, ln)
-		end
-	end
-
-	file:reopen(FILES_MODE_WRITE)
-	if (not file.data) then
-		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORUPDATINGFILE)
-		return false
-	end
-	for _,line in pairs(replaydata) do
-		file:writeLine(line)
-	end
-	file:close()
-
-	return true
-end
-
+---Updates cache datafile with new replay information
+---@param replay ReplayInfo
+---@param newreplay ?ReplayInfo
+---@return boolean
 function Replays:updateReplayCache(replay, newreplay)
-	local matchFound = false
-	if (newreplay) then
-		if (replay.name ~= newreplay.name) then
-			if (not Replays:updateReplayFile(newreplay)) then
-				TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORUPDATINGNAME)
-				return false
-			end
+	if (newreplay and replay.name ~= newreplay.name) then
+		local updated, err = newreplay:UpdateFile()
+		if (not updated) then
+			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORUPDATINGNAME .. ":\n" .. err)
+			return false
 		end
 	end
 
@@ -314,24 +359,15 @@ function Replays:updateReplayCache(replay, newreplay)
 		return false
 	end
 
-	local filedata = {}
-	for _, ln in pairs(file:readAll()) do
-		if (ln:find("^" .. string.escape("replay/" .. replay.filename))) then
-			if (newreplay and not matchFound) then
-				matchFound = true
-				table.insert(filedata,
-					"replay/" .. newreplay.filename .. "\t" ..
-					newreplay.name .. "\t" ..
-					newreplay.author .. "\t" ..
-					newreplay.mod .. "\t" ..
-					newreplay.bouts[1] .. "\t" ..
-					newreplay.bouts[2] .. "\t" ..
-					newreplay.tags .. "\t" ..
-					newreplay.hiddentags .. "\t" ..
-					(newreplay.uploaded and "1\t" or "0\t"))
+	local fileLines = file:readAll()
+	file:close()
+	for i = #fileLines, 1, -1 do
+		local ln = fileLines[i]
+		if (utf8.find(ln, "^" .. string.escape(replay.filename))) then
+			table.remove(fileLines, i)
+			if (newreplay ~= nil) then
+				table.insert(fileLines, i, newreplay:ToString())
 			end
-		else
-			table.insert(filedata, ln)
 		end
 	end
 
@@ -340,7 +376,7 @@ function Replays:updateReplayCache(replay, newreplay)
 		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORUPDATINGTAGS)
 		return false
 	end
-	for _, line in pairs(filedata) do
+	for _, line in pairs(fileLines) do
 		file:writeLine(line)
 	end
 	file:close()
@@ -348,11 +384,11 @@ function Replays:updateReplayCache(replay, newreplay)
 	return true
 end
 
-function Replays:getReplayFiles(parentElement, includeEventTemp)
-	TB_MENU_REPLAYS_LOADED = false
-
-	-- Make sure replays table is flushed first
-	TB_MENU_REPLAYS = { name = "replay", fullname = "replay" }
+---Initiates replay cache and launches data fetcher loop
+---@param includeEventTemp ?boolean
+function Replays:getReplayFiles(includeEventTemp)
+	Replays.RootFolder.replays = nil
+	Replays.RootFolder.folders = nil
 
 	local file = Files:open("../replay/replaycache.dat", FILES_MODE_READWRITE)
 	if (not file.data) then
@@ -363,24 +399,14 @@ function Replays:getReplayFiles(parentElement, includeEventTemp)
 		end
 	end
 
-	local filedata = {}
-	for i, ln in pairs(file:readAll()) do
-		local segments = 8
-		local data_stream = { ln:match(("([^\t]+)\t*"):rep(segments)) }
-		local filename = string.lower(data_stream[1]:gsub(" ", "_"))
-		filedata[filename] = {
-			name = data_stream[2],
-			author = data_stream[3],
-			mod = data_stream[4]:lower(),
-			bout0 = data_stream[5],
-			bout1 = data_stream[6],
-			tags = data_stream[7]:lower(),
-			hiddentags = data_stream[8]:lower(),
-			uploaded = tonumber(data_stream[9])
-		}
+	local cacheData = {}
+	for _, ln in pairs(file:readAll()) do
+		local rplInfo = ReplayInfo.FromString(ln)
+		local cacheName = utf8.gsub(utf8.lower(rplInfo.filename), " ", "_")
+		cacheData[cacheName] = rplInfo
 	end
 	TBMenu:showStatusMessage("")
-	Replays:fetchReplayData(nil, nil, file, filedata, includeEventTemp)
+	Replays:fetchReplayData(Replays.RootFolder.name, Replays.RootFolder, file, cacheData, includeEventTemp)
 end
 
 function Replays:getServerReplaysData(lines)
@@ -787,13 +813,14 @@ function Replays:playReplay(replay)
 	end
 end
 
-function Replays:resetCache()
+function Replays.ResetCache()
 	local file = Files:open("../replay/replaycache.dat", FILES_MODE_WRITE)
 	if (not file.data) then
 		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORREFRESHINGCACHE)
 	end
 	file:close()
-	TB_MENU_REPLAYS = { name = "replay", fullname = "replay" }
+	Replays.RootFolder.replays = nil
+	Replays.RootFolder.folders = nil
 	SELECTED_FOLDER = { fullname = "replay" }
 	Replays:showMain(TBMenu.CurrentSection)
 end
@@ -802,7 +829,7 @@ function Replays:showList(viewElement, replayInfo, level, doSearch)
 	viewElement:kill(true)
 
 	local elementHeight = 40
-	local rplTable = level or TB_MENU_REPLAYS
+	local rplTable = level or Replays.RootFolder
 	SELECTED_FOLDER = rplTable
 
 	local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 50, 50, 20, TB_MENU_DEFAULT_BG_COLOR)
@@ -850,9 +877,7 @@ function Replays:showList(viewElement, replayInfo, level, doSearch)
 			})
 			posX = refreshCacheButton.shift.x
 			refreshCacheButton:addMouseHandlers(nil, function()
-					TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.REPLAYSREFRESHCACHEPROMPT, function()
-							Replays:resetCache()
-						end)
+					TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.REPLAYSREFRESHCACHEPROMPT, Replays.ResetCache)
 				end)
 		end
 
@@ -906,7 +931,7 @@ function Replays:showList(viewElement, replayInfo, level, doSearch)
 	end
 
 	local listElements = {}
-	if (rplTable.fullname ~= TB_MENU_REPLAYS.fullname) then
+	if (rplTable.fullname ~= Replays.RootFolder.fullname) then
 		local folderElementHolder = listingHolder:addChild({
 			pos = { 0, #listElements * elementHeight },
 			size = { listingHolder.size.w, elementHeight }
@@ -1354,14 +1379,14 @@ function Replays:showTagsModify(replay)
 	}, true)
 	buttonSave:addAdaptedText(TB_MENU_LOCALIZED.BUTTONSAVE)
 	buttonSave:addMouseHandlers(nil, function()
-			local newreplay = table.clone(replay)
-			newreplay.tags = table.implode(updatedTags, " ")
-			if (newreplay.tags == replay.tags) then
+			local newReplay = ReplayInfo.New(replay)
+			newReplay.tags = table.implode(updatedTags, " ")
+			if (newReplay.tags == replay.tags) then
 				return
 			end
 
-			if (Replays:updateReplayCache(replay, newreplay)) then
-				replay.tags = newreplay.tags
+			if (Replays:updateReplayCache(replay, newReplay)) then
+				replay.tags = newReplay.tags
 			end
 			tagsOverlay:kill()
 			Replays:showMain(TBMenu.CurrentSection)
@@ -1839,25 +1864,21 @@ function Replays:showReplayManageWindow(viewElement, replay)
 	closeButton:addMouseUpHandler(function() manageOverlay:kill() end)
 	closeButton:addChild({ shift = { closeButtonSize / 5, closeButtonSize / 5 }, bgImage = "../textures/menu/general/buttons/crosswhite.tga" })
 
-
-	local _, dirlevel = replay.filename:gsub("/", "")
+	local filenameClean = utf8.gsub(replay.filename, "^.*/", ""):gsub("%.rpl$", "")
 	local replayData = {
 		{
 			name = TB_MENU_LOCALIZED.FILENAME,
-			sysname = "filename",
-			value = { replay.filename:gsub("^.*/", ""):gsub("%.rpl$", "") },
+			value = { filenameClean },
 			input = true
 		},
 		{
 			name = TB_MENU_LOCALIZED.REPLAYSREPLAYNAME,
-			sysname = "rpltitle",
 			value = { replay.name },
 			input = true
 		},
 		{
 			name = TB_MENU_LOCALIZED.REPLAYSREPLAYDIR,
-			sysname = "dir",
-			value = dirlevel == 0 and "replay" or "replay/" .. replay.filename:gsub("/[^/]+$", ""),
+			value = replay.filename:gsub("/[^/]+$", ""),
 			dropdown = true
 		}
 	}
@@ -1889,7 +1910,6 @@ function Replays:showReplayManageWindow(viewElement, replay)
 					textScale = 0.8
 				})
 		elseif (v.dropdown) then
-			echo("Spawning with value " .. v.value)
 			local dropdownOptions = Replays:getReplayFoldersDropdownOptions(function(path)
 					v.value = path
 				end, v.value, true)
@@ -1915,52 +1935,32 @@ function Replays:showReplayManageWindow(viewElement, replay)
 	saveButton:addAdaptedText(TB_MENU_LOCALIZED.BUTTONSAVE)
 
 	saveButton:addMouseHandlers(nil, function()
-			local errors = 0
-			local fileMove = false
-			local newDirectory = nil
-			local newReplay = table.clone(replay)
+			local newReplay = ReplayInfo.New(replay)
+			newReplay.name = replayData[2].value[1]
 
-			for _, v in pairs(table.reverse(replayData)) do
-				if (v.sysname == "dir") then
-					local directory = v.dirlevel == 0 and "replay" or "replay/" .. replay.filename:gsub("/.+$", "")
-					if (directory ~= v.value) then
-						fileMove = true
-						newDirectory = v.value == "replay" and "" or v.value .. "/"
-					end
-				elseif (v.sysname == "rpltitle") then
-					if (v.value[1] ~= replay.name) then
-						newReplay.name = v.value[1]
-					end
-				elseif (v.sysname == "filename") then
-					if (v.value[1] ~= replay.filename:gsub("^.*/", ""):gsub("%.rpl$", "") or fileMove) then
-						local fileDirectory = replay.filename:find("/") and replay.filename:gsub("/.+$", "/") or ""
-						local newname = (newDirectory or fileDirectory) .. v.value[1] .. ".rpl"
-						local result = rename_replay(replay.filename, newname)
-						if (not fileMove) then
-							if (result) then
-								errors = errors + 1
-								TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORRENAMINGREPLAY .. ": " .. result)
-							else
-								newReplay.filename = newname
-							end
-						else
-							if (result) then
-								errors = errors + 1
-								TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORMOVINGREPLAY .. ": " .. result)
-							else
-								newReplay.filename = newname
-								SELECTED_FOLDER = { fullname = "replay/" .. newDirectory:gsub("/$", "") }
-							end
-						end
-					end
+			local directory = utf8.gsub(replay.filename, "/[^/]+$", "")
+			local fileMove = replayData[3].value ~= directory
+
+			print(replayData[3].value)
+			print(directory)
+			if (replayData[1].value[1] ~= filenameClean or fileMove) then
+				local newname = utf8.gsub(replayData[3].value, "^replay(/?)(.*)", "%2%1") .. replayData[1].value[1] .. ".rpl"
+				local curname = replay.filename:gsub("^replay/", "")
+				local error = rename_replay(curname, newname)
+				if (error ~= nil) then
+					TBMenu:showStatusMessage((fileMove and TB_MENU_LOCALIZED.REPLAYSERRORMOVINGREPLAY or TB_MENU_LOCALIZED.REPLAYSERRORRENAMINGREPLAY) .. ": " .. result)
+					return
+				end
+				newReplay.filename = "replay/" .. newname
+				if (fileMove) then
+					SELECTED_FOLDER = { fullname = directory }
 				end
 			end
-			if (errors == 0) then
-				Replays:updateReplayCache(replay, newReplay)
-				manageOverlay:kill()
-				SELECTED_REPLAY.replay = newReplay
-				Replays:showMain(TBMenu.CurrentSection)
-			end
+
+			Replays:updateReplayCache(replay, newReplay)
+			replay:Copy(newReplay)
+			manageOverlay:kill()
+			Replays:showMain(TBMenu.CurrentSection)
 		end)
 
 	local deleteButton = manageView:addChild({
@@ -1973,8 +1973,8 @@ function Replays:showReplayManageWindow(viewElement, replay)
 	}, true)
 	deleteButton:addAdaptedText(TB_MENU_LOCALIZED.WORDDELETE)
 	deleteButton:addMouseHandlers(nil, function()
-			TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.REPLAYSCONFIRMDELETION .. " " .. replay.filename .. " " .. TB_MENU_LOCALIZED.REPLAYSCONFIRMDELETION2, function()
-					local result = delete_replay(replay.filename)
+			TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.REPLAYSCONFIRMDELETION .. " " .. replay.filename:gsub("^.*/", "") .. " " .. TB_MENU_LOCALIZED.REPLAYSCONFIRMDELETION2, function()
+					local result = delete_replay(replay.filename:gsub("^replay/", ""))
 					if (result) then
 						TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORDELETING .. " " .. TB_MENU_LOCALIZED.REPLAYSREPLAY)
 						return
@@ -2416,7 +2416,7 @@ function Replays:showServerReplayPreview()
 			if (replayFile) then
 				if (not replayFile:isDownloading()) then
 					replayFile:close()
-					local replaydata = Replays:getReplayInfo(replayFile.path)
+					local replaydata = ReplayInfo.FromReplay(replayFile.path)
 					if (replaydata.mod ~= "classic") then
 						local files = get_files("data/mod", "")
 						local folders = {}
@@ -3208,16 +3208,18 @@ function Replays:showMain(viewElement)
 	usage_event("replays")
 	TBMenu:showNavigationBar(Replays:getNavigationButtons(), true)
 	viewElement:kill(true)
-	local status, error = pcall(function() Replays:getReplayFiles() end)
-	if (not status) then
-		local background = UIElement:new({
-			parent = viewElement,
-			pos = { 5, 0 },
-			size = { viewElement.size.w - 10, viewElement.size.h },
-			bgColor = TB_MENU_DEFAULT_BG_COLOR
-		})
-		TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.REPLAYSERRORLOADINGCACHE .. " " .. error, function() Replays:resetCache() end, function() Replays:quit() end)
-		return
+
+	Replays.CacheReady = false
+	if (not Replays.CacheReady) then
+		local status, error = pcall(function() Replays:getReplayFiles() end)
+		if (not status) then
+			viewElement:addChild({
+				shift = { 5, 0 },
+				bgColor = TB_MENU_DEFAULT_BG_COLOR
+			})
+			TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.REPLAYSERRORLOADINGCACHE .. " " .. error, Replays.ResetCache, Replays.Quit)
+			return
+		end
 	end
 	TB_MENU_REPLAYS_ONLINE = 0
 
@@ -3239,7 +3241,7 @@ function Replays:showMain(viewElement)
 	TBMenu:addBottomBloodSmudge(replaysList, 1)
 	TBMenu:addBottomBloodSmudge(replayInfo, 2)
 	replaysList:addCustomDisplay(false, function()
-			if (TB_MENU_REPLAYS_LOADED) then
+			if (Replays.CacheReady) then
 				replaysList:kill(true)
 				replaysList:addCustomDisplay(false, function() end)
 				TBMenu:addBottomBloodSmudge(replaysList, 1)
@@ -3273,7 +3275,7 @@ function Replays:showCustomReplaySelection(mainElement, mod, action)
 				checkFolder(v)
 			end
 		end
-		checkFolder(TB_MENU_REPLAYS)
+		checkFolder(Replays.RootFolder)
 
 		local elementHeight = 45
 		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(holder, elementHeight + 15, elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
@@ -3344,7 +3346,7 @@ function Replays:showCustomReplaySelection(mainElement, mod, action)
 		scrollBar:makeScrollBar(listingHolder, listElements, toReload)
 	end
 
-	local status, error = pcall(function() Replays:getReplayFiles(mainElement, true) end)
+	local status, error = pcall(function() Replays:getReplayFiles(true) end)
 	if (not status) then
 		TBMenu:showStatusMessage("Error loading replay cache: " .. error)
 		return
@@ -3376,7 +3378,7 @@ function Replays:showCustomReplaySelection(mainElement, mod, action)
 		size = { 0, 0 }
 	})
 	waiter:addCustomDisplay(false, function()
-			if (TB_MENU_REPLAYS_LOADED) then
+			if (Replays.CacheReady) then
 				customReplayOverlay:kill(true)
 				showCustomReplayChoice(customReplayOverlay)
 			end

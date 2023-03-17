@@ -2317,12 +2317,9 @@ end
 ---Runs a quicksort by specified key(s) on a table with multikey data
 ---@generic T
 ---@param list T Table with the data that we want to sort
----@param sort string[] Key or keys which values will be used for sorting
----@param _order? SortOrder Sorting order, defaults to `SORT_ASCENDING`
+---@param sort string|string[] Key or keys which values will be used for sorting
+---@param _order? SortOrder|boolean[] Sorting order, defaults to `SORT_ASCENDING`
 ---@param includeZeros? boolean
----@overload fun(list: table, sort: string[], order?: boolean[], includeZeros?: boolean)
----@overload fun(list: table, sort: string, order?: boolean[], includeZeros?: boolean)
----@overload fun(list: table, sort: string, order?: SortOrder, includeZeros?: boolean)
 ---@return T
 _G.table.qsort = function(list, sort, _order, includeZeros)
 	local arr = {}

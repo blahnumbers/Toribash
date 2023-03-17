@@ -1515,15 +1515,17 @@ function set_obj_mass(obj_id, mass) end
 ---@return number
 function get_replay_cache() end
 
----Renames a replay file
+---Renames or moves a replay file from `filename` to `new_filename`. \
+---*Replay names are relative to `replay/` folder inside Toribash root directory.*
 ---@param filename string
 ---@param new_filename string
----@return any result
+---@return string? #Error message
 function rename_replay(filename, new_filename) end
 
----Deletes a replay file
+---Deletes a replay file with name `filename`. \
+---*Replay name is relative to `replay/` folder inside Toribash root directory.*
 ---@param filename string
----@return any result
+---@return string? #Error message
 function delete_replay(filename) end
 
 ---Plays the next replay in current folder

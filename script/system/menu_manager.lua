@@ -2240,13 +2240,13 @@ end
 ---@field right boolean If true, button will be displayed on the right side of the navigation bar
 ---@field sectionId integer Menu section id that will be assigned to TB_LAST_MENU_SCREEN_OPEN on button click
 
----Displays mobile navigation bar using the provided data
+---Displays mobile navigation bar using the provided data.
 ---@see TBMenu.showNavigationBar
----@param buttonsData? MenuNavButton[] Buttons data. If not specified, default main menu navigation buttons data will be used instead.
+---@param buttonsData MenuNavButton[] Buttons data. If not specified, default main menu navigation buttons data will be used instead.
 ---@param customNav? boolean Whether the provided data is not supposed to use TB_LAST_MENU_SCREEN_OPEN to mark the currently active button. *You likely want this set to true*.
 ---@param customNavHighlight? boolean Whether to remember the last selected button and keep it marked as active
 ---@param selectedId? integer Button ID that would be selected by default \
----@return nil
+---@overload fun(self: TBMenu)
 function TBMenu:showMobileNavigationBar(buttonsData, customNav, customNavHighlight, selectedId)
 	local tbMenuNavigationButtonsData = buttonsData or TBMenu:getMainNavigationButtons()
 	local tbMenuNavigationButtons = {}
@@ -2375,11 +2375,11 @@ function TBMenu:showMobileNavigationBar(buttonsData, customNav, customNavHighlig
 end
 
 ---Displays navigation bar using the provided data
----@param buttonsData? MenuNavButton[] Buttons data. If not specified, default main menu navigation buttons data will be used instead.
+---@param buttonsData MenuNavButton[] Buttons data. If not specified, default main menu navigation buttons data will be used instead.
 ---@param customNav? boolean Whether the provided data is not supposed to use TB_LAST_MENU_SCREEN_OPEN to mark the currently active button. *You likely want this set to true*.
 ---@param customNavHighlight? boolean Whether to remember the last selected button and keep it marked as active
 ---@param selectedId? integer Button ID that would be selected by default
----@return nil
+---@overload fun(self: TBMenu)
 function TBMenu:showNavigationBar(buttonsData, customNav, customNavHighlight, selectedId)
 	if (SCREEN_RATIO > 2) then
 		TBMenu:showMobileNavigationBar(buttonsData, customNav, customNavHighlight, selectedId)
