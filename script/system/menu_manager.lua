@@ -143,13 +143,15 @@ function TBMenu.CreateCurrentSectionView()
 		local sizeOffset = math.min(WIN_W / 8, 300)
 		TBMenu.CurrentSection = TBMenu.MenuMain:addChild({
 			pos = { offsetX + sizeOffset, 130 * TB_MENU_GLOBAL_SCALE },
-			size = { WIN_W - offsetX - 75 * TB_MENU_GLOBAL_SCALE - sizeOffset, WIN_H - 235 * TB_MENU_GLOBAL_SCALE }
+			size = { WIN_W - offsetX - 75 * TB_MENU_GLOBAL_SCALE - sizeOffset, WIN_H - 235 * TB_MENU_GLOBAL_SCALE },
+			interactive = is_mobile()
 		})
 	else
 		local sizeOffset = math.max(safeX, 75) * TB_MENU_GLOBAL_SCALE
 		TBMenu.CurrentSection = TBMenu.MenuMain:addChild({
 			pos = { sizeOffset, 140 * TB_MENU_GLOBAL_SCALE + math.min(WIN_H / 16, 60) },
-			size = { WIN_W - sizeOffset * 2, WIN_H - 235 * TB_MENU_GLOBAL_SCALE - math.min(WIN_H / 16, 60) }
+			size = { WIN_W - sizeOffset * 2, WIN_H - 235 * TB_MENU_GLOBAL_SCALE - math.min(WIN_H / 16, 60) },
+			interactive = is_mobile()
 		})
 	end
 end
@@ -1889,13 +1891,15 @@ function TBMenu:showGameLogo()
 		pos = { logoSize / 9 * 5, 10 },
 		size = { logoSize, logoSize },
 		bgImage = logo,
-		disableUnload = true
+		disableUnload = true,
+		interactive = is_mobile()
 	})
 	local tbMenuGameTitle = TBMenu.MenuMain:addChild({
 		pos = { logoSize / 9 * 14 + 5, 15 },
 		size = { gameTitleSize, gameTitleSize },
 		bgImage = gametitle,
-		disableUnload = true
+		disableUnload = true,
+		interactive = is_mobile()
 	})
 end
 
@@ -1918,7 +1922,8 @@ function TBMenu:showUserBar()
 		size = { math.ceil(tbMenuTopBarWidth * 1.25), math.ceil(tbMenuTopBarWidth / 4) },
 		bgImage = TB_MENU_USERBAR_MAIN,
 		disableUnload = true,
-		imageColor = TB_MENU_DEFAULT_BG_COLOR
+		imageColor = TB_MENU_DEFAULT_BG_COLOR,
+		interactive = is_mobile()
 	})
 	local tbMenuUserHeadAvatarViewport = TBMenu.UserBar:addChild({
 		pos = { -TBMenu.UserBar.size.w - tbMenuTopBarWidth / 16 * 5, -TBMenu.UserBar.size.h * 2.35 },
@@ -2265,7 +2270,8 @@ function TBMenu:showMobileNavigationBar(buttonsData, customNav, customNavHighlig
 		size = { navWidth, WIN_H - 220 * TB_MENU_GLOBAL_SCALE },
 		bgColor = { 0, 0, 0, 0.9 },
 		shapeType = ROUNDED,
-		rounded = 10
+		rounded = 10,
+		interactive = is_mobile()
 	})
 
 	---Unlike with horizontal menu, button height and width is always the same
@@ -2402,7 +2408,8 @@ function TBMenu:showNavigationBar(buttonsData, customNav, customNavHighlight, se
 		size = { WIN_W - 100 * TB_MENU_GLOBAL_SCALE, navHeight },
 		bgColor = { 0, 0, 0, 0.9 },
 		shapeType = ROUNDED,
-		rounded = 10
+		rounded = 10,
+		interactive = is_mobile()
 	})
 
 	-- Check if total button width doesn't exceed navbar width
@@ -2759,8 +2766,10 @@ function TBMenu:showMain(noload)
 		pos = { 0, 0 },
 		size = { WIN_W, WIN_H },
 		uiColor = TB_MENU_UI_TEXT_COLOR,
-		uiShadowColor = TB_MENU_UI_TEXT_SHADOW_COLOR
+		uiShadowColor = TB_MENU_UI_TEXT_SHADOW_COLOR,
+		interactive = is_mobile()
 	})
+	TBMenu.MenuMain:addMouseUpHandler(close_menu)
 	TBMenu.CreateCurrentSectionView()
 	local tbMenuBackground = TBMenu.MenuMain:addChild({
 		pos = { 0, - WIN_H * 2 },
