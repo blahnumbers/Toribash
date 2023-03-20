@@ -65,6 +65,11 @@ function Tooltip.Destroy()
 	Tooltip.HolderElement:kill(true)
 end
 
+function Tooltip.DestroyAndDeselect()
+	Tooltip.Destroy()
+	Tooltip.TouchDeselect()
+end
+
 ---Unsets touch target player and joint
 function Tooltip.TouchDeselect()
 	Tooltip.TouchInputTargetPlayer = -1
@@ -73,7 +78,7 @@ end
 
 ---Initializes Tooltip hooks and enables the module
 function Tooltip.Init()
-	Tooltip.TouchDeselect()
+	Tooltip.DestroyAndDeselect()
 
 	add_hook("joint_select", Tooltip.HookName, function(player, joint)
 			if (players_accept_input() == false) then return end
@@ -95,11 +100,15 @@ function Tooltip.Init()
 			end)
 		add_hook("mouse_button_up", Tooltip.HookName, function()
 				if (players_accept_input() == false) then return end
-				Tooltip.Destroy()
 				Tooltip:setTouchJointState()
 			end)
-		add_hook("exit_freeze", Tooltip.HookName, Tooltip.Destroy)
 	end
+
+	add_hook("enter_frame", Tooltip.HookName, Tooltip.Destroy)
+	add_hook("exit_freeze", Tooltip.HookName, Tooltip.Destroy)
+	add_hook("leave_game", Tooltip.HookName, Tooltip.DestroyAndDeselect)
+	add_hook("new_game", Tooltip.HookName, Tooltip.DestroyAndDeselect)
+
 	Tooltip.IsActive = true
 end
 
@@ -499,34 +508,14 @@ end
 ---Sets the joint state based on touch input wheel
 function Tooltip:setTouchJointState()
 	if (Tooltip.TouchInputTargetPlayer > -1 and Tooltip.TouchInputTargetJoint > -1) then
-		if (Tooltip.TouchInputPosition and Tooltip.WaitForTouchInput) then
-			--[[local mouseDeltaNormalized = Tooltip:getTouchMouseDelta()
-			if (mouseDeltaNormalized.x ~= 0 or mouseDeltaNormalized.y ~= 0) then
-				if (math.abs(mouseDeltaNormalized.x) > math.abs(mouseDeltaNormalized.y)) then
-					if (mouseDeltaNormalized.x > 0) then
-						-- Right
-						set_joint_state(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint, 1, true)
-					else
-						-- Left
-						set_joint_state(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint, 2, true)
-					end
-				else
-					if (mouseDeltaNormalized.y > 0) then
-						-- Top
-						set_joint_state(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint, 4, true)
-					else
-						-- Bottom
-						set_joint_state(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint, 3, true)
-					end
-				end
-			end]]
-		else
+		if (not Tooltip.TouchInputPosition or not Tooltip.WaitForTouchInput) then
 			Tooltip:toggleJointState(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint)
 		end
 	end
 
 	Tooltip.TouchInputPosition = nil
 	Tooltip.WaitForTouchInput = false
+	Tooltip.Destroy()
 end
 
 ---Toggles joint state according to current game settings \

@@ -99,7 +99,6 @@ function MoveMemory:getOpeners()
 
 	for _, line in pairs(fileData) do
 		pcall(function()
-			local line = line:gsub("[\n]?$", "")
 			if (line:find("^NAME")) then
 				MoveMemory.Storage[#MoveMemory.Storage + 1] = {
 					id = #MoveMemory.Storage + 1,
@@ -886,7 +885,7 @@ end
 
 ---Spawns a hook to open movememory on `M` key press \
 ---Make sure we also check CTRL and ALT aren't pressed as those are tied to mod list / modmaker
-function MoveMemory:init()
+function MoveMemory.Init()
 	add_hook("key_down", "tbMoveMemoryHotkeyListener", function(key)
 		if (key == 109 and get_keyboard_ctrl() == 0 and get_keyboard_alt() == 0) then
 			if (MoveMemory.MainElement) then
@@ -897,4 +896,4 @@ function MoveMemory:init()
 		end
 	end)
 end
-MoveMemory:init()
+MoveMemory.Init()

@@ -127,7 +127,7 @@ local function saveReplay(newname)
 		local fileData = rplFile:readAll()
 		rplFile:reopen(FILES_MODE_WRITE)
 		for _, ln in pairs(fileData) do
-			if (ln:find("^FIGHTNAME %d;")) then
+			if (utf8.find(ln, "^FIGHTNAME %d;")) then
 				rplFile:writeLine("FIGHTNAME 0; " .. newname)
 			else
 				rplFile:writeLine(ln)
