@@ -497,7 +497,7 @@ do
 
 	function Market:spawnPriceSetModal(selectedItems, item, offer, noBack)
 		if (#selectedItems == 0) then
-			TBMenu:showDataError(TB_MENU_LOCALIZED.MARKETINVENTORYEMPTY)
+			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.MARKETINVENTORYEMPTY)
 			return
 		end
 
@@ -523,7 +523,7 @@ do
 		end
 
 		local uniqueItems = {}
-		for i,v in pairs(selectedItems) do
+		for _, v in pairs(selectedItems) do
 			if (not in_array(v.itemid, uniqueItems)) then
 				uniqueItems[v.itemid] = v.itemid
 			end
@@ -545,7 +545,7 @@ do
 			premiumNoticeHolder:addChild({ shift = { 20, 4 } }):addAdaptedText(true, TB_MENU_LOCALIZED.MARKETSELLPREMIUMPROMO .. " (" .. MARKET_TAX * 100 .. "%)", nil, nil, 4, nil, 0.7)
 			table.insert(listElements, premiumNoticeHolder)
 		end
-		for i,v in pairs(selectedItems) do
+		for _, v in pairs(selectedItems) do
 			local elementHolder = listingHolder:addChild({
 				pos = { 0, #listElements * elementHeight },
 				size = { listingHolder.size.w, elementHeight }
@@ -755,6 +755,8 @@ do
 			botBar:moveTo(nil, -botBar.size.h)
 			modalView:moveTo(nil, (WIN_H - modalView.size.h) / 2)
 			listingHolder:moveTo((listingHolder.parent.size.w - listingHolder.size.w) / 4, nil, true)
+
+			modalView:updatePos()
 		end
 
 		local buttons = offer and 3 or 2
