@@ -1292,6 +1292,10 @@ function UIElement:display()
 		end
 	end
 
+	if (self.interactive and (self.hoverState == BTN_HVR or self.hoverState == BTN_DN) and (self.hoverColor or self.imageHoverColor)) then
+		set_mouse_cursor(1)
+	end
+
 	if (not self.customDisplayOnly and (self.bgColor[4] > 0 or self.bgImage or self.interactive)) then
 		if (self.innerShadow[1] > 0 or self.innerShadow[2] > 0) then
 			set_color(unpack(self.shadowColor[1]))
@@ -1321,9 +1325,6 @@ function UIElement:display()
 			set_color(unpack(self.pressedColor))
 		else
 			set_color(unpack(self.bgColor))
-		end
-		if (self.interactive and (self.hoverState == BTN_HVR or self.hoverState == BTN_DN) and (self.hoverColor or self.imageHoverColor)) then
-			set_mouse_cursor(1)
 		end
 		if (self.shapeType == ROUNDED) then
 			draw_disk(self.pos.x + self.roundedInternal[1], self.pos.y + self.roundedInternal[1] + self.innerShadow[1], 0, self.roundedInternal[1], self.diskSlices, 1, -180, 90, 0)

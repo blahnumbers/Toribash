@@ -2193,58 +2193,44 @@ do
 			pagesCount:addAdaptedText(true, TB_MENU_LOCALIZED.PAGINATIONPAGE:upper() .. " " .. TB_INVENTORY_PAGE[pageid] .. " " .. TB_MENU_LOCALIZED.PAGINATIONPAGEOF:upper() .. " " .. maxPages, -pagesButtonsCount * buttonWidth - 5, nil, 4, RIGHTMID, 0.6)
 		end
 
-		local showEmptySets = UIElement:new({
-			parent = botBar,
+		local emptySetsToggleHolder = botBar:addChild({
 			pos = { 10, 10 },
-			size = { botBar.size.w / 2 - 20, botBar.size.h - 10 }
+			size = { botBar.size.w / 2 - 20, botBar.size.h - 10 },
+			shapeType = ROUNDED,
+			rounded = 4
 		})
-		local showEmptySetsIconOutline = UIElement:new({
-			parent = showEmptySets,
-			pos = { 0, 5 },
-			size = { 25, 25 },
-			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR
-		})
-		local showEmptySetsIconBG = UIElement:new({
-			parent = showEmptySetsIconOutline,
-			pos = { 1, 1 },
-			size = { showEmptySetsIconOutline.size.w - 2, showEmptySetsIconOutline.size.h - 2 },
-			interactive = true,
-			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
-			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
-		})
-		if (SHOW_EMPTY_SETS == 1) then
-			local showEmptySetsIcon = UIElement:new({
-				parent = showEmptySetsIconBG,
-				pos = { 0, 0 },
-				size = { showEmptySetsIconBG.size.w, showEmptySetsIconBG.size.h },
-				bgImage = "../textures/menu/general/buttons/checkmark.tga"
-			})
-		end
-		local showEmptySetsText = UIElement:new({
-			parent = showEmptySets,
-			pos = { 35, 5 },
-			size = { showEmptySets.size.w - 35, 25 },
-			interactive = true
-		})
-		showEmptySetsText:addAdaptedText(nil, TB_MENU_LOCALIZED.STORESHOWEMPTYSETS, nil, nil, nil, LEFTMID)
-		showEmptySetsIconBG:addMouseHandlers(nil, function()
+		local emptySetsToggle = TBMenu:spawnToggle(emptySetsToggleHolder, 0, 0, 25, 25, SHOW_EMPTY_SETS, function()
 				Torishop:showInventory(TBMenu.CurrentSection, nil, math.abs(SHOW_EMPTY_SETS - 1))
 			end)
+		emptySetsToggle.clickThrough = true
+		local showEmptySetsText = emptySetsToggleHolder:addChild({
+			parent = emptySetsToggleHolder,
+			pos = { 35, 0 },
+			size = { emptySetsToggleHolder.size.w - 35, 25 },
+			interactive = true,
+			bgColor = UICOLORWHITE,
+			hoverColor = TB_MENU_DEFAULT_YELLOW,
+			pressedColor = TB_MENU_DEFAULT_ORANGE
+		})
+		showEmptySetsText:addAdaptedText(true, TB_MENU_LOCALIZED.STORESHOWEMPTYSETS, nil, nil, nil, LEFTMID)
+		showEmptySetsText:addCustomDisplay(true, function()
+				showEmptySetsText:uiText(TB_MENU_LOCALIZED.STORESHOWEMPTYSETS, nil, nil, nil, LEFTMID, nil, nil, nil, showEmptySetsText:getButtonColor())
+			end)
+		showEmptySetsText.size.w = get_string_length(showEmptySetsText.dispstr[1], showEmptySetsText.textFont) * showEmptySetsText.textScale + 10
 		showEmptySetsText:addMouseHandlers(nil, function()
 				Torishop:showInventory(TBMenu.CurrentSection, nil, math.abs(SHOW_EMPTY_SETS - 1))
 			end)
 
 		local refreshInventory = UIElement:new({
 			parent = botBar,
-			pos = { -botBar.size.w / 3, 10 },
-			size = { botBar.size.w / 3 - 20, 35 },
+			pos = { -botBar.size.w / 3, 5 },
+			size = { botBar.size.w / 3 - 20, 40 },
 			interactive = true,
 			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
 			shapeType = ROUNDED,
-			rounded = 3
+			rounded = 4
 		})
 		refreshInventory:addAdaptedText(nil, TB_MENU_LOCALIZED.STOREINVENTORYRELOAD, nil, nil, nil, nil, 0.9)
 		refreshInventory:addMouseHandlers(nil, function()
@@ -2265,6 +2251,8 @@ do
 				pos = { 0, 3 },
 				size = { inventoryItem.size.w, inventoryItem.size.h - 6 },
 				interactive = true,
+				clickThrough = true,
+				hoverThrough = true,
 				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
