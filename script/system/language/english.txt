@@ -395,7 +395,7 @@ REPLAYSUPLOADEDON	Uploaded on
 REPLAYSSAVEREPLAY	Save replay
 REPLAYSVIEWCOMMENTS	View comments
 REPLAYSMOREBY	More by
-REPLAYSREFRESHCACHEPROMPT	This will reset your replays cache.\nAre you sure you want to continue?
+REPLAYSREFRESHCACHEPROMPT	This will reset your replays information cache and regenerate it from scratch.\nThis process may take a while if you have a lot of replays.\n\nAre you sure you want to continue?
 REPLAYSERRORREFRESHINGCACHE	Error refreshing cache, make sure you have write permissions inside Toribash folder
 MODSDOWNLOADINGMOD	Downloading mod...
 NOFILESFOUND	No files found
@@ -1162,3 +1162,4 @@ MOBILEHUDTOMAINMENU	To main menu
 MOBILEHUDHUBSPECTATE	Join spectators
 MOBILEHUDHUBJOINQUEUE	Enter fighting queue
 TUTORIALSNOLOCALIZATIONFOUND	No localization data found!
+REPLAYSDATACACHEREADY	Replays data cache is ready!

@@ -1087,21 +1087,21 @@ function TBMenu:showConfirmationWindow(message, confirmAction, cancelAction, thi
 	})
 	local confirmBoxMessage = confirmBoxView:addChild({
 		pos = { 10, 10 },
-		size = { confirmBoxView.size.w - 20, (confirmBoxView.size.h - 20) / 3 * 2 }
+		size = { confirmBoxView.size.w - 20, confirmBoxView.size.h - 80 }
 	})
 	local actions = thirdAction and 3 or 2
 	confirmBoxMessage:addAdaptedText(true, message)
-	while (confirmBoxMessage.textScale < 0.8 and confirmBoxView.size.h < confirmOverlay.size.h * 0.75) do
+	while (confirmBoxMessage.textScale < 1 and confirmBoxView.size.h < confirmOverlay.size.h * 0.75) do
 		confirmBoxView.size.h = confirmBoxView.size.h + 50
-		confirmBoxMessage.size.h = (confirmBoxView.size.h - 20) / 3 * 2
+		confirmBoxMessage.size.h = confirmBoxView.size.h - 80
 		confirmBoxView:moveTo(nil, -25, true)
 		confirmBoxMessage.str = nil
 		confirmBoxMessage:addAdaptedText(true, message)
 	end
-	local cancelButton = UIElement:new({
-		parent = confirmBoxView,
-		pos = { 10, -(confirmBoxView.size.h - 20) / 3 + 5 },
-		size = { confirmBoxView.size.w / actions - 15, (confirmBoxView.size.h - 20) / 4 },
+	confirmBoxView:updatePos()
+	local cancelButton = confirmBoxView:addChild({
+		pos = { 10, -60 },
+		size = { confirmBoxView.size.w / actions - 15, 50 },
 		interactive = true,
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
@@ -1116,10 +1116,9 @@ function TBMenu:showConfirmationWindow(message, confirmAction, cancelAction, thi
 				cancelAction()
 			end
 		end)
-	local acceptButton = UIElement:new({
-		parent = confirmBoxView,
-		pos = { -confirmBoxView.size.w / actions + 5, -(confirmBoxView.size.h - 20) / 3 + 5 },
-		size = { confirmBoxView.size.w / actions - 15, (confirmBoxView.size.h - 20) / 4 },
+	local acceptButton = confirmBoxView:addChild({
+		pos = { -confirmBoxView.size.w / actions + 5, -60 },
+		size = { confirmBoxView.size.w / actions - 15, 50 },
 		interactive = true,
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
@@ -1133,10 +1132,9 @@ function TBMenu:showConfirmationWindow(message, confirmAction, cancelAction, thi
 			confirmAction()
 		end)
 	if (thirdAction) then
-		local thirdButton = UIElement:new({
-			parent = confirmBoxView,
-			pos = { confirmBoxView.size.w / actions + 5, -(confirmBoxView.size.h - 20) / 3 + 5 },
-			size = { confirmBoxView.size.w / actions - 10, (confirmBoxView.size.h - 20) / 4 },
+		local thirdButton = confirmBoxView:addChild({
+			pos = { confirmBoxView.size.w / actions + 5, -60 },
+			size = { confirmBoxView.size.w / actions - 10, 50 },
 			interactive = true,
 			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
@@ -1213,9 +1211,10 @@ function TBMenu:showStatusMessage(message, time)
 							transparency = 1 - UITween.SineEaseOut(UIElement.clock - TBMenu.StatusMessage.endTime)
 							bgColor[4] = 0.8 * transparency
 							uiColor[4] = transparency
-						end
-						if (transparency <= 0) then
-							TBMenu.StatusMessage:kill()
+
+							if (transparency <= 0) then
+								TBMenu.StatusMessage:kill()
+							end
 						end
 					end)
 			end
@@ -3976,6 +3975,8 @@ function TBMenu:spawnTextField2(viewElement, rect, textFieldString, defaultStrin
 		shift = { 4, 1 },
 		interactive = true,
 		textfield = true,
+		hoverThrough = true,
+		clickThrough = true,
 		isNumeric = inputSettings.isNumeric,
 		allowDecimal = inputSettings.allowDecimal,
 		allowNegative = inputSettings.allowNegative,

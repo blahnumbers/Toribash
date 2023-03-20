@@ -1527,13 +1527,6 @@ function UIElement:hide(noreload)
 		end
 	end
 
-	--[[for i,v in pairs(UIViewportManager) do
-		if (self == v) then
-			table.remove(UIViewportManager, i)
-			break
-		end
-	end]]
-
 	if (self.menuKeyboardId and not self.textfieldkeepfocusonhide) then
 		self:disableMenuKeyboard()
 	end
@@ -1899,9 +1892,7 @@ function UIElement.handleMouseHover(x, y)
 						v.hoverClock = os.clock_real()
 					end
 					v.hoverState = BTN_HVR
-					if (not v.textfield) then
-						disable = v.hoverThrough ~= true
-					end
+					disable = v.hoverThrough ~= true
 				end
 				v.btnHover(x,y)
 				set_mouse_cursor(1)

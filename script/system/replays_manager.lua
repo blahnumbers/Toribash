@@ -128,6 +128,8 @@ function ReplayInfo.FromReplay(path)
 
 	pcall(function()
 		for _, ln in pairs(replayLines) do
+			---Trim any spaces at the end of the string
+			ln = utf8.gsub(ln, "%s+$", "")
 			if (utf8.find(ln, "^FIGHTNAME 0;")) then
 				rplInfo.name = utf8.gsub(ln, "FIGHTNAME 0; *", "")
 			elseif (utf8.find(ln, "^BOUT %d;")) then
@@ -281,7 +283,7 @@ function Replays:fetchReplayData(folder, rplTable, file, cacheData, includeEvent
 
 	TBMenu.StatusMessage.replayUpdater:addCustomDisplay(true, function()
 			TBMenu.StatusMessage.endTime = UIElement.clock + 100
-			local targetText = TB_MENU_LOCALIZED.REPLAYSUPDATINGCACHE .. " (" .. folder .. " folder)\n" .. math.min(math.ceil((count - 1) / #files * 100), 100) .. "% " .. TB_MENU_LOCALIZED.WORDDONE
+			local targetText = TB_MENU_LOCALIZED.REPLAYSUPDATINGCACHE .. " (" .. folder .. ")\n" .. math.min(math.ceil((count - 1) / #files * 100), 100) .. "% " .. TB_MENU_LOCALIZED.WORDDONE
 			if (TBMenu.StatusMessage.messageView.str ~= targetText) then
 				TBMenu.StatusMessage.messageView:addAdaptedText(true, targetText, nil, nil, 4, nil, 0.8)
 			end
@@ -330,7 +332,13 @@ function Replays:fetchReplayData(folder, rplTable, file, cacheData, includeEvent
 					Replays:fetchReplayData(fname, rpltbl, file, cacheData, includeEventTemp)
 				else
 					TBMenu.StatusMessage.replayUpdater:kill()
-					TBMenu.StatusMessage.endTime = UIElement.clock
+					if (TBMenu.StatusMessage.startTime < UIElement.clock - 0.4) then
+						TBMenu.StatusMessage.messageView:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSDATACACHEREADY, nil, nil, 4, nil, 0.8)
+						TBMenu.StatusMessage.endTime = UIElement.clock + 2
+					else
+						TBMenu.StatusMessage:kill()
+						TBMenu.StatusMessage = nil
+					end
 					if (not SELECTED_FOLDER.name) then
 						SELECTED_FOLDER = Replays.RootFolder
 					end
@@ -671,7 +679,7 @@ function Replays:showSearchList(viewElement, replayInfo, toReload, replays)
 				})
 				if (SELECTED_REPLAY.replay and SELECTED_REPLAY.replay.filename == replay.filename or i == 1) then
 					SELECTED_REPLAY.element = replayElement
-					SELECTED_REPLAY.defaultColor = { replayElement.bgColor[1], replayElement.bgColor[2], replayElement.bgColor[3], replayElement.bgColor[4] }
+					SELECTED_REPLAY.defaultColor = table.clone(replayElement.bgColor)
 				end
 				replayElement:addMouseHandlers(nil, function()
 						if (SELECTED_REPLAY.element == replayElement and SELECTED_REPLAY.time + 0.5 > os.clock_real()) then
@@ -679,9 +687,10 @@ function Replays:showSearchList(viewElement, replayInfo, toReload, replays)
 							return
 						end
 						SELECTED_REPLAY.time = os.clock_real()
-						SELECTED_REPLAY.element.bgColor = { SELECTED_REPLAY.defaultColor[1], SELECTED_REPLAY.defaultColor[2], SELECTED_REPLAY.defaultColor[3], SELECTED_REPLAY.defaultColor[4] }
+						---@diagnostic disable-next-line: assign-type-mismatch
+						SELECTED_REPLAY.element.bgColor = table.clone(SELECTED_REPLAY.defaultColor)
 						SELECTED_REPLAY.element = replayElement
-						SELECTED_REPLAY.defaultColor = { replayElement.bgColor[1], replayElement.bgColor[2], replayElement.bgColor[3], replayElement.bgColor[4] }
+						SELECTED_REPLAY.defaultColor = table.clone(replayElement.bgColor)
 						Replays:showReplayInfo(replayInfo, replay)
 					end)
 
@@ -742,6 +751,7 @@ end
 function Replays:playReplay(replay)
 	local whiteoverlay = TBMenu:spawnWindowOverlay()
 	local cacheMode = get_option("replaycache") == 2 and 1 or 0
+	local replayFile = utf8.gsub(replay.filename, "^replay/", "")
 
 	local loading = UIElement:new({
 		parent = whiteoverlay,
@@ -782,7 +792,7 @@ function Replays:playReplay(replay)
 						downloadWait:addCustomDisplay(true, function()
 								framesN = framesN + 1
 								if (framesN > 4) then
-									open_replay(replay.filename, cacheMode)
+									open_replay(replayFile, cacheMode)
 									close_menu()
 								end
 							end)
@@ -795,7 +805,7 @@ function Replays:playReplay(replay)
 					loading:uiText(TB_MENU_LOCALIZED.REPLAYSLOADINGREPLAY)
 					wait = wait + 1
 					if (wait > 4) then
-						open_replay(replay.filename, cacheMode)
+						open_replay(replayFile, cacheMode)
 						close_menu()
 					end
 				end)
@@ -806,7 +816,7 @@ function Replays:playReplay(replay)
 				loading:uiText(TB_MENU_LOCALIZED.REPLAYSLOADINGREPLAY)
 				wait = wait + 1
 				if (wait > 4) then
-					open_replay(replay.filename, cacheMode)
+					open_replay(replayFile, cacheMode)
 					close_menu()
 				end
 			end)
@@ -855,26 +865,29 @@ function Replays:showList(viewElement, replayInfo, level, doSearch)
 				pos = { -topBar.size.h + 5, 5 },
 				size = { topBar.size.h - 10, topBar.size.h - 10 },
 				interactive = true,
-				bgColor = { 0, 0, 0, 0.1 },
-				hoverColor = { 0, 0, 0, 0.3 },
-				pressedColor = { 1, 1, 1, 0.2 },
-				bgImage = "../textures/menu/general/buttons/edit.tga"
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+				shapeType = ROUNDED,
+				rounded = 4
 			})
+			editFolderButton:addChild({ shift = { 5, 5 }, bgImage = "../textures/menu/general/buttons/edit.tga" })
 			posX = editFolderButton.shift.x
 			editFolderButton:addMouseHandlers(nil, function()
 					Replays:showEditFolderWindow(SELECTED_FOLDER)
 				end)
 		elseif (level.fullname == "replay") then
-			local refreshCacheButton = UIElement:new({
-				parent = topBar,
+			local refreshCacheButton = topBar:addChild({
 				pos = { -topBar.size.h + 5, 5 },
 				size = { topBar.size.h - 10, topBar.size.h - 10 },
 				interactive = true,
-				bgColor = { 0, 0, 0, 0.1 },
-				hoverColor = { 0, 0, 0, 0.3 },
-				pressedColor = { 1, 1, 1, 0.2 },
-				bgImage = "../textures/menu/general/buttons/settingsreset.tga"
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+				shapeType = ROUNDED,
+				rounded = 4
 			})
+			refreshCacheButton:addChild({ shift = { 5, 5 }, bgImage = "../textures/menu/general/buttons/reload.tga" })
 			posX = refreshCacheButton.shift.x
 			refreshCacheButton:addMouseHandlers(nil, function()
 					TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.REPLAYSREFRESHCACHEPROMPT, Replays.ResetCache)
@@ -886,13 +899,13 @@ function Replays:showList(viewElement, replayInfo, level, doSearch)
 			pos = { topBar.size.w / 3 * 2 + 10, 5 },
 			size = { topBar.size.w / 3 - 15 + posX, topBar.size.h - 10 },
 			interactive = true,
-			bgColor = { 0, 0, 0, 0.1 },
-			hoverColor = { 0, 0, 0, 0.3 },
-			pressedColor = { 1, 1, 1, 0.2 }
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+			shapeType = ROUNDED,
+			rounded = 4
 		})
-		addFolderButton:addCustomDisplay(false, function()
-				addFolderButton:uiText(TB_MENU_LOCALIZED.REPLAYSADDFOLDER)
-			end)
+		addFolderButton:addAdaptedText(TB_MENU_LOCALIZED.REPLAYSADDFOLDER)
 		addFolderButton:addMouseHandlers(nil, function()
 				Replays:showNewFolderWindow()
 			end)
@@ -1025,7 +1038,7 @@ function Replays:showList(viewElement, replayInfo, level, doSearch)
 		})
 		if (SELECTED_REPLAY.replay and SELECTED_REPLAY.replay.filename == replay.filename or i == 1) then
 			SELECTED_REPLAY.element = replayElement
-			SELECTED_REPLAY.defaultColor = { replayElement.bgColor[1], replayElement.bgColor[2], replayElement.bgColor[3], replayElement.bgColor[4] }
+			SELECTED_REPLAY.defaultColor = table.clone(replayElement.bgColor)
 		end
 		replayElement:addMouseHandlers(nil, function()
 				if (SELECTED_REPLAY.element == replayElement and SELECTED_REPLAY.time + 0.5 > os.clock_real()) then
@@ -1033,9 +1046,10 @@ function Replays:showList(viewElement, replayInfo, level, doSearch)
 					return
 				end
 				SELECTED_REPLAY.time = os.clock_real()
-				SELECTED_REPLAY.element.bgColor = { SELECTED_REPLAY.defaultColor[1], SELECTED_REPLAY.defaultColor[2], SELECTED_REPLAY.defaultColor[3], SELECTED_REPLAY.defaultColor[4] }
+				---@diagnostic disable-next-line: assign-type-mismatch
+				SELECTED_REPLAY.element.bgColor = table.clone(SELECTED_REPLAY.defaultColor)
 				SELECTED_REPLAY.element = replayElement
-				SELECTED_REPLAY.defaultColor = { replayElement.bgColor[1], replayElement.bgColor[2], replayElement.bgColor[3], replayElement.bgColor[4] }
+				SELECTED_REPLAY.defaultColor = table.clone(replayElement.bgColor)
 				Replays:showReplayInfo(replayInfo, replay)
 			end)
 
@@ -1407,7 +1421,7 @@ function Replays:showEditFolderWindow(folder)
 	local closeButtonSize = 40
 	local editFolderTitle = editFolderView:addChild({
 		pos = { closeButtonSize * 1.5, 0 },
-		size = { editFolderView.size.w - closeButtonSize * 3, 50 }
+		size = { editFolderView.size.w - closeButtonSize * 3, 60 }
 	})
 	editFolderTitle:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSTAGSMODIFYING .. " \"" .. SELECTED_FOLDER.fullname .. "\" " .. TB_MENU_LOCALIZED.REPLAYSMODIFYINGFOLDER, nil, nil, FONTS.BIG)
 
@@ -1501,6 +1515,7 @@ function Replays:showEditFolderWindow(folder)
 		end)
 end
 
+---Displays new replay folder creation window
 function Replays:showNewFolderWindow()
 	local _, level = SELECTED_FOLDER.fullname:gsub("/", "")
 	if (level > MAXFOLDERLEVELS - 1) then
@@ -1508,75 +1523,59 @@ function Replays:showNewFolderWindow()
 		return
 	end
 	local newFolderOverlay = TBMenu:spawnWindowOverlay()
-	local newFolderView = UIElement:new({
-		parent = newFolderOverlay,
+	local newFolderView = newFolderOverlay:addChild({
 		pos = { newFolderOverlay.size.w / 4, newFolderOverlay.size.h / 2 - 100 },
 		size = { newFolderOverlay.size.w / 2, 200 },
-		bgColor = TB_MENU_DEFAULT_BG_COLOR
+		bgColor = TB_MENU_DEFAULT_BG_COLOR,
+		shapeType = ROUNDED,
+		rounded = 4
 	})
+	local closeButtonSize = 40
 	local newFolderTitle = UIElement:new({
 		parent = newFolderView,
-		pos = { 10, 0 },
-		size = { newFolderView.size.w - 20, 50 }
+		pos = { closeButtonSize + 20, 0 },
+		size = { newFolderView.size.w - (closeButtonSize + 20) * 2, 60 }
 	})
-	newFolderTitle:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSADDINGFOLDER .. " " .. SELECTED_FOLDER.fullname, nil, nil, FONTS.BIG)
-	local newFolderInputBG = UIElement:new({
-		parent = newFolderView,
-		pos = { 10, newFolderView.size.h / 2 - 20 },
-		size = { newFolderView.size.w - 20, 40 },
-		bgColor = TB_MENU_DEFAULT_DARKER_COLOR
-	})
-	local newFolderInputOverlay = UIElement:new({
-		parent = newFolderInputBG,
-		pos = { 1, 1 },
-		size = { newFolderInputBG.size.w - 2, newFolderInputBG.size.h - 2 },
-		bgColor = { 1, 1, 1, 0.5 }
-	})
-	local newFolderInput = UIElement:new({
-		parent = newFolderInputOverlay,
-		pos = { 10, 0 },
-		size = { newFolderInputOverlay.size.w - 20, newFolderInputOverlay.size.h },
+	newFolderTitle:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSADDINGFOLDER .. " " .. SELECTED_FOLDER.fullname, nil, nil, FONTS.BIG, nil, 0.7, nil, 0.2)
+
+	local closeButton = newFolderView:addChild({
+		pos = { -closeButtonSize - 10, 10 },
+		size = { closeButtonSize, closeButtonSize },
 		interactive = true,
-		textfield = true,
-		textfieldsingleline = true
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+	}, true)
+	closeButton:addMouseUpHandler(function() newFolderOverlay:kill() end)
+	closeButton:addChild({ shift = { closeButtonSize / 5, closeButtonSize / 5 }, bgImage = "../textures/menu/general/buttons/crosswhite.tga" })
+
+	local newFolderInput = TBMenu:spawnTextField2(newFolderView, {
+		x = 10, y = newFolderView.size.h / 2 - 20,
+		w = newFolderView.size.w - 20, h = 40
+	}, nil, TB_MENU_LOCALIZED.REPLAYSNEWFOLDERNAME, {
+		textAlign = LEFTMID,
+		fontId = 4,
+		textScale = 0.8
 	})
-	newFolderInput:addMouseHandlers(function()
-			newFolderInput:enableMenuKeyboard(newFolderInput)
-		end)
-	TBMenu:displayTextfield(newFolderInput, FONTS.SMALL, nil, UICOLORBLACK, TB_MENU_LOCALIZED.REPLAYSNEWFOLDERNAME)
-	local cancelButton = UIElement:new({
-		parent = newFolderView,
-		pos = { 10, -50 },
-		size = { newFolderView.size.w / 2 - 15, 40 },
+
+	local saveButton = newFolderView:addChild({
+		pos = { newFolderView.size.w / 4, -50 },
+		size = { newFolderView.size.w / 2, 40 },
 		interactive = true,
-		bgColor = { 0, 0, 0, 0.3 },
-		hoverColor = { 0, 0, 0, 0.5 },
-		pressedColor = { 1, 1, 1, 0.2 }
-	})
-	cancelButton:addCustomDisplay(false, function()
-			cancelButton:uiText(TB_MENU_LOCALIZED.BUTTONCANCEL)
-		end)
-	cancelButton:addMouseHandlers(nil, function()
-			newFolderOverlay:kill()
-		end)
-	local saveButton = UIElement:new({
-		parent = newFolderView,
-		pos = { newFolderView.size.w / 2 + 5, -50 },
-		size = { newFolderView.size.w / 2 - 15, 40 },
-		interactive = true,
-		bgColor = { 0, 0, 0, 0.3 },
-		hoverColor = { 0, 0, 0, 0.5 },
-		pressedColor = { 1, 1, 1, 0.2 }
-	})
-	saveButton:addCustomDisplay(false, function()
-			saveButton:uiText(TB_MENU_LOCALIZED.BUTTONCREATE)
-		end)
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+	}, true)
+	saveButton:addAdaptedText(TB_MENU_LOCALIZED.BUTTONCREATE)
+
 	local function spawnNewFolder()
+		---Folders should be only alpha numeric, no utf8 check here
 		if (newFolderInput.textfieldstr[1] ~= newFolderInput.textfieldstr[1]:match("[^ ][%w+ ]+")) then
 			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSFOLDERALPHANUMERIC)
 			return
 		end
-		local parentFolder = SELECTED_FOLDER.fullname:gsub("^replay/*", "")
+
+		local parentFolder = utf8.gsub(SELECTED_FOLDER.fullname, "^replay/*", "")
 		parentFolder = parentFolder:len() > 0 and parentFolder .. "/" or parentFolder
 		local newFolderName = parentFolder .. newFolderInput.textfieldstr[1]:gsub(" +$", "")
 		local result = add_replay_subfolder(newFolderName)
@@ -1588,29 +1587,42 @@ function Replays:showNewFolderWindow()
 		SELECTED_FOLDER = { fullname = "replay/" .. newFolderName }
 		Replays:showMain(TBMenu.CurrentSection)
 	end
+
 	newFolderInput:addEnterAction(spawnNewFolder)
-	saveButton:addMouseHandlers(nil, spawnNewFolder)
+	saveButton:addMouseUpHandler(spawnNewFolder)
 end
 
+---Displays upload window for the specified replay
+---@param replay ReplayInfo
 function Replays:showUploadWindow(replay)
 	local uploadOverlay = TBMenu:spawnWindowOverlay()
-	local uploadView = UIElement:new({
-		parent = uploadOverlay,
-		pos = { uploadOverlay.size.w / 6, uploadOverlay.size.h / 5 },
-		size = { uploadOverlay.size.w / 6 * 4, uploadOverlay.size.h / 5 * 3 },
-		bgColor = TB_MENU_DEFAULT_BG_COLOR
+	local uploadView = uploadOverlay:addChild({
+		shift = { uploadOverlay.size.w / 6, (uploadOverlay.size.h - 370) / 2 },
+		bgColor = TB_MENU_DEFAULT_BG_COLOR,
+		shapeType = ROUNDED,
+		rounded = 4
 	})
+	local closeButtonSize = 40
 	local uploadTitle = UIElement:new({
 		parent = uploadView,
-		pos = { 10, 0 },
-		size = { uploadView.size.w - 20, uploadView.size.h / 8 }
+		pos = { closeButtonSize + 20, 0 },
+		size = { uploadView.size.w - (closeButtonSize + 20) * 2, 60 }
 	})
-	uploadTitle:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSUPLOAD .. " " .. replay.name ..  " " .. TB_MENU_LOCALIZED.REPLAYSUPLOADTORIBASHSERVERS, nil, nil, FONTS.BIG, nil, 0.7)
+	uploadTitle:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSUPLOAD .. " " .. replay.name ..  " " .. TB_MENU_LOCALIZED.REPLAYSUPLOADTORIBASHSERVERS, nil, nil, FONTS.BIG, nil, 0.7, nil, 0.2)
 
-	local replayUploadInfoView = UIElement:new({
-		parent = uploadView,
-		pos = { 10, uploadTitle.size.h },
-		size = { uploadView.size.w - 20, uploadView.size.h * 7 / 8 - uploadTitle.size.h }
+	local closeButton = uploadView:addChild({
+		pos = { -closeButtonSize - 10, 10 },
+		size = { closeButtonSize, closeButtonSize },
+		interactive = true,
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+	}, true)
+	closeButton:addMouseUpHandler(function() uploadOverlay:kill() end)
+	closeButton:addChild({ shift = { closeButtonSize / 5, closeButtonSize / 5 }, bgImage = "../textures/menu/general/buttons/crosswhite.tga" })
+
+	local replayUploadInfoView = uploadView:addChild({
+		shift = { 10, uploadTitle.size.h }
 	})
 
 	local replayData = {
@@ -1623,7 +1635,6 @@ function Replays:showUploadWindow(replay)
 		{
 			name = TB_MENU_LOCALIZED.REPLAYSDESC,
 			desc = TB_MENU_LOCALIZED.REPLAYSDESCINFO,
-			tip = TB_MENU_LOCALIZED.REPLAYSDESCTIP,
 			value = { "" },
 			input = true,
 			fulltext = true
@@ -1631,160 +1642,101 @@ function Replays:showUploadWindow(replay)
 		{
 			name = TB_MENU_LOCALIZED.REPLAYSTAGS,
 			desc = TB_MENU_LOCALIZED.REPLAYSTAGSINFO,
-			value = { string.gsub(replay.tags .. " " .. replay.hiddentags, "^ +", "") },
-			tip = TB_MENU_LOCALIZED.REPLAYSTAGSTIP,
-			input = true
+			value = { utf8.gsub(replay.tags .. " " .. replay.hiddentags, "^ +", "") },
+			input = true,
+			fulltext = true
 		}
 	}
 
-
-	posY, elementHeight = 0, 90
-	for i,v in pairs(replayData) do
-		local replayUploadInfoHolder = UIElement:new({
-			parent = replayUploadInfoView,
-			pos = { 0, posY },
-			size = { replayUploadInfoView.size.w, elementHeight }
+	local shiftY = 0
+	for _, v in pairs(replayData) do
+		local replayUploadInfoHolder = replayUploadInfoView:addChild({
+			pos = { 0, shiftY },
+			size = { replayUploadInfoView.size.w, v.fulltext and 90 or 55 }
 		})
-		local replayUploadInfoNameTitle = UIElement:new({
-			parent = replayUploadInfoHolder,
+		local replayUploadInfoNameTitle = replayUploadInfoHolder:addChild({
 			pos = { 0, 0 },
-			size = { replayUploadInfoHolder.size.w / 3, replayUploadInfoHolder.size.h / 3 }
+			size = { replayUploadInfoHolder.size.w / 3, 30 }
 		})
-		replayUploadInfoNameTitle:addCustomDisplay(true, function()
-				replayUploadInfoNameTitle:uiText(v.name, nil, nil, nil, LEFTBOT)
-			end)
-		local replayUploadInfoNameDesc = UIElement:new({
-			parent = replayUploadInfoHolder,
+		replayUploadInfoNameTitle:addAdaptedText(true, v.name, nil, nil, nil, LEFTMID)
+
+		local replayUploadInfoNameDesc = replayUploadInfoHolder:addChild({
 			pos = { 0, replayUploadInfoNameTitle.size.h },
 			size = { replayUploadInfoNameTitle.size.w, replayUploadInfoHolder.size.h - replayUploadInfoNameTitle.size.h }
 		})
-		replayUploadInfoNameDesc:addCustomDisplay(true, function()
-				replayUploadInfoNameDesc:uiText(v.desc, nil, nil, 4, LEFT, 0.7)
-			end)
-		local replayUploadInfoDataField = UIElement:new({
-			parent = replayUploadInfoHolder,
-			pos = { replayUploadInfoHolder.size.w * 2 / 5, 0 },
-			size = { replayUploadInfoHolder.size.w * 3 / 5, replayUploadInfoHolder.size.h }
-		})
-		local replayUploadInfoDataInputBG = UIElement:new({
-			parent = replayUploadInfoDataField,
-			pos = { 10, 10 },
-			size = { replayUploadInfoDataField.size.w - 20, v.fulltext and replayUploadInfoDataField.size.h - 20 or 30 },
-			bgColor = TB_MENU_DEFAULT_DARKER_COLOR
-		})
-		if (v.input) then
-			local replayUploadInfoDataInputOverlay = UIElement:new({
-				parent = replayUploadInfoDataInputBG,
-				pos = { 1, 1 },
-				size = { replayUploadInfoDataInputBG.size.w - 2, replayUploadInfoDataInputBG.size.h - 2 },
-				bgColor = { 1, 1, 1, 0.5 }
-			})
-			local replayUploadInfoDataInput = UIElement:new({
-				parent = replayUploadInfoDataInputOverlay,
-				pos = { 10, 5 },
-				size = { replayUploadInfoDataInputOverlay.size.w - 20, replayUploadInfoDataInputOverlay.size.h - 10 },
-				interactive = true,
-				textfield = true,
-				textfieldstr = v.value,
-				textfieldsingleline = not v.fulltext
-			})
-			replayUploadInfoDataInput:addMouseHandlers(function()
-					replayUploadInfoDataInput:enableMenuKeyboard(replayUploadInfoDataInput)
-				end)
-			TBMenu:displayTextfield(replayUploadInfoDataInput, FONTS.SMALL, nil, UICOLORBLACK, v.tip, v.fulltext and LEFT)
-		else
-			local replayUploadInfoData = UIElement:new({
-				parent = replayUploadInfoDataInputBG,
-				pos = { 1, 1 },
-				size = { replayUploadInfoDataInputBG.size.w - 2, replayUploadInfoDataInputBG.size.h - 2 },
-				bgColor = { 1, 1, 1, 0.3 }
-			})
-			local replayUploadInfoDataText = UIElement:new({
-				parent = replayUploadInfoData,
-				pos = { 10, 5 },
-				size = { replayUploadInfoData.size.w - 20, replayUploadInfoData.size.h - 10 }
-			})
-			replayUploadInfoDataText:addCustomDisplay(true, function()
-					replayUploadInfoDataText:uiText(v.value[1], nil, nil, 4, LEFTMID, 0.6, nil, nil, UICOLORBLACK)
-				end)
-		end
+		replayUploadInfoNameDesc:addAdaptedText(true, v.desc, nil, nil, 4, LEFT, 0.7)
 
-		posY = posY + elementHeight
+		local replayUploadInfoDataField = replayUploadInfoHolder:addChild({
+			pos = { replayUploadInfoHolder.size.w * 0.4, 0 },
+			size = { replayUploadInfoHolder.size.w * 0.6, replayUploadInfoHolder.size.h }
+		})
+		local replayUploadInputHolder = replayUploadInfoDataField:addChild({
+			pos = { 10, 10 },
+			size = { replayUploadInfoDataField.size.w - 20, v.fulltext and replayUploadInfoDataField.size.h - 20 or 35 },
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			shapeType = uploadView.shapeType,
+			rounded = uploadView.rounded
+		})
+		local replayUploadInput = TBMenu:spawnTextField2(replayUploadInputHolder, nil, v.value, v.tip, {
+			allowMultiline = v.fulltext,
+			textAlign = v.fulltext and LEFT or LEFTMID,
+			fontId = 4,
+			textScale = 0.7
+		})
+		if (not v.input) then
+			replayUploadInput:deactivate(true)
+			replayUploadInput.parent:deactivate(true)
+		end
+		shiftY = shiftY + replayUploadInfoHolder.size.h
 	end
 
-	local cancelButton = UIElement:new({
-		parent = uploadView,
-		pos = { 10, -uploadView.size.h / 8 },
-		size = { uploadView.size.w / 2 - 15, uploadView.size.h / 10 },
+	local uploadButton = uploadView:addChild({
+		pos = { uploadView.size.w / 4, -50 },
+		size = { uploadView.size.w / 2, 40 },
 		interactive = true,
-		bgColor = { 0, 0, 0, 0.3 },
-		hoverColor = { 0, 0, 0, 0.5 },
-		pressedColor = { 1, 1, 1, 0.2 }
-	})
-	cancelButton:addCustomDisplay(false, function()
-			cancelButton:uiText(TB_MENU_LOCALIZED.BUTTONCANCEL)
-		end)
-	cancelButton:addMouseHandlers(nil, function()
-			uploadOverlay:kill()
-		end)
-	local uploadButton = UIElement:new({
-		parent = uploadView,
-		pos = { uploadView.size.w / 2 + 5, -uploadView.size.h / 8 },
-		size = { uploadView.size.w / 2 - 15, uploadView.size.h / 10 },
-		interactive = true,
-		bgColor = { 0, 0, 0, 0.1 },
-		hoverColor = { 0, 0, 0, 0.5 },
-		pressedColor = { 1, 1, 1, 0.2 }
-	})
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+		inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS
+	}, true)
 	uploadButton:addCustomDisplay(false, function()
-			if (replayData[1].value[1] == "" or replayData[2].value[1] == "" or replayData[3].value[1] == "") then
-				uploadButton:deactivate()
-				uploadButton.bgColor = { 0, 0, 0, 0.1 }
-			else
+			if (replayData[1].value[1] == "" or replayData[2].value[1] == "") then
+				if (uploadButton:isActive()) then
+					uploadButton:deactivate()
+				end
+			elseif (not uploadButton:isActive()) then
 				uploadButton:activate()
-				uploadButton.bgColor = { 0, 0, 0, 0.3 }
 			end
 			uploadButton:uiText(TB_MENU_LOCALIZED.BUTTONUPLOAD)
 		end)
-	uploadButton:addMouseHandlers(nil, function()
+	uploadButton:addMouseUpHandler(function()
 			local overlay = TBMenu:spawnWindowOverlay()
-			local width = overlay.size.w / 7 * 3
-			local uploadingView = UIElement:new({
-				parent = overlay,
-				pos = { (overlay.size.w - width) / 2, overlay.size.h / 2 - overlay.size.h / 10 },
-				size = { width, overlay.size.h / 5 },
-				bgColor = TB_MENU_DEFAULT_BG_COLOR
+			local windowScale = { math.min(overlay.size.w / 3, 550), math.min(overlay.size.h / 3, 250) }
+			local uploadingView = overlay:addChild({
+				pos = { (overlay.size.w - windowScale[1]) / 2, (overlay.size.h - windowScale[2]) / 2 },
+				size = { windowScale[1], windowScale[2] },
+				bgColor = TB_MENU_DEFAULT_BG_COLOR,
+				shapeType = ROUNDED,
+				rounded = 4
 			})
 			TBMenu:displayLoadingMark(uploadingView, TB_MENU_LOCALIZED.REPLAYUPLOADINPROGRESS)
 			Request:queue(function()
 					upload_replay(	replayData[1].value[1],
 									replayData[2].value[1],
 									replayData[3].value[1],
-									"replay/" .. replay.filename)
+									replay.filename)
 				end, "replayupload", function()
 					local response = get_network_response()
+					overlay:kill()
 					if (response:find("^SUCCESS")) then
-						uploadingView:kill(true)
-						uploadingView:addAdaptedText(false, TB_MENU_LOCALIZED.REPLAYUPLOADSUCCESSFUL)
-						local uploadClose = UIElement:new({
-							parent = uploadingView,
-							pos = { 0, 0 },
-							size = { 0, 0 },
-						})
-						local spawnTime = os.clock_real()
-						uploadClose:addCustomDisplay(true, function()
-								if (spawnTime + 1.5 < os.clock_real()) then
-									overlay:kill()
-									uploadOverlay:kill()
-								end
-							end)
+						uploadOverlay:kill()
+						TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYUPLOADSUCCESSFUL)
 					else
-						overlay:kill()
 						TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.REPLAYUPLOADERROR .. ": " .. response:gsub("^ERROR 0;", ""), function() end, function() uploadOverlay:kill() end)
 					end
 				end, function()
 					overlay:kill()
-					TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.REPLAYUPLOADFAILED, function() uploadOverlay:kill() Replays:showUploadWindow(replay) end, function() uploadOverlay:kill() end)
+					TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.REPLAYUPLOADFAILED .. ": " .. get_network_error(), function() end, function() uploadOverlay:kill() end)
 				end)
 		end)
 end
@@ -1941,8 +1893,6 @@ function Replays:showReplayManageWindow(viewElement, replay)
 			local directory = utf8.gsub(replay.filename, "/[^/]+$", "")
 			local fileMove = replayData[3].value ~= directory
 
-			print(replayData[3].value)
-			print(directory)
 			if (replayData[1].value[1] ~= filenameClean or fileMove) then
 				local newname = utf8.gsub(replayData[3].value, "^replay(/?)(.*)", "%2%1") .. replayData[1].value[1] .. ".rpl"
 				local curname = replay.filename:gsub("^replay/", "")
@@ -3246,6 +3196,10 @@ function Replays:showMain(viewElement)
 				replaysList:addCustomDisplay(false, function() end)
 				TBMenu:addBottomBloodSmudge(replaysList, 1)
 				Replays:showList(replaysList, replayInfo, SELECTED_FOLDER, TB_MENU_REPLAYS_SEARCH)
+
+				if (TBMenu.StatusMessage) then
+					TBMenu.StatusMessage:reload()
+				end
 			end
 		end)
 end
