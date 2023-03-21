@@ -1199,6 +1199,10 @@ function TBHud:spawnChat()
 	self.ChatHolder:hide(true)
 end
 
+function TBHudInternal.enableFocusCam()
+	set_option("focuscam", 1)
+end
+
 TBHud.Reload()
 add_hook("resolution_changed", "tbHudTouchInterface", TBHud.Reload)
 add_hook("new_game", "tbHudTouchInterface", TBHudInternal.refreshButtons)
@@ -1206,3 +1210,4 @@ add_hook("spec_update", "tbHudTouchInterface", TBHudInternal.refreshButtons)
 add_hook("bout_update", "tbHudTouchInterface", TBHudInternal.refreshButtons)
 add_hook("enter_frame", "tbHudTouchInterface", TBHudInternal.refreshButtons)
 add_hook("console_post", "tbHudChatInterface", TBHudInternal.pushChatMessage)
+add_hook("player_select", "tbHudTouchInterface", TBHudInternal.enableFocusCam)

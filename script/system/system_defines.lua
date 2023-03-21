@@ -2648,7 +2648,7 @@ function get_hooks() end
 
 ---Simulates a Lua callback invocation \
 ---*This will not trigger any non-Lua exclusive game functionality associated with the relative hook*
----@param event string
+---@param event LuaCallback
 ---@param ... any Callback arguments
 function call_hook(event, ...) end
 

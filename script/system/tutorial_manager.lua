@@ -1759,6 +1759,12 @@ function Tutorials:runSteps(steps, currentStep)
 	if (steps[currentStep].customfuncfile ~= nil) then
 		self:runTutorialCustomFunction(stepElement, requirements, steps[currentStep].customfuncfile, steps[currentStep].customfunc)
 	end
+	if (is_mobile()) then
+		---We want to make sure hud buttons are reloaded at the beginning of every step.
+		---Make a dummy call to `spec_update`, this shouldn't really affect anything else
+		---but would trigger buttons reload in TBHud class.
+		call_hook("spec_update")
+	end
 end
 
 ---Updates Tutorials config file

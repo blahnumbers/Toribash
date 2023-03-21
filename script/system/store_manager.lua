@@ -5126,8 +5126,7 @@ do
 			set_ghost_color(0, item.colorid)
 			set_ground_impact_color(0, item.colorid)
 			draw_ground_impact(0)
-			set_gradient_primary_color(0, item.colorid)
-			set_gradient_secondary_color(0, item.colorid)
+			set_gradient_color(0, item.colorid, item.colorid)
 			set_joint_force_color(0, item.colorid)
 			local rgb = get_color_info(item.colorid)
 			storeVanillaTimer.uiColor = { rgb.r, rgb.g, rgb.b, 1 }
