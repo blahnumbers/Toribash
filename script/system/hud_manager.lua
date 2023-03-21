@@ -418,7 +418,16 @@ function TBHud:spawnGhostButton()
 		end
 	end)
 	ghostButton:addMouseUpHandler(function()
-			set_ghost((get_ghost() + 1) % 3)
+			local ghost_mode = get_ghost()
+			if (self.WorldState.selected_player == -1) then
+				if (ghost_mode == 2) then
+					set_ghost(0)
+					return
+				end
+				set_ghost(2)
+				return
+			end
+			set_ghost((ghost_mode + 1) % 3)
 		end)
 end
 
@@ -545,6 +554,13 @@ function TBHud:spawnGripButton()
 			)
 			set_grip_info(self.WorldState.selected_player, BODYPARTS.L_HAND, gripState)
 			set_grip_info(self.WorldState.selected_player, BODYPARTS.R_HAND, gripState)
+
+			--We also need to manually reset ghost as set_grip_info doesn't do that
+			local ghost_mode = get_ghost()
+			if (ghost_mode ~= 0) then
+				set_ghost(0)
+				set_ghost(ghost_mode)
+			end
 		end)
 
 	gripButtonHolder:addCustomDisplay(true, function()
