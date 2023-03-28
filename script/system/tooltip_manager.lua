@@ -76,6 +76,10 @@ function Tooltip.TouchDeselect()
 	Tooltip.TouchInputTargetJoint = -1
 end
 
+function Tooltip.EnableFocusCam()
+	set_option("focuscam", tonumber(get_option("camerafocus")) or 0)
+end
+
 ---Initializes Tooltip hooks and enables the module
 function Tooltip.Init()
 	Tooltip.DestroyAndDeselect()
@@ -84,11 +88,13 @@ function Tooltip.Init()
 			if (players_accept_input() == false) then return end
 			local discard = Tooltip:showTooltipJoint(player, joint)
 			if (is_mobile()) then
+				Tooltip.EnableFocusCam()
 				return discard
 			end
 		end)
 	add_hook("body_select", Tooltip.HookName, function(player, body)
 			if (players_accept_input() == false) then return end
+			if (is_mobile()) then Tooltip.EnableFocusCam() end
 			if (get_option("tooltip") == 1 and Tooltip.IsActive) then
 				Tooltip:showTooltipBody(player, body)
 			end
@@ -106,9 +112,14 @@ function Tooltip.Init()
 
 	add_hook("enter_frame", Tooltip.HookName, Tooltip.Destroy)
 	add_hook("exit_freeze", Tooltip.HookName, Tooltip.Destroy)
-	add_hook("player_select", Tooltip.HookName, Tooltip.DestroyAndDeselect)
 	add_hook("leave_game", Tooltip.HookName, Tooltip.DestroyAndDeselect)
 	add_hook("new_game", Tooltip.HookName, Tooltip.DestroyAndDeselect)
+	add_hook("player_select", Tooltip.HookName, function()
+			Tooltip.DestroyAndDeselect()
+			if (is_mobile()) then
+				Tooltip.EnableFocusCam()
+			end
+		end)
 
 	Tooltip.IsActive = true
 end
