@@ -295,17 +295,16 @@ do
 				type = DROPDOWN,
 				selectedAction = function()
 						local framerate = get_option("framerate")
-						local fixedframerate = get_option("fixedframerate")
-						if (fixedframerate == 1) then
-							if (framerate == 30) then
-								return 1
+						--local fixedframerate = get_option("fixedframerate")
+						--if (fixedframerate == 1) then
+							if (not is_mobile() and framerate == 75) then
+								return 3
 							elseif (framerate == 60) then
 								return 2
-							else
-								return 3
 							end
-						end
-						return 3
+							return 1
+						--end
+						--return 4
 					end,
 				dropdown = {
 					{
@@ -330,8 +329,9 @@ do
 								TB_MENU_MAIN_SETTINGS.framerate = { value = 75 }
 								TB_MENU_MAIN_SETTINGS.fixedframerate = { value = 1 }
 								Settings:settingsApplyActivate()
-							end
-					},
+							end,
+						hidden = is_mobile()
+					}
 					--[[{
 						text = TB_MENU_LOCALIZED.SETTINGSFPSUNCAPPED,
 						action = function()
@@ -378,12 +378,48 @@ do
 				if ((TB_MENU_MAIN_SETTINGS.blood and TB_MENU_MAIN_SETTINGS.blood.value or get_option("blood")) > 0) then
 					table.insert(advancedItems, {
 						name = TB_MENU_LOCALIZED.SETTINGSFLUIDBLOOD,
+						type = DROPDOWN,
+						selectedAction = function()
+							local targetValue = TB_MENU_MAIN_SETTINGS.fluid and TB_MENU_MAIN_SETTINGS.fluid.value or get_option("fluid")
+							if (targetValue == 2) then return 2 end
+							if (targetValue == 1) then return 3 end
+							return 1
+						end,
+						dropdown = {
+							{
+								text = TB_MENU_LOCALIZED.SETTINGSDISABLED,
+								action = function()
+									TB_MENU_MAIN_SETTINGS.fluid = { value = 0, id = FLUIDBLOOD, graphics = true }
+									Settings:settingsApplyActivate()
+									Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
+								end
+							},
+							{
+								text = TB_MENU_LOCALIZED.SETTINGSQUALITYLOW,
+								action = function()
+									TB_MENU_MAIN_SETTINGS.fluid = { value = 2, id = FLUIDBLOOD, graphics = true }
+									Settings:settingsApplyActivate()
+									Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
+								end
+							},
+							{
+								text = TB_MENU_LOCALIZED.SETTINGSQUALITYHIGH,
+								action = function()
+									TB_MENU_MAIN_SETTINGS.fluid = { value = 1, id = FLUIDBLOOD, graphics = true }
+									Settings:settingsApplyActivate()
+									Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
+								end
+							}
+						},
+						reload = true
+					})
+					table.insert(advancedItems, {
+						name = TB_MENU_LOCALIZED.SETTINGSBLOODSTAINS,
 						type = TOGGLE,
 						action = function(val)
-								TB_MENU_MAIN_SETTINGS.fluid = { value = val, id = FLUIDBLOOD, graphics = true }
+								TB_MENU_MAIN_SETTINGS.bloodstains = { value = val }
 							end,
-						val = { get_option("fluid") },
-						reload = true
+						val = { get_option("bloodstains") },
 					})
 				end
 				table.insert(advancedItems, {
@@ -443,7 +479,7 @@ do
 												{ opt = "hair", val = 0 },
 												{ opt = "hairquality", val = 0 },
 												{ opt = "obj", val = 0 },
-												{ opt = "bodytextures", val = 0, graphics = true, id = BODYTEXTURES },
+												{ opt = "bodytextures", val = 1, graphics = true, id = BODYTEXTURES },
 												{ opt = "effects", val = 0 },
 												{ opt = "particles", val = 0 },
 												{ opt = "fixedframerate", val = 1 },
@@ -465,9 +501,9 @@ do
 									text = TB_MENU_LOCALIZED.SETTINGSLOW,
 									action = function()
 										local options = {
-											{ opt = "shader", val = 0, graphics = true, id = SHADERS },
+											{ opt = "shader", val = 1, graphics = true, id = SHADERS },
 											{ opt = "fluid", val = 0, graphics = true, id = FLUIDBLOOD },
-											{ opt = "framerate", val = 60 },
+											{ opt = "framerate", val = 30 },
 											{ opt = "reflection", val = 0, graphics = true, id = REFLECTIONS },
 											{ opt = "softshadow", val = 0, graphics = true, id = SOFTSHADOWS },
 											{ opt = "ambientocclusion", val = 0, graphics = true, id = AMBIENTOCCLUSION },
@@ -500,8 +536,8 @@ do
 									action = function()
 										local options = {
 											{ opt = "shader", val = 1, graphics = true, id = SHADERS },
-											{ opt = "fluid", val = 0, graphics = true, id = FLUIDBLOOD },
-											{ opt = "framerate", val = 60 },
+											{ opt = "fluid", val = 2, graphics = true, id = FLUIDBLOOD },
+											{ opt = "framerate", val = is_mobile() and 30 or 60 },
 											{ opt = "reflection", val = 0, graphics = true, id = REFLECTIONS },
 											{ opt = "softshadow", val = 0, graphics = true, id = SOFTSHADOWS },
 											{ opt = "ambientocclusion", val = 0, graphics = true, id = AMBIENTOCCLUSION },
@@ -535,7 +571,7 @@ do
 										local options = {
 											{ opt = "shader", val = 1, graphics = true, id = SHADERS },
 											{ opt = "fluid", val = 1, graphics = true, id = FLUIDBLOOD },
-											{ opt = "framerate", val = 75 },
+											{ opt = "framerate", val = is_mobile() and 60 or 75 },
 											{ opt = "reflection", val = 1, graphics = true, id = REFLECTIONS },
 											{ opt = "softshadow", val = 1, graphics = true, id = SOFTSHADOWS },
 											{ opt = "ambientocclusion", val = 1, graphics = true, id = AMBIENTOCCLUSION },
@@ -569,7 +605,7 @@ do
 										local options = {
 											{ opt = "shader", val = 1, graphics = true, id = SHADERS },
 											{ opt = "fluid", val = 1, graphics = true, id = FLUIDBLOOD },
-											{ opt = "framerate", val = 75 },
+											{ opt = "framerate", val = is_mobile() and 60 or 75 },
 											{ opt = "reflection", val = 1, graphics = true, id = REFLECTIONS },
 											{ opt = "softshadow", val = 1, graphics = true, id = SOFTSHADOWS },
 											{ opt = "ambientocclusion", val = 1, graphics = true, id = AMBIENTOCCLUSION },
@@ -954,17 +990,19 @@ do
 							type = BUTTON,
 							action = function()
 								TBMenu:showHotkeys()
-							end
+							end,
+							hidden = is_mobile()
 						},
 						{
 							name = TB_MENU_LOCALIZED.SETTINGSREPLAYHUDTOGGLE,
 							type = INPUT,
 							inputspecial = true,
 							systemname = "replayhudtoggle",
-							val = { get_option("replayhudtoggle") }
+							val = { get_option("replayhudtoggle") },
+							hidden = is_mobile()
 						},
 						{
-							name = TB_MENU_LOCALIZED.SETTINGSMOUSEBUTTONS,
+							name = is_mobile() and TB_MENU_LOCALIZED.SETTINGSMOUSEBUTTONSMOBILE or TB_MENU_LOCALIZED.SETTINGSMOUSEBUTTONS,
 							type = DROPDOWN,
 							systemname = "mousebuttons",
 							selectedAction = function()
@@ -1085,6 +1123,57 @@ do
 					}
 				},
 				{
+					name = TB_MENU_LOCALIZED.SETTINGSCAMERA,
+					items = {
+						{
+							name = TB_MENU_LOCALIZED.SETTINGSCAMERAFOCUS,
+							type = DROPDOWN,
+							systemname = "camerafocus",
+							selectedAction = function()
+									return get_option("camerafocus") + 1
+								end,
+							dropdown = {
+								{
+									text = TB_MENU_LOCALIZED.SETTINGSCAMERAFOCUSNONE,
+									action = function()
+											TB_MENU_MAIN_SETTINGS.camerafocus = { value = 0 }
+											TB_MENU_MAIN_SETTINGS.focuscam = { value = 0 }
+											Settings:settingsApplyActivate()
+										end
+								},
+								{
+									text = TB_MENU_LOCALIZED.SETTINGSCAMERAFOCUSPLAYER,
+									action = function()
+											TB_MENU_MAIN_SETTINGS.camerafocus = { value = 1 }
+											TB_MENU_MAIN_SETTINGS.focuscam = { value = 0 }
+											Settings:settingsApplyActivate()
+										end
+								},
+								{
+									text = TB_MENU_LOCALIZED.SETTINGSCAMERAFOCUSJOINT,
+									action = function()
+											TB_MENU_MAIN_SETTINGS.camerafocus = { value = 2 }
+											TB_MENU_MAIN_SETTINGS.focuscam = { value = 0 }
+											Settings:settingsApplyActivate()
+										end
+								}
+							}
+						},
+						{
+							name = TB_MENU_LOCALIZED.SETTINGSCAMERAINVERTX,
+							type = TOGGLE,
+							systemname = "invertedcamx",
+							val = { bit.band(tonumber(get_option("invertedcam")) or 0, 1) ~= 0 and 1 or 0 }
+						},
+						{
+							name = TB_MENU_LOCALIZED.SETTINGSCAMERAINVERTY,
+							type = TOGGLE,
+							systemname = "invertedcamy",
+							val = { bit.band(tonumber(get_option("invertedcam")) or 0, 2) ~= 0 and 1 or 0 }
+						}
+					}
+				},
+				{
 					name = TB_MENU_LOCALIZED.SETTINGSCHAT,
 					items = {
 						{
@@ -1092,7 +1181,8 @@ do
 							type = INPUT,
 							inputspecial = true,
 							systemname = "chattoggle",
-							val = { get_option("chattoggle") }
+							val = { get_option("chattoggle") },
+							hidden = is_mobile()
 						},
 						{
 							name = TB_MENU_LOCALIZED.SETTINGSPROFANITYFILTER,
@@ -1133,7 +1223,8 @@ do
 							action = function(val)
 								TB_MENU_MAIN_SETTINGS.movememory = { value = val }
 							end,
-							val = { get_option("movememory") }
+							val = { get_option("movememory") },
+							hidden = is_mobile()
 						},
 						{
 							name = TB_MENU_LOCALIZED.SETTINGSBROADCASTS,
@@ -1602,8 +1693,8 @@ do
 		end
 	end
 
-	function Settings:setChatCensorSettings()
-		if (not TB_MENU_MAIN_SETTINGS.chatcensor and not TB_MENU_MAIN_SETTINGS.chatcensorhidesystem) then
+	function Settings.SetChatCensorSettings()
+		if (TB_MENU_MAIN_SETTINGS.chatcensor == nil and TB_MENU_MAIN_SETTINGS.chatcensorhidesystem == nil) then
 			return
 		end
 
@@ -1612,6 +1703,19 @@ do
 
 		TB_MENU_MAIN_SETTINGS.chatcensorhidesystem = nil
 		TB_MENU_MAIN_SETTINGS.chatcensor = { value = wordfilter + hidesystem * 2 }
+	end
+
+	function Settings.SetInvertedCameraSettings()
+		if (TB_MENU_MAIN_SETTINGS.invertedcamx == nil and TB_MENU_MAIN_SETTINGS.invertedcamy == nil) then
+			return
+		end
+
+		local inverted = tonumber(get_option("invertedcam")) or 0
+		local inverted_x = TB_MENU_MAIN_SETTINGS.invertedcamx and TB_MENU_MAIN_SETTINGS.invertedcamx.value or (bit.band(inverted, 1) ~= 0 and 1 or 0)
+		local inverted_y = TB_MENU_MAIN_SETTINGS.invertedcamy and TB_MENU_MAIN_SETTINGS.invertedcamy.value or (bit.band(inverted, 2) ~= 0 and 1 or 0)
+		TB_MENU_MAIN_SETTINGS.invertedcamx = nil
+		TB_MENU_MAIN_SETTINGS.invertedcamy = nil
+		TB_MENU_MAIN_SETTINGS.invertedcam = { value = bit.bor(inverted_x, inverted_y * 2) }
 	end
 
 	function Settings:showSettings(id, keepStoredSettings)
@@ -1658,7 +1762,8 @@ do
 		tbMenuApplySettingsButton:addAdaptedText(false, TB_MENU_LOCALIZED.SETTINGSNOCHANGES)
 		tbMenuApplySettingsButton:addMouseHandlers(nil, function()
 				local reload = false
-				Settings:setChatCensorSettings()
+				Settings.SetChatCensorSettings()
+				Settings.SetInvertedCameraSettings()
 				if (TB_MENU_MAIN_SETTINGS["fullscreen"] and TB_MENU_MAIN_SETTINGS["fullscreen"].value == 1 and not SETTINGS_LAST_RESOLUTION) then
 					SETTINGS_LAST_RESOLUTION = { WIN_W, WIN_H }
 				elseif (not TB_MENU_MAIN_SETTINGS["borderless"]) then

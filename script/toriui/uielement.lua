@@ -581,7 +581,9 @@ function UIElement:setRounded(rounded)
 		end
 		self.rounded = math.max(self.rounded, self.roundedInternal[i])
 	end
-	self.diskSlices = math.min(self.rounded * 5, 50)
+	---With GLES we have a perfect disk shader that allows us to draw circles more efficiently
+	---Set slices to 0 to use it instead of rendering disks made out of vertices
+	self.diskSlices = (PLATFORM ~= "WINDOWS" and is_mobile()) and 0 or math.min(self.rounded * 5, 50)
 end
 
 -- Adds mouse handlers to use for an interactive UIElement object

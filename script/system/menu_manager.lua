@@ -2947,7 +2947,8 @@ end
 ---@field displayOptions DropdownElement[]
 
 ---@class DropdownElement
----@field default boolean
+---@field default boolean --Legacy parameter, use `hidden` instead
+---@field hidden boolean
 ---@field text string
 ---@field action function
 ---@field element UIElement
@@ -2975,7 +2976,7 @@ end
 function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHeight, selectedItem, textSettings, listTextSettings, keepFocus, noOverlaying, forceDisplayAbove)
 	local listElementsDisplay = {}
 	for _, v in pairs(listElements) do
-		if (not v.default) then
+		if (not v.default and not v.hidden) then
 			table.insert(listElementsDisplay, v)
 		end
 	end

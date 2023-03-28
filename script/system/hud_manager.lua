@@ -1216,7 +1216,7 @@ function TBHud:spawnChat()
 end
 
 function TBHudInternal.enableFocusCam()
-	set_option("focuscam", 1)
+	set_option("focuscam", tonumber(get_option("camerafocus")) or 0)
 end
 
 TBHud.Reload()

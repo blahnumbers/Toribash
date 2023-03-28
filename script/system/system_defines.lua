@@ -2292,8 +2292,9 @@ function save_custom_config() end
 ---| "usagestats"
 ---| "jointobjopacity"
 ---| "systemcursor"
+---| "invertedcam"
+---| "camerafocus"
 ---| "aidifficulty" Toribash builds with AI fight mode only
----| "hudoffset" Mobile platforms only
 
 ---Retrieves a value of the specified Toribash option
 ---@param value GameOption
