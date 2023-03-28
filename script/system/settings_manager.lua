@@ -391,7 +391,6 @@ do
 								action = function()
 									TB_MENU_MAIN_SETTINGS.fluid = { value = 0, id = FLUIDBLOOD, graphics = true }
 									Settings:settingsApplyActivate()
-									Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
 								end
 							},
 							{
@@ -399,7 +398,6 @@ do
 								action = function()
 									TB_MENU_MAIN_SETTINGS.fluid = { value = 2, id = FLUIDBLOOD, graphics = true }
 									Settings:settingsApplyActivate()
-									Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
 								end
 							},
 							{
@@ -407,7 +405,6 @@ do
 								action = function()
 									TB_MENU_MAIN_SETTINGS.fluid = { value = 1, id = FLUIDBLOOD, graphics = true }
 									Settings:settingsApplyActivate()
-									Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
 								end
 							}
 						},

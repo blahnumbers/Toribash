@@ -350,8 +350,17 @@ function Tooltip:showTouchControls()
 		pos = { jointPos[1] - 75, jointPos[2] - 75 },
 		size = { 150, 150 }
 	})
+	add_hook("pre_draw", "tooltipTouchPositionFixer", function()
+			---@diagnostic disable-next-line: param-type-mismatch
+			Tooltip.TouchInputPosition.x, Tooltip.TouchInputPosition.y = get_joint_screen_pos(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint)
+			touchControlsHolder:moveTo(Tooltip.TouchInputPosition.x - touchControlsHolder.size.w / 2, Tooltip.TouchInputPosition.y - touchControlsHolder.size.h / 2)
+			touchControlsHolder:updatePos()
+		end)
 	disable_mouse_camera_movement()
-	touchControlsHolder.killAction = enable_mouse_camera_movement
+	touchControlsHolder.killAction = function()
+		enable_mouse_camera_movement()
+		remove_hook("pre_draw", "tooltipTouchPositionFixer")
+	end
 	local touchControlsVisual = touchControlsHolder:addChild({
 		pos = { 74, 74 },
 		size = { 2, 2 },
