@@ -1873,7 +1873,8 @@ function get_roomlist_room_info(room_id) end
 function get_notifications_count() end
 
 ---Sends a network request to fetch general data about user's inbox
-function get_notifications() end
+---@param last_pmid ?integer
+function get_notifications(last_pmid) end
 
 ---Sends a network request to download contents of a private message from user's inbox
 ---@param pmid integer

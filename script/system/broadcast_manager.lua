@@ -45,114 +45,154 @@ function Broadcasts:showBroadcast(broadcast)
 		return false
 	end
 
-	if (self.IsDisplayed) then
-		local waiter = UIElement:new({
-			globalid = TB_MENU_HUB_GLOBALID,
-			pos = { 0, 0 },
-			size = { 0, 0 }
+	if (is_mobile()) then
+		local popupView = TBHudPopup.New(self.DisplayDuration)
+		popupView:addChild({}).killAction = function() self.IsDisplayed = false end
+		local broadcastInfo = popupView:addChild({
+			pos = { 10, 5 },
+			size = { broadcast.room and (popupView.size.w - 30) * 0.7 or popupView.size.w - 20, popupView.size.h - 10 }
 		})
-		waiter:addCustomDisplay(true, function()
-				if (not self.IsDisplayed) then
-					waiter:kill()
-					self:showBroadcast(broadcast)
-				end
-			end)
-		return true
-	end
+		local broadcastTitle = broadcastInfo:addChild({
+			pos = { 0, 0 },
+			size = { broadcastInfo.size.w, popupView.size.h / 3 }
+		})
+		broadcastTitle:addAdaptedText(true, TB_MENU_LOCALIZED.BROADCASTSBROADCAST .. ": " .. broadcast.user, nil, nil, FONTS.BIG, LEFTBOT, 0.8, nil, 0.6)
+		local broadcastText = broadcastInfo:addChild({
+			pos = { 0, broadcastTitle.size.h },
+			size = { broadcastInfo.size.w, broadcastInfo.size.h - broadcastTitle.size.h }
+		})
+		broadcastText:addAdaptedText(true, broadcast.msg, nil, nil, 4, LEFTMID, 0.8)
 
-	self.IsDisplayed = true
-	local notificationHolder = UIElement:new({
-		globalid = TB_MENU_HUB_GLOBALID,
-		pos = { WIN_W, WIN_H - 310 },
-		size = { 450, 250 },
-		bgColor = TB_MENU_DEFAULT_BG_COLOR,
-		shapeType = ROUNDED,
-		rounded = 5,
-		innerShadow = { 0, 5 },
-		shadowColor = TB_MENU_DEFAULT_DARKER_COLOR
-	})
-	notificationHolder.killAction = function() self.IsDisplayed = false end
+		if (broadcast.room) then
+			local broadcastButtonHolder = popupView:addChild({
+				pos = { broadcastInfo.shift.x * 2 + broadcastInfo.size.w, broadcastInfo.shift.y },
+				size = { popupView.size.w - broadcastInfo.shift.x * 3 - broadcastInfo.size.w, broadcastInfo.size.h }
+			}, true)
+			local broadcastRoom = broadcastButtonHolder:addChild({
+				shift = { 10, 10 },
+				interactive = true,
+				clickThrough = true,
+				hoverThrough = true,
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+			}, true)
+			broadcastRoom:addAdaptedText(nil, TB_MENU_LOCALIZED.BROADCASTSJOIN .. " " .. broadcast.room)
+			broadcastRoom:addMouseHandlers(nil, function()
+					runCmd("join " .. broadcast.room)
+					popupView:Close()
+				end)
+		end
+	else
+		if (self.IsDisplayed) then
+			local waiter = UIElement:new({
+				globalid = TB_MENU_HUB_GLOBALID,
+				pos = { 0, 0 },
+				size = { 0, 0 }
+			})
+			waiter:addCustomDisplay(true, function()
+					if (not self.IsDisplayed) then
+						waiter:kill()
+						self:showBroadcast(broadcast)
+					end
+				end)
+			return true
+		end
 
-	local popupClose = notificationHolder:addChild({
-		pos = { -35, 5 },
-		size = { 30, 30 },
-		interactive = true,
-		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
-		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
-	}, true)
-	local popupCloseIcon = popupClose:addChild({
-		shift = { 3, 3 },
-		bgImage = "../textures/menu/general/buttons/crosswhite.tga"
-	})
-	local buttonClicked = false
-	popupClose:addMouseHandlers(nil, function()
-			buttonClicked = true
-		end)
-	local broadcastInfo = notificationHolder:addChild({
-		pos = { 10, 5 },
-		size = { notificationHolder.size.w - 20, notificationHolder.size.h - (broadcast.room and 55 or 0) }
-	})
-	local broadcastTitle = broadcastInfo:addChild({
-		pos = { 0, 0 },
-		size = { broadcastInfo.size.w - 35, 32 }
-	})
-	broadcastTitle:addAdaptedText(true, "Broadcast: " .. broadcast.user, nil, nil, FONTS.BIG, LEFTMID, 0.8, nil, 0.6)
-	local broadcastText = broadcastInfo:addChild({
-		pos = { 0, broadcastTitle.size.h },
-		size = { broadcastInfo.size.w, broadcastInfo.size.h - broadcastTitle.size.h }
-	})
-	broadcastText:addAdaptedText(true, broadcast.msg, nil, nil, 4, LEFTMID, 0.8)
-	broadcastText.size.h = math.max(#broadcastText.dispstr * 10 * getFontMod(broadcastText.textFont) * broadcastText.textScale + 5, 45)
-	broadcastInfo.size.h = broadcastTitle.size.h + broadcastText.size.h
-	notificationHolder.size.h = broadcastInfo.size.h + (broadcast.room and 55 or 15)
-	notificationHolder:moveTo(nil, WIN_H - notificationHolder.size.h - 60)
+		self.IsDisplayed = true
+		local notificationHolder = UIElement:new({
+			globalid = TB_MENU_HUB_GLOBALID,
+			pos = { WIN_W, WIN_H - 310 },
+			size = { 450, 250 },
+			bgColor = TB_MENU_DEFAULT_BG_COLOR,
+			shapeType = ROUNDED,
+			rounded = 5,
+			innerShadow = { 0, 5 },
+			shadowColor = TB_MENU_DEFAULT_DARKER_COLOR
+		})
+		notificationHolder.killAction = function() self.IsDisplayed = false end
 
-	if (broadcast.room) then
-		local broadcastRoom = notificationHolder:addChild({
-			pos = { 20, broadcastInfo.size.h + broadcastInfo.shift.y + 5 },
-			size = { notificationHolder.size.w - 40, notificationHolder.size.h - broadcastInfo.size.h - broadcastInfo.shift.y - 15 },
+		local popupClose = notificationHolder:addChild({
+			pos = { -35, 5 },
+			size = { 30, 30 },
 			interactive = true,
 			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
 		}, true)
-		broadcastRoom:addAdaptedText(nil, "Join " .. broadcast.room)
-		broadcastRoom:addMouseHandlers(nil, function()
-				runCmd("join " .. broadcast.room)
+		local popupCloseIcon = popupClose:addChild({
+			shift = { 3, 3 },
+			bgImage = "../textures/menu/general/buttons/crosswhite.tga"
+		})
+		local buttonClicked = false
+		popupClose:addMouseHandlers(nil, function()
 				buttonClicked = true
 			end)
+		local broadcastInfo = notificationHolder:addChild({
+			pos = { 10, 5 },
+			size = { notificationHolder.size.w - 20, notificationHolder.size.h - (broadcast.room and 55 or 0) }
+		})
+		local broadcastTitle = broadcastInfo:addChild({
+			pos = { 0, 0 },
+			size = { broadcastInfo.size.w - 35, 32 }
+		})
+		broadcastTitle:addAdaptedText(true, TB_MENU_LOCALIZED.BROADCASTSBROADCAST .. ": " .. broadcast.user, nil, nil, FONTS.BIG, LEFTMID, 0.8, nil, 0.6)
+		local broadcastText = broadcastInfo:addChild({
+			pos = { 0, broadcastTitle.size.h },
+			size = { broadcastInfo.size.w, broadcastInfo.size.h - broadcastTitle.size.h }
+		})
+		broadcastText:addAdaptedText(true, broadcast.msg, nil, nil, 4, LEFTMID, 0.8)
+		broadcastText.size.h = math.max(#broadcastText.dispstr * 10 * getFontMod(broadcastText.textFont) * broadcastText.textScale + 5, 45)
+		broadcastInfo.size.h = broadcastTitle.size.h + broadcastText.size.h
+		notificationHolder.size.h = broadcastInfo.size.h + (broadcast.room and 55 or 15)
+		notificationHolder:moveTo(nil, WIN_H - notificationHolder.size.h - 60)
+
+		if (broadcast.room) then
+			local broadcastRoom = notificationHolder:addChild({
+				pos = { 20, broadcastInfo.size.h + broadcastInfo.shift.y + 5 },
+				size = { notificationHolder.size.w - 40, notificationHolder.size.h - broadcastInfo.size.h - broadcastInfo.shift.y - 15 },
+				interactive = true,
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+			}, true)
+			broadcastRoom:addAdaptedText(nil, TB_MENU_LOCALIZED.BROADCASTSJOIN .. " " .. broadcast.room)
+			broadcastRoom:addMouseHandlers(nil, function()
+					runCmd("join " .. broadcast.room)
+					buttonClicked = true
+				end)
+		end
+
+		local broadcastDisplayTimer = notificationHolder:addChild({
+			pos = { 0, -notificationHolder.rounded },
+			size = { notificationHolder.rounded * 2, notificationHolder.rounded },
+			rounded = { 0, notificationHolder.rounded },
+			bgColor = UICOLORWHITE
+		}, true)
+
+		local spawnClock = UIElement.clock
+		notificationHolder:addCustomDisplay(false, function()
+				local ratio = UIElement.clock - spawnClock
+				notificationHolder:moveTo(UITween.SineTween(notificationHolder.shift.x, WIN_W - notificationHolder.size.w, ratio))
+				if (ratio >= 1) then
+					local clock = UIElement.clock
+					notificationHolder:addCustomDisplay(false, function()
+							local progress = math.min(1, (UIElement.clock - clock) / self.DisplayDuration)
+							broadcastDisplayTimer.size.w = math.max(notificationHolder.size.w * progress, broadcastDisplayTimer.size.w)
+							if (progress == 1 or buttonClicked) then
+								spawnClock = UIElement.clock
+								notificationHolder:addCustomDisplay(false, function()
+										local ratio = UIElement.clock - spawnClock
+										notificationHolder:moveTo(UITween.SineTween(notificationHolder.shift.x, WIN_W, ratio))
+										if (ratio >= 1) then
+											notificationHolder:kill()
+										end
+									end)
+							end
+						end)
+				end
+			end)
 	end
-
-	local broadcastDisplayTimer = notificationHolder:addChild({
-		pos = { 0, -notificationHolder.rounded },
-		size = { notificationHolder.rounded * 2, notificationHolder.rounded },
-		rounded = { 0, notificationHolder.rounded },
-		bgColor = UICOLORWHITE
-	}, true)
-
-	local spawnClock = UIElement.clock
-	notificationHolder:addCustomDisplay(false, function()
-			local ratio = UIElement.clock - spawnClock
-			notificationHolder:moveTo(UITween.SineTween(notificationHolder.shift.x, WIN_W - notificationHolder.size.w, ratio))
-			if (ratio >= 1) then
-				local clock = UIElement.clock
-				notificationHolder:addCustomDisplay(false, function()
-						local progress = math.min(1, (UIElement.clock - clock) / self.DisplayDuration)
-						broadcastDisplayTimer.size.w = math.max(notificationHolder.size.w * progress, broadcastDisplayTimer.size.w)
-						if (progress == 1 or buttonClicked) then
-							spawnClock = UIElement.clock
-							notificationHolder:addCustomDisplay(false, function()
-									local ratio = UIElement.clock - spawnClock
-									notificationHolder:moveTo(UITween.SineTween(notificationHolder.shift.x, WIN_W, ratio))
-									if (ratio >= 1) then
-										notificationHolder:kill()
-									end
-								end)
-						end
-					end)
-			end
-		end)
 	self.LastBroadcast = broadcast.id
 	return true
 end

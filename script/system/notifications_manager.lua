@@ -164,7 +164,7 @@ function Notifications:getNetworkNotifications()
 	end
 
 	local cachedPmIds = {}
-	for _,v in pairs(NotificationsInternal.NotificationsData) do
+	for _, v in pairs(NotificationsInternal.NotificationsData) do
 		table.insert(cachedPmIds, v.id)
 	end
 
@@ -190,6 +190,7 @@ function Notifications:getNetworkNotifications()
 					})
 				end
 			end
+			NotificationsInternal.NotificationsData = table.qsort(NotificationsInternal.NotificationsData, { "id" }, { SORT_DESCENDING })
 		end)
 end
 

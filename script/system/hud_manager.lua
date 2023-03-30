@@ -68,6 +68,26 @@ if (TBHud == nil) then
 
 	TBHud.DefaultSmallerButtonSize = TBHud.DefaultButtonSize * 0.7
 	TBHud.SafeAreaOffset = TBHud.DefaultButtonSize * 3
+
+	---Mobile hud popup class
+	---@class TBHudPopup : UIElement
+	---@field Manager UIElement
+	---@field Queue TBHudPopup[]
+	---@field DefaultDuration number
+	---@field PopupActive boolean
+	---@field __touchPos Vector2
+	---@field __touchDelta Vector2
+	---@field __launchClock number|nil
+	---@field __touchClock number|nil
+	---@field __duration number
+	TBHudPopup = {
+		ver = TBHud.ver,
+		Queue = {},
+		DefaultDuration = 10,
+		PopupActive = false
+	}
+	TBHudPopup.__index = TBHudPopup
+	setmetatable(TBHudPopup, UIElement)
 end
 
 ---Internal subclass for **TBHud** that holds utility functions we won't need elsewhere
@@ -1214,6 +1234,135 @@ function TBHud:spawnChat()
 
 	self.ChatHolder:hide(true)
 end
+
+---Initialized popup manager UIElement
+function TBHudInternal.PopupInit()
+	if (TBHudPopup.Manager) then
+		if (not TBHudPopup.Manager:isDisplayed()) then
+			TBHudPopup.Manager:show()
+		end
+		return
+	end
+
+	TBHudPopup.Manager = UIElement:new({
+		globalid = TBHud.Globalid,
+		pos = { 0, 0 },
+		size = { 0, 0 }
+	})
+	TBHudPopup.Manager:addCustomDisplay(true, function()
+			if (not TBHudPopup.PopupActive and #TBHudPopup.Queue > 0) then
+				TBHudPopup.PopupActive = true
+				TBHudPopup.Queue[1].__launchClock = UIElement.clock
+				TBHudPopup.Queue[1]:show()
+				table.remove(TBHudPopup.Queue, 1)
+				for _, v in pairs(TBHudPopup.Queue) do
+					if (v:isDisplayed()) then
+						v:hide()
+					end
+				end
+			end
+			if (#TBHudPopup.Queue == 0) then
+				TBHudPopup.Manager:hide()
+			end
+		end)
+	TBHudPopup.Manager:show()
+end
+
+---Updates popup's launch time to trigger close animation
+function TBHudPopup:Close()
+	self.__launchClock = UIElement.clock - self.__duration - 0.2
+end
+
+---Creates a generic mobile popup view at the top of the screen
+---@param duration ?number
+---@return TBHudPopup
+function TBHudPopup.New(duration)
+	TBHudInternal.PopupInit()
+
+	local _, safe_y = get_window_safe_size()
+	safe_y = math.max(10, safe_y)
+	local popupWidth = math.min(1000, WIN_W * 0.6)
+	local popupHeight = math.min(100, WIN_H * 0.2)
+
+	---@type TBHudPopup
+	---@diagnostic disable-next-line: assign-type-mismatch
+	local popupView = UIElement:new({
+		globalid = TBHud.Globalid,
+		pos = { (WIN_W - popupWidth) / 2, -popupHeight },
+		size = { popupWidth, popupHeight },
+		interactive = true,
+		bgColor = table.clone(TB_MENU_DEFAULT_BG_COLOR),
+		shapeType = ROUNDED,
+		rounded = 10
+	})
+	setmetatable(popupView, TBHudPopup)
+	popupView.bgColor[4] = 0.9
+	popupView.__duration = duration or TBHudPopup.DefaultDuration
+	popupView.__touchPos = { x = -1, y = -1 }
+	popupView.__touchDelta = { x = 0, y = 0 }
+	popupView.killAction = function() TBHudPopup.PopupActive = false end
+
+	local mouseUp = function()
+		enable_mouse_camera_movement()
+		popupView.__touchPos.x = -1
+		popupView.__touchPos.y = -1
+		popupView.__touchDelta.x = 0
+		popupView.__touchDelta.y = 0
+		popupView.__launchClock = popupView.__launchClock + (UIElement.clock - popupView.__touchClock)
+		popupView.__touchClock = UIElement.clock
+	end
+	popupView:addMouseHandlers(function(_, x, y)
+			disable_mouse_camera_movement()
+			popupView.__touchPos.x = x
+			popupView.__touchPos.y = y
+			popupView.__touchClock = UIElement.clock
+		end, mouseUp, function(x, y)
+			if (popupView.hoverState == BTN_DN) then
+				popupView.__touchDelta.x = x - popupView.__touchPos.x
+				popupView.__touchDelta.y = y - popupView.__touchPos.y
+			end
+		end, nil, mouseUp)
+
+	popupView:addCustomDisplay(function()
+			if (popupView.__launchClock == nil) then return end
+			if (popupView.pos.y < safe_y) then
+				popupView:moveTo(nil, UITween.SineTween(popupView.pos.y, safe_y, UIElement.clock - popupView.__launchClock))
+				popupView:updatePos()
+			else
+				popupView:addCustomDisplay(function()
+					if (UIElement.clock - popupView.__launchClock > popupView.__duration) then
+						if (popupView.pos.y > -popupView.size.h) then
+							popupView:moveTo(nil, UITween.SineTween(popupView.pos.y, -popupView.size.h, UIElement.clock - popupView.__duration - popupView.__launchClock))
+							popupView:updatePos()
+						else
+							popupView:kill()
+						end
+					elseif (popupView.__touchPos.y ~= -1) then
+						if (popupView.__touchDelta.y ~= 0) then
+							popupView.__touchPos.x = MOUSE_X
+							popupView.__touchPos.y = MOUSE_Y
+							popupView:moveTo(nil, popupView.__touchDelta.y, true)
+							if (popupView.pos.y > safe_y) then
+								popupView:moveTo(nil, safe_y)
+							end
+							popupView:updatePos()
+							if (math.abs(popupView.__touchDelta.y) > 25 or popupView.pos.y < -popupView.size.h * 0.8) then
+								popupView:Close()
+							end
+							popupView.__touchDelta.y = 0
+							popupView.__touchDelta.x = 0
+						end
+					elseif (popupView.pos.y ~= safe_y) then
+						popupView:moveTo(nil, UITween.SineTween(popupView.pos.y, safe_y, (UIElement.clock - popupView.__touchClock) * 2))
+					end
+				end, true)
+			end
+		end, true)
+
+	table.insert(TBHudPopup.Queue, popupView)
+	return popupView
+end
+
 TBHud.Reload()
 add_hook("resolution_changed", "tbHudTouchInterface", TBHud.Reload)
 add_hook("new_game", "tbHudTouchInterface", TBHudInternal.refreshButtons)
