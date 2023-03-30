@@ -189,6 +189,7 @@ if (not UIElement) then
 	---@field toggle boolean Whether the object will be used as a toggle
 	---@field innerShadow number|number[]
 	---@field shadowColor Color|Color[]
+	---@field shadowOffset number
 	---@field shapeType UIElementShape
 	---@field rounded number|number[] Rounding size to use for an object with `ROUNDED` shapeType
 	---@field scrollEnabled boolean
@@ -264,6 +265,7 @@ if (not UIElement) then
 	---@field toggle boolean Internal value to modify behavior for elements that are going to be used as toggles
 	---@field innerShadow number[] Table containing top and bottom inner shadow size
 	---@field shadowColor Color[] Table containing top and bottom inner shadow colors
+	---@field shadowOffset number Custom text shadow offset value to use for uiText() rendering
 	---@field shapeType UIElementShape Object's shape type. Can be either SQUARE (1) or ROUNDED (2).
 	---@field roundedInternal number[] Values that the object will use for rounding edges (top and bottom)
 	---@field rounded number Max value out of UIElement.roundedInternal values
@@ -416,6 +418,9 @@ function UIElement:new(o)
 	end
 	if (o.uiShadowColor) then
 		elem.uiShadowColor = o.uiShadowColor
+	end
+	if (o.shadowOffset) then
+		elem.shadowOffset = o.shadowOffset
 	end
 	if (o.viewport) then
 		elem.viewport = o.viewport
@@ -2112,7 +2117,7 @@ function UIElement:uiText(input, x, y, font, align, scale, angle, shadow, col1, 
 			return false
 		elseif (self.size.h > (pos + 2) * font_mod * 10 * scale) then
 			if (check == false) then
-				draw_text_new(str[i], xPos, yPos + (pos * font_mod * 10 * scale), angle, scale, font, shadow, col1, col2, intensity, smoothing, self.shadowFontid)
+				draw_text_new(str[i], xPos, yPos + (pos * font_mod * 10 * scale), angle, scale, font, shadow, col1, col2, intensity, smoothing, self.shadowFontid, self.shadowOffset)
 			elseif (#str == i) then
 				return true
 			end
@@ -2121,11 +2126,11 @@ function UIElement:uiText(input, x, y, font, align, scale, angle, shadow, col1, 
 			if (check == true) then
 				return false
 			end
-			draw_text_new(str[i]:gsub(".$", "..."), xPos, yPos + (pos * font_mod * 10 * scale), angle, scale, font, shadow, col1, col2, intensity, smoothing, self.shadowFontid)
+			draw_text_new(str[i]:gsub(".$", "..."), xPos, yPos + (pos * font_mod * 10 * scale), angle, scale, font, shadow, col1, col2, intensity, smoothing, self.shadowFontid, self.shadowOffset)
 			break
 		else
 			if (check == false) then
-				draw_text_new(str[i], xPos, yPos + (pos * font_mod * 10 * scale), angle, scale, font, shadow, col1, col2, intensity, smoothing, self.shadowFontid)
+				draw_text_new(str[i], xPos, yPos + (pos * font_mod * 10 * scale), angle, scale, font, shadow, col1, col2, intensity, smoothing, self.shadowFontid, self.shadowOffset)
 			else
 				return true
 			end
@@ -2534,7 +2539,8 @@ end
 ---@param intensity ?number
 ---@param pixelPerfect ?boolean Whether to floor the text position to make sure we don't start mid-pixel
 ---@param shadowFontId ?integer Font id for text shadow retrieved from `generate_font()`
-_G.draw_text_new = function(str, xPos, yPos, angle, scale, font, shadow, color, shadowColor, intensity, pixelPerfect, shadowFontId)
+---@param shadowOffset ?number Shadow offset override
+_G.draw_text_new = function(str, xPos, yPos, angle, scale, font, shadow, color, shadowColor, intensity, pixelPerfect, shadowFontId, shadowOffset)
 	local shadow = shadow or nil
 	local xPos = pixelPerfect and math.floor(xPos) or xPos
 	local yPos = pixelPerfect and math.floor(yPos) or yPos
@@ -2542,8 +2548,9 @@ _G.draw_text_new = function(str, xPos, yPos, angle, scale, font, shadow, color, 
 	local col2 = shadowColor or DEFSHADOWCOLOR
 	local intensity = intensity or col1[4]
 	if (shadow) then
+		local offset = shadowOffset or shadow / 2
 		set_color(unpack(col2))
-		draw_text_angle_scale(str, xPos - shadow / 2, yPos - shadow / 2, angle, scale, shadowFontId or generate_font(font, 1, shadow))
+		draw_text_angle_scale(str, xPos - offset, yPos - offset, angle, scale, shadowFontId or generate_font(font, 1, shadow))
 	end
 
 	if (col1[4] == 0) then return end

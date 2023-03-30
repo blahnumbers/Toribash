@@ -48,9 +48,11 @@ if (Quests == nil) then
 	---@field QuestsData QuestData[] Table containing all active regular quests for current user
 	---@field QuestsGlobalData QuestData[] Table containing information on all global quests for the user
 	---@field QuestDataErrors integer Will be non-zero if quest data file parsing resulted in an error
+	---@field PopupDisplayDuration number
 	Quests = {
 		ver = 5.60,
-		QuestDataErrors = 0
+		QuestDataErrors = 0,
+		PopupDisplayDuration = 2.5
 	}
 	setmetatable({}, Quests)
 end
@@ -67,7 +69,7 @@ function Quests:download(override)
 
 	local downloads = get_downloads()
 	local downloadingQuest, downloadingGlobalQuest
-	for i,v in pairs(downloads) do
+	for _, v in pairs(downloads) do
 		if (v:find("quest.txt$")) then
 			downloadingQuest = true
 		elseif (v:find("quests_global.txt$")) then
@@ -123,7 +125,7 @@ function Quests:getQuests()
 		{ "description" }
 	}
 
-	for i, ln in pairs(file:readAll()) do
+	for _, ln in pairs(file:readAll()) do
 		if (not ln:find("^#")) then
 			local _, segments = ln:gsub("([^\t]*)\t?", "")
 			local dataStream = { ln:match(("([^\t]*)\t?"):rep(segments)) }
@@ -216,7 +218,7 @@ end
 
 ---Returns quest data with the matching quest id. If no quest is found, returns `false`.
 ---@param id integer
----@return QuestData|boolean
+---@return QuestData?
 function Quests:getQuestById(id)
 	if (not Quests.QuestsData) then
 		Quests:getQuests()
@@ -228,7 +230,7 @@ function Quests:getQuestById(id)
 			end
 		end
 	end
-	return false
+	return nil
 end
 
 ---@param quest QuestData
@@ -355,6 +357,10 @@ function Quests:drawRewardText(quest, viewElement)
 	end
 end
 
+---Queues a network request to claim the specified quest with callbacks
+---@param quest QuestData
+---@param successFunc function?
+---@param errorFunc function?
 function Quests:claim(quest, successFunc, errorFunc)
 	Request:queue(function() claim_quest(quest.id) end, "questclaim" .. quest.id, function()
 		local response = get_network_response()

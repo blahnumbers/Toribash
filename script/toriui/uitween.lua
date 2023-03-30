@@ -1,12 +1,11 @@
 require("toriui.uielement3d")
 
-local m_elasticA = 1.0
-local m_elasticP = 0.3
-local m_elasticS = m_elasticP / 4
-local m_backS = 1.70158;
+---@alias UITweenMode
+---| "linear"
+---| "sine"
 
 if (UITween == nil) then
-	---Manager class to allow generic smooth transitions
+	---Manager class to allow framerate independent smooth transitions
 	UITween = {
 		ver = 5.60,
 		__index = {}
@@ -26,28 +25,65 @@ local function clamp(ratio)
 	return ratio, false
 end
 
----Tweens a value from 0 to 1 according to the specified mode
+---Tweens a value according to the specified mode
+---@param mode UITweenMode
 ---@param ratio number
----@param mode? string
----@return number
-function UITween.EaseIn(ratio, mode)
-	return UITween.SineEaseIn(ratio)
+---@param value number?
+---@return number?
+function UITween.EaseIn(mode, ratio, value)
+	if (mode == "sine") then
+		return UITween.SineEaseIn(ratio, value)
+	elseif (mode == "linear") then
+		return UITween.LinearEaseIn(ratio, value)
+	end
+	return UITween.LinearEaseIn(ratio, value)
+end
+
+---Tweens a value according to the specified mode
+---@param mode UITweenMode
+---@param ratio number
+---@param value number?
+---@return number?
+function UITween.EaseOut(mode, ratio, value)
+	if (mode == "sine") then
+		return UITween.SineEaseOut(ratio, value)
+	elseif (mode == "linear") then
+		return UITween.LinearEaseOut(ratio, value)
+	end
+	return UITween.LinearEaseOut(ratio, value)
+end
+
+---Returns a tweened value between x and y according to the sepcified mode
+---@param mode UITweenMode
+---@param x number
+---@param y number
+---@param ratio number
+---@return number?
+function UITween.TweenValue(mode, x, y, ratio)
+	if (mode == "sine") then
+		return UITween.SineTween(x, y, ratio)
+	elseif (mode == "linear") then
+		return UITween.LinearTween(x, y, ratio)
+	end
+	return UITween.LinearTween(x, y, ratio)
 end
 
 ---@param ratio number
+---@param value number?
 ---@return number
-function UITween.SineEaseIn(ratio)
+function UITween.SineEaseIn(ratio, value)
 	local ratio, exit = clamp(ratio)
-	if (exit) then return ratio end
-	return 1 - math.cos(ratio * (math.pi / 2));
+	if (exit) then return (value or 1) * ratio end
+	return (value or 1) * (1 - math.cos(ratio * (math.pi / 2)));
 end
 
 ---@param ratio number
+---@param value number?
 ---@return number
-function UITween.SineEaseOut(ratio)
+function UITween.SineEaseOut(ratio, value)
 	local ratio, exit = clamp(ratio)
-	if (exit) then return ratio end
-	return math.sin(ratio * (math.pi / 2));
+	if (exit) then return (value or 1) * ratio end
+	return (value or 1) * math.sin(ratio * (math.pi / 2));
 end
 
 ---@param x number
@@ -56,5 +92,29 @@ end
 ---@return number
 function UITween.SineTween(x, y, ratio)
 	local ratio = clamp(ratio)
-	return x * UITween.SineEaseOut(1 - ratio) + y * UITween.SineEaseIn(ratio)
+	return UITween.SineEaseOut(1 - ratio, x) + UITween.SineEaseIn(ratio, y)
+end
+
+---@param ratio number
+---@param value number?
+---@return number
+function UITween.LinearEaseIn(ratio, value)
+	local ratio = clamp(ratio)
+	return (value or 1) * ratio;
+end
+
+---@param ratio number
+---@param value number?
+---@return number
+function UITween.LinearEaseOut(ratio, value)
+	local ratio = clamp(ratio)
+	return (value or 1) * (1 - ratio);
+end
+
+---@param x number
+---@param y number
+---@param ratio number
+---@return number
+function UITween.LinearTween(x, y, ratio)
+	return UITween.LinearEaseOut(ratio, x) + UITween.LinearEaseIn(ratio, y)
 end

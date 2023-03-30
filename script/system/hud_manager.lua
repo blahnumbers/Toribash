@@ -1326,13 +1326,13 @@ function TBHudPopup.New(duration)
 	popupView:addCustomDisplay(function()
 			if (popupView.__launchClock == nil) then return end
 			if (popupView.pos.y < safe_y) then
-				popupView:moveTo(nil, UITween.SineTween(popupView.pos.y, safe_y, UIElement.clock - popupView.__launchClock))
+				popupView:moveTo(nil, math.ceil(UITween.SineTween(popupView.pos.y, safe_y, UIElement.clock - popupView.__launchClock)))
 				popupView:updatePos()
 			else
 				popupView:addCustomDisplay(function()
 					if (UIElement.clock - popupView.__launchClock > popupView.__duration) then
 						if (popupView.pos.y > -popupView.size.h) then
-							popupView:moveTo(nil, UITween.SineTween(popupView.pos.y, -popupView.size.h, UIElement.clock - popupView.__duration - popupView.__launchClock))
+							popupView:moveTo(nil, math.floor(UITween.SineTween(popupView.pos.y, -popupView.size.h, UIElement.clock - popupView.__duration - popupView.__launchClock)))
 							popupView:updatePos()
 						else
 							popupView:kill()
@@ -1352,8 +1352,8 @@ function TBHudPopup.New(duration)
 							popupView.__touchDelta.y = 0
 							popupView.__touchDelta.x = 0
 						end
-					elseif (popupView.pos.y ~= safe_y) then
-						popupView:moveTo(nil, UITween.SineTween(popupView.pos.y, safe_y, (UIElement.clock - popupView.__touchClock) * 2))
+					elseif (popupView.pos.y ~= safe_y and popupView.__touchClock ~= nil) then
+						popupView:moveTo(nil, math.ceil(UITween.SineTween(popupView.pos.y, safe_y, (UIElement.clock - popupView.__touchClock) * 2)))
 					end
 				end, true)
 			end

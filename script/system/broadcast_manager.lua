@@ -23,7 +23,7 @@ if (not Broadcasts or TB_MENU_DEBUG) then
 	---@field IsActive boolean Whether Broadcasts manager is currently active
 	---@field LastBroadcast integer Last displayed broadcast ID
 	---@field DisplayDuration integer Popup display duration in seconds
-	---@field IsDisplayed boolean Whether there's a broadcast popup displayed at the moment
+	---@field IsDisplayed boolean Whether there's a broadcast popup displayed at the moment, only used on desktop platforms
 	---@field StalePeriod integer Cutoff in seconds to consider broadcast stale
 	Broadcasts = {
 		ver = 5.60,
@@ -47,10 +47,9 @@ function Broadcasts:showBroadcast(broadcast)
 
 	if (is_mobile()) then
 		local popupView = TBHudPopup.New(self.DisplayDuration)
-		popupView:addChild({}).killAction = function() self.IsDisplayed = false end
 		local broadcastInfo = popupView:addChild({
-			pos = { 10, 5 },
-			size = { broadcast.room and (popupView.size.w - 30) * 0.7 or popupView.size.w - 20, popupView.size.h - 10 }
+			pos = { 20, 5 },
+			size = { broadcast.room and (popupView.size.w - 50) * 0.7 or popupView.size.w - 20, popupView.size.h - 10 }
 		})
 		local broadcastTitle = broadcastInfo:addChild({
 			pos = { 0, 0 },
@@ -69,10 +68,8 @@ function Broadcasts:showBroadcast(broadcast)
 				size = { popupView.size.w - broadcastInfo.shift.x * 3 - broadcastInfo.size.w, broadcastInfo.size.h }
 			}, true)
 			local broadcastRoom = broadcastButtonHolder:addChild({
-				shift = { 10, 10 },
+				shift = { 0, 10 },
 				interactive = true,
-				clickThrough = true,
-				hoverThrough = true,
 				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
