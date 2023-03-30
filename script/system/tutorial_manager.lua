@@ -1109,6 +1109,7 @@ end
 ---@param joint PlayerJoint
 ---@return integer
 function Tutorials.HandleJointSelect(_, joint)
+	if (not TUTORIALJOINTLOCK) then return 0 end
 	for _, v in pairs(Tutorials.UnignoredJoints) do
 		if (joint == v) then
 			return 0
@@ -1123,10 +1124,9 @@ end
 ---@param body PlayerBody
 ---@return integer
 function Tutorials.HandleBodySelect(_, body)
-	if (not TUTORIALJOINTLOCK) then
-		if (body == 11 or body == 12) then
-			return 0
-		end
+	if (not TUTORIALJOINTLOCK) then return 0 end
+	if (body == 11 or body == 12) then
+		return 0
 	end
 	Tooltip.TouchDeselect()
 	return 1

@@ -953,18 +953,22 @@ function TBMenu:getTime(seconds, cut)
 end
 
 ---Spawns an overlay that slightly dims main menu
----@param globalid ?integer Deprecated
+---@param globalid ?integer
 ---@param withMouseHandler ?boolean
 ---@return UIElement
 ---@overload fun(self: TBMenu, withMouseHandler: boolean) : UIElement
 function TBMenu:spawnWindowOverlay(globalid, withMouseHandler)
 	if (type(globalid) == "boolean") then
 		withMouseHandler = globalid
+		globalid = nil
 	end
 	TB_MENU_POPUPS_DISABLED = true
 	UIScrollbarIgnore = true
 	local overlay = UIElement:new({
-		parent = TBMenu.MenuMain,
+		---@diagnostic disable-next-line: assign-type-mismatch
+		globalid = globalid,
+		---@diagnostic disable-next-line: assign-type-mismatch
+		parent = globalid == nil and TBMenu.MenuMain,
 		pos = { 0, 0 },
 		size = { WIN_W, WIN_H },
 		interactive = true,
