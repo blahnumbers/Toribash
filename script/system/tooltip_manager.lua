@@ -424,7 +424,7 @@ function Tooltip:showTouchControls()
 			end
 
 			local ratio = (UIElement.clock - touchControlsHolder.pressTimer - Tooltip.TouchInputDelay) / Tooltip.TouchInputGrowDuration
-			local tweenRatio = UITween.EaseIn(ratio)
+			local tweenRatio = UITween.SineEaseIn(ratio)
 			touchControlsVisual.size.w = touchControlsHolder.size.w * tweenRatio
 			touchControlsVisual.size.h = touchControlsVisual.size.w
 			local moveTarget = math.floor((touchControlsHolder.size.w - touchControlsVisual.size.w) / 2)
