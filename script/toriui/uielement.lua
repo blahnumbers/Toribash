@@ -2427,15 +2427,16 @@ _G.textAdapt = function(str, font, scale, maxWidth, check, textfield, singleLine
 
 	local destStr = {}
 	local newStr = ""
-	local word = ''
+	local word = ""
+
 	-- Fix newlines, remove redundant spaces and ensure the string is in fact a string
 	local str, _ = string.gsub(str, "\\n", "\n")
 	str = str:gsub("^%s*", "")
 	str = str:gsub("%s*$", "")
 
 	local function getWord(checkstr)
-		local newlined = checkstr:match("^.*\n")
-		word = checkstr:match("^%s*%S+%s*")
+		local newlined = utf8.match(checkstr, "^.*\n")
+		local word = utf8.match(checkstr, "^%s*%S+%s*")
 		if (newlined) then
 			if (utf8.len(newlined) < utf8.len(word)) then
 				word = newlined
@@ -2446,7 +2447,7 @@ _G.textAdapt = function(str, font, scale, maxWidth, check, textfield, singleLine
 
 	local function buildString(checkstr)
 		if (textfield) then
-			word = checkstr:match("^[^\n]*%S*[^\n]*\n") or checkstr:match("^%s*%S+%s*")
+			word = utf8.match(checkstr, "^[^\n]*%S*[^\n]*\n") or utf8.match(checkstr, "^%s*%S+%s*")
 		else
 			word = getWord(checkstr)
 		end
@@ -2456,13 +2457,12 @@ _G.textAdapt = function(str, font, scale, maxWidth, check, textfield, singleLine
 	if (textfield and singleLine) then
 		local strlen = get_string_length(str, font) * scale
 		local targetIndex = 1
-		while (strlen > maxWidth) do
+		while (strlen > maxWidth and str ~= "") do
 			local step = 2
 			local len = utf8.len(str)
 			local reverseStep = len
 			if (strlen > maxWidth) then
-				step = len - math.ceil(len / strlen * maxWidth)
-				step = step > 1 and step or 2
+				step = math.min(2, len - math.ceil(len / strlen * maxWidth))
 			end
 			while (targetIndex + step >= textfieldIndex) do
 				step = step - 1
@@ -2478,28 +2478,32 @@ _G.textAdapt = function(str, font, scale, maxWidth, check, textfield, singleLine
 	end
 
 	local newline = false
-	local maxIterations = 1000
-	while (str ~= "" and maxIterations > 0) do
-		maxIterations = maxIterations - 1
+	local laststr = nil
+	while (str ~= "" and laststr ~= str) do
+		laststr = str
 		word = buildString(str)
 
 		-- Wrap word around if it still exceeds text field width
 		if (not check) then
-			local _, words = word:gsub("%s", "")
-			if (words == 0) then
-				while (get_string_length(word:gsub("%s*$", ""), font) * scale > maxWidth) do
-					word = utf8.sub(word, 1, utf8.len(word) - 1)
-				end
-			else
-				while (words > 0 and get_string_length(word:gsub("%s*$", ""), font) * scale > maxWidth) do
+			local _, words = utf8.gsub(word, "%s", "")
+			while (words > 0) do
+				local checkword = utf8.gsub(word, "%s*$", "")
+				if (checkword ~= word and get_string_length(checkword, font) * scale > maxWidth) then
 					local pos = word:find("%s")
 					if (pos == utf8.len(word)) then
 						break
 					end
 					word = utf8.sub(word, 1, pos)
+				else
+					break
 				end
-				while (get_string_length(word:gsub("%s*$", ""), font) * scale > maxWidth) do
+			end
+			while (1) do
+				local checkword = utf8.gsub(word, "%s*$", "")
+				if (checkword ~= word and get_string_length(checkword, font) * scale > maxWidth) then
 					word = utf8.sub(word, 1, utf8.len(word) - 1)
+				else
+					break
 				end
 			end
 		end
