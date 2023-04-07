@@ -175,11 +175,13 @@ function RoomList:showRoomInfo(room)
 	if (room.num_players > 0) then
 		table.insert(infoBits, "")
 		table.insert(infoBits, TB_MENU_LOCALIZED.ROOMLISTROOMPLAYERS)
+		local playersSorted = {}
 		for _, v in pairs(room.players) do
-			if (utf8.find(v, "^​")) then
-				v = "^08" .. v
-			end
-			table.insert(infoBits, "  " .. v)
+			local name, cnt = utf8.gsub(v, "^​", "")
+			table.insert(playersSorted, { name = name, spec = cnt > 0 })
+		end
+		for _, v in pairs(table.qsort(playersSorted, "spec")) do
+			table.insert(infoBits, "  " .. (v.spec and "%121" or "") .. v.name)
 		end
 	end
 
