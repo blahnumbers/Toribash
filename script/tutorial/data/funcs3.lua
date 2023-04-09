@@ -34,10 +34,10 @@ local function requireKeyPress(viewElement, reqTable, key, show)
 				if (show and button.hoverState ~= BTN_NONE) then
 					button.hoverState = BTN_NONE
 					req.ready = true
-					reqTable.ready = Tutorials.CheckRequirements(reqTable)
+					reqTable.ready = Tutorials:checkRequirements(reqTable)
 				elseif (not show) then
 					req.ready = true
-					reqTable.ready = Tutorials.CheckRequirements(reqTable)
+					reqTable.ready = Tutorials:checkRequirements(reqTable)
 				end
 			end
 		end)
@@ -307,7 +307,7 @@ local function checkJointStates(viewElement, reqTable)
 			for i,v in pairs(JOINTS) do
 				if (get_joint_info(0, v).state ~= states[v]) then
 					req.ready = true
-					reqTable.ready = Tutorials.CheckRequirements(reqTable)
+					reqTable.ready = Tutorials:checkRequirements(reqTable)
 					checker:kill()
 				end
 			end
