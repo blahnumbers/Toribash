@@ -1176,3 +1176,5 @@ SETTINGSCAMERAFOCUSPLAYER	Focus on selected player
 SETTINGSCAMERAFOCUSJOINT	Focus on selected joint
 BROADCASTSBROADCAST	Broadcast
 BROADCASTSJOIN	Join
+REPLAYSNOCOMMENTS	This replay has no comments yet. Would you like to be the first one to leave a comment?
+REPLAYSERRORGETTINGCOMMENTS	Error getting replay comments, please try again later.

@@ -179,6 +179,12 @@ end
 
 add_hook("draw2d", "tbMainMenuVisual", function() UIElement:drawVisuals(TB_MENU_MAIN_GLOBALID) end)
 add_hook("draw_viewport", "tbMainMenuVisual", function() UIElement3D:drawViewport(TB_MENU_MAIN_GLOBALID) end)
+add_hook("resolution_changed", "tbMainMenuVisual", function()
+		if (TB_MENU_MAIN_ISOPEN == 1) then
+			close_menu()
+			open_menu(19)
+		end
+	end)
 
 add_hook("downloader_complete", "tbMainMenuStatic", function(filename)
 		if (filename:find("custom/.*/item.dat") and not filename:find(TB_MENU_PLAYER_INFO.username)) then

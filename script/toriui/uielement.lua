@@ -81,7 +81,7 @@ SCROLL_HORIZONTAL = 2
 SORT_DESCENDING = true
 SORT_ASCENDING = false
 
--- Default texture that will be used for fallback by UIElement:updateTexture()
+-- Default texture that will be used for fallback by `UIElement:updateTexture()`
 DEFTEXTURE = "../textures/menu/logos/toribash.tga"
 TEXTURECACHE = TEXTURECACHE or {}
 TEXTUREINDEX = TEXTUREINDEX or 0
@@ -2435,10 +2435,10 @@ _G.textAdapt = function(str, font, scale, maxWidth, check, textfield, singleLine
 	str = str:gsub("%s*$", "")
 
 	local function getWord(checkstr)
-		local newlined = utf8.match(checkstr, "^.*\n")
-		local word = utf8.match(checkstr, "^%s*%S+%s*")
+		local newlined = string.match(checkstr, "^.*\n")
+		local word = string.match(checkstr, "^%s*%S+%s*")
 		if (newlined) then
-			if (utf8.len(newlined) < utf8.len(word)) then
+			if (string.len(newlined) < string.len(word)) then
 				word = newlined
 			end
 		end
@@ -2447,7 +2447,7 @@ _G.textAdapt = function(str, font, scale, maxWidth, check, textfield, singleLine
 
 	local function buildString(checkstr)
 		if (textfield) then
-			word = utf8.match(checkstr, "^[^\n]*%S*[^\n]*\n") or utf8.match(checkstr, "^%s*%S+%s*")
+			word = string.match(checkstr, "^[^\n]*%S*[^\n]*\n") or string.match(checkstr, "^%s*%S+%s*")
 		else
 			word = getWord(checkstr)
 		end
@@ -2459,7 +2459,7 @@ _G.textAdapt = function(str, font, scale, maxWidth, check, textfield, singleLine
 		local targetIndex = 1
 		while (strlen > maxWidth and str ~= "") do
 			local step = 2
-			local len = utf8.len(str)
+			local len = string.len(str)
 			local reverseStep = len
 			if (strlen > maxWidth) then
 				step = math.min(2, len - math.ceil(len / strlen * maxWidth))
@@ -2471,7 +2471,7 @@ _G.textAdapt = function(str, font, scale, maxWidth, check, textfield, singleLine
 					break
 				end
 			end
-			str = utf8.sub(str, step, reverseStep)
+			str = string.sub(str, step, reverseStep)
 			strlen = get_string_length(str, font) * scale
 		end
 		return { str }
@@ -2485,23 +2485,23 @@ _G.textAdapt = function(str, font, scale, maxWidth, check, textfield, singleLine
 
 		-- Wrap word around if it still exceeds text field width
 		if (not check) then
-			local _, words = utf8.gsub(word, "%s", "")
+			local _, words = string.gsub(word, "%s", "")
 			while (words > 0) do
-				local checkword = utf8.gsub(word, "%s*$", "")
+				local checkword = string.gsub(word, "%s*$", "")
 				if (checkword ~= word and get_string_length(checkword, font) * scale > maxWidth) then
-					local pos = word:find("%s")
-					if (pos == utf8.len(word)) then
+					local pos = string.find(word, "%s")
+					if (pos == string.len(word)) then
 						break
 					end
-					word = utf8.sub(word, 1, pos)
+					word = string.sub(word, 1, pos)
 				else
 					break
 				end
 			end
 			while (1) do
-				local checkword = utf8.gsub(word, "%s*$", "")
+				local checkword = string.gsub(word, "%s*$", "")
 				if (checkword ~= word and get_string_length(checkword, font) * scale > maxWidth) then
-					word = utf8.sub(word, 1, utf8.len(word) - 1)
+					word = string.sub(word, 1, string.len(word) - 1)
 				else
 					break
 				end
@@ -2514,8 +2514,8 @@ _G.textAdapt = function(str, font, scale, maxWidth, check, textfield, singleLine
 		else
 			newStr = newStr .. word
 		end
-		str = utf8.sub(str, utf8.len(word) + 1)
-		newline = word:match("\n") or word:match("\\n")
+		str = string.sub(str, string.len(word) + 1)
+		newline = string.match(word, "\n") or string.match(word, "\\n")
 	end
 	table.insert(destStr, newStr)
 

@@ -1065,15 +1065,8 @@ function set_body_force(player, body, x, y, z) end
 ---@param z number
 function set_body_torque(player, body, x, y, z) end
 
----@alias JointInfoState
----| 0 #None
----| 1 #Forward
----| 2 #Backward
----| 3 #Hold
----| 4 #Relax
-
 ---@class JointInfo
----@field state JointInfoState
+---@field state PlayerJointState
 ---@field screen_state string Adapted readable state name
 ---@field name string
 ---@field mod_name string
@@ -1656,10 +1649,10 @@ function download_replay(id, name) end
 
 ---Fetches the list of replays that match the provided settings\
 ---@see Request
----@param start_id integer
+---@param action_id integer
 ---@param offset integer
 ---@param search ?string
-function fetch_replay_results(start_id, offset, search) end
+function fetch_replay_results(action_id, offset, search) end
 
 ---@deprecated
 ---To be removed in future releases, use `fetch_replay_results()` instead

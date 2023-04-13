@@ -141,14 +141,14 @@ do
 	end
 
 	-- Writes a line to the debug.txt file located in Toribash root folder
-	---@param line string
+	---@param line any
 	---@param rewrite? boolean If true, will open output file with FILES_MODE_WRITE mode to clear its previous contents
 	function Files:writeDebug(line, rewrite)
 		local debug = Files:open("../debug.txt", rewrite and FILES_MODE_WRITE or FILES_MODE_APPEND)
 		if (type(line) == "table") then
-			debug:writeLine(os.clock_real() .. ': ' .. print(line, true))
+			debug:writeLine(os.clock_real() .. ': ' .. print_r(line, true))
 		else
-			debug:writeLine(os.clock_real() .. ': ' .. line)
+			debug:writeLine(os.clock_real() .. ': ' .. tostring(line))
 		end
 		debug:close()
 	end

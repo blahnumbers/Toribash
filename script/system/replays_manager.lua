@@ -417,44 +417,60 @@ function Replays:getReplayFiles(includeEventTemp)
 	Replays:fetchReplayData(Replays.RootFolder.name, Replays.RootFolder, file, cacheData, includeEventTemp)
 end
 
-function Replays:getServerReplaysData(lines)
-	for i, ln in pairs(lines) do
+---Parses replay data retrieved with a `fetch_replay_results()` call and puts it in `SERVER_REPLAYS` table. \
+---@see fetch_replay_results
+---@param data string
+function Replays.ParseServerReplaysData(data)
+	for ln in data:gmatch("[^\n]+") do
 		if (ln:match("^#Total")) then
-			SERVER_REPLAYS.total = ln:gsub("%D", "") + 0
+			local total = ln:gsub("%D", "")
+			SERVER_REPLAYS.total = tonumber(total) or 0
 		elseif (not ln:match("^#")) then
-			local segments = 10
+			local _, segments = ln:gsub("\t", "")
 			local data_stream = { ln:match(("([^\t]*)\t"):rep(segments)) }
-			local info = {
-				id = tonumber(data_stream[1]),
-				rplname = data_stream[2],
-				uploader = data_stream[3],
-				date = data_stream[4],
-				description = data_stream[5]:gsub("\\'", "'"):gsub("\\\"", "\""):gsub("\\r", ""),
-				downloads = data_stream[6] + 0,
-				score = tonumber(data_stream[7]),
-				votes = tonumber(data_stream[8]),
-				tags = data_stream[9],
-				uservote = tonumber(data_stream[10])
-			}
-			table.insert(SERVER_REPLAYS, info)
+			pcall(function()
+				local info = {
+					id = tonumber(data_stream[1]),
+					rplname = data_stream[2],
+					uploader = data_stream[3],
+					date = data_stream[4],
+					description = data_stream[5],
+					downloads = tonumber(data_stream[6]),
+					score = tonumber(data_stream[7]),
+					votes = tonumber(data_stream[8]),
+					tags = data_stream[9],
+					uservote = tonumber(data_stream[10])
+				}
+				table.insert(SERVER_REPLAYS, info)
+			end)
 		end
 	end
 end
 
-function Replays:getReplayComments(lines)
+---@class ReplayComment
+---@field id integer
+---@field user string
+---@field score integer
+---@field comment string
+---@field date string
+
+---Parses replay comments retrieved with a `fetch_replay_comments()` call and returns the comments data. \
+---@see fetch_replay_comments
+---@param data string
+---@return ReplayComment[]
+function Replays.ParseReplayComments(data)
+	---@type ReplayComment[]
 	local comments = {}
-	for i, ln in pairs(lines) do
-		if (ln:match("^#Total")) then
-			comments.total = ln:gsub("%D", "") + 0
-		elseif (not ln:match("^#")) then
-			local segments = 5
+	for ln in data:gmatch("[^\n]+") do
+		if (not ln:match("^#")) then
+			local _, segments = ln:gsub("\t", "")
 			local data_stream = { ln:match(("([^\t]*)\t"):rep(segments)) }
 			pcall(function()
 				local comment = {
 					id = tonumber(data_stream[1]),
 					user = data_stream[2],
 					score = tonumber(data_stream[3]),
-					comment = data_stream[4]:gsub("\\'", "'"):gsub("\\\"", "\""),
+					comment = data_stream[4],
 					date = data_stream[5]
 				}
 				table.insert(comments, comment)
@@ -464,6 +480,10 @@ function Replays:getReplayComments(lines)
 	return comments
 end
 
+---Queues a network request to fetch community replays information from Toribash server
+---@param action ?integer
+---@param offset ?integer
+---@param searchStr ?string
 function Replays:getServerReplays(action, offset, searchStr)
 	TB_MENU_REPLAYS_ONLINE = 1
 	local action = action or SERVER_REPLAYS.action
@@ -473,25 +493,17 @@ function Replays:getServerReplays(action, offset, searchStr)
 		SELECTED_SERVER_REPLAY.id = 0
 	end
 
-	download_replay_result(action, offset, searchStr)
 	local overlay = TBMenu:spawnWindowOverlay()
 	local waitNotification = UIElement:new({
 		parent = overlay,
 		pos = { overlay.size.w / 3, overlay.size.h / 2 - 100 },
 		size = { overlay.size.w / 3, 200 },
-		bgColor = TB_MENU_DEFAULT_BG_COLOR
+		bgColor = TB_MENU_DEFAULT_BG_COLOR,
+		shapeType = ROUNDED,
+		rounded = 4
 	})
-	local waitMessage = UIElement:new({
-		parent = waitNotification,
-		pos = { 10, 10 },
-		size = { waitNotification.size.w - 20, waitNotification.size.h / 2 }
-	})
-	waitMessage:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSUPDATINGCOMMUNITY)
-	local waitAnimation = UIElement:new({
-		parent = waitNotification,
-		pos = { waitNotification.size.w / 2 - 25, waitMessage.size.h + waitMessage.shift.y },
-		size = { 50, waitNotification.size.h - waitMessage.size.h - waitMessage.shift.y * 3 }
-	})
+	TBMenu:displayLoadingMark(waitNotification, TB_MENU_LOCALIZED.REPLAYSUPDATINGCOMMUNITY)
+
 	local infoMessage = TB_MENU_LOCALIZED.REPLAYSFILTERSDATE
 	if (action == 2) then
 		infoMessage = TB_MENU_LOCALIZED.REPLAYSFILTERSRATING
@@ -502,31 +514,29 @@ function Replays:getServerReplays(action, offset, searchStr)
 	elseif (action == 5) then
 		infoMessage = TB_MENU_LOCALIZED.REPLAYSFILTERSBY .. " " .. searchStr
 	end
-	local serverReplays = Files:open("../data/script/system/rplres.txt", FILES_MODE_READONLY)
-	local rot, scale, time = 10, 90, os.clock_real()
-	waitAnimation:addCustomDisplay(true, function()
-			set_color(1, 1, 1, 0.8)
-			draw_disk(waitAnimation.pos.x + waitAnimation.size.w / 2, waitAnimation.pos.y + waitAnimation.size.w / 2, waitAnimation.size.w / 4, waitAnimation.size.w / 2, 200, 1, rot, scale, 0)
-			rot = rot + 2.5
-			scale = scale > 359 and -360 or scale + 5
-			if (os.clock_real() - time > 0.5) then
-				if (not serverReplays:isDownloading()) then
-					serverReplays:reopen()
-					local filedata = serverReplays:readAll()
-					serverReplays:close()
-					overlay:kill()
-					SERVER_REPLAYS = {}
-					SERVER_REPLAYS.total = 0
-					SERVER_REPLAYS.action = action
-					SERVER_REPLAYS.offset = offset
-					SERVER_REPLAYS.search = searchStr
-					SERVER_REPLAYS.info = infoMessage
-					if (filedata) then
-						Replays:getServerReplaysData(filedata)
-					end
-					Replays:showServerReplays()
-				end
+
+	Request:queue(function() fetch_replay_results(action, offset, searchStr) end, "netCommunityReplays", function()
+			if (overlay == nil or overlay.destroyed) then
+				return
 			end
+
+			SERVER_REPLAYS = {
+				total = 0,
+				action = action,
+				offset = offset,
+				search = searchStr,
+				info = infoMessage
+			}
+			Replays.ParseServerReplaysData(get_network_response())
+			overlay:kill()
+			Replays:showServerReplays()
+		end, function()
+			if (overlay == nil or overlay.destroyed) then
+				return
+			end
+
+			overlay:kill()
+			TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.ERRORTRYAGAIN, function() Replays:getServerReplays(action, offset, searchStr) end)
 		end)
 end
 
@@ -2699,11 +2709,15 @@ function Replays:showServerReplayList(replaysList, replayInfo)
 	Replays:showServerReplayInfo(replayInfo, SELECTED_SERVER_REPLAY.replay)
 end
 
-function Replays:showReplayRating(viewElement, score, votes, uservote)
-	local votes = votes
-	local score = score
-	local scale = math.floor(viewElement.size.w / 5 > viewElement.size.h and viewElement.size.h or viewElement.size.w / 5)
-	local displaynum = votes > 0 and math.floor(score / votes + 0.5) or 0
+---Displays replay rating
+---@param viewElement UIElement
+---@param score integer
+---@param votes ?integer
+---@param uservote ?integer
+---@param interactive ?boolean
+function Replays:showReplayRating(viewElement, score, votes, uservote, interactive)
+	local scale = math.floor(math.min(64, viewElement.size.w / 5, viewElement.size.h))
+	local displaynum = votes > 0 and math.round(score / votes) or 0
 	local leftShift = (viewElement.size.w - scale * 5) / 2
 	local uservote = uservote or 0
 
@@ -2792,76 +2806,66 @@ function Replays:showReplayRatingVote(viewElement, vote)
 	end
 end
 
+---Displays replay vote window
+---@param replay any
 function Replays:showReplayVoteWindow(replay)
-	local voteOverlay = TBMenu:spawnWindowOverlay()
-	local voteView = UIElement:new({
-		parent = voteOverlay,
-		pos = { voteOverlay.size.w / 4, voteOverlay.size.h / 2 - 200 },
-		size = { voteOverlay.size.w / 2, 400 },
-		bgColor = TB_MENU_DEFAULT_BG_COLOR
+	local voteOverlay = TBMenu:spawnWindowOverlay(nil, true)
+	local voteViewSize = { math.min(WIN_W / 2, 600), math.min(WIN_H / 2, 400) }
+	local voteView = voteOverlay:addChild({
+		shift = { (voteOverlay.size.w - voteViewSize[1]) / 2, (voteOverlay.size.h - voteViewSize[2]) / 2 },
+		bgColor = TB_MENU_DEFAULT_BG_COLOR,
+		shapeType = ROUNDED,
+		rounded = 4
 	})
-	local voteTitle = UIElement:new({
-		parent = voteView,
-		pos = { 10, 0 },
-		size = { voteView.size.w - 20, 50 }
-	})
-	voteTitle:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSVOTINGON .. " " .. replay.rplname .. " " .. TB_MENU_LOCALIZED.REPLAYSREPLAY, nil, nil, FONTS.BIG, nil, 0.65)
+	local topBar = voteView:addChild({
+		pos = { 0, 0 },
+		size = { voteView.size.w, voteView.size.h / 8 }
+	}, true)
+	local closeButton = topBar:addChild({
+		pos = { -topBar.size.h + 5, 5 },
+		size = { topBar.size.h - 10, topBar.size.h - 10 },
+		interactive = true,
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+	}, true)
+	closeButton:addMouseUpHandler(function() overlay:kill() end)
+	closeButton:addChild({ shift = { 5, 5 }, bgImage = "../textures/menu/general/buttons/crosswhite.tga" })
+
+	topBar:addChild({
+		pos = { 10, 5 },
+		size = { topBar.size.w - 20 - closeButton.size.w, topBar.size.h - 10 }
+	}):addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSVOTINGON .. " " .. replay.rplname .. " " .. TB_MENU_LOCALIZED.REPLAYSREPLAY, nil, nil, FONTS.BIG, nil, 0.65, nil, 0.4)
+
 	local voteScoreView = UIElement:new({
 		parent = voteView,
-		pos = { 10, voteTitle.shift.y + voteTitle.size.h },
-		size = { voteView.size.w - 20, 80 }
+		pos = { 10, topBar.shift.y + topBar.size.h },
+		size = { voteView.size.w - 20, voteView.size.h / 5 }
 	})
 	local replayVote = { score = 0 }
 	Replays:showReplayRatingVote(voteScoreView, replayVote)
 
-	local voteCommentBG = UIElement:new({
-		parent = voteView,
-		pos = { 10, voteScoreView.shift.y + voteScoreView.size.h + 10 },
-		size = { voteView.size.w - 20, 200 },
-		bgColor = TB_MENU_DEFAULT_DARKEST_COLOR
+	local voteCommentInputHolder = voteView:addChild({
+		pos = { 10, voteScoreView.shift.y + voteScoreView.size.h },
+		size = { voteView.size.w - 20, voteView.size.h / 2 }
+	}, true)
+	local voteCommentInput = TBMenu:spawnTextField2(voteCommentInputHolder, nil, nil, TB_MENU_LOCALIZED.REPLAYSCOMMENT .. " (" .. TB_MENU_LOCALIZED.WORDOPTIONAL .. ")", {
+		fontId = FONTS.SMALL,
+		allowMultiline = true,
+		textAlign = LEFT
 	})
-	local voteCommentOverlay = UIElement:new({
-		parent = voteCommentBG,
-		pos = { 1, 1 },
-		size = { voteCommentBG.size.w - 2, voteCommentBG.size.h - 2 },
-		bgColor = { 1, 1, 1, 0.4 }
-	})
-	local voteCommentInput = UIElement:new({
-		parent = voteCommentOverlay,
-		pos = { 10, 10 },
-		size = { voteCommentOverlay.size.w - 20, voteCommentOverlay.size.h - 20 },
-		textfield = true,
-		interactive = true
-	})
-	voteCommentInput:addMouseHandlers(nil, function()
-			voteCommentInput:enableMenuKeyboard(voteCommentInput)
-		end)
-	TBMenu:displayTextfield(voteCommentInput, FONTS.SMALL, 1, UICOLORBLACK, TB_MENU_LOCALIZED.REPLAYSCOMMENT .. " (" .. TB_MENU_LOCALIZED.WORDOPTIONAL .. ")", LEFT)
 
-	local voteCancel = UIElement:new({
-		parent = voteView,
-		pos = { 10, -50 },
-		size = { voteView.size.w / 2 - 15, 40 },
+	local voteSubmit = voteView:addChild({
+		pos = { voteView.size.w / 4, -voteView.size.h / 8 },
+		size = { voteView.size.w / 2, voteView.size.h / 10 },
 		interactive = true,
-		bgColor = { 0, 0, 0, 0.3 },
-		hoverColor = { 0, 0, 0, 0.5 },
-		pressedColor = { 1, 1, 1, 0.2 }
-	})
-	voteCancel:addAdaptedText(false, TB_MENU_LOCALIZED.BUTTONCANCEL)
-	voteCancel:addMouseHandlers(false, function()
-			voteOverlay:kill()
-		end)
-	local voteSubmit = UIElement:new({
-		parent = voteView,
-		pos = { voteView.size.w / 2 + 5, -50 },
-		size = { voteView.size.w / 2 - 15, 40 },
-		interactive = true,
-		bgColor = { 0, 0, 0, 0.1 },
-		hoverColor = { 0, 0, 0, 0.5 },
-		pressedColor = { 1, 1, 1, 0.2 }
-	})
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+		inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS
+	}, true)
 	voteSubmit:deactivate()
-	voteSubmit:addAdaptedText(false, TB_MENU_LOCALIZED.BUTTONSUBMIT)
+	voteSubmit:addChild({ shift = { 15, 5 }}):addAdaptedText(true, TB_MENU_LOCALIZED.BUTTONSUBMIT)
 	voteSubmit:addMouseHandlers(nil, function()
 			local info = replay.id .. ";" .. replayVote.score .. ";" .. voteCommentInput.textfieldstr[1]
 			show_dialog_box(REPLAY_VOTE, TB_MENU_LOCALIZED.REPLAYSVOTECONFIRM1 .. " " .. replayVote.score .. " " .. TB_MENU_LOCALIZED.REPLAYSVOTECONFIRM2, info)
@@ -2878,160 +2882,175 @@ function Replays:showReplayVoteWindow(replay)
 					waitOverlay:kill()
 				end)
 		end)
-	local waitForVote = UIElement:new({
-		parent = voteView,
-		pos = { 0, 0 },
-		size = { 0, 0 }
-	})
-	waitForVote:addCustomDisplay(true, function()
+
+	local voteWaiter = voteView:addChild({})
+	voteWaiter:addCustomDisplay(true, function()
 			if (replayVote.score > 0) then
 				voteSubmit:activate()
-				voteSubmit.bgColor = { 0, 0, 0, 0.3 }
-				waitForVote:kill()
+				voteWaiter:kill()
 			end
 		end)
 end
 
-function Replays:showReplayCommentList(listingHolder, toReload, elementHeight, comments)
+---Displays replay comments in a scrollable list holder element
+---@param listingHolder UIElement
+---@param listingView UIElement
+---@param toReload UIElement
+---@param elementHeight integer
+---@param comments ReplayComment[]
+function Replays:showReplayCommentList(listingHolder, listingView, toReload, elementHeight, comments)
 	local commentElements = {}
-	for i, comment in pairs(comments) do
-		if (type(i) == "number") then
-			local commentTop = UIElement:new({
-				parent = listingHolder,
-				pos = { 0, #commentElements * elementHeight },
+	for _, comment in pairs(comments) do
+		local commentTop = listingHolder:addChild({
+			pos = { 0, #commentElements * math.floor(elementHeight) },
+			size = { listingHolder.size.w, elementHeight },
+		})
+		table.insert(commentElements, commentTop)
+		local commentTopBackground = commentTop:addChild({
+			pos = { 5, 5 },
+			size = { commentTop.size.w - 5, commentTop.size.h - 5 },
+			shapeType = ROUNDED,
+			rounded = { 4, 0 },
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR
+		})
+		local commentUser = commentTopBackground:addChild({
+			pos = { 10, 2 },
+			size = { (commentTopBackground.size.w - 20) * 0.5, commentTopBackground.size.h - 2 }
+		})
+		commentUser:addAdaptedText(true, comment.user, nil, nil, nil, LEFTMID)
+		local commentDate = commentTopBackground:addChild({
+			pos = { commentUser.shift.x + commentUser.size.w, commentUser.shift.y },
+			size = { commentTopBackground.size.w - commentUser.shift.x * 2 - commentUser.size.w, commentUser.size.h },
+			uiColor = TB_MENU_DEFAULT_INACTIVE_COLOR
+		})
+		commentDate:addAdaptedText(true, comment.date, nil, nil, 4, RIGHT, 0.6)
+
+		local commentStrings = textAdapt(comment.comment, FONTS.SMALL, 1, listingHolder.size.w - 20)
+		local rows = math.ceil(#commentStrings / 2)
+		for i = 1, rows do
+			local commentLine = listingHolder:addChild({
+				pos = { 0, #commentElements * math.floor(elementHeight) },
 				size = { listingHolder.size.w, elementHeight }
 			})
-			table.insert(commentElements, commentTop)
-			local commentUserWithDate = UIElement:new({
-				parent = commentTop,
-				pos = { 10, 0 },
-				size = { commentTop.size.w / 2 - 10, commentTop.size.h }
+			table.insert(commentElements, commentLine)
+			local commentBackground = commentLine:addChild({
+				pos = { 5, 0 },
+				size = { commentLine.size.w - 5, commentLine.size.h },
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				shapeType = i == rows and ROUNDED or SQUARE,
+				rounded = i == rows and { 0, 4 } or 0
 			})
-			commentUserWithDate:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSBY .. " " .. comment.user .. " (" .. comment.date .. ")", nil, nil, nil, LEFTMID, nil, nil, 0.2)
-			local ratingWidth = commentTop.size.w / 3 > commentTop.size.h * 6 and commentTop.size.h * 6 or commentTop.size.w / 3
-			local commentRating = UIElement:new({
-				parent = commentTop,
-				pos = { -ratingWidth, 0 },
-				size = { ratingWidth, commentTop.size.h }
+			local commentLineHolder = commentBackground:addChild({
+				shift = { 10, 0 }
 			})
-			Replays:showReplayRating(commentRating, comment.score, 1)
-			local comment = textAdapt(comment.comment, FONTS.SMALL, 1, listingHolder.size.w - 30)
-			local rows = math.ceil(#comment / 2)
-			for i = 1, rows do
-				local commentBody = UIElement:new({
-					parent = listingHolder,
-					pos = { 0, #commentElements * elementHeight },
-					size = { listingHolder.size.w, elementHeight }
-				})
-				commentBody:addCustomDisplay(true, function() end)
-				table.insert(commentElements, commentBody)
-				local commentText = UIElement:new({
-					parent = commentBody,
-					pos = { 10, 0 },
-					size = { commentBody.size.w - 20, commentBody.size.h }
-				})
-				local string = comment[i * 2] and comment[i * 2 - 1] .. " " .. comment[i * 2] or comment[i * 2 - 1]
-				commentText:addCustomDisplay(true, function()
-						commentText:uiText(string, nil, nil, 1, LEFT)
-					end)
-			end
-			if (i ~= #comments) then
-				local separator = UIElement:new({
-					parent = listingHolder,
-					pos = { 0, #commentElements * elementHeight },
-					size = { listingHolder.size.w, elementHeight }
-				})
-				local separatorLine = UIElement:new({
-					parent = separator,
-					pos = { 20, separator.size.h / 2 - 0.5 },
-					size = { separator.size.w - 40, 1 },
-					bgColor = { 1, 1, 1, 0.2 }
-				})
-				table.insert(commentElements, separator)
-			end
+			local displayString = commentStrings[i * 2] and commentStrings[i * 2 - 1] .. "\n" .. commentStrings[i * 2] or commentStrings[i * 2 - 1]
+			commentLineHolder:addAdaptedText(true, displayString, nil, nil, FONTS.SMALL, LEFT, 1, 1)
 		end
 	end
 
-	for i,v in pairs(commentElements) do
+	if (#commentElements * elementHeight <= listingHolder.size.h) then
+		listingHolder:moveTo(7, nil, true)
+		return
+	end
+
+	for _, v in pairs(commentElements) do
 		v:hide()
 	end
 
 	local commentsScrollBar = TBMenu:spawnScrollBar(listingHolder, #commentElements, elementHeight)
 	commentsScrollBar:makeScrollBar(listingHolder, commentElements, toReload)
-end
 
-function Replays:showReplayComments(replay)
-	TBMenu.CurrentSection:kill(true)
-	local commentsView = UIElement:new({
-		parent = TBMenu.CurrentSection,
-		pos = { 5, 0 },
-		size = { TBMenu.CurrentSection.size.w - 10, TBMenu.CurrentSection.size.h },
-		bgColor = TB_MENU_DEFAULT_BG_COLOR
-	})
-	local elementHeight = 31
-	local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(commentsView, 45, 50, 20)
-	TBMenu:addBottomBloodSmudge(botBar, 1)
-
-	local topBarTitle = UIElement:new({
-		parent = topBar,
-		pos = { 10, 0 },
-		size = { topBar.size.w - 20, topBar.size.h }
-	})
-	topBarTitle:addAdaptedText(true, replay.rplname .. " " .. TB_MENU_LOCALIZED.REPLAYSREPLAY .. " " .. replay.uploader, nil, nil, FONTS.BIG, LEFTMID, 0.65)
-
-	local downloadWait = UIElement:new({
-		parent = listingHolder,
-		pos = { 0, 0 },
-		size = { listingHolder.size.w, listingHolder.size.h }
-	})
-	TBMenu:displayLoadingMark(downloadWait, TB_MENU_LOCALIZED.REPLAYSCOMMENTSDOWNLOADING)
-	add_hook("downloader_complete", "communityReplaysComments" .. replay.id, function(filename)
-			if (filename:find("system/rplcomments.txt")) then
-				Downloader:safeCall(function()
-						if (not downloadWait or downloadWait.destroyed) then
-							return
-						end
-						local commentsFile = Files:open("../data/script/system/rplcomments.txt", FILES_MODE_READONLY)
-						if (commentsFile.data) then
-							local comments = Replays:getReplayComments(commentsFile:readAll())
-							commentsFile:close()
-							downloadWait:kill()
-							topBarTitle:addAdaptedText(true, replay.rplname .. " " .. TB_MENU_LOCALIZED.REPLAYSREPLAY .. " " .. replay.uploader, nil, nil, FONTS.BIG, LEFTMID, 0.65)
-							Replays:showReplayCommentList(listingHolder, toReload, elementHeight, comments)
-						end
-					end)
+	---Enable list scrolling with window overlay on
+	listingView:addCustomDisplay(function()
+			if (listingView.hoverState == BTN_HVR) then
+				UIScrollbarIgnore = false
+			else
+				UIScrollbarIgnore = true
 			end
 		end)
-	download_replay_comments(replay.id)
+end
 
-	local backButton = UIElement:new({
-		parent = botBar,
-		pos = { -180, 10 },
-		size = { 170, botBar.size.h - 10 },
-		interactive = true,
-		bgColor = { 0, 0, 0, 0.3 },
-		hoverColor = { 0, 0, 0, 0.5 },
-		pressedColor = { 1, 1, 1, 0.2 }
+---Fetches comments for the specified replay and shows them in a separate window when ready
+---@param replay any
+function Replays:showReplayComments(replay)
+	local overlay = TBMenu:spawnWindowOverlay()
+	local waiterView = overlay:addChild({
+		shift = { overlay.size.w / 2 - 250, overlay.size.h / 2 - 100 },
+		bgColor = TB_MENU_DEFAULT_BG_COLOR,
+		shapeType = ROUNDED,
+		rounded = 4
 	})
-	backButton:addAdaptedText(false, TB_MENU_LOCALIZED.NAVBUTTONBACK)
-	backButton:addMouseHandlers(nil, function()
-			Replays:showServerReplays()
+	TBMenu:displayLoadingMark(waiterView, TB_MENU_LOCALIZED.REPLAYSCOMMENTSDOWNLOADING)
+
+	Request:queue(function() fetch_replay_comments(replay.id) end, "netCommunityReplayComments", function()
+			if (overlay == nil or overlay.destroyed) then
+				return
+			end
+
+			local comments = Replays.ParseReplayComments(get_network_response())
+			for i = #comments, 1, -1 do
+				if (string.len(comments[i].comment) == 0) then
+					table.remove(comments, i)
+				end
+			end
+			overlay:kill()
+			if (#comments == 0) then
+				TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.REPLAYSNOCOMMENTS, function()
+						Replays:showReplayVoteWindow(replay)
+					end)
+			else
+				overlay = TBMenu:spawnWindowOverlay(nil, true)
+				local commentsSize = { math.min(WIN_W * 0.75, 900), math.min(WIN_H * 0.6, 550) }
+				local commentsView = overlay:addChild({
+					shift = { (WIN_W - commentsSize[1]) / 2, (WIN_H - commentsSize[2]) / 2 },
+					bgColor = TB_MENU_DEFAULT_BG_COLOR,
+					shapeType = ROUNDED,
+					rounded = 4
+				})
+
+				local elementHeight = 30.01 -- has to be slightly more than 30 to make sure comments render properly
+				local toReload, topBar, botBar, listingView, listingHolder = TBMenu:prepareScrollableList(commentsView, 45, 60, 20, TB_MENU_DEFAULT_BG_COLOR)
+
+				topBar.shapeType = ROUNDED
+				topBar:setRounded({ 4, 0 })
+				botBar.shapeType = ROUNDED
+				botBar:setRounded(4)
+
+				local closeButton = topBar:addChild({
+					pos = { -topBar.size.h + 5, 5 },
+					size = { topBar.size.h - 10, topBar.size.h - 10 },
+					interactive = true,
+					bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+					hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+					pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+				}, true)
+				closeButton:addMouseUpHandler(function() overlay:kill() end)
+				closeButton:addChild({ shift = { 5, 5 }, bgImage = "../textures/menu/general/buttons/crosswhite.tga" })
+
+				local commentsTitle = topBar:addChild({
+					pos = { 10, 5 },
+					size = { topBar.size.w - 20 - closeButton.size.w, topBar.size.h - 10 }
+				})
+				commentsTitle:addAdaptedText(true, replay.rplname .. " " .. TB_MENU_LOCALIZED.WORDBY .. " " .. replay.uploader, nil, nil, FONTS.BIG, LEFTMID, 0.65, nil, 0.4)
+
+				Replays:showReplayCommentList(listingHolder, listingView, toReload, elementHeight, comments)
+
+				local newCommentButton = botBar:addChild({
+					shift = { botBar.size.w / 4, 10 },
+					interactive = true,
+					bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+					hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+					pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+				}, true)
+				newCommentButton:addChild({ shift = { 15, 5 }}):addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSADDCOMMENT)
+				newCommentButton:addMouseUpHandler(function() Replays:showReplayVoteWindow(replay) end)
+			end
+		end, function()
+			if (overlay) then
+				overlay:kill()
+			end
+			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORGETTINGCOMMENTS .. "\n" .. get_network_error())
 		end)
-	if (replay.uploader:lower() ~= TB_MENU_PLAYER_INFO.username:lower() and replay.uservote == 0) then
-		local voteButton = UIElement:new({
-			parent = botBar,
-			pos = { 10, 10 },
-			size = { 170, botBar.size.h - 10 },
-			interactive = true,
-			bgColor = { 0, 0, 0, 0.3 },
-			hoverColor = { 0, 0, 0, 0.5 },
-			pressedColor = { 1, 1, 1, 0.2 }
-		})
-		voteButton:addAdaptedText(false, TB_MENU_LOCALIZED.REPLAYSADDCOMMENT)
-		voteButton:addMouseHandlers(nil, function()
-				Replays:showReplayVoteWindow(replay)
-			end)
-	end
 end
 
 function Replays:showServerReplayInfo(replayInfo, replay)

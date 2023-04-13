@@ -714,6 +714,7 @@ function TBMenu:showReplays()
 	TBMenu:clearNavSection()
 
 	if (TB_MENU_REPLAYS_ONLINE == 1) then
+		TBMenu:showNavigationBar(Replays:getNavigationButtons(true), true)
 		local menubg = UIElement:new({
 			parent = TBMenu.CurrentSection,
 			pos = { 5, 0 },
