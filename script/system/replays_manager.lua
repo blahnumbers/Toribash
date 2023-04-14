@@ -2714,96 +2714,71 @@ end
 ---@param score integer
 ---@param votes ?integer
 ---@param uservote ?integer
----@param interactive ?boolean
+---@param interactive nil
+---@return nil
 function Replays:showReplayRating(viewElement, score, votes, uservote, interactive)
-	local scale = math.floor(math.min(64, viewElement.size.w / 5, viewElement.size.h))
-	local displaynum = votes > 0 and math.round(score / votes) or 0
-	local leftShift = (viewElement.size.w - scale * 5) / 2
+	local score = score or 0
+	local votes = votes or 0
 	local uservote = uservote or 0
 
+	local scale = math.floor(math.min(64, viewElement.size.w / 5, viewElement.size.h))
+	local displaynum = (votes > 0 and not interactive) and math.round(score / votes) or 0
+	local leftShift = (viewElement.size.w - scale * 5) / 2
+	local selectedVote = { 0 }
+
 	for i = 1, displaynum do
-		local ratingStar = UIElement:new({
-			parent = viewElement,
+		local ratingStar = viewElement:addChild({
 			pos = { leftShift + (i - 1) * scale, (viewElement.size.h - scale) / 2 },
 			size = { scale, scale },
-			bgImage = scale > 32 and "../textures/menu/general/buttons/star.tga" or "../textures/menu/general/buttons/startiny.tga"
+			bgImage = "../textures/menu/general/buttons/star.tga"
 		})
 		if (uservote >= i) then
-			local ratingSign = UIElement:new({
-				parent = ratingStar,
-				pos = { 0, 0 },
-				size = { ratingStar.size.w, ratingStar.size.h },
+			ratingStar:addChild({
 				bgImage = "../textures/menu/general/buttons/starborderglow.tga"
 			})
 		end
 	end
+	---@type UIElement[]
+	local ratingButtons = {}
 	for i = displaynum + 1, 5 do
-		local ratingStarTransparent = UIElement:new({
-			parent = viewElement,
+		local ratingStarTransparent = viewElement:addChild({
 			pos = { leftShift + (i - 1) * scale, (viewElement.size.h - scale) / 2 },
 			size = { scale, scale },
-			bgImage = uservote >= i and "../textures/menu/general/buttons/starborderglow.tga" or (scale > 32 and "../textures/menu/general/buttons/starborder.tga" or "../textures/menu/general/buttons/starbordertiny.tga")
+			bgImage = "../textures/menu/general/buttons/starborder.tga"
 		})
+		if (interactive) then
+			local ratingButton = ratingStarTransparent:addChild({
+				bgImage = "../textures/menu/general/buttons/starborderglow.tga",
+				imageColor = { 1, 1, 1, 0 },
+				imageHoverColor = { 1, 1, 1, 0.85 },
+				imagePressedColor = { 1, 1, 1, 1 },
+				interactive = true
+			})
+			table.insert(ratingButtons, ratingButton)
+			ratingButton:addMouseUpHandler(function()
+				selectedVote[1] = i
+				for j = 1, 5 do
+					if (j <= i) then
+						ratingButtons[j].parent:updateImage("../textures/menu/general/buttons/star.tga")
+					else
+						ratingButtons[j].parent:updateImage("../textures/menu/general/buttons/starborder.tga")
+					end
+				end
+			end)
+		end
+	end
+
+	if (interactive) then
+		return selectedVote
 	end
 end
 
-function Replays:showReplayRatingVote(viewElement, vote)
-	local scale = math.floor(viewElement.size.w / 5) > viewElement.size.h - 10 and viewElement.size.h - 10 or math.floor(viewElement.size.w / 5)
-	local width = (viewElement.size.w - 50) / 5 > scale and (viewElement.size.w - 50) / 5 or scale
-	local posX = (viewElement.size.w - width * 5) / 2
-	local stars = { transparent = {}, colored = {} }
-	for i = 5, 1, -1 do
-		local starView = UIElement:new({
-			parent = viewElement,
-			pos = { posX + (5 - i) * width, (viewElement.size.h - scale) / 2 },
-			size = { width, scale },
-			interactive = true
-		})
-		starView.starid = 6 - i
-		local starTransparent = UIElement:new({
-			parent = starView,
-			pos = { (starView.size.w - scale) / 2, 0 },
-			size = { scale, scale },
-			bgImage = "../textures/menu/general/buttons/startransparenthuge.tga"
-		})
-		local starColoredTransparent = UIElement:new({
-			parent = starView,
-			pos = { (starView.size.w - scale) / 2, 0 },
-			size = { scale, scale },
-			bgImage = "../textures/menu/general/buttons/startransparentcoloredhuge.tga"
-		})
-		local starColored = UIElement:new({
-			parent = starView,
-			pos = { (starView.size.w - scale) / 2, 0 },
-			size = { scale, scale },
-			bgImage = "../textures/menu/general/buttons/starhuge.tga"
-		})
-		starColoredTransparent:hide()
-		starColored:hide()
-		table.insert(stars.transparent, starColoredTransparent)
-		table.insert(stars.colored, starColored)
-		starView:addMouseHandlers(nil, function()
-				vote.score = starView.starid
-				for i = 1, starView.starid do
-					stars.colored[i]:show(true)
-				end
-				for i = starView.starid + 1, 5 do
-					stars.colored[i]:hide(true)
-				end
-			end)
-		starView:addCustomDisplay(false, function()
-				if (starView.hoverState == BTN_HVR) then
-					for i = 1, starView.starid do
-						stars.transparent[i]:show()
-					end
-					for i = starView.starid + 1, 5 do
-						stars.transparent[i]:hide()
-					end
-				else
-					stars.transparent[starView.starid]:hide()
-				end
-			end)
-	end
+---Displays a replay rating with interactive buttons for voting
+---@param viewElement UIElement
+---@return integer[]
+function Replays:showReplayRatingVote(viewElement)
+	---@diagnostic disable-next-line: return-type-mismatch
+	return Replays:showReplayRating(viewElement, 0, nil, nil, true)
 end
 
 ---Displays replay vote window
@@ -2829,7 +2804,7 @@ function Replays:showReplayVoteWindow(replay)
 		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
 	}, true)
-	closeButton:addMouseUpHandler(function() overlay:kill() end)
+	closeButton:addMouseUpHandler(function() voteOverlay:kill() end)
 	closeButton:addChild({ shift = { 5, 5 }, bgImage = "../textures/menu/general/buttons/crosswhite.tga" })
 
 	topBar:addChild({
@@ -2842,8 +2817,7 @@ function Replays:showReplayVoteWindow(replay)
 		pos = { 10, topBar.shift.y + topBar.size.h },
 		size = { voteView.size.w - 20, voteView.size.h / 5 }
 	})
-	local replayVote = { score = 0 }
-	Replays:showReplayRatingVote(voteScoreView, replayVote)
+	local replayVote = Replays:showReplayRatingVote(voteScoreView)
 
 	local voteCommentInputHolder = voteView:addChild({
 		pos = { 10, voteScoreView.shift.y + voteScoreView.size.h },
@@ -2867,8 +2841,8 @@ function Replays:showReplayVoteWindow(replay)
 	voteSubmit:deactivate()
 	voteSubmit:addChild({ shift = { 15, 5 }}):addAdaptedText(true, TB_MENU_LOCALIZED.BUTTONSUBMIT)
 	voteSubmit:addMouseHandlers(nil, function()
-			local info = replay.id .. ";" .. replayVote.score .. ";" .. voteCommentInput.textfieldstr[1]
-			show_dialog_box(REPLAY_VOTE, TB_MENU_LOCALIZED.REPLAYSVOTECONFIRM1 .. " " .. replayVote.score .. " " .. TB_MENU_LOCALIZED.REPLAYSVOTECONFIRM2, info)
+			local info = replay.id .. ";" .. replayVote[1] .. ";" .. voteCommentInput.textfieldstr[1]
+			show_dialog_box(REPLAY_VOTE, TB_MENU_LOCALIZED.REPLAYSVOTECONFIRM1 .. " " .. replayVote[1] .. " " .. TB_MENU_LOCALIZED.REPLAYSVOTECONFIRM2, info)
 			local waitOverlay = UIElement:new({
 				parent = TBMenu.MenuMain,
 				pos = { 0, 0 },
@@ -2885,7 +2859,7 @@ function Replays:showReplayVoteWindow(replay)
 
 	local voteWaiter = voteView:addChild({})
 	voteWaiter:addCustomDisplay(true, function()
-			if (replayVote.score > 0) then
+			if (replayVote[1] > 0) then
 				voteSubmit:activate()
 				voteWaiter:kill()
 			end
