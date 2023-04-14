@@ -11,26 +11,39 @@ if (Replays == nil) then
 	---* Use *utf8lib* when parsing replay files to ensure we handle multibyte symbols correctly
 	---@class Replays
 	---@field RootFolder ReplayDirectory Root replay directory Information
+	---@field ServerCache ReplayServerInfo[] Cached server replays information from the last query
+	---@field ServerCacheTotal integer Total replays on server
+	---@field ServerCacheSettings ReplayServerQuery Last server query settings
 	---@field CacheReady boolean
 	Replays = {
 		RootFolder = { name = "replay", fullname = "replay" },
+		ServerCacheSettings = { action = 1, offset = 0, search = "", id = 0 },
+		ServerCacheTotal = 0,
 		CacheReady = false,
 		ver = 5.60
 	}
 	Replays.__index = Replays
 
-	---Replay information class
-	---@class ReplayInfo
+	---@class ReplayBaseInfo
 	---@field name string Replay name displayed in-game
-	---@field filename string Replay filename
 	---@field author string Replay author
+	---@field tags string Space separated replay tags
+
+	---Replay information class
+	---@class ReplayInfo : ReplayBaseInfo
+	---@field filename string Replay filename
 	---@field bouts string[] List of players in replay
 	---@field mod string Replay mod name
-	---@field tags string Space separated replay tags
 	---@field hiddentags string Space separated replay hidden tags
 	---@field uploaded boolean Whether replay has been uploaded to servers
 	ReplayInfo = {}
 	ReplayInfo.__index = ReplayInfo
+
+	---@class ReplayServerQuery
+	---@field action integer Replay query action id
+	---@field offset integer Replay query offset for pagination
+	---@field search string Replay query search string
+	---@field info string Info string that describes current action id
 end
 
 ---Returns a new `ReplayInfo` object filled with default information
@@ -417,31 +430,41 @@ function Replays:getReplayFiles(includeEventTemp)
 	Replays:fetchReplayData(Replays.RootFolder.name, Replays.RootFolder, file, cacheData, includeEventTemp)
 end
 
----Parses replay data retrieved with a `fetch_replay_results()` call and puts it in `SERVER_REPLAYS` table. \
+---@class ReplayServerInfo : ReplayBaseInfo
+---@field id integer Replay id in Toribash database
+---@field date string Replay upload date
+---@field description string Replay description provided by its author
+---@field downloads integer Number of times this replay has been downloaded
+---@field score number Replay rating average set by other users
+---@field votes integer Number of ratings on this replay
+---@field uservote integer Local user's vote
+
+---Parses replay data retrieved with a `fetch_replay_results()` call and puts it in **Replays.ServerCache** table. \
 ---@see fetch_replay_results
 ---@param data string
 function Replays.ParseServerReplaysData(data)
 	for ln in data:gmatch("[^\n]+") do
 		if (ln:match("^#Total")) then
 			local total = ln:gsub("%D", "")
-			SERVER_REPLAYS.total = tonumber(total) or 0
+			Replays.ServerCacheTotal = tonumber(total) or 0
 		elseif (not ln:match("^#")) then
 			local _, segments = ln:gsub("\t", "")
 			local data_stream = { ln:match(("([^\t]*)\t"):rep(segments)) }
 			pcall(function()
+				---@type ReplayServerInfo
 				local info = {
-					id = tonumber(data_stream[1]),
-					rplname = data_stream[2],
-					uploader = data_stream[3],
+					id = tonumber(data_stream[1]) or 0,
+					name = data_stream[2],
+					author = data_stream[3],
 					date = data_stream[4],
 					description = data_stream[5],
-					downloads = tonumber(data_stream[6]),
-					score = tonumber(data_stream[7]),
-					votes = tonumber(data_stream[8]),
+					downloads = tonumber(data_stream[6]) or 0,
+					score = tonumber(data_stream[7]) or 0,
+					votes = tonumber(data_stream[8]) or 0,
 					tags = data_stream[9],
-					uservote = tonumber(data_stream[10])
+					uservote = tonumber(data_stream[10]) or 0
 				}
-				table.insert(SERVER_REPLAYS, info)
+				table.insert(Replays.ServerCache, info)
 			end)
 		end
 	end
@@ -486,16 +509,12 @@ end
 ---@param searchStr ?string
 function Replays:getServerReplays(action, offset, searchStr)
 	TB_MENU_REPLAYS_ONLINE = 1
-	local action = action or SERVER_REPLAYS.action
-	local offset = offset or SERVER_REPLAYS.offset
-	local searchStr = searchStr and searchStr:lower() or SERVER_REPLAYS.search
-	if (action ~= SERVER_REPLAYS.action) then
-		SELECTED_SERVER_REPLAY.id = 0
-	end
+	local action = action or Replays.ServerCacheSettings.action
+	local offset = offset or Replays.ServerCacheSettings.offset
+	local searchStr = searchStr and utf8.lower(searchStr) or Replays.ServerCacheSettings.search
 
 	local overlay = TBMenu:spawnWindowOverlay()
-	local waitNotification = UIElement:new({
-		parent = overlay,
+	local waitNotification = overlay:addChild({
 		pos = { overlay.size.w / 3, overlay.size.h / 2 - 100 },
 		size = { overlay.size.w / 3, 200 },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR,
@@ -509,10 +528,6 @@ function Replays:getServerReplays(action, offset, searchStr)
 		infoMessage = TB_MENU_LOCALIZED.REPLAYSFILTERSRATING
 	elseif (action == 3) then
 		infoMessage = TB_MENU_LOCALIZED.REPLAYSFILTERSPOPULARITY
-	elseif (action == 4) then
-		infoMessage = TB_MENU_LOCALIZED.REPLAYSFILTERSTAGGED .. " \"" .. searchStr .. "\""
-	elseif (action == 5) then
-		infoMessage = TB_MENU_LOCALIZED.REPLAYSFILTERSBY .. " " .. searchStr
 	end
 
 	Request:queue(function() fetch_replay_results(action, offset, searchStr) end, "netCommunityReplays", function()
@@ -520,13 +535,13 @@ function Replays:getServerReplays(action, offset, searchStr)
 				return
 			end
 
-			SERVER_REPLAYS = {
-				total = 0,
-				action = action,
-				offset = offset,
-				search = searchStr,
-				info = infoMessage
-			}
+			Replays.ServerCacheTotal = 0
+			Replays.ServerCacheSettings.action = action
+			Replays.ServerCacheSettings.offset = offset
+			Replays.ServerCacheSettings.search = searchStr
+			Replays.ServerCacheSettings.info = infoMessage
+			Replays.ServerCache = {}
+
 			Replays.ParseServerReplaysData(get_network_response())
 			overlay:kill()
 			Replays:showServerReplays()
@@ -536,7 +551,7 @@ function Replays:getServerReplays(action, offset, searchStr)
 			end
 
 			overlay:kill()
-			TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.ERRORTRYAGAIN, function() Replays:getServerReplays(action, offset, searchStr) end)
+			TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.ERRORTRYAGAIN .. "\n" .. get_network_error(), function() Replays:getServerReplays(action, offset, searchStr) end)
 		end)
 end
 
@@ -1168,7 +1183,7 @@ function Replays:showReplayTaglistTag(viewElement, updatedTags, tag, elementHeig
 			end
 			viewElement:kill(true)
 			posInfo.x, posInfo.y = 0, 0
-			for i,tag in pairs(updatedTags) do
+			for _, tag in pairs(updatedTags) do
 				Replays:showReplayTaglistTag(viewElement, updatedTags, tag, elementHeight, posInfo, popularTags)
 			end
 		end)
@@ -1964,8 +1979,10 @@ function Replays:canUploadReplay(replay)
 	return isInReplay
 end
 
+---Displays replay autosave toggle that automatically modifies the corresponding game option
+---@param viewElement UIElement
 function Replays:showAutosaveToggle(viewElement)
-	local autosaveStatus = get_option("autosave")
+	local autosaveStatus = tonumber(get_option("autosave")) or 0
 	local autosaveView = UIElement:new({
 		parent = viewElement,
 		pos = { 10, -viewElement.size.h / 8 },
@@ -2175,178 +2192,122 @@ function Replays:showReplayInfo(viewElement, replay)
 		end)
 end
 
+---Displays community replays search window
 function Replays:showSearchWindow()
-	local searchOverlay = TBMenu:spawnWindowOverlay()
-	local searchView = UIElement:new({
-		parent = searchOverlay,
-		pos = { searchOverlay.size.w / 6, searchOverlay.size.h / 2 - 200 },
-		size = { searchOverlay.size.w / 3 * 2, 400 },
+	local lastSearchData = utf8.explode(Replays.ServerCacheSettings.search, "&")
+	local searchOptions = {
+		{
+			text = TB_MENU_LOCALIZED.REPLAYSFILTERSNAME,
+			targetField = "replayname",
+			value = { "" }
+		},
+		{
+			text = TB_MENU_LOCALIZED.REPLAYSFILTERSBY,
+			targetField = "uploader",
+			value = { "" }
+		},
+		{
+			text = TB_MENU_LOCALIZED.REPLAYSFILTERSBYTAG,
+			targetField = "tags",
+			value = { "" }
+		}
+	}
+	for _, v in pairs(lastSearchData) do
+		local data = utf8.explode(v, "=")
+		for i, opt in pairs(searchOptions) do
+			if (data[1] == opt.targetField) then
+				opt.value[1] = data[2]
+			end
+		end
+	end
+
+	local elementHeight = 50
+	local windowHeight = (#searchOptions + 3) * elementHeight
+	local searchOverlay = TBMenu:spawnWindowOverlay(nil, true)
+	local searchViewBackground = searchOverlay:addChild({
+		pos = (SCREEN_RATIO > 2) and { TBMenu.NavigationBar.shift.x + TBMenu.NavigationBar.size.w + 5, TBMenu.NavigationBar.shift.y + TBMenu.CurrentSection.size.h + 15 - windowHeight } or { TBMenu.NavigationBar.shift.x + TBMenu.NavigationBar.size.w - 500, TBMenu.NavigationBar.shift.y + TBMenu.NavigationBar.size.h + 5 },
+		size = { 500, windowHeight },
+		bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		shapeType = ROUNDED,
+		rounded = 4,
+		interactive = true
+	})
+	local searchView = searchViewBackground:addChild({
+		shift = { 2, 2 },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR
-	})
-	local searchTitle = UIElement:new({
-		parent = searchView,
+	}, true)
+	local searchTitle = searchView:addChild({
 		pos = { 10, 0 },
-		size = { searchView.size.w - 20, 50 }
+		size = { searchView.size.w - 20, elementHeight }
 	})
-	searchTitle:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSCOMMUNITYTITLEINFO, nil, nil, FONTS.BIG, nil, 0.65)
+	searchTitle:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSCOMMUNITYTITLEINFO)
 
-	local searchByDate = UIElement:new({
-		parent = searchView,
-		pos = { 10, searchTitle.shift.y + searchTitle.size.h + 10 },
-		size = { (searchView.size.w - 30) / 2, 70 },
-		interactive = true,
-		bgColor = { 0, 0, 0, 0.3 },
-		hoverColor = { 0, 0, 0, 0.5 },
-		pressedColor = { 1, 1, 1, 0.2 }
-	})
-	searchByDate:addAdaptedText(false, TB_MENU_LOCALIZED.REPLAYSFILTERSDATE)
-	searchByDate:addMouseHandlers(nil, function()
-			searchOverlay:kill()
-			Replays:getServerReplays(1, 1)
-		end)
+	for i, v in pairs(searchOptions) do
+		local inputLegend = searchView:addChild({
+			pos = { 10, i * elementHeight },
+			size = { searchView.size.w / 2 - 30, elementHeight }
+		})
+		inputLegend:addAdaptedText(v.text, nil, nil, nil, LEFTMID)
+		local inputHolder = searchView:addChild({
+			pos = { inputLegend.shift.x * 2 + inputLegend.size.w, inputLegend.shift.y + 5 },
+			size = { inputLegend.size.w, inputLegend.size.h - 10 }
+		}, true)
+		TBMenu:spawnTextField2(inputHolder, nil, v.value, nil, {
+			darkerMode = true,
+			fontId = 4,
+			textScale = 0.65,
+			textAlign = LEFTMID
+		})
+	end
 
-	--[[local searchByRating = UIElement:new({
-		parent = searchView,
-		pos = { searchByDate.shift.x + searchByDate.size.w + 10, searchTitle.shift.y + searchTitle.size.h + 10 },
-		size = { (searchView.size.w - 40) / 3, 70 },
-		interactive = true,
-		bgColor = { 0, 0, 0, 0.3 },
-		hoverColor = { 0, 0, 0, 0.5 },
-		pressedColor = { 1, 1, 1, 0.2 }
+	local orderByLegend = searchView:addChild({
+		pos = { 10, -elementHeight * 2 },
+		size = { searchView.size.w / 2 - 30, elementHeight }
 	})
-	searchByRating:addAdaptedText(false, "By rating")
-	searchByRating:addMouseHandlers(nil, function()
-			searchOverlay:kill()
-			Replays:getServerReplays(2, 1)
-		end)]]
+	orderByLegend:addAdaptedText(TB_MENU_LOCALIZED.SEARCHFILTERORDER, nil, nil, nil, LEFTMID)
+	local orderByHolder = searchView:addChild({
+		pos = { orderByLegend.shift.x * 2 + orderByLegend.size.w, orderByLegend.shift.y + 5 },
+		size = { orderByLegend.size.w, orderByLegend.size.h - 10 },
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR
+	}, true)
+	local orderByMode = 1
+	TBMenu:spawnDropdown(orderByHolder, {
+		{
+			text = TB_MENU_LOCALIZED.REPLAYSFILTERSDATE,
+			action = function() orderByMode = 1 end
+		},
+		--[[{
+			text = TB_MENU_LOCALIZED.REPLAYSFILTERSRATING,
+			action = function() orderByMode = 2 end
+		},]]
+		{
+			text = TB_MENU_LOCALIZED.REPLAYSFILTERSPOPULARITY,
+			action = function() orderByMode = 3 end
+		}
+	}, orderByHolder.size.h, nil, nil, {
+		fontid = 4, scale = 0.65, alignment = LEFTMID
+	}, {
+		fontid = 4, scale = 0.65, alignment = CENTERMID
+	})
 
-	local searchByPopularity = UIElement:new({
-		parent = searchView,
-		pos = { searchByDate.shift.x + searchByDate.size.w + 10, searchTitle.shift.y + searchTitle.size.h + 10 },
-		size = { (searchView.size.w - 30) / 2, 70 },
+	local searchButton = searchView:addChild({
+		pos = { searchView.size.w / 4, -elementHeight + 5 },
+		size = { searchView.size.w / 2, elementHeight - 10 },
 		interactive = true,
-		bgColor = { 0, 0, 0, 0.3 },
-		hoverColor = { 0, 0, 0, 0.5 },
-		pressedColor = { 1, 1, 1, 0.2 }
-	})
-	searchByPopularity:addAdaptedText(false, TB_MENU_LOCALIZED.REPLAYSFILTERSPOPULARITY)
-	searchByPopularity:addMouseHandlers(nil, function()
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+	}, true)
+	searchButton:addChild({ shift = { 15, 5 } }):addAdaptedText(false, TB_MENU_LOCALIZED.BUTTONSEARCH)
+	searchButton:addMouseUpHandler(function()
+			local searchString = "0"
+			for _, v in pairs(searchOptions) do
+				if (utf8.len(v.value[1]) > 0) then
+					searchString = searchString .. "&" .. v.targetField .. "=" .. v.value[1]
+				end
+			end
 			searchOverlay:kill()
-			Replays:getServerReplays(3, 1)
-		end)
-
-	local searchByTagTitle = UIElement:new({
-		parent = searchView,
-		pos = { 10, searchByDate.shift.y + searchByDate.size.h + 20 },
-		size = { searchView.size.w - 20, 25 }
-	})
-	searchByTagTitle:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSFILTERSBYTAG, nil, nil, nil, LEFTMID)
-	local searchByTagView = UIElement:new({
-		parent = searchView,
-		pos = { 10, searchByTagTitle.shift.y + searchByTagTitle.size.h + 5 },
-		size = { searchView.size.w - 20, 40 }
-	})
-	local searchByTagInputBG = UIElement:new({
-		parent = searchByTagView,
-		pos = { 0, 0 },
-		size = { searchByTagView.size.w - 160, searchByTagView.size.h },
-		bgColor = TB_MENU_DEFAULT_DARKEST_COLOR
-	})
-	local searchByTagInputOverlay = UIElement:new({
-		parent = searchByTagInputBG,
-		pos = { 1, 1 },
-		size = { searchByTagInputBG.size.w - 2, searchByTagInputBG.size.h - 2 },
-		bgColor = { 1, 1, 1, 0.4 },
-	})
-	local searchByTagInput = UIElement:new({
-		parent = searchByTagInputOverlay,
-		pos = { 10, 0 },
-		size = { searchByTagInputOverlay.size.w - 20, searchByTagInputOverlay.size.h },
-		interactive = true,
-		textfield = true,
-		textfieldsingleline = true
-	})
-	searchByTagInput:addMouseHandlers(function()
-			searchByTagInput:enableMenuKeyboard(searchByTagInput)
-		end)
-	TBMenu:displayTextfield(searchByTagInput, 4, 0.7, UICOLORBLACK, TB_MENU_LOCALIZED.SEARCHNOTE)
-	local searchByTagButton = UIElement:new({
-		parent = searchByTagView,
-		pos = { searchByTagInputBG.size.w + 10, 0 },
-		size = { searchByTagView.size.w - searchByTagInputBG.size.w - 10, searchByTagView.size.h },
-		interactive = true,
-		bgColor = { 0, 0, 0, 0.3 },
-		hoverColor = { 0, 0, 0, 0.5 },
-		pressedColor = { 1, 1, 1, 0.2 }
-	})
-	searchByTagButton:addAdaptedText(false, TB_MENU_LOCALIZED.BUTTONSEARCH)
-	searchByTagButton:addMouseHandlers(nil, function()
-			searchOverlay:kill()
-			Replays:getServerReplays(4, 1, searchByTagInput.textfieldstr[1])
-		end)
-
-	local searchByUserTitle = UIElement:new({
-		parent = searchView,
-		pos = { 10, searchByTagView.shift.y + searchByTagView.size.h + 20 },
-		size = { searchView.size.w - 20, 25 }
-	})
-	searchByUserTitle:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSFILTERSUPLOADER, nil, nil, nil, LEFTMID)
-	local searchByUserView = UIElement:new({
-		parent = searchView,
-		pos = { 10, searchByUserTitle.shift.y + searchByUserTitle.size.h + 5 },
-		size = { searchView.size.w - 20, 40 }
-	})
-	local searchByUserInputBG = UIElement:new({
-		parent = searchByUserView,
-		pos = { 0, 0 },
-		size = { searchByUserView.size.w - 160, searchByUserView.size.h },
-		bgColor = TB_MENU_DEFAULT_DARKEST_COLOR
-	})
-	local searchByUserInputOverlay = UIElement:new({
-		parent = searchByUserInputBG,
-		pos = { 1, 1 },
-		size = { searchByUserInputBG.size.w - 2, searchByUserInputBG.size.h - 2 },
-		bgColor = { 1, 1, 1, 0.4 },
-	})
-	local searchByUserInput = UIElement:new({
-		parent = searchByUserInputOverlay,
-		pos = { 10, 0 },
-		size = { searchByUserInputOverlay.size.w - 20, searchByUserInputOverlay.size.h },
-		interactive = true,
-		textfield = true,
-		textfieldsingleline = true
-	})
-	searchByUserInput:addMouseHandlers(function()
-			searchByUserInput:enableMenuKeyboard(searchByUserInput)
-		end)
-	TBMenu:displayTextfield(searchByUserInput, 4, 0.7, UICOLORBLACK, TB_MENU_LOCALIZED.SEARCHNOTE)
-	local searchByUserButton = UIElement:new({
-		parent = searchByUserView,
-		pos = { searchByUserInputBG.size.w + 10, 0 },
-		size = { searchByUserView.size.w - searchByUserInputBG.size.w - 10, searchByUserView.size.h },
-		interactive = true,
-		bgColor = { 0, 0, 0, 0.3 },
-		hoverColor = { 0, 0, 0, 0.5 },
-		pressedColor = { 1, 1, 1, 0.2 }
-	})
-	searchByUserButton:addAdaptedText(false, TB_MENU_LOCALIZED.BUTTONSEARCH)
-	searchByUserButton:addMouseHandlers(nil, function()
-			searchOverlay:kill()
-			Replays:getServerReplays(5, 1, searchByUserInput.textfieldstr[1])
-		end)
-
-	local cancelButton = UIElement:new({
-		parent = searchView,
-		pos = { searchView.size.w / 4, -50 },
-		size = { searchView.size.w / 2, 40 },
-		interactive = true,
-		bgColor = { 0, 0, 0, 0.3 },
-		hoverColor = { 0, 0, 0, 0.5 },
-		pressedColor = { 1, 1, 1, 0.2 }
-	})
-	cancelButton:addAdaptedText(false, TB_MENU_LOCALIZED.BUTTONCANCEL)
-	cancelButton:addMouseHandlers(nil, function()
-			searchOverlay:kill()
+			Replays:getServerReplays(orderByMode, 0, searchString)
 		end)
 end
 
@@ -2485,228 +2446,250 @@ function Replays:showReplayDownloadPopup(rplname)
 		end)
 end
 
-function Replays:showServerReplayList(replaysList, replayInfo)
+---Displays replay tags in a specified UIElement viewport
+---@param viewElement UIElement
+---@param tags string[]
+---@param height integer
+function Replays:displayTags(viewElement, tags, height, targetScale)
+	local x, y = 0, 0
+	for _, tag in pairs(tags) do
+		local tagElement = viewElement:addChild({
+			pos = { x, y },
+			size = { viewElement.size.w, height },
+			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			shapeType = ROUNDED,
+			rounded = 3
+		})
+		tagElement:addAdaptedText(tag, nil, nil, 4, nil, targetScale, targetScale)
+		targetScale = tagElement.textScale
+		local tagWidth = get_string_length(tagElement.dispstr[1], tagElement.textFont) * tagElement.textScale
+		tagElement.size.w = tagWidth + 10
+		if (tagElement.shift.x + tagElement.size.w > viewElement.size.w) then
+			x = 0
+			y = tagElement.shift.y + height + 5
+			tagElement:moveTo(x, y)
+		end
+		if (tagElement.shift.y + tagElement.size.h > viewElement.size.h) then
+			tagElement:kill()
+			return
+		end
+		x = tagElement.shift.x + tagElement.size.w + 5
+	end
+end
+
+---Displays server replays in a UIElement viewport
+---@param viewElement UIElement
+---@param replayInfoHolder UIElement
+function Replays:showServerReplayList(viewElement, replayInfoHolder)
+	TBMenu:addBottomBloodSmudge(viewElement, 1)
 	SELECTED_SERVER_REPLAY.element = nil
 	SELECTED_SERVER_REPLAY.replay = nil
 	SELECTED_SERVER_REPLAY.displayid = nil
 
-	local posX, elementHeight = 0, 25
-	local toReload, topBar, botBar, replayListing, replayHolder, scrollBG = TBMenu:prepareScrollableList(replaysList, 50, 35, 20)
-	TBMenu:addBottomBloodSmudge(botBar, 1)
+	local elementHeight = 30
+	local toReload, topBar, botBar, replayListing, replayHolder, scrollBG = TBMenu:prepareScrollableList(viewElement, 50, elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
 
-	local helpButton = UIElement:new({
-		parent = topBar,
+	local helpButton = topBar:addChild({
 		pos = { 10, 10 },
 		size = { topBar.size.h - 20, topBar.size.h - 20 },
 		interactive = true,
-		bgColor = { 0, 0, 0, 0.2 },
-		hoverColor = { 1, 1, 1, 0.2 },
-		pressedColor = { 1, 1, 1, 0.2 },
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 		shapeType = ROUNDED,
 		rounded = topBar.size.h
 	})
-	local popup = TBMenu:displayHelpPopup(helpButton, TB_MENU_LOCALIZED.REPLAYSCOMMUNITYDOUBLECLICKINFO, true)
+	local popup = TBMenu:displayHelpPopup(helpButton, TB_MENU_LOCALIZED.REPLAYSCOMMUNITYDOUBLECLICKINFO)
 	popup:moveTo(topBar.size.h - 15, -(popup.size.h - topBar.size.h + 20) / 2, true)
 
-	local listTitle = UIElement:new({
-		parent = topBar,
+	local listTitle = topBar:addChild({
 		pos = { helpButton.shift.x + helpButton.size.w + 10, 0 },
-		size = { topBar.size.w - 20 - helpButton.shift.x - helpButton.size.w, topBar.size.h }
+		size = { (topBar.size.w - 20 - helpButton.shift.x - helpButton.size.w) / 2, topBar.size.h }
 	})
-	if (SERVER_REPLAYS.total == 0) then
+	if (Replays.ServerCacheTotal == 0) then
 		listTitle:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSCOMMUNITYNOFOUND, nil, nil, FONTS.BIG, LEFTMID, 0.65, nil, 0.2)
 	else
-		local currentPage, totalPages = math.ceil(SERVER_REPLAYS.offset / 100), math.floor(SERVER_REPLAYS.total / 100)
-		listTitle:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSREPLAYS .. " " .. SERVER_REPLAYS.info .. ": " .. TB_MENU_LOCALIZED.PAGINATIONPAGE .. " " .. currentPage .. " " .. TB_MENU_LOCALIZED.PAGINATIONPAGEOF .. " " .. totalPages, nil, nil, FONTS.BIG, LEFTMID, 0.65, nil, 0.2)
+		local paginationHolder = topBar:addChild({
+			pos = { listTitle.shift.x + listTitle.size.w + 10, 7 },
+			size = { topBar.size.w - 20 - listTitle.shift.x - listTitle.size.w, topBar.size.h - 14 },
+			shapeType = ROUNDED,
+			rounded = 4
+		})
+		local pageButtonWidth = 45
+		local currentPage, pages = math.floor(Replays.ServerCacheSettings.offset / 100) + 1, math.floor(Replays.ServerCacheTotal / 100)
+		local pagesMax = math.floor(paginationHolder.size.w / pageButtonWidth)
+		local pagesData = TBMenu:generatePaginationData(pages, pagesMax, currentPage)
+
+		for i, v in pairs(pagesData) do
+			local pageButton = paginationHolder:addChild({
+				pos = { (i - 1) * pageButtonWidth, 0 },
+				size = { pageButtonWidth * 0.8, paginationHolder.size.h },
+				interactive = true,
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+				inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS
+			}, true)
+			pageButton:addAdaptedText(nil, v .. '', nil, nil, 4, nil, 0.65)
+			pageButton:addMouseHandlers(nil, function()
+					Replays:getServerReplays(Replays.ServerCacheSettings.action, (v - 1) * 100, Replays.ServerCacheSettings.search)
+				end)
+			if (currentPage == v) then
+				pageButton:deactivate(true)
+			end
+		end
+		paginationHolder:moveTo(-(#pagesData - 0.2) * pageButtonWidth - helpButton.shift.x)
+
+		listTitle:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSREPLAYS .. " " .. Replays.ServerCacheSettings.info, nil, nil, FONTS.BIG, LEFTMID, 0.65, nil, 0.2)
 	end
 
-	local replayElements = {}
-	local tempHolder = nil
-	if (SERVER_REPLAYS.offset > 1) then
-		local offset = SERVER_REPLAYS.offset - 100 > 0 and SERVER_REPLAYS.offset - 100 or 1
-		local offsetDecrementButton = UIElement:new({
-			parent = replayHolder,
-			pos = { 0, posX },
-			size = { replayHolder.size.w, elementHeight },
-			interactive = true,
-			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-			hoverColor = { 0, 0, 0, 0.3 },
-			pressedColor = { 1, 1, 1, 0.2 }
+	local listElements = {}
+	local firstSelected = nil
+	for i, v in pairs(Replays.ServerCache) do
+		local buttonTopHolder = replayHolder:addChild({
+			pos = { 0, #listElements * elementHeight },
+			size = { replayHolder.size.w, elementHeight }
 		})
-		table.insert(replayElements, offsetDecrementButton)
-		offsetDecrementButton:addAdaptedText(false, TB_MENU_LOCALIZED.REPLAYSLOADPREVIOUS .. " " .. SERVER_REPLAYS.offset - offset .. " " .. TB_MENU_LOCALIZED.REPLAYSREPLAYS:upper(), nil, nil, 4, nil, 0.7)
-		offsetDecrementButton:addMouseHandlers(nil, function()
-				Replays:getServerReplays(SERVER_REPLAYS.action, offset, SERVER_REPLAYS.search)
-			end)
-		posX = posX + elementHeight
-	end
-	for i,v in pairs(SERVER_REPLAYS) do
-		if (type(i) == "number") then
-			local replayElementHolder = UIElement:new({
-				parent = replayHolder,
-				pos = { 0, posX },
-				size = { replayHolder.size.w, elementHeight * 2 },
-				interactive = true,
-				bgColor = i % 2 == 1 and TB_MENU_DEFAULT_BG_COLOR or TB_MENU_DEFAULT_DARKER_COLOR,
-				hoverColor = { 0, 0, 0, 0.3 },
-				pressedColor = { 1, 1, 1, 0.2 }
-			})
-			if (i == 1) then
-				tempHolder = replayElementHolder
+		table.insert(listElements, buttonTopHolder)
+		local buttonTopBackground = buttonTopHolder:addChild({
+			pos = { 10, 2 },
+			size = { buttonTopHolder.size.w - 12, buttonTopHolder.size.h - 2 },
+			interactive = true,
+			clickThrough = true,
+			hoverThrough = true,
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+			shapeType = ROUNDED,
+			rounded = { 4, 0 }
+		})
+		local buttonBotHolder = replayHolder:addChild({
+			pos = { 0, #listElements * elementHeight },
+			size = { replayHolder.size.w, elementHeight }
+		})
+		table.insert(listElements, buttonBotHolder)
+		local buttonBotBackground = buttonBotHolder:addChild({
+			pos = { buttonTopBackground.shift.x, 0 },
+			size = { buttonTopBackground.size.w, buttonTopBackground.size.h },
+			interactive = true,
+			clickThrough = true,
+			hoverThrough = true,
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+			shapeType = ROUNDED,
+			rounded = { 0, 4 }
+		})
+		buttonTopBackground:addCustomDisplay(nil, function()
+			if (buttonBotBackground.hoverState ~= buttonTopBackground.hoverState and buttonBotBackground:isDisplayed()) then
+				if (buttonTopBackground.hoverState > buttonBotBackground.hoverState) then
+					buttonBotBackground.hoverState = buttonTopBackground.hoverState
+					buttonBotBackground.hoverClock = buttonTopBackground.hoverClock
+				else
+					buttonTopBackground.hoverState = buttonBotBackground.hoverState
+					buttonTopBackground.hoverClock = buttonBotBackground.hoverClock
+				end
 			end
-			local dispid = #replayElements
-			if (v.id == SELECTED_SERVER_REPLAY.id) then
-				SELECTED_SERVER_REPLAY = { element = replayElementHolder, color = { unpack(replayElementHolder.bgColor) }, id = v.id, replay = v, displayid = dispid }
-				replayElementHolder.bgColor = replayElementHolder.pressedColor
-			end
-			replayElementHolder:addCustomDisplay(true, function()
-					if (replayElementHolder.pos.y < topBar.pos.y or replayElementHolder.pos.y > botBar.pos.y) then
-						replayElementHolder:deactivate()
-					else
-						replayElementHolder:activate()
-					end
-				end)
-			local replayElement = UIElement:new({
-				parent = replayHolder,
-				pos = { 0, posX },
-				size = { replayHolder.size.w, elementHeight }
-			})
-			table.insert(replayElements, replayElement)
-			posX = posX + elementHeight
-			local replayName = UIElement:new({
-				parent = replayElement,
-				pos = { 10, 0 },
-				size = { replayElement.size.w / 2 - 20, replayElement.size.h }
-			})
-			replayName:addAdaptedText(true, v.rplname, nil, nil, 4, LEFTMID, 0.65)
-			local nameSeparator = UIElement:new({
-				parent = replayName,
-				pos = { replayName.size.w + replayName.shift.x / 2, replayName.size.h / 4 },
-				size = { 1, replayName.size.h / 2 },
-				bgColor = { 1, 1, 1, 0.2 }
-			})
-			local replayRating = UIElement:new({
-				parent = replayElement,
-				pos = { replayName.shift.x * 2 + replayName.size.w, 0 },
-				size = { (replayElement.size.w - replayName.size.w - replayName.shift.x * 5) / 3, replayElement.size.h }
-			})
-			Replays:showReplayRating(replayRating, v.score, v.votes)
-			local ratingSeparator = UIElement:new({
-				parent = replayRating,
-				pos = { replayRating.size.w + replayName.shift.x / 2, replayRating.size.h / 4 },
-				size = { 1, replayRating.size.h / 2 },
-				bgColor = { 1, 1, 1, 0.2 }
-			})
-			local replayUploader = UIElement:new({
-				parent = replayElement,
-				pos = { -(replayRating.size.w + replayName.shift.x) * 2, 0 },
-				size = { replayRating.size.w, replayElement.size.h }
-			})
-			replayUploader:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSBY .. " " .. v.uploader, nil, nil, 4, nil, 0.65)
-			local uploaderSeparator = UIElement:new({
-				parent = replayUploader,
-				pos = { replayUploader.size.w + replayName.shift.x / 2, replayUploader.size.h / 4 },
-				size = { 1, replayUploader.size.h / 2 },
-				bgColor = { 1, 1, 1, 0.2 }
-			})
-			local replayDate = UIElement:new({
-				parent = replayElement,
-				pos = { -(replayRating.size.w + replayName.shift.x), 0 },
-				size = { replayUploader.size.w, replayElement.size.h }
-			})
-			replayDate:addAdaptedText(true, v.date, nil, nil, 4, nil, 0.65)
-			local replayTags = UIElement:new({
-				parent = replayHolder,
-				pos = { 0, posX },
-				size = { replayHolder.size.w, elementHeight }
-			})
-			replayElement:addCustomDisplay(true, function()
-					if ((replayElementHolder.hoverState == BTN_DN and replayTags:isDisplayed()) or (replayElementHolder.hoverState == BTN_DN and MOUSE_Y <= replayElement.pos.y + replayElement.size.h)) then
-						set_color(unpack(replayElementHolder.pressedColor))
-					elseif (MOUSE_Y > replayElement.pos.y + replayElement.size.h and not replayTags:isDisplayed()) then
-						set_color(unpack(replayElementHolder.bgColor))
-					else
-						set_color(unpack(replayElementHolder.animateColor))
-					end
-					draw_quad(replayElement.pos.x, replayElement.pos.y, replayElement.size.w, replayElement.size.h)
-				end)
-			replayTags:addCustomDisplay(true, function()
-					if ((replayElementHolder.hoverState == BTN_DN and replayElement:isDisplayed()) or (replayElementHolder.hoverState == BTN_DN and MOUSE_Y >= replayTags.pos.y)) then
-						set_color(unpack(replayElementHolder.pressedColor))
-					elseif (MOUSE_Y < replayTags.pos.y and not replayElement:isDisplayed()) then
-						set_color(unpack(replayElementHolder.bgColor))
-					else
-						set_color(unpack(replayElementHolder.animateColor))
-					end
-					draw_quad(replayTags.pos.x, replayTags.pos.y, replayTags.size.w, replayTags.size.h)
-				end)
-			replayElementHolder.lastPress = 0
-			replayElementHolder:addMouseHandlers(nil, function(s, x, y)
-					if (y < botBar.pos.y and y > topBar.pos.y + topBar.size.h) then
-						if (os.clock_real() - replayElementHolder.lastPress < 0.5) then
-							download_replay(v.id, REPLAY_TEMPNAME)
-							Replays:showServerReplayPreview()
-							return
-						end
-						replayElementHolder.lastPress = os.clock_real()
-						if (SELECTED_SERVER_REPLAY.element) then
-							SELECTED_SERVER_REPLAY.element.bgColor = { unpack(SELECTED_SERVER_REPLAY.color) }
-						end
-						SELECTED_SERVER_REPLAY = { element = replayElementHolder, color = { unpack(replayElementHolder.bgColor) }, id = v.id, replay = v, displayid = dispid }
-						replayElementHolder.bgColor = replayElementHolder.pressedColor
-						Replays:showServerReplayInfo(replayInfo, v)
-					end
-				end)
-			table.insert(replayElements, replayTags)
-			posX = posX + replayTags.size.h
-			local replayTagsStr = UIElement:new({
-				parent = replayTags,
-				pos = { 10, 0 },
-				size = { replayTags.size.w / 6 * 5 - 20, replayTags.size.h }
-			})
-			replayTagsStr:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSTAGS .. ": " .. v.tags, nil, nil, 4, LEFTMID, 0.6)
-			local replayDownloads = UIElement:new({
-				parent = replayTags,
-				pos = { -replayTags.size.w / 6, 0 },
-				size = { replayTags.size.w / 6 - 20, replayTags.size.h }
-			})
-			replayDownloads:addAdaptedText(true, v.downloads .. (v.downloads == 1 and " " .. TB_MENU_LOCALIZED.REPLAYSDOWNLOAD or " " .. TB_MENU_LOCALIZED.REPLAYSDOWNLOADS), nil, nil, 4, RIGHTMID, 0.6)
+		end, true)
+
+		if (v.id == SELECTED_SERVER_REPLAY.id) then
+			SELECTED_SERVER_REPLAY = { elements = { buttonTopBackground, buttonBotBackground }, id = v.id, replay = v, displayid = i }
+		elseif (i == 1) then
+			firstSelected = { elements = { buttonTopBackground, buttonBotBackground }, id = v.id, replay = v, displayid = i }
 		end
-	end
-	if (SERVER_REPLAYS.offset + 100 < SERVER_REPLAYS.total) then
-		local offsetIncrementButton = UIElement:new({
-			parent = replayHolder,
-			pos = { 0, posX },
-			size = { replayHolder.size.w, elementHeight },
-			interactive = true,
-			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-			hoverColor = { 0, 0, 0, 0.3 },
-			pressedColor = { 1, 1, 1, 0.2 }
+
+		local replayName = buttonTopBackground:addChild({
+			pos = { 10, 0 },
+			size = { buttonTopBackground.size.w / 2 - 20, buttonTopBackground.size.h }
 		})
-		table.insert(replayElements, offsetIncrementButton)
-		offsetIncrementButton:addAdaptedText(false, TB_MENU_LOCALIZED.REPLAYSLOADNEXT .. " " .. (SERVER_REPLAYS.total - SERVER_REPLAYS.offset >= 100 and 100 or SERVER_REPLAYS.total - SERVER_REPLAYS.offset) .. " " .. TB_MENU_LOCALIZED.REPLAYSREPLAYS:upper(), nil, nil, 4, nil, 0.7)
-		offsetIncrementButton:addMouseHandlers(nil, function()
-				Replays:getServerReplays(SERVER_REPLAYS.action, SERVER_REPLAYS.offset + 100, SERVER_REPLAYS.search)
-			end)
+		replayName:addAdaptedText(true, v.name, nil, nil, 4, LEFTMID, 0.65)
+		local nameSeparator = replayName:addChild({
+			pos = { replayName.size.w + replayName.shift.x / 2, replayName.size.h / 4 },
+			size = { 1, replayName.size.h / 2 },
+			bgColor = { 1, 1, 1, 0.2 }
+		})
+		local replayRating = buttonTopBackground:addChild({
+			pos = { replayName.shift.x * 2 + replayName.size.w, 0 },
+			size = { (buttonTopBackground.size.w - replayName.size.w - replayName.shift.x * 5) / 3, buttonTopBackground.size.h }
+		})
+		Replays:showReplayRating(replayRating, v.score, v.votes)
+		local ratingSeparator = replayRating:addChild({
+			parent = replayRating,
+			pos = { replayRating.size.w + replayName.shift.x / 2, replayRating.size.h / 4 },
+			size = { 1, replayRating.size.h / 2 },
+			bgColor = { 1, 1, 1, 0.2 }
+		})
+		local replayUploader = buttonTopBackground:addChild({
+			pos = { -(replayRating.size.w + replayName.shift.x) * 2, 0 },
+			size = { replayRating.size.w, buttonTopBackground.size.h }
+		})
+		replayUploader:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSBY .. " " .. v.author, nil, nil, 4, nil, 0.65)
+		local uploaderSeparator = UIElement:new({
+			parent = replayUploader,
+			pos = { replayUploader.size.w + replayName.shift.x / 2, replayUploader.size.h / 4 },
+			size = { 1, replayUploader.size.h / 2 },
+			bgColor = { 1, 1, 1, 0.2 }
+		})
+		local replayDate = buttonTopBackground:addChild({
+			pos = { -(replayRating.size.w + replayName.shift.x), 0 },
+			size = { replayUploader.size.w, buttonTopBackground.size.h }
+		})
+		replayDate:addAdaptedText(true, v.date, nil, nil, 4, RIGHTMID, 0.65)
+		buttonTopHolder.lastPress = 0
+		local clickHandler = function()
+			if (os.clock_real() - buttonTopHolder.lastPress < 0.45) then
+				download_replay(v.id, REPLAY_TEMPNAME)
+				Replays:showServerReplayPreview()
+				return
+			end
+			buttonTopHolder.lastPress = os.clock_real()
+			if (SELECTED_SERVER_REPLAY.elements) then
+				for _, element in pairs(SELECTED_SERVER_REPLAY.elements) do
+					element.bgColor = TB_MENU_DEFAULT_DARKER_COLOR
+					element.hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR
+				end
+			end
+			SELECTED_SERVER_REPLAY = { elements = { buttonTopBackground, buttonBotBackground }, id = v.id, replay = v, displayid = i }
+			for _, element in pairs(SELECTED_SERVER_REPLAY.elements) do
+				element.bgColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+				element.hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+			end
+			Replays:showServerReplayInfo(replayInfoHolder, v)
+		end
+		buttonTopBackground:addMouseUpHandler(clickHandler)
+		buttonBotBackground:addMouseUpHandler(clickHandler)
+
+		local replayTagsHolder = buttonBotBackground:addChild({
+			pos = { 10, 5 },
+			size = { buttonBotBackground.size.w / 6 * 5 - 20, buttonBotBackground.size.h - 10 }
+		})
+		Replays:displayTags(replayTagsHolder, utf8.explode(v.tags:gsub(" +$", ''), " "), replayTagsHolder.size.h, 0.55)
+		local replayDownloads = buttonBotBackground:addChild({
+			pos = { -buttonBotBackground.size.w / 6, 0 },
+			size = { buttonBotBackground.size.w / 6 - 10, buttonBotBackground.size.h }
+		})
+		replayDownloads:addAdaptedText(true, v.downloads .. (v.downloads == 1 and " " .. TB_MENU_LOCALIZED.REPLAYSDOWNLOAD or " " .. TB_MENU_LOCALIZED.REPLAYSDOWNLOADS), nil, nil, 4, RIGHTMID, 0.6)
 	end
-	for i,v in pairs(replayElements) do
+
+	for _, v in pairs(listElements) do
 		v:hide()
 	end
 
-	local scrollBar = TBMenu:spawnScrollBar(replayHolder, #replayElements, elementHeight)
-	if (SERVER_REPLAYS.total > 0) then
-		scrollBar:makeScrollBar(replayHolder, replayElements, toReload)
-	end
+	local scrollBar = TBMenu:spawnScrollBar(replayHolder, #listElements, elementHeight)
+	scrollBar:makeScrollBar(replayHolder, listElements, toReload)
 
 	if (SELECTED_SERVER_REPLAY.displayid and replayHolder.size.h < elementHeight * 2 * SELECTED_SERVER_REPLAY.displayid) then
 		scrollBar.btnDown(4, 0, -SELECTED_SERVER_REPLAY.displayid)
 	end
 
-	if (not SELECTED_SERVER_REPLAY.replay and tempHolder) then
-		SELECTED_SERVER_REPLAY = { element = tempHolder, color = { unpack(tempHolder.bgColor) }, id = SERVER_REPLAYS[1].id, replay = SERVER_REPLAYS[1], displayid = 1 }
-		tempHolder.bgColor = tempHolder.pressedColor
+	if (not SELECTED_SERVER_REPLAY.replay and firstSelected) then
+		SELECTED_SERVER_REPLAY = firstSelected
 	end
-	Replays:showServerReplayInfo(replayInfo, SELECTED_SERVER_REPLAY.replay)
+	for _, v in pairs(SELECTED_SERVER_REPLAY.elements or {}) do
+		v.bgColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+		v.hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+	end
+	Replays:showServerReplayInfo(replayInfoHolder, SELECTED_SERVER_REPLAY.replay)
 end
 
 ---Displays replay rating
@@ -2782,7 +2765,7 @@ function Replays:showReplayRatingVote(viewElement)
 end
 
 ---Displays replay vote window
----@param replay any
+---@param replay ReplayServerInfo
 function Replays:showReplayVoteWindow(replay)
 	local voteOverlay = TBMenu:spawnWindowOverlay(nil, true)
 	local voteViewSize = { math.min(WIN_W / 2, 600), math.min(WIN_H / 2, 400) }
@@ -2810,7 +2793,7 @@ function Replays:showReplayVoteWindow(replay)
 	topBar:addChild({
 		pos = { 10, 5 },
 		size = { topBar.size.w - 20 - closeButton.size.w, topBar.size.h - 10 }
-	}):addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSVOTINGON .. " " .. replay.rplname .. " " .. TB_MENU_LOCALIZED.REPLAYSREPLAY, nil, nil, FONTS.BIG, nil, 0.65, nil, 0.4)
+	}):addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSVOTINGON .. " " .. replay.name .. " " .. TB_MENU_LOCALIZED.REPLAYSREPLAY, nil, nil, FONTS.BIG, nil, 0.65, nil, 0.4)
 
 	local voteScoreView = UIElement:new({
 		parent = voteView,
@@ -2945,7 +2928,7 @@ function Replays:showReplayCommentList(listingHolder, listingView, toReload, ele
 end
 
 ---Fetches comments for the specified replay and shows them in a separate window when ready
----@param replay any
+---@param replay ReplayServerInfo
 function Replays:showReplayComments(replay)
 	local overlay = TBMenu:spawnWindowOverlay()
 	local waiterView = overlay:addChild({
@@ -3005,7 +2988,7 @@ function Replays:showReplayComments(replay)
 					pos = { 10, 5 },
 					size = { topBar.size.w - 20 - closeButton.size.w, topBar.size.h - 10 }
 				})
-				commentsTitle:addAdaptedText(true, replay.rplname .. " " .. TB_MENU_LOCALIZED.WORDBY .. " " .. replay.uploader, nil, nil, FONTS.BIG, LEFTMID, 0.65, nil, 0.4)
+				commentsTitle:addAdaptedText(true, replay.name .. " " .. TB_MENU_LOCALIZED.WORDBY .. " " .. replay.author, nil, nil, FONTS.BIG, LEFTMID, 0.65, nil, 0.4)
 
 				Replays:showReplayCommentList(listingHolder, listingView, toReload, elementHeight, comments)
 
@@ -3027,31 +3010,29 @@ function Replays:showReplayComments(replay)
 		end)
 end
 
-function Replays:showServerReplayInfo(replayInfo, replay)
-	replayInfo:kill(true)
-	TBMenu:addBottomBloodSmudge(replayInfo, 2)
+function Replays:showServerReplayInfo(viewElement, replay)
+	viewElement:kill(true)
+	TBMenu:addBottomBloodSmudge(viewElement, 2)
 
 	if (not replay) then
 		return
 	end
 
-	local replayInfoHolder = UIElement:new({
-		parent = replayInfo,
-		pos = { 0, 0 },
-		size = { replayInfo.size.w, replayInfo.size.h / 8 * 5 }
+	local replayInfoHolder = viewElement:addChild({
+		size = { viewElement.size.w, viewElement.size.h / 8 * 5 }
 	})
 	local replayName = UIElement:new({
 		parent = replayInfoHolder,
 		pos = { 10, 0 },
 		size = { replayInfoHolder.size.w - 20, replayInfoHolder.size.h / 4 }
 	})
-	replayName:addAdaptedText(true, replay.rplname, nil, nil, FONTS.BIG, nil, 0.65, nil, 0.2)
+	replayName:addAdaptedText(true, replay.name, nil, nil, FONTS.BIG, nil, 0.65, nil, 0.2)
 	local replayUploader = UIElement:new({
 		parent = replayInfoHolder,
 		pos = { 10, replayName.shift.y + replayName.size.h },
 		size = { replayInfoHolder.size.w - 20, replayInfoHolder.size.h / 16 }
 	})
-	replayUploader:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSBY .. " " .. replay.uploader, nil, nil, 4, nil, 0.75)
+	replayUploader:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSBY .. " " .. replay.author, nil, nil, 4, nil, 0.75)
 	local replayDate = UIElement:new({
 		parent = replayInfoHolder,
 		pos = { 10, replayUploader.shift.y + replayUploader.size.h },
@@ -3072,7 +3053,7 @@ function Replays:showServerReplayInfo(replayInfo, replay)
 	replayRating:addMouseHandlers(nil, function()
 			Replays:showReplayVoteWindow(replay)
 		end)
-	if (replay.uploader:lower() == TB_MENU_PLAYER_INFO.username:lower()) then
+	if (replay.author:lower() == TB_MENU_PLAYER_INFO.username:lower()) then
 		replayRating:deactivate()
 	end
 	Replays:showReplayRating(replayRating, replay.score, replay.votes, replay.uservote)
@@ -3083,10 +3064,9 @@ function Replays:showServerReplayInfo(replayInfo, replay)
 	})
 	replayDescription:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSDESC .. ": " .. replay.description, nil, nil, 4, LEFT, 0.65, 0.65)
 
-	local replayDownloadButton = UIElement:new({
-		parent = replayInfo,
-		pos = { 10, -replayInfo.size.h / 8 * 3 },
-		size = { replayInfo.size.w - 20, replayInfo.size.h / 10 },
+	local replayDownloadButton = viewElement:addChild({
+		pos = { 10, -viewElement.size.h / 8 * 3 },
+		size = { viewElement.size.w - 20, viewElement.size.h / 10 },
 		interactive = true,
 		bgColor = { 0, 0, 0, 0.1 },
 		hoverColor = { 0, 0, 0, 0.3 },
@@ -3094,13 +3074,12 @@ function Replays:showServerReplayInfo(replayInfo, replay)
 	})
 	replayDownloadButton:addAdaptedText(false, TB_MENU_LOCALIZED.REPLAYSSAVEREPLAY)
 	replayDownloadButton:addMouseHandlers(nil, function()
-			download_replay(replay.id, replay.rplname:gsub("%s", "_"))
-			Replays:showReplayDownloadPopup(replay.rplname:gsub("%s", "_"))
+			download_replay(replay.id, replay.name:gsub("%s", "_"))
+			Replays:showReplayDownloadPopup(replay.name:gsub("%s", "_"))
 		end)
-	local replayCommentsButton = UIElement:new({
-		parent = replayInfo,
-		pos = { 10, -replayInfo.size.h / 8 * 2 },
-		size = { replayInfo.size.w - 20, replayInfo.size.h / 10 },
+	local replayCommentsButton = viewElement:addChild({
+		pos = { 10, -viewElement.size.h / 8 * 2 },
+		size = { viewElement.size.w - 20, viewElement.size.h / 10 },
 		interactive = true,
 		bgColor = { 0, 0, 0, 0.1 },
 		hoverColor = { 0, 0, 0, 0.3 },
@@ -3111,42 +3090,43 @@ function Replays:showServerReplayInfo(replayInfo, replay)
 			Replays:showReplayComments(replay)
 		end)
 
-	local findReplaysByUserButton = UIElement:new({
-		parent = replayInfo,
-		pos = { 10, -replayInfo.size.h / 8 },
-		size = { replayInfo.size.w - 20, replayInfo.size.h / 10 },
+	local findReplaysByUserButton = viewElement:addChild({
+		pos = { 10, -viewElement.size.h / 8 },
+		size = { viewElement.size.w - 20, viewElement.size.h / 10 },
 		interactive = true,
 		bgColor = { 0, 0, 0, 0.1 },
 		hoverColor = { 0, 0, 0, 0.3 },
 		pressedColor = { 1, 1, 1, 0.2 }
 	})
-	findReplaysByUserButton:addAdaptedText(false, TB_MENU_LOCALIZED.REPLAYSMOREBY .. " " .. replay.uploader)
+	findReplaysByUserButton:addAdaptedText(false, TB_MENU_LOCALIZED.REPLAYSMOREBY .. " " .. replay.author)
 	findReplaysByUserButton:addMouseHandlers(nil, function()
-			Replays:getServerReplays(5, 1, replay.uploader)
+			Replays:getServerReplays(5, 1, replay.author)
 		end)
 end
 
+---Clears the current section and displays server replays list
 function Replays:showServerReplays()
 	local viewElement = TBMenu.CurrentSection
 	viewElement:kill(true)
 	TBMenu:showNavigationBar(Replays:getNavigationButtons(true), true)
 
-	local replaysList = UIElement:new({
-		parent = viewElement,
+	local replayInfoWidth = math.min(math.max(viewElement.size.w * 0.25, 400), viewElement.size.w * 0.4)
+	local replaysList = viewElement:addChild({
 		pos = { 5, 0 },
-		size = { viewElement.size.w * 0.75 - 10, viewElement.size.h },
+		size = { (viewElement.size.w - replayInfoWidth) - 10, viewElement.size.h },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR
 	})
-	local replayInfo = UIElement:new({
-		parent = viewElement,
+	local replayInfo = viewElement:addChild({
 		pos = { replaysList.size.w + 15, 0 },
-		size = { viewElement.size.w * 0.25 - 10, viewElement.size.h },
+		size = { replayInfoWidth - 10, viewElement.size.h },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR
 	})
 
 	Replays:showServerReplayList(replaysList, replayInfo)
 end
 
+---Displays Replays menu default screen and queues cache generation if it's empty
+---@param viewElement UIElement
 function Replays:showMain(viewElement)
 	usage_event("replays")
 	TBMenu:showNavigationBar(Replays:getNavigationButtons(), true)

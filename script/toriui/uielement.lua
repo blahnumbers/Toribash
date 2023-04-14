@@ -372,11 +372,18 @@ UIElement.btnRightUp = function(buttonId, x, y) end
 UIElement.btnUpOutside = function(buttonId, x, y) end
 
 -- Spawn a new UI Element
+---@param _self UIElement
 ---@param o UIElementOptions Options to use for spawning the new object
 ---@return UIElement
-function UIElement:new(o)
+---@overload fun(o: UIElementOptions): UIElement
+function UIElement.new(_self, o)
 	if (o == nil) then
-		error("Invalid argument #1 provided to UIElement:new(o: UIElementOptions)")
+		if (_self ~= nil) then
+			---@diagnostic disable-next-line: cast-local-type
+			o = _self
+		else
+			error("Invalid argument #1 provided to UIElement.new(o: UIElementOptions)")
+		end
 	end
 
 	---@type UIElement
@@ -388,7 +395,7 @@ function UIElement:new(o)
 					innerShadow = { 0, 0 },
 					positionDirty = true
 					}
-	setmetatable(elem, self)
+	setmetatable(elem, UIElement)
 
 	if (o.parent) then
 		elem.globalid = o.parent.globalid
@@ -2866,14 +2873,41 @@ end
 ---@param str string
 ---@param delimiter string
 ---@return string[]
+_G.string.explode = function(str, delimiter)
+	local list = {}
+	local checkLength = string.len(delimiter)
+	delimiter = string.escape(delimiter)
+	local res = pcall(function()
+		while (string.find(str, ".*" .. delimiter)) do
+			local _, endPos = string.find(str, ".*" .. delimiter)
+			table.insert(list, string.sub(str, endPos + 1, string.len(str)))
+			str = string.sub(str, 0, endPos - checkLength)
+		end
+	end)
+	if (res) then
+		table.insert(list, str)
+	end
+	return table.reverse(list)
+end
+
+---Returns a list of strings, each of which is a substring of `str` formed by splitting it on boundaries formed by the string `delimiter`.
+---@param str string
+---@param delimiter string
+---@return string[]
 _G.utf8.explode = function(str, delimiter)
+	local str_orig = str
 	local list = {}
 	local checkLength = utf8.len(delimiter)
 	delimiter = string.escape(delimiter)
-	while (utf8.find(str, ".*" .. delimiter)) do
-		local _, endPos = utf8.find(str, ".*" .. delimiter)
-		table.insert(list, utf8.sub(str, endPos + 1, utf8.len(str)))
-		str = utf8.sub(str, 0, endPos - checkLength)
+	local res = pcall(function()
+		while (utf8.find(str, ".*" .. delimiter)) do
+			local _, endPos = utf8.find(str, ".*" .. delimiter)
+			table.insert(list, utf8.sub(str, endPos + 1, utf8.len(str)))
+			str = utf8.sub(str, 0, endPos - checkLength)
+		end
+	end)
+	if (not res) then
+		return string.explode(str_orig, delimiter)
 	end
 	table.insert(list, str)
 	return table.reverse(list)

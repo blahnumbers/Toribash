@@ -75,7 +75,6 @@ CLANSEARCHFILTERS = CLANSEARCHFILTERS or nil
 CLANLISTLASTPOS = CLANLISTLASTPOS or { scroll = {}, list = {} }
 
 -- replays_manager.lua
-SERVER_REPLAYS = SERVER_REPLAYS or { action = 1, offset = 1, search = "", id = 0 }
 SELECTED_FOLDER = SELECTED_FOLDER and { fullname = SELECTED_FOLDER.fullname } or { fullname = "replay" }
 SELECTED_SERVER_REPLAY = SELECTED_SERVER_REPLAY or { id = 0 }
 REPLAYS_CUSTOM_SELECTOR_ACTIVE = false

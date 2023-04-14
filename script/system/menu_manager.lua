@@ -201,8 +201,7 @@ function TBMenu:createImageButtons(parentElement, x, y, w, h, img, imgHvr, imgPr
 	local colHvr = colHvr or col
 	local colPress = colPress or colHvr
 	local round = round or nil
-	local buttonMain = UIElement:new({
-		parent = parentElement,
+	local buttonMain = parentElement:addChild({
 		pos = { x, y },
 		size = { w, h },
 		interactive = true,
@@ -220,21 +219,21 @@ function TBMenu:createImageButtons(parentElement, x, y, w, h, img, imgHvr, imgPr
 		buttonMain.pressedColor = colPress
 	end
 
-	local buttonImage = UIElement:new( {
+	local buttonImage = UIElement.new({
 		parent = buttonMain,
 		pos = { 0, 0 },
 		size = { 0, 0 },
 		bgImage = img
 	})
 	buttonImage:addCustomDisplay(true, function() end)
-	local buttonImageHover = UIElement:new( {
+	local buttonImageHover = UIElement.new({
 		parent = buttonMain,
 		pos = { 0, 0 },
 		size = { 0, 0 },
 		bgImage = imgHvr
 	})
 	buttonImageHover:addCustomDisplay(true, function() end)
-	local buttonImagePress = UIElement:new( {
+	local buttonImagePress = UIElement.new({
 		parent = buttonMain,
 		pos = { 0, 0 },
 		size = { 0, 0 },
@@ -280,9 +279,9 @@ function TBMenuInternal.ChangeCurrentEvent(viewElement, eventsData, eventItems, 
 			end
 			viewElement:addMouseHandlers(nil, behavior, nil)
 			reloadElement:reload()
-			local tickTime = os.clock_real() * 10
-			clock.start = math.floor(tickTime)
-			clock.last = math.floor(tickTime)
+			local tickTime = os.clock_real()
+			clock.start = tickTime
+			clock.last = tickTime + 10
 			clock.pause = false
 			UIElement.handleMouseHover(MOUSE_X, MOUSE_Y)
 			break
@@ -321,13 +320,11 @@ function TBMenu:showHome()
 	-- Create and load regular announcements view
 	-- Featured event banner needs to have even borders, make sure it's scaled accordingly to 775x512 default size
 	local rightSideWidth = math.min((TBMenu.CurrentSection.size.h * 0.7 - 15) * 1.513, WIN_W / 3) - 10
-	local homeAnnouncements = UIElement:new( {
-		parent = TBMenu.CurrentSection,
+	local homeAnnouncements = TBMenu.CurrentSection:addChild({
 		pos = { 5, 0 },
 		size = { TBMenu.CurrentSection.size.w - rightSideWidth - 30, TBMenu.CurrentSection.size.h }
 	})
-	local featuredEvent = UIElement:new({
-		parent = TBMenu.CurrentSection,
+	local featuredEvent = TBMenu.CurrentSection:addChild({
 		pos = { homeAnnouncements.shift.x + homeAnnouncements.size.w + 10, 0 },
 		size = { rightSideWidth + 10, rightSideWidth / 1.513 + 10 },
 		interactive = true,
@@ -336,8 +333,7 @@ function TBMenu:showHome()
 		pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 		hoverSound = 31
 	})
-	local viewEventsButton = UIElement:new({
-		parent = TBMenu.CurrentSection,
+	local viewEventsButton = TBMenu.CurrentSection:addChild({
 		pos = { featuredEvent.shift.x, featuredEvent.shift.y + featuredEvent.size.h + 10 },
 		size = { featuredEvent.size.w, TBMenu.CurrentSection.size.h - featuredEvent.shift.y - featuredEvent.size.h - 10 },
 		interactive = true,
@@ -367,20 +363,15 @@ function TBMenu:showHome()
 	}
 
 	-- Store all elements that would require reloading when switching event announcements in one table
-	local toReload = UIElement:new({
-		parent = homeAnnouncements,
-		pos = { 0, 0 },
-		size = { homeAnnouncements.size.w, homeAnnouncements.size.h }
-	})
-	homeAnnouncements.toReload = toReload
+	homeAnnouncements.toReload = homeAnnouncements:addChild({})
 
 	local textHeight, descHeight = homeAnnouncements.size.h / 9, homeAnnouncements.size.h / 8
 	local elementWidth, elementHeight, heightShift = unpack(TBMenu:getImageDimensions(homeAnnouncements.size.w, homeAnnouncements.size.h, 0.5, textHeight, descHeight))
 
 	-- Spawn event announcement elements
 	-- Make sure rotateClock is spawned before that
-	local tickTime = os.clock_real() * 10
-	local rotateClock = { start = math.floor(tickTime), last = math.floor(tickTime) }
+	local tickTime = os.clock_real()
+	local rotateClock = { start = tickTime, last = tickTime + 10 }
 	local eventItems = {}
 	local newsItemShown = false
 	for i, v in pairs(eventsData) do
@@ -413,14 +404,11 @@ function TBMenu:showHome()
 
 	if (#eventsData > 1) then
 		-- Spawn progress bar before next/prev buttons
-		local eventDisplayTime = UIElement:new( {
-			parent = toReload,
-			pos = { 0, 0 },
+		local eventDisplayTime = homeAnnouncements.toReload:addChild({
 			size = { 0, 0 }
 		})
 
 		-- Auto-rotate event announcements
-		local rotateTime = 100
 		featuredEventData.action = function()
 			if (featuredEventData.initAction) then
 				featuredEventData.initAction()
@@ -430,20 +418,20 @@ function TBMenu:showHome()
 		local timeData = eventItems[1].button.pos.y > eventItems[1].image.pos.y + eventItems[1].image.size.h and { x = eventItems[1].image.pos.x, width = eventItems[1].image.size.w } or { x = eventItems[1].button.pos.x + 10, width = eventItems[1].button.size.w - 20 }
 		eventDisplayTime:addCustomDisplay(true, function()
 				if (not rotateClock.pause) then
-					set_color(1,1,1,0.6)
-					draw_quad(timeData.x, eventItems[1].image.pos.y + eventItems[1].image.size.h - 5, (os.clock_real() * 10 - rotateClock.start) % rotateTime / rotateTime * timeData.width, 5)
+					set_color(1, 1, 1, 1)
+					draw_quad(timeData.x, eventItems[1].image.pos.y + eventItems[1].image.size.h - 5, (UIElement.clock - rotateClock.start) / 10 * timeData.width, 5)
 				end
 			end)
 		homeAnnouncements:addCustomDisplay(false, function()
-				if ((math.floor(os.clock_real() * 10) - rotateClock.start) % rotateTime == 0 and math.floor(os.clock_real() * 10) ~= rotateClock.last and not rotateClock.pause) then
-					TBMenuInternal.ChangeCurrentEvent(homeAnnouncements, eventsData, eventItems, rotateClock, toReload, 1)
+				if (UIElement.clock > rotateClock.last and not rotateClock.pause) then
+					TBMenuInternal.ChangeCurrentEvent(homeAnnouncements, eventsData, eventItems, rotateClock, homeAnnouncements.toReload, 1)
 				end
 			end)
 
 		-- Manual announcement change
 		local btnBgColor = table.clone(TB_MENU_DEFAULT_BG_COLOR)
 		btnBgColor[4] = 0
-		local eventPrevButton = toReload:addChild({
+		local eventPrevButton = homeAnnouncements.toReload:addChild({
 			pos = { 10, 10 + elementHeight / 2 - 32 },
 			size = { 32, 64 },
 			bgImage = "../textures/menu/general/buttons/arrowleft.tga",
@@ -457,11 +445,11 @@ function TBMenu:showHome()
 			hoverThrough = true
 		})
 		eventPrevButton:addMouseHandlers(nil, function()
-				TBMenuInternal.ChangeCurrentEvent(homeAnnouncements, eventsData, eventItems, rotateClock, toReload, -1)
+				TBMenuInternal.ChangeCurrentEvent(homeAnnouncements, eventsData, eventItems, rotateClock, homeAnnouncements.toReload, -1)
 				eventPrevButton.hoverState = BTN_HVR
 			end, nil)
-		local eventNextButton = toReload:addChild({
-			pos = { toReload.size.w - 42, 10 + elementHeight / 2 - 32 },
+		local eventNextButton = homeAnnouncements.toReload:addChild({
+			pos = { homeAnnouncements.toReload.size.w - 42, 10 + elementHeight / 2 - 32 },
 			size = { 32, 64 },
 			bgImage = "../textures/menu/general/buttons/arrowright.tga",
 			imageColor = { 0, 0, 0, 1 },
@@ -474,7 +462,7 @@ function TBMenu:showHome()
 			hoverThrough = true
 		})
 		eventNextButton:addMouseHandlers(nil, function()
-				TBMenuInternal.ChangeCurrentEvent(homeAnnouncements, eventsData, eventItems, rotateClock, toReload, 1)
+				TBMenuInternal.ChangeCurrentEvent(homeAnnouncements, eventsData, eventItems, rotateClock, homeAnnouncements.toReload, 1)
 				eventNextButton.hoverState = BTN_HVR
 			end, nil)
 	end
@@ -3429,16 +3417,14 @@ function TBMenu:displayLoadingMarkSmall(viewElement, message, fontid, loadScale,
 	if (loadScale > viewElement.size.h) then
 		loadScale = viewElement.size.h
 	end
-	local textView = UIElement:new({
-		parent = viewElement,
+	local textView = viewElement:addChild({
 		pos = { loadScale * 0.8, 0 },
 		size = { viewElement.size.w - loadScale * 1.2, viewElement.size.h }
 	})
 	textView:addAdaptedText(false, message, loadScale * 0.7, nil, fontid, nil, fontScale)
 	local fontid = textView.textFont
 	local posX = get_string_length(textView.dispstr[1], fontid) * textView.textScale
-	local loadElement = UIElement:new({
-		parent = textView,
+	local loadElement = textView:addChild({
 		pos = { (textView.size.w - posX - loadScale * 1.2) / 2, (textView.size.h - loadScale) / 2 },
 		size = { loadScale, loadScale }
 	})
@@ -3515,9 +3501,7 @@ end
 ---@param maxHeight ?number
 ---@return UIElement
 function TBMenu:displayHelpPopup(element, message, forceManualPosCheck, noMark, maxHeight)
-	local messageElement = UIElement:new({
-		parent = element,
-		pos = { 0, 0 },
+	local messageElement = element:addChild({
 		size = { WIN_W / 3, maxHeight or WIN_H / 7 },
 		bgColor = { 0, 0, 0, 0.8 },
 		uiColor = UICOLORWHITE,
@@ -3544,10 +3528,8 @@ function TBMenu:displayHelpPopup(element, message, forceManualPosCheck, noMark, 
 		end
 	end
 
-	local messageText = UIElement:new({
-		parent = messageElement,
-		pos = { 10, 5 },
-		size = { messageElement.size.w - 20, messageElement.size.h - 10 }
+	local messageText = messageElement:addChild({
+		shift = { 10, 5 }
 	})
 	messageText:addAdaptedText(true, message, nil, nil, 4, nil, 0.7)
 	local textWidth = get_string_length(messageText.dispstr[1], messageText.textFont) * messageText.textScale
@@ -3600,12 +3582,7 @@ function TBMenu:displayHelpPopup(element, message, forceManualPosCheck, noMark, 
 	end
 
 	if (not noMark) then
-		local questionmark = UIElement:new({
-			parent = element,
-			pos = { 0, 0 },
-			size = { element.size.w, element.size.h }
-		})
-		questionmark:addAdaptedText(true, "?", nil, nil, nil, nil, 0.7)
+		element:addChild({}):addAdaptedText(true, "?", nil, nil, nil, nil, 0.7)
 	end
 
 	return messageElement
