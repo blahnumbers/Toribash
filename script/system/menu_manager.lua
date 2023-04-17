@@ -3611,7 +3611,7 @@ end
 ---@field textWidth number
 ---@field sliderRadius number
 
----@class TBMenuSlider : UIElement
+---@class UISlider : UIElement
 ---@field label UIElement
 ---@field settings SliderSettings
 ---@field lastVal number|nil
@@ -3626,7 +3626,7 @@ end
 ---@param sliderFunc ?function
 ---@param onMouseDown ?function
 ---@param onMouseUp ?function
----@return TBMenuSlider
+---@return UISlider
 function TBMenu:spawnSlider2(parent, rect, value, settings, sliderFunc, onMouseDown, onMouseUp)
 	local rect = rect or {}
 	rect.x = rect.x or 0
@@ -3678,7 +3678,7 @@ function TBMenu:spawnSlider2(parent, rect, value, settings, sliderFunc, onMouseD
 	value = value > settings.maxValue and 1 or (-settings.minValue + value) / (-settings.minValue + settings.maxValue)
 	sliderPos = value * (sliderBG.size.w - settings.sliderRadius)
 
-	---@type TBMenuSlider
+	---@type UISlider
 	---@diagnostic disable-next-line: assign-type-mismatch
 	local slider = sliderBG:addChild({
 		pos = { sliderPos, (-sliderBG.size.h - settings.sliderRadius) / 2 },
@@ -3956,11 +3956,16 @@ function TBMenu:spawnTextField2(viewElement, rect, textFieldString, defaultStrin
 		size = { rect.w or viewElement.size.w, rect.h or viewElement.size.h },
 		bgColor = TB_MENU_DEFAULT_DARKEST_COLOR
 	}, true)
+	local lightColor, lightestColor = {}, {}
+	for i, v in pairs(TB_MENU_DEFAULT_BG_COLOR) do
+		lightColor[i] = v + 0.05
+		lightestColor[i] = v + 0.1
+	end
 	local input = textBg:addChild({
 		shift = { 1, 1 },
 		interactive = true,
-		bgColor = inputSettings.darkerMode and TB_MENU_DEFAULT_BG_COLOR or TB_MENU_DEFAULT_LIGHTER_COLOR,
-		hoverColor = inputSettings.darkerMode and TB_MENU_DEFAULT_LIGHTER_COLOR or TB_MENU_DEFAULT_LIGHTEST_COLOR,
+		bgColor = inputSettings.darkerMode and TB_MENU_DEFAULT_BG_COLOR or lightColor,
+		hoverColor = inputSettings.darkerMode and lightColor or lightestColor,
 		inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS
 	}, true)
 	local inputField = input:addChild({
@@ -4045,7 +4050,7 @@ function TBMenuInternal.DisplayTextfield(element, fontid, scale, color, defaultS
 
 	element:addCustomDisplay(true, function()
 			if (element.keyboard == true) then
-				set_color(1, 1, 1, 0.2)
+				set_color(1, 1, 1, 0.15)
 				if (element.parent.shapeType == ROUNDED) then
 					draw_disk(element.parent.pos.x + element.parent.rounded, element.parent.pos.y + element.parent.rounded + element.parent.innerShadow[1], 0, element.parent.rounded, 500, 1, -180, 90, 0)
 					draw_disk(element.parent.pos.x + element.parent.rounded, element.parent.pos.y + element.parent.size.h - element.parent.rounded - element.parent.innerShadow[2], 0, element.parent.rounded, 500, 1, -90, 90, 0)

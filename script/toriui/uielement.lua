@@ -1357,7 +1357,7 @@ function UIElement:display()
 				if (self.drawMode == 2) then
 					draw_quad(self.pos.x, self.pos.y, self.size.w, self.size.h, self.bgImage, 2, targetImageColor[1], targetImageColor[2], targetImageColor[3], targetImageColor[4], self.atlas.w, self.atlas.h, self.atlas.x, self.atlas.y)
 				elseif (self.drawMode == 1) then
-					draw_quad(self.pos.x, self.pos.y, self.atlas.w, self.atlas.h, self.bgImage, 1, targetImageColor[1], targetImageColor[2], targetImageColor[3], targetImageColor[4], self.size.w, self.size.h)
+					draw_quad(self.pos.x, self.pos.y, self.size.w, self.size.h, self.bgImage, 1, targetImageColor[1], targetImageColor[2], targetImageColor[3], targetImageColor[4], self.atlas.w, self.atlas.h)
 				else
 					draw_quad(self.pos.x, self.pos.y, self.size.w, self.size.h, self.bgImage, 0, targetImageColor[1], targetImageColor[2], targetImageColor[3], targetImageColor[4])
 				end
@@ -2469,7 +2469,7 @@ _G.textAdapt = function(str, font, scale, maxWidth, check, textfield, singleLine
 			local len = string.len(str)
 			local reverseStep = len
 			if (strlen > maxWidth) then
-				step = math.min(2, len - math.ceil(len / strlen * maxWidth))
+				step = math.max(2, len - math.ceil(len / strlen * maxWidth))
 			end
 			while (targetIndex + step >= textfieldIndex) do
 				step = step - 1
@@ -2505,9 +2505,9 @@ _G.textAdapt = function(str, font, scale, maxWidth, check, textfield, singleLine
 					break
 				end
 			end
-			while (1) do
+			while (string.len(word) > 0) do
 				local checkword = string.gsub(word, "%s*$", "")
-				if (checkword ~= word and get_string_length(checkword, font) * scale > maxWidth) then
+				if (get_string_length(checkword, font) * scale > maxWidth) then
 					word = string.sub(word, 1, string.len(word) - 1)
 				else
 					break

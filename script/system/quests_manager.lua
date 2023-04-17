@@ -102,6 +102,8 @@ function Quests:getQuests()
 		Quests:download()
 		Quests.QuestDataErrors = Quests.QuestDataErrors + 1
 	end
+	local fileData = file:readAll()
+	file:close()
 
 	---@type QuestData[]
 	local questData = {}
@@ -125,16 +127,17 @@ function Quests:getQuests()
 		{ "description" }
 	}
 
-	for _, ln in pairs(file:readAll()) do
+	for _, ln in pairs(fileData) do
 		if (not ln:find("^#")) then
 			local _, segments = ln:gsub("([^\t]*)\t?", "")
 			local dataStream = { ln:match(("([^\t]*)\t?"):rep(segments)) }
 
 			---@type QuestData
-			local quest = {}
+			local quest = { claimed = false }
 			for i,v in pairs(dataTypes) do
 				quest[v[1]] = dataStream[i]
 				if (v.numeric) then
+					---@diagnostic disable-next-line: assign-type-mismatch
 					quest[v[1]] = tonumber(quest[v[1]]) or 0
 				elseif (v.boolean) then
 					quest[v[1]] = quest[v[1]] == '1'
@@ -157,14 +160,13 @@ function Quests:getQuests()
 			end
 		end
 	end
-	file:close()
-
-	---@type QuestData[]
-	Quests.QuestsData = table.qsort(questData, "progresspercentage", SORT_DESCENDING)
 
 	if (BattlePass.UserData) then
 		Quests:addBattlePassQuests()
 	end
+
+	---@type QuestData[]
+	Quests.QuestsData = table.qsort(questData, { "progresspercentage", "claimed" }, { SORT_DESCENDING, SORT_ASCENDING })
 end
 
 ---Adds hardcoded Battle Pass quests that automark themselves on completion
@@ -192,7 +194,6 @@ function Quests:addBattlePassQuests()
 		rewardid = 0,
 		bp_xp = 10
 	})
-	Quests.QuestsData = table.qsort(Quests.QuestsData, "progresspercentage", SORT_DESCENDING)
 end
 
 ---Updates daily login quest status
@@ -209,7 +210,7 @@ function Quests:updateLoginQuestStatus(completed)
 			Quests.QuestsData[i].progress = completed and 1 or 0
 			Quests.QuestsData[i].progresspercentage = completed and 1 or 0
 			Quests.QuestsData[i].claimed = completed
-			Quests.QuestsData = table.qsort(Quests.QuestsData, "progresspercentage", SORT_DESCENDING)
+			Quests.QuestsData = table.qsort(Quests.QuestsData, { "progresspercentage", "claimed" }, { SORT_DESCENDING, SORT_ASCENDING })
 			return true
 		end
 	end
@@ -830,11 +831,11 @@ function Quests:showMainQuestList(viewElement, questsData)
 	TBMenu:addBottomBloodSmudge(botBar, 2)
 
 	local listElements = {}
-	for i,v in pairs(questsData.quests) do
+	for _, v in pairs(questsData.quests) do
 		Quests:showQuestButton(v, listingHolder, listElements, elementHeight)
 	end
 	if (#listElements * elementHeight > listingHolder.size.h) then
-		for i,v in pairs(listElements) do
+		for _, v in pairs(listElements) do
 			v:hide()
 		end
 
@@ -975,7 +976,7 @@ function Quests:showMainQuestTypes(viewElement, listView)
 			canBeClaimed = 0
 		}
 	}
-	for i,v in pairs(Quests.QuestsGlobalData) do
+	for _, v in pairs(Quests.QuestsGlobalData) do
 		if (v.claimed) then
 			table.insert(globalQuestList[GLOBALCOMPLETED].quests, v)
 		else
@@ -985,6 +986,8 @@ function Quests:showMainQuestTypes(viewElement, listView)
 			end
 		end
 	end
+
+	globalQuestList[GLOBALCOMPLETED].quests = table.qsort(globalQuestList[GLOBALCOMPLETED].quests, { "requirement", "type" }, { SORT_ASCENDING })
 
 	local elementHeight = 50
 	local toReload, topBar, botBar, listingView, listingHolder, scrollBackground = TBMenu:prepareScrollableList(viewElement, 70, elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
@@ -1020,12 +1023,12 @@ function Quests:showMainQuestTypes(viewElement, listView)
 	table.insert(listElements, globalQuestsTitle)
 	globalQuestsTitle:addChild({ shift = { 15, 5 }}):addAdaptedText(TB_MENU_LOCALIZED.QUESTSGLOBAL, nil, nil, FONTS.BIG, LEFTMID)
 
-	for i,v in pairs(globalQuestList) do
+	for _, v in pairs(globalQuestList) do
 		Quests:displayMainQuestTypeButton(listingHolder, v, listElements, elementHeight, listView)
 	end
 
 	if (#listElements * elementHeight > listingHolder.size.h) then
-		for i,v in pairs(listElements) do
+		for _, v in pairs(listElements) do
 			v:hide()
 		end
 

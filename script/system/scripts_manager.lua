@@ -45,7 +45,7 @@ do
 				table.insert(data.files, v)
 			elseif (not v:find("^%.+[%s%S]*$") and not v:find("%.%a+$") and not Settings:isDefaultFolder(v)) then
 				table.insert(data.folders, v)
-				data.contents[#data.folders] = Scripts:getScriptFiles(path .. "/" .. v, fullsearch)
+				data.contents[#data.folders] = Scripts:getScriptFiles(path .. "/" .. v)
 				data.contents[#data.folders].parent = data
 			end
 		end
@@ -310,7 +310,7 @@ do
 		})
 		loadScriptButton:addAdaptedText(false, TB_MENU_LOCALIZED.LUALOADSCRIPT)
 		loadScriptButton:addMouseHandlers(nil, function()
-				UIElement:runCmd("loadscript2 " .. file)
+				runCmd("loadscript2 " .. file)
 				close_menu()
 			end)
 	end

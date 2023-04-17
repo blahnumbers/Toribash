@@ -3,24 +3,32 @@
 require("system.atmospheres_defines")
 
 ---@class ShaderOption
----@field id integer
----@field name string Option name
----@field value integer Option value
+---@field name string Game option name
+---@field value integer Game option value
+---@field id ShaderOptionId
+---@field skyreload boolean Whether this option requires a sky reload
+---@field count integer Count of values used by this option
+---@field names string[] Slider names
+---@field maxValue number Maximum slider value
+---@field minValue number Minimum slider value
+---@field boolean boolean Whether this option only accepts 1 and 0 as value
 
 if (Atmospheres == nil) then
 	local x, y = get_window_safe_size()
 
 	---@class Atmospheres
-	---@field MainElement UIElement
-	---@field EntityHolder UIElement3D
+	---@field Globalid integer Globalid for all Atmospheres class UIElement and UIElement3D objects
+	---@field MainElement UIElement Main holder UIElement for Atmospheres window
+	---@field EntityHolder UIElement3D Main holder UIElement3D for Atmospheres objects
 	---@field StoredOptions ShaderOption[] Initial values of the options that were modified by the current shader
 	---@field CurrentShader ShaderOption[] Current shader values
-	---@field DisplayPos Vector2 Window display offset
+	---@field DisplayPos Vector2 Window display offset coordinates
 	---@field ListShift number[] Scroll bar state
 	---@field DefaultShader string Default shader name
 	---@field SelectedScreen integer Selected screen id
 	---@field DebugHolder2D UIElement UIElement holder for debug info
 	Atmospheres = {
+		Globalid = 1002,
 		StoredOptions = {},
 		CurrentShader = {},
 		DisplayPos = { x = x + 10, y = y + 10 },
@@ -32,7 +40,7 @@ if (Atmospheres == nil) then
 end
 
 ---Reverts all shader options to their initial state, destroys all atmo objects and unloads the draw3d hook
-function Atmospheres.unload()
+function Atmospheres.Unload()
 	for _,v in pairs(Atmospheres.StoredOptions) do
 		set_option(v.name, v.value)
 	end
@@ -60,6 +68,11 @@ end
 ---@field rsize number[] Object spawn size randomizer values
 ---@field rcolor Color Object color randomizer values
 ---@field color Color Object color
+---@field shape UIElement3DShape
+---@field model string
+---@field animated boolean
+---@field movement string[]|number[]
+---@field rotation string[]|number[]
 
 ---@class Atmosphere
 ---@field shader string Custom shader name
@@ -70,7 +83,7 @@ end
 ---Parses atmo data into an Atmosphere object
 ---@param filename string
 ---@return Atmosphere|nil
-function Atmospheres.parseFile(filename)
+function Atmospheres.ParseFile(filename)
 	local file = Files:open(filename, 'r')
 	if (file.data == nil) then
 		return nil
@@ -189,7 +202,7 @@ function Atmospheres.parseFile(filename)
 end
 
 ---Gets the default world shader from user config
-function Atmospheres.getDefaultWorldShader()
+function Atmospheres.GetDefaultWorldShader()
 	local file = Files:open("../custom.cfg")
 	if (file.data) then
 		for _, ln in pairs(file:readAll()) do
@@ -205,100 +218,8 @@ function Atmospheres.getDefaultWorldShader()
 	file:close()
 end
 
----Helper function to spawn a toggle used in Shader Maker. \
----No longer used, we use the generic TBMenu:spawnSlider2() implementation instead
----@deprecated
-function Atmospheres.spawnToggle(viewElement, x, y, w, h, toggleTable, i)
-	local maxVal = toggleTable.maxValue or 1
-	local minVal = toggleTable.minValue or 0
-	local name = toggleTable.names[i] or ""
-	local toggleView = viewElement:addChild({
-		pos = { x, y },
-		size = { w, h }
-	})
-	local minText = toggleView:addChild({
-		pos = { 0, 0 },
-		size = { 30, 15 }
-	})
-	minText:addAdaptedText(false, minVal .. "", nil, nil, 4, LEFTMID, 0.5)
-	local maxText = toggleView:addChild({
-		pos = { -30, 0 },
-		size = { 30, 15 }
-	})
-	maxText:addAdaptedText(false, maxVal .. "", nil, nil, 4, RIGHTMID, 0.5)
-	local nameText = toggleView:addChild({
-		pos = { toggleView.size.w / 3, 0 },
-		size = { toggleView.size.w / 3, 15 }
-	})
-	nameText:addAdaptedText(false, name, nil, nil, 4, nil, 0.7)
-	local toggleBG = toggleView:addChild({
-		pos = { 0, 30 },
-		size = { toggleView.size.w, toggleView.size.h - 40 },
-		bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-		interactive = true
-	})
-	local togglePos = 0
-	if (toggleTable and i) then
-		toggleTable[i] = tonumber(toggleTable[i]) > maxVal and 1 or tonumber(toggleTable[i]) / maxVal
-		togglePos = toggleTable[i] * (toggleBG.size.w - 10)
-	end
-	local toggle = toggleBG:addChild({
-		pos = { togglePos, -toggleBG.size.h - toggleBG.shift.y + 15 },
-		size = { 10, toggleView.size.h - 20 },
-		interactive = true,
-		bgColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-		hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
-		pressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR
-	})
-	toggle:addMouseHandlers(function()
-			toggle.pressed = true
-			toggle.pressedPos = toggle:getLocalPos()
-		end, function()
-			toggle.pressed = false
-			runCmd("worldshader " .. toggleTable.id .. " " .. toggleTable[1] .. " " .. toggleTable[2] .. " " .. toggleTable[3] .. " " .. toggleTable[4])
-		end, function()
-			if (toggle.pressed) then
-				local xPos = MOUSE_X - toggleView.pos.x - toggle.pressedPos.x
-				if (xPos < 0) then
-					xPos = 0
-				elseif (xPos > toggleView.size.w - toggle.size.w) then
-					xPos = toggleView.size.w - toggle.size.w
-				end
-				if (toggleTable.boolean) then
-					if (xPos + toggle.size.w / 2 > toggleView.size.w / 2) then
-						xPos = toggleView.size.w - toggle.size.w
-					else
-						xPos = 0
-					end
-				end
-				toggle:moveTo(xPos, nil)
-				toggleTable[i] = xPos / (toggleView.size.w - 10) * (maxVal - minVal) + minVal
-			end
-		end)
-	toggleBG:addMouseHandlers(function()
-		local pos = toggleBG:getLocalPos()
-		local xPos = pos.x - toggle.size.w / 2
-		if (xPos < 0) then
-			xPos = 0
-		elseif (xPos > toggleView.size.w - toggle.size.w) then
-			xPos = toggleView.size.w - toggle.size.w
-		end
-		if (toggleTable.boolean) then
-			if (xPos + toggle.size.w / 2 > toggleView.size.w / 2) then
-				xPos = toggleView.size.w - toggle.size.w
-			else
-				xPos = 0
-			end
-		end
-		toggle:moveTo(xPos)
-		toggleTable[i] = xPos / (toggleView.size.w - 10) * (maxVal - minVal) + minVal
-		runCmd("worldshader " .. toggleTable.id .. " " .. toggleTable[1] .. " " .. toggleTable[2] .. " " .. toggleTable[3] .. " " .. toggleTable[4])
-	end)
-	return toggle
-end
-
 ---Displays main controls for Shader Editor
-function Atmospheres.showShaderControls()
+function Atmospheres.ShowShaderControls()
 	if (not SHADER_OPTIONS.FLOOR_COLOR) then
 		return
 	end
@@ -318,7 +239,7 @@ function Atmospheres.showShaderControls()
 
 	local x, y, w, h = get_window_safe_size()
 	local viewElementHolder = UIElement:new({
-		globalid = TB_MENU_HUB_GLOBALID,
+		globalid = is_mobile() and TBHud.HubGlobalid or TB_MENU_HUB_GLOBALID,
 		pos = { 0, y + h - 90 },
 		size = { WIN_W, WIN_H - y - h + 90 },
 		bgColor = is_mobile() and { 1, 1, 1, 0.85 } or { 1, 1, 1, 0 }
@@ -335,16 +256,12 @@ function Atmospheres.showShaderControls()
 	})
 	local currentControl = {}
 	local shaderList = {}
-	local updateOnDraw = {}
+	local updateOnDraw = nil
 
 	viewElement:addCustomDisplay(false, function()
-			local drawn = false
-			for _, func in pairs(updateOnDraw) do
-				func()
-				drawn = true
-			end
-			if (drawn) then
-				updateOnDraw = {}
+			if (updateOnDraw) then
+				updateOnDraw()
+				updateOnDraw = nil
 			end
 		end)
 
@@ -355,7 +272,7 @@ function Atmospheres.showShaderControls()
 				y = 0,
 				w = toggleView.size.w / currentControl.count - 10,
 				h = toggleView.size.h
-			}, tonumber(currentControl[i]), {
+			}, currentControl.values[i], {
 				maxValue = currentControl.maxValue,
 				minValue = currentControl.minValue,
 				isBoolean = currentControl.boolean,
@@ -363,59 +280,57 @@ function Atmospheres.showShaderControls()
 				decimal = 2,
 				darkerMode = true
 			}, function(value)
-				currentControl[i] = value
-				updateOnDraw[i] = function() runCmd("worldshader " ..  currentControl.id .. " " .. currentControl[1] .. " " .. currentControl[2] .. " " .. currentControl[3] .. " " .. currentControl[4]) end
-			end)
+				currentControl.values[i] = value
+				updateOnDraw = function()
+					set_shader_option(currentControl.id, currentControl.values[1], currentControl.values[2], currentControl.values[3], currentControl.values[4], true, 64)
+				end
+			end, nil, function()
+					if (currentControl.skyreload) then
+						set_shader_option(currentControl.id, currentControl.values[1], currentControl.values[2], currentControl.values[3], currentControl.values[4])
+					end
+				end)
 		end
 	end
 
 	for i,v in pairs(SHADER_OPTIONS) do
 		if (v < 16) then
 			local dropAction = function()
-				currentControl = Atmospheres.CurrentShader[i]
+				currentControl = Atmospheres.CurrentShader[v]
 				toggleView:kill(true)
 				spawnToggles()
 			end
 			table.insert(shaderList, { text = i:gsub("_", " "), action = dropAction })
 		end
 	end
-	currentControl = Atmospheres.CurrentShader.BACKGROUND_COLOR
+	currentControl = Atmospheres.CurrentShader[0]
 	spawnToggles()
 
-	local dropdownView = UIElement:new({
-		parent = viewElement,
+	local dropdownView = viewElement:addChild({
 		pos = { 10, 10 },
 		size = { viewElement.size.w / 4 - 20, viewElement.size.h - 20 },
-		shapeType = ROUNDED,
 		interactive = true,
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-		rounded = 5
-	})
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+	}, true)
 	TBMenu:spawnDropdown(dropdownView, shaderList, 25, WIN_H - 100, nil, { scale = 0.7 }, { scale = 0.6 })
 
-	local closeButton = UIElement:new({
-		parent = viewElement,
+	local closeButton = viewElement:addChild({
 		pos = { -viewElement.size.h + 10, 10 },
 		size = { viewElement.size.h - 20, viewElement.size.h - 20 },
 		interactive = true,
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-		pressedColor = TB_MENU_DEFAULT_BG_COLOR,
-		shapeType = ROUNDED,
-		rounded = 5
-	})
-	local closeIcon = UIElement:new({
-		parent = closeButton,
-		pos = { 10, 10 },
-		size = { closeButton.size.w - 20, closeButton.size.h - 20 },
+		pressedColor = TB_MENU_DEFAULT_BG_COLOR
+	}, true)
+	local closeIcon = closeButton:addChild({
+		shift = { 10, 10 },
 		bgImage = "../textures/menu/general/buttons/crosswhite.tga"
 	})
-	closeButton:addMouseHandlers(nil, function()
+	closeButton:addMouseUpHandler(function()
 			viewElementHolder:kill()
-			for i,v in pairs(options) do
-				for j,k in pairs(Atmospheres.StoredOptions) do
+			for _, v in pairs(options) do
+				for _, k in pairs(Atmospheres.StoredOptions) do
 					if (v.name == k.name) then
 						set_option(k.name, k.value)
 						break
@@ -423,19 +338,16 @@ function Atmospheres.showShaderControls()
 				end
 			end
 		end)
-	local saveButton = UIElement:new({
-		parent = viewElement,
+	local saveButton = viewElement:addChild({
 		pos = { viewElement.size.w / 4 * 3 + 10, 10 },
 		size = { viewElement.size.w / 4 - 65, viewElement.size.h - 20 },
 		interactive = true,
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-		pressedColor = TB_MENU_DEFAULT_BG_COLOR,
-		shapeType = ROUNDED,
-		rounded = 5
-	})
-	saveButton:addAdaptedText(false, TB_MENU_LOCALIZED.SHADERSSAVESHADER)
-	saveButton:addMouseHandlers(nil, function()
+		pressedColor = TB_MENU_DEFAULT_BG_COLOR
+	}, true)
+	saveButton:addAdaptedText(TB_MENU_LOCALIZED.SHADERSSAVESHADER)
+	saveButton:addMouseUpHandler(function()
 			TBMenu:showConfirmationWindowInput(TB_MENU_LOCALIZED.SHADERSSAVING, TB_MENU_LOCALIZED.SHADERSINPUTNAME, function(name)
 				local name = name:gsub("%.inc.?$", "")
 				local function save()
@@ -461,45 +373,43 @@ function Atmospheres.showShaderControls()
 		end)
 end
 
-function Atmospheres.setShaderInfo()
+---Resets **CurrentShader** table and populates it with currently loaded shader data
+function Atmospheres.SetShaderInfo()
 	Atmospheres.CurrentShader = {}
-	Atmospheres.getShaderOpts()
+	Atmospheres.GetShaderOpts()
 end
 
-function Atmospheres.getShaderOptName(id)
-	for i,v in pairs(SHADER_OPTIONS) do
+---Returns shader option name by its id
+---@param id ShaderOptionId
+---@return string
+function Atmospheres.GetShaderOptName(id)
+	for i, v in pairs(SHADER_OPTIONS) do
 		if (id == v) then
 			return i
 		end
 	end
+	return ""
 end
 
-function Atmospheres.getShaderOpts(id)
-	local id = id or 0
-	add_hook("console", "atmospheresSystem", function(ln)
-			if (ln:find("worldshader")) then
-				remove_hooks("atmospheresSystem")
-				if (id < 33) then
-					Atmospheres.getShaderOpts(id + 1)
-				end
-				return 1
-			elseif (ln:match("[^ ]+ [^ ]+ [^ ]+ [^ ]+ *")) then
-				local data = { ln:match(("([^ ]+) *"):rep(4)) }
-				for i = 1, 4 do
-					data[i] = tonumber(data[i]) .. ""
-				end
-				data.id = id
-				Atmospheres.getShaderOptionData(data)
-				Atmospheres.CurrentShader[Atmospheres.getShaderOptName(id)] = data
-				return 1
-			end
-		end)
-	runCmd("worldshader " .. id, false, true)
+---Populates **CurrentShader** table with the settings for the specified shader option
+---@param id ShaderOptionId?
+function Atmospheres.GetShaderOpts(id)
+	---@type ShaderOption
+	local data = {
+		id = id or 0,
+		values = get_shader_option(id or 0)
+	}
+	Atmospheres.GetShaderOptionData(data)
+	Atmospheres.CurrentShader[data.id] = data
+
+	if (data.id < 33) then
+		Atmospheres.GetShaderOpts(data.id + 1)
+	end
 end
 
 ---Populates shader options table with additional data
 ---@param opt ShaderOption
-function Atmospheres.getShaderOptionData(opt)
+function Atmospheres.GetShaderOptionData(opt)
 	if (opt.id == 2) then
 		opt.count = 4
 		opt.names = { "R", "G", "B", "A" }
@@ -522,54 +432,52 @@ function Atmospheres.getShaderOptionData(opt)
 		opt.count = 3
 		opt.names = { "R", "G", "B" }
 	end
+
+	if (opt.id == 0 or (opt.id >= 9 and opt.id <= 15)) then
+		opt.skyreload = true
+	end
 end
 
-function Atmospheres.setDefaultAtmo(filename)
+---Writes an atmosphere's path as the default one in config file
+---@param filename string
+function Atmospheres.SetDefaultAtmo(filename)
 	local config = Files:open("../data/atmospheres/atmo.cfg", FILES_MODE_WRITE)
 	config:writeLine(filename)
 	config:close()
 end
 
-function Atmospheres.loadDefaultAtmo()
+---Loads user's specified default atmosphere
+function Atmospheres.LoadDefaultAtmo()
 	local config = Files:open("../data/atmospheres/atmo.cfg")
 	if (not config.data) then
 		return
 	end
 	local configData = config:readAll()
 	if (configData ~= nil and configData[1] ~= nil) then
-		Atmospheres.loadAtmo(configData[1])
+		Atmospheres.LoadAtmo(configData[1])
 	end
 	config:close()
 end
 
-function Atmospheres.loadAtmo(filename)
-	Atmospheres.unload()
-	if (filename:lower() == "default.atmo") then
+---Loads an atmosphere from the specified file path
+---@param filename string
+function Atmospheres.LoadAtmo(filename)
+	Atmospheres.Unload()
+	if (utf8.lower(filename) == "default.atmo") then
 		return
 	end
 
-	Atmospheres.getDefaultWorldShader()
-	add_hook("draw3d", "atmospheres", function() UIElement3D:drawVisuals(TB_ATMOSPHERES_GLOBALID) end)
+	Atmospheres.GetDefaultWorldShader()
+	add_hook("draw3d", "atmospheres", function() UIElement3D:drawVisuals(Atmospheres.Globalid) end)
+	add_hook("enter_frame", "atmospheres", function() UIElement3D:drawEnterFrame(Atmospheres.Globalid) end)
 	_ATMO = {}
 	Atmospheres.EntityHolder = UIElement3D:new({
-		globalid = TB_ATMOSPHERES_GLOBALID,
+		globalid = Atmospheres.Globalid,
 		pos = { 0, 0, 0 },
 		size = { 0, 0, 0 }
 	})
-	Atmospheres.EntityHolder:addOnEnterFrame(function()
-			ATMOSPHERES_ANIMATED = true
-		end)
-	Atmospheres.EntityHolder:addCustomDisplay(true, function()
-			ATMOSPHERES_ANIMATED = false
-		end, true)
-	--[[Atmospheres.EntityHolder:addCustomDisplay(true, function()
-		local ws = get_world_state()
-		ATMOSPHERES_ANIMATED =	(ws.game_paused == 0 and is_game_frozen() == 1 and ws.replay_mode == 1) or
-								(ws.game_paused == 0 and is_game_frozen() == 0 and ws.replay_mode == 0) or
-								(ws.replay_mode == 2 and ws.game_paused == 0)
-	end)]]
 
-	local atmoData = Atmospheres.parseFile("../data/atmospheres/" .. filename)
+	local atmoData = Atmospheres.ParseFile("../data/atmospheres/" .. filename)
 	if (atmoData == nil) then
 		return
 	end
@@ -602,23 +510,23 @@ function Atmospheres.loadAtmo(filename)
 						entity.color[4] + math.random(-entity.rcolor[4] * 100, entity.rcolor[4] * 100) / 100
 					}
 				end
-				Atmospheres.spawnObject(Atmospheres.EntityHolder, entityList, entityRandom)
+				Atmospheres.SpawnObject(Atmospheres.EntityHolder, entityList, entityRandom)
 			end
 		else
-			Atmospheres.spawnObject(Atmospheres.EntityHolder, entityList, entity)
+			Atmospheres.SpawnObject(Atmospheres.EntityHolder, entityList, entity)
 		end
 	end
 
 	if (atmoData.shader) then
 		runCmd("lws " .. atmoData.shader)
 	end
-	for i,v in pairs(atmoData.shaderopts) do
-		runCmd("worldshader " .. i .. " " .. v[1] .. " " .. v[2] .. " " .. v[3] .. " " .. v[4])
+	for i, v in pairs(atmoData.shaderopts) do
+		set_shader_option(i, v[1], v[2], v[3], v[4], i == #atmoData.shaderopts)
 	end
-	Atmospheres.setShaderInfo()
-	for i,v in pairs(atmoData.opts) do
+	Atmospheres.SetShaderInfo()
+	for _, v in pairs(atmoData.opts) do
 		local found = false
-		for j,k in pairs(Atmospheres.StoredOptions) do
+		for _, k in pairs(Atmospheres.StoredOptions) do
 			if (k.name == v.name) then
 				found = true
 			end
@@ -630,8 +538,12 @@ function Atmospheres.loadAtmo(filename)
 	end
 end
 
-function Atmospheres.spawnObject(entityHolder, entityList, entity)
-	local item = UIElement3D:new({
+---Spawns a UIElement3D object based on provided atmo entity settings
+---@param entityHolder UIElement3D
+---@param entityList UIElement3D[]
+---@param entity AtmosphereEntity3D
+function Atmospheres.SpawnObject(entityHolder, entityList, entity)
+	local item = UIElement3D.new({
 		parent = entity.parent and entityList[entity.parent] or entityHolder,
 		pos = { unpack(entity.pos) },
 		rot = { unpack(entity.rot) },
@@ -662,7 +574,7 @@ function Atmospheres.spawnObject(entityHolder, entityList, entity)
 		if (entity.rotation) then
 			local r = {}
 			for i,v in pairs(entity.rotation) do
-				r[i] = Atmospheres.getFunction(i, v, entity, item, "rot")
+				r[i] = Atmospheres.GetFunction(i, v, entity, item, "rot")
 			end
 			rotate = function()
 					item:rotate(r[1](), r[2](), r[3]())
@@ -671,30 +583,35 @@ function Atmospheres.spawnObject(entityHolder, entityList, entity)
 		if (entity.movement) then
 			local m = {}
 			for i,v in pairs(entity.movement) do
-				m[i] = Atmospheres.getFunction(i, v, entity, item, "pos")
+				m[i] = Atmospheres.GetFunction(i, v, entity, item, "pos")
 			end
 			move = function()
 					item:moveTo(m[1](), m[2](), m[3]())
 				end
 		end
-		item:addCustomDisplay(false, function()
-				if (ATMOSPHERES_ANIMATED) then
-					move()
-					rotate()
-				end
+		item:addOnEnterFrame(function()
+				move()
+				rotate()
 			end)
 	end
 end
 
-function Atmospheres.getFunction(i, v, entity, obj, ftype)
-	local r
+---@alias AtmoEntityFunctionType
+---| "rot"
+---| "pos"
+
+---Parses a function from the atmospheres file
+---@param i integer Entity id
+---@param v string|number Function input to parse
+---@param entity AtmosphereEntity3D
+---@param obj UIElement3D
+---@param ftype AtmoEntityFunctionType
+---@return function
+function Atmospheres.GetFunction(i, v, entity, obj, ftype)
+	local resultFunc = function() end
 	if (type(v) == "number") then
-		if (ftype == "pos" and v == 0) then
-			r = function()
-				return nil
-			end
-		else
-			r = function()
+		if (ftype ~= "pos" or v ~= 0) then
+			resultFunc = function()
 				return v
 			end
 		end
@@ -708,7 +625,7 @@ function Atmospheres.getFunction(i, v, entity, obj, ftype)
 		v = v:gsub("%Aos%.", ""):gsub("%Aio%.", ""):gsub("%Atable%.", ""):gsub("_G", "")
 		_ATMO[entity.name .. i .. ftype] = val
 		_ATMO[entity.name .. "info"] = { pos = obj.pos, size = obj.size }
-		r = function()
+		resultFunc = function()
 			local f, err = loadstring(v)
 			if (f ~= nil and not err) then
 				return f()
@@ -716,10 +633,18 @@ function Atmospheres.getFunction(i, v, entity, obj, ftype)
 			return 0
 		end
 	end
-	return r
+	return resultFunc
 end
 
-function Atmospheres.spawnMainList(listingHolder, toReload, elementHeight, path, ext, func, searchField)
+---Spawns atmospheres list
+---@param listingHolder UIElement
+---@param toReload UIElement
+---@param elementHeight integer
+---@param path string
+---@param ext string
+---@param func function
+---@param searchField UIElement
+function Atmospheres.SpawnMainList(listingHolder, toReload, elementHeight, path, ext, func, searchField)
 	if (listingHolder.scrollBar) then
 		listingHolder.scrollBar:kill()
 	end
@@ -765,7 +690,7 @@ function Atmospheres.spawnMainList(listingHolder, toReload, elementHeight, path,
 		defaultText:addAdaptedText(false, TB_MENU_LOCALIZED.NAVBUTTONBACK, 10, nil, 4, LEFTMID, 0.8)
 		default:addMouseHandlers(nil, function()
 				searchField:clearTextfield()
-				Atmospheres.spawnMainList(listingHolder, toReload, elementHeight, path, ext, func, searchField)
+				Atmospheres.SpawnMainList(listingHolder, toReload, elementHeight, path, ext, func, searchField)
 			end)
 	end
 
@@ -808,8 +733,9 @@ function Atmospheres.spawnMainList(listingHolder, toReload, elementHeight, path,
 	scrollBar:makeScrollBar(listingHolder, listElements, toReload, Atmospheres.ListShift)
 end
 
-function Atmospheres.showMain()
-	Atmospheres.setShaderInfo()
+---Displays Atmospheres main window
+function Atmospheres:showMain()
+	Atmospheres.SetShaderInfo()
 	if (Atmospheres.MainElement ~= nil) then
 		Atmospheres.MainElement:kill()
 	end
@@ -887,7 +813,7 @@ function Atmospheres.showMain()
 	shaderEditorButton:addMouseHandlers(nil, function()
 			Atmospheres.MainElement:kill()
 			Atmospheres.MainElement = nil
-			Atmospheres.showShaderControls()
+			Atmospheres.ShowShaderControls()
 		end)
 
 	local mainList = {
@@ -898,7 +824,7 @@ function Atmospheres.showMain()
 						Atmospheres.ListShift[1] = 0
 					end
 					Atmospheres.SelectedScreen = 1
-					Atmospheres.spawnMainList(listingHolder, toReload, elementHeight, "data/shader", "inc", function(file)
+					Atmospheres.SpawnMainList(listingHolder, toReload, elementHeight, "data/shader", "inc", function(file)
 							Atmospheres.DefaultShader = file
 							runCmd("lws " .. file)
 						end, search)
@@ -911,9 +837,9 @@ function Atmospheres.showMain()
 						Atmospheres.ListShift[1] = 0
 					end
 					Atmospheres.SelectedScreen = 2
-					Atmospheres.spawnMainList(listingHolder, toReload, elementHeight, "data/atmospheres", "atmo", function(file)
-							Atmospheres.loadAtmo(file)
-							Atmospheres.setDefaultAtmo(file)
+					Atmospheres.SpawnMainList(listingHolder, toReload, elementHeight, "data/atmospheres", "atmo", function(file)
+							Atmospheres.LoadAtmo(file)
+							Atmospheres.SetDefaultAtmo(file)
 						end, search)
 				end
 		}
@@ -976,4 +902,4 @@ function Atmospheres.showMain()
 		end)
 end
 
-Atmospheres.loadDefaultAtmo()
+Atmospheres.LoadDefaultAtmo()

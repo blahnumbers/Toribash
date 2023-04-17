@@ -16,4 +16,4 @@ if (Atmospheres.MainElement ~= nil) then
 	Atmospheres.MainElement = nil
 	return
 end
-Atmospheres.showMain()
+Atmospheres:showMain()

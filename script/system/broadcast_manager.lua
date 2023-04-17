@@ -197,7 +197,7 @@ end
 ---Fetches and parses recent broadcast data from Toribash server\
 ---If there's a hit, queues the broadcast for display
 function Broadcasts:fetchBroadcast()
-	Request:queue(function() download_server_info("LastBroadcast") end, "broadcast", function()
+	Request:queue(function() download_server_info("last_broadcast") end, "broadcast", function()
 			local response = get_network_response()
 			---@type Broadcast
 			local broadcast = { id = 0, time = os.time() }
@@ -259,8 +259,8 @@ function Broadcasts:addListener()
 	local clock = -60
 	add_hook("draw2d", "broadcast_manager", function()
 			if (get_world_state().game_type == 0 and not TUTORIAL_ISACTIVE) then
-				if (clock < os.clock_real() - 60) then
-					clock = os.clock_real()
+				if (clock < UIElement.clock - 60) then
+					clock = UIElement.clock
 					Broadcasts:fetchBroadcast()
 				end
 			end

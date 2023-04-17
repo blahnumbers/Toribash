@@ -942,8 +942,7 @@ function Replays:showList(viewElement, replayInfo, level, doSearch)
 		rounded = 4
 	})
 	local searchInputField = TBMenu:spawnTextField2(inputFieldHolder, nil, TB_MENU_REPLAYS_SEARCH, TB_MENU_LOCALIZED.SEARCHNOTE, {
-		darkerMode = true,
-		fontId = FONTS.LSMALL,
+		fontId = FONTS.LMEDIUM,
 		textScale = 0.65,
 		textColor = UICOLORWHITE
 	})
@@ -1766,7 +1765,7 @@ function Replays:showUploadWindow(replay)
 		end)
 end
 
----Returns `TBMenuDropdown` elements data containing user replay folders hierarchy
+---Returns `UIDropdown` elements data containing user replay folders hierarchy
 ---@param onSelectAction function
 ---@param targetFolder ?string
 ---@param includeRoot ?boolean
@@ -2772,6 +2771,7 @@ function Replays:showReplayVoteWindow(replay)
 	local voteView = voteOverlay:addChild({
 		shift = { (voteOverlay.size.w - voteViewSize[1]) / 2, (voteOverlay.size.h - voteViewSize[2]) / 2 },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR,
+		interactive = true,
 		shapeType = ROUNDED,
 		rounded = 4
 	})
@@ -2807,7 +2807,8 @@ function Replays:showReplayVoteWindow(replay)
 		size = { voteView.size.w - 20, voteView.size.h / 2 }
 	}, true)
 	local voteCommentInput = TBMenu:spawnTextField2(voteCommentInputHolder, nil, nil, TB_MENU_LOCALIZED.REPLAYSCOMMENT .. " (" .. TB_MENU_LOCALIZED.WORDOPTIONAL .. ")", {
-		fontId = FONTS.SMALL,
+		fontId = FONTS.LMEDIUM,
+		textScale = 0.65,
 		allowMultiline = true,
 		textAlign = LEFT
 	})
@@ -2835,6 +2836,7 @@ function Replays:showReplayVoteWindow(replay)
 			waitOverlay:addMouseHandlers(nil, nil, function(x)
 					if (x > WIN_W / 2) then
 						voteOverlay:kill()
+						Replays:getServerReplays(Replays.ServerCacheSettings.action, Replays.ServerCacheSettings.offset, Replays.ServerCacheSettings.search)
 					end
 					waitOverlay:kill()
 				end)
@@ -2901,7 +2903,7 @@ function Replays:showReplayCommentList(listingHolder, listingView, toReload, ele
 				shift = { 10, 0 }
 			})
 			local displayString = commentStrings[i * 2] and commentStrings[i * 2 - 1] .. "\n" .. commentStrings[i * 2] or commentStrings[i * 2 - 1]
-			commentLineHolder:addAdaptedText(true, displayString, nil, nil, FONTS.SMALL, LEFT, 1, 1)
+			commentLineHolder:addAdaptedText(true, displayString, nil, nil, FONTS.SMALL, #commentStrings == 1 and LEFTMID or LEFT, 1, 1)
 		end
 	end
 
@@ -3315,7 +3317,7 @@ end
 
 ---Spawns replay advanced hud progress slider in a specified UIElement
 ---@param viewElement UIElement
----@return TBMenuSlider
+---@return UISlider
 function Replays:spawnReplayProgressSlider(viewElement)
 	local replayProgressHolder = viewElement:addChild({
 		bgColor = table.clone(TB_MENU_DEFAULT_BG_COLOR),
@@ -3403,7 +3405,7 @@ end
 
 ---Spawns replay advanced hud speed slider in a specified UIElement
 ---@param viewElement UIElement
----@return TBMenuSlider
+---@return UISlider
 function Replays:spawnReplaySpeedSlider(viewElement)
 	local replaySpeedHolder = viewElement:addChild({
 		bgColor = table.clone(TB_MENU_DEFAULT_BG_COLOR),
@@ -3476,14 +3478,6 @@ function Replays:spawnReplaySpeedSlider(viewElement)
 			end)
 	end
 
-	local sliderSettings = {
-		maxValue = 2,
-		minValue = -1,
-		maxValueDisp = 4,
-		minValueDisp = -1.5,
-		decimal = 2
-	}
-
 	local getSliderSpeed = function(val)
 		if (val > 1) then
 			if (val < 1.5) then
@@ -3545,7 +3539,20 @@ function Replays:spawnReplaySpeedSlider(viewElement)
 		set_replay_speed(targetVal)
 	end
 
-	local slider = TBMenu:spawnSlider(replaySpeedHolder, 15, 25, nil, replaySpeedHolder.size.h - 25, 30, 20, get_replay_speed(), sliderSettings, updateFunc)
+	---@type SliderSettings
+	local sliderSettings = {
+		maxValue = 2,
+		minValue = -1,
+		maxValueDisp = 4,
+		minValueDisp = -1.5,
+		decimal = 2,
+		sliderRadius = 20,
+		textWidth = 30
+	}
+	local slider = TBMenu:spawnSlider2(replaySpeedHolder, {
+		x = 15, y = 25,
+		w = replaySpeedHolder.size.w - 30, h = replaySpeedHolder.size.h - 25 },
+	get_replay_speed(), sliderSettings, updateFunc)
 	slider.bgColor = UICOLORWHITE
 
 	local regularSpeed = UIElement:new({
@@ -3681,13 +3688,13 @@ function Replays:spawnReplayAdvancedGui(reload)
 				end
 				if (replayGuiHolder.hidden) then
 					if (replayGuiHolder.pos.y < WIN_H) then
-						replayGuiHolder:moveTo(nil, UITween.SineTween(replayGuiHolder.pos.y, WIN_H, UIElement.clock - replayGuiHolder.toggleClock))
+						replayGuiHolder:moveTo(nil, UITween.SineTween(replayGuiHolder.pos.y, WIN_H, (UIElement.clock - replayGuiHolder.toggleClock) * 1.65))
 					else
 						replayGuiHolder:hide()
 					end
 				else
 					if (replayGuiHolder.pos.y > WIN_H - targetHeightShift) then
-						replayGuiHolder:moveTo(nil, UITween.SineTween(replayGuiHolder.pos.y, WIN_H - 115, UIElement.clock - replayGuiHolder.toggleClock))
+						replayGuiHolder:moveTo(nil, UITween.SineTween(replayGuiHolder.pos.y, WIN_H - 115, (UIElement.clock - replayGuiHolder.toggleClock) * 1.65))
 					end
 				end
 			end)

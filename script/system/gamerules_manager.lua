@@ -66,7 +66,7 @@ Gamerule.__index = Gamerule
 ---Returns a new Gamerule object created from specified settings
 ---@param g GameruleCreateProperties|Gamerule
 ---@return Gamerule
-function Gamerule:new(g)
+function Gamerule.New(g)
 	---@type Gamerule
 	local rule = {
 		name = g.name,
@@ -86,7 +86,7 @@ function Gamerule:new(g)
 	if (g.onSetValue) then
 		rule.onSetValue = g.onSetValue
 	end
-	setmetatable(rule, self)
+	setmetatable(rule, Gamerule)
 	if (g.gameValue) then
 		rule:setValue(g.gameValue)
 	end
@@ -137,16 +137,24 @@ end
 if (Gamerules == nil) then
 	local x, y = get_window_safe_size()
 
-	---Gamerules manager class
+	---**Gamerules manager class**
+	---
+	---**Version 5.60**
+	---* Documentation with EmmyLua annotations
 	---@class Gamerules
+	---@field MainElement UIElement Gamerules main holder element
+	---@field DisplayPos Vector2 Current gamerules window offset coordinates
+	---@field ListShift number[] Gamerules list shift information
+	---@field StartNewgame boolean Whether newgame should be triggered when applying changes
+	---@field LastSelectedRule string|nil
 	Gamerules = {
-		MainElement = nil,
 		DisplayPos = { x = x + 10, y = y + 10 },
 		ListShift = { 0, 0, 1 },
-		StartNewgame = get_option("grnewgame"),
-		ver = 5.60,
-		__index = {}
+		StartNewgame = get_option("grnewgame") == "1",
+		LastSelectedRule = nil,
+		ver = 5.60
 	}
+	Gamerules.__index = Gamerules
 	setmetatable({}, Gamerules)
 end
 
@@ -307,7 +315,7 @@ function Gamerules.getRules()
 	---@type Gamerule[]
 	local gameRules = {}
 	for _, v in pairs(rulesList) do
-		local gameRule = Gamerule:new(v)
+		local gameRule = Gamerule.New(v)
 		if (v.onSet) then
 			gameRule:onUpdate(v.onSet)
 		end
@@ -430,7 +438,7 @@ function Gamerules.showGamerule(v, listingHolder, elementHeight, listElements, s
 					end
 				end, function()
 					if (not changedValues[v.name]) then
-						changedValues[v.name] = Gamerule:new(v)
+						changedValues[v.name] = Gamerule.New(v)
 					end
 					changedValues[v.name]:setValue(grInput.textfieldstr[1])
 					if (changedValues[v.name].gameValue ~= inputLastValue) then
@@ -468,7 +476,7 @@ function Gamerules.showGamerule(v, listingHolder, elementHeight, listElements, s
 		grName.size.w = listingHolder.size.w / 3 * 2 - 10
 		local grToggle = TBMenu:spawnToggle(grValueHolder, -grValueHolder.size.h, nil, nil, nil, changedValues[v.name] and changedValues[v.name].value or v.value, function(val)
 				if (not changedValues[v.name]) then
-					changedValues[v.name] = Gamerule:new(v)
+					changedValues[v.name] = Gamerule.New(v)
 				end
 				changedValues[v.name]:setValue(val)
 				if (v.triggerUpdate) then
@@ -477,7 +485,7 @@ function Gamerules.showGamerule(v, listingHolder, elementHeight, listElements, s
 			end)
 
 		grToggle:addEnterAction(function()
-				GAMERULES_LAST_SELECTED_GAMERULE = v.name
+				Gamerules.LastSelectedRule = v.name
 				grToggle.btnUp()
 			end)
 		grToggle:addTabAction(scrollTabFunc)
@@ -495,7 +503,7 @@ function Gamerules.showGamerule(v, listingHolder, elementHeight, listElements, s
 				text = k.title,
 				action = function()
 					if (not changedValues[v.name]) then
-						changedValues[v.name] = Gamerule:new(v)
+						changedValues[v.name] = Gamerule.New(v)
 					end
 					changedValues[v.name]:setValue(k.value)
 					if (v.triggerUpdate) then
@@ -553,7 +561,7 @@ function Gamerules.showGamerule(v, listingHolder, elementHeight, listElements, s
 		end]]
 		local updateFunc = function(val, xPos, slider)
 			if (not changedValues[v.name]) then
-				changedValues[v.name] = Gamerule:new(v)
+				changedValues[v.name] = Gamerule.New(v)
 			end
 			if (v.name == "ghostspeed") then
 				val = val > 100 and (100 + math.floor((val - 100) / 2.5) * 20) or val
@@ -612,7 +620,7 @@ function Gamerules.showGamerule(v, listingHolder, elementHeight, listElements, s
 					end)
 				grInput:addKeyboardHandlers(nil, function()
 						if (not changedValues[v.name]) then
-							changedValues[v.name] = Gamerule:new(v)
+							changedValues[v.name] = Gamerule.New(v)
 						end
 						local gravity = gravInputs[1].textfieldstr[1] .. " " .. gravInputs[2].textfieldstr[1] .. " " .. gravInputs[3].textfieldstr[1]
 						changedValues[v.name]:setValue(gravity)
@@ -688,7 +696,7 @@ function Gamerules.showGamerule(v, listingHolder, elementHeight, listElements, s
 					end)
 				grInput:addKeyboardHandlers(nil, function()
 						if (not changedValues[v.name]) then
-							changedValues[v.name] = Gamerule:new(v)
+							changedValues[v.name] = Gamerule.New(v)
 						end
 						local engage = ''
 						for k,input in pairs(engageInputs) do
@@ -755,13 +763,13 @@ function Gamerules.spawnMainList(listingHolder, toReload, gameRulesName, element
 	local switchTarget, switchNext = false, false
 	for x,section in pairs(gamerules) do
 		for i,v in pairs(section) do
-			if (GAMERULES_LAST_SELECTED_GAMERULE == v.name or switchNext) then
+			if (Gamerules.LastSelectedRule == v.name or switchNext) then
 				if (lastInput) then
 					switchTarget = lastInput
 				else
 					switchNext = true
 				end
-				GAMERULES_LAST_SELECTED_GAMERULE = nil
+				Gamerules.LastSelectedRule = nil
 			end
 			if (not v.hidden) then
 				if (searchStr:len() > 0) then
@@ -794,7 +802,7 @@ function Gamerules.spawnMainList(listingHolder, toReload, gameRulesName, element
 			end
 		end
 	end
-	GAMERULES_LAST_SELECTED_GAMERULE = nil
+	Gamerules.LastSelectedRule = nil
 
 	for _, v in pairs(listElements) do
 		v:hide()

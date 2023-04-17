@@ -144,23 +144,26 @@ function BattlePass:showProgress(viewElement)
 		pos = { 0, 0 },
 		size = { viewElement.size.w / 5, viewElement.size.h },
 		bgColor = TB_MENU_DEFAULT_DARKER_ORANGE,
+		uiShadowColor = TB_MENU_DEFAULT_ORANGE,
 		uiColor = UICOLORBLACK,
 		bgImage = "../textures/menu/battlepass/tcpattern.tga",
-		imagePatterned = true,
+		imagePatterned = true
 		--imageColor = { 0.555, 0.362, 0.24, 0.3 }
 	})
 	local playerLevelDisplay = playerLevelHolder:addChild({
 		pos = { 5, 5 },
-		size = { playerLevelHolder.size.w - 10, playerLevelHolder.size.h - 10 }
+		size = { playerLevelHolder.size.w - 10, playerLevelHolder.size.h - 10 },
+		shadowOffset = 2.4
 	})
-	playerLevelDisplay:addAdaptedText(true, TB_MENU_LOCALIZED.BATTLEPASSLEVEL, nil, nil, FONTS.BIG, LEFTMID, 0.6, nil, 0)
+	playerLevelDisplay:addAdaptedText(true, TB_MENU_LOCALIZED.BATTLEPASSLEVEL, nil, nil, FONTS.BIG, LEFTMID, 0.6, nil, 0, 4)
 
 	local shift = 10 + get_string_length(playerLevelDisplay.dispstr[1], playerLevelDisplay.textFont) * playerLevelDisplay.textScale
 	local playerLevelDisplayLevel = playerLevelDisplay:addChild({
 		pos = { shift, 0 },
-		size = { playerLevelHolder.size.w * 0.9 - shift, playerLevelDisplay.size.h }
+		size = { playerLevelHolder.size.w * 0.9 - shift, playerLevelDisplay.size.h },
+		shadowOffset = 3.6
 	})
-	playerLevelDisplayLevel:addAdaptedText(true, BattlePass.UserData.level .. '', nil, nil, FONTS.BIG, LEFTMID, 0.9, nil, 0.6)
+	playerLevelDisplayLevel:addAdaptedText(true, BattlePass.UserData.level .. '', nil, nil, FONTS.BIG, LEFTMID, 0.9, nil, 0, 4)
 	local totalWidth = shift + get_string_length(playerLevelDisplayLevel.dispstr[1], playerLevelDisplayLevel.textFont) * playerLevelDisplayLevel.textScale
 
 	playerLevelDisplay:moveTo((playerLevelDisplay.size.w - totalWidth) / 2, nil, true)
@@ -172,9 +175,17 @@ function BattlePass:showProgress(viewElement)
 	local sideShift = 30
 	local playerExpInfo = playerExpBarHolder:addChild({
 		pos = { sideShift, 10 },
-		size = { playerExpBarHolder.size.w / 3, (playerExpBarHolder.size.h - 20) / 2 }
+		size = { playerExpBarHolder.size.w / 3, (playerExpBarHolder.size.h - 20) / 2 },
+		uiShadowColor = TB_MENU_DEFAULT_BG_COLOR
 	})
-	playerExpInfo:addAdaptedText(true, TB_MENU_LOCALIZED.BATTLEPASSEXPERIENCE .. ":^35 " .. numberFormat(BattlePass.UserData.xp) .. (BattlePass.LevelData[BattlePass.UserData.level + 1] and (" / " .. numberFormat(BattlePass.LevelData[BattlePass.UserData.level + 1].xp_total)) or ''), nil, nil, 4, LEFTBOT, 0.75)
+	playerExpInfo:addAdaptedText(true, TB_MENU_LOCALIZED.BATTLEPASSEXPERIENCE .. ":", nil, nil, 4, LEFTBOT, 0.75, nil, nil, 4)
+	local bpExpLength = get_string_length(playerExpInfo.dispstr[1], playerExpInfo.textFont) * playerExpInfo.textScale + 6
+	playerExpInfo:addChild({
+		pos = { bpExpLength, 0 },
+		size = { playerExpInfo.size.w - bpExpLength, playerExpInfo.size.h },
+		uiColor = TB_MENU_DEFAULT_YELLOW,
+		uiShadowColor = TB_MENU_DEFAULT_BG_COLOR
+	}):addAdaptedText(true, numberFormat(BattlePass.UserData.xp) .. (BattlePass.LevelData[BattlePass.UserData.level + 1] and (" / " .. numberFormat(BattlePass.LevelData[BattlePass.UserData.level + 1].xp_total)) or ''), nil, nil, 4, LEFTBOT, 0.75, nil, nil, 4)
 	local playerExpBarBG = playerExpBarHolder:addChild({
 		pos = { sideShift, playerExpInfo.shift.y * 2 + playerExpInfo.size.h },
 		size = { playerExpBarHolder.size.w - sideShift * 2, 8 },
@@ -266,7 +277,7 @@ function BattlePass:getUserAvailableRewards(override)
 	local tcReward, stReward = 0, 0
 	local levelAvailable = (override and override.level) and override.level or BattlePass.UserData.level_available
 	local premiumAvailable = (override and override.premium) and override.premium or BattlePass.UserData.premium
-	for i,v in ipairs(BattlePass.LevelData) do
+	for _, v in ipairs(BattlePass.LevelData) do
 		if (v.level > BattlePass.UserData.level and v.level <= levelAvailable) then
 			tcReward = tcReward + v.tc
 			stReward = stReward + v.st
@@ -286,10 +297,13 @@ function BattlePass:getUserAvailableRewards(override)
 	end
 	if (tcReward > 0) then
 		table.insert(claimRewards, 1, { tc = tcReward, static = true })
+		if (stReward > 0) then
+			table.insert(claimRewards, 2, { st = stReward, static = true })
+		end
+	elseif (stReward > 0) then
+		table.insert(claimRewards, 1, { st = stReward, static = true })
 	end
-	if (stReward > 0) then
-		table.insert(claimRewards, 2, { st = stReward, static = true })
-	end
+
 
 	return claimRewards
 end
@@ -309,7 +323,7 @@ function BattlePass:spawnPurchasePrimeWindow()
 				claimWindowBackground.size.h = 100
 				claimWindowBackground.size.w = 300
 				claimWindowBackground:moveTo((WIN_W - claimWindowBackground.size.w) / 2, (WIN_H - claimWindowBackground.size.h) / 2)
-				TBMenu:displayLoadingMark(claimWindowBackground, TB_MENU_LOCALIZED.STOREPROCESSINGSTEAMPURCHASE)
+				claimWindowBackground:addAdaptedText(TB_MENU_LOCALIZED.STOREPROCESSINGSTEAMPURCHASE)
 				claimWindowBackground.parent:addMouseMoveHandler(function()
 					claimWindowBackground.parent:kill()
 					if (get_purchase_done() == 1) then
@@ -680,7 +694,7 @@ function BattlePass:showPrizes(viewElement)
 	---@type BattlePassLevel
 	local closestMilestoneReward
 	local listElements = {}
-	for i,v in ipairs(BattlePass.LevelData) do
+	for _, v in ipairs(BattlePass.LevelData) do
 		local prizeHolder = UIElement:new({
 			parent = listingHolder,
 			pos = { #listElements * prizeHolderSize, 0 },
@@ -694,13 +708,13 @@ function BattlePass:showPrizes(viewElement)
 		end
 	end
 
-	for i,v in pairs(listElements) do
+	for _, v in pairs(listElements) do
 		v:hide()
 	end
 	local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, prizeHolderSize, SCROLL_HORIZONTAL)
 	listingHolder.scrollBar = scrollBar
 	local totalSize = #listElements * prizeHolderSize
-	local shift = { BattlePass.UserData.level / #BattlePass.LevelData * totalSize / (totalSize - listingHolder.size.w) * (scrollBar.parent.size.w - scrollBar.size.w) }
+	local shift = { math.max(0, (BattlePass.UserData.level - 1)) / #BattlePass.LevelData * totalSize / (totalSize - listingHolder.size.w) * (scrollBar.parent.size.w - scrollBar.size.w) }
 	scrollBar:makeHorizontalScrollBar(listingHolder, listElements, toReload, shift, 0.4)
 
 	local leftBarFade = leftBar:addChild({

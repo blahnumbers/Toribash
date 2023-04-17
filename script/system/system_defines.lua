@@ -2322,6 +2322,58 @@ function set_graphics_option(option, value) end
 ---Reloads graphics and applies changes set by `set_graphics_option()`
 function reload_graphics() end
 
+---@alias ShaderOptionId
+---| 0 BACKGROUND_COLOR
+---| 1 MIRROR_COLOR
+---| 2 FLOOR_COLOR
+---| 3 SUNSHINE_COLOR
+---| 4 AMBIENT_COLOR
+---| 5 FOG_DISTANCE
+---| 6 SHARP_SHADOW
+---| 7 SKY_ON
+---| 8 AMBIENT_LIGHT_DIR
+---| 9 SUN_LIGHT_DIR
+---| 10 SUNBEAM_COLOR
+---| 11 SUN_COLOR
+---| 12 SKY_COLOR
+---| 13 POLAR_LIGHT_COLOR
+---| 14 POLAR_LIGHT_DIR
+---| 15 SKY_BLEND_POWER
+---| 16 CUSTOM_COLOR_TEXT
+---| 17 CUSTOM_COLOR_TEXT_BG
+---| 18 CUSTOM_COLOR_TEXT_SEL
+---| 19 CUSTOM_COLOR_TEXT_DISABLED
+---| 20 CUSTOM_COLOR_MENU_TEXT
+---| 21 CUSTOM_COLOR_MENU_TEXT_BG
+---| 22 CUSTOM_COLOR_MENU_TEXT_SEL
+---| 23 CUSTOM_COLOR_MENU_TEXT_DISABLED
+---| 24 CUSTOM_COLOR_MSG_NOTYPE
+---| 25 CUSTOM_COLOR_MSG_WHISPER
+---| 26 CUSTOM_COLOR_MSG_SERVER
+---| 27 CUSTOM_COLOR_MSG_SRVURL
+---| 28 CUSTOM_COLOR_MSG_INGAME
+---| 29 CUSTOM_COLOR_MSG_GAMURL
+---| 30 CUSTOM_COLOR_MSG_USER
+---| 31 CUSTOM_COLOR_MSG_PLAYER
+---| 32 CUSTOM_COLOR_MSG_URL
+---| 33 CUSTOM_COLOR_MSG_URLSEL
+
+---Returns current settings for the specified shader option id
+---@param id ShaderOptionId
+---@return Color
+function get_shader_option(id) end
+
+---Sets the specified settings for shader option id
+---@param id ShaderOptionId
+---@param x number
+---@param y number
+---@param z number
+---@param w number
+---@param reload_sky ?boolean
+---@param sky_resolution ?integer
+---@return boolean
+function set_shader_option(id, x, y, z, w, reload_sky, sky_resolution) end
+
 ---@alias SoundCategoryId
 ---| 0 Shout
 ---| 1 Dismember

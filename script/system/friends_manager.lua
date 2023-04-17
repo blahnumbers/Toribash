@@ -413,7 +413,13 @@ function Friends:showMenu(viewElement)
 		rounded = 3
 	})
 	friendAddInputBG:addCustomDisplay(true, function() end)
-	local friendAddInputField = TBMenu:spawnTextField(friendAddInputBG, nil, nil, friendAddInputBG.size.w - elementHeight - 5, nil, nil, nil, nil, 0.7, UICOLORWHITE, TB_MENU_LOCALIZED.FRIENDSLISTSEARCHDEFAULT)
+	local friendAddInputField = TBMenu:spawnTextField2(friendAddInputBG, {
+		w = friendAddInputBG.size.w - elementHeight - 5
+	}, nil, TB_MENU_LOCALIZED.FRIENDSLISTSEARCHDEFAULT, {
+		fontId = 4,
+		textScale = 0.75,
+		textColor = UICOLORWHITE
+	})
 	friendAddInputField:addEnterAction(function()
 			Friends:addFriend(friendAddInputField.textfieldstr[1])
 			Friends:showMain(viewElement.parent, true)

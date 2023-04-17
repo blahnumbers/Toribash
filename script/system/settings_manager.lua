@@ -1905,7 +1905,14 @@ do
 								rounded = 3
 							})
 							if (item.inputspecial) then
-								local textField = TBMenu:spawnTextField(itemInput, nil, nil, nil, nil, Settings:getKeyName(item.val[1]), true, nil, 0.8, UICOLORWHITE, item.name, CENTERMID, true)
+								local textField = TBMenu:spawnTextField2(itemInput, nil, Settings:getKeyName(item.val[1]), item.name, {
+									isNumeric = true,
+									fontId = 4,
+									textAlign = CENTERMID,
+									textScale = 0.8,
+									textColor = UICOLORWHITE,
+									noCursor = true
+								})
 								textField:addKeyboardHandlers(function(key)
 										textField.textfieldstr[1] = Settings:getKeyName(key)
 										textField.pressedKeyId = key
@@ -1914,7 +1921,13 @@ do
 										Settings:settingsApplyActivate(item.reload)
 									end)
 							else
-								local textField = TBMenu:spawnTextField(itemInput, nil, nil, nil, nil, item.val[1] .. "", true, nil, 0.8, UICOLORWHITE, item.name, CENTERMID)
+								local textField = TBMenu:spawnTextField2(itemInput, nil, tostring(item.val[1]), item.name, {
+									isNumeric = true,
+									fontId = 4,
+									textAlign = CENTERMID,
+									textScale = 0.8,
+									textColor = UICOLORWHITE
+								})
 								textField:addKeyboardHandlers(nil, function()
 										if (item.valueVerifyAction) then
 											textField.textfieldstr[1] = item.valueVerifyAction(textField.textfieldstr[1]) .. ''

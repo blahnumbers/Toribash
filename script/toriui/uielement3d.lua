@@ -67,16 +67,27 @@ if (not UIElement3D) then
 	---@field customEnterFrameFunc function Function to be executed on `enter_frame` callback
 	---@field viewportElement boolean Whether this object is displayed in a viewport
 	UIElement3D = {
-		ver = 5.60,
-		__index = UIElement
+		ver = 5.60
 	}
+	UIElement3D.__index = UIElement3D
 	setmetatable(UIElement3D, UIElement)
 end
 
 ---Creates a new UIElement3D object
+---@param _self UIElement3D
 ---@param o UIElement3DOptions
 ---@return UIElement3D
-function UIElement3D:new(o)
+---@overload fun(o: UIElement3DOptions):UIElement3D
+function UIElement3D.new(_self, o)
+	if (o == nil) then
+		if (_self ~= nil) then
+			---@diagnostic disable-next-line: cast-local-type
+			o = _self
+		else
+			error("Invalid argument #1 provided to UIElement3D.new(o: UIElement3DOptions)")
+		end
+	end
+
 	---@type UIElement3D
 	local elem = {
 		globalid = 1000,
@@ -88,94 +99,93 @@ function UIElement3D:new(o)
 		shapeType = CUBE
 	}
 	setmetatable(elem, UIElement3D)
-	self.__index = self
 
-	o = o or nil
-	if (o) then
-		if (o.playerAttach) then
-			elem.playerAttach = o.playerAttach
-			elem.attachBodypart = o.attachBodypart
-			elem.attachJoint = o.attachJoint
+	---@type UIElement3DOptions
+	---@diagnostic disable-next-line: assign-type-mismatch
+	o = o
+	if (o.playerAttach) then
+		elem.playerAttach = o.playerAttach
+		elem.attachBodypart = o.attachBodypart
+		elem.attachJoint = o.attachJoint
+	end
+	if (o.parent and o.shapeType ~= VIEWPORT) then
+		elem.globalid = o.parent.globalid
+		elem.parent = o.parent
+		table.insert(elem.parent.child, elem)
+		elem.shift = { x = o.pos[1], y = o.pos[2], z = o.pos[3] }
+		elem.rotXYZ = { x = elem.parent.rotXYZ.x, y = elem.parent.rotXYZ.y, z = elem.parent.rotXYZ.z }
+		elem:setChildShift()
+		for i, v in pairs(elem.shift) do
+			elem.pos[i] = elem.parent.pos[i] + v
 		end
-		if (o.parent and o.shapeType ~= VIEWPORT) then
-			elem.globalid = o.parent.globalid
-			elem.parent = o.parent
-			table.insert(elem.parent.child, elem)
-			elem.shift = { x = o.pos[1], y = o.pos[2], z = o.pos[3] }
-			elem.rotXYZ = { x = elem.parent.rotXYZ.x, y = elem.parent.rotXYZ.y, z = elem.parent.rotXYZ.z }
-			elem:setChildShift()
-			for i, v in pairs(elem.shift) do
-				elem.pos[i] = elem.parent.pos[i] + v
-			end
+	else
+		if (o.shapeType == VIEWPORT) then
+			elem.viewport = o.parent
+			table.insert(elem.viewport.child, elem)
+		end
+		elem.pos = { x = o.pos[1], y = o.pos[2], z = o.pos[3] }
+	end
+	elem.size = { x = o.size[1], y = o.size[2], z = o.size[3] }
+	if (o.rot) then
+		elem.rotXYZ.x = elem.rotXYZ.x + o.rot[1]
+		elem.rotXYZ.y = elem.rotXYZ.y + o.rot[2]
+		elem.rotXYZ.z = elem.rotXYZ.z + o.rot[3]
+	end
+	elem:updateRotations(elem.rotXYZ)
+	if (o.objModel) then
+		elem.shapeType = CUSTOMOBJ
+		elem.disableUnload = o.disableUnload
+		elem:updateObj(o.objModel)
+	end
+	if (o.bgImage) then
+		if (type(o.bgImage) == "table") then
+			elem:updateImage(o.bgImage[1], o.bgImage[2])
 		else
-			if (o.shapeType == VIEWPORT) then
-				elem.viewport = o.parent
-				table.insert(elem.viewport.child, elem)
-			end
-			elem.pos = { x = o.pos[1], y = o.pos[2], z = o.pos[3] }
+			---@diagnostic disable-next-line: param-type-mismatch
+			elem:updateImage(o.bgImage)
 		end
-		elem.size = { x = o.size[1], y = o.size[2], z = o.size[3] }
-		if (o.rot) then
-			elem.rotXYZ.x = elem.rotXYZ.x + o.rot[1]
-			elem.rotXYZ.y = elem.rotXYZ.y + o.rot[2]
-			elem.rotXYZ.z = elem.rotXYZ.z + o.rot[3]
-		end
-		elem:updateRotations(elem.rotXYZ)
-		if (o.objModel) then
-			elem.shapeType = CUSTOMOBJ
-			elem.disableUnload = o.disableUnload
-			elem:updateObj(o.objModel)
-		end
-		if (o.bgImage) then
-			if (type(o.bgImage) == "table") then
-				elem:updateImage(o.bgImage[1], o.bgImage[2])
-			else
-				---@diagnostic disable-next-line: param-type-mismatch
-				elem:updateImage(o.bgImage)
-			end
-		end
-		if (o.globalid) then
-			elem.globalid = o.globalid
-		end
-		if (o.bgColor) then
-			elem.bgColor = o.bgColor
-		end
-		if (o.hoverColor) then
-			elem.hoverColor = o.hoverColor
-		end
-		if (o.pressedColor) then
-			elem.pressedColor = o.pressedColor
-		end
-		if (o.shapeType) then
-			elem.shapeType = o.shapeType
-		end
-		if (o.interactive) then
-			elem.interactive = o.interactive
-			table.insert(UIMouseHandler, elem)
-		end
-		if (o.hoverSound) then
-			elem.hoverSound = o.hoverSound
-		end
-		if (o.upSound) then
-			elem.upSound = o.upSound
-		end
-		if (o.downSound) then
-			elem.downSound = o.downSound
-		end
-		if (o.effects) then
-			elem.effectid = o.effects.id or 0
-			elem.glowIntensity = o.effects.glowIntensity or 0
-			elem.glowColor = o.effects.glowColor or 0
-			elem.ditherPixelSize = o.effects.ditherPixelSize or 0
-		end
+	end
+	if (o.globalid) then
+		elem.globalid = o.globalid
+	end
+	if (o.bgColor) then
+		elem.bgColor = o.bgColor
+	end
+	if (o.hoverColor) then
+		elem.hoverColor = o.hoverColor
+	end
+	if (o.pressedColor) then
+		elem.pressedColor = o.pressedColor
+	end
+	if (o.shapeType) then
+		elem.shapeType = o.shapeType
+	end
+	if (o.interactive) then
+		elem.interactive = o.interactive
+		table.insert(UIMouseHandler, elem)
+	end
+	if (o.hoverSound) then
+		elem.hoverSound = o.hoverSound
+	end
+	if (o.upSound) then
+		elem.upSound = o.upSound
+	end
+	if (o.downSound) then
+		elem.downSound = o.downSound
+	end
+	if (o.effects) then
+		elem.effectid = o.effects.id or 0
+		elem.glowIntensity = o.effects.glowIntensity or 0
+		elem.glowColor = o.effects.glowColor or 0
+		elem.ditherPixelSize = o.effects.ditherPixelSize or 0
+	end
 
-		table.insert(UIElement3DManager, elem)
-		if (o.viewport) then
-			elem.viewportElement = true
-			table.insert(UIVisual3DManagerViewport, elem)
-		else
-			table.insert(UIVisual3DManager, elem)
-		end
+	table.insert(UIElement3DManager, elem)
+	if (o.viewport) then
+		elem.viewportElement = true
+		table.insert(UIVisual3DManagerViewport, elem)
+	else
+		table.insert(UIVisual3DManager, elem)
 	end
 
 	return elem
