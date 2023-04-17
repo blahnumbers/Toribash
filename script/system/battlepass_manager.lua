@@ -148,7 +148,6 @@ function BattlePass:showProgress(viewElement)
 		uiColor = UICOLORBLACK,
 		bgImage = "../textures/menu/battlepass/tcpattern.tga",
 		imagePatterned = true
-		--imageColor = { 0.555, 0.362, 0.24, 0.3 }
 	})
 	local playerLevelDisplay = playerLevelHolder:addChild({
 		pos = { 5, 5 },
@@ -175,7 +174,7 @@ function BattlePass:showProgress(viewElement)
 	local sideShift = 30
 	local playerExpInfo = playerExpBarHolder:addChild({
 		pos = { sideShift, 10 },
-		size = { playerExpBarHolder.size.w / 3, (playerExpBarHolder.size.h - 20) / 2 },
+		size = { playerExpBarHolder.size.w - sideShift * 2, (playerExpBarHolder.size.h - 20) / 2 },
 		uiShadowColor = TB_MENU_DEFAULT_BG_COLOR
 	})
 	playerExpInfo:addAdaptedText(true, TB_MENU_LOCALIZED.BATTLEPASSEXPERIENCE .. ":", nil, nil, 4, LEFTBOT, 0.75, nil, nil, 4)
@@ -545,6 +544,8 @@ function BattlePass:showPrizeItem(viewElement, prize)
 		shift = { 2, 2 },
 		bgColor = prize.bgColor or (prize.premium and TB_MENU_DEFAULT_DARKER_BLUE or TB_MENU_DEFAULT_DARKER_ORANGE),
 		interactive = not prize.static and true and not prize.claimed,
+		clickThrough = true,
+		hoverThrough = true,
 		hoverColor = prize.hoverColor or (prize.locked and (prize.premium and TB_MENU_DEFAULT_DARKER_BLUE or TB_MENU_DEFAULT_DARKER_ORANGE) or (prize.premium and TB_MENU_DEFAULT_BLUE or TB_MENU_DEFAULT_ORANGE)),
 		pressedColor = prize.bgColor or (prize.locked and (prize.premium and TB_MENU_DEFAULT_DARKER_BLUE or TB_MENU_DEFAULT_DARKER_ORANGE) or (prize.premium and TB_MENU_DEFAULT_DARKER_BLUE or TB_MENU_DEFAULT_DARKER_ORANGE))
 	}, true)
