@@ -12,10 +12,13 @@ if (Friends == nil) then
 	---* Use new room list functionality to search for online friends
 	---@class Friends
 	---@field FriendsList FriendInfo[]
+	---@field ClanFriends FriendInfo[]
 	---@field IgnoreList string[]
 	Friends = {
 		FriendsList = {},
-		IgnoreList = {}
+		IgnoreList = {},
+		ClanFriends = {},
+		ver = 5.60
 	}
 	Friends.__index = Friends
 	setmetatable({}, Friends)
@@ -46,7 +49,7 @@ function Friends:getNavigationButtons()
 	return navigation
 end
 
-function Friends:getOnline(viewElement, noWait)
+function Friends:getOnline(viewElement)
 	local dataReady = true
 	if (RoomList.RefreshIfNeeded()) then
 		dataReady = false
@@ -76,13 +79,14 @@ function Friends:getOnline(viewElement, noWait)
 		-- Remove duplicate entries when one of friends is also found during clan friends search
 		for _, v in pairs(self.FriendsList) do
 			for n = #clanFriends, 1, -1 do
-				if (v.username == PlayerInfo.Get(clanFriends[n].username).username) then
+				if (v.username == utf8.lower(PlayerInfo.Get(clanFriends[n].username).username)) then
 					table.remove(clanFriends, n)
 				end
 			end
 		end
+		self.ClanFriends = {}
 		for _, v in pairs(clanFriends) do
-			table.insert(self.FriendsList, v)
+			table.insert(self.ClanFriends, v)
 		end
 	end
 
@@ -116,19 +120,21 @@ function Friends.Init()
 		end
 	end
 
-	for _, ln in pairs(file:readAll()) do
+	local friendsData = file:readAll()
+	file:close()
+	for _, ln in pairs(friendsData) do
 		local segments = 3
 		local data_stream = { ln:match(("([^ ]+) *"):rep(segments)) }
 		table.insert(Friends.FriendsList, { username = data_stream[1], online = false, room = false })
 	end
 
-	file:close()
 	local ignoreFile = Files:open("../ignorelist.txt")
 	if (ignoreFile.data) then
-		for _, ln in pairs(ignoreFile:readAll()) do
+		local ignoreData = ignoreFile:readAll()
+		ignoreFile:close()
+		for _, ln in pairs(ignoreData) do
 			table.insert(Friends.IgnoreList, ln)
 		end
-		ignoreFile:close()
 	end
 
 	return true
@@ -194,166 +200,137 @@ function Friends:isIgnored(player)
 end
 
 function Friends:showFriendsList(viewElement)
-	local entryHeight = 35
+	local elementHeight = 40
+	local toReload, topBar, botBar, listingView, listingHolder = TBMenu:prepareScrollableList(viewElement, elementHeight, elementHeight + 10, 20, TB_MENU_DEFAULT_BG_COLOR)
+	TBMenu:addBottomBloodSmudge(botBar, 1)
 
-	local toReload = UIElement:new({
-		parent = viewElement,
-		pos = { 0, 0 },
-		size = { viewElement.size.w, viewElement.size.h}
-	})
-
-	local friendsTopBar = UIElement:new({
-		parent = toReload,
-		pos = { 0, 0 },
-		size = { viewElement.size.w, entryHeight },
-		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
-	})
-	local friendsBotBar = UIElement:new({
-		parent = toReload,
-		pos = { 0, -entryHeight },
-		size = { viewElement.size.w, entryHeight },
-		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
-	})
-	TBMenu:addBottomBloodSmudge(friendsBotBar, 1)
-
-	local friendsMain = UIElement:new({
-		parent = viewElement,
-		pos = { 0, friendsTopBar.size.h },
-		size = { friendsTopBar.size.w, viewElement.size.h - friendsTopBar.size.h - friendsBotBar.size.h }
-	})
-	local friendsView = UIElement:new({
-		parent = friendsMain,
-		pos = { 0, 0 },
-		size = { friendsMain.size.w - 20, friendsMain.size.h }
-	})
-
-	local friendsElements = {}
-	for i,v in pairs(table.qsort(Friends.FriendsList, "online", true)) do
-		local friendElement = UIElement:new({
-			parent = friendsView,
-			pos = { 0, (i - 1) * entryHeight },
-			size = { friendsView.size.w, entryHeight },
-			bgColor = i % 2 == 1 and TB_MENU_DEFAULT_BG_COLOR or TB_MENU_DEFAULT_DARKER_COLOR
+	local listElements = {}
+	---@type FriendInfo[]
+	local friendsList = {}
+	for _, v in pairs(Friends.FriendsList) do
+		table.insert(friendsList, v)
+	end
+	for _, v in pairs(Friends.ClanFriends) do
+		table.insert(friendsList, v)
+	end
+	for _, v in pairs(table.qsort(friendsList, { "username", "online" }, { SORT_ASCENDING, SORT_DESCENDING })) do
+		local friendElementHolder = listingHolder:addChild({
+			pos = { 0, #listElements * elementHeight },
+			size = { listingHolder.size.w, elementHeight }
 		})
-		table.insert(friendsElements, friendElement)
-		local friendOnlineMarker = UIElement:new({
-			parent = friendElement,
-			pos = { friendElement.size.w / 40, friendElement.size.h / 3 },
-			size = { friendElement.size.h / 3, friendElement.size.h / 3 },
-			bgColor = v.online and UICOLORGREEN or { 0.8, 0.8, 0.8, 1},
+		table.insert(listElements, friendElementHolder)
+		local friendElement = friendElementHolder:addChild({
+			pos = { 10, 2 },
+			size = { friendElementHolder.size.w - 10, friendElementHolder.size.h - 4 },
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 			shapeType = ROUNDED,
-			rounded = friendElement.size.h
+			rounded = 4
 		})
-		local friendName = UIElement:new({
-			parent = friendElement,
-			pos = { friendOnlineMarker.shift.x + friendElement.size.h / 3 * 2, 0 },
+		local friendOnlineMarker = friendElement:addChild({
+			pos = { 10, friendElement.size.h / 3 },
+			size = { friendElement.size.h / 3, friendElement.size.h / 3 },
+			bgColor = v.online and UICOLORGREEN or TB_MENU_DEFAULT_INACTIVE_COLOR,
+			shapeType = ROUNDED,
+			rounded = friendElement.size.h / 3
+		})
+		local friendName = friendElement:addChild({
+			pos = { friendOnlineMarker.shift.x * 2 + friendOnlineMarker.size.w, 0 },
 			size = { friendElement.size.w / 3, friendElement.size.h }
 		})
-		friendName:addCustomDisplay(true, function()
-				friendName:uiText(v.username, nil, nil, nil, LEFTMID)
-			end)
+		friendName:addAdaptedText(true, v.username, nil, nil, nil, LEFTMID)
+		if (#listElements == 1) then
+			topBar:addChild({
+				pos = { 10 + friendName.shift.x, 0 },
+				size = { friendName.size.w, topBar.size.h }
+			}):addAdaptedText(TB_MENU_LOCALIZED.FRIENDSLISTLEGENDPLAYER, nil, nil, FONTS.LMEDIUM, nil, 0.65)
+			topBar:addChild({
+				pos = { 10 + friendName.shift.x + friendName.size.w, 0 },
+				size = { (friendElement.size.w - friendName.shift.x - friendName.size.w) / 2, topBar.size.h }
+			}):addAdaptedText(TB_MENU_LOCALIZED.FRIENDSLISTLEGENDROOM, nil, nil, FONTS.LMEDIUM, nil, 0.65)
+		end
+		local joinButton
 		if (v.online) then
-			local friendRoomLocation = UIElement:new({
-				parent = friendElement,
+			local friendRoomLocation = friendElement:addChild({
 				pos = { friendName.shift.x + friendName.size.w, 0 },
 				size = { (friendElement.size.w - friendName.shift.x - friendName.size.w) / 2, friendElement.size.h }
 			})
-			friendRoomLocation:addCustomDisplay(false, function()
-					friendRoomLocation:uiText(v.room, nil, nil, 4, nil, 0.75)
-				end)
-			local friendRoomJoinButton = UIElement:new({
-				parent = friendElement,
-				pos = { friendElement.size.w - friendRoomLocation.size.w, 5 },
-				size = { friendRoomLocation.size.w - friendElement.size.h, friendElement.size.h - 10 },
+			friendRoomLocation:addAdaptedText(true, v.room, nil, nil, 4, nil, 0.75)
+			joinButton = friendElement:addChild({
+				pos = { friendElement.size.w - friendRoomLocation.size.w, 0 },
+				size = { friendRoomLocation.size.w, friendElement.size.h },
 				interactive = true,
-				bgColor = { 0, 0, 0, 0.1 },
-				hoverColor = { 0, 0, 0, 0.3 },
-				pressedColor = { 1, 0, 0, 0.2 }
-			})
-			friendRoomJoinButton:addCustomDisplay(false, function()
-					friendRoomJoinButton:uiText(TB_MENU_LOCALIZED.FRIENDSLISTJOINROOM, nil, nil, nil, nil, 0.8)
-				end)
-			friendRoomJoinButton:addMouseHandlers(nil, function()
+				clickThrough = true,
+				hoverThrough = true,
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+			}, true)
+			joinButton:addAdaptedText(TB_MENU_LOCALIZED.FRIENDSLISTJOINROOM)
+			joinButton:addMouseUpHandler(function()
 					runCmd("jo " .. v.room)
 					close_menu()
 				end)
 		end
 		if (not v.username:match("[)%]}].+")) then
-			local friendRemoveButton = UIElement:new({
-				parent = friendElement,
-				pos = { friendElement.size.w - friendElement.size.h + 5, 5 },
-				size = { friendElement.size.h - 10, friendElement.size.h - 10 },
+			local friendRemoveButton = friendElement:addChild({
+				pos = { friendElement.size.w - friendElement.size.h, 0 },
+				size = { friendElement.size.h, friendElement.size.h },
 				interactive = true,
-				bgColor = { 0, 0, 0, 0.1 },
-				hoverColor = { 1, 0, 0, 0.3 },
-				pressedColor = { 1, 0, 0, 0.5 },
-				bgImage = "../textures/menu/general/buttons/crosswhite.tga"
-			})
-			friendRemoveButton:addMouseHandlers(nil, function()
+				clickThrough = true,
+				hoverThrough = true,
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+			}, true)
+			if (joinButton) then
+				joinButton.size.w = joinButton.size.w - friendRemoveButton.size.w - 5
+			end
+			friendElement.size.w = friendRemoveButton.shift.x - 5
+			friendRemoveButton:addMouseUpHandler(function()
 				Friends:removeFriend(v.username)
 				Friends:showFriends(viewElement.parent)
 			end)
+			friendRemoveButton:addChild({
+				shift = { 5, 5 },
+				bgImage = "../textures/menu/general/buttons/crosswhite.tga"
+			})
+		end
+		if (joinButton) then
+			friendElement.size.w = joinButton.shift.x - 5
 		end
 	end
-	if (#friendsElements == 0) then
-		local friendsMessageTop = UIElement:new({
-			parent = friendsView,
+	if (#listElements == 0) then
+		local friendsMessageTop = listingView:addChild({
 			pos = { 10, 0 },
-			size = { friendsView.size.w - 20, friendsView.size.h / 2 - 5 }
+			size = { listingView.size.w - 20, listingView.size.h / 2 - 5 }
 		})
 		friendsMessageTop:addAdaptedText(true, TB_MENU_LOCALIZED.FRIENDSLISTEMPTY .. " :(", nil, nil, FONTS.BIG, CENTERBOT)
-		local friendsMessageBot = UIElement:new({
-			parent = friendsView,
-			pos = { 10, friendsView.size.h / 2 + 5 },
-			size = { friendsView.size.w - 20, friendsView.size.h / 2 - 5 }
+		local friendsMessageBot = listingView:addChild({
+			pos = { 10, listingView.size.h / 2 + 5 },
+			size = { listingView.size.w - 20, listingView.size.h / 2 - 5 }
 		})
 		friendsMessageBot:addAdaptedText(true, TB_MENU_LOCALIZED.FRIENDSLISTEMPTYINFO, nil, nil, nil, CENTER)
 	end
 
-	for i,v in pairs(friendsElements) do
+	for _, v in pairs(listElements) do
 		v:hide()
 	end
 
-	local friendsScrollBG = UIElement:new({
-		parent = friendsMain,
-		pos = { -(friendsMain.size.w - friendsView.size.w), 0 },
-		size = { friendsMain.size.w - friendsView.size.w, friendsView.size.h },
-		bgColor = TB_MENU_DEFAULT_DARKER_COLOR
-	})
+	local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
+	listingHolder.scrollBar = scrollBar
+	scrollBar:makeScrollBar(listingHolder, listElements, toReload)
 
-	local friendsScrollBar = TBMenu:spawnScrollBar(friendsView, #friendsElements, entryHeight)
-	friendsScrollBar:makeScrollBar(friendsView, friendsElements, toReload)
-
-	local legendInfo = {
-		{ name = "", width = friendsView.size.w / 40 + entryHeight},
-		{ name = TB_MENU_LOCALIZED.FRIENDSLISTLEGENDPLAYER, width = friendsView.size.w / 3 },
-		{ name = TB_MENU_LOCALIZED.FRIENDSLISTLEGENDROOM, width = (friendsView.size.w * 2 / 3 - friendsView.size.w / 40 - entryHeight * 2 + 10) / 2 }
-	}
-	local legendShiftX = 0
-	for i = 1, #legendInfo do
-		local legendElement = UIElement:new({
-			parent = friendsTopBar,
-			pos = { legendShiftX, 0 },
-			size = { legendInfo[i].width, friendsTopBar.size.h }
-		})
-		legendShiftX = legendShiftX + legendElement.size.w
-		legendElement:addCustomDisplay(true, function()
-				legendElement:uiText(legendInfo[i].name, nil, nil, 4, nil, 0.6)
-			end)
-	end
-	local friendsRefresh = UIElement:new({
-		parent = friendsBotBar,
-		pos = { friendsBotBar.size.w / 4, 5 },
-		size = { friendsBotBar.size.w / 2, friendsBotBar.size.h - 5 },
+	local friendsRefresh = botBar:addChild({
+		shift = { botBar.size.w / 3, 5 },
 		interactive = true,
-		bgColor = TB_MENU_DEFAULT_BG_COLOR,
-		hoverColor = { 0, 0, 0, 0.3 },
-		pressedColor = { 1, 0, 0, 0.2 }
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+		shapeType = ROUNDED,
+		rounded = 4
 	})
-	friendsRefresh:addCustomDisplay(false, function()
-			friendsRefresh:uiText(TB_MENU_LOCALIZED.FRIENDSLISTREFRESH)
-		end)
-	friendsRefresh:addMouseHandlers(nil, function()
+	friendsRefresh:addAdaptedText(TB_MENU_LOCALIZED.FRIENDSLISTREFRESH)
+	friendsRefresh:addMouseUpHandler(function()
 			local friendsView = viewElement.parent
 			viewElement:kill()
 			Friends:getOnline(friendsView)
@@ -375,8 +352,7 @@ function Friends:showFriends(viewElement)
 			headerTitle:uiText(TB_MENU_LOCALIZED.FRIENDSLISTTITLE, nil, nil, FONTS.BIG, nil, titleTextScale)
 		end)
 
-	local friendsView = UIElement:new({
-		parent = viewElement,
+	local friendsView = viewElement:addChild({
 		pos = { 0, headerTitle.size.h },
 		size = { viewElement.size.w, viewElement.size.h - headerTitle.size.h }
 	})
@@ -422,7 +398,7 @@ function Friends:showMenu(viewElement)
 	})
 	friendAddInputField:addEnterAction(function()
 			Friends:addFriend(friendAddInputField.textfieldstr[1])
-			Friends:showMain(viewElement.parent, true)
+			Friends:showMain(viewElement.parent)
 		end)
 	local addFriendButton = UIElement:new({
 		parent = friendAddInputBG,
@@ -448,11 +424,11 @@ function Friends:showMenu(viewElement)
 		end)
 	addFriendButton:addMouseHandlers(nil, function()
 			Friends:addFriend(friendAddInputField.textfieldstr[1])
-			Friends:showMain(viewElement.parent, true)
+			Friends:showMain(viewElement.parent)
 		end)
 end
 
-function Friends:showMain(viewElement, noWait)
+function Friends:showMain(viewElement)
 	usage_event("friendslist")
 	viewElement:kill(true)
 	TB_MENU_SPECIAL_SCREEN_ISOPEN = 8
@@ -463,7 +439,7 @@ function Friends:showMain(viewElement, noWait)
 		bgColor = TB_MENU_DEFAULT_BG_COLOR
 	})
 	TBMenu:addBottomBloodSmudge(friendsView, 1)
-	Friends:getOnline(friendsView, noWait)
+	Friends:getOnline(friendsView)
 
 	local friendsMenu = UIElement:new({
 		parent = viewElement,
