@@ -242,8 +242,35 @@ function Atmospheres.ShowShaderControls()
 		globalid = is_mobile() and TBHud.HubGlobalid or TB_MENU_HUB_GLOBALID,
 		pos = { 0, y + h - 90 },
 		size = { WIN_W, WIN_H - y - h + 90 },
-		bgColor = is_mobile() and { 1, 1, 1, 0.85 } or { 1, 1, 1, 0 }
+		interactive = is_mobile()
 	})
+	if (is_mobile()) then
+		viewElementHolder:addCustomDisplay(function()
+				local color = get_shader_option(0)
+				viewElementHolder.bgColor[1] = color[1]
+				viewElementHolder.bgColor[2] = color[2]
+				viewElementHolder.bgColor[3] = color[3]
+				viewElementHolder.bgColor[4] = 0.8
+			end, true)
+		viewElementHolder:addChild({
+			pos = { 0, -viewElementHolder.size.h - 15 },
+			size = { viewElementHolder.size.w, 15 },
+			bgGradient = { { 1, 1, 1, 1 }, { 1, 1, 1, 0 } },
+			imageColor = viewElementHolder.bgColor,
+			interactive = true
+		})
+		local function toggleHudButtons(state)
+			for _, v in pairs(TBHud.MiscButtonHolders) do
+				v:setVisible(state)
+			end
+			TBHud.ChatButtonHolder:setVisible(state)
+			TBHud.GhostButtonHolder:setVisible(state)
+			TBHud.CommitStepButtonHolder:setVisible(state)
+			TBHud.HoldAllButtonHolder:setVisible(state)
+		end
+		toggleHudButtons(false)
+		viewElementHolder.killAction = function() toggleHudButtons(true) end
+	end
 	local viewElement = viewElementHolder:addChild({
 		pos = { WIN_W / 10, 15 },
 		size = { WIN_W * 0.8, 60 },
