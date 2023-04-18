@@ -890,8 +890,8 @@ function Gamerules.showMain()
 		rounded = 3
 	})
 	local search = TBMenu:spawnTextField2(searchHolder, { x = 5, y = 5, w = searchHolder.size.w - 10, h = searchHolder.size.h - 45 }, nil, TB_MENU_LOCALIZED.SEARCHNOTE, {
-		fontId = FONTS.SMALL,
-		darkerMode = true
+		fontId = FONTS.LMEDIUM,
+		textScale = 0.65
 	})
 	local lastSearch = search.textfieldstr[1]
 	search:addKeyboardHandlers(nil, function()
@@ -904,11 +904,10 @@ function Gamerules.showMain()
 		end)
 	Gamerules.spawnMainList(listingHolder, toReload, gameRulesName, elementHeight, nil, gamerules, changedValues)
 
-	local grNewGameToggleView = UIElement:new({
-		parent = botBar,
+	local grNewGameToggleView = botBar:addChild({
 		pos = { 0, -35 },
 		size = { botBar.size.w / 2, 30 }
-	})
+	}, true)
 	local newGameToggle = TBMenu:spawnToggle(grNewGameToggleView, 5, 2, grNewGameToggleView.size.h - 4, grNewGameToggleView.size.h - 4, Gamerules.StartNewgame, function(val) Gamerules.StartNewgame = val set_option("grnewgame", val) end)
 	local grNewGameText = UIElement:new({
 		parent = grNewGameToggleView,
@@ -942,7 +941,7 @@ function Gamerules.showMain()
 					end
 				end
 			end
-			if (Gamerules.StartNewgame == 1) then
+			if (Gamerules.StartNewgame) then
 				Gamerules.MainElement:kill()
 				Gamerules.MainElement = nil
 				if (get_world_state().game_type == 1) then

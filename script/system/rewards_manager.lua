@@ -161,59 +161,77 @@ function Rewards:showMain(viewElement, rewardData)
 	local rewardClaimText = rewardClaim:addChild({
 		shift = { rewardClaim.size.w / 20, rewardClaim.size.h / 7 },
 	})
+
+	local doClaim
+	doClaim = function(attempt)
+		Request:queue(function() claim_reward() end, "loginreward", function()
+			local response = get_network_response()
+			response = response:gsub("REWARDS 0; ", "")
+			local rewardRes = { response:match(("(%d+)%s?"):rep(3)) }
+			if (rewardRes[1] == '1') then
+				if (not rewardClaimText or rewardClaimText.destroyed) then
+					return
+				end
+
+				if (rewardRes[2] == '0') then
+					rewardClaimText:addAdaptedText(false, TB_MENU_LOCALIZED.REWARDSNOAVAILABLE, nil, nil, FONTS.BIG)
+				elseif (rewardRes[2] == '1') then
+					if (attempt == 1) then
+						local timeleft = PlayerInfo.Get().getLoginRewards().timeLeft
+						local clock = os.clock_real()
+						refresh_reward()
+						add_hook("draw2d", "tbRewardsRewardRefresh", function()
+								if (PlayerInfo.Get().getLoginRewards().timeLeft ~= timeleft or os.clock_real() - clock > 5) then
+									remove_hooks("tbRewardsRewardRefresh")
+									doClaim(2)
+								end
+							end)
+						return
+					end
+					rewardClaimText:addAdaptedText(false, TB_MENU_LOCALIZED.REWARDSCLAIMTIMEOUT, nil, nil, FONTS.BIG)
+				else
+					rewardClaimText:addAdaptedText(false, TB_MENU_LOCALIZED.REWARDSCLAIMERROROTHER, nil, nil, FONTS.BIG)
+				end
+				rewardClaim:deactivate()
+			elseif (rewardRes[1] == '0') then
+				update_tc_balance()
+				TB_MENU_NOTIFICATIONS_COUNT = math.max(TB_MENU_NOTIFICATIONS_COUNT - 1, 0)
+
+				if (rewardClaimText and not rewardClaimText.destroyed) then
+					rewardClaimText:addAdaptedText(false, TB_MENU_LOCALIZED.REWARDSCLAIMSUCCESS, nil, nil, FONTS.BIG)
+					rewardClaim:deactivate()
+					TBMenu.NavigationBar:kill(true)
+					TBMenu:showNavigationBar(Notifications:getNavigationButtons(nil, true), true, true, TB_MENU_NOTIFICATIONS_LASTSCREEN)
+				end
+
+				-- Let's update balance instantly, no need to wait for update_tc_balance() to finish downloading customs
+				if (Rewards.RewardData[rewardData.days].tc ~= 0) then
+					TB_MENU_PLAYER_INFO.data.tc = TB_MENU_PLAYER_INFO.data.tc + Rewards.RewardData[rewardData.days].tc
+					if (TBMenu.MenuMain and not TBMenu.MenuMain.destroyed) then
+						TBMenu:showUserBar()
+					end
+				elseif (Rewards.RewardData[rewardData.days].item.itemid == 2528) then
+					TB_MENU_PLAYER_INFO.data.st = TB_MENU_PLAYER_INFO.data.st + 1
+					if (TBMenu.MenuMain and not TBMenu.MenuMain.destroyed) then
+						TBMenu:showUserBar()
+					end
+				end
+				Quests:updateLoginQuestStatus(true)
+				BattlePass:getUserData()
+			end
+		end, function()
+			if (rewardClaimText and not rewardClaimText.destroyed) then
+				rewardClaimText:addAdaptedText(false, TB_MENU_LOCALIZED.REWARDSCLAIMERROROTHER, nil, nil, FONTS.BIG)
+				rewardClaim:deactivate()
+			end
+		end)
+	end
+
 	if (rewardData.available) then
 		rewardClaimText:addAdaptedText(false, TB_MENU_LOCALIZED.REWARDSCLAIM, nil, nil, FONTS.BIG)
 		rewardClaim:addMouseHandlers(function() end, function()
 				rewardClaimText:addAdaptedText(false, TB_MENU_LOCALIZED.REWARDSCLAIMINPROGRESS .. "...", nil, nil, FONTS.BIG)
-				Request:queue(function() claim_reward() end, "loginreward", function()
-						local response = get_network_response()
-						response = response:gsub("REWARDS 0; ", "")
-						local rewardRes = { response:match(("(%d+)%s?"):rep(3)) }
-						if (rewardRes[1] == '1') then
-							if (not rewardClaimText or rewardClaimText.destroyed) then
-								return
-							end
-
-							if (rewardRes[2] == '0') then
-								rewardClaimText:addAdaptedText(false, TB_MENU_LOCALIZED.REWARDSNOAVAILABLE, nil, nil, FONTS.BIG)
-							elseif (rewardRes[2] == '1') then
-								rewardClaimText:addAdaptedText(false, TB_MENU_LOCALIZED.REWARDSCLAIMTIMEOUT, nil, nil, FONTS.BIG)
-							else
-								rewardClaimText:addAdaptedText(false, TB_MENU_LOCALIZED.REWARDSCLAIMERROROTHER, nil, nil, FONTS.BIG)
-							end
-							rewardClaim:deactivate()
-						elseif (rewardRes[1] == '0') then
-							update_tc_balance()
-							TB_MENU_NOTIFICATIONS_COUNT = math.max(TB_MENU_NOTIFICATIONS_COUNT - 1, 0)
-
-							if (rewardClaimText and not rewardClaimText.destroyed) then
-								rewardClaimText:addAdaptedText(false, TB_MENU_LOCALIZED.REWARDSCLAIMSUCCESS, nil, nil, FONTS.BIG)
-								rewardClaim:deactivate()
-								TBMenu.NavigationBar:kill(true)
-								TBMenu:showNavigationBar(Notifications:getNavigationButtons(nil, true), true, true, TB_MENU_NOTIFICATIONS_LASTSCREEN)
-							end
-
-							-- Let's update balance instantly, no need to wait for update_tc_balance() to finish downloading customs
-							if (Rewards.RewardData[rewardData.days].tc ~= 0) then
-								TB_MENU_PLAYER_INFO.data.tc = TB_MENU_PLAYER_INFO.data.tc + Rewards.RewardData[rewardData.days].tc
-								if (TBMenu.MenuMain and not TBMenu.MenuMain.destroyed) then
-									TBMenu:showUserBar()
-								end
-							elseif (Rewards.RewardData[rewardData.days].item.itemid == 2528) then
-								TB_MENU_PLAYER_INFO.data.st = TB_MENU_PLAYER_INFO.data.st + 1
-								if (TBMenu.MenuMain and not TBMenu.MenuMain.destroyed) then
-									TBMenu:showUserBar()
-								end
-							end
-							Quests:updateLoginQuestStatus(true)
-							BattlePass:getUserData()
-						end
-					end, function()
-						if (rewardClaimText and not rewardClaimText.destroyed) then
-							rewardClaimText:addAdaptedText(false, TB_MENU_LOCALIZED.REWARDSCLAIMERROROTHER, nil, nil, FONTS.BIG)
-							rewardClaim:deactivate()
-						end
-					end)
+				doClaim(1)
 			end)
 	else
 		rewardClaimText:addAdaptedText(false, TB_MENU_LOCALIZED.REWARDSNOAVAILABLE, nil, nil, FONTS.BIG)

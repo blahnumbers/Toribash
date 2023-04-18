@@ -1770,6 +1770,10 @@ function download_clan_logo(clanid) end
 ---Claims daily login reward, if available
 function claim_reward() end
 
+---Connects to reward server to refresh reward status. \
+---*This should only be used in case we receive a timeout error when attempting to claim the reward.*
+function refresh_reward() end
+
 ---Claims all available Battle Pass rewards
 function battlepass_claim_reward() end
 

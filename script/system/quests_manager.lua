@@ -105,8 +105,7 @@ function Quests:getQuests()
 	local fileData = file:readAll()
 	file:close()
 
-	---@type QuestData[]
-	local questData = {}
+	Quests.QuestsData = {}
 	local dataTypes = {
 		{ "id", numeric = true },
 		{ "type", numeric = true },
@@ -146,7 +145,7 @@ function Quests:getQuests()
 			quest.name = (quest.name and quest.name:len() > 0) and quest.name or Quests:getQuestName(quest)
 			quest.description = (quest.description and quest.description:len() > 0) and quest.description or Quests:getQuestObjective(quest)
 			quest.progresspercentage = math.min(1, quest.progress / quest.requirement)
-			table.insert(questData, quest)
+			table.insert(Quests.QuestsData, quest)
 
 			if (quest.progress >= quest.requirement) then
 				-- Handle special quest types
@@ -166,7 +165,7 @@ function Quests:getQuests()
 	end
 
 	---@type QuestData[]
-	Quests.QuestsData = table.qsort(questData, { "progresspercentage", "claimed" }, { SORT_DESCENDING, SORT_ASCENDING })
+	Quests.QuestsData = table.qsort(Quests.QuestsData, { "progresspercentage", "claimed" }, { SORT_DESCENDING, SORT_ASCENDING })
 end
 
 ---Adds hardcoded Battle Pass quests that automark themselves on completion
