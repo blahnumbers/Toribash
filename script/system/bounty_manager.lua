@@ -938,7 +938,7 @@ function Bounty:prepare(reload)
 	TB_MENU_SPECIAL_SCREEN_ISOPEN = 7
 	RoomList.RefreshIfNeeded()
 
-	if (table.empty(Bounty.DataList) or Bounty.LastUpdate + Bounty.StalePeriod < UIElement.clock or reload) then
+	if (#Bounty.DataList == 0 or Bounty.LastUpdate + Bounty.StalePeriod < UIElement.clock or reload) then
 		Bounty.DataList = {}
 		local loadingOverlay = TBMenu.CurrentSection:addChild({
 			pos = { 5, 0 },
