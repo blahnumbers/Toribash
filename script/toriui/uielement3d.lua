@@ -92,9 +92,10 @@ function UIElement3D.new(_self, o)
 	local elem = {
 		globalid = 1000,
 		child = {},
+		rot = { 0, 0, 0 },
 		rotXYZ = { x = 0, y = 0, z = 0 },
-		pos = {},
-		shift = {},
+		pos = { 0, 0, 0 },
+		shift = { 0, 0, 0 },
 		bgColor = { 1, 1, 1, 0 },
 		shapeType = CUBE
 	}

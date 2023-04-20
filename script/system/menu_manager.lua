@@ -1898,109 +1898,59 @@ end
 
 ---Displays top right user bar
 function TBMenu:showUserBar()
-	local tbMenuTopBarWidth = math.ceil(512 * (TB_MENU_GLOBAL_SCALE or 1))
+	local userBarImageWidth = math.ceil((SCREEN_RATIO > 2 and 1024 or 640) * (TB_MENU_GLOBAL_SCALE or 1))
+	local userBarWidth = math.min(userBarImageWidth, WIN_W / 2)
 	if (TBMenu.UserBar) then
 		TBMenu.UserBar:kill()
 		TBMenu.UserBar = nil
 	end
 
 	TBMenu.UserBar = TBMenu.MenuMain:addChild({
-		pos = { -tbMenuTopBarWidth, 0 },
-		size = { tbMenuTopBarWidth, 100 }
+		pos = { -userBarWidth, 0 },
+		size = { userBarWidth, 100 }
 	})
-	TBMenu.UserBar.headDisplayObjects = {}
 
-	local tbMenuUserBarBottomSplat = TBMenu.UserBar:addChild({
-		pos = { math.floor(-tbMenuTopBarWidth * 1.25) + 1, 0 },
-		size = { math.ceil(tbMenuTopBarWidth * 1.25), math.ceil(tbMenuTopBarWidth / 4) },
-		bgImage = TB_MENU_USERBAR_MAIN,
+	local userBarImage = TBMenu.UserBar:addChild({
+		pos = { 1, -TBMenu.UserBar.size.h - 1 },
+		size = { userBarImageWidth, userBarImageWidth / (SCREEN_RATIO > 2 and 8 or 5) },
+		bgImage = SCREEN_RATIO > 2 and TB_MENU_USERBAR_WIDE or TB_MENU_USERBAR_MAIN,
 		disableUnload = true,
 		imageColor = TB_MENU_DEFAULT_BG_COLOR,
 		interactive = is_mobile()
 	})
-	local tbMenuUserHeadAvatarViewport = TBMenu.UserBar:addChild({
-		pos = { -TBMenu.UserBar.size.w - tbMenuTopBarWidth / 16 * 5, -TBMenu.UserBar.size.h * 2.35 },
-		size = { tbMenuTopBarWidth * 0.7, tbMenuTopBarWidth * 0.7 },
-		viewport = true
+	local headViewportHolder = TBMenu.UserBar:addChild({
+		pos = { userBarImage.size.h * 0.7, -TBMenu.UserBar.size.h - userBarImage.size.h / 10 },
+		size = { userBarImage.size.h, userBarImage.size.h }
 	})
-	local tbMenuUserHeadAvatarViewport3D = UIElement3D:new({
-		globalid = TB_MENU_MAIN_GLOBALID,
-		shapeType = VIEWPORT,
-		parent = tbMenuUserHeadAvatarViewport,
-		pos = { 0, 0, 0 },
-		size = { 0, 0, 0 },
-		rot = { 0, 0, 0 },
-		viewport = true
-	})
-	local playerHeadHolder = tbMenuUserHeadAvatarViewport3D:addChild({
-		shapeType = SPHERE,
-		pos = { 0, 6, 5.7 + 4 * TB_MENU_GLOBAL_SCALE },
-		size = { 0.6, 0.6, 0.6 }
-	})
-	if (UIElement.lightUIMode) then
-		playerHeadHolder:rotate(0, 0, -16)
-	else
+	local headViewport = TBMenu:showPlayerHeadAvatar(headViewportHolder, TB_MENU_PLAYER_INFO, true)
+	TBMenu.UserBar.headDisplayObjects = headViewport.avatarObjects
+	if (not UIElement.lightUIMode) then
 		local headRotation = math.pi / 2
-		playerHeadHolder:addCustomDisplay(true, function()
-				playerHeadHolder:rotate(0, 0, math.cos(headRotation))
+		headViewport.rootHolder:addCustomDisplay(true, function()
+				headViewport.rootHolder:rotate(0, 0, math.cos(headRotation))
 				headRotation = headRotation + math.pi / 570
 			end)
 	end
-	local color = get_color_info(TB_MENU_PLAYER_INFO.items.colors.force)
-	local headAvatarNeck = playerHeadHolder:addChild({
-		pos = { 0, 0.2, -0.48},
-		size = { 0.5, 0, 0 },
-		shapeType = SPHERE,
-		bgColor = { color.r, color.g, color.b, 1 },
-		effects = TB_MENU_PLAYER_INFO.items.effects.force
+
+	local safe_x, _, safe_w, _ = get_window_safe_size()
+	safe_x = math.max(safe_x, WIN_W - safe_x - safe_w, SCREEN_RATIO > 2 and 30 or 10)
+	local infoHolder = TBMenu.UserBar:addChild({
+		pos = { userBarImage.size.h * 1.75, 10 },
+		size = { TBMenu.UserBar.size.w - userBarImage.size.h * 1.75 - safe_x, userBarImage.size.h * 0.9 - 20 }
 	})
-	table.insert(TBMenu.UserBar.headDisplayObjects, headAvatarNeck)
-	local headTexture = { "../../custom/tori/head.tga", "../../custom/tori/head.tga" }
-	if (TB_MENU_PLAYER_INFO.items.textures.head.equipped) then
-		headTexture[1] = "../../custom/" .. TB_MENU_PLAYER_INFO.username .. "/head.tga"
-	end
-	local headAvatarHead = playerHeadHolder:addChild({
-		shapeType = SPHERE,
-		pos = { 0, 0, 0.2 },
-		size = { 0.9, 0, 0 },
-		bgColor = { 1, 1, 1, 1 },
-		bgImage = headTexture,
-		disableUnload = true,
-		effects = TB_MENU_PLAYER_INFO.items.effects.head
-	})
-	table.insert(TBMenu.UserBar.headDisplayObjects, headAvatarHead)
-	if (TB_MENU_PLAYER_INFO.items.objs.head.equipped) then
-		local objScale = TB_MENU_PLAYER_INFO.items.objs.head.dynamic and 2 or 10
-		if (TB_MENU_PLAYER_INFO.items.objs.head.partless and headAvatarHead) then
-			headAvatarHead:kill()
-		end
-		local modelColor = get_color_info(TB_MENU_PLAYER_INFO.items.objs.head.colorid)
-		modelColor.a = TB_MENU_PLAYER_INFO.items.objs.head.alpha / 255
-		local headObjModel = playerHeadHolder:addChild({
-			shapeType = CUSTOMOBJ,
-			objModel = "../../custom/" .. TB_MENU_PLAYER_INFO.username .. "/head",
-			disableUnload = true,
-			pos = { 0, 0, 0.2 },
-			size = { objScale * 0.9, objScale * 0.9, objScale * 0.9 },
-			bgColor = { modelColor.r, modelColor.g, modelColor.b, modelColor.a }
-		})
-		table.insert(TBMenu.UserBar.headDisplayObjects, headObjModel)
-	end
-	local tbMenuUserName = TBMenu.UserBar:addChild( {
-		pos = { tbMenuTopBarWidth / 6, tbMenuTopBarWidth / 50 },
-		size = { tbMenuTopBarWidth / 1.5, tbMenuTopBarWidth / 20 }
+	local clanDisplayed = TB_MENU_PLAYER_INFO.clan.id ~= 0
+	local tbMenuUserName = infoHolder:addChild({
+		pos = { 0, 0 },
+		size = { infoHolder.size.w / 2, math.min(40, infoHolder.size.h / (clanDisplayed and 2.6 or 2)) },
+		shadowOffset = 0
 	})
 	local displayName = TB_MENU_PLAYER_INFO.username == "" and "Tori" or TB_MENU_PLAYER_INFO.username
-	tbMenuUserName.size.w = get_string_length(displayName, 0) * 0.55 + 10
-	tbMenuUserName:addCustomDisplay(false, function()
-			tbMenuUserName:uiText(displayName, tbMenuUserName.pos.x + 2, tbMenuUserName.pos.y + 2, 0, 0, 0.55, nil, nil, {0,0,0,0.2}, nil, 0)
-			tbMenuUserName:uiText(displayName, nil, nil, 0, 0, 0.55, nil, nil, nil, nil, 0.5)
-		end)
+	tbMenuUserName:addAdaptedText(true, displayName, nil, nil, 0, LEFTMID, 0.7, nil, 0.5, 2)
+	tbMenuUserName.size.w = get_string_length(tbMenuUserName.dispstr[1], tbMenuUserName.textFont) * tbMenuUserName.textScale + 15
 
-	local accountButton = UIElement:new({
-		parent = TBMenu.UserBar,
-		pos = { tbMenuUserName.shift.x + tbMenuUserName.size.w, tbMenuUserName.shift.y + 3 },
-		size = { TBMenu.UserBar.size.w - tbMenuUserName.shift.x * 2, tbMenuUserName.size.h },
+	local accountButton = infoHolder:addChild({
+		pos = { tbMenuUserName.shift.x + tbMenuUserName.size.w, tbMenuUserName.shift.y + 2 },
+		size = { infoHolder.size.w - tbMenuUserName.shift.x * 2, tbMenuUserName.size.h - 4 },
 		interactive = true,
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
@@ -2008,15 +1958,15 @@ function TBMenu:showUserBar()
 		shapeType = ROUNDED,
 		rounded = tbMenuUserName.size.h
 	})
-	accountButton:addAdaptedText(nil, TB_MENU_LOCALIZED.NAVBUTTONACCOUNT, 15, nil, 4, LEFTMID, 0.7)
-	accountButton.size.w = get_string_length(accountButton.dispstr[1], accountButton.textFont) * accountButton.textScale + 30
+	accountButton:addAdaptedText(nil, TB_MENU_LOCALIZED.NAVBUTTONACCOUNT, 15, nil, 4, LEFTMID, 0.65)
+	accountButton.size.w = get_string_length(accountButton.dispstr[1], accountButton.textFont) * accountButton.textScale + accountButton.size.h + 30
 	accountButton:addCustomDisplay(false, function() end)
-	local accountButtonText = UIElement:new({
-		parent = accountButton,
-		pos = { 10, accountButton.size.h * 0.05 },
-		size = { accountButton.size.w - 20, accountButton.size.h * 0.9 }
+	local accountButtonText = accountButton:addChild({
+		shift = { 10, accountButton.size.h * 0.05 },
 	})
-	TBMenu:showTextWithImage(accountButtonText, TB_MENU_LOCALIZED.NAVBUTTONACCOUNT, 4, accountButtonText.size.h * 0.75, TB_MENU_LOGOUT_BUTTON)
+	TBMenu:showTextWithImage(accountButtonText, TB_MENU_LOCALIZED.NAVBUTTONACCOUNT, 4, accountButtonText.size.h * 0.8, TB_MENU_LOGOUT_BUTTON, {
+		maxTextScale = 0.65
+	})
 	accountButton:addMouseHandlers(nil, function()
 			if (string.len(PlayerInfo.Get().username) > 0) then
 				TBMenu:showAccountMain()
@@ -2025,145 +1975,149 @@ function TBMenu:showUserBar()
 			end
 		end)
 
-	--[[
-	local tbMenuLogoutButton = TBMenu:createImageButtons(TBMenu.UserBar, tbMenuTopBarWidth / 6 + 10 + get_string_length(displayName, 0) * 0.55, tbMenuTopBarWidth / 34, tbMenuTopBarWidth / 20, tbMenuTopBarWidth / 20, TB_MENU_LOGOUT_BUTTON, TB_MENU_LOGOUT_BUTTON_HOVER, TB_MENU_LOGOUT_BUTTON_PRESS)
-	tbMenuLogoutButton:addMouseHandlers(nil, function()
-			open_menu(18)
-		end, nil)
-	]]
-
-	local tbMenuClan = UIElement:new( {
-		parent = TBMenu.UserBar,
-		pos = { tbMenuTopBarWidth / 6, tbMenuTopBarWidth / 11.5 },
-		size = { tbMenuTopBarWidth / 1.5, tbMenuTopBarWidth / 25 }
-	})
-	if (TB_MENU_GLOBAL_SCALE < 1) then
-		tbMenuClan:hide()
-	end
-	if (TB_MENU_PLAYER_INFO.clan.id ~= 0) then
-		tbMenuClan:addAdaptedText(true, TB_MENU_LOCALIZED.MAINMENUUSERCLAN .. ": " .. TB_MENU_PLAYER_INFO.clan.tag .. ((TB_MENU_PLAYER_INFO.clan.name ~= '') and ("  |  " .. TB_MENU_PLAYER_INFO.clan.name) or ''), nil, nil, 4, 0, 0.6)
+	local infoOffset = tbMenuUserName.shift.y + tbMenuUserName.size.h
+	local tbMenuClan = nil
+	if (clanDisplayed) then
+		tbMenuClan = infoHolder:addChild({
+			pos = { 0, infoOffset },
+			size = { infoHolder.size.w - infoHolder.size.h, infoHolder.size.h / 4 }
+		})
+		if (TB_MENU_PLAYER_INFO.clan.id ~= 0) then
+			tbMenuClan:addAdaptedText(true, TB_MENU_LOCALIZED.MAINMENUUSERCLAN .. ": " .. TB_MENU_PLAYER_INFO.clan.tag .. ((TB_MENU_PLAYER_INFO.clan.name ~= '') and ("  |  " .. TB_MENU_PLAYER_INFO.clan.name) or ''), nil, nil, 4, LEFT, math.max(0.55, tbMenuUserName.textScale))
+		end
+		infoOffset = infoOffset + tbMenuClan.size.h
+	else
+		infoOffset = infoOffset + infoHolder.size.h / 10
 	end
 
-	local tbMenuUserTcView = UIElement:new( {
-		parent = TBMenu.UserBar,
-		pos = { tbMenuTopBarWidth / 6, tbMenuTopBarWidth / 8 },
-		size = { tbMenuTopBarWidth / 3, tbMenuTopBarWidth / 20 },
-		bgColor = table.clone(TB_MENU_DEFAULT_BG_COLOR),
+	local tcView = infoHolder:addChild({
+		pos = { 0, infoOffset },
+		size = { (infoHolder.size.w - infoHolder.size.h - 20) / 2, clanDisplayed and infoHolder.size.h / 3 or infoHolder.size.h / 2.5 },
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
 		interactive = true,
 		hoverSound = 31,
 		shapeType = ROUNDED,
-		rounded = 13
+		rounded = infoHolder.size.h
 	})
-	tbMenuUserTcView.bgColor[4] = 0.01
-	local tcPopup = TBMenu:displayPopup(tbMenuUserTcView, TB_MENU_LOCALIZED.USERBARTCINFO)
-	tbMenuUserTcView:addMouseHandlers(nil, function()
+	local tcPopup = TBMenu:displayPopup(tcView, TB_MENU_LOCALIZED.USERBARTCINFO)
+	tcView:addMouseHandlers(nil, function()
 			if (TB_STORE_DATA.ready) then
 				Torishop:showStoreSection(TBMenu.CurrentSection, 4, 1)
 				tcPopup:reload()
 			end
 		end)
-	tcPopup:moveTo(nil, 36, true)
 
-	local tbMenuUserTcIcon = UIElement:new( {
-		parent = tbMenuUserTcView,
-		pos = { 0, -tbMenuUserTcView.size.h - 1.5 },
-		size = { tbMenuUserTcView.size.h + 3, tbMenuUserTcView.size.h + 3 },
-		bgImage = "../textures/store/toricredit_tiny.tga",
+	local tcIcon = tcView:addChild({
+		pos = { 0, -tcView.size.h - 1 },
+		size = { tcView.size.h + 3, tcView.size.h + 3 },
+		bgImage = "../textures/store/toricredit.tga",
 		disableUnload = true
 	})
-	local tbMenuUserTcBalance = UIElement:new( {
-		parent = tbMenuUserTcView,
-		pos = { tbMenuUserTcView.size.h + 10, 0 },
-		size = { tbMenuUserTcView.size.w - tbMenuUserTcIcon.size.w - 5, tbMenuUserTcView.size.h }
+	local tcBalance = tcView:addChild({
+		pos = { tcView.size.h + 10, 0 },
+		size = { tcView.size.w - tcIcon.size.w - 5, tcView.size.h }
 	})
-	tbMenuUserTcBalance:addAdaptedText(true, numberFormat(TB_MENU_PLAYER_INFO.data.tc), nil, nil, 2, 6, 0.9)
-	tbMenuUserTcView.size.w = get_string_length(tbMenuUserTcBalance.dispstr[1], tbMenuUserTcBalance.textFont) * tbMenuUserTcBalance.textScale + 50
+	tcBalance:addAdaptedText(true, numberFormat(TB_MENU_PLAYER_INFO.data.tc), nil, nil, 2, LEFTMID, 0.9)
+	tcView.size.w = get_string_length(tcBalance.dispstr[1], tcBalance.textFont) * tcBalance.textScale + tcView.size.h + 30
+	tcPopup:moveTo(math.min(tcPopup.shift.x, -tcView.size.w - (tcPopup.size.w - tcView.size.w) / 2), tcView.size.h + 5)
 
-	local tbMenuUserStView = UIElement:new( {
-		parent = TBMenu.UserBar,
-		pos = { tbMenuTopBarWidth / 2, tbMenuTopBarWidth / 8 },
-		size = { tbMenuTopBarWidth / 5, tbMenuTopBarWidth / 20 },
-		bgColor = table.clone(TB_MENU_DEFAULT_BG_COLOR),
+	local stView = infoHolder:addChild({
+		pos = { tcView.shift.x + tcView.size.w + 15, tcView.shift.y },
+		size = { (infoHolder.size.w - infoHolder.size.h - 20) / 2 - 15, tcView.size.h },
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
 		interactive = true,
 		hoverSound = 31,
 		shapeType = ROUNDED,
-		rounded = 13
+		rounded = tcView.size.h
 	})
-	tbMenuUserStView.bgColor[4] = 0.01
-	local stPopup = TBMenu:displayPopup(tbMenuUserStView, TB_MENU_LOCALIZED.USERBARSTINFO)
-	tbMenuUserStView:addMouseHandlers(nil, function()
+	local stPopup = TBMenu:displayPopup(stView, TB_MENU_LOCALIZED.USERBARSTINFO)
+	stView:addMouseHandlers(nil, function()
 			if (TB_STORE_DATA.ready) then
 				Torishop:showStoreSection(TBMenu.CurrentSection, 4, 2)
 				stPopup:reload()
 			end
 		end)
-	stPopup:moveTo(nil, 36, true)
 
-	local tbMenuUserStIcon = UIElement:new( {
-		parent = tbMenuUserStView,
-		pos = { 0, -tbMenuUserStView.size.h - 1.5 },
-		size = { tbMenuUserStView.size.h + 3, tbMenuUserStView.size.h + 3},
-		bgImage = "../textures/store/shiaitoken_tiny.tga",
+	local stIcon = stView:addChild({
+		pos = { 0, -stView.size.h - 1 },
+		size = { stView.size.h + 2, stView.size.h + 2 },
+		bgImage = "../textures/store/shiaitoken.tga",
 		disableUnload = true
 	})
-	local tbMenuUserStBalance = UIElement:new( {
-		parent = tbMenuUserStView,
-		pos = { tbMenuUserStView.size.h + 10, 0 },
-		size = { tbMenuUserStView.size.w - 30, tbMenuUserStView.size.h }
+	local stBalance = stView:addChild( {
+		pos = { stView.size.h + 10, 0 },
+		size = { stView.size.w - stIcon.size.w - 5, stView.size.h }
 	})
-	tbMenuUserStBalance:addAdaptedText(true, numberFormat(TB_MENU_PLAYER_INFO.data.st), nil, 1, 2, 6, 0.9)
-	tbMenuUserStView.size.w = get_string_length(tbMenuUserStBalance.dispstr[1], tbMenuUserStBalance.textFont) * tbMenuUserStBalance.textScale + 50
+	stBalance:addAdaptedText(true, numberFormat(TB_MENU_PLAYER_INFO.data.st), nil, nil, 2, LEFTMID, 0.9)
+	stView.size.w = get_string_length(stBalance.dispstr[1], stBalance.textFont) * stBalance.textScale + stView.size.h + 30
+	stPopup:moveTo(math.min(stPopup.shift.x, -stView.size.w - (stPopup.size.w - stView.size.w) / 2), stView.size.h + 5)
 
-	local tbMenuUserBeltIcon = UIElement:new({
-		parent = TBMenu.UserBar,
-		pos = { -tbMenuTopBarWidth / 4, 0 },
-		size = { tbMenuTopBarWidth / 4.5, tbMenuTopBarWidth / 4.5 },
+	local userBelt = infoHolder:addChild({
+		pos = { -infoHolder.size.h - 20, -infoHolder.size.h - 10 },
+		size = { infoHolder.size.h + 20, infoHolder.size.h + 20 },
 		bgImage = TB_MENU_PLAYER_INFO.data.belt.icon,
 		disableUnload = true
 	})
-	local tbMenuUserQi = UIElement:new( {
-		parent = TBMenu.UserBar,
-		pos = { -tbMenuTopBarWidth / 4, tbMenuTopBarWidth / 10 },
-		size = { tbMenuTopBarWidth / 4.5, tbMenuTopBarWidth / 13 }
+	local beltTitle = userBelt:addChild({
+		pos = { 0, userBelt.size.h / 2 },
+		size = { userBelt.size.w, userBelt.size.h / 2 - 10 },
+		uiShadowColor = UICOLORBLACK,
+		shadowOffset = 1
 	})
-	tbMenuUserQi:addAdaptedText(true, TB_MENU_PLAYER_INFO.data.belt.name .. " " .. TB_MENU_LOCALIZED.WORDBELT, nil, nil, 2, nil, nil, nil, nil, 1)
+	beltTitle:addAdaptedText(TB_MENU_PLAYER_INFO.data.belt.name .. " " .. TB_MENU_LOCALIZED.WORDBELT, nil, nil, 2, nil, nil, nil, nil, 1)
 
 	TB_MENU_CUSTOMS_REFRESHED = false
 	TBMenu.UserBar:addCustomDisplay(false, function()
 			if (TB_MENU_CUSTOMS_REFRESHED) then
 				TB_MENU_CUSTOMS_REFRESHED = false
 
-				tbMenuUserTcBalance:addAdaptedText(true, numberFormat(TB_MENU_PLAYER_INFO.data.tc), nil, 1, 2, 6, 0.9)
-				tbMenuUserTcView.size.w = get_string_length(tbMenuUserTcBalance.dispstr[1], tbMenuUserTcBalance.textFont) * tbMenuUserTcBalance.textScale + 50
+				tcBalance.size.w = infoHolder.size.w / 3
+				tcBalance:addAdaptedText(true, numberFormat(TB_MENU_PLAYER_INFO.data.tc), nil, nil, tcBalance.textFont, LEFTMID, tcBalance.textScale)
+				tcView.size.w = get_string_length(tcBalance.dispstr[1], tcBalance.textFont) * tcBalance.textScale + tcView.size.h + 30
+				tcPopup:moveTo(-tcView.size.w - (tcPopup.size.w - tcView.size.w) / 2, tcView.size.h + 5)
 
-				tbMenuUserStBalance:addAdaptedText(true, numberFormat(TB_MENU_PLAYER_INFO.data.st), nil, 1, 2, 6, 0.9)
-				tbMenuUserStView.size.w = get_string_length(tbMenuUserStBalance.dispstr[1], tbMenuUserStBalance.textFont) * tbMenuUserStBalance.textScale + 50
+				stView:moveTo(tcView.shift.x + tcView.size.w + 20)
+				stBalance.size.w = infoHolder.size.w / 3
+				stBalance:addAdaptedText(true, numberFormat(TB_MENU_PLAYER_INFO.data.st), nil, nil, stBalance.textFont, LEFTMID, stBalance.textScale)
+				stView.size.w = get_string_length(stBalance.dispstr[1], stBalance.textFont) * stBalance.textScale + stView.size.h + 30
+				stPopup:moveTo(-stView.size.w - (stPopup.size.w - stView.size.w) / 2, stView.size.h + 5)
 
-				if (TB_MENU_PLAYER_INFO.clan.id ~= 0) then
+				if (TB_MENU_PLAYER_INFO.clan.id ~= 0 and tbMenuClan) then
 					tbMenuClan:addAdaptedText(true, TB_MENU_LOCALIZED.MAINMENUUSERCLAN .. ": " .. TB_MENU_PLAYER_INFO.clan.tag .. ((TB_MENU_PLAYER_INFO.clan.name ~= '') and ("  |  " .. TB_MENU_PLAYER_INFO.clan.name) or ''), nil, nil, 4, 0, 0.6)
 				end
-				tbMenuUserBeltIcon:updateImage(TB_MENU_PLAYER_INFO.data.belt.icon)
-				tbMenuUserQi:addAdaptedText(true, TB_MENU_PLAYER_INFO.data.belt.name .. " belt", nil, nil, 2, nil, nil, nil, nil, 1)
+				userBelt:updateImage(TB_MENU_PLAYER_INFO.data.belt.icon)
+				beltTitle:addAdaptedText(true, TB_MENU_PLAYER_INFO.data.belt.name .. " " .. TB_MENU_LOCALIZED.WORDBELT, nil, nil, 2, nil, nil, nil, nil, 1)
 			end
 		end)
 end
 
+---@class TBHeadAvatarViewport : UIElement
+---@field objectViewport UIElement3D
+---@field rootHolder UIElement3D
+---@field avatarObjects UIElement3D[]
+
 ---Generic function to display player head in a viewport
 ---@param viewElement UIElement
 ---@param player PlayerInfo
----@overload fun(self:TBMenu, viewElement:UIElement, player:string)
-function TBMenu:showPlayerHeadAvatar(viewElement, player)
-	local viewportSize = viewElement.size.w > viewElement.size.h and viewElement.size.h or viewElement.size.w
-	local headViewport = viewElement:addChild( {
-		pos = { (viewElement.size.w - viewportSize) / 2, (viewElement.size.h - viewportSize) / 2 },
+---@param extraSize ?boolean
+---@return TBHeadAvatarViewport
+---@overload fun(self:TBMenu, viewElement:UIElement, player:string, extraSize?:boolean):TBHeadAvatarViewport
+function TBMenu:showPlayerHeadAvatar(viewElement, player, extraSize)
+	local viewportSize = math.min(viewElement.size.w, viewElement.size.h) * (extraSize == true and 2 or 1)
+
+	---@type TBHeadAvatarViewport
+	---@diagnostic disable-next-line: assign-type-mismatch
+	local headViewport = viewElement:addChild({
+		pos = { -viewElement.size.w - math.abs((viewElement.size.w - viewportSize) / 2), -viewElement.size.h - math.abs((viewElement.size.h - viewportSize) / 2) },
 		size = { viewportSize, viewportSize },
 		viewport = true
 	})
-	local headViewport3D = UIElement3D:new({
+	headViewport.avatarObjects = {}
+	headViewport.objectViewport = UIElement3D:new({
 		globalid = viewElement.globalid,
 		shapeType = VIEWPORT,
 		parent = headViewport,
@@ -2171,6 +2125,11 @@ function TBMenu:showPlayerHeadAvatar(viewElement, player)
 		size = { 0, 0, 0 },
 		rot = { 0, 0, 0 },
 		viewport = true
+	})
+	headViewport.rootHolder = headViewport.objectViewport:addChild({
+		shapeType = CUBE,
+		size = { 0, 0, 0 },
+		rot = { 0, 0, -10 }
 	})
 
 	local playerName = ""
@@ -2193,39 +2152,40 @@ function TBMenu:showPlayerHeadAvatar(viewElement, player)
 	if (customs.textures.head.equipped) then
 		headTexture[1] = "../../custom/" .. playerName .. "/head.tga"
 	end
-	local color = get_color_info(customs.colors.force)
-	local playerNeckHolder = headViewport3D:addChild({
+	local playerHeadHolder = headViewport.rootHolder:addChild({
 		shapeType = SPHERE,
-		pos = { -0.04, 0.18, 9.22},
-		size = { 0.5, 0, 0 },
-		bgColor = { color.r, color.g, color.b, 1 },
-		effects = customs.effects.force
-	})
-	local playerHeadHolder = headViewport3D:addChild({
-		shapeType = SPHERE,
-		pos = { 0, 0, 9.9 },
-		size = { 0.9, 0, 0 },
-		rot = { 0, 0, -10 },
+		pos = { 0, 0, 10 },
+		size = { extraSize and 0.45 or 0.9, 0, 0 },
 		bgColor = { 1, 1, 1, 1 },
 		bgImage = headTexture,
 		effects = customs.effects.head
 	})
+	table.insert(headViewport.avatarObjects, playerHeadHolder)
+	local playerNeckHolder = playerHeadHolder:addChild({
+		shapeType = SPHERE,
+		pos = { 0, playerHeadHolder.size.x / 9 * 1.8, -playerHeadHolder.size.x / 9 * 5.8},
+		size = { playerHeadHolder.size.x / 9 * 5, 0, 0 },
+		bgColor = get_color_rgba(customs.colors.force),
+		effects = customs.effects.force
+	})
+	table.insert(headViewport.avatarObjects, playerNeckHolder)
 	if (customs.objs.head.equipped) then
 		local objScale = customs.objs.head.dynamic and 2 or 10
 		if (customs.objs.head.partless and playerHeadHolder) then
 			playerHeadHolder:kill()
 		end
-		local modelColor = get_color_info(customs.objs.head.colorid)
-		modelColor.a = customs.objs.head.alpha / 255
-		local headObjModel = headViewport3D:addChild({
+		local modelColor = get_color_rgba(customs.objs.head.colorid)
+		modelColor[4] = customs.objs.head.alpha / 255
+		local headObjModel = playerHeadHolder:addChild({
 			shapeType = CUSTOMOBJ,
 			objModel = "../../custom/" .. playerName .. "/head",
-			pos = { 0, 0, 9.7 },
-			rot = { 0, 0, -10 },
-			size = { objScale * 0.9, objScale * 0.9, objScale * 0.9 },
-			bgColor = { modelColor.r, modelColor.g, modelColor.b, modelColor.a }
+			size = { objScale * playerHeadHolder.size.x, objScale * playerHeadHolder.size.x, objScale * playerHeadHolder.size.x },
+			bgColor = modelColor
 		})
+		table.insert(headViewport.avatarObjects, headObjModel)
 	end
+
+	return headViewport
 end
 
 -- TBMenu navigation button data
@@ -2236,6 +2196,7 @@ end
 ---@field action function Function that will be executed when button is pressed
 ---@field right boolean If true, button will be displayed on the right side of the navigation bar
 ---@field sectionId integer Menu section id that will be assigned to TB_LAST_MENU_SCREEN_OPEN on button click
+---@field adapted string[] Adapted button text, only used for mobile nav buttons
 
 ---Displays mobile navigation bar using the provided data.
 ---@see TBMenu.showNavigationBar
@@ -2267,28 +2228,52 @@ function TBMenu:showMobileNavigationBar(buttonsData, customNav, customNavHighlig
 		interactive = is_mobile()
 	})
 
-	---Unlike with horizontal menu, button height and width is always the same
-	---We only need to calculate target font scale so that we can render all captions at the same size
+	---Unlike with horizontal menu, button always have the same width but may be multiline.
+	---We need to calculate target font scale to render all captions at the same size and see whether
+	---buttons with long text can be newlined and still fit the navigation
 
-	local buttonHeight = math.min((TBMenu.NavigationBar.size.h - navY.t[1] - navY.b[1]) / (#tbMenuNavigationButtonsData + 1), 60)
+	local navbarArea = TBMenu.NavigationBar.size.h - navY.t[1] - navY.b[1]
+	local buttonHeight = math.min(navbarArea / (#tbMenuNavigationButtonsData + 1), 60)
 	local fontScale = 0.65
 	local fontId = FONTS.BIG
 
 	local targetWidth = 500000
 	while (targetWidth > TBMenu.NavigationBar.size.w) do
+		local availableHeight = navbarArea - buttonHeight
 		fontScale = fontScale - 0.05
 		local runMaxWidth = 0
 		for _, v in pairs(tbMenuNavigationButtonsData) do
-			local currentWidth = get_string_length(v.text, fontId) * fontScale + 20
-			if (v.misctext) then
-				currentWidth = currentWidth + get_string_length(v.misctext, fontId) * fontScale * 0.8 + 20
-			end
-			runMaxWidth = math.max(runMaxWidth, currentWidth)
-			if (runMaxWidth > TBMenu.NavigationBar.size.w) then
-				break
+			availableHeight = availableHeight - buttonHeight
+
+			local currentWidth = get_string_length(v.text, fontId) * fontScale + 30
+			local miscTextWidth = v.misctext and (get_string_length(v.misctext, fontId) * fontScale * 0.8 + 20) or 0
+			currentWidth = currentWidth + miscTextWidth
+
+			if (currentWidth > TBMenu.NavigationBar.size.w) then
+				v.adapted = textAdapt(v.text, fontId, fontScale, TBMenu.NavigationBar.size.w - 30, true)
+
+				local lastStringWidth = get_string_length(v.adapted[#v.adapted], fontId) * fontScale + 30
+				if (lastStringWidth + miscTextWidth > TBMenu.NavigationBar.size.w) then
+					if (miscTextWidth > 0) then
+						table.insert(v.adapted, v.misctext)
+						lastStringWidth = miscTextWidth
+					else
+						runMaxWidth = 500000
+						break
+					end
+				end
+				availableHeight = availableHeight + buttonHeight - (#v.adapted * buttonHeight * 0.75)
+				if (availableHeight < 0) then
+					runMaxWidth = 500000
+					break
+				end
+				runMaxWidth = math.max(runMaxWidth, TBMenu.NavigationBar.size.w)
+			else
+				v.adapted = { v.text }
+				runMaxWidth = math.max(runMaxWidth, currentWidth)
 			end
 		end
-		if (fontScale < 0.55 and fontId == FONTS.BIG) then
+		if (fontScale < 0.45 and fontId == FONTS.BIG) then
 			fontId = FONTS.MEDIUM
 			fontScale = 1.05
 		else
@@ -2298,17 +2283,18 @@ function TBMenu:showMobileNavigationBar(buttonsData, customNav, customNavHighlig
 
 	for i, v in pairs(tbMenuNavigationButtonsData) do
 		local navY = v.right and navY.b or navY.t
+		local height = buttonHeight * math.max(1, #v.adapted * 0.75)
 		tbMenuNavigationButtons[i] = UIElement:new({
 			parent = TBMenu.NavigationBar,
-			pos = { 0, v.right and navY[1] - buttonHeight or navY[1] },
-			size = { TBMenu.NavigationBar.size.w, buttonHeight },
+			pos = { 0, v.right and navY[1] - height or navY[1] },
+			size = { TBMenu.NavigationBar.size.w, height },
 			bgColor = { 0.2, 0.2, 0.2, 0 },
 			interactive = true,
 			hoverColor = TB_MENU_DEFAULT_BG_COLOR,
 			pressedColor = TB_MENU_DEFAULT_DARKER_COLOR,
 			hoverSound = 31
 		})
-		navY[1] = v.right and navY[1] - buttonHeight or navY[1] + buttonHeight
+		navY[1] = v.right and navY[1] - tbMenuNavigationButtons[i].size.h or navY[1] + tbMenuNavigationButtons[i].size.h
 		if ((not customNav and TB_LAST_MENU_SCREEN_OPEN == v.sectionId) or (customNav and customNavHighlight and selectedId == v.sectionId)) then
 			tbMenuNavigationButtons[i].bgColor = TB_MENU_DEFAULT_BG_COLOR
 		end
@@ -2327,17 +2313,24 @@ function TBMenu:showMobileNavigationBar(buttonsData, customNav, customNavHighlig
 		local buttonText = tbMenuNavigationButtons[i]:addChild({ shift = { 15, buttonHeight / 6 } })
 		if (v.misctext) then
 			local width = get_string_length(v.misctext, fontId) * fontScale * 0.8 + 20
-			local miscMark = UIElement:new({
-				parent = buttonText,
-				pos = { -(buttonText.size.w - get_string_length(v.text, fontId) * fontScale + width - 16) / 2, buttonText.size.h * 0.125 },
-				size = { width, buttonText.size.h * 0.75 },
+			local newlined = v.adapted[#v.adapted] == v.misctext
+			local miscMark = buttonText:addChild({
+				pos = { newlined and (buttonText.size.w - width) / 2 or -(buttonText.size.w - get_string_length(v.adapted[#v.adapted], fontId) * fontScale + width - 16) / 2, -buttonHeight * 0.55 },
+				size = { width, buttonHeight * 0.5 },
 				bgColor = TB_MENU_DEFAULT_ORANGE,
 				uiColor = UICOLORBLACK,
 				shapeType = ROUNDED,
 				rounded = buttonText.size.h / 2
 			})
 			miscMark:addAdaptedText(false, v.misctext, nil, nil, fontId, nil, fontScale * 0.8, nil, 0.7)
-			buttonText:addAdaptedText(true, v.text, -width / 2, nil, fontId, nil, fontScale)
+			if (#v.adapted == 1 or newlined) then
+				buttonText:addAdaptedText(true, v.text .. (newlined and "\n" or ''), not newlined and -width / 2, nil, fontId, nil, fontScale)
+			else
+				local textLines = table.clone(v.adapted)
+				table.remove(textLines)
+				buttonText:addAdaptedText(true, table.implode(textLines, "\n") .. "\n", nil, nil, fontId, nil, fontScale)
+				buttonText:addChild({}):addAdaptedText(true, string.rep("\n", #v.adapted - 1) .. v.adapted[#v.adapted], -width / 2, nil, fontId, nil, fontScale)
+			end
 		else
 			buttonText:addAdaptedText(true, v.text, nil, nil, fontId, nil, fontScale)
 		end
@@ -2573,7 +2566,7 @@ function TBMenu:getMainNavigationButtons()
 			right = not is_mobile()
 		}
 		if (BattlePass.UserData) then
-			if (BattlePass.UserData.level == 0 and not BattlePass.wasOpened) then
+			if (BattlePass.UserData.level == 0 and BattlePass.UserData.xp < 100 and not BattlePass.wasOpened) then
 				battlePassButton.misctext = "New!"
 			elseif (BattlePass.UserData.level_available > BattlePass.UserData.level) then
 				battlePassButton.misctext = "!"
@@ -2587,10 +2580,14 @@ end
 ---Displays main menu bottom bar buttons
 ---@param leftOnly ?boolean
 function TBMenu:showBottomBar(leftOnly)
+	local safe_x, _, safe_w, _ = get_window_safe_size()
+	safe_x = math.max(safe_x, WIN_W - safe_x - safe_w)
+	local barSafe_x = math.max(safe_x, 45)
+
 	local buttonSize = 50 * TB_MENU_GLOBAL_SCALE
 	if (TBMenu.BottomLeftBar == nil or TBMenu.BottomLeftBar.destroyed) then
 		TBMenu.BottomLeftBar = TBMenu.MenuMain:addChild({
-			pos = { 45 * TB_MENU_GLOBAL_SCALE, -buttonSize / 5 * 7 },
+			pos = { barSafe_x * TB_MENU_GLOBAL_SCALE, -buttonSize * 1.4 },
 			size = { 110 * TB_MENU_GLOBAL_SCALE, buttonSize }
 		})
 	else
@@ -2612,7 +2609,7 @@ function TBMenu:showBottomBar(leftOnly)
 	if (string.len(TB_MENU_PLAYER_INFO.username) > 0) then
 		table.insert(tbMenuBottomLeftButtonsData, { action = function() if (TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 8) then TBMenu:showFriendsList() else Friends:quit() end end, image = TB_MENU_FRIENDS_BUTTON })
 		table.insert(tbMenuBottomLeftButtonsData, { action = function() if (TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 4) then TBMenu:showNotifications() else Notifications:quit() end end, image = TB_MENU_NOTIFICATIONS_BUTTON })
-		table.insert(tbMenuBottomLeftButtonsData, { action = function() if (TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 7) then TBMenu:showBounties() else Bounty:quit() end end, image = TB_MENU_BOUNTY_BUTTON })
+		table.insert(tbMenuBottomLeftButtonsData, { action = function() if (TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 7) then TBMenu:showBounties() else Bounty.Quit() end end, image = TB_MENU_BOUNTY_BUTTON })
 	end
 	table.insert(tbMenuBottomLeftButtonsData, { action = function() usage_event("discord") open_url("https://toribash.com/discord.php") end, image = TB_MENU_DISCORD_BUTTON })
 
@@ -2661,7 +2658,7 @@ function TBMenu:showBottomBar(leftOnly)
 
 	if (TBMenu.BottomRightBar == nil or TBMenu.BottomRightBar.destroyed) then
 		TBMenu.BottomRightBar = TBMenu.MenuMain:addChild({
-			pos = { -145 * TB_MENU_GLOBAL_SCALE, -buttonSize / 5 * 7 },
+			pos = { -(barSafe_x + 100) * TB_MENU_GLOBAL_SCALE, -buttonSize * 1.4 },
 			size = { 110 * TB_MENU_GLOBAL_SCALE, buttonSize }
 		})
 	else
@@ -2688,30 +2685,18 @@ function TBMenu:showBottomBar(leftOnly)
 		})
 		tbMenuBottomRightButtons[i]:addMouseHandlers(nil, function() shopCheckExit() v.action() end, nil)
 	end
-	local tbMenuDownloads = UIElement:new({
-		parent = TBMenu.MenuMain,
-		pos = { -300, -25 },
-		size = { 300, 25 }
+
+	local statusMessage = TBMenu.MenuMain:addChild({
+		pos = { -math.max(safe_x, 10) - 300, -25 },
+		size = { 300, 25 },
+		uiColor = { 0, 0, 0, 0.7 }
 	})
-	tbMenuDownloads:addCustomDisplay(true, function()
+	statusMessage:addCustomDisplay(true, function()
 			local downloads = #get_downloads() or 0
 			if (downloads > 0) then
-				tbMenuDownloads:uiText(TB_MENU_LOCALIZED.DOWNLOADINGFILESWAIT, -10, nil, 4, RIGHTMID, 0.5, nil, nil, UICOLORBLACK)
-			end
-		end)
-	local tbMenuVersion = UIElement:new({
-		parent = TBMenu.MenuMain,
-		pos = { -25, -25 },
-		size = { 300, 25 },
-		interactive = true,
-		bgColor = { 0, 0, 0, 0.001 },
-		hoverColor = { 0, 0, 0, 1 },
-		pressedColor = { 0, 0, 0, 1 }
-	})
-	tbMenuVersion:addCustomDisplay(true, function()
-			local downloads = #get_downloads() or 0
-			if (downloads == 0) then
-				tbMenuVersion:uiText("Toribash " .. TORIBASH_VERSION .. (BETA_VERSION or '') .. " build ver " .. BUILD_VERSION, -280, nil, 4, RIGHTMID, 0.5, nil, nil, tbMenuVersion:getButtonColor())
+				statusMessage:uiText(TB_MENU_LOCALIZED.DOWNLOADINGFILESWAIT, nil, nil, 4, RIGHTMID, 0.5)
+			else
+				statusMessage:uiText("v" .. TORIBASH_VERSION .. (BETA_VERSION or '') .. "." .. BUILD_VERSION, nil, nil, 4, RIGHTMID, 0.5)
 			end
 		end)
 end

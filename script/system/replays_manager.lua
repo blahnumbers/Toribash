@@ -3112,7 +3112,7 @@ function Replays:showServerReplays()
 	viewElement:kill(true)
 	TBMenu:showNavigationBar(Replays:getNavigationButtons(true), true)
 
-	local replayInfoWidth = math.min(math.max(viewElement.size.w * 0.25, 400), viewElement.size.w * 0.4)
+	local replayInfoWidth = math.min(math.max(viewElement.size.w * 0.25, 350), viewElement.size.w * 0.4)
 	local replaysList = viewElement:addChild({
 		pos = { 5, 0 },
 		size = { (viewElement.size.w - replayInfoWidth) - 10, viewElement.size.h },
