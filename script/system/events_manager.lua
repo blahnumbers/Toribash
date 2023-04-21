@@ -486,7 +486,6 @@ do
 	end
 
 	function Events:loadModChampionship(viewElement, eventid)
-		TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
 		TBMenu:clearNavSection()
 		TBMenu:showNavigationBar(Events:getNavigationButtons(TB_MENU_EVENTS_OPEN, eventid), true)
 		RoomList.RefreshIfNeeded()
@@ -1418,7 +1417,6 @@ do
 	end
 
 	function Events:showEventsHome(viewElement)
-		TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
 		TBMenu:clearNavSection()
 		TBMenu:showNavigationBar(Events:getNavigationButtons(), true)
 		TB_MENU_EVENTS_OPEN = true

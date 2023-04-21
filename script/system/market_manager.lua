@@ -503,7 +503,6 @@ do
 
 		Market:clearModal()
 		local specialScreen = TB_MENU_SPECIAL_SCREEN_ISOPEN
-		TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
 
 		local overlay = TBMenu:spawnWindowOverlay()
 		MARKET_ACTIVE_MODAL = overlay
@@ -887,7 +886,6 @@ do
 
 		Market:clearModal()
 		local specialScreen = TB_MENU_SPECIAL_SCREEN_ISOPEN
-		TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
 
 		local overlay = TBMenu:spawnWindowOverlay()
 		MARKET_ACTIVE_MODAL = overlay
@@ -1649,7 +1647,6 @@ do
 
 	function Market:spawnItemSelectorModal(onSelected)
 		local specialScreen = TB_MENU_SPECIAL_SCREEN_ISOPEN
-		TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
 		Market:clearModal()
 
 		local overlay = TBMenu:spawnWindowOverlay(nil, true)
@@ -2328,8 +2325,6 @@ do
 			return
 		end
 
-		TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
-
 		TBMenu:clearNavSection()
 		TBMenu:showNavigationBar(Market:getSectionNavButtons(viewElement, backAction), true)
 		Market:showSearchBar()
@@ -2623,7 +2618,6 @@ do
 	end
 
 	function Market:showSearchOffers(viewElement, search, options)
-		TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
 		TBMenu:clearNavSection()
 		TBMenu:showNavigationBar(Market:getSectionNavButtons(viewElement), true)
 
@@ -3233,7 +3227,6 @@ do
 	end
 
 	function Market:showUserShop(viewElement, username, backAction)
-		TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
 		usage_event("marketplace_shop")
 
 		TBMenu:clearNavSection()

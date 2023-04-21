@@ -39,13 +39,21 @@ if (BattlePass == nil) then
 	---@field pressedColor Color Pressed color override
 	---@field bgOutlineColor Color Outline color override
 
+	---**Battle Pass manager class**
+	---
+	---**Version 5.60:**
+	---* Rewards popup display offset fix for Shiai Tokens
+	---* Minor visual tweaks for user xp bar
+	---
+	---**Version 1.0:**
+	---* Initial release
 	---@class BattlePass
 	---@field LevelData BattlePassLevel[] Level data for the Battle Pass
 	---@field UserData BattlePassUserData Current user's data for the Battle Pass
 	---@field TimeLeft integer Time left in seconds until this BP is over
 	---@field wasOpened boolean Whether the user has opened the Battle Pass screen during this session
 	BattlePass = {
-		ver = 1.0,
+		ver = 5.60,
 		TimeLeft = -1,
 		wasOpened = false
 	}
@@ -53,7 +61,6 @@ if (BattlePass == nil) then
 end
 
 -- Queues a network request to download BP level information and stores it in BattlePass.LevelData
----@return nil
 function BattlePass:getLevelData()
 	Request:queue(function() download_server_info("battlepass&get=levels") end, "battlepass_levels", function()
 			local response = get_network_response()
@@ -88,7 +95,6 @@ end
 -- Queues a network request to download user's BP statistics.\
 -- If BattlePass.LevelData is empty, triggers BattlePass:getLevelData() first.
 ---@param viewElement? UIElement Optional viewport to display Battle Pass screen in after successful data request
----@return nil
 function BattlePass:getUserData(viewElement)
 	if (not BattlePass.LevelData) then
 		BattlePass:getLevelData()
@@ -138,7 +144,6 @@ end
 
 -- Displays main the progress bar for the main Battle Pass screen
 ---@param viewElement UIElement
----@return nil
 function BattlePass:showProgress(viewElement)
 	local playerLevelHolder = viewElement:addChild({
 		pos = { 0, 0 },
@@ -269,7 +274,7 @@ function BattlePass:showProgress(viewElement)
 end
 
 -- Returns a table with currently available BP rewards for the user
----@param override? table Allows to override user's actual `level_available` and `premium` values
+---@param override? BattlePassUserData Allows to override user's actual `level_available` and `premium` values
 ---@return BattlePassReward[]
 function BattlePass:getUserAvailableRewards(override)
 	local claimRewards = {}
@@ -307,10 +312,9 @@ function BattlePass:getUserAvailableRewards(override)
 	return claimRewards
 end
 
----@return nil
+---Displays BattlePass Premium purchase popup
 function BattlePass:spawnPurchasePrimeWindow()
 	local item = Torishop:getItemInfo(BATTLEPASS_SUBSCRIPTION_ITEM)
-	local targetLevel = BattlePass.UserData.level_available + 1
 	local claimWindowBackground
 	claimWindowBackground = BattlePass:spawnPrizeConfirmationWindow(
 		TB_MENU_LOCALIZED.BATTLEPASSPURCHASEPREMIUM,
@@ -343,7 +347,7 @@ function BattlePass:spawnPurchasePrimeWindow()
 		{ premium = true })
 end
 
----@return nil
+---Displays BattlePass level purchase window
 function BattlePass:spawnPurchaseLevelWindow()
 	---@type UIElement
 	local claimWindowBackground
@@ -398,7 +402,7 @@ function BattlePass:spawnPurchaseLevelWindow()
 		{ level = BattlePass.UserData.level_available + 1 })
 end
 
----@return nil
+---Displays BattlePass reward claim popup
 function BattlePass:spawnPrizeClaimWindow()
 	local claimWindowBackground
 	claimWindowBackground = BattlePass:spawnPrizeConfirmationWindow(
@@ -443,7 +447,7 @@ end
 ---@param title string
 ---@param message string
 ---@param onConfirm function Function that will be executed on confirm button press
----@param override? table Overrides to get available rewards
+---@param override? BattlePassUserData Override data to use instead of actual user BP stats
 ---@return UIElement
 function BattlePass:spawnPrizeConfirmationWindow(title, message, onConfirm, override)
 	local overlay = TBMenu:spawnWindowOverlay()
@@ -452,7 +456,7 @@ function BattlePass:spawnPrizeConfirmationWindow(title, message, onConfirm, over
 		shift = { WIN_W / 4, (WIN_H - windowHeight) / 2 },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR,
 		shapeType = ROUNDED,
-		rounded = 5
+		rounded = 4
 	})
 	local claimWindowText = claimWindowBackground:addChild({
 		pos = { 20, claimWindowBackground.size.h / 30 },
@@ -506,10 +510,8 @@ function BattlePass:spawnPrizeConfirmationWindow(title, message, onConfirm, over
 		interactive = true,
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-		shapeType = ROUNDED,
-		rounded = 4
-	})
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+	}, true)
 	cancelButton:addAdaptedText(false, TB_MENU_LOCALIZED.BUTTONCANCEL)
 	cancelButton:addMouseHandlers(nil, function() overlay:kill() end)
 	local acceptButton = claimWindowBackground:addChild({
@@ -518,10 +520,8 @@ function BattlePass:spawnPrizeConfirmationWindow(title, message, onConfirm, over
 		interactive = true,
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-		shapeType = ROUNDED,
-		rounded = 4
-	})
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+	}, true)
 	acceptButton:addAdaptedText(false, TB_MENU_LOCALIZED.BUTTONCONTINUE)
 	acceptButton:addMouseHandlers(nil, onConfirm)
 
@@ -531,7 +531,6 @@ end
 ---Displays a BP prize in a provided UIElement viewport
 ---@param viewElement UIElement
 ---@param prize BattlePassReward
----@return nil
 function BattlePass:showPrizeItem(viewElement, prize)
 	local prizeDisplayScale = math.min(viewElement.size.w, viewElement.size.h)
 	local prizeBackgroundOutline = viewElement:addChild({
@@ -618,7 +617,6 @@ end
 ---Displays BP level prize in a specified UIElement viewport
 ---@param prizeHolder UIElement
 ---@param levelData BattlePassLevel
----@return nil
 function BattlePass:showLevelPrize(prizeHolder, levelData)
 	local prizeLevel = prizeHolder:addChild({
 		pos = { 10, 10 },
@@ -687,7 +685,6 @@ end
 
 ---Displays all BP rewards for main Battle Pass view
 ---@param viewElement UIElement
----@return nil
 function BattlePass:showPrizes(viewElement)
 	local prizeHolderSize = math.min(120, WIN_W / 12)
 	local toReload, leftBar, rightBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, prizeHolderSize, prizeHolderSize, 20, TB_MENU_DEFAULT_DARKER_COLOR, SCROLL_HORIZONTAL)
@@ -812,7 +809,6 @@ function BattlePass:showPrizes(viewElement)
 end
 
 ---Displays Battle Pass main screen
----@return nil
 function BattlePass:showMain()
 	TBMenu.CurrentSection:kill(true)
 

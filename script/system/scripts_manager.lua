@@ -328,7 +328,6 @@ do
 
 	function Scripts:showMain()
 		usage_event("scripts")
-		TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
 		TBMenu.CurrentSection:kill(true)
 		local scriptFiles = Scripts:getScriptFiles()
 

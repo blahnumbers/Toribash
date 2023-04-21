@@ -1247,7 +1247,6 @@ function TBMenu:showAccountMain()
 			end,
 		}
 	}, true)
-	TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
 
 	local accountView = UIElement:new({
 		parent = TBMenu.CurrentSection,
@@ -1419,7 +1418,6 @@ end
 
 ---Displays Toribash hotkeys
 function TBMenu:showHotkeys()
-	TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
 	local overlay = TBMenu:spawnWindowOverlay()
 	overlay:addMouseHandlers(nil, function()
 			TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
@@ -1980,7 +1978,7 @@ function TBMenu:showUserBar()
 	if (clanDisplayed) then
 		tbMenuClan = infoHolder:addChild({
 			pos = { 0, infoOffset },
-			size = { infoHolder.size.w - infoHolder.size.h, infoHolder.size.h / 4 }
+			size = { infoHolder.size.w - infoHolder.size.h, infoHolder.size.h / 5 }
 		})
 		if (TB_MENU_PLAYER_INFO.clan.id ~= 0) then
 			tbMenuClan:addAdaptedText(true, TB_MENU_LOCALIZED.MAINMENUUSERCLAN .. ": " .. TB_MENU_PLAYER_INFO.clan.tag .. ((TB_MENU_PLAYER_INFO.clan.name ~= '') and ("  |  " .. TB_MENU_PLAYER_INFO.clan.name) or ''), nil, nil, 4, LEFT, math.max(0.55, tbMenuUserName.textScale))

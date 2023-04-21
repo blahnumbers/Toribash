@@ -6065,7 +6065,6 @@ do
 	end
 
 	function Torishop:showSearchResults(viewElement, searchResults, searchString)
-		TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
 		TBMenu:clearNavSection()
 		TBMenu:showNavigationBar(Torishop:getSectionNavButtons(viewElement, 0), true)
 		Torishop:showSearchBar(viewElement, searchString)
@@ -6148,7 +6147,6 @@ do
 	end
 
 	function Torishop:showStoreSection(viewElement, section, sectionid, itemid)
-		TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
 		usage_event("storesection")
 		local itemInfo = itemid and Torishop:getItemInfo(itemid)
 		local section = itemid and Torishop:getItemMainSection(itemInfo) or section
@@ -6275,7 +6273,6 @@ do
 	end
 
 	function Torishop:showDailySaleItem(item)
-		TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
 		local overlay = TBMenu:spawnWindowOverlay()
 		overlay:addMouseHandlers(nil, function() overlay:kill() end)
 		local saleItemHolder = UIElement:new({

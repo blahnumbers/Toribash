@@ -54,10 +54,12 @@ if (Clans == nil) then
 	---**Version 5.60 updates**
 	---* Updated internals to match new language design
 	---* Added documentation with EmmyLua annotations
+	---* Partial UI updates to match 5.60 design
 	---@class Clans
 	---@field Data Clan[] Cached information about all Toribash clans with at least 1 member
 	---@field Levels ClanLevel[] Cached information about clan levels
 	---@field Achievements ClanAchievement[] Cached information about clan achivemenets
+	---@field SearchFilters ClanListFilters Last clan search filters data
 	Clans = {
 		Data = {},
 		Levels = {},
@@ -69,11 +71,10 @@ if (Clans == nil) then
 	Clans.__index = Clans
 end
 
----Queues clans data for download.
----
----*This function has spam protection and will return early on frequent calls or if there's already at least one clan datafile in the queue.*
+---Queues clans data for download \
+---*This function has spam protection and will return early on frequent calls or if there's already at least one clan datafile in the queue*
 ---@return boolean
-function Clans:download()
+function Clans.Download()
 	local clock = os.clock_real()
 
 	if (clock - Clans.UpdateTime < 10) then
@@ -190,7 +191,7 @@ end
 ---@return integer|nil #Number of clan levels in the cache
 function Clans:getLevelData(override)
 	if (override) then
-		Clans.levels = {}
+		Clans.Levels = {}
 	end
 	local numLevels = #Clans.Levels
 	if (numLevels > 0) then
@@ -283,47 +284,33 @@ function Clans:getAchievementData(override)
 end
 
 ---Exits clans menu and returns to last displayed main menu screen
-function Clans:quit()
+function Clans.Quit()
+	TB_MENU_CLANS_OPENCLANID = 0
 	TBMenu.CurrentSection:kill(true)
 	TBMenu:showNavigationBar()
 	TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
 end
 
-function Clans:getNavigationButtons(showBack)
-	if (get_option("newmenu") == 1) then
-		return {
-			{
-				text = TB_MENU_LOCALIZED.NAVBUTTONBACK,
-				action = function()
-					TB_LAST_MENU_SCREEN_OPEN = 9
-					TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
-					TBMenu:clearNavSection()
-					TBMenu:showNavigationBar()
-					TBMenu:showClans()
-				end,
-			}
-		}
-	end
-
-	local buttonText = get_option("newmenu") == 0 and TB_MENU_LOCALIZED.NAVBUTTONEXIT or TB_MENU_LOCALIZED.NAVBUTTONTOMAIN
-	local buttonsData = {
+---Returns navigation buttons data for Clans menu
+---@return MenuNavButton[]
+function Clans:getNavigationButtons()
+	return {
 		{
-			text = buttonText,
-			action = function() TB_MENU_CLANS_OPENCLANID = 0 Clans:quit() end,
-			width = get_string_length(buttonText, FONTS.BIG) * 0.65 + 30
+			text = TB_MENU_LOCALIZED.NAVBUTTONBACK,
+			action = function()
+				TB_LAST_MENU_SCREEN_OPEN = 9
+				TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
+				TBMenu:clearNavSection()
+				TBMenu:showNavigationBar()
+				TBMenu:showClans()
+			end
 		}
 	}
-	if (showBack) then
-		local backButton = {
-			text = TB_MENU_LOCALIZED.NAVBUTTONBACK,
-			action = function() TB_MENU_CLANS_OPENCLANID = 0 Clans:showMain(TBMenu.CurrentSection) end,
-			width = get_string_length(TB_MENU_LOCALIZED.NAVBUTTONBACK, FONTS.BIG) * 0.65 + 30
-		}
-		table.insert(buttonsData, backButton)
-	end
-	return buttonsData
 end
 
+---Checks if clan with the specified id is a legacy beginner clan
+---@param clanid integer
+---@return boolean
 function Clans:isBeginnerClan(clanid)
 	if (clanid == 2193 or clanid == 2194) then
 		return true
@@ -331,32 +318,33 @@ function Clans:isBeginnerClan(clanid)
 	return false
 end
 
+---Displays Clans main screen or opens a clan page by clan's tag if it's specified
+---@param viewElement UIElement
+---@param clantag ?string
 function Clans:showMain(viewElement, clantag)
 	if (not Clans:getLevelData() or not Clans:getAchievementData() or not Clans:getClanData()) then
-		Clans:download()
-		local loader = UIElement:new({
-			parent = viewElement,
-			pos = { 5, 0 },
-			size = { viewElement.size.w - 10, viewElement.size.h },
+		Clans.Download()
+		local loader = viewElement:addChild({
+			shift = { 5, 0 },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
+		TBMenu:addBottomBloodSmudge(loader)
 		loader:addCustomDisplay(false, function()
-				if (#get_downloads() == 0) then
-					loader:kill()
-					Clans:showMain(viewElement, clantag)
+				if (table.empty(Clans.Achievements) or table.empty(Clans.Levels) or table.empty(Clans.Data)) then
+					return
 				end
+				loader:kill()
+				Clans:showMain(viewElement, clantag)
 			end)
-		local loadingText = UIElement:new({
-			parent = loader,
-			pos = { loader.size.w / 4, loader.size.h / 3 },
-			size = { loader.size.w / 2, loader.size.h / 3 }
+		local loadingText = loader:addChild({
+			shift = { loader.size.w / 4, loader.size.h / 3 }
 		})
 		TBMenu:displayLoadingMark(loadingText, TB_MENU_LOCALIZED.CLANSUPDATINGWAIT)
 	end
 
 	if (clantag) then
 		local clanid
-		for i,v in pairs(Clans.Data) do
+		for _, v in pairs(Clans.Data) do
 			if (v.tag == clantag) then
 				clanid = v.id
 				break
@@ -365,16 +353,15 @@ function Clans:showMain(viewElement, clantag)
 		Clans:showClan(viewElement, clanid)
 		return
 	end
+
 	viewElement:kill(true)
-	local clanListSettings = UIElement:new({
-		parent = viewElement,
+	local clanListSettings = viewElement:addChild({
 		pos = { 5, 0 },
 		size = { viewElement.size.w * 0.3 - 10, viewElement.size.h },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR
 	})
 	Clans:showUserClan(clanListSettings)
-	local clanView = UIElement:new({
-		parent = viewElement,
+	local clanView = viewElement:addChild({
 		pos = { viewElement.size.w * 0.3 + 5, 0 },
 		size = { viewElement.size.w * 0.7 - 10, viewElement.size.h },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR
@@ -382,190 +369,125 @@ function Clans:showMain(viewElement, clantag)
 	Clans:showClanList(clanView)
 end
 
+---Displays current player's clan information in a viewport UIElement
+---@param viewElement UIElement
 function Clans:showUserClan(viewElement)
-	local clanUserBotSmudge = TBMenu:addBottomBloodSmudge(viewElement, 1)
+	TBMenu:addBottomBloodSmudge(viewElement, 1)
 	local clanid = TB_MENU_PLAYER_INFO.clan.id
+	local buttonHeight = math.min(viewElement.size.h / 6, 50)
+
 	if (clanid ~= 0) then
-		local userClanTitle = UIElement:new({
-			parent = viewElement,
-			pos = { 0, 0 },
+		local userClanTitle = viewElement:addChild({
 			size = { viewElement.size.w, viewElement.size.h / 8 }
 		})
-		userClanTitle:addCustomDisplay(true, function()
-				userClanTitle:uiText(TB_MENU_LOCALIZED.CLANSMYCLAN, nil, nil, FONTS.BIG, nil, 0.7, nil, nil, nil, nil, 0.2)
-			end)
-		local buttonHeight = viewElement.size.h / 6
-		local clanView = UIElement:new({
-			parent = viewElement,
-			pos = { 0, viewElement.size.h / 7 },
-			size = { viewElement.size.w, viewElement.size.h / 3 * 2 }
+		userClanTitle:addAdaptedText(true, TB_MENU_LOCALIZED.CLANSMYCLAN, nil, nil, FONTS.BIG, nil, 0.7, nil, 0.5)
+		local clanView = viewElement:addChild({
+			pos = { 0, viewElement.size.h / 8 },
+			size = { viewElement.size.w, viewElement.size.h * 0.75 }
 		})
-		local heightMod = 0
-		if (clanView.size.h / 3 * 2 > 60) then
-			local iconSize = clanView.size.h / 3 * 2 > 256 and 256 or math.floor(clanView.size.h / 3 * 2)
-			local clanLogo = UIElement:new({
-				parent = clanView,
+		if (clanView.size.h * 0.67 > 60) then
+			local iconSize = math.min(256, math.floor(clanView.size.h / 3 * 2))
+			local clanLogo = clanView:addChild({
 				pos = { (clanView.size.w - iconSize) / 2, 0 },
 				size = { iconSize, iconSize },
-				bgImage =  { "../textures/clans/"..clanid..".tga", Clans.DefaultLogo }
+				bgImage =  { "../textures/clans/" .. clanid .. ".tga", Clans.DefaultLogo }
 			})
-			heightMod = iconSize
 			Clans:loadClanLogo(clanid, clanLogo)
 		end
-		local clanInfo = UIElement:new({
-			parent = clanView,
-			pos = { clanView.size.w / 10, clanView.size.h / 3 * 2 },
-			size = { clanView.size.w / 10 * 8, clanView.size.h / 3 }
+		local clanInfo = clanView:addChild({
+			pos = { 15, clanView.size.h / 3 * 2 },
+			size = { clanView.size.w - 30, clanView.size.h / 3 }
 		})
-		local clanName = UIElement:new({
-			parent = clanInfo,
-			pos = { 0, 0 },
+		local clanName = clanInfo:addChild({
 			size = { clanInfo.size.w, clanInfo.size.h / 2 }
 		})
-		local clanNameSize = 0.8
-		while (not clanName:uiText(TB_MENU_PLAYER_INFO.clan.name, nil, nil, FONTS.BIG, LEFT, clanNameSize, nil, nil, nil, nil, nil, true)) do
-			clanNameSize = clanNameSize - 0.05
-		end
-		clanName:addCustomDisplay(true, function()
-				clanName:uiText(TB_MENU_PLAYER_INFO.clan.name, nil, nil, FONTS.BIG, nil, clanNameSize)
-			end)
-		local memberStatus = UIElement:new({
-			parent = clanInfo,
-			pos = { 0, clanInfo.size.h / 2 },
-			size = { clanInfo.size.w, clanInfo.size.h / 4 },
+		clanName:addAdaptedText(true, TB_MENU_PLAYER_INFO.clan.name, nil, nil, FONTS.BIG, nil, 0.8)
+		local memberStatus = clanInfo:addChild({
+			pos = { 0, clanName.shift.y + clanName.size.h },
+			size = { clanInfo.size.w, clanInfo.size.h - clanName.size.h - clanName.shift.y * 2 },
 		})
-		if (TB_MENU_PLAYER_INFO.clan.isleader) then
-			local memberStatusSize = 1
-			while (not memberStatus:uiText(TB_MENU_LOCALIZED.CLANSCLANLEADER, nil, nil, 4, LEFT, memberStatusSize, nil, nil, nil, nil, nil, true)) do
-				memberStatusSize = memberStatusSize - 0.05
+		local clanData = Clans.Data[clanid]
+		local otherMembers, targetData = {}, (TB_MENU_PLAYER_INFO.clan.isleader and clanData.leaders or clanData.members)
+		if (clanData and #targetData > 1) then
+			local members = {}
+			for _, v in pairs(targetData) do
+				if (string.lower(v) ~= string.lower(TB_MENU_PLAYER_INFO.username)) then
+					table.insert(members, v)
+				end
 			end
-			memberStatus:addCustomDisplay(true, function()
-					memberStatus:uiText(TB_MENU_LOCALIZED.CLANSCLANLEADER, nil, nil, 4, CENTERMID, memberStatusSize)
-				end)
-			local otherMembers = UIElement:new({
-				parent = clanInfo,
-				pos = { 0, clanInfo.size.h / 4 * 3 },
-				size = { clanInfo.size.w, clanInfo.size.h / 4 }
-			})
-			if (Clans.Data[clanid] and #Clans.Data[clanid].leaders > 1) then
-				local leader1 = math.random(1, #Clans.Data[clanid].leaders)
-				while (Clans.Data[clanid].leaders[leader1]:lower() == TB_MENU_PLAYER_INFO.username:lower()) do
-					leader1 = math.random(1, #Clans.Data[clanid].leaders)
-				end
-				local otherMembersStr = TB_MENU_LOCALIZED.CLANSTOGETHERWITH .. " " .. Clans.Data[clanid].leaders[leader1]
-				if (#Clans.Data[clanid].leaders > 2) then
-					local leader2 = math.random(1, #Clans.Data[clanid].leaders)
-					while (Clans.Data[clanid].leaders[leader2]:lower() == TB_MENU_PLAYER_INFO.username:lower() or leader2 == leader1) do
-						leader2 = math.random(1, #Clans.Data[clanid].leaders)
-					end
-					if (otherMembers:uiText(otherMembersStr .. " " .. TB_MENU_LOCALIZED.GENERALSTRINGAND .. " " .. Clans.Data[clanid].leaders[leader2], nil, nil, 4, LEFT, 0.5, nil, nil, nil, nil, nil, true)) then
-						otherMembersStr = otherMembersStr .. " " .. TB_MENU_LOCALIZED.GENERALSTRINGAND .. " " .. Clans.Data[clanid].leaders[leader2]
-					end
-				end
-				local otherMembersSize = memberStatusSize - 0.2
-				while (not otherMembers:uiText(otherMembersStr, nil, nil, 4, LEFT, otherMembersSize, nil, nil, nil, nil, nil, true)) do
-					otherMembersSize = otherMembersSize - 0.05
-				end
-				otherMembers:addCustomDisplay(true, function()
-						otherMembers:uiText(otherMembersStr, nil, nil, 4, CENTER, otherMembersSize)
-					end)
-			end
-		else
-			local memberStatusSize = 1
-			while (not memberStatus:uiText(TB_MENU_LOCALIZED.CLANSCLANMEMBER, nil, nil, 4, LEFT, memberStatusSize, nil, nil, nil, nil, nil, true)) do
-				memberStatusSize = memberStatusSize - 0.05
-			end
-			memberStatus:addCustomDisplay(true, function()
-					memberStatus:uiText(TB_MENU_LOCALIZED.CLANSCLANMEMBER, nil, nil, 4, CENTERMID, memberStatusSize)
-				end)
-			local otherMembers = UIElement:new({
-				parent = clanInfo,
-				pos = { 0, clanInfo.size.h / 4 * 3 },
-				size = { clanInfo.size.w, clanInfo.size.h / 4 }
-			})
-			if (Clans.Data[clanid] and #Clans.Data[clanid].members > 1) then
-				local member1 = math.random(1, #Clans.Data[clanid].members)
-				while (Clans.Data[clanid].members[member1]:lower() == TB_MENU_PLAYER_INFO.username:lower()) do
-					member1 = math.random(1, #Clans.Data[clanid].members)
-				end
-				local otherMembersStr = TB_MENU_LOCALIZED.CLANSTOGETHERWITH .. " " .. Clans.Data[clanid].members[member1]
-				if (#Clans.Data[clanid].members > 2) then
-					local member2 = math.random(1, #Clans.Data[clanid].members)
-					while (Clans.Data[clanid].members[member2]:lower() == TB_MENU_PLAYER_INFO.username:lower() or member2 == member1) do
-						member2 = math.random(1, #Clans.Data[clanid].members)
-					end
-					if (otherMembers:uiText(otherMembersStr .. " " .. TB_MENU_LOCALIZED.GENERALSTRINGAND .. " " .. Clans.Data[clanid].members[member2], nil, nil, 4, LEFT, 0.5, nil, nil, nil, nil, nil, true)) then
-						otherMembersStr = otherMembersStr .. " " .. TB_MENU_LOCALIZED.GENERALSTRINGAND .. " " .. Clans.Data[clanid].members[member2]
-					end
-				end
-				local otherMembersSize = memberStatusSize - 0.2
-				while (not otherMembers:uiText(otherMembersStr, nil, nil, 4, LEFT, otherMembersSize, nil, nil, nil, nil, nil, true)) do
-					otherMembersSize = otherMembersSize - 0.05
-				end
-				otherMembers:addCustomDisplay(true, function()
-						otherMembers:uiText(otherMembersStr, nil, nil, 4, CENTER, otherMembersSize)
-					end)
+			local id = math.random(1, #members)
+			table.insert(otherMembers, members[id])
+			table.remove(members, id)
+			if (#members > 0) then
+				table.insert(otherMembers, members[math.random(1, #members)])
 			end
 		end
-		local clanButton = UIElement:new({
-			parent = viewElement,
-			pos = { 10, -buttonHeight },
-			size = { viewElement.size.w - 20, buttonHeight - 20 },
+		if (#otherMembers > 0) then
+			memberStatus.size.h = memberStatus.size.h / 2
+			memberStatus:addChild({
+				pos = { 0, memberStatus.size.h },
+				size = { memberStatus.size.w, memberStatus.size.h }
+			}):addAdaptedText(true, TB_MENU_LOCALIZED.CLANSTOGETHERWITH .. " " .. table.implode(otherMembers, " " .. TB_MENU_LOCALIZED.GENERALSTRINGAND .. " "), nil, nil, 4, CENTERMID, 0.65)
+		end
+		memberStatus:addAdaptedText(true, TB_MENU_PLAYER_INFO.clan.isleader and TB_MENU_LOCALIZED.CLANSCLANLEADER or TB_MENU_LOCALIZED.CLANSCLANMEMBER, nil, nil, 4, CENTERMID)
+
+		local clanButton = viewElement:addChild({
+			pos = { 15, -buttonHeight - 20 },
+			size = { viewElement.size.w - 30, buttonHeight },
 			interactive = true,
-			bgColor = { 0, 0, 0, 0.1 },
-			hoverColor = { 0, 0, 0, 0.3 },
-			pressedColor = { 1, 0, 0, 0.1 }
+			hoverSound = 31,
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+			shapeType = ROUNDED,
+			rounded = 4
 		})
-		clanButton:addCustomDisplay(false, function()
-				clanButton:uiText(TB_MENU_LOCALIZED.CLANSVIEWCLAN)
-			end)
-		clanButton:addMouseHandlers(nil, function()
+		clanButton:addAdaptedText(TB_MENU_LOCALIZED.CLANSVIEWCLAN)
+		clanButton:addMouseUpHandler(function()
 				Clans:showClan(viewElement.parent, TB_MENU_PLAYER_INFO.clan.id)
 			end)
 	else
-		local noClanHeader = UIElement:new({
-			parent = viewElement,
-			pos = { viewElement.size.w / 10, viewElement.size.h / 8 },
-			size = { viewElement.size.w / 10 * 8, viewElement.size.h / 4 }
+		local noClanHeader = viewElement:addChild({
+			pos = { viewElement.size.w * 0.1, viewElement.size.h / 8 },
+			size = { viewElement.size.w * 0.8, viewElement.size.h / 4 }
 		})
-		local noClanHeaderSize = 1
-		while (not noClanHeader:uiText(TB_MENU_LOCALIZED.CLANSPLAYERCLANLESS, nil, nil, FONTS.BIG, LEFT, noClanHeaderSize, nil, nil, nil, nil, nil, true)) do
-			noClanHeaderSize = noClanHeaderSize - 0.05
-		end
-		noClanHeader:addCustomDisplay(true, function()
-				noClanHeader:uiText(TB_MENU_LOCALIZED.CLANSPLAYERCLANLESS, nil, nil, FONTS.BIG, nil, noClanHeaderSize)
-			end)
-		local noClanDesc = UIElement:new({
-			parent = viewElement,
-			pos = { viewElement.size.w / 10, viewElement.size.h / 5 * 2 },
-			size = { viewElement.size.w / 10 * 8, viewElement.size.h / 4 }
+		noClanHeader:addAdaptedText(true, TB_MENU_LOCALIZED.CLANSPLAYERCLANLESS, nil, nil, FONTS.BIG)
+		local noClanDesc = viewElement:addChild({
+			pos = { noClanHeader.shift.x, noClanHeader.shift.y + noClanHeader.size.h },
+			size = { noClanHeader.size.w, noClanHeader.size.h }
 		})
-		local noClanDescSize = 1
-		while (not noClanDesc:uiText(TB_MENU_LOCALIZED.CLANSPLAYERCLANLESSINFOMSG, nil, nil, nil, LEFT, noClanDescSize, nil, nil, nil, nil, nil, true)) do
-			noClanDescSize = noClanDescSize - 0.05
-		end
-		noClanDesc:addCustomDisplay(true, function()
-				noClanDesc:uiText(TB_MENU_LOCALIZED.CLANSPLAYERCLANLESSINFOMSG, nil, nil, nil, nil, noClanDescSize)
-			end)
-		local makeNewClan = UIElement:new({
-			parent = viewElement,
-			pos = { viewElement.size.w / 10, -viewElement.size.h / 4 },
-			size = { viewElement.size.w / 10 * 8, viewElement.size.h / 5 },
-			bgColor = { 0, 0, 0, 0.3 },
-			hoverColor = { 0, 0, 0, 0.5 },
-			pressedColor = { 1, 0, 0, 0.1 },
+		noClanDesc:addAdaptedText(true, TB_MENU_LOCALIZED.CLANSPLAYERCLANLESSINFOMSG)
+		local makeNewClan = viewElement:addChild({
+			pos = { 15, -buttonHeight - 20 },
+			size = { viewElement.size.w - 30, buttonHeight },
 			interactive = true,
-			hoverSound = 31
+			hoverSound = 31,
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+			shapeType = ROUNDED,
+			rounded = 4
 		})
-		makeNewClan:addCustomDisplay(false, function()
-				makeNewClan:uiText(TB_MENU_LOCALIZED.CLANSCREATENEWCLAN)
-			end)
-		makeNewClan:addMouseHandlers(nil, function()
+		TBMenu:showTextExternal(makeNewClan, TB_MENU_LOCALIZED.CLANSCREATENEWCLAN)
+		makeNewClan:addMouseUpHandler(function()
 				open_url("http://forum.toribash.com/clan_register.php")
 			end)
 	end
 end
 
+---@class ClanFilter
+---@field strict boolean
+---@field val integer|boolean
+
+---@class ClanListFilters
+---@field is_active ClanFilter
+---@field join_mode ClanFilter
+---@field is_official ClanFilter
+---@field sortby string
+---@field desc boolean
+
+---Returns default clan list filters
+---@return ClanListFilters
 function Clans:getDefaultFilters()
 	return {
 		is_active = { strict = true, val = 2 },
@@ -576,7 +498,11 @@ function Clans:getDefaultFilters()
 	}
 end
 
+---Populates clan list according to filter values
+---@param opt ?ClanListFilters
+---@return Clan[]
 function Clans:populateClanList(opt)
+	---@type Clan[]
 	local list = {}
 	local options = Clans:getDefaultFilters()
 	if (opt) then
@@ -608,9 +534,11 @@ function Clans:populateClanList(opt)
 	return table.qsort(list, options.sortby, options.desc)
 end
 
+---Displays clan list filters
+---@param viewElement UIElement
+---@param opt ?ClanListFilters
 function Clans:showClanListFilters(viewElement, opt)
 	viewElement:kill(true)
-	TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
 	local options = {}
 	if (opt) then
 		options = opt
@@ -625,458 +553,321 @@ function Clans:showClanListFilters(viewElement, opt)
 		}
 	end
 
-	options.is_active = options.is_active + 1
-	options.desc = options.desc and 2 or 1
+	options.is_active = options.is_active
+	options.desc = options.desc and SORT_DESCENDING or SORT_ASCENDING
 
+	---@type DropdownElement[]
 	local sortOptions = {
-		rank = { name = TB_MENU_LOCALIZED.CLANFILTERSRANK },
-		name = { name = TB_MENU_LOCALIZED.CLANFILTERSCLANNAME },
-		tag = { name = TB_MENU_LOCALIZED.CLANFILTERSCLANTAG },
-		id = { name = TB_MENU_LOCALIZED.CLANFILTERSCLANID },
-		is_official = { name = TB_MENU_LOCALIZED.CLANFILTERSOFFICIALSTATUS },
-		join_mode = { name = TB_MENU_LOCALIZED.CLANFILTERSJOINMODE }
+		{
+			text = TB_MENU_LOCALIZED.CLANFILTERSRANK,
+			action = function() options.sortby = "rank" end,
+			selected = options.sortby == "rank"
+		},
+		{
+			text = TB_MENU_LOCALIZED.CLANFILTERSCLANNAME,
+			action = function() options.sortby = "name" end,
+			selected = options.sortby == "name"
+		},
+		{
+			text = TB_MENU_LOCALIZED.CLANFILTERSCLANTAG,
+			action = function() options.sortby = "tag" end,
+			selected = options.sortby == "tag"
+		},
+		{
+			text = TB_MENU_LOCALIZED.CLANFILTERSCLANID,
+			action = function() options.sortby = "id" end,
+			selected = options.sortby == "id"
+		},
+		{
+			text = TB_MENU_LOCALIZED.CLANFILTERSOFFICIALSTATUS,
+			action = function() options.sortby = "is_official" end,
+			selected = options.sortby == "is_official"
+		},
+		{
+			text = TB_MENU_LOCALIZED.CLANFILTERSJOINMODE,
+			action = function() options.sortby = "join_mode" end,
+			selected = options.sortby == "join_mode"
+		}
 	}
-	local activityOptions = {
-		{ name = TB_MENU_LOCALIZED.CLANFILTERSDEAD },
-		{ name = TB_MENU_LOCALIZED.CLANFILTERSINACTIVE },
-		{ name = TB_MENU_LOCALIZED.CLANFILTERSACTIVE }
-	}
+	---@type DropdownElement
 	local sortOrder = {
-		{ name = TB_MENU_LOCALIZED.SORTORDERASCENDING },
-		{ name = TB_MENU_LOCALIZED.SORTORDERDESCENDING }
+		{
+			text = TB_MENU_LOCALIZED.SORTORDERASCENDING,
+			action = function() options.desc = SORT_ASCENDING end,
+			selected = options.desc == SORT_ASCENDING
+		},
+		{
+			text = TB_MENU_LOCALIZED.SORTORDERDESCENDING,
+			action = function() options.desc = SORT_DESCENDING end,
+			selected = options.desc == SORT_DESCENDING
+		}
 	}
 	local optData = {
-		--{ opt = "is_active", name = TB_MENU_LOCALIZED.CLANFILTERSACTIVITYSTATE, desc = TB_MENU_LOCALIZED.CLANFILTERSACTIVITYSTATEDESC, customSelection = activityOptions },
 		{ opt = "join_mode", name = TB_MENU_LOCALIZED.CLANFILTERSFFAONLY, desc = TB_MENU_LOCALIZED.CLANFILTERSFFAONLYDESC, },
 		{ opt = "is_official", name = TB_MENU_LOCALIZED.CLANFILTERSOFFICIALONLY, desc = TB_MENU_LOCALIZED.CLANFILTERSOFFICIALONLYDESC, },
 		{ opt = "sortby", name = TB_MENU_LOCALIZED.SORTBYNAME, customSelection = sortOptions },
 		{ opt = "desc", name = TB_MENU_LOCALIZED.SORTORDERNAME, customSelection = sortOrder }
 	}
 
-	local toReload = UIElement:new({
-		parent = viewElement,
-		pos = { 0, 0 },
-		size = { viewElement.size.w, viewElement.size.h }
-	})
-	local filtersTopBar = UIElement:new({
-		parent = toReload,
-		pos = { 0, 0 },
-		size = { viewElement.size.w, 50 },
-		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
-	})
-	local filtersBotBar = UIElement:new({
-		parent = toReload,
-		pos = { 0, -50 },
-		size = { viewElement.size.w, 50 },
-		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
-	})
-	local filtersTitle = UIElement:new({
-		parent = filtersTopBar,
-		pos = { 0, 0 },
-		size = { filtersTopBar.size.w - filtersTopBar.size.h, filtersTopBar.size.h }
-	})
-	filtersTitle:addCustomDisplay(true, function()
-			filtersTitle:uiText(TB_MENU_LOCALIZED.CLANSSEARCHFILTERS, nil, nil, FONTS.BIG, CENTERMID, 0.7, nil, nil, nil, nil, 0.2)
-		end)
-	local clanListFilters = TBMenu:createImageButtons(filtersTopBar, filtersTitle.size.w, 0, filtersTitle.size.h, filtersTitle.size.h, TB_MENU_CLANFILTERS_BUTTON, TB_MENU_CLANFILTERS_BUTTON_HOVER, TB_MENU_CLANFILTERS_BUTTON_PRESS)
-	clanListFilters:addMouseHandlers(nil, function()
-			if (options) then
-				options.is_active = options.is_active - 1
-				options.desc = options.desc % 2 == 0 and true or false
-			end
-			Clans:showClanList(viewElement, options)
-		end, nil)
+	local elementHeight = 50
+	local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 60, 60, 20, TB_MENU_DEFAULT_BG_COLOR)
 
-	local filtersMain = UIElement:new({
-		parent = viewElement,
-		pos = { 0, filtersTopBar.size.h },
-		size = { filtersTopBar.size.w, viewElement.size.h - filtersTopBar.size.h - filtersBotBar.size.h }
+	local filtersTitle = topBar:addChild({
+		shift = { topBar.size.h, 5 }
 	})
-	local filtersView = UIElement:new({
-		parent = filtersMain,
-		pos = { 0, 0 },
-		size = { filtersMain.size.w - 20, filtersMain.size.h }
+	filtersTitle:addAdaptedText(true, TB_MENU_LOCALIZED.CLANSSEARCHFILTERS, nil, nil, FONTS.BIG, CENTERMID, 0.7, nil, 0.5)
+	local filtersButton = topBar:addChild({
+		pos = { -topBar.size.h + 10, 10 },
+		size = { topBar.size.h - 20, topBar.size.h - 20 },
+		interactive = true,
+		bgImage = "../textures/menu/general/buttons/filters.tga",
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+		shapeType = ROUNDED,
+		rounded = 4
 	})
-	local listFilters = {}
-	for i,v in pairs(optData) do
-		local listFilterElement = UIElement:new({
-			parent = filtersView,
-			pos = { 0, #listFilters * 50 },
-			size = { filtersView.size.w, 50 }
+	filtersButton:addMouseUpHandler(function()
+			Clans:showClanList(viewElement, options)
+		end)
+	TBMenu:addBottomBloodSmudge(botBar, 2)
+
+	local listElements = {}
+	for _, v in pairs(optData) do
+		local listFilterElement = listingHolder:addChild({
+			pos = { 0, #listElements * elementHeight },
+			size = { listingHolder.size.w, elementHeight }
 		})
-		table.insert(listFilters, listFilterElement)
-		local filterName = UIElement:new({
-			parent = listFilterElement,
-			pos = { 20, 10 },
-			size = { (listFilterElement.size.w - 40) / 2, listFilterElement.size.h - 20 }
+		table.insert(listElements, listFilterElement)
+		local filterBackground = listFilterElement:addChild({
+			pos = { 10, 3 },
+			size = { listFilterElement.size.w - 10, listFilterElement.size.h - 6 },
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			shapeType = ROUNDED,
+			rounded = 4
 		})
-		filterName:addCustomDisplay(true, function()
-				filterName:uiText(optData[i].name, nil, nil, nil, LEFTMID)
-			end)
-		if (optData[i].desc) then
-			local listFilterElement = UIElement:new({
-				parent = filtersView,
-				pos = { 0, #listFilters * 50 },
-				size = { filtersView.size.w, 50 }
+		local filterName = filterBackground:addChild({
+			pos = { 10, 6 },
+			size = { (filterBackground.size.w - 30) / 2, filterBackground.size.h - 12 }
+		})
+		filterName:addAdaptedText(true, v.name, nil, nil, nil, LEFTMID)
+
+		if (v.desc) then
+			filterBackground.size.h = listFilterElement.size.h - filterBackground.shift.y
+			filterBackground:setRounded({ filterBackground.rounded, 0 })
+			local filterDescriptionHolder = listingHolder:addChild({
+				pos = { 0, #listElements * elementHeight },
+				size = { listingHolder.size.w, elementHeight }
 			})
-			table.insert(listFilters, listFilterElement)
-			local filterDesc = UIElement:new({
-				parent = listFilterElement,
-				pos = { 20, 10 },
-				size = { listFilterElement.size.w - 40, listFilterElement.size.h - 20 }
+			table.insert(listElements, filterDescriptionHolder)
+			local filterDescBackground = filterDescriptionHolder:addChild({
+				pos = { filterBackground.shift.x, 0 },
+				size = { filterBackground.size.w, filterBackground.size.h },
+				bgColor = filterBackground.bgColor,
+				shapeType = filterBackground.shapeType,
+				rounded = { 0, filterBackground.roundedInternal[1] }
 			})
-			filterDesc:addCustomDisplay(true, function()
-					filterDesc:uiText(optData[i].desc, nil, nil, 4, LEFT, 0.6)
-				end)
-			if (i ~= #optData) then
-				local separator = UIElement:new({
-					parent = listFilterElement,
-					pos = { 0, -1 },
-					size = { listFilterElement.size.w, 1 },
-					bgColor = { 0, 0, 0, 0.2 }
-				})
-			end
-			listFilterElement:hide()
-		elseif (i ~= #optData) then
-			local separator = UIElement:new({
-				parent = listFilterElement,
-				pos = { 0, -1 },
-				size = { listFilterElement.size.w, 1 },
-				bgColor = { 0, 0, 0, 0.2 }
-			})
+			filterDescBackground:addChild({
+				shift = { 10, 6 }
+			}):addAdaptedText(true, v.desc, nil, nil, FONTS.LMEDIUM, LEFT, 0.75)
 		end
-		local opts = optData[i].opt
-		if (optData[i].customSelection) then
-			local optTotal = 0
-			for j, k in pairs(optData[i].customSelection) do
-				optTotal = optTotal + 1
-			end
-			local filterOption = UIElement:new({
-				parent = listFilterElement,
-				pos = { listFilterElement.size.w / 2, 5 },
-				size = { (listFilterElement.size.w - 40) / 2, listFilters[i].size.h - 10 },
-				bgColor = { 0, 0, 0, 0.3 },
-				hoverColor = { 0, 0, 0, 0.5 },
-				pressedColor = { 1, 0, 0, 0.1 },
-				interactive = true
+
+		if (v.customSelection) then
+			local dropdownHolder = filterBackground:addChild({
+				pos = { -filterName.size.w - filterName.shift.y, filterName.shift.y },
+				size = { filterName.size.w, filterName.size.h },
+				bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+				shapeType = ROUNDED,
+				rounded = 4
 			})
-			local filterSelection = UIElement:new({
-				parent = filtersView,
-				pos = { filterOption.pos.x - filtersView.pos.x, filterOption.pos.y - filtersView.pos.y },
-				size = { filterOption.size.w, filterOption.size.h * optTotal / 3 * 2 },
-				bgColor = TB_MENU_DEFAULT_DARKER_COLOR
+			TBMenu:spawnDropdown(dropdownHolder:addChild({ shift = { 1, 1 }, bgColor = TB_MENU_DEFAULT_BG_COLOR }, true), v.customSelection, dropdownHolder.size.h, nil, nil, {
+				fontid = FONTS.MEDIUM,
+				scale = 0.9
+			}, {
+				scale = 0.7
 			})
-			filterSelection:addCustomDisplay(false, function()
-					if (filterSelection.pos.y < filtersMain.pos.y or filterSelection.pos.y + filterSelection.size.h > filtersMain.pos.y + filtersMain.size.h) then
-						filterSelection:moveTo(filterOption.pos.x - filtersView.pos.x, filterOption.pos.y - filtersView.pos.y)
-						filterSelection:hide()
-					end
-				end)
-			local count = 0
-			for j,k in pairs(optData[i].customSelection) do
-				local filterSelectionOption = UIElement:new({
-					parent = filterSelection,
-					pos = { 0, count * filterOption.size.h / 3 * 2 },
-					size = { filterOption.size.w, filterOption.size.h / 3 * 2 },
-					interactive = true,
-					bgColor = { 0, 0, 0, 0 },
-					hoverColor = { 0, 0, 0, 0.2 },
-					pressedColor = { 1, 0, 0, 0.1 }
-				})
-				filterSelectionOption:addCustomDisplay(false, function()
-						filterSelectionOption:uiText(k.name, nil, nil, 4, CENTERMID, 0.7)
-					end)
-				filterSelectionOption:addMouseHandlers(nil, function()
-						filterSelection:moveTo(nil, filterOption.pos.y - filtersView.pos.y)
-						options[opts] = j
-						filterSelection:hide()
-					end, nil)
-				count = count + 1
-			end
-			filterOption:addCustomDisplay(false, function()
-					filterOption:uiText(optData[i].customSelection[options[opts]].name, nil, nil, nil, CENTERMID, nil, nil, nil, nil, nil, 0.2)
-				end)
-			filterOption:addMouseHandlers(function()
-					if (filterSelection.pos.y + filterSelection.size.h > filtersBotBar.pos.y) then
-						local lPos = filtersView:getLocalPos(0, filtersBotBar.pos.y).y
-						if (lPos < 0) then
-							lPos = lPos - filtersView.size.h
-						end
-						filterSelection:moveTo(nil, lPos - filterSelection.size.h)
-					elseif (filterSelection.pos.y < filtersTopBar.pos.y + filtersTopBar.size.h) then
-						local lPos = filtersView:getLocalPos(0, filtersTopBar.pos.y + filtersTopBar.size.h).y
-						if (lPos < 0) then
-							lPos = lPos - filtersView.size.h
-						end
-						filterSelection:moveTo(nil, lPos)
-					end
-					filterSelection:show()
-				end, nil, nil)
-			filterSelection:hide()
 		else
-			local filterCheckbox = UIElement:new({
-				parent = listFilterElement,
-				pos = { -60, 5 },
-				size = { listFilterElement.size.h - 10, listFilterElement.size.h - 10 },
-				bgColor = { 0, 0, 0, 0.3 },
-				hoverColor = { 0, 0, 0, 0.5 },
-				pressedColor = { 1, 0, 0, 0.1 },
-				interactive = true
+			local checkboxSize = filterBackground.size.h - filterName.shift.y * 2
+			local checkboxHolder = filterBackground:addChild({
+				pos = { -checkboxSize - filterName.shift.y, filterName.shift.y },
+				size = { checkboxSize, checkboxSize },
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				shapeType = ROUNDED,
+				rounded = 4
 			})
-			local filterCheckboxIcon = UIElement:new({
-				parent = filterCheckbox,
-				pos = { 0, 0 },
-				size = { filterCheckbox.size.w, filterCheckbox.size.h },
-				bgImage = "../textures/menu/general/buttons/checkmark.tga"
-			})
-			if (options[opts] == 0 or options[opts] == false) then
-				filterCheckboxIcon:hide(true)
-			end
-			filterCheckbox:addMouseHandlers(nil, function()
-					if (type(options[opts]) == "boolean") then
-						options[opts] = not options[opts]
-					else
-						options[opts] = 1 - options[opts]
-					end
-					if (options[opts] == 1 or options[opts] == true) then
-						filterCheckboxIcon:show(true)
-					else
-						filterCheckboxIcon:hide(true)
-					end
-				end, nil)
+			TBMenu:spawnToggle(checkboxHolder, nil, nil, nil, nil, options[v.opt], function(val)
+					options[v.opt] = val
+				end)
 		end
 	end
 
-	for i,v in pairs(listFilters) do
+	for _, v in pairs(listElements) do
 		v:hide()
 	end
 
-	local filtersScrollBar = TBMenu:spawnScrollBar(filtersView, #listFilters, 50)
-	filtersView.scrollBar = filtersScrollBar
-	filtersScrollBar:makeScrollBar(filtersView, listFilters, toReload)
+	local filtersScrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
+	listingHolder.scrollBar = filtersScrollBar
+	filtersScrollBar:makeScrollBar(listingHolder, listElements, toReload)
 
-	local clanFiltersBotSmudge = TBMenu:addBottomBloodSmudge(filtersBotBar, 2)
-	local filterSearchButton = UIElement:new({
-		parent = filtersBotBar,
-		pos = { filtersBotBar.size.w / 6, 5 },
-		size = { filtersBotBar.size.w / 6 * 4, filtersBotBar.size.h - 10 },
+	local searchButton = botBar:addChild({
+		shift = { botBar.size.w / 4, 10 },
 		interactive = true,
-		bgColor = { 0, 0, 0, 0.1 },
-		hoverColor = { 0, 0, 0, 0.3 },
-		pressedColor = { 1, 0, 0, 0.1 },
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+		shapeType = ROUNDED,
+		rounded = 4,
 		hoverSound = 31
 	})
-	filterSearchButton:addCustomDisplay(false, function()
-			filterSearchButton:uiText(TB_MENU_LOCALIZED.CLANSSEARCH, nil, nil, FONTS.BIG, CENTERMID, 0.5)
-		end)
-	filterSearchButton:addMouseHandlers(nil, function()
-			options.is_active = options.is_active - 1
-			options.desc = options.desc % 2 == 0 and true or false
+	searchButton:addAdaptedText(TB_MENU_LOCALIZED.CLANSSEARCH)
+	searchButton:addMouseUpHandler(function()
 			CLANLISTSHIFT[1] = 0
 			Clans:showClanList(viewElement, options)
-		end, nil)
+		end)
 end
 
+---Displays clan list in a UIElement viewport
+---@param viewElement UIElement
+---@param options ?ClanListFilters
 function Clans:showClanList(viewElement, options)
 	viewElement:kill(true)
 	TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
-	if (CLANSEARCHFILTERS and type(CLANSEARCHFILTERS.desc) ~= "boolean") then
-		CLANSEARCHFILTERS.is_active = CLANSEARCHFILTERS.is_active - 1
-		CLANSEARCHFILTERS.desc = CLANSEARCHFILTERS.desc % 2 == 0 and true or false
-	end
-	local options = options or CLANSEARCHFILTERS
-	local clanList = Clans:populateClanList(options)
-	CLANSEARCHFILTERS = options
-	local clanEntryHeight = 45
-	-- Parent Object to hold all elements that require reloading when scrolling
-	local toReload = UIElement:new({
-		parent = viewElement,
-		pos = { 0, 0 },
-		size = { viewElement.size.w, viewElement.size.h }
-	})
 
-	-- Top and Bottom bars, keep interactive to prevent clicking through
-	local clanListTopBar = UIElement:new({
-		parent = toReload,
-		pos = { 0, 0 },
-		size = { viewElement.size.w, 80 },
+	Clans.SearchFilters = options or Clans.SearchFilters
+	local clanList = Clans:populateClanList(Clans.SearchFilters)
+
+	local elementHeight = 45
+	local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 60 + elementHeight / 2, elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
+	TBMenu:addBottomBloodSmudge(botBar, 2)
+
+	local listTitle = topBar:addChild({
+		pos = { topBar.size.h, 5 },
+		size = { topBar.size.w - topBar.size.h * 2, topBar.size.h - (elementHeight / 2) - 10 }
+	})
+	listTitle:addAdaptedText(true, TB_MENU_LOCALIZED.CLANSCLANLIST, nil, nil, FONTS.BIG, CENTERMID, 0.7, nil, 0.5)
+	local filtersButton = topBar:addChild({
+		pos = { -listTitle.size.h, 10 },
+		size = { listTitle.size.h - 10, listTitle.size.h - 10 },
+		interactive = true,
+		bgImage = "../textures/menu/general/buttons/filtersoutline.tga",
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
-		interactive = true
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+		shapeType = ROUNDED,
+		rounded = 4
 	})
-	local clanListTopBarTitle = UIElement:new({
-		parent = clanListTopBar,
-		pos = { 0, 0 },
-		size = { clanListTopBar.size.w - 50, 50 }
-	})
-	clanListTopBarTitle:addCustomDisplay(true, function()
-			clanListTopBarTitle:uiText(TB_MENU_LOCALIZED.CLANSCLANLIST, nil, nil, FONTS.BIG, CENTERMID, 0.7, nil, nil, nil, nil, 0.2)
-		end)
-	local clanListFilters = TBMenu:createImageButtons(clanListTopBar, clanListTopBarTitle.size.w, 0, clanListTopBarTitle.size.h, clanListTopBarTitle.size.h, TB_MENU_CLANFILTERS_BUTTON, TB_MENU_CLANFILTERS_BUTTON_HOVER, TB_MENU_CLANFILTERS_BUTTON_PRESS)
-	clanListFilters:addMouseHandlers(nil, function()
+	filtersButton:addMouseUpHandler(function()
 			Clans:showClanListFilters(viewElement, options)
-		end, nil)
-
-	local clanListLegendRankWidth = 60
-	local clanListLegendNameWidth = (clanListTopBar.size.w - clanListLegendRankWidth - 30) / 5 * 3
-	local clanListLegendOfficialWidth = (clanListTopBar.size.w - clanListLegendRankWidth - 30) / 5
-	local clanListLegendJoinModeWidth = (clanListTopBar.size.w - clanListLegendRankWidth - 30) / 5
-
-	local clanListTopBarLegend = UIElement:new({
-		parent = clanListTopBar,
-		pos = { 0, clanListTopBarTitle.size.h },
-		size = { clanListTopBar.size.w, clanListTopBar.size.h - clanListTopBarTitle.size.h },
-		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
-	})
-	local clanListLegendRank = UIElement:new({
-		parent = clanListTopBarLegend,
-		pos = { 0, 0 },
-		size = { clanListLegendRankWidth, clanListTopBarLegend.size.h },
-		bgColor = { 0, 0, 0, 0.05 }
-	})
-	clanListLegendRank:addCustomDisplay(false, function()
-			clanListLegendRank:uiText(TB_MENU_LOCALIZED.CLANSLEGENDRANK, nil, nil, 4, CENTERMID, 0.7)
 		end)
-	local clanListLegendName = UIElement:new({
-		parent = clanListTopBarLegend,
-		pos = { clanListLegendRankWidth, 0 },
-		size = { clanListLegendNameWidth, clanListTopBarLegend.size.h }
-	})
-	clanListLegendName:addCustomDisplay(true, function()
-			clanListLegendName:uiText(TB_MENU_LOCALIZED.CLANSLEGENDTAGNAME, nil, nil, 4, CENTERMID, 0.7)
-		end)
-	local clanListLegendOfficial = UIElement:new({
-		parent = clanListTopBarLegend,
-		pos = { clanListLegendRankWidth + clanListLegendNameWidth, 0 },
-		size = { clanListLegendOfficialWidth, clanListTopBarLegend.size.h },
-		bgColor = { 0, 0, 0, 0.05 }
-	})
-	clanListLegendOfficial:addCustomDisplay(false, function()
-			clanListLegendOfficial:uiText(TB_MENU_LOCALIZED.CLANSLEGENDSTATUS, nil, nil, 4, CENTERMID, 0.7)
-		end)
-	local clanListLegendJoinMode = UIElement:new({
-		parent = clanListTopBarLegend,
-		pos = { clanListLegendRankWidth + clanListLegendNameWidth + clanListLegendOfficialWidth, 0 },
-		size = { clanListLegendJoinModeWidth, clanListTopBarLegend.size.h }
-	})
-	clanListLegendJoinMode:addCustomDisplay(true, function()
-			clanListLegendJoinMode:uiText(TB_MENU_LOCALIZED.CLANSLEGENDJOINMODE, nil, nil, 4, CENTERMID, 0.7)
-		end)
-	local clanListBotBar = UIElement:new({
-		parent = toReload,
-		pos = { 0, -30 },
-		size = { viewElement.size.w, 30 },
-		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
-		interactive = true
-	})
-	local clanListBotSmudge = TBMenu:addBottomBloodSmudge(clanListBotBar, 2)
 
-	-- Main View for Clan List
-	local clanListView = UIElement:new({
-		parent = viewElement,
-		pos = { 0, clanListTopBar.size.h },
-		size = { viewElement.size.w, viewElement.size.h - clanListTopBar.size.h - clanListBotBar.size.h }
-	})
+	local legendFields = {
+		{
+			text = TB_MENU_LOCALIZED.CLANSLEGENDRANK,
+			width = 55
+		},
+		{
+			text = TB_MENU_LOCALIZED.CLANSLEGENDTAGNAME,
+			width = (listingHolder.size.w - 67) * 0.6
+		},
+		{
+			text = TB_MENU_LOCALIZED.CLANSLEGENDSTATUS,
+			width = (listingHolder.size.w - 67) * 0.2
+		},
+		{
+			text = TB_MENU_LOCALIZED.CLANSLEGENDJOINMODE,
+			width = (listingHolder.size.w - 67) * 0.2
+		}
+	}
 
-	-- Clan Holder Object, used to create scrollable list
-	local clanListHolder = UIElement:new({
-		parent = clanListView,
-		pos = { 0, 0 },
-		size = { clanListView.size.w - 20, clanListView.size.h }
+	local legendHolder = topBar:addChild({
+		pos = { 0, -elementHeight / 2 },
+		size = { listingHolder.size.w, elementHeight / 2 }
 	})
+	local xShift = 10
+	for _, v in pairs(legendFields) do
+		legendHolder:addChild({
+			pos = { xShift, 0 },
+			size = { v.width, legendHolder.size.h }
+		}):addAdaptedText(true, v.text, nil, nil, nil, nil, 0.7)
+		xShift = xShift + v.width
+	end
 
 	if (#clanList > 0) then
-		local clanListClans = {}
-		for i, v in pairs(clanList) do
-			clanListClans[i] = UIElement:new({
-				parent = clanListHolder,
-				pos = { 0, (i - 1) * clanEntryHeight },
-				size = { clanListHolder.size.w, clanEntryHeight },
+		local listElements = {}
+		for _, clan in pairs(clanList) do
+			local buttonHolder = listingHolder:addChild({
+				pos = { 0, #listElements * elementHeight },
+				size = { listingHolder.size.w, elementHeight }
+			})
+			table.insert(listElements, buttonHolder)
+
+			local buttonBackground = buttonHolder:addChild({
+				pos = { 10, 2 },
+				size = { buttonHolder.size.w - 12, buttonHolder.size.h - 4 },
 				interactive = true,
-				bgColor = { 0, 0, 0, i % 2 == 0 and 0 or 0.1 },
-				hoverColor = { 0, 0, 0, 0.3 },
-				pressedColor = { 0, 0, 0, 0.4 },
-				hoverSound = 31
+				clickThrough = true,
+				hoverThrough = true,
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+				shapeType = ROUNDED,
+				rounded = 4
 			})
-			clanListClans[i]:addMouseHandlers(nil, function()
-					Clans:showClan(viewElement.parent, clanList[i].id)
-				end, nil)
-			local clanListClanRank = UIElement:new({
-				parent = clanListClans[i],
+			buttonBackground:addMouseUpHandler(function()
+					Clans:showClan(viewElement.parent, clan.id)
+				end)
+
+			local rankDisplay = buttonBackground:addChild({
 				pos = { 0, 0 },
-				size = { clanListLegendRankWidth, clanListClans[i].size.h },
-				bgColor = { 0, 0, 0, 0.05 }
+				size = { legendFields[1].width, buttonBackground.size.h }
 			})
-			local clanRank = clanList[i].rank == 0 and "-" or clanList[i].rank
-			clanListClanRank:addCustomDisplay(false, function()
-					clanListClanRank:uiText(clanRank, nil, nil, 4, CENTERMID, 0.7)
-				end)
-			local clanListClanNameView = UIElement:new({
-				parent = clanListClans[i],
-				pos = { clanListLegendRankWidth, 0 },
-				size = { clanListLegendNameWidth, clanListClans[i].size.h }
+			local rankString = clan.rank == 0 and "-" or tostring(clan.rank)
+			rankDisplay:addAdaptedText(true, rankString, nil, nil, 4, CENTERMID, 0.7)
+
+			local nameTagDisplay = buttonBackground:addChild({
+				pos = { rankDisplay.shift.x + rankDisplay.size.w, 0 },
+				size = { legendFields[2].width, buttonBackground.size.h }
 			})
-			local clanListClanTag = UIElement:new({
-				parent = clanListClanNameView,
+			local tagDisplay = nameTagDisplay:addChild({
 				pos = { 0, 0 },
-				size = { clanListClanNameView.size.w / 3 - 5, clanListClanNameView.size.h }
+				size = { nameTagDisplay.size.w / 2 - 8, nameTagDisplay.size.h }
 			})
-			local clanListClanName = UIElement:new({
-				parent = clanListClanNameView,
-				pos = { clanListClanNameView.size.w / 3 + 5, 0 },
-				size = { clanListClanNameView.size.w / 3 * 2 - 5, clanListClanNameView.size.h }
+			local nameDisplay = nameTagDisplay:addChild({
+				pos = { -tagDisplay.size.w, 0 },
+				size = { tagDisplay.size.w, nameTagDisplay.size.h }
 			})
-			local clanListClanNameSeparator = UIElement:new({
-				parent = clanListClanNameView,
-				pos = { clanListClanNameView.size.w / 3 - 5, 0 },
-				size = { 10, clanListClanNameView.size.h }
+			nameTagDisplay:addAdaptedText(true, "|", nil, nil, 4, CENTERMID, 0.5)
+			tagDisplay:addAdaptedText(true, clan.tag, nil, nil, 4, RIGHTMID, 0.7)
+			nameDisplay:addAdaptedText(true, clan.name, nil, nil, 4, LEFTMID, 0.7)
+
+			local statusDisplay = buttonBackground:addChild({
+				pos = { nameTagDisplay.shift.x + nameTagDisplay.size.w, 0 },
+				size = { legendFields[3].width, buttonBackground.size.h }
 			})
-			clanListClanNameSeparator:addCustomDisplay(true, function()
-					clanListClanNameSeparator:uiText("|", nil, nil, 4, CENTERMID, 0.7)
-				end)
-			clanListClanTag:addCustomDisplay(true, function()
-					clanListClanTag:uiText(clanList[i].tag, nil, nil, 4, RIGHTMID, 0.7)
-				end)
-			clanListClanName:addCustomDisplay(true, function()
-					clanListClanName:uiText(clanList[i].name, nil, nil, 4, LEFTMID, 0.7)
-				end)
-			local clanListClanOfficial = UIElement:new({
-				parent = clanListClans[i],
-				pos = { clanListLegendRankWidth + clanListLegendNameWidth, 0 },
-				size = { clanListLegendOfficialWidth, clanListClans[i].size.h },
-				bgColor = { 0, 0, 0, 0.05 }
+			local statusString = clan.is_official and TB_MENU_LOCALIZED.CLANSTATEOFFICIAL or TB_MENU_LOCALIZED.CLANSTATEUNOFFICIAL
+			statusDisplay:addAdaptedText(true, statusString, nil, nil, 4, CENTERMID, 0.7)
+
+			local joinModeDisplay = buttonBackground:addChild({
+				pos = { statusDisplay.shift.x + statusDisplay.size.w, 0 },
+				size = { legendFields[4].width, buttonBackground.size.h }
 			})
-			local officialStatus = clanList[i].is_official == 1 and TB_MENU_LOCALIZED.CLANSTATEOFFICIAL or TB_MENU_LOCALIZED.CLANSTATEUNOFFICIAL
-			clanListClanOfficial:addCustomDisplay(false, function()
-					clanListClanOfficial:uiText(officialStatus, nil, nil, 4, CENTERMID, 0.7)
-				end)
-			local clanListClanJoinMode = UIElement:new({
-				parent = clanListClans[i],
-				pos = { clanListLegendRankWidth + clanListLegendNameWidth + clanListLegendOfficialWidth, 0 },
-				size = { clanListLegendJoinModeWidth, clanListClans[i].size.h }
-			})
-			local joinModeStatus = clanList[i].join_mode == 1 and TB_MENU_LOCALIZED.CLANSTATEFREEFORALL or TB_MENU_LOCALIZED.CLANSTATEINVITEONLY
-			clanListClanJoinMode:addCustomDisplay(true, function()
-					clanListClanJoinMode:uiText(joinModeStatus, nil, nil, 4, CENTERMID, 0.7)
-				end)
-			clanListClans[i]:hide()
+			local joinModeString = clan.join_mode == 1 and TB_MENU_LOCALIZED.CLANSTATEFREEFORALL or TB_MENU_LOCALIZED.CLANSTATEINVITEONLY
+			joinModeDisplay:addAdaptedText(true, joinModeString, nil, nil, 4, CENTERMID, 0.7)
+
+			buttonHolder:hide()
 		end
 
-		local clanListScrollBG = UIElement:new({
-			parent = clanListView,
-			pos = { -(clanListView.size.w - clanListHolder.size.w), 0 },
-			size = { clanListView.size.w - clanListHolder.size.w, clanListHolder.size.h },
-			bgColor = TB_MENU_DEFAULT_DARKER_COLOR
-		})
-		local clanListScrollBar = TBMenu:spawnScrollBar(clanListHolder, #clanListClans, clanEntryHeight)
-		clanListHolder.scrollBar = clanListScrollBar
-		clanListScrollBar:makeScrollBar(clanListHolder, clanListClans, toReload, CLANLISTSHIFT)
+		local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
+		listingHolder.scrollBar = scrollBar
+		scrollBar:makeScrollBar(listingHolder, listElements, toReload)
 	else
-		clanListHolder:addCustomDisplay(true, function()
-			clanListHolder:uiText(TB_MENU_LOCALIZED.CLANSLISTEMPTYMSG, nil, nil, 4)
-		end)
+		listingHolder:addAdaptedText(TB_MENU_LOCALIZED.CLANSLISTEMPTYMSG)
 	end
 end
 
+---Displays the left section of the clan info screen
+---@param viewElement UIElement
+---@param clanid integer
 function Clans:showClanInfoLeft(viewElement, clanid)
 	TBMenu:addBottomBloodSmudge(viewElement, 2)
 	local clanName = UIElement:new({
@@ -1139,6 +930,9 @@ function Clans:showClanInfoLeft(viewElement, clanid)
 		end, nil)
 end
 
+---Displays the middle section of the clan info screen
+---@param viewElement UIElement
+---@param clanid integer
 function Clans:showClanInfoMid(viewElement, clanid)
 	local clanLevelValue = Clans.Data[clanid].level
 	local clanTopAch = Clans.Data[clanid].top_achievement
@@ -1304,6 +1098,11 @@ function Clans:reloadHeadAvatars(avatars)
 	end
 end
 
+---Displays player head in a specified UIElement viewport
+---@param parent UIElement
+---@param avatarWidth integer
+---@param user string
+---@return UIElement3D
 function Clans:showPlayerAvatar(parent, avatarWidth, user)
 	local avatarViewport = UIElement:new( {
 		parent = parent,
@@ -1340,6 +1139,9 @@ function Clans:showPlayerAvatar(parent, avatarWidth, user)
 	return avatar
 end
 
+---Displays member list for clan information screen
+---@param viewElement UIElement
+---@param clanid integer
 function Clans:showClanMemberlist(viewElement, clanid)
 	local rosterEntryHeight = 40
 	local avatarWidth = rosterEntryHeight
@@ -1485,11 +1287,13 @@ function Clans:showClanMemberlist(viewElement, clanid)
 	end
 end
 
+---Displays clan information screen
+---@param viewElement UIElement
+---@param clanid integer
 function Clans:showClan(viewElement, clanid)
-	TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
 	TB_MENU_CLANS_OPENCLANID = clanid
 	TBMenu:clearNavSection()
-	TBMenu:showNavigationBar(Clans:getNavigationButtons(true), true)
+	TBMenu:showNavigationBar(Clans:getNavigationButtons(), true)
 
 	Clans.Data[clanid] = Clans.Data[clanid] or { }
 	local clanView = UIElement:new({
@@ -1524,6 +1328,10 @@ function Clans:showClan(viewElement, clanid)
 	Clans:showClanInfoMid(clanInfoMidView, clanid)
 end
 
+---Downloads clan logo and refreshes its display upon completion
+---@param clanid integer
+---@param viewElement UIElement
+---@param reload ?boolean
 function Clans:loadClanLogo(clanid, viewElement, reload)
 	for i = #LOGOCACHE, 1, -1 do
 		if (LOGOCACHE[i] == clanid) then
