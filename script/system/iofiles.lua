@@ -71,16 +71,26 @@ do
 	File.__index = File
 
 	---@deprecated
-	-- **DEPRECATED**: Use Files:open() instead
+	---@see Files.Open
 	function Files:new(path, mode)
-		return Files:open(path, mode)
+		return Files.Open(path, mode)
 	end
 
-	-- Opens a file at a specified path
+	---Opens a file at a specified path
 	---@param path string Path to the file. In case we want to start file lookup at Toribash root folder, path should start with `../`.
 	---@param mode? openmode Mode to open the file with. Defaults to `FILES_MODE_READONLY`.
 	---@return File
+	---@deprecated
+	---@see Files.Open
 	function Files:open(path, mode)
+		return Files.Open(path, mode)
+	end
+
+	---Opens a file at a specified path
+	---@param path string Path to the file. In case we want to start file lookup at Toribash root folder, path should start with `../`.
+	---@param mode? openmode Mode to open the file with. Defaults to `FILES_MODE_READONLY`.
+	---@return File
+	function Files.Open(path, mode)
 		local file = {
 			mode = mode or FILES_MODE_READONLY,
 			isroot = path:match("^%.%.%/") and true or false,
@@ -143,8 +153,8 @@ do
 	-- Writes a line to the debug.txt file located in Toribash root folder
 	---@param line any
 	---@param rewrite? boolean If true, will open output file with FILES_MODE_WRITE mode to clear its previous contents
-	function Files:writeDebug(line, rewrite)
-		local debug = Files:open("../debug.txt", rewrite and FILES_MODE_WRITE or FILES_MODE_APPEND)
+	function Files.WriteDebug(line, rewrite)
+		local debug = Files.Open("../debug.txt", rewrite and FILES_MODE_WRITE or FILES_MODE_APPEND)
 		if (type(line) == "table") then
 			debug:writeLine(os.clock_real() .. ': ' .. print_r(line, true))
 		else

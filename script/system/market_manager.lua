@@ -2361,7 +2361,7 @@ do
 		end
 
 		local itemIconFilePath = Torishop:getItemIcon(item)
-		local itemIconFile = Files:open(itemIconFilePath)
+		local itemIconFile = Files.Open(itemIconFilePath)
 		local hasIcon = itemIconFile.data and true or false
 		itemIconFile:close()
 
@@ -3073,7 +3073,7 @@ do
 							end
 							local response = get_network_response();
 							if (not response:find("ERROR")) then
-								local textureFile = Files:open("../data/textures/store/market/" .. string.lower(TB_MENU_PLAYER_INFO.username) .. ".tga")
+								local textureFile = Files.Open("../data/textures/store/market/" .. string.lower(TB_MENU_PLAYER_INFO.username) .. ".tga")
 								shopImage.killAction = function() if (textureFile) then textureFile:close() end end
 								shopImage:addCustomDisplay(false, function()
 									if (not textureFile:isDownloading()) then
@@ -3334,7 +3334,7 @@ do
 							end
 							local response = get_network_response();
 							if (not response:find("ERROR")) then
-								local textureFile = Files:open("../data/textures/store/market/" .. string.lower(username) .. ".tga")
+								local textureFile = Files.Open("../data/textures/store/market/" .. string.lower(username) .. ".tga")
 								shopImage.killAction = function() if (textureFile) then textureFile:close() end end
 								shopImage:addCustomDisplay(false, function()
 									if (not textureFile:isDownloading()) then
@@ -3798,7 +3798,7 @@ do
 					end
 				end
 
-				local featuredFile = Files:open("../data/textures/store/market/" .. featuredShopData.user .. ".tga")
+				local featuredFile = Files.Open("../data/textures/store/market/" .. featuredShopData.user .. ".tga")
 				if (featuredFile.data) then
 					featuredFile:close()
 					if (featuredLoader) then

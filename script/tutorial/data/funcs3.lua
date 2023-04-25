@@ -182,7 +182,7 @@ end
 
 local function moveMemoryAddMoves(moves)
 	local storedMoves = {}
-	local file = Files:open("system/movememory.mm")
+	local file = Files.Open("system/movememory.mm")
 	if (file.data) then
 		for i, ln in pairs(file:readAll()) do
 			if (ln:find("^NAME")) then

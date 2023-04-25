@@ -3,11 +3,11 @@
 
 local w, h = get_window_size()
 ---Window width that UIElement class currently operates with
-WIN_W = w
+_G.WIN_W = w
 ---Window height that UIElement class currently operates with
-WIN_H = h
+_G.WIN_H = h
 ---Current screen ratio
-SCREEN_RATIO = WIN_W / WIN_H
+_G.SCREEN_RATIO = WIN_W / WIN_H
 
 add_hook("resolution_changed", "uiResolutionUpdater", function()
 	WIN_W, WIN_H = get_window_size()
@@ -15,9 +15,9 @@ add_hook("resolution_changed", "uiResolutionUpdater", function()
 end)
 
 ---Current cursor X coordinate
-MOUSE_X = 0
+_G.MOUSE_X = 0
 ---Current cursor Y coordinate
-MOUSE_Y = 0
+_G.MOUSE_Y = 0
 
 ---@alias FontId
 ---| 0 # FONTS.BIG | Badaboom big
@@ -31,13 +31,13 @@ MOUSE_Y = 0
 ---| 8 # SimHei medium
 ---| 9 # FONTS.BIGGER | Badaboom giant
 
-KEYBOARDGLOBALIGNORE = KEYBOARDGLOBALIGNORE or false
+_G.KEYBOARDGLOBALIGNORE = _G.KEYBOARDGLOBALIGNORE or false
 
 ---@alias UIElementShape
 ---| 1 # SQUARE
 ---| 2 # ROUNDED
-SQUARE = 1
-ROUNDED = 2
+_G.SQUARE = 1
+_G.ROUNDED = 2
 
 ---@alias UIElementTextAlign
 ---| 0 # LEFT | Top Left
@@ -49,62 +49,47 @@ ROUNDED = 2
 ---| 6 # LEFTMID | Middle Left
 ---| 7 # CENTERMID | Middle Center
 ---| 8 # RIGHTMID | Middle Right
-LEFT = 0
-CENTER = 1
-RIGHT = 2
-LEFTBOT = 3
-CENTERBOT = 4
-RIGHTBOT = 5
-LEFTMID = 6
-CENTERMID = 7
-RIGHTMID = 8
+_G.LEFT = 0
+_G.CENTER = 1
+_G.RIGHT = 2
+_G.LEFTBOT = 3
+_G.CENTERBOT = 4
+_G.RIGHTBOT = 5
+_G.LEFTMID = 6
+_G.CENTERMID = 7
+_G.RIGHTMID = 8
 
 ---@alias UIElementBtnState
 ---| 0 # Default UIElement button state
 ---| 1 # Hover state
 ---| 2 # Focused state - only used with keyboard controls
 ---| 3 # Down state
-BTN_NONE = 0
-BTN_HVR = 1
-BTN_FOCUS = 2
-BTN_DN = 3
+_G.BTN_NONE = 0
+_G.BTN_HVR = 1
+_G.BTN_FOCUS = 2
+_G.BTN_DN = 3
 
 ---@alias UIElementScrollMode
 ---| 1 # SCROLL_VERTICAL
 ---| 2 # SCROLL_HORIZONTAL
-SCROLL_VERTICAL = 1
-SCROLL_HORIZONTAL = 2
+_G.SCROLL_VERTICAL = 1
+_G.SCROLL_HORIZONTAL = 2
 
 ---@alias SortOrder
 ---| true # SORT_DESCENDING
 ---| false # SORT_ASCENDING
-SORT_DESCENDING = true
-SORT_ASCENDING = false
-
--- Default texture that will be used for fallback by `UIElement:updateTexture()`
-DEFTEXTURE = "../textures/menu/logos/toribash.tga"
-TEXTURECACHE = TEXTURECACHE or {}
-TEXTUREINDEX = TEXTUREINDEX or 0
-
-STEAM_INT_ID = 3449
+_G.SORT_DESCENDING = true
+_G.SORT_ASCENDING = false
 
 ---@alias Color number[]
----@type Color
-UICOLORWHITE = {1,1,1,1}
----@type Color
-UICOLORBLACK = {0,0,0,1}
----@type Color
-UICOLORRED = {1,0,0,1}
----@type Color
-UICOLORGREEN = {0,1,0,1}
----@type Color
-UICOLORBLUE = {0,0,1,1}
----@type Color
-UICOLORTORI = {0.58,0,0,1}
----@type Color
-DEFTEXTCOLOR = DEFTEXTCOLOR or { 1, 1, 1, 1 }
----@type Color
-DEFSHADOWCOLOR = DEFSHADOWCOLOR or { 0, 0, 0, 0.6 }
+_G.UICOLORWHITE = { 1, 1, 1, 1 }
+_G.UICOLORBLACK = { 0, 0, 0, 1 }
+_G.UICOLORRED = { 1, 0, 0, 1 }
+_G.UICOLORGREEN = { 0, 1, 0, 1 }
+_G.UICOLORBLUE = { 0, 0, 1, 1 }
+_G.UICOLORTORI = { 0.58, 0, 0, 1 }
+_G.DEFTEXTCOLOR = _G.DEFTEXTCOLOR or { 1, 1, 1, 1 }
+_G.DEFSHADOWCOLOR = _G.DEFSHADOWCOLOR or { 0, 0, 0, 0.6 }
 
 ---@class Vector2
 ---@field x number
@@ -118,17 +103,23 @@ DEFSHADOWCOLOR = DEFSHADOWCOLOR or { 0, 0, 0, 0.6 }
 ---@field h number
 
 ---@type UIElement[]
-UIElementManager = UIElementManager or {}
+_G.UIElementManager = _G.UIElementManager or {}
 ---@type UIElement[][]
-UIVisualManager = UIVisualManager or {}
+_G.UIVisualManager = _G.UIVisualManager or {}
 ---@type UIElement[]
-UIViewportManager = UIViewportManager or {}
+_G.UIViewportManager = _G.UIViewportManager or {}
 ---@type UIElement[]
-UIMouseHandler = UIMouseHandler or {}
+_G.UIMouseHandler = _G.UIMouseHandler or {}
 ---@type UIElement[]
-UIKeyboardHandler = UIKeyboardHandler or {}
+_G.UIKeyboardHandler = _G.UIKeyboardHandler or {}
 ---@type UIElement[]
-UIScrollbarHandler = UIScrollbarHandler or {}
+_G.UIScrollbarHandler = _G.UIScrollbarHandler or {}
+
+---@type integer[]
+_G.UIElementTextureCache = _G.UIElementTextureCache or {}
+_G.UIElementTextureIndex = _G.UIElementTextureIndex or 0
+-- Default texture that will be used for fallback by `UIElement:updateTexture()`
+_G.UIElementDefaultTexture = "../textures/menu/logos/toribash.tga"
 
 if (not UIElement) then
 	---@class UIElementSize
@@ -2174,7 +2165,7 @@ end
 ---@param noreload? boolean If true, will not check if existing texture should be unloaded
 function UIElement:updateImage(image, default, noreload)
 	require("system.iofiles")
-	local default = default or DEFTEXTURE
+	local default = default or UIElementDefaultTexture
 	local filename
 	if (image) then
 		if (image:find("%.%./", 4)) then
@@ -2188,7 +2179,7 @@ function UIElement:updateImage(image, default, noreload)
 
 	if (not noreload and self.bgImage and not self.disableUnload) then
 		local count, id = 0, 0
-		for i,v in pairs(TEXTURECACHE) do
+		for i,v in pairs(UIElementTextureCache) do
 			if (v == self.bgImage) then
 				count = count + 1
 				id = i
@@ -2196,9 +2187,9 @@ function UIElement:updateImage(image, default, noreload)
 		end
 		if (count == 1) then
 			unload_texture(self.bgImage)
-			TEXTUREINDEX = TEXTUREINDEX - 1
+			UIElementTextureIndex = UIElementTextureIndex - 1
 		end
-		table.remove(TEXTURECACHE, id)
+		table.remove(UIElementTextureCache, id)
 		self.bgImage = nil
 	end
 
@@ -2206,20 +2197,20 @@ function UIElement:updateImage(image, default, noreload)
 		return
 	end
 
-	if (TEXTUREINDEX > 253) then
-		self.bgImage = load_texture(DEFTEXTURE)
+	if (UIElementTextureIndex > 253) then
+		self.bgImage = load_texture(UIElementDefaultTexture)
 		return
 	end
 	if (not self.imageColor) then
 		self.imageColor = { 1, 1, 1, 1 }
 	end
 
-	local tempicon = Files:open("../" .. filename)
+	local tempicon = Files.Open("../" .. filename)
 	if (not tempicon.data) then
 		local textureid = load_texture(default)
 		self.bgImage = textureid
-		TEXTUREINDEX = math.max(TEXTUREINDEX, textureid)
-		table.insert(TEXTURECACHE, self.bgImage)
+		UIElementTextureIndex = math.max(UIElementTextureIndex, textureid)
+		table.insert(UIElementTextureCache, self.bgImage)
 	else
 		local textureid = load_texture(image)
 		if (textureid == -1) then
@@ -2228,8 +2219,8 @@ function UIElement:updateImage(image, default, noreload)
 		else
 			self.bgImage = textureid
 		end
-		TEXTUREINDEX = math.max(TEXTUREINDEX, textureid)
-		table.insert(TEXTURECACHE, self.bgImage)
+		UIElementTextureIndex = math.max(UIElementTextureIndex, textureid)
+		table.insert(UIElementTextureCache, self.bgImage)
 		tempicon:close()
 	end
 end
@@ -2243,7 +2234,7 @@ function UIElement:updateImageGradient(color1, color2, gradientMode)
 	if (self.bgImage ~= nil) then
 		self:updateImage(nil)
 	end
-	if (TEXTUREINDEX > 253) then
+	if (UIElementTextureIndex > 253) then
 		return
 	end
 	if (not self.imageColor) then
@@ -2253,8 +2244,8 @@ function UIElement:updateImageGradient(color1, color2, gradientMode)
 	local textureid = generate_texture_gradient(color1[1], color1[2], color1[3], color1[4], color2[1], color2[2], color2[3], color2[4], gradientMode or 0)
 	if (textureid >= 0) then
 		self.bgImage = textureid
-		TEXTUREINDEX = math.max(TEXTUREINDEX, textureid)
-		table.insert(TEXTURECACHE, self.bgImage)
+		UIElementTextureIndex = math.max(UIElementTextureIndex, textureid)
+		table.insert(UIElementTextureCache, self.bgImage)
 	end
 end
 

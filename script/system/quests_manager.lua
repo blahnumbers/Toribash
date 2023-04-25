@@ -97,7 +97,7 @@ end
 ---@return nil
 function Quests:getQuests()
 	TB_MENU_QUESTS_COUNT = 0
-	local file = Files:open("../data/quest.txt")
+	local file = Files.Open("../data/quest.txt")
 	if (not file.data) then
 		Quests:download()
 		Quests.QuestDataErrors = Quests.QuestDataErrors + 1
@@ -540,11 +540,11 @@ function Quests:downloadGlobal()
 end
 
 ---Parses global quest information from the quests_global data file
----@param fileData? File File object created by Files:open(). If nil, default path for global quests will be used.
+---@param fileData? File File object created by Files.Open(). If nil, default path for global quests will be used.
 ---@return nil
 function Quests:getGlobalQuests(fileData)
 	TB_MENU_QUESTS_GLOBAL_COUNT = 0
-	local fileData = fileData or Files:open("../data/quests_global.dat")
+	local fileData = fileData or Files.Open("../data/quests_global.dat")
 
 	if (not fileData.data and not fileData:isDownloading()) then
 		QUESTS_LASTUPDATE.time = 0

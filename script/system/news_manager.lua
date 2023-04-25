@@ -57,7 +57,7 @@ do
 	---@field featured boolean
 
 	function News:getNews(miniImages)
-		local file = Files:open("../data/news.txt")
+		local file = Files.Open("../data/news.txt")
 		if (not file.data) then
 			local news = News:getDefaultNews()
 			if (file:isDownloading()) then
@@ -85,7 +85,7 @@ do
 				newsData[#newsData].ratio = 1
 				newsData[#newsData].hasMiniImage = true
 
-				local imageFile = Files:open("../data/textures/menu/promo/" .. imageName)
+				local imageFile = Files.Open("../data/textures/menu/promo/" .. imageName)
 				if (not imageFile.data) then
 					News:addToQueue(imageName)
 					Request:queue(function() download_server_file("get_event_image&name=" .. imageName, 0) end, "newsDownload" .. #newsData)
@@ -100,7 +100,7 @@ do
 					newsData[#newsData].image = { "../textures/menu/promo/" .. imageName, "../textures/menu/promo/toribash.tga" }
 				end
 
-				local imageFile = Files:open("../data/textures/menu/promo/" .. imageName)
+				local imageFile = Files.Open("../data/textures/menu/promo/" .. imageName)
 				if (not imageFile.data) then
 					News:addToQueue(imageName)
 					Request:queue(function() download_server_file("get_event_image&name=" .. imageName, 0) end, "newsDownload" .. #newsData)
@@ -155,7 +155,7 @@ do
 	end
 
 	function News:getEvents()
-		local file = Files:open("../data/news.txt")
+		local file = Files.Open("../data/news.txt")
 		if (not file.data) then
 			return {}
 		end
@@ -215,7 +215,7 @@ do
 					local ln = ln:gsub("^DESCDATAIMGTITLE 0;", "")
 					local id = tonumber(ln:sub(1, 1)) or 0
 					local imgtitle = ln:sub(2)
-					local file = Files:open("../data/textures/menu/promo/events/" .. imgtitle)
+					local file = Files.Open("../data/textures/menu/promo/events/" .. imgtitle)
 					if (file.data) then
 						evt.data[id].imagetitle = "../textures/menu/promo/events/" .. imgtitle
 						file:close()
@@ -233,7 +233,7 @@ do
 				elseif (ln:find("^PRIZEIMG 0;")) then
 					evt.prizes = evt.prizes or {}
 					local imgtitle = ln:gsub("^PRIZEIMG 0;", "")
-					local file = Files:open("../data/textures/menu/promo/events/" .. imgtitle)
+					local file = Files.Open("../data/textures/menu/promo/events/" .. imgtitle)
 					if (file.data) then
 						evt.prizes.imagetitle = "../textures/menu/promo/events/" .. imgtitle
 						file:close()

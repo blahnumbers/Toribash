@@ -24,7 +24,7 @@ do
 	function Flames:storeCurrentFlames()
 		-- Read their item.dat first
 		-- If we fail to fetch data, load playerid 0 flames
-		local custom = Files:open("../custom/" .. TB_MENU_PLAYER_INFO.username .. "/item.dat")
+		local custom = Files.Open("../custom/" .. TB_MENU_PLAYER_INFO.username .. "/item.dat")
 		local settings = {}
 		if (custom.data) then
 			local flameid = 0
@@ -373,7 +373,7 @@ do
 		local listElements = {}
 		local storedFlames = {}
 
-		local storedFile = Files:open("../data/flames_stored.dat")
+		local storedFile = Files.Open("../data/flames_stored.dat")
 		if (storedFile.data) then
 			for i, line in pairs(storedFile:readAll()) do
 				if (line:match("^FLAME ([^;]+);[%d ]+")) then
@@ -430,7 +430,7 @@ do
 			})
 			flameDeleteButton:addMouseHandlers(nil, function()
 				local confirmOverlay = TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.FLAMESDELETESTOREDCONFIRM .. " (" .. flame.name .. ")?\n" .. TB_MENU_LOCALIZED.CONFIRMACTIONCANNOTBEUNDONE, function()
-					local flamesStoredFile = Files:open("../data/flames_stored.dat", FILES_MODE_WRITE)
+					local flamesStoredFile = Files.Open("../data/flames_stored.dat", FILES_MODE_WRITE)
 					if (not flamesStoredFile.data) then
 						TBMenu:showDataError(TB_MENU_LOCALIZED.FLAMESERROROPENINGSTORAGE, true)
 						return
@@ -931,7 +931,7 @@ do
 		flamesFlameSave:addMouseHandlers(nil, function()
 				local confirmOverlay = TBMenu:showConfirmationWindowInput(TB_MENU_LOCALIZED.FLAMESSAVINGFLAME, TB_MENU_LOCALIZED.FLAMESFLAMENAME, function(flameName)
 					local flameName = flameName == "" and os.date() or flameName:gsub(";", "|")
-					local flamesStoredFile = Files:open("../data/flames_stored.dat", FILES_MODE_APPEND)
+					local flamesStoredFile = Files.Open("../data/flames_stored.dat", FILES_MODE_APPEND)
 					if (not flamesStoredFile.data) then
 						TBMenu:showDataError(TB_MENU_LOCALIZED.FLAMESERROROPENINGSTORAGE, true)
 						return

@@ -84,7 +84,7 @@ end
 ---@param filename string
 ---@return Atmosphere|nil
 function Atmospheres.ParseFile(filename)
-	local file = Files:open(filename, 'r')
+	local file = Files.Open(filename, 'r')
 	if (file.data == nil) then
 		return nil
 	end
@@ -203,7 +203,7 @@ end
 
 ---Gets the default world shader from user config
 function Atmospheres.GetDefaultWorldShader()
-	local file = Files:open("../custom.cfg")
+	local file = Files.Open("../custom.cfg")
 	if (file.data) then
 		for _, ln in pairs(file:readAll()) do
 			if (ln:find("^customworldshader ")) then
@@ -378,7 +378,7 @@ function Atmospheres.ShowShaderControls()
 			TBMenu:showConfirmationWindowInput(TB_MENU_LOCALIZED.SHADERSSAVING, TB_MENU_LOCALIZED.SHADERSINPUTNAME, function(name)
 				local name = name:gsub("%.inc.?$", "")
 				local function save()
-					local file = Files:open("../data/shader/" .. name .. ".inc", FILES_MODE_WRITE)
+					local file = Files.Open("../data/shader/" .. name .. ".inc", FILES_MODE_WRITE)
 					if (file.data) then
 						for i,v in pairs(Atmospheres.CurrentShader) do
 							local line = i:lower() .. " " .. v[1] .. " " .. v[2] .. " " .. v[3] .. " " .. v[4]
@@ -389,7 +389,7 @@ function Atmospheres.ShowShaderControls()
 						TBMenu:showStatusMessage(TB_MENU_LOCALIZED.ERRORCREATINGFILE)
 					end
 				end
-				local file = Files:open("../data/shader/" .. name .. ".inc")
+				local file = Files.Open("../data/shader/" .. name .. ".inc")
 				if (file.data) then
 					file:close()
 					TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.SHADERSERRORFILEEXISTS, save)
@@ -468,14 +468,14 @@ end
 ---Writes an atmosphere's path as the default one in config file
 ---@param filename string
 function Atmospheres.SetDefaultAtmo(filename)
-	local config = Files:open("../data/atmospheres/atmo.cfg", FILES_MODE_WRITE)
+	local config = Files.Open("../data/atmospheres/atmo.cfg", FILES_MODE_WRITE)
 	config:writeLine(filename)
 	config:close()
 end
 
 ---Loads user's specified default atmosphere
 function Atmospheres.LoadDefaultAtmo()
-	local config = Files:open("../data/atmospheres/atmo.cfg")
+	local config = Files.Open("../data/atmospheres/atmo.cfg")
 	if (not config.data) then
 		return
 	end

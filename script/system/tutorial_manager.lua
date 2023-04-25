@@ -67,7 +67,7 @@ function TutorialsInternal.LoadFile(path)
 		return loadfile(path)
 	end
 
-	local file = Files:open(path)
+	local file = Files.Open(path)
 	if (file.data and type(file.data) == "number") then
 		---@diagnostic disable-next-line: param-type-mismatch
 		local fileContents = file_read(file.data)
@@ -185,7 +185,7 @@ function Tutorials:getLocalization(id, language, path)
 
 	local language = language or get_language()
 	local path = path or "../data/tutorials/tutorial"
-	local localization = Files:open(path .. id .. "_" .. language .. ".txt")
+	local localization = Files.Open(path .. id .. "_" .. language .. ".txt")
 	if (not localization.data) then
 		if (language == "english") then
 			return false
@@ -204,7 +204,7 @@ function Tutorials:getLocalization(id, language, path)
 
 	if (language ~= "english") then
 		-- Make sure there's no missing values
-		local localization = Files:open(path .. id .. "_english.txt")
+		local localization = Files.Open(path .. id .. "_english.txt")
 		for i, ln in pairs(localization:readAll()) do
 			if (not ln:match("^#")) then
 				local data_stream = { ln:match(("([^\t]*)\t?"):rep(2)) }
@@ -305,7 +305,7 @@ end
 function Tutorials:loadTutorial(id, path)
 	local cfuncpath = path and utf8.gsub(path, "%.%./data/", "") or "tutorial/data/funcs"
 	local path = path or "../data/tutorials/tutorial"
-	local tutorial = Files:open(path .. id .. ".dat")
+	local tutorial = Files.Open(path .. id .. ".dat")
 	if (not tutorial.data) then
 		download_server_file("tutorial_" .. id .. "&language=" .. TB_MENU_LOCALIZED.language, 0)
 		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.TUTORIALNODATAFOUND)
@@ -1780,7 +1780,7 @@ function TutorialsInternal.UpdateConfig(next)
 		end
 	end
 
-	local tutorialsConfig = Files:open("../data/tutorials/config.cfg")
+	local tutorialsConfig = Files.Open("../data/tutorials/config.cfg")
 	if (not tutorialsConfig.data) then
 		return false
 	end
@@ -1851,7 +1851,7 @@ function Tutorials:showTutorialEnd(buttonsCustom)
 	usage_event("tutorial" .. self.CurrentTutorial .. "complete")
 
 	local buttons = {}
-	local nextTutorial = Files:open("../data/tutorials/tutorial" .. (type(self.CurrentTutorial) == "number" and (self.CurrentTutorial + 1) or 'non-existing') .. ".dat")
+	local nextTutorial = Files.Open("../data/tutorials/tutorial" .. (type(self.CurrentTutorial) == "number" and (self.CurrentTutorial + 1) or 'non-existing') .. ".dat")
 	if (type(self.CurrentTutorial) == "number") then
 		TutorialsInternal.UpdateConfig(nextTutorial.data ~= nil)
 	end
@@ -2325,7 +2325,7 @@ end
 ---@return integer #Next tutorial id
 ---@return integer #Last played tutorial id
 function Tutorials:getConfig()
-	local tutorialsConfig = Files:open("../data/tutorials/config.cfg")
+	local tutorialsConfig = Files.Open("../data/tutorials/config.cfg")
 	local nextTutorial, lastTutorial = 1, 1
 	if (tutorialsConfig.data) then
 		for _, ln in pairs(tutorialsConfig:readAll()) do

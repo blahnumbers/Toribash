@@ -894,7 +894,7 @@ function QueueList:show(info)
 	queuelistBox.headViewport = nil
 
 	local pName = string.lower(info.pInfo.username)
-	local customs = Files:open("../custom/" .. pName .. "/item.dat", FILES_MODE_READONLY)
+	local customs = Files.Open("../custom/" .. pName .. "/item.dat", FILES_MODE_READONLY)
 	if (not customs.data) then
 		download_head(pName)
 		add_hook("downloader_complete", "queueListPlayerDownloader", function(file)

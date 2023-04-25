@@ -25,7 +25,7 @@ end
 function Rewards.getRewardData()
 	local got_data = false
 	local data_types = { "reward_type", "tc", "item" }
-	local file = Files:open("system/loginrewards.txt")
+	local file = Files.Open("system/loginrewards.txt")
 	if (file.data == nil) then
 		return false
 	end

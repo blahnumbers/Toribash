@@ -131,7 +131,7 @@ function ReplayInfo.FromString(str)
 end
 
 function ReplayInfo.FromReplay(path)
-	local replay = Files:open("../" .. path, FILES_MODE_READONLY)
+	local replay = Files.Open("../" .. path, FILES_MODE_READONLY)
 	local replayLines = replay:readAll()
 	replay:close()
 
@@ -196,7 +196,7 @@ end
 ---@return boolean
 ---@return string? #Error message in case of failure
 function ReplayInfo:UpdateFile()
-	local file = Files:open("../" .. self.filename)
+	local file = Files.Open("../" .. self.filename)
 	if (not file.data) then
 		return false, TB_MENU_LOCALIZED.REPLAYSERRORREADINGFILE
 	end
@@ -374,7 +374,7 @@ function Replays:updateReplayCache(replay, newreplay)
 		end
 	end
 
-	local file = Files:open("../replay/replaycache.dat", FILES_MODE_READONLY)
+	local file = Files.Open("../replay/replaycache.dat", FILES_MODE_READONLY)
 	if (not file.data) then
 		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORREADINGCACHE)
 		return false
@@ -411,7 +411,7 @@ function Replays:getReplayFiles(includeEventTemp)
 	Replays.RootFolder.replays = nil
 	Replays.RootFolder.folders = nil
 
-	local file = Files:open("../replay/replaycache.dat", FILES_MODE_READWRITE)
+	local file = Files.Open("../replay/replaycache.dat", FILES_MODE_READWRITE)
 	if (not file.data) then
 		file:reopen(FILES_MODE_WRITE)
 		if (not file.data) then
@@ -792,14 +792,14 @@ function Replays:playReplay(replay)
 				table.insert(folders, v)
 			end
 		end
-		local modFile = Files:open("../data/mod/" .. replay.mod)
+		local modFile = Files.Open("../data/mod/" .. replay.mod)
 		local id = 1
 		while (not modFile.data and id < #folders) do
-			modFile = Files:open("../data/mod/" .. folders[id] .. "/" .. replay.mod)
+			modFile = Files.Open("../data/mod/" .. folders[id] .. "/" .. replay.mod)
 			id = id + 1
 		end
 		if (not modFile.data) then
-			modFile = Files:open("../data/mod/downloads/" .. replay.mod)
+			modFile = Files.Open("../data/mod/downloads/" .. replay.mod)
 			loading:addAdaptedText(false, TB_MENU_LOCALIZED.MODSDOWNLOADINGMOD)
 			local modname = replay.mod:gsub("%.tbm$", "")
 			download_mod(modname)
@@ -849,7 +849,7 @@ function Replays:playReplay(replay)
 end
 
 function Replays.ResetCache()
-	local file = Files:open("../replay/replaycache.dat", FILES_MODE_WRITE)
+	local file = Files.Open("../replay/replaycache.dat", FILES_MODE_WRITE)
 	if (not file.data) then
 		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORREFRESHINGCACHE)
 	end
@@ -2331,7 +2331,7 @@ function Replays:showServerReplayPreview()
 	downloadWait:addCustomDisplay(true, function()
 			frames = frames + 1
 			if (frames == 10) then
-				replayFile = Files:open("../replay/downloads/" .. REPLAY_TEMPNAME .. ".rpl", FILES_MODE_READONLY)
+				replayFile = Files.Open("../replay/downloads/" .. REPLAY_TEMPNAME .. ".rpl", FILES_MODE_READONLY)
 			end
 			if (replayFile) then
 				if (not replayFile:isDownloading()) then
@@ -2345,14 +2345,14 @@ function Replays:showServerReplayPreview()
 								table.insert(folders, v)
 							end
 						end
-						local modFile = Files:open("../data/mod/" .. replaydata.mod)
+						local modFile = Files.Open("../data/mod/" .. replaydata.mod)
 						local id = 1
 						while (not modFile.data and id < #folders) do
-							modFile = Files:open("../data/mod/" .. folders[id] .. "/" .. replaydata.mod)
+							modFile = Files.Open("../data/mod/" .. folders[id] .. "/" .. replaydata.mod)
 							id = id + 1
 						end
 						if (not modFile.data) then
-							modFile = Files:open("../data/mod/downloads/" .. replaydata.mod)
+							modFile = Files.Open("../data/mod/downloads/" .. replaydata.mod)
 							previewView:addAdaptedText(false, TB_MENU_LOCALIZED.MODSDOWNLOADINGMOD)
 							local modname = replaydata.mod:gsub("%.tbm$", "")
 							download_mod(modname)
@@ -2423,7 +2423,7 @@ function Replays:showReplayDownloadPopup(rplname)
 	downloadWait:addCustomDisplay(true, function()
 			frames = frames + 1
 			if (frames == 10) then
-				replayFile = Files:open("../replay/downloads/" .. rplname .. ".rpl", FILES_MODE_READONLY)
+				replayFile = Files.Open("../replay/downloads/" .. rplname .. ".rpl", FILES_MODE_READONLY)
 			end
 			if (replayFile) then
 				if (not replayFile:isDownloading()) then

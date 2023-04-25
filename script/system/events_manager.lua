@@ -1045,7 +1045,7 @@ do
 	function Events:getPassedEventInfo(filename)
 		local eventInfo = { shortname = filename:gsub("%.dat$", '') }
 		eventInfo.name = eventInfo.shortname
-		local file = Files:open("../data/script/events/" .. filename, FILES_MODE_READONLY)
+		local file = Files.Open("../data/script/events/" .. filename, FILES_MODE_READONLY)
 		if (not file.data) then
 			return eventInfo
 		end

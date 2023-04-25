@@ -117,7 +117,7 @@ local function saveReplay(newname)
 			TBMenu:showStatusMessage(error)
 			return
 		end
-		local rplFile = Files:open("../replay/" .. filename .. ".rpl")
+		local rplFile = Files.Open("../replay/" .. filename .. ".rpl")
 		if (not rplFile.data) then
 			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORRENAMING)
 			quitReplaySave()
@@ -139,7 +139,7 @@ local function saveReplay(newname)
 		quitReplaySave()
 	end
 
-	local file = Files:open("../replay/" .. filename .. ".rpl")
+	local file = Files.Open("../replay/" .. filename .. ".rpl")
 	if (file.data) then
 		file:close()
 		TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.REPLAYWITHNAMEEXISTSPROMPT, function()

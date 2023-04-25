@@ -78,9 +78,9 @@ function TBMenu.GetTranslation(language)
 		return
 	end
 
-	local file = Files:open("../data/script/system/language/" .. language .. ".txt", "r")
+	local file = Files.Open("../data/script/system/language/" .. language .. ".txt", "r")
 	if (not file.data) then
-		file = Files:open("../data/script/system/language/english.txt", "r")
+		file = Files.Open("../data/script/system/language/english.txt", "r")
 		if (not file) then
 			echo("^04Localization data not found, exiting main menu")
 			if (is_steam()) then
@@ -103,7 +103,7 @@ function TBMenu.GetTranslation(language)
 
 	if (language ~= "english") then
 		-- Make sure there's no missing values
-		local file = Files:open("../data/script/system/language/english.txt", "r")
+		local file = Files.Open("../data/script/system/language/english.txt", "r")
 		for _, ln in pairs(file:readAll()) do
 			if (not ln:match("^#")) then
 				local data_stream = { ln:match(("([^\t]*)\t?"):rep(2)) }
@@ -1867,13 +1867,13 @@ function TBMenu:showGameLogo()
 	local gametitle = TB_MENU_GAME_TITLE
 	local logoSize = 90 * TB_MENU_GLOBAL_SCALE
 	local gameTitleSize = 256 * TB_MENU_GLOBAL_SCALE
-	local customLogo = Files:open("../custom/" .. TB_MENU_PLAYER_INFO.username .. "/logo.tga")
+	local customLogo = Files.Open("../custom/" .. TB_MENU_PLAYER_INFO.username .. "/logo.tga")
 	if (customLogo.data) then
 		logo = "../../custom/" .. TB_MENU_PLAYER_INFO.username .. "/logo.tga"
 		logoSize = 120
 		customLogo:close()
 	end
-	local customGametitle = Files:open("custom/" .. TB_MENU_PLAYER_INFO.username .. "/header.tga")
+	local customGametitle = Files.Open("custom/" .. TB_MENU_PLAYER_INFO.username .. "/header.tga")
 	if (customGametitle.data) then
 		gametitle = "../../custom/" .. TB_MENU_PLAYER_INFO.username .. "/header.tga"
 		customGametitle:close()
@@ -2818,7 +2818,7 @@ function TBMenu:showMain(noload)
 		end, false)
 	local splatLeftImg = TB_MENU_BLOODSPLATTER_LEFT
 	local splatCustom = false
-	local customLogo = Files:open("../custom/" .. TB_MENU_PLAYER_INFO.username .. "/splatt1.tga")
+	local customLogo = Files.Open("../custom/" .. TB_MENU_PLAYER_INFO.username .. "/splatt1.tga")
 	if (customLogo.data) then
 		splatLeftImg = "../../custom/" .. TB_MENU_PLAYER_INFO.username .. "/splatt1.tga"
 		splatCustom = true

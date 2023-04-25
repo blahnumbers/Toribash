@@ -110,7 +110,7 @@ function Friends.Init()
 	Friends.FriendsList = {}
 	Friends.IgnoreList = {}
 
-	local file = Files:open("../data/buddies.txt")
+	local file = Files.Open("../data/buddies.txt")
 	if (not file.data) then
 		runCmd("ab testuser", nil, CMD_ECHO_FORCE_DISABLED)
 		runCmd("rb testuser", nil, CMD_ECHO_FORCE_DISABLED)
@@ -128,7 +128,7 @@ function Friends.Init()
 		table.insert(Friends.FriendsList, { username = data_stream[1], online = false, room = false })
 	end
 
-	local ignoreFile = Files:open("../ignorelist.txt")
+	local ignoreFile = Files.Open("../ignorelist.txt")
 	if (ignoreFile.data) then
 		local ignoreData = ignoreFile:readAll()
 		ignoreFile:close()

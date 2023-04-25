@@ -22,23 +22,23 @@ end
 ---@param requireMod ?boolean
 ---@return boolean
 function EventsOnline:checkFiles(eventName, requireMod)
-	local event = Files:open("events/" .. eventName .. ".dat")
+	local event = Files.Open("events/" .. eventName .. ".dat")
 	if (not event.data) then
 		return false
 	end
 	event:close()
-	local eventscript = Files:open("events/" .. eventName .. ".lua")
+	local eventscript = Files.Open("events/" .. eventName .. ".lua")
 	if (not eventscript.data) then
 		return false
 	end
 	eventscript:close()
-	local eventloc = Files:open("events/" .. eventName .. "_english.txt")
+	local eventloc = Files.Open("events/" .. eventName .. "_english.txt")
 	if (not eventloc.data) then
 		return false
 	end
 	eventloc:close()
 	if (requireMod) then
-		local eventmod = Files:open("../data/mod/system/events/" .. eventName .. ".tbm")
+		local eventmod = Files.Open("../data/mod/system/events/" .. eventName .. ".tbm")
 		if (not eventmod.data) then
 			return false
 		end

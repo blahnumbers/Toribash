@@ -57,8 +57,8 @@ end
 ---Check if it exists and migrate data to the new one if needed.
 ---@return boolean
 function MoveMemoryInternal.checkLegacyCache()
-	local file = Files:open("system/data.mm")
-	local newfile = Files:open("system/movememory.mm", FILES_MODE_WRITE)
+	local file = Files.Open("system/data.mm")
+	local newfile = Files.Open("system/movememory.mm", FILES_MODE_WRITE)
 	if (not file.data or not newfile.data) then
 		file:close()
 		newfile:close()
@@ -80,14 +80,14 @@ function MoveMemory:getOpeners()
 	self.Storage = {}
 	self.StoragePopulated = false
 
-	local file = Files:open("system/movememory.mm", FILES_MODE_READONLY)
+	local file = Files.Open("system/movememory.mm", FILES_MODE_READONLY)
 	if (not file.data) then
 		if (not is_mobile()) then
 			if (pcall(MoveMemoryInternal.checkLegacyCache) == false) then
 				TBMenu:showStatusMessage(TB_MENU_LOCALIZED.MOVEMEMORYLOADERROR)
 				return self.StoragePopulated
 			end
-			file = Files:open("system/movememory.mm", FILES_MODE_READONLY)
+			file = Files.Open("system/movememory.mm", FILES_MODE_READONLY)
 		end
 		if (not file.data) then
 			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.MOVEMEMORYLOADERROR)
@@ -169,7 +169,7 @@ function MemoryMove:writeToFile(fileInterface)
 		return
 	end
 
-	local file = fileInterface or Files:open("system/movememory.mm", FILES_MODE_APPEND)
+	local file = fileInterface or Files.Open("system/movememory.mm", FILES_MODE_APPEND)
 	if (not file.data) then
 		return
 	end
@@ -315,7 +315,7 @@ function MoveMemory:showSaveRecordingComplete(successAction, discard)
 			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.MOVEMEMORYMODNAMEEMPTYERROR)
 			return
 		end
-		local file = Files:open("system/movememory.mm", FILES_MODE_APPEND)
+		local file = Files.Open("system/movememory.mm", FILES_MODE_APPEND)
 		if (not file.data) then
 			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.MOVEMEMORYMOVESAVEERRORPERMS)
 			return
@@ -392,7 +392,7 @@ function MoveMemory:deleteMove(memorymove)
 		end
 	end
 
-	local file = Files:open("system/movememory.mm", FILES_MODE_WRITE)
+	local file = Files.Open("system/movememory.mm", FILES_MODE_WRITE)
 	if (not file.data) then
 		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.MOVEMEMORYERRORUPDATINGDATA)
 		return false

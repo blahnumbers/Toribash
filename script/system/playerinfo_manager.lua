@@ -438,7 +438,7 @@ function PlayerInfo:getItems(player, scope)
 		player = player and player or "tori"
 	end
 
-	local customs = Files:open("../custom/" .. player .. "/item.dat", FILES_MODE_READONLY)
+	local customs = Files.Open("../custom/" .. player .. "/item.dat", FILES_MODE_READONLY)
 	local customsData = customs:readAll()
 	customs:close()
 
@@ -527,7 +527,7 @@ function PlayerInfo:getClan(player, tag)
 	end
 
 	---Let's try and see if we can get clanid from item.dat to get the info faster
-	local customs = Files:open("../custom/" .. player:lower() .. "/item.dat", FILES_MODE_READONLY)
+	local customs = Files.Open("../custom/" .. player:lower() .. "/item.dat", FILES_MODE_READONLY)
 	if (customs.data) then
 		local gotData = false
 		for _, ln in pairs(customs:readAll()) do
@@ -767,7 +767,7 @@ function PlayerInfo:getUserData(player)
 		return userData
 	end
 
-	local customs = Files:open("../custom/" .. player .. "/item.dat", FILES_MODE_READONLY)
+	local customs = Files.Open("../custom/" .. player .. "/item.dat", FILES_MODE_READONLY)
 	if (not customs.data) then
 		return userData
 	end

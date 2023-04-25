@@ -1330,7 +1330,7 @@ do
 		end
 		table.insert(languages, 1, langFile)
 		for _, v in pairs(languages) do
-			local newMenuFile = Files:open("system/language/" .. v.name .. ".txt")
+			local newMenuFile = Files.Open("system/language/" .. v.name .. ".txt")
 			if (not newMenuFile.data) then
 				v.newMenuDisabled = true
 			end
