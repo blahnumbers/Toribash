@@ -1,7 +1,6 @@
 -- modern main menu UI
 -- DO NOT MODIFY THIS FILE
 
---is_mobile = function() return true end
 -- If tutorials are active, ESC press launches tutorial exit popup instead of main menu
 -- Also ignore for vanilla store previewer
 if (TUTORIAL_ISACTIVE or STORE_VANILLA_PREVIEW) then
@@ -173,8 +172,8 @@ if (not _G.FIRST_LAUNCH) then
 	_G.FIRST_LAUNCH = true
 end
 
-add_hook("draw2d", "tbMainMenuVisual", function() UIElement:drawVisuals(TB_MENU_MAIN_GLOBALID) end)
-add_hook("draw_viewport", "tbMainMenuVisual", function() UIElement3D:drawViewport(TB_MENU_MAIN_GLOBALID) end)
+add_hook("draw2d", "tbMainMenuVisual", function() UIElement.drawVisuals(TB_MENU_MAIN_GLOBALID) end)
+add_hook("draw_viewport", "tbMainMenuVisual", function() UIElement3D.drawViewport(TB_MENU_MAIN_GLOBALID) end)
 add_hook("resolution_changed", "tbMainMenuVisual", function()
 		if (TB_MENU_MAIN_ISOPEN == 1) then
 			close_menu()
@@ -240,18 +239,18 @@ add_hook("new_mp_game", "tbMainMenuStatic", function()
 add_hook("draw2d", "tbMainHubVisual", function()
 		if (TB_MENU_MAIN_ISOPEN == 1) then return end
 		if (Tooltip.IsActive) then
-			UIElement:drawVisuals(Tooltip.Globalid)
+			UIElement.drawVisuals(Tooltip.Globalid)
 		end
-		UIElement:drawVisuals(QueueList.Globalid)
-		UIElement:drawVisuals(TB_MENU_HUB_GLOBALID)
+		UIElement.drawVisuals(QueueList.Globalid)
+		UIElement.drawVisuals(TB_MENU_HUB_GLOBALID)
 	end)
 add_hook("draw_viewport", "tbMainHubVisual", function()
 		if (TB_MENU_MAIN_ISOPEN == 1) then return end
-		UIElement3D:drawViewport(QueueList.Globalid)
-		UIElement3D:drawViewport(TB_MENU_HUB_GLOBALID)
+		UIElement3D.drawViewport(QueueList.Globalid)
+		UIElement3D.drawViewport(TB_MENU_HUB_GLOBALID)
 	end)
 add_hook("draw3d", "tbMainHudVisual", function()
-		UIElement3D:drawVisuals(TB_MENU_HUB_GLOBALID)
+		UIElement3D.drawVisuals(TB_MENU_HUB_GLOBALID)
 	end)
 
 if (is_mobile()) then
@@ -259,8 +258,8 @@ if (is_mobile()) then
 	---This setup *will* work because we're now using deterministic execution order for hooks
 	add_hook("draw2d", "tbMobileHudVisual", function()
 		if (TB_MENU_MAIN_ISOPEN == 1) then return end
-		UIElement:drawVisuals(TBHud.Globalid)
-		UIElement:drawVisuals(TBHud.HubGlobalid)
+		UIElement.drawVisuals(TBHud.Globalid)
+		UIElement.drawVisuals(TBHud.HubGlobalid)
 	end)
 end
 

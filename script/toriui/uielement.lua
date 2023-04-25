@@ -117,24 +117,6 @@ DEFSHADOWCOLOR = DEFSHADOWCOLOR or { 0, 0, 0, 0.6 }
 ---@field w number
 ---@field h number
 
----@class Matrix4x4
----@field r0 number
----@field r1 number
----@field r2 number
----@field r3 number
----@field r4 number
----@field r5 number
----@field r6 number
----@field r7 number
----@field r8 number
----@field r9 number
----@field r10 number
----@field r11 number
----@field r12 number
----@field r13 number
----@field r14 number
----@field r15 number
-
 ---@type UIElement[]
 UIElementManager = UIElementManager or {}
 ---@type UIElement[][]
@@ -1204,10 +1186,12 @@ function UIElement:clearTextfield()
 end
 
 ---Main UIElement loop that updates objects' position and displays them. \
----*Must be run from `draw2d` hook.*
+---**This function must be run from `draw2d` hook to work correctly.**
+---@param object UIElement
 ---@param globalid ?integer Global ID that the objects to display belong to
-function UIElement:drawVisuals(globalid)
-	local globalid = globalid or self.globalid
+---@overload fun(globalid: integer)
+function UIElement.drawVisuals(object, globalid)
+	local globalid = (type(object) == "table" and (object.globalid or globalid) or object)
 	if (UIVisualManager[globalid] == nil) then return end
 
 	for _, v in pairs(UIElementManager) do
@@ -1224,20 +1208,11 @@ end
 ---***UIElement*** *class is no longer used for viewport handling as of version 5.60.* \
 ---@see UIElement3D.drawViewport
 ---@deprecated
-function UIElement:drawViewport(globalid)
-	local globalid = globalid or self.globalid
-	for _, v in pairs(UIViewportManager) do
-		if (v.globalid == globalid) then
-			---@diagnostic disable-next-line: deprecated
-			v:displayViewport()
-		end
-	end
-end
+function UIElement.drawViewport() end
 
 ---Legacy internal function that was used to draw a viewport UIElement. \
 ---***UIElement*** *class is no longer used for viewport handling as of version 5.60.* \
----@see UIElement.drawViewport
----@see UIElement.addCustomDisplay
+---@see UIElement3D.drawViewport
 ---@deprecated
 function UIElement:displayViewport() end
 

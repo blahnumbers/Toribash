@@ -1,5 +1,11 @@
 require('toriui.uielement')
 
+---@alias EulerRotationConvention
+---| 'XYZ' EULER_XYZ
+---| 'ZYX' EULER_ZYX
+EULER_XYZ = 'XYZ'
+EULER_ZYX = 'ZYX'
+
 ---@alias UIElement3DShape
 ---| 1 CUBE
 ---| 2 SPHERE
@@ -29,9 +35,9 @@ OBJMODELINDEX = OBJMODELINDEX or 0
 
 ---@type UIElement3D[]
 UIElement3DManager = UIElement3DManager or {}
----@type UIElement3D[]
+---@type UIElement3D[][]
 UIVisual3DManager = UIVisual3DManager or {}
----@type UIElement3D[]
+---@type UIElement3D[][]
 UIVisual3DManagerViewport = UIVisual3DManagerViewport or {}
 
 if (not UIElement3D) then
@@ -49,13 +55,15 @@ if (not UIElement3D) then
 
 	---@class UIElement3D : UIElement
 	---@field parent UIElement3D|UIElement Parent element
+	---@field child UIElement3D[] List of all object children
 	---@field viewport UIElement3D|UIElement Viewport element
 	---@field pos Vector3 Object's **absolute** position in the world
-	---@field shift Vector3 Object **relative** position relative to its parent
+	---@field shift Vector3 Object's position **relative to its parent**
+	---@field shiftInternal Vector3 Object's rotation adjusted relative position
 	---@field size Vector3 Object size
-	---@field rot Vector3 Object rotation
-	---@field rotMatrix number[][] Rotation matrix of the object
-	---@field rotXYZ Vector3 Object rotation in [Euler angles](https://en.wikipedia.org/wiki/Euler_angles)
+	---@field rotMatrix number[][] Object's rotation as a [rotation matrix](https://en.wikipedia.org/wiki/Rotation_matrix)
+	---@field rotMatrixTB MatrixTB Object's rotation as a Toribash rotation matrix
+	---@field rotXYZ EulerRotation Object's rotation in [Euler angles](https://en.wikipedia.org/wiki/Euler_angles)
 	---@field shapeType UIElement3DShape
 	---@field playerAttach integer Target player id this object is attached to
 	---@field attachBodypart integer Target bodypart id this object is attached to
@@ -71,7 +79,81 @@ if (not UIElement3D) then
 	}
 	UIElement3D.__index = UIElement3D
 	setmetatable(UIElement3D, UIElement)
+
+	---@class EulerRotation : Vector3
+	---@field convention EulerRotationConvention
+	EulerRotation = {}
+	EulerRotation.__index = EulerRotation
 end
+
+---Initializes an **EulerRotation** object with the specified data in degrees
+---@param x number?
+---@param y number?
+---@param z number?
+---@param convention EulerRotationConvention? Defaults to `EULER_XYZ` if none specified
+---@return EulerRotation
+function EulerRotation.New(x, y, z, convention)
+	local rot = {
+		x = x or 0,
+		y = y or 0,
+		z = z or 0,
+		convention = convention or EULER_XYZ
+	}
+	setmetatable(rot, EulerRotation)
+	return rot
+end
+
+---Initializes an **EulerRotation** object with the specified data in radians
+---@param x number?
+---@param y number?
+---@param z number?
+---@param convention EulerRotationConvention? Defaults to `EULER_XYZ` if none specified
+---@return EulerRotation
+function EulerRotation.NewRadian(x, y, z, convention)
+	return EulerRotation.New(math.deg(x or 0), math.deg(y or 0), math.deg(z or 0), convention)
+end
+
+---Returns a corresponding rotation matrix
+---@return number[][]?
+function EulerRotation:toMatrix()
+	return UIElement3D.GetMatrixFromEuler(math.rad(self.x), math.rad(self.y), math.rad(self.z), self.convention)
+end
+
+---Returns a corresponding Toribash rotation matrix and a regular rotation matrix
+---@return MatrixTB
+---@return number[][]
+function EulerRotation:toMatrixTB()
+	local matrix = self:toMatrix()
+	---@type MatrixTB
+	local matrixTB = {
+		r0 = 1,		r1 = 0,		r2 = 0,		r3 = 0,
+		r4 = 0,		r5 = 1,		r6 = 0,		r7 = 0,
+		r8 = 0,		r9 = 0,		r10 = 1,	r11 = 0
+	}
+	if (matrix) then
+		matrixTB.r0 = matrix[1][1]
+		matrixTB.r1 = matrix[2][1]
+		matrixTB.r2 = matrix[3][1]
+		matrixTB.r4 = matrix[1][2]
+		matrixTB.r5 = matrix[2][2]
+		matrixTB.r6 = matrix[3][2]
+		matrixTB.r8 = matrix[1][3]
+		matrixTB.r9 = matrix[2][3]
+		matrixTB.r10 = matrix[3][3]
+	else
+		matrix = {
+			{ 1, 0, 0 },
+			{ 0, 1, 0 },
+			{ 0, 0, 1 }
+		}
+	end
+	return matrixTB, matrix
+end
+
+---**UIElement3D helper class** \
+---*Contains functions that only get used internally and which we don't want to expose.*
+---@class UIElement3DInternal
+local UIElement3DInternal = {}
 
 ---Creates a new UIElement3D object
 ---@param _self UIElement3D
@@ -91,11 +173,9 @@ function UIElement3D.new(_self, o)
 	---@type UIElement3D
 	local elem = {
 		globalid = 1000,
-		child = {},
-		rot = { 0, 0, 0 },
-		rotXYZ = { x = 0, y = 0, z = 0 },
-		pos = { 0, 0, 0 },
-		shift = { 0, 0, 0 },
+		child = { },
+		rotXYZ = EulerRotation.New(),
+		pos = { x = 0, y = 0, z = 0 },
 		bgColor = { 1, 1, 1, 0 },
 		shapeType = CUBE
 	}
@@ -114,43 +194,54 @@ function UIElement3D.new(_self, o)
 		elem.parent = o.parent
 		table.insert(elem.parent.child, elem)
 		elem.shift = { x = o.pos[1], y = o.pos[2], z = o.pos[3] }
-		elem.rotXYZ = { x = elem.parent.rotXYZ.x, y = elem.parent.rotXYZ.y, z = elem.parent.rotXYZ.z }
-		elem:setChildShift()
-		for i, v in pairs(elem.shift) do
-			elem.pos[i] = elem.parent.pos[i] + v
-		end
+		elem.shiftInternal = { x = 0, y = 0, z = 0 }
+		elem.rotXYZ.x = elem.parent.rotXYZ.x
+		elem.rotXYZ.y = elem.parent.rotXYZ.y
+		elem.rotXYZ.z = elem.parent.rotXYZ.z
+		UIElement3DInternal.SetChildPosition(elem)
 	else
 		if (o.shapeType == VIEWPORT) then
 			elem.viewport = o.parent
 			table.insert(elem.viewport.child, elem)
 		end
-		elem.pos = { x = o.pos[1], y = o.pos[2], z = o.pos[3] }
+		elem.pos.x = o.pos[1]
+		elem.pos.y = o.pos[2]
+		elem.pos.z = o.pos[3]
 	end
+	if (o.globalid) then
+		elem.globalid = o.globalid
+	end
+
 	elem.size = { x = o.size[1], y = o.size[2], z = o.size[3] }
 	if (o.rot) then
 		elem.rotXYZ.x = elem.rotXYZ.x + o.rot[1]
 		elem.rotXYZ.y = elem.rotXYZ.y + o.rot[2]
 		elem.rotXYZ.z = elem.rotXYZ.z + o.rot[3]
 	end
-	elem:updateRotations(elem.rotXYZ)
+	elem.rotMatrixTB, elem.rotMatrix = elem.rotXYZ:toMatrixTB()
+
 	if (o.objModel) then
 		elem.shapeType = CUSTOMOBJ
 		elem.disableUnload = o.disableUnload
 		elem:updateObj(o.objModel)
 	end
-	if (o.bgImage) then
-		if (type(o.bgImage) == "table") then
-			elem:updateImage(o.bgImage[1], o.bgImage[2])
-		else
-			---@diagnostic disable-next-line: param-type-mismatch
-			elem:updateImage(o.bgImage)
-		end
-	end
-	if (o.globalid) then
-		elem.globalid = o.globalid
-	end
-	if (o.bgColor) then
+
+	if (o.bgGradient) then
+		elem.bgColor = { 1, 1, 1, 1 }
+		elem:updateImageGradient(o.bgGradient[1], o.bgGradient[2], o.bgGradientMode)
+	elseif (o.bgColor) then
 		elem.bgColor = o.bgColor
+	end
+	if (o.bgImage or elem.bgImage) then
+		elem.disableUnload = o.disableUnload
+		if (elem.bgImage == nil) then
+			if (type(o.bgImage) == "table") then
+				elem:updateImage(o.bgImage[1], o.bgImage[2])
+			else
+				---@diagnostic disable-next-line: param-type-mismatch
+				elem:updateImage(o.bgImage)
+			end
+		end
 	end
 	if (o.hoverColor) then
 		elem.hoverColor = o.hoverColor
@@ -181,25 +272,28 @@ function UIElement3D.new(_self, o)
 		elem.ditherPixelSize = o.effects.ditherPixelSize or 0
 	end
 
+	---Do we actually still need UIElement3DManager?
+	---Might be useful for cleanup but it's not used in object lifetime anymore
 	table.insert(UIElement3DManager, elem)
 	if (o.viewport) then
 		elem.viewportElement = true
-		table.insert(UIVisual3DManagerViewport, elem)
+		UIVisual3DManagerViewport[elem.globalid] = UIVisual3DManagerViewport[elem.globalid] or { }
+		table.insert(UIVisual3DManagerViewport[elem.globalid], elem)
 	else
-		table.insert(UIVisual3DManager, elem)
+		UIVisual3DManager[elem.globalid] = UIVisual3DManager[elem.globalid] or { }
+		table.insert(UIVisual3DManager[elem.globalid], elem)
 	end
 
 	return elem
 end
 
----Spawns a new UIElement3D and sets the calling object as its parent.
----
+---Spawns a new UIElement3D and sets the calling object as its parent. \
 ---*Unlike `UIElement:addChild()`, this doesn't support `shift` value and is only a shortcut method to initialize an object with a predefined parent.*
 ---@param o UIElement3DOptions
 ---@return UIElement3D
 function UIElement3D:addChild(o)
 	o.pos = o.pos and o.pos or { 0, 0, 0 }
-	o.size = o.size and o.size or { self.size.x, self.size.y, self.size.z }
+	o.size = o.size and o.size or { 0, 0, 0 }
 	o.viewport = o.viewport or self.viewportElement
 	o.parent = self
 	return UIElement3D:new(o)
@@ -251,12 +345,12 @@ end
 ---@see UIElement3D.addCustomDisplay
 ---@see UIElement3D.addOnEnterFrame
 function UIElement3D:display()
-	if (self.effectid) then
-		set_draw_effect(self.effectid, self.glowColor, self.glowIntensity, self.ditherPixelSize)
-	end
 	if (self.viewport) then
 		set_viewport(self.viewport.pos.x, self.viewport.pos.y, self.viewport.size.w, self.viewport.size.h)
 		return
+	end
+	if (self.effectid) then
+		set_draw_effect(self.effectid, self.glowColor, self.glowIntensity, self.ditherPixelSize)
 	end
 	if (self.customDisplayBefore) then
 		self.customDisplayBefore()
@@ -297,7 +391,7 @@ function UIElement3D:display()
 		elseif (self.shapeType == CAPSULE) then
 			self:drawCapsule()
 		elseif (self.shapeType == CUSTOMOBJ and self.objModel ~= nil) then
-			draw_obj(self.objModel, self.pos.x, self.pos.y, self.pos.z, self.size.x, self.size.y, self.size.z, self.rot.x, self.rot.y, self.rot.z)
+			draw_obj_m(self.objModel, self.pos.x, self.pos.y, self.pos.z, self.size.x, self.size.y, self.size.z, self.rotMatrixTB)
 		end
 	end
 	if (self.customDisplay) then
@@ -320,9 +414,9 @@ function UIElement3D:drawBox()
 		end
 	else
 		if (self.bgImage) then
-			draw_box(self.pos.x, self.pos.y, self.pos.z, self.size.x, self.size.y, self.size.z, self.rot.x, self.rot.y, self.rot.z, self.bgImage)
+			draw_box_m(self.pos.x, self.pos.y, self.pos.z, self.size.x, self.size.y, self.size.z, self.rotMatrixTB, self.bgImage)
 		else
-			draw_box(self.pos.x, self.pos.y, self.pos.z, self.size.x, self.size.y, self.size.z, self.rot.x, self.rot.y, self.rot.z)
+			draw_box_m(self.pos.x, self.pos.y, self.pos.z, self.size.x, self.size.y, self.size.z, self.rotMatrixTB)
 		end
 	end
 end
@@ -341,9 +435,9 @@ function UIElement3D:drawCapsule()
 		local drawPos = (self.playerAttach and self.attachJoint) and get_joint_pos2(self.playerAttach, self.attachJoint) or self.pos
 
 		if (self.bgImage) then
-			draw_capsule(drawPos.x, drawPos.y, drawPos.z, self.size.y, self.size.x, self.rot.x, self.rot.y, self.rot.z, self.bgImage)
+			draw_capsule_m(drawPos.x, drawPos.y, drawPos.z, self.size.y, self.size.x, self.rotMatrixTB, self.bgImage)
 		else
-			draw_capsule(drawPos.x, drawPos.y, drawPos.z, self.size.y, self.size.x, self.rot.x, self.rot.y, self.rot.z)
+			draw_capsule_m(drawPos.x, drawPos.y, drawPos.z, self.size.y, self.size.x, self.rotMatrixTB)
 		end
 	end
 end
@@ -363,49 +457,55 @@ function UIElement3D:drawSphere()
 		local scale = (self.playerAttach and self.attachJoint) and get_joint_radius(self.playerAttach, self.attachJoint) or 1
 
 		if (self.bgImage) then
-			draw_sphere(drawPos.x, drawPos.y, drawPos.z, self.size.x * scale, self.rot.x, self.rot.y, self.rot.z, self.bgImage)
+			draw_sphere_m(drawPos.x, drawPos.y, drawPos.z, self.size.x * scale, self.rotMatrixTB, self.bgImage)
 		else
-			draw_sphere(drawPos.x, drawPos.y, drawPos.z, self.size.x * scale)
+			draw_sphere_m(drawPos.x, drawPos.y, drawPos.z, self.size.x * scale)
 		end
 	end
 end
 
 ---Main UIElement3D loop that displays the objects. \
----*Must be run from either `draw3d` or `post_draw3d` hook.*
+---**This function must be run from either `draw3d` or `post_draw3d` hooks to work correctly.**
+---@param object UIElement3D
 ---@param globalid ?integer Global ID that the objects to display belong to
-function UIElement3D:drawVisuals(globalid)
-	local globalid = globalid or self.globalid
-	for _, v in pairs(UIVisual3DManager) do
-		if (v.globalid == globalid) then
-			v:display()
-		end
+---@overload fun(globalid: integer)
+function UIElement3D.drawVisuals(object, globalid)
+	local globalid = (type(object) == "table" and (object.globalid or globalid) or object)
+	if (UIVisual3DManager[globalid] == nil) then return end
+
+	for _, v in pairs(UIVisual3DManager[globalid]) do
+		v:display()
 	end
 end
 
 ---Main UIElement3D loop that displays viewport elements. \
----*Must be run from `draw_viewport` hook.*
+---**This function must be run from either `draw_viewport` hook to work correctly.**
+---@param object UIElement3D
 ---@param globalid ?integer Global ID that the objects to display belong to
-function UIElement3D:drawViewport(globalid)
-	local globalid = globalid or self.globalid
-	for _, v in pairs(UIVisual3DManagerViewport) do
-		if (v.globalid == globalid) then
-			v:display()
-		end
+---@overload fun(globalid: integer)
+function UIElement3D.drawViewport(object, globalid)
+	local globalid = (type(object) == "table" and (object.globalid or globalid) or object)
+
+	if (UIVisual3DManagerViewport[globalid] == nil) then return end
+
+	for _, v in pairs(UIVisual3DManagerViewport[globalid]) do
+		v:display()
 	end
 end
 
 ---Main UIElement3D loop to trigger UIElement3D functionality on `enter_frame` hook. \
----**This does not support viewport elements.**
+---*Only regular UIElement3D objects are supported, for viewport elements use regular `UIElement3D.drawViewport()` loop*.
 ---
----*Must be run from `enter_frame` hook.*
+---**This function must be run from `enter_frame` hook to work as expected.**
+---@param object UIElement3D
 ---@param globalid ?integer Global ID that the objects to display belong to
-function UIElement3D:drawEnterFrame(globalid)
-	local globalid = globalid or self.globalid
-	for _, v in pairs(UIVisual3DManager) do
-		if (v.globalid == globalid) then
-			if (v.customEnterFrameFunc ~= nil) then
-				v.customEnterFrameFunc()
-			end
+function UIElement3D.drawEnterFrame(object, globalid)
+	local globalid = (type(object) == "table" and (object.globalid or globalid) or object)
+	if (UIVisual3DManager[globalid] == nil) then return end
+
+	for _, v in pairs(UIVisual3DManager[globalid]) do
+		if (v.customEnterFrameFunc ~= nil) then
+			v.customEnterFrameFunc()
 		end
 	end
 end
@@ -423,7 +523,7 @@ function UIElement3D:show(forceReload)
 	end
 
 	local targetManager = self.viewportElement and UIVisual3DManagerViewport or UIVisual3DManager
-	for i,v in pairs(targetManager) do
+	for i,v in pairs(targetManager[self.globalid]) do
 		if (self == v) then
 			num = i
 			break
@@ -431,7 +531,7 @@ function UIElement3D:show(forceReload)
 	end
 
 	if (not num) then
-		table.insert(targetManager, self)
+		table.insert(targetManager[self.globalid], self)
 		if (self.interactive) then
 			self:activate()
 		end
@@ -463,9 +563,9 @@ function UIElement3D:hide(noreload)
 	end
 
 	local targetManager = self.viewportElement and UIVisual3DManagerViewport or UIVisual3DManager
-	for i,v in pairs(targetManager) do
+	for i,v in pairs(targetManager[self.globalid]) do
 		if (self == v) then
-			table.remove(targetManager, i)
+			table.remove(targetManager[self.globalid], i)
 			break
 		end
 	end
@@ -485,53 +585,53 @@ function UIElement3D:deactivate()
 end
 
 ---Internal function to update positions of all the current UIElement3D object's children
-function UIElement3D:updatePos()
-	for _, v in pairs(self.child) do
-		v:updateChildPos()
+---@param object UIElement3D
+function UIElement3DInternal.UpdateChildrenPosition(object)
+	for _, v in pairs(object.child) do
+		UIElement3DInternal.UpdatePosition(v, object.rotMatrix, object.pos)
 	end
 end
 
 ---Internal function to set the shift of the current UIElement3D in relation to its parent
-function UIElement3D:setChildShift()
-	local rotMatrix = self.parent.rotMatrix
-	local shift = self.shift
-
-	local rotatedShift = UIElement3D.multiply({ { shift.x, shift.y, shift.z } }, rotMatrix)
+---@param object UIElement3D
+function UIElement3DInternal.SetChildPosition(object)
+	local rotatedShift = UIElement3D.MatrixMultiply({ { object.shift.x, object.shift.y, object.shift.z } }, object.parent.rotMatrix)
 	if (rotatedShift) then
 		local newShift = rotatedShift[1]
-		self.shift.x = newShift[1]
-		self.shift.y = newShift[2]
-		self.shift.z = newShift[3]
+		object.shiftInternal.x = newShift[1]
+		object.shiftInternal.y = newShift[2]
+		object.shiftInternal.z = newShift[3]
+	end
+	for i, v in pairs(object.shiftInternal) do
+		object.pos[i] = object.parent.pos[i] + v
 	end
 end
 
 ---Internal function to update the absolute position of the UIElement3D object
----@param rotMatrix ?number[][]
----@param pos ?Vector3
+---@param object UIElement3D
+---@param rotMatrix number[][]
+---@param pos Vector3
 ---@param shift ?Vector3
-function UIElement3D:updateChildPos(rotMatrix, pos, shift)
-	local rotMatrix = rotMatrix or self.parent.rotMatrix
-	local pos = pos or self.parent.pos
-	local shift = shift and { x = shift.x + self.shift.x, y = shift.y + self.shift.y, z = shift.z + self.shift.z } or self.shift
+function UIElement3DInternal.UpdatePosition(object, rotMatrix, pos, shift)
+	shift = shift and { x = shift.x + object.shift.x, y = shift.y + object.shift.y, z = shift.z + object.shift.z } or object.shift
 
-	local newPos = UIElement3D.multiply({ { shift.x, shift.y, shift.z } }, rotMatrix)
+	local newPos = UIElement3D.MatrixMultiply({ { shift.x, shift.y, shift.z } }, rotMatrix)
 	local shiftSum = shift
 	if (newPos) then
 		local vector = newPos[1]
-
 		shiftSum = shift or {
 			x = vector[1],
 			y = vector[2],
 			z = vector[3]
 		}
 
-		self.pos.x = pos.x + vector[1]
-		self.pos.y = pos.y + vector[2]
-		self.pos.z = pos.z + vector[3]
+		object.pos.x = pos.x + vector[1]
+		object.pos.y = pos.y + vector[2]
+		object.pos.z = pos.z + vector[3]
 	end
 
-	for _, v in pairs(self.child) do
-		v:updateChildPos(rotMatrix, pos, shiftSum)
+	for _, v in pairs(object.child) do
+		UIElement3DInternal.UpdatePosition(v, rotMatrix, pos, shiftSum)
 	end
 end
 
@@ -547,13 +647,30 @@ function UIElement3D:moveTo(x, y, z)
 		if (x) then self.shift.x = self.shift.x + x end
 		if (y) then self.shift.y = self.shift.y + y end
 		if (z) then self.shift.z = self.shift.z + z end
+		UIElement3DInternal.SetChildPosition(self)
 	else
 		if (x) then self.pos.x = self.pos.x + x end
 		if (y) then self.pos.y = self.pos.y + y end
 		if (z) then self.pos.y = self.pos.z + z end
 	end
 
-	self:updateChildPos()
+	UIElement3DInternal.UpdateChildrenPosition(self)
+end
+
+---Internal function to handle rotation of a UIElement3D object and its children
+---@param object UIElement3D
+---@param x number
+---@param y number
+---@param z number
+function UIElement3DInternal.Rotate(object, x, y, z)
+	object.rotXYZ.x = (object.rotXYZ.x + x) % 360
+	object.rotXYZ.y = (object.rotXYZ.y + y) % 360
+	object.rotXYZ.z = (object.rotXYZ.z + z) % 360
+	object.rotMatrixTB, object.rotMatrix = object.rotXYZ:toMatrixTB()
+
+	for _, v in pairs(object.child) do
+		UIElement3DInternal.Rotate(v, x, y, z)
+	end
 end
 
 ---Rotates the UIElement3D object and updates all its children accordingly
@@ -561,147 +678,187 @@ end
 ---@param y ?number
 ---@param z ?number
 function UIElement3D:rotate(x, y, z)
-	local x = x or 0
-	local y = y or 0
-	local z = z or 0
+	x = x or 0
+	y = y or 0
+	z = z or 0
 	if (x == 0 and y == 0 and z == 0) then
 		return
 	end
 
-	local rot = self.rotXYZ
-	rot.x = (rot.x + x) % 360
-	rot.y = (rot.y + y) % 360
-	rot.z = (rot.z + z) % 360
-	self:updateRotations(rot)
-
-	for _, v in pairs(self.child) do
-		v:rotate(x, y, z)
-	end
-	self:updatePos()
+	UIElement3DInternal.Rotate(self, x, y, z)
+	UIElement3DInternal.UpdateChildrenPosition(self)
 end
 
----Internal function to update the rotation matrix of the UIElement3D object and set the proper `rot` values in Euler angles. \
----*You likely don't need to run this manually.* \
----@see UIElement3D.rotate
----@param rot Vector3
-function UIElement3D:updateRotations(rot)
-	---@diagnostic disable-next-line: assign-type-mismatch
-	self.rotMatrix = UIElement3D.getRotMatrixFromEulerAngles(math.rad(rot.x), math.rad(rot.y), math.rad(rot.z), "xyz")
-	local relX, relY, relZ = UIElement3D.getEulerZYXFromRotationMatrix(self.rotMatrix)
-	self.rot = { x = relX, y = relY, z = relZ }
-end
-
----Helper function to get the Euler angles (ZYX) from a rotation matrix
+---Helper function to get the Euler angles from a rotation matrix. \
+---*Only `EULER_XYZ` and `EULER_ZYX` conventions are supported.*
 ---@param R number[][]
----@return number
----@return number
----@return number
----@nodiscard
-function UIElement3D.getEulerZYXFromRotationMatrix(R)
-	local clamp = R[3][1] > 1 and 1 or (R[3][1] < -1 and -1 or R[3][1])
-	local x, y, z
-
-	y = math.asin(-clamp)
-	if (0.99999 > math.abs(R[3][1])) then
-		x = math.atan2(R[3][2], R[3][3])
-		z = math.atan2(R[2][1], R[1][1])
-	else
-		x = 0
-		z = math.atan2(-R[1][2], R[2][2])
+---@param convention EulerRotationConvention
+---@return EulerRotation
+function UIElement3D.GetEulerFromMatrix(R, convention)
+	local x, y, z = 0, 0, 0
+	if (convention == EULER_XYZ) then
+		local sinx = math.sin(x)
+		local cosx = math.cos(x)
+		x = math.atan2(-R[2][3], R[3][3])
+		y = math.atan2(R[1][3], R[3][3] * cosx - R[2][3] * sinx)
+		z = math.atan2(R[2][1] * cosx + R[3][1] * sinx, R[2][2] * cosx + R[3][2] * sinx)
+	elseif (convention == EULER_ZYX) then
+		local clamp = R[3][1] > 1 and 1 or (R[3][1] < -1 and -1 or R[3][1])
+		y = math.asin(-clamp)
+		if (0.99999 > math.abs(R[3][1])) then
+			x = math.atan2(R[3][2], R[3][3])
+			z = math.atan2(R[2][1], R[1][1])
+		else
+			x = 0
+			z = math.atan2(-R[1][2], R[2][2])
+		end
+	elseif (TB_MENU_DEBUG) then
+		error("UIElement3D.GetEulerFromMatrix() unsupported convention: " .. convention)
 	end
-	return math.deg(x), math.deg(y), math.deg(z)
+
+	return EulerRotation.New(math.deg(x), math.deg(y), math.deg(z), convention)
 end
 
----Helper function to get the Euler angles (XYZ) from a rotation matrix
+---Legacy function to get ZYX euler angles rotation from rotation matrix. \
+---@see UIElement3D.GetEulerFromMatrix
 ---@param R number[][]
----@return number
----@return number
----@return number
----@nodiscard
-function UIElement3D.getEulerXYZFromRotationMatrix(R)
-	local x, y, z
-
-	x = math.atan2(-R[2][3], R[3][3])
-	y = math.atan2(R[1][3], R[3][3] * math.cos(x) - R[2][3] * math.sin(x))
-	z = math.atan2(R[2][1] * math.cos(x) + R[3][1] * math.sin(x), R[2][2] * math.cos(x) + R[3][2] * math.sin(x))
-
-	return math.deg(x), math.deg(y), math.deg(z)
+---@return number x
+---@return number y
+---@return number z
+---@deprecated
+function UIElement3D:getEulerZYXFromRotationMatrix(R)
+	local rotation = UIElement3D.GetEulerFromMatrix(R, EULER_ZYX)
+	return rotation.x, rotation.y, rotation.z
 end
 
----Helper function to make sure the provided table is a Toribash rotation table
----@param rTB Matrix4x4|number[]
----@return Matrix4x4
-function UIElement3D.verifyRotMatrixTB(rTB)
+---Legacy function to get XYZ euler angles rotation from rotation matrix. \
+---@see UIElement3D.GetEulerFromMatrix
+---@param R number[][]
+---@return number x
+---@return number y
+---@return number z
+---@deprecated
+function UIElement3D:getEulerXYZFromRotationMatrix(R)
+	local rotation = UIElement3D.GetEulerFromMatrix(R, EULER_XYZ)
+	return rotation.x, rotation.y, rotation.z
+end
+
+---Internal helper function to make sure the provided table is a Toribash rotation table
+---@param rTB MatrixTB|number[]
+---@return MatrixTB
+function UIElement3DInternal.VerifyMatrixTB(rTB)
 	if (rTB.r0 ~= nil) then
 		return rTB
 	end
 	return {
 		r0 = rTB[1],	r1 = rTB[2],	r2 = rTB[3],	r3 = rTB[4],
 		r4 = rTB[5],	r5 = rTB[6],	r6 = rTB[7],	r7 = rTB[8],
-		r8 = rTB[9],	r9 = rTB[10],	r10 = rTB[11],	r11 = rTB[12],
-		r12 = 0,		r13 = 0,		r14 = 0,		r15 = 1
+		r8 = rTB[9],	r9 = rTB[10],	r10 = rTB[11],	r11 = rTB[12]
 	}
 end
 
 ---Helper function to get the rotation in Euler angles from a Toribash rotation matrix
----@param rTB Matrix4x4
----@return number
----@return number
----@return number
+---@param rTB MatrixTB
+---@return EulerRotation
 ---@nodiscard
-function UIElement3D.getEulerAnglesFromMatrixTB(rTB)
-	local rTB = UIElement3D.verifyRotMatrixTB(rTB)
-	return UIElement3D.getEulerZYXFromRotationMatrix({
+function UIElement3D.GetEulerFromMatrixTB(rTB)
+	rTB = UIElement3DInternal.VerifyMatrixTB(rTB)
+	return UIElement3D.GetEulerFromMatrix({
 		{ rTB.r0, rTB.r1, rTB.r2, rTB.r3 },
 		{ rTB.r4, rTB.r5, rTB.r6, rTB.r7 },
 		{ rTB.r8, rTB.r9, rTB.r10, rTB.r11 },
-		{ rTB.r12, rTB.r13, rTB.r14, rTB.r15 },
-	})
+		{ 0, 0, 0, 1 },
+	}, EULER_ZYX)
 end
 
----@alias EulerAnglesOrder
----| 'xyz'
----| 'zyx'
+---Legacy function to get euler angles from Toribash rotation matrix. \
+---@see UIElement3D.GetEulerFromMatrixTB
+---@param rTB MatrixTB
+---@return number x
+---@return number y
+---@return number z
+---@deprecated
+function UIElement3D:getEulerAnglesFromMatrixTB(rTB)
+	local rotation = UIElement3D.GetEulerFromMatrixTB(rTB)
+	return rotation.x, rotation.y, rotation.z
+end
 
 ---Helper function to get the rotation matrix from Euler angles with the specified convention. \
----*Only `XYZ` and `ZYX` are currently supported as that's what we'd need when working with Toribash rotation matrices.*
+---*Only `EULER_XYZ` and `EULER_ZYX` conventions are currently supported.*
 ---@param x number
 ---@param y number
 ---@param z number
----@param order EulerAnglesOrder
----@return number[][]|nil
-function UIElement3D.getRotMatrixFromEulerAngles(x, y, z, order)
-	local order = order or 'xyz'
+---@param convention EulerRotationConvention
+---@return number[][]?
+function UIElement3D.GetMatrixFromEuler(x, y, z, convention)
+	convention = string.upper(convention) or EULER_XYZ
 	local c1 = math.cos(x)
 	local s1 = math.sin(x)
 	local c2 = math.cos(y)
 	local s2 = math.sin(y)
 	local c3 = math.cos(z)
 	local s3 = math.sin(z)
-
 	local R = nil
-	if (order == 'xyz') then
+
+	if (convention == EULER_XYZ) then
 		R = {
-			{ c2 * c3, -c2 * s3, s2 },
-			{ c1 * s3 + c3 * s1 * s2, c1 * c3 - s1 * s2 * s3, -c2 * s1 },
-			{ s1 * s3 - c1 * c3 * s2, c3 * s1 + c1 * s2 * s3, c1 * c2 }
+			{
+				c2 * c3,
+				-c2 * s3,
+				s2
+			},
+			{
+				s1 * s2 * c3 + c1 * s3,
+				-s1 * s2 * s3 + c1 * c3,
+				-c2 * s1
+			},
+			{
+				-c1 * c3 * s2 + s1 * s3,
+				c1 * s2 * s3 + s1 * c3,
+				c1 * c2
+			}
 		}
-	elseif (order == 'zyx') then
+	elseif (convention == EULER_ZYX) then
 		R = {
-			{ c1 * c2, c1 * s2 * s3 - c3 * s1, s1 * s3 + c1 * c3 * s2 },
-			{ c2 * s1, c1 * c3 + s1 * s2 * s3, c3 * s1 * s2 - c1 * s3 },
-			{-s2, c2 * s3, c2 * c3 }
+			{
+				c1 * c2,
+				c1 * s2 * s3 - s1 * c3,
+				c1 * s2 * c3 + s1 * s3
+			},
+			{
+				s1 * c2,
+				s1 * s2 * s3 + c1 * c3,
+				s1 * s2 * c3 - c1 * s3
+			},
+			{
+				-s2,
+				c2 * s3,
+				c2 * c3
+			}
 		}
+	elseif (TB_MENU_DEBUG) then
+		error("UIElement3D.GetMatrixFromEuler() unsupported convention: " .. convention)
 	end
 
 	return R
+end
+
+---Legacy function to get rotation matrix from euler angles. \
+---@see UIElement3D.GetMatrixFromEuler
+---@param x number
+---@param y number
+---@param z number
+---@return number[][]?
+---@deprecated
+function UIElement3D:getRotMatrixFromEulerAngles(x, y, z)
+	return UIElement3D.GetMatrixFromEuler(x, y, z, EULER_XYZ)
 end
 
 ---Helper function to multiply a 2-dimensional matrix by a number
 ---@param a number[][]
 ---@param b number
 ---@return number[][]
-function UIElement3D.multiplyByNumber(a, b)
+function UIElement3DInternal.MultiplyMatrixNumber(a, b)
 	local matrix = {}
 	for i,v in pairs(a) do
 		matrix[i] = {}
@@ -716,9 +873,9 @@ end
 ---@param a number[][]
 ---@param b number[][]|number[]|number
 ---@return number[][]|number[]|nil
-function UIElement3D.multiply(a, b)
+function UIElement3D.MatrixMultiply(a, b)
 	if (type(b) == 'number') then
-		return UIElement3D.multiplyByNumber(a, b)
+		return UIElement3DInternal.MultiplyMatrixNumber(a, b)
 	end
 	if (#a[1] ~= #b) then
 		return nil
@@ -738,6 +895,26 @@ function UIElement3D.multiply(a, b)
 	end
 
 	return matrix
+end
+
+---Legacy function to multiply matrices
+---@see UIElement3D.MatrixMultiply
+---@param a number[][]
+---@param b number[][]|number[]|number
+---@return number[][]|number[]|nil
+---@deprecated
+function UIElement3D:multiply(a, b)
+	return UIElement3D.MatrixMultiply(a, b)
+end
+
+---Legacy function to multiply a matrix by number
+---@see UIElement3D.multiply
+---@param a number[][]
+---@param b number
+---@return number[][]
+---@deprecated
+function UIElement3D:multiplyByNumber(a, b)
+	return UIElement3DInternal.MultiplyMatrixNumber(a, b)
 end
 
 ---Updates a 3D model associated with an object and caches it for later use

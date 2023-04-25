@@ -331,6 +331,24 @@ _G.BODYPARTS = {
 	L_FOOT = 20
 }
 
+---@class MatrixTB
+---@field r0 number
+---@field r1 number
+---@field r2 number
+---@field r3 number
+---@field r4 number
+---@field r5 number
+---@field r6 number
+---@field r7 number
+---@field r8 number
+---@field r9 number
+---@field r10 number
+---@field r11 number
+---@field r12 number
+---@field r13 number
+---@field r14 number
+---@field r15 number
+
 
 --[[ DRAWING FUNCTIONS ]]
 
@@ -638,7 +656,7 @@ function draw_box(pos_x, pos_y, pos_z, size_x, size_y, size_z, rot_x, rot_y, rot
 ---@param size_x number
 ---@param size_y number
 ---@param size_z number
----@param rot_matrix ?Matrix4x4
+---@param rot_matrix ?MatrixTB
 ---@param texture_id ?integer Texture id retrieved from `load_texture()` call
 function draw_box_m(pos_x, pos_y, pos_z, size_x, size_y, size_z, rot_matrix, texture_id) end
 
@@ -682,7 +700,7 @@ function draw_sphere(pos_x, pos_y, pos_z, radius, rotation_x, rotation_y, rotati
 ---@param pos_y number
 ---@param pos_z number
 ---@param radius number
----@param rotation_matrix ?Matrix4x4
+---@param rotation_matrix ?MatrixTB
 ---@param texture_id ?integer Texture id retrieved from `load_texture()` call
 function draw_sphere_m(pos_x, pos_y, pos_z, radius, rotation_matrix, texture_id) end
 
@@ -704,7 +722,7 @@ function draw_capsule(pos_x, pos_y, pos_z, length, radius, rot_x, rot_y, rot_z, 
 ---@param pos_z number
 ---@param length number
 ---@param radius number
----@param rot_matrix ?Matrix4x4
+---@param rot_matrix ?MatrixTB
 ---@param texture_id ?integer Texture id retrieved from `load_texture()` call
 function draw_capsule_m(pos_x, pos_y, pos_z, length, radius, rot_matrix, texture_id) end
 
@@ -729,7 +747,7 @@ function draw_obj(model_id, pos_x, pos_y, pos_z, size_x, size_y, size_z, rot_x, 
 ---@param size_x number
 ---@param size_y number
 ---@param size_z number
----@param rot_matrix ?Matrix4x4
+---@param rot_matrix ?MatrixTB
 function draw_obj_m(model_id, pos_x, pos_y, pos_z, size_x, size_y, size_z, rot_matrix) end
 
 ---Loads a TGA texture by the specified path
@@ -984,7 +1002,7 @@ function get_world_state() end
 ---@field name string
 ---@field mod_name string
 ---@field pos Vector3
----@field rot Matrix4x4
+---@field rot MatrixTB
 ---@field sides Vector3
 ---@field shape ODEBodyShapeType
 
@@ -1014,7 +1032,7 @@ function set_body_rotation(player_index, body_index, x, y, z) end
 ---Sets player bodypart rotation (rotation matrix)
 ---@param player_index integer
 ---@param body_index PlayerBody
----@param rot Matrix4x4
+---@param rot MatrixTB
 function set_body_rotation_m(player_index, body_index, rot) end
 
 ---Returns player body linear velocity
