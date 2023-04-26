@@ -3,8 +3,8 @@ require('toriui.uielement')
 ---@alias EulerRotationConvention
 ---| 'XYZ' EULER_XYZ
 ---| 'ZYX' EULER_ZYX
-EULER_XYZ = 'XYZ'
-EULER_ZYX = 'ZYX'
+_G.EULER_XYZ = 'XYZ'
+_G.EULER_ZYX = 'ZYX'
 
 ---@alias UIElement3DShape
 ---| 1 CUBE
@@ -12,17 +12,11 @@ EULER_ZYX = 'ZYX'
 ---| 3 CAPSULE
 ---| 4 CUSTOMOBJ
 ---| 5 VIEWPORT
-CUBE = 1
-SPHERE = 2
-CAPSULE = 3
-CUSTOMOBJ = 4
-VIEWPORT = 5
-
----@alias UIElement3DAttachPlayerId
----| 0 TORI
----| 1 UKE
-TORI = 0
-UKE = 1
+_G.CUBE = 1
+_G.SPHERE = 2
+_G.CAPSULE = 3
+_G.CUSTOMOBJ = 4
+_G.VIEWPORT = 5
 
 ---@class RenderEffect
 ---@field id RenderEffectId Effect id
@@ -30,15 +24,20 @@ UKE = 1
 ---@field glowIntensity number Glow intensity
 ---@field ditherPixelSize integer Dithering effect pixel size
 
-OBJMODELCACHE = OBJMODELCACHE or {}
-OBJMODELINDEX = OBJMODELINDEX or 0
-
 ---@type UIElement3D[]
-UIElement3DManager = UIElement3DManager or {}
+_G.UIElement3DManager = _G.UIElement3DManager or {}
 ---@type UIElement3D[][]
-UIVisual3DManager = UIVisual3DManager or {}
+_G.UIVisual3DManager = _G.UIVisual3DManager or {}
 ---@type UIElement3D[][]
-UIVisual3DManagerViewport = UIVisual3DManagerViewport or {}
+_G.UIVisual3DManagerViewport = _G.UIVisual3DManagerViewport or {}
+
+---@class UIElement3DModelCacheEntry
+---@field name string Cached model file path
+---@field count integer Number of UIElement3D objects that currently use the model
+
+---@type UIElement3DModelCacheEntry[]
+_G.UIElement3DModelCache = _G.UIElement3DModelCache or {}
+_G.UIElement3DModelIndex = _G.UIElement3DModelIndex or 0
 
 if (not UIElement3D) then
 	---Options to use to spawn the new UIElement3D object.\
@@ -59,11 +58,11 @@ if (not UIElement3D) then
 	---@field viewport UIElement3D|UIElement Viewport element
 	---@field pos Vector3 Object's **absolute** position in the world
 	---@field shift Vector3 Object's position **relative to its parent**
-	---@field shiftInternal Vector3 Object's rotation adjusted relative position
 	---@field size Vector3 Object size
 	---@field rotMatrix number[][] Object's rotation as a [rotation matrix](https://en.wikipedia.org/wiki/Rotation_matrix)
 	---@field rotMatrixTB MatrixTB Object's rotation as a Toribash rotation matrix
 	---@field rotXYZ EulerRotation Object's rotation in [Euler angles](https://en.wikipedia.org/wiki/Euler_angles)
+	---@field __rotMatrixSelf number[][] Object's own rotation as a rotation matrix
 	---@field shapeType UIElement3DShape
 	---@field playerAttach integer Target player id this object is attached to
 	---@field attachBodypart integer Target bodypart id this object is attached to
@@ -80,11 +79,23 @@ if (not UIElement3D) then
 	UIElement3D.__index = UIElement3D
 	setmetatable(UIElement3D, UIElement)
 
+	---**Helper class with utility functions for 3D object manipulations**
+	---@class Utils3D
+	Utils3D = {
+		ver = UIElement3D.ver
+	}
+	Utils3D.__index = Utils3D
+
 	---@class EulerRotation : Vector3
 	---@field convention EulerRotationConvention
 	EulerRotation = {}
 	EulerRotation.__index = EulerRotation
 end
+
+---**UIElement3D helper class** \
+---*Contains functions that only get used internally and which we don't want to expose.*
+---@class UIElement3DInternal
+local UIElement3DInternal = {}
 
 ---Initializes an **EulerRotation** object with the specified data in degrees
 ---@param x number?
@@ -116,44 +127,16 @@ end
 ---Returns a corresponding rotation matrix
 ---@return number[][]?
 function EulerRotation:toMatrix()
-	return UIElement3D.GetMatrixFromEuler(math.rad(self.x), math.rad(self.y), math.rad(self.z), self.convention)
+	return Utils3D.GetMatrixFromEuler(math.rad(self.x), math.rad(self.y), math.rad(self.z), self.convention)
 end
 
 ---Returns a corresponding Toribash rotation matrix and a regular rotation matrix
 ---@return MatrixTB
 ---@return number[][]
 function EulerRotation:toMatrixTB()
-	local matrix = self:toMatrix()
-	---@type MatrixTB
-	local matrixTB = {
-		r0 = 1,		r1 = 0,		r2 = 0,		r3 = 0,
-		r4 = 0,		r5 = 1,		r6 = 0,		r7 = 0,
-		r8 = 0,		r9 = 0,		r10 = 1,	r11 = 0
-	}
-	if (matrix) then
-		matrixTB.r0 = matrix[1][1]
-		matrixTB.r1 = matrix[2][1]
-		matrixTB.r2 = matrix[3][1]
-		matrixTB.r4 = matrix[1][2]
-		matrixTB.r5 = matrix[2][2]
-		matrixTB.r6 = matrix[3][2]
-		matrixTB.r8 = matrix[1][3]
-		matrixTB.r9 = matrix[2][3]
-		matrixTB.r10 = matrix[3][3]
-	else
-		matrix = {
-			{ 1, 0, 0 },
-			{ 0, 1, 0 },
-			{ 0, 0, 1 }
-		}
-	end
-	return matrixTB, matrix
+	local matrix = self:toMatrix() or Utils3D.MatrixIdentity()
+	return UIElement3DInternal.ToMatrixTB(matrix), matrix
 end
-
----**UIElement3D helper class** \
----*Contains functions that only get used internally and which we don't want to expose.*
----@class UIElement3DInternal
-local UIElement3DInternal = {}
 
 ---Creates a new UIElement3D object
 ---@param _self UIElement3D
@@ -174,7 +157,6 @@ function UIElement3D.new(_self, o)
 	local elem = {
 		globalid = 1000,
 		child = { },
-		rotXYZ = EulerRotation.New(),
 		pos = { x = 0, y = 0, z = 0 },
 		bgColor = { 1, 1, 1, 0 },
 		shapeType = CUBE
@@ -194,10 +176,6 @@ function UIElement3D.new(_self, o)
 		elem.parent = o.parent
 		table.insert(elem.parent.child, elem)
 		elem.shift = { x = o.pos[1], y = o.pos[2], z = o.pos[3] }
-		elem.shiftInternal = { x = 0, y = 0, z = 0 }
-		elem.rotXYZ.x = elem.parent.rotXYZ.x
-		elem.rotXYZ.y = elem.parent.rotXYZ.y
-		elem.rotXYZ.z = elem.parent.rotXYZ.z
 		UIElement3DInternal.SetChildPosition(elem)
 	else
 		if (o.shapeType == VIEWPORT) then
@@ -214,11 +192,21 @@ function UIElement3D.new(_self, o)
 
 	elem.size = { x = o.size[1], y = o.size[2], z = o.size[3] }
 	if (o.rot) then
-		elem.rotXYZ.x = elem.rotXYZ.x + o.rot[1]
-		elem.rotXYZ.y = elem.rotXYZ.y + o.rot[2]
-		elem.rotXYZ.z = elem.rotXYZ.z + o.rot[3]
+		local eulerRotation = EulerRotation.New(o.rot[1], o.rot[2], o.rot[3])
+		---@diagnostic disable-next-line: assign-type-mismatch
+		elem.__rotMatrixSelf = eulerRotation:toMatrix()
+		if (elem.parent) then
+			---@diagnostic disable-next-line: assign-type-mismatch, param-type-mismatch
+			elem.rotMatrix = Utils3D.MatrixMultiply(elem.__rotMatrixSelf, elem.parent.rotMatrix)
+		else
+			elem.rotMatrix = table.clone(elem.__rotMatrixSelf)
+		end
+	else
+		elem.__rotMatrixSelf = Utils3D.MatrixIdentity()
+		elem.rotMatrix = table.clone(elem.parent and elem.parent.rotMatrix or elem.__rotMatrixSelf)
 	end
-	elem.rotMatrixTB, elem.rotMatrix = elem.rotXYZ:toMatrixTB()
+	elem.rotMatrixTB = UIElement3DInternal.ToMatrixTB(elem.rotMatrix)
+	elem.rotXYZ = Utils3D.GetEulerFromMatrix(elem.rotMatrix, EULER_XYZ)
 
 	if (o.objModel) then
 		elem.shapeType = CUSTOMOBJ
@@ -584,55 +572,37 @@ end
 function UIElement3D:deactivate()
 end
 
+---Internal function to set the shift and global position of the current UIElement3D in relation to its parent
+---@param object UIElement3D
+function UIElement3DInternal.SetChildPosition(object)
+	if (object.parent == nil) then
+		return
+	end
+
+	local rotatedShift = Utils3D.MatrixMultiply({ { object.shift.x, object.shift.y, object.shift.z } }, object.parent.rotMatrix)
+	if (rotatedShift) then
+		local newShift = rotatedShift[1]
+		object.pos.x = object.parent.pos.x + newShift[1]
+		object.pos.y = object.parent.pos.y + newShift[2]
+		object.pos.z = object.parent.pos.z + newShift[3]
+	end
+end
+
 ---Internal function to update positions of all the current UIElement3D object's children
 ---@param object UIElement3D
 function UIElement3DInternal.UpdateChildrenPosition(object)
 	for _, v in pairs(object.child) do
-		UIElement3DInternal.UpdatePosition(v, object.rotMatrix, object.pos)
+		UIElement3DInternal.UpdatePosition(v)
 	end
 end
 
----Internal function to set the shift of the current UIElement3D in relation to its parent
+---Internal function to update absolute position of the UIElement3D object and all its children
 ---@param object UIElement3D
-function UIElement3DInternal.SetChildPosition(object)
-	local rotatedShift = UIElement3D.MatrixMultiply({ { object.shift.x, object.shift.y, object.shift.z } }, object.parent.rotMatrix)
-	if (rotatedShift) then
-		local newShift = rotatedShift[1]
-		object.shiftInternal.x = newShift[1]
-		object.shiftInternal.y = newShift[2]
-		object.shiftInternal.z = newShift[3]
+function UIElement3DInternal.UpdatePosition(object)
+	if (object.parent) then
+		UIElement3DInternal.SetChildPosition(object)
 	end
-	for i, v in pairs(object.shiftInternal) do
-		object.pos[i] = object.parent.pos[i] + v
-	end
-end
-
----Internal function to update the absolute position of the UIElement3D object
----@param object UIElement3D
----@param rotMatrix number[][]
----@param pos Vector3
----@param shift ?Vector3
-function UIElement3DInternal.UpdatePosition(object, rotMatrix, pos, shift)
-	shift = shift and { x = shift.x + object.shift.x, y = shift.y + object.shift.y, z = shift.z + object.shift.z } or object.shift
-
-	local newPos = UIElement3D.MatrixMultiply({ { shift.x, shift.y, shift.z } }, rotMatrix)
-	local shiftSum = shift
-	if (newPos) then
-		local vector = newPos[1]
-		shiftSum = shift or {
-			x = vector[1],
-			y = vector[2],
-			z = vector[3]
-		}
-
-		object.pos.x = pos.x + vector[1]
-		object.pos.y = pos.y + vector[2]
-		object.pos.z = pos.z + vector[3]
-	end
-
-	for _, v in pairs(object.child) do
-		UIElement3DInternal.UpdatePosition(v, rotMatrix, pos, shiftSum)
-	end
+	UIElement3DInternal.UpdateChildrenPosition(object)
 end
 
 ---Moves the UIElement3D object and updates its and its children's absolute positions accordingly
@@ -647,29 +617,46 @@ function UIElement3D:moveTo(x, y, z)
 		if (x) then self.shift.x = self.shift.x + x end
 		if (y) then self.shift.y = self.shift.y + y end
 		if (z) then self.shift.z = self.shift.z + z end
-		UIElement3DInternal.SetChildPosition(self)
 	else
 		if (x) then self.pos.x = self.pos.x + x end
 		if (y) then self.pos.y = self.pos.y + y end
 		if (z) then self.pos.y = self.pos.z + z end
 	end
 
-	UIElement3DInternal.UpdateChildrenPosition(self)
+	UIElement3DInternal.UpdatePosition(self)
 end
 
 ---Internal function to handle rotation of a UIElement3D object and its children
 ---@param object UIElement3D
----@param x number
----@param y number
----@param z number
-function UIElement3DInternal.Rotate(object, x, y, z)
-	object.rotXYZ.x = (object.rotXYZ.x + x) % 360
-	object.rotXYZ.y = (object.rotXYZ.y + y) % 360
-	object.rotXYZ.z = (object.rotXYZ.z + z) % 360
-	object.rotMatrixTB, object.rotMatrix = object.rotXYZ:toMatrixTB()
+---@param rotMatrix number[][]
+function UIElement3DInternal.Rotate(object, rotMatrix)
+	local newRotMatrix = Utils3D.MatrixMultiply(object.__rotMatrixSelf, rotMatrix)
+	if (newRotMatrix == nil) then return end
+
+	object.__rotMatrixSelf = newRotMatrix
+	if (object.parent) then
+		---@diagnostic disable-next-line: assign-type-mismatch, param-type-mismatch
+		object.rotMatrix = Utils3D.MatrixMultiply(object.__rotMatrixSelf, object.parent.rotMatrix)
+	else
+		object.rotMatrix = table.clone(object.__rotMatrixSelf)
+	end
+	object.rotMatrixTB = UIElement3DInternal.ToMatrixTB(object.rotMatrix)
+	object.rotXYZ = Utils3D.GetEulerFromMatrix(object.rotMatrix, EULER_XYZ)
 
 	for _, v in pairs(object.child) do
-		UIElement3DInternal.Rotate(v, x, y, z)
+		UIElement3DInternal.RotateChild(v)
+	end
+end
+
+function UIElement3DInternal.RotateChild(object)
+	if (object.parent == nil) then return end
+
+	object.rotMatrix = Utils3D.MatrixMultiply(object.__rotMatrixSelf, object.parent.rotMatrix) or object.rotMatrix
+	object.rotMatrixTB = UIElement3DInternal.ToMatrixTB(object.rotMatrix)
+	object.rotXYZ = Utils3D.GetEulerFromMatrix(object.rotMatrix, EULER_XYZ)
+
+	for _, v in pairs(object.child) do
+		UIElement3DInternal.RotateChild(v)
 	end
 end
 
@@ -685,21 +672,25 @@ function UIElement3D:rotate(x, y, z)
 		return
 	end
 
-	UIElement3DInternal.Rotate(self, x, y, z)
-	UIElement3DInternal.UpdateChildrenPosition(self)
+	local rotation = EulerRotation.New(x, y, z):toMatrix()
+	if (rotation ~= nil) then
+		UIElement3DInternal.Rotate(self, rotation)
+		UIElement3DInternal.UpdateChildrenPosition(self)
+	end
 end
 
 ---Helper function to get the Euler angles from a rotation matrix. \
 ---*Only `EULER_XYZ` and `EULER_ZYX` conventions are supported.*
 ---@param R number[][]
----@param convention EulerRotationConvention
+---@param convention ?EulerRotationConvention
 ---@return EulerRotation
-function UIElement3D.GetEulerFromMatrix(R, convention)
+function Utils3D.GetEulerFromMatrix(R, convention)
+	convention = convention or EULER_XYZ
 	local x, y, z = 0, 0, 0
 	if (convention == EULER_XYZ) then
+		x = math.atan2(-R[2][3], R[3][3])
 		local sinx = math.sin(x)
 		local cosx = math.cos(x)
-		x = math.atan2(-R[2][3], R[3][3])
 		y = math.atan2(R[1][3], R[3][3] * cosx - R[2][3] * sinx)
 		z = math.atan2(R[2][1] * cosx + R[3][1] * sinx, R[2][2] * cosx + R[3][2] * sinx)
 	elseif (convention == EULER_ZYX) then
@@ -712,7 +703,7 @@ function UIElement3D.GetEulerFromMatrix(R, convention)
 			x = 0
 			z = math.atan2(-R[1][2], R[2][2])
 		end
-	elseif (TB_MENU_DEBUG) then
+	else
 		error("UIElement3D.GetEulerFromMatrix() unsupported convention: " .. convention)
 	end
 
@@ -720,40 +711,47 @@ function UIElement3D.GetEulerFromMatrix(R, convention)
 end
 
 ---Legacy function to get ZYX euler angles rotation from rotation matrix. \
----@see UIElement3D.GetEulerFromMatrix
+---@see Utils3D.GetEulerFromMatrix
 ---@param R number[][]
 ---@return number x
 ---@return number y
 ---@return number z
 ---@deprecated
 function UIElement3D:getEulerZYXFromRotationMatrix(R)
-	local rotation = UIElement3D.GetEulerFromMatrix(R, EULER_ZYX)
+	local rotation = Utils3D.GetEulerFromMatrix(R, EULER_ZYX)
 	return rotation.x, rotation.y, rotation.z
 end
 
 ---Legacy function to get XYZ euler angles rotation from rotation matrix. \
----@see UIElement3D.GetEulerFromMatrix
+---@see Utils3D.GetEulerFromMatrix
 ---@param R number[][]
 ---@return number x
 ---@return number y
 ---@return number z
 ---@deprecated
 function UIElement3D:getEulerXYZFromRotationMatrix(R)
-	local rotation = UIElement3D.GetEulerFromMatrix(R, EULER_XYZ)
+	local rotation = Utils3D.GetEulerFromMatrix(R, EULER_XYZ)
 	return rotation.x, rotation.y, rotation.z
 end
 
 ---Internal helper function to make sure the provided table is a Toribash rotation table
----@param rTB MatrixTB|number[]
+---@param rTB MatrixTB|number[]|number[][]
 ---@return MatrixTB
-function UIElement3DInternal.VerifyMatrixTB(rTB)
+function UIElement3DInternal.ToMatrixTB(rTB)
 	if (rTB.r0 ~= nil) then
 		return rTB
 	end
+	if (type(rTB[1]) == "number") then
+		return {
+			r0 = rTB[1],	r1 = rTB[2],	r2 = rTB[3],	r3 = rTB[4],
+			r4 = rTB[5],	r5 = rTB[6],	r6 = rTB[7],	r7 = rTB[8],
+			r8 = rTB[9],	r9 = rTB[10],	r10 = rTB[11],	r11 = rTB[12]
+		}
+	end
 	return {
-		r0 = rTB[1],	r1 = rTB[2],	r2 = rTB[3],	r3 = rTB[4],
-		r4 = rTB[5],	r5 = rTB[6],	r6 = rTB[7],	r7 = rTB[8],
-		r8 = rTB[9],	r9 = rTB[10],	r10 = rTB[11],	r11 = rTB[12]
+		r0 = rTB[1][1],		r1 = rTB[2][1],		r2 = rTB[3][1],	 r3 = 0,
+		r4 = rTB[1][2],		r5 = rTB[2][2],		r6 = rTB[3][2],	 r7 = 0,
+		r8 = rTB[1][3],		r9 = rTB[2][3],		r10 = rTB[3][3], r11 = 0
 	}
 end
 
@@ -761,25 +759,24 @@ end
 ---@param rTB MatrixTB
 ---@return EulerRotation
 ---@nodiscard
-function UIElement3D.GetEulerFromMatrixTB(rTB)
-	rTB = UIElement3DInternal.VerifyMatrixTB(rTB)
-	return UIElement3D.GetEulerFromMatrix({
-		{ rTB.r0, rTB.r1, rTB.r2, rTB.r3 },
-		{ rTB.r4, rTB.r5, rTB.r6, rTB.r7 },
-		{ rTB.r8, rTB.r9, rTB.r10, rTB.r11 },
-		{ 0, 0, 0, 1 },
+function Utils3D.GetEulerFromMatrixTB(rTB)
+	rTB = UIElement3DInternal.ToMatrixTB(rTB)
+	return Utils3D.GetEulerFromMatrix({
+		{ rTB.r0, rTB.r1, rTB.r2 },
+		{ rTB.r4, rTB.r5, rTB.r6 },
+		{ rTB.r8, rTB.r9, rTB.r10 }
 	}, EULER_ZYX)
 end
 
 ---Legacy function to get euler angles from Toribash rotation matrix. \
----@see UIElement3D.GetEulerFromMatrixTB
+---@see Utils3D.GetEulerFromMatrixTB
 ---@param rTB MatrixTB
 ---@return number x
 ---@return number y
 ---@return number z
 ---@deprecated
 function UIElement3D:getEulerAnglesFromMatrixTB(rTB)
-	local rotation = UIElement3D.GetEulerFromMatrixTB(rTB)
+	local rotation = Utils3D.GetEulerFromMatrixTB(rTB)
 	return rotation.x, rotation.y, rotation.z
 end
 
@@ -788,70 +785,54 @@ end
 ---@param x number
 ---@param y number
 ---@param z number
----@param convention EulerRotationConvention
----@return number[][]?
-function UIElement3D.GetMatrixFromEuler(x, y, z, convention)
-	convention = string.upper(convention) or EULER_XYZ
+---@param convention ?EulerRotationConvention
+---@return number[][]
+function Utils3D.GetMatrixFromEuler(x, y, z, convention)
+	convention = convention and string.upper(convention) or EULER_XYZ
 	local c1 = math.cos(x)
 	local s1 = math.sin(x)
 	local c2 = math.cos(y)
 	local s2 = math.sin(y)
 	local c3 = math.cos(z)
 	local s3 = math.sin(z)
-	local R = nil
 
-	if (convention == EULER_XYZ) then
-		R = {
-			{
-				c2 * c3,
-				-c2 * s3,
-				s2
-			},
-			{
-				s1 * s2 * c3 + c1 * s3,
-				-s1 * s2 * s3 + c1 * c3,
-				-c2 * s1
-			},
-			{
-				-c1 * c3 * s2 + s1 * s3,
-				c1 * s2 * s3 + s1 * c3,
-				c1 * c2
+	local R = {}
+	for i = 1, 3 do
+		local axis = string.sub(convention, i, i)
+		if (axis == 'X') then
+			R[i] = {
+				{ 1, 0, 0 },
+				{ 0, c1, -s1 },
+				{ 0, s1, c1 }
 			}
-		}
-	elseif (convention == EULER_ZYX) then
-		R = {
-			{
-				c1 * c2,
-				c1 * s2 * s3 - s1 * c3,
-				c1 * s2 * c3 + s1 * s3
-			},
-			{
-				s1 * c2,
-				s1 * s2 * s3 + c1 * c3,
-				s1 * s2 * c3 - c1 * s3
-			},
-			{
-				-s2,
-				c2 * s3,
-				c2 * c3
+		elseif (axis == 'Y') then
+			R[i] = {
+				{ c2, 0, s2 },
+				{ 0, 1, 0 },
+				{ -s2, 0, c2 }
 			}
-		}
-	elseif (TB_MENU_DEBUG) then
-		error("UIElement3D.GetMatrixFromEuler() unsupported convention: " .. convention)
+		else
+			R[i] = {
+				{ c3, -s3, 0 },
+				{ s3, c3, 0 },
+				{ 0, 0, 1}
+			}
+		end
 	end
 
-	return R
+	---@diagnostic disable-next-line: param-type-mismatch, return-type-mismatch
+	return Utils3D.MatrixMultiply(Utils3D.MatrixMultiply(R[3], R[2]), R[1])
 end
 
 ---Legacy function to get rotation matrix from euler angles. \
----@see UIElement3D.GetMatrixFromEuler
+---@see Utils3D.GetMatrixFromEuler
 ---@param x number
 ---@param y number
 ---@param z number
 ---@return number[][]?
 ---@deprecated
 function UIElement3D:getRotMatrixFromEulerAngles(x, y, z)
-	return UIElement3D.GetMatrixFromEuler(x, y, z, EULER_XYZ)
+	return Utils3D.GetMatrixFromEuler(x, y, z, EULER_XYZ)
 end
 
 ---Helper function to multiply a 2-dimensional matrix by a number
@@ -873,7 +854,7 @@ end
 ---@param a number[][]
 ---@param b number[][]|number[]|number
 ---@return number[][]|number[]|nil
-function UIElement3D.MatrixMultiply(a, b)
+function Utils3D.MatrixMultiply(a, b)
 	if (type(b) == 'number') then
 		return UIElement3DInternal.MultiplyMatrixNumber(a, b)
 	end
@@ -897,6 +878,30 @@ function UIElement3D.MatrixMultiply(a, b)
 	return matrix
 end
 
+---Returns an identity matrix (3x3)
+---@return number[][]
+function Utils3D.MatrixIdentity()
+	return {
+		{ 1, 0, 0 },
+		{ 0, 1, 0 },
+		{ 0, 0, 1 }
+	}
+end
+
+---Returns inverse matrix
+---@param matrix number[][]
+---@return number[][]
+function Utils3D.MatrixInverse(matrix)
+	local inverse = { }
+	for i, row in pairs(matrix) do
+		inverse[i] = { }
+		for j, _ in pairs(row) do
+			inverse[i][j] = matrix[j][i]
+		end
+	end
+	return inverse
+end
+
 ---Legacy function to multiply matrices
 ---@see UIElement3D.MatrixMultiply
 ---@param a number[][]
@@ -904,7 +909,7 @@ end
 ---@return number[][]|number[]|nil
 ---@deprecated
 function UIElement3D:multiply(a, b)
-	return UIElement3D.MatrixMultiply(a, b)
+	return Utils3D.MatrixMultiply(a, b)
 end
 
 ---Legacy function to multiply a matrix by number
@@ -936,17 +941,17 @@ function UIElement:updateObj(model, noreload)
 
 	if (not noreload and self.objModel and not self.disableUnload) then
 		local id = 0
-		for i, _ in pairs(OBJMODELCACHE) do
+		for i, _ in pairs(UIElement3DModelCache) do
 			if (i == self.objModel) then
 				id = i
 				break
 			end
 		end
-		OBJMODELCACHE[id].count = OBJMODELCACHE[id].count - 1
-		if (OBJMODELCACHE[id].count == 0) then
+		UIElement3DModelCache[id].count = UIElement3DModelCache[id].count - 1
+		if (UIElement3DModelCache[id].count == 0) then
 			unload_obj(self.objModel)
-			OBJMODELCACHE[id] = nil
-			OBJMODELINDEX = OBJMODELINDEX - 1
+			UIElement3DModelCache[id] = nil
+			UIElement3DModelIndex = UIElement3DModelIndex - 1
 		end
 		self.objModel = nil
 	end
@@ -954,11 +959,11 @@ function UIElement:updateObj(model, noreload)
 	if (not model) then
 		return true
 	end
-	if (OBJMODELINDEX > 126) then
+	if (UIElement3DModelIndex > 126) then
 		return false
 	end
 
-	local objFile = Files:open("../" .. filename .. ".obj")
+	local objFile = Files.Open("../" .. filename .. ".obj")
 	if (not objFile.data) then
 		return false
 	end
@@ -966,10 +971,10 @@ function UIElement:updateObj(model, noreload)
 
 	local objid = -1
 	for i = 0, 127 do
-		if (OBJMODELCACHE[i]) then
-			if (OBJMODELCACHE[i].name == filename) then
+		if (UIElement3DModelCache[i]) then
+			if (UIElement3DModelCache[i].name == filename) then
 				self.objModel = i
-				OBJMODELCACHE[i].count = OBJMODELCACHE[i].count + 1
+				UIElement3DModelCache[i].count = UIElement3DModelCache[i].count + 1
 				return true
 			end
 		elseif (objid < 0) then
@@ -980,7 +985,7 @@ function UIElement:updateObj(model, noreload)
 	if (load_obj(objid, filename, 1)) then
 		self.objModel = objid
 	end
-	OBJMODELCACHE[objid] = { name = filename, count = 1 }
-	OBJMODELINDEX = math.max(OBJMODELINDEX, objid)
+	UIElement3DModelCache[objid] = { name = filename, count = 1 }
+	UIElement3DModelIndex = math.max(UIElement3DModelIndex, objid)
 	return true
 end
