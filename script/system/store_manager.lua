@@ -112,7 +112,7 @@ do
 	end
 
 	function Torishop:getItems()
-		local file = Files:open("../data/store.txt")
+		local file = Files.Open("../data/store.txt")
 		if (not file.data) then
 			if (not file:isDownloading()) then
 				Torishop:download()
@@ -185,7 +185,7 @@ do
 	end
 
 	function Torishop:getModelsData()
-		local file = Files:open("../data/store_obj.txt")
+		local file = Files.Open("../data/store_obj.txt")
 		if (not file.data) then
 			return { failed = true }
 		end
@@ -329,7 +329,7 @@ do
 
 	function Torishop:getTcSales()
 		local data = {}
-		local file = Files:open("../data/store.txt")
+		local file = Files.Open("../data/store.txt")
 		if (not file.data) then
 			return
 		end
@@ -366,7 +366,7 @@ do
 			return table.clone(TB_INVENTORY_DATA)
 		end
 
-		local file = Files:open("torishop/invent.txt")
+		local file = Files.Open("torishop/invent.txt")
 		if (not file.data) then
 			return false
 		end
@@ -1036,7 +1036,7 @@ do
 					if (not response:find("^ERROR")) then
 						if (not forceReload) then
 							-- Check if we already have the file from cache first
-							local textureFile = Files:open("../data/textures/store/inventory/" .. item.inventid .. ".tga")
+							local textureFile = Files.Open("../data/textures/store/inventory/" .. item.inventid .. ".tga")
 							if (textureFile.data) then
 								onImageDownloaded()
 								textureFile:close()
@@ -3167,650 +3167,416 @@ do
 			viewport = true
 		})
 		table.insert(viewport.child, viewport3D)
-		local previewMain = UIElement3D:new({
-			parent = viewport3D,
-			shapeType = CUBE,
-			pos = { 0, 0, 10 },
-			size = { 0, 0, 0 },
-			viewport = true
-		})
-		previewMain:addCustomDisplay(true, function()
+
+		local previewHolder = viewport3D:addChild({ pos = { 0, 0, 10 } })
+		viewElement.mouseDelta = 0
+		previewHolder:addCustomDisplay(true, function()
 				if (viewElement.hoverState ~= BTN_DN) then
-					previewMain:rotate(0, 0, 0.2)
+					previewHolder:rotate(0, 0, 0.2)
+				elseif (viewElement.mouseDelta ~= 0) then
+					previewHolder:rotate(0, 0, viewElement.mouseDelta)
+					viewElement.pressedPos.x = MOUSE_X
+					viewElement.mouseDelta = 0
 				end
 			end)
 		viewElement:addMouseHandlers(function()
 				viewElement.pressedPos.x = MOUSE_X
 			end, nil, function()
 				if (viewElement.hoverState == BTN_DN) then
-					if (MOUSE_X > viewElement.pressedPos.x) then
-						previewMain:rotate(0, 0, -15)
-					elseif (MOUSE_X < viewElement.pressedPos.x) then
-						previewMain:rotate(0, 0, 15)
-					end
-					viewElement.pressedPos.x = MOUSE_X
+					viewElement.mouseDelta = viewElement.pressedPos.x - MOUSE_X
 				end
 			end)
-		local previewHolder = UIElement3D:new({
-			parent = previewMain,
-			shapeType = CUBE,
-			pos = { 0, 0, 0 },
-			size = { 1, 1, 1 },
-			viewport = true
-		})
-		previewHolder:addCustomDisplay(true, function() end)
-		local scaleMultiplier = 2 --get_option("shaders") + 1
+
+		local previewMain = previewHolder:addChild({ })
 		local trans = get_option("shaders") == 1 and 1 or 0.99
 		local heightMod = 0
 		local iconScale = viewElement.size.w > viewElement.size.h and viewElement.size.h or viewElement.size.w
 		iconScale = iconScale > 64 and 64 or iconScale
-		if (item.catid == 2) then
-			-- Relax Items
-			local color = get_color_info(item.colorid)
-			local fcolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.force)
-			local force = UIElement3D:new({
-				parent = previewHolder,
+
+		local color = item.colorid > 0 and get_color_rgba(item.colorid) or { 1, 1, 1, 0 }
+		local pcolor = get_color_rgba(TB_MENU_PLAYER_INFO.items.colors.pgrad)
+		local scolor = get_color_rgba(TB_MENU_PLAYER_INFO.items.colors.sgrad)
+		local fcolor = get_color_rgba(TB_MENU_PLAYER_INFO.items.colors.force)
+		local rcolor = get_color_rgba(TB_MENU_PLAYER_INFO.items.colors.relax)
+
+		if (item.catid == 2 or item.catid == 22) then
+			-- Relax and Force items
+			local force = previewMain:addChild({
 				shapeType = CUSTOMOBJ,
 				objModel = "../models/store/presets/force",
-				pos = { 0, 0, 0 },
-				size = { 1 * scaleMultiplier, 1 * scaleMultiplier, 1 * scaleMultiplier },
-				rot = { 10, 90, 40 },
-				bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
-				viewport = true
+				size = { 2, 2, 2 },
+				rot = { 15, 0, 40 },
+				bgColor = item.catid == 22 and color or fcolor,
+				---@diagnostic disable-next-line: assign-type-mismatch
+				effects = item.catid == 2 and TB_MENU_PLAYER_INFO.items.effects.force
 			})
-			local relax = UIElement3D:new({
-				parent = previewHolder,
+			local relax = previewMain:addChild({
 				shapeType = SPHERE,
-				pos = { 0, 0, 0 },
 				size = { 0.8, 0.8, 0.8 },
 				rot = { 0, 0, 0 },
-				bgColor = { color.r, color.g, color.b, 1 },
-				viewport = true
-			})
-			return true
-		elseif (item.catid == 22) then
-			-- Force Items
-			local color = get_color_info(item.colorid)
-			local rcolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.relax)
-			local force = UIElement3D:new({
-				parent = previewHolder,
-				shapeType = CUSTOMOBJ,
-				objModel = "../models/store/presets/force",
-				pos = { 0, 0, 0 },
-				size = { 1 * scaleMultiplier, 1 * scaleMultiplier, 1 * scaleMultiplier },
-				rot = { 10, 90, 40 },
-				bgColor = { color.r, color.g, color.b, 1 },
-				viewport = true
-			})
-			local relax = UIElement3D:new({
-				parent = previewHolder,
-				shapeType = SPHERE,
-				pos = { 0, 0, 0 },
-				size = { 0.8, 0.8, 0.8 },
-				rot = { 0, 0, 0 },
-				bgColor = { rcolor.r, rcolor.g, rcolor.b, 1 },
-				viewport = true
+				bgColor = item.catid == 2 and color or rcolor,
+				---@diagnostic disable-next-line: assign-type-mismatch
+				effects = item.catid == 22 and TB_MENU_PLAYER_INFO.items.effects.relax
 			})
 			return true
 		elseif (item.catid == 1) then
 			-- Blood Items
-			local color = get_color_info(item.colorid)
-			local blood1 = UIElement3D:new({
+			previewMain:addChild({
 				parent = previewHolder,
 				shapeType = CUSTOMOBJ,
 				objModel = "../models/store/presets/blood",
 				pos = { 0, 0, -0.3 },
-				size = { 0.8 * scaleMultiplier, 0.8 * scaleMultiplier, 0.8 * scaleMultiplier },
-				rot = { -90, 0, 80 },
-				bgColor = { color.r, color.g, color.b, 1 },
-				viewport = true
+				size = { 1.6, 1.6, 1.6 },
+				rot = { -90, 80, 0 },
+				bgColor = color,
 			})
 			return true
 		elseif (item.catid == 20 or item.catid == 21) then
 			-- Gradient Items
-			local color = get_color_info(item.colorid)
-			local pcolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.pgrad)
-			local scolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.sgrad)
-			local fcolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.force)
-			local primaryGrad = UIElement3D:new({
-				parent = previewHolder,
+			local tricepsBody = previewMain:addChild({
 				shapeType = CUBE,
-				bgImage = "../textures/store/presets/prgrad.tga",
-				pos = { 0, 0.2, 0 },
+				pos = { 0, 0.2, -0.3 },
 				size = { 2, 0.65, 0.65 },
-				rot = { 90, 0, 0 },
-				bgColor = item.catid == 20 and { color.r, color.g, color.b, trans } or { pcolor.r, pcolor.g, pcolor.b, trans },
-				viewport = true
+				rot = { 0, 0, 90 },
+				bgGradient = item.catid == 20 and { color, scolor } or { pcolor, color },
+				bgGradientMode = BODYPARTS.L_TRICEPS,
+				---@diagnostic disable-next-line: assign-type-mismatch
+				effects = item.catid == 21 and TB_MENU_PLAYER_INFO.items.effects.body
 			})
-			local handPrGrad = UIElement3D:new({
-				parent = previewHolder,
+			local handBody = previewMain:addChild({
 				shapeType = CUBE,
-				bgImage = "../textures/store/presets/prgrad.tga",
-				pos = { 0.2, -1.53, 0 },
+				pos = { 0.2, -1.53, -0.3 },
 				size = { 1.2, 1.2, 1.2 },
-				rot = { 90, 0, 0 },
-				bgColor = item.catid == 20 and { color.r, color.g, color.b, trans } or { pcolor.r, pcolor.g, pcolor.b, trans },
-				viewport = true
+				rot = { 0, 0, 90 },
+				bgGradient = item.catid == 20 and { color, scolor } or { pcolor, color },
+				bgGradientMode = BODYPARTS.L_HAND,
+				---@diagnostic disable-next-line: assign-type-mismatch
+				effects = item.catid == 21 and TB_MENU_PLAYER_INFO.items.effects.body
 			})
-			local secondaryGrad = UIElement3D:new({
-				parent = previewHolder,
-				shapeType = CUBE,
-				bgImage = "../textures/store/presets/secgrad.tga",
-				pos = { 0, 0.2, 0 },
-				size = { 2, 0.65, 0.65 },
-				rot = { 90, 0, 0 },
-				bgColor = item.catid == 21 and { color.r, color.g, color.b, trans } or { scolor.r, scolor.g, scolor.b, trans },
-				viewport = true
-			})
-			local handSecGrad = UIElement3D:new({
-				parent = previewHolder,
-				shapeType = CUBE,
-				bgImage = "../textures/store/presets/secgrad.tga",
-				pos = { 0.2, -1.53, 0 },
-				size = { 1.2, 1.2, 1.2 },
-				rot = { 90, 0, 0 },
-				bgColor = item.catid == 21 and { color.r, color.g, color.b, trans } or { scolor.r, scolor.g, scolor.b, trans },
-				viewport = true
-			})
-			local joint1 = UIElement3D:new({
-				parent = previewHolder,
+			local elbowJoint = previewMain:addChild({
 				shapeType = SPHERE,
-				pos = { 0, 1.2, 0 },
+				pos = { 0, 1.2, -0.3 },
 				size = { 0.6, 0.6, 0.6 },
-				bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
-				viewport = true
+				bgColor = fcolor,
+				effects = TB_MENU_PLAYER_INFO.items.effects.force
 			})
-			local joint2 = UIElement3D:new({
-				parent = previewHolder,
+			local wristJoint = previewMain:addChild({
 				shapeType = SPHERE,
-				pos = { 0, -0.8, 0 },
+				pos = { 0, -0.8, -0.3 },
 				size = { 0.5, 0.5, 0.5 },
-				bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
-				viewport = true
+				bgColor = fcolor,
+				effects = TB_MENU_PLAYER_INFO.items.effects.force
 			})
-			previewHolder:moveTo(0, 0, -0.3)
-			previewMain:rotate(40, 90, 110)
+			previewHolder:moveTo(0, 1, 0)
+			previewMain:rotate(10, 40, 100)
 			return true
 		elseif (item.catid == 11) then
 			-- Ghost Colors
-			local color = get_color_info(item.colorid)
-			local pcolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.pgrad)
-			local scolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.sgrad)
-			local fcolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.force)
-
-			local cubesec = UIElement3D:new({
-				parent = previewHolder,
-				shapeType = CUBE,
-				pos = { 0, 0, 0 },
+			local cubeBody = previewMain:addChild({
+				pos = { 0, 0.2, -0.3 },
 				size = { 1, 1, 1 },
-				bgImage = "../textures/store/presets/secgrad.tga",
-				rot = { 0, 90, 0 },
-				bgColor = { scolor.r, scolor.g, scolor.b, trans },
-				viewport = true
+				rot = { 10, 60, 40 },
+				bgGradient = { pcolor, scolor },
+				---@diagnostic disable-next-line: assign-type-mismatch
+				effects = TB_MENU_PLAYER_INFO.items.effects.body
 			})
-			local cubepr = UIElement3D:new({
-				parent = previewHolder,
-				shapeType = CUBE,
-				pos = { 0, 0, 0 },
-				size = { 1, 1, 1 },
-				bgImage = "../textures/store/presets/prgrad.tga",
-				rot = { 0, 90, 0 },
-				bgColor = { pcolor.r, pcolor.g, pcolor.b, trans },
-				viewport = true
+			local ghost = cubeBody:addChild({
+				size = { cubeBody.size.x, cubeBody.size.y, cubeBody.size.z },
+				bgColor = { color[1], color[2], color[3], 0.5 },
 			})
-			local ghost = UIElement3D:new({
-				parent = cubepr,
-				shapeType = CUBE,
-				pos = { 0, 0, 0 },
-				size = { cubepr.size.x, cubepr.size.y, cubepr.size.z },
-				bgColor = { color.r, color.g, color.b, 0.6 },
-				viewport = true
-			})
+			local ticks = 0
 			ghost:addCustomDisplay(nil, function()
 					if (ghost.bgColor[4] <= 0) then
 						ghost:moveTo(-ghost.shift.x, -ghost.shift.y, 0)
-						ghost:rotate(-ghost.rotXYZ.x - 30)
-						ghost.bgColor[4] = 0.6
+						ghost:resetRotation()
+						ghost.bgColor[4] = 0.5
+						ticks = 0
 						return
 					end
-					ghost:moveTo(0.01, -0.005, 0)
+					ghost:moveTo(0.02, -0.005, 0)
 					ghost:rotate(0.4)
-					ghost.bgColor[4] = ghost.bgColor[4] - 0.01
-				end)
-			previewMain:rotate(-30, 0, 0)
+					if (ticks > 50) then
+						ghost.bgColor[4] = ghost.bgColor[4] - 0.01
+					end
+					ticks = ticks + 1
+				end, true)
 			return true
 		elseif (item.catid == 12) then
 			-- DQ colors
-			local color = get_color_info(item.colorid)
-			local fcolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.force)
-			local head = UIElement3D:new({
-				parent = previewHolder,
+			local headBody = previewMain:addChild({
 				shapeType = SPHERE,
 				pos = { -0.3, 0, 0 },
-				size = { 0.8, 0.8, 0.8 },
+				size = { 0.8, 0, 0 },
 				rot = { 170, 20, -190 },
+				bgColor = { 1, 1, 1, 1 },
 				bgImage = TB_MENU_PLAYER_INFO.items.textures.head.equipped and "../../custom/" .. TB_MENU_PLAYER_INFO.username .. "/head.tga" or "../../custom/tori/head.tga",
-				viewport = true
+				effects = TB_MENU_PLAYER_INFO.items.effects.head
 			})
-			local neck = UIElement3D:new({
-				parent = previewHolder,
+			local neckJoint = headBody:addChild({
 				shapeType = SPHERE,
-				pos = { -0.6, 0.3, 0.6 },
-				size = { 0.4, 0.4, 0.4 },
-				bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
-				viewport = true
+				pos = { 0, headBody.size.x / 9 * 1.8, -headBody.size.x / 9 * 5.8 },
+				size = { headBody.size.x / 9 * 5, 0, 0 },
+				bgColor = fcolor,
+				effects = TB_MENU_PLAYER_INFO.items.effects.force
 			})
-			local dq = UIElement3D:new({
-				parent = previewHolder,
+			local dqRing = previewMain:addChild({
 				shapeType = CUSTOMOBJ,
 				objModel = "../models/store/presets/dq",
 				size = { 7, 7, 7 },
 				pos = { -0.3, 0, -0.8 },
 				rot = { 0, 0, 0 },
-				bgColor = { color.r, color.g, color.b, 1 },
-				viewport = true
+				bgColor = color
 			})
 			return true
 		elseif (item.catid == 5) then
 			-- Torso Items
-			local color = get_color_info(item.colorid)
-			local pcolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.pgrad)
-			local scolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.sgrad)
-			local fcolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.force)
-			local chest = UIElement3D:new({
-				parent = previewHolder,
+			local chestJoint = previewMain:addChild({
 				shapeType = SPHERE,
 				pos = { 0, 0, -0.4 },
 				size = { 0.7, 0.7, 0.7 },
-				rot = { 0, 0, 0 },
-				bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
-				viewport = true
+				bgColor = fcolor,
+				effects = TB_MENU_PLAYER_INFO.items.effects.force
 			})
-			local lumbar = UIElement3D:new({
-				parent = previewHolder,
+			local lumbarJoint = previewMain:addChild({
 				shapeType = SPHERE,
 				pos = { 0, 0.2, -1.2 },
 				size = { 0.7, 0.7, 0.7 },
-				rot = { 0, 0, 0 },
-				bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
-				viewport = true
+				bgColor = fcolor,
+				effects = TB_MENU_PLAYER_INFO.items.effects.force
 			})
-			local rpecs = UIElement3D:new({
-				parent = previewHolder,
+			local rpecsJoint = previewMain:addChild({
 				shapeType = SPHERE,
 				pos = { 0.55, -0.15, 0.4 },
 				size = { 0.7, 0.7, 0.7 },
-				rot = { 0, 0, 0 },
-				bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
-				viewport = true
+				bgColor = fcolor,
+				effects = TB_MENU_PLAYER_INFO.items.effects.force
 			})
-			local lpecs = UIElement3D:new({
-				parent = previewHolder,
+			local lpecsJoint = previewMain:addChild({
 				shapeType = SPHERE,
 				pos = { -0.55, -0.15, 0.4 },
 				size = { 0.7, 0.7, 0.7 },
-				rot = { 0, 0, 0 },
-				bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
-				viewport = true
+				bgColor = fcolor,
+				effects = TB_MENU_PLAYER_INFO.items.effects.force
 			})
-			local torsoneck = UIElement3D:new({
-				parent = previewHolder,
-				shapeType = CUBE,
+			local torsoneck = previewMain:addChild({
 				pos = { 0, 0, 0.8 },
 				size = { 0.7, 0.4, 0.6 },
-				rot = { 0, 0, 0 },
-				bgColor = { color.r, color.g, color.b, 1 },
-				viewport = true
+				bgColor = color,
+				effects = TB_MENU_PLAYER_INFO.items.effects.body
 			})
-			local torsorpec = UIElement3D:new({
-				parent = previewHolder,
-				shapeType = CUBE,
+			local torsorpec = previewMain:addChild({
 				pos = { -1, 0, 0.35 },
 				size = { 1, 0.7, 0.95 },
-				rot = { 0, 0, 0 },
-				bgColor = { color.r, color.g, color.b, 1 },
-				viewport = true
+				bgColor = color,
+				effects = TB_MENU_PLAYER_INFO.items.effects.body
 			})
-			local torsolpec = UIElement3D:new({
-				parent = previewHolder,
-				shapeType = CUBE,
+			local torsolpec = previewMain:addChild({
 				pos = { 1, 0, 0.35 },
 				size = { 1, 0.7, 0.95 },
-				rot = { 0, 0, 0 },
-				bgColor = { color.r, color.g, color.b, 1 },
-				viewport = true
+				bgColor = color,
+				effects = TB_MENU_PLAYER_INFO.items.effects.body
 			})
-			local torsochest = UIElement3D:new({
-				parent = previewHolder,
-				shapeType = CUBE,
+			local torsochest = previewMain:addChild({
 				pos = { 0, 0.05, -0.6 },
 				size = { 2.2, 0.7, 1 },
+				bgColor = color,
+				effects = TB_MENU_PLAYER_INFO.items.effects.body
+			})
+			local torsostomachp = previewMain:addChild({
+				pos = { 0, 0.2, -1.6 },
+				size = { 1.4, 0.7, 1.1 },
 				rot = { 0, 0, 0 },
-				bgColor = { color.r, color.g, color.b, 1 },
-				viewport = true
+				bgColor = { 1, 1, 1, 1 },
+				bgGradient = { pcolor, scolor },
+				bgGradientMode = BODYPARTS.STOMACH,
+				effects = TB_MENU_PLAYER_INFO.items.effects.body
 			})
-			local torsostomachp = UIElement3D:new({
-				parent = previewHolder,
-				shapeType = CUBE,
-				bgImage = "../textures/store/presets/prgrad.tga",
-				pos = { 0, 0.2, -1.6 },
-				size = { 0.7, 1.1, 1.4 },
-				rot = { 90, 90, 0 },
-				bgColor = { pcolor.r, pcolor.g, pcolor.b, trans },
-				viewport = true
-			})
-			local torsostomachs = UIElement3D:new({
-				parent = previewHolder,
-				shapeType = CUBE,
-				bgImage = "../textures/store/presets/secgrad.tga",
-				pos = { 0, 0.2, -1.6 },
-				size = { 0.7, 1.1, 1.4 },
-				rot = { -90, -90, 0 },
-				bgColor = { scolor.r, scolor.g, scolor.b, trans },
-				viewport = true
-			})
-			previewHolder:moveTo(0, 0.6, 0)
+			previewHolder:moveTo(0, 1, 0.2)
 			return true
 		elseif (item.catid == 41) then
 			-- Grip items
-			local color = get_color_info(item.colorid)
-			local pcolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.pgrad)
-			local scolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.sgrad)
-			local fcolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.force)
-			local handp = UIElement3D:new({
-				parent = previewHolder,
-				shapeType = CUBE,
+			local handBody = previewMain:addChild({
 				pos = { 0, 0.3, 0 },
-				bgImage = "../textures/store/presets/prgrad.tga",
 				size = { 1, 1, 1 },
 				rot = { -45, 90, 0 },
-				bgColor = { pcolor.r, pcolor.g, pcolor.b, trans },
-				viewport = true
+				bgColor = { 1, 1, 1, 1 },
+				bgGradient = { pcolor, scolor },
+				bgGradientMode = BODYPARTS.R_HAND,
+				effects = TB_MENU_PLAYER_INFO.items.effects.body
 			})
-			local hands = UIElement3D:new({
-				parent = previewHolder,
-				shapeType = CUBE,
-				pos = { 0, 0.3, 0 },
-				bgImage = "../textures/store/presets/secgrad.tga",
-				size = { 1, 1, 1 },
-				rot = { -45, 90, 0 },
-				bgColor = { scolor.r, scolor.g, scolor.b, trans },
-				viewport = true
-			})
-			local wrist = UIElement3D:new({
-				parent = previewHolder,
+			local wristJoint = previewMain:addChild({
 				shapeType = SPHERE,
 				pos = { 0, 0.6, -0.6 },
 				size = { 0.45, 0.45, 0.45 },
-				rot = { 0, 0, 0 },
-				bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
-				viewport = true
+				bgColor = fcolor,
+				effects = TB_MENU_PLAYER_INFO.items.effects.force
 			})
-			local tricepsp = UIElement3D:new({
-				parent = previewHolder,
-				shapeType = CUBE,
+			local tricepsBody = previewMain:addChild({
 				pos = { 0, 0.4, -1.3 },
-				bgImage = "../textures/store/presets/prgrad.tga",
 				size = { 1.1, 0.4, 0.4 },
 				rot = { 25, 90, 0 },
-				bgColor = { pcolor.r, pcolor.g, pcolor.b, trans },
-				viewport = true
+				bgColor = { 1, 1, 1, 1 },
+				bgGradient = { pcolor, scolor },
+				bgGradientMode = BODYPARTS.R_TRICEPS,
+				effects = TB_MENU_PLAYER_INFO.items.effects.body
 			})
-			local tricepss = UIElement3D:new({
-				parent = previewHolder,
-				shapeType = CUBE,
-				pos = { 0, 0.4, -1.3 },
-				bgImage = "../textures/store/presets/secgrad.tga",
-				size = { 1.1, 0.4, 0.4 },
-				rot = { 25, 90, 0 },
-				bgColor = { scolor.r, scolor.g, scolor.b, trans },
-				viewport = true
-			})
-			local grip = UIElement3D:new({
-				parent = previewHolder,
+			local grip = previewMain:addChild({
 				shapeType = SPHERE,
-				pos = { 0, -0.3, 0.4 },
+				pos = { 0.2, -0.3, 0.4 },
 				size = { 0.4, 0.4, 0.4 },
-				bgColor = { color.r, color.g, color.b, 0.7 },
-				viewport = true
+				bgColor = { color[1], color[2], color[3], 0.5 }
 			})
 			previewMain:rotate(0, 0, 40)
 			return true
 		elseif (item.catid == 27 or item.catid == 28) then
 			-- Hand Trail items
-			local color = get_color_info(item.colorid)
-			local pcolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.pgrad)
-			local scolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.sgrad)
-			local fcolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.force)
-			local handp = UIElement3D:new({
-				parent = previewHolder,
-				shapeType = CUBE,
+			local handBody = previewMain:addChild({
 				pos = { 0, 0.3, 0.7 },
-				bgImage = "../textures/store/presets/prgrad.tga",
 				size = { 0.5, 0.5, 0.5 },
 				rot = { -25, -90, 0 },
-				bgColor = { pcolor.r, pcolor.g, pcolor.b, trans },
-				viewport = true
+				bgColor = { 1, 1, 1, 1 },
+				bgGradient = { pcolor, scolor },
+				bgGradientMode = BODYPARTS.R_HAND,
+				effects = TB_MENU_PLAYER_INFO.items.effects.body
 			})
-			local hands = UIElement3D:new({
-				parent = previewHolder,
-				shapeType = CUBE,
-				pos = { 0, 0.3, 0.7 },
-				bgImage = "../textures/store/presets/secgrad.tga",
-				size = { 0.5, 0.5, 0.5 },
-				rot = { -25, -90, 0 },
-				bgColor = { scolor.r, scolor.g, scolor.b, trans },
-				viewport = true
-			})
-			local wrist = UIElement3D:new({
-				parent = previewHolder,
+			local wristJoint = previewMain:addChild({
 				shapeType = SPHERE,
 				pos = { 0, 0.4, 0.4 },
 				size = { 0.25, 0.25, 0.25 },
-				rot = { 0, 0, 0 },
-				bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
-				viewport = true
+				bgColor = fcolor,
+				effects = TB_MENU_PLAYER_INFO.items.effects.force
 			})
-			local tricepsp = UIElement3D:new({
-				parent = previewHolder,
-				shapeType = CUBE,
+			local tricepsBody = previewMain:addChild({
 				pos = { 0, 0.58, 0 },
-				bgImage = "../textures/store/presets/prgrad.tga",
 				size = { 1.1, 0.25, 0.25 },
 				rot = { -25, 90, 0 },
-				bgColor = { pcolor.r, pcolor.g, pcolor.b, trans },
-				viewport = true
+				bgColor = { 1, 1, 1, 1 },
+				bgGradient = { pcolor, scolor },
+				bgGradientMode = BODYPARTS.R_TRICEPS,
+				effects = TB_MENU_PLAYER_INFO.items.effects.body
 			})
-			local tricepss = UIElement3D:new({
-				parent = previewHolder,
-				shapeType = CUBE,
-				pos = { 0, 0.58, 0 },
-				bgImage = "../textures/store/presets/secgrad.tga",
-				size = { 1.1, 0.25, 0.25 },
-				rot = { -25, 90, 0 },
-				bgColor = { scolor.r, scolor.g, scolor.b, trans },
-				viewport = true
-			})
-			local elbow = UIElement3D:new({
-				parent = previewHolder,
+			local elbowJoint = previewMain:addChild({
 				shapeType = SPHERE,
 				pos = { 0, 0.9, -0.7 },
 				size = { 0.3, 0.3, 0.3 },
-				rot = { 0, 0, 0 },
-				bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
-				viewport = true
+				bgColor = fcolor,
+				effects = TB_MENU_PLAYER_INFO.items.effects.force
 			})
-			local trail = UIElement3D:new({
-				parent = previewHolder,
+			local trailObj = previewMain:addChild({
 				shapeType = CUSTOMOBJ,
 				objModel = "../models/store/presets/trails",
 				pos = { 0, -0.4, -0.2 },
-				size = { 1.6 * scaleMultiplier, 1.6 * scaleMultiplier, 1.6 * scaleMultiplier },
+				size = { 3.2, 3.2, 3.2 },
 				rot = { 80, 90, 0 },
-				bgColor = { color.r, color.g, color.b, 1 },
-				viewport = true
+				bgColor = color
 			})
 			previewMain:rotate(0, 0, item.catid == 27 and -130 or 50)
 			return true
 		elseif (item.catid == 29 or item.catid == 30) then
 			-- Leg Trail items
-			local color = get_color_info(item.colorid)
-			local pcolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.pgrad)
-			local scolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.sgrad)
-			local fcolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.force)
-			local legp = UIElement3D:new({
-				parent = previewHolder,
-				shapeType = CUBE,
+			local footBody = previewMain:addChild({
 				pos = { 0, -0.3, -0.95 },
-				bgImage = "../textures/store/presets/prgrad.tga",
-				size = { 1.2, 0.5, 0.15 },
-				rot = { 0, 10, -90 },
-				bgColor = { pcolor.r, pcolor.g, pcolor.b, trans },
-				viewport = true
+				size = { 0.5, 1.2, 0.15 },
+				rot = { 0, 10, 0 },
+				bgColor = { 1, 1, 1, 1 },
+				bgGradient = { pcolor, scolor },
+				bgGradientMode = BODYPARTS.L_FOOT,
+				effects = TB_MENU_PLAYER_INFO.items.effects.body
 			})
-			local legs = UIElement3D:new({
-				parent = previewHolder,
-				shapeType = CUBE,
-				pos = { 0, -0.3, -0.95 },
-				bgImage = "../textures/store/presets/secgrad.tga",
-				size = { 1.2, 0.5, 0.15 },
-				rot = { 0, 10, -90 },
-				bgColor = { scolor.r, scolor.g, scolor.b, trans },
-				viewport = true
-			})
-			local ankle = UIElement3D:new({
-				parent = previewHolder,
+			local ankleJoint = previewMain:addChild({
 				shapeType = SPHERE,
 				pos = { 0, 0, -0.7 },
 				size = { 0.28, 0.28, 0.28 },
-				rot = { 0, 0, 0 },
-				bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
-				viewport = true
+				bgColor = fcolor,
+				effects = TB_MENU_PLAYER_INFO.items.effects.force
 			})
-			local legp = UIElement3D:new({
-				parent = previewHolder,
+			local legBody = previewMain:addChild({
 				shapeType = CAPSULE,
 				pos = { 0, -0.25, 0 },
-				bgImage = "../textures/store/presets/gradient1.tga",
 				size = { 0.3, 1, 0.3 },
 				rot = { -25, 0, 0 },
-				bgColor = { pcolor.r, pcolor.g, pcolor.b, trans },
-				viewport = true
+				bgColor = { 1, 1, 1, 1 },
+				bgGradient = { pcolor, scolor },
+				bgGradientMode = BODYPARTS.L_LEG,
+				effects = TB_MENU_PLAYER_INFO.items.effects.body
 			})
-			local legs = UIElement3D:new({
-				parent = previewHolder,
-				shapeType = CAPSULE,
-				pos = { 0, -0.25, 0 },
-				bgImage = "../textures/store/presets/gradient2.tga",
-				size = { 0.3, 1, 0.3 },
-				rot = { -25, 0, 0 },
-				bgColor = { scolor.r, scolor.g, scolor.b, trans },
-				viewport = true
-			})
-			local knee = UIElement3D:new({
-				parent = previewHolder,
+			local kneeJoint = previewMain:addChild({
 				shapeType = SPHERE,
 				pos = { 0, -0.52, 0.72 },
 				size = { 0.32, 0.32, 0.32 },
-				rot = { 0, 0, 0 },
-				bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
-				viewport = true
+				bgColor = fcolor,
+				effects = TB_MENU_PLAYER_INFO.items.effects.force
 			})
-			local trail = UIElement3D:new({
-				parent = previewHolder,
+			local trailObj = previewMain:addChild({
 				shapeType = CUSTOMOBJ,
 				objModel = "../models/store/presets/trails",
 				pos = { 0, 0.8, 0 },
-				size = { 1.6 * scaleMultiplier, 1.6 * scaleMultiplier, 1.6 * scaleMultiplier },
+				size = { 3.2, 3.2, 3.2 },
 				rot = { -90, 90, 0 },
-				bgColor = { color.r, color.g, color.b, 1 },
-				viewport = true
+				bgColor = color
 			})
 			previewMain:rotate(0, 0, item.catid == 30 and -60 or 50)
 			return true
 		elseif (item.catid == 73) then
 			-- Hair Colors
-			local color = get_color_info(item.colorid)
-			local scaleMultiplier = scaleMultiplier * 5
-			local head = UIElement3D:new({
-				parent = previewHolder,
+			local headBody = previewMain:addChild({
 				shapeType = SPHERE,
-				pos = { 0, 0, 0 },
 				size = { 0.8, 0.8, 0.8 },
-				viewport = true,
-				bgImage = TB_MENU_PLAYER_INFO.items.textures.head.equipped and "../../custom/" .. TB_MENU_PLAYER_INFO.username .. "/head.tga" or "../../custom/tori/head.tga"
+				rot = { 0, 0, -40 },
+				bgImage = TB_MENU_PLAYER_INFO.items.textures.head.equipped and "../../custom/" .. TB_MENU_PLAYER_INFO.username .. "/head.tga" or "../../custom/tori/head.tga",
+				bgColor = { 1, 1, 1, 1 },
+				effects = TB_MENU_PLAYER_INFO.items.effects.head
 			})
-			local model = UIElement3D:new({
-				parent = previewHolder,
+			local hairObj = headBody:addChild({
 				shapeType = CUSTOMOBJ,
 				objModel = "../models/store/presets/hair",
-				pos = { 0, 0, 0 },
-				size = { 0.8 * scaleMultiplier, 0.8 * scaleMultiplier, 0.8 * scaleMultiplier },
-				rot = { 0, 0, 0 },
-				bgColor = { color.r, color.g, color.b, trans },
-				viewport = true
+				size = { 8, 8, 8 },
+				bgColor = color
 			})
 			previewHolder:moveTo(0, 0, -0.3)
 			return true
 		elseif (item.catid == 44 and item.colorid ~= 0) then
 			-- Color Packs
-			local color = get_color_info(item.colorid)
-			local boxModel = UIElement3D:new({
-				parent = previewHolder,
+			local boxObj = previewMain:addChild({
 				shapeType = CUSTOMOBJ,
 				objModel = "../models/store/presets/box",
 				pos = { 0, 0, -0.1 },
 				size = { 1.3, 1.3, 1.3 },
 				rot = { -90, 0, 0 },
-				bgColor = { 0.7, 0.7, 0.7, 1 },
-				viewport = true
+				bgColor = { 0.7, 0.7, 0.7, 1 }
 			})
-			local tbLogo = UIElement3D:new({
-				parent = previewHolder,
+			local logoObj = boxObj:addChild({
 				shapeType = CUSTOMOBJ,
 				objModel = "../models/store/presets/logo",
-				pos = { 0, 0, -0.1 },
 				size = { 1.3, 1.3, 1.3 },
-				rot = { -90, 0, 0 },
 				bgColor = { 0.222, 0.137, 0.064, 1 },
-				viewport = true
 			})
-			local itemsModel = UIElement3D:new({
-				parent = previewHolder,
+			local itemsObj = previewMain:addChild({
 				shapeType = CUSTOMOBJ,
 				objModel = "../models/store/presets/colourobjs",
-				pos = { 0, 0, 0 },
 				size = { 1.3, 1.3, 1.3 },
 				rot = { -90, 0, 0 },
-				bgColor = { color.r, color.g, color.b, 1 },
-				viewport = true
+				bgColor = color,
 			})
-			local jointsModel = UIElement3D:new({
-				parent = previewHolder,
+			local jointsModel = previewMain:addChild({
 				shapeType = CUSTOMOBJ,
 				objModel = "../models/store/presets/colourobjs_joints",
-				pos = { 0, 0, 0 },
 				size = { 1.3, 1.3, 1.3 },
 				rot = { -90, 0, 0 },
-				bgColor = { 0.66, 0.66, 0.66, 1 },
-				viewport = true
+				bgColor = { 0.66, 0.66, 0.66, 1 }
 			})
-			local colorGlow = UIElement3D:new({
-				parent = previewHolder,
+			local colorGlow = boxObj:addChild({
 				shapeType = CUSTOMOBJ,
 				objModel = "../models/store/presets/glow",
-				pos = { 0, 0, -0.1 },
 				size = { 1.3, 1.3, 1.3 },
-				rot = { -90, 0, 0 },
-				bgColor = { color.r, color.g, color.b, 1 },
-				viewport = true
+				bgColor = color
 			})
 			previewHolder:moveTo(0, 0, -0.2)
-			previewMain:rotate(-10, 0, -40)
+			previewMain:rotate(-15, 0, 0)
 			return true
 		elseif (item.catid == 78) then
 			-- 3D Items
-			if (Torishop:showObjPreview(item, viewElement, previewHolder, scaleMultiplier, trans, nil, level, noReload, updateOverride, updatedFunc)) then
+			if (Torishop:showObjPreview(item, viewElement, previewHolder, 2, trans, nil, level, noReload, updateOverride, updatedFunc)) then
 				if (TB_STORE_MODELS[item.itemid].upgradeable) then
 					local level = level or 1
 					local buttonScale = viewport.shift.x - 5 > 32 and 32 or viewport.shift.x - 5
@@ -3898,7 +3664,7 @@ do
 				end
 			end
 			if (#item.objs > 0) then
-				if (Torishop:showObjPreview(item, viewElement, previewHolder, scaleMultiplier, trans, nil, level, noReload, updateOverride, updatedFunc)) then
+				if (Torishop:showObjPreview(item, viewElement, previewHolder, 2, trans, nil, level, noReload, updateOverride, updatedFunc)) then
 					if (item.upgradeable) then
 						local level = level or 1
 						local buttonScale = viewport.shift.x - 5 > 32 and 32 or viewport.shift.x - 5
@@ -3987,7 +3753,7 @@ do
 				shapeType = CUSTOMOBJ,
 				objModel = "../models/store/presets/force",
 				pos = { 0, 0, 0 },
-				size = { 1 * scaleMultiplier, 1 * scaleMultiplier, 1 * scaleMultiplier },
+				size = { 2, 2, 2 },
 				rot = { 10, 90, 40 },
 				bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
 				viewport = true,
@@ -4062,7 +3828,8 @@ do
 			pos = { 0, 0, 0 },
 			size = { 0.8, 0.8, 0.8 },
 			viewport = true,
-			bgImage = textures.head.equipped and (textures.head.path or (customPath .. "head.tga")) or "../../custom/tori/head.tga"
+			bgImage = textures.head.equipped and (textures.head.path or (customPath .. "head.tga")) or "../../custom/tori/head.tga",
+			bgColor = { 1, 1, 1, 1 }
 		})
 		local bodybreast = UIElement3D:new({
 			parent = previewHolder,
@@ -4853,7 +4620,7 @@ do
 		if (not items.pack) then
 			table.insert(itemslist, items)
 		else
-			for i,v in pairs(items.objs) do
+			for _, v in pairs(items.objs) do
 				table.insert(itemslist, v)
 			end
 			items.objs = nil
@@ -4869,9 +4636,9 @@ do
 		end
 
 		local itemHolder = nil
-		for i, item in pairs(itemslist) do
+		for _, item in pairs(itemslist) do
 			local objPath = "../models/store/" .. item.itemid .. (level > 1 and ("_" .. level) or '')
-			local objModel = Files:open("../data/models/store/" .. item.itemid .. (level > 1 and ("_" .. level) or '') .. ".obj")
+			local objModel = Files.Open("../data/models/store/" .. item.itemid .. (level > 1 and ("_" .. level) or '') .. ".obj")
 			if (objModel.data) then
 				objModel:close()
 				itemHolder = Torishop:drawObjItem(item, previewHolder, scaleMultiplier, objPath, bodyInfos, cameraMove, level)
@@ -4880,19 +4647,6 @@ do
 		end
 		if (noReload) then
 			return modelDrawn
-		end
-
-		local function downloadProgress()
-			local downloads = get_downloads()
-			for i,v in pairs(downloads) do
-				for j, item in pairs(itemslist) do
-					local objPath = "../models/store/" .. item.itemid .. (level > 1 and ("_" .. level) or '')
-					if (v:find(objPath:gsub("%.%./", ""))) then
-						return true
-					end
-				end
-			end
-			return false
 		end
 
 		local function downloadFile(i)
@@ -4920,7 +4674,6 @@ do
 			Request:queue(function()
 					download_server_file(load, 1)
 				end, "store_obj_downloader_prepare", function()
-					local response = get_network_response()
 					downloadFile(i + 1)
 				end)
 		end
@@ -5148,7 +4901,7 @@ do
 		elseif (item.catid == 73) then
 			set_hair_color(0, item.colorid)
 		elseif (item.catid == 78) then
-			local file = Files:open("../data/models/store/" .. item.itemid .. ".obj")
+			local file = Files.Open("../data/models/store/" .. item.itemid .. ".obj")
 			download_server_file(item.itemid, 1)
 			if (not file.data) then
 				TBMenu:showDataError("No model found, starting download")
@@ -5672,6 +5425,8 @@ do
 			pos = { 10, 2.5 },
 			size = { itemHolder.size.w - 10, itemHolder.size.h - 5 },
 			interactive = true,
+			clickThrough = true,
+			hoverThrough = true,
 			bgColor = item.on_sale and TB_MENU_DEFAULT_ORANGE or TB_MENU_DEFAULT_DARKER_COLOR,
 			hoverColor = item.on_sale and TB_MENU_DEFAULT_DARKER_ORANGE or TB_MENU_DEFAULT_DARKEST_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
@@ -5679,7 +5434,7 @@ do
 		})
 		local itemIconPath = Torishop:getItemIcon(item.itemid)
 		local itemIconFilePath = itemIconPath:gsub("^%.%./", "../data/")
-		local itemIconFile = Files:open(itemIconFilePath)
+		local itemIconFile = Files.Open(itemIconFilePath)
 		local hasIcon = itemIconFile.data and true or false
 		itemIconFile:close()
 
@@ -6206,6 +5961,8 @@ do
 				pos = { 5, #listElements * elementHeight },
 				size = { listingHolder.size.w - 5, elementHeight },
 				interactive = true,
+				clickThrough = true,
+				hoverThrough = true,
 				bgColor = TB_MENU_DEFAULT_BG_COLOR,
 				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR

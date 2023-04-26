@@ -51,6 +51,7 @@ if (not UIElement3D) then
 	---@field objModel string Filename of the custom obj model
 	---@field shapeType UIElement3DShape
 	---@field effects RenderEffect Rendering effects for the object
+	---@field eulerConvention EulerRotationConvention Euler angles convention used to initialize object rotation
 
 	---@class UIElement3D : UIElement
 	---@field parent UIElement3D|UIElement Parent element
@@ -192,7 +193,7 @@ function UIElement3D.new(_self, o)
 
 	elem.size = { x = o.size[1], y = o.size[2], z = o.size[3] }
 	if (o.rot) then
-		local eulerRotation = EulerRotation.New(o.rot[1], o.rot[2], o.rot[3])
+		local eulerRotation = EulerRotation.New(o.rot[1], o.rot[2], o.rot[3], o.eulerConvention)
 		---@diagnostic disable-next-line: assign-type-mismatch
 		elem.__rotMatrixSelf = eulerRotation:toMatrix()
 		if (elem.parent) then
@@ -660,7 +661,7 @@ function UIElement3DInternal.RotateChild(object)
 	end
 end
 
----Rotates the UIElement3D object and updates all its children accordingly
+---Rotates the object and updates all its children accordingly
 ---@param x ?number
 ---@param y ?number
 ---@param z ?number
@@ -677,6 +678,13 @@ function UIElement3D:rotate(x, y, z)
 		UIElement3DInternal.Rotate(self, rotation)
 		UIElement3DInternal.UpdateChildrenPosition(self)
 	end
+end
+
+---Resets object's rotation and sets own rotation matrix to identity
+function UIElement3D:resetRotation()
+	self.__rotMatrixSelf = Utils3D.MatrixIdentity()
+	UIElement3DInternal.Rotate(self, Utils3D.MatrixIdentity())
+	UIElement3DInternal.UpdateChildrenPosition(self)
 end
 
 ---Helper function to get the Euler angles from a rotation matrix. \
