@@ -1869,6 +1869,7 @@ function get_roomlist_num_rooms() end
 ---@field max_elo number Maximum elo requirement to join the room
 ---@field min_bet integer Room minimum bet amount
 ---@field entry_fee integer Room entry fee
+---@field duel_amount integer Room duel wager
 ---@field gamerules GameRules Room game rules
 ---@field is_official boolean
 ---@field is_ranked boolean
