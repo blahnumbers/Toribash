@@ -82,7 +82,7 @@ function Broadcasts:showBroadcast(broadcast)
 		end
 	else
 		if (self.IsDisplayed) then
-			local waiter = UIElement:new({
+			local waiter = UIElement.new({
 				globalid = TB_MENU_HUB_GLOBALID,
 				pos = { 0, 0 },
 				size = { 0, 0 }
@@ -97,7 +97,7 @@ function Broadcasts:showBroadcast(broadcast)
 		end
 
 		self.IsDisplayed = true
-		local notificationHolder = UIElement:new({
+		local notificationHolder = UIElement.new({
 			globalid = TB_MENU_HUB_GLOBALID,
 			pos = { WIN_W, WIN_H - 310 },
 			size = { 450, 250 },
@@ -117,7 +117,7 @@ function Broadcasts:showBroadcast(broadcast)
 			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
 		}, true)
-		local popupCloseIcon = popupClose:addChild({
+		popupClose:addChild({
 			shift = { 3, 3 },
 			bgImage = "../textures/menu/general/buttons/crosswhite.tga"
 		})
@@ -170,21 +170,18 @@ function Broadcasts:showBroadcast(broadcast)
 		local spawnClock = UIElement.clock
 		notificationHolder:addCustomDisplay(false, function()
 				local ratio = UIElement.clock - spawnClock
-				notificationHolder:moveTo(UITween.SineTween(notificationHolder.shift.x, WIN_W - notificationHolder.size.w, ratio))
-				if (ratio >= 1) then
-					local clock = UIElement.clock
+				if (ratio < 1) then
+					notificationHolder:moveTo(UITween.SineTween(notificationHolder.pos.x, WIN_W - notificationHolder.size.w, ratio))
+				end
+				local progress = math.min(1, (UIElement.clock - spawnClock) / self.DisplayDuration)
+				broadcastDisplayTimer.size.w = math.max(notificationHolder.size.w * progress, broadcastDisplayTimer.size.w)
+				if (progress == 1 or buttonClicked) then
+					spawnClock = UIElement.clock
 					notificationHolder:addCustomDisplay(false, function()
-							local progress = math.min(1, (UIElement.clock - clock) / self.DisplayDuration)
-							broadcastDisplayTimer.size.w = math.max(notificationHolder.size.w * progress, broadcastDisplayTimer.size.w)
-							if (progress == 1 or buttonClicked) then
-								spawnClock = UIElement.clock
-								notificationHolder:addCustomDisplay(false, function()
-										local ratio = UIElement.clock - spawnClock
-										notificationHolder:moveTo(UITween.SineTween(notificationHolder.shift.x, WIN_W, ratio))
-										if (ratio >= 1) then
-											notificationHolder:kill()
-										end
-									end)
+							local ratio = UIElement.clock - spawnClock
+							notificationHolder:moveTo(UITween.SineTween(notificationHolder.pos.x, WIN_W, ratio))
+							if (ratio >= 1) then
+								notificationHolder:kill()
 							end
 						end)
 				end

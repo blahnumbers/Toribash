@@ -1195,7 +1195,7 @@ function TBMenu:showStatusMessage(message, time)
 	local targetOffsetY = WIN_H - TBMenu.StatusMessage.size.h - 10
 	TBMenu.StatusMessage:addCustomDisplay(false, function()
 			if (TBMenu.StatusMessage.pos.y > targetOffsetY) then
-				local tweenRatio = (UIElement.clock - TBMenu.StatusMessage.startTime) / 2
+				local tweenRatio = (UIElement.clock - TBMenu.StatusMessage.startTime) * 2
 				TBMenu.StatusMessage:moveTo(nil, UITween.SineTween(TBMenu.StatusMessage.pos.y, targetOffsetY, tweenRatio))
 				transparency = UITween.SineEaseIn(tweenRatio * 2)
 				bgColor[4] = 0.8 * transparency
@@ -4061,6 +4061,92 @@ function TBMenuInternal.DisplayTextfield(element, fontid, scale, color, defaultS
 				end
 			end
 		end)
+end
+
+---Spawns a generic movable menu window with quit button
+---@param rect ?Rect|Vector2|UIElementSize
+---@param globalid ?integer
+---@return UIElement windowHolder
+---@return UIElement windowWorkArea
+---@return UIElement windowMover
+function TBMenu:spawnMoveableWindow(rect, globalid)
+	local safe_x, safe_y, safe_w, safe_h = get_window_safe_size()
+	safe_x = math.max(safe_x, WIN_W - safe_x - safe_w)
+	safe_y = math.max(safe_y, WIN_H - safe_y - safe_h)
+	rect = {
+		x = (rect and rect.x) or safe_x + 10,
+		y = (rect and rect.y) or safe_y + 10,
+		w = (rect and rect.w) or math.min(400, WIN_W / 4),
+		h = (rect and rect.h) or math.min(math.max(WIN_H / 2, 650), WIN_H - math.max(safe_y * 2, 100))
+	}
+
+	local windowBackground = UIElement.new({
+		globalid = globalid or TB_MENU_HUB_GLOBALID,
+		pos = { rect.x, rect.y },
+		size = { rect.w, rect.h },
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		shapeType = ROUNDED,
+		rounded = 4
+	})
+	local windowMain = windowBackground:addChild({
+		shift = { 2, 2 },
+		bgColor = TB_MENU_DEFAULT_BG_COLOR
+	}, true)
+
+	local windowMoverHolder = windowMain:addChild({
+		size = { windowMain.size.w, 30 },
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR
+	}, true)
+	local windowMover = windowMoverHolder:addChild({
+		interactive = true,
+		bgColor = UICOLORWHITE,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR
+	})
+	windowMover:addCustomDisplay(true, function()
+		set_color(unpack(windowMover:getButtonColor()))
+		local posX = windowMover.pos.x + windowMover.size.w / 2 - 15
+		draw_quad(posX, windowMover.pos.y + 10, 30, 2)
+		draw_quad(posX, windowMover.pos.y + 18, 30, 2)
+	end)
+	windowMover:addMouseHandlers(function(s, x, y)
+				disable_mouse_camera_movement()
+				windowMover.pressedPos.x = x - windowMover.pos.x
+				windowMover.pressedPos.y = y - windowMover.pos.y
+			end, enable_mouse_camera_movement, function(x, y)
+			if (windowMover.hoverState == BTN_DN) then
+				local x = x - windowMover.pressedPos.x
+				local y = y - windowMover.pressedPos.y
+					x = x < 0 and 0 or (x + windowBackground.size.w > WIN_W and WIN_W - windowBackground.size.w or x)
+				y = y < 0 and 0 or (y + windowBackground.size.h > WIN_H and WIN_H - windowBackground.size.h or y)
+				windowBackground:moveTo(x, y)
+			end
+		end, nil, enable_mouse_camera_movement)
+
+	local quitButton = windowMoverHolder:addChild({
+		pos = { -windowMoverHolder.size.h, 0 },
+		size = { windowMoverHolder.size.h, windowMoverHolder.size.h },
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+		interactive = true,
+		shapeType = ROUNDED,
+		rounded = 4
+	})
+	quitButton:addChild({
+		shift = { 2, 2 },
+		bgImage = "../textures/menu/general/buttons/crosswhite.tga"
+	})
+	quitButton:addMouseHandlers(nil, function()
+			windowBackground:kill()
+		end)
+
+	local windowWorkArea = windowMain:addChild({
+		pos = { 0, windowMoverHolder.shift.y + windowMoverHolder.size.h },
+		size = { windowMain.size.w, windowMain.size.h - windowMoverHolder.shift.y - windowMoverHolder.size.h }
+	}, true)
+
+	return windowBackground, windowWorkArea, windowMover
 end
 
 TBMenu.GetTranslation(get_language())

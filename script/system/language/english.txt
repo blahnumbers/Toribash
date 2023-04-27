@@ -259,11 +259,9 @@ MOVEMEMORYENTERMOVENAME	Enter move name
 MOVEMEMORYENTERMOVEDESCOPT	Enter move description (optional)
 MOVEMEMORYENTERMODNAMEOPT	Enter mod name (optional)
 MOVEMEMORYMODNAMEEMPTYERROR	Move name cannot be empty!
-MOVEMEMORYMOVESAVEERRORPERMS	Error saving a move, make sure you have write permissions on Toribash folder.
-MOVEMEMORYERRORNOTINGAME	You have to be playing to record a move.
-MOVEMEMORYERRORSTOPMOVE	Please stop the currently playing move before recording a new one.
-MOVEMEMORYRECORDINGMOVE	Recording move
-MOVEMEMORYERRORUPDATINGDATA	Error updating MoveMemory data file, no changes made.
+MOVEMEMORYERRORNOTINGAME	You have to be playing to record a move
+MOVEMEMORYERRORSTOPMOVE	Please stop the currently playing move before recording a new one
+MOVEMEMORYERRORUPDATINGDATA	Error updating MoveMemory data file, no changes made
 MOVEMEMORYNOMOVESFOUND	No moves found
 MOVEMEMORYDELETEMOVECONFIRM	Are you sure want to delete this opener? This action cannot be reversed.
 MOVEMEMORYALLMOVES	ALL MOVES
@@ -1179,3 +1177,7 @@ BROADCASTSBROADCAST	Broadcast
 BROADCASTSJOIN	Join
 REPLAYSNOCOMMENTS	This replay has no comments yet. Would you like to be the first one to leave a comment?
 REPLAYSERRORGETTINGCOMMENTS	Error getting replay comments, please try again later.
+MOVEMEMORYRUNFROMBEGINNING	Run opener from the beginning
+MOVEMEMORYTITLE	MoveMemory
+MOVEMEMORYRECORDINFO	Record new move
+MOVEMEMORYRECORDINGTURN	Recording turn

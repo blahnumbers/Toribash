@@ -238,7 +238,7 @@ function Atmospheres.ShowShaderControls()
 	end
 
 	local x, y, w, h = get_window_safe_size()
-	local viewElementHolder = UIElement:new({
+	local viewElementHolder = UIElement.new({
 		globalid = is_mobile() and TBHud.HubGlobalid or TB_MENU_HUB_GLOBALID,
 		pos = { 0, y + h - 90 },
 		size = { WIN_W, WIN_H - y - h + 90 },
@@ -498,7 +498,7 @@ function Atmospheres.LoadAtmo(filename)
 	add_hook("draw3d", "atmospheres", function() UIElement3D:drawVisuals(Atmospheres.Globalid) end)
 	add_hook("enter_frame", "atmospheres", function() UIElement3D:drawEnterFrame(Atmospheres.Globalid) end)
 	_ATMO = {}
-	Atmospheres.EntityHolder = UIElement3D:new({
+	Atmospheres.EntityHolder = UIElement3D.new({
 		globalid = Atmospheres.Globalid,
 		pos = { 0, 0, 0 },
 		size = { 0, 0, 0 }
@@ -581,7 +581,7 @@ function Atmospheres.SpawnObject(entityHolder, entityList, entity)
 	})
 	entityList[entity.name] = item
 	if (TB_MENU_DEBUG) then
-		Atmospheres.DebugHolder2D = Atmospheres.DebugHolder2D or UIElement:new({
+		Atmospheres.DebugHolder2D = Atmospheres.DebugHolder2D or UIElement.new({
 			globalid = TB_MENU_HUB_GLOBALID,
 			pos = { 0, 0 },
 			size = { 0, 0 }
@@ -766,24 +766,18 @@ function Atmospheres:showMain()
 	if (Atmospheres.MainElement ~= nil) then
 		Atmospheres.MainElement:kill()
 	end
-	Atmospheres.MainElement = UIElement:new({
-		globalid = TB_MENU_HUB_GLOBALID,
-		pos = { Atmospheres.DisplayPos.x, Atmospheres.DisplayPos.y },
-		size = { WIN_W / 4, WIN_H / 4 * 3 },
-		bgColor = TB_MENU_DEFAULT_BG_COLOR,
-		shapeType = ROUNDED,
-		rounded = 4
-	})
+	local holderElement
+	Atmospheres.MainElement, holderElement = TBMenu:spawnMoveableWindow(Atmospheres.DisplayPos)
 	Atmospheres.DisplayPos = Atmospheres.MainElement.pos
+	Atmospheres.MainElement.killAction = function() Atmospheres.MainElement = nil end
 
-	local mainList = Atmospheres.MainElement:addChild({}, true)
 	local elementHeight = 36
-	local toReload, topBar, botBar, listingView, listingHolder = TBMenu:prepareScrollableList(mainList, 75, 80, 20, Atmospheres.MainElement.bgColor)
+	local toReload, topBar, botBar, _, listingHolder = TBMenu:prepareScrollableList(holderElement, 45, 80, 20, TB_MENU_DEFAULT_BG_COLOR)
 
-	topBar.shapeType = mainList.shapeType
-	topBar:setRounded(mainList.rounded)
-	botBar.shapeType = mainList.shapeType
-	botBar:setRounded(mainList.rounded)
+	topBar.shapeType = holderElement.shapeType
+	topBar:setRounded(holderElement.rounded)
+	botBar.shapeType = holderElement.shapeType
+	botBar:setRounded(holderElement.rounded)
 
 	local search = TBMenu:spawnTextField2(botBar, {
 		x = 5,
@@ -794,39 +788,8 @@ function Atmospheres:showMain()
 		fontId = 4,
 		textScale = 0.65,
 		textAlign = LEFTMID,
-		keepFocusOnHide = true,
-		darkerMode = true
+		keepFocusOnHide = true
 	})
-
-	local mainMoverHolder = topBar:addChild({
-		size = { topBar.size.w, 30 },
-		bgColor = TB_MENU_DEFAULT_DARKER_COLOR
-	}, true)
-	local mainMover = mainMoverHolder:addChild({
-		interactive = true,
-		bgColor = UICOLORWHITE,
-		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-		pressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR
-	})
-	mainMover:addCustomDisplay(true, function()
-			set_color(unpack(mainMover:getButtonColor()))
-			local posX = mainMover.pos.x + mainMover.size.w / 2 - 15
-			draw_quad(posX, mainMover.pos.y + 10, 30, 2)
-			draw_quad(posX, mainMover.pos.y + 18, 30, 2)
-		end)
-	mainMover:addMouseHandlers(function(s, x, y)
-			disable_mouse_camera_movement()
-			mainMover.pressedPos.x = x - mainMover.pos.x
-			mainMover.pressedPos.y = y - mainMover.pos.y
-		end, enable_mouse_camera_movement, function(x, y)
-			if (mainMover.hoverState == BTN_DN) then
-				local x = x - mainMover.pressedPos.x
-				local y = y - mainMover.pressedPos.y
-				x = x < 0 and 0 or (x + Atmospheres.MainElement.size.w > WIN_W and WIN_W - Atmospheres.MainElement.size.w or x)
-				y = y < 0 and 0 or (y + Atmospheres.MainElement.size.h > WIN_H and WIN_H - Atmospheres.MainElement.size.h or y)
-				Atmospheres.MainElement:moveTo(x, y)
-			end
-		end, nil, enable_mouse_camera_movement)
 
 	local shaderEditorButton = botBar:addChild({
 		pos = { 5, botBar.size.h - 40 },
@@ -873,8 +836,8 @@ function Atmospheres:showMain()
 	}
 
 	local modeSwitchHolder = topBar:addChild({
-		pos = { 0, 35 },
-		size = { topBar.size.w, topBar.size.h - 40 },
+		pos = { 0, 5 },
+		size = { topBar.size.w, topBar.size.h - 10 },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR
 	})
 	local buttonWidth = (modeSwitchHolder.size.w - ((#mainList + 1) * 10)) / #mainList
@@ -907,25 +870,6 @@ function Atmospheres:showMain()
 	search:addKeyboardHandlers(nil, function()
 			mainList[Atmospheres.SelectedScreen].action()
 			search.btnDown()
-		end)
-
-	local quitButton = mainMoverHolder:addChild({
-		pos = { -mainMoverHolder.size.h, 0 },
-		size = { mainMoverHolder.size.h , mainMoverHolder.size.h },
-		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
-		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-		interactive = true,
-		shapeType = ROUNDED,
-		rounded = 4
-	})
-	quitButton:addChild({
-		shift = { 2, 2 },
-		bgImage = "../textures/menu/general/buttons/crosswhite.tga"
-	})
-	quitButton:addMouseHandlers(nil, function()
-			Atmospheres.MainElement:kill()
-			Atmospheres.MainElement = nil
 		end)
 end
 

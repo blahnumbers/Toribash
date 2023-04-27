@@ -9,9 +9,18 @@ _G.WIN_H = h
 ---Current screen ratio
 _G.SCREEN_RATIO = WIN_W / WIN_H
 
+local safe_x, safe_y, safe_w, safe_h = get_window_safe_size()
+---Safe screen area X offset
+_G.SAFE_X = math.max(safe_x, _G.WIN_W - safe_w - safe_x)
+---Safe screen area Y offset
+_G.SAFE_Y = math.max(safe_y, _G.WIN_H - safe_h - safe_y)
+
 add_hook("resolution_changed", "uiResolutionUpdater", function()
 	WIN_W, WIN_H = get_window_size()
 	SCREEN_RATIO = WIN_W / WIN_H
+	local safe_x, safe_y, safe_w, safe_h = get_window_safe_size()
+	SAFE_X = math.max(safe_x, WIN_W - safe_w - safe_x)
+	SAFE_Y = math.max(safe_y, WIN_H - safe_h - safe_y)
 end)
 
 ---Current cursor X coordinate
@@ -257,7 +266,7 @@ if (not UIElement) then
 	---@field destroyed boolean Read-only value to indicate the object has been destroyed. Use this to check whether the UIElement still exists when a UIElement:kill() function may have been called on its reference elsewhere.
 	---@field killAction function Additional callback to be executed when object is being destroyed
 	---@field scrollBar UIElement Reference to scrollable list holder's scroll bar
-	---@field positionDirty boolean Read-only value to tell the UIElement internal loops to refresh element position
+	---@field __positionDirty boolean Read-only value to tell the UIElement internal loops to refresh element position
 	---@field scrollableListTouchScrollActive boolean Read-only value used for scrollable list view elements on touch devices
 	---@field prevInput UIElement Previous input element, set with UIElement:addTabSwitchPrev()
 	---@field nextInput UIElement Next input element, set with UIElement:addTabSwitch()
@@ -366,7 +375,7 @@ function UIElement.new(_self, o)
 					shift = {},
 					bgColor = { 1, 1, 1, 0 },
 					innerShadow = { 0, 0 },
-					positionDirty = true
+					__positionDirty = true
 					}
 	setmetatable(elem, UIElement)
 
@@ -1919,7 +1928,7 @@ function UIElement:moveTo(x, y, relative)
 end
 
 function UIElement:invalidatePosition()
-	self.positionDirty = true
+	self.__positionDirty = true
 	for _, v in pairs(self.child) do
 		v:invalidatePosition()
 	end
@@ -1927,7 +1936,7 @@ end
 
 ---Internal function to update position of current UIElement based on its parent movement
 function UIElement:updateChildPos()
-	if (self.parent.viewport or not self.positionDirty) then
+	if (self.parent.viewport or not self.__positionDirty) then
 		return
 	end
 	if (self.shift.x < 0) then
@@ -1940,7 +1949,7 @@ function UIElement:updateChildPos()
 	else
 		self.pos.y = self.parent.pos.y + self.shift.y
 	end
-	self.positionDirty = false
+	self.__positionDirty = false
 end
 
 ---Adapts the specified string to fit inside UIElement object and sets custom display function to draw it

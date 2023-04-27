@@ -134,14 +134,3 @@ end
 if (overrideActive) then
 	setDefinesOverrides()
 end
-
-add_hook("key_down", "tbSystemKeyStateHandler", function(key)
-		if (key == 27) then
-			ESC_KEY_PRESSED = true
-		end
-	end)
-add_hook("key_up", "tbSystemKeyStateHandler", function(key)
-		if (key == 27) then
-			ESC_KEY_PRESSED = false
-		end
-	end)

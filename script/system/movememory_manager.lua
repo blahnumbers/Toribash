@@ -1,37 +1,31 @@
----@class MemoryMove
----@field id integer
----@field name string
----@field desc string
----@field mod string
----@field turns integer
----@field movements integer[][]
-
 if (MoveMemory == nil) then
-	local x, y, w, h = get_window_safe_size()
-	x = math.max(x, WIN_W - x - w)
-	y = math.max(y, WIN_H - y - h)
+	---@class MoveMemoryToolbar : UIElement
+	---@field infoText UIElement
 
 	---**MoveMemory manager class**
 	---
 	---**Version 5.60**
 	---* Documentation with EmmyLua annotations
-	---* Updated internals and visuals to match modern guidelines
+	---* Updated internals and visuals to match 5.60 design
 	---@class MoveMemory
 	---@field MainElement UIElement
-	---@field Toolbar UIElement[]
-	---@field Storage MemoryMove[]
-	---@field PlaybackActive boolean[]
-	---@field TutorialMode boolean
-	---@field LastPage integer
+	---@field Toolbar MoveMemoryToolbar[] List of toolbar UIElements
+	---@field Storage MemoryMove[] All cached MoveMemory moves
+	---@field ElementHeight integer Height of MoveMemory list buttons
+	---@field PlaybackActive boolean[] List of players' move playback statuses
+	---@field TutorialMode boolean Whether we're currently in Tutorial mode
 	MoveMemory = {
-		DisplayPos = { x = x + 10, y = y + 10 },
+		DisplayPos = { x = SAFE_X + 10, y = SAFE_Y + 10 },
 		PlaybackActive = {},
 		FirstTurn = false,
 		Storage = {},
+		Toolbar = {},
+		ElementHeight = 35,
 		StoragePopulated = false,
 		TutorialMode = false,
 		ver = 5.60
 	}
+	MoveMemory.__index = MoveMemory
 	setmetatable({}, MoveMemory)
 end
 
@@ -42,6 +36,13 @@ setmetatable({}, MoveMemoryInternal)
 
 ---Move class for **MoveMemory** manager
 ---@class MemoryMove
+---@field id integer Move id in storage cache
+---@field name string Name of the movement sequence
+---@field desc string Description of the movement sequence
+---@field mod string Name of the mod that this move was made for
+---@field turns integer Number of turns in this move sequence
+---@field movements integer[][] Movements data
+---@field currentturn integer|nil Internal value to tell which turn MoveMemory should play next
 MemoryMove = {}
 MemoryMove.__index = MemoryMove
 
@@ -100,29 +101,29 @@ function MoveMemory:getOpeners()
 	for _, line in pairs(fileData) do
 		pcall(function()
 			if (line:find("^NAME")) then
-				MoveMemory.Storage[#MoveMemory.Storage + 1] = {
-					id = #MoveMemory.Storage + 1,
+				self.Storage[#self.Storage + 1] = {
+					id = #self.Storage + 1,
 					name = line:gsub("^NAME ", "")
 				}
-				setmetatable(MoveMemory.Storage[#MoveMemory.Storage], MemoryMove)
-			elseif (#MoveMemory.Storage > 0) then
+				setmetatable(self.Storage[#self.Storage], MemoryMove)
+			elseif (#self.Storage > 0) then
 				if (line:find("^DESC")) then
-					MoveMemory.Storage[#MoveMemory.Storage].desc = line:gsub("^DESC ", "")
+					self.Storage[#self.Storage].desc = line:gsub("^DESC ", "")
 				elseif (line:find("^MOD")) then
-					MoveMemory.Storage[#MoveMemory.Storage].mod = line:gsub("^MOD ", ""):gsub("%.tbm$", "")
+					self.Storage[#self.Storage].mod = line:gsub("^MOD ", ""):gsub("%.tbm$", "")
 				elseif (line:find("^TURN")) then
-					if (not MoveMemory.Storage[#MoveMemory.Storage].movements) then
-						MoveMemory.Storage[#MoveMemory.Storage].movements = {}
+					if (not self.Storage[#self.Storage].movements) then
+						self.Storage[#self.Storage].movements = {}
 					end
 					line = line:gsub("^TURN ", "")
 					local min, max = line:find("^%d+;")
 					local turn = tonumber(line:sub(min, max - 1))
 					if (turn ~= nil) then
-						MoveMemory.Storage[#MoveMemory.Storage].movements[turn] = {}
-						if (not MoveMemory.Storage[#MoveMemory.Storage].turns) then
-							MoveMemory.Storage[#MoveMemory.Storage].turns = turn
-						elseif (MoveMemory.Storage[#MoveMemory.Storage].turns < turn) then
-							MoveMemory.Storage[#MoveMemory.Storage].turns = turn
+						self.Storage[#self.Storage].movements[turn] = {}
+						if (not self.Storage[#self.Storage].turns) then
+							self.Storage[#self.Storage].turns = turn
+						elseif (self.Storage[#self.Storage].turns < turn) then
+							self.Storage[#self.Storage].turns = turn
 						end
 
 						line = line:gsub("^%d+; ", "")
@@ -130,12 +131,19 @@ function MoveMemory:getOpeners()
 						local data_stream = { line:match(("(%d+ %d+) *"):rep(count / 2)) }
 						for _, v in pairs(data_stream) do
 							local info = { v:match(("(%d+) *"):rep(2)) }
-							MoveMemory.Storage[#MoveMemory.Storage].movements[turn][tonumber(info[1])] = tonumber(info[2])
+							self.Storage[#self.Storage].movements[turn][tonumber(info[1])] = tonumber(info[2])
 						end
 					end
 				end
 			end
 		end)
+	end
+
+	---Clean up moves without any data written to them
+	for i = #self.Storage, 1, -1 do
+		if (self.Storage[i].movements == nil or table.empty(self.Storage[i].movements)) then
+			table.remove(self.Storage, i)
+		end
 	end
 
 	self.StoragePopulated = true
@@ -164,22 +172,23 @@ end
 
 ---Writes move data to the datafile
 ---@param fileInterface ?File
+---@return boolean
 function MemoryMove:writeToFile(fileInterface)
-	if (utf8.len(self.name) == 0) then
-		return
+	if (string.len(self.name) == 0) then
+		return false
 	end
 
 	local file = fileInterface or Files.Open("system/movememory.mm", FILES_MODE_APPEND)
 	if (not file.data) then
-		return
+		return false
 	end
 
 	file:writeLine("")
 	file:writeLine("NAME " .. self.name)
-	if (self.desc) then
+	if (self.desc and string.len(self.desc) > 0) then
 		file:writeLine("DESC " .. self.desc)
 	end
-	if (self.mod) then
+	if (self.mod and string.len(self.mod) > 0) then
 		file:writeLine("MOD " .. self.mod)
 	end
 	for i, turn in pairs(self.movements) do
@@ -192,193 +201,163 @@ function MemoryMove:writeToFile(fileInterface)
 	if (fileInterface == nil) then
 		file:close()
 	end
+	return true
 end
 
-function MoveMemory:showSaveRecordingComplete(successAction, discard)
+---Displays move recording save window
+---@param moveData integer[][]
+---@param successAction ?function
+function MoveMemory:showSaveRecordingComplete(moveData, successAction)
 	local overlay = TBMenu:spawnWindowOverlay()
-	local function quitMoveSave()
-		overlay:kill()
-	end
 
-	local moveSave = UIElement:new({
-		parent = overlay,
-		pos = { WIN_W / 4, WIN_H / 2 - 140 },
-		size = { WIN_W / 2, 280 },
-		bgColor = TB_MENU_DEFAULT_BG_COLOR
+	local windowWidth = math.min(WIN_W / 2, 550)
+	local windowHolder = overlay:addChild({
+		shift = { (WIN_W - windowWidth) / 2, WIN_H / 2 - 140 },
+		bgColor = TB_MENU_DEFAULT_BG_COLOR,
+		shapeType = ROUNDED,
+		rounded = 4
 	})
-
-	local moveSaveTitle = UIElement:new({
-		parent = moveSave,
-		pos = { 10, 0 },
-		size = { moveSave.size.w - 20, 50 }
+	local windowTitle = windowHolder:addChild({
+		pos = { 60, 0 },
+		size = { windowHolder.size.w - 120, 50 }
 	})
-	moveSaveTitle:addAdaptedText(true, TB_MENU_LOCALIZED.MOVEMEMORYSAVING, nil, nil, FONTS.BIG, nil, 0.65)
-	local moveSaveButton = UIElement:new({
-		parent = moveSave,
-		pos = { moveSave.size.w / 2 + 5, -50 },
-		size = { moveSave.size.w / 2 - 15, 40 },
+	windowTitle:addAdaptedText(true, TB_MENU_LOCALIZED.MOVEMEMORYSAVING, nil, nil, FONTS.BIG, nil, 0.65)
+	local closeButton = windowHolder:addChild({
+		pos = { -windowTitle.size.h + 5, 5 },
+		size = { windowTitle.size.h - 10, windowTitle.size.h - 10 },
 		interactive = true,
-		bgColor = { 0, 0, 0, 0.1 },
-		hoverColor = { 0, 0, 0, 0.3 },
-		pressedColor = { 1, 1, 1, 0.2 }
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+	}, true)
+	closeButton:addChild({
+		shift = { 5, 5 },
+		bgImage = "../textures/menu/general/buttons/crosswhite.tga"
 	})
-	moveSaveButton:addAdaptedText(false, TB_MENU_LOCALIZED.BUTTONSAVE)
-
-	local moveCancelButton = UIElement:new({
-		parent = moveSave,
-		pos = { 10, -50 },
-		size = { moveSave.size.w / 2 - 15, 40 },
-		interactive = true,
-		bgColor = { 0, 0, 0, 0.1 },
-		hoverColor = { 0, 0, 0, 0.3 },
-		pressedColor = { 1, 1, 1, 0.2 }
-	})
-	moveCancelButton:addAdaptedText(false, discard and TB_MENU_LOCALIZED.BUTTONDISCARD or TB_MENU_LOCALIZED.BUTTONCANCEL)
-	moveCancelButton:addMouseHandlers(nil, function()
-			quitMoveSave()
-			if (discard) then
-				successAction()
-			end
+	closeButton:addMouseUpHandler(function()
+			overlay:kill()
 		end)
-	local moveNameBackground = UIElement:new({
-		parent = moveSave,
-		pos = { 10, moveSaveTitle.shift.y + moveSaveTitle.size.h + 10 },
-		size = { moveSave.size.w - 20, 40 },
-		bgColor = TB_MENU_DEFAULT_DARKEST_COLOR
-	})
-	local moveNameOverlay = UIElement:new({
-		parent = moveNameBackground,
-		pos = { 1, 1 },
-		size = { moveNameBackground.size.w - 2, moveNameBackground.size.h - 2 },
-		bgColor = { 1, 1, 1, 0.6 }
-	})
-	local moveNameInput = UIElement:new({
-		parent = moveNameOverlay,
-		pos = { 10, 0 },
-		size = { moveNameOverlay.size.w - 20, moveNameOverlay.size.h },
-		interactive = true,
-		textfield = true,
-		textfieldsingleline = true
-	})
-	TBMenu:displayTextfield(moveNameInput, FONTS.SMALL, 1, UICOLORBLACK, TB_MENU_LOCALIZED.MOVEMEMORYENTERMOVENAME, CENTERMID)
-	moveNameInput:addMouseHandlers(nil, function() moveNameInput:enableMenuKeyboard() end)
 
-	local moveDescBackground = UIElement:new({
-		parent = moveSave,
+	local moveSaveButton = windowHolder:addChild({
+		pos = { windowHolder.size.w / 4, -50 },
+		size = { windowHolder.size.w / 2, 40 },
+		interactive = true,
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+	}, true)
+	moveSaveButton:addAdaptedText(TB_MENU_LOCALIZED.BUTTONSAVE)
+
+	local moveNameBackground = windowHolder:addChild({
+		pos = { 10, windowTitle.shift.y + windowTitle.size.h + 10 },
+		size = { windowHolder.size.w - 20, 40 },
+		bgColor = TB_MENU_DEFAULT_DARKEST_COLOR
+	}, true)
+	local moveNameInput = TBMenu:spawnTextField2(moveNameBackground, nil, nil, TB_MENU_LOCALIZED.MOVEMEMORYENTERMOVENAME, {
+		textAlign = CENTERMID,
+		fontId = FONTS.LMEDIUM,
+		textScale = 0.7
+	})
+
+	local moveDescBackground = windowHolder:addChild({
 		pos = { 10, moveNameBackground.shift.y + moveNameBackground.size.h + 10 },
-		size = { moveSave.size.w - 20, 40 },
+		size = { moveNameBackground.size.w, moveNameBackground.size.h },
 		bgColor = TB_MENU_DEFAULT_DARKEST_COLOR
+	}, true)
+	local moveDescInput = TBMenu:spawnTextField2(moveDescBackground, nil, nil, TB_MENU_LOCALIZED.MOVEMEMORYENTERMOVEDESCOPT, {
+		textAlign = CENTERMID,
+		fontId = FONTS.LMEDIUM,
+		textScale = 0.7
 	})
-	local moveDescOverlay = UIElement:new({
-		parent = moveDescBackground,
-		pos = { 1, 1 },
-		size = { moveDescBackground.size.w - 2, moveDescBackground.size.h - 2 },
-		bgColor = { 1, 1, 1, 0.6 }
-	})
-	local moveDescInput = UIElement:new({
-		parent = moveDescOverlay,
-		pos = { 10, 0 },
-		size = { moveDescOverlay.size.w - 20, moveDescOverlay.size.h },
-		interactive = true,
-		textfield = true,
-		textfieldsingleline = true
-	})
-	TBMenu:displayTextfield(moveDescInput, FONTS.SMALL, 1, UICOLORBLACK, TB_MENU_LOCALIZED.MOVEMEMORYENTERMOVEDESCOPT, CENTERMID)
-	moveDescInput:addMouseHandlers(nil, function() moveDescInput:enableMenuKeyboard() end)
 
-	local moveModBackground = UIElement:new({
-		parent = moveSave,
+	local moveModBackground = windowHolder:addChild({
 		pos = { 10, moveDescBackground.shift.y + moveDescBackground.size.h + 10 },
-		size = { moveSave.size.w - 20, 40 },
+		size = { moveDescBackground.size.w, moveDescBackground.size.h },
 		bgColor = TB_MENU_DEFAULT_DARKEST_COLOR
+	}, true)
+	local modname = get_game_rules().mod:gsub("%.tbm$", "")
+	local moveModInput = TBMenu:spawnTextField2(moveModBackground, nil, modname, TB_MENU_LOCALIZED.MOVEMEMORYENTERMODNAMEOPT, {
+		textAlign = CENTERMID,
+		fontId = FONTS.LMEDIUM,
+		textScale = 0.7
 	})
-	local moveModOverlay = UIElement:new({
-		parent = moveModBackground,
-		pos = { 1, 1 },
-		size = { moveModBackground.size.w - 2, moveModBackground.size.h - 2 },
-		bgColor = { 1, 1, 1, 0.6 }
-	})
-	local moveModInput = UIElement:new({
-		parent = moveModOverlay,
-		pos = { 10, 0 },
-		size = { moveModOverlay.size.w - 20, moveModOverlay.size.h },
-		interactive = true,
-		textfield = true,
-		textfieldsingleline = true,
-		textfieldstr = { get_game_rules().mod:gsub("%.tbm$", "") }
-	})
-	TBMenu:displayTextfield(moveModInput, FONTS.SMALL, 1, UICOLORBLACK, TB_MENU_LOCALIZED.MOVEMEMORYENTERMODNAMEOPT, CENTERMID)
-	moveModInput:addMouseHandlers(nil, function() moveModInput:enableMenuKeyboard() end)
 
 	local function saveMove(name, description, mod)
-		if (name:len() == 0) then
+		if (string.len(name) == 0) then
 			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.MOVEMEMORYMODNAMEEMPTYERROR)
 			return
 		end
-		local file = Files.Open("system/movememory.mm", FILES_MODE_APPEND)
-		if (not file.data) then
-			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.MOVEMEMORYMOVESAVEERRORPERMS)
+
+		---@type MemoryMove
+		local memoryMove = {
+			name = name,
+			desc = description,
+			mod = mod,
+			movements = moveData
+		}
+		setmetatable(memoryMove, MemoryMove)
+		if (not memoryMove:writeToFile()) then
+			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.MOVEMEMORYERRORUPDATINGDATA)
 			return
 		end
-		file:writeLine("")
-		file:writeLine("NAME " .. name)
-		if (description:len() > 0) then
-			file:writeLine("DESC " .. description)
+
+		overlay:kill()
+		if (successAction) then
+			successAction()
 		end
-		if (mod:len() > 0) then
-			file:writeLine("MOD " .. mod)
+		if (self.MainElement ~= nil) then
+			self:reload()
 		end
-		for i,v in pairs(MOVEMEMORY_MOVE_RECORD) do
-			local line = "TURN " .. i .. "; "
-			for j, k in pairs(v) do
-				line = line .. k.joint .. " " .. k.state .. " "
-			end
-			file:writeLine(line)
-		end
-		file:close()
-		quitMoveSave()
-		successAction()
-		MoveMemory:reload()
 	end
 
-	moveSaveButton:addMouseHandlers(nil, function() saveMove(moveNameInput.textfieldstr[1], moveDescInput.textfieldstr[1], moveModInput.textfieldstr[1]) end)
+	moveSaveButton:addMouseUpHandler(function()
+		saveMove(moveNameInput.textfieldstr[1], moveDescInput.textfieldstr[1], moveModInput.textfieldstr[1])
+	end)
 end
 
+---Begins MoveMemory move recording and spawns callback listeners
 function MoveMemory:recordMove()
 	local ws = get_world_state()
 	local player = ws.selected_player
 	if (player < 0) then
 		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.MOVEMEMORYERRORNOTINGAME)
-		return false
+		return
 	end
-	if (MoveMemory.PlaybackActive[player]) then
+	if (self.PlaybackActive[player]) then
 		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.MOVEMEMORYERRORSTOPMOVE)
-		return false
+		return
 	end
-	local turn = ws.match_turn + 1
-	MOVEMEMORY_MOVE_RECORD = {}
+
+	local recordMove = { }
+	for _ = 1, ws.match_turn do
+		table.insert(recordMove, {})
+	end
 
 	local function cancelRecording()
-		remove_hooks("tbMoveMemoryRecordMove")
-		if (MoveMemory.Toolbar[0]) then
-			MoveMemory.Toolbar[0]:kill()
-			MoveMemory.Toolbar[0] = nil
+		remove_hooks("tbMoveMemoryRecordMove" .. player)
+		if (self.Toolbar[player]) then
+			self.Toolbar[player]:kill()
+			self.Toolbar[player] = nil
 		end
 	end
-	local function saveRecording(exitAction, discard)
-		MoveMemory:showSaveRecordingComplete(exitAction, discard)
-	end
-	MoveMemory:showToolbar(player, TB_MENU_LOCALIZED.MOVEMEMORYRECORDINGMOVE .. " #" .. turn .. " (" .. #MOVEMEMORY_MOVE_RECORD .. " " .. TB_MENU_LOCALIZED.WORDTOTAL .. ")", cancelRecording, saveRecording)
-	add_hook("exit_freeze", "tbMoveMemoryRecordMove", function()
-			MOVEMEMORY_MOVE_RECORD[#MOVEMEMORY_MOVE_RECORD + 1] = {}
-			for i,v in pairs(JOINTS) do
-				table.insert(MOVEMEMORY_MOVE_RECORD[#MOVEMEMORY_MOVE_RECORD], { joint = v, state = get_joint_info(player, v).state })
-			end
-			table.insert(MOVEMEMORY_MOVE_RECORD[#MOVEMEMORY_MOVE_RECORD], { joint = 20, state = get_grip_info(player, 11) })
-			table.insert(MOVEMEMORY_MOVE_RECORD[#MOVEMEMORY_MOVE_RECORD], { joint = 21, state = get_grip_info(player, 12) })
-			MoveMemory:showToolbar(player, TB_MENU_LOCALIZED.MOVEMEMORYRECORDINGMOVE .. " #" .. get_world_state().match_turn + 2 .. " (" .. #MOVEMEMORY_MOVE_RECORD .. " " .. TB_MENU_LOCALIZED.WORDTOTAL .. ")", cancelRecording, saveRecording)
+	self:showToolbar(player, TB_MENU_LOCALIZED.MOVEMEMORYRECORDINGTURN .. " #" .. (#recordMove + 1), cancelRecording, function()
+			self:showSaveRecordingComplete(recordMove, cancelRecording)
 		end)
-	add_hook("leave_game", "tbMoveMemoryRecordMove", function() if (not ESC_KEY_PRESSED) then if (#MOVEMEMORY_MOVE_RECORD > 0) then saveRecording(cancelRecording, true) else cancelRecording() end end end)
+	add_hook("exit_freeze", "tbMoveMemoryRecordMove" .. player, function()
+			table.insert(recordMove, {})
+			for _, v in pairs(JOINTS) do
+				recordMove[#recordMove][v] = get_joint_info(player, v).state
+			end
+			recordMove[#recordMove][20] = get_grip_info(player, 11)
+			recordMove[#recordMove][21] = get_grip_info(player, 12)
+			MoveMemory:updateToolbar(player, TB_MENU_LOCALIZED.MOVEMEMORYRECORDINGTURN .. " #" .. (#recordMove + 1))
+		end)
+	add_hook("leave_game", "tbMoveMemoryRecordMove" .. player, function()
+			if (#recordMove > 0) then
+				self:showSaveRecordingComplete(recordMove)
+			end
+			cancelRecording()
+		end)
 end
 
 ---Deletes a move from the data file
@@ -413,132 +392,48 @@ end
 
 ---Displays MoveMemory main window
 function MoveMemory:showMain()
-	local status, error = pcall(function() MoveMemory:getOpeners() end)
+	local status, error = pcall(function() self:getOpeners() end)
 	if (not status) then
 		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.WORDERROR .. " " .. error)
 		return
 	end
-	if (not MoveMemory.StoragePopulated) then
+	if (not self.StoragePopulated) then
 		return
 	end
 
-	local winWidth = 300 > WIN_W / 3 and WIN_W / 3 or 300
-	MoveMemory.MainElement = UIElement:new({
-		globalid = TB_MENU_HUB_GLOBALID,
-		pos = { MoveMemory.DisplayPos.x, MoveMemory.DisplayPos.y },
-		size = { winWidth, WIN_H / 4 * 3 },
-		bgColor = TB_MENU_DEFAULT_BG_COLOR_TRANS,
-		shapeType = ROUNDED,
-		rounded = 4,
-		uiColor = { 0, 0, 0, 1 }
-	})
-	MoveMemory.MainElement.pos = MoveMemory.DisplayPos
-	local moveMemoryMoverHolder = MoveMemory.MainElement:addChild({
-		size = { MoveMemory.MainElement.size.w, 20 },
-		rounded = { 4, 0 },
-		bgColor = TB_MENU_DEFAULT_BG_COLOR
-	}, true)
-	local moveMemoryMover = moveMemoryMoverHolder:addChild({
-		interactive = true,
-		bgColor = UICOLORWHITE,
-		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-		pressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR
-	})
-	moveMemoryMover:addCustomDisplay(true, function()
-			set_color(unpack(moveMemoryMover:getButtonColor()))
-			local posX = moveMemoryMover.pos.x + moveMemoryMover.size.w / 2 - 15
-			draw_quad(posX, moveMemoryMover.pos.y + 5, 30, 2)
-			draw_quad(posX, moveMemoryMover.pos.y + 13, 30, 2)
-		end)
-	if (not MoveMemory.TutorialMode) then
-		moveMemoryMover:addMouseHandlers(function(s, x, y)
-					moveMemoryMover.pressedPos.x = x - moveMemoryMover.pos.x
-					moveMemoryMover.pressedPos.y = y - moveMemoryMover.pos.y
-				end, nil, function(x, y)
-				if (moveMemoryMover.hoverState == BTN_DN) then
-					local x = x - moveMemoryMover.pressedPos.x
-					local y = y - moveMemoryMover.pressedPos.y
-					x = x < 0 and 0 or (x + MoveMemory.MainElement.size.w > WIN_W and WIN_W - MoveMemory.MainElement.size.w or x)
-					y = y < 0 and 0 or (y + MoveMemory.MainElement.size.h > WIN_H and WIN_H - MoveMemory.MainElement.size.h or y)
-					MoveMemory.MainElement:moveTo(x, y)
-				end
-			end)
-	end
-	local moveMemoryHolder = MoveMemory.MainElement:addChild({
-		pos = { 0, moveMemoryMoverHolder.size.h },
-		size = { MoveMemory.MainElement.size.w, MoveMemory.MainElement.size.h - moveMemoryMoverHolder.size.h - MoveMemory.MainElement.rounded }
-	})
-	local moveMemoryTitle = UIElement:new({
-		parent = moveMemoryHolder,
-		pos = { 0, 0 },
-		size = { moveMemoryHolder.size.w, 40 },
-		bgColor = TB_MENU_DEFAULT_BG_COLOR,
-		uiColor = UICOLORWHITE
-	})
-	moveMemoryTitle:addAdaptedText(false, "MOVEMEMORY", -10, nil, nil, nil, nil, nil, 0)
-	local moveMemoryAddMove = UIElement:new({
-		parent = moveMemoryTitle,
-		pos = { -30, 10 },
-		size = { 20, 20 },
-		interactive = true,
-		bgColor = { 1, 1, 1, 0.1 },
-		hoverColor = { 1, 1, 1, 0.3 },
-		pressedColor = TB_MENU_DEFAULT_DARKER_COLOR
-	})
-	if (not MoveMemory.TutorialMode) then
-		moveMemoryAddMove:addMouseHandlers(nil, function()
-				MoveMemory:recordMove()
-			end)
-	end
-	moveMemoryAddMove:addCustomDisplay(false, function()
-			set_color(1, 1, 1, 0.8)
-			draw_quad(	moveMemoryAddMove.pos.x + moveMemoryAddMove.size.w / 2 - 1,
-						moveMemoryAddMove.pos.y + 4,
-						2,
-						moveMemoryAddMove.size.h - 8	)
-			draw_quad(	moveMemoryAddMove.pos.x + 4,
-						moveMemoryAddMove.pos.y + moveMemoryAddMove.size.h / 2 - 1,
-						moveMemoryAddMove.size.w - 8,
-						2	)
-		end)
+	local moveMemoryHolder, windowMover
+	self.MainElement, moveMemoryHolder, windowMover = TBMenu:spawnMoveableWindow(self.DisplayPos)
+	self.DisplayPos = self.MainElement.pos
+	self.MainElement.killAction = function() self.MainElement = nil end
 
+	if (self.TutorialMode) then
+		windowMover:deactivate(true)
+	end
 
 	if (#MoveMemory.Storage == 0) then
 		moveMemoryHolder:addAdaptedText(true, TB_MENU_LOCALIZED.MOVEMEMORYNOMOVESFOUND, nil, nil, nil, nil, nil, nil, 0)
 		return
 	end
-	local featuredHolder = moveMemoryHolder:addChild({
-		pos = { 0, moveMemoryTitle.size.h },
-		size = { moveMemoryHolder.size.w, 110 }
-	})
-	local memoryOpeners = {}
-	local suggested = MoveMemory:spawnSuggested(featuredHolder)
-	if (not suggested) then
-		featuredHolder:kill()
-		---@diagnostic disable-next-line: cast-local-type
-		featuredHolder = nil
-		for _, v in pairs(MoveMemory.Storage) do
-			table.insert(memoryOpeners, v)
-		end
-	else
-		for _, v in pairs(MoveMemory.Storage) do
-			local skip = false
-			for _, k in pairs(suggested) do
-				if (v.id == k.id) then
-					skip = true
-				end
+
+	self:spawnOpeners(moveMemoryHolder)
+end
+
+---Fixes toolbars order when new ones are spawned or existing ones are destroyed
+---@param killId ?integer
+function MoveMemory:fixToolbarOrder(killId)
+	local safe_y = math.max(SAFE_Y, is_mobile() and 0 or 50)
+
+	local height = nil
+	local cnt = 0
+	for i = 0, 3 do
+		if (i ~= killId and self.Toolbar[i] ~= nil) then
+			if (height == nil) then
+				height = self.Toolbar[i].size.h
 			end
-			if (not skip) then
-				table.insert(memoryOpeners, v)
-			end
+			cnt = cnt + 1
+			self.Toolbar[i]:moveTo(nil, WIN_H - safe_y - height * cnt)
 		end
 	end
-	local openersHolder = UIElement:new({
-		parent = moveMemoryHolder,
-		pos = { 0, featuredHolder and featuredHolder.shift.y + featuredHolder.size.h or moveMemoryTitle.size.h },
-		size = { moveMemoryHolder.size.w, featuredHolder and moveMemoryHolder.size.h - featuredHolder.size.h - featuredHolder.shift.y or moveMemoryHolder.size.h - moveMemoryTitle.size.h }
-	})
-	MoveMemory:spawnOpeners(openersHolder, memoryOpeners, MoveMemory.LastPage, suggested)
 end
 
 ---Displays MoveMemory toolbar
@@ -547,75 +442,81 @@ end
 ---@param killAction function
 ---@param saveAction ?function
 function MoveMemory:showToolbar(id, text, killAction, saveAction)
-	if (MoveMemory.TutorialMode) then
-		return
-	end
-	MoveMemory.Toolbar = MoveMemory.Toolbar or { }
-	local posY = nil
-	if (MoveMemory.Toolbar[id]) then
-		posY = MoveMemory.Toolbar[id].pos.y
-		MoveMemory.Toolbar[id]:kill()
-		MoveMemory.Toolbar[id] = nil
+	if (self.TutorialMode) then return end
+
+	if (self.Toolbar[id]) then
+		self.Toolbar[id]:kill()
+		self.Toolbar[id] = nil
 	end
 
-	local count = #MoveMemory.Toolbar
-	if (count == 1) then
-		posY = nil
-	end
+	local toolbarHeight = math.min(WIN_H / 10, 60)
+	local toolbarWidth = math.min(WIN_W / 4, 400)
+	local safe_x = math.max(SAFE_X, 10)
 
-	local toolbarH = WIN_W / 25 > 60 and 60 or WIN_W / 25
-	local widthMod = saveAction and toolbarH - 10 or 0
-	MoveMemory.Toolbar[id] = UIElement:new({
+	---@diagnostic disable-next-line: assign-type-mismatch
+	self.Toolbar[id] = UIElement.new({
 		globalid = TB_MENU_HUB_GLOBALID,
-		pos = { WIN_W / 6 * 4 - widthMod, posY or WIN_H - 50 - toolbarH * (count + 1) - count },
-		size = { WIN_W / 6 * 2 - (100 - widthMod), toolbarH },
+		pos = { WIN_W - safe_x - toolbarWidth, WIN_H },
+		size = { toolbarWidth, toolbarHeight }
+	})
+	self:fixToolbarOrder()
+	self.Toolbar[id].killAction = function() self:fixToolbarOrder(id) end
+	local toolbarHolder = self.Toolbar[id]:addChild({
+		shift = { 0, 4 },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR_TRANS,
-		shapeType = ROUNDED,
-		rounded = 10
-	})
-	local moveMemoryTurnInfo = MoveMemory.Toolbar[id]:addChild({
-		pos = { 10, 10 },
-		size = { MoveMemory.Toolbar[id].size.w - 60 - widthMod, MoveMemory.Toolbar[id].size.h - 20 }
-	})
-	moveMemoryTurnInfo:addAdaptedText(true, text, nil, nil, nil, LEFTMID)
-
-	local killButtonSize = MoveMemory.Toolbar[id].size.h / 3 * 2
-	local moveMemoryToolbarKill = MoveMemory.Toolbar[id]:addChild({
-		pos = { -killButtonSize - killButtonSize / 4, killButtonSize / 4 },
-		size = { killButtonSize, killButtonSize },
-		interactive = true,
-		bgColor = { 0, 0, 0, 0.1 },
-		hoverColor = TB_MENU_DEFAULT_BG_COLOR_TRANS,
-		pressedColor = { 1, 1, 1, 0.3 },
 		shapeType = ROUNDED,
 		rounded = 4
 	})
-	local moveMemoryToolbarKillIcon = moveMemoryToolbarKill:addChild({
+	local toolbarPlayerHolder = toolbarHolder:addChild({
+		size = { toolbarHolder.size.h, toolbarHolder.size.h }
+	})
+	TBMenu:showPlayerHeadAvatar(toolbarPlayerHolder, get_player_info(id).name)
+
+	local buttonClose = toolbarHolder:addChild({
+		pos = { -toolbarHolder.size.h + 5, 5 },
+		size = { toolbarHolder.size.h - 10, toolbarHolder.size.h - 10 },
+		interactive = true,
+		bgColor = TB_MENU_DEFAULT_BG_COLOR_TRANS,
+		hoverColor = TB_MENU_DEFAULT_BG_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+	}, true)
+	buttonClose:addChild({
 		shift = { 5, 5 },
 		bgImage = "../textures/menu/general/buttons/crosswhite.tga",
 	})
-	moveMemoryToolbarKill:addMouseUpHandler(killAction)
+	buttonClose:addMouseUpHandler(killAction)
+
 	if (saveAction) then
-		local moveMemoryToolbarSave = MoveMemory.Toolbar[id]:addChild({
-			pos = { -killButtonSize * 2 - killButtonSize / 4 - 5, killButtonSize / 4 },
-			size = { killButtonSize, killButtonSize },
+		local saveButton = toolbarHolder:addChild({
+			pos = { buttonClose.shift.x - buttonClose.size.w - 5, buttonClose.shift.y },
+			size = { buttonClose.size.w, buttonClose.size.h },
 			interactive = true,
-			bgColor = { 0, 0, 0, 0.1 },
-			hoverColor = TB_MENU_DEFAULT_BG_COLOR_TRANS,
-			pressedColor = { 1, 1, 1, 0.3 },
-			shapeType = ROUNDED,
-			rounded = 4
-		})
-		local moveMemoryToolbarSaveIcon = moveMemoryToolbarSave:addChild({
+			bgColor = TB_MENU_DEFAULT_BG_COLOR_TRANS,
+			hoverColor = TB_MENU_DEFAULT_BG_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+		}, true)
+		saveButton:addChild({
 			shift = { 5, 5 },
 			bgImage = "../textures/menu/general/buttons/savewhite.tga",
 		})
-		moveMemoryToolbarSave:addMouseHandlers(nil, function()
-				saveAction(function()
-					killAction()
-				end)
+		saveButton:addMouseUpHandler(function()
+				saveAction(killAction)
 			end)
 	end
+
+	self.Toolbar[id].infoText = toolbarHolder:addChild({
+		pos = { toolbarPlayerHolder.size.h, 5 },
+		size = { toolbarHolder.size.w - toolbarPlayerHolder.size.h * (saveAction and 3 or 2), toolbarHolder.size.h - 10 }
+	})
+	self.Toolbar[id].infoText:addAdaptedText(true, text, nil, nil, nil, LEFTMID)
+end
+
+---Updates toolbar info message
+---@param id integer
+---@param text string
+function MoveMemory:updateToolbar(id, text)
+	if (self.Toolbar[id] == nil) then return end
+	self.Toolbar[id].infoText:addAdaptedText(true, text, nil, nil, nil, LEFTMID)
 end
 
 ---Plays move for the current turn
@@ -631,15 +532,14 @@ function MoveMemory:playMove(memorymove, spawnHook, player, noToolbar)
 		return
 	end
 
-	MoveMemory.PlaybackActive[player] = true
-
+	self.PlaybackActive[player] = true
 	local function playMoveQuit()
-		MoveMemory.PlaybackActive[player] = false
-		memorymove.currentturn = false
+		self.PlaybackActive[player] = false
+		memorymove.currentturn = nil
 		remove_hooks("tbMoveMemoryPlayTurns" .. player)
-		if (MoveMemory.Toolbar and MoveMemory.Toolbar[player]) then
-			MoveMemory.Toolbar[player]:kill()
-			MoveMemory.Toolbar[player] = nil
+		if (self.Toolbar and self.Toolbar[player]) then
+			self.Toolbar[player]:kill()
+			self.Toolbar[player] = nil
 		end
 	end
 
@@ -666,10 +566,16 @@ function MoveMemory:playMove(memorymove, spawnHook, player, noToolbar)
 	set_ghost(get_ghost())
 
 	if (not noToolbar) then
-		MoveMemory:showToolbar(player, memorymove.name .. ": " .. TB_MENU_LOCALIZED.WORDTURN .. " " .. turn .. " " .. TB_MENU_LOCALIZED.PAGINATIONPAGEOF .. " " .. memorymove.turns, playMoveQuit)
+		if (spawnHook) then
+			MoveMemory:showToolbar(player, memorymove.name .. ": " .. TB_MENU_LOCALIZED.WORDTURN .. " " .. turn .. " " .. TB_MENU_LOCALIZED.PAGINATIONPAGEOF .. " " .. memorymove.turns, playMoveQuit)
+		else
+			MoveMemory:updateToolbar(player, memorymove.name .. ": " .. TB_MENU_LOCALIZED.WORDTURN .. " " .. turn .. " " .. TB_MENU_LOCALIZED.PAGINATIONPAGEOF .. " " .. memorymove.turns)
+		end
 	end
 	if (spawnHook) then
-		add_hook("enter_freeze", "tbMoveMemoryPlayTurns" .. player, function() MoveMemory:playMove(memorymove, false, player, noToolbar) end)
+		add_hook("enter_freeze", "tbMoveMemoryPlayTurns" .. player, function()
+				MoveMemory:playMove(memorymove, false, player, noToolbar)
+			end)
 		add_hook("end_game", "tbMoveMemoryPlayTurns" .. player, playMoveQuit)
 		add_hook("match_begin", "tbMoveMemoryPlayTurns" .. player, playMoveQuit)
 	end
@@ -678,208 +584,252 @@ end
 ---Displays move item in UI
 ---@param viewElement UIElement
 ---@param memorymove MemoryMove
----@param pos integer
----@param shift ?integer
----@param toReload ?UIElement
----@return UIElement
-function MoveMemory:spawnMovementButton(viewElement, memorymove, pos, shift, toReload)
-	local shift = shift or 0
-	local buttonHolder = viewElement:addChild({
-		pos = { 0, shift + pos * 45 },
-		size = { viewElement.size.w, 45 },
+---@param listElements UIElement[]
+function MoveMemory:spawnMovementButton(viewElement, memorymove, listElements)
+	local buttonTopHolder = viewElement:addChild({
+		pos = { 0, #listElements * self.ElementHeight },
+		size = { viewElement.size.w, self.ElementHeight }
+	})
+	table.insert(listElements, buttonTopHolder)
+	local moveButton = buttonTopHolder:addChild({
+		pos = { 10, 2 },
+		size = { buttonTopHolder.size.w - 12, buttonTopHolder.size.h - 4 },
 		interactive = true,
-		bgColor = TB_MENU_DEFAULT_BG_COLOR_TRANS,
-		hoverColor = table.clone(TB_MENU_DEFAULT_DARKEST_COLOR),
-		pressedColor = table.clone(TB_MENU_DEFAULT_LIGHTER_COLOR),
-		uiColor = UICOLORWHITE
+		clickThrough = true,
+		hoverThrough = true,
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+		shapeType = ROUNDED,
+		rounded = 4
 	})
-	buttonHolder.hoverColor[4] = 0.5
-	buttonHolder.pressedColor[4] = 0.5
-
-	local openerDelete = TBMenu:createImageButtons(buttonHolder, -40, 0, 40, 40, "../textures/menu/general/buttons/trash.tga", "../textures/menu/general/buttons/trashhvr.tga", "../textures/menu/general/buttons/trashblack.tga", { 0, 0, 0, 0 })
-	buttonHolder:addMouseHandlers(nil, function()
+	moveButton:addMouseUpHandler(function()
 			MoveMemory:playMove(memorymove, true)
-		end, function()
-			if (not openerDelete.isactive) then
-				openerDelete:show()
-				openerDelete:activate()
-				if (toReload) then
-					toReload:reload()
-				end
-			end
 		end)
-	openerDelete:addCustomDisplay(false, function()
-			if (buttonHolder.hoverState == BTN_NONE) then
-				if (openerDelete.hoverState ~= BTN_NONE) then
-					buttonHolder.hoverState = BTN_HVR
-					return
-				end
-				buttonHolder.bgColor = TB_MENU_DEFAULT_BG_COLOR_TRANS
-				openerDelete:deactivate()
-				openerDelete:hide()
-			end
-		end)
+
 	if (not MoveMemory.TutorialMode) then
-		openerDelete:addMouseHandlers(nil, function() TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.MOVEMEMORYDELETEMOVECONFIRM, function() MoveMemory:deleteMove(memorymove) MoveMemory:quit() MoveMemory:showMain() end) end, function() buttonHolder.bgColor = buttonHolder.hoverColor end)
+		local deleteButton = moveButton:addChild({
+			pos = { -moveButton.size.h + 1, 1 },
+			size = { moveButton.size.h - 2, moveButton.size.h - 2 },
+			interactive = true,
+			hoverThrough = true,
+			bgImage = "../textures/menu/general/buttons/trash.tga",
+			bgColor = moveButton.animateColor,
+			hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR,
+			imageColor = UICOLORWHITE,
+			imageHoverColor = UICOLORBLACK,
+			imagePressedColor = UICOLORBLACK,
+			rounded = moveButton.size.h
+		}, true)
+		deleteButton:addMouseUpHandler(function()
+				TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.MOVEMEMORYDELETEMOVECONFIRM, function()
+						MoveMemory:deleteMove(memorymove)
+						MoveMemory:reload()
+					end)
+			end)
 	end
 
-	-- why the fuck is this flickering
-	local nameHolder = UIElement:new({
-		parent = buttonHolder,
+	local moveName = moveButton:addChild({
 		pos = { 5, 2 },
-		size = { buttonHolder.size.w - 40, 22 }
+		size = { moveButton.size.w - moveButton.size.h - 10, moveButton.size.h - 4 }
 	})
-	nameHolder:addCustomDisplay(true, function() end)
-
-	-- nameHolder isn't used for display because it doesn't work
-	-- I have no idea why's that happening
-	local nameHolder2 = UIElement:new({
-		parent = buttonHolder,
-		pos = { 5, 2 },
-		size = { buttonHolder.size.w - 40, 22 }
-	})
-	nameHolder2:addAdaptedText(true, memorymove.name, nil, nil, FONTS.MEDIUM, LEFTBOT, nil, 0.7)
-	if (memorymove.desc) then
-		local descHolder = UIElement:new({
-			parent = buttonHolder,
-			pos = { 5, nameHolder.shift.y + nameHolder.size.h },
-			size = { buttonHolder.size.w - 40, buttonHolder.size.h - nameHolder.size.h - nameHolder.shift.y * 2 }
+	moveName:addAdaptedText(true, memorymove.name, nil, nil, FONTS.MEDIUM, LEFTBOT, nil, 0.7)
+	if (memorymove.desc and string.len(memorymove.desc) > 0) then
+		moveButton.size.h = moveButton.parent.size.h - moveButton.shift.y + 0.01
+		moveButton:setRounded({ moveButton.rounded, 0 })
+		local buttonBotHolder = viewElement:addChild({
+			pos = { 0, #listElements * self.ElementHeight },
+			size = { viewElement.size.w, self.ElementHeight }
 		})
-		descHolder:addAdaptedText(true, memorymove.desc, nil, nil, FONTS.SMALL, LEFT, nil, 0.7)
+		table.insert(listElements, buttonBotHolder)
+		local descButton = buttonBotHolder:addChild({
+			pos = { moveButton.shift.x, 0 },
+			size = { moveButton.size.w, moveButton.size.h },
+			interactive = true,
+			clickThrough = true,
+			hoverThrough = true,
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+			shapeType = moveButton.shapeType,
+			rounded = { moveButton.roundedInternal[2], moveButton.roundedInternal[1] }
+		})
+		descButton.btnUp = moveButton.btnUp
+		moveButton:addCustomDisplay(nil, function()
+			if (descButton.hoverState ~= moveButton.hoverState and descButton:isDisplayed()) then
+				if (moveButton.hoverState > descButton.hoverState) then
+					descButton.hoverState = moveButton.hoverState
+					descButton.hoverClock = moveButton.hoverClock
+				else
+					moveButton.hoverState = descButton.hoverState
+					moveButton.hoverClock = descButton.hoverClock
+				end
+			end
+		end, true)
+		local descHolder = descButton:addChild({
+			pos = { 5, 2 },
+			size = { descButton.size.w - 10, descButton.size.h - 4 },
+			uiColor = TB_MENU_DEFAULT_INACTIVE_COLOR
+		})
+		descHolder:addAdaptedText(true, memorymove.desc, nil, nil, 4, LEFT, 0.65, 0.65)
 	end
-	return buttonHolder
 end
 
 ---Displays toggle whether to run openers from the start
 ---@param viewElement UIElement
 function MoveMemory:spawnFirstTurnToggle(viewElement)
-	local toggleText = viewElement:addChild({
-		pos = { 10, 5 },
-		size = { viewElement.size.w - 60, viewElement.size.h - 6 }
-	})
-	toggleText:addAdaptedText(true, "Run opener from start", nil, nil, nil, LEFTMID, 0.8)
-
 	local toggleView = viewElement:addChild({
-		pos = { -37, 7 },
-		size = { 30, 30 }
-	})
-	local toggleBG = toggleView:addChild({
+		pos = { 5, -33 },
+		size = { 26, 26 },
+		bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 		shapeType = ROUNDED,
-		rounded = 3,
-		bgColor = TB_MENU_DEFAULT_DARKEST_COLOR
+		rounded = 3
 	})
-	local toggleView = toggleBG:addChild({
-		shift = { 1, 1 },
-		bgColor = TB_MENU_DEFAULT_BG_COLOR,
-		hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-		pressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR,
-		interactive = true
-	}, true)
-	local toggleIcon = toggleView:addChild({
-		bgImage = "../textures/menu/general/buttons/checkmark.tga"
-	})
-	if (not MoveMemory.FirstTurn) then
-		toggleIcon:hide(true)
-	end
-	toggleView:addMouseHandlers(nil, function()
-			MoveMemory.FirstTurn = not MoveMemory.FirstTurn
-			if (MoveMemory.FirstTurn) then
-				toggleIcon:show(true)
-			else
-				toggleIcon:hide(true)
-			end
+	TBMenu:spawnToggle(toggleView, nil, nil, nil, nil, self.FirstTurn, function(state)
+			self.FirstTurn = state
 		end)
+
+	local toggleLegend = viewElement:addChild({
+		pos = { toggleView.shift.x * 2 + toggleView.size.w, toggleView.shift.y },
+		size = { viewElement.size.w - (toggleView.shift.x * 3 + toggleView.size.w), toggleView.size.h }
+	})
+	toggleLegend:addAdaptedText(true, TB_MENU_LOCALIZED.MOVEMEMORYRUNFROMBEGINNING, nil, nil, 4, LEFTMID, 0.75)
 end
 
 ---Displays main openers list
 ---@param viewElement UIElement
----@param memoryOpeners MemoryMove[]
----@param page integer
----@param suggested ?MemoryMove[]
-function MoveMemory:spawnOpeners(viewElement, memoryOpeners, page, suggested)
-	MoveMemory.LastPage = page or 1
+---@param memoryOpeners ?MemoryMove[]
+function MoveMemory:spawnOpeners(viewElement, memoryOpeners)
 	viewElement:kill(true)
+	local headerHeight = 40
+	local featuredHolder = nil
 
-	if (#memoryOpeners > 0) then
-		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, suggested and 45 or 35, 40, 20, { 0, 0, 0, 0 })
-
-		local openersTitle = UIElement:new({
-			parent = topBar,
-			pos = { 0, 0 },
-			size = { topBar.size.w, topBar.size.h },
-			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
-			uiColor = UICOLORWHITE
+	if (memoryOpeners == nil) then
+		memoryOpeners = {}
+		featuredHolder = viewElement:addChild({
+			pos = { 0, headerHeight },
+			size = { viewElement.size.w, math.min(viewElement.size.h / 4, self.ElementHeight * 5) }
 		})
-		openersTitle:addAdaptedText(false, TB_MENU_LOCALIZED.MOVEMEMORYALLMOVES .. ":", 5, -5, 4, LEFTBOT, 0.7)
-		local botBarOverlay = UIElement:new({
-			parent = botBar,
-			pos = { 0, 0 },
-			size = { botBar.size.w, botBar.size.h },
-			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
-			uiColor = UICOLORWHITE
-		})
-		botBarOverlay:addCustomDisplay(true, function()
-			set_color(unpack(botBarOverlay.bgColor))
-			draw_disk(botBarOverlay.pos.x + 4, botBarOverlay.pos.y + botBarOverlay.size.h, 0, 4, 100, 1, -90, 90, 0)
-			draw_disk(botBarOverlay.pos.x + botBarOverlay.size.w - 4, botBarOverlay.pos.y + botBarOverlay.size.h, 0, 4, 100, 1, 0, 90, 0)
-			draw_quad(botBarOverlay.pos.x, botBarOverlay.pos.y, botBarOverlay.size.w, botBarOverlay.size.h)
-			draw_quad(botBarOverlay.pos.x + 4, botBarOverlay.pos.y + botBarOverlay.size.h, botBarOverlay.size.w - 8, 4)
-		end)
-		MoveMemory:spawnFirstTurnToggle(botBarOverlay)
-		local scrollBackdrop = UIElement:new({
-			parent = listingScrollBG,
-			pos = { 0, 0 },
-			size = { listingScrollBG.size.w, listingScrollBG.size.h },
-			bgColor = { unpack(TB_MENU_DEFAULT_DARKER_COLOR) }
-		})
-		scrollBackdrop.bgColor[4] = 0.6
-
-		local listElements = {}
-		for i, v in pairs(memoryOpeners) do
-			local button = MoveMemory:spawnMovementButton(listingHolder, v, i - 1, nil, botBar)
-			table.insert(listElements, button)
+		local suggested = self:spawnSuggested(featuredHolder)
+		if (table.empty(suggested)) then
+			featuredHolder:kill()
+			featuredHolder = nil
+			for _, v in pairs(self.Storage) do
+				table.insert(memoryOpeners, v)
+			end
+		else
+			for _, v in pairs(self.Storage) do
+				local skip = false
+				for _, k in pairs(suggested) do
+					if (v.id == k.id) then
+						skip = true
+					end
+				end
+				if (not skip) then
+					table.insert(memoryOpeners, v)
+				end
+			end
 		end
-
-		for _, v in pairs(listElements) do
-			v:hide()
-		end
-		local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, 45)
-		scrollBar:makeScrollBar(listingHolder, listElements, toReload)
 	end
+
+	local toReload, topBar, botBar, _, listingHolder = TBMenu:prepareScrollableList(viewElement, headerHeight + (featuredHolder and featuredHolder.size.h or 0), 40, 20, TB_MENU_DEFAULT_BG_COLOR)
+
+	if (featuredHolder ~= nil) then
+		---We want to detach featuredHolder from viewElement and attach it to topBar so that it gets refreshed when list is scrolled
+		---It was the first object to get added so should be safe to do it without searching through the whole child tree
+		table.remove(viewElement.child, 1)
+		table.insert(topBar.child, featuredHolder)
+		featuredHolder.parent = topBar
+	end
+
+	local memoryHeader = topBar:addChild({
+		size = { topBar.size.w, headerHeight }
+	})
+	memoryHeader:addChild({ shift = { memoryHeader.size.h, 5 }}):addAdaptedText(true, TB_MENU_LOCALIZED.MOVEMEMORYTITLE, nil, nil, FONTS.BIG, nil, 0.7)
+
+	if (not MoveMemory.TutorialMode) then
+		local addMoveButton = memoryHeader:addChild({
+			pos = { 10, 5 },
+			size = { memoryHeader.size.h - 10, memoryHeader.size.h - 10 },
+			interactive = true,
+			bgImage = "../textures/menu/general/buttons/addsign.tga",
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+			shapeType = ROUNDED,
+			rounded = 4
+		})
+		addMoveButton:addMouseHandlers(nil, function()
+				MoveMemory:recordMove()
+			end)
+		local addMoveTooltip = TBMenu:displayPopup(addMoveButton, TB_MENU_LOCALIZED.MOVEMEMORYRECORDINFO)
+		addMoveTooltip:moveTo(addMoveButton.size.w + 5)
+	end
+
+	botBar:setRounded({ 0, 4 })
+	self:spawnFirstTurnToggle(botBar)
+
+	local listElements = {}
+	for i, v in pairs(memoryOpeners) do
+		self:spawnMovementButton(listingHolder, v, listElements)
+	end
+
+	for _, v in pairs(listElements) do
+		v:hide()
+	end
+	local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, self.ElementHeight)
+	scrollBar:makeScrollBar(listingHolder, listElements, toReload)
 end
 
 ---Spawns suggested openers for display
 ---@param viewElement UIElement
----@return MemoryMove[]|nil
+---@return MemoryMove[]
 function MoveMemory:spawnSuggested(viewElement)
 	local loadedMod = get_game_rules().mod:gsub("%.tbm$", "")
 	local suggestedOpeners = {}
 	local displayedSuggested = {}
-	for _, v in pairs(MoveMemory.Storage) do
-		if (v.mod) then
-			if (loadedMod:find(v.mod) and v.mod:len() > 0) then
+	for _, v in pairs(self.Storage) do
+		if (v.mod and string.len(v.mod) > 0) then
+			if (loadedMod:find(v.mod)) then
 				table.insert(suggestedOpeners, v)
 			end
 		end
 	end
 	if (#suggestedOpeners == 0) then
-		return nil
+		return displayedSuggested
 	end
 
-	local suggestedTitle = viewElement:addChild({
-		size = { viewElement.size.w, 35 },
+	local featuredHolder = viewElement:addChild({
+		pos = { 10, 0 },
+		size = { viewElement.size.w - 20, viewElement.size.h - 4 },
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
-		uiColor = UICOLORWHITE
+		shapeType = ROUNDED,
+		rounded = 4
 	})
-	viewElement.size.h = #suggestedOpeners > 2 and 2 * 45 + 35 or #suggestedOpeners * 45 + 35
-	suggestedTitle:addAdaptedText(false, TB_MENU_LOCALIZED.MOVEMEMORYSUGGESTEDMOVES .. " (" .. loadedMod:upper() .. "):", 5, -5, 4, LEFTBOT, 0.7)
-	for i, v in pairs(suggestedOpeners) do
-		if (i * 40 + 35 > viewElement.size.h) then
-			return displayedSuggested
+	local suggestedTitle = featuredHolder:addChild({
+		pos = { 10, 0 },
+		size = { featuredHolder.size.w - 20, self.ElementHeight }
+	})
+	suggestedTitle:addAdaptedText(true, TB_MENU_LOCALIZED.MOVEMEMORYSUGGESTEDMOVES, nil, nil, nil, LEFTMID)
+
+	local listElements = { suggestedTitle }
+	for _, v in pairs(suggestedOpeners) do
+		if ((#listElements + 2) * self.ElementHeight > featuredHolder.size.h) then
+			break
 		end
 		table.insert(displayedSuggested, v)
-		MoveMemory:spawnMovementButton(viewElement, v, i - 1, 35)
+		self:spawnMovementButton(featuredHolder, v, listElements)
 	end
+	for _, v in pairs(listElements) do
+		if (v.child[1]) then
+			v.child[1]:moveTo(2)
+			v.child[1].size.w = v.size.w - 4
+			v.child[1].bgColor = TB_MENU_DEFAULT_BG_COLOR
+		end
+	end
+	featuredHolder.size.h = #listElements * self.ElementHeight
+	viewElement.size.h = featuredHolder.size.h + 4
 	return displayedSuggested
 end
 

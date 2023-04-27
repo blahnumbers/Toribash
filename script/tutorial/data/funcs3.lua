@@ -249,7 +249,7 @@ local function moveMemoryMovesShow(viewElement, reqTable, rpt)
 			}
 		}
 	}
-	MoveMemory:spawnOpeners(openersHolder, moves, 1)
+	MoveMemory:spawnOpeners(openersHolder, moves)
 	if (not rpt) then
 		for i = 2, #openersHolder.child do
 			local trans = 0.5
