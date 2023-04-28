@@ -807,7 +807,7 @@ function get_string_length(message, font, raw) end
 ---@param text string
 function convert_rtl(text) end
 
----Localizes a RTL string
+---Localizes an RTL string
 ---@param text string
 function localize_rtl(text) end
 
@@ -943,7 +943,8 @@ function get_maximum_window_size() end
 ---@return DpiAwarenessInfo
 function get_dpiawareness() end
 
----Returns screen position of a specified player joint
+---Returns screen position of a specified player joint \
+---**Must be called from a `draw3d` callback.**
 ---@param player integer
 ---@param joint PlayerJoint
 ---@return integer x
@@ -951,7 +952,8 @@ function get_dpiawareness() end
 ---@return integer z
 function get_joint_screen_pos(player, joint) end
 
----Returns screen position of a specified player bodypart
+---Returns screen position of a specified player bodypart \
+---**Must be called from a `draw3d` callback.**
 ---@param player integer
 ---@param body PlayerBody
 ---@return integer x
@@ -1020,6 +1022,14 @@ function get_body_info(player, body) end
 ---@param y number
 ---@param z number
 function set_body_pos(player_index, body_index, x, y, z) end
+
+---Sets player bodypart sides
+---@param player_index integer
+---@param body_index PlayerBody
+---@param x number
+---@param y number
+---@param z number
+function set_body_sides(player_index, body_index, x, y, z) end
 
 ---Sets player bodypart rotation (Euler angles)
 ---@param player_index integer
@@ -1163,6 +1173,14 @@ function fracture_joint(player, joint) end
 ---@nodiscard
 function get_joint_pos(player, joint) end
 
+---Sets joint position
+---@param player integer
+---@param joint PlayerJoint
+---@param x number
+---@param y number
+---@param z number
+function set_joint_pos(player, joint, x, y, z) end
+
 ---Returns joint position in 3D world as Vector3
 ---@param player integer
 ---@param joint PlayerJoint
@@ -1175,6 +1193,12 @@ function get_joint_pos2(player, joint) end
 ---@param joint PlayerJoint
 ---@return number
 function get_joint_radius(player, joint) end
+
+---Sets joint radius
+---@param player integer
+---@param joint PlayerJoint
+---@param radius number
+function set_joint_radius(player, joint, radius) end
 
 ---Selects player with the corresponding id
 ---@param player integer Player ID or `-1` to deselect all players
@@ -1312,6 +1336,14 @@ function get_gamerule(gamerule) end
 ---@param value string
 function set_gamerule(gamerule, value) end
 
+---Sets default gamerules (classic.tbm)
+function set_default_rules() end
+
+---Returns specified turn's length in frames
+---@param turn_index integer
+---@return integer
+function get_turn_frame(turn_index) end
+
 ---@class FightPlayerInfo
 ---@field name string
 ---@field injury number
@@ -1336,6 +1368,24 @@ function get_ghost() end
 ---@param ghost_mode GhostMode
 function set_ghost(ghost_mode) end
 
+---@class BodyGhostData
+---@field shape integer
+---@field sides number[]
+---@field pos number[]
+---@field quat number[]
+
+---@class PlayerGhostCache
+---@field bodies BodyGhostData[]
+---@field joints BodyGhostData[]
+
+---@class GhostFrameCache
+---@field envs BodyGhostData[]
+
+---Returns ghost cache data for the specified frame
+---@param frame integer
+---@return PlayerGhostCache[]|GhostFrameCache
+function get_ghost_cache(frame) end
+
 ---Sets score for the specified player
 ---@param player integer
 ---@param score integer
@@ -1351,7 +1401,45 @@ function set_dq(player) end
 
 ---Forces the specified player to relax all joints
 ---@param player integer
-function relax_player(player) end
+function set_player_relax(player) end
+
+---Returns player bodyparts' visual damage level
+---@param player integer
+---@param bodypart PlayerBody
+---@return number
+---@overload fun(player:integer):number[]
+function get_body_bruise(player, bodypart) end
+
+---Returns player joints' visual damage level
+---@param player integer
+---@param joint PlayerJoint
+---@return number
+---@overload fun(player:integer):number[]
+function get_joint_bruise(player, joint) end
+
+---@class FrameBodyInfo
+---@field damage number
+
+---@class FrameJointInfo : FrameBodyInfo
+---@field dm_damage number
+---@field dm_health number
+---@field fract_health number
+---@field speed number
+---@field torque number
+
+---Returns body info on a specified frame
+---@param player integer
+---@param body PlayerBody
+---@param frame integer
+---@return FrameBodyInfo
+function get_body_on_frame_info(player, body, frame) end
+
+---Returns joint info on a specified frame
+---@param player integer
+---@param joint PlayerJoint
+---@param frame integer
+---@return FrameJointInfo
+function get_joint_on_frame_info(player, joint, frame) end
 
 
 --[[ BLOOD ]]
@@ -1421,7 +1509,7 @@ function get_obj_sides(obj_id) end
 function set_obj_sides(obj_id, x, y, z) end
 
 ---Returns the rotation matrix of the specified environment object \
----@see UIElement3D.getEulerAnglesFromMatrixTB
+---@see Utils3D.GetEulerFromMatrix
 ---@param obj_id integer
 ---@return number[]
 function get_obj_rot(obj_id) end
@@ -1432,6 +1520,11 @@ function get_obj_rot(obj_id) end
 ---@param y number
 ---@param z number
 function set_obj_rot(obj_id, x, y, z) end
+
+---Sets rotation matrix for the specified environment object
+---@param obj_id integer
+---@param mat MatrixTB
+function set_obj_rot_m(obj_id, mat) end
 
 ---Applies force to the specified environment object
 ---@param obj_id integer
@@ -1447,6 +1540,11 @@ function set_obj_force(obj_id, x, y, z) end
 ---@param b number
 ---@param a number
 function set_obj_color(obj_id, r, g, b, a) end
+
+---Returns color of the specified environment object
+---@param obj_id integer
+---@return Color
+function set_obj_color(obj_id) end
 
 ---Returns linear velocity of the specified environment object
 ---@param obj_id integer
@@ -1512,12 +1610,17 @@ function set_obj_bounce(obj_id, bounce) end
 ---Returns mass value for the specified environment object
 ---@param obj_id integer
 ---@return number
-function get_obj_nass(obj_id) end
+function get_obj_mass(obj_id) end
 
 ---Sets mass value for the specified environment object
 ---@param obj_id integer
 ---@param mass number
 function set_obj_mass(obj_id, mass) end
+
+---Returns environment object shape
+---@param obj_id integer
+---@return integer
+function get_obj_shape(obj_id) end
 
 
 --[[ REPLAY FUNCTIONS ]]
@@ -1568,6 +1671,11 @@ function rename_replay_subfolder(path, new_path) end
 
 --[[ CUSTOMIZATION RELATED FUNCTIONS ]]
 
+---Loads specified user's customs on a player
+---@param player integer
+---@param name string
+function load_player(player, name) end
+
 ---Returns joint color IDs
 ---@param player integer
 ---@param joint PlayerJoint
@@ -1589,10 +1697,246 @@ function get_joint_color(player, joint) end
 ---@param joint ?PlayerJoint If specified, will only set the colors for that joint id
 function set_joint_color(player, relax_color, force_color, joint) end
 
+---Sets joint relax color for the specified player
+---@param player integer
+---@param color ColorId
+function set_joint_relax_color(player, color) end
+
+---Sets joint force color for the specified player
+---@param player integer
+---@param color ColorId
+function set_joint_force_color(player, color) end
+
+---Sets joint replay color for the specified player
+---@param player integer
+---@param color ColorId
+function set_joint_replay_color(player, color) end
+
+---Sets selected joint relax color for the player
+---@param player integer
+---@param joint PlayerJoint
+---@param color ColorId
+function set_selected_joint_relax_color(player, joint, color) end
+
+---Sets selected joint force color for the player
+---@param player integer
+---@param joint PlayerJoint
+---@param color ColorId
+function set_selected_joint_force_color(player, joint, color) end
+
+---Sets specified bodypart color for the player
+---@param player integer
+---@param body PlayerBody
+---@param color ColorId
+function set_body_color(player, body, color) end
+
+---Applies an effect to player customs
+---@param player integer
+---@param effectid integer
+---@param type RenderEffectId
+---@param glow_color ?ColorId
+---@param glow_intensity ?integer
+---@param dither_pixel_size ?integer
+function set_body_effect(player, effectid, type, glow_color, glow_intensity, dither_pixel_size) end
+
+---Sets blood color for the specified player
+---@param player integer
+---@param color ColorId
+function set_blood_color(player, color) end
+
 ---Sets torso color for the specified player
 ---@param player integer
 ---@param color ColorId
 function set_torso_color(player, color) end
+
+---Sets ghost color for the specified player
+---@param player integer
+---@param color ColorId
+function set_ghost_color(player, color) end
+
+---Sets DQ color for the specified player
+---@param player integer
+---@param color ColorId
+function set_ground_impact_color(player, color) end
+
+---Sets primary gradient color for the specified player
+---@param player integer
+---@param color ColorId
+function set_gradient_primary_color(player, color) end
+
+---Sets secondary gradient color for the specified player
+---@param player integer
+---@param color ColorId
+function set_gradient_secondary_color(player, color) end
+
+---Sets gradient colors for the specified player
+---@param player integer
+---@param primary ColorId
+---@param secondary ColorId
+function set_gradient_color(player, primary, secondary) end
+
+---Sets timer color for the specified player
+---@param player integer
+---@param color ColorId
+function set_timex_color(player, color) end
+
+---Sets trail colors for the specified player
+---@param player integer
+---@param color ColorId
+function set_trail_color(player, color) end
+
+---@alias BodyTrail
+---| 0 Left Hand
+---| 1 Right Hand
+---| 2 Left Leg
+---| 3 Right Leg
+
+---Sets trail colors for the specified player
+---@param player integer
+---@param body BodyTrail
+---@param color ColorId
+function set_separate_trail_color(player, body, color) end
+
+---Sets trail RGBA colors for the specified player
+---@param player integer
+---@param body BodyTrail
+---@param r number
+---@param g number
+---@param b number
+---@param a number
+function set_separate_trail_color(player, body, r, g, b, a) end
+
+---Sets hair color for the specified player
+---@param player integer
+---@param color ColorId
+function set_hair_color(player, color) end
+
+---Sets hair settings
+---@param player integer
+---@param hair integer
+---@param enable integer
+---@param style integer
+---@param x integer
+---@param y integer
+---@param angle integer
+---@param segments integer
+---@param slices integer
+---@param radius_start integer
+---@param radius_end integer
+---@param base_length integer
+---@param start_length integer
+---@param end_length integer
+---@param color integer
+---@param texture_mode integer
+---@param blender integer
+---@param stiffness integer
+function set_hair_settings(player, hair, enable, style, x, y, angle, segments, slices, radius_start, radius_end, base_length, start_length, end_length, color, texture_mode, blender, stiffness) end
+
+---Resets player hair
+---@param player integer
+function reset_hair(player) end
+
+---Adds trail particle between two points in 3D world
+---@param player integer
+---@param body BodyTrail
+---@param x1 number
+---@param y1 number
+---@param z1 number
+---@param x2 number
+---@param y2 number
+---@param z2 number
+function add_trail_particle(player, body, x1, y1, z1, x2, y2, z2) end
+
+---Returns flame playback state
+---@return boolean
+function get_flame_playback() end
+
+---Sets flame playback state
+---@param state boolean
+function set_flame_playback(state) end
+
+---@alias FlameSettingId
+---| 0 FLAME_BODYPART
+---| 1 FLAME_TIMESTEP
+---| 2 FLAME_DAMPING
+---| 3 FLAME_BLEND
+---| 4 FLAME_SINK
+---| 5 FLAME_COLOR_R
+---| 6 FLAME_COLOR_G
+---| 7 FLAME_COLOR_B
+---| 8 FLAME_COLOR_A
+---| 9 FLAME_COLOR_RANDOM
+---| 10 FLAME_TARGET_COLOR_R
+---| 11 FLAME_TARGET_COLOR_G
+---| 12 FLAME_TARGET_COLOR_B
+---| 13 FLAME_TARGET_COLOR_A
+---| 14 FLAME_TARGET_COLOR_RANDOM
+---| 15 FLAME_TARGET_COLOR_SCALE
+---| 16 FLAME_AGE_START
+---| 17 FLAME_AGE_LIMIT
+---| 18 FLAME_AGE_SIGMA
+---| 19 FLAME_EMIT_SCALE
+---| 20 FLAME_EMIT_AMOUNT
+---| 21 FLAME_SIZE
+---| 22 FLAME_SIZE_RANDOM
+---| 23 FLAME_TARGET_SIZE
+---| 24 FLAME_TARGET_SIZE_SCALE
+---| 25 FLAME_TARGET_SIZE_RANDOM
+---| 26 FLAME_RANDOM_DISPLACE_X
+---| 27 FLAME_RANDOM_DISPLACE_Y
+---| 28 FLAME_RANDOM_DISPLACE_Z
+---| 29 FLAME_RANDOM_DISPLACE_RANDOM
+---| 30 FLAME_ROTATABLE
+---| 31 FLAME_GRAVITY_X
+---| 32 FLAME_GRAVITY_Y
+---| 33 FLAME_GRAVITY_Z
+---| 34 FLAME_VELOCITY_X
+---| 35 FLAME_VELOCITY_Y
+---| 36 FLAME_VELOCITY_Z
+---| 37 FLAME_VELOCITY_RANDOM
+---| 38 FLAME_ORBIT
+---| 39 FLAME_ORBIT_BODYPART
+---| 40 FLAME_ORBIT_MAGNITUDE
+---| 41 FLAME_ORBIT_EPSILON
+---| 42 FLAME_GRAVITATE
+---| 43 FLAME_GRAVITATE_MAGNITUDE
+---| 44 FLAME_GRAVITATE_EPSILON
+---| 45 FLAME_GRAVITATE_MAX_RADIUS
+---| 46 FLAME_FOLLOW
+---| 47 FLAME_FOLLOW_MAGNITUDE
+---| 48 FLAME_FOLLOW_EPSILON
+---| 49 FLAME_SINK_BODY
+---| 50 FLAME_SINK_BODY_BODYPART
+---| 51 FLAME_SINK_BODY_RADIUS
+---| 52 FLAME_ROTATABLE_GRAVITY
+
+---Returns the specified player flame setting value
+---@param player integer
+---@param flame integer
+---@param id FlameSettingId
+function get_flame_setting(player, flame, id) end
+
+---Sets a flame value for player in Tori spot
+---@param id FlameSettingId
+---@param value integer
+---@param flame ?integer
+function set_flame_setting(id, value, flame) end
+
+---Sets a texture for player flames
+---@param player integer
+---@param dir string
+---@param name string
+function set_flame_texture(player, dir, name) end
+
+---Loads a body texture from `customse/data/script/` directory onto a bodypart of a player in Tori spot. \
+---*This is a legacy Torishop function that is no longer being used and may be deprecated in future releases.*
+---@param body integer
+---@param number integer
+function set_body_texture(body, number) end
+
+---Uninits Torishop and removes all player trails. \
+---*This is a legacy Torishop function that is no longer being used and may be deprecated in future releases.*
+function uninit_torishop() end
 
 ---@class ColorInfo
 ---@field name string
@@ -1610,6 +1954,39 @@ function get_color_info(colorid) end
 ---@param colorid ColorId
 ---@return Color
 function get_color_rgba(colorid) end
+
+---@class TorishopPlayerColors
+---@field blood_color integer
+---@field torso_color integer
+---@field ghost_color integer
+---@field impact_color integer
+---@field grad_sec_color integer
+---@field grad_pri_color integer
+---@field grip_color integer
+---@field timex_color integer
+---@field text_color integer
+---@field lh_trail_r number
+---@field lh_trail_g number
+---@field lh_trail_b number
+---@field lh_trail_a number
+---@field rh_trail_r number
+---@field rh_trail_g number
+---@field rh_trail_b number
+---@field rh_trail_a number
+---@field ll_trail_r number
+---@field ll_trail_g number
+---@field ll_trail_b number
+---@field ll_trail_a number
+---@field rl_trail_r number
+---@field rl_trail_g number
+---@field rl_trail_b number
+---@field rl_trail_a number
+
+---Returns player's currently loaded colors information. \
+---*This is a legacy Torishop function that is no longer being used and may be deprecated in future releases.*
+---@param player integer
+---@return TorishopPlayerColors
+function set_torishop(player) end
 
 
 --[[ MOBILE FILE IO AND GENERAL FILE IO OVERRIDES ]]
@@ -1730,8 +2107,8 @@ function get_network_error() end
 ---@return integer
 function get_network_task() end
 
----Opens a webpage with user's default browser \
----*Only Toribash links are supported*
+---Opens a webpage with user's default browser. \
+---*Only links that point to Toribash domains are supported*
 ---@param url string
 function open_url(url) end
 
@@ -1919,6 +2296,10 @@ function disable_menu_keyboard() end
 ---Returns whether either of shift keys is currently down
 ---@return integer
 function get_shift_key_state() end
+
+---Returns whether right alt key is currently down
+---@return integer
+function get_right_alt_key_state() end
 
 ---Returns whether either of ctrl keys is currently down
 ---@return integer
@@ -2320,7 +2701,7 @@ function get_option(value) end
 
 ---Sets value for the specified Toribash option
 ---@param option GameOption
----@param value integer
+---@param value integer|boolean
 function set_option(option, value) end
 
 ---@alias GraphicsOption
@@ -2531,6 +2912,9 @@ function get_full_mode_chat_lines() end
 ---@param id integer
 ---@return ChatMessageType
 function get_chat_type(id) end
+
+---Hides chat tabs
+function hide_chat_button() end
 
 
 --[[ SOUND FUNCTIONS ]]
@@ -2743,6 +3127,36 @@ function os.clock_real() end
 ---@return integer|nil
 function create_raycast_body(type, pos_x, pos_y, pos_z, size_x, size_y, size_z, rot_x, rot_y, rot_z) end
 
+---Sets raycast body position
+---@param body_id integer
+---@param x number
+---@param y number
+---@param z number
+---@see create_raycast_body
+function set_raycast_body_pos(body_id, x, y, z) end
+
+---Sets raycast body rotation
+---@param body_id integer
+---@param x number
+---@param y number
+---@param z number
+---@see create_raycast_body
+function set_raycast_body_rot(body_id, x, y, z) end
+
+---Sets raycast body rotation matrix
+---@param body_id integer
+---@param matrix MatrixTB
+---@see create_raycast_body
+function set_raycast_body_rot_m(body_id, matrix) end
+
+---Sets raycast body size
+---@param body_id integer
+---@param x number
+---@param y ?number
+---@param z ?number
+---@see create_raycast_body
+function set_raycast_body_sides(body_id, x, y, z) end
+
 ---Destroys a geometry body created by `create_raycast_body()` call
 ---@param geomid integer
 function destroy_raycast_body(geomid) end
@@ -2835,6 +3249,16 @@ function get_matchmaker() end
 ---@param suffix string
 ---@return string[]
 function get_files(directory, suffix) end
+
+---Returns a list of folders in specified directory
+---@param directory string
+---@return string[]
+function get_folders(directory) end
+
+---Checks whether the specified path is a valid existing folder
+---@param path string
+---@return boolean
+function is_folder(path) end
 
 ---Attempts to enable screen blur
 ---@return boolean #Whether blur is supported
@@ -2940,21 +3364,10 @@ function open_dialog_box(action, message, data, useLuaNetwork) end
 ---@return integer z
 function get_screen_pos(pos_x, pos_y, pos_z) end
 
----Returns current tutorial level. *Steam only.*
-function get_tutorial_level() end
-
----Sets highest tutorial level. *Steam only.*
----@param value integer
-function set_tutorial_level(value) end
-
 ---Returns Steam stat value by its name
 ---@param name string
 ---@return number|nil
 function get_steam_stat(name) end
-
----Awards an achievement to user if prerequisites are met
----@param id integer
-function award_achievement(id) end
 
 ---Returns in-app purchase finalized status
 function get_purchase_done() end
@@ -2969,3 +3382,36 @@ function run_tutorial(id) end
 ---@param ... string Additional description + extension pairs
 ---@return boolean #Whether file browser is supported on current platform
 function open_file_browser(description, extensions, ...) end
+
+---@class BetInfo
+---@field tc integer
+---@field num integer
+
+---Returns player bet information
+---@param player integer
+---@return BetInfo
+function get_bet_info(player) end
+
+---@alias ScreenshotType
+---| 0 SCREENSHOT_PNG_BMP
+---| 1 SCREENSHOT_PPM
+
+---Makes a screenshot
+---@param filename string
+---@param type ?ScreenshotType
+function screnshot(filename, type) end
+
+---Returns Lua error number
+function get_errno() end
+
+---Saves current mod to a file
+---@param filename string
+function export_mod(filename) end
+
+---Deletes a shader file
+---@param filename string
+function delete_shader(filename) end
+
+---Deletes a mod file
+---@param filename string
+function delete_mod(filename) end

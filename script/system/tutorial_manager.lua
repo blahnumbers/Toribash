@@ -410,7 +410,7 @@ function Tutorials:loadTutorial(id, path)
 		elseif (ln:find("^PLAYFRAMES")) then
 			steps[#steps].playframes = ln:gsub("%D", "") + 0
 		elseif (ln:find("^MOVEPLAYER")) then
-			local player = ln:find("^MOVEPLAYER TORI") and TORI or UKE
+			local player = ln:find("^MOVEPLAYER TORI") and 0 or 1
 			steps[#steps].moveplayer = steps[#steps].moveplayer or {}
 			steps[#steps].moveplayer[player] = steps[#steps].moveplayer[player] or {}
 			if (ln:find("HOLDALL$")) then
@@ -686,7 +686,7 @@ function Tutorials:reqDismember(viewElement, reqTable, jointName)
 
 	local reqElement = viewElement:addChild({ })
 	local jointPulse = self.MainView3D:addChild({
-		playerAttach = UKE,
+		playerAttach = 1,
 		attachJoint = JOINTS[jointName],
 		pos = { 0, 0, 0 },
 		size = { 1, 1, 1 },
@@ -928,7 +928,7 @@ function Tutorials:reqJointMove(viewElement, reqTable, info)
 	local jointPulse
 	if (not info.opt) then
 		jointPulse = self.MainView3D:addChild({
-			playerAttach = TORI,
+			playerAttach = 0,
 			attachJoint = JOINTS[info.joint],
 			pos = { 0, 0, 0 },
 			size = { 1, 1, 1 },
@@ -1773,9 +1773,10 @@ end
 function TutorialsInternal.UpdateConfig(next)
 	-- Steam achievements integration
 	if (type(Tutorials.CurrentTutorial) == "number") then
+		---@diagnostic disable-next-line: undefined-global
 		local level = get_tutorial_level()
 		if (level < Tutorials.CurrentTutorial or Tutorials.CurrentTutorial > 4) then
-			---@diagnostic disable-next-line: param-type-mismatch
+			---@diagnostic disable-next-line: param-type-mismatch, undefined-global
 			set_tutorial_level(Tutorials.CurrentTutorial)
 		end
 	end

@@ -105,8 +105,8 @@ local function showKeyPressSpace(viewElement, reqTable)
 end
 
 local function showPecsAxis()
-	local rPecPos = get_joint_pos2(TORI, JOINTS.R_PECS)
-	local lPecPos = get_joint_pos2(TORI, JOINTS.L_PECS)
+	local rPecPos = get_joint_pos2(0, JOINTS.R_PECS)
+	local lPecPos = get_joint_pos2(0, JOINTS.L_PECS)
 	local rPecAxis = UIElement3D:new({
 		parent = Tutorials.MainView3D,
 		pos = { rPecPos.x, rPecPos.y, rPecPos.z },
@@ -228,6 +228,7 @@ end
 local function unloadStaticHookWithAchievement(viewElement, reqTable)
 	usage_event("tutorial2achievement")
 	unloadStaticHook(viewElement, reqTable)
+	---@diagnostic disable-next-line: undefined-global
 	award_achievement(788)
 end
 
