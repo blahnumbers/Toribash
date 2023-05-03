@@ -295,17 +295,15 @@ function TBMenu:showHome()
 		TBMenu.CreateCurrentSectionView()
 	end
 
-	-- Table to store event announcement data
-	local newsData = News:getNews()
-
+	local newsFile = News:getNews()
 	-- If download is in progress, show loading screen instead
-	if (newsData.downloading) then
+	if (newsFile) then
 		local homeView = TBMenu.CurrentSection:addChild({
 			shift = { 5, 0 },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
 		homeView:addCustomDisplay(false, function()
-				if (not newsData.file:isDownloading()) then
+				if (not newsFile:isDownloading()) then
 					homeView:kill()
 					TBMenu:showHome()
 				end
@@ -315,8 +313,7 @@ function TBMenu:showHome()
 		return
 	end
 
-	usage_event("news");
-	set_option("newshopitem", 0)
+	usage_event("news")
 	-- Create and load regular announcements view
 	-- Featured event banner needs to have even borders, make sure it's scaled accordingly to 775x512 default size
 	local rightSideWidth = math.min((TBMenu.CurrentSection.size.h * 0.7 - 15) * 1.513, WIN_W / 3) - 10
@@ -343,16 +340,21 @@ function TBMenu:showHome()
 		hoverSound = 31
 	})
 
-	local eventsData, featuredEvents, featuredEventData = {}, {}, {}
-	for i,v in pairs(newsData) do
+	---@type NewsItemData[], NewsItemData[]
+	local eventsData, featuredEvents = {}, {}
+	---@type NewsItemData
+	local featuredEventData
+	for _, v in pairs(News.Cache) do
 		if (v.featured) then
 			table.insert(featuredEvents, v)
-			featuredEventData = v
+			if (not v.isRead) then
+				featuredEventData = v
+			end
 		else
 			table.insert(eventsData, v)
 		end
 	end
-	if (#featuredEvents > 1) then
+	if (not featuredEventData) then
 		featuredEventData = featuredEvents[math.random(1, #featuredEvents)]
 	end
 
@@ -375,20 +377,34 @@ function TBMenu:showHome()
 	local eventItems = {}
 	local newsItemShown = false
 	for i, v in pairs(eventsData) do
-		eventItems[i] = UIElement:new({
-			parent = homeAnnouncements,
-			pos = { 0, 0 },
-			size = { homeAnnouncements.size.w, homeAnnouncements.size.h },
-			bgColor = TB_MENU_DEFAULT_BG_COLOR,
+		eventItems[i] = homeAnnouncements:addChild({
 			interactive = true,
+			bgColor = TB_MENU_DEFAULT_BG_COLOR,
 			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
 			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			hoverSound = 31
 		})
-		if (v.initAction) then
-			v.action = function() usage_event("newsview" .. v.title) v.initAction() rotateClock.pause = true end
-		end
+		local action = v.action or function() end
+		v.action = function()
+				usage_event("newsview" .. string.gsub(string.lower(v.title), "%W", ""))
+				action()
+				rotateClock.pause = true
+				v.isRead = true
+				News.UpdateConfig()
+			end
 		TBMenu:showHomeButton(eventItems[i], v, 1)
+		if (not v.isRead) then
+			local newCaption = eventItems[i]:addChild({
+				pos = { 5, 5 },
+				size = { eventItems[i].size.w - 20, 40 },
+				bgColor = TB_MENU_DEFAULT_ORANGE,
+				uiColor = UICOLORBLACK,
+				shapeType = ROUNDED,
+				rounded = 20
+			})
+			newCaption:addAdaptedText(TB_MENU_LOCALIZED.WORDNEW .. "!")
+			newCaption.size.w = get_string_length(newCaption.dispstr[1], newCaption.textFont) * newCaption.textScale + 40
+		end
 		if (i ~= TBMenu.CurrentAnnouncementId) then
 			eventItems[i]:hide()
 		else
@@ -409,11 +425,13 @@ function TBMenu:showHome()
 		})
 
 		-- Auto-rotate event announcements
+		local action = featuredEventData.action or function() end
 		featuredEventData.action = function()
-			if (featuredEventData.initAction) then
-				featuredEventData.initAction()
-			end
+			usage_event("eventfeatured" .. string.gsub(string.lower(featuredEventData.title), "%W", ""))
+			action()
 			rotateClock.pause = true
+			featuredEventData.isRead = true
+			News.UpdateConfig()
 		end
 		local timeData = eventItems[1].button.pos.y > eventItems[1].image.pos.y + eventItems[1].image.size.h and { x = eventItems[1].image.pos.x, width = eventItems[1].image.size.w } or { x = eventItems[1].button.pos.x + 10, width = eventItems[1].button.size.w - 20 }
 		eventDisplayTime:addCustomDisplay(true, function()
@@ -471,6 +489,15 @@ function TBMenu:showHome()
 	featuredEventData.title = nil
 	featuredEventData.subtitle = nil
 	TBMenu:showHomeButton(featuredEvent, featuredEventData)
+	if (not featuredEventData.isRead) then
+		featuredEvent:addChild({
+			pos = { -30, -30 },
+			size = { 26, 26 },
+			bgColor = UICOLORRED,
+			shapeType = ROUNDED,
+			rounded = 13
+		}):addAdaptedText("!")
+	end
 	TBMenu:showHomeButton(viewEventsButton, viewEventsButtonData, 2)
 end
 
@@ -501,8 +528,7 @@ function TBMenu:showHomeButton(viewElement, buttonData, hasSmudge, extraElements
 	if (hasSmudge and not (buttonData.title or buttonData.subtitle)) then
 		TBMenu:addBottomBloodSmudge(viewElement, hasSmudge)
 	end
-	local itemIcon = UIElement:new({
-		parent = viewElement,
+	local itemIcon = viewElement:addChild({
 		pos = { (viewElement.size.w - elementWidth) / 2, 10 },
 		size = { elementWidth, elementHeight },
 		bgImage = selectedIcon,
@@ -515,7 +541,7 @@ function TBMenu:showHomeButton(viewElement, buttonData, hasSmudge, extraElements
 
 	if (type(selectedIcon) == "table") then
 		local filename = selectedIcon[1]:gsub(".*/", "")
-		for _, v in pairs(NEWS_DOWNLOAD_QUEUE) do
+		for _, v in pairs(News.DownloadQueue) do
 			if (v:find(filename)) then
 				TBMenu:displayLoadingMark(itemIcon, nil, elementHeight / 5)
 				add_hook("downloader_complete", "menuMain" .. filename, function(name)
@@ -2542,7 +2568,7 @@ end
 function TBMenu:getMainNavigationButtons()
 	local storeMiscText = TB_STORE_DISCOUNTS and (#TB_STORE_DISCOUNTS > 0 and (TB_MENU_LOCALIZED.STORESALE1 .. TB_MENU_LOCALIZED.STORESALE2) or nil) or nil
 	local buttonData = {
-		{ text = TB_MENU_LOCALIZED.NAVBUTTONNEWS, sectionId = 1 },
+		{ text = TB_MENU_LOCALIZED.NAVBUTTONNEWS, sectionId = 1, misctext = News.HasUnreadNews and "!" or nil },
 		{ text = TB_MENU_LOCALIZED.NAVBUTTONPLAY, sectionId = 2 },
 		{ text = TB_MENU_LOCALIZED.NAVBUTTONPRACTICE, sectionId = 3 },
 	}
@@ -2565,7 +2591,7 @@ function TBMenu:getMainNavigationButtons()
 		}
 		if (BattlePass.UserData) then
 			if (BattlePass.UserData.level == 0 and BattlePass.UserData.xp < 100 and not BattlePass.wasOpened) then
-				battlePassButton.misctext = "New!"
+				battlePassButton.misctext = TB_MENU_LOCALIZED.WORDNEW .. "!"
 			elseif (BattlePass.UserData.level_available > BattlePass.UserData.level) then
 				battlePassButton.misctext = "!"
 			end
@@ -2605,11 +2631,48 @@ function TBMenu:showBottomBar(leftOnly)
 	end
 	local tbMenuBottomLeftButtonsData = { }
 	if (string.len(TB_MENU_PLAYER_INFO.username) > 0) then
-		table.insert(tbMenuBottomLeftButtonsData, { action = function() if (TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 8) then TBMenu:showFriendsList() else Friends:quit() end end, image = TB_MENU_FRIENDS_BUTTON })
-		table.insert(tbMenuBottomLeftButtonsData, { action = function() if (TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 4) then TBMenu:showNotifications() else Notifications:quit() end end, image = TB_MENU_NOTIFICATIONS_BUTTON })
-		table.insert(tbMenuBottomLeftButtonsData, { action = function() if (TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 7) then TBMenu:showBounties() else Bounty.Quit() end end, image = TB_MENU_BOUNTY_BUTTON })
+		table.insert(tbMenuBottomLeftButtonsData, {
+			action = function()
+				if (TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 8) then
+					TBMenu:showFriendsList()
+				else
+					Friends:quit()
+				end
+			end,
+			image = TB_MENU_FRIENDS_BUTTON,
+			caption = TB_MENU_LOCALIZED.FRIENDSLISTTITLE
+		})
+		table.insert(tbMenuBottomLeftButtonsData, {
+			action = function()
+				if (TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 4) then
+					TBMenu:showNotifications()
+				else
+					Notifications:quit()
+				end
+			end,
+			image = TB_MENU_NOTIFICATIONS_BUTTON,
+			caption = TB_MENU_LOCALIZED.NOTIFICATIONSTITLE
+		})
+		table.insert(tbMenuBottomLeftButtonsData, {
+			action = function()
+				if (TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 7) then
+					TBMenu:showBounties()
+				else
+					Bounty.Quit()
+				end
+			end,
+			image = TB_MENU_BOUNTY_BUTTON,
+			caption = TB_MENU_LOCALIZED.BOUNTIESTITLE
+		})
 	end
-	table.insert(tbMenuBottomLeftButtonsData, { action = function() usage_event("discord") open_url("https://toribash.com/discord.php") end, image = TB_MENU_DISCORD_BUTTON })
+	table.insert(tbMenuBottomLeftButtonsData, {
+		action = function()
+			usage_event("discord")
+			open_url("https://toribash.com/discord.php")
+		end,
+		image = TB_MENU_DISCORD_BUTTON,
+		caption = TB_MENU_LOCALIZED.DISCORDSERVER
+	})
 
 	local tbMenuBottomLeftButtons = {}
 	for i, v in pairs(tbMenuBottomLeftButtonsData) do
@@ -2623,7 +2686,18 @@ function TBMenu:showBottomBar(leftOnly)
 			disableUnload = true,
 			interactive = true
 		})
-		tbMenuBottomLeftButtons[i]:addMouseHandlers(nil, function() shopCheckExit() v.action() end, nil)
+		local captionTooltip
+		if (v.caption) then
+			captionTooltip = TBMenu:displayPopup(tbMenuBottomLeftButtons[i], v.caption)
+			captionTooltip:moveTo(-tbMenuBottomLeftButtons[i].size.w - (captionTooltip.size.w - tbMenuBottomLeftButtons[i].size.w) / 2, -tbMenuBottomLeftButtons[i].size.h - captionTooltip.size.h - 5)
+		end
+		tbMenuBottomLeftButtons[i]:addMouseUpHandler(function()
+				shopCheckExit()
+				v.action()
+				if (captionTooltip) then
+					captionTooltip:hide()
+				end
+			end)
 	end
 	if (string.len(TB_MENU_PLAYER_INFO.username) > 0) then
 		local notificationsCountWidth = get_string_length("" .. (TB_MENU_NOTIFICATIONS_COUNT + TB_MENU_NOTIFICATIONS_UNREAD_COUNT + TB_MENU_QUESTS_GLOBAL_COUNT + TB_MENU_QUESTS_COUNT), FONTS.MEDIUM) * 0.9
@@ -2665,9 +2739,25 @@ function TBMenu:showBottomBar(leftOnly)
 
 	local tbMenuBottomRightButtonsData = { }
 	if (not is_mobile()) then
-		table.insert(tbMenuBottomRightButtonsData, { action = function() open_menu(4) end, image = TB_MENU_QUIT_BUTTON })
+		table.insert(tbMenuBottomRightButtonsData, {
+			action = function()
+				open_menu(4)
+			end,
+			image = TB_MENU_QUIT_BUTTON,
+			caption = TB_MENU_LOCALIZED.QUITTITLE
+		})
 	end
-	table.insert(tbMenuBottomRightButtonsData, { action = function() TBMenu:showSettings() end, image = TB_MENU_SETTINGS_BUTTON })
+	table.insert(tbMenuBottomRightButtonsData, {
+		action = function()
+			if (TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 6) then
+				TBMenu:showSettings()
+			else
+				Settings:quit()
+			end
+		end,
+		image = TB_MENU_SETTINGS_BUTTON,
+		caption = TB_MENU_LOCALIZED.SETTINGSTITLE
+	})
 
 	local tbMenuBottomRightButtons = {}
 	for i,v in pairs(tbMenuBottomRightButtonsData) do
@@ -2681,7 +2771,18 @@ function TBMenu:showBottomBar(leftOnly)
 			disableUnload = true,
 			interactive = true
 		})
-		tbMenuBottomRightButtons[i]:addMouseHandlers(nil, function() shopCheckExit() v.action() end, nil)
+		local captionTooltip
+		if (v.caption) then
+			captionTooltip = TBMenu:displayPopup(tbMenuBottomRightButtons[i], v.caption)
+			captionTooltip:moveTo(-tbMenuBottomRightButtons[i].size.w - (captionTooltip.size.w - tbMenuBottomRightButtons[i].size.w) / 2, -tbMenuBottomRightButtons[i].size.h - captionTooltip.size.h - 5)
+		end
+		tbMenuBottomRightButtons[i]:addMouseUpHandler(function()
+				shopCheckExit()
+				v.action()
+				if (captionTooltip) then
+					captionTooltip:hide()
+				end
+			end)
 	end
 
 	local statusMessage = TBMenu.MenuMain:addChild({
@@ -2725,7 +2826,6 @@ function TBMenu:playMenuSwitchAnimation()
 	TBMenu.CurrentSection:moveTo(WIN_W)
 	TBMenu.CurrentSection:addCustomDisplay(true, function()
 			TBMenu.CurrentSection:moveTo(-WIN_W / 10 * math.sin(rad) * speedMod, nil, true)
-			rad2 = rad + math.pi / 50
 			if (TBMenu.CurrentSection.shift.x <= 75 * TB_MENU_GLOBAL_SCALE) then
 				TBMenu.CurrentSection:moveTo(75 * TB_MENU_GLOBAL_SCALE)
 				TBMenu.CurrentSection:addCustomDisplay(true, function() end)

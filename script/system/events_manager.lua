@@ -1420,7 +1420,9 @@ do
 		TBMenu:clearNavSection()
 		TBMenu:showNavigationBar(Events:getNavigationButtons(), true)
 		TB_MENU_EVENTS_OPEN = true
-		local newsData = News:getNews(true)
+		News:getNews()
+
+		local newsData = table.clone(News.Cache)
 		local count = #newsData
 		for i = count, 1, -1 do
 			if (not newsData[i].isEvent) then
@@ -1679,8 +1681,8 @@ do
 	end
 
 	function Events:showBattlepassInfo()
-		local allNews = News:getNews()
-		for _,v in pairs(allNews) do
+		News:getNews()
+		for _,v in pairs(News.Cache) do
 			if (v.isBattlePass) then
 				Events:showEventInfo(v.eventid)
 			end

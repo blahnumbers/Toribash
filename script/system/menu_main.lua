@@ -25,7 +25,7 @@ TB_MENU_SPECIAL_SCREEN_ISOPEN = TB_MENU_SPECIAL_SCREEN_ISOPEN or 0
 TB_MENU_CLANS_OPENCLANID = TB_MENU_CLANS_OPENCLANID or 0
 TB_MENU_NOTIFICATIONS_COUNT = TB_MENU_NOTIFICATIONS_COUNT or 0
 TB_MENU_REPLAYS_ONLINE = TB_MENU_REPLAYS_ONLINE or 0
-TB_LAST_MENU_SCREEN_OPEN = TB_LAST_MENU_SCREEN_OPEN or (get_option("newshopitem") == 1 and 1 or 2)
+TB_LAST_MENU_SCREEN_OPEN = TB_LAST_MENU_SCREEN_OPEN or 2
 
 if (TB_MENU_MAIN_ISOPEN == 1) then
 	remove_hooks("tbMainMenuVisual")
@@ -60,7 +60,7 @@ TB_MENU_GLOBAL_SCALE = math.min(WIN_H > 720 and 1 or WIN_H / 720, WIN_W > 1280 a
 require("system.menu_defines")
 require("system.iofiles")
 require("system.menu_manager")
-TBMenu.Init("230328")
+TBMenu.Init("230503")
 
 require("system.menu_backend_defines")
 require("system.network_request")
@@ -142,12 +142,19 @@ else
 end
 
 local newsRefreshPeriod = get_option("autoupdate") == 1 and 600 or 86400
-if (TB_MENU_NEWS_REFRESH < os.clock_real() - newsRefreshPeriod) then
+if (News.LastRefresh < os.clock_real() - newsRefreshPeriod) then
 	-- Refresh news periodically so players can get the events / new promos without restarting client
 	Request:queue(function()
 		download_server_file("news" .. (is_steam() and "light" or ("&ver=" .. TORIBASH_VERSION)), 0)
-		TB_MENU_NEWS_REFRESH = os.clock_real()
-	end, "refreshnews")
+		News.LastRefresh = os.clock_real()
+	end, "refreshnews", function()
+			for _, v in pairs(get_downloads()) do
+				if (string.find(v, "data/news.txt")) then
+					return
+				end
+			end
+			News:getNews(true)
+		end)
 	Torishop:getPlayerDiscounts()
 end
 
@@ -252,6 +259,10 @@ add_hook("draw_viewport", "tbMainHubVisual", function()
 add_hook("draw3d", "tbMainHudVisual", function()
 		UIElement3D.drawVisuals(TB_MENU_HUB_GLOBALID)
 	end)
+local enterFrame3D = function() UIElement3D.drawEnterFrame(TB_MENU_HUB_GLOBALID) end
+add_hook("enter_frame", "tbMainHubVisual", enterFrame3D)
+add_hook("enter_freeze", "tbMainHubVisual", enterFrame3D)
+add_hook("new_game", "tbMainHubVisual", enterFrame3D)
 
 if (is_mobile()) then
 	---Spawn mobile HUD separately and make sure it's above all other elements

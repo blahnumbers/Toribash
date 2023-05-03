@@ -39,6 +39,8 @@ if (Tutorials == nil) then
 	---@field RequireCloseMenu boolean Internal flag whether main menu needs to be closed
 	---@field QuitPopupIgnore boolean Internal flag whether quit popup ignore mode is enabled
 	---@field QuitPopupOverride function|nil Optional quit popup override function
+	---@field StepHook string Name of a hook set that will be reset on every new step
+	---@field StaticHook string Name of a hook set that will be reset on tutorial / event exit
 	---@field ver number
 	Tutorials = {
 		ver = 5.60,
@@ -47,6 +49,8 @@ if (Tutorials == nil) then
 		ReplayCache = false,
 		TotalSteps = 0,
 		ProgressStep = 0,
+		StepHook = "tbTutorialsCustom",
+		StaticHook = "tbTutorialsCustomStatic",
 		StoredOptions = {}
 	}
 	Tutorials.__index = Tutorials
@@ -119,8 +123,8 @@ function Tutorials:quit()
 
 	remove_hooks("tbTutorialsVisual")
 	remove_hooks("tbTutorialKeyboardHandler")
-	remove_hooks("tbTutorialsCustom")
-	remove_hooks("tbTutorialsCustomStatic")
+	remove_hooks(self.StepHook)
+	remove_hooks(self.StaticHook)
 	remove_hooks("tbMoveMemoryPlayTurns0")
 	remove_hooks("tbMoveMemoryPlayTurns1")
 	runCmd("lm classic")
@@ -549,7 +553,7 @@ end
 ---@param out boolean?
 ---@param speed number?
 function Tutorials:showOverlay(viewElement, reqTable, out, speed)
-	local speed = speed or 1
+	local speed = speed or 2
 	local req = TutorialsInternal.AddRequirement("transition", reqTable)
 
 	if (self.StepOverlay ~= nil) then
@@ -557,23 +561,17 @@ function Tutorials:showOverlay(viewElement, reqTable, out, speed)
 		self.StepOverlay = nil
 	end
 	local elementParent = out and self.MainView or viewElement
-	local overlay = elementParent:addChild({
+	self.StepOverlay = elementParent:addChild({
 		bgColor = table.clone(UICOLORWHITE)
 	})
-	if (out) then
-		self.StepOverlay = overlay
-	end
 
-	local spawnClock = UIElement.clock
-	overlay:addCustomDisplay(function()
-			local ratio = (UIElement.clock - spawnClock) * speed * 2
-			overlay.bgColor[4] = UITween.SineTween(out and 0 or 1, out and 1 or 0, ratio)
+	local spawnClock = os.clock_real()
+	self.StepOverlay:addCustomDisplay(function()
+			local ratio = (UIElement.clock - spawnClock) * speed
+			self.StepOverlay.bgColor[4] = UITween.SineTween(out and 0 or 1, out and 1 or 0, ratio)
 			if (ratio >= 1) then
 				req.ready = true
 				reqTable.ready = TutorialsInternal.CheckRequirements(reqTable)
-				if (not out) then
-					overlay:kill()
-				end
 			end
 		end, true)
 end
@@ -852,8 +850,10 @@ function Tutorials:showMessage(viewElement, reqTable, message, messageby)
 		local lastClock = UIElement.clock
 		local lastSub = 0
 		messageBuilder:addCustomDisplay(true, function()
-				local sub = self.MessageView.doSkip and utf8.len(message) or lastSub
-				if (lastClock < UIElement.clock) then
+				local sub = lastSub
+				if (self.MessageView.doSkip) then
+					sub = utf8.len(message)
+				elseif (lastClock < UIElement.clock) then
 					sub = lastSub + math.round((UIElement.clock - lastClock) * 25)
 					if (sub ~= lastSub) then
 						local pausePos, endPos = utf8.find(utf8.sub(message, lastSub + 1, sub), "[.,?!-:;]")
@@ -1182,8 +1182,8 @@ function Tutorials:addOptionalTask(data, taskText)
 	optTaskColor[4] = 0.7
 
 	local optTaskView = self.TaskViewHolder:addChild({
-		pos = { 0, self.TaskViewHolder.size.h - 40 },
-		size = { self.TaskViewHolder.size.w, 40 },
+		pos = { SAFE_X, self.TaskViewHolder.size.h - 40 },
+		size = { self.TaskViewHolder.size.w - SAFE_X, 40 },
 		bgColor = optTaskColor
 	})
 
@@ -1237,8 +1237,8 @@ function Tutorials:addAdditionalTask(data, taskText)
 	optTaskColor[4] = 0.7
 
 	local optTaskView = self.TaskViewHolder:addChild({
-		pos = { 0, self.TaskViewHolder.size.h - 40 },
-		size = { self.TaskViewHolder.size.w, 40 },
+		pos = { SAFE_X, self.TaskViewHolder.size.h - 40 },
+		size = { self.TaskViewHolder.size.w - SAFE_X, 40 },
 		bgColor = optTaskColor
 	})
 
@@ -1267,15 +1267,37 @@ function Tutorials:addAdditionalTask(data, taskText)
 		end)
 end
 
+---Returns current optional task info by its ID
+---@param manager Tutorials
+---@param id integer
+---@return TutorialTask?
+function TutorialsInternal.GetOptionalTask(manager, id)
+	for _, v in pairs(manager.TaskViewHolder.optional or {}) do
+		if (v.id == id) then
+			return v
+		end
+	end
+	return nil
+end
+
 ---Marks an optional task incomplete
 ---@param id integer
 function Tutorials:taskOptIncomplete(id)
-	for _, v in pairs(self.TaskViewHolder.optional) do
-		if (v.id == id) then
-			v.mark:hide(true)
-			v.markFail:hide(true)
-			v.complete = false
-		end
+	local task = TutorialsInternal.GetOptionalTask(self, id)
+	if (task) then
+		task.mark:hide(true)
+		task.markFail:hide(true)
+		task.complete = false
+	end
+end
+
+---Marks an optional task failed
+---@param id integer
+function Tutorials:taskOptFail(id)
+	local task = TutorialsInternal.GetOptionalTask(self, id)
+	if (task) then
+		task.markFail:show(true)
+		task.markFail.bgColor = { 1, 0, 0, 0.2 }
 	end
 end
 
@@ -1563,7 +1585,7 @@ function Tutorials:runSteps(steps, currentStep)
 				if (requirements.skip) then
 					skip = skip + requirements.skip
 				end
-				remove_hooks("tbTutorialsCustom")
+				remove_hooks(self.StepHook)
 				stepElement:kill()
 				self.MainView3D:kill(true)
 				if (not steps[currentStep].fallbackrequirement and steps[currentStep].fallback) then
@@ -1594,11 +1616,6 @@ function Tutorials:runSteps(steps, currentStep)
 	if (steps[currentStep].progressstep) then
 		self.ProgressStep = self.ProgressStep + 1
 	end
-	if (steps[currentStep].introOverlay) then
-		self:introOverlay(stepElement, requirements)
-	elseif (steps[currentStep].outroOverlay) then
-		self:outroOverlay(stepElement, requirements)
-	end
 	if (steps[currentStep].newgame) then
 		self:startNewGame(stepElement, requirements, steps[currentStep].mod)
 	end
@@ -1610,6 +1627,11 @@ function Tutorials:runSteps(steps, currentStep)
 	end
 	if (steps[currentStep].loadplayers) then
 		self:loadPlayer(steps[currentStep].loadplayers)
+	end
+	if (steps[currentStep].introOverlay) then
+		self:introOverlay(stepElement, requirements)
+	elseif (steps[currentStep].outroOverlay) then
+		self:outroOverlay(stepElement, requirements)
 	end
 	if (steps[currentStep].jointlock) then
 		TUTORIALJOINTLOCK = true
@@ -2033,10 +2055,6 @@ end
 
 ---Initializes all the main GUI elements used by Tutorials
 function Tutorials:loadOverlay()
-	local safe_x, safe_y, safe_w, safe_h = get_window_safe_size()
-	safe_x = math.max(safe_x, WIN_W - safe_x - safe_w)
-	safe_y = math.max(safe_y, WIN_H - safe_y - safe_h)
-
 	if (self.MainView) then
 		self.MainView:kill()
 	end
@@ -2061,15 +2079,15 @@ function Tutorials:loadOverlay()
 
 	---@diagnostic disable-next-line: assign-type-mismatch
 	self.TaskViewHolder = self.MainView:addChild({
-		pos = { -self.MainView.size.w - 400 - safe_x, 20 },
-		size = { 400 + safe_x, 50 },
+		pos = { -self.MainView.size.w - 400 - SAFE_X, 20 },
+		size = { 400 + SAFE_X, 50 },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR
 	})
 	self.TaskViewHolder.optional = {}
 	self.TaskViewHolder.extra = {}
 
 	local tbTutorialsTaskMarkOutline = self.TaskViewHolder:addChild({
-		pos = { safe_x + 10, 10 },
+		pos = { SAFE_X + 10, 10 },
 		size = { 30, 30 },
 		bgColor = { 1, 1, 1, 0.8 },
 		shapeType = ROUNDED,
@@ -2084,8 +2102,8 @@ function Tutorials:loadOverlay()
 	})
 	self.TaskMark:hide(true)
 	self.TaskView = self.TaskViewHolder:addChild({
-		pos = { safe_x + 50, 5 },
-		size = { self.TaskViewHolder.size.w - 55 - safe_x, self.TaskViewHolder.size.h - 10 }
+		pos = { SAFE_X + 50, 5 },
+		size = { self.TaskViewHolder.size.w - 55 - SAFE_X, self.TaskViewHolder.size.h - 10 }
 	})
 
 	---@diagnostic disable-next-line: assign-type-mismatch
@@ -2139,7 +2157,7 @@ function Tutorials:loadOverlay()
 		local messageViewShift = (self.HintView.size.w - self.ContinueButton.shift.x) * 1.5
 		self.HintMessageView = self.HintView:addChild({
 			pos = { messageViewShift, 5 },
-			size = { self.HintView.size.w - messageViewShift * 2, self.HintView.size.h - math.max(10, safe_y) }
+			size = { self.HintView.size.w - messageViewShift * 2, self.HintView.size.h - math.max(10, SAFE_Y) }
 		})
 	else
 		---On mobile we show the hint on the left side to ensure TBHud buttons are fully visible
@@ -2156,15 +2174,15 @@ function Tutorials:loadOverlay()
 			imageColor = self.HintView.bgColor
 		})
 		self.HintMessageView = hintViewBG:addChild({
-			pos = { math.max(safe_x, 20), 5 },
-			size = { hintViewBG.size.w - math.max(safe_x, 20) * 2, hintViewBG.size.h - math.max(10, safe_y) }
+			pos = { math.max(SAFE_X, 20), 5 },
+			size = { hintViewBG.size.w - math.max(SAFE_X, 20) * 2, hintViewBG.size.h - math.max(10, SAFE_Y) }
 		})
 		self.HintView:addCustomDisplay(true, function() end)
 	end
 
 	self.MessageView = self.MainView:addChild({
 		pos = { self.MainView.size.w, self.ContinueButton.shift.y - 120 },
-		size = { self.MainView.size.w / 2 + safe_x, 100 },
+		size = { self.MainView.size.w / 2 + SAFE_X, 100 },
 		interactive = true
 	})
 	self.MessageView:addMouseUpHandler(function() self.MessageView.doSkip = true end)
@@ -2205,7 +2223,7 @@ function Tutorials:loadOverlay()
 	self.MessageViewBG.hoverColor = { 0.852, 0.852, 0.852, 1 }
 	self.MessageViewHolder = self.MessageView:addChild({
 		pos = { self.MessageView.size.h + 25, 10 },
-		size = { self.MessageView.size.w - self.MessageView.size.h - 25 - math.max(20, safe_x), self.MessageView.size.h - 20 }
+		size = { self.MessageView.size.w - self.MessageView.size.h - 25 - math.max(20, SAFE_X), self.MessageView.size.h - 20 }
 	})
 	local playerHeadHolder = self.MessageView:addChild({
 		pos = { 0, -self.MessageView.size.h - 5 },
@@ -2417,13 +2435,13 @@ end
 ---@param manager Tutorials
 function TutorialsInternal.LoadHooks(manager)
 	add_hook("key_down", "tbTutorialKeyboardHandler", function(key, kcode)
+			if (key == 13 and manager.MessageView) then
+				manager.MessageView.doSkip = true
+			end
 			return Tutorials.HandleKeyPress(key, kcode, true, true)
 		end)
 	add_hook("key_up", "tbTutorialKeyboardHandler", function(key, kcode)
 			if (key == 13) then
-				if (manager.MessageView) then
-					manager.MessageView.doSkip = true
-				end
 				if (manager.ContinueButton.isactive) then
 					if (manager.ContinueButton.req.ready ~= nil) then
 						manager.ContinueButton.req.ready = true
@@ -2438,17 +2456,17 @@ function TutorialsInternal.LoadHooks(manager)
 
 	add_hook("draw2d", "tbTutorialsVisual", function()
 			if (TB_MENU_MAIN_ISOPEN == 0) then
-				UIElement:drawVisuals(manager.Globalid)
+				UIElement.drawVisuals(manager.Globalid)
 			end
 		end)
 	add_hook("draw3d", "tbTutorialsVisual", function()
 			if (TB_MENU_MAIN_ISOPEN == 0) then
-				UIElement3D:drawVisuals(manager.Globalid)
+				UIElement3D.drawVisuals(manager.Globalid)
 			end
 		end)
 	add_hook("draw_viewport", "tbTutorialsVisual", function()
 			if (TB_MENU_MAIN_ISOPEN == 0) then
-				UIElement3D:drawViewport(manager.Globalid)
+				UIElement3D.drawViewport(manager.Globalid)
 			end
 		end)
 

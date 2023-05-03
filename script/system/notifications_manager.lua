@@ -97,7 +97,7 @@ function Notifications:getNavigationButtons(showBack, justClaimed, backAction)
 			sectionId = 2
 		},
 		{
-			text = TB_MENU_LOCALIZED.WORDNOTIFICATIONS,
+			text = TB_MENU_LOCALIZED.NOTIFICATIONSTITLE,
 			misctext = TB_MENU_NOTIFICATIONS_UNREAD_COUNT > 0 and TB_MENU_NOTIFICATIONS_UNREAD_COUNT or nil,
 			action = function() Notifications:prepareNotifications() TB_MENU_NOTIFICATIONS_LASTSCREEN = 3 end,
 			right = true,

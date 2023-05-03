@@ -488,6 +488,7 @@ end
 ---**This function must be run from `enter_frame` hook to work as expected.**
 ---@param object UIElement3D
 ---@param globalid ?integer Global ID that the objects to display belong to
+---@overload fun(globalid: integer)
 function UIElement3D.drawEnterFrame(object, globalid)
 	local globalid = (type(object) == "table" and (object.globalid or globalid) or object)
 	if (UIVisual3DManager[globalid] == nil) then return end

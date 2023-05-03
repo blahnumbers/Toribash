@@ -2643,8 +2643,10 @@ _G.cloneTable = function(table) return _G.table.clone(table) end
 ---@param table2 table
 ---@return boolean
 _G.table.compare = function(self, table2)
-	if (self == nil or table2 == nil or type(self) ~= type(table2)) then
+	if (self == nil or type(self) ~= type(table2) or type(self) ~= "table") then
 		return false
+	elseif (self == table2) then
+		return true
 	end
 
 	local cnt1, cnt2 = 0, 0
@@ -2656,7 +2658,7 @@ _G.table.compare = function(self, table2)
 
 	for i,v in pairs(self) do
 		if (v ~= table2[i]) then
-			if (type(v) == type(table2[i]) and type(v) == "table") then
+			if (type(v) == "table" and type(v) == type(table2[i])) then
 				if (not table.compare(self[i], table2[i])) then
 					return false
 				end
@@ -2936,6 +2938,15 @@ _G.math.round = function(x)
 	else
 		return math.ceil(x - 0.5)
 	end
+end
+
+---Clamps value `x` from `l` to `h`
+---@param x number
+---@param l number
+---@param h number
+---@return number
+_G.math.clamp = function(x, l, h)
+	return math.min(math.max(x, l), h)
 end
 
 ---Removes Toribash color notations from the specified string
