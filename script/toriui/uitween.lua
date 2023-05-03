@@ -7,10 +7,9 @@ require("toriui.uielement3d")
 if (UITween == nil) then
 	---Manager class to allow framerate independent smooth transitions
 	UITween = {
-		ver = 5.60,
-		__index = {}
+		ver = 5.60
 	}
-	setmetatable({}, UITween)
+	UITween.__index = UITween
 end
 
 ---Internal UITween clamping function
@@ -18,7 +17,7 @@ end
 ---@return number
 ---@return boolean
 local function clamp(ratio)
-	ratio = math.max(math.min(ratio, 1), 0)
+	ratio = math.clamp(ratio, 0, 1)
 	if (ratio == 0 or ratio == 1) then
 		return ratio, true
 	end

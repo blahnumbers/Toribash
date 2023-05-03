@@ -226,6 +226,7 @@ end
 ---@field id integer Task id
 ---@field text string Task objective text
 ---@field complete boolean
+---@field failed boolean
 ---@field element UIElement
 ---@field mark UIElement
 ---@field markFail UIElement
@@ -321,6 +322,8 @@ function Tutorials:loadTutorial(id, path)
 	tutorial:close()
 
 	self.CurrentTutorial = id
+	self.TotalSteps = 0
+	self.ProgressStep = 0
 
 	---@type TutorialStep[]
 	local steps = {}
@@ -1200,7 +1203,8 @@ function Tutorials:addOptionalTask(data, taskText)
 	})
 	optTaskMark:hide(true)
 	local optTaskMarkFail = optTaskMarkView:addChild({
-		bgImage = "../textures/menu/general/buttons/crosswhite.tga"
+		shift = { 2, 2 },
+		bgImage = "../textures/menu/general/buttons/cross.tga"
 	})
 	optTaskMarkFail:hide(true)
 
@@ -1215,7 +1219,7 @@ function Tutorials:addOptionalTask(data, taskText)
 	self.TaskViewHolder:show()
 
 	local posVertical = #self.TaskViewHolder.optional
-	local task = { id = data.id, complete = false, element = optTaskView, mark = optTaskMark, markFail = optTaskMarkFail, textView = optTaskTextView }
+	local task = { id = data.id, complete = false, failed = false, element = optTaskView, mark = optTaskMark, markFail = optTaskMarkFail, textView = optTaskTextView }
 	table.insert(self.TaskViewHolder.optional, task)
 
 	local spawnClock = UIElement.clock
@@ -1253,7 +1257,7 @@ function Tutorials:addAdditionalTask(data, taskText)
 	self.TaskViewHolder:show()
 
 	local posVertical = #self.TaskViewHolder.extra
-	local task = { id = data.id, complete = false, element = optTaskView, textView = optTaskTextView }
+	local task = { id = data.id, complete = false, failed = false, element = optTaskView, textView = optTaskTextView }
 	table.insert(self.TaskViewHolder.extra, task)
 
 	local spawnClock = UIElement.clock
@@ -1288,6 +1292,7 @@ function Tutorials:taskOptIncomplete(id)
 		task.mark:hide(true)
 		task.markFail:hide(true)
 		task.complete = false
+		task.failed = false
 	end
 end
 
@@ -1297,7 +1302,7 @@ function Tutorials:taskOptFail(id)
 	local task = TutorialsInternal.GetOptionalTask(self, id)
 	if (task) then
 		task.markFail:show(true)
-		task.markFail.bgColor = { 1, 0, 0, 0.2 }
+		task.failed = true
 	end
 end
 
@@ -1324,8 +1329,9 @@ function TutorialsInternal.PlayTaskAnimation(viewElement)
 end
 
 ---Marks an optional task complete
----@param id any
-function Tutorials:taskOptComplete(id)
+---@param id integer
+---@param noSound ?boolean
+function Tutorials:taskOptComplete(id, noSound)
 	local targetTask = nil
 	for _, v in pairs(self.TaskViewHolder.optional) do
 		if (v.id == id) then
@@ -1343,7 +1349,9 @@ function Tutorials:taskOptComplete(id)
 	targetTask.mark:show(true)
 
 	TutorialsInternal.PlayTaskAnimation(targetTask.mark)
-	play_sound(36)
+	if (not noSound) then
+		play_sound(36)
+	end
 end
 
 ---Marks the main task complete
@@ -1354,7 +1362,6 @@ function Tutorials:taskComplete(noOptFail)
 		for _, v in pairs(self.TaskViewHolder.optional) do
 			if (not v.complete) then
 				v.markFail:show(true)
-				v.markFail.bgColor = { 1, 0, 0, 0.2 }
 			end
 		end
 	end
@@ -1393,7 +1400,7 @@ function Tutorials:showTaskWindow(reqTable, hide, disableTaskReset)
 		self.TaskViewHolder:addCustomDisplay(false, function()
 				local targetShift = -self.TaskViewHolder.parent.size.w - self.TaskViewHolder.size.w
 				if (self.TaskViewHolder.shift.x ~= targetShift) then
-					self.TaskViewHolder:moveTo(UITween.SineTween(self.TaskViewHolder.shift.x, targetShift, UIElement.clock - spawnClock))
+					self.TaskViewHolder:moveTo(math.round(UITween.SineTween(self.TaskViewHolder.shift.x, targetShift, UIElement.clock - spawnClock)))
 				else
 					if (not disableTaskReset) then
 						for _, v in pairs(self.TaskViewHolder.optional) do
@@ -1579,24 +1586,25 @@ function Tutorials:runSteps(steps, currentStep)
 		})
 		stepDisplay:addAdaptedText(true, 's' .. currentStep, nil, nil, FONTS.BIG, nil, 0.7, nil, 0.6)
 	end
-	stepElement:addChild({}):addCustomDisplay(true, function()
-			if (requirements.ready) then
-				local skip = steps[currentStep].skip
-				if (requirements.skip) then
-					skip = skip + requirements.skip
-				end
-				remove_hooks(self.StepHook)
-				stepElement:kill()
-				self.MainView3D:kill(true)
-				if (not steps[currentStep].fallbackrequirement and steps[currentStep].fallback) then
-					self:runSteps(steps, currentStep - steps[currentStep].fallback)
-				elseif (currentStep + skip < #steps) then
-					self:runSteps(steps, currentStep + 1 + skip)
-				else
-					self:showTutorialEnd()
-				end
+	stepElement.killAction = function() remove_hook("post_draw3d", "tutorialProgressStepper") end
+	add_hook("post_draw3d", "tutorialProgressStepper", function()
+		if (requirements.ready) then
+			local skip = steps[currentStep].skip
+			if (requirements.skip) then
+				skip = skip + requirements.skip
 			end
-		end)
+			remove_hooks(self.StepHook)
+			stepElement:kill()
+			self.MainView3D:kill(true)
+			if (not steps[currentStep].fallbackrequirement and steps[currentStep].fallback) then
+				self:runSteps(steps, currentStep - steps[currentStep].fallback)
+			elseif (currentStep + skip < #steps) then
+				self:runSteps(steps, currentStep + 1 + skip)
+			else
+				self:showTutorialEnd()
+			end
+		end
+	end)
 
 	if (steps[currentStep].opts) then
 		for _, v in pairs(steps[currentStep].opts) do
@@ -1994,9 +2002,6 @@ function Tutorials:runTutorialBase(tutorialSteps, postTutorial)
 	TUTORIAL_LEAVEGAME = true
 
 	self.RequireCloseMenu = false
-	self.TotalSteps = 0
-	self.ProgressStep = 0
-
 	TutorialsInternal.LoadHooks(self)
 
 	start_new_game()
@@ -2244,12 +2249,11 @@ function Tutorials:loadOverlay()
 	if (self.TotalSteps > 0) then
 		local tutorialProgress = self.MainView:addChild({
 			pos = { 0, -5 },
-			size = { self.MainView.size.w, 5 },
-			bgColor = { 1, 1, 1, 0.5 }
+			size = { self.MainView.size.w, 5 }
 		})
-		local step = self.ProgressStep
-		tutorialProgress:addCustomDisplay(false, function()
-				if (step < self.ProgressStep) then
+		local step = 0
+		tutorialProgress:addCustomDisplay(true, function(init)
+				if (not init and step < self.ProgressStep) then
 					step = step + 0.05
 				end
 				set_color(unpack(TB_MENU_DEFAULT_BG_COLOR))

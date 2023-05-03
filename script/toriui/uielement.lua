@@ -554,7 +554,7 @@ function UIElement:addChild(o, copyShape)
 	end
 
 	o.parent = self
-	return UIElement:new(o)
+	return UIElement.new(o)
 end
 
 -- Specifies rounding value to be used for UIElements with ROUNDED shape type
@@ -2565,7 +2565,7 @@ end
 ---@param haystack table
 ---@return boolean
 _G.in_array = function(needle, haystack)
-	for i,v in pairs(haystack) do
+	for _, v in pairs(haystack) do
 		if (needle == v) then
 			return true
 		end
