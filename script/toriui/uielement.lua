@@ -1103,7 +1103,7 @@ function UIElement:touchScroll(listElements, listHolder, toReload, scrollDelta, 
 end
 
 -- Sets the specified function to run when UIElement is displayed
----@param overrideDefault boolean|nil If true, will disable default UIElement rendering and only run the specified function
+---@param overrideDefault boolean If true, will disable default UIElement rendering and only run the specified function
 ---@param func function Custom function to run when object is displayed
 ---@param drawBefore? boolean If true, will assign a function to run **before** the default rendering function
 ---@overload fun(self: UIElement, func: function, drawBefore?: boolean)
@@ -1123,7 +1123,7 @@ function UIElement:addCustomDisplay(overrideDefault, func, drawBefore)
 		self.customDisplay = func
 	end
 	if (func) then
-		func()
+		func(true)
 	end
 end
 
@@ -1953,7 +1953,7 @@ function UIElement:updateChildPos()
 end
 
 ---Adapts the specified string to fit inside UIElement object and sets custom display function to draw it
----@param override boolean|nil Whether to disable the default `display()` functionality
+---@param override boolean Whether to disable the default `display()` functionality
 ---@param str string Text to display in an object
 ---@param x? number X offset for the displayed text
 ---@param y? number Y offset for the displayed text

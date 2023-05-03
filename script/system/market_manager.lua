@@ -327,13 +327,13 @@ do
 					if (priceData.count > 0) then
 						Market:showModalPriceSuggestions(holder, priceData)
 					elseif (showNothingMessage) then
-						holder:addAdaptedText(nil, TB_MENU_LOCALIZED.NOTHINGTOSHOW, nil, nil, 4, nil, 0.7)
+						holder:addAdaptedText(false, TB_MENU_LOCALIZED.NOTHINGTOSHOW, nil, nil, 4, nil, 0.7)
 					end
 				end
 			end, function()
 				for j, holder in pairs(holders) do
 					holder:kill(true)
-					holder:addAdaptedText(nil, TB_MENU_LOCALIZED.REQUESTCONNECTIONERROR .. "\n" .. get_network_error(), nil, nil, 4, nil, 0.7)
+					holder:addAdaptedText(false, TB_MENU_LOCALIZED.REQUESTCONNECTIONERROR .. "\n" .. get_network_error(), nil, nil, 4, nil, 0.7)
 				end
 			end)
 	end
@@ -440,7 +440,7 @@ do
 						pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
 						rounded = 4
 					}, true)
-					closeButton:addAdaptedText(nil, TB_MENU_LOCALIZED.BUTTONCLOSEWINDOW)
+					closeButton:addAdaptedText(false, TB_MENU_LOCALIZED.BUTTONCLOSEWINDOW)
 					closeButton:addMouseHandlers(nil, function() Market:clearModal() end)
 				else
 					message = ((response.is_success and response.success or response.error) or TB_MENU_LOCALIZED.REQUESTUNKNOWNERROR) .. (warning and ("\n\n" .. warning:gsub("(%w+)", "^37%1")) or '') .. (info and ("\n\n" .. info:gsub("(%w+)", "^39%1")) or '')
@@ -703,13 +703,13 @@ do
 						priceKeyUp(sellPriceInput, override == true)
 					end)
 
-				priceHolder:addCustomDisplay(nil, function()
+				priceHolder:addCustomDisplay(false, function()
 					if (checkDelay(youGetInput) or checkDelay(sellPriceInput, true)) then
 						v.marketPrice = tonumber(sellPriceInput.textfieldstr[1]) or 0
 					end
 				end)
 			else
-				priceHolder:addCustomDisplay(nil, function()
+				priceHolder:addCustomDisplay(false, function()
 					if (sellPriceInput.lastPrice ~= sellPriceInput.textfieldstr[1]) then
 						sellPriceInput.lastPrice = sellPriceInput.textfieldstr[1]
 						v.marketPrice = tonumber(sellPriceInput.lastPrice) or 0
@@ -820,7 +820,7 @@ do
 						end)
 				end
 			end)
-		submitButton:addCustomDisplay(nil, function()
+		submitButton:addCustomDisplay(false, function()
 				local available = #selectedItems > 0
 				for i,v in pairs(selectedItems) do
 					if (not v.marketPrice or v.marketPrice < 1) then
@@ -1065,7 +1065,7 @@ do
 							targetItems = v.contents
 							selectedSetid = v.setid
 							currentPage[selectedSetid] = currentPage[selectedSetid] or 1
-							backToMainInfoText:addAdaptedText(nil, v.item.itemname .. ": " .. v.setname, nil, nil, 4, nil, 0.8)
+							backToMainInfoText:addAdaptedText(false, v.item.itemname .. ": " .. v.setname, nil, nil, 4, nil, 0.8)
 							showInventoryItems(currentPage[selectedSetid])
 						else
 							addToSelected(itemHolder, itemCancel, v)
@@ -1142,7 +1142,7 @@ do
 					pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
 					inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS
 				}, true)
-				pageButton:addAdaptedText(nil, v .. '', nil, nil, 4, nil, 0.6)
+				pageButton:addAdaptedText(false, v .. '', nil, nil, 4, nil, 0.6)
 				pageButton:addMouseHandlers(nil, function()
 						if (selectedSetid) then
 							currentPage[selectedSetid] = v
@@ -1198,7 +1198,7 @@ do
 			rounded = cancelButton.rounded
 		})
 		submitButton:addChild({ shift = { 15, 5 } }):addAdaptedText(true, TB_MENU_LOCALIZED.BUTTONCONTINUE)
-		submitButton:addCustomDisplay(nil, function()
+		submitButton:addCustomDisplay(false, function()
 				if (#selectedItems < 1) then
 					submitButton:deactivate(true)
 				else
@@ -1844,7 +1844,7 @@ do
 			shapeType = ROUNDED,
 			rounded = { 0, 4 }
 		})
-		offerViewBG:addCustomDisplay(nil, function()
+		offerViewBG:addCustomDisplay(false, function()
 				if (offerExtraViewBG.hoverState ~= offerViewBG.hoverState and offerExtraViewBG:isDisplayed()) then
 					if (offerViewBG.hoverState > offerExtraViewBG.hoverState) then
 						offerExtraViewBG.hoverState = offerViewBG.hoverState
@@ -2185,7 +2185,7 @@ do
 				end)
 		end
 
-		offerBG:addCustomDisplay(nil, function()
+		offerBG:addCustomDisplay(false, function()
 				if (offerBG2.hoverState ~= offerBG.hoverState and offerBG2:isDisplayed()) then
 					if (offerBG.hoverState > offerBG2.hoverState) then
 						offerBG2.hoverState = offerBG.hoverState
@@ -2435,7 +2435,7 @@ do
 			shapeType = ROUNDED,
 			rounded = 4
 		})
-		bestSaleOfferButton:addAdaptedText(nil, TB_MENU_LOCALIZED.MARKETPURCHASE)
+		bestSaleOfferButton:addAdaptedText(false, TB_MENU_LOCALIZED.MARKETPURCHASE)
 		bestSaleOfferButton:deactivate()
 
 		local bestBuyRequestView = UIElement:new({
@@ -2463,7 +2463,7 @@ do
 			shapeType = ROUNDED,
 			rounded = 4
 		})
-		bestBuyRequestButton:addAdaptedText(nil, TB_MENU_LOCALIZED.MARKETSELL)
+		bestBuyRequestButton:addAdaptedText(false, TB_MENU_LOCALIZED.MARKETSELL)
 		bestBuyRequestButton:deactivate()
 
 		local saleOffersView = UIElement:new({
@@ -2552,7 +2552,7 @@ do
 					end)
 			else
 				bestSaleOfferText:addAdaptedText(true, TB_MENU_LOCALIZED.MARKETNOACTIVEOFFERS .. " " .. string.lower(TB_MENU_LOCALIZED.MARKETSALEOFFERS), nil, nil, 4, CENTERBOT, 0.8)
-				bestSaleOfferButton:addAdaptedText(nil, TB_MENU_LOCALIZED.MARKETNEWPURCHASEOFFER)
+				bestSaleOfferButton:addAdaptedText(false, TB_MENU_LOCALIZED.MARKETNEWPURCHASEOFFER)
 			end
 
 			bestSaleOfferButton:activate()
@@ -2576,7 +2576,7 @@ do
 					end)
 			else
 				bestBuyRequestText:addAdaptedText(true, TB_MENU_LOCALIZED.MARKETNOACTIVEOFFERS .. " " .. string.lower(TB_MENU_LOCALIZED.MARKETPURCHASEREQUESTS), nil, nil, 4, CENTERBOT, 0.8)
-				bestBuyRequestButton:addAdaptedText(nil, TB_MENU_LOCALIZED.MARKETNEWSALEOFFER)
+				bestBuyRequestButton:addAdaptedText(false, TB_MENU_LOCALIZED.MARKETNEWSALEOFFER)
 				bestBuyRequestButton:addMouseHandlers(nil, function()
 						Market:spawnInventoryItemSelector(item)
 					end)
@@ -2811,12 +2811,12 @@ do
 					pos = { 15, 5 },
 					size = { (element.size.w - 30) / 3 - 5, element.size.h - 10 }
 				})
-				elementName:addAdaptedText(nil, v.name, nil, nil, nil, LEFTMID)
+				elementName:addAdaptedText(false, v.name, nil, nil, nil, LEFTMID)
 				if (elementName.textScale < 0.6) then
 					elementName.size.w = element.size.w - 20
 					elementName:moveTo(nil, 5, true)
 					elementName.str = ''
-					elementName:addAdaptedText(nil, v.name, nil, nil, nil, LEFTBOT)
+					elementName:addAdaptedText(false, v.name, nil, nil, nil, LEFTBOT)
 
 					local elementNew = UIElement:new({
 						parent = listingHolder,
@@ -2869,14 +2869,14 @@ do
 						shapeType = filterHolder.shapeType,
 						rounded = filterHolder.rounded
 					})
-					defaultValue:addAdaptedText(nil, v.defaultName .. ": " .. v.default, nil, nil, 4, nil, 0.7)
+					defaultValue:addAdaptedText(false, v.defaultName .. ": " .. v.default, nil, nil, 4, nil, 0.7)
 					defaultValue:addMouseHandlers(nil, function()
 							v.value = v.default
 							interactiveElem.textfieldstr[1] = v.default .. ''
 							interactiveElem.textfieldindex = interactiveElem.textfieldstr[1]:len()
 							defaultValue:hide(true)
 						end)
-					interactiveElem:addCustomDisplay(nil, function()
+					interactiveElem:addCustomDisplay(false, function()
 							if (interactiveElem.keyboard == true and string.find(v.default, interactiveElem.textfieldstr[1]) and (v.default .. '') ~= interactiveElem.textfieldstr[1]) then
 								defaultValue:show(true)
 							elseif (defaultValue.hoverState == BTN_NONE) then

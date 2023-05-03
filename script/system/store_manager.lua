@@ -734,20 +734,20 @@ do
 					pos = { 10, 0 },
 					size = { inventoryItemView.size.w - 20, 50 }
 				})
-				itemName:addAdaptedText(nil, item.name .. itemLevel, nil, nil, FONTS.BIG, nil, 0.6, nil, 0.2)
+				itemName:addAdaptedText(false, item.name .. itemLevel, nil, nil, FONTS.BIG, nil, 0.6, nil, 0.2)
 				local setCaption = UIElement:new({
 					parent = inventoryItemView,
 					pos = { 10, 50 },
 					size = { inventoryItemView.size.w - 20, 20 }
 				})
-				setCaption:addAdaptedText(nil, TB_MENU_LOCALIZED.STOREITEMINSIDESET .. ": " .. item.parentset.setname)
+				setCaption:addAdaptedText(false, TB_MENU_LOCALIZED.STOREITEMINSIDESET .. ": " .. item.parentset.setname)
 			else
 				local itemName = UIElement:new({
 					parent = inventoryItemView,
 					pos = { 10, 0 },
 					size = { inventoryItemView.size.w - 20, 70 }
 				})
-				itemName:addAdaptedText(nil, item.name .. itemLevel, nil, nil, FONTS.BIG, nil, 0.6, nil, 0.2)
+				itemName:addAdaptedText(false, item.name .. itemLevel, nil, nil, FONTS.BIG, nil, 0.6, nil, 0.2)
 			end
 
 			local itemInfoHeight = inventoryItemView.size.h / 2 - 80
@@ -807,18 +807,18 @@ do
 				rounded = 4
 			})
 			if (item.insideset) then
-				addSetButton:addAdaptedText(nil, TB_MENU_LOCALIZED.STOREITEMGOTOSET)
+				addSetButton:addAdaptedText(false, TB_MENU_LOCALIZED.STOREITEMGOTOSET)
 				addSetButton:addMouseHandlers(nil, function()
 						INVENTORY_LIST_SHIFT[1] = 0
 						Torishop:showInventoryPage(item.parentset.contents, nil, mode, TB_MENU_LOCALIZED.STORESETITEMNAME .. ": " .. item.parentset.setname, "invid" .. item.parentset.inventid, nil, true)
 					end)
 			elseif (item.setid == 0) then
-				addSetButton:addAdaptedText(nil, TB_MENU_LOCALIZED.STOREITEMADDTOSET)
+				addSetButton:addAdaptedText(false, TB_MENU_LOCALIZED.STOREITEMADDTOSET)
 				addSetButton:addMouseHandlers(nil, function()
 						Torishop:showSetSelection(item)
 					end)
 			else
-				addSetButton:addAdaptedText(nil, TB_MENU_LOCALIZED.STOREITEMREMOVEFROMSET)
+				addSetButton:addAdaptedText(false, TB_MENU_LOCALIZED.STOREITEMREMOVEFROMSET)
 				addSetButton:addMouseHandlers(nil, function()
 						Torishop:spawnInventoryUpdateWaiter()
 						INVENTORY_SELECTION_RESET = true
@@ -839,7 +839,7 @@ do
 				shapeType = ROUNDED,
 				rounded = 4
 			})
-			viewSet:addAdaptedText(nil, TB_MENU_LOCALIZED.STOREVIEWSETITEMS)
+			viewSet:addAdaptedText(false, TB_MENU_LOCALIZED.STOREVIEWSETITEMS)
 			viewSet:addMouseHandlers(nil, function()
 					INVENTORY_LIST_SHIFT[1] = 0
 					TB_ITEM_DETAILS = nil
@@ -876,7 +876,7 @@ do
 				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
 			})
-			upgradeButton:addAdaptedText(nil, TB_MENU_LOCALIZED.STOREITEMUPGRADEFOR .. " " .. (item.upgrade_price > 0 and (item.upgrade_price .. " TC") or TB_MENU_LOCALIZED.STOREITEMUPGRADEPRICEFREE))
+			upgradeButton:addAdaptedText(false, TB_MENU_LOCALIZED.STOREITEMUPGRADEFOR .. " " .. (item.upgrade_price > 0 and (item.upgrade_price .. " TC") or TB_MENU_LOCALIZED.STOREITEMUPGRADEPRICEFREE))
 			upgradeButton:addMouseHandlers(nil, function()
 					Torishop:spawnInventoryUpdateWaiter()
 					show_dialog_box(INVENTORY_UPGRADE, TB_MENU_LOCALIZED.STOREDIALOGUPGRADE1 .. "\n" .. item.name .. " ".. TB_MENU_LOCALIZED.STOREDIALOGUPGRADE2 .. " " .. (item.upgrade_level + 1) .. "?", item.inventid .. ";" .. item.upgrade_price)
@@ -916,14 +916,14 @@ do
 				rounded = 4
 			})
 			if (item.active) then
-				activateButton:addAdaptedText(nil, TB_MENU_LOCALIZED.STOREITEMDEACTIVATE)
+				activateButton:addAdaptedText(false, TB_MENU_LOCALIZED.STOREITEMDEACTIVATE)
 				activateButton:addMouseHandlers(nil, function(s, posX, posY)
 						Torishop:spawnInventoryUpdateWaiter()
 						show_dialog_box(INVENTORY_DEACTIVATE, TB_MENU_LOCALIZED.STOREDIALOGDEACTIVATE1 .. " " .. item.name .. (TB_MENU_LOCALIZED.STOREDIALOGDEACTIVATE2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGDEACTIVATE2 .. "?"), item.inventid)
 					end, nil)
 			else
 				local itemToDeactivate = Torishop:getItemToDeactivate(item)
-				activateButton:addAdaptedText(nil, TB_MENU_LOCALIZED.STOREITEMACTIVATE)
+				activateButton:addAdaptedText(false, TB_MENU_LOCALIZED.STOREITEMACTIVATE)
 				activateButton:addMouseHandlers(nil, function()
 						Torishop:spawnInventoryUpdateWaiter()
 						show_dialog_box(INVENTORY_ACTIVATE, TB_MENU_LOCALIZED.STOREDIALOGACTIVATE1 .. " " .. item.name .. (TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 .. "?") .. "\n" .. (itemToDeactivate and itemToDeactivate.name .. " " .. TB_MENU_LOCALIZED.STOREDIALOGITEMCONFLICTDEACTIVATE or TB_MENU_LOCALIZED.STOREDIALOGCONFLICTSDEACTIVATE), item.inventid)
@@ -941,7 +941,7 @@ do
 				shapeType = ROUNDED,
 				rounded = 4
 			})
-			unpackButton:addAdaptedText(nil, TB_MENU_LOCALIZED.STOREITEMUNPACK)
+			unpackButton:addAdaptedText(false, TB_MENU_LOCALIZED.STOREITEMUNPACK)
 			unpackButton:addMouseHandlers(nil, function()
 					Torishop:spawnInventoryUpdateWaiter()
 					show_dialog_box(INVENTORY_UNPACK, TB_MENU_LOCALIZED.STOREDIALOGUNPACK1 .. " " .. item.name .. (TB_MENU_LOCALIZED.STOREDIALOGUNPACK2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGUNPACK2 .. "?") .. "\n" .. TB_MENU_LOCALIZED.STOREDIALOGUNPACKINFO, item.inventid)
@@ -1231,7 +1231,7 @@ do
 					shapeType = ROUNDED,
 					rounded = 4
 				})
-				upgradeLevelButton:addAdaptedText(nil, TB_MENU_LOCALIZED.STOREITEMUPGRADEFOR .. " " .. (item.upgrade_price > 0 and (item.upgrade_price .. " TC") or TB_MENU_LOCALIZED.STOREITEMUPGRADEPRICEFREE))
+				upgradeLevelButton:addAdaptedText(false, TB_MENU_LOCALIZED.STOREITEMUPGRADEFOR .. " " .. (item.upgrade_price > 0 and (item.upgrade_price .. " TC") or TB_MENU_LOCALIZED.STOREITEMUPGRADEPRICEFREE))
 				upgradeLevelButton:addMouseHandlers(nil, function()
 						Torishop:spawnInventoryUpdateWaiter(nil, function()
 								overlay:kill()
@@ -1350,7 +1350,7 @@ do
 						shapeType = ROUNDED,
 						rounded = 4
 					})
-					updateEffectInfo:addCustomDisplay(nil, function()
+					updateEffectInfo:addCustomDisplay(false, function()
 							if (updateEffectInfo.hoverState ~= BTN_NONE) then
 								TB_MENU_POPUPS_DISABLED = false
 							else
@@ -1678,7 +1678,7 @@ do
 			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
 		})
-		cancelButton:addAdaptedText(nil, TB_MENU_LOCALIZED.STOREBUTTONCANCEL)
+		cancelButton:addAdaptedText(false, TB_MENU_LOCALIZED.STOREBUTTONCANCEL)
 		cancelButton:addMouseHandlers(nil, function()
 				if (item) then
 					Torishop:showInventoryItem(item)
@@ -2184,7 +2184,7 @@ do
 					shapeType = ROUNDED,
 					rounded = 3
 				})
-				button:addAdaptedText(nil, v .. "", nil, nil, 4, nil, 0.6)
+				button:addAdaptedText(false, v .. "", nil, nil, 4, nil, 0.6)
 				button:addMouseHandlers(nil, function()
 						INVENTORY_LIST_SHIFT[1] = 0
 						Torishop:showInventoryPage(inventoryItems, -(TB_INVENTORY_PAGE[pageid] - v), mode, title, pageid, itemScale, showBack)
@@ -2232,7 +2232,7 @@ do
 			shapeType = ROUNDED,
 			rounded = 4
 		})
-		refreshInventory:addAdaptedText(nil, TB_MENU_LOCALIZED.STOREINVENTORYRELOAD, nil, nil, nil, nil, 0.9)
+		refreshInventory:addAdaptedText(false, TB_MENU_LOCALIZED.STOREINVENTORYRELOAD, nil, nil, nil, nil, 0.9)
 		refreshInventory:addMouseHandlers(nil, function()
 				Torishop:prepareInventory(TBMenu.CurrentSection, true)
 			end)
@@ -2745,7 +2745,7 @@ do
 				size = { seasonPassInfoHolder.size.w - 20, seasonPassInfoHolder.size.h - 10 },
 				uiColor = UICOLORBLACK
 			})
-			seasonPassInfo:addAdaptedText(nil, "Toribash Season Pass 2020 is a special collectible card that upgrades your Toribash account by giving you exclusive access to:\n- ^62NO ^07unique or otherwise unavailable items\n- ^62ZERO ^07Season Pass levels to unlock\n- ^62ALL THE ITEMS ^07that you already own", nil, nil, 4, LEFTMID)
+			seasonPassInfo:addAdaptedText(false, "Toribash Season Pass 2020 is a special collectible card that upgrades your Toribash account by giving you exclusive access to:\n- ^62NO ^07unique or otherwise unavailable items\n- ^62ZERO ^07Season Pass levels to unlock\n- ^62ALL THE ITEMS ^07that you already own", nil, nil, 4, LEFTMID)
 
 			local item = Torishop:getItemInfo(3304)
 			local cardPurchaseButtonTC = UIElement:new({
@@ -2779,7 +2779,7 @@ do
 				size = { 20, seasonPassBG.size.h / 3 * 2 },
 				uiColor = UICOLORBLACK
 			})
-			plusSign:addAdaptedText(nil, "+", nil, nil, FONTS.BIG)
+			plusSign:addAdaptedText(false, "+", nil, nil, FONTS.BIG)
 
 			local lootBox = Torishop:getItemInfo(3303)
 			local lootBoxHolder = UIElement:new({
@@ -2795,7 +2795,7 @@ do
 				pos = { 20, 10 },
 				size = { lootBoxHolder.size.w - 40, 35 }
 			})
-			lootBoxName:addAdaptedText(nil, lootBox.itemname, nil, nil, FONTS.BIG, nil, nil, nil, 0.2)
+			lootBoxName:addAdaptedText(false, lootBox.itemname, nil, nil, FONTS.BIG, nil, nil, nil, 0.2)
 			local lootBoxIcon = UIElement:new({
 				parent = lootBoxHolder,
 				pos = { (lootBoxHolder.size.w - lootboxIconSize) / 2, 50 },
@@ -2815,7 +2815,7 @@ do
 				pos = { 10, 5 },
 				size = { lootBoxInfoHolder.size.w - 20, lootBoxInfoHolder.size.h - 10 }
 			})
-			lootBoxInfo:addAdaptedText(nil, lootBox.itemname .. " is an item that utilizes surprise mechanics: by purchasing it you will receive one random color item - including no-qi Void and Demon!", nil, nil, 4)
+			lootBoxInfo:addAdaptedText(false, lootBox.itemname .. " is an item that utilizes surprise mechanics: by purchasing it you will receive one random color item - including no-qi Void and Demon!", nil, nil, 4)
 
 			local lootboxPurchaseButtonTC = UIElement:new({
 				parent = lootBoxHolder,
@@ -3285,7 +3285,7 @@ do
 				bgColor = { color[1], color[2], color[3], 0.5 },
 			})
 			local ticks = 0
-			ghost:addCustomDisplay(nil, function()
+			ghost:addCustomDisplay(false, function()
 					if (ghost.bgColor[4] <= 0) then
 						ghost:moveTo(-ghost.shift.x, -ghost.shift.y, 0)
 						ghost:resetRotation()
@@ -5888,7 +5888,7 @@ do
 				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
 			})
 			table.insert(listElements, section)
-			section:addAdaptedText(nil, Torishop:getSectionInfo(v).name)
+			section:addAdaptedText(false, Torishop:getSectionInfo(v).name)
 			section:addMouseHandlers(nil, function()
 					Torishop:showSectionItems(sectionItemsView, searchResults.list[i], searchString, searchResults.items[i])
 				end)

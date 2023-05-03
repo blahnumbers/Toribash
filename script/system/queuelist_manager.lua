@@ -158,7 +158,7 @@ function QueueList:addPlayerInfos(viewElement, info)
 		pos = { 75, 0 },
 		size = { viewElement.size.w - 90, 35 }
 	})
-	nameHolder:addAdaptedText(nil, info.pInfo.username, nil, nil, FONTS.BIG, LEFTMID)
+	nameHolder:addAdaptedText(false, info.pInfo.username, nil, nil, FONTS.BIG, LEFTMID)
 
 	local beltInfo = PlayerInfo.getBeltFromQi(info.games_played)
 	local beltHolder = viewElement:addChild({

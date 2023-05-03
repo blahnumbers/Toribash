@@ -106,7 +106,7 @@ function BattlePass:getUserData(viewElement)
 				if (viewElement and not viewElement.destroyed) then
 					viewElement:kill(true)
 					TBMenu:addBottomBloodSmudge(viewElement)
-					viewElement:addAdaptedText(nil, TB_MENU_LOCALIZED.ACCOUNTINFOERROR)
+					viewElement:addAdaptedText(false, TB_MENU_LOCALIZED.ACCOUNTINFOERROR)
 				end
 				return
 			end
@@ -622,7 +622,7 @@ function BattlePass:showLevelPrize(prizeHolder, levelData)
 		pos = { 10, 10 },
 		size = { prizeHolder.size.w - 20, 30 }
 	})
-	prizeLevel:addAdaptedText(nil, TB_MENU_LOCALIZED.BATTLEPASSLVL .. " " .. levelData.level)
+	prizeLevel:addAdaptedText(false, TB_MENU_LOCALIZED.BATTLEPASSLVL .. " " .. levelData.level)
 	local prizeBackground = prizeHolder:addChild({
 		pos = { 3, 50 },
 		size = { prizeHolder.size.w - 6, prizeHolder.size.h - 50 },

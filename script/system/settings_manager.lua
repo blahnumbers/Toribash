@@ -244,7 +244,7 @@ do
 			size = { tbPlayerThanks.size.w, tbPlayerThanks.size.h }
 		})
 		local function initOutro()
-			whiteOverlay:addCustomDisplay(nil, function()
+			whiteOverlay:addCustomDisplay(false, function()
 					whiteOverlay.bgColor[4] = whiteOverlay.bgColor[4] - 0.05
 					if (whiteOverlay.bgColor[4] <= 0) then
 						whiteOverlay:kill()

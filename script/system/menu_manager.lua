@@ -674,7 +674,7 @@ function TBMenu:showHomeButton(viewElement, buttonData, hasSmudge, extraElements
 		local lockedMessageText = lockedMessageTextBG:addChild({
 			shift = { 10, 5 }
 		})
-		lockedMessageText:addAdaptedText(nil, lockedMessage)
+		lockedMessageText:addAdaptedText(false, lockedMessage)
 
 		local maxLen, lines = 0, 0
 		for _, v in pairs(lockedMessageText.dispstr) do
@@ -1982,7 +1982,7 @@ function TBMenu:showUserBar()
 		shapeType = ROUNDED,
 		rounded = tbMenuUserName.size.h
 	})
-	accountButton:addAdaptedText(nil, TB_MENU_LOCALIZED.NAVBUTTONACCOUNT, 15, nil, 4, LEFTMID, 0.65)
+	accountButton:addAdaptedText(false, TB_MENU_LOCALIZED.NAVBUTTONACCOUNT, 15, nil, 4, LEFTMID, 0.65)
 	accountButton.size.w = get_string_length(accountButton.dispstr[1], accountButton.textFont) * accountButton.textScale + accountButton.size.h + 30
 	accountButton:addCustomDisplay(false, function() end)
 	local accountButtonText = accountButton:addChild({
@@ -3958,7 +3958,7 @@ function TBMenu:spawnToggle(parent, x, y, w, h, toggleValue, updateFunc)
 		interactive = true,
 		toggle = true
 	}, true)
-	toggleView:addCustomDisplay(nil, function()
+	toggleView:addCustomDisplay(false, function()
 			if (toggleView.keyboard and toggleView.hoverState == BTN_NONE) then
 				toggleView.hoverState = BTN_FOCUS
 			end

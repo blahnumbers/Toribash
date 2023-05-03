@@ -608,7 +608,7 @@ do
 					pos = { 10, 5 },
 					size = { fHolder.size.w / 2 - 20, fHolder.size.h - 10 }
 				})
-				fParamName:addAdaptedText(nil, data.title, nil, nil, nil, LEFTMID)
+				fParamName:addAdaptedText(false, data.title, nil, nil, nil, LEFTMID)
 				local fValueHolder = UIElement:new({
 					parent = fHolder,
 					pos = { fParamName.size.w + fParamName.shift.x + 5, 2 },
@@ -616,7 +616,7 @@ do
 					shapeType = ROUNDED,
 					rounded = 3
 				})
-				fValueHolder:addAdaptedText(nil, data.val, nil, nil, 4, nil, 0.8)
+				fValueHolder:addAdaptedText(false, data.val, nil, nil, 4, nil, 0.8)
 			end
 		end
 
@@ -753,7 +753,7 @@ do
 							pos = { 10, 5 },
 							size = { fHolder.size.w / 2 - 20, fHolder.size.h - 10 }
 						})
-						fParamName:addAdaptedText(nil, v.name, nil, nil, nil, LEFTMID)
+						fParamName:addAdaptedText(false, v.name, nil, nil, nil, LEFTMID)
 						local fValueHolder = UIElement:new({
 							parent = fHolder,
 							pos = { fParamName.size.w + fParamName.shift.x + 5, 2 },
@@ -767,7 +767,7 @@ do
 						else
 							forgedOwnedString = (not forgedShown and (TB_MENU_LOCALIZED.STOREFLAMEFORGEDBY .. " " .. v.forger) or "") .. "\n" .. (not ownedShown and (TB_MENU_LOCALIZED.STOREITEMOWNEDBY .. " " .. v.owner) or "")
 						end
-						fValueHolder:addAdaptedText(nil, forgedOwnedString, nil, nil, 4, RIGHTMID, 0.65)
+						fValueHolder:addAdaptedText(false, forgedOwnedString, nil, nil, 4, RIGHTMID, 0.65)
 					end
 				end
 			end
@@ -1132,7 +1132,7 @@ do
 			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
 		})
-		flamesSearchButton:addAdaptedText(nil, TB_MENU_LOCALIZED.BUTTONSEARCH)
+		flamesSearchButton:addAdaptedText(false, TB_MENU_LOCALIZED.BUTTONSEARCH)
 		local doSearch = function(str)
 			UIElement.handleMouseDn(0, -1, 0)
 			Request:queue(function()

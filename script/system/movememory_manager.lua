@@ -656,7 +656,7 @@ function MoveMemory:spawnMovementButton(viewElement, memorymove, listElements)
 			rounded = { moveButton.roundedInternal[2], moveButton.roundedInternal[1] }
 		})
 		descButton.btnUp = moveButton.btnUp
-		moveButton:addCustomDisplay(nil, function()
+		moveButton:addCustomDisplay(false, function()
 			if (descButton.hoverState ~= moveButton.hoverState and descButton:isDisplayed()) then
 				if (moveButton.hoverState > descButton.hoverState) then
 					descButton.hoverState = moveButton.hoverState

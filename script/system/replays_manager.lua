@@ -2529,7 +2529,7 @@ function Replays:showServerReplayList(viewElement, replayInfoHolder)
 				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
 				inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS
 			}, true)
-			pageButton:addAdaptedText(nil, v .. '', nil, nil, 4, nil, 0.65)
+			pageButton:addAdaptedText(false, v .. '', nil, nil, 4, nil, 0.65)
 			pageButton:addMouseHandlers(nil, function()
 					Replays:getServerReplays(Replays.ServerCacheSettings.action, (v - 1) * 100, Replays.ServerCacheSettings.search)
 				end)
@@ -2579,7 +2579,7 @@ function Replays:showServerReplayList(viewElement, replayInfoHolder)
 			shapeType = ROUNDED,
 			rounded = { 0, 4 }
 		})
-		buttonTopBackground:addCustomDisplay(nil, function()
+		buttonTopBackground:addCustomDisplay(false, function()
 			if (buttonBotBackground.hoverState ~= buttonTopBackground.hoverState and buttonBotBackground:isDisplayed()) then
 				if (buttonTopBackground.hoverState > buttonBotBackground.hoverState) then
 					buttonBotBackground.hoverState = buttonTopBackground.hoverState
@@ -3229,7 +3229,7 @@ function Replays:showCustomReplaySelection(mainElement, mod, action)
 			shapeType = ROUNDED,
 			rounded = 3
 		})
-		botQuit:addAdaptedText(nil, TB_MENU_LOCALIZED.BUTTONCLOSEWINDOW)
+		botQuit:addAdaptedText(false, TB_MENU_LOCALIZED.BUTTONCLOSEWINDOW)
 		botQuit:addMouseHandlers(nil, function()
 				viewElement:kill()
 			end)
@@ -3352,7 +3352,7 @@ function Replays:spawnReplayProgressSlider(viewElement)
 	slider.bgColor = table.clone(UICOLORWHITE)
 	slider.value = worldstate.match_frame
 
-	replayProgressHolder:addCustomDisplay(nil, function()
+	replayProgressHolder:addCustomDisplay(false, function()
 			local worldstate = get_world_state()
 			if (slider.settings.maxValue ~= worldstate.game_frame + 98) then
 				Replays:spawnReplayAdvancedGui(true)
@@ -3465,7 +3465,7 @@ function Replays:spawnReplaySpeedSlider(viewElement)
 		speedUp:addChild({ shift = { 11, 5 }, bgColor = TB_MENU_DEFAULT_LIGHTEST_COLOR }, true)
 		speedUp:addMouseHandlers(nil, function() setButtonSpeed(1) end)
 
-		speedDn:addCustomDisplay(nil, function()
+		speedDn:addCustomDisplay(false, function()
 				if (speedDn.isactive) then
 					if (get_replay_cache() < 1) then
 						speedDn:deactivate(true)
@@ -3606,7 +3606,7 @@ function Replays:spawnReplaySpeedSlider(viewElement)
 			end
 		end)
 
-	replaySpeedHolder:addCustomDisplay(nil, function()
+	replaySpeedHolder:addCustomDisplay(false, function()
 			local replay_speed = get_replay_speed()
 			if (slider.value ~= replay_speed) then
 				if (slider.hoverState ~= BTN_NONE or slider.parent.hoverState == BTN_DN) then

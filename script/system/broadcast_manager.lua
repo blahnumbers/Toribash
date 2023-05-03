@@ -74,7 +74,7 @@ function Broadcasts:showBroadcast(broadcast)
 				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
 			}, true)
-			broadcastRoom:addAdaptedText(nil, TB_MENU_LOCALIZED.BROADCASTSJOIN .. " " .. broadcast.room)
+			broadcastRoom:addAdaptedText(false, TB_MENU_LOCALIZED.BROADCASTSJOIN .. " " .. broadcast.room)
 			broadcastRoom:addMouseHandlers(nil, function()
 					runCmd("join " .. broadcast.room)
 					popupView:Close()
@@ -153,7 +153,7 @@ function Broadcasts:showBroadcast(broadcast)
 				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
 			}, true)
-			broadcastRoom:addAdaptedText(nil, TB_MENU_LOCALIZED.BROADCASTSJOIN .. " " .. broadcast.room)
+			broadcastRoom:addAdaptedText(false, TB_MENU_LOCALIZED.BROADCASTSJOIN .. " " .. broadcast.room)
 			broadcastRoom:addMouseHandlers(nil, function()
 					runCmd("join " .. broadcast.room)
 					buttonClicked = true

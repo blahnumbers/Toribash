@@ -58,7 +58,7 @@ do
 		local function throwError(text)
 			loadingView:kill(true)
 			TBMenu:addBottomBloodSmudge(loadingView, 1)
-			loadingView:addAdaptedText(nil, text)
+			loadingView:addAdaptedText(false, text)
 		end
 
 		local playerData, showWelcome = {}, false
@@ -411,7 +411,7 @@ do
 		local function throwError(text)
 			viewElement:kill(true)
 			TBMenu:addBottomBloodSmudge(viewElement, 2)
-			viewElement:addAdaptedText(nil, text)
+			viewElement:addAdaptedText(false, text)
 		end
 		local waiter = UIElement:new({
 			parent = viewElement,
@@ -502,7 +502,7 @@ do
 		local function throwError(text)
 			loadingView:kill(true)
 			TBMenu:addBottomBloodSmudge(loadingView, 1)
-			loadingView:addAdaptedText(nil, text)
+			loadingView:addAdaptedText(false, text)
 		end
 
 		local champInfo, playerData = { loaded = false }, { games = 0, ranking = { wins = 0, losses = 0 } }
@@ -935,7 +935,7 @@ do
 			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
 		})
-		joinButton:addAdaptedText(nil, TB_MENU_LOCALIZED.FRIENDSLISTJOINROOM)
+		joinButton:addAdaptedText(false, TB_MENU_LOCALIZED.FRIENDSLISTJOINROOM)
 		joinButton:addMouseHandlers(nil, function() Events:modChampionshipConnect() end)
 
 		local toplist = { games = {}, ranking = {} }
@@ -1393,7 +1393,7 @@ do
 					shapeType = ROUNDED,
 					rounded = listEvent.size.h / 4
 				})
-				liveCaption:addAdaptedText(nil, TB_MENU_LOCALIZED.EVENTSLIVE:upper(), nil, nil, 4, nil, 0.5, 0.5, nil, 2)
+				liveCaption:addAdaptedText(false, TB_MENU_LOCALIZED.EVENTSLIVE:upper(), nil, nil, 4, nil, 0.5, 0.5, nil, 2)
 				shiftX = shiftX + liveCaption.shift.x + liveCaption.size.w
 			end
 			local listEventName = UIElement:new({
@@ -1401,7 +1401,7 @@ do
 				pos = { 10 + shiftX, 5 },
 				size = { listEvent.size.w - shiftX - 20, listEvent.size.h - 10 }
 			})
-			listEventName:addAdaptedText(nil, eventInfo.name, nil, nil, nil, LEFTMID, nil, nil, 0.2)
+			listEventName:addAdaptedText(false, eventInfo.name, nil, nil, nil, LEFTMID, nil, nil, 0.2)
 
 			if (i == 1) then
 				selectedButton = listEvent
