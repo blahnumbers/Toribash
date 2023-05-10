@@ -209,7 +209,7 @@ function Tutorials:getLocalization(id, language, path)
 	if (language ~= "english") then
 		-- Make sure there's no missing values
 		local localization = Files.Open(path .. id .. "_english.txt")
-		for i, ln in pairs(localization:readAll()) do
+		for _, ln in pairs(localization:readAll()) do
 			if (not ln:match("^#")) then
 				local data_stream = { ln:match(("([^\t]*)\t?"):rep(2)) }
 				if (not self.LocalizedMessages[data_stream[1]]) then
@@ -784,29 +784,49 @@ function Tutorials:showHint(_, reqTable, message)
 
 	self.HintMessageView:addAdaptedText(true, message, nil, nil, 4, nil, 0.8, nil, nil, nil, textColor)
 
+	local patterns = {
+		{ regex = "%b~~", type = 'key', offset = 1 },
+		{ regex = "%u%u+", type = 'outline', offset = 0 }
+	}
 	for i, v in pairs(self.HintMessageView.dispstr) do
-		local _, count = utf8.gsub(v, "%b~~", "")
-		local endposLast = 0
-		for _ = 1, count do
-			local startpos, endpos = utf8.find(v, "%b~~", endposLast)
-			endposLast = endpos + 1
-			if (startpos) then
-				local displayLength = get_string_length(utf8.sub(v, 0, startpos - 1), 4) * self.HintMessageView.textScale - 1
-				local displayLineLength = get_string_length(v, 4) * self.HintMessageView.textScale
-				local displayKey = utf8.sub(v, startpos + 1, endpos - 1)
-				local displayKeyLength = get_string_length(utf8.sub(v, startpos, endpos), 4) * self.HintMessageView.textScale + 2
-				local keyPressBG = self.HintMessageView:addChild({
-					pos = { (self.HintMessageView.size.w - displayLineLength) / 2 + displayLength, (self.HintMessageView.size.h - 24 * self.HintMessageView.textScale * #self.HintMessageView.dispstr) / 2 + 24 * self.HintMessageView.textScale * (i - 1) },
-					size = { displayKeyLength, 28 * self.HintMessageView.textScale },
-					bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-					shapeType = ROUNDED,
-					rounded = 4
-				})
-				local keyPress = keyPressBG:addChild({
-					shift = { 1, 1 },
-					bgColor = TB_MENU_DEFAULT_BG_COLOR
-				}, true)
-				keyPress:addAdaptedText(displayKey, nil, nil, 4)
+		local cleanedString = v
+		for _, p in pairs(patterns) do
+			local count = 0
+			cleanedString, count = utf8.gsub(cleanedString, p.regex, "")
+			local endposLast = 0
+			for _ = 1, count do
+				local startpos, endpos = utf8.find(v, p.regex, endposLast)
+				endposLast = endpos + 1
+				if (startpos) then
+					local displayLength = get_string_length(utf8.sub(v, 0, startpos - 1), 4) * self.HintMessageView.textScale - 1
+					local displayLineLength = get_string_length(v, 4) * self.HintMessageView.textScale
+					local displayKey = utf8.sub(v, startpos + p.offset, endpos - p.offset)
+					local displayKeyLength = get_string_length(utf8.sub(v, startpos, endpos), 4) * self.HintMessageView.textScale + 2
+
+					if (p.type == 'key') then
+						local keyPressBG = self.HintMessageView:addChild({
+							pos = { (self.HintMessageView.size.w - displayLineLength) / 2 + displayLength, (self.HintMessageView.size.h - 24 * self.HintMessageView.textScale * #self.HintMessageView.dispstr) / 2 + 24 * self.HintMessageView.textScale * (i - 1) },
+							size = { displayKeyLength, 28 * self.HintMessageView.textScale },
+							bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+							shapeType = ROUNDED,
+							rounded = 4
+						})
+						local keyPress = keyPressBG:addChild({
+							shift = { 1, 1 },
+							bgColor = TB_MENU_DEFAULT_BG_COLOR
+						}, true)
+						keyPress:addAdaptedText(displayKey, nil, nil, 4)
+					elseif (p.type == 'outline') then
+						local keyOutline = self.HintMessageView:addChild({
+							pos = { (self.HintMessageView.size.w - displayLineLength) / 2 + displayLength, (self.HintMessageView.size.h - 24 * self.HintMessageView.textScale * #self.HintMessageView.dispstr) / 2 + 24 * self.HintMessageView.textScale * (i - 1) },
+							size = { displayKeyLength, 28 * self.HintMessageView.textScale },
+							uiColor = TB_MENU_DEFAULT_DARKER_COLOR,
+							uiShadowColor = UICOLORWHITE,
+							shadowOffset = 3 * self.HintMessageView.textScale
+						})
+						keyOutline:addAdaptedText(displayKey, nil, nil, 4, nil, self.HintMessageView.textScale, nil, nil, 3)
+					end
+				end
 			end
 		end
 	end
@@ -835,30 +855,34 @@ function Tutorials:showMessage(viewElement, reqTable, message, messageby)
 				TBMenu:showPlayerHeadAvatar(self.MessageHeadViewport, TB_MENU_PLAYER_INFO)
 				self.MessageViewNameBG.bgColor = table.clone(TB_MENU_DEFAULT_BG_COLOR)
 				self.MessageViewBG.shadowColor[2] = table.clone(TB_MENU_DEFAULT_BG_COLOR)
-				self.MessageViewName:addAdaptedText(true, TB_MENU_PLAYER_INFO.username or "Tori", nil, nil, 2)
+				self.MessageViewName:addAdaptedText(true, TB_MENU_PLAYER_INFO.username or "Tori", nil, nil, 2, nil, nil, nil, nil, 2, nil, self.MessageViewNameBG.bgColor)
 			else
-				self.MessageViewName:addAdaptedText(true, messageby, nil, nil, 2)
+				self.MessageViewNameBG.bgColor = { 0.2, 0.34, 0.87, 1 }
+				self.MessageViewBG.shadowColor[2] = { 0.2, 0.34, 0.87, 1 }
+				self.MessageViewName:addAdaptedText(true, messageby, nil, nil, 2, nil, nil, nil, nil, 2, nil, self.MessageViewNameBG.bgColor)
 				if (messageby == "SENSEI") then
 					messageby = "senseitutorial"
 				end
 				local playerInfo = PlayerInfo.Get(messageby)
 				playerInfo:getItems(PLAYERINFO_CSCOPE_COLORS + PLAYERINFO_CSCOPE_TEXTURES)
 				TBMenu:showPlayerHeadAvatar(self.MessageHeadViewport, playerInfo)
-				self.MessageViewNameBG.bgColor = { 0.2, 0.34, 0.87, 1 }
-				self.MessageViewBG.shadowColor[2] = { 0.2, 0.34, 0.87, 1 }
 			end
 		end
 
 		local messageBuilder = self.MessageView:addChild({ })
 		local lastClock = UIElement.clock
 		local lastSub = 0
+		local strlen = utf8.len(message)
 		messageBuilder:addCustomDisplay(true, function()
 				local sub = lastSub
 				if (self.MessageView.doSkip) then
-					sub = utf8.len(message)
+					sub = strlen
 				elseif (lastClock < UIElement.clock) then
 					sub = lastSub + math.round((UIElement.clock - lastClock) * 25)
 					if (sub ~= lastSub) then
+						while (sub < strlen and utf8.match(utf8.sub(message, math.max(0, sub - 4), sub), ".*[%^]%d*$")) do
+							sub = sub + 1
+						end
 						local pausePos, endPos = utf8.find(utf8.sub(message, lastSub + 1, sub), "[.,?!-:;]")
 						if (pausePos ~= nil) then
 							sub = lastSub + 1 + endPos
@@ -871,7 +895,8 @@ function Tutorials:showMessage(viewElement, reqTable, message, messageby)
 				end
 				self.MessageViewHolder:addAdaptedText(false, utf8.sub(message, 0, sub), nil, nil, nil, LEFTMID)
 
-				if (sub >= utf8.len(message)) then
+				if (sub >= strlen) then
+					self.MessageView.doSkip = true
 					req.ready = true
 					reqTable.ready = TutorialsInternal.CheckRequirements(reqTable)
 					messageBuilder:kill()
@@ -1087,16 +1112,33 @@ function Tutorials:checkRequirements(reqTable)
 	return TutorialsInternal.CheckRequirements(reqTable)
 end
 
+---Returns whether specified joint can be currently controlled
+---@param joint integer?
+---@return boolean
+function TutorialsInternal.CanControlJoint(joint)
+	if (joint == nil) then
+		joint = get_world_state().selected_joint
+	end
+	for _, v in pairs(Tutorials.UnignoredJoints) do
+		if (joint == v) then
+			return true
+		end
+	end
+	return false
+end
+
 ---Generic Tutorials keyboard input handler
 ---@param key integer
 ---@param keycode integer
----@param jointlock ?boolean
----@param keyboardlock ?boolean
 ---@return integer
-function Tutorials.HandleKeyPress(key, keycode, jointlock, keyboardlock)
-	if ((jointlock and TUTORIALJOINTLOCK) or (keyboardlock and TUTORIALKEYBOARDLOCK)) then
+function Tutorials.HandleKeyPress(key, keycode)
+	if (TUTORIALJOINTLOCK or TUTORIALKEYBOARDLOCK) then
 		for _, v in pairs(Tutorials.UnignoredKeys) do
 			if (key == v[1] or keycode == v[2]) then
+				---'z' and 'x' should only be accessible when hovering over unlocked joints
+				if (v[1] == 122 or v[1] == 120) then
+					return TutorialsInternal.CanControlJoint() and 0 or 1
+				end
 				return 0
 			end
 		end
@@ -1112,14 +1154,11 @@ end
 ---@param joint PlayerJoint
 ---@return integer
 function Tutorials.HandleJointSelect(_, joint)
-	if (not TUTORIALJOINTLOCK) then return 0 end
-	for _, v in pairs(Tutorials.UnignoredJoints) do
-		if (joint == v) then
-			return 0
-		end
+	if (not TUTORIALJOINTLOCK or TutorialsInternal.CanControlJoint(joint)) then
+		return 0
 	end
-	Tooltip.TouchDeselect()
-	return 1
+	Tooltip.DestroyAndDeselect()
+	return joint > -1 and 1 or 0
 end
 
 ---Generic Tutorials body select handler
@@ -1131,8 +1170,8 @@ function Tutorials.HandleBodySelect(_, body)
 	if (body == 11 or body == 12) then
 		return 0
 	end
-	Tooltip.TouchDeselect()
-	return 1
+	Tooltip.DestroyAndDeselect()
+	return body > -1 and 1 or 0
 end
 
 ---Enters game edit mode
@@ -1606,6 +1645,9 @@ function Tutorials:runSteps(steps, currentStep)
 		end
 	end)
 
+	---Ensure tooltip from previous step is destroyed so it doesn't get stuck
+	Tooltip.DestroyAndDeselect()
+
 	if (steps[currentStep].opts) then
 		for _, v in pairs(steps[currentStep].opts) do
 			local found = false
@@ -1659,8 +1701,6 @@ function Tutorials:runSteps(steps, currentStep)
 	end
 	if (steps[currentStep].playerlock) then
 		disable_player_select(steps[currentStep].playerlock)
-	else
-		disable_player_select(-1)
 	end
 	if (steps[currentStep].showsaymessage) then
 		self:showMessageWindow(requirements)
@@ -1811,17 +1851,15 @@ function TutorialsInternal.UpdateConfig(next)
 		end
 	end
 
-	local tutorialsConfig = Files.Open("../data/tutorials/config.cfg")
-	if (not tutorialsConfig.data) then
-		return false
-	end
-
 	---@type integer|string
 	local nextTutId = 1
-	for _, ln in pairs(tutorialsConfig:readAll()) do
-		if (ln:find("^NEXT")) then
-			nextTutId = ln:gsub("^NEXT ", "") + 0
-			break
+	local tutorialsConfig = Files.Open("../data/tutorials/config.cfg")
+	if (tutorialsConfig.data) then
+		for _, ln in pairs(tutorialsConfig:readAll()) do
+			if (ln:find("^NEXT")) then
+				nextTutId = ln:gsub("^NEXT ", "") + 0
+				break
+			end
 		end
 	end
 	if (Tutorials.CurrentTutorial >= nextTutId) then
@@ -1833,6 +1871,10 @@ function TutorialsInternal.UpdateConfig(next)
 	end
 
 	tutorialsConfig:reopen(FILES_MODE_WRITE)
+	if (not tutorialsConfig.data) then
+		return false
+	end
+
 	tutorialsConfig:writeLine("NEXT " .. nextTutId)
 	tutorialsConfig:writeLine("LAST " .. Tutorials.CurrentTutorial)
 	tutorialsConfig:close()
@@ -1843,7 +1885,7 @@ end
 function Tutorials:beginnerConnect()
 	local players = RoomList.GetPlayers()
 
-	local rooms = { "beginner%d", "public%d" }
+	local rooms = { "beginner%d", "aifight1" }
 	local roomsOnline = {}
 	for _, online in pairs(players) do
 		if (online.room:find(rooms[1]) or online.room:find(rooms[2])) then
@@ -1854,21 +1896,30 @@ function Tutorials:beginnerConnect()
 	for i, room in pairs(roomsOnline) do
 		room.name = i
 	end
-	roomsOnline = table.qsort(roomsOnline, "players", true)
+	roomsOnline = table.qsort(roomsOnline, "players", SORT_DESCENDING)
 	self:quit()
 
 	if (#roomsOnline > 0) then
 		for _, room in pairs(roomsOnline) do
-			if (room.players > 1 and room.players < 5) then
+			if (room.players < 5) then
 				runCmd("jo " .. room.name)
 				close_menu()
 				return
 			end
 		end
-		runCmd("jo " .. roomsOnline[1].name)
-	else
-		runCmd("jo beginner1")
+		for _, room in pairs(roomsOnline) do
+			if (room.players == 0) then
+				runCmd("jo " .. room.name)
+				close_menu()
+				return
+			end
+		end
+		---Join room with least players
+		runCmd("jo " .. roomsOnline[#roomsOnline].name)
+		close_menu()
+		return
 	end
+	runCmd("jo aifight1")
 	close_menu()
 end
 
@@ -2213,8 +2264,8 @@ function Tutorials:loadOverlay()
 		bgImage = "../textures/menu/general/tutorial_speech_box_dotted.tga"
 	})
 	self.MessageViewName = messageAuthorNameOverlay:addChild({
-		pos = { 10, 0 },
-		size = { messageAuthorNameOverlay.size.w - 30, 34 }
+		pos = { 0, 0 },
+		size = { messageAuthorNameOverlay.size.w - 20, 34 }
 	})
 	self.MessageViewBG = self.MessageView:addChild({
 		pos = { self.MessageView.size.h / 2, 0 },
@@ -2438,14 +2489,16 @@ end
 ---Loads default Tutorials hooks
 ---@param manager Tutorials
 function TutorialsInternal.LoadHooks(manager)
+	local isMessageSkipping = false
 	add_hook("key_down", "tbTutorialKeyboardHandler", function(key, kcode)
-			if (key == 13 and manager.MessageView) then
+			if (key == 13 and manager.MessageView and not manager.MessageView.doSkip) then
 				manager.MessageView.doSkip = true
+				isMessageSkipping = true
 			end
-			return Tutorials.HandleKeyPress(key, kcode, true, true)
+			return Tutorials.HandleKeyPress(key, kcode)
 		end)
 	add_hook("key_up", "tbTutorialKeyboardHandler", function(key, kcode)
-			if (key == 13) then
+			if (key == 13 and not isMessageSkipping) then
 				if (manager.ContinueButton.isactive) then
 					if (manager.ContinueButton.req.ready ~= nil) then
 						manager.ContinueButton.req.ready = true
@@ -2454,7 +2507,8 @@ function TutorialsInternal.LoadHooks(manager)
 					end
 				end
 			else
-				return Tutorials.HandleKeyPress(key, kcode, true, true)
+				isMessageSkipping = false
+				return Tutorials.HandleKeyPress(key, kcode)
 			end
 		end)
 
@@ -2490,6 +2544,7 @@ function TutorialsInternal.LoadHooks(manager)
 	add_hook("joint_select", "tbTutorialKeyboardHandler", Tutorials.HandleJointSelect)
 	add_hook("body_select", "tbTutorialKeyboardHandler", Tutorials.HandleBodySelect)
 
-	--- Reload tooltip so that
+	---Reload Tooltip and Movememory to make sure their hooks run after Tutorial stuff
 	Tooltip.Init()
+	MoveMemory.Init()
 end

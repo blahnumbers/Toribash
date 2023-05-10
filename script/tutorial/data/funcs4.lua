@@ -7,7 +7,7 @@ local function launchUkeBehavior()
 			name = "G-Kick",
 			desc = "Gman80's aikido kick",
 			message = "GMANKICK",
-			mod = "aikido.tbm",
+			mod = "aikido",
 			{ grip = { 1, 0 }, joint = { 3, 2, 3, 3, 2, 3, 3, 1, 3, 3, 3, 3, 2, 2, 3, 3, 3, 3, 3, 3 } },
 			{ grip = { 1, 0 }, joint = { 3, 2, 3, 3, 2, 3, 3, 1, 3, 3, 3, 3, 2, 2, 3, 3, 3, 3, 3, 3 } },
 			{ grip = { 0, 0 }, joint = { 3, 2, 3, 3, 2, 3, 3, 1, 3, 3, 3, 3, 2, 2, 3, 3, 3, 3, 3, 3 } },
@@ -18,8 +18,8 @@ local function launchUkeBehavior()
 			name = "Kick lift",
 			desc = "Fnugget's infamous aikido kick lift",
 			message = "FNUGGETKICK",
-			mod = "aikido.tbm",
-			{ grip = { 0, 1 }, joint = { 1, 1, 1, 2, 1, 3, 2, 2, 4, 4, 1, 4, 2, 2, 1, 2, 2, 3, 2, 2 } },	-- combo[2][1]
+			mod = "aikido",
+			{ grip = { 0, 1 }, joint = { 1, 1, 1, 2, 1, 3, 2, 2, 4, 4, 1, 4, 2, 2, 1, 2, 2, 3, 2, 2 } },
 			{ grip = { 0, 1 }, joint = { 1, 1, 1, 3, 1, 3, 2, 2, 2, 1, 1, 1, 2, 2, 1, 2, 1, 3, 2, 2 } },
 			{ grip = { 0, 1 }, joint = { 1, 4, 2, 1, 4, 1, 1, 4, 2, 1, 1, 1, 1, 2, 1, 2, 2, 1, 1, 4 } },
 		},
@@ -27,8 +27,8 @@ local function launchUkeBehavior()
 			name = "Floor throw",
 			desc = "Aikido throw by evilperson",
 			message = "EVILTHROW",
-			mod = "aikido.tbm",
-			{ grip = { 0, 0 }, joint = { 4, 4, 4, 4, 2, 4, 4, 2, 4, 4, 4, 4, 2, 2, 4, 4, 2, 2, 4, 4 } },	-- combo[3][1]
+			mod = "aikido",
+			{ grip = { 0, 0 }, joint = { 4, 4, 4, 4, 2, 4, 4, 2, 4, 4, 4, 4, 2, 2, 4, 4, 2, 2, 4, 4 } },
 			{ grip = { 1, 1 }, joint = { 3, 2, 3, 3, 4, 3, 3, 4, 3, 4, 3, 3, 2, 3, 4, 1, 3, 3, 3, 3 } },
 			{ grip = { 1, 1 }, joint = { 3, 1, 2, 3, 1, 3, 2, 2, 3, 4, 3, 3, 2, 1, 2, 2, 1, 4, 3, 1 } },
 			{ grip = { 1, 1 }, joint = { 3, 1, 2, 2, 1, 1, 2, 2, 2, 4, 3, 3, 1, 2, 2, 2, 1, 4, 3, 1 } },
@@ -39,8 +39,8 @@ local function launchUkeBehavior()
 			name = "Kyat's Kick Lift",
 			desc = "Aikido kick lift by Kyat",
 			message = "KYATKICKLIFT",
-			mod = "aikido.tbm",
-			{ grip = { 1, 0 }, joint = { 3, 2, 2, 3, 2, 3, 3, 1, 3, 3, 1, 3, 2, 2, 2, 1, 3, 2, 3, 3 } },	-- combo[4][1]
+			mod = "aikido",
+			{ grip = { 1, 0 }, joint = { 3, 2, 2, 3, 2, 3, 3, 1, 3, 3, 1, 3, 2, 2, 2, 1, 3, 2, 3, 3 } },
 			{ grip = { 1, 0 }, joint = { 3, 2, 2, 3, 2, 3, 3, 1, 3, 3, 1, 3, 2, 2, 2, 1, 3, 1, 3, 3 } },
 			{ grip = { 1, 0 }, joint = { 3, 2, 2, 3, 2, 2, 3, 1, 3, 3, 1, 3, 1, 1, 2, 3, 3, 1, 3, 3 } },
 			{ grip = { 1, 0 }, joint = { 3, 2, 2, 3, 2, 2, 3, 4, 3, 3, 1, 3, 1, 1, 2, 3, 3, 1, 3, 3 } },
@@ -49,8 +49,8 @@ local function launchUkeBehavior()
 			name = "Floor push",
 			desc = "Evilperson's aikido floor push",
 			message = "EVILPUSH",
-			mod = "aikido.tbm",
-			{ grip = { 0, 0 }, joint = { 4, 4, 4, 4, 2, 4, 4, 2, 4, 4, 4, 4, 2, 2, 4, 4, 2, 2, 4, 4 } },	-- combo[5][1]
+			mod = "aikido",
+			{ grip = { 0, 0 }, joint = { 4, 4, 4, 4, 2, 4, 4, 2, 4, 4, 4, 4, 2, 2, 4, 4, 2, 2, 4, 4 } },
 			{ grip = { 1, 1 }, joint = { 3, 2, 3, 3, 4, 3, 3, 4, 3, 3, 3, 3, 3, 3, 4, 1, 4, 3, 3, 3 } },
 			{ grip = { 1, 1 }, joint = { 3, 2, 3, 2, 2, 3, 3, 1, 1, 3, 3, 3, 3, 3, 2, 1, 1, 4, 3, 3 } },
 			{ grip = { 1, 1 }, joint = { 3, 2, 3, 2, 2, 3, 3, 1, 1, 3, 3, 3, 3, 3, 2, 2, 1, 1, 3, 3 } },
@@ -62,8 +62,8 @@ local function launchUkeBehavior()
 			name = "Dojo push",
 			desc = "Evilperson's aikido dojo push",
 			message = "EVILPUSH2",
-			mod = "aikido.tbm",
-			{ grip = { 0, 0 }, joint = { 4, 2, 2, 4, 2, 1, 4, 4, 4, 4, 4, 4, 2, 4, 2, 4, 4, 4, 4, 4 } },	-- combo[6][1]
+			mod = "aikido",
+			{ grip = { 0, 0 }, joint = { 4, 2, 2, 4, 2, 1, 4, 4, 4, 4, 4, 4, 2, 4, 2, 4, 4, 4, 4, 4 } },
 			{ grip = { 1, 0 }, joint = { 4, 2, 2, 4, 2, 2, 4, 4, 4, 4, 4, 4, 2, 4, 2, 1, 4, 4, 4, 4 } },
 			{ grip = { 1, 1 }, joint = { 4, 1, 2, 4, 1, 2, 4, 2, 2, 4, 4, 4, 1, 1, 1, 2, 1, 1, 4, 1 } },
 			{ grip = { 1, 1 }, joint = { 4, 1, 2, 4, 1, 2, 4, 2, 2, 4, 4, 4, 1, 1, 1, 2, 1, 1, 4, 1 } },
@@ -75,7 +75,7 @@ local function launchUkeBehavior()
 	local selectedMove = moveBase[comboId]
 
 	---@type MemoryMove
-	local ukeMove = { turns = #selectedMove, movements = {}, name = selectedMove.name, mod = selectedMove.mod, desc = selectedMove.desc, message = selectedMove.message }
+	local ukeMove = { movements = {}, name = selectedMove.name, mod = selectedMove.mod, desc = selectedMove.desc, message = selectedMove.message }
 	for i, turn in pairs(selectedMove) do
 		if (type(i) == "number") then
 			ukeMove.movements[i] = {}
@@ -84,6 +84,7 @@ local function launchUkeBehavior()
 			end
 			ukeMove.movements[i][20] = turn.grip[1]
 			ukeMove.movements[i][21] = turn.grip[2]
+			ukeMove.turns = i
 		end
 	end
 	setmetatable(ukeMove, MemoryMove)
@@ -159,8 +160,8 @@ local function enterFreeze()
 	freeze_game()
 end
 
-local function setMessage()
-	Tutorials:setStepMessage(FIGHTUKE_MOVE.message)
+local function setMessage(viewElement, reqTable)
+	Tutorials:showMessage(viewElement, reqTable, Tutorials.LocalizedMessages[FIGHTUKE_MOVE.message], "Uke")
 end
 
 local function showEndScreen()

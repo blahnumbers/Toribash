@@ -9,6 +9,7 @@ if (MoveMemory == nil) then
 	---* Updated internals and visuals to match 5.60 design
 	---@class MoveMemory
 	---@field MainElement UIElement
+	---@field MovesHolder UIElement
 	---@field Toolbar MoveMemoryToolbar[] List of toolbar UIElements
 	---@field Storage MemoryMove[] All cached MoveMemory moves
 	---@field ElementHeight integer Height of MoveMemory list buttons
@@ -393,21 +394,27 @@ end
 ---Displays MoveMemory main window
 function MoveMemory:showMain()
 	local status, error = pcall(function() self:getOpeners() end)
-	if (not status) then
-		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.WORDERROR .. " " .. error)
-		return
-	end
-	if (not self.StoragePopulated) then
-		return
+	if (not self.TutorialMode) then
+		if (not status) then
+			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.WORDERROR .. " " .. error)
+			return
+		end
+		if (not self.StoragePopulated) then
+			return
+		end
 	end
 
 	local moveMemoryHolder, windowMover
-	self.MainElement, moveMemoryHolder, windowMover = TBMenu:spawnMoveableWindow(self.DisplayPos)
+	self.MainElement, self.MovesHolder, windowMover = TBMenu:spawnMoveableWindow(self.DisplayPos)
 	self.DisplayPos = self.MainElement.pos
 	self.MainElement.killAction = function() self.MainElement = nil end
 
 	if (self.TutorialMode) then
-		windowMover:deactivate(true)
+		self.MainElement:addChild({
+			pos = { 0, 0 },
+			size = { self.MainElement.size.w, windowMover.size.h },
+			interactive = true
+		})
 	end
 
 	if (#MoveMemory.Storage == 0) then
@@ -415,7 +422,7 @@ function MoveMemory:showMain()
 		return
 	end
 
-	self:spawnOpeners(moveMemoryHolder)
+	self:spawnOpeners(self.MovesHolder)
 end
 
 ---Fixes toolbars order when new ones are spawned or existing ones are destroyed
@@ -836,7 +843,7 @@ end
 ---Spawns a hook to open movememory on `M` key press \
 ---Make sure we also check CTRL and ALT aren't pressed as those are tied to mod list / modmaker
 function MoveMemory.Init()
-	add_hook("key_down", "tbMoveMemoryHotkeyListener", function(key)
+	add_hook("key_up", "tbMoveMemoryHotkeyListener", function(key)
 		if (key == 109 and get_keyboard_ctrl() == 0 and get_keyboard_alt() == 0) then
 			if (MoveMemory.MainElement) then
 				MoveMemory:quit()

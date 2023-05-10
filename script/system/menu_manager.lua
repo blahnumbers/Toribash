@@ -493,7 +493,8 @@ function TBMenu:showHome()
 		featuredEvent:addChild({
 			pos = { -30, -30 },
 			size = { 26, 26 },
-			bgColor = UICOLORRED,
+			bgColor = TB_MENU_DEFAULT_ORANGE,
+			uiColor = UICOLORBLACK,
 			shapeType = ROUNDED,
 			rounded = 13
 		}):addAdaptedText("!")
@@ -2214,6 +2215,7 @@ end
 
 -- TBMenu navigation button data
 ---@class MenuNavButton
+---@field hidden boolean
 ---@field text string Main button text
 ---@field misctext string|nil Miscellaneous button text, will be displayed in a frame nearby
 ---@field width number Button width assigned by showNavigationBar()
@@ -2230,7 +2232,6 @@ end
 ---@param selectedId? integer Button ID that would be selected by default \
 ---@overload fun(self: TBMenu)
 function TBMenu:showMobileNavigationBar(buttonsData, customNav, customNavHighlight, selectedId)
-	local tbMenuNavigationButtonsData = buttonsData or TBMenu:getMainNavigationButtons()
 	local tbMenuNavigationButtons = {}
 	local selectedId = selectedId or 0
 
@@ -2257,7 +2258,7 @@ function TBMenu:showMobileNavigationBar(buttonsData, customNav, customNavHighlig
 	---buttons with long text can be newlined and still fit the navigation
 
 	local navbarArea = TBMenu.NavigationBar.size.h - navY.t[1] - navY.b[1]
-	local buttonHeight = math.min(navbarArea / (#tbMenuNavigationButtonsData + 1), 60)
+	local buttonHeight = math.min(navbarArea / (#buttonsData + 1), 60)
 	local fontScale = 0.65
 	local fontId = FONTS.BIG
 
@@ -2266,7 +2267,7 @@ function TBMenu:showMobileNavigationBar(buttonsData, customNav, customNavHighlig
 		local availableHeight = navbarArea - buttonHeight
 		fontScale = fontScale - 0.05
 		local runMaxWidth = 0
-		for _, v in pairs(tbMenuNavigationButtonsData) do
+		for _, v in pairs(buttonsData) do
 			availableHeight = availableHeight - buttonHeight
 
 			local currentWidth = get_string_length(v.text, fontId) * fontScale + 30
@@ -2305,7 +2306,7 @@ function TBMenu:showMobileNavigationBar(buttonsData, customNav, customNavHighlig
 		end
 	end
 
-	for i, v in pairs(tbMenuNavigationButtonsData) do
+	for i, v in pairs(buttonsData) do
 		local navY = v.right and navY.b or navY.t
 		local height = buttonHeight * math.max(1, #v.adapted * 0.75)
 		tbMenuNavigationButtons[i] = UIElement:new({
@@ -2390,18 +2391,23 @@ function TBMenu:showMobileNavigationBar(buttonsData, customNav, customNavHighlig
 end
 
 ---Displays navigation bar using the provided data
----@param buttonsData MenuNavButton[] Buttons data. If not specified, default main menu navigation buttons data will be used instead.
+---@param buttonsData? MenuNavButton[] Buttons data. If not specified, default main menu navigation buttons data will be used instead.
 ---@param customNav? boolean Whether the provided data is not supposed to use TB_LAST_MENU_SCREEN_OPEN to mark the currently active button. *You likely want this set to true*.
 ---@param customNavHighlight? boolean Whether to remember the last selected button and keep it marked as active
 ---@param selectedId? integer Button ID that would be selected by default
----@overload fun(self: TBMenu)
 function TBMenu:showNavigationBar(buttonsData, customNav, customNavHighlight, selectedId)
+	local tbMenuNavigationButtonsData = {}
+	for _, v in pairs(buttonsData or TBMenu:getMainNavigationButtons()) do
+		if (not v.hidden) then
+			table.insert(tbMenuNavigationButtonsData, v)
+		end
+	end
 	if (SCREEN_RATIO > 2) then
-		TBMenu:showMobileNavigationBar(buttonsData, customNav, customNavHighlight, selectedId)
+		TBMenu:showMobileNavigationBar(tbMenuNavigationButtonsData, customNav, customNavHighlight, selectedId)
 		return
 	end
 
-	local tbMenuNavigationButtonsData = buttonsData or TBMenu:getMainNavigationButtons()
+	---@type UIElement[]
 	local tbMenuNavigationButtons = {}
 	local selectedId = selectedId or 0
 
@@ -2434,7 +2440,7 @@ function TBMenu:showNavigationBar(buttonsData, customNav, customNavHighlight, se
 	while (totalWidth > TBMenu.NavigationBar.size.w - navX.l[1] + navX.r[1]) do
 		totalWidth = 0
 		fontScale = fontScale - 0.05
-		for i,v in pairs(tbMenuNavigationButtonsData) do
+		for _, v in pairs(tbMenuNavigationButtonsData) do
 			if (getFontMod(fontId) * 10 * fontScale > temp.size.h) then
 				totalWidth = TBMenu.NavigationBar.size.w
 				break
@@ -2480,9 +2486,8 @@ function TBMenu:showNavigationBar(buttonsData, customNav, customNavHighlight, se
 			end)
 		local buttonText = tbMenuNavigationButtons[i]:addChild({ shift = { 15, TBMenu.NavigationBar.size.h / 6 } })
 		if (v.misctext) then
-			local width = (get_string_length(v.misctext, fontId) + 40) * fontScale * 0.8
-			local miscMark = UIElement:new({
-				parent = buttonText,
+			local width = (get_string_length(v.misctext, fontId) + 40) * fontScale * 0.75
+			local miscMark = buttonText:addChild({
 				pos = { -(buttonText.size.w - get_string_length(v.text, fontId) * fontScale + width - 16) / 2, buttonText.size.h * 0.125 },
 				size = { width, buttonText.size.h * 0.75 },
 				bgColor = TB_MENU_DEFAULT_ORANGE,
@@ -2490,7 +2495,7 @@ function TBMenu:showNavigationBar(buttonsData, customNav, customNavHighlight, se
 				shapeType = ROUNDED,
 				rounded = buttonText.size.h / 2
 			})
-			miscMark:addAdaptedText(false, v.misctext, nil, nil, fontId, nil, nil, nil, 0.7)
+			miscMark:addAdaptedText(false, v.misctext, nil, nil, fontId, nil, fontScale * 0.75, nil, 0)
 			buttonText:addAdaptedText(true, v.text, -width / 2, nil, fontId, nil, fontScale)
 		else
 			buttonText:addAdaptedText(true, v.text, nil, nil, fontId, nil, fontScale)
@@ -2705,7 +2710,8 @@ function TBMenu:showBottomBar(leftOnly)
 		TBMenu.NotificationsCount = tbMenuBottomLeftButtons[2]:addChild({
 			pos = { -notificationsCountWidth, 0 },
 			size = { notificationsCountWidth, TBMenu.BottomLeftBar.size.h / 2 },
-			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			bgColor = TB_MENU_DEFAULT_ORANGE,
+			uiColor = UICOLORBLACK,
 			shapeType = ROUNDED,
 			rounded = TBMenu.BottomLeftBar.size.h
 		})

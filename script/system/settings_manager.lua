@@ -76,6 +76,7 @@ do
 					end
 			},
 			{
+				hidden = get_option("shaders") == 0,
 				text = TB_MENU_LOCALIZED.SETTINGSEFFECTS,
 				right = true,
 				sectionId = SETTINGS_EFFECTS,
@@ -1003,16 +1004,9 @@ do
 							type = DROPDOWN,
 							systemname = "mousebuttons",
 							selectedAction = function()
-									return get_option("mousebuttons") + 1
+									return get_option("mousebuttons")
 								end,
 							dropdown = {
-								{
-									text = TB_MENU_LOCALIZED.SETTINGSMOUSEBUTTONS0,
-									action = function()
-											TB_MENU_MAIN_SETTINGS.mousebuttons = { value = 0 }
-											Settings:settingsApplyActivate()
-										end
-								},
 								{
 									text = TB_MENU_LOCALIZED.SETTINGSMOUSEBUTTONS1,
 									action = function()
@@ -1024,6 +1018,13 @@ do
 									text = TB_MENU_LOCALIZED.SETTINGSMOUSEBUTTONS2,
 									action = function()
 											TB_MENU_MAIN_SETTINGS.mousebuttons = { value = 2 }
+											Settings:settingsApplyActivate()
+										end
+								},
+								{
+									text = TB_MENU_LOCALIZED.SETTINGSMOUSEBUTTONS0,
+									action = function()
+											TB_MENU_MAIN_SETTINGS.mousebuttons = { value = 3 }
 											Settings:settingsApplyActivate()
 										end
 								}

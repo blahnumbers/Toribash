@@ -2,7 +2,7 @@ local INTRO = 1
 local OUTRO = -1
 local FPS_MULTIPLIER = get_option("framerate") == 30 and 2 or 1
 
-local function drawSingleKey(viewElement, reqTable, key)
+local function drawSingleKey(viewElement, reqTable, key, requireSelected)
 	usage_event("tutorial1" .. key .. "key")
 	local BUTTON_DEFAULT_COLOR = { unpack(TB_MENU_DEFAULT_BG_COLOR) }
 	local BUTTON_HOVER_COLOR = { unpack(TB_MENU_DEFAULT_LIGHTEST_COLOR) }
@@ -32,6 +32,7 @@ local function drawSingleKey(viewElement, reqTable, key)
 			end
 		end)
 	add_hook("key_down", "tbTutorialsCustom", function(s, code)
+			if (requireSelected and get_world_state().selected_joint < 0) then return end
 			if (string.schar(s) == key or (code > 3 and code < 30 and string.schar(code + 93) == key)) then
 				button.hoverState = BTN_HVR
 			end
@@ -152,15 +153,20 @@ local function drawWASD(viewElement, reqTable, shift, fade)
 end
 
 local function prepareClassicCamera()
-	local camera_info = get_camera_info()
-	set_camera_mode(0)
-	set_camera_lookat(camera_info.lookat.x, camera_info.lookat.y, camera_info.lookat.z)
-	set_camera_pos(camera_info.pos.x, camera_info.pos.y, camera_info.pos.z)
+	add_hook("camera", "tbTutorial1Camera", function()
+			local camera_info = get_camera_info()
+			set_camera_mode(3)
+			set_camera_lookat(camera_info.lookat.x, camera_info.lookat.y, camera_info.lookat.z)
+			set_camera_pos(camera_info.pos.x, camera_info.pos.y, camera_info.pos.z)
+			set_camera_mode(0)
+			remove_hook("camera", "tbTutorial1Camera")
+		end)
 end
 
 local function drawWASDStatic(viewElement, reqTable, shift, fade)
 	usage_event("tutorial1wasd")
 	drawWASD(viewElement, nil, shift, fade or INTRO)
+	prepareClassicCamera()
 end
 
 local function drawWASDShift(viewElement, reqTable)
@@ -183,11 +189,11 @@ local function drawSingleKeyC(viewElement, reqTable)
 end
 
 local function drawSingleKeyZ(viewElement, reqTable)
-	drawSingleKey(viewElement, reqTable, "z")
+	drawSingleKey(viewElement, reqTable, "z", true)
 end
 
 local function drawSingleKeyX(viewElement, reqTable)
-	drawSingleKey(viewElement, reqTable, "x")
+	drawSingleKey(viewElement, reqTable, "x", true)
 end
 
 local function fractureToriKnee()

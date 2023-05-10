@@ -14,8 +14,7 @@ local function requireKeyPress(viewElement, reqTable, key, show)
 			width = 300
 		end
 
-		button = UIElement:new({
-			parent = viewElement,
+		button = viewElement:addChild({
 			pos = { 250 - width / 2, -200 },
 			size = { width, 70 },
 			interactive = true,
@@ -50,7 +49,7 @@ end
 
 local function requireKeyPressC(viewElement, reqTable)
 	if (not is_mobile()) then
-		requireKeyPress(viewElement, reqTable, "c")
+		requireKeyPress(viewElement, reqTable, "c", true)
 		return
 	end
 
@@ -85,7 +84,7 @@ end
 
 local function showKeyPressSpace(viewElement, reqTable)
 	if (not is_mobile()) then
-		requireKeyPress(viewElement, reqTable, SPACEBAR)
+		requireKeyPress(viewElement, reqTable, SPACEBAR, true)
 		return
 	end
 
