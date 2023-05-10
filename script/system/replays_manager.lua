@@ -3649,6 +3649,7 @@ function Replays:spawnReplayAdvancedGui(reload)
 		REPLAY_GUI:kill(true)
 		replayGuiHolder = REPLAY_GUI
 		replayGuiHolder.size.w = size[1]
+		replayGuiHolder:moveTo(posX, WIN_H)
 	else
 		---@type ReplayHud
 		---@diagnostic disable-next-line: assign-type-mismatch

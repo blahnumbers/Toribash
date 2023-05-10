@@ -15,11 +15,12 @@ local TAB_ADVANCED = 3
 local TAB_ACCOUNT = 4
 
 ---Toribash store item
----@class Item
+---@class StoreItem
 ---@field catid integer Item's category ID
 ---@field catname string Item's category name
 ---@field itemid integer
 ---@field itemname string
+---@field description string
 ---@field on_sale boolean Whether the item is currently on sale
 ---@field now_tc_price integer Current TC price of an item
 ---@field now_usd_price integer Current ST or USD price of an item
@@ -36,12 +37,13 @@ local TAB_ACCOUNT = 4
 ---@field locked boolean Whether the item is currently unavailable for purchase
 
 ---A placeholder item object with empty data
----@type Item
+---@type StoreItem
 local ITEM_EMPTY = {
 	catid = 0,
 	catname = "undef",
 	itemid = 0,
 	itemname = "undefined",
+	description = "",
 	on_sale = false,
 	now_tc_price = 0,
 	now_usd_price = 0,
@@ -52,10 +54,10 @@ local ITEM_EMPTY = {
 	qi = 0,
 	tier = 0,
 	subscriptionid = 0,
-	ingame = 0,
+	ingame = false,
 	colorid = 0,
-	hidden = 1,
-	locked = 1
+	hidden = true,
+	locked = true
 }
 
 local ITEM_EFFECTS = {
@@ -238,6 +240,10 @@ do
 		return false
 	end
 
+	---Returns item information from Store cache.
+	---If information for the specified item ID is missing, returns empty item info.
+	---@param itemid integer
+	---@return StoreItem
 	function Torishop:getItemInfo(itemid)
 		local itemid = tonumber(itemid)
 		if (not TB_STORE_DATA) then
@@ -245,7 +251,7 @@ do
 		end
 		if (TB_STORE_DATA.requireReload) then
 			local downloadFinished = true
-			for i,v in pairs(get_downloads()) do
+			for _, v in pairs(get_downloads()) do
 				if (v:find("store.txt")) then
 					downloadFinished = false
 				end
@@ -366,7 +372,7 @@ do
 			return table.clone(TB_INVENTORY_DATA)
 		end
 
-		local file = Files.Open("torishop/invent.txt")
+		local file = Files.Open("../data/inventory.txt")
 		if (not file.data) then
 			return false
 		end
@@ -489,9 +495,9 @@ do
 				end
 			end
 		end
-		for i,v in pairs(inventoryRaw) do
+		for _, v in pairs(inventoryRaw) do
 			if (v.setid ~= 0) then
-				for j,k in pairs(inventory) do
+				for _, k in pairs(inventory) do
 					if (v.setid == k.inventid) then
 						table.insert(k.contents, v)
 						break
@@ -509,6 +515,7 @@ do
 			STORE_VANILLA_PREVIEW = false
 			remove_hooks("storevanillapreview")
 			set_option("uke", 1)
+			set_option("tooltip", STORE_VANILLA_TOOLTIP)
 			TBMenu.HideButton:show()
 			storeVanillaHolder:kill()
 			STORE_VANILLA_POST = true
@@ -3576,7 +3583,7 @@ do
 			return true
 		elseif (item.catid == 78) then
 			-- 3D Items
-			if (Torishop:showObjPreview(item, viewElement, previewHolder, 2, trans, nil, level, noReload, updateOverride, updatedFunc)) then
+			if (Torishop:showObjPreview(item, viewElement, previewMain, 2, trans, nil, level, noReload, updateOverride, updatedFunc)) then
 				if (TB_STORE_MODELS[item.itemid].upgradeable) then
 					local level = level or 1
 					local buttonScale = viewport.shift.x - 5 > 32 and 32 or viewport.shift.x - 5
@@ -3664,7 +3671,7 @@ do
 				end
 			end
 			if (#item.objs > 0) then
-				if (Torishop:showObjPreview(item, viewElement, previewHolder, 2, trans, nil, level, noReload, updateOverride, updatedFunc)) then
+				if (Torishop:showObjPreview(item, viewElement, previewMain, 2, trans, nil, level, noReload, updateOverride, updatedFunc)) then
 					if (item.upgradeable) then
 						local level = level or 1
 						local buttonScale = viewport.shift.x - 5 > 32 and 32 or viewport.shift.x - 5
@@ -4932,14 +4939,14 @@ do
 				modelInfo = modelInfo[1]
 			end
 			if (modelInfo.bodyid < 21) then
-				runCmd("obj load data/models/store/" .. item.itemid .. ".obj 0 " .. modelInfo.bodyid .. " " .. modelInfo.colorid .. " " .. modelInfo.alpha .. " 1 " .. (modelInfo.dynamic and 1 or 0) .. " " .. (modelInfo.partless and 1 or 0))
+				runCmd("obj load data/models/store/" .. item.itemid .. ".obj 0 " .. modelInfo.bodyid .. " " .. modelInfo.colorid .. " " .. modelInfo.alpha .. " 1 " .. (modelInfo.dynamic and 1 or 0) .. " " .. (modelInfo.partless and 1 or 0), false, CMD_ECHO_FORCE_DISABLED)
 			elseif (modelInfo.bodyid < 41) then
-				runCmd("objjoint load data/models/store/" .. item.itemid .. ".obj 0 " .. (modelInfo.bodyid - 21) .. " " .. modelInfo.colorid .. " " .. modelInfo.alpha .. " 1 " .. (modelInfo.dynamic and 1 or 0) .. " " .. (modelInfo.partless and 1 or 0))
+				runCmd("objjoint load data/models/store/" .. item.itemid .. ".obj 0 " .. (modelInfo.bodyid - 21) .. " " .. modelInfo.colorid .. " " .. modelInfo.alpha .. " 1 " .. (modelInfo.dynamic and 1 or 0) .. " " .. (modelInfo.partless and 1 or 0), false, CMD_ECHO_FORCE_DISABLED)
 			else
-				runCmd("objfloor load data/models/store/" .. item.itemid .. ".obj 0 " .. (modelInfo.bodyid - 41))
+				runCmd("objfloor load data/models/store/" .. item.itemid .. ".obj 0 " .. (modelInfo.bodyid - 41), false, CMD_ECHO_FORCE_DISABLED)
 			end
 		elseif (item.catid == 80) then
-			for i,v in pairs(item.contents) do
+			for _, v in pairs(item.contents) do
 				if (TB_STORE_MODELS[v]) then
 					Torishop:doItemPreviewVanilla({ catid = 78, itemid = v }, item)
 				end
@@ -4947,10 +4954,12 @@ do
 		end
 	end
 
-	function Torishop:preparePreviewVanilla(item)
+	function Torishop:preparePreviewVanilla()
 		STORE_VANILLA_PREVIEW = true
 		set_option("uke", 0)
 		set_option("hud", 0)
+		STORE_VANILLA_TOOLTIP = tonumber(get_option("tooltip")) or 0
+		set_option("tooltip", 0)
 		chat_input_deactivate()
 		open_replay("system/torishop.rpl", 0)
 		load_player(0, TB_MENU_PLAYER_INFO.username)
@@ -5073,7 +5082,7 @@ do
 
 	function Torishop:itemPreviewVanilla(item)
 		if (not STORE_VANILLA_PREVIEW) then
-			Torishop:preparePreviewVanilla(item)
+			Torishop:preparePreviewVanilla()
 			Torishop:spawnVanillaControls(item)
 		else
 			Torishop:spawnMinSectionView(item.catid)

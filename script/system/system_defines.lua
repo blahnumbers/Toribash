@@ -2135,8 +2135,8 @@ function download_torishop() end
 
 ---Downloads inventory datafile for the specified user or current user if no username is specified.
 ---
----*Current user's inventory is saved to `data/script/torishop/invent.txt`* \
----*Other users' inventory is saved to `data/script/torishop/uinvent.tmp`*
+---*Current user's inventory is saved to `data/inventory.txt`* \
+---*Other users' inventory is saved to `data/uinvent.tmp`*
 ---@param username ?string
 function download_inventory(username) end
 

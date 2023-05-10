@@ -103,29 +103,6 @@ local function showKeyPressSpace(viewElement, reqTable)
 	end)
 end
 
-local function showPecsAxis()
-	local rPecPos = get_joint_pos2(0, JOINTS.R_PECS)
-	local lPecPos = get_joint_pos2(0, JOINTS.L_PECS)
-	local rPecAxis = UIElement3D:new({
-		parent = Tutorials.MainView3D,
-		pos = { rPecPos.x, rPecPos.y, rPecPos.z },
-		size = { 1, 1, 1 },
-		objModel = "torishop/models/beaten_halo"
-	})
-	rPecAxis:addCustomDisplay(false, function()
-			rPecAxis:rotate(0, 0, 1)
-		end)
-	local lPecAxis = UIElement3D:new({
-		parent = Tutorials.MainView3D,
-		pos = { lPecPos.x, lPecPos.y, lPecPos.z },
-		size = { 1, 1, 1 },
-		objModel = "torishop/models/beaten_halo"
-	})
-	lPecAxis:addCustomDisplay(false, function()
-			lPecAxis:rotate(0, 0, -1)
-		end)
-end
-
 local function punchingBag()
 	usage_event("tutorial2lockbag")
 	local groinPos = get_body_info(1, BODYPARTS.GROIN).pos
@@ -286,7 +263,6 @@ end
 return {
 	RequireKeyPressC = requireKeyPressC,
 	RequireKeyPressSpace = showKeyPressSpace,
-	DisplayAxisPecs = showPecsAxis,
 	LockPunchingBag = punchingBag,
 	ClearStaticHooks = unloadStaticHook,
 	ClearStaticHooksAch = unloadStaticHookWithAchievement,

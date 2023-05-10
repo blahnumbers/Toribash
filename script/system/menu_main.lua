@@ -229,7 +229,7 @@ add_hook("downloader_complete", "tbMainMenuStatic", function(filename)
 			Downloader:safeCall(function()
 				Quests:getGlobalQuests()
 			end)
-		elseif (filename:find(".*/torishop/invent.txt")) then
+		elseif (filename:find("data/inventory.txt")) then
 			Downloader:safeCall(function()
 				Torishop:getInventoryRaw(nil, true)
 			end)

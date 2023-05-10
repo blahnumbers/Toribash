@@ -1172,6 +1172,7 @@ function UIElement:updatePos()
 	if (self.parent) then
 		self:updateChildPos()
 	end
+	if (self.viewport) then return end
 	for _, v in pairs(self.child) do
 		v:updatePos()
 	end

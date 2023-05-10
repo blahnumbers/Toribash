@@ -122,7 +122,7 @@ function Clans:getClanData(override)
 		{ "leaderscustom" },
 		{ "memberscustom" }
 	}
-	local file = Files.Open("clans/clans.txt")
+	local file = Files.Open("../data/clans.txt")
 	if (not file.data) then
 		return nil
 	end
@@ -205,7 +205,7 @@ function Clans:getLevelData(override)
 		{ "official_only", boolean = true }
 	}
 
-	local file = Files.Open("clans/clanlevels.txt")
+	local file = Files.Open("../data/clanlevels.txt")
 	if (not file.data) then
 		return nil
 	end
@@ -253,7 +253,7 @@ function Clans:getAchievementData(override)
 		{ "name" },
 		{ "description" }
 	}
-	local file = Files.Open("clans/clanachievements.txt")
+	local file = Files.Open("../data/clanachievements.txt")
 	if (not file.data) then
 		return nil
 	end
