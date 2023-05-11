@@ -6,10 +6,10 @@ require("system.iofiles")
 require("system.menu_manager")
 require("system.gamerules_manager")
 
-if (GAMERULES_MENU_MAIN_ELEMENT) then
-	GAMERULES_MENU_MAIN_ELEMENT:kill()
-	GAMERULES_MENU_MAIN_ELEMENT = nil
+if (Gamerules.MainElement) then
+	Gamerules.MainElement:kill()
+	Gamerules.MainElement = nil
 	return
 end
 
-Gamerules:showMain()
+Gamerules.showMain()

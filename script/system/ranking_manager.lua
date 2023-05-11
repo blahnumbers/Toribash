@@ -1,5 +1,7 @@
--- Ranking manager class
--- DO NOT MODIFY THIS FILE
+require('toriui.uielement')
+require('system.menu_manager')
+require('system.playerinfo_manager')
+require('system.roomlist_manager')
 
 if (Ranking == nil) then
 	---@class RankingPlayerData
@@ -22,17 +24,7 @@ if (Ranking == nil) then
 	---@field minElo number Minimum Elo value for this tier, inclusive
 	---@field image string Texture path for tier's icon
 
-	---@class RankingPlayer
-	---@field rank integer
-	---@field elo number
-	---@field wins integer
-	---@field loses integer
-	---@field games integer
-	---@field tier RankingTier
-	---@field nextTierElo number
-	---@field qualifying boolean
-
-	---@class RankingTopPlayer : RankingPlayer
+	---@class RankingTopPlayer : PlayerInfoRanking
 	---@field username string
 
 	---Toribash seasonal ranking manager class
@@ -49,7 +41,6 @@ if (Ranking == nil) then
 		__index = {},
 		EloFactor = 1,
 		EloDivisor = 400,
-		PlayerData = nil,
 		PlayerTrends = {},
 		PlayerModRanking = {},
 		RankingTiers = {
@@ -140,8 +131,7 @@ function Ranking:getNavigationButtons()
 		{
 			text = TB_MENU_LOCALIZED.NAVBUTTONBACK,
 			action = function()
-				TBMenu.CurrentSection:kill(true)
-				TBMenu.NavigationBar:kill(true)
+				TBMenu:clearNavSection()
 				TBMenu:showNavigationBar()
 				TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
 			end
@@ -267,7 +257,7 @@ function Ranking:showRankingTrendsWithHistory(viewElement)
 	local rankingTierIcon = rankingTierIconHolder:addChild({
 		shift = { (iconFieldScale - iconScale) / 2, 0 },
 		bgImage = TB_MENU_PLAYER_INFO.ranking.tier.image,
-		imageColor = TB_MENU_PLAYER_INFO.ranking.qualifying and { 0.2, 0.2, 0.2, 1 } or nil
+		imageColor = TB_MENU_PLAYER_INFO.ranking.qualifying and { 0.2, 0.2, 0.2, 1 } or UICOLORWHITE
 	})
 	rankingTierIcon:moveTo(nil, -iconScale * 0.1, true)
 	local rankingTierTitle = rankingTierIcon:addChild({
@@ -528,8 +518,8 @@ function Ranking:showGlobalRankToplist(viewElement, playerRanking)
 		listingHolder:addAdaptedText(true, TB_MENU_LOCALIZED.MATCHMAKERANKEDTOPEMPTY)
 		return
 	end
-	for i, player in pairs(playerRanking) do
-		PlayerInfo:getRankTier(player)
+	for _, player in pairs(playerRanking) do
+		PlayerInfo.getRankTier(player)
 		local playerView = listingHolder:addChild({
 			pos = { 0, #listElements * elementHeight },
 			size = { listingHolder.size.w, elementHeight }
@@ -929,7 +919,7 @@ function Ranking:showRankedLegacy()
 				rankedSearchButtonStop:hide()
 			end)
 
-		UIElement:runCmd("refresh")
+		RoomList.RefreshIfNeeded()
 		local roomJoinButton = UIElement:new({
 			parent = viewElement,
 			pos = { rankedSearchButton.shift.x, -viewElement.size.h / 8 },
@@ -944,8 +934,7 @@ function Ranking:showRankedLegacy()
 				UIElement:runCmd("matchmake on 8 0 1")
 				set_discord_rpc("", "")
 				TB_MATCHMAKER_SEARCHSTATUS = nil
-				dofile("system/friendlist_manager.lua")
-				local players = FriendsList:updateOnline()
+				local players = RoomList.GetPlayers()
 				local rooms = { "ranked%d" }
 				local roomsOnline = {}
 				for i, online in pairs(players) do

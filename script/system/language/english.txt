@@ -259,11 +259,9 @@ MOVEMEMORYENTERMOVENAME	Enter move name
 MOVEMEMORYENTERMOVEDESCOPT	Enter move description (optional)
 MOVEMEMORYENTERMODNAMEOPT	Enter mod name (optional)
 MOVEMEMORYMODNAMEEMPTYERROR	Move name cannot be empty!
-MOVEMEMORYMOVESAVEERRORPERMS	Error saving a move, make sure you have write permissions on Toribash folder.
-MOVEMEMORYERRORNOTINGAME	You have to be playing to record a move.
-MOVEMEMORYERRORSTOPMOVE	Please stop the currently playing move before recording a new one.
-MOVEMEMORYRECORDINGMOVE	Recording move
-MOVEMEMORYERRORUPDATINGDATA	Error updating MoveMemory data file, no changes made.
+MOVEMEMORYERRORNOTINGAME	You have to be playing to record a move
+MOVEMEMORYERRORSTOPMOVE	Please stop the currently playing move before recording a new one
+MOVEMEMORYERRORUPDATINGDATA	Error updating MoveMemory data file, no changes made
 MOVEMEMORYNOMOVESFOUND	No moves found
 MOVEMEMORYDELETEMOVECONFIRM	Are you sure want to delete this opener? This action cannot be reversed.
 MOVEMEMORYALLMOVES	ALL MOVES
@@ -315,12 +313,13 @@ REPLAYSERRORUPDATINGNAME	Error updating replay name
 REPLAYSERRORREADINGCACHE	Error reading replay cache file
 REPLAYSERRORUPDATINGTAGS	Error updating replay tags
 REPLAYSUPDATINGCOMMUNITY	Downloading replays data,\nplease wait...
-REPLAYSFILTERSDATE	by upload date
-REPLAYSFILTERSRATING	by rating
-REPLAYSFILTERSPOPULARITY	by popularity
+REPLAYSFILTERSDATE	Upload date
+REPLAYSFILTERSRATING	Rating
+REPLAYSFILTERSPOPULARITY	Downloads
 REPLAYSFILTERSTAGGED	tagged
-REPLAYSFILTERSBYTAG	by replay tags
-REPLAYSFILTERSBY	uploaded by
+REPLAYSFILTERSBYTAG	With tags
+REPLAYSFILTERSBY	Uploaded by
+REPLAYSFILTERSNAME	Name contains
 REPLAYSFILTERSUPLOADER	by replay uploader
 REPLAYSBACKTOALLREPLAYS	BACK TO ALL REPLAYS
 REPLAYSMATCHBY	Match by
@@ -379,7 +378,7 @@ REPLAYSCOMMUNITYTITLEINFO	Search for replays on Toribash servers
 REPLAYSDOWNLOADINGREPLAY	Downloading replay...
 REPLAYSOPENINGREPLAY	Opening replay...
 REPLAYSREPLAYSAVEDINFO	Replay downloaded and saved in downloads folder
-REPLAYSCOMMUNITYDOUBLECLICKINFO	Double-click on any replay in the list for quick preview.
+REPLAYSCOMMUNITYDOUBLECLICKINFO	Double-click on any replay in the list for quick preview
 REPLAYSCOMMUNITYNOFOUND	No replays found
 REPLAYSLOADPREVIOUS	LOAD PREVIOUS
 REPLAYSLOADNEXT	LOAD NEXT
@@ -395,7 +394,7 @@ REPLAYSUPLOADEDON	Uploaded on
 REPLAYSSAVEREPLAY	Save replay
 REPLAYSVIEWCOMMENTS	View comments
 REPLAYSMOREBY	More by
-REPLAYSREFRESHCACHEPROMPT	This will reset your replays cache.\nAre you sure you want to continue?
+REPLAYSREFRESHCACHEPROMPT	This will reset your replays information cache and regenerate it from scratch.\nThis process may take a while if you have a lot of replays.\n\nAre you sure you want to continue?
 REPLAYSERRORREFRESHINGCACHE	Error refreshing cache, make sure you have write permissions inside Toribash folder
 MODSDOWNLOADINGMOD	Downloading mod...
 NOFILESFOUND	No files found
@@ -422,7 +421,7 @@ SETTINGSLOWEST	Potato
 SETTINGSLOW	Low
 SETTINGSMEDIUM	Medium
 SETTINGSHIGH	High
-SETTINGSHIGHEST	RTX 2080 Ti
+SETTINGSHIGHEST	Max
 SETTINGSRESOLUTION	Resolution
 SETTINGSADVANCED	Advanced
 SETTINGSSHADERS	Shaders
@@ -904,17 +903,21 @@ INVENTORYCUSTOMIZING	Customizing
 QUEUELISTLEGENDTITLE	Legend
 QUEUELISTLEGENDDESC	This player is one of the most outstanding users of Toribash community
 QUEUELISTTORIAGENTTITLE	Tori Agent
-QUEUELISTTORIAGENTDESC	Tori Agents moderate Toribash rooms, handle general reports and assist players in Support
+QUEUELISTTORIAGENTDESC	Tori Agents moderate Toribash rooms, handle general reports and can assist you with issues
 QUEUELISTMARKETSQUADTITLE	Market Squad
 QUEUELISTMARKETSQUADDESC	Market Squad members manage Toribash Market and deal with market-related scams
 QUEUELISTINGAMEADMINTITLE	Game Admin
-QUEUELISTINGAMEADMINDESC	Game administrators manage Toribash rooms, as well as moderate the game and forums
+QUEUELISTINGAMEADMINDESC	Administrators can manage any Toribash room and act as global moderators
 QUEUELISTEVENTSQUADTITLE	Event Squad
 QUEUELISTEVENTSQUADDESC	Event Squad members host events and moderate Toribash rooms
+QUEUELISTEVENTSQUADTRIALTITLE	ES Trial
+QUEUELISTEVENTSQUADTRIALDESC	This user is an Event Squad member in training
 QUEUELISTROOMOPTITLE	Room Operator
-QUEUELISTROOMOPDESC	Room operators can modify room settings, change mods and control players inside
+QUEUELISTROOMOPDESC	This user can modify room settings, change mods and control players inside
 QUEUELISTMUTEDTITLE	Muted
 QUEUELISTMUTEDDESC	This user can't talk :(
+QUEUELISTITEMFORGERTITLE	Item Forger
+QUEUELISTITEMFORGERDESC	Item Forgers make 3D items for Toribash and are a subdivision of Event Squad
 SETTINGSAPPLIEDAFTERRESTART	Some settings will be applied after game restart
 EVENTFRAMESELAPSED	frames elapsed
 NAVBUTTONMARKET	Market
@@ -1101,5 +1104,84 @@ NOTIFICATIONSDELETECONFIRM1	Are you sure you want to delete this message by
 NOTIFICATIONSDELETECONFIRM2	from your inbox?
 BATTLEPASSREACHEDMAXLEVEL	You have reached the maximum Battle Pass level
 QUESTSDAILYPLAYER	Daily Player
+REPLAYSSAVEREPLAYSUCCESS	Saved replay as:
+WORDAPPLY	Apply
+MAINMENUCLOSE	Close menu
+HUDSTEPFRAMESINGLE	Step single frame
+HUDSTEPFRAMEFULL	Step a full turn
+HUDSTEPSINGLETOGGLE	Single frame stepping
+WORDQI	Qi
+ROOMLISTUPDATING	Updating room list, please wait...
+ROOMLISTUPDATEFAIL	Failed to retrieve room list
+ROOMLISTEMPTY	No rooms currently online, please try again later
+WORDREFRESHACTION	Refresh
+WORDBELT	Belt
+ROOMLISTOFFICIALROOMS	Official Rooms
+ROOMLISTPRIVATEROOMS	Private Rooms
+ROOMLISTPRIVATEINFO	Password protected room
+ROOMLISTOFFICIALROOMSINFO	Official rooms have increased daily Qi limits and award ToriCredits for every fight you win
+ROOMLISTCREATEROOM	Create new room
+ROOMLISTROOMNAME	Room
+ROOMLISTROOMMOD	Mod
+ROOMLISTROOMPLAYERS	Players
+ROOMLISTROOMID	#
+ROOMLISTROOMDESC	Description
+ROOMLISTROOMMINBELT	Min Belt
+ROOMLISTROOMMAXBELT	Max Belt
+ROOMLISTTOURNAMENT	Tournament room
+ROOMLISTDUELMODEON	Duel mode on
+ROOMLISTRANKED	Ranked room
+ROOMLISTQUICKREACTIONROOM	Low reaction time room
+ROOMLISTFILTERS	Filters
+ROOMLISTFILTERANY	Any
+ROOMLISTNOMATCHINGROOMSFOUND	No matching rooms found
+ROOMLISTFILTERBELTMATCH	Matching belt
+ROOMLISTFILTERPASSWORDPROTECTED	Password protected
+ROOMLISTFILTEROFFICIALONLY	Official room
+ROOMLISTFILTERHASENTRYFEE	Has entry fee
+ROOMLISTFILTERDUELROOM	Duel room
+ROOMLISTCREATEROOMTITLE	Creating new room
 BATTLEPASSTIMELEFT	Time left until Battle Pass reset:
 BATTLEPASSTIMEOVER	This Battle Pass period is over, please come back later!
+ROOMLISTCREATEROOMNAME	Room name
+ROOMLISTCREATEROOMNAMEEMPTYERROR	Room name shouldn't be empty
+ROOMLISTCREATEROOMDESC	Description
+ROOMLISTCREATEROOMPASS	Password
+ROOMLISTCREATEROOMPASSINFO	Specify a password to make your room private
+ROOMLISTCREATEROOMMINBELT	Min belt
+ROOMLISTCREATEROOMMAXBELT	Max belt
+ROOMLISTCREATENORESTRICTIONS	No restrictions
+ROOMLISTCREATEROOMMAXCLIENTS	Max clients
+ROOMLISTCREATEPLEASEWAIT	Creating your room, please wait...
+MOBILEHUDREADY	Ready
+MOBILEHUDNEWGAME	New game
+MOBILEHUDRELAXALL	Relax All
+MOBILEHUDHOLDALL	Hold All
+MOBILEHUDTOMAINMENU	To main menu
+MOBILEHUDHUBSPECTATE	Join spectators
+MOBILEHUDHUBJOINQUEUE	Enter fighting queue
+TUTORIALSNOLOCALIZATIONFOUND	No localization data found!
+REPLAYSDATACACHEREADY	Replays data cache is ready!
+SETTINGSQUALITYLOW	Low quality
+SETTINGSQUALITYHIGH	High quality
+SETTINGSBLOODSTAINS	Blood stains
+SETTINGSMOUSEBUTTONSMOBILE	Tap controls mode
+SETTINGSCAMERA	Camera
+SETTINGSCAMERAINVERTX	Invert horizontal axis
+SETTINGSCAMERAINVERTY	Invert vertical axis
+SETTINGSCAMERAFOCUS	Camera focus
+SETTINGSCAMERAFOCUSNONE	Classic camera
+SETTINGSCAMERAFOCUSPLAYER	Focus on selected player
+SETTINGSCAMERAFOCUSJOINT	Focus on selected joint
+BROADCASTSBROADCAST	Broadcast
+BROADCASTSJOIN	Join
+REPLAYSNOCOMMENTS	This replay has no comments yet. Would you like to be the first one to leave a comment?
+REPLAYSERRORGETTINGCOMMENTS	Error getting replay comments, please try again later.
+MOVEMEMORYRUNFROMBEGINNING	Run opener from the beginning
+MOVEMEMORYTITLE	MoveMemory
+MOVEMEMORYRECORDINFO	Record new move
+MOVEMEMORYRECORDINGTURN	Recording turn
+BOUNTIESTITLE	Bounties
+NOTIFICATIONSTITLE	Notifications
+QUITTITLE	Exit Toribash
+SETTINGSTITLE	Settings

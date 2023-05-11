@@ -8,26 +8,32 @@ if (not Broadcasts or TB_MENU_DEBUG) then
 	---@field msg string Global message associated with the broadcast
 	---@field room string|nil Room name parsed from global message
 	---@field user string Name of the user who sent out the broadcast
+	---@field time integer Time when this broadcast was retrieved
 
 	---Manager class to handle Toribash global messages popups
+	---
+	---**Version 5.60:**
+	---* Broadcasts are now initialized automatically on script launch
 	---
 	---**Ver 1.1 updates:**
 	--- - All globals are now class fields
 	--- - Tweaked visuals for popups to take less space
 	--- - Do not display auto tourney announcements if user opted out from them
 	---@class Broadcasts
-	---@field HOOKS_ACTIVE boolean Whether surveyor hooks are currently active
-	---@field LAST_BROADCAST integer Last displayed broadcast ID
-	---@field DISPLAY_DURATION integer Popup display duration in seconds
-	---@field IS_DISPLAYED boolean Whether there's a broadcast popup displayed at the moment
+	---@field IsActive boolean Whether Broadcasts manager is currently active
+	---@field LastBroadcast integer Last displayed broadcast ID
+	---@field DisplayDuration integer Popup display duration in seconds
+	---@field IsDisplayed boolean Whether there's a broadcast popup displayed at the moment, only used on desktop platforms
+	---@field StalePeriod integer Cutoff in seconds to consider broadcast stale
 	Broadcasts = {
-		_index = {},
-		ver = 1.1,
-		HOOKS_ACTIVE = false,
-		LAST_BROADCAST = 0,
-		DISPLAY_DURATION = 12,
-		IS_DISPLAYED = false
+		ver = 5.60,
+		IsActive = false,
+		LastBroadcast = 0,
+		DisplayDuration = 12,
+		StalePeriod = 600,
+		IsDisplayed = false
 	}
+	Broadcasts.__index = Broadcasts
 	setmetatable({}, Broadcasts)
 end
 
@@ -35,134 +41,169 @@ end
 ---@param broadcast Broadcast
 ---@return boolean #Whether the pop-up has been displayed or queued for display
 function Broadcasts:showBroadcast(broadcast)
-	if (broadcast.id <= Broadcasts.LAST_BROADCAST) then
+	if (broadcast.id <= self.LastBroadcast or broadcast.time + self.StalePeriod < os.time()) then
 		return false
 	end
-	if (Broadcasts.IS_DISPLAYED) then
-		local waiter = UIElement:new({
-			globalid = TB_MENU_HUB_GLOBALID,
-			pos = { 0, 0 },
-			size = { 0, 0 }
+
+	if (is_mobile()) then
+		local popupView = TBHudPopup.New(self.DisplayDuration)
+		local broadcastInfo = popupView:addChild({
+			pos = { 20, 5 },
+			size = { broadcast.room and (popupView.size.w - 50) * 0.7 or popupView.size.w - 20, popupView.size.h - 10 }
 		})
-		waiter:addCustomDisplay(true, function()
-				if (not Broadcasts.IS_DISPLAYED) then
-					waiter:kill()
-					Broadcasts:showBroadcast(broadcast)
-				end
-			end)
-		return true
-	end
+		local broadcastTitle = broadcastInfo:addChild({
+			pos = { 0, 0 },
+			size = { broadcastInfo.size.w, popupView.size.h / 3 }
+		})
+		broadcastTitle:addAdaptedText(true, TB_MENU_LOCALIZED.BROADCASTSBROADCAST .. ": " .. broadcast.user, nil, nil, FONTS.BIG, LEFTBOT, 0.8, nil, 0.6)
+		local broadcastText = broadcastInfo:addChild({
+			pos = { 0, broadcastTitle.size.h },
+			size = { broadcastInfo.size.w, broadcastInfo.size.h - broadcastTitle.size.h }
+		})
+		broadcastText:addAdaptedText(true, broadcast.msg, nil, nil, 4, LEFTMID, 0.8)
 
-	Broadcasts.IS_DISPLAYED = true
-	local notificationHolder = UIElement:new({
-		globalid = TB_MENU_HUB_GLOBALID,
-		pos = { WIN_W, WIN_H - 310 },
-		size = { 450, 250 },
-		bgColor = TB_MENU_DEFAULT_BG_COLOR,
-		shapeType = ROUNDED,
-		rounded = 5,
-		innerShadow = { 0, 5 },
-		shadowColor = TB_MENU_DEFAULT_DARKER_COLOR
-	})
-	local popupClose = notificationHolder:addChild({
-		pos = { -35, 5 },
-		size = { 30, 30 },
-		interactive = true,
-		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
-		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
-	}, true)
-	local popupCloseIcon = popupClose:addChild({
-		shift = { 3, 3 },
-		bgImage = "../textures/menu/general/buttons/crosswhite.tga"
-	})
-	local buttonClicked = false
-	popupClose:addMouseHandlers(nil, function()
-			buttonClicked = true
-		end)
-	local broadcastInfo = notificationHolder:addChild({
-		pos = { 10, 5 },
-		size = { notificationHolder.size.w - 20, notificationHolder.size.h - (broadcast.room and 55 or 0) }
-	})
-	local broadcastTitle = broadcastInfo:addChild({
-		pos = { 0, 0 },
-		size = { broadcastInfo.size.w - 35, 32 }
-	})
-	broadcastTitle:addAdaptedText(true, "Broadcast: " .. broadcast.user, nil, nil, FONTS.BIG, LEFTMID, 0.8, nil, 0.6)
-	local broadcastText = broadcastInfo:addChild({
-		pos = { 0, broadcastTitle.size.h },
-		size = { broadcastInfo.size.w, broadcastInfo.size.h - broadcastTitle.size.h }
-	})
-	broadcastText:addAdaptedText(true, broadcast.msg, nil, nil, 4, LEFTMID, 0.8)
-	broadcastText.size.h = math.max(#broadcastText.dispstr * 10 * getFontMod(broadcastText.textFont) * broadcastText.textScale + 5, 45)
-	broadcastInfo.size.h = broadcastTitle.size.h + broadcastText.size.h
-	notificationHolder.size.h = broadcastInfo.size.h + (broadcast.room and 55 or 15)
-	notificationHolder:moveTo(nil, WIN_H - notificationHolder.size.h - 60)
+		if (broadcast.room) then
+			local broadcastButtonHolder = popupView:addChild({
+				pos = { broadcastInfo.shift.x * 2 + broadcastInfo.size.w, broadcastInfo.shift.y },
+				size = { popupView.size.w - broadcastInfo.shift.x * 3 - broadcastInfo.size.w, broadcastInfo.size.h }
+			}, true)
+			local broadcastRoom = broadcastButtonHolder:addChild({
+				shift = { 0, 10 },
+				interactive = true,
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+			}, true)
+			broadcastRoom:addAdaptedText(false, TB_MENU_LOCALIZED.BROADCASTSJOIN .. " " .. broadcast.room)
+			broadcastRoom:addMouseHandlers(nil, function()
+					runCmd("join " .. broadcast.room)
+					popupView:Close()
+				end)
+		end
+	else
+		if (self.IsDisplayed) then
+			local waiter = UIElement.new({
+				globalid = TB_MENU_HUB_GLOBALID,
+				pos = { 0, 0 },
+				size = { 0, 0 }
+			})
+			waiter:addCustomDisplay(true, function()
+					if (not self.IsDisplayed) then
+						waiter:kill()
+						self:showBroadcast(broadcast)
+					end
+				end)
+			return true
+		end
 
-	if (broadcast.room) then
-		local broadcastRoom = notificationHolder:addChild({
-			pos = { 20, broadcastInfo.size.h + broadcastInfo.shift.y + 5 },
-			size = { notificationHolder.size.w - 40, notificationHolder.size.h - broadcastInfo.size.h - broadcastInfo.shift.y - 15 },
+		self.IsDisplayed = true
+		local notificationHolder = UIElement.new({
+			globalid = TB_MENU_HUB_GLOBALID,
+			pos = { WIN_W, WIN_H - 310 },
+			size = { 450, 250 },
+			bgColor = TB_MENU_DEFAULT_BG_COLOR,
+			shapeType = ROUNDED,
+			rounded = 5,
+			innerShadow = { 0, 5 },
+			shadowColor = TB_MENU_DEFAULT_DARKER_COLOR
+		})
+		notificationHolder.killAction = function() self.IsDisplayed = false end
+
+		local popupClose = notificationHolder:addChild({
+			pos = { -35, 5 },
+			size = { 30, 30 },
 			interactive = true,
 			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
 		}, true)
-		broadcastRoom:addAdaptedText(nil, "Join " .. broadcast.room)
-		broadcastRoom:addMouseHandlers(nil, function()
-				runCmd("join " .. broadcast.room)
+		popupClose:addChild({
+			shift = { 3, 3 },
+			bgImage = "../textures/menu/general/buttons/crosswhite.tga"
+		})
+		local buttonClicked = false
+		popupClose:addMouseHandlers(nil, function()
 				buttonClicked = true
 			end)
+		local broadcastInfo = notificationHolder:addChild({
+			pos = { 10, 5 },
+			size = { notificationHolder.size.w - 20, notificationHolder.size.h - (broadcast.room and 55 or 0) }
+		})
+		local broadcastTitle = broadcastInfo:addChild({
+			pos = { 0, 0 },
+			size = { broadcastInfo.size.w - 35, 32 }
+		})
+		broadcastTitle:addAdaptedText(true, TB_MENU_LOCALIZED.BROADCASTSBROADCAST .. ": " .. broadcast.user, nil, nil, FONTS.BIG, LEFTMID, 0.8, nil, 0.6)
+		local broadcastText = broadcastInfo:addChild({
+			pos = { 0, broadcastTitle.size.h },
+			size = { broadcastInfo.size.w, broadcastInfo.size.h - broadcastTitle.size.h }
+		})
+		broadcastText:addAdaptedText(true, broadcast.msg, nil, nil, 4, LEFTMID, 0.8)
+		broadcastText.size.h = math.max(#broadcastText.dispstr * 10 * getFontMod(broadcastText.textFont) * broadcastText.textScale + 5, 45)
+		broadcastInfo.size.h = broadcastTitle.size.h + broadcastText.size.h
+		notificationHolder.size.h = broadcastInfo.size.h + (broadcast.room and 55 or 15)
+		notificationHolder:moveTo(nil, WIN_H - notificationHolder.size.h - 60)
+
+		if (broadcast.room) then
+			local broadcastRoom = notificationHolder:addChild({
+				pos = { 20, broadcastInfo.size.h + broadcastInfo.shift.y + 5 },
+				size = { notificationHolder.size.w - 40, notificationHolder.size.h - broadcastInfo.size.h - broadcastInfo.shift.y - 15 },
+				interactive = true,
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+			}, true)
+			broadcastRoom:addAdaptedText(false, TB_MENU_LOCALIZED.BROADCASTSJOIN .. " " .. broadcast.room)
+			broadcastRoom:addMouseHandlers(nil, function()
+					runCmd("join " .. broadcast.room)
+					buttonClicked = true
+				end)
+		end
+
+		local broadcastDisplayTimer = notificationHolder:addChild({
+			pos = { 0, -notificationHolder.rounded },
+			size = { notificationHolder.rounded * 2, notificationHolder.rounded },
+			rounded = { 0, notificationHolder.rounded },
+			bgColor = UICOLORWHITE
+		}, true)
+
+		local spawnClock = UIElement.clock
+		notificationHolder:addCustomDisplay(false, function()
+				local ratio = UIElement.clock - spawnClock
+				if (ratio < 1) then
+					notificationHolder:moveTo(UITween.SineTween(notificationHolder.pos.x, WIN_W - notificationHolder.size.w, ratio))
+				end
+				local progress = math.min(1, (UIElement.clock - spawnClock) / self.DisplayDuration)
+				broadcastDisplayTimer.size.w = math.max(notificationHolder.size.w * progress, broadcastDisplayTimer.size.w)
+				if (progress == 1 or buttonClicked) then
+					spawnClock = UIElement.clock
+					notificationHolder:addCustomDisplay(false, function()
+							local ratio = UIElement.clock - spawnClock
+							notificationHolder:moveTo(UITween.SineTween(notificationHolder.pos.x, WIN_W, ratio))
+							if (ratio >= 1) then
+								notificationHolder:kill()
+							end
+						end)
+				end
+			end)
 	end
-
-	local broadcastDisplayTimer = notificationHolder:addChild({
-		pos = { 0, -notificationHolder.rounded },
-		size = { notificationHolder.rounded * 2, notificationHolder.rounded },
-		rounded = { 0, notificationHolder.rounded },
-		bgColor = UICOLORWHITE
-	}, true)
-
-	local progress = math.pi / 10
-	notificationHolder:addCustomDisplay(false, function()
-			if (notificationHolder.pos.x > WIN_W - notificationHolder.size.w) then
-				notificationHolder:moveTo(-notificationHolder.size.w * 0.07 * math.sin(progress), nil, true)
-				progress = progress + math.pi / 30
-			else
-				local clock = os.clock()
-				notificationHolder:addCustomDisplay(false, function()
-						broadcastDisplayTimer.size.w = math.max(notificationHolder.size.w * math.min(1, (os.clock() - clock) / Broadcasts.DISPLAY_DURATION), broadcastDisplayTimer.size.w)
-						if (clock + Broadcasts.DISPLAY_DURATION < os.clock() or buttonClicked) then
-							local progress = math.pi / 10
-							notificationHolder:addCustomDisplay(false, function()
-									if (notificationHolder.pos.x < WIN_W) then
-										notificationHolder:moveTo(notificationHolder.size.w * 0.07 * math.sin(progress), nil, true)
-										progress = progress + math.pi / 30
-									else
-										notificationHolder:kill()
-										Broadcasts.IS_DISPLAYED = false
-									end
-								end)
-						end
-					end)
-			end
-		end)
-	Broadcasts.LAST_BROADCAST = broadcast.id
+	self.LastBroadcast = broadcast.id
 	return true
 end
 
----Fetches and parses recent broadcast data from Toribash server.\
----If there's a hit, queues the broadcast for display.
----@return nil
+---Fetches and parses recent broadcast data from Toribash server\
+---If there's a hit, queues the broadcast for display
 function Broadcasts:fetchBroadcast()
 	Request:queue(function() download_server_info("last_broadcast") end, "broadcast", function()
 			local response = get_network_response()
 			---@type Broadcast
-			local broadcast = { id = 0 }
+			local broadcast = { id = 0, time = os.time() }
 			for ln in response:gmatch("[^\n]*\n?") do
 				local ln = ln:gsub("\n$", '')
 				if (ln:find("^BROADCASTID 0;")) then
-					broadcast.id = ln:gsub("^BROADCASTID 0;", ''):gsub("[^%d]", "")
-					broadcast.id = broadcast.id == '' and 0 or broadcast.id + 0
+					local id = ln:gsub("^BROADCASTID 0;", '')
+					id = id:gsub("[^%d]", "")
+					broadcast.id = tonumber(id) or 0
 				elseif (ln:find("^BROADCASTMSG 0;")) then
 					broadcast.msg = ln:gsub("^BROADCASTMSG 0;", '')
 					broadcast.msg = broadcast.msg:gsub("%^%d%d", '')
@@ -180,48 +221,47 @@ function Broadcasts:fetchBroadcast()
 					broadcast.user = ln:gsub("^BROADCASTUSER 0;", '')
 				end
 			end
-			if (broadcast.room and broadcast.room:find("^tourney%d$") and bit.band(get_option("showbroadcast"), 4) ~= 0) then
-				Broadcasts.LAST_BROADCAST = broadcast.id
+			if (broadcast.room and broadcast.room:find("^tourney%d$") and bit.band(tonumber(get_option("showbroadcast")) or 0, 4) ~= 0) then
+				self.LastBroadcast = broadcast.id
 				return
 			end
 			Broadcasts:showBroadcast(broadcast)
 		end)
 end
 
+---Unloads broadcasts related hooks
+function Broadcasts:deactivate()
+	self.IsActive = false
+	remove_hooks("broadcast_manager")
+end
+
 ---Activates broadcasts surveyor hooks
----@return nil
 function Broadcasts:activate()
-	Broadcasts:deactivate()
-	Broadcasts.HOOKS_ACTIVE = true
+	self:deactivate()
+	self.IsActive = true
 	add_hook("console", "broadcast_manager", function(s, i)
 			if (i == 1) then
-				if (s:find("%[global%]")) then
+				if (utf8.find(s, "%[global%]")) then
 					Broadcasts:fetchBroadcast()
 				end
 			end
 		end)
-	if (bit.band(get_option("showbroadcast"), 2) ~= 0) then
+	if (bit.band(tonumber(get_option("showbroadcast")) or 0, 2) ~= 0) then
 		Broadcasts:addListener()
 	end
 end
 
----Adds a listener draw2d hook that periodically checks for new in-game broadcasts while the user is in Free Play mode
----@return nil
+---Adds a listener hook that periodically checks for new in-game broadcasts while the user is in Free Play mode
 function Broadcasts:addListener()
 	local clock = -60
 	add_hook("draw2d", "broadcast_manager", function()
 			if (get_world_state().game_type == 0 and not TUTORIAL_ISACTIVE) then
-				if (clock < os.clock() - 60) then
-					clock = os.clock()
+				if (clock < UIElement.clock - 60) then
+					clock = UIElement.clock
 					Broadcasts:fetchBroadcast()
 				end
 			end
 		end)
 end
 
----Unloads broadcasts related hooks
----@return nil
-function Broadcasts:deactivate()
-	Broadcasts.HOOKS_ACTIVE = false
-	remove_hooks("broadcast_manager")
-end
+Broadcasts:activate()

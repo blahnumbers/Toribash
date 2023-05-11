@@ -39,8 +39,7 @@ do
 	function Settings:quit()
 		TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
 		TB_MENU_SETTINGS_SCREEN_ACTIVE = 1
-		TBMenu.CurrentSection:kill(true)
-		TBMenu.NavigationBar:kill(true)
+		TBMenu:clearNavSection()
 		TBMenu:showNavigationBar()
 		TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
 	end
@@ -53,7 +52,6 @@ do
 			},
 			{
 				text = TB_MENU_LOCALIZED.SETTINGSABOUT,
-				action = function() end,
 				right = true,
 				sectionId = -1,
 				action = function()
@@ -62,7 +60,6 @@ do
 			},
 			{
 				text = TB_MENU_LOCALIZED.SETTINGSOTHER,
-				action = function() end,
 				right = true,
 				sectionId = SETTINGS_OTHER,
 				action = function()
@@ -71,7 +68,6 @@ do
 			},
 			{
 				text = TB_MENU_LOCALIZED.SETTINGSAUDIO,
-				action = function() end,
 				right = true,
 				sectionId = SETTINGS_AUDIO,
 				action = function()
@@ -79,8 +75,8 @@ do
 					end
 			},
 			{
+				hidden = get_option("shaders") == 0,
 				text = TB_MENU_LOCALIZED.SETTINGSEFFECTS,
-				action = function() end,
 				right = true,
 				sectionId = SETTINGS_EFFECTS,
 				action = function()
@@ -89,7 +85,6 @@ do
 			},
 			{
 				text = TB_MENU_LOCALIZED.SETTINGSGRAPHICS,
-				action = function() end,
 				right = true,
 				sectionId = SETTINGS_GRAPHICS,
 				action = function()
@@ -118,7 +113,7 @@ do
 			parent = TBMenu.MenuMain,
 			pos = { 0, 0 },
 			size = { WIN_W, WIN_H },
-			bgColor = cloneTable(UICOLORWHITE),
+			bgColor = table.clone(UICOLORWHITE),
 			interactive = true
 		})
 		whiteOverlay.killAction = function() UIScrollbarIgnore = false end
@@ -249,7 +244,7 @@ do
 			size = { tbPlayerThanks.size.w, tbPlayerThanks.size.h }
 		})
 		local function initOutro()
-			whiteOverlay:addCustomDisplay(nil, function()
+			whiteOverlay:addCustomDisplay(false, function()
 					whiteOverlay.bgColor[4] = whiteOverlay.bgColor[4] - 0.05
 					if (whiteOverlay.bgColor[4] <= 0) then
 						whiteOverlay:kill()
@@ -278,7 +273,8 @@ do
 							Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
 						end,
 					val = { TB_MENU_MAIN_SETTINGS.shaders and TB_MENU_MAIN_SETTINGS.shaders.value or get_option("shaders") },
-					reload = true
+					reload = true,
+					hidden = is_mobile()
 				}
 			}
 
@@ -299,17 +295,16 @@ do
 				type = DROPDOWN,
 				selectedAction = function()
 						local framerate = get_option("framerate")
-						local fixedframerate = get_option("fixedframerate")
-						if (fixedframerate == 1) then
-							if (framerate == 30) then
-								return 1
+						--local fixedframerate = get_option("fixedframerate")
+						--if (fixedframerate == 1) then
+							if (not is_mobile() and framerate == 75) then
+								return 3
 							elseif (framerate == 60) then
 								return 2
-							else
-								return 3
 							end
-						end
-						return 3
+							return 1
+						--end
+						--return 4
 					end,
 				dropdown = {
 					{
@@ -334,8 +329,9 @@ do
 								TB_MENU_MAIN_SETTINGS.framerate = { value = 75 }
 								TB_MENU_MAIN_SETTINGS.fixedframerate = { value = 1 }
 								Settings:settingsApplyActivate()
-							end
-					},
+							end,
+						hidden = is_mobile()
+					}
 					--[[{
 						text = TB_MENU_LOCALIZED.SETTINGSFPSUNCAPPED,
 						action = function()
@@ -382,12 +378,45 @@ do
 				if ((TB_MENU_MAIN_SETTINGS.blood and TB_MENU_MAIN_SETTINGS.blood.value or get_option("blood")) > 0) then
 					table.insert(advancedItems, {
 						name = TB_MENU_LOCALIZED.SETTINGSFLUIDBLOOD,
+						type = DROPDOWN,
+						selectedAction = function()
+							local targetValue = TB_MENU_MAIN_SETTINGS.fluid and TB_MENU_MAIN_SETTINGS.fluid.value or get_option("fluid")
+							if (targetValue == 2) then return 2 end
+							if (targetValue == 1) then return 3 end
+							return 1
+						end,
+						dropdown = {
+							{
+								text = TB_MENU_LOCALIZED.SETTINGSDISABLED,
+								action = function()
+									TB_MENU_MAIN_SETTINGS.fluid = { value = 0, id = FLUIDBLOOD, graphics = true }
+									Settings:settingsApplyActivate()
+								end
+							},
+							{
+								text = TB_MENU_LOCALIZED.SETTINGSQUALITYLOW,
+								action = function()
+									TB_MENU_MAIN_SETTINGS.fluid = { value = 2, id = FLUIDBLOOD, graphics = true }
+									Settings:settingsApplyActivate()
+								end
+							},
+							{
+								text = TB_MENU_LOCALIZED.SETTINGSQUALITYHIGH,
+								action = function()
+									TB_MENU_MAIN_SETTINGS.fluid = { value = 1, id = FLUIDBLOOD, graphics = true }
+									Settings:settingsApplyActivate()
+								end
+							}
+						},
+						reload = true
+					})
+					table.insert(advancedItems, {
+						name = TB_MENU_LOCALIZED.SETTINGSBLOODSTAINS,
 						type = TOGGLE,
 						action = function(val)
-								TB_MENU_MAIN_SETTINGS.fluid = { value = val, id = FLUIDBLOOD, graphics = true }
+								TB_MENU_MAIN_SETTINGS.bloodstains = { value = val }
 							end,
-						val = { get_option("fluid") },
-						reload = true
+						val = { get_option("bloodstains") },
 					})
 				end
 				table.insert(advancedItems, {
@@ -447,7 +476,7 @@ do
 												{ opt = "hair", val = 0 },
 												{ opt = "hairquality", val = 0 },
 												{ opt = "obj", val = 0 },
-												{ opt = "bodytextures", val = 0, graphics = true, id = BODYTEXTURES },
+												{ opt = "bodytextures", val = 1, graphics = true, id = BODYTEXTURES },
 												{ opt = "effects", val = 0 },
 												{ opt = "particles", val = 0 },
 												{ opt = "fixedframerate", val = 1 },
@@ -457,6 +486,7 @@ do
 												if (v.graphics) then
 													set_graphics_option(v.id, v.val)
 												else
+													---@diagnostic disable-next-line: param-type-mismatch
 													set_option(v.opt, v.val)
 												end
 											end
@@ -468,9 +498,9 @@ do
 									text = TB_MENU_LOCALIZED.SETTINGSLOW,
 									action = function()
 										local options = {
-											{ opt = "shader", val = 0, graphics = true, id = SHADERS },
+											{ opt = "shader", val = 1, graphics = true, id = SHADERS },
 											{ opt = "fluid", val = 0, graphics = true, id = FLUIDBLOOD },
-											{ opt = "framerate", val = 60 },
+											{ opt = "framerate", val = 30 },
 											{ opt = "reflection", val = 0, graphics = true, id = REFLECTIONS },
 											{ opt = "softshadow", val = 0, graphics = true, id = SOFTSHADOWS },
 											{ opt = "ambientocclusion", val = 0, graphics = true, id = AMBIENTOCCLUSION },
@@ -490,6 +520,7 @@ do
 											if (v.graphics) then
 												set_graphics_option(v.id, v.val)
 											else
+												---@diagnostic disable-next-line: param-type-mismatch
 												set_option(v.opt, v.val)
 											end
 										end
@@ -502,8 +533,8 @@ do
 									action = function()
 										local options = {
 											{ opt = "shader", val = 1, graphics = true, id = SHADERS },
-											{ opt = "fluid", val = 0, graphics = true, id = FLUIDBLOOD },
-											{ opt = "framerate", val = 60 },
+											{ opt = "fluid", val = 2, graphics = true, id = FLUIDBLOOD },
+											{ opt = "framerate", val = is_mobile() and 30 or 60 },
 											{ opt = "reflection", val = 0, graphics = true, id = REFLECTIONS },
 											{ opt = "softshadow", val = 0, graphics = true, id = SOFTSHADOWS },
 											{ opt = "ambientocclusion", val = 0, graphics = true, id = AMBIENTOCCLUSION },
@@ -523,6 +554,7 @@ do
 											if (v.graphics) then
 												set_graphics_option(v.id, v.val)
 											else
+												---@diagnostic disable-next-line: param-type-mismatch
 												set_option(v.opt, v.val)
 											end
 										end
@@ -536,7 +568,7 @@ do
 										local options = {
 											{ opt = "shader", val = 1, graphics = true, id = SHADERS },
 											{ opt = "fluid", val = 1, graphics = true, id = FLUIDBLOOD },
-											{ opt = "framerate", val = 75 },
+											{ opt = "framerate", val = is_mobile() and 60 or 75 },
 											{ opt = "reflection", val = 1, graphics = true, id = REFLECTIONS },
 											{ opt = "softshadow", val = 1, graphics = true, id = SOFTSHADOWS },
 											{ opt = "ambientocclusion", val = 1, graphics = true, id = AMBIENTOCCLUSION },
@@ -556,6 +588,7 @@ do
 											if (v.graphics) then
 												set_graphics_option(v.id, v.val)
 											else
+												---@diagnostic disable-next-line: param-type-mismatch
 												set_option(v.opt, v.val)
 											end
 										end
@@ -569,7 +602,7 @@ do
 										local options = {
 											{ opt = "shader", val = 1, graphics = true, id = SHADERS },
 											{ opt = "fluid", val = 1, graphics = true, id = FLUIDBLOOD },
-											{ opt = "framerate", val = 75 },
+											{ opt = "framerate", val = is_mobile() and 60 or 75 },
 											{ opt = "reflection", val = 1, graphics = true, id = REFLECTIONS },
 											{ opt = "softshadow", val = 1, graphics = true, id = SOFTSHADOWS },
 											{ opt = "ambientocclusion", val = 1, graphics = true, id = AMBIENTOCCLUSION },
@@ -589,6 +622,7 @@ do
 											if (v.graphics) then
 												set_graphics_option(v.id, v.val)
 											else
+												---@diagnostic disable-next-line: param-type-mismatch
 												set_option(v.opt, v.val)
 											end
 										end
@@ -619,7 +653,8 @@ do
 							action = function(val)
 									TB_MENU_MAIN_SETTINGS.systemcursor = { value = val }
 								end,
-							val = { get_option("systemcursor") }
+							val = { get_option("systemcursor") },
+							hidden = is_mobile()
 						},
 						{
 							name = TB_MENU_LOCALIZED.SETTINGSUILIGHT,
@@ -952,30 +987,25 @@ do
 							type = BUTTON,
 							action = function()
 								TBMenu:showHotkeys()
-							end
+							end,
+							hidden = is_mobile()
 						},
 						{
 							name = TB_MENU_LOCALIZED.SETTINGSREPLAYHUDTOGGLE,
 							type = INPUT,
 							inputspecial = true,
 							systemname = "replayhudtoggle",
-							val = { get_option("replayhudtoggle") }
+							val = { get_option("replayhudtoggle") },
+							hidden = is_mobile()
 						},
 						{
-							name = TB_MENU_LOCALIZED.SETTINGSMOUSEBUTTONS,
+							name = is_mobile() and TB_MENU_LOCALIZED.SETTINGSMOUSEBUTTONSMOBILE or TB_MENU_LOCALIZED.SETTINGSMOUSEBUTTONS,
 							type = DROPDOWN,
 							systemname = "mousebuttons",
 							selectedAction = function()
-									return get_option("mousebuttons") + 1
+									return get_option("mousebuttons")
 								end,
 							dropdown = {
-								{
-									text = TB_MENU_LOCALIZED.SETTINGSMOUSEBUTTONS0,
-									action = function()
-											TB_MENU_MAIN_SETTINGS.mousebuttons = { value = 0 }
-											Settings:settingsApplyActivate()
-										end
-								},
 								{
 									text = TB_MENU_LOCALIZED.SETTINGSMOUSEBUTTONS1,
 									action = function()
@@ -987,6 +1017,13 @@ do
 									text = TB_MENU_LOCALIZED.SETTINGSMOUSEBUTTONS2,
 									action = function()
 											TB_MENU_MAIN_SETTINGS.mousebuttons = { value = 2 }
+											Settings:settingsApplyActivate()
+										end
+								},
+								{
+									text = TB_MENU_LOCALIZED.SETTINGSMOUSEBUTTONS0,
+									action = function()
+											TB_MENU_MAIN_SETTINGS.mousebuttons = { value = 3 }
 											Settings:settingsApplyActivate()
 										end
 								}
@@ -1083,6 +1120,57 @@ do
 					}
 				},
 				{
+					name = TB_MENU_LOCALIZED.SETTINGSCAMERA,
+					items = {
+						{
+							name = TB_MENU_LOCALIZED.SETTINGSCAMERAFOCUS,
+							type = DROPDOWN,
+							systemname = "camerafocus",
+							selectedAction = function()
+									return get_option("camerafocus") + 1
+								end,
+							dropdown = {
+								{
+									text = TB_MENU_LOCALIZED.SETTINGSCAMERAFOCUSNONE,
+									action = function()
+											TB_MENU_MAIN_SETTINGS.camerafocus = { value = 0 }
+											TB_MENU_MAIN_SETTINGS.focuscam = { value = 0 }
+											Settings:settingsApplyActivate()
+										end
+								},
+								{
+									text = TB_MENU_LOCALIZED.SETTINGSCAMERAFOCUSPLAYER,
+									action = function()
+											TB_MENU_MAIN_SETTINGS.camerafocus = { value = 1 }
+											TB_MENU_MAIN_SETTINGS.focuscam = { value = 0 }
+											Settings:settingsApplyActivate()
+										end
+								},
+								{
+									text = TB_MENU_LOCALIZED.SETTINGSCAMERAFOCUSJOINT,
+									action = function()
+											TB_MENU_MAIN_SETTINGS.camerafocus = { value = 2 }
+											TB_MENU_MAIN_SETTINGS.focuscam = { value = 0 }
+											Settings:settingsApplyActivate()
+										end
+								}
+							}
+						},
+						{
+							name = TB_MENU_LOCALIZED.SETTINGSCAMERAINVERTX,
+							type = TOGGLE,
+							systemname = "invertedcamx",
+							val = { bit.band(tonumber(get_option("invertedcam")) or 0, 1) ~= 0 and 1 or 0 }
+						},
+						{
+							name = TB_MENU_LOCALIZED.SETTINGSCAMERAINVERTY,
+							type = TOGGLE,
+							systemname = "invertedcamy",
+							val = { bit.band(tonumber(get_option("invertedcam")) or 0, 2) ~= 0 and 1 or 0 }
+						}
+					}
+				},
+				{
 					name = TB_MENU_LOCALIZED.SETTINGSCHAT,
 					items = {
 						{
@@ -1090,7 +1178,8 @@ do
 							type = INPUT,
 							inputspecial = true,
 							systemname = "chattoggle",
-							val = { get_option("chattoggle") }
+							val = { get_option("chattoggle") },
+							hidden = is_mobile()
 						},
 						{
 							name = TB_MENU_LOCALIZED.SETTINGSPROFANITYFILTER,
@@ -1121,10 +1210,6 @@ do
 							systemname = "tooltip",
 							action = function(val)
 								TB_MENU_MAIN_SETTINGS.tooltip = { value = val }
-								if (val == 1 and not TOOLTIP_ACTIVE) then
-									dofile("system/tooltip_manager.lua")
-									Tooltip:create()
-								end
 							end,
 							val = { get_option("tooltip") }
 						},
@@ -1134,21 +1219,18 @@ do
 							systemname = "movememory",
 							action = function(val)
 								TB_MENU_MAIN_SETTINGS.movememory = { value = val }
-								if (val == 1 and not MOVEMEMORY_ACTIVE) then
-									dofile("system/movememory_manager.lua")
-									MoveMemory:spawnHotkeyListener()
-								end
 							end,
-							val = { get_option("movememory") }
+							val = { get_option("movememory") },
+							hidden = is_mobile()
 						},
 						{
 							name = TB_MENU_LOCALIZED.SETTINGSBROADCASTS,
 							type = DROPDOWN,
 							systemname = "showbroadcast",
 							selectedAction = function()
-									local showbroadcast = get_option("showbroadcast")
+									local showbroadcast = get_option("showbroadcast") + 0
 									if (showbroadcast > 2) then
-										showbroadcast = bit.bxor(get_option("showbroadcast"), 4)
+										showbroadcast = bit.bxor(get_option("showbroadcast") + 0, 4)
 									end
 									return showbroadcast + 1
 								end,
@@ -1187,7 +1269,7 @@ do
 								end
 								TB_MENU_MAIN_SETTINGS.showbroadcast = { value = (1 - val) * 4 + showbroadcast }
 							end,
-							val = { bit.band(get_option("showbroadcast"), 4) == 0 and 1 or 0 }
+							val = { bit.band(get_option("showbroadcast") + 0, 4) == 0 and 1 or 0 }
 						}
 					}
 				},
@@ -1235,29 +1317,29 @@ do
 		local languages = {}
 		local dropdown = {}
 		local files = get_files("data/language", "txt")
-		for i,v in pairs(files) do
+		for _, v in pairs(files) do
 			table.insert(languages, { name = v:gsub("%.txt$", "") })
 		end
 		local currentLang, langFile = get_language(), nil
-		for i,v in pairs(languages) do
-			if (v.name == currentLang) then
+		for i, v in pairs(languages) do
+			if (string.lower(v.name) == string.lower(currentLang)) then
 				langFile = v
 				table.remove(languages, i)
 				break
 			end
 		end
 		table.insert(languages, 1, langFile)
-		for i,v in pairs(languages) do
-			local newMenuFile = Files:open("system/language/" .. v.name .. ".txt")
+		for _, v in pairs(languages) do
+			local newMenuFile = Files.Open("system/language/" .. v.name .. ".txt")
 			if (not newMenuFile.data) then
 				v.newMenuDisabled = true
-			else
-				newMenuFile:close()
 			end
+			newMenuFile:close()
 			table.insert(dropdown, {
 				text = v.newMenuDisabled and v.name .. " (" .. TB_MENU_LOCALIZED.SETTINGSBASEHUDONLY .. ")" or v.name,
 				action = function()
 						set_language(v.name)
+						TBMenu.GetTranslation(get_language())
 						save_custom_config()
 						reload_graphics()
 						Settings:settingsApplyActivate()
@@ -1269,82 +1351,84 @@ do
 
 	function Settings:getResolutionItems()
 		local fullscreen = TB_MENU_MAIN_SETTINGS.fullscreen and TB_MENU_MAIN_SETTINGS.fullscreen.value or get_option("fullscreen")
-		local items
-		if (fullscreen == 1) then
-			items = {
-				{
-					name = TB_MENU_LOCALIZED.SETTINGSFULLSCREEN and TB_MENU_LOCALIZED.SETTINGSFULLSCREEN or TB_MENU_LOCALIZED.SETTINGSWINDOWED,
-					type = TOGGLE,
-					action = function(val)
-							TB_MENU_MAIN_SETTINGS.fullscreen = { value = TB_MENU_LOCALIZED.SETTINGSFULLSCREEN and val or 1 - val, reload = true }
-							Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
-						end,
-					val = { TB_MENU_LOCALIZED.SETTINGSFULLSCREEN and fullscreen or 1 - fullscreen }
-				},
-			}
-			if (PLATFORM == "WINDOWS") then
-				table.insert(items, {
-					name = TB_MENU_LOCALIZED.SETTINGSBORDERLESS,
-					type = TOGGLE,
-					action = function(val)
-							TB_MENU_MAIN_SETTINGS.borderless = { id = BORDERLESS, value = val, graphics = true }
-						end,
-					val = { TB_MENU_MAIN_SETTINGS["borderless"] and TB_MENU_MAIN_SETTINGS["borderless"].value or get_option("borderless") },
-					inactive = get_dpiawareness().DPISCALING ~= 1
-				})
-			end
-		else
-			-- Use these values instead of get_option() width/height to get highdpi-adapted values on macOS
-			local _x, _y, optionWidth, optionHeight = get_window_size()
-			if (PLATFORM == "APPLE") then
-				optionWidth = _x
-				optionHeight = _y
-			end
-			if (SETTINGS_LAST_RESOLUTION) then
-				optionWidth, optionHeight = unpack(SETTINGS_LAST_RESOLUTION)
-			end
-
-			items = {
-				{
-					name = TB_MENU_LOCALIZED.SETTINGSWIDTH,
-					type = INPUT,
-					systemname = "width",
-					reload = true,
-					val = { optionWidth },
-					valueVerifyAction = function(val)
-						if (val == '') then
-							return val
-						end
-						local val = tonumber(val) or 0
-						local maxWidth, maxHeight = get_maximum_window_size()
-						return (val > maxWidth and maxWidth or val)
-					end
-				},
-				{
-					name = TB_MENU_LOCALIZED.SETTINGSHEIGHT,
-					type = INPUT,
-					systemname = "height",
-					reload = true,
-					val = { optionHeight },
-					valueVerifyAction = function(val)
-						if (val == '') then
-							return val
-						end
-						local val = tonumber(val) or 0
-						local maxWidth, maxHeight = get_maximum_window_size()
-						return (val > maxHeight and maxHeight or val)
-					end
-				},
-				{
-					name = TB_MENU_LOCALIZED.SETTINGSFULLSCREEN and TB_MENU_LOCALIZED.SETTINGSFULLSCREEN or TB_MENU_LOCALIZED.SETTINGSWINDOWED,
-					type = TOGGLE,
-					action = function(val)
-							TB_MENU_MAIN_SETTINGS.fullscreen = { value = TB_MENU_LOCALIZED.SETTINGSFULLSCREEN and val or 1 - val, reload = true }
-							Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
-						end,
-					val = { TB_MENU_LOCALIZED.SETTINGSFULLSCREEN and fullscreen or 1 - fullscreen }
+		local items = {}
+		if (not is_mobile()) then
+			if (fullscreen == 1) then
+				items = {
+					{
+						name = TB_MENU_LOCALIZED.SETTINGSFULLSCREEN and TB_MENU_LOCALIZED.SETTINGSFULLSCREEN or TB_MENU_LOCALIZED.SETTINGSWINDOWED,
+						type = TOGGLE,
+						action = function(val)
+								TB_MENU_MAIN_SETTINGS.fullscreen = { value = TB_MENU_LOCALIZED.SETTINGSFULLSCREEN and val or 1 - val, reload = true }
+								Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
+							end,
+						val = { TB_MENU_LOCALIZED.SETTINGSFULLSCREEN and fullscreen or 1 - fullscreen }
+					},
 				}
-			}
+				if (PLATFORM == "WINDOWS") then
+					table.insert(items, {
+						name = TB_MENU_LOCALIZED.SETTINGSBORDERLESS,
+						type = TOGGLE,
+						action = function(val)
+								TB_MENU_MAIN_SETTINGS.borderless = { id = BORDERLESS, value = val, graphics = true }
+							end,
+						val = { TB_MENU_MAIN_SETTINGS["borderless"] and TB_MENU_MAIN_SETTINGS["borderless"].value or get_option("borderless") },
+						inactive = get_dpiawareness().DPISCALING ~= 1
+					})
+				end
+			else
+				-- Use these values instead of get_option() width/height to get highdpi-adapted values on macOS
+				local _x, _y, optionWidth, optionHeight = get_window_size()
+				if (PLATFORM == "APPLE") then
+					optionWidth = _x
+					optionHeight = _y
+				end
+				if (SETTINGS_LAST_RESOLUTION) then
+					optionWidth, optionHeight = unpack(SETTINGS_LAST_RESOLUTION)
+				end
+
+				items = {
+					{
+						name = TB_MENU_LOCALIZED.SETTINGSWIDTH,
+						type = INPUT,
+						systemname = "width",
+						reload = true,
+						val = { optionWidth },
+						valueVerifyAction = function(val)
+							if (val == '') then
+								return val
+							end
+							local val = tonumber(val) or 0
+							local maxWidth, maxHeight = get_maximum_window_size()
+							return (val > maxWidth and maxWidth or val)
+						end
+					},
+					{
+						name = TB_MENU_LOCALIZED.SETTINGSHEIGHT,
+						type = INPUT,
+						systemname = "height",
+						reload = true,
+						val = { optionHeight },
+						valueVerifyAction = function(val)
+							if (val == '') then
+								return val
+							end
+							local val = tonumber(val) or 0
+							local maxWidth, maxHeight = get_maximum_window_size()
+							return (val > maxHeight and maxHeight or val)
+						end
+					},
+					{
+						name = TB_MENU_LOCALIZED.SETTINGSFULLSCREEN and TB_MENU_LOCALIZED.SETTINGSFULLSCREEN or TB_MENU_LOCALIZED.SETTINGSWINDOWED,
+						type = TOGGLE,
+						action = function(val)
+								TB_MENU_MAIN_SETTINGS.fullscreen = { value = TB_MENU_LOCALIZED.SETTINGSFULLSCREEN and val or 1 - val, reload = true }
+								Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
+							end,
+						val = { TB_MENU_LOCALIZED.SETTINGSFULLSCREEN and fullscreen or 1 - fullscreen }
+					}
+				}
+			end
 		end
 		if (PLATFORM == "APPLE") then
 			table.insert(items, {
@@ -1553,102 +1637,6 @@ do
 		end
 	end
 
-	function Settings:spawnSlider(viewElement, sliderTable)
-		local slider
-		slider = TBMenu:spawnSlider(viewElement, nil, nil, nil, nil, nil, nil, sliderTable.val[1], sliderTable, function(val)
-				TB_MENU_MAIN_SETTINGS[sliderTable.systemname] = { value = val }
-				Settings:settingsApplyActivate()
-				if (sliderTable.onUpdate) then
-					sliderTable.onUpdate(slider)
-				end
-			end, nil, function()
-				if (sliderTable.onMouseUp) then
-					sliderTable.onMouseUp(slider)
-				end
-			end)
-		return slider
-		--[[
-		local maxVal = sliderTable.maxValue or 1
-		local minVal = sliderTable.minValue or 0
-		local minText = UIElement:new({
-			parent = viewElement,
-			pos = { 0, 0 },
-			size = { 30, viewElement.size.h }
-		})
-		minText:addAdaptedText(false, minVal .. "", nil, nil, 4, RIGHTMID, 0.7)
-		local maxText = UIElement:new({
-			parent = viewElement,
-			pos = { -30, 0 },
-			size = { 30, viewElement.size.h }
-		})
-		maxText:addAdaptedText(false, maxVal == 128 and 100 or maxVal .. "", nil, nil, 4, LEFTMID, 0.7)
-		local sliderBG = UIElement:new({
-			parent = viewElement,
-			pos = { 35, 0 },
-			size = { viewElement.size.w - 70, viewElement.size.h },
-			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-			interactive = true
-		})
-		sliderBG:addCustomDisplay(true, function()
-				set_color(unpack(sliderBG.bgColor))
-				draw_quad(sliderBG.pos.x, sliderBG.pos.y + viewElement.size.h / 2 - 3, sliderBG.size.w, 6)
-			end)
-		local sliderPos = 0
-		sliderTable.val[1] = sliderTable.val[1] > maxVal and 1 or sliderTable.val[1] / maxVal
-		sliderPos = sliderTable.val[1] * (sliderBG.size.w - 20)
-		local slider = UIElement:new({
-			parent = sliderBG,
-			pos = { sliderPos, -sliderBG.size.h / 2 - 10 },
-			size = { 20, 20 },
-			interactive = true,
-			bgColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-			hoverColor = TB_MENU_DEFAULT_LIGHTEST_COLOR,
-			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-			shapeType = ROUNDED,
-			rounded = 20
-		})
-		slider:addMouseHandlers(function()
-				slider.pressed = true
-				slider.pressedPos = slider:getLocalPos()
-			end, function()
-				slider.pressed = false
-			end, function()
-				if (slider.pressed) then
-					local xPos = MOUSE_X - sliderBG.pos.x - slider.pressedPos.x
-					if (xPos < 0) then
-						xPos = 0
-					elseif (xPos > sliderBG.size.w - slider.size.w) then
-						xPos = sliderBG.size.w - slider.size.w
-					end
-					if (sliderTable.boolean) then
-						if (xPos + slider.size.w / 2 > sliderBG.size.w / 2) then
-							xPos = sliderBG.size.w - slider.size.w
-						else
-							xPos = 0
-						end
-					end
-					slider:moveTo(xPos, nil)
-					sliderTable.val[1] = xPos / (sliderBG.size.w - 20) * (maxVal - minVal) + minVal
-					TB_MENU_MAIN_SETTINGS[sliderTable.systemname] = { value = sliderTable.val[1] }
-					Settings:settingsApplyActivate()
-				end
-			end)
-		sliderBG:addMouseHandlers(function()
-			local pos = sliderBG:getLocalPos()
-			local xPos = pos.x - slider.size.w / 2
-			if (xPos < 0) then
-				xPos = 0
-			elseif (xPos > sliderBG.size.w - slider.size.w) then
-				xPos = sliderBG.size.w - slider.size.w
-			end
-			slider:moveTo(xPos)
-			sliderTable.val[1] = xPos / (sliderBG.size.w - 20) * (maxVal - minVal) + minVal
-			TB_MENU_MAIN_SETTINGS[sliderTable.systemname] = { value = sliderTable.val[1] }
-			Settings:settingsApplyActivate()
-		end)
-		return slider]]
-	end
-
 	function Settings:spawnToggle(viewElement, toggle, i)
 		local toggleTable = toggle.val
 		local toggleBG = UIElement:new({
@@ -1702,8 +1690,8 @@ do
 		end
 	end
 
-	function Settings:setChatCensorSettings()
-		if (not TB_MENU_MAIN_SETTINGS.chatcensor and not TB_MENU_MAIN_SETTINGS.chatcensorhidesystem) then
+	function Settings.SetChatCensorSettings()
+		if (TB_MENU_MAIN_SETTINGS.chatcensor == nil and TB_MENU_MAIN_SETTINGS.chatcensorhidesystem == nil) then
 			return
 		end
 
@@ -1712,6 +1700,19 @@ do
 
 		TB_MENU_MAIN_SETTINGS.chatcensorhidesystem = nil
 		TB_MENU_MAIN_SETTINGS.chatcensor = { value = wordfilter + hidesystem * 2 }
+	end
+
+	function Settings.SetInvertedCameraSettings()
+		if (TB_MENU_MAIN_SETTINGS.invertedcamx == nil and TB_MENU_MAIN_SETTINGS.invertedcamy == nil) then
+			return
+		end
+
+		local inverted = tonumber(get_option("invertedcam")) or 0
+		local inverted_x = TB_MENU_MAIN_SETTINGS.invertedcamx and TB_MENU_MAIN_SETTINGS.invertedcamx.value or (bit.band(inverted, 1) ~= 0 and 1 or 0)
+		local inverted_y = TB_MENU_MAIN_SETTINGS.invertedcamy and TB_MENU_MAIN_SETTINGS.invertedcamy.value or (bit.band(inverted, 2) ~= 0 and 1 or 0)
+		TB_MENU_MAIN_SETTINGS.invertedcamx = nil
+		TB_MENU_MAIN_SETTINGS.invertedcamy = nil
+		TB_MENU_MAIN_SETTINGS.invertedcam = { value = bit.bor(inverted_x, inverted_y * 2) }
 	end
 
 	function Settings:showSettings(id, keepStoredSettings)
@@ -1758,7 +1759,8 @@ do
 		tbMenuApplySettingsButton:addAdaptedText(false, TB_MENU_LOCALIZED.SETTINGSNOCHANGES)
 		tbMenuApplySettingsButton:addMouseHandlers(nil, function()
 				local reload = false
-				Settings:setChatCensorSettings()
+				Settings.SetChatCensorSettings()
+				Settings.SetInvertedCameraSettings()
 				if (TB_MENU_MAIN_SETTINGS["fullscreen"] and TB_MENU_MAIN_SETTINGS["fullscreen"].value == 1 and not SETTINGS_LAST_RESOLUTION) then
 					SETTINGS_LAST_RESOLUTION = { WIN_W, WIN_H }
 				elseif (not TB_MENU_MAIN_SETTINGS["borderless"]) then
@@ -1767,7 +1769,7 @@ do
 				for i,v in pairs(TB_MENU_MAIN_SETTINGS) do
 					if (i:find("soundcat")) then
 						local catid = i:gsub("^soundcat", "")
-						set_sound_category(tonumber(catid), v.value, v.default)
+						set_sound_category(tonumber(catid) + 0, v.value, v.default)
 					else
 						if (v.graphics) then
 							set_graphics_option(v.id, v.value)
@@ -1783,14 +1785,14 @@ do
 						end
 					end
 				end
-				if (TB_MENU_MAIN_SETTINGS.chatcensor) then
+				--[[if (TB_MENU_MAIN_SETTINGS.chatcensor) then
 					dofile("system/ignore_manager.lua")
 					if (TB_MENU_MAIN_SETTINGS.chatcensor.value > 0) then
 						ChatIgnore:activate()
 					else
 						ChatIgnore:deactivate()
 					end
-				end
+				end]]
 				if (TB_MENU_MAIN_SETTINGS.showbroadcast) then
 					dofile("system/broadcast_manager.lua")
 					if (not in_array(TB_MENU_MAIN_SETTINGS.showbroadcast.value, { 0, 4 })) then
@@ -1817,147 +1819,175 @@ do
 		end
 
 		local listElements = {}
-		for i,section in pairs(settingsData) do
-			local sectionName = UIElement:new({
-				parent = listingHolder,
-				pos = { 20, #listElements * elementHeight },
-				size = { listingHolder.size.w - 40, elementHeight }
-			})
-			sectionName:addAdaptedText(true, section.name, nil, -3, FONTS.BIG, LEFTBOT, 0.6)
-			table.insert(listElements, sectionName)
-			for i,item in pairs(section.items) do
-				local itemHolder = UIElement:new({
+		for _, section in pairs(settingsData) do
+			if (#section.items > 0) then
+				local sectionName = UIElement:new({
 					parent = listingHolder,
-					pos = { 0, #listElements * elementHeight },
-					size = { listingHolder.size.w, elementHeight }
+					pos = { 20, #listElements * elementHeight },
+					size = { listingHolder.size.w - 40, elementHeight }
 				})
-				table.insert(listElements, itemHolder)
-				local itemView = UIElement:new({
-					parent = itemHolder,
-					pos = { 20, 3 },
-					size = { itemHolder.size.w - 40, itemHolder.size.h - 6 },
-					bgColor = TB_MENU_DEFAULT_DARKER_COLOR
-				})
-				local shiftX = 20
-				if (item.hint) then
-					local hintIcon = UIElement:new({
-						parent = itemView,
-						pos = { shiftX, 7 },
-						size = { itemView.size.h - 14, itemView.size.h - 14 },
-						interactive = true,
-						shapeType = ROUNDED,
-						rounded = itemView.size.h,
-						bgColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-						hoverColor = TB_MENU_DEFAULT_LIGHTEST_COLOR,
-						pressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR
-					})
-					local popup = TBMenu:displayHelpPopup(hintIcon, item.hint, true)
-					popup:moveTo(itemView.size.h - 9, -(popup.size.h - itemView.size.h + 14) / 2, true)
-					shiftX = shiftX + hintIcon.size.w + 14
-				end
-				local itemName = UIElement:new({
-					parent = itemView,
-					pos = { shiftX, 0 },
-					size = { itemView.size.w / 2 - 10 - shiftX, itemView.size.h }
-				})
-				itemName:addAdaptedText(true, item.name, nil, nil, nil, LEFTMID)
-				if (item.type == SLIDER) then
-					local itemSlider = UIElement:new({
-						parent = itemView,
-						pos = { itemView.size.w / 2 + 10, 5 },
-						size = { itemView.size.w / 2 - 30, itemView.size.h - 10 }
-					})
-					Settings:spawnSlider(itemSlider, item)
-				elseif (item.type == TOGGLE) then
-					local itemToggle = UIElement:new({
-						parent = itemView,
-						pos = { -itemView.size.h - 10, 5 },
-						size = { itemView.size.h - 10, itemView.size.h - 10 }
-					})
-					if (not item.action) then
-						item.action = function(val)
-							TB_MENU_MAIN_SETTINGS[item.systemname] = { value = val }
+				sectionName:addAdaptedText(true, section.name, nil, -3, FONTS.BIG, LEFTBOT, 0.6)
+				table.insert(listElements, sectionName)
+				for i,item in pairs(section.items) do
+					if (not item.hidden) then
+						local itemHolder = UIElement:new({
+							parent = listingHolder,
+							pos = { 0, #listElements * elementHeight },
+							size = { listingHolder.size.w, elementHeight }
+						})
+						table.insert(listElements, itemHolder)
+						local itemView = UIElement:new({
+							parent = itemHolder,
+							pos = { 20, 3 },
+							size = { itemHolder.size.w - 40, itemHolder.size.h - 6 },
+							bgColor = TB_MENU_DEFAULT_DARKER_COLOR
+						})
+						local shiftX = 20
+						if (item.hint) then
+							local hintIcon = UIElement:new({
+								parent = itemView,
+								pos = { shiftX, 7 },
+								size = { itemView.size.h - 14, itemView.size.h - 14 },
+								interactive = true,
+								shapeType = ROUNDED,
+								rounded = itemView.size.h,
+								bgColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+								hoverColor = TB_MENU_DEFAULT_LIGHTEST_COLOR,
+								pressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR
+							})
+							local popup = TBMenu:displayHelpPopup(hintIcon, item.hint, true)
+							popup:moveTo(itemView.size.h - 9, -(popup.size.h - itemView.size.h + 14) / 2, true)
+							shiftX = shiftX + hintIcon.size.w + 14
+						end
+						local itemName = UIElement:new({
+							parent = itemView,
+							pos = { shiftX, 0 },
+							size = { itemView.size.w / 2 - 10 - shiftX, itemView.size.h }
+						})
+						itemName:addAdaptedText(true, item.name, nil, nil, nil, LEFTMID)
+						if (item.type == SLIDER) then
+							local itemSlider = UIElement:new({
+								parent = itemView,
+								pos = { itemView.size.w / 2 + 10, 5 },
+								size = { itemView.size.w / 2 - 30, itemView.size.h - 10 }
+							})
+							local slider
+							slider = TBMenu:spawnSlider2(itemSlider, nil, tonumber(item.val[1]) or 0, item, function(val)
+								TB_MENU_MAIN_SETTINGS[item.systemname] = { value = val }
+								Settings:settingsApplyActivate()
+								if (item.onUpdate) then
+									item.onUpdate(slider)
+								end
+							end, nil, function()
+								if (item.onMouseUp) then
+									item.onMouseUp(slider)
+								end
+							end)
+						elseif (item.type == TOGGLE) then
+							local itemToggle = UIElement:new({
+								parent = itemView,
+								pos = { -itemView.size.h - 10, 5 },
+								size = { itemView.size.h - 10, itemView.size.h - 10 }
+							})
+							if (not item.action) then
+								item.action = function(val)
+									TB_MENU_MAIN_SETTINGS[item.systemname] = { value = val }
+								end
+							end
+							Settings:spawnToggle(itemToggle, item, 1)
+						elseif (item.type == INPUT) then
+							local itemInput = UIElement:new({
+								parent = itemView,
+								pos = { itemView.size.w / 3 * 2 - 20, 5 },
+								size = { itemView.size.w / 3, itemView.size.h - 10 },
+								bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+								shapeType = ROUNDED,
+								rounded = 3
+							})
+							if (item.inputspecial) then
+								local textField = TBMenu:spawnTextField2(itemInput, nil, Settings:getKeyName(item.val[1]), item.name, {
+									isNumeric = true,
+									fontId = 4,
+									textAlign = CENTERMID,
+									textScale = 0.8,
+									textColor = UICOLORWHITE,
+									noCursor = true
+								})
+								textField:addKeyboardHandlers(function(key)
+										textField.textfieldstr[1] = Settings:getKeyName(key)
+										textField.pressedKeyId = key
+									end, function()
+										TB_MENU_MAIN_SETTINGS[item.systemname] = { value = textField.pressedKeyId, reload = item.reload }
+										Settings:settingsApplyActivate(item.reload)
+									end)
+							else
+								local textField = TBMenu:spawnTextField2(itemInput, nil, tostring(item.val[1]), item.name, {
+									isNumeric = true,
+									fontId = 4,
+									textAlign = CENTERMID,
+									textScale = 0.8,
+									textColor = UICOLORWHITE
+								})
+								textField:addKeyboardHandlers(nil, function()
+										if (item.valueVerifyAction) then
+											textField.textfieldstr[1] = item.valueVerifyAction(textField.textfieldstr[1]) .. ''
+										end
+										if (textField.textfieldstr[1] == '') then
+											TB_MENU_MAIN_SETTINGS[item.systemname] = nil
+										else
+											TB_MENU_MAIN_SETTINGS[item.systemname] = { value = tonumber(textField.textfieldstr[1]), reload = item.reload }
+											Settings:settingsApplyActivate(item.reload)
+										end
+									end)
+							end
+						elseif (item.type == DROPDOWN) then
+							local itemDropdownBG = UIElement:new({
+								parent = itemView,
+								pos = { itemView.size.w / 3 * 2 - 20, 5 },
+								size = { itemView.size.w / 3, itemView.size.h - 10 },
+								bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+								shapeType = ROUNDED,
+								rounded = 3
+							})
+							local itemDropdown = UIElement:new({
+								parent = itemDropdownBG,
+								pos = { 1, 1 },
+								size = { itemDropdownBG.size.w - 2, itemDropdownBG.size.h - 2 },
+								bgColor = TB_MENU_DEFAULT_BG_COLOR,
+								hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+								interactive = true,
+								shapeType = ROUNDED,
+								rounded = 3
+							})
+							local selectedId = 1
+							if (item.selectedAction) then
+								selectedId = item.selectedAction()
+							end
+							TBMenu:spawnDropdown(itemDropdown, item.dropdown, 30, WIN_H - 100, item.dropdown[selectedId], { scale = 0.7 }, { scale = 0.6 })
+						elseif (item.type == BUTTON) then
+							local itemButtonBG = UIElement:new({
+								parent = itemView,
+								pos = { itemView.size.w / 3 * 2 - 20, 5 },
+								size = { itemView.size.w / 3, itemView.size.h - 10 },
+								bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+								shapeType = ROUNDED,
+								rounded = 3
+							})
+							local itemButton = UIElement:new({
+								parent = itemButtonBG,
+								pos = { 1, 1 },
+								size = { itemButtonBG.size.w - 2, itemButtonBG.size.h - 2 },
+								bgColor = TB_MENU_DEFAULT_BG_COLOR,
+								hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+								pressedColor = TB_MENU_DEFAULT_DARKER_COLOR,
+								interactive = true,
+								shapeType = ROUNDED,
+								rounded = 3
+							})
+							itemButton:addMouseHandlers(nil, item.action)
+							itemButton:addAdaptedText(false, string.upper("Press to show"), nil, nil, 4, nil, 0.7)
 						end
 					end
-					Settings:spawnToggle(itemToggle, item, 1)
-				elseif (item.type == INPUT) then
-					local itemInput = UIElement:new({
-						parent = itemView,
-						pos = { itemView.size.w / 3 * 2 - 20, 5 },
-						size = { itemView.size.w / 3, itemView.size.h - 10 },
-						bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-						shapeType = ROUNDED,
-						rounded = 3
-					})
-					if (item.inputspecial) then
-						local textField = TBMenu:spawnTextField(itemInput, nil, nil, nil, nil, Settings:getKeyName(item.val[1]), true, nil, 0.8, UICOLORWHITE, item.name, CENTERMID, true)
-						textField:addKeyboardHandlers(function(key)
-								textField.textfieldstr[1] = Settings:getKeyName(key)
-								textField.pressedKeyId = key
-							end, function()
-								TB_MENU_MAIN_SETTINGS[item.systemname] = { value = textField.pressedKeyId, reload = item.reload }
-								Settings:settingsApplyActivate(item.reload)
-							end)
-					else
-						local textField = TBMenu:spawnTextField(itemInput, nil, nil, nil, nil, item.val[1] .. "", true, nil, 0.8, UICOLORWHITE, item.name, CENTERMID)
-						textField:addKeyboardHandlers(nil, function()
-								if (item.valueVerifyAction) then
-									textField.textfieldstr[1] = item.valueVerifyAction(textField.textfieldstr[1]) .. ''
-								end
-								if (textField.textfieldstr[1] == '') then
-									TB_MENU_MAIN_SETTINGS[item.systemname] = nil
-								else
-									TB_MENU_MAIN_SETTINGS[item.systemname] = { value = tonumber(textField.textfieldstr[1]), reload = item.reload }
-									Settings:settingsApplyActivate(item.reload)
-								end
-							end)
-					end
-				elseif (item.type == DROPDOWN) then
-					local itemDropdownBG = UIElement:new({
-						parent = itemView,
-						pos = { itemView.size.w / 3 * 2 - 20, 5 },
-						size = { itemView.size.w / 3, itemView.size.h - 10 },
-						bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-						shapeType = ROUNDED,
-						rounded = 3
-					})
-					local itemDropdown = UIElement:new({
-						parent = itemDropdownBG,
-						pos = { 1, 1 },
-						size = { itemDropdownBG.size.w - 2, itemDropdownBG.size.h - 2 },
-						bgColor = TB_MENU_DEFAULT_BG_COLOR,
-						hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-						interactive = true,
-						shapeType = ROUNDED,
-						rounded = 3
-					})
-					local selectedId = 1
-					if (item.selectedAction) then
-						selectedId = item.selectedAction()
-					end
-					TBMenu:spawnDropdown(itemDropdown, item.dropdown, 30, WIN_H - 100, item.dropdown[selectedId], { scale = 0.7 }, { scale = 0.6 })
-				elseif (item.type == BUTTON) then
-					local itemButtonBG = UIElement:new({
-						parent = itemView,
-						pos = { itemView.size.w / 3 * 2 - 20, 5 },
-						size = { itemView.size.w / 3, itemView.size.h - 10 },
-						bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-						shapeType = ROUNDED,
-						rounded = 3
-					})
-					local itemButton = UIElement:new({
-						parent = itemButtonBG,
-						pos = { 1, 1 },
-						size = { itemButtonBG.size.w - 2, itemButtonBG.size.h - 2 },
-						bgColor = TB_MENU_DEFAULT_BG_COLOR,
-						hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-						pressedColor = TB_MENU_DEFAULT_DARKER_COLOR,
-						interactive = true,
-						shapeType = ROUNDED,
-						rounded = 3
-					})
-					itemButton:addMouseHandlers(nil, item.action)
-					itemButton:addAdaptedText(false, string.upper("Press to show"), nil, nil, 4, nil, 0.7)
 				end
 			end
 		end

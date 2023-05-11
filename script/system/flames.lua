@@ -9,7 +9,7 @@ end
 dofile("system/menu_backend_defines.lua")
 require("toriui.uielement3d")
 require("system.menu_manager")
-require("system.player_info")
+require("system.playerinfo_manager")
 require("system.iofiles")
 require("system.flames_manager")
 

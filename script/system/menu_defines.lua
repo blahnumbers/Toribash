@@ -14,8 +14,9 @@ TB_MENU_HUB_GLOBALID = 1000
 TB_MENU_MAIN_GLOBALID = 1001
 TB_ATMOSPHERES_GLOBALID = 1002
 TB_TUTORIAL_MODERN_GLOBALID = 1003
-TB_MOVEMEMORY_GLOBALID = 1011
 TB_TOOLTIP_GLOBALID = 1010
+TB_MOVEMEMORY_GLOBALID = 1011
+TB_QUEUELIST_GLOBALID = 1012
 
 
 -- Colors
@@ -46,6 +47,7 @@ TB_MENU_GAME_LOGO = "../textures/menu/logos/toribash_modern_small.tga"
 TB_MENU_GAME_LOGO_BIG = "../textures/menu/logos/toribash_modern.tga"
 TB_MENU_GAME_TITLE = "../textures/menu/logos/toribashgametitle_modern.tga"
 TB_MENU_USERBAR_MAIN = "../textures/menu/general/topbarbgmain.tga"
+TB_MENU_USERBAR_WIDE = "../textures/menu/general/topbarbgmainwide.tga"
 TB_MENU_USERBAR_LEFT = "../textures/menu/general/topbarbgleft.tga"
 TB_MENU_BLOODSPLATTER_LEFT = "../textures/menu/general/bloodsplatleft.tga"
 TB_MENU_BLOODSPLATTER_RIGHT = "../textures/menu/general/bloodsplatright.tga"
@@ -85,7 +87,7 @@ TB_MENU_BUTTON_CROSSWHITE = "../textures/menu/general/buttons/crosswhite.tga"
 
 local overrideActive = false
 
-function setDefinesOverrides()
+local function setDefinesOverrides()
 	TB_MENU_DEFAULT_BG_COLOR = { 0.15, 0.15, 0.15, 1 }
 	TB_MENU_DEFAULT_BG_COLOR_TRANS = { 0.15, 0.15, 0.15, 0.5 }
 	TB_MENU_DEFAULT_DARKER_COLOR = { 0.1, 0.1, 0.1, 1 }
@@ -132,14 +134,3 @@ end
 if (overrideActive) then
 	setDefinesOverrides()
 end
-
-add_hook("key_down", "tbSystemKeyStateHandler", function(key)
-		if (key == 27) then
-			ESC_KEY_PRESSED = true
-		end
-	end)
-add_hook("key_up", "tbSystemKeyStateHandler", function(key)
-		if (key == 27) then
-			ESC_KEY_PRESSED = false
-		end
-	end)

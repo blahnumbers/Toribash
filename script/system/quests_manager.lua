@@ -31,8 +31,11 @@ require("system.battlepass_manager")
 ---@field progresspercentage number Quest progress percentage
 ---@field description string Additional information about the quest
 
-if (Quests == nil or TB_MENU_DEBUG) then
+if (Quests == nil) then
 	-- Quests manager class
+	--
+	-- **Version 5.60 updates:**
+	-- Added EmmyLua annotations
 	--
 	-- **Ver 1.3 updates:**
 	-- * Updated visuals to show all quests same as global quests from previous versions
@@ -45,12 +48,11 @@ if (Quests == nil or TB_MENU_DEBUG) then
 	---@field QuestsData QuestData[] Table containing all active regular quests for current user
 	---@field QuestsGlobalData QuestData[] Table containing information on all global quests for the user
 	---@field QuestDataErrors integer Will be non-zero if quest data file parsing resulted in an error
+	---@field PopupDisplayDuration number
 	Quests = {
-		__index = {},
-		ver = 1.3,
-		QuestsData = nil,
-		QuestsGlobalData = nil,
-		QuestDataErrors = 0
+		ver = 5.60,
+		QuestDataErrors = 0,
+		PopupDisplayDuration = 2.5
 	}
 	setmetatable({}, Quests)
 end
@@ -67,7 +69,7 @@ function Quests:download(override)
 
 	local downloads = get_downloads()
 	local downloadingQuest, downloadingGlobalQuest
-	for i,v in pairs(downloads) do
+	for _, v in pairs(downloads) do
 		if (v:find("quest.txt$")) then
 			downloadingQuest = true
 		elseif (v:find("quests_global.txt$")) then
@@ -95,14 +97,15 @@ end
 ---@return nil
 function Quests:getQuests()
 	TB_MENU_QUESTS_COUNT = 0
-	local file = Files:open("../data/quest.txt")
+	local file = Files.Open("../data/quest.txt")
 	if (not file.data) then
 		Quests:download()
 		Quests.QuestDataErrors = Quests.QuestDataErrors + 1
 	end
+	local fileData = file:readAll()
+	file:close()
 
-	---@type QuestData[]
-	local questData = {}
+	Quests.QuestsData = {}
 	local dataTypes = {
 		{ "id", numeric = true },
 		{ "type", numeric = true },
@@ -123,16 +126,17 @@ function Quests:getQuests()
 		{ "description" }
 	}
 
-	for i, ln in pairs(file:readAll()) do
+	for _, ln in pairs(fileData) do
 		if (not ln:find("^#")) then
 			local _, segments = ln:gsub("([^\t]*)\t?", "")
 			local dataStream = { ln:match(("([^\t]*)\t?"):rep(segments)) }
 
 			---@type QuestData
-			local quest = {}
+			local quest = { claimed = false }
 			for i,v in pairs(dataTypes) do
 				quest[v[1]] = dataStream[i]
 				if (v.numeric) then
+					---@diagnostic disable-next-line: assign-type-mismatch
 					quest[v[1]] = tonumber(quest[v[1]]) or 0
 				elseif (v.boolean) then
 					quest[v[1]] = quest[v[1]] == '1'
@@ -141,7 +145,7 @@ function Quests:getQuests()
 			quest.name = (quest.name and quest.name:len() > 0) and quest.name or Quests:getQuestName(quest)
 			quest.description = (quest.description and quest.description:len() > 0) and quest.description or Quests:getQuestObjective(quest)
 			quest.progresspercentage = math.min(1, quest.progress / quest.requirement)
-			table.insert(questData, quest)
+			table.insert(Quests.QuestsData, quest)
 
 			if (quest.progress >= quest.requirement) then
 				-- Handle special quest types
@@ -155,25 +159,24 @@ function Quests:getQuests()
 			end
 		end
 	end
-	file:close()
-
-	---@type QuestData[]
-	Quests.QuestsData = table.qsort(questData, "progresspercentage", SORT_DESCENDING)
 
 	if (BattlePass.UserData) then
 		Quests:addBattlePassQuests()
 	end
+
+	---@type QuestData[]
+	Quests.QuestsData = table.qsort(Quests.QuestsData, { "progresspercentage", "claimed" }, { SORT_DESCENDING, SORT_ASCENDING })
 end
 
 ---Adds hardcoded Battle Pass quests that automark themselves on completion
 function Quests:addBattlePassQuests()
-	for i,v in pairs(Quests.QuestsData) do
+	for _, v in pairs(Quests.QuestsData) do
 		if (v.id == 2000) then
 			return
 		end
 	end
 
-	local loginRewardsAvailable = PlayerInfo:getLoginRewards().available
+	local loginRewardsAvailable = PlayerInfo.getLoginRewards().available
 	table.insert(Quests.QuestsData, {
 		id = 2000,
 		name = TB_MENU_LOCALIZED.QUESTSDAILYPLAYER,
@@ -183,14 +186,13 @@ function Quests:addBattlePassQuests()
 		progress = loginRewardsAvailable and 0 or 1,
 		claimed = not loginRewardsAvailable,
 		type = 0,
-		timeleft = -1,
+		timeleft = PlayerInfo.getLoginRewards().timeLeft,
 		modid = 0,
 		modname = '',
 		reward = 0,
 		rewardid = 0,
 		bp_xp = 10
 	})
-	Quests.QuestsData = table.qsort(Quests.QuestsData, "progresspercentage", SORT_DESCENDING)
 end
 
 ---Updates daily login quest status
@@ -207,7 +209,7 @@ function Quests:updateLoginQuestStatus(completed)
 			Quests.QuestsData[i].progress = completed and 1 or 0
 			Quests.QuestsData[i].progresspercentage = completed and 1 or 0
 			Quests.QuestsData[i].claimed = completed
-			Quests.QuestsData = table.qsort(Quests.QuestsData, "progresspercentage", SORT_DESCENDING)
+			Quests.QuestsData = table.qsort(Quests.QuestsData, { "progresspercentage", "claimed" }, { SORT_DESCENDING, SORT_ASCENDING })
 			return true
 		end
 	end
@@ -216,7 +218,7 @@ end
 
 ---Returns quest data with the matching quest id. If no quest is found, returns `false`.
 ---@param id integer
----@return QuestData|boolean
+---@return QuestData?
 function Quests:getQuestById(id)
 	if (not Quests.QuestsData) then
 		Quests:getQuests()
@@ -228,7 +230,7 @@ function Quests:getQuestById(id)
 			end
 		end
 	end
-	return false
+	return nil
 end
 
 ---@param quest QuestData
@@ -269,7 +271,7 @@ end
 ---@return string
 function Quests:getQuestObjective(quest)
 	local targetText = ""
-	local requirementFormatted = PlayerInfo:currencyFormat(quest.requirement)
+	local requirementFormatted = numberFormat(quest.requirement)
 	if (quest.type == 1) then
 		targetText = (quest.dq == QUESTS_DQ and TB_MENU_LOCALIZED.QUESTSDQREQGAME or TB_MENU_LOCALIZED.QUESTSPLAYREQ) .. " " .. requirementFormatted .. " " .. (quest.ranked and TB_MENU_LOCALIZED.WORDRANKED .. " " or "") .. TB_MENU_LOCALIZED.WORDGAMES
 	elseif (quest.type == 2) then
@@ -341,14 +343,24 @@ function Quests:drawRewardText(quest, viewElement)
 			end
 		end
 
+		local iconPath = nil
+		if (quest.rewardid == 0) then
+			iconPath = "../textures/store/toricredit_tiny.tga"
+		elseif (quest.rewardid > 0) then
+			iconPath = Torishop:getItemIcon(quest.rewardid)
+		end
 		local questRewardIcon = viewElement:addChild({
 			pos = { (viewElement.size.w - textWidth - iconSize - 10) / 2, (viewElement.size.h - iconSize) / 2 },
 			size = { iconSize, iconSize },
-			bgImage = quest.rewardid ~= nil and (quest.rewardid == 0 and "../textures/store/toricredit_tiny.tga" or "../textures/store/items/" .. quest.rewardid .. ".tga") or nil
+			bgImage = iconPath
 		})
 	end
 end
 
+---Queues a network request to claim the specified quest with callbacks
+---@param quest QuestData
+---@param successFunc function?
+---@param errorFunc function?
 function Quests:claim(quest, successFunc, errorFunc)
 	Request:queue(function() claim_quest(quest.id) end, "questclaim" .. quest.id, function()
 		local response = get_network_response()
@@ -366,14 +378,14 @@ function Quests:claim(quest, successFunc, errorFunc)
 			end
 		else
 			local errorMessage = response:gsub("GATEWAY 0;.*", "")
-			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REWARDSCLAIMERROROTHER .. ": " .. errorMessage, TB_MENU_MAIN_ISOPEN == 0)
+			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REWARDSCLAIMERROROTHER .. ": " .. errorMessage)
 
 			if (errorFunc) then
 				errorFunc()
 			end
 		end
 	end, function()
-		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.ERRORTRYAGAIN, TB_MENU_MAIN_ISOPEN == 0)
+		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.ERRORTRYAGAIN)
 		if (errorFunc) then
 			errorFunc()
 		end
@@ -528,11 +540,11 @@ function Quests:downloadGlobal()
 end
 
 ---Parses global quest information from the quests_global data file
----@param fileData? File File object created by Files:open(). If nil, default path for global quests will be used.
+---@param fileData? File File object created by Files.Open(). If nil, default path for global quests will be used.
 ---@return nil
 function Quests:getGlobalQuests(fileData)
 	TB_MENU_QUESTS_GLOBAL_COUNT = 0
-	local fileData = fileData or Files:open("../data/quests_global.dat")
+	local fileData = fileData or Files.Open("../data/quests_global.dat")
 
 	if (not fileData.data and not fileData:isDownloading()) then
 		QUESTS_LASTUPDATE.time = 0
@@ -572,7 +584,8 @@ function Quests:getGlobalQuests(fileData)
 				end
 			end
 			quest.global = true
-			quest.description = quest.description ~= '' and quest.description or false
+			---@diagnostic disable-next-line: assign-type-mismatch
+			quest.description = quest.description ~= '' and quest.description or nil
 			quest.progresspercentage = math.min(1, quest.progress / quest.requirement)
 			table.insert(globalQuests, quest)
 
@@ -589,66 +602,6 @@ function Quests:getGlobalQuests(fileData)
 	QUESTS_LASTUPDATE.qi = TB_MENU_PLAYER_INFO.data.qi
 end
 
----Returns navigation data for legacy Global Quests screen
----@deprecated
----@return MenuNavButton[]
-function Quests:getGlobalQuestsNavigation()
-	return {
-		{
-			text = TB_MENU_LOCALIZED.NAVBUTTONBACK,
-			action = function() TBMenu:clearNavSection() Notifications:showMain(true) end
-		},
-		{
-			text = TB_MENU_LOCALIZED.QUESTSGLOBALCOMPLETED,
-			action = function() Quests:showGlobalQuests(Quests.QuestsGlobalData, true) end,
-			right = true,
-			sectionId = 2
-		},
-		{
-			text = TB_MENU_LOCALIZED.QUESTSGLOBALACTIVE,
-			action = function() Quests:showGlobalQuests(Quests.QuestsGlobalData) end,
-			right = true,
-			sectionId = 1
-		},
-	}
-end
-
----Prepares global quests display screen and shows them when ready
----@deprecated
----@return nil
-function Quests:prepareGlobalQuests()
-	TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
-	TBMenu.CurrentSection:kill(true)
-	TBMenu:clearNavSection()
-	TBMenu:showNavigationBar(Quests:getGlobalQuestsNavigation(), true, true, 1)
-
-	if (QUESTS_LASTUPDATE.time + 60 >= os.time() or QUESTS_LASTUPDATE.qi == TB_MENU_PLAYER_INFO.data.qi) then
-		-- Not enough time has passed or they haven't played any games so progress should be same
-		Quests:showGlobalQuests(Quests.QuestsGlobalData)
-		return
-	end
-
-	download_global_quests()
-	local loader = UIElement:new({
-		parent = TBMenu.CurrentSection,
-		pos = { 5, 0 },
-		size = { TBMenu.CurrentSection.size.w - 10, TBMenu.CurrentSection.size.h },
-		bgColor = TB_MENU_DEFAULT_BG_COLOR
-	})
-	TBMenu:addBottomBloodSmudge(loader, 1)
-	TBMenu:displayLoadingMark(loader, TB_MENU_LOCALIZED.QUESTSGLOBALUPDATING)
-
-	local questsFile = Files:open("../data/quests_global.dat")
-	loader:addCustomDisplay(false, function()
-			if (questsFile:isDownloading()) then
-				return
-			end
-
-			questsFile:reopen()
-			Quests:getGlobalQuests(questsFile)
-			Quests:showGlobalQuests(Quests.QuestsGlobalData)
-		end)
-end
 
 ---Displays a horizontal quest button
 ---@param quest QuestData
@@ -762,13 +715,13 @@ function Quests:showQuestButton(quest, listingHolder, listElements, elementHeigh
 							questProgressText:addAdaptedText(true, TB_MENU_LOCALIZED.REWARDSCLAIMSUCCESS, nil, nil, nil, nil, nil, nil, nil, 1)
 						else
 							TBMenu:showStatusMessage(TB_MENU_LOCALIZED.ERRORTRYAGAIN)
-							questProgressBarState:activate()
+							questProgressBarState:activate(true)
 							questProgressText:addAdaptedText(true, TB_MENU_LOCALIZED.QUESTSCLAIMREWARD, nil, nil, nil, nil, nil, nil, nil, 1)
 						end
 					end, function()
 						questProgressBarState:kill(true)
-						TBMenu:showStatusMessage(TB_MENU_LOCALIZED.ERRORTRYAGAIN)
-						questProgressBarState:activate()
+						TBMenu:showStatusMessage(TB_MENU_LOCALIZED.ERRORTRYAGAIN .. ": " .. get_network_error())
+						questProgressBarState:activate(true)
 						questProgressText:addAdaptedText(true, TB_MENU_LOCALIZED.QUESTSCLAIMREWARD, nil, nil, nil, nil, nil, nil, nil, 1)
 					end)
 			end)
@@ -863,262 +816,6 @@ function Quests:showQuestButton(quest, listingHolder, listElements, elementHeigh
 	end
 end
 
----@deprecated
----Use Quests:showQuestButton() instead
----@param quest QuestData
----@param listingHolder UIElement
----@param listElements UIElement[]
----@param elementHeight number
----@return nil
-function Quests:showGlobalQuestButton(quest, listingHolder, listElements, elementHeight)
-	Quests:showQuestButton(quest, listingHolder, listElements, elementHeight)
-end
-
----@deprecated
----@param questsData QuestData[]
----@param completed? boolean Whether we're showing completed quests or those still in progress
----@return nil
-function Quests:showGlobalQuests(questsData, completed)
-	usage_event("questsglobal")
-	TBMenu.CurrentSection:kill(true)
-	local completed = completed or false
-
-	local elementHeight = 60
-	local mainHolder = UIElement:new({
-		parent = TBMenu.CurrentSection,
-		pos = { 5, 0 },
-		size = { TBMenu.CurrentSection.size.w - 10, TBMenu.CurrentSection.size.h },
-		bgColor = TB_MENU_DEFAULT_BG_COLOR
-	})
-	local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(mainHolder, elementHeight, elementHeight - 16, 20, TB_MENU_DEFAULT_BG_COLOR)
-
-	local questsHeader = UIElement:new({
-		parent = topBar,
-		pos = { 15, 13 },
-		size = { topBar.size.w - 30, topBar.size.h - 26 }
-	})
-	questsHeader:addAdaptedText(true, TB_MENU_LOCALIZED.QUESTSGLOBAL, nil, nil, FONTS.BIG, LEFTMID)
-	TBMenu:addBottomBloodSmudge(botBar)
-
-	local listElements = {}
-	local shownQuests = { count = 0 }
-	local shownSections = {}
-
-	if (not completed) then
-		local availableQuests = 0
-		local closestAndAvailableQuests = UIElement:new({
-			parent = listingHolder,
-			pos = { 20, #listElements * elementHeight },
-			size = { listingHolder.size.w - 40, elementHeight }
-		})
-		closestAndAvailableQuests:addAdaptedText(false, TB_MENU_LOCALIZED.QUESTSCLOSEST, nil, nil, nil, LEFTMID)
-		table.insert(listElements, closestAndAvailableQuests)
-		for i, quest in pairs(UIElement:qsort(questsData, { "progresspercentage", "requirement" })) do
-			if (quest.available and not quest.claimed) then
-				availableQuests = availableQuests + 1
-				if (not shownSections[quest.type]) then
-					Quests:showGlobalQuestButton(quest, listingHolder, listElements, elementHeight)
-					shownQuests[quest.id] = true
-					if (quest.modreq == 0) then
-						shownSections[quest.type] = true
-					else
-						shownSections[quest.type] = {}
-						shownSections[quest.type][quest.modreq] = true
-					end
-					shownQuests.count = shownQuests.count + 1
-				elseif (quest.progress > quest.requirement) then
-					Quests:showGlobalQuestButton(quest, listingHolder, listElements, elementHeight)
-					shownQuests[quest.id] = true
-					shownQuests.count = shownQuests.count + 1
-				elseif (type(shownSections[quest.type]) == "table") then
-					if (not shownSections[quest.type][quest.modreq]) then
-						Quests:showGlobalQuestButton(quest, listingHolder, listElements, elementHeight)
-						shownQuests[quest.id] = true
-						shownSections[quest.type][quest.modreq] = true
-						shownQuests.count = shownQuests.count + 1
-					end
-				end
-			end
-		end
-		if (shownQuests.count == 0) then
-			closestAndAvailableQuests:kill()
-			table.remove(listElements)
-		end
-		if (shownQuests.count < availableQuests) then
-			local lockedQuestsSeparator = UIElement:new({
-				parent = listingHolder,
-				pos = { 0, #listElements * elementHeight },
-				size = { listingHolder.size.w, elementHeight }
-			})
-			lockedQuestsSeparator:addCustomDisplay(true, function() end)
-			table.insert(listElements, lockedQuestsSeparator)
-			local lockedQuests = UIElement:new({
-				parent = listingHolder,
-				pos = { 20, #listElements * elementHeight },
-				size = { listingHolder.size.w - 40, elementHeight }
-			})
-			lockedQuests:addAdaptedText(false, TB_MENU_LOCALIZED.QUESTSLOCKED, nil, nil, nil, LEFTMID)
-			table.insert(listElements, lockedQuests)
-		end
-	end
-
-	for i, quest in pairs(questsData) do
-		if (completed == quest.claimed and not shownQuests[quest.id] and (quest.claimed or quest.available)) then
-			Quests:showGlobalQuestButton(quest, listingHolder, listElements, elementHeight)
-		end
-	end
-
-	if (#listElements == 0) then
-		listingHolder:addAdaptedText(true, TB_MENU_LOCALIZED.NOTHINGTOSHOW)
-		return
-	end
-
-	for i,v in pairs(listElements) do
-		v:hide()
-	end
-	local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
-	scrollBar:makeScrollBar(listingHolder, listElements, toReload)
-end
-
----Displays the legacy Quests screen
----@return nil
---[[function Quests:showQuestsLegacy()
-	TBMenu.CurrentSection:kill(true)
-	local TBMenu.CurrentSection = TBMenu.CurrentSection:addChild({ shift = { 0, 0 }})
-	local globalQuests = UIElement:new({
-		parent = TBMenu.CurrentSection,
-		pos = { 5, 0 },
-		size = { TBMenu.CurrentSection.size.w / 7 * 2 - 10, TBMenu.CurrentSection.size.h },
-		bgColor = TB_MENU_DEFAULT_BG_COLOR,
-		interactive = true,
-		hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
-		pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-		hoverSound = 31
-	})
-
-	local questsToClaimIcon = nil
-	if (TB_MENU_QUESTS_GLOBAL_COUNT > 0) then
-		questsToClaimIcon = UIElement:new({
-			parent = globalQuests,
-			pos = { globalQuests.size.w / 6, globalQuests.size.h / 7 * 2 },
-			size = { globalQuests.size.w / 5, globalQuests.size.w / 5 },
-			shapeType = ROUNDED,
-			rounded = globalQuests.size.w / 5,
-			bgColor = TB_MENU_DEFAULT_BG_COLOR
-		})
-		questsToClaimIcon:addCustomDisplay(false, function()
-				questsToClaimIcon:uiText("!", nil, nil, FONTS.BIG)
-			end)
-	end
-	TBMenu:showHomeButton(globalQuests, {
-			title = TB_MENU_LOCALIZED.QUESTSGLOBAL,
-			subtitle = TB_MENU_LOCALIZED.QUESTSGLOBALDESC,
-			ratio = 1,
-			image = "../textures/menu/modmaker.tga",
-			mode = ORIENTATION_PORTRAIT,
-			action = function()
-					Quests:prepareGlobalQuests()
-				end
-		}, 1, questsToClaimIcon)
-	if (questsToClaimIcon) then
-		questsToClaimIcon:hide()
-		questsToClaimIcon:show()
-	end
-
-	local questsHolderWidth = math.max(TBMenu.CurrentSection.size.w - globalQuests.size.w - globalQuests.shift.x - 5, #Quests.QuestsData * WIN_H / 3)
-	local questsHolder = UIElement:new({
-		parent = TBMenu.CurrentSection,
-		pos = { globalQuests.size.w + globalQuests.shift.x + 5, 0 },
-		size = { questsHolderWidth, TBMenu.CurrentSection.size.h }
-	})
-	if (Quests.QuestsData) then
-		for i, quest in pairs(Quests.QuestsData) do
-			local questView = UIElement:new({
-				parent = questsHolder,
-				pos = { 5 + (i - 1) * questsHolder.size.w / #Quests.QuestsData, 0 },
-				size = { questsHolder.size.w / #Quests.QuestsData - 10, questsHolder.size.h },
-				bgColor = TB_MENU_DEFAULT_BG_COLOR
-			})
-			local bottomSmudge = TBMenu:addBottomBloodSmudge(questView, i)
-			Quests:showQuest(questView, quest, bottomSmudge)
-		end
-		if (TBMenu.CurrentSection.size.w - globalQuests.size.w - globalQuests.shift.x - 5 < questsHolderWidth) then
-			local scrollRight = TBMenu:createImageButtons(TBMenu.CurrentSection.parent, TBMenu.CurrentSection.shift.x + TBMenu.CurrentSection.size.w - 32, TBMenu.CurrentSection.shift.y + TBMenu.CurrentSection.size.h / 2 - 32, 32, 64, "../textures/menu/general/buttons/arrowright.tga", nil, nil, { 0, 0, 0, 0.4 }, { 0, 0, 0, 0.7 }, { 0, 0, 0, 0.6 }, 8)
-			local scrollLeft = TBMenu:createImageButtons(TBMenu.CurrentSection.parent, 0, TBMenu.CurrentSection.shift.y + TBMenu.CurrentSection.size.h / 2 - 32, 32, 64, "../textures/menu/general/buttons/arrowleft.tga", nil, nil, { 0, 0, 0, 0.4 }, { 0, 0, 0, 0.7 }, { 0, 0, 0, 0.6 }, 8)
-
-			scrollRight:addMouseHandlers(nil, function()
-					local animator = TBMenu.CurrentSection:addChild({ shift = { 0, 0 } })
-					local targetPoint = _G.TBMenu.CurrentSection.pos.x + TBMenu.CurrentSection.size.w
-					animator:addCustomDisplay(true, function()
-						scrollRight:hide()
-						if (questsHolder.pos.x - 50 + questsHolder.size.w < targetPoint) then
-							TBMenu.CurrentSection:moveTo(-questsHolder.shift.x - questsHolder.size.w)
-							animator:kill()
-							scrollLeft:show()
-						else
-							TBMenu.CurrentSection:moveTo(-50, nil, true)
-						end
-					end)
-				end, nil)
-			scrollLeft:addMouseHandlers(nil, function()
-					local animator = TBMenu.CurrentSection:addChild({ shift = { 0, 0 } })
-					local targetPoint = _G.TBMenu.CurrentSection.pos.x
-					animator:addCustomDisplay(true, function()
-						scrollLeft:hide()
-						if (TBMenu.CurrentSection.pos.x + 50 > targetPoint) then
-							TBMenu.CurrentSection:moveTo(0)
-							animator:kill()
-							scrollRight:show()
-						else
-							TBMenu.CurrentSection:moveTo(50, nil, true)
-						end
-					end)
-				end, nil)
-		scrollLeft:hide()
-		end
-	else
-		local questView = UIElement:new({
-			parent = questsHolder,
-			pos = { 5, 0 },
-			size = { questsHolder.size.w - 10, questsHolder.size.h },
-			bgColor = TB_MENU_DEFAULT_BG_COLOR
-		})
-		TBMenu:addBottomBloodSmudge(questView, i)
-		questView:addAdaptedText(false, TB_MENU_LOCALIZED.NOTHINGTOSHOW)
-	end
-end]]
-
----Displays Quests screen home. If quests data is missing, queues download and shows loading screen first.
----@deprecated
----@param reload? boolean
----@return nil
---[[function Quests:showMainLegacy(reload)
-	usage_event("quests")
-	TBMenu.CurrentSection:kill(true)
-	if (Quests.QuestsData and not reload) then
-		Quests:showQuestsLegacy()
-	else
-		if (reload) then
-			Quests:download()
-		end
-		local waitView = UIElement:new({
-			parent = TBMenu.CurrentSection,
-			pos = { 5, 0 },
-			size = { TBMenu.CurrentSection.size.w - 10, TBMenu.CurrentSection.size.h },
-			bgColor = TB_MENU_DEFAULT_BG_COLOR
-		})
-		TBMenu:addBottomBloodSmudge(waitView, 1)
-		waitView:addCustomDisplay(false, function()
-				waitView:uiText(TB_MENU_LOCALIZED.QUESTSUPDATING)
-				if (Quests.QuestsData) then
-					if (waitView and not waitView.destroyed) then
-						Quests:showQuestsLegacy()
-					end
-				end
-			end)
-	end
-end]]
-
 ---Displays the list of player's quests
 ---@param viewElement UIElement
 ---@param questsData table
@@ -1133,11 +830,11 @@ function Quests:showMainQuestList(viewElement, questsData)
 	TBMenu:addBottomBloodSmudge(botBar, 2)
 
 	local listElements = {}
-	for i,v in pairs(questsData.quests) do
+	for _, v in pairs(questsData.quests) do
 		Quests:showQuestButton(v, listingHolder, listElements, elementHeight)
 	end
 	if (#listElements * elementHeight > listingHolder.size.h) then
-		for i,v in pairs(listElements) do
+		for _, v in pairs(listElements) do
 			v:hide()
 		end
 
@@ -1278,7 +975,7 @@ function Quests:showMainQuestTypes(viewElement, listView)
 			canBeClaimed = 0
 		}
 	}
-	for i,v in pairs(Quests.QuestsGlobalData) do
+	for _, v in pairs(Quests.QuestsGlobalData) do
 		if (v.claimed) then
 			table.insert(globalQuestList[GLOBALCOMPLETED].quests, v)
 		else
@@ -1288,6 +985,8 @@ function Quests:showMainQuestTypes(viewElement, listView)
 			end
 		end
 	end
+
+	globalQuestList[GLOBALCOMPLETED].quests = table.qsort(globalQuestList[GLOBALCOMPLETED].quests, { "requirement", "type" }, { SORT_ASCENDING })
 
 	local elementHeight = 50
 	local toReload, topBar, botBar, listingView, listingHolder, scrollBackground = TBMenu:prepareScrollableList(viewElement, 70, elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
@@ -1323,12 +1022,12 @@ function Quests:showMainQuestTypes(viewElement, listView)
 	table.insert(listElements, globalQuestsTitle)
 	globalQuestsTitle:addChild({ shift = { 15, 5 }}):addAdaptedText(TB_MENU_LOCALIZED.QUESTSGLOBAL, nil, nil, FONTS.BIG, LEFTMID)
 
-	for i,v in pairs(globalQuestList) do
+	for _, v in pairs(globalQuestList) do
 		Quests:displayMainQuestTypeButton(listingHolder, v, listElements, elementHeight, listView)
 	end
 
 	if (#listElements * elementHeight > listingHolder.size.h) then
-		for i,v in pairs(listElements) do
+		for _, v in pairs(listElements) do
 			v:hide()
 		end
 
@@ -1384,12 +1083,12 @@ function Quests:showMain(navBack, backFunc)
 	})
 	TBMenu:displayLoadingMark(updatingView, TB_MENU_LOCALIZED.QUESTSUPDATING)
 	TBMenu:addBottomBloodSmudge(updatingView, 1)
-	local spawnClock = os.clock()
+	local spawnClock = os.clock_real()
 	updatingView:addCustomDisplay(function()
 			if (Quests.QuestsData and Quests.QuestsGlobalData) then
 				Quests:showQuests(navBack, backFunc)
 			end
-			if (os.clock() - spawnClock > 10 and Quests.QuestDataErrors > 0) then
+			if (os.clock_real() - spawnClock > 10 and Quests.QuestDataErrors > 0) then
 				updatingView:kill(true)
 				updatingView:addAdaptedText(TB_MENU_LOCALIZED.ERRORTRYAGAIN)
 				TBMenu:addBottomBloodSmudge(updatingView, 1)

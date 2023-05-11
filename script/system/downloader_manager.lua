@@ -1,5 +1,5 @@
 require("toriui.uielement")
-require("system.player_info")
+require("system.playerinfo_manager")
 
 if (Downloader == nil) then
 	---Downloader manager class
@@ -35,7 +35,7 @@ end
 ---@return nil
 function Downloader:init()
 	if (Downloader.initialized) then return end
-	if (string.len(PlayerInfo:getUser()) > 0) then
+	if (string.len(PlayerInfo.Get().username) > 0) then
 		Downloader:queue(function() download_global_quests() end)
 		Downloader:queue(function() download_inventory() end)
 	end
@@ -54,7 +54,7 @@ function Downloader:safeCall(func)
 	end
 
 	local id = generate_uid and generate_uid() or ("dldr" .. math.random(0, 1000000))
-	add_hook("pre_draw", id, function() func() remove_hooks(id) end)
+	add_hook("pre_draw", id, function() func() remove_hook("pre_draw", id) end)
 	return id
 end
 

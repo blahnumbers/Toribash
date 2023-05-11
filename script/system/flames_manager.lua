@@ -24,7 +24,7 @@ do
 	function Flames:storeCurrentFlames()
 		-- Read their item.dat first
 		-- If we fail to fetch data, load playerid 0 flames
-		local custom = Files:open("../custom/" .. TB_MENU_PLAYER_INFO.username .. "/item.dat")
+		local custom = Files.Open("../custom/" .. TB_MENU_PLAYER_INFO.username .. "/item.dat")
 		local settings = {}
 		if (custom.data) then
 			local flameid = 0
@@ -373,7 +373,7 @@ do
 		local listElements = {}
 		local storedFlames = {}
 
-		local storedFile = Files:open("../data/flames_stored.dat")
+		local storedFile = Files.Open("../data/flames_stored.dat")
 		if (storedFile.data) then
 			for i, line in pairs(storedFile:readAll()) do
 				if (line:match("^FLAME ([^;]+);[%d ]+")) then
@@ -430,7 +430,7 @@ do
 			})
 			flameDeleteButton:addMouseHandlers(nil, function()
 				local confirmOverlay = TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.FLAMESDELETESTOREDCONFIRM .. " (" .. flame.name .. ")?\n" .. TB_MENU_LOCALIZED.CONFIRMACTIONCANNOTBEUNDONE, function()
-					local flamesStoredFile = Files:open("../data/flames_stored.dat", FILES_MODE_WRITE)
+					local flamesStoredFile = Files.Open("../data/flames_stored.dat", FILES_MODE_WRITE)
 					if (not flamesStoredFile.data) then
 						TBMenu:showDataError(TB_MENU_LOCALIZED.FLAMESERROROPENINGSTORAGE, true)
 						return
@@ -529,7 +529,7 @@ do
 					interactive = true
 				})
 				TBMenu:displayLoadingMarkSmall(flameLoaderOverlay, TB_MENU_LOCALIZED.NETWORKLOADING)
-				flameLoaderOverlay:handleMouseDn(0, -1, 0)
+				UIElement.handleMouseDn(0, -1, 0)
 
 				Request:queue(function()
 						download_server_info("flame_fetch_settings&flameid=" .. flameIdLoaderInput.textfieldstr[1])
@@ -564,7 +564,7 @@ do
 									table.insert(data, val)
 								end
 								table.insert(flameData.displayInfo, { title = TB_MENU_LOCALIZED.STOREFLAMEFORGEDBY, val = data[1] })
-								table.insert(flameData.displayInfo, { title = TB_MENU_LOCALIZED.FLAMESSPAWNCOST, val = PlayerInfo:currencyFormat(data[2]) .. " TC" })
+								table.insert(flameData.displayInfo, { title = TB_MENU_LOCALIZED.FLAMESSPAWNCOST, val = numberFormat(data[2]) .. " TC" })
 							elseif (line:match("^FLAMEDATE;.*")) then
 								local date = line:gsub("^FLAMEDATE;", "")
 								table.insert(flameData.displayInfo, { title = TB_MENU_LOCALIZED.FLAMESFORGEDATE, val = date })
@@ -608,7 +608,7 @@ do
 					pos = { 10, 5 },
 					size = { fHolder.size.w / 2 - 20, fHolder.size.h - 10 }
 				})
-				fParamName:addAdaptedText(nil, data.title, nil, nil, nil, LEFTMID)
+				fParamName:addAdaptedText(false, data.title, nil, nil, nil, LEFTMID)
 				local fValueHolder = UIElement:new({
 					parent = fHolder,
 					pos = { fParamName.size.w + fParamName.shift.x + 5, 2 },
@@ -616,7 +616,7 @@ do
 					shapeType = ROUNDED,
 					rounded = 3
 				})
-				fValueHolder:addAdaptedText(nil, data.val, nil, nil, 4, nil, 0.8)
+				fValueHolder:addAdaptedText(false, data.val, nil, nil, 4, nil, 0.8)
 			end
 		end
 
@@ -731,7 +731,7 @@ do
 												table.insert(data, val)
 											end
 											table.insert(flameData.displayInfo, { title = TB_MENU_LOCALIZED.STOREFLAMEFORGEDBY, val = data[1] })
-											table.insert(flameData.displayInfo, { title = TB_MENU_LOCALIZED.FLAMESSPAWNCOST, val = PlayerInfo:currencyFormat(data[2]) .. " TC" })
+											table.insert(flameData.displayInfo, { title = TB_MENU_LOCALIZED.FLAMESSPAWNCOST, val = numberFormat(data[2]) .. " TC" })
 										elseif (line:match("^FLAMEDATE;.*")) then
 											local date = line:gsub("^FLAMEDATE;", "")
 											table.insert(flameData.displayInfo, { title = TB_MENU_LOCALIZED.FLAMESFORGEDATE, val = date })
@@ -753,7 +753,7 @@ do
 							pos = { 10, 5 },
 							size = { fHolder.size.w / 2 - 20, fHolder.size.h - 10 }
 						})
-						fParamName:addAdaptedText(nil, v.name, nil, nil, nil, LEFTMID)
+						fParamName:addAdaptedText(false, v.name, nil, nil, nil, LEFTMID)
 						local fValueHolder = UIElement:new({
 							parent = fHolder,
 							pos = { fParamName.size.w + fParamName.shift.x + 5, 2 },
@@ -767,7 +767,7 @@ do
 						else
 							forgedOwnedString = (not forgedShown and (TB_MENU_LOCALIZED.STOREFLAMEFORGEDBY .. " " .. v.forger) or "") .. "\n" .. (not ownedShown and (TB_MENU_LOCALIZED.STOREITEMOWNEDBY .. " " .. v.owner) or "")
 						end
-						fValueHolder:addAdaptedText(nil, forgedOwnedString, nil, nil, 4, RIGHTMID, 0.65)
+						fValueHolder:addAdaptedText(false, forgedOwnedString, nil, nil, 4, RIGHTMID, 0.65)
 					end
 				end
 			end
@@ -931,7 +931,7 @@ do
 		flamesFlameSave:addMouseHandlers(nil, function()
 				local confirmOverlay = TBMenu:showConfirmationWindowInput(TB_MENU_LOCALIZED.FLAMESSAVINGFLAME, TB_MENU_LOCALIZED.FLAMESFLAMENAME, function(flameName)
 					local flameName = flameName == "" and os.date() or flameName:gsub(";", "|")
-					local flamesStoredFile = Files:open("../data/flames_stored.dat", FILES_MODE_APPEND)
+					local flamesStoredFile = Files.Open("../data/flames_stored.dat", FILES_MODE_APPEND)
 					if (not flamesStoredFile.data) then
 						TBMenu:showDataError(TB_MENU_LOCALIZED.FLAMESERROROPENINGSTORAGE, true)
 						return
@@ -1132,9 +1132,9 @@ do
 			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
 		})
-		flamesSearchButton:addAdaptedText(nil, TB_MENU_LOCALIZED.BUTTONSEARCH)
+		flamesSearchButton:addAdaptedText(false, TB_MENU_LOCALIZED.BUTTONSEARCH)
 		local doSearch = function(str)
-			flamesSearchTextfield:handleMouseDn(0, -1, 0)
+			UIElement.handleMouseDn(0, -1, 0)
 			Request:queue(function()
 				flamesSearchTextfield:deactivate(true)
 				flamesSearchButton:deactivate(true)

@@ -2,7 +2,7 @@ local INTRO = 1
 local OUTRO = -1
 local FPS_MULTIPLIER = get_option("framerate") == 30 and 2 or 1
 
-local function drawSingleKey(viewElement, reqTable, key)
+local function drawSingleKey(viewElement, reqTable, key, requireSelected)
 	usage_event("tutorial1" .. key .. "key")
 	local BUTTON_DEFAULT_COLOR = { unpack(TB_MENU_DEFAULT_BG_COLOR) }
 	local BUTTON_HOVER_COLOR = { unpack(TB_MENU_DEFAULT_LIGHTEST_COLOR) }
@@ -25,13 +25,14 @@ local function drawSingleKey(viewElement, reqTable, key)
 	table.insert(reqTable, req)
 
 	add_hook("key_up", "tbTutorialsCustom", function(s, code)
-			if ((string.schar(s) == key or (code > 3 and code < 30 and string.schar(code + 93) == key)) and button.hoverState) then
-				button.hoverState = false
+			if ((string.schar(s) == key or (code > 3 and code < 30 and string.schar(code + 93) == key)) and button.hoverState ~= BTN_NONE) then
+				button.hoverState = BTN_NONE
 				req.ready = true
 				reqTable.ready = Tutorials:checkRequirements(reqTable)
 			end
 		end)
 	add_hook("key_down", "tbTutorialsCustom", function(s, code)
+			if (requireSelected and get_world_state().selected_joint < 0) then return end
 			if (string.schar(s) == key or (code > 3 and code < 30 and string.schar(code + 93) == key)) then
 				button.hoverState = BTN_HVR
 			end
@@ -101,12 +102,12 @@ local function drawWASD(viewElement, reqTable, shift, fade)
 
 		add_hook("key_up", "tbTutorialsCustom", function(key, code)
 				if (shift and get_shift_key_state() == 0) then
-					keysToPress.shift.keyButton.hoverState = false
+					keysToPress.shift.keyButton.hoverState = BTN_NONE
 				end
 				for i,v in pairs(keysToPress) do
 					if (i ~= "shift") then
 						if (string.schar(code + 93) == i) then
-							v.keyButton.hoverState = false
+							v.keyButton.hoverState = BTN_NONE
 						end
 						if (shift) then
 							if ((string.schar(code + 93) == "w" or string.schar(code + 93) == "s") and get_shift_key_state() > 0) then
@@ -152,15 +153,20 @@ local function drawWASD(viewElement, reqTable, shift, fade)
 end
 
 local function prepareClassicCamera()
-	local camera_info = get_camera_info()
-	set_camera_mode(0)
-	set_camera_lookat(camera_info.lookat.x, camera_info.lookat.y, camera_info.lookat.z)
-	set_camera_pos(camera_info.pos.x, camera_info.pos.y, camera_info.pos.z)
+	add_hook("camera", "tbTutorial1Camera", function()
+			local camera_info = get_camera_info()
+			set_camera_mode(3)
+			set_camera_lookat(camera_info.lookat.x, camera_info.lookat.y, camera_info.lookat.z)
+			set_camera_pos(camera_info.pos.x, camera_info.pos.y, camera_info.pos.z)
+			set_camera_mode(0)
+			remove_hook("camera", "tbTutorial1Camera")
+		end)
 end
 
 local function drawWASDStatic(viewElement, reqTable, shift, fade)
 	usage_event("tutorial1wasd")
 	drawWASD(viewElement, nil, shift, fade or INTRO)
+	prepareClassicCamera()
 end
 
 local function drawWASDShift(viewElement, reqTable)
@@ -178,61 +184,16 @@ local function setIntroPlayers()
 	set_torso_color(1, 30)
 end
 
-local function showOverlay(viewElement, reqTable, out, speed)
-	local speed = speed or 1
-	local req = { type = "transition", ready = false }
-	table.insert(reqTable, req)
-
-	if (tbOutOverlay) then
-		tbOutOverlay:kill()
-	end
-	local overlay = UIElement:new({
-		parent = out and tbTutorialsOverlay or viewElement,
-		pos = { 0, 0 },
-		size = { viewElement.size.w, viewElement.size.h },
-		bgColor = cloneTable(UICOLORWHITE)
-	})
-	if (out) then
-		tbOutOverlay = overlay
-	end
-	overlay.bgColor[4] = out and 0 or 1
-	overlay:addCustomDisplay(true, function()
-			overlay.bgColor[4] = overlay.bgColor[4] + (out and 0.02 or -0.02) * speed * FPS_MULTIPLIER
-			if (not out and overlay.bgColor[4] <= 0) then
-				req.ready = true
-				reqTable.ready = Tutorials:checkRequirements(reqTable)
-				overlay:kill()
-			elseif (out and overlay.bgColor[4] >= 1) then
-				req.ready = true
-				reqTable.ready = Tutorials:checkRequirements(reqTable)
-			end
-			set_color(unpack(overlay.bgColor))
-			draw_quad(overlay.pos.x, overlay.pos.y, overlay.size.w, overlay.size.h)
-		end)
-end
-
-local function introOverlay(viewElement, reqTable)
-	showOverlay(viewElement, reqTable)
-end
-
-local function outroOverlay(viewElement, reqTable)
-	showOverlay(viewElement, reqTable, true)
-end
-
-local function outroOverlaySlow(viewElement, reqTable)
-	showOverlay(viewElement, reqTable, true, 0.5)
-end
-
 local function drawSingleKeyC(viewElement, reqTable)
 	drawSingleKey(viewElement, reqTable, "c")
 end
 
 local function drawSingleKeyZ(viewElement, reqTable)
-	drawSingleKey(viewElement, reqTable, "z")
+	drawSingleKey(viewElement, reqTable, "z", true)
 end
 
 local function drawSingleKeyX(viewElement, reqTable)
-	drawSingleKey(viewElement, reqTable, "x")
+	drawSingleKey(viewElement, reqTable, "x", true)
 end
 
 local function fractureToriKnee()
@@ -262,16 +223,13 @@ local function hideWASDcheckMouse(viewElement, reqTable)
 	checkMouseCameraControls(viewElement, reqTable)
 end
 
-functions = {
+return {
 	DrawWASDCameraControls = drawWASD,
 	DrawWASDCameraControlsStatic = drawWASDStatic,
 	DrawWASDShiftCameraControls = drawWASDShift,
 	HideWASDShiftControls = drawWASDShiftStatic,
 	HideCameraKeyboardCheckMouseControls = hideWASDcheckMouse,
 	SetIntroPlayers = setIntroPlayers,
-	IntroOverlay = introOverlay,
-	OutroOverlay = outroOverlay,
-	OutroOverlaySlow = outroOverlaySlow,
 	DrawXKey = drawSingleKeyX,
 	DrawZKey = drawSingleKeyZ,
 	DrawCKey = drawSingleKeyC,

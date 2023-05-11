@@ -8,8 +8,7 @@ do
 
 	function Scripts:quit()
 		TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
-		TBMenu.CurrentSection:kill(true)
-		TBMenu.NavigationBar:kill(true)
+		TBMenu:clearNavSection()
 		TBMenu:showNavigationBar()
 		TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
 	end
@@ -45,7 +44,7 @@ do
 				table.insert(data.files, v)
 			elseif (not v:find("^%.+[%s%S]*$") and not v:find("%.%a+$") and not Settings:isDefaultFolder(v)) then
 				table.insert(data.folders, v)
-				data.contents[#data.folders] = Scripts:getScriptFiles(path .. "/" .. v, fullsearch)
+				data.contents[#data.folders] = Scripts:getScriptFiles(path .. "/" .. v)
 				data.contents[#data.folders].parent = data
 			end
 		end
@@ -245,7 +244,7 @@ do
 		})
 		scriptName:addAdaptedText(true, file:gsub("^.*/", ""))
 
-		local scriptFile = Files:open(file)
+		local scriptFile = Files.Open(file)
 		local scriptSource = scriptFile:readAll()
 		scriptFile:close()
 
@@ -257,7 +256,7 @@ do
 			if (info:find("tb_login")) then
 				vulnerabilityAlert = true
 			end
-			if (info:find("io.[p]?open") or info:find("Files:open")) then
+			if (info:find("io.[p]?open") or info:find("Files.Open")) then
 				fileAccessAlert = true
 			end
 			if (info:find("dofile") or info:find("require") or info:find("loadfile") or info:find("loadstring")) then
@@ -310,7 +309,7 @@ do
 		})
 		loadScriptButton:addAdaptedText(false, TB_MENU_LOCALIZED.LUALOADSCRIPT)
 		loadScriptButton:addMouseHandlers(nil, function()
-				UIElement:runCmd("loadscript2 " .. file)
+				runCmd("loadscript2 " .. file)
 				close_menu()
 			end)
 	end
@@ -328,7 +327,6 @@ do
 
 	function Scripts:showMain()
 		usage_event("scripts")
-		TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
 		TBMenu.CurrentSection:kill(true)
 		local scriptFiles = Scripts:getScriptFiles()
 

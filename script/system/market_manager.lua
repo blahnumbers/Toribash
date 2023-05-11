@@ -20,8 +20,7 @@ do
 	setmetatable(cln, Market)
 
 	function Market:quit()
-		TBMenu.CurrentSection:kill(true)
-		TBMenu.NavigationBar:kill(true)
+		TBMenu:clearNavSection()
 		TBMenu:showNavigationBar()
 		TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
 	end
@@ -277,7 +276,7 @@ do
 
 				suggestion:addCustomDisplay(true, function()
 						suggestion:uiText(suggestion.str, nil, nil, suggestion.textFont, math.floor(displayed / 2) % 2 == 0 and LEFTMID or RIGHTMID, suggestion.textScale, nil, nil, suggestion:getButtonColor())
-						if (suggestion.hoverState) then
+						if (suggestion.hoverState ~= BTN_NONE) then
 							set_mouse_cursor(1)
 						end
 					end)
@@ -327,13 +326,13 @@ do
 					if (priceData.count > 0) then
 						Market:showModalPriceSuggestions(holder, priceData)
 					elseif (showNothingMessage) then
-						holder:addAdaptedText(nil, TB_MENU_LOCALIZED.NOTHINGTOSHOW, nil, nil, 4, nil, 0.7)
+						holder:addAdaptedText(false, TB_MENU_LOCALIZED.NOTHINGTOSHOW, nil, nil, 4, nil, 0.7)
 					end
 				end
 			end, function()
 				for j, holder in pairs(holders) do
 					holder:kill(true)
-					holder:addAdaptedText(nil, TB_MENU_LOCALIZED.REQUESTCONNECTIONERROR .. "\n" .. get_network_error(), nil, nil, 4, nil, 0.7)
+					holder:addAdaptedText(false, TB_MENU_LOCALIZED.REQUESTCONNECTIONERROR .. "\n" .. get_network_error(), nil, nil, 4, nil, 0.7)
 				end
 			end)
 	end
@@ -348,7 +347,7 @@ do
 			end
 			message = message:sub(1, message:len() - 1)
 		end
-		message = message .. " " .. (targetOffer and (TB_MENU_LOCALIZED.MARKETDIALOGSELLTO .. " " .. targetOffer.username .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " " .. PlayerInfo:currencyFormat(selectedItems[1].marketPrice) .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS .. "?") or (#selectedItems > 1 and TB_MENU_LOCALIZED.STOREDIALOGMARKETSELL2 or (TB_MENU_LOCALIZED.STOREDIALOGMARKETSELLFOR .. " " .. PlayerInfo:currencyFormat(selectedItems[1].marketPrice) .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS .. "?")))
+		message = message .. " " .. (targetOffer and (TB_MENU_LOCALIZED.MARKETDIALOGSELLTO .. " " .. targetOffer.username .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " " .. numberFormat(selectedItems[1].marketPrice) .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS .. "?") or (#selectedItems > 1 and TB_MENU_LOCALIZED.STOREDIALOGMARKETSELL2 or (TB_MENU_LOCALIZED.STOREDIALOGMARKETSELLFOR .. " " .. numberFormat(selectedItems[1].marketPrice) .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS .. "?")))
 
 		-- C++ confirmation boxes don't really auto wrap text
 		-- Do wrapping with Lua and then build a string with newlines
@@ -440,7 +439,7 @@ do
 						pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
 						rounded = 4
 					}, true)
-					closeButton:addAdaptedText(nil, TB_MENU_LOCALIZED.BUTTONCLOSEWINDOW)
+					closeButton:addAdaptedText(false, TB_MENU_LOCALIZED.BUTTONCLOSEWINDOW)
 					closeButton:addMouseHandlers(nil, function() Market:clearModal() end)
 				else
 					message = ((response.is_success and response.success or response.error) or TB_MENU_LOCALIZED.REQUESTUNKNOWNERROR) .. (warning and ("\n\n" .. warning:gsub("(%w+)", "^37%1")) or '') .. (info and ("\n\n" .. info:gsub("(%w+)", "^39%1")) or '')
@@ -497,13 +496,12 @@ do
 
 	function Market:spawnPriceSetModal(selectedItems, item, offer, noBack)
 		if (#selectedItems == 0) then
-			TBMenu:showDataError(TB_MENU_LOCALIZED.MARKETINVENTORYEMPTY)
+			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.MARKETINVENTORYEMPTY)
 			return
 		end
 
 		Market:clearModal()
 		local specialScreen = TB_MENU_SPECIAL_SCREEN_ISOPEN
-		TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
 
 		local overlay = TBMenu:spawnWindowOverlay()
 		MARKET_ACTIVE_MODAL = overlay
@@ -523,7 +521,7 @@ do
 		end
 
 		local uniqueItems = {}
-		for i,v in pairs(selectedItems) do
+		for _, v in pairs(selectedItems) do
 			if (not in_array(v.itemid, uniqueItems)) then
 				uniqueItems[v.itemid] = v.itemid
 			end
@@ -545,7 +543,7 @@ do
 			premiumNoticeHolder:addChild({ shift = { 20, 4 } }):addAdaptedText(true, TB_MENU_LOCALIZED.MARKETSELLPREMIUMPROMO .. " (" .. MARKET_TAX * 100 .. "%)", nil, nil, 4, nil, 0.7)
 			table.insert(listElements, premiumNoticeHolder)
 		end
-		for i,v in pairs(selectedItems) do
+		for _, v in pairs(selectedItems) do
 			local elementHolder = listingHolder:addChild({
 				pos = { 0, #listElements * elementHeight },
 				size = { listingHolder.size.w, elementHeight }
@@ -704,13 +702,13 @@ do
 						priceKeyUp(sellPriceInput, override == true)
 					end)
 
-				priceHolder:addCustomDisplay(nil, function()
+				priceHolder:addCustomDisplay(false, function()
 					if (checkDelay(youGetInput) or checkDelay(sellPriceInput, true)) then
 						v.marketPrice = tonumber(sellPriceInput.textfieldstr[1]) or 0
 					end
 				end)
 			else
-				priceHolder:addCustomDisplay(nil, function()
+				priceHolder:addCustomDisplay(false, function()
 					if (sellPriceInput.lastPrice ~= sellPriceInput.textfieldstr[1]) then
 						sellPriceInput.lastPrice = sellPriceInput.textfieldstr[1]
 						v.marketPrice = tonumber(sellPriceInput.lastPrice) or 0
@@ -755,6 +753,8 @@ do
 			botBar:moveTo(nil, -botBar.size.h)
 			modalView:moveTo(nil, (WIN_H - modalView.size.h) / 2)
 			listingHolder:moveTo((listingHolder.parent.size.w - listingHolder.size.w) / 4, nil, true)
+
+			modalView:updatePos()
 		end
 
 		local buttons = offer and 3 or 2
@@ -795,7 +795,7 @@ do
 					Market:confirmWaiterModal("marketplace_update")
 					Request:queue(function()
 							MARKET_ACTIVE_MODAL.doCheck = true
-							show_dialog_box(MARKET_UPDATE, TB_MENU_LOCALIZED.MARKETCONFIRMUPDATEOFFER .. " " .. selectedItems[1].item.itemname .. " " .. TB_MENU_LOCALIZED.MARKETSALEOFFER .. "?\n\n" .. TB_MENU_LOCALIZED.MARKETCONFIRMUPDATEOFFERPRICE .. " " .. PlayerInfo:currencyFormat(newPrice) .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS, offer.offerid .. ":" .. selectedItems[1].marketPrice, true)
+							show_dialog_box(MARKET_UPDATE, TB_MENU_LOCALIZED.MARKETCONFIRMUPDATEOFFER .. " " .. selectedItems[1].item.itemname .. " " .. TB_MENU_LOCALIZED.MARKETSALEOFFER .. "?\n\n" .. TB_MENU_LOCALIZED.MARKETCONFIRMUPDATEOFFERPRICE .. " " .. numberFormat(newPrice) .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS, offer.offerid .. ":" .. selectedItems[1].marketPrice, true)
 						end, "marketplace_update", function()
 							local response = Market:parseGatewayResponse(get_network_response())
 							local message = response.is_success and response.success or response.error
@@ -819,7 +819,7 @@ do
 						end)
 				end
 			end)
-		submitButton:addCustomDisplay(nil, function()
+		submitButton:addCustomDisplay(false, function()
 				local available = #selectedItems > 0
 				for i,v in pairs(selectedItems) do
 					if (not v.marketPrice or v.marketPrice < 1) then
@@ -885,7 +885,6 @@ do
 
 		Market:clearModal()
 		local specialScreen = TB_MENU_SPECIAL_SCREEN_ISOPEN
-		TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
 
 		local overlay = TBMenu:spawnWindowOverlay()
 		MARKET_ACTIVE_MODAL = overlay
@@ -1003,6 +1002,8 @@ do
 					pos = { 10, 2 },
 					size = { element.size.w - 10, element.size.h - 4 },
 					interactive = true,
+					clickThrough = true,
+					hoverThrough = true,
 					bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 					hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 					pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
@@ -1063,7 +1064,7 @@ do
 							targetItems = v.contents
 							selectedSetid = v.setid
 							currentPage[selectedSetid] = currentPage[selectedSetid] or 1
-							backToMainInfoText:addAdaptedText(nil, v.item.itemname .. ": " .. v.setname, nil, nil, 4, nil, 0.8)
+							backToMainInfoText:addAdaptedText(false, v.item.itemname .. ": " .. v.setname, nil, nil, 4, nil, 0.8)
 							showInventoryItems(currentPage[selectedSetid])
 						else
 							addToSelected(itemHolder, itemCancel, v)
@@ -1140,7 +1141,7 @@ do
 					pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
 					inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS
 				}, true)
-				pageButton:addAdaptedText(nil, v .. '', nil, nil, 4, nil, 0.6)
+				pageButton:addAdaptedText(false, v .. '', nil, nil, 4, nil, 0.6)
 				pageButton:addMouseHandlers(nil, function()
 						if (selectedSetid) then
 							currentPage[selectedSetid] = v
@@ -1196,7 +1197,7 @@ do
 			rounded = cancelButton.rounded
 		})
 		submitButton:addChild({ shift = { 15, 5 } }):addAdaptedText(true, TB_MENU_LOCALIZED.BUTTONCONTINUE)
-		submitButton:addCustomDisplay(nil, function()
+		submitButton:addCustomDisplay(false, function()
 				if (#selectedItems < 1) then
 					submitButton:deactivate(true)
 				else
@@ -1275,7 +1276,7 @@ do
 							message = message .. (response.warning and ("\n" .. response.warning:gsub("(%w+)", "^37%1")) or '') .. (response.info and ("\n" .. response.info:gsub("(%w+)", "^39%1")) or '')
 						end
 
-						TBMenu:showStatusMessage(message, not TB_MENU_MAIN_ISOPEN, 10)
+						TBMenu:showStatusMessage(message, 10)
 						Market:clearModal()
 
 						if (offer.button ~= nil) then
@@ -1285,7 +1286,7 @@ do
 						end
 						update_tc_balance()
 					end, function()
-						TBMenu:showStatusMessage(get_network_error(), not TB_MENU_MAIN_ISOPEN)
+						TBMenu:showStatusMessage(get_network_error())
 						Market:clearModal()
 					end)
 			end)
@@ -1312,7 +1313,7 @@ do
 			Request:queue(function()
 					MARKET_ACTIVE_MODAL.doCheck = true
 					local balanceAfterUpdate = TB_MENU_PLAYER_INFO.data.tc - (submitButton.price - offer.price)
-					show_dialog_box(MARKET_UPDATE, TB_MENU_LOCALIZED.MARKETCONFIRMUPDATEOFFER .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.MARKETBUYREQUEST .. "?\n\n" .. TB_MENU_LOCALIZED.MARKETCONFIRMUPDATEOFFERPRICE .. " " .. PlayerInfo:currencyFormat(submitButton.price) .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS .. "\n" .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT1 .. " " .. PlayerInfo:currencyFormat(balanceAfterUpdate) .. " " .. TB_MENU_LOCALIZED.WORDTC .. " " .. TB_MENU_LOCALIZED.MARKETBUYREQUESTLEFT2, offer.offerid .. ":" .. submitButton.price, true)
+					show_dialog_box(MARKET_UPDATE, TB_MENU_LOCALIZED.MARKETCONFIRMUPDATEOFFER .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.MARKETBUYREQUEST .. "?\n\n" .. TB_MENU_LOCALIZED.MARKETCONFIRMUPDATEOFFERPRICE .. " " .. numberFormat(submitButton.price) .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS .. "\n" .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT1 .. " " .. numberFormat(balanceAfterUpdate) .. " " .. TB_MENU_LOCALIZED.WORDTC .. " " .. TB_MENU_LOCALIZED.MARKETBUYREQUESTLEFT2, offer.offerid .. ":" .. submitButton.price, true)
 				end, "marketplace_update", function()
 					local response = Market:parseGatewayResponse(get_network_response())
 					local message = response.is_success and response.success or response.error
@@ -1353,7 +1354,7 @@ do
 				submitButton.price = price
 				if (price > maxVal) then
 					submitButton:deactivate()
-					priceInsufficientFundsError:addAdaptedText(true, price > TB_MENU_PLAYER_INFO.data.tc and (TB_MENU_LOCALIZED.MARKETYOURBALANCEERROR .. " " .. PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.tc) .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS) or TB_MENU_LOCALIZED.MARKETPRICEEXCEEDSMAX, nil, nil, 4, nil, 0.65)
+					priceInsufficientFundsError:addAdaptedText(true, price > TB_MENU_PLAYER_INFO.data.tc and (TB_MENU_LOCALIZED.MARKETYOURBALANCEERROR .. " " .. numberFormat(TB_MENU_PLAYER_INFO.data.tc) .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS) or TB_MENU_LOCALIZED.MARKETPRICEEXCEEDSMAX, nil, nil, 4, nil, 0.65)
 					priceInsufficientFundsError:show()
 				elseif (price < 1) then
 					submitButton:deactivate()
@@ -1583,7 +1584,7 @@ do
 				Market:confirmWaiterModal("marketplace_purchase")
 				Request:queue(function()
 						MARKET_ACTIVE_MODAL.doCheck = true
-						show_dialog_box(MARKET_BUY, TB_MENU_LOCALIZED.MARKETPURCHASEOFFERCONFIRM .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " " .. PlayerInfo:currencyFormat(submitButton.price) .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS .. "?\n\n" .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT1 .. " " .. PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.tc - submitButton.price) .. " " .. TB_MENU_LOCALIZED.WORDTC .. " " .. TB_MENU_LOCALIZED.MARKETPURCHASEYOUWILLHAVELEFT2, item.itemid .. ":" .. submitButton.price .. ":0:0:0", true)
+						show_dialog_box(MARKET_BUY, TB_MENU_LOCALIZED.MARKETPURCHASEOFFERCONFIRM .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " " .. numberFormat(submitButton.price) .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS .. "?\n\n" .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT1 .. " " .. numberFormat(TB_MENU_PLAYER_INFO.data.tc - submitButton.price) .. " " .. TB_MENU_LOCALIZED.WORDTC .. " " .. TB_MENU_LOCALIZED.MARKETPURCHASEYOUWILLHAVELEFT2, item.itemid .. ":" .. submitButton.price .. ":0:0:0", true)
 					end, "marketplace_purchase", function()
 						Market:clearModal()
 						local response = Market:parseGatewayResponse(get_network_response())
@@ -1622,7 +1623,7 @@ do
 				submitButton.price = price
 				if (price > maxVal) then
 					submitButton:deactivate()
-					priceInsufficientFundsError:addAdaptedText(true, price > TB_MENU_PLAYER_INFO.data.tc and (TB_MENU_LOCALIZED.MARKETYOURBALANCEERROR .. " " .. PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.tc) .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS) or TB_MENU_LOCALIZED.MARKETPRICEEXCEEDSMAX, nil, nil, 4, nil, 0.65)
+					priceInsufficientFundsError:addAdaptedText(true, price > TB_MENU_PLAYER_INFO.data.tc and (TB_MENU_LOCALIZED.MARKETYOURBALANCEERROR .. " " .. numberFormat(TB_MENU_PLAYER_INFO.data.tc) .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS) or TB_MENU_LOCALIZED.MARKETPRICEEXCEEDSMAX, nil, nil, 4, nil, 0.65)
 					priceInsufficientFundsError:show()
 				elseif (price < 1) then
 					submitButton:deactivate()
@@ -1645,7 +1646,6 @@ do
 
 	function Market:spawnItemSelectorModal(onSelected)
 		local specialScreen = TB_MENU_SPECIAL_SCREEN_ISOPEN
-		TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
 		Market:clearModal()
 
 		local overlay = TBMenu:spawnWindowOverlay(nil, true)
@@ -1705,7 +1705,7 @@ do
 			rounded = 4
 		}, true)
 		local inputField = TBMenu:spawnTextField(inputHolder, nil, nil, nil, nil, nil, nil, 4, 0.7, UICOLORWHITE, TB_MENU_LOCALIZED.STORESEARCHHINT, CENTERMID)
-		inputField:addKeyboardHandlers(function()
+		inputField:addInputCallback(function()
 				if (inputHolder.dropdown) then
 					inputHolder.dropdown:kill()
 				end
@@ -1738,7 +1738,7 @@ do
 					return
 				end
 
-				inputHolder.dropdown = TBMenu:spawnDropdown(inputField, dropdownList, inputHolder.size.h * 0.8, WIN_H / 3, { text = '' }, nil, { scale = 0.65, fontid = 4 }, false, true)
+				inputHolder.dropdown = TBMenu:spawnDropdown(inputField, dropdownList, inputHolder.size.h * 0.8, WIN_H / 3, { text = '' }, nil, { scale = 0.65, fontid = 4 }, true, true, true)
 				inputHolder.dropdown.selectedElement:hide(true)
 				inputHolder.dropdown.selectedElement:btnUp()
 			end)
@@ -1747,11 +1747,11 @@ do
 	function Market:spawnPurchaseModal(offer, item, price, shiai)
 		local confirmMessage = TB_MENU_LOCALIZED.STOREPURCHASECONFIRM .. " " .. item.itemname .. " "
 		if (offer ~= nil) then
-			confirmMessage = confirmMessage .. TB_MENU_LOCALIZED.MARKETPURCHASEFROM .. " " .. offer.username .. "?\n" .. TB_MENU_LOCALIZED.MARKETYOUWILLBECHARGED .. " " .. PlayerInfo:currencyFormat(offer.price) .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS .. (offer.shiai > 0 and (" & " .. offer.shiai .. " " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS) or '') .. "."
+			confirmMessage = confirmMessage .. TB_MENU_LOCALIZED.MARKETPURCHASEFROM .. " " .. offer.username .. "?\n" .. TB_MENU_LOCALIZED.MARKETYOUWILLBECHARGED .. " " .. numberFormat(offer.price) .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS .. (offer.shiai > 0 and (" & " .. offer.shiai .. " " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS) or '') .. "."
 		else
-			confirmMessage = confirmMessage .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " " .. PlayerInfo:currencyFormat(price) .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS .. (shiai > 0 and (" & " .. shiai .. " " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS) or '') .. "?"
+			confirmMessage = confirmMessage .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " " .. numberFormat(price) .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS .. (shiai > 0 and (" & " .. shiai .. " " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS) or '') .. "?"
 		end
-		confirmMessage = confirmMessage .. "\n\n" .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT1 .. " " .. PlayerInfo:currencyFormat(TB_MENU_PLAYER_INFO.data.tc - price) .. " " .. TB_MENU_LOCALIZED.WORDTC .. (shiai > 0 and (" & " .. TB_MENU_PLAYER_INFO.data.st - shiai .. " " .. TB_MENU_LOCALIZED.WORDST) or '') .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT2
+		confirmMessage = confirmMessage .. "\n\n" .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT1 .. " " .. numberFormat(TB_MENU_PLAYER_INFO.data.tc - price) .. " " .. TB_MENU_LOCALIZED.WORDTC .. (shiai > 0 and (" & " .. TB_MENU_PLAYER_INFO.data.st - shiai .. " " .. TB_MENU_LOCALIZED.WORDST) or '') .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEYOUWILLHAVELEFT2
 
 		Market:confirmWaiterModal("marketplace_purchase")
 		Request:queue(function()
@@ -1777,10 +1777,10 @@ do
 				end
 
 				update_tc_balance()
-				TBMenu:showStatusMessage(message, not TB_MENU_MAIN_ISOPEN, 10)
+				TBMenu:showStatusMessage(message, 10)
 				Market:clearModal()
 			end, function()
-				TBMenu:showStatusMessage(get_network_error(), not TB_MENU_MAIN_ISOPEN)
+				TBMenu:showStatusMessage(get_network_error())
 				Market:clearModal()
 			end)
 	end
@@ -1797,6 +1797,8 @@ do
 			pos = { 10, 2 },
 			size = { offerView.size.w - 10, offerView.size.h - 1.9 }, -- Leave 0.1px overlap so mouse_move hook doesn't point to nowhere
 			interactive = true,
+			clickThrough = true,
+			hoverThrough = true,
 			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
@@ -1833,20 +1835,22 @@ do
 			pos = { 10, 0 },
 			size = { offerExtraView.size.w - 10, offerExtraView.size.h - 2 },
 			interactive = true,
+			clickThrough = true,
+			hoverThrough = true,
 			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
 			shapeType = ROUNDED,
 			rounded = { 0, 4 }
 		})
-		offerViewBG:addCustomDisplay(nil, function()
+		offerViewBG:addCustomDisplay(false, function()
 				if (offerExtraViewBG.hoverState ~= offerViewBG.hoverState and offerExtraViewBG:isDisplayed()) then
-					local stateA = offerViewBG.hoverState and offerViewBG.hoverState or 0
-					local stateB = offerExtraViewBG.hoverState and offerExtraViewBG.hoverState or 0
-					if (stateA > stateB) then
+					if (offerViewBG.hoverState > offerExtraViewBG.hoverState) then
 						offerExtraViewBG.hoverState = offerViewBG.hoverState
-					elseif (stateB > 0) then
+						offerExtraViewBG.hoverClock = offerViewBG.hoverClock
+					else
 						offerViewBG.hoverState = offerExtraViewBG.hoverState
+						offerViewBG.hoverClock = offerExtraViewBG.hoverClock
 					end
 				end
 			end, true)
@@ -1870,7 +1874,7 @@ do
 				pos = { offersPriceStarting.shift.x, offersPriceStarting.shift.y + offersPriceStarting.size.h },
 				size = { offersPriceStarting.size.w, offersPriceStarting.size.h }
 			})
-			offersPrice:addAdaptedText(true, PlayerInfo:currencyFormat(offer.price) .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS, nil, nil, 4, CENTER)
+			offersPrice:addAdaptedText(true, numberFormat(offer.price) .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS, nil, nil, 4, CENTER)
 		end
 
 		offerViewBG:addMouseHandlers(nil, function()
@@ -1923,6 +1927,8 @@ do
 			pos = { itemNameShift + itemNameWidth + 5, 3 },
 			size = { itemNameWidth - 10, offerBG.size.h * 0.6 },
 			interactive = true,
+			clickThrough = true,
+			hoverThrough = true,
 			bgColor = UICOLORWHITE,
 			hoverColor = TB_MENU_DEFAULT_YELLOW,
 			pressedColor = TB_MENU_DEFAULT_ORANGE
@@ -1935,7 +1941,7 @@ do
 		offerBy.size.h = elementHeight
 		offerBy:addCustomDisplay(true, function()
 				offerBy:uiText(TB_MENU_LOCALIZED.WORDBY .. " " .. offer.username, nil, nil, 4, nil, 0.65, nil, nil, offerBy:getButtonColor())
-				if (offerBy.hoverState) then
+				if (offerBy.hoverState ~= BTN_NONE) then
 					set_mouse_cursor(1)
 				end
 			end)
@@ -1990,7 +1996,7 @@ do
 		end
 		itemName:addCustomDisplay(true, function()
 				itemName:uiText(itemName.str, nil, nil, itemName.textFont, LEFTMID, itemName.textScale, nil, nil, itemName:getButtonColor())
-				if (itemName.hoverState) then
+				if (itemName.hoverState ~= BTN_NONE) then
 					set_mouse_cursor(1)
 				end
 			end)
@@ -2059,10 +2065,10 @@ do
 			end
 			local triggerPriceUpdate = function()
 				if (offer.offertype == OFFER_SALE and MARKET_SHOP_DATA[TB_MENU_PLAYER_INFO.username:lower()].tier == TIER_REGULAR) then
-					priceText:addAdaptedText(true, PlayerInfo:currencyFormat(offer.price) .. " " .. TB_MENU_LOCALIZED.WORDTC, nil, nil, nil, CENTERBOT)
-					priceTextUser:addAdaptedText(true, TB_MENU_LOCALIZED.MARKETOFFERYOUGET .. " " .. PlayerInfo:currencyFormat(math.floor(offer.price / (1 + MARKET_TAX) + 0.5)) .. " " .. TB_MENU_LOCALIZED.WORDTC, nil, nil, 4, CENTER, 0.7)
+					priceText:addAdaptedText(true, numberFormat(offer.price) .. " " .. TB_MENU_LOCALIZED.WORDTC, nil, nil, nil, CENTERBOT)
+					priceTextUser:addAdaptedText(true, TB_MENU_LOCALIZED.MARKETOFFERYOUGET .. " " .. numberFormat(math.floor(offer.price / (1 + MARKET_TAX) + 0.5)) .. " " .. TB_MENU_LOCALIZED.WORDTC, nil, nil, 4, CENTER, 0.7)
 				else
-					priceText:addAdaptedText(true, PlayerInfo:currencyFormat(offer.price) .. " " .. TB_MENU_LOCALIZED.WORDTC)
+					priceText:addAdaptedText(true, numberFormat(offer.price) .. " " .. TB_MENU_LOCALIZED.WORDTC)
 				end
 			end
 			triggerPriceUpdate()
@@ -2097,6 +2103,8 @@ do
 			pos = { 10, 5 },
 			size = { offerBG2.size.w - 20, offerBG2.size.h - 12 },
 			interactive = true,
+			clickThrough = true,
+			hoverThrough = true,
 			bgColor = TB_MENU_DEFAULT_BG_COLOR,
 			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
@@ -2120,7 +2128,7 @@ do
 					popupText = -discountValue .. "% " .. TB_MENU_LOCALIZED.MARKETMOREEXPENSIVETHANSTORE .. "\n"
 				end
 			end
-			popupText = popupText .. TB_MENU_LOCALIZED.MARKETSTOREPRICE .. ": " .. (item.price ~= 0 and (PlayerInfo:currencyFormat(item.price) .. " " .. TB_MENU_LOCALIZED.WORDTC) or '') .. ((item.price ~= 0 and item.price_usd ~= 0) and " | " or '') .. (item.price_usd ~= 0 and (item.price_usd .. " " .. TB_MENU_LOCALIZED.WORDST) or '')
+			popupText = popupText .. TB_MENU_LOCALIZED.MARKETSTOREPRICE .. ": " .. (item.price ~= 0 and (numberFormat(item.price) .. " " .. TB_MENU_LOCALIZED.WORDTC) or '') .. ((item.price ~= 0 and item.price_usd ~= 0) and " | " or '') .. (item.price_usd ~= 0 and (item.price_usd .. " " .. TB_MENU_LOCALIZED.WORDST) or '')
 		end
 
 		if (offer.offertype == OFFER_SALE) then
@@ -2165,25 +2173,25 @@ do
 			if (not offer.affordable) then
 				actionButton:deactivate(true)
 			end
-			actionButtonText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREBUYFOR .. " " .. PlayerInfo:currencyFormat(offer.price) .. " " .. TB_MENU_LOCALIZED.WORDTC .. (offer.shiai > 0 and (" ^39+ " .. offer.shiai .. " " .. TB_MENU_LOCALIZED.WORDST) or ""))
+			actionButtonText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREBUYFOR .. " " .. numberFormat(offer.price) .. " " .. TB_MENU_LOCALIZED.WORDTC .. (offer.shiai > 0 and (" ^39+ " .. offer.shiai .. " " .. TB_MENU_LOCALIZED.WORDST) or ""))
 			actionButton:addMouseHandlers(nil, function()
 					Market:spawnPurchaseModal(offer, item, offer.price, offer.shiai)
 				end)
 		else
-			actionButtonText:addAdaptedText(true, TB_MENU_LOCALIZED.MARKETSELLFOR .. " " .. PlayerInfo:currencyFormat(offer.price) .. " " .. TB_MENU_LOCALIZED.WORDTC)
+			actionButtonText:addAdaptedText(true, TB_MENU_LOCALIZED.MARKETSELLFOR .. " " .. numberFormat(offer.price) .. " " .. TB_MENU_LOCALIZED.WORDTC)
 			actionButton:addMouseHandlers(nil, function()
 					Market:spawnInventoryItemSelector(item, nil, offer)
 				end)
 		end
 
-		offerBG:addCustomDisplay(nil, function()
+		offerBG:addCustomDisplay(false, function()
 				if (offerBG2.hoverState ~= offerBG.hoverState and offerBG2:isDisplayed()) then
-					local stateA = offerBG.hoverState and offerBG.hoverState or 0
-					local stateB = offerBG2.hoverState and offerBG2.hoverState or 0
-					if (stateA > stateB) then
+					if (offerBG.hoverState > offerBG2.hoverState) then
 						offerBG2.hoverState = offerBG.hoverState
-					elseif (stateB > 0) then
+						offerBG2.hoverClock = offerBG.hoverClock
+					else
 						offerBG.hoverState = offerBG2.hoverState
+						offerBG.hoverClock = offerBG2.hoverClock
 					end
 				end
 			end, true)
@@ -2228,7 +2236,7 @@ do
 					end
 				end
 				if (searchResults.items) then
-					for i,v in pairs(qsort(searchResults.items, 'itemname')) do
+					for i,v in pairs(table.qsort(searchResults.items, 'itemname')) do
 						table.insert(dropdownList, {
 							text = v.itemname,
 							action = function() Market:showItemPage(TBMenu.CurrentSection, v) end
@@ -2240,7 +2248,7 @@ do
 				end
 
 				searchBarView.options = dropdownList
-				searchBarView.dropdown = TBMenu:spawnDropdown(searchBarView, dropdownList, searchBarView.size.h * 0.8, WIN_H / 2, { text = '' }, nil, { scale = 0.65, fontid = 4 }, true, true)
+				searchBarView.dropdown = TBMenu:spawnDropdown(searchBarView, dropdownList, searchBarView.size.h * 0.8, WIN_H / 2, { text = '' }, nil, { scale = 0.65, fontid = 4 }, true, true, true)
 				searchBarView.dropdown.selectedElement:hide(true)
 				searchBarView.dropdown.selectedElement:btnUp()
 			end)
@@ -2316,8 +2324,6 @@ do
 			return
 		end
 
-		TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
-
 		TBMenu:clearNavSection()
 		TBMenu:showNavigationBar(Market:getSectionNavButtons(viewElement, backAction), true)
 		Market:showSearchBar()
@@ -2354,7 +2360,7 @@ do
 		end
 
 		local itemIconFilePath = Torishop:getItemIcon(item)
-		local itemIconFile = Files:open(itemIconFilePath)
+		local itemIconFile = Files.Open(itemIconFilePath)
 		local hasIcon = itemIconFile.data and true or false
 		itemIconFile:close()
 
@@ -2365,11 +2371,11 @@ do
 			bgImage = itemIconFilePath
 		})
 		if (not itemIconFile) then
-			Torishop:addIconToDownloadQueue(item, itemIconPath, itemIcon)
+			Torishop:addIconToDownloadQueue(item, itemIconFilePath, itemIcon)
 		end
 
 		local dataHeight = (itemView.size.h - (itemCategory.shift.y + itemCategory.size.h) - 20) / 3
-		local beltInfo = PlayerInfo:getBeltFromQi(item.qi)
+		local beltInfo = PlayerInfo.getBeltFromQi(item.qi)
 		local beltRestriction = UIElement:new({
 			parent = itemView,
 			pos = { 10, itemDescription.shift.y + itemDescription.size.h + 10 },
@@ -2390,7 +2396,7 @@ do
 			size = { itemView.size.w - 30 - beltRestriction.size.w - beltIcon.size.w, beltRestriction.size.h },
 			uiColor = { 1, 1, 1, 1 }
 		})
-		beltRestrictionText:addAdaptedText(true, beltInfo.name .. " (" .. PlayerInfo:currencyFormat(item.qi) .. " Qi)", nil, nil, 4, LEFTMID, beltRestriction.textScale)
+		beltRestrictionText:addAdaptedText(true, beltInfo.name .. " (" .. numberFormat(item.qi) .. " Qi)", nil, nil, 4, LEFTMID, beltRestriction.textScale)
 		while (#beltRestrictionText.dispstr > 1 and beltRestrictionText.textScale > 0.5) do
 			beltRestrictionText:addAdaptedText(true, beltRestrictionText.str, nil, nil, 4, LEFTMID, beltRestrictionText.textScale - 0.05)
 		end
@@ -2428,7 +2434,7 @@ do
 			shapeType = ROUNDED,
 			rounded = 4
 		})
-		bestSaleOfferButton:addAdaptedText(nil, TB_MENU_LOCALIZED.MARKETPURCHASE)
+		bestSaleOfferButton:addAdaptedText(false, TB_MENU_LOCALIZED.MARKETPURCHASE)
 		bestSaleOfferButton:deactivate()
 
 		local bestBuyRequestView = UIElement:new({
@@ -2456,7 +2462,7 @@ do
 			shapeType = ROUNDED,
 			rounded = 4
 		})
-		bestBuyRequestButton:addAdaptedText(nil, TB_MENU_LOCALIZED.MARKETSELL)
+		bestBuyRequestButton:addAdaptedText(false, TB_MENU_LOCALIZED.MARKETSELL)
 		bestBuyRequestButton:deactivate()
 
 		local saleOffersView = UIElement:new({
@@ -2520,32 +2526,32 @@ do
 				size = { itemView.size.w - itemCount.size.w - 25, itemCount.size.h },
 				uiColor = UICOLORWHITE
 			})
-			itemCountVal:addAdaptedText(true, (itemData.count and PlayerInfo:currencyFormat(itemData.count) or 0) .. " " .. TB_MENU_LOCALIZED.WORDITEMS, nil, nil, itemCount.textFont, RIGHTMID, itemCount.textScale, itemCount.textScale)
+			itemCountVal:addAdaptedText(true, (itemData.count and numberFormat(itemData.count) or 0) .. " " .. TB_MENU_LOCALIZED.WORDITEMS, nil, nil, itemCount.textFont, RIGHTMID, itemCount.textScale, itemCount.textScale)
 			local itemOwnedByVal = UIElement:new({
 				parent = itemOwnedBy,
 				pos = { itemOwnedBy.size.w + 5, 0 },
 				size = { itemView.size.w - itemOwnedBy.size.w - 25, itemOwnedBy.size.h },
 				uiColor = UICOLORWHITE
 			})
-			itemOwnedByVal:addAdaptedText(true, (itemData.ownedby and PlayerInfo:currencyFormat(itemData.ownedby) or 0) .. " " .. TB_MENU_LOCALIZED.WORDPLAYERS, nil, nil, itemOwnedBy.textFont, RIGHTMID, itemOwnedBy.textScale, itemOwnedBy.textScale)
+			itemOwnedByVal:addAdaptedText(true, (itemData.ownedby and numberFormat(itemData.ownedby) or 0) .. " " .. TB_MENU_LOCALIZED.WORDPLAYERS, nil, nil, itemOwnedBy.textFont, RIGHTMID, itemOwnedBy.textScale, itemOwnedBy.textScale)
 			local itemTradedVal = UIElement:new({
 				parent = itemTraded,
 				pos = { itemTraded.size.w + 5, 0 },
 				size = { itemView.size.w - itemTraded.size.w - 25, itemTraded.size.h },
 				uiColor = UICOLORWHITE
 			})
-			itemTradedVal:addAdaptedText(true, (itemData.traded and PlayerInfo:currencyFormat(itemData.traded) or 0) .. " " .. TB_MENU_LOCALIZED.WORDITEMS, nil, nil, itemTraded.textFont, RIGHTMID, itemTraded.textScale, itemTraded.textScale)
+			itemTradedVal:addAdaptedText(true, (itemData.traded and numberFormat(itemData.traded) or 0) .. " " .. TB_MENU_LOCALIZED.WORDITEMS, nil, nil, itemTraded.textFont, RIGHTMID, itemTraded.textScale, itemTraded.textScale)
 
 
 			local sellOffers = #itemData.offers.sale
 			if (sellOffers > 0) then
-				bestSaleOfferText:addAdaptedText(true, sellOffers .. " " .. TB_MENU_LOCALIZED.MARKETSALEOFFERSSTARTINGAT .. " " .. PlayerInfo:currencyFormat(itemData.offers.sale[1].price) .. " " .. TB_MENU_LOCALIZED.WORDTC, nil, nil, 4, CENTERBOT, 0.8)
+				bestSaleOfferText:addAdaptedText(true, sellOffers .. " " .. TB_MENU_LOCALIZED.MARKETSALEOFFERSSTARTINGAT .. " " .. numberFormat(itemData.offers.sale[1].price) .. " " .. TB_MENU_LOCALIZED.WORDTC, nil, nil, 4, CENTERBOT, 0.8)
 				bestSaleOfferButton:addMouseHandlers(nil, function()
 						Market:spawnPurchaseModalInput(item)
 					end)
 			else
 				bestSaleOfferText:addAdaptedText(true, TB_MENU_LOCALIZED.MARKETNOACTIVEOFFERS .. " " .. string.lower(TB_MENU_LOCALIZED.MARKETSALEOFFERS), nil, nil, 4, CENTERBOT, 0.8)
-				bestSaleOfferButton:addAdaptedText(nil, TB_MENU_LOCALIZED.MARKETNEWPURCHASEOFFER)
+				bestSaleOfferButton:addAdaptedText(false, TB_MENU_LOCALIZED.MARKETNEWPURCHASEOFFER)
 			end
 
 			bestSaleOfferButton:activate()
@@ -2563,13 +2569,13 @@ do
 
 			local buyOffers = #itemData.offers.purchase
 			if (buyOffers > 0) then
-				bestBuyRequestText:addAdaptedText(true, buyOffers .. " " .. TB_MENU_LOCALIZED.MARKETBUYREQUESTSSTARTINGAT .. " " .. PlayerInfo:currencyFormat(itemData.offers.purchase[1].price) .. " " .. TB_MENU_LOCALIZED.WORDTC, nil, nil, 4, CENTERBOT, 0.8)
+				bestBuyRequestText:addAdaptedText(true, buyOffers .. " " .. TB_MENU_LOCALIZED.MARKETBUYREQUESTSSTARTINGAT .. " " .. numberFormat(itemData.offers.purchase[1].price) .. " " .. TB_MENU_LOCALIZED.WORDTC, nil, nil, 4, CENTERBOT, 0.8)
 				bestBuyRequestButton:addMouseHandlers(nil, function()
 						Market:spawnInventoryItemSelector(item)
 					end)
 			else
 				bestBuyRequestText:addAdaptedText(true, TB_MENU_LOCALIZED.MARKETNOACTIVEOFFERS .. " " .. string.lower(TB_MENU_LOCALIZED.MARKETPURCHASEREQUESTS), nil, nil, 4, CENTERBOT, 0.8)
-				bestBuyRequestButton:addAdaptedText(nil, TB_MENU_LOCALIZED.MARKETNEWSALEOFFER)
+				bestBuyRequestButton:addAdaptedText(false, TB_MENU_LOCALIZED.MARKETNEWSALEOFFER)
 				bestBuyRequestButton:addMouseHandlers(nil, function()
 						Market:spawnInventoryItemSelector(item)
 					end)
@@ -2611,7 +2617,6 @@ do
 	end
 
 	function Market:showSearchOffers(viewElement, search, options)
-		TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
 		TBMenu:clearNavSection()
 		TBMenu:showNavigationBar(Market:getSectionNavButtons(viewElement), true)
 
@@ -2805,12 +2810,12 @@ do
 					pos = { 15, 5 },
 					size = { (element.size.w - 30) / 3 - 5, element.size.h - 10 }
 				})
-				elementName:addAdaptedText(nil, v.name, nil, nil, nil, LEFTMID)
+				elementName:addAdaptedText(false, v.name, nil, nil, nil, LEFTMID)
 				if (elementName.textScale < 0.6) then
 					elementName.size.w = element.size.w - 20
 					elementName:moveTo(nil, 5, true)
 					elementName.str = ''
-					elementName:addAdaptedText(nil, v.name, nil, nil, nil, LEFTBOT)
+					elementName:addAdaptedText(false, v.name, nil, nil, nil, LEFTBOT)
 
 					local elementNew = UIElement:new({
 						parent = listingHolder,
@@ -2863,17 +2868,17 @@ do
 						shapeType = filterHolder.shapeType,
 						rounded = filterHolder.rounded
 					})
-					defaultValue:addAdaptedText(nil, v.defaultName .. ": " .. v.default, nil, nil, 4, nil, 0.7)
+					defaultValue:addAdaptedText(false, v.defaultName .. ": " .. v.default, nil, nil, 4, nil, 0.7)
 					defaultValue:addMouseHandlers(nil, function()
 							v.value = v.default
 							interactiveElem.textfieldstr[1] = v.default .. ''
 							interactiveElem.textfieldindex = interactiveElem.textfieldstr[1]:len()
 							defaultValue:hide(true)
 						end)
-					interactiveElem:addCustomDisplay(nil, function()
+					interactiveElem:addCustomDisplay(false, function()
 							if (interactiveElem.keyboard == true and string.find(v.default, interactiveElem.textfieldstr[1]) and (v.default .. '') ~= interactiveElem.textfieldstr[1]) then
 								defaultValue:show(true)
-							elseif (not defaultValue.hoverState) then
+							elseif (defaultValue.hoverState == BTN_NONE) then
 								defaultValue:hide(true)
 							end
 						end, true)
@@ -2960,6 +2965,8 @@ do
 				pos = { 10, 2 },
 				size = { (offerView.size.w - 10) / 5 * 4, offerView.size.h - 4 },
 				interactive = true,
+				clickThrough = true,
+				hoverThrough = true,
 				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
@@ -2988,27 +2995,26 @@ do
 				rounded = 5,
 				bgColor = TB_MENU_DEFAULT_BG_COLOR_TRANS
 			})
-			offerItemPrice:addAdaptedText(false, PlayerInfo:currencyFormat(v.price) .. " " .. TB_MENU_LOCALIZED.WORDTC, nil, nil, 4, nil, 0.7)
+			offerItemPrice:addAdaptedText(false, numberFormat(v.price) .. " " .. TB_MENU_LOCALIZED.WORDTC, nil, nil, 4, nil, 0.7)
 			while (#offerItemPrice.dispstr > 1 and offerItemName.size.w > 50) do
 				offerItemName.size.w = offerItemName.size.w - 5
 				offerItemPrice.size.w = offerItemPrice.size.w + 5
 				offerItemPrice:moveTo(-5, nil, true)
 				offerItemPrice.str = ''
-				offerItemPrice:addAdaptedText(false, PlayerInfo:currencyFormat(v.price) .. " " .. TB_MENU_LOCALIZED.WORDTC, nil, nil, 4, nil, 0.7)
+				offerItemPrice:addAdaptedText(false, numberFormat(v.price) .. " " .. TB_MENU_LOCALIZED.WORDTC, nil, nil, 4, nil, 0.7)
 			end
 			offerItemName:addAdaptedText(true, item.shortname, nil, nil, nil, LEFTMID, nil, 0.8, 0.6)
-			local offerSellButton = UIElement:new({
-				parent = offerView,
+			local offerSellButton = offerView:addChild({
 				pos = { offerViewBG.shift.x + offerViewBG.size.w + 5, offerViewBG.shift.y },
 				size = { offerView.size.w - (offerViewBG.shift.x + offerViewBG.size.w) - 5, offerViewBG.size.h },
 				interactive = true,
+				clickThrough = true,
+				hoverThrough = true,
 				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-				inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
-				shapeType = offerViewBG.shapeType,
-				rounded = offerViewBG.rounded
-			})
+				inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS
+			}, true)
 			offerSellButton:addChild({ shift = { 5, 2 } }):addAdaptedText(true, v.username == TB_MENU_PLAYER_INFO.username and TB_MENU_LOCALIZED.MARKETMODIFY or TB_MENU_LOCALIZED.MARKETSELL, nil, nil, 4, nil, 0.7)
 			offerSellButton:addMouseHandlers(nil, function()
 					if (v.username == TB_MENU_PLAYER_INFO.username) then
@@ -3066,7 +3072,7 @@ do
 							end
 							local response = get_network_response();
 							if (not response:find("ERROR")) then
-								local textureFile = Files:open("../data/textures/store/market/" .. string.lower(TB_MENU_PLAYER_INFO.username) .. ".tga")
+								local textureFile = Files.Open("../data/textures/store/market/" .. string.lower(TB_MENU_PLAYER_INFO.username) .. ".tga")
 								shopImage.killAction = function() if (textureFile) then textureFile:close() end end
 								shopImage:addCustomDisplay(false, function()
 									if (not textureFile:isDownloading()) then
@@ -3163,7 +3169,7 @@ do
 						size = { shopStat.size.w, shopStat.size.h }
 					})
 					shopStat:addAdaptedText(true, (v.count and (v.count .. " ") or '') .. TB_MENU_LOCALIZED["MARKETSTATS" .. i], nil, nil, 4, LEFTMID)
-					shopStatVal:addAdaptedText(true, PlayerInfo:currencyFormat(v.tc) .. " " .. TB_MENU_LOCALIZED.WORDTC, nil, nil, 4, RIGHTMID)
+					shopStatVal:addAdaptedText(true, numberFormat(v.tc) .. " " .. TB_MENU_LOCALIZED.WORDTC, nil, nil, 4, RIGHTMID)
 					lastElement = shopStat
 				end
 			end
@@ -3220,7 +3226,6 @@ do
 	end
 
 	function Market:showUserShop(viewElement, username, backAction)
-		TB_MENU_SPECIAL_SCREEN_ISOPEN = IGNORE_NAVBAR_SCROLL
 		usage_event("marketplace_shop")
 
 		TBMenu:clearNavSection()
@@ -3328,7 +3333,7 @@ do
 							end
 							local response = get_network_response();
 							if (not response:find("ERROR")) then
-								local textureFile = Files:open("../data/textures/store/market/" .. string.lower(username) .. ".tga")
+								local textureFile = Files.Open("../data/textures/store/market/" .. string.lower(username) .. ".tga")
 								shopImage.killAction = function() if (textureFile) then textureFile:close() end end
 								shopImage:addCustomDisplay(false, function()
 									if (not textureFile:isDownloading()) then
@@ -3408,7 +3413,7 @@ do
 						pos = { 0, lastElement.shift.y + lastElement.size.h + 5 },
 						size = { shopStatsHolder.size.w, statHeight }
 					})
-					finishedSales:addAdaptedText(true, stat.count .. " " .. TB_MENU_LOCALIZED.MARKETFINISHEDSALESFOR .. " " .. PlayerInfo:currencyFormat(stat.tc) .. " " .. TB_MENU_LOCALIZED.WORDTC, nil, nil, 4)
+					finishedSales:addAdaptedText(true, stat.count .. " " .. TB_MENU_LOCALIZED.MARKETFINISHEDSALESFOR .. " " .. numberFormat(stat.tc) .. " " .. TB_MENU_LOCALIZED.WORDTC, nil, nil, 4)
 					lastElement = finishedSales
 				end
 				if (shopData.stats.offers and shopData.stats.offers.count) then
@@ -3608,11 +3613,11 @@ do
 
 		local myShopView = UIElement:new({
 			parent = viewElement,
-			pos = { 0, 0 },
+			pos = { 5, 0 },
 			size = { 0, viewElement.size.h },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
-		myShopView.size.w = math.min(viewElement.size.w / 3, 375)
+		myShopView.size.w = math.min(viewElement.size.w / 4, 375)
 		TBMenu:addBottomBloodSmudge(myShopView, 1)
 
 		Request:queue(function()
@@ -3666,7 +3671,7 @@ do
 		local popularSaleOffersView = UIElement:new({
 			parent = viewElement,
 			pos = { myShopViewShift, 0 },
-			size = { viewElement.size.w - featuredImageSize - myShopViewShift, viewElement.size.h },
+			size = { viewElement.size.w - featuredImageSize - myShopViewShift - 15, viewElement.size.h },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
 
@@ -3677,7 +3682,7 @@ do
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
 
-		if (MARKET_OFFERS_HOME == nil or os.clock() - MARKET_OFFERS_HOME.refreshTime > 300) then
+		if (MARKET_OFFERS_HOME == nil or os.clock_real() - MARKET_OFFERS_HOME.refreshTime > 300) then
 			MARKET_OFFERS_HOME = nil
 			local popularSaleOffersTitle = UIElement:new({
 				parent = popularSaleOffersView,
@@ -3721,7 +3726,7 @@ do
 						end)
 				end
 				MARKET_OFFERS_HOME = offersData
-				MARKET_OFFERS_HOME.refreshTime = os.clock()
+				MARKET_OFFERS_HOME.refreshTime = os.clock_real()
 			end, function()
 				TBMenu:showStatusMessage(get_network_error())
 			end)
@@ -3792,7 +3797,7 @@ do
 					end
 				end
 
-				local featuredFile = Files:open("../data/textures/store/market/" .. featuredShopData.user .. ".tga")
+				local featuredFile = Files.Open("../data/textures/store/market/" .. featuredShopData.user .. ".tga")
 				if (featuredFile.data) then
 					featuredFile:close()
 					if (featuredLoader) then

@@ -29,6 +29,6 @@ msg_urlserver 0 0 1,
 msg_ingame 0.58 0 0,
 msg_gamurl 0 0 1,
 msg_user 0.01 0.01 0.01
-msg_player 0.4 0.2 0
+msg_player 0.0 0.2 0.35
 msg_url 0.16 0.66 0.86
 msg_urlsel 1 0 1

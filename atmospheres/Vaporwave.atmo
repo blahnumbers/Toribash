@@ -6,4 +6,4 @@ env_obj ground
 	shape custom ../atmospheres/vaporwave
 	size 15 15 15
 	color 2 1 2 1
-	rot 270 0 90
+	rot 0 90 90

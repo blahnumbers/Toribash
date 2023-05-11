@@ -28,7 +28,8 @@ do
 	---@field error function Function that will be executed on network_error callback
 	---@field netcall function Function that will be executed instantly after network listener hooks are spawned
 
-	-- Spawns network listener hooks to handle network responses. **You likely want to use Request:queue() instead**.
+	---Spawns network listener hooks to handle network responses. \
+	---*You likely want to use `Request:queue()` instead*.
 	---@param name string|nil Request name - may come in handy when debugging to be able to tell different requests from each other
 	---@param success? function Function to execute on successful network response
 	---@param error? function Function to execute on network response failure
@@ -42,14 +43,14 @@ do
 
 		TB_NETWORK_LASTREQUEST = response.id
 		add_hook("network_error", name, function()
-				if (TB_MENU_DEBUG) then print_r(get_network_error()) end
+				if (TB_MENU_DEBUG) then print(get_network_error()) end
 				Request:finalize(name)
 				response.failed = true
 				error(response)
 				response.ready = true
 			end)
 		add_hook("network_complete", name, function()
-				if (TB_MENU_DEBUG) then print_r(get_network_response()) end
+				if (TB_MENU_DEBUG) then print(get_network_response()) end
 				Request:finalize(name)
 				success(response)
 				response.ready = true
@@ -67,9 +68,9 @@ do
 	function Request:queue(netcall, name, success, error)
 		if (type(netcall) ~= "function") then
 			if (TB_MENU_DEBUG) then
-				print_r("Usage Request:queue(function netCall, string callName, function onSuccess, function onError)")
+				print("Usage Request:queue(function netCall, string callName, function onSuccess, function onError)")
 			end
-			return false
+			return { ready = true, failed = true, id = "" }
 		end
 
 		---@type RequestPromise
@@ -83,11 +84,11 @@ do
 
 		if (#TB_NETWORK_REQUEST_QUEUE > 1) then
 			if (TB_MENU_DEBUG) then
-				print_r("Queueing a request (guid " .. request.response.id .. ")")
+				print("Queueing a request (guid " .. request.response.id .. ")")
 			end
 		else
 			if (TB_MENU_DEBUG) then
-				print_r("Launching a request (guid " .. request.response.id .. ")")
+				print("Launching a request (guid " .. request.response.id .. ")")
 			end
 			Request:finalize('netrequest')
 		end
@@ -111,14 +112,14 @@ do
 						remove_hook("draw2d", "netrequest_wait")
 						local request = TB_NETWORK_REQUEST_QUEUE[1]
 						if (TB_MENU_DEBUG) then
-							print_r("Queueing next request")
-							print_r(request)
+							print("Queueing next request")
+							print(request)
 						end
 						Request:new(request.name, request.success, request.error, request.response)
 						local completed, msg = pcall(request.netcall)
 						if (not completed) then
 							if (TB_MENU_DEBUG) then
-								print_r("netcall error: " .. (type(msg) == "string" and msg or ''))
+								print("netcall error: " .. (type(msg) == "string" and msg or ''))
 							end
 							Request:cancelCurrentRequest()
 						end
@@ -128,9 +129,9 @@ do
 	end
 
 	-- Emergency exit for currently active network request
-	---@return RequestData #RequestData table for the cancelled request
+	---@return RequestData|nil
 	function Request:cancelCurrentRequest()
-		for i,v in pairs(TB_NETWORK_REQUEST_QUEUE) do
+		for _ ,v in pairs(TB_NETWORK_REQUEST_QUEUE) do
 			if (v.response.id == TB_NETWORK_LASTREQUEST) then
 				Request:finalize(v.name)
 				return v
