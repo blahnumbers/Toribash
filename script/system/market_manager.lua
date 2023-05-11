@@ -20,8 +20,7 @@ do
 	setmetatable(cln, Market)
 
 	function Market:quit()
-		TBMenu.CurrentSection:kill(true)
-		TBMenu.NavigationBar:kill(true)
+		TBMenu:clearNavSection()
 		TBMenu:showNavigationBar()
 		TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
 	end

@@ -11,8 +11,7 @@ do
 	setmetatable(cln, Events)
 
 	function Events:quit()
-		TBMenu.CurrentSection:kill(true)
-		TBMenu.NavigationBar:kill(true)
+		TBMenu:clearNavSection()
 		TBMenu:showNavigationBar()
 		TB_MENU_EVENTS_OPEN = false
 		TB_MENU_SPECIAL_SCREEN_ISOPEN = 0

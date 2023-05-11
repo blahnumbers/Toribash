@@ -509,8 +509,7 @@ do
 	end
 
 	function Torishop:quit()
-		TBMenu.CurrentSection:kill(true)
-		TBMenu.NavigationBar:kill(true)
+		TBMenu:clearNavSection()
 		if (STORE_VANILLA_PREVIEW) then
 			STORE_VANILLA_PREVIEW = false
 			remove_hooks("storevanillapreview")

@@ -123,8 +123,7 @@ function News.UpdateConfig()
 	end
 	file:close()
 
-	if (lastUnreadState ~= News.HasUnreadNews and TB_MENU_MAIN_ISOPEN == 1 and TB_MENU_SPECIAL_SCREEN_ISOPEN == 0) then
-		TBMenu.NavigationBar:kill(true)
+	if (lastUnreadState ~= News.HasUnreadNews and TB_MENU_MAIN_ISOPEN == 1 and TB_MENU_SPECIAL_SCREEN_ISOPEN == 0 and not TBMenu.HasCustomNavigation) then
 		TBMenu:showNavigationBar()
 	end
 end
@@ -229,8 +228,7 @@ function News:getNews(reload)
 		end
 	end
 
-	if (TB_MENU_MAIN_ISOPEN == 1 and TB_MENU_SPECIAL_SCREEN_ISOPEN == 0) then
-		TBMenu.NavigationBar:kill(true)
+	if (TB_MENU_MAIN_ISOPEN == 1 and TB_MENU_SPECIAL_SCREEN_ISOPEN == 0 and not TBMenu.HasCustomNavigation) then
 		TBMenu:showNavigationBar()
 	end
 end

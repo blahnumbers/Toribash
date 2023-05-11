@@ -207,17 +207,17 @@ add_hook("downloader_complete", "tbMainMenuStatic", function(filename)
 			Downloader:safeCall(function() TB_STORE_DATA, TB_STORE_SECTIONS = Torishop:getItems() end)
 		elseif (filename:find("data/store_obj.txt")) then
 			Downloader:safeCall(function() TB_STORE_MODELS = Torishop:getModelsData() end)
-		elseif (filename:find("clans/clans.txt")) then
+		elseif (filename:find("data/clans.txt")) then
 			Downloader:safeCall(function()
 				Clans:getClanData(true)
 				TB_MENU_PLAYER_INFO:getClan()
 				TB_MENU_CUSTOMS_REFRESHED = true
 			end)
-		elseif (filename:find("clans/clanlevels.txt")) then
+		elseif (filename:find("data/clanlevels.txt")) then
 			Downloader:safeCall(function()
 				Clans:getLevelData(true)
 			end)
-		elseif (filename:find("clans/clanachievements.txt")) then
+		elseif (filename:find("data/clanachievements.txt")) then
 			Downloader:safeCall(function()
 				Clans:getAchievementData(true)
 			end)

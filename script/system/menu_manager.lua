@@ -25,6 +25,7 @@ if (TBMenu == nil) then
 	---@field StatusMessage TBMenuStatusMessage Status message UIElement holder
 	---@field NotificationsCount UIElement Notifications count display UIElement
 	---@field CurrentAnnouncementId integer Active home tab announcement ID
+	---@field HasCustomNavigation boolean Whether `TBMenu.NavigationBar` is currently loaded and has custom navigation
 	TBMenu = {
 		CurrentAnnouncementId = 1,
 		ver = 5.60
@@ -386,11 +387,17 @@ function TBMenu:showHome()
 		})
 		local action = v.action or function() end
 		v.action = function()
-				usage_event("newsview" .. string.gsub(string.lower(v.title), "%W", ""))
+				usage_event("newsview" .. string.gsub(string.lower(v.title or "untitled"), "%W", ""))
+				if (not v.isRead) then
+					v.isRead = true
+					News.UpdateConfig()
+					if (v.newCaption) then
+						v.newCaption:kill()
+						v.newCaption = nil
+					end
+				end
 				action()
 				rotateClock.pause = true
-				v.isRead = true
-				News.UpdateConfig()
 			end
 		TBMenu:showHomeButton(eventItems[i], v, 1)
 		if (not v.isRead) then
@@ -404,6 +411,7 @@ function TBMenu:showHome()
 			})
 			newCaption:addAdaptedText(TB_MENU_LOCALIZED.WORDNEW .. "!")
 			newCaption.size.w = get_string_length(newCaption.dispstr[1], newCaption.textFont) * newCaption.textScale + 40
+			v.newCaption = newCaption
 		end
 		if (i ~= TBMenu.CurrentAnnouncementId) then
 			eventItems[i]:hide()
@@ -418,6 +426,21 @@ function TBMenu:showHome()
 		TBMenu.CurrentAnnouncementId = 1
 	end
 
+	local action = featuredEventData.action or function() end
+	featuredEventData.action = function()
+		usage_event("eventfeatured" .. string.gsub(string.lower(featuredEventData.title or "untitled"), "%W", ""))
+		if (not featuredEventData.isRead) then
+			featuredEventData.isRead = true
+			News.UpdateConfig()
+			if (featuredEventData.newCaption) then
+				featuredEventData.newCaption:kill()
+				featuredEventData.newCaption = nil
+			end
+		end
+		action()
+		rotateClock.pause = true
+	end
+
 	if (#eventsData > 1) then
 		-- Spawn progress bar before next/prev buttons
 		local eventDisplayTime = homeAnnouncements.toReload:addChild({
@@ -425,14 +448,6 @@ function TBMenu:showHome()
 		})
 
 		-- Auto-rotate event announcements
-		local action = featuredEventData.action or function() end
-		featuredEventData.action = function()
-			usage_event("eventfeatured" .. string.gsub(string.lower(featuredEventData.title), "%W", ""))
-			action()
-			rotateClock.pause = true
-			featuredEventData.isRead = true
-			News.UpdateConfig()
-		end
 		local timeData = eventItems[1].button.pos.y > eventItems[1].image.pos.y + eventItems[1].image.size.h and { x = eventItems[1].image.pos.x, width = eventItems[1].image.size.w } or { x = eventItems[1].button.pos.x + 10, width = eventItems[1].button.size.w - 20 }
 		eventDisplayTime:addCustomDisplay(true, function()
 				if (not rotateClock.pause) then
@@ -490,14 +505,18 @@ function TBMenu:showHome()
 	featuredEventData.subtitle = nil
 	TBMenu:showHomeButton(featuredEvent, featuredEventData)
 	if (not featuredEventData.isRead) then
-		featuredEvent:addChild({
-			pos = { -30, -30 },
-			size = { 26, 26 },
+		local newCaption = featuredEvent:addChild({
+			pos = { 5, 5 },
+			size = { featuredEvent.size.w - 20, 40 },
 			bgColor = TB_MENU_DEFAULT_ORANGE,
 			uiColor = UICOLORBLACK,
 			shapeType = ROUNDED,
-			rounded = 13
-		}):addAdaptedText("!")
+			rounded = 20
+		})
+		newCaption:addAdaptedText(TB_MENU_LOCALIZED.WORDNEW .. "!")
+		newCaption.size.w = get_string_length(newCaption.dispstr[1], newCaption.textFont) * newCaption.textScale + 40
+		newCaption:moveTo(-newCaption.size.w - 5)
+		featuredEventData.newCaption = newCaption
 	end
 	TBMenu:showHomeButton(viewEventsButton, viewEventsButtonData, 2)
 end
@@ -1267,8 +1286,7 @@ function TBMenu:showAccountMain()
 			text = TB_MENU_LOCALIZED.NAVBUTTONBACK,
 			action = function()
 				TB_MENU_SPECIAL_SCREEN_ISOPEN = lastSpecialScreen
-				TBMenu.CurrentSection:kill(true)
-				TBMenu.NavigationBar:kill(true)
+				TBMenu:clearNavSection()
 				TBMenu:showNavigationBar()
 				TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
 			end,
@@ -1936,7 +1954,7 @@ function TBMenu:showUserBar()
 	})
 
 	local userBarImage = TBMenu.UserBar:addChild({
-		pos = { 1, -TBMenu.UserBar.size.h - 1 },
+		pos = { math.ceil(PLATFORM == "APPLE" and 1 or (get_option("highdpi") / 10)), -TBMenu.UserBar.size.h - 1 },
 		size = { userBarImageWidth, userBarImageWidth / (SCREEN_RATIO > 2 and 8 or 5) },
 		bgImage = SCREEN_RATIO > 2 and TB_MENU_USERBAR_WIDE or TB_MENU_USERBAR_MAIN,
 		disableUnload = true,
@@ -2252,6 +2270,8 @@ function TBMenu:showMobileNavigationBar(buttonsData, customNav, customNavHighlig
 		rounded = 10,
 		interactive = is_mobile()
 	})
+	TBMenu.NavigationBar.killAction = function() TBMenu.HasCustomNavigation = false end
+	TBMenu.HasCustomNavigation = buttonsData ~= nil
 
 	---Unlike with horizontal menu, button always have the same width but may be multiline.
 	---We need to calculate target font scale to render all captions at the same size and see whether
@@ -2427,6 +2447,8 @@ function TBMenu:showNavigationBar(buttonsData, customNav, customNavHighlight, se
 		rounded = 10,
 		interactive = is_mobile()
 	})
+	TBMenu.NavigationBar.killAction = function() TBMenu.HasCustomNavigation = false end
+	TBMenu.HasCustomNavigation = buttonsData ~= nil
 
 	-- Check if total button width doesn't exceed navbar width
 	-- Assign button width accordingly
@@ -2595,9 +2617,7 @@ function TBMenu:getMainNavigationButtons()
 			right = not is_mobile()
 		}
 		if (BattlePass.UserData) then
-			if (BattlePass.UserData.level == 0 and BattlePass.UserData.xp < 100 and not BattlePass.wasOpened) then
-				battlePassButton.misctext = TB_MENU_LOCALIZED.WORDNEW .. "!"
-			elseif (BattlePass.UserData.level_available > BattlePass.UserData.level) then
+			if (BattlePass.UserData.level_available > BattlePass.UserData.level) then
 				battlePassButton.misctext = "!"
 			end
 			table.insert(buttonData, battlePassButton)

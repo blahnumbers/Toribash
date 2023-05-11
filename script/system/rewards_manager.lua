@@ -62,8 +62,7 @@ function Rewards:quit()
 		remove_hooks("tbMainMenuVisual")
 		return
 	end
-	TBMenu.CurrentSection:kill(true)
-	TBMenu.NavigationBar:kill(true)
+	TBMenu:clearNavSection()
 	TB_MENU_SPECIAL_SCREEN_ISOPEN = 4
 	TBMenu:showNavigationBar()
 	TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)

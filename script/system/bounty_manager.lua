@@ -69,8 +69,7 @@ end
 ---Exits Bounty screen
 function Bounty.Quit()
 	TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
-	TBMenu.CurrentSection:kill(true)
-	TBMenu.NavigationBar:kill(true)
+	TBMenu:clearNavSection()
 	TBMenu:showNavigationBar()
 	TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
 end

@@ -63,8 +63,7 @@ local NotificationsInternal = {
 setmetatable({}, NotificationsInternal)
 
 function Notifications:quit()
-	TBMenu.CurrentSection:kill(true)
-	TBMenu.NavigationBar:kill(true)
+	TBMenu:clearNavSection()
 	TBMenu:showNavigationBar()
 	TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
 	TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)

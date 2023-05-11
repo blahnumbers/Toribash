@@ -131,8 +131,7 @@ function Ranking:getNavigationButtons()
 		{
 			text = TB_MENU_LOCALIZED.NAVBUTTONBACK,
 			action = function()
-				TBMenu.CurrentSection:kill(true)
-				TBMenu.NavigationBar:kill(true)
+				TBMenu:clearNavSection()
 				TBMenu:showNavigationBar()
 				TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
 			end

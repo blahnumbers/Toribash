@@ -39,8 +39,7 @@ do
 	function Settings:quit()
 		TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
 		TB_MENU_SETTINGS_SCREEN_ACTIVE = 1
-		TBMenu.CurrentSection:kill(true)
-		TBMenu.NavigationBar:kill(true)
+		TBMenu:clearNavSection()
 		TBMenu:showNavigationBar()
 		TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
 	end

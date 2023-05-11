@@ -246,6 +246,7 @@ end
 ---@field value integer
 
 ---@class TutorialStep
+---@field isLoaded boolean Internal value to tell if the step has finished loading
 ---@field id integer Step id
 ---@field skip integer Number of steps to skip after current step completion
 ---@field fallback integer Number of steps to fall back to after current step completion
@@ -518,10 +519,15 @@ end
 ---@field type TutorialStepRequirementType
 
 ---Checks whether step requirements are complete
+---@param manager Tutorials
 ---@param reqTable TutorialStepRequirement[]
 ---@param excludeRequirement ?TutorialStepRequirementType
 ---@return boolean
-function TutorialsInternal.CheckRequirements(reqTable, excludeRequirement)
+function TutorialsInternal.CheckRequirements(manager, reqTable, excludeRequirement)
+	if (not manager.CurrentStep.isLoaded) then
+		return false
+	end
+
 	for _, v in ipairs(reqTable) do
 		if (type(v) == "table") then
 			if (not v.ready) then
@@ -574,7 +580,7 @@ function Tutorials:showOverlay(viewElement, reqTable, out, speed)
 			self.StepOverlay.bgColor[4] = UITween.SineTween(out and 0 or 1, out and 1 or 0, ratio)
 			if (ratio >= 1) then
 				req.ready = true
-				reqTable.ready = TutorialsInternal.CheckRequirements(reqTable)
+				reqTable.ready = TutorialsInternal.CheckRequirements(self, reqTable)
 			end
 		end, true)
 end
@@ -626,13 +632,13 @@ function Tutorials:reqButton(reqTable)
 
 	local buttonWait = self.ContinueButton:addChild({})
 	buttonWait:addCustomDisplay(true, function()
-			if (TutorialsInternal.CheckRequirements(reqTable, "button")) then
+			if (TutorialsInternal.CheckRequirements(self, reqTable, "button")) then
 				self.ContinueButton:activate()
 				self.ContinueButton.req = req
 				self.ContinueButton.reqTable = reqTable
 				self.ContinueButton:addMouseUpHandler(function()
 						req.ready = true
-						reqTable.ready = TutorialsInternal.CheckRequirements(reqTable)
+						reqTable.ready = TutorialsInternal.CheckRequirements(self, reqTable)
 						self.ContinueButton:deactivate()
 						self.ContinueButton.req = nil
 						self.ContinueButton.reqTable = nil
@@ -664,7 +670,7 @@ function Tutorials:reqDamage(viewElement, reqTable, dmg, opt)
 					end
 				else
 					req.ready = true
-					reqTable.ready = TutorialsInternal.CheckRequirements(reqTable)
+					reqTable.ready = TutorialsInternal.CheckRequirements(self, reqTable)
 				end
 				reqElement:kill()
 			end
@@ -708,7 +714,7 @@ function Tutorials:reqDismember(viewElement, reqTable, jointName)
 	reqElement:addCustomDisplay(true, function()
 			if (get_joint_dismember(1, JOINTS[jointName])) then
 				req.ready = true
-				reqTable.ready = TutorialsInternal.CheckRequirements(reqTable)
+				reqTable.ready = TutorialsInternal.CheckRequirements(self, reqTable)
 				jointPulse:kill()
 				reqElement:kill()
 			end
@@ -733,7 +739,7 @@ function Tutorials:reqFracture(viewElement, reqTable, jointName)
 	reqElement:addCustomDisplay(true, function()
 			if (get_joint_fracture(1, JOINTS[jointName])) then
 				req.ready = true
-				reqTable.ready = TutorialsInternal.CheckRequirements(reqTable)
+				reqTable.ready = TutorialsInternal.CheckRequirements(self, reqTable)
 				reqElement:kill()
 			end
 		end)
@@ -754,7 +760,7 @@ function Tutorials:showTask(_, reqTable, message)
 				textColor[4] = 1
 				messageTransparency:kill()
 				req.ready = true
-				reqTable.ready = TutorialsInternal.CheckRequirements(reqTable)
+				reqTable.ready = TutorialsInternal.CheckRequirements(self, reqTable)
 			end
 		end)
 
@@ -778,7 +784,7 @@ function Tutorials:showHint(_, reqTable, message)
 				textColor[4] = 1
 				messageTransparency:kill()
 				req.ready = true
-				reqTable.ready = TutorialsInternal.CheckRequirements(reqTable)
+				reqTable.ready = TutorialsInternal.CheckRequirements(self, reqTable)
 			end
 		end)
 
@@ -898,7 +904,7 @@ function Tutorials:showMessage(viewElement, reqTable, message, messageby)
 				if (sub >= strlen) then
 					self.MessageView.doSkip = true
 					req.ready = true
-					reqTable.ready = TutorialsInternal.CheckRequirements(reqTable)
+					reqTable.ready = TutorialsInternal.CheckRequirements(self, reqTable)
 					messageBuilder:kill()
 				end
 			end)
@@ -917,7 +923,7 @@ function Tutorials:reqDelay(viewElement, reqTable, delay)
 	reqElement:addCustomDisplay(true, function()
 			if (UIElement.clock - spawnTime > delay) then
 				req.ready = true
-				reqTable.ready = TutorialsInternal.CheckRequirements(reqTable)
+				reqTable.ready = TutorialsInternal.CheckRequirements(self, reqTable)
 				reqElement:kill()
 			end
 		end)
@@ -933,7 +939,7 @@ function Tutorials:reqVictory(viewElement, reqTable)
 	reqElement:addCustomDisplay(true, function()
 			if (get_world_state().winner == 0) then
 				req.ready = true
-				reqTable.ready = TutorialsInternal.CheckRequirements(reqTable)
+				reqTable.ready = TutorialsInternal.CheckRequirements(self, reqTable)
 				reqElement:kill()
 			end
 		end)
@@ -991,7 +997,7 @@ function Tutorials:reqJointMove(viewElement, reqTable, info)
 						Tutorials:taskOptComplete(info.optTask)
 					end
 				end
-				reqTable.ready = TutorialsInternal.CheckRequirements(reqTable)
+				reqTable.ready = TutorialsInternal.CheckRequirements(self, reqTable)
 				reqElement:kill()
 				if (jointPulse) then
 					jointPulse:kill()
@@ -1020,7 +1026,7 @@ function Tutorials:playFrames(_, reqTable, frames)
 				set_replay_speed(0)
 			end
 			req.ready = true
-			reqTable.ready = TutorialsInternal.CheckRequirements(reqTable)
+			reqTable.ready = TutorialsInternal.CheckRequirements(self, reqTable)
 			remove_hook("enter_frame", "playFrame")
 		end
 	end
@@ -1050,7 +1056,7 @@ function Tutorials:startNewGame(_, reqTable, mod)
 		start_new_game()
 	end
 	TUTORIAL_LEAVEGAME = false
-	reqTable.ready = TutorialsInternal.CheckRequirements(reqTable)
+	reqTable.ready = TutorialsInternal.CheckRequirements(self, reqTable)
 end
 
 ---Loads players' customs onto player spots
@@ -1082,7 +1088,7 @@ function Tutorials:loadReplay(_, reqTable, replay, cache)
 	freeze_game()
 	TUTORIAL_LEAVEGAME = false
 
-	reqTable.ready = TutorialsInternal.CheckRequirements(reqTable)
+	reqTable.ready = TutorialsInternal.CheckRequirements(self, reqTable)
 end
 
 ---Runs a custom function from a preloaded file
@@ -1109,7 +1115,7 @@ end
 ---@param reqTable TutorialStepRequirement[]
 ---@return boolean
 function Tutorials:checkRequirements(reqTable)
-	return TutorialsInternal.CheckRequirements(reqTable)
+	return TutorialsInternal.CheckRequirements(self, reqTable)
 end
 
 ---Returns whether specified joint can be currently controlled
@@ -1200,7 +1206,7 @@ function Tutorials:showHintWindow(reqTable, hide)
 	local windowFade = self.HintView:addChild({})
 	windowFade.killAction = function()
 		req.ready = true
-		reqTable.ready = TutorialsInternal.CheckRequirements(reqTable)
+		reqTable.ready = TutorialsInternal.CheckRequirements(self, reqTable)
 	end
 
 	local spawnClock = UIElement.clock
@@ -1453,7 +1459,7 @@ function Tutorials:showTaskWindow(reqTable, hide, disableTaskReset)
 					end
 					self.TaskViewHolder:addCustomDisplay(false, function() end)
 					req.ready = true
-					reqTable.ready = TutorialsInternal.CheckRequirements(reqTable)
+					reqTable.ready = TutorialsInternal.CheckRequirements(self, reqTable)
 				end
 			end)
 	else
@@ -1467,7 +1473,7 @@ function Tutorials:showTaskWindow(reqTable, hide, disableTaskReset)
 				else
 					self.TaskViewHolder:addCustomDisplay(false, function() end)
 					req.ready = true
-					reqTable.ready = TutorialsInternal.CheckRequirements(reqTable)
+					reqTable.ready = TutorialsInternal.CheckRequirements(self, reqTable)
 				end
 			end)
 	end
@@ -1556,7 +1562,7 @@ function Tutorials:showMessageWindow(reqTable, hide)
 					self.MessageView:moveTo(self.MessageView.parent.size.w)
 					windowMover:kill()
 					req.ready = true
-					reqTable.ready = TutorialsInternal.CheckRequirements(reqTable)
+					reqTable.ready = TutorialsInternal.CheckRequirements(self, reqTable)
 				end
 			end)
 	else
@@ -1569,7 +1575,7 @@ function Tutorials:showMessageWindow(reqTable, hide)
 				if (ratio >= 1) then
 					windowMover:kill()
 					req.ready = true
-					reqTable.ready = TutorialsInternal.CheckRequirements(reqTable)
+					reqTable.ready = TutorialsInternal.CheckRequirements(self, reqTable)
 				end
 			end)
 	end
@@ -1615,6 +1621,7 @@ function Tutorials:runSteps(steps, currentStep)
 	local currentStep = currentStep or 1
 	local requirements = { ready = false, skip = 0 }
 	self.CurrentStep = steps[currentStep]
+	self.CurrentStep.isLoaded = false
 
 	local stepElement = self.MainView:addChild({})
 	if (TB_MENU_DEBUG) then
@@ -1835,6 +1842,8 @@ function Tutorials:runSteps(steps, currentStep)
 		---but would trigger buttons reload in TBHud class.
 		call_hook("spec_update")
 	end
+	self.CurrentStep.isLoaded = true
+	requirements.ready = TutorialsInternal.CheckRequirements(self, requirements)
 end
 
 ---Updates Tutorials config file
@@ -2318,7 +2327,7 @@ end
 function Tutorials:getNavigationButtons()
 	return {
 		{
-			text = TB_MENU_LOCALIZED.NAVBUTTONTOMAIN,
+			text = TB_MENU_LOCALIZED.NAVBUTTONBACK,
 			action = function()
 					TBMenu:clearNavSection()
 					TBMenu:showNavigationBar()
@@ -2502,7 +2511,7 @@ function TutorialsInternal.LoadHooks(manager)
 				if (manager.ContinueButton.isactive) then
 					if (manager.ContinueButton.req.ready ~= nil) then
 						manager.ContinueButton.req.ready = true
-						manager.ContinueButton.reqTable.ready = TutorialsInternal.CheckRequirements(manager.ContinueButton.reqTable)
+						manager.ContinueButton.reqTable.ready = TutorialsInternal.CheckRequirements(manager, manager.ContinueButton.reqTable)
 						manager.ContinueButton:deactivate()
 					end
 				end

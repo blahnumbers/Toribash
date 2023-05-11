@@ -286,7 +286,7 @@ end
 ---Exits clans menu and returns to last displayed main menu screen
 function Clans.Quit()
 	TB_MENU_CLANS_OPENCLANID = 0
-	TBMenu.CurrentSection:kill(true)
+	TBMenu:clearNavSection()
 	TBMenu:showNavigationBar()
 	TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
 end
@@ -340,6 +340,7 @@ function Clans:showMain(viewElement, clantag)
 			shift = { loader.size.w / 4, loader.size.h / 3 }
 		})
 		TBMenu:displayLoadingMark(loadingText, TB_MENU_LOCALIZED.CLANSUPDATINGWAIT)
+		return
 	end
 
 	if (clantag) then
@@ -1295,16 +1296,29 @@ function Clans:showClan(viewElement, clanid)
 	TBMenu:clearNavSection()
 	TBMenu:showNavigationBar(Clans:getNavigationButtons(), true)
 
-	Clans.Data[clanid] = Clans.Data[clanid] or { }
-	local clanView = UIElement:new({
-		parent = viewElement,
-		pos = { 0, 0 },
-		size = { viewElement.size.w, viewElement.size.h },
+	if (Clans.Data[clanid] == nil or Clans.Levels[1] == nil or Clans.Achievements[1] == nil) then
+		Clans.Download()
+		local loadingView = viewElement:addChild({
+			pos = { 5, 0 },
+			size = { viewElement.size.w - 10, viewElement.size.h },
+			bgColor = TB_MENU_DEFAULT_BG_COLOR
+		})
+		TBMenu:displayLoadingMark(loadingView, TB_MENU_LOCALIZED.NETWORKLOADING)
+		TBMenu:addBottomBloodSmudge(loadingView)
+		loadingView:addCustomDisplay(function()
+				if (Clans.Data[clanid] ~= nil and Clans.Levels[1] ~= nil and Clans.Achievements[1] ~= nil) then
+					viewElement:kill(true)
+					Clans:showClan(viewElement, clanid)
+				end
+			end)
+		return
+	end
+
+	local clanView = viewElement:addChild({
 		uiColor = Clans.Data[clanid].colorNegative and UICOLORBLACK or UICOLORWHITE,
 		uiShadowColor = Clans.Data[clanid].colorNegative and UICOLORWHITE or UICOLORBLACK,
 	})
-	local clanInfoLeftView = UIElement:new({
-		parent = clanView,
+	local clanInfoLeftView = clanView:addChild({
 		pos = { 5, 0 },
 		size = { 276, clanView.size.h },
 		bgColor = Clans.Data[clanid].bgColor or TB_MENU_DEFAULT_BG_COLOR
@@ -1312,15 +1326,13 @@ function Clans:showClan(viewElement, clanid)
 	Clans:showClanInfoLeft(clanInfoLeftView, clanid)
 	local memberlistWidth = (clanView.size.w - clanInfoLeftView.size.w - 30) / 3 * 2 < 200 and 200 or (clanView.size.w - clanInfoLeftView.size.w - 30) / 3
 	memberlistWidth = memberlistWidth > 276 and 276 or memberlistWidth
-	local clanInfoMemberlistView = UIElement:new({
-		parent = clanView,
+	local clanInfoMemberlistView = clanView:addChild({
 		pos = { -memberlistWidth - 5, 0 },
 		size = { memberlistWidth, clanView.size.h },
 		bgColor = Clans.Data[clanid].bgColor or TB_MENU_DEFAULT_BG_COLOR
 	})
 	Clans:showClanMemberlist(clanInfoMemberlistView, clanid)
-	local clanInfoMidView = UIElement:new({
-		parent = clanView,
+	local clanInfoMidView = clanView:addChild({
 		pos = { clanInfoLeftView.size.w + clanInfoLeftView.shift.x + 10, 0 },
 		size = { clanView.size.w - clanInfoLeftView.size.w - clanInfoMemberlistView.size.w - 30, clanView.size.h },
 		bgColor = Clans.Data[clanid].bgColor or TB_MENU_DEFAULT_BG_COLOR
