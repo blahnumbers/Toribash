@@ -482,7 +482,8 @@ do
 												{ opt = "fixedframerate", val = 1 },
 												{ opt = "uilight", val = 1 }
 											}
-											for i,v in pairs(options) do
+											Settings.SetMacResolution()
+											for _, v in pairs(options) do
 												if (v.graphics) then
 													set_graphics_option(v.id, v.val)
 												else
@@ -516,7 +517,8 @@ do
 											{ opt = "fixedframerate", val = 1 },
 											{ opt = "uilight", val = 1 }
 										}
-										for i,v in pairs(options) do
+										Settings.SetMacResolution()
+										for _, v in pairs(options) do
 											if (v.graphics) then
 												set_graphics_option(v.id, v.val)
 											else
@@ -550,7 +552,8 @@ do
 											{ opt = "fixedframerate", val = 1 },
 											{ opt = "uilight", val = 0 }
 										}
-										for i,v in pairs(options) do
+										Settings.SetMacResolution()
+										for _, v in pairs(options) do
 											if (v.graphics) then
 												set_graphics_option(v.id, v.val)
 											else
@@ -584,7 +587,8 @@ do
 											{ opt = "fixedframerate", val = 1 },
 											{ opt = "uilight", val = 0 }
 										}
-										for i,v in pairs(options) do
+										Settings.SetMacResolution()
+										for _ ,v in pairs(options) do
 											if (v.graphics) then
 												set_graphics_option(v.id, v.val)
 											else
@@ -618,7 +622,8 @@ do
 											{ opt = "fixedframerate", val = 1 },
 											{ opt = "uilight", val = 0 }
 										}
-										for i,v in pairs(options) do
+										Settings.SetMacResolution()
+										for _, v in pairs(options) do
 											if (v.graphics) then
 												set_graphics_option(v.id, v.val)
 											else
@@ -1340,6 +1345,7 @@ do
 				action = function()
 						set_language(v.name)
 						TBMenu.GetTranslation(get_language())
+						Settings.SetMacResolution()
 						save_custom_config()
 						reload_graphics()
 						Settings:settingsApplyActivate()
@@ -1399,7 +1405,7 @@ do
 								return val
 							end
 							local val = tonumber(val) or 0
-							local maxWidth, maxHeight = get_maximum_window_size()
+							local maxWidth, _ = get_maximum_window_size()
 							return (val > maxWidth and maxWidth or val)
 						end
 					},
@@ -1414,7 +1420,7 @@ do
 								return val
 							end
 							local val = tonumber(val) or 0
-							local maxWidth, maxHeight = get_maximum_window_size()
+							local _, maxHeight = get_maximum_window_size()
 							return (val > maxHeight and maxHeight or val)
 						end
 					},
@@ -1520,6 +1526,7 @@ do
 						for i = 0, 16 do
 							set_sound_category(i, 1, 0)
 						end
+						Settings.SetMacResolution()
 						save_custom_config()
 						reload_graphics()
 					end
@@ -1530,6 +1537,7 @@ do
 						for i = 0, 16 do
 							set_sound_category(i, 1, 1)
 						end
+						Settings.SetMacResolution()
 						save_custom_config()
 						reload_graphics()
 					end
@@ -1540,6 +1548,7 @@ do
 						for i = 0, 16 do
 							set_sound_category(i, 0, 0)
 						end
+						Settings.SetMacResolution()
 						save_custom_config()
 						reload_graphics()
 					end
@@ -1690,6 +1699,17 @@ do
 		end
 	end
 
+	---macOS high dpi mode leads to issues when calling graphics reload as "real" values are hdpi-adjusted. \
+	---Make sure we set them according to device physical size, then write any other options on top, then request graphics reload.
+	---@param width ?integer
+	---@param height ?integer
+	function Settings.SetMacResolution(width, height)
+		if (PLATFORM ~= "APPLE") then return end
+		local x, y = get_window_size()
+		set_option("width", width or x)
+		set_option("height", height or y)
+	end
+
 	function Settings.SetChatCensorSettings()
 		if (TB_MENU_MAIN_SETTINGS.chatcensor == nil and TB_MENU_MAIN_SETTINGS.chatcensorhidesystem == nil) then
 			return
@@ -1766,7 +1786,7 @@ do
 				elseif (not TB_MENU_MAIN_SETTINGS["borderless"]) then
 					SETTINGS_LAST_RESOLUTION = nil
 				end
-				for i,v in pairs(TB_MENU_MAIN_SETTINGS) do
+				for i, v in pairs(TB_MENU_MAIN_SETTINGS) do
 					if (i:find("soundcat")) then
 						local catid = i:gsub("^soundcat", "")
 						set_sound_category(tonumber(catid) + 0, v.value, v.default)
@@ -1800,6 +1820,11 @@ do
 					else
 						Broadcasts:deactivate()
 					end
+				end
+				if (reload) then
+					Settings.SetMacResolution(
+						TB_MENU_MAIN_SETTINGS["width"] and TB_MENU_MAIN_SETTINGS["width"].value or nil,
+						TB_MENU_MAIN_SETTINGS["height"] and TB_MENU_MAIN_SETTINGS["height"].value or nil)
 				end
 				if (not keepStoredSettings) then
 					TB_MENU_MAIN_SETTINGS = {}
