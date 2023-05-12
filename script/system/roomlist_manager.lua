@@ -81,7 +81,7 @@ function RoomListInternal.CacheRooms()
 			end
 		end
 	end
-	if (TB_MENU_SPECIAL_SCREEN_ISOPEN == 2) then
+	if (TB_MENU_MAIN_ISOPEN == 1 and TB_MENU_SPECIAL_SCREEN_ISOPEN == 2) then
 		RoomList:showMain()
 	end
 end
