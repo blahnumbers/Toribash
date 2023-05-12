@@ -404,7 +404,7 @@ function MoveMemory:showMain()
 		end
 	end
 
-	local moveMemoryHolder, windowMover
+	local windowMover
 	self.MainElement, self.MovesHolder, windowMover = TBMenu:spawnMoveableWindow(self.DisplayPos)
 	self.DisplayPos = self.MainElement.pos
 	self.MainElement.killAction = function() self.MainElement = nil end
@@ -418,7 +418,7 @@ function MoveMemory:showMain()
 	end
 
 	if (#MoveMemory.Storage == 0) then
-		moveMemoryHolder:addAdaptedText(true, TB_MENU_LOCALIZED.MOVEMEMORYNOMOVESFOUND, nil, nil, nil, nil, nil, nil, 0)
+		self.MovesHolder:addAdaptedText(true, TB_MENU_LOCALIZED.MOVEMEMORYNOMOVESFOUND, nil, nil, nil, nil, nil, nil, 0)
 		return
 	end
 

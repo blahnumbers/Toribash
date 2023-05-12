@@ -108,9 +108,10 @@ local memoryMoves = {
 }
 for _, move in pairs(memoryMoves) do
 	for _, turn in pairs(move.movements) do
-		for i, state in pairs(turn) do
-			turn[i - 1] = state
+		for i = 1, #turn do
+			turn[i - 1] = turn[i]
 		end
+		table.remove(turn)
 	end
 end
 
@@ -118,6 +119,7 @@ local function moveMemoryMovesShow()
 	require("system.movememory_manager")
 	MoveMemory.TutorialMode = true
 	MoveMemory:showMain()
+	MoveMemory.MovesHolder:addCustomDisplay(true, nil)
 	MoveMemory:spawnOpeners(MoveMemory.MovesHolder, memoryMoves)
 	MoveMemory.MainElement:moveTo(SAFE_X + 10, Tutorials.TaskViewHolder.pos.y + Tutorials.TaskViewHolder.size.h + 10)
 	MoveMemory.MainElement:addChild({ interactive = true })
