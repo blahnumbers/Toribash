@@ -1593,6 +1593,9 @@ function UIElement:textfieldInput(input, isNumeric, allowNegative, allowDecimal,
 	if (customRegexCheck) then
 		input = utf8.match(input, customRegexCheck)
 	end
+	if (input == nil) then
+		return
+	end
 
 	local strLen = utf8.len(input)
 	local clipboardPaste = strLen > 1 and get_clipboard_text() == input

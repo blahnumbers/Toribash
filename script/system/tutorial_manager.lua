@@ -336,7 +336,7 @@ function Tutorials:loadTutorial(id, path)
 			elseif (ln:find("^STEPFALLBACK")) then
 				steps[#steps].fallback = ln:gsub("STEPFALLBACK ", "") + 0
 			else
-				steps[#steps + 1] = { skip = 0, id = #steps + 1 }
+				steps[#steps + 1] = { skip = 0, id = #steps + 1, delay = 0 }
 			end
 		elseif (ln:find("^NEWGAME")) then
 			steps[#steps].newgame = true
@@ -528,8 +528,10 @@ function TutorialsInternal.CheckRequirements(manager, reqTable, excludeRequireme
 		return false
 	end
 
+	local requirements = 0
 	for _, v in ipairs(reqTable) do
 		if (type(v) == "table") then
+			requirements = requirements + 1
 			if (not v.ready) then
 				if (v.type ~= excludeRequirement) then
 					return false
@@ -537,7 +539,7 @@ function TutorialsInternal.CheckRequirements(manager, reqTable, excludeRequireme
 			end
 		end
 	end
-	return true
+	return requirements > 0
 end
 
 ---Checks whether all optional step requirements are complete

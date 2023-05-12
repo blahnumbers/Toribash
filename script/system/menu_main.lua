@@ -60,7 +60,7 @@ TB_MENU_GLOBAL_SCALE = math.min(WIN_H > 720 and 1 or WIN_H / 720, WIN_W > 1280 a
 require("system.menu_defines")
 require("system.iofiles")
 require("system.menu_manager")
-TBMenu.Init("230503")
+TBMenu.Init("230512")
 
 require("system.menu_backend_defines")
 require("system.network_request")
@@ -159,7 +159,7 @@ if (News.LastRefresh < os.clock_real() - newsRefreshPeriod) then
 end
 
 -- Only called on first menu launch
-if (not _G.FIRST_LAUNCH) then
+if (not _G.FIRST_LAUNCH and TBMenu.MenuMain ~= nil) then
 	if (not is_steam() and not is_mobile()) then
 		Request:queue(get_latest_version, "versioncheck", function()
 				local latestVersion = tonumber(get_network_response())

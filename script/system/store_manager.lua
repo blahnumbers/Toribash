@@ -3764,7 +3764,7 @@ do
 				bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
 				viewport = true,
 				effects = {
-					id = bit.bor(TB_MENU_PLAYER_INFO.items.effects.force.id, effectid),
+					id = bit.bor(TB_MENU_PLAYER_INFO.items.effects.force.id or 0, effectid),
 					glowIntensity = effectid == EFFECTS_GLOW and 20 or TB_MENU_PLAYER_INFO.items.effects.force.glowIntensity,
 					glowColor = effectid == EFFECTS_GLOW and item.colorid or TB_MENU_PLAYER_INFO.items.effects.force.glowColor,
 					ditherPixelSize = effectid == EFFECTS_DITHER and 1 or TB_MENU_PLAYER_INFO.items.effects.force.ditherPixelSize
@@ -3784,7 +3784,7 @@ do
 				viewport = true,
 				bgImage = headTexture,
 				effects = {
-					id = bit.bor(TB_MENU_PLAYER_INFO.items.effects.head.id, effectid),
+					id = bit.bor(TB_MENU_PLAYER_INFO.items.effects.head.id or 0, effectid),
 					glowIntensity = effectid == EFFECTS_GLOW and 20 or TB_MENU_PLAYER_INFO.items.effects.head.glowIntensity,
 					glowColor = effectid == EFFECTS_GLOW and item.colorid or TB_MENU_PLAYER_INFO.items.effects.head.glowColor,
 					ditherPixelSize = effectid == EFFECTS_DITHER and 1 or TB_MENU_PLAYER_INFO.items.effects.head.ditherPixelSize
