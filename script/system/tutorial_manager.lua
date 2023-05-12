@@ -336,11 +336,14 @@ function Tutorials:loadTutorial(id, path)
 			elseif (ln:find("^STEPFALLBACK")) then
 				steps[#steps].fallback = ln:gsub("STEPFALLBACK ", "") + 0
 			else
-				steps[#steps + 1] = { skip = 0, id = #steps + 1, delay = 0 }
+				steps[#steps + 1] = { skip = 0, id = #steps + 1 }
 			end
 		elseif (ln:find("^NEWGAME")) then
 			steps[#steps].newgame = true
 			steps[#steps].mod = ln:gsub("^NEWGAME ", "")
+			if (steps[#steps].delay == nil) then
+				steps[#steps].delay = 0
+			end
 		elseif (ln:find("^LOADREPLAY")) then
 			steps[#steps].replay = ln:gsub("^LOADREPLAY ", ""):gsub(" %d", "")
 			local _, cacheSpecified = ln:gsub("%d$", "")
@@ -348,6 +351,9 @@ function Tutorials:loadTutorial(id, path)
 				steps[#steps].cached = ln:sub(-1) + 0
 			else
 				steps[#steps].cached = 0
+			end
+			if (steps[#steps].delay == nil) then
+				steps[#steps].delay = 0
 			end
 		elseif (ln:find("^LOADPLAYER")) then
 			steps[#steps].loadplayers = steps[#steps].loadplayers or {}
