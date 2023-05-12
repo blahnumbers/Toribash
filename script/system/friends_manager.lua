@@ -189,9 +189,9 @@ end
 ---@param player string
 ---@return boolean
 function Friends:isIgnored(player)
-	local player = utf8.lower(player)
+	local player = string.lower(player)
 	for _, v in pairs(self.IgnoreList) do
-		if (utf8.lower(v) == player) then
+		if (string.lower(v) == player) then
 			return true
 		end
 	end
