@@ -2623,7 +2623,7 @@ _G.tableReverse = function(table) return _G.table.reverse(table) end
 ---@return T
 _G.table.clone = function(table)
 	if (type(table) ~= "table") then
-		return table
+		return nil
 	end
 
 	local newTable = {}

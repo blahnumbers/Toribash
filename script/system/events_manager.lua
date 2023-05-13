@@ -1421,7 +1421,11 @@ do
 		TB_MENU_EVENTS_OPEN = true
 		News:getNews()
 
-		local newsData = table.clone(News.Cache)
+		local newsData = {}
+		---table.clone() may fail, do a soft copy of upper level only
+		for _, v in pairs(News.Cache) do
+			table.insert(newsData, v)
+		end
 		local count = #newsData
 		for i = count, 1, -1 do
 			if (not newsData[i].isEvent) then
