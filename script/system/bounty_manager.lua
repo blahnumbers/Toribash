@@ -48,7 +48,7 @@ function Bounty.ParseBountyData(data)
 				end
 
 				local userid = tonumber(data_stream[1])
-				if (not in_array(userid, useridList)) then
+				if (userid ~= nil and data_stream[2] ~= nil and not in_array(userid, useridList)) then
 					table.insert(Bounty.DataList, {
 						player = data_stream[2],
 						reward = tonumber(data_stream[3]) or 0,

@@ -6,6 +6,7 @@ require("system.atmospheres_defines")
 ---@field name string Game option name
 ---@field value integer Game option value
 ---@field id ShaderOptionId
+---@field values number[]
 ---@field skyreload boolean Whether this option requires a sky reload
 ---@field count integer Count of values used by this option
 ---@field names string[] Slider names
@@ -380,9 +381,13 @@ function Atmospheres.ShowShaderControls()
 				local function save()
 					local file = Files.Open("../data/shader/" .. name .. ".inc", FILES_MODE_WRITE)
 					if (file.data) then
-						for i,v in pairs(Atmospheres.CurrentShader) do
-							local line = i:lower() .. " " .. v[1] .. " " .. v[2] .. " " .. v[3] .. " " .. v[4]
-							file:writeLine(line)
+						for opt, id in pairs(SHADER_OPTIONS) do
+							pcall(function()
+								if (Atmospheres.CurrentShader[id] ~= nil) then
+									local v = Atmospheres.CurrentShader[id].values
+									file:writeLine(string.lower(opt) .. " " .. v[1] .. " " .. v[2] .. " " .. v[3] .. " " .. v[4])
+								end
+							end)
 						end
 						file:close()
 					else
