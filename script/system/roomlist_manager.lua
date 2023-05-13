@@ -30,10 +30,12 @@ if (RoomList == nil) then
 	---@field SelectedButton UIElement Currently selected room list button
 	---@field RoomInfoView UIElement Room information holder element
 	---@field Filters RoomListFilters
+	---@field FeaturedRooms RoomListInfoExtended[]
 	RoomList = {
 		ver = 5.60,
 		RefreshPeriod = 60,
-		Filters = { }
+		Filters = { },
+		FeaturedRooms = { }
 	}
 	RoomList.__index = RoomList
 	setmetatable({}, RoomList)
@@ -130,6 +132,8 @@ end
 ---Displays information about the specified room
 ---@param room RoomListInfoExtended
 function RoomList:showRoomInfo(room)
+	self.RoomInfoView:kill(true)
+
 	local elementHeight = math.max(20, WIN_H / 40)
 	local buttonHeight = math.min(self.RoomInfoView.size.h / 6, 50)
 	local toReload, topBar, botBar, listingView, listingHolder, scrollBarBG = TBMenu:prepareScrollableList(self.RoomInfoView, elementHeight, buttonHeight, 15, TB_MENU_DEFAULT_BG_COLOR)
@@ -213,6 +217,25 @@ function RoomList:showRoomInfo(room)
 	local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
 	listingHolder.scrollBar = scrollBar
 	scrollBar:makeScrollBar(listingHolder, listElements, toReload)
+end
+
+---Returns a localized name of a sort option
+---@param id string
+---@return string?
+function RoomListInternal.GetSortNameFromId(id)
+	if (id == "name") then
+		return TB_MENU_LOCALIZED.ROOMLISTSORTEDBYNAME
+	elseif (id == "desc_clean") then
+		return TB_MENU_LOCALIZED.ROOMLISTROOMDESC
+	elseif (id == "min_belt") then
+		return TB_MENU_LOCALIZED.ROOMLISTROOMMINBELT
+	elseif (id == "max_belt") then
+		return TB_MENU_LOCALIZED.ROOMLISTROOMMAXBELT
+	elseif (id == "num_players") then
+		return TB_MENU_LOCALIZED.ROOMLISTSORTEDBYPLAYERS
+	end
+
+	return TB_MENU_LOCALIZED["ROOMLISTROOM" .. string.upper(id)]
 end
 
 ---Displays room list legend
@@ -479,45 +502,51 @@ end
 ---@param viewElement UIElement
 ---@param listElements UIElement[]
 ---@param elementHeight integer
-function RoomList:showRoomListFeatured(roomsList, viewElement, listElements, elementHeight)
+---@param reload ?boolean
+function RoomList:showRoomListFeatured(roomsList, viewElement, listElements, elementHeight, reload)
 	local featuredRooms = {}
 	local hasEventRoom, hasAutoTourney, hasFavourite, hasQuickLobby, hasFriendRoom, hasAiFightRoom, hasPublicRoom = false, false, false, false, false, false, false
-	local roomListShuffled = table.shuffle(roomsList)
-	for _, v in pairs(roomListShuffled) do
-		local nameLower = utf8.lower(v.name)
-		if (v.num_players > 0) then ---There's no need to show empty rooms in featured list
-			if (not hasEventRoom and
-				(nameLower == "etourney" or
-				nameLower == "ehotseat" or
-				nameLower == "eduel" or
-				nameLower == "ebets" or
-				nameLower == "elounge")) then
-				table.insert(featuredRooms, v)
-				hasEventRoom = true
-			elseif (not hasAutoTourney and v.is_tournament and v.is_official) then
-				table.insert(featuredRooms, v)
-				hasAutoTourney = true
-			elseif (not hasQuickLobby and utf8.find(v.name, "^qa%d") and v.num_players < v.max_clients) then
-				table.insert(featuredRooms, v)
-				hasQuickLobby = true
-			elseif (not hasPublicRoom and utf8.find(v.name, "^public%d") and v.num_players < v.max_clients / 2) then
-				table.insert(featuredRooms, v)
-				hasPublicRoom = true
-			elseif (not hasAiFightRoom and utf8.find(v.name, "^aifight%d")) then
-				table.insert(featuredRooms, v)
-				hasAiFightRoom = true
-			else
-				if (not hasFriendRoom) then
-					for _, player in pairs(v.players) do
-						if (Friends:isFriend(player)) then
-							table.insert(featuredRooms, v)
-							hasFriendRoom = true
-							break
+	if (reload or #self.FeaturedRooms == 0) then
+		local roomListShuffled = table.shuffle(roomsList)
+		for _, v in pairs(roomListShuffled) do
+			local nameLower = utf8.lower(v.name)
+			if (v.num_players > 0) then ---There's no need to show empty rooms in featured list
+				if (not hasEventRoom and
+					(nameLower == "etourney" or
+					nameLower == "ehotseat" or
+					nameLower == "eduel" or
+					nameLower == "ebets" or
+					nameLower == "elounge")) then
+					table.insert(featuredRooms, v)
+					hasEventRoom = true
+				elseif (not hasAutoTourney and v.is_tournament and v.is_official) then
+					table.insert(featuredRooms, v)
+					hasAutoTourney = true
+				elseif (not hasQuickLobby and utf8.find(v.name, "^qa%d") and v.num_players < v.max_clients) then
+					table.insert(featuredRooms, v)
+					hasQuickLobby = true
+				elseif (not hasPublicRoom and utf8.find(v.name, "^public%d") and v.num_players < v.max_clients / 2) then
+					table.insert(featuredRooms, v)
+					hasPublicRoom = true
+				elseif (not hasAiFightRoom and utf8.find(v.name, "^aifight%d")) then
+					table.insert(featuredRooms, v)
+					hasAiFightRoom = true
+				else
+					if (not hasFriendRoom) then
+						for _, player in pairs(v.players) do
+							if (Friends:isFriend(player)) then
+								table.insert(featuredRooms, v)
+								hasFriendRoom = true
+								break
+							end
 						end
 					end
 				end
 			end
 		end
+		self.FeaturedRooms = table.clone(featuredRooms)
+	else
+		featuredRooms = table.clone(self.FeaturedRooms)
 	end
 
 	if (#featuredRooms == 0) then
@@ -613,7 +642,8 @@ end
 
 ---Displays the main list with room information
 ---@param viewElement UIElement
-function RoomList:showRoomList(viewElement)
+---@param reloadFeatured ?boolean
+function RoomList:showRoomList(viewElement, reloadFeatured)
 	viewElement:kill(true)
 	TBMenu:addBottomBloodSmudge(viewElement, 1)
 
@@ -632,11 +662,12 @@ function RoomList:showRoomList(viewElement)
 		return
 	end
 
-	if (self.Filters.IsDefault) then
-		self:showRoomListFeatured(roomsList, listingHolder, listElements, elementHeight)
-	end
+	--if (self.Filters.IsDefault) then
+		self:showRoomListFeatured(roomsList, listingHolder, listElements, elementHeight, reloadFeatured)
+	--end
 	for i, room in pairs(roomsList) do
-		if (self.Filters.IsDefault) then
+		--if (self.Filters.IsDefault) then
+		if (in_array("id", self.Filters.SortBy)) then
 			if (i == 1 and room.is_official == true) then
 				local listElement = listingHolder:addChild({
 					pos = { 0, #listElements * elementHeight },
@@ -670,6 +701,17 @@ function RoomList:showRoomList(viewElement)
 				listElement:addChild({ shift = { 10, 3 }}):addAdaptedText(true, TB_MENU_LOCALIZED.ROOMLISTPRIVATEROOMS, nil, nil, nil, LEFTBOT)
 				listElement:hide(true)
 			end
+		elseif (i == 1) then
+			local listElement = listingHolder:addChild({
+				pos = { 0, #listElements * elementHeight },
+				size = { listingHolder.size.w, elementHeight }
+			})
+			table.insert(listElements, listElement)
+			local localizedName = RoomListInternal.GetSortNameFromId(self.Filters.SortBy[1])
+			if (localizedName) then
+				listElement:addChild({ shift = { 10, 3 }}):addAdaptedText(true, TB_MENU_LOCALIZED.ROOMLISTSORTEDBY .. " " .. localizedName, nil, nil, nil, LEFTBOT)
+			end
+			listElement:hide(true)
 		end
 
 		local listElement = listingHolder:addChild({
@@ -1209,7 +1251,7 @@ function RoomList:showFilters()
 
 	local reloadList = function()
 		overlayBackdrop:kill()
-		self:showRoomList(self.MainListHolder)
+		self:showRoomList(self.MainListHolder, true)
 		self:showFilters()
 	end
 
@@ -1298,7 +1340,7 @@ function RoomList:showMain()
 	TB_MENU_SPECIAL_SCREEN_ISOPEN = 2
 	TBMenu:clearNavSection()
 	TBMenu:showNavigationBar(RoomListInternal.GetNavigationButtons(), true)
-	self:resetFilters()
+	--self:resetFilters()
 
 	---Data is stale, queue an update
 	if (RoomListInternal.UpdateTimestamp + self.RefreshPeriod < UIElement.clock) then
@@ -1358,8 +1400,10 @@ function RoomList:showMain()
 	})
 	TBMenu:addBottomBloodSmudge(roomInfoView, 2)
 	self:prepareInfoView(roomInfoView)
-	self:showRoomList(self.MainListHolder)
+	self:showRoomList(self.MainListHolder, true)
 end
+
+RoomList:resetFilters()
 
 ---Keep this hook running forever so we can update room cache from other sources and not just RoomListInternal.RefreshData() call
 add_hook("roomlist_update", "roomListCacheUpdater", function(error)
