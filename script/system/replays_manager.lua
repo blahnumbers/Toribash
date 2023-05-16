@@ -101,6 +101,7 @@ end
 
 ---Returns a `ReplayInfo` object generated from a cache string
 ---@param str string
+---@return ReplayInfo?
 function ReplayInfo.FromString(str)
 	local rplInfo = ReplayInfo.New()
 
@@ -114,20 +115,22 @@ function ReplayInfo.FromString(str)
 
 	---Legacy format went with 2 hardcoded bouts, new one uses a string with all joined player names
 	---We need to be able to handle both correctly
-	if (segments == 9) then
-		table.insert(rplInfo.bouts, data_stream[5])
-		table.insert(rplInfo.bouts, data_stream[6])
-		rplInfo.tags = utf8.lower(data_stream[7])
-		rplInfo.hiddentags = utf8.lower(data_stream[8])
-		rplInfo.uploaded = data_stream[9] == "1"
-	else
-		rplInfo.bouts = utf8.explode(data_stream[5], " ")
-		rplInfo.tags = utf8.lower(data_stream[6])
-		rplInfo.hiddentags = utf8.lower(data_stream[7])
-		rplInfo.uploaded = data_stream[8] == "1"
-	end
+	local res = pcall(function()
+		if (segments == 9) then
+			table.insert(rplInfo.bouts, data_stream[5])
+			table.insert(rplInfo.bouts, data_stream[6])
+			rplInfo.tags = utf8.lower(data_stream[7])
+			rplInfo.hiddentags = utf8.lower(data_stream[8])
+			rplInfo.uploaded = data_stream[9] == "1"
+		else
+			rplInfo.bouts = utf8.explode(data_stream[5], " ")
+			rplInfo.tags = utf8.lower(data_stream[6])
+			rplInfo.hiddentags = utf8.lower(data_stream[7])
+			rplInfo.uploaded = data_stream[8] == "1"
+		end
+	end)
 
-	return rplInfo
+	return res and rplInfo or nil
 end
 
 function ReplayInfo.FromReplay(path)
@@ -267,7 +270,8 @@ function Replays:getNavigationButtons(isOnline)
 		table.insert(navigation, {
 			text = TB_MENU_LOCALIZED.REPLAYSCOMMUNITY,
 			action = function() usage_event("replaysonline") Replays:getServerReplays() end,
-			right = true
+			right = true,
+			hidden = TB_MENU_PLAYER_INFO.username == ""
 		})
 	end
 	return navigation
@@ -423,8 +427,10 @@ function Replays:getReplayFiles(includeEventTemp)
 	local cacheData = {}
 	for _, ln in pairs(file:readAll()) do
 		local rplInfo = ReplayInfo.FromString(ln)
-		local cacheName = utf8.gsub(utf8.lower(rplInfo.filename), " ", "_")
-		cacheData[cacheName] = rplInfo
+		if (rplInfo) then
+			local cacheName = utf8.gsub(utf8.lower(rplInfo.filename), " ", "_")
+			cacheData[cacheName] = rplInfo
+		end
 	end
 	TBMenu:showStatusMessage("")
 	Replays:fetchReplayData(Replays.RootFolder.name, Replays.RootFolder, file, cacheData, includeEventTemp)

@@ -127,6 +127,9 @@ function Tutorials:quit()
 	remove_hooks(self.StaticHook)
 	remove_hooks("tbMoveMemoryPlayTurns0")
 	remove_hooks("tbMoveMemoryPlayTurns1")
+	for i, _ in pairs(MoveMemory.PlaybackActive) do
+		MoveMemory.PlaybackActive[i] = false
+	end
 	runCmd("lm classic")
 
 	if (self.QuitOverlay) then
@@ -869,7 +872,7 @@ function Tutorials:showMessage(viewElement, reqTable, message, messageby)
 				TBMenu:showPlayerHeadAvatar(self.MessageHeadViewport, TB_MENU_PLAYER_INFO)
 				self.MessageViewNameBG.bgColor = table.clone(TB_MENU_DEFAULT_BG_COLOR)
 				self.MessageViewBG.shadowColor[2] = table.clone(TB_MENU_DEFAULT_BG_COLOR)
-				self.MessageViewName:addAdaptedText(true, TB_MENU_PLAYER_INFO.username or "Tori", nil, nil, 2, nil, nil, nil, nil, 2, nil, self.MessageViewNameBG.bgColor)
+				self.MessageViewName:addAdaptedText(true, TB_MENU_PLAYER_INFO.username ~= "" and TB_MENU_PLAYER_INFO.username or "Tori", nil, nil, 2, nil, nil, nil, nil, 2, nil, self.MessageViewNameBG.bgColor)
 			else
 				self.MessageViewNameBG.bgColor = { 0.2, 0.34, 0.87, 1 }
 				self.MessageViewBG.shadowColor[2] = { 0.2, 0.34, 0.87, 1 }

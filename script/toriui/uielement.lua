@@ -1570,9 +1570,9 @@ function UIElement:textfieldUpdate(input, consumeSymbols, consumeSymbolsAfter)
 	-- Double check we didn't get any newlines if content was pasted
 	if (self.textfieldsingleline) then
 		local replacements = 0
-		self.textfieldstr[1], replacements = utf8.gsub(self.textfieldstr[1], "\\n", "")
+		self.textfieldstr[1], replacements = string.gsub(self.textfieldstr[1], "\\n", "")
 		self.textfieldindex = self.textfieldindex - 2 * replacements
-		self.textfieldstr[1], replacements = utf8.gsub(self.textfieldstr[1], "\n", "")
+		self.textfieldstr[1], replacements = string.gsub(self.textfieldstr[1], "\n", "")
 		self.textfieldindex = self.textfieldindex - replacements
 	end
 end

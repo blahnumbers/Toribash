@@ -33,10 +33,12 @@ if (QueueList == nil) then
 	---@field MainWindow UIElement
 	---@field PopupWindow UIElement
 	---@field Cache QueueListCache
+	---@field LastHudOption number
 	---@field Globalid integer
 	QueueList = {
 		Globalid = 1012,
 		PopupWidth = math.min(WIN_W * 0.22, 450),
+		LastHudOption = 1,
 		ver = 5.60
 	}
 	QueueList.__index = QueueList
@@ -1196,7 +1198,7 @@ end
 ---@param reinit ?boolean
 function QueueList.Reload(reinit)
 	local roomInfo = get_room_info()
-	if (roomInfo == nil) then
+	if (roomInfo == nil or QueueList.LastHudOption == 0) then
 		QueueList.Destroy()
 		return
 	end
@@ -1284,9 +1286,19 @@ function QueueList.Init()
 	QueueList.Reload()
 end
 
+---Destroys or reloads QueueList based on current `hud` option value
+function QueueList.UpdateVisibility()
+	local hud = tonumber(get_option("hud")) or 0
+	if (QueueList.LastHudOption ~= hud) then
+		QueueList.LastHudOption = hud
+		QueueList.Reload()
+	end
+end
+
 QueueList.Init()
 add_hook("new_game", "queuelistManager", QueueList.Reload)
 add_hook("new_mp_game", "queuelistManager", QueueList.Reload)
 add_hook("bout_update", "queuelistManager", QueueList.Reload)
 add_hook("spec_update", "queuelistManager", QueueList.Reload)
 add_hook("resolution_changed", "queuelistManager", QueueList.Init)
+add_hook("pre_draw", "queuelistManager", QueueList.UpdateVisibility)

@@ -644,6 +644,7 @@ end
 ---@param viewElement UIElement
 ---@param reloadFeatured ?boolean
 function RoomList:showRoomList(viewElement, reloadFeatured)
+	if (viewElement == nil) then return end
 	viewElement:kill(true)
 	TBMenu:addBottomBloodSmudge(viewElement, 1)
 

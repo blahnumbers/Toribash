@@ -3199,7 +3199,7 @@ do
 		local iconScale = viewElement.size.w > viewElement.size.h and viewElement.size.h or viewElement.size.w
 		iconScale = iconScale > 64 and 64 or iconScale
 
-		local color = item.colorid > 0 and get_color_rgba(item.colorid) or { 1, 1, 1, 0 }
+		local color = (item.colorid > 0 and item.colorid < _G.COLORS.NUM_COLORS) and get_color_rgba(item.colorid) or { 1, 1, 1, 0 }
 		local pcolor = get_color_rgba(TB_MENU_PLAYER_INFO.items.colors.pgrad)
 		local scolor = get_color_rgba(TB_MENU_PLAYER_INFO.items.colors.sgrad)
 		local fcolor = get_color_rgba(TB_MENU_PLAYER_INFO.items.colors.force)

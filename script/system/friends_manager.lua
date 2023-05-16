@@ -159,9 +159,9 @@ end
 ---@param player string
 ---@return boolean
 function Friends:isFriend(player)
-	local player = utf8.lower(player)
+	local player = string.lower(player)
 	for _, v in pairs(self.FriendsList) do
-		if (utf8.lower(v.username) == player) then
+		if (string.lower(v.username) == player) then
 			return true
 		end
 	end

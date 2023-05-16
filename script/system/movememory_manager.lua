@@ -351,7 +351,7 @@ function MoveMemory:recordMove()
 			end
 			recordMove[#recordMove][20] = get_grip_info(player, 11)
 			recordMove[#recordMove][21] = get_grip_info(player, 12)
-			MoveMemory:updateToolbar(player, TB_MENU_LOCALIZED.MOVEMEMORYRECORDINGTURN .. " #" .. (#recordMove + 1))
+			self:updateToolbar(player, TB_MENU_LOCALIZED.MOVEMEMORYRECORDINGTURN .. " #" .. (#recordMove + 1))
 		end)
 	add_hook("leave_game", "tbMoveMemoryRecordMove" .. player, function()
 			if (#recordMove > 0) then
@@ -387,8 +387,8 @@ end
 
 ---Reloads MoveMemory window
 function MoveMemory:reload()
-	MoveMemory:quit()
-	MoveMemory:showMain()
+	self:quit()
+	self:showMain()
 end
 
 ---Displays MoveMemory main window
@@ -417,7 +417,7 @@ function MoveMemory:showMain()
 		})
 	end
 
-	if (#MoveMemory.Storage == 0) then
+	if (#self.Storage == 0) then
 		self.MovesHolder:addAdaptedText(true, TB_MENU_LOCALIZED.MOVEMEMORYNOMOVESFOUND, nil, nil, nil, nil, nil, nil, 0)
 		return
 	end
@@ -550,7 +550,7 @@ function MoveMemory:playMove(memorymove, spawnHook, player, noToolbar)
 		end
 	end
 
-	local turn = spawnHook and (MoveMemory.FirstTurn and 1 or worldstate.match_turn + 1) or memorymove.currentturn
+	local turn = spawnHook and (self.FirstTurn and 1 or worldstate.match_turn + 1) or memorymove.currentturn
 	if (type(turn) ~= "number" or type(memorymove.turns) ~= "number" or memorymove.turns < turn) then
 		playMoveQuit()
 		return
@@ -574,14 +574,14 @@ function MoveMemory:playMove(memorymove, spawnHook, player, noToolbar)
 
 	if (not noToolbar) then
 		if (spawnHook) then
-			MoveMemory:showToolbar(player, memorymove.name .. ": " .. TB_MENU_LOCALIZED.WORDTURN .. " " .. turn .. " " .. TB_MENU_LOCALIZED.PAGINATIONPAGEOF .. " " .. memorymove.turns, playMoveQuit)
+			self:showToolbar(player, memorymove.name .. ": " .. TB_MENU_LOCALIZED.WORDTURN .. " " .. turn .. " " .. TB_MENU_LOCALIZED.PAGINATIONPAGEOF .. " " .. memorymove.turns, playMoveQuit)
 		else
-			MoveMemory:updateToolbar(player, memorymove.name .. ": " .. TB_MENU_LOCALIZED.WORDTURN .. " " .. turn .. " " .. TB_MENU_LOCALIZED.PAGINATIONPAGEOF .. " " .. memorymove.turns)
+			self:updateToolbar(player, memorymove.name .. ": " .. TB_MENU_LOCALIZED.WORDTURN .. " " .. turn .. " " .. TB_MENU_LOCALIZED.PAGINATIONPAGEOF .. " " .. memorymove.turns)
 		end
 	end
 	if (spawnHook) then
 		add_hook("enter_freeze", "tbMoveMemoryPlayTurns" .. player, function()
-				MoveMemory:playMove(memorymove, false, player, noToolbar)
+				self:playMove(memorymove, false, player, noToolbar)
 			end)
 		add_hook("end_game", "tbMoveMemoryPlayTurns" .. player, playMoveQuit)
 		add_hook("match_begin", "tbMoveMemoryPlayTurns" .. player, playMoveQuit)
@@ -611,10 +611,10 @@ function MoveMemory:spawnMovementButton(viewElement, memorymove, listElements)
 		rounded = 4
 	})
 	moveButton:addMouseUpHandler(function()
-			MoveMemory:playMove(memorymove, true)
+			self:playMove(memorymove, true)
 		end)
 
-	if (not MoveMemory.TutorialMode) then
+	if (not self.TutorialMode) then
 		local deleteButton = moveButton:addChild({
 			pos = { -moveButton.size.h + 1, 1 },
 			size = { moveButton.size.h - 2, moveButton.size.h - 2 },
@@ -631,8 +631,8 @@ function MoveMemory:spawnMovementButton(viewElement, memorymove, listElements)
 		}, true)
 		deleteButton:addMouseUpHandler(function()
 				TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.MOVEMEMORYDELETEMOVECONFIRM, function()
-						MoveMemory:deleteMove(memorymove)
-						MoveMemory:reload()
+						self:deleteMove(memorymove)
+						self:reload()
 					end)
 			end)
 	end
@@ -755,7 +755,7 @@ function MoveMemory:spawnOpeners(viewElement, memoryOpeners)
 	})
 	memoryHeader:addChild({ shift = { memoryHeader.size.h, 5 }}):addAdaptedText(true, TB_MENU_LOCALIZED.MOVEMEMORYTITLE, nil, nil, FONTS.BIG, nil, 0.7)
 
-	if (not MoveMemory.TutorialMode) then
+	if (not self.TutorialMode) then
 		local addMoveButton = memoryHeader:addChild({
 			pos = { 10, 5 },
 			size = { memoryHeader.size.h - 10, memoryHeader.size.h - 10 },
@@ -768,7 +768,7 @@ function MoveMemory:spawnOpeners(viewElement, memoryOpeners)
 			rounded = 4
 		})
 		addMoveButton:addMouseHandlers(nil, function()
-				MoveMemory:recordMove()
+				self:recordMove()
 			end)
 		local addMoveTooltip = TBMenu:displayPopup(addMoveButton, TB_MENU_LOCALIZED.MOVEMEMORYRECORDINFO)
 		addMoveTooltip:moveTo(addMoveButton.size.w + 5)
@@ -778,7 +778,7 @@ function MoveMemory:spawnOpeners(viewElement, memoryOpeners)
 	self:spawnFirstTurnToggle(botBar)
 
 	local listElements = {}
-	for i, v in pairs(memoryOpeners) do
+	for _, v in pairs(memoryOpeners) do
 		self:spawnMovementButton(listingHolder, v, listElements)
 	end
 

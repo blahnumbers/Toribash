@@ -192,7 +192,10 @@ _G.COLORS = {
 	IVY = 137,
 	RUIN = 138,
 	HERA = 139,
-	NUM_COLORS = 140
+	SUNSTONE = 140,
+	DARKBROWN = 141,
+	TENNISGREEN = 142,
+	NUM_COLORS = 143
 }
 
 ---@alias ChatMessageType
@@ -618,6 +621,9 @@ function set_viewport(pos_x, pos_y, size_x, size_y) end
 ---| 137	COLORS.IVY
 ---| 138	COLORS.RUIN
 ---| 139	COLORS.HERA
+---| 140	COLORS.SUNSTONE
+---| 141	COLORS.DARKBROWN
+---| 142	COLORS.TENNISGREEN
 
 ---@alias RenderEffectId
 ---| 0 None

@@ -1,47 +1,48 @@
-require("toriui/uielement")
-local startClock = os.clock()
-local replayName = ARG1:len() > 0 and ARG1 or "mytempreplay"
+require("toriui.uielement")
+local startClock = -60
+local replayName = ARG:len() > 0 and ARG or "autosave"
+local currentFrame = -1
 
-local replaySaveOverlay = UIElement:new({
-	pos = { WIN_W / 3, WIN_H - 40 },
-	size = { WIN_W / 3 - 40, 40 },
-	bgColor = TB_MENU_DEFAULT_BG_COLOR
+local replaySaveOverlay = UIElement.new({
+	pos = { WIN_W - 300, WIN_H - 25 },
+	size = { 300, 25 },
+	bgColor = TB_MENU_DEFAULT_BG_COLOR,
+	shapeType = ROUNDED,
+	rounded = 3
 })
-replaySaveOverlay:addAdaptedText(false, "Auto Replay Saver")
-local replayQuitButton = UIElement:new({
-	parent = replaySaveOverlay,
-	pos = { replaySaveOverlay.size.w, 0 },
-	size = { 40, 40 },
+replaySaveOverlay:addChild({ shift = { 30, 2 } }):addAdaptedText(false, "Auto Replay Saver: On")
+local infoButton = replaySaveOverlay:addChild({
+	pos = { 2, 0 },
+	size = { replaySaveOverlay.size.h, replaySaveOverlay.size.h },
+	interactive = true,
+	bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+	hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+	rounded = replaySaveOverlay.size.h
+}, true)
+local popup = TBMenu:displayHelpPopup(infoButton, "Current replay will be automatically saved as \"my replays\\" .. replayName .. "\" every minute with the date appended at the end")
+popup:moveTo(nil, -infoButton.size.h - popup.size.h - 5)
+local replayQuitButton = replaySaveOverlay:addChild({
+	pos = { -replaySaveOverlay.size.h, 0 },
+	size = { replaySaveOverlay.size.h, replaySaveOverlay.size.h },
 	interactive = true,
 	bgColor = UICOLORRED,
 	hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
 	pressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR
 })
-local replayQuitIcon = UIElement:new({
-	parent = replayQuitButton,
-	pos = { 5, 5 },
-	size = { replayQuitButton.size.w - 10, replayQuitButton.size.h - 10 },
+local replayQuitIcon = replayQuitButton:addChild({
+	shift = { 5, 5 },
 	bgImage = "../textures/menu/general/buttons/crosswhite.tga"
 })
 replayQuitButton:addMouseHandlers(nil, function()
 		replaySaveOverlay:kill()
-		remove_hooks("replaySaver")
 	end)
 replayQuitIcon:addCustomDisplay(false, function()
-		if (startClock + 10 < os.clock()) then
-			startClock = os.clock()
-			UIElement:runCmd("savereplay " .. replayName)
-		end
-	end)
-	
-add_hook("mouse_move", "replaySaver", function(x, y) UIElement:handleMouseHover(x, y) end)
-add_hook("key_up", "replaySaver", function(s) UIElement:handleKeyUp(s) end)
-add_hook("key_down", "replaySaver", function(s) UIElement:handleKeyDown(s) end)
-add_hook("draw2d", "replaySaver", function()
-		for i, v in pairs(UIElementManager) do
-			v:updatePos()
-		end
-		for i, v in pairs(UIVisualManager) do
-			v:display()
+		if (startClock + 60 < UIElement.clock) then
+			startClock = UIElement.clock
+			local frame = get_world_state().match_frame
+			if (currentFrame ~= frame) then
+				currentFrame = frame
+				runCmd("savereplay " .. replayName .. "-" .. os.date("%y%m%d-%I%p"), false, CMD_ECHO_FORCE_DISABLED)
+			end
 		end
 	end)
