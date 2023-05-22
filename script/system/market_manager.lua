@@ -283,7 +283,7 @@ do
 				suggestion:addMouseHandlers(nil, function()
 						holder.priceInput.textfieldstr[1] = v .. ''
 						holder.priceInput.textfieldindex = holder.priceInput.textfieldstr[1]:len()
-						holder.priceInput.keyDownCustom(true)
+						holder.priceInput.keyUpCustom()
 					end)
 
 				displayed = displayed + 1
@@ -695,11 +695,11 @@ do
 					return false
 				end
 
-				youGetInput:addKeyboardHandlers(function(override)
-						priceKeyUp(youGetInput, override == true)
+				youGetInput:addKeyboardHandlers(nil, function()
+						priceKeyUp(youGetInput, true)
 					end)
-				sellPriceInput:addKeyboardHandlers(function()
-						priceKeyUp(sellPriceInput, override == true)
+				sellPriceInput:addKeyboardHandlers(nil, function()
+						priceKeyUp(sellPriceInput, true)
 					end)
 
 				priceHolder:addCustomDisplay(false, function()
@@ -1336,19 +1336,21 @@ do
 			end)
 
 		local inputHolder = modalView:addChild({
-			shift = { 15, (modalView.size.h - 40) / 2 },
+			pos = { 15, (modalView.size.h - 40) / 2 - 20 },
+			size = { modalView.size.w - 30, 40 },
 			rounded = 4
 		}, true)
-		inputHolder:moveTo(nil, -20, true)
 
 		local priceInsufficientFundsError = modalView:addChild({
-			shift = { 15, (modalView.size.h - 26) / 2 }
+			pos = { inputHolder.shift.x, (modalView.size.h - 26) / 2 + 20 },
+			size = { inputHolder.size.w, 26 }
 		})
-		priceInsufficientFundsError:moveTo(nil, 20, true)
 		priceInsufficientFundsError:hide()
 
-		local inputField = TBMenu:spawnTextField(inputHolder, nil, nil, nil, nil, offer.price .. '', { isNumeric = true }, 4, 0.7, UICOLORWHITE, TB_MENU_LOCALIZED.MARKETMODALPURCHASEPRICE, CENTERMID)
-		inputField:addKeyboardHandlers(function()
+		local inputField = TBMenu:spawnTextField2(inputHolder, nil, tostring(offer.price), TB_MENU_LOCALIZED.MARKETMODALPURCHASEPRICE, {
+			isNumeric = true, fontId = 4, textScale = 0.7, textColor = UICOLORWHITE, textAlign = CENTERMID
+		})
+		inputField:addInputCallback(function()
 				local maxVal = math.min(1000000, TB_MENU_PLAYER_INFO.data.tc + offer.price)
 				local price = tonumber(inputField.textfieldstr[1]) or -1
 				submitButton.price = price
@@ -1605,19 +1607,21 @@ do
 		submitButton:deactivate()
 
 		local inputHolder = modalView:addChild({
-			shift = { 15, (modalView.size.h - 40) / 2 },
+			pos = { 15, (modalView.size.h - 40) / 2 - 20 },
+			size = { modalView.size.w - 30, 40 },
 			rounded = 4
 		}, true)
-		inputHolder:moveTo(nil, -20, true)
 
 		local priceInsufficientFundsError = modalView:addChild({
-			shift = { 15, (modalView.size.h - 26) / 2 }
+			pos = { inputHolder.shift.x, (modalView.size.h - 26) / 2 + 20 },
+			size = { inputHolder.size.w, 26 }
 		})
-		priceInsufficientFundsError:moveTo(nil, 20, true)
 		priceInsufficientFundsError:hide()
 
-		local inputField = TBMenu:spawnTextField(inputHolder, nil, nil, nil, nil, nil, { isNumeric = true }, 4, 0.7, UICOLORWHITE, TB_MENU_LOCALIZED.MARKETMODALPURCHASEPRICE, CENTERMID)
-		inputField:addKeyboardHandlers(function()
+		local inputField = TBMenu:spawnTextField2(inputHolder, nil, nil, TB_MENU_LOCALIZED.MARKETMODALPURCHASEPRICE, {
+			isNumeric = true, fontId = 4, textScale = 0.7, textColor = UICOLORWHITE, textAlign = CENTERMID
+		})
+		inputField:addInputCallback(function()
 				local maxVal = math.min(1000000, TB_MENU_PLAYER_INFO.data.tc)
 				local price = tonumber(inputField.textfieldstr[1]) or -1
 				submitButton.price = price
@@ -1633,7 +1637,6 @@ do
 					priceInsufficientFundsError:hide()
 				end
 			end)
-
 
 		local priceShortcutsHolder = modalView:addChild({
 			pos = { 15, -110 },
@@ -2211,7 +2214,7 @@ do
 		searchBarView.killAction = function() TBMenu.HideButton:show() end
 
 		local searchInput = TBMenu:spawnTextField(searchBarView, nil, nil, nil, nil, searchString, nil, 4, 0.7, UICOLORWHITE, hint and hint or TB_MENU_LOCALIZED.STORESEARCHHINT, CENTERMID, nil, nil, true)
-		searchInput:addKeyboardHandlers(function()
+		searchInput:addInputCallback(function()
 				if (searchBarView.dropdown) then
 					searchBarView.dropdown:kill()
 					searchBarView.options = nil
@@ -2225,7 +2228,7 @@ do
 
 				local dropdownList = {}
 				if (searchResults.categories) then
-					for i,v in pairs(qsort(searchResults.categories, 'name')) do
+					for i,v in pairs(table.qsort(searchResults.categories, 'name')) do
 						table.insert(dropdownList, {
 							text = TB_MENU_LOCALIZED.MARKETITEMCATEGORY .. ": " .. v.name,
 							action = function()
@@ -2883,7 +2886,7 @@ do
 							end
 						end, true)
 				end
-				interactiveElem:addKeyboardHandlers(nil, function()
+				interactiveElem:addInputCallback(function()
 						v.value = interactiveElem.textfieldstr[1]:gsub(" ", "+")
 					end)
 				interactiveElem:addEnterAction(doSearch)

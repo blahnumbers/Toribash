@@ -60,7 +60,7 @@ TB_MENU_GLOBAL_SCALE = math.min(WIN_H > 720 and 1 or WIN_H / 720, WIN_W > 1280 a
 require("system.menu_defines")
 require("system.iofiles")
 require("system.menu_manager")
-TBMenu.Init("230516")
+TBMenu.Init("230522")
 
 require("system.menu_backend_defines")
 require("system.network_request")
@@ -136,7 +136,7 @@ elseif (launchOption:match("clans ")) then
 elseif (launchOption == "register") then
 	TB_MENU_MAIN_ISOPEN = 0
 	usage_event("registertutorial")
-	Tutorials:runTutorial(1, true)
+	Tutorials:runTutorial(1, nil, true)
 else
 	TBMenu:showMain()
 end

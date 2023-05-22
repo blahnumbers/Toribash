@@ -1440,7 +1440,7 @@ end
 ---Returns whether UIElement is being displayed
 ---@return boolean
 function UIElement:isDisplayed()
-	return self.displayed;
+	return self.displayed
 end
 
 ---Returns whether an interactive UIElement is currently active
@@ -1931,8 +1931,11 @@ function UIElement:moveTo(x, y, relative)
 	self:invalidatePosition()
 end
 
+---Marks position as dirty for current UIElement and all its children
 function UIElement:invalidatePosition()
-	self.__positionDirty = true
+	if (self.parent ~= nil) then
+		self.__positionDirty = true
+	end
 	for _, v in pairs(self.child) do
 		v:invalidatePosition()
 	end

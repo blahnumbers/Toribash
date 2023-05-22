@@ -35,6 +35,7 @@ local TAB_ACCOUNT = 4
 ---@field colorid integer Color ID of the item
 ---@field hidden boolean Whether the item is currently hidden from the shop
 ---@field locked boolean Whether the item is currently unavailable for purchase
+---@field contents integer[] Itemids inside a pack item
 
 ---A placeholder item object with empty data
 ---@type StoreItem
@@ -145,11 +146,15 @@ do
 		}
 		local TorishopData = {}
 		local TorishopSections = {}
-		for i, ln in pairs(file:readAll()) do
+		local lines = file:readAll()
+		file:close()
+		for _, ln in pairs(lines) do
 			if string.match(ln, "^PRODUCT") then
 				local _, segments = ln:gsub("\t", "")
 				segments = segments
 				local data_stream = { ln:match(("([^\t]*)\t"):rep(segments)) }
+
+				---@type StoreItem
 				local item = {}
 				for i,v in pairs(data_types) do
 					item[v[1]] = data_stream[i + 1]
@@ -160,12 +165,17 @@ do
 						item[v[1]] = item[v[1]] == "1"
 					end
 				end
+
+				---@type string
+				---@diagnostic disable-next-line: assign-type-mismatch
 				local contents = item.contents
 				item.contents = {}
-				while (contents:len() > 0) do
-					table.insert(item.contents, tonumber(contents:match("%d+")))
+				while (string.len(contents) > 0) do
+					local match = string.match(contents, "%d+")
+					table.insert(item.contents, tonumber(match))
 					contents = contents:gsub("^%d+ ?", "")
 				end
+
 				TorishopSections[item.catid] = { name = item.catname }
 				item.itemname = item.itemname:gsub("&amp;", "&")
 				item.shortname = item.itemname:gsub("Motion Trail", "Trail")
@@ -179,7 +189,6 @@ do
 				TorishopData[item.itemid] = item
 			end
 		end
-		file:close()
 
 		TorishopSections[0] = { name = "Color Items" }
 		TorishopData.ready = true
@@ -362,7 +371,7 @@ do
 				end
 
 				local itemInv = {}
-				for i,v in pairs(TB_INVENTORY_DATA) do
+				for _, v in pairs(TB_INVENTORY_DATA) do
 					if (v.itemid == itemidOnly) then
 						table.insert(itemInv, v)
 					end
@@ -402,8 +411,10 @@ do
 		local inventory = {}
 		local itemUpdated = TB_ITEM_DETAILS and 0 or 1
 		local segments = #data_types + 1
+		local lines = file:readAll()
+		file:close()
 
-		for i, ln in pairs(file:readAll()) do
+		for _, ln in pairs(lines) do
 			if string.match(ln, "^INVITEM") then
 				local data_stream = { ln:match(("([^\t]*)\t?"):rep(segments)) }
 				local item = {}
@@ -434,11 +445,10 @@ do
 		if (itemUpdated == 0) then
 			TB_ITEM_DETAILS = nil
 		end
-		file:close()
 
 		TB_INVENTORY_DATA = inventory
 		TB_INVENTORY_LOADED = true
-		check_color_achievement()
+		Request:queue(check_color_achievement, "checkColorAchievements")
 		return itemidOnly and Torishop:getInventoryRaw(itemidOnly) or table.clone(inventory)
 	end
 
@@ -4738,7 +4748,7 @@ do
 						local response = get_network_response()
 						if (response:find("^ITEMID 0;")) then
 							local itemid = response:gsub("^ITEMID 0;", "")
-							local item = Torishop:getItemInfo(itemid)
+							local item = Torishop:getItemInfo(tonumber(itemid) or 0)
 							update_tc_balance()
 							download_inventory()
 							if (#item.contents > 0) then
@@ -4746,7 +4756,7 @@ do
 								show_dialog_box(INVENTORY_UNPACK, TB_MENU_LOCALIZED.STOREPURCHASECONGRATULATIONSRECEIVED .. " " .. item.itemname .. "!\n" .. TB_MENU_LOCALIZED.STOREDIALOGUNPACK1 .. " " .. item.itemname .. (TB_MENU_LOCALIZED.STOREDIALOGUNPACK2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGUNPACK2 .. "?") .. "\n" .. TB_MENU_LOCALIZED.STOREDIALOGUNPACKINFO, invid)
 							elseif (item.ingame) then
 								if (in_array(item.catid, CATEGORIES_COLORS)) then
-									check_color_achievement(item.colorid)
+									Request:queue(function() check_color_achievement(item.colorid) end, "checkColorAchievements")
 								end
 								show_dialog_box(INVENTORY_ACTIVATE, TB_MENU_LOCALIZED.STOREPURCHASECONGRATULATIONSRECEIVED .. " "  .. item.itemname .. "!\n" .. TB_MENU_LOCALIZED.STOREDIALOGACTIVATE1 .. " " .. item.itemname .. (TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 .. "?"), invid)
 							else
@@ -4768,7 +4778,7 @@ do
 				show_dialog_box(INVENTORY_UNPACK, TB_MENU_LOCALIZED.STOREPURCHASECONGRATULATIONS .. "\n" .. TB_MENU_LOCALIZED.STOREPURCHASEWOULDYOULIKETOUNPACK1 .. " " .. item.itemname .. (TB_MENU_LOCALIZED.STOREPURCHASEWOULDYOULIKETOUNPACK2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREPURCHASEWOULDYOULIKETOUNPACK2 .. "?") .. "\n" .. TB_MENU_LOCALIZED.STOREDIALOGUNPACKINFO, invid)
 			elseif (item.ingame) then
 				if (in_array(item.catid, CATEGORIES_COLORS)) then
-					check_color_achievement(item.colorid)
+					Request:queue(function() check_color_achievement(item.colorid) end, "checkColorAchievements")
 				end
 				Torishop:spawnInventoryUpdateWaiter()
 				show_dialog_box(INVENTORY_ACTIVATE, TB_MENU_LOCALIZED.STOREPURCHASECONGRATULATIONS .. "\n" .. TB_MENU_LOCALIZED.STOREPURCHASEWOULDYOULIKETOACTIVATE1 .. " " .. item.itemname .. (TB_MENU_LOCALIZED.STOREPURCHASEWOULDYOULIKETOACTIVATE2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREPURCHASEWOULDYOULIKETOACTIVATE2 .. "?"), invid)
@@ -5633,9 +5643,9 @@ do
 			return
 		end
 
-		sectionItemsDesc = table.qsort(sectionItems, { 'on_sale', 'now_tc_price', 'now_usd_price', 'itemname' }, SORT_DESCENDING, true)
-		sectionItemsQi = table.qsort(sectionItems, { 'on_sale', 'qi', 'now_tc_price', 'now_usd_price', 'itemname' }, SORT_ASCENDING, true)
-		sectionItems = table.qsort(sectionItems, { 'on_sale', 'now_tc_price', 'now_usd_price', 'itemname' }, { SORT_DESCENDING, SORT_ASCENDING, SORT_ASCENDING, SORT_ASCENDING }, true)
+		local sectionItemsDesc = table.qsort(sectionItems, { 'itemname', 'now_usd_price', 'now_tc_price', 'on_sale' }, { SORT_ASCENDING, SORT_DESCENDING, SORT_DESCENDING, SORT_DESCENDING }, true)
+		local sectionItemsQi = table.qsort(sectionItems, { 'itemname', 'now_usd_price', 'now_tc_price', 'qi', 'on_sale' }, { SORT_ASCENDING, SORT_DESCENDING, SORT_DESCENDING, SORT_ASCENDING, SORT_DESCENDING }, true)
+		sectionItems = table.qsort(sectionItems, { 'itemname', 'now_usd_price', 'now_tc_price', 'on_sale' }, { SORT_ASCENDING, SORT_ASCENDING, SORT_ASCENDING, SORT_DESCENDING }, true)
 
 		local elementHeight = 64
 		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, elementHeight, elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)

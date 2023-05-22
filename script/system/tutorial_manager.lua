@@ -67,18 +67,22 @@ setmetatable({}, TutorialsInternal)
 ---@param path string
 ---@return function?
 function TutorialsInternal.LoadFile(path)
-	if (not is_mobile()) then
-		return loadfile(path)
+	local file = Files.Open(path)
+	local fileContents = nil
+
+	if (file.data) then
+		if (type(file.data) == "number") then
+			---@diagnostic disable-next-line: param-type-mismatch
+			fileContents = file_read(file.data)
+		else
+			---@diagnostic disable-next-line: param-type-mismatch
+			fileContents = file.data:read("*all")
+		end
+		file:close()
 	end
 
-	local file = Files.Open(path)
-	if (file.data and type(file.data) == "number") then
-		---@diagnostic disable-next-line: param-type-mismatch
-		local fileContents = file_read(file.data)
-		file:close()
-		return loadstring(fileContents)
-	end
-	return nil
+	if (fileContents == nil) then return nil end
+	return loadstring(fileContents)
 end
 
 ---@param type TutorialStepRequirementType
@@ -312,7 +316,7 @@ end
 ---@param path ?string Custom tutorial data file path
 ---@return TutorialStep[]?
 function Tutorials:loadTutorial(id, path)
-	local cfuncpath = path and utf8.gsub(path, "%.%./data/", "") or "tutorial/data/funcs"
+	local cfuncpath = path or "tutorial/data/funcs"
 	local path = path or "../data/tutorials/tutorial"
 	local tutorial = Files.Open(path .. id .. ".dat")
 	if (not tutorial.data) then
@@ -373,9 +377,11 @@ function Tutorials:loadTutorial(id, path)
 		elseif (ln:find("^DAMAGEOPT %d")) then
 			steps[#steps].damageopt = ln:gsub("%D", "") + 0
 		elseif (ln:find("^DISMEMBER")) then
-			steps[#steps].dismember = ln:gsub("^DISMEMBER ", "")
+			local joint = ln:gsub("^DISMEMBER ", "")
+			steps[#steps].dismember = string.upper(joint)
 		elseif (ln:find("^FRACTURE")) then
-			steps[#steps].fracture = ln:gsub("^FRACTURE ", "")
+			local joint = ln:gsub("^FRACTURE ", "")
+			steps[#steps].fracture = string.upper(joint)
 		elseif (ln:find("^SHOWSAYMESSAGE")) then
 			steps[#steps].showsaymessage = true
 		elseif (ln:find("^HIDESAYMESSAGE")) then
@@ -431,16 +437,16 @@ function Tutorials:loadTutorial(id, path)
 			steps[#steps].moveplayer = steps[#steps].moveplayer or {}
 			steps[#steps].moveplayer[player] = steps[#steps].moveplayer[player] or {}
 			if (ln:find("HOLDALL$")) then
-				for i,v in pairs(JOINTS) do
+				for i, _ in pairs(JOINTS) do
 					table.insert(steps[#steps].moveplayer[player], { joint = i, state = "HOLD" })
 				end
 			elseif (ln:find("RELAXALL$")) then
-				for i,v in pairs(JOINTS) do
+				for i, _ in pairs(JOINTS) do
 					table.insert(steps[#steps].moveplayer[player], { joint = i, state = "RELAX" })
 				end
 			else
 				local data = { ln:gsub("^MOVEPLAYER %a+ ", ""):match(("([^ ]+) *"):rep(2)) }
-				table.insert(steps[#steps].moveplayer[player], { joint = data[1], state = data[2] })
+				table.insert(steps[#steps].moveplayer[player], { joint = string.upper(data[1]), state = string.upper(data[2]) })
 			end
 		elseif (ln:find("^MOVEJOINT")) then
 			steps[#steps].movejoint = steps[#steps].movejoint or {}
@@ -454,7 +460,7 @@ function Tutorials:loadTutorial(id, path)
 				end
 			end
 			local data = { ln:gsub("^MOVEJOINT" .. (optional and "OPTIONAL " or " "), ""):match(("([^ ]+) *"):rep(2)) }
-			table.insert(steps[#steps].movejoint, { joint = data[1], state = data[2], opt = optional, optTask = optTask })
+			table.insert(steps[#steps].movejoint, { joint = string.upper(data[1]), state = string.upper(data[2]), opt = optional, optTask = optTask })
 		elseif (ln:find("^WAITBUTTON")) then
 			steps[#steps].waitbtn = true
 		elseif (ln:find("^JOINTLOCK")) then
@@ -1092,7 +1098,12 @@ function Tutorials:loadReplay(_, reqTable, replay, cache)
 	self.ReplayCache = cache ~= 0
 
 	TUTORIAL_LEAVEGAME = true
-	open_replay("system/tutorial/" .. replay, cache)
+	if (string.find(replay, "^%.%./")) then
+		replay = string.gsub(replay, "^%.%./+", "")
+		open_replay(replay, cache)
+	else
+		open_replay("system/tutorial/" .. replay, cache)
+	end
 	if (self.ReplayCache) then
 		set_replay_speed(0)
 	end
@@ -1869,6 +1880,8 @@ function TutorialsInternal.UpdateConfig(next)
 			---@diagnostic disable-next-line: param-type-mismatch, undefined-global
 			set_tutorial_level(Tutorials.CurrentTutorial)
 		end
+	else
+		return false
 	end
 
 	---@type integer|string
@@ -2060,6 +2073,8 @@ function TutorialsInternal.SetDiscordRPC()
 		currentTutorialname = TB_MENU_LOCALIZED.MAINMENUFIGHTUKENAME
 	elseif (Tutorials.CurrentTutorial == 5) then
 		currentTutorialname = TB_MENU_LOCALIZED.MAINMENUCOMEBACKNAME
+	else
+		return
 	end
 	set_discord_rpc(currentTutorialname, TB_MENU_LOCALIZED.DISCORDRPCINTUTORIAL)
 end
@@ -2093,15 +2108,22 @@ end
 
 ---Runs the tutorial
 ---@param id number|string
+---@param path ?string
 ---@param postTutorial ?boolean
-function Tutorials:runTutorial(id, postTutorial)
+---@overload fun(self: Tutorials, id: number|string, postTutorial?: boolean)
+function Tutorials:runTutorial(id, path, postTutorial)
+	if (type(path) == "boolean" and postTutorial == nil) then
+		postTutorial = path
+		path = nil
+	end
+
 	self:loadOverlay()
-	local tutorialSteps = self:loadTutorial(id)
+	local tutorialSteps = self:loadTutorial(id, path)
 	if (not tutorialSteps) then
 		return
 	end
 
-	if (not self:getLocalization(id)) then
+	if (not self:getLocalization(id, nil, path)) then
 		self:quit()
 		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.TUTORIALSNOLOCALIZATIONFOUND)
 		return
