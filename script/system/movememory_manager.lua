@@ -418,6 +418,30 @@ function MoveMemory:showMain()
 	end
 
 	if (#self.Storage == 0) then
+		if (not self.TutorialMode) then
+			local memoryHeader = self.MovesHolder:addChild({
+				size = { self.MovesHolder.size.w, 40 }
+			})
+			memoryHeader:addChild({ shift = { memoryHeader.size.h, 5 }}):addAdaptedText(true, TB_MENU_LOCALIZED.MOVEMEMORYTITLE, nil, nil, FONTS.BIG, nil, 0.7)
+			local addMoveButton = memoryHeader:addChild({
+				pos = { 10, 5 },
+				size = { memoryHeader.size.h - 10, memoryHeader.size.h - 10 },
+				interactive = true,
+				bgImage = "../textures/menu/general/buttons/addsign.tga",
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+				shapeType = ROUNDED,
+				rounded = 4
+			})
+			addMoveButton:addMouseHandlers(nil, function()
+					self:recordMove()
+				end)
+			local addMoveTooltip = TBMenu:displayPopup(addMoveButton, TB_MENU_LOCALIZED.MOVEMEMORYRECORDINFO)
+			addMoveTooltip:moveTo(addMoveButton.size.w + 5)
+			self.MovesHolder:addChild({ shift = { 0, 40 } }):addAdaptedText(true, TB_MENU_LOCALIZED.MOVEMEMORYNOMOVESFOUND, nil, nil, nil, nil, nil, nil, 0)
+			return
+		end
 		self.MovesHolder:addAdaptedText(true, TB_MENU_LOCALIZED.MOVEMEMORYNOMOVESFOUND, nil, nil, nil, nil, nil, nil, 0)
 		return
 	end
@@ -748,6 +772,7 @@ function MoveMemory:spawnOpeners(viewElement, memoryOpeners)
 		table.remove(viewElement.child, 1)
 		table.insert(topBar.child, featuredHolder)
 		featuredHolder.parent = topBar
+		featuredHolder:reload()
 	end
 
 	local memoryHeader = topBar:addChild({

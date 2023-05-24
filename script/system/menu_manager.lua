@@ -1918,7 +1918,7 @@ function TBMenu:showGameLogo()
 		logoSize = 120
 		customLogo:close()
 	end
-	local customGametitle = Files.Open("custom/" .. TB_MENU_PLAYER_INFO.username .. "/header.tga")
+	local customGametitle = Files.Open("../custom/" .. TB_MENU_PLAYER_INFO.username .. "/header.tga")
 	if (customGametitle.data) then
 		gametitle = "../../custom/" .. TB_MENU_PLAYER_INFO.username .. "/header.tga"
 		customGametitle:close()

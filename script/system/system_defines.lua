@@ -2,7 +2,7 @@
 ---This file contains documentation for all Toribash-specific Lua functions and global variables
 ---You DO NOT need to include this file in any of your scripts, it is only used by EmmyLua plugins
 ---
----Updated as of Toribash 5.60
+---Updated as of Toribash 5.60.230524
 
 --[[ GLOBAL VARIABLES ]]
 
@@ -199,12 +199,12 @@ _G.COLORS = {
 }
 
 ---@alias ChatMessageType
----| 0 MSGTYPE.NONE
----| 1 MSGTYPE.SERVER
----| 2 MSGTYPE.URL
----| 4 MSGTYPE.INGAME
----| 8 MSGTYPE.USER
----| 16 MSGTYPE.PLAYER
+---| 0	MSGTYPE.NONE
+---| 1	MSGTYPE.SERVER
+---| 2	MSGTYPE.URL
+---| 4	MSGTYPE.INGAME
+---| 8	MSGTYPE.USER
+---| 16	MSGTYPE.PLAYER
 
 ---Message types
 _G.MSGTYPE = {
@@ -481,106 +481,106 @@ function draw_text_3d(text, x, y, z, ax, ay, az, size, font_type) end
 function set_viewport(pos_x, pos_y, size_x, size_y) end
 
 ---@alias ColorId
----| 0	COLORS.NONE
----| 1	COLORS.WHITE
----| 2	COLORS.RED
----| 3	COLORS.DARK_RED
----| 4	COLORS.BLUE | Vortex
----| 5	COLORS.DARK_BLUE
----| 6	COLORS.PURPLE
----| 7	COLORS.BLACK
----| 8	COLORS.GREY
----| 9	COLORS.YELLOW | Static
----| 10	COLORS.GREEN | Spring
----| 11	COLORS.NEPTUNE
----| 12	COLORS.ECTO
----| 13	COLORS.SPRING
----| 14	COLORS.VIOLET
----| 15	COLORS.PINK
----| 16	COLORS.ORANGE | Copper
----| 17	COLORS.SKIN
----| 18	COLORS.LIGHT_ORANGE
----| 19	COLORS.BROWN
----| 20	COLORS.BLOOD
----| 21	COLORS.RELAX | Juryo
----| 22	COLORS.RELAX_SEL | Aurora
----| 23	COLORS.HOLD
----| 24	COLORS.HOLD_SEL
----| 25	COLORS.FRACTURE
----| 26	COLORS.ACID
----| 27	COLORS.AMETHYST
----| 28	COLORS.AQUA
----| 29	COLORS.BRONZE
----| 30	COLORS.DEMON
----| 31	COLORS.DRAGON
----| 32	COLORS.ELF
----| 33	COLORS.GOLD
----| 34	COLORS.MARINE
----| 35	COLORS.NOXIOUS
----| 36	COLORS.ORC
----| 37	COLORS.QUICKSILVER
----| 38	COLORS.RADIOACTIVE
----| 39	COLORS.SAPPHIRE
----| 40	COLORS.TOXIC
----| 41	COLORS.VAMPIRE
----| 42	COLORS.CHRONOS
----| 43	COLORS.GAIA
----| 44	COLORS.GLADIATOR
----| 45	COLORS.HYDRA
----| 46	COLORS.PHAROS
----| 47	COLORS.SPHINX
----| 48	COLORS.TITAN
----| 49	COLORS.TYPHON
----| 50	COLORS.PURE
----| 51	COLORS.BOREAL
----| 52	COLORS.WILDFIRE
----| 53	COLORS.BLOSSOM
----| 54	COLORS.TESLA
----| 55	COLORS.HAWK
----| 56	COLORS.DBLUE
----| 57	COLORS.GARNET | Crimson
----| 58	COLORS.HPINK | Raptor
----| 59	COLORS.CERULEAN | Plasma
----| 60	COLORS.LPINK
----| 61	COLORS.PUMPKIN | Amber
----| 62	COLORS.AZURITE
----| 63	COLORS.IVORY
----| 64	COLORS.PARROT | Viridian
----| 65	COLORS.SHAMAN
----| 66	COLORS.SAKURA
----| 67	COLORS.PEACH
----| 68	COLORS.FLAME
----| 69	COLORS.DEEP | Onyx
----| 70	COLORS.RUBY
----| 71	COLORS.CRIMSON | Supernova
----| 72	COLORS.NOVA
----| 73	COLORS.MAROON
----| 74	COLORS.CORAL
----| 75	COLORS.INDIGO | Adamantium
----| 76	COLORS.SANGRIA
----| 77	COLORS.TEXT
----| 78	COLORS.TEXT_BG
----| 79	COLORS.TEXT_SEL
----| 80	COLORS.TEXT_DISABLED
----| 81	COLORS.MENU_TEXT
----| 82	COLORS.MENU_TEXT_BG
----| 83	COLORS.MENU_TEXT_SEL
----| 84	COLORS.MENU_TEXT_DISABLED
----| 85	COLORS.MSG_NOTYPE | Void
----| 86	COLORS.MSG_WHISPER | Imperial
----| 87	COLORS.MSG_SERVER | Platinum
----| 88	COLORS.MSG_SRVURL
----| 89	COLORS.MSG_INGAME | Cobra
----| 90	COLORS.MSG_GAMURL
----| 91	COLORS.MSG_USER
----| 92	COLORS.MSG_PLAYER
----| 93	COLORS.MSG_URL
----| 94	COLORS.MSG_URLSEL
----| 95	COLORS.OPAL | Hunter
----| 96	COLORS.VOID
----| 97	COLORS.ANTIQUEWHITE2 | Ivory
----| 98	COLORS.CADETBLUE3
----| 99	COLORS.CHOCOLATE
+---| 0		COLORS.NONE
+---| 1		COLORS.WHITE
+---| 2		COLORS.RED
+---| 3		COLORS.DARK_RED
+---| 4		COLORS.BLUE | Vortex
+---| 5		COLORS.DARK_BLUE
+---| 6		COLORS.PURPLE
+---| 7		COLORS.BLACK
+---| 8		COLORS.GREY
+---| 9		COLORS.YELLOW | Static
+---| 10		COLORS.GREEN | Spring
+---| 11		COLORS.NEPTUNE
+---| 12		COLORS.ECTO
+---| 13		COLORS.SPRING
+---| 14		COLORS.VIOLET
+---| 15		COLORS.PINK
+---| 16		COLORS.ORANGE | Copper
+---| 17		COLORS.SKIN
+---| 18		COLORS.LIGHT_ORANGE
+---| 19		COLORS.BROWN
+---| 20		COLORS.BLOOD
+---| 21		COLORS.RELAX | Juryo
+---| 22		COLORS.RELAX_SEL | Aurora
+---| 23		COLORS.HOLD
+---| 24		COLORS.HOLD_SEL
+---| 25		COLORS.FRACTURE
+---| 26		COLORS.ACID
+---| 27		COLORS.AMETHYST
+---| 28		COLORS.AQUA
+---| 29		COLORS.BRONZE
+---| 30		COLORS.DEMON
+---| 31		COLORS.DRAGON
+---| 32		COLORS.ELF
+---| 33		COLORS.GOLD
+---| 34		COLORS.MARINE
+---| 35		COLORS.NOXIOUS
+---| 36		COLORS.ORC
+---| 37		COLORS.QUICKSILVER
+---| 38		COLORS.RADIOACTIVE
+---| 39		COLORS.SAPPHIRE
+---| 40		COLORS.TOXIC
+---| 41		COLORS.VAMPIRE
+---| 42		COLORS.CHRONOS
+---| 43		COLORS.GAIA
+---| 44		COLORS.GLADIATOR
+---| 45		COLORS.HYDRA
+---| 46		COLORS.PHAROS
+---| 47		COLORS.SPHINX
+---| 48		COLORS.TITAN
+---| 49		COLORS.TYPHON
+---| 50		COLORS.PURE
+---| 51		COLORS.BOREAL
+---| 52		COLORS.WILDFIRE
+---| 53		COLORS.BLOSSOM
+---| 54		COLORS.TESLA
+---| 55		COLORS.HAWK
+---| 56		COLORS.DBLUE
+---| 57		COLORS.GARNET | Crimson
+---| 58		COLORS.HPINK | Raptor
+---| 59		COLORS.CERULEAN | Plasma
+---| 60		COLORS.LPINK
+---| 61		COLORS.PUMPKIN | Amber
+---| 62		COLORS.AZURITE
+---| 63		COLORS.IVORY
+---| 64		COLORS.PARROT | Viridian
+---| 65		COLORS.SHAMAN
+---| 66		COLORS.SAKURA
+---| 67		COLORS.PEACH
+---| 68		COLORS.FLAME
+---| 69		COLORS.DEEP | Onyx
+---| 70		COLORS.RUBY
+---| 71		COLORS.CRIMSON | Supernova
+---| 72		COLORS.NOVA
+---| 73		COLORS.MAROON
+---| 74		COLORS.CORAL
+---| 75		COLORS.INDIGO | Adamantium
+---| 76		COLORS.SANGRIA
+---| 77		COLORS.TEXT
+---| 78		COLORS.TEXT_BG
+---| 79		COLORS.TEXT_SEL
+---| 80		COLORS.TEXT_DISABLED
+---| 81		COLORS.MENU_TEXT
+---| 82		COLORS.MENU_TEXT_BG
+---| 83		COLORS.MENU_TEXT_SEL
+---| 84		COLORS.MENU_TEXT_DISABLED
+---| 85		COLORS.MSG_NOTYPE | Void
+---| 86		COLORS.MSG_WHISPER | Imperial
+---| 87		COLORS.MSG_SERVER | Platinum
+---| 88		COLORS.MSG_SRVURL
+---| 89		COLORS.MSG_INGAME | Cobra
+---| 90		COLORS.MSG_GAMURL
+---| 91		COLORS.MSG_USER
+---| 92		COLORS.MSG_PLAYER
+---| 93		COLORS.MSG_URL
+---| 94		COLORS.MSG_URLSEL
+---| 95		COLORS.OPAL | Hunter
+---| 96		COLORS.VOID
+---| 97		COLORS.ANTIQUEWHITE2 | Ivory
+---| 98		COLORS.CADETBLUE3
+---| 99		COLORS.CHOCOLATE
 ---| 100	COLORS.DARKGOLDENROD4 | Old Gold
 ---| 101	COLORS.DARKOLIVEGREEN | Camo
 ---| 102	COLORS.DARKSLATEBLUE | Magnetite
@@ -626,14 +626,14 @@ function set_viewport(pos_x, pos_y, size_x, size_y) end
 ---| 142	COLORS.TENNISGREEN
 
 ---@alias RenderEffectId
----| 0 None
----| 1 Cel Shaded
----| 2 Fresnel Glow
----| 3 Cel Shaded + Fresnel Glow
----| 4 Dithering
----| 5 Cel Shaded + Dithering
----| 6 Fresnel Glow + Dithering
----| 7 Cel Shaded + Fresnel Glow + Dithering
+---| 0	None
+---| 1	Cel Shaded
+---| 2	Fresnel Glow
+---| 3	Cel Shaded + Fresnel Glow
+---| 4	Dithering
+---| 5	Cel Shaded + Dithering
+---| 6	Fresnel Glow + Dithering
+---| 7	Cel Shaded + Fresnel Glow + Dithering
 
 ---Sets the rendering effects for subsequent 3D drawing calls
 ---@param effectid RenderEffectId
@@ -2733,40 +2733,40 @@ function set_graphics_option(option, value) end
 function reload_graphics() end
 
 ---@alias ShaderOptionId
----| 0 BACKGROUND_COLOR
----| 1 MIRROR_COLOR
----| 2 FLOOR_COLOR
----| 3 SUNSHINE_COLOR
----| 4 AMBIENT_COLOR
----| 5 FOG_DISTANCE
----| 6 SHARP_SHADOW
----| 7 SKY_ON
----| 8 AMBIENT_LIGHT_DIR
----| 9 SUN_LIGHT_DIR
----| 10 SUNBEAM_COLOR
----| 11 SUN_COLOR
----| 12 SKY_COLOR
----| 13 POLAR_LIGHT_COLOR
----| 14 POLAR_LIGHT_DIR
----| 15 SKY_BLEND_POWER
----| 16 CUSTOM_COLOR_TEXT
----| 17 CUSTOM_COLOR_TEXT_BG
----| 18 CUSTOM_COLOR_TEXT_SEL
----| 19 CUSTOM_COLOR_TEXT_DISABLED
----| 20 CUSTOM_COLOR_MENU_TEXT
----| 21 CUSTOM_COLOR_MENU_TEXT_BG
----| 22 CUSTOM_COLOR_MENU_TEXT_SEL
----| 23 CUSTOM_COLOR_MENU_TEXT_DISABLED
----| 24 CUSTOM_COLOR_MSG_NOTYPE
----| 25 CUSTOM_COLOR_MSG_WHISPER
----| 26 CUSTOM_COLOR_MSG_SERVER
----| 27 CUSTOM_COLOR_MSG_SRVURL
----| 28 CUSTOM_COLOR_MSG_INGAME
----| 29 CUSTOM_COLOR_MSG_GAMURL
----| 30 CUSTOM_COLOR_MSG_USER
----| 31 CUSTOM_COLOR_MSG_PLAYER
----| 32 CUSTOM_COLOR_MSG_URL
----| 33 CUSTOM_COLOR_MSG_URLSEL
+---| 0	BACKGROUND_COLOR
+---| 1	MIRROR_COLOR
+---| 2	FLOOR_COLOR
+---| 3	SUNSHINE_COLOR
+---| 4	AMBIENT_COLOR
+---| 5	FOG_DISTANCE
+---| 6	SHARP_SHADOW
+---| 7	SKY_ON
+---| 8	AMBIENT_LIGHT_DIR
+---| 9	SUN_LIGHT_DIR
+---| 10	SUNBEAM_COLOR
+---| 11	SUN_COLOR
+---| 12	SKY_COLOR
+---| 13	POLAR_LIGHT_COLOR
+---| 14	POLAR_LIGHT_DIR
+---| 15	SKY_BLEND_POWER
+---| 16	CUSTOM_COLOR_TEXT
+---| 17	CUSTOM_COLOR_TEXT_BG
+---| 18	CUSTOM_COLOR_TEXT_SEL
+---| 19	CUSTOM_COLOR_TEXT_DISABLED
+---| 20	CUSTOM_COLOR_MENU_TEXT
+---| 21	CUSTOM_COLOR_MENU_TEXT_BG
+---| 22	CUSTOM_COLOR_MENU_TEXT_SEL
+---| 23	CUSTOM_COLOR_MENU_TEXT_DISABLED
+---| 24	CUSTOM_COLOR_MSG_NOTYPE
+---| 25	CUSTOM_COLOR_MSG_WHISPER
+---| 26	CUSTOM_COLOR_MSG_SERVER
+---| 27	CUSTOM_COLOR_MSG_SRVURL
+---| 28	CUSTOM_COLOR_MSG_INGAME
+---| 29	CUSTOM_COLOR_MSG_GAMURL
+---| 30	CUSTOM_COLOR_MSG_USER
+---| 31	CUSTOM_COLOR_MSG_PLAYER
+---| 32	CUSTOM_COLOR_MSG_URL
+---| 33	CUSTOM_COLOR_MSG_URLSEL
 
 ---Returns current settings for the specified shader option id
 ---@param id ShaderOptionId
@@ -2785,23 +2785,23 @@ function get_shader_option(id) end
 function set_shader_option(id, x, y, z, w, reload_sky, sky_resolution) end
 
 ---@alias SoundCategoryId
----| 0 Shout
----| 1 Dismember
----| 2 Fight alert
----| 3 Freeze
----| 4 Game over
----| 5 Grading
----| 6 Grip
----| 7 Hit
----| 8 Impact
----| 9 Joint
----| 10 Menu
----| 11 None
----| 12 Pain
----| 13 Ready
----| 14 Select player
----| 15 Splash
----| 16 Swoosh
+---| 0	Shout
+---| 1	Dismember
+---| 2	Fight alert
+---| 3	Freeze
+---| 4	Game over
+---| 5	Grading
+---| 6	Grip
+---| 7	Hit
+---| 8	Impact
+---| 9	Joint
+---| 10	Menu
+---| 11	None
+---| 12	Pain
+---| 13	Ready
+---| 14	Select player
+---| 15	Splash
+---| 16	Swoosh
 
 ---Sets sound category options
 ---@param id SoundCategoryId
