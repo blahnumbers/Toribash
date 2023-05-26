@@ -101,6 +101,18 @@ QueueListInternal.InfoFields = {
 		atlasX = 64
 	},
 	{
+		title = "op",
+		text = TB_MENU_LOCALIZED.QUEUELISTROOMOPTITLE,
+		desc = TB_MENU_LOCALIZED.QUEUELISTROOMOPDESC,
+		atlasX = 384
+	},
+	{
+		title = "muted",
+		text = TB_MENU_LOCALIZED.QUEUELISTMUTEDTITLE,
+		desc = TB_MENU_LOCALIZED.QUEUELISTMUTEDDESC,
+		atlasX = 448
+	},
+	{
 		title = "itemforger",
 		text = TB_MENU_LOCALIZED.QUEUELISTITEMFORGERTITLE,
 		desc = TB_MENU_LOCALIZED.QUEUELISTITEMFORGERDESC,
@@ -113,16 +125,10 @@ QueueListInternal.InfoFields = {
 		atlasX = 256
 	},
 	{
-		title = "op",
-		text = TB_MENU_LOCALIZED.QUEUELISTROOMOPTITLE,
-		desc = TB_MENU_LOCALIZED.QUEUELISTROOMOPDESC,
-		atlasX = 384
-	},
-	{
-		title = "muted",
-		text = TB_MENU_LOCALIZED.QUEUELISTMUTEDTITLE,
-		desc = TB_MENU_LOCALIZED.QUEUELISTMUTEDDESC,
-		atlasX = 448
+		title = "oldschool",
+		text = TB_MENU_LOCALIZED.QUEUELISTOLDSCHOOLTITLE,
+		desc = TB_MENU_LOCALIZED.QUEUELISTOLDSCHOOLDESC,
+		atlasX = 512
 	}
 }
 
@@ -1019,7 +1025,7 @@ end
 ---Returns name color for the player
 ---@param playerInfo QueueListPlayerInfo
 function QueueListInternal.getNameColor(playerInfo)
-	for _,v in pairs(QueueListInternal.InfoFields) do
+	for _, v in pairs(QueueListInternal.InfoFields) do
 		if (playerInfo[v.title] == true and v.color ~= nil) then
 			return table.clone(v.color)
 		end

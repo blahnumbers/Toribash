@@ -2,7 +2,7 @@
 ---This file contains documentation for all Toribash-specific Lua functions and global variables
 ---You DO NOT need to include this file in any of your scripts, it is only used by EmmyLua plugins
 ---
----Updated as of Toribash 5.60.230524
+---Updated as of Toribash 5.60.230526
 
 --[[ GLOBAL VARIABLES ]]
 
@@ -2839,6 +2839,7 @@ function get_sound_category(id) end
 ---@field muted boolean Whether this user is muted
 ---@field afk boolean Whether this user is afk
 ---@field multiclient boolean Whether this user is currently multiclienting
+---@field oldschool boolean Whether this user is an old schooler
 ---@field elo number Player elo rating
 ---@field rank_title string Player rank title
 ---@field flag_code string Flag code

@@ -500,25 +500,34 @@ function TBMenu:showHome()
 			end, nil)
 	end
 
-	---Do not show any text for featured events, promo image only
-	featuredEventData.title = nil
-	featuredEventData.subtitle = nil
-	TBMenu:showHomeButton(featuredEvent, featuredEventData)
-	if (not featuredEventData.isRead) then
-		local newCaption = featuredEvent:addChild({
-			pos = { 5, 5 },
-			size = { featuredEvent.size.w - 20, 40 },
-			bgColor = TB_MENU_DEFAULT_ORANGE,
-			uiColor = UICOLORBLACK,
-			shapeType = ROUNDED,
-			rounded = 20
-		})
-		newCaption:addAdaptedText(TB_MENU_LOCALIZED.WORDNEW .. "!")
-		newCaption.size.w = get_string_length(newCaption.dispstr[1], newCaption.textFont) * newCaption.textScale + 40
-		newCaption:moveTo(-newCaption.size.w - 5)
-		featuredEventData.newCaption = newCaption
+	if (featuredEventData.id > 9) then
+		---Do not show any text for featured events, promo image only
+		featuredEventData.title = nil
+		featuredEventData.subtitle = nil
+		TBMenu:showHomeButton(featuredEvent, featuredEventData)
+		if (not featuredEventData.isRead) then
+			local newCaption = featuredEvent:addChild({
+				pos = { 5, 5 },
+				size = { featuredEvent.size.w - 20, 40 },
+				bgColor = TB_MENU_DEFAULT_ORANGE,
+				uiColor = UICOLORBLACK,
+				shapeType = ROUNDED,
+				rounded = 20
+			})
+			newCaption:addAdaptedText(TB_MENU_LOCALIZED.WORDNEW .. "!")
+			newCaption.size.w = get_string_length(newCaption.dispstr[1], newCaption.textFont) * newCaption.textScale + 40
+			newCaption:moveTo(-newCaption.size.w - 5)
+			featuredEventData.newCaption = newCaption
+		end
+		TBMenu:showHomeButton(viewEventsButton, viewEventsButtonData, 2)
+	else
+		viewEventsButton:kill()
+		featuredEvent.size.h = TBMenu.CurrentSection.size.h
+		viewEventsButtonData.subtitle = featuredEventData.title
+		viewEventsButtonData.image = featuredEventData.image
+		viewEventsButtonData.ratio = featuredEventData.ratio
+		TBMenu:showHomeButton(featuredEvent, viewEventsButtonData, 2)
 	end
-	TBMenu:showHomeButton(viewEventsButton, viewEventsButtonData, 2)
 end
 
 ---Generic function to display a main menu section button
