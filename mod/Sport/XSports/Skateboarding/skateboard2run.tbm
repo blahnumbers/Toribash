@@ -1,0 +1,284 @@
+# Environment exported by WorldBuilder
+######################################
+gamerule
+engagedistance 200
+engageheight 27
+dismemberment 0
+matchframes 2000
+gravity 0 0 -15
+
+joint neck
+axis 0 0 1
+range 0.8 -0.8
+
+body head
+thrust 1 0 0 1.75
+pos 1.0 0.85 2.6
+
+body r_biceps 
+pos 0.45 0.85 2.275
+thrust 1 0 0 0.01
+
+body r_triceps 
+pos 0.05 0.85 2.275
+thrust 1 0 0 0.00025
+flag 2
+
+body l_biceps 
+pos 1.55 0.85 2.275
+thrust 1 0 0 0.01
+
+body l_triceps  
+pos 1.95 0.85 2.275
+thrust 1 0 0 0.00025
+flag 2
+
+body r_butt 
+thrust 1 0 0 -0.55
+
+body l_butt 
+thrust 1 0 0 -0.55
+
+body stomach
+force 75 0 0
+
+body groin
+force 75 0 0
+
+body r_thigh 
+thrust 1 0 0 -0.55
+flag 2
+
+
+body l_thigh 
+thrust 1 0 0 -0.55
+flag 2 
+
+body r_leg 
+thrust 1 0 0 -0.475
+flag 2
+force 75 0 0
+
+body l_leg 
+thrust 1 0 0 -0.475
+flag 2
+force 75 0 0
+
+body r_foot 
+sides 0.20 0.65 0.085
+pos 0.8 0.925 0.1
+thrust 5 0 0 -0.75
+friction 90
+
+body l_foot 
+thrust 5 0 0 -0.75
+sides 0.20 0.65 0.085
+pos 1.2 0.925 0.1
+friction 90
+
+joint r_ankle
+range 0.325 -0.625
+joint l_ankle
+range 0.325 -0.625
+
+joint r_hip
+strength 5.0
+velocity 15.0
+
+joint l_hip
+strength 5.0
+velocity 15.0
+
+joint l_glute
+strength 15
+range 0.2 -0.025
+
+joint r_glute
+strength 15
+range 0.2 -0.025
+
+joint r_hip
+strength 10.0
+velocity 10.0
+range 0.75 -1
+
+joint l_hip
+strength 10.0
+velocity 10.0
+range 0.75 -1
+
+joint r_knee
+strength 5.0
+velocity 30.0
+
+joint l_knee
+strength 5.0
+velocity 30.0
+
+joint lumbar
+range 0.85 -0.85
+strength 8.0
+velocity 15.0
+
+joint abs
+range 0.5 -0.3
+strength 5.0
+velocity 7.5
+density 0.25
+
+
+env_obj 1
+    shape box
+    pos 1 1 0.25
+    color 0.3 0.2 -0.1 1
+    rot 0 0 0
+    sides 1.35 0.575 0.05
+    material steel
+    mass 0.001
+    flag 0
+    thrust 1 0 0 0.005
+#END 1
+
+env_obj 2
+    shape box
+    pos 1 1 0.07
+    color 0.3 0.2 -0.1 1
+    rot 0 0 0
+    sides 1.15 0.25 0.07
+    material steel
+    mass 0.001
+    flag 0
+    friction 0
+#END 2
+
+env_obj 3
+    shape box
+    pos 1.8 1 0.3125
+    color 0.3 0.2 -0.1 1
+    rot 0 26 0
+    sides 0.295 0.575 0.05
+    material steel
+    mass 0.000001
+    flag 0
+#END 3
+
+env_obj 4
+    shape box
+    pos 0.2 1 0.3125
+    color 0.3 0.2 -0.1 1
+    rot 0 -26 0
+    sides 0.295 0.575 0.05
+    material steel
+    mass 0.000001
+    flag 0
+#END 4
+
+env_obj 5
+    shape sphere
+    pos 0.5 1.25 0.0625
+    color 0 0 -0.1 1
+    rot 0 0 0
+    sides 0.07 1 1
+    material steel
+    mass 0.00025
+    flag 0
+    bounce 7
+#END 5
+
+env_obj 6
+    shape sphere
+    pos 0.5 0.75 0.0625
+    color 0 0 -0.1 1
+    rot 0 0 0
+    sides 0.072 1 1
+    material steel
+    mass 0.00025
+    flag 0
+    bounce 7
+#END 6
+
+env_obj 7
+    shape sphere
+    pos 1.5 1.25 0.0625
+    color 0 0 -0.1 1
+    rot 0 0 0
+    sides 0.072 1 1
+    material steel
+    mass 0.00025
+    flag 0
+    bounce 7
+#END 7
+
+env_obj 8
+    shape sphere
+    pos 1.5 0.75 0.0625
+    color 0 0 -0.1 1
+    rot 0 0 0
+    sides 0.072 1 1
+    material steel
+    mass 0.00025
+    flag 0
+    bounce 7
+#END 8
+
+env_obj 9
+    shape box
+    pos 7.125 0.875 0.12
+    color 0 0 1 1
+    rot 0 7 0
+    sides 2.625 3.25 0.0625
+    material steel
+    mass 0.1
+    flag 24
+    friction 0
+#END 9
+
+
+
+
+env_obj_joint 2 1 2
+pos 1 1 0.175
+axis 0 0 0
+visible 1
+
+env_obj_joint 3 3 1
+pos 1.7 1 0.25
+range 5 -5
+velocity 0
+strength 2000
+axis 0 1 0
+
+env_obj_joint 4 4 1
+pos 0.3 1 0.25
+range 5 -5
+velocity 0
+strength 2000
+axis 0 1 0
+
+env_obj_joint 5 2 6
+pos 0.5 1.2 0.0625
+range 360 -360
+axis 0 1 0
+strength 0
+velocity 0
+
+env_obj_joint 6 2 5
+pos 0.5 0.8 0.0625
+axis 0 1 0
+range 360 -360
+strength 0
+velocity 0
+
+env_obj_joint 7 2 8
+pos 1.5 1.2 0.0625
+range 360 -360
+axis 0 1 0
+strength 0
+velocity 0
+
+env_obj_joint 8 2 7
+pos 1.5 0.8 0.0625
+range 360 -360
+axis 0 1 0
+strength 0
+velocity 0

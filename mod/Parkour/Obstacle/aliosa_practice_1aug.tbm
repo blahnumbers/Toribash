@@ -1,0 +1,216 @@
+#!/usr/bin/toribash
+version 13
+gamerule
+   matchframes 1500
+   turnframes 10
+   flags 4
+   grip 0
+   dismemberment 0
+   fracture 0
+   disqualification 0
+   dqtimeout 0
+   dqflag 0
+   dismemberthreshold 100
+   fracturethreshold 100
+   pointthreshold 0
+   winpoint 0
+   dojotype 0
+   dojosize 0
+   engagedistance 800
+   engageheight 0
+   engagerotation 0
+   engagespace 0
+   engageplayerpos 0.00,2.70,6.00,10.00,1.00,1.00
+   engageplayerrot 0,0,180,0,0,-135
+   damage 0
+   gravity 0.00 0.00 -30.00
+   sumo 1
+   reactiontime 10000
+   drawwinner 0
+   maxcontacts 8
+   ghostlength 100
+   ghostspeed 100
+   ghostcustom 0
+   grabmode 1
+   tearthreshold 0
+   numplayers 2
+use_model 0
+model_name xspar
+env_obj 1
+   shape box
+   pos 1.00 2.40 3.00
+   color 0.39 0.78 0.78 1.00
+   rot 0.00 0.00 0.00
+   sides 6.00 10.50 6.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj1
+env_obj 2
+   shape box
+   pos -1.00 14.90 4.50
+   color 0.39 0.78 0.78 1.00
+   rot 0.00 0.00 0.00
+   sides 10.50 8.50 9.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj2
+env_obj 3
+   shape box
+   pos 4.00 10.90 2.50
+   color 0.39 1.00 0.78 1.00
+   rot 0.00 0.00 0.00
+   sides 8.00 9.00 5.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj3
+env_obj 4
+   shape box
+   pos -6.00 9.90 2.50
+   color 0.39 1.00 0.78 1.00
+   rot 0.00 45.00 0.00
+   sides 12.50 8.50 11.50
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj4
+env_obj 5
+   shape box
+   pos 1.00 9.40 0.50
+   color 0.78 0.78 0.78 1.00
+   rot 0.00 0.00 0.00
+   sides 40.00 40.00 1.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj5
+env_obj 6
+   shape box
+   pos 4.50 13.90 3.50
+   color 0.39 0.78 0.78 1.00
+   rot 0.00 0.00 0.00
+   sides 4.00 4.00 7.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj6
+env_obj 7
+   shape box
+   pos 4.50 17.90 4.00
+   color 0.39 1.00 0.78 1.00
+   rot 0.00 0.00 0.00
+   sides 6.00 6.50 8.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj7
+env_obj 8
+   shape box
+   pos 5.00 5.90 2.00
+   color 0.39 0.78 0.78 1.00
+   rot 0.00 0.00 0.00
+   sides 5.00 4.00 4.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj8
+env_obj 9
+   shape box
+   pos -12.00 9.90 2.00
+   color 0.39 0.78 0.78 1.00
+   rot 0.00 0.00 0.00
+   sides 9.50 11.00 4.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj9
+env_obj 10
+   shape box
+   pos 7.00 10.90 0.50
+   color 0.39 0.78 0.78 1.00
+   rot 0.00 0.00 45.00
+   sides 4.00 4.00 7.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj10
+env_obj 11
+   shape box
+   pos 6.00 15.40 2.50
+   color 0.39 0.78 0.78 1.00
+   rot 0.00 0.00 45.00
+   sides 4.00 4.00 7.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj11
+env_obj 12
+   shape box
+   pos 4.00 4.40 1.50
+   color 0.39 1.00 0.78 1.00
+   rot 0.00 0.00 45.00
+   sides 4.00 4.00 3.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj12
+env_obj 13
+   shape box
+   pos -1.50 21.40 5.00
+   color 0.39 1.00 0.78 1.00
+   rot 0.00 0.00 0.00
+   sides 14.00 6.50 10.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj13
+env_obj 14
+   shape box
+   pos -6.00 15.90 6.00
+   color 0.39 0.78 0.78 1.00
+   rot 0.00 0.00 0.00
+   sides 7.00 7.00 12.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj14
+player 0
+   body r_hand
+      pos -0.35 0.85 2.30
+   body l_hand
+      pos 2.35 0.85 2.30
+player 1
+   body r_hand
+      pos -0.35 0.85 2.30
+   body l_hand
+      pos 2.35 0.85 2.30

@@ -1,0 +1,1513 @@
+#!/usr/bin/toribash
+#TRichard21 
+
+gamerule
+   matchframes 3000
+   turnframes 10
+   flags 11
+   dismemberment 0
+   fracture 0
+   disqualification 1
+   dqtimeout 0
+   dqflag 0
+   dismemberthreshold 0
+   fracturethreshold 0
+   pointthreshold 0
+   dojotype 1
+   dojosize 1
+   engagedistance 300
+   engageheight 1714
+   engagerotation 180
+   engagespace 0
+   engageplayerpos -0.00,55.00,49.87,0.50,6.60,82.00
+   engageplayerrot 0,0,0,0,0,0
+   damage 0
+   gravity 0.00 0.00 -30.00
+   sumo 1
+   reactiontime 60
+   drawwinner 0
+   maxcontacts 8
+
+player 0
+
+body r_hand
+shape box
+sides 0.22 0.22 0.22
+alt_sides 0.2 0.2 0.2
+rot 0 0 0
+force 0 0 0
+color 1 1 1
+material flesh
+flag 32
+# player 0 wins
+trig_id 2
+trig_mask 1
+trig_action 1
+
+
+body l_hand
+shape box
+sides 0.22 0.22 0.22
+alt_sides 0.2 0.2 0.2
+rot 0 0 0
+force 0 0 0
+color 1 1 1
+material flesh
+flag 32
+# player 0 wins
+trig_id 2
+trig_mask 1
+trig_action 1
+
+
+player 1 
+
+body r_hand
+shape box
+sides 0.22 0.22 0.22
+alt_sides 0.2 0.2 0.2
+rot 0 0 0
+force 0 0 0
+color 1 1 1
+material flesh
+flag 32
+
+
+
+body l_hand
+shape box
+sides 0.22 0.22 0.22
+alt_sides 0.2 0.2 0.2
+rot 0 0 0
+force 0 0 0
+color 1 1 1
+material flesh
+flag 32
+
+
+
+
+env_obj 1
+shape box
+    pos 0.9375 -11.8125 54.5625
+    color 0.1 0.3 0.1
+    rot 32 0 -12
+    sides 21.25 5.75 5.25
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+#vine1
+
+env_obj 2
+shape box
+    pos 2.25 -7.8125 49
+    color 0.1 0.5 0.2
+    rot -60 0 0
+    sides 0.125 0.125 6
+    material steel
+    mass 0.0001
+    bounce 0
+   
+
+env_obj 3
+shape box
+    pos 2.25 -2.625 46
+    color 0.1 0.5 0.2
+    rot -60 0 0
+    sides 0.125 0.125 5.875
+    material steel
+    mass 0.0001
+    bounce 0
+
+
+env_obj 4
+shape box
+    pos 2.25 1.5625 43.5625
+    color 0.1 0.5 0.2
+    rot -60 0 0
+    sides 0.125 0.125 3.6875
+    material steel
+    mass 0.0001
+    bounce 0
+
+
+env_obj 5
+shape sphere
+    pos 2.25 3.3125 42.5625
+    color 0.1 0.5 0.2
+    rot 0 0 0
+    sides 0.125 0.125 3.6875
+    material steel
+    mass 0.01
+    bounce 0
+
+#VINE2 ATATCH
+
+env_obj 6
+shape box
+    pos 1.8125 -29.25 49.25
+    color 0.1 0.5 0.2
+    rot 0 -76 8
+    sides 0.875 3.625 1
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 24
+
+env_obj 7
+shape box
+    pos 1.5 -27.5 45
+    color 0.1 0.5 0.2
+    rot 0 0 0
+    sides 0.125 0.125 6.75
+    material steel
+    mass 0.0001
+    bounce 0
+
+env_obj 8
+shape box
+    pos 1.5 -27.5 38.125
+    color 0.1 0.5 0.2
+    rot 0 0 0
+    sides 0.125 0.125 6.8125
+    material steel
+    mass 0.0001
+    bounce 0
+
+
+
+#ROCKS
+
+env_obj 9
+shape sphere
+    pos 1.5 63.5 68.5
+    color 0.2 0.2 0.2
+    rot 0 0 0
+    sides 0.25 4.5 7.25
+    material steel
+    mass 0.01
+    bounce 0.5
+
+env_obj 10
+shape sphere
+    pos 3.25 63.5 64
+    color 0.2 0.2 0.2
+    rot 0 0 0
+    sides 0.5 4.5 7.25
+    material steel
+    mass 0.01
+    bounce 0.5
+
+env_obj 11
+shape box
+    pos -0.25 63.375 66
+    color 0.2 0.2 0.2
+    rot -32 -40 0
+    sides 0.75 0.75 0.75
+    material steel
+    mass 0.01
+    bounce 0.5
+
+
+env_obj 12
+shape box
+    pos 5.75 63.25 66
+    color 0.2 0.2 0.2
+    rot -32 -84 0
+    sides 0.75 0.75 0.75
+    material steel
+    mass 0.01
+    bounce 0.5
+
+
+#Win object
+
+
+env_obj 13
+shape cylinder
+    pos 2.5625 -64.0625 25.9375
+    color 0.07 0.7 0.8 
+    rot 72 -68 0
+    sides 0.375 2.5 6.25
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+#Target
+trig_id 1
+trig_mask 6 
+
+
+#WATER BOARD
+
+env_obj 14
+shape box
+    pos 6.0625 -22.0625 28.25
+    color 0.4 0.2 0
+    rot 3 0 12
+    sides 2.125 3 0.125
+    material steel
+    mass 0.0001
+    bounce 0
+    
+env_obj 15
+shape box
+    pos 1.8125 -39.8125 27.9375
+    color 0.4 0.2 0
+    rot 3 0 12
+    sides 7.625 0.5 0.375
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8 
+
+env_obj 17
+shape box
+    pos 0 4.5 14.5
+    color 0.1 0.5 0.2
+    rot 0 0 0
+    sides 200 16.25 30.5
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 24
+    
+env_obj 18
+shape box
+    pos 0 -10.0625 13.875
+    color 0.1 0.5 0.2
+    rot -5 0 0
+    sides 200 15.75 30.5
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 24
+
+#water
+
+  env_obj 19
+shape box
+    pos 0 -25.6875 13.9375
+    color 0.07 0.7 0.8 0.7
+    rot 0 0 0
+    sides 16.875 20 28.25
+    material steel
+    friction -10
+    mass 0.0001
+    bounce 0
+    flag 24  
+
+env_obj 20
+shape box
+    pos 0 -27 13.1875
+    color 0.1 0.3 0.15
+    rot 0 0 0
+    sides 18.125 16.25 28.25
+    material steel
+    friction -10
+    mass 0.0001
+    bounce 0
+    flag 24
+    
+
+#
+
+
+env_obj 21
+shape box
+    pos -6.25 -33 14.6875
+    color 0.1 0.5 0.2
+    rot 0 0 16
+    sides 16 11.25 27.5
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 24
+
+env_obj 22
+shape box
+    pos -13.5 -27.5 14.6875
+    color 0.1 0.5 0.2
+    rot 0 0 -16
+    sides 16 25.75 27.5
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 24
+
+env_obj 23
+shape box
+    pos 14.75 -30.5 14.4375
+    color 0.1 0.5 0.2
+    rot 0 0 8
+    sides 16 25.75 27.5
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 24
+
+
+#water2
+
+  env_obj 24
+shape box
+    pos -1 -38.5 12.9375
+    color 0.07 0.7 0.8 0.7
+    rot 0 0 0
+    sides 27 17 24
+    material steel
+    friction -10
+    mass 0.0001
+    bounce 0
+    flag 24 
+
+# 
+
+env_obj 25
+shape box
+    pos -1 -48.5625 12.9375
+    color 0.1 0.5 0.1
+    rot -4 0 -8
+    sides 13.25 7.75 27.25
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 24
+
+env_obj 26
+shape box
+    pos 18 -37.0625 19.1875
+    color 0.1 0.5 0.1
+    rot 0 -4 12
+    sides 9 31.25 39.75
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 24
+
+env_obj 27
+shape box
+    pos -20.25 -33.5625 21.6875
+    color 0.1 0.5 0.1
+    rot 0 4 4 
+    sides 16.75 45.25 37.25
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 24
+
+env_obj 28
+shape box
+    pos -12.25 -50.4375 15
+    color 0.1 0.4 0.1
+    rot -8 -16 20 
+    sides 14 14.5 25.75
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 24
+
+
+#water3
+
+  env_obj 29
+shape box
+    pos 0 -47.1875 10.25
+    color 0.07 0.7 0.8 0.7
+    rot 0 0 4
+    sides 27.75 22.25 25.75
+    material steel
+    friction -10
+    mass 0.0001
+    bounce 0
+    flag 24 
+
+#Wall
+
+env_obj 30
+shape box
+    pos -16.4375 -66.0625 16.75
+    color 0.1 0.3 0.1
+    rot -10 8 -12 
+    sides 17.5 32.75 42
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 24
+
+env_obj 31
+shape box
+    pos 20.8125 -61.5625 16.75
+    color 0.1 0.3 0.1
+    rot -10 0 0 
+    sides 17.5 32.75 42
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 24
+
+env_obj 32
+shape box
+    pos 23 -9.8125 22.25
+    color 0.1 0.3 0.1
+    rot -2 8 -8
+    sides 17.5 50 42.25
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 24
+
+env_obj 33
+shape box
+    pos -19.25 -3.5625 24.25
+    color 0.1 0.3 0.1
+    rot -10 -8 12
+    sides 17.5 50 42.25
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 24
+
+#start
+
+env_obj 34
+shape box
+    pos -2 58.5 33
+    color 0.1 0.3 0.1
+    rot 0 0 0
+    sides 500 21.5 33.75
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 24
+
+#DIRT
+
+env_obj 35
+shape box
+    pos 0.75 45 30.0625
+    color 0.4 0.2 0
+    rot -24 0 0
+    sides 14 21.5 33.75
+    material steel
+    friction 0.5
+    mass 0.0001
+    bounce 0
+    flag 24
+
+env_obj 36
+shape box
+    pos 3 36.75 26.5
+    color 0.4 0.2 0
+    rot -16 8 8
+    sides 14 10.75 33.75
+    material steel
+    friction 0.5
+    mass 0.0001
+    bounce 0
+    flag 24
+
+env_obj 37
+shape box
+    pos -1.25 37 26.75
+    color 0.4 0.2 0
+    rot -20 0 -8
+    sides 11.25 10.75 33.75
+    material steel
+    friction 0.5
+    mass 0.0001
+    bounce 0
+    flag 24
+
+env_obj 38
+shape box
+    pos -12.6875 40.25 32.625
+    color 0.3 0.1 0
+    rot -20 -22 -16
+    sides 13.5 23.5 31.5
+    material steel
+    friction 0.5
+    mass 0.0001
+    bounce 0
+    flag 24
+
+env_obj 39
+shape box
+    pos 16.5625 41 33.375
+    color 0.3 0.1 0
+    rot -20 22 4
+    sides 13.5 23.5 31.5
+    material steel
+    friction 0.5
+    mass 0.0001
+    bounce 0
+    flag 24
+
+#mid gap landing
+
+env_obj 40
+shape box
+    pos 1.25 20.25 25.5
+    color 0.1 0.3 0.1
+    rot 0 0 0
+    sides 35.5 5.25 28.75
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 24
+
+env_obj 41
+shape box
+    pos 1.25 17.5 32.75
+    color 0.3 0.1 0
+    rot -64 0 0
+    sides 22.25 12.25 6
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 24
+
+#WALLS
+
+env_obj 42
+shape box
+    pos 23.1875 34.5 30.25
+    color 0.1 0.3 0.1
+    rot -8 12 0
+    sides 20 59 56.5
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 24
+
+env_obj 43
+shape box
+    pos -19.1875 37.5 30.25
+    color 0.1 0.3 0.1
+    rot -8 -12 0
+    sides 20 59 56.5
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 24
+
+env_obj 44
+shape box
+    pos -20.1875 -19 30.25
+    color 0.1 0.3 0.1
+    rot -8 -8 8
+    sides 17.75 74.5 56.5
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 24
+
+env_obj 45
+shape box
+    pos 21.3125 -19 30.25
+    color 0.1 0.3 0.1
+    rot -8 12 0
+    sides 17.75 74.5 56.5
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 24
+
+env_obj 46
+shape box
+    pos 21.8125 36.5 46 
+    color 0.1 0.3 0.1
+    rot -8 28 0
+    sides 17.75 55.75 56.5
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 24
+
+env_obj 47
+shape box
+    pos -15.4375 35.75 54.75
+    color 0.1 0.3 0.1
+    rot -8 -40 4
+    sides 17.75 55.75 56.5
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 24
+
+env_obj 48
+shape box
+    pos -0.4375 -40.75 49.75
+    color 0.1 0.3 0.1
+    rot -12 -4 28
+    sides 38.25 20.75 7.25
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 24
+
+
+#tree
+
+env_obj 49
+shape cylinder
+    pos -1.3125 14.1875 34.25
+    color 0.4 0.2 0
+    rot -28 -12 4
+    sides 1.25 8.6875 1.25
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+env_obj 50
+shape cylinder
+    pos 1.4375 10.9375 38.75
+    color 0.4 0.2 0
+    rot -60 -48 4
+    sides 0.75 3.1875 1.25
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+env_obj 51
+shape cylinder
+    pos -1.3125 9.6875 38.25
+    color 0.4 0.2 0
+    rot -92 12 4
+    sides 0.75 4.1875 1.25
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+env_obj 52
+shape cylinder
+    pos 3.75 9.1875 41.1875
+    color 0.4 0.2 0
+    rot -20 -24 4
+    sides 0.5625 4.6875 1.25
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+
+
+#TREE BOARD WIP
+
+env_obj 53
+shape sphere
+    pos 1 14.5 38.3125
+    color 0.1 0.5 0.2
+    rot 0 0 0
+    sides 1.25 1 1 
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 24
+
+
+##
+
+
+env_obj 54
+shape cylinder
+    pos -1.6875 5.25 38.5625
+    color 0.4 0.2 0
+    rot -84 -4 0
+    sides 0.5625 4.25 0.125
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+env_obj 55
+shape cylinder
+    pos 1.25 8.75 40.25
+    color 0.4 0.2 0
+    rot -56 -4 0
+    sides 0.375 4.75 1
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+env_obj 56
+shape cylinder
+    pos 1.625 5.0625 41.5625
+    color 0.4 0.2 0
+    rot -92 -8 0
+    sides 0.3125 3.5 1
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+env_obj 57
+shape cylinder
+    pos -0.8125 -0.125 37.6875
+    color 0.4 0.2 0
+    rot -112 -12 0
+    sides 0.375 7 1 
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+env_obj 58
+shape cylinder
+    pos -1.3125 -2.875 36.9375
+    color 0.4 0.2 0
+    rot -104 15 0
+    sides 0.25 4.5 1
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+env_obj 59
+shape cylinder
+    pos 3.6875 7.125 42.4375
+    color 0.4 0.2 0
+    rot -52 -1 0
+    sides 0.3125 4.5 0.8125
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+env_obj 60
+shape cylinder
+    pos -0.0625 14.625 36.4375
+    color 0.4 0.2 0
+    rot 0 -25 0
+    sides 0.5625 5 0.8125
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+#foilage
+
+env_obj 61
+shape sphere
+    pos 6.25 8 45.5625
+    color 0.1 0.5 0.2
+    rot 0 0 0
+    sides 2.75 1 1 
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+env_obj 62
+shape sphere
+    pos 4 4.75 45.0625
+    color 0.1 0.5 0.2
+    rot 0 0 0
+    sides 2 0.75 1 
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+env_obj 63
+shape sphere
+    pos -1.75 -5.25 36.3125
+    color 0.1 0.5 0.2
+    rot 0 0 0
+    sides 0.75 1 1 
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+env_obj 64
+shape sphere
+    pos 0 -4.5 36.3125
+    color 0.1 0.5 0.2
+    rot 0 0 0
+    sides 1.25 1 1  
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+
+#frac rocks
+
+env_obj 65
+shape box
+    pos 5.5 13.25 25.3125
+    color 0.4 0.4 0.4
+    rot -8 56 48
+    sides 11.5 10.75 9.75 
+    material steel
+    mass 0.0001
+    bounce 1
+    flag 8
+
+env_obj 66
+shape box
+    pos -1.75 10.75 25.8125
+    color 0.4 0.4 0.4
+    rot 0 76 128
+    sides 11.5 11.25 13.75 
+    material steel
+    mass 0.0001
+    bounce 1
+    flag 8
+
+env_obj 67
+shape box
+    pos 4.25 8 23.8125
+    color 0.5 0.5 0.5
+    rot 0 132 144
+    sides 11.5 11.25 13.75 
+    material steel
+    mass 0.0001
+    bounce 1
+    flag 8
+
+env_obj 68
+shape box
+    pos -3 3 22.5625
+    color 0.5 0.5 0.5
+    rot -12 232 152
+    sides 11.5 11.25 13.75 
+    material steel
+    mass 0.0001
+    bounce 1
+    flag 8
+
+env_obj 69
+shape box
+    pos 5 2.25 22.0625
+    color 0.4 0.4 0.4
+    rot -52 224 112
+    sides 11.5 11.25 13.75 
+    material steel
+    mass 0.0001
+    bounce 1
+    flag 8
+
+
+#WATER ROCKS
+
+env_obj 70
+shape box
+    pos 2 -19.25 27.4375
+    color 0.3 0.6 0.3
+    rot 8 12 128
+    sides 2.5 2 2.25
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+env_obj 71
+shape box
+    pos -1.25 -23.25 27.1875
+    color 0.3 0.6 0.3
+    rot -4 -8 128
+    sides 1.25 1.25 2.25
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+env_obj 72
+shape box
+    pos 0.25 -28 27.1875
+    color 0.3 0.6 0.3
+    rot -4 20 128
+    sides 2 4.5 2.25
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+env_obj 73
+shape box
+    pos 10.5 -41.25 25
+    color 0.3 0.5 0.3
+    rot -68 -52 -12
+    sides 5.75 8.25 9.25
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+env_obj 74
+shape box
+    pos 16 -24 32.5
+    color 0.3 0.5 0.3
+    rot 8 -32 -12
+    sides 5.75 11.75 14.75
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+env_obj 75
+shape box
+    pos -17 -42.5 31.25
+    color 0.2 0.5 0.2
+    rot -24 -4 -16
+    sides 10.25 11.75 10
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+env_obj 76
+shape box
+    pos -2.0625 -39.3125 19.0625
+    color 0.4 0.5 0.4
+    rot 7 -4 -4
+    sides 2.5 5 19
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+
+#
+
+env_obj 77
+shape box
+    pos -13.8125 -37.8125 21.0625
+    color 0.1 0.5 0.2
+    rot 19 -24 4
+    sides 10 10.25 18.75
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+env_obj 78
+shape box
+    pos -14.8125 -20.3125 21.5625
+    color 0.4 0.5 0.4
+    rot -1 -24 -28
+    sides 10 10.25 18.75
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+
+#grOUNDFLOOR
+
+
+env_obj 79
+shape box
+    pos 2.1875 74.3125 3.5625
+    color 0.1 0.3 0.1
+    rot 0 0 0 
+    sides 1000 1000 7.75
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+
+env_obj 80
+shape box
+    pos 2.1875 74.3125 7.3125
+    color 0.07 0.7 0.8 0.7
+    rot 0 0 0 
+    sides 1000 1000 7.75
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+##WATER TREES
+
+env_obj 81
+shape cylinder
+    pos -9.8125 -30.0625 32.5625
+    color 0.4 0.2 0
+    rot 0 -28 0
+    sides 1.25 12.75 7.75
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+env_obj 82
+shape sphere
+    pos -5.3125 -30.0625 43.3125
+    color 0.1 0.5 0.2
+    rot 0 0 0
+    sides 5.75 12.75 7.75 
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+env_obj 83
+shape sphere
+    pos -10.8125 -30.3125 26.5625
+    color 0.1 0.3 0.1
+    rot 0 0 0 
+    sides 5 12.75 7.75
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 24
+
+
+env_obj 84
+shape box
+    pos 2.25 3.3125 41.9375
+    color 0.4 0.2 0
+    rot 0 0 0
+    sides 0.1875 0.25 0.9375
+    material steel
+    friction 5
+    mass 0.0001
+    bounce 0
+    flag 8
+
+
+#endtree
+
+env_obj 85
+shape cylinder
+    pos -6.5 -64.75 23.5
+    color 0.4 0.2 0
+    rot -12 -36 0
+    sides 1 7.5 1
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+
+env_obj 86
+shape cylinder
+    pos -1.75 -65.25 26
+    color 0.4 0.2 0
+    rot -48 -104 0
+    sides 0.5 4.25 1
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+env_obj 87
+shape cylinder
+    pos 2.5 -64.125 25.875
+    color 0.4 0.2 0
+    rot -108 -112 0
+    sides 0.375 4.25 1
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+env_obj 88
+shape cylinder
+    pos -2.75 -66.875 28.375
+    color 0.4 0.2 0
+    rot -36 -208 0
+    sides 0.75 4.25 1
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+
+env_obj 89
+shape sphere
+    pos -0.25 -67.625 31.375
+    color 0.1 0.3 0.1
+    rot 0 0 0 
+    sides 3 4.25 1
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+
+env_obj 90
+shape sphere
+    pos 5.25 -63.125 26.375
+    color 0.1 0.3 0.1
+    rot 0 0 0 
+    sides 1 4.25 1
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+
+#grasshill fills
+
+
+env_obj 91
+shape sphere
+    pos -2.75 5.375 23.125 
+    color 0.1 0.3 0.1
+    rot 0 0 0 
+    sides 8.75 4.25 1
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 24
+
+env_obj 92
+shape sphere
+    pos 9.25 7.875 23.875
+    color 0.1 0.3 0.1
+    rot 0 0 0 
+    sides 8.75 4.25 1
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 24
+
+env_obj 93
+shape sphere
+    pos 8.75 -1.625 22.625 
+    color 0.1 0.3 0.1
+    rot 0 0 0 
+    sides 8.75 4.25 1
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 24
+
+env_obj 94
+shape sphere
+    pos -7.75 -1.625 23.625
+    color 0.1 0.3 0.1
+    rot 0 0 0 
+    sides 8.75 4.25 1
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 24
+
+env_obj 95
+shape sphere
+    pos 5.25 -11.875 20.875
+    color 0.1 0.3 0.1
+    rot 0 0 0 
+    sides 8.75 4.25 1
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 24
+
+env_obj 96
+shape sphere
+    pos -13.75 -51.625 23.375 
+    color 0.1 0.3 0.1
+    rot 0 0 0 
+    sides 8.75 4.25 1
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 24
+
+
+env_obj 97
+shape sphere
+    pos 16.25 -34.125 23.375
+    color 0.1 0.3 0.1
+    rot 0 0 0 
+    sides 8.75 4.25 1
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 24
+
+
+
+#rockroller
+
+env_obj 98
+shape box
+    pos 2 64.75 50.75
+    color 0.1 0.3 0.1
+    rot 45 0 0 
+    sides 15.75 4.5 7.25 
+    material steel
+    mass 0.0001
+    bounce 1
+    flag 24
+
+
+#dirt rocks
+
+env_obj 99
+shape box
+    pos 0.5 40.75 46.125
+    color 0.4 0.4 0.4
+    rot -68 20 0
+    sides 3.25 1.25 1.25
+    material steel
+    mass 0.001
+    bounce 0
+    flag 24
+
+
+#ROCKROLLER WALL
+
+env_obj 100
+shape box
+    pos 2.25 67.5 58.75
+    color 0.1 0.3 0.1
+    rot 0 0 0 
+    sides 17.5 5 18.5 
+    material steel
+    mass 0.0001
+    bounce 1
+    flag 24
+
+env_obj 101
+shape box
+    pos 10 64.75 58.75 
+    color 0.1 0.3 0.1
+    rot 0 0 0 
+    sides 4 8 18.5 
+    material steel
+    mass 0.0001
+    bounce 1
+    flag 24
+
+
+env_obj 102
+shape box
+    pos -5.5 64.75 58.75
+    color 0.1 0.3 0.1
+    rot 0 0 0 
+    sides 4 8 18.5 
+    material steel
+    mass 0.0001
+    bounce 1
+    flag 24
+
+#dirtrocks
+
+env_obj 103
+shape box
+    pos -2.75 34.25 43.3125
+    color 0.4 0.4 0.4
+    rot -8 -8 0
+    sides 3.25 1.25 1.25
+    material steel
+    mass 0.001
+    bounce 0
+    flag 24
+
+env_obj 104
+shape box
+    pos 7 47.25 49.0625
+    color 0.4 0.4 0.4
+    rot 4 4 24
+    sides 3.5 4 1.75
+    material steel
+    mass 0.001
+    bounce 0
+    flag 24
+
+env_obj 105
+shape box
+    pos -2.75 27.75 41.3125
+    color 0.4 0.4 0.4
+    rot 4 -8 24
+    sides 3.5 4 1.75
+    material steel
+    mass 0.001
+    bounce 0
+    flag 24
+
+env_obj 106
+shape box
+    pos -3.75 23.75 39.8125
+    color 0.4 0.4 0.4
+    rot 40 -36 4
+    sides 13.5 1.75 3.5
+    material steel
+    mass 0.001
+    bounce 0
+    flag 24
+
+#TREE
+
+env_obj 107
+shape cylinder
+    pos -4.25 -10.5 33.8125
+    color 0.4 0.2 0
+    rot 8 -16 20
+    sides 1 11.75 10
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+env_obj 108
+shape cylinder
+    pos -1.75 -10 36.5625
+    color 0.4 0.2 0
+    rot 20 120 24
+    sides 0.5 2.5 10
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+env_obj 109
+shape sphere
+    pos -2.5 -9.5 42.0625 
+    color 0.1 0.3 0.1
+    rot 0 0 0 
+    sides 3 2.5 10.25
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+env_obj 110
+shape sphere
+    pos 0 -9.5 37.8125 
+    color 0.1 0.3 0.1
+    rot 0 0 0 
+    sides 1 2.5 10.25
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+#HILL
+
+env_obj 111
+shape sphere
+    pos -6.25 -9.5 25.3125
+    color 0.1 0.3 0.1
+    rot 0 0 0 
+    sides 8 2.5 10.25
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+env_obj 112
+shape sphere
+    pos 1.5 -5 23.8125 
+    color 0.1 0.3 0.1
+    rot 0 0 0 
+    sides 8.75 2.5 10.25
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+
+env_obj 113
+shape box
+    pos 1.1875 9.625 40.125 
+    color 0.3 0.1 0
+    rot 40 0 0 
+    sides 1 0.1875 0.125
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+env_obj 114
+shape box
+    pos 1.3125 8.125 41.125
+    color 0.3 0.1 0
+    rot 40 0 0 
+    sides 1 0.1875 0.125
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+#SLIDEENDROCK
+
+env_obj 115
+shape box
+    pos 2.5625 -55.625 24.375
+    color 0.3 0.5 0.3
+    rot -4 0 -4 
+    sides 2.4375 2.6875 2.625
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+env_obj 116
+shape box
+    pos 2.75 -46 24.25
+    color 0.3 0.5 0.3
+    rot -20 4 -28
+    sides 4.5 4.25 6.25
+    material steel
+    mass 0.0001
+    bounce 0
+    flag 8
+
+
+
+
+
+env_obj_joint 1 1 2
+pos 2.25 -10.4375 50.5
+axis 1 0 0
+range 5 -5
+strength 0
+velocity 0
+
+
+env_obj_joint 2 2 3
+pos 2.25 -5.25 47.5
+axis 1 0 0
+range 5 -5
+strength 10
+velocity 0
+
+
+env_obj_joint 3 3 4
+pos 2.25 -0.0625 44.5
+axis 1 0 0
+range 5 -5
+strength 0
+velocity 0
+
+
+env_obj_joint 4 4 5
+pos 2.25 3.1875 42.625
+axis 1 0 0
+range 5 -5
+strength 1
+velocity 0
+
+
+
+
+
+
+env_obj_joint 5 6 7
+pos 1.5 -27.5 48.3125
+axis 1 0 0
+range 5 -5
+strength 0
+velocity 0
+
+env_obj_joint 6 7 8 
+pos 1.5 -27.5 41.5625
+axis 1 0 0
+range 5 -5
+strength 0
+velocity 0

@@ -1,0 +1,297 @@
+#!/usr/bin/toribash
+version 12
+world_shader data/shader/Blackfloor.inc
+gamerule
+   matchframes 600
+   turnframes 5
+   flags 3
+   dismemberment 1
+   fracture 0
+   disqualification 1
+   dqtimeout 0
+   dqflag 0
+   dismemberthreshold 80000
+   fracturethreshold 80000
+   pointthreshold 0
+   dojotype 1
+   dojosize 0
+   engagedistance 90
+   engageheight 0
+   engagerotation 0
+   engagespace 0
+   engageplayerpos -0.20,0.10,0.00,0.00,8.00,0.00
+   engageplayerrot 0,0,160,0,0,0
+   damage 0
+   gravity 0.00 0.00 -5.00
+   sumo 1
+   reactiontime 15
+   drawwinner 0
+   maxcontacts 8
+use_model 0
+model_name gun_turret2
+env_obj 1
+   shape box
+   pos 1.00 1.28 2.20
+   mass 0.0050
+   color 0.20 0.20 0.20 1.00
+   rot 0.00 0.00 0.00
+   sides 0.14 1.14 0.02
+   force 0.00 0.00 0.00
+   flag 16
+   bounce 0.100000
+   friction 0.00
+   use_model 0
+   model_name env_obj1
+env_obj 2
+   shape box
+   pos 1.00 0.78 2.10
+   mass 0.0020
+   color 0.20 0.20 0.20 1.00
+   rot 0.00 0.00 0.00
+   sides 0.10 0.46 0.06
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj2
+env_obj 3
+   shape box
+   pos 1.00 0.50 2.14
+   mass 0.0010
+   color 0.20 0.20 0.20 1.00
+   rot 0.00 0.00 0.00
+   sides 0.14 0.10 0.14
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj3
+env_obj 4
+   shape box
+   pos 1.00 1.20 2.14
+   mass 0.0050
+   color 0.20 0.20 0.20 1.00
+   rot 0.00 0.00 0.00
+   sides 0.14 1.30 0.02
+   force 0.00 0.00 0.00
+   thrust 10 0.00 0.00 -0.50
+   flag 0
+   bounce 0.000000
+   friction 0.00
+   use_model 0
+   model_name env_obj4
+env_obj 5
+   shape box
+   pos 1.00 1.20 2.17
+   mass 0.0002
+   color 0.20 0.20 0.20 1.00
+   rot 0.00 0.00 0.00
+   sides 0.02 1.30 0.05
+   force 0.00 0.00 0.00
+   thrust 15 0.10 0.00 0.00
+   flag 0
+   bounce 0.000000
+   friction 0.00
+   use_model 0
+   model_name env_obj5
+env_obj 6
+   shape box
+   pos 0.94 1.20 2.17
+   mass 0.0002
+   color 0.20 0.20 0.20 1.00
+   rot 0.00 0.00 0.00
+   sides 0.02 1.30 0.05
+   force 0.00 0.00 0.00
+   thrust 15 -0.10 0.00 0.00
+   flag 0
+   bounce 0.000000
+   friction 0.00
+   use_model 0
+   model_name env_obj6
+env_obj 7
+   shape box
+   pos 0.97 0.63 2.17
+   mass 0.0002
+   color 1.00 0.39 0.00 0.71
+   rot 0.00 0.00 0.00
+   sides 0.05 0.05 0.05
+   force 0.00 0.00 0.00
+   thrust 8 0.00 1.50 0.00
+   flag 0
+   bounce 50.000000
+   friction 1.00
+   use_model 0
+   model_name env_obj7
+env_obj 8
+   shape box
+   pos 1.03 0.63 2.17
+   mass 0.0002
+   color 1.00 0.39 0.00 0.71
+   rot 0.00 0.00 0.00
+   sides 0.05 0.05 0.05
+   force 0.00 0.00 0.00
+   thrust 8 0.00 1.50 0.00
+   flag 0
+   bounce 50.000000
+   friction 1.00
+   use_model 0
+   model_name env_obj8
+env_obj 9
+   shape box
+   pos 1.06 1.20 2.17
+   mass 0.0002
+   color 0.20 0.20 0.20 1.00
+   rot 0.00 0.00 0.00
+   sides 0.02 1.30 0.05
+   force 0.00 0.00 0.00
+   thrust 15 0.10 0.00 0.00
+   flag 0
+   bounce 0.000000
+   friction 0.00
+   use_model 0
+   model_name env_obj9
+env_obj 10
+   shape cylinder
+   pos 1.03 0.78 2.17
+   mass 0.0005
+   color 0.80 0.65 0.32 1.00
+   rot 90.00 0.00 0.00
+   sides 0.02 0.08 0.08
+   force 0.00 0.00 0.00
+   thrust 400 0.00 -0.01 0.00
+   flag 6
+   bounce 1.500000
+   friction 0.00
+   hardness 10.000000
+   trig_id 1
+   trig_mask 2
+   trig_action 0
+   use_model 0
+   model_name env_obj10
+env_obj 11
+   shape cylinder
+   pos 0.97 0.78 2.17
+   mass 0.0005
+   color 0.80 0.65 0.32 1.00
+   rot 90.00 0.00 0.00
+   sides 0.02 0.08 0.08
+   force 0.00 0.00 0.00
+   thrust 400 0.00 -0.01 0.00
+   flag 6
+   bounce 1.500000
+   friction 0.00
+   hardness 10.000000
+   trig_id 1
+   trig_mask 2
+   trig_action 0
+   use_model 0
+   model_name env_obj11
+env_obj 12
+   shape box
+   pos 1.00 0.30 2.05
+   mass 0.0010
+   color 0.16 0.08 0.08 1.00
+   rot 160.00 0.00 0.00
+   sides 0.05 0.50 0.15
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj12
+env_obj_joint 1 12 3
+   pos 1.00 0.45 2.15
+env_obj_joint 2 2 4
+   pos 1.00 1.00 2.10
+env_obj_joint 3 2 3
+   pos 1.00 0.55 2.10
+env_obj_joint 4 5 4
+   pos 1.00 1.20 2.20
+   strength 10000.00
+env_obj_joint 5 6 4
+   pos 0.90 1.20 2.20
+env_obj_joint 6 7 4
+   pos 0.95 0.70 2.20
+env_obj_joint 7 9 4
+   pos 1.10 1.20 2.20
+env_obj_joint 8 8 4
+   pos 1.05 0.70 2.20
+env_obj_joint 9 3 4
+   pos 1.00 0.55 2.20
+env_obj_joint 10 5 1
+   pos 1.00 1.35 2.20
+player 0
+   body head
+      pos 1.00 0.86 2.65
+      rot 0.00 0.00 -20.00
+   body r_biceps
+      sides 0.40 0.19 0.19
+      pos 0.45 0.90 2.32
+      rot 0.00 100.00 -30.00
+   body r_triceps
+      pos 0.90 0.60 1.91
+      rot 0.00 20.00 40.00
+   body l_biceps
+      sides 0.40 0.19 0.19
+      pos 1.55 0.90 2.30
+      rot -30.00 0.00 90.00
+   body l_triceps
+      pos 1.60 0.50 2.05
+      rot 10.00 10.00 100.00
+   body r_hand
+      sides 0.25 0.10 0.16
+      pos 1.20 0.30 2.04
+      rot 0.00 0.00 55.00
+   body l_hand
+      sides 0.10 0.25 0.15
+      alt_sides 0.10 0.30 0.15
+      pos 1.30 -0.20 2.11
+   body r_thigh
+      pos 0.80 1.00 1.10
+      density 10.0000
+   body l_thigh
+      pos 1.20 1.00 1.10
+      rot 0.00 0.00 160.00
+      density 10.0000
+   body l_leg
+      pos 1.20 1.10 0.50
+      rot 0.00 0.00 160.00
+      density 10.0000
+   body r_leg
+      pos 0.80 1.00 0.50
+      density 10.0000
+   body r_foot
+      pos 0.80 0.90 0.10
+      density 20.0000
+   body l_foot
+      pos 1.25 0.90 0.10
+      rot 0.00 0.00 160.00
+      density 20.0000
+   joint neck
+      pos 1.00 0.90 2.50
+      axis 0.00 0.00 90.00
+   joint r_shoulder
+      pos 0.65 0.90 2.30
+      axis 0.00 1.00 180.00
+   joint r_elbow
+      pos 0.70 0.68 1.92
+      axis 0.00 0.00 90.00
+   joint l_elbow
+      pos 1.35 0.50 2.07
+   joint r_wrist
+      pos 1.00 0.34 2.00
+      axis 0.00 0.00 180.00
+   joint l_wrist
+      pos 1.30 0.00 2.12
+   joint l_hip
+      pos 1.21 1.00 1.40
+      axis 180.00 0.00 0.00
+   joint l_knee
+      pos 1.22 1.00 0.80
+player 1
+   body r_hand
+      pos -0.35 0.85 2.30
+   body l_hand
+      pos 2.35 0.85 2.30

@@ -1,0 +1,1290 @@
+#!/usr/bin/toribash
+#mod by TRichard21 
+
+gamerule
+
+gravity 0 0 -30
+
+engagedistance 600
+engageheight 300
+engageplayerpos 0.00,0.00,5.00,-5.00,0.00,5.00
+engageplayerrot 0,0,180,0,0,180
+matchframes 1200
+dismemberthreshold 250
+fracturethreshold 500
+turnframes 10
+sumo 1
+dojosize 0
+flags 2
+dismemberment 0
+fracture 0
+disqualification 0
+
+
+player 0 
+
+body stomach
+force 0 -30 5
+body breast
+force 0 -30 5
+body chest
+force 0 -30 5
+body groin
+force 0 -20 5
+body r_pecs
+force 0 -20 5
+body l_pecs
+force 0 -20 5
+body r_thigh
+force 0 -20 5
+body l_thigh
+force 0 -20 5
+body l_leg
+force 0 -20 00
+body r_leg
+force 0 -20 00
+
+body r_hand
+shape box
+sides 0.22 0.22 0.22
+alt_sides 0.2 0.2 0.2
+rot 0 0 0
+force 0 0 0
+color 1 1 1
+material flesh
+flag 32
+# player 0 wins
+trig_id 2
+trig_mask 1
+trig_action 1
+
+
+body l_hand
+shape box
+sides 0.22 0.22 0.22
+alt_sides 0.2 0.2 0.2
+rot 0 0 0
+force 0 0 0
+color 1 1 1
+material flesh
+flag 32
+# player 0 wins
+trig_id 2
+trig_mask 1
+trig_action 1
+
+player 1
+
+body r_hand
+shape box
+sides 0.22 0.22 0.22
+alt_sides 0.2 0.2 0.2
+rot 0 0 0
+force 0 0 0
+color 1 1 1
+material flesh
+flag 32
+# player 1 wins
+trig_id 4
+trig_mask 1
+trig_action 2
+
+
+body l_hand
+shape box
+sides 0.22 0.22 0.22
+alt_sides 0.2 0.2 0.2
+rot 0 0 0
+force 0 0 0
+color 1 1 1
+material flesh
+flag 32
+# player 1 wins
+trig_id 4
+trig_mask 1
+trig_action 2
+
+
+body stomach
+force 0 30 5
+body breast
+force 0 30 5
+body chest
+force 0 30 5
+body groin
+force 0 30 5
+body r_pecs
+force 0 20 5
+body l_pecs
+force 0 20 5
+body r_thigh
+force 0 20 5
+body l_thigh
+force 0 20 5
+body l_leg
+force 0 20 00
+body r_leg
+force 0 20 00
+
+
+#DROPIN
+
+env_obj 17
+    shape box
+    pos -1.5 1.5 2.5 
+    color .35 .45 .35 
+    rot 0 0 0
+    sides 10 8.25 5
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 18
+    shape box
+    pos -1.5 7.75 2.125  
+    color .35 .45 .35 
+    rot 8 0 0
+    sides 10 5 5.0625
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 19
+    shape box
+    pos -1.5 11.5 1.9375 
+    color .35 .45 .35 
+    rot 4 0 0
+    sides 10 2.75 4.5625
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 20
+    shape box
+    pos -1.5 16.75 2.0625  
+    color .35 .45 .35 
+    rot 0 0 0
+    sides 10 8.25 4.125
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+#FIRST RAMP
+
+env_obj 21
+    shape box
+    pos -1.5 21.1875 4.0625
+    color .35 .45 .35 
+    rot -4 0 0
+    sides 10 2 0.25
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 22
+    shape box
+    pos -1.5 22.0625 4.125
+    color 0 0.1 0
+    rot -5 0 0
+    sides 9.9375 0.25 0.25
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+#rails bottom
+
+env_obj 23
+    shape box
+    pos -1.5 25.75 1.375
+    color .35 .45 .35 
+    rot 0 0 0
+    sides 10 12 2.75
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+#RAIL
+
+env_obj 24
+    shape box
+    pos 1.0625 27.25 4.3125 
+    color 0 0.1 0
+    rot 0 0 0
+    sides 0.25 5.75 0.0625
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 25
+    shape cylinder
+    pos 1.0625 29 3.5
+    color 0 0.1 0
+    rot 4 0 0
+    sides 0.0625 1.5 1 
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 26
+    shape cylinder
+    pos -4 29 3.5
+    color 0 0.1 0
+    rot 4 0 0
+    sides 0.0625 1.5 1 
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+
+
+
+env_obj 27
+    shape box
+    pos -4 27.25 4.3125
+    color 0 0.1 0
+    rot 0 0 0
+    sides 0.25 5.75 0.0625
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 28
+    shape cylinder
+    pos 1.0625 25.4375 3.5
+    color 0 0.1 0
+    rot -4 0 0
+    sides 0.0625 1.5 1 
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 29
+    shape cylinder
+    pos -4 25.4375 3.5
+    color 0 0.1 0
+    rot -4 0 0
+    sides 0.0625 1.5 1 
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+#DOWNRAMP
+
+env_obj 30
+    shape box
+    pos -1.5 36.1875 1.5
+    color .35 .45 .35 
+    rot 2 0 0
+    sides 10 9 3.75
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+
+env_obj 31
+    shape box
+    pos -1.5 43.1875 1.5625
+    color .35 .45 .35 
+    rot 0 0 0
+    sides 10 7.25 3.375
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+#rAMP1
+
+env_obj 32
+    shape box
+    pos -1.5 47 1.5625
+    color .35 .45 .35 
+    rot -5 0 0
+    sides 10 1.5 3.5
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 33
+    shape box
+    pos -1.5 47.875 1.5625
+    color .35 .45 .35 
+    rot -10 0 0
+    sides 10 1.5 3.75
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 34
+    shape box
+    pos -1.5 48.8125 1.625
+    color .35 .45 .35 
+    rot -15 0 0
+    sides 10 1.5 4
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+#rAIL2
+
+env_obj 35
+    shape box
+    pos 1.0625 56.875 3.5
+    color 0 0.1 0
+    rot 4 0 0
+    sides 0.3125 6.25 0.125
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 36
+    shape box
+    pos -3.9375 56.875 3.5
+    color 0 0.1 0 
+    rot 4 0 0
+    sides 0.3125 6.25 0.125
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 37
+    shape box
+    pos 1.0625 56.8125 2.75
+    color .35 .45 .35 
+    rot 4 0 0
+    sides 0.25 6.375 1.5
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 38
+    shape box
+    pos -3.9375 56.8125 2.75
+    color .35 .45 .35 
+    rot 4 0 0
+    sides 0.25 6.375 1.5
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+#RAIL FOUNDATION
+
+env_obj 39
+    shape box
+    pos -1.5 51.4375 1.125
+    color .35 .45 .35 
+    rot 0 0 0
+    sides 10 4.375 2.25
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+
+env_obj 40
+    shape box
+    pos -1.5 57.6875 0.8125
+    color .35 .45 .35 
+    rot 4 0 0
+    sides 10 8.375 2.25
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+
+env_obj 41
+    shape box
+    pos -1.5 63.9375 0.6875
+    color .35 .45 .35 
+    rot 2 0 0
+    sides 10 4.375 1.75
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+
+env_obj 42
+    shape box
+    pos -1.5 67.75 0.6875
+    color .35 .45 .35 
+    rot 0 0 0
+    sides 10 5.875 1.5625
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+#hump
+
+
+env_obj 43
+    shape box
+    pos -1.5 71.125 0.6875
+    color .55 .65 .55 
+    rot -4 0 0
+    sides 10.0625 1 1.625
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 44
+    shape box
+    pos -1.5 72.0625 0.625
+    color .55 .65 .55 
+    rot -8 0 0
+    sides 10.0625 1 1.9375
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 45
+    shape box
+    pos -1.5 72.8125 0.5625
+    color .55 .65 .55 
+    rot -12 0 0
+    sides 10.0625 1 2.3125
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 46
+    shape box
+    pos -1.5 73.6875 0.8125
+    color .55 .65 .55 
+    rot -16 0 0
+    sides 10.0625 1 2.25
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 47
+    shape box
+    pos -1.5 74.375 0.875
+    color .55 .65 .55 
+    rot -20 0 0
+    sides 10.0625 1 2.5625
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 48
+    shape box
+    pos -1.5 75.4375 1
+    color .55 .65 .55 
+    rot -30 0 0
+    sides 10.0625 1.5 3.25
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 49
+    shape box
+    pos -1.5 76.375 1
+    color .55 .65 .55 
+    rot -40 0 0
+    sides 10.0625 1.5 4.25
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 50
+    shape box
+    pos -1.5 77.75 1.3125
+    color .55 .65 .55 
+    rot -45 0 0
+    sides 10.0625 1.5 5.625
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 51
+    shape box
+    pos -1.5 78.125 1.6875
+    color .55 .65 .55 
+    rot -20 0 0
+    sides 10.0625 2 5.25
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 52
+    shape box
+    pos -1.5 79.3125 2.0625
+    color .55 .65 .55 
+    rot -10 0 0
+    sides 10.0625 1.4375 5.1875
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 53
+    shape box
+    pos -1.5 80.5 2.3125
+    color .55 .65 .55 
+    rot -5 0 0
+    sides 10.0625 1.4375 5
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 54
+    shape box
+    pos -1.5 81.5625 2.375
+    color .55 .65 .55 
+    rot 2 0 0
+    sides 10.0625 1.3125 4.9375
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 55
+    shape box
+    pos -1.5 82.4375 2.25
+    color .55 .65 .55 
+    rot 10 0 0
+    sides 10.0625 1.1875 5
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 56
+    shape box
+    pos -1.5 85.5625 1.875
+    color .55 .65 .55 
+    rot 9 0 0
+    sides 10.0625 5.8125 4.75
+    friction 0 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 57
+    shape box
+    pos -1.5 90 1.6875
+    color .55 .65 .55 
+    rot 5 0 0
+    sides 10.0625 3.1875 3.9375
+    friction 0.1 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 58
+    shape box
+    pos -1.5 91.9375 1.5625
+    color .55 .65 .55 
+    rot 2 0 0
+    sides 10.0625 1.6875 3.9375
+    friction 0.1 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 59
+    shape box
+    pos -1.5 95.0625 1.5625
+    color .35 .45 .35 
+    rot 0 0 0
+    sides 10 5 3.875
+    friction 0.1
+    material steel
+    mass 0.5
+    flag 24
+
+
+#GLASS
+
+ env_obj 60
+    shape box
+    pos 3.375 34.75 3.25
+    color .55 .65 .55 0.5
+    rot 0 0 0
+    sides 0.125 74.6875 6.5
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 61
+    shape box
+    pos -6.375 34.75 3.25
+    color .55 .65 .55 0.5
+    rot 0 0 0
+    sides 0.125 74.6876 6.5
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 62
+    shape cylinder
+    pos 3.375 34.75 6.5
+    color .15 .25 .15 
+    rot 90 0 0
+    sides 0.125 74.6875 6.5
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 63
+    shape cylinder
+    pos -6.375 34.75 6.5
+    color .15 .25 .15 
+    rot 90 0 0
+    sides 0.125 74.6875 6.5
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+#large glass
+
+env_obj 64
+    shape box
+    pos 3.375 82.5 5.25
+    color .55 .65 .55 0.5
+    rot 0 0 0
+    sides 0.125 20.8125 7.75
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 65
+    shape box
+    pos -6.375 82.5 5.25
+    color .55 .65 .55 0.5
+    rot 0 0 0
+    sides 0.125 20.8125 7.75
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+
+env_obj 66
+    shape cylinder
+    pos 3.375 82.5 9.125
+    color .15 .25 .15 
+    rot -90 0 0
+    sides 0.125 20.8125 7.75
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 67
+    shape cylinder
+    pos -6.375 82.5 9.125
+    color .15 .25 .15 
+    rot -90 0 0
+    sides 0.125 20.8125 7.75
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 68
+    shape cylinder
+    pos 3.375 72.125 5.25
+    color .15 .25 .15 
+    rot 0 0 0
+    sides 0.125 7.8125 7.75
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 69
+    shape cylinder
+    pos -6.375 72.125 5.25
+    color .15 .25 .15 
+    rot 0 0 0
+    sides 0.125 7.8125 7.75
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 70
+    shape cylinder
+    pos 3.375 92.9375 5.25
+    color .15 .25 .15 
+    rot 0 0 0
+    sides 0.125 7.8125 7.75
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 71
+    shape cylinder
+    pos -6.375 92.9375 5.25
+    color .15 .25 .15 
+    rot 0 0 0
+    sides 0.125 7.8125 7.75
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+#back
+
+env_obj 72
+    shape box
+    pos -1.5 -2.75 3.3125
+    color .35 .45 .35 
+    rot 0 0 0
+    sides 10 0.25 6.625
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+#hUMP SIGN
+
+
+env_obj 73
+    shape box
+    pos -1.5 72.125 7.0625
+    color .55 .65 .55 0.5
+    rot 0 0 0
+    sides 4.75 0.25 2.25
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 74
+    shape cylinder
+    pos -2.5 72.0625 7
+    color 0 1 0 
+    rot 0 0 0
+    sides 0.0625 1.125 1.375
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 75
+    shape cylinder
+    pos -0.5625 72.0625 7
+    color 0 1 0 
+    rot 0 0 0
+    sides 0.0625 1.125 1.375
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 76
+    shape cylinder
+    pos -2.6875 72.0625 7.375
+    color 0 1 0 
+    rot 0 -36 0
+    sides 0.0625 0.4375 1.375
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 77
+    shape cylinder
+    pos -0.75 72.0625 7.375
+    color 0 1 0 
+    rot 0 -36 0
+    sides 0.0625 0.4375 1.375
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 78
+    shape cylinder
+    pos -2.3125 72.0625 7.375
+    color 0 1 0 
+    rot 0 36 0
+    sides 0.0625 0.4375 1.375
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 79
+    shape cylinder
+    pos -0.375 72.0625 7.375
+    color 0 1 0 
+    rot 0 36 0
+    sides 0.0625 0.4375 1.375
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 80
+    shape cylinder
+    pos -1.5 72.125 9.125
+    color .15 .25 .15 
+    rot 0 90 0
+    sides 0.125 9.6875 1.375
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+
+
+env_obj 81
+    shape cylinder
+    pos -3.875 72.125 7.5
+    color .15 .25 .15 
+    rot 0 0 0
+    sides 0.0625 3.125 1.375
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 82
+    shape cylinder
+    pos 0.875 72.125 7.5
+    color .15 .25 .15 
+    rot 0 0 0
+    sides 0.0625 3.125 1.375
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 83
+    shape cylinder
+    pos -1.5 72.125 5.9375
+    color .15 .25 .15 
+    rot 0 90 0
+    sides 0.0625 4.6875 1.375
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 84
+    shape cylinder
+    pos -1.5 72.125 8.1875
+    color .15 .25 .15 
+    rot 0 90 0
+    sides 0.0625 4.6875 1.375
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+
+#sTARTING
+
+env_obj 85
+    shape box
+    pos -1.5 5.5 6
+    color .55 .65 .55 0.5
+    rot 0 0 0
+    sides 1.6875 0.04 1
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 86
+    shape cylinder
+    pos -2.3125 5.5 5.6875
+    color .15 .25 .15 
+    rot 0 0 0
+    sides 0.0625 1.5625 1.25
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+
+env_obj 87
+    shape cylinder
+    pos -0.625 5.5 5.6875
+    color .15 .25 .15 
+    rot 0 0 0
+    sides 0.0625 1.5625 1.25
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+#smile
+
+
+env_obj 88
+    shape sphere
+    pos -1.25 5.5 6.1875
+    color .15 .25 .15
+    rot 0 0 0
+    sides 0.0625 1.5625 1.25
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 89
+    shape sphere
+    pos -1.625 5.5 6.1875
+    color .15 .25 .15
+    rot 0 0 0
+    sides 0.0625 1.5625 1.25
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+
+env_obj 90
+    shape cylinder
+    pos -1.4375 5.5 5.875
+    color .15 .25 .15
+    rot 0 -90 0
+    sides 0.04 0.25 1.25
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 91
+    shape cylinder
+    pos -1.1875 5.5 5.9375
+    color .15 .25 .15
+    rot 0 -60 0
+    sides 0.04 0.25 1.25
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 92
+    shape cylinder
+    pos -1.6875 5.5 5.9375
+    color .15 .25 .15
+    rot 0 60 0
+    sides 0.04 0.25 1.25
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+#end
+
+env_obj 93
+    shape box
+    pos -1.5 97.5 5.125
+    color .55 .65 .55 0.5
+    rot 0 0 0
+    sides 9.9375 0.125 3.25 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 94
+    shape box
+    pos -1.5 95.1875 7.9375
+    color .55 .65 .55 0.5
+    rot -63 0 0
+    sides 9.9375 0.125 5.0625
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 95
+    shape cylinder
+    pos 3.375 95.1875 7.9375
+    color .15 .25 .15
+    rot -63 0 0
+    sides 0.125 5 2.5625
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 96
+    shape cylinder
+    pos -6.375 95.1875 7.9375
+    color .15 .25 .15
+    rot -63 0 0
+    sides 0.125 5 2.5625
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 97
+    shape cylinder
+    pos -6.375 97.4375 5.125
+    color .15 .25 .15
+    rot 0 0 0
+    sides 0.125 3.25 2.5625
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 98
+    shape cylinder
+    pos 3.375 97.4375 5.125
+    color .15 .25 .15
+    rot 0 0 0
+    sides 0.125 3.25 2.5625
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 99
+    shape cylinder
+    pos -1.5 97.4375 6.8125
+    color .15 .25 .15
+    rot 0 -90 0
+    sides 0.125 9.75 2.5625
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 100
+    shape cylinder
+    pos -1.5 92.9375 9.125
+    color .15 .25 .15
+    rot 0 -90 0
+    sides 0.125 9.75 2.5625
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+#flag
+
+
+env_obj 101
+    shape box
+    pos -1.5 92.875 7.3125
+    color .55 .65 .55 0.5
+    rot 0 0 0
+    sides 3.5 0.125 1
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+
+env_obj 102
+    shape box
+    pos 0 92.875 7.5625
+    color 0 0 0  
+    rot 0 0 0
+    sides 0.5 0.0625 0.5
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 103
+    shape box
+    pos -3 92.875 7.5625
+    color 0 0 0
+    rot 0 0 0
+    sides 0.5 0.0625 0.5
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 104
+    shape box
+    pos -2 92.875 7.5625
+    color 0 0 0 
+    rot 0 0 0
+    sides 0.5 0.0625 0.5
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 105
+    shape box
+    pos -1 92.875 7.5625
+    color 0 0 0 
+    rot 0 0 0
+    sides 0.5 0.0625 0.5
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 106
+    shape box
+    pos -0.5 92.875 7.0625
+    color 0 0 0 
+    rot 0 0 0
+    sides 0.5 0.0625 0.5
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 107
+    shape box
+    pos -1.5 92.875 7.0625
+    color 0 0 0
+    rot 0 0 0
+    sides 0.5 0.0625 0.5
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 108
+    shape box
+    pos -2.5 92.875 7.0625
+    color 0 0 0 
+    rot 0 0 0
+    sides 0.5 0.0625 0.5
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+
+env_obj 109
+    shape cylinder
+    pos -1.5 92.875 7.875
+    color .15 .25 .15
+    rot 0 90 0
+    sides 0.0625 9.8125 0.5
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 110
+    shape cylinder
+    pos -1.5 92.875 6.75
+    color .15 .25 .15
+    rot 0 90 0
+    sides 0.0625 9.8125 0.5
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+
+#WIN SWITCHES
+
+env_obj 111
+    shape cylinder
+    pos 1.0625 97.3125 4.0625 
+    color 0 0.7 0
+    rot 0 0 0
+    sides 0.0625 1.1875 1
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 112
+    shape cylinder
+    pos -4 97.3125 4.0625 
+    color 0 0.7 0
+    rot 0 0 0
+    sides 0.0625 1.1875 1
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 113
+    shape box
+    pos -4 97.3125 4.8125
+    color .15 .25 .15
+    rot 0 0 0
+    sides 0.5625 0.125 0.5
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 114
+    shape box
+    pos 1.0625 97.3125 4.8125
+    color .15 .25 .15
+    rot 0 0 0
+    sides 0.5625 0.125 0.5
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+
+env_obj 115
+    shape sphere
+    pos 1.0625 97.3125 4.8125
+    color 0 1 0
+    rot 0 0 0
+    sides 0.1875 0.125 0.5
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+#Target
+trig_id 1
+trig_mask 6 
+
+
+env_obj 116
+    shape sphere
+    pos -4 97.3125 4.8125
+    color 0 1 0
+    rot 0 0 0
+    sides 0.1875 0.125 0.5
+    friction -10 
+    material steel
+    mass 0.5
+    flag 24
+#Target
+trig_id 1
+trig_mask 6 

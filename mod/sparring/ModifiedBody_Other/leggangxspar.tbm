@@ -1,0 +1,88 @@
+#!/usr/bin/toribash
+version 13
+gamerule
+   matchframes 1500
+   turnframes 10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+   flags 0
+   grip 1
+   dismemberment 0
+   fracture 0
+   disqualification 0
+   dqtimeout 0
+   dqflag 0
+   dismemberthreshold 100
+   fracturethreshold 100
+   pointthreshold 0
+   winpoint 0
+   dojotype 0
+   dojosize 0
+   engagedistance 800
+   engageheight 0
+   engagerotation 0
+   engagespace 0
+   engageplayerpos 
+   engageplayerrot 0,0,0,0,0,0
+   damage 0
+   gravity 0.00 0.00 -30.00
+   sumo 1
+   reactiontime 10000
+   drawwinner 0
+   maxcontacts 8
+   ghostlength 100
+   ghostspeed 100
+   ghostcustom 0
+   grabmode 0
+   tearthreshold 0
+   numplayers 2
+use_model 0
+model_name xspar
+player 0
+   body r_biceps
+      pos 223.00 0.90 2.30
+   body r_triceps
+      pos 223.00 0.90 2.30
+   body l_biceps
+      pos 223.00 0.90 2.30
+   body l_triceps
+      pos 223.00 0.90 2.30
+   body r_hand
+      pos 223.00 0.85 2.30
+   body l_hand
+      pos 223.00 0.85 2.30
+   joint r_shoulder
+      pos 223.00 0.90 2.30
+   joint r_elbow
+      pos 223.00 0.90 2.30
+   joint l_shoulder
+      pos 223.00 0.90 2.30
+   joint l_elbow
+      pos 223.00 0.90 2.30
+   joint r_wrist
+      pos 223.00 0.90 2.30
+   joint l_wrist
+      pos 223.00 0.90 2.30
+player 1
+   body r_biceps
+      pos 223.00 0.90 2.30
+   body r_triceps
+      pos 223.00 0.90 2.30
+   body l_biceps
+      pos 223.00 0.90 2.30
+   body l_triceps
+      pos 223.00 0.90 2.30
+   body r_hand
+      pos 223.00 0.85 2.30
+   body l_hand
+      pos 223.00 0.85 2.30
+   joint r_shoulder
+      pos 223.00 0.90 2.30
+   joint r_elbow
+      pos 223.00 0.90 2.30
+   joint l_shoulder
+      pos 223.00 0.90 2.30
+   joint l_elbow
+      pos 223.00 0.90 2.30
+   joint r_wrist
+      pos 223.00 0.90 2.30
+   joint l_wrist
+      pos 223.00 0.90 2.30

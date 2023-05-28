@@ -1,0 +1,187 @@
+#!/usr/bin/toribash
+version 12
+world_shader data/shader/Angel Garden.inc
+gamerule
+   matchframes 1500
+   turnframes 10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+   flags 0
+   grip 1
+   dismemberment 0
+   fracture 0
+   disqualification 0
+   dqtimeout 0
+   dqflag 0
+   dismemberthreshold 100
+   fracturethreshold 100
+   pointthreshold 0
+   winpoint 0
+   dojotype 0
+   dojosize 0
+   engagedistance 800
+   engageheight 0
+   engagerotation 0
+   engagespace 0
+   engageplayerpos 
+   engageplayerrot 0,0,0,0,0,0
+   damage 0
+   gravity 0.00 0.00 -30.00
+   sumo 1
+   reactiontime 10000
+   drawwinner 0
+   maxcontacts 8
+use_model 0
+model_name xspar
+player 0
+   body head
+      sides 0.50 0.00 0.00
+      pos 1.00 0.85 6.00
+      density 0.0100
+   body breast
+      sides 0.70 0.40 1.00
+      pos 1.00 0.90 4.60
+      density 0.0100
+   body chest
+      sides 0.60 0.40 0.20
+      pos 1.00 0.90 3.80
+      density 0.0100
+   body stomach
+      sides 0.60 0.20 0.40
+      pos 1.00 0.95 3.50
+      density 0.0100
+   body groin
+      sides 0.20 0.40 0.40
+      pos 1.02 1.00 3.30
+      density 0.0100
+   body r_pecs
+      sides 1.10 0.20 0.40
+      pos 0.90 0.90 5.02
+      density 0.0100
+   body r_biceps
+      sides 1.70 0.30 0.30
+      pos -0.36 0.90 5.40
+      density 0.0100
+   body r_triceps
+      sides 2.20 0.30 0.30
+      pos -2.50 0.88 5.40
+      density 0.0100
+   body l_pecs
+      sides 1.10 0.20 0.40
+      pos 1.10 0.90 5.00
+      density 0.0100
+   body l_biceps
+      sides 1.70 0.30 0.30
+      pos 2.36 0.90 5.40
+      density 0.0100
+   body l_triceps
+      sides 2.20 0.30 0.30
+      pos 4.50 0.90 5.40
+      density 0.0100
+   body r_hand
+      sides 0.50 0.50 0.50
+      alt_sides 4.00 0.50 0.50
+      pos -4.00 0.83 5.40
+      density 0.0100
+   body l_hand
+      sides 0.50 0.50 0.50
+      alt_sides 4.00 0.50 0.50
+      pos 6.00 0.85 5.40
+      density 0.0100
+   body r_butt
+      pos 0.80 1.00 3.00
+      density 0.0100
+   body l_butt
+      pos 1.20 1.00 3.00
+      density 0.0100
+   body r_thigh
+      sides 0.30 0.30 0.00
+      pos 0.60 1.00 2.40
+      density 0.0100
+   body l_thigh
+      sides 0.30 0.30 0.20
+      pos 1.40 1.02 2.40
+      density 0.0100
+   body l_leg
+      sides 0.30 0.30 0.00
+      pos 1.40 1.02 1.38
+      density 0.0100
+   body r_leg
+      sides 0.30 0.30 0.00
+      pos 0.60 0.98 1.38
+      density 0.0100
+   body r_foot
+      sides 0.55 1.00 0.40
+      pos 0.60 0.80 0.50
+      density 0.0100
+   body l_foot
+      sides 0.55 1.00 0.40
+      pos 1.40 0.80 0.50
+      density 0.0100
+   joint neck
+      radius 0.30
+      pos 1.00 0.90 5.50
+   joint chest
+      radius 0.50
+      pos 1.00 0.90 4.60
+   joint lumbar
+      radius 0.40
+      pos 1.00 0.95 4.00
+   joint abs
+      radius 0.40
+      pos 1.00 1.00 3.40
+   joint r_pecs
+      radius 0.40
+      pos 0.85 0.85 5.10
+   joint r_shoulder
+      radius 0.40
+      pos 0.65 0.90 5.40
+   joint r_elbow
+      radius 0.30
+      pos -1.40 0.90 5.40
+   joint l_pecs
+      radius 0.40
+      pos 1.15 0.85 5.10
+   joint l_shoulder
+      radius 0.40
+      pos 1.35 0.90 5.40
+   joint l_elbow
+      radius 0.30
+      pos 3.40 0.90 5.40
+   joint r_wrist
+      radius 0.20
+      pos -3.70 0.90 5.40
+      axis 0.00 0.00 0.00
+      range 4.00 -4.00
+   joint l_wrist
+      radius 0.20
+      pos 5.70 0.90 5.40
+      axis 0.00 0.00 0.00
+      range 4.00 -4.00
+   joint r_glute
+      radius 0.40
+      pos 0.80 1.30 3.00
+   joint l_glute
+      radius 0.40
+      pos 1.20 1.30 3.00
+   joint r_hip
+      radius 0.40
+      pos 0.60 1.00 3.00
+   joint l_hip
+      radius 0.40
+      pos 1.40 1.00 3.00
+   joint r_knee
+      radius 0.40
+      pos 0.60 1.00 2.00
+   joint l_knee
+      radius 0.40
+      pos 1.40 1.00 2.00
+   joint r_ankle
+      radius 0.40
+      pos 0.60 1.05 1.00
+   joint l_ankle
+      radius 0.40
+      pos 1.40 1.05 1.00
+player 1
+   body r_hand
+      pos -0.35 0.85 2.30
+   body l_hand
+      pos 2.35 0.85 2.30

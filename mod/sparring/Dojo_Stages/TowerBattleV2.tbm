@@ -1,0 +1,1256 @@
+#!/usr/bin/toribash
+version 12
+gamerule
+   matchframes 750
+   turnframes 10
+   flags 10
+   dismemberment 1
+   fracture 1
+   disqualification 0
+   dqtimeout 0
+   dqflag 1
+   dismemberthreshold 100
+   fracturethreshold 0
+   pointthreshold 0
+   dojotype 1
+   dojosize 600
+   engagedistance 450
+   engageheight 50
+   engagerotation 0
+   engagespace 0
+   engageplayerpos 
+   engageplayerrot 0,0,0,0,0,0
+   damage 0
+   gravity 0.00 0.00 -30.00
+   sumo 1
+   reactiontime 15
+   drawwinner 0
+   maxcontacts 8
+env_obj 1
+   shape box
+   pos 1.00 -0.10 0.00
+   color 0.88 0.88 0.88 1.00
+   rot 0.00 0.00 0.00
+   sides 7.00 7.00 0.50
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 2
+   shape box
+   pos 1.00 -0.10 0.25
+   color 0.78 0.78 0.78 1.00
+   rot 0.00 0.00 45.00
+   sides 5.00 5.00 0.50
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 3
+   shape box
+   pos 1.00 -0.10 0.00
+   color 0.88 0.88 0.88 1.00
+   rot 0.00 0.00 45.00
+   sides 7.00 7.00 0.50
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 4
+   shape box
+   pos 1.00 -0.10 0.00
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 45.00
+   sides 9.00 9.00 0.10
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 5
+   shape box
+   pos 6.50 -2.35 10.00
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 0.00
+   sides 0.50 0.50 21.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 6
+   shape box
+   pos -4.51 -2.35 10.00
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 0.00
+   sides 0.50 0.50 21.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 7
+   shape box
+   pos 3.25 5.40 10.00
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 0.00
+   sides 0.50 0.50 21.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 8
+   shape box
+   pos 3.24 -5.60 10.00
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 0.00
+   sides 0.50 0.50 21.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 9
+   shape box
+   pos -1.25 -5.60 10.00
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 0.00
+   sides 0.50 0.50 21.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 10
+   shape box
+   pos -1.25 5.40 10.00
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 0.00
+   sides 0.50 0.50 21.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 11
+   shape box
+   pos 6.50 2.15 10.00
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 0.00
+   sides 0.50 0.50 21.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 12
+   shape box
+   pos 3.25 -5.60 0.50
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 0.00
+   sides 1.00 1.00 1.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 13
+   shape box
+   pos -1.25 5.40 0.50
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 0.00
+   sides 1.00 1.00 1.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 14
+   shape box
+   pos -1.25 -5.60 0.50
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 0.00
+   sides 1.00 1.00 1.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 15
+   shape box
+   pos 6.50 2.15 0.50
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 0.00
+   sides 1.00 1.00 1.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 16
+   shape box
+   pos 6.50 -2.35 0.50
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 0.00
+   sides 1.00 1.00 1.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 17
+   shape box
+   pos 1.00 -0.10 0.25
+   color 0.78 0.78 0.78 1.00
+   rot 0.00 0.00 0.00
+   sides 5.00 5.00 0.50
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 18
+   shape box
+   pos -4.50 -2.35 0.50
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 0.00
+   sides 1.00 1.00 1.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 19
+   shape box
+   pos 1.00 -0.10 0.00
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 0.00
+   sides 9.00 9.00 0.10
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 20
+   shape box
+   pos -4.50 2.15 10.00
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 0.00
+   sides 0.50 0.50 21.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 21
+   shape box
+   pos -4.50 2.15 0.50
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 0.00
+   sides 1.00 1.00 1.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 22
+   shape box
+   pos 3.25 5.40 0.50
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 0.00
+   sides 1.00 1.00 1.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 23
+   shape box
+   pos -1.25 5.40 1.00
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 0.00
+   sides 0.75 0.75 2.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 24
+   shape box
+   pos -1.25 -5.60 1.00
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 0.00
+   sides 0.75 0.75 2.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 25
+   shape box
+   pos 3.25 -5.60 1.00
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 0.00
+   sides 0.75 0.75 2.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 26
+   shape box
+   pos 6.50 2.15 1.00
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 0.00
+   sides 0.75 0.75 2.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 27
+   shape box
+   pos 6.50 -2.35 1.00
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 0.00
+   sides 0.75 0.75 2.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 28
+   shape box
+   pos -4.50 -2.35 1.00
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 0.00
+   sides 0.75 0.75 2.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 29
+   shape box
+   pos -4.50 2.15 1.00
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 0.00
+   sides 0.75 0.75 2.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 30
+   shape cylinder
+   pos 6.50 -0.10 3.00
+   color 0.63 0.47 0.39 1.00
+   rot 90.00 0.00 0.00
+   sides 0.05 4.50 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 31
+   shape cylinder
+   pos -4.50 -0.10 3.00
+   color 0.63 0.47 0.39 1.00
+   rot 90.00 0.00 0.00
+   sides 0.05 4.50 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 32
+   shape cylinder
+   pos 1.00 5.40 3.00
+   color 0.63 0.47 0.39 1.00
+   rot 0.00 90.00 0.00
+   sides 0.05 4.50 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 33
+   shape cylinder
+   pos 1.00 -5.60 3.00
+   color 0.63 0.47 0.39 1.00
+   rot 0.00 90.00 0.00
+   sides 0.05 4.50 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 34
+   shape cylinder
+   pos 4.75 3.90 4.00
+   color 0.63 0.47 0.39 1.00
+   rot 90.00 45.00 45.00
+   sides 0.05 4.50 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 35
+   shape cylinder
+   pos 5.00 -3.85 4.00
+   color 0.63 0.47 0.39 1.00
+   rot 90.00 -45.00 45.00
+   sides 0.05 4.50 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 36
+   shape cylinder
+   pos -3.00 3.65 4.00
+   color 0.63 0.47 0.39 1.00
+   rot 90.00 -45.00 45.00
+   sides 0.05 4.50 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 37
+   shape cylinder
+   pos -2.75 -4.10 4.00
+   color 0.63 0.47 0.39 1.00
+   rot 90.00 45.00 45.00
+   sides 0.05 4.50 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 38
+   shape cylinder
+   pos 6.50 -0.10 5.00
+   color 0.63 0.47 0.39 1.00
+   rot 80.00 0.00 9.00
+   sides 0.05 4.50 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 39
+   shape cylinder
+   pos -4.40 -0.10 5.00
+   color 0.63 0.47 0.39 1.00
+   rot 70.00 0.00 9.00
+   sides 0.05 4.50 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 40
+   shape cylinder
+   pos 6.50 -0.10 7.50
+   color 0.63 0.47 0.39 1.00
+   rot -50.00 0.00 9.00
+   sides 0.05 6.00 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 41
+   shape cylinder
+   pos -4.65 -0.10 7.50
+   color 0.63 0.47 0.39 1.00
+   rot -70.00 0.00 9.00
+   sides 0.05 5.00 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 42
+   shape cylinder
+   pos 1.00 5.20 6.00
+   color 0.63 0.47 0.39 1.00
+   rot 0.00 70.00 45.00
+   sides 0.05 4.50 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 43
+   shape cylinder
+   pos 1.00 5.60 7.00
+   color 0.63 0.47 0.39 1.00
+   rot 0.00 -60.00 45.00
+   sides 0.05 4.70 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 44
+   shape cylinder
+   pos 1.00 -5.50 4.00
+   color 0.63 0.47 0.39 1.00
+   rot 0.00 80.00 0.00
+   sides 0.05 4.50 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 45
+   shape cylinder
+   pos 1.00 -5.75 5.00
+   color 0.63 0.47 0.39 1.00
+   rot 0.00 -60.00 0.00
+   sides 0.05 5.00 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 46
+   shape cylinder
+   pos 1.00 -5.50 7.00
+   color 0.63 0.47 0.39 1.00
+   rot 0.00 60.00 0.00
+   sides 0.05 5.00 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 47
+   shape cylinder
+   pos -2.75 -4.10 6.00
+   color 0.63 0.47 0.39 1.00
+   rot 70.00 45.00 0.00
+   sides 0.05 4.50 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 48
+   shape cylinder
+   pos 5.00 3.65 6.00
+   color 0.63 0.47 0.39 1.00
+   rot 60.00 42.00 0.00
+   sides 0.05 4.50 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 49
+   shape cylinder
+   pos 5.00 -3.85 6.00
+   color 0.63 0.47 0.39 1.00
+   rot 70.00 -45.00 0.00
+   sides 0.05 4.70 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 50
+   shape cylinder
+   pos -3.00 3.65 6.00
+   color 0.63 0.47 0.39 1.00
+   rot -70.00 45.00 0.00
+   sides 0.05 4.70 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 51
+   shape box
+   pos 1.00 -0.10 9.00
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 22.50
+   sides 8.50 8.50 0.10
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 52
+   shape box
+   pos 1.00 -0.10 9.00
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 -22.50
+   sides 8.50 8.50 0.10
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 53
+   shape cylinder
+   pos 5.00 -3.85 7.00
+   color 0.63 0.47 0.39 1.00
+   rot 50.00 -40.00 0.00
+   sides 0.05 5.00 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 54
+   shape cylinder
+   pos 5.00 -3.85 9.00
+   color 0.63 0.47 0.39 1.00
+   rot 90.00 -45.00 45.00
+   sides 0.05 4.50 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 55
+   shape cylinder
+   pos 1.00 -5.60 9.00
+   color 0.63 0.47 0.39 1.00
+   rot 0.00 90.00 0.00
+   sides 0.05 4.50 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 56
+   shape cylinder
+   pos -2.75 -4.10 9.00
+   color 0.63 0.47 0.39 1.00
+   rot 90.00 45.00 45.00
+   sides 0.05 4.50 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 57
+   shape cylinder
+   pos -4.50 -0.10 9.50
+   color 0.63 0.47 0.39 1.00
+   rot 90.00 0.00 0.00
+   sides 0.05 4.50 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 58
+   shape cylinder
+   pos -3.00 3.65 9.00
+   color 0.63 0.47 0.39 1.00
+   rot 90.00 -45.00 45.00
+   sides 0.05 4.50 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 59
+   shape cylinder
+   pos 1.00 5.40 9.00
+   color 0.63 0.47 0.39 1.00
+   rot 0.00 90.00 0.00
+   sides 0.05 4.50 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 60
+   shape cylinder
+   pos 4.75 3.90 9.00
+   color 0.63 0.47 0.39 1.00
+   rot 90.00 45.00 45.00
+   sides 0.05 4.50 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 61
+   shape box
+   pos 6.50 -0.10 9.00
+   color 0.94 0.94 0.94 1.00
+   rot 90.00 0.00 0.00
+   sides 0.35 0.35 5.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 62
+   shape box
+   pos 1.00 -0.10 9.00
+   color 0.88 0.88 0.88 1.00
+   rot 0.00 0.00 22.50
+   sides 7.00 7.00 0.50
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 63
+   shape box
+   pos 1.00 -0.10 9.00
+   color 0.88 0.88 0.88 1.00
+   rot 0.00 0.00 -22.50
+   sides 7.00 7.00 0.50
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 64
+   shape box
+   pos 1.00 -0.10 9.25
+   color 0.78 0.78 0.78 1.00
+   rot 0.00 0.00 22.50
+   sides 5.00 5.00 0.50
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 65
+   shape box
+   pos 1.00 -0.10 9.25
+   color 0.78 0.78 0.78 1.00
+   rot 0.00 0.00 -22.50
+   sides 5.00 5.00 0.50
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 66
+   shape cylinder
+   pos 1.00 5.40 9.50
+   color 0.63 0.47 0.39 1.00
+   rot 0.00 90.00 0.00
+   sides 0.05 4.50 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 67
+   shape cylinder
+   pos -3.00 3.65 9.50
+   color 0.63 0.47 0.39 1.00
+   rot 90.00 -45.00 45.00
+   sides 0.05 4.50 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 68
+   shape cylinder
+   pos -4.50 -0.10 9.00
+   color 0.63 0.47 0.39 1.00
+   rot 90.00 0.00 0.00
+   sides 0.05 4.50 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 69
+   shape cylinder
+   pos -2.75 -4.10 9.50
+   color 0.63 0.47 0.39 1.00
+   rot 90.00 45.00 45.00
+   sides 0.05 4.50 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 70
+   shape cylinder
+   pos 1.00 -5.60 9.00
+   color 0.63 0.47 0.39 1.00
+   rot 0.00 90.00 0.00
+   sides 0.05 4.50 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 71
+   shape cylinder
+   pos 1.00 -5.60 9.50
+   color 0.63 0.47 0.39 1.00
+   rot 0.00 90.00 0.00
+   sides 0.05 4.50 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 72
+   shape cylinder
+   pos 5.00 -3.85 9.50
+   color 0.63 0.47 0.39 1.00
+   rot 90.00 -45.00 45.00
+   sides 0.05 4.50 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 73
+   shape cylinder
+   pos 6.50 -0.10 9.50
+   color 0.63 0.47 0.39 1.00
+   rot 90.00 0.00 0.00
+   sides 0.05 4.50 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 74
+   shape cylinder
+   pos 4.75 3.90 9.50
+   color 0.63 0.47 0.39 1.00
+   rot 90.00 45.00 45.00
+   sides 0.05 4.50 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 75
+   shape box
+   pos -4.50 -0.10 9.00
+   color 0.94 0.94 0.94 1.00
+   rot 90.00 0.00 0.00
+   sides 0.35 0.35 5.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 76
+   shape box
+   pos 1.00 5.40 9.00
+   color 0.94 0.94 0.94 1.00
+   rot 90.00 90.00 0.00
+   sides 0.35 0.35 5.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 77
+   shape box
+   pos 1.00 -5.60 9.00
+   color 0.94 0.94 0.94 1.00
+   rot 90.00 90.00 0.00
+   sides 0.35 0.35 5.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 78
+   shape box
+   pos -3.00 -3.85 9.00
+   color 0.94 0.94 0.94 1.00
+   rot 90.00 45.00 0.00
+   sides 0.35 0.35 4.60
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 79
+   shape box
+   pos 5.00 3.65 9.00
+   color 0.94 0.94 0.94 1.00
+   rot 90.00 45.00 0.00
+   sides 0.35 0.35 4.60
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 80
+   shape box
+   pos 5.00 -3.85 9.00
+   color 0.94 0.94 0.94 1.00
+   rot 90.00 -45.00 0.00
+   sides 0.35 0.35 4.60
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 81
+   shape box
+   pos -3.00 3.65 9.00
+   color 0.94 0.94 0.94 1.00
+   rot 90.00 -45.00 0.00
+   sides 0.35 0.35 4.60
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 82
+   shape cylinder
+   pos -3.00 -4.10 9.00
+   color 0.63 0.47 0.39 1.00
+   rot 90.00 45.00 45.00
+   sides 0.05 4.50 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 83
+   shape cylinder
+   pos 5.00 3.90 9.00
+   color 0.63 0.47 0.39 1.00
+   rot 90.00 45.00 45.00
+   sides 0.05 4.50 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 84
+   shape cylinder
+   pos 5.00 -4.10 9.00
+   color 0.63 0.47 0.39 1.00
+   rot 90.00 -45.00 45.00
+   sides 0.05 4.50 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 85
+   shape cylinder
+   pos -3.00 3.90 9.00
+   color 0.63 0.47 0.39 1.00
+   rot 90.00 -45.00 45.00
+   sides 0.05 4.50 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 86
+   shape cylinder
+   pos 1.00 5.60 9.00
+   color 0.63 0.47 0.39 1.00
+   rot 0.00 90.00 0.00
+   sides 0.05 4.50 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 87
+   shape cylinder
+   pos -3.00 -4.10 9.00
+   color 0.63 0.47 0.39 1.00
+   rot 90.00 45.00 45.00
+   sides 0.05 4.50 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 88
+   shape cylinder
+   pos 1.00 -5.80 9.00
+   color 0.63 0.47 0.39 1.00
+   rot 0.00 90.00 0.00
+   sides 0.05 4.50 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 89
+   shape cylinder
+   pos 6.70 -0.10 9.00
+   color 0.63 0.47 0.39 1.00
+   rot 90.00 0.00 90.00
+   sides 0.05 4.50 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 90
+   shape cylinder
+   pos -4.70 -0.10 9.00
+   color 0.63 0.47 0.39 1.00
+   rot 90.00 0.00 90.00
+   sides 0.05 4.50 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 91
+   shape box
+   pos 1.00 -0.10 20.00
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 22.50
+   sides 8.60 8.60 0.10
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 92
+   shape box
+   pos 1.00 -0.10 20.00
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 -22.50
+   sides 8.60 8.60 0.10
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 93
+   shape box
+   pos 1.00 -0.10 20.10
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 -22.50
+   sides 8.50 8.50 0.10
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 94
+   shape box
+   pos 1.00 -0.10 20.20
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 22.50
+   sides 8.00 8.00 0.10
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 95
+   shape box
+   pos 1.00 -0.10 20.10
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 22.50
+   sides 8.50 8.50 0.10
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 96
+   shape box
+   pos 1.00 -0.10 20.20
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 -22.50
+   sides 8.00 8.00 0.10
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 97
+   shape box
+   pos 1.00 -0.10 20.30
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 -22.50
+   sides 7.00 7.00 0.10
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 98
+   shape box
+   pos 1.00 -0.10 20.30
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 -22.50
+   sides 7.00 7.00 0.10
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 99
+   shape box
+   pos 1.00 -0.10 20.30
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 22.50
+   sides 7.00 7.00 0.10
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 100
+   shape box
+   pos 1.00 -0.10 20.40
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 22.50
+   sides 6.00 6.00 0.10
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 101
+   shape box
+   pos 1.00 -0.10 20.40
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 -22.40
+   sides 6.00 6.00 0.10
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 102
+   shape box
+   pos 1.00 -0.10 20.50
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 -22.40
+   sides 4.00 4.00 0.10
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 103
+   shape box
+   pos 1.00 -0.10 20.50
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 22.40
+   sides 4.00 4.00 0.10
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 104
+   shape box
+   pos -4.50 -0.10 20.00
+   color 0.94 0.94 0.94 1.00
+   rot 90.00 0.00 0.00
+   sides 0.35 0.35 5.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 105
+   shape box
+   pos -3.00 3.65 20.00
+   color 0.94 0.94 0.94 1.00
+   rot 90.00 -45.00 0.00
+   sides 0.35 0.35 4.60
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 106
+   shape box
+   pos 1.00 5.40 20.00
+   color 0.94 0.94 0.94 1.00
+   rot 90.00 90.00 0.00
+   sides 0.35 0.35 5.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 107
+   shape box
+   pos 5.00 3.65 20.00
+   color 0.94 0.94 0.94 1.00
+   rot 90.00 45.00 0.00
+   sides 0.35 0.35 4.60
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 108
+   shape box
+   pos 6.50 -0.10 20.00
+   color 0.94 0.94 0.94 1.00
+   rot 90.00 0.00 0.00
+   sides 0.35 0.35 5.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 109
+   shape box
+   pos 5.00 -3.85 20.00
+   color 0.94 0.94 0.94 1.00
+   rot 90.00 -45.00 0.00
+   sides 0.35 0.35 4.60
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 110
+   shape box
+   pos 1.00 -5.60 20.00
+   color 0.94 0.94 0.94 1.00
+   rot 90.00 90.00 0.00
+   sides 0.35 0.35 5.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 111
+   shape box
+   pos -3.00 -3.85 20.00
+   color 0.94 0.94 0.94 1.00
+   rot 90.00 45.00 0.00
+   sides 0.35 0.35 4.60
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 112
+   shape cylinder
+   pos -3.00 3.65 7.00
+   color 0.63 0.47 0.39 1.00
+   rot -60.00 45.00 0.00
+   sides 0.05 4.70 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 113
+   shape cylinder
+   pos 5.00 3.65 8.00
+   color 0.63 0.47 0.39 1.00
+   rot 90.00 42.00 0.00
+   sides 0.05 4.50 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 114
+   shape cylinder
+   pos -2.83 -4.06 6.98
+   color 0.63 0.47 0.39 1.00
+   rot 50.00 35.00 0.00
+   sides 0.05 5.00 1.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 115
+   shape sphere
+   pos -1.25 5.40 20.50
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 0.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 116
+   shape sphere
+   pos 3.25 5.40 20.50
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 0.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 117
+   shape sphere
+   pos 3.25 -5.60 20.50
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 0.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 118
+   shape sphere
+   pos -1.25 -5.60 20.50
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 0.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 119
+   shape sphere
+   pos 6.50 2.15 20.50
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 0.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 120
+   shape sphere
+   pos 6.50 -2.35 20.50
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 0.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 121
+   shape sphere
+   pos -4.50 -2.35 20.50
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 0.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+env_obj 122
+   shape sphere
+   pos -4.50 2.15 20.50
+   color 1.00 1.00 1.00 1.00
+   rot 0.00 0.00 0.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+player 0
+   body r_pecs
+      sides 0.20 0.20 0.20
+      pos 0.75 0.90 2.15
+   body l_pecs
+      sides 0.20 0.20 0.20
+      pos 1.25 0.90 2.15
+   body r_hand
+      pos -0.35 0.85 2.30
+   body l_hand
+      pos 2.35 0.85 2.30
+player 1
+   body r_hand
+      pos -0.35 0.85 2.30
+   body l_hand
+      pos 2.35 0.85 2.30

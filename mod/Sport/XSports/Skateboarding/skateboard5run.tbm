@@ -1,0 +1,296 @@
+#!/usr/bin/toribash
+#### Created with ModEditor by DeFransen ####
+
+
+gamerule
+   damage 0
+   dismemberment 0
+   disqualification 0
+   dojosize 0
+   dojotype 0
+   dqflag 0
+   dqtimeout 0
+   engagedistance 200
+   engageheight 27
+   engagerotation 0
+   engagespace 0
+   flags 0
+   fracture 0
+   gravity 0 0 -15
+   matchframes 2000
+   rpg 0
+   sumo 0
+   turnframes 10
+
+
+# for all players
+
+   body groin
+      force 75 0 0
+
+   body head
+      pos 1 0.85 2.6
+      thrust 1 0 0 1.75
+
+   body l_biceps
+      pos 1.55 0.85 2.275
+      thrust 1 0 0 0.01
+
+   body l_butt
+      thrust 1 0 0 -0.55
+
+   body l_foot
+      pos 1.2 0.925 0.1
+      sides 0.2 0.65 0.085
+      thrust 5 0 0 -0.75
+
+   body l_leg
+      flag 2
+      force 75 0 0
+      thrust 1 0 0 -0.475
+
+   body l_thigh
+      flag 2
+      thrust 1 0 0 -0.55
+
+   body l_triceps
+      flag 2
+      pos 1.95 0.85 2.275
+      thrust 1 0 0 0.00025
+
+   body r_biceps
+      pos 0.45 0.85 2.275
+      thrust 1 0 0 0.01
+
+   body r_butt
+      thrust 1 0 0 -0.55
+
+   body r_foot
+      pos 0.8 0.925 0.1
+      sides 0.2 0.65 0.085
+      thrust 5 0 0 -0.75
+
+   body r_leg
+      flag 2
+      force 75 0 0
+      thrust 1 0 0 -0.475
+
+   body r_thigh
+      flag 2
+      thrust 1 0 0 -0.55
+
+   body r_triceps
+      flag 2
+      pos 0.05 0.85 2.275
+      thrust 1 0 0 0.00025
+
+   body stomach
+      force 75 0 0
+
+   joint abs
+      range 0.5 -0.3
+      velocity 7.5
+      strength 5
+
+   joint l_ankle
+      range 0.325 -0.625
+
+   joint l_glute
+      range 0.2 -0.025
+      strength 15
+
+   joint l_hip
+      range 0.75 -1
+      velocity 10
+      strength 10
+
+   joint l_knee
+      velocity 30
+      strength 5
+
+   joint lumbar
+      range 0.85 -0.85
+      velocity 15
+      strength 8
+
+   joint neck
+      range 0.8 -0.8
+      axis 0 0 1
+
+   joint r_ankle
+      range 0.325 -0.625
+
+   joint r_glute
+      range 0.2 -0.025
+      strength 15
+
+   joint r_hip
+      range 0.75 -1
+      velocity 10
+      strength 10
+
+   joint r_knee
+      velocity 30
+      strength 5
+
+
+env_obj 1
+   color 0.3 0.2 -0.1 1
+   mass 0.001
+   pos 1 1 0.25
+   shape box
+   sides 1.35 0.575 0.05
+   thrust 1 0 0 0.005
+
+env_obj 2
+   color 0.3 0.2 -0.1 1
+   friction 0
+   mass 0.001
+   pos 1 1 0.07
+   shape box
+   sides 1.15 0.25 0.07
+
+env_obj 3
+   color 0.3 0.2 -0.1 1
+   mass 0.000001
+   pos 1.8 1 0.3125
+   rot 0 26 0
+   shape box
+   sides 0.295 0.575 0.05
+
+env_obj 4
+   color 0.3 0.2 -0.1 1
+   mass 0.000001
+   pos 0.2 1 0.3125
+   rot 0 -26 0
+   shape box
+   sides 0.295 0.575 0.05
+
+env_obj 5
+   bounce 7
+   color 0 0 -0.1 1
+   mass 0.00025
+   pos 0.5 1.25 0.0625
+   shape sphere
+   sides 0.07 1 1
+
+env_obj 6
+   bounce 7
+   color 0 0 -0.1 1
+   mass 0.00025
+   pos 0.5 0.75 0.0625
+   shape sphere
+   sides 0.072 1 1
+
+env_obj 7
+   bounce 7
+   color 0 0 -0.1 1
+   mass 0.00025
+   pos 1.5 1.25 0.0625
+   shape sphere
+   sides 0.072 1 1
+
+env_obj 8
+   bounce 7
+   color 0 0 -0.1 1
+   mass 0.00025
+   pos 1.5 0.75 0.0625
+   shape sphere
+   sides 0.072 1 1
+
+env_obj 9
+   color 0 0 1 1
+   flag 24
+   friction 0
+   pos 7.125 1.125 0.12
+   rot 0 7 0
+   shape box
+   sides 2.625 4 0.0625
+
+env_obj 10
+   color 0 0 1 1
+   flag 24
+   friction 0
+   mass 50
+   pos 11.5 2.125 1.15
+   rot 0 90 0
+   shape cylinder
+   sides 0.05 4 0
+
+env_obj 11
+   color 0 0 1 1
+   flag 24
+   friction 0
+   pos 11.5 2.125 0.5
+   shape cylinder
+   sides 0.05 1.3 0
+
+env_obj 12
+   color 0 0 1 1
+   flag 24
+   friction 0
+   mass 50
+   pos 11.5 0.15 1.15
+   rot 0 90 0
+   shape cylinder
+   sides 0.05 4 0
+
+env_obj 13
+   color 0 0 1 1
+   flag 24
+   friction 0
+   pos 11.5 0.15 0.5
+   shape cylinder
+   sides 0.05 1.3 0
+
+
+env_obj_joint 1 1 2
+   axis 0 0 0
+   pos 1 1 0.175
+   range 0 0
+   strength 0
+   velocity 0
+   visible 1
+
+env_obj_joint 2 3 1
+   axis 0 1 0
+   pos 1.7 1 0.25
+   range 5 -5
+   strength 2000
+   velocity 0
+
+env_obj_joint 3 4 1
+   axis 0 1 0
+   pos 0.3 1 0.25
+   range 5 -5
+   strength 2000
+   velocity 0
+
+env_obj_joint 4 2 6
+   axis 0 1 0
+   pos 0.5 1.2 0.0625
+   range 360 -360
+   strength 0
+   velocity 0
+
+env_obj_joint 5 2 5
+   axis 0 1 0
+   pos 0.5 0.8 0.0625
+   range 360 -360
+   strength 0
+   velocity 0
+
+env_obj_joint 6 2 8
+   axis 0 1 0
+   pos 1.5 1.2 0.0625
+   range 360 -360
+   strength 0
+   velocity 0
+
+env_obj_joint 7 2 7
+   axis 0 1 0
+   pos 1.5 0.8 0.0625
+   range 360 -360
+   strength 0
+   velocity 0
+

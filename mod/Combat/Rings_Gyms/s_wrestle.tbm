@@ -1,0 +1,1218 @@
+#!/usr/bin/toribash
+version 12
+message ^08Pin the opponents head/torso to the mat to win
+world_shader data/shader/../script/atmo/src/default_shader.inc
+gamerule
+   matchframes 720
+   turnframes 18
+   flags 0
+   dismemberment 0
+   fracture 0
+   disqualification 0
+   dqtimeout 0
+   dqflag 1
+   dismemberthreshold 250
+   fracturethreshold 150
+   pointthreshold 1000
+   dojotype 0
+   dojosize 934
+   engagedistance 150
+   engageheight 0
+   engagerotation 0
+   engagespace 0
+   engageplayerpos -0.12,1.00,0.30,0.12,-0.09,0.30
+   engageplayerrot 0,0,0,0,0,180
+   damage 0
+   gravity 0.00 0.00 -60.00
+   sumo 1
+   reactiontime 25
+   drawwinner 0
+   maxcontacts 128
+env_obj 1
+   shape box
+   pos 1.00 -0.10 -0.41
+   mass 100.0000
+   color 0.98 0.98 0.96 1.00
+   rot 0.00 0.00 0.00
+   sides 9.25 9.25 1.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 15000.00
+   trig_id 4
+   trig_mask 1
+   trig_action 0
+env_obj 2
+   shape box
+   pos 5.64 -0.10 -0.40
+   mass 100.0000
+   color 0.20 0.20 0.20 1.00
+   rot 0.00 0.00 0.00
+   sides 0.05 9.33 1.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   trig_id 4
+   trig_mask 1
+   trig_action 0
+env_obj 3
+   shape box
+   pos -3.64 -0.10 -0.40
+   mass 100.0000
+   color 0.20 0.20 0.20 1.00
+   rot 0.00 0.00 0.00
+   sides 0.05 9.33 1.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   trig_id 4
+   trig_mask 1
+   trig_action 0
+env_obj 4
+   shape box
+   pos 1.00 4.54 -0.40
+   mass 100.0000
+   color 0.20 0.20 0.20 1.00
+   rot 0.00 0.00 0.00
+   sides 9.33 0.05 1.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   trig_id 4
+   trig_mask 1
+   trig_action 0
+env_obj 5
+   shape box
+   pos 1.00 -4.74 -0.40
+   mass 100.0000
+   color 0.20 0.20 0.20 1.00
+   rot 0.00 0.00 0.00
+   sides 9.33 0.05 1.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   trig_id 4
+   trig_mask 1
+   trig_action 0
+env_obj 6
+   shape box
+   pos 1.00 -0.10 -0.40
+   mass 100.0000
+   color 0.98 0.98 0.96 1.00
+   rot 0.00 0.00 45.00
+   sides 4.50 4.50 1.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   trig_id 4
+   trig_mask 1
+   trig_action 0
+env_obj 7
+   shape box
+   pos 1.00 -4.35 -0.40
+   mass 100.0000
+   color 0.00 0.00 1.00 1.00
+   rot 0.00 0.00 0.00
+   sides 2.00 0.05 1.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   trig_id 4
+   trig_mask 1
+   trig_action 0
+env_obj 8
+   shape box
+   pos 1.00 4.15 -0.40
+   mass 100.0000
+   color 1.00 0.00 0.00 1.00
+   rot 0.00 0.00 0.00
+   sides 2.00 0.05 1.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   trig_id 4
+   trig_mask 1
+   trig_action 0
+env_obj 9
+   shape box
+   pos -0.63 1.53 -0.40
+   mass 100.0000
+   color 0.78 0.78 0.76 1.00
+   rot 0.00 0.00 45.00
+   sides 0.10 4.70 1.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   trig_id 4
+   trig_mask 1
+   trig_action 0
+env_obj 10
+   shape box
+   pos 2.63 -1.73 -0.40
+   mass 100.0000
+   color 0.78 0.78 0.76 1.00
+   rot 0.00 0.00 45.00
+   sides 0.10 4.70 1.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   trig_id 4
+   trig_mask 1
+   trig_action 0
+env_obj 11
+   shape box
+   pos 2.63 1.53 -0.40
+   mass 100.0000
+   color 0.78 0.78 0.76 1.00
+   rot 0.00 0.00 45.00
+   sides 4.70 0.10 1.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   trig_id 4
+   trig_mask 1
+   trig_action 0
+env_obj 12
+   shape box
+   pos -0.63 -1.73 -0.40
+   mass 100.0000
+   color 0.78 0.78 0.76 1.00
+   rot 0.00 0.00 45.00
+   sides 4.70 0.10 1.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   trig_id 4
+   trig_mask 1
+   trig_action 0
+env_obj 13
+   shape box
+   pos 1.00 9.56 -0.49
+   mass 100.0000
+   color 1.00 0.00 0.00 0.20
+   visible 0
+   rot 0.00 0.00 0.00
+   sides 29.00 10.00 1.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 15000.00
+   trig_id 2
+   trig_mask 1
+   trig_action 0
+env_obj 14
+   shape box
+   pos 1.00 -9.76 -0.49
+   mass 100.0000
+   color 1.00 0.00 0.00 0.20
+   visible 0
+   rot 0.00 0.00 0.00
+   sides 29.00 10.00 1.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 15000.00
+   trig_id 2
+   trig_mask 1
+   trig_action 0
+env_obj 15
+   shape box
+   pos 10.66 -0.10 -0.49
+   mass 100.0000
+   color 1.00 0.00 0.00 0.20
+   visible 0
+   rot 0.00 0.00 0.00
+   sides 10.00 29.00 1.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 15000.00
+   trig_id 2
+   trig_mask 1
+   trig_action 0
+env_obj 16
+   shape box
+   pos -3.25 -4.35 -0.40
+   mass 100.0000
+   color 0.20 0.20 0.20 0.59
+   rot 0.00 0.00 0.00
+   sides 0.20 0.20 1.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   trig_id 4
+   trig_mask 1
+   trig_action 0
+env_obj 17
+   shape box
+   pos -8.66 -0.10 -0.49
+   mass 100.0000
+   color 1.00 0.00 0.00 0.20
+   visible 0
+   rot 0.00 0.00 0.00
+   sides 10.00 29.00 1.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 15000.00
+   trig_id 2
+   trig_mask 1
+   trig_action 0
+env_obj 20
+   shape box
+   pos 1.00 -0.10 -0.40
+   mass 100.0000
+   color 0.90 0.90 0.90 1.00
+   visible 0
+   rot 0.00 0.00 140.00
+   sides 4.00 1.00 1.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   trig_id 4
+   trig_mask 1
+   trig_action 0
+env_obj 22
+   shape box
+   pos 5.25 -4.35 -0.40
+   mass 100.0000
+   color 0.20 0.20 0.20 0.59
+   rot 0.00 0.00 0.00
+   sides 0.20 0.20 1.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   trig_id 4
+   trig_mask 1
+   trig_action 0
+env_obj 23
+   shape box
+   pos 5.25 4.15 -0.40
+   mass 100.0000
+   color 0.20 0.20 0.20 0.59
+   rot 0.00 0.00 0.00
+   sides 0.20 0.20 1.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   trig_id 4
+   trig_mask 1
+   trig_action 0
+env_obj 24
+   shape box
+   pos -3.25 4.15 -0.40
+   mass 100.0000
+   color 0.20 0.20 0.20 0.59
+   rot 0.00 0.00 0.00
+   sides 0.20 0.20 1.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   trig_id 4
+   trig_mask 1
+   trig_action 0
+player 0
+   body head
+   flag 16
+      pos 1.00 0.43 2.55
+      rot -5.00 0.00 0.00
+      density 0.3500
+      trig_id 1
+      trig_mask 6
+      trig_action 2
+      
+   body breast
+   flag 16
+      sides 0.20 0.20 0.25
+      pos 1.00 0.75 2.25
+      rot -35.00 0.00 0.00
+      density 0.2650
+      trig_id 1
+      trig_mask 6
+      trig_action 2
+      
+      
+   body chest
+   flag 16
+      sides 0.40 0.20 0.25
+      pos 1.00 0.90 2.00
+      rot -35.00 0.00 0.00
+      density 0.2640
+      trig_id 1
+      trig_mask 6
+      trig_action 2
+      
+   body stomach
+   flag 16
+      sides 0.35 0.18 0.30
+      pos 1.00 0.99 1.75
+      rot -20.00 0.00 0.00
+      density 0.3100
+      trig_id 1
+      trig_mask 6
+      trig_action 2
+      
+   body groin
+   flag 16
+      sides 0.18 0.10 0.20
+      pos 1.00 0.97 1.54
+      trig_id 1
+      trig_mask 2
+      trig_action 2
+      
+   body r_pecs
+   flag 16
+      sides 0.25 0.15 0.15
+      pos 0.85 0.70 2.10
+      density 0.2640
+      trig_id 1
+      trig_mask 6
+      trig_action 2
+      
+   body r_biceps
+   flag 16
+      sides 0.45 0.20 0.18
+      pos 0.40 0.66 2.21
+      rot 0.00 80.00 0.00
+      density 0.1750
+      trig_id 1
+      trig_mask 2
+      trig_action 2
+      
+   body r_triceps
+   flag 16
+      sides 0.45 0.11 0.11
+      pos 0.35 0.66 1.73
+      rot 0.00 80.00 -45.00
+      density 0.1500
+      trig_id 1
+      trig_mask 2
+      trig_action 2
+      
+   body l_pecs
+   flag 16
+      sides 0.25 0.15 0.15
+      pos 1.15 0.70 2.10
+      density 0.2640
+      trig_id 1
+      trig_mask 6
+      trig_action 2
+      
+   body l_biceps
+   flag 16
+      sides 0.45 0.20 0.18
+      pos 1.60 0.66 2.21
+      rot 0.00 -80.00 0.00
+      density 0.1750
+      trig_id 1
+      trig_mask 2
+      trig_action 2
+      
+   body l_triceps
+   flag 16
+      sides 0.45 0.11 0.11
+      pos 1.65 0.65 1.73
+      rot 0.00 -80.00 45.00
+      density 0.1500
+      trig_id 1
+      trig_mask 2
+      trig_action 2
+      
+   body r_hand
+   flag 16
+      sides 0.25 0.10 0.20
+      alt_sides 0.35 0.10 0.20
+      pos 0.35 0.33 1.40
+      rot 0.00 80.00 -45.00
+      density 0.1500
+      trig_id 1
+      trig_mask 2
+      trig_action 2
+   body l_hand
+   flag 16
+      sides 0.25 0.10 0.20
+      alt_sides 0.35 0.10 0.20
+      pos 1.65 0.33 1.40
+      rot 0.00 -80.00 45.00
+      density 0.1500
+      trig_id 1
+      trig_mask 2
+      trig_action 2
+   body r_butt
+   flag 16
+      sides 0.10 0.10 0.20
+      pos 0.87 1.10 1.45
+      rot 30.00 -30.00 0.00
+      trig_id 1
+      trig_mask 2
+      trig_action 2
+      
+   body l_butt
+   flag 16
+      sides 0.10 0.10 0.20
+      pos 1.13 1.10 1.45
+      rot 30.00 30.00 0.00
+      trig_id 1
+      trig_mask 2
+      trig_action 2
+      
+   body r_thigh
+   flag 16
+      sides 0.12 0.40 0.00
+      pos 0.76 1.00 1.05
+      rot -14.00 -5.00 0.00
+      density 0.1500
+      trig_id 1
+      trig_mask 2
+      trig_action 2
+      
+   body l_thigh
+   flag 16
+      sides 0.12 0.40 0.00
+      pos 1.24 1.00 1.05
+      rot 14.00 5.00 0.00
+      density 0.1500
+      trig_id 1
+      trig_mask 2
+      trig_action 2
+      
+   body l_leg
+   flag 16
+      sides 0.11 0.45 0.00
+      pos 1.36 0.85 0.40
+      rot 0.00 4.00 0.00
+      density 0.1500
+      trig_id 1
+      trig_mask 2
+      trig_action 2
+      
+   body r_leg
+   flag 16
+      sides 0.11 0.45 0.00
+      pos 0.64 1.35 0.40
+      rot -15.00 -4.00 0.00
+      density 0.1500
+      trig_id 1
+      trig_mask 2
+      trig_action 2
+      
+   body r_foot
+   flag 16
+      sides 0.20 0.55 0.10
+      pos 0.64 1.22 -0.10
+      density 0.1500
+      trig_id 1
+      trig_mask 2
+      trig_action 2
+   body l_foot
+   flag 16
+      sides 0.20 0.55 0.10
+      pos 1.36 0.71 -0.10
+      density 0.1500
+      trig_id 1
+      trig_mask 2
+      trig_action 2
+   joint neck
+   flag 16
+      radius 0.11
+      pos 1.00 0.55 2.40
+      axis 30.00 0.00 0.00
+      range 0.60 -0.50
+      strength 2.00
+      velocity 48.00
+      dm_threshold 220
+      trig_id 1
+      trig_mask 6
+      trig_action 2
+      
+      00
+   joint chest
+   flag 16
+      radius 0.17
+      pos 1.00 0.75 2.10
+      axis 0.00 0.00 30.00
+      strength 3.30
+      velocity 17.00
+      trig_id 1
+      trig_mask 6
+      trig_action 2
+      
+      
+      0
+   joint lumbar
+   flag 16
+      radius 0.15
+      pos 1.00 0.90 1.90
+      axis 0.00 90.00 30.00
+      range 0.25 -0.25
+      strength 6.00
+      velocity 7.00
+      trig_id 1
+      trig_mask 6
+      trig_action 2
+      
+      
+      0
+   joint abs
+   flag 16
+      radius 0.15
+      pos 1.00 0.99 1.68
+      axis 35.00 0.00 0.00
+      range 0.50 0.30
+      strength 9.00
+      velocity 8.40
+      trig_id 1
+      trig_mask 6
+      trig_action 2
+      
+      0
+   joint r_pecs
+   flag 16
+      pos 0.85 0.65 2.20
+      axis 0.00 10.00 50.00
+      strength 3.30
+      velocity 17.20
+      trig_id 1
+      trig_mask 6
+      trig_action 2
+      
+      
+      
+      0
+   joint r_shoulder
+   flag 16
+      radius 0.16
+      pos 0.65 0.65 2.20
+      axis 0.00 90.00 0.00
+      range 1.50 -0.15
+      strength 2.25
+      trig_id 1
+      trig_mask 6
+      trig_action 2
+      
+      
+   joint r_elbow
+   flag 16
+      radius 0.13
+      pos 0.56 0.65 1.73
+      axis -90.00 0.00 0.00
+      range 1.10 -0.20
+      strength 4.00
+      velocity 39.00
+      trig_id 1
+      trig_mask 2
+      trig_action 2
+      
+      
+   joint l_pecs
+   flag 16
+      pos 1.15 0.65 2.20
+      axis 0.00 10.00 50.00
+      strength 3.30
+      velocity 17.20
+      trig_id 1
+      trig_mask 6
+      trig_action 2
+      
+      
+      
+      0
+   joint l_shoulder
+      radius 0.16
+   flag 16
+      pos 1.35 0.65 2.20
+      axis 0.00 90.00 0.00
+      range 1.50 -0.15
+      strength 2.25
+      trig_id 1
+      trig_mask 6
+      trig_action 2
+      
+      
+      
+   joint l_elbow
+   flag 16
+      radius 0.13
+      pos 1.44 0.65 1.73
+      axis 90.00 0.00 0.00
+      range 1.10 -0.20
+      strength 4.00
+      velocity 39.00
+      trig_id 1
+      trig_mask 2
+      trig_action 2
+      
+      
+   joint r_wrist
+   flag 16
+      radius 0.10
+      pos 0.50 0.32 1.40
+      axis -90.00 0.00 0.00
+      range 1.60 -0.40
+      strength 3.00
+      velocity 58.00
+      trig_id 1
+      trig_mask 2
+      trig_action 2
+      
+      
+      
+   joint l_wrist
+   flag 16
+      radius 0.10
+      pos 1.50 0.32 1.40
+      axis 90.00 0.00 0.00
+      range 1.60 -0.40
+      strength 3.00
+      velocity 58.00
+      trig_id 1
+      trig_mask 2
+      trig_action 2
+      
+      
+   joint r_glute
+   flag 16
+      pos 0.90 1.10 1.50
+      range 0.65 -0.25
+      strength 3.80
+      velocity 30.00
+      trig_id 1
+      trig_mask 2
+      trig_action 2
+      
+      
+      
+   joint l_glute
+   flag 16
+      pos 1.10 1.10 1.50
+      range 0.65 -0.25
+      strength 3.80
+      velocity 30.00
+      trig_id 1
+      trig_mask 2
+      trig_action 2
+      
+      
+      
+   joint r_hip
+   flag 16
+      radius 0.17
+      pos 0.76 1.00 1.40
+      range 0.70 -1.78
+      strength 5.00
+      velocity 15.00
+      trig_id 1
+      trig_mask 2
+      trig_action 2
+      
+      
+   joint l_hip
+   flag 16
+      radius 0.17
+      pos 1.24 1.00 1.40
+      range 1.24 -1.24
+      strength 5.00
+      velocity 15.00
+      trig_id 1
+      trig_mask 2
+      trig_action 2
+      
+      
+   joint r_knee
+   flag 16
+      radius 0.16
+      pos 0.70 1.15 0.75
+      strength 3.25
+      velocity 20.00
+      trig_id 1
+      trig_mask 2
+      trig_action 2
+   joint l_knee
+   flag 16
+      radius 0.16
+      pos 1.30 0.85 0.75
+      range 2.20 -0.10
+      strength 3.25
+      velocity 20.00
+      trig_id 1
+      trig_mask 2
+      trig_action 2
+   joint r_ankle
+   flag 16
+      pos 0.64 1.35 0.05
+      axis 20.00 0.00 0.00
+      strength 1.40
+      velocity 15.00
+      trig_id 1
+      trig_mask 2
+      trig_action 2
+      
+      
+   joint l_ankle
+   flag 16
+      pos 1.36 0.85 0.05
+      axis 0.00 0.00 0.00
+      strength 1.40
+      velocity 15.00
+      trig_id 1
+      trig_mask 2
+      trig_action 2
+      
+      
+player 1
+   body head
+   flag 16
+      pos 1.00 0.43 2.55
+      rot -5.00 0.00 0.00
+      density 0.3500
+      trig_id 1
+      trig_mask 6
+      trig_action 1
+      
+   body breast
+   flag 16
+      sides 0.20 0.20 0.25
+      pos 1.00 0.75 2.25
+      rot -35.00 0.00 0.00
+      density 0.2650
+      trig_id 1
+      trig_mask 6
+      trig_action 1
+      
+   body chest
+   flag 16
+      sides 0.40 0.20 0.25
+      pos 1.00 0.90 2.00
+      rot -35.00 0.00 0.00
+      density 0.2640
+      trig_id 1
+      trig_mask 6
+      trig_action 1
+      
+   body stomach
+   flag 16
+      sides 0.35 0.18 0.30
+      pos 1.00 0.99 1.75
+      rot -20.00 0.00 0.00
+      density 0.3100
+      trig_id 1
+      trig_mask 6
+      trig_action 1
+      
+   body groin
+   flag 16
+      sides 0.18 0.10 0.20
+      pos 1.00 0.97 1.54
+      trig_id 1
+      trig_mask 2
+      trig_action 1
+      
+   body r_pecs
+   flag 16
+      sides 0.25 0.15 0.15
+      pos 0.85 0.70 2.10
+      density 0.2640
+      trig_id 1
+      trig_mask 6
+      trig_action 1
+      
+   body r_biceps
+   flag 16
+      sides 0.45 0.20 0.18
+      pos 0.40 0.66 2.21
+      rot 0.00 80.00 0.00
+      density 0.1750
+      trig_id 1
+      trig_mask 2
+      trig_action 1
+      
+   body r_triceps
+   flag 16
+      sides 0.45 0.11 0.11
+      pos 0.35 0.66 1.73
+      rot 0.00 80.00 -45.00
+      density 0.1500
+      trig_id 1
+      trig_mask 2
+      trig_action 1
+      
+   body l_pecs
+   flag 16
+      sides 0.25 0.15 0.15
+      pos 1.15 0.70 2.10
+      density 0.2640
+      trig_id 1
+      trig_mask 6
+      trig_action 1
+      
+   body l_biceps
+   flag 16
+      sides 0.45 0.20 0.18
+      pos 1.60 0.66 2.21
+      rot 0.00 -80.00 0.00
+      density 0.1750
+      trig_id 1
+      trig_mask 2
+      trig_action 1
+      
+   body l_triceps
+   flag 16
+      sides 0.45 0.11 0.11
+      pos 1.65 0.65 1.73
+      rot 0.00 -80.00 45.00
+      density 0.1500
+      trig_id 1
+      trig_mask 2
+      trig_action 1
+      
+   body r_hand
+   flag 16
+      sides 0.25 0.10 0.20
+      alt_sides 0.35 0.10 0.20
+      pos 0.35 0.33 1.40
+      rot 0.00 80.00 -45.00
+      density 0.1500
+      trig_id 1
+      trig_mask 2
+      trig_action 1
+   body l_hand
+   flag 16
+      sides 0.25 0.10 0.20
+      alt_sides 0.35 0.10 0.20
+      pos 1.65 0.33 1.40
+      rot 0.00 -80.00 45.00
+      density 0.1500
+      trig_id 1
+      trig_mask 2
+      trig_action 1
+   body r_butt
+   flag 16
+      sides 0.10 0.10 0.20
+      pos 0.87 1.10 1.45
+      rot 30.00 -30.00 0.00
+      trig_id 1
+      trig_mask 2
+      trig_action 1
+      
+   body l_butt
+   flag 16
+      sides 0.10 0.10 0.20
+      pos 1.13 1.10 1.45
+      rot 30.00 30.00 0.00
+      trig_id 1
+      trig_mask 2
+      trig_action 1
+      
+   body r_thigh
+   flag 16
+      sides 0.12 0.40 0.00
+      pos 0.76 1.00 1.05
+      rot -14.00 -5.00 0.00
+      density 0.1500
+      trig_id 1
+      trig_mask 2
+      trig_action 1
+      
+   body l_thigh
+   flag 16
+      sides 0.12 0.40 0.00
+      pos 1.24 1.00 1.05
+      rot 14.00 5.00 0.00
+      density 0.1500
+      trig_id 1
+      trig_mask 2
+      trig_action 1
+      
+   body l_leg
+   flag 16
+      sides 0.11 0.45 0.00
+      pos 1.36 0.85 0.40
+      rot 0.00 4.00 0.00
+      density 0.1500
+      trig_id 1
+      trig_mask 2
+      trig_action 1
+      
+   body r_leg
+   flag 16
+      sides 0.11 0.45 0.00
+      pos 0.64 1.35 0.40
+      rot -15.00 -4.00 0.00
+      density 0.1500
+      trig_id 1
+      trig_mask 2
+      trig_action 1
+      
+   body r_foot
+   flag 16
+      sides 0.20 0.55 0.10
+      pos 0.64 1.22 -0.10
+      density 0.1500
+      trig_id 1
+      trig_mask 2
+      trig_action 1
+   body l_foot
+   flag 16
+      sides 0.20 0.55 0.10
+      pos 1.36 0.71 -0.10
+      density 0.1500
+      trig_id 1
+      trig_mask 2
+      trig_action 1
+   joint neck
+   flag 16
+      radius 0.11
+      pos 1.00 0.55 2.40
+      axis 30.00 0.00 0.00
+      range 0.60 -0.50
+      strength 2.00
+      velocity 48.00
+      dm_threshold 220
+      trig_id 1
+      trig_mask 6
+      trig_action 1
+      
+      00
+   joint chest
+   flag 16
+      radius 0.17
+      pos 1.00 0.75 2.10
+      axis 0.00 0.00 30.00
+      strength 3.30
+      velocity 17.00
+      trig_id 1
+      trig_mask 6
+      trig_action 1
+      
+      0
+   joint lumbar
+   flag 16
+      radius 0.15
+      pos 1.00 0.90 1.90
+      axis 0.00 90.00 30.00
+      range 0.25 -0.25
+      strength 6.00
+      velocity 7.00
+      trig_id 1
+      trig_mask 6
+      trig_action 1
+      
+      0
+   joint abs
+   flag 16
+      radius 0.15
+      pos 1.00 0.99 1.68
+      axis 35.00 0.00 0.00
+      range 0.50 0.30
+      strength 9.00
+      velocity 8.40
+      trig_id 1
+      trig_mask 6
+      trig_action 1
+      
+      0
+   joint r_pecs
+   flag 16
+      pos 0.85 0.65 2.20
+      axis 0.00 10.00 50.00
+      strength 3.30
+      velocity 17.20
+      trig_id 1
+      trig_mask 6
+      trig_action 1
+   joint r_shoulder
+   flag 16
+      radius 0.16
+      pos 0.65 0.65 2.20
+      axis 0.00 90.00 0.00
+      range 1.50 -0.15
+      strength 2.25
+      trig_id 1
+      trig_mask 6
+      trig_action 1
+      
+      
+   joint r_elbow
+   flag 16
+      radius 0.13
+      pos 0.56 0.65 1.73
+      axis -90.00 0.00 0.00
+      range 1.10 -0.20
+      strength 4.00
+      velocity 39.00
+      trig_id 1
+      trig_mask 2
+      trig_action 1
+      
+      
+   joint l_pecs
+   flag 16
+      pos 1.15 0.65 2.20
+      axis 0.00 10.00 50.00
+      strength 3.30
+      velocity 17.20
+      trig_id 1
+      trig_mask 6
+      trig_action 1
+      
+      
+      
+      0
+   joint l_shoulder
+      radius 0.16
+   flag 16
+      pos 1.35 0.65 2.20
+      axis 0.00 90.00 0.00
+      range 1.50 -0.15
+      strength 2.25
+      trig_id 1
+      trig_mask 6
+      trig_action 1
+      
+      
+      
+   joint l_elbow
+   flag 16
+      radius 0.13
+      pos 1.44 0.65 1.73
+      axis 90.00 0.00 0.00
+      range 1.10 -0.20
+      strength 4.00
+      velocity 39.00
+      trig_id 1
+      trig_mask 2
+      trig_action 1
+      
+      
+   joint r_wrist
+   flag 16
+      radius 0.10
+      pos 0.50 0.32 1.40
+      axis -90.00 0.00 0.00
+      range 1.60 -0.40
+      strength 3.00
+      velocity 58.00
+      trig_id 1
+      trig_mask 2
+      trig_action 1
+      
+      
+      
+   joint l_wrist
+   flag 16
+      radius 0.10
+      pos 1.50 0.32 1.40
+      axis 90.00 0.00 0.00
+      range 1.60 -0.40
+      strength 3.00
+      velocity 58.00
+      trig_id 1
+      trig_mask 2
+      trig_action 1
+      
+      
+   joint r_glute
+   flag 16
+      pos 0.90 1.10 1.50
+      range 0.65 -0.25
+      strength 3.80
+      velocity 30.00
+      trig_id 1
+      trig_mask 2
+      trig_action 1
+     
+      
+      
+   joint l_glute
+   flag 16
+      pos 1.10 1.10 1.50
+      range 0.65 -0.25
+      strength 3.80
+      velocity 30.00
+      trig_id 1
+      trig_mask 2
+      trig_action 1
+      
+      
+      
+   joint r_hip
+   flag 16
+      radius 0.17
+      pos 0.76 1.00 1.40
+      range 0.70 -1.78
+      strength 5.00
+      velocity 15.00
+      trig_id 1
+      trig_mask 2
+      trig_action 1
+      
+      
+   joint l_hip
+   flag 16
+      radius 0.17
+      pos 1.24 1.00 1.40
+      range 1.24 -1.24
+      strength 5.00
+      velocity 15.00
+      trig_id 1
+      trig_mask 2
+      trig_action 1
+      
+      
+   joint r_knee
+   flag 16
+      radius 0.16
+      pos 0.70 1.15 0.75
+      strength 3.25
+      velocity 20.00
+      trig_id 1
+      trig_mask 2
+      trig_action 1
+   joint l_knee
+   flag 16
+      radius 0.16
+      pos 1.30 0.85 0.75
+      range 2.20 -0.10
+      strength 3.25
+      velocity 20.00
+      trig_id 1
+      trig_mask 2
+      trig_action 1
+   joint r_ankle
+   flag 16
+      pos 0.64 1.35 0.05
+      axis 20.00 0.00 0.00
+      strength 1.40
+      velocity 15.00
+      trig_id 1
+      trig_mask 2
+      trig_action 1
+      
+      
+   joint l_ankle
+   flag 16
+      pos 1.36 0.85 0.05
+      axis 0.00 0.00 0.00
+      strength 1.40
+      velocity 15.00
+      trig_id 1
+      trig_mask 2
+      trig_action 1
+      
+      

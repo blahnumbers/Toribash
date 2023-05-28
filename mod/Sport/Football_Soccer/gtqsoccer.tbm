@@ -1,0 +1,1707 @@
+#!/usr/bin/toribash
+message Quick Soccer by Smilies2 and the Godteam
+######################################
+gamerule 
+ed 500
+eh 200
+gravity 0 0 -30
+flags 4
+matchframes 750
+turnframes 15
+reactiontime 10
+######################################
+ 
+player 0
+joint neck
+range 0.5 -0.35
+strength 2.5
+velocity 25
+
+joint r_wrist
+pos 0.65 0.45 1.80
+axis 0 0 0
+range 0 0
+strength 0
+trig_id 2
+trig_mask 1
+trig_action 2
+joint l_wrist
+pos 1.35 0.45 1.80
+axis 0 0 0
+range 0 0
+strength 0
+trig_id 2
+trig_mask 1
+trig_action 2
+
+joint r_elbow
+pos 0.65 0.90 1.80
+axis -1 0 0
+range 0.85 -1.55
+trig_id 2
+trig_mask 1
+trig_action 2
+joint l_elbow
+pos 1.35 0.90 1.80
+axis 1 0 0
+range 0.85 -1.55
+trig_id 2
+trig_mask 1
+trig_action 2
+ 
+joint r_shoulder
+range 3 0.0
+strength 2
+joint l_shoulder
+range 3 0.0
+strength 2
+ 
+joint r_pecs
+axis 0 1 1
+range 0.75 -0.25
+joint l_pecs
+axis 0 1 1
+range 0.75 -0.25
+
+joint chest
+range 1 -1
+strength 5
+velocity 20
+
+joint lumbar
+range 0.5 -0.5
+strength 5.0
+velocity 20.0
+
+joint abs
+range 0 -0.75
+strength 5.0
+velocity 20.0
+ 
+joint r_glute
+strength 5
+velocity 5
+range 0.25 0.0
+joint l_glute
+strength 5
+velocity 5
+range 0.25 0.0
+ 
+joint r_hip
+strength 6
+velocity 15
+range 0.5 -1.25
+joint l_hip
+strength 6
+velocity 15
+range 0.5 -1.25
+
+joint r_knee
+range 1.75 0.0
+strength 6
+velocity 24
+joint l_knee
+range 1.75 0.0
+strength 6
+velocity 24
+
+joint r_ankle
+axis 1 0 0
+range 0.4 -0.4
+velocity 30
+strength 2
+joint l_ankle
+axis 1 0 0
+range 0.4 -0.4
+velocity 30
+strength 2  
+
+
+body head
+thrust 1 0 0 1
+
+body r_hand
+pos 0.65 0.35 1.80
+sides 0.18 0.22 0.2
+density 0.01
+trig_id 2
+trig_mask 1
+trig_action 2
+body l_hand
+pos 1.35 0.35 1.80
+sides 0.18 0.22 0.2
+density 0.01
+trig_id 2
+trig_mask 1
+trig_action 2
+
+body r_triceps
+pos 0.65 0.65 1.80
+sides 0.10 0.40 0.10
+trig_id 2
+trig_mask 1
+trig_action 2
+body l_triceps
+pos 1.35 0.65 1.80
+sides 0.10 0.40 0.10
+trig_id 2
+trig_mask 1
+trig_action 2
+
+body r_biceps
+pos 0.65 0.9 2.05
+sides 0.2 0.2 0.4
+trig_id 2
+trig_mask 1
+trig_action 2
+body l_biceps
+pos 1.35 0.9 2.05
+sides 0.2 0.2 0.4
+trig_id 2
+trig_mask 1
+trig_action 2
+
+body r_pecs
+density 0.1
+body l_pecs
+density 0.1
+
+body breast
+force 0 20 0
+density 0.5
+
+body chest
+density 0.1
+
+body stomach
+density 0.25
+
+body groin
+thrust 1 0 0 1
+density 0.1
+
+body r_thigh
+density 0.35
+body l_thigh
+density 0.35
+
+body r_leg
+thrust 1 0 0 -1
+density 0.05
+body l_leg
+thrust 1 0 0 -1
+density 0.05
+
+body r_foot
+pos 0.8 0.925 0.1
+thrust 1 0 0 -1
+density 0.05
+body l_foot
+pos 1.2 0.925 0.1
+thrust 1 0 0 -1
+density 0.05
+
+######################################
+
+player 1
+joint neck
+range 0.5 -0.35
+strength 2.5
+velocity 25
+
+joint r_wrist
+pos 0.65 0.45 1.80
+axis 0 0 0
+range 0 0
+strength 0
+trig_id 2
+trig_mask 1
+trig_action 1
+joint l_wrist
+pos 1.35 0.45 1.80
+axis 0 0 0
+range 0 0
+strength 0
+trig_id 2
+trig_mask 1
+trig_action 1
+
+joint r_elbow
+pos 0.65 0.90 1.80
+axis -1 0 0
+range 0.85 -1.55
+trig_id 2
+trig_mask 1
+trig_action 1
+joint l_elbow
+pos 1.35 0.90 1.80
+axis 1 0 0
+range 0.85 -1.55
+trig_id 2
+trig_mask 1
+trig_action 1
+
+joint r_shoulder
+range 3 0.0
+strength 2
+joint l_shoulder
+range 3 0.0
+strength 2
+ 
+joint r_pecs
+axis 0 1 1
+range 0.75 -0.2
+joint l_pecs
+axis 0 1 1
+range 0.75 -0.25
+ 
+joint chest
+range 1 -1
+strength 5
+velocity 20
+
+joint lumbar
+range 0.5 -0.5
+strength 5.0
+velocity 20.0
+
+joint abs
+range 0 -0.75
+strength 5.0
+velocity 20.0
+
+joint r_glute
+strength 5
+velocity 5
+range 0.25 0.0
+joint l_glute
+strength 5
+velocity 5
+range 0.25 0.0
+
+joint r_hip
+strength 6
+velocity 15
+range 0.5 -1.25
+joint l_hip
+strength 6
+velocity 15
+range 0.5 -1.25
+
+joint r_knee
+range 1.75 0.0
+strength 6
+velocity 24
+joint l_knee
+range 1.75 0.0
+strength 6
+velocity 24
+
+joint r_ankle
+axis 1 0 0
+range 0.4 -0.4
+velocity 30
+strength 2
+joint l_ankle
+axis 1 0 0
+range 0.4 -0.4
+velocity 30
+strength 2  
+
+
+body head
+thrust 1 0 0 1
+
+body r_hand
+pos 0.65 0.35 1.80
+sides 0.18 0.22 0.2
+density 0.01
+trig_id 2
+trig_mask 1
+trig_action 1
+body l_hand
+pos 1.35 0.35 1.80
+sides 0.18 0.22 0.2
+density 0.01
+trig_id 2
+trig_mask 1
+trig_action 1
+
+body r_triceps
+pos 0.65 0.65 1.80
+sides 0.10 0.40 0.10
+trig_id 2
+trig_mask 1
+trig_action 1
+body l_triceps
+pos 1.35 0.65 1.80
+sides 0.10 0.40 0.10
+trig_id 2
+trig_mask 1
+trig_action 1
+
+body r_biceps
+pos 0.65 0.9 2.05
+sides 0.2 0.2 0.4
+trig_id 2
+trig_mask 1
+trig_action 1
+body l_biceps
+pos 1.35 0.9 2.05
+sides 0.2 0.2 0.4
+trig_id 2
+trig_mask 1
+trig_action 1
+
+body r_pecs
+density 0.1
+body l_pecs
+density 0.1
+
+body breast
+force 0 20 0
+density 0.5
+
+body chest
+density 0.1
+
+body stomach
+density 0.25
+
+body groin
+thrust 1 0 0 1
+density 0.1
+
+body r_thigh
+density 0.35
+body l_thigh
+density 0.35
+
+body r_leg
+thrust 1 0 0 -1
+density 0.05
+body l_leg
+thrust 1 0 0 -1
+density 0.05
+
+body r_foot
+pos 0.8 0.925 0.1
+thrust 1 0 0 -1
+density 0.05
+body l_foot
+pos 1.2 0.925 0.1
+thrust 1 0 0 -1
+density 0.05
+
+######################################
+
+env_obj 1
+    shape sphere
+    pos 1 -0.1 2.21
+    color 1 1 1 1
+    rot 0 0 0
+    sides 0.21 1 1
+    material steel
+    mass 0.0015
+    flag 16
+    bounce 6
+    trig_id 1
+    trig_mask 2
+    thrust 1 0 0 -0.2
+    friction 0
+
+env_obj 2
+   shape box
+   pos 503.50 -0.10 4.51
+   mass 0.1000
+   color 0.94117653 0.94117653 0.94117653 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 1000.00 1000.00 9.00
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 0.00
+env_obj 3
+   shape box
+   pos -355.40 -357.60 4.27
+   mass 0.1000
+   color 0.94117653 0.94117653 0.94117653 1.00000000
+   visible 1
+   rot 0.00 0.00 -45.00
+   sides 1002.00 1002.00 8.50
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 0.00
+env_obj 4
+   shape box
+   pos -355.40 357.40 4.27
+   mass 0.1000
+   color 0.94117653 0.94117653 0.94117653 1.00000000
+   visible 1
+   rot 0.00 0.00 -45.00
+   sides 1002.00 1002.00 8.50
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 0.00
+env_obj 5
+   shape box
+   pos -501.50 -0.10 4.51
+   mass 0.1000
+   color 0.94117653 0.94117653 0.94117653 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 1000.00 1000.00 9.00
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 0.00
+env_obj 6
+   shape box
+   pos 1.00 -4.00 1.00
+   mass 0.1000
+   color 1.10000002 1.10000002 1.10000002 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 4.00 0.20 2.00
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 7
+   shape box
+   pos 1.00 11.90 1.01
+   mass 0.1000
+   color 0.00000000 0.19607845 0.69803923 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 2.75 16.00 1.99
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 8
+   shape box
+   pos 357.40 357.40 4.27
+   mass 0.1000
+   color 0.94117653 0.94117653 0.94117653 1.00000000
+   visible 1
+   rot 0.00 0.00 -45.00
+   sides 1002.00 1002.00 8.50
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 0.00
+env_obj 9
+   shape box
+   pos 357.40 -357.60 4.27
+   mass 0.1000
+   color 0.94117653 0.94117653 0.94117653 1.00000000
+   visible 1
+   rot 0.00 0.00 -45.00
+   sides 1002.00 1002.00 8.50
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 0.00
+env_obj 10
+   shape box
+   pos -1.30 -3.10 1.00
+   mass 0.1000
+   color 1.10000002 1.10000002 1.10000002 1.00000000
+   visible 1
+   rot 0.00 0.00 45.00
+   sides 3.00 0.20 2.00
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 11
+   shape box
+   pos 1.00 -504.15 7.80
+   mass 0.1000
+   color 0.94117653 0.94117653 0.94117653 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 2.80 1000.00 0.42
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 12
+   shape box
+   pos 6.20 -0.10 1.00
+   mass 0.1000
+   color 1.10000002 1.10000002 1.10000002 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 7.51 0.25 2.00
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 13
+   shape sphere
+   pos 1.00 -0.01 0.25
+   mass 0.0043
+   color 1.00000000 1.00000000 1.00000000 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 0.24 1.00 1.00
+   force 0.00 0.00 0.00
+   thrust 1 0.00 0.00 -0.20
+   flag 16
+   bounce 10.000000
+   friction 10000.00
+env_obj 14
+   shape box
+   pos 3.40 -0.10 8.50
+   mass 0.1000
+   color 0.78431380 0.78431380 0.78431380 1.00000000
+   visible 1
+   rot 0.00 45.00 0.00
+   sides 1.00 1000.00 1.00
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 15
+   shape box
+   pos -1.40 -0.10 8.50
+   mass 0.1000
+   color 0.78431380 0.78431380 0.78431380 1.00000000
+   visible 1
+   rot 0.00 45.00 0.00
+   sides 1.00 1000.00 1.00
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 16
+   shape box
+   pos 1.00 3.90 8.50
+   mass 0.1000
+   color 0.78431380 0.78431380 0.78431380 1.00000000
+   visible 1
+   rot 45.00 0.00 0.00
+   sides 1000.00 1.00 1.00
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 17
+   shape box
+   pos 1.00 -4.10 8.50
+   mass 0.1000
+   color 0.78431380 0.78431380 0.78431380 1.00000000
+   visible 1
+   rot 45.00 0.00 0.00
+   sides 1000.00 1.00 1.00
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 18
+   shape box
+   pos -1.50 -0.10 1.98
+   mass 0.1000
+   color 1.00000000 1.00000000 1.00000000 1.00000000
+   visible 1
+   rot 0.00 45.00 0.00
+   sides 0.20 1000.00 0.20
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 19
+   shape box
+   pos 3.50 -0.10 1.98
+   mass 0.1000
+   color 1.00000000 1.00000000 1.00000000 1.00000000
+   visible 1
+   rot 0.00 45.00 0.00
+   sides 0.20 1000.00 0.20
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 20
+   shape box
+   pos 2.25 -504.15 7.00
+   mass 0.1000
+   color 0.94117653 0.94117653 0.94117653 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 2.00 1000.00 2.00
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 21
+   shape box
+   pos 3.30 -3.10 1.00
+   mass 0.1000
+   color 1.10000002 1.10000002 1.10000002 1.00000000
+   visible 1
+   rot 0.00 0.00 -45.00
+   sides 3.00 0.20 2.00
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 22
+   shape box
+   pos 3.30 2.90 1.00
+   mass 0.1000
+   color 1.10000002 1.10000002 1.10000002 1.00000000
+   visible 1
+   rot 0.00 0.00 45.00
+   sides 3.00 0.20 2.00
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 23
+   shape box
+   pos 1.00 3.90 3.75
+   mass 0.1000
+   color 0.00000000 0.19607845 0.69803923 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 2.75 0.25 0.30
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 0.00
+env_obj 24
+   shape box
+   pos -1.30 2.90 1.00
+   mass 0.1000
+   color 1.10000002 1.10000002 1.10000002 1.00000000
+   visible 1
+   rot 0.00 0.00 -45.00
+   sides 3.00 0.20 2.00
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 25
+   shape box
+   pos 1.00 504.05 2.00
+   mass 0.1000
+   color 0.94117653 0.94117653 0.19607845 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 2.50 1000.00 3.50
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 26
+   shape box
+   pos -0.25 -504.15 7.00
+   mass 0.1000
+   color 0.94117653 0.94117653 0.94117653 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 2.00 1000.00 2.00
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 27
+   shape box
+   pos 3.35 -0.10 1.00
+   mass 0.1000
+   color 1.10000002 1.10000002 1.10000002 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 0.30 12.00 2.00
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 28
+   shape box
+   pos -1.35 -0.10 1.00
+   mass 0.1000
+   color 1.10000002 1.10000002 1.10000002 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 0.30 12.00 2.00
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 29
+   shape box
+   pos 1.16 -504.20 7.16
+   mass 0.1000
+   color 0.00000000 0.00000000 0.00000000 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 0.17 1000.00 0.06
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 30
+   shape box
+   pos 1.00 503.95 5.25
+   mass 0.1000
+   color 0.94117653 0.94117653 0.94117653 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 2.80 1000.00 3.00
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 0.00
+env_obj 32
+   shape box
+   pos 1.00 -4.10 3.75
+   mass 0.1000
+   color 0.69803923 0.06666667 0.06666667 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 2.75 0.25 0.30
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 0.00
+env_obj 33
+   shape box
+   pos 1.00 -12.10 1.01
+   mass 0.1000
+   color 0.69803923 0.06666667 0.06666667 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 2.75 16.00 1.99
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 34
+   shape box
+   pos 1.00 -0.10 8.50
+   mass 0.1000
+   color 0.00000000 0.19607845 0.70588237 0.39215690
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 7.50 16.00 0.20
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 35
+   shape box
+   pos 1.00 -0.10 8.50
+   mass 0.1000
+   color 0.78431380 0.78431380 0.78431380 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 7.51 0.50 0.22
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 36
+   shape box
+   pos 1.00 3.15 8.50
+   mass 0.1000
+   color 0.78431380 0.78431380 0.78431380 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 7.51 0.50 0.22
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 37
+   shape box
+   pos 1.00 -3.35 8.50
+   mass 0.1000
+   color 0.78431380 0.78431380 0.78431380 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 7.51 0.50 0.22
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 38
+   shape box
+   pos 2.75 -0.10 8.50
+   mass 0.1000
+   color 0.78431380 0.78431380 0.78431380 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 0.50 10.00 0.22
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 39
+   shape box
+   pos -0.50 -0.10 8.50
+   mass 0.1000
+   color 0.78431380 0.78431380 0.78431380 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 0.50 10.00 0.22
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 41
+   shape box
+   pos 1.00 504.00 5.25
+   mass 0.1000
+   color 0.94117653 0.94117653 0.94117653 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 2.80 1000.00 3.00
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 42
+   shape box
+   pos 2.25 503.95 7.00
+   mass 0.1000
+   color 0.94117653 0.94117653 0.94117653 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 2.00 1000.00 2.00
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 43
+   shape box
+   pos -0.25 503.95 7.00
+   mass 0.1000
+   color 0.94117653 0.94117653 0.94117653 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 2.00 1000.00 2.00
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 44
+   shape box
+   pos 1.00 503.95 7.80
+   mass 0.1000
+   color 0.94117653 0.94117653 0.94117653 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 2.80 1000.00 0.42
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 45
+   shape box
+   pos 1.00 -505.36 3.80
+   mass 0.1000
+   color 0.00000000 0.19607845 0.69803923 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 3.25 999.90 0.20
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 46
+   shape box
+   pos 1.20 504.00 7.17
+   mass 0.1000
+   color 0.00000000 0.00000000 0.00000000 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 0.10 1000.00 0.64
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 47
+   shape box
+   pos 1.00 -504.25 2.00
+   mass 0.1000
+   color 0.94117653 0.94117653 0.19607845 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 3.00 1000.00 4.00
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 48
+   shape box
+   pos 2.52 -0.10 1.00
+   mass 0.1000
+   color 1.10000002 1.10000002 1.10000002 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 0.25 3.00 2.00
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 49
+   shape box
+   pos -0.52 -0.10 1.00
+   mass 0.1000
+   color 1.10000002 1.10000002 1.10000002 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 0.25 3.00 2.00
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 50
+   shape box
+   pos 1.00 1.40 1.00
+   mass 0.1000
+   color 1.10000002 1.10000002 1.10000002 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 3.29 0.20 2.00
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 51
+   shape box
+   pos 1.00 -1.60 1.00
+   mass 0.1000
+   color 1.10000002 1.10000002 1.10000002 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 3.29 0.20 2.00
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 52
+   shape box
+   pos -4.20 -0.10 1.00
+   mass 0.1000
+   color 1.10000002 1.10000002 1.10000002 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 7.51 0.25 2.00
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 53
+   shape box
+   pos 1.00 -0.10 1.00
+   mass 0.1000
+   color 1.10000002 1.10000002 1.10000002 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 0.30 0.30 2.00
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 54
+   shape box
+   pos 0.80 504.00 7.17
+   mass 0.1000
+   color 0.00000000 0.00000000 0.00000000 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 0.10 1000.00 0.64
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 55
+   shape box
+   pos 1.00 504.00 7.54
+   mass 0.1000
+   color 0.00000000 0.00000000 0.00000000 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 0.50 1000.00 0.10
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 56
+   shape box
+   pos 1.00 -504.26 4.00
+   mass 0.1000
+   color 0.00000000 0.00000000 0.00000000 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 3.00 1000.00 8.00
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 58
+   shape box
+   pos 4.50 3.90 1.00
+   mass 0.1000
+   color 1.10000002 1.10000002 1.10000002 1.00000000
+   visible 1
+   rot 0.00 0.00 45.00
+   sides 3.00 0.20 2.00
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 59
+   shape box
+   pos -2.50 3.90 1.00
+   mass 0.1000
+   color 1.10000002 1.10000002 1.10000002 1.00000000
+   visible 1
+   rot 0.00 0.00 -45.00
+   sides 3.00 0.20 2.00
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 62
+   shape box
+   pos -1.40 -0.10 8.35
+   mass 0.1000
+   color 0.70588237 0.70588237 0.78431380 1.00000000
+   visible 1
+   rot 0.00 45.00 0.00
+   sides 0.75 4.75 1.00
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 63
+   shape box
+   pos 3.40 -0.10 8.35
+   mass 0.1000
+   color 0.70588237 0.70588237 0.78431380 1.00000000
+   visible 1
+   rot 0.00 -45.00 0.00
+   sides 0.75 4.75 1.00
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 64
+   shape box
+   pos 1.00 -4.10 8.40
+   mass 0.1000
+   color 1.00000000 1.00000000 1.00000000 1.00000000
+   visible 1
+   rot 45.00 0.00 0.00
+   sides 2.00 1.00 0.70
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 65
+   shape box
+   pos 1.50 -4.10 8.35
+   mass 0.1000
+   color 0.00000000 0.00000000 0.00000000 1.00000000
+   visible 1
+   rot 45.00 0.00 0.00
+   sides 0.10 1.00 0.50
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 66
+   shape box
+   pos 1.35 -3.95 8.50
+   mass 0.1000
+   color 0.00000000 0.00000000 0.00000000 1.00000000
+   visible 1
+   rot 45.00 0.00 0.00
+   sides 0.40 1.00 0.10
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 67
+   shape box
+   pos 1.35 -4.25 8.20
+   mass 0.1000
+   color 0.00000000 0.00000000 0.00000000 1.00000000
+   visible 1
+   rot 45.00 0.00 0.00
+   sides 0.40 1.00 0.10
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 68
+   shape box
+   pos 1.20 -4.15 8.30
+   mass 0.1000
+   color 0.00000000 0.00000000 0.00000000 1.00000000
+   visible 1
+   rot 45.00 0.00 0.00
+   sides 0.10 1.00 0.25
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 69
+   shape box
+   pos 1.30 -4.10 8.35
+   mass 0.1000
+   color 0.00000000 0.00000000 0.00000000 1.00000000
+   visible 1
+   rot 45.00 0.00 0.00
+   sides 0.15 1.00 0.11
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 70
+   shape box
+   pos 0.70 -4.10 8.35
+   mass 0.1000
+   color 0.00000000 0.00000000 0.00000000 1.00000000
+   visible 1
+   rot 45.00 0.00 0.00
+   sides 0.10 1.00 0.50
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 71
+   shape box
+   pos 0.70 -3.95 8.50
+   mass 0.1000
+   color 0.00000000 0.00000000 0.00000000 1.00000000
+   visible 1
+   rot 45.00 0.00 0.00
+   sides 0.40 1.00 0.10
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 72
+   shape box
+   pos 1.00 3.90 8.40
+   mass 0.1000
+   color 1.00000000 1.00000000 1.00000000 1.00000000
+   visible 1
+   rot -45.00 0.00 0.00
+   sides 2.00 1.00 0.70
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 73
+   shape box
+   pos 0.50 3.90 8.35
+   mass 0.1000
+   color 0.00000000 0.00000000 0.00000000 1.00000000
+   visible 1
+   rot -45.00 0.00 0.00
+   sides 0.10 1.00 0.50
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 74
+   shape box
+   pos 1.30 3.75 8.50
+   mass 0.1000
+   color 0.00000000 0.00000000 0.00000000 1.00000000
+   visible 1
+   rot -45.00 0.00 0.00
+   sides 0.40 1.00 0.10
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 75
+   shape box
+   pos 1.30 3.90 8.35
+   mass 0.1000
+   color 0.00000000 0.00000000 0.00000000 1.00000000
+   visible 1
+   rot -45.00 0.00 0.00
+   sides 0.10 1.00 0.50
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 76
+   shape box
+   pos 0.65 4.05 8.20
+   mass 0.1000
+   color 0.00000000 0.00000000 0.00000000 1.00000000
+   visible 1
+   rot -45.00 0.00 0.00
+   sides 0.40 1.00 0.10
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 77
+   shape box
+   pos 0.65 3.75 8.50
+   mass 0.1000
+   color 0.00000000 0.00000000 0.00000000 1.00000000
+   visible 1
+   rot -45.00 0.00 0.00
+   sides 0.40 1.00 0.10
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 78
+   shape box
+   pos 0.80 3.95 8.30
+   mass 0.1000
+   color 0.00000000 0.00000000 0.00000000 1.00000000
+   visible 1
+   rot -45.00 0.00 0.00
+   sides 0.10 1.00 0.25
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 79
+   shape box
+   pos 0.70 3.90 8.35
+   mass 0.1000
+   color 0.00000000 0.00000000 0.00000000 1.00000000
+   visible 1
+   rot -45.00 0.00 0.00
+   sides 0.15 1.00 0.11
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 80
+   shape box
+   pos -1.40 -0.10 8.35
+   mass 0.1000
+   color 0.94117653 0.94117653 0.39215690 0.70588237
+   visible 1
+   rot 0.00 45.00 0.00
+   sides 0.50 4.25 1.10
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 81
+   shape box
+   pos 3.40 -0.10 8.35
+   mass 0.1000
+   color 0.94117653 0.94117653 0.39215690 0.70588237
+   visible 1
+   rot 0.00 -45.00 0.00
+   sides 0.50 4.25 1.10
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 82
+   shape box
+   pos 1.00 -504.15 5.25
+   mass 0.1000
+   color 0.94117653 0.94117653 0.94117653 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 2.80 1000.00 3.00
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 0.00
+env_obj 83
+   shape box
+   pos 1.00 -504.20 7.31
+   mass 0.1000
+   color 0.00000000 0.00000000 0.00000000 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 0.16 1000.00 0.21
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 84
+   shape box
+   pos 1.00 -504.20 7.01
+   mass 0.1000
+   color 0.00000000 0.00000000 0.00000000 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 0.16 1000.00 0.20
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 85
+   shape box
+   pos 0.84 -504.20 7.16
+   mass 0.1000
+   color 0.00000000 0.00000000 0.00000000 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 0.17 1000.00 0.06
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 86
+   shape box
+   pos 1.20 -504.20 7.17
+   mass 0.1000
+   color 0.00000000 0.00000000 0.00000000 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 0.10 1000.00 0.64
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 87
+   shape box
+   pos 0.80 -504.20 7.17
+   mass 0.1000
+   color 0.00000000 0.00000000 0.00000000 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 0.10 1000.00 0.64
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 88
+   shape box
+   pos 1.00 -504.20 6.80
+   mass 0.1000
+   color 0.00000000 0.00000000 0.00000000 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 0.50 1000.00 0.10
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 89
+   shape box
+   pos 1.00 -504.20 7.54
+   mass 0.1000
+   color 0.00000000 0.00000000 0.00000000 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 0.50 1000.00 0.10
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 90
+   shape box
+   pos 1.12 -504.20 7.45
+   mass 0.1000
+   color 0.00000000 0.00000000 0.00000000 1.00000000
+   visible 1
+   rot 0.00 45.00 0.00
+   sides 0.25 1000.00 0.06
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 91
+   shape box
+   pos 0.88 -504.20 6.88
+   mass 0.1000
+   color 0.00000000 0.00000000 0.00000000 1.00000000
+   visible 1
+   rot 0.00 45.00 0.00
+   sides 0.25 1000.00 0.06
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 92
+   shape box
+   pos 1.00 -0.10 1.00
+   mass 0.1000
+   color 0.00000000 0.39215690 0.19607845 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 4.99 7.99 1.99
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 93
+   shape box
+   pos 1.12 -504.20 6.88
+   mass 0.1000
+   color 0.00000000 0.00000000 0.00000000 1.00000000
+   visible 1
+   rot 0.00 -45.00 0.00
+   sides 0.25 1000.00 0.06
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 94
+   shape box
+   pos 0.88 -504.20 7.45
+   mass 0.1000
+   color 0.00000000 0.00000000 0.00000000 1.00000000
+   visible 1
+   rot 0.00 -45.00 0.00
+   sides 0.25 1000.00 0.06
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 95
+   shape box
+   pos 1.00 504.00 6.80
+   mass 0.1000
+   color 0.00000000 0.00000000 0.00000000 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 0.50 1000.00 0.10
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 96
+   shape box
+   pos 1.12 504.00 6.88
+   mass 0.1000
+   color 0.00000000 0.00000000 0.00000000 1.00000000
+   visible 1
+   rot 0.00 -45.00 0.00
+   sides 0.25 1000.00 0.06
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 97
+   shape box
+   pos 0.88 504.00 6.88
+   mass 0.1000
+   color 0.00000000 0.00000000 0.00000000 1.00000000
+   visible 1
+   rot 0.00 45.00 0.00
+   sides 0.25 1000.00 0.06
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 98
+   shape box
+   pos 1.16 504.00 7.16
+   mass 0.1000
+   color 0.00000000 0.00000000 0.00000000 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 0.17 1000.00 0.06
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 99
+   shape box
+   pos 0.84 504.00 7.16
+   mass 0.1000
+   color 0.00000000 0.00000000 0.00000000 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 0.17 1000.00 0.06
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 100
+   shape box
+   pos 0.88 504.00 7.45
+   mass 0.1000
+   color 0.00000000 0.00000000 0.00000000 1.00000000
+   visible 1
+   rot 0.00 -45.00 0.00
+   sides 0.25 1000.00 0.06
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 101
+   shape box
+   pos 1.12 504.00 7.45
+   mass 0.1000
+   color 0.00000000 0.00000000 0.00000000 1.00000000
+   visible 1
+   rot 0.00 45.00 0.00
+   sides 0.25 1000.00 0.06
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 102
+   shape box
+   pos 1.00 504.00 7.31
+   mass 0.1000
+   color 0.00000000 0.00000000 0.00000000 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 0.16 1000.00 0.21
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 103
+   shape box
+   pos 1.00 504.00 7.01
+   mass 0.1000
+   color 0.00000000 0.00000000 0.00000000 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 0.16 1000.00 0.20
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 104
+   shape box
+   pos 1.00 504.02 7.16
+   mass 0.1000
+   color 0.00000000 0.00000000 0.00000000 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 0.16 1000.00 0.10
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 105
+   shape box
+   pos 2.58 504.03 7.17
+   mass 0.1000
+   color 0.94117653 0.94117653 0.19607845 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 3.00 1000.00 0.53
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 106
+   shape box
+   pos 1.00 504.06 4.00
+   mass 0.1000
+   color 0.00000000 0.00000000 0.00000000 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 2.50 1000.00 8.00
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 107
+   shape box
+   pos 1.00 504.04 4.00
+   mass 0.1000
+   color 0.94117653 0.94117653 0.19607845 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 2.50 1000.00 8.00
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+   trig_id 2
+   trig_mask 1
+   trig_action 2
+   trig_color 0.07843138 0.00000000 0.00000000 0.00000000
+   trig_sound 0
+env_obj 108
+   shape box
+   pos -0.58 -504.23 7.17
+   mass 0.1000
+   color 0.94117653 0.94117653 0.19607845 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 3.00 1000.00 0.53
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 109
+   shape box
+   pos 1.00 -504.24 4.00
+   mass 0.1000
+   color 0.94117653 0.94117653 0.19607845 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 2.50 1000.00 8.00
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+   trig_id 2
+   trig_mask 1
+   trig_action 1
+   trig_color 0.07843138 0.00000000 0.00000000 0.00000000
+   trig_sound 0
+env_obj 110
+   shape box
+   pos 1.00 -504.22 7.16
+   mass 0.1000
+   color 0.00000000 0.00000000 0.00000000 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 0.16 1000.00 0.10
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 111
+   shape box
+   pos 1.00 503.97 6.50
+   mass 0.1000
+   color 0.00000000 0.19607845 0.70588237 0.31372550
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 2.50 1000.00 5.40
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 112
+   shape box
+   pos 1.00 -504.17 6.50
+   mass 0.1000
+   color 0.00000000 0.19607845 0.70588237 0.31372550
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 2.50 1000.00 5.40
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00
+env_obj 113
+   shape box
+   pos 1.00 3.80 1.00
+   mass 0.1000
+   color 1.10000002 1.10000002 1.10000002 1.00000000
+   visible 1
+   rot 0.00 0.00 0.00
+   sides 4.00 0.20 2.00
+   force 0.00 0.00 0.00
+   flag 24
+
+   friction 10000.00

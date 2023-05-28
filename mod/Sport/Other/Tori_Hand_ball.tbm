@@ -1,0 +1,89 @@
+#!/usr/bin/toribash
+version 12
+gamerule
+   matchframes 500
+   turnframes 10
+   flags 2
+   dismemberment 1
+   fracture 0
+   disqualification 0
+   dqtimeout 0
+   dqflag 0
+   dismemberthreshold 100
+   fracturethreshold 0
+   pointthreshold 0
+   dojotype 0
+   dojosize 0
+   engagedistance 800
+   engageheight 0
+   engagerotation 0
+   engagespace 0
+   engageplayerpos 
+   engageplayerrot 0,0,0,0,0,0
+   damage 0
+   gravity 0.00 0.00 -30.00
+   sumo 0
+   reactiontime 15
+   drawwinner 0
+   maxcontacts 8
+env_obj 1
+   shape sphere
+   pos 2.64 3.97 2.22
+   mass 0.0005
+   color 1.00 1.00 0.00 1.00
+   rot 0.00 0.00 0.00
+   sides 0.30 0.50 0.50
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 5.000000
+   friction 10000.00
+env_obj 2
+   shape box
+   pos 0.62 -7.56 1.32
+   color 0.00 1.00 1.00 1.00
+   rot 0.00 0.00 0.00
+   sides 10.00 0.20 5.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 3
+   shape box
+   pos -4.13 -6.63 1.35
+   color 0.00 1.00 1.00 1.00
+   rot 0.00 0.00 0.00
+   sides 0.50 2.00 5.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 4
+   shape box
+   pos 5.37 -6.62 1.31
+   color 0.00 1.00 1.00 1.00
+   rot 0.00 0.00 0.00
+   sides 0.50 2.00 5.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+env_obj 5
+   shape box
+   pos 0.62 -6.63 3.97
+   color 0.00 1.00 1.00 1.00
+   rot 0.00 0.00 0.00
+   sides 10.00 2.00 0.50
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+player 0
+   body r_hand
+      pos -0.35 0.85 2.30
+   body l_hand
+      pos 2.35 0.85 2.30
+player 1
+   body r_hand
+      pos -0.35 0.85 2.30
+   body l_hand
+      pos 2.35 0.85 2.30

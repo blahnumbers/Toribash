@@ -1,0 +1,1560 @@
+#!/usr/bin/toribash
+version 12
+world_shader data/shader/Angel Lava.inc
+gamerule
+   matchframes 500
+   turnframes 5
+   flags 0
+   grip 1
+   dismemberment 0
+   fracture 0
+   disqualification 0
+   dqtimeout 0
+   dqflag 0
+   dismemberthreshold 0
+   fracturethreshold 0
+   pointthreshold 3
+   winpoint 0
+   dojotype 0
+   dojosize 1100
+   engagedistance 200
+   engageheight 250
+   engagerotation 0
+   engagespace 0
+   engageplayerpos 0.00,1.00,2.50,0.00,-1.00,2.50
+   engageplayerrot 0,0,0,0,0,180
+   damage 0
+   gravity 0.00 0.00 -110.00
+   sumo 0
+   reactiontime 20
+   drawwinner 0
+   maxcontacts 8
+   ghostlength 100
+   ghostspeed 100
+   ghostcustom 0
+   grabmode 0
+   tearthreshold 0
+use_model 0
+model_name modmaker
+env_obj 1
+   shape box
+   pos 0.51 -41.88 2.64
+   color 0.87 0.78 0.00 1.00
+   visible 0
+   rot 0.00 0.00 0.00
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj1
+env_obj 2
+   shape box
+   pos 0.51 -43.39 2.82
+   visible 0
+   rot 0.00 0.00 0.00
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj2
+env_obj 3
+   shape box
+   pos 0.50 -44.85 2.82
+   visible 0
+   rot 0.00 0.00 0.00
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj3
+env_obj 4
+   shape box
+   pos 0.50 -46.27 2.82
+   visible 0
+   rot 0.00 0.00 0.00
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj4
+env_obj 5
+   shape box
+   pos 0.50 -47.64 2.82
+   visible 0
+   rot 0.00 0.00 0.00
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj5
+env_obj 6
+   shape box
+   pos 0.50 -48.96 2.82
+   visible 0
+   rot 0.00 0.00 0.00
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj6
+env_obj 7
+   shape box
+   pos 0.49 -50.28 2.82
+   visible 0
+   rot 0.00 0.00 0.00
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj7
+env_obj 8
+   shape box
+   pos 0.49 -51.54 2.82
+   visible 0
+   rot 0.00 0.00 0.00
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj8
+env_obj 9
+   shape box
+   pos 0.49 -52.75 2.83
+   visible 0
+   rot 0.00 0.00 0.00
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj9
+env_obj 10
+   shape box
+   pos 0.48 -53.95 2.83
+   visible 0
+   rot 0.00 0.00 0.00
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj10
+env_obj 11
+   shape box
+   pos 0.48 -55.09 2.83
+   visible 0
+   rot 0.00 0.00 0.00
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj11
+env_obj 12
+   shape box
+   pos 0.48 -57.48 2.84
+   visible 0
+   rot 0.00 0.00 0.00
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj12
+env_obj 13
+   shape box
+   pos 0.47 -58.52 2.84
+   visible 0
+   rot 0.00 0.00 0.00
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj13
+env_obj 14
+   shape box
+   pos 0.47 -59.52 2.84
+   visible 0
+   rot 0.00 0.00 0.00
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj14
+env_obj 15
+   shape box
+   pos -0.03 -58.44 3.24
+   visible 0
+   rot 0.00 0.00 0.00
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj15
+env_obj 16
+   shape box
+   pos 0.93 -50.64 2.97
+   visible 0
+   rot 0.00 0.00 0.00
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj16
+env_obj 17
+   shape box
+   pos 0.99 -0.10 -1.01
+   color 0.22 0.22 0.22 1.00
+   rot 0.00 0.00 90.00
+   sides 80.00 80.00 3.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj17
+env_obj 18
+   shape box
+   pos 1.00 6.90 0.90
+   color 0.12 0.12 0.12 1.00
+   rot 0.00 0.00 0.00
+   sides 15.00 2.00 3.50
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj18
+env_obj 19
+   shape box
+   pos 1.00 -7.10 0.90
+   color 0.12 0.12 0.12 1.00
+   rot 0.00 0.00 0.00
+   sides 15.00 2.00 3.50
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj19
+env_obj 20
+   shape box
+   pos 0.97 -0.12 0.00
+   color 0.74 0.74 0.74 1.00
+   rot 0.00 0.00 90.00
+   sides 12.00 12.00 5.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj20
+env_obj 21
+   shape box
+   pos 0.99 -0.10 30.00
+   color 0.20 0.20 0.20 1.00
+   rot 0.00 0.00 90.00
+   sides 80.00 80.00 3.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj21
+env_obj 22
+   shape cylinder
+   pos 7.00 -2.87 3.40
+   color 0.47 0.47 0.47 1.00
+   rot 0.00 0.00 0.00
+   sides 0.15 4.19 7.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj22
+env_obj 23
+   shape cylinder
+   pos 7.00 2.67 3.40
+   color 0.47 0.47 0.47 1.00
+   rot 0.00 0.00 0.00
+   sides 0.15 4.19 7.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj23
+env_obj 24
+   shape cylinder
+   pos -5.00 2.67 3.40
+   color 0.47 0.47 0.47 1.00
+   rot 0.00 0.00 0.00
+   sides 0.15 4.19 7.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj24
+env_obj 25
+   shape cylinder
+   pos -5.00 -2.87 3.40
+   color 0.47 0.47 0.47 1.00
+   rot 0.00 0.00 0.00
+   sides 0.15 4.19 7.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj25
+env_obj 26
+   shape cylinder
+   pos 3.77 5.90 3.40
+   color 0.47 0.47 0.47 1.00
+   rot 0.00 0.00 0.00
+   sides 0.15 4.19 7.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj26
+env_obj 27
+   shape cylinder
+   pos -1.77 5.90 3.40
+   color 0.47 0.47 0.47 1.00
+   rot 0.00 0.00 0.00
+   sides 0.15 4.19 7.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj27
+env_obj 28
+   shape cylinder
+   pos -1.77 -6.10 3.40
+   color 0.47 0.47 0.47 1.00
+   rot 0.00 0.00 0.00
+   sides 0.15 4.19 7.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj28
+env_obj 29
+   shape cylinder
+   pos 3.77 -6.10 3.40
+   color 0.47 0.47 0.47 1.00
+   rot 0.00 0.00 0.00
+   sides 0.15 4.19 7.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj29
+env_obj 30
+   shape cylinder
+   pos 1.00 5.90 5.50
+   color 0.47 0.47 0.47 1.00
+   rot 0.00 90.00 0.00
+   sides 0.15 5.52 0.02
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj30
+env_obj 31
+   shape cylinder
+   pos 1.00 -6.10 5.50
+   color 0.47 0.47 0.47 1.00
+   rot 0.00 90.00 0.00
+   sides 0.15 5.52 0.02
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj31
+env_obj 32
+   shape cylinder
+   pos 7.00 -0.10 5.50
+   color 0.47 0.47 0.47 1.00
+   rot 90.00 0.00 0.00
+   sides 0.15 5.52 0.02
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj32
+env_obj 33
+   shape cylinder
+   pos -5.00 -0.10 5.50
+   color 0.47 0.47 0.47 1.00
+   rot 90.00 0.00 0.00
+   sides 0.15 5.52 0.02
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj33
+env_obj 34
+   shape cylinder
+   pos 5.38 4.29 5.50
+   color 0.47 0.47 0.47 1.00
+   rot 90.00 45.00 0.00
+   sides 0.15 4.57 0.02
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj34
+env_obj 35
+   shape cylinder
+   pos -3.38 -4.48 5.50
+   color 0.47 0.47 0.47 1.00
+   rot 90.00 45.00 0.00
+   sides 0.15 4.57 0.02
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj35
+env_obj 36
+   shape cylinder
+   pos 5.38 -4.48 5.50
+   color 0.47 0.47 0.47 1.00
+   rot 90.00 -45.00 0.00
+   sides 0.15 4.57 0.02
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj36
+env_obj 37
+   shape cylinder
+   pos -3.38 4.28 5.50
+   color 0.47 0.47 0.47 1.00
+   rot 90.00 -45.00 0.00
+   sides 0.15 4.57 0.02
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj37
+env_obj 38
+   shape box
+   pos -5.25 -0.10 2.00
+   color 1.00 0.00 0.00 1.00
+   visible 0
+   rot 0.00 0.00 0.00
+   sides 0.50 5.50 7.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj38
+env_obj 39
+   shape box
+   pos 7.25 -0.10 2.00
+   color 1.00 0.00 0.00 1.00
+   visible 0
+   rot 0.00 0.00 0.00
+   sides 0.50 5.50 7.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj39
+env_obj 40
+   shape box
+   pos 1.00 6.15 2.00
+   color 1.00 0.00 0.00 1.00
+   visible 0
+   rot 0.00 0.00 90.00
+   sides 0.50 5.50 7.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj40
+env_obj 41
+   shape box
+   pos 1.00 -6.35 2.00
+   color 1.00 0.00 0.00 1.00
+   visible 0
+   rot 0.00 0.00 90.00
+   sides 0.50 5.50 7.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj41
+env_obj 42
+   shape box
+   pos 5.55 -4.65 2.00
+   color 1.00 0.00 0.00 1.00
+   visible 0
+   rot 0.00 0.00 45.00
+   sides 0.50 5.00 7.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj42
+env_obj 43
+   shape box
+   pos -3.55 4.45 2.00
+   color 1.00 0.00 0.00 1.00
+   visible 0
+   rot 0.00 0.00 45.00
+   sides 0.50 5.00 7.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj43
+env_obj 44
+   shape box
+   pos -3.55 -4.65 2.00
+   color 1.00 0.00 0.00 1.00
+   visible 0
+   rot 0.00 0.00 135.00
+   sides 0.50 5.00 7.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj44
+env_obj 45
+   shape box
+   pos 5.55 4.45 2.00
+   color 1.00 0.00 0.00 1.00
+   visible 0
+   rot 0.00 0.00 135.00
+   sides 0.50 5.00 7.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj45
+env_obj 46
+   shape box
+   pos 8.00 -0.10 0.90
+   color 0.12 0.12 0.12 1.00
+   rot 0.00 0.00 90.00
+   sides 16.00 2.00 3.50
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj46
+env_obj 47
+   shape box
+   pos -6.00 -0.10 0.90
+   color 0.12 0.12 0.12 1.00
+   rot 0.00 0.00 90.00
+   sides 16.00 2.00 3.50
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj47
+env_obj 50
+   shape box
+   pos -4.25 -5.35 0.90
+   color 0.12 0.12 0.12 1.00
+   rot 0.00 0.00 45.00
+   sides 5.00 2.45 3.50
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj50
+env_obj 51
+   shape box
+   pos 6.25 5.15 0.90
+   color 0.12 0.12 0.12 1.00
+   rot 0.00 0.00 45.00
+   sides 5.00 2.45 3.50
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj51
+env_obj 52
+   shape cylinder
+   pos 1.00 -0.10 0.00
+   color 0.00 0.00 0.00 0.78
+   visible 0
+   rot 90.00 -45.00 0.00
+   sides 0.02 3.30 0.02
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj52
+env_obj 53
+   shape box
+   pos -4.25 5.15 0.90
+   color 0.12 0.12 0.12 1.00
+   rot 0.00 0.00 -45.00
+   sides 5.00 2.45 3.50
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj53
+env_obj 54
+   shape box
+   pos 6.25 -5.35 0.90
+   color 0.12 0.12 0.12 1.00
+   rot 0.00 0.00 -45.00
+   sides 5.00 2.45 3.50
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj54
+env_obj 119
+   shape box
+   pos 30.00 -0.10 -1.01
+   color 0.35 0.35 0.35 1.00
+   rot 0.00 90.00 90.00
+   sides 80.00 80.00 3.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj119
+env_obj 120
+   shape box
+   pos -28.00 -0.10 -1.02
+   color 0.35 0.35 0.35 1.00
+   rot 0.00 90.00 90.00
+   sides 80.00 80.00 3.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj120
+env_obj 121
+   shape box
+   pos 1.00 29.40 -1.00
+   color 0.35 0.35 0.35 1.00
+   rot 90.00 0.00 0.00
+   sides 80.00 80.00 3.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj121
+env_obj 122
+   shape box
+   pos 1.00 -29.60 -1.01
+   color 0.35 0.35 0.35 1.00
+   rot 90.00 0.00 0.00
+   sides 80.00 80.00 3.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj122
+env_obj 127
+   shape box
+   pos 1.00 29.40 19.00
+   color 0.59 0.20 0.16 0.78
+   rot 90.00 0.00 0.00
+   sides 20.00 7.50 4.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj127
+env_obj 128
+   shape box
+   pos 1.00 -29.60 19.00
+   color 0.31 0.78 0.78 0.78
+   rot 90.00 0.00 0.00
+   sides 20.00 7.50 4.00
+   force 0.00 0.00 0.00
+   flag 24
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj128
+player 0
+   body head
+      pos 1.00 0.85 2.65
+      density 0.0319
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 5100
+	  flag 24 
+   body breast
+      sides 0.21 0.10 0.30
+      pos 1.00 0.92 2.21
+      density 0.1437
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 0
+	  flag 24
+   body chest
+      sides 0.47 0.15 0.20
+      pos 1.00 0.94 1.95
+      density 0.0670
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 1001
+	  flag 24
+   body stomach
+      sides 0.37 0.13 0.20
+      pos 1.00 0.96 1.75
+      density 0.0829
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 3010
+	  flag 24
+   body groin
+      sides 0.20 0.15 0.19
+      pos 1.00 1.00 1.55
+      density 0.1053
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 0
+	  flag 24
+   body r_pecs
+      sides 0.25 0.15 0.22
+      pos 0.85 0.92 2.13
+      rot -5.00 -45.00 0.00
+      density 0.1087
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 0
+	  flag 24
+   body r_biceps
+      sides 0.40 0.14 0.16
+      pos 0.45 0.92 2.30
+      density 0.0422
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 0
+	  flag 24
+   body r_triceps
+      sides 0.40 0.09 0.11
+      pos 0.05 0.92 2.30
+      density 0.0411
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 0
+	  flag 24
+   body l_pecs
+      sides 0.25 0.15 0.22
+      pos 1.15 0.92 2.13
+      rot -5.00 45.00 0.00
+      density 0.1087
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 0
+	  flag 24
+   body l_biceps
+      sides 0.40 0.14 0.16
+      pos 1.55 0.92 2.30
+      density 0.0422
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 0
+	  flag 24
+   body l_triceps
+      sides 0.40 0.09 0.11
+      pos 1.95 0.92 2.30
+      density 0.0411
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 0
+	  flag 24
+   body r_hand
+      sides 0.17 0.15 0.16
+      pos -0.35 0.88 2.32
+      density 0.0207
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+	  flag 24
+   body l_hand
+      sides 0.17 0.15 0.16
+      pos 2.35 0.88 2.32
+      density 0.0207
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+	  flag 24
+   body r_butt
+      pos 0.81 1.02 1.45
+      density 0.6956
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 0
+	  flag 24
+   body l_butt
+      pos 1.19 1.02 1.45
+      density 0.6956
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 0
+	  flag 24
+   body r_thigh
+      sides 0.14 0.30 0.00
+      pos 0.80 1.00 1.10
+      density 0.0853
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 1001
+	  flag 24
+   body l_thigh
+      sides 0.14 0.30 0.20
+      pos 1.20 1.00 1.10
+      density 0.0853
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 1001
+	  flag 24
+   body l_leg
+      sides 0.11 0.30 0.00
+      pos 1.20 1.00 0.50
+      density 0.0628
+      point_hit 501
+	  flag 24
+   body r_leg
+      sides 0.11 0.30 0.00
+      pos 0.80 1.00 0.50
+      density 0.0628
+      point_hit 501
+	  flag 24
+   body r_foot
+      sides 0.20 0.45 0.08
+      pos 0.80 0.95 0.10
+      density 0.0274
+	  flag 24
+   body l_foot
+      sides 0.20 0.45 0.08
+      pos 1.20 0.95 0.10
+      density 0.0274
+	  flag 24
+   joint neck
+      pos 1.00 0.90 2.50
+      strength 0.60
+      velocity 13.00
+      dm_threshold 0
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 1000
+	  flag 24
+   joint chest
+      radius 0.16
+      pos 1.00 0.91 2.07
+      strength 2.60
+      velocity 14.30
+      dm_threshold 0
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 1001
+	  flag 24
+   joint lumbar
+      radius 0.15
+      pos 1.00 0.96 1.85
+      range 0.55 -0.55
+      strength 4.00
+      velocity 6.15
+      dm_threshold 0
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 3010
+	  flag 24
+   joint abs
+      pos 1.00 1.00 1.66
+      range 0.35 -0.70
+      strength 4.60
+      velocity 6.35
+      dm_threshold 0
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 3010
+	  flag 24
+   joint r_pecs
+      radius 0.15
+      pos 0.85 0.88 2.20
+      strength 0.67
+      velocity 23.00
+      dm_threshold 0
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 0
+	  flag 24
+   joint r_shoulder
+      radius 0.13
+      pos 0.65 0.90 2.30
+      strength 0.66
+      dm_threshold 0
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 0
+	  flag 24
+   joint r_elbow
+      radius 0.11
+      pos 0.25 0.92 2.30
+      axis 0.00 0.65 1.00
+      strength 0.60
+      velocity 37.00
+      dm_threshold 0
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+	  flag 24
+   joint l_pecs
+      radius 0.15
+      pos 1.15 0.88 2.20
+      strength 0.67
+      velocity 23.00
+      dm_threshold 0
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 0
+	  flag 24
+   joint l_shoulder
+      radius 0.13
+      pos 1.35 0.92 2.30
+      strength 0.66
+      dm_threshold 0
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 0
+	  flag 24
+   joint l_elbow
+      radius 0.11
+      pos 1.75 0.92 2.30
+      axis 0.00 0.65 1.00
+      strength 0.60
+      velocity 37.00
+      dm_threshold 0
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+	  flag 24
+   joint r_wrist
+      radius 0.08
+      pos -0.20 0.90 2.30
+      range 1.85 0.00
+      strength 0.45
+      velocity 30.00
+      dm_threshold 0
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 0
+	  flag 24
+   joint l_wrist
+      radius 0.08
+      pos 2.20 0.90 2.30
+      range 1.85 0.00
+      strength 0.45
+      velocity 30.00
+      dm_threshold 0
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 0
+	  flag 24
+   joint r_glute
+      radius 0.15
+      pos 0.90 1.10 1.51
+      axis 0.00 1.00 -0.25
+      range 1.00 -0.40
+      strength 1.55
+      velocity 11.25
+      dm_threshold 0
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 0
+	  flag 24
+   joint l_glute
+      radius 0.15
+      pos 1.10 1.10 1.51
+      axis 0.00 1.00 -0.25
+      range 1.00 -0.40
+      strength 1.55
+      velocity 11.25
+      dm_threshold 0
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 0
+	  flag 24
+   joint r_hip
+      radius 0.15
+      pos 0.79 1.00 1.40
+      range 1.10 -1.90
+      strength 2.30
+      velocity 15.20
+      dm_threshold 0
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 0
+	  flag 24
+   joint l_hip
+      radius 0.15
+      pos 1.21 1.00 1.40
+      range 1.10 -1.90
+      strength 2.30
+      velocity 15.20
+      dm_threshold 0
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 0
+	  flag 24
+   joint r_knee
+      radius 0.13
+      pos 0.80 1.00 0.80
+      strength 1.90
+      velocity 38.60
+      dm_threshold 0
+	  flag 24
+   joint l_knee
+      radius 0.13
+      pos 1.20 1.00 0.80
+      strength 1.90
+      velocity 38.60
+      dm_threshold 0
+	  flag 24
+   joint r_ankle
+      pos 0.80 1.05 0.25
+      strength 0.90
+      velocity 15.50
+      dm_threshold 0
+      point_hit 0
+	  flag 24
+   joint l_ankle
+      pos 1.20 1.05 0.25
+      strength 0.90
+      velocity 15.50
+      dm_threshold 0
+      point_hit 0
+	  flag 24
+player 1
+   body head
+      pos 1.00 0.85 2.65
+      density 0.0319
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 5100
+	  flag 24 
+   body breast
+      sides 0.21 0.10 0.30
+      pos 1.00 0.92 2.21
+      density 0.1437
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 0
+	  flag 24
+   body chest
+      sides 0.47 0.15 0.20
+      pos 1.00 0.94 1.95
+      density 0.0670
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 1001
+	  flag 24
+   body stomach
+      sides 0.37 0.13 0.20
+      pos 1.00 0.96 1.75
+      density 0.0829
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 3010
+	  flag 24
+   body groin
+      sides 0.20 0.15 0.19
+      pos 1.00 1.00 1.55
+      density 0.1053
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 0
+	  flag 24
+   body r_pecs
+      sides 0.25 0.15 0.22
+      pos 0.85 0.92 2.13
+      rot -5.00 -45.00 0.00
+      density 0.1087
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 0
+	  flag 24
+   body r_biceps
+      sides 0.40 0.14 0.16
+      pos 0.45 0.92 2.30
+      density 0.0422
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 0
+	  flag 24
+   body r_triceps
+      sides 0.40 0.09 0.11
+      pos 0.05 0.92 2.30
+      density 0.0411
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 0
+	  flag 24
+   body l_pecs
+      sides 0.25 0.15 0.22
+      pos 1.15 0.92 2.13
+      rot -5.00 45.00 0.00
+      density 0.1087
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 0
+	  flag 24
+   body l_biceps
+      sides 0.40 0.14 0.16
+      pos 1.55 0.92 2.30
+      density 0.0422
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 0
+	  flag 24
+   body l_triceps
+      sides 0.40 0.09 0.11
+      pos 1.95 0.92 2.30
+      density 0.0411
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 0
+	  flag 24
+   body r_hand
+      sides 0.17 0.15 0.16
+      pos -0.35 0.88 2.32
+      density 0.0207
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+	  flag 24
+   body l_hand
+      sides 0.17 0.15 0.16
+      pos 2.35 0.88 2.32
+      density 0.0207
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+	  flag 24
+   body r_butt
+      pos 0.81 1.02 1.45
+      density 0.6956
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 0
+	  flag 24
+   body l_butt
+      pos 1.19 1.02 1.45
+      density 0.6956
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 0
+	  flag 24
+   body r_thigh
+      sides 0.14 0.30 0.00
+      pos 0.80 1.00 1.10
+      density 0.0853
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 1001
+	  flag 24
+   body l_thigh
+      sides 0.14 0.30 0.20
+      pos 1.20 1.00 1.10
+      density 0.0853
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 1001
+	  flag 24
+   body l_leg
+      sides 0.11 0.30 0.00
+      pos 1.20 1.00 0.50
+      density 0.0628
+      point_hit 501
+	  flag 24
+   body r_leg
+      sides 0.11 0.30 0.00
+      pos 0.80 1.00 0.50
+      density 0.0628
+      point_hit 501
+	  flag 24
+   body r_foot
+      sides 0.20 0.45 0.08
+      pos 0.80 0.95 0.10
+      density 0.0274
+	  flag 24
+   body l_foot
+      sides 0.20 0.45 0.08
+      pos 1.20 0.95 0.10
+      density 0.0274
+	  flag 24
+   joint neck
+      pos 1.00 0.90 2.50
+      strength 0.60
+      velocity 13.00
+      dm_threshold 0
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 1000
+	  flag 24
+   joint chest
+      radius 0.16
+      pos 1.00 0.91 2.07
+      strength 2.60
+      velocity 14.30
+      dm_threshold 0
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 1001
+	  flag 24
+   joint lumbar
+      radius 0.15
+      pos 1.00 0.96 1.85
+      range 0.55 -0.55
+      strength 4.00
+      velocity 6.15
+      dm_threshold 0
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 3010
+	  flag 24
+   joint abs
+      pos 1.00 1.00 1.66
+      range 0.35 -0.70
+      strength 4.60
+      velocity 6.35
+      dm_threshold 0
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 3010
+	  flag 24
+   joint r_pecs
+      radius 0.15
+      pos 0.85 0.88 2.20
+      strength 0.67
+      velocity 23.00
+      dm_threshold 0
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 0
+	  flag 24
+   joint r_shoulder
+      radius 0.13
+      pos 0.65 0.90 2.30
+      strength 0.66
+      dm_threshold 0
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 0
+	  flag 24
+   joint r_elbow
+      radius 0.11
+      pos 0.25 0.92 2.30
+      axis 0.00 0.65 1.00
+      strength 0.60
+      velocity 37.00
+      dm_threshold 0
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+	  flag 24
+   joint l_pecs
+      radius 0.15
+      pos 1.15 0.88 2.20
+      strength 0.67
+      velocity 23.00
+      dm_threshold 0
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 0
+	  flag 24
+   joint l_shoulder
+      radius 0.13
+      pos 1.35 0.92 2.30
+      strength 0.66
+      dm_threshold 0
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 0
+	  flag 24
+   joint l_elbow
+      radius 0.11
+      pos 1.75 0.92 2.30
+      axis 0.00 0.65 1.00
+      strength 0.60
+      velocity 37.00
+      dm_threshold 0
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+	  flag 24
+   joint r_wrist
+      radius 0.08
+      pos -0.20 0.90 2.30
+      range 1.85 0.00
+      strength 0.45
+      velocity 30.00
+      dm_threshold 0
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 0
+	  flag 24
+   joint l_wrist
+      radius 0.08
+      pos 2.20 0.90 2.30
+      range 1.85 0.00
+      strength 0.45
+      velocity 30.00
+      dm_threshold 0
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 0
+	  flag 24
+   joint r_glute
+      radius 0.15
+      pos 0.90 1.10 1.51
+      axis 0.00 1.00 -0.25
+      range 1.00 -0.40
+      strength 1.55
+      velocity 11.25
+      dm_threshold 0
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 0
+	  flag 24
+   joint l_glute
+      radius 0.15
+      pos 1.10 1.10 1.51
+      axis 0.00 1.00 -0.25
+      range 1.00 -0.40
+      strength 1.55
+      velocity 11.25
+      dm_threshold 0
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 0
+	  flag 24
+   joint r_hip
+      radius 0.15
+      pos 0.79 1.00 1.40
+      range 1.10 -1.90
+      strength 2.30
+      velocity 15.20
+      dm_threshold 0
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 0
+	  flag 24
+   joint l_hip
+      radius 0.15
+      pos 1.21 1.00 1.40
+      range 1.10 -1.90
+      strength 2.30
+      velocity 15.20
+      dm_threshold 0
+      trig_id 4
+      trig_mask 1
+      trig_action 2
+      trig_color 0.00 0.00 1.00 1.00
+      point_hit 0
+	  flag 24
+   joint r_knee
+      radius 0.13
+      pos 0.80 1.00 0.80
+      strength 1.90
+      velocity 38.60
+      dm_threshold 0
+	  flag 24
+   joint l_knee
+      radius 0.13
+      pos 1.20 1.00 0.80
+      strength 1.90
+      velocity 38.60
+      dm_threshold 0
+	  flag 24
+   joint r_ankle
+      pos 0.80 1.05 0.25
+      strength 0.90
+      velocity 15.50
+      dm_threshold 0
+      point_hit 0
+	  flag 24
+   joint l_ankle
+      pos 1.20 1.05 0.25
+      strength 0.90
+      velocity 15.50
+      dm_threshold 0
+      point_hit 0
+	  flag 24

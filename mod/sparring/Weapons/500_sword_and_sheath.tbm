@@ -1,0 +1,258 @@
+#!/usr/bin/toribash
+version 12
+gamerule
+   matchframes 500
+   turnframes 10
+   flags 2
+   dismemberment 1
+   fracture 0
+   disqualification 0
+   dqtimeout 0
+   dqflag 0
+   dismemberthreshold 100
+   fracturethreshold 0
+   pointthreshold 0
+   dojotype 0
+   dojosize 0
+   engagedistance 500
+   engageheight 0
+   engagerotation 0
+   engagespace 0
+   engageplayerpos 
+   engageplayerrot 0,0,0,0,0,0
+   damage 0
+   gravity 0.00 0.00 -30.00
+   sumo 0
+   reactiontime 15
+   drawwinner 0
+   maxcontacts 8
+env_obj 1
+   shape box
+   pos 2.48 2.45 1.80
+   mass 0.0001
+   color 0.39 0.39 0.39 1.00
+   rot 0.00 0.00 0.00
+   sides 0.05 0.21 1.50
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 0.01
+env_obj 2
+   shape box
+   pos 2.52 2.45 1.80
+   mass 0.0001
+   color 0.78 0.78 0.78 1.00
+   rot 0.00 0.00 0.00
+   sides 0.03 0.10 1.50
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 0.01
+env_obj 3
+   shape box
+   pos 2.56 2.45 1.80
+   mass 0.0001
+   color 0.39 0.39 0.39 1.00
+   rot 0.00 0.00 0.00
+   sides 0.05 0.21 1.50
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 0.01
+env_obj 4
+   shape box
+   pos 2.52 2.53 1.80
+   mass 0.0001
+   color 0.39 0.39 0.39 1.00
+   rot 0.00 0.00 0.00
+   sides 0.03 0.05 1.50
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 0.00
+env_obj 5
+   shape box
+   pos 2.52 2.37 1.80
+   mass 0.0001
+   color 0.39 0.39 0.39 1.00
+   rot 0.00 0.00 0.00
+   sides 0.03 0.05 1.50
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 0.00
+env_obj 6
+   shape box
+   pos 2.52 2.45 1.04
+   mass 0.0001
+   color 0.39 0.39 0.39 1.00
+   rot 0.00 0.00 0.00
+   sides 0.13 0.21 0.03
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.000000
+   friction 0.00
+env_obj 7
+   shape box
+   pos 2.52 2.45 2.56
+   mass 0.0001
+   color 0.00 0.00 0.00 1.00
+   rot 0.00 0.00 0.00
+   sides 0.19 0.33 0.03
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 0.00
+env_obj 8
+   shape box
+   pos 2.52 2.45 2.67
+   mass 0.0001
+   color 0.00 0.00 0.00 1.00
+   rot 0.00 0.00 0.00
+   sides 0.08 0.08 0.20
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 0.00
+env_obj 9
+   shape box
+   pos 2.52 2.57 1.80
+   mass 0.0001
+   color 0.39 0.39 0.39 1.00
+   rot 0.00 0.00 0.00
+   sides 0.13 0.03 1.50
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 0.01
+env_obj 10
+   shape box
+   pos 2.52 2.33 1.80
+   mass 0.0001
+   color 0.39 0.39 0.39 1.00
+   rot 0.00 0.00 0.00
+   sides 0.13 0.03 1.50
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 0.01
+env_obj 11
+   shape box
+   pos 2.60 2.45 2.47
+   mass 0.0001
+   color 0.00 0.00 0.00 1.00
+   rot 0.00 0.00 0.00
+   sides 0.03 0.03 0.20
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 0.00
+env_obj 12
+   shape box
+   pos 2.44 2.45 2.47
+   mass 0.0001
+   color 0.00 0.00 0.00 1.00
+   rot 0.00 0.00 0.00
+   sides 0.03 0.03 0.20
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 0.00
+env_obj 13
+   shape box
+   pos 2.52 2.60 2.47
+   mass 0.0001
+   color 0.00 0.00 0.00 1.00
+   rot 0.00 0.00 0.00
+   sides 0.03 0.03 0.20
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 0.00
+env_obj 14
+   shape box
+   pos 2.52 2.30 2.47
+   mass 0.0001
+   color 0.00 0.00 0.00 1.00
+   rot 0.00 0.00 0.00
+   sides 0.03 0.03 0.20
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 0.00
+env_obj_joint 1 6 1
+   pos 2.48 2.45 1.10
+   axis 0.00 180.00 0.00
+   strength 999999984306749440.00
+env_obj_joint 2 6 3
+   pos 2.56 2.45 2.50
+   axis 0.00 180.00 0.00
+   strength 10000000272564224.00
+env_obj_joint 3 6 4
+   pos 2.52 2.50 1.10
+   strength 999999995904.00
+env_obj_joint 4 6 5
+   pos 2.52 2.39 1.10
+   axis 0.00 360.00 0.00
+   strength 10000000272564224.00
+env_obj_joint 5 6 9
+   pos 2.52 2.35 1.10
+   strength 10000000000.00
+env_obj_joint 6 6 10
+   pos 2.52 2.55 1.10
+   axis 0.00 360.00 0.00
+   strength 999999995904.00
+env_obj_joint 7 10 3
+   pos 2.56 2.36 2.45
+   strength 999999.00
+env_obj_joint 8 3 9
+   pos 2.56 2.56 2.45
+env_obj_joint 9 10 1
+   pos 2.47 2.36 2.45
+   strength 9999999.00
+env_obj_joint 10 9 1
+   pos 2.47 2.56 2.45
+   strength 10000000000.00
+env_obj_joint 11 2 7
+   pos 2.52 2.45 2.50
+   strength 9999999.00
+env_obj_joint 12 2 8
+   pos 2.52 2.45 2.60
+env_obj_joint 13 7 11
+   pos 2.56 2.45 2.50
+   strength 9999999.00
+env_obj_joint 14 7 12
+   pos 2.49 2.45 2.50
+   strength 100000000.00
+env_obj_joint 15 13 7
+   pos 2.52 2.55 2.50
+   strength 10000000000.00
+env_obj_joint 16 7 14
+   pos 2.52 2.35 2.50
+   strength 9999999.00
+player 0
+   body r_hand
+      pos -0.35 0.85 2.30
+   body l_hand
+      pos 2.35 0.90 2.30
+   joint l_shoulder
+      pos 1.35 0.90 2.30
+      strength 5.00
+   joint l_elbow
+      pos 1.75 0.90 2.30
+      strength 3.00
+   joint r_wrist
+      pos -0.20 0.90 2.30
+      axis 180.00 180.00 1.00
+      range 1.50 -2.00
+   joint l_wrist
+      pos 2.20 0.90 2.30
+      axis 180.00 0.00 1.00
+      range 1.30 -1.30
+      strength 1.00
+      velocity 30.00
+player 1
+   body r_hand
+      pos -0.35 0.85 2.30
+   body l_hand
+      pos 2.35 0.85 2.30

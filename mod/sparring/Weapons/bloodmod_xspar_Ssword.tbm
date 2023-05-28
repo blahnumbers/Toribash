@@ -1,0 +1,109 @@
+#!/usr/bin/toribash
+version 12
+message ^04(Mod made by Bloodage2)^02 This mod is to train/practice/or general sparring ^02with a ^02short sword. Do not hit the player. Only contact should be sword on ^02sword. ^04(Unless you agree otherwise)
+gamerule
+   matchframes 1000
+   turnframes 10
+   flags 0
+   dismemberment 0
+   fracture 0
+   disqualification 0
+   dqtimeout 0
+   dqflag 0
+   dismemberthreshold 100
+   fracturethreshold 100
+   pointthreshold 0
+   dojotype 0
+   dojosize 0
+   engagedistance 400
+   engageheight 0
+   engagerotation 0
+   engagespace 0
+   engageplayerpos 
+   engageplayerrot 0,0,0,0,0,0
+   damage 0
+   gravity 0.00 0.00 -30.00
+   sumo 1
+   reactiontime 10000
+   drawwinner 0
+   maxcontacts 8
+env_obj 1
+   shape box
+   pos -0.35 1.90 2.20
+   mass 0.0000
+   color 0.24 0.24 0.24 1.00
+   rot 0.00 0.00 0.00
+   sides 0.08 0.08 0.40
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 10000.00
+env_obj 2
+   shape box
+   pos -0.35 1.90 2.80
+   mass 0.0000
+   color 0.78 0.78 0.78 1.00
+   rot 0.00 0.00 0.00
+   sides 0.05 0.02 0.80
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 10000.00
+env_obj 3
+   shape box
+   pos 2.35 -2.10 2.20
+   mass 0.0000
+   color 0.24 0.24 0.24 1.00
+   rot 0.00 0.00 0.00
+   sides 0.08 0.08 0.40
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 10000.00
+env_obj 4
+   shape box
+   pos 2.35 -2.10 2.80
+   mass 0.0000
+   color 0.78 0.78 0.78 1.00
+   rot 0.00 0.00 0.00
+   sides 0.05 0.02 0.80
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 10000.00
+env_obj_joint 1 1 2
+   pos 1.00 -0.10 0.00
+   strength 55555.00
+env_obj_joint 2 3 4
+   pos 1.00 -0.10 0.00
+   strength 5555.00
+player 0
+   body r_hand
+      alt_sides 0.20 0.20 0.20
+      pos -0.35 0.85 2.30
+   body l_hand
+      alt_sides 0.20 0.20 0.20
+      pos 2.35 0.85 2.30
+   joint r_wrist
+      pos -0.20 0.90 2.30
+      axis 0.00 1.00 0.00
+      range 1.00 -1.30
+   joint l_wrist
+      pos 2.20 0.90 2.30
+      axis 0.00 1.00 0.00
+      range 1.00 -1.30
+player 1
+   body r_hand
+      alt_sides 0.20 0.20 0.20
+      pos -0.35 0.85 2.30
+   body l_hand
+      alt_sides 0.20 0.20 0.20
+      pos 2.35 0.85 2.30
+   joint r_wrist
+      pos -0.20 0.90 2.30
+      axis 0.00 1.00 0.00
+      range 1.00 -1.30
+   joint l_wrist
+      pos 2.20 0.90 2.30
+      axis 0.00 1.00 0.00
+      range 1.00 -1.30

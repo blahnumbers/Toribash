@@ -1,0 +1,188 @@
+#!/usr/bin/toribash
+version 12
+world_shader data/shader/Mirror_mata.inc
+gamerule
+   matchframes 1500
+   turnframes 10
+   flags 0
+   grip 1
+   dismemberment 0
+   fracture 0
+   disqualification 0
+   dqtimeout 0
+   dqflag 0
+   dismemberthreshold 100
+   fracturethreshold 100
+   pointthreshold 0
+   winpoint 0
+   dojotype 0
+   dojosize 0
+   engagedistance 800
+   engageheight 0
+   engagerotation 0
+   engagespace 0
+   engageplayerpos 0.00,1.00,0.30,0.00,-4.00,0.00
+   engageplayerrot 0,0,0,0,0,180
+   damage 0
+   gravity 0.00 0.00 -30.00
+   sumo 1
+   reactiontime 10000
+   drawwinner 0
+   maxcontacts 8
+use_model 0
+model_name xspar
+env_obj 1
+   shape box
+   pos 0.99 0.90 0.27
+   mass 0.0005
+   color 0.59 0.39 0.00 1.00
+   rot 0.00 0.00 0.00
+   sides 1.10 0.50 0.07
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj1
+env_obj 2
+   shape box
+   pos 1.63 0.90 0.31
+   mass 0.0005
+   color 0.59 0.39 0.00 1.00
+   rot 0.00 20.00 0.00
+   sides 0.25 0.50 0.07
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 5000.00
+   use_model 0
+   model_name env_obj2
+env_obj 3
+   shape box
+   pos 0.36 0.90 0.31
+   mass 0.0005
+   color 0.59 0.39 0.00 1.00
+   rot 0.00 -20.00 0.00
+   sides 0.25 0.50 0.07
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 5000.00
+   use_model 0
+   model_name env_obj3
+env_obj 4
+   shape box
+   pos 1.40 0.90 0.20
+   mass 0.0001
+   color 0.59 0.59 0.59 1.00
+   rot 0.00 0.00 0.00
+   sides 0.07 0.40 0.10
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 0.00
+   use_model 0
+   model_name env_obj4
+env_obj 5
+   shape box
+   pos 0.60 0.90 0.20
+   mass 0.0001
+   color 0.59 0.59 0.59 1.00
+   rot 0.00 0.00 0.00
+   sides 0.07 0.40 0.10
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 0.00
+   use_model 0
+   model_name env_obj5
+env_obj 6
+   shape sphere
+   pos 1.40 1.10 0.15
+   mass 0.0001
+   color 0.78 0.78 0.78 1.00
+   rot 0.00 0.00 0.00
+   sides 0.07 0.40 0.10
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 0.00
+   use_model 0
+   model_name env_obj6
+env_obj 7
+   shape sphere
+   pos 1.40 0.70 0.15
+   mass 0.0001
+   color 0.78 0.78 0.78 1.00
+   rot 0.00 0.00 0.00
+   sides 0.07 0.40 0.10
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 0.00
+   use_model 0
+   model_name env_obj7
+env_obj 8
+   shape sphere
+   pos 0.60 1.10 0.15
+   mass 0.0001
+   color 0.78 0.78 0.78 1.00
+   rot 0.00 0.00 0.00
+   sides 0.07 0.40 0.10
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 0.00
+   use_model 0
+   model_name env_obj8
+env_obj 9
+   shape sphere
+   pos 0.60 0.70 0.15
+   mass 0.0001
+   color 0.78 0.78 0.78 1.00
+   rot 0.00 0.00 0.00
+   sides 0.07 0.40 0.10
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 0.00
+   use_model 0
+   model_name env_obj9
+env_obj_joint 1 1 2
+   pos 1.49 0.90 0.30
+   axis 0.00 1.00 0.00
+env_obj_joint 2 3 1
+   pos 0.50 0.90 0.30
+   axis 0.00 1.00 0.00
+env_obj_joint 3 4 1
+   pos 1.40 0.90 0.25
+env_obj_joint 4 5 1
+   pos 0.60 0.90 0.25
+env_obj_joint 5 9 5
+   pos 0.60 0.70 0.20
+env_obj_joint 6 8 5
+   pos 0.60 1.10 0.20
+env_obj_joint 7 7 4
+   pos 1.40 0.70 0.20
+env_obj_joint 8 4 6
+   pos 1.40 1.10 0.20
+player 0
+   body r_hand
+      pos -0.35 0.85 2.30
+   body l_hand
+      pos 2.35 0.85 2.30
+   joint r_ankle
+      pos 0.80 1.05 0.25
+      range 1.50 -0.60
+      strength 5.00
+      velocity 15.00
+   joint l_ankle
+      pos 1.20 1.05 0.25
+      range 1.50 -0.60
+      strength 5.00
+      velocity 15.00
+player 1
+   body r_hand
+      pos -0.35 0.85 2.30
+   body l_hand
+      pos 2.35 0.85 2.30

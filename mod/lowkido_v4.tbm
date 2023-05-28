@@ -1,0 +1,49 @@
+#!/usr/bin/toribash
+version 13
+message Please to be enjoying ^32lowkido ^89:: Made by ^64avenue
+gamerule
+   matchframes 275
+   turnframes 10,10,15,20,20,25,30,30,35,40,40
+   flags 9
+   grip 1
+   dismemberment 0
+   fracture 1
+   disqualification 1
+   dqtimeout 50
+   dqflag 1
+   dismemberthreshold 100
+   fracturethreshold 200
+   pointthreshold 0
+   winpoint 0
+   dojotype 0
+   dojosize 450
+   engagedistance 140
+   engageheight 0
+   engagerotation 0
+   engagespace 0
+   engageplayerpos 
+   engageplayerrot 0,0,0,0,0,0
+   damage 0
+   gravity 0.00 0.00 -45.00
+   sumo 1
+   reactiontime 15
+   drawwinner 0
+   maxcontacts 8
+   ghostlength 100
+   ghostspeed 100
+   ghostcustom 0
+   grabmode 0
+   tearthreshold 0
+   numplayers 2
+use_model 0
+model_name spiritwrestling
+player 0
+   body r_hand
+      pos -0.35 0.85 2.30
+   body l_hand
+      pos 2.35 0.85 2.30
+player 1
+   body r_hand
+      pos -0.35 0.85 2.30
+   body l_hand
+      pos 2.35 0.85 2.30

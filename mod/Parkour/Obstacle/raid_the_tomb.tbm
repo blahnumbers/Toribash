@@ -1,0 +1,947 @@
+#!/usr/bin/toribash
+gamerule
+   matchframes 2000
+   turnframes 10
+   engageplayerpos -1,0,10.49,0,0,0
+   gravity 0 0 -30
+
+env_obj 17
+   shape box
+   pos -0.1 0 10
+   color 0.9 0.9 0.7 1
+   sides 8 20 1
+   flag 8
+
+env_obj 115
+   shape box
+   pos -2.6 -9.5 11
+   color 0.9 0.9 0.7 1
+   sides 1 1 1
+   flag 8
+
+env_obj 116
+   shape cylinder
+   pos -2.6 -9.5 13.5
+   color 0.9 0.9 0.7 1
+   sides 0.5 6 0.5
+   flag 8
+
+env_obj 117
+   shape box
+   pos -2.6 -9.5 16.5
+   color 0.9 0.9 0.7 1
+   sides 1 1 1
+   flag 8
+
+env_obj 118
+   shape box
+   pos 2.4 -9.5 11
+   color 0.9 0.9 0.7 1
+   sides 1 1 1
+   flag 8
+
+env_obj 119
+   shape cylinder
+   pos 2.4 -9.5 13.5
+   color 0.9 0.9 0.7 1
+   sides 0.5 6 0.5
+   flag 8
+
+env_obj 120
+   shape box
+   pos 2.4 -9.5 16.5
+   color 0.9 0.9 0.7 1
+   sides 1 1 1
+   flag 8
+
+env_obj 121
+   shape box
+   pos 2.6 -39 11.5
+   color 0.9 0.9 0.7 1
+   sides 1 1 1
+   flag 8
+
+env_obj 122
+   shape cylinder
+   pos 2.6 -39 13.5
+   color 0.9 0.9 0.7 1
+   sides 0.5 6 0.5
+   flag 8
+
+env_obj 123
+   shape box
+   pos 2.6 -39 16.5
+   color 0.9 0.9 0.7 1
+   sides 1 1 1
+   flag 8
+
+env_obj 124
+   shape box
+   pos -2.8 -39 11.5
+   color 0.9 0.9 0.7 1
+   sides 1 1 1
+   flag 8
+
+env_obj 125
+   shape cylinder
+   pos -2.8 -39 13.5
+   color 0.9 0.9 0.7 1
+   sides 0.5 6 0.5
+   flag 8
+
+env_obj 126
+   shape box
+   pos -2.8 -39 16.5
+   color 0.9 0.9 0.7 1
+   sides 1 1 1
+   flag 8
+
+env_obj 127
+   shape box
+   pos -2.8 -43.5 11.5
+   color 0.9 0.9 0.7 1
+   sides 1 1 1
+   flag 8
+
+env_obj 128
+   shape cylinder
+   pos -2.8 -43.5 13.5
+   color 0.9 0.9 0.7 1
+   sides 0.5 6 0.5
+   flag 8
+
+env_obj 1
+   shape box
+   pos -2.8 -43.5 16.5
+   color 0.9 0.9 0.7 1
+   sides 1 1 1
+   flag 8
+
+env_obj 4
+   shape box
+   pos 2.6 -43.5 11.5
+   color 0.9 0.9 0.7 1
+   sides 1 1 1
+   flag 8
+
+env_obj 5
+   shape cylinder
+   pos 2.6 -43.5 13.5
+   color 0.9 0.9 0.7 1
+   sides 0.5 6 0.5
+   flag 8
+
+env_obj 6
+   shape box
+   pos 2.6 -43.5 16.5
+   color 0.9 0.9 0.7 1
+   sides 1 1 1
+   flag 8
+
+env_obj 90
+   shape box
+   pos -0.1 8 10.75
+   color 0.9 0.9 0.7 1
+   sides 8 0.5 0.5
+   flag 8
+
+env_obj 91
+   shape box
+   pos -0.1 8.5 11.25
+   color 0.9 0.9 0.7 1
+   sides 8 0.5 0.5
+   flag 8
+
+env_obj 92
+   shape box
+   pos -0.1 9 11.75
+   color 0.9 0.9 0.7 1
+   sides 8 0.5 0.5
+   flag 8
+
+env_obj 93
+   shape box
+   pos -0.1 9.5 12.25
+   color 0.9 0.9 0.7 1
+   sides 8 0.5 0.5
+   flag 8
+
+env_obj 94
+   shape box
+   pos -0.1 10 12.75
+   color 0.9 0.9 0.7 1
+   sides 8 0.5 0.5
+   flag 8
+
+env_obj 95
+   shape box
+   pos -0.1 10.5 13.25
+   color 0.9 0.9 0.7 1
+   sides 8 0.5 0.5
+   flag 8
+
+env_obj 96
+   shape box
+   pos -0.1 11 13.75
+   color 0.9 0.9 0.7 1
+   sides 8 0.5 0.5
+   flag 8
+
+env_obj 97
+   shape box
+   pos -0.1 11.5 14.25
+   color 0.9 0.9 0.7 1
+   sides 8 0.5 0.5
+   flag 8
+
+env_obj 98
+   shape box
+   pos -0.1 12 14.75
+   color 0.9 0.9 0.7 1
+   sides 8 0.5 0.5
+   flag 8
+
+env_obj 99
+   shape box
+   pos -0.1 12.5 15.25
+   color 0.9 0.9 0.7 1
+   sides 8 0.5 0.5
+   flag 8
+
+env_obj 100
+   shape box
+   pos -0.1 13.75 15.75
+   color 0.9 0.9 0.7 1
+   sides 8 2 0.5
+   flag 8
+
+env_obj 101
+   shape box
+   pos -0.1 14.75 20
+   color 0.7 0.7 0.7 1
+   sides 8 2 8
+   flag 8
+
+env_obj 18
+   shape box
+   pos -0.1 12 22
+   rot -45 0 0
+   color 1 1 0.8 1
+   sides 10 14 1
+   flag 8
+
+env_obj 16
+   shape sphere
+   pos -0.1 8.5 25
+   color 0.7 0.7 0.7 1
+   sides 3 0 0
+
+env_obj 20
+   shape box
+   pos -0.1 -15 12
+   color 1 1 0.8 1
+   sides 8 10 3
+   flag 8
+
+env_obj 47
+   shape box
+   pos -0.1 -15 23
+   color 1 1 0.8 1
+   sides 8 9.9 13
+   flag 8
+
+env_obj 48
+   shape box
+   pos -0.1 -9.9 10.5
+   color 0.6 0.6 0.6 1
+   sides 8 1 1
+   flag 8
+
+env_obj 49
+   shape box
+   pos 9 5 17.5
+   color 1 1 0.8 1
+   sides 12 30 14
+   flag 8
+
+env_obj 50
+   shape box
+   pos -9.2 5 17.5
+   color 1 1 0.8 1
+   sides 12 30 14
+   flag 8
+
+env_obj 51
+   shape box
+   pos -0.1 -6 23.5
+   color 1 1 0.8 1
+   sides 20 9 13
+   flag 8
+
+env_obj 30
+   shape box
+   pos 2.9 -15 13.46
+   color 1 1 0.8 1
+   sides 3 9.9 1
+   flag 8
+
+env_obj 45
+   shape box
+   pos 2.9 -15 15.51
+   color 1 1 0.8 1
+   sides 3 9.9 3
+   flag 8
+
+env_obj 55
+   shape box
+   pos 9.9 -19.75 16.51
+   color 1 1 0.8 1
+   sides 18 0.5 17
+   flag 8
+
+env_obj 56
+   shape box
+   pos -10.1 -19.75 16.51
+   color 1 1 0.8 1
+   sides 18 0.5 17
+   flag 8
+
+env_obj 57
+   shape box
+   pos -0.1 -19.75 17.7
+   color 1 1 0.8 1
+   sides 4 0.5 3
+   flag 8
+
+env_obj 29
+   shape box
+   pos -3.1 -15 14.65
+   color 1 1 0.8 1
+   sides 3 9.9 3
+   flag 8
+
+env_obj 46
+   shape box
+   pos -3.1 -15 22.7
+   color 1 1 0.8 1
+   sides 3 9.9 13
+   flag 8
+
+env_obj 7
+   shape box
+   pos 2.9 -15 14
+   color 0.5 0.5 0.5
+   sides 7 .22 .005
+   flag 6
+
+env_obj 8
+   shape box
+   pos -3.1 -15 16.2
+   color 0.5 0.5 0.5
+   sides 7 .22 .005
+   flag 6
+
+env_obj 52
+   shape box
+   pos 2.9 -10.25 8.7
+   color 1 1 0.8 1
+   sides 4 0.5 15
+   flag 8
+
+env_obj 53
+   shape box
+   pos -3.1 -10.25 8.7
+   color 1 1 0.8 1
+   sides 4 0.5 15
+   flag 8
+
+env_obj 54
+   shape box
+   pos -0.1 -10.25 17.7
+   color 1 1 0.8 1
+   sides 4 0.5 3
+   flag 8
+
+env_obj 28
+   shape box
+   pos -0.1 -26 13
+   color 0.5 0.5 0.5
+   sides 3 12 1
+   flag 8
+
+env_obj 58
+   shape box
+   pos -18.1 -26 16.51
+   color 1 1 0.8 1
+   sides 18 12 17
+   flag 8
+
+env_obj 59
+   shape box
+   pos 17.9 -26 16.51
+   color 1 1 0.8 1
+   sides 18 12 17
+   flag 8
+
+env_obj 60
+   shape box
+   pos 9.9 -32 16.51
+   color 1 1 0.8 1
+   sides 18 0.5 17
+   flag 8
+
+env_obj 62
+   shape box
+   pos -10.1 -32 16.51
+   color 1 1 0.8 1
+   sides 18 0.5 17
+   flag 8
+
+env_obj 63
+   shape box
+   pos -0.1 -32 22.7
+   color 1 1 0.8 1
+   sides 4 0.5 13
+   flag 8
+
+env_obj 64
+   shape box
+   pos -0.1 -26 25
+   color 1 1 0.8 1
+   sides 20 12 1
+   flag 8
+
+env_obj 103
+   shape box
+   pos -9.6 -22 14.7
+   color 1 1 0.8 1
+   rot 0 -50 0
+   sides 6 5 5
+   flag 8
+
+env_obj 104
+   shape box
+   pos -8.75 -22 9.01
+   color 1 1 0.8 1
+   sides 6 5 10
+   flag 8
+
+env_obj 105
+   shape box
+   pos -9.6 -30 14.7
+   color 1 1 0.8 1
+   rot 0 -50 0
+   sides 6 5 5
+   flag 8
+
+env_obj 106
+   shape box
+   pos -8.75 -30 9.01
+   color 1 1 0.8 1
+   sides 6 5 10
+   flag 8
+
+env_obj 107
+   shape box
+   pos 9.4 -22 14.7
+   color 1 1 0.8 1
+   rot 0 50 0
+   sides 6 5 5
+   flag 8
+
+env_obj 108
+   shape box
+   pos 8.55 -22 9.01
+   color 1 1 0.8 1
+   sides 6 5 10
+   flag 8
+
+env_obj 109
+   shape box
+   pos 9.4 -30 14.7
+   color 1 1 0.8 1
+   rot 0 50 0
+   sides 6 5 5
+   flag 8
+
+env_obj 110
+   shape box
+   pos 8.55 -30 9.01
+   color 1 1 0.8 1
+   sides 6 5 10
+   flag 8
+
+env_obj 111
+   shape box
+   pos 9.45 -26 14.4
+   color 1 0.2 0 1
+   rot 0 50 0
+   sides 6 5 5
+   flag 12
+
+env_obj 112
+   shape box
+   pos -9.65 -26 14.4
+   color 1 0.2 0 1
+   rot 0 -50 0
+   sides 6 5 5
+   flag 12
+
+env_obj 113
+   shape box
+   pos -8.8 -26 8.71
+   color 1 0.2 0 1
+   sides 6 5 10
+   flag 12
+
+env_obj 114
+   shape box
+   pos 8.6 -26 8.71
+   color 1 0.2 0 1
+   sides 6 5 10
+   flag 12
+
+env_obj 65
+   shape box
+   pos -0.1 -26 10
+   color 1 0.2 0 1
+   sides 20 12 1
+   flag 12
+
+env_obj 10
+   shape box
+   pos -0.1 -26 23
+   color 0.5 0.5 0.5
+   sides 3 12 1
+   flag 8
+
+env_obj 11
+   shape box
+   pos -3.6 -25 22.35
+   color 0.5 0.4 0.1
+   sides 7 0.3 0.3
+
+env_obj 12
+   shape box
+   pos -7.8 -25 22.35
+   color 0.5 0.5 0.5
+   sides 1.5 0.5 1.5
+
+env_obj 13
+   shape box
+   pos 3.4 -27 22.35
+   color 0.5 0.4 0.1
+   sides 7 0.3 0.3
+
+env_obj 14
+   shape box
+   pos 7.6 -27 22.35
+   color 0.5 0.5 0.5
+   sides 1.5 0.5 1.5
+
+env_obj 27
+   shape box
+   pos -0.1 -33 10.5
+   color 0.9 0.9 0.7 1
+   sides 8 2 6
+   flag 8
+
+env_obj 22
+   shape box
+   pos -0.1 -34 13.5
+   color 1 1 0.8 1
+   sides 8 0.3 3
+   flag 8
+
+env_obj 26
+   shape box
+   pos -0.1 -42 8
+   color 1 1 0.8 1
+   sides 8 4.75 7
+   flag 8
+
+env_obj 2
+   shape box
+   pos -0.1 -39 11.47
+   color 1 1 0.8 1
+   sides 2.995 1.25 0.06
+   mass 0.01
+
+env_obj 3
+   shape box
+   pos -0.1 -37.75 11.47
+   color 1 1 0.8 1
+   sides 2.995 1.25 0.06
+   mass 0.01
+
+env_obj 23
+   shape box
+   pos -2.85 -37 10
+   color 1 1 0.8 1
+   sides 2.5 10 3
+   flag 8
+
+env_obj 24
+   shape box
+   pos 2.65 -37 10
+   color 1 1 0.8 1
+   sides 2.5 10 3
+   flag 8
+
+env_obj 25
+   shape box
+   pos -0.1 -35.25 7
+   color 1 1 0.8 1
+   sides 8 3.75 9
+   flag 8
+
+env_obj 102
+   shape box
+   pos -0.1 -48.26 5.8
+   color 1 0.2 0 1
+   sides 20 12 1
+   flag 12
+
+env_obj 31
+   shape cylinder
+   pos -0.1 -45.5 13.5
+   color 0.5 0.5 0.5 1
+   sides 0.05 10 0.25
+   rot 0 90 0
+   flag 8
+
+env_obj 32
+   shape box
+   pos 29.9 -46 5
+   color 1 1 0.8 1
+   sides 50 10 3
+   fric 0
+   flag 8
+
+env_obj 33
+   shape box
+   pos -30.1 -46 5
+   color 1 1 0.8 1
+   sides 50 10 3
+   fric 0
+   flag 8
+
+env_obj 9
+   shape box
+   pos -26.6 -49 11.5
+   color 0.7 0.7 0.7 1
+   sides 51.5 3 10
+   fric 1
+   thrust 1 -100 0 0
+
+env_obj 15
+   shape box
+   pos 26.4 -49 11.5
+   color 0.7 0.7 0.7 1
+   sides 51.5 3 10
+   fric 1
+   thrust 1 100 0 0
+
+env_obj 36
+   shape box
+   pos 55.4 -48.5 11.5
+   color 1 1 0.8 1
+   sides 1 10 10
+   bounce 2750
+   flag 8
+
+env_obj 37
+   shape box
+   pos -55.6 -48.5 11.5
+   color 1 1 0.8 1
+   sides 1 10 10
+   bounce 2750
+   flag 8
+
+env_obj 38
+   shape box
+   pos -30.1 -46 18
+   color 1 1 0.8 1
+   sides 49.995 10 3
+   fric 0
+   flag 8
+
+env_obj 39
+   shape box
+   pos 29.9 -46 18
+   color 1 1 0.8 1
+   sides 49.995 10 3
+   fric 0
+   flag 8
+
+env_obj 40
+   shape box
+   pos 29.9 -46.5 11.5
+   color 1 1 0.8 1
+   sides 49.995 3 11
+   fric 0
+   flag 8
+
+env_obj 41
+   shape box
+   pos 29.9 -51.5 11.5
+   color 1 1 0.8 1
+   sides 49.995 3 11
+   fric 0
+   flag 8
+
+env_obj 42
+   shape box
+   pos -30.1 -46.5 11.5
+   color 1 1 0.8 1
+   sides 50 3 11
+   fric 0
+   flag 8
+
+env_obj 43
+   shape box
+   pos -30.1 -51.5 11.5
+   color 1 1 0.8 1
+   sides 50 3 11
+   fric 0
+   flag 8
+
+env_obj 44
+   shape box
+   pos -0.1 -58.01 8
+   color 0.9 0.9 0.7 1
+   sides 15 15 4
+   flag 8
+
+env_obj 66
+   shape box
+   pos -0.1 -52 18.001
+   color 1 1 0.8 1
+   sides 50 40 3
+   fric 0
+   flag 8
+
+env_obj 67
+   shape box
+   pos -15.1 -58.01 16
+   color 1 1 0.8 1
+   sides 15 15 20
+   flag 8
+
+env_obj 68
+   shape box
+   pos 14.9 -58.01 16
+   color 1 1 0.8 1
+   sides 15 15 20
+   flag 8
+
+env_obj 69
+   shape box
+   pos -0.1 -73.01 16
+   color 1 1 0.8 1
+   sides 15 15 20
+   flag 8
+
+env_obj 70
+   shape box
+   pos 29.9 -39.5 11.5
+   color 1 1 0.8 1
+   sides 52 14.9 11
+   flag 8
+
+env_obj 71
+   shape box
+   pos -30.1 -39.5 11.5
+   color 1 1 0.8 1
+   sides 52 14.9 11
+   flag 8
+
+env_obj 72
+   shape box
+   pos -0.1 -58.01 10.5
+   color 0.8 0.8 0.8 1
+   sides 4 2.5 0.2
+   flag 8
+
+env_obj 73
+   shape box
+   pos -1.8 -58.01 11.1
+   color 0.9 0.9 0.9 1
+   sides 0.2 2.2 1
+   flag 8
+
+env_obj 74
+   shape box
+   pos -0.1 -57.01 11.1
+   color 0.9 0.9 0.9 1
+   sides 3.6 0.3 1
+   flag 8
+
+env_obj 75
+   shape box
+   pos 1.6 -58.01 11.1
+   color 0.9 0.9 0.9 1
+   sides 0.2 2.2 1
+   flag 8
+
+env_obj 76
+   shape box
+   pos -0.1 -59.01 11.1
+   color 0.9 0.9 0.9 1
+   sides 3.6 0.2 1
+   flag 8
+
+env_obj 77
+   shape box
+   pos -0.1 -58.01 11.7
+   color 0.8 0.8 0.8 1
+   sides 4.5 3 0.2
+   flag 8
+
+env_obj 78
+   shape box
+   pos -0.1 -58.01 10.2
+   color 0.8 0.8 0.8 1
+   sides 4.5 3 0.4
+   flag 8
+
+env_obj 79
+   shape box
+   pos -6.6 -64.51 10.2
+   color 1 1 0.8 1
+   sides 2 2 15
+   flag 8
+
+env_obj 80
+   shape box
+   pos 6.4 -64.51 10.2
+   color 1 1 0.8 1
+   sides 2 2 15
+   flag 8
+
+env_obj 81
+   shape box
+   pos -0.1 -64.61 11
+   color 1 1 0.8 1
+   sides 15 1.8 2
+   flag 8
+
+env_obj 82
+   shape box
+   pos -0.1 -64.61 14
+   color 1 1 0.8 1
+   sides 15 1.8 0.3
+   flag 8
+
+env_obj 83
+   shape box
+   pos -6.7 -58.01 11
+   color 1 1 0.8 1
+   sides 1.8 13 2
+   flag 8
+
+env_obj 84
+   shape box
+   pos -6.7 -58.01 14
+   color 1 1 0.8 1
+   sides 1.8 13 0.3
+   flag 8
+
+env_obj 85
+   shape box
+   pos 6.5 -58.01 11
+   color 1 1 0.8 1
+   sides 1.8 13 2
+   flag 8
+
+env_obj 86
+   shape box
+   pos 6.5 -58.01 14
+   color 1 1 0.8 1
+   sides 1.8 13 0.3
+   flag 8
+
+env_obj 87
+   shape box
+   pos 6.5 -58.01 16.25
+   color 1 1 0.8 1
+   sides 2 13 0.5
+   flag 8
+
+env_obj 88
+   shape box
+   pos -6.7 -58.01 16.25
+   color 1 1 0.8 1
+   sides 2 13 0.5
+   flag 8
+
+env_obj 89
+   shape box
+   pos -0.1 -64.61 16.25
+   color 1 1 0.8 1
+   sides 15 2 0.5
+   flag 8
+
+env_obj_joint 1 7 10
+pos 2.9 -15 14
+axis 0 0 1
+range 5 -5
+velocity -10
+strength 100000000
+visible 0
+
+env_obj_joint 2 8 10
+pos -3.1 -15 16.2
+axis 0 0 1
+range 5 -5
+velocity -10
+strength 100000000
+visible 0
+
+env_obj_joint 3 11 10
+pos -0.1 -25 22.35
+axis 0 1 0
+range 5.00 -5.00
+strength 0.00
+velocity 0.00
+visible 0
+
+env_obj_joint 4 12 11
+pos -8.1 -25 22.35
+axis 0 0 0
+range 0.00 0.00
+strength 0.00
+velocity 0.00
+visible 0
+
+env_obj_joint 5 13 10
+pos -0.1 -27 22.35
+axis 0 1 0
+range 5.00 -5.00
+strength 0.00
+velocity 0.00
+visible 0
+
+env_obj_joint 6 14 13
+pos 7.9 -27 22.35
+axis 0 0 0
+range 0.00 0.00
+strength 0.00
+velocity 0.00
+visible 0
+
+env_obj_joint 7 10 2
+pos -0.1 -39.625 11.425
+axis 1 0 0
+range 5.00 -5.00
+strength 0.00
+velocity 0.00
+visible 0
+
+env_obj_joint 8 10 3
+pos -0.1 -37.075 11.425
+axis 1 0 0
+range 5.00 -5.00
+strength 0.00
+velocity 0.00
+visible 0

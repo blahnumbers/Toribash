@@ -1,0 +1,512 @@
+#!/usr/bin/toribash
+version 13
+world_shader data/shader/Cold.inc
+gamerule
+   matchframes 1500
+   turnframes 30
+   flags 0
+   grip 1
+   dismemberment 0
+   fracture 0
+   disqualification 0
+   dqtimeout 0
+   dqflag 0
+   dismemberthreshold 100
+   fracturethreshold 100
+   pointthreshold 0
+   winpoint 0
+   dojotype 0
+   dojosize 0
+   engagedistance 800
+   engageheight 0
+   engagerotation 0
+   engagespace 0
+   engageplayerpos -1.50,0.50,100.00,1.50,0.50,100.00
+   engageplayerrot 0,0,180,0,0,180
+   damage 0
+   gravity 0.00 0.00 -30.00
+   sumo 1
+   reactiontime 10000
+   drawwinner 0
+   maxcontacts 8
+   ghostlength 100
+   ghostspeed 100
+   ghostcustom 0
+   grabmode 0
+   tearthreshold 0
+   numplayers 2
+use_model 0
+model_name xspar
+env_obj 1
+   shape sphere
+   pos -0.50 -0.60 100.05
+   mass 0.0075
+   rot 0.00 0.00 45.00
+   sides 0.10 0.96 0.10
+   force 0.00 0.00 0.00
+   thrust 1 0.00 0.00 -0.20
+   flag 0
+   bounce 0.100000
+   friction -10000.00
+   use_model 0
+   model_name env_obj1
+env_obj 2
+   shape box
+   pos -0.50 -1.08 100.70
+   mass 0.0001
+   color 0.00 1.00 1.00 1.00
+   rot -4.00 0.00 0.00
+   sides 0.90 0.80 0.15
+   force 0.00 0.00 0.00
+   thrust 10000 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj2
+env_obj 3
+   shape box
+   pos -0.50 -1.54 101.16
+   mass 0.0001
+   color 0.00 1.00 1.00 1.00
+   rot -13.00 0.00 0.00
+   sides 0.90 0.10 1.00
+   force 0.00 0.00 0.00
+   thrust 1 0.00 0.00 0.10
+   flag 0
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj3
+env_obj 4
+   shape box
+   pos -1.08 -1.10 101.10
+   mass 0.0001
+   rot 0.00 0.00 0.00
+   sides 0.12 0.90 0.08
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj4
+env_obj 5
+   shape box
+   pos 0.08 -1.10 101.10
+   mass 0.0001
+   rot 0.00 0.00 0.00
+   sides 0.12 0.91 0.08
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj5
+env_obj 6
+   shape sphere
+   pos 2.50 -0.60 100.05
+   mass 0.0075
+   rot 0.00 0.00 45.00
+   sides 0.10 0.96 0.10
+   force 0.00 0.00 0.00
+   thrust 1 0.00 0.00 -0.20
+   flag 0
+   bounce 0.100000
+   friction -10000.00
+   use_model 0
+   model_name env_obj6
+env_obj 7
+   shape box
+   pos 2.50 -1.08 100.70
+   mass 0.0001
+   color 0.00 1.00 1.00 1.00
+   rot -4.00 0.00 0.00
+   sides 0.90 0.80 0.15
+   force 0.00 0.00 0.00
+   thrust 10000 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj7
+env_obj 8
+   shape box
+   pos 2.50 -1.54 101.16
+   mass 0.0001
+   color 0.00 1.00 1.00 1.00
+   rot -13.00 0.00 0.00
+   sides 0.90 0.10 1.00
+   force 0.00 0.00 0.00
+   thrust 1 0.00 0.00 0.10
+   flag 0
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj8
+env_obj 9
+   shape box
+   pos 1.96 -1.10 101.10
+   mass 0.0001
+   rot 0.00 0.00 0.00
+   sides 0.12 0.91 0.08
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj9
+env_obj 10
+   shape box
+   pos 3.06 -1.10 101.10
+   mass 0.0001
+   rot 0.00 0.00 0.00
+   sides 0.12 0.90 0.08
+   force 0.00 0.00 0.00
+   flag 0
+   bounce 0.100000
+   friction 10000.00
+   use_model 0
+   model_name env_obj10
+env_obj 11
+   shape sphere
+   pos -1.10 -1.20 100.05
+   mass 0.0075
+   rot 0.00 0.00 45.00
+   sides 0.10 0.96 0.10
+   force 0.00 0.00 0.00
+   thrust 1 0.00 0.00 -0.20
+   flag 0
+   bounce 0.100000
+   friction -10000.00
+   use_model 0
+   model_name env_obj11
+env_obj 12
+   shape sphere
+   pos -0.50 -1.80 100.05
+   mass 0.0075
+   rot 0.00 0.00 45.00
+   sides 0.10 0.96 0.10
+   force 0.00 0.00 0.00
+   thrust 1 0.00 0.00 -0.20
+   flag 0
+   bounce 0.100000
+   friction -10000.00
+   use_model 0
+   model_name env_obj12
+env_obj 13
+   shape sphere
+   pos 0.10 -1.20 100.05
+   mass 0.0075
+   rot 0.00 0.00 45.00
+   sides 0.10 0.96 0.10
+   force 0.00 0.00 0.00
+   thrust 1 0.00 0.00 -0.20
+   flag 0
+   bounce 0.100000
+   friction -10000.00
+   use_model 0
+   model_name env_obj13
+env_obj 14
+   shape sphere
+   pos 3.10 -1.20 100.05
+   mass 0.0075
+   rot 0.00 0.00 45.00
+   sides 0.10 0.96 0.10
+   force 0.00 0.00 0.00
+   thrust 1 0.00 0.00 -0.20
+   flag 0
+   bounce 0.100000
+   friction -10000.00
+   use_model 0
+   model_name env_obj14
+env_obj 15
+   shape sphere
+   pos 2.50 -1.80 100.05
+   mass 0.0075
+   rot 0.00 0.00 45.00
+   sides 0.10 0.96 0.10
+   force 0.00 0.00 0.00
+   thrust 1 0.00 0.00 -0.20
+   flag 0
+   bounce 0.100000
+   friction -10000.00
+   use_model 0
+   model_name env_obj15
+env_obj 16
+   shape sphere
+   pos 1.90 -1.20 100.05
+   mass 0.0075
+   rot 0.00 0.00 45.00
+   sides 0.10 0.96 0.10
+   force 0.00 0.00 0.00
+   thrust 1 0.00 0.00 -0.20
+   flag 0
+   bounce 0.100000
+   friction -10000.00
+   use_model 0
+   model_name env_obj16
+env_obj 17
+   shape box
+   pos 3.00 -5.10 89.10
+   color 0.91 0.91 0.91 1.00
+   rot -7.00 3.00 0.00
+   sides 15.00 17.00 20.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+   trig_id 1
+   trig_mask 6
+   trig_action 0
+   use_model 0
+   model_name env_obj17
+env_obj 18
+   shape box
+   pos -1.00 -5.10 89.10
+   color 0.91 0.91 0.91 1.00
+   rot -7.00 -3.00 0.00
+   sides 15.00 15.00 20.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+   trig_id 1
+   trig_mask 6
+   trig_action 0
+   use_model 0
+   model_name env_obj18
+env_obj 19
+   shape box
+   pos 2.51 -5.60 88.92
+   color 0.69 0.69 0.74 1.00
+   rot -5.00 -3.00 0.00
+   sides 4.48 5.00 20.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+   trig_id 1
+   trig_mask 6
+   trig_action 0
+   use_model 0
+   model_name env_obj19
+env_obj 20
+   shape box
+   pos -0.91 -5.60 88.92
+   color 0.69 0.69 0.74 1.00
+   rot -5.00 3.00 0.00
+   sides 4.48 5.00 20.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+   trig_id 1
+   trig_mask 6
+   trig_action 0
+   use_model 0
+   model_name env_obj20
+env_obj 21
+   shape box
+   pos 2.71 -6.80 88.86
+   color 0.69 0.69 0.74 1.00
+   rot -4.00 2.10 -10.00
+   sides 10.00 6.00 20.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+   trig_id 1
+   trig_mask 6
+   trig_action 0
+   use_model 0
+   model_name env_obj21
+env_obj 22
+   shape box
+   pos 2.50 -15.10 87.40
+   color 0.91 0.91 0.91 1.00
+   rot -9.00 5.50 0.00
+   sides 15.00 7.55 20.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+   trig_id 1
+   trig_mask 6
+   trig_action 0
+   use_model 0
+   model_name env_obj22
+env_obj 23
+   shape box
+   pos -0.50 -22.10 86.74
+   color 0.91 0.91 0.91 1.00
+   rot 4.00 7.00 -3.00
+   sides 20.00 7.55 20.00
+   force 0.00 0.00 0.00
+   flag 8
+   bounce 0.100000
+   friction 10000.00
+   trig_id 1
+   trig_mask 6
+   trig_action 0
+   use_model 0
+   model_name env_obj23
+env_obj_joint 1 1 2
+   pos -0.50 -1.20 100.05
+   axis 0.00 0.00 1.00
+   range 5.00 -5.00
+   visible 1
+env_obj_joint 2 2 3
+   pos -0.50 -1.40 100.70
+   axis 0.00 0.00 1.00
+   strength 9999999.00
+   visible 1
+env_obj_joint 3 4 3
+   pos -1.00 -1.50 101.09
+   axis 0.00 -1.00 0.00
+   strength 9999999.00
+   visible 1
+env_obj_joint 4 3 5
+   pos 0.00 -1.50 101.09
+   axis 0.00 1.00 0.00
+   strength 9999999.00
+   visible 1
+env_obj_joint 5 6 7
+   pos 2.50 -1.20 100.05
+   axis 0.00 0.00 1.00
+   range 5.00 -5.00
+   visible 1
+env_obj_joint 6 6 14
+   pos 3.10 -1.20 100.05
+   axis 1.00 1.00 1.00
+   range 5.00 -5.00
+   visible 1
+env_obj_joint 7 6 15
+   pos 2.50 -1.80 100.05
+   axis 1.00 1.00 1.00
+   range 5.00 -5.00
+   visible 1
+env_obj_joint 8 16 6
+   pos 1.90 -1.20 100.05
+   axis 1.00 1.00 1.00
+   range 5.00 -5.00
+   visible 1
+env_obj_joint 9 11 1
+   pos -1.10 -1.20 100.05
+   axis 1.00 1.00 1.00
+   range 5.00 -5.00
+   visible 1
+env_obj_joint 10 12 1
+   pos -0.50 -1.80 100.05
+   axis 1.00 1.00 1.00
+   range 5.00 -5.00
+   visible 1
+env_obj_joint 11 13 1
+   pos 0.10 -1.20 100.05
+   axis 1.00 1.00 1.00
+   range 5.00 -5.00
+   visible 1
+env_obj_joint 12 8 7
+   pos 2.50 -1.40 100.70
+   axis 0.00 0.00 1.00
+   strength 999999.00
+   visible 1
+env_obj_joint 13 8 9
+   pos 2.00 -1.50 101.09
+   axis 0.00 1.00 0.00
+   strength 999999.00
+   visible 1
+env_obj_joint 14 10 8
+   pos 3.00 -1.50 101.09
+   axis 0.00 -1.00 0.00
+   strength 999999.00
+   visible 1
+player 0
+   body head
+      pos 1.00 0.85 2.65
+      thrust 100000 0.000000 10.000000 5.000000
+   body chest
+      pos 1.00 0.90 1.95
+      thrust 100000 0.000000 -25.000000 0.000000
+   body groin
+      pos 1.00 1.00 1.55
+      thrust 10000 0.000000 -30.000000 2.000000
+   body r_biceps
+      pos 0.45 0.90 2.30
+      thrust 100000 0.000000 -10.000000 -10.000000
+   body r_triceps
+      pos 0.05 0.90 2.30
+      thrust 10000 0.000000 -20.000000 0.000000
+   body l_biceps
+      pos 1.55 0.90 2.30
+      thrust 10000 0.000000 -10.000000 -10.000000
+   body l_triceps
+      pos 1.95 0.90 2.30
+      thrust 100000 0.000000 -20.000000 0.000000
+   body r_hand
+      alt_sides 0.20 0.20 0.20
+      pos -0.35 0.85 2.30
+   body l_hand
+      alt_sides 0.20 0.20 0.20
+      pos 2.35 0.85 2.30
+   body r_thigh
+      pos 0.80 1.00 1.10
+      thrust 10000 0.000000 5.000000 0.000000
+   body l_thigh
+      pos 1.20 1.00 1.10
+      thrust 10000 0.000000 5.000000 0.000000
+   body l_leg
+      pos 1.20 1.00 0.50
+      thrust 100000 0.000000 -5.000000 4.000000
+   body r_leg
+      pos 0.80 1.00 0.50
+      thrust 10000 0.000000 -5.000000 4.000000
+   body r_foot
+      pos 0.80 0.90 0.10
+      thrust 100000 0.000000 0.000000 3.000000
+   body l_foot
+      pos 1.20 0.90 0.10
+      thrust 10000 0.000000 0.000000 3.000000
+player 1
+   body head
+      pos 1.00 0.85 2.65
+      thrust 100000 0.000000 10.000000 5.000000
+   body chest
+      pos 1.00 0.90 1.95
+      thrust 100000 0.000000 -25.000000 0.000000
+   body groin
+      pos 1.00 1.00 1.55
+      thrust 10000 0.000000 -30.000000 2.000000
+   body r_biceps
+      pos 0.45 0.90 2.30
+      thrust 100000 0.000000 -10.000000 -10.000000
+   body r_triceps
+      pos 0.05 0.90 2.30
+      thrust 10000 0.000000 -20.000000 0.000000
+   body l_biceps
+      pos 1.55 0.90 2.30
+      thrust 10000 0.000000 -10.000000 -10.000000
+   body l_triceps
+      pos 1.95 0.90 2.30
+      thrust 100000 0.000000 -20.000000 0.000000
+   body r_hand
+      pos -0.35 0.85 2.30
+   body l_hand
+      pos 2.35 0.85 2.30
+   body r_thigh
+      pos 0.80 1.00 1.10
+      thrust 10000 0.000000 5.000000 0.000000
+   body l_thigh
+      pos 1.20 1.00 1.10
+      thrust 10000 0.000000 5.000000 0.000000
+   body l_leg
+      pos 1.20 1.00 0.50
+      thrust 100000 0.000000 -5.000000 4.000000
+   body r_leg
+      pos 0.80 1.00 0.50
+      thrust 10000 0.000000 -5.000000 4.000000
+   body r_foot
+      pos 0.80 0.90 0.10
+      thrust 100000 0.000000 1.000000 3.000000
+   body l_foot
+      pos 1.20 0.90 0.10
+      thrust 10000 0.000000 1.000000 3.000000

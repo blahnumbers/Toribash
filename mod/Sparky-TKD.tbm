@@ -1,0 +1,55 @@
+#!/usr/bin/toribash
+gamerule
+   flags 11
+   gravity 0.00 0.00 -12.00
+   engagedistance 145
+   dismemberthreshold 145
+   dismember 1
+   fracture 0
+   fracturethreshold 0
+   matchframes 500
+   turnframes 10,15,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25,25
+   dojosize 600
+   dojotype 1
+   dq 1
+   dqtimeout 25
+   dqflag 1
+   grabmode 1
+   sumo 1
+   reactiontime 18
+   maxcontacts 32
+
+player 0
+   joint r_elbow
+      dm_threshold 150
+   joint l_elbow
+      dm_threshold 150
+   joint r_knee
+      dm_threshold 155
+   joint l_knee
+      dm_threshold 155
+   joint r_wrist
+      dm_threshold 175
+   joint l_wrist
+      dm_threshold 175
+   joint r_ankle
+      dm_threshold 175
+   joint l_ankle
+      dm_threshold 175
+player 1
+   joint r_elbow
+      dm_threshold 150
+   joint l_elbow
+      dm_threshold 150
+   joint r_knee
+      dm_threshold 155
+   joint l_knee
+      dm_threshold 155
+   joint r_wrist
+      dm_threshold 175
+   joint l_wrist
+      dm_threshold 175
+   joint r_ankle
+      dm_threshold 175
+   joint l_ankle
+      dm_threshold 175
