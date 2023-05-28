@@ -4,7 +4,6 @@
 ####################################
 
 gamerule
-engageplayerpos 0
 gravity 0.00 0.00 -30.00
 engagedistance 90
 dismemberthreshold 375
@@ -105,3 +104,4 @@ env_obj 8
     material steel
     mass 0.1
     flag 24
+#END 8

@@ -3,7 +3,6 @@
 
 
 gamerule
-engageplayerpos 0
    damage 0
    dismemberment 1
    dismemberthreshold 202

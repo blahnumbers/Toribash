@@ -1,6 +1,5 @@
 #!/usr/bin/toribash
 gamerule
-engageplayerpos 0
 gravity 0.00 0.00 -15.00
 matchframes 150
 turnframes 10
@@ -12,3 +11,4 @@ dismember 1
 dismemberthreshold 120
 sumo 1
 dq 0
+damage 1

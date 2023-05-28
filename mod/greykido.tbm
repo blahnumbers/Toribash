@@ -2,7 +2,6 @@
 ######################################
 
 gamerule
-engageplayerpos 0
 gravity 0.00 0.00 -30.00
 engagedistance 90
 dismemberthreshold 325

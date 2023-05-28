@@ -1,5 +1,4 @@
 gamerule
-engageplayerpos 0
 matchframes 120
 turnframes 10
 engagedistance 180
@@ -7,3 +6,4 @@ fracture 0
 dismember 1
 dismemberthreshold 100
 sumo 1
+dq 1
