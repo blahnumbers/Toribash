@@ -4211,8 +4211,8 @@ function TBMenu:spawnMoveableWindow(rect, globalid)
 	rect = {
 		x = (rect and rect.x) or safe_x + 10,
 		y = (rect and rect.y) or safe_y + 10,
-		w = (rect and rect.w) or math.min(400, WIN_W / 4),
-		h = (rect and rect.h) or math.min(math.max(WIN_H / 2, 650), WIN_H - math.max(safe_y * 2, 100))
+		w = (rect and rect.w) or math.min(400, WIN_W / 2),
+		h = (rect and rect.h) or math.clamp(650, WIN_H / 2, WIN_H - 100)
 	}
 
 	local windowBackground = UIElement.new({

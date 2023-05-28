@@ -791,30 +791,14 @@ function Replays:playReplay(replay)
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR
 	})
 	if (replay.mod ~= "classic") then
-		local files = get_files("data/mod", "")
-		local folders = {}
-		for i,v in pairs(files) do
-			if (not v:find("^%.+[%s%S]*$") and not v:find("%.%a+$") and not v:find("^.*%.tbm$")) then
-				table.insert(folders, v)
-			end
-		end
-		local modFile = Files.Open("../data/mod/" .. replay.mod)
-		local id = 1
-		while (not modFile.data and id < #folders) do
-			modFile = Files.Open("../data/mod/" .. folders[id] .. "/" .. replay.mod)
-			id = id + 1
-		end
-		if (not modFile.data) then
-			modFile = Files.Open("../data/mod/downloads/" .. replay.mod)
+		local modname = string.find(replay.mod, "%.tbm$") and replay.mod or (replay.mod .. ".tbm")
+		if (not find_mod(modname)) then
+			local modFile = Files.Open("../data/mod/downloads/" .. modname)
 			loading:addAdaptedText(false, TB_MENU_LOCALIZED.MODSDOWNLOADINGMOD)
-			local modname = replay.mod:gsub("%.tbm$", "")
+			modname = replay.mod:gsub("%.tbm$", "")
 			download_mod(modname)
-			local downloadWait = UIElement:new({
-				parent = loading,
-				pos = { 0, 0 },
-				size = { 0, 0 }
-			})
 			local wait = 0
+			local downloadWait = loading:addChild({ })
 			downloadWait:addCustomDisplay(true, function()
 					wait = wait + 1
 					if (not modFile:isDownloading() and wait > 5) then
@@ -830,7 +814,6 @@ function Replays:playReplay(replay)
 					end
 				end)
 		else
-			modFile:close()
 			local wait = 0
 			loading:addCustomDisplay(false, function()
 					loading:uiText(TB_MENU_LOCALIZED.REPLAYSLOADINGREPLAY)
@@ -2344,41 +2327,29 @@ function Replays:showServerReplayPreview()
 					replayFile:close()
 					local replaydata = ReplayInfo.FromReplay(replayFile.path)
 					if (replaydata.mod ~= "classic") then
-						local files = get_files("data/mod", "")
-						local folders = {}
-						for i,v in pairs(files) do
-							if (not v:find("^%.+[%s%S]*$") and not v:find("%.%a+$") and not v:find("^.*%.tbm$")) then
-								table.insert(folders, v)
-							end
-						end
-						local modFile = Files.Open("../data/mod/" .. replaydata.mod)
-						local id = 1
-						while (not modFile.data and id < #folders) do
-							modFile = Files.Open("../data/mod/" .. folders[id] .. "/" .. replaydata.mod)
-							id = id + 1
-						end
-						if (not modFile.data) then
-							modFile = Files.Open("../data/mod/downloads/" .. replaydata.mod)
+						local modname = string.find(replaydata.mod, "%.tbm$") and replaydata.mod or (replaydata.mod .. ".tbm")
+						if (not find_mod(modname)) then
+							local modFile = Files.Open("../data/mod/downloads/" .. modname)
 							previewView:addAdaptedText(false, TB_MENU_LOCALIZED.MODSDOWNLOADINGMOD)
-							local modname = replaydata.mod:gsub("%.tbm$", "")
+							modname = replaydata.mod:gsub("%.tbm$", "")
 							download_mod(modname)
 							local wait = 0
+							local downloadWait = previewView:addChild({ })
 							downloadWait:addCustomDisplay(true, function()
-									wait = wait + 1
-									if (not modFile:isDownloading() and wait > 5) then
-										previewView:addAdaptedText(false, TB_MENU_LOCALIZED.REPLAYSLOADINGREPLAY)
-										local framesN = 0
-										downloadWait:addCustomDisplay(true, function()
-												framesN = framesN + 1
-												if (framesN > 4) then
-													open_replay("downloads/" .. REPLAY_TEMPNAME .. ".rpl", cacheMode)
-													close_menu()
-												end
-											end)
-									end
-								end)
+								wait = wait + 1
+								if (not modFile:isDownloading() and wait > 5) then
+									previewView:addAdaptedText(false, TB_MENU_LOCALIZED.REPLAYSLOADINGREPLAY)
+									local framesN = 0
+									downloadWait:addCustomDisplay(true, function()
+											framesN = framesN + 1
+											if (framesN > 4) then
+												open_replay("downloads/" .. REPLAY_TEMPNAME .. ".rpl", cacheMode)
+												close_menu()
+											end
+										end)
+								end
+							end)
 						else
-							modFile:close()
 							downloadWait:addCustomDisplay(false, function()
 									previewView:addAdaptedText(false, TB_MENU_LOCALIZED.REPLAYSLOADINGREPLAY)
 									local framesN = 0
@@ -2392,7 +2363,6 @@ function Replays:showServerReplayPreview()
 								end)
 						end
 					else
-						local wait = 0
 						downloadWait:addCustomDisplay(false, function()
 								previewView:addAdaptedText(false, TB_MENU_LOCALIZED.REPLAYSLOADINGREPLAY)
 								local framesN = 0

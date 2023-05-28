@@ -828,7 +828,7 @@ function Gamerules.showMain()
 	local mainViewBackground = UIElement:new({
 		globalid = TB_MENU_HUB_GLOBALID,
 		pos = { Gamerules.DisplayPos.x, Gamerules.DisplayPos.y },
-		size = { math.min(400, WIN_W / 4), math.min(math.max(WIN_H / 2, 650), WIN_H - 100) },
+		size = { math.min(WIN_W / 2, 400), math.clamp(650, WIN_H / 2, WIN_H - 100) },
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 		shapeType = ROUNDED,
 		rounded = 4

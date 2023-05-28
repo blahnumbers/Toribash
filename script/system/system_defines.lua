@@ -2030,6 +2030,7 @@ function file_write(fileidx, data) end
 ---@param fileidx integer
 function file_close(fileidx) end
 
+
 --[[ NETWORKING ]]
 
 ---Retrieves a list of currently active downloads
@@ -3422,3 +3423,8 @@ function delete_shader(filename) end
 ---Deletes a mod file
 ---@param filename string
 function delete_mod(filename) end
+
+---Returns the location of a mod with the specified name or nil if it isn't found in mods folder
+---@param filename string
+---@return string?
+function find_mod(filename) end
