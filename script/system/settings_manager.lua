@@ -25,6 +25,7 @@ local BODYTEXTURES = 7
 local HIGHDPI = 8
 local BORDERLESS = 9
 local ITEMEFFECTS = 10
+local DPISCALE_APPLE = 11
 
 local TB_MENU_MAIN_SETTINGS = {}
 
@@ -1468,9 +1469,9 @@ do
 				name = TB_MENU_LOCALIZED.SETTINGSHIGHDPI,
 				type = TOGGLE,
 				action = function(val)
-						TB_MENU_MAIN_SETTINGS.highdpi = { id = HIGHDPI, value = val, graphics = true, reload = true }
+						TB_MENU_MAIN_SETTINGS.dpiscale = { id = DPISCALE_APPLE, value = val, graphics = true, reload = true }
 					end,
-				val = { get_option("highdpiapple") }
+				val = { get_option("dpiscale") }
 			})
 		end
 
@@ -1493,10 +1494,10 @@ do
 				type = SLIDER,
 				systemname = "highdpi",
 				onUpdate = function(slider)
-					TB_MENU_MAIN_SETTINGS.highdpi.value = math.floor((tonumber(slider.label.labelText[1]) or 1) / 10 + 0.5)
-					TB_MENU_MAIN_SETTINGS.highdpi.id = HIGHDPI
-					TB_MENU_MAIN_SETTINGS.highdpi.graphics = true
-					TB_MENU_MAIN_SETTINGS.highdpi.reload = true
+					TB_MENU_MAIN_SETTINGS.highdpi = {
+						value = math.floor((tonumber(slider.label.labelText[1]) or 1) / 10 + 0.5),
+						id = HIGHDPI, graphics = true, reload = true
+					}
 					slider.label.labelText[1] = math.floor((tonumber(slider.label.labelText[1]) or 1) / 10 + 0.5) / 10 .. 'x'
 				end,
 				val = { math.max(100, math.min(get_option("highdpi") * 10, maxHdpi)) }
