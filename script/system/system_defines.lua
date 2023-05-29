@@ -2699,6 +2699,8 @@ function save_custom_config() end
 ---| "systemcursor"
 ---| "invertedcam"
 ---| "camerafocus"
+---| "mipmaplevels"
+---| "highdpiapple"
 ---| "aidifficulty" Toribash builds with AI fight mode only
 
 ---Retrieves a value of the specified Toribash option

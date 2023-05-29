@@ -275,104 +275,101 @@ do
 					val = { TB_MENU_MAIN_SETTINGS.shaders and TB_MENU_MAIN_SETTINGS.shaders.value or get_option("shaders") },
 					reload = true,
 					hidden = is_mobile()
-				}
-			}
-
-			if (shaders == 1) then
-				table.insert(advancedItems, {
+				},
+				{
 					name = TB_MENU_LOCALIZED.SETTINGSRAYTRACING,
 					type = TOGGLE,
 					action = function(val)
 							TB_MENU_MAIN_SETTINGS.raytracing = { value = val, id = RAYTRACING, graphics = true }
 						end,
 					val = { get_option("raytracing") },
-					reload = true
-				})
-			end
-
-			table.insert(advancedItems, {
-				name = TB_MENU_LOCALIZED.SETTINGSFRAMERATE,
-				type = DROPDOWN,
-				selectedAction = function()
-						local framerate = get_option("framerate")
-						--local fixedframerate = get_option("fixedframerate")
-						--if (fixedframerate == 1) then
-							if (not is_mobile() and framerate == 75) then
-								return 3
-							elseif (framerate == 60) then
-								return 2
-							end
-							return 1
-						--end
-						--return 4
-					end,
-				dropdown = {
-					{
-						text = "30 " .. TB_MENU_LOCALIZED.SETTINGSFPS,
-						action = function()
-								TB_MENU_MAIN_SETTINGS.framerate = { value = 30 }
-								TB_MENU_MAIN_SETTINGS.fixedframerate = { value = 1 }
-								Settings:settingsApplyActivate()
-							end
-					},
-					{
-						text = "60 " .. TB_MENU_LOCALIZED.SETTINGSFPS,
-						action = function()
-								TB_MENU_MAIN_SETTINGS.framerate = { value = 60 }
-								TB_MENU_MAIN_SETTINGS.fixedframerate = { value = 1 }
-								Settings:settingsApplyActivate()
-							end
-					},
-					{
-						text = "75 " .. TB_MENU_LOCALIZED.SETTINGSFPS,
-						action = function()
-								TB_MENU_MAIN_SETTINGS.framerate = { value = 75 }
-								TB_MENU_MAIN_SETTINGS.fixedframerate = { value = 1 }
-								Settings:settingsApplyActivate()
-							end,
-						hidden = is_mobile()
+					reload = true,
+					hidden = shaders == 1
+				},
+				{
+					name = TB_MENU_LOCALIZED.SETTINGSFRAMERATE,
+					type = DROPDOWN,
+					selectedAction = function()
+							local framerate = get_option("framerate")
+							--local fixedframerate = get_option("fixedframerate")
+							--if (fixedframerate == 1) then
+								if (not is_mobile() and framerate == 75) then
+									return 3
+								elseif (framerate == 60) then
+									return 2
+								end
+								return 1
+							--end
+							--return 4
+						end,
+					dropdown = {
+						{
+							text = "30 " .. TB_MENU_LOCALIZED.SETTINGSFPS,
+							action = function()
+									TB_MENU_MAIN_SETTINGS.framerate = { value = 30 }
+									TB_MENU_MAIN_SETTINGS.fixedframerate = { value = 1 }
+									Settings:settingsApplyActivate()
+								end
+						},
+						{
+							text = "60 " .. TB_MENU_LOCALIZED.SETTINGSFPS,
+							action = function()
+									TB_MENU_MAIN_SETTINGS.framerate = { value = 60 }
+									TB_MENU_MAIN_SETTINGS.fixedframerate = { value = 1 }
+									Settings:settingsApplyActivate()
+								end
+						},
+						{
+							text = "75 " .. TB_MENU_LOCALIZED.SETTINGSFPS,
+							action = function()
+									TB_MENU_MAIN_SETTINGS.framerate = { value = 75 }
+									TB_MENU_MAIN_SETTINGS.fixedframerate = { value = 1 }
+									Settings:settingsApplyActivate()
+								end,
+							hidden = is_mobile()
+						}
+						--[[{
+							text = TB_MENU_LOCALIZED.SETTINGSFPSUNCAPPED,
+							action = function()
+									TB_MENU_MAIN_SETTINGS.framerate = { value = 60 }
+									TB_MENU_MAIN_SETTINGS.fixedframerate = { value = 0 }
+									Settings:settingsApplyActivate()
+								end
+						}]]
 					}
-					--[[{
-						text = TB_MENU_LOCALIZED.SETTINGSFPSUNCAPPED,
-						action = function()
-								TB_MENU_MAIN_SETTINGS.framerate = { value = 60 }
-								TB_MENU_MAIN_SETTINGS.fixedframerate = { value = 0 }
+				},
+				{
+					name = TB_MENU_LOCALIZED.SETTINGSBLOOD,
+					type = DROPDOWN,
+					selectedAction = function() return TB_MENU_MAIN_SETTINGS.blood and TB_MENU_MAIN_SETTINGS.blood.value + 1 or get_option("blood") + 1 end,
+					dropdown = {
+						{
+							text = TB_MENU_LOCALIZED.WORDNONE,
+							action = function()
+								TB_MENU_MAIN_SETTINGS.blood = { value = 0 }
 								Settings:settingsApplyActivate()
+								Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
 							end
-					}]]
+						},
+						{
+							text = TB_MENU_LOCALIZED.SETTINGSVANILLA,
+							action = function()
+								TB_MENU_MAIN_SETTINGS.blood = { value = 1 }
+								Settings:settingsApplyActivate()
+								Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
+							end
+						},
+						{
+							text = TB_MENU_LOCALIZED.SETTINGSMODERN,
+							action = function()
+								TB_MENU_MAIN_SETTINGS.blood = { value = 2 }
+								Settings:settingsApplyActivate()
+								Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
+							end
+						},
+					}
 				}
-			})
-			table.insert(advancedItems, {
-				name = TB_MENU_LOCALIZED.SETTINGSBLOOD,
-				type = DROPDOWN,
-				selectedAction = function() return TB_MENU_MAIN_SETTINGS.blood and TB_MENU_MAIN_SETTINGS.blood.value + 1 or get_option("blood") + 1 end,
-				dropdown = {
-					{
-						text = TB_MENU_LOCALIZED.WORDNONE,
-						action = function()
-							TB_MENU_MAIN_SETTINGS.blood = { value = 0 }
-							Settings:settingsApplyActivate()
-							Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
-						end
-					},
-					{
-						text = TB_MENU_LOCALIZED.SETTINGSVANILLA,
-						action = function()
-							TB_MENU_MAIN_SETTINGS.blood = { value = 1 }
-							Settings:settingsApplyActivate()
-							Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
-						end
-					},
-					{
-						text = TB_MENU_LOCALIZED.SETTINGSMODERN,
-						action = function()
-							TB_MENU_MAIN_SETTINGS.blood = { value = 2 }
-							Settings:settingsApplyActivate()
-							Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
-						end
-					},
-				}
-			})
+			}
 
 			if (shaders == 1) then
 				if ((TB_MENU_MAIN_SETTINGS.blood and TB_MENU_MAIN_SETTINGS.blood.value or get_option("blood")) > 0) then
@@ -416,7 +413,7 @@ do
 						action = function(val)
 								TB_MENU_MAIN_SETTINGS.bloodstains = { value = val }
 							end,
-						val = { get_option("bloodstains") },
+						val = { TB_MENU_MAIN_SETTINGS.bloodstains and TB_MENU_MAIN_SETTINGS.bloodstains.value or get_option("bloodstains") },
 					})
 				end
 				table.insert(advancedItems, {
@@ -425,7 +422,7 @@ do
 					action = function(val)
 							TB_MENU_MAIN_SETTINGS.reflection = { value = val, id = REFLECTIONS, graphics = true }
 						end,
-					val = { get_option("reflection") },
+					val = { TB_MENU_MAIN_SETTINGS.reflection and TB_MENU_MAIN_SETTINGS.reflection.value or get_option("reflection") },
 					reload = true
 				})
 				table.insert(advancedItems, {
@@ -434,7 +431,7 @@ do
 					action = function(val)
 							TB_MENU_MAIN_SETTINGS.softshadow = { value = val, id = SOFTSHADOWS, graphics = true }
 						end,
-					val = { get_option("softshadow") },
+					val = { TB_MENU_MAIN_SETTINGS.softshadow and TB_MENU_MAIN_SETTINGS.softshadow.value or get_option("softshadow") },
 					reload = true
 				})
 				table.insert(advancedItems, {
@@ -443,10 +440,42 @@ do
 					action = function(val)
 							TB_MENU_MAIN_SETTINGS.ambientocclusion = { value = val, id = AMBIENTOCCLUSION, graphics = true }
 						end,
-					val = { get_option("ambientocclusion") },
+					val = { TB_MENU_MAIN_SETTINGS.ambientocclusion and TB_MENU_MAIN_SETTINGS.ambientocclusion.value or get_option("ambientocclusion") },
 					reload = true
 				})
 			end
+
+			table.insert(advancedItems, {
+				name = TB_MENU_LOCALIZED.SETTINGSTEXTUREQUALITY,
+				type = DROPDOWN,
+				selectedAction = function()
+					local targetValue = TB_MENU_MAIN_SETTINGS.mipmaplevels and TB_MENU_MAIN_SETTINGS.mipmaplevels.value or (4 - (tonumber(get_option("mipmaplevels")) or 1))
+					return math.clamp(targetValue, 1, 3)
+				end,
+				dropdown = {
+					{
+						text = TB_MENU_LOCALIZED.SETTINGSTEXTUREQUALITY,
+						action = function()
+							TB_MENU_MAIN_SETTINGS.mipmaplevels = { value = 3 }
+							Settings:settingsApplyActivate()
+						end
+					},
+					{
+						text = TB_MENU_LOCALIZED.SETTINGSMIPMAPBALANCED,
+						action = function()
+							TB_MENU_MAIN_SETTINGS.mipmaplevels = { value = 2 }
+							Settings:settingsApplyActivate()
+						end
+					},
+					{
+						text = TB_MENU_LOCALIZED.SETTINGSMIPMAPQUALITY,
+						action = function()
+							TB_MENU_MAIN_SETTINGS.mipmaplevels = { value = 1 }
+							Settings:settingsApplyActivate()
+						end
+					}
+				}
+			})
 
 			return {
 				{
@@ -658,7 +687,7 @@ do
 							action = function(val)
 									TB_MENU_MAIN_SETTINGS.systemcursor = { value = val }
 								end,
-							val = { get_option("systemcursor") },
+							val = { TB_MENU_MAIN_SETTINGS.systemcursor and TB_MENU_MAIN_SETTINGS.systemcursor.value or get_option("systemcursor") },
 							hidden = is_mobile()
 						},
 						{
@@ -668,7 +697,7 @@ do
 							action = function(val)
 									TB_MENU_MAIN_SETTINGS.uilight = { value = val }
 								end,
-							val = { get_option("uilight") }
+							val = { TB_MENU_MAIN_SETTINGS.uilight and TB_MENU_MAIN_SETTINGS.uilight.value or get_option("uilight") }
 						},
 						{
 							name = TB_MENU_LOCALIZED.SETTINGSJOINTFLASH,
@@ -676,7 +705,7 @@ do
 							action = function(val)
 									TB_MENU_MAIN_SETTINGS.jointflash = { value = val }
 								end,
-							val = { get_option("jointflash") }
+							val = { TB_MENU_MAIN_SETTINGS.jointflash and TB_MENU_MAIN_SETTINGS.jointflash.value or get_option("jointflash") }
 						}
 					}
 				}
@@ -690,7 +719,7 @@ do
 					action = function(val)
 							TB_MENU_MAIN_SETTINGS.itemeffects = { value = val, id = ITEMEFFECTS, graphics = true }
 						end,
-					val = { get_option("itemeffects") },
+					val = { TB_MENU_MAIN_SETTINGS.itemeffects and TB_MENU_MAIN_SETTINGS.itemeffects.value or get_option("itemeffects") },
 					reload = true
 				})
 			end
@@ -753,39 +782,39 @@ do
 							action = function(val)
 									TB_MENU_MAIN_SETTINGS.bodytextures = { value = val, id = BODYTEXTURES, graphics = true }
 								end,
-							val = { get_option("bodytextures") },
+							val = { TB_MENU_MAIN_SETTINGS.bodytextures and TB_MENU_MAIN_SETTINGS.bodytextures.value or get_option("bodytextures") },
 							reload = true
 						},
 						{
 							name = TB_MENU_LOCALIZED.SETTINGSTRAILS,
 							type = TOGGLE,
 							systemname = "trails",
-							val = { get_option("trails") }
+							val = { TB_MENU_MAIN_SETTINGS.trails and TB_MENU_MAIN_SETTINGS.trails.value or get_option("trails") }
 						},
 						{
 							name = TB_MENU_LOCALIZED.SETTINGSFLAMES,
 							type = TOGGLE,
 							systemname = "particles",
-							val = { get_option("particles") }
+							val = { TB_MENU_MAIN_SETTINGS.particles and TB_MENU_MAIN_SETTINGS.particles.value or get_option("particles") }
 						},
 						{
 							name = TB_MENU_LOCALIZED.SETTINGSHAIRS,
 							type = TOGGLE,
 							systemname = "hair",
-							val = { get_option("hair") }
+							val = { TB_MENU_MAIN_SETTINGS.hair and TB_MENU_MAIN_SETTINGS.hair.value or get_option("hair") }
 						},
 						{
 							name = TB_MENU_LOCALIZED.SETTINGSOBJMODELS,
 							type = TOGGLE,
 							systemname = "obj",
-							val = { get_option("obj") }
+							val = { TB_MENU_MAIN_SETTINGS.obj and TB_MENU_MAIN_SETTINGS.obj.value or get_option("obj") }
 						},
 						{
 							name = TB_MENU_LOCALIZED.SETTINGSJOINTOBJOPACITY,
 							type = SLIDER,
 							maxValue = 100,
 							systemname = "jointobjopacity",
-							val = { get_option("jointobjopacity") }
+							val = { TB_MENU_MAIN_SETTINGS.jointobjopacity and TB_MENU_MAIN_SETTINGS.jointobjopacity.value or get_option("jointobjopacity") }
 						},
 					}
 				}
@@ -814,7 +843,6 @@ do
 								slider.label.labelText[1] = math.floor((slider.label.labelText[1] + 0) / 128 * 100 + 0.5)
 							end,
 							onMouseUp = function(slider)
-								local volume = get_option("soundvolume")
 								play_sound(36, slider.label.labelText[1])
 							end
 						},
@@ -829,7 +857,6 @@ do
 								slider.label.labelText[1] = math.floor((slider.label.labelText[1] + 0) / 128 * 100 + 0.5)
 							end,
 							onMouseUp = function(slider)
-								local volume = get_option("soundvolume")
 								play_sound(36, slider.label.labelText[1])
 							end
 						},
@@ -1443,38 +1470,39 @@ do
 				action = function(val)
 						TB_MENU_MAIN_SETTINGS.highdpi = { id = HIGHDPI, value = val, graphics = true, reload = true }
 					end,
-				val = { get_option("highdpi") }
+				val = { get_option("highdpiapple") }
 			})
-		else
-			-- We need to make sure cpp screens are fully visible
-			-- Biggest screen is login/register, it needs 400x650 space
-			local _w, _h, w, h = get_window_size()
-			local maxHdpi = 100
-			for i = 10, 20 do
-				if (math.min(w / (i / 10) - 400, h / (i / 10) - 650) >= 0) then
-					maxHdpi = i * 10
-				end
-			end
-			if (maxHdpi > 100) then
-				table.insert(items, {
-					name = TB_MENU_LOCALIZED.SETTINGSGUISCALING,
-					minValue = 100,
-					minValueDisp = "1x",
-					maxValue = maxHdpi,
-					maxValueDisp = maxHdpi / 100 .. "x",
-					type = SLIDER,
-					systemname = "highdpi",
-					onUpdate = function(slider)
-						TB_MENU_MAIN_SETTINGS.highdpi.value = math.floor((tonumber(slider.label.labelText[1]) or 1) / 10 + 0.5)
-						TB_MENU_MAIN_SETTINGS.highdpi.id = HIGHDPI
-						TB_MENU_MAIN_SETTINGS.highdpi.graphics = true
-						TB_MENU_MAIN_SETTINGS.highdpi.reload = true
-						slider.label.labelText[1] = math.floor((tonumber(slider.label.labelText[1]) or 1) / 10 + 0.5) / 10 .. 'x'
-					end,
-					val = { math.max(100, math.min(get_option("highdpi") * 10, maxHdpi)) }
-				})
+		end
+
+		-- We need to make sure cpp screens are fully visible
+		-- Biggest screen is login/register, it needs 400x650 space
+		local _, _, w, h = get_window_size()
+		local maxHdpi = 100
+		for i = 10, 20 do
+			if (math.min(w / (i / 10) - 400, h / (i / 10) - 650) >= 0) then
+				maxHdpi = i * 10
 			end
 		end
+		if (maxHdpi > 100) then
+			table.insert(items, {
+				name = TB_MENU_LOCALIZED.SETTINGSGUISCALING,
+				minValue = 100,
+				minValueDisp = "1x",
+				maxValue = maxHdpi,
+				maxValueDisp = maxHdpi / 100 .. "x",
+				type = SLIDER,
+				systemname = "highdpi",
+				onUpdate = function(slider)
+					TB_MENU_MAIN_SETTINGS.highdpi.value = math.floor((tonumber(slider.label.labelText[1]) or 1) / 10 + 0.5)
+					TB_MENU_MAIN_SETTINGS.highdpi.id = HIGHDPI
+					TB_MENU_MAIN_SETTINGS.highdpi.graphics = true
+					TB_MENU_MAIN_SETTINGS.highdpi.reload = true
+					slider.label.labelText[1] = math.floor((tonumber(slider.label.labelText[1]) or 1) / 10 + 0.5) / 10 .. 'x'
+				end,
+				val = { math.max(100, math.min(get_option("highdpi") * 10, maxHdpi)) }
+			})
+		end
+
 		if (PLATFORM == "WINDOWS" and get_dpiawareness().DPISCALING ~= 1) then
 			table.insert(items, {
 				name = TB_MENU_LOCALIZED.SETTINGSDPIAWARENESS,
@@ -1644,52 +1672,6 @@ do
 		else
 			return string.schar(key)
 		end
-	end
-
-	function Settings:spawnToggle(viewElement, toggle, i)
-		local toggleTable = toggle.val
-		local toggleBG = UIElement:new({
-			parent = viewElement,
-			pos = { 0, 0 },
-			size = { viewElement.size.w, viewElement.size.h },
-			shapeType = ROUNDED,
-			rounded = 3,
-			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR
-		})
-		local toggleView = UIElement:new({
-			parent = toggleBG,
-			pos = { 1, 1 },
-			size = { toggleBG.size.w - 2, toggleBG.size.h - 2 },
-			shapeType = ROUNDED,
-			rounded = 3,
-			bgColor = TB_MENU_DEFAULT_BG_COLOR,
-			hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-			pressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR,
-			inactiveColor = TB_MENU_DEFAULT_LIGHTEST_COLOR,
-			interactive = true
-		})
-		if (toggle.inactive) then
-			toggleView:deactivate(true)
-		end
-		local toggleIcon = UIElement:new({
-			parent = toggleView,
-			pos = { 0, 0 },
-			size = { toggleView.size.w, toggleView.size.h },
-			bgImage = "../textures/menu/general/buttons/checkmark.tga"
-		})
-		if (toggleTable[i] == 0) then
-			toggleIcon:hide(true)
-		end
-		toggleView:addMouseHandlers(nil, function()
-				toggleTable[i] = 1 - toggleTable[i]
-				if (toggleTable[i] == 1) then
-					toggleIcon:show(true)
-				else
-					toggleIcon:hide(true)
-				end
-				toggle.action(toggleTable[i])
-				Settings:settingsApplyActivate(toggle.reload)
-			end)
 	end
 
 	function Settings:settingsApplyActivate(restart)
@@ -1909,17 +1891,23 @@ do
 								end
 							end)
 						elseif (item.type == TOGGLE) then
-							local itemToggle = UIElement:new({
-								parent = itemView,
+							local itemToggle = itemView:addChild({
 								pos = { -itemView.size.h - 10, 5 },
-								size = { itemView.size.h - 10, itemView.size.h - 10 }
+								size = { itemView.size.h - 10, itemView.size.h - 10 },
+								shapeType = ROUNDED,
+								rounded = 3
 							})
 							if (not item.action) then
 								item.action = function(val)
 									TB_MENU_MAIN_SETTINGS[item.systemname] = { value = val }
 								end
 							end
-							Settings:spawnToggle(itemToggle, item, 1)
+							local action = item.action
+							item.action = function(val)
+								action(val)
+								Settings:settingsApplyActivate(item.reload)
+							end
+							TBMenu:spawnToggle(itemToggle, nil, nil, nil, nil, item.val[1], item.action)
 						elseif (item.type == INPUT) then
 							local itemInput = UIElement:new({
 								parent = itemView,

@@ -718,7 +718,7 @@ function UIElement:addTabSwitch(element, btnDownArg, prev)
 		if (self.onLoseFocus) then
 			self.onLoseFocus()
 		end
-		for i, v in pairs(UIKeyboardHandler) do
+		for _, v in pairs(UIKeyboardHandler) do
 			v.keyboard = false
 			KEYBOARDGLOBALIGNORE = false
 		end

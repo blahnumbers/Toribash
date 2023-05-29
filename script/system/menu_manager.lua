@@ -4013,7 +4013,7 @@ function TBMenu:spawnToggle(parent, x, y, w, h, toggleValue, updateFunc)
 	if (tonumber(toggleValue) == 0 or toggleValue == false) then
 		toggleIcon:hide(true)
 	end
-	toggleView:addMouseHandlers(nil, function(s, x, y)
+	toggleView:addMouseUpHandler(function()
 			if (type(toggleValue) == "boolean") then
 				toggleValue = not toggleValue
 			else
