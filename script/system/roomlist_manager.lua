@@ -754,7 +754,7 @@ function RoomList:displayCreateRoomMods(viewElement, mainListBotBar)
 		modInputField:clearTextfield()
 		modInputField.textInput(modname)
 	end
-	modInputField:addKeyboardHandlers(nil, function()
+	modInputField:addInputCallback(function()
 			if (lastText ~= modInputField.textfieldstr[1]) then
 				Mods.ListShift[1] = 0
 				Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, Mods.CurrentFolder, modInputField, onSelectFunc, true)

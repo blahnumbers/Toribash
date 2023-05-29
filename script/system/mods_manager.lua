@@ -187,7 +187,7 @@ function Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, data
 	folderDisplayName = utf8.gsub(folderDisplayName, "^.*/([^/]+)", "%1")
 	modsFolderName:addAdaptedText(true, folderDisplayName, nil, nil, topBar.helpPopup and FONTS.BIG or FONTS.MEDIUM, LEFTMID, topBar.helpPopup and 0.6 or 1, nil, 0.5)
 
-	local searchString = search and utf8.gsub(search.textfieldstr[1], "([^%w])", "%%%1") or ""
+	local searchString = search and utf8.gsub(utf8.lower(search.textfieldstr[1]), "([^%w])", "%%%1") or ""
 	local listElements = {}
 	Mods.CurrentFolder = data
 
@@ -236,7 +236,7 @@ function Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, data
 								end
 								Mods.spawnListButton(listingHolder, listElements, elementHeight, "../textures/menu/general/buttons/arrowright.tga", filename, function()
 									if (modLoadCustomFunc) then
-										modLoadCustomFunc(modpath .. "/" .. file)
+										modLoadCustomFunc(file)
 									else
 										Mods.buttonClick(modpath .. "/" .. file)
 									end
@@ -261,7 +261,7 @@ function Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, data
 			if (utf8.find(utf8.lower(filename), searchString)) then
 				Mods.spawnListButton(listingHolder, listElements, elementHeight, nil, filename, function()
 					if (modLoadCustomFunc) then
-						modLoadCustomFunc(modpath .. "/" .. file)
+						modLoadCustomFunc(file)
 					else
 						Mods.buttonClick(modpath .. "/" .. file)
 					end
@@ -289,7 +289,7 @@ function Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, data
 					local filename = file:gsub("%.tbm$", "")
 					Mods.spawnListButton(listingHolder, listElements, elementHeight, "../textures/menu/general/buttons/arrowright.tga", filename, function()
 						if (modLoadCustomFunc) then
-							modLoadCustomFunc(modpath .. "/" .. file)
+							modLoadCustomFunc(file)
 						else
 							Mods.buttonClick(modpath .. "/" .. file)
 						end
