@@ -7,7 +7,7 @@ if (Tooltip == nil) then
 
 	---Advanced tooltip manager class
 	---
-	---**Ver 2.0**
+	---**Ver 5.60**
 	---* All global variables used by tooltip are now fields of Tooltip class
 	---* Mobile controls on joint hold
 	---* Tooltip hooks are now never unloaded, use tooltip option value to detect whether we should display tooltip ui

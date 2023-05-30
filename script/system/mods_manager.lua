@@ -28,7 +28,6 @@ if (Mods == nil) then
 	---@field LastShift number[] Last scroll list shift
 	---@field LastMenu ModsListEntryInfo Last clicked menu button
 	---@field StartNewGame boolean Whether to automatically start new game after loading mod
-	---@field CurrentFolder ModFolder Last opened mod folder
 	Mods = {
 		DisplayPos = { x = x + 10, y = y + 10 },
 		ListShift = { 0 },
@@ -39,9 +38,14 @@ if (Mods == nil) then
 	setmetatable({}, Mods)
 end
 
+---Internal helper class for **Mods manager**
+---@class ModsInternal
+---@field CurrentFolder ModFolder Last opened mod folder
+local ModsInternal = {}
+
 ---Generic function to execute on mod button click
 ---@param file string
-function Mods.buttonClick(file)
+function ModsInternal.ButtonClick(file)
 	local clock = os.clock_real()
 	if (not Mods.LastMenu) then
 		---@type ModsListEntryInfo
@@ -57,10 +61,10 @@ function Mods.buttonClick(file)
 	end
 end
 
----Internal function to get and cache all mods within a directory
+---Method to get and cache all mods within a directory
 ---@param path ?string
 ---@return ModFolder
-function Mods.getModFiles(path)
+function Mods.GetModFiles(path)
 	local path = path or "data/mod"
 	---@type ModFolder
 	local data = { name = path, mods = {}, folders = {}, contents = {} }
@@ -69,7 +73,7 @@ function Mods.getModFiles(path)
 			table.insert(data.mods, v)
 		elseif (not v:find("^%.+[%s%S]*$") and v ~= "system" and v ~= "modmaker_draft" and not v:find("%.%a+$")) then
 			table.insert(data.folders, v)
-			data.contents[#data.folders] = Mods.getModFiles(path .. "/" .. v)
+			data.contents[#data.folders] = Mods.GetModFiles(path .. "/" .. v)
 			data.contents[#data.folders].parent = data
 		end
 	end
@@ -78,15 +82,15 @@ end
 
 ---Refreshes mod cache and returns current folder with the updated data
 ---@return ModFolder
-function Mods.refreshCurrentFolder()
-	local modsData = Mods.getModFiles()
-	if (Mods.CurrentFolder == nil) then
+function ModsInternal.RefreshCurrentFolder()
+	local modsData = Mods.GetModFiles()
+	if (ModsInternal.CurrentFolder == nil) then
 		return modsData
 	end
 
 	local checkCurrentFolder
 	checkCurrentFolder = function(folder)
-		if (folder.name == Mods.CurrentFolder.name and (folder.parent == Mods.CurrentFolder.parent or (folder.parent ~= nil and Mods.CurrentFolder.parent ~= nil and folder.parent.name == Mods.CurrentFolder.parent.name))) then
+		if (folder.name == ModsInternal.CurrentFolder.name and (folder.parent == ModsInternal.CurrentFolder.parent or (folder.parent ~= nil and ModsInternal.CurrentFolder.parent ~= nil and folder.parent.name == ModsInternal.CurrentFolder.parent.name))) then
 			return folder
 		end
 		for _, v in pairs(folder.contents) do
@@ -97,7 +101,21 @@ function Mods.refreshCurrentFolder()
 		end
 		return nil
 	end
-	return checkCurrentFolder(modsData) or modsData
+
+	ModsInternal.CurrentFolder = checkCurrentFolder(modsData) or modsData
+	return ModsInternal.CurrentFolder
+end
+
+---Helper function to nicely format folder names
+---@param text string
+---@return string
+function ModsInternal.CleanFolderName(text)
+	pcall(function()
+		text = utf8.upper(utf8.sub(text, 1, 1)) .. utf8.sub(text, 2)
+		text = utf8.gsub(text, "([^_])(%u%l)", "%1 %2")
+		text = utf8.gsub(text, "_", " & ")
+	end)
+	return text
 end
 
 ---Generic function to spawn a list button
@@ -110,7 +128,7 @@ end
 ---@param iconScale ?UIElementSize
 ---@param leftOffset ?number
 ---@return UIElement
-function Mods.spawnListButton(listingHolder, listElements, elementHeight, icon, text, pressFunc, iconScale, leftOffset)
+function Mods.SpawnListButton(listingHolder, listElements, elementHeight, icon, text, pressFunc, iconScale, leftOffset)
 	local buttonHolder = listingHolder:addChild({
 		pos = { 0, #listElements * elementHeight },
 		size = { listingHolder.size.w, elementHeight }
@@ -138,6 +156,9 @@ function Mods.spawnListButton(listingHolder, listElements, elementHeight, icon, 
 			bgImage = icon
 		})
 		shiftModifier = buttonIcon.size.w + buttonIcon.shift.x
+		if (icon == "../textures/menu/general/folder.tga") then
+			text = ModsInternal.CleanFolderName(text)
+		end
 	end
 	local buttonText = button:addChild({
 		pos = { shiftModifier + 5, 0 },
@@ -154,11 +175,17 @@ end
 ---@param toReload UIElement
 ---@param topBar UIElement
 ---@param elementHeight number
----@param data ModFolder
+---@param data ?ModFolder
 ---@param search ?UIElement
 ---@param modLoadCustomFunc ?function
 ---@param scrollOverride ?boolean
-function Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, data, search, modLoadCustomFunc, scrollOverride)
+function Mods.SpawnMainList(listingHolder, toReload, topBar, elementHeight, data, search, modLoadCustomFunc, scrollOverride)
+	if (data == nil) then
+		data = ModsInternal.CurrentFolder
+		if (data == nil) then
+			data = ModsInternal.RefreshCurrentFolder()
+		end
+	end
 	if (listingHolder.scrollBar) then
 		listingHolder.scrollBar:kill()
 	end
@@ -185,20 +212,21 @@ function Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, data
 
 	local folderDisplayName = string.gsub(data.name, "^data/mod", "Mods")
 	folderDisplayName = utf8.gsub(folderDisplayName, "^.*/([^/]+)", "%1")
+	folderDisplayName = ModsInternal.CleanFolderName(folderDisplayName)
 	modsFolderName:addAdaptedText(true, folderDisplayName, nil, nil, topBar.helpPopup and FONTS.BIG or FONTS.MEDIUM, LEFTMID, topBar.helpPopup and 0.6 or 1, nil, 0.5)
 
 	local searchString = search and utf8.gsub(utf8.lower(search.textfieldstr[1]), "([^%w])", "%%%1") or ""
 	local listElements = {}
-	Mods.CurrentFolder = data
+	ModsInternal.CurrentFolder = data
 
 	local modpath = utf8.gsub(data.name, "^data/mod/?", "")
 	if (data.name ~= "data/mod" or searchString ~= "") then
-		Mods.spawnListButton(listingHolder, listElements, elementHeight, "../textures/menu/general/back.tga", TB_MENU_LOCALIZED.NAVBUTTONBACK, function()
+		Mods.SpawnListButton(listingHolder, listElements, elementHeight, "../textures/menu/general/back.tga", TB_MENU_LOCALIZED.NAVBUTTONBACK, function()
 			Mods.ListShift[1] = 0
 			if (search ~= nil) then
 				search:clearTextfield()
 			end
-			Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, data.parent and data.parent or data, search, modLoadCustomFunc, scrollOverride)
+			Mods.SpawnMainList(listingHolder, toReload, topBar, elementHeight, data.parent and data.parent or data, search, modLoadCustomFunc, scrollOverride)
 		end, { w = elementHeight * 0.5, h = elementHeight * 0.5 })
 	end
 
@@ -214,12 +242,12 @@ function Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, data
 			if (folder == "modmaker") then
 				modmakerId = i
 			else
-				local element = Mods.spawnListButton(listingHolder, listElements, elementHeight, "../textures/menu/general/folder.tga", folder, function()
+				local element = Mods.SpawnListButton(listingHolder, listElements, elementHeight, "../textures/menu/general/folder.tga", folder, function()
 					Mods.ListShift[1] = 0
 					if (search ~= nil) then
 						search:clearTextfield()
 					end
-					Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, data.contents[i], search, modLoadCustomFunc, scrollOverride)
+					Mods.SpawnMainList(listingHolder, toReload, topBar, elementHeight, data.contents[i], search, modLoadCustomFunc, scrollOverride)
 				end, { w = elementHeight * 0.5, h = elementHeight * 0.5 }, level * 20)
 				if (searchString ~= "") then
 					local inserted = spawnFolders(data.contents[i], level + 1)
@@ -234,11 +262,11 @@ function Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, data
 									inserted = true
 									table.insert(listElements, element)
 								end
-								Mods.spawnListButton(listingHolder, listElements, elementHeight, "../textures/menu/general/buttons/arrowright.tga", filename, function()
+								Mods.SpawnListButton(listingHolder, listElements, elementHeight, "../textures/menu/general/buttons/arrowright.tga", filename, function()
 									if (modLoadCustomFunc) then
 										modLoadCustomFunc(file)
 									else
-										Mods.buttonClick(modpath .. "/" .. file)
+										ModsInternal.ButtonClick(modpath .. "/" .. file)
 									end
 								end, { w = elementHeight / 2 }, level * 20)
 							end
@@ -255,27 +283,13 @@ function Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, data
 		return foundMatch
 	end
 	spawnFolders(data, 0)
-	for _, file in pairs(data.mods) do
-		local filename = file:gsub("%.tbm$", "")
-		pcall(function()
-			if (utf8.find(utf8.lower(filename), searchString)) then
-				Mods.spawnListButton(listingHolder, listElements, elementHeight, nil, filename, function()
-					if (modLoadCustomFunc) then
-						modLoadCustomFunc(file)
-					else
-						Mods.buttonClick(modpath .. "/" .. file)
-					end
-				end)
-			end
-		end)
-	end
 	if (modmakerId > 0) then
-		local element = Mods.spawnListButton(listingHolder, listElements, elementHeight, "../textures/menu/general/folder.tga", data.folders[modmakerId], function()
+		local element = Mods.SpawnListButton(listingHolder, listElements, elementHeight, "../textures/menu/general/folder.tga", data.folders[modmakerId], function()
 			Mods.ListShift[1] = 0
 			if (search ~= nil) then
 				search:clearTextfield()
 			end
-			Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, data.contents[modmakerId], search, modLoadCustomFunc, scrollOverride)
+			Mods.SpawnMainList(listingHolder, toReload, topBar, elementHeight, data.contents[modmakerId], search, modLoadCustomFunc, scrollOverride)
 		end, { w = elementHeight * 0.5, h = elementHeight * 0.5 })
 		table.remove(listElements)
 		local inserted = false
@@ -287,11 +301,11 @@ function Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, data
 						table.insert(listElements, element)
 					end
 					local filename = file:gsub("%.tbm$", "")
-					Mods.spawnListButton(listingHolder, listElements, elementHeight, "../textures/menu/general/buttons/arrowright.tga", filename, function()
+					Mods.SpawnListButton(listingHolder, listElements, elementHeight, "../textures/menu/general/buttons/arrowright.tga", filename, function()
 						if (modLoadCustomFunc) then
 							modLoadCustomFunc(file)
 						else
-							Mods.buttonClick(modpath .. "/" .. file)
+							ModsInternal.ButtonClick(modpath .. "/" .. file)
 						end
 					end, { w = elementHeight / 2 })
 				end
@@ -302,6 +316,20 @@ function Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, data
 		else
 			table.insert(listElements, element)
 		end
+	end
+	for _, file in pairs(data.mods) do
+		local filename = file:gsub("%.tbm$", "")
+		pcall(function()
+			if (utf8.find(utf8.lower(filename), searchString)) then
+				Mods.SpawnListButton(listingHolder, listElements, elementHeight, nil, filename, function()
+					if (modLoadCustomFunc) then
+						modLoadCustomFunc(file)
+					else
+						ModsInternal.ButtonClick(modpath .. "/" .. file)
+					end
+				end)
+			end
+		end)
 	end
 	if (#listElements == 0) then
 		local element = UIElement:new({
@@ -438,12 +466,13 @@ function Mods.showMain()
 	search:addInputCallback(function()
 			if (lastText ~= search.textfieldstr[1]) then
 				Mods.ListShift[1] = 0
-				Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, Mods.CurrentFolder, search)
+				Mods.SpawnMainList(listingHolder, toReload, topBar, elementHeight, ModsInternal.CurrentFolder, search)
 				lastText = search.textfieldstr[1]
 			end
 		end)
-	Mods.CurrentFolder = Mods.refreshCurrentFolder()
-	Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, Mods.CurrentFolder, search)
+
+	ModsInternal.RefreshCurrentFolder()
+	Mods.SpawnMainList(listingHolder, toReload, topBar, elementHeight, ModsInternal.CurrentFolder, search)
 
 	local quitButton = mainMoverHolder:addChild({
 		pos = { -mainMoverHolder.size.h, 0 },

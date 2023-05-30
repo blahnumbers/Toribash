@@ -2704,7 +2704,7 @@ function save_custom_config() end
 
 ---Retrieves a value of the specified Toribash option
 ---@param value GameOption
----@return string
+---@return integer
 function get_option(value) end
 
 ---Sets value for the specified Toribash option

@@ -45,7 +45,7 @@ function Rewards.getRewardData()
 				end
 			end
 			if (Rewards.RewardData[days - 1].item ~= '0') then
-				Rewards.RewardData[days - 1].item = Torishop:getItemInfo(tonumber(Rewards.RewardData[days - 1].item))
+				Rewards.RewardData[days - 1].item = Torishop:getItemInfo(tonumber(Rewards.RewardData[days - 1].item) or -1)
 			end
 			got_data = true
 		end

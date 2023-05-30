@@ -757,12 +757,11 @@ function RoomList:displayCreateRoomMods(viewElement, mainListBotBar)
 	modInputField:addInputCallback(function()
 			if (lastText ~= modInputField.textfieldstr[1]) then
 				Mods.ListShift[1] = 0
-				Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, Mods.CurrentFolder, modInputField, onSelectFunc, true)
+				Mods.SpawnMainList(listingHolder, toReload, topBar, elementHeight, nil, modInputField, onSelectFunc, true)
 				lastText = modInputField.textfieldstr[1]
 			end
 		end)
-	Mods.CurrentFolder = Mods.getModFiles()
-	Mods.spawnMainList(listingHolder, toReload, topBar, elementHeight, Mods.CurrentFolder, modInputField, onSelectFunc, true)
+	Mods.SpawnMainList(listingHolder, toReload, topBar, elementHeight, nil, modInputField, onSelectFunc, true)
 
 	return modInputField.textfieldstr
 end

@@ -1733,9 +1733,6 @@ do
 
 		TBMenu.CurrentSection:kill(true)
 
-		local lastListHeight = SETTINGS_LIST_SHIFT[2]
-		local lastListProgress = SETTINGS_LIST_SHIFT[1] > 0 and SETTINGS_LIST_SHIFT[1] / SETTINGS_LIST_SHIFT[3] or 0
-
 		local settingsData = Settings:getSettingsData(id)
 		local settingsMain = UIElement:new({
 			parent = TBMenu.CurrentSection,
@@ -1744,18 +1741,18 @@ do
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
 		local elementHeight = 50
-		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(settingsMain, elementHeight, elementHeight, 20)
+		local toReload, topBar, botBar, _, listingHolder = TBMenu:prepareScrollableList(settingsMain, elementHeight, elementHeight + 10, 20)
 
 		TBMenu:addBottomBloodSmudge(botBar, 1)
 		tbMenuApplySettingsButton = UIElement:new({
 			parent = botBar,
 			pos = { botBar.size.w / 4, 10 },
-			size = { botBar.size.w / 2, botBar.size.h - 10 },
+			size = { botBar.size.w / 2, botBar.size.h - 20 },
 			interactive = true,
 			bgColor = TB_MENU_DEFAULT_BG_COLOR,
 			hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
 			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-			inactiveColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+			inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
 			shapeType = ROUNDED,
 			rounded = 5
 		})
@@ -1836,7 +1833,7 @@ do
 				})
 				sectionName:addAdaptedText(true, section.name, nil, -3, FONTS.BIG, LEFTBOT, 0.6)
 				table.insert(listElements, sectionName)
-				for i,item in pairs(section.items) do
+				for _, item in pairs(section.items) do
 					if (not item.hidden) then
 						local itemHolder = UIElement:new({
 							parent = listingHolder,
@@ -1848,7 +1845,9 @@ do
 							parent = itemHolder,
 							pos = { 20, 3 },
 							size = { itemHolder.size.w - 40, itemHolder.size.h - 6 },
-							bgColor = TB_MENU_DEFAULT_DARKER_COLOR
+							bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+							shapeType = ROUNDED,
+							rounded = 4
 						})
 						local shiftX = 20
 						if (item.hint) then

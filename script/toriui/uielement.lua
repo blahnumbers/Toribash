@@ -927,6 +927,7 @@ function UIElement:makeScrollBar(listHolder, listElements, toReload, posShift, s
 					deltaChange = UITween.SineTween(deltaChange, 0, (UIElement.clock - lastClock) * 2)
 				end
 				self:touchScroll(listElements, listHolder, toReload, deltaChange, enabled)
+				posShift[1] = self.orientation == SCROLL_VERTICAL and self.shift.y or self.shift.x
 			end
 		end)
 end

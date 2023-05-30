@@ -150,7 +150,7 @@ if (Gamerules == nil) then
 	Gamerules = {
 		DisplayPos = { x = x + 10, y = y + 10 },
 		ListShift = { 0, 0, 1 },
-		StartNewgame = get_option("grnewgame") == "1",
+		StartNewgame = get_option("grnewgame") == 1,
 		LastSelectedRule = nil,
 		ver = 5.60
 	}
@@ -908,7 +908,7 @@ function Gamerules.showMain()
 		pos = { 0, -35 },
 		size = { botBar.size.w / 2, 30 }
 	}, true)
-	local newGameToggle = TBMenu:spawnToggle(grNewGameToggleView, 5, 2, grNewGameToggleView.size.h - 4, grNewGameToggleView.size.h - 4, Gamerules.StartNewgame, function(val) Gamerules.StartNewgame = val set_option("grnewgame", val) end)
+	TBMenu:spawnToggle(grNewGameToggleView, 5, 2, grNewGameToggleView.size.h - 4, grNewGameToggleView.size.h - 4, Gamerules.StartNewgame, function(val) Gamerules.StartNewgame = val set_option("grnewgame", val) save_custom_config() end)
 	local grNewGameText = UIElement:new({
 		parent = grNewGameToggleView,
 		pos = { 6 + grNewGameToggleView.size.h, 0 },

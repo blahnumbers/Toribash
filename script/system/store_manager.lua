@@ -20,6 +20,7 @@ local TAB_ACCOUNT = 4
 ---@field catname string Item's category name
 ---@field itemid integer
 ---@field itemname string
+---@field shortname string
 ---@field description string
 ---@field on_sale boolean Whether the item is currently on sale
 ---@field now_tc_price integer Current TC price of an item

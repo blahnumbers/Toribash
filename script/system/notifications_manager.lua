@@ -90,7 +90,7 @@ function Notifications:getNavigationButtons(showBack, justClaimed, backAction)
 		},
 		{
 			text = TB_MENU_LOCALIZED.NAVBUTTONQUESTS,
-			misctext = TB_MENU_QUESTS_GLOBAL_COUNT + TB_MENU_QUESTS_COUNT > 0 and TB_MENU_QUESTS_GLOBAL_COUNT + TB_MENU_QUESTS_COUNT or nil,
+			misctext = TB_MENU_QUESTS_GLOBAL_COUNT + TB_MENU_QUESTS_COUNT > 0 and tostring(TB_MENU_QUESTS_GLOBAL_COUNT + TB_MENU_QUESTS_COUNT) or nil,
 			action = function() Quests:showMain() TB_MENU_NOTIFICATIONS_LASTSCREEN = 2 end,
 			right = true,
 			sectionId = 2
