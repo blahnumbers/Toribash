@@ -1,0 +1,157 @@
+#!/usr/bin/toribash
+########################################
+#mini_soccer2.tbm ### Created by MrKotik#
+########################################
+
+gamerule
+dq 0
+gravity 0 0 -30.00
+ed 1060
+dismemberthreshold 325
+matchframes 1000
+turnframes 10
+flags 6
+
+env_obj 1
+    shape box
+    pos -1.75 6.25 1.75
+    color 0 0 1 1
+    rot 0 0 0
+    sides 0.25 0.25 3.5
+    material steel
+    mass 0.1
+    flag 8
+#END 1
+
+env_obj 2
+    shape box
+    pos 3.75 6.25 1.75
+    color 0 0 1 1
+    rot 0 0 0
+    sides 0.25 0.25 3.5
+    material steel
+    mass 0.1
+    flag 8
+#END 2
+
+env_obj 3
+    shape box
+    pos 3.75 -6.25 1.75
+    color 0 0 1 1
+    rot 0 0 0
+    sides 0.25 0.25 3.5
+    material steel
+    mass 0.1
+    flag 8
+#END 3
+
+env_obj 4
+    shape box
+    pos -1.75 -6.25 1.75
+    color 0 0 1 1
+    rot 0 0 0
+    sides 0.25 0.25 3.5
+    material steel
+    mass 0.1
+    flag 8
+#END 4
+
+env_obj 5
+    shape box
+    pos 1.00 -6.25 3.5
+    color 0 0 1 1
+    rot 0 90 0
+    sides 0.25 0.25 5.75
+    material steel
+    mass 0.1
+    flag 8
+#END 5
+
+env_obj 6
+    shape box
+    pos 1.00 6.25 3.5
+    color 0 0 1 1
+    rot 0 90 0
+    sides 0.25 0.25 5.75
+    material steel
+    mass 0.1
+    flag 8
+#END 6
+
+env_obj 7
+    shape sphere
+    pos 1 0.00 4
+    color 0.55 0.00 -1.20 1.00
+    rot 0 0 0
+    sides 0.25 1 0.75
+    material steel
+    mass 0.0005
+    flag 1
+    bounce 6
+#END 7
+
+env_obj 8
+    shape box
+    pos -7.75 0.00 1.8666666
+    color 0 0 0 0.25
+    rot 0 0 0
+    sides 0.10 20.00 3.75
+    material steel
+    mass 0.1
+    flag 8
+#END 8
+
+env_obj 9
+    shape box
+    pos 9.75 0.00 1.8666666
+    color 0 0 0 0.25
+    rot 0 0 0
+    sides 0.10 20.00 3.75
+    material steel
+    mass 0.1
+    flag 8
+#END 9
+
+env_obj 10
+    shape box
+    pos 1.00 10.056666666 1.8666666
+    color 0 0 0 0.25
+    rot 0 0 90
+    sides 0.10 17.60 3.75
+    material steel
+    mass 0.1
+    flag 8
+#END 10
+
+env_obj 11
+    shape box
+    pos 1.00 -10.05666666 1.8666666
+    color 0 0 0 0.25
+    rot 0 0 90
+    sides 0.10 17.60 3.75
+    material steel
+    mass 0.1
+    flag 8
+#END 11
+
+env_obj 12
+    shape box
+    pos 0.88 -5.00 -0.1
+    color 0 0 0.0 0.05
+    rot 90 0 90
+    sides 0.01 6.50 2.75
+    material steel
+    mass 0.1
+    flag 8
+#END 12
+
+env_obj 13
+    shape box
+    pos 0.88 5.00 -0.1
+    color 0 0.0 0.0 0.05
+    rot 90 0 90
+    sides 0.01 6.50 2.75
+    material steel
+    mass 0.1
+    flag 8
+#END 13

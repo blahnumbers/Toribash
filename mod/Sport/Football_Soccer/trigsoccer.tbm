@@ -1,0 +1,184 @@
+#!/usr/bin/toribash
+
+gamerule
+	engagedistance 725
+	gravity 0 0 -30.00
+	dismemberthreshold 425
+
+env_obj 1
+    shape box
+    pos -4 -5 2.25
+    color 0 0 1
+    rot 0 0 0
+    sides 0.25 0.25 4.25
+    material steel
+    mass 0.1
+    flag 8
+#END 1
+
+env_obj 2
+    shape box
+    pos 6 -5 2.25
+    color 0 0 1
+    rot 0 0 0
+    sides 0.25 0.25 4.25
+    material steel
+    mass 0.1
+    flag 8
+#END 2
+
+env_obj 3
+    shape box
+    pos 1 -5 4.5
+    color 0 0 1
+    rot 0 0 0
+    sides 10.25 0.25 0.25
+    material steel
+    mass 0.1
+    flag 8
+#END 3
+
+env_obj 4
+    shape box
+    pos -4 -6.75 4.5
+    color 1 0 0
+    rot 0 0 0
+    sides 0.25 3.25 0.25
+    material steel
+    mass 0.1
+    flag 8
+    trig_id 1
+    trig_mask 2
+#END 4
+
+env_obj 5
+    shape box
+    pos 6 -6.75 4.5
+    color 1 0 0
+    rot 0 0 0
+    sides 0.25 3.25 0.25
+    material steel
+    mass 0.1
+    flag 8
+    trig_id 1
+    trig_mask 2
+#END 5
+
+env_obj 6
+    shape box
+    pos 6 -8.25 2.5
+    color 1 0 0
+    rot 0 0 0
+    sides 0.25 0.25 4.25
+    material steel
+    mass 0.1
+    flag 8
+    trig_id 1
+    trig_mask 2
+#END 6
+
+env_obj 7
+    shape box
+    pos -4 -8.25 2.5
+    color 1 0 0
+    rot 0 0 0
+    sides 0.25 0.25 4.25
+    material steel
+    mass 0.1
+    flag 8
+    trig_id 1
+    trig_mask 2
+#END 7
+
+env_obj 8
+    shape box
+    pos 1 -8.25 0.25
+    color 1 0 0
+    rot 0 0 0
+    sides 10.25 0.25 0.25
+    material steel
+    mass 0.1
+    flag 8
+    trig_id 1
+    trig_mask 2
+#END 8
+
+env_obj 9
+    shape box
+    pos -4 -6.75 0.25
+    color 0 0 1
+    rot 0 0 0
+    sides 0.25 3.25 0.25
+    material steel
+    mass 0.1
+    flag 8
+#END 9
+
+env_obj 10
+    shape box
+    pos 6 -6.75 0.25
+    color 0 0 1
+    rot 0 0 0
+    sides 0.25 3.25 0.25
+    material steel
+    mass 0.1
+    flag 8
+#END 10
+
+env_obj 11
+    shape sphere
+    pos 0.75 3.0 0.5
+    color 0 0.2 0.5
+    rot 0 0 0
+    sides 0.25 1 0.75
+    material steel
+    mass 0.0005
+    flag 1
+    bounce 6
+# I am of id 2
+    trig_id 2
+# I want to collide with id 1 or 4
+    trig_mask 5
+#END 11
+
+env_obj 12
+    shape box
+    pos 1 -6.75 4.5
+    color 1 0 0
+    rot 0 0 0
+    sides 10.25 3.25 0.25
+    material steel
+    mass 0.1
+    flag 8
+    trig_id 1
+    trig_mask 2
+    trig_action 1
+#END 12
+
+env_obj 13
+    shape box
+    pos 1 -8.25 2.50
+    color 1 0 0
+    rot 0 0 0
+    sides 10.25 0.25 4.25
+    material steel
+    mass 0.1
+    flag 8
+    trig_id 1
+    trig_mask 2
+    trig_action 1
+#END 13
+
+env_obj 14
+    shape box
+    pos 1 -9 5 
+    color 0 1 0
+    rot 0 0 0
+    sides 40 0.25 10 
+    material steel
+    mass 0.1
+    flag 8
+    trig_id 4
+    trig_mask 2
+    trig_action 2
+#END 13

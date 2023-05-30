@@ -1,0 +1,136 @@
+#!/usr/bin/toribash
+# Environment exported by WorldBuilder
+######################################
+
+env_obj 1
+    shape sphere
+    pos 1.0625 -0.1875 0.1875
+    color 0 1.1 1.1 1.1
+    rot 0 0 0
+    sides 0.25 1 1
+    material steel
+    mass 0.000001
+    flag 0
+#END 1
+
+env_obj 2
+    shape box
+    pos 1 -0.125 -0.0625
+    color 0 1.1 1.1 1.1
+    rot 0 0 0
+    sides 14.5 24 0
+    material steel
+    mass 0.1
+    flag 24
+#END 2
+
+env_obj 3
+    shape cylinder
+    pos -1.4375 -11.75 1.625
+    color 0 1.1 1.1 1.1
+    rot 0 0 0
+    sides 0.0625 3.375 1
+    material steel
+    mass 0.1
+    flag 24
+#END 3
+
+env_obj 4
+    shape cylinder
+    pos 3.6875 -11.75 1.625
+    color 0 1.1 1.1 1.1
+    rot 0 0 0
+    sides 0.0625 3.375 1
+    material steel
+    mass 0.1
+    flag 24
+#END 4
+
+env_obj 5
+    shape cylinder
+    pos 1.125 -11.75 3.3125
+    color 0 1.1 1.1 1.1
+    rot -70 90 0
+    sides 0.0625 5.125 1
+    material steel
+    mass 0.1
+    flag 24
+#END 5
+
+env_obj 6
+    shape cylinder
+    pos 1.125 11.625 3.3125
+    color 0 1.1 1.1 1.1
+    rot -70 90 0
+    sides 0.0625 5.125 1
+    material steel
+    mass 0.1
+    flag 24
+#END 6
+
+env_obj 7
+    shape cylinder
+    pos -1.4375 11.625 1.6875
+    color 0 1.1 1.1 1.1
+    rot 0 180 0
+    sides 0.0625 3.1875 1
+    material steel
+    mass 0.1
+    flag 24
+#END 7
+
+env_obj 8
+    shape box
+    pos 8.1875 -0.25 0.375
+    color 0 1.1 1.1 1.1
+    rot 0 0 180
+    sides 0.0625 24.125 1
+    material steel
+    mass 0.1
+    flag 24
+#END 8
+
+env_obj 9
+    shape box
+    pos -6.1875 -0.25 0.375
+    color 0 1.1 1.1 1.1
+    rot 0 0 180
+    sides 0.0625 24.125 1
+    material steel
+    mass 0.1
+    flag 24
+#END 9
+
+env_obj 10
+    shape cylinder
+    pos 3.6875 11.625 1.6875
+    color 0 1.1 1.1 1.1
+    rot 0 180 0
+    sides 0.0625 3.25 1
+    material steel
+    mass 0.1
+    flag 24
+#END 10
+
+env_obj 11
+    shape box
+    pos 1 -12.25 0.375
+    color 0 1.1 1.1 1.1
+    rot 0 0 90
+    sides 0.0625 14.25 0.9375
+    material steel
+    mass 0.1
+    flag 24
+#END 11
+
+env_obj 12
+    shape box
+    pos 1 11.8125 0.375
+    color 0 1.1 1.1 1.1
+    rot 0 0 90
+    sides 0.0625 14.25 0.9375
+    material steel
+    mass 0.1
+    flag 24
+#END 12
+
