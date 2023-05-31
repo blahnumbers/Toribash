@@ -512,6 +512,7 @@ do
 												{ opt = "fixedframerate", val = 1 },
 												{ opt = "uilight", val = 1 }
 											}
+											Settings.SetMacResolution()
 											for _, v in pairs(options) do
 												if (v.graphics) then
 													set_graphics_option(v.id, v.val)
@@ -546,6 +547,7 @@ do
 											{ opt = "fixedframerate", val = 1 },
 											{ opt = "uilight", val = 1 }
 										}
+										Settings.SetMacResolution()
 										for _, v in pairs(options) do
 											if (v.graphics) then
 												set_graphics_option(v.id, v.val)
@@ -580,6 +582,7 @@ do
 											{ opt = "fixedframerate", val = 1 },
 											{ opt = "uilight", val = 0 }
 										}
+										Settings.SetMacResolution()
 										for _, v in pairs(options) do
 											if (v.graphics) then
 												set_graphics_option(v.id, v.val)
@@ -614,6 +617,7 @@ do
 											{ opt = "fixedframerate", val = 1 },
 											{ opt = "uilight", val = 0 }
 										}
+										Settings.SetMacResolution()
 										for _ ,v in pairs(options) do
 											if (v.graphics) then
 												set_graphics_option(v.id, v.val)
@@ -648,6 +652,7 @@ do
 											{ opt = "fixedframerate", val = 1 },
 											{ opt = "uilight", val = 0 }
 										}
+										Settings.SetMacResolution()
 										for _, v in pairs(options) do
 											if (v.graphics) then
 												set_graphics_option(v.id, v.val)
@@ -1368,6 +1373,7 @@ do
 				action = function()
 						set_language(v.name)
 						TBMenu.GetTranslation(get_language())
+						Settings.SetMacResolution()
 						save_custom_config()
 						reload_graphics()
 						Settings:settingsApplyActivate()
@@ -1550,6 +1556,7 @@ do
 						for i = 0, 16 do
 							set_sound_category(i, 1, 0)
 						end
+						Settings.SetMacResolution()
 						save_custom_config()
 						reload_graphics()
 					end
@@ -1560,6 +1567,7 @@ do
 						for i = 0, 16 do
 							set_sound_category(i, 1, 1)
 						end
+						Settings.SetMacResolution()
 						save_custom_config()
 						reload_graphics()
 					end
@@ -1570,6 +1578,7 @@ do
 						for i = 0, 16 do
 							set_sound_category(i, 0, 0)
 						end
+						Settings.SetMacResolution()
 						save_custom_config()
 						reload_graphics()
 					end
@@ -1672,6 +1681,17 @@ do
 			tbMenuApplySettingsButton:activate(true)
 			tbMenuApplySettingsButton:addAdaptedText(false, TB_MENU_LOCALIZED.SETTINGSAPPLY .. (restart and " (" .. TB_MENU_LOCALIZED.SETTINGSRESTARTREQUIRED .. ")" or ""))
 		end
+	end
+
+	---macOS high dpi mode leads to issues when calling graphics reload as "real" values are hdpi-adjusted. \
+	---Make sure we set them according to device physical size, then write any other options on top, then request graphics reload.
+	---@param width ?integer
+	---@param height ?integer
+	function Settings.SetMacResolution(width, height)
+		if (PLATFORM ~= "APPLE") then return end
+		local _, _, x, y = get_window_size()
+		set_option("width", width or x)
+		set_option("height", height or y)
 	end
 
 	function Settings.SetChatCensorSettings()
@@ -1781,6 +1801,11 @@ do
 					else
 						Broadcasts:deactivate()
 					end
+				end
+				if (reload) then
+					Settings.SetMacResolution(
+						TB_MENU_MAIN_SETTINGS["width"] and TB_MENU_MAIN_SETTINGS["width"].value or nil,
+						TB_MENU_MAIN_SETTINGS["height"] and TB_MENU_MAIN_SETTINGS["height"].value or nil)
 				end
 				if (not keepStoredSettings) then
 					TB_MENU_MAIN_SETTINGS = {}
