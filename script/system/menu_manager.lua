@@ -500,7 +500,7 @@ function TBMenu:showHome()
 			end, nil)
 	end
 
-	if (featuredEventData.id > 9) then
+	if (featuredEventData.id ~= nil and featuredEventData.id > 9) then
 		---Do not show any text for featured events, promo image only
 		featuredEventData.title = nil
 		featuredEventData.subtitle = nil

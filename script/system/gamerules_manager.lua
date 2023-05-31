@@ -327,19 +327,7 @@ function Gamerules.getRules()
 		local grValue = get_gamerule(v.name)
 		if (v.name == "mod") then
 			grValue = grValue:find("%.tbm$") and grValue or (grValue .. ".tbm")
-			if (grValue:find("%w:")) then
-				-- Mod is loaded from disk, escape
-				local cnt = 0
-				grValue, cnt = grValue:gsub("^.*(data/mod)%/", '')
-				if (cnt == 0) then
-					grValue = grValue:gsub("^.*%/", '')
-				end
-				cnt = 0
-				grValue, cnt = grValue:gsub("^.*(data\\mod)%\\", '')
-				if (cnt == 0) then
-					grValue = grValue:gsub("^.*%\\", '')
-				end
-			end
+			grValue = grValue:gsub("^.*[%/%\\]", '')
 		end
 		gameRule:setValue(grValue)
 		v.section = v.section or GAMERULES_SECTION_DEFAULT
@@ -470,7 +458,10 @@ function Gamerules.showGamerule(v, listingHolder, elementHeight, listElements, s
 			grInput.name = v.name
 			prevInput = grInput
 		else
-			grValueHolder:addAdaptedText(true, v.value, -4, nil, 4, RIGHTMID, 0.7)
+			grValueHolder:addAdaptedText(true, v.value, -4, nil, 4, RIGHTMID, 0.7, 0.7)
+			if (grValueHolder.dispstr[1] ~= v.value) then
+				TBMenu:displayPopup(grValueHolder:addChild({ interactive = true }), v.value)
+			end
 		end
 	elseif (v.type == GAMERULE_BOOL) then
 		grName.size.w = listingHolder.size.w / 3 * 2 - 10
