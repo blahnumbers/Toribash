@@ -285,7 +285,7 @@ do
 						end,
 					val = { get_option("raytracing") },
 					reload = true,
-					hidden = shaders == 1
+					hidden = shaders == 0
 				},
 				{
 					name = TB_MENU_LOCALIZED.SETTINGSFRAMERATE,

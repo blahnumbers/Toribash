@@ -2596,6 +2596,21 @@ _G.get_color_from_hex = function(hex)
 	return color
 end
 
+---Returns a HEX representation of Toribash RGB values (0 - 1)
+---@param r number
+---@param g number
+---@param b number
+---@return string
+---@overload fun(rgb: number[]):string
+_G.get_hex_from_color = function(r, g, b)
+	if (type(r) == "table") then
+		return get_hex_from_color(r[1], r[2], r[3])
+	end
+	return	string.format("%x", r * 255) ..
+			string.format("%x", g * 255) ..
+			string.format("%x", b * 255)
+end
+
 ---Returns contrast ratio (0-1) for the specified color
 ---using some [*magic maths*](https://24ways.org/2010/calculating-color-contrast)
 ---@param color Color
