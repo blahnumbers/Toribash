@@ -135,8 +135,8 @@ function BattlePass:getUserData(viewElement)
 			end
 			if (viewElement and not viewElement.destroyed) then
 				BattlePass:showMain()
-			elseif (TB_MENU_MAIN_ISOPEN == 1 and TB_MENU_SPECIAL_SCREEN_ISOPEN == 0 and not TBMenu.HasCustomNavigation) then
-				TBMenu:showNavigationBar()
+			else
+				TBMenu:reloadNavigationIfNeeded()
 			end
 		end)
 end

@@ -1439,6 +1439,14 @@ function TBMenu:showMatchmaking()
 	Ranking:showMain(TBMenu.CurrentSection)]]
 end
 
+---Displays Ranking menu
+function TBMenu:showRanking()
+	if (TBMenu.CurrentSection == nil or TBMenu.CurrentSection.destroyed) then
+		TBMenu.CreateCurrentSectionView()
+	end
+	Ranking:showMain()
+end
+
 ---Displays Battle Pass menu
 function TBMenu:showBattlepass()
 	if (TBMenu.CurrentSection == nil or TBMenu.CurrentSection.destroyed) then
@@ -1908,6 +1916,8 @@ function TBMenu:openMenu(screenId)
 		TBMenu:showMarket()
 	elseif (screenId == 11) then
 		TBMenu:showBattlepass()
+	elseif (screenId == 12) then
+		TBMenu:showRanking()
 	elseif (screenId == 101) then
 		TBMenu:showNotifications()
 	elseif (screenId == 102) then
@@ -2238,6 +2248,13 @@ function TBMenu:showPlayerHeadAvatar(viewElement, player, extraSize)
 	end
 
 	return headViewport
+end
+
+---Generic function to reload default navigation bar on new data retrieval
+function TBMenu:reloadNavigationIfNeeded()
+	if (TB_MENU_MAIN_ISOPEN == 1 and TB_MENU_SPECIAL_SCREEN_ISOPEN == 0 and not TBMenu.HasCustomNavigation) then
+		TBMenu:showNavigationBar()
+	end
 end
 
 -- TBMenu navigation button data
@@ -2631,6 +2648,13 @@ function TBMenu:getMainNavigationButtons()
 			end
 			table.insert(buttonData, battlePassButton)
 		end
+	end
+	if (Ranking.TimeLeft > 0 and TB_MENU_PLAYER_INFO.data.qi >= Ranking.QiRequirement) then
+		table.insert(buttonData, {
+			text = TB_MENU_LOCALIZED.NAVBUTTONRANKING,
+			sectionId = 12,
+			right = not is_mobile()
+		})
 	end
 	return buttonData
 end
