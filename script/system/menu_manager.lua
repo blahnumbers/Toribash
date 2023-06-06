@@ -1113,6 +1113,8 @@ function TBMenu:showConfirmationWindowInput(title, inputInfo, confirmAction, can
 			confirmOverlay:kill()
 			confirmAction(textField.textfieldstr[1])
 		end)
+	UIElement.handleMouseDn(0, textField.pos.x + 1, textField.pos.y + 1)
+	UIElement.handleMouseUp(0, textField.pos.x + 1, textField.pos.y + 1)
 	return confirmOverlay
 end
 
@@ -4213,11 +4215,12 @@ function TBMenuInternal.DisplayTextfield(element, fontid, scale, color, defaultS
 				if (element.menuKeyboardId) then
 					element:disableMenuKeyboard()
 				end
-				if (element.textfieldstr[1] == "") then
-					element:uiText(defaultStr, nil, nil, fontid, orientation, defaultStringScale, nil, nil, { color[1], color[2], color[3], color[4] * 0.5 }, nil, nil, nil, nil, nil, true)
-				else
+				if (element.textfieldstr[1] ~= "") then
 					element:uiText(element.textfieldstr[1], nil, nil, fontid, orientation, scale, nil, nil, color, nil, nil, nil, nil, nil, true)
 				end
+			end
+			if (element.textfieldstr[1] == "") then
+				element:uiText(defaultStr, nil, nil, fontid, orientation, defaultStringScale, nil, nil, { color[1], color[2], color[3], color[4] * 0.5 }, nil, nil, nil, nil, nil, true)
 			end
 		end)
 end

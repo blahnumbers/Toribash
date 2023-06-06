@@ -464,6 +464,13 @@ do
 			end
 			flameBodypart:addAdaptedText(true, TB_MENU_LOCALIZED.FLAMESBODYPARTFOR .. " " .. bodyName, nil, nil, 4, RIGHTMID, 0.7)
 		end
+
+		for _, v in pairs(listElements) do
+			v:hide()
+		end
+		local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
+		listingHolder.scrollBar = scrollBar
+		scrollBar:makeScrollBar(listingHolder, listElements, toReload)
 	end
 
 	function Flames:spawnBrowseMenu(listingHolder, toReload, elementHeight, flamesData, flameId, previewFlames, searchFlames)
