@@ -1804,11 +1804,10 @@ end
 ---@param parentElement UIElement
 ---@param num ?integer
 ---@param scale ?integer
----@return UIElement|nil
+---@return UIElement?
 function TBMenu:addBottomBloodSmudge(parentElement, num, scale)
-	if (not parentElement) then
-		return nil
-	end
+	if (not parentElement) then return end
+
 	local scale = (scale or 64) * TB_MENU_GLOBAL_SCALE
 	local bottomSmudge = TB_MENU_BOTTOM_SMUDGE_BIG
 	local num = num or 1
@@ -3588,6 +3587,7 @@ end
 ---@field useUiColor boolean
 ---@field textLeft boolean
 ---@field maxTextScale number
+---@field imageColor Color
 
 ---Generic method to display a text string with an image on the side
 ---@param viewElement UIElement
@@ -3623,7 +3623,7 @@ function TBMenu:showTextWithImage(viewElement, text, fontid, imgScale, imgWhite,
 		pos = { (textImageOptions.textLeft and (-textView.size.w - (posX + imgScale)) or (textView.size.w + (posX - imgScale))) / 2, (textView.size.h - imgScale) / 2 },
 		size = { imgScale, imgScale },
 		bgImage = imgWhite,
-		imageColor = textImageOptions.useUiColor and viewElement.uiColor or { 1, 1, 1, 1 }
+		imageColor = textImageOptions.imageColor or (textImageOptions.useUiColor and viewElement.uiColor or { 1, 1, 1, 1 })
 	})
 end
 

@@ -866,7 +866,7 @@ function BattlePass:showMain()
 
 	local buttonShiftX = battlePassPrizesHolder.shift.x + battlePassPrizesHolder.size.w + 10
 	local buttonShiftY = battlePassProgressHolder.size.h + 10
-	if (isSeason) then
+	--[[if (isSeason) then
 		local battlePassSeasonButton = TBMenu.CurrentSection:addChild({
 			pos = { buttonShiftX, battlePassProgressHolder.size.h + 10 },
 			size = { leftWidth, leftHeight },
@@ -885,7 +885,7 @@ function BattlePass:showMain()
 			action = Ranking.showGlobalRanking
 		})
 		buttonShiftY = buttonShiftY + battlePassSeasonButton.size.h + 10
-	end
+	end]]
 	local battlePassQuestsButton = TBMenu.CurrentSection:addChild({
 		pos = { buttonShiftX, buttonShiftY },
 		size = { leftWidth, leftHeight },

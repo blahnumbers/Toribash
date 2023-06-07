@@ -13,6 +13,8 @@ if (Ranking == nil) then
 	---@field modid integer
 	---@field rank integer
 	---@field elo number
+	---@field wins integer
+	---@field loses integer
 
 	---@class RankingTrendEntry
 	---@field rank integer
@@ -37,6 +39,7 @@ if (Ranking == nil) then
 	---@field score RankingGameStat
 	---@field dismembers RankingGameStat
 	---@field decaps RankingGameStat
+	---@field tc RankingGameStat
 
 	---**Toribash Ranking manager class**
 	---
@@ -57,6 +60,8 @@ if (Ranking == nil) then
 	---@field TimeLeft integer Time left until ranking period is over
 	---@field QiRequirement integer Qi requirement to participate in Toribash ranking
 	---@field PlayerGameStats RankingGameStats Table containing player's game stats
+	---@field LastBalance integer Current user's last TC balance, used for querying game stats updates
+	---@field ToplistStalePeriod integer Time in seconds before global top list is considered outdated
 	Ranking = {
 		EloFactor = 1,
 		EloDivisor = 400,
@@ -77,6 +82,7 @@ if (Ranking == nil) then
 		},
 		TimeLeft = 0,
 		QiRequirement = 100,
+		ToplistStalePeriod = 60,
 		ver = 5.60
 	}
 	Ranking.__index = Ranking
@@ -134,6 +140,9 @@ function RankingInternal.Init()
 			end
 			if (lastTimeleft ~= Ranking.TimeLeft) then
 				TBMenu:reloadNavigationIfNeeded()
+				if (Ranking.ActiveOverlay and not Ranking.ActiveOverlay.destroyed) then
+					Ranking.ActiveOverlay:reload()
+				end
 			end
 			if (TB_MENU_PLAYER_INFO and TB_MENU_PLAYER_INFO.getRanking) then
 				TB_MENU_PLAYER_INFO:getRanking()
@@ -336,27 +345,37 @@ function Ranking.ShowTrends(viewElement)
 				size = { i * width, (Ranking.PlayerTrends.topElo - Ranking.PlayerTrends[i + 1].elo) / eloScale }
 			})
 			local targetElo = linePart:addChild({
-				size = { 8, 8 },
+				size = { 24, 24 },
 				shapeType = ROUNDED,
-				rounded = 4,
-				bgColor = UICOLORWHITE,
+				rounded = 12,
+				bgColor = { 0, 0, 0, 0.01 },
+				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 				interactive = true
 			})
+			local targetEloStatic = targetElo:addChild({
+				shift = { 8, 8 },
+				bgColor = UICOLORWHITE
+			}, true)
 			targetElo:moveTo(-targetElo.size.w / 2, -targetElo.size.h / 2, true)
 			local popup = TBMenu:displayPopup(targetElo, elo .. " " .. TB_MENU_LOCALIZED.WORDELO)
-			popup:moveTo(-popup.size.w / 2, -popup.size.h * 1.5)
+			popup:moveTo(-popup.size.w / 2 - 12, -popup.size.h * 1.5)
 			if (not Ranking.PlayerTrends[i + 2]) then
 				local targetEloFinal = trendsChartView:addChild({
 					pos = { linePart.size.w, linePart.size.h },
-					size = { 8, 8 },
+					size = { 24, 24 },
 					shapeType = ROUNDED,
-					rounded = 4,
-					bgColor = UICOLORWHITE,
+					rounded = 12,
+					bgColor = { 0, 0, 0, 0.01 },
+					hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 					interactive = true
 				})
+				local targetEloStatic = targetEloFinal:addChild({
+					shift = { 8, 8 },
+					bgColor = UICOLORWHITE
+				}, true)
 				targetEloFinal:moveTo(-targetEloFinal.size.w / 2, -targetEloFinal.size.h / 2, true)
 				local popup = TBMenu:displayPopup(targetEloFinal, elo .. " " .. TB_MENU_LOCALIZED.WORDELO)
-				popup:moveTo(-popup.size.w / 2, -popup.size.h * 1.5)
+				popup:moveTo(-popup.size.w / 2 - 12, -popup.size.h * 1.5)
 			end
 			linePart:addCustomDisplay(true, function()
 					set_color(1, 1, 1, 0.6)
@@ -568,17 +587,21 @@ end
 ---@param title string
 ---@param globalElo ?boolean
 ---@param playerData ?PlayerInfoRanking
----@param windowOverlay ?UIElement
-function Ranking.ShowToplist(viewElement, playerRanking, title, globalElo, playerData, windowOverlay)
+function Ranking.ShowToplist(viewElement, playerRanking, title, globalElo, playerData)
 	viewElement:kill(true)
 
 	local elementHeight = 36
 	local toReload, topBar, botBar, _, listingHolder = TBMenu:prepareScrollableList(viewElement, globalElo and 50 or 70, elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
-	TBMenu:addBottomBloodSmudge(botBar, 2)
 
 	if (globalElo) then
+		TBMenu:addBottomBloodSmudge(botBar, 2)
 		topBar:addChild({ shift = { 10, 0 } }):addAdaptedText(true, title, nil, nil, FONTS.BIG, nil, 0.55, nil, 0.1)
 	else
+		topBar.shapeType = viewElement.shapeType
+		botBar.shapeType = viewElement.shapeType
+		topBar:setRounded({ viewElement.rounded, 0 })
+		botBar:setRounded({ 0, viewElement.rounded })
+
 		local quitButton = topBar:addChild({
 			pos = { -50, 10 },
 			size = { 40, 40 },
@@ -594,8 +617,8 @@ function Ranking.ShowToplist(viewElement, playerRanking, title, globalElo, playe
 			bgImage = "../textures/menu/general/buttons/crosswhite.tga"
 		})
 		quitButton:addMouseHandlers(nil, function()
-				if (windowOverlay) then
-					windowOverlay:kill()
+				if (Ranking.ActiveOverlay) then
+					Ranking.ActiveOverlay:kill()
 				end
 			end)
 
@@ -748,10 +771,9 @@ end
 ---@param modid integer
 ---@param title string
 ---@param userRanking PlayerInfoRanking
----@param overlayView UIElement
 ---@overload fun(self: Ranking, viewElement:UIElement)
-function Ranking:refreshRankingToplist(viewElement, modid, title, userRanking, overlayView)
-	if (modid ~= nil or (self.EloRanking == nil or self.EloRankingTimestamp == nil or os.time() - self.EloRankingTimestamp > 60)) then
+function Ranking:refreshRankingToplist(viewElement, modid, title, userRanking)
+	if (modid ~= nil or (self.EloRanking == nil or self.EloRankingTimestamp == nil or os.time() - self.EloRankingTimestamp > self.ToplistStalePeriod)) then
 		local loaderHolder = viewElement:addChild({ shift = { viewElement.size.w / 8, viewElement.size.h / 3 }})
 		TBMenu:displayLoadingMark(loaderHolder, TB_MENU_LOCALIZED.EVENTSLOADINGTOPPLAYERS)
 		Request:queue(fetch_ranking_toplist, "ranking_toplist", function()
@@ -763,7 +785,7 @@ function Ranking:refreshRankingToplist(viewElement, modid, title, userRanking, o
 					self.EloRankingTimestamp = os.time()
 					self.ShowToplist(viewElement, self.EloRanking, TB_MENU_LOCALIZED.MATCHMAKETOPRANKEDPLAYERS, true, TB_MENU_PLAYER_INFO.ranking)
 				else
-					self.ShowToplist(viewElement, ranking, tostring(title), false, userRanking, overlayView)
+					self.ShowToplist(viewElement, ranking, tostring(title), false, userRanking)
 				end
 			end, function()
 				if (loaderHolder == nil or loaderHolder.destroyed) then return end
@@ -777,8 +799,54 @@ function Ranking:refreshRankingToplist(viewElement, modid, title, userRanking, o
 	end
 end
 
+---Displays user's trends in a viewport
+function Ranking.ShowUserTrends()
+	Ranking.ActiveOverlay = TBMenu:spawnWindowOverlay()
+	local overlayKillAction = Ranking.ActiveOverlay.killAction
+	Ranking.ActiveOverlay.killAction = function() overlayKillAction() Ranking.ActiveOverlay = nil end
+
+	local viewWidth = math.clamp(WIN_W * 0.65, 800, WIN_W * 0.8)
+	local viewHeight = math.clamp(WIN_H * 0.5, 500, WIN_H - TBMenu.UserBar.size.h * 2 - 40)
+	local trendsMainView = Ranking.ActiveOverlay:addChild({
+		shift = { (WIN_W - viewWidth) / 2, (WIN_H - viewHeight) / 2 },
+		bgColor = TB_MENU_DEFAULT_BG_COLOR,
+		shapeType = ROUNDED,
+		rounded = 4
+	})
+	local trendsTopBar = trendsMainView:addChild({
+		pos = { 10, 10 },
+		size = { trendsMainView.size.w - 20, 40 }
+	})
+	local quitButton = trendsTopBar:addChild({
+		pos = { -trendsTopBar.size.h, 0 },
+		size = { trendsTopBar.size.h, trendsTopBar.size.h },
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+		interactive = true,
+		shapeType = ROUNDED,
+		rounded = 4
+	})
+	quitButton:addChild({
+		shift = { 2, 2 },
+		bgImage = "../textures/menu/general/buttons/crosswhite.tga"
+	})
+	quitButton:addMouseUpHandler(function() Ranking.ActiveOverlay:kill() end)
+	trendsTopBar:addChild({
+		shift = { quitButton.size.w + 10, 0 }
+	}):addAdaptedText(true, TB_MENU_LOCALIZED.MATCHMAKERANKINGTRENDS, nil, nil, FONTS.BIG, nil, 0.65)
+	local trendsView = trendsMainView:addChild({
+		pos = { trendsTopBar.shift.x, trendsTopBar.shift.y * 2 + trendsTopBar.size.h },
+		size = { trendsTopBar.size.w, trendsMainView.size.h - trendsTopBar.size.h - trendsTopBar.shift.y * 3 }
+	})
+	Ranking.ShowTrends(trendsView)
+end
+
+---Displays user main ranking info
+---@param viewElement UIElement
 function Ranking.ShowUserEloStats(viewElement)
 	viewElement:kill(true)
+	viewElement:setActive(Ranking.PlayerTrends ~= nil)
 
 	local trend = nil
 	local currentRank = TB_MENU_PLAYER_INFO.ranking.rank
@@ -802,34 +870,46 @@ function Ranking.ShowUserEloStats(viewElement)
 		pos = { 10, rankTrendViewTitle.shift.y * 2 + rankTrendViewTitle.size.h },
 		size = { viewElement.size.w - 20, viewElement.size.h - rankTrendViewTitle.shift.y * 3 - rankTrendViewTitle.size.h }
 	})
-	local iconScale = math.min(rankedInfoView.size.w / 2, rankedInfoView.size.h)
-	local iconFieldScale = math.max(rankedInfoView.size.w / 5 * 2, iconScale)
+	local iconScale = math.min(rankedInfoView.size.w / 2, rankedInfoView.size.h, 256)
+	local iconFieldScale = math.max(rankedInfoView.size.w / 2, iconScale)
 	local rankingTierIconHolder = rankedInfoView:addChild({
 		pos = { rankedInfoView.size.w / 2 - iconFieldScale, (rankedInfoView.size.h - iconScale) / 2 },
 		size = { iconFieldScale, iconScale }
 	})
+
+	---Our icons have quite a bit of empty area on the sides
+	---We want to render it slightly bigger here
+	local iconMultiplier = 1.3
+	local xShift = (iconFieldScale - iconScale * iconMultiplier) / 2
+	if (xShift < 0) then
+		xShift = xShift - rankingTierIconHolder.size.w
+	end
 	local rankingTierIcon = rankingTierIconHolder:addChild({
-		shift = { (iconFieldScale - iconScale) / 2, 0 },
+		pos = { xShift, -rankingTierIconHolder.size.h - iconScale * (iconMultiplier - 1) / 2 },
+		size = { iconScale * iconMultiplier, iconScale * iconMultiplier },
 		bgImage = TB_MENU_PLAYER_INFO.ranking.tier.image,
 		imageColor = TB_MENU_PLAYER_INFO.ranking.qualifying and { 0.2, 0.2, 0.2, 1 } or UICOLORWHITE
 	})
-	rankingTierIcon:moveTo(nil, -iconScale * 0.1, true)
-	local rankingTierTitle = rankingTierIcon:addChild({
-		pos = { 0, TB_MENU_PLAYER_INFO.ranking.nextTierElo > 0 and (-iconScale / 7 * 3) or (-iconScale / 3) },
-		size = { iconScale, TB_MENU_PLAYER_INFO.ranking.nextTierElo > 0 and (iconScale / 5) or (iconScale / 4) },
-		shapeType = ROUNDED,
-		rounded = TB_MENU_PLAYER_INFO.ranking.nextTierElo > 0 and { 5, 0 } or 5,
-		bgColor = { 0, 0, 0, 0.4 }
+
+	local infoBitHeight = 35
+	local rankingTierTitle = rankingTierIconHolder:addChild({
+		pos = { 0, TB_MENU_PLAYER_INFO.ranking.nextTierElo > 0 and -infoBitHeight * 2 or -infoBitHeight },
+		size = { rankingTierIconHolder.size.w, infoBitHeight },
+		uiShadowColor = TB_MENU_DEFAULT_DARKER_COLOR
 	})
-	rankingTierTitle:addChild({ shift = { 10, 2 } }):addAdaptedText(TB_MENU_PLAYER_INFO.ranking.tier.title, nil, nil, FONTS.BIG, nil, 0.7, nil, 0.3)
+	rankingTierTitle:addAdaptedText(TB_MENU_PLAYER_INFO.ranking.tier.title, nil, nil, FONTS.BIG, nil, 0.7, nil, nil, 4)
 
 	if (TB_MENU_PLAYER_INFO.ranking.nextTierElo > 0) then
-		local nextTierGamesHolder = rankingTierTitle:addChild({
-			pos = { 0, rankingTierTitle.size.h },
-			size = { rankingTierTitle.size.w, math.min(rankingTierTitle.size.h * 1.2, 40) },
-			bgColor = { 0, 0, 0, 0.4 },
-			rounded = { 0, 5 },
-			interactive = true
+		local buttonColor = table.clone(TB_MENU_DEFAULT_DARKEST_COLOR)
+		buttonColor[4] = 0.75
+		local nextTierGamesHolder = rankingTierIconHolder:addChild({
+			pos = { rankingTierIcon.shift.x + rankingTierIcon.size.w * 0.1, rankingTierTitle.shift.y + rankingTierTitle.size.h },
+			size = { rankingTierIcon.size.w * 0.8, infoBitHeight },
+			interactive = true,
+			bgColor = buttonColor,
+			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			shapeType = ROUNDED,
+			rounded = 10
 		}, true)
 
 		local bestAverageOpponent = 1.01 * (TB_MENU_PLAYER_INFO.ranking.elo + 1600) / 2
@@ -863,7 +943,7 @@ function Ranking.ShowUserEloStats(viewElement)
 			size = { rankedInfoTextHolder.size.w, rankedInfoTextHolder.size.h / 3 }
 		})
 		if (trend and trend ~= 0) then
-			TBMenu:showTextWithImage(rankedInfoTextRank, TB_MENU_LOCALIZED.MATCHMAKERANK .. " " .. TB_MENU_PLAYER_INFO.ranking.rank, FONTS.BIG, 20, trend > 0 and "../textures/menu/general/buttons/doublearrowup.tga" or "../textures/menu/general/buttons/doublearrowdown.tga")
+			TBMenu:showTextWithImage(rankedInfoTextRank, TB_MENU_LOCALIZED.MATCHMAKERANK .. " " .. TB_MENU_PLAYER_INFO.ranking.rank, FONTS.BIG, rankedInfoTextRank.size.h * 0.75, trend > 0 and "../textures/menu/general/trendup.tga" or "../textures/menu/general/trenddown.tga", { imageColor = trend > 0 and UICOLORGREEN or UICOLORRED } )
 		else
 			rankedInfoTextRank:addAdaptedText(true, TB_MENU_LOCALIZED.MATCHMAKERANK .. " " .. TB_MENU_PLAYER_INFO.ranking.rank, nil, nil, FONTS.BIG, CENTERBOT)
 		end
@@ -884,7 +964,7 @@ function Ranking.ShowUserEloStats(viewElement)
 			size = { rankedInfoTextHolder.size.w, rankedInfoTextHolder.size.h / 4 }
 		})
 		local games = TB_MENU_PLAYER_INFO.ranking.wins + TB_MENU_PLAYER_INFO.ranking.loses
-		local winrate = games ~= 0 and math.floor(TB_MENU_PLAYER_INFO.ranking.wins / games * 100 + 0.5) or nil
+		local winrate = games ~= 0 and math.round(TB_MENU_PLAYER_INFO.ranking.wins / games * 10000) / 100 or nil
 		local gameInfoStr = games .. " " .. TB_MENU_LOCALIZED.MATCHMAKEFIGHTSTOTAL
 		gameInfoStr = winrate and (gameInfoStr .. "\n" .. winrate .. "% " .. TB_MENU_LOCALIZED.MATCHMAKEWINRATE) or gameInfoStr
 		rankedInfoTextGames:addAdaptedText(true, gameInfoStr, nil, nil, 4, CENTER, 0.85)
@@ -900,15 +980,18 @@ end
 ---@param modname string
 ---@param userStats PlayerInfoRanking
 function Ranking.ShowModRanking(modid, modname, userStats)
-	local overlay = TBMenu:spawnWindowOverlay()
+	Ranking.ActiveOverlay = TBMenu:spawnWindowOverlay()
+	local overlayKillAction = Ranking.ActiveOverlay.killAction
+	Ranking.ActiveOverlay.killAction = function() overlayKillAction() Ranking.ActiveOverlay = nil end
+
 	local viewWidth = math.clamp(WIN_W / 3, 350, 500)
-	local rankingView = overlay:addChild({
+	local rankingView = Ranking.ActiveOverlay:addChild({
 		shift = { (WIN_W - viewWidth) / 2, TBMenu.UserBar.size.h + 20 },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR,
 		shapeType = ROUNDED,
 		rounded = 4
 	})
-	Ranking:refreshRankingToplist(rankingView, modid, TB_MENU_LOCALIZED.RANKINGMODBESTPLAYERS1 .. " " .. modname .. " " .. TB_MENU_LOCALIZED.RANKINGMODBESTPLAYERS2, userStats, overlay)
+	Ranking:refreshRankingToplist(rankingView, modid, TB_MENU_LOCALIZED.RANKINGMODBESTPLAYERS1 .. " " .. modname .. " " .. TB_MENU_LOCALIZED.RANKINGMODBESTPLAYERS2, userStats)
 end
 
 ---Displays user mod ranking stats or a loading animation if `Ranking.PlayerModRanking` is nil
@@ -1009,8 +1092,11 @@ end
 ---Displays a window with game stat toplist
 ---@param stat RankingGameStatType
 function Ranking.ShowGameStatToplist(stat)
-	local overlay = TBMenu:spawnWindowOverlay()
-	local toplistHolder = overlay:addChild({
+	Ranking.ActiveOverlay = TBMenu:spawnWindowOverlay()
+	local overlayKillAction = Ranking.ActiveOverlay.killAction
+	Ranking.ActiveOverlay.killAction = function() overlayKillAction() Ranking.ActiveOverlay = nil end
+
+	local toplistHolder = Ranking.ActiveOverlay:addChild({
 		shift = { WIN_W / 4, TBMenu.UserBar.size.h + 20 },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR,
 		shapeType = ROUNDED,
@@ -1036,7 +1122,7 @@ function Ranking.ShowGameStatToplist(stat)
 		bgImage = "../textures/menu/general/buttons/crosswhite.tga"
 	})
 	quitButton:addMouseHandlers(nil, function()
-			overlay:kill()
+			Ranking.ActiveOverlay:kill()
 		end)
 
 	toplistHolderTop:addChild({
@@ -1214,10 +1300,14 @@ function Ranking.ShowUserStats(viewElement)
 	local mainRankingView = viewElement:addChild({
 		pos = { 10, 10 },
 		size = { (viewElement.size.w - 30) * 0.65, (viewElement.size.h - 20) * 0.4 },
+		interactive = true,
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
 		shapeType = ROUNDED,
 		rounded = 10
 	})
+	mainRankingView:addMouseUpHandler(Ranking.ShowUserTrends)
 	Ranking.ShowUserEloStats(mainRankingView)
 
 	local modRankingView = viewElement:addChild({
@@ -1255,14 +1345,23 @@ function Ranking.ShowUserStats(viewElement)
 			if (mainRankingView and not mainRankingView.destroyed) then
 				Ranking.ShowUserEloStats(mainRankingView)
 				Ranking.ShowUserModStats(modRankingView)
+				if (Ranking.ActiveOverlay and not Ranking.ActiveOverlay.destroyed) then
+					Ranking.ActiveOverlay:reload()
+				end
 			end
 		end)
+	end
+	if (Ranking.LastBalance == nil or Ranking.LastBalance ~= TB_MENU_PLAYER_INFO.data.tc or Ranking.IsUpdateRequired()) then
 		Request:queue(function() download_server_info("ranking_gamestats&username=" .. TB_MENU_PLAYER_INFO.username) end, "ranking_gamestats", function()
+			Ranking.LastBalance = TB_MENU_PLAYER_INFO.data.tc
 				RankingInternal.ParseGameStats(get_network_response())
 				if (viewElement and not viewElement.destroyed) then
 					for i, v in pairs(gameStats) do
 						Ranking.ShowUserGameStat(gameStatViewports[i], v)
 					end
+				end
+				if (Ranking.ActiveOverlay and not Ranking.ActiveOverlay.destroyed) then
+					Ranking.ActiveOverlay:reload()
 				end
 			end)
 	end
@@ -1310,6 +1409,7 @@ end
 ---Legacy function to display global ranking. Will be removed with future releases.
 function Ranking:showGlobalRanking()
 	TBMenu.CurrentSection:kill(true)
+	---@diagnostic disable-next-line: deprecated
 	TBMenu:showNavigationBar(Ranking:getNavigationButtons(), true)
 
 	local playerRankingView = UIElement:new({
@@ -1353,6 +1453,7 @@ function Ranking:showRankedLegacy()
 			ratio = 0.5,
 			title = TB_MENU_LOCALIZED.MATCHMAKEGLOBALRANKING,
 			subtitle = TB_MENU_LOCALIZED.MATCHMAKEGLOBALRANKINGDESC,
+			---@diagnostic disable-next-line: deprecated
 			action = function() Ranking:showGlobalRanking() end
 		},
 	}
@@ -1435,7 +1536,7 @@ function Ranking:showRankedLegacy()
 					parent = mmRankedInfo,
 					pos = { 0, (mmRankedInfo.size.h - iconScale) / 2 },
 					size = { iconScale, iconScale },
-					bgImage = TB_MENU_PLAYER_INFO.ranking.image
+					bgImage = TB_MENU_PLAYER_INFO.ranking.tier.image
 				})
 			else
 				iconScale = 0
@@ -1452,7 +1553,7 @@ function Ranking:showRankedLegacy()
 				pos = { 0, 0 },
 				size = { mmRankedInfoText.size.w, mmRankedInfoText.size.h / details }
 			})
-			mmRankedInfoTier:addAdaptedText(true, TB_MENU_PLAYER_INFO.ranking.title, nil, nil, FONTS.BIG, CENTERBOT, 0.6)
+			mmRankedInfoTier:addAdaptedText(true, TB_MENU_PLAYER_INFO.ranking.tier.title, nil, nil, FONTS.BIG, CENTERBOT, 0.6)
 			if (TB_MENU_PLAYER_INFO.ranking.rank) then
 				local mmRankedInfoRank = UIElement:new({
 					parent = mmRankedInfoText,
@@ -1586,10 +1687,11 @@ function Ranking:showRankedLegacy()
 			rankedSearchButton:addAdaptedText(false, TB_MENU_LOCALIZED.MATCHMAKECANTSEARCH)
 		end
 		rankedSearchButton:addMouseHandlers(nil, function()
+				---@diagnostic disable-next-line: deprecated
 				UIElement:runCmd("matchmake ranked continue")
 				set_discord_rpc(TB_MENU_LOCALIZED.MATCHMAKERANKEDMODE, TB_MENU_LOCALIZED.DISCORDRPCMATCHMAKING)
 				TB_MATCHMAKER_SEARCHSTATUS = 1
-				Ranking:getMatchmaker()
+				--Ranking:getMatchmaker()
 				progress = 0
 				rankedSearchButton:hide()
 				rankedSearchProgress:show()
@@ -1598,10 +1700,11 @@ function Ranking:showRankedLegacy()
 			end, nil)
 		rankedSearchButtonStop:addAdaptedText(false, TB_MENU_LOCALIZED.MATCHMAKESTOPSEARCH, nil, nil, FONTS.BIG, nil, 0.65)
 		rankedSearchButtonStop:addMouseHandlers(nil, function()
+				---@diagnostic disable-next-line: deprecated
 				UIElement:runCmd("matchmake on 8 0 1")
 				set_discord_rpc("", "")
-				TB_MATCHMAKER_SEARCHSTATUS = nil
-				Ranking:getMatchmaker()
+				TB_MATCHMAKER_SEARCHSTATUS = 0
+				--Ranking:getMatchmaker()
 				rankedSearchButton:show()
 				rankedPlayers:show()
 				rankedSearchProgress:hide()
@@ -1620,9 +1723,10 @@ function Ranking:showRankedLegacy()
 		})
 		roomJoinButton:addAdaptedText(false, TB_MENU_LOCALIZED.FRIENDSLISTJOINROOM, nil, nil, FONTS.BIG, nil, 0.65)
 		roomJoinButton:addMouseHandlers(nil, function()
+				---@diagnostic disable-next-line: deprecated
 				UIElement:runCmd("matchmake on 8 0 1")
 				set_discord_rpc("", "")
-				TB_MATCHMAKER_SEARCHSTATUS = nil
+				TB_MATCHMAKER_SEARCHSTATUS = 0
 				local players = RoomList.GetPlayers()
 				local rooms = { "ranked%d" }
 				local roomsOnline = {}
@@ -1635,19 +1739,23 @@ function Ranking:showRankedLegacy()
 				for i, room in pairs(roomsOnline) do
 					room.name = i
 				end
+				---@diagnostic disable-next-line: deprecated
 				roomsOnline = UIElement:qsort(roomsOnline, "players", true)
 				if (#roomsOnline > 0) then
 					for i, room in pairs(roomsOnline) do
 						if (room.players > 1 and room.players < 5) then
+							---@diagnostic disable-next-line: deprecated
 							UIElement:runCmd("jo " .. room.name)
 							close_menu()
 							return
 						end
 					end
+					---@diagnostic disable-next-line: deprecated
 					UIElement:runCmd("jo " .. roomsOnline[1].name)
 					close_menu()
 					return
 				else
+					---@diagnostic disable-next-line: deprecated
 					UIElement:runCmd("jo ranked1")
 					close_menu()
 					return
@@ -1680,6 +1788,7 @@ function Ranking:showRankedLegacy()
 		rankedQuestText:addAdaptedText(true, TB_MENU_LOCALIZED.MATCHMAKENORANKEDQUEST)
 		return
 	end
+	---@diagnostic disable-next-line: param-type-mismatch
 	Quests:showQuest(rankedQuest, rankedQuestData, bloodSmudge, function()
 			rankedQuest:kill(true)
 			bloodSmudge = TBMenu:addBottomBloodSmudge(rankedQuest, 3)
