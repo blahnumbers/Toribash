@@ -10,6 +10,7 @@ if (Ranking == nil) then
 
 	---@class RankingPlayerModData
 	---@field name string Mod name
+	---@field modid integer
 	---@field rank integer
 	---@field elo number
 
@@ -37,7 +38,13 @@ if (Ranking == nil) then
 	---@field dismembers RankingGameStat
 	---@field decaps RankingGameStat
 
-	---Toribash seasonal ranking manager class
+	---**Toribash Ranking manager class**
+	---
+	---**Version 5.60**
+	---* New UI to accomodate for repeatable ranking seasons
+	---* Game stat rankings and mod rankings
+	---* Fetch ranking config (tiers, time left, etc) from game server on class load
+	---* **RankingInternal** class for ranking private functions
 	---@class Ranking
 	---@field EloFactor number Additional Elo scaling factor that we may want to apply to any Elo gain during the season. Typically this would stay at `1`.
 	---@field EloDivisor number Internal value used to retrieve games to next tier estimate
@@ -55,74 +62,11 @@ if (Ranking == nil) then
 		EloDivisor = 400,
 		RankingTiers = {
 			{
-				title = "Diamond",
-				showRank = true,
-				maxElo = 10000,
-				minElo = 1690,
-				image = "../textures/menu/ranking/diamond.tga"
-			},
-			{
-				title = "Platinum I",
-				showRank = true,
-				maxElo = 1690,
-				minElo = 1675,
-				image = "../textures/menu/ranking/plat1.tga"
-			},
-			{
-				title = "Platinum II",
-				showRank = true,
-				maxElo = 1675,
-				minElo = 1660,
-				image = "../textures/menu/ranking/plat2.tga"
-			},
-			{
-				title = "Platinum III",
-				showRank = true,
-				maxElo = 1660,
-				minElo = 1645,
-				image = "../textures/menu/ranking/plat3.tga"
-			},
-			{
-				title = "Gold I",
-				showRank = true,
-				maxElo = 1645,
-				minElo = 1630,
-				image = "../textures/menu/ranking/gold1.tga"
-			},
-			{
-				title = "Gold II",
-				showRank = true,
-				maxElo = 1630,
-				minElo = 1615,
-				image = "../textures/menu/ranking/gold2.tga"
-			},
-			{
-				title = "Gold III",
-				showRank = true,
-				maxElo = 1615,
-				minElo = 1595,
-				image = "../textures/menu/ranking/gold3.tga"
-			},
-			{
-				title = "Silver",
+				title = "Undefined",
 				showRank = false,
-				maxElo = 1595,
-				minElo = 1575,
-				image = "../textures/menu/ranking/silver.tga"
-			},
-			{
-				title = "Bronze",
-				showRank = false,
-				maxElo = 1575,
-				minElo = 1550,
-				image = "../textures/menu/ranking/bronze.tga"
-			},
-			{
-				title = "Elo Hell",
-				showRank = false,
-				maxElo = 1550,
+				maxElo = 100000,
 				minElo = 0,
-				image = "../textures/menu/ranking/elohell.tga"
+				image = "../textures/menu/ranking/silver.tga"
 			}
 		},
 		QualificationMatches = 10,
@@ -132,7 +76,8 @@ if (Ranking == nil) then
 			showRank = false
 		},
 		TimeLeft = 0,
-		QiRequirement = 100
+		QiRequirement = 100,
+		ver = 5.60
 	}
 	Ranking.__index = Ranking
 	setmetatable({}, Ranking)
@@ -146,22 +91,55 @@ setmetatable({}, RankingInternal)
 ---Initializes **Ranking** class by requesting config data from web server
 function RankingInternal.Init()
 	local lastTimeleft = Ranking.TimeLeft
+	---@type RankingTier[]
+	local rankingTiers = {}
 	Request:queue(function() lastTimeleft = os.time() download_server_info("ranking_config") end, "rankingInitConfigurate", function()
 			local response = get_network_response()
+			local mode = 0
 			for ln in response:gmatch("[^\n]+\n?") do
-				local val = ln:gsub("%D", "")
-				if (ln:find("^QualifyGames %d")) then
-					Ranking.QualificationMatches = tonumber(val) or Ranking.QualificationMatches
-				elseif (ln:find("^QiRequirement %d")) then
-					Ranking.QiRequirement = tonumber(val) or Ranking.QiRequirement
-				elseif (ln:find("^TimeLeft %d")) then
-					Ranking.TimeLeft = lastTimeleft + (tonumber(val) or 0)
-				end
+				pcall(function()
+					if (ln:find("^#")) then
+						mode = 1
+					elseif (mode == 0) then
+						local val = ln:gsub("%D", "")
+						if (ln:find("^QualifyGames %d")) then
+							Ranking.QualificationMatches = tonumber(val) or Ranking.QualificationMatches
+						elseif (ln:find("^QiRequirement %d")) then
+							Ranking.QiRequirement = tonumber(val) or Ranking.QiRequirement
+						elseif (ln:find("^TimeLeft %d")) then
+							Ranking.TimeLeft = lastTimeleft + (tonumber(val) or 0)
+						end
+					else
+						local _, segments = ln:gsub("([^\t]*)\t", "")
+						local data_stream = { ln:match(("([^\t]+)\t*"):rep(segments)) }
+						local min_elo = tonumber(data_stream[2]) or 0
+						local texture, lvl = string.gsub(data_stream[1], " ?I", "")
+						texture = "../textures/menu/ranking/" .. string.lower(string.gsub(texture, "%W", "")) .. (lvl > 0 and lvl or "") .. ".tga"
+						if (#rankingTiers > 0) then
+							rankingTiers[#rankingTiers].maxElo = min_elo
+						end
+						table.insert(rankingTiers, {
+							title = data_stream[1],
+							showRank = data_stream[3] == '1',
+							maxElo = 100000,
+							minElo = min_elo,
+							image = texture
+						})
+					end
+				end)
 			end
 
+			if (#rankingTiers > 0) then
+				Ranking.RankingTiers = rankingTiers
+			end
 			if (lastTimeleft ~= Ranking.TimeLeft) then
 				TBMenu:reloadNavigationIfNeeded()
 			end
+			if (TB_MENU_PLAYER_INFO and TB_MENU_PLAYER_INFO.getRanking) then
+				TB_MENU_PLAYER_INFO:getRanking()
+			end
+			---@diagnostic disable-next-line: undefined-global
+			set_ranking_qualifygames(Ranking.QualificationMatches)
 		end)
 end
 
@@ -176,20 +154,6 @@ function Ranking.IsUpdateRequired()
 		return true
 	end
 	return Ranking.PlayerData.name ~= TB_MENU_PLAYER_INFO.username or Ranking.PlayerData.games ~= TB_MENU_PLAYER_INFO.ranking.wins + TB_MENU_PLAYER_INFO.ranking.loses
-end
-
----@return MenuNavButton[]
-function Ranking.getNavigationButtons()
-	return {
-		{
-			text = TB_MENU_LOCALIZED.NAVBUTTONBACK,
-			action = function()
-				TBMenu:clearNavSection()
-				TBMenu:showNavigationBar()
-				TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
-			end
-		}
-	}
 end
 
 ---Parses network response containing top players' ranking information
@@ -233,17 +197,20 @@ function RankingInternal.ParseTrends(data)
 		end
 		if (not ln:find("^#")) then
 			if (mods) then
-				local _, segments = ln:gsub("([^\t]*)\t?", "")
+				local _, segments = ln:gsub("([^\t]*)\t", "")
 				local data_stream = { ln:match(("([^\t]+)\t*"):rep(segments)) }
 				---@type RankingPlayerModData
 				local info = {
 					name = data_stream[1],
 					rank = tonumber(data_stream[2]) or 0,
-					elo = tonumber(data_stream[3]) or 0
+					elo = tonumber(data_stream[3]) or 0,
+					modid = tonumber(data_stream[4]) or 0,
+					wins = tonumber(data_stream[5]) or 0,
+					loses = tonumber(data_stream[6]) or 0
 				}
 				table.insert(Ranking.PlayerModRanking, info)
 			else
-				local _, segments = ln:gsub("([^\t]*)\t?", "")
+				local _, segments = ln:gsub("([^\t]*)\t", "")
 				local data_stream = { ln:match(("([^\t]+)\t*"):rep(segments)) }
 				local info = {
 					elo = tonumber(data_stream[1]) or 0,
@@ -600,24 +567,74 @@ end
 ---@param playerRanking RankingTopPlayer[]
 ---@param title string
 ---@param globalElo ?boolean
-function Ranking.ShowToplist(viewElement, playerRanking, title, globalElo)
+---@param playerData ?PlayerInfoRanking
+---@param windowOverlay ?UIElement
+function Ranking.ShowToplist(viewElement, playerRanking, title, globalElo, playerData, windowOverlay)
 	viewElement:kill(true)
 
 	local elementHeight = 36
-	local toReload, topBar, botBar, _, listingHolder = TBMenu:prepareScrollableList(viewElement, 50, elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
+	local toReload, topBar, botBar, _, listingHolder = TBMenu:prepareScrollableList(viewElement, globalElo and 50 or 70, elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
 	TBMenu:addBottomBloodSmudge(botBar, 2)
 
-	topBar:addChild({
-		shift = { 10, 0 },
-	}):addAdaptedText(true, title, nil, nil, FONTS.BIG, nil, 0.55, nil, 0.1)
+	if (globalElo) then
+		topBar:addChild({ shift = { 10, 0 } }):addAdaptedText(true, title, nil, nil, FONTS.BIG, nil, 0.55, nil, 0.1)
+	else
+		local quitButton = topBar:addChild({
+			pos = { -50, 10 },
+			size = { 40, 40 },
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+			interactive = true,
+			shapeType = ROUNDED,
+			rounded = 4
+		})
+		quitButton:addChild({
+			shift = { 2, 2 },
+			bgImage = "../textures/menu/general/buttons/crosswhite.tga"
+		})
+		quitButton:addMouseHandlers(nil, function()
+				if (windowOverlay) then
+					windowOverlay:kill()
+				end
+			end)
+
+		topBar:addChild({
+			pos = { 10, 4 },
+			size = { topBar.size.w - 70, topBar.size.h - 8 }
+		}):addAdaptedText(true, title, nil, nil, FONTS.BIG, LEFTMID, 0.55, nil, 0.1)
+	end
 
 	if (#playerRanking == 0) then
 		listingHolder:addAdaptedText(true, TB_MENU_LOCALIZED.MATCHMAKERANKEDTOPEMPTY)
 		return
 	end
 
+	local rankingDisplay = table.clone(playerRanking)
+	if (playerData) then
+		local isAdded = false
+		for _, v in pairs(rankingDisplay) do
+			if (v.username == TB_MENU_PLAYER_INFO.username) then
+				v.isUser = true
+				isAdded = true
+				break
+			end
+		end
+		if (not isAdded) then
+			table.insert(rankingDisplay, {
+				username = TB_MENU_PLAYER_INFO.username,
+				wins = playerData.wins,
+				loses = playerData.loses,
+				games = playerData.wins + playerData.loses,
+				elo = playerData.elo,
+				rank = playerData.rank,
+				isUser = true
+			})
+		end
+	end
+
 	local listElements = {}
-	for _, player in pairs(playerRanking) do
+	for _, player in pairs(rankingDisplay) do
 		if (globalElo) then
 			PlayerInfo.getRankTier(player)
 		end
@@ -629,7 +646,8 @@ function Ranking.ShowToplist(viewElement, playerRanking, title, globalElo)
 		local playerViewBG = playerView:addChild({
 			pos = { 10, 2 },
 			size = { playerView.size.w - 10, playerView.size.h - 2 },
-			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			---@diagnostic disable-next-line: undefined-field
+			bgColor = player.isUser and TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS or TB_MENU_DEFAULT_DARKER_COLOR,
 			shapeType = ROUNDED,
 			rounded = { 4, 0 }
 		})
@@ -668,12 +686,13 @@ function Ranking.ShowToplist(viewElement, playerRanking, title, globalElo)
 		local playerInfoViewBG = playerInfoView:addChild({
 			pos = { 10, 0 },
 			size = { playerInfoView.size.w - 10, playerInfoView.size.h - 2 },
-			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			---@diagnostic disable-next-line: undefined-field
+			bgColor = player.isUser and TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS or TB_MENU_DEFAULT_DARKER_COLOR,
 			shapeType = ROUNDED,
 			rounded = { 0, 4 }
 		})
 		if (globalElo) then
-			local playerTierBot = playerInfoViewBG:addChild({
+			playerInfoViewBG:addChild({
 				pos = { 0, 0 },
 				size = { playerViewBG.size.h * 2, playerViewBG.size.h },
 				bgImage = player.tier.image,
@@ -694,7 +713,7 @@ function Ranking.ShowToplist(viewElement, playerRanking, title, globalElo)
 			})
 			playerGames:addAdaptedText(false, player.games .. " " .. TB_MENU_LOCALIZED.WORDGAMES .. ", " .. math.round(player.wins / player.games * 100) .. "% " .. TB_MENU_LOCALIZED.MATCHMAKEWINRATE, nil, nil, 4, RIGHT, 0.6)
 		else
-
+			playerInfoViewBG:addChild({ shift = { 10, 2 } }):addAdaptedText(false, player.games .. " " .. TB_MENU_LOCALIZED.WORDGAMES .. ", " .. math.round(player.wins / player.games * 100) .. "% " .. TB_MENU_LOCALIZED.MATCHMAKEWINRATE, nil, nil, 4, RIGHT, 0.6)
 		end
 	end
 	for _, v in pairs(listElements) do
@@ -702,7 +721,7 @@ function Ranking.ShowToplist(viewElement, playerRanking, title, globalElo)
 	end
 
 	local listingScrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
-	listingScrollBar:makeScrollBar(listingHolder, listElements, toReload)
+	listingScrollBar:makeScrollBar(listingHolder, listElements, toReload, nil, nil, not globalElo)
 end
 
 ---Queues ranking trends data update and displays a corresponding screen
@@ -726,21 +745,36 @@ end
 
 ---Queues global ranking toplist data update and displays a corresponding screen
 ---@param viewElement UIElement
-function Ranking:refreshRankingToplist(viewElement)
-	local loaderHolder = viewElement:addChild({ shift = { viewElement.size.w / 8, viewElement.size.h / 3 }})
-	TBMenu:displayLoadingMark(loaderHolder, TB_MENU_LOCALIZED.EVENTSLOADINGTOPPLAYERS)
-	Request:queue(fetch_ranking_toplist, "ranking_toplist", function()
-			if (loaderHolder == nil or loaderHolder.destroyed) then return end
+---@param modid integer
+---@param title string
+---@param userRanking PlayerInfoRanking
+---@param overlayView UIElement
+---@overload fun(self: Ranking, viewElement:UIElement)
+function Ranking:refreshRankingToplist(viewElement, modid, title, userRanking, overlayView)
+	if (modid ~= nil or (self.EloRanking == nil or self.EloRankingTimestamp == nil or os.time() - self.EloRankingTimestamp > 60)) then
+		local loaderHolder = viewElement:addChild({ shift = { viewElement.size.w / 8, viewElement.size.h / 3 }})
+		TBMenu:displayLoadingMark(loaderHolder, TB_MENU_LOCALIZED.EVENTSLOADINGTOPPLAYERS)
+		Request:queue(fetch_ranking_toplist, "ranking_toplist", function()
+				if (loaderHolder == nil or loaderHolder.destroyed) then return end
 
-			local rankingToplist = RankingInternal.ParseMainData(get_network_response())
-			self.ShowToplist(viewElement, rankingToplist, TB_MENU_LOCALIZED.MATCHMAKETOPRANKEDPLAYERS, true)
-		end, function()
-			if (loaderHolder == nil or loaderHolder.destroyed) then return end
+				local ranking = RankingInternal.ParseMainData(get_network_response())
+				if (modid == nil) then
+					self.EloRanking = ranking
+					self.EloRankingTimestamp = os.time()
+					self.ShowToplist(viewElement, self.EloRanking, TB_MENU_LOCALIZED.MATCHMAKETOPRANKEDPLAYERS, true, TB_MENU_PLAYER_INFO.ranking)
+				else
+					self.ShowToplist(viewElement, ranking, tostring(title), false, userRanking, overlayView)
+				end
+			end, function()
+				if (loaderHolder == nil or loaderHolder.destroyed) then return end
 
-			viewElement:kill(true)
-			viewElement:addChild({ shift = { viewElement.size.w / 8, viewElement.size.h / 3 } }):addAdaptedText(true, TB_MENU_LOCALIZED.ERRORTRYAGAIN)
-			TBMenu:addBottomBloodSmudge(viewElement, 1)
-		end)
+				viewElement:kill(true)
+				viewElement:addChild({ shift = { viewElement.size.w / 8, viewElement.size.h / 3 } }):addAdaptedText(true, TB_MENU_LOCALIZED.ERRORTRYAGAIN)
+				TBMenu:addBottomBloodSmudge(viewElement, 1)
+			end)
+	else
+		self.ShowToplist(viewElement, self.EloRanking, TB_MENU_LOCALIZED.MATCHMAKETOPRANKEDPLAYERS, true, TB_MENU_PLAYER_INFO.ranking)
+	end
 end
 
 function Ranking.ShowUserEloStats(viewElement)
@@ -861,6 +895,22 @@ function Ranking.ShowUserEloStats(viewElement)
 	end
 end
 
+---Loads mod ranking and displays it in a separate window
+---@param modid integer
+---@param modname string
+---@param userStats PlayerInfoRanking
+function Ranking.ShowModRanking(modid, modname, userStats)
+	local overlay = TBMenu:spawnWindowOverlay()
+	local viewWidth = math.clamp(WIN_W / 3, 350, 500)
+	local rankingView = overlay:addChild({
+		shift = { (WIN_W - viewWidth) / 2, TBMenu.UserBar.size.h + 20 },
+		bgColor = TB_MENU_DEFAULT_BG_COLOR,
+		shapeType = ROUNDED,
+		rounded = 4
+	})
+	Ranking:refreshRankingToplist(rankingView, modid, TB_MENU_LOCALIZED.RANKINGMODBESTPLAYERS1 .. " " .. modname .. " " .. TB_MENU_LOCALIZED.RANKINGMODBESTPLAYERS2, userStats, overlay)
+end
+
 ---Displays user mod ranking stats or a loading animation if `Ranking.PlayerModRanking` is nil
 ---@param viewElement UIElement
 function Ranking.ShowUserModStats(viewElement)
@@ -881,33 +931,51 @@ function Ranking.ShowUserModStats(viewElement)
 		pos = { 0, modTrendsTitle.shift.y + modTrendsTitle.size.h + 5 },
 		size = { viewElement.size.w, viewElement.size.h - modTrendsTitle.shift.y - modTrendsTitle.size.h - 10 }
 	})
-	local height = math.min(WIN_H / 35, 25)
-	local maxDisplay = math.floor(modListView.size.h / height)
-	local modsToShow = math.min(#Ranking.PlayerModRanking, maxDisplay)
-	local posY = modListView.size.h / modsToShow
 	if (#Ranking.PlayerModRanking == 0) then
 		modListView:addAdaptedText(true, TB_MENU_LOCALIZED.MATCHMAKERANKEDMODSEMPTY)
+		return
 	end
+
+	local maxDisplay = math.min(4, #Ranking.PlayerModRanking, math.floor(modListView.size.h / 55))
+	local elementHeight = math.min(modListView.size.h / maxDisplay, 55)
 	for i, v in pairs(table.qsort(Ranking.PlayerModRanking, { "rank", "name" })) do
 		if (i > maxDisplay) then
 			break
 		end
-		local modTrend = viewElement:addChild({
-			pos = { 10, modTrendsTitle.shift.y + modTrendsTitle.size.h + posY / 2 + (i - 1) * height },
-			size = { viewElement.size.w - 20, height }
+		local modTrend = modListView:addChild({
+			pos = { 0, (i - 1) * elementHeight },
+			size = { modListView.size.w, elementHeight }
 		})
-		local modName = UIElement:new({
-			parent = modTrend,
-			pos = { 0, 0 },
-			size = { modTrend.size.w / 2, modTrend.size.h }
+		local modTrendBG = modTrend:addChild({
+			shift = { 7, 2 },
+			bgColor = TB_MENU_DEFAULT_BG_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+			interactive = true,
+			shapeType = ROUNDED,
+			rounded = 6
 		})
-		modName:addAdaptedText(true, v.name:gsub("%.tbm$", ''), nil, nil, nil, LEFTMID, 0.8, nil, 0)
-		local modStats = UIElement:new({
-			parent = modTrend,
-			pos = { modTrend.size.w / 2 + 20, 0 },
-			size = { modTrend.size.w / 2 - 20, modTrend.size.h }
+		local modName = modTrendBG:addChild({
+			pos = { 10, 5 },
+			size = { modTrendBG.size.w - 20, modTrendBG.size.h * 0.5 }
 		})
-		modStats:addAdaptedText(true, TB_MENU_LOCALIZED.MATCHMAKERANK .. " " .. v.rank .. ", " .. v.elo .. " " .. TB_MENU_LOCALIZED.MATCHMAKEELO, nil, nil, nil, RIGHTMID, 0.8, nil, 0)
+		local modNameStr = v.name:gsub("%.tbm$", '')
+		modName:addAdaptedText(true, modNameStr, nil, nil, nil, LEFTBOT)
+		local modStats = modTrendBG:addChild({
+			pos = { modName.shift.x, modName.size.h + modName.shift.y },
+			size = { modName.size.w, modName.size.h }
+		})
+		modStats:addAdaptedText(true, TB_MENU_LOCALIZED.MATCHMAKERANK .. " " .. v.rank .. ", " .. v.elo .. " " .. TB_MENU_LOCALIZED.MATCHMAKEELO, nil, nil, FONTS.LMEDIUM, RIGHT, 0.7)
+
+		modTrendBG:addMouseUpHandler(function()
+				Ranking.ShowModRanking(v.modid, modNameStr, {
+					rank = v.rank,
+					elo = v.elo,
+					wins = v.wins,
+					loses = v.loses,
+					games = v.wins + v.loses
+				})
+			end)
 	end
 end
 
@@ -1215,11 +1283,31 @@ function Ranking:showMain()
 		size = { toplistWidth, TBMenu.CurrentSection.size.h },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR
 	})
-	Ranking:refreshRankingToplist(toplistView)
-	Ranking.ShowUserStats(mainView)
+	self:refreshRankingToplist(toplistView)
+	self.ShowUserStats(mainView)
 end
 
 
+--[[ Deprecated functions, these will be removed in future ]]
+
+---@deprecated
+---Legacy function to get navigation buttons. Will be removed with future releases.
+---@return MenuNavButton[]
+function Ranking:getNavigationButtons()
+	return {
+		{
+			text = TB_MENU_LOCALIZED.NAVBUTTONBACK,
+			action = function()
+				TBMenu:clearNavSection()
+				TBMenu:showNavigationBar()
+				TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
+			end
+		}
+	}
+end
+
+---@deprecated
+---Legacy function to display global ranking. Will be removed with future releases.
 function Ranking:showGlobalRanking()
 	TBMenu.CurrentSection:kill(true)
 	TBMenu:showNavigationBar(Ranking:getNavigationButtons(), true)
