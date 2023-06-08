@@ -3,15 +3,23 @@ require("system.quests_manager")
 require("system.network_request")
 require("system.iofiles")
 
----@class RewardData
+---@class DayReward
 ---@field reward_type integer
 ---@field tc integer
----@field item integer
+---@field item StoreItem
+
+---@class RewardData
+---@field available boolean
+---@field days integer
+---@field timeLeft integer
 
 if (Rewards == nil) then
-	---Login rewards class
+	---**Login rewards manager class**
+	---
+	---**Version 5.60**
+	---* Updated visuals
 	---@class Rewards
-	---@field RewardData RewardData List of available rewards
+	---@field RewardData DayReward[] List of available rewards
 	Rewards = {
 		__index = {},
 		RewardData = {},
@@ -30,7 +38,9 @@ function Rewards.getRewardData()
 		return false
 	end
 
-	for _, ln in pairs(file:readAll()) do
+	local lines = file:readAll()
+	file:close()
+	for _, ln in pairs(lines) do
 		if string.match(ln, "^REWARD") then
 			local segments = 5
 			local data_stream = { ln:match(("([^\t]*)\t"):rep(segments)) }
@@ -51,34 +61,12 @@ function Rewards.getRewardData()
 		end
 	end
 
-	file:close()
 	return got_data
 end
 
-function Rewards:quit()
-	if (get_option("newmenu") == 0 or TB_MENU_MAIN_ISOPEN == 0) then
-		TBMenu.MenuMain:kill()
-		TB_MENU_SPECIAL_SCREEN_ISOPEN = 4
-		remove_hooks("tbMainMenuVisual")
-		return
-	end
-	TBMenu:clearNavSection()
-	TB_MENU_SPECIAL_SCREEN_ISOPEN = 4
-	TBMenu:showNavigationBar()
-	TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
-end
-
-function Rewards:getNavigationButtons()
-	local buttonText = (get_option("newmenu") == 0 or TB_MENU_MAIN_ISOPEN == 0) and TB_MENU_LOCALIZED.NAVBUTTONEXIT or TB_MENU_LOCALIZED.NAVBUTTONTOMAIN
-	local buttonsData = {
-		{
-			text = buttonText,
-			action = function() Rewards:quit() end
-		}
-	}
-	return buttonsData
-end
-
+---Displays login rewards screen
+---@param viewElement UIElement
+---@param rewardData RewardData
 function Rewards:showMain(viewElement, rewardData)
 	if (viewElement == nil or viewElement.destroyed) then
 		return
@@ -95,66 +83,88 @@ function Rewards:showMain(viewElement, rewardData)
 	})
 	TBMenu:addBottomBloodSmudge(loginView, 1)
 	local loginViewTitle = loginView:addChild({
-		size = { loginView.size.w, loginView.size.h / 8 }
+		size = { loginView.size.w, math.min(80, loginView.size.h / 8) }
 	})
 	loginViewTitle:addCustomDisplay(false, function()
 		loginViewTitle:uiText(TB_MENU_LOCALIZED.REWARDSDAILYTITLE, nil, nil, FONTS.BIG, CENTERMID, 0.8, nil, nil, nil, nil, 0.5)
 	end)
+	local buttonHeight = math.min(60, (loginView.size.h * 0.275 + 30) / 2)
 	local dayRewardsView = loginView:addChild({
 		pos = { 20, loginViewTitle.size.h },
-		size = { loginView.size.w - 40, loginView.size.h * 0.62 }
+		size = { loginView.size.w - 40, loginView.size.h - loginViewTitle.size.h - buttonHeight * 2 - 30 }
 	})
-	local dayRewardWidth = dayRewardsView.size.w / 7
-	local dayReward = {}
 
+	local dayRewardWidth = math.min(dayRewardsView.size.w / 7, 220)
+	local dayRewardHeight = math.min(dayRewardsView.size.h, 450)
+	local leftShift = (dayRewardsView.size.w - dayRewardWidth * 7) / 2
+	local topShift = (dayRewardsView.size.h - dayRewardHeight) / 2
 	for i = 0, 6 do
 		local bgImg = Rewards.RewardData[i].item ~= '0' and "../textures/store/items/" .. Rewards.RewardData[i].item.itemid .. "_big.tga" or "../textures/store/toricredit.tga"
-		local iconSize = dayRewardWidth - 40 > dayRewardsView.size.h / 2 and dayRewardsView.size.h / 2 - 20 or dayRewardWidth - 60
+		local iconSize = math.min(dayRewardWidth - 60, dayRewardHeight / 2 - 20, 108)
 
-		dayReward[i] = {}
-		dayReward[i].main = dayRewardsView:addChild({
-			pos = { 0 + i * dayRewardWidth, 0 },
-			size = { dayRewardWidth - 20, dayRewardsView.size.h },
-			bgColor = i == rewardData.days and { 0, 0, 0, 0.5 } or { 0, 0, 0, 0.3 }
+		local rewardHolder
+		if (i == rewardData.days) then
+			rewardHolder = dayRewardsView:addChild({
+				pos = { leftShift + i * dayRewardWidth, topShift },
+				size = { dayRewardWidth - 20, dayRewardHeight },
+				bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+				shapeType = ROUNDED,
+				rounded = 4
+			})
+		else
+			rewardHolder = dayRewardsView:addChild({
+				pos = { leftShift + (i + 0.05) * dayRewardWidth, topShift + dayRewardHeight * 0.05 },
+				size = { (dayRewardWidth * 0.9) - 20, dayRewardHeight * 0.9 },
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				shapeType = ROUNDED,
+				rounded = 4
+			})
+		end
+		local dayText = rewardHolder:addChild({
+			pos = { 10, 0 },
+			size = { rewardHolder.size.w - 20, rewardHolder.size.h / 7 }
 		})
-		dayReward[i].day = dayReward[i].main:addChild({
-			pos = { 5, 0 },
-			size = { dayReward[i].main.size.w - 10, dayReward[i].main.size.h / 7 }
-		})
-		dayReward[i].day:addAdaptedText(true, rewardData.days == i and (rewardData.available and "Today" or "Tomorrow") or TB_MENU_LOCALIZED.REWARDSTIMEDAY .. " " .. i + 1, nil, nil, FONTS.BIG, nil, 0.55, nil, 0.2)
+		if (rewardData.days == i) then
+			dayText:addAdaptedText(true, rewardData.available and TB_MENU_LOCALIZED.REWARDSTODAY or TB_MENU_LOCALIZED.REWARDSTOMORROW, nil, nil, FONTS.BIG, nil, 0.6)
+		else
+			dayText:addAdaptedText(true, TB_MENU_LOCALIZED.REWARDSTIMEDAY .. " " .. i + 1, nil, nil, FONTS.BIG, nil, 0.55, nil, 0.2)
+		end
+
 		if (iconSize > 32) then
 			iconSize = i == rewardData.days and iconSize + 20 or iconSize
-			dayReward[i].icon = dayReward[i].main:addChild({
-				pos = { (dayReward[i].main.size.w - iconSize) / 2, (dayReward[i].main.size.h - iconSize) / 2 - 10 },
+			rewardHolder:addChild({
+				pos = { (rewardHolder.size.w - iconSize) / 2, (rewardHolder.size.h - iconSize) / 2 - 10 },
 				size = { iconSize, iconSize },
 				bgImage = bgImg
 			})
 		end
-		dayReward[i].title = dayReward[i].main:addChild({
-			pos = { dayReward[i].main.size.w / 10, -dayReward[i].main.size.h / 4 },
-			size = { dayReward[i].main.size.w * 0.8, dayReward[i].main.size.h / 5 }
+		local rewardText = rewardHolder:addChild({
+			pos = { rewardHolder.size.w / 10, -rewardHolder.size.h / 4 },
+			size = { rewardHolder.size.w * 0.8, rewardHolder.size.h / 5 }
 		})
 		local rewardStr = Rewards.RewardData[i].item.itemid ~= 0 and Rewards.RewardData[i].item.itemname or Rewards.RewardData[i].tc .. " TC"
 		if (rewardData.days == i) then
-			dayReward[i].title:addAdaptedText(true, rewardStr, nil, nil, FONTS.BIG)
+			rewardText:addAdaptedText(true, rewardStr, nil, nil, FONTS.BIG, nil, 0.65)
 		else
-			dayReward[i].title:addAdaptedText(true, rewardStr)
+			rewardText:addAdaptedText(true, rewardStr)
 		end
 	end
 	local rewardNextTime = loginView:addChild({
-		pos = { 0, -loginView.size.h / 7 - loginView.size.h / 10 },
-		size = { loginView.size.w, loginView.size.h / 11 }
+		pos = { 0, -buttonHeight * 2 - 30 },
+		size = { loginView.size.w, buttonHeight }
 	})
 	rewardNextTime:addCustomDisplay(true, function()
-		rewardNextTime:uiText(Rewards:getTime(rewardData.timeLeft - math.ceil(os.clock_real()), rewardData.available))
+		rewardNextTime:uiText(Rewards:getTime(rewardData.timeLeft - math.ceil(UIElement.clock), rewardData.available))
 	end)
 	local rewardClaim = loginView:addChild({
-		pos = { loginView.size.w / 6, -loginView.size.h / 7 },
-		size = { loginView.size.w / 6 * 4, loginView.size.h / 8 },
+		pos = { loginView.size.w * 0.2, -buttonHeight - 30},
+		size = { loginView.size.w * 0.6, buttonHeight },
 		interactive = rewardData.available,
-		bgColor = { 0, 0, 0, 0.3 },
-		hoverColor = { 0, 0, 0, 0.5 },
-		pressedColor = { 1, 0, 0, 0.2 },
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+		shapeType = ROUNDED,
+		rounded = 4,
 		downSound = 31
 	})
 	local rewardClaimText = rewardClaim:addChild({

@@ -1131,8 +1131,8 @@ function Ranking.ShowGameStatToplist(stat)
 	}):addAdaptedText(true, TB_MENU_LOCALIZED["RANKINGGAMESTATTOPLIST" .. string.upper(stat)], nil, nil, FONTS.BIG, LEFTMID, 0.6, nil, 0.1)
 
 	local toplistHolderBot = toplistHolder:addChild({
-		pos = { 10, -40 },
-		size = { toplistHolder.size.w - 20, 40 },
+		pos = { 10, -30 },
+		size = { toplistHolder.size.w - 20, 30 },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR
 	})
 

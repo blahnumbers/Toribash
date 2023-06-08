@@ -331,6 +331,32 @@ function RoomList:showRoomListLegend(viewElement)
 	end
 end
 
+---Returns an icon to show for room description
+---@param room RoomListInfo
+---@return string?
+function RoomListInternal.GetRoomIcon(room)
+	local icon = nil
+	if (room.is_ranked) then
+		icon = "../textures/menu/general/buttons/ranked.tga"
+	elseif (room.is_password_protected) then
+		icon = "../textures/menu/general/buttons/locked.tga"
+	end
+	return icon
+end
+
+---Returns a hint to show for room description
+---@param room RoomListInfo
+---@return string?
+function RoomListInternal.GetRoomIconHint(room)
+	local hint = nil
+	if (room.is_ranked) then
+		hint = TB_MENU_LOCALIZED.ROOMLISTRANKED
+	elseif (room.is_password_protected) then
+		hint = TB_MENU_LOCALIZED.ROOMLISTPRIVATEINFO
+	end
+	return hint
+end
+
 ---Generic function to display room list buttons
 ---@param viewElement UIElement
 ---@param room RoomListInfoExtended
@@ -387,8 +413,8 @@ function RoomList:showRoomListButton(viewElement, room)
 			value = room.desc_clean,
 			width = 0.35,								-- 0.55
 			shadowValue = room.desc,
-			textIcon = room.is_password_protected and "../textures/menu/general/buttons/locked.tga" or nil,
-			textIconHint = TB_MENU_LOCALIZED.ROOMLISTPRIVATEINFO
+			textIcon = RoomListInternal.GetRoomIcon(room),
+			textIconHint = RoomListInternal.GetRoomIconHint(room)
 		},
 		{
 			value = utf8.gsub(room.gamerules.mod, "%.tbm$", ""),
