@@ -1251,7 +1251,7 @@ function Ranking.ShowUserGameStat(viewElement, stat)
 	elseif (stat == "decaps") then
 		icon = icon .. "qtypedecap.tga"
 	elseif (stat == "tc") then
-		icon = icon .. "qtype2.tga"
+		icon = icon .. "qtypetc.tga"
 	else
 		return
 	end
