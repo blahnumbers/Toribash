@@ -2179,10 +2179,10 @@ function refresh_reward() end
 ---Claims all available Battle Pass rewards
 function battlepass_claim_reward() end
 
----Fetches ranking toplist for the specified user or the current user by default\
+---Fetches ranking toplist for the specified mod (or global ranking by default)\
 ---@see Request
----@param username ?string
-function fetch_ranking_toplist(username) end
+---@param modid ?integer
+function fetch_ranking_toplist(modid) end
 
 ---Fetches ranking trends for the current user\
 ---@see Request

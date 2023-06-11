@@ -82,7 +82,7 @@ if (Ranking == nil) then
 		},
 		TimeLeft = 0,
 		QiRequirement = 100,
-		ToplistStalePeriod = 60,
+		ToplistStalePeriod = 300,
 		ver = 5.60
 	}
 	Ranking.__index = Ranking
@@ -776,7 +776,7 @@ function Ranking:refreshRankingToplist(viewElement, modid, title, userRanking)
 	if (modid ~= nil or (self.EloRanking == nil or self.EloRankingTimestamp == nil or os.time() - self.EloRankingTimestamp > self.ToplistStalePeriod)) then
 		local loaderHolder = viewElement:addChild({ shift = { viewElement.size.w / 8, viewElement.size.h / 3 }})
 		TBMenu:displayLoadingMark(loaderHolder, TB_MENU_LOCALIZED.EVENTSLOADINGTOPPLAYERS)
-		Request:queue(fetch_ranking_toplist, "ranking_toplist", function()
+		Request:queue(function() fetch_ranking_toplist(modid) end, "ranking_toplist" .. tostring(modid), function()
 				if (loaderHolder == nil or loaderHolder.destroyed) then return end
 
 				local ranking = RankingInternal.ParseMainData(get_network_response())

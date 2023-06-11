@@ -2480,13 +2480,14 @@ function TBMenu:showNavigationBar(buttonsData, customNav, customNavHighlight, se
 	-- Check if total button width doesn't exceed navbar width
 	-- Assign button width accordingly
 	local totalWidth = TBMenu.NavigationBar.size.w
+	local offsetWidth = math.min(TBMenu.NavigationBar.size.w * 0.05, 50)
 	local fontScale = 0.65
 	local fontId = FONTS.BIG
 	local temp = TBMenu.NavigationBar:addChild({
-		size = { TBMenu.NavigationBar.size.w, TBMenu.NavigationBar.size.h / 6 * 4 }
+		size = { TBMenu.NavigationBar.size.w, TBMenu.NavigationBar.size.h * 0.66 }
 	})
 
-	while (totalWidth > TBMenu.NavigationBar.size.w - navX.l[1] + navX.r[1]) do
+	while (totalWidth + offsetWidth > TBMenu.NavigationBar.size.w - navX.l[1] + navX.r[1]) do
 		totalWidth = 0
 		fontScale = fontScale - 0.05
 		for _, v in pairs(tbMenuNavigationButtonsData) do
