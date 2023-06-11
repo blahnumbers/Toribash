@@ -2480,7 +2480,7 @@ function TBMenu:showNavigationBar(buttonsData, customNav, customNavHighlight, se
 	-- Check if total button width doesn't exceed navbar width
 	-- Assign button width accordingly
 	local totalWidth = TBMenu.NavigationBar.size.w
-	local offsetWidth = math.min(TBMenu.NavigationBar.size.w * 0.05, 50)
+	local offsetWidth = math.min(TBMenu.NavigationBar.size.w * 0.05, 100)
 	local fontScale = 0.65
 	local fontId = FONTS.BIG
 	local temp = TBMenu.NavigationBar:addChild({
@@ -2651,7 +2651,7 @@ function TBMenu:getMainNavigationButtons()
 			table.insert(buttonData, battlePassButton)
 		end
 	end
-	if (Ranking.TimeLeft > 0 and TB_MENU_PLAYER_INFO.data.qi >= Ranking.QiRequirement) then
+	if (Ranking.TimeLeft > os.time() and TB_MENU_PLAYER_INFO.data.qi >= Ranking.QiRequirement) then
 		table.insert(buttonData, {
 			text = TB_MENU_LOCALIZED.NAVBUTTONRANKING,
 			sectionId = 12,
