@@ -2220,6 +2220,11 @@ function buy_tc(data) end
 ---@param data string
 function buy_st(data) end
 
+---Initiates a platform-specific microtransaction flow
+---@param itemid integer
+---@return integer? #`0` on success, error id otherwise (or nil on unsupported platforms).
+function buy_platform_mtx(itemid) end
+
 ---Queries information about the specified user from Toribash servers. \
 ---*Leave username empty to request current user info.* \
 ---@see PlayerInfo.getServerUserinfo
@@ -3088,6 +3093,7 @@ function discord_reject_join(discordId) end
 ---| "bout_update" #Called after bout list update is finished
 ---| "spec_update" #Called when spectator status update is received
 ---| "roomlist_update" #Called on room list info request completion
+---| "purchase_status" #Called on mobile in-app purchase status change
 
 ---Adds a Lua callback listener \
 ---*Only one function per `event` + `set_name` pair is supported*

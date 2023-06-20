@@ -1212,3 +1212,6 @@ RANKINGMODBESTPLAYERS1	Best
 RANKINGMODBESTPLAYERS2	players of all time
 REWARDSTODAY	Today
 REWARDSTOMORROW	Tomorrow
+STORECOMPLETEPURCHASEINBROWSER	Complete your purchase in system web browser
+STOREERRORPURCHASEMTXINIT	Error initiating store purchase, please try again later
+STOREPURCHASECOMPLETED	Store purchase has been successfully completed!

@@ -4722,7 +4722,7 @@ do
 				Torishop:showPostPurchaseScreen(item)
 			end, function()
 				overlay:kill()
-				TBMenu:showDataError(TB_MENU_LOCALIZED.STOREPURCHASESERVERERROR)
+				TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STOREPURCHASESERVERERROR)
 			end)
 	end
 
@@ -4730,7 +4730,7 @@ do
 		local response = get_network_response()
 		if (response:find("^ERROR 0;")) then
 			response = response:gsub("^ERROR 0;", "")
-			TBMenu:showDataError(TB_MENU_LOCALIZED.STOREPURCHASEERROR .. ": " .. response)
+			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STOREPURCHASEERROR .. ": " .. response)
 		elseif (response:find("^SUCCESS 0;")) then
 			local invid = response:gsub("^SUCCESS 0;", "")
 			if (forceRefreshItem) then
@@ -4761,14 +4761,14 @@ do
 								end
 								show_dialog_box(INVENTORY_ACTIVATE, TB_MENU_LOCALIZED.STOREPURCHASECONGRATULATIONSRECEIVED .. " "  .. item.itemname .. "!\n" .. TB_MENU_LOCALIZED.STOREDIALOGACTIVATE1 .. " " .. item.itemname .. (TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 .. "?"), invid)
 							else
-								TBMenu:showDataError(TB_MENU_LOCALIZED.STOREYOUHAVEPURCHASEDITEM .. " " .. item.itemname .. "!\n" .. TB_MENU_LOCALIZED.STOREPURCHASEDITEMPLACEDININVENTORY)
+								TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STOREYOUHAVEPURCHASEDITEM .. " " .. item.itemname .. "!\n" .. TB_MENU_LOCALIZED.STOREPURCHASEDITEMPLACEDININVENTORY)
 							end
 						else
-							TBMenu:showDataError(TB_MENU_LOCALIZED.STOREPURCHASEERROR)
+							TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STOREPURCHASEERROR)
 						end
 					end, function()
 						overlay:kill()
-						TBMenu:showDataError(TB_MENU_LOCALIZED.STOREPURCHASEERRORUNDEF)
+						TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STOREPURCHASEERRORUNDEF)
 					end)
 				return
 			end
@@ -4784,10 +4784,10 @@ do
 				Torishop:spawnInventoryUpdateWaiter()
 				show_dialog_box(INVENTORY_ACTIVATE, TB_MENU_LOCALIZED.STOREPURCHASECONGRATULATIONS .. "\n" .. TB_MENU_LOCALIZED.STOREPURCHASEWOULDYOULIKETOACTIVATE1 .. " " .. item.itemname .. (TB_MENU_LOCALIZED.STOREPURCHASEWOULDYOULIKETOACTIVATE2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREPURCHASEWOULDYOULIKETOACTIVATE2 .. "?"), invid)
 			else
-				TBMenu:showDataError(TB_MENU_LOCALIZED.STOREYOUHAVEPURCHASEDITEM .. " " .. item.itemname .. "!\n" .. TB_MENU_LOCALIZED.STOREPURCHASEDITEMPLACEDININVENTORY)
+				TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STOREYOUHAVEPURCHASEDITEM .. " " .. item.itemname .. "!\n" .. TB_MENU_LOCALIZED.STOREPURCHASEDITEMPLACEDININVENTORY)
 			end
 		else
-			TBMenu:showDataError(TB_MENU_LOCALIZED.STOREPURCHASEERRORUNDEF)
+			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STOREPURCHASEERRORUNDEF)
 		end
 	end
 
@@ -5106,6 +5106,89 @@ do
 		Torishop:doItemPreviewVanilla(item)
 	end
 
+	function Torishop.InitUSDPurchase(item)
+		local overlay = TBMenu:spawnWindowOverlay()
+		local purchaseWindow = overlay:addChild({
+			pos = { WIN_W / 2 - 200, WIN_H / 2 - 75 },
+			size = { 400, 150 },
+			bgColor = TB_MENU_DEFAULT_BG_COLOR,
+			shapeType = ROUNDED,
+			rounded = 4
+		})
+		local initResult = buy_platform_mtx(item.itemid)
+		if (initResult == nil) then
+			if (is_steam()) then
+				---No error handling with runCmd
+				initResult = 0
+				runCmd("steam purchase " .. item.itemid)
+			else
+				open_url("http://forum.toribash.com/tori_shop.php?action=process&item=" .. item.itemid)
+				purchaseWindow:addChild({
+					pos = { 20, 20 },
+					size = { purchaseWindow.size.w - 40, purchaseWindow.size.h / 2 - 30 }
+				}):addAdaptedText(TB_MENU_LOCALIZED.STORECOMPLETEPURCHASEINBROWSER)
+				local okButton = purchaseWindow:addChild({
+					pos = { 70, purchaseWindow.size.h / 2 },
+					size = { purchaseWindow.size.w - 140, purchaseWindow.size.h / 2 - 20 },
+					interactive = true,
+					bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+					hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+					pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+				}, true)
+				okButton:addAdaptedText(TB_MENU_LOCALIZED.BUTTONOK)
+				okButton:addMouseUpHandler(function() overlay:kill() end)
+				return
+			end
+		end
+
+		if (initResult ~= 0) then
+			purchaseWindow:addChild({
+				pos = { 20, 20 },
+				size = { purchaseWindow.size.w - 40, purchaseWindow.size.h / 2 - 30 }
+			}):addAdaptedText(TB_MENU_LOCALIZED.STOREERRORPURCHASEMTXINIT)
+			local okButton = purchaseWindow:addChild({
+				pos = { 70, purchaseWindow.size.h / 2 },
+				size = { purchaseWindow.size.w - 140, purchaseWindow.size.h / 2 - 20 },
+				interactive = true,
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+			}, true)
+			okButton:addAdaptedText(TB_MENU_LOCALIZED.BUTTONOK)
+			okButton:addMouseUpHandler(function() overlay:kill() end)
+			return
+		end
+
+		purchaseWindow:addAdaptedText(TB_MENU_LOCALIZED.MESSAGEPLEASEWAIT)
+		if (is_steam()) then
+			---With steam our client will keep rendering UI but no longer receive mouse inputs until the purchase is over.
+			---We just spawn a mouse move event listener and wait for it to get the first hit to check on purchase status.
+			local purchaseProgressMonitor = overlay:addChild({ interactive = true })
+			purchaseProgressMonitor:addMouseMoveHandler(function()
+					overlay:kill()
+					if (get_purchase_done() == 1) then
+						TBMenu:showStatusMessage(item.itemname .. " " .. TB_MENU_LOCALIZED.STOREITEMPURCHASESUCCESSFUL)
+						update_tc_balance()
+						Notifications:getTotalNotifications(true)
+					else
+						TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STOREPURCHASESTEAMCANCELLED)
+					end
+				end)
+		else
+			---Mobile platforms, we have a dedicated hook that we will be listening to
+			add_hook("purchase_status", "tbStorePurchaseProgress", function(result, error_code)
+					overlay:kill()
+					if (result == true) then
+						TBMenu:showStatusMessage(item.itemname .. " " .. TB_MENU_LOCALIZED.STOREITEMPURCHASESUCCESSFUL)
+						update_tc_balance()
+						Notifications:getTotalNotifications(true)
+					else
+						TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STOREPURCHASEERROR .. " " .. tostring(error_code))
+					end
+				end)
+		end
+	end
+
 	function Torishop:showStoreItemInfo(item, noReload, updateOverride)
 		usage_event("storeitem")
 		STORE_DOWNLOADS_COMPLETE = noReload and true or false
@@ -5273,15 +5356,9 @@ do
 					bgImage = purchaseIconImage
 				})
 				buyWithStText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREBUYFOR .. " $" .. numberFormat(item.now_usd_price, 2), nil, nil, nil, LEFTMID)
-				if (not is_mobile()) then
-				buyWithSt:addMouseHandlers(nil, is_steam() and function()
-						runCmd("steam purchase " .. item.itemid)
-					end or function()
-						open_url("http://forum.toribash.com/tori_shop.php?action=process&item=" .. item.itemid)
-					end)
-				else
-					buyWithSt:deactivate()
-				end
+				buyWithSt:addMouseUpHandler(function()
+					Torishop.InitUSDPurchase(item)
+				end)
 			end
 		end
 		if (item.now_tc_price > 0 and item.qi <= TB_MENU_PLAYER_INFO.data.qi) then
