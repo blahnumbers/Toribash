@@ -203,7 +203,7 @@ function Rewards:showMain(viewElement, rewardData)
 				end
 				rewardClaim:deactivate()
 			elseif (rewardRes[1] == '0') then
-				update_tc_balance()
+				update_tc_balance(true)
 				TB_MENU_NOTIFICATIONS_COUNT = math.max(TB_MENU_NOTIFICATIONS_COUNT - 1, 0)
 
 				if (rewardClaimText and not rewardClaimText.destroyed) then

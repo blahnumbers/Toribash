@@ -3528,24 +3528,25 @@ function TBMenu:displayLoadingMark(element, message, size)
 	---@type UILoadingMark
 	---@diagnostic disable-next-line: assign-type-mismatch
 	local loadMark = element:addChild({})
+	if (message) then
+		local textView = loadMark:addChild({
+			pos = { 10, loadMark.size.h / 2 + 5 },
+			size = { loadMark.size.w - 20, loadMark.size.h / 2 - 5 }
+		})
+		textView:addAdaptedText(true, message, nil, nil, nil, CENTER)
+		loadMark.textView = textView
+	end
+
 	local grow, rotate = 0, 0
 	loadMark:addCustomDisplay(true, function()
 			set_color(unpack(loadMark.uiColor or UICOLORWHITE))
-			draw_disk(loadMark.pos.x + loadMark.size.w / 2, loadMark.pos.y + loadMark.size.h / 2 - (message and 40 or 0), size * 0.6, size, 20, 1, rotate, grow, 0)
+			draw_disk(loadMark.pos.x + loadMark.size.w / 2, loadMark.pos.y + loadMark.size.h / 2 - (message and 25 or 0), size * 0.6, size, 20, 1, rotate, grow, 0)
 			grow = grow + 4
 			rotate = rotate + 2
 			if (grow >= 360) then
 				grow = -360
 			end
 		end)
-	if (message) then
-		local textView = loadMark:addChild({
-			pos = { 10, loadMark.size.h / 2 },
-			size = { loadMark.size.w - 20, loadMark.size.h }
-		})
-		textView:addAdaptedText(true, message, nil, nil, nil, CENTER)
-		loadMark.textView = textView
-	end
 	return loadMark
 end
 

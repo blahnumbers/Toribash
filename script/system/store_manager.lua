@@ -69,12 +69,12 @@ local ITEM_EFFECTS = {
 }
 
 do
-	Torishop = {}
+	Torishop = {
+		lastDownload = 0,
+		inAppIdentifiersReady = not is_mobile()
+	}
 	Torishop.__index = Torishop
-	local cln = {}
-	setmetatable(cln, Torishop)
-
-	Torishop.lastDownload = 0
+	setmetatable({}, Torishop)
 
 	function Torishop:download()
 		local clock = os.clock_real()
@@ -84,7 +84,7 @@ do
 		end
 
 		local downloads = get_downloads()
-		for i,v in pairs(downloads) do
+		for _, v in pairs(downloads) do
 			if (v:find("store(_obj)?.txt$")) then
 				return false
 			end
@@ -145,10 +145,14 @@ do
 			{ "description" },
 			{ "contents" }
 		}
+		---@type integer[]
+		local usdItems = {}
+		---@type StoreItem[]
 		local TorishopData = {}
 		local TorishopSections = {}
 		local lines = file:readAll()
 		file:close()
+
 		for _, ln in pairs(lines) do
 			if string.match(ln, "^PRODUCT") then
 				local _, segments = ln:gsub("\t", "")
@@ -186,9 +190,16 @@ do
 				end
 				if (not in_array(item.catid, CATEGORIES_ACCOUNT)) then
 					item.now_usd_price = math.ceil(item.now_usd_price)
+				elseif (not (item.locked or item.hidden)) then
+					table.insert(usdItems, item.itemid)
 				end
 				TorishopData[item.itemid] = item
 			end
+		end
+
+		if (not Torishop.inAppIdentifiersReady and #usdItems > 0) then
+			register_platform_mtx(usdItems)
+			Torishop.inAppIdentifiersReady = true
 		end
 
 		TorishopSections[0] = { name = "Color Items" }
@@ -5159,7 +5170,7 @@ do
 			return
 		end
 
-		purchaseWindow:addAdaptedText(TB_MENU_LOCALIZED.MESSAGEPLEASEWAIT)
+		TBMenu:displayLoadingMark(purchaseWindow, TB_MENU_LOCALIZED.MESSAGEPLEASEWAIT)
 		if (is_steam()) then
 			---With steam our client will keep rendering UI but no longer receive mouse inputs until the purchase is over.
 			---We just spawn a mouse move event listener and wait for it to get the first hit to check on purchase status.
@@ -5171,19 +5182,32 @@ do
 						update_tc_balance()
 						Notifications:getTotalNotifications(true)
 					else
-						TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STOREPURCHASESTEAMCANCELLED)
+						TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STOREPURCHASECANCELLED)
 					end
 				end)
 		else
 			---Mobile platforms, we have a dedicated hook that we will be listening to
 			add_hook("purchase_status", "tbStorePurchaseProgress", function(result, error_code)
-					overlay:kill()
+					remove_hook("purchase_status", "tbStorePurchaseProgress")
 					if (result == true) then
-						TBMenu:showStatusMessage(item.itemname .. " " .. TB_MENU_LOCALIZED.STOREITEMPURCHASESUCCESSFUL)
-						update_tc_balance()
-						Notifications:getTotalNotifications(true)
+						purchaseWindow:kill(true)
+						TBMenu:displayLoadingMark(purchaseWindow, TB_MENU_LOCALIZED.STOREPURCHASEFINALIZING)
+						local purchaseProgressMonitor = purchaseWindow:addChild({})
+						purchaseProgressMonitor:addCustomDisplay(true, function()
+								if (get_purchase_done() == 1) then
+									overlay:kill()
+									TBMenu:showStatusMessage(item.itemname .. " " .. TB_MENU_LOCALIZED.STOREITEMPURCHASESUCCESSFUL)
+									update_tc_balance()
+									Notifications:getTotalNotifications(true)
+								end
+							end)
 					else
-						TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STOREPURCHASEERROR .. " " .. tostring(error_code))
+						overlay:kill()
+						if (error_code == 2) then
+							TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STOREPURCHASECANCELLED)
+						else
+							TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STOREPURCHASEERROR .. " err " .. tostring(error_code))
+						end
 					end
 				end)
 		end

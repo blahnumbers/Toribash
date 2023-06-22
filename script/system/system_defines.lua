@@ -2074,7 +2074,8 @@ function fetch_replay_comments(id) end
 function download_replay_comments(id) end
 
 ---Launches a network request to update current user's TC and ST balance
-function update_tc_balance() end
+---@param refresh_rewards boolean? Whether to refresh login rewards state
+function update_tc_balance(refresh_rewards) end
 
 ---Queues player's head texture for download
 ---@param username string
@@ -2219,6 +2220,10 @@ function buy_tc(data) end
 ---Submits item purchase request for Shiai Tokens
 ---@param data string
 function buy_st(data) end
+
+---Registers a list of items available for in-app purchases
+---@param itemids integer[]
+function register_platform_mtx(itemids) end
 
 ---Initiates a platform-specific microtransaction flow
 ---@param itemid integer
