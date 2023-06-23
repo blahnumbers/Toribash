@@ -34,7 +34,7 @@ MAINMENUCOMEBACKNAME	Comeback Practice
 MAINMENUCOMEBACKDESC	Keep catching Uke without getting disqualified
 MAINMENUGAMERULESNAME	Game Rules
 MAINMENUGAMERULESDESC	Customize gravity and other mod settings
-MAINMENUMODLISTNAME	Mod List
+MAINMENUMODLISTNAME	Mods
 MAINMENUMODLISTDESC	Load one of the downloaded mods
 MAINMENUMODMAKERNAME	Modmaker
 MAINMENUMODMAKERDESC	Create your own mod for Toribash
@@ -407,7 +407,7 @@ SHADERSINPUTNAME	Input shader name
 SHADERSERRORFILEEXISTS	Shader with this name already exists. This action will overwrite the old file.
 SHADERSRESETTODEFAULT	Reset to default
 SHADERSEDITOR	Shader Editor
-SHADERSATMOSNAME	Atmospheres
+SHADERSATMOSNAME	Atmos
 SHADERSNAME	Shaders
 SETTINGSOTHER	Game
 SETTINGSABOUT	About

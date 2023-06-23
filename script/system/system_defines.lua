@@ -2230,6 +2230,11 @@ function register_platform_mtx(itemids) end
 ---@return integer? #`0` on success, error id otherwise (or nil on unsupported platforms).
 function buy_platform_mtx(itemid) end
 
+---Returns a localized price string for an item on current platform
+---@param itemid integer
+---@return string
+function get_platform_item_price(itemid) end
+
 ---Queries information about the specified user from Toribash servers. \
 ---*Leave username empty to request current user info.* \
 ---@see PlayerInfo.getServerUserinfo

@@ -26,6 +26,7 @@ if (Tooltip == nil) then
 	---@field TouchInputPosition table Touch position for the last touch control wheel trigger
 	---@field TouchInputDelay number Delay in seconds before touch control ring will start appearing
 	---@field TouchInputGrowDuration number Duration in seconds for touch control ring to finish animation
+	---@field InputIgnore boolean Whether joint and body select hook hits should be currently ignored
 	Tooltip = {
 		Globalid = 1010,
 		GrabDisplayActive = false,
@@ -41,6 +42,7 @@ if (Tooltip == nil) then
 		TouchInputTargetJoint = -1,
 		TouchInputDelay = 0.1,
 		TouchInputGrowDuration = 0.1,
+		InputIgnore = false,
 		version = 5.60
 	}
 	Tooltip.__index = Tooltip
@@ -85,7 +87,7 @@ function Tooltip.Init()
 	Tooltip.DestroyAndDeselect()
 
 	add_hook("joint_select", Tooltip.HookName, function(player, joint)
-			if (players_accept_input() == false) then return end
+			if (players_accept_input() == false or Tooltip.InputIgnore) then return end
 			local discard = Tooltip:showTooltipJoint(player, joint)
 			if (is_mobile()) then
 				Tooltip.EnableFocusCam()
@@ -93,20 +95,22 @@ function Tooltip.Init()
 			end
 		end)
 	add_hook("body_select", Tooltip.HookName, function(player, body)
-			if (players_accept_input() == false) then return end
+			if (players_accept_input() == false or Tooltip.InputIgnore) then return end
 			if (is_mobile()) then Tooltip.EnableFocusCam() end
 			if (get_option("tooltip") == 1 and Tooltip.IsActive) then
 				Tooltip:showTooltipBody(player, body)
 			end
 		end)
 	if (is_mobile()) then
-		add_hook("mouse_button_down", Tooltip.HookName, function()
-				if (players_accept_input() == false) then return end
+		add_hook("mouse_button_down", Tooltip.HookName, function(s)
+				if (players_accept_input() == false or s ~= 1) then return end
 				Tooltip:showTouchControls()
+				Tooltip.InputIgnore = true
 			end)
 		add_hook("mouse_button_up", Tooltip.HookName, function()
 				if (players_accept_input() == false) then return end
 				Tooltip:setTouchJointState()
+				Tooltip.InputIgnore = false
 			end)
 	end
 
@@ -115,6 +119,7 @@ function Tooltip.Init()
 	add_hook("leave_game", Tooltip.HookName, Tooltip.DestroyAndDeselect)
 	add_hook("new_game", Tooltip.HookName, Tooltip.DestroyAndDeselect)
 	add_hook("player_select", Tooltip.HookName, function()
+			if (Tooltip.InputIgnore) then return end
 			Tooltip.DestroyAndDeselect()
 			if (is_mobile()) then
 				Tooltip.EnableFocusCam()

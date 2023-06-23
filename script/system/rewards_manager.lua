@@ -120,16 +120,6 @@ function Rewards:showMain(viewElement, rewardData)
 				rounded = 4
 			})
 		end
-		local dayText = rewardHolder:addChild({
-			pos = { 10, 0 },
-			size = { rewardHolder.size.w - 20, rewardHolder.size.h / 7 }
-		})
-		if (rewardData.days == i) then
-			dayText:addAdaptedText(true, rewardData.available and TB_MENU_LOCALIZED.REWARDSTODAY or TB_MENU_LOCALIZED.REWARDSTOMORROW, nil, nil, FONTS.BIG, nil, 0.6)
-		else
-			dayText:addAdaptedText(true, TB_MENU_LOCALIZED.REWARDSTIMEDAY .. " " .. i + 1, nil, nil, FONTS.BIG, nil, 0.55, nil, 0.2)
-		end
-
 		if (iconSize > 32) then
 			iconSize = i == rewardData.days and iconSize + 20 or iconSize
 			rewardHolder:addChild({
@@ -137,6 +127,16 @@ function Rewards:showMain(viewElement, rewardData)
 				size = { iconSize, iconSize },
 				bgImage = bgImg
 			})
+		end
+
+		local dayText = rewardHolder:addChild({
+			pos = { 10, 10 },
+			size = { rewardHolder.size.w - 20, rewardHolder.size.h / 7 }
+		})
+		if (rewardData.days == i) then
+			dayText:addAdaptedText(true, rewardData.available and TB_MENU_LOCALIZED.REWARDSTODAY or TB_MENU_LOCALIZED.REWARDSTOMORROW, nil, nil, FONTS.BIG, nil, 0.6)
+		else
+			dayText:addAdaptedText(true, TB_MENU_LOCALIZED.REWARDSTIMEDAY .. " " .. i + 1, nil, nil, FONTS.BIG, nil, 0.55, nil, 0.2)
 		end
 		local rewardText = rewardHolder:addChild({
 			pos = { rewardHolder.size.w / 10, -rewardHolder.size.h / 4 },

@@ -2298,21 +2298,23 @@ function TBMenu:showMobileNavigationBar(buttonsData, customNav, customNavHighlig
 		interactive = is_mobile()
 	})
 	TBMenu.NavigationBar.killAction = function() TBMenu.HasCustomNavigation = false end
-	TBMenu.HasCustomNavigation = buttonsData ~= nil
 
 	---Unlike with horizontal menu, button always have the same width but may be multiline.
 	---We need to calculate target font scale to render all captions at the same size and see whether
 	---buttons with long text can be newlined and still fit the navigation
 
 	local navbarArea = TBMenu.NavigationBar.size.h - navY.t[1] - navY.b[1]
-	local buttonHeight = math.min(navbarArea / (#buttonsData + 1), 60)
+	local defaultButtonHeight = math.min(navbarArea / (#buttonsData + 1), 60)
+	local buttonHeight = defaultButtonHeight
 	local fontScale = 0.65
 	local fontId = FONTS.BIG
 
 	local targetWidth = 500000
 	while (targetWidth > TBMenu.NavigationBar.size.w) do
-		local availableHeight = navbarArea - buttonHeight
 		fontScale = fontScale - 0.05
+		buttonHeight = defaultButtonHeight * math.clamp(fontScale + 0.4, 0.8, 1)
+		
+		local availableHeight = navbarArea - buttonHeight
 		local runMaxWidth = 0
 		for _, v in pairs(buttonsData) do
 			availableHeight = availableHeight - buttonHeight
@@ -2335,7 +2337,7 @@ function TBMenu:showMobileNavigationBar(buttonsData, customNav, customNavHighlig
 					end
 				end
 				availableHeight = availableHeight + buttonHeight - (#v.adapted * buttonHeight * 0.75)
-				if (availableHeight < 0) then
+				if (availableHeight < buttonHeight) then
 					runMaxWidth = 500000
 					break
 				end
@@ -2392,7 +2394,7 @@ function TBMenu:showMobileNavigationBar(buttonsData, customNav, customNavHighlig
 				bgColor = TB_MENU_DEFAULT_ORANGE,
 				uiColor = UICOLORBLACK,
 				shapeType = ROUNDED,
-				rounded = buttonText.size.h / 2
+				rounded = buttonText.size.h
 			})
 			miscMark:addAdaptedText(false, v.misctext, nil, nil, fontId, nil, fontScale * 0.8, nil, 0.7)
 			if (#v.adapted == 1 or newlined) then
@@ -2449,6 +2451,7 @@ function TBMenu:showNavigationBar(buttonsData, customNav, customNavHighlight, se
 			table.insert(tbMenuNavigationButtonsData, v)
 		end
 	end
+	TBMenu.HasCustomNavigation = buttonsData ~= nil
 	if (SCREEN_RATIO > 2) then
 		TBMenu:showMobileNavigationBar(tbMenuNavigationButtonsData, customNav, customNavHighlight, selectedId)
 		return
@@ -2475,7 +2478,6 @@ function TBMenu:showNavigationBar(buttonsData, customNav, customNavHighlight, se
 		interactive = is_mobile()
 	})
 	TBMenu.NavigationBar.killAction = function() TBMenu.HasCustomNavigation = false end
-	TBMenu.HasCustomNavigation = buttonsData ~= nil
 
 	-- Check if total button width doesn't exceed navbar width
 	-- Assign button width accordingly
@@ -2543,7 +2545,7 @@ function TBMenu:showNavigationBar(buttonsData, customNav, customNavHighlight, se
 				bgColor = TB_MENU_DEFAULT_ORANGE,
 				uiColor = UICOLORBLACK,
 				shapeType = ROUNDED,
-				rounded = buttonText.size.h / 2
+				rounded = buttonText.size.h
 			})
 			miscMark:addAdaptedText(false, v.misctext, nil, nil, fontId, nil, fontScale * 0.75, nil, 0)
 			buttonText:addAdaptedText(true, v.text, -width / 2, nil, fontId, nil, fontScale)

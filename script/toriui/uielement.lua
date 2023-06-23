@@ -39,6 +39,16 @@ _G.MOUSE_Y = 0
 ---| 7 # SimHei small
 ---| 8 # SimHei medium
 ---| 9 # FONTS.BIGGER | Badaboom giant
+---| 10 # Badaboom big @2
+---| 11 # Arial small @2
+---| 12 # Badaboom medium @2
+---| 13 # Bedrock medium @2
+---| 14 # Arial Bold medium @2
+---| 15 # Kanji supported small @2
+---| 16 # Kanji supported medium @2
+---| 17 # SimHei small @2
+---| 18 # SimHei medium @2
+---| 19 # Badaboom giant @2
 
 _G.KEYBOARDGLOBALIGNORE = _G.KEYBOARDGLOBALIGNORE or false
 
@@ -480,6 +490,14 @@ function UIElement.new(_self, o)
 		elem.innerShadow = type(o.innerShadow) == "table" and o.innerShadow or { o.innerShadow, o.innerShadow }
 	end
 	if (o.shapeType == ROUNDED and o.rounded) then
+		if (is_mobile()) then
+			if (elem.shift.x ~= nil) then
+				elem.shift.x = math.round(elem.shift.x)
+				elem.shift.y = math.round(elem.shift.y)
+			end
+			elem.size.w = math.round(elem.size.w)
+			elem.size.h = math.round(elem.size.h)
+		end
 		elem.setRounded(elem, o.rounded)
 		-- Light UI mode - don't add rounded corners if it's just for cosmetics
 		if (not UIElement.lightUIMode or elem.rounded > elem.size.w / 4) then
@@ -566,18 +584,20 @@ function UIElement:setRounded(rounded)
 		self.roundedInternal = { rounded[1], rounded[#rounded] }
 	end
 
-	local minRounded = self.roundedInternal[1] + self.roundedInternal[2] > math.min(table.unpack_all(self.size)) and math.min(table.unpack_all(self.size)) / 2 or math.max(unpack(self.roundedInternal))
+	local minSize = math.min(table.unpack_all(self.size))
+	local minRounded = self.roundedInternal[1] + self.roundedInternal[2] > minSize and minSize / 2 or math.max(unpack(self.roundedInternal))
 
 	self.rounded = 0
-	for i,v in pairs(self.roundedInternal) do
+	for i, v in pairs(self.roundedInternal) do
 		if (v > minRounded) then
 			self.roundedInternal[i] = minRounded
 		end
 		self.rounded = math.max(self.rounded, self.roundedInternal[i])
 	end
+
 	---With GLES we have a perfect disk shader that allows us to draw circles more efficiently
 	---Set slices to 0 to use it instead of rendering disks made out of vertices
-	self.diskSlices = (PLATFORM ~= "WINDOWS" and is_mobile()) and 0 or math.min(self.rounded * 5, 50)
+	self.diskSlices = is_mobile() and 0 or math.min(self.rounded * 5, 50)
 end
 
 -- Adds mouse handlers to use for an interactive UIElement object
@@ -1840,7 +1860,9 @@ function UIElement.handleMouseUp(btn, x, y)
 			if (v.hoverState == BTN_DN and btn == 1) then
 				v.hoverState = BTN_NONE
 				if (not actionTriggered and x > v.pos.x and x < v.pos.x + v.size.w and y > v.pos.y and y < v.pos.y + v.size.h) then
-					v.hoverState = BTN_HVR
+					if (not is_mobile()) then
+						v.hoverState = BTN_HVR
+					end
 					if (v.upSound) then
 						play_sound(v.upSound)
 					end
@@ -2382,7 +2404,8 @@ end
 ---@return number
 _G.getFontMod = function(font)
 	local hires = font >= 10
-	local font_mod = hires and font - 10 or font
+	local font_mod = 1
+	font = font % 10
 	if (font == 0) then
 		font_mod = 5.8
 	elseif (font == 1) then

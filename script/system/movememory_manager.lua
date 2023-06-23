@@ -89,7 +89,10 @@ function MoveMemory:getOpeners()
 				TBMenu:showStatusMessage(TB_MENU_LOCALIZED.MOVEMEMORYLOADERROR)
 				return self.StoragePopulated
 			end
-			file = Files.Open("system/movememory.mm", FILES_MODE_READONLY)
+			file:reopen()
+		else
+			file:reopen(FILES_MODE_WRITE)
+			file:reopen(FILES_MODE_READONLY)
 		end
 		if (not file.data) then
 			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.MOVEMEMORYLOADERROR)
@@ -452,7 +455,7 @@ end
 ---Fixes toolbars order when new ones are spawned or existing ones are destroyed
 ---@param killId ?integer
 function MoveMemory:fixToolbarOrder(killId)
-	local safe_y = math.max(SAFE_Y, is_mobile() and 0 or 50)
+	local safe_y = math.max(SAFE_Y, is_mobile() and TBHud.DefaultSmallerButtonSize * 3.5 or 50)
 
 	local height = nil
 	local cnt = 0
@@ -481,7 +484,7 @@ function MoveMemory:showToolbar(id, text, killAction, saveAction)
 	end
 
 	local toolbarHeight = math.min(WIN_H / 10, 60)
-	local toolbarWidth = math.min(WIN_W / 4, 400)
+	local toolbarWidth = math.min(WIN_W / 4, 400, is_mobile() and (TBHud.DefaultButtonSize * 3.1 - SAFE_X) or WIN_W)
 	local safe_x = math.max(SAFE_X, 10)
 
 	---@diagnostic disable-next-line: assign-type-mismatch

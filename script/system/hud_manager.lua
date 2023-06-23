@@ -248,12 +248,12 @@ function TBHud:init()
 	self:spawnGripButton()
 
 	self:spawnHubButton()
-	self.HubSize.w = WIN_W * 0.3 > 400 and 400 or WIN_W * 0.3
+	self.HubSize.w = math.clamp(500, WIN_W * 0.3, WIN_W * 0.4)
 	self.HubSize.h = WIN_H
 	self:spawnHub()
 
 	self:spawnChatButton()
-	self.ChatSize.w = WIN_W * 0.4 > 600 and 600 or WIN_W * 0.4
+	self.ChatSize.w = math.clamp(600, WIN_W * 0.35, WIN_W * 0.6)
 	self.ChatSize.h = WIN_H
 	self:spawnChat()
 
@@ -460,7 +460,7 @@ function TBHud:spawnHoldRelaxAllButton()
 	})
 	self.HoldAllButtonHolder = holdRelaxAllButtonHolder
 
-	local holdAll = true
+	local holdAll = false
 	local holdRelaxAllButton = TBHudInternal.generateTouchButton(holdRelaxAllButtonHolder)
 	local relaxAllText = holdRelaxAllButton:addChild({
 		shift = { 5, holdRelaxAllButton.size.h / 3 },
@@ -475,30 +475,34 @@ function TBHud:spawnHoldRelaxAllButton()
 		rounded = 4,
 		bgColor = TB_MENU_DEFAULT_BG_COLOR
 	})
-	local function toggleButtonsDisplay()
-		if (holdAll) then
-			relaxAllText:hide()
-			holdAllText:show()
-		else
-			relaxAllText:show()
-			holdAllText:hide()
-		end
-	end
 	holdAllText:addAdaptedText(TB_MENU_LOCALIZED.MOBILEHUDHOLDALL, nil, nil, FONTS.LMEDIUM, nil, 0.5)
 	holdRelaxAllButton:addMouseUpHandler(function()
 		for _, v in pairs(JOINTS) do
 			set_joint_state(self.WorldState.selected_player, v, holdAll and JOINT_STATE.HOLD or JOINT_STATE.RELAX, true)
 		end
-		holdAll = not holdAll
-		toggleButtonsDisplay()
 	end)
-	toggleButtonsDisplay()
+	local function toggleButtonsDisplay(state)
+		if (state == holdAll) then return end
+		holdAll = state
+		holdAllText:setVisible(holdAll)
+		relaxAllText:setVisible(not holdAll)
+	end
+	toggleButtonsDisplay(true)
 	holdRelaxAllButtonHolder:addCustomDisplay(true, function()
 		local shouldBeDisplayed = players_accept_input()
 		if (shouldBeDisplayed and not holdRelaxAllButton:isDisplayed()) then
 			holdRelaxAllButton:show()
 		elseif (not shouldBeDisplayed and holdRelaxAllButton:isDisplayed()) then
 			holdRelaxAllButton:hide()
+		end
+		if (holdRelaxAllButton:isDisplayed() and self.WorldState.selected_player > -1) then
+			for _, v in pairs(JOINTS) do
+				if (get_joint_info(self.WorldState.selected_player, v).state == JOINT_STATE.HOLD) then
+					toggleButtonsDisplay(false)
+					break
+				end
+				toggleButtonsDisplay(true)
+			end
 		end
 	end)
 end
@@ -752,6 +756,11 @@ function TBHud:spawnHub()
 	})
 	local topRowButtons = {
 		{
+			title = TB_MENU_LOCALIZED.MOVEMEMORYTITLE,
+			image = "../textures/menu/general/none.tga",
+			action = function() if (MoveMemory.MainElement == nil) then MoveMemory:showMain() end end
+		},
+		{
 			title = TB_MENU_LOCALIZED.MAINMENUMODLISTNAME,
 			image = "../textures/menu/general/mods_icon.tga",
 			action = function() dofile("system/mods.lua") end
@@ -920,7 +929,7 @@ function TBHud:refreshChat()
 			uiColor = TB_MENU_DEFAULT_DARKEST_COLOR
 		})
 		chatMessagesHolder.bgColor[4] = 0.7
-		local toReload, topBar, botBar, listingView, listingHolder = TBMenu:prepareScrollableList(chatMessagesHolder, 1, 40 + math.max(30, y), 16, { 0, 0, 0, 0 })
+		local toReload, topBar, botBar, listingView, listingHolder = TBMenu:prepareScrollableList(chatMessagesHolder, 1, 50 + math.max(30, y), 16, { 0, 0, 0, 0 })
 
 		---@type UIElement[]
 		self.ChatHolderItems = {}
@@ -952,17 +961,17 @@ function TBHud:refreshChat()
 			bgColor = UICOLORWHITE
 		})
 		local chatInputHolder = botBar:addChild({
-			pos = { 20, botBar.size.h - 30 - math.max(y, 30) },
-			size = { botBar.size.w - 40, 30 },
+			pos = { 20, botBar.size.h - 40 - math.max(y, 30) },
+			size = { botBar.size.w - 40, 40 },
 			shapeType = ROUNDED,
 			rounded = 4,
 			uiColor = UICOLORWHITE,
 			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR
 		})
-		local chatInputField = TBMenu:spawnTextField2(chatInputHolder, { x = 30, w = chatInputHolder.size.w - 120 }, nil, nil, {
-			fontId = FONTS.SMALL,
+		local chatInputField = TBMenu:spawnTextField2(chatInputHolder, { x = 35, w = chatInputHolder.size.w - 120 }, nil, nil, {
+			fontId = FONTS.SMALL + 10,
 			textAlign = LEFTMID,
-			textScale = 1,
+			textScale = 0.75,
 			textColor = table.clone(UICOLORWHITE),
 			keepFocusOnHide = true,
 			darkerMode = true

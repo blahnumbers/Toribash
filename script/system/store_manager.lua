@@ -5366,10 +5366,13 @@ do
 				end
 			else
 				local purchaseIconImage = "../textures/menu/logos/paypal.tga"
+				local displayPrice = "$" .. numberFormat(item.now_usd_price, 2)
 				if (is_steam()) then
 					purchaseIconImage = "../textures/menu/logos/steam.tga"
 				elseif (_G.PLATFORM == "IPHONEOS") then
 					purchaseIconImage = "../textures/menu/logos/apple.tga"
+					displayPrice = get_platform_item_price(item.itemid)
+					displayPrice = utf8.gsub(displayPrice, "%s", " ")
 				elseif (_G.PLATFORM == "ANDROID") then
 					purchaseIconImage = "../textures/menu/logos/android.tga"
 				end
@@ -5379,10 +5382,15 @@ do
 					size = { iconScale, iconScale },
 					bgImage = purchaseIconImage
 				})
-				buyWithStText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREBUYFOR .. " $" .. numberFormat(item.now_usd_price, 2), nil, nil, nil, LEFTMID)
-				buyWithSt:addMouseUpHandler(function()
-					Torishop.InitUSDPurchase(item)
-				end)
+				if (displayPrice ~= "") then
+					buyWithStText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREBUYFOR .. " " .. displayPrice, nil, nil, nil, LEFTMID)
+					buyWithSt:addMouseUpHandler(function()
+							Torishop.InitUSDPurchase(item)
+						end)
+				else
+					buyWithStText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREITEMUNAVAILABLE, nil, nil, nil, LEFTMID)
+					buyWithSt:deactivate()
+				end
 			end
 		end
 		if (item.now_tc_price > 0 and item.qi <= TB_MENU_PLAYER_INFO.data.qi) then
