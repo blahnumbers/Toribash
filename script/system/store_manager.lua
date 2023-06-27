@@ -547,7 +547,7 @@ do
 	end
 
 	function Torishop:refreshInventory(showInventory)
-		runCmd("download " .. TB_MENU_PLAYER_INFO.username)
+		update_tc_balance()
 		if (showInventory) then
 			Torishop:prepareInventory(TBMenu.CurrentSection, true)
 		else

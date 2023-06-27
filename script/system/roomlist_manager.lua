@@ -142,7 +142,7 @@ function RoomList:showRoomInfo(room)
 	listingView.shapeType = ROUNDED
 	listingView:setRounded({ 4, 0 })
 	listingHolder.uiColor = table.clone(UICOLORBLACK)
-	scrollBarBG.bgColor = { 0, 0, 0, 0 }
+	scrollBarBG.bgColor = { listingView.bgColor[1], listingView.bgColor[2], listingView.bgColor[3], 0 }
 	local joinRoomButton = botBar:addChild({
 		interactive = true,
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,

@@ -490,14 +490,6 @@ function UIElement.new(_self, o)
 		elem.innerShadow = type(o.innerShadow) == "table" and o.innerShadow or { o.innerShadow, o.innerShadow }
 	end
 	if (o.shapeType == ROUNDED and o.rounded) then
-		if (is_mobile()) then
-			if (elem.shift.x ~= nil) then
-				elem.shift.x = math.round(elem.shift.x)
-				elem.shift.y = math.round(elem.shift.y)
-			end
-			elem.size.w = math.round(elem.size.w)
-			elem.size.h = math.round(elem.size.h)
-		end
 		elem.setRounded(elem, o.rounded)
 		-- Light UI mode - don't add rounded corners if it's just for cosmetics
 		if (not UIElement.lightUIMode or elem.rounded > elem.size.w / 4) then
@@ -1313,13 +1305,23 @@ function UIElement:display()
 			if (self.shapeType == ROUNDED) then
 				draw_disk(self.pos.x + self.roundedInternal[1], self.pos.y + self.roundedInternal[1], 0, self.roundedInternal[1], self.diskSlices, 1, -180, 90, 0)
 				draw_disk(self.pos.x + self.size.w - self.roundedInternal[1], self.pos.y + self.roundedInternal[1], 0, self.roundedInternal[1], self.diskSlices, 1, 90, 90, 0)
-				draw_quad(self.pos.x + self.roundedInternal[1], self.pos.y, self.size.w - self.roundedInternal[1] * 2, self.roundedInternal[1])
-				draw_quad(self.pos.x, self.pos.y + self.roundedInternal[1], self.size.w, self.size.h / 2 - self.roundedInternal[1])
+				if (is_mobile()) then
+					draw_quad(self.pos.x + self.roundedInternal[1] - 0.2, self.pos.y, self.size.w - self.roundedInternal[1] * 2 + 0.4, self.roundedInternal[1])
+					draw_quad(self.pos.x, self.pos.y + self.roundedInternal[1] - 0.2, self.size.w, self.size.h / 2 - self.roundedInternal[1] + 0.2)
+				else
+					draw_quad(self.pos.x + self.roundedInternal[1], self.pos.y, self.size.w - self.roundedInternal[1] * 2, self.roundedInternal[1])
+					draw_quad(self.pos.x, self.pos.y + self.roundedInternal[1], self.size.w, self.size.h / 2 - self.roundedInternal[1])
+				end
 				set_color(unpack(self.shadowColor[2]))
 				draw_disk(self.pos.x + self.roundedInternal[2], self.pos.y + self.size.h - self.roundedInternal[2], 0, self.roundedInternal[2], self.diskSlices, 1, -90, 90, 0)
 				draw_disk(self.pos.x + self.size.w - self.roundedInternal[2], self.pos.y + self.size.h - self.roundedInternal[2], 0, self.roundedInternal[2], self.diskSlices, 1, 0, 90, 0)
-				draw_quad(self.pos.x, self.pos.y + self.size.h / 2, self.size.w, self.size.h / 2 - self.roundedInternal[2])
-				draw_quad(self.pos.x + self.roundedInternal[2], self.pos.y + self.size.h - self.roundedInternal[2], self.size.w - self.roundedInternal[2] * 2, self.roundedInternal[2])
+				if (is_mobile()) then
+					draw_quad(self.pos.x + self.roundedInternal[2] - 0.2, self.pos.y + self.size.h - self.roundedInternal[2], self.size.w - self.roundedInternal[2] * 2 + 0.4, self.roundedInternal[2])
+					draw_quad(self.pos.x, self.pos.y + self.size.h / 2, self.size.w, self.size.h / 2 - self.roundedInternal[2] + 0.2)
+				else
+					draw_quad(self.pos.x + self.roundedInternal[2], self.pos.y + self.size.h - self.roundedInternal[2], self.size.w - self.roundedInternal[2] * 2, self.roundedInternal[2])
+					draw_quad(self.pos.x, self.pos.y + self.size.h / 2, self.size.w, self.size.h / 2 - self.roundedInternal[2])
+				end
 			else
 				draw_quad(self.pos.x, self.pos.y, self.size.w, self.size.h / 2)
 				set_color(unpack(self.shadowColor[2]))
@@ -1342,9 +1344,15 @@ function UIElement:display()
 			draw_disk(self.pos.x + self.roundedInternal[2], self.pos.y + self.size.h - self.roundedInternal[2] - self.innerShadow[2], 0, self.roundedInternal[2], self.diskSlices, 1, -90, 90, 0)
 			draw_disk(self.pos.x + self.size.w - self.roundedInternal[1], self.pos.y + self.roundedInternal[1] + self.innerShadow[1], 0, self.roundedInternal[1], self.diskSlices, 1, 90, 90, 0)
 			draw_disk(self.pos.x + self.size.w - self.roundedInternal[2], self.pos.y + self.size.h - self.roundedInternal[2] - self.innerShadow[2], 0, self.roundedInternal[2], self.diskSlices, 1, 0, 90, 0)
-			draw_quad(self.pos.x + self.roundedInternal[1], self.pos.y + self.innerShadow[1], self.size.w - self.roundedInternal[1] * 2, self.roundedInternal[1])
-			draw_quad(self.pos.x, self.pos.y + self.roundedInternal[1] + self.innerShadow[1], self.size.w, self.size.h - self.roundedInternal[2] - self.roundedInternal[1] - self.innerShadow[2] - self.innerShadow[1])
-			draw_quad(self.pos.x + self.roundedInternal[2], self.pos.y + self.size.h - self.roundedInternal[2] - self.innerShadow[2], self.size.w - self.roundedInternal[2] * 2, self.roundedInternal[2])
+			if (is_mobile()) then
+				draw_quad(self.pos.x + self.roundedInternal[1] - 0.2, self.pos.y + self.innerShadow[1], self.size.w - self.roundedInternal[1] * 2 + 0.4, self.roundedInternal[1])
+				draw_quad(self.pos.x, self.pos.y + self.roundedInternal[1] + self.innerShadow[1] - 0.2, self.size.w, self.size.h - self.roundedInternal[2] - self.roundedInternal[1] - self.innerShadow[2] - self.innerShadow[1] + 0.4)
+				draw_quad(self.pos.x + self.roundedInternal[2] - 0.2, self.pos.y + self.size.h - self.roundedInternal[2] - self.innerShadow[2], self.size.w - self.roundedInternal[2] * 2 + 0.4, self.roundedInternal[2] + 0.2)
+			else
+				draw_quad(self.pos.x + self.roundedInternal[1], self.pos.y + self.innerShadow[1], self.size.w - self.roundedInternal[1] * 2, self.roundedInternal[1])
+				draw_quad(self.pos.x, self.pos.y + self.roundedInternal[1] + self.innerShadow[1], self.size.w, self.size.h - self.roundedInternal[2] - self.roundedInternal[1] - self.innerShadow[2] - self.innerShadow[1])
+				draw_quad(self.pos.x + self.roundedInternal[2], self.pos.y + self.size.h - self.roundedInternal[2] - self.innerShadow[2], self.size.w - self.roundedInternal[2] * 2, self.roundedInternal[2])
+			end
 		else
 			draw_quad(self.pos.x, self.pos.y + self.innerShadow[1], self.size.w, self.size.h - self.innerShadow[1] - self.innerShadow[2])
 		end

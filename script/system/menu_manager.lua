@@ -2301,63 +2301,39 @@ function TBMenu:showMobileNavigationBar(buttonsData, customNav, customNavHighlig
 
 	---Unlike with horizontal menu, button always have the same width but may be multiline.
 	---We need to calculate target font scale to render all captions at the same size and see whether
-	---buttons with long text can be newlined and still fit the navigation
+	---buttons with long text can be newlined and still fit the navigation.
+	---Misc text is always displayed as "!" on the right side of the navbar
 
 	local navbarArea = TBMenu.NavigationBar.size.h - navY.t[1] - navY.b[1]
 	local defaultButtonHeight = math.min(navbarArea / (#buttonsData + 1), 60)
-	local buttonHeight = defaultButtonHeight
 	local fontScale = 0.65
 	local fontId = FONTS.BIG
 
 	local targetWidth = 500000
 	while (targetWidth > TBMenu.NavigationBar.size.w) do
 		fontScale = fontScale - 0.05
-		buttonHeight = defaultButtonHeight * math.clamp(fontScale + 0.4, 0.8, 1)
+		local buttonTextHeight = defaultButtonHeight * math.clamp(fontScale + 0.4, 0.8, 1) * 0.7
 		
-		local availableHeight = navbarArea - buttonHeight
+		local availableHeight = navbarArea - defaultButtonHeight * 2
 		local runMaxWidth = 0
 		for _, v in pairs(buttonsData) do
-			availableHeight = availableHeight - buttonHeight
-
-			local currentWidth = get_string_length(v.text, fontId) * fontScale + 30
-			local miscTextWidth = v.misctext and (get_string_length(v.misctext, fontId) * fontScale * 0.8 + 20) or 0
-			currentWidth = currentWidth + miscTextWidth
-
-			if (currentWidth > TBMenu.NavigationBar.size.w) then
-				v.adapted = textAdapt(v.text, fontId, fontScale, TBMenu.NavigationBar.size.w - 30, true)
-
-				local lastStringWidth = get_string_length(v.adapted[#v.adapted], fontId) * fontScale + 30
-				if (lastStringWidth + miscTextWidth > TBMenu.NavigationBar.size.w) then
-					if (miscTextWidth > 0) then
-						table.insert(v.adapted, v.misctext)
-						lastStringWidth = miscTextWidth
-					else
-						runMaxWidth = 500000
-						break
-					end
-				end
-				availableHeight = availableHeight + buttonHeight - (#v.adapted * buttonHeight * 0.75)
-				if (availableHeight < buttonHeight) then
-					runMaxWidth = 500000
-					break
-				end
-				runMaxWidth = math.max(runMaxWidth, TBMenu.NavigationBar.size.w)
-			else
-				v.adapted = { v.text }
-				runMaxWidth = math.max(runMaxWidth, currentWidth)
+			v.adapted = textAdapt(v.text, fontId, fontScale, TBMenu.NavigationBar.size.w - 31, true)
+			availableHeight = availableHeight - (#v.adapted * buttonTextHeight)
+			if (availableHeight < 0) then
+				targetWidth = 500000
+				runMaxWidth = 500000
+				break
 			end
+			runMaxWidth = math.max(runMaxWidth, TBMenu.NavigationBar.size.w)
+			v.height = math.round(#v.adapted * buttonTextHeight) + buttonTextHeight * 0.3
 		end
-		if (fontScale < 0.45 and fontId == FONTS.BIG) then
-			fontId = FONTS.MEDIUM
-			fontScale = 1.05
-		else
-			targetWidth = math.min(targetWidth, runMaxWidth)
-		end
+		targetWidth = math.min(targetWidth, runMaxWidth)
 	end
 
 	for i, v in pairs(buttonsData) do
 		local navY = v.right and navY.b or navY.t
-		local height = buttonHeight * math.max(1, #v.adapted * 0.75)
+		---@diagnostic disable-next-line: undefined-field
+		local height = v.height
 		tbMenuNavigationButtons[i] = UIElement:new({
 			parent = TBMenu.NavigationBar,
 			pos = { 0, v.right and navY[1] - height or navY[1] },
@@ -2373,42 +2349,33 @@ function TBMenu:showMobileNavigationBar(buttonsData, customNav, customNavHighlig
 			tbMenuNavigationButtons[i].bgColor = TB_MENU_DEFAULT_BG_COLOR
 		end
 		tbMenuNavigationButtons[i]:addCustomDisplay(false, function()
+				if (tbMenuNavigationButtons[i].animateColor[4] == 0) then return end
 				set_color(tbMenuNavigationButtons[i].animateColor[1] - 0.1, tbMenuNavigationButtons[i].animateColor[2], tbMenuNavigationButtons[i].animateColor[3], tbMenuNavigationButtons[i].animateColor[4])
-				for j = buttonHeight - 10, 10, -10 do
+				for j = height - 10, 10, -10 do
 					draw_line(tbMenuNavigationButtons[i].pos.x, tbMenuNavigationButtons[i].pos.y - 1 + j, tbMenuNavigationButtons[i].pos.x + j, tbMenuNavigationButtons[i].pos.y + 1, 0.5)
 				end
-				for j = 0, tbMenuNavigationButtons[i].size.w - buttonHeight, 10 do
-					draw_line(tbMenuNavigationButtons[i].pos.x + buttonHeight + j, tbMenuNavigationButtons[i].pos.y + 1, tbMenuNavigationButtons[i].pos.x + j, tbMenuNavigationButtons[i].pos.y + buttonHeight - 1, 0.5)
+				for j = 0, tbMenuNavigationButtons[i].size.w - height, 10 do
+					draw_line(tbMenuNavigationButtons[i].pos.x + height + j, tbMenuNavigationButtons[i].pos.y + 1, tbMenuNavigationButtons[i].pos.x + j, tbMenuNavigationButtons[i].pos.y + height - 1, 0.5)
 				end
-				for j = buttonHeight - 10, 10, -10 do
-					draw_line(tbMenuNavigationButtons[i].pos.x + tbMenuNavigationButtons[i].size.w - j, tbMenuNavigationButtons[i].pos.y + buttonHeight - 1, tbMenuNavigationButtons[i].pos.x + tbMenuNavigationButtons[i].size.w, tbMenuNavigationButtons[i].pos.y + buttonHeight - 1 - j, 0.5)
+				for j = height - 10, 10, -10 do
+					draw_line(tbMenuNavigationButtons[i].pos.x + tbMenuNavigationButtons[i].size.w - j, tbMenuNavigationButtons[i].pos.y + height - 1, tbMenuNavigationButtons[i].pos.x + tbMenuNavigationButtons[i].size.w, tbMenuNavigationButtons[i].pos.y + height - 1 - j, 0.5)
 				end
 			end)
-		local buttonText = tbMenuNavigationButtons[i]:addChild({ shift = { 15, buttonHeight / 6 } })
+		local buttonText = tbMenuNavigationButtons[i]:addChild({ shift = { 15, height * 0.15 } })
+		buttonText:addAdaptedText(true, v.text, nil, nil, fontId, nil, fontScale)
 		if (v.misctext) then
-			local width = get_string_length(v.misctext, fontId) * fontScale * 0.8 + 20
-			local newlined = v.adapted[#v.adapted] == v.misctext
-			local miscMark = buttonText:addChild({
-				pos = { newlined and (buttonText.size.w - width) / 2 or -(buttonText.size.w - get_string_length(v.adapted[#v.adapted], fontId) * fontScale + width - 16) / 2, -buttonHeight * 0.55 },
-				size = { width, buttonHeight * 0.5 },
+			local width = math.max(height * 0.8, get_string_length("!", fontId) * fontScale * 0.8 + 20)
+			local miscMark = tbMenuNavigationButtons[i]:addChild({
+				pos = { -15, height * 0.1 },
+				size = { width, height * 0.8 },
 				bgColor = TB_MENU_DEFAULT_ORANGE,
 				uiColor = UICOLORBLACK,
 				shapeType = ROUNDED,
 				rounded = buttonText.size.h
 			})
-			miscMark:addAdaptedText(false, v.misctext, nil, nil, fontId, nil, fontScale * 0.8, nil, 0.7)
-			if (#v.adapted == 1 or newlined) then
-				buttonText:addAdaptedText(true, v.text .. (newlined and "\n" or ''), not newlined and -width / 2, nil, fontId, nil, fontScale)
-			else
-				local textLines = table.clone(v.adapted)
-				table.remove(textLines)
-				buttonText:addAdaptedText(true, table.implode(textLines, "\n") .. "\n", nil, nil, fontId, nil, fontScale)
-				buttonText:addChild({}):addAdaptedText(true, string.rep("\n", #v.adapted - 1) .. v.adapted[#v.adapted], -width / 2, nil, fontId, nil, fontScale)
-			end
-		else
-			buttonText:addAdaptedText(true, v.text, nil, nil, fontId, nil, fontScale)
+			miscMark:addAdaptedText(false, "!", nil, nil, fontId, nil, fontScale * 0.8, nil, 0.7)
 		end
-		tbMenuNavigationButtons[i]:addMouseHandlers(nil, function()
+		tbMenuNavigationButtons[i]:addMouseUpHandler(function()
 				if (not customNav) then
 					if (v.sectionId == -1) then
 						close_menu()
@@ -2417,7 +2384,7 @@ function TBMenu:showMobileNavigationBar(buttonsData, customNav, customNavHighlig
 					if (v.sectionId ~= TB_LAST_MENU_SCREEN_OPEN) then
 						TBMenu.CurrentSection:kill(true)
 						TB_LAST_MENU_SCREEN_OPEN = v.sectionId
-						for i, v in pairs(tbMenuNavigationButtons) do
+						for _, v in pairs(tbMenuNavigationButtons) do
 							v.bgColor = { 0.2, 0.2, 0.2, 0 }
 						end
 						tbMenuNavigationButtons[i].bgColor = TB_MENU_DEFAULT_BG_COLOR
@@ -2427,7 +2394,7 @@ function TBMenu:showMobileNavigationBar(buttonsData, customNav, customNavHighlig
 					if (customNavHighlight) then
 						if (v.sectionId ~= selectedId and v.sectionId ~= -1) then
 							selectedId = v.sectionId
-							for i, v in pairs(tbMenuNavigationButtons) do
+							for _, v in pairs(tbMenuNavigationButtons) do
 								v.bgColor = { 0.2, 0.2, 0.2, 0 }
 							end
 							tbMenuNavigationButtons[i].bgColor = TB_MENU_DEFAULT_BG_COLOR
@@ -2435,7 +2402,7 @@ function TBMenu:showMobileNavigationBar(buttonsData, customNav, customNavHighlig
 					end
 					v.action()
 				end
-			end, nil)
+			end)
 	end
 end
 
@@ -2525,6 +2492,7 @@ function TBMenu:showNavigationBar(buttonsData, customNav, customNavHighlight, se
 			tbMenuNavigationButtons[i].bgColor = TB_MENU_DEFAULT_BG_COLOR
 		end
 		tbMenuNavigationButtons[i]:addCustomDisplay(false, function()
+				if (tbMenuNavigationButtons[i].animateColor[4] == 0) then return end
 				set_color(tbMenuNavigationButtons[i].animateColor[1] - 0.1, tbMenuNavigationButtons[i].animateColor[2], tbMenuNavigationButtons[i].animateColor[3], tbMenuNavigationButtons[i].animateColor[4])
 				for j = TBMenu.NavigationBar.size.h - 10, 10, -10 do
 					draw_line(tbMenuNavigationButtons[i].pos.x, tbMenuNavigationButtons[i].pos.y - 1 + j, tbMenuNavigationButtons[i].pos.x + j, tbMenuNavigationButtons[i].pos.y + 1, 0.5)
@@ -3378,12 +3346,21 @@ function TBMenu:spawnScrollBar(holderElement, numElements, elementSize, orientat
 			size = { holderElement.size.w - 10, (holderElement.parent.size.h - holderElement.size.h) / 2 }
 		})
 	end
+	local bgColor, hoverColor, pressedColor = { 0, 0, 0, 0.3 }, { 0, 0, 0, 0.5 }, { 1, 1, 1, 0.6 }
+	if (is_mobile()) then
+		for i, v in pairs(scrollBackground.bgColor) do
+			bgColor[i] = v * 0.8
+			hoverColor[i] = v * 0.6
+			pressedColor[i] = v + (1 - v) * 0.6
+		end
+		bgColor[4], hoverColor[4], pressedColor[4] = 1, 1, 1
+	end
 	local scrollBar = scrollView:addChild({
 		size = orientation == SCROLL_VERTICAL and { scrollView.size.w, scrollView.size.h * scrollScale } or { scrollView.size.w * scrollScale, scrollView.size.h },
 		interactive = scrollActive,
-		bgColor = { 0, 0, 0, 0.3 },
-		hoverColor = { 0, 0, 0, 0.5 },
-		pressedColor = { 1, 1, 1, 0.6 },
+		bgColor = bgColor,
+		hoverColor = hoverColor,
+		pressedColor = pressedColor,
 		scrollEnabled = true,
 		shapeType = ROUNDED,
 		rounded = 10

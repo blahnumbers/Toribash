@@ -941,6 +941,11 @@ function get_window_safe_size() end
 ---@nodiscard
 function get_maximum_window_size() end
 
+---Returns maximum supported UI scaling on current device
+---@return integer
+---@nodiscard
+function get_maximum_dpi_scale() end
+
 ---@class DpiAwarenessInfo
 ---@field ISDPIAWARE integer
 ---@field DPISCALING number

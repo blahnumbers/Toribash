@@ -1476,32 +1476,24 @@ do
 			})
 		end
 
-		-- We need to make sure cpp screens are fully visible
-		-- Biggest screen is login/register, it needs 400x650 space
-		local _, _, w, h = get_window_size()
-		local maxHdpi = 100
-		for i = 10, 20 do
-			if (math.min(w / (i / 10) - 400, h / (i / 10) - 650) >= 0) then
-				maxHdpi = i * 10
-			end
-		end
-		if (maxHdpi > 100) then
+		local maxHdpi = get_maximum_dpi_scale()
+		if (maxHdpi > 10) then
 			table.insert(items, {
 				name = TB_MENU_LOCALIZED.SETTINGSGUISCALING,
-				minValue = 100,
+				minValue = 10,
 				minValueDisp = "1x",
 				maxValue = maxHdpi,
-				maxValueDisp = maxHdpi / 100 .. "x",
+				maxValueDisp = maxHdpi / 10 .. "x",
 				type = SLIDER,
 				systemname = "highdpi",
 				onUpdate = function(slider)
 					TB_MENU_MAIN_SETTINGS.highdpi = {
-						value = math.floor((tonumber(slider.label.labelText[1]) or 1) / 10 + 0.5),
+						value = tonumber(slider.label.labelText[1]) or 1,
 						id = HIGHDPI, graphics = true, reload = true
 					}
-					slider.label.labelText[1] = math.floor((tonumber(slider.label.labelText[1]) or 1) / 10 + 0.5) / 10 .. 'x'
+					slider.label.labelText[1] = (tonumber(slider.label.labelText[1]) or 1) / 10 .. 'x'
 				end,
-				val = { math.max(100, math.min(get_option("highdpi") * 10, maxHdpi)) }
+				val = { math.max(10, math.min(get_option("highdpi"), maxHdpi)) }
 			})
 		end
 
@@ -1511,12 +1503,6 @@ do
 				type = TOGGLE,
 				action = function(val)
 						TB_MENU_MAIN_SETTINGS.dpiawareness = { value = val }
-						-- Don't touch borderless - we risk ending up with a borderless window in top left corner
-						--[[if (get_option("borderless") == 1 and val == 0) then
-							TB_MENU_MAIN_SETTINGS.borderless = { id = BORDERLESS, value = 0, graphics = true }
-						elseif (get_option("borderless") == 0 and val == 1) then
-							TB_MENU_MAIN_SETTINGS.borderless = { id = BORDERLESS, value = 1, graphics = true }
-						end]]
 					end,
 				val = { get_option("dpiawareness") },
 				hint = TB_MENU_LOCALIZED.HINTREQUIRESRESTART

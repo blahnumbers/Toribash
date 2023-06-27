@@ -225,6 +225,11 @@ function TBHud:init()
 		return
 	end
 
+	---Reload button sizes and area offset on init in case it was triggered by resolution reload
+	self.DefaultButtonSize = math.max(100, WIN_H / 10)
+	self.DefaultSmallerButtonSize = self.DefaultButtonSize * 0.7
+	self.SafeAreaOffset = self.DefaultButtonSize * 3
+
 	self.MainElement = UIElement:new({
 		globalid = self.Globalid,
 		pos = { 0, 0 },
