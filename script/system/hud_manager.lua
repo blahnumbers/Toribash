@@ -680,6 +680,19 @@ function TBHud:reloadHubDynamicButtons()
 		}
 	}
 
+	local featuredMoves = MoveMemory:getSuggestedMoves()
+	---Insert two featured moves max at first positions in the list
+	for i = 1, math.min(#featuredMoves, 2) do
+		table.insert(buttonOptions, i, {
+			title = featuredMoves[i].name,
+			icon = {
+				filename = "../textures/menu/general/movememory_icon.tga"
+			},
+			action = function() MoveMemory:playMove(featuredMoves[i], true) end,
+			displayCondition = players_accept_input
+		})
+	end
+
 	local buttonSize = math.min(50, math.floor(self.HubDynamicButtonsHolder.size.h / 5))
 	local buttonsDisplayed = 0
 	for _, v in pairs(buttonOptions) do
@@ -757,7 +770,7 @@ function TBHud:spawnHub()
 	local topRowButtons = {
 		{
 			title = TB_MENU_LOCALIZED.MOVEMEMORYTITLE,
-			image = "../textures/menu/general/none.tga",
+			image = "../textures/menu/general/movememory_icon.tga",
 			action = function() if (MoveMemory.MainElement == nil) then MoveMemory:showMain() end end
 		},
 		{
@@ -796,8 +809,10 @@ function TBHud:spawnHub()
 			self:toggleHub(false)
 			v.action()
 		end)
+		---Button icon, display it slightly above center so that it gets overlayed by text a bit less
 		buttonElement:addChild({
-			shift = { 10, 10 },
+			pos = { 10, 2 },
+			size = { buttonElement.size.w - 20, buttonElement.size.h - 20 },
 			bgImage = v.image
 		})
 		local buttonTitleHolder = buttonElement:addChild({

@@ -66,13 +66,6 @@ setmetatable({}, QueueListInternal)
 ---@type QueueListInfoField
 QueueListInternal.InfoFields = {
 	{
-		title = "admin",
-		color = { 0.55, 0.05, 0.05, 1 },
-		text = TB_MENU_LOCALIZED.QUEUELISTINGAMEADMINTITLE,
-		desc = TB_MENU_LOCALIZED.QUEUELISTINGAMEADMINDESC,
-		atlasX = 0
-	},
-	{
 		title = "eventsquad",
 		color = { 0.684, 0.129, 0.949, 1 },
 		text = TB_MENU_LOCALIZED.QUEUELISTEVENTSQUADTITLE,
@@ -92,6 +85,13 @@ QueueListInternal.InfoFields = {
 		text = TB_MENU_LOCALIZED.QUEUELISTMARKETSQUADTITLE,
 		desc = TB_MENU_LOCALIZED.QUEUELISTMARKETSQUADDESC,
 		atlasX = 128
+	},
+	{
+		title = "admin",
+		color = { 0.55, 0.05, 0.05, 1 },
+		text = TB_MENU_LOCALIZED.QUEUELISTINGAMEADMINTITLE,
+		desc = TB_MENU_LOCALIZED.QUEUELISTINGAMEADMINDESC,
+		atlasX = 0
 	},
 	{
 		title = "eventsquad_trial",

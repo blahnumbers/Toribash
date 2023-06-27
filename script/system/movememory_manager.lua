@@ -583,21 +583,21 @@ function MoveMemory:playMove(memorymove, spawnHook, player, noToolbar)
 		return
 	end
 	if (memorymove.movements[turn]) then
+		---Set grip states first, then set joint states with ghost update and effects
+		if (memorymove.movements[turn][20] ~= nil) then
+			set_grip_info(player, 11, math.clamp(memorymove.movements[turn][20], 0, 1))
+		end
+		if (memorymove.movements[turn][21] ~= nil) then
+			set_grip_info(player, 12, math.clamp(memorymove.movements[turn][21], 0, 1))
+		end
 		for joint, state in pairs(memorymove.movements[turn]) do
 			if (joint < 20) then
 				local state = math.min(math.max(state, 1), 4)
-				set_joint_state(player, joint, state)
-			else
-				-- Hand ids are 11 and 12, in data files we use 20 and 21
-				local state = math.min(math.max(state, 0), 1)
-				set_grip_info(player, joint - 9, state)
+				set_joint_state(player, joint, state, true)
 			end
 		end
 	end
 	memorymove.currentturn = turn + 1
-
-	---Force refresh ghost using current mode
-	set_ghost(get_ghost())
 
 	if (not noToolbar) then
 		if (spawnHook) then
@@ -817,13 +817,11 @@ function MoveMemory:spawnOpeners(viewElement, memoryOpeners)
 	scrollBar:makeScrollBar(listingHolder, listElements, toReload)
 end
 
----Spawns suggested openers for display
----@param viewElement UIElement
+---Returns a list of suggested openers
 ---@return MemoryMove[]
-function MoveMemory:spawnSuggested(viewElement)
+function MoveMemory:getSuggestedMoves()
 	local loadedMod = get_game_rules().mod:gsub("%.tbm$", "")
 	local suggestedOpeners = {}
-	local displayedSuggested = {}
 	for _, v in pairs(self.Storage) do
 		if (v.mod and string.len(v.mod) > 0) then
 			if (loadedMod:find(v.mod)) then
@@ -831,6 +829,15 @@ function MoveMemory:spawnSuggested(viewElement)
 			end
 		end
 	end
+	return suggestedOpeners
+end
+
+---Spawns suggested openers for display
+---@param viewElement UIElement
+---@return MemoryMove[]
+function MoveMemory:spawnSuggested(viewElement)
+	local displayedSuggested = {}
+	local suggestedOpeners = self:getSuggestedMoves()
 	if (#suggestedOpeners == 0) then
 		return displayedSuggested
 	end
@@ -880,5 +887,6 @@ function MoveMemory.Init()
 			end
 		end
 	end)
+	pcall(function() MoveMemory:getOpeners() end)
 end
 MoveMemory.Init()

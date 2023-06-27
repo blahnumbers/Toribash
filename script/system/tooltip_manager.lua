@@ -106,6 +106,7 @@ function Tooltip.Init()
 				if (players_accept_input() == false or s ~= 1) then return end
 				Tooltip:showTouchControls()
 				Tooltip.InputIgnore = true
+				if (is_mobile()) then return 1 end
 			end)
 		add_hook("mouse_button_up", Tooltip.HookName, function()
 				if (players_accept_input() == false) then return end
