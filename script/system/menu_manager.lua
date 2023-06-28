@@ -358,6 +358,7 @@ function TBMenu:showHome()
 	if (not featuredEventData) then
 		featuredEventData = featuredEvents[math.random(1, #featuredEvents)]
 	end
+	eventsData = table.qsort(eventsData, "isRead", SORT_ASCENDING)
 
 	local viewEventsButtonData = {
 		title = TB_MENU_LOCALIZED.EVENTSALLEVENTS,
@@ -448,11 +449,11 @@ function TBMenu:showHome()
 		})
 
 		-- Auto-rotate event announcements
-		local timeData = eventItems[1].button.pos.y > eventItems[1].image.pos.y + eventItems[1].image.size.h and { x = eventItems[1].image.pos.x, width = eventItems[1].image.size.w } or { x = eventItems[1].button.pos.x + 10, width = eventItems[1].button.size.w - 20 }
+		local timeData = eventItems[1].button.pos.y > eventItems[1].imageBoundary.pos.y + eventItems[1].imageBoundary.size.h and { x = eventItems[1].imageBoundary.pos.x, width = eventItems[1].imageBoundary.size.w } or { x = eventItems[1].button.pos.x + 10, width = eventItems[1].button.size.w - 20 }
 		eventDisplayTime:addCustomDisplay(true, function()
 				if (not rotateClock.pause) then
 					set_color(1, 1, 1, 1)
-					draw_quad(timeData.x, eventItems[1].image.pos.y + eventItems[1].image.size.h - 5, (UIElement.clock - rotateClock.start) / 10 * timeData.width, 5)
+					draw_quad(timeData.x, eventItems[1].imageBoundary.pos.y + eventItems[1].imageBoundary.size.h - 5, (UIElement.clock - rotateClock.start) / 10 * timeData.width, 5)
 				end
 			end)
 		homeAnnouncements:addCustomDisplay(false, function()
@@ -543,10 +544,8 @@ function TBMenu:showHomeButton(viewElement, buttonData, hasSmudge, extraElements
 	viewElement.hoverSound = 31
 	local lockedMessage = lockedMessage or buttonData.lockedMessage
 
-	local titleHeight = buttonData.title and (buttonData.subtitle and viewElement.size.h / 5 or viewElement.size.h / 3) or 0
-	titleHeight = titleHeight > WIN_H / 15 and WIN_H / 15 or titleHeight
-	local descHeight = buttonData.subtitle and viewElement.size.h / 6 or 0
-	descHeight = descHeight > WIN_H / 15 and WIN_H / 15 or descHeight
+	local titleHeight = buttonData.title and math.min(WIN_H / 15, (buttonData.subtitle and viewElement.size.h / 5 or viewElement.size.h / 3)) or 0
+	local descHeight = buttonData.subtitle and math.min(WIN_H / 15, viewElement.size.h / 6) or 0
 	local elementWidth, elementHeight, heightShift = unpack(TBMenu:getImageDimensions(viewElement.size.w, viewElement.size.h, buttonData.ratio, titleHeight, descHeight))
 	local selectedIcon = buttonData.image
 	if (elementHeight > viewElement.size.h - 20 - titleHeight - descHeight and buttonData.ratio2) then
@@ -607,6 +606,15 @@ function TBMenu:showHomeButton(viewElement, buttonData, hasSmudge, extraElements
 		end
 	end
 
+	if (itemIcon.bgImage == nil and math.max(titleHeight, descHeight) > 0) then
+		if (titleHeight > 0) then
+			titleHeight = viewElement.size.h / 2
+		end
+		if (descHeight > 0) then
+			descHeight = viewElement.size.h / 3
+		end
+	end
+
 	-- Make sure we spawn it before buttonOverlay element so that subsequent show() calls on parent don't make blood smudge overlay the text
 	if (hasSmudge and (buttonData.title or buttonData.subtitle)) then
 		TBMenu:addBottomBloodSmudge(viewElement, hasSmudge)
@@ -618,6 +626,7 @@ function TBMenu:showHomeButton(viewElement, buttonData, hasSmudge, extraElements
 	})
 	viewElement.button = buttonOverlay
 	viewElement.image = itemIcon
+	viewElement.imageBoundary = itemIcon
 	local overlay = nil
 	if (viewElement.size.h + buttonOverlay.shift.y < itemIcon.shift.y + itemIcon.size.h) then
 		overlay = UIElement:new({
@@ -718,7 +727,12 @@ function TBMenu:showHomeButton(viewElement, buttonData, hasSmudge, extraElements
 	end
 
 	-- Add rounding after everything else to make sure any added elements are covered
-	TBMenu:addOuterRounding(itemIcon, viewElement.animateColor)
+	if (overlay) then
+		viewElement.imageBoundary =	itemIcon:addChild({ size = { itemIcon.size.w, itemIcon.size.h - overlay.size.h }})
+		TBMenu:addOuterRounding(viewElement.imageBoundary, viewElement.animateColor)
+	else
+		TBMenu:addOuterRounding(itemIcon, viewElement.animateColor)
+	end
 	return titleHeight, descHeight
 end
 
@@ -2305,27 +2319,32 @@ function TBMenu:showMobileNavigationBar(buttonsData, customNav, customNavHighlig
 	---Misc text is always displayed as "!" on the right side of the navbar
 
 	local navbarArea = TBMenu.NavigationBar.size.h - navY.t[1] - navY.b[1]
-	local defaultButtonHeight = math.min(navbarArea / (#buttonsData + 1), 60)
 	local fontScale = 0.65
 	local fontId = FONTS.BIG
 
 	local targetWidth = 500000
 	while (targetWidth > TBMenu.NavigationBar.size.w) do
 		fontScale = fontScale - 0.05
-		local buttonTextHeight = defaultButtonHeight * math.clamp(fontScale + 0.4, 0.8, 1) * 0.7
-		
-		local availableHeight = navbarArea - defaultButtonHeight * 2
+		local textLineHeight = getFontMod(fontId) * fontScale * 10
+		local buttonOffsets = 20
+		local availableHeight = navbarArea - (textLineHeight + buttonOffsets)
 		local runMaxWidth = 0
 		for _, v in pairs(buttonsData) do
-			v.adapted = textAdapt(v.text, fontId, fontScale, TBMenu.NavigationBar.size.w - 31, true)
-			availableHeight = availableHeight - (#v.adapted * buttonTextHeight)
-			if (availableHeight < 0) then
+			v.adapted = textAdapt(v.text, fontId, fontScale, TBMenu.NavigationBar.size.w - 30, true)
+			local buttonHeight = math.ceil(#v.adapted * (textLineHeight + 1)) + buttonOffsets
+			availableHeight = availableHeight - buttonHeight
+			local maxLineWidth = 0
+			for _, v in pairs(v.adapted) do
+				maxLineWidth = math.max(maxLineWidth, get_string_length(v, fontId))
+			end
+			maxLineWidth = maxLineWidth * fontScale
+			if (maxLineWidth > TBMenu.NavigationBar.size.w - 30 or availableHeight < 0) then
 				targetWidth = 500000
 				runMaxWidth = 500000
 				break
 			end
 			runMaxWidth = math.max(runMaxWidth, TBMenu.NavigationBar.size.w)
-			v.height = math.round(#v.adapted * buttonTextHeight) + buttonTextHeight * 0.3
+			v.height = buttonHeight
 		end
 		targetWidth = math.min(targetWidth, runMaxWidth)
 	end
@@ -2361,12 +2380,34 @@ function TBMenu:showMobileNavigationBar(buttonsData, customNav, customNavHighlig
 					draw_line(tbMenuNavigationButtons[i].pos.x + tbMenuNavigationButtons[i].size.w - j, tbMenuNavigationButtons[i].pos.y + height - 1, tbMenuNavigationButtons[i].pos.x + tbMenuNavigationButtons[i].size.w, tbMenuNavigationButtons[i].pos.y + height - 1 - j, 0.5)
 				end
 			end)
-		local buttonText = tbMenuNavigationButtons[i]:addChild({ shift = { 15, height * 0.15 } })
-		buttonText:addAdaptedText(true, v.text, nil, nil, fontId, nil, fontScale)
+		---@type UIElement
+		local buttonText = tbMenuNavigationButtons[i]:addChild({ shift = { 15, 10 } })
+		buttonText:addAdaptedText(true, v.text, nil, nil, fontId, nil, fontScale, fontScale)
 		if (v.misctext) then
+			local height = math.min(45, math.ceil(getFontMod(fontId) * fontScale * 10 + 20))
 			local width = math.max(height * 0.8, get_string_length("!", fontId) * fontScale * 0.8 + 20)
-			local miscMark = tbMenuNavigationButtons[i]:addChild({
-				pos = { -15, height * 0.1 },
+			local miscMarkOutline = tbMenuNavigationButtons[i]:addChild({
+				pos = { tbMenuNavigationButtons[i].size.w, (tbMenuNavigationButtons[i].size.h - height) / 2 },
+				size = { width - 10, height }
+			})
+			local halfHeight = height / 2
+			miscMarkOutline:addCustomDisplay(true, function()
+					set_color(unpack(TBMenu.NavigationBar.bgColor))
+					if (miscMarkOutline.size.w > height / 2) then
+						draw_quad(miscMarkOutline.pos.x, miscMarkOutline.pos.y, miscMarkOutline.size.w - halfHeight, miscMarkOutline.size.h)
+					end
+					draw_disk(miscMarkOutline.pos.x + miscMarkOutline.size.w - halfHeight, miscMarkOutline.pos.y + halfHeight, 0, halfHeight, is_mobile() and 0 or 50, 1, 0, 180, 0)
+
+					if (tbMenuNavigationButtons[i].hoverState ~= BTN_NONE or tbMenuNavigationButtons[i].bgColor[4] > 0) then
+						set_color(unpack(tbMenuNavigationButtons[i]:getButtonColor()))
+						if (miscMarkOutline.size.w > height / 2) then
+							draw_quad(miscMarkOutline.pos.x, miscMarkOutline.pos.y, miscMarkOutline.size.w - halfHeight, miscMarkOutline.size.h)
+						end
+						draw_disk(miscMarkOutline.pos.x + miscMarkOutline.size.w - halfHeight, miscMarkOutline.pos.y + halfHeight, 0, halfHeight, is_mobile() and 0 or 50, 1, 0, 180, 0)
+					end
+				end)
+			local miscMark = miscMarkOutline:addChild({
+				pos = { -width - height * 0.1, height * 0.1 },
 				size = { width, height * 0.8 },
 				bgColor = TB_MENU_DEFAULT_ORANGE,
 				uiColor = UICOLORBLACK,

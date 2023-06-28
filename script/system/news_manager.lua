@@ -128,7 +128,8 @@ function News.UpdateConfig()
 	end
 end
 
----Parses news datafile and returns the news data
+---Parses News data file and caches it in **News.Cache**.\
+---If datafile is still downloading, returns the corresponding `File` object.
 ---@param reload ?boolean
 ---@return File?
 function News:getNews(reload)

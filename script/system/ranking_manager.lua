@@ -734,7 +734,7 @@ function Ranking.ShowToplist(viewElement, playerRanking, title, globalElo, playe
 				pos = { playerRankTitle.size.w + playerRankTitle.shift.x, playerRankTitle.shift.y + 1 },
 				size = { playerInfoViewBG.size.w - imageShift - playerRankTitle.size.w - 10, playerRankTitle.size.h - 2 }
 			})
-			playerGames:addAdaptedText(false, player.games .. " " .. TB_MENU_LOCALIZED.WORDGAMES .. ", " .. math.round(player.wins / player.games * 100) .. "% " .. TB_MENU_LOCALIZED.MATCHMAKEWINRATE, nil, nil, 4, RIGHT, 0.6)
+			playerGames:addAdaptedText(false, player.games .. " " .. TB_MENU_LOCALIZED.WORDGAMES .. (", " .. math.round(player.wins / math.max(1, player.games) * 100) .. "% " .. TB_MENU_LOCALIZED.MATCHMAKEWINRATE), nil, nil, 4, RIGHT, 0.6)
 		else
 			playerInfoViewBG:addChild({ shift = { 10, 2 } }):addAdaptedText(false, player.games .. " " .. TB_MENU_LOCALIZED.WORDGAMES .. ", " .. math.round(player.wins / player.games * 100) .. "% " .. TB_MENU_LOCALIZED.MATCHMAKEWINRATE, nil, nil, 4, RIGHT, 0.6)
 		end

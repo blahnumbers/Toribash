@@ -51,10 +51,12 @@ if (BattlePass == nil) then
 	---@field LevelData BattlePassLevel[] Level data for the Battle Pass
 	---@field UserData BattlePassUserData Current user's data for the Battle Pass
 	---@field TimeLeft integer Time left in seconds until this BP is over
+	---@field MaxLevelPrizes integer Max number of prizes in a single level available for claiming
 	---@field wasOpened boolean Whether the user has opened the Battle Pass screen during this session
 	BattlePass = {
 		ver = 5.60,
 		TimeLeft = -1,
+		MaxLevelPrizes = 2,
 		wasOpened = false
 	}
 	BattlePass.__index = BattlePass
@@ -69,11 +71,13 @@ function BattlePass:getLevelData()
 				return
 			end
 			BattlePass.LevelData = {}
+			BattlePass.MaxLevelPrizes = 2
 			for ln in response:gmatch("[^\n]+\n?") do
 				if (not ln:find("^LEVEL")) then
 					local _, segments = ln:gsub("([^\t]*)\t?", "")
 					local data = { ln:match(("([^\t]*)\t?"):rep(segments)) }
-					table.insert(BattlePass.LevelData, {
+					---@type BattlePassLevel
+					local levelData = {
 						level = tonumber(data[1]) or 0,
 						xp = tonumber(data[2]) or 0,
 						xp_total = tonumber(data[3]) or 0,
@@ -83,7 +87,17 @@ function BattlePass:getLevelData()
 						tc_premium = tonumber(data[7]) or 0,
 						st_premium = tonumber(data[8]) or 0,
 						itemid_premium = tonumber(data[9]) or 0
-					})
+					}
+					local levelPrizes = 0
+					for i, v in pairs(levelData) do
+						if (not in_array(i, { "level", "xp", "xp_total" })) then
+							if (v > 0) then
+								levelPrizes = levelPrizes + 1
+							end
+						end
+					end
+					table.insert(BattlePass.LevelData, levelData)
+					BattlePass.MaxLevelPrizes = math.max(BattlePass.MaxLevelPrizes, levelPrizes)
 				end
 			end
 			BattlePass.LevelData[0] = {
@@ -628,12 +642,12 @@ function BattlePass:showLevelPrize(prizeHolder, levelData)
 		bgColor = TB_MENU_DEFAULT_BG_COLOR
 	})
 
+	local freePrizeHolder = prizeBackground:addChild({
+		pos = { 0, 0 },
+		size = { prizeBackground.size.w, math.min(200, prizeBackground.size.h / BattlePass.MaxLevelPrizes) },
+		bgColor = TB_MENU_DEFAULT_DARKEST_COLOR
+	})
 	if (levelData.st > 0 or levelData.tc > 0 or levelData.itemid > 0) then
-		local freePrizeHolder = prizeBackground:addChild({
-			pos = { 0, 0 },
-			size = { prizeBackground.size.w, (prizeBackground.size.h - 20) / 3 },
-			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR
-		})
 		BattlePass:showPrizeItem(freePrizeHolder:addChild({ shift = { 15, 10 } }), {
 			tc = levelData.tc,
 			st = levelData.st,
@@ -668,15 +682,15 @@ function BattlePass:showLevelPrize(prizeHolder, levelData)
 			premium = true
 		})
 	end
-	local prizeHolderHeight = math.min(prizeBackground.size.w - 30, (prizeBackground.size.h / 3 * 2 - 10 * (#premiumPrizes - 1)) / #premiumPrizes)
+	local prizeHolderHeight = (prizeBackground.size.h - freePrizeHolder.size.h) / #premiumPrizes
 	local premiumPrizesHolder = prizeBackground:addChild({
-		pos = { 0, -prizeBackground.size.h / 3 - (prizeHolderHeight + 10) * #premiumPrizes / 2 },
-		size = { prizeBackground.size.w, (prizeHolderHeight + 10) * #premiumPrizes }
+		pos = { 15, freePrizeHolder.size.h },
+		size = { prizeBackground.size.w - 30, prizeBackground.size.h - freePrizeHolder.size.h }
 	})
-	for i,v in pairs(premiumPrizes) do
+	for i, v in pairs(premiumPrizes) do
 		local premiumPrizeHolder = premiumPrizesHolder:addChild({
-			pos = { 0, (prizeHolderHeight + 10) * (i - 1) },
-			size = { prizeBackground.size.w, prizeHolderHeight }
+			pos = { 0, prizeHolderHeight * (i - 1) },
+			size = { premiumPrizesHolder.size.w, prizeHolderHeight }
 		})
 		BattlePass:showPrizeItem(premiumPrizeHolder, v)
 	end
