@@ -2637,9 +2637,9 @@ _G.get_hex_from_color = function(r, g, b)
 	if (type(r) == "table") then
 		return get_hex_from_color(r[1], r[2], r[3])
 	end
-	return	string.format("%x", r * 255) ..
-			string.format("%x", g * 255) ..
-			string.format("%x", b * 255)
+	return	string.format("%02x", r * 255) ..
+			string.format("%02x", g * 255) ..
+			string.format("%02x", b * 255)
 end
 
 ---Returns contrast ratio (0-1) for the specified color
