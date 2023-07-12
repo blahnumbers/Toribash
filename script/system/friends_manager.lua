@@ -60,6 +60,7 @@ function Friends:getOnline(viewElement)
 		local clanFriends = {}
 
 		for _, v in pairs(self.FriendsList) do
+			v.online = false
 			for _, n in pairs(onlinePlayers) do
 				local pInfo = PlayerInfo.Get(n.username)
 				if (utf8.lower(pInfo.username) == utf8.lower(v.username)) then
