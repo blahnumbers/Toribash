@@ -43,6 +43,9 @@ if (Ranking == nil) then
 
 	---**Toribash Ranking manager class**
 	---
+	---**Version 5.61**
+	---* Added `GetTierFromElo()` method to quickly get a ranking tier from specified elo
+	---
 	---**Version 5.60**
 	---* New UI to accomodate for repeatable ranking seasons
 	---* Game stat rankings and mod rankings
@@ -83,7 +86,7 @@ if (Ranking == nil) then
 		TimeLeft = 0,
 		QiRequirement = 100,
 		ToplistStalePeriod = 300,
-		ver = 5.60
+		ver = 5.61
 	}
 	Ranking.__index = Ranking
 	setmetatable({}, Ranking)
@@ -163,6 +166,18 @@ function Ranking.IsUpdateRequired()
 		return true
 	end
 	return Ranking.PlayerData.name ~= TB_MENU_PLAYER_INFO.username or Ranking.PlayerData.games ~= TB_MENU_PLAYER_INFO.ranking.wins + TB_MENU_PLAYER_INFO.ranking.loses
+end
+
+---Returns ranking tier that matches provided elo value
+---@param elo number
+---@return RankingTier?
+function Ranking.GetTierFromElo(elo)
+	for _, v in pairs(Ranking.RankingTiers) do
+		if (v.minElo <= elo and v.maxElo > elo) then
+			return v
+		end
+	end
+	return nil
 end
 
 ---Parses network response containing top players' ranking information

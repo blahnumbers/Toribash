@@ -6,6 +6,9 @@ local MAXFOLDERLEVELS = 4
 if (Replays == nil) then
 	---**Toribash Replays manager class**
 	---
+	---**Version 5.61**
+	---* Updated keyboard return type on search bar for mobile devices
+	---
 	---**Version 5.60**
 	---* Fixes to make UI work with modern TBMenu class
 	---* Use *utf8lib* when parsing replay files to ensure we handle multibyte symbols correctly
@@ -20,7 +23,7 @@ if (Replays == nil) then
 		ServerCacheSettings = { action = 1, offset = 0, search = "", id = 0 },
 		ServerCacheTotal = 0,
 		CacheReady = false,
-		ver = 5.60
+		ver = 5.61
 	}
 	Replays.__index = Replays
 
@@ -933,7 +936,8 @@ function Replays:showList(viewElement, replayInfo, level, doSearch)
 	local searchInputField = TBMenu:spawnTextField2(inputFieldHolder, nil, TB_MENU_REPLAYS_SEARCH, TB_MENU_LOCALIZED.SEARCHNOTE, {
 		fontId = FONTS.LMEDIUM,
 		textScale = 0.65,
-		textColor = UICOLORWHITE
+		textColor = UICOLORWHITE,
+		returnKeyType = KEYBOARD_RETURN.SEARCH
 	})
 
 

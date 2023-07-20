@@ -334,6 +334,38 @@ _G.BODYPARTS = {
 	L_FOOT = 20
 }
 
+---@alias KeyboardInputType
+---| 0 KEYBOARD_INPUT.DEFAULT
+---| 1 KEYBOARD_INPUT.ASCII
+---| 2 KEYBOARD_INPUT.NUMBERPAD
+---| 3 KEYBOARD_INPUT.EMAIL
+
+---On-screen keyboard input types
+_G.KEYBOARD_INPUT = {
+	DEFAULT = 0,
+	ASCII = 1,
+	NUMBERPAD = 2,
+	EMAIL = 3
+}
+
+---@alias KeyboardReturnType
+---| 0 KEYBOARD_RETURN.DEFAULT
+---| 1 KEYBOARD_RETURN.SEND
+---| 2 KEYBOARD_RETURN.DONE
+---| 3 KEYBOARD_RETURN.NEXT
+---| 4 KEYBOARD_RETURN.SEARCH
+---| 5 KEYBOARD_RETURN.CONTINUE
+
+---On-screen keyboard return button types
+_G.KEYBOARD_RETURN = {
+	DEFAULT = 0,
+	SEND = 1,
+	DONE = 2,
+	NEXT = 3,
+	SEARCH = 4,
+	CONTINUE = 5
+}
+
 ---@class MatrixTB
 ---@field r0 number
 ---@field r1 number
@@ -2307,17 +2339,24 @@ function delete_notification(pmid) end
 
 -- [[ KEYBOARD FUNCTIONS ]]
 
----Enables Lua menu keyboard callbacks. On mobile platforms, this will also bring up on-screen keyboard. \
----It is recommended to pass input element's position and size on mobile platforms to ensure input field is in focus.
+---Enables Lua menu keyboard callbacks. \
+---*On mobile platforms, this will also bring up on-screen keyboard.* \
+---*It is recommended to pass input's position and size on mobile platforms to ensure proper focus.*
 ---@overload fun()
 ---@param inputX integer
 ---@param inputY integer
 ---@param inputWidth integer
 ---@param inputHeight integer
-function enable_menu_keyboard(inputX, inputY, inputWidth, inputHeight) end
+---@param context string
+---@param inputType? KeyboardInputType
+---@param autoCompletion? boolean
+---@param returnKeyType? KeyboardReturnType
+---@overload fun(inputX:integer, inputY:integer, inputWidth:integer, inputHeight:integer)
+---@overload fun()
+function enable_menu_keyboard(inputX, inputY, inputWidth, inputHeight, context, inputType, autoCompletion, returnKeyType) end
 
----Disables Lua menu keyboard callbacks \
----*On mobile platforms, this will also hide on-screen keyboard*
+---Disables Lua menu keyboard callbacks. \
+---*On mobile platforms, this will also hide on-screen keyboard.*
 function disable_menu_keyboard() end
 
 ---Returns whether either of shift keys is currently down

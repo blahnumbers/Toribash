@@ -1217,3 +1217,4 @@ STOREPURCHASECOMPLETED	Store purchase has been successfully completed!
 STOREPURCHASEFINALIZING	Finalizing your purchase...
 STOREPURCHASECANCELLED	Store purchase has been cancelled
 MESSAGESTITLE	Messages
+WORDRANGETO	to

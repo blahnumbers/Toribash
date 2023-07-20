@@ -8,11 +8,6 @@ require("system.iofiles")
 ---@field tc integer
 ---@field item StoreItem
 
----@class RewardData
----@field available boolean
----@field days integer
----@field timeLeft integer
-
 if (Rewards == nil) then
 	---**Login rewards manager class**
 	---
@@ -66,7 +61,7 @@ end
 
 ---Displays login rewards screen
 ---@param viewElement UIElement
----@param rewardData RewardData
+---@param rewardData LoginRewards
 function Rewards:showMain(viewElement, rewardData)
 	if (viewElement == nil or viewElement.destroyed) then
 		return

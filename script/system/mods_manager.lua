@@ -18,10 +18,14 @@ if (Mods == nil) then
 
 	---**Mod browser class**
 	---
+	---**Version 5.61**
+	---* Updated keyboard return type for search bar on mobile devices
+	---* On mobile, hitting return key in search bar now hides the keyboard
+	---
 	---**Version 5.60**
-	--- - Moved globals to be Mods class fields
-	--- - Updates for touch input and new UIElement functionality
-	--- - Visuals update to match modern style
+	---* Moved globals to be Mods class fields
+	---* Updates for touch input and new UIElement functionality
+	---* Visuals update to match modern style
 	---@class Mods
 	---@field MainElement UIElement
 	---@field DisplayPos Vector2 Current target position for mod browser window
@@ -32,9 +36,9 @@ if (Mods == nil) then
 		DisplayPos = { x = x + 10, y = y + 10 },
 		ListShift = { 0 },
 		StartNewGame = true,
-		ver = 5.60,
-		__index = {}
+		ver = 5.61
 	}
+	Mods.__index = Mods
 	setmetatable({}, Mods)
 end
 
@@ -461,7 +465,17 @@ function Mods.showMain()
 	})
 	modNewGameText:addAdaptedText(true, TB_MENU_LOCALIZED.MODSRESTARTGAME, nil, nil, 4, LEFTMID, 0.7)
 
-	local search = TBMenu:spawnTextField2(botBar, { x = 5, y = 5, w = botBar.size.w - 10, h = botBar.size.h - 40 }, nil, TB_MENU_LOCALIZED.SEARCHNOTE, { fontId = 4, textScale = 0.65, textAlign = LEFTMID, keepFocusOnHide = true, darkerMode = true })
+	local search = TBMenu:spawnTextField2(botBar, {
+		x = 5, y = 5,
+		w = botBar.size.w - 10, h = botBar.size.h - 40
+	}, nil, TB_MENU_LOCALIZED.SEARCHNOTE, {
+		fontId = 4,
+		textScale = 0.65,
+		textAlign = LEFTMID, 
+		keepFocusOnHide = true,
+		darkerMode = true,
+		returnKeyType = KEYBOARD_RETURN.DONE
+	})
 	local lastText = search.textfieldstr[1]
 	search:addInputCallback(function()
 			if (lastText ~= search.textfieldstr[1]) then
@@ -470,6 +484,13 @@ function Mods.showMain()
 				lastText = search.textfieldstr[1]
 			end
 		end)
+	if (is_mobile()) then
+		search:addEnterAction(function()
+				search.keyboard = false
+				KEYBOARDGLOBALIGNORE = false
+				search:disableMenuKeyboard()
+			end)
+	end
 
 	ModsInternal.RefreshCurrentFolder()
 	Mods.SpawnMainList(listingHolder, toReload, topBar, elementHeight, ModsInternal.CurrentFolder, search)

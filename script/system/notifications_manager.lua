@@ -125,15 +125,14 @@ function Notifications:showLoginRewards()
 	if (rewards.days == 0 and rewards.available == false and rewards.timeLeft == 0) then
 		rewards.available = true
 		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REWARDSCLAIMNETWORKERROR)
+		return
 	end
 	TB_MENU_PLAYER_INFO.rewards = rewards
-	if (Rewards.getRewardData()) then
-		if (TB_STORE_DATA.ready) then
-			Rewards:showMain(TBMenu.CurrentSection, TB_MENU_PLAYER_INFO.rewards)
-		else
-			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STOREDATALOADERROR)
-		end
+	if (Rewards.getRewardData() == false or not TB_STORE_DATA.ready) then
+		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STOREDATALOADERROR)
+		return
 	end
+	Rewards:showMain(TBMenu.CurrentSection, TB_MENU_PLAYER_INFO.rewards)
 end
 
 ---Returns custom colors to use for provided account names

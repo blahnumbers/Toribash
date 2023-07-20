@@ -994,7 +994,8 @@ function TBHud:refreshChat()
 			textScale = 0.75,
 			textColor = table.clone(UICOLORWHITE),
 			keepFocusOnHide = true,
-			darkerMode = true
+			darkerMode = true,
+			returnKeyType = KEYBOARD_RETURN.SEND
 		})
 		local destroySuggestions = function()
 			if (chatInputField.suggestionsDropdown ~= nil) then

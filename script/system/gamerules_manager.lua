@@ -139,6 +139,10 @@ if (Gamerules == nil) then
 
 	---**Gamerules manager class**
 	---
+	---**Version 5.61**
+	---* Updated keyboard input and return types for input fields on mobile devices
+	---* Use proper input handler for search bar
+	---
 	---**Version 5.60**
 	---* Documentation with EmmyLua annotations
 	---@class Gamerules
@@ -152,7 +156,7 @@ if (Gamerules == nil) then
 		ListShift = { 0, 0, 1 },
 		StartNewgame = get_option("grnewgame") == 1,
 		LastSelectedRule = nil,
-		ver = 5.60
+		ver = 5.61
 	}
 	Gamerules.__index = Gamerules
 	setmetatable({}, Gamerules)
@@ -402,13 +406,15 @@ function Gamerules.showGamerule(v, listingHolder, elementHeight, listElements, s
 				x = grValueHolder.size.w / 2,
 				w = grValueHolder.size.w / 2
 			}, changedValues[v.name] and changedValues[v.name].value or v.value, nil, {
-				isNumeric = v.type == GAMERULE_INT,
+				isNumeric = v.type == GAMERULE_INT and v.name ~= "turnframes",
 				allowDecimal = v.allowDecimal,
 				allowNegative = v.allowNegative,
 				fontId = 4,
 				textScale = 0.7,
 				textAlign = CENTERMID,
-				darkerMode = true
+				darkerMode = true,
+				inputType = KEYBOARD_INPUT.NUMBERPAD,
+				returnKeyType = KEYBOARD_RETURN.DONE
 			})
 			grInput:addTabAction(scrollTabFunc)
 			if (prevInput) then
@@ -416,7 +422,7 @@ function Gamerules.showGamerule(v, listingHolder, elementHeight, listElements, s
 				grInput:addTabSwitchPrev(prevInput)
 			end
 			local inputLastValue = grInput.textfieldstr[1]
-			grInput:addKeyboardHandlers(function()
+			grInput:addInputCallback(function()
 					if (v.name == "turnframes") then
 						local newInput = grInput.textfieldstr[1]:sub(grInput.textfieldindex, grInput.textfieldindex)
 						if (newInput:len() > 0 and not newInput:match("[0-9,]")) then
@@ -424,7 +430,6 @@ function Gamerules.showGamerule(v, listingHolder, elementHeight, listElements, s
 							grInput.textfieldindex = grInput.textfieldindex - 1
 						end
 					end
-				end, function()
 					if (not changedValues[v.name]) then
 						changedValues[v.name] = Gamerule.New(v)
 					end
@@ -435,7 +440,6 @@ function Gamerules.showGamerule(v, listingHolder, elementHeight, listElements, s
 					end
 				end)
 			grInput:addEnterAction(function()
-					grInput.keyUpCustom()
 					grInput.requireUpdate = false
 					updateFunc()
 				end)
@@ -547,10 +551,7 @@ function Gamerules.showGamerule(v, listingHolder, elementHeight, listElements, s
 			textWidth = 30,
 			sliderRadius = 20
 		}
-		--[[if (sliderSettings.maxValueDisp == 128) then
-			sliderSettings.maxValueDisp = "100"
-		end]]
-		local updateFunc = function(val, xPos, slider)
+		local updateFunc = function(val, _, slider)
 			if (not changedValues[v.name]) then
 				changedValues[v.name] = Gamerule.New(v)
 			end
@@ -580,9 +581,10 @@ function Gamerules.showGamerule(v, listingHolder, elementHeight, listElements, s
 				rounded = { 0, 3 }
 			})
 			local grValueInputsHolder = grValueHolderNewline:addChild({ rounded = 3 }, true)
+			---@type UIElement[]
 			local gravInputs = {}
 			local counter = 0
-			for _,k in pairs(v.value) do
+			for i, k in pairs(v.value) do
 				local grInput = TBMenu:spawnTextField2(grValueInputsHolder, {
 					x = 10 + (grValueInputsHolder.size.w / 3 - 5) * counter,
 					y = 4,
@@ -595,12 +597,14 @@ function Gamerules.showGamerule(v, listingHolder, elementHeight, listElements, s
 					fontId = 4,
 					textScale = 0.7,
 					textAlign = CENTERMID,
-					darkerMode = true
+					darkerMode = true,
+					inputType = KEYBOARD_INPUT.NUMBERPAD,
+					returnKeyType = i == 3 and KEYBOARD_RETURN.DONE or KEYBOARD_RETURN.NEXT
 				})
 				table.insert(gravInputs, grInput)
 				counter = counter + 1
 			end
-			for j,grInput in pairs(gravInputs) do
+			for j, grInput in ipairs(gravInputs) do
 				grInput:addTabAction(scrollTabFunc)
 				if (prevInput) then
 					prevInput:addTabSwitch(grInput)
@@ -608,8 +612,15 @@ function Gamerules.showGamerule(v, listingHolder, elementHeight, listElements, s
 				end
 				grInput:addEnterAction(function()
 						grInput.keyUpCustom()
+						if (is_mobile()) then
+							if (j < 3 and grInput.tabswitchaction) then
+								grInput.tabswitchaction()
+							elseif (j == 3) then
+								updateFunc()
+							end
+						end
 					end)
-				grInput:addKeyboardHandlers(nil, function()
+				grInput:addInputCallback(function()
 						if (not changedValues[v.name]) then
 							changedValues[v.name] = Gamerule.New(v)
 						end
@@ -627,6 +638,7 @@ function Gamerules.showGamerule(v, listingHolder, elementHeight, listElements, s
 			local num_players = tonumber(changedValues["numplayers"] and changedValues["numplayers"].gameValue or get_gamerule("numplayers")) or 2
 			local engageInputs = {}
 			local playerNames = { "Tori", "Uke", "Nage", "P4" }
+			local num_inputs = num_players * 3
 
 			for i = 1, num_players do
 				local grValueHolderNewlineHolder = listingHolder:addChild({
@@ -656,7 +668,7 @@ function Gamerules.showGamerule(v, listingHolder, elementHeight, listElements, s
 				local counter = 0
 				-- v.value[i] might be empty... make sure it isn't
 				v.value[i] = v.value[i] or { { title = 'x', value = '' }, { title = 'y', value = '' }, { title = 'z', value = '' } }
-				for _, k in pairs(v.value[i]) do
+				for j, k in pairs(v.value[i]) do
 					local grInput = TBMenu:spawnTextField2(grValueInputsHolder, {
 						x = (grValueInputsHolder.size.w / 3 + 2.5) * counter,
 						y = 4,
@@ -669,7 +681,9 @@ function Gamerules.showGamerule(v, listingHolder, elementHeight, listElements, s
 						fontId = 4,
 						textScale = 0.7,
 						textAlign = CENTERMID,
-						darkerMode = true
+						darkerMode = true,
+						inputType = KEYBOARD_INPUT.NUMBERPAD,
+						returnKeyType = (i * j == num_inputs) and KEYBOARD_RETURN.DONE or KEYBOARD_RETURN.NEXT
 					})
 					table.insert(engageInputs, grInput)
 					counter = counter + 1
@@ -684,13 +698,20 @@ function Gamerules.showGamerule(v, listingHolder, elementHeight, listElements, s
 				end
 				grInput:addEnterAction(function()
 						grInput.keyUpCustom()
+						if (is_mobile()) then
+							if (j < num_inputs and grInput.tabswitchaction) then
+								grInput.tabswitchaction()
+							elseif (j == num_inputs) then
+								updateFunc()
+							end
+						end
 					end)
-				grInput:addKeyboardHandlers(nil, function()
+				grInput:addInputCallback(function()
 						if (not changedValues[v.name]) then
 							changedValues[v.name] = Gamerule.New(v)
 						end
 						local engage = ''
-						for k,input in pairs(engageInputs) do
+						for _, input in pairs(engageInputs) do
 							engage = engage .. (engage == '' and '' or ",") .. input.textfieldstr[1]
 						end
 						changedValues[v.name]:setValue(engage)
@@ -833,7 +854,7 @@ function Gamerules.showMain()
 	}, true)
 
 	local elementHeight = 38
-	local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(mainView, 80, 70, 20, mainView.bgColor)
+	local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(mainView, 80, 75, 20, mainView.bgColor)
 
 	topBar.shapeType = mainView.shapeType
 	topBar:setRounded(mainView.rounded)
@@ -882,10 +903,11 @@ function Gamerules.showMain()
 	})
 	local search = TBMenu:spawnTextField2(searchHolder, { x = 5, y = 5, w = searchHolder.size.w - 10, h = searchHolder.size.h - 45 }, nil, TB_MENU_LOCALIZED.SEARCHNOTE, {
 		fontId = FONTS.LMEDIUM,
-		textScale = 0.65
+		textScale = 0.65,
+		returnKeyType = KEYBOARD_RETURN.DONE
 	})
 	local lastSearch = search.textfieldstr[1]
-	search:addKeyboardHandlers(nil, function()
+	search:addInputCallback(function()
 			if (lastSearch ~= search.textfieldstr[1]) then
 				lastSearch = search.textfieldstr[1]
 				Gamerules.ListShift[1] = 0
@@ -893,6 +915,13 @@ function Gamerules.showMain()
 				search.btnDown()
 			end
 		end)
+	if (is_mobile()) then
+		search:addEnterAction(function()
+				search.keyboard = false
+				KEYBOARDGLOBALIGNORE = false
+				search:disableMenuKeyboard()
+			end)
+	end
 	Gamerules.spawnMainList(listingHolder, toReload, gameRulesName, elementHeight, nil, gamerules, changedValues)
 
 	local grNewGameToggleView = botBar:addChild({

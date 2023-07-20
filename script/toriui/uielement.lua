@@ -174,6 +174,9 @@ if (not UIElement) then
 	---@field textfieldstr string|string[]
 	---@field textfieldsingleline boolean
 	---@field textfieldkeepfocusonhide boolean
+	---@field inputType KeyboardInputType On-screen keyboard input type
+	---@field autoCompletion boolean On-screen keyboard autocompletion
+	---@field returnKeyType KeyboardReturnType On-screen keyboard return key type
 	---@field isNumeric boolean Whether the textfield object should only accept numeric values
 	---@field allowNegative boolean Whether the numeric only textfield should accept negative values
 	---@field allowDecimal boolean Whether the numeric only textfield should accept decimal values
@@ -196,6 +199,9 @@ if (not UIElement) then
 	---@field bgGradientMode PlayerBody Toribash bodypart id to base gradient UV on
 
 	-- Toribash GUI elements manager class
+	--
+	-- **Ver 5.61 updates:**
+	-- * On-screen keyboard customization support for text fields
 	--
 	-- **Ver 5.60 updates:**
 	-- * Rewritten all keyboard handlers to make better use of SDL text input events
@@ -254,6 +260,9 @@ if (not UIElement) then
 	---@field textfieldindex number Current input index (cursor position) for the text field. *Only used for textfield objects*.
 	---@field textfieldsingleline boolean Whether the text field should accept multiline input. *Only used for textfield objects*.
 	---@field textfieldkeepfocusonhide boolean Whether text field should keep or lose focus when hide() is called on it. Default is `false`.
+	---@field inputType KeyboardInputType On-screen keyboard input type
+	---@field autoCompletion boolean On-screen keyboard autocompletion
+	---@field returnKeyType KeyboardReturnType On-screen keyboard return key type
 	---@field toggle boolean Internal value to modify behavior for elements that are going to be used as toggles
 	---@field innerShadow number[] Table containing top and bottom inner shadow size
 	---@field shadowColor Color[] Table containing top and bottom inner shadow colors
@@ -281,7 +290,7 @@ if (not UIElement) then
 	---@field prevInput UIElement Previous input element, set with UIElement:addTabSwitchPrev()
 	---@field nextInput UIElement Next input element, set with UIElement:addTabSwitch()
 	UIElement = {
-		ver = 5.60,
+		ver = 5.61,
 		animationDuration = 0.1,
 		longPressDuration = 0.25,
 		lightUIMode = get_option("uilight") == 1
@@ -456,6 +465,9 @@ function UIElement.new(_self, o)
 		elem.textfield = o.textfield
 		---@diagnostic disable-next-line: assign-type-mismatch
 		elem.textfieldstr = o.textfieldstr and (type(o.textfieldstr) == "table" and o.textfieldstr or { o.textfieldstr .. '' }) or { "" }
+		elem.inputType = o.inputType or KEYBOARD_INPUT.ASCII
+		elem.autoCompletion = o.autoCompletion == nil and true or o.autoCompletion
+		elem.returnKeyType = o.returnKeyType or KEYBOARD_RETURN.DEFAULT
 		elem.textfieldindex = utf8.len(elem.textfieldstr[1])
 		elem.textfieldsingleline = o.textfieldsingleline
 		elem.textfieldkeepfocusonhide = o.textfieldkeepfocusonhide
@@ -1761,7 +1773,7 @@ end
 ---Generic method to enable keyboard input handlers for current UIElement
 function UIElement:enableMenuKeyboard()
 	TB_MENU_INPUT_ISACTIVE = true
-	enable_menu_keyboard(self.pos.x, self.pos.y, self.size.w, self.size.h + 10)
+	enable_menu_keyboard(self.pos.x, self.pos.y, self.size.w, self.size.h + 10, self.textfieldstr[1], self.inputType, self.autoCompletion, self.returnKeyType)
 	local id = 1
 	for _, v in pairs(UIKeyboardHandler) do
 		if (v.menuKeyboardId == id) then

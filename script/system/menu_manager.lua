@@ -4,6 +4,10 @@
 if (TBMenu == nil) then
 	---Toribash main menu class
 	---
+	---**Ver 5.61**
+	---* Updated `spawnTextField2()` with on-screen keyboard customization options
+	---* Added internal `BuildInputFieldSettings()` function to create a TextFieldInputSettings object with all properties
+	---
 	---**Ver 5.60**
 	---* All global UIElement holders are now fields of TBMenu class
 	---* User bar player display will now automatically reload on customs update
@@ -28,7 +32,7 @@ if (TBMenu == nil) then
 	---@field HasCustomNavigation boolean Whether `TBMenu.NavigationBar` is currently loaded and has custom navigation
 	TBMenu = {
 		CurrentAnnouncementId = 1,
-		ver = 5.60
+		ver = 5.61
 	}
 	setmetatable({}, TBMenu)
 end
@@ -2147,6 +2151,8 @@ function TBMenu:showUserBar()
 	})
 	beltTitle:addAdaptedText(TB_MENU_PLAYER_INFO.data.belt.name .. " " .. TB_MENU_LOCALIZED.WORDBELT, nil, nil, 2, nil, nil, nil, nil, 1)
 
+	accountButton:reload()
+
 	TB_MENU_CUSTOMS_REFRESHED = false
 	TBMenu.UserBar:addCustomDisplay(false, function()
 			if (TB_MENU_CUSTOMS_REFRESHED) then
@@ -4093,19 +4099,43 @@ end
 ---@field keepFocusOnHide boolean
 ---@field maxLength integer
 ---@field customRegex string
+---@field inputType KeyboardInputType
+---@field autoCompletion boolean
+---@field returnKeyType KeyboardReturnType
 
 ---@type TextFieldInputSettings
 local TextFieldDefaultInputSettings = {
-	fontId = FONTS.SMALL,
+	fontId = FONTS.LMEDIUM,
 	textAlign = LEFTMID,
 	textScale = 1,
-	textColor = table.clone(UICOLORBLACK),
 	isNumeric = false,
+	allowDecimal = false,
+	allowNegative = true,
 	allowMultiline = false,
+	darkerMode = false,
 	noCursor = false,
 	keepFocusOnHide = false,
-	maxLength = 0
+	maxLength = 0,
+	inputType = KEYBOARD_INPUT.ASCII,
+	autoCompletion = true,
+	returnKeyType = KEYBOARD_RETURN.DEFAULT
 }
+
+---Constructs **TextFieldInputSettings** from provided settings
+---@param input TextFieldInputSettings?
+---@return TextFieldInputSettings
+function TBMenuInternal.BuildInputFieldSettings(input)
+	input = input or {}
+	---@type TextFieldInputSettings
+	local inputSettings = {}
+	for i, v in pairs(TextFieldDefaultInputSettings) do
+		inputSettings[i] = input[i] == nil and v or input[i]
+	end
+	---Fill fields that are nil by default
+	inputSettings.textColor = input.textColor
+	inputSettings.customRegex = input.customRegex
+	return inputSettings
+end
 
 ---Generates a generic text field UIElement.
 ---@param viewElement UIElement
@@ -4116,7 +4146,7 @@ local TextFieldDefaultInputSettings = {
 ---@return UIElement
 function TBMenu:spawnTextField2(viewElement, rect, textFieldString, defaultString, inputSettings)
 	local rect = rect or { }
-	local inputSettings = inputSettings or TextFieldDefaultInputSettings
+	local inputSettings = TBMenuInternal.BuildInputFieldSettings(inputSettings)
 	local textBg = viewElement:addChild({
 		pos = { rect.x or 0, rect.y or 0 },
 		size = { rect.w or viewElement.size.w, rect.h or viewElement.size.h },
@@ -4148,13 +4178,16 @@ function TBMenu:spawnTextField2(viewElement, rect, textFieldString, defaultStrin
 		textfieldstr = textFieldString or "",
 		textfieldsingleline = not inputSettings.allowMultiline,
 		textfieldkeepfocusonhide = inputSettings.keepFocusOnHide,
-		uiColor = viewElement.uiColor or UICOLORWHITE
+		inputType = inputSettings.inputType,
+		returnKeyType = inputSettings.returnKeyType,
+		autoCompletion = inputSettings.autoCompletion,
+		uiColor = inputSettings.textColor or viewElement.uiColor
 	}, true)
 	inputField:addMouseHandlers(function()
 			inputField:enableMenuKeyboard()
 		end)
 	inputField.killAction = function() inputField:disableMenuKeyboard() end
-	TBMenuInternal.DisplayTextfield(inputField, inputSettings.fontId or 4, inputSettings.textScale, inputSettings.textColor or inputField.uiColor, defaultString, inputSettings.textAlign, inputSettings.noCursor)
+	TBMenuInternal.DisplayTextfield(inputField, inputSettings.fontId, inputSettings.textScale, inputField.uiColor or table.clone(UICOLORWHITE), defaultString, inputSettings.textAlign, inputSettings.noCursor)
 	return inputField
 end
 

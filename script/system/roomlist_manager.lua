@@ -22,6 +22,9 @@ local FILTER_ON = true
 if (RoomList == nil) then
 	---**Room List manager class**
 	---
+	---**Version 5.61**
+	---* Display room rank and elo requirements in info view
+	---
 	---**Version 5.60**
 	---* Initial release
 	---@class RoomList
@@ -32,7 +35,7 @@ if (RoomList == nil) then
 	---@field Filters RoomListFilters
 	---@field FeaturedRooms RoomListInfoExtended[]
 	RoomList = {
-		ver = 5.60,
+		ver = 5.61,
 		RefreshPeriod = 60,
 		Filters = { },
 		FeaturedRooms = { }
@@ -171,7 +174,27 @@ function RoomList:showRoomInfo(room)
 		table.insert(infoBits, TB_MENU_LOCALIZED.ROOMLISTDUELMODEON .. (room.duel_amount ~= nil and (": " .. room.duel_amount .. " " .. TB_MENU_LOCALIZED.WORDTC) or ""))
 	end
 	if (room.is_ranked) then
-		table.insert(infoBits, TB_MENU_LOCALIZED.ROOMLISTRANKED)
+		local rankedString = TB_MENU_LOCALIZED.ROOMLISTRANKED
+		local minEloTier = Ranking.GetTierFromElo(room.min_elo)
+		local maxEloTier = Ranking.GetTierFromElo(room.max_elo)
+		if (minEloTier ~= nil and maxEloTier ~= nil) then
+			local tierString = nil
+			if (room.min_elo > 0 and room.max_elo > 0) then
+				if (minEloTier.title == minEloTier.title) then
+					tierString = minEloTier.title
+				else
+					tierString = minEloTier.title .. " " .. TB_MENU_LOCALIZED.WORDRANGETO .. " " .. maxEloTier.title
+				end
+			elseif (room.min_elo > 0) then
+				tierString = minEloTier.title .. "+"
+			elseif (room.max_elo > 0) then
+				tierString = maxEloTier.title .. "-"
+			end
+			if (tierString) then
+				rankedString = tierString .. " " .. rankedString
+			end
+		end
+		table.insert(infoBits, rankedString)
 	end
 	if (room.gamerules.reactiontime < 15) then
 		table.insert(infoBits, TB_MENU_LOCALIZED.ROOMLISTQUICKREACTIONROOM)
