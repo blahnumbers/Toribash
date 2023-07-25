@@ -8,9 +8,10 @@ if (Tooltip == nil) then
 	---Advanced tooltip manager class
 	---
 	---**Version 5.61**
-	---* Added TooltipInternal class to use for fields we don't want exposed
+	---* Added **TooltipInternal** class to use for fields we don't want exposed
 	---* Added optional event callbacks for mobile controls
 	---* Added function to disable mobile state wheel
+	---* Added `IsTouchCommitted` field
 	---
 	---**Version 5.60**
 	---* All global variables used by tooltip are now fields of Tooltip class
@@ -21,6 +22,7 @@ if (Tooltip == nil) then
 	---@field GrabDisplayActive boolean Whether grab display is currently active
 	---@field IsActive boolean Whether tooltip is active and waiting for input
 	---@field IsDisplayed boolean Whether tooltip is currently displayed on screen
+	---@field IsTouchCommitted boolean Whether touch input has been committed
 	---@field HookName string Default tooltip hooks name
 	---@field FractureColor Color
 	---@field DismemberColor Color
@@ -32,6 +34,7 @@ if (Tooltip == nil) then
 		GrabDisplayActive = false,
 		IsActive = false,
 		IsDisplayed = false,
+		IsTouchCommitted = true,
 		HookName = "tbSystemTooltip",
 		FractureColor = { 0.44, 0.41, 1, 1 },
 		DismemberColor = { 1, 0, 0, 1 },
@@ -392,6 +395,7 @@ function Tooltip:showTouchControls()
 		return
 	end
 	Tooltip.Destroy()
+	Tooltip.IsTouchCommitted = false
 
 	local wheelMode = get_option("tooltipmode")
 	if (wheelMode == 3) then
@@ -576,7 +580,7 @@ function Tooltip:showTouchControls()
 				lastJointState = targetJointState
 				for _, v in pairs(TooltipInternal.OnToggleWheelEvents) do
 					if (type(v) == "function") then
-						pcall(v())
+						pcall(v)
 					end
 				end
 			end
@@ -613,13 +617,16 @@ function Tooltip.SetTouchJointState()
 		if (not TooltipInternal.TouchInputPosition or not TooltipInternal.WaitForTouchInput) then
 			Tooltip:toggleJointState(TooltipInternal.TouchInputTargetPlayer, TooltipInternal.TouchInputTargetJoint)
 			for _, v in pairs(TooltipInternal.OnTapEvents) do
-				pcall(v())
+				if (type(v) == "function") then
+					pcall(v)
+				end
 			end
 		end
 	end
 
 	TooltipInternal.TouchInputPosition = nil
 	TooltipInternal.WaitForTouchInput = false
+	Tooltip.IsTouchCommitted = true
 	Tooltip.Destroy()
 end
 

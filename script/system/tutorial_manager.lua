@@ -999,6 +999,7 @@ function Tutorials:reqJointMove(viewElement, reqTable, info)
 			end)
 	end
 	reqElement:addCustomDisplay(true, function()
+			if (not Tooltip.IsTouchCommitted) then return end
 			if (get_joint_info(0, JOINTS[info.joint]).state == JOINT_STATE[info.state]) then
 				for i,v in pairs(Tutorials.UnignoredJoints) do
 					if (v == JOINTS[info.joint]) then
@@ -1971,10 +1972,7 @@ function Tutorials:showTutorialEnd(buttonsCustom)
 		TutorialsInternal.UpdateConfig(nextTutorial.data ~= nil)
 	end
 
-	local scale = WIN_W > WIN_H * 2 and WIN_H or WIN_W / 7 * 6
-	if (scale > 1024) then
-		scale = 1024
-	end
+	local scale = math.min(WIN_W * 0.8, WIN_H * 2, 1024)
 	local buttonHolder = self.MainView:addChild({
 		shift = { (WIN_W - scale) / 2, (WIN_H - scale / 2.5) / 2 }
 	})

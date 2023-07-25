@@ -179,9 +179,20 @@ local function waitCameraPositionChange(viewElement, reqTable)
 			cameraPos = cameraPos == nil and cameraInfo.pos or cameraPos
 			local cameraMag = math.sqrt(math.pow(cameraPos.x - cameraInfo.pos.x, 2) + math.pow(cameraPos.y - cameraInfo.pos.y, 2) + math.pow(cameraPos.z - cameraInfo.pos.z, 2))
 			if (cameraMag > 1) then
-				req.ready = true
-				reqTable.ready = Tutorials:checkRequirements(reqTable)
 				remove_hook("camera", "tbTutorial1CameraPos")
+				local markReady = function()
+					req.ready = true
+					reqTable.ready = Tutorials:checkRequirements(reqTable)
+					remove_hook("mouse_button_up", "tbTutorial1CameraPos")
+				end
+				add_hook("mouse_button_up", "tbTutorial1CameraPos", markReady)
+				local clock = UIElement.clock
+				viewElement:addChild({}):addCustomDisplay(true, function()
+						if (UIElement.clock - clock > 1) then
+							clock = UIElement.clock
+							markReady()
+						end
+					end)
 			end
 		end)
 end

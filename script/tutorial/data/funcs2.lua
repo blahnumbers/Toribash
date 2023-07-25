@@ -116,7 +116,7 @@ local function showDamageBar()
 	local textColor = table.clone(UICOLORTORI)
 	textColor[4] = 0
 	t2DamageMeter = Tutorials.MainView:addChild({
-		pos = { -450, 7 },
+		pos = { -440 - math.max(SAFE_X, 10), 7 },
 		size = { 440, 40 },
 		bgColor = textColor
 	})
@@ -135,7 +135,7 @@ local function showDamageBar()
 	t2DamageMeter:addCustomDisplay(true, function()
 			local damage = math.ceil(get_player_info(1).injury)
 			t2DamageMeter:uiText(tostring(damage), nil, nil, FONTS.BIG, RIGHTMID, 1, nil, nil, textColor, nil, 0)
-			t2DamageMeter:uiText("damage", nil, 35, nil, RIGHTMID, 1, nil, nil, textColor, nil, 0)
+			t2DamageMeter:uiText(TB_MENU_PLAYER_INFO.username or "Damage", nil, 35, nil, RIGHTMID, 1, nil, nil, textColor, nil, 0)
 		end)
 end
 
