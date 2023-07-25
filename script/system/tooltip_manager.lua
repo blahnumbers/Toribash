@@ -7,7 +7,12 @@ if (Tooltip == nil) then
 
 	---Advanced tooltip manager class
 	---
-	---**Ver 5.60**
+	---**Version 5.61**
+	---* Added TooltipInternal class to use for fields we don't want exposed
+	---* Added optional event callbacks for mobile controls
+	---* Added function to disable mobile state wheel
+	---
+	---**Version 5.60**
 	---* All global variables used by tooltip are now fields of Tooltip class
 	---* Mobile controls on joint hold
 	---* Tooltip hooks are now never unloaded, use tooltip option value to detect whether we should display tooltip ui
@@ -20,10 +25,6 @@ if (Tooltip == nil) then
 	---@field FractureColor Color
 	---@field DismemberColor Color
 	---@field BackgroundColor Color Tooltip UI background color
-	---@field WaitForTouchInput boolean Whether we're waiting for touch input
-	---@field TouchInputTargetPlayer integer Touch input targeted player id
-	---@field TouchInputTargetJoint PlayerJoint Touch input targeted joint id
-	---@field TouchInputPosition table Touch position for the last touch control wheel trigger
 	---@field TouchInputDelay number Delay in seconds before touch control ring will start appearing
 	---@field TouchInputGrowDuration number Duration in seconds for touch control ring to finish animation
 	Tooltip = {
@@ -35,13 +36,9 @@ if (Tooltip == nil) then
 		FractureColor = { 0.44, 0.41, 1, 1 },
 		DismemberColor = { 1, 0, 0, 1 },
 		BackgroundColor = table.clone(bgColor),
-		WaitForTouchInput = false,
-		TouchInputTargetPlayer = -1,
-		---@diagnostic disable-next-line: assign-type-mismatch
-		TouchInputTargetJoint = -1,
 		TouchInputDelay = 0.1,
 		TouchInputGrowDuration = 0.1,
-		version = 5.60
+		version = 5.61
 	}
 	Tooltip.__index = Tooltip
 	setmetatable({}, Tooltip)
@@ -53,6 +50,25 @@ if (Tooltip == nil) then
 	})
 	Tooltip.HolderElement:addCustomDisplay(true, function() end)
 end
+
+---@alias TooltipJointNone
+---| -1 NONE
+
+---Internal helper class for **Tooltip manager**
+---@class TooltipInternal
+---@field WaitForTouchInput boolean Whether we're waiting for touch input
+---@field TouchInputTargetPlayer integer Touch input targeted player id
+---@field TouchInputTargetJoint PlayerJoint|TooltipJointNone Touch input targeted joint id
+---@field TouchInputPosition table Touch position for the last touch control wheel trigger
+---@field OnToggleWheelEvents function[] Optional callbacks executed on joint state wheel selection (mobile only)
+---@field OnTapEvents function[] Optional callbacks executed on joint tap (mobile only)
+local TooltipInternal = {
+	WaitForTouchInput = false,
+	TouchInputTargetPlayer = -1,
+	TouchInputTargetJoint = -1,
+	OnToggleWheelEvents = { },
+	OnTapEvents = { }
+}
 
 ---Calls Destroy() method and marks Tooltip class inactive
 function Tooltip.Quit()
@@ -72,12 +88,38 @@ end
 
 ---Unsets touch target player and joint
 function Tooltip.TouchDeselect()
-	Tooltip.TouchInputTargetPlayer = -1
-	Tooltip.TouchInputTargetJoint = -1
+	TooltipInternal.TouchInputTargetPlayer = -1
+	TooltipInternal.TouchInputTargetJoint = -1
 end
 
 function Tooltip.EnableFocusCam()
 	set_option("focuscam", tonumber(get_option("camerafocus")) or 0)
+end
+
+---Adds mobile toggle wheel function callback and associates it with a specified name
+---@param name string
+---@param func function
+function Tooltip.AddOnToggleWheelEvent(name, func)
+	TooltipInternal.OnToggleWheelEvents[name] = func
+end
+
+---Removes mobile wheel function callback with a corresponding name
+---@param name string
+function Tooltip.RemoveOnToggleWheelEvent(name)
+	TooltipInternal.OnToggleWheelEvents[name] = nil
+end
+
+---Adds mobile tap function callback and associates it with a specified name
+---@param name string
+---@param func function
+function Tooltip.AddOnTapEvent(name, func)
+	TooltipInternal.OnTapEvents[name] = func
+end
+
+---Removes mobile tap function callback with a corresponding name
+---@param name string
+function Tooltip.RemoveOnTapEvent(name)
+	TooltipInternal.OnTapEvents[name] = nil
 end
 
 ---Initializes Tooltip hooks and enables the module
@@ -106,7 +148,7 @@ function Tooltip.Init()
 			end)
 		add_hook("mouse_button_up", Tooltip.HookName, function()
 				if (players_accept_input() == false) then return end
-				Tooltip:setTouchJointState()
+				Tooltip.SetTouchJointState()
 			end)
 	end
 
@@ -166,8 +208,8 @@ end
 ---@param player integer Player id
 ---@param body integer Body id
 function Tooltip:showTooltipBody(player, body)
-	Tooltip.TouchInputTargetPlayer = player
-	Tooltip.TouchInputTargetJoint = -1
+	TooltipInternal.TouchInputTargetPlayer = player
+	TooltipInternal.TouchInputTargetJoint = -1
 	Tooltip.GrabDisplayActive = false
 	Tooltip.Destroy()
 
@@ -213,7 +255,7 @@ function Tooltip:showTooltipBody(player, body)
 				else
 					draw_quad(tbTooltipView.pos.x + 10, jointTooltipState.pos.y + tbTooltip.size.h / 12, tbTooltipView.size.h / 3 - 5, tbTooltipView.size.h / 9)
 					set_color(0, 1, 0, 1)
-					draw_disk(tbTooltipView.pos.x + 10 + jointTooltipState.size.h / 6 * 5, jointTooltipState.pos.y + jointTooltipState.size.h / 3 * 2, 0, jointTooltipState.size.h / 3, 500, 1, 0, 360, 1)
+					draw_disk(tbTooltipView.pos.x + 10 + jointTooltipState.size.h / 6 * 5, jointTooltipState.pos.y + jointTooltipState.size.h / 3 * 2, 0, jointTooltipState.size.h / 3, 20, 1, 0, 360, 1)
 				end
 			end
 
@@ -231,13 +273,13 @@ end
 ---@param joint integer Joint id
 ---@return integer
 function Tooltip:showTooltipJoint(player, joint)
-	Tooltip.TouchInputTargetPlayer = player
-	Tooltip.TouchInputTargetJoint = joint
+	TooltipInternal.TouchInputTargetPlayer = player
+	TooltipInternal.TouchInputTargetJoint = joint
 
 	if (Tooltip.GrabDisplayActive) then
 		return 0
 	end
-	if (Tooltip.TouchInputPosition ~= nil) then
+	if (TooltipInternal.TouchInputPosition ~= nil) then
 		return 1
 	end
 	Tooltip.Destroy()
@@ -247,8 +289,8 @@ function Tooltip:showTooltipJoint(player, joint)
 		return 0
 	end
 	if (joint > -1 and joint < 20) then
-		Tooltip.TouchInputTargetPlayer = player
-		Tooltip.TouchInputTargetJoint = joint
+		TooltipInternal.TouchInputTargetPlayer = player
+		TooltipInternal.TouchInputTargetJoint = joint
 
 		if (get_option("tooltip") == 0 or not Tooltip.IsActive) then
 			return 0
@@ -280,11 +322,11 @@ function Tooltip:showTooltipJoint(player, joint)
 		})
 		local function drawDismembered()
 			set_color(unpack(Tooltip.DismemberColor))
-			draw_disk(tbTooltipView.pos.x + 10 + jointTooltipState.size.h / 2, jointTooltipState.pos.y + jointTooltipState.size.h / 2, 0, jointTooltipState.size.h / 2, 500, 1, 0, 360, 0)
+			draw_disk(tbTooltipView.pos.x + 10 + jointTooltipState.size.h / 2, jointTooltipState.pos.y + jointTooltipState.size.h / 2, 0, jointTooltipState.size.h / 2, 20, 1, 0, 360, 0)
 		end
 		local function drawFractured()
 			set_color(unpack(Tooltip.FractureColor))
-			draw_disk(tbTooltipView.pos.x + 10 + jointTooltipState.size.h / 2, jointTooltipState.pos.y + jointTooltipState.size.h / 2, 0, jointTooltipState.size.h / 2, 500, 1, 0, 360, 0)
+			draw_disk(tbTooltipView.pos.x + 10 + jointTooltipState.size.h / 2, jointTooltipState.pos.y + jointTooltipState.size.h / 2, 0, jointTooltipState.size.h / 2, 20, 1, 0, 360, 0)
 		end
 
 		local force, relax = get_joint_colors(player, joint)
@@ -300,7 +342,7 @@ function Tooltip:showTooltipJoint(player, joint)
 		local function drawJointState(state)
 			if (state ~= 3) then
 				set_color(unpack(relaxColor))
-				draw_disk(tbTooltipView.pos.x + 10 + jointTooltipState.size.h / 2, jointTooltipState.pos.y + jointTooltipState.size.h / 2, 0, jointTooltipState.size.h / 3, 500, 1, 0, 360, 0)
+				draw_disk(tbTooltipView.pos.x + 10 + jointTooltipState.size.h / 2, jointTooltipState.pos.y + jointTooltipState.size.h / 2, 0, jointTooltipState.size.h / 3, 20, 1, 0, 360, 0)
 				if (state == 4) then
 					return
 				end
@@ -315,20 +357,20 @@ function Tooltip:showTooltipJoint(player, joint)
 				scale = 180
 			end
 			set_color(unpack(forceColor))
-			draw_disk(tbTooltipView.pos.x + 10 + jointTooltipState.size.h / 2, jointTooltipState.pos.y + jointTooltipState.size.h / 2, 0, jointTooltipState.size.h / 2 - 0.5, 500, 1, rotation, scale, 0)
+			draw_disk(tbTooltipView.pos.x + 10 + jointTooltipState.size.h / 2, jointTooltipState.pos.y + jointTooltipState.size.h / 2, 0, jointTooltipState.size.h / 2 - 0.5, 20, 1, rotation, scale, 0)
 		end
 		jointTooltipState:addCustomDisplay(true, function()
 				-- Getting full joint state
 				local dismembered = get_joint_dismember(player, joint)
 				if (dismembered) then
 					drawDismembered()
-					jointTooltipState:uiText("DISMEMBERED", nil, nil, 4, LEFTMID, 0.7, nil, 0.2, nil, UICOLORRED)
+					jointTooltipState:uiText(TB_MENU_LOCALIZED.TOOLTIPDISMEMBERED, nil, nil, 4, LEFTMID, 0.7, nil, 0.2, nil, UICOLORRED)
 					return
 				end
 				local fractured = get_joint_fracture(player, joint)
 				if (fractured) then
 					drawFractured()
-					jointTooltipState:uiText("FRACTURED", nil, nil, 4, LEFTMID, 0.7, nil, 0.2, nil, UICOLORBLUE)
+					jointTooltipState:uiText(TB_MENU_LOCALIZED.TOOLTIPFRACTURED, nil, nil, 4, LEFTMID, 0.7, nil, 0.2, nil, UICOLORBLUE)
 					return
 				end
 				local jInfo = get_joint_info(player, joint)
@@ -346,14 +388,19 @@ function Tooltip:showTouchControls()
 	if (get_world_state().replay_mode == 1) then
 		Tooltip.TouchDeselect()
 	end
-	if (Tooltip.GrabDisplayActive or Tooltip.TouchInputTargetPlayer < 0 or Tooltip.TouchInputTargetJoint < 0 or Tooltip.TouchInputTargetJoint >= 20) then
+	if (Tooltip.GrabDisplayActive or TooltipInternal.TouchInputTargetPlayer < 0 or TooltipInternal.TouchInputTargetJoint < 0 or TooltipInternal.TouchInputTargetJoint >= 20) then
 		return
 	end
 	Tooltip.Destroy()
 
+	local wheelMode = get_option("tooltipmode")
+	if (wheelMode == 3) then
+		return
+	end
+
 	---@diagnostic disable-next-line: param-type-mismatch
-	local jointPos = { get_joint_screen_pos(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint) }
-	Tooltip.TouchInputPosition = {
+	local jointPos = { get_joint_screen_pos(TooltipInternal.TouchInputTargetPlayer, TooltipInternal.TouchInputTargetJoint) }
+	TooltipInternal.TouchInputPosition = {
 		x = jointPos[1],
 		y = jointPos[2]
 	}
@@ -363,8 +410,8 @@ function Tooltip:showTouchControls()
 	})
 	add_hook("pre_draw", "tooltipTouchPositionFixer", function()
 			---@diagnostic disable-next-line: param-type-mismatch
-			Tooltip.TouchInputPosition.x, Tooltip.TouchInputPosition.y = get_joint_screen_pos(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint)
-			touchControlsHolder:moveTo(Tooltip.TouchInputPosition.x - touchControlsHolder.size.w / 2, Tooltip.TouchInputPosition.y - touchControlsHolder.size.h / 2)
+			TooltipInternal.TouchInputPosition.x, TooltipInternal.TouchInputPosition.y = get_joint_screen_pos(TooltipInternal.TouchInputTargetPlayer, TooltipInternal.TouchInputTargetJoint)
+			touchControlsHolder:moveTo(TooltipInternal.TouchInputPosition.x - touchControlsHolder.size.w / 2, TooltipInternal.TouchInputPosition.y - touchControlsHolder.size.h / 2)
 			touchControlsHolder:updatePos()
 		end)
 	disable_mouse_camera_movement()
@@ -380,39 +427,43 @@ function Tooltip:showTouchControls()
 
 	local jointStateTextColor = { 0, 0, 0, 0 }
 	local jointStateShadowColor = { 255, 255, 255, 0 }
-	local touchControlsTopTitle = touchControlsHolder:addChild({
-		pos = { -touchControlsHolder.size.w - 150, -touchControlsHolder.size.h - 50 },
-		size = { 300 + touchControlsHolder.size.w, 30 }
-	})
-	---@diagnostic disable-next-line: param-type-mismatch
-	touchControlsTopTitle:addAdaptedText(true, get_joint_state_name(Tooltip.TouchInputTargetJoint, 3), nil, nil, FONTS.BIG, CENTERBOT, 0.6, nil, nil, 2, jointStateTextColor, jointStateShadowColor);
+	if (wheelMode == 0 or wheelMode == 2) then
+		local touchControlsTopTitle = touchControlsHolder:addChild({
+			pos = { -touchControlsHolder.size.w - 150, -touchControlsHolder.size.h - 50 },
+			size = { 300 + touchControlsHolder.size.w, 30 }
+		})
+		---@diagnostic disable-next-line: param-type-mismatch
+		touchControlsTopTitle:addAdaptedText(true, get_joint_state_name(TooltipInternal.TouchInputTargetJoint, 3), nil, nil, FONTS.BIG, CENTERBOT, 0.6, nil, nil, 2, jointStateTextColor, jointStateShadowColor)
 
-	local touchControlsBotTitle = touchControlsHolder:addChild({
-		pos = { -touchControlsHolder.size.w - 150, touchControlsHolder.size.h + 20 },
-		size = { 300 + touchControlsHolder.size.w, 30 }
-	})
-	---@diagnostic disable-next-line: param-type-mismatch
-	touchControlsBotTitle:addAdaptedText(true, get_joint_state_name(Tooltip.TouchInputTargetJoint, 4), nil, nil, FONTS.BIG, CENTER, 0.6, nil, nil, 2, jointStateTextColor, jointStateShadowColor);
+		local touchControlsBotTitle = touchControlsHolder:addChild({
+			pos = { -touchControlsHolder.size.w - 150, touchControlsHolder.size.h + 20 },
+			size = { 300 + touchControlsHolder.size.w, 30 }
+		})
+		---@diagnostic disable-next-line: param-type-mismatch
+		touchControlsBotTitle:addAdaptedText(true, get_joint_state_name(TooltipInternal.TouchInputTargetJoint, 4), nil, nil, FONTS.BIG, CENTER, 0.6, nil, nil, 2, jointStateTextColor, jointStateShadowColor)
+	end
 
-	local touchControlsRightTitle = touchControlsHolder:addChild({
-		pos = { touchControlsHolder.size.w + 20, touchControlsHolder.size.h / 2 - 15 },
-		size = { 250, 30 }
-	})
-	---@diagnostic disable-next-line: param-type-mismatch
-	touchControlsRightTitle:addAdaptedText(true, get_joint_state_name(Tooltip.TouchInputTargetJoint, 1), nil, nil, FONTS.BIG, LEFTMID, 0.6, nil, nil, 2, jointStateTextColor, jointStateShadowColor);
+	if (wheelMode == 0 or wheelMode == 1) then
+		local touchControlsRightTitle = touchControlsHolder:addChild({
+			pos = { touchControlsHolder.size.w + 20, touchControlsHolder.size.h / 2 - 15 },
+			size = { 250, 30 }
+		})
+		---@diagnostic disable-next-line: param-type-mismatch
+		touchControlsRightTitle:addAdaptedText(true, get_joint_state_name(TooltipInternal.TouchInputTargetJoint, 1), nil, nil, FONTS.BIG, LEFTMID, 0.6, nil, nil, 2, jointStateTextColor, jointStateShadowColor)
 
-	local touchControlsLeftTitle = touchControlsHolder:addChild({
-		pos = { -touchControlsHolder.size.w - 270, touchControlsHolder.size.h / 2 - 15 },
-		size = { 250, 30 }
-	})
-	---@diagnostic disable-next-line: param-type-mismatch
-	touchControlsLeftTitle:addAdaptedText(true, get_joint_state_name(Tooltip.TouchInputTargetJoint, 2), nil, nil, FONTS.BIG, RIGHTMID, 0.6, nil, nil, 2, jointStateTextColor, jointStateShadowColor);
+		local touchControlsLeftTitle = touchControlsHolder:addChild({
+			pos = { -touchControlsHolder.size.w - 270, touchControlsHolder.size.h / 2 - 15 },
+			size = { 250, 30 }
+		})
+		---@diagnostic disable-next-line: param-type-mismatch
+		touchControlsLeftTitle:addAdaptedText(true, get_joint_state_name(TooltipInternal.TouchInputTargetJoint, 2), nil, nil, FONTS.BIG, RIGHTMID, 0.6, nil, nil, 2, jointStateTextColor, jointStateShadowColor)
+	end
 
 	touchControlsHolder.pressTimer = UIElement.clock
 	touchControlsHolder.firstPlay = true
 	touchControlsHolder:addCustomDisplay(function()
 			if (touchControlsVisual.size.w == touchControlsHolder.size.w) then
-				Tooltip.WaitForTouchInput = true
+				TooltipInternal.WaitForTouchInput = true
 				return
 			end
 			if (UIElement.clock - touchControlsHolder.pressTimer < Tooltip.TouchInputDelay) then
@@ -435,7 +486,7 @@ function Tooltip:showTouchControls()
 		end)
 
 	---@diagnostic disable-next-line: param-type-mismatch
-	local lastJointState = get_joint_info(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint).state
+	local lastJointState = get_joint_info(TooltipInternal.TouchInputTargetPlayer, TooltipInternal.TouchInputTargetJoint).state
 	local fallbackJointState = lastJointState
 	touchControlsVisual:addCustomDisplay(true, function()
 			local centerPoint = {
@@ -446,49 +497,74 @@ function Tooltip:showTouchControls()
 			local ringSize = touchControlsVisual.size.w / 2
 			local ringStartSize = ringSize * 0.7
 			set_color(0, 0, 0, 1)
-			draw_disk(centerPoint.x, centerPoint.y, ringStartSize, ringSize, 10, 1, 50, 80, 0) -- right
-			draw_disk(centerPoint.x, centerPoint.y, ringStartSize, ringSize, 10, 1, 140, 80, 0) -- top
-			draw_disk(centerPoint.x, centerPoint.y, ringStartSize, ringSize, 10, 1, 230, 80, 0) -- left
-			draw_disk(centerPoint.x, centerPoint.y, ringStartSize, ringSize, 10, 1, 320, 80, 0) -- bottom
+			if (wheelMode == 0) then
+				draw_disk(centerPoint.x, centerPoint.y, ringStartSize, ringSize, 0, 1, 50, 80, 0) -- right
+				draw_disk(centerPoint.x, centerPoint.y, ringStartSize, ringSize, 0, 1, 140, 80, 0) -- top
+				draw_disk(centerPoint.x, centerPoint.y, ringStartSize, ringSize, 0, 1, 230, 80, 0) -- left
+				draw_disk(centerPoint.x, centerPoint.y, ringStartSize, ringSize, 0, 1, 320, 80, 0) -- bottom
+			elseif (wheelMode == 1) then
+				draw_disk(centerPoint.x, centerPoint.y, ringStartSize, ringSize, 0, 1, 5, 170, 0) -- right
+				draw_disk(centerPoint.x, centerPoint.y, ringStartSize, ringSize, 0, 1, 185, 170, 0) -- left
+			else
+				draw_disk(centerPoint.x, centerPoint.y, ringStartSize, ringSize, 0, 1, 95, 170, 0) -- top
+				draw_disk(centerPoint.x, centerPoint.y, ringStartSize, ringSize, 0, 1, 275, 170, 0) -- bottom
+			end
 
 			ringSize = ringSize - 1
 			ringStartSize = ringStartSize + 1
 			set_color(255, 255, 255, 1)
-			draw_disk(centerPoint.x, centerPoint.y, ringStartSize, ringSize, 10, 1, 51, 78, 0) -- right
-			draw_disk(centerPoint.x, centerPoint.y, ringStartSize, ringSize, 10, 1, 141, 78, 0) -- top
-			draw_disk(centerPoint.x, centerPoint.y, ringStartSize, ringSize, 10, 1, 231, 78, 0) -- left
-			draw_disk(centerPoint.x, centerPoint.y, ringStartSize, ringSize, 10, 1, 321, 78, 0) -- bottom
+			if (wheelMode == 0) then
+				draw_disk(centerPoint.x, centerPoint.y, ringStartSize, ringSize, 0, 1, 51, 78, 0) -- right
+				draw_disk(centerPoint.x, centerPoint.y, ringStartSize, ringSize, 0, 1, 141, 78, 0) -- top
+				draw_disk(centerPoint.x, centerPoint.y, ringStartSize, ringSize, 0, 1, 231, 78, 0) -- left
+				draw_disk(centerPoint.x, centerPoint.y, ringStartSize, ringSize, 0, 1, 321, 78, 0) -- bottom
+			elseif (wheelMode == 1) then
+				draw_disk(centerPoint.x, centerPoint.y, ringStartSize, ringSize, 0, 1, 6, 168, 0) -- right
+				draw_disk(centerPoint.x, centerPoint.y, ringStartSize, ringSize, 0, 1, 186, 168, 0) -- left
+			else
+				draw_disk(centerPoint.x, centerPoint.y, ringStartSize, ringSize, 0, 1, 96, 168, 0) -- top
+				draw_disk(centerPoint.x, centerPoint.y, ringStartSize, ringSize, 0, 1, 276, 168, 0) -- bottom
+			end
 
 			local mouseDelta = Tooltip:getTouchMouseDelta()
+			local selectionAngle = 90
+			if (wheelMode == 1) then
+				mouseDelta.y = 0
+				selectionAngle = 180
+			elseif (wheelMode == 2) then
+				mouseDelta.x = 0
+				selectionAngle = 180
+			end
+
 			set_color(unpack(TB_MENU_DEFAULT_DARKER_COLOR))
 			local targetJointState = lastJointState
 			if (mouseDelta.x ~= 0 or mouseDelta.y ~= 0) then
 				if (math.abs(mouseDelta.x) > math.abs(mouseDelta.y)) then
 					if (mouseDelta.x > 0) then
-						draw_disk(centerPoint.x, centerPoint.y, ringStartSize * 0.95, ringSize * 1.1, 10, 1, 45, 90, 0) -- right
+						draw_disk(centerPoint.x, centerPoint.y, ringStartSize * 0.95, ringSize * 1.1, 0, 1, 90 - selectionAngle / 2, selectionAngle, 0) -- right
 						targetJointState = 1
 					else
-						draw_disk(centerPoint.x, centerPoint.y, ringStartSize * 0.95, ringSize * 1.1, 10, 1, 225, 90, 0) -- left
+						draw_disk(centerPoint.x, centerPoint.y, ringStartSize * 0.95, ringSize * 1.1, 0, 1, 270 - selectionAngle / 2, selectionAngle, 0) -- left
 						targetJointState = 2
 					end
 				else
 					if (mouseDelta.y > 0) then
-						draw_disk(centerPoint.x, centerPoint.y, ringStartSize * 0.95, ringSize * 1.1, 10, 1, 315, 90, 0) -- bottom
+						draw_disk(centerPoint.x, centerPoint.y, ringStartSize * 0.95, ringSize * 1.1, 0, 1, 360 - selectionAngle / 2, selectionAngle, 0) -- bottom
 						targetJointState = 4
 					else
-						draw_disk(centerPoint.x, centerPoint.y, ringStartSize * 0.95, ringSize * 1.1, 10, 1, 135, 90, 0) -- top
+						draw_disk(centerPoint.x, centerPoint.y, ringStartSize * 0.95, ringSize * 1.1, 0, 1, 180 - selectionAngle / 2, selectionAngle, 0) -- top
 						targetJointState = 3
 					end
 				end
 			else
-				if (fallbackJointState == 1) then
-					draw_disk(centerPoint.x, centerPoint.y, ringStartSize * 0.95, ringSize * 1.1, 10, 1, 45, 90, 0) -- right
-				elseif (fallbackJointState == 2) then
-					draw_disk(centerPoint.x, centerPoint.y, ringStartSize * 0.95, ringSize * 1.1, 10, 1, 225, 90, 0) -- left
-				elseif (fallbackJointState == 3) then
-					draw_disk(centerPoint.x, centerPoint.y, ringStartSize * 0.95, ringSize * 1.1, 10, 1, 135, 90, 0) -- top
-				else
-					draw_disk(centerPoint.x, centerPoint.y, ringStartSize * 0.95, ringSize * 1.1, 10, 1, 315, 90, 0) -- bottom
+				if (fallbackJointState == 1 and wheelMode ~= 2) then
+					draw_disk(centerPoint.x, centerPoint.y, ringStartSize * 0.95, ringSize * 1.1, 0, 1, 90 - selectionAngle / 2, selectionAngle, 0) -- right
+				elseif (fallbackJointState == 2 and wheelMode ~= 2) then
+					draw_disk(centerPoint.x, centerPoint.y, ringStartSize * 0.95, ringSize * 1.1, 0, 1, 270 - selectionAngle / 2, selectionAngle, 0) -- left
+				elseif (fallbackJointState == 3 and wheelMode ~= 1) then
+					draw_disk(centerPoint.x, centerPoint.y, ringStartSize * 0.95, ringSize * 1.1, 0, 1, 180 - selectionAngle / 2, selectionAngle, 0) -- top
+				elseif (fallbackJointState == 4 and wheelMode ~= 1) then
+					draw_disk(centerPoint.x, centerPoint.y, ringStartSize * 0.95, ringSize * 1.1, 0, 1, 360 - selectionAngle / 2, selectionAngle, 0) -- bottom
 				end
 				targetJointState = fallbackJointState
 			end
@@ -496,8 +572,13 @@ function Tooltip:showTouchControls()
 			if (lastJointState ~= targetJointState) then
 				play_haptics(0.6, HAPTICS.SELECTION)
 				---@diagnostic disable-next-line: param-type-mismatch
-				set_joint_state(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint, targetJointState, true)
+				set_joint_state(TooltipInternal.TouchInputTargetPlayer, TooltipInternal.TouchInputTargetJoint, targetJointState, true)
 				lastJointState = targetJointState
+				for _, v in pairs(TooltipInternal.OnToggleWheelEvents) do
+					if (type(v) == "function") then
+						pcall(v())
+					end
+				end
 			end
 		end)
 end
@@ -505,13 +586,13 @@ end
 ---Returns normalized touch input delta
 ---@return Vector2
 function Tooltip:getTouchMouseDelta()
-	if (Tooltip.TouchInputPosition == nil) then
+	if (TooltipInternal.TouchInputPosition == nil) then
 		return { x = 0, y = 0 }
 	end
 
 	local mouseDelta = {
-		x = MOUSE_X - Tooltip.TouchInputPosition.x,
-		y = MOUSE_Y - Tooltip.TouchInputPosition.y
+		x = MOUSE_X - TooltipInternal.TouchInputPosition.x,
+		y = MOUSE_Y - TooltipInternal.TouchInputPosition.y
 	}
 	-- We don't want to do anything if input was within "dead" zone
  	if (math.max(math.abs(mouseDelta.x), math.abs(mouseDelta.y)) < 50) then
@@ -527,15 +608,18 @@ function Tooltip:getTouchMouseDelta()
 end
 
 ---Sets the joint state based on touch input wheel
-function Tooltip:setTouchJointState()
-	if (Tooltip.TouchInputTargetPlayer > -1 and Tooltip.TouchInputTargetJoint > -1) then
-		if (not Tooltip.TouchInputPosition or not Tooltip.WaitForTouchInput) then
-			Tooltip:toggleJointState(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint)
+function Tooltip.SetTouchJointState()
+	if (TooltipInternal.TouchInputTargetPlayer > -1 and TooltipInternal.TouchInputTargetJoint > -1) then
+		if (not TooltipInternal.TouchInputPosition or not TooltipInternal.WaitForTouchInput) then
+			Tooltip:toggleJointState(TooltipInternal.TouchInputTargetPlayer, TooltipInternal.TouchInputTargetJoint)
+			for _, v in pairs(TooltipInternal.OnTapEvents) do
+				pcall(v())
+			end
 		end
 	end
 
-	Tooltip.TouchInputPosition = nil
-	Tooltip.WaitForTouchInput = false
+	TooltipInternal.TouchInputPosition = nil
+	TooltipInternal.WaitForTouchInput = false
 	Tooltip.Destroy()
 end
 
@@ -547,7 +631,7 @@ function Tooltip:toggleJointState(player, joint)
 	local targetJointState = nil
 	local mousebuttons = get_option("mousebuttons")
 	---@diagnostic disable-next-line: param-type-mismatch
-	local jointState = get_joint_info(Tooltip.TouchInputTargetPlayer, Tooltip.TouchInputTargetJoint).state
+	local jointState = get_joint_info(TooltipInternal.TouchInputTargetPlayer, TooltipInternal.TouchInputTargetJoint).state
 	if (mousebuttons == 1) then
 		if (get_shift_key_state() == 1) then
 			targetJointState = (jointState - 1) % 4

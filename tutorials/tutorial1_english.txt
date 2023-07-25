@@ -22,14 +22,22 @@ INTROENDSENSEI5	If you want to become a truly good fighter, you need to train; N
 #
 #HINT MESSAGES
 CAMERAHINT1	Move your CAMERA using ~W~ ~A~ ~S~ ~D~ keys.
+CAMERAHINT1MOBILE	Move your CAMERA by dragging your finger around.
 CAMERAHINT2	To adjust camera height, hold ~SHIFT~ while moving your camera.
+CAMERAHINT2MOBILE	If camera movement direction doesn't feel right, try inverting the axes.
 CAMERAHINT3	You can also control the camera by right-clicking anywhere with your mouse.
+CAMERAHINT3MOBILE	You can always change camera control modes in game settings.
 CONTROLSHINT1	In Toribash, you control your character by modifying joint states on its body.
 CONTROLSHINT2	There are four joint states - HOLD, RELAX, CONTRACT and EXTEND.\nCombining them results in unique moves that make each fight special.
 CONTROLSHINT3	Click on Sensei's RIGHT KNEE to change its state to EXTENDING and kick the opponent.
+CONTROLSHINT3MOBILE	Tap on Sensei's RIGHT KNEE to change its state to EXTENDING and kick the opponent.
 CONTROLSHINT4	You can also control your joints quicker by using KEYBOARD HOTKEYS.
+CONTROLSHINT4MOBILE	You can also control your joints quicker by using SHORTCUT BUTTONS and JOINT STATE WHEEL.
 CONTROLSHINT5	To change all joints' states at once to either HOLD or RELAX, press ~C~
+CONTROLSHINT5MOBILE	To change all joints' states at once to either HOLD or RELAX, press the corresponding button on bottom right.
 CONTROLSHINT6	Hover over any joint and press ~X~ to toggle between its HOLD and RELAX states.
+CONTROLSHINT6MOBILE	TAP and HOLD any joint to display JOINT STATE WHEEL.\nMove your finger to select the new joint state.
 CONTROLSHINT7	To switch between CONTRACTING and EXTENDING states, press ~Z~ while hovering over a joint.
+CONTROLSHINT7MOBILE	JOINT STATE WHEEL allows you to quickly preview all possible joint moves without committing changes instantly.
 QIHINT1	In Toribash, your EXPERIENCE is measured in QI.\nFor every fight you play, you get at least 1 Qi - and more the longer the fight.
 QIHINT2	The higher your QI, the better BELT you receive and the more customization items will become available in the shop.

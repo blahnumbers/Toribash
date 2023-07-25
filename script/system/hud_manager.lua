@@ -937,7 +937,7 @@ end
 
 ---Reloads chat display
 function TBHud:refreshChat()
-	local elementHeight = 18
+	local elementHeight = 25
 
 	if (self.ChatHolderItems == nil) then
 		-- Do the initial setup
@@ -955,7 +955,7 @@ function TBHud:refreshChat()
 		self.ChatHolderItems = {}
 		for _, message in pairs(TBHudInternal.ChatMessages) do
 			message.lines = 0
-			local messageStrings = textAdapt(message.text, FONTS.SMALL, 1, listingHolder.size.w - 32)
+			local messageStrings = textAdapt(message.text, FONTS.SMALL + 10, 0.72, listingHolder.size.w - 32)
 			local nextColor = nil
 			for _, str in pairs(messageStrings) do
 				local chatMessage = listingHolder:addChild({
@@ -963,7 +963,7 @@ function TBHud:refreshChat()
 					size = { listingHolder.size.w - 32, elementHeight },
 					uiColor = nextColor
 				})
-				chatMessage:addAdaptedText(true, str, nil, nil, FONTS.SMALL, LEFT, 1, 1)
+				chatMessage:addAdaptedText(true, str, nil, nil, FONTS.SMALL + 10, LEFT, 0.72, 0.72)
 				table.insert(self.ChatHolderItems, chatMessage)
 				nextColor = TBHudInternal.getLastColorFromString(str)
 				message.lines = message.lines + 1
@@ -1086,7 +1086,7 @@ function TBHud:refreshChat()
 			hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
 		}, true)
-		chatInputSubmit:addChild({ shift = { 10, 3 }}):addAdaptedText("Submit")
+		chatInputSubmit:addChild({ shift = { 10, 3 }}):addAdaptedText(TB_MENU_LOCALIZED.BUTTONSEND)
 		chatInputSubmit:addMouseUpHandler(chatInputField.enteraction)
 
 		self.ChatHolderToReload = toReload
@@ -1100,7 +1100,7 @@ function TBHud:refreshChat()
 
 		for _, message in pairs(TBHudInternal.ChatMessages) do
 			if (i > #self.ChatHolderItems) then
-				local messageStrings = textAdapt(message.text, FONTS.SMALL, 1, self.ChatHolderListing.size.w - 32)
+				local messageStrings = textAdapt(message.text, FONTS.SMALL + 10, 0.72, self.ChatHolderListing.size.w - 32)
 				message.lines = 0
 				local nextColor = nil
 				for _, str in pairs(messageStrings) do
@@ -1109,7 +1109,7 @@ function TBHud:refreshChat()
 						size = { self.ChatHolderListing.size.w - 32, elementHeight },
 						uiColor = nextColor
 					})
-					chatMessage:addAdaptedText(true, str, nil, nil, FONTS.SMALL, LEFT, 1, 1)
+					chatMessage:addAdaptedText(true, str, nil, nil, FONTS.SMALL + 10, LEFT, 0.72, 0.72)
 					table.insert(self.ChatHolderItems, chatMessage)
 					nextColor = TBHudInternal.getLastColorFromString(str)
 					message.lines = message.lines + 1

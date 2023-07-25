@@ -2261,7 +2261,7 @@ function Tutorials:loadOverlay()
 		---On mobile we show the hint on the left side to ensure TBHud buttons are fully visible
 		local hintViewBG = self.HintView:addChild({
 			pos = { 0, 0 },
-			size = { self.HintView.size.w / 2, self.HintView.size.h },
+			size = { math.floor(self.HintView.size.w / 2), self.HintView.size.h },
 			bgColor = self.HintView.bgColor
 		})
 		local hintViewGradient = hintViewBG:addChild({
@@ -2273,7 +2273,7 @@ function Tutorials:loadOverlay()
 		})
 		self.HintMessageView = hintViewBG:addChild({
 			pos = { math.max(SAFE_X, 20), 5 },
-			size = { hintViewBG.size.w - math.max(SAFE_X, 20) * 2, hintViewBG.size.h - math.max(10, SAFE_Y) }
+			size = { hintViewBG.size.w, hintViewBG.size.h - math.max(10, SAFE_Y) }
 		})
 		self.HintView:addCustomDisplay(true, function() end)
 	end

@@ -75,7 +75,7 @@ RemindMe Remind Me
 RememberMe Remember me
 Show Show
 ForgotYourPassword? Forgot your password?
-Don'tHaveAnAccount? Don't have an account?
+Don'tHaveAnAccount? Don't have an account? Sign up
 Close Close
 UPGRADED! UPGRADED!
 NumGamesToBelt games to

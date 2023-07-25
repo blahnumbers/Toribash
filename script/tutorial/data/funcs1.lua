@@ -169,11 +169,92 @@ local function drawWASDStatic(viewElement, reqTable, shift, fade)
 	prepareClassicCamera()
 end
 
+local function waitCameraPositionChange(viewElement, reqTable)
+	local cameraPos = nil
+	local req = { type = "cameracontrols", ready = false }
+	table.insert(reqTable, req)
+
+	add_hook("camera", "tbTutorial1CameraPos", function()
+			local cameraInfo = get_camera_info()
+			cameraPos = cameraPos == nil and cameraInfo.pos or cameraPos
+			local cameraMag = math.sqrt(math.pow(cameraPos.x - cameraInfo.pos.x, 2) + math.pow(cameraPos.y - cameraInfo.pos.y, 2) + math.pow(cameraPos.z - cameraInfo.pos.z, 2))
+			if (cameraMag > 1) then
+				req.ready = true
+				reqTable.ready = Tutorials:checkRequirements(reqTable)
+				remove_hook("camera", "tbTutorial1CameraPos")
+			end
+		end)
+end
+
+local function prepareCameraControls(viewElement, reqTable, shift, fade)
+	prepareClassicCamera()
+	if (not is_mobile()) then
+		drawWASDStatic(viewElement, reqTable, shift, fade)
+	else
+		enable_mouse_camera_movement()
+	end
+end
+
+local function showCameraInvertModes(viewElement, reqTable)
+	Tutorials:reqButton(reqTable)
+
+	local buttonWidth = math.clamp(WIN_W / 3, 400, 600)
+	local buttonHeight = math.clamp(WIN_H / 10, 60, 120)
+	local invertHorizontalButton = viewElement:addChild({
+		pos = { Tutorials.HintMessageView.pos.x, Tutorials.HintMessageView.pos.y - buttonHeight * 3 },
+		size = { buttonWidth, buttonHeight },
+		interactive = true,
+		bgColor = TB_MENU_DEFAULT_BG_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+		shapeType = ROUNDED,
+		rounded = 4
+	})
+	local function toggleOption(button, text, state)
+		button:kill(true)
+		if (state) then
+			button:addChild({}):addAdaptedText(text)
+		else
+			TBMenu:showTextWithImage(button, text, FONTS.MEDIUM, 32, "../textures/menu/general/buttons/checkmark.tga", nil, true)
+		end
+	end
+	invertHorizontalButton:addMouseUpHandler(function()
+			local currentval = get_option("invertedcam") or 0
+			local invertedx = 1 - (bit.band(currentval, 1) ~= 0 and 1 or 0)
+			local invertedy = bit.band(currentval, 2) ~= 0 and 1 or 0
+			set_option("invertedcam", bit.bor(invertedx, invertedy * 2))
+			toggleOption(invertHorizontalButton, TB_MENU_LOCALIZED.SETTINGSCAMERAINVERTX, invertedx == 1)
+		end)
+
+	local invertVerticalButton = viewElement:addChild({
+		pos = { invertHorizontalButton.shift.x, invertHorizontalButton.shift.y + buttonHeight * 1.4 },
+		size = { buttonWidth, buttonHeight },
+		interactive = true,
+		bgColor = TB_MENU_DEFAULT_BG_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+		shapeType = ROUNDED,
+		rounded = 4
+	})
+	invertVerticalButton:addMouseUpHandler(function()
+			local currentval = get_option("invertedcam") or 0
+			local invertedx = bit.band(currentval, 1) ~= 0 and 1 or 0
+			local invertedy = 1 - (bit.band(currentval, 2) ~= 0 and 1 or 0)
+			set_option("invertedcam", bit.bor(invertedx, invertedy * 2))
+			toggleOption(invertVerticalButton, TB_MENU_LOCALIZED.SETTINGSCAMERAINVERTY, invertedy == 1)
+		end)
+
+	local currentval = get_option("invertedcam") or 0
+	toggleOption(invertHorizontalButton, TB_MENU_LOCALIZED.SETTINGSCAMERAINVERTX, bit.band(currentval, 1) ~= 0)
+	toggleOption(invertVerticalButton, TB_MENU_LOCALIZED.SETTINGSCAMERAINVERTY, bit.band(currentval, 2) ~= 0)
+end
+
 local function drawWASDShift(viewElement, reqTable)
 	drawWASD(viewElement, reqTable, true)
 end
 
 local function drawWASDShiftStatic(viewElement, reqTable)
+	Tutorials:reqButton(reqTable)
 	drawWASDStatic(viewElement, nil, true, OUTRO)
 end
 
@@ -223,16 +304,65 @@ local function hideWASDcheckMouse(viewElement, reqTable)
 	checkMouseCameraControls(viewElement, reqTable)
 end
 
+local function waitButton(_, reqTable)
+	Tutorials:reqButton(reqTable)
+end
+
+local function waitJointWheel(_, reqTable)
+	local req = { type = "waitjointwheel", ready = false }
+	table.insert(reqTable, req)
+
+	Tutorials:reqButton(reqTable)
+
+	Tooltip.AddOnToggleWheelEvent("tutorial1jointwheel", function()
+			req.ready = true
+			reqTable.ready = Tutorials:checkRequirements(reqTable)
+			Tooltip.RemoveOnTapEvent("tutorial1jointwheel")
+		end)
+end
+
+---@param viewElement UIElement
+local function waitRelaxAll(viewElement, reqTable)
+	local req = { type = "waitrelaxall", ready = false }
+	table.insert(reqTable, req)
+
+	local buttonIndicator = viewElement:addChild({
+		pos = { TBHud.HoldAllButtonHolder.pos.x, TBHud.HoldAllButtonHolder.pos.y },
+		size = { TBHud.HoldAllButtonHolder.size.w / 2, TBHud.HoldAllButtonHolder.size.h / 2 }
+	})
+	local maxGrow = 15
+	local grow = 0
+	local jointStates = {}
+	for _, v in pairs(JOINTS) do
+		jointStates[v] = get_joint_info(0, v).state
+	end
+	buttonIndicator:addCustomDisplay(true, function()
+			for _, v in pairs(JOINTS) do
+				if (get_joint_info(0, v).state ~= jointStates[v]) then
+					req.ready = true
+					reqTable.ready = Tutorials:checkRequirements(reqTable)
+					break
+				end
+			end
+			grow = grow + maxGrow / tonumber(get_option("framerate") or 60)
+			if (grow > maxGrow) then
+				grow = 0
+			end
+			set_color(TB_MENU_DEFAULT_BG_COLOR[1], TB_MENU_DEFAULT_BG_COLOR[2], TB_MENU_DEFAULT_BG_COLOR[3], 1 - grow / maxGrow)
+			draw_disk(buttonIndicator.pos.x + buttonIndicator.size.w, buttonIndicator.pos.y + buttonIndicator.size.h, buttonIndicator.size.w, buttonIndicator.size.w + grow, 0, 1, 0, 360, 0)
+		end)
+end
+
 return {
-	DrawWASDCameraControls = drawWASD,
-	DrawWASDCameraControlsStatic = drawWASDStatic,
-	DrawWASDShiftCameraControls = drawWASDShift,
-	HideWASDShiftControls = drawWASDShiftStatic,
+	PrepareCameraControls = prepareCameraControls,
+	DrawWASDCameraControls = is_mobile() and waitCameraPositionChange or drawWASD,
+	DrawWASDShiftCameraControls = is_mobile() and showCameraInvertModes or drawWASDShift,
+	HideWASDShiftControls = is_mobile() and function() end or drawWASDShiftStatic,
 	HideCameraKeyboardCheckMouseControls = hideWASDcheckMouse,
 	SetIntroPlayers = setIntroPlayers,
-	DrawXKey = drawSingleKeyX,
-	DrawZKey = drawSingleKeyZ,
-	DrawCKey = drawSingleKeyC,
+	DrawXKey = is_mobile() and waitJointWheel or drawSingleKeyX,
+	DrawZKey = is_mobile() and waitButton or drawSingleKeyZ,
+	DrawCKey = is_mobile() and waitRelaxAll or drawSingleKeyC,
 	BreakLeg = fractureToriKnee,
 	PrepareCamera = prepareClassicCamera,
 }
