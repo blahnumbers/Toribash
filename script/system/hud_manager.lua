@@ -17,14 +17,19 @@ require("system.ignore_manager")
 if (TBHud == nil) then
 	---**Touch HUD class**
 	---
+	---**Version 5.61**
+	---* Added `HubButtonHolder` field to reference Hub button by Tutorials/Events
+	---* Added `TutorialHubOverride` function callback
+	---
 	---**Version 5.60**
-	--- - Base implementation for gameplay buttons (ready, ghost control, chat)
+	---* Initial release
 	---@class TBHud
 	---@field MainElement UIElement
 	---@field CommitStepButtonHolder UIElement
 	---@field ChatButtonHolder UIElement
 	---@field HoldAllButtonHolder UIElement
 	---@field GhostButtonHolder UIElement
+	---@field HubButtonHolder UIElement
 	---@field MiscButtonHolders UIElement[]
 	---@field HubHolder UIElement
 	---@field HubDynamicButtonsHolder UIElement
@@ -43,7 +48,7 @@ if (TBHud == nil) then
 	---@field DefaultButtonSize number
 	---@field DefaultSmallerButtonSize number
 	---@field RequiresChatRefresh boolean
-	---@field ver number
+	---@field TutorialHubOverride function|nil Custom function to be executed when a user presses Hub button while in Tutorial/Event mode
 	TBHud = {
 		Globalid = 1013,
 		HubGlobalid = 1014,
@@ -61,7 +66,8 @@ if (TBHud == nil) then
 		DefaultButtonColor = table.clone(TB_MENU_DEFAULT_BG_COLOR),
 		RequiresChatRefresh = false,
 		SafeAreaOffset = 0,
-		ver = 5.60,
+		TutorialHubOverride = nil,
+		ver = 5.61,
 	}
 	TBHud.__index = TBHud
 	setmetatable({}, TBHud)
@@ -69,12 +75,16 @@ if (TBHud == nil) then
 	TBHud.DefaultSmallerButtonSize = TBHud.DefaultButtonSize * 0.7
 	TBHud.SafeAreaOffset = TBHud.DefaultButtonSize * 3
 
-	---Mobile hud popup class
+	---**Mobile hud popup class** \
+	---This class provides a uniform solution to display all information popups to users (such as broadcasts, quests, etc).
+	---
+	---**Version 5.60**
+	---* Initial release
 	---@class TBHudPopup : UIElement
 	---@field Manager UIElement
-	---@field Queue TBHudPopup[]
-	---@field DefaultDuration number
-	---@field PopupActive boolean
+	---@field Queue TBHudPopup[] Active queue of popups to display
+	---@field DefaultDuration number Default popup display duration, in seconds
+	---@field PopupActive boolean Whether we currently have a popup displayed to user
 	---@field __touchPos Vector2
 	---@field __touchDelta Vector2
 	---@field __launchClock number|nil
@@ -281,6 +291,7 @@ function TBHud.Reload()
 		TBHud.ChatButtonHolder = nil
 		TBHud.HoldAllButtonHolder = nil
 		TBHud.GhostButtonHolder = nil
+		TBHud.HubButtonHolder = nil
 		TBHud.MiscButtonHolders = { }
 	end
 
@@ -609,9 +620,14 @@ function TBHud:spawnHubButton()
 		pos = { -self.DefaultSmallerButtonSize * 1.4, -self.DefaultSmallerButtonSize * 1.5 },
 		size = { self.DefaultSmallerButtonSize, self.DefaultSmallerButtonSize }
 	})
+	self.HubButtonHolder = settingsButtonHolder
 	TBHudInternal.generateTouchButton(settingsButtonHolder, "../textures/menu/general/buttons/options.tga"):addMouseUpHandler(function()
 		if (TUTORIAL_ISACTIVE) then
-			open_menu(19)
+			if (TBHud.TutorialHubOverride ~= nil) then
+				TBHud.TutorialHubOverride()
+			else
+				open_menu(19)
+			end
 		else
 			TBHud:toggleHub(true)
 		end
@@ -747,8 +763,6 @@ end
 ---Spawns right side hud hub menu
 function TBHud:spawnHub()
 	if (self.MainElement == nil) then return end
-	local safe_x, safe_y = get_window_safe_size()
-
 
 	if (self.HubHolder ~= nil) then
 		self.HubHolder:kill()
@@ -763,8 +777,8 @@ function TBHud:spawnHub()
 	self.HubHolder:addMouseUpHandler(function() self:toggleHub(false) end)
 
 	local hubBackground = self.HubHolder:addChild({
-		pos = { -self.HubSize.w - safe_x, 0 },
-		size = { self.HubSize.w + safe_x, self.HubSize.h },
+		pos = { -self.HubSize.w - SAFE_X, 0 },
+		size = { self.HubSize.w + SAFE_X, self.HubSize.h },
 		bgColor = { 1, 1, 1, 0.7 },
 		interactive = true
 	})
@@ -776,7 +790,7 @@ function TBHud:spawnHub()
 		{
 			title = TB_MENU_LOCALIZED.MOVEMEMORYTITLE,
 			image = "../textures/menu/general/movememory_icon.tga",
-			action = function() if (MoveMemory.MainElement == nil) then MoveMemory:showMain() end end
+			action = function() if (MoveMemory.MainElement == nil) then MoveMemory:showMain() else MoveMemory:quit() end end
 		},
 		{
 			title = TB_MENU_LOCALIZED.MAINMENUMODLISTNAME,
@@ -797,7 +811,7 @@ function TBHud:spawnHub()
 	local numButtons = #topRowButtons
 	local buttonSize = (hubMainHolder.size.w - 20) / numButtons - 10 * ((numButtons - 1) / numButtons)
 	local topButtonsHolder = hubMainHolder:addChild({
-		pos = { 10, math.max(safe_y, 20) },
+		pos = { 10, math.max(SAFE_Y, 20) },
 		size = { hubMainHolder.size.w - 20, buttonSize }
 	})
 	for i, v in pairs(topRowButtons) do
@@ -831,7 +845,7 @@ function TBHud:spawnHub()
 	end
 
 	local mainMenuButton = hubMainHolder:addChild({
-		pos = { 10, -50 - math.max(safe_y, 20) },
+		pos = { 10, -50 - math.max(SAFE_Y, 20) },
 		size = { hubMainHolder.size.w - 20, 50 },
 		interactive = true,
 		bgColor = TB_MENU_DEFAULT_BG_COLOR,
@@ -845,7 +859,7 @@ function TBHud:spawnHub()
 
 	local middleSectionHolder = hubMainHolder:addChild({
 		pos = { topButtonsHolder.shift.x, topButtonsHolder.shift.y + topButtonsHolder.size.h + 20 },
-		size = { topButtonsHolder.size.w, hubMainHolder.size.h - (topButtonsHolder.shift.y + topButtonsHolder.size.h + 20) - (mainMenuButton.size.h + 20 + math.max(safe_y, 20)) }
+		size = { topButtonsHolder.size.w, hubMainHolder.size.h - (topButtonsHolder.shift.y + topButtonsHolder.size.h + 20) - (mainMenuButton.size.h + 20 + math.max(SAFE_Y, 20)) }
 	})
 	self.HubDynamicButtonsHolder = middleSectionHolder
 	self:reloadHubDynamicButtons()
@@ -859,7 +873,6 @@ function TBHud:toggleHub(state)
 	end
 
 	local clock = UIElement.clock
-	local safe_x = get_window_safe_size()
 	if (state == true) then
 		self.HubHolder:moveTo(self.HubSize.w)
 	end
@@ -868,7 +881,7 @@ function TBHud:toggleHub(state)
 		if (state) then
 			self.HubHolder:moveTo(UITween.SineTween(self.HubHolder.pos.x, 0, tweenValue))
 		else
-			self.HubHolder:moveTo(UITween.SineTween(self.HubHolder.pos.x, self.HubSize.w + safe_x, tweenValue))
+			self.HubHolder:moveTo(UITween.SineTween(self.HubHolder.pos.x, self.HubSize.w + SAFE_X, tweenValue))
 		end
 
 		if (tweenValue >= 1) then
@@ -1309,8 +1322,7 @@ end
 function TBHudPopup.New(duration)
 	TBHudInternal.PopupInit()
 
-	local _, safe_y = get_window_safe_size()
-	safe_y = math.max(10, safe_y)
+	local safe_y = math.max(10, SAFE_Y)
 	local popupWidth = math.min(1000, WIN_W * 0.6)
 	local popupHeight = math.min(100, WIN_H * 0.2)
 

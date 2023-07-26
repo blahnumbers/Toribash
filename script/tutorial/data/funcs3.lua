@@ -1,5 +1,4 @@
 local SPACEBAR = " "
-local FPS_MULTIPLIER = get_option("framerate") == 30 and 2 or 1
 
 local function requireKeyPress(viewElement, reqTable, key, show)
 	local req = { type = "keypress", ready = false }
@@ -163,15 +162,195 @@ local function checkJointStates(viewElement, reqTable)
 		end)
 end
 
+---@param viewElement UIElement
+local function waitRelaxAll(viewElement, reqTable)
+	local req = { type = "waitrelaxall", ready = false }
+	table.insert(reqTable, req)
+
+	local buttonIndicator = viewElement:addChild({
+		pos = { TBHud.HoldAllButtonHolder.pos.x, TBHud.HoldAllButtonHolder.pos.y },
+		size = { TBHud.HoldAllButtonHolder.size.w / 2, TBHud.HoldAllButtonHolder.size.h / 2 }
+	})
+	local maxGrow = 15
+	local grow = 0
+	local jointStates = {}
+	for _, v in pairs(JOINTS) do
+		jointStates[v] = get_joint_info(0, v).state
+	end
+	buttonIndicator:addCustomDisplay(true, function()
+			for _, v in pairs(JOINTS) do
+				if (get_joint_info(0, v).state ~= jointStates[v]) then
+					req.ready = true
+					reqTable.ready = Tutorials:checkRequirements(reqTable)
+					break
+				end
+			end
+			grow = grow + maxGrow / tonumber(get_option("framerate") or 60)
+			if (grow > maxGrow) then
+				grow = 0
+			end
+			set_color(TB_MENU_DEFAULT_BG_COLOR[1], TB_MENU_DEFAULT_BG_COLOR[2], TB_MENU_DEFAULT_BG_COLOR[3], 1 - grow / maxGrow)
+			draw_disk(buttonIndicator.pos.x + buttonIndicator.size.w, buttonIndicator.pos.y + buttonIndicator.size.h, buttonIndicator.size.w, buttonIndicator.size.w + grow, 0, 1, 0, 360, 0)
+		end)
+end
+
+---@param viewElement UIElement
+---@param onSelect function
+local function displayMobileHubMovememory(viewElement, onSelect)
+	local uiOverlay = viewElement:addChild({
+		interactive = true
+	})
+	local hubBackground = uiOverlay:addChild({
+		pos = { uiOverlay.size.w, 0 },
+		size = { TBHud.HubSize.w + SAFE_X, viewElement.size.h },
+		bgColor = { 1, 1, 1, 0.7 }
+	})
+	local buttonSize = (TBHud.HubSize.w - 20) / 4
+	local moveMemoryButton = hubBackground:addChild({
+		pos = { 10, math.max(SAFE_Y, 20) },
+		size = { buttonSize, buttonSize },
+		bgImage = "../textures/menu/button_backdrop.tga",
+		imageColor = TB_MENU_DEFAULT_BG_COLOR,
+		imageHoverColor = TB_MENU_DEFAULT_DARKER_ORANGE,
+		imagePressedColor = TB_MENU_DEFAULT_DARKER_ORANGE,
+		interactive = true
+	})
+	moveMemoryButton:addMouseUpHandler(function()
+			if (MoveMemory.MainElement == nil) then
+				MoveMemory:showMain()
+			else
+				MoveMemory:quit()
+			end
+			onSelect()
+		end)
+		moveMemoryButton:addChild({
+		pos = { 10, 2 },
+		size = { moveMemoryButton.size.w - 20, moveMemoryButton.size.h - 20 },
+		bgImage = "../textures/menu/general/movememory_icon.tga"
+	})
+	local buttonTitleHolder = moveMemoryButton:addChild({
+		pos = { 0, -30 },
+		size = { moveMemoryButton.size.w, 30 },
+		bgColor = moveMemoryButton.imageAnimateColor,
+		shapeType = ROUNDED,
+		rounded = { 0, 5 }
+	})
+	buttonTitleHolder:addChild({ shift = { 5, 2 }}):addAdaptedText(TB_MENU_LOCALIZED.MOVEMEMORYTITLE)
+
+
+	local clock = UIElement.clock
+	hubBackground:addCustomDisplay(true, function()
+		local tweenValue = (UIElement.clock - clock) * 6
+		hubBackground:moveTo(UITween.SineTween(hubBackground.shift.x, uiOverlay.size.w - hubBackground.size.w, tweenValue))
+		if (tweenValue >= 1) then
+			hubBackground:addCustomDisplay(function() end)
+		end
+	end)
+end
+
+local function waitMovememory(viewElement, reqTable, isExit)
+	local req = { type = "waitmovememory", ready = false }
+	table.insert(reqTable, req)
+
+	local completeRequirement = function()
+		TBHud.TutorialHubOverride = nil
+		MoveMemory.RemoveOnOpenedEvent("tutorial3movememory")
+		MoveMemory.RemoveOnClosedEvent("tutorial3movememory")
+
+		req.ready = true
+		reqTable.ready = Tutorials:checkRequirements(reqTable)
+	end
+
+	TBHud.TutorialHubOverride = function() displayMobileHubMovememory(viewElement, completeRequirement) end
+	local radius = TBHud.HubButtonHolder.size.w / 2
+	local buttonIndicator = viewElement:addChild({
+		pos = { TBHud.HubButtonHolder.pos.x + radius, TBHud.HubButtonHolder.pos.y + radius },
+		size = { radius - 1, radius - 1 }
+	})
+	local maxGrow = 15
+	local grow = 0
+	local jointStates = {}
+	for _, v in pairs(JOINTS) do
+		jointStates[v] = get_joint_info(0, v).state
+	end
+	buttonIndicator:addCustomDisplay(true, function()
+			for _, v in pairs(JOINTS) do
+				if (get_joint_info(0, v).state ~= jointStates[v]) then
+					break
+				end
+			end
+			grow = grow + maxGrow / tonumber(get_option("framerate") or 60)
+			if (grow > maxGrow) then
+				grow = 0
+			end
+			set_color(TB_MENU_DEFAULT_BG_COLOR[1], TB_MENU_DEFAULT_BG_COLOR[2], TB_MENU_DEFAULT_BG_COLOR[3], 1 - grow / maxGrow)
+			draw_disk(buttonIndicator.pos.x, buttonIndicator.pos.y, buttonIndicator.size.w, buttonIndicator.size.w + grow, 0, 1, 0, 360, 0)
+		end)
+
+	if (isExit) then
+		MoveMemory:toggleTutorialQuit(true)
+		MoveMemory.AddOnClosedEvent("tutorial3movememory", completeRequirement)
+	else
+		MoveMemory.AddOnOpenedEvent("tutorial3movememory", completeRequirement)
+	end
+end
+
+local function waitMovememoryExit(viewElement, reqTable)
+	waitMovememory(viewElement, reqTable, true)
+end
+
+local function waitStep(viewElement, reqTable)
+	local req = { type = "keypress", ready = false }
+	table.insert(reqTable, req)
+
+	local commitButton = viewElement:addChild({
+		pos = { TBHud.CommitStepButtonHolder.shift.x, TBHud.CommitStepButtonHolder.shift.y },
+		size = { TBHud.CommitStepButtonHolder.size.w, TBHud.CommitStepButtonHolder.size.h },
+		interactive = true
+	})
+	commitButton:addMouseUpHandler(function()
+		step_game()
+		req.ready = true
+		reqTable.ready = Tutorials:checkRequirements(reqTable)
+	end)
+end
+
+local function moveMessageView()
+	Tutorials.MessageView.t3Mover = Tutorials.MessageView:addChild({})
+	Tutorials.MessageView.t3MoverInitialPos = Tutorials.MessageView.shift.y
+	local spawnTime = UIElement.clock
+	Tutorials.MessageView.t3Mover:addCustomDisplay(true, function()
+			local ratio = UIElement.clock - spawnTime
+			Tutorials.MessageView:moveTo(nil, UITween.SineTween(Tutorials.MessageView.shift.y, Tutorials.MessageView.t3MoverInitialPos - TBHud.HoldAllButtonHolder.size.h, ratio))
+			if (ratio == 1) then
+				Tutorials.MessageView.t3Mover:kill()
+			end
+		end)
+end
+
+local function moveMessageViewBack()
+	Tutorials.MessageView.t3Mover = Tutorials.MessageView:addChild({})
+	Tutorials.MessageView.t3MoverInitialPos = Tutorials.MessageView.t3MoverInitialPos or Tutorials.MessageView.shift.y + TBHud.HoldAllButtonHolder.size.h
+	local spawnTime = UIElement.clock
+	Tutorials.MessageView.t3Mover:addCustomDisplay(true, function()
+			local ratio = UIElement.clock - spawnTime
+			Tutorials.MessageView:moveTo(nil, UITween.SineTween(Tutorials.MessageView.shift.y, Tutorials.MessageView.t3MoverInitialPos, ratio))
+			if (ratio == 1) then
+				Tutorials.MessageView.t3Mover:kill()
+			end
+		end)
+end
+
 return {
-	RequireKeyPressCShow = requireKeyPressCShow,
-	RequireKeyPressC = requireKeyPressC,
-	RequireKeyPressB = requireKeyPressB,
-	RequireKeyPressMShow = requireKeyPressMShow,
-	RequireKeyPressM = requireKeyPressM,
-	RequireKeyPressSpaceShow = showKeyPressSpaceShow,
-	RequireKeyPressSpace = showKeyPressSpace,
+	RequireKeyPressCShow = is_mobile() and waitRelaxAll or requireKeyPressCShow,
+	RequireKeyPressC = is_mobile() and waitRelaxAll or requireKeyPressC,
+	RequireKeyPressMShow = is_mobile() and waitMovememory or requireKeyPressMShow,
+	RequireKeyPressM = is_mobile() and waitMovememoryExit or requireKeyPressM,
+	RequireKeyPressSpaceShow = is_mobile() and waitStep or showKeyPressSpaceShow,
+	RequireKeyPressSpace = is_mobile() and waitStep or showKeyPressSpace,
 	ShowMovememoryMoves = moveMemoryMovesShow,
 	HideMovememoryMoves = moveMemoryShowExit,
-	CheckJointStateChange = checkJointStates
+	CheckJointStateChange = checkJointStates,
+	MoveMessageViewMobile = moveMessageView,
+	MoveMessageViewMobileBack = moveMessageViewBack
 }

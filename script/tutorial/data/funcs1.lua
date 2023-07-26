@@ -337,9 +337,10 @@ local function waitRelaxAll(viewElement, reqTable)
 	local req = { type = "waitrelaxall", ready = false }
 	table.insert(reqTable, req)
 
+	local radius = TBHud.HoldAllButtonHolder.size.w / 2
 	local buttonIndicator = viewElement:addChild({
-		pos = { TBHud.HoldAllButtonHolder.pos.x, TBHud.HoldAllButtonHolder.pos.y },
-		size = { TBHud.HoldAllButtonHolder.size.w / 2, TBHud.HoldAllButtonHolder.size.h / 2 }
+		pos = { TBHud.HoldAllButtonHolder.pos.x + radius, TBHud.HoldAllButtonHolder.pos.y + radius },
+		size = { radius - 1, radius - 1 }
 	})
 	local maxGrow = 15
 	local grow = 0
@@ -360,7 +361,7 @@ local function waitRelaxAll(viewElement, reqTable)
 				grow = 0
 			end
 			set_color(TB_MENU_DEFAULT_BG_COLOR[1], TB_MENU_DEFAULT_BG_COLOR[2], TB_MENU_DEFAULT_BG_COLOR[3], 1 - grow / maxGrow)
-			draw_disk(buttonIndicator.pos.x + buttonIndicator.size.w, buttonIndicator.pos.y + buttonIndicator.size.h, buttonIndicator.size.w, buttonIndicator.size.w + grow, 0, 1, 0, 360, 0)
+			draw_disk(buttonIndicator.pos.x, buttonIndicator.pos.y, buttonIndicator.size.w, buttonIndicator.size.w + grow, 0, 1, 0, 360, 0)
 		end)
 end
 

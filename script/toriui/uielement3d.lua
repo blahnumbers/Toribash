@@ -53,6 +53,7 @@ if (not UIElement3D) then
 	---@field effects RenderEffect Rendering effects for the object
 	---@field eulerConvention EulerRotationConvention Euler angles convention used to initialize object rotation
 
+	---Toribash 3D elements manager class
 	---@class UIElement3D : UIElement
 	---@field parent UIElement3D|UIElement Parent element
 	---@field child UIElement3D[] List of all object children
@@ -75,12 +76,18 @@ if (not UIElement3D) then
 	---@field customEnterFrameFunc function Function to be executed on `enter_frame` callback
 	---@field viewportElement boolean Whether this object is displayed in a viewport
 	UIElement3D = {
-		ver = 5.60
+		ver = 5.61
 	}
 	UIElement3D.__index = UIElement3D
 	setmetatable(UIElement3D, UIElement)
 
-	---**Helper class with utility functions for 3D object manipulations**
+	---**Utility class containing 3D object manipulation functionality**
+	---
+	---**Version 5.61**
+	---* Added `MatrixToMatrixTB()` and `MatrixTBToMatrix()`
+	---
+	---**Version 5.60**
+	---* Initial release
 	---@class Utils3D
 	Utils3D = {
 		ver = UIElement3D.ver
@@ -136,7 +143,7 @@ end
 ---@return number[][]
 function EulerRotation:toMatrixTB()
 	local matrix = self:toMatrix() or Utils3D.MatrixIdentity()
-	return UIElement3DInternal.ToMatrixTB(matrix), matrix
+	return Utils3D.MatrixToMatrixTB(matrix), matrix
 end
 
 ---Creates a new UIElement3D object
@@ -206,7 +213,7 @@ function UIElement3D.new(_self, o)
 		elem.__rotMatrixSelf = Utils3D.MatrixIdentity()
 		elem.rotMatrix = table.clone(elem.parent and elem.parent.rotMatrix or elem.__rotMatrixSelf)
 	end
-	elem.rotMatrixTB = UIElement3DInternal.ToMatrixTB(elem.rotMatrix)
+	elem.rotMatrixTB = Utils3D.MatrixToMatrixTB(elem.rotMatrix)
 	elem.rotXYZ = Utils3D.GetEulerFromMatrix(elem.rotMatrix, EULER_XYZ)
 
 	if (o.objModel) then
@@ -642,7 +649,7 @@ function UIElement3DInternal.Rotate(object, rotMatrix)
 	else
 		object.rotMatrix = table.clone(object.__rotMatrixSelf)
 	end
-	object.rotMatrixTB = UIElement3DInternal.ToMatrixTB(object.rotMatrix)
+	object.rotMatrixTB = Utils3D.MatrixToMatrixTB(object.rotMatrix)
 	object.rotXYZ = Utils3D.GetEulerFromMatrix(object.rotMatrix, EULER_XYZ)
 
 	for _, v in pairs(object.child) do
@@ -654,7 +661,7 @@ function UIElement3DInternal.RotateChild(object)
 	if (object.parent == nil) then return end
 
 	object.rotMatrix = Utils3D.MatrixMultiply(object.__rotMatrixSelf, object.parent.rotMatrix) or object.rotMatrix
-	object.rotMatrixTB = UIElement3DInternal.ToMatrixTB(object.rotMatrix)
+	object.rotMatrixTB = Utils3D.MatrixToMatrixTB(object.rotMatrix)
 	object.rotXYZ = Utils3D.GetEulerFromMatrix(object.rotMatrix, EULER_XYZ)
 
 	for _, v in pairs(object.child) do
@@ -743,10 +750,10 @@ function UIElement3D:getEulerXYZFromRotationMatrix(R)
 	return rotation.x, rotation.y, rotation.z
 end
 
----Internal helper function to make sure the provided table is a Toribash rotation table
+---Utility function to convert a rotation matrix to Toribash rotation matrix
 ---@param rTB MatrixTB|number[]|number[][]
 ---@return MatrixTB
-function UIElement3DInternal.ToMatrixTB(rTB)
+function Utils3D.MatrixToMatrixTB(rTB)
 	if (rTB.r0 ~= nil) then
 		return rTB
 	end
@@ -764,12 +771,26 @@ function UIElement3DInternal.ToMatrixTB(rTB)
 	}
 end
 
+---Utility function to convert Toribash rotation matrix to a regular one
+---@param mTB MatrixTB
+---@return number[][]
+function Utils3D.MatrixTBToMatrix(mTB)
+	if (mTB.r0 == nil) then
+		return Utils3D.MatrixIdentity()
+	end
+	return {
+		{ mTB.r0, mTB.r4, mTB.r8 },
+		{ mTB.r1, mTB.r5, mTB.r9 },
+		{ mTB.r2, mTB.r6, mTB.r10 }
+	}
+end
+
 ---Helper function to get the rotation in Euler angles from a Toribash rotation matrix
 ---@param rTB MatrixTB
 ---@return EulerRotation
 ---@nodiscard
 function Utils3D.GetEulerFromMatrixTB(rTB)
-	rTB = UIElement3DInternal.ToMatrixTB(rTB)
+	rTB = Utils3D.MatrixToMatrixTB(rTB)
 	return Utils3D.GetEulerFromMatrix({
 		{ rTB.r0, rTB.r1, rTB.r2 },
 		{ rTB.r4, rTB.r5, rTB.r6 },

@@ -4,6 +4,10 @@ if (MoveMemory == nil) then
 
 	---**MoveMemory manager class**
 	---
+	---**Version 5.61**
+	---* Added `OnOpenedEvents` and `OnClosedEvents` callback lists
+	---* While in *TutorialMode*, use `ToggleTutorialQuit()` to enable or disable UI exit button
+	---
 	---**Version 5.60**
 	---* Documentation with EmmyLua annotations
 	---* Updated internals and visuals to match 5.60 design
@@ -15,6 +19,9 @@ if (MoveMemory == nil) then
 	---@field ElementHeight integer Height of MoveMemory list buttons
 	---@field PlaybackActive boolean[] List of players' move playback statuses
 	---@field TutorialMode boolean Whether we're currently in Tutorial mode
+	---@field TutorialModeOverlay UIElement
+	---@field OnOpenedEvents function[] List of callback functions to be executed whenever MoveMemory is opened
+	---@field OnClosedEvents function[] List of callback functions to be executed whenever MoveMemory is closed
 	MoveMemory = {
 		DisplayPos = { x = SAFE_X + 10, y = SAFE_Y + 10 },
 		PlaybackActive = {},
@@ -24,7 +31,9 @@ if (MoveMemory == nil) then
 		ElementHeight = 35,
 		StoragePopulated = false,
 		TutorialMode = false,
-		ver = 5.60
+		OnOpenedEvents = { },
+		OnClosedEvents = { },
+		ver = 5.61
 	}
 	MoveMemory.__index = MoveMemory
 	setmetatable({}, MoveMemory)
@@ -52,6 +61,7 @@ function MoveMemory:quit()
 	if (self.MainElement ~= nil) then
 		self.MainElement:kill()
 		self.MainElement = nil
+		self.TutorialModeOverlay = nil
 	end
 end
 
@@ -74,6 +84,30 @@ function MoveMemoryInternal.checkLegacyCache()
 	end
 	newfile:close()
 	return true
+end
+
+---Adds a callback function to be executed on MoveMemory display event
+---@param name string
+---@param func function
+function MoveMemory.AddOnOpenedEvent(name, func)
+	MoveMemory.OnOpenedEvents[name] = func
+end
+
+---@param name string
+function MoveMemory.RemoveOnOpenedEvent(name)
+	MoveMemory.OnOpenedEvents[name] = nil
+end
+
+---Adds a callback function to be executed on MoveMemory hide event
+---@param name string
+---@param func function
+function MoveMemory.AddOnClosedEvent(name, func)
+	MoveMemory.OnClosedEvents[name] = func
+end
+
+---@param name string
+function MoveMemory.RemoveOnClosedEvent(name)
+	MoveMemory.OnClosedEvents[name] = nil
 end
 
 ---Reads the data file and populates moves list
@@ -121,21 +155,23 @@ function MoveMemory:getOpeners()
 					end
 					line = line:gsub("^TURN ", "")
 					local min, max = line:find("^%d+;")
-					local turn = tonumber(line:sub(min, max - 1))
-					if (turn ~= nil) then
-						self.Storage[#self.Storage].movements[turn] = {}
-						if (not self.Storage[#self.Storage].turns) then
-							self.Storage[#self.Storage].turns = turn
-						elseif (self.Storage[#self.Storage].turns < turn) then
-							self.Storage[#self.Storage].turns = turn
-						end
+					if (min ~= nil and max ~= nil) then
+						local turn = tonumber(line:sub(min, max - 1))
+						if (turn ~= nil) then
+							self.Storage[#self.Storage].movements[turn] = {}
+							if (not self.Storage[#self.Storage].turns) then
+								self.Storage[#self.Storage].turns = turn
+							elseif (self.Storage[#self.Storage].turns < turn) then
+								self.Storage[#self.Storage].turns = turn
+							end
 
-						line = line:gsub("^%d+; ", "")
-						local _, count = line:gsub("%d+", "")
-						local data_stream = { line:match(("(%d+ %d+) *"):rep(count / 2)) }
-						for _, v in pairs(data_stream) do
-							local info = { v:match(("(%d+) *"):rep(2)) }
-							self.Storage[#self.Storage].movements[turn][tonumber(info[1])] = tonumber(info[2])
+							line = line:gsub("^%d+; ", "")
+							local _, count = line:gsub("%d+", "")
+							local data_stream = { line:match(("(%d+ %d+) *"):rep(count / 2)) }
+							for _, v in pairs(data_stream) do
+								local info = { v:match(("(%d+) *"):rep(2)) }
+								self.Storage[#self.Storage].movements[turn][tonumber(info[1])] = tonumber(info[2])
+							end
 						end
 					end
 				end
@@ -394,6 +430,13 @@ function MoveMemory:reload()
 	self:showMain()
 end
 
+---Toggles UI quit button while in Tutorial mode
+---@param enabled boolean
+function MoveMemory:toggleTutorialQuit(enabled)
+	if (self.TutorialModeOverlay == nil) then return end
+	self.TutorialModeOverlay.size.w = enabled and self.MainElement.size.w - self.TutorialModeOverlay.size.h or self.MainElement.size.w
+end
+
 ---Displays MoveMemory main window
 function MoveMemory:showMain()
 	local status, error = pcall(function() self:getOpeners() end)
@@ -407,13 +450,27 @@ function MoveMemory:showMain()
 		end
 	end
 
+	for _, v in pairs(self.OnOpenedEvents) do
+		if (type(v) == "function") then
+			pcall(v)
+		end
+	end
+
 	local windowMover
 	self.MainElement, self.MovesHolder, windowMover = TBMenu:spawnMoveableWindow(self.DisplayPos)
 	self.DisplayPos = self.MainElement.pos
-	self.MainElement.killAction = function() self.MainElement = nil end
+	self.MainElement.killAction = function()
+		self.MainElement = nil
+		self.TutorialModeOverlay = nil
+		for _, v in pairs(self.OnClosedEvents) do
+			if (type(v) == "function") then
+				pcall(v)
+			end
+		end
+	end
 
 	if (self.TutorialMode) then
-		self.MainElement:addChild({
+		self.TutorialModeOverlay = self.MainElement:addChild({
 			pos = { 0, 0 },
 			size = { self.MainElement.size.w, windowMover.size.h },
 			interactive = true
