@@ -15,7 +15,7 @@ require("system.atmospheres_defines")
 ---@field boolean boolean Whether this option only accepts 1 and 0 as value
 
 if (Atmospheres == nil) then
-	local x, y = get_window_safe_size()
+	local _, top_y = get_window_safe_size()
 
 	---@class Atmospheres
 	---@field Globalid integer Globalid for all Atmospheres class UIElement and UIElement3D objects
@@ -32,7 +32,7 @@ if (Atmospheres == nil) then
 		Globalid = 1002,
 		StoredOptions = {},
 		CurrentShader = {},
-		DisplayPos = { x = x + 10, y = y + 10 },
+		DisplayPos = { x = SAFE_X + 10, y = top_y + 10 },
 		ListShift = { 0 },
 		SelectedScreen = 1,
 		ver = 5.60

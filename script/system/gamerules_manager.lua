@@ -135,7 +135,7 @@ function Gamerule:setOptions(opts)
 end
 
 if (Gamerules == nil) then
-	local x, y = get_window_safe_size()
+	local _, top_y = get_window_safe_size()
 
 	---**Gamerules manager class**
 	---
@@ -152,7 +152,7 @@ if (Gamerules == nil) then
 	---@field StartNewgame boolean Whether newgame should be triggered when applying changes
 	---@field LastSelectedRule string|nil
 	Gamerules = {
-		DisplayPos = { x = x + 10, y = y + 10 },
+		DisplayPos = { x = SAFE_X + 10, y = top_y + 10 },
 		ListShift = { 0, 0, 1 },
 		StartNewgame = get_option("grnewgame") == 1,
 		LastSelectedRule = nil,

@@ -1,4 +1,5 @@
 if (MoveMemory == nil) then
+	local _, top_y = get_window_safe_size()
 	---@class MoveMemoryToolbar : UIElement
 	---@field infoText UIElement
 
@@ -23,7 +24,7 @@ if (MoveMemory == nil) then
 	---@field OnOpenedEvents function[] List of callback functions to be executed whenever MoveMemory is opened
 	---@field OnClosedEvents function[] List of callback functions to be executed whenever MoveMemory is closed
 	MoveMemory = {
-		DisplayPos = { x = SAFE_X + 10, y = SAFE_Y + 10 },
+		DisplayPos = { x = SAFE_X + 10, y = top_y + 10 },
 		PlaybackActive = {},
 		FirstTurn = false,
 		Storage = {},

@@ -1,9 +1,7 @@
 -- Mods manager
 
 if (Mods == nil) then
-	local x, y, w, h = get_window_safe_size()
-	x = math.max(x, WIN_W - x - w)
-	y = math.max(y, WIN_H - y - h)
+	local _, top_y = get_window_safe_size()
 
 	---@class ModsListEntryInfo
 	---@field time number Click time in seconds
@@ -33,7 +31,7 @@ if (Mods == nil) then
 	---@field LastMenu ModsListEntryInfo Last clicked menu button
 	---@field StartNewGame boolean Whether to automatically start new game after loading mod
 	Mods = {
-		DisplayPos = { x = x + 10, y = y + 10 },
+		DisplayPos = { x = SAFE_X + 10, y = top_y + 10 },
 		ListShift = { 0 },
 		StartNewGame = true,
 		ver = 5.61
