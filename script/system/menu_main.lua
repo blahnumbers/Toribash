@@ -90,6 +90,7 @@ if (is_mobile()) then
 	require("system.hud_manager")
 end
 require("system.replay_hud")
+require("system.gamerules_manager")
 require("system.atmospheres_manager")
 require("system.movememory_manager")
 require("system.tooltip_manager")
