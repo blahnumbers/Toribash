@@ -1063,6 +1063,45 @@ do
 							}
 						},
 						{
+							name = TB_MENU_LOCALIZED.SETTINGSJOINTSTATEWHEEL,
+							type = DROPDOWN,
+							systemname = "tooltipmode",
+							selectedAction = function()
+									return get_option("tooltipmode") + 1
+								end,
+							dropdown = {
+								{
+									text = TB_MENU_LOCALIZED.SETTINGSMOUSEBUTTONS1,
+									action = function()
+											TB_MENU_MAIN_SETTINGS.tooltipmode = { value = 0 }
+											Settings:settingsApplyActivate()
+										end
+								},
+								{
+									text = TB_MENU_LOCALIZED.SETTINGSMOUSEBUTTONS0,
+									action = function()
+											TB_MENU_MAIN_SETTINGS.tooltipmode = { value = 1 }
+											Settings:settingsApplyActivate()
+										end
+								},
+								{
+									text = TB_MENU_LOCALIZED.SETTINGSMOUSEBUTTONS2,
+									action = function()
+											TB_MENU_MAIN_SETTINGS.tooltipmode = { value = 2 }
+											Settings:settingsApplyActivate()
+										end
+								},
+								{
+									text = TB_MENU_LOCALIZED.SETTINGSDISABLED,
+									action = function()
+											TB_MENU_MAIN_SETTINGS.tooltipmode = { value = 3 }
+											Settings:settingsApplyActivate()
+										end
+								}
+							},
+							hidden = not is_mobile()
+						},
+						{
 							name = TB_MENU_LOCALIZED.SETTINGSREPLAYCACHE,
 							type = DROPDOWN,
 							systemname = "replaycache",
