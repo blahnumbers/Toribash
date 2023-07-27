@@ -17,6 +17,13 @@ require("system.atmospheres_defines")
 if (Atmospheres == nil) then
 	local _, top_y = get_window_safe_size()
 
+	---**Atmospheres and Shaders manager**
+	---
+	---**Version 5.61**
+	---* Added `Quit` method to exit Atmospheres from other scripts
+	---
+	---**Version 5.60**
+	---* Internal updates to match new codestyle and EmmyLua annotations
 	---@class Atmospheres
 	---@field Globalid integer Globalid for all Atmospheres class UIElement and UIElement3D objects
 	---@field MainElement UIElement Main holder UIElement for Atmospheres window
@@ -35,9 +42,17 @@ if (Atmospheres == nil) then
 		DisplayPos = { x = SAFE_X + 10, y = top_y + 10 },
 		ListShift = { 0 },
 		SelectedScreen = 1,
-		ver = 5.60
+		ver = 5.61
 	}
 	Atmospheres.__index = Atmospheres
+end
+
+---Destroys Atmospheres main view
+function Atmospheres.Quit()
+	if (Atmospheres.MainElement ~= nil) then
+		Atmospheres.MainElement:kill()
+		Atmospheres.MainElement = nil
+	end
 end
 
 ---Reverts all shader options to their initial state, destroys all atmo objects and unloads the draw3d hook
@@ -268,6 +283,7 @@ function Atmospheres.ShowShaderControls()
 			TBHud.GhostButtonHolder:setVisible(state)
 			TBHud.CommitStepButtonHolder:setVisible(state)
 			TBHud.HoldAllButtonHolder:setVisible(state)
+			TBHud.GripButtonHolder:setVisible(state)
 		end
 		toggleHudButtons(false)
 		viewElementHolder.killAction = function() toggleHudButtons(true) end

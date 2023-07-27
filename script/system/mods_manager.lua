@@ -19,6 +19,7 @@ if (Mods == nil) then
 	---**Version 5.61**
 	---* Updated keyboard return type for search bar on mobile devices
 	---* On mobile, hitting return key in search bar now hides the keyboard
+	---* Added `Quit()` method to exit Mods from other scripts
 	---
 	---**Version 5.60**
 	---* Moved globals to be Mods class fields
@@ -38,6 +39,14 @@ if (Mods == nil) then
 	}
 	Mods.__index = Mods
 	setmetatable({}, Mods)
+end
+
+---Destroys Mods main view
+function Mods.Quit()
+	if (Mods.MainElement ~= nil) then
+		Mods.MainElement:kill()
+		Mods.MainElement = nil
+	end
 end
 
 ---Internal helper class for **Mods manager**
@@ -469,7 +478,7 @@ function Mods.showMain()
 	}, nil, TB_MENU_LOCALIZED.SEARCHNOTE, {
 		fontId = 4,
 		textScale = 0.65,
-		textAlign = LEFTMID, 
+		textAlign = LEFTMID,
 		keepFocusOnHide = true,
 		darkerMode = true,
 		returnKeyType = KEYBOARD_RETURN.DONE

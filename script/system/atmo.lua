@@ -12,8 +12,7 @@ require("system.menu_manager")
 require("system.atmospheres_manager")
 
 if (Atmospheres.MainElement ~= nil) then
-	Atmospheres.MainElement:kill()
-	Atmospheres.MainElement = nil
+	Atmospheres.Quit()
 	return
 end
 Atmospheres:showMain()

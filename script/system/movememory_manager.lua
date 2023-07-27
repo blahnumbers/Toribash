@@ -58,11 +58,11 @@ MemoryMove = {}
 MemoryMove.__index = MemoryMove
 
 ---Exits MoveMemory and destroys main holder
-function MoveMemory:quit()
-	if (self.MainElement ~= nil) then
-		self.MainElement:kill()
-		self.MainElement = nil
-		self.TutorialModeOverlay = nil
+function MoveMemory.Quit()
+	if (MoveMemory.MainElement ~= nil) then
+		MoveMemory.MainElement:kill()
+		MoveMemory.MainElement = nil
+		MoveMemory.TutorialModeOverlay = nil
 	end
 end
 
@@ -427,7 +427,7 @@ end
 
 ---Reloads MoveMemory window
 function MoveMemory:reload()
-	self:quit()
+	self.Quit()
 	self:showMain()
 end
 
@@ -939,7 +939,7 @@ function MoveMemory.Init()
 	add_hook("key_up", "tbMoveMemoryHotkeyListener", function(key)
 		if (key == 109 and get_keyboard_ctrl() == 0 and get_keyboard_alt() == 0) then
 			if (MoveMemory.MainElement) then
-				MoveMemory:quit()
+				MoveMemory.Quit()
 			elseif (get_option("movememory") == 1) then
 				MoveMemory:showMain()
 			end

@@ -142,6 +142,7 @@ if (Gamerules == nil) then
 	---**Version 5.61**
 	---* Updated keyboard input and return types for input fields on mobile devices
 	---* Use proper input handler for search bar
+	---* Added `Quit()` method to exit Gamerules from other scripts
 	---
 	---**Version 5.60**
 	---* Documentation with EmmyLua annotations
@@ -160,6 +161,14 @@ if (Gamerules == nil) then
 	}
 	Gamerules.__index = Gamerules
 	setmetatable({}, Gamerules)
+end
+
+---Destroys Gamerules main view
+function Gamerules.Quit()
+	if (Gamerules.MainElement ~= nil) then
+		Gamerules.MainElement:kill()
+		Gamerules.MainElement = nil
+	end
 end
 
 ---Parses `playerengage`-like gamerules for GUI display

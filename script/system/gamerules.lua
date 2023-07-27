@@ -7,8 +7,7 @@ require("system.menu_manager")
 require("system.gamerules_manager")
 
 if (Gamerules.MainElement) then
-	Gamerules.MainElement:kill()
-	Gamerules.MainElement = nil
+	Gamerules.Quit()
 	return
 end
 

@@ -110,6 +110,10 @@ local function punchingBag()
 			set_body_pos(1, BODYPARTS.GROIN, groinPos.x, groinPos.y, groinPos.z)
 			set_body_rotation(1, BODYPARTS.GROIN, 0, 0, 0)
 		end)
+
+	if (is_mobile()) then
+		TBHud.ToggleReadyLongPress(true)
+	end
 end
 
 local function showDamageBar()

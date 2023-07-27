@@ -112,6 +112,8 @@ function Tutorials:quit()
 	chat_input_activate()
 	if (is_mobile()) then
 		TBHud.ChatButtonHolder:show()
+		TBHud.SetTutorialHubOverride(nil)
+		TBHud.ToggleReadyLongPress(true)
 	end
 	enable_mouse_camera_movement()
 
@@ -1628,12 +1630,15 @@ function TutorialsInternal.HandleMobileOption(option)
 		TBHud.CommitStepButtonHolder:setVisible(option.value == 1, true)
 		TBHud.HoldAllButtonHolder:setVisible(option.value == 1, true)
 		TBHud.GhostButtonHolder:setVisible(option.value == 1, true)
+		TBHud.GripButtonHolder:setVisible(option.value == 1, true)
 	elseif (option.name == "holdall") then
 		TBHud.HoldAllButtonHolder:setVisible(option.value == 1, true)
 	elseif (option.name == "spacebar") then
 		TBHud.CommitStepButtonHolder:setVisible(option.value == 1, true)
 	elseif (option.name == "ghost") then
 		TBHud.GhostButtonHolder:setVisible(option.value == 1, true)
+	elseif (option.name == "grip") then
+		TBHud.GripButtonHolder:setVisible(option.value == 1, true)
 	end
 end
 
@@ -1690,7 +1695,7 @@ function Tutorials:runSteps(steps, currentStep)
 				table.insert(self.StoredOptions, { name = v.name, value = get_option(v.name) })
 			end
 			set_option(v.name, v.value)
-			TutorialsInternal.HandleMobileOption(v)
+			--TutorialsInternal.HandleMobileOption(v)
 		end
 	end
 	if (steps[currentStep].progressstep) then
@@ -1717,6 +1722,7 @@ function Tutorials:runSteps(steps, currentStep)
 		TUTORIALJOINTLOCK = true
 		Tutorials.UnignoredJoints = {}
 		TutorialsInternal.HandleMobileOption({ name = "holdall", value = 0 })
+		TutorialsInternal.HandleMobileOption({ name = "grip", value = 0 })
 	end
 	if (steps[currentStep].jointunlock) then
 		TUTORIALJOINTLOCK = false
@@ -1778,9 +1784,11 @@ function Tutorials:runSteps(steps, currentStep)
 					if (key == 99) then
 						TutorialsInternal.HandleMobileOption({ name = "holdall", value = 1 })
 					elseif (key == 98) then
-						TutorialsInternal.HandleMobileOption({ name = "ghost", value = 1})
+						TutorialsInternal.HandleMobileOption({ name = "ghost", value = 1 })
 					elseif (key == 32) then
 						TutorialsInternal.HandleMobileOption({ name = "spacebar", value = 1 })
+					elseif (key == 118) then
+						TutorialsInternal.HandleMobileOption({ name = "grip", value = 1 })
 					end
 				end
 			end
@@ -2090,8 +2098,15 @@ function Tutorials:runTutorialBase(tutorialSteps, postTutorial)
 
 	start_new_game()
 	chat_input_deactivate()
+
+	Atmospheres.Quit()
+	Gamerules.Quit()
+	Mods.Quit()
+	MoveMemory.Quit()
+
 	if (is_mobile()) then
 		TBHud.ChatButtonHolder:hide()
+		TBHud.ToggleReadyLongPress(false)
 	end
 
 	if (postTutorial) then

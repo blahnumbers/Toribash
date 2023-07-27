@@ -134,7 +134,7 @@ local function moveMemoryMovesShow()
 end
 
 local function moveMemoryShowExit()
-	MoveMemory:quit()
+	MoveMemory.Quit()
 end
 
 local function checkJointStates(viewElement, reqTable)
@@ -219,7 +219,7 @@ local function displayMobileHubMovememory(viewElement, onSelect)
 			if (MoveMemory.MainElement == nil) then
 				MoveMemory:showMain()
 			else
-				MoveMemory:quit()
+				MoveMemory.Quit()
 			end
 			onSelect()
 		end)
@@ -246,6 +246,19 @@ local function displayMobileHubMovememory(viewElement, onSelect)
 			hubBackground:addCustomDisplay(function() end)
 		end
 	end)
+
+	local buttonExit = hubBackground:addChild({
+		pos = { 10, -50 - math.max(SAFE_Y, 20) },
+		size = { hubBackground.size.w - 20, 50 },
+		interactive = true,
+		bgColor = TB_MENU_DEFAULT_BG_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+		shapeType = ROUNDED,
+		rounded = 5
+	})
+	buttonExit:addChild({ shift = { 10, 5 }}):addAdaptedText("> " .. TB_MENU_LOCALIZED.MOBILEHUDTOMAINMENU)
+	buttonExit:addMouseUpHandler(function() open_menu(19) end)
 end
 
 local function waitMovememory(viewElement, reqTable, isExit)
@@ -253,7 +266,7 @@ local function waitMovememory(viewElement, reqTable, isExit)
 	table.insert(reqTable, req)
 
 	local completeRequirement = function()
-		TBHud.TutorialHubOverride = nil
+		TBHud.SetTutorialHubOverride(nil)
 		MoveMemory.RemoveOnOpenedEvent("tutorial3movememory")
 		MoveMemory.RemoveOnClosedEvent("tutorial3movememory")
 
@@ -261,7 +274,9 @@ local function waitMovememory(viewElement, reqTable, isExit)
 		reqTable.ready = Tutorials:checkRequirements(reqTable)
 	end
 
-	TBHud.TutorialHubOverride = function() displayMobileHubMovememory(viewElement, completeRequirement) end
+	TBHud.SetTutorialHubOverride(function()
+		displayMobileHubMovememory(viewElement, completeRequirement)
+	end)
 	local radius = TBHud.HubButtonHolder.size.w / 2
 	local buttonIndicator = viewElement:addChild({
 		pos = { TBHud.HubButtonHolder.pos.x + radius, TBHud.HubButtonHolder.pos.y + radius },
@@ -322,7 +337,7 @@ local function moveMessageView()
 	Tutorials.MessageView.t3Mover:addCustomDisplay(true, function()
 			local ratio = UIElement.clock - spawnTime
 			Tutorials.MessageView:moveTo(nil, UITween.SineTween(Tutorials.MessageView.shift.y, Tutorials.MessageView.t3MoverInitialPos - TBHud.HoldAllButtonHolder.size.h, ratio))
-			if (ratio == 1) then
+			if (ratio >= 1) then
 				Tutorials.MessageView.t3Mover:kill()
 			end
 		end)

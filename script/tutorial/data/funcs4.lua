@@ -93,6 +93,97 @@ local function launchUkeBehavior()
 	MoveMemory:playMove(ukeMove, true, 1, true)
 end
 
+local function toggleHub(hubBackground, state)
+	local clock = UIElement.clock
+	if (state == true) then
+		hubBackground.parent:show()
+	end
+	hubBackground:addCustomDisplay(true, function()
+		local tweenValue = (UIElement.clock - clock) * 6
+		if (state) then
+			hubBackground:moveTo(UITween.SineTween(hubBackground.shift.x, hubBackground.parent.size.w - hubBackground.size.w, tweenValue))
+		else
+			hubBackground:moveTo(UITween.SineTween(hubBackground.shift.x, hubBackground.parent.size.w, tweenValue))
+		end
+		if (tweenValue >= 1) then
+			hubBackground:addCustomDisplay(function() end)
+			if (state == false) then
+				hubBackground.parent:hide()
+			end
+		end
+	end)
+end
+
+---@param viewElement UIElement
+---@param onSelect function
+local function displayMobileHubMovememory(viewElement, onSelect)
+	local uiOverlay = viewElement:addChild({
+		interactive = true
+	})
+	local hubBackground = uiOverlay:addChild({
+		pos = { uiOverlay.size.w, 0 },
+		size = { TBHud.HubSize.w + SAFE_X, viewElement.size.h },
+		bgColor = { 1, 1, 1, 0.7 },
+		interactive = true
+	})
+	local buttonSize = (TBHud.HubSize.w - 20) / 4
+	local moveMemoryButton = hubBackground:addChild({
+		pos = { 10, math.max(SAFE_Y, 20) },
+		size = { buttonSize, buttonSize },
+		bgImage = "../textures/menu/button_backdrop.tga",
+		imageColor = TB_MENU_DEFAULT_BG_COLOR,
+		imageHoverColor = TB_MENU_DEFAULT_DARKER_ORANGE,
+		imagePressedColor = TB_MENU_DEFAULT_DARKER_ORANGE,
+		interactive = true
+	})
+	moveMemoryButton:addMouseUpHandler(function()
+			if (MoveMemory.MainElement == nil) then
+				MoveMemory:showMain()
+			else
+				MoveMemory.Quit()
+			end
+			toggleHub(hubBackground, false)
+			onSelect()
+		end)
+		moveMemoryButton:addChild({
+		pos = { 10, 2 },
+		size = { moveMemoryButton.size.w - 20, moveMemoryButton.size.h - 20 },
+		bgImage = "../textures/menu/general/movememory_icon.tga"
+	})
+	local buttonTitleHolder = moveMemoryButton:addChild({
+		pos = { 0, -30 },
+		size = { moveMemoryButton.size.w, 30 },
+		bgColor = moveMemoryButton.imageAnimateColor,
+		shapeType = ROUNDED,
+		rounded = { 0, 5 }
+	})
+	buttonTitleHolder:addChild({ shift = { 5, 2 }}):addAdaptedText(TB_MENU_LOCALIZED.MOVEMEMORYTITLE)
+
+	toggleHub(hubBackground, true)
+	uiOverlay:addMouseUpHandler(function() toggleHub(hubBackground, false) end)
+
+	local buttonExit = hubBackground:addChild({
+		pos = { 10, -50 - math.max(SAFE_Y, 20) },
+		size = { hubBackground.size.w - 20, 50 },
+		interactive = true,
+		bgColor = TB_MENU_DEFAULT_BG_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+		shapeType = ROUNDED,
+		rounded = 5
+	})
+	buttonExit:addChild({ shift = { 10, 5 }}):addAdaptedText("> " .. TB_MENU_LOCALIZED.MOBILEHUDTOMAINMENU)
+	buttonExit:addMouseUpHandler(function() open_menu(19) end)
+end
+
+local function enableMobileHud(viewElement)
+	if (not is_mobile()) then return end
+
+	TBHud.SetTutorialHubOverride(function()
+		displayMobileHubMovememory(viewElement, function() MOVEMEMORY_USED = true end)
+	end)
+end
+
 local function challengeUke(viewElement, reqTable)
 	FIGHTUKE_GAME_ENDED = false
 	GAME_COUNT = GAME_COUNT or 0
@@ -102,6 +193,7 @@ local function challengeUke(viewElement, reqTable)
 	local endless = false
 	local leaveGame = false
 
+	enableMobileHud(viewElement)
 	launchUkeBehavior()
 	local configTutorial = Tutorials:getConfig()
 	if (configTutorial > Tutorials.CurrentTutorial) then

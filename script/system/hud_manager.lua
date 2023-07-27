@@ -19,7 +19,8 @@ if (TBHud == nil) then
 	---
 	---**Version 5.61**
 	---* Added `HubButtonHolder` field to reference Hub button by Tutorials/Events
-	---* Added `TutorialHubOverride` function callback
+	---* Added `GripButtonHolder` field to reference by Tutorials/Events
+	---* Added `TutorialHubOverride` function callback to **TBHudInternal**
 	---
 	---**Version 5.60**
 	---* Initial release
@@ -29,6 +30,7 @@ if (TBHud == nil) then
 	---@field ChatButtonHolder UIElement
 	---@field HoldAllButtonHolder UIElement
 	---@field GhostButtonHolder UIElement
+	---@field GripButtonHolder UIElement
 	---@field HubButtonHolder UIElement
 	---@field MiscButtonHolders UIElement[]
 	---@field HubHolder UIElement
@@ -48,7 +50,6 @@ if (TBHud == nil) then
 	---@field DefaultButtonSize number
 	---@field DefaultSmallerButtonSize number
 	---@field RequiresChatRefresh boolean
-	---@field TutorialHubOverride function|nil Custom function to be executed when a user presses Hub button while in Tutorial/Event mode
 	TBHud = {
 		Globalid = 1013,
 		HubGlobalid = 1014,
@@ -66,7 +67,6 @@ if (TBHud == nil) then
 		DefaultButtonColor = table.clone(TB_MENU_DEFAULT_BG_COLOR),
 		RequiresChatRefresh = false,
 		SafeAreaOffset = 0,
-		TutorialHubOverride = nil,
 		ver = 5.61,
 	}
 	TBHud.__index = TBHud
@@ -105,10 +105,14 @@ end
 ---@field ChatMessages ChatMessage[]
 ---@field ChatMessageHistory string[] User chat message history
 ---@field ChatMessageHistoryIndex integer
+---@field TutorialHubOverride function|nil Custom function to be executed when a user presses Hub button while in Tutorial/Event mode
+---@field ReadyLongPressEnabled boolean Whether `Ready` button long press functionality is enabled
 local TBHudInternal = {
 	ChatMessages = {},
 	ChatMessageHistory = {},
-	ChatMessageHistoryIndex = -1
+	ChatMessageHistoryIndex = -1,
+	TutorialHubOverride = nil,
+	ReadyLongPressEnabled = true
 }
 setmetatable({}, TBHudInternal)
 
@@ -291,11 +295,18 @@ function TBHud.Reload()
 		TBHud.ChatButtonHolder = nil
 		TBHud.HoldAllButtonHolder = nil
 		TBHud.GhostButtonHolder = nil
+		TBHud.GripButtonHolder = nil
 		TBHud.HubButtonHolder = nil
 		TBHud.MiscButtonHolders = { }
 	end
 
 	TBHud:init()
+end
+
+---Toggles `Ready` button long press functionality on and off
+---@param state boolean
+function TBHud.ToggleReadyLongPress(state)
+	TBHudInternal.ReadyLongPressEnabled = state
 end
 
 ---Spawns commit turn / new game button and its corresponding longpress menu
@@ -315,7 +326,7 @@ function TBHud:spawnCommitButton()
 		if (self.WorldState.replay_mode ~= 0) then
 			start_new_game(true)
 		else
-			step_game(self.WorldState.game_type == 0 and stepSingleFrame)
+			step_game(self.WorldState.game_type == 0 and (TBHudInternal.ReadyLongPressEnabled and stepSingleFrame))
 		end
 		clickClock = 0
 	end)
@@ -349,7 +360,7 @@ function TBHud:spawnCommitButton()
 			elseif (commitStepButtonText.str ~= TB_MENU_LOCALIZED.MOBILEHUDREADY) then
 				setCommitStepButtonText(TB_MENU_LOCALIZED.MOBILEHUDREADY)
 			end
-			if (clickClock > 0 and UIElement.clock - clickClock > UIElement.longPressDuration) then
+			if (TBHudInternal.ReadyLongPressEnabled and clickClock > 0 and UIElement.clock - clickClock > UIElement.longPressDuration) then
 				disable_mouse_camera_movement()
 				play_haptics(0.2, HAPTICS.IMPACT)
 				clickClock = 0
@@ -584,7 +595,7 @@ function TBHud:spawnGripButton()
 		pos = { -self.DefaultButtonSize * 2.05, -self.DefaultSmallerButtonSize * 3.15 },
 		size = { self.DefaultSmallerButtonSize, self.DefaultSmallerButtonSize }
 	})
-	table.insert(self.MiscButtonHolders, gripButtonHolder)
+	self.GripButtonHolder = gripButtonHolder
 	local gripButton = TBHudInternal.generateTouchButton(gripButtonHolder, "../textures/menu/general/buttons/grip.tga", nil, 0.8)
 	gripButton:addMouseUpHandler(function()
 			if (self.WorldState.selected_player == -1) then return end
@@ -613,6 +624,12 @@ function TBHud:spawnGripButton()
 		end)
 end
 
+---Sets the `TutorialHubOverride` function or resets it
+---@param func function|nil
+function TBHud.SetTutorialHubOverride(func)
+	TBHudInternal.TutorialHubOverride = func
+end
+
 function TBHud:spawnHubButton()
 	if (self.MainElement == nil) then return end
 
@@ -623,8 +640,8 @@ function TBHud:spawnHubButton()
 	self.HubButtonHolder = settingsButtonHolder
 	TBHudInternal.generateTouchButton(settingsButtonHolder, "../textures/menu/general/buttons/options.tga"):addMouseUpHandler(function()
 		if (TUTORIAL_ISACTIVE) then
-			if (TBHud.TutorialHubOverride ~= nil) then
-				TBHud.TutorialHubOverride()
+			if (TBHudInternal.TutorialHubOverride ~= nil) then
+				TBHudInternal.TutorialHubOverride()
 			else
 				open_menu(19)
 			end
@@ -790,7 +807,7 @@ function TBHud:spawnHub()
 		{
 			title = TB_MENU_LOCALIZED.MOVEMEMORYTITLE,
 			image = "../textures/menu/general/movememory_icon.tga",
-			action = function() if (MoveMemory.MainElement == nil) then MoveMemory:showMain() else MoveMemory:quit() end end
+			action = function() if (MoveMemory.MainElement == nil) then MoveMemory:showMain() else MoveMemory.Quit() end end
 		},
 		{
 			title = TB_MENU_LOCALIZED.MAINMENUMODLISTNAME,
@@ -855,7 +872,7 @@ function TBHud:spawnHub()
 		rounded = 5
 	})
 	mainMenuButton:addChild({ shift = { 10, 5 }}):addAdaptedText("> " .. TB_MENU_LOCALIZED.MOBILEHUDTOMAINMENU)
-	mainMenuButton:addMouseUpHandler(function() open_menu(19) TBHud:toggleHub(false) end)
+	mainMenuButton:addMouseUpHandler(function() open_menu(19) self:toggleHub(false) end)
 
 	local middleSectionHolder = hubMainHolder:addChild({
 		pos = { topButtonsHolder.shift.x, topButtonsHolder.shift.y + topButtonsHolder.size.h + 20 },

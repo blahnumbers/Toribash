@@ -12,8 +12,7 @@ require("system.menu_manager")
 require("system.mods_manager")
 
 if (Mods.MainElement) then
-	Mods.MainElement:kill()
-	Mods.MainElement = nil
+	Mods.Quit()
 	return
 end
 

@@ -13,7 +13,7 @@ local function setStartPose()
 		{ joint = JOINTS.ABS, state = JOINT_STATE.BACK },
 	}
 	for _, v in pairs(startPose) do
-		set_joint_state(1, v.joint, v.state)
+		set_joint_state(1, v.joint, v.state, true)
 	end
 end
 
@@ -57,6 +57,8 @@ local function checkCollision()
 	end
 end
 
+---@param viewElement UIElement
+---@param button UIElement
 local function toggleSettings(viewElement, button)
 	local windowMover = UIElement:new({
 		parent = viewElement,
@@ -64,31 +66,23 @@ local function toggleSettings(viewElement, button)
 		size = { 0, 0 }
 	})
 	button:deactivate()
-	local hide = viewElement.pos.y < 0 and true or false
-	local rad = math.pi / 10
-	if (hide) then
-		windowMover:addCustomDisplay(true, function()
-				if (viewElement.pos.y < 30) then
-					viewElement:moveTo(nil, math.sin(rad) * (viewElement.size.h * 0.07), true)
-				else
-					viewElement:moveTo(nil, 40)
-					windowMover:kill()
-					button:activate()
-				end
-				rad = rad + math.pi / 30
-			end)
-	else
-		windowMover:addCustomDisplay(true, function()
-				if (viewElement.pos.y > -viewElement.size.h + 50) then
-					viewElement:moveTo(nil, -math.sin(rad) * (viewElement.size.h * 0.07), true)
-				else
-					viewElement:moveTo(nil, -viewElement.size.h - WIN_H + 50)
-					windowMover:kill()
-					button:activate()
-				end
-				rad = rad + math.pi / 30
-			end)
+
+	local state = viewElement.pos.y < 0 and true or false
+	local targetPos = state and -WIN_H + 60 or -viewElement.size.h - WIN_H + 70
+	local clock = UIElement.clock
+
+	for _,v in pairs(viewElement.child) do
+		v:setActive(state)
 	end
+
+	windowMover:addCustomDisplay(true, function()
+		local ratio = UIElement.clock - clock
+		viewElement:moveTo(nil, UITween.SineTween(viewElement.shift.y, targetPos, ratio))
+		if (ratio >= 1) then
+			windowMover:kill()
+			button:activate()
+		end
+	end)
 end
 
 local function restartGame()
@@ -114,7 +108,7 @@ local function loadSettings(viewElement, reqTable, viewElementGlobal)
 			{ val = 2000 },
 			{ val = 4000 },
 			{ val = 8000 },
-			{ val = 500000, name = "Endless" }
+			{ val = 500000, name = Tutorials.LocalizedMessages.ENDLESS }
 		},
 		turnframes = {
 			{ val = 30 },
@@ -129,22 +123,22 @@ local function loadSettings(viewElement, reqTable, viewElementGlobal)
 	}
 
 	local canApply = false
-	local applySettings = UIElement:new({
-		parent = viewElement,
+	local applySettings = viewElement:addChild({
 		pos = { 20, -70 },
 		size = { viewElement.size.w - 40, 50 },
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 		interactive = true,
-		hoverColor = { 0, 0, 0, 0.6 },
-		pressedColor = { 1, 0, 0, 0.2 },
-		hoverSound = 31
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+		inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK,
+		hoverSound = 31,
+		shapeType = ROUNDED,
+		rounded = 4
 	})
-	applySettings:deactivate()
 
 	local settingCount = 0
 	for i,v in pairs(cbsettings) do
-		local settingName = UIElement:new({
-			parent = viewElement,
+		local settingName = viewElement:addChild({
 			pos = { 10, 30 + settingCount * 80 },
 			size = { viewElement.size.w - 20, 30 }
 		})
@@ -152,54 +146,54 @@ local function loadSettings(viewElement, reqTable, viewElementGlobal)
 				settingName:uiText(i, nil, nil, FONTS.BIG, nil, 0.55)
 			end)
 		for j,k in pairs(v) do
-			local option = UIElement:new({
-				parent = viewElement,
+			local option = viewElement:addChild({
 				pos = { 10 + (j - 1) / #v * (viewElement.size.w - 20), 65 + settingCount * 80 },
 				size = { (viewElement.size.w - 20) / #v, 25 },
 				interactive = true,
 				bgColor = UICOLORWHITE,
-				hoverColor = { 0.4, 0, 0, 1 },
-				pressedColor = UICOLORBLACK,
-				hoverSound = 31
+				hoverColor = TB_MENU_DEFAULT_ORANGE,
+				pressedColor = TB_MENU_DEFAULT_DARKER_ORANGE,
+				uiShadowColor = TB_MENU_DEFAULT_ORANGE,
+				hoverSound = 31,
+				shadowOffset = 4
 			})
 			option:addCustomDisplay(true, function()
-					option:uiText(tostring(k.name or k.val), nil, nil, nil, nil, nil, nil, k.val == settingsState[i] and 1.4 or nil, k.val == settingsState[i] and UICOLORWHITE or option:getButtonColor())
+					option:uiText(tostring(k.name or k.val), nil, nil, nil, nil, nil, nil, k.val == settingsState[i] and 4 or nil, k.val == settingsState[i] and UICOLORBLACK or option:getButtonColor())
 				end)
 			option:addMouseHandlers(nil, function()
 					settingsState[i] = k.val
 					for o,z in pairs(settingsState) do
 						canApply = z ~= COMEBACK_SETTINGS[o] and true or false
-						if (canApply) then
-							applySettings:activate()
-							break
-						end
-					end
-					if (not canApply) then
-						applySettings:deactivate()
 					end
 				end)
 		end
 		settingCount = settingCount + 1
 	end
+	local lastState = canApply
 	applySettings:addCustomDisplay(false, function()
 			if (canApply) then
-				applySettings:uiText("Apply settings")
+				applySettings:uiText(TB_MENU_LOCALIZED.SETTINGSAPPLY)
 			else
-				applySettings:uiText("No changes specified")
+				applySettings:uiText(TB_MENU_LOCALIZED.SETTINGSNOCHANGES)
+			end
+			if (lastState ~= canApply) then
+				lastState = canApply
+				applySettings:setActive(canApply, true)
 			end
 		end)
+	applySettings:deactivate(true)
 	applySettings:addMouseHandlers(nil, function()
-			TBMenu:showConfirmationWindow("Are you sure?", function()
+			TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.CONFIRMAREYOUSURE, function()
 					for i,v in pairs(settingsState) do
 						COMEBACK_SETTINGS[i] = v
 					end
 					Tutorials.CurrentStep.skip = 1
 					Tutorials:reqDelay(viewElementGlobal, reqTable, 0)
-				end)
+				end, nil, nil, nil, Tutorials.Globalid)
 		end)
 end
 
-local function initComebackPractice()
+local function initComebackPractice(viewElement, reqTable)
 	COMEBACK_LAST_SCORE = 0
 	COMEBACK_SCORE = 0
 	COMEBACK_DISPLACE = 2
@@ -209,12 +203,14 @@ local function initComebackPractice()
 		gravity = -30,
 		numplayers = 2
 	}
+	if (viewElement ~= nil) then
+		restartGame()
+	end
 end
 
 local function loadVisuals(viewElement, reqTable)
 	DISPLAY_FRAMES = get_world_state().game_frame
-	local settingsView = UIElement:new({
-		parent = viewElement,
+	local settingsView = viewElement:addChild({
 		pos = { viewElement.size.w / 4 + 10, -viewElement.size.h - 300 },
 		size = { viewElement.size.w / 2 - 20, 350 },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR,
@@ -223,43 +219,36 @@ local function loadVisuals(viewElement, reqTable)
 		shadowColor = TB_MENU_DEFAULT_DARKER_COLOR,
 		innerShadow = { 15, 5 }
 	})
-	local settings = {}
 	loadSettings(settingsView, reqTable, viewElement)
-	local topBar = UIElement:new({
-		parent = viewElement,
+	local topBar = viewElement:addChild({
 		pos = { viewElement.size.w / 4, -viewElement.size.h - 10 },
-		size = { viewElement.size.w / 2, 60 },
+		size = { viewElement.size.w / 2, 80 },
 		shapeType = ROUNDED,
 		rounded = 10,
 		bgColor = TB_MENU_DEFAULT_BG_COLOR
 	})
-	local hitCounter = UIElement:new({
-		parent = topBar,
+	local hitCounter = topBar:addChild({
 		pos = { 15, 10 },
-		size = { topBar.size.w / 3 - 30, 50 }
+		size = { topBar.size.w / 3 - 30, 70 }
 	})
 	hitCounter:addCustomDisplay(true, function()
-			hitCounter:uiText("Score: " .. COMEBACK_SCORE, nil, nil, nil, LEFTMID)
+			hitCounter:uiText(Tutorials.LocalizedMessages.SCORE .. ": " .. COMEBACK_SCORE, nil, nil, nil, LEFTMID)
 		end)
-	local timer = UIElement:new({
-		parent = topBar,
+	local timer = topBar:addChild({
 		pos = { topBar.size.w / 3 + 15, 8 },
-		size = { topBar.size.w / 3 - 30, 50 },
+		size = { topBar.size.w / 3 - 30, 70 },
 		uiColor = { 1, 0.8, 0, 1 }
 	})
 	if (COMEBACK_SETTINGS.matchframes == 500000) then
-		timer:addCustomDisplay(true, function()
-				timer:uiText("Endless mode")
-			end)
+		timer:addAdaptedText(true, Tutorials.LocalizedMessages.ENDLESSMODE, nil, nil, FONTS.BIG, nil, 0.9)
 	else
 		timer:addCustomDisplay(true, function()
 				timer:uiText(tostring(DISPLAY_FRAMES), nil, nil, FONTS.BIG, nil, 0.9)
 			end)
 	end
-	settings = UIElement:new({
-		parent = topBar,
-		pos = { -45, 15 },
-		size = { 40, 40 },
+	local settings = topBar:addChild({
+		pos = { -65, 20 },
+		size = { 50, 50 },
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
@@ -267,19 +256,16 @@ local function loadVisuals(viewElement, reqTable)
 		shapeType = ROUNDED,
 		rounded = 10
 	})
-	local settingsIcon = UIElement:new({
-		parent = settings,
-		pos = { 5, 5 },
-		size = { settings.size.w - 10, settings.size.h - 10 },
+	local settingsIcon = settings:addChild({
+		shift = { 5, 5 },
 		bgImage = "../textures/menu/general/buttons/settingswhite.tga",
 	})
 	settings:addMouseHandlers(nil, function()
 			toggleSettings(settingsView, settings)
 		end)
-	local restart = UIElement:new({
-		parent = topBar,
-		pos = { -90, 15 },
-		size = { 40, 40 },
+	local restart = topBar:addChild({
+		pos = { -125, 20 },
+		size = { 50, 50 },
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
@@ -287,10 +273,8 @@ local function loadVisuals(viewElement, reqTable)
 		shapeType = ROUNDED,
 		rounded = 10
 	})
-	local restartIcon = UIElement:new({
-		parent = restart,
-		pos = { 5, 5 },
-		size = { restart.size.w - 10, restart.size.h - 10 },
+	local restartIcon = restart:addChild({
+		shift = { 5, 5 },
 		bgImage = "../textures/menu/general/buttons/restart.tga",
 	})
 	restart:addMouseHandlers(nil, function()

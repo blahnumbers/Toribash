@@ -9,4 +9,9 @@ SENSEIMSGEND3	Great job, you hit Uke %d times! Keep working on your skills and y
 SENSEIMSGEND4	%d hits, marvelous! Outstanding workout, there's no way anyone would be able to run away from you!
 #
 #HINT MESSAGES
-HINT1	You will start in slightly modified LENSHU mod. Unlike AIKIDO, here you can touch the floor with any bodypart - but only for a short period. However, stay inside the dojo - stepping outside will instantly get you disqualified!
+HINT1	Here you will play in a slightly modified LENSHU mod. Unlike AIKIDO, this mod allows you to touch the floor with any bodypart - but only for a short period.\nHowever, make sure you stay inside the dojo - stepping outside will get you instantly disqualified!
+#
+#OTHER LOCALIZATIONS
+SCORE	Score
+ENDLESS	Endless
+ENDLESSMODE	Endless Mode
