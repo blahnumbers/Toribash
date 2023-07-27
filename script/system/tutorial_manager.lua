@@ -105,8 +105,8 @@ end
 function Tutorials:quit()
 	for _, v in pairs(self.StoredOptions) do
 		set_option(v.name, v.value)
-		TutorialsInternal.HandleMobileOption(v)
 	end
+	TutorialsInternal.HandleMobileOption({ name = "hud", value = 1 })
 	self.StoredOptions = {}
 
 	chat_input_activate()
@@ -1627,6 +1627,7 @@ function TutorialsInternal.HandleMobileOption(option)
 		for _, button in pairs(TBHud.MiscButtonHolders) do
 			button:setVisible(option.value == 1, true)
 		end
+		TBHud.ChatMiniHolder:setVisible(option.value == 1, true)
 		TBHud.CommitStepButtonHolder:setVisible(option.value == 1, true)
 		TBHud.HoldAllButtonHolder:setVisible(option.value == 1, true)
 		TBHud.GhostButtonHolder:setVisible(option.value == 1, true)

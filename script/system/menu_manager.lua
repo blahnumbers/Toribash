@@ -124,9 +124,7 @@ end
 ---Exits main menu and unloads all related hooks
 function TBMenu.Quit()
 	remove_hooks("tbMainMenuVisual")
-	remove_hooks("tbMainMenuMouse")
 	remove_hooks("tbMenuConsoleIgnore")
-	remove_hooks("tbMenuKeyboardHandler")
 
 	enable_camera_movement()
 	disable_blur()
@@ -134,8 +132,10 @@ function TBMenu.Quit()
 	chat_input_activate()
 
 	TB_MENU_MAIN_ISOPEN = 0
-	TBMenu.MenuMain:kill()
-	TBMenu.MenuMain = nil
+	if (TBMenu.MenuMain) then
+		TBMenu.MenuMain:kill()
+		TBMenu.MenuMain = nil
+	end
 end
 
 ---Creates `TBMenu.CurrentSection` object to be used by main menu

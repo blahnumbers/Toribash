@@ -27,22 +27,17 @@ TB_MENU_NOTIFICATIONS_COUNT = TB_MENU_NOTIFICATIONS_COUNT or 0
 TB_MENU_REPLAYS_ONLINE = TB_MENU_REPLAYS_ONLINE or 0
 TB_LAST_MENU_SCREEN_OPEN = TB_LAST_MENU_SCREEN_OPEN or 2
 
+require("toriui.uielement3d")
+
+---Global menu scale that adapts to user's current screen resolution
+TB_MENU_GLOBAL_SCALE = math.min(WIN_H > 720 and 1 or WIN_H / 720, WIN_W > 1280 and 1 or WIN_W / 1280)
+
+require("system.menu_defines")
+require("system.iofiles")
+require("system.menu_manager")
+
 if (TB_MENU_MAIN_ISOPEN == 1) then
-	remove_hooks("tbMainMenuVisual")
-	remove_hooks("tbMainMenuMouse")
-	remove_hooks("tbMenuConsoleIgnore")
-	remove_hooks("tbMenuKeyboardHandler")
-
-	enable_camera_movement()
-	disable_blur()
-	disable_menu_keyboard()
-	chat_input_activate()
-
-	TB_MENU_MAIN_ISOPEN = 0
-	if (TBMenu.MenuMain) then
-		TBMenu.MenuMain:kill()
-		TBMenu.MenuMain = nil
-	end
+	TBMenu.Quit()
 	return
 end
 
@@ -52,16 +47,7 @@ if (get_option("newmenu") == 0) then
 	return
 end
 
-require("toriui.uielement3d")
-
----Global menu scale that adapts to user's current screen resolution
-TB_MENU_GLOBAL_SCALE = math.min(WIN_H > 720 and 1 or WIN_H / 720, WIN_W > 1280 and 1 or WIN_W / 1280)
-
-require("system.menu_defines")
-require("system.iofiles")
-require("system.menu_manager")
-TBMenu.Init("230628")
-
+TBMenu.Init("230727")
 require("system.menu_backend_defines")
 require("system.network_request")
 require("system.downloader_manager")
@@ -78,7 +64,7 @@ require('system.mods_manager')
 require("system.bounty_manager")
 require("system.settings_manager")
 require("system.scripts_manager")
-require('system.tutorial_manager')
+require("system.tutorial_manager")
 require("system.events_manager")
 require("system.events_online_manager")
 require("system.news_manager")
@@ -137,7 +123,6 @@ elseif (launchOption:match("clans ")) then
 elseif (launchOption == "register") then
 	TB_MENU_MAIN_ISOPEN = 0
 	usage_event("registertutorial")
-	Tutorials:runTutorial(1, nil, true)
 else
 	TBMenu:showMain()
 end
@@ -279,7 +264,6 @@ Notifications:getTotalNotifications()
 
 if (launchOption == 'register') then
 	remove_hooks("tbMainMenuVisual")
-	remove_hooks("tbMainMenuMouse")
 	remove_hooks("tbMenuConsoleIgnore")
-	remove_hooks("tbMenuKeyboardHandler")
+	Tutorials:runTutorial(1, nil, true)
 end

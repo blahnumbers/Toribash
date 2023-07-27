@@ -25,11 +25,6 @@ if (Friends == nil) then
 end
 
 function Friends:quit()
-	if (get_option("newmenu") == 0) then
-		TBMenu.MenuMain:kill()
-		remove_hooks("tbMainMenuVisual")
-		return
-	end
 	TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
 	TBMenu:clearNavSection()
 	TBMenu:showNavigationBar()
