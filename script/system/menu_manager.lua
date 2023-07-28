@@ -2654,7 +2654,7 @@ function TBMenu:getMainNavigationButtons()
 	else
 		table.insert(buttonData, { text = TB_MENU_LOCALIZED.MAINMENUCLOSE, sectionId = -1, right = true })
 	end
-	if (TB_MENU_PLAYER_INFO.data.qi >= 20) then
+	if (TB_MENU_PLAYER_INFO.data.qi >= BattlePass.QiRequirement) then
 		---@type MenuNavButton
 		local battlePassButton = {
 			text = TB_MENU_LOCALIZED.BATTLEPASSTITLE,
@@ -2696,7 +2696,7 @@ function TBMenu:showBottomBar(leftOnly)
 	end
 
 	local shopCheckExit = function()
-		if (STORE_VANILLA_PREVIEW) then
+		if (not is_mobile() and STORE_VANILLA_PREVIEW) then
 			STORE_VANILLA_PREVIEW = false
 			remove_hooks("storevanillapreview")
 			set_option("uke", 1)
@@ -2935,65 +2935,67 @@ function TBMenu:showMain(noload)
 	else
 		BLURENABLED = true
 	end
-	TBMenu.HideButton = TBMenu.MenuMain:addChild({
-		pos = { TBMenu.MenuMain.size.w / 2 - 32, -74 },
-		size = { 64, 64 },
-		shapeType = ROUNDED,
-		rounded = 32,
-		interactive = true,
-		bgColor = { 0, 0, 0, 0.01 },
-		hoverColor = { 0, 0, 0, 0.4 },
-		pressedColor = TB_MENU_DEFAULT_BG_COLOR_TRANS,
-		bgImage = "../textures/menu/general/buttons/arrowbot.tga"
-	})
-	TBMenu.HideButton.state = 0
-	TBMenu.HideButton:addMouseUpHandler(function()
-			if (TBMenu.HideButton.state == 0) then
-				TBMenu.HideButton.state = -1
-				TBMenu.HideButton.progress = -math.pi/6
-				disable_blur()
-			elseif (TBMenu.HideButton.state == 2) then
-				TBMenu.HideButton.state = 1
-				TBMenu.HideButton.progress = math.pi / 2
-			end
-		end)
-	TBMenu.HideButton:addCustomDisplay(false, function()
-			if (TBMenu.HideButton.state == -1) then
-				TBMenu.HideButton.progress = TBMenu.HideButton.progress + math.pi / 40
-				TBMenu.MenuMain:moveTo(nil, TBMenu.MenuMain.pos.y + (WIN_H / 15) * math.sin(TBMenu.HideButton.progress))
-				TBMenu.HideButton:moveTo(nil, -TBMenu.MenuMain.pos.y - 74)
-				if (not BLURENABLED) then
-					tbMenuBackground.bgColor[4] = tbMenuBackground.bgColor[4] - (0.1 / 15) * math.sin(TBMenu.HideButton.progress)
+	if (not is_mobile()) then
+		TBMenu.HideButton = TBMenu.MenuMain:addChild({
+			pos = { TBMenu.MenuMain.size.w / 2 - 32, -74 },
+			size = { 64, 64 },
+			shapeType = ROUNDED,
+			rounded = 32,
+			interactive = true,
+			bgColor = { 0, 0, 0, 0.01 },
+			hoverColor = { 0, 0, 0, 0.4 },
+			pressedColor = TB_MENU_DEFAULT_BG_COLOR_TRANS,
+			bgImage = "../textures/menu/general/buttons/arrowbot.tga"
+		})
+		TBMenu.HideButton.state = 0
+		TBMenu.HideButton:addMouseUpHandler(function()
+				if (TBMenu.HideButton.state == 0) then
+					TBMenu.HideButton.state = -1
+					TBMenu.HideButton.progress = -math.pi/6
+					disable_blur()
+				elseif (TBMenu.HideButton.state == 2) then
+					TBMenu.HideButton.state = 1
+					TBMenu.HideButton.progress = math.pi / 2
 				end
-				if (TBMenu.MenuMain.pos.y >= WIN_H) then
-					for i = 1, 3 do
-						TBMenu.HideButton:updateImage("../textures/menu/general/buttons/arrowtop.tga")
-					end
-					TBMenu.MenuMain:moveTo(nil, WIN_H)
+			end)
+		TBMenu.HideButton:addCustomDisplay(false, function()
+				if (TBMenu.HideButton.state == -1) then
+					TBMenu.HideButton.progress = TBMenu.HideButton.progress + math.pi / 40
+					TBMenu.MenuMain:moveTo(nil, TBMenu.MenuMain.pos.y + (WIN_H / 15) * math.sin(TBMenu.HideButton.progress))
 					TBMenu.HideButton:moveTo(nil, -TBMenu.MenuMain.pos.y - 74)
-					TBMenu.HideButton.state = 2
-					tbMenuBackground.bgColor[4] = 0
-				end
-			elseif (TBMenu.HideButton.state == 1) then
-				TBMenu.HideButton.progress = TBMenu.HideButton.progress + math.pi / 50
-				TBMenu.MenuMain:moveTo(nil, TBMenu.MenuMain.pos.y - (WIN_H / 15) * math.sin(TBMenu.HideButton.progress))
-				TBMenu.HideButton:moveTo(nil, -TBMenu.MenuMain.pos.y - 74)
-				if (not BLURENABLED) then
-					tbMenuBackground.bgColor[4] = tbMenuBackground.bgColor[4] + (0.1 / 15) * math.sin(TBMenu.HideButton.progress)
-				end
-				if (TBMenu.MenuMain.pos.y <= 0) then
-					for i = 1, 3 do
-						TBMenu.HideButton:updateImage("../textures/menu/general/buttons/arrowbot.tga")
+					if (not BLURENABLED) then
+						tbMenuBackground.bgColor[4] = tbMenuBackground.bgColor[4] - (0.1 / 15) * math.sin(TBMenu.HideButton.progress)
 					end
-					TBMenu.MenuMain:moveTo(nil, 0)
+					if (TBMenu.MenuMain.pos.y >= WIN_H) then
+						for i = 1, 3 do
+							TBMenu.HideButton:updateImage("../textures/menu/general/buttons/arrowtop.tga")
+						end
+						TBMenu.MenuMain:moveTo(nil, WIN_H)
+						TBMenu.HideButton:moveTo(nil, -TBMenu.MenuMain.pos.y - 74)
+						TBMenu.HideButton.state = 2
+						tbMenuBackground.bgColor[4] = 0
+					end
+				elseif (TBMenu.HideButton.state == 1) then
+					TBMenu.HideButton.progress = TBMenu.HideButton.progress + math.pi / 50
+					TBMenu.MenuMain:moveTo(nil, TBMenu.MenuMain.pos.y - (WIN_H / 15) * math.sin(TBMenu.HideButton.progress))
 					TBMenu.HideButton:moveTo(nil, -TBMenu.MenuMain.pos.y - 74)
-					TBMenu.HideButton.state = 0
-					if (enable_blur() == 0) then
-						tbMenuBackground.bgColor[4] = 0.1
+					if (not BLURENABLED) then
+						tbMenuBackground.bgColor[4] = tbMenuBackground.bgColor[4] + (0.1 / 15) * math.sin(TBMenu.HideButton.progress)
+					end
+					if (TBMenu.MenuMain.pos.y <= 0) then
+						for i = 1, 3 do
+							TBMenu.HideButton:updateImage("../textures/menu/general/buttons/arrowbot.tga")
+						end
+						TBMenu.MenuMain:moveTo(nil, 0)
+						TBMenu.HideButton:moveTo(nil, -TBMenu.MenuMain.pos.y - 74)
+						TBMenu.HideButton.state = 0
+						if (enable_blur() == 0) then
+							tbMenuBackground.bgColor[4] = 0.1
+						end
 					end
 				end
-			end
-		end, false)
+			end, false)
+	end
 	local splatLeftImg = TB_MENU_BLOODSPLATTER_LEFT
 	local splatCustom = false
 	local customLogo = Files.Open("../custom/" .. TB_MENU_PLAYER_INFO.username .. "/splatt1.tga")

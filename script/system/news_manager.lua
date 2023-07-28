@@ -218,6 +218,21 @@ function News:getNews(reload)
 		end
 	end
 
+	if (TB_MENU_PLAYER_INFO.data.qi < BattlePass.QiRequirement) then
+		local newsItems = 0
+		for i, v in pairs(newsData) do
+			if (v.isBattlePass) then
+				table.remove(newsData, i)
+			elseif (not v.featured) then
+				newsItems = newsItems + 1
+			end
+		end
+		if (newsItems == 0) then
+			local defaultNews = self:getDefaultNews()
+			table.insert(newsData, defaultNews[1])
+		end
+	end
+
 	self.Cache = newsData
 	self.LoadConfig()
 

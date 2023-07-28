@@ -41,6 +41,9 @@ if (BattlePass == nil) then
 
 	---**Battle Pass manager class**
 	---
+	---**Version 5.61:**
+	---* Added `QiRequirement` field
+	---
 	---**Version 5.60:**
 	---* Rewards popup display offset fix for Shiai Tokens
 	---* Minor visual tweaks for user xp bar
@@ -52,11 +55,13 @@ if (BattlePass == nil) then
 	---@field UserData BattlePassUserData Current user's data for the Battle Pass
 	---@field TimeLeft integer Time left in seconds until this BP is over
 	---@field MaxLevelPrizes integer Max number of prizes in a single level available for claiming
+	---@field QiRequirement integer User qi requirement to access Battle Pass
 	---@field wasOpened boolean Whether the user has opened the Battle Pass screen during this session
 	BattlePass = {
 		ver = 5.60,
 		TimeLeft = -1,
 		MaxLevelPrizes = 2,
+		QiRequirement = 20,
 		wasOpened = false
 	}
 	BattlePass.__index = BattlePass

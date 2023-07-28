@@ -2202,7 +2202,6 @@ do
 	end
 
 	function Market:showSearchBar(searchString, searchOptions, hint)
-		TBMenu.HideButton:hide()
 		local searchBarView = UIElement:new({
 			parent = TBMenu.CurrentSection,
 			pos = { TBMenu.BottomLeftBar.shift.x + TBMenu.BottomLeftBar.size.w, TBMenu.CurrentSection.size.h + (WIN_H - TBMenu.CurrentSection.size.h - TBMenu.CurrentSection.pos.y) - TBMenu.BottomLeftBar.size.h * 1.3 },
@@ -2211,7 +2210,10 @@ do
 			shapeType = ROUNDED,
 			rounded = 5
 		})
-		searchBarView.killAction = function() TBMenu.HideButton:show() end
+		if (not is_mobile()) then
+			TBMenu.HideButton:hide()
+			searchBarView.killAction = function() TBMenu.HideButton:show() end
+		end
 
 		local searchInput = TBMenu:spawnTextField(searchBarView, nil, nil, nil, nil, searchString, nil, 4, 0.7, UICOLORWHITE, hint and hint or TB_MENU_LOCALIZED.STORESEARCHHINT, CENTERMID, nil, nil, true)
 		searchInput:addInputCallback(function()

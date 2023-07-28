@@ -532,7 +532,7 @@ do
 
 	function Torishop:quit()
 		TBMenu:clearNavSection()
-		if (STORE_VANILLA_PREVIEW) then
+		if (not is_mobile() and STORE_VANILLA_PREVIEW) then
 			STORE_VANILLA_PREVIEW = false
 			remove_hooks("storevanillapreview")
 			set_option("uke", 1)
@@ -5430,7 +5430,7 @@ do
 			end
 		end
 
-		if (in_array(item.catid, { 1, 2, 5, 11, 11, 20, 21, 22, 24, 27, 28, 29, 30, 34, 41, 43, 44, 72, 73, 78, 80 })) then
+		if (not is_mobile() and in_array(item.catid, { 1, 2, 5, 11, 11, 20, 21, 22, 24, 27, 28, 29, 30, 34, 41, 43, 44, 72, 73, 78, 80 })) then
 			local itemPreview = UIElement:new({
 				parent = itemInfo,
 				pos = { 0, buttonPos },
@@ -6429,7 +6429,6 @@ do
 	end
 
 	function Torishop:showPersonalDiscount(item)
-		TBMenu.HideButton:hide()
 		local itemInfo = Torishop:getItemInfo(item.itemid)
 		local discountView = UIElement:new({
 			parent = TBMenu.CurrentSection,
@@ -6442,7 +6441,10 @@ do
 			shapeType = ROUNDED,
 			rounded = 5
 		})
-		discountView.killAction = function() TBMenu.HideButton:show() end
+		if (not is_mobile()) then
+			TBMenu.HideButton:hide()
+			discountView.killAction = function() TBMenu.HideButton:show() end
+		end
 
 		local sideWidth = math.min(discountView.size.w / 3, math.max(discountView.size.w / 4 - 15, 150))
 		local discountTitle = discountView:addChild({
