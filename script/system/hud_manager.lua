@@ -18,6 +18,7 @@ if (TBHud == nil) then
 	---**Touch HUD class**
 	---
 	---**Version 5.61**
+	---* Added chat tabs and whispers support
 	---* Added `HubButtonHolder` field to reference Hub button by Tutorials/Events
 	---* Added `GripButtonHolder` field to reference by Tutorials/Events
 	---* Added `TutorialHubOverride` function callback to **TBHudInternal**
@@ -28,6 +29,7 @@ if (TBHud == nil) then
 	---@field MainElement UIElement
 	---@field CommitStepButtonHolder UIElement
 	---@field ChatButtonHolder UIElement
+	---@field ChatButtonHolderBadge UIElement
 	---@field HoldAllButtonHolder UIElement
 	---@field GhostButtonHolder UIElement
 	---@field GripButtonHolder UIElement
@@ -40,10 +42,13 @@ if (TBHud == nil) then
 	---@field ChatHolder UIElement
 	---@field ChatMiniHolder UIElement
 	---@field ChatSize UIElementSize
+	---@field ChatTabWidth integer
+	---@field ChatActiveTab integer Currently active chat tab id
 	---@field ChatMaxHistory integer Maximum number of messages that will be displayed in chat
 	---@field ChatMiniMaxMessages integer Maximum number of messages that can be shown in mini chat at a time
 	---@field ChatMiniDisplayPeriod number Maximum time in seconds that messages in mini chat will be displayed for
 	---@field ChatMiniUpdateTime integer Last update time for mini chat
+	---@field ChatMiniLastTab integer Last active mini chat tab id
 	---@field WorldState WorldState Cached WorldState instance, updated every frame
 	---@field ButtonsToRefresh TBHudButton[]
 	---@field DefaultButtonColor Color
@@ -55,7 +60,9 @@ if (TBHud == nil) then
 		HubGlobalid = 1014,
 		HubSize = { w = 0, h = 0 },
 		ChatSize = { w = 0, h = 0},
-		ListShift = { 0 },
+		ChatTabWidth = 60,
+		ChatActiveTab = 0,
+		ListShift = { },
 		ChatMaxHistory = 2000,
 		ChatMiniMaxMessages = 10,
 		ChatMiniDisplayPeriod = 20,
@@ -67,8 +74,10 @@ if (TBHud == nil) then
 		DefaultButtonColor = table.clone(TB_MENU_DEFAULT_BG_COLOR),
 		RequiresChatRefresh = false,
 		SafeAreaOffset = 0,
+		__waitingWhisper = false,
 		ver = 5.61,
 	}
+	TBHud.ListShift[0] = { 0 }
 	TBHud.__index = TBHud
 	setmetatable({}, TBHud)
 
@@ -212,25 +221,46 @@ function TBHudInternal.pushChatMessage(msg, type, tab)
 	}
 	table.insert(TBHudInternal.ChatMessages, chatMessage)
 	if (#TBHudInternal.ChatMessages > TBHud.ChatMaxHistory) then
-		table.remove(TBHudInternal.ChatMessages, 1)
-		if (TBHud.ChatHolderItems and TBHud.ChatHolderItems[1]) then
-			TBHud.ChatHolderItems[1]:kill()
-			table.remove(TBHud.ChatHolderItems, 1)
-			for _, v in pairs(TBHud.ChatHolderItems) do
+		local messageInfo = TBHudInternal.ChatMessages[1]
+		if (TBHud.ChatHolderItems[messageInfo.tab] and TBHud.ChatHolderItems[messageInfo.tab][1]) then
+			TBHud.ChatHolderItems[messageInfo.tab][1]:kill()
+			table.remove(TBHud.ChatHolderItems[messageInfo.tab], 1)
+			for _, v in pairs(TBHud.ChatHolderItems[messageInfo.tab]) do
 				v:moveTo(nil, -v.size.h, true)
 			end
 		end
+		table.remove(TBHudInternal.ChatMessages, 1)
 	end
 
 	if (TBHud.ChatHolder ~= nil and TBHud.ChatHolder:isDisplayed()) then
-		TBHud:refreshChat()
+		if (TBHud.ChatActiveTab == tab) then
+			TBHud:refreshChat()
+		else
+			if (TBHud.ChatTabItems[tab] == nil) then
+				TBHud:spawnChatTabButton(tab)
+				if (TBHud.__waitingWhisper) then
+					TBHud:switchChatTab(tab)
+				end
+			end
+			TBHud:markChatTabUnread(tab)
+		end
 	else
-		for _, v in pairs(TBHud.ChatHolderItems or {}) do
+		if (TBHud.ChatTabItems[tab] == nil) then
+			local button = TBHud:spawnChatTabButton(tab)
+			button:hide()
+		end
+		for _, v in pairs(TBHud.ChatHolderItems[tab] or {}) do
 			v:hide()
+		end
+		-- Play some sound?
+		if (TBHud.ChatActiveTab ~= tab) then
+			TBHud:markChatTabUnread(tab)
+			TBHud:setChatNotification()
 		end
 		TBHud.ChatMiniUpdateTime = 0
 		TBHud.RequiresChatRefresh = true
 	end
+	TBHud.__waitingWhisper = false
 end
 
 ---Initializes HUD main elements
@@ -243,6 +273,8 @@ function TBHud:init()
 	self.DefaultButtonSize = math.max(100, WIN_H / 10)
 	self.DefaultSmallerButtonSize = self.DefaultButtonSize * 0.7
 	self.SafeAreaOffset = self.DefaultButtonSize * 3
+	self.ChatTabWidth = math.min(60, WIN_H / 10)
+	self.ChatActiveTab = 0
 
 	self.MainElement = UIElement:new({
 		globalid = self.Globalid,
@@ -272,7 +304,7 @@ function TBHud:init()
 	self:spawnHub()
 
 	self:spawnChatButton()
-	self.ChatSize.w = math.clamp(600, WIN_W * 0.35, WIN_W * 0.6)
+	self.ChatSize.w = math.clamp(600 + self.ChatTabWidth, WIN_W * 0.45, WIN_W * 0.7)
 	self.ChatSize.h = WIN_H
 	self:spawnChat()
 
@@ -285,6 +317,8 @@ function TBHud.Reload()
 		TBHud.MainElement = nil
 		TBHud.ChatHolder = nil
 		TBHud.ChatHolderItems = nil
+		TBHud.ChatTabHolder = nil
+		TBHud.ChatTabItems = nil
 		TBHud.ChatMiniHolder = nil
 		TBHud.ChatHolderListing = nil
 		TBHud.ChatHolderScrollBar = nil
@@ -293,6 +327,7 @@ function TBHud.Reload()
 		TBHud.HubHolder = nil
 		TBHud.CommitStepButtonHolder = nil
 		TBHud.ChatButtonHolder = nil
+		TBHud.ChatButtonHolderBadge = nil
 		TBHud.HoldAllButtonHolder = nil
 		TBHud.GhostButtonHolder = nil
 		TBHud.GripButtonHolder = nil
@@ -884,6 +919,8 @@ function TBHud:spawnHub()
 	self.HubHolder:hide(true)
 end
 
+---Toggles right hub menu on or off
+---@param state boolean
 function TBHud:toggleHub(state)
 	if (state == true) then
 		self.HubHolder:show(true)
@@ -935,6 +972,14 @@ function TBHud:spawnChatButton()
 	})
 	self.ChatButtonHolder = chatButtonHolder
 	local chatButton = TBHudInternal.generateTouchButton(chatButtonHolder, "../textures/menu/general/buttons/chat.tga")
+	self.ChatButtonHolderBadge = chatButton:addChild({
+		pos = { chatButton.size.w * 0.66, -chatButton.size.h - chatButton.size.h * 0.125 },
+		size = { chatButton.size.w * 0.5, chatButton.size.h / 3 },
+		bgColor = TB_MENU_DEFAULT_BG_COLOR,
+		shapeType = ROUNDED,
+		rounded = chatButton.size.h / 4
+	})
+	self.ChatButtonHolderBadge:hide(true)
 
 	chatButtonHolder:addCustomDisplay(function()
 		if (self.ChatHolder ~= nil) then
@@ -942,6 +987,7 @@ function TBHud:spawnChatButton()
 				chatButton:hide()
 			elseif (not chatButton:isDisplayed() and not self.ChatHolder:isDisplayed()) then
 				chatButton:show()
+				self:setChatNotification()
 			end
 		end
 	end)
@@ -965,182 +1011,443 @@ function TBHudInternal.getLastColorFromString(str)
 	return nil
 end
 
----Reloads chat display
-function TBHud:refreshChat()
-	local elementHeight = 25
+---Sets chat notification in case there are unread tabs
+function TBHud:setChatNotification()
+	local notifications = 0
+	for i, v in pairs(self.ChatTabItems) do
+		if (type(i) == "number" and v.hasUnread) then
+			notifications = notifications + 1
+		end
+	end
+	if (notifications > 0) then
+		self.ChatButtonHolderBadge:show(true)
+		self.ChatButtonHolderBadge:addAdaptedText(tostring(notifications))
+	else
+		self.ChatButtonHolderBadge:hide(true)
+	end
+end
 
-	if (self.ChatHolderItems == nil) then
-		-- Do the initial setup
-		local x, y = get_window_safe_size()
-		local chatMessagesHolder = self.ChatHolder:addChild({
-			pos = { x, -self.ChatSize.h },
-			size = { self.ChatSize.w, self.ChatSize.h },
-			bgColor = table.clone(UICOLORWHITE),
-			uiColor = TB_MENU_DEFAULT_DARKEST_COLOR
-		})
-		chatMessagesHolder.bgColor[4] = 0.7
-		local toReload, topBar, botBar, listingView, listingHolder = TBMenu:prepareScrollableList(chatMessagesHolder, 1, 50 + math.max(30, y), 16, { 0, 0, 0, 0 })
+---Switches from the active chat tab to the specified one
+---@param tab integer
+function TBHud:switchChatTab(tab)
+	if (self.ChatActiveTab == tab) then return end
 
-		---@type UIElement[]
-		self.ChatHolderItems = {}
-		for _, message in pairs(TBHudInternal.ChatMessages) do
-			message.lines = 0
-			local messageStrings = textAdapt(message.text, FONTS.SMALL + 10, 0.72, listingHolder.size.w - 32)
-			local nextColor = nil
-			for _, str in pairs(messageStrings) do
-				local chatMessage = listingHolder:addChild({
-					pos = { 16, #self.ChatHolderItems * elementHeight },
-					size = { listingHolder.size.w - 32, elementHeight },
-					uiColor = nextColor
+	for _, v in pairs(self.ChatHolderListing.child) do
+		v:hide()
+	end
+	self.ChatHolderListing.child = { }
+	self.ChatTabItems[self.ChatActiveTab].imageColor = table.clone(UICOLORWHITE)
+	self.ChatTabItems[tab].imageColor = table.clone(TB_MENU_DEFAULT_BG_COLOR_TRANS)
+	self.ChatTabItems[tab].hasUnread = false
+	self.ChatActiveTab = tab
+	self:refreshChat()
+end
+
+---@class TBHudTabButton : UIElement
+---@field hasUnread boolean
+---@field outline UIElement
+---@field legend UIElement
+
+---Spawns a chat tab button for the specified tab id
+---@param tab integer
+---@return TBHudTabButton
+function TBHud:spawnChatTabButton(tab)
+	---@type TBHudTabButton
+	---@diagnostic disable-next-line: assign-type-mismatch
+	local tabButton = self.ChatTabHolder:addChild({
+		pos = { 0, table.size(self.ChatTabItems) * self.ChatTabWidth },
+		size = { self.ChatTabWidth, self.ChatTabWidth },
+		interactive = true,
+		bgGradient = { UICOLORWHITE, { 1, 1, 1, 0 } },
+		bgGradientMode = BODYPARTS.L_THIGH,
+		imageColor = UICOLORWHITE,
+		imageHoverColor = TB_MENU_DEFAULT_BG_COLOR_TRANS,
+		imagePressedColor = TB_MENU_DEFAULT_BG_COLOR_TRANS
+	})
+	local tabButtonOutline = tabButton:addChild({
+		shift = { 5, 5 },
+		bgColor = UICOLORWHITE,
+		shapeType = ROUNDED,
+		rounded = self.ChatTabWidth
+	})
+	local tabName = get_chat_tab_name(tab)
+	TBMenu:showPlayerHeadAvatar(tabButton, tabName)
+
+	local tabLegend = tabButton:addChild({
+		pos = { self.ChatTabWidth, 0 },
+		size = { self.ChatTabWidth * 3, self.ChatTabWidth }
+	})
+	tabLegend:addAdaptedText(tabName, nil, nil, 4, LEFTMID, 1, 1)
+	local tabCloseButton = tabLegend:addChild({
+		pos = { tabLegend.size.w + self.ChatTabWidth * 0.25, self.ChatTabWidth * 0.05 },
+		size = { self.ChatTabWidth * 0.7, self.ChatTabWidth * 0.7 },
+		interactive = true,
+		bgColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK,
+		hoverColor = UICOLORRED,
+		pressedColor = UICOLORRED,
+		shapeType = ROUNDED,
+		rounded = self.ChatTabWidth * 0.2
+	})
+	tabCloseButton:addChild({
+		shift = { 5, 5 },
+		bgImage = "../textures/menu/general/buttons/crosswhite.tga"
+	})
+	tabCloseButton:addMouseUpHandler(function()
+		self:destroyChatTabButton(tab)
+	end)
+
+	tabButton.outline = tabButtonOutline
+	tabButton.legend = tabLegend
+	tabButton.hasUnread = true
+
+	if (self.ChatTabItems.extendButton.__extendState) then
+		tabButton.size.w = self.ChatTabItems[0].size.w
+		tabButton.outline.size.w = tabButton.size.w - 10
+	else
+		tabLegend:hide(true)
+	end
+
+	tabButton:addMouseUpHandler(function()
+			self:switchChatTab(tab)
+		end)
+
+	if (self.ChatTabItems[tab] ~= nil) then
+		self.ChatTabItems[tab]:kill()
+	end
+	self.ChatTabItems[tab] = tabButton
+	return tabButton
+end
+
+---Destroys chat tab button, performs cleanup and reorders remaining items
+---@param tab integer
+function TBHud:destroyChatTabButton(tab)
+	if (self.ChatTabItems[tab] == nil) then return end
+
+	if (tab == self.ChatActiveTab) then
+		self:switchChatTab(0)
+	end
+	self.ChatTabItems[tab]:kill()
+	self.ChatTabItems[tab] = nil
+	for _, v in pairs(self.ChatHolderItems[tab] or {}) do
+		v:kill()
+	end
+	TBHud.ChatHolderItems[tab] = nil
+	for i = #TBHudInternal.ChatMessages, 1, -1 do
+		if (TBHudInternal.ChatMessages[i].tab == tab) then
+			table.remove(TBHudInternal.ChatMessages, i)
+		end
+	end
+
+	local cnt = 2
+	for i, v in pairs(self.ChatTabItems) do
+		local id = tonumber(i) or -1
+		if (id > 0) then
+			v:moveTo(nil, self.ChatTabWidth * cnt)
+			cnt = cnt + 1
+		end
+	end
+end
+
+---Marks a chat tab as unread
+---@param tab integer
+function TBHud:markChatTabUnread(tab)
+	if (self.ChatTabItems[tab] == nil) then return end
+
+	self.ChatTabItems[tab].hasUnread = true
+	self.ChatTabItems[tab].imageColor = TB_MENU_DEFAULT_ORANGE
+end
+
+---Initializes chat and its elements
+function TBHud:initChat()
+	if (self.ChatHolderItems ~= nil) then return end
+
+	---@type UIElement[][]
+	self.ChatHolderItems = { }
+	---@type TBHudTabButton[]
+	self.ChatTabItems = { }
+
+	local chatMainHolder = self.ChatHolder:addChild({
+		pos = { SAFE_X, -self.ChatSize.h },
+		size = { self.ChatSize.w, self.ChatSize.h },
+		bgColor = table.clone(UICOLORWHITE),
+		uiColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		interactive = true
+	})
+	chatMainHolder.bgColor[4] = 0.7
+
+	local chatMessagesHolder = chatMainHolder:addChild({
+		pos = { self.ChatTabWidth, 0 },
+		size = { chatMainHolder.size.w - self.ChatTabWidth, chatMainHolder.size.h }
+	})
+	local toReload, topBar, botBar, _, listingHolder = TBMenu:prepareScrollableList(chatMessagesHolder, 1, 50 + math.max(SAFE_Y, 30), 16, { 0, 0, 0, 0 })
+
+	self.ChatTabHolder = chatMainHolder:addChild({
+		pos = { 0, math.max(SAFE_Y, 30) },
+		size = { self.ChatTabWidth, chatMainHolder.size.h - math.max(SAFE_Y, 30) * 2 },
+		uiColor = table.clone(TB_MENU_DEFAULT_DARKER_COLOR)
+	})
+	local extendTabsButton = self.ChatTabHolder:addChild({
+		pos = { 0, 0 },
+		size = { self.ChatTabWidth, self.ChatTabWidth },
+		interactive = true,
+		bgColor = TB_MENU_DEFAULT_BG_COLOR,
+		hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+	})
+	extendTabsButton:addCustomDisplay(true, function()
+			set_color(unpack(extendTabsButton:getButtonColor()))
+			draw_quad(extendTabsButton.pos.x, extendTabsButton.pos.y, extendTabsButton.size.w - 10, extendTabsButton.size.h)
+			draw_disk(extendTabsButton.pos.x + extendTabsButton.size.w - 10, extendTabsButton.pos.y + 10, 0, 10, 0, 1, 90, 90, 0)
+			draw_disk(extendTabsButton.pos.x + extendTabsButton.size.w - 10, extendTabsButton.pos.y + extendTabsButton.size.h - 10, 0, 10, 0, 1, 0, 90, 0)
+			draw_quad(extendTabsButton.pos.x + extendTabsButton.size.w - 10, extendTabsButton.pos.y + 10, 10, extendTabsButton.size.h - 20)
+		end)
+	local extendTabsButtonImage = extendTabsButton:addChild({
+		shift = { self.ChatTabWidth / 4, 0 },
+		bgImage = "../textures/menu/general/buttons/arrowright.tga"
+	})
+	extendTabsButton.__extendState = false
+	extendTabsButton:addMouseUpHandler(function()
+			local targetWidth = self.ChatTabWidth
+			extendTabsButton.__extendState = not extendTabsButton.__extendState
+			if (extendTabsButton.__extendState) then
+				table.insert(topBar.child, self.ChatTabHolder)
+				extendTabsButtonImage:updateImage("../textures/menu/general/buttons/arrowleft.tga")
+				targetWidth = self.ChatTabWidth * 5
+			else
+				for i, v in pairs(topBar.child) do
+					if (v == self.ChatTabHolder) then
+						table.remove(topBar.child, i)
+						break
+					end
+				end
+				extendTabsButtonImage:updateImage("../textures/menu/general/buttons/arrowright.tga")
+			end
+
+			local spawnClock = UIElement.clock
+			extendTabsButtonImage:addCustomDisplay(function()
+					local ratio = (UIElement.clock - spawnClock) * 3
+					for i, v in pairs(self.ChatTabItems) do
+						if (type(i) == "number") then
+							v.size.w = UITween.SineTween(v.size.w, targetWidth, ratio)
+							v.outline.size.w = v.size.w - 10
+							if (extendTabsButton.__extendState) then
+								v.legend.uiColor[4] = math.max(0.01, ratio)
+							end
+						end
+					end
+					if (ratio >= 1) then
+						extendTabsButtonImage:addCustomDisplay(function() end)
+					end
+				end)
+			for i, v in pairs(self.ChatTabItems) do
+				if (type(i) == "number") then
+					v.legend:setVisible(extendTabsButton.__extendState, true)
+				end
+			end
+		end)
+	self.ChatTabItems.extendButton = extendTabsButton
+
+	local globalTabButton = self.ChatTabHolder:addChild({
+		pos = { 0, self.ChatTabWidth },
+		size = { self.ChatTabWidth, self.ChatTabWidth },
+		interactive = true,
+		bgGradient = { UICOLORWHITE, { 1, 1, 1, 0 } },
+		bgGradientMode = BODYPARTS.L_THIGH,
+		imageColor = TB_MENU_DEFAULT_BG_COLOR_TRANS,
+		imageHoverColor = TB_MENU_DEFAULT_BG_COLOR_TRANS,
+		imagePressedColor = TB_MENU_DEFAULT_BG_COLOR_TRANS
+	})
+	local globalTabButtonOutline = globalTabButton:addChild({
+		shift = { 5, 5 },
+		bgColor = UICOLORWHITE,
+		shapeType = ROUNDED,
+		rounded = self.ChatTabWidth
+	})
+	globalTabButton:addChild({
+		shift = { 5, 5 },
+		bgImage = "../textures/menu/general/buttons/chatglobal.tga",
+		imageColor = TB_MENU_DEFAULT_BG_COLOR
+	})
+	local tabLegend = globalTabButton:addChild({
+		pos = { self.ChatTabWidth, 0 },
+		size = { self.ChatTabWidth * 3, self.ChatTabWidth }
+	})
+	tabLegend:addAdaptedText("Global Chat", nil, nil, 4, LEFTMID, 1)
+	tabLegend:hide(true)
+	globalTabButton.outline = globalTabButtonOutline
+	globalTabButton.legend = tabLegend
+	globalTabButton:addMouseUpHandler(function()
+			self:switchChatTab(0)
+		end)
+	self.ChatTabItems[0] = globalTabButton
+
+	local botBarGradient = botBar:addChild({
+		pos = { -botBar.size.w - self.ChatTabWidth, -botBar.size.h - 5 },
+		size = { botBar.size.w + self.ChatTabWidth, 10 },
+		bgGradient = { UICOLORWHITE, { 1, 1, 1, 0 } }
+	})
+	local botBarBackdrop = botBar:addChild({
+		pos = { botBarGradient.shift.x, 5 },
+		size = { botBarGradient.size.w, botBar.size.h - 5 },
+		bgColor = UICOLORWHITE
+	})
+	local chatInputHolder = botBar:addChild({
+		pos = { 20, botBar.size.h - 40 - math.max(SAFE_Y, 30) },
+		size = { botBar.size.w - 40, 40 },
+		shapeType = ROUNDED,
+		rounded = 4,
+		uiColor = UICOLORWHITE,
+		bgColor = TB_MENU_DEFAULT_DARKEST_COLOR
+	})
+	local chatInputField = TBMenu:spawnTextField2(chatInputHolder, { x = 35, w = chatInputHolder.size.w - 120 }, nil, nil, {
+		fontId = FONTS.SMALL + 10,
+		textAlign = LEFTMID,
+		textScale = 0.75,
+		textColor = table.clone(UICOLORWHITE),
+		keepFocusOnHide = true,
+		darkerMode = true,
+		returnKeyType = KEYBOARD_RETURN.SEND
+	})
+	local destroySuggestions = function()
+		if (chatInputField.suggestionsDropdown ~= nil) then
+			chatInputField.suggestionsDropdown:kill()
+			chatInputField.suggestionsDropdown = nil
+		end
+	end
+	chatInputField:addInputCallback(function()
+			destroySuggestions()
+
+			local typeCommand, replacements = chatInputField.textfieldstr[1]:gsub("^/(%w+).*", "%1")
+			if (replacements == 0) then
+				return
+			end
+
+			local commands = self:getChatCommands()
+			local targetCommands = {}
+			for cmd, _ in pairs(commands) do
+				if (cmd:find("^" .. typeCommand)) then
+					table.insert(targetCommands, commands[cmd])
+				end
+			end
+			if (#targetCommands == 0) then
+				return
+			end
+
+			local dropdownList = {}
+			for _, cmdInfo in pairs(targetCommands) do
+				table.insert(dropdownList, {
+					text = cmdInfo.command,
+					action = function() end
 				})
-				chatMessage:addAdaptedText(true, str, nil, nil, FONTS.SMALL + 10, LEFT, 0.72, 0.72)
-				table.insert(self.ChatHolderItems, chatMessage)
-				nextColor = TBHudInternal.getLastColorFromString(str)
-				message.lines = message.lines + 1
 			end
-		end
 
-		local botBarGradient = botBar:addChild({
-			pos = { 0, -botBar.size.h - 5 },
-			size = { botBar.size.w, 10 },
-			bgGradient = { UICOLORWHITE, { 1, 1, 1, 0 } }
-		})
-		local botBarBackdrop = botBar:addChild({
-			pos = { 0, 5 },
-			size = { botBar.size.w, botBar.size.h - 5 },
-			bgColor = UICOLORWHITE
-		})
-		local chatInputHolder = botBar:addChild({
-			pos = { 20, botBar.size.h - 40 - math.max(y, 30) },
-			size = { botBar.size.w - 40, 40 },
-			shapeType = ROUNDED,
-			rounded = 4,
-			uiColor = UICOLORWHITE,
-			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR
-		})
-		local chatInputField = TBMenu:spawnTextField2(chatInputHolder, { x = 35, w = chatInputHolder.size.w - 120 }, nil, nil, {
-			fontId = FONTS.SMALL + 10,
-			textAlign = LEFTMID,
-			textScale = 0.75,
-			textColor = table.clone(UICOLORWHITE),
-			keepFocusOnHide = true,
-			darkerMode = true,
-			returnKeyType = KEYBOARD_RETURN.SEND
-		})
-		local destroySuggestions = function()
-			if (chatInputField.suggestionsDropdown ~= nil) then
-				chatInputField.suggestionsDropdown:kill()
-				chatInputField.suggestionsDropdown = nil
-			end
-		end
-		chatInputField:addInputCallback(function()
-				destroySuggestions()
-
-				local typeCommand, replacements = chatInputField.textfieldstr[1]:gsub("^/(%w+).*", "%1")
-				if (replacements == 0) then
-					return
-				end
-
-				local commands = self:getChatCommands()
-				local targetCommands = {}
-				for cmd, _ in pairs(commands) do
-					if (cmd:find("^" .. typeCommand)) then
-						table.insert(targetCommands, commands[cmd])
-					end
-				end
-				if (#targetCommands == 0) then
-					return
-				end
-
-				local dropdownList = {}
-				for _, cmdInfo in pairs(targetCommands) do
-					table.insert(dropdownList, {
-						text = cmdInfo.command,
-						action = function() end
-					})
-				end
-
-				chatInputField.suggestionsDropdown = TBMenu:spawnDropdown(chatInputHolder, dropdownList, chatInputField.size.h, WIN_H / 3, { text = '' }, nil, { scale = 0.65, fontid = 4, uppercase = false, alignment = LEFTMID }, true, true, true)
-				chatInputField.suggestionsDropdown.uiColor = UICOLORWHITE
-				chatInputField.suggestionsDropdown.selectedElement:hide(true)
-				chatInputField.suggestionsDropdown.selectedElement.btnUp()
-			end)
-		-- Don't need chat history for mobile for now
-		chatInputField:addKeyboardHandlers(function(key)
-				if (key == 273 or key == 274) then -- arrow up or down
-					if (key == 273) then
-						TBHudInternal.ChatMessageHistoryIndex = math.max(TBHudInternal.ChatMessageHistoryIndex - 1, 1)
-					else
-						TBHudInternal.ChatMessageHistoryIndex = math.min(TBHudInternal.ChatMessageHistoryIndex + 1, #TBHudInternal.ChatMessageHistory)
-					end
-					chatInputField.textfieldstr[1] = TBHudInternal.ChatMessageHistory[TBHudInternal.ChatMessageHistoryIndex]
-					chatInputField.textfieldindex = utf8.len(chatInputField.textfieldstr[1])
-				end
-			end)
-		chatInputField:addEnterAction(function()
-				if (utf8.len(chatInputField.textfieldstr[1]) == 0) then return end
-				if (string.find(chatInputField.textfieldstr[1], "^/")) then
-					local cmd = chatInputField.textfieldstr[1]:gsub("^/(.+)", "%1")
-					runCmd(cmd, self.WorldState.game_type == 1)
+			chatInputField.suggestionsDropdown = TBMenu:spawnDropdown(chatInputHolder, dropdownList, chatInputField.size.h, WIN_H / 3, { text = '' }, nil, { scale = 0.65, fontid = 4, uppercase = false, alignment = LEFTMID }, true, true, true)
+			chatInputField.suggestionsDropdown.uiColor = UICOLORWHITE
+			chatInputField.suggestionsDropdown.selectedElement:hide(true)
+			chatInputField.suggestionsDropdown.selectedElement.btnUp()
+		end)
+	-- Don't need chat history for mobile for now
+	chatInputField:addKeyboardHandlers(function(key)
+			if (key == 273 or key == 274) then -- arrow up or down
+				if (key == 273) then
+					TBHudInternal.ChatMessageHistoryIndex = math.max(TBHudInternal.ChatMessageHistoryIndex - 1, 1)
 				else
-					---@diagnostic disable-next-line: undefined-global
-					send_chat_message(chatInputField.textfieldstr[1])
+					TBHudInternal.ChatMessageHistoryIndex = math.min(TBHudInternal.ChatMessageHistoryIndex + 1, #TBHudInternal.ChatMessageHistory)
 				end
-				add_chat_history(chatInputField.textfieldstr[1])
-				table.insert(TBHudInternal.ChatMessageHistory, #TBHudInternal.ChatMessageHistory, chatInputField.textfieldstr[1])
-				TBHudInternal.ChatMessageHistoryIndex = #TBHudInternal.ChatMessageHistory
+				chatInputField.textfieldstr[1] = TBHudInternal.ChatMessageHistory[TBHudInternal.ChatMessageHistoryIndex]
+				chatInputField.textfieldindex = utf8.len(chatInputField.textfieldstr[1])
+			end
+		end)
+	chatInputField:addEnterAction(function()
+			if (utf8.len(chatInputField.textfieldstr[1]) == 0) then return end
+
+			if (chatInputField.textfieldstr[1]:find("^/addtab")) then
 				chatInputField:clearTextfield()
 				destroySuggestions()
-			end)
-		local chatMessagePrevious = chatInputHolder:addChild({
-			pos = { 0, 0 },
-			size = { chatInputField.parent.parent.shift.x, chatInputHolder.size.h },
-			interactive = true,
-			bgColor = TB_MENU_DEFAULT_BG_COLOR,
-			hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-		}, true)
-		chatMessagePrevious:addChild({
-			shift = { chatMessagePrevious.size.w / 2 - (chatMessagePrevious.size.h - 4) / 4, 2 },
-			bgImage = "../textures/menu/general/buttons/arrowleft.tga"
-		})
-		chatMessagePrevious:addMouseUpHandler(function()
-			---Simulate key up press
-			chatInputField.keyDownCustom(273)
+				return
+			end
+
+			if (self.WorldState.game_type == 0 and string.find(chatInputField.textfieldstr[1], "^/")) then
+				local cmd = chatInputField.textfieldstr[1]:gsub("^/(.+)", "%1")
+				runCmd(cmd)
+			else
+				---@diagnostic disable-next-line: undefined-global
+				send_chat_message(chatInputField.textfieldstr[1], self.ChatActiveTab)
+			end
+			add_chat_history(chatInputField.textfieldstr[1])
+			table.insert(TBHudInternal.ChatMessageHistory, #TBHudInternal.ChatMessageHistory, chatInputField.textfieldstr[1])
+			TBHudInternal.ChatMessageHistoryIndex = #TBHudInternal.ChatMessageHistory
+
+			chatInputField:clearTextfield()
+			destroySuggestions()
 		end)
-		local chatInputSubmit = chatInputHolder:addChild({
-			pos = { chatInputField.parent.parent.shift.x + chatInputField.parent.parent.size.w, 0 },
-			size = { chatInputHolder.size.w - chatInputField.parent.parent.shift.x - chatInputField.parent.parent.size.w, chatInputHolder.size.h },
-			interactive = true,
-			bgColor = TB_MENU_DEFAULT_BG_COLOR,
-			hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
-		}, true)
-		chatInputSubmit:addChild({ shift = { 10, 3 }}):addAdaptedText(TB_MENU_LOCALIZED.BUTTONSEND)
-		chatInputSubmit:addMouseUpHandler(chatInputField.enteraction)
+	local chatMessagePrevious = chatInputHolder:addChild({
+		pos = { 0, 0 },
+		size = { chatInputField.parent.parent.shift.x, chatInputHolder.size.h },
+		interactive = true,
+		bgColor = TB_MENU_DEFAULT_BG_COLOR,
+		hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+	}, true)
+	chatMessagePrevious:addChild({
+		shift = { chatMessagePrevious.size.w / 2 - (chatMessagePrevious.size.h - 4) / 4, 2 },
+		bgImage = "../textures/menu/general/buttons/arrowleft.tga"
+	})
+	chatMessagePrevious:addMouseUpHandler(function()
+		---Simulate key up press
+		chatInputField.keyDownCustom(273)
+	end)
+	local chatInputSubmit = chatInputHolder:addChild({
+		pos = { chatInputField.parent.parent.shift.x + chatInputField.parent.parent.size.w, 0 },
+		size = { chatInputHolder.size.w - chatInputField.parent.parent.shift.x - chatInputField.parent.parent.size.w, chatInputHolder.size.h },
+		interactive = true,
+		bgColor = TB_MENU_DEFAULT_BG_COLOR,
+		hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+	}, true)
+	chatInputSubmit:addChild({ shift = { 10, 3 }}):addAdaptedText(TB_MENU_LOCALIZED.BUTTONSEND)
+	chatInputSubmit:addMouseUpHandler(chatInputField.enteraction)
 
-		self.ChatHolderToReload = toReload
-		self.ChatHolderListing = listingHolder
-		self.ChatHolderTopBar = topBar
-	else
-		local i = 1
-		if (-self.ChatHolderListing.shift.y >= #self.ChatHolderItems * elementHeight) then
-			TBHud.ListShift[1] = 0
+	self.ChatHolderToReload = toReload
+	self.ChatHolderListing = listingHolder
+	self.ChatHolderTopBar = topBar
+end
+
+---Reloads chat display
+function TBHud:refreshChat()
+	if (self.ChatHolderItems == nil) then return end
+	if (self.ChatHolderItems[self.ChatActiveTab] == nil) then
+		self.ChatHolderItems[self.ChatActiveTab] = { }
+	end
+	local holderItems = self.ChatHolderItems[self.ChatActiveTab]
+
+	local elementHeight = 25
+	if (-self.ChatHolderListing.shift.y >= #holderItems * elementHeight) then
+		TBHud.ListShift[1] = 0
+	end
+
+	if (#self.ChatHolderListing.child == 0 and #self.ChatHolderItems[self.ChatActiveTab] > 0) then
+		for _, v in ipairs(self.ChatHolderItems[self.ChatActiveTab]) do
+			table.insert(self.ChatHolderListing.child, v)
+			v:show()
 		end
+	end
 
-		for _, message in pairs(TBHudInternal.ChatMessages) do
-			if (i > #self.ChatHolderItems) then
+	local i = 1
+	for _, message in pairs(TBHudInternal.ChatMessages) do
+		if (message.tab == self.ChatActiveTab) then
+			if (i > #holderItems) then
 				local messageStrings = textAdapt(message.text, FONTS.SMALL + 10, 0.72, self.ChatHolderListing.size.w - 32)
 				message.lines = 0
 				local nextColor = nil
 				for _, str in pairs(messageStrings) do
 					local chatMessage = self.ChatHolderListing:addChild({
-						pos = { 16, #self.ChatHolderItems * elementHeight },
+						pos = { 16, #holderItems * elementHeight },
 						size = { self.ChatHolderListing.size.w - 32, elementHeight },
 						uiColor = nextColor
 					})
 					chatMessage:addAdaptedText(true, str, nil, nil, FONTS.SMALL + 10, LEFT, 0.72, 0.72)
-					table.insert(self.ChatHolderItems, chatMessage)
+					table.insert(holderItems, chatMessage)
 					nextColor = TBHudInternal.getLastColorFromString(str)
 					message.lines = message.lines + 1
 
@@ -1153,20 +1460,20 @@ function TBHud:refreshChat()
 		end
 	end
 
-	if (self.ChatHolderItems[1] ~= nil) then
+	if (holderItems[1] ~= nil) then
 		local listingHolder = self.ChatHolderListing
-		if (#self.ChatHolderItems * elementHeight > listingHolder.size.h) then
+		if (#holderItems * elementHeight > listingHolder.size.h) then
 			if (self.ChatHolderScrollBar == nil) then
-				for _, v in pairs(self.ChatHolderItems) do
+				for _, v in pairs(holderItems) do
 					v:hide(true)
 				end
 
 				-- Don't forget to move listing holder back in place
 				listingHolder:moveTo(nil, self.ChatHolderTopBar.size.w)
-				self.ChatHolderScrollBar = TBMenu:spawnScrollBar(listingHolder, #self.ChatHolderItems, elementHeight)
-				self.ChatHolderScrollBar:makeScrollBar(listingHolder, self.ChatHolderItems, self.ChatHolderToReload, TBHud.ListShift)
+				self.ChatHolderScrollBar = TBMenu:spawnScrollBar(listingHolder, #holderItems, elementHeight)
+				self.ChatHolderScrollBar:makeScrollBar(listingHolder, holderItems, self.ChatHolderToReload, TBHud.ListShift)
 			else
-				self.ChatHolderScrollBar.size.h = math.max(0.1, math.min(1, (listingHolder.size.h) / (#self.ChatHolderItems * elementHeight) or listingHolder.size.h)) * self.ChatHolderScrollBar.parent.size.h
+				self.ChatHolderScrollBar.size.h = math.max(0.1, math.min(1, (listingHolder.size.h) / (#holderItems * elementHeight) or listingHolder.size.h)) * self.ChatHolderScrollBar.parent.size.h
 			end
 
 			if (TBHud.ListShift[1] == 0) then
@@ -1175,11 +1482,11 @@ function TBHud:refreshChat()
 				self.ChatHolderScrollBar.btnHover(self.ChatHolderScrollBar.parent.pos.x + 1, self.ChatHolderScrollBar.parent.pos.y + self.ChatHolderScrollBar.parent.size.h - 2)
 				self.ChatHolderScrollBar.hoverState = hoverState
 			else
-				local scrollProgress = -(self.ChatHolderListing.size.h + self.ChatHolderListing.shift.y) / (#self.ChatHolderItems * elementHeight - self.ChatHolderListing.size.h)
+				local scrollProgress = -(self.ChatHolderListing.size.h + self.ChatHolderListing.shift.y) / (#holderItems * elementHeight - self.ChatHolderListing.size.h)
 				self.ChatHolderScrollBar:moveTo(nil, (self.ChatHolderScrollBar.parent.size.h - self.ChatHolderScrollBar.size.h) * scrollProgress)
 			end
 		else
-			listingHolder:moveTo(nil, listingHolder.parent.size.h - elementHeight * #self.ChatHolderItems)
+			listingHolder:moveTo(nil, listingHolder.parent.size.h - elementHeight * #holderItems)
 		end
 	end
 
@@ -1192,6 +1499,8 @@ function TBHud:toggleChat(state)
 		if (self.RequiresChatRefresh) then
 			self:refreshChat()
 		end
+	elseif (self.ChatTabItems.extendButton ~= nil and self.ChatTabItems.extendButton.__extendState == true) then
+		self.ChatTabItems.extendButton.btnUp()
 	end
 
 	local clock = UIElement.clock
@@ -1220,7 +1529,7 @@ function TBHud:spawnMiniChat()
 	end
 	self.ChatMiniHolder = self.MainElement:addChild({
 		pos = { self.DefaultSmallerButtonSize * 1.7, 0 },
-		size = { self.ChatSize.w, WIN_H - self.DefaultButtonSize * 0.35 }
+		size = { self.ChatSize.w * 0.75, WIN_H - self.DefaultButtonSize * 0.35 }
 	})
 
 	---@type ChatMessage[]
@@ -1231,13 +1540,15 @@ function TBHud:spawnMiniChat()
 			if (TBHudInternal.ChatMessages[i].clock < UIElement.clock - self.ChatMiniDisplayPeriod) then
 				break
 			end
-			table.insert(messagesToDisplay, TBHudInternal.ChatMessages[i])
-			if (#messagesToDisplay == self.ChatMiniMaxMessages) then
-				break
+			if (TBHudInternal.ChatMessages[i].tab == self.ChatActiveTab) then
+				table.insert(messagesToDisplay, TBHudInternal.ChatMessages[i])
+				if (#messagesToDisplay == self.ChatMiniMaxMessages) then
+					break
+				end
 			end
 		end
 		for i, v in pairs(messagesToDisplay) do
-			messagesToDisplay[i].adaptedTextMini = textAdapt(v.text, FONTS.SMALL, 1, self.ChatMiniHolder.size.w)
+			messagesToDisplay[i].adaptedTextMini = textAdapt(v.text, 11, 0.55, self.ChatMiniHolder.size.w)
 			messagesToDisplay[i].textColorMini = { nil }
 			local displayColor = nil
 			for j, line in pairs(messagesToDisplay[i].adaptedTextMini) do
@@ -1246,11 +1557,12 @@ function TBHud:spawnMiniChat()
 			end
 		end
 		self.ChatMiniUpdateTime = os.time()
+		self.ChatMiniLastTab = self.ChatActiveTab
 	end
 
 	self.ChatMiniHolder:addCustomDisplay(function()
 			if (self.ChatHolder:isDisplayed()) then return end
-			if (os.time() ~= self.ChatMiniUpdateTime) then
+			if (os.time() ~= self.ChatMiniUpdateTime or self.ChatMiniLastTab ~= self.ChatActiveTab) then
 				refreshMiniChat()
 			end
 			local linesPrinted = 0
@@ -1259,7 +1571,7 @@ function TBHud:spawnMiniChat()
 				for i = #v.adaptedTextMini, 1, -1 do
 					local displayColor = table.clone(v.textColorMini[i] or TB_MENU_DEFAULT_DARKEST_COLOR)
 					displayColor[4] = textOpacity
-					self.ChatMiniHolder:uiText(v.adaptedTextMini[i], nil, -linesPrinted * 20, FONTS.SMALL, LEFTBOT, 1, nil, nil, displayColor)
+					self.ChatMiniHolder:uiText(v.adaptedTextMini[i], nil, -linesPrinted * 20, 11, LEFTBOT, 0.55, nil, nil, displayColor)
 					linesPrinted = linesPrinted + 1
 					if (linesPrinted > self.ChatMiniMaxMessages) then
 						return
@@ -1288,7 +1600,7 @@ function TBHud:spawnChat()
 		interactive = true
 	})
 	self.ChatHolder:addMouseUpHandler(function() self:toggleChat(false) end)
-	self:refreshChat()
+	self:initChat()
 	self:spawnMiniChat()
 	self:loadChatHistory()
 

@@ -26,6 +26,9 @@ require("system.friends_manager")
 if (QueueList == nil) then
 	---**Queue list manager class**
 	---
+	---**Version 5.61:**
+	---* Automatically open chat with the new tab when whispering user
+	---
 	---**Version 5.60:**
 	---* Updates to match new language design
 	---* Added documentation with EmmyLua annotations
@@ -651,7 +654,13 @@ function QueueList:addPlayerControls(viewElement, info, userinfo)
 			name = "whisper",
 			show = not isIgnored,
 			text = TB_MENU_LOCALIZED.QUEUELISTDROPDOWNWHISPER,
-			action = function(s) runCmd("whisper " .. s) end
+			action = function(s)
+				if (is_mobile()) then
+					TBHud:toggleChat(true)
+					TBHud.__waitingWhisper = true
+				end
+				runCmd("whisper " .. s)
+			end
 		},
 		{
 			name = "addfriend",

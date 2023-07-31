@@ -205,6 +205,8 @@ _G.COLORS = {
 ---| 4	MSGTYPE.INGAME
 ---| 8	MSGTYPE.USER
 ---| 16	MSGTYPE.PLAYER
+---| 32	MSGTYPE.WHISPER
+---| 64	MSGTYPE.ECHO
 
 ---Message types
 _G.MSGTYPE = {
@@ -213,7 +215,9 @@ _G.MSGTYPE = {
 	URL = 2,
 	INGAME = 4,
 	USER = 8,
-	PLAYER = 16
+	PLAYER = 16,
+	WHISPER = 32,
+	ECHO = 64
 }
 
 ---@alias HapticsType
@@ -2981,6 +2985,11 @@ function get_full_mode_chat_lines() end
 ---@param id integer
 ---@return ChatMessageType
 function get_chat_type(id) end
+
+---Returns name of the tab with the specified id
+---@param id integer
+---@return string
+function get_chat_tab_name(id) end
 
 ---Hides chat tabs
 function hide_chat_button() end

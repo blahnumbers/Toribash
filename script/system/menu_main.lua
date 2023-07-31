@@ -258,6 +258,11 @@ if (is_mobile()) then
 		UIElement.drawVisuals(TBHud.Globalid)
 		UIElement.drawVisuals(TBHud.HubGlobalid)
 	end)
+	add_hook("draw_viewport", "tbMobileHubVisual", function()
+		if (TB_MENU_MAIN_ISOPEN == 1) then return end
+		UIElement3D.drawViewport(TBHud.Globalid)
+		UIElement3D.drawViewport(TBHud.HubGlobalid)
+	end)
 end
 
 Notifications:getTotalNotifications()
