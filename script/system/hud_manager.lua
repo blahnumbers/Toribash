@@ -1367,9 +1367,9 @@ function TBHud:initChat()
 				return
 			end
 
-			if (self.WorldState.game_type == 0 and string.find(chatInputField.textfieldstr[1], "^/")) then
+			if (string.find(chatInputField.textfieldstr[1], "^/")) then
 				local cmd = chatInputField.textfieldstr[1]:gsub("^/(.+)", "%1")
-				runCmd(cmd)
+				runCmd(cmd, self.WorldState.game_type == 1)
 			else
 				---@diagnostic disable-next-line: undefined-global
 				send_chat_message(chatInputField.textfieldstr[1], self.ChatActiveTab)
