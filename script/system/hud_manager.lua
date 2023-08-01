@@ -121,7 +121,11 @@ local TBHudInternal = {
 	ChatMessageHistory = {},
 	ChatMessageHistoryIndex = -1,
 	TutorialHubOverride = nil,
-	ReadyLongPressEnabled = true
+	ReadyLongPressEnabled = true,
+	IgnoreCommands = {
+		"addtab",
+		"closetab"
+	}
 }
 setmetatable({}, TBHudInternal)
 
@@ -1056,7 +1060,7 @@ function TBHud:spawnChatTabButton(tab)
 	---@diagnostic disable-next-line: assign-type-mismatch
 	local tabButton = self.ChatTabHolder:addChild({
 		pos = { 0, table.size(self.ChatTabItems) * self.ChatTabWidth },
-		size = { self.ChatTabWidth, self.ChatTabWidth },
+		size = { SAFE_X + self.ChatTabWidth, self.ChatTabWidth },
 		interactive = true,
 		bgGradient = { UICOLORWHITE, { 1, 1, 1, 0 } },
 		bgGradientMode = BODYPARTS.L_THIGH,
@@ -1065,16 +1069,21 @@ function TBHud:spawnChatTabButton(tab)
 		imagePressedColor = TB_MENU_DEFAULT_BG_COLOR_TRANS
 	})
 	local tabButtonOutline = tabButton:addChild({
-		shift = { 5, 5 },
+		pos = { SAFE_X + 5, 5 },
+		size = { tabButton.size.h - 10, tabButton.size.h - 10 },
 		bgColor = UICOLORWHITE,
 		shapeType = ROUNDED,
 		rounded = self.ChatTabWidth
 	})
+	local tabPlayerHeadHolder = tabButton:addChild({
+		pos = { SAFE_X + 5, 5 },
+		size = { tabButton.size.h - 10, tabButton.size.h - 10 }
+	})
 	local tabName = get_chat_tab_name(tab)
-	TBMenu:showPlayerHeadAvatar(tabButton, tabName)
+	TBMenu:showPlayerHeadAvatar(tabPlayerHeadHolder, tabName)
 
 	local tabLegend = tabButton:addChild({
-		pos = { self.ChatTabWidth, 0 },
+		pos = { SAFE_X + self.ChatTabWidth, 0 },
 		size = { self.ChatTabWidth * 3, self.ChatTabWidth }
 	})
 	tabLegend:addAdaptedText(tabName, nil, nil, 4, LEFTMID, 1, 1)
@@ -1167,8 +1176,8 @@ function TBHud:initChat()
 	self.ChatTabItems = { }
 
 	local chatMainHolder = self.ChatHolder:addChild({
-		pos = { SAFE_X, -self.ChatSize.h },
-		size = { self.ChatSize.w, self.ChatSize.h },
+		pos = { 0, -self.ChatSize.h },
+		size = { self.ChatSize.w + SAFE_X, self.ChatSize.h },
 		bgColor = table.clone(UICOLORWHITE),
 		uiColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 		interactive = true
@@ -1176,19 +1185,19 @@ function TBHud:initChat()
 	chatMainHolder.bgColor[4] = 0.7
 
 	local chatMessagesHolder = chatMainHolder:addChild({
-		pos = { self.ChatTabWidth, 0 },
-		size = { chatMainHolder.size.w - self.ChatTabWidth, chatMainHolder.size.h }
+		pos = { SAFE_X + self.ChatTabWidth, 0 },
+		size = { chatMainHolder.size.w - SAFE_X - self.ChatTabWidth, chatMainHolder.size.h }
 	})
 	local toReload, topBar, botBar, _, listingHolder = TBMenu:prepareScrollableList(chatMessagesHolder, 1, 50 + math.max(SAFE_Y, 30), 16, { 0, 0, 0, 0 })
 
 	self.ChatTabHolder = chatMainHolder:addChild({
 		pos = { 0, math.max(SAFE_Y, 30) },
-		size = { self.ChatTabWidth, chatMainHolder.size.h - math.max(SAFE_Y, 30) * 2 },
+		size = { self.ChatTabWidth + SAFE_X, chatMainHolder.size.h - math.max(SAFE_Y, 30) * 2 },
 		uiColor = table.clone(TB_MENU_DEFAULT_DARKER_COLOR)
 	})
 	local extendTabsButton = self.ChatTabHolder:addChild({
 		pos = { 0, 0 },
-		size = { self.ChatTabWidth, self.ChatTabWidth },
+		size = { self.ChatTabWidth + SAFE_X, self.ChatTabWidth },
 		interactive = true,
 		bgColor = TB_MENU_DEFAULT_BG_COLOR,
 		hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
@@ -1202,17 +1211,18 @@ function TBHud:initChat()
 			draw_quad(extendTabsButton.pos.x + extendTabsButton.size.w - 10, extendTabsButton.pos.y + 10, 10, extendTabsButton.size.h - 20)
 		end)
 	local extendTabsButtonImage = extendTabsButton:addChild({
-		shift = { self.ChatTabWidth / 4, 0 },
+		pos = { SAFE_X + self.ChatTabWidth / 4, 0 },
+		size = { self.ChatTabWidth / 2, self.ChatTabWidth },
 		bgImage = "../textures/menu/general/buttons/arrowright.tga"
 	})
 	extendTabsButton.__extendState = false
 	extendTabsButton:addMouseUpHandler(function()
-			local targetWidth = self.ChatTabWidth
+			local targetWidth = SAFE_X + self.ChatTabWidth
 			extendTabsButton.__extendState = not extendTabsButton.__extendState
 			if (extendTabsButton.__extendState) then
 				table.insert(topBar.child, self.ChatTabHolder)
 				extendTabsButtonImage:updateImage("../textures/menu/general/buttons/arrowleft.tga")
-				targetWidth = self.ChatTabWidth * 5
+				targetWidth = SAFE_X + self.ChatTabWidth * 5
 			else
 				for i, v in pairs(topBar.child) do
 					if (v == self.ChatTabHolder) then
@@ -1249,7 +1259,7 @@ function TBHud:initChat()
 
 	local globalTabButton = self.ChatTabHolder:addChild({
 		pos = { 0, self.ChatTabWidth },
-		size = { self.ChatTabWidth, self.ChatTabWidth },
+		size = { self.ChatTabWidth + SAFE_X, self.ChatTabWidth },
 		interactive = true,
 		bgGradient = { UICOLORWHITE, { 1, 1, 1, 0 } },
 		bgGradientMode = BODYPARTS.L_THIGH,
@@ -1258,18 +1268,20 @@ function TBHud:initChat()
 		imagePressedColor = TB_MENU_DEFAULT_BG_COLOR_TRANS
 	})
 	local globalTabButtonOutline = globalTabButton:addChild({
-		shift = { 5, 5 },
+		pos = { SAFE_X + 5, 5 },
+		size = { globalTabButton.size.h - 10, globalTabButton.size.h - 10 },
 		bgColor = UICOLORWHITE,
 		shapeType = ROUNDED,
 		rounded = self.ChatTabWidth
 	})
 	globalTabButton:addChild({
-		shift = { 5, 5 },
+		pos = { SAFE_X + 5, 5 },
+		size = { globalTabButton.size.h - 10, globalTabButton.size.h - 10 },
 		bgImage = "../textures/menu/general/buttons/chatglobal.tga",
 		imageColor = TB_MENU_DEFAULT_BG_COLOR
 	})
 	local tabLegend = globalTabButton:addChild({
-		pos = { self.ChatTabWidth, 0 },
+		pos = { SAFE_X + self.ChatTabWidth, 0 },
 		size = { self.ChatTabWidth * 3, self.ChatTabWidth }
 	})
 	tabLegend:addAdaptedText("Global Chat", nil, nil, 4, LEFTMID, 1)
@@ -1361,15 +1373,16 @@ function TBHud:initChat()
 	chatInputField:addEnterAction(function()
 			if (utf8.len(chatInputField.textfieldstr[1]) == 0) then return end
 
-			if (chatInputField.textfieldstr[1]:find("^/addtab")) then
-				chatInputField:clearTextfield()
-				destroySuggestions()
-				return
-			end
-
-			if (string.find(chatInputField.textfieldstr[1], "^/")) then
-				local cmd = chatInputField.textfieldstr[1]:gsub("^/(.+)", "%1")
-				runCmd(cmd, self.WorldState.game_type == 1)
+			local cmdIdx, cmdEnd = string.find(chatInputField.textfieldstr[1], "^/(%w+)")
+			if (cmdIdx ~= nil) then
+				local cmd = string.sub(chatInputField.textfieldstr[1], cmdIdx + 1, cmdEnd)
+				if (in_array(cmd, TBHudInternal.IgnoreCommands)) then
+					chatInputField:clearTextfield()
+					destroySuggestions()
+					return
+				end
+				local message = string.sub(chatInputField.textfieldstr[1], cmdIdx + 1)
+				runCmd(message, self.WorldState.game_type == 1)
 			else
 				---@diagnostic disable-next-line: undefined-global
 				send_chat_message(chatInputField.textfieldstr[1], self.ChatActiveTab)
