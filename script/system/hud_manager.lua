@@ -62,7 +62,6 @@ if (TBHud == nil) then
 		ChatSize = { w = 0, h = 0},
 		ChatTabWidth = 60,
 		ChatActiveTab = 0,
-		ListShift = { },
 		ChatMaxHistory = 2000,
 		ChatMiniMaxMessages = 10,
 		ChatMiniDisplayPeriod = 20,
@@ -77,7 +76,6 @@ if (TBHud == nil) then
 		__waitingWhisper = false,
 		ver = 5.61,
 	}
-	TBHud.ListShift[0] = { 0 }
 	TBHud.__index = TBHud
 	setmetatable({}, TBHud)
 
@@ -116,12 +114,16 @@ end
 ---@field ChatMessageHistoryIndex integer
 ---@field TutorialHubOverride function|nil Custom function to be executed when a user presses Hub button while in Tutorial/Event mode
 ---@field ReadyLongPressEnabled boolean Whether `Ready` button long press functionality is enabled
+---@field ListShift number[] Chat scroll bar posShift values
+---@field IgnoreCommands string[] Chat commands that we want ignored in mobile UI
 local TBHudInternal = {
 	ChatMessages = {},
 	ChatMessageHistory = {},
 	ChatMessageHistoryIndex = -1,
 	TutorialHubOverride = nil,
 	ReadyLongPressEnabled = true,
+	ListShift = { 0 },
+	ChatElementHeight = 25,
 	IgnoreCommands = {
 		"addtab",
 		"closetab"
@@ -210,7 +212,7 @@ end
 function TBHudInternal.pushChatMessage(msg, type, tab)
 	---Colorize first symbol if needed
 	if (type > MSGTYPE.SERVER) then
-		local match, matchEnd = utf8.find(msg, "(^?%%?%d+)>")
+		local match, matchEnd = utf8.find(msg, "([%^%%]%d%d+)>")
 		if (match ~= nil) then
 			msg = utf8.sub(msg, match, matchEnd - 1) .. msg
 		end
@@ -1036,14 +1038,20 @@ end
 function TBHud:switchChatTab(tab)
 	if (self.ChatActiveTab == tab) then return end
 
-	for _, v in pairs(self.ChatHolderListing.child) do
-		v:hide()
+	---We must preserve the original child table as it's being referenced by scrollable list code!
+	---Clean it properly instead of just resetting it to a new empty table
+	for i = #self.ChatHolderListing.child, 1, -1 do
+		self.ChatHolderListing.child[i]:hide(true)
+		table.remove(self.ChatHolderListing.child, i)
 	end
-	self.ChatHolderListing.child = { }
+
+	TBHudInternal.ListShift[1] = 0
+
 	self.ChatTabItems[self.ChatActiveTab].imageColor = table.clone(UICOLORWHITE)
 	self.ChatTabItems[tab].imageColor = table.clone(TB_MENU_DEFAULT_BG_COLOR_TRANS)
 	self.ChatTabItems[tab].hasUnread = false
 	self.ChatActiveTab = tab
+
 	self:refreshChat()
 end
 
@@ -1079,7 +1087,8 @@ function TBHud:spawnChatTabButton(tab)
 		pos = { SAFE_X + 5, 5 },
 		size = { tabButton.size.h - 10, tabButton.size.h - 10 }
 	})
-	local tabName = get_chat_tab_name(tab)
+	local playerInfo = PlayerInfo.Get(get_chat_tab_name(tab))
+	local tabName = playerInfo.username
 	TBMenu:showPlayerHeadAvatar(tabPlayerHeadHolder, tabName)
 
 	local tabLegend = tabButton:addChild({
@@ -1137,7 +1146,7 @@ function TBHud:destroyChatTabButton(tab)
 	end
 	self.ChatTabItems[tab]:kill()
 	self.ChatTabItems[tab] = nil
-	for _, v in pairs(self.ChatHolderItems[tab] or {}) do
+	for _, v in ipairs(self.ChatHolderItems[tab] or {}) do
 		v:kill()
 	end
 	TBHud.ChatHolderItems[tab] = nil
@@ -1155,6 +1164,8 @@ function TBHud:destroyChatTabButton(tab)
 			cnt = cnt + 1
 		end
 	end
+
+	close_chat_tab(tab)
 end
 
 ---Marks a chat tab as unread
@@ -1239,7 +1250,7 @@ function TBHud:initChat()
 					for i, v in pairs(self.ChatTabItems) do
 						if (type(i) == "number") then
 							v.size.w = UITween.SineTween(v.size.w, targetWidth, ratio)
-							v.outline.size.w = v.size.w - 10
+							v.outline.size.w = v.size.w - SAFE_X - 10
 							if (extendTabsButton.__extendState) then
 								v.legend.uiColor[4] = math.max(0.01, ratio)
 							end
@@ -1426,6 +1437,18 @@ function TBHud:initChat()
 	self.ChatHolderTopBar = topBar
 end
 
+function TBHud:scrollChatIntoPosition()
+	if (TBHudInternal.ListShift[1] == 0) then
+		local hoverState = self.ChatHolderScrollBar.hoverState
+		self.ChatHolderScrollBar.hoverState = BTN_DN
+		self.ChatHolderScrollBar.btnHover(self.ChatHolderScrollBar.parent.pos.x + 1, self.ChatHolderScrollBar.parent.pos.y + self.ChatHolderScrollBar.parent.size.h - 2)
+		self.ChatHolderScrollBar.hoverState = hoverState
+	else
+		local scrollProgress = -(self.ChatHolderListing.size.h + self.ChatHolderListing.shift.y) / (#self.ChatHolderItems[self.ChatActiveTab] * TBHudInternal.ChatElementHeight - self.ChatHolderListing.size.h)
+		self.ChatHolderScrollBar:moveTo(nil, (self.ChatHolderScrollBar.parent.size.h - self.ChatHolderScrollBar.size.h) * scrollProgress)
+	end
+end
+
 ---Reloads chat display
 function TBHud:refreshChat()
 	if (self.ChatHolderItems == nil) then return end
@@ -1433,30 +1456,74 @@ function TBHud:refreshChat()
 		self.ChatHolderItems[self.ChatActiveTab] = { }
 	end
 	local holderItems = self.ChatHolderItems[self.ChatActiveTab]
+	local listingHolder = self.ChatHolderListing
 
-	local elementHeight = 25
-	if (-self.ChatHolderListing.shift.y >= #holderItems * elementHeight) then
-		TBHud.ListShift[1] = 0
+	if (-listingHolder.shift.y >= #holderItems * TBHudInternal.ChatElementHeight) then
+		TBHudInternal.ListShift[1] = 0
 	end
 
-	if (#self.ChatHolderListing.child == 0 and #self.ChatHolderItems[self.ChatActiveTab] > 0) then
-		for _, v in ipairs(self.ChatHolderItems[self.ChatActiveTab]) do
-			table.insert(self.ChatHolderListing.child, v)
-			v:show()
+	local tabWasSwitched = #listingHolder.child == 0 and #holderItems > 0
+	if (tabWasSwitched) then
+		local offsetIdx = -1
+		for i = #holderItems, 1, -1 do
+			---@diagnostic disable-next-line: undefined-field
+			if (holderItems[i].isNewMessageMark) then
+				offsetIdx = i
+				holderItems[i]:kill()
+				table.remove(holderItems, i)
+				holderItems.hasNewMessageMark = nil
+			else
+				if (tabWasSwitched) then
+					table.insert(listingHolder.child, 1, holderItems[i])
+				end
+			end
+		end
+		if (offsetIdx >= 0) then
+			for i = offsetIdx, #holderItems do
+				holderItems[i].shift.y = holderItems[i].shift.y - TBHudInternal.ChatElementHeight
+			end
 		end
 	end
 
 	local i = 1
 	for _, message in pairs(TBHudInternal.ChatMessages) do
 		if (message.tab == self.ChatActiveTab) then
-			if (i > #holderItems) then
-				local messageStrings = textAdapt(message.text, FONTS.SMALL + 10, 0.72, self.ChatHolderListing.size.w - 32)
+			if (i > #holderItems - (holderItems.hasNewMessageMark and 1 or 0)) then
+				if (tabWasSwitched) then
+					tabWasSwitched = false
+					holderItems.hasNewMessageMark = true
+					local newMessageMark = listingHolder:addChild({
+						pos = { 16, #holderItems * TBHudInternal.ChatElementHeight },
+						size = { listingHolder.size.w - 32, TBHudInternal.ChatElementHeight },
+						uiColor = UICOLORWHITE
+					})
+					local halfHeight = newMessageMark.size.h / 2
+					local quadOffset = newMessageMark.size.h * 0.066
+					newMessageMark:addCustomDisplay(true, function()
+							local lineY = newMessageMark.pos.y + halfHeight
+							set_color(unpack(TB_MENU_DEFAULT_BG_COLOR))
+							draw_line(newMessageMark.pos.x, lineY, newMessageMark.pos.x + newMessageMark.size.w - 80, lineY, 2)
+							draw_disk(newMessageMark.pos.x + newMessageMark.size.w - 80 - newMessageMark.size.h / 4, lineY, 0, halfHeight, 3, 1, 30, 360, 0)
+							draw_quad(newMessageMark.pos.x + newMessageMark.size.w - 80, newMessageMark.pos.y + quadOffset, 70, newMessageMark.size.h - quadOffset * 2)
+							draw_disk(newMessageMark.pos.x + newMessageMark.size.w - 10, newMessageMark.pos.y + quadOffset + 10, 0, 10, 0, 1, 90, 90, 0)
+							draw_disk(newMessageMark.pos.x + newMessageMark.size.w - 10, newMessageMark.pos.y + newMessageMark.size.h - quadOffset - 10, 0, 10, 0, 1, 0, 90, 0)
+							draw_quad(newMessageMark.pos.x + newMessageMark.size.w - 10, newMessageMark.pos.y + quadOffset+ 10, 10, newMessageMark.size.h - 20 - quadOffset * 2)
+						end)
+					newMessageMark.isNewMessageMark = true
+					table.insert(holderItems, newMessageMark)
+
+					newMessageMark:addChild({
+						pos = { -80, 6 },
+						size = { 70, newMessageMark.size.h - 12 }
+					}):addAdaptedText(true, utf8.upper(TB_MENU_LOCALIZED.WORDNEW), nil, nil, FONTS.LMEDIUM)
+				end
+				local messageStrings = textAdapt(message.text, FONTS.SMALL + 10, 0.72, listingHolder.size.w - 32)
 				message.lines = 0
 				local nextColor = nil
 				for _, str in pairs(messageStrings) do
-					local chatMessage = self.ChatHolderListing:addChild({
-						pos = { 16, #holderItems * elementHeight },
-						size = { self.ChatHolderListing.size.w - 32, elementHeight },
+					local chatMessage = listingHolder:addChild({
+						pos = { 16, #holderItems * TBHudInternal.ChatElementHeight },
+						size = { listingHolder.size.w - 32, TBHudInternal.ChatElementHeight },
 						uiColor = nextColor
 					})
 					chatMessage:addAdaptedText(true, str, nil, nil, FONTS.SMALL + 10, LEFT, 0.72, 0.72)
@@ -1464,7 +1531,7 @@ function TBHud:refreshChat()
 					nextColor = TBHudInternal.getLastColorFromString(str)
 					message.lines = message.lines + 1
 
-					if (self.ChatHolderScrollBar ~= nil) then
+					if (self.ChatHolderScrollBar ~= nil and self.ChatHolderScrollBar:isDisplayed()) then
 						chatMessage:hide(true)
 					end
 				end
@@ -1473,34 +1540,33 @@ function TBHud:refreshChat()
 		end
 	end
 
-	if (holderItems[1] ~= nil) then
-		local listingHolder = self.ChatHolderListing
-		if (#holderItems * elementHeight > listingHolder.size.h) then
-			if (self.ChatHolderScrollBar == nil) then
-				for _, v in pairs(holderItems) do
-					v:hide(true)
-				end
-
-				-- Don't forget to move listing holder back in place
-				listingHolder:moveTo(nil, self.ChatHolderTopBar.size.w)
-				self.ChatHolderScrollBar = TBMenu:spawnScrollBar(listingHolder, #holderItems, elementHeight)
-				self.ChatHolderScrollBar:makeScrollBar(listingHolder, holderItems, self.ChatHolderToReload, TBHud.ListShift)
-			else
-				self.ChatHolderScrollBar.size.h = math.max(0.1, math.min(1, (listingHolder.size.h) / (#holderItems * elementHeight) or listingHolder.size.h)) * self.ChatHolderScrollBar.parent.size.h
+	if (#holderItems * TBHudInternal.ChatElementHeight > listingHolder.size.h) then
+		if (self.ChatHolderScrollBar == nil) then
+			for _, v in ipairs(holderItems) do
+				v:hide(true)
 			end
 
-			if (TBHud.ListShift[1] == 0) then
-				local hoverState = self.ChatHolderScrollBar.hoverState
-				self.ChatHolderScrollBar.hoverState = BTN_DN
-				self.ChatHolderScrollBar.btnHover(self.ChatHolderScrollBar.parent.pos.x + 1, self.ChatHolderScrollBar.parent.pos.y + self.ChatHolderScrollBar.parent.size.h - 2)
-				self.ChatHolderScrollBar.hoverState = hoverState
-			else
-				local scrollProgress = -(self.ChatHolderListing.size.h + self.ChatHolderListing.shift.y) / (#holderItems * elementHeight - self.ChatHolderListing.size.h)
-				self.ChatHolderScrollBar:moveTo(nil, (self.ChatHolderScrollBar.parent.size.h - self.ChatHolderScrollBar.size.h) * scrollProgress)
-			end
+			-- Don't forget to move listing holder back in place
+			listingHolder:moveTo(nil, self.ChatHolderTopBar.size.w)
+			self.ChatHolderScrollBar = TBMenu:spawnScrollBar(listingHolder, #holderItems, TBHudInternal.ChatElementHeight)
+			self.ChatHolderScrollBar.bgColor = table.clone(TB_MENU_DEFAULT_INACTIVE_COLOR)
+			self.ChatHolderScrollBar:makeScrollBar(listingHolder, listingHolder.child, self.ChatHolderToReload, TBHudInternal.ListShift)
 		else
-			listingHolder:moveTo(nil, listingHolder.parent.size.h - elementHeight * #holderItems)
+			if (not self.ChatHolderScrollBar:isDisplayed()) then
+				self.ChatHolderScrollBar:show(true)
+			end
+			self.ChatHolderScrollBar.size.h = math.max(0.1, math.min(1, (listingHolder.size.h) / (#holderItems * TBHudInternal.ChatElementHeight) or listingHolder.size.h)) * self.ChatHolderScrollBar.parent.size.h
 		end
+
+		self:scrollChatIntoPosition()
+	else
+		if (self.ChatHolderScrollBar ~= nil and self.ChatHolderScrollBar:isDisplayed()) then
+			self.ChatHolderScrollBar:hide(true)
+		end
+		for _, v in ipairs(holderItems) do
+			v:show(true)
+		end
+		listingHolder:moveTo(nil, listingHolder.parent.size.h - TBHudInternal.ChatElementHeight * #holderItems)
 	end
 
 	self.RequiresChatRefresh = false

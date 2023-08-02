@@ -430,8 +430,8 @@ function draw_quad(pos_x, pos_y, width, height, texture_id, draw_mode, r, g, b, 
 ---Default function to draw disks or circles
 ---@param pos_x number Center X position for drawing
 ---@param pos_y number Center Y position for drawing
----@param inner number Pixel offset from center to start the drawing from
----@param outer number Pixel offset from center to end the drawing at
+---@param inner number Disk center cutout radius in pixels
+---@param outer number Disk radius in pixels
 ---@param slices integer Number of slices for the drawn disk (higher amount = smoother edge)
 ---@param loops integer
 ---@param start number Start angle for the drawing
@@ -2990,6 +2990,10 @@ function get_chat_type(id) end
 ---@param id integer
 ---@return string
 function get_chat_tab_name(id) end
+
+---Closes chat tab with the specified id
+---@param id integer
+function close_chat_tab(id) end
 
 ---Hides chat tabs
 function hide_chat_button() end
