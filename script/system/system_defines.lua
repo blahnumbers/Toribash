@@ -3499,3 +3499,6 @@ function delete_mod(filename) end
 ---@param filename string
 ---@return string?
 function find_mod(filename) end
+
+---Opens Game Center dashboard. *iOS only*.
+function open_gamecenter_dashboard() end

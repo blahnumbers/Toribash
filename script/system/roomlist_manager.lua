@@ -471,7 +471,7 @@ function RoomList:showRoomListButton(viewElement, room)
 		if (v.shadowValue) then
 			local infoShadow = roomButton:addChild({
 				pos = { v.textIcon and shiftX + (roomButton.size.h - 6) * 0.75 or shiftX, 3 },
-				size = { availableAreaX * v.width, roomButton.size.h - 6 },
+				size = { availableAreaX * v.width - (v.textIcon and roomButton.size.h - 11 or 0), roomButton.size.h - 6 },
 				uiColor = { 0, 0, 0, 0 }
 			})
 			infoShadow:addAdaptedText(true, v.shadowValue, nil, nil, 4, v.orientation or LEFTMID, 0.65, nil, nil, 2)
