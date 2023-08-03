@@ -231,7 +231,7 @@ function TBHudInternal.pushChatMessage(msg, type, tab)
 		if (TBHud.ChatHolderItems[messageInfo.tab] and TBHud.ChatHolderItems[messageInfo.tab][1]) then
 			TBHud.ChatHolderItems[messageInfo.tab][1]:kill()
 			table.remove(TBHud.ChatHolderItems[messageInfo.tab], 1)
-			for _, v in pairs(TBHud.ChatHolderItems[messageInfo.tab]) do
+			for _, v in ipairs(TBHud.ChatHolderItems[messageInfo.tab]) do
 				v:moveTo(nil, -v.size.h, true)
 			end
 		end
@@ -255,7 +255,7 @@ function TBHudInternal.pushChatMessage(msg, type, tab)
 			local button = TBHud:spawnChatTabButton(tab)
 			button:hide()
 		end
-		for _, v in pairs(TBHud.ChatHolderItems[tab] or {}) do
+		for _, v in ipairs(TBHud.ChatHolderItems[tab] or {}) do
 			v:hide()
 		end
 		-- Play some sound?
@@ -1305,8 +1305,8 @@ function TBHud:initChat()
 	self.ChatTabItems[0] = globalTabButton
 
 	local botBarGradient = botBar:addChild({
-		pos = { -botBar.size.w - self.ChatTabWidth, -botBar.size.h - 5 },
-		size = { botBar.size.w + self.ChatTabWidth, 10 },
+		pos = { -botBar.size.w - self.ChatTabWidth - SAFE_X, -botBar.size.h - 5 },
+		size = { botBar.size.w + self.ChatTabWidth + SAFE_X, 10 },
 		bgGradient = { UICOLORWHITE, { 1, 1, 1, 0 } }
 	})
 	local botBarBackdrop = botBar:addChild({
@@ -1683,7 +1683,70 @@ function TBHud:spawnChat()
 	self:spawnMiniChat()
 	self:loadChatHistory()
 
+	TBHudInternal.LearnCommands()
+
 	self.ChatHolder:hide(true)
+end
+
+---Adds our most common commands to device dictionary to make sure autocorrect doesn't make things annoying. \
+---Command prefix should be omitted, iOS doesn't consider `/` to be a valid word symbol.
+function TBHudInternal.LearnCommands()
+	local commands = {
+		"em",
+		"sh",
+		"sp", "spec",
+		"jo",
+		"rf",
+		"sa",
+		"dl",
+		"rt",
+		"pa", "pass", "passwd",
+		"lm", "loadmod",
+		"ls", "loadscript",
+		"opt",
+		"co",
+		"rec",
+		"lp", "loadplayer",
+		"am",
+		"sm",
+		"dm",
+		"echo", "ec",
+		"setowner",
+		"maxrake",
+		"minbet",
+		"betframes",
+		"cancelbets",
+		"fuke",
+		"specall",
+		"muteall", "unmuteall",
+		"nudgeup", "nudgedown",
+		"fspec", "fenter",
+		"fjoin",
+		"fknock",
+		"enterfee",
+		"afkpenalty",
+		"decapprize",
+		"dismemberprize",
+		"op", "deop",
+		"minbelt", "maxbelt",
+		"queuejump",
+		"maxclients",
+		"realtimeghost",
+		"motd",
+		"desc",
+		"modlist",
+		"buynudge",
+		"nudgeprice",
+		"selfbet",
+		"minsb",
+		"stopbet",
+		"clanvip",
+		"viponly",
+		"setafk"
+	}
+	for _, v in pairs(commands) do
+		keyboard_learn_word(v)
+	end
 end
 
 ---Initialized popup manager UIElement

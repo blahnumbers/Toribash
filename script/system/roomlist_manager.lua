@@ -188,6 +188,7 @@ function RoomList:showRoomInfo(room)
 			elseif (room.min_elo > 0) then
 				tierString = minEloTier.title .. "+"
 			elseif (room.max_elo > 0) then
+				maxEloTier = Ranking.GetTierFromElo(room.max_elo - 0.1) or maxEloTier
 				tierString = maxEloTier.title .. "-"
 			end
 			if (tierString) then

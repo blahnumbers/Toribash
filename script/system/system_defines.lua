@@ -2363,6 +2363,11 @@ function enable_menu_keyboard(inputX, inputY, inputWidth, inputHeight, context, 
 ---*On mobile platforms, this will also hide on-screen keyboard.*
 function disable_menu_keyboard() end
 
+---Adds the word to local device dictionary for this session. \
+---*Only works on mobile platforms.*
+---@param word string
+function keyboard_learn_word(word) end
+
 ---Returns whether either of shift keys is currently down
 ---@return integer
 function get_shift_key_state() end
