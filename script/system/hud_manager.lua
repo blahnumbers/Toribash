@@ -1262,6 +1262,7 @@ function TBHud:initChat()
 				end)
 			for i, v in pairs(self.ChatTabItems) do
 				if (type(i) == "number") then
+					v:reload()
 					v.legend:setVisible(extendTabsButton.__extendState, true)
 				end
 			end
@@ -1504,10 +1505,10 @@ function TBHud:refreshChat()
 							set_color(unpack(TB_MENU_DEFAULT_BG_COLOR))
 							draw_line(newMessageMark.pos.x, lineY, newMessageMark.pos.x + newMessageMark.size.w - 80, lineY, 2)
 							draw_disk(newMessageMark.pos.x + newMessageMark.size.w - 80 - newMessageMark.size.h / 4, lineY, 0, halfHeight, 3, 1, 30, 360, 0)
-							draw_quad(newMessageMark.pos.x + newMessageMark.size.w - 80, newMessageMark.pos.y + quadOffset, 70, newMessageMark.size.h - quadOffset * 2)
+							draw_quad(newMessageMark.pos.x + newMessageMark.size.w - 80, newMessageMark.pos.y + quadOffset, 70.2, newMessageMark.size.h - quadOffset * 2)
 							draw_disk(newMessageMark.pos.x + newMessageMark.size.w - 10, newMessageMark.pos.y + quadOffset + 10, 0, 10, 0, 1, 90, 90, 0)
 							draw_disk(newMessageMark.pos.x + newMessageMark.size.w - 10, newMessageMark.pos.y + newMessageMark.size.h - quadOffset - 10, 0, 10, 0, 1, 0, 90, 0)
-							draw_quad(newMessageMark.pos.x + newMessageMark.size.w - 10, newMessageMark.pos.y + quadOffset+ 10, 10, newMessageMark.size.h - 20 - quadOffset * 2)
+							draw_quad(newMessageMark.pos.x + newMessageMark.size.w - 10, newMessageMark.pos.y + quadOffset + 9.8, 10, newMessageMark.size.h - 19.6 - quadOffset * 2)
 						end)
 					newMessageMark.isNewMessageMark = true
 					table.insert(holderItems, newMessageMark)
