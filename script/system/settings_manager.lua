@@ -455,7 +455,7 @@ do
 				end,
 				dropdown = {
 					{
-						text = TB_MENU_LOCALIZED.SETTINGSTEXTUREQUALITY,
+						text = TB_MENU_LOCALIZED.SETTINGSMIPMAPPERFORMANCE,
 						action = function()
 							TB_MENU_MAIN_SETTINGS.mipmaplevels = { value = 3 }
 							Settings:settingsApplyActivate()
@@ -1367,13 +1367,17 @@ do
 	function Settings:getGraphicsPreset()
 		return function()
 				local options = {
-					"shaders", "fluid", "framerate", "reflection", "softshadow", "ambientocclusion", "bumpmapping", "raytracing", "trails", "hair", "hairquality", "obj", "effects", "particles", "bodytextures"
+					"shaders", "fluid", "framerate", "reflection", "softshadow", "ambientocclusion", "bumpmapping", "raytracing", "trails", "hair", "hairquality", "obj", "effects", "particles", "bodytextures", "uilight"
 				}
 				local presets = {
-					"0030000000000000", "0060000001100111", "1060000101101311", "1175111101111311", "1175111111111311"
+					is_mobile() and "10300000000000011" or "00300000000000011",
+					"10300000011001111",
+					is_mobile() and "12300001011013110" or "12600001011013110",
+					is_mobile() and "11601111011113110" or "11751111011113110",
+					is_mobile() and "11601111111113110" or "11751111111113110"
 				}
 				local userSetting = ""
-				for i,v in pairs(options) do
+				for _, v in pairs(options) do
 					userSetting = userSetting .. get_option(v)
 				end
 				for i,v in pairs(presets) do
