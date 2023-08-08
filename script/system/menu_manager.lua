@@ -1096,7 +1096,10 @@ function TBMenu:showConfirmationWindowInput(title, inputInfo, confirmAction, can
 		})
 		confirmBoxSubtitle:addAdaptedText(true, subtitle, nil, nil, 4, nil, 0.6)
 	end
-	local textField = TBMenu:spawnTextField2(confirmBoxView, { x = 10, y = confirmBoxTitle.shift.y + confirmBoxTitle.size.h + subtitleSet * 25 + 10, w = confirmBoxView.size.w - 20, h = 30 }, nil, inputInfo)
+	local textField = TBMenu:spawnTextField2(confirmBoxView, {
+			x = 10, y = confirmBoxTitle.shift.y + confirmBoxTitle.size.h + subtitleSet * 25 + 10,
+			w = confirmBoxView.size.w - 20, h = 30
+		}, nil, inputInfo, { fontId = FONTS.SMALL })
 	local cancelButton = UIElement:new({
 		parent = confirmBoxView,
 		pos = { 10, -50 },

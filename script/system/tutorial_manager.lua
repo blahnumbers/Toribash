@@ -66,6 +66,7 @@ setmetatable({}, TutorialsInternal)
 ---On platforms with no working Lua file interface, we read file contents to a string and then pass it to `loadstring()` instead.
 ---@param path string
 ---@return function?
+---@return string? error
 function TutorialsInternal.LoadFile(path)
 	local file = Files.Open(path)
 	local fileContents = nil
@@ -497,7 +498,11 @@ function Tutorials:loadTutorial(id, path)
 		elseif (ln:find("^CAMERAMODE")) then
 			steps[#steps].cameramode = ln:gsub("CAMERAMODE ", "") + 0
 		elseif (ln:find("^CUSTOMFUNC")) then
-			steps[#steps].customfuncfile = TutorialsInternal.LoadFile(cfuncpath .. id .. ".lua")
+			local loadError = nil
+			steps[#steps].customfuncfile, loadError = TutorialsInternal.LoadFile(cfuncpath .. id .. ".lua")
+			if (loadError) then
+				Files.LogError("failed to load custom tutorial funcs " .. loadError)
+			end
 			steps[#steps].customfunc = ln:gsub("CUSTOMFUNC ", "")
 		elseif (ln:find("^OPT")) then
 			steps[#steps].opt = true
@@ -1133,6 +1138,8 @@ function Tutorials:runTutorialCustomFunction(viewElement, reqTable, file, func)
 	end
 	if (loadedFuncs[func]) then
 		loadedFuncs[func](viewElement, reqTable)
+	elseif (TB_MENU_DEBUG) then
+		Files.LogError("custom tutorial function " .. func .. " not found!")
 	end
 end
 

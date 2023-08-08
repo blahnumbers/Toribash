@@ -415,6 +415,7 @@ end
 ---Initiates replay cache and launches data fetcher loop
 ---@param includeEventTemp ?boolean
 function Replays:getReplayFiles(includeEventTemp)
+	Replays.CacheReady = false
 	Replays.RootFolder.replays = nil
 	Replays.RootFolder.folders = nil
 
@@ -3168,6 +3169,7 @@ function Replays:showCustomReplaySelection(mainElement, mod, action)
 			rounded = 4
 		})
 		local replaysToChooseFrom = {}
+		---@param v ReplayInfo
 		local function checkReplay(v)
 			if ((mod == nil or v.mod == mod) and (v.author == TB_MENU_PLAYER_INFO.username or (v.author == 'autosave' and v.bouts[1] == TB_MENU_PLAYER_INFO.username))) then
 				if (v.name:find("^" .. REPLAY_EVENT)) then
@@ -3176,6 +3178,7 @@ function Replays:showCustomReplaySelection(mainElement, mod, action)
 				table.insert(replaysToChooseFrom, { path = v.filename, name = v.name })
 			end
 		end
+		---@param folder ReplayDirectory
 		local function checkFolder(folder)
 			for _, v in pairs(folder.replays) do
 				checkReplay(v)
@@ -3242,10 +3245,11 @@ function Replays:showCustomReplaySelection(mainElement, mod, action)
 				pos = { 10, 5 },
 				size = { replayButton.size.w - 20, replayButton.size.h - 10 }
 			})
-			replayText:addAdaptedText(true, v.name .. " (" .. v.path .. ")", nil, nil, 4, LEFTMID)
+			local cleanPath = string.gsub(v.path, "^replay/", "")
+			replayText:addAdaptedText(true, v.name .. " (" .. cleanPath .. ")", nil, nil, 4, LEFTMID)
 			replayButton:addMouseHandlers(nil, function()
 					viewElement:kill()
-					action(v.path)
+					action(cleanPath)
 				end)
 		end
 		for _, v in pairs(listElements) do

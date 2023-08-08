@@ -52,6 +52,9 @@ local function filesCloseInternal(file)
 end
 
 do
+	---**Version 5.61**
+	---* Added `LogError()` method to write errors to stderr.txt
+	--
 	-- **Ver 5.60**
 	-- * Reworked file IO for mobile platforms with full read/write support
 	--
@@ -59,7 +62,7 @@ do
 	-- * Semantic updates to use Files class as a static alternative to spawn new File class objects
 	-- * EmmyLua annotations
 	---@class Files
-	Files = { ver = 5.60 }
+	Files = { ver = 5.61 }
 	Files.__index = Files
 
 	---@class File
@@ -150,7 +153,7 @@ do
 		return true
 	end
 
-	-- Writes a line to the debug.txt file located in Toribash root folder
+	-- Writes a line to the `debug.txt` file located in Toribash root folder
 	---@param line any
 	---@param rewrite? boolean If true, will open output file with FILES_MODE_WRITE mode to clear its previous contents
 	function Files.WriteDebug(line, rewrite)
@@ -161,6 +164,14 @@ do
 			debug:writeLine(os.clock_real() .. ': ' .. tostring(line))
 		end
 		debug:close()
+	end
+
+	---Logs an error string to Toribash `stderr.txt` file
+	---@param line any
+	function Files.LogError(line)
+		local stderr = Files.Open("../stderr.txt", FILES_MODE_APPEND)
+		stderr:writeLine("LogError (" .. os.clock_real() .. ") " .. tostring(line))
+		stderr:close()
 	end
 
 	-- Checks whether the file is currently being downloaded or is in download queue
