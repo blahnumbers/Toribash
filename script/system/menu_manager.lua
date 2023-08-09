@@ -3190,9 +3190,11 @@ function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHei
 	overlay:addMouseHandlers(function(s)
 			if (s >= 4) then
 				overlay:hide(true)
+				overlay.selectedElement:show(true)
 			end
 		end, function()
 			overlay:hide(true)
+			overlay.selectedElement:show(true)
 		end)
 
 	local function fixPosition()
@@ -3266,7 +3268,7 @@ function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHei
 	---@param item DropdownElement
 	overlay.selectItem = function(item)
 			selectedElementText:addAdaptedText(false, listTextSettings.uppercase and item.text:upper() or item.text, nil, nil, textSettings.fontid, textSettings.alignment, textSettings.scale)
-			selectedElement:show()
+			overlay.selectedElement:show(true)
 			if (selectedItem == item) then
 				return
 			end
@@ -3312,6 +3314,7 @@ function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHei
 		element:addChild({ shift = { 10, 1 }}):addAdaptedText(false, listTextSettings.uppercase and v.text:upper() or v.text, nil, nil, listTextSettings.fontid, listTextSettings.alignment, listTextSettings.scale)
 		element:addMouseHandlers(nil, function()
 				overlay:hide(true)
+				overlay.selectedElement:show(true)
 				overlay.selectItem(v)
 			end)
 	end
@@ -3336,6 +3339,7 @@ function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHei
 
 	selectedElement:addMouseHandlers(nil, function()
 			fixPosition()
+			selectedElement:hide(true)
 			overlay:show(true)
 			if (overlay.listToReload ~= nil) then
 				overlay.listToReload:reload()

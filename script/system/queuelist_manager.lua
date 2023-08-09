@@ -559,8 +559,12 @@ end
 ---@param viewElement UIElement
 ---@param info QueueListPlayerInfo
 function QueueList:showNudge(pName, viewElement, info)
-	viewElement:kill(true)
-	viewElement:deactivate()
+	local newElement = viewElement.parent:addChild({
+		pos = { viewElement.shift.x, viewElement.shift.y },
+		size = { viewElement.size.w, viewElement.size.h }
+	})
+	viewElement:kill()
+	viewElement = newElement
 	local buttons = {
 		{
 			name = "defualt",
@@ -584,12 +588,11 @@ function QueueList:showNudge(pName, viewElement, info)
 		}
 	}
 
-	local colorOverlay = viewElement:addChild({
-		bgColor = TB_MENU_DEFAULT_DARKER_COLOR
-	})
-	local dropdownHolder = colorOverlay:addChild({
+	local dropdownHolder = viewElement:addChild({
 		shift = { 5, 0 },
-		bgColor = TB_MENU_DEFAULT_DARKER_COLOR
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		shapeType = ROUNDED,
+		rounded = 3
 	})
 	TBMenu:spawnDropdown(dropdownHolder, buttons, 30, nil, nil, { scale = 0.6 }, { scale = 0.5 })
 end
@@ -600,32 +603,40 @@ end
 ---@param info QueueListPlayerInfo
 function QueueList:showNudgeToPosition(pName, viewElement, info)
 	viewElement:kill(true)
-
-	local textField = TBMenu:spawnTextField2(viewElement, {
-			x = 5, w = viewElement.size.w - 100
-		}, (info.id - 1) .. "", TB_MENU_LOCALIZED.QUEUELISTDROPDOWNNUDGETOPOSITION, {
+	local textFieldHolder = viewElement:addChild({
+		shift = { 10, 2 },
+		shapeType = ROUNDED,
+		rounded = 3
+	})
+	local textField = TBMenu:spawnTextField2(textFieldHolder, {
+			w = textFieldHolder.size.w - 100
+		}, (info.id - 1) .. "", TB_MENU_LOCALIZED.QUEUELISTDROPDOWNNUDGECHOOSE, {
 			fontId = FONTS.SMALL,
 			textAlign = LEFTMID,
-			isNumeric = true
+			isNumeric = true,
+			keepFocusOnHide = true
 		})
 	local function nudge()
 		runCmd("nudge " .. pName .. " " .. textField.textfieldstr[1], true)
 	end
 	textField:addEnterAction(nudge)
 
-	local button = viewElement:addChild({
+	local button = textFieldHolder:addChild({
 		pos = { -100, 0 },
-		size = { 95, viewElement.size.h },
+		size = { 100, textFieldHolder.size.h },
 		interactive = true,
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
-	})
+	}, true)
 	local buttonText = button:addChild({
-		shift = { 15, 5 }
+		shift = { 10, 2 }
 	})
 	buttonText:addAdaptedText(true, TB_MENU_LOCALIZED.QUEUELISTDROPDOWNNUDGE, nil, nil, 4)
 	button:addMouseHandlers(nil, function() nudge() QueueList.DestroyPopup() end)
+
+	UIElement.handleMouseDn(0, textField.pos.x + 1, textField.pos.y + 1)
+	UIElement.handleMouseUp(0, textField.pos.x + 1, textField.pos.y + 1)
 end
 
 ---Spawns main QueueList window controls
@@ -842,7 +853,7 @@ function QueueList:addPlayerControls(viewElement, info, userinfo)
 				})
 				textHolder:addAdaptedText(true, v.text, nil, nil, 4, LEFTMID)
 				contextButton:addMouseHandlers(nil, function()
-						if (not v.action(info.pInfo.username)) then
+						if (not v.action(info.pInfo.username, contextButton)) then
 							QueueList.DestroyPopup()
 						end
 					end)
