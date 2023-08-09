@@ -366,6 +366,6 @@ return {
 	ShowMovememoryMoves = moveMemoryMovesShow,
 	HideMovememoryMoves = moveMemoryShowExit,
 	CheckJointStateChange = checkJointStates,
-	MoveMessageViewMobile = moveMessageView,
-	MoveMessageViewMobileBack = moveMessageViewBack
+	MoveMessageViewMobile = is_mobile() and moveMessageView or function() end,
+	MoveMessageViewMobileBack = is_mobile() and moveMessageViewBack or function() end
 }

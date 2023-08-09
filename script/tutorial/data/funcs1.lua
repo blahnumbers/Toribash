@@ -265,7 +265,6 @@ local function drawWASDShift(viewElement, reqTable)
 end
 
 local function drawWASDShiftStatic(viewElement, reqTable)
-	Tutorials:reqButton(reqTable)
 	drawWASDStatic(viewElement, nil, true, OUTRO)
 end
 
@@ -291,28 +290,6 @@ end
 local function fractureToriKnee()
 	usage_event("tutorial1cbreakleg")
 	fracture_joint(0, JOINTS.L_KNEE)
-end
-
-local function checkMouseCameraControls(viewElement, reqTable)
-	local req = { type = "cameramouse", ready = false }
-	table.insert(reqTable, req)
-
-	local mousePressed = false
-
-	add_hook("mouse_button_down", "tbTutorialsCustom", function()
-			mousePressed = true
-		end)
-	add_hook("mouse_move", "tbTutorialsCustom", function()
-			if (mousePressed) then
-				req.ready = true
-				reqTable.ready = Tutorials:checkRequirements(reqTable)
-			end
-		end)
-end
-
-local function hideWASDcheckMouse(viewElement, reqTable)
-	drawWASDShiftStatic(viewElement, reqTable)
-	checkMouseCameraControls(viewElement, reqTable)
 end
 
 local function waitButton(_, reqTable)
@@ -370,7 +347,6 @@ return {
 	DrawWASDCameraControls = is_mobile() and waitCameraPositionChange or drawWASD,
 	DrawWASDShiftCameraControls = is_mobile() and showCameraInvertModes or drawWASDShift,
 	HideWASDShiftControls = is_mobile() and function() end or drawWASDShiftStatic,
-	HideCameraKeyboardCheckMouseControls = hideWASDcheckMouse,
 	SetIntroPlayers = setIntroPlayers,
 	DrawXKey = is_mobile() and waitJointWheel or drawSingleKeyX,
 	DrawZKey = is_mobile() and waitButton or drawSingleKeyZ,

@@ -40,7 +40,7 @@ HINTMOVEMEMORY1MOBILE	To open MOVEMEMORY, press ~MOVEMEMORY~ button in ~HUB~ men
 HINTMOVEMEMORY2	Select any move you'd like to execute and press ~SPACE~ to see the magic happen!
 HINTMOVEMEMORY2MOBILE	Select any move you'd like to execute and press ~READY~ to see the magic happen!
 HINTMOVEMEMORY3	MOVEMEMORY allows executing moves without applying joint state changes manually.\nWith its help, you can save yourself time if you want to do a move you've already done before.
-HINTMOVEMEMORY4	To close MoveMemory, press the ~X~ button in its top right corner or hit ~M~ key again.
+HINTMOVEMEMORY4	To close MoveMemory, hit the ~M~ key again.
 HINTMOVEMEMORY4MOBILE	To close MoveMemory, press ~X~ button in its top right corner or click Movememory in Hub menu again.
 #
 #TASK MESSAGES
