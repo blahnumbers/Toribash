@@ -1570,7 +1570,7 @@ end
 ---@param key integer
 ---@see UIElement.keyboardHooks
 function UIElement:textfieldKeyUp(key)
-	if ((key == 13 or key == 271) and self.enteraction) then
+	if (self.textfield and (key == 13 or key == 271) and self.enteraction) then
 		self.enteraction(self.textfieldstr[1])
 	end
 	if (key == 9) then
@@ -1757,7 +1757,7 @@ end
 ---@see UIElement.keyboardHooks
 function UIElement.handleInput(input)
 	for _, v in pairs(table.reverse(UIKeyboardHandler)) do
-		if (v.keyboard == true) then
+		if (v.keyboard == true and v.textfield) then
 			v.textInput(input)
 			if (v.textInputCustom) then
 				v.textInputCustom()
@@ -1773,7 +1773,11 @@ end
 ---Generic method to enable keyboard input handlers for current UIElement
 function UIElement:enableMenuKeyboard()
 	TB_MENU_INPUT_ISACTIVE = true
-	enable_menu_keyboard(self.pos.x, self.pos.y, self.size.w, self.size.h + 10, self.textfieldstr[1], self.inputType, self.autoCompletion, self.returnKeyType)
+	if (self.textfield) then
+		enable_menu_keyboard(self.pos.x, self.pos.y, self.size.w, self.size.h + 10, self.textfieldstr[1], self.inputType, self.autoCompletion, self.returnKeyType)
+	elseif (not is_mobile()) then
+		enable_menu_keyboard()
+	end
 	local id = 1
 	for _, v in pairs(UIKeyboardHandler) do
 		if (v.menuKeyboardId == id) then
