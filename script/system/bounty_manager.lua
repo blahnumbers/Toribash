@@ -692,7 +692,9 @@ function Bounty:showBountyList(viewElement)
 					hoverColor = TB_MENU_DEFAULT_BG_COLOR,
 					pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
 				}, true)
-				joinButton:setRounded(math.max(unpack(bgBottomJoin.roundedInternal)))
+				if (bgBottomJoin.roundedInternal) then
+					joinButton:setRounded(math.max(unpack(bgBottomJoin.roundedInternal)))
+				end
 				joinButton:addAdaptedText(TB_MENU_LOCALIZED.FRIENDSLISTJOINROOM, nil, nil, nil, nil, 0.8)
 				joinButton:addMouseUpHandler(function()
 						runCmd("jo " .. v.room)
