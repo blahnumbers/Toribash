@@ -853,6 +853,7 @@ function QueueList:addPlayerControls(viewElement, info, userinfo)
 				})
 				textHolder:addAdaptedText(true, v.text, nil, nil, 4, LEFTMID)
 				contextButton:addMouseHandlers(nil, function()
+						---@diagnostic disable-next-line: redundant-parameter
 						if (not v.action(info.pInfo.username, contextButton)) then
 							QueueList.DestroyPopup()
 						end
