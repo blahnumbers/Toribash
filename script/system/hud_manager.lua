@@ -177,9 +177,14 @@ end
 ---Checks whether current player is participating in a fight
 ---@return boolean
 function TBHudInternal.isPlaying()
-	if (TBHud.WorldState.game_type == 0) then
+	if (TBHud.WorldState.game_type == 0 or players_accept_input()) then
 		return true
 	end
+	if (#get_bouts() < 2) then
+		---Only one player in queue, they can't play
+		return false
+	end
+
 	local user = PlayerInfo.Get().username
 	local tori = PlayerInfo.Get(get_player_info(0).name).username
 	local uke = PlayerInfo.Get(get_player_info(1).name).username
@@ -303,6 +308,7 @@ function TBHud:init()
 	self:spawnPauseButton()
 	self:spawnEditButton()
 	self:spawnGripButton()
+	self:spawnCancelMoveButton()
 
 	self:spawnHubButton()
 	self.HubSize.w = math.clamp(500, WIN_W * 0.3, WIN_W * 0.4)
@@ -368,6 +374,7 @@ function TBHud:spawnCommitButton()
 			start_new_game(true)
 		else
 			step_game(self.WorldState.game_type == 0 and (TBHudInternal.ReadyLongPressEnabled and stepSingleFrame))
+			commitStepButtonHolder:hide()
 		end
 		clickClock = 0
 	end)
@@ -583,7 +590,14 @@ function TBHud:spawnRewindButton()
 		size = { self.DefaultSmallerButtonSize, self.DefaultSmallerButtonSize }
 	})
 	table.insert(self.MiscButtonHolders, rewindButtonHolder)
-	TBHudInternal.generateTouchButton(rewindButtonHolder, "../textures/menu/general/buttons/reload.tga", nil, 0.8):addMouseUpHandler(rewind_replay)
+	local rewindButton = TBHudInternal.generateTouchButton(rewindButtonHolder, "../textures/menu/general/buttons/reload.tga", nil, 0.8)
+	rewindButton:addMouseUpHandler(function()
+		if (TUTORIAL_ISACTIVE) then
+			call_hook("key_up", 114)
+		else
+			rewind_replay()
+		end
+	end)
 	table.insert(self.ButtonsToRefresh, {
 		button = rewindButtonHolder,
 		shouldBeDisplayed = function() return self.WorldState.game_type == 0 end
@@ -599,7 +613,13 @@ function TBHud:spawnPauseButton()
 	})
 	table.insert(self.MiscButtonHolders, pauseButtonHolder)
 	local pauseButton = TBHudInternal.generateTouchButton(pauseButtonHolder, "../textures/menu/general/buttons/playpause.tga", { x = 0, y = 0, w = 128, h = 128 }, 0.8)
-	pauseButton:addMouseUpHandler(toggle_game_pause)
+	pauseButton:addMouseUpHandler(function()
+		if (TUTORIAL_ISACTIVE) then
+			call_hook("key_up", 112)
+		else
+			toggle_game_pause()
+		end
+	end)
 	table.insert(self.ButtonsToRefresh, {
 		button = pauseButtonHolder,
 		shouldBeDisplayed = function() return self.WorldState.game_type == 0 and self.WorldState.replay_mode > 0 end
@@ -622,10 +642,35 @@ function TBHud:spawnEditButton()
 		size = { self.DefaultSmallerButtonSize, self.DefaultSmallerButtonSize }
 	})
 	table.insert(self.MiscButtonHolders, editButtonHolder)
-	TBHudInternal.generateTouchButton(editButtonHolder, "../textures/menu/general/buttons/edit.tga", nil, 0.6):addMouseUpHandler(TBHudInternal.editGame)
+	local editButton = TBHudInternal.generateTouchButton(editButtonHolder, "../textures/menu/general/buttons/edit.tga", nil, 0.6)
+	editButton:addMouseUpHandler(function()
+		if (TUTORIAL_ISACTIVE) then
+			call_hook("key_up", 101)
+			TBHudInternal.refreshButtons()
+		else
+			TBHudInternal.editGame()
+		end
+	end)
 	table.insert(self.ButtonsToRefresh, {
 		button = editButtonHolder,
 		shouldBeDisplayed = function() return self.WorldState.game_type == 0 and self.WorldState.replay_mode > 0 end
+	})
+end
+
+function TBHud:spawnCancelMoveButton()
+	if (self.MainElement == nil) then return end
+
+	local cancelMoveButtonHolder = self.MainElement:addChild({
+		pos = { -self.DefaultButtonSize * 1.2, -self.DefaultSmallerButtonSize * 2.7 },
+		size = { self.DefaultSmallerButtonSize, self.DefaultSmallerButtonSize }
+	})
+	local cancelMoveButton = TBHudInternal.generateTouchButton(cancelMoveButtonHolder, "../textures/menu/general/buttons/undo.tga", nil, 0.6)
+	cancelMoveButton:addMouseHandlers(undo_move_changes)
+	table.insert(self.ButtonsToRefresh, {
+		button = cancelMoveButtonHolder,
+		shouldBeDisplayed = function()
+			return self.WorldState.game_type == 1 and self.WorldState.replay_mode == 0 and TBHudInternal.isPlaying()
+		end
 	})
 end
 
@@ -1330,7 +1375,8 @@ function TBHud:initChat()
 		textColor = table.clone(UICOLORWHITE),
 		keepFocusOnHide = true,
 		darkerMode = true,
-		returnKeyType = KEYBOARD_RETURN.SEND
+		returnKeyType = KEYBOARD_RETURN.SEND,
+		inputType = KEYBOARD_INPUT.DEFAULT --Make sure we allow language switching!
 	})
 	local destroySuggestions = function()
 		if (chatInputField.suggestionsDropdown ~= nil) then
@@ -1883,4 +1929,7 @@ add_hook("new_game", "tbHudTouchInterface", TBHudInternal.refreshButtons)
 add_hook("spec_update", "tbHudTouchInterface", TBHudInternal.refreshButtons)
 add_hook("bout_update", "tbHudTouchInterface", TBHudInternal.refreshButtons)
 add_hook("enter_frame", "tbHudTouchInterface", TBHudInternal.refreshButtons)
+add_hook("enter_freeze", "tbHudTouchInterface", TBHudInternal.refreshButtons)
+add_hook("exit_freeze", "tbHudTouchInterface", TBHudInternal.refreshButtons)
+add_hook("new_game_mp", "tbHudTouchInterface", TBHudInternal.refreshButtons)
 add_hook("console_post", "tbHudChatInterface", TBHudInternal.pushChatMessage)

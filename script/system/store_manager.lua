@@ -1108,7 +1108,7 @@ do
 					if (open_file_browser("Image Files", "jpg;jpeg;png;tga;gif;bmp", "All Files", "*")) then
 						add_hook("filebrowser_select", "on_filebrowser_select", function(filename)
 								if (filename ~= "") then
-									local filenameNoPath = filename:gsub(".*%\\(.+%.%w+)$", "%1")
+									local filenameNoPath = filename:gsub(".*[%\\%/](.+%.%w+)$", "%1")
 									TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.INVENTORYUPLOADTEXTURECONFIRM1 .. " " .. filenameNoPath .. " " .. TB_MENU_LOCALIZED.INVENTORYUPLOADTEXTURECONFIRM2 .. " " .. item.name .. "?\n" .. TB_MENU_LOCALIZED.INVENTORYUPLOADTEXTUREOVERWRITENOTICE, function()
 											local uploadInProgress = UIElement:new({
 												parent = customizeHolder,

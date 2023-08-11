@@ -1171,6 +1171,10 @@ function get_joint_fracture(player, joint) end
 ---@param with_onchange_effects ?boolean Whether to automatically rewind ghost and play joint change state sound
 function set_joint_state(player, joint, state, with_onchange_effects) end
 
+---Resets joint states to their initial state for current turn. \
+---*This is identical to pressing `CTRL` + `Z`*
+function undo_move_changes() end
+
 ---Returns a joint-specific readable state name
 ---@param joint PlayerJoint
 ---@param state PlayerJointState
@@ -2769,6 +2773,7 @@ function save_custom_config() end
 ---| "camerafocus"
 ---| "mipmaplevels"
 ---| "tooltipmode"
+---| "camerasensitivity"
 ---| "aidifficulty" Toribash builds with AI fight mode only
 
 ---Retrieves a value of the specified Toribash option

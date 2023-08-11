@@ -7,6 +7,9 @@ require("system.tooltip_manager")
 if (Tutorials == nil) then
 	---**Toribash Tutorials class**
 	---
+	---**Version 5.61**
+	---* Updates to display rewind / edit buttons on mobile when needed
+	---
 	---**Version 5.60**
 	---* Updates to work with new Tooltip backend
 	---* New `TutorialsInternal.LoadFile()` method to make sure we can load files on mobile platforms
@@ -1216,6 +1219,13 @@ end
 function Tutorials:editGame()
 	edit_game()
 	set_camera_mode(0)
+
+	if (is_mobile()) then
+		---Make sure TBHud refreshes buttons by triggering a dummy `spec_update` hook, this should be fairly safe
+		---as it's least likely to be tied to anything important. \
+		---Just relying on `enter_freeze` is not good enough as it's fired before replay_mode value is updated
+		call_hook("spec_update")
+	end
 end
 
 ---Shorthand function to hide hint display
@@ -1639,6 +1649,9 @@ function TutorialsInternal.HandleMobileOption(option)
 		TBHud.HoldAllButtonHolder:setVisible(option.value == 1, true)
 		TBHud.GhostButtonHolder:setVisible(option.value == 1, true)
 		TBHud.GripButtonHolder:setVisible(option.value == 1, true)
+		for _, v in pairs(TBHud.MiscButtonHolders) do
+			v:setVisible(option.value == 1, true)
+		end
 	elseif (option.name == "holdall") then
 		TBHud.HoldAllButtonHolder:setVisible(option.value == 1, true)
 	elseif (option.name == "spacebar") then
@@ -1647,6 +1660,10 @@ function TutorialsInternal.HandleMobileOption(option)
 		TBHud.GhostButtonHolder:setVisible(option.value == 1, true)
 	elseif (option.name == "grip") then
 		TBHud.GripButtonHolder:setVisible(option.value == 1, true)
+	elseif (option.name == "rewind") then
+		for _, v in pairs(TBHud.MiscButtonHolders) do
+			v:setVisible(option.value == 1, true)
+		end
 	end
 end
 
@@ -1797,6 +1814,8 @@ function Tutorials:runSteps(steps, currentStep)
 						TutorialsInternal.HandleMobileOption({ name = "spacebar", value = 1 })
 					elseif (key == 118) then
 						TutorialsInternal.HandleMobileOption({ name = "grip", value = 1 })
+					elseif (key == 112 or key == 114) then
+						TutorialsInternal.HandleMobileOption({ name = "rewind", value = 1 })
 					end
 				end
 			end

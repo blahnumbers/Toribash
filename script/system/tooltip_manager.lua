@@ -12,6 +12,7 @@ if (Tooltip == nil) then
 	---* Added optional event callbacks for mobile controls
 	---* Added function to disable mobile state wheel
 	---* Added `IsTouchCommitted` field
+	---* Set target touch player and joint on button down hook from world state info
 	---
 	---**Version 5.60**
 	---* All global variables used by tooltip are now fields of Tooltip class
@@ -146,6 +147,9 @@ function Tooltip.Init()
 		end)
 	if (is_mobile()) then
 		add_hook("mouse_button_down", Tooltip.HookName, function(s)
+				local ws = get_world_state()
+				TooltipInternal.TouchInputTargetPlayer = ws.selected_player
+				TooltipInternal.TouchInputTargetJoint = ws.selected_joint
 				if (players_accept_input() == false or s ~= 1) then return end
 				Tooltip:showTouchControls()
 			end)
@@ -211,8 +215,6 @@ end
 ---@param player integer Player id
 ---@param body integer Body id
 function Tooltip:showTooltipBody(player, body)
-	TooltipInternal.TouchInputTargetPlayer = player
-	TooltipInternal.TouchInputTargetJoint = -1
 	Tooltip.GrabDisplayActive = false
 	Tooltip.Destroy()
 
@@ -276,9 +278,6 @@ end
 ---@param joint integer Joint id
 ---@return integer
 function Tooltip:showTooltipJoint(player, joint)
-	TooltipInternal.TouchInputTargetPlayer = player
-	TooltipInternal.TouchInputTargetJoint = joint
-
 	if (Tooltip.GrabDisplayActive) then
 		return 0
 	end
@@ -292,9 +291,6 @@ function Tooltip:showTooltipJoint(player, joint)
 		return 0
 	end
 	if (joint > -1 and joint < 20) then
-		TooltipInternal.TouchInputTargetPlayer = player
-		TooltipInternal.TouchInputTargetJoint = joint
-
 		if (get_option("tooltip") == 0 or not Tooltip.IsActive) then
 			return 0
 		end
@@ -399,6 +395,7 @@ function Tooltip:showTouchControls()
 
 	local wheelMode = get_option("tooltipmode")
 	if (wheelMode == 3) then
+		Tooltip.SetTouchJointState()
 		return
 	end
 
@@ -627,7 +624,7 @@ function Tooltip.SetTouchJointState()
 	TooltipInternal.TouchInputPosition = nil
 	TooltipInternal.WaitForTouchInput = false
 	Tooltip.IsTouchCommitted = true
-	Tooltip.Destroy()
+	Tooltip.DestroyAndDeselect()
 end
 
 ---Toggles joint state according to current game settings \

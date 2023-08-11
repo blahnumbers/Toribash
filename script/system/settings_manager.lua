@@ -494,8 +494,9 @@ do
 									text = TB_MENU_LOCALIZED.SETTINGSLOWEST,
 									action = function()
 											local options = {
-												{ opt = "shader", val = 0, graphics = true, id = SHADERS },
+												{ opt = "shaders", val = 0, graphics = true, id = SHADERS },
 												{ opt = "fluid", val = 0, graphics = true, id = FLUIDBLOOD },
+												{ opt = "bloodstains", val = 0 },
 												{ opt = "framerate", val = 30 },
 												{ opt = "reflection", val = 0, graphics = true, id = REFLECTIONS },
 												{ opt = "softshadow", val = 0, graphics = true, id = SOFTSHADOWS },
@@ -529,8 +530,9 @@ do
 									text = TB_MENU_LOCALIZED.SETTINGSLOW,
 									action = function()
 										local options = {
-											{ opt = "shader", val = 1, graphics = true, id = SHADERS },
+											{ opt = "shaders", val = 1, graphics = true, id = SHADERS },
 											{ opt = "fluid", val = 0, graphics = true, id = FLUIDBLOOD },
+											{ opt = "bloodstains", val = is_mobile() and 0 or 1 },
 											{ opt = "framerate", val = 30 },
 											{ opt = "reflection", val = 0, graphics = true, id = REFLECTIONS },
 											{ opt = "softshadow", val = 0, graphics = true, id = SOFTSHADOWS },
@@ -543,7 +545,7 @@ do
 											{ opt = "obj", val = 0 },
 											{ opt = "bodytextures", val = 1, graphics = true, id = BODYTEXTURES },
 											{ opt = "effects", val = 1 },
-											{ opt = "particles", val = 1 },
+											{ opt = "particles", val = is_mobile() and 0 or 1 },
 											{ opt = "fixedframerate", val = 1 },
 											{ opt = "uilight", val = 1 }
 										}
@@ -564,8 +566,9 @@ do
 									text = TB_MENU_LOCALIZED.SETTINGSMEDIUM,
 									action = function()
 										local options = {
-											{ opt = "shader", val = 1, graphics = true, id = SHADERS },
+											{ opt = "shaders", val = 1, graphics = true, id = SHADERS },
 											{ opt = "fluid", val = 2, graphics = true, id = FLUIDBLOOD },
+											{ opt = "bloodstains", val = 1 },
 											{ opt = "framerate", val = is_mobile() and 30 or 60 },
 											{ opt = "reflection", val = 0, graphics = true, id = REFLECTIONS },
 											{ opt = "softshadow", val = 0, graphics = true, id = SOFTSHADOWS },
@@ -599,8 +602,9 @@ do
 									text = TB_MENU_LOCALIZED.SETTINGSHIGH,
 									action = function()
 										local options = {
-											{ opt = "shader", val = 1, graphics = true, id = SHADERS },
+											{ opt = "shaders", val = 1, graphics = true, id = SHADERS },
 											{ opt = "fluid", val = 1, graphics = true, id = FLUIDBLOOD },
+											{ opt = "bloodstains", val = 1 },
 											{ opt = "framerate", val = is_mobile() and 60 or 75 },
 											{ opt = "reflection", val = 1, graphics = true, id = REFLECTIONS },
 											{ opt = "softshadow", val = 1, graphics = true, id = SOFTSHADOWS },
@@ -634,8 +638,9 @@ do
 									text = TB_MENU_LOCALIZED.SETTINGSHIGHEST,
 									action = function()
 										local options = {
-											{ opt = "shader", val = 1, graphics = true, id = SHADERS },
+											{ opt = "shaders", val = 1, graphics = true, id = SHADERS },
 											{ opt = "fluid", val = 1, graphics = true, id = FLUIDBLOOD },
+											{ opt = "bloodstains", val = 1 },
 											{ opt = "framerate", val = is_mobile() and 60 or 75 },
 											{ opt = "reflection", val = 1, graphics = true, id = REFLECTIONS },
 											{ opt = "softshadow", val = 1, graphics = true, id = SOFTSHADOWS },
@@ -1229,6 +1234,22 @@ do
 							}
 						},
 						{
+							name = TB_MENU_LOCALIZED.SETTINGSCAMERASENSITIVITY,
+							type = SLIDER,
+							minValue = 50,
+							minValueDisp = "0.5x",
+							maxValue = 200,
+							maxValueDisp = "2x",
+							systemname = "camerasensitivity",
+							onUpdate = function(slider)
+								TB_MENU_MAIN_SETTINGS.camerasensitivity = {
+									value = math.round((tonumber(slider.label.labelText[1]) or 100) / 10) * 10
+								}
+								slider.label.labelText[1] = math.round((tonumber(slider.label.labelText[1]) or 100) / 10) / 10 .. 'x'
+							end,
+							val = { get_option("camerasensitivity") }
+						},
+						{
 							name = TB_MENU_LOCALIZED.SETTINGSCAMERAINVERTX,
 							type = TOGGLE,
 							systemname = "invertedcamx",
@@ -1367,14 +1388,14 @@ do
 	function Settings:getGraphicsPreset()
 		return function()
 				local options = {
-					"shaders", "fluid", "framerate", "reflection", "softshadow", "ambientocclusion", "bumpmapping", "raytracing", "trails", "hair", "hairquality", "obj", "effects", "particles", "bodytextures", "uilight"
+					"shaders", "fluid", "bloodstains", "framerate", "reflection", "softshadow", "ambientocclusion", "bumpmapping", "raytracing", "trails", "hair", "hairquality", "obj", "effects", "particles", "bodytextures", "uilight"
 				}
 				local presets = {
-					is_mobile() and "10300000000000011" or "00300000000000011",
-					"10300000011001111",
-					is_mobile() and "12300001011013110" or "12600001011013110",
-					is_mobile() and "11601111011113110" or "11751111011113110",
-					is_mobile() and "11601111111113110" or "11751111111113110"
+					is_mobile() and "100300000000000011" or "000300000000000011",
+					is_mobile() and "100300000011001011" or "101300000011001111",
+					is_mobile() and "121300001011013110" or "121600001011013110",
+					is_mobile() and "111601111011113110" or "111751111011113110",
+					is_mobile() and "111601111111113110" or "111751111111113110"
 				}
 				local userSetting = ""
 				for _, v in pairs(options) do

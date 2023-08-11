@@ -469,14 +469,6 @@ function RoomList:showRoomListButton(viewElement, room)
 	local shiftX = shiftWidth
 	local availableAreaX = roomButton.size.w - shiftWidth * #datasToDisplay
 	for _, v in pairs(datasToDisplay) do
-		if (v.shadowValue) then
-			local infoShadow = roomButton:addChild({
-				pos = { v.textIcon and shiftX + (roomButton.size.h - 6) * 0.75 or shiftX, 3 },
-				size = { availableAreaX * v.width - (v.textIcon and roomButton.size.h - 11 or 0), roomButton.size.h - 6 },
-				uiColor = { 0, 0, 0, 0 }
-			})
-			infoShadow:addAdaptedText(true, v.shadowValue, nil, nil, 4, v.orientation or LEFTMID, 0.65, nil, nil, 2)
-		end
 		local infoBit = roomButton:addChild({
 			pos = { shiftX, 3 },
 			size = { availableAreaX * v.width, roomButton.size.h - 6 }
@@ -508,7 +500,12 @@ function RoomList:showRoomListButton(viewElement, room)
 					size = { infoBit.size.w - iconHolder.size.w - 5, infoBit.size.h }
 				})
 			end
-			targetTextElement:addAdaptedText(true, v.value, nil, nil, 4, v.orientation or LEFTMID, 0.65)
+			if (v.shadowValue) then
+				targetTextElement:addAdaptedText(true, v.shadowValue, nil, nil, 4, v.orientation or LEFTMID, 0.65, nil, nil, 2)
+				targetTextElement:addChild({}):addAdaptedText(true, v.value, nil, nil, 4, v.orientation or LEFTMID, 0.65)
+			else
+				targetTextElement:addAdaptedText(true, v.value, nil, nil, 4, v.orientation or LEFTMID, 0.65)
+			end
 		end
 		shiftX = shiftX + infoBit.size.w + shiftWidth
 	end
