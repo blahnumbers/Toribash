@@ -1389,9 +1389,11 @@ function TBHud:initChat()
 
 			local typeCommand, replacements = chatInputField.textfieldstr[1]:gsub("^/(%w+).*", "%1")
 			if (replacements == 0) then
+				set_menu_keyboard(chatInputField.inputType, true, chatInputField.returnKeyType)
 				return
 			end
 
+			set_menu_keyboard(chatInputField.inputType, false, chatInputField.returnKeyType)
 			local commands = self:getChatCommands()
 			local targetCommands = {}
 			for cmd, _ in pairs(commands) do

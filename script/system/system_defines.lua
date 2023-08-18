@@ -2372,6 +2372,12 @@ function disable_menu_keyboard() end
 ---@param word string
 function keyboard_learn_word(word) end
 
+---Updates menu keyboard settings on mobile platforms
+---@param inputType KeyboardInputType
+---@param autoCompletion? boolean
+---@param returnKeyType? KeyboardReturnType
+function set_menu_keyboard(inputType, autoCompletion, returnKeyType) end
+
 ---Returns whether either of shift keys is currently down
 ---@return integer
 function get_shift_key_state() end
