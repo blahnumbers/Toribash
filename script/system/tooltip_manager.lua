@@ -129,7 +129,8 @@ end
 ---Initializes Tooltip hooks and enables the module
 function Tooltip.Init()
 	Tooltip.DestroyAndDeselect()
-
+	
+	remove_hooks(Tooltip.HookName)
 	add_hook("joint_select", Tooltip.HookName, function(player, joint)
 			if (players_accept_input() == false) then return end
 			local discard = Tooltip:showTooltipJoint(player, joint)

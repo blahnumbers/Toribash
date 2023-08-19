@@ -905,6 +905,11 @@ function Tutorials:showMessage(viewElement, reqTable, message, messageby)
 		local messageBuilder = self.MessageView:addChild({ })
 		local lastClock = UIElement.clock
 		local lastSub = 0
+
+		if (message == nil) then
+			Files.LogError("Tutorials step " .. self.CurrentStep.id .. " missing message (" .. tostring(TB_MENU_LOCALIZED.language) .. ")")
+			message = ""
+		end
 		local strlen = utf8.len(message)
 		messageBuilder:addCustomDisplay(true, function()
 				local sub = lastSub

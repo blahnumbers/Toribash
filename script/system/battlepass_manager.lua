@@ -337,31 +337,7 @@ function BattlePass:spawnPurchasePrimeWindow()
 	claimWindowBackground = BattlePass:spawnPrizeConfirmationWindow(
 		TB_MENU_LOCALIZED.BATTLEPASSPURCHASEPREMIUM,
 		TB_MENU_LOCALIZED.STOREPURCHASECONFIRM .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " $" .. numberFormat(item.now_usd_price) .. "?",
-		function()
-			if (is_steam()) then
-				runCmd("steam purchase " .. item.itemid)
-				claimWindowBackground:kill(true)
-				claimWindowBackground.size.h = 100
-				claimWindowBackground.size.w = 300
-				claimWindowBackground:moveTo((WIN_W - claimWindowBackground.size.w) / 2, (WIN_H - claimWindowBackground.size.h) / 2)
-				claimWindowBackground:addAdaptedText(TB_MENU_LOCALIZED.STOREPROCESSINGSTEAMPURCHASE)
-				claimWindowBackground.parent:addMouseMoveHandler(function()
-					claimWindowBackground.parent:kill()
-					if (get_purchase_done() == 1) then
-						TBMenu:showStatusMessage(TB_MENU_LOCALIZED.BATTLEPASSPURCHASEPREMIUMSUCCESS)
-						BattlePass.UserData = nil
-						BattlePass:showMain()
-						update_tc_balance()
-						download_inventory()
-						Notifications:getTotalNotifications(true)
-					else
-						TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STOREPURCHASESTEAMCANCELLED)
-					end
-				end)
-			else
-				open_url("https://forum.toribash.com/tori_shop.php?action=process&item=" .. item.itemid)
-			end
-		end,
+		function() claimWindowBackground.parent:kill() Torishop.InitUSDPurchase(item) end,
 		{ premium = true })
 end
 

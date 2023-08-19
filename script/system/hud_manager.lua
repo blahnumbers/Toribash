@@ -180,16 +180,12 @@ function TBHudInternal.isPlaying()
 	if (TBHud.WorldState.game_type == 0 or players_accept_input()) then
 		return true
 	end
-	if (#get_bouts() < 2) then
+	if (#QueueList.Cache.Players.Bouts < 2) then
 		---Only one player in queue, they can't play
 		return false
 	end
 
-	local user = PlayerInfo.Get().username
-	local tori = PlayerInfo.Get(get_player_info(0).name).username
-	local uke = PlayerInfo.Get(get_player_info(1).name).username
-
-	if (user == tori or user == uke) then
+	if (QueueList.Cache.Players.Bouts[1].isMe or QueueList.Cache.Players.Bouts[2].isMe) then
 		return true
 	end
 	return false
@@ -1488,10 +1484,9 @@ end
 
 function TBHud:scrollChatIntoPosition()
 	if (TBHudInternal.ListShift[1] == 0) then
-		local hoverState = self.ChatHolderScrollBar.hoverState
-		self.ChatHolderScrollBar.hoverState = BTN_DN
-		self.ChatHolderScrollBar.btnHover(self.ChatHolderScrollBar.parent.pos.x + 1, self.ChatHolderScrollBar.parent.pos.y + self.ChatHolderScrollBar.parent.size.h - 2)
-		self.ChatHolderScrollBar.hoverState = hoverState
+		self.ChatHolderScrollBar:moveTo(nil, self.ChatHolderScrollBar.parent.size.h - self.ChatHolderScrollBar.size.h)
+		self.ChatHolderListing:moveTo(nil, -#self.ChatHolderItems[self.ChatActiveTab] * TBHudInternal.ChatElementHeight)
+		self.ChatHolderScrollBar.listReload()
 	else
 		local scrollProgress = -(self.ChatHolderListing.size.h + self.ChatHolderListing.shift.y) / (#self.ChatHolderItems[self.ChatActiveTab] * TBHudInternal.ChatElementHeight - self.ChatHolderListing.size.h)
 		self.ChatHolderScrollBar:moveTo(nil, (self.ChatHolderScrollBar.parent.size.h - self.ChatHolderScrollBar.size.h) * scrollProgress)
