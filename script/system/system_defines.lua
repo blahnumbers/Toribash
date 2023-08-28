@@ -1253,7 +1253,8 @@ function set_joint_radius(player, joint, radius) end
 
 ---Selects player with the corresponding id
 ---@param player integer Player ID or `-1` to deselect all players
-function select_player(player) end
+---@param mute? boolean Whether not to play player select sound
+function select_player(player, mute) end
 
 ---Disables selection of player with the corresponding id
 ---@param player integer Player ID or `-1` to enable selection for all players
@@ -3178,6 +3179,7 @@ function discord_reject_join(discordId) end
 ---| "spec_update" #Called when spectator status update is received
 ---| "roomlist_update" #Called on room list info request completion
 ---| "purchase_status" #Called on mobile in-app purchase status change
+---| "login" #Called on successful account login
 
 ---Adds a Lua callback listener \
 ---*Only one function per `event` + `set_name` pair is supported*

@@ -2657,26 +2657,28 @@ function TBMenu:getMainNavigationButtons()
 	else
 		table.insert(buttonData, { text = TB_MENU_LOCALIZED.MAINMENUCLOSE, sectionId = -1, right = true })
 	end
-	if (TB_MENU_PLAYER_INFO.data.qi >= BattlePass.QiRequirement) then
-		---@type MenuNavButton
-		local battlePassButton = {
-			text = TB_MENU_LOCALIZED.BATTLEPASSTITLE,
-			sectionId = 11,
-			right = not is_mobile()
-		}
-		if (BattlePass.UserData) then
-			if (BattlePass.UserData.level_available > BattlePass.UserData.level) then
-				battlePassButton.misctext = "!"
+	if (TB_MENU_PLAYER_INFO.username ~= '') then
+		if (TB_MENU_PLAYER_INFO.data.qi >= BattlePass.QiRequirement) then
+			---@type MenuNavButton
+			local battlePassButton = {
+				text = TB_MENU_LOCALIZED.BATTLEPASSTITLE,
+				sectionId = 11,
+				right = not is_mobile()
+			}
+			if (BattlePass.UserData) then
+				if (BattlePass.UserData.level_available > BattlePass.UserData.level) then
+					battlePassButton.misctext = "!"
+				end
+				table.insert(buttonData, battlePassButton)
 			end
-			table.insert(buttonData, battlePassButton)
 		end
-	end
-	if (Ranking.TimeLeft > os.time() and TB_MENU_PLAYER_INFO.data.qi >= Ranking.QiRequirement) then
-		table.insert(buttonData, {
-			text = TB_MENU_LOCALIZED.NAVBUTTONRANKING,
-			sectionId = 12,
-			right = not is_mobile()
-		})
+		if (Ranking.TimeLeft > os.time() and TB_MENU_PLAYER_INFO.data.qi >= Ranking.QiRequirement) then
+			table.insert(buttonData, {
+				text = TB_MENU_LOCALIZED.NAVBUTTONRANKING,
+				sectionId = 12,
+				right = not is_mobile()
+			})
+		end
 	end
 	return buttonData
 end
@@ -4373,6 +4375,32 @@ function TBMenu:spawnMoveableWindow(rect, globalid)
 	}, true)
 
 	return windowBackground, windowWorkArea, windowMover
+end
+
+---Queues data updates that we want to do periodically
+function TBMenu.RefreshData()
+	local newsType = "news"
+	if (is_steam() or is_mobile()) then
+		newsType = newsType .. "light"
+	else
+		newsType = newsType .. "&ver=" .. TORIBASH_VERSION
+	end
+
+	News.Cache = {}
+	Request:queue(function()
+		download_server_file(newsType, 0)
+		News.LastRefresh = os.clock_real()
+	end, "tbMenuNewsDownloader", function()
+		-- If file on server is the same as the one we already have there'd be no download triggered
+		-- Check for that condition and run getNews instantly if that's the case
+		for _, v in pairs(get_downloads()) do
+			if (string.find(v, "data/news.txt")) then
+				return
+			end
+		end
+		News:getNews(true)
+	end)
+	Torishop:getPlayerDiscounts()
 end
 
 TBMenu.GetTranslation(get_language())

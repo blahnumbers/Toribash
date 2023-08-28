@@ -160,8 +160,8 @@ function Tooltip.Init()
 			end)
 	end
 
-	add_hook("enter_frame", Tooltip.HookName, Tooltip.Destroy)
-	add_hook("exit_freeze", Tooltip.HookName, Tooltip.Destroy)
+	add_hook("enter_frame", Tooltip.HookName, Tooltip.DestroyAndDeselect)
+	add_hook("exit_freeze", Tooltip.HookName, Tooltip.DestroyAndDeselect)
 	add_hook("leave_game", Tooltip.HookName, Tooltip.DestroyAndDeselect)
 	add_hook("new_game", Tooltip.HookName, Tooltip.DestroyAndDeselect)
 	add_hook("player_select", Tooltip.HookName, function()

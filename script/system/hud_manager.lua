@@ -1393,7 +1393,7 @@ function TBHud:initChat()
 			local commands = self:getChatCommands()
 			local targetCommands = {}
 			for cmd, _ in pairs(commands) do
-				if (cmd:find("^" .. typeCommand)) then
+				if (string.find(cmd, "^" .. typeCommand)) then
 					table.insert(targetCommands, commands[cmd])
 				end
 			end
@@ -1568,6 +1568,7 @@ function TBHud:refreshChat()
 					local chatMessage = listingHolder:addChild({
 						pos = { 16, #holderItems * TBHudInternal.ChatElementHeight },
 						size = { listingHolder.size.w - 32, TBHudInternal.ChatElementHeight },
+						---@diagnostic disable-next-line: assign-type-mismatch
 						uiColor = nextColor
 					})
 					chatMessage:addAdaptedText(true, str, nil, nil, FONTS.SMALL + 10, LEFT, 0.72, 0.72)

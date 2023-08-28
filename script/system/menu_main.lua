@@ -129,19 +129,7 @@ end
 
 local newsRefreshPeriod = get_option("autoupdate") == 1 and 600 or 86400
 if (News.LastRefresh < os.clock_real() - newsRefreshPeriod) then
-	-- Refresh news periodically so players can get the events / new promos without restarting client
-	Request:queue(function()
-		download_server_file("news" .. (is_steam() and "light" or ("&ver=" .. TORIBASH_VERSION)), 0)
-		News.LastRefresh = os.clock_real()
-	end, "refreshnews", function()
-			for _, v in pairs(get_downloads()) do
-				if (string.find(v, "data/news.txt")) then
-					return
-				end
-			end
-			News:getNews(true)
-		end)
-	Torishop:getPlayerDiscounts()
+	TBMenu.RefreshData()
 end
 
 -- Only called on first menu launch
@@ -174,6 +162,7 @@ add_hook("resolution_changed", "tbMainMenuVisual", function()
 		end
 	end)
 
+add_hook("login", "tbMainMenuStatic", TBMenu.RefreshData)
 add_hook("downloader_complete", "tbMainMenuStatic", function(filename)
 		if (filename:find("custom/.*/item.dat") and not filename:find(TB_MENU_PLAYER_INFO.username)) then
 			-- Most files we'll download will be from custom, sort them out so we don't run checks on them

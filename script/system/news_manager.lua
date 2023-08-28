@@ -218,7 +218,7 @@ function News:getNews(reload)
 		end
 	end
 
-	if (TB_MENU_PLAYER_INFO.data.qi < BattlePass.QiRequirement) then
+	if (TB_MENU_PLAYER_INFO.username == '' or TB_MENU_PLAYER_INFO.data.qi < BattlePass.QiRequirement) then
 		local newsItems = 0
 		for i, v in pairs(newsData) do
 			if (v.isBattlePass) then

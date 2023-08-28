@@ -1,5 +1,6 @@
 {
 	"Lua.diagnostics.disable": [
-		"missing-fields"
+		"missing-fields",
+		"inject-field"
 	]
 }
