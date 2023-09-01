@@ -1325,24 +1325,20 @@ function TBMenu:showAccountMain()
 		}
 	}, true)
 
-	local accountView = UIElement:new({
-		parent = TBMenu.CurrentSection,
+	local accountView = TBMenu.CurrentSection:addChild({
 		pos = { 5, 0 },
 		size = { TBMenu.CurrentSection.size.w - 10, TBMenu.CurrentSection.size.h },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR
 	})
-	local elementHeight = 50
-	local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(accountView, accountView.size.h / 10 > elementHeight and accountView.size.h / 10 or elementHeight, elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
-
+	local elementHeight = math.min(TBMenu.CurrentSection.size.h / 10, 50)
+	local toReload, topBar, botBar, listingView, listingHolder = TBMenu:prepareScrollableList(accountView, elementHeight, elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
 	TBMenu:addBottomBloodSmudge(botBar, 1)
-	local accountTitle = UIElement:new({
-		parent = topBar,
+	local accountTitle = topBar:addChild({
 		pos = { 20, 5 },
 		size = { topBar.size.w / 2 - 25, topBar.size.h - 10 }
 	})
-	accountTitle:addAdaptedText(true, TB_MENU_LOCALIZED.ACCOUNTTITLEINFO, nil, nil, FONTS.BIG, LEFTMID, nil, nil, 0.2)
-	local accountDataRefresh = UIElement:new({
-		parent = topBar,
+	accountTitle:addAdaptedText(true, TB_MENU_LOCALIZED.ACCOUNTTITLEINFO, nil, nil, FONTS.BIG, LEFTMID, 0.7, nil, 0.6)
+	local accountDataRefresh = topBar:addChild({
 		pos = { -45, 5 },
 		size = { 40, 40 },
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
@@ -1352,20 +1348,17 @@ function TBMenu:showAccountMain()
 		shapeType = ROUNDED,
 		rounded = 3
 	})
-	local accountDataRefreshIcon = UIElement:new({
-		parent = accountDataRefresh,
-		pos = { 5, 5 },
-		size = { accountDataRefresh.size.w - 10, accountDataRefresh.size.h - 10 },
+	local accountDataRefreshIcon = accountDataRefresh:addChild({
+		shift = { 5, 5 },
 		bgImage = "../textures/menu/general/buttons/restart.tga"
 	})
-	accountDataRefresh:addMouseHandlers(nil, function()
+	accountDataRefresh:addMouseUpHandler(function()
 			if (get_network_task() == 0) then
 				TBMenu:showAccountMain()
 			end
 		end)
-	local switchButtonSize = topBar.size.w / 2 - 55 > 250 and 250 or topBar.size.w / 2 - 55
-	local accountSwitch = UIElement:new({
-		parent = topBar,
+	local switchButtonSize = math.min(topBar.size.w / 2 - 55, 250)
+	local accountSwitch = topBar:addChild({
 		pos = { -switchButtonSize - 50, 5 },
 		size = { switchButtonSize, 40 },
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
@@ -1378,36 +1371,52 @@ function TBMenu:showAccountMain()
 	TBMenu:showTextWithImage(accountSwitch, TB_MENU_LOCALIZED.ACCOUNTSWITCH, FONTS.MEDIUM, 24, TB_MENU_LOGOUT_BUTTON)
 	accountSwitch:addMouseHandlers(nil, function() open_menu(18) end)
 
+	local accountTerminationButton = botBar:addChild({
+		pos = { -400, 5 },
+		size = { 390, botBar.size.h - 10 },
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = UICOLORRED,
+		pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		interactive = true,
+		shapeType = ROUNDED,
+		rounded = 3
+	})
+	accountTerminationButton:addAdaptedText(false, TB_MENU_LOCALIZED.ACCOUNTDELETEBUTTON, nil, nil, 4, nil, 0.7)
+	accountTerminationButton.size.w = get_string_length(accountTerminationButton.dispstr[1], accountTerminationButton.textFont) * accountTerminationButton.textScale + 40
+	accountTerminationButton:moveTo(-accountTerminationButton.size.w - 5)
+	accountTerminationButton:addMouseUpHandler(function()
+			TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.ACCOUNTDELETECONFIRMATION, function() open_url("https://forum.toribash.com/profile.php?do=deleteaccount") end)
+		end)
+
 	local function showAccountData(data)
 		local listElements = {}
 		for i,v in pairs(data) do
 			if (type(v) == "table") then
-				local infoBG = UIElement:new({
-					parent = listingHolder,
+				local infoBG = listingHolder:addChild({
 					pos = { 0, elementHeight * #listElements },
 					size = { listingHolder.size.w, elementHeight }
 				})
 				table.insert(listElements, infoBG)
-				local infoHolder = UIElement:new({
-					parent = infoBG,
-					pos = { 10, 5 },
-					size = { infoBG.size.w - 10, elementHeight - 10 },
+				local infoHolder = infoBG:addChild({
+					pos = { 10, 2 },
+					size = { infoBG.size.w - 12, elementHeight - 4 },
 					bgColor = v.customColor or TB_MENU_DEFAULT_DARKER_COLOR,
 					uiColor = v.customUiColor,
 					interactive = v.action,
 					hoverColor = v.customHoverColor or TB_MENU_DEFAULT_DARKEST_COLOR,
-					pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+					pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+					shapeType = ROUNDED,
+					rounded = 3
 				})
-				local infoText = UIElement:new({
-					parent = infoHolder,
-					pos = { 10, 0 },
-					size = { infoHolder.size.w - 20, infoHolder.size.h }
+				local infoText = infoHolder:addChild({
+					pos = { 10, 2 },
+					size = { math.min(350, infoHolder.size.w * 0.4), infoHolder.size.h - 4 }
 				})
 				if (v.hint) then
-					local hintSign = UIElement:new({
-						parent = infoHolder,
-						pos = { 5, 5 },
-						size = { 30, 30 },
+					local hintSize = math.floor(infoHolder.size.h * 0.7)
+					local hintSign = infoHolder:addChild({
+						pos = { 10, (infoHolder.size.h - hintSize) / 2 },
+						size = { hintSize, hintSize },
 						bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 						hoverColor = TB_MENU_DEFAULT_BG_COLOR,
 						shapeType = ROUNDED,
@@ -1416,16 +1425,22 @@ function TBMenu:showAccountMain()
 						interactive = true
 					})
 					TBMenu:displayHelpPopup(hintSign, v.hint)
-					infoText:moveTo(40)
-					infoText.size.w = infoHolder.size.w - 50
+					infoText:moveTo(hintSize + 10, nil, true)
+					infoText.size.w = infoText.size.w - hintSize - 10
 				end
-				infoText:addAdaptedText(true, v.name .. ": " .. v.value, nil, nil, nil, LEFTMID)
+				infoText:addAdaptedText(true, v.name, nil, nil, nil, LEFTMID, 0.8, nil, nil, nil, { infoText.uiColor[1], infoText.uiColor[2], infoText.uiColor[3], 0.8 })
+
+				local infoValueText = infoHolder:addChild({
+					pos = { infoText.shift.x * 2 + infoText.size.w, infoText.shift.y },
+					size = { infoHolder.size.w - infoText.shift.x * 3 - infoText.size.w, infoText.size.h }
+				})
+				infoValueText:addAdaptedText(true, v.value, nil, nil, nil, LEFTMID)
 				if (v.action) then
 					infoHolder:addMouseHandlers(nil, v.action)
 				end
 			end
 		end
-		for i,v in pairs(listElements) do
+		for _, v in pairs(listElements) do
 			v:hide()
 		end
 		local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
