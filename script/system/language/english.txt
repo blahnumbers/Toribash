@@ -1226,3 +1226,4 @@ STOREPURCHASESTEAMCANCELLED	Steam purchase has been cancelled
 SETTINGSCAMERASENSITIVITY	Camera sensitivity
 ACCOUNTDELETEBUTTON	Request account deletion
 ACCOUNTDELETECONFIRMATION	You can request your account to be deleted along with all your personal data linked to it.\nIf you'd like to proceed, press "Continue".
+GAMECENTERDOOPEN	Open Game Center

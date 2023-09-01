@@ -1371,9 +1371,37 @@ function TBMenu:showAccountMain()
 	TBMenu:showTextWithImage(accountSwitch, TB_MENU_LOCALIZED.ACCOUNTSWITCH, FONTS.MEDIUM, 24, TB_MENU_LOGOUT_BUTTON)
 	accountSwitch:addMouseHandlers(nil, function() open_menu(18) end)
 
+	if (_G.PLATFORM == "IPHONEOS") then
+		local gameCenterButton = botBar:addChild({
+			pos = { 5, 5 },
+			size = { 300, botBar.size.h - 10 },
+			bgColor = UICOLORWHITE,
+			hoverColor = TB_MENU_DEFAULT_ORANGE,
+			pressedColor = TB_MENU_DEFAULT_DARKER_ORANGE,
+			interactive = true,
+			shapeType = ROUNDED,
+			rounded = 5
+		})
+		local gameCenterIcon = gameCenterButton:addChild({
+			pos = { 3, 3 },
+			size = { gameCenterButton.size.h - 6, gameCenterButton.size.h - 6 },
+			bgImage = "../textures/menu/logos/gamecenter.tga"
+		})
+		local gameCenterText = gameCenterButton:addChild({
+			pos = { gameCenterIcon.size.w + gameCenterIcon.shift.x * 2, 5 },
+			size = { gameCenterButton.size.w - gameCenterIcon.size.w - gameCenterIcon.shift.x * 4, gameCenterButton.size.h - 10 },
+			uiColor = UICOLORBLACK
+		})
+		gameCenterText:addAdaptedText(true, TB_MENU_LOCALIZED.GAMECENTERDOOPEN, nil, nil, 11, CENTERMID, 0.65)
+		local textWidth = get_string_length(gameCenterText.dispstr[1], gameCenterText.textFont) * gameCenterText.textScale + 20
+		gameCenterButton.size.w = gameCenterButton.size.w - (gameCenterText.size.w - textWidth)
+		gameCenterText.size.w = textWidth
+		gameCenterButton:addMouseUpHandler(open_gamecenter_dashboard)
+	end
+
 	local accountTerminationButton = botBar:addChild({
 		pos = { -400, 5 },
-		size = { 390, botBar.size.h - 10 },
+		size = { 395, botBar.size.h - 10 },
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 		hoverColor = UICOLORRED,
 		pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
@@ -1390,7 +1418,7 @@ function TBMenu:showAccountMain()
 
 	local function showAccountData(data)
 		local listElements = {}
-		for i,v in pairs(data) do
+		for _, v in pairs(data) do
 			if (type(v) == "table") then
 				local infoBG = listingHolder:addChild({
 					pos = { 0, elementHeight * #listElements },
