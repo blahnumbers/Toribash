@@ -1413,7 +1413,8 @@ function TBMenu:showAccountMain()
 	accountTerminationButton.size.w = get_string_length(accountTerminationButton.dispstr[1], accountTerminationButton.textFont) * accountTerminationButton.textScale + 40
 	accountTerminationButton:moveTo(-accountTerminationButton.size.w - 5)
 	accountTerminationButton:addMouseUpHandler(function()
-			TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.ACCOUNTDELETECONFIRMATION, function() open_url("https://forum.toribash.com/profile.php?do=deleteaccount") end)
+			---@diagnostic disable-next-line: undefined-global
+			TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.ACCOUNTDELETECONFIRMATION, initiate_delete_account)
 		end)
 
 	local function showAccountData(data)
