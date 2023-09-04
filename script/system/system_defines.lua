@@ -2161,10 +2161,10 @@ function get_network_error() end
 ---@return integer
 function get_network_task() end
 
----Opens a webpage with user's default browser. \
----*Only links that point to Toribash domains are supported*
+---Opens a *toribash.com* url with user's default web browser.
 ---@param url string
-function open_url(url) end
+---@param authenticate? boolean Whether we should try to authenticate the user with current credentials. Only works if user is **not** currently logged into an account in their browser. Always set to `true` on iOS.
+function open_url(url, authenticate) end
 
 ---Downloads bounties data and saves it as `data/bounties.txt`
 function download_fetch_bounties() end
@@ -3521,6 +3521,10 @@ function delete_mod(filename) end
 ---@param filename string
 ---@return string?
 function find_mod(filename) end
+
+---Returns value depending on game center availability. *iOS only*
+---@return boolean
+function is_gamecenter_available() end
 
 ---Opens Game Center dashboard. *iOS only*.
 function open_gamecenter_dashboard() end

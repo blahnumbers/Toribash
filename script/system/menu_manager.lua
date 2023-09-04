@@ -1371,7 +1371,7 @@ function TBMenu:showAccountMain()
 	TBMenu:showTextWithImage(accountSwitch, TB_MENU_LOCALIZED.ACCOUNTSWITCH, FONTS.MEDIUM, 24, TB_MENU_LOGOUT_BUTTON)
 	accountSwitch:addMouseHandlers(nil, function() open_menu(18) end)
 
-	if (_G.PLATFORM == "IPHONEOS") then
+	if (is_gamecenter_available()) then
 		local gameCenterButton = botBar:addChild({
 			pos = { 5, 5 },
 			size = { 300, botBar.size.h - 10 },
