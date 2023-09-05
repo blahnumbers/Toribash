@@ -3120,7 +3120,7 @@ do
 				local premiumItem = Torishop:getItemInfo(3793)
 				local displayPrice = "$" .. premiumItem.now_usd_price
 				if (_G.PLATFORM == "IPHONEOS") then
-					displayPrice = utf8.gsub(get_platform_item_price(item.itemid), "%s", " ")
+					displayPrice = utf8.gsub(get_platform_item_price(premiumItem.itemid), "%s", " ")
 				end
 				if (string.len(displayPrice) < 2) then
 					TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STOREITEMNOTAVAILABLE)
