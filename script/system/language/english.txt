@@ -1227,3 +1227,6 @@ SETTINGSCAMERASENSITIVITY	Camera sensitivity
 ACCOUNTDELETEBUTTON	Request account deletion
 ACCOUNTDELETECONFIRMATION	You can request your account to be deleted along with all your personal data linked to it.\nIf you'd like to proceed, press "Continue".
 GAMECENTERDOOPEN	Open Game Center
+STOREITEMNOTAVAILABLE	This item is not available for purchase at the moment
+MARKETPREMIUMPURCHASEPROMPT1	Would you like to purchase the upgrade for 
+MARKETPREMIUMPURCHASEPROMPT2	?

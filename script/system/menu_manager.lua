@@ -2737,8 +2737,9 @@ function TBMenu:showBottomBar(leftOnly)
 	local buttonSize = 50 * TB_MENU_GLOBAL_SCALE
 	if (TBMenu.BottomLeftBar == nil or TBMenu.BottomLeftBar.destroyed) then
 		TBMenu.BottomLeftBar = TBMenu.MenuMain:addChild({
-			pos = { barSafe_x * TB_MENU_GLOBAL_SCALE, -buttonSize * 1.4 },
-			size = { 110 * TB_MENU_GLOBAL_SCALE, buttonSize }
+			pos = { barSafe_x * TB_MENU_GLOBAL_SCALE - 10, -buttonSize * 1.4 },
+			size = { 110 * TB_MENU_GLOBAL_SCALE, buttonSize },
+			interactive = is_mobile()
 		})
 	else
 		TBMenu.BottomLeftBar:kill(true)
@@ -2803,7 +2804,7 @@ function TBMenu:showBottomBar(leftOnly)
 	local tbMenuBottomLeftButtons = {}
 	for i, v in pairs(tbMenuBottomLeftButtonsData) do
 		tbMenuBottomLeftButtons[i] = TBMenu.BottomLeftBar:addChild({
-			pos = { (i - 1) * (TBMenu.BottomLeftBar.size.h + 10), 0 },
+			pos = { 10 + (i - 1) * (TBMenu.BottomLeftBar.size.h + 10), 0 },
 			size = { TBMenu.BottomLeftBar.size.h, TBMenu.BottomLeftBar.size.h },
 			bgImage = v.image,
 			imageColor = TB_MENU_DEFAULT_BG_COLOR,
@@ -2850,15 +2851,16 @@ function TBMenu:showBottomBar(leftOnly)
 				end
 			end)
 	end
-	TBMenu.BottomLeftBar.size.w = #tbMenuBottomLeftButtonsData * (TBMenu.BottomLeftBar.size.h + 10)
+	TBMenu.BottomLeftBar.size.w = 10 + #tbMenuBottomLeftButtonsData * (TBMenu.BottomLeftBar.size.h + 10)
 	if (leftOnly) then
 		return
 	end
 
 	if (TBMenu.BottomRightBar == nil or TBMenu.BottomRightBar.destroyed) then
 		TBMenu.BottomRightBar = TBMenu.MenuMain:addChild({
-			pos = { -(barSafe_x + 100) * TB_MENU_GLOBAL_SCALE, -buttonSize * 1.4 },
-			size = { 110 * TB_MENU_GLOBAL_SCALE, buttonSize }
+			pos = { -(barSafe_x + 110) * TB_MENU_GLOBAL_SCALE, -buttonSize * 1.4 },
+			size = { 120 * TB_MENU_GLOBAL_SCALE, buttonSize },
+			interactive = is_mobile()
 		})
 	else
 		TBMenu.BottomRightBar:kill(true)
@@ -2889,7 +2891,7 @@ function TBMenu:showBottomBar(leftOnly)
 	local tbMenuBottomRightButtons = {}
 	for i,v in pairs(tbMenuBottomRightButtonsData) do
 		tbMenuBottomRightButtons[i] = TBMenu.BottomRightBar:addChild({
-			pos = { -i * (TBMenu.BottomRightBar.size.h + 10), 0 },
+			pos = { -10 - i * (TBMenu.BottomRightBar.size.h + 10), 0 },
 			size = { TBMenu.BottomRightBar.size.h, TBMenu.BottomRightBar.size.h },
 			bgImage = v.image,
 			imageColor = TB_MENU_DEFAULT_BG_COLOR,
@@ -4419,6 +4421,52 @@ function TBMenu:spawnMoveableWindow(rect, globalid)
 	}, true)
 
 	return windowBackground, windowWorkArea, windowMover
+end
+
+---Spawns a generic search bar for main menu
+---@param searchString string
+---@param hint string
+---@return UIElement
+---@return UIElement
+function TBMenu:spawnSearchBar(searchString, hint)
+	if (TBMenu.CurrentSection == nil) then
+		---@diagnostic disable-next-line: missing-return-value
+		return
+	end
+
+	local clickBlocker = nil
+	if (is_mobile()) then
+		clickBlocker = TBMenu.MenuMain:addChild({
+			pos = { TBMenu.BottomLeftBar.shift.x + TBMenu.BottomLeftBar.size.w, TBMenu.CurrentSection.shift.y + TBMenu.CurrentSection.size.h },
+			size = { TBMenu.MenuMain.size.w - (TBMenu.BottomLeftBar.shift.x + TBMenu.BottomLeftBar.size.w) * 2, TBMenu.MenuMain.size.h - TBMenu.CurrentSection.shift.y + TBMenu.CurrentSection.size.h },
+			interactive = true
+		})
+	end
+	local targetShift = SCREEN_RATIO > 2 and (-TBMenu.BottomRightBar.shift.x) or (TBMenu.BottomLeftBar.shift.x + TBMenu.BottomLeftBar.size.w)
+	local searchBarView = TBMenu.CurrentSection:addChild({
+		pos = { targetShift, TBMenu.CurrentSection.size.h + (WIN_H - TBMenu.CurrentSection.size.h - TBMenu.CurrentSection.pos.y) - TBMenu.BottomLeftBar.size.h * 1.3 },
+		size = { TBMenu.CurrentSection.size.w - (targetShift) * 2, TBMenu.BottomLeftBar.size.h * 0.8 },
+		bgColor = TB_MENU_DEFAULT_BG_COLOR,
+		shapeType = ROUNDED,
+		rounded = 5
+	})
+	searchBarView.killAction = function()
+		if (clickBlocker) then
+			clickBlocker:kill()
+		end
+	end
+	if (not is_mobile()) then
+		TBMenu.HideButton:hide()
+		searchBarView.killAction = function() TBMenu.HideButton:show() end
+	end
+
+	return TBMenu:spawnTextField2(searchBarView, {}, searchString, hint, {
+		fontId = FONTS.LMEDIUM,
+		textScale = 0.7,
+		textAlign = CENTERMID,
+		textColor = UICOLORWHITE,
+		darkerMode = true
+	}), searchBarView
 end
 
 ---Queues data updates that we want to do periodically

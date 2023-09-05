@@ -2202,20 +2202,7 @@ do
 	end
 
 	function Market:showSearchBar(searchString, searchOptions, hint)
-		local searchBarView = UIElement:new({
-			parent = TBMenu.CurrentSection,
-			pos = { TBMenu.BottomLeftBar.shift.x + TBMenu.BottomLeftBar.size.w, TBMenu.CurrentSection.size.h + (WIN_H - TBMenu.CurrentSection.size.h - TBMenu.CurrentSection.pos.y) - TBMenu.BottomLeftBar.size.h * 1.3 },
-			size = { TBMenu.CurrentSection.size.w - (TBMenu.BottomLeftBar.shift.x + TBMenu.BottomLeftBar.size.w) * 2, TBMenu.BottomLeftBar.size.h * 0.8 },
-			bgColor = TB_MENU_DEFAULT_BG_COLOR,
-			shapeType = ROUNDED,
-			rounded = 5
-		})
-		if (not is_mobile()) then
-			TBMenu.HideButton:hide()
-			searchBarView.killAction = function() TBMenu.HideButton:show() end
-		end
-
-		local searchInput = TBMenu:spawnTextField(searchBarView, nil, nil, nil, nil, searchString, nil, 4, 0.7, UICOLORWHITE, hint and hint or TB_MENU_LOCALIZED.STORESEARCHHINT, CENTERMID, nil, nil, true)
+		local searchInput, searchBarView = TBMenu:spawnSearchBar(searchString, hint or TB_MENU_LOCALIZED.STORESEARCHHINT)
 		searchInput:addInputCallback(function()
 				if (searchBarView.dropdown) then
 					searchBarView.dropdown:kill()
@@ -3049,93 +3036,101 @@ do
 
 	function Market:showMainUserShop(myShopView, refreshImage)
 		local myShopData = MARKET_SHOP_DATA[TB_MENU_PLAYER_INFO.username:lower()]
-		local myShopTitle = UIElement:new({
-			parent = myShopView,
+		local myShopTitle = myShopView:addChild({
 			pos = { 10, 10 },
 			size = { myShopView.size.w - 20, 35 }
 		})
 		myShopTitle:addAdaptedText(true, myShopData.title, nil, nil, FONTS.BIG)
 
 		local lastElement = myShopTitle
-		if (WIN_H >= 720) then
-			if (myShopData.tier >= TIER_PREMIUM) then
-				local shopImage = UIElement:new({
-					parent = myShopView,
-					pos = { 20, lastElement.shift.y + lastElement.size.h + 10 },
-					size = { myShopView.size.w - 40, (myShopView.size.w - 40) / 2 },
-					bgImage = { "../textures/store/market/" .. string.lower(TB_MENU_PLAYER_INFO.username) .. ".tga", nil }
-				})
-				lastElement = shopImage
-				TBMenu:addOuterRounding(shopImage, myShopView.bgColor, 10)
+		echo("myShopView height " .. myShopView.size.h)
+		if (myShopData.tier >= TIER_PREMIUM and myShopView.size.h >= 500) then
+			local shopImage = UIElement:new({
+				parent = myShopView,
+				pos = { 20, lastElement.shift.y + lastElement.size.h + 10 },
+				size = { myShopView.size.w - 40, (myShopView.size.w - 40) / 2 },
+				bgImage = { "../textures/store/market/" .. string.lower(TB_MENU_PLAYER_INFO.username) .. ".tga", nil }
+			})
+			lastElement = shopImage
+			TBMenu:addOuterRounding(shopImage, myShopView.bgColor, 10)
 
-				if (refreshImage) then
-					Request:queue(function()
-							download_server_file("marketplace&user=" .. TB_MENU_PLAYER_INFO.username .. "&shop_image", 0)
-						end, "marketplace_shopimage", function()
-							if (not shopImage or shopImage.destroyed) then
-								return
-							end
-							local response = get_network_response();
-							if (not response:find("ERROR")) then
-								local textureFile = Files.Open("../data/textures/store/market/" .. string.lower(TB_MENU_PLAYER_INFO.username) .. ".tga")
-								shopImage.killAction = function() if (textureFile) then textureFile:close() end end
-								shopImage:addCustomDisplay(false, function()
-									if (not textureFile:isDownloading()) then
-										textureFile:close()
-										shopImage:updateImage("../textures/store/market/" .. string.lower(TB_MENU_PLAYER_INFO.username) .. ".tga")
-										shopImage.customDisplayBefore = nil
-									end
-								end, true)
-							end
-						end)
-				end
-
-				local shopDescription = shopImage:addChild({
-					shift = { 10, 10 },
-					shapeType = ROUNDED,
-					rounded = 5,
-					bgColor = { 0, 0, 0, 0.75 }
-				})
-				local shopDescriptionText = shopDescription:addChild({ shift = { 10, 10 } })
-				shopDescriptionText:addAdaptedText(false, myShopData.description, nil, nil, 4, RIGHTBOT, 0.7, 0.6)
-				local width = 0
-				for i,v in pairs(shopDescriptionText.dispstr) do
-					local w = get_string_length(v, shopDescriptionText.textFont) * shopDescriptionText.textScale
-					width = w > width and w or width
-				end
-				shopDescriptionText.size = { w = width + 1, h = math.min(shopDescriptionText.size.h, #shopDescriptionText.dispstr * getFontMod(shopDescriptionText.textFont) * 10 * shopDescriptionText.textScale + 1) }
-				shopDescription.size = { w = shopDescriptionText.size.w + shopDescriptionText.shift.x * 2, h = shopDescriptionText.size.h + shopDescriptionText.shift.y * 2 }
-				shopDescription:moveTo(shopDescription.parent.size.w - shopDescription.size.w - shopDescriptionText.shift.x, shopDescription.parent.size.h - shopDescription.size.h - shopDescriptionText.shift.y)
-			else
-				local premiumUpgradeButton = UIElement:new({
-					parent = myShopView,
-					pos = { 25, lastElement.shift.y + lastElement.size.h + 10 },
-					size = { myShopView.size.w - 50, math.min(myShopView.size.h / 10, 40) },
-					interactive = true,
-					bgColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
-					hoverColor = table.clone(TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS),
-					pressedColor = TB_MENU_DEFAULT_DARKER_COLOR,
-					shapeType = ROUNDED,
-					rounded = 4
-				})
-				premiumUpgradeButton.hoverColor[4] = 0.75
-				local premiumUpgradeButtonText = UIElement:new({
-					parent = premiumUpgradeButton,
-					pos = { 15, 3 },
-					size = { premiumUpgradeButton.size.w - 30, premiumUpgradeButton.size.h - 6 }
-				})
-				premiumUpgradeButtonText:addAdaptedText(false, TB_MENU_LOCALIZED.MARKETUPGRADEPREMIUM)
-				premiumUpgradeButton:addMouseHandlers(nil, function()
-						Torishop:showStoreSection(TBMenu.CurrentSection, nil, nil, 3793)
+			if (refreshImage) then
+				Request:queue(function()
+						download_server_file("marketplace&user=" .. TB_MENU_PLAYER_INFO.username .. "&shop_image", 0)
+					end, "marketplace_shopimage", function()
+						if (not shopImage or shopImage.destroyed) then
+							return
+						end
+						local response = get_network_response();
+						if (not response:find("ERROR")) then
+							local textureFile = Files.Open("../data/textures/store/market/" .. string.lower(TB_MENU_PLAYER_INFO.username) .. ".tga")
+							shopImage.killAction = function() if (textureFile) then textureFile:close() end end
+							shopImage:addCustomDisplay(false, function()
+								if (not textureFile:isDownloading()) then
+									textureFile:close()
+									shopImage:updateImage("../textures/store/market/" .. string.lower(TB_MENU_PLAYER_INFO.username) .. ".tga")
+									shopImage.customDisplayBefore = nil
+								end
+							end, true)
+						end
 					end)
-				local premiumUpgradeInfo = UIElement:new({
-					parent = myShopView,
-					pos = { 15, premiumUpgradeButton.shift.y + premiumUpgradeButton.size.h + 10 },
-					size = { myShopView.size.w - 30, myShopView.size.h / 10 }
-				})
-				premiumUpgradeInfo:addAdaptedText(true, TB_MENU_LOCALIZED.MARKETUPGRADEPREMIUMDESC, nil, nil, 4)
-				lastElement = premiumUpgradeInfo
 			end
+
+			local shopDescription = shopImage:addChild({
+				shift = { 10, 10 },
+				shapeType = ROUNDED,
+				rounded = 5,
+				bgColor = { 0, 0, 0, 0.75 }
+			})
+			local shopDescriptionText = shopDescription:addChild({ shift = { 10, 10 } })
+			shopDescriptionText:addAdaptedText(false, myShopData.description, nil, nil, 4, RIGHTBOT, 0.7, 0.6)
+			local width = 0
+			for _,v in pairs(shopDescriptionText.dispstr) do
+				local w = get_string_length(v, shopDescriptionText.textFont) * shopDescriptionText.textScale
+				width = w > width and w or width
+			end
+			shopDescriptionText.size = { w = width + 1, h = math.min(shopDescriptionText.size.h, #shopDescriptionText.dispstr * getFontMod(shopDescriptionText.textFont) * 10 * shopDescriptionText.textScale + 1) }
+			shopDescription.size = { w = shopDescriptionText.size.w + shopDescriptionText.shift.x * 2, h = shopDescriptionText.size.h + shopDescriptionText.shift.y * 2 }
+			shopDescription:moveTo(shopDescription.parent.size.w - shopDescription.size.w - shopDescriptionText.shift.x, shopDescription.parent.size.h - shopDescription.size.h - shopDescriptionText.shift.y)
+			local tierSeparator = UIElement:new({
+				parent = myShopView,
+				pos = { 50, lastElement.shift.y + lastElement.size.h + 15 },
+				size = { myShopView.size.w - 100, 1 },
+				bgColor = UICOLORWHITE
+			})
+			lastElement = tierSeparator
+		elseif (myShopData.tier == TIER_REGULAR) then
+			local premiumUpgradeButton = UIElement:new({
+				parent = myShopView,
+				pos = { 25, lastElement.shift.y + lastElement.size.h + 10 },
+				size = { myShopView.size.w - 50, math.min(myShopView.size.h / 10, 40) },
+				interactive = true,
+				bgColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
+				hoverColor = table.clone(TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS),
+				pressedColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				shapeType = ROUNDED,
+				rounded = 4
+			})
+			premiumUpgradeButton.hoverColor[4] = 0.75
+			local premiumUpgradeButtonText = premiumUpgradeButton:addChild({
+				shift = { 15, 3 },
+			})
+			premiumUpgradeButtonText:addAdaptedText(true, TB_MENU_LOCALIZED.MARKETUPGRADEPREMIUM)
+			premiumUpgradeButton:addMouseUpHandler(function()
+				local premiumItem = Torishop:getItemInfo(3793)
+				local displayPrice = "$" .. premiumItem.now_usd_price
+				if (_G.PLATFORM == "IPHONEOS") then
+					displayPrice = string.gsub(get_platform_item_price(premiumItem.itemid), "%s", " ")
+				end
+				if (string.len(displayPrice) < 2) then
+					TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STOREITEMNOTAVAILABLE)
+					return
+				end
+				TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.MARKETUPGRADEPREMIUMDESC .. "\n\n" .. TB_MENU_LOCALIZED.MARKETPREMIUMPURCHASEPROMPT1 .. displayPrice .. TB_MENU_LOCALIZED.MARKETPREMIUMPURCHASEPROMPT2, function()
+						Torishop.InitUSDPurchase(premiumItem)
+					end)
+			end)
+			lastElement = premiumUpgradeButton
 			local tierSeparator = UIElement:new({
 				parent = myShopView,
 				pos = { 50, lastElement.shift.y + lastElement.size.h + 15 },
@@ -3146,15 +3141,14 @@ do
 		end
 
 		local dataCount = 0
-		for i,v in pairs(myShopData.stats) do
+		for _,v in pairs(myShopData.stats) do
 			if (v.count or v.tc) then
 				dataCount = dataCount + 1
 			end
 		end
 
 		if (dataCount > 0) then
-			local shopStats = UIElement:new({
-				parent = myShopView,
+			local shopStats = myShopView:addChild({
 				pos = { 15, lastElement.shift.y + lastElement.size.h + 10 },
 				size = { myShopView.size.w - 30, 25 }
 			})

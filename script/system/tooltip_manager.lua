@@ -461,7 +461,7 @@ function Tooltip:showTouchControls()
 		touchControlsLeftTitle:addAdaptedText(true, get_joint_state_name(TooltipInternal.TouchInputTargetJoint, 2), nil, nil, FONTS.BIG, RIGHTMID, 0.6, nil, nil, 2, jointStateTextColor, jointStateShadowColor)
 	end
 
-	touchControlsHolder.pressTimer = UIElement.clock
+	touchControlsHolder.pressTimer = os.clock_real()
 	touchControlsHolder.firstPlay = true
 	touchControlsHolder:addCustomDisplay(function()
 			if (touchControlsVisual.size.w == touchControlsHolder.size.w) then
@@ -571,7 +571,7 @@ function Tooltip:showTouchControls()
 				targetJointState = fallbackJointState
 			end
 
-			if (lastJointState ~= targetJointState) then
+			if (lastJointState ~= targetJointState and TooltipInternal.WaitForTouchInput) then
 				play_haptics(0.6, HAPTICS.SELECTION)
 				---@diagnostic disable-next-line: param-type-mismatch
 				set_joint_state(TooltipInternal.TouchInputTargetPlayer, TooltipInternal.TouchInputTargetJoint, targetJointState, true)
