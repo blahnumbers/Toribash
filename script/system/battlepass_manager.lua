@@ -333,10 +333,14 @@ end
 ---Displays BattlePass Premium purchase popup
 function BattlePass:spawnPurchasePrimeWindow()
 	local item = Torishop:getItemInfo(BATTLEPASS_SUBSCRIPTION_ITEM)
+	local displayPrice = "$" .. numberFormat(item.now_usd_price)
+	if (_G.PLATFORM == "IPHONEOS") then
+		displayPrice = utf8.gsub(get_platform_item_price(item.itemid), "%s", " ")
+	end
 	local claimWindowBackground
 	claimWindowBackground = BattlePass:spawnPrizeConfirmationWindow(
 		TB_MENU_LOCALIZED.BATTLEPASSPURCHASEPREMIUM,
-		TB_MENU_LOCALIZED.STOREPURCHASECONFIRM .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " $" .. numberFormat(item.now_usd_price) .. "?",
+		TB_MENU_LOCALIZED.STOREPURCHASECONFIRM .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " " .. displayPrice .. "?",
 		function() claimWindowBackground.parent:kill() Torishop.InitUSDPurchase(item) end,
 		{ premium = true })
 end
@@ -519,6 +523,12 @@ function BattlePass:spawnPrizeConfirmationWindow(title, message, onConfirm, over
 	acceptButton:addAdaptedText(false, TB_MENU_LOCALIZED.BUTTONCONTINUE)
 	acceptButton:addMouseHandlers(nil, onConfirm)
 
+	if (#claimRewards == 0) then
+		---No rewards displayed, remove empty space to make the window look nicer
+		---This would typically be the case when upgrading to premium while on level 0
+		claimWindowBackground.size.h = claimWindowBackground.size.h - claimWindowRewards.size.h
+		claimWindowBackground:moveTo(nil, claimWindowRewards.size.h / 2, true)
+	end
 	return claimWindowBackground
 end
 
