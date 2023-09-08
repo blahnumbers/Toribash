@@ -65,7 +65,7 @@ Low Low
 Medium Medium
 High High
 Maximum Maximum
-Register Register
+Register Sign up
 Create Create
 Username Username
 Password Password
@@ -209,4 +209,44 @@ MatchmakeAgain Matchmake Again
 PasswordTooShort Password should be at least 8 characters long
 PasswordNotStrongEnough Password should contain both lowercase and uppercase letters and at least one digit
 RegisterWasInvited I was invited
-ReferralUsername Referral username
+ReferralUsername Referrer username
+RoomRanked Ranked Room
+ConfirmDeactivate Deactivating item
+ConfirmActivate Activating item
+ConfirmSetAdd Adding item to set
+ConfirmSetRemove Removing item from set
+ConfirmUnpack Unlocking a pack
+ConfirmItemUpgrade Upgrading an item
+ConfirmResetTexture Resetting texture
+ConfirmFuseEffect Fusing effect into item
+ConfirmEffectUpgrade Upgrading item effect
+ConfirmEffectPurge Purging applied effects
+ConfirmReplayVote Adding replay vote
+ConfirmAddBounty Adding player bounty
+ConfirmForgeFlame Forging a flame
+ConfirmBPLevelPurchase Purchasing Battle Pass level upgrade
+ConfirmClanJoin Joining a clan
+ConfirmClanLeave Leaving a clan
+ConfirmClanInvite Sending a clan invitation
+ConfirmClanWar Declaring clan war
+ConfirmClanWarReply Replying to clan war invitation
+ConfirmClanOfficial Applying for official clan status
+ConfirmMarketSell Selling an item
+ConfirmMarketBuy Buying an item
+ConfirmMarketUpdate Updating market offer
+ConfirmMarketCancel Cancelling market offer
+ConfirmmarketSaveShop Saving market shop
+PurchaseSuccess Purchase has been successfully completed
+PurchaseError Purchase error
+PurchaseWaiting Preparing your item purchase
+SigninPlatformOr or
+SigninApple Sign in with Apple
+SigninGoogle Sign in with Google
+SignupApple Sign up with Apple
+SignupGoogle Sign up with Google
+LoggedInAs Logged in as:
+Logout Log out
+LogoutConfirm Are you sure you want to log out of your current account?
+PleaseWait Please wait...
+CompletePlatformSignup Please choose a username to complete sign up
+ContinueApple Continue with Apple
