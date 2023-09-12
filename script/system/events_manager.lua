@@ -1163,8 +1163,8 @@ do
 			prizeText:addAdaptedText(true, text, nil, nil, FONTS.BIG, nil, 0.6, nil, 0.5)
 		end
 		local posShift = data.itemid == 0 and 0.5 or 0
-		showPrize("../textures/store/toricredit.tga", numberFormat(data.tc) .. " Toricredits", 1 + posShift)
-		showPrize("../textures/store/shiaitoken.tga", numberFormat(data.st) .. " Shiai Tokens", 2 + posShift)
+		showPrize("../textures/store/toricredit.tga", numberFormat(data.tc) .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS, 1 + posShift)
+		showPrize("../textures/store/shiaitoken.tga", numberFormat(data.st) .. " " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS, 2 + posShift)
 		if (data.itemid ~= 0) then
 			local itemInfo = Torishop:getItemInfo(data.itemid)
 			showPrize(Torishop:getItemIcon(itemInfo), itemInfo.itemname, 3)
@@ -1593,13 +1593,18 @@ do
 		return rewardView
 	end
 
+	---Displays event prizes in a specified UIElement viewport
+	---@param viewElement UIElement
+	---@param event NewsEventItemData
+	---@return UIElement
+	---@return UIElement
 	function Events:showEventPrizes(viewElement, event)
 		local elementHeight = 41
 		local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 60, 60, 20, event.accentColor)
 
 		listingScrollBG.bgColor = { 0, 0, 0, 0 }
 		local listElements = {}
-		if (event.prizes.imagetitle) then
+		--[[if (event.prizes.imagetitle) then
 			local imageScale = elementHeight * 8 > listingHolder.size.w - 20 and (listingHolder.size.w - 20) / 8 or elementHeight
 			local infoTitle = UIElement:new({
 				parent = listingHolder,
@@ -1608,7 +1613,7 @@ do
 				bgImage = event.prizes.imagetitle
 			})
 			table.insert(listElements, infoTitle)
-		else
+		else]]
 			local infoTitle = UIElement:new({
 				parent = listingHolder,
 				pos = { 10, #listElements * elementHeight },
@@ -1616,7 +1621,7 @@ do
 			})
 			infoTitle:addAdaptedText(true, "Prizes", nil, nil, FONTS.BIG, nil, nil, nil, 0.5)
 			table.insert(listElements, infoTitle)
-		end
+		--end
 
 		for i, prize in ipairs(event.prizes) do
 			if (prize.info) then
@@ -1628,23 +1633,36 @@ do
 				infoRow:addAdaptedText(true, prize.info)
 				table.insert(listElements, infoRow)
 			end
+
+			local prizesToShow = {}
 			if (prize.tc) then
-				local itemShopInfo = { itemname = numberFormat(prize.tc) .. " Toricredits", icon = "../textures/store/toricredit.tga" }
-				local itemRewardView = Events:showPrizeInfo(itemShopInfo, listingHolder, #listElements, elementHeight)
-				table.insert(listElements, itemRewardView)
+				table.insert(prizesToShow, {
+					itemname = numberFormat(prize.tc) .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS,
+					icon = "../textures/store/toricredit.tga"
+				})
 			end
 			if (prize.st) then
-				local itemShopInfo = { itemname = prize.st .. (prize.st > 1 and " Shiai Tokens" or " Shiai Token"), icon = "../textures/store/shiaitoken.tga" }
-				local itemRewardView = Events:showPrizeInfo(itemShopInfo, listingHolder, #listElements, elementHeight)
-				table.insert(listElements, itemRewardView)
+				table.insert(prizesToShow, {
+					itemname = prize.st .. " " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS,
+					icon = "../textures/store/shiaitoken.tga"
+				})
+			end
+			if (prize.bpxp) then
+				table.insert(prizesToShow, {
+					itemname = numberFormat(prize.bpxp) .. " " .. TB_MENU_LOCALIZED.BATTLEPASSEXPERIENCE,
+					icon = "../textures/menu/battlepass/experience.tga"
+				})
 			end
 			if (prize.itemids) then
-				for i, id in pairs(prize.itemids) do
-					local itemShopInfo = Torishop:getItemInfo(id)
-					local itemRewardView = Events:showPrizeInfo(itemShopInfo, listingHolder, #listElements, elementHeight)
-					table.insert(listElements, itemRewardView)
+				for _, id in pairs(prize.itemids) do
+					table.insert(prizesToShow, Torishop:getItemInfo(id))
 				end
 			end
+			for _, v in pairs(prizesToShow) do
+				local itemRewardView = Events:showPrizeInfo(v, listingHolder, #listElements, elementHeight)
+				table.insert(listElements, itemRewardView)
+			end
+
 			if (i ~= #event.prizes) then
 				local emptyRow = UIElement:new({
 					parent = listingHolder,

@@ -3043,7 +3043,6 @@ do
 		myShopTitle:addAdaptedText(true, myShopData.title, nil, nil, FONTS.BIG)
 
 		local lastElement = myShopTitle
-		echo("myShopView height " .. myShopView.size.h)
 		if (myShopData.tier >= TIER_PREMIUM and myShopView.size.h >= 500) then
 			local shopImage = UIElement:new({
 				parent = myShopView,
@@ -3126,7 +3125,7 @@ do
 					TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STOREITEMNOTAVAILABLE)
 					return
 				end
-				TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.MARKETUPGRADEPREMIUMDESC .. "\n\n" .. TB_MENU_LOCALIZED.MARKETPREMIUMPURCHASEPROMPT1 .. displayPrice .. TB_MENU_LOCALIZED.MARKETPREMIUMPURCHASEPROMPT2, function()
+				TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.MARKETUPGRADEPREMIUMDESC .. "\n\n" .. TB_MENU_LOCALIZED.MARKETPREMIUMPURCHASEPROMPT1 .. " " .. displayPrice .. TB_MENU_LOCALIZED.MARKETPREMIUMPURCHASEPROMPT2, function()
 						Torishop.InitUSDPurchase(premiumItem)
 					end)
 			end)
@@ -3769,7 +3768,7 @@ do
 				size = { featuredShopImage.size.w - 20, 25 }
 			})
 			featuredTitleUser:addAdaptedText(true, TB_MENU_LOCALIZED.WORDBY .. " " .. MARKET_FEATURED_SHOP_DATA.user, nil, nil, nil, RIGHT, nil, nil, nil, 1.5)
-			local targetShop = cloneTable(MARKET_FEATURED_SHOP_DATA)
+			local targetShop = table.clone(MARKET_FEATURED_SHOP_DATA)
 			featuredShop:addMouseHandlers(nil, function()
 					Market:showUserShop(TBMenu.CurrentSection, targetShop.user)
 					usage_event("marketplace_featured_shop")

@@ -352,7 +352,7 @@ function Replays:fetchReplayData(folder, rplTable, file, cacheData, includeEvent
 					Replays:fetchReplayData(fname, rpltbl, file, cacheData, includeEventTemp)
 				else
 					TBMenu.StatusMessage.replayUpdater:kill()
-					if (TBMenu.StatusMessage.startTime < UIElement.clock - 0.4) then
+					if (TBMenu.StatusMessage.startTime < UIElement.clock - 1) then
 						TBMenu.StatusMessage.messageView:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSDATACACHEREADY, nil, nil, 4, nil, 0.8)
 						TBMenu.StatusMessage.endTime = UIElement.clock + 2
 					else

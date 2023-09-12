@@ -253,7 +253,7 @@ end
 ---@field tc integer
 ---@field st integer
 ---@field bpxp integer
----@field itemids string[]
+---@field itemids integer[]
 
 ---@class NewsEventInfoBit
 ---@field title string
@@ -355,14 +355,14 @@ function News:getEvents()
 				local ln = ln:gsub("^PRIZEDATA 0;", "")
 				local id = tonumber(ln:sub(1, 1)) or 0
 				evt.prizes[id] = { info = ln:sub(2) }
-			elseif (ln:find("^PRIZEIMG 0;")) then
+			--[[elseif (ln:find("^PRIZEIMG 0;")) then
 				evt.prizes = evt.prizes or {}
 				local imgtitle = ln:gsub("^PRIZEIMG 0;", "")
 				local file = Files.Open("../data/textures/menu/promo/events/" .. imgtitle)
 				if (file.data) then
 					evt.prizes.imagetitle = "../textures/menu/promo/events/" .. imgtitle
 					file:close()
-				end
+				end]]
 			elseif (ln:find("^PRIZETC 0;")) then
 				local ln = ln:gsub("^PRIZETC 0;", "")
 				local id = tonumber(ln:sub(1, 1)) or 0
