@@ -4487,11 +4487,12 @@ end
 ---Queues data updates that we want to do periodically
 function TBMenu.RefreshData()
 	local newsType = "news"
-	if (is_steam() or is_mobile()) then
-		newsType = newsType .. "light"
-	else
-		newsType = newsType .. "&ver=" .. TORIBASH_VERSION
+	if (is_steam()) then
+		newsType = newsType .. "&source=steam"
+	elseif (is_mobile()) then
+		newsType = newsType .. "&source=mobile"
 	end
+	newsType = newsType .. "&ver=" .. TORIBASH_VERSION .. "&build=" .. BUILD_VERSION
 
 	News.Cache = {}
 	Request:queue(function()
