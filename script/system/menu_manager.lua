@@ -2293,26 +2293,41 @@ function TBMenu:showPlayerHeadAvatar(viewElement, player, extraSize)
 	table.insert(headViewport.avatarObjects, playerHeadHolder)
 	local playerNeckHolder = playerHeadHolder:addChild({
 		shapeType = SPHERE,
-		pos = { 0, playerHeadHolder.size.x / 9 * 1.8, -playerHeadHolder.size.x / 9 * 5.8},
-		size = { playerHeadHolder.size.x / 9 * 5, 0, 0 },
+		pos = { 0, playerHeadHolder.size.x * 0.278, -playerHeadHolder.size.x * 0.867},
+		size = { playerHeadHolder.size.x * 0.55, 0, 0 },
 		bgColor = get_color_rgba(customs.colors.force),
 		effects = customs.effects.force
 	})
 	table.insert(headViewport.avatarObjects, playerNeckHolder)
 	if (customs.objs.head.equipped) then
-		local objScale = customs.objs.head.dynamic and 2 or 10
+		local objScale = playerHeadHolder.size.x * (customs.objs.head.dynamic and 2 or 10)
 		if (customs.objs.head.partless and playerHeadHolder) then
-			playerHeadHolder:kill()
+			playerHeadHolder.bgColor[4] = 0
 		end
 		local modelColor = get_color_rgba(customs.objs.head.colorid)
 		modelColor[4] = customs.objs.head.alpha / 255
 		local headObjModel = playerHeadHolder:addChild({
 			shapeType = CUSTOMOBJ,
 			objModel = "../../custom/" .. playerName .. "/head",
-			size = { objScale * playerHeadHolder.size.x, objScale * playerHeadHolder.size.x, objScale * playerHeadHolder.size.x },
+			size = { objScale, objScale, objScale },
 			bgColor = modelColor
 		})
 		table.insert(headViewport.avatarObjects, headObjModel)
+	end
+	if (customs.objs.neck.equipped) then
+		local objScale = playerHeadHolder.size.x * (customs.objs.neck.dynamic and 2 or 10)
+		if (customs.objs.neck.partless and playerNeckHolder) then
+			playerNeckHolder.bgColor[4] = 0
+		end
+		local modelColor = get_color_rgba(customs.objs.neck.colorid)
+		modelColor[4] = customs.objs.neck.alpha / 255
+		local neckObjModel = playerNeckHolder:addChild({
+			shapeType = CUSTOMOBJ,
+			objModel = "../../custom/" .. playerName .. "/j_neck",
+			size = { objScale, objScale, objScale },
+			bgColor = modelColor
+		})
+		table.insert(headViewport.avatarObjects, neckObjModel)
 	end
 
 	return headViewport

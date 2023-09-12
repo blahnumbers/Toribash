@@ -897,7 +897,7 @@ function Tutorials:showMessage(viewElement, reqTable, message, messageby)
 					messageby = "senseitutorial"
 				end
 				local playerInfo = PlayerInfo.Get(messageby)
-				playerInfo:getItems(PLAYERINFO_CSCOPE_COLORS + PLAYERINFO_CSCOPE_TEXTURES)
+				playerInfo:getItems(PLAYERINFO_CSCOPE_ALL)
 				TBMenu:showPlayerHeadAvatar(self.MessageHeadViewport, playerInfo)
 			end
 		end

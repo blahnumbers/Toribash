@@ -296,26 +296,47 @@ end
 ---@field ghosted boolean
 
 ---@class PlayerInfoCustomObjects : PlayerInfoCustomBase
----@field head PlayerCustomObject
----@field breast PlayerCustomObject
----@field chest PlayerCustomObject
----@field groin PlayerCustomObject
----@field r_pec PlayerCustomObject
----@field r_bicep PlayerCustomObject
----@field r_tricep PlayerCustomObject
----@field l_pec PlayerCustomObject
----@field l_bicep PlayerCustomObject
----@field l_tricep PlayerCustomObject
----@field r_hand PlayerCustomObject
----@field l_hand PlayerCustomObject
----@field r_butt PlayerCustomObject
----@field l_butt PlayerCustomObject
----@field r_thigh PlayerCustomObject
----@field l_thigh PlayerCustomObject
----@field r_leg PlayerCustomObject
----@field l_leg PlayerCustomObject
----@field r_foot PlayerCustomObject
----@field l_foot PlayerCustomObject
+---@field head PlayerCustomObject Head bodypart object (id 0)
+---@field breast PlayerCustomObject Breast bodypart object (id 1)
+---@field chest PlayerCustomObject Chest bodypart object (id 2)
+---@field stomach PlayerCustomObject Stomach bodypart object (id 3)
+---@field thorax PlayerCustomObject Groin bodypart object (id 4)
+---@field r_pec PlayerCustomObject Right pec bodypart object (id 5)
+---@field r_bicep PlayerCustomObject Right bicep bodypart object (id 6)
+---@field r_tricep PlayerCustomObject Right tricep bodypart object (id 7)
+---@field l_pec PlayerCustomObject Left pec bodypart object (id 8)
+---@field l_bicep PlayerCustomObject Left bicep bodypart object (id 9)
+---@field l_tricep PlayerCustomObject Left tricep bodypart object (id 10)
+---@field r_hand PlayerCustomObject Right hand bodypart object (id 11)
+---@field l_hand PlayerCustomObject Left hand bodypart object (id 12)
+---@field r_butt PlayerCustomObject Right butt bodypart object (id 13)
+---@field l_butt PlayerCustomObject Left butt bodypart object (id 14)
+---@field r_thigh PlayerCustomObject Right thigh bodypart object (id 15)
+---@field l_thigh PlayerCustomObject Left thigh bodypart object (id 16)
+---@field l_leg PlayerCustomObject Left shin bodypart object (id 17)
+---@field r_leg PlayerCustomObject Right shin bodypart object (id 18)
+---@field r_foot PlayerCustomObject Right foot bodypart object (id 19)
+---@field l_foot PlayerCustomObject Left foot bodypart object (id 20)
+---@field neck PlayerCustomObject Neck joint object (id 0)
+---@field splex PlayerCustomObject Chest joint object (id 1)
+---@field lumbar PlayerCustomObject Lumbar joint object (id 2)
+---@field abs PlayerCustomObject Abs joint object (id 3)
+---@field r_axilla PlayerCustomObject Right pec joint object (id 4)
+---@field r_shoulder PlayerCustomObject Right shoulder joint object (id 5)
+---@field r_elbow PlayerCustomObject Right elbow joint object (id 6)
+---@field l_axilla PlayerCustomObject Left pec joint object (id 7)
+---@field l_shoulder PlayerCustomObject Left shoulder joint object (id 8)
+---@field l_elbow PlayerCustomObject Left elbow joint object (id 9)
+---@field r_wrist PlayerCustomObject Right wrist joint object (id 10)
+---@field l_wrist PlayerCustomObject Left wrist joint object (id 11)
+---@field r_glute PlayerCustomObject Right glute joint object (id 12)
+---@field l_glute PlayerCustomObject Left glute joint object (id 13)
+---@field r_hip PlayerCustomObject Right hip joint object (id 14)
+---@field l_hip PlayerCustomObject Left hip joint object (id 15)
+---@field r_knee PlayerCustomObject Right knee joint object (id 16)
+---@field l_knee PlayerCustomObject Left knee joint object (id 17)
+---@field r_anchor PlayerCustomObject Right ankle joint object (id 18)
+---@field l_anchor PlayerCustomObject Left ankle joint object (id 19)
 
 ---Parses provided **item.dat** lines and returns information about player's equipped 3D items
 ---@param data ?string[]
@@ -323,7 +344,49 @@ end
 function PlayerInfoInternal.getObjs(data)
 	---@type PlayerInfoCustomObjects
 	local objs = {
+		---Bodyparts
 		head = { equipped = false },
+		breast = { equipped = false },
+		chest = { equipped = false },
+		stomach = { equipped = false },
+		thorax = { equipped = false },
+		r_pec = { equipped = false },
+		r_bicep = { equipped = false },
+		r_tricep = { equipped = false },
+		l_pec = { equipped = false },
+		l_bicep = { equipped = false },
+		l_tricep = { equipped = false },
+		r_hand = { equipped = false },
+		l_hand = { equipped = false },
+		r_butt = { equipped = false },
+		l_butt = { equipped = false },
+		r_thigh = { equipped = false },
+		l_thigh = { equipped = false },
+		l_leg = { equipped = false },
+		r_leg = { equipped = false },
+		r_foot = { equipped = false },
+		l_foot = { equipped = false },
+		---Joints
+		neck = { equipped = false },
+		splex = { equipped = false },
+		lumbar = { equipped = false },
+		abs = { equipped = false },
+		r_axilla = { equipped = false },
+		r_shoulder = { equipped = false },
+		r_elbow = { equipped = false },
+		l_axilla = { equipped = false },
+		l_shoulder = { equipped = false },
+		l_elbow = { equipped = false },
+		r_wrist = { equipped = false },
+		l_wrist = { equipped = false },
+		r_glute = { equipped = false },
+		l_glute = { equipped = false },
+		r_hip = { equipped = false },
+		l_hip = { equipped = false },
+		r_knee = { equipped = false },
+		l_knee = { equipped = false },
+		r_anchor = { equipped = false },
+		l_anchor = { equipped = false }
 	}
 	if (not data) then
 		objs.default = true
@@ -338,25 +401,84 @@ function PlayerInfoInternal.getObjs(data)
 	}
 
 	---@param line string
-	---@return PlayerCustomObject
-	local function getValues(line)
+	---@param obj PlayerCustomObject
+	local function setValues(line, obj)
 		local dataStream = { line:match(("(%d+) ?"):rep(6)) }
-		---@type PlayerCustomObject
-		local objValues = {}
 		for i,v in pairs(options) do
-			objValues[v] = tonumber(dataStream[i])
+			obj[v] = tonumber(dataStream[i])
 			if (not optNumeric[v]) then
-				objValues[v] = objValues[v] == 1 and true or false
+				obj[v] = obj[v] == 1 and true or false
 			end
 		end
-		objValues.equipped = true
-		return objValues
+		obj.equipped = true
 	end
 
+	local refs = {
+		b = {
+			objs.breast,
+			objs.chest,
+			objs.stomach,
+			objs.thorax,
+			objs.r_pec,
+			objs.r_bicep,
+			objs.r_tricep,
+			objs.l_pec,
+			objs.l_bicep,
+			objs.l_tricep,
+			objs.r_hand,
+			objs.l_hand,
+			objs.r_butt,
+			objs.l_butt,
+			objs.r_thigh,
+			objs.l_thigh,
+			objs.l_leg,
+			objs.r_leg,
+			objs.r_foot,
+			objs.l_foot
+		},
+		j = {
+			objs.splex,
+			objs.lumbar,
+			objs.abs,
+			objs.r_axilla,
+			objs.r_shoulder,
+			objs.r_elbow,
+			objs.l_axilla,
+			objs.l_shoulder,
+			objs.l_elbow,
+			objs.r_wrist,
+			objs.l_wrist,
+			objs.r_glute,
+			objs.l_glute,
+			objs.r_hip,
+			objs.l_hip,
+			objs.r_knee,
+			objs.l_knee,
+			objs.r_anchor,
+			objs.l_anchor
+		},
+		f = {
+
+		}
+	}
+	refs.b[0] = objs.head
+	refs.j[0] = objs.neck
+
 	for _, ln in pairs(data) do
-		if (string.match(ln, "^OBJ0 0; 1")) then
-			ln = ln:gsub("^OBJ0 0; 1 ", "")
-			objs.head = getValues(ln)
+		local refTable, objdata = nil, nil
+		if (string.match(ln, "^OBJ%d+ 0; 1")) then
+			objdata = string.gsub(ln, "^OBJ(%d+) .*", "%1")
+			refTable = refs.b
+		elseif (string.match(ln, "^OBJJOINT0 0; 1")) then
+			objdata = string.gsub(ln, "^OBJJOINT(%d+) .*", "%1")
+			refTable = refs.j
+		end
+		if (refTable ~= nil) then
+			local id = tonumber(objdata) or -1
+			if (refTable[id] ~= nil) then
+				objdata = string.gsub(ln, "^OBJ%D*%d+ 0; 1 ", "")
+				setValues(objdata, refTable[id])
+			end
 		end
 	end
 	return objs
