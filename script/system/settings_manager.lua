@@ -511,7 +511,8 @@ do
 												{ opt = "effects", val = 0 },
 												{ opt = "particles", val = 0 },
 												{ opt = "fixedframerate", val = 1 },
-												{ opt = "uilight", val = 1 }
+												{ opt = "uilight", val = 1 },
+												{ opt = "ghostobj", val = 0 }
 											}
 											Settings.SetMacResolution()
 											for _, v in pairs(options) do
@@ -547,7 +548,8 @@ do
 											{ opt = "effects", val = 1 },
 											{ opt = "particles", val = is_mobile() and 0 or 1 },
 											{ opt = "fixedframerate", val = 1 },
-											{ opt = "uilight", val = 1 }
+											{ opt = "uilight", val = 1 },
+											{ opt = "ghostobj", val = 0 }
 										}
 										Settings.SetMacResolution()
 										for _, v in pairs(options) do
@@ -583,7 +585,8 @@ do
 											{ opt = "effects", val = 3 },
 											{ opt = "particles", val = 1 },
 											{ opt = "fixedframerate", val = 1 },
-											{ opt = "uilight", val = 0 }
+											{ opt = "uilight", val = 0 },
+											{ opt = "ghostobj", val = is_mobile() and 0 or 1 }
 										}
 										Settings.SetMacResolution()
 										for _, v in pairs(options) do
@@ -619,7 +622,8 @@ do
 											{ opt = "effects", val = 3 },
 											{ opt = "particles", val = 1 },
 											{ opt = "fixedframerate", val = 1 },
-											{ opt = "uilight", val = 0 }
+											{ opt = "uilight", val = 0 },
+											{ opt = "ghostobj", val = 1 }
 										}
 										Settings.SetMacResolution()
 										for _ ,v in pairs(options) do
@@ -655,7 +659,8 @@ do
 											{ opt = "effects", val = 3 },
 											{ opt = "particles", val = 1 },
 											{ opt = "fixedframerate", val = 1 },
-											{ opt = "uilight", val = 0 }
+											{ opt = "uilight", val = 0 },
+											{ opt = "ghostobj", val = 1 }
 										}
 										Settings.SetMacResolution()
 										for _, v in pairs(options) do
@@ -870,6 +875,12 @@ do
 							val = { TB_MENU_MAIN_SETTINGS.trails and TB_MENU_MAIN_SETTINGS.trails.value or get_option("trails") }
 						},
 						{
+							name = TB_MENU_LOCALIZED.SETTINGSCOMICFX,
+							type = TOGGLE,
+							systemname = "comicfx",
+							val = { TB_MENU_MAIN_SETTINGS.comicfx and TB_MENU_MAIN_SETTINGS.comicfx.value or get_option("comicfx") }
+						},
+						{
 							name = TB_MENU_LOCALIZED.SETTINGSJOINTOBJOPACITY,
 							type = SLIDER,
 							maxValue = 100,
@@ -877,6 +888,13 @@ do
 							val = { TB_MENU_MAIN_SETTINGS.jointobjopacity and TB_MENU_MAIN_SETTINGS.jointobjopacity.value or get_option("jointobjopacity") },
 							hidden = (TB_MENU_MAIN_SETTINGS.obj and TB_MENU_MAIN_SETTINGS.obj.value or get_option("obj")) == 0
 						},
+						{
+							name = TB_MENU_LOCALIZED.SETTINGSGHOSTOBJ,
+							type = TOGGLE,
+							systemname = "ghostobj",
+							val = { TB_MENU_MAIN_SETTINGS.ghostobj and TB_MENU_MAIN_SETTINGS.ghostobj.value or get_option("ghostobj") },
+							hidden = (TB_MENU_MAIN_SETTINGS.obj and TB_MENU_MAIN_SETTINGS.obj.value or get_option("obj")) == 0
+						}
 					}
 				}
 			end
@@ -1443,14 +1461,14 @@ do
 	function Settings:getGraphicsPreset()
 		return function()
 				local options = {
-					"shaders", "fluid", "bloodstains", "framerate", "reflection", "softshadow", "ambientocclusion", "bumpmapping", "raytracing", "trails", "hair", "hairquality", "obj", "effects", "particles", "bodytextures", "uilight"
+					"shaders", "fluid", "bloodstains", "framerate", "reflection", "softshadow", "ambientocclusion", "bumpmapping", "raytracing", "trails", "hair", "hairquality", "obj", "effects", "particles", "bodytextures", "uilight", "ghostobj"
 				}
 				local presets = {
-					is_mobile() and "100300000000000011" or "000300000000000011",
-					is_mobile() and "100300000011001011" or "101300000011001111",
-					is_mobile() and "121300001011013110" or "121600001011013110",
-					is_mobile() and "111601111011113110" or "111751111011113110",
-					is_mobile() and "111601111111113110" or "111751111111113110"
+					is_mobile() and "1003000000000000110" or "0003000000000000110",
+					is_mobile() and "1003000000110010110" or "1013000000110011110",
+					is_mobile() and "1213000010110131100" or "1216000010110131101",
+					is_mobile() and "1116011110111131101" or "1117511110111131101",
+					is_mobile() and "1116011111111131101" or "1117511111111131101"
 				}
 				local userSetting = ""
 				for _, v in pairs(options) do
