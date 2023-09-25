@@ -783,6 +783,78 @@ do
 					name = TB_MENU_LOCALIZED.SETTINGSPLAYERCUSTOMIZATION,
 					items = {
 						{
+							name = TB_MENU_LOCALIZED.SETTINGSOBJMODELS,
+							type = DROPDOWN,
+							selectedAction = function()
+								return (TB_MENU_MAIN_SETTINGS.obj and TB_MENU_MAIN_SETTINGS.obj.value or get_option("obj")) + 1
+							end,
+							dropdown = {
+								{
+									text = TB_MENU_LOCALIZED.SETTINGSDISABLED,
+									action = function()
+										TB_MENU_MAIN_SETTINGS.obj = { value = 0 }
+										Settings:settingsApplyActivate()
+										Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
+									end
+								},
+								{
+									text = TB_MENU_LOCALIZED.SETTINGSENABLED,
+									action = function()
+										TB_MENU_MAIN_SETTINGS.obj = { value = 1 }
+										Settings:settingsApplyActivate()
+										Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
+									end
+								},
+								{
+									text = TB_MENU_LOCALIZED.SETTINGSONLYSHOWMINE,
+									action = function()
+										TB_MENU_MAIN_SETTINGS.obj = { value = 2 }
+										Settings:settingsApplyActivate()
+										Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
+									end
+								}
+							}
+						},
+						{
+							name = TB_MENU_LOCALIZED.SETTINGSFLAMES,
+							type = DROPDOWN,
+							selectedAction = function()
+								return (TB_MENU_MAIN_SETTINGS.particles and TB_MENU_MAIN_SETTINGS.particles.value or get_option("particles")) + 1
+							end,
+							dropdown = {
+								{
+									text = TB_MENU_LOCALIZED.SETTINGSDISABLED,
+									action = function()
+										TB_MENU_MAIN_SETTINGS.particles = { value = 0 }
+										Settings:settingsApplyActivate()
+										Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
+									end
+								},
+								{
+									text = TB_MENU_LOCALIZED.SETTINGSENABLED,
+									action = function()
+										TB_MENU_MAIN_SETTINGS.particles = { value = 1 }
+										Settings:settingsApplyActivate()
+										Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
+									end
+								},
+								{
+									text = TB_MENU_LOCALIZED.SETTINGSONLYSHOWMINE,
+									action = function()
+										TB_MENU_MAIN_SETTINGS.particles = { value = 2 }
+										Settings:settingsApplyActivate()
+										Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
+									end
+								}
+							}
+						},
+						{
+							name = TB_MENU_LOCALIZED.SETTINGSHAIRS,
+							type = TOGGLE,
+							systemname = "hair",
+							val = { TB_MENU_MAIN_SETTINGS.hair and TB_MENU_MAIN_SETTINGS.hair.value or get_option("hair") }
+						},
+						{
 							name = TB_MENU_LOCALIZED.SETTINGSBODYTEXTURES,
 							type = TOGGLE,
 							action = function(val)
@@ -798,29 +870,12 @@ do
 							val = { TB_MENU_MAIN_SETTINGS.trails and TB_MENU_MAIN_SETTINGS.trails.value or get_option("trails") }
 						},
 						{
-							name = TB_MENU_LOCALIZED.SETTINGSFLAMES,
-							type = TOGGLE,
-							systemname = "particles",
-							val = { TB_MENU_MAIN_SETTINGS.particles and TB_MENU_MAIN_SETTINGS.particles.value or get_option("particles") }
-						},
-						{
-							name = TB_MENU_LOCALIZED.SETTINGSHAIRS,
-							type = TOGGLE,
-							systemname = "hair",
-							val = { TB_MENU_MAIN_SETTINGS.hair and TB_MENU_MAIN_SETTINGS.hair.value or get_option("hair") }
-						},
-						{
-							name = TB_MENU_LOCALIZED.SETTINGSOBJMODELS,
-							type = TOGGLE,
-							systemname = "obj",
-							val = { TB_MENU_MAIN_SETTINGS.obj and TB_MENU_MAIN_SETTINGS.obj.value or get_option("obj") }
-						},
-						{
 							name = TB_MENU_LOCALIZED.SETTINGSJOINTOBJOPACITY,
 							type = SLIDER,
 							maxValue = 100,
 							systemname = "jointobjopacity",
-							val = { TB_MENU_MAIN_SETTINGS.jointobjopacity and TB_MENU_MAIN_SETTINGS.jointobjopacity.value or get_option("jointobjopacity") }
+							val = { TB_MENU_MAIN_SETTINGS.jointobjopacity and TB_MENU_MAIN_SETTINGS.jointobjopacity.value or get_option("jointobjopacity") },
+							hidden = (TB_MENU_MAIN_SETTINGS.obj and TB_MENU_MAIN_SETTINGS.obj.value or get_option("obj")) == 0
 						},
 					}
 				}

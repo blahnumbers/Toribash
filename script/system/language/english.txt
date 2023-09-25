@@ -1232,3 +1232,4 @@ MARKETPREMIUMPURCHASEPROMPT1	Would you like to purchase the upgrade for
 MARKETPREMIUMPURCHASEPROMPT2	?
 EVENTVERSIONUPDATEREQUIRED	This event requires a newer version of Toribash to run.\nPlease install the latest updates and try again.
 EVENTSLOADCUSTOMREPLAYNOHOTKEY	Load replay
+SETTINGSONLYSHOWMINE	Only show mine

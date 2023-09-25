@@ -370,6 +370,32 @@ _G.KEYBOARD_RETURN = {
 	CONTINUE = 5
 }
 
+---@alias IgnoreMode
+---| 1	IGNORE_MODE.CHAT
+---| 2	IGNORE_MODE.SOUNDS
+---| 3	Chat + Sounds
+---| 4	IGNORE_MODE.MODELS
+---| 5	Chat + Models
+---| 6	Sounds + Models
+---| 7	Chat + Sounds + Models
+---| 8	IGNORE_MODE.PARTICLES
+---| 9	Chat + Particles
+---| 10	Sounds + Particles
+---| 11	Chat + Sounds + Particles
+---| 12	Models + Particles
+---| 13	Chat + Models + Particles
+---| 14	Sounds + Models + Particles
+---| 15	IGNORE_MODE.ALL
+
+---Ignore list predefined modes
+_G.IGNORE_MODE = {
+	CHAT = 1,
+	SOUNDS = 2,
+	MODELS = 4,
+	PARTICLES = 8,
+	ALL = 15
+}
+
 ---@class MatrixTB
 ---@field r0 number
 ---@field r1 number
@@ -3124,6 +3150,29 @@ function discord_accept_join(discordId) end
 ---*Only supported on Windows*
 ---@param discordId string
 function discord_reject_join(discordId) end
+
+
+--[[ IGNORE LIST FUNCTIONS ]]
+
+---@class IgnoreListEntry
+---@field name string
+---@field mode IgnoreMode
+
+---Returns the list that are currently being ignored
+---@return IgnoreListEntry[]
+function get_ignore_list() end
+
+---Adds a user to ignore list. \
+---If `mode` is unspecified, defaults to `IGNORE_MODE.CHAT`.
+---@param user string
+---@param mode ?IgnoreMode
+function add_ignore_list(user, mode) end
+
+---Removes a user from ignore list. \
+---If `mode` is unspecified, defaults to `IGNORE_MODE.ALL`.
+---@param user string
+---@param mode ?IgnoreMode
+function remove_ignore_list(user, mode) end
 
 
 --[[ CALLBACK / HOOK FUNCTIONS ]]
