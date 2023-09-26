@@ -2778,7 +2778,7 @@ function TBMenu:showBottomBar(leftOnly)
 				if (TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 8) then
 					TBMenu:showFriendsList()
 				else
-					Friends:quit()
+					Friends.Quit()
 				end
 			end,
 			image = TB_MENU_FRIENDS_BUTTON,
