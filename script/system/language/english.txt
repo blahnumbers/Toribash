@@ -1235,3 +1235,11 @@ EVENTSLOADCUSTOMREPLAYNOHOTKEY	Load replay
 SETTINGSONLYSHOWMINE	Only show mine
 SETTINGSCOMICFX	Hit & Comic Effects
 SETTINGSGHOSTOBJ	3D objects' ghosts
+FRIENDSADDERRORNAMEEMPTY	Please enter the player's name to add them to your friends list
+FRIENDSADDERRORNAMEINVALID	Please enter a valid username to add the player to your friends list
+IGNORELISTTITLE	Ignore List
+IGNORELISTCHAT	Chat messages
+IGNORELISTSOUNDS	Player sounds
+IGNORELISTMODELS	Player 3D items
+IGNORELISTPARTICLES	Player flame particles
+IGNORELISTMANAGEWINDOW	Ignore settings for

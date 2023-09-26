@@ -1,10 +1,18 @@
+require("system.roomlist_manager")
+require("system.playerinfo_manager")
+
 ---@class FriendInfo
 ---@field username string
 ---@field online boolean
 ---@field room string
 
 if (Friends == nil) then
-	---**Friends Manager Class**
+	---**Friends and Ignore Manager Class**
+	---
+	---**Version 5.62**
+	---* Ignore list with ignore modes
+	---* Friends list tweaks
+	---* Internal tweaks to match new codestyle
 	---
 	---**Version 5.60**
 	---* Changed class name from FriendsList to Friends
@@ -13,36 +21,38 @@ if (Friends == nil) then
 	---@class Friends
 	---@field FriendsList FriendInfo[]
 	---@field ClanFriends FriendInfo[]
-	---@field IgnoreList string[]
+	---@field IgnoreList IgnoreListEntry[]
 	Friends = {
 		FriendsList = {},
 		IgnoreList = {},
 		ClanFriends = {},
-		ver = 5.60
+		ver = 5.62
 	}
 	Friends.__index = Friends
 	setmetatable({}, Friends)
 end
 
-function Friends:quit()
+---Exits Friends screen and opens last main menu screen
+function Friends.Quit()
 	TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
 	TBMenu:clearNavSection()
 	TBMenu:showNavigationBar()
 	TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
 end
 
+---Returns navigation data for Friends screen
+---@return MenuNavButton[]
 function Friends:getNavigationButtons()
-	local buttonText = get_option("newmenu") == 0 and TB_MENU_LOCALIZED.NAVBUTTONEXIT or TB_MENU_LOCALIZED.NAVBUTTONTOMAIN
-	local navigation = {
+	return {
 		{
-			text = buttonText,
-			action = function() Friends:quit() end,
-			width = get_string_length(buttonText, FONTS.BIG) * 0.65 + 30
+			text = TB_MENU_LOCALIZED.NAVBUTTONTOMAIN,
+			action = self.Quit,
 		}
 	}
-	return navigation
 end
 
+---Refreshes list of online players if it's gone stale and displays friends list with up-to-date room info
+---@param viewElement UIElement
 function Friends:getOnline(viewElement)
 	local dataReady = true
 	if (RoomList.RefreshIfNeeded()) then
@@ -87,7 +97,7 @@ function Friends:getOnline(viewElement)
 
 	if (dataReady) then
 		updateStates()
-		Friends:showFriends(viewElement)
+		self:showFriends(viewElement)
 		return
 	end
 
@@ -96,11 +106,18 @@ function Friends:getOnline(viewElement)
 			if (dataReady) then
 				waitSpinner:kill()
 				updateStates()
-				Friends:showFriends(viewElement)
+				self:showFriends(viewElement)
 			end
 		end)
 end
 
+---Refreshes `Friends.IgnoreList` list in a uniform way
+function Friends.RefreshIgnoreList()
+	Friends.IgnoreList = table.qsort(get_ignore_list(), "name")
+end
+
+---Initializes friends and ignore lists
+---@return boolean
 function Friends.Init()
 	Friends.FriendsList = {}
 	Friends.IgnoreList = {}
@@ -123,24 +140,21 @@ function Friends.Init()
 		table.insert(Friends.FriendsList, { username = data_stream[1], online = false, room = false })
 	end
 
-	local ignoreFile = Files.Open("../ignorelist.txt")
-	if (ignoreFile.data) then
-		local ignoreData = ignoreFile:readAll()
-		ignoreFile:close()
-		for _, ln in pairs(ignoreData) do
-			table.insert(Friends.IgnoreList, ln)
-		end
-	end
+	Friends.RefreshIgnoreList()
 
 	return true
 end
 
+---Adds a user to friends list
+---@param player string
 function Friends:addFriend(player)
 	local friend = { username = utf8.lower(player), online = false, room = false }
 	table.insert(self.FriendsList, friend)
 	runCmd("addbuddy " .. friend.username, nil, CMD_ECHO_FORCE_DISABLED)
 end
 
+---Removes a user from friends list
+---@param player string
 function Friends:removeFriend(player)
 	for i,v in pairs(self.FriendsList) do
 		if (v.username == player) then
@@ -164,48 +178,125 @@ function Friends:isFriend(player)
 	return false
 end
 
-function Friends:addIgnore(player)
-	local player = player:lower()
-	table.insert(self.IgnoreList, player)
-	runCmd("ignore add " .. player, nil, CMD_ECHO_FORCE_DISABLED)
+---Adds a user to ignore list with the specified mode
+---@param player string
+---@param mode IgnoreMode
+function Friends:addIgnore(player, mode)
+	add_ignore_list(string.lower(player), mode)
+	self.RefreshIgnoreList()
 end
 
-function Friends:removeIgnore(player)
-	local player = player:lower()
-	for i,v in pairs(self.IgnoreList) do
-		if (v == player) then
-			table.remove(self.IgnoreList, i)
-			break
-		end
-	end
-	runCmd("ignore remove " .. player, nil, CMD_ECHO_FORCE_DISABLED)
+---Removes a user from ignore list with the specified mode
+---@param player string
+---@param mode IgnoreMode
+function Friends:removeIgnore(player, mode)
+	remove_ignore_list(string.lower(player), mode)
+	self.RefreshIgnoreList()
 end
 
 ---Returns whether user with the specified name is being ignored
 ---@param player string
+---@param mode IgnoreMode
 ---@return boolean
-function Friends:isIgnored(player)
+function Friends:isIgnored(player, mode)
 	local player = string.lower(player)
 	for _, v in pairs(self.IgnoreList) do
-		if (string.lower(v) == player) then
-			return true
+		if (string.lower(v.name) == player) then
+			return bit.band(v.mode, mode) ~= 0
 		end
 	end
 	return false
 end
 
-function Friends:showFriendsList(viewElement)
+---Displays friends list in a UIElement viewport
+---@param viewElement UIElement
+function Friends:showFriends(viewElement)
+	viewElement:kill(true)
 	local elementHeight = 40
-	local toReload, topBar, botBar, listingView, listingHolder = TBMenu:prepareScrollableList(viewElement, elementHeight, elementHeight + 10, 20, TB_MENU_DEFAULT_BG_COLOR)
+	local toReload, topBar, botBar, listingView, listingHolder = TBMenu:prepareScrollableList(viewElement, elementHeight * 2, elementHeight + 10, 20, TB_MENU_DEFAULT_BG_COLOR)
 	TBMenu:addBottomBloodSmudge(botBar, 1)
+
+	local refreshButtonWidth = math.min(get_string_length(TB_MENU_LOCALIZED.WORDREFRESHACTION, FONTS.MEDIUM) + elementHeight + 30, topBar.size.w / 2 - 20)
+	local friendsTitle = topBar:addChild({
+		pos = { 10, 5 },
+		size = { topBar.size.w - refreshButtonWidth - 30, topBar.size.h / 2 }
+	})
+	friendsTitle:addAdaptedText(TB_MENU_LOCALIZED.FRIENDSLISTTITLE, nil, nil, FONTS.BIG, LEFTMID, 0.65, nil, 0.4)
+
+	local refreshButton = topBar:addChild({
+		pos = { -refreshButtonWidth - 10, 10 },
+		size = { refreshButtonWidth, elementHeight },
+		interactive = true,
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+		inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK,
+		shapeType = ROUNDED,
+		rounded = 4
+	})
+	TBMenu:showTextWithImage(refreshButton, TB_MENU_LOCALIZED.WORDREFRESHACTION, FONTS.MEDIUM, elementHeight - 10, "../textures/menu/general/buttons/reload.tga")
+	refreshButton:addMouseUpHandler(function()
+			viewElement:kill(true)
+			self.ListShift = { 0, 0, 0 }
+			self:getOnline(viewElement)
+		end)
+	refreshButton:deactivate(true)
+	local updateClock = UIElement.clock
+	refreshButton:addCustomDisplay(function()
+			if (UIElement.clock - updateClock > RoomList.RefreshPeriod) then
+				refreshButton:activate(true)
+				refreshButton:addCustomDisplay(function() end)
+			end
+		end)
+
+	local addFriendBackdrop = botBar:addChild({
+		pos = { 20, 5 },
+		size = { botBar.size.w - 40, botBar.size.h - 10 },
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR
+	})
+	local addFriendHolder = botBar:addChild({
+		pos = { 10, 5 },
+		size = { botBar.size.w - math.min(botBar.size.w / 4, 270), botBar.size.h - 10 },
+		shapeType = ROUNDED,
+		rounded = 4
+	})
+	local addFriendInput = TBMenu:spawnTextField2(addFriendHolder, nil, nil, TB_MENU_LOCALIZED.FRIENDSLISTSEARCHDEFAULT, {
+		fontId = FONTS.LMEDIUM,
+		textScale = 0.7
+	})
+	addFriendInput:addInputCallback(function()
+			local username = string.gsub(addFriendInput.textfieldstr[1], "[^a-zA-Z0-9_-]", "")
+			addFriendInput.textfieldstr[1] = username
+			addFriendInput.textfieldindex = utf8.len(username)
+		end)
+	local addFriendAction = function()
+		if (string.len(addFriendInput.textfieldstr[1]) == 0) then
+			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.FRIENDSADDERRORNAMEEMPTY)
+			return
+		end
+		self:addFriend(addFriendInput.textfieldstr[1])
+	end
+	addFriendInput:addEnterAction(addFriendAction)
+	local addFriendButton = botBar:addChild({
+		pos = { addFriendHolder.shift.x + addFriendHolder.size.w, addFriendHolder.shift.y },
+		size = { botBar.size.w - addFriendHolder.shift.x * 2 - addFriendHolder.size.w, addFriendHolder.size.h },
+		shapeType = addFriendHolder.shapeType,
+		rounded = addFriendHolder.rounded,
+		interactive = true,
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+	})
+	addFriendButton:addChild({ shift = { 10, 5 } }):addAdaptedText(TB_MENU_LOCALIZED.QUEUELISTDROPDOWNADDFRIEND)
+	addFriendButton:addMouseUpHandler(addFriendAction)
 
 	local listElements = {}
 	---@type FriendInfo[]
 	local friendsList = {}
-	for _, v in pairs(Friends.FriendsList) do
+	for _, v in pairs(self.FriendsList) do
 		table.insert(friendsList, v)
 	end
-	for _, v in pairs(Friends.ClanFriends) do
+	for _, v in pairs(self.ClanFriends) do
 		table.insert(friendsList, v)
 	end
 	for _, v in pairs(table.qsort(friendsList, { "username", "online" }, { SORT_ASCENDING, SORT_DESCENDING })) do
@@ -235,13 +326,13 @@ function Friends:showFriendsList(viewElement)
 		friendName:addAdaptedText(true, v.username, nil, nil, nil, LEFTMID)
 		if (#listElements == 1) then
 			topBar:addChild({
-				pos = { 10 + friendName.shift.x, 0 },
-				size = { friendName.size.w, topBar.size.h }
-			}):addAdaptedText(TB_MENU_LOCALIZED.FRIENDSLISTLEGENDPLAYER, nil, nil, FONTS.LMEDIUM, nil, 0.65)
+				pos = { 10 + friendName.shift.x, topBar.size.h / 2 + 10 },
+				size = { friendName.size.w, topBar.size.h / 2 - 15 }
+			}):addAdaptedText(TB_MENU_LOCALIZED.FRIENDSLISTLEGENDPLAYER, nil, nil, FONTS.LMEDIUM, CENTERBOT, 0.65)
 			topBar:addChild({
-				pos = { 10 + friendName.shift.x + friendName.size.w, 0 },
-				size = { (friendElement.size.w - friendName.shift.x - friendName.size.w) / 2, topBar.size.h }
-			}):addAdaptedText(TB_MENU_LOCALIZED.FRIENDSLISTLEGENDROOM, nil, nil, FONTS.LMEDIUM, nil, 0.65)
+				pos = { 10 + friendName.shift.x + friendName.size.w, topBar.size.h / 2 + 10 },
+				size = { (friendElement.size.w - friendName.shift.x - friendName.size.w) / 2, topBar.size.h / 2 - 15 }
+			}):addAdaptedText(TB_MENU_LOCALIZED.FRIENDSLISTLEGENDROOM, nil, nil, FONTS.LMEDIUM, CENTERBOT, 0.65)
 		end
 		local joinButton
 		if (v.online) then
@@ -282,9 +373,10 @@ function Friends:showFriendsList(viewElement)
 			end
 			friendElement.size.w = friendRemoveButton.shift.x - 5
 			friendRemoveButton:addMouseUpHandler(function()
-				Friends:removeFriend(v.username)
-				Friends:showFriends(viewElement.parent)
-			end)
+					self:removeFriend(v.username)
+					self.ListShift[3] = listingHolder.shift.y < 0 and -listingHolder.shift.y - listingHolder.size.h or 0
+					self:showFriends(viewElement)
+				end)
 			friendRemoveButton:addChild({
 				shift = { 5, 5 },
 				bgImage = "../textures/menu/general/buttons/crosswhite.tga"
@@ -313,137 +405,214 @@ function Friends:showFriendsList(viewElement)
 
 	local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
 	listingHolder.scrollBar = scrollBar
-	scrollBar:makeScrollBar(listingHolder, listElements, toReload)
 
-	local friendsRefresh = botBar:addChild({
-		shift = { botBar.size.w / 3, 5 },
-		interactive = true,
-		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
-		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+	self.ListShift[2] = #listElements * elementHeight
+	local targetListShift = self.ListShift[3] > self.ListShift[2] - listingHolder.size.h and self.ListShift[2] - listingHolder.size.h or self.ListShift[3]
+	self.ListShift[3] = scrollBar.parent.size.h - scrollBar.size.h
+	self.ListShift[1] = targetListShift / (self.ListShift[2] - listingHolder.size.h) * self.ListShift[3]
+	scrollBar:makeScrollBar(listingHolder, listElements, toReload, self.ListShift)
+end
+
+---@class IgnoreListMode
+---@field mode IgnoreMode
+---@field icon string
+---@field hint string
+
+---Returns table containing available ignore types
+---@return IgnoreListMode[]
+function Friends:getIgnoreTypes()
+	return {
+		{	mode = IGNORE_MODE.CHAT,		icon = "../textures/menu/general/buttons/chat.tga",			hint = TB_MENU_LOCALIZED.IGNORELISTCHAT			},
+		{	mode = IGNORE_MODE.SOUNDS,		icon = "../textures/menu/general/buttons/sound.tga",		hint = TB_MENU_LOCALIZED.IGNORELISTSOUNDS		},
+		{	mode = IGNORE_MODE.PARTICLES,	icon = "../textures/menu/general/buttons/particles.tga",	hint = TB_MENU_LOCALIZED.IGNORELISTPARTICLES	},
+		{	mode = IGNORE_MODE.MODELS,		icon = "../textures/menu/general/buttons/objitems.tga",		hint = TB_MENU_LOCALIZED.IGNORELISTMODELS		}
+	}
+end
+
+---Displays ignore list manage window
+---@param username string
+---@param targetIgnoreMode ?IgnoreMode
+---@param onComplete ?function
+function Friends:manageIgnoreList(username, targetIgnoreMode, onComplete)
+	username = string.lower(username)
+	if (targetIgnoreMode == nil) then
+		---@diagnostic disable-next-line: cast-local-type
+		targetIgnoreMode = 0
+		for _, v in pairs(self.IgnoreList) do
+			if (v.name == username) then
+				targetIgnoreMode = v.mode
+			end
+		end
+	end
+
+	local overlay = TBMenu:spawnWindowOverlay()
+	local ignoreTypes = self:getIgnoreTypes()
+	local windowSize = {
+		x = math.min(WIN_W / 2, 650),
+		y = 140 + #ignoreTypes * 50
+	}
+	local manageWindow = overlay:addChild({
+		shift = { (WIN_W - windowSize.x) / 2, (WIN_H - windowSize.y) / 2 },
+		bgColor = TB_MENU_DEFAULT_BG_COLOR,
 		shapeType = ROUNDED,
 		rounded = 4
 	})
-	friendsRefresh:addAdaptedText(TB_MENU_LOCALIZED.FRIENDSLISTREFRESH)
-	friendsRefresh:addMouseUpHandler(function()
-			local friendsView = viewElement.parent
-			viewElement:kill()
-			Friends:getOnline(friendsView)
-		end)
-end
-
-function Friends:showFriends(viewElement)
-	viewElement:kill(true)
-	local headerTitle = UIElement:new({
-		parent = viewElement,
-		pos = { 0, 0 },
-		size = { viewElement.size.w, 50 }
-	})
-	local titleTextScale = 0.7
-	while (not headerTitle:uiText(TB_MENU_LOCALIZED.FRIENDSLISTTITLE, nil, nil, FONTS.BIG, 0, titleTextScale, nil, nil, nil, nil, nil, true)) do
-		titleTextScale = titleTextScale - 0.05
-	end
-	headerTitle:addCustomDisplay(true, function()
-			headerTitle:uiText(TB_MENU_LOCALIZED.FRIENDSLISTTITLE, nil, nil, FONTS.BIG, nil, titleTextScale)
-		end)
-
-	local friendsView = viewElement:addChild({
-		pos = { 0, headerTitle.size.h },
-		size = { viewElement.size.w, viewElement.size.h - headerTitle.size.h }
-	})
-	Friends:showFriendsList(friendsView)
-end
-
-function Friends:showMenu(viewElement)
-	local friendAddView = UIElement:new({
-		parent = viewElement,
-		pos = { 0, 0 },
-		size = { viewElement.size.w, viewElement.size.h / 4 }
-	})
-	local imageSize = viewElement.size.w / 4 * 5 < viewElement.size.h / 7 * 5 and viewElement.size.w / 4 * 5 or viewElement.size.h / 7 * 5
-	local friendImage = UIElement:new({
-		parent = viewElement,
-		pos = { imageSize > viewElement.size.w and -viewElement.size.w - (imageSize - viewElement.size.w) / 2 or (viewElement.size.w - imageSize) / 2, viewElement.size.h / 3 + (viewElement.size.h / 7 * 4 - imageSize) / 2 },
-		size = { imageSize, imageSize },
-		bgImage = "../textures/menu/friendslist.tga"
-	})
-	local friendAddTitle = UIElement:new({
-		parent = friendAddView,
-		pos = { 0, 0 },
-		size = { friendAddView.size.w, friendAddView.size.h / 2 }
-	})
-	friendAddTitle:addCustomDisplay(true, function()
-			friendAddTitle:uiText(TB_MENU_LOCALIZED.FRIENDSLISTADDFRIEND)
-		end)
-	local elementHeight = friendAddView.size.h / 2 > 30 and 30 or friendAddView.size.h / 2
-	local friendAddInputBG = UIElement:new({
-		parent = friendAddView,
-		pos = { elementHeight / 2, friendAddView.size.h / 2 },
-		size = { friendAddView.size.w - elementHeight, elementHeight },
-		shapeType = ROUNDED,
-		rounded = 3
-	})
-	friendAddInputBG:addCustomDisplay(true, function() end)
-	local friendAddInputField = TBMenu:spawnTextField2(friendAddInputBG, {
-		w = friendAddInputBG.size.w - elementHeight - 5
-	}, nil, TB_MENU_LOCALIZED.FRIENDSLISTSEARCHDEFAULT, {
-		fontId = 4,
-		textScale = 0.75,
-		textColor = UICOLORWHITE
-	})
-	friendAddInputField:addEnterAction(function()
-			Friends:addFriend(friendAddInputField.textfieldstr[1])
-			Friends:showMain(viewElement.parent)
-		end)
-	local addFriendButton = UIElement:new({
-		parent = friendAddInputBG,
-		pos = { -elementHeight, 0 },
-		size = { elementHeight, elementHeight },
+	local closeButton = manageWindow:addChild({
+		pos = { -50, 10 },
+		size = { 40, 40 },
 		interactive = true,
-		bgColor = { 0, 0, 0, 0.3 },
-		hoverColor = { 0, 0, 0, 0.6 },
-		pressedColor = { 0, 1, 0, 0.6 },
-		shapeType = ROUNDED,
-		rounded = 3
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+	}, true)
+	closeButton:addChild({ shift = { 5, 5 }, bgImage = "../textures/menu/general/buttons/cross.tga" })
+	closeButton:addMouseUpHandler(function()
+			overlay:kill()
+		end)
+
+	local manageTitle = manageWindow:addChild({
+		pos = { 10, 10 },
+		size = { manageWindow.size.w - 60, 40 }
 	})
-	addFriendButton:addCustomDisplay(false, function()
-			set_color(1, 1, 1, 1)
-			draw_quad(	addFriendButton.pos.x + addFriendButton.size.w / 2 - 1,
-						addFriendButton.pos.y + addFriendButton.size.h / 6,
-						2,
-						addFriendButton.size.h / 6 * 4	)
-			draw_quad(	addFriendButton.pos.x + addFriendButton.size.w / 6,
-						addFriendButton.pos.y + addFriendButton.size.h / 2 - 1,
-						addFriendButton.size.w / 6 * 4,
-						2	)
+	manageTitle:addAdaptedText(true, TB_MENU_LOCALIZED.IGNORELISTMANAGEWINDOW .. " " .. username, nil, nil, FONTS.BIG, LEFTMID, 0.65, nil, 0.4)
+
+	local applyButton = manageWindow:addChild({
+		pos = { manageWindow.size.w / 4, -60 },
+		size = { manageWindow.size.w / 2, 50 },
+		interactive = true,
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+	}, true)
+	applyButton:addChild({ shift = { 10, 5 } }):addAdaptedText(true, TB_MENU_LOCALIZED.WORDAPPLY)
+	applyButton:addMouseUpHandler(function()
+			self:removeIgnore(username, IGNORE_MODE.ALL)
+			if (targetIgnoreMode ~= 0) then
+				---@diagnostic disable-next-line: param-type-mismatch
+				self:addIgnore(username, targetIgnoreMode)
+			end
+			overlay:kill()
+			if (onComplete ~= nil) then
+				onComplete()
+			end
 		end)
-	addFriendButton:addMouseHandlers(nil, function()
-			Friends:addFriend(friendAddInputField.textfieldstr[1])
-			Friends:showMain(viewElement.parent)
-		end)
+	for i, v in pairs(ignoreTypes) do
+		local typeHolder = manageWindow:addChild({
+			pos = { 40, 70 + 50 * (i - 1) },
+			size = { manageWindow.size.w - 80, 50 }
+		}, true)
+		local typeInfo = typeHolder:addChild({
+			pos = { 0, 10 },
+			size = { typeHolder.size.w * 0.8, 30 }
+		})
+		typeInfo:addAdaptedText(true, v.hint, nil, nil, nil, LEFTMID)
+		TBMenu:spawnToggle(typeHolder, -40, 5, 40, 40, bit.band(v.mode, targetIgnoreMode) ~= 0, function(val)
+				if (val) then
+					targetIgnoreMode = bit.bor(targetIgnoreMode, v.mode)
+				else
+					targetIgnoreMode = bit.bxor(targetIgnoreMode, bit.band(targetIgnoreMode, v.mode))
+				end
+			end)
+	end
+end
+
+---Displays ignore list in a UIElement viewport
+---@param viewElement UIElement
+function Friends:showIgnoreList(viewElement)
+	viewElement:kill(true)
+
+	local elementHeight = 40
+	local toReload, topBar, botBar, _, listingHolder = TBMenu:prepareScrollableList(viewElement, elementHeight, elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
+	TBMenu:addBottomBloodSmudge(botBar, 1)
+	topBar:addChild({ shift = { 10, 5 } }):addAdaptedText(TB_MENU_LOCALIZED.IGNORELISTTITLE, nil, nil, FONTS.BIG, nil, 0.65, nil, 0.4)
+
+	local ignoreTypes = self:getIgnoreTypes()
+	local listElements = {}
+	for _, v in pairs(self.IgnoreList) do
+		local elementHolder = listingHolder:addChild({
+			pos = { 0, #listElements * elementHeight },
+			size = { listingHolder.size.w, elementHeight }
+		})
+		table.insert(listElements, elementHolder)
+		local element = elementHolder:addChild({
+			pos = { 5, 2 },
+			size = { elementHolder.size.w - 5, elementHolder.size.h - 4 },
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			shapeType = ROUNDED,
+			rounded = 4
+		})
+		local iconHolderWidth = math.min((#ignoreTypes + 1) * element.size.h, element.size.w / 2)
+		local iconButtonWidth = iconHolderWidth / (#ignoreTypes + 1)
+		local nameHolder = element:addChild({
+			pos = { 10, 3 },
+			size = { element.size.w - iconHolderWidth - 30, element.size.h - 6 }
+		})
+		nameHolder:addAdaptedText(true, v.name, nil, nil, FONTS.LMEDIUM, LEFTMID, 0.7)
+
+		local editButton = element:addChild({
+			pos = { -iconButtonWidth + 3, (element.size.h - iconButtonWidth + 6) / 2 },
+			size = { iconButtonWidth - 6, iconButtonWidth - 6 },
+			interactive = true,
+			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			hoverColor = TB_MENU_DEFAULT_BG_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+		}, true)
+		editButton:addChild({ shift = { 3, 3 }, bgImage = "../textures/menu/general/buttons/edit.tga" })
+		editButton:addMouseUpHandler(function()
+				self:manageIgnoreList(v.name, v.mode, function()
+						self:showIgnoreList(viewElement)
+					end)
+			end)
+
+		local iconsDisplayed = 1
+		for _, ignore in pairs(ignoreTypes) do
+			if (bit.band(ignore.mode, v.mode) ~= 0) then
+				iconsDisplayed = iconsDisplayed + 1
+				local icon = element:addChild({
+					pos = { -iconButtonWidth * iconsDisplayed, (element.size.h - iconButtonWidth) / 2 },
+					size = { iconButtonWidth, iconButtonWidth },
+					bgImage = ignore.icon,
+					interactive = true,
+					imageColor = { 1, 1, 1, 0.9 },
+					imageHoverColor = UICOLORWHITE,
+					imagePressedColor = UICOLORWHITE
+				})
+				local popup = TBMenu:displayPopup(icon, ignore.hint, true)
+				popup:moveTo(-popup.size.w - iconButtonWidth - 5)
+			end
+		end
+	end
+
+	for _, v in pairs(listElements) do
+		v:hide()
+	end
+
+	local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
+	listingHolder.scrollBar = scrollBar
+	scrollBar:makeScrollBar(listingHolder, listElements, toReload)
 end
 
 function Friends:showMain(viewElement)
 	usage_event("friendslist")
 	viewElement:kill(true)
 	TB_MENU_SPECIAL_SCREEN_ISOPEN = 8
-	local friendsView = UIElement:new({
-		parent = viewElement,
+
+	self.ListShift = { 0, 0, 0 }
+	local friendsView = viewElement:addChild({
 		pos = { 5, 0 },
 		size = { viewElement.size.w * 0.7 - 10, viewElement.size.h },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR
 	})
 	TBMenu:addBottomBloodSmudge(friendsView, 1)
-	Friends:getOnline(friendsView)
+	self:getOnline(friendsView)
 
-	local friendsMenu = UIElement:new({
-		parent = viewElement,
+	local friendsMenu = viewElement:addChild({
 		pos = { friendsView.size.w + 15, 0 },
 		size = { viewElement.size.w - friendsView.size.w - 20, viewElement.size.h },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR
 	})
 	TBMenu:addBottomBloodSmudge(friendsMenu, 2)
-	Friends:showMenu(friendsMenu)
+	self:showIgnoreList(friendsMenu)
 end
 
 Friends.Init()
