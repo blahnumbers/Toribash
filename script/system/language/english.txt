@@ -1244,3 +1244,4 @@ IGNORELISTPARTICLES	Player flame particles
 IGNORELISTMANAGEWINDOW	Ignore settings for
 IGNORELISTINPUTHINT	Enter user name to ignore
 IGNORELISTADDERRORNAMEINVALID	Please enter a valid username to add the player to your ignore list
+QUEUELISTIGNORESETTINGS	Ignore settings

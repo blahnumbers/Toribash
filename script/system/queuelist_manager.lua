@@ -184,7 +184,7 @@ function QueueList:addPlayerInfos(viewElement, info)
 		clanHolder = UIElement:new({
 			parent = viewElement,
 			pos = { 0, infosH },
-			size = { viewElement.size.w, 25 },
+			size = { viewElement.size.w, 30 },
 			interactive = true,
 			bgColor = TB_MENU_DEFAULT_BG_COLOR,
 			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
@@ -196,7 +196,7 @@ function QueueList:addPlayerInfos(viewElement, info)
 			pos = { 75, 5 },
 			size = { clanHolder.size.w - 90, clanHolder.size.h - 10 }
 		})
-		clanNameHolder:addAdaptedText(true, info.pInfo.clan.tag .. " " .. info.pInfo.clan.name .. (info.pInfo.clan.isleader and " (" .. TB_MENU_LOCALIZED.QUEUELISTDROPDOWNCLANLEADER .. ")" or ""), nil, nil, 4, LEFTMID, nil, 0.6)
+		clanNameHolder:addAdaptedText(true, info.pInfo.clan.tag .. " " .. info.pInfo.clan.name .. (info.pInfo.clan.isleader and " (" .. TB_MENU_LOCALIZED.QUEUELISTDROPDOWNCLANLEADER .. ")" or ""), nil, nil, FONTS.LMEDIUM, LEFTMID, nil, 0.55)
 		clanHolder:addMouseHandlers(nil, function()
 				QueueList.DestroyPopup()
 				ARG1 = "clans " .. info.nick
@@ -346,39 +346,40 @@ end
 ---@param pName string
 function QueueList:report(pName)
 	local overlay = TBMenu:spawnWindowOverlay()
-	overlay:addMouseHandlers(nil, function() overlay:kill() end)
+	local windowSize = {
+		x = math.min(WIN_W * 0.6, 800),
+		y = 400
+	}
 	local reportHolder = overlay:addChild({
-		shift = { WIN_W / 5, WIN_H / 2 - 220 },
+		shift = { (WIN_W - windowSize.x) / 2, (WIN_H - windowSize.y) / 2 },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR,
 		interactive = true,
 		shapeType = ROUNDED,
 		rounded = 4
 	})
 	local reportHeader = reportHolder:addChild({
-		pos = { 50, 10 },
-		size = { reportHolder.size.w - 100, 35 }
+		pos = { 60, 10 },
+		size = { reportHolder.size.w - 120, 35 }
 	})
 	reportHeader:addAdaptedText(true, TB_MENU_LOCALIZED.REPORTSREPORTINGPLAYER .. ": " .. pName, nil, nil, FONTS.BIG)
 
 	local reportClose = reportHolder:addChild({
-		pos = { -40, 5 },
-		size = { 35, 35 },
-		shapeType = ROUNDED,
-		rounded = 4,
+		pos = { -50, 10 },
+		size = { 40, 40 },
 		interactive = true,
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
-	})
-	reportClose:addMouseHandlers(nil, overlay.btnUp)
+	}, true)
+	reportClose:addMouseHandlers(nil, function() overlay:kill() end)
 	local reportCloseIcon = reportClose:addChild({
 		shift = { 5, 5 },
 		bgImage = "../textures/menu/general/buttons/crosswhite.tga"
 	})
 
 	local reportReasonHolder = reportHolder:addChild({
-		pos = { 20, reportHeader.size.h + reportHeader.shift.y * 2 },
-		size = { reportHolder.size.w - 40, 40 }
+		pos = { 60, reportHeader.size.h + reportHeader.shift.y * 4 },
+		size = { reportHolder.size.w - 120, 40 }
 	})
 	local reportReasonText = reportReasonHolder:addChild({
 		pos = { 0, 0 },
@@ -426,18 +427,18 @@ function QueueList:report(pName)
 	TBMenu:spawnDropdown(reportReasonDropdown, reportDropdown, 30, WIN_H - 100, nil, { scale = 0.7 }, { scale = 0.6 })
 
 	local extraMessageHolder = reportHolder:addChild({
-		pos = { 20, reportReasonHolder.size.h + reportReasonHolder.shift.y + reportHeader.shift.y },
-		size = { reportHolder.size.w - 40, reportHolder.size.h - reportReasonHolder.size.h - reportReasonHolder.shift.y - reportHeader.shift.y * 2 - 100 },
+		pos = { reportReasonHolder.shift.x, reportReasonHolder.size.h + reportReasonHolder.shift.y + reportHeader.shift.y },
+		size = { reportReasonHolder.size.w, reportHolder.size.h - reportReasonHolder.size.h - reportReasonHolder.shift.y - reportHeader.shift.y * 2 - 120 },
 		uiColor = UICOLORWHITE
 	}, true)
 	local extraMessageTitle = extraMessageHolder:addChild({
 		size = { extraMessageHolder.size.w, 25 },
 		uiColor = { 1, 1, 1, 0.9 }
 	})
-	extraMessageTitle:addAdaptedText(true, TB_MENU_LOCALIZED.REPORTSEXTRAMESSAGE, nil, nil, 4, LEFTMID, 0.7)
+	extraMessageTitle:addAdaptedText(true, TB_MENU_LOCALIZED.REPORTSEXTRAMESSAGE, nil, nil, FONTS.LMEDIUM, LEFTMID, 0.7)
 
 	local extraMessage = TBMenu:spawnTextField2(extraMessageHolder, {
-			y = extraMessageTitle.size.h,
+			y = extraMessageTitle.size.h + 3,
 			h = extraMessageHolder.size.h - extraMessageTitle.size.h },
 		nil, TB_MENU_LOCALIZED.REPORTSEXTRAMESSAGETIP, {
 			fontId = FONTS.SMALL,
@@ -446,10 +447,10 @@ function QueueList:report(pName)
 			darkerMode = true
 		})
 	local chatlogInfo = reportHolder:addChild({
-		pos = { 20, extraMessageHolder.size.h + extraMessageHolder.shift.y + 5 },
-		size = { reportHolder.size.w - 40, 40 }
+		pos = { reportReasonHolder.shift.x, extraMessageHolder.size.h + extraMessageHolder.shift.y + 5 },
+		size = { reportReasonHolder.size.w, 40 }
 	})
-	chatlogInfo:addAdaptedText(true, TB_MENU_LOCALIZED.REPORTSCHATLOGINFO .. "\n" .. TB_MENU_LOCALIZED.REPORTSABUSENOTICE, nil, nil, 4, LEFTMID, 0.6)
+	chatlogInfo:addAdaptedText(true, TB_MENU_LOCALIZED.REPORTSCHATLOGINFO .. "\n" .. TB_MENU_LOCALIZED.REPORTSABUSENOTICE, nil, nil, FONTS.LMEDIUM, nil, 0.6)
 	local submitReport = reportHolder:addChild({
 		pos = { reportHolder.size.w / 4, -50 },
 		size = { reportHolder.size.w / 2, 40 },
@@ -646,7 +647,7 @@ end
 ---@return integer #Added buttons' height
 function QueueList:addPlayerControls(viewElement, info, userinfo)
 	local isFriend = Friends:isFriend(info.pInfo.username)
-	local isIgnored = Friends:isIgnored(info.pInfo.username)
+	local isIgnored = Friends:isIgnored(info.pInfo.username, IGNORE_MODE.CHAT)
 
 	local showControls, showAdvControls = false, false
 	if (userinfo.admin or userinfo.eventsquad or userinfo.helpsquad) then
@@ -687,15 +688,9 @@ function QueueList:addPlayerControls(viewElement, info, userinfo)
 		},
 		{
 			name = "ignore",
-			show = not isIgnored,
-			text = TB_MENU_LOCALIZED.QUEUELISTDROPDOWNIGNORE,
-			action = function(s) Friends:addIgnore(s) end
-		},
-		{
-			name = "unignore",
-			show = isIgnored,
-			text = TB_MENU_LOCALIZED.QUEUELISTDROPDOWNUNIGNORE,
-			action = function(s) Friends:removeIgnore(s) end
+			show = true,
+			text = TB_MENU_LOCALIZED.QUEUELISTIGNORESETTINGS,
+			action = function(s) Friends:manageIgnoreList(s) end
 		},
 		{
 			name = "report",
@@ -794,11 +789,11 @@ function QueueList:addPlayerControls(viewElement, info, userinfo)
 		},
 	}
 
-	local infoH, buttonH = viewElement.size.h + 5, 25
+	local infoH, buttonH = viewElement.size.h + 5, 30
 	if (not info.isMe) then
 		local separator = viewElement:addChild({
-			pos = { 20, viewElement.size.h + 2 },
-			size = { viewElement.size.w - 40, 1 },
+			pos = { 10, viewElement.size.h + 2 },
+			size = { viewElement.size.w - 20, 1 },
 			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR
 		})
 
@@ -815,7 +810,7 @@ function QueueList:addPlayerControls(viewElement, info, userinfo)
 				local textHolder = contextButton:addChild({
 					shift = { 15, 5 }
 				})
-				textHolder:addAdaptedText(true, v.text, nil, nil, 4, LEFTMID)
+				textHolder:addAdaptedText(true, v.text, nil, nil, FONTS.LMEDIUM, LEFTMID, 0.75)
 				contextButton:addMouseHandlers(nil, function()
 						local rVal = v.action(info.pInfo.username)
 						if (not rVal) then
@@ -832,8 +827,8 @@ function QueueList:addPlayerControls(viewElement, info, userinfo)
 	if (showControls) then
 		local cSeparator = UIElement:new({
 			parent = viewElement,
-			pos = { 20, infoH + 2 },
-			size = { viewElement.size.w - 40, 1 },
+			pos = { 10, infoH + 2 },
+			size = { viewElement.size.w - 20, 1 },
 			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR
 		})
 		infoH = infoH + 5
@@ -851,7 +846,7 @@ function QueueList:addPlayerControls(viewElement, info, userinfo)
 				local textHolder = contextButton:addChild({
 					shift = { 15, 5 }
 				})
-				textHolder:addAdaptedText(true, v.text, nil, nil, 4, LEFTMID)
+				textHolder:addAdaptedText(true, v.text, nil, nil, FONTS.LMEDIUM, LEFTMID, 0.75)
 				contextButton:addMouseHandlers(nil, function()
 						---@diagnostic disable-next-line: redundant-parameter
 						if (not v.action(info.pInfo.username, contextButton)) then
@@ -864,8 +859,8 @@ function QueueList:addPlayerControls(viewElement, info, userinfo)
 
 		local gSeparator = UIElement:new({
 			parent = viewElement,
-			pos = { 20, infoH + 2 },
-			size = { viewElement.size.w - 40, 1 },
+			pos = { 10, infoH + 2 },
+			size = { viewElement.size.w - 20, 1 },
 			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR
 		})
 		infoH = infoH + 5
@@ -892,8 +887,11 @@ end
 ---Spawns player info display window
 ---@param info QueueListPlayerInfo
 function QueueList:show(info)
+	if (not info or info.pInfo.username == "") then
+		return
+	end
 	local userinfo = QueueList:getCurrentPlayerInfo()
-	if (not info or not userinfo) then
+	if (not userinfo) then
 		return
 	end
 
