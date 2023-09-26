@@ -228,7 +228,7 @@ FRIENDSLISTREFRESH	Refresh
 FRIENDSLISTADDFRIEND	Add new friend
 FRIENDSLISTEMPTY	Friends List Empty
 FRIENDSLISTEMPTYINFO	Add other players or whole clans to your friends list to know when they're online!
-FRIENDSLISTSEARCHDEFAULT	Type a name or clan tag in brackets
+FRIENDSLISTSEARCHDEFAULT	Enter user name or clan tag with brackets
 BUTTONSAVE	Save
 BUTTONDISCARD	Discard
 BUTTONCANCEL	Cancel
@@ -1235,7 +1235,6 @@ EVENTSLOADCUSTOMREPLAYNOHOTKEY	Load replay
 SETTINGSONLYSHOWMINE	Only show mine
 SETTINGSCOMICFX	Hit & Comic Effects
 SETTINGSGHOSTOBJ	3D objects' ghosts
-FRIENDSADDERRORNAMEEMPTY	Please enter the player's name to add them to your friends list
 FRIENDSADDERRORNAMEINVALID	Please enter a valid username to add the player to your friends list
 IGNORELISTTITLE	Ignore List
 IGNORELISTCHAT	Chat messages
@@ -1243,3 +1242,5 @@ IGNORELISTSOUNDS	Player sounds
 IGNORELISTMODELS	Player 3D items
 IGNORELISTPARTICLES	Player flame particles
 IGNORELISTMANAGEWINDOW	Ignore settings for
+IGNORELISTINPUTHINT	Enter user name to ignore
+IGNORELISTADDERRORNAMEINVALID	Please enter a valid username to add the player to your ignore list

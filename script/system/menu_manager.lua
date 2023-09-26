@@ -1270,7 +1270,7 @@ function TBMenu:showStatusMessage(message, time)
 
 	TBMenu.StatusMessage.startTime = UIElement.clock
 	TBMenu.StatusMessage.endTime = UIElement.clock + time + 0.5
-	local targetOffsetY = WIN_H - TBMenu.StatusMessage.size.h - 10
+	local targetOffsetY = WIN_H - TBMenu.StatusMessage.size.h - math.max(10, SAFE_Y)
 	TBMenu.StatusMessage:addCustomDisplay(false, function()
 			if (TBMenu.StatusMessage.pos.y > targetOffsetY) then
 				local tweenRatio = (UIElement.clock - TBMenu.StatusMessage.startTime) * 2

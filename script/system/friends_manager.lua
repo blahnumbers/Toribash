@@ -271,7 +271,7 @@ function Friends:showFriends(viewElement)
 		end)
 	local addFriendAction = function()
 		if (string.len(addFriendInput.textfieldstr[1]) == 0) then
-			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.FRIENDSADDERRORNAMEEMPTY)
+			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.FRIENDSADDERRORNAMEINVALID)
 			return
 		end
 		self:addFriend(addFriendInput.textfieldstr[1])
@@ -522,9 +522,43 @@ function Friends:showIgnoreList(viewElement)
 	viewElement:kill(true)
 
 	local elementHeight = 40
-	local toReload, topBar, botBar, _, listingHolder = TBMenu:prepareScrollableList(viewElement, elementHeight, elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
+	local toReload, topBar, botBar, _, listingHolder = TBMenu:prepareScrollableList(viewElement, elementHeight, elementHeight + 10, 20, TB_MENU_DEFAULT_BG_COLOR)
 	TBMenu:addBottomBloodSmudge(botBar, 1)
 	topBar:addChild({ shift = { 10, 5 } }):addAdaptedText(TB_MENU_LOCALIZED.IGNORELISTTITLE, nil, nil, FONTS.BIG, nil, 0.65, nil, 0.4)
+
+	local ignoreInputHolder = botBar:addChild({
+		shift = { 10, 5 },
+		shapeType = ROUNDED,
+		rounded = 4
+	})
+	local ignoreInputBackdrop = ignoreInputHolder:addChild({
+		shift = { 10, 0 },
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR
+	})
+	local ignoreInput = TBMenu:spawnTextField2(ignoreInputHolder, { w = ignoreInputHolder.size.w - ignoreInputHolder.size.h	}, nil, TB_MENU_LOCALIZED.IGNORELISTINPUTHINT, { fontId = FONTS.LMEDIUM, textScale = 0.7 })
+	ignoreInput:addInputCallback(function()
+			local username = string.gsub(ignoreInput.textfieldstr[1], "[^a-zA-Z0-9_-]", "")
+			ignoreInput.textfieldstr[1] = username
+			ignoreInput.textfieldindex = utf8.len(username)
+		end)
+	local addIgnoreAction = function()
+		if (string.len(ignoreInput.textfieldstr[1]) == 0) then
+			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.IGNORELISTADDERRORNAMEINVALID)
+			return
+		end
+		self:manageIgnoreList(ignoreInput.textfieldstr[1], nil, function() self:showIgnoreList(viewElement) end)
+	end
+	ignoreInput:addEnterAction(addIgnoreAction)
+	local ignoreAddButton = ignoreInputHolder:addChild({
+		pos = { -ignoreInputHolder.size.h, 0 },
+		size = { ignoreInputHolder.size.h, ignoreInputHolder.size.h },
+		interactive = true,
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+		bgImage = "../textures/menu/general/buttons/addsign.tga"
+	}, true)
+	ignoreAddButton:addMouseUpHandler(addIgnoreAction)
 
 	local ignoreTypes = self:getIgnoreTypes()
 	local listElements = {}
