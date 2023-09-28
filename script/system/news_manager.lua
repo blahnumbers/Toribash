@@ -41,7 +41,7 @@ function News:getDefaultNews()
 			subtitle = "",
 			ratio = 0.5,
 			image = "../textures/menu/promo/toribash.tga",
-			action = function() end,
+			action = function() open_url("https://forum.toribash.com/forumdisplay.php?f=35") end,
 			disableUnload = true,
 			isRead = true
 		},
@@ -51,7 +51,7 @@ function News:getDefaultNews()
 			ratio = 0.66,
 			featured = true,
 			image = "../textures/menu/promo/noevents-placeholder.tga",
-			action = function() end,
+			action = function() open_url("https://forum.toribash.com/forumdisplay.php?f=37") end,
 			disableUnload = true,
 			isRead = true
 		}
@@ -174,7 +174,7 @@ function News:getNews(reload)
 			imageFile:close()]]
 		elseif (ln:find("^IMAGE 0;")) then
 			local imageName = ln:gsub("^IMAGE 0;", "")
-			newsData[#newsData].image = { "../textures/menu/promo/" .. imageName, "../textures/menu/promo/toribash.tga" }
+			newsData[#newsData].image = { "../textures/menu/promo/" .. imageName, newsData[#newsData].featured and "../textures/menu/promo/noevents-placeholder.tga" or "../textures/menu/promo/toribash.tga" }
 
 			local imageFile = Files.Open("../data/textures/menu/promo/" .. imageName)
 			if (not imageFile.data) then
@@ -211,6 +211,9 @@ function News:getNews(reload)
 			newsData[#newsData].action = function() Torishop:showCollectorsCards(id) end
 		elseif (ln:find("^FEATURED 0;")) then
 			newsData[#newsData].featured = true
+			if (newsData[#newsData].image) then
+				newsData[#newsData].image[2] = "../textures/menu/promo/noevents-placeholder.tga"
+			end
 			newsData[#newsData].ratio = 0.66
 		end
 		if (ln:find("^EVENTID")) then
@@ -218,17 +221,25 @@ function News:getNews(reload)
 		end
 	end
 
-	if (TB_MENU_PLAYER_INFO.username == '' or TB_MENU_PLAYER_INFO.data.qi < BattlePass.QiRequirement) then
-		local newsItems = 0
-		for i, v in pairs(newsData) do
-			if (v.isBattlePass) then
+	local defaultNews = self:getDefaultNews()
+	if (TB_MENU_PLAYER_INFO.username == '') then
+		for i = #newsData, 1, -1 do
+			if (newsData[i].featured) then
 				table.remove(newsData, i)
-			elseif (not v.featured) then
+			end
+		end
+		table.insert(newsData, defaultNews[2])
+	end
+	if (TB_MENU_PLAYER_INFO.data.qi < BattlePass.QiRequirement) then
+		local newsItems = 0
+		for i = #newsData, 1, -1 do
+			if (newsData[i].isBattlePass) then
+				table.remove(newsData, i)
+			elseif (not newsData[i].featured) then
 				newsItems = newsItems + 1
 			end
 		end
 		if (newsItems == 0) then
-			local defaultNews = self:getDefaultNews()
 			table.insert(newsData, defaultNews[1])
 		end
 	end

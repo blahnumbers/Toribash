@@ -361,8 +361,8 @@ end
 ---@param ruleId integer
 ---@param changedValues Gamerule[]
 ---@param updateFunc function
----@param prevInput UIElement
----@return UIElement
+---@param prevInput? UIElement
+---@return UIElement?
 function Gamerules.showGamerule(v, listingHolder, elementHeight, listElements, sectionId, ruleId, changedValues, updateFunc, prevInput)
 	local xShift = (not in_array(sectionId, { GAMERULES_SECTION_DEFAULT, GAMERULES_SECTION_MISC}) and ruleId > 1) and 10 or 0
 	local grHolderMain = listingHolder:addChild({
@@ -775,6 +775,7 @@ function Gamerules.spawnMainList(listingHolder, toReload, gameRulesName, element
 	local searchStr = search and search.textfieldstr[1] or ''
 	gameRulesName:addAdaptedText(true, TB_MENU_LOCALIZED.MAINMENUGAMERULESNAME .. ((search and searchStr ~= "") and (": \"" .. searchStr:sub(0, 16) .. (searchStr:len() > 16 and "..." or '') .. "\"") or ""), nil, nil, FONTS.BIG, nil, 0.6)
 
+	searchStr = string.escape(searchStr)
 	local thisFunc = function()
 		Gamerules.spawnMainList(listingHolder, toReload, gameRulesName, elementHeight, search, gamerules, changedValues)
 	end
@@ -816,7 +817,9 @@ function Gamerules.spawnMainList(listingHolder, toReload, gameRulesName, element
 			end
 			if (switchTarget) then
 				if (switchNext) then
-					lastInput.tabswitchprevaction()
+					if (lastInput) then
+						lastInput.tabswitchprevaction()
+					end
 				else
 					switchTarget.tabswitchaction()
 				end

@@ -474,7 +474,9 @@ function Replays.ParseServerReplaysData(data)
 					tags = data_stream[9],
 					uservote = tonumber(data_stream[10]) or 0
 				}
-				table.insert(Replays.ServerCache, info)
+				if (info.author ~= nil) then
+					table.insert(Replays.ServerCache, info)
+				end
 			end)
 		end
 	end
@@ -592,7 +594,7 @@ function Replays:findReplays(str, rplTable, searchResults)
 	local searchStringRaw = type(str) == "table" and str[1]:lower() or str:lower()
 	local searchStrings = {}
 	for i in string.gmatch(searchStringRaw, "[^ ]+") do
-		table.insert(searchStrings, i)
+		table.insert(searchStrings, string.escape(i))
 	end
 
 	for _, folder in pairs(rplTable.folders) do
@@ -1476,7 +1478,7 @@ function Replays:showEditFolderWindow(folder)
 			local function delete_folder(folder)
 				local parentFolder = folder.fullname:gsub("/" .. folder.name .. "$", "")
 				local error = remove_replay_subfolder(folder.fullname:gsub("^replay/", ""))
-				if (error) then
+				if (error ~= nil) then
 					TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORDELETING .. " " .. TB_MENU_LOCALIZED.REPLAYSERRORDELETINGFOLDER .. " " .. folder.fullname .. ": " .. error)
 					return
 				end
@@ -1495,7 +1497,7 @@ function Replays:showEditFolderWindow(folder)
 					for _, v in pairs(folder.replays) do
 						local newFilename = targetFolder .. v.filename:gsub("^.*/", "")
 						local error = rename_replay(v.filename, newFilename)
-						if (error) then
+						if (error ~= nil) then
 							TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORMOVING .. " " .. v.filename .. " " .. TB_MENU_LOCALIZED.REPLAYSERRORMOVINGTO .. " " .. newFilename .. ": " .. error)
 							return
 						end
@@ -1523,7 +1525,7 @@ function Replays:showEditFolderWindow(folder)
 				return
 			end
 			local error = rename_replay_subfolder(SELECTED_FOLDER.fullname:gsub("^replay/", ""), parentFolder:gsub("^replay/", "") .. newFolderName)
-			if (error) then
+			if (error ~= nil) then
 				TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORRENAMINGFOLDER .. ": " .. error)
 				return
 			end
@@ -1596,9 +1598,9 @@ function Replays:showNewFolderWindow()
 		local parentFolder = utf8.gsub(SELECTED_FOLDER.fullname, "^replay/*", "")
 		parentFolder = parentFolder:len() > 0 and parentFolder .. "/" or parentFolder
 		local newFolderName = parentFolder .. newFolderInput.textfieldstr[1]:gsub(" +$", "")
-		local result = add_replay_subfolder(newFolderName)
-		if (result) then
-			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORADDINGFOLDER .. ": " .. result)
+		local error = add_replay_subfolder(newFolderName)
+		if (error ~= nil) then
+			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORADDINGFOLDER .. ": " .. error)
 			return
 		end
 		newFolderOverlay:kill()
@@ -1904,7 +1906,7 @@ function Replays:showReplayManageWindow(viewElement, replay)
 	}, true)
 	saveButton:addAdaptedText(TB_MENU_LOCALIZED.BUTTONSAVE)
 
-	saveButton:addMouseHandlers(nil, function()
+	saveButton:addMouseUpHandler(function()
 			local newReplay = ReplayInfo.New(replay)
 			newReplay.name = replayData[2].value[1]
 
@@ -1916,7 +1918,7 @@ function Replays:showReplayManageWindow(viewElement, replay)
 				local curname = replay.filename:gsub("^replay/", "")
 				local error = rename_replay(curname, newname)
 				if (error ~= nil) then
-					TBMenu:showStatusMessage((fileMove and TB_MENU_LOCALIZED.REPLAYSERRORMOVINGREPLAY or TB_MENU_LOCALIZED.REPLAYSERRORRENAMINGREPLAY) .. ": " .. result)
+					TBMenu:showStatusMessage((fileMove and TB_MENU_LOCALIZED.REPLAYSERRORMOVINGREPLAY or TB_MENU_LOCALIZED.REPLAYSERRORRENAMINGREPLAY) .. ": " .. error)
 					return
 				end
 				newReplay.filename = "replay/" .. newname
@@ -1942,9 +1944,9 @@ function Replays:showReplayManageWindow(viewElement, replay)
 	deleteButton:addAdaptedText(TB_MENU_LOCALIZED.WORDDELETE)
 	deleteButton:addMouseHandlers(nil, function()
 			TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.REPLAYSCONFIRMDELETION .. " " .. replay.filename:gsub("^.*/", "") .. " " .. TB_MENU_LOCALIZED.REPLAYSCONFIRMDELETION2, function()
-					local result = delete_replay(replay.filename:gsub("^replay/", ""))
-					if (result) then
-						TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORDELETING .. " " .. TB_MENU_LOCALIZED.REPLAYSREPLAY)
+					local error = delete_replay(replay.filename:gsub("^replay/", ""))
+					if (error ~= nil) then
+						TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORDELETING .. " " .. TB_MENU_LOCALIZED.REPLAYSREPLAY .. ": " .. error)
 						return
 					end
 					manageOverlay:kill()

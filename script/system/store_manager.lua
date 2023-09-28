@@ -218,6 +218,9 @@ function Torishop:getModelsData()
 	if (not file.data) then
 		return { failed = true }
 	end
+	local fileData = file:readAll()
+	file:close()
+
 	local data_types = {
 		{ "itemid", numeric = true },
 		{ "bodyid", numeric = true },
@@ -228,28 +231,29 @@ function Torishop:getModelsData()
 		{ "level", numeric = true }
 	}
 	local ModelsData = {}
-	for i, ln in pairs(file:readAll()) do
-		if string.match(ln, "^OBJ") then
-			local _, segments = ln:gsub("\t", "")
-			segments = segments
-			local data_stream = { ln:match(("([^\t]*)\t"):rep(segments)) }
-			local item = {}
-			for i,v in pairs(data_types) do
-				item[v[1]] = tonumber(data_stream[i + 1])
-				if (v.boolean) then
-					item[v[1]] = item[v[1]] == 1 and true or false
+	for _, ln in pairs(fileData) do
+		pcall(function()
+			if string.match(ln, "^OBJ") then
+				local _, segments = ln:gsub("\t", "")
+				segments = segments
+				local data_stream = { ln:match(("([^\t]*)\t"):rep(segments)) }
+				local item = {}
+				for i,v in pairs(data_types) do
+					item[v[1]] = tonumber(data_stream[i + 1])
+					if (v.boolean) then
+						item[v[1]] = item[v[1]] == 1 and true or false
+					end
+				end
+				if (item.level > 0) then
+					ModelsData[item.itemid] = ModelsData[item.itemid] or { itemid = item.itemid, levels = 0, upgradeable = true }
+					ModelsData[item.itemid][item.level] = item
+					ModelsData[item.itemid].levels = ModelsData[item.itemid].levels + 1
+				else
+					ModelsData[item.itemid] = item
 				end
 			end
-			if (item.level > 0) then
-				ModelsData[item.itemid] = ModelsData[item.itemid] or { itemid = item.itemid, levels = 0, upgradeable = true }
-				ModelsData[item.itemid][item.level] = item
-				ModelsData[item.itemid].levels = ModelsData[item.itemid].levels + 1
-			else
-				ModelsData[item.itemid] = item
-			end
-		end
+		end)
 	end
-	file:close()
 
 	return ModelsData
 end

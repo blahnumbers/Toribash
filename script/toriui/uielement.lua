@@ -2898,16 +2898,15 @@ end
 _G.string.escape = function(str)
 	-- escape % symbols
 	str = utf8.gsub(str, "%%", "%%%%")
-
 	-- escape other single special characters
-	local chars = ".+-*?^$"
+	local chars = ".+-*?^$[]()"
 	for i = 1, #chars do
 		local char = "%" .. utf8.sub(chars, i, i)
 		str = utf8.gsub(str, char, "%" .. char)
 	end
 
 	-- escape paired special characters
-	local paired = { {"%[", "%]"}, { "%(", "%)" } }
+	--[[local paired = { {"%[", "%]"}, { "%(", "%)" } }
 	for _, v in pairs(paired) do
 		local count = 0
 		for _, k in pairs(v) do
@@ -2920,7 +2919,7 @@ _G.string.escape = function(str)
 				str = utf8.gsub(str, k, "%" .. k)
 			end
 		end
-	end
+	end]]
 	return str
 end
 

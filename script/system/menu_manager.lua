@@ -528,7 +528,13 @@ function TBMenu:showHome()
 	else
 		viewEventsButton:kill()
 		featuredEvent.size.h = TBMenu.CurrentSection.size.h
-		viewEventsButtonData.subtitle = featuredEventData.title
+		if (TB_MENU_PLAYER_INFO.username == "") then
+			viewEventsButtonData.title = featuredEventData.title
+			viewEventsButtonData.subtitle = featuredEventData.subtitle
+			viewEventsButtonData.action = featuredEventData.action
+		else
+			viewEventsButtonData.subtitle = featuredEventData.title
+		end
 		viewEventsButtonData.image = featuredEventData.image
 		viewEventsButtonData.ratio = featuredEventData.ratio
 		TBMenu:showHomeButton(featuredEvent, viewEventsButtonData, 2)
@@ -774,7 +780,7 @@ function TBMenu:showReplays()
 	TBMenu.BottomLeftBar:hide()
 	TBMenu:clearNavSection()
 
-	if (TB_MENU_REPLAYS_ONLINE == 1) then
+	if (TB_MENU_REPLAYS_ONLINE == 1 and TB_MENU_PLAYER_INFO.username ~= "") then
 		TBMenu:showNavigationBar(Replays:getNavigationButtons(true), true)
 		local menubg = UIElement:new({
 			parent = TBMenu.CurrentSection,
@@ -3535,6 +3541,11 @@ end
 ---@param currentPage integer
 ---@return table
 function TBMenu:generatePaginationData(totalPages, maxPages, currentPage)
+	---Ensure data consistency, totalPages should be at least 1
+	---currentPage should be a value between 1 and totalPages
+	totalPages = math.max(totalPages, 1)
+	currentPage = math.clamp(currentPage, 1, totalPages)
+
 	local pagesButtonsPre, pagesButtons = {}, {}
 	local pagesNavArr = { 10, 50, 100, 500 }
 
@@ -3545,7 +3556,7 @@ function TBMenu:generatePaginationData(totalPages, maxPages, currentPage)
 	for i = math.max(1, currentPage - 1), math.min(currentPage + 1, totalPages) do
 		table.insert(pagesButtonsPre, { v = i })
 	end
-	for i,v in pairs(pagesNavArr) do
+	for _, v in pairs(pagesNavArr) do
 		if (currentPage - v > 1) then
 			table.insert(pagesButtonsPre, { v = currentPage - v })
 		end

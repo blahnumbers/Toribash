@@ -132,55 +132,59 @@ function Clans:getClanData(override)
 
 	for _, ln in pairs(fileData) do
 		if string.match(ln, "^CLAN") then
-			local _, segments = ln:gsub("\t", "")
-			local data_stream = { ln:match(("([^\t]*)\t"):rep(segments)) }
+			pcall(function()
+				local _, segments = ln:gsub("\t", "")
+				local data_stream = { ln:match(("([^\t]*)\t"):rep(segments)) }
 
-			local clanInfo = {}
-			for i, v in pairs(data_types) do
-				clanInfo[v[1]] = data_stream[i + 1]
-				if (v.numeric) then
-					clanInfo[v[1]] = tonumber(clanInfo[v[1]])
+				local clanInfo = {}
+				for i, v in pairs(data_types) do
+					clanInfo[v[1]] = data_stream[i + 1]
+					if (v.numeric) then
+						clanInfo[v[1]] = tonumber(clanInfo[v[1]])
+					end
+					if (v.boolean) then
+						clanInfo[v[1]] = clanInfo[v[1]] == "1"
+					end
 				end
-				if (v.boolean) then
-					clanInfo[v[1]] = clanInfo[v[1]] == "1"
-				end
-			end
 
-			local membersList = clanInfo.members
-			local leadersList = clanInfo.leaders
-			clanInfo.members, clanInfo.leaders = {}, {}
-			for player in membersList:gmatch("%S+") do
-				table.insert(clanInfo.members, player)
-			end
-			for player in leadersList:gmatch("%S+") do
-				---Insert leaders both to leaders list AND members list
-				table.insert(clanInfo.members, player)
-				table.insert(clanInfo.leaders, player)
-			end
-			---@diagnostic disable-next-line: param-type-mismatch
-			if (string.len(clanInfo.bgColor) > 0) then
+				local membersList = clanInfo.members
+				local leadersList = clanInfo.leaders
+				clanInfo.members, clanInfo.leaders = {}, {}
 				---@diagnostic disable-next-line: param-type-mismatch
-				clanInfo.bgColor = get_color_from_hex(clanInfo.bgColor)
-				clanInfo.xpBarBgColor = table.clone(clanInfo.bgColor)
-				clanInfo.xpBarColor = table.clone(clanInfo.bgColor)
-				clanInfo.xpBarAccentTopColor = table.clone(clanInfo.bgColor)
-				clanInfo.xpBarAccentBotColor = table.clone(clanInfo.bgColor)
-
-				for i = 1, 3 do
-					clanInfo.xpBarBgColor[i] = clanInfo.xpBarBgColor[i] + 0.05
-					clanInfo.xpBarColor[i] = clanInfo.xpBarColor[i] - 0.1
-					clanInfo.xpBarAccentTopColor[i] = clanInfo.xpBarAccentTopColor[i] + 0.1
-					clanInfo.xpBarAccentBotColor[i] = clanInfo.xpBarAccentBotColor[i] - 0.2
+				for player in string.gmatch(membersList or "", "%S+") do
+					table.insert(clanInfo.members, player)
 				end
-				if (get_color_contrast_ratio(clanInfo.bgColor) > 0.66) then
-					clanInfo.colorNegative = true
+				---@diagnostic disable-next-line: param-type-mismatch
+				for player in string.gmatch(leadersList or "", "%S+") do
+					---Insert leaders both to leaders list AND members list
+					table.insert(clanInfo.members, player)
+					table.insert(clanInfo.leaders, player)
 				end
-			else
-				clanInfo.bgColor = nil
-			end
+				---@diagnostic disable-next-line: param-type-mismatch
+				if (string.len(clanInfo.bgColor) > 0) then
+					---@diagnostic disable-next-line: param-type-mismatch
+					clanInfo.bgColor = get_color_from_hex(clanInfo.bgColor)
+					clanInfo.xpBarBgColor = table.clone(clanInfo.bgColor)
+					clanInfo.xpBarColor = table.clone(clanInfo.bgColor)
+					clanInfo.xpBarAccentTopColor = table.clone(clanInfo.bgColor)
+					clanInfo.xpBarAccentBotColor = table.clone(clanInfo.bgColor)
 
-			Clans.Data[clanInfo.id] = clanInfo
-			numClans = numClans + 1
+					for i = 1, 3 do
+						clanInfo.xpBarBgColor[i] = clanInfo.xpBarBgColor[i] + 0.05
+						clanInfo.xpBarColor[i] = clanInfo.xpBarColor[i] - 0.1
+						clanInfo.xpBarAccentTopColor[i] = clanInfo.xpBarAccentTopColor[i] + 0.1
+						clanInfo.xpBarAccentBotColor[i] = clanInfo.xpBarAccentBotColor[i] - 0.2
+					end
+					if (get_color_contrast_ratio(clanInfo.bgColor) > 0.66) then
+						clanInfo.colorNegative = true
+					end
+				else
+					clanInfo.bgColor = nil
+				end
+
+				Clans.Data[clanInfo.id] = clanInfo
+				numClans = numClans + 1
+			end)
 		end
 	end
 	return numClans

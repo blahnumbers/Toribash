@@ -1736,15 +1736,18 @@ function set_replay_speed(speed) end
 
 ---Creates a replay subfolder at the specified path relative to `replay/`
 ---@param path string
+---@return string? #Error message
 function add_replay_subfolder(path) end
 
 ---Removes replay subfolder at the specified path relative to `replay/`
 ---@param path string
+---@return string? #Error message
 function remove_replay_subfolder(path) end
 
 ---Renames a replay subfolder at the specified path relative to `replay/`
 ---@param path string
 ---@param new_path string
+---@return string? #Error message
 function rename_replay_subfolder(path, new_path) end
 
 --[[ CUSTOMIZATION RELATED FUNCTIONS ]]

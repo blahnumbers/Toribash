@@ -1426,7 +1426,7 @@ do
 		end
 		local count = #newsData
 		for i = count, 1, -1 do
-			if (not newsData[i].isEvent) then
+			if (not newsData[i].isEvent or newsData[i].isBattlePass) then
 				table.remove(newsData, i)
 			end
 		end
