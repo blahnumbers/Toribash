@@ -26,6 +26,10 @@ require("system.friends_manager")
 if (QueueList == nil) then
 	---**Queue list manager class**
 	---
+	---**Version 5.62:**
+	---* New ignore functionality
+	---* Queue list dropdown menu size tweaks
+	---
 	---**Version 5.61:**
 	---* Automatically open chat with the new tab when whispering user
 	---
@@ -42,7 +46,7 @@ if (QueueList == nil) then
 		Globalid = 1012,
 		PopupWidth = math.min(WIN_W * 0.22, 450),
 		LastHudOption = 1,
-		ver = 5.60
+		ver = 5.62
 	}
 	QueueList.__index = QueueList
 	add_hook("resolution_changed", "queueListResolutionStatic", function()

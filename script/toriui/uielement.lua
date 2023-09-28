@@ -200,6 +200,9 @@ if (not UIElement) then
 
 	-- Toribash GUI elements manager class
 	--
+	-- **Ver 5.62 updates:**
+	-- * `UIElement.bgImageDefault` boolean value to tell which texture was loaded during `UIElement.updateImage()` call
+	--
 	-- **Ver 5.61 updates:**
 	-- * On-screen keyboard customization support for text fields
 	--
@@ -246,6 +249,7 @@ if (not UIElement) then
 	---@field animateColor Color Object's current background color when in normal or hover state. *Only used when object is interactive and UI animations are enabled*.
 	---@field interactive boolean Whether the object is interactive
 	---@field bgImage integer Object's image ID obtained from load_texture() call
+	---@field bgImageDefault boolean Whether the loaded texture is a default fallback
 	---@field disableUnload boolean True if object's image should not get unloaded when object is destroyed. **Only use this if you know what you're doing**.
 	---@field drawMode integer Draw mode for normal (quad) objects
 	---@field atlas Rect Atlas settings for patterned and atlas objects
@@ -290,7 +294,7 @@ if (not UIElement) then
 	---@field prevInput UIElement Previous input element, set with UIElement:addTabSwitchPrev()
 	---@field nextInput UIElement Next input element, set with UIElement:addTabSwitch()
 	UIElement = {
-		ver = 5.61,
+		ver = 5.62,
 		animationDuration = 0.1,
 		longPressDuration = 0.25,
 		lightUIMode = get_option("uilight") == 1
@@ -2254,6 +2258,7 @@ function UIElement:updateImage(image, default, noreload)
 		end
 		table.remove(UIElementTextureCache, id)
 		self.bgImage = nil
+		self.bgImageDefault = nil
 	end
 
 	if (not image) then
@@ -2272,6 +2277,7 @@ function UIElement:updateImage(image, default, noreload)
 	if (not tempicon.data) then
 		local textureid = load_texture(default)
 		self.bgImage = textureid
+		self.bgImageDefault = true
 		UIElementTextureIndex = math.max(UIElementTextureIndex, textureid)
 		table.insert(UIElementTextureCache, self.bgImage)
 	else
@@ -2279,8 +2285,10 @@ function UIElement:updateImage(image, default, noreload)
 		if (textureid == -1) then
 			unload_texture(textureid)
 			self.bgImage = load_texture(default)
+			self.bgImageDefault = true
 		else
 			self.bgImage = textureid
+			self.bgImageDefault = false
 		end
 		UIElementTextureIndex = math.max(UIElementTextureIndex, textureid)
 		table.insert(UIElementTextureCache, self.bgImage)

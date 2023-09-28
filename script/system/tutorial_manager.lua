@@ -46,7 +46,7 @@ if (Tutorials == nil) then
 	---@field StaticHook string Name of a hook set that will be reset on tutorial / event exit
 	---@field ver number
 	Tutorials = {
-		ver = 5.60,
+		ver = 5.61,
 		Globalid = 1003,
 		ReplaySpeed = 1,
 		ReplayCache = false,

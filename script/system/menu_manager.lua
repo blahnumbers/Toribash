@@ -3638,7 +3638,7 @@ function TBMenu:displayLoadingMark(element, message, size)
 	local grow, rotate = 0, 0
 	loadMark:addCustomDisplay(true, function()
 			set_color(unpack(loadMark.uiColor or UICOLORWHITE))
-			draw_disk(loadMark.pos.x + loadMark.size.w / 2, loadMark.pos.y + loadMark.size.h / 2 - (message and 25 or 0), size * 0.6, size, 20, 1, rotate, grow, 0)
+			draw_disk(loadMark.pos.x + loadMark.size.w / 2, loadMark.pos.y + loadMark.size.h / 2 - (message and 25 or 0), size * 0.6, size, is_mobile() and 0 or 50, 1, rotate, grow, 0)
 			grow = grow + 4
 			rotate = rotate + 2
 			if (grow >= 360) then

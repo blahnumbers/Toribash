@@ -154,6 +154,7 @@ function Atmospheres.ParseFile(filename)
 					targetShape = CUSTOMOBJ
 				end
 				atmosphere.entities[#atmosphere.entities].shape = targetShape
+				---@diagnostic disable-next-line: assign-type-mismatch
 				atmosphere.entities[#atmosphere.entities].model = model
 			elseif (ln:find("^size ") or ln:find("^sides ")) then
 				data = { ln:gsub("^si[zd]e[s]? ", ""):match(("([^ ]+) *"):rep(3)) }

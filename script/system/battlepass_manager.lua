@@ -41,6 +41,9 @@ if (BattlePass == nil) then
 
 	---**Battle Pass manager class**
 	---
+	---**Version 5.62:**
+	---* Queue missing prize item textures for download
+	---
 	---**Version 5.61:**
 	---* Added `QiRequirement` field
 	---
@@ -58,7 +61,7 @@ if (BattlePass == nil) then
 	---@field QiRequirement integer User qi requirement to access Battle Pass
 	---@field wasOpened boolean Whether the user has opened the Battle Pass screen during this session
 	BattlePass = {
-		ver = 5.60,
+		ver = 5.62,
 		TimeLeft = -1,
 		MaxLevelPrizes = 2,
 		QiRequirement = 20,
@@ -553,18 +556,18 @@ function BattlePass:showPrizeItem(viewElement, prize)
 		pressedColor = prize.bgColor or (prize.locked and (prize.premium and TB_MENU_DEFAULT_DARKER_BLUE or TB_MENU_DEFAULT_DARKER_ORANGE) or (prize.premium and TB_MENU_DEFAULT_DARKER_BLUE or TB_MENU_DEFAULT_DARKER_ORANGE))
 	}, true)
 
-	local prizeIcon, prizeAmount, prizeTooltip
+	local iconPath, prizeAmount, prizeTooltip
 	-- Some free reward levels will have multiple rewards, we want TC/ST to be shown
 	if (prize.tc ~= nil and prize.tc > 0) then
-		prizeIcon = "../textures/store/toricredit.tga"
+		iconPath = "../textures/store/toricredit.tga"
 		prizeAmount = numberFormat(prize.tc)
 		prizeTooltip = TBMenu:displayPopup(prizeBackground, prizeAmount .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS, true)
 	elseif (prize.st ~= nil and prize.st > 0) then
-		prizeIcon = "../textures/store/shiaitoken.tga"
+		iconPath = "../textures/store/shiaitoken.tga"
 		prizeAmount = numberFormat(prize.st)
 		prizeTooltip = TBMenu:displayPopup(prizeBackground, prizeAmount .. " " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS, true)
 	elseif (prize.itemid ~= nil and prize.itemid > 0) then
-		 prizeIcon = Torishop:getItemIcon(prize.itemid)
+		iconPath = Torishop:getItemIcon(prize.itemid)
 		 local itemInfo = Torishop:getItemInfo(prize.itemid)
 		 prizeTooltip = TBMenu:displayPopup(prizeBackground, itemInfo.itemname .. (string.len(itemInfo.description or "") > 0 and ("\n\n" .. itemInfo.description) or ''), true, 500)
 	else
@@ -578,8 +581,11 @@ function BattlePass:showPrizeItem(viewElement, prize)
 
 	local prizeIcon = prizeBackground:addChild({
 		shift = { 8, 8 },
-		bgImage = prizeIcon
+		bgImage = iconPath
 	})
+	if (prizeIcon.bgImage == nil or prizeIcon.bgImageDefault == true) then
+		Torishop:addIconToDownloadQueue(prize, iconPath, prizeIcon)
+	end
 
 	if (prize.locked or prize.claimed) then
 		local colorOverlay = prizeBackground:addChild({
@@ -588,13 +594,13 @@ function BattlePass:showPrizeItem(viewElement, prize)
 		colorOverlay.bgColor[4] = 0.4
 
 		if (prize.locked) then
-			local lockedIcon = prizeBackground:addChild({
+			prizeBackground:addChild({
 				pos = { -32, -prizeBackground.size.h },
 				size = { 32, 32 },
 				bgImage = "../textures/menu/general/buttons/locked.tga"
 			})
 		else
-			local claimedIcon = prizeBackground:addChild({
+			prizeBackground:addChild({
 				shift = { (prizeBackground.size.w - 32) / 2, (prizeBackground.size.h - 32) / 2 },
 				shapeType = ROUNDED,
 				rounded = 16,

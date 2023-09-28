@@ -1245,3 +1245,4 @@ IGNORELISTMANAGEWINDOW	Ignore settings for
 IGNORELISTINPUTHINT	Enter user name to ignore
 IGNORELISTADDERRORNAMEINVALID	Please enter a valid username to add the player to your ignore list
 QUEUELISTIGNORESETTINGS	Ignore settings
+MODCHAMPIONSHIPGLOBALREWARDINFO	If global objective is hit, all players who played at least 1 game during the event will receive the reward after event is over.
