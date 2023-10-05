@@ -53,7 +53,10 @@ if (not UIElement3D) then
 	---@field effects RenderEffect Rendering effects for the object
 	---@field eulerConvention EulerRotationConvention Euler angles convention used to initialize object rotation
 
-	---Toribash 3D elements manager class
+	---**Toribash 3D elements manager class**
+	---
+	---**Version 5.62**
+	---* Set `GL_REPEAT` wrapping mode for capsule objects to ensure correct rendering
 	---@class UIElement3D : UIElement
 	---@field parent UIElement3D|UIElement Parent element
 	---@field child UIElement3D[] List of all object children
@@ -76,7 +79,7 @@ if (not UIElement3D) then
 	---@field customEnterFrameFunc function Function to be executed on `enter_frame` callback
 	---@field viewportElement boolean Whether this object is displayed in a viewport
 	UIElement3D = {
-		ver = 5.61
+		ver = 5.62
 	}
 	UIElement3D.__index = UIElement3D
 	setmetatable(UIElement3D, UIElement)
@@ -247,6 +250,9 @@ function UIElement3D.new(_self, o)
 	end
 	if (o.shapeType) then
 		elem.shapeType = o.shapeType
+		if ((elem.shapeType == CAPSULE or elem.shapeType == CUSTOMOBJ) and type(elem.bgImage) == "number" and elem.bgImage ~= -1) then
+			set_texture_wrapmode(elem.bgImage, TEXTURE_WRAP.REPEAT)
+		end
 	end
 	if (o.interactive) then
 		elem.interactive = o.interactive

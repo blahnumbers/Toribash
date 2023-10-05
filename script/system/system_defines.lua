@@ -195,7 +195,10 @@ _G.COLORS = {
 	SUNSTONE = 140,
 	DARKBROWN = 141,
 	TENNISGREEN = 142,
-	NUM_COLORS = 143
+	WISP = 143,
+	PHANTOM = 144,
+	ULTRABLUE = 145,
+	NUM_COLORS = 146
 }
 
 ---@alias ChatMessageType
@@ -394,6 +397,20 @@ _G.IGNORE_MODE = {
 	MODELS = 4,
 	PARTICLES = 8,
 	ALL = 15
+}
+
+---@alias TextureWrapMode
+---| 0	TEXTURE_WRAP.CLAMP_TO_EDGE
+---| 1	TEXTURE_WRAP.CLAMP_TO_BORDER
+---| 2	TEXTURE_WRAP.MIRRORED_REPEAT
+---| 3	TEXTURE_WRAP.REPEAT
+
+---Texture wrapping modes
+_G.TEXTURE_WRAP = {
+	CLAMP_TO_EDGE = 0,
+	CLAMP_TO_BORDER = 1,
+	MIRRORED_REPEAT = 2,
+	REPEAT = 3
 }
 
 ---@class MatrixTB
@@ -822,6 +839,11 @@ function draw_obj_m(model_id, pos_x, pos_y, pos_z, size_x, size_y, size_z, rot_m
 ---@param path string
 ---@return integer #Texture id or -1 on error
 function load_texture(path) end
+
+---Sets texture wrapping mode
+---@param texid integer
+---@param mode TextureWrapMode
+function set_texture_wrapmode(texid, mode) end
 
 ---Generates a texture gradient between two specified colors
 ---@param r1 number
