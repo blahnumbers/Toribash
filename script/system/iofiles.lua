@@ -15,7 +15,12 @@ local function filesOpenInternal(path, mode, isroot)
 	if (is_mobile()) then
 		return file_open(path, mode, isroot)
 	end
-	return io.open(path, mode, isroot)
+	local file, err = io.open(path, mode, isroot)
+	if (type(file) ~= "userdata" or err ~= nil) then
+		return nil
+	end
+	---@diagnostic disable-next-line: return-type-mismatch
+	return file
 end
 
 -- Internal cross-platform function to read all contents of a file

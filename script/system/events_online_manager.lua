@@ -4,7 +4,7 @@ if (EventsOnline == nil) then
 	---Manager class for in-game events, based on **Tutorials** class.
 	---@class EventsOnline : Tutorials
 	EventsOnline = {
-		ver = 5.60,
+		ver = Tutorials.ver,
 		__index = Tutorials
 	}
 	setmetatable(EventsOnline, Tutorials)

@@ -843,6 +843,8 @@ function load_texture(path) end
 ---Sets texture wrapping mode
 ---@param texid integer
 ---@param mode TextureWrapMode
+---@return boolean result
+---@return string? error
 function set_texture_wrapmode(texid, mode) end
 
 ---Generates a texture gradient between two specified colors
@@ -1644,7 +1646,7 @@ function set_obj_color(obj_id, r, g, b, a) end
 ---Returns color of the specified environment object
 ---@param obj_id integer
 ---@return Color
-function set_obj_color(obj_id) end
+function get_obj_color(obj_id) end
 
 ---Returns linear velocity of the specified environment object
 ---@param obj_id integer

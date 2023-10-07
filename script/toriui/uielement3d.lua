@@ -56,7 +56,7 @@ if (not UIElement3D) then
 	---**Toribash 3D elements manager class**
 	---
 	---**Version 5.62**
-	---* Set `GL_REPEAT` wrapping mode for capsule objects to ensure correct rendering
+	---* Set `GL_REPEAT` texture wrapping mode for all UIElement3D objects by default
 	---@class UIElement3D : UIElement
 	---@field parent UIElement3D|UIElement Parent element
 	---@field child UIElement3D[] List of all object children
@@ -241,6 +241,10 @@ function UIElement3D.new(_self, o)
 				elem:updateImage(o.bgImage)
 			end
 		end
+		if (elem.bgImage) then
+			---Always set GL_REPEAT for UIElement3D objects by default, some of our default shapes' UVs rely on it
+			set_texture_wrapmode(elem.bgImage, TEXTURE_WRAP.REPEAT)
+		end
 	end
 	if (o.hoverColor) then
 		elem.hoverColor = o.hoverColor
@@ -250,9 +254,6 @@ function UIElement3D.new(_self, o)
 	end
 	if (o.shapeType) then
 		elem.shapeType = o.shapeType
-		if ((elem.shapeType == CAPSULE or elem.shapeType == CUSTOMOBJ) and type(elem.bgImage) == "number" and elem.bgImage ~= -1) then
-			set_texture_wrapmode(elem.bgImage, TEXTURE_WRAP.REPEAT)
-		end
 	end
 	if (o.interactive) then
 		elem.interactive = o.interactive
@@ -635,7 +636,7 @@ function UIElement3D:moveTo(x, y, z)
 	else
 		if (x) then self.pos.x = self.pos.x + x end
 		if (y) then self.pos.y = self.pos.y + y end
-		if (z) then self.pos.y = self.pos.z + z end
+		if (z) then self.pos.z = self.pos.z + z end
 	end
 
 	UIElement3DInternal.UpdatePosition(self)
@@ -938,8 +939,8 @@ function Utils3D.MatrixInverse(matrix)
 	return inverse
 end
 
----Legacy function to multiply matrices
----@see UIElement3D.MatrixMultiply
+---Legacy function to multiply matrices. \
+---@see Utils3D.MatrixMultiply
 ---@param a number[][]
 ---@param b number[][]|number[]|number
 ---@return number[][]|number[]|nil
@@ -948,7 +949,7 @@ function UIElement3D:multiply(a, b)
 	return Utils3D.MatrixMultiply(a, b)
 end
 
----Legacy function to multiply a matrix by number
+---Legacy function to multiply a matrix by number. \
 ---@see UIElement3D.multiply
 ---@param a number[][]
 ---@param b number

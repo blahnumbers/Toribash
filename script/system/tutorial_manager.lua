@@ -7,6 +7,9 @@ require("system.tooltip_manager")
 if (Tutorials == nil) then
 	---**Toribash Tutorials class**
 	---
+	---**Version 5.62**
+	---* Tutorial atmospheres support
+	---
 	---**Version 5.61**
 	---* Updates to display rewind / edit buttons on mobile when needed
 	---
@@ -46,7 +49,7 @@ if (Tutorials == nil) then
 	---@field StaticHook string Name of a hook set that will be reset on tutorial / event exit
 	---@field ver number
 	Tutorials = {
-		ver = 5.61,
+		ver = 5.62,
 		Globalid = 1003,
 		ReplaySpeed = 1,
 		ReplayCache = false,
@@ -124,6 +127,9 @@ function Tutorials:quit()
 	self.MainView:kill()
 	self.MainView3D:kill()
 	self.CurrentStep = {}
+
+	Atmospheres.Unload()
+	Atmospheres.LoadDefaultAtmo()
 
 	TUTORIALJOINTLOCK = false
 	TUTORIALKEYBOARDLOCK = false
@@ -316,6 +322,7 @@ end
 ---@field opt boolean Whether this step has game options overrides specified
 ---@field opts TutorialOption[] List of game options to set on this step
 ---@field cameramode CameraMode Camera mode to set on this step
+---@field atmo string Atmospheres file path
 
 ---Loads the Tutorial steps data
 ---@param id number|string Tutorial id
@@ -515,6 +522,8 @@ function Tutorials:loadTutorial(id, path)
 				value = ln:gsub("%D", "") + 0
 			}
 			table.insert(steps[#steps].opts, opt)
+		elseif (ln:find("^ATMO")) then
+			steps[#steps].atmo = ln:gsub("ATMO ", "")
 		end
 	end
 	return steps
@@ -1727,6 +1736,9 @@ function Tutorials:runSteps(steps, currentStep)
 			set_option(v.name, v.value)
 			--TutorialsInternal.HandleMobileOption(v)
 		end
+	end
+	if (steps[currentStep].atmo) then
+		Atmospheres.LoadAtmo(steps[currentStep].atmo)
 	end
 	if (steps[currentStep].progressstep) then
 		self.ProgressStep = self.ProgressStep + 1

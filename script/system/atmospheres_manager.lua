@@ -19,6 +19,10 @@ if (Atmospheres == nil) then
 
 	---**Atmospheres and Shaders manager**
 	---
+	---**Version 5.62**
+	---* Safety tweaks when parsing atmo file
+	---* Ability to load tbm files as atmos by specifying the path outside atmospheres dir
+	---
 	---**Version 5.61**
 	---* Added `Quit` method to exit Atmospheres from other scripts
 	---
@@ -42,7 +46,7 @@ if (Atmospheres == nil) then
 		DisplayPos = { x = SAFE_X + 10, y = top_y + 10 },
 		ListShift = { 0 },
 		SelectedScreen = 1,
-		ver = 5.61
+		ver = 5.62
 	}
 	Atmospheres.__index = Atmospheres
 end
@@ -100,14 +104,17 @@ end
 ---@param filename string
 ---@return Atmosphere|nil
 function Atmospheres.ParseFile(filename)
-	local file = Files.Open(filename, 'r')
+	local file = Files.Open(filename, FILES_MODE_READONLY)
 	if (file.data == nil) then
 		return nil
 	end
 
 	---@type Atmosphere
 	local atmosphere = { entities = {}, shaderopts = {}, opts = {} }
-	for _, ln in pairs(file:readAll()) do
+	local fileData = file:readAll()
+	file:close()
+	local doIgnore = false
+	for _, ln in pairs(fileData) do
 		local ln = ln:gsub("^%s*", ""):gsub("[\r\n]", "")
 		if (ln:find("^shader ")) then
 			local shader = ln:gsub("^shader ", "")
@@ -135,7 +142,10 @@ function Atmospheres.ParseFile(filename)
 				color = { 1, 1, 1, 1 },
 				shape = CUBE
 			}
-		elseif (#atmosphere.entities > 0) then
+			doIgnore = false
+		elseif (ln:find("^player %d")) then
+			doIgnore = true
+		elseif (doIgnore == false and #atmosphere.entities > 0) then
 			local data, dataName = {}, ""
 			if (ln:find("^parent ")) then
 				atmosphere.entities[#atmosphere.entities].parent = ln:gsub("^parent ", "")
@@ -214,7 +224,6 @@ function Atmospheres.ParseFile(filename)
 		end
 	end
 
-	file:close()
 	return atmosphere
 end
 
@@ -502,23 +511,23 @@ function Atmospheres.LoadDefaultAtmo()
 		return
 	end
 	local configData = config:readAll()
+	config:close()
 	if (configData ~= nil and configData[1] ~= nil) then
 		Atmospheres.LoadAtmo(configData[1])
 	end
-	config:close()
 end
 
 ---Loads an atmosphere from the specified file path
 ---@param filename string
 function Atmospheres.LoadAtmo(filename)
 	Atmospheres.Unload()
-	if (utf8.lower(filename) == "default.atmo") then
+	if (type(filename) ~= "string" or string.lower(filename) == "default.atmo") then
 		return
 	end
 
 	Atmospheres.GetDefaultWorldShader()
-	add_hook("draw3d", "atmospheres", function() UIElement3D:drawVisuals(Atmospheres.Globalid) end)
-	add_hook("enter_frame", "atmospheres", function() UIElement3D:drawEnterFrame(Atmospheres.Globalid) end)
+	add_hook("draw3d", "atmospheres", function() UIElement3D.drawVisuals(Atmospheres.Globalid) end)
+	add_hook("enter_frame", "atmospheres", function() UIElement3D.drawEnterFrame(Atmospheres.Globalid) end)
 	_ATMO = {}
 	Atmospheres.EntityHolder = UIElement3D.new({
 		globalid = Atmospheres.Globalid,
@@ -526,7 +535,12 @@ function Atmospheres.LoadAtmo(filename)
 		size = { 0, 0, 0 }
 	})
 
-	local atmoData = Atmospheres.ParseFile("../data/atmospheres/" .. filename)
+	local atmoPath = "../data/atmospheres/"
+	if (string.find(filename, "^%.%./")) then
+		atmoPath = "../data/"
+		filename = string.gsub(filename, "^%.%./", "")
+	end
+	local atmoData = Atmospheres.ParseFile(atmoPath .. filename)
 	if (atmoData == nil) then
 		return
 	end
@@ -614,8 +628,12 @@ function Atmospheres.SpawnObject(entityHolder, entityList, entity)
 		})
 		itemText:addAdaptedText(true, entity.name)
 		item:addCustomDisplay(false, function()
-				local x, y = get_screen_pos(item.pos.x, item.pos.y, item.pos.z)
-				itemText:moveTo(x, y)
+				local x, y, z = get_screen_pos(item.pos.x, item.pos.y, item.pos.z)
+				if (z == 0) then
+					itemText:moveTo(x, y)
+				else
+					itemText:moveTo(WIN_W, 0)
+				end
 			end)
 	end
 	if (entity.animated) then
