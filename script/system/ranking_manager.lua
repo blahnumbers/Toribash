@@ -1803,7 +1803,7 @@ function Ranking:showRankedLegacy()
 		rankedQuestText:addAdaptedText(true, TB_MENU_LOCALIZED.MATCHMAKENORANKEDQUEST)
 		return
 	end
-	---@diagnostic disable-next-line: param-type-mismatch
+	---@diagnostic disable-next-line: param-type-mismatch, deprecated
 	Quests:showQuest(rankedQuest, rankedQuestData, bloodSmudge, function()
 			rankedQuest:kill(true)
 			bloodSmudge = TBMenu:addBottomBloodSmudge(rankedQuest, 3)

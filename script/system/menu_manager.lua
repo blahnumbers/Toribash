@@ -3768,19 +3768,28 @@ function TBMenu:displayHelpPopup(element, message, forceManualPosCheck, noMark, 
 	safe_x = math.max(safe_x, WIN_W - safe_x - safe_w)
 	safe_y = math.max(safe_y, WIN_H - safe_y - safe_h)
 
-	if (not forceManualPosCheck) then
+	local fixPosition = function()
+		local updated = false
 		if (messageElement.pos.x < 0) then
 			messageElement:moveTo(messageElement:getLocalPos(10, 0).x)
+			updated = true
 		end
 		if (messageElement.pos.y < 0) then
 			messageElement:moveTo(nil, messageElement:getLocalPos(0, 10).y)
+			updated = true
 		end
 		if (messageElement.pos.x + messageElement.size.w > WIN_W - safe_x) then
 			messageElement:moveTo((WIN_W - messageElement.pos.x - messageElement.size.w) - math.max(safe_x, 10), nil, true)
+			updated = true
 		end
 		if (messageElement.pos.y + messageElement.size.h > WIN_H - safe_y) then
 			messageElement:moveTo(nil, (WIN_H - messageElement.pos.y - messageElement.size.h) - math.max(safe_y, 10), true)
+			updated = true
 		end
+		return updated
+	end
+	if (not forceManualPosCheck) then
+		fixPosition()
 	end
 
 	local messageText = messageElement:addChild({
@@ -3812,6 +3821,9 @@ function TBMenu:displayHelpPopup(element, message, forceManualPosCheck, noMark, 
 					if (not popupShown and UIElement.clock - messageElement.hoverClock >= 0.3) then
 						messageElement:show(true)
 						popupShown = true
+						if (fixPosition()) then
+							element:updatePos()
+						end
 					end
 				elseif (popupShown) then
 					messageElement.hoverClock = nil

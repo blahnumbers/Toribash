@@ -29,6 +29,7 @@ if (BattlePass == nil) then
 	---@class BattlePassReward
 	---@field tc integer
 	---@field st integer
+	---@field bpxp integer
 	---@field itemid integer
 	---@field claimed boolean Whether this reward has already been claimed
 	---@field locked boolean Whether this reward is currently available for the user
@@ -566,10 +567,14 @@ function BattlePass:showPrizeItem(viewElement, prize)
 		iconPath = "../textures/store/shiaitoken.tga"
 		prizeAmount = numberFormat(prize.st)
 		prizeTooltip = TBMenu:displayPopup(prizeBackground, prizeAmount .. " " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS, true)
+	elseif (prize.bpxp ~= nil and prize.bpxp > 0) then
+		iconPath = "../textures/menu/battlepass/experience.tga"
+		prizeAmount = numberFormat(prize.bpxp)
+		prizeTooltip = TBMenu:displayPopup(prizeBackground, prizeAmount .. " " .. TB_MENU_LOCALIZED.BATTLEPASSEXPERIENCE, true)
 	elseif (prize.itemid ~= nil and prize.itemid > 0) then
 		iconPath = Torishop:getItemIcon(prize.itemid)
-		 local itemInfo = Torishop:getItemInfo(prize.itemid)
-		 prizeTooltip = TBMenu:displayPopup(prizeBackground, itemInfo.itemname .. (string.len(itemInfo.description or "") > 0 and ("\n\n" .. itemInfo.description) or ''), true, 500)
+		local itemInfo = Torishop:getItemInfo(prize.itemid)
+		prizeTooltip = TBMenu:displayPopup(prizeBackground, itemInfo.itemname .. (string.len(itemInfo.description or "") > 0 and ("\n\n" .. itemInfo.description) or ''), true, 500)
 	else
 		return
 	end
@@ -593,17 +598,19 @@ function BattlePass:showPrizeItem(viewElement, prize)
 		}, true)
 		colorOverlay.bgColor[4] = 0.4
 
+		local iconSize = math.min(viewElement.size.w / 2, 32)
 		if (prize.locked) then
 			prizeBackground:addChild({
-				pos = { -32, -prizeBackground.size.h },
-				size = { 32, 32 },
+				pos = { -iconSize, 0 },
+				size = { iconSize, iconSize },
 				bgImage = "../textures/menu/general/buttons/locked.tga"
 			})
 		else
 			prizeBackground:addChild({
-				shift = { (prizeBackground.size.w - 32) / 2, (prizeBackground.size.h - 32) / 2 },
+				pos = { -iconSize, 0 },
+				size = { iconSize, iconSize },
 				shapeType = ROUNDED,
-				rounded = 16,
+				rounded = iconSize / 2,
 				bgColor = TB_MENU_DEFAULT_BLUE,
 				bgImage = "../textures/menu/general/buttons/checkmark.tga"
 			})
@@ -612,7 +619,7 @@ function BattlePass:showPrizeItem(viewElement, prize)
 		prizeBackground:addMouseHandlers(nil, BattlePass.spawnPrizeClaimWindow)
 	end
 
-	if (prize.tc or prize.st) then
+	if (prize.tc or prize.st or prize.bpxp) then
 		local prizeText = prizeBackgroundOutline:addChild({
 			pos = { 0, -30 },
 			size = { prizeBackgroundOutline.size.w, 30 },
@@ -620,7 +627,13 @@ function BattlePass:showPrizeItem(viewElement, prize)
 			shapeType = ROUNDED,
 			rounded = { 0, prizeBackgroundOutline.rounded }
 		})
-		prizeText:addChild({ shift = { 5, 2 } }):addAdaptedText(true, prizeAmount)
+		local textColor = table.clone(prizeBackground.bgColor)
+		textColor[4] = 0.6
+		prizeText:addChild({
+			shift = { 5, 2 },
+			uiShadowColor = textColor,
+			shadowOffset = 2
+		}):addAdaptedText(true, prizeAmount, nil, nil, nil, nil, nil, nil, nil, 2)
 	end
 end
 

@@ -2701,6 +2701,10 @@ do
 		})
 
 		local handleResponse = function()
+			if (not offersHolderGeneral or offersHolderGeneral.destroyed) then
+				return
+			end
+
 			local response = get_network_response()
 			saleOffersHolder:kill(true)
 			purchaseOffersHolder:kill(true)

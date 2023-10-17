@@ -323,6 +323,7 @@ end
 ---@field opts TutorialOption[] List of game options to set on this step
 ---@field cameramode CameraMode Camera mode to set on this step
 ---@field atmo string Atmospheres file path
+---@field shader string Shader file path
 
 ---Loads the Tutorial steps data
 ---@param id number|string Tutorial id
@@ -524,6 +525,8 @@ function Tutorials:loadTutorial(id, path)
 			table.insert(steps[#steps].opts, opt)
 		elseif (ln:find("^ATMO")) then
 			steps[#steps].atmo = ln:gsub("ATMO ", "")
+		elseif (ln:find("^SHADER")) then
+			steps[#steps].shader = ln:gsub("SHADER ", "")
 		end
 	end
 	return steps
@@ -1740,6 +1743,9 @@ function Tutorials:runSteps(steps, currentStep)
 	if (steps[currentStep].atmo) then
 		Atmospheres.LoadAtmo(steps[currentStep].atmo)
 	end
+	if (steps[currentStep].shader) then
+		runCmd("lws " .. steps[currentStep].shader)
+	end
 	if (steps[currentStep].progressstep) then
 		self.ProgressStep = self.ProgressStep + 1
 	end
@@ -2619,6 +2625,11 @@ function TutorialsInternal.LoadHooks(manager)
 	add_hook("draw3d", "tbTutorialsVisual", function()
 			if (TB_MENU_MAIN_ISOPEN == 0) then
 				UIElement3D.drawVisuals(manager.Globalid)
+			end
+		end)
+	add_hook("enter_frame", "tbTutorialsVisual", function()
+			if (TB_MENU_MAIN_ISOPEN == 0) then
+				UIElement3D.drawEnterFrame(manager.Globalid)
 			end
 		end)
 	add_hook("draw_viewport", "tbTutorialsVisual", function()

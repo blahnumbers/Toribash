@@ -76,7 +76,6 @@ do
 					end
 			},
 			{
-				hidden = get_option("shaders") == 0,
 				text = TB_MENU_LOCALIZED.SETTINGSEFFECTS,
 				right = true,
 				sectionId = SETTINGS_EFFECTS,
