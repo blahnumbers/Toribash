@@ -732,7 +732,8 @@ function set_draw_effect(effectid, glow_colorid, glow_intensity, dither_pixelsiz
 ---@param rot_y ?number
 ---@param rot_z ?number
 ---@param texture_id ?integer Texture id retrieved from `load_texture()` call
-function draw_box(pos_x, pos_y, pos_z, size_x, size_y, size_z, rot_x, rot_y, rot_z, texture_id) end
+---@param late_draw ?boolean Whether to put this object at the end of rendering queue
+function draw_box(pos_x, pos_y, pos_z, size_x, size_y, size_z, rot_x, rot_y, rot_z, texture_id, late_draw) end
 
 ---Draws a 3D cube with the specified settings (use rotation matrix)
 ---@param pos_x number
@@ -743,7 +744,8 @@ function draw_box(pos_x, pos_y, pos_z, size_x, size_y, size_z, rot_x, rot_y, rot
 ---@param size_z number
 ---@param rot_matrix ?MatrixTB
 ---@param texture_id ?integer Texture id retrieved from `load_texture()` call
-function draw_box_m(pos_x, pos_y, pos_z, size_x, size_y, size_z, rot_matrix, texture_id) end
+---@param late_draw ?boolean Whether to put this object at the end of rendering queue
+function draw_box_m(pos_x, pos_y, pos_z, size_x, size_y, size_z, rot_matrix, texture_id, late_draw) end
 
 ---Draws a 3D line from point A to point B with the specified width. \
 ---*This function doesn't get batched in backend so you likely want to call it from `post_draw3d` hook instead of `draw3d` to ensure proper rendering*

@@ -52,11 +52,13 @@ if (not UIElement3D) then
 	---@field shapeType UIElement3DShape
 	---@field effects RenderEffect Rendering effects for the object
 	---@field eulerConvention EulerRotationConvention Euler angles convention used to initialize object rotation
+	---@field lateRenderQueue boolean Whether this object has to be put at the end of the rendering queue
 
 	---**Toribash 3D elements manager class**
 	---
 	---**Version 5.62**
 	---* Set `GL_REPEAT` texture wrapping mode for all UIElement3D objects by default
+	---* `lateRenderQueue` rendering mode support for all UIElement3D objects
 	---@class UIElement3D : UIElement
 	---@field parent UIElement3D|UIElement Parent element
 	---@field child UIElement3D[] List of all object children
@@ -78,6 +80,7 @@ if (not UIElement3D) then
 	---@field ditherPixelSize integer Element's dithering effect pixel size
 	---@field customEnterFrameFunc function Function to be executed on `enter_frame` callback
 	---@field viewportElement boolean Whether this object is displayed in a viewport
+	---@field lateRenderQueue boolean Whether this object has to be put at the end of the rendering queue
 	UIElement3D = {
 		ver = 5.62
 	}
@@ -274,6 +277,9 @@ function UIElement3D.new(_self, o)
 		elem.glowColor = o.effects.glowColor or 0
 		elem.ditherPixelSize = o.effects.ditherPixelSize or 0
 	end
+	if (o.lateRenderQueue) then
+		elem.lateRenderQueue = o.lateRenderQueue
+	end
 
 	---Do we actually still need UIElement3DManager?
 	---Might be useful for cleanup but it's not used in object lifetime anymore
@@ -411,15 +417,15 @@ function UIElement3D:drawBox()
 	if (self.playerAttach) then
 		local body = get_body_info(self.playerAttach, self.attachBodypart)
 		if (self.bgImage) then
-			draw_box_m(body.pos.x + self.pos.x, body.pos.y + self.pos.y, body.pos.z + self.pos.z, self.size.x, self.size.y, self.size.z, body.rot, self.bgImage)
+			draw_box_m(body.pos.x + self.pos.x, body.pos.y + self.pos.y, body.pos.z + self.pos.z, self.size.x, self.size.y, self.size.z, body.rot, self.bgImage, self.lateRenderQueue)
 		else
-			draw_box_m(body.pos.x + self.pos.x, body.pos.y + self.pos.y, body.pos.z + self.pos.z, self.size.x, self.size.y, self.size.z, body.rot)
+			draw_box_m(body.pos.x + self.pos.x, body.pos.y + self.pos.y, body.pos.z + self.pos.z, self.size.x, self.size.y, self.size.z, body.rot, nil, self.lateRenderQueue)
 		end
 	else
 		if (self.bgImage) then
-			draw_box_m(self.pos.x, self.pos.y, self.pos.z, self.size.x, self.size.y, self.size.z, self.rotMatrixTB, self.bgImage)
+			draw_box_m(self.pos.x, self.pos.y, self.pos.z, self.size.x, self.size.y, self.size.z, self.rotMatrixTB, self.bgImage, self.lateRenderQueue)
 		else
-			draw_box_m(self.pos.x, self.pos.y, self.pos.z, self.size.x, self.size.y, self.size.z, self.rotMatrixTB)
+			draw_box_m(self.pos.x, self.pos.y, self.pos.z, self.size.x, self.size.y, self.size.z, self.rotMatrixTB, nil, self.lateRenderQueue)
 		end
 	end
 end

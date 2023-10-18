@@ -46,6 +46,7 @@ if (Atmospheres == nil) then
 		DisplayPos = { x = SAFE_X + 10, y = top_y + 10 },
 		ListShift = { 0 },
 		SelectedScreen = 1,
+		HookName = "tbAtmospheresManager",
 		ver = 5.62
 	}
 	Atmospheres.__index = Atmospheres
@@ -77,7 +78,7 @@ function Atmospheres.Unload()
 		Atmospheres.DebugHolder2D:kill()
 		Atmospheres.DebugHolder2D = nil
 	end
-	remove_hook("draw3d", "atmospheres")
+	remove_hooks(Atmospheres.HookName)
 end
 
 ---@class AtmosphereEntity3D : UIElement3DOptions
@@ -526,8 +527,8 @@ function Atmospheres.LoadAtmo(filename)
 	end
 
 	Atmospheres.GetDefaultWorldShader()
-	add_hook("draw3d", "atmospheres", function() UIElement3D.drawVisuals(Atmospheres.Globalid) end)
-	add_hook("enter_frame", "atmospheres", function() UIElement3D.drawEnterFrame(Atmospheres.Globalid) end)
+	add_hook("draw3d", Atmospheres.HookName, function() UIElement3D.drawVisuals(Atmospheres.Globalid) end)
+	add_hook("enter_frame", Atmospheres.HookName, function() UIElement3D.drawEnterFrame(Atmospheres.Globalid) end)
 	_ATMO = {}
 	Atmospheres.EntityHolder = UIElement3D.new({
 		globalid = Atmospheres.Globalid,
@@ -613,7 +614,8 @@ function Atmospheres.SpawnObject(entityHolder, entityList, entity)
 		size = { unpack(entity.size) },
 		bgColor = { unpack(entity.color) },
 		shapeType = entity.shape,
-		objModel = entity.model
+		objModel = entity.model,
+		lateRenderQueue = true
 	})
 	entityList[entity.name] = item
 	if (TB_MENU_DEBUG) then
