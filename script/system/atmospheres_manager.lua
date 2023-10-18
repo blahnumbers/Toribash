@@ -47,6 +47,7 @@ if (Atmospheres == nil) then
 		ListShift = { 0 },
 		SelectedScreen = 1,
 		HookName = "tbAtmospheresManager",
+		RandomPrecision = 1000,
 		ver = 5.62
 	}
 	Atmospheres.__index = Atmospheres
@@ -209,6 +210,8 @@ function Atmospheres.ParseFile(filename)
 			elseif (ln:find("^count ")) then
 				local count = ln:gsub("^count ", "")
 				atmosphere.entities[#atmosphere.entities].count = tonumber(count) or 1
+			elseif (ln:find("^latequeue 1")) then
+				atmosphere.entities[#atmosphere.entities].lateRenderQueue = true
 			end
 			if (#data > 0) then
 				if (not atmosphere.entities[#atmosphere.entities][dataName]) then
@@ -554,24 +557,24 @@ function Atmospheres.LoadAtmo(filename)
 				entityRandom.name = entity.name .. i
 				if (entity.rpos) then
 					entityRandom.pos = {
-						entity.pos[1] + math.random(-entity.rpos[1] * 100, entity.rpos[1] * 100) / 100,
-						entity.pos[2] + math.random(-entity.rpos[2] * 100, entity.rpos[2] * 100) / 100,
-						entity.pos[3] + math.random(-entity.rpos[3] * 100, entity.rpos[3] * 100) / 100
+						entity.pos[1] + math.random(-entity.rpos[1] * Atmospheres.RandomPrecision, entity.rpos[1] * Atmospheres.RandomPrecision) / Atmospheres.RandomPrecision,
+						entity.pos[2] + math.random(-entity.rpos[2] * Atmospheres.RandomPrecision, entity.rpos[2] * Atmospheres.RandomPrecision) / Atmospheres.RandomPrecision,
+						entity.pos[3] + math.random(-entity.rpos[3] * Atmospheres.RandomPrecision, entity.rpos[3] * Atmospheres.RandomPrecision) / Atmospheres.RandomPrecision
 					}
 				end
 				if (entity.rsize) then
 					entityRandom.size = {
-						entity.size[1] + math.random(-entity.rsize[1] * 100, entity.rsize[1] * 100) / 100,
-						entity.size[2] + math.random(-entity.rsize[2] * 100, entity.rsize[2] * 100) / 100,
-						entity.size[3] + math.random(-entity.rsize[3] * 100, entity.rsize[3] * 100) / 100
+						entity.size[1] + math.random(-entity.rsize[1] * Atmospheres.RandomPrecision, entity.rsize[1] * Atmospheres.RandomPrecision) / Atmospheres.RandomPrecision,
+						entity.size[2] + math.random(-entity.rsize[2] * Atmospheres.RandomPrecision, entity.rsize[2] * Atmospheres.RandomPrecision) / Atmospheres.RandomPrecision,
+						entity.size[3] + math.random(-entity.rsize[3] * Atmospheres.RandomPrecision, entity.rsize[3] * Atmospheres.RandomPrecision) / Atmospheres.RandomPrecision
 					}
 				end
 				if (entity.rcolor) then
 					entityRandom.color = {
-						entity.color[1] + math.random(-entity.rcolor[1] * 100, entity.rcolor[1] * 100) / 100,
-						entity.color[2] + math.random(-entity.rcolor[2] * 100, entity.rcolor[2] * 100) / 100,
-						entity.color[3] + math.random(-entity.rcolor[3] * 100, entity.rcolor[3] * 100) / 100,
-						entity.color[4] + math.random(-entity.rcolor[4] * 100, entity.rcolor[4] * 100) / 100
+						entity.color[1] + math.random(-entity.rcolor[1] * Atmospheres.RandomPrecision, entity.rcolor[1] * Atmospheres.RandomPrecision) / Atmospheres.RandomPrecision,
+						entity.color[2] + math.random(-entity.rcolor[2] * Atmospheres.RandomPrecision, entity.rcolor[2] * Atmospheres.RandomPrecision) / Atmospheres.RandomPrecision,
+						entity.color[3] + math.random(-entity.rcolor[3] * Atmospheres.RandomPrecision, entity.rcolor[3] * Atmospheres.RandomPrecision) / Atmospheres.RandomPrecision,
+						entity.color[4] + math.random(-entity.rcolor[4] * Atmospheres.RandomPrecision, entity.rcolor[4] * Atmospheres.RandomPrecision) / Atmospheres.RandomPrecision
 					}
 				end
 				Atmospheres.SpawnObject(Atmospheres.EntityHolder, entityList, entityRandom)
@@ -615,7 +618,7 @@ function Atmospheres.SpawnObject(entityHolder, entityList, entity)
 		bgColor = { unpack(entity.color) },
 		shapeType = entity.shape,
 		objModel = entity.model,
-		lateRenderQueue = true
+		lateRenderQueue = entity.lateRenderQueue
 	})
 	entityList[entity.name] = item
 	if (TB_MENU_DEBUG) then
