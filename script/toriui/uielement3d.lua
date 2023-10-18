@@ -400,7 +400,7 @@ function UIElement3D:display()
 		elseif (self.shapeType == CAPSULE) then
 			self:drawCapsule()
 		elseif (self.shapeType == CUSTOMOBJ and self.objModel ~= nil) then
-			draw_obj_m(self.objModel, self.pos.x, self.pos.y, self.pos.z, self.size.x, self.size.y, self.size.z, self.rotMatrixTB)
+			draw_obj_m(self.objModel, self.pos.x, self.pos.y, self.pos.z, self.size.x, self.size.y, self.size.z, self.rotMatrixTB, self.lateRenderQueue)
 		end
 	end
 	if (self.customDisplay) then
@@ -416,17 +416,9 @@ end
 function UIElement3D:drawBox()
 	if (self.playerAttach) then
 		local body = get_body_info(self.playerAttach, self.attachBodypart)
-		if (self.bgImage) then
-			draw_box_m(body.pos.x + self.pos.x, body.pos.y + self.pos.y, body.pos.z + self.pos.z, self.size.x, self.size.y, self.size.z, body.rot, self.bgImage, self.lateRenderQueue)
-		else
-			draw_box_m(body.pos.x + self.pos.x, body.pos.y + self.pos.y, body.pos.z + self.pos.z, self.size.x, self.size.y, self.size.z, body.rot, nil, self.lateRenderQueue)
-		end
+		draw_box_m(body.pos.x + self.pos.x, body.pos.y + self.pos.y, body.pos.z + self.pos.z, self.size.x, self.size.y, self.size.z, body.rot, self.bgImage, self.lateRenderQueue)
 	else
-		if (self.bgImage) then
-			draw_box_m(self.pos.x, self.pos.y, self.pos.z, self.size.x, self.size.y, self.size.z, self.rotMatrixTB, self.bgImage, self.lateRenderQueue)
-		else
-			draw_box_m(self.pos.x, self.pos.y, self.pos.z, self.size.x, self.size.y, self.size.z, self.rotMatrixTB, nil, self.lateRenderQueue)
-		end
+		draw_box_m(self.pos.x, self.pos.y, self.pos.z, self.size.x, self.size.y, self.size.z, self.rotMatrixTB, self.bgImage, self.lateRenderQueue)
 	end
 end
 
@@ -435,19 +427,10 @@ end
 function UIElement3D:drawCapsule()
 	if (self.playerAttach and self.attachBodypart) then
 		local body = get_body_info(self.playerAttach, self.attachBodypart)
-		if (self.bgImage) then
-			draw_capsule_m(body.pos.x, body.pos.y, body.pos.z, self.size.y, self.size.x, body.rot, self.bgImage)
-		else
-			draw_capsule_m(body.pos.x, body.pos.y, body.pos.z, self.size.y, self.size.x, body.rot)
-		end
+		draw_capsule_m(body.pos.x, body.pos.y, body.pos.z, self.size.y, self.size.x, body.rot, self.bgImage, self.lateRenderQueue)
 	else
 		local drawPos = (self.playerAttach and self.attachJoint) and get_joint_pos2(self.playerAttach, self.attachJoint) or self.pos
-
-		if (self.bgImage) then
-			draw_capsule_m(drawPos.x, drawPos.y, drawPos.z, self.size.y, self.size.x, self.rotMatrixTB, self.bgImage)
-		else
-			draw_capsule_m(drawPos.x, drawPos.y, drawPos.z, self.size.y, self.size.x, self.rotMatrixTB)
-		end
+		draw_capsule_m(drawPos.x, drawPos.y, drawPos.z, self.size.y, self.size.x, self.rotMatrixTB, self.bgImage, self.lateRenderQueue)
 	end
 end
 
@@ -456,19 +439,15 @@ end
 function UIElement3D:drawSphere()
 	if (self.playerAttach and self.attachBodypart) then
 		local body = get_body_info(self.playerAttach, self.attachBodypart)
-		if (self.bgImage) then
-			draw_sphere_m(body.pos.x + self.pos.x, body.pos.y + self.pos.y, body.pos.z + self.pos.z, self.size.x, body.rot, self.bgImage)
-		else
-			draw_sphere_m(body.pos.x + self.pos.x, body.pos.y + self.pos.y, body.pos.z + self.pos.z, self.size.x, body.rot)
-		end
+		draw_sphere_m(body.pos.x + self.pos.x, body.pos.y + self.pos.y, body.pos.z + self.pos.z, self.size.x, body.rot, self.bgImage, self.lateRenderQueue)
 	else
 		local drawPos = (self.playerAttach and self.attachJoint) and get_joint_pos2(self.playerAttach, self.attachJoint) or self.pos
 		local scale = (self.playerAttach and self.attachJoint) and get_joint_radius(self.playerAttach, self.attachJoint) or 1
 
 		if (self.bgImage) then
-			draw_sphere_m(drawPos.x, drawPos.y, drawPos.z, self.size.x * scale, self.rotMatrixTB, self.bgImage)
+			draw_sphere_m(drawPos.x, drawPos.y, drawPos.z, self.size.x * scale, self.rotMatrixTB, self.bgImage, self.lateRenderQueue)
 		else
-			draw_sphere_m(drawPos.x, drawPos.y, drawPos.z, self.size.x * scale)
+			draw_sphere_m(drawPos.x, drawPos.y, drawPos.z, self.size.x * scale, nil, nil, self.lateRenderQueue)
 		end
 	end
 end

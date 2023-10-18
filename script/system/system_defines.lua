@@ -780,7 +780,8 @@ function draw_disk_3d(pos_x, pos_y, pos_z, inner, outer, slices, loops, start, s
 ---@param rotation_y ?number
 ---@param rotation_z ?number
 ---@param texture_id ?integer Texture id retrieved from `load_texture()` call
-function draw_sphere(pos_x, pos_y, pos_z, radius, rotation_x, rotation_y, rotation_z, texture_id) end
+---@param late_draw ?boolean Whether to put this object at the end of rendering queue
+function draw_sphere(pos_x, pos_y, pos_z, radius, rotation_x, rotation_y, rotation_z, texture_id, late_draw) end
 
 ---Draws a 3D sphere with the specified settings (use rotation matrix)
 ---@param pos_x number
@@ -789,7 +790,8 @@ function draw_sphere(pos_x, pos_y, pos_z, radius, rotation_x, rotation_y, rotati
 ---@param radius number
 ---@param rotation_matrix ?MatrixTB
 ---@param texture_id ?integer Texture id retrieved from `load_texture()` call
-function draw_sphere_m(pos_x, pos_y, pos_z, radius, rotation_matrix, texture_id) end
+---@param late_draw ?boolean Whether to put this object at the end of rendering queue
+function draw_sphere_m(pos_x, pos_y, pos_z, radius, rotation_matrix, texture_id, late_draw) end
 
 ---Draws a 3D capsule with the specified settings (use Euler angles)
 ---@param pos_x number
@@ -801,7 +803,8 @@ function draw_sphere_m(pos_x, pos_y, pos_z, radius, rotation_matrix, texture_id)
 ---@param rot_y ?number
 ---@param rot_z ?number
 ---@param texture_id ?integer Texture id retrieved from `load_texture()` call
-function draw_capsule(pos_x, pos_y, pos_z, length, radius, rot_x, rot_y, rot_z, texture_id) end
+---@param late_draw ?boolean Whether to put this object at the end of rendering queue
+function draw_capsule(pos_x, pos_y, pos_z, length, radius, rot_x, rot_y, rot_z, texture_id, late_draw) end
 
 ---Draws a 3D capsule with the specified settings (use rotation matrix)
 ---@param pos_x number
@@ -811,7 +814,8 @@ function draw_capsule(pos_x, pos_y, pos_z, length, radius, rot_x, rot_y, rot_z, 
 ---@param radius number
 ---@param rot_matrix ?MatrixTB
 ---@param texture_id ?integer Texture id retrieved from `load_texture()` call
-function draw_capsule_m(pos_x, pos_y, pos_z, length, radius, rot_matrix, texture_id) end
+---@param late_draw ?boolean Whether to put this object at the end of rendering queue
+function draw_capsule_m(pos_x, pos_y, pos_z, length, radius, rot_matrix, texture_id, late_draw) end
 
 ---Draws a 3D model with the specified settings (use Euler angles)
 ---@param model_id integer Object id retrieved from `load_obj()`
@@ -824,7 +828,8 @@ function draw_capsule_m(pos_x, pos_y, pos_z, length, radius, rot_matrix, texture
 ---@param rot_x ?number
 ---@param rot_y ?number
 ---@param rot_z ?number
-function draw_obj(model_id, pos_x, pos_y, pos_z, size_x, size_y, size_z, rot_x, rot_y, rot_z) end
+---@param late_draw ?boolean Whether to put this object at the end of rendering queue
+function draw_obj(model_id, pos_x, pos_y, pos_z, size_x, size_y, size_z, rot_x, rot_y, rot_z, late_draw) end
 
 ---Draws a 3D model with the specified settings (use rotation matrix)
 ---@param model_id integer Object id retrieved from `load_obj()`
@@ -835,7 +840,8 @@ function draw_obj(model_id, pos_x, pos_y, pos_z, size_x, size_y, size_z, rot_x, 
 ---@param size_y number
 ---@param size_z number
 ---@param rot_matrix ?MatrixTB
-function draw_obj_m(model_id, pos_x, pos_y, pos_z, size_x, size_y, size_z, rot_matrix) end
+---@param late_draw ?boolean Whether to put this object at the end of rendering queue
+function draw_obj_m(model_id, pos_x, pos_y, pos_z, size_x, size_y, size_z, rot_matrix, late_draw) end
 
 ---Loads a TGA texture by the specified path
 ---@param path string
