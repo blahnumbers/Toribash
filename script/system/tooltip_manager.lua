@@ -129,10 +129,10 @@ end
 ---Initializes Tooltip hooks and enables the module
 function Tooltip.Init()
 	Tooltip.DestroyAndDeselect()
-	
+
 	remove_hooks(Tooltip.HookName)
 	add_hook("joint_select", Tooltip.HookName, function(player, joint)
-			if (players_accept_input() == false) then return end
+			if (players_accept_input() == false or STORE_VANILLA_PREVIEW) then return end
 			local discard = Tooltip:showTooltipJoint(player, joint)
 			if (is_mobile()) then
 				Tooltip.EnableFocusCam()
@@ -140,7 +140,7 @@ function Tooltip.Init()
 			end
 		end)
 	add_hook("body_select", Tooltip.HookName, function(player, body)
-			if (players_accept_input() == false) then return end
+			if (players_accept_input() == false or STORE_VANILLA_PREVIEW) then return end
 			if (is_mobile()) then Tooltip.EnableFocusCam() end
 			if (get_option("tooltip") == 1 and Tooltip.IsActive) then
 				Tooltip:showTooltipBody(player, body)

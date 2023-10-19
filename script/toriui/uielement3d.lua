@@ -52,13 +52,15 @@ if (not UIElement3D) then
 	---@field shapeType UIElement3DShape
 	---@field effects RenderEffect Rendering effects for the object
 	---@field eulerConvention EulerRotationConvention Euler angles convention used to initialize object rotation
-	---@field lateRenderQueue boolean Whether this object has to be put at the end of the rendering queue
+	---@field ignoreDepth boolean Whether this object should skip depth writing when being rendered
 
 	---**Toribash 3D elements manager class**
 	---
+	---**Version 5.63**
+	---* `ignoreDepth` support for object rendering
+	---
 	---**Version 5.62**
 	---* Set `GL_REPEAT` texture wrapping mode for all UIElement3D objects by default
-	---* `lateRenderQueue` rendering mode support for all UIElement3D objects
 	---@class UIElement3D : UIElement
 	---@field parent UIElement3D|UIElement Parent element
 	---@field child UIElement3D[] List of all object children
@@ -80,9 +82,9 @@ if (not UIElement3D) then
 	---@field ditherPixelSize integer Element's dithering effect pixel size
 	---@field customEnterFrameFunc function Function to be executed on `enter_frame` callback
 	---@field viewportElement boolean Whether this object is displayed in a viewport
-	---@field lateRenderQueue boolean Whether this object has to be put at the end of the rendering queue
+	---@field ignoreDepth boolean Whether this object should skip depth writing when being rendered
 	UIElement3D = {
-		ver = 5.62
+		ver = 5.63
 	}
 	UIElement3D.__index = UIElement3D
 	setmetatable(UIElement3D, UIElement)
@@ -277,8 +279,8 @@ function UIElement3D.new(_self, o)
 		elem.glowColor = o.effects.glowColor or 0
 		elem.ditherPixelSize = o.effects.ditherPixelSize or 0
 	end
-	if (o.lateRenderQueue) then
-		elem.lateRenderQueue = o.lateRenderQueue
+	if (o.ignoreDepth) then
+		elem.ignoreDepth = o.ignoreDepth
 	end
 
 	---Do we actually still need UIElement3DManager?
@@ -400,7 +402,7 @@ function UIElement3D:display()
 		elseif (self.shapeType == CAPSULE) then
 			self:drawCapsule()
 		elseif (self.shapeType == CUSTOMOBJ and self.objModel ~= nil) then
-			draw_obj_m(self.objModel, self.pos.x, self.pos.y, self.pos.z, self.size.x, self.size.y, self.size.z, self.rotMatrixTB, self.lateRenderQueue)
+			draw_obj_m(self.objModel, self.pos.x, self.pos.y, self.pos.z, self.size.x, self.size.y, self.size.z, self.rotMatrixTB, self.ignoreDepth)
 		end
 	end
 	if (self.customDisplay) then
@@ -416,9 +418,9 @@ end
 function UIElement3D:drawBox()
 	if (self.playerAttach) then
 		local body = get_body_info(self.playerAttach, self.attachBodypart)
-		draw_box_m(body.pos.x + self.pos.x, body.pos.y + self.pos.y, body.pos.z + self.pos.z, self.size.x, self.size.y, self.size.z, body.rot, self.bgImage, self.lateRenderQueue)
+		draw_box_m(body.pos.x + self.pos.x, body.pos.y + self.pos.y, body.pos.z + self.pos.z, self.size.x, self.size.y, self.size.z, body.rot, self.bgImage, self.ignoreDepth)
 	else
-		draw_box_m(self.pos.x, self.pos.y, self.pos.z, self.size.x, self.size.y, self.size.z, self.rotMatrixTB, self.bgImage, self.lateRenderQueue)
+		draw_box_m(self.pos.x, self.pos.y, self.pos.z, self.size.x, self.size.y, self.size.z, self.rotMatrixTB, self.bgImage, self.ignoreDepth)
 	end
 end
 
@@ -427,10 +429,10 @@ end
 function UIElement3D:drawCapsule()
 	if (self.playerAttach and self.attachBodypart) then
 		local body = get_body_info(self.playerAttach, self.attachBodypart)
-		draw_capsule_m(body.pos.x, body.pos.y, body.pos.z, self.size.y, self.size.x, body.rot, self.bgImage, self.lateRenderQueue)
+		draw_capsule_m(body.pos.x, body.pos.y, body.pos.z, self.size.y, self.size.x, body.rot, self.bgImage, self.ignoreDepth)
 	else
 		local drawPos = (self.playerAttach and self.attachJoint) and get_joint_pos2(self.playerAttach, self.attachJoint) or self.pos
-		draw_capsule_m(drawPos.x, drawPos.y, drawPos.z, self.size.y, self.size.x, self.rotMatrixTB, self.bgImage, self.lateRenderQueue)
+		draw_capsule_m(drawPos.x, drawPos.y, drawPos.z, self.size.y, self.size.x, self.rotMatrixTB, self.bgImage, self.ignoreDepth)
 	end
 end
 
@@ -439,15 +441,15 @@ end
 function UIElement3D:drawSphere()
 	if (self.playerAttach and self.attachBodypart) then
 		local body = get_body_info(self.playerAttach, self.attachBodypart)
-		draw_sphere_m(body.pos.x + self.pos.x, body.pos.y + self.pos.y, body.pos.z + self.pos.z, self.size.x, body.rot, self.bgImage, self.lateRenderQueue)
+		draw_sphere_m(body.pos.x + self.pos.x, body.pos.y + self.pos.y, body.pos.z + self.pos.z, self.size.x, body.rot, self.bgImage, self.ignoreDepth)
 	else
 		local drawPos = (self.playerAttach and self.attachJoint) and get_joint_pos2(self.playerAttach, self.attachJoint) or self.pos
 		local scale = (self.playerAttach and self.attachJoint) and get_joint_radius(self.playerAttach, self.attachJoint) or 1
 
 		if (self.bgImage) then
-			draw_sphere_m(drawPos.x, drawPos.y, drawPos.z, self.size.x * scale, self.rotMatrixTB, self.bgImage, self.lateRenderQueue)
+			draw_sphere_m(drawPos.x, drawPos.y, drawPos.z, self.size.x * scale, self.rotMatrixTB, self.bgImage, self.ignoreDepth)
 		else
-			draw_sphere_m(drawPos.x, drawPos.y, drawPos.z, self.size.x * scale, nil, nil, self.lateRenderQueue)
+			draw_sphere_m(drawPos.x, drawPos.y, drawPos.z, self.size.x * scale, nil, nil, self.ignoreDepth)
 		end
 	end
 end

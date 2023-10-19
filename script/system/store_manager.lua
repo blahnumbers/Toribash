@@ -5118,8 +5118,9 @@ function Torishop:itemPreviewVanilla(item)
 	else
 		Torishop:spawnMinSectionView(item.catid)
 	end
+	TBMenu.HideButton:show()
 	TBMenu.HideButton.btnUp()
-	for i,v in pairs(TBMenu.HideButton.child) do
+	for _, v in pairs(TBMenu.HideButton.child) do
 		v:hide()
 	end
 	close_menu()
@@ -5451,40 +5452,12 @@ function Torishop:showStoreItemInfo(item, noReload, updateOverride)
 		})
 		buttonPos = buttonPos - buttonH * 1.2
 		itemPreview:addAdaptedText(false, TB_MENU_LOCALIZED.STOREITEMPREVIEW)
-		local function initPreview()
-			if (STORE_VANILLA_PREVIEW) then
-				Torishop:itemPreviewVanilla(item)
-				return
-			end
-			local overlay = UIElement:new({
-				globalid = TB_MENU_MAIN_GLOBALID,
-				pos = { 0, 0 },
-				size = { WIN_W, WIN_H },
-				bgColor = { 0, 0, 0, 0.4 },
-				interactive = true
-			})
-			local loadingText = UIElement:new({
-				parent = overlay,
-				pos = { WIN_W / 3, WIN_H / 2 - 70 },
-				size = { WIN_W / 3, 140 },
-				bgColor = TB_MENU_DEFAULT_BG_COLOR
-			})
-			loadingText:addAdaptedText(false, TB_MENU_LOCALIZED.STORESTEAMPURCHASELOADING)
-			local cnt = 0
-			overlay:addCustomDisplay(false, function()
-					if (cnt > 2) then
-						overlay:kill()
-						Torishop:itemPreviewVanilla(item)
-					end
-					cnt = cnt + 1
-				end)
-		end
 		itemPreview:addMouseHandlers(nil, function()
 				if (get_world_state().game_type == 1) then
-					TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREVANILLAENTERMP, function() initPreview() end)
+					TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREVANILLAENTERMP, function() Torishop:itemPreviewVanilla(item) end)
 					return
 				end
-				initPreview()
+				Torishop:itemPreviewVanilla(item)
 			end)
 	end
 

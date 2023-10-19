@@ -1,0 +1,24 @@
+env_obj 1
+   shape box
+   pos 0 0 0.2
+   count 40
+   color 0.6 0.7 0.65 0.051
+   sides 200 200 0.8
+   rpos 0 0 0.2
+   no_depth 1
+env_obj 2
+   shape box
+   pos 0 0 0.05
+   count 8
+   color 0.6 0.7 0.65 0.2
+   sides 200 200 0.4
+   randompos 0 0 0.1
+   no_depth 1
+env_obj 3
+   shape box
+   pos 0 0 0.02
+   count 2
+   color 0.6 0.7 0.65 0.5
+   sides 200 200 0.2
+   randompos 0 0 0.04
+   no_depth 1

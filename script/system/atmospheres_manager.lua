@@ -19,6 +19,12 @@ if (Atmospheres == nil) then
 
 	---**Atmospheres and Shaders manager**
 	---
+	---**Version 5.63**
+	---* `no_depth` support for atmo objects to skip depth writing when rendering
+	---* `rpos_precision`, `rsize_precision`, `rcolor_precision` override values support for atmo objects to control value randomizers
+	---* Added `Atmospheres.HookName` as an easily accessible generic hook name for all Atmospheres loops
+	---* Added `Atmospheres.RandomPrecision` as a uniform default value to use when generating objects with random values
+	---
 	---**Version 5.62**
 	---* Safety tweaks when parsing atmo file
 	---* Ability to load tbm files as atmos by specifying the path outside atmospheres dir
@@ -29,7 +35,7 @@ if (Atmospheres == nil) then
 	---**Version 5.60**
 	---* Internal updates to match new codestyle and EmmyLua annotations
 	---@class Atmospheres
-	---@field Globalid integer Globalid for all Atmospheres class UIElement and UIElement3D objects
+	---@field Globalid integer Global id for all Atmospheres class UIElement and UIElement3D objects
 	---@field MainElement UIElement Main holder UIElement for Atmospheres window
 	---@field EntityHolder UIElement3D Main holder UIElement3D for Atmospheres objects
 	---@field StoredOptions ShaderOption[] Initial values of the options that were modified by the current shader
@@ -39,6 +45,8 @@ if (Atmospheres == nil) then
 	---@field DefaultShader string Default shader name
 	---@field SelectedScreen integer Selected screen id
 	---@field DebugHolder2D UIElement UIElement holder for debug info
+	---@field HookName string Generic hook name for all Atmospheres class loops
+	---@field RandomPrecision integer Default precision for random value generators
 	Atmospheres = {
 		Globalid = 1002,
 		StoredOptions = {},
@@ -87,8 +95,11 @@ end
 ---@field parent string Parent object name
 ---@field count integer Object spawn count
 ---@field rpos number[] Object spawn position randomizer values
+---@field rpos_precision number|nil
 ---@field rsize number[] Object spawn size randomizer values
+---@field rsize_precision number|nil
 ---@field rcolor Color Object color randomizer values
+---@field rcolor_precision number|nil
 ---@field color Color Object color
 ---@field shape UIElement3DShape
 ---@field model string
@@ -171,15 +182,21 @@ function Atmospheres.ParseFile(filename)
 			elseif (ln:find("^size ") or ln:find("^sides ")) then
 				data = { ln:gsub("^si[zd]e[s]? ", ""):match(("([^ ]+) *"):rep(3)) }
 				dataName = "size"
-			elseif (ln:find("^randomsize ")) then
-				data = { ln:gsub("^randomsize ", ""):match(("([^ ]+) *"):rep(3)) }
+			elseif (ln:find("^randomsize ") or ln:find("^rsize ")) then
+				data = { ln:gsub("^r[andom]*size ", ""):match(("([^ ]+) *"):rep(3)) }
 				dataName = "rsize"
+			elseif (ln:find("^rsize_precision ") or ln:find("randomsize_precision")) then
+				local precision = ln:gsub("^r[andom]*size_precision ", "")
+				atmosphere.entities[#atmosphere.entities].rsize_precision = tonumber(precision)
 			elseif (ln:find("^pos ")) then
 				data = { ln:gsub("^pos ", ""):match(("([^ ]+) *"):rep(3)) }
 				dataName = "pos"
-			elseif (ln:find("^randompos ")) then
-				data = { ln:gsub("^randompos ", ""):match(("([^ ]+) *"):rep(3)) }
+			elseif (ln:find("^randompos ") or ln:find("^rpos ")) then
+				data = { ln:gsub("^r[andom]*pos ", ""):match(("([^ ]+) *"):rep(3)) }
 				dataName = "rpos"
+			elseif (ln:find("^rpos_precision ") or ln:find("^randompos_precision")) then
+				local precision = ln:gsub("^r[andom]*pos_precision ", "")
+				atmosphere.entities[#atmosphere.entities].rpos_precision = tonumber(precision)
 			elseif (ln:find("^rot ")) then
 				data = { ln:gsub("^rot ", ""):match(("([^ ]+) *"):rep(3)) }
 				dataName = "rot"
@@ -191,27 +208,30 @@ function Atmospheres.ParseFile(filename)
 				data = { ln:gsub("^move ", ""):match(("([^ ]+) *"):rep(3)) }
 				dataName = "movement"
 				atmosphere.entities[#atmosphere.entities].animated = true
-			elseif (ln:find("^colo[u]?r ")) then
-				data = { ln:gsub("^colo[u]?r ", ""):match(("([^ ]+) *"):rep(4)) }
+			elseif (ln:find("^colo[u]?r ") or ln:find("^col ")) then
+				data = { ln:gsub("^col[our]* ", ""):match(("([^ ]+) *"):rep(4)) }
 				if (tonumber(data[1]) > 2 or tonumber(data[2]) > 2 or tonumber(data[3]) > 2) then
 					for i = 1, 3 do
 						data[i] = data[i] / 256
 					end
 				end
 				dataName = "color"
-			elseif (ln:find("^randomcolo[u]?r ")) then
-				data = { ln:gsub("^randomcolo[u]?r ", ""):match(("([^ ]+) *"):rep(4)) }
+			elseif (ln:find("^rcol[our]* ") or ln:find("^randomcol[our]* ")) then
+				data = { ln:gsub("^r[andom]*col[our]* ", ""):match(("([^ ]+) *"):rep(4)) }
 				if (tonumber(data[1]) > 2 or tonumber(data[2]) > 2 or tonumber(data[3]) > 2) then
 					for i = 1, 3 do
 						data[i] = data[i] / 256
 					end
 				end
 				dataName = "rcolor"
+			elseif (ln:find("^rcol[our]*_precision ") or ln:find("^randomcol[our]*_precision ")) then
+				local precision = ln:gsub("^r[andom]*col[our]*_precision ", "")
+				atmosphere.entities[#atmosphere.entities].rcolor_precision = tonumber(precision)
 			elseif (ln:find("^count ")) then
 				local count = ln:gsub("^count ", "")
 				atmosphere.entities[#atmosphere.entities].count = tonumber(count) or 1
-			elseif (ln:find("^latequeue 1")) then
-				atmosphere.entities[#atmosphere.entities].lateRenderQueue = true
+			elseif (ln:find("^no_depth 1")) then
+				atmosphere.entities[#atmosphere.entities].ignoreDepth = true
 			end
 			if (#data > 0) then
 				if (not atmosphere.entities[#atmosphere.entities][dataName]) then
@@ -556,25 +576,28 @@ function Atmospheres.LoadAtmo(filename)
 				local entityRandom = table.clone(entity)
 				entityRandom.name = entity.name .. i
 				if (entity.rpos) then
+					local precision = entity.rpos_precision or Atmospheres.RandomPrecision
 					entityRandom.pos = {
-						entity.pos[1] + math.random(-entity.rpos[1] * Atmospheres.RandomPrecision, entity.rpos[1] * Atmospheres.RandomPrecision) / Atmospheres.RandomPrecision,
-						entity.pos[2] + math.random(-entity.rpos[2] * Atmospheres.RandomPrecision, entity.rpos[2] * Atmospheres.RandomPrecision) / Atmospheres.RandomPrecision,
-						entity.pos[3] + math.random(-entity.rpos[3] * Atmospheres.RandomPrecision, entity.rpos[3] * Atmospheres.RandomPrecision) / Atmospheres.RandomPrecision
+						entity.pos[1] + math.random(-entity.rpos[1] * precision, entity.rpos[1] * precision) / precision,
+						entity.pos[2] + math.random(-entity.rpos[2] * precision, entity.rpos[2] * precision) / precision,
+						entity.pos[3] + math.random(-entity.rpos[3] * precision, entity.rpos[3] * precision) / precision
 					}
 				end
 				if (entity.rsize) then
+					local precision = entity.rsize_precision or Atmospheres.RandomPrecision
 					entityRandom.size = {
-						entity.size[1] + math.random(-entity.rsize[1] * Atmospheres.RandomPrecision, entity.rsize[1] * Atmospheres.RandomPrecision) / Atmospheres.RandomPrecision,
-						entity.size[2] + math.random(-entity.rsize[2] * Atmospheres.RandomPrecision, entity.rsize[2] * Atmospheres.RandomPrecision) / Atmospheres.RandomPrecision,
-						entity.size[3] + math.random(-entity.rsize[3] * Atmospheres.RandomPrecision, entity.rsize[3] * Atmospheres.RandomPrecision) / Atmospheres.RandomPrecision
+						entity.size[1] + math.random(-entity.rsize[1] * precision, entity.rsize[1] * precision) / precision,
+						entity.size[2] + math.random(-entity.rsize[2] * precision, entity.rsize[2] * precision) / precision,
+						entity.size[3] + math.random(-entity.rsize[3] * precision, entity.rsize[3] * precision) / precision
 					}
 				end
 				if (entity.rcolor) then
+					local precision = entity.rcolor_precision or Atmospheres.RandomPrecision
 					entityRandom.color = {
-						entity.color[1] + math.random(-entity.rcolor[1] * Atmospheres.RandomPrecision, entity.rcolor[1] * Atmospheres.RandomPrecision) / Atmospheres.RandomPrecision,
-						entity.color[2] + math.random(-entity.rcolor[2] * Atmospheres.RandomPrecision, entity.rcolor[2] * Atmospheres.RandomPrecision) / Atmospheres.RandomPrecision,
-						entity.color[3] + math.random(-entity.rcolor[3] * Atmospheres.RandomPrecision, entity.rcolor[3] * Atmospheres.RandomPrecision) / Atmospheres.RandomPrecision,
-						entity.color[4] + math.random(-entity.rcolor[4] * Atmospheres.RandomPrecision, entity.rcolor[4] * Atmospheres.RandomPrecision) / Atmospheres.RandomPrecision
+						entity.color[1] + math.random(-entity.rcolor[1] * precision, entity.rcolor[1] * precision) / precision,
+						entity.color[2] + math.random(-entity.rcolor[2] * precision, entity.rcolor[2] * precision) / precision,
+						entity.color[3] + math.random(-entity.rcolor[3] * precision, entity.rcolor[3] * precision) / precision,
+						entity.color[4] + math.random(-entity.rcolor[4] * precision, entity.rcolor[4] * precision) / precision
 					}
 				end
 				Atmospheres.SpawnObject(Atmospheres.EntityHolder, entityList, entityRandom)
@@ -618,7 +641,7 @@ function Atmospheres.SpawnObject(entityHolder, entityList, entity)
 		bgColor = { unpack(entity.color) },
 		shapeType = entity.shape,
 		objModel = entity.model,
-		lateRenderQueue = entity.lateRenderQueue
+		ignoreDepth = entity.ignoreDepth
 	})
 	entityList[entity.name] = item
 	if (TB_MENU_DEBUG) then
