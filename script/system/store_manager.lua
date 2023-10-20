@@ -1655,6 +1655,7 @@ function Torishop:spawnInventoryUpdateWaiter(globalid, extraFunc)
 	local overlay = TBMenu:spawnWindowOverlay(globalid)
 	overlay:addMouseHandlers(nil, nil, function(x, y)
 		if (x > WIN_W / 2) then
+			INVENTORY_LIST_SHIFT[1] = 0
 			Torishop:refreshInventory(TB_MENU_SPECIAL_SCREEN_ISOPEN == 1 and TB_MENU_MAIN_ISOPEN)
 			if (INVENTORY_SELECTION_RESET) then
 				for i = #INVENTORY_SELECTED_ITEMS, 1, -1 do
@@ -2448,7 +2449,7 @@ function Torishop:showInventoryPage(inventoryItems, pageShift, mode, title, page
 	end
 
 	if (#listElements > 0) then
-		for i,v in pairs(listElements) do
+		for _, v in pairs(listElements) do
 			v:hide()
 		end
 		local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)

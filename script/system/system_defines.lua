@@ -2864,9 +2864,10 @@ function set_option(option, value) end
 ---| 5 Bumpmapping
 ---| 6 Ray tracing
 ---| 7 Body textures
----| 8 High dpi mode
+---| 8 High DPI mode
 ---| 9 Borderless window mode
 ---| 10 Item effects
+---| 11 Apple high DPI mode
 
 ---Sets value for the specified graphics option \
 ---Changes will be applied on next `reload_graphics()` call

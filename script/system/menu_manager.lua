@@ -2902,7 +2902,7 @@ function TBMenu:showBottomBar(leftOnly)
 			if (TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 6) then
 				TBMenu:showSettings()
 			else
-				Settings:quit()
+				Settings.Quit()
 			end
 		end,
 		image = TB_MENU_SETTINGS_BUTTON,

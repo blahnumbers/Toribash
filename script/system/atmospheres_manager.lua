@@ -106,6 +106,7 @@ end
 ---@field animated boolean
 ---@field movement string[]|number[]
 ---@field rotation string[]|number[]
+---@field graphics_level GraphicsLevel Minimum graphics level to display this object
 
 ---@class Atmosphere
 ---@field shader string Custom shader name
@@ -153,7 +154,8 @@ function Atmospheres.ParseFile(filename)
 				rot = { 0, 0, 0 },
 				size = { 1, 1, 1 },
 				color = { 1, 1, 1, 1 },
-				shape = CUBE
+				shape = CUBE,
+				graphics_level = 0
 			}
 			doIgnore = false
 		elseif (ln:find("^player %d")) then
@@ -232,6 +234,9 @@ function Atmospheres.ParseFile(filename)
 				atmosphere.entities[#atmosphere.entities].count = tonumber(count) or 1
 			elseif (ln:find("^no_depth 1")) then
 				atmosphere.entities[#atmosphere.entities].ignoreDepth = true
+			elseif (ln:find("^graphics_level ")) then
+				local level = ln:gsub("^graphics_level ", "")
+				atmosphere.entities[#atmosphere.entities].graphics_level = tonumber(level) or 0
 			end
 			if (#data > 0) then
 				if (not atmosphere.entities[#atmosphere.entities][dataName]) then
@@ -569,41 +574,45 @@ function Atmospheres.LoadAtmo(filename)
 		return
 	end
 
+	local graphics_level = Settings.GetLevel()
+
 	local entityList = {}
 	for _, entity in pairs(atmoData.entities) do
-		if (entity.count) then
-			for i = 1, entity.count do
-				local entityRandom = table.clone(entity)
-				entityRandom.name = entity.name .. i
-				if (entity.rpos) then
-					local precision = entity.rpos_precision or Atmospheres.RandomPrecision
-					entityRandom.pos = {
-						entity.pos[1] + math.random(-entity.rpos[1] * precision, entity.rpos[1] * precision) / precision,
-						entity.pos[2] + math.random(-entity.rpos[2] * precision, entity.rpos[2] * precision) / precision,
-						entity.pos[3] + math.random(-entity.rpos[3] * precision, entity.rpos[3] * precision) / precision
-					}
+		if (graphics_level >= entity.graphics_level) then
+			if (entity.count) then
+				for i = 1, entity.count do
+					local entityRandom = table.clone(entity)
+					entityRandom.name = entity.name .. i
+					if (entity.rpos) then
+						local precision = entity.rpos_precision or Atmospheres.RandomPrecision
+						entityRandom.pos = {
+							entity.pos[1] + math.random(-entity.rpos[1] * precision, entity.rpos[1] * precision) / precision,
+							entity.pos[2] + math.random(-entity.rpos[2] * precision, entity.rpos[2] * precision) / precision,
+							entity.pos[3] + math.random(-entity.rpos[3] * precision, entity.rpos[3] * precision) / precision
+						}
+					end
+					if (entity.rsize) then
+						local precision = entity.rsize_precision or Atmospheres.RandomPrecision
+						entityRandom.size = {
+							entity.size[1] + math.random(-entity.rsize[1] * precision, entity.rsize[1] * precision) / precision,
+							entity.size[2] + math.random(-entity.rsize[2] * precision, entity.rsize[2] * precision) / precision,
+							entity.size[3] + math.random(-entity.rsize[3] * precision, entity.rsize[3] * precision) / precision
+						}
+					end
+					if (entity.rcolor) then
+						local precision = entity.rcolor_precision or Atmospheres.RandomPrecision
+						entityRandom.color = {
+							entity.color[1] + math.random(-entity.rcolor[1] * precision, entity.rcolor[1] * precision) / precision,
+							entity.color[2] + math.random(-entity.rcolor[2] * precision, entity.rcolor[2] * precision) / precision,
+							entity.color[3] + math.random(-entity.rcolor[3] * precision, entity.rcolor[3] * precision) / precision,
+							entity.color[4] + math.random(-entity.rcolor[4] * precision, entity.rcolor[4] * precision) / precision
+						}
+					end
+					Atmospheres.SpawnObject(Atmospheres.EntityHolder, entityList, entityRandom)
 				end
-				if (entity.rsize) then
-					local precision = entity.rsize_precision or Atmospheres.RandomPrecision
-					entityRandom.size = {
-						entity.size[1] + math.random(-entity.rsize[1] * precision, entity.rsize[1] * precision) / precision,
-						entity.size[2] + math.random(-entity.rsize[2] * precision, entity.rsize[2] * precision) / precision,
-						entity.size[3] + math.random(-entity.rsize[3] * precision, entity.rsize[3] * precision) / precision
-					}
-				end
-				if (entity.rcolor) then
-					local precision = entity.rcolor_precision or Atmospheres.RandomPrecision
-					entityRandom.color = {
-						entity.color[1] + math.random(-entity.rcolor[1] * precision, entity.rcolor[1] * precision) / precision,
-						entity.color[2] + math.random(-entity.rcolor[2] * precision, entity.rcolor[2] * precision) / precision,
-						entity.color[3] + math.random(-entity.rcolor[3] * precision, entity.rcolor[3] * precision) / precision,
-						entity.color[4] + math.random(-entity.rcolor[4] * precision, entity.rcolor[4] * precision) / precision
-					}
-				end
-				Atmospheres.SpawnObject(Atmospheres.EntityHolder, entityList, entityRandom)
+			else
+				Atmospheres.SpawnObject(Atmospheres.EntityHolder, entityList, entity)
 			end
-		else
-			Atmospheres.SpawnObject(Atmospheres.EntityHolder, entityList, entity)
 		end
 	end
 
