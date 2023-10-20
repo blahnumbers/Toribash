@@ -2299,7 +2299,7 @@ function TBMenu:showPlayerHeadAvatar(viewElement, player, extraSize)
 	table.insert(headViewport.avatarObjects, playerHeadHolder)
 	local playerNeckHolder = playerHeadHolder:addChild({
 		shapeType = SPHERE,
-		pos = { 0, playerHeadHolder.size.x * 0.278, -playerHeadHolder.size.x * 0.867},
+		pos = { 0, playerHeadHolder.size.x * 0.25, -playerHeadHolder.size.x * 0.75 },
 		size = { playerHeadHolder.size.x * 0.55, 0, 0 },
 		bgColor = get_color_rgba(customs.colors.force),
 		effects = customs.effects.force
@@ -2321,7 +2321,7 @@ function TBMenu:showPlayerHeadAvatar(viewElement, player, extraSize)
 		table.insert(headViewport.avatarObjects, headObjModel)
 	end
 	if (customs.objs.neck.equipped) then
-		local objScale = playerHeadHolder.size.x * (customs.objs.neck.dynamic and 2 or 10)
+		local objScale = customs.objs.neck.dynamic and (playerNeckHolder.size.x * 2) or (playerHeadHolder.size.x * 10)
 		if (customs.objs.neck.partless and playerNeckHolder) then
 			playerNeckHolder.bgColor[4] = 0
 		end
