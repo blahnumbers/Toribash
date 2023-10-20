@@ -86,6 +86,7 @@ function Tooltip.Destroy()
 end
 
 function Tooltip.DestroyAndDeselect()
+	Tooltip.GrabDisplayActive = false
 	Tooltip.Destroy()
 	Tooltip.TouchDeselect()
 end
@@ -216,8 +217,7 @@ end
 ---@param player integer Player id
 ---@param body integer Body id
 function Tooltip:showTooltipBody(player, body)
-	Tooltip.GrabDisplayActive = false
-	Tooltip.Destroy()
+	Tooltip.DestroyAndDeselect()
 
 	local worldstate = get_world_state()
 	if (worldstate.replay_mode == 1) then

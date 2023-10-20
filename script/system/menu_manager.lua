@@ -3299,7 +3299,7 @@ function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHei
 		pos = { 10, 2 },
 		size = { selectedElement.size.w - selectedElement.size.h - 10, selectedElement.size.h - 4 }
 	})
-	selectedElementText:addAdaptedText(false, textSettings.uppercase and selectedItem.text:upper() or selectedItem.text, nil, nil, textSettings.fontid, textSettings.alignment, textSettings.scale)
+	selectedElementText:addAdaptedText(false, textSettings.uppercase and utf8.upper(selectedItem.text) or selectedItem.text, nil, nil, textSettings.fontid, textSettings.alignment, textSettings.scale)
 	local selectedElementArrow = selectedElement:addChild({
 		pos = { -selectedElement.size.h, 0 },
 		size = { selectedElement.size.h, selectedElement.size.h },
@@ -3336,7 +3336,7 @@ function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHei
 	---Marks an item as selected and executes its on submit action
 	---@param item DropdownElement
 	overlay.selectItem = function(item)
-			selectedElementText:addAdaptedText(false, listTextSettings.uppercase and item.text:upper() or item.text, nil, nil, textSettings.fontid, textSettings.alignment, textSettings.scale)
+			selectedElementText:addAdaptedText(false, listTextSettings.uppercase and utf8.upper(item.text) or item.text, nil, nil, textSettings.fontid, textSettings.alignment, textSettings.scale)
 			overlay.selectedElement:show(true)
 			if (selectedItem == item) then
 				return
@@ -3380,7 +3380,7 @@ function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHei
 		if (selectedItem == v) then
 			selectedItemId = i
 		end
-		element:addChild({ shift = { 10, 1 }}):addAdaptedText(false, listTextSettings.uppercase and v.text:upper() or v.text, nil, nil, listTextSettings.fontid, listTextSettings.alignment, listTextSettings.scale)
+		element:addChild({ shift = { 10, 1 }}):addAdaptedText(false, listTextSettings.uppercase and utf8.upper(v.text) or v.text, nil, nil, listTextSettings.fontid, listTextSettings.alignment, listTextSettings.scale)
 		element:addMouseHandlers(nil, function()
 				overlay:hide(true)
 				overlay.selectedElement:show(true)
