@@ -106,7 +106,8 @@ end
 ---@field animated boolean
 ---@field movement string[]|number[]
 ---@field rotation string[]|number[]
----@field graphics_level GraphicsLevel Minimum graphics level to display this object
+---@field min_level GraphicsLevel Minimum graphics level to display this object
+---@field max_level GraphicsLevel Maximum graphics level to display this object
 
 ---@class Atmosphere
 ---@field shader string Custom shader name
@@ -155,7 +156,8 @@ function Atmospheres.ParseFile(filename)
 				size = { 1, 1, 1 },
 				color = { 1, 1, 1, 1 },
 				shape = CUBE,
-				graphics_level = 0
+				min_level = 0,
+				max_level = 2
 			}
 			doIgnore = false
 		elseif (ln:find("^player %d")) then
@@ -234,9 +236,12 @@ function Atmospheres.ParseFile(filename)
 				atmosphere.entities[#atmosphere.entities].count = tonumber(count) or 1
 			elseif (ln:find("^no_depth 1")) then
 				atmosphere.entities[#atmosphere.entities].ignoreDepth = true
-			elseif (ln:find("^graphics_level ")) then
-				local level = ln:gsub("^graphics_level ", "")
-				atmosphere.entities[#atmosphere.entities].graphics_level = tonumber(level) or 0
+			elseif (ln:find("^min_level ")) then
+				local level = ln:gsub("^min_level ", "")
+				atmosphere.entities[#atmosphere.entities].min_level = tonumber(level) or atmosphere.entities[#atmosphere.entities].min_level
+			elseif (ln:find("^max_level ")) then
+				local level = ln:gsub("^max_level ", "")
+				atmosphere.entities[#atmosphere.entities].max_level = tonumber(level) or atmosphere.entities[#atmosphere.entities].max_level
 			end
 			if (#data > 0) then
 				if (not atmosphere.entities[#atmosphere.entities][dataName]) then
@@ -578,7 +583,7 @@ function Atmospheres.LoadAtmo(filename)
 
 	local entityList = {}
 	for _, entity in pairs(atmoData.entities) do
-		if (graphics_level >= entity.graphics_level) then
+		if (graphics_level >= entity.min_level and graphics_level <= entity.max_level) then
 			if (entity.count) then
 				for i = 1, entity.count do
 					local entityRandom = table.clone(entity)
