@@ -1,7 +1,7 @@
 env_obj 1
    shape box
    pos 0 0 0.01
-   color 0.6 0.7 0.65 0.5
+   color 0.6 0.7 0.65 0.75
    sides 200 200 0.2
    no_depth 1
    min_level 2
@@ -11,12 +11,21 @@ env_obj 2
    color 0.6 0.7 0.65 0.5
    sides 200 200 0.2
    no_depth 1
+   min_level 2
 env_obj 3
    shape box
    pos 0 0 0.05
    color 0.6 0.7 0.65 0.2
    sides 200 200 0.4
    no_depth 1
+   min_level 2
+env_obj 3
+   shape box
+   pos 0 0 0.05
+   color 0.6 0.7 0.65 0.8
+   sides 200 200 0.55
+   no_depth 1
+   max_level 1
 env_obj 4
    shape box
    pos 0 0 0.062
@@ -30,6 +39,14 @@ env_obj 6
    color 0.6 0.7 0.65 0.2
    sides 200 200 0.4
    no_depth 1
+   min_level 2
+env_obj 6
+   shape box
+   pos 0 0 0.07
+   color 0.6 0.7 0.65 0.5
+   sides 200 200 0.675
+   no_depth 1
+   max_level 1
 env_obj 7
    shape box
    pos 0 0 0.075
@@ -43,12 +60,14 @@ env_obj 8
    color 0.6 0.7 0.65 0.2
    sides 200 200 0.4
    no_depth 1
+   min_level 2
 env_obj 9
    shape box
    pos 0 0 0.09
    color 0.6 0.7 0.65 0.2
    sides 200 200 0.4
    no_depth 1
+   min_level 2
 env_obj 10
    shape box
    pos 0 0 0.094
@@ -56,6 +75,13 @@ env_obj 10
    sides 200 200 0.4
    no_depth 1
    min_level 2
+env_obj 10
+   shape box
+   pos 0 0 0.094
+   color 0.6 0.7 0.65 0.4
+   sides 200 200 0.78
+   no_depth 1
+   max_level 1
 env_obj 11
    shape box
    pos 0 0 0.1022
@@ -77,13 +103,6 @@ env_obj 13
    sides 200 200 0.8
    no_depth 1
    min_level 2
-env_obj 14
-   shape box
-   pos 0 0 0.1064
-   color 0.6 0.7 0.65 0.15
-   sides 200 200 0.8
-   no_depth 1
-   max_level 1
 env_obj 14
    shape box
    pos 0 0 0.1064
@@ -129,7 +148,7 @@ env_obj 19
 env_obj 19
    shape box
    pos 0 0 0.1325
-   color 0.6 0.7 0.65 0.15
+   color 0.6 0.7 0.65 0.25
    sides 200 200 0.8
    no_depth 1
    max_level 1
@@ -168,13 +187,6 @@ env_obj 24
    sides 200 200 0.8
    no_depth 1
    min_level 2
-env_obj 24
-   shape box
-   pos 0 0 0.1479
-   color 0.6 0.7 0.65 0.15
-   sides 200 200 0.8
-   no_depth 1
-   max_level 1
 env_obj 25
    shape box
    pos 0 0 0.1488
@@ -213,7 +225,7 @@ env_obj 29
 env_obj 29
    shape box
    pos 0 0 0.1844
-   color 0.6 0.7 0.65 0.15
+   color 0.6 0.7 0.65 0.25
    sides 200 200 0.8
    no_depth 1
    max_level 1
@@ -255,7 +267,7 @@ env_obj 34
 env_obj 34
    shape box
    pos 0 0 0.2015
-   color 0.6 0.7 0.65 0.15
+   color 0.6 0.7 0.65 0.2
    sides 200 200 0.8
    no_depth 1
    max_level 1
@@ -338,7 +350,7 @@ env_obj 44
    min_level 2
 env_obj 44
    shape box
-   pos 0 0 0.247
+   pos 0 0 0.255
    color 0.6 0.7 0.65 0.15
    sides 200 200 0.8
    no_depth 1
@@ -377,9 +389,18 @@ env_obj 49
    color 0.6 0.7 0.65 0.051
    sides 200 200 0.8
    no_depth 1
+   min_level 2
 env_obj 50
    shape box
    pos 0 0 0.2943
    color 0.6 0.7 0.65 0.051
    sides 200 200 0.8
    no_depth 1
+   min_level 2
+env_obj 50
+   shape box
+   pos 0 0 0.2943
+   color 0.6 0.7 0.65 0.1
+   sides 200 200 0.8
+   no_depth 1
+   max_level 1
