@@ -2707,6 +2707,9 @@ end
 ---@return MenuNavButton[]
 function TBMenu:getMainNavigationButtons()
 	local storeMiscText = TB_STORE_DISCOUNTS and (#TB_STORE_DISCOUNTS > 0 and (TB_MENU_LOCALIZED.STORESALE1 .. TB_MENU_LOCALIZED.STORESALE2) or nil) or nil
+	if (TB_MENU_PLAYER_INFO == nil) then
+		TB_MENU_PLAYER_INFO = PlayerInfo.Get(PLAYERINFO_SCOPE_GENERAL)
+	end
 	local buttonData = {
 		{ text = TB_MENU_LOCALIZED.NAVBUTTONNEWS, sectionId = 1, misctext = News.HasUnreadNews and "!" or nil },
 		{ text = TB_MENU_LOCALIZED.NAVBUTTONPLAY, sectionId = 2 },

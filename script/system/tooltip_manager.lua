@@ -411,10 +411,13 @@ function Tooltip:showTouchControls()
 		size = { 150, 150 }
 	})
 	add_hook("pre_draw", "tooltipTouchPositionFixer", function()
-			---@diagnostic disable-next-line: param-type-mismatch
-			TooltipInternal.TouchInputPosition.x, TooltipInternal.TouchInputPosition.y = get_joint_screen_pos(TooltipInternal.TouchInputTargetPlayer, TooltipInternal.TouchInputTargetJoint)
-			touchControlsHolder:moveTo(TooltipInternal.TouchInputPosition.x - touchControlsHolder.size.w / 2, TooltipInternal.TouchInputPosition.y - touchControlsHolder.size.h / 2)
-			touchControlsHolder:updatePos()
+			if (TooltipInternal.TouchInputTargetPlayer == -1 or TooltipInternal.TouchInputTargetJoint == -1) then return end
+			pcall(function()
+				---@diagnostic disable-next-line: param-type-mismatch
+				TooltipInternal.TouchInputPosition.x, TooltipInternal.TouchInputPosition.y = get_joint_screen_pos(TooltipInternal.TouchInputTargetPlayer, TooltipInternal.TouchInputTargetJoint)
+				touchControlsHolder:moveTo(TooltipInternal.TouchInputPosition.x - touchControlsHolder.size.w / 2, TooltipInternal.TouchInputPosition.y - touchControlsHolder.size.h / 2)
+				touchControlsHolder:updatePos()
+			end)
 		end)
 	disable_mouse_camera_movement()
 	touchControlsHolder.killAction = function()
@@ -571,14 +574,18 @@ function Tooltip:showTouchControls()
 				targetJointState = fallbackJointState
 			end
 
+			---It's possible that target player is no longer valid
+			---Wrap set_joint_state() in a pcall to ensure we only proceed on success
 			if (lastJointState ~= targetJointState and TooltipInternal.WaitForTouchInput) then
-				play_haptics(0.6, HAPTICS.SELECTION)
 				---@diagnostic disable-next-line: param-type-mismatch
-				set_joint_state(TooltipInternal.TouchInputTargetPlayer, TooltipInternal.TouchInputTargetJoint, targetJointState, true)
-				lastJointState = targetJointState
-				for _, v in pairs(TooltipInternal.OnToggleWheelEvents) do
-					if (type(v) == "function") then
-						pcall(v)
+				local result = pcall(function() set_joint_state(TooltipInternal.TouchInputTargetPlayer, TooltipInternal.TouchInputTargetJoint, targetJointState, true) end)
+				if (result) then
+					play_haptics(0.6, HAPTICS.SELECTION)
+					lastJointState = targetJointState
+					for _, v in pairs(TooltipInternal.OnToggleWheelEvents) do
+						if (type(v) == "function") then
+							pcall(v)
+						end
 					end
 				end
 			end

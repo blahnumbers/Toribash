@@ -2,15 +2,20 @@
 require("toriui.uielement")
 require("system.network_request")
 
-if (not Broadcasts or TB_MENU_DEBUG) then
+if (not Broadcasts) then
 	---@class Broadcast
 	---@field id integer Broadcast ID according to Toribash database
 	---@field msg string Global message associated with the broadcast
 	---@field room string|nil Room name parsed from global message
 	---@field user string Name of the user who sent out the broadcast
 	---@field time integer Time when this broadcast was retrieved
+	---@field minqi integer	Broadcast min Qi requirement
+	---@field maxqi integer Broadcast max Qi requirement
 
 	---Manager class to handle Toribash global messages popups
+	---
+	---**Version 5.64**
+	---* Broadcast belt restriction support
 	---
 	---**Version 5.60:**
 	---* Broadcasts are now initialized automatically on script launch
@@ -26,7 +31,7 @@ if (not Broadcasts or TB_MENU_DEBUG) then
 	---@field IsDisplayed boolean Whether there's a broadcast popup displayed at the moment, only used on desktop platforms
 	---@field StalePeriod integer Cutoff in seconds to consider broadcast stale
 	Broadcasts = {
-		ver = 5.60,
+		ver = 5.64,
 		IsActive = false,
 		LastBroadcast = 0,
 		DisplayDuration = 12,
@@ -219,9 +224,19 @@ function Broadcasts:fetchBroadcast()
 					end
 				elseif (ln:find("^BROADCASTUSER 0;")) then
 					broadcast.user = ln:gsub("^BROADCASTUSER 0;", '')
+				elseif (ln:find("^BROADCASTQI 0;")) then
+					local qiStr = ln:gsub("^BROADCASTQI 0;", '')
+					local qi = { qiStr:match(("(%d+) ?"):rep(2)) }
+					broadcast.minqi = tonumber(qi[1]) or 0
+					broadcast.maxqi = tonumber(qi[2]) or 0
 				end
 			end
 			if (broadcast.room and broadcast.room:find("^tourney%d$") and bit.band(tonumber(get_option("showbroadcast")) or 0, 4) ~= 0) then
+				self.LastBroadcast = broadcast.id
+				return
+			end
+			local playerQi = (TB_MENU_PLAYER_INFO and TB_MENU_PLAYER_INFO.data) and TB_MENU_PLAYER_INFO.data.qi or 0
+			if (broadcast.minqi > playerQi or (broadcast.maxqi ~= 0 and broadcast.maxqi < playerQi)) then
 				self.LastBroadcast = broadcast.id
 				return
 			end

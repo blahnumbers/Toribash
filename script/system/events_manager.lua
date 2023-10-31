@@ -623,7 +623,7 @@ do
 						local claimSuccess = nil
 						local claimOverlay = prizeHolder:addChild({
 							pos = { 0, 0 },
-							size = { prizeHolder.rounded * 2, prizeHolder.size.h },
+							size = { (prizeHolder.rounded or 1) * 2, prizeHolder.size.h },
 							interactive = true,
 							bgColor = TB_MENU_DEFAULT_DARKER_ORANGE
 						}, true)
@@ -664,7 +664,7 @@ do
 											local progress = (UIElement.clock - spawnClock) / 1.6
 											claimOverlay.size.w = math.floor(UITween.SineTween(claimOverlay.size.w, 0, progress))
 											claimOverlay:moveTo(-claimOverlay.size.w)
-											if (progress >= 1 or claimOverlay.size.w / 2 < claimOverlay.rounded) then
+											if (progress >= 1 or claimOverlay.size.w / 2 < (claimOverlay.rounded or 1)) then
 												if (claimSuccess == false) then
 													for _, v in pairs(claimButtons) do
 														v:activate()

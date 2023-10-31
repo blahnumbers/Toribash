@@ -5188,7 +5188,9 @@ function Torishop.InitUSDPurchase(item)
 		---We just spawn a mouse move event listener and wait for it to get the first hit to check on purchase status.
 		local purchaseProgressMonitor = overlay:addChild({ interactive = true })
 		purchaseProgressMonitor:addMouseMoveHandler(function()
-				overlay:kill()
+				if (overlay and not overlay.destroyed) then
+					overlay:kill()
+				end
 				if (get_purchase_done() == 1) then
 					TBMenu:showStatusMessage(item.itemname .. " " .. TB_MENU_LOCALIZED.STOREITEMPURCHASESUCCESSFUL)
 					update_tc_balance()
@@ -5202,19 +5204,25 @@ function Torishop.InitUSDPurchase(item)
 		add_hook("purchase_status", "tbStorePurchaseProgress", function(result, error_code)
 				remove_hook("purchase_status", "tbStorePurchaseProgress")
 				if (result == true) then
-					purchaseWindow:kill(true)
-					TBMenu:displayLoadingMark(purchaseWindow, TB_MENU_LOCALIZED.STOREPURCHASEFINALIZING)
-					local purchaseProgressMonitor = purchaseWindow:addChild({})
-					purchaseProgressMonitor:addCustomDisplay(true, function()
-							if (get_purchase_done() == 1) then
-								overlay:kill()
-								TBMenu:showStatusMessage(item.itemname .. " " .. TB_MENU_LOCALIZED.STOREITEMPURCHASESUCCESSFUL)
-								update_tc_balance()
-								Notifications:getTotalNotifications(true)
-							end
-						end)
+					if (purchaseWindow and not purchaseWindow.destroyed) then
+						purchaseWindow:kill(true)
+						TBMenu:displayLoadingMark(purchaseWindow, TB_MENU_LOCALIZED.STOREPURCHASEFINALIZING)
+						local purchaseProgressMonitor = purchaseWindow:addChild({})
+						purchaseProgressMonitor:addCustomDisplay(true, function()
+								if (get_purchase_done() == 1) then
+									if (overlay and not overlay.destroyed) then
+										overlay:kill()
+									end
+									TBMenu:showStatusMessage(item.itemname .. " " .. TB_MENU_LOCALIZED.STOREITEMPURCHASESUCCESSFUL)
+									update_tc_balance()
+									Notifications:getTotalNotifications(true)
+								end
+							end)
+					end
 				else
-					overlay:kill()
+					if (overlay and not overlay.destroyed) then
+						overlay:kill()
+					end
 					if (error_code == 2) then
 						TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STOREPURCHASECANCELLED)
 					else

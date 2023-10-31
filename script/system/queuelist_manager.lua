@@ -534,7 +534,7 @@ function QueueList:report(pName)
 						shift = { exitButton.size.w * 0.05, exitButton.size.h * 0.1 },
 					})
 					exitButtonText:addAdaptedText(true, TB_MENU_LOCALIZED.BUTTONCLOSEWINDOW)
-					exitButton:addMouseUpHandler(overlay.btnUp)
+					exitButton:addMouseUpHandler(function() overlay:kill() end)
 				else
 					waitOverlay:kill()
 					TBMenu:showStatusMessage(TB_MENU_LOCALIZED.ACCOUNTINFOERROR)

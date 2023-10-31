@@ -1548,7 +1548,7 @@ function UIElement:hide(noreload)
 	if (noreload) then
 		self.noreload = true
 	end
-	if (self.displayed == false) then
+	if (self.destroyed == true or self.displayed == false) then
 		return
 	end
 

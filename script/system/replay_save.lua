@@ -8,6 +8,7 @@ end
 
 require("toriui.uielement")
 require("system.menu_manager")
+require("system.replays_manager")
 
 REPLAY_SAVETEMPNAME = "--localreplaytempfile"
 REPLAY_FOLDER = REPLAY_FOLDER or 'my replays'
