@@ -50,6 +50,7 @@ function Broadcasts:showBroadcast(broadcast)
 		return false
 	end
 
+	local broadcastRoom = nil
 	if (is_mobile()) then
 		local popupView = TBHudPopup.New(self.DisplayDuration)
 		local broadcastInfo = popupView:addChild({
@@ -72,7 +73,7 @@ function Broadcasts:showBroadcast(broadcast)
 				pos = { broadcastInfo.shift.x * 2 + broadcastInfo.size.w, broadcastInfo.shift.y },
 				size = { popupView.size.w - broadcastInfo.shift.x * 3 - broadcastInfo.size.w, broadcastInfo.size.h }
 			}, true)
-			local broadcastRoom = broadcastButtonHolder:addChild({
+			broadcastRoom = broadcastButtonHolder:addChild({
 				shift = { 0, 10 },
 				interactive = true,
 				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
@@ -150,7 +151,7 @@ function Broadcasts:showBroadcast(broadcast)
 		notificationHolder:moveTo(nil, WIN_H - notificationHolder.size.h - 60)
 
 		if (broadcast.room) then
-			local broadcastRoom = notificationHolder:addChild({
+			broadcastRoom = notificationHolder:addChild({
 				pos = { 20, broadcastInfo.size.h + broadcastInfo.shift.y + 5 },
 				size = { notificationHolder.size.w - 40, notificationHolder.size.h - broadcastInfo.size.h - broadcastInfo.shift.y - 15 },
 				interactive = true,
@@ -191,6 +192,9 @@ function Broadcasts:showBroadcast(broadcast)
 						end)
 				end
 			end)
+	end
+	if (broadcastRoom ~= nil and get_room_info().name == broadcast.room) then
+		broadcastRoom:deactivate()
 	end
 	self.LastBroadcast = broadcast.id
 	return true

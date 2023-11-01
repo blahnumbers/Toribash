@@ -15,7 +15,12 @@ require("system.ignore_manager")
 ---@field lines integer Lines this message will take in regular chat
 
 if (TBHud == nil) then
-	---**Touch HUD class**
+	---**Toribash touch HUD class**
+	---
+	---**Version 5.64**
+	---* Fixed wrong cleanup and new message setup after reaching message history limit
+	---* Auto hide chat input on new room join
+	---* Refresh buttons after hitting `Ready`
 	---
 	---**Version 5.61**
 	---* Added chat tabs and whispers support
@@ -74,7 +79,7 @@ if (TBHud == nil) then
 		RequiresChatRefresh = false,
 		SafeAreaOffset = 0,
 		__waitingWhisper = false,
-		ver = 5.61,
+		ver = 5.64,
 	}
 	TBHud.__index = TBHud
 	setmetatable({}, TBHud)
@@ -231,9 +236,17 @@ function TBHudInternal.pushChatMessage(msg, type, tab)
 		local messageInfo = TBHudInternal.ChatMessages[1]
 		if (TBHud.ChatHolderItems[messageInfo.tab] and TBHud.ChatHolderItems[messageInfo.tab][1]) then
 			TBHud.ChatHolderItems[messageInfo.tab][1]:kill()
-			table.remove(TBHud.ChatHolderItems[messageInfo.tab], 1)
+			local messageLines = TBHudInternal.ChatMessages[1].lines or 1
+			for _ = 1, messageLines do
+				---@diagnostic disable-next-line: undefined-field
+				if (TBHud.ChatHolderItems[messageInfo.tab][1].isNewMessageMark) then
+					TBHud.ChatHolderItems[messageInfo.tab].hasNewMessageMark = false
+					messageLines = messageLines + 1
+				end
+				table.remove(TBHud.ChatHolderItems[messageInfo.tab], 1)
+			end
 			for _, v in ipairs(TBHud.ChatHolderItems[messageInfo.tab]) do
-				v:moveTo(nil, -v.size.h, true)
+				v:moveTo(nil, -v.size.h * messageLines, true)
 			end
 		end
 		table.remove(TBHudInternal.ChatMessages, 1)
@@ -373,6 +386,7 @@ function TBHud:spawnCommitButton()
 			commitStepButtonHolder:hide()
 		end
 		clickClock = 0
+		TBHudInternal.refreshButtons()
 	end)
 	commitStepButton:addMouseDownHandler(function()
 		if (self.WorldState.replay_mode == 0 and self.WorldState.game_type == 0) then
@@ -665,7 +679,7 @@ function TBHud:spawnCancelMoveButton()
 	table.insert(self.ButtonsToRefresh, {
 		button = cancelMoveButtonHolder,
 		shouldBeDisplayed = function()
-			return self.WorldState.game_type == 1 and self.WorldState.replay_mode == 0 and TBHudInternal.isPlaying()
+			return players_accept_input() and self.WorldState.game_type == 1 and self.WorldState.replay_mode == 0 and TBHudInternal.isPlaying()
 		end
 	})
 end
@@ -1532,7 +1546,7 @@ function TBHud:refreshChat()
 	local i = 1
 	for _, message in pairs(TBHudInternal.ChatMessages) do
 		if (message.tab == self.ChatActiveTab) then
-			if (i > #holderItems - (holderItems.hasNewMessageMark and 1 or 0)) then
+			if (i > #holderItems - (holderItems.hasNewMessageMark and 1 or 0) or message.lines == nil) then
 				if (tabWasSwitched) then
 					tabWasSwitched = false
 					holderItems.hasNewMessageMark = true
@@ -1931,3 +1945,4 @@ add_hook("enter_freeze", "tbHudTouchInterface", TBHudInternal.refreshButtons)
 add_hook("exit_freeze", "tbHudTouchInterface", TBHudInternal.refreshButtons)
 add_hook("new_game_mp", "tbHudTouchInterface", TBHudInternal.refreshButtons)
 add_hook("console_post", "tbHudChatInterface", TBHudInternal.pushChatMessage)
+add_hook("new_mp_game", "tbHudTouchInterface", function() TBHud:toggleChat(false) end)
