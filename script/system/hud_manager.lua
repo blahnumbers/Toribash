@@ -129,6 +129,7 @@ local TBHudInternal = {
 	ReadyLongPressEnabled = true,
 	ListShift = { 0 },
 	ChatElementHeight = 25,
+	RequireListReload = false,
 	IgnoreCommands = {
 		"addtab",
 		"closetab"
@@ -231,27 +232,41 @@ function TBHudInternal.pushChatMessage(msg, type, tab)
 		tab = tab,
 		clock = os.clock_real()
 	}
-	table.insert(TBHudInternal.ChatMessages, chatMessage)
-	if (#TBHudInternal.ChatMessages > TBHud.ChatMaxHistory) then
+	if (#TBHudInternal.ChatMessages >= TBHud.ChatMaxHistory) then
 		local messageInfo = TBHudInternal.ChatMessages[1]
-		if (TBHud.ChatHolderItems[messageInfo.tab] and TBHud.ChatHolderItems[messageInfo.tab][1]) then
-			TBHud.ChatHolderItems[messageInfo.tab][1]:kill()
-			local messageLines = TBHudInternal.ChatMessages[1].lines or 1
-			for _ = 1, messageLines do
-				---@diagnostic disable-next-line: undefined-field
-				if (TBHud.ChatHolderItems[messageInfo.tab][1].isNewMessageMark) then
-					TBHud.ChatHolderItems[messageInfo.tab].hasNewMessageMark = false
-					messageLines = messageLines + 1
+		local messageHolder = TBHud.ChatHolderItems[messageInfo.tab]
+		if (messageHolder and messageHolder[1]) then
+			local messageLines = messageInfo.lines
+			if (messageLines ~= nil and messageLines > 0) then
+				for _ = 1, messageLines do
+					local lineElement = messageHolder[1]
+					if (lineElement ~= nil) then
+						---@diagnostic disable-next-line: undefined-field
+						if (messageHolder[1].isNewMessageMark) then
+							messageHolder.hasNewMessageMark = nil
+							messageLines = messageLines + 1
+						end
+						if (lineElement == TBHud.ChatHolderListing.child[1]) then
+							table.remove(TBHud.ChatHolderListing.child, 1)
+						end
+						if (lineElement == messageHolder[1]) then
+							table.remove(messageHolder, 1)
+						end
+						lineElement:kill()
+					else
+						messageLines = messageLines - 1
+					end
 				end
-				table.remove(TBHud.ChatHolderItems[messageInfo.tab], 1)
-			end
-			for _, v in ipairs(TBHud.ChatHolderItems[messageInfo.tab]) do
-				v:moveTo(nil, -v.size.h * messageLines, true)
+				for _, v in ipairs(messageHolder) do
+					v:moveTo(nil, -v.size.h * messageLines, true)
+				end
+				TBHudInternal.RequireListReload = true
 			end
 		end
 		table.remove(TBHudInternal.ChatMessages, 1)
 	end
 
+	table.insert(TBHudInternal.ChatMessages, chatMessage)
 	if (TBHud.ChatHolder ~= nil and TBHud.ChatHolder:isDisplayed()) then
 		if (TBHud.ChatActiveTab == tab) then
 			TBHud:refreshChat()
@@ -276,6 +291,7 @@ function TBHudInternal.pushChatMessage(msg, type, tab)
 		if (TBHud.ChatActiveTab ~= tab) then
 			TBHud:markChatTabUnread(tab)
 			TBHud:setChatNotification()
+			play_sound(67)
 		end
 		TBHud.ChatMiniUpdateTime = 0
 		TBHud.RequiresChatRefresh = true
@@ -1504,7 +1520,11 @@ function TBHud:scrollChatIntoPosition()
 	else
 		local scrollProgress = -(self.ChatHolderListing.size.h + self.ChatHolderListing.shift.y) / (#self.ChatHolderItems[self.ChatActiveTab] * TBHudInternal.ChatElementHeight - self.ChatHolderListing.size.h)
 		self.ChatHolderScrollBar:moveTo(nil, (self.ChatHolderScrollBar.parent.size.h - self.ChatHolderScrollBar.size.h) * scrollProgress)
+		if (TBHudInternal.RequireListReload) then
+			self.ChatHolderScrollBar.listReload()
+		end
 	end
+	TBHudInternal.RequireListReload = false
 end
 
 ---Reloads chat display
@@ -1935,6 +1955,11 @@ function TBHudPopup.New(duration)
 	return popupView
 end
 
+function TBHudInternal.toggleChatOff()
+	disable_menu_keyboard()
+	TBHud:toggleChat(false)
+end
+
 TBHud.Reload()
 add_hook("resolution_changed", "tbHudTouchInterface", TBHud.Reload)
 add_hook("new_game", "tbHudTouchInterface", TBHudInternal.refreshButtons)
@@ -1945,4 +1970,4 @@ add_hook("enter_freeze", "tbHudTouchInterface", TBHudInternal.refreshButtons)
 add_hook("exit_freeze", "tbHudTouchInterface", TBHudInternal.refreshButtons)
 add_hook("new_game_mp", "tbHudTouchInterface", TBHudInternal.refreshButtons)
 add_hook("console_post", "tbHudChatInterface", TBHudInternal.pushChatMessage)
-add_hook("new_mp_game", "tbHudTouchInterface", function() TBHud:toggleChat(false) end)
+add_hook("new_mp_game", "tbHudTouchInterface", TBHudInternal.toggleChatOff)

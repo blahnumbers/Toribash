@@ -3149,6 +3149,7 @@ function hide_chat_button() end
 ---| 64	SND_TRIGGER6
 ---| 65	SND_TRIGGER7
 ---| 66	SND_DECAP
+---| 67 SND_MESSAGE
 
 ---Plays a Toribash sound by its ID
 ---@param soundid SoundId
