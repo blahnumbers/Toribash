@@ -198,7 +198,8 @@ _G.COLORS = {
 	WISP = 143,
 	PHANTOM = 144,
 	ULTRABLUE = 145,
-	NUM_COLORS = 146
+	NEON = 146,
+	NUM_COLORS = 147
 }
 
 ---@alias ChatMessageType
@@ -411,6 +412,18 @@ _G.TEXTURE_WRAP = {
 	CLAMP_TO_BORDER = 1,
 	MIRRORED_REPEAT = 2,
 	REPEAT = 3
+}
+
+---@alias InputType
+---| 0	INPUT_TYPE.MOUSE
+---| 1	INPUT_TYPE.TOUCH
+---| 2	INPUT_TYPE.CONTROLLER
+
+---Input method types
+_G.INPUT_TYPE = {
+	MOUSE = 0,
+	TOUCH = 1,
+	CONTROLLER = 3
 }
 
 ---@class MatrixTB
@@ -3267,6 +3280,8 @@ function remove_ignore_list(user, mode) end
 ---| "roomlist_update" #Called on room list info request completion
 ---| "purchase_status" #Called on mobile in-app purchase status change
 ---| "login" #Called on successful account login
+---| "browser" #Web browser completion callback
+---| "input_type_change" #Called on input type change, see `INPUT_TYPE` table for types
 
 ---Adds a Lua callback listener \
 ---*Only one function per `event` + `set_name` pair is supported*

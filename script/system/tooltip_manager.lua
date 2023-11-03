@@ -71,7 +71,8 @@ local TooltipInternal = {
 	TouchInputTargetPlayer = -1,
 	TouchInputTargetJoint = -1,
 	OnToggleWheelEvents = { },
-	OnTapEvents = { }
+	OnTapEvents = { },
+	InputMode = is_mobile() and INPUT_TYPE.TOUCH or INPUT_TYPE.MOUSE
 }
 
 ---Calls Destroy() method and marks Tooltip class inactive
@@ -137,7 +138,9 @@ function Tooltip.Init()
 			local discard = Tooltip:showTooltipJoint(player, joint)
 			if (is_mobile()) then
 				Tooltip.EnableFocusCam()
-				return discard
+				if (TooltipInternal.InputMode == INPUT_TYPE.TOUCH) then
+					return discard
+				end
 			end
 		end)
 	add_hook("body_select", Tooltip.HookName, function(player, body)
@@ -149,15 +152,26 @@ function Tooltip.Init()
 		end)
 	if (is_mobile()) then
 		add_hook("mouse_button_down", Tooltip.HookName, function(s)
+				if (players_accept_input() == false or
+					s ~= 1 or TooltipInternal.InputMode ~= INPUT_TYPE.TOUCH) then
+						return
+				end
+
 				local ws = get_world_state()
 				TooltipInternal.TouchInputTargetPlayer = ws.selected_player
 				TooltipInternal.TouchInputTargetJoint = ws.selected_joint
-				if (players_accept_input() == false or s ~= 1) then return end
 				Tooltip:showTouchControls()
 			end)
 		add_hook("mouse_button_up", Tooltip.HookName, function()
-				if (players_accept_input() == false) then return end
+				if (players_accept_input() == false or
+					TooltipInternal.InputMode ~= INPUT_TYPE.TOUCH) then
+						return
+				end
+
 				Tooltip.SetTouchJointState()
+			end)
+		add_hook("input_type_change", Tooltip.HookName, function(type)
+				TooltipInternal.InputMode = type
 			end)
 	end
 
