@@ -193,7 +193,8 @@ function Broadcasts:showBroadcast(broadcast)
 				end
 			end)
 	end
-	if (broadcastRoom ~= nil and get_room_info().name == broadcast.room) then
+	local roomInfo = get_room_info() or { name = "'" }
+	if (broadcastRoom ~= nil and roomInfo.name == broadcast.room) then
 		broadcastRoom:deactivate()
 	end
 	self.LastBroadcast = broadcast.id
