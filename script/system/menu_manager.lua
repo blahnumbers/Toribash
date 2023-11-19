@@ -3398,7 +3398,7 @@ function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHei
 		local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
 		listingHolder.scrollBar = scrollBar
 		local targetShift = { (scrollBar.parent.size.h - scrollBar.size.h) * ((selectedItemId - 1) / (#listElementsDisplay - 1)) }
-		scrollBar:makeScrollBar(listingHolder, listElements, toReload, targetShift)
+		scrollBar:makeScrollBar(listingHolder, listElements, toReload, targetShift, nil, true)
 
 		overlay.listElements = listElements
 		overlay.listHolder = listingHolder
@@ -3409,7 +3409,17 @@ function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHei
 		overlay.listHolder.scrollBar = overlay.listHolder.scrollBar
 	end
 
-	selectedElement:addMouseHandlers(nil, function()
+	---Cycle through options on mouse wheel scroll
+	selectedElement.scrollEnabled = true
+	selectedElement:addMouseDownHandler(function(s)
+			if (s < 4) then return end
+			if (s == 4 and listElementsDisplay[selectedItemId - 1]) then
+				overlay.selectItem(listElementsDisplay[selectedItemId - 1])
+			elseif (s == 5 and listElementsDisplay[selectedItemId + 1]) then
+				overlay.selectItem(listElementsDisplay[selectedItemId + 1])
+			end
+		end)
+	selectedElement:addMouseUpHandler(function()
 			fixPosition()
 			selectedElement:hide(true)
 			overlay:show(true)
