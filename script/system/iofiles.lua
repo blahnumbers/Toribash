@@ -175,7 +175,7 @@ do
 	---@param line any
 	function Files.LogError(line)
 		local stderr = Files.Open("../stderr.txt", FILES_MODE_APPEND)
-		stderr:writeLine("LogError (" .. os.clock_real() .. ") " .. tostring(line))
+		stderr:writeLine("[LogError " .. os.clock_real() .. "] " .. tostring(line))
 		stderr:close()
 	end
 

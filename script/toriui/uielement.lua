@@ -3026,6 +3026,35 @@ _G.math.clamp = function(x, l, h)
 	return math.min(math.max(x, l), h)
 end
 
+---Returns an ISO 8601 formatted datetime string
+---@param timestamp integer? UNIX timestamp to convert to a string. Defaults to current time.
+---@param withTimezoneOffset boolean? Whether to append timezone offset at the end of the string. Defaults to `false`.
+---@return string
+_G.getTimeISO = function(timestamp, withTimezoneOffset)
+	timestamp = type(timestamp) == "number" and timestamp or os.time()
+	local datestring = os.date("%Y-%m-%dT%H:%M:%S", timestamp)
+
+	if (withTimezoneOffset) then
+		---@diagnostic disable-next-line: param-type-mismatch
+		local dt1 = os.time(os.date("*t" , timestamp))	-- UTC time
+		---@diagnostic disable-next-line: param-type-mismatch
+		local dt2 = os.time(os.date("!*t", timestamp))	-- Local time
+
+		local timezonediff, timezonediffm = math.modf((dt2 - dt1) / 3600)
+		if (timezonediff == 0 and timezonediffm == 0) then
+			datestring = datestring .. "Z"
+		else
+			datestring = datestring .. (dt1 > dt2 and "+" or "-") .. string.format("%02d", math.abs(timezonediff))
+			if (timezonediffm ~= 0) then
+				datestring = datestring .. ":" .. (60 * math.abs(timezonediffm))
+			end
+		end
+	end
+
+	---@diagnostic disable-next-line: return-type-mismatch
+	return datestring
+end
+
 ---Removes Toribash color notations from the specified string
 ---@param str string
 ---@return string

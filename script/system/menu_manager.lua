@@ -4510,6 +4510,25 @@ function TBMenu:spawnSearchBar(searchString, hint)
 	}), searchBarView
 end
 
+---Spawns a generic close button with an `X` icon
+---@param viewElement UIElement
+---@param rect Rect
+---@param closeFunc function
+---@return UIElement
+function TBMenu:spawnCloseButton(viewElement, rect, closeFunc)
+	local closeButton = viewElement:addChild({
+		pos = { rect.x, rect.y },
+		size = { rect.w, rect.h },
+		interactive = true,
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+	}, true)
+	closeButton:addMouseUpHandler(closeFunc)
+	closeButton:addChild({ shift = { rect.w / 5, rect.h / 5 }, bgImage = "../textures/menu/general/buttons/crosswhite.tga" })
+	return closeButton
+end
+
 ---Queues data updates that we want to do periodically
 function TBMenu.RefreshData()
 	local newsType = "news"

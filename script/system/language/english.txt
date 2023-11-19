@@ -1246,3 +1246,11 @@ IGNORELISTINPUTHINT	Enter user name to ignore
 IGNORELISTADDERRORNAMEINVALID	Please enter a valid username to add the player to your ignore list
 QUEUELISTIGNORESETTINGS	Ignore settings
 MODCHAMPIONSHIPGLOBALREWARDINFO	If global objective is hit, all players who played at least 1 game during the event will receive the reward after event is over.
+EVENTPLEASELOGINTOPARTICIPATE	Please log into your Toribash account to participate in this event.
+EVENTSNOPLAYERSHAVESUBMITTEDENTRIES	No players have submitted their replays yet.\nBe the first to join the event!
+EVENTSFRAMES	frames
+REPLAYSREPLAYPROGRESS	Progress
+REPLAYSREPLAYSPEED	Speed
+EVENTSREPLAYINTEGRITYFAILATFRAME	Failed to verify replay integrity at frame
+EVENTSERRORVERIFYINGOPENER	Error verifying replay opener, please try loading a different replay
+EVENTSERRORLOADINGOPENER	Error loading replay opener, please verify integrity of game files and try again

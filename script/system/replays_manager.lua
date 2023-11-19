@@ -1778,7 +1778,7 @@ function Replays:getReplayFoldersDropdownOptions(onSelectAction, targetFolder, i
 			if (not utf8.match(v, ".rpl$") and (dir .. v ~= "system") and not utf8.find(v, "^%.+[%s%S]*$") and not utf8.find(v, "%.%a+$")) then
 				local targetPath = (includeRoot and "replay/" or "") .. dir .. v
 				table.insert(dropdownOptions, {
-					text = (level > 0 and ('' .. string.rep(" ", level * 2)) or '') .. v .. '',
+					text = (level > 0 and ('' .. string.rep(" ", level * 3)) or '') .. v .. '',
 					action = function() onSelectAction(targetPath) end,
 					selected = targetPath == targetFolder
 				})
@@ -1888,10 +1888,10 @@ function Replays:showReplayManageWindow(viewElement, replay)
 			local dropdownHolder = dataFieldHolder:addChild({
 				bgColor = TB_MENU_DEFAULT_DARKER_COLOR
 			}, true)
-			TBMenu:spawnDropdown(dropdownHolder, dropdownOptions, dataFieldHolder.size.h, nil, nil, {
+			TBMenu:spawnDropdown(dropdownHolder, dropdownOptions, dataFieldHolder.size.h * 0.8, nil, nil, {
 					scale = 0.8, fontid = 4, uppercase = true, alignment = LEFTMID
 				}, {
-					scale = 0.8, fontid = 4, uppercase = true, alignment = LEFTMID
+					scale = 0.65, fontid = 4, uppercase = true, alignment = LEFTMID
 				})
 		end
 	end
@@ -3198,26 +3198,14 @@ function Replays:showCustomReplaySelection(mainElement, mod, action)
 		botBar.shapeType = ROUNDED
 		botBar:setRounded(4)
 
-		local topTitle = UIElement:new({
-			parent = topBar,
-			pos = { 10, 5 },
-			size = { topBar.size.w - 20, topBar.size.h - 10 }
-		})
-		topTitle:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSSELECTREPLAYTOPROCEED, nil, nil, FONTS.BIG, nil, nil, nil, 0.5)
-		local botQuit = botBar:addChild({
-			pos = { botBar.size.w / 4, 5 },
-			size = { botBar.size.w / 2, botBar.size.h - 10 },
-			interactive = true,
-			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
-			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-			shapeType = ROUNDED,
-			rounded = 3
-		})
-		botQuit:addAdaptedText(false, TB_MENU_LOCALIZED.BUTTONCLOSEWINDOW)
-		botQuit:addMouseHandlers(nil, function()
-				viewElement:kill()
-			end)
+		local topTitle = topBar:addChild({ shift = { topBar.size.h, 5 } })
+		topTitle:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSSELECTREPLAYTOPROCEED, nil, nil, FONTS.BIG, nil, 0.8, nil, 0.5)
+		local closeButtonSize = math.min(45, topBar.size.h - 10)
+		TBMenu:spawnCloseButton(topBar, {
+				x = -closeButtonSize - 5, y = 5,
+				w = closeButtonSize, h = closeButtonSize
+			}, function() viewElement:kill() end)
+
 		if (#replaysToChooseFrom == 0) then
 			listingHolder:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSCOMMUNITYNOFOUND, nil, nil, FONTS.BIG, nil, nil, nil, 0.5)
 			return
@@ -3225,30 +3213,35 @@ function Replays:showCustomReplaySelection(mainElement, mod, action)
 
 		local listElements = {}
 		for _, v in pairs(replaysToChooseFrom) do
-			local replayFile = UIElement:new({
-				parent = listingHolder,
+			local replayFile = listingHolder:addChild({
 				pos = { 0, #listElements * elementHeight },
 				size = { listingHolder.size.w, elementHeight }
 			})
 			table.insert(listElements, replayFile)
-			local replayButton = UIElement:new({
-				parent = replayFile,
-				pos = { 10, 3 },
-				size = { replayFile.size.w - 10, replayFile.size.h - 6 },
+			local replayButton = replayFile:addChild({
+				pos = { 10, 2 },
+				size = { replayFile.size.w - 10, replayFile.size.h - 4 },
 				interactive = true,
+				clickThrough = true,
+				hoverThrough = true,
 				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
 				shapeType = ROUNDED,
 				rounded = 3
 			})
-			local replayText = UIElement:new({
-				parent = replayButton,
+			local replayName = replayButton:addChild({
 				pos = { 10, 5 },
-				size = { replayButton.size.w - 20, replayButton.size.h - 10 }
+				size = { (replayButton.size.w - 20) / 2, replayButton.size.h - 10 }
+			})
+			replayName:addAdaptedText(true, v.name, nil, nil, 4, LEFTMID, 0.8, 0.8)
+			local replayPath = replayButton:addChild({
+				pos = { replayName.shift.x + replayName.size.w, replayName.shift.y },
+				size = { replayName.size.w, replayName.size.h },
+				uiColor = { 1, 1, 1, 0.6 }
 			})
 			local cleanPath = string.gsub(v.path, "^replay/", "")
-			replayText:addAdaptedText(true, v.name .. " (" .. cleanPath .. ")", nil, nil, 4, LEFTMID)
+			replayPath:addAdaptedText(true, cleanPath, nil, nil, 4, RIGHTMID, 0.6, 0.6)
 			replayButton:addMouseHandlers(nil, function()
 					viewElement:kill()
 					action(cleanPath)
@@ -3267,10 +3260,7 @@ function Replays:showCustomReplaySelection(mainElement, mod, action)
 		return
 	end
 
-	local customReplayOverlay = UIElement:new({
-		parent = mainElement,
-		pos = { 0, 0 },
-		size = { mainElement.size.w, mainElement.size.h },
+	local customReplayOverlay = mainElement:addChild({
 		interactive = true,
 		bgColor = { 0, 0, 0, 0.1 }
 	})
@@ -3278,21 +3268,15 @@ function Replays:showCustomReplaySelection(mainElement, mod, action)
 			customReplayOverlay:kill()
 		end)
 	customReplayOverlay.killAction = function() REPLAYS_CUSTOM_SELECTOR_ACTIVE = false end
-	local customReplayLoading = UIElement:new({
-		parent = customReplayOverlay,
+	local customReplayLoading = customReplayOverlay:addChild({
 		pos = { customReplayOverlay.size.w / 5, customReplayOverlay.size.h / 2 - 70 },
 		size = { customReplayOverlay.size.w * 0.6, 140 },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR,
 		shapeType = ROUNDED,
 		rounded = 4
 	})
-	customReplayLoading:addAdaptedText(false, TB_MENU_LOCALIZED.MESSAGEPLEASEWAIT or "Please wait...")
-	local waiter = UIElement:new({
-		parent = customReplayOverlay,
-		pos = { 0, 0 },
-		size = { 0, 0 }
-	})
-	waiter:addCustomDisplay(false, function()
+	customReplayLoading:addAdaptedText(false, TB_MENU_LOCALIZED.MESSAGEPLEASEWAIT)
+	customReplayOverlay:addChild({}):addCustomDisplay(function()
 			if (Replays.CacheReady) then
 				customReplayOverlay:kill(true)
 				showCustomReplayChoice(customReplayOverlay)
@@ -3314,7 +3298,7 @@ function Replays:spawnReplayProgressSlider(viewElement)
 		pos = { 15, 3 },
 		size = { replayProgressHolder.size.w - 30, 25 }
 	})
-	replayProgressTitle:addAdaptedText(true, "Progress")
+	replayProgressTitle:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSREPLAYPROGRESS)
 
 	local worldstate = get_world_state()
 	local replaySpeed = 1
@@ -3403,7 +3387,7 @@ function Replays:spawnReplaySpeedSlider(viewElement)
 		pos = { 15, 3 },
 		size = { replaySpeedHolder.size.w - 30, 25 }
 	})
-	replaySpeedTitle:addAdaptedText(true, "Speed")
+	replaySpeedTitle:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSREPLAYSPEED)
 	local textWidth = get_string_length(replaySpeedTitle.dispstr[1], replaySpeedTitle.textFont) * replaySpeedTitle.textScale + 60
 	if (textWidth + 50 < replaySpeedTitle.size.w) then
 		local setButtonSpeed = function(dir)
