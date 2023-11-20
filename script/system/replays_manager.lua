@@ -6,6 +6,9 @@ local MAXFOLDERLEVELS = 4
 if (Replays == nil) then
 	---**Toribash Replays manager class**
 	---
+	---**Version 5.65**
+	---* Updated custom replay selector window with mobile device support
+	---
 	---**Version 5.61**
 	---* Updated keyboard return type on search bar for mobile devices
 	---
@@ -23,7 +26,7 @@ if (Replays == nil) then
 		ServerCacheSettings = { action = 1, offset = 0, search = "", id = 0 },
 		ServerCacheTotal = 0,
 		CacheReady = false,
-		ver = 5.61
+		ver = 5.65
 	}
 	Replays.__index = Replays
 

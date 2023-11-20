@@ -4,11 +4,15 @@
 if (TBMenu == nil) then
 	---Toribash main menu class
 	---
-	---**Ver 5.61**
+	---**Version 5.65**
+	---* Dropdown updates to support mouse wheel scroll on cycle through options and enable scroll bar override
+	---* Tweaks to hint messages display on mobile platforms
+	---
+	---**Version 5.61**
 	---* Updated `spawnTextField2()` with on-screen keyboard customization options
 	---* Added internal `BuildInputFieldSettings()` function to create a TextFieldInputSettings object with all properties
 	---
-	---**Ver 5.60**
+	---**Version 5.60**
 	---* All global UIElement holders are now fields of TBMenu class
 	---* User bar player display will now automatically reload on customs update
 	---* Increased UIElement viewport size (user bar head preview) to make sure custom obj doesn't get cut
@@ -32,7 +36,7 @@ if (TBMenu == nil) then
 	---@field HasCustomNavigation boolean Whether `TBMenu.NavigationBar` is currently loaded and has custom navigation
 	TBMenu = {
 		CurrentAnnouncementId = 1,
-		ver = 5.61
+		ver = 5.65
 	}
 	setmetatable({}, TBMenu)
 end
@@ -3829,9 +3833,10 @@ function TBMenu:displayHelpPopup(element, message, forceManualPosCheck, noMark, 
 		element:addCustomDisplay(false, function()
 				if (not messageElement or messageElement.destroyed) then return end
 				if (not TB_MENU_POPUPS_DISABLED and MOUSE_X > element.pos.x and MOUSE_Y > element.pos.y and MOUSE_X < element.pos.x + element.size.w and MOUSE_Y < element.pos.y + element.size.h) then
+					if (is_mobile() and element.hoverState == nil) then return end
 					element.hoverState = element.hoverState == nil and BTN_HVR or element.hoverState
 					messageElement.hoverClock = messageElement.hoverClock or UIElement.clock
-					if (not popupShown and UIElement.clock - messageElement.hoverClock >= 0.3) then
+					if (not popupShown and (is_mobile() or UIElement.clock - messageElement.hoverClock >= 0.3)) then
 						messageElement:show(true)
 						popupShown = true
 						if (fixPosition()) then

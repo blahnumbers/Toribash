@@ -198,27 +198,27 @@ if (not UIElement) then
 	---@field bgGradient Color[] List of two colors to generate gradient with
 	---@field bgGradientMode PlayerBody Toribash bodypart id to base gradient UV on
 
-	-- Toribash GUI elements manager class
+	-- **Toribash GUI elements manager class**
 	--
-	-- **Ver 5.62 updates:**
+	-- **Version 5.62:**
 	-- * `UIElement.bgImageDefault` boolean value to tell which texture was loaded during `UIElement.updateImage()` call
 	--
-	-- **Ver 5.61 updates:**
+	-- **Version 5.61:**
 	-- * On-screen keyboard customization support for text fields
 	--
-	-- **Ver 5.60 updates:**
+	-- **Version 5.60:**
 	-- * Rewritten all keyboard handlers to make better use of SDL text input events
 	-- * `UIElement.keyboardHooks()` to initialize generic text field handlers on start
 	-- * `UIElement.mouseHooks()` is now an abstract class function
 	-- * `print` and `print_r` functions for easier debug
 	-- * Gradient generation support for generated UIElements
 	--
-	-- **Ver 1.6 updates:**
+	-- **Version 1.6:**
 	-- * `hoverThrough` support
 	-- * `UIElement.clock` value to store last graphics update time tick
 	-- * Use UITween class for framerate independent animations
 	--
-	-- **Ver 1.5 updates:**
+	-- **Version 1.5:**
 	-- * `imageHoverColor` and `imagePressedColor` support
 	-- * `UIElement:qsort()`, `UIElement:runCmd()` marked as deprecated
 	-- * New `table.qsort()`, `table.reverse()`, `table.clone()`, `table.compare()`, `table.empty()`, `table.unpack_all()` functions to replace legacy names
@@ -226,7 +226,7 @@ if (not UIElement) then
 	-- * Guid() is now `generate_uid()` to prevent confusion with a potential class name
 	-- * debugEcho() is now `print_r(mixed data, boolean returnString)`
 	--
-	-- **Ver 1.4 updates:**
+	-- **Version 1.4:**
 	-- * `UIElement:mouseHooks()` is now initialized when this script is loaded to ensure it isn't required in every script that requires UIElements
 	-- * Moved scrollable list update on mouse bar scroll from mouse_move hook to pre_draw for better performance
 	-- * Different top/bottom rounding support and `roundedInternal` UIElement field
@@ -2348,13 +2348,6 @@ end
 ---@see runCmd
 function UIElement:runCmd(command, online, echo)
 	runCmd(command, online, echo)
-end
-
----@deprecated
----Will be removed with future releases, use print() instead \
----@see print
-function UIElement:debugEcho(mixed, msg, returnString)
-	return print(mixed, returnString)
 end
 
 ---Runs a quicksort by specified key(s) on a table with multikey data
