@@ -5186,19 +5186,23 @@ function Torishop.InitUSDPurchase(item)
 	if (is_steam()) then
 		---With steam our client will keep rendering UI but no longer receive mouse inputs until the purchase is over.
 		---We just spawn a mouse move event listener and wait for it to get the first hit to check on purchase status.
+		local purchaseComplete = false
 		local purchaseProgressMonitor = overlay:addChild({ interactive = true })
-		purchaseProgressMonitor:addMouseMoveHandler(function()
-				if (overlay and not overlay.destroyed) then
-					overlay:kill()
-				end
-				if (get_purchase_done() == 1) then
-					TBMenu:showStatusMessage(item.itemname .. " " .. TB_MENU_LOCALIZED.STOREITEMPURCHASESUCCESSFUL)
-					update_tc_balance()
-					Notifications:getTotalNotifications(true)
-				else
-					TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STOREPURCHASECANCELLED)
+		purchaseProgressMonitor:addCustomDisplay(function()
+				if (purchaseComplete) then
+					if (overlay and not overlay.destroyed) then
+						overlay:kill()
+					end
+					if (get_purchase_done() == 1) then
+						TBMenu:showStatusMessage(item.itemname .. " " .. TB_MENU_LOCALIZED.STOREITEMPURCHASESUCCESSFUL)
+						update_tc_balance()
+						Notifications:getTotalNotifications(true)
+					else
+						TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STOREPURCHASECANCELLED)
+					end
 				end
 			end)
+		purchaseProgressMonitor:addMouseMoveHandler(function() purchaseComplete = true end)
 	else
 		---Mobile platforms, we have a dedicated hook that we will be listening to
 		add_hook("purchase_status", "tbStorePurchaseProgress", function(result, error_code)
