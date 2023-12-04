@@ -112,6 +112,15 @@ do
 		return file
 	end
 
+	function Files.Exists(path)
+		local file = Files.Open(path, "rb")
+		if (file.data == nil) then
+			return false
+		end
+		file:close()
+		return true
+	end
+
 	-- Reopens the File object we received earlier
 	---@param mode? openmode New mode to open file with
 	function File:reopen(mode)

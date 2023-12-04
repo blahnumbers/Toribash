@@ -79,10 +79,10 @@ _G.CENTERMID = 7
 _G.RIGHTMID = 8
 
 ---@alias UIElementBtnState
----| 0 # Default UIElement button state
----| 1 # Hover state
----| 2 # Focused state - only used with keyboard controls
----| 3 # Down state
+---| 0 # BTN_NONE | Default UIElement button state
+---| 1 # BTN_HVR | Hover state
+---| 2 # BTN_FOCUS | Focused state - only used with keyboard controls
+---| 3 # BTN_DN | Pressed state
 _G.BTN_NONE = 0
 _G.BTN_HVR = 1
 _G.BTN_FOCUS = 2
@@ -848,6 +848,7 @@ function UIElement:makeScrollBar(listHolder, listElements, toReload, posShift, s
 	self.scrollReload = function() if (self.holder) then self.holder:reload() end self:reload() end
 
 	self:barScroll(listElements, listHolder, toReload, posShift[1], enabled, true)
+	UIElement.updatePos(listHolder)
 	local targetPos = nil
 
 	self:addMouseHandlers(
@@ -958,6 +959,8 @@ function UIElement:makeScrollBar(listHolder, listElements, toReload, posShift, s
 				posShift[1] = self.orientation == SCROLL_VERTICAL and self.shift.y or self.shift.x
 			end
 		end)
+
+	call_hook("mouse_move", MOUSE_X, MOUSE_Y)
 end
 
 ---Internal function to handle mouse wheel scrolling for lists. \
@@ -987,8 +990,8 @@ function UIElement:mouseScroll(listElements, listHolder, toReload, scroll, enabl
 			self:moveTo(self.shift.x, (self.parent.size.h - self.size.h) * scrollProgress)
 		end
 		if (oldShift ~= listHolder.shift.y) then
-			self.listReload()
 			self.scrollReload()
+			self.listReload()
 		end
 	else
 		local elementWidth = listElements[1].size.w
@@ -1009,8 +1012,8 @@ function UIElement:mouseScroll(listElements, listHolder, toReload, scroll, enabl
 			self:moveTo((self.parent.size.w - self.size.w) * scrollProgress, self.shift.y)
 		end
 		if (oldShift ~= listHolder.shift.x) then
-			self.listReload()
 			self.scrollReload()
+			self.listReload()
 		end
 	end
 end

@@ -3263,11 +3263,11 @@ function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHei
 		shift = { 1, 1 },
 		bgColor = TB_MENU_DEFAULT_LIGHTER_COLOR
 	}, true)
-	overlay:addMouseHandlers(function(s)
-			if (s >= 4) then
-				overlay:hide(true)
-				overlay.selectedElement:show(true)
-			end
+	overlay.scrollEnabled = #listElementsDisplay * elementHeight <= maxHeight
+	overlay:addMouseHandlers(function()
+			overlay:hide(true)
+			overlay.selectedElement:show(true)
+			return 1
 		end, function()
 			overlay:hide(true)
 			overlay.selectedElement:show(true)
@@ -3289,20 +3289,16 @@ function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHei
 		dropdownViewBackdrop:moveTo(holderElement.pos.x, dropdownPosY)
 	end
 
-	local selectedElement = UIElement:new({
-		parent = holderElement,
-		pos = { 0, 0 },
-		size = { holderElement.size.w, holderElement.size.h },
+	local selectedElement = holderElement:addChild({
 		interactive = true,
+		clickThrough = holderElement.clickThrough,
+		hoverThrough = holderElement.hoverThrough,
 		bgColor = holderElement.bgColor or TB_MENU_DEFAULT_DARKER_COLOR,
 		hoverColor = holderElement.hoverColor or TB_MENU_DEFAULT_DARKEST_COLOR,
 		pressedColor = holderElement.pressedColor or TB_MENU_DEFAULT_BG_COLOR,
 		inactiveColor = holderElement.inactiveColor or TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
-		shapeType = holderElement.shapeType,
-		rounded = holderElement.rounded
-	})
-	local selectedElementText = UIElement:new({
-		parent = selectedElement,
+	}, true)
+	local selectedElementText = selectedElement:addChild({
 		pos = { 10, 2 },
 		size = { selectedElement.size.w - selectedElement.size.h - 10, selectedElement.size.h - 4 }
 	})
@@ -3416,12 +3412,14 @@ function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHei
 	---Cycle through options on mouse wheel scroll
 	selectedElement.scrollEnabled = true
 	selectedElement:addMouseDownHandler(function(s)
-			if (s < 4) then return end
+			if (s < 4 or selectedElement.hoverState ~= BTN_HVR) then return end
 			if (s == 4 and listElementsDisplay[selectedItemId - 1]) then
 				overlay.selectItem(listElementsDisplay[selectedItemId - 1])
 			elseif (s == 5 and listElementsDisplay[selectedItemId + 1]) then
 				overlay.selectItem(listElementsDisplay[selectedItemId + 1])
 			end
+			selectedElement.hoverState = BTN_HVR
+			return 1
 		end)
 	selectedElement:addMouseUpHandler(function()
 			fixPosition()

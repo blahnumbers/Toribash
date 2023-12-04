@@ -712,14 +712,6 @@ function Settings:getSettingsData(id)
 								Settings.Stored.uilight = { value = val }
 							end,
 						val = { Settings.Stored.uilight and Settings.Stored.uilight.value or get_option("uilight") }
-					},
-					{
-						name = TB_MENU_LOCALIZED.SETTINGSJOINTFLASH,
-						type = TOGGLE,
-						action = function(val)
-								Settings.Stored.jointflash = { value = val }
-							end,
-						val = { Settings.Stored.jointflash and Settings.Stored.jointflash.value or get_option("jointflash") }
 					}
 				}
 			}
@@ -1383,6 +1375,14 @@ function Settings:getSettingsData(id)
 						val = { get_option("tooltip") }
 					},
 					{
+						name = TB_MENU_LOCALIZED.SETTINGSJOINTFLASH,
+						type = TOGGLE,
+						action = function(val)
+								Settings.Stored.jointflash = { value = val }
+							end,
+						val = { Settings.Stored.jointflash and Settings.Stored.jointflash.value or get_option("jointflash") }
+					},
+					{
 						name = TB_MENU_LOCALIZED.SETTINGSMOVEMEMORY,
 						type = TOGGLE,
 						systemname = "movememory",
@@ -1489,27 +1489,17 @@ end
 function Settings:getLanguageDropdown()
 	local languages = {}
 	local dropdown = {}
+	local current = string.lower(get_language())
 	local files = get_files("data/language", "txt")
 	for _, v in pairs(files) do
 		table.insert(languages, { name = v:gsub("%.txt$", "") })
 	end
-	local currentLang, langFile = get_language(), nil
-	for i, v in pairs(languages) do
-		if (string.lower(v.name) == string.lower(currentLang)) then
-			langFile = v
-			table.remove(languages, i)
-			break
-		end
-	end
-	table.insert(languages, 1, langFile)
 	for _, v in pairs(languages) do
-		local newMenuFile = Files.Open("system/language/" .. v.name .. ".txt")
-		if (not newMenuFile.data) then
-			v.newMenuDisabled = true
-		end
-		newMenuFile:close()
+		v.newMenuDisabled = not Files.Exists("system/language/" .. v.name .. ".txt")
+		echo(v.name .. ": " .. tostring(string.lower(v.name) == current))
 		table.insert(dropdown, {
-			text = v.newMenuDisabled and v.name .. " (" .. TB_MENU_LOCALIZED.SETTINGSBASEHUDONLY .. ")" or v.name,
+			text = v.newMenuDisabled and (v.name .. " (" .. TB_MENU_LOCALIZED.SETTINGSBASEHUDONLY .. ")") or v.name,
+			selected = string.lower(v.name) == current,
 			action = function()
 					set_language(v.name)
 					TBMenu.GetTranslation(get_language())
@@ -1862,7 +1852,7 @@ function Settings:showSettings(id, keepStoredSettings)
 	TBMenu.CurrentSection:kill(true)
 
 	local settingsData = Settings:getSettingsData(id)
-	local settingsMain = UIElement:new({
+	local settingsMain = UIElement.new({
 		parent = TBMenu.CurrentSection,
 		pos = { 5, 0 },
 		size = { TBMenu.CurrentSection.size.w - 10, TBMenu.CurrentSection.size.h },
@@ -1872,8 +1862,7 @@ function Settings:showSettings(id, keepStoredSettings)
 	local toReload, topBar, botBar, _, listingHolder = TBMenu:prepareScrollableList(settingsMain, elementHeight, elementHeight + 10, 20)
 
 	TBMenu:addBottomBloodSmudge(botBar, 1)
-	Settings.ApplyButton = UIElement:new({
-		parent = botBar,
+	Settings.ApplyButton = botBar:addChild({
 		pos = { botBar.size.w / 4, 10 },
 		size = { botBar.size.w / 2, botBar.size.h - 20 },
 		interactive = true,
@@ -1954,8 +1943,7 @@ function Settings:showSettings(id, keepStoredSettings)
 	local listElements = {}
 	for _, section in pairs(settingsData) do
 		if (#section.items > 0) then
-			local sectionName = UIElement:new({
-				parent = listingHolder,
+			local sectionName = listingHolder:addChild({
 				pos = { 20, #listElements * elementHeight },
 				size = { listingHolder.size.w - 40, elementHeight }
 			})
@@ -1963,24 +1951,20 @@ function Settings:showSettings(id, keepStoredSettings)
 			table.insert(listElements, sectionName)
 			for _, item in pairs(section.items) do
 				if (not item.hidden) then
-					local itemHolder = UIElement:new({
-						parent = listingHolder,
+					local itemHolder = listingHolder:addChild({
 						pos = { 0, #listElements * elementHeight },
 						size = { listingHolder.size.w, elementHeight }
 					})
 					table.insert(listElements, itemHolder)
-					local itemView = UIElement:new({
-						parent = itemHolder,
-						pos = { 20, 3 },
-						size = { itemHolder.size.w - 40, itemHolder.size.h - 6 },
+					local itemView = itemHolder:addChild({
+						shift = { 20, 3 },
 						bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 						shapeType = ROUNDED,
 						rounded = 4
 					})
 					local shiftX = 20
 					if (item.hint) then
-						local hintIcon = UIElement:new({
-							parent = itemView,
+						local hintIcon = itemView:addChild({
 							pos = { shiftX, 7 },
 							size = { itemView.size.h - 14, itemView.size.h - 14 },
 							interactive = true,
@@ -1994,15 +1978,13 @@ function Settings:showSettings(id, keepStoredSettings)
 						popup:moveTo(itemView.size.h - 9, -(popup.size.h - itemView.size.h + 14) / 2, true)
 						shiftX = shiftX + hintIcon.size.w + 14
 					end
-					local itemName = UIElement:new({
-						parent = itemView,
+					local itemName = itemView:addChild({
 						pos = { shiftX, 0 },
 						size = { itemView.size.w / 2 - 10 - shiftX, itemView.size.h }
 					})
 					itemName:addAdaptedText(true, item.name, nil, nil, nil, LEFTMID)
 					if (item.type == SLIDER) then
-						local itemSlider = UIElement:new({
-							parent = itemView,
+						local itemSlider = itemView:addChild({
 							pos = { itemView.size.w / 2 + 10, 5 },
 							size = { itemView.size.w / 2 - 30, itemView.size.h - 10 }
 						})
@@ -2037,8 +2019,7 @@ function Settings:showSettings(id, keepStoredSettings)
 						end
 						TBMenu:spawnToggle(itemToggle, nil, nil, nil, nil, item.val[1], item.action)
 					elseif (item.type == INPUT) then
-						local itemInput = UIElement:new({
-							parent = itemView,
+						local itemInput = itemView:addChild({
 							pos = { itemView.size.w / 3 * 2 - 20, 5 },
 							size = { itemView.size.w / 3, itemView.size.h - 10 },
 							bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
@@ -2082,49 +2063,39 @@ function Settings:showSettings(id, keepStoredSettings)
 								end)
 						end
 					elseif (item.type == DROPDOWN) then
-						local itemDropdownBG = UIElement:new({
-							parent = itemView,
+						local itemDropdownBG = itemView:addChild({
 							pos = { itemView.size.w / 3 * 2 - 20, 5 },
 							size = { itemView.size.w / 3, itemView.size.h - 10 },
 							bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 							shapeType = ROUNDED,
 							rounded = 3
 						})
-						local itemDropdown = UIElement:new({
-							parent = itemDropdownBG,
-							pos = { 1, 1 },
-							size = { itemDropdownBG.size.w - 2, itemDropdownBG.size.h - 2 },
+						local itemDropdown = itemDropdownBG:addChild({
+							shift = { 1, 1 },
 							bgColor = TB_MENU_DEFAULT_BG_COLOR,
 							hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-							interactive = true,
-							shapeType = ROUNDED,
-							rounded = 3
-						})
-						local selectedId = 1
+							interactive = true
+						}, true)
+						local selectedId = nil
 						if (item.selectedAction) then
 							selectedId = item.selectedAction()
 						end
-						TBMenu:spawnDropdown(itemDropdown, item.dropdown, 30, WIN_H - 100, item.dropdown[selectedId], { scale = 0.7 }, { scale = 0.6 })
+						TBMenu:spawnDropdown(itemDropdown, item.dropdown, 30, WIN_H - 100, selectedId and item.dropdown[selectedId], { scale = 0.7 }, { scale = 0.6 })
 					elseif (item.type == BUTTON) then
-						local itemButtonBG = UIElement:new({
-							parent = itemView,
+						local itemButtonBG = itemView:addChild({
 							pos = { itemView.size.w / 3 * 2 - 20, 5 },
 							size = { itemView.size.w / 3, itemView.size.h - 10 },
 							bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 							shapeType = ROUNDED,
 							rounded = 3
 						})
-						local itemButton = UIElement:new({
-							parent = itemButtonBG,
-							pos = { 1, 1 },
-							size = { itemButtonBG.size.w - 2, itemButtonBG.size.h - 2 },
+						local itemButton = itemButtonBG:addChild({
+							shift = { 1, 1 },
 							bgColor = TB_MENU_DEFAULT_BG_COLOR,
 							hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
 							pressedColor = TB_MENU_DEFAULT_DARKER_COLOR,
-							interactive = true,
-							shapeType = ROUNDED,
-							rounded = 3
-						})
+							interactive = true
+						}, true)
 						itemButton:addMouseHandlers(nil, item.action)
 						itemButton:addAdaptedText(false, string.upper("Press to show"), nil, nil, 4, nil, 0.7)
 					end
@@ -2132,14 +2103,13 @@ function Settings:showSettings(id, keepStoredSettings)
 			end
 		end
 	end
-	local lastElement = UIElement:new({
-		parent = listingHolder,
+	local lastElement = listingHolder:addChild({
 		pos = { 0, #listElements * elementHeight + elementHeight / 2 },
 		size = { listingHolder.size.w, elementHeight / 2 },
 		bgColor = listingHolder.bgColor
 	})
 	table.insert(listElements, lastElement)
-	for i,v in pairs(listElements) do
+	for _, v in pairs(listElements) do
 		v:hide()
 	end
 	local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
