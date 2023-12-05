@@ -5195,7 +5195,6 @@ function Torishop.InitUSDPurchase(item)
 					end
 					if (get_purchase_done() == 1) then
 						TBMenu:showStatusMessage(item.itemname .. " " .. TB_MENU_LOCALIZED.STOREITEMPURCHASESUCCESSFUL)
-						update_tc_balance()
 						Notifications:getTotalNotifications(true)
 					else
 						TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STOREPURCHASECANCELLED)

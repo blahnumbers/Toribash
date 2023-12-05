@@ -179,20 +179,15 @@ do
 
 	function Market:searchItemsInventory(item)
 		local matchingItems = {}
-
-		local err, text = pcall(function()
+		pcall(function()
 			local inventoryItems = Torishop:getInventoryRaw()
-
-			for i,v in pairs(inventoryItems) do
-				local v = cloneTable(v)
+			if (type(inventoryItems) ~= "table") then
+				return
+			end
+			for _, v in pairs(inventoryItems) do
+				local v = table.clone(v)
 				if (not v.active and (item == nil or item.itemid == v.itemid)) then
 					local itemInfo = Torishop:getItemInfo(v.itemid)
-
-					-- Show all eligible items, no sets
-					--[[if (Market:itemEligible(itemInfo)) then
-						v.item = itemInfo
-						table.insert(matchingItems, v)
-					end]]
 
 					-- Show eligible items + sets with eligible items inside
 					if (v.itemid == ITEM_SET or (v.setid == 0 and Market:itemEligible(itemInfo))) then
@@ -276,7 +271,7 @@ do
 
 				suggestion:addCustomDisplay(true, function()
 						suggestion:uiText(suggestion.str, nil, nil, suggestion.textFont, math.floor(displayed / 2) % 2 == 0 and LEFTMID or RIGHTMID, suggestion.textScale, nil, nil, suggestion:getButtonColor())
-						if (suggestion.hoverState ~= BTN_NONE) then
+						if (suggestion.hoverState ~= nil and suggestion.hoverState ~= BTN_NONE) then
 							set_mouse_cursor(1)
 						end
 					end)
@@ -382,17 +377,17 @@ do
 				local response = Market:parseGatewayResponse(get_network_response())
 				local message = ''
 
-				if (#selectedItems > 1) then
-					local warning, info
-					for ln in response.warning:gmatch("[^\n]+\n?") do
-						warning = ln
-						break
-					end
-					for ln in response.info:gmatch("[^\n]+\n?") do
-						info = ln
-						break
-					end
+				local warning, info
+				for ln in response.warning:gmatch("[^\n]+\n?") do
+					warning = ln
+					break
+				end
+				for ln in response.info:gmatch("[^\n]+\n?") do
+					info = ln
+					break
+				end
 
+				if (#selectedItems > 1) then
 					message = response.success .. (warning and ("\n\n" .. warning:gsub("(%w+)", "^37%1")) or '') .. (info and ("\n\n" .. info:gsub("(%w+)", "^39%1")) or '')
 
 					if (response.error and response.extra) then
@@ -443,7 +438,7 @@ do
 					closeButton:addMouseHandlers(nil, function() Market:clearModal() end)
 				else
 					message = ((response.is_success and response.success or response.error) or TB_MENU_LOCALIZED.REQUESTUNKNOWNERROR) .. (warning and ("\n\n" .. warning:gsub("(%w+)", "^37%1")) or '') .. (info and ("\n\n" .. info:gsub("(%w+)", "^39%1")) or '')
-					TBMenu:showDataError(message, not TB_MENU_MAIN_ISOPEN, 10)
+					TBMenu:showStatusMessage(message)
 				end
 				usage_event("marketplace_sell")
 			end)
@@ -572,7 +567,7 @@ do
 					pos = { -42, 5 },
 					size = { 32, 32 },
 					interactive = true,
-					bgColor = cloneTable(TB_MENU_DEFAULT_DARKEST_COLOR),
+					bgColor = table.clone(TB_MENU_DEFAULT_DARKEST_COLOR),
 					hoverColor = TB_MENU_DEFAULT_BG_COLOR,
 					pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
 					shapeType = ROUNDED,
@@ -583,7 +578,7 @@ do
 				cancelButton:addMouseHandlers(nil, function()
 						cancelButton.clicked = not cancelButton.clicked
 						if (cancelButton.clicked) then
-							cancelButton.bgColor = cloneTable(TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS)
+							cancelButton.bgColor = table.clone(TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS)
 							for j,k in pairs(selectedItems) do
 								if (v.inventid == k.inventid) then
 									table.remove(selectedItems, j)
@@ -591,7 +586,7 @@ do
 								end
 							end
 						else
-							cancelButton.bgColor = cloneTable(TB_MENU_DEFAULT_DARKEST_COLOR)
+							cancelButton.bgColor = table.clone(TB_MENU_DEFAULT_DARKEST_COLOR)
 							table.insert(selectedItems, v)
 						end
 					end)
@@ -635,7 +630,16 @@ do
 			sellPriceInfo.size.w = get_string_length(sellPriceInfo.dispstr[1], sellPriceInfo.textFont) * sellPriceInfo.textScale
 
 			local inputWidth = MARKET_SHOP_DATA[TB_MENU_PLAYER_INFO.username:lower()].tier == TIER_REGULAR and (priceHolder.size.w / 2 - sellPriceInfo.shift.x * 4 - sellPriceInfo.size.w) or (priceHolder.size.w - sellPriceInfo.shift.x * 3 - sellPriceInfo.size.w)
-			local sellPriceInput = TBMenu:spawnTextField(priceInputHolder, sellPriceInfo.shift.x * 2 + sellPriceInfo.size.w, 8, inputWidth, priceHolder.size.h - 16, v.marketPrice and v.marketPrice .. '' or nil, { isNumeric = true }, 4, 0.7, UICOLORWHITE, TB_MENU_LOCALIZED.MARKETPRICEHINT, CENTERMID)
+			local sellPriceInput = TBMenu:spawnTextField2(priceInputHolder, {
+				x = sellPriceInfo.shift.x * 2 + sellPriceInfo.size.w, y = 8, w = inputWidth, h = priceHolder.size.h - 16
+			}, v.marketPrice and tostring(v.marketPrice) or nil, TB_MENU_LOCALIZED.MARKETPRICEHINT, {
+				isNumeric = true,
+				fontId = FONTS.LMEDIUM,
+				textScale = 0.7,
+				textColor = UICOLORWHITE,
+				textAlign = CENTERMID,
+				inputType = KEYBOARD_INPUT.NUMBERPAD
+			})
 
 			local youGetInput
 			if (MARKET_SHOP_DATA[TB_MENU_PLAYER_INFO.username:lower()].tier == TIER_REGULAR) then
@@ -647,7 +651,17 @@ do
 				buyerPriceInfo.size.w = get_string_length(buyerPriceInfo.dispstr[1], buyerPriceInfo.textFont) * buyerPriceInfo.textScale
 
 				local inputWidth = priceHolder.size.w / 2 - sellPriceInfo.shift.x * 3 - buyerPriceInfo.size.w
-				youGetInput = TBMenu:spawnTextField(priceInputHolder, buyerPriceInfo.shift.x + sellPriceInfo.shift.x + buyerPriceInfo.size.w, 8, inputWidth, priceHolder.size.h - 16, v.marketPrice and math.floor(v.marketPrice * (1 + MARKET_TAX) + 0.5) .. '' or nil, { isNumeric = true }, 4, 0.7, UICOLORWHITE, TB_MENU_LOCALIZED.MARKETPRICEHINT, CENTERMID)
+				youGetInput = TBMenu:spawnTextField2(priceInputHolder, {
+					x = buyerPriceInfo.shift.x + sellPriceInfo.shift.x + buyerPriceInfo.size.w, y = 8,
+					w = inputWidth, h = priceHolder.size.h - 16
+				}, v.marketPrice and tostring(math.floor(v.marketPrice * (1 + MARKET_TAX) + 0.5)) or nil, TB_MENU_LOCALIZED.MARKETPRICEHINT, {
+					isNumeric = true,
+					fontId = FONTS.LMEDIUM,
+					textScale = 0.7,
+					textColor = UICOLORWHITE,
+					textAlign = CENTERMID,
+					inputType = KEYBOARD_INPUT.NUMBERPAD
+				})
 
 				sellPriceInput.loader = sellPriceInput:addChild({
 					pos = { -sellPriceInput.size.h, 0 },
@@ -695,10 +709,10 @@ do
 					return false
 				end
 
-				youGetInput:addKeyboardHandlers(nil, function()
+				youGetInput:addInputCallback(function()
 						priceKeyUp(youGetInput, true)
 					end)
-				sellPriceInput:addKeyboardHandlers(nil, function()
+				sellPriceInput:addInputCallback(function()
 						priceKeyUp(sellPriceInput, true)
 					end)
 
@@ -737,7 +751,7 @@ do
 		end
 
 		if (#listElements * elementHeight > listingHolder.size.h) then
-			for i,v in pairs(listElements) do
+			for _, v in pairs(listElements) do
 				v:hide()
 			end
 
@@ -747,6 +761,7 @@ do
 		else
 			listingHolder.size.h = #listElements * elementHeight
 			listingView.size.h = listingHolder.size.h
+			---@diagnostic disable-next-line: undefined-field
 			listingHolder.scrollBG.size.h = listingHolder.size.h
 			modalView.size.h = topBar.size.h + listingHolder.size.h + botBar.size.h
 			toReload.size.h = modalView.size.h
@@ -803,14 +818,14 @@ do
 								message = message .. (response.warning and ("\n" .. response.warning:gsub("(%w+)", "^37%1")) or '') .. (response.info and ("\n" .. response.info:gsub("(%w+)", "^39%1")) or '')
 							end
 
-							TBMenu:showDataError(message, not TB_MENU_MAIN_ISOPEN, 10)
+							TBMenu:showStatusMessage(message)
 							Market:clearModal()
 
 							offer.price = newPrice
 							offer.triggerPriceUpdate()
 							download_inventory()
 						end, function()
-							TBMenu:showDataError(get_network_error(), not TB_MENU_MAIN_ISOPEN)
+							TBMenu:showStatusMessage(get_network_error())
 							Market:clearModal()
 						end)
 				else
@@ -862,7 +877,7 @@ do
 							message = message .. (response.warning and ("\n" .. response.warning:gsub("(%w+)", "^37%1")) or '') .. (response.info and ("\n" .. response.info:gsub("(%w+)", "^39%1")) or '')
 						end
 
-						TBMenu:showDataError(message, not TB_MENU_MAIN_ISOPEN, 10)
+						TBMenu:showStatusMessage(message)
 						Market:clearModal()
 
 						offer.button:kill(true)
@@ -870,7 +885,7 @@ do
 						offer.button:deactivate(true)
 						download_inventory()
 					end, function()
-						TBMenu:showDataError(get_network_error(), not TB_MENU_MAIN_ISOPEN)
+						TBMenu:showStatusMessage(get_network_error())
 						Market:clearModal()
 					end)
 			end)
@@ -879,7 +894,7 @@ do
 	function Market:spawnInventoryItemSelector(item, selectedItems, targetOffer)
 		local inventoryItems = Market:searchItemsInventory(item)
 		if (#inventoryItems == 0) then
-			TBMenu:showDataError(TB_MENU_LOCALIZED.MARKETINVENTORYEMPTY)
+			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.MARKETINVENTORYEMPTY)
 			return
 		end
 
@@ -915,7 +930,7 @@ do
 
 		local addToSelected = function(itemHolder, itemCancel, v)
 			if (#selectedItems >= (targetOffer and 1 or 20)) then
-				TBMenu:showDataError(TB_MENU_LOCALIZED.MARKETSELECTITEMSQUANTITYERROR)
+				TBMenu:showStatusMessage(TB_MENU_LOCALIZED.MARKETSELECTITEMSQUANTITYERROR)
 				return
 			end
 			itemHolder:deactivate(true)
@@ -1163,6 +1178,7 @@ do
 		if (listingHolder.numElements * elementHeight < listingHolder.size.h) then
 			listingHolder.size.h = listingHolder.numElements * elementHeight
 			listingView.size.h = listingHolder.size.h
+			---@diagnostic disable-next-line: undefined-field
 			listingHolder.scrollBG.size.h = listingHolder.size.h
 			modalView.size.h = topBar.size.h + listingHolder.size.h + botBar.size.h
 			toReload.size.h = modalView.size.h
@@ -1321,7 +1337,7 @@ do
 						message = message .. (response.warning and ("\n" .. response.warning:gsub("(%w+)", "^37%1")) or '') .. (response.info and ("\n" .. response.info:gsub("(%w+)", "^39%1")) or '')
 					end
 
-					TBMenu:showDataError(message, not TB_MENU_MAIN_ISOPEN, 10)
+					TBMenu:showStatusMessage(message)
 					Market:clearModal()
 
 					offer.price = submitButton.price
@@ -1330,7 +1346,7 @@ do
 					end
 					update_tc_balance()
 				end, function()
-					TBMenu:showDataError(get_network_error(), not TB_MENU_MAIN_ISOPEN)
+					TBMenu:showStatusMessage(get_network_error())
 					Market:clearModal()
 				end)
 			end)
@@ -1437,7 +1453,13 @@ do
 			shapeType = ROUNDED,
 			rounded = 4
 		})
-		local titleInput = TBMenu:spawnTextField(titleInputHolder, nil, nil, nil, nil, shopData.title, nil, 4, 0.8, UICOLORWHITE, TB_MENU_LOCALIZED.MARKETSHOPTITLE, LEFTMID)
+		local titleInput = TBMenu:spawnTextField2(titleInputHolder, nil, shopData.title, TB_MENU_LOCALIZED.MARKETSHOPTITLE, {
+			fontId = FONTS.LMEDIUM,
+			textScale = 0.8,
+			textColor = UICOLORWHITE,
+			maxLength = 32,
+			textAlign = LEFTMID
+		})
 
 		local descHolder = modalView:addChild({
 			pos = { 15, titleHolder.size.h + titleHolder.shift.y + 20 },
@@ -1451,7 +1473,13 @@ do
 			rounded = 4
 		})
 		local description = shopData.description:gsub("\r?\n?%\\n", "\n")
-		local descInput = TBMenu:spawnTextField(descInputHolder, nil, nil, nil, nil, description, nil, 4, 0.8, UICOLORWHITE, TB_MENU_LOCALIZED.MARKETSHOPDESC, LEFT, nil, true)
+		local descInput = TBMenu:spawnTextField2(descInputHolder, nil, description, TB_MENU_LOCALIZED.MARKETSHOPDESC, {
+			fontId = FONTS.LMEDIUM,
+			textScale = 0.8,
+			textColor = UICOLORWHITE,
+			maxLength = 512,
+			textAlign = LEFT
+		})
 
 		local newImagePath = nil
 		if (shopData.tier >= TIER_PREMIUM) then
@@ -1508,13 +1536,13 @@ do
 												if (onUpdate) then
 													onUpdate()
 												end
-												TBMenu:showDataError(message, not TB_MENU_MAIN_ISOPEN, 5)
+												TBMenu:showStatusMessage(message)
 												Market:clearModal()
 											end, function()
 												if (response.is_success and onUpdate) then
 													onUpdate()
 												end
-												TBMenu:showDataError(message .. "\n" .. TB_MENU_LOCALIZED.MARKETSHOPIMAGEUPDATEERROR .. ": " .. get_network_error(), not TB_MENU_MAIN_ISOPEN, 5)
+												TBMenu:showStatusMessage(message .. "\n" .. TB_MENU_LOCALIZED.MARKETSHOPIMAGEUPDATEERROR .. ": " .. get_network_error())
 												Market:clearModal()
 											end)
 										waiter:kill()
@@ -1526,10 +1554,10 @@ do
 						if (response.is_success and onUpdate) then
 							onUpdate()
 						end
-						TBMenu:showDataError(message, not TB_MENU_MAIN_ISOPEN, 5)
+						TBMenu:showStatusMessage(message)
 						Market:clearModal()
 					end, function()
-						TBMenu:showDataError(get_network_error(), not TB_MENU_MAIN_ISOPEN)
+						TBMenu:showStatusMessage(get_network_error())
 						Market:clearModal()
 					end)
 			end)
@@ -1597,10 +1625,10 @@ do
 						end
 
 						update_tc_balance()
-						TBMenu:showDataError(message, not TB_MENU_MAIN_ISOPEN, 10)
+						TBMenu:showStatusMessage(message)
 						Market:clearModal()
 					end, function()
-						TBMenu:showDataError(get_network_error(), not TB_MENU_MAIN_ISOPEN)
+						TBMenu:showStatusMessage(get_network_error())
 						Market:clearModal()
 					end)
 			end)
@@ -1707,7 +1735,12 @@ do
 			shift = { 15, (modalView.size.h - 40) / 2 },
 			rounded = 4
 		}, true)
-		local inputField = TBMenu:spawnTextField(inputHolder, nil, nil, nil, nil, nil, nil, 4, 0.7, UICOLORWHITE, TB_MENU_LOCALIZED.STORESEARCHHINT, CENTERMID)
+		local inputField = TBMenu:spawnTextField2(inputHolder, nil, nil, TB_MENU_LOCALIZED.STORESEARCHHINT, {
+			fontId = FONTS.LMEDIUM,
+			textScale = 0.7,
+			textColor = UICOLORWHITE,
+			textAlign = CENTERMID
+		})
 		inputField:addInputCallback(function()
 				if (inputHolder.dropdown) then
 					inputHolder.dropdown:kill()
@@ -1743,7 +1776,7 @@ do
 
 				inputHolder.dropdown = TBMenu:spawnDropdown(inputField, dropdownList, inputHolder.size.h * 0.8, WIN_H / 3, { text = '' }, nil, { scale = 0.65, fontid = 4 }, true, true, true)
 				inputHolder.dropdown.selectedElement:hide(true)
-				inputHolder.dropdown.selectedElement:btnUp()
+				inputHolder.dropdown.selectedElement.btnUp()
 			end)
 	end
 
@@ -1944,7 +1977,7 @@ do
 		offerBy.size.h = elementHeight
 		offerBy:addCustomDisplay(true, function()
 				offerBy:uiText(TB_MENU_LOCALIZED.WORDBY .. " " .. offer.username, nil, nil, 4, nil, 0.65, nil, nil, offerBy:getButtonColor())
-				if (offerBy.hoverState ~= BTN_NONE) then
+				if (offerBy.hoverState ~= nil and offerBy.hoverState ~= BTN_NONE) then
 					set_mouse_cursor(1)
 				end
 			end)
@@ -1999,7 +2032,7 @@ do
 		end
 		itemName:addCustomDisplay(true, function()
 				itemName:uiText(itemName.str, nil, nil, itemName.textFont, LEFTMID, itemName.textScale, nil, nil, itemName:getButtonColor())
-				if (itemName.hoverState ~= BTN_NONE) then
+				if (itemName.hoverState ~= nil and itemName.hoverState ~= BTN_NONE) then
 					set_mouse_cursor(1)
 				end
 			end)
@@ -2242,7 +2275,7 @@ do
 				searchBarView.options = dropdownList
 				searchBarView.dropdown = TBMenu:spawnDropdown(searchBarView, dropdownList, searchBarView.size.h * 0.8, WIN_H / 2, { text = '' }, nil, { scale = 0.65, fontid = 4 }, true, true, true)
 				searchBarView.dropdown.selectedElement:hide(true)
-				searchBarView.dropdown.selectedElement:btnUp()
+				searchBarView.dropdown.selectedElement.btnUp()
 			end)
 
 		searchInput:addEnterAction(function(inputText)
@@ -2604,7 +2637,7 @@ do
 				end
 				displayRemainingData(itemData)
 			end, function()
-				TBMenu:showDataError(TB_MENU_LOCALIZED.REQUESTCONNECTIONERROR .. "\n" .. get_network_error())
+				TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REQUESTCONNECTIONERROR .. "\n" .. get_network_error())
 			end)
 	end
 
@@ -2643,12 +2676,10 @@ do
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
 
-		local toReload, topBar, botBar, listingView, listingHolder = TBMenu:prepareScrollableList(searchFilters, elementHeight, elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
+		local toReload, topBar, botBar, listingView, listingHolder = TBMenu:prepareScrollableList(searchFilters, elementHeight, math.max(elementHeight, 60), 20, TB_MENU_DEFAULT_BG_COLOR)
 
-		local searchFiltersText = UIElement:new({
-			parent = topBar,
-			pos = { 15, 5 },
-			size = { topBar.size.w - 30, botBar.size.h - 10 }
+		local searchFiltersText = topBar:addChild({
+			shift = { 15, 5 }
 		})
 		searchFiltersText:addAdaptedText(true, TB_MENU_LOCALIZED.GENERALSEARCHFILTERS, nil, nil, FONTS.BIG)
 
@@ -2731,12 +2762,12 @@ do
 
 			local offers = Market:parseOffersData(response)
 			local filterValues = {}
-			for i,v in pairs(filterOptions) do
+			for _, v in pairs(filterOptions) do
 				filterValues[v.val] = v.value
 			end
 
 			if (filterValues.distinct == 1 and #offers.sale < filterValues.limit) then
-				for i,v in pairs(Market:searchItemsByString(filterValues.search)) do
+				for _, v in pairs(Market:searchItemsByString(filterValues.search)) do
 					if (#offers.sale >= filterValues.limit) then
 						break
 					end
@@ -2767,7 +2798,7 @@ do
 
 		local doSearch = function()
 			local searchSettings = ''
-			for i,v in pairs(filterOptions) do
+			for _, v in pairs(filterOptions) do
 				if (v.value) then
 					searchSettings = searchSettings .. "&" .. v.val .. "=" .. v.value
 				end
@@ -2791,7 +2822,7 @@ do
 
 		local listElements = {}
 		local prevElem = nil
-		for i,v in pairs(filterOptions) do
+		for _, v in pairs(filterOptions) do
 			local element = UIElement:new({
 				parent = listingHolder,
 				pos = { 0, #listElements * elementHeight },
@@ -2841,17 +2872,25 @@ do
 						action = function() v.action(j, k) end
 					})
 				end
-				local dropdownHolder = UIElement:new({
-					parent = filterHolder,
-					pos = { 1, 1 },
-					size = { filterHolder.size.w - 2, filterHolder.size.h - 2 },
-					bgColor = TB_MENU_DEFAULT_BG_COLOR,
-					shapeType = filterHolder.shapeType,
-					rounded = filterHolder.rounded
-				})
+				---Prepare same color as text fields use by default
+				local lightColor = {}
+				for i, v in pairs(TB_MENU_DEFAULT_BG_COLOR) do
+					lightColor[i] = v + 0.05
+				end
+				local dropdownHolder = filterHolder:addChild({
+					shift = { 1, 1 },
+					bgColor = lightColor
+				}, true)
 				interactiveElem = TBMenu:spawnDropdown(dropdownHolder, dropdownList, filterHolder.size.h, WIN_H / 3, v.defaultId and dropdownList[v.defaultId] or nil, { scale = 0.7, fontid = 4 }, { scale = 0.6, fontid = 4 })
 			else
-				interactiveElem = TBMenu:spawnTextField(filterHolder, nil, nil, nil, nil, v.value, { isNumeric = not v.text }, 4, 0.7, UICOLORWHITE, v.name, v.search and LEFTMID or CENTERMID, nil, nil, true)
+				interactiveElem = TBMenu:spawnTextField2(filterHolder, nil, v.value, nil, {
+					isNumeric = not v.text,
+					fontId = FONTS.LMEDIUM,
+					textScale = 0.7,
+					textColor = UICOLORWHITE,
+					textAlign = v.search and LEFTMID or CENTERMID,
+					inputType = v.text and KEYBOARD_INPUT.DEFAULT or KEYBOARD_INPUT.NUMBERPAD
+				})
 				if (v.default) then
 					local defaultValue = UIElement:new({
 						parent = filterHolder,
@@ -2886,13 +2925,13 @@ do
 			end
 			if (prevElem) then
 				prevElem:addTabSwitch(interactiveElem)
+				interactiveElem:addTabSwitchPrev(prevElem)
 			end
-			interactiveElem:addTabSwitchPrev(prevElem)
 			prevElem = interactiveElem
 		end
 
 		if (#listElements * elementHeight > listingHolder.size.h) then
-			for i,v in pairs(listElements) do
+			for _, v in pairs(listElements) do
 				v:hide()
 			end
 			local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
@@ -2903,10 +2942,9 @@ do
 		end
 
 		TBMenu:addBottomBloodSmudge(botBar, 1)
-		local searchButton = UIElement:new({
-			parent = botBar,
-			pos = { (botBar.size.w - math.max(300, botBar.size.w * 0.6)) / 2, 5 },
-			size = { math.max(300, botBar.size.w * 0.6), botBar.size.h - 5 },
+		local searchButton = botBar:addChild({
+			pos = { (botBar.size.w - math.max(300, botBar.size.w * 0.6)) / 2, 4 },
+			size = { math.max(300, botBar.size.w * 0.6), botBar.size.h - 14 },
 			interactive = true,
 			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
@@ -2914,20 +2952,15 @@ do
 			shapeType = ROUNDED,
 			rounded = 4
 		})
-		local searchButtonText = UIElement:new({
-			parent = searchButton,
-			pos = { 10, 3 },
-			size = { searchButton.size.w - 20, searchButton.size.h - 6 }
-		})
-		searchButtonText:addAdaptedText(true, TB_MENU_LOCALIZED.BUTTONSEARCH)
+		searchButton:addChild({ shift = { 10, 3 } }):addAdaptedText(true, TB_MENU_LOCALIZED.BUTTONSEARCH)
 
 		saleOffersHolder:hide()
 		purchaseOffersHolder:hide()
 
-		searchButton:addMouseHandlers(nil, doSearch)
+		searchButton:addMouseUpHandler(doSearch)
 		Request:queue(function()
 				local searchSettings = ''
-				for i,v in pairs(filterOptions) do
+				for _, v in pairs(filterOptions) do
 					if (v.value) then
 						searchSettings = searchSettings .. "&" .. v.val .. "=" .. v.value
 					end
@@ -3326,7 +3359,7 @@ do
 				end
 				TBMenu:addOuterRounding(lastElement, shopInfoView.bgColor, 10)
 
-				if (refreshImage) then
+				if (reload) then
 					Request:queue(function()
 							download_server_file("marketplace&user=" .. TB_MENU_PLAYER_INFO.username .. "&shop_image", 0)
 						end, "marketplace_shopimage", function()
@@ -3493,7 +3526,7 @@ do
 					end)
 			end
 
-			for i,v in pairs(requireReload) do
+			for _, v in pairs(requireReload) do
 				v:reload()
 			end
 
@@ -3599,7 +3632,7 @@ do
 							Market:displayOffers(saleOffersHolder, offers.sale, TB_MENU_LOCALIZED.MARKETSALEOFFERS, function() Market:showUserShop(viewElement, username) end, true)
 							Market:displayOffers(purchaseOffersHolder, offers.purchase, TB_MENU_LOCALIZED.MARKETPURCHASEREQUESTS, function() Market:showUserShop(viewElement, username) end, true)
 
-							for i,v in pairs(requireReload) do
+							for _, v in pairs(requireReload) do
 								v:reload()
 							end
 
@@ -3609,12 +3642,13 @@ do
 			end)
 	end
 
+	---Displays main Market screen
+	---@param viewElement UIElement
 	function Market:showMain(viewElement)
 		viewElement:kill(true)
 		Market:showSearchBar()
 
-		local myShopView = UIElement:new({
-			parent = viewElement,
+		local myShopView = viewElement:addChild({
 			pos = { 5, 0 },
 			size = { 0, viewElement.size.h },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
@@ -3669,18 +3703,17 @@ do
 		end
 
 		local myShopViewShift = myShopView.shift.x + myShopView.size.w + 10
-		local featuredImageSize = math.min(500, (viewElement.size.w - myShopViewShift - 10) / 2)
-		local popularSaleOffersView = UIElement:new({
-			parent = viewElement,
+		local featuredImageWidth = math.min(500, (viewElement.size.w - myShopViewShift - 10) / 2)
+		local featuredImageHeight = math.min(viewElement.size.h / 3, (featuredImageWidth - 20) / 2 + 20)
+		local popularSaleOffersView = viewElement:addChild({
 			pos = { myShopViewShift, 0 },
-			size = { viewElement.size.w - featuredImageSize - myShopViewShift - 15, viewElement.size.h },
+			size = { viewElement.size.w - featuredImageWidth - myShopViewShift - 15, viewElement.size.h },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
 
-		local recentPurchaseOffersView = UIElement:new({
-			parent = viewElement,
-			pos = { popularSaleOffersView.shift.x + popularSaleOffersView.size.w + 10, (featuredImageSize - 20) / 2 + 30 },
-			size = { featuredImageSize, viewElement.size.h - (featuredImageSize - 20) / 2 - 30 },
+		local recentPurchaseOffersView = viewElement:addChild({
+			pos = { popularSaleOffersView.shift.x + popularSaleOffersView.size.w + 10, featuredImageHeight + 10 },
+			size = { featuredImageWidth, viewElement.size.h - featuredImageHeight - 10 },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
 
@@ -3733,45 +3766,47 @@ do
 				TBMenu:showStatusMessage(get_network_error())
 			end)
 
-		local featuredShop = UIElement:new({
-			parent = viewElement,
+		local featuredShop = viewElement:addChild({
 			pos = { popularSaleOffersView.shift.x + popularSaleOffersView.size.w + 10, 0 },
-			size = { featuredImageSize, (featuredImageSize - 20) / 2 + 20 },
+			size = { featuredImageWidth, featuredImageHeight },
 			interactive = true,
 			bgColor = TB_MENU_DEFAULT_BG_COLOR,
 			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
 			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR
 		})
-		local featuredShopImage = UIElement:new({
-			parent = featuredShop,
-			pos = { 10, 10 },
-			size = { featuredImageSize - 20, (featuredImageSize - 20) / 2 },
-			bgImage = MARKET_FEATURED_SHOP_DATA and ("../textures/store/market/" .. MARKET_FEATURED_SHOP_DATA.user .. ".tga") or  "../textures/store/inventory/noise.tga"
+		local atlasRatio = featuredImageHeight / featuredImageWidth
+		local featuredShopImage = featuredShop:addChild({
+			shift = { 10, 10 },
+			bgImage = MARKET_FEATURED_SHOP_DATA and ("../textures/store/market/" .. MARKET_FEATURED_SHOP_DATA.user .. ".tga") or  "../textures/store/inventory/noise.tga",
+			imageAtlas = true,
+			atlas = {
+				x = 0, y = 512 * (0.5 - atlasRatio),
+				w = 1024, h = 1024 * atlasRatio
+			}
 		})
 		TBMenu:addOuterRounding(featuredShopImage, featuredShop.animateColor)
 
 		local featuredLoader
 		if (not MARKET_FEATURED_SHOP_DATA) then
 			featuredShop:deactivate()
-			featuredLoader = UIElement:new({
-				parent = featuredShopImage,
+			featuredLoader = featuredShopImage:addChild({
 				pos = { 10, 10 },
 				size = { 24, 24 }
 			})
 			TBMenu:displayLoadingMark(featuredLoader, nil, 12)
 		else
-			local featuredTitle = UIElement:new({
-				parent = featuredShopImage,
+			local featuredTitle = featuredShopImage:addChild({
 				pos = { 10, 10 },
 				size = { featuredShopImage.size.w - 20, 35 },
+				uiShadowColor = UICOLORBLACK
 			})
-			featuredTitle:addAdaptedText(true, MARKET_FEATURED_SHOP_DATA.title, nil, nil, FONTS.BIG, RIGHT, nil, nil, nil, 2)
-			local featuredTitleUser = UIElement:new({
-				parent = featuredShopImage,
+			featuredTitle:addAdaptedText(true, MARKET_FEATURED_SHOP_DATA.title, nil, nil, FONTS.BIG, RIGHT, nil, nil, nil, 4)
+			local featuredTitleUser = featuredShopImage:addChild({
 				pos = { 10, 48 },
-				size = { featuredShopImage.size.w - 20, 25 }
+				size = { featuredShopImage.size.w - 20, 25 },
+				uiShadowColor = UICOLORBLACK
 			})
-			featuredTitleUser:addAdaptedText(true, TB_MENU_LOCALIZED.WORDBY .. " " .. MARKET_FEATURED_SHOP_DATA.user, nil, nil, nil, RIGHT, nil, nil, nil, 1.5)
+			featuredTitleUser:addAdaptedText(true, TB_MENU_LOCALIZED.WORDBY .. " " .. MARKET_FEATURED_SHOP_DATA.user, nil, nil, nil, RIGHT, nil, nil, nil, 1)
 			local targetShop = table.clone(MARKET_FEATURED_SHOP_DATA)
 			featuredShop:addMouseHandlers(nil, function()
 					Market:showUserShop(TBMenu.CurrentSection, targetShop.user)
