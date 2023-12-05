@@ -2046,13 +2046,23 @@ function get_flame_setting(player, flame, id) end
 ---@param id FlameSettingId
 ---@param value integer
 ---@param flame ?integer
-function set_flame_setting(id, value, flame) end
+---@param playerid ?integer Use `-1` to set settings for a Lua managed flame
+function set_flame_setting(id, value, flame, playerid) end
 
 ---Sets a texture for player flames
 ---@param player integer
 ---@param dir string
 ---@param name string
 function set_flame_texture(player, dir, name) end
+
+---Loads a texture by its full path and sets for a Lua managed flame
+---@param path string
+---@param flameid integer
+---@return boolean
+function load_flame_texture(path, flameid) end
+
+---Runs an update loop on Lua managed flames
+function update_lua_flames() end
 
 ---Loads a body texture from `customse/data/script/` directory onto a bodypart of a player in Tori spot. \
 ---*This is a legacy Torishop function that is no longer being used and may be deprecated in future releases.*
