@@ -1254,3 +1254,4 @@ REPLAYSREPLAYSPEED	Speed
 EVENTSREPLAYINTEGRITYFAILATFRAME	Failed to verify replay integrity at frame
 EVENTSERRORVERIFYINGOPENER	Error verifying replay opener, please try loading a different replay
 EVENTSERRORLOADINGOPENER	Error loading replay opener, please verify integrity of game files and try again
+FLAMESSTOREDERRORLOADING	Error loading stored data for %d flames

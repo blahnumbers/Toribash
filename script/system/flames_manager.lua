@@ -375,22 +375,33 @@ do
 
 		local storedFile = Files.Open("../data/flames_stored.dat")
 		if (storedFile.data) then
-			for i, line in pairs(storedFile:readAll()) do
+			local data = storedFile:readAll()
+			storedFile:close()
+			local errors = 0
+			for i, line in pairs(data) do
 				if (line:match("^FLAME ([^;]+);[%d ]+")) then
-					local flame = { params = {}, id = i, str = line }
-					local flameName = line:gsub("^FLAME ([^;]+).*", "%1")
-					flame.name = flameName
-					local paramsLine = line:gsub("^FLAME [^;]+;", "")
-					for param in string.gmatch(paramsLine, "%-?%d+") do
-						table.insert(flame.params, tonumber(param))
+					local res = pcall(function()
+						local flame = { params = {}, id = i, str = line }
+						local flameName = line:gsub("^FLAME ([^;]+).*", "%1")
+						flame.name = flameName
+						local paramsLine = line:gsub("^FLAME [^;]+;", "")
+						for param in string.gmatch(paramsLine, "%-?%d+") do
+							table.insert(flame.params, tonumber(param))
+						end
+						table.insert(storedFlames, flame)
+					end)
+					if (res == false) then
+						errors = errors + 1
 					end
-					table.insert(storedFlames, flame)
 				end
 			end
+			if (errors > 0) then
+				local errorString = utf8.gsub(TB_MENU_LOCALIZED.FLAMESSTOREDERRORLOADING, "%%d", errors)
+				TBMenu:showStatusMessage(errorString)
+			end
 		end
-		storedFile:close()
 
-		for i,flame in pairs(storedFlames) do
+		for _, flame in pairs(storedFlames) do
 			local flameHolder = UIElement:new({
 				parent = listingHolder,
 				pos = { 0, #listElements * elementHeight },
