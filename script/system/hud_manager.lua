@@ -17,6 +17,9 @@ require("system.ignore_manager")
 if (TBHud == nil) then
 	---**Toribash touch HUD class**
 	---
+	---**Version 5.65**
+	---* Added hud option observer to enable/disable UI
+	---
 	---**Version 5.64**
 	---* Fixed wrong cleanup and new message setup after reaching message history limit
 	---* Auto hide chat input on new room join
@@ -78,6 +81,8 @@ if (TBHud == nil) then
 		DefaultButtonColor = table.clone(TB_MENU_DEFAULT_BG_COLOR),
 		RequiresChatRefresh = false,
 		SafeAreaOffset = 0,
+		HudEnabled = true,
+		HudEnableHintDisplayed = false,
 		__waitingWhisper = false,
 		ver = 5.64,
 	}
@@ -319,6 +324,20 @@ function TBHud:init()
 	})
 	self.MainElement:addCustomDisplay(true, function()
 		self.WorldState = get_world_state()
+
+		local hudState = get_option("hud") == 1
+		if (self.HudEnabled ~= hudState) then
+			if (hudState == false) then
+				self.MainElement:moveTo(WIN_W * 2, 0)
+				if (not self.HudEnableHintDisplayed) then
+					self.HudEnableHintDisplayed = true
+					TBMenu:showStatusMessage(TB_MENU_LOCALIZED.HUDINFODISABLEDTOUCH)
+				end
+			else
+				self.MainElement:moveTo(0, 0)
+			end
+			self.HudEnabled = hudState
+		end
 	end)
 
 	self.ButtonsToRefresh = {}
