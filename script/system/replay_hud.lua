@@ -3,43 +3,27 @@ if (TBMenu == nil) then
 	close_menu()
 end
 
-require("toriui.uielement")
-if (is_mobile()) then
-	require("system.hud_manager")
-end
 require("system.replays_manager")
 
----@type ReplayHud
-REPLAY_GUI = REPLAY_GUI or nil
 
----@param mode ?boolean
-local function replayGuiToggle(mode)
-	local targetMode = mode ~= nil and not mode or not REPLAY_GUI.hidden
-	if (targetMode == REPLAY_GUI.hidden) then
-		return
-	end
-	REPLAY_GUI.hidden = targetMode
-	REPLAY_GUI.toggleClock = os.clock_real()
-	if (mode == nil) then
-		REPLAY_GUI.manualHidden = targetMode
-	end
-	if (not REPLAY_GUI.hidden) then
-		REPLAY_GUI:show()
-	end
-end
-
-if (REPLAY_GUI == nil) then
-	REPLAY_GUI = Replays:spawnReplayAdvancedGui()
+if (Replays.GameHud == nil) then
+	Replays:spawnReplayAdvancedGui()
 else
-	replayGuiToggle()
+	Replays:toggleHud()
 end
 
-add_hook("new_game", "replay_advanced_gui", function() replayGuiToggle(false) end)
+add_hook("new_game", "replay_advanced_gui", function() Replays:toggleHud(false) end)
 add_hook("pre_draw", "replay_advanced_gui", function()
-	if (REPLAY_GUI.hidden and not REPLAY_GUI.manualHidden and not TUTORIAL_ISACTIVE) then
+	local hud = get_option('hud')
+	if (Replays.GameHud.hidden and not Replays.GameHud.manualHidden and not TUTORIAL_ISACTIVE) then
 		local ws = get_world_state()
-		if (ws.replay_mode > 0 and ws.game_type == 0) then
-			replayGuiToggle(true)
+		if (ws.replay_mode > 0 and ws.game_type == 0 and (not is_mobile() or hud == 1)) then
+			Replays:toggleHud(true)
+		end
+	elseif (not Replays.GameHud.hidden and is_mobile() and hud == 0) then
+		local ws = get_world_state()
+		if (ws.replay_mode > 0) then
+			Replays:toggleHud(false)
 		end
 	end
 end)

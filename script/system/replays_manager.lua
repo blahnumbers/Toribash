@@ -1,13 +1,18 @@
--- Replays manager
-local REPLAY_VOTE = 101
-local SELECTED_REPLAY = { element = nil, defaultColor = nil, time = 0, replay = nil }
-local MAXFOLDERLEVELS = 4
+require("toriui.uielement")
+require("system.menu_manager")
+require("system.iofiles")
+require("system.playerinfo_manager")
+if (is_mobile()) then
+	require("system.hud_manager")
+end
 
 if (Replays == nil) then
 	---**Toribash Replays manager class**
 	---
 	---**Version 5.65**
 	---* Updated custom replay selector window with mobile device support
+	---* Replay GUI is now part of **Replays** class
+	---* Moved all global definitions to **Replays** or **ReplaysInternal**
 	---
 	---**Version 5.61**
 	---* Updated keyboard return type on search bar for mobile devices
@@ -16,6 +21,7 @@ if (Replays == nil) then
 	---* Fixes to make UI work with modern TBMenu class
 	---* Use *utf8lib* when parsing replay files to ensure we handle multibyte symbols correctly
 	---@class Replays
+	---@field GameHud ReplayHud Replay advanced GUI
 	---@field RootFolder ReplayDirectory Root replay directory Information
 	---@field ServerCache ReplayServerInfo[] Cached server replays information from the last query
 	---@field ServerCacheTotal integer Total replays on server
@@ -26,6 +32,7 @@ if (Replays == nil) then
 		ServerCacheSettings = { action = 1, offset = 0, search = "", id = 0 },
 		ServerCacheTotal = 0,
 		CacheReady = false,
+		SaveFolder = 'my replays',
 		ver = 5.65
 	}
 	Replays.__index = Replays
@@ -51,6 +58,29 @@ if (Replays == nil) then
 	---@field search string Replay query search string
 	---@field info string Info string that describes current action id
 end
+
+---Internal variables holder for **Replays** class
+---@class ReplaysInternal
+---@field ReplayVoteAction integer
+---@field SelectedReplay ReplayInfo
+---@field SelectedFolder ReplayDirectory
+---@field SelectedServerReplay table
+---@field CustomSelectorActive boolean
+---@field MaxFolderLevels integer
+---@field ServerTempName string
+---@field SaveTempName string
+---@field EventTempPrefix string
+local ReplaysInternal = {
+	ReplayVoteAction = 101,
+	SelectedReplay = { element = nil, defaultColor = nil, time = 0, replay = nil },
+	SelectedFolder = { fullname = "replay" },
+	SelectedServerReplay = { id = 0 },
+	CustomSelectorActive = false,
+	MaxFolderLevels = 4,
+	ServerTempName = "--onlinereplaytempfile",
+	SaveTempName = "--localreplaytempfile",
+	EventTempPrefix = "--eventtmp"
+}
 
 ---Returns a new `ReplayInfo` object filled with default information
 ---@param path string
@@ -189,7 +219,7 @@ function ReplayInfo.FromReplay(path)
 	if (rplInfo.name == "vs") then
 		rplInfo.name = utf8.gsub(rplInfo.filename, "^.*/(.+)%.rpl$", "%1")
 		pcall(function()
-			---This will affect usernames with underscores. Do we care? Probably not.
+			---This will affect usernames with underscores. Do we care? Probably not. \
 			---Alternative is writing a longer regex expression or using bout names
 			---which may not match in case of decapAI replays.
 			local cleaned = utf8.gsub(rplInfo.name, "[_ ]+", " ")
@@ -202,8 +232,8 @@ end
 
 ---Attempts to update replay file with object data. \
 ---*Only replay name changing is currently supported.*
----@return boolean
----@return string? #Error message in case of failure
+---@return boolean result
+---@return string? error
 function ReplayInfo:UpdateFile()
 	local file = Files.Open("../" .. self.filename)
 	if (not file.data) then
@@ -314,7 +344,7 @@ function Replays:fetchReplayData(folder, rplTable, file, cacheData, includeEvent
 			while (1) do
 				local v = files[count]
 				pcall(function()
-					if (v:match(REPLAY_TEMPNAME) or v:match(REPLAY_SAVETEMPNAME) or (v:find("^" .. REPLAY_EVENT) and not includeEventTemp)) then
+					if (v:match(ReplaysInternal.ServerTempName) or v:match(ReplaysInternal.SaveTempName) or (v:find("^" .. ReplaysInternal.EventTempPrefix) and not includeEventTemp)) then
 						---Skip system replay names
 					elseif (v:match(".rpl$")) then
 						local replaypathfull = folder and (folder .. "/" .. v) or v
@@ -333,8 +363,8 @@ function Replays:fetchReplayData(folder, rplTable, file, cacheData, includeEvent
 							fullname = rplTable.fullname .. "/" .. v
 						})
 						table.insert(TBMenu.StatusMessage.replayfolders, { fname = folder .. "/" .. v, rpltbl = rplTable.folders[#rplTable.folders] })
-						if (rplTable.fullname .. "/" .. v == SELECTED_FOLDER.fullname) then
-							SELECTED_FOLDER = rplTable.folders[#rplTable.folders]
+						if (rplTable.fullname .. "/" .. v == ReplaysInternal.SelectedFolder.fullname) then
+							ReplaysInternal.SelectedFolder = rplTable.folders[#rplTable.folders]
 						end
 					end
 				end)
@@ -362,8 +392,8 @@ function Replays:fetchReplayData(folder, rplTable, file, cacheData, includeEvent
 						TBMenu.StatusMessage:kill()
 						TBMenu.StatusMessage = nil
 					end
-					if (not SELECTED_FOLDER.name) then
-						SELECTED_FOLDER = Replays.RootFolder
+					if (not ReplaysInternal.SelectedFolder.name) then
+						ReplaysInternal.SelectedFolder = Replays.RootFolder
 					end
 					Replays.CacheReady = true
 				end
@@ -681,7 +711,7 @@ function Replays:showSearchList(viewElement, replayInfo, toReload, replays)
 	goBack:addAdaptedText(false, TB_MENU_LOCALIZED.REPLAYSBACKTOALLREPLAYS, nil, nil, 4, nil, 0.6)
 	goBack:addMouseHandlers(nil, function()
 			TB_MENU_REPLAYS_SEARCH = nil
-			Replays:showList(viewElement.parent, replayInfo, SELECTED_FOLDER)
+			Replays:showList(viewElement.parent, replayInfo, ReplaysInternal.SelectedFolder)
 		end)
 
 	for section, replayList in pairs(replays) do
@@ -717,20 +747,20 @@ function Replays:showSearchList(viewElement, replayInfo, toReload, replays)
 					shapeType = ROUNDED,
 					rounded = 3
 				})
-				if (SELECTED_REPLAY.replay and SELECTED_REPLAY.replay.filename == replay.filename or i == 1) then
-					SELECTED_REPLAY.element = replayElement
-					SELECTED_REPLAY.defaultColor = table.clone(replayElement.bgColor)
+				if (ReplaysInternal.SelectedReplay.replay and ReplaysInternal.SelectedReplay.replay.filename == replay.filename or i == 1) then
+					ReplaysInternal.SelectedReplay.element = replayElement
+					ReplaysInternal.SelectedReplay.defaultColor = table.clone(replayElement.bgColor)
 				end
 				replayElement:addMouseHandlers(nil, function()
-						if (SELECTED_REPLAY.element == replayElement and SELECTED_REPLAY.time + 0.5 > os.clock_real()) then
+						if (ReplaysInternal.SelectedReplay.element == replayElement and ReplaysInternal.SelectedReplay.time + 0.5 > os.clock_real()) then
 							Replays:playReplay(replay)
 							return
 						end
-						SELECTED_REPLAY.time = os.clock_real()
+						ReplaysInternal.SelectedReplay.time = os.clock_real()
 						---@diagnostic disable-next-line: assign-type-mismatch
-						SELECTED_REPLAY.element.bgColor = table.clone(SELECTED_REPLAY.defaultColor)
-						SELECTED_REPLAY.element = replayElement
-						SELECTED_REPLAY.defaultColor = table.clone(replayElement.bgColor)
+						ReplaysInternal.SelectedReplay.element.bgColor = table.clone(ReplaysInternal.SelectedReplay.defaultColor)
+						ReplaysInternal.SelectedReplay.element = replayElement
+						ReplaysInternal.SelectedReplay.defaultColor = table.clone(replayElement.bgColor)
 						Replays:showReplayInfo(replayInfo, replay)
 					end)
 
@@ -854,7 +884,7 @@ function Replays.ResetCache()
 	file:close()
 	Replays.RootFolder.replays = nil
 	Replays.RootFolder.folders = nil
-	SELECTED_FOLDER = { fullname = "replay" }
+	ReplaysInternal.SelectedFolder = { fullname = "replay" }
 	Replays:showMain(TBMenu.CurrentSection)
 end
 
@@ -863,7 +893,7 @@ function Replays:showList(viewElement, replayInfo, level, doSearch)
 
 	local elementHeight = 40
 	local rplTable = level or Replays.RootFolder
-	SELECTED_FOLDER = rplTable
+	ReplaysInternal.SelectedFolder = rplTable
 
 	local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 50, 50, 20, TB_MENU_DEFAULT_BG_COLOR)
 
@@ -897,7 +927,7 @@ function Replays:showList(viewElement, replayInfo, level, doSearch)
 			editFolderButton:addChild({ shift = { 5, 5 }, bgImage = "../textures/menu/general/buttons/edit.tga" })
 			posX = editFolderButton.shift.x
 			editFolderButton:addMouseHandlers(nil, function()
-					Replays:showEditFolderWindow(SELECTED_FOLDER)
+					Replays:showEditFolderWindow(ReplaysInternal.SelectedFolder)
 				end)
 		elseif (level.fullname == "replay") then
 			local refreshCacheButton = topBar:addChild({
@@ -986,7 +1016,7 @@ function Replays:showList(viewElement, replayInfo, level, doSearch)
 			rounded = 3
 		})
 		folderElement:addMouseHandlers(nil, function()
-				SELECTED_REPLAY.replay = nil
+				ReplaysInternal.SelectedReplay.replay = nil
 				Replays:showList(viewElement, replayInfo, rplTable.parent)
 			end)
 		local folderIcon = UIElement:new({
@@ -1023,7 +1053,7 @@ function Replays:showList(viewElement, replayInfo, level, doSearch)
 			rounded = 3
 		})
 		folderElement:addMouseHandlers(nil, function()
-				SELECTED_REPLAY.replay = nil
+				ReplaysInternal.SelectedReplay.replay = nil
 				Replays:showList(viewElement, replayInfo, folder)
 			end)
 		local folderIcon = UIElement:new({
@@ -1059,20 +1089,20 @@ function Replays:showList(viewElement, replayInfo, level, doSearch)
 			shapeType = ROUNDED,
 			rounded = 3
 		})
-		if (SELECTED_REPLAY.replay and SELECTED_REPLAY.replay.filename == replay.filename or i == 1) then
-			SELECTED_REPLAY.element = replayElement
-			SELECTED_REPLAY.defaultColor = table.clone(replayElement.bgColor)
+		if (ReplaysInternal.SelectedReplay.replay and ReplaysInternal.SelectedReplay.replay.filename == replay.filename or i == 1) then
+			ReplaysInternal.SelectedReplay.element = replayElement
+			ReplaysInternal.SelectedReplay.defaultColor = table.clone(replayElement.bgColor)
 		end
 		replayElement:addMouseHandlers(nil, function()
-				if (SELECTED_REPLAY.element == replayElement and SELECTED_REPLAY.time + 0.5 > os.clock_real()) then
+				if (ReplaysInternal.SelectedReplay.element == replayElement and ReplaysInternal.SelectedReplay.time + 0.5 > os.clock_real()) then
 					Replays:playReplay(replay)
 					return
 				end
-				SELECTED_REPLAY.time = os.clock_real()
+				ReplaysInternal.SelectedReplay.time = os.clock_real()
 				---@diagnostic disable-next-line: assign-type-mismatch
-				SELECTED_REPLAY.element.bgColor = table.clone(SELECTED_REPLAY.defaultColor)
-				SELECTED_REPLAY.element = replayElement
-				SELECTED_REPLAY.defaultColor = table.clone(replayElement.bgColor)
+				ReplaysInternal.SelectedReplay.element.bgColor = table.clone(ReplaysInternal.SelectedReplay.defaultColor)
+				ReplaysInternal.SelectedReplay.element = replayElement
+				ReplaysInternal.SelectedReplay.defaultColor = table.clone(replayElement.bgColor)
 				Replays:showReplayInfo(replayInfo, replay)
 			end)
 
@@ -1124,7 +1154,7 @@ function Replays:showList(viewElement, replayInfo, level, doSearch)
 	else
 		listingHolder:moveTo((listingView.size.w - listingHolder.size.w) / 4)
 	end
-	Replays:showReplayInfo(replayInfo, SELECTED_REPLAY.replay or rplTable.replays[1])
+	Replays:showReplayInfo(replayInfo, ReplaysInternal.SelectedReplay.replay or rplTable.replays[1])
 end
 
 function Replays:showReplayTaglistTag(viewElement, updatedTags, tag, elementHeight, posInfo, popularTags)
@@ -1446,7 +1476,7 @@ function Replays:showEditFolderWindow(folder)
 		pos = { closeButtonSize * 1.5, 0 },
 		size = { editFolderView.size.w - closeButtonSize * 3, 60 }
 	})
-	editFolderTitle:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSTAGSMODIFYING .. " \"" .. SELECTED_FOLDER.fullname .. "\" " .. TB_MENU_LOCALIZED.REPLAYSMODIFYINGFOLDER, nil, nil, FONTS.BIG)
+	editFolderTitle:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSTAGSMODIFYING .. " \"" .. ReplaysInternal.SelectedFolder.fullname .. "\" " .. TB_MENU_LOCALIZED.REPLAYSMODIFYINGFOLDER, nil, nil, FONTS.BIG)
 
 	local closeButton = editFolderView:addChild({
 		pos = { -closeButtonSize - 10, 10 },
@@ -1462,7 +1492,7 @@ function Replays:showEditFolderWindow(folder)
 	local newFolderInput = TBMenu:spawnTextField2(editFolderView, {
 		x = 10, y = editFolderView.size.h / 2 - 20,
 		w = editFolderView.size.w - 20, h = 40
-	}, SELECTED_FOLDER.name, TB_MENU_LOCALIZED.REPLAYSFOLDERNAME, {
+	}, ReplaysInternal.SelectedFolder.name, TB_MENU_LOCALIZED.REPLAYSFOLDERNAME, {
 		textAlign = LEFTMID,
 		fontId = 4,
 		textScale = 0.8
@@ -1485,10 +1515,10 @@ function Replays:showEditFolderWindow(folder)
 					TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORDELETING .. " " .. TB_MENU_LOCALIZED.REPLAYSERRORDELETINGFOLDER .. " " .. folder.fullname .. ": " .. error)
 					return
 				end
-				SELECTED_FOLDER = { fullname = parentFolder }
+				ReplaysInternal.SelectedFolder = { fullname = parentFolder }
 			end
-			if (#SELECTED_FOLDER.replays == 0 and #SELECTED_FOLDER.folders == 0) then
-				delete_folder(SELECTED_FOLDER)
+			if (#ReplaysInternal.SelectedFolder.replays == 0 and #ReplaysInternal.SelectedFolder.folders == 0) then
+				delete_folder(ReplaysInternal.SelectedFolder)
 				editFolderOverlay:kill()
 				Replays:showMain(TBMenu.CurrentSection)
 			else
@@ -1507,7 +1537,7 @@ function Replays:showEditFolderWindow(folder)
 					end
 					delete_folder(folder)
 				end
-				TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.REPLAYSFOLDERNOTEMPTYDELETEWARNING, function() delete_folder_with_files(SELECTED_FOLDER) editFolderOverlay:kill() Replays:showMain(TBMenu.CurrentSection) end)
+				TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.REPLAYSFOLDERNOTEMPTYDELETEWARNING, function() delete_folder_with_files(ReplaysInternal.SelectedFolder) editFolderOverlay:kill() Replays:showMain(TBMenu.CurrentSection) end)
 			end
 		end)
 
@@ -1522,17 +1552,17 @@ function Replays:showEditFolderWindow(folder)
 	saveButton:addAdaptedText(TB_MENU_LOCALIZED.BUTTONSAVE)
 	saveButton:addMouseHandlers(nil, function()
 			local newFolderName = newFolderInput.textfieldstr[1]:gsub("%s+$", ""):gsub("^%s+", "")
-			local parentFolder = SELECTED_FOLDER.fullname:gsub(SELECTED_FOLDER.name .. "$", "")
-			if (SELECTED_FOLDER.name == newFolderName) then
+			local parentFolder = ReplaysInternal.SelectedFolder.fullname:gsub(ReplaysInternal.SelectedFolder.name .. "$", "")
+			if (ReplaysInternal.SelectedFolder.name == newFolderName) then
 				editFolderOverlay:kill()
 				return
 			end
-			local error = rename_replay_subfolder(SELECTED_FOLDER.fullname:gsub("^replay/", ""), parentFolder:gsub("^replay/", "") .. newFolderName)
+			local error = rename_replay_subfolder(ReplaysInternal.SelectedFolder.fullname:gsub("^replay/", ""), parentFolder:gsub("^replay/", "") .. newFolderName)
 			if (error ~= nil) then
 				TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORRENAMINGFOLDER .. ": " .. error)
 				return
 			end
-			SELECTED_FOLDER = { fullname = parentFolder .. newFolderName }
+			ReplaysInternal.SelectedFolder = { fullname = parentFolder .. newFolderName }
 			editFolderOverlay:kill()
 			Replays:showMain(TBMenu.CurrentSection)
 		end)
@@ -1540,9 +1570,9 @@ end
 
 ---Displays new replay folder creation window
 function Replays:showNewFolderWindow()
-	local _, level = SELECTED_FOLDER.fullname:gsub("/", "")
-	if (level > MAXFOLDERLEVELS - 1) then
-		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSFOLDERLEVELERROR1 ..  " " .. MAXFOLDERLEVELS .. " " .. TB_MENU_LOCALIZED.REPLAYSFOLDERLEVELERROR2)
+	local _, level = ReplaysInternal.SelectedFolder.fullname:gsub("/", "")
+	if (level > ReplaysInternal.MaxFolderLevels - 1) then
+		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSFOLDERLEVELERROR1 ..  " " .. ReplaysInternal.MaxFolderLevels .. " " .. TB_MENU_LOCALIZED.REPLAYSFOLDERLEVELERROR2)
 		return
 	end
 	local newFolderOverlay = TBMenu:spawnWindowOverlay()
@@ -1559,7 +1589,7 @@ function Replays:showNewFolderWindow()
 		pos = { closeButtonSize + 20, 0 },
 		size = { newFolderView.size.w - (closeButtonSize + 20) * 2, 60 }
 	})
-	newFolderTitle:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSADDINGFOLDER .. " " .. SELECTED_FOLDER.fullname, nil, nil, FONTS.BIG, nil, 0.7, nil, 0.2)
+	newFolderTitle:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSADDINGFOLDER .. " " .. ReplaysInternal.SelectedFolder.fullname, nil, nil, FONTS.BIG, nil, 0.7, nil, 0.2)
 
 	local closeButton = newFolderView:addChild({
 		pos = { -closeButtonSize - 10, 10 },
@@ -1598,7 +1628,7 @@ function Replays:showNewFolderWindow()
 			return
 		end
 
-		local parentFolder = utf8.gsub(SELECTED_FOLDER.fullname, "^replay/*", "")
+		local parentFolder = utf8.gsub(ReplaysInternal.SelectedFolder.fullname, "^replay/*", "")
 		parentFolder = parentFolder:len() > 0 and parentFolder .. "/" or parentFolder
 		local newFolderName = parentFolder .. newFolderInput.textfieldstr[1]:gsub(" +$", "")
 		local error = add_replay_subfolder(newFolderName)
@@ -1607,7 +1637,7 @@ function Replays:showNewFolderWindow()
 			return
 		end
 		newFolderOverlay:kill()
-		SELECTED_FOLDER = { fullname = "replay/" .. newFolderName }
+		ReplaysInternal.SelectedFolder = { fullname = "replay/" .. newFolderName }
 		Replays:showMain(TBMenu.CurrentSection)
 	end
 
@@ -1926,7 +1956,7 @@ function Replays:showReplayManageWindow(viewElement, replay)
 				end
 				newReplay.filename = "replay/" .. newname
 				if (fileMove) then
-					SELECTED_FOLDER = { fullname = directory }
+					ReplaysInternal.SelectedFolder = { fullname = directory }
 				end
 			end
 
@@ -1954,7 +1984,7 @@ function Replays:showReplayManageWindow(viewElement, replay)
 					end
 					manageOverlay:kill()
 					Replays:updateReplayCache(replay, nil)
-					SELECTED_REPLAY.replay = nil
+					ReplaysInternal.SelectedReplay.replay = nil
 					Replays:showMain(TBMenu.CurrentSection)
 				end)
 		end)
@@ -2037,7 +2067,7 @@ function Replays:showReplayInfo(viewElement, replay)
 	local bottomSmudge = TBMenu:addBottomBloodSmudge(viewElement, 2)
 	if (not replay) then
 		local heightMod = 0
-		if (SELECTED_FOLDER.fullname == "replay/autosave") then
+		if (ReplaysInternal.SelectedFolder.fullname == "replay/autosave") then
 			Replays:showAutosaveToggle(viewElement)
 			heightMod = viewElement.size.h / 8
 		end
@@ -2050,11 +2080,11 @@ function Replays:showReplayInfo(viewElement, replay)
 		return
 	end
 
-	SELECTED_REPLAY.replay = replay
-	if (SELECTED_REPLAY.element) then
+	ReplaysInternal.SelectedReplay.replay = replay
+	if (ReplaysInternal.SelectedReplay.element) then
 		-- Element can be null judging by crash logs but I can't replicate it
 		-- Let's hope having this check doesn't spawn more errors
-		SELECTED_REPLAY.element.bgColor = { 1, 1, 1, 0.3 }
+		ReplaysInternal.SelectedReplay.element.bgColor = { 1, 1, 1, 0.3 }
 	end
 
 	local replayName = UIElement:new({
@@ -2138,7 +2168,7 @@ function Replays:showReplayInfo(viewElement, replay)
 		end)
 
 	local posY = 0
-	if (SELECTED_FOLDER.fullname == "replay/autosave") then
+	if (ReplaysInternal.SelectedFolder.fullname == "replay/autosave") then
 		Replays:showAutosaveToggle(viewElement)
 		posY = -viewElement.size.h / 8
 	end
@@ -2330,7 +2360,7 @@ function Replays:showServerReplayPreview()
 	downloadWait:addCustomDisplay(true, function()
 			frames = frames + 1
 			if (frames == 10) then
-				replayFile = Files.Open("../replay/downloads/" .. REPLAY_TEMPNAME .. ".rpl", FILES_MODE_READONLY)
+				replayFile = Files.Open("../replay/downloads/" .. ReplaysInternal.ServerTempName .. ".rpl", FILES_MODE_READONLY)
 			end
 			if (replayFile) then
 				if (not replayFile:isDownloading()) then
@@ -2353,7 +2383,7 @@ function Replays:showServerReplayPreview()
 									downloadWait:addCustomDisplay(true, function()
 											framesN = framesN + 1
 											if (framesN > 4) then
-												open_replay("downloads/" .. REPLAY_TEMPNAME .. ".rpl", cacheMode)
+												open_replay("downloads/" .. ReplaysInternal.ServerTempName .. ".rpl", cacheMode)
 												close_menu()
 											end
 										end)
@@ -2366,7 +2396,7 @@ function Replays:showServerReplayPreview()
 									downloadWait:addCustomDisplay(true, function()
 											framesN = framesN + 1
 											if (framesN > 4) then
-												open_replay("downloads/" .. REPLAY_TEMPNAME .. ".rpl", cacheMode)
+												open_replay("downloads/" .. ReplaysInternal.ServerTempName .. ".rpl", cacheMode)
 												close_menu()
 											end
 										end)
@@ -2379,7 +2409,7 @@ function Replays:showServerReplayPreview()
 								downloadWait:addCustomDisplay(true, function()
 										framesN = framesN + 1
 										if (framesN > 4) then
-											open_replay("downloads/" .. REPLAY_TEMPNAME .. ".rpl", cacheMode)
+											open_replay("downloads/" .. ReplaysInternal.ServerTempName .. ".rpl", cacheMode)
 											close_menu()
 										end
 									end)
@@ -2467,9 +2497,9 @@ end
 ---@param replayInfoHolder UIElement
 function Replays:showServerReplayList(viewElement, replayInfoHolder)
 	TBMenu:addBottomBloodSmudge(viewElement, 1)
-	SELECTED_SERVER_REPLAY.element = nil
-	SELECTED_SERVER_REPLAY.replay = nil
-	SELECTED_SERVER_REPLAY.displayid = nil
+	ReplaysInternal.SelectedServerReplay.element = nil
+	ReplaysInternal.SelectedServerReplay.replay = nil
+	ReplaysInternal.SelectedServerReplay.displayid = nil
 
 	local elementHeight = 30
 	local toReload, topBar, botBar, replayListing, replayHolder, scrollBG = TBMenu:prepareScrollableList(viewElement, 50, elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
@@ -2577,8 +2607,8 @@ function Replays:showServerReplayList(viewElement, replayInfoHolder)
 			end
 		end, true)
 
-		if (v.id == SELECTED_SERVER_REPLAY.id) then
-			SELECTED_SERVER_REPLAY = { elements = { buttonTopBackground, buttonBotBackground }, id = v.id, replay = v, displayid = i }
+		if (v.id == ReplaysInternal.SelectedServerReplay.id) then
+			ReplaysInternal.SelectedServerReplay = { elements = { buttonTopBackground, buttonBotBackground }, id = v.id, replay = v, displayid = i }
 		elseif (i == 1) then
 			firstSelected = { elements = { buttonTopBackground, buttonBotBackground }, id = v.id, replay = v, displayid = i }
 		end
@@ -2623,19 +2653,19 @@ function Replays:showServerReplayList(viewElement, replayInfoHolder)
 		buttonTopHolder.lastPress = 0
 		local clickHandler = function()
 			if (os.clock_real() - buttonTopHolder.lastPress < 0.45) then
-				download_replay(v.id, REPLAY_TEMPNAME)
+				download_replay(v.id, ReplaysInternal.ServerTempName)
 				Replays:showServerReplayPreview()
 				return
 			end
 			buttonTopHolder.lastPress = os.clock_real()
-			if (SELECTED_SERVER_REPLAY.elements) then
-				for _, element in pairs(SELECTED_SERVER_REPLAY.elements) do
+			if (ReplaysInternal.SelectedServerReplay.elements) then
+				for _, element in pairs(ReplaysInternal.SelectedServerReplay.elements) do
 					element.bgColor = TB_MENU_DEFAULT_DARKER_COLOR
 					element.hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR
 				end
 			end
-			SELECTED_SERVER_REPLAY = { elements = { buttonTopBackground, buttonBotBackground }, id = v.id, replay = v, displayid = i }
-			for _, element in pairs(SELECTED_SERVER_REPLAY.elements) do
+			ReplaysInternal.SelectedServerReplay = { elements = { buttonTopBackground, buttonBotBackground }, id = v.id, replay = v, displayid = i }
+			for _, element in pairs(ReplaysInternal.SelectedServerReplay.elements) do
 				element.bgColor = TB_MENU_DEFAULT_LIGHTER_COLOR
 				element.hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR
 			end
@@ -2663,18 +2693,18 @@ function Replays:showServerReplayList(viewElement, replayInfoHolder)
 	local scrollBar = TBMenu:spawnScrollBar(replayHolder, #listElements, elementHeight)
 	scrollBar:makeScrollBar(replayHolder, listElements, toReload)
 
-	if (SELECTED_SERVER_REPLAY.displayid and replayHolder.size.h < elementHeight * 2 * SELECTED_SERVER_REPLAY.displayid) then
-		scrollBar.btnDown(4, 0, -SELECTED_SERVER_REPLAY.displayid)
+	if (ReplaysInternal.SelectedServerReplay.displayid and replayHolder.size.h < elementHeight * 2 * ReplaysInternal.SelectedServerReplay.displayid) then
+		scrollBar.btnDown(4, 0, -ReplaysInternal.SelectedServerReplay.displayid)
 	end
 
-	if (not SELECTED_SERVER_REPLAY.replay and firstSelected) then
-		SELECTED_SERVER_REPLAY = firstSelected
+	if (not ReplaysInternal.SelectedServerReplay.replay and firstSelected) then
+		ReplaysInternal.SelectedServerReplay = firstSelected
 	end
-	for _, v in pairs(SELECTED_SERVER_REPLAY.elements or {}) do
+	for _, v in pairs(ReplaysInternal.SelectedServerReplay.elements or {}) do
 		v.bgColor = TB_MENU_DEFAULT_LIGHTER_COLOR
 		v.hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR
 	end
-	Replays:showServerReplayInfo(replayInfoHolder, SELECTED_SERVER_REPLAY.replay)
+	Replays:showServerReplayInfo(replayInfoHolder, ReplaysInternal.SelectedServerReplay.replay)
 end
 
 ---Displays replay rating
@@ -2812,7 +2842,7 @@ function Replays:showReplayVoteWindow(replay)
 	voteSubmit:addChild({ shift = { 15, 5 }}):addAdaptedText(true, TB_MENU_LOCALIZED.BUTTONSUBMIT)
 	voteSubmit:addMouseHandlers(nil, function()
 			local info = replay.id .. ";" .. replayVote[1] .. ";" .. voteCommentInput.textfieldstr[1]
-			show_dialog_box(REPLAY_VOTE, TB_MENU_LOCALIZED.REPLAYSVOTECONFIRM1 .. " " .. replayVote[1] .. " " .. TB_MENU_LOCALIZED.REPLAYSVOTECONFIRM2, info)
+			show_dialog_box(ReplaysInternal.ReplayVoteAction, TB_MENU_LOCALIZED.REPLAYSVOTECONFIRM1 .. " " .. replayVote[1] .. " " .. TB_MENU_LOCALIZED.REPLAYSVOTECONFIRM2, info)
 			local waitOverlay = UIElement:new({
 				parent = TBMenu.MenuMain,
 				pos = { 0, 0 },
@@ -3134,7 +3164,7 @@ function Replays:showMain(viewElement)
 	end
 	TB_MENU_REPLAYS_ONLINE = 0
 
-	SELECTED_REPLAY = { replay = nil, element = nil, defaultcolor = nil, time = 0 }
+	ReplaysInternal.SelectedReplay = { replay = nil, element = nil, defaultcolor = nil, time = 0 }
 
 	local replaysList = UIElement:new({
 		parent = viewElement,
@@ -3156,7 +3186,7 @@ function Replays:showMain(viewElement)
 				replaysList:kill(true)
 				replaysList:addCustomDisplay(false, function() end)
 				TBMenu:addBottomBloodSmudge(replaysList, 1)
-				Replays:showList(replaysList, replayInfo, SELECTED_FOLDER, TB_MENU_REPLAYS_SEARCH)
+				Replays:showList(replaysList, replayInfo, ReplaysInternal.SelectedFolder, TB_MENU_REPLAYS_SEARCH)
 
 				if (TBMenu.StatusMessage) then
 					TBMenu.StatusMessage:reload()
@@ -3166,6 +3196,8 @@ function Replays:showMain(viewElement)
 end
 
 function Replays:showCustomReplaySelection(mainElement, mod, action)
+	if (ReplaysInternal.CustomSelectorActive == true) then return end
+
 	local function showCustomReplayChoice(viewElement)
 		local holder = viewElement:addChild({
 			shift = { viewElement.size.w / 5, viewElement.size.h / 4 },
@@ -3177,7 +3209,7 @@ function Replays:showCustomReplaySelection(mainElement, mod, action)
 		---@param v ReplayInfo
 		local function checkReplay(v)
 			if ((mod == nil or v.mod == mod) and (v.author == TB_MENU_PLAYER_INFO.username or (v.author == 'autosave' and v.bouts[1] == TB_MENU_PLAYER_INFO.username))) then
-				if (v.name:find("^" .. REPLAY_EVENT)) then
+				if (v.name:find("^" .. ReplaysInternal.EventTempPrefix)) then
 					v.name = 'Autosaved Replay'
 				end
 				table.insert(replaysToChooseFrom, { path = v.filename, name = v.name })
@@ -3270,7 +3302,7 @@ function Replays:showCustomReplaySelection(mainElement, mod, action)
 	customReplayOverlay:addMouseHandlers(nil, function()
 			customReplayOverlay:kill()
 		end)
-	customReplayOverlay.killAction = function() REPLAYS_CUSTOM_SELECTOR_ACTIVE = false end
+	customReplayOverlay.killAction = function() ReplaysInternal.CustomSelectorActive = false end
 	local customReplayLoading = customReplayOverlay:addChild({
 		pos = { customReplayOverlay.size.w / 5, customReplayOverlay.size.h / 2 - 70 },
 		size = { customReplayOverlay.size.w * 0.6, 140 },
@@ -3285,7 +3317,7 @@ function Replays:showCustomReplaySelection(mainElement, mod, action)
 				showCustomReplayChoice(customReplayOverlay)
 			end
 		end)
-	REPLAYS_CUSTOM_SELECTOR_ACTIVE = true
+	ReplaysInternal.CustomSelectorActive = true
 end
 
 ---Spawns replay advanced hud progress slider in a specified UIElement
@@ -3606,10 +3638,10 @@ end
 
 ---Spawns advanced replay UI
 ---@param reload ?boolean
----@return ReplayHud
+---@return ReplayHud?
 function Replays:spawnReplayAdvancedGui(reload)
-	---@type ReplayHud
-	local replayGuiHolder
+	if (not reload and self.GameHud ~= nil) then return nil end
+
 	local posX = is_mobile() and TBHud.DefaultButtonSize * 2.5 or math.max(65 * TB_MENU_GLOBAL_SCALE, WIN_W * 0.15 - 65 * TB_MENU_GLOBAL_SCALE)
 	local size = { math.min(1600, WIN_W - posX * 2), 65 * TB_MENU_GLOBAL_SCALE }
 	posX = (WIN_W - size[1]) / 2
@@ -3618,65 +3650,62 @@ function Replays:spawnReplayAdvancedGui(reload)
 	safe_y = math.max(safe_y, WIN_H - safe_h - safe_y)
 	local targetHeightShift = size[2] + math.max(safe_y, 35)
 
-	if (reload) then
-		REPLAY_GUI:kill(true)
-		replayGuiHolder = REPLAY_GUI
-		replayGuiHolder.size.w = size[1]
-		replayGuiHolder:moveTo(posX, WIN_H)
+	if (reload and self.GameHud ~= nil) then
+		self.GameHud:kill(true)
+		self.GameHud.size.w = size[1]
+		self.GameHud:moveTo(posX, WIN_H)
 	else
-		---@type ReplayHud
 		---@diagnostic disable-next-line: assign-type-mismatch
-		replayGuiHolder = UIElement:new({
+		self.GameHud = UIElement.new({
 			globalid = TB_MENU_HUB_GLOBALID,
 			pos = { posX, WIN_H },
 			size = { size[1], size[2] }
 		})
-		replayGuiHolder.hidden = false
-		replayGuiHolder.toggleClock = UIElement.clock
-		replayGuiHolder.hasCache = get_replay_cache() > 0
-		replayGuiHolder:addCustomDisplay(true, function()
-				if (not REPLAY_GUI) then
-					return
-				end
+		self.GameHud.hidden = false
+		self.GameHud.toggleClock = UIElement.clock
+		self.GameHud.hasCache = get_replay_cache() > 0
+		self.GameHud:addCustomDisplay(true, function()
 				local ws = get_world_state()
 
 				if (ws.replay_mode ~= 0) then
 					local cacheState = get_replay_cache() > 0
-					if (REPLAY_GUI.hasCache ~= cacheState) then
-						REPLAY_GUI.hasCache = cacheState
+					if (self.GameHud.hasCache ~= cacheState) then
+						self.GameHud.hasCache = cacheState
 						Replays:spawnReplayAdvancedGui(true)
 					end
 				end
 
 				if (ws.replay_mode == 0) then
-					REPLAY_GUI.hidden = true
+					self.GameHud.hidden = true
 				end
-				if (REPLAY_GUI.prevReplay:isDisplayed()) then
-					if (ws.game_type == 1) then
-						REPLAY_GUI.prevReplay:hide(true)
-						REPLAY_GUI.nextReplay:hide(true)
+				if (self.GameHud.prevReplay ~= nil and self.GameHud.nextReplay ~= nil) then
+					if (self.GameHud.prevReplay:isDisplayed()) then
+						if (ws.game_type == 1) then
+							self.GameHud.prevReplay:hide(true)
+							self.GameHud.nextReplay:hide(true)
+						end
+					elseif (ws.game_type == 0) then
+						self.GameHud.prevReplay:show(true)
+						self.GameHud.nextReplay:show(true)
 					end
-				elseif (ws.game_type == 0) then
-					REPLAY_GUI.prevReplay:show(true)
-					REPLAY_GUI.nextReplay:show(true)
 				end
-				if (replayGuiHolder.hidden) then
-					if (replayGuiHolder.pos.y < WIN_H) then
-						replayGuiHolder:moveTo(nil, UITween.SineTween(replayGuiHolder.pos.y, WIN_H, (UIElement.clock - replayGuiHolder.toggleClock) * 1.65))
+				if (self.GameHud.hidden) then
+					if (self.GameHud.pos.y < WIN_H) then
+						self.GameHud:moveTo(nil, UITween.SineTween(self.GameHud.pos.y, WIN_H, (UIElement.clock - self.GameHud.toggleClock) * 1.65))
 					else
-						replayGuiHolder:hide()
+						self.GameHud:hide()
 					end
 				else
-					if (replayGuiHolder.pos.y > WIN_H - targetHeightShift) then
-						replayGuiHolder:moveTo(nil, UITween.SineTween(replayGuiHolder.pos.y, WIN_H - 115, (UIElement.clock - replayGuiHolder.toggleClock) * 1.65))
+					if (self.GameHud.pos.y > WIN_H - targetHeightShift) then
+						self.GameHud:moveTo(nil, UITween.SineTween(self.GameHud.pos.y, WIN_H - 115, (UIElement.clock - self.GameHud.toggleClock) * 1.65))
 					end
 				end
 			end)
 	end
 
-	local prevReplay = replayGuiHolder:addChild({
+	self.GameHud.prevReplay = self.GameHud:addChild({
 		pos = { 0, 0 },
-		size = { replayGuiHolder.size.h / 3 * 2, replayGuiHolder.size.h },
+		size = { self.GameHud.size.h / 3 * 2, self.GameHud.size.h },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR,
 		hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
 		pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
@@ -3684,18 +3713,17 @@ function Replays:spawnReplayAdvancedGui(reload)
 		shapeType = ROUNDED,
 		rounded = 4
 	})
-	prevReplay:addChild({
-		shift = { prevReplay.size.w / 6, 0 },
+	self.GameHud.prevReplay:addChild({
+		shift = { self.GameHud.prevReplay.size.w / 6, 0 },
 		bgImage = "../textures/menu/general/buttons/arrowleft.tga"
 	})
-	prevReplay:addMouseHandlers(nil, function() play_prev_replay() end)
-	local prevPopup = TBMenu:displayPopup(prevReplay, TB_MENU_LOCALIZED.REPLAYHUDPREVREPLAY)
-	prevPopup:moveTo(-(prevReplay.size.w + prevPopup.size.w) / 2, prevReplay.size.h + 2)
-	replayGuiHolder.prevReplay = prevReplay
+	self.GameHud.prevReplay:addMouseHandlers(nil, function() play_prev_replay() end)
+	local prevPopup = TBMenu:displayPopup(self.GameHud.prevReplay, TB_MENU_LOCALIZED.REPLAYHUDPREVREPLAY)
+	prevPopup:moveTo(-(self.GameHud.prevReplay.size.w + prevPopup.size.w) / 2, self.GameHud.prevReplay.size.h + 2)
 
-	local nextReplay = replayGuiHolder:addChild({
-		pos = { -prevReplay.size.w, 0 },
-		size = { prevReplay.size.w, replayGuiHolder.size.h },
+	self.GameHud.nextReplay = self.GameHud:addChild({
+		pos = { -self.GameHud.prevReplay.size.w, 0 },
+		size = { self.GameHud.prevReplay.size.w, self.GameHud.size.h },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR,
 		hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
 		pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
@@ -3703,17 +3731,16 @@ function Replays:spawnReplayAdvancedGui(reload)
 		shapeType = ROUNDED,
 		rounded = 4
 	})
-	nextReplay:addChild({
-		shift = { nextReplay.size.w / 6, 0 },
+	self.GameHud.nextReplay:addChild({
+		shift = { self.GameHud.nextReplay.size.w / 6, 0 },
 		bgImage = "../textures/menu/general/buttons/arrowright.tga"
 	})
-	nextReplay:addMouseHandlers(nil, function() play_next_replay() end)
-	local nextPopup = TBMenu:displayPopup(nextReplay, TB_MENU_LOCALIZED.REPLAYHUDNEXTREPLAY)
-	nextPopup:moveTo(-(nextReplay.size.w + nextPopup.size.w) / 2, nextReplay.size.h + 2)
-	replayGuiHolder.nextReplay = nextReplay
+	self.GameHud.nextReplay:addMouseHandlers(nil, function() play_next_replay() end)
+	local nextPopup = TBMenu:displayPopup(self.GameHud.nextReplay, TB_MENU_LOCALIZED.REPLAYHUDNEXTREPLAY)
+	nextPopup:moveTo(-(self.GameHud.nextReplay.size.w + nextPopup.size.w) / 2, self.GameHud.nextReplay.size.h + 2)
 
-	local slidersHolder = replayGuiHolder:addChild({ shift = { prevReplay.size.w + 10, 0 }})
-	if (not replayGuiHolder.hasCache) then
+	local slidersHolder = self.GameHud:addChild({ shift = { self.GameHud.prevReplay.size.w + 10, 0 }})
+	if (not self.GameHud.hasCache) then
 		Replays:spawnReplayProgressSlider(slidersHolder)
 	else
 		local speedHolderWidth = math.min(math.max(350, slidersHolder.size.w * 0.1), slidersHolder.size.w * 0.5 - 5)
@@ -3728,5 +3755,28 @@ function Replays:spawnReplayAdvancedGui(reload)
 		Replays:spawnReplaySpeedSlider(speedHolder)
 	end
 
-	return replayGuiHolder
+	return self.GameHud
+end
+
+---@param mode ?boolean
+function Replays:toggleHud(mode)
+	if (self.GameHud == nil) then return end
+	local targetMode = mode ~= nil and not mode or not self.GameHud.hidden
+	if (targetMode == self.GameHud.hidden) then
+		return
+	end
+	self.GameHud.hidden = targetMode
+	self.GameHud.toggleClock = os.clock_real()
+	if (mode == nil) then
+		self.GameHud.manualHidden = targetMode
+	end
+	if (not self.GameHud.hidden) then
+		self.GameHud:show()
+	end
+end
+
+---Returns default temp replay name used by replay saver
+---@return string
+function Replays.GetSaveTempName()
+	return ReplaysInternal.SaveTempName
 end

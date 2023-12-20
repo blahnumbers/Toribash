@@ -10,26 +10,8 @@ require("toriui.uielement")
 require("system.menu_manager")
 require("system.replays_manager")
 
-REPLAY_SAVETEMPNAME = "--localreplaytempfile"
-REPLAY_FOLDER = REPLAY_FOLDER or 'my replays'
-REPLAY_SELECTOR_SHIFT = REPLAY_SELECTOR_SHIFT or { 0 }
-
-local rploptions = { hint = tonumber(get_option("hint")), feedback = tonumber(get_option("feedback")) }
-
-for i,_ in pairs(rploptions) do
-	set_option(i, 0)
-end
-
-local function quitReplaySave()
-	remove_hooks("replaySaveHandler")
-	for i,v in pairs(rploptions) do
-		set_option(i, v)
-	end
-	TBMenu.ReplaySaveOverlay:kill()
-	TBMenu.ReplaySaveOverlay = nil
-end
-
 TBMenu.ReplaySaveOverlay = TBMenu:spawnWindowOverlay(TB_MENU_HUB_GLOBALID)
+TBMenu.ReplaySaveOverlay.killAction = function() TBMenu.ReplaySaveOverlay = nil end
 local replaySave = TBMenu.ReplaySaveOverlay:addChild({
 	shift = { WIN_W / 4, WIN_H / 2 - 90 },
 	bgColor = TB_MENU_DEFAULT_BG_COLOR,
@@ -37,7 +19,7 @@ local replaySave = TBMenu.ReplaySaveOverlay:addChild({
 	rounded = 5,
 	interactive = true
 })
-runCmd("savereplay " .. REPLAY_SAVETEMPNAME, nil, CMD_ECHO_FORCE_DISABLED)
+runCmd("savereplay " .. Replays.GetSaveTempName(), nil, CMD_ECHO_FORCE_DISABLED)
 
 local replaySaveTitle = replaySave:addChild({
 	pos = { 10, 0 },
@@ -51,11 +33,11 @@ local replayFolderPicker = replaySave:addChild({
 	rounded = 4
 }, true)
 
-local folderPrefix = REPLAY_FOLDER .. '/'
+local folderPrefix = Replays.SaveFolder .. '/'
 local dropdownOptions = Replays:getReplayFoldersDropdownOptions(function(path)
-		REPLAY_FOLDER = path
-		folderPrefix = REPLAY_FOLDER .. '/'
-	end, REPLAY_FOLDER)
+		Replays.SaveFolder = path
+		folderPrefix = Replays.SaveFolder .. '/'
+	end, Replays.SaveFolder)
 if (#dropdownOptions > 0) then
 	TBMenu:spawnDropdown(replayFolderPicker, dropdownOptions, 30, WIN_H / 3, nil, { scale = 0.8 }, { scale = 0.6, orientation = LEFTMID })
 else
@@ -85,7 +67,7 @@ local replayCancelButton = replaySave:addChild({
 }, true)
 replayCancelButton:addAdaptedText(false, TB_MENU_LOCALIZED.BUTTONCANCEL)
 replayCancelButton:addMouseHandlers(nil, function()
-		quitReplaySave()
+		TBMenu.ReplaySaveOverlay:kill()
 	end)
 
 local replayNameBackground = replaySave:addChild({
@@ -113,7 +95,7 @@ local function saveReplay(newname)
 	local filename = folderPrefix .. newname
 
 	local doRenameReplay = function()
-		local error = rename_replay("my replays/" .. REPLAY_SAVETEMPNAME .. ".rpl", filename .. ".rpl")
+		local error = rename_replay("my replays/" .. Replays.GetSaveTempName() .. ".rpl", filename .. ".rpl")
 		if (error) then
 			TBMenu:showStatusMessage(error)
 			return
@@ -121,23 +103,38 @@ local function saveReplay(newname)
 		local rplFile = Files.Open("../replay/" .. filename .. ".rpl")
 		if (not rplFile.data) then
 			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORRENAMING)
-			quitReplaySave()
+			TBMenu.ReplaySaveOverlay:kill()
 			return
 		end
 
+		---Updated behavior as per Toribash 5.65 \
+		---Write full replay data to a string, if there are no errors overwrite the original file.
+		---This way we ensure we don't get stuck with an unclosed file interface and the replay
+		---doesn't get corrupted in case of parsing errors.
 		local fileData = rplFile:readAll()
-		rplFile:reopen(FILES_MODE_WRITE)
-		for _, ln in pairs(fileData) do
-			if (utf8.find(ln, "^FIGHTNAME %d;")) then
-				rplFile:writeLine("FIGHTNAME 0; " .. newname)
-			else
-				rplFile:writeLine(ln)
-			end
-		end
 		rplFile:close()
+		local newData = ""
+
+		local res = pcall(function()
+			for _, ln in pairs(fileData) do
+				if (utf8.find(ln, "^FIGHTNAME %d;")) then
+					newData = newData .. "FIGHTNAME 0; " .. newname .. "\n"
+				else
+					newData = newData .. ln .. "\n"
+				end
+			end
+		end)
+
+		---Consider showing some error if result is false?
+		---Replay is saved but it will display a temp file name when viewed
+		if (res == true) then
+			rplFile:reopen(FILES_MODE_WRITE)
+			rplFile:writeLine(newData)
+			rplFile:close()
+		end
 
 		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSSAVEREPLAYSUCCESS .. " " .. filename .. ".rpl")
-		quitReplaySave()
+		TBMenu.ReplaySaveOverlay:kill()
 	end
 
 	local file = Files.Open("../replay/" .. filename .. ".rpl")

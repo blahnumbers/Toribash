@@ -14,9 +14,13 @@ end
 
 TB_MENU_DEBUG = get_option("menudebug") == 1
 if (TB_MENU_DEBUG) then
+	_G.old_require = _G.old_require or require
 	require = function(file)
 		dofile(file:gsub("%.", "/") .. ".lua")
 	end
+elseif (_G.old_require ~= nil) then
+	require = _G.old_require
+	_G.old_require = nil
 end
 
 ---Global flag to tell if main menu is currently open
@@ -47,7 +51,7 @@ if (get_option("newmenu") == 0) then
 	return
 end
 
-TBMenu.Init("231211")
+TBMenu.Init("231220")
 require("system.menu_backend_defines")
 require("system.network_request")
 require("system.downloader_manager")
@@ -59,7 +63,6 @@ require("system.quests_manager")
 require("system.rewards_manager")
 require("system.clans_manager")
 require("system.friends_manager")
-require("system.replays_manager")
 require('system.mods_manager')
 require("system.bounty_manager")
 require("system.settings_manager")
@@ -75,6 +78,7 @@ require("system.queuelist_manager")
 if (is_mobile()) then
 	require("system.hud_manager")
 end
+require("system.replays_manager")
 require("system.replay_hud")
 require("system.gamerules_manager")
 require("system.atmospheres_manager")

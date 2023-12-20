@@ -72,15 +72,6 @@ AVATARCACHE = AVATARCACHE or {}
 CLANLISTSHIFT = CLANLISTSHIFT or { 0 }
 CLANLISTLASTPOS = CLANLISTLASTPOS or { scroll = {}, list = {} }
 
--- replays_manager.lua
-SELECTED_FOLDER = SELECTED_FOLDER and { fullname = SELECTED_FOLDER.fullname } or { fullname = "replay" }
-SELECTED_SERVER_REPLAY = SELECTED_SERVER_REPLAY or { id = 0 }
-REPLAYS_CUSTOM_SELECTOR_ACTIVE = false
--- These have to be global to work correctly for replay save screen / events
-REPLAY_TEMPNAME = "--onlinereplaytempfile"
-REPLAY_SAVETEMPNAME = "--localreplaytempfile"
-REPLAY_EVENT = "--eventtmp"
-
 -- settings_manager.lua
 dofile("system/settings_defines.lua")
 
