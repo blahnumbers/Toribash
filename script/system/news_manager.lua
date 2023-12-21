@@ -9,8 +9,12 @@ if (News == nil) then
 	---@field isBattlePass boolean
 	---@field featured boolean
 	---@field isRead boolean
+	---@field noUrlAuth boolean
 
 	---**Toribash News manager class**
+	---
+	---**Version 5.65**
+	---* Added `noUrlAuth` NewsItemData param to force open URLs in main browser on mobile devices
 	---
 	---**Version 5.60:**
 	---* News config to display unread news to user
@@ -183,7 +187,9 @@ function News:getNews(reload)
 			end
 			imageFile:close()
 		elseif (ln:find("^URL 0;")) then
-			newsData[#newsData].action = function() open_url(ln:gsub("^URL 0;", "")) end
+			newsData[#newsData].action = function() open_url(ln:gsub("^URL 0;", ""), newsData[#newsData].withUrlAuth) end
+		elseif (ln:find("^URLNOAUTH 0;")) then
+			newsData[#newsData].withUrlAuth = false
 		elseif (ln:find("^STORE 0;")) then
 			local itemid = ln:gsub("^STORE 0;", "") + 0
 			newsData[#newsData].action = function() Torishop:showStoreSection(TBMenu.CurrentSection, nil, nil, itemid) end
