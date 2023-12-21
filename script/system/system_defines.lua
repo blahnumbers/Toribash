@@ -3640,3 +3640,6 @@ function is_gamecenter_available() end
 
 ---Opens Game Center dashboard. *iOS only*.
 function open_gamecenter_dashboard() end
+
+---Display app rating prompt if it's available. *iOS only*.
+function request_app_review() end
