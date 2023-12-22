@@ -50,8 +50,6 @@ _G.MOUSE_Y = 0
 ---| 18 # SimHei medium @2
 ---| 19 # Badaboom giant @2
 
-_G.KEYBOARDGLOBALIGNORE = _G.KEYBOARDGLOBALIGNORE or false
-
 ---@alias UIElementShape
 ---| 1 # SQUARE
 ---| 2 # ROUNDED
@@ -748,7 +746,6 @@ function UIElement:addTabSwitch(element, btnDownArg, prev)
 		end
 		for _, v in pairs(UIKeyboardHandler) do
 			v.keyboard = false
-			KEYBOARDGLOBALIGNORE = false
 		end
 		element.hoverState = BTN_HVR
 		element.btnDown(unpack(btnDownArg))
@@ -1454,6 +1451,9 @@ function UIElement:deactivate(noreload)
 	if (noreload) then
 		self.noreloadInteractive = true
 	end
+	if (self.menuKeyboardId and not self.textfieldkeepfocusonhide) then
+		self:disableMenuKeyboard()
+	end
 	if (self.interactive) then
 		for i,v in pairs(UIMouseHandler) do
 			if (self == v) then
@@ -1565,10 +1565,6 @@ function UIElement:hide(noreload)
 			break
 		end
 	end
-
-	if (self.menuKeyboardId and not self.textfieldkeepfocusonhide) then
-		self:disableMenuKeyboard()
-	end
 	self.displayed = false
 end
 
@@ -1579,6 +1575,7 @@ end
 function UIElement:textfieldKeyUp(key)
 	if (self.textfield and (key == 13 or key == 271) and self.enteraction) then
 		self.enteraction(self.textfieldstr[1])
+		return
 	end
 	if (key == 9) then
 		local ctrl_pressed = get_keyboard_ctrl() > 0 and true or false
@@ -1744,7 +1741,6 @@ end
 function UIElement.handleKeyDown(key)
 	for _, v in pairs(table.reverse(UIKeyboardHandler)) do
 		if (v.keyboard == true) then
-			KEYBOARDGLOBALIGNORE = true
 			v.keyDown(key)
 			if (v.keyDownCustom) then
 				v.keyDownCustom(key)
@@ -1817,17 +1813,17 @@ end
 ---Internal UIElement function to activate generic text input handler hooks
 function UIElement.keyboardHooks()
 	add_hook("key_down", "uiKeyboardHandler", function(key)
-			if (TB_MENU_INPUT_ISACTIVE) then
+			if (TB_MENU_INPUT_ISACTIVE == true) then
 				return UIElement.handleKeyDown(key)
 			end
 		end)
 	add_hook("key_up", "uiKeyboardHandler", function(key)
-			if (TB_MENU_INPUT_ISACTIVE) then
+			if (TB_MENU_INPUT_ISACTIVE == true) then
 				return UIElement.handleKeyUp(key)
 			end
 		end)
 	add_hook("text_input", "uiKeyboardHandler", function(input)
-			if (TB_MENU_INPUT_ISACTIVE) then
+			if (TB_MENU_INPUT_ISACTIVE == true) then
 				return UIElement.handleInput(input)
 			end
 		end)
@@ -1853,7 +1849,6 @@ function UIElement.handleMouseDn(btn, x, y)
 	enable_camera_movement()
 	for _, v in pairs(UIKeyboardHandler) do
 		v.keyboard = v.permanentListener
-		KEYBOARDGLOBALIGNORE = false
 	end
 	for _, v in pairs(table.reverse(UIMouseHandler)) do
 		if (v:shouldReceiveInput()) then

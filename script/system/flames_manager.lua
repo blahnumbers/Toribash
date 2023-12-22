@@ -1253,9 +1253,6 @@ do
 			for i,v in pairs(toReload.browserButtons) do v:hide(true) end
 		end
 
-		add_hook("key_up", "tbFlamesKeyboard", function(s) return(UIElement:handleKeyUp(s)) end)
-		add_hook("key_down", "tbFlamesKeyboard", function(s) return(UIElement:handleKeyDown(s)) end)
-
 		local quitButton = UIElement:new({
 			parent = mainMoverHolder,
 			pos = { -mainMoverHolder.size.h, 0 },

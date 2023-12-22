@@ -11,7 +11,11 @@ require("system.menu_manager")
 require("system.replays_manager")
 
 TBMenu.ReplaySaveOverlay = TBMenu:spawnWindowOverlay(TB_MENU_HUB_GLOBALID)
-TBMenu.ReplaySaveOverlay.killAction = function() TBMenu.ReplaySaveOverlay = nil end
+TBMenu.ReplaySaveOverlay.killAction = function()
+	TBMenu.ReplaySaveOverlay = nil
+	enable_camera_movement()
+end
+
 local replaySave = TBMenu.ReplaySaveOverlay:addChild({
 	shift = { WIN_W / 4, WIN_H / 2 - 90 },
 	bgColor = TB_MENU_DEFAULT_BG_COLOR,

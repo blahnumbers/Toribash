@@ -930,7 +930,6 @@ function Gamerules.showMain()
 	if (is_mobile()) then
 		search:addEnterAction(function()
 				search.keyboard = false
-				KEYBOARDGLOBALIGNORE = false
 				search:disableMenuKeyboard()
 			end)
 	end
