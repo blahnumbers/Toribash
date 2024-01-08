@@ -3612,7 +3612,7 @@ function get_bet_info(player) end
 ---Makes a screenshot
 ---@param filename string
 ---@param type ?ScreenshotType
-function screnshot(filename, type) end
+function screenshot(filename, type) end
 
 ---Returns Lua error number
 function get_errno() end

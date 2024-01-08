@@ -1256,3 +1256,4 @@ EVENTSERRORVERIFYINGOPENER	Error verifying replay opener, please try loading a d
 EVENTSERRORLOADINGOPENER	Error loading replay opener, please verify integrity of game files and try again
 FLAMESSTOREDERRORLOADING	Error loading stored data for %d flames
 HUDINFODISABLEDTOUCH	Tap the screen with 3 fingers to enable HUD again
+EVENTSPLEASEWAITUNTILREPLAYOVER	Please wait until your replay has finished playing
