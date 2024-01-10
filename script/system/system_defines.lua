@@ -426,6 +426,20 @@ _G.INPUT_TYPE = {
 	CONTROLLER = 3
 }
 
+---@alias GameOverType
+---| 0	GAMEOVER_TYPE.END_SCORE
+---| 1	GAMEOVER_TYPE.END_DRAW
+---| 2	GAMEOVER_TYPE.END_DQ
+---| 3	GAMEOVER_TYPE.END_TRIGGER
+
+---Game over types
+_G.GAMEOVER_TYPE = {
+	END_SCORE = 0,
+	END_DRAW = 1,
+	END_DQ = 2,
+	END_TRIGGER = 3
+}
+
 ---@class MatrixTB
 ---@field r0 number
 ---@field r1 number
@@ -1518,9 +1532,17 @@ function set_score(player, score) end
 ---@return number
 function get_score(player) end
 
----Disqualifies the specified player
+---Disqualifies the specified player \
+---*This function is deprecated and will be removed in future releases, consider switching to `set_gameover()`* \
+---@see set_gameover
+---@deprecated
 ---@param player integer
 function set_dq(player) end
+
+---Ends the game with the specified game over type and winner
+---@param gameover_type GameOverType
+---@param winner_idx integer
+function set_gameover(gameover_type, winner_idx) end
 
 ---Forces the specified player to relax all joints
 ---@param player integer
