@@ -177,6 +177,7 @@ end
 ---@field head PlayerCustomTexture
 ---@field breast PlayerCustomTexture
 ---@field chest PlayerCustomTexture
+---@field stomach PlayerCustomTexture
 ---@field groin PlayerCustomTexture
 ---@field r_pec PlayerCustomTexture
 ---@field r_bicep PlayerCustomTexture
@@ -496,10 +497,10 @@ end
 function PlayerInfoInternal.getEffects(data)
 	---@type PlayerInfoCustomEffects
 	local effects = {
-		force = { __id = 0, effectId = EFFECTS_NONE },
-		relax = { __id = 1, effectId = EFFECTS_NONE },
-		body = { __id = 2, effectId = EFFECTS_NONE },
-		head = { __id = 3, effectId = EFFECTS_NONE }
+		force = { __id = 0, effectId = 0 },
+		relax = { __id = 1, effectId = 0 },
+		body = { __id = 2, effectId = 0 },
+		head = { __id = 3, effectId = 0 }
 	}
 	if (not data) then
 		effects.default = true
@@ -515,7 +516,7 @@ function PlayerInfoInternal.getEffects(data)
 
 			for _, v in pairs(effects) do
 				if (v.__id == tonumber(data[1])) then
-					v.id = tonumber(data[2]) or EFFECTS_NONE
+					v.id = tonumber(data[2]) or 0
 					v.glowColor = tonumber(data[3]) or 0
 					v.glowIntensity = tonumber(data[4]) or 0
 					v.ditherPixelSize = tonumber(data[5]) or 0

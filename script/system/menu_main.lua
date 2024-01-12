@@ -92,15 +92,12 @@ TB_MENU_PLAYER_INFO:getRanking()
 TB_MENU_PLAYER_INFO:getItems(PLAYERINFO_CSCOPE_ALL)
 TB_MENU_CUSTOMS_REFRESHED = false
 
-if (not TB_STORE_DATA) then
-	TB_STORE_DATA = {}
-end
-if (not TB_STORE_DATA.ready or TB_MENU_DEBUG) then
-	TB_STORE_DATA, TB_STORE_SECTIONS = Torishop:getItems()
-	TB_STORE_MODELS = Torishop:getModelsData()
+if (not Store.Ready or TB_MENU_DEBUG) then
+	Store.GetItems()
+	Store.GetModelsData()
 end
 
-if (PlayerInfo:getLoginRewards().available and TB_STORE_DATA.ready and not TB_MENU_NOTIFICATION_LOGINREWARDS) then
+if (PlayerInfo:getLoginRewards().available and Store.Ready and not TB_MENU_NOTIFICATION_LOGINREWARDS) then
 	TB_MENU_NOTIFICATIONS_COUNT = TB_MENU_NOTIFICATIONS_COUNT + 1
 	TB_MENU_NOTIFICATION_LOGINREWARDS = true
 end
@@ -113,7 +110,7 @@ end
 ARG, ARG1 = nil, nil
 if (launchOption == "15") then
 	TBMenu:showMain(true)
-	TBMenu:showTorishopMain()
+	TBMenu:showStoreMain()
 elseif (launchOption == "friendslist") then
 	TBMenu:showMain(true)
 	TBMenu:showFriendsList()
@@ -148,7 +145,7 @@ if (not _G.FIRST_LAUNCH and TBMenu.MenuMain ~= nil) then
 			end)
 	end
 	TBMenu.MenuMain:addChild({}):addCustomDisplay(true, function()
-			if (PlayerInfo:getLoginRewards().available and TB_STORE_DATA.ready and not TB_MENU_NOTIFICATION_LOGINREWARDS) then
+			if (PlayerInfo:getLoginRewards().available and Store.Ready and not TB_MENU_NOTIFICATION_LOGINREWARDS) then
 				TB_MENU_NOTIFICATIONS_COUNT = TB_MENU_NOTIFICATIONS_COUNT + 1
 				TB_MENU_NOTIFICATION_LOGINREWARDS = true
 				TBMenu:showNotifications()
@@ -183,9 +180,9 @@ add_hook("downloader_complete", "tbMainMenuStatic", function(filename)
 				end
 			end)
 		elseif (filename:find("data/store.txt")) then
-			Downloader:safeCall(function() TB_STORE_DATA, TB_STORE_SECTIONS = Torishop:getItems() end)
+			Downloader:safeCall(function() Store.GetItems() end)
 		elseif (filename:find("data/store_obj.txt")) then
-			Downloader:safeCall(function() TB_STORE_MODELS = Torishop:getModelsData() end)
+			Downloader:safeCall(function() Store.GetModelsData() end)
 		elseif (filename:find("data/clans.txt")) then
 			Downloader:safeCall(function()
 				Clans:getClanData(true)
@@ -210,7 +207,7 @@ add_hook("downloader_complete", "tbMainMenuStatic", function(filename)
 			end)
 		elseif (filename:find("data/inventory.txt")) then
 			Downloader:safeCall(function()
-				Torishop:getInventoryRaw(nil, true)
+				Store.ParseInventory()
 			end)
 		end
 	end)

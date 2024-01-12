@@ -1257,7 +1257,7 @@ do
 					eventInfoHolder:addAdaptedText(true, TB_MENU_LOCALIZED.ACCOUNTINFOERROR)
 					return
 				end
-				if (eventInfo.ready and TB_STORE_DATA.ready) then
+				if (eventInfo.ready and Store.Ready) then
 					Events:showPassedEventWinners(eventInfoHolder, eventInfo)
 					return
 				end
@@ -1709,7 +1709,7 @@ do
 	end
 
 	function Events:showEventInfo(id)
-		if (not TB_STORE_DATA.ready) then
+		if (not Store.Ready) then
 			TBMenu:showStatusMessage("Please wait until Store data is ready")
 			return false
 		end

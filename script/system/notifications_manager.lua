@@ -128,7 +128,7 @@ function Notifications:showLoginRewards()
 		return
 	end
 	TB_MENU_PLAYER_INFO.rewards = rewards
-	if (Rewards.getRewardData() == false or not TB_STORE_DATA.ready) then
+	if (Rewards.getRewardData() == false or not Store.Ready) then
 		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STOREDATALOADERROR)
 		return
 	end

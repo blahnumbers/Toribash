@@ -14,6 +14,9 @@ if (not Broadcasts) then
 
 	---Manager class to handle Toribash global messages popups
 	---
+	---**Version 5.65**
+	---* Minor fixes to broadcast data parsing from server
+	---
 	---**Version 5.64**
 	---* Broadcast belt restriction support
 	---
@@ -31,7 +34,7 @@ if (not Broadcasts) then
 	---@field IsDisplayed boolean Whether there's a broadcast popup displayed at the moment, only used on desktop platforms
 	---@field StalePeriod integer Cutoff in seconds to consider broadcast stale
 	Broadcasts = {
-		ver = 5.64,
+		ver = 5.65,
 		IsActive = false,
 		LastBroadcast = 0,
 		DisplayDuration = 12,
@@ -206,8 +209,9 @@ end
 function Broadcasts:fetchBroadcast()
 	Request:queue(function() download_server_info("last_broadcast") end, "broadcast", function()
 			local response = get_network_response()
+			if (string.len(response) == 0) then return end
 			---@type Broadcast
-			local broadcast = { id = 0, time = os.time() }
+			local broadcast = { id = 0, time = os.time(), minqi = -1, maxqi = -1 }
 			for ln in response:gmatch("[^\n]*\n?") do
 				local ln = ln:gsub("\n$", '')
 				if (ln:find("^BROADCASTID 0;")) then

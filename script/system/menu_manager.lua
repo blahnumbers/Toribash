@@ -802,7 +802,7 @@ end
 
 ---Displays Notifications menu
 function TBMenu:showNotifications()
-	if (not TB_STORE_DATA.ready) then
+	if (not Store.Ready) then
 		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STOREDATALOADERROR)
 		return
 	end
@@ -1252,13 +1252,11 @@ function TBMenu:showStatusMessage(message, time)
 		TBMenu.StatusMessage:kill()
 		TBMenu.StatusMessage = nil
 	end
-	local dataErrorY = (TBMenu.MenuMain and TBMenu.MenuMain.pos.y > 0) and (-TBMenu.MenuMain.pos.y) or WIN_H
 	local messageWidth = WIN_W / 2 > 800 and 800 or WIN_W / 2
-	TBMenu.StatusMessage = UIElement:new({
+	TBMenu.StatusMessage = UIElement.new({
 		---@diagnostic disable-next-line: assign-type-mismatch
-		globalid = TB_MENU_MAIN_ISOPEN == 0 and TB_MENU_HUB_GLOBALID or nil,
-		parent = TBMenu.MenuMain,
-		pos = { (WIN_W - messageWidth) / 2, dataErrorY },
+		globalid = TB_MENU_MAIN_ISOPEN == 0 and TB_MENU_HUB_GLOBALID or TB_MENU_MAIN_GLOBALID,
+		pos = { (WIN_W - messageWidth) / 2, WIN_H },
 		size = { messageWidth, 54 },
 		bgColor = bgColor,
 		shapeType = ROUNDED,
@@ -1312,11 +1310,11 @@ function TBMenu:showDataError(message, noParent, time)
 end
 
 ---Displays Store menu
-function TBMenu:showTorishopMain()
+function TBMenu:showStoreMain()
 	if (TBMenu.CurrentSection == nil or TBMenu.CurrentSection.destroyed) then
 		TBMenu.CreateCurrentSectionView()
 	end
-	Torishop:showMain(TBMenu.CurrentSection)
+	Store:showMain(TBMenu.CurrentSection)
 end
 
 ---Displays Account menu
@@ -1948,8 +1946,8 @@ function TBMenu:openMenu(screenId)
 	end]]
 
 	if (TB_MENU_SPECIAL_SCREEN_ISOPEN == 1) then
-		TBMenu:showTorishopMain()
-		Torishop:prepareInventory(TBMenu.CurrentSection)
+		TBMenu:showStoreMain()
+		Store:prepareInventory(TBMenu.CurrentSection)
 	elseif (TB_MENU_SPECIAL_SCREEN_ISOPEN == 2) then
 		RoomList:showMain()
 	--[[elseif (TB_MENU_SPECIAL_SCREEN_ISOPEN == 3) then
@@ -1968,8 +1966,8 @@ function TBMenu:openMenu(screenId)
 	elseif (TB_MENU_SPECIAL_SCREEN_ISOPEN == 8) then
 		TBMenu:showFriendsList()
 	elseif (TB_MENU_SPECIAL_SCREEN_ISOPEN == 9) then
-		TBMenu:showTorishopMain()
-		Torishop:showStoreSection(TBMenu.CurrentSection, TB_LAST_STORE_SECTION, TB_LAST_STORE_SECTIONID)
+		TBMenu:showStoreMain()
+		Torishop:showStoreSection(TBMenu.CurrentSection, Store.LastSection, Store.LastSectionId)
 	elseif (screenId == 1) then
 		TBMenu:showHome()
 	elseif (screenId == 2) then
@@ -1981,7 +1979,7 @@ function TBMenu:openMenu(screenId)
 	elseif (screenId == 5) then
 		TBMenu:showToolsSection()
 	elseif (screenId == 6) then
-		TBMenu:showTorishopMain()
+		TBMenu:showStoreMain()
 	elseif (screenId == 7) then
 		TBMenu:showAccountMain()
 	--[[elseif (screenId == 8) then
@@ -2141,8 +2139,8 @@ function TBMenu:showUserBar()
 	})
 	local tcPopup = TBMenu:displayPopup(tcView, TB_MENU_LOCALIZED.USERBARTCINFO)
 	tcView:addMouseHandlers(nil, function()
-			if (TB_STORE_DATA.ready) then
-				Torishop:showStoreSection(TBMenu.CurrentSection, 4, 1)
+			if (Store.Ready) then
+				Store:showStoreSection(TBMenu.CurrentSection, 4, 1)
 				tcPopup:reload()
 			end
 		end)
@@ -2174,8 +2172,8 @@ function TBMenu:showUserBar()
 	})
 	local stPopup = TBMenu:displayPopup(stView, TB_MENU_LOCALIZED.USERBARSTINFO)
 	stView:addMouseHandlers(nil, function()
-			if (TB_STORE_DATA.ready) then
-				Torishop:showStoreSection(TBMenu.CurrentSection, 4, 2)
+			if (Store.Ready) then
+				Store:showStoreSection(TBMenu.CurrentSection, 4, 2)
 				stPopup:reload()
 			end
 		end)
@@ -2710,7 +2708,7 @@ end
 ---Returns default navigation buttons data
 ---@return MenuNavButton[]
 function TBMenu:getMainNavigationButtons()
-	local storeMiscText = TB_STORE_DISCOUNTS and (#TB_STORE_DISCOUNTS > 0 and (TB_MENU_LOCALIZED.STORESALE1 .. TB_MENU_LOCALIZED.STORESALE2) or nil) or nil
+	local storeMiscText = Store ~= nil and (#Store.Discounts > 0 and (TB_MENU_LOCALIZED.STORESALE1 .. TB_MENU_LOCALIZED.STORESALE2) or nil) or nil
 	if (TB_MENU_PLAYER_INFO == nil) then
 		TB_MENU_PLAYER_INFO = PlayerInfo.Get(PLAYERINFO_SCOPE_GENERAL)
 	end
@@ -2779,7 +2777,7 @@ function TBMenu:showBottomBar(leftOnly)
 			remove_hooks("storevanillapreview")
 			set_option("uke", 1)
 			TBMenu.HideButton:show()
-			storeVanillaHolder:kill()
+			Store.VanillaPreviewer:kill()
 			STORE_VANILLA_POST = true
 			start_new_game()
 		end
@@ -3030,7 +3028,7 @@ function TBMenu:showMain(noload)
 		TBMenu.HideButton:addMouseUpHandler(function()
 				if (TBMenu.HideButton.state == 0) then
 					TBMenu.HideButton.state = -1
-					TBMenu.HideButton.progress = -math.pi/6
+					TBMenu.HideButton.progress = -math.pi / 6
 					disable_blur()
 				elseif (TBMenu.HideButton.state == 2) then
 					TBMenu.HideButton.state = 1
@@ -3554,7 +3552,7 @@ end
 ---@param totalPages integer
 ---@param maxPages integer
 ---@param currentPage integer
----@return table
+---@return integer[]
 function TBMenu:generatePaginationData(totalPages, maxPages, currentPage)
 	---Ensure data consistency, totalPages should be at least 1
 	---currentPage should be a value between 1 and totalPages
@@ -3662,14 +3660,18 @@ function TBMenu:displayLoadingMark(element, message, size)
 	end
 
 	local grow, rotate = 0, 0
+	local spawnTime = UIElement.clock
 	loadMark:addCustomDisplay(true, function()
-			set_color(unpack(loadMark.uiColor or UICOLORWHITE))
-			draw_disk(loadMark.pos.x + loadMark.size.w / 2, loadMark.pos.y + loadMark.size.h / 2 - (message and 25 or 0), size * 0.6, size, is_mobile() and 0 or 50, 1, rotate, grow, 0)
-			grow = grow + 4
-			rotate = rotate + 2
-			if (grow >= 360) then
-				grow = -360
+			local timeDiff = UIElement.clock - spawnTime
+			rotate = timeDiff % 2 * 180
+			grow = timeDiff % 2 * 360
+			if (grow > 360) then
+				grow = 720 - grow
+				rotate = rotate - grow
 			end
+
+			set_color(unpack(loadMark.uiColor or UICOLORWHITE))
+			draw_disk(loadMark.pos.x + loadMark.size.w / 2, loadMark.pos.y + loadMark.size.h / 2 - (message and 25 or 0), size * 0.7, size, is_mobile() and 0 or 50, 1, rotate, grow, 0)
 		end)
 	return loadMark
 end
@@ -3698,14 +3700,18 @@ function TBMenu:displayLoadingMarkSmall(viewElement, message, fontid, loadScale,
 		size = { loadScale, loadScale }
 	})
 	local grow, rotate = 0, 0
+	local spawnTime = UIElement.clock
 	loadElement:addCustomDisplay(true, function()
+			local timeDiff = UIElement.clock - spawnTime
+			rotate = timeDiff % 2 * 180
+			grow = timeDiff % 2 * 360
+			if (grow > 360) then
+				grow = 720 - grow
+				rotate = rotate - grow
+			end
+
 			set_color(unpack(loadElement.uiColor or UICOLORWHITE))
 			draw_disk(loadElement.pos.x + loadElement.size.w / 2, loadElement.pos.y + loadElement.size.h / 2, loadScale / 3, loadScale / 2, 360, 1, rotate, grow, 0)
-			grow = grow + 4
-			rotate = rotate + 2
-			if (grow >= 360) then
-				grow = -360
-			end
 		end)
 end
 
@@ -4566,7 +4572,6 @@ function TBMenu.RefreshData()
 		end
 		News:getNews(true)
 	end)
-	Torishop:getPlayerDiscounts()
 end
 
 TBMenu.GetTranslation(get_language())

@@ -142,34 +142,32 @@ do
 		local words = { searchString:match(("(%S*)%s*"):rep(wordCount)) }
 
 		local searchResults = { categories = {}, items = {} }
-		for i,v in pairs(TB_STORE_DATA) do
-			if (type(v) == "table") then
-				if (Market:itemEligible(v)) then
-					local catMatch, itemMatch = true, true
-					local catName, itemName = v.catname:lower(), v.itemname:lower()
-					for j,k in pairs(words) do
-						local k = k:gsub("([^%w])", "%%%1")
-						if (withCategories) then
-							if (not catName:find(k)) then
-								catMatch = false
-							else
-								catName = catName:gsub("%w*" .. k .. "%w*", '', 1)
-							end
-						end
-
-						if (not itemName:find(k)) then
-							itemMatch = false
+		for _, v in pairs(Store.Items) do
+			if (Market:itemEligible(v)) then
+				local catMatch, itemMatch = true, true
+				local catName, itemName = v.catname:lower(), v.itemname:lower()
+				for j,k in pairs(words) do
+					local k = k:gsub("([^%w])", "%%%1")
+					if (withCategories) then
+						if (not catName:find(k)) then
+							catMatch = false
 						else
-							itemName = itemName:gsub("%w*" .. k .. "%w*", '', 1)
+							catName = catName:gsub("%w*" .. k .. "%w*", '', 1)
 						end
 					end
 
-					if (withCategories and catMatch) then
-						searchResults.categories[v.catid] = { name = v.catname }
+					if (not itemName:find(k)) then
+						itemMatch = false
+					else
+						itemName = itemName:gsub("%w*" .. k .. "%w*", '', 1)
 					end
-					if (itemMatch) then
-						table.insert(searchResults.items, v)
-					end
+				end
+
+				if (withCategories and catMatch) then
+					searchResults.categories[v.catid] = { name = v.catname }
+				end
+				if (itemMatch) then
+					table.insert(searchResults.items, v)
 				end
 			end
 		end
@@ -180,11 +178,7 @@ do
 	function Market:searchItemsInventory(item)
 		local matchingItems = {}
 		pcall(function()
-			local inventoryItems = Torishop:getInventoryRaw()
-			if (type(inventoryItems) ~= "table") then
-				return
-			end
-			for _, v in pairs(inventoryItems) do
+			for _, v in pairs(Store.Inventory) do
 				local v = table.clone(v)
 				if (not v.active and (item == nil or item.itemid == v.itemid)) then
 					local itemInfo = Torishop:getItemInfo(v.itemid)
@@ -194,7 +188,7 @@ do
 						v.item = itemInfo
 						if (v.itemid == ITEM_SET) then
 							v.contents = {}
-							for j,k in pairs(inventoryItems) do
+							for _, k in pairs(Store.Inventory) do
 								if (not k.active and k.setid == v.inventid and (item == nil or item.itemid == k.itemid)) then
 									local setItemInfo = Torishop:getItemInfo(k.itemid)
 									if (Market:itemEligible(setItemInfo)) then

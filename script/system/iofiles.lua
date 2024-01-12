@@ -57,6 +57,11 @@ local function filesCloseInternal(file)
 end
 
 do
+	---**Toribash file IO manager**
+	---
+	---**Version 5.65**
+	---* Added `Exists()` method to quickly check whether file exists and is readable
+	---
 	---**Version 5.61**
 	---* Added `LogError()` method to write errors to stderr.txt
 	--
@@ -67,7 +72,7 @@ do
 	-- * Semantic updates to use Files class as a static alternative to spawn new File class objects
 	-- * EmmyLua annotations
 	---@class Files
-	Files = { ver = 5.61 }
+	Files = { ver = 5.65 }
 	Files.__index = Files
 
 	---@class File
@@ -112,6 +117,9 @@ do
 		return file
 	end
 
+	---Returns whether the specified file exists and is readable
+	---@param path string
+	---@return boolean
 	function Files.Exists(path)
 		local file = Files.Open(path, "rb")
 		if (file.data == nil) then
