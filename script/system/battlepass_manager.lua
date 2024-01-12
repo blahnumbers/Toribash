@@ -336,7 +336,7 @@ end
 
 ---Displays BattlePass Premium purchase popup
 function BattlePass:spawnPurchasePrimeWindow()
-	local item = Torishop:getItemInfo(BATTLEPASS_SUBSCRIPTION_ITEM)
+	local item = Store:getItemInfo(BATTLEPASS_SUBSCRIPTION_ITEM)
 	local displayPrice = "$" .. numberFormat(item.now_usd_price)
 	if (_G.PLATFORM == "IPHONEOS") then
 		displayPrice = utf8.gsub(get_platform_item_price(item.itemid), "%s", " ")
@@ -345,7 +345,7 @@ function BattlePass:spawnPurchasePrimeWindow()
 	claimWindowBackground = BattlePass:spawnPrizeConfirmationWindow(
 		TB_MENU_LOCALIZED.BATTLEPASSPURCHASEPREMIUM,
 		TB_MENU_LOCALIZED.STOREPURCHASECONFIRM .. " " .. item.itemname .. " " .. TB_MENU_LOCALIZED.STOREPURCHASEFOR .. " " .. displayPrice .. "?",
-		function() claimWindowBackground.parent:kill() Torishop.InitUSDPurchase(item) end,
+		function() claimWindowBackground.parent:kill() Store.InitUSDPurchase(item) end,
 		{ premium = true })
 end
 
@@ -572,8 +572,8 @@ function BattlePass:showPrizeItem(viewElement, prize)
 		prizeAmount = numberFormat(prize.bpxp)
 		prizeTooltip = TBMenu:displayPopup(prizeBackground, prizeAmount .. " " .. TB_MENU_LOCALIZED.BATTLEPASSEXPERIENCE, true)
 	elseif (prize.itemid ~= nil and prize.itemid > 0) then
-		iconPath = Torishop:getItemIcon(prize.itemid)
-		local itemInfo = Torishop:getItemInfo(prize.itemid)
+		iconPath = Store:getItemIcon(prize.itemid)
+		local itemInfo = Store:getItemInfo(prize.itemid)
 		prizeTooltip = TBMenu:displayPopup(prizeBackground, itemInfo.itemname .. (string.len(itemInfo.description or "") > 0 and ("\n\n" .. itemInfo.description) or ''), true, 500)
 	else
 		return
@@ -589,7 +589,7 @@ function BattlePass:showPrizeItem(viewElement, prize)
 		bgImage = iconPath
 	})
 	if (prizeIcon.bgImage == nil or prizeIcon.bgImageDefault == true) then
-		Torishop:addIconToDownloadQueue(prize, iconPath, prizeIcon)
+		Store:addIconToDownloadQueue(prize.itemid, iconPath, prizeIcon)
 	end
 
 	if (prize.locked or prize.claimed) then

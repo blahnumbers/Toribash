@@ -1164,8 +1164,8 @@ do
 		showPrize("../textures/store/toricredit.tga", numberFormat(data.tc) .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS, 1 + posShift)
 		showPrize("../textures/store/shiaitoken.tga", numberFormat(data.st) .. " " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS, 2 + posShift)
 		if (data.itemid ~= 0) then
-			local itemInfo = Torishop:getItemInfo(data.itemid)
-			showPrize(Torishop:getItemIcon(itemInfo), itemInfo.itemname, 3)
+			local itemInfo = Store:getItemInfo(data.itemid)
+			showPrize(itemInfo:getIconPath(), itemInfo.itemname, 3)
 		end
 	end
 
@@ -1577,7 +1577,7 @@ do
 			parent = rewardView,
 			pos = { rewardBulletpoint.size.w + 5, 2 },
 			size = { rewardView.size.h - 4, rewardView.size.h - 4 },
-			bgImage = prize.icon or Torishop:getItemIcon(prize.itemid)
+			bgImage = prize.icon or Store:getItemIcon(prize.itemid)
 		})
 		if (not itemIcon.bgImage) then
 			itemIcon:addAdaptedText(true, "?")
@@ -1653,7 +1653,7 @@ do
 			end
 			if (prize.itemids) then
 				for _, id in pairs(prize.itemids) do
-					table.insert(prizesToShow, Torishop:getItemInfo(id))
+					table.insert(prizesToShow, Store:getItemInfo(id))
 				end
 			end
 			for _, v in pairs(prizesToShow) do

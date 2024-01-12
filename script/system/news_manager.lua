@@ -9,12 +9,12 @@ if (News == nil) then
 	---@field isBattlePass boolean
 	---@field featured boolean
 	---@field isRead boolean
-	---@field noUrlAuth boolean
+	---@field withUrlAuth boolean
 
 	---**Toribash News manager class**
 	---
 	---**Version 5.65**
-	---* Added `noUrlAuth` NewsItemData param to force open URLs in main browser on mobile devices
+	---* Added `withUrlAuth` NewsItemData param to force open URLs in main browser on mobile devices
 	---
 	---**Version 5.60:**
 	---* News config to display unread news to user
@@ -192,7 +192,7 @@ function News:getNews(reload)
 			newsData[#newsData].withUrlAuth = false
 		elseif (ln:find("^STORE 0;")) then
 			local itemid = ln:gsub("^STORE 0;", "") + 0
-			newsData[#newsData].action = function() Torishop:showStoreSection(TBMenu.CurrentSection, nil, nil, itemid) end
+			newsData[#newsData].action = function() Store:showStoreSection(TBMenu.CurrentSection, nil, nil, itemid) end
 		elseif (ln:find("^EVENT 0;")) then
 			local eventid = ln:gsub("^EVENT 0;", "") + 0
 			newsData[#newsData].isEvent = true
@@ -212,9 +212,9 @@ function News:getNews(reload)
 				TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
 				TBMenu:showNavigationBar()
 			end
-		elseif (ln:find("^COLLECTORCARDS %d+;")) then
+		--[[elseif (ln:find("^COLLECTORCARDS %d+;")) then
 			local id = ln:gsub("^COLLECTORCARDS (%d+);", "%1") + 0
-			newsData[#newsData].action = function() Torishop:showCollectorsCards(id) end
+			newsData[#newsData].action = function() Torishop:showCollectorsCards(id) end]]
 		elseif (ln:find("^FEATURED 0;")) then
 			newsData[#newsData].featured = true
 			if (newsData[#newsData].image) then

@@ -281,7 +281,7 @@ function Notifications:showNotificationText(viewElement, notification)
 						button:addMouseHandlers(nil, function()
 								if (attch.isInventory) then
 									Notifications:quit()
-									Torishop:prepareInventory(TBMenu.CurrentSection)
+									Store:prepareInventory(TBMenu.CurrentSection)
 								else
 									open_url(attch.url)
 								end

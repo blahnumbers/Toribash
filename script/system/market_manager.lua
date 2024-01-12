@@ -72,7 +72,7 @@ do
 				offer.affordable = true
 				if (offer.offertype == 1) then
 					if (TB_MENU_PLAYER_INFO.data.tc < offer.price or
-						(TB_MENU_PLAYER_INFO.data.qi < Torishop:getItemInfo(offer.itemid).qi and (TB_MENU_PLAYER_INFO.data.st < offer.shiai or offer.shiai == 0))) then
+						(TB_MENU_PLAYER_INFO.data.qi < Store:getItemInfo(offer.itemid).qi and (TB_MENU_PLAYER_INFO.data.st < offer.shiai or offer.shiai == 0))) then
 						offer.affordable = false
 					end
 					table.insert(offers.sale, offer)
@@ -181,7 +181,7 @@ do
 			for _, v in pairs(Store.Inventory) do
 				local v = table.clone(v)
 				if (not v.active and (item == nil or item.itemid == v.itemid)) then
-					local itemInfo = Torishop:getItemInfo(v.itemid)
+					local itemInfo = Store:getItemInfo(v.itemid)
 
 					-- Show eligible items + sets with eligible items inside
 					if (v.itemid == ITEM_SET or (v.setid == 0 and Market:itemEligible(itemInfo))) then
@@ -190,7 +190,7 @@ do
 							v.contents = {}
 							for _, k in pairs(Store.Inventory) do
 								if (not k.active and k.setid == v.inventid and (item == nil or item.itemid == k.itemid)) then
-									local setItemInfo = Torishop:getItemInfo(k.itemid)
+									local setItemInfo = Store:getItemInfo(k.itemid)
 									if (Market:itemEligible(setItemInfo)) then
 										k.item = setItemInfo
 										table.insert(v.contents, k)
@@ -304,7 +304,7 @@ do
 					end
 				end
 
-				local itemInfo = Torishop:getItemInfo(itemid)
+				local itemInfo = Store:getItemInfo(itemid)
 
 				for j, holder in pairs(holders) do
 					holder:kill(true)
@@ -442,7 +442,7 @@ do
 		local selectedItems = {}
 		for i,v in pairs(inventoryItems) do
 			local item = v
-			item.item = Torishop:getItemInfo(item.itemid)
+			item.item = Store:getItemInfo(item.itemid)
 			table.insert(selectedItems, item)
 		end
 
@@ -548,7 +548,7 @@ do
 			local itemIcon = bgTop:addChild({
 				pos = { 10, 2 },
 				size = { bgTop.size.h - 5, bgTop.size.h - 5 },
-				bgImage = Torishop:getItemIcon(v.item)
+				bgImage = Store:getItemIcon(v.item)
 			})
 			local itemName = bgTop:addChild({
 				pos = { itemIcon.shift.x * 2 + itemIcon.size.w, itemIcon.shift.y },
@@ -603,7 +603,7 @@ do
 				pos = { extraDataShift.x, extraDataShift.y },
 				size = { bgTop.size.w - extraDataShift.x - itemIcon.shift.x, itemName.size.h }
 			})
-			Torishop:showItemEffectCapsules(v, effectsHolder, effectsHolder.size.h)
+			Store:showItemEffectCapsules(v, effectsHolder, effectsHolder.size.h)
 
 			local priceHolder = listingHolder:addChild({
 				pos = { 10, #listElements * elementHeight },
@@ -1065,7 +1065,7 @@ do
 						pos = { itemName.size.w + 5, 0 },
 						size = { itemName.parent.size.w - itemName.shift.x - itemName.size.w - 20 - itemCancel.size.w, itemName.size.h }
 					})
-					Torishop:showItemEffectCapsules(v, effectsHolder)
+					Store:showItemEffectCapsules(v, effectsHolder)
 				end
 
 				itemHolder:addMouseHandlers(nil, function()
@@ -1230,7 +1230,7 @@ do
 	function Market:spawnModifyPurchaseOfferModal(offer)
 		Market:clearModal()
 
-		local item = Torishop:getItemInfo(offer.itemid)
+		local item = Store:getItemInfo(offer.itemid)
 		local overlay = TBMenu:spawnWindowOverlay()
 		MARKET_ACTIVE_MODAL = overlay
 
@@ -1816,7 +1816,7 @@ do
 	end
 
 	function Market:displaySingleOfferDistinct(listingHolder, offer, height, idx, backAction)
-		local item = Torishop:getItemInfo(offer.itemid)
+		local item = Store:getItemInfo(offer.itemid)
 		local offerView = UIElement:new({
 			parent = listingHolder,
 			pos = { 0, idx * height },
@@ -1839,7 +1839,7 @@ do
 			parent = offerViewBG,
 			pos = { 10, 5 },
 			size = { offerViewBG.size.h - 5, offerViewBG.size.h - 5 },
-			bgImage = Torishop:getItemIcon(item)
+			bgImage = Store:getItemIcon(item)
 		})
 		local offerItemName = UIElement:new({
 			parent = offerViewBG,
@@ -1918,7 +1918,7 @@ do
 	end
 
 	function Market:displaySingleOffer(viewElement, offer, height, idx, backAction, linkPage)
-		local item = Torishop:getItemInfo(offer.itemid)
+		local item = Store:getItemInfo(offer.itemid)
 		local elements = {}
 		local offerHolder = UIElement:new({
 			parent = viewElement,
@@ -1947,7 +1947,7 @@ do
 			parent = offerBG,
 			pos = { 10, 5 },
 			size = { offerBG.size.h - 5, offerBG.size.h - 5 },
-			bgImage = Torishop:getItemIcon(item)
+			bgImage = Store:getItemIcon(item)
 		})
 
 		-- Display offerBy first so we can use more space for item name
@@ -2060,7 +2060,7 @@ do
 			pos = { itemIcon.size.w + itemIcon.shift.x * 2 + extraDataShift.x, extraDataShift.y },
 			size = { offerBG.size.w - itemIcon.size.w - itemIcon.shift.x * 3 - extraDataShift.x, capsuleHeight }
 		})
-		Torishop:showItemEffectCapsules(offer, effectsHolder, capsuleHeight)
+		Store:showItemEffectCapsules(offer, effectsHolder, capsuleHeight)
 
 		if (offer.username:lower() == TB_MENU_PLAYER_INFO.username:lower()) then
 			-- This is current user's offer, we show sell price and what they'll get
@@ -2338,7 +2338,7 @@ do
 	end
 
 	function Market:showItemPage(viewElement, item, backAction)
-		local item = type(item) == "table" and item or Torishop:getItemInfo(item)
+		local item = type(item) == "table" and item or Store:getItemInfo(item)
 		if (item.itemid == 0) then
 			return
 		end
@@ -2378,7 +2378,7 @@ do
 			itemDescription.size.h = math.max(math.min(itemDescription.size.h, 64), descHeight + 1)
 		end
 
-		local itemIconFilePath = Torishop:getItemIcon(item)
+		local itemIconFilePath = Store:getItemIcon(item)
 		local itemIconFile = Files.Open(itemIconFilePath)
 		local hasIcon = itemIconFile.data and true or false
 		itemIconFile:close()
@@ -2390,7 +2390,7 @@ do
 			bgImage = itemIconFilePath
 		})
 		if (not itemIconFile) then
-			Torishop:addIconToDownloadQueue(item, itemIconFilePath, itemIcon)
+			Store:addIconToDownloadQueue(item, itemIconFilePath, itemIcon)
 		end
 
 		local dataHeight = (itemView.size.h - (itemCategory.shift.y + itemCategory.size.h) - 20) / 3
@@ -2976,7 +2976,7 @@ do
 
 		local listElements = {}
 		for i,v in pairs(offersData) do
-			local item = Torishop:getItemInfo(v.itemid)
+			local item = Store:getItemInfo(v.itemid)
 			local offerView = UIElement:new({
 				parent = listingHolder,
 				pos = { 0, #listElements * elementHeight },
@@ -3003,7 +3003,7 @@ do
 				parent = offerViewBG,
 				pos = { 10, 5 },
 				size = { offerViewBG.size.h - 10, offerViewBG.size.h - 10 },
-				bgImage = Torishop:getItemIcon(item)
+				bgImage = Store:getItemIcon(item)
 			})
 			local offerItemName = UIElement:new({
 				parent = offerViewBG,
@@ -3147,7 +3147,7 @@ do
 			})
 			premiumUpgradeButtonText:addAdaptedText(true, TB_MENU_LOCALIZED.MARKETUPGRADEPREMIUM)
 			premiumUpgradeButton:addMouseUpHandler(function()
-				local premiumItem = Torishop:getItemInfo(3793)
+				local premiumItem = Store:getItemInfo(3793)
 				local displayPrice = "$" .. premiumItem.now_usd_price
 				if (_G.PLATFORM == "IPHONEOS") then
 					displayPrice = utf8.gsub(get_platform_item_price(premiumItem.itemid), "%s", " ")
@@ -3157,7 +3157,7 @@ do
 					return
 				end
 				TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.MARKETUPGRADEPREMIUMDESC .. "\n\n" .. TB_MENU_LOCALIZED.MARKETPREMIUMPURCHASEPROMPT1 .. " " .. displayPrice .. TB_MENU_LOCALIZED.MARKETPREMIUMPURCHASEPROMPT2, function()
-						Torishop.InitUSDPurchase(premiumItem)
+						Store.InitUSDPurchase(premiumItem)
 					end)
 			end)
 			lastElement = premiumUpgradeButton

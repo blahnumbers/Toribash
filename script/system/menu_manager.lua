@@ -1967,7 +1967,7 @@ function TBMenu:openMenu(screenId)
 		TBMenu:showFriendsList()
 	elseif (TB_MENU_SPECIAL_SCREEN_ISOPEN == 9) then
 		TBMenu:showStoreMain()
-		Torishop:showStoreSection(TBMenu.CurrentSection, Store.LastSection, Store.LastSectionId)
+		Store:showStoreSection(TBMenu.CurrentSection, Store.LastSection, Store.LastSectionId)
 	elseif (screenId == 1) then
 		TBMenu:showHome()
 	elseif (screenId == 2) then

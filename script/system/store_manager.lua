@@ -5121,11 +5121,15 @@ end
 ---@param item StoreItem
 ---@param path string
 ---@param element UIElement
+---@overload fun(self: Store, itemid: integer, path: string, element: UIElement)
 function Store:addIconToDownloadQueue(item, path, element)
 	---Don't do anything if they have autoupdate off
 	if (get_option("autoupdate") == 0) then return end
 
-	table.insert(Store.IconDownloadQueue, { path = path, itemid = item.itemid, element = element })
+	local itemid = type(item) == "number" and item or item.itemid
+	if (itemid == nil) then return end
+
+	table.insert(Store.IconDownloadQueue, { path = path, itemid = itemid, element = element })
 	add_hook("downloader_complete", "store_icon_downloader", function(load)
 			local fileName = load:gsub("^.* ", '')
 			for i, v in pairs(Store.IconDownloadQueue) do
@@ -5148,7 +5152,7 @@ function Store:addIconToDownloadQueue(item, path, element)
 			end
 		end)
 	Request:queue(function()
-			download_server_file("get_icon&itemid=" .. item.itemid, 0)
+			download_server_file("get_icon&itemid=" .. itemid, 0)
 		end, "store_icon_downloader_prepare", function()
 			local response = get_network_response()
 			if (response:len() == 0 or response:find("^ERROR")) then
