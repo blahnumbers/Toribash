@@ -190,7 +190,7 @@ do
 		if (flamesData) then
 			flameParameters = flamesData
 		else
-			flameParameters = cloneTable(FLAMES_USER_DATA)
+			flameParameters = table.clone(FLAMES_USER_DATA)
 			for i,flame in pairs(flameParameters) do
 				flameParameters[i] = Flames:getFlameParameters()
 				if (not flame.empty) then
@@ -209,19 +209,17 @@ do
 		FLAMES_CURRENT_FLAMEID = flameId
 		local flameParameters = Flames:checkFlamesParametersGenerated(flamesData)
 
-		local lastListHeight = FLAMES_LIST_SHIFT[2]
-		local lastListProgress = FLAMES_LIST_SHIFT[1] > 0 and FLAMES_LIST_SHIFT[1] / FLAMES_LIST_SHIFT[3] or 0
 		local targetListShift = listingHolder.shift.y < 0 and -listingHolder.shift.y or listingHolder.size.h
 		targetListShift = targetListShift - listingHolder.size.h
 
 		if (toReload.browserButtons and toReload.forgerButtons) then
-			for i,v in pairs(toReload.browserButtons) do
+			for _, v in pairs(toReload.browserButtons) do
 				v:hide(true)
 			end
-			for i,v in pairs(toReload.browserStoredButtons) do
+			for _, v in pairs(toReload.browserStoredButtons) do
 				v:hide(true)
 			end
-			for i,v in pairs(toReload.forgerButtons) do
+			for _, v in pairs(toReload.forgerButtons) do
 				v:show(true)
 			end
 		end
@@ -236,7 +234,7 @@ do
 		local listElements = {}
 		local nameWidth = listingHolder.size.w / 3 > 180 and 180 or listingHolder.size.w / 3
 		local flameGroups = Flames:getFlameGroups()
-		for gid,group in pairs(flameGroups) do
+		for _, group in pairs(flameGroups) do
 			local groupHolder = UIElement:new({
 				parent = listingHolder,
 				pos = { 0, #listElements * elementHeight },
@@ -250,7 +248,7 @@ do
 				size = { groupHolder.size.w - 40, groupHolder.size.h - 6 }
 			})
 			groupName:addAdaptedText(true, group.name, nil, nil, FONTS.BIG, LEFTMID, 0.5)
-			for j,i in pairs(group.ids) do
+			for _, i in pairs(group.ids) do
 				local param = flameParameters[flameId][i]
 				param.value = param.value or math.random(param.min, param.max)
 				local xShift = param.depends and 10 or 0
@@ -301,7 +299,7 @@ do
 							minValue = param.min or 0,
 							boundParent = listingHolder.parent
 						}
-						local updateFunc = function(val, xPos, slider)
+						local updateFunc = function(_, _, slider)
 							param.value = tonumber(slider.label.labelText[1])
 							set_flame_setting(i - 1, param.value, flameId)
 							toReload.costDisplay.tc = Flames:getFlameCostEstimate(flameParameters[flameId])
@@ -316,7 +314,7 @@ do
 								slider.label.labelText[1] = bodyName
 							end
 						end
-						local pSlider = TBMenu:spawnSlider(pValueHolder, 0, 0, nil, nil, 30, 20, param.value, paramSettings, updateFunc)
+						TBMenu:spawnSlider2(pValueHolder, nil, param.value, paramSettings, updateFunc)
 					end
 					set_flame_setting(i - 1, param.value, flameId)
 					pName:addAdaptedText(true, param.name, nil, nil, nil, LEFTMID, xShift > 0 and 0.75 or 0.9)
@@ -443,7 +441,7 @@ do
 				local confirmOverlay = TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.FLAMESDELETESTOREDCONFIRM .. " (" .. flame.name .. ")?\n" .. TB_MENU_LOCALIZED.CONFIRMACTIONCANNOTBEUNDONE, function()
 					local flamesStoredFile = Files.Open("../data/flames_stored.dat", FILES_MODE_WRITE)
 					if (not flamesStoredFile.data) then
-						TBMenu:showDataError(TB_MENU_LOCALIZED.FLAMESERROROPENINGSTORAGE, true)
+						TBMenu:showStatusMessage(TB_MENU_LOCALIZED.FLAMESERROROPENINGSTORAGE)
 						return
 					end
 					for k,v in pairs(storedFlames) do
@@ -534,7 +532,19 @@ do
 			size = { flameIdLoaderHolder.size.w / 3, flameIdLoaderHolder.size.h - 10 }
 		})
 		flameIdLoaderName:addAdaptedText(true, TB_MENU_LOCALIZED.STOREFLAMEID, nil, nil, nil, LEFTMID)
-		local flameIdLoaderInput = TBMenu:spawnTextField(flameIdLoaderHolder, flameIdLoaderName.size.w + flameIdLoaderName.shift.x + 5, 3, flameIdLoaderHolder.size.w - flameIdLoaderName.size.w - flameIdLoaderName.shift.x * 2 - 5, flameIdLoaderHolder.size.h - 6, previewFlame and previewFlame.id, { isNumeric = true }, 4, 0.7, UICOLORWHITE, TB_MENU_LOCALIZED.STOREFLAMEID, CENTERMID, nil, nil, true)
+		local flameIdLoaderInput = TBMenu:spawnTextField2(flameIdLoaderHolder, {
+			x = flameIdLoaderName.size.w + flameIdLoaderName.shift.x + 5,
+			y = 3,
+			w = flameIdLoaderHolder.size.w - flameIdLoaderName.size.w - flameIdLoaderName.shift.x * 2 - 5,
+			h = flameIdLoaderHolder.size.h - 6
+		}, previewFlame and previewFlame.id, TB_MENU_LOCALIZED.STOREFLAMEID, {
+			isNumeric = true,
+			fontId = 4,
+			textScale = 0.7,
+			textColor = UICOLORWHITE,
+			textAlign = CENTERMID,
+			darkerMode = true
+		})
 		flameIdLoaderInput:addEnterAction(function()
 				local flameLoaderOverlay = UIElement:new({
 					parent = flameIdLoader,
@@ -558,7 +568,7 @@ do
 						local response = get_network_response()
 						if (response:find("^ERROR;")) then
 							response = response:gsub("^ERROR;", "")
-							TBMenu:showDataError(response, true)
+							TBMenu:showStatusMessage(response)
 							return
 						end
 
@@ -597,7 +607,7 @@ do
 					end,
 					function() -- Error
 						flameLoaderOverlay:kill()
-						TBMenu:showDataError(TB_MENU_LOCALIZED.ERRORTRYAGAIN, true)
+						TBMenu:showStatusMessage(TB_MENU_LOCALIZED.ERRORTRYAGAIN)
 					end)
 			end)
 
@@ -725,7 +735,7 @@ do
 									local response = get_network_response()
 									if (response:find("^ERROR;")) then
 										response = response:gsub("^ERROR;", "")
-										TBMenu:showDataError(response, true)
+										TBMenu:showStatusMessage(response)
 										return
 									end
 
@@ -763,7 +773,7 @@ do
 								end,
 								function() -- Error
 									flameLoaderOverlay:kill()
-									TBMenu:showDataError(TB_MENU_LOCALIZED.ERRORTRYAGAIN, true)
+									TBMenu:showStatusMessage(TB_MENU_LOCALIZED.ERRORTRYAGAIN)
 								end)
 							end)
 						local fParamName = UIElement:new({
@@ -951,7 +961,7 @@ do
 					local flameName = flameName == "" and os.date() or flameName:gsub(";", "|")
 					local flamesStoredFile = Files.Open("../data/flames_stored.dat", FILES_MODE_APPEND)
 					if (not flamesStoredFile.data) then
-						TBMenu:showDataError(TB_MENU_LOCALIZED.FLAMESERROROPENINGSTORAGE, true)
+						TBMenu:showStatusMessage(TB_MENU_LOCALIZED.FLAMESERROROPENINGSTORAGE)
 						return
 					end
 					local flameString = "FLAME " .. flameName .. ";"
@@ -960,7 +970,7 @@ do
 					end
 					flamesStoredFile:writeLine(flameString)
 					flamesStoredFile:close()
-					TBMenu:showDataError(TB_MENU_LOCALIZED.FLAMESSTORAGESUCCESS, true)
+					TBMenu:showStatusMessage(TB_MENU_LOCALIZED.FLAMESSTORAGESUCCESS)
 				end, nil, TB_MENU_LOCALIZED.FLAMESSAVINGEMPTYDATE, TB_MENU_HUB_GLOBALID)
 			end)
 
@@ -995,7 +1005,7 @@ do
 					function(name)
 						local name = name:gsub(";", '')
 						if (name == '') then
-							TBMenu:showDataError(TB_MENU_LOCALIZED.FLAMESFORGINGNAMEEMPTY, true)
+							TBMenu:showStatusMessage(TB_MENU_LOCALIZED.FLAMESFORGINGNAMEEMPTY)
 							return
 						end
 
@@ -1044,7 +1054,7 @@ do
 										elseif (error == "5") then
 											errMsg = TB_MENU_LOCALIZED.FLAMESERRORSPAWNING
 										end
-										TBMenu:showDataError(errMsg, true)
+										TBMenu:showStatusMessage(errMsg)
 										return
 									end
 
@@ -1052,11 +1062,11 @@ do
 									TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASESUCCESSFUL, function()
 											Flames:quit()
 											Store:spawnInventoryUpdateWaiter()
-											show_dialog_box(INVENTORY_ACTIVATE, TB_MENU_LOCALIZED.STOREDIALOGACTIVATE1 .. " " .. name  .. (TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 .. "?"), invid)
+											show_dialog_box(2, TB_MENU_LOCALIZED.STOREDIALOGACTIVATE1 .. " " .. name  .. (TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 .. "?"), invid)
 										end)
 								end, function()
 									overlay:kill()
-									TBMenu:showDataError(TB_MENU_LOCALIZED.ERRORTRYAGAIN, true)
+									TBMenu:showStatusMessage(TB_MENU_LOCALIZED.ERRORTRYAGAIN)
 								end)
 
 					end, nil, TB_MENU_LOCALIZED.FLAMESFORGINGCHARGED1 .. " " .. flameCostEstimate.tc .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS .. " " .. TB_MENU_LOCALIZED.FLAMESFORGINGCHARGED2, TB_MENU_HUB_GLOBALID)
@@ -1139,7 +1149,13 @@ do
 			shapeType = ROUNDED,
 			rounded = 3
 		})
-		local flamesSearchTextfield = TBMenu:spawnTextField(flamesSearch, nil, nil, flamesSearch.size.w, nil, nil, nil, 4, 0.7, UICOLORWHITE, TB_MENU_LOCALIZED.FLAMESSEARCHFLAMES, LEFTMID, nil, nil, true)
+		local flamesSearchTextfield = TBMenu:spawnTextField2(flamesSearch, { w = flamesSearch.size.w }, nil, TB_MENU_LOCALIZED.FLAMESSEARCHFLAMES, {
+			fontId = 4,
+			textScale = 0.7,
+			textColor = UICOLORWHITE,
+			textAlign = LEFTMID,
+			darkerMode = true
+		})
 		local flamesSearchButton = UIElement:new({
 			parent = flamesSearch,
 			pos = { -200, 1 },
@@ -1204,7 +1220,7 @@ do
 					end
 				end
 				if (results == 0) then
-					TBMenu:showDataError(TB_MENU_LOCALIZED.FLAMESSEARCHNONEFOUND, true)
+					TBMenu:showStatusMessage(TB_MENU_LOCALIZED.FLAMESSEARCHNONEFOUND)
 				else
 					FLAMES_BROWSER_INFO[currentFlameId] = nil
 					FLAMES_SEARCH_DATA = searchFlames
@@ -1217,7 +1233,7 @@ do
 				toReload.searchLoader:kill()
 				toReload.searchLoader = nil
 
-				TBMenu:showDataError(TB_MENU_LOCALIZED.REQUESTUNKNOWNERROR, true)
+				TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REQUESTUNKNOWNERROR)
 			end)
 		end
 		flamesSearchButton:addMouseHandlers(nil, function()
