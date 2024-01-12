@@ -1390,7 +1390,7 @@ function Ranking:showMain()
 	local toplistWidth = math.clamp(400, TBMenu.CurrentSection.size.w * 0.2, TBMenu.CurrentSection.size.w * 0.4)
 	local mainView = TBMenu.CurrentSection:addChild({
 		pos = { 5, 0 },
-		size = { TBMenu.CurrentSection.size.w - toplistWidth - 15, TBMenu.CurrentSection.size.h },
+		size = { TBMenu.CurrentSection.size.w - toplistWidth - 20, TBMenu.CurrentSection.size.h },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR
 	})
 	TBMenu:addBottomBloodSmudge(mainView)
