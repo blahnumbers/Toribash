@@ -4572,6 +4572,7 @@ function TBMenu.RefreshData()
 		end
 		News:getNews(true)
 	end)
+	Store.GetPlayerOffers()
 end
 
 TBMenu.GetTranslation(get_language())

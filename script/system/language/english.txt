@@ -1257,3 +1257,5 @@ EVENTSERRORLOADINGOPENER	Error loading replay opener, please verify integrity of
 FLAMESSTOREDERRORLOADING	Error loading stored data for %d flames
 HUDINFODISABLEDTOUCH	Tap the screen with 3 fingers to enable HUD again
 EVENTSPLEASEWAITUNTILREPLAYOVER	Please wait until your replay has finished playing
+STOREPRIMEBONUSINFO	As a Prime subscriber, you will get additional
+STOREPRIMEBONUSINFO2	as a bonus!

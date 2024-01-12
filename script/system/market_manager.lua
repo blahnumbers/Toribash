@@ -146,8 +146,8 @@ do
 			if (Market:itemEligible(v)) then
 				local catMatch, itemMatch = true, true
 				local catName, itemName = v.catname:lower(), v.itemname:lower()
-				for j,k in pairs(words) do
-					local k = k:gsub("([^%w])", "%%%1")
+				for _, k in pairs(words) do
+					k = k:gsub("([^%w])", "%%%1")
 					if (withCategories) then
 						if (not catName:find(k)) then
 							catMatch = false

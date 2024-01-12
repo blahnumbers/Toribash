@@ -631,21 +631,24 @@ function Store.GetPlayerOffers()
 			download_server_info("store_discounts&username=" .. TB_MENU_PLAYER_INFO.username)
 		end, "store_discounts", function()
 			local response = get_network_response()
-			if (not response:find("^DISCOUNT")) then
-				return
-			end
-			for ln in response:gmatch("[^\n]+\n?") do
-				local data = { ln:match(("([^\t]*)\t"):rep(6)) }
-				---@type StoreDiscount
-				local storeDiscount = {
-					itemid = tonumber(data[2]) or 0,
-					discount = tonumber(data[3]) or 0,
-					discountMax = tonumber(data[4]) or 0,
-					---@diagnostic disable-next-line: assign-type-mismatch
-					paymentType = tonumber(data[5]) or 0,
-					expiryTime = os.clock_real() + (tonumber(data[6]) or 0)
-				}
-				table.insert(Store.Discounts, storeDiscount)
+			if (response:find("^DISCOUNT")) then
+				for ln in response:gmatch("[^\n]+\n?") do
+					local data = { ln:match(("([^\t]*)\t"):rep(6)) }
+					---@type StoreDiscount
+					local storeDiscount = {
+						itemid = tonumber(data[2]) or 0,
+						discount = tonumber(data[3]) or 0,
+						discountMax = tonumber(data[4]) or 0,
+						---@diagnostic disable-next-line: assign-type-mismatch
+						paymentType = tonumber(data[5]) or 0,
+						expiryTime = os.clock_real() + (tonumber(data[6]) or 0)
+					}
+					table.insert(Store.Discounts, storeDiscount)
+				end
+			elseif (response:find("^PRIME")) then
+				Store.Discounts.Prime = true
+				Store.Discounts.PrimeBonus = response:gsub("PRIME 0;", "")
+				Store.Discounts.PrimeBonus = tonumber(Store.Discounts.PrimeBonus) or 0
 			end
 		end)
 end
@@ -4939,7 +4942,19 @@ function Store:showStoreItemInfo(item, noReload, updateOverride)
 	if (item.qi <= TB_MENU_PLAYER_INFO.data.qi) then
 		itemDesc.size.h = itemDesc.size.h + itemInfo.size.h / 8
 	end
-	itemDesc:addAdaptedText(true, item.description, nil, nil, 4, CENTERMID, nil, 0.6)
+	local desc = item.description
+	if (Store.Discounts.Prime) then
+		if (item.catid == StoreCategories.Toricredits or item.catid == StoreCategories.ShiaiTokens) then
+			local value = string.gsub(item.itemname, "^(%d+)%D.*$", "%1")
+			local bonus = math.ceil((tonumber(value) or 0) / 100 * Store.Discounts.PrimeBonus)
+			if (bonus > 0) then
+				local bonusInfo = TB_MENU_LOCALIZED.STOREPRIMEBONUSINFO .. " " .. numberFormat(bonus) .. " " .. (item.catid == StoreCategories.Toricredits and TB_MENU_LOCALIZED.WORDTORICREDITS or TB_MENU_LOCALIZED.WORDSHIAITOKENS) .. " " .. TB_MENU_LOCALIZED.STOREPRIMEBONUSINFO2
+				bonusInfo = bonusInfo:gsub(" ", " ^16")
+				desc = desc .. "\n\n^16" .. bonusInfo
+			end
+		end
+	end
+	itemDesc:addAdaptedText(true, desc, nil, nil, 4, CENTERMID, nil, 0.6)
 
 	if (item.on_sale) then
 		local discountInfo = itemInfo:addChild({
@@ -5294,7 +5309,7 @@ end
 ---@return UIElement[]
 function Store:showVanillaSectionItems(viewElement, height, catid)
 	local sectionItems = { }
-	for i, v in pairs(Store.Items) do
+	for _, v in pairs(Store.Items) do
 		if (v.catid == catid and (v.now_tc_price > 0 or v.now_usd_price > 0) and not v.hidden) then
 			table.insert(sectionItems, v)
 		end
@@ -5366,23 +5381,21 @@ function Store:showSectionItems(viewElement, catid, searchString, itemsList, ite
 	if (itemsList) then
 		sectionItems = itemsList
 	else
-		for i, v in pairs(Store.Items) do
-			if (type(i) == "number") then
-				if (v.catid == catid and (v.now_tc_price > 0 or v.now_usd_price > 0) and not (v.locked and v.hidden)) then
-					local v = table.clone(v)
-					for _, k in pairs(Store.Discounts) do
-						if (k.expiryTime > UIElement.clock + 60 and k.itemid == 0 or k.itemid == v.itemid) then
-							if ((bit.band(k.paymentType, 2) > 0 or bit.band(k.paymentType, 4) > 0) and in_array(v.catid, StoreInternal.Categories.Account)) then
-								v.on_sale = true
-								v.now_usd_price = math.max(v.now_usd_price / 100 * (100 - k.discount), k.discountMax > 0 and v.now_usd_price - k.discountMax / 100 or 0)
-							elseif (bit.band(k.paymentType, 1) > 0) then
-								v.on_sale = true
-								v.now_tc_price = math.max(v.now_tc_price / 100 * (100 - k.discount), k.discountMax > 0 and v.now_tc_price - k.discountMax or 0)
-							end
+		for _, v in pairs(Store.Items) do
+			if (v.catid == catid and (v.now_tc_price > 0 or v.now_usd_price > 0) and not (v.locked and v.hidden)) then
+				local v = table.clone(v)
+				for _, k in pairs(Store.Discounts) do
+					if (type(k) == "table" and k.expiryTime > UIElement.clock + 60 and (k.itemid == 0 or k.itemid == v.itemid)) then
+						if ((bit.band(k.paymentType, 2) > 0 or bit.band(k.paymentType, 4) > 0) and in_array(v.catid, StoreInternal.Categories.Account)) then
+							v.on_sale = true
+							v.now_usd_price = math.max(v.now_usd_price / 100 * (100 - k.discount), k.discountMax > 0 and v.now_usd_price - k.discountMax / 100 or 0)
+						elseif (bit.band(k.paymentType, 1) > 0) then
+							v.on_sale = true
+							v.now_tc_price = math.max(v.now_tc_price / 100 * (100 - k.discount), k.discountMax > 0 and v.now_tc_price - k.discountMax or 0)
 						end
 					end
-					table.insert(sectionItems, v)
 				end
+				table.insert(sectionItems, v)
 			end
 		end
 	end
