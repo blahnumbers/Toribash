@@ -51,7 +51,7 @@ if (get_option("newmenu") == 0) then
 	return
 end
 
-TBMenu.Init("231221")
+TBMenu.Init("240115")
 require("system.menu_backend_defines")
 require("system.network_request")
 require("system.downloader_manager")
@@ -165,7 +165,7 @@ add_hook("resolution_changed", "tbMainMenuVisual", function()
 
 add_hook("login", "tbMainMenuStatic", TBMenu.RefreshData)
 add_hook("downloader_complete", "tbMainMenuStatic", function(filename)
-		if (filename:find("custom/.*/item.dat") and not filename:find(TB_MENU_PLAYER_INFO.username)) then
+		if (filename:find("custom/.*") and not filename:find(TB_MENU_PLAYER_INFO.username)) then
 			-- Most files we'll download will be from custom, sort them out so we don't run checks on them
 			return
 		end
@@ -180,9 +180,9 @@ add_hook("downloader_complete", "tbMainMenuStatic", function(filename)
 				end
 			end)
 		elseif (filename:find("data/store.txt")) then
-			Downloader:safeCall(function() Store.GetItems() end)
+			Downloader:safeCall(Store.GetItems)
 		elseif (filename:find("data/store_obj.txt")) then
-			Downloader:safeCall(function() Store.GetModelsData() end)
+			Downloader:safeCall(Store.GetModelsData)
 		elseif (filename:find("data/clans.txt")) then
 			Downloader:safeCall(function()
 				Clans:getClanData(true)
@@ -206,9 +206,7 @@ add_hook("downloader_complete", "tbMainMenuStatic", function(filename)
 				Quests:getGlobalQuests()
 			end)
 		elseif (filename:find("data/inventory.txt")) then
-			Downloader:safeCall(function()
-				Store.ParseInventory()
-			end)
+			Downloader:safeCall(Store.ParseInventory)
 		end
 	end)
 

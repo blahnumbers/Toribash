@@ -859,11 +859,7 @@ function TBMenu:prepareScrollableList(viewElement, firstBarSize, secondBarSize, 
 	local accentColor = accentColor or table.clone(TB_MENU_DEFAULT_DARKER_COLOR)
 	local orientation = orientation or SCROLL_VERTICAL
 
-	local toReload = UIElement:new({
-		parent = viewElement,
-		pos = { 0, 0 },
-		size = { viewElement.size.w, viewElement.size.h }
-	})
+	local toReload = viewElement:addChild({ }, true)
 
 	local shiftX, shiftY = 0, 0
 	local firstBar, secondBar
@@ -873,13 +869,17 @@ function TBMenu:prepareScrollableList(viewElement, firstBarSize, secondBarSize, 
 			size = { viewElement.size.w, firstBarSize },
 			interactive = true,
 			bgColor = accentColor
-		})
+		}, true)
 		secondBar = toReload:addChild({
 			pos = { 0, -secondBarSize },
 			size = { viewElement.size.w, secondBarSize },
 			interactive = true,
 			bgColor = accentColor
-		})
+		}, true)
+		if (viewElement.shapeType == ROUNDED) then
+			firstBar:setRounded({ viewElement.roundedInternal[1], 0 })
+			secondBar:setRounded({ 0, viewElement.roundedInternal[2] })
+		end
 		shiftY = firstBarSize
 	else
 		firstBar = toReload:addChild({
@@ -897,19 +897,15 @@ function TBMenu:prepareScrollableList(viewElement, firstBarSize, secondBarSize, 
 		shiftX = firstBarSize
 	end
 
-	local listingView = UIElement:new({
-		parent = viewElement,
+	local listingView = viewElement:addChild({
 		pos = { shiftX, shiftY },
 		size = { viewElement.size.w - (shiftX > 0 and (firstBarSize + secondBarSize) or 0), viewElement.size.h - (shiftY > 0 and (firstBarSize + secondBarSize) or 0) },
 		interactive = true
 	})
-	local listingHolder = UIElement:new({
-		parent = listingView,
-		pos = { 0, 0 },
+	local listingHolder = listingView:addChild({
 		size = orientation == SCROLL_VERTICAL and { listingView.size.w - scrollSize, listingView.size.h } or { listingView.size.w, listingView.size.h - scrollSize}
 	})
-	local listingScrollBG = UIElement:new({
-		parent = listingView,
+	local listingScrollBG = listingView:addChild({
 		pos = orientation == SCROLL_VERTICAL and { -scrollSize, 0 } or { 0, -scrollSize },
 		size = orientation == SCROLL_VERTICAL and { scrollSize, listingView.size.h } or { listingView.size.w, scrollSize },
 		bgColor = accentColor
