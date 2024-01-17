@@ -1951,6 +1951,8 @@ end
 function Store:spawnConfirmationWaiter(confirmAction, cancelAction)
 	local overlay = TBMenu:spawnWindowOverlay()
 	overlay:addMouseMoveHandler(function(x)
+		---Kill overlay first, then do anything else
+		overlay:kill()
 		if (x > WIN_W / 2) then
 			if (confirmAction) then
 				confirmAction()
@@ -1958,7 +1960,6 @@ function Store:spawnConfirmationWaiter(confirmAction, cancelAction)
 		elseif (cancelAction) then
 			cancelAction()
 		end
-		overlay:kill()
 	end)
 end
 
@@ -2001,8 +2002,8 @@ function Store:showSetSelection(item)
 		shapeType = ROUNDED,
 		rounded = 4
 	})
-	local elementHeight = 40
-	local toReload, topBar, _, _, listingHolder = TBMenu:prepareScrollableList(selectionWindow, 50, elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
+	local elementHeight = math.clamp(WIN_H / 18, 45, 55)
+	local toReload, topBar, _, _, listingHolder = TBMenu:prepareScrollableList(selectionWindow, math.max(elementHeight, 50), elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
 
 	topBar:addChild({ shift = { 50, 5 } }):addAdaptedText(true, TB_MENU_LOCALIZED.STORESETSELECT, nil, nil, FONTS.BIG, nil, 0.65, nil, 0.5)
 
@@ -2340,7 +2341,7 @@ function Store:showInventoryPage(inventoryItems, page, mode, title, pageid, item
 
 	Store.InventoryView:kill(true)
 
-	local elementHeight = math.min(55, WIN_H / 18)
+	local elementHeight = math.clamp(WIN_H / 18, 45, 55)
 	local toReload, topBar, botBar, _, listingHolder = TBMenu:prepareScrollableList(Store.InventoryView, 56, elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
 	TBMenu:addBottomBloodSmudge(botBar, 1)
 
@@ -2417,6 +2418,7 @@ function Store:showInventoryPage(inventoryItems, page, mode, title, pageid, item
 	})
 	local emptySetsToggle = TBMenu:spawnToggle(emptySetsToggleHolder, 0, 0, 25, 25, Store.InventoryShowEmptySets, function()
 			Store:showInventory(TBMenu.CurrentSection, nil, not Store.InventoryShowEmptySets)
+			call_hook("mouse_move", MOUSE_X, MOUSE_Y)
 		end)
 	emptySetsToggle.clickThrough = true
 	local showEmptySetsText = emptySetsToggleHolder:addChild({
@@ -2438,9 +2440,7 @@ function Store:showInventoryPage(inventoryItems, page, mode, title, pageid, item
 			showEmptySetsText:uiText(TB_MENU_LOCALIZED.STORESHOWEMPTYSETS, 35, nil, nil, LEFTMID, nil, nil, nil, showEmptySetsText:getButtonColor())
 		end)
 	showEmptySetsText.size.w = get_string_length(showEmptySetsText.dispstr[1], showEmptySetsText.textFont) * showEmptySetsText.textScale + 45
-	showEmptySetsText:addMouseUpHandler(function()
-			Store:showInventory(TBMenu.CurrentSection, nil, not Store.InventoryShowEmptySets)
-		end)
+	showEmptySetsText:addMouseUpHandler(emptySetsToggle.btnUp)
 
 	local refreshInventory = botBar:addChild({
 		pos = { -botBar.size.w / 3, 5 },
@@ -2651,7 +2651,6 @@ function Store:showInventoryPage(inventoryItems, page, mode, title, pageid, item
 	else
 		Store:showSelectionControls()
 	end
-	call_hook("mouse_move", MOUSE_X, MOUSE_Y)
 end
 
 ---Prepares inventory screen and shows it when all required downloads are complete
@@ -5595,7 +5594,7 @@ function Store:showSearchResults(viewElement, searchResults, searchString)
 		bgColor = TB_MENU_DEFAULT_BG_COLOR
 	})
 
-	local elementHeight = 40
+	local elementHeight = math.clamp(WIN_H / 18, 45, 55)
 	local toReload, topBar, botBar, _, listingHolder = TBMenu:prepareScrollableList(sectionsHolder, 64, elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
 
 	local searchTitle = topBar:addChild({ shift = { 10, 10 } })
@@ -5673,7 +5672,7 @@ function Store:showStoreSection(viewElement, section, sectionid, itemid)
 		bgColor = TB_MENU_DEFAULT_BG_COLOR
 	})
 
-	local elementHeight = 40
+	local elementHeight = math.clamp(WIN_H / 18, 45, 55)
 	local toReload, topBar, botBar, _, listingHolder = TBMenu:prepareScrollableList(sectionsHolder, 64, elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
 
 	local sectionTitle = topBar:addChild({ shift = { 10, 10 } })
