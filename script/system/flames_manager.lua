@@ -18,8 +18,6 @@ FLAMES_MENU_MINIMIZED = FLAMES_MENU_MINIMIZED or false
 do
 	Flames = {}
 	Flames.__index = Flames
-	local cln = {}
-	setmetatable(cln, Flames)
 
 	function Flames:storeCurrentFlames()
 		-- Read their item.dat first

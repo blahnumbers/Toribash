@@ -29,7 +29,6 @@ if (Friends == nil) then
 		ver = 5.62
 	}
 	Friends.__index = Friends
-	setmetatable({}, Friends)
 end
 
 ---Exits Friends screen and opens last main menu screen

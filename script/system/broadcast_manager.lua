@@ -42,7 +42,6 @@ if (not Broadcasts) then
 		IsDisplayed = false
 	}
 	Broadcasts.__index = Broadcasts
-	setmetatable({}, Broadcasts)
 end
 
 ---Displays a broadcast pop-up in game

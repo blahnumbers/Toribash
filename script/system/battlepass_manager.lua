@@ -16,6 +16,8 @@ if (BattlePass == nil) then
 	---@field tc_premium integer Premium Toricredits reward for this level
 	---@field st_premium integer Premium Shiai Tokens reward for this level
 	---@field itemid_premium integer Premium item reward's ID for this level
+	---@field item StoreItem Item reward for this level
+	---@field item_premium StoreItem Premium item reward for this level
 
 	---@class BattlePassUserData
 	---@field level integer Highest level that user has claimed rewards for
@@ -31,6 +33,7 @@ if (BattlePass == nil) then
 	---@field st integer
 	---@field bpxp integer
 	---@field itemid integer
+	---@field item StoreItem?
 	---@field claimed boolean Whether this reward has already been claimed
 	---@field locked boolean Whether this reward is currently available for the user
 	---@field premium boolean Whether this is a reward for Premium BP only
@@ -41,6 +44,9 @@ if (BattlePass == nil) then
 	---@field bgOutlineColor Color Outline color override
 
 	---**Battle Pass manager class**
+	---
+	---**Version 5.65:**
+	---* Tweaks to prevent data update spam when BP isn't active
 	---
 	---**Version 5.62:**
 	---* Queue missing prize item textures for download
@@ -55,14 +61,14 @@ if (BattlePass == nil) then
 	---**Version 1.0:**
 	---* Initial release
 	---@class BattlePass
-	---@field LevelData BattlePassLevel[] Level data for the Battle Pass
-	---@field UserData BattlePassUserData Current user's data for the Battle Pass
+	---@field LevelData BattlePassLevel[]? Level data for the Battle Pass
+	---@field UserData BattlePassUserData? Current user's data for the Battle Pass
 	---@field TimeLeft integer Time left in seconds until this BP is over
 	---@field MaxLevelPrizes integer Max number of prizes in a single level available for claiming
 	---@field QiRequirement integer User qi requirement to access Battle Pass
 	---@field wasOpened boolean Whether the user has opened the Battle Pass screen during this session
 	BattlePass = {
-		ver = 5.62,
+		ver = 5.65,
 		TimeLeft = -1,
 		MaxLevelPrizes = 2,
 		QiRequirement = 20,
@@ -76,10 +82,10 @@ function BattlePass:getLevelData()
 	Request:queue(function() download_server_info("battlepass&get=levels") end, "battlepass_levels", function()
 			local response = get_network_response()
 			if (not response:find("^LEVEL")) then
-				BattlePass.LevelData = nil
+				BattlePass.LevelData = { }
 				return
 			end
-			BattlePass.LevelData = {}
+			BattlePass.LevelData = { }
 			BattlePass.MaxLevelPrizes = 2
 			for ln in response:gmatch("[^\n]+\n?") do
 				if (not ln:find("^LEVEL")) then
@@ -97,9 +103,11 @@ function BattlePass:getLevelData()
 						st_premium = tonumber(data[8]) or 0,
 						itemid_premium = tonumber(data[9]) or 0
 					}
+					levelData.item = Store:getItemInfo(levelData.itemid)
+					levelData.item_premium = Store:getItemInfo(levelData.itemid_premium)
 					local levelPrizes = 0
 					for i, v in pairs(levelData) do
-						if (not in_array(i, { "level", "xp", "xp_total" })) then
+						if (not in_array(i, { "level", "xp", "xp_total" }) and type(v) == "number") then
 							if (v > 0) then
 								levelPrizes = levelPrizes + 1
 							end
@@ -146,7 +154,7 @@ function BattlePass:getUserData(viewElement)
 			}
 			BattlePass.TimeLeft = tonumber(data[7]) or 0
 			BattlePass.UpdateTimestamp = os.time()
-			for i,v in ipairs(BattlePass.LevelData) do
+			for _, v in ipairs(BattlePass.LevelData) do
 				if (v.xp_total <= BattlePass.UserData.xp) then
 					BattlePass.UserData.level_available = v.level
 				else
@@ -562,19 +570,18 @@ function BattlePass:showPrizeItem(viewElement, prize)
 	if (prize.tc ~= nil and prize.tc > 0) then
 		iconPath = "../textures/store/toricredit.tga"
 		prizeAmount = numberFormat(prize.tc)
-		prizeTooltip = TBMenu:displayPopup(prizeBackground, prizeAmount .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS, true)
+		prizeTooltip = TBMenu:displayPopup(prizeBackground, prizeAmount .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS, prize.static)
 	elseif (prize.st ~= nil and prize.st > 0) then
 		iconPath = "../textures/store/shiaitoken.tga"
 		prizeAmount = numberFormat(prize.st)
-		prizeTooltip = TBMenu:displayPopup(prizeBackground, prizeAmount .. " " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS, true)
+		prizeTooltip = TBMenu:displayPopup(prizeBackground, prizeAmount .. " " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS, prize.static)
 	elseif (prize.bpxp ~= nil and prize.bpxp > 0) then
 		iconPath = "../textures/menu/battlepass/experience.tga"
 		prizeAmount = numberFormat(prize.bpxp)
-		prizeTooltip = TBMenu:displayPopup(prizeBackground, prizeAmount .. " " .. TB_MENU_LOCALIZED.BATTLEPASSEXPERIENCE, true)
-	elseif (prize.itemid ~= nil and prize.itemid > 0) then
-		iconPath = Store:getItemIcon(prize.itemid)
-		local itemInfo = Store:getItemInfo(prize.itemid)
-		prizeTooltip = TBMenu:displayPopup(prizeBackground, itemInfo.itemname .. (string.len(itemInfo.description or "") > 0 and ("\n\n" .. itemInfo.description) or ''), true, 500)
+		prizeTooltip = TBMenu:displayPopup(prizeBackground, prizeAmount .. " " .. TB_MENU_LOCALIZED.BATTLEPASSEXPERIENCE, prize.static)
+	elseif (prize.item ~= nil and prize.item.itemid > 0) then
+		iconPath = prize.item:getIconPath()
+		prizeTooltip = TBMenu:displayPopup(prizeBackground, prize.item.itemname .. (string.len(prize.item.description or "") > 0 and ("\n\n" .. prize.item.description) or ''), prize.static, 500)
 	else
 		return
 	end
@@ -584,8 +591,9 @@ function BattlePass:showPrizeItem(viewElement, prize)
 		prizeTooltip:moveTo(-prizeBackground.size.w - (prizeTooltip.size.w - prizeBackground.size.w) / 2, prizeBackground.size.h + 5)
 	end
 
+	local shiftSize = math.min(viewElement.size.w / 10, 8)
 	local prizeIcon = prizeBackground:addChild({
-		shift = { 8, 8 },
+		shift = { shiftSize, shiftSize },
 		bgImage = iconPath
 	})
 	if (prizeIcon.bgImage == nil or prizeIcon.bgImageDefault == true) then
@@ -661,7 +669,7 @@ function BattlePass:showLevelPrize(prizeHolder, levelData)
 		BattlePass:showPrizeItem(freePrizeHolder:addChild({ shift = { 15, 10 } }), {
 			tc = levelData.tc,
 			st = levelData.st,
-			itemid = levelData.itemid,
+			item = levelData.item,
 			locked = BattlePass.UserData.level_available < levelData.level,
 			claimed = BattlePass.UserData.level >= levelData.level
 		})
@@ -686,7 +694,7 @@ function BattlePass:showLevelPrize(prizeHolder, levelData)
 	end
 	if (levelData.itemid_premium > 0) then
 		table.insert(premiumPrizes, {
-			itemid = levelData.itemid_premium,
+			item = levelData.item_premium,
 			locked = not BattlePass.UserData.premium or BattlePass.UserData.level_available < levelData.level,
 			claimed = BattlePass.UserData.level_premium >= levelData.level,
 			premium = true
@@ -738,19 +746,19 @@ function BattlePass:showPrizes(viewElement)
 	local shift = { math.max(0, (BattlePass.UserData.level - 1)) / #BattlePass.LevelData * totalSize / (totalSize - listingHolder.size.w) * (scrollBar.parent.size.w - scrollBar.size.w) }
 	scrollBar:makeHorizontalScrollBar(listingHolder, listElements, toReload, shift, 0.4)
 
+	local fadeColor = table.clone(TB_MENU_DEFAULT_DARKEST_COLOR)
+	fadeColor[4] = 0
 	local leftBarFade = leftBar:addChild({
 		pos = { leftBar.size.w, 0 },
 		size = { 8, leftBar.size.h - listingScrollBG.size.h },
-		bgImage = "../textures/menu/battlepass/fadegradientleft.tga",
-		imagePatterned = true,
-		imageColor = { 0, 0, 0, 0.4 }
+		bgGradient = { TB_MENU_DEFAULT_DARKEST_COLOR, fadeColor },
+		bgGradientMode = BODYPARTS.R_THIGH
 	})
 	local rightBarFade = rightBar:addChild({
 		pos = { -rightBar.size.w - 8, 0 },
 		size = { 8, leftBarFade.size.h },
-		bgImage = "../textures/menu/battlepass/fadegradientright.tga",
-		imagePatterned = true,
-		imageColor = { 0, 0, 0, 0.4 }
+		bgGradient = { fadeColor, TB_MENU_DEFAULT_DARKEST_COLOR },
+		bgGradientMode = BODYPARTS.R_THIGH
 	})
 
 	-- Display top unclaimed prize (or max level if all levels have already been claimed)
@@ -780,6 +788,7 @@ function BattlePass:showPrizes(viewElement)
 	if (closestMilestoneReward.itemid > 0) then
 		table.insert(availablePrizes, {
 			itemid = closestMilestoneReward.itemid,
+			item = closestMilestoneReward.item,
 			locked = BattlePass.UserData.level_available < closestMilestoneReward.level,
 			claimed = BattlePass.UserData.level >= closestMilestoneReward.level,
 			static = true
@@ -806,6 +815,7 @@ function BattlePass:showPrizes(viewElement)
 	if (closestMilestoneReward.itemid_premium > 0) then
 		table.insert(availablePrizes, {
 			itemid = closestMilestoneReward.itemid_premium,
+			item = closestMilestoneReward.item_premium,
 			locked = not BattlePass.UserData.premium or BattlePass.UserData.level_available < closestMilestoneReward.level,
 			claimed = BattlePass.UserData.level_premium >= closestMilestoneReward.level,
 			premium = true,
@@ -834,13 +844,12 @@ end
 ---Displays Battle Pass main screen
 function BattlePass:showMain()
 	TBMenu.CurrentSection:kill(true)
-
-	--[[if (self.wasOpened == false and self.UserData and self.UserData.level == 0) then
-		self.wasOpened = true
-		TBMenu:showNavigationBar()
-	end]]
 	self.wasOpened = true
 
+	if (table.empty(BattlePass.LevelData)) then
+		BattlePass.LevelData = nil
+		BattlePass.UserData = nil
+	end
 	if (not BattlePass.UserData or BattlePass.UserData.qi ~= TB_MENU_PLAYER_INFO.data.qi) then
 		local battlePassLoading = TBMenu.CurrentSection:addChild({
 			shift = { 5, 0 },
@@ -890,26 +899,7 @@ function BattlePass:showMain()
 
 	local buttonShiftX = battlePassPrizesHolder.shift.x + battlePassPrizesHolder.size.w + 10
 	local buttonShiftY = battlePassProgressHolder.size.h + 10
-	--[[if (isSeason) then
-		local battlePassSeasonButton = TBMenu.CurrentSection:addChild({
-			pos = { buttonShiftX, battlePassProgressHolder.size.h + 10 },
-			size = { leftWidth, leftHeight },
-			bgColor = TB_MENU_DEFAULT_BG_COLOR,
-			interactive = true,
-			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
-			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-			hoverSound = 31
-		})
-		TBMenu:showHomeButton(battlePassSeasonButton, {
-			image = "../textures/menu/battlepass/season8.tga",
-			ratio = 0.375,
-			disableUnload = true,
-			locked = TB_MENU_PLAYER_INFO.data.qi < 100,
-			lockedMessage = "Unlocks at Green Belt",
-			action = Ranking.showGlobalRanking
-		})
-		buttonShiftY = buttonShiftY + battlePassSeasonButton.size.h + 10
-	end]]
+
 	local battlePassQuestsButton = TBMenu.CurrentSection:addChild({
 		pos = { buttonShiftX, buttonShiftY },
 		size = { leftWidth, leftHeight },

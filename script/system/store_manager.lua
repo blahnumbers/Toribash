@@ -48,7 +48,6 @@ if (Store == nil) then
 	---@field LastUpdate number Last data update time
 	---@field StalePeriod number Minimum delay between Store data updates (in seconds)
 	---@field Ready boolean	Whether data has been populated
-	---@field UpdateFailed boolean Whether last store data population attempt failed
 	---@field Items StoreItem[] Store items cache
 	---@field Categories StoreCategory[] Store categories cache
 	---@field Models StoreModel[]|nil Store models cache
@@ -71,7 +70,6 @@ if (Store == nil) then
 		LastUpdate = 0,
 		StalePeriod = 5,
 		Ready = false,
-		UpdateFailed = false,
 		Items = { },
 		Categories = { },
 		Models = { },
@@ -94,7 +92,6 @@ if (Store == nil) then
 		ver = 5.65
 	}
 	Store.__index = Store
-	setmetatable({}, Store)
 
 
 	---**Toribash store item class**
@@ -630,6 +627,7 @@ function Store.GetPlayerOffers()
 			download_server_info("store_discounts&username=" .. TB_MENU_PLAYER_INFO.username)
 		end, "store_discounts", function()
 			local response = get_network_response()
+			Store.Discounts.Prime = false
 			if (response:find("^DISCOUNT")) then
 				for ln in response:gmatch("[^\n]+\n?") do
 					local data = { ln:match(("([^\t]*)\t"):rep(6)) }
@@ -657,14 +655,12 @@ function Store.GetItems()
 	Store.Items = { }
 	Store.Categories = { }
 	Store.Ready = false
-	Store.UpdateFailed = false
 
 	local file = Files.Open("../data/store.txt")
 	if (not file.data) then
 		if (not file:isDownloading()) then
 			Store.Download()
 		end
-		Store.UpdateFailed = true
 		return
 	end
 	---@type integer[]
@@ -768,23 +764,11 @@ function Store:getItemInfo(itemid)
 	if (not self.Ready) then
 		self.GetItems()
 	end
-	if (self.RequireReload) then
-		local downloadFinished = true
-		for _, v in pairs(get_downloads()) do
-			if (v:find("store.txt")) then
-				downloadFinished = false
-			end
-		end
-		if (downloadFinished) then
-			self.GetItems()
-		end
-	end
 	if (self.Items[itemid]) then
 		return self.Items[itemid]:getCopy()
 	end
 
 	self.Download()
-	self.RequireReload = true
 	return StoreInternal.EmptyItem:getCopy()
 end
 
@@ -803,7 +787,8 @@ function Store:isTextureItem(itemid)
 	return Store:getItemInfo(itemid):isTexture()
 end
 
----Returns item icon path for the specified StoreItem object or by its itemid
+---Returns item icon path for the specified StoreItem object or by its itemid \
+---***Important:** if you know you're operating with a **StoreItem** object, use its `getIconPath()` method directly for better performance*
 ---@param item StoreItem
 ---@return string
 ---@overload fun(self: Store, itemid: integer):string
@@ -814,7 +799,8 @@ function Store:getItemIcon(item)
 	return "../textures/store/items/" .. tostring(item) .. ".tga"
 end
 
----Returns whether the specified StoreItem object or item with the provided itemid supports effects
+---Returns whether the specified StoreItem object or item with the provided itemid supports effects \
+---***Important:** if you know you're operating with a **StoreItem** object, use its `supportsEffects()` method directly for better performance*
 ---@param item StoreItem
 ---@return boolean
 ---@overload fun(self: Store, itemid: integer):boolean
@@ -890,11 +876,7 @@ function InventoryItem:getCopy()
 	---@type InventoryItem
 	local item = {}
 	for i, v in pairs(self) do
-		if (type(v) == "table") then
-			item[i] = table.clone(v)
-		else
-			item[i] = v
-		end
+		item[i] = v
 	end
 	setmetatable(item, InventoryItem)
 	return item
@@ -2295,8 +2277,7 @@ end
 ---| 0 INVENTORY_STARTUP
 ---| 1 INVENTORY_DEACTIVE
 ---| 2 INVENTORY_ACTIVE
----| 3 INVENTORY_MARKET (deprecated)
----| 4 INVENTORY_ALL
+---| 3 INVENTORY_ALL
 
 ---Displays an inventory page in its viewport
 ---@param inventoryItems InventoryItem[]
@@ -4907,7 +4888,7 @@ function Store:showStoreItemInfo(item, noReload, updateOverride)
 		itemDesc.size.h = itemDesc.size.h + itemInfo.size.h / 8
 	end
 	local desc = item.description
-	if (Store.Discounts.Prime) then
+	if (Store.Discounts.Prime == true) then
 		if (item.catid == StoreCategories.Toricredits or item.catid == StoreCategories.ShiaiTokens) then
 			local value = string.gsub(item.itemname, "^(%d+)%D.*$", "%1")
 			local bonus = math.ceil((tonumber(value) or 0) / 100 * Store.Discounts.PrimeBonus)
@@ -5799,7 +5780,7 @@ function Store:showPersonalDiscount(item)
 	local itemInfoIcon = itemInfoHolder:addChild({
 		pos = { 0, 0 },
 		size = { itemInfoHolder.size.h, itemInfoHolder.size.h },
-		bgImage = item.itemid > 0 and Store:getItemIcon(itemInfo) or Store:getItemIcon(1538) -- 5000 TC itemid
+		bgImage = item.itemid > 0 and itemInfo:getIconPath() or Store:getItemIcon(1538) -- 5000 TC itemid
 	})
 	local itemInfoName = itemInfoHolder:addChild({
 		pos = { itemInfoIcon.size.w + 10, 5 },
@@ -6040,7 +6021,7 @@ function Store:showMain(viewElement)
 		local saleItemIcon = saleItemIconHolder:addChild({
 			pos = { (saleItemIconHolder.size.w - iconScale) / 2, (saleItemIconHolder.size.h - iconScale) / 2 },
 			size = { iconScale, iconScale },
-			bgImage = Store:getItemIcon(saleFeatured.itemid)
+			bgImage = saleFeatured:getIconPath()
 		})
 	else
 		TBMenu:showHomeButton(dailySale, storeButtons.dailysale, 2)

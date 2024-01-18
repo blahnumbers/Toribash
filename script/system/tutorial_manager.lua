@@ -60,13 +60,11 @@ if (Tutorials == nil) then
 		StoredOptions = {}
 	}
 	Tutorials.__index = Tutorials
-	setmetatable({}, Tutorials)
 end
 
 ---Helper class for **Tutorials** with methods that don't need to be public
 ---@class TutorialsInternal
 local TutorialsInternal = { }
-setmetatable({}, TutorialsInternal)
 
 ---Multiplatform method of loading code from a file. \
 ---On platforms with no working Lua file interface, we read file contents to a string and then pass it to `loadstring()` instead.

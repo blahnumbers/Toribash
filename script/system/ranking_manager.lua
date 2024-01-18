@@ -92,13 +92,11 @@ if (Ranking == nil) then
 		ver = 5.65
 	}
 	Ranking.__index = Ranking
-	setmetatable({}, Ranking)
 end
 
 ---Helper class for **Ranking** manager
 ---@class RankingInternal
 local RankingInternal = {}
-setmetatable({}, RankingInternal)
 
 ---Initializes **Ranking** class by requesting config data from web server
 function RankingInternal.Init()
@@ -821,7 +819,12 @@ end
 function Ranking.ShowUserTrends()
 	Ranking.ActiveOverlay = TBMenu:spawnWindowOverlay()
 	local overlayKillAction = Ranking.ActiveOverlay.killAction
-	Ranking.ActiveOverlay.killAction = function() overlayKillAction() Ranking.ActiveOverlay = nil end
+	Ranking.ActiveOverlay.killAction = function()
+		if (overlayKillAction) then
+			overlayKillAction()
+		end
+		Ranking.ActiveOverlay = nil
+	end
 
 	local viewWidth = math.clamp(WIN_W * 0.65, 800, WIN_W * 0.8)
 	local viewHeight = math.clamp(WIN_H * 0.5, 500, WIN_H - TBMenu.UserBar.size.h * 2 - 40)
@@ -1000,7 +1003,12 @@ end
 function Ranking.ShowModRanking(modid, modname, userStats)
 	Ranking.ActiveOverlay = TBMenu:spawnWindowOverlay()
 	local overlayKillAction = Ranking.ActiveOverlay.killAction
-	Ranking.ActiveOverlay.killAction = function() overlayKillAction() Ranking.ActiveOverlay = nil end
+	Ranking.ActiveOverlay.killAction = function()
+		if (overlayKillAction) then
+			overlayKillAction()
+		end
+		Ranking.ActiveOverlay = nil
+	end
 
 	local viewWidth = math.clamp(WIN_W / 3, 350, 500)
 	local rankingView = Ranking.ActiveOverlay:addChild({
@@ -1112,7 +1120,12 @@ end
 function Ranking.ShowGameStatToplist(stat)
 	Ranking.ActiveOverlay = TBMenu:spawnWindowOverlay()
 	local overlayKillAction = Ranking.ActiveOverlay.killAction
-	Ranking.ActiveOverlay.killAction = function() overlayKillAction() Ranking.ActiveOverlay = nil end
+	Ranking.ActiveOverlay.killAction = function()
+		if (overlayKillAction) then
+			overlayKillAction()
+		end
+		Ranking.ActiveOverlay = nil
+	end
 
 	local toplistHolder = Ranking.ActiveOverlay:addChild({
 		shift = { WIN_W / 4, TBMenu.UserBar.size.h + 20 },

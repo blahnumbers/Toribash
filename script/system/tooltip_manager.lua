@@ -45,7 +45,6 @@ if (Tooltip == nil) then
 		version = 5.61
 	}
 	Tooltip.__index = Tooltip
-	setmetatable({}, Tooltip)
 
 	Tooltip.HolderElement = UIElement:new({
 		globalid = Tooltip.Globalid,

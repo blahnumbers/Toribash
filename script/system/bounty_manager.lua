@@ -15,7 +15,6 @@ if (Bounty == nil) then
 		ver = 5.60
 	}
 	Bounty.__index = Bounty
-	setmetatable({}, Bounty)
 end
 
 ---@class PlayerBounty

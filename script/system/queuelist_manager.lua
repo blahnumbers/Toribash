@@ -59,7 +59,6 @@ end
 local QueueListInternal = {
 	listButtonHeight = 25
 }
-setmetatable({}, QueueListInternal)
 
 ---@class QueueListInfoField
 ---@field title string Internal title for the info field

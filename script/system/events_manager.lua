@@ -7,8 +7,6 @@ require('system.friends_manager')
 do
 	Events = {}
 	Events.__index = Events
-	local cln = {}
-	setmetatable(cln, Events)
 
 	function Events:quit()
 		TBMenu:clearNavSection()

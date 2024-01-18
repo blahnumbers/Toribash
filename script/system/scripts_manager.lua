@@ -3,8 +3,6 @@
 do
 	Scripts = {}
 	Scripts.__index = Scripts
-	local cln = {}
-	setmetatable(cln, Scripts)
 
 	function Scripts:quit()
 		TB_MENU_SPECIAL_SCREEN_ISOPEN = 0

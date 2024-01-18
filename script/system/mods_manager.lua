@@ -38,7 +38,6 @@ if (Mods == nil) then
 		ver = 5.61
 	}
 	Mods.__index = Mods
-	setmetatable({}, Mods)
 end
 
 ---Destroys Mods main view

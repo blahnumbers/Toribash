@@ -37,13 +37,11 @@ if (MoveMemory == nil) then
 		ver = 5.61
 	}
 	MoveMemory.__index = MoveMemory
-	setmetatable({}, MoveMemory)
 end
 
 ---Helper class for **MoveMemory** manager
 ---@class MoveMemoryInternal
 local MoveMemoryInternal = {}
-setmetatable({}, MoveMemoryInternal)
 
 ---Move class for **MoveMemory** manager
 ---@class MemoryMove

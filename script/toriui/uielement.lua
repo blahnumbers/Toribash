@@ -198,6 +198,11 @@ if (not UIElement) then
 
 	-- **Toribash GUI elements manager class**
 	--
+	-- **Version 5.65:**
+	-- * Added `UIElement.onShow` callback function to execute at the end of `UIElement.show()` call
+	-- * `UIElement.killAction` and `UIElement.onShow` are now wrapped into pcall() to ensure default behavior proceeds uninterrupted in case of error
+	-- * Marked `UIElement.killAction` and `UIElement.onShow` as nullable
+	--
 	-- **Version 5.62:**
 	-- * `UIElement.bgImageDefault` boolean value to tell which texture was loaded during `UIElement.updateImage()` call
 	--
@@ -269,30 +274,31 @@ if (not UIElement) then
 	---@field innerShadow number[] Table containing top and bottom inner shadow size
 	---@field shadowColor Color[] Table containing top and bottom inner shadow colors
 	---@field shadowOffset number Custom text shadow offset value to use for uiText() rendering
-	---@field shapeType UIElementShape Object's shape type. Can be either SQUARE (1) or ROUNDED (2).
+	---@field shapeType UIElementShape Object's shape type. Can be either `SQUARE` (1) or `ROUNDED` (2).
 	---@field roundedInternal number[] Values that the object will use for rounding edges (top and bottom)
 	---@field rounded number Max value out of UIElement.roundedInternal values
 	---@field isactive boolean Internal value to tell if an interactive object is currently active
-	---@field scrollEnabled boolean If true, an interactive object will also handle mouse scroll events in its UIElement.btnDown() callback
+	---@field scrollEnabled boolean If true, an interactive object will also handle mouse scroll events in its `UIElement.btnDown()` callback
 	---@field hoverState UIElementBtnState Current mouse hover state of an object
-	---@field pressedPos Vector2 Internal table containing relative cursor position at the moment of UIElement.btnDown() call on an active scroll bar
+	---@field pressedPos Vector2 Internal table containing relative cursor position at the moment of `UIElement.btnDown()` call on an active scroll bar
 	---@field permanentListener boolean True if we want an object with keyboard handlers to react to all keyboard events, even when not in focus. Permanent keyboard listeners will also not exit keyboard loop early.
-	---@field hoverSound integer Sound ID to play when object enters BTN_HVR mouse hover state
+	---@field hoverSound integer Sound ID to play when object enters `BTN_HVR` mouse hover state
 	---@field hoverClock number Time for the BTN_HVR state enter
-	---@field upSound integer Sound ID to play when object exits BTN_DN mouse hover state
-	---@field downSound integer Sound ID to play when object enters BTN_DN mouse hover state
+	---@field upSound integer Sound ID to play when object exits `BTN_DN` mouse hover state
+	---@field downSound integer Sound ID to play when object enters `BTN_DN` mouse hover state
 	---@field clickThrough boolean If true, successful click on an object will not exit mouse loop early
 	---@field hoverThrough boolean If true, hovering over an object will not exit mouse loop early
 	---@field displayed boolean Read-only value to tell if the object is currently being displayed
 	---@field destroyed boolean Read-only value to indicate the object has been destroyed. Use this to check whether the UIElement still exists when a UIElement:kill() function may have been called on its reference elsewhere.
-	---@field killAction function Additional callback to be executed when object is being destroyed
+	---@field killAction function? Additional callback to be executed when object is being destroyed
+	---@field onShow function? Additional callback to executed at the end of object's `UIElement.show()` call
 	---@field scrollBar UIElement Reference to scrollable list holder's scroll bar
 	---@field __positionDirty boolean Read-only value to tell the UIElement internal loops to refresh element position
 	---@field scrollableListTouchScrollActive boolean Read-only value used for scrollable list view elements on touch devices
-	---@field prevInput UIElement Previous input element, set with UIElement:addTabSwitchPrev()
-	---@field nextInput UIElement Next input element, set with UIElement:addTabSwitch()
+	---@field prevInput UIElement Previous input element, set with `UIElement.addTabSwitchPrev()`
+	---@field nextInput UIElement Next input element, set with `UIElement.addTabSwitch()`
 	UIElement = {
-		ver = 5.62,
+		ver = 5.65,
 		animationDuration = 0.1,
 		longPressDuration = 0.25,
 		lightUIMode = get_option("uilight") == 1
@@ -1173,8 +1179,9 @@ function UIElement:kill(childOnly)
 	end
 
 	if (self.killAction) then
-		self.killAction()
+		pcall(self.killAction)
 	end
+
 	self:hide(true)
 	if (self.isScrollBar) then
 		for i,v in pairs(UIScrollbarHandler) do
@@ -1537,6 +1544,10 @@ function UIElement:show(forceReload)
 	for _, v in pairs(self.child) do
 		v:show()
 	end
+	if (self.onShow) then
+		pcall(self.onShow)
+	end
+
 	self.displayed = true
 	return self.displayed
 end

@@ -33,7 +33,6 @@ if (News == nil) then
 		ver = 5.60
 	}
 	News.__index = News
-	setmetatable({}, News)
 end
 
 ---Returns a predefined set of default news to show to user

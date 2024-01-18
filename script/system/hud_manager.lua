@@ -87,7 +87,6 @@ if (TBHud == nil) then
 		ver = 5.64,
 	}
 	TBHud.__index = TBHud
-	setmetatable({}, TBHud)
 
 	TBHud.DefaultSmallerButtonSize = TBHud.DefaultButtonSize * 0.7
 	TBHud.SafeAreaOffset = TBHud.DefaultButtonSize * 3
@@ -140,7 +139,6 @@ local TBHudInternal = {
 		"closetab"
 	}
 }
-setmetatable({}, TBHudInternal)
 
 ---@class TBHudButton : UIElement
 ---@field icon UIElement

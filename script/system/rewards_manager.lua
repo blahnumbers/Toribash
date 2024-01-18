@@ -11,21 +11,24 @@ require("system.iofiles")
 if (Rewards == nil) then
 	---**Login rewards manager class**
 	---
+	---**Version 5.65**
+	---* Display increased rewards for Prime subscribers
+	---* Some internal tweaks to variable naming
+	---
 	---**Version 5.60**
 	---* Updated visuals
 	---@class Rewards
-	---@field RewardData DayReward[] List of available rewards
+	---@field Data DayReward[] List of available rewards
 	Rewards = {
-		__index = {},
-		RewardData = {},
-		ver = 5.60
+		Data = { },
+		ver = 5.65
 	}
-	setmetatable({}, Rewards)
+	Rewards.__index = Rewards
 end
 
 ---Caches login reward information to `Rewards.RewardData` from the data file
 ---@return boolean
-function Rewards.getRewardData()
+function Rewards.ParseData()
 	local got_data = false
 	local data_types = { "reward_type", "tc", "item" }
 	local file = Files.Open("system/loginrewards.txt")
@@ -40,18 +43,13 @@ function Rewards.getRewardData()
 			local segments = 5
 			local data_stream = { ln:match(("([^\t]*)\t"):rep(segments)) }
 			local days = tonumber(data_stream[2])
-			Rewards.RewardData[days - 1] = {}
+			Rewards.Data[days - 1] = { }
 
 			for i, v in ipairs(data_types) do
-				if (i < 3) then
-					Rewards.RewardData[days - 1][v] = tonumber(data_stream[i + 2])
-				else
-					Rewards.RewardData[days - 1][v] = data_stream[i + 2]
-				end
+				Rewards.Data[days - 1][v] = tonumber(data_stream[i + 2]) or 0
 			end
-			if (Rewards.RewardData[days - 1].item ~= '0') then
-				Rewards.RewardData[days - 1].item = Torishop:getItemInfo(tonumber(Rewards.RewardData[days - 1].item) or -1)
-			end
+			---@diagnostic disable-next-line: param-type-mismatch
+			Rewards.Data[days - 1].item = Store:getItemInfo(Rewards.Data[days - 1].item)
 			got_data = true
 		end
 	end
@@ -94,7 +92,7 @@ function Rewards:showMain(viewElement, rewardData)
 	local leftShift = (dayRewardsView.size.w - dayRewardWidth * 7) / 2
 	local topShift = (dayRewardsView.size.h - dayRewardHeight) / 2
 	for i = 0, 6 do
-		local bgImg = Rewards.RewardData[i].item ~= '0' and "../textures/store/items/" .. Rewards.RewardData[i].item.itemid .. "_big.tga" or "../textures/store/toricredit.tga"
+		local bgImg = Rewards.Data[i].item.itemid ~= 0 and "../textures/store/items/" .. Rewards.Data[i].item.itemid .. ".tga" or "../textures/store/toricredit.tga"
 		local iconSize = math.min(dayRewardWidth - 60, dayRewardHeight / 2 - 20, 108)
 
 		local rewardHolder
@@ -134,14 +132,26 @@ function Rewards:showMain(viewElement, rewardData)
 			dayText:addAdaptedText(true, TB_MENU_LOCALIZED.REWARDSTIMEDAY .. " " .. i + 1, nil, nil, FONTS.BIG, nil, 0.55, nil, 0.2)
 		end
 		local rewardText = rewardHolder:addChild({
-			pos = { rewardHolder.size.w / 10, -rewardHolder.size.h / 4 },
-			size = { rewardHolder.size.w * 0.8, rewardHolder.size.h / 5 }
+			pos = { rewardHolder.size.w / 10, -rewardHolder.size.h / 3 },
+			size = { rewardHolder.size.w * 0.8, rewardHolder.size.h / 3 }
 		})
-		local rewardStr = Rewards.RewardData[i].item.itemid ~= 0 and Rewards.RewardData[i].item.itemname or Rewards.RewardData[i].tc .. " TC"
-		if (rewardData.days == i) then
-			rewardText:addAdaptedText(true, rewardStr, nil, nil, FONTS.BIG, nil, 0.65)
+		local rewardStr = Rewards.Data[i].item.itemid ~= 0 and Rewards.Data[i].item.itemname or Rewards.Data[i].tc .. " " .. TB_MENU_LOCALIZED.WORDTC
+		if ((Rewards.Data[i].item.itemid == 0 or Rewards.Data[i].item.itemid == ITEM_SHIAI_TOKEN) and Store.Discounts.Prime == true) then
+			rewardText.size.h = rewardText.size.h * 0.6
+			local rewardBonus = rewardHolder:addChild({
+				pos = { rewardText.shift.x, rewardText.shift.y + rewardText.size.h },
+				size = { rewardText.size.w, rewardText.size.h * 0.4 },
+				uiColor = TB_MENU_DEFAULT_ORANGE
+			})
+			local primeBonus = Rewards.Data[i].item.itemid == 0 and ("+ " .. math.ceil(Rewards.Data[i].tc) .. " " .. TB_MENU_LOCALIZED.WORDTC .. " " .. TB_MENU_LOCALIZED.REWARDSPRIMEBONUS) or (Rewards.Data[i].item.itemid == ITEM_SHIAI_TOKEN and "+ 1 " .. TB_MENU_LOCALIZED.WORDST .. " " .. TB_MENU_LOCALIZED.REWARDSPRIMEBONUS or "")
+			rewardBonus:addAdaptedText(true, primeBonus, nil, 5, FONTS.LMEDIUM, CENTER, 0.65)
+			rewardText:addAdaptedText(true, rewardStr, nil, nil, rewardData.days == i and FONTS.BIG or FONTS.MEDIUM, CENTERBOT, rewardData.days == i and 0.65 or 1)
 		else
-			rewardText:addAdaptedText(true, rewardStr)
+			if (rewardData.days == i) then
+				rewardText:addAdaptedText(true, rewardStr, nil, nil, FONTS.BIG, nil, 0.65)
+			else
+				rewardText:addAdaptedText(true, rewardStr)
+			end
 		end
 	end
 	local rewardNextTime = loginView:addChild({
@@ -154,10 +164,11 @@ function Rewards:showMain(viewElement, rewardData)
 	local rewardClaim = loginView:addChild({
 		pos = { loginView.size.w * 0.2, -buttonHeight - 30},
 		size = { loginView.size.w * 0.6, buttonHeight },
-		interactive = rewardData.available,
+		interactive = true,
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+		inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK,
 		shapeType = ROUNDED,
 		rounded = 4,
 		downSound = 31
@@ -209,13 +220,13 @@ function Rewards:showMain(viewElement, rewardData)
 				end
 
 				-- Let's update balance instantly, no need to wait for update_tc_balance() to finish downloading customs
-				if (Rewards.RewardData[rewardData.days].tc ~= 0) then
-					TB_MENU_PLAYER_INFO.data.tc = TB_MENU_PLAYER_INFO.data.tc + Rewards.RewardData[rewardData.days].tc
+				if (Rewards.Data[rewardData.days].tc ~= 0) then
+					TB_MENU_PLAYER_INFO.data.tc = TB_MENU_PLAYER_INFO.data.tc + Rewards.Data[rewardData.days].tc * (Store.Discounts.Prime == true and 2 or 1)
 					if (TBMenu.MenuMain and not TBMenu.MenuMain.destroyed) then
 						TBMenu:showUserBar()
 					end
-				elseif (Rewards.RewardData[rewardData.days].item.itemid == 2528) then
-					TB_MENU_PLAYER_INFO.data.st = TB_MENU_PLAYER_INFO.data.st + 1
+				elseif (Rewards.Data[rewardData.days].item.itemid == 2528) then
+					TB_MENU_PLAYER_INFO.data.st = TB_MENU_PLAYER_INFO.data.st + (Store.Discounts.Prime == true and 2 or 1)
 					if (TBMenu.MenuMain and not TBMenu.MenuMain.destroyed) then
 						TBMenu:showUserBar()
 					end
@@ -231,14 +242,15 @@ function Rewards:showMain(viewElement, rewardData)
 		end)
 	end
 
+	rewardClaim:addMouseUpHandler(function()
+		rewardClaimText:addAdaptedText(false, TB_MENU_LOCALIZED.REWARDSCLAIMINPROGRESS .. "...", nil, nil, FONTS.BIG)
+		doClaim(1)
+	end)
 	if (rewardData.available) then
 		rewardClaimText:addAdaptedText(false, TB_MENU_LOCALIZED.REWARDSCLAIM, nil, nil, FONTS.BIG)
-		rewardClaim:addMouseHandlers(function() end, function()
-				rewardClaimText:addAdaptedText(false, TB_MENU_LOCALIZED.REWARDSCLAIMINPROGRESS .. "...", nil, nil, FONTS.BIG)
-				doClaim(1)
-			end)
 	else
 		rewardClaimText:addAdaptedText(false, TB_MENU_LOCALIZED.REWARDSNOAVAILABLE, nil, nil, FONTS.BIG)
+		rewardClaim:deactivate()
 	end
 end
 

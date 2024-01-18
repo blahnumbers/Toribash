@@ -15,7 +15,6 @@ if (Downloader == nil) then
 		Queue = {},
 		initialized = false
 	}
-	setmetatable({}, Downloader)
 end
 
 ---Queues a function to be executed on next `downloader_complete` callback

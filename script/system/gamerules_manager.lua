@@ -160,7 +160,6 @@ if (Gamerules == nil) then
 		ver = 5.61
 	}
 	Gamerules.__index = Gamerules
-	setmetatable({}, Gamerules)
 end
 
 ---Destroys Gamerules main view

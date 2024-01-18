@@ -22,7 +22,6 @@ if (Notifications == nil) then
 		ver = 5.60,
 		__index = {}
 	}
-	setmetatable({}, Notifications)
 end
 
 ---@class NotificationMessageBit
@@ -60,7 +59,6 @@ local NotificationsInternal = {
 	NotificationsMessages = {},
 	__index = {}
 }
-setmetatable({}, NotificationsInternal)
 
 function Notifications:quit()
 	TBMenu:clearNavSection()
@@ -128,7 +126,7 @@ function Notifications:showLoginRewards()
 		return
 	end
 	TB_MENU_PLAYER_INFO.rewards = rewards
-	if (Rewards.getRewardData() == false or not Store.Ready) then
+	if ((table.empty(Rewards.Data) and Rewards.ParseData() == false) or not Store.Ready) then
 		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STOREDATALOADERROR)
 		return
 	end

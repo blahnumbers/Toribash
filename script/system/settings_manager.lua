@@ -48,7 +48,6 @@ if (Settings == nil) then
 		Stored = {}
 	}
 	Settings.__index = Settings
-	setmetatable({}, Settings)
 end
 
 function Settings.Quit()

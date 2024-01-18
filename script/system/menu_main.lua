@@ -145,7 +145,7 @@ if (not _G.FIRST_LAUNCH and TBMenu.MenuMain ~= nil) then
 			end)
 	end
 	TBMenu.MenuMain:addChild({}):addCustomDisplay(true, function()
-			if (PlayerInfo:getLoginRewards().available and Store.Ready and not TB_MENU_NOTIFICATION_LOGINREWARDS) then
+			if (PlayerInfo:getLoginRewards().available and Store.Ready and Store.Discounts.Prime ~= nil and not TB_MENU_NOTIFICATION_LOGINREWARDS) then
 				TB_MENU_NOTIFICATIONS_COUNT = TB_MENU_NOTIFICATIONS_COUNT + 1
 				TB_MENU_NOTIFICATION_LOGINREWARDS = true
 				TBMenu:showNotifications()

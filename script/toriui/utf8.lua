@@ -6,7 +6,6 @@ if (UTF8 == nil) then
 		ver = 5.60
 	}
 	UTF8.__index = UTF8
-	setmetatable({ }, UTF8);
 end
 
 ---Helper class with utility functions used by `UTF8` class

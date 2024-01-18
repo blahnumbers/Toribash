@@ -15,10 +15,8 @@ local DiscordColorRedPress = { 0.8, 0.2, 0.2, 1 }
 local DiscordColorDecline = { 0.212, 0.22, 0.227, 1 }
 
 
-local DiscordRPC = {}
+local DiscordRPC = { }
 DiscordRPC.__index = DiscordRPC
-local cln = {}
-setmetatable(cln, DiscordRPC)
 
 local DiscordUsername, DiscordUserid, DiscordAvatar = ARG:match(("([^ ]*) *"):rep(3))
 

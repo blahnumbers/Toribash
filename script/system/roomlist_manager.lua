@@ -41,7 +41,6 @@ if (RoomList == nil) then
 		FeaturedRooms = { }
 	}
 	RoomList.__index = RoomList
-	setmetatable({}, RoomList)
 end
 
 ---@class RoomListInfoExtended : RoomListInfo

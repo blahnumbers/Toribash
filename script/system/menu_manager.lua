@@ -6,6 +6,10 @@ if (TBMenu == nil) then
 	---
 	---**Version 5.65**
 	---* Dropdown updates to support mouse wheel scroll on cycle through options and enable scroll bar override
+	---* Added `TBMenu.Popups` list to hold active UI popups
+	---* Make sure popups look good when used in scrollable lists
+	---* Fix popups crash when used without manual pos checker on non-interactive UIElements
+	---* Ensure popup hoverClock is reset properly when using manual pos checker mode
 	---* Tweaks to hint messages display on mobile platforms
 	---
 	---**Version 5.61**
@@ -34,11 +38,12 @@ if (TBMenu == nil) then
 	---@field NotificationsCount UIElement Notifications count display UIElement
 	---@field CurrentAnnouncementId integer Active home tab announcement ID
 	---@field HasCustomNavigation boolean Whether `TBMenu.NavigationBar` is currently loaded and has custom navigation
+	---@field Popups UIElement[] List of currently alive popups
 	TBMenu = {
 		CurrentAnnouncementId = 1,
+		Popups = { },
 		ver = 5.65
 	}
-	setmetatable({}, TBMenu)
 end
 
 ---Internal functions used by TBMenu
@@ -46,7 +51,6 @@ end
 local TBMenuInternal = {
 	__index = {}
 }
-setmetatable({}, TBMenuInternal)
 
 ---@param version string
 function TBMenu.Init(version)
@@ -860,6 +864,13 @@ function TBMenu:prepareScrollableList(viewElement, firstBarSize, secondBarSize, 
 	local orientation = orientation or SCROLL_VERTICAL
 
 	local toReload = viewElement:addChild({ }, true)
+	toReload.onShow = function()
+		for _, v in pairs(TBMenu.Popups) do
+			if (v.parent:isDisplayed()) then
+				v:reload()
+			end
+		end
+	end
 
 	local shiftX, shiftY = 0, 0
 	local firstBar, secondBar
@@ -3780,6 +3791,15 @@ function TBMenu:displayHelpPopup(element, message, forceManualPosCheck, noMark, 
 		shapeType = ROUNDED,
 		rounded = 5
 	})
+	messageElement.killAction = function()
+		for i = #TBMenu.Popups, 1, -1 do
+			if (TBMenu.Popups[i] == messageElement) then
+				table.remove(TBMenu.Popups, i)
+				break
+			end
+		end
+	end
+	table.insert(TBMenu.Popups, messageElement)
 
 	local safe_x, safe_y, safe_w, safe_h = get_window_safe_size()
 	safe_x = math.max(safe_x, WIN_W - safe_x - safe_w)
@@ -3843,15 +3863,17 @@ function TBMenu:displayHelpPopup(element, message, forceManualPosCheck, noMark, 
 							element:updatePos()
 						end
 					end
-				elseif (popupShown) then
+				else
 					messageElement.hoverClock = nil
-					messageElement:hide(true)
-					popupShown = false
+					if (popupShown) then
+						messageElement:hide(true)
+						popupShown = false
+					end
 				end
 			end, true)
 	else
 		element:addCustomDisplay(false, function()
-				if (not messageElement or messageElement.destroyed) then return end
+				if (not messageElement or messageElement.destroyed or not element.hoverState) then return end
 				if (element.hoverState >= BTN_HVR) then
 					if (not popupShown and UIElement.clock - element.hoverClock >= 0.3) then
 						messageElement:show(true)
@@ -4546,6 +4568,8 @@ end
 
 ---Queues data updates that we want to do periodically
 function TBMenu.RefreshData()
+	Store.GetPlayerOffers()
+
 	local newsType = "news"
 	if (is_steam()) then
 		newsType = newsType .. "&source=steam"
@@ -4568,7 +4592,6 @@ function TBMenu.RefreshData()
 		end
 		News:getNews(true)
 	end)
-	Store.GetPlayerOffers()
 end
 
 TBMenu.GetTranslation(get_language())

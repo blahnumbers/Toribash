@@ -12,7 +12,6 @@ if (ChatIgnore == nil) then
 		BannedWords = {},
 		__index = {}
 	}
-	setmetatable({}, ChatIgnore)
 end
 
 ---Populates `ChatIgnore.BannedWords` table with banned word strings

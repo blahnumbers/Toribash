@@ -61,7 +61,6 @@ if (Quests == nil) then
 		QuestDataErrors = 0,
 		PopupDisplayDuration = 2.5
 	}
-	setmetatable({}, Quests)
 end
 
 ---Downloads quests data file and stores last update time to QUESTS_LASTUPDATE.time\
@@ -152,6 +151,10 @@ function Quests:getQuests()
 			quest.description = (quest.description and quest.description:len() > 0) and quest.description or Quests:getQuestObjective(quest)
 			quest.progresspercentage = math.min(1, quest.progress / quest.requirement)
 			table.insert(Quests.QuestsData, quest)
+
+			if (Store.Discounts.Prime == true) then
+				quest.bp_xp = math.ceil(quest.bp_xp * 1.5)
+			end
 
 			if (quest.progress >= quest.requirement) then
 				-- Handle special quest types

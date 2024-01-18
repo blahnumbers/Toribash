@@ -11,8 +11,6 @@ do
 	-- * Check for active task before queueing a new request to ensure we don't get data from the previous request
 	Request = { ver = 1.2 }
 	Request.__index = Request
-	local cln = {}
-	setmetatable(cln, Request)
 
 	-- Table that gets updated once network response is finalized. Works somewhat similarly to [JavaScript Promise type](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/Promise).
 	---@class RequestPromise
