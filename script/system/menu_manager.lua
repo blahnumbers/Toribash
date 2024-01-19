@@ -2365,6 +2365,10 @@ end
 ---@field right boolean If true, button will be displayed on the right side of the navigation bar
 ---@field sectionId integer Menu section id that will be assigned to TB_LAST_MENU_SCREEN_OPEN on button click
 ---@field adapted string[] Adapted button text, only used for mobile nav buttons
+---@field bgColor number[]? Button background color override
+---@field hoverColor number[]? Button hover state background color override
+---@field pressedColor number[]? Button pressed state background color override
+---@field uiColor number[]? Button text color override
 
 ---Displays mobile navigation bar using the provided data.
 ---@see TBMenu.showNavigationBar
@@ -2440,10 +2444,11 @@ function TBMenu:showMobileNavigationBar(buttonsData, customNav, customNavHighlig
 			parent = TBMenu.NavigationBar,
 			pos = { 0, v.right and navY[1] - height or navY[1] },
 			size = { TBMenu.NavigationBar.size.w, height },
-			bgColor = { 0.2, 0.2, 0.2, 0 },
+			bgColor = v.bgColor or { 0.2, 0.2, 0.2, 0 },
 			interactive = true,
-			hoverColor = TB_MENU_DEFAULT_BG_COLOR,
-			pressedColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			hoverColor = v.hoverColor or TB_MENU_DEFAULT_BG_COLOR,
+			pressedColor = v.pressedColor or TB_MENU_DEFAULT_DARKER_COLOR,
+			uiColor = v.uiColor,
 			hoverSound = 31
 		})
 		navY[1] = v.right and navY[1] - tbMenuNavigationButtons[i].size.h or navY[1] + tbMenuNavigationButtons[i].size.h
@@ -2605,10 +2610,11 @@ function TBMenu:showNavigationBar(buttonsData, customNav, customNavHighlight, se
 			parent = TBMenu.NavigationBar,
 			pos = { v.right and navX[1] - v.width or navX[1], 0 },
 			size = { v.width, TBMenu.NavigationBar.size.h },
-			bgColor = { 0.2, 0.2, 0.2, 0 },
+			bgColor = v.bgColor or { 0.2, 0.2, 0.2, 0 },
 			interactive = true,
-			hoverColor = TB_MENU_DEFAULT_BG_COLOR,
-			pressedColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			hoverColor = v.hoverColor or TB_MENU_DEFAULT_BG_COLOR,
+			pressedColor = v.pressedColor or TB_MENU_DEFAULT_DARKER_COLOR,
+			uiColor = v.uiColor,
 			hoverSound = 31
 		})
 		navX[1] = v.right and navX[1] - v.width or navX[1] + v.width

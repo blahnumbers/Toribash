@@ -14,7 +14,7 @@
 ---@field paymentType StoreDiscountPaymentType
 ---@field expiryTime integer Timestamp when this offer becomes obsolete
 
----@class StoreCategory
+---@class StoreItemCategory
 ---@field name string
 
 ---@class StoreModel
@@ -44,12 +44,13 @@ if (Store == nil) then
 	---* Internal updates to match modern code style
 	---* Introduced proper versioning
 	---* Removed unused legacy functions
+	---* Added a separate information and purchase screen for Prime
 	---@class Store
 	---@field LastUpdate number Last data update time
 	---@field StalePeriod number Minimum delay between Store data updates (in seconds)
 	---@field Ready boolean	Whether data has been populated
 	---@field Items StoreItem[] Store items cache
-	---@field Categories StoreCategory[] Store categories cache
+	---@field Categories StoreItemCategory[] Store categories cache
 	---@field Models StoreModel[]|nil Store models cache
 	---@field Discounts StoreDiscount[] Current user discounts data
 	---@field ItemView UIElement? Selected store item information holder
@@ -163,7 +164,7 @@ end
 ---Legacy name support
 Torishop = Store
 
----@alias ShopCategory
+---@alias StoreCategory
 ---| 1	BloodColors
 ---| 2	RelaxColors
 ---| 3	Winnings
@@ -248,7 +249,7 @@ Torishop = Store
 ---| 85	Randomitempacks
 ---| 86	LotteryTickets
 ---| 87	ItemEffects
-StoreCategories = {
+_G.StoreCategory = {
 	BloodColors = 1,
 	RelaxColors = 2,
 	Winnings = 3,
@@ -431,74 +432,74 @@ local StoreInternal = {
 	},
 	Categories = {
 		Colors = {
-			StoreCategories.ColorPacks,
-			StoreCategories.ForceColors,
-			StoreCategories.RelaxColors,
-			StoreCategories.PrimaryGradients,
-			StoreCategories.SecondaryGradients,
-			StoreCategories.BloodColors,
-			StoreCategories.TorsoColors,
-			StoreCategories.GhostColors,
-			StoreCategories.DQRings,
-			StoreCategories.Timers,
-			StoreCategories.RightHandMotionTrail,
-			StoreCategories.LeftHandMotionTrail,
-			StoreCategories.RightLegMotionTrail,
-			StoreCategories.LeftLegMotionTrail,
-			StoreCategories.UserTextColour,
-			StoreCategories.GripColors,
-			StoreCategories.EmoteColors,
-			StoreCategories.HairColor
+			StoreCategory.ColorPacks,
+			StoreCategory.ForceColors,
+			StoreCategory.RelaxColors,
+			StoreCategory.PrimaryGradients,
+			StoreCategory.SecondaryGradients,
+			StoreCategory.BloodColors,
+			StoreCategory.TorsoColors,
+			StoreCategory.GhostColors,
+			StoreCategory.DQRings,
+			StoreCategory.Timers,
+			StoreCategory.RightHandMotionTrail,
+			StoreCategory.LeftHandMotionTrail,
+			StoreCategory.RightLegMotionTrail,
+			StoreCategory.LeftLegMotionTrail,
+			StoreCategory.UserTextColour,
+			StoreCategory.GripColors,
+			StoreCategory.EmoteColors,
+			StoreCategory.HairColor
 		},
 		Textures = {
-			StoreCategories.BodyTextures,
-			StoreCategories.MiscTextures,
-			StoreCategories.TrailTextures,
-			StoreCategories.GUITextures,
-			StoreCategories.JointTextures
+			StoreCategory.BodyTextures,
+			StoreCategory.MiscTextures,
+			StoreCategory.TrailTextures,
+			StoreCategory.GUITextures,
+			StoreCategory.JointTextures
 		},
 		Advanced = {
-			StoreCategories.Objects3D,
-			StoreCategories.HairStyles,
-			StoreCategories.ItemEffects,
-			StoreCategories.FullToris,
-			StoreCategories.BodyTextures,
-			StoreCategories.JointTextures,
-			StoreCategories.MiscTextures,
-			StoreCategories.TrailTextures,
-			StoreCategories.TexturePacks
+			StoreCategory.Objects3D,
+			StoreCategory.HairStyles,
+			StoreCategory.ItemEffects,
+			StoreCategory.FullToris,
+			StoreCategory.BodyTextures,
+			StoreCategory.JointTextures,
+			StoreCategory.MiscTextures,
+			StoreCategory.TrailTextures,
+			StoreCategory.TexturePacks
 		},
 		Account = {
-			StoreCategories.Toricredits,
-			StoreCategories.ShiaiTokens,
-			StoreCategories.Qi,
-			StoreCategories.Subscriptions
+			StoreCategory.Toricredits,
+			StoreCategory.ShiaiTokens,
+			StoreCategory.Qi,
+			StoreCategory.Subscriptions
 		},
 		Hidden = {
-			StoreCategories.Winnings,
-			StoreCategories.Textures,
-			StoreCategories.Transfer,
-			StoreCategories.Withdrawn,
-			StoreCategories.Vouchers,
-			StoreCategories.SpecialItem,
-			StoreCategories.BodyText,
-			StoreCategories.Mobile,
-			StoreCategories.Referrals,
-			StoreCategories.ScratchCard,
-			StoreCategories.AdvancedGhosts,
-			StoreCategories.Market,
-			StoreCategories.Bank,
-			StoreCategories.Boosters,
-			StoreCategories.Survey,
-			StoreCategories.paybycash,
-			StoreCategories.FlameForge,
-			StoreCategories.robbery,
-			StoreCategories.Bounty,
-			StoreCategories.Duel,
-			StoreCategories.Bets,
-			StoreCategories.Tournament,
-			StoreCategories.Uncategorized,
-			StoreCategories.Tokens
+			StoreCategory.Winnings,
+			StoreCategory.Textures,
+			StoreCategory.Transfer,
+			StoreCategory.Withdrawn,
+			StoreCategory.Vouchers,
+			StoreCategory.SpecialItem,
+			StoreCategory.BodyText,
+			StoreCategory.Mobile,
+			StoreCategory.Referrals,
+			StoreCategory.ScratchCard,
+			StoreCategory.AdvancedGhosts,
+			StoreCategory.Market,
+			StoreCategory.Bank,
+			StoreCategory.Boosters,
+			StoreCategory.Survey,
+			StoreCategory.paybycash,
+			StoreCategory.FlameForge,
+			StoreCategory.robbery,
+			StoreCategory.Bounty,
+			StoreCategory.Duel,
+			StoreCategory.Bets,
+			StoreCategory.Tournament,
+			StoreCategory.Uncategorized,
+			StoreCategory.Tokens
 		}
 	},
 	Tabs = {
@@ -774,7 +775,7 @@ end
 
 ---Returns information about a Store category if it's defined
 ---@param catid integer
----@return StoreCategory
+---@return StoreItemCategory
 function Store:getCategoryInfo(catid)
 	if (not Store.Categories[catid]) then
 		return { name = TB_MENU_LOCALIZED.UNDEF }
@@ -1020,6 +1021,15 @@ function Store:getNavigation(viewElement)
 		{
 			text = TB_MENU_LOCALIZED.NAVBUTTONBACK,
 			action = Store.Quit,
+		},
+		{
+			text = TB_MENU_LOCALIZED.STOREPRIME,
+			action = function() Store:showPrime() end,
+			right = true,
+			bgColor = TB_MENU_DEFAULT_ORANGE,
+			hoverColor = TB_MENU_DEFAULT_DARKER_ORANGE,
+			pressedColor = TB_MENU_DEFAULT_DARKER_ORANGE,
+			uiColor = { 0, 0, 0, 0.6 }
 		},
 		{
 			text = TB_MENU_LOCALIZED.STOREACCOUNT,
@@ -4721,7 +4731,8 @@ end
 
 ---Generic function to initiate a USD purchase
 ---@param item StoreItem
-function Store.InitUSDPurchase(item)
+---@param onSuccess function?
+function Store.InitUSDPurchase(item, onSuccess)
 	local overlay = TBMenu:spawnWindowOverlay()
 	local purchaseWindow = overlay:addChild({
 		pos = { WIN_W / 2 - 200, WIN_H / 2 - 75 },
@@ -4792,6 +4803,9 @@ function Store.InitUSDPurchase(item)
 						TBMenu:showStatusMessage(item.itemname .. " " .. TB_MENU_LOCALIZED.STOREITEMPURCHASESUCCESSFUL)
 						Notifications:getTotalNotifications(true)
 						Store.GetPlayerOffers()
+						if (onSuccess) then
+							onSuccess()
+						end
 					else
 						TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STOREPURCHASECANCELLED)
 					end
@@ -4815,6 +4829,10 @@ function Store.InitUSDPurchase(item)
 									TBMenu:showStatusMessage(item.itemname .. " " .. TB_MENU_LOCALIZED.STOREITEMPURCHASESUCCESSFUL)
 									update_tc_balance()
 									Notifications:getTotalNotifications(true)
+									Store.GetPlayerOffers()
+									if (onSuccess) then
+										onSuccess()
+									end
 								end
 							end)
 					end
@@ -4889,11 +4907,11 @@ function Store:showStoreItemInfo(item, noReload, updateOverride)
 	end
 	local desc = item.description
 	if (Store.Discounts.Prime == true) then
-		if (item.catid == StoreCategories.Toricredits or item.catid == StoreCategories.ShiaiTokens) then
+		if (item.catid == StoreCategory.Toricredits or item.catid == StoreCategory.ShiaiTokens) then
 			local value = string.gsub(item.itemname, "^(%d+)%D.*$", "%1")
 			local bonus = math.ceil((tonumber(value) or 0) / 100 * Store.Discounts.PrimeBonus)
 			if (bonus > 0) then
-				local bonusInfo = TB_MENU_LOCALIZED.STOREPRIMEBONUSINFO .. " " .. numberFormat(bonus) .. " " .. (item.catid == StoreCategories.Toricredits and TB_MENU_LOCALIZED.WORDTORICREDITS or TB_MENU_LOCALIZED.WORDSHIAITOKENS) .. " " .. TB_MENU_LOCALIZED.STOREPRIMEBONUSINFO2
+				local bonusInfo = TB_MENU_LOCALIZED.STOREPRIMEBONUSINFO .. " " .. numberFormat(bonus) .. " " .. (item.catid == StoreCategory.Toricredits and TB_MENU_LOCALIZED.WORDTORICREDITS or TB_MENU_LOCALIZED.WORDSHIAITOKENS) .. " " .. TB_MENU_LOCALIZED.STOREPRIMEBONUSINFO2
 				bonusInfo = bonusInfo:gsub(" ", " ^16")
 				desc = desc .. "\n\n^16" .. bonusInfo
 			end
@@ -5084,10 +5102,8 @@ end
 ---@overload fun(self: Store, itemid: integer, path: string, element: UIElement)
 function Store:addIconToDownloadQueue(item, path, element)
 	---Don't do anything if they have autoupdate off
-	if (get_option("autoupdate") == 0) then return end
-
+	if (get_option("autoupdate") == 0 or item == nil) then return end
 	local itemid = type(item) == "number" and item or item.itemid
-	if (itemid == nil) then return end
 
 	table.insert(Store.IconDownloadQueue, { path = path, itemid = itemid, element = element })
 	add_hook("downloader_complete", "store_icon_downloader", function(load)
@@ -5620,6 +5636,85 @@ function Store:showSearchResults(viewElement, searchResults, searchString)
 	local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
 	listingHolder.scrollBar = scrollBar
 	scrollBar:makeScrollBar(listingHolder, listElements, toReload)
+end
+
+function Store:showPrime()
+	local primeItemInfo = Store:getItemInfo(4342)
+	if (primeItemInfo.itemid == 0) then return end
+
+	Store:showStoreSection(TBMenu.CurrentSection, 4)
+	local overlay = TBMenu:spawnWindowOverlay(true)
+	local windowSize = { math.min(WIN_W * 0.8, 900), math.min(WIN_H * 0.7, 420) }
+	local viewHolder = overlay:addChild({
+		pos = { (WIN_W - windowSize[1]) / 2, (WIN_H - windowSize[2]) / 2 },
+		size = windowSize,
+		bgColor = TB_MENU_DEFAULT_BG_COLOR,
+		interactive = true,
+		shapeType = ROUNDED,
+		rounded = 4
+	})
+	local windowTitle = viewHolder:addChild({
+		pos = { 55, 0 },
+		size = { viewHolder.size.w - 110, 55 }
+	})
+	windowTitle:addAdaptedText(primeItemInfo.itemname, nil, nil, FONTS.BIG, CENTERMID, 0.7, nil, 0.5)
+	TBMenu:spawnCloseButton(viewHolder, { x = -50, y = 5, w = 45, h = 45 }, overlay.btnUp)
+
+	local primeIconSize = viewHolder.size.h - windowTitle.size.h - 50
+	local primeIconHolder = viewHolder:addChild({
+		pos = { 30, windowTitle.size.h + 20 },
+		size = { primeIconSize, primeIconSize }
+	})
+	primeIconHolder:addChild({
+		pos = { (primeIconSize - 256) / 2, (primeIconSize - 256) / 2 },
+		size = { 256, 256 },
+		bgImage = primeItemInfo:getIconPath()
+	})
+	local primeDescription = viewHolder:addChild({
+		pos = { primeIconHolder.size.w + primeIconHolder.shift.x * 2, primeIconHolder.shift.y },
+		size = { viewHolder.size.w - primeIconHolder.size.w - primeIconHolder.shift.x * 3, primeIconHolder.size.h - 70 }
+	})
+	local description = string.gsub(primeItemInfo.description, ":\\n", ":\n\n")
+	primeDescription:addAdaptedText(description, nil, nil, FONTS.LMEDIUM, LEFTMID, 0.9)
+	local primePurchaseButton = viewHolder:addChild({
+		pos = { primeDescription.shift.x, primeDescription.shift.y + primeDescription.size.h + 10 },
+		size = { primeDescription.size.w, primeIconHolder.size.h - primeDescription.size.h - 10 },
+		interactive = true,
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+		inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK
+	}, true)
+	primePurchaseButton:addMouseUpHandler(function()
+			Store.InitUSDPurchase(primeItemInfo, function()
+				if (overlay ~= nil and not overlay.destroyed) then
+					overlay:kill()
+				end
+			end)
+		end)
+
+	local iconScale = primePurchaseButton.size.h * 0.7
+	local purchaseIconImage = "../textures/menu/logos/paypal.tga"
+	local displayPrice = "$" .. numberFormat(primeItemInfo.now_usd_price, 2)
+	if (is_steam()) then
+		purchaseIconImage = "../textures/menu/logos/steam.tga"
+	elseif (_G.PLATFORM == "IPHONEOS") then
+		purchaseIconImage = "../textures/menu/logos/apple.tga"
+		displayPrice = utf8.gsub(get_platform_item_price(primeItemInfo.itemid), "%s", " ")
+	elseif (_G.PLATFORM == "ANDROID") then
+		purchaseIconImage = "../textures/menu/logos/android.tga"
+	end
+	if (displayPrice ~= "") then
+		primePurchaseButton:addChild({
+			pos = { -primePurchaseButton.size.h + (primePurchaseButton.size.h - iconScale) / 2 - 5, (primePurchaseButton.size.h - iconScale) / 2 },
+			size = { iconScale, iconScale },
+			bgImage = purchaseIconImage
+		})
+		primePurchaseButton:addAdaptedText(TB_MENU_LOCALIZED.STOREBUYFOR .. " " .. displayPrice, nil, nil, FONTS.BIG, nil, 0.6)
+	else
+		primePurchaseButton:addAdaptedText(TB_MENU_LOCALIZED.STOREITEMUNAVAILABLE, nil, nil, FONTS.BIG, nil, 0.6)
+		primePurchaseButton:deactivate()
+	end
 end
 
 ---Displays store item section

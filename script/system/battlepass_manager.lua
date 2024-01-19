@@ -597,7 +597,7 @@ function BattlePass:showPrizeItem(viewElement, prize)
 		bgImage = iconPath
 	})
 	if (prizeIcon.bgImage == nil or prizeIcon.bgImageDefault == true) then
-		Store:addIconToDownloadQueue(prize.itemid, iconPath, prizeIcon)
+		Store:addIconToDownloadQueue(prize.item.itemid, iconPath, prizeIcon)
 	end
 
 	if (prize.locked or prize.claimed) then

@@ -1260,3 +1260,4 @@ EVENTSPLEASEWAITUNTILREPLAYOVER	Please wait until your replay has finished playi
 STOREPRIMEBONUSINFO	As a Prime subscriber, you will get additional
 STOREPRIMEBONUSINFO2	as a bonus!
 REWARDSPRIMEBONUS	Prime bonus
+STOREPRIME	Prime
