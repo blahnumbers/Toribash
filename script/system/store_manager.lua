@@ -2032,7 +2032,9 @@ function Store:showSetSelection(item)
 		x = -topBar.size.h + 5, y = 5,
 		w = topBar.size.h - 10, h = topBar.size.h - 10
 	}, overlay.btnUp)
-	closeButton:setRounded(closeButton.roundedInternal[1])
+	if (closeButton.roundedInternal) then
+		closeButton:setRounded(closeButton.roundedInternal[1])
+	end
 
 	local listElements = { }
 	for _, v in pairs(sets) do
