@@ -1066,7 +1066,9 @@ function Store:getInventoryNavigation(showBack)
 			text = TB_MENU_LOCALIZED.NAVBUTTONBACK,
 			action = function()
 				Store.InventoryListShift[1] = Store.InventoryLastListShift
-				Store.InventoryCurrentItem = Store.InventoryCurrentItem.parentset
+				if (Store.InventoryCurrentItem ~= nil) then
+					Store.InventoryCurrentItem = Store.InventoryCurrentItem.parentset
+				end
 				Store:showInventory(TBMenu.CurrentSection, nil, Store.InventoryShowEmptySets)
 			end,
 			hidden = not showBack
@@ -1105,20 +1107,47 @@ end
 ---@param item InventoryItem
 ---@return InventoryItem?
 function Store:getItemToDeactivate(item)
-	if (item.itemid == 0) then return end
+	if (item.itemid == 0) then
+		return nil
+	end
+	local targetItem = self:getItemInfo(item.itemid)
+	if (targetItem.itemid == 0) then
+		return nil
+	end
 
-	local targetItem = Store.Items[item.itemid]
-	local targetModel = item.upgradeable and Store.Models[item.itemid][item.upgrade_level] or Store.Models[item.itemid]
+	local noCheckCategories = {
+		StoreCategory.Flames,
+		StoreCategory.Sets,
+		StoreCategory.Sounds,
+		StoreCategory.JointTextures,
+		StoreCategory.Music,
+		StoreCategory.ComicEffects
+	}
+	local textureCategories = {
+		StoreCategory.BodyTextures,
+		StoreCategory.MiscTextures,
+		StoreCategory.BumpmapTextures,
+		StoreCategory.TrailTextures,
+		StoreCategory.GUITextures
+	}
+	local targetModel = Store.Models[item.itemid]
+	if (targetModel and item.upgradeable) then
+		targetModel = targetModel[item.upgrade_level]
+	end
 	for _, v in pairs(Store.Inventory or {}) do
 		if (v.active) then
 			local res, item = pcall(function()
 				if (targetItem.catid == Store.Items[v.itemid].catid) then
-					if (targetItem.catid == 78 and Store.Models[v.itemid]) then
+					if (targetModel and targetItem.catid == StoreCategory.Objects3D and Store.Models[v.itemid]) then
 						local modelInfo = v.upgradeable and Store.Models[v.itemid][v.upgrade_level] or Store.Models[v.itemid]
 						if (targetModel.bodyid == modelInfo.bodyid) then
 							return v
 						end
-					elseif (not in_array(targetItem.catid, { 50, 54, 55, 56, 57, 58, 59, 71, 74, 75 })) then
+					elseif (in_array(targetItem.catid, textureCategories)) then
+						if (item.bodypartname == v.bodypartname) then
+							return v
+						end
+					elseif (not in_array(targetItem.catid, noCheckCategories)) then
 						return v
 					end
 				end
@@ -2591,7 +2620,7 @@ function Store:showInventoryPage(inventoryItems, page, mode, title, pageid, item
 			itemNameString = inventoryItems[i].setname
 		end
 		local itemName = nil
-		if (inventoryItems[i].bodypartname ~= '0' or inventoryItems[i].contents ~= nil) then
+		if (in_array(item.catid, { StoreCategory.Sets, StoreCategory.Flames, StoreCategory.Objects3D })) then
 			itemName = itemInfoHolder:addChild({
 				size = { itemInfoHolder.size.w, itemInfoHolder.size.h / 3 * 2 }
 			})

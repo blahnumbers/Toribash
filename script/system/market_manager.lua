@@ -183,12 +183,15 @@ do
 		return withCategories and searchResults or searchResults.items
 	end
 
+	---@class MarketInventoryItem : InventoryItem
+	---@field item StoreItem
+
 	---Returns list of inventory items that can be sold in Market
 	---@param item StoreItem|InventoryItem|nil
-	---@return InventoryItem[]
+	---@return MarketInventoryItem[]
 	function Market:searchItemsInventory(item)
 		local matchingItems = {}
-		for _, v in pairs(Store.Inventory) do
+		for _, v in pairs(Store.Inventory or {}) do
 			pcall(function()
 				if (not v.active and (item == nil or item.itemid == v.itemid)) then
 					local itemInfo = Store:getItemInfo(v.itemid)
