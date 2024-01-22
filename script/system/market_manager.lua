@@ -2477,7 +2477,7 @@ do
 
 			local itemCount = extraData:addChild({
 				pos = { 0, 0 },
-				size = { extraData.size.w * 0.65, extraData.size.h / 3 },
+				size = { extraData.size.w * 0.6, extraData.size.h / 3 },
 				uiColor = { 1, 1, 1, 0.85 }
 			})
 			itemCount:addAdaptedText(true, TB_MENU_LOCALIZED.MARKETITEMSTOTAL .. ":", nil, nil, 4, LEFTMID, 0.7)
@@ -2505,19 +2505,19 @@ do
 				size = { extraData.size.w - itemCount.size.w - 5, itemCount.size.h },
 				uiColor = UICOLORWHITE
 			})
-			itemCountVal:addAdaptedText(true, (itemData.count and numberFormat(itemData.count) or 0) .. " " .. TB_MENU_LOCALIZED.WORDITEMS, nil, nil, itemCount.textFont, RIGHTMID, itemCount.textScale, itemCount.textScale)
+			itemCountVal:addAdaptedText(true, (itemData.count and numberFormat(itemData.count) or 0) .. " " .. TB_MENU_LOCALIZED.WORDITEMS, nil, nil, itemCount.textFont, RIGHTMID, itemCount.textScale)
 			local itemOwnedByVal = itemOwnedBy:addChild({
 				pos = { itemOwnedBy.size.w + 5, 0 },
 				size = { itemCountVal.size.w, itemOwnedBy.size.h },
 				uiColor = UICOLORWHITE
 			})
-			itemOwnedByVal:addAdaptedText(true, (itemData.ownedby and numberFormat(itemData.ownedby) or 0) .. " " .. TB_MENU_LOCALIZED.WORDPLAYERS, nil, nil, itemOwnedBy.textFont, RIGHTMID, itemOwnedBy.textScale, itemOwnedBy.textScale)
+			itemOwnedByVal:addAdaptedText(true, (itemData.ownedby and numberFormat(itemData.ownedby) or 0) .. " " .. TB_MENU_LOCALIZED.WORDPLAYERS, nil, nil, itemOwnedBy.textFont, RIGHTMID, itemOwnedBy.textScale)
 			local itemTradedVal = itemTraded:addChild({
 				pos = { itemTraded.size.w + 5, 0 },
 				size = { itemCountVal.size.w, itemTraded.size.h },
 				uiColor = UICOLORWHITE
 			})
-			itemTradedVal:addAdaptedText(true, (itemData.traded and numberFormat(itemData.traded) or 0) .. " " .. TB_MENU_LOCALIZED.WORDITEMS, nil, nil, itemTraded.textFont, RIGHTMID, itemTraded.textScale, itemTraded.textScale)
+			itemTradedVal:addAdaptedText(true, (itemData.traded and numberFormat(itemData.traded) or 0) .. " " .. TB_MENU_LOCALIZED.WORDITEMS, nil, nil, itemTraded.textFont, RIGHTMID, itemTraded.textScale)
 
 
 			local sellOffers = #itemData.offers.sale
