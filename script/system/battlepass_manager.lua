@@ -316,7 +316,7 @@ function BattlePass:getUserAvailableRewards(override)
 			tcReward = tcReward + v.tc
 			stReward = stReward + v.st
 			if (v.itemid > 0) then
-				table.insert(claimRewards, { itemid = v.itemid, static = true })
+				table.insert(claimRewards, { itemid = v.itemid, item = v.item, static = true })
 			end
 		end
 		if (premiumAvailable) then
@@ -324,7 +324,7 @@ function BattlePass:getUserAvailableRewards(override)
 				tcReward = tcReward + v.tc_premium
 				stReward = stReward + v.st_premium
 				if (v.itemid_premium > 0) then
-					table.insert(claimRewards, { itemid = v.itemid_premium, premium = true, static = true })
+					table.insert(claimRewards, { itemid = v.itemid_premium, item = v.item_premium, premium = true, static = true })
 				end
 			end
 		end
@@ -565,6 +565,12 @@ function BattlePass:showPrizeItem(viewElement, prize)
 		pressedColor = prize.bgColor or (prize.locked and (prize.premium and TB_MENU_DEFAULT_DARKER_BLUE or TB_MENU_DEFAULT_DARKER_ORANGE) or (prize.premium and TB_MENU_DEFAULT_DARKER_BLUE or TB_MENU_DEFAULT_DARKER_ORANGE))
 	}, true)
 
+	if (prize.itemid ~= nil and prize.item == nil) then
+		prize.item = Store:getItemInfo(prize.itemid)
+	end
+	if (Store.Discounts.Prime == true and prize.bpxp ~= nil) then
+		prize.bpxp = math.ceil(prize.bpxp * 1.5)
+	end
 	local iconPath, prizeAmount, prizeTooltip
 	-- Some free reward levels will have multiple rewards, we want TC/ST to be shown
 	if (prize.tc ~= nil and prize.tc > 0) then

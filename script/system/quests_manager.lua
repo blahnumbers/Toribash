@@ -152,10 +152,6 @@ function Quests:getQuests()
 			quest.progresspercentage = math.min(1, quest.progress / quest.requirement)
 			table.insert(Quests.QuestsData, quest)
 
-			if (Store.Discounts.Prime == true) then
-				quest.bp_xp = math.ceil(quest.bp_xp * 1.5)
-			end
-
 			if (quest.progress >= quest.requirement) then
 				-- Handle special quest types
 				-- These are claimed automatically upon reaching the objective, so mark them as claimed
@@ -174,7 +170,7 @@ function Quests:getQuests()
 	end
 
 	---@type QuestData[]
-	Quests.QuestsData = table.qsort(Quests.QuestsData, { "progresspercentage", "claimed" }, { SORT_DESCENDING, SORT_ASCENDING })
+	Quests.QuestsData = table.qsort(Quests.QuestsData, { "timeleft", "progresspercentage", "claimed" }, { SORT_DESCENDING, SORT_ASCENDING })
 end
 
 ---Adds hardcoded Battle Pass quests that automark themselves on completion
