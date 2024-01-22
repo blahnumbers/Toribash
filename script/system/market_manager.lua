@@ -2324,20 +2324,26 @@ do
 			uiColor = { 1, 1, 1, 0.7 }
 		})
 		itemCategory:addAdaptedText(true, item.catname, nil, nil, 4, RIGHTMID)
-		local itemDescription = itemView:addChild({
-			pos = { 80, itemCategory.shift.y + itemCategory.size.h + 5 },
-			size = { itemView.size.w - 90, (itemView.size.h - (itemCategory.shift.y + itemCategory.size.h) - 10) / 3 * 2 }
-		})
-		itemDescription:addAdaptedText(true, item.description, nil, nil, 4, LEFT, 0.65, 0.5)
 
-		local descHeight = #itemDescription.dispstr * getFontMod(itemDescription.textFont) * 10 * itemDescription.textScale
-		if (descHeight < itemDescription.size.h) then
-			itemDescription.size.h = math.clamp(itemDescription.size.h, 64, descHeight + 1)
+		local shiftY = itemCategory.shift.y + itemCategory.size.h + 5
+		local itemDescription
+		if (itemView.size.h > 200) then
+			itemDescription = itemView:addChild({
+				pos = { 80, shiftY },
+				size = { itemView.size.w - 90, math.min((itemView.size.h - shiftY - 10) * 0.6, itemView.size.h - shiftY - 90) }
+			})
+			itemDescription:addAdaptedText(true, item.description, nil, nil, 4, LEFT, 0.65, 0.55)
+
+			local descHeight = #itemDescription.dispstr * getFontMod(itemDescription.textFont) * 10 * itemDescription.textScale
+			if (descHeight < itemDescription.size.h) then
+				itemDescription.size.h = math.clamp(itemDescription.size.h, 64, descHeight + 1)
+			end
+			shiftY = itemDescription.shift.y + (itemDescription.size.h - 64) / 2
 		end
 
 		local itemIconFilePath = item:getIconPath()
 		local itemIcon = itemView:addChild({
-			pos = { 10, itemDescription.shift.y + (itemDescription.size.h - 64) / 2 },
+			pos = { 10, shiftY },
 			size = { 64, 64 },
 			bgImage = itemIconFilePath
 		})
@@ -2345,15 +2351,22 @@ do
 			Store:addIconToDownloadQueue(item, itemIconFilePath, itemIcon)
 		end
 
-		local dataHeight = (itemView.size.h - (itemDescription.shift.y + itemDescription.size.h) - 10)
+		local shiftX = itemIcon.shift.x
+		if (itemDescription == nil) then
+			shiftX = shiftX + itemIcon.size.w + itemIcon.shift.x
+		else
+			shiftY = itemDescription.shift.y + itemDescription.size.h + 10
+		end
+		local dataHeight = itemView.size.h - shiftY
 		local beltInfo = PlayerInfo.getBeltFromQi(item.qi)
 		local beltRestriction = UIElement:new({
 			parent = itemView,
-			pos = { 10, itemDescription.shift.y + itemDescription.size.h + 10 },
-			size = { itemView.size.w - 50, math.clamp(dataHeight / 4, 25, 45) },
+			pos = { shiftX, shiftY },
+			size = { itemView.size.w - shiftX - itemIcon.shift.x, math.min(dataHeight / 4, 45) },
 			uiColor = { 1, 1, 1, 0.85 }
 		})
-		beltRestriction:addAdaptedText(true, TB_MENU_LOCALIZED.BELTRESTRICTION .. ":", nil, nil, 4, LEFTMID, 0.7)
+		beltRestriction:addAdaptedText(true, TB_MENU_LOCALIZED.BELTRESTRICTION .. ":___" .. beltInfo.name .. " (" .. numberFormat(item.qi) .. " Qi)", nil, nil, 4, LEFTMID, 0.7)
+		beltRestriction:addAdaptedText(true, TB_MENU_LOCALIZED.BELTRESTRICTION .. ":", nil, nil, 4, LEFTMID, beltRestriction.textScale, beltRestriction.textScale)
 		beltRestriction.size.w = get_string_length(beltRestriction.dispstr[1], beltRestriction.textFont) * beltRestriction.textScale
 		local beltIcon = UIElement:new({
 			parent = beltRestriction,
@@ -2374,10 +2387,10 @@ do
 
 		local extraData = UIElement:new({
 			parent = itemView,
-			pos = { 10, itemView.size.h - 10 - dataHeight / 4 * 3 },
-			size = { itemView.size.w - 20, dataHeight / 4 * 3 }
+			pos = { shiftX, itemView.size.h - dataHeight / 4 * 3 },
+			size = { itemView.size.w - shiftX - itemIcon.shift.x, dataHeight / 4 * 3 - 10 }
 		})
-		local loaderExtraData = TBMenu:displayLoadingMarkSmall(extraData, TB_MENU_LOCALIZED.MARKETLOADINGDATA, 4, 25, 0.75)
+		TBMenu:displayLoadingMarkSmall(extraData, TB_MENU_LOCALIZED.MARKETLOADINGDATA, 4, 25, 0.75)
 
 		local bestSaleOfferView = UIElement:new({
 			parent = viewElement,
@@ -2462,54 +2475,46 @@ do
 			end
 			extraData:kill()
 
-			local infoBitHeight = math.min(dataHeight / 4, 25)
-			local itemCount = UIElement:new({
-				parent = itemView,
-				pos = { 10, itemView.size.h - 10 - infoBitHeight * 3 },
-				size = { (itemView.size.w - 20) / 3 * 2, infoBitHeight },
+			local itemCount = extraData:addChild({
+				pos = { 0, 0 },
+				size = { extraData.size.w * 0.65, extraData.size.h / 3 },
 				uiColor = { 1, 1, 1, 0.85 }
 			})
 			itemCount:addAdaptedText(true, TB_MENU_LOCALIZED.MARKETITEMSTOTAL .. ":", nil, nil, 4, LEFTMID, 0.7)
-			local itemOwnedBy = UIElement:new({
-				parent = itemView,
+			local itemOwnedBy = extraData:addChild({
 				pos = { itemCount.shift.x, itemCount.size.h + itemCount.shift.y },
 				size = { itemCount.size.w, itemCount.size.h },
 				uiColor = { 1, 1, 1, 0.85 }
 			})
 			itemOwnedBy:addAdaptedText(true, TB_MENU_LOCALIZED.MARKETOWNEDBY .. ":", nil, nil, 4, LEFTMID, 0.7)
-			local itemTraded = UIElement:new({
-				parent = itemView,
+			local itemTraded = extraData:addChild({
 				pos = { itemCount.shift.x, itemCount.size.h + itemOwnedBy.shift.y },
 				size = { itemCount.size.w, itemCount.size.h },
 				uiColor = { 1, 1, 1, 0.85 },
 			})
 			itemTraded:addAdaptedText(true, TB_MENU_LOCALIZED.MARKETRECENTLYTRADED .. ":", nil, nil, 4, LEFTMID, 0.7)
-			itemCount.size.w = math.max(
-					get_string_length(itemCount.dispstr[1], itemCount.textFont) * itemCount.textScale,
-					get_string_length(itemOwnedBy.dispstr[1], itemOwnedBy.textFont) * itemOwnedBy.textScale,
-					get_string_length(itemTraded.dispstr[1], itemTraded.textFont) * itemTraded.textScale
-				)
-			itemOwnedBy.size.w = itemCount.size.w
-			itemTraded.size.w = itemCount.size.w
+			if (itemCount.textScale ~= itemOwnedBy.textScale or itemCount.textScale ~= itemTraded.textScale) then
+				local targetScale = math.min(itemCount.textScale, itemOwnedBy.textScale, itemTraded.textScale)
+				itemCount:addAdaptedText(true, TB_MENU_LOCALIZED.MARKETITEMSTOTAL .. ":", nil, nil, 4, LEFTMID, targetScale)
+				itemOwnedBy:addAdaptedText(true, TB_MENU_LOCALIZED.MARKETOWNEDBY .. ":", nil, nil, 4, LEFTMID, targetScale)
+				itemTraded:addAdaptedText(true, TB_MENU_LOCALIZED.MARKETRECENTLYTRADED .. ":", nil, nil, 4, LEFTMID, targetScale)
+			end
 
-			local itemCountVal = UIElement:new({
-				parent = itemCount,
+			local itemCountVal = itemCount:addChild({
 				pos = { itemCount.size.w + 5, 0 },
-				size = { itemView.size.w - itemCount.size.w - 25, itemCount.size.h },
+				size = { extraData.size.w - itemCount.size.w - 5, itemCount.size.h },
 				uiColor = UICOLORWHITE
 			})
 			itemCountVal:addAdaptedText(true, (itemData.count and numberFormat(itemData.count) or 0) .. " " .. TB_MENU_LOCALIZED.WORDITEMS, nil, nil, itemCount.textFont, RIGHTMID, itemCount.textScale, itemCount.textScale)
-			local itemOwnedByVal = UIElement:new({
-				parent = itemOwnedBy,
+			local itemOwnedByVal = itemOwnedBy:addChild({
 				pos = { itemOwnedBy.size.w + 5, 0 },
-				size = { itemView.size.w - itemOwnedBy.size.w - 25, itemOwnedBy.size.h },
+				size = { itemCountVal.size.w, itemOwnedBy.size.h },
 				uiColor = UICOLORWHITE
 			})
 			itemOwnedByVal:addAdaptedText(true, (itemData.ownedby and numberFormat(itemData.ownedby) or 0) .. " " .. TB_MENU_LOCALIZED.WORDPLAYERS, nil, nil, itemOwnedBy.textFont, RIGHTMID, itemOwnedBy.textScale, itemOwnedBy.textScale)
-			local itemTradedVal = UIElement:new({
-				parent = itemTraded,
+			local itemTradedVal = itemTraded:addChild({
 				pos = { itemTraded.size.w + 5, 0 },
-				size = { itemView.size.w - itemTraded.size.w - 25, itemTraded.size.h },
+				size = { itemCountVal.size.w, itemTraded.size.h },
 				uiColor = UICOLORWHITE
 			})
 			itemTradedVal:addAdaptedText(true, (itemData.traded and numberFormat(itemData.traded) or 0) .. " " .. TB_MENU_LOCALIZED.WORDITEMS, nil, nil, itemTraded.textFont, RIGHTMID, itemTraded.textScale, itemTraded.textScale)
