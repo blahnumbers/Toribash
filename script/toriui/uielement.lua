@@ -476,7 +476,7 @@ function UIElement.new(_self, o)
 		elem.inputType = o.inputType or KEYBOARD_INPUT.ASCII
 		elem.autoCompletion = o.autoCompletion == nil and true or o.autoCompletion
 		elem.returnKeyType = o.returnKeyType or KEYBOARD_RETURN.DEFAULT
-		elem.textfieldindex = utf8.len(elem.textfieldstr[1])
+		elem.textfieldindex = utf8.len(elem.textfieldstr[1]) or 0
 		elem.textfieldsingleline = o.textfieldsingleline
 		elem.textfieldkeepfocusonhide = o.textfieldkeepfocusonhide
 		---@diagnostic disable-next-line: duplicate-set-field
