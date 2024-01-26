@@ -323,7 +323,7 @@ function TBHud:init()
 	self.MainElement:addCustomDisplay(true, function()
 		self.WorldState = get_world_state()
 
-		local hudState = get_option("hud") == 1
+		local hudState = TUTORIAL_ISACTIVE and true or (get_option("hud") == 1)
 		if (self.HudEnabled ~= hudState) then
 			if (hudState == false) then
 				self.MainElement:moveTo(WIN_W * 2, 0)

@@ -3314,6 +3314,7 @@ function remove_ignore_list(user, mode) end
 ---| "login" #Called on successful account login
 ---| "browser" #Web browser completion callback
 ---| "input_type_change" #Called on input type change, see `INPUT_TYPE` table for types
+---| "touch_toggle_hud" #Called on hud toggle via tap with three fingers on mobile platforms
 
 ---Adds a Lua callback listener \
 ---*Only one function per `event` + `set_name` pair is supported*

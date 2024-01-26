@@ -2651,6 +2651,10 @@ function TutorialsInternal.LoadHooks(manager)
 		end)
 	add_hook("joint_select", "tbTutorialKeyboardHandler", Tutorials.HandleJointSelect)
 	add_hook("body_select", "tbTutorialKeyboardHandler", Tutorials.HandleBodySelect)
+	
+	if (is_mobile()) then
+		add_hook("touch_toggle_hud", "tbTutorialKeyboardHandler", function() return 1 end)
+	end
 
 	---Reload Tooltip and Movememory to make sure their hooks run after Tutorial stuff
 	Tooltip.Init()
