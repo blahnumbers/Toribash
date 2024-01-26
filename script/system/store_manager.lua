@@ -5037,6 +5037,8 @@ function Store:showStoreItemInfo(item, noReload, updateOverride)
 			if (is_steam()) then
 				purchaseIconImage = "../textures/menu/logos/steam.tga"
 			elseif (_G.PLATFORM == "IPHONEOS") then
+				buyWithSt.bgColor = table.clone(UICOLORBLACK)
+				buyWithSt.uiColor = table.clone(UICOLORWHITE)
 				purchaseIconImage = "../textures/menu/logos/apple.tga"
 				displayPrice = utf8.gsub(get_platform_item_price(item.itemid), "%s", " ")
 			elseif (_G.PLATFORM == "ANDROID") then
@@ -5055,6 +5057,28 @@ function Store:showStoreItemInfo(item, noReload, updateOverride)
 			else
 				buyWithStText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREITEMUNAVAILABLE, nil, nil, nil, LEFTMID)
 				buyWithSt:deactivate()
+			end
+
+			if (Store.Discounts.Prime == false) then
+				local primePurchaseButton = itemInfo:addChild({
+					pos = { 0, buttonPos },
+					size = { itemInfo.size.w, buttonH },
+					interactive = true,
+					bgColor = TB_MENU_DEFAULT_ORANGE,
+					hoverColor = TB_MENU_DEFAULT_DARKER_ORANGE,
+					pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+					inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK,
+					uiColor = UICOLORBLACK
+				}, true)
+				buttonPos = buttonPos - buttonH * 1.2
+				local primePurchaseButtonText = primePurchaseButton:addChild({
+					pos = { 10, 0 },
+					size = { buyWithSt.size.w - 20, buyWithSt.size.h }
+				})
+				primePurchaseButtonText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREGETMOREWITHPRIME)
+				primePurchaseButton:addMouseUpHandler(function()
+						Store:showPrime()
+					end)
 			end
 		end
 	end
@@ -5730,6 +5754,8 @@ function Store:showPrime()
 	if (is_steam()) then
 		purchaseIconImage = "../textures/menu/logos/steam.tga"
 	elseif (_G.PLATFORM == "IPHONEOS") then
+		primePurchaseButton.bgColor = table.clone(UICOLORBLACK)
+		primePurchaseButton.uiColor = table.clone(UICOLORWHITE)
 		purchaseIconImage = "../textures/menu/logos/apple.tga"
 		displayPrice = utf8.gsub(get_platform_item_price(primeItemInfo.itemid), "%s", " ")
 	elseif (_G.PLATFORM == "ANDROID") then

@@ -1259,5 +1259,6 @@ HUDINFODISABLEDTOUCH	Tap the screen with 3 fingers to enable HUD again
 EVENTSPLEASEWAITUNTILREPLAYOVER	Please wait until your replay has finished playing
 STOREPRIMEBONUSINFO	As a Prime subscriber, you will get additional
 STOREPRIMEBONUSINFO2	as a bonus!
-REWARDSPRIMEBONUS	Prime bonus
+REWARDSPRIMEBONUS	bonus
 STOREPRIME	Prime
+STOREGETMOREWITHPRIME	Get more with Prime
