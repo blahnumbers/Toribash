@@ -1502,39 +1502,49 @@ function Store:showInventoryItemCustomize(item)
 			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
 		}, true)
+		local function doShowUploadFile(filename)
+			local filenameNoPath = filename:gsub(".*[%\\%/](.+%.%w+)$", "%1")
+			TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.INVENTORYUPLOADTEXTURECONFIRM1 .. " " .. filenameNoPath .. " " .. TB_MENU_LOCALIZED.INVENTORYUPLOADTEXTURECONFIRM2 .. " " .. item.name .. "?\n" .. TB_MENU_LOCALIZED.INVENTORYUPLOADTEXTUREOVERWRITENOTICE, function()
+					local uploadInProgress = customizeHolder:addChild({
+						bgColor = TB_MENU_DEFAULT_BG_COLOR_TRANS,
+						interactive = true
+					})
+					TBMenu:displayLoadingMark(uploadInProgress, TB_MENU_LOCALIZED.INVENTORYUPLOADINGFILE)
+					Request:queue(function()
+							upload_item_texture(item.inventid, filename)
+						end, "upload_texture", function()
+							if (not uploadInProgress or uploadInProgress.destroyed) then return end
+							uploadInProgress:kill()
+							local response = get_network_response()
+							if (response:find("success")) then
+								customizeItemTexture(true)
+							else
+								if (response:match("^.*; 0 1$")) then
+									TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REQUESTUNKNOWNERROR)
+								else
+									local error = response:gsub("^GATEWAY 0; (.*) %d", "%1")
+									TBMenu:showStatusMessage(error)
+								end
+							end
+						end, function()
+							uploadInProgress:kill()
+							TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REQUESTUNKNOWNERROR)
+						end)
+				end)
+		end
+		uploadTextureButton.killAction = function() remove_hooks("tbInventoryDropfile") end
+		add_hook("dropfile", "tbInventoryDropfile", function(filename)
+				local fileext = string.gsub(filename, "^.*%.([a-zA-Z0-9]+)$", "%1")
+				if (in_array(fileext, { 'jpg', 'jpeg', 'png', 'tga', 'gif', 'bmp' })) then
+					doShowUploadFile(filename)
+				end
+			end)
 		uploadTextureButton:addAdaptedText(false, TB_MENU_LOCALIZED.INVENTORYUPLOADNEWTEXTURE)
 		uploadTextureButton:addMouseUpHandler(function()
 				if (open_file_browser("Image Files", "jpg;jpeg;png;tga;gif;bmp", "All Files", "*")) then
 					add_hook("filebrowser_select", "on_filebrowser_select", function(filename)
 							if (filename ~= "") then
-								local filenameNoPath = filename:gsub(".*[%\\%/](.+%.%w+)$", "%1")
-								TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.INVENTORYUPLOADTEXTURECONFIRM1 .. " " .. filenameNoPath .. " " .. TB_MENU_LOCALIZED.INVENTORYUPLOADTEXTURECONFIRM2 .. " " .. item.name .. "?\n" .. TB_MENU_LOCALIZED.INVENTORYUPLOADTEXTUREOVERWRITENOTICE, function()
-										local uploadInProgress = customizeHolder:addChild({
-											bgColor = TB_MENU_DEFAULT_BG_COLOR_TRANS,
-											interactive = true
-										})
-										TBMenu:displayLoadingMark(uploadInProgress, TB_MENU_LOCALIZED.INVENTORYUPLOADINGFILE)
-										Request:queue(function()
-												upload_item_texture(item.inventid, filename)
-											end, "upload_texture", function()
-												if (not uploadInProgress or uploadInProgress.destroyed) then return end
-												uploadInProgress:kill()
-												local response = get_network_response()
-												if (response:find("success")) then
-													customizeItemTexture(true)
-												else
-													if (response:match("^.*; 0 1$")) then
-														TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REQUESTUNKNOWNERROR)
-													else
-														local error = response:gsub("^GATEWAY 0; (.*) %d", "%1")
-														TBMenu:showStatusMessage(error)
-													end
-												end
-											end, function()
-												uploadInProgress:kill()
-												TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REQUESTUNKNOWNERROR)
-											end)
-									end)
+								doShowUploadFile(filename)
 							end
 							remove_hooks("on_filebrowser_select")
 						end)

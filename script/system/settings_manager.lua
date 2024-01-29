@@ -446,6 +446,15 @@ function Settings:getSettingsData(id)
 				val = { Settings.Stored.ambientocclusion and Settings.Stored.ambientocclusion.value or get_option("ambientocclusion") },
 				reload = true
 			})
+			--[[table.insert(advancedItems, {
+				name = TB_MENU_LOCALIZED.SETTINGSBUMPMAPPING,
+				type = TOGGLE,
+				action = function(val)
+						Settings.Stored.bumpmapping = { value = val, id = BUMPMAPPING, graphics = true }
+					end,
+				val = { Settings.Stored.bumpmapping and Settings.Stored.bumpmapping.value or get_option("bumpmapping") },
+				reload = true
+			})]]
 		end
 
 		table.insert(advancedItems, {
