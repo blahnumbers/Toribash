@@ -565,7 +565,7 @@ function BattlePass:showPrizeItem(viewElement, prize)
 		pressedColor = prize.bgColor or (prize.locked and (prize.premium and TB_MENU_DEFAULT_DARKER_BLUE or TB_MENU_DEFAULT_DARKER_ORANGE) or (prize.premium and TB_MENU_DEFAULT_DARKER_BLUE or TB_MENU_DEFAULT_DARKER_ORANGE))
 	}, true)
 
-	if (prize.itemid ~= nil and prize.item == nil) then
+	if (prize.itemid ~= nil and (prize.item == nil or prize.item.itemid == 0)) then
 		prize.item = Store:getItemInfo(prize.itemid)
 	end
 	if (Store.Discounts.Prime == true and prize.bpxp ~= nil) then
