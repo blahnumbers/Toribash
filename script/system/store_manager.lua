@@ -709,19 +709,22 @@ function Store.GetModelsData()
 		{ "dynamic", boolean = true },
 		{ "partless", boolean = true },
 		{ "level", numeric = true },
-		{ "textured", boolean = true }
+		{ "textured", boolean = true },
+		{ "level_name" }
 	}
 	for _, ln in pairs(fileData) do
 		pcall(function()
 			if string.match(ln, "^OBJ") then
 				local _, segments = ln:gsub("\t", "")
-				segments = segments
 				local data_stream = { ln:match(("([^\t]*)\t"):rep(segments)) }
 				local item = {}
-				for i,v in pairs(data_types) do
-					item[v[1]] = tonumber(data_stream[i + 1])
-					if (v.boolean) then
-						item[v[1]] = item[v[1]] == 1 and true or false
+				for i, v in pairs(data_types) do
+					if (v.numeric) then
+						item[v[1]] = tonumber(data_stream[i + 1])
+					elseif (v.boolean) then
+						item[v[1]] = data_stream[i + 1] == '1' and true or false
+					else
+						item[v[1]] = data_stream[i + 1]
 					end
 				end
 				if (item.level > 0) then
@@ -1235,7 +1238,7 @@ function Store:showInventoryItem(item)
 	else
 		local itemLevel = item.upgrade_level > 0 and " (LVL " .. item.upgrade_level .. ")" or ""
 		if (item.parentset ~= nil) then
-			itemName:addAdaptedText(false, item.name .. itemLevel, nil, nil, FONTS.BIG, nil, 0.6, nil, 0.2)
+			itemName:addAdaptedText(false, item.setname ~= '0' and item.setname or (item.name .. itemLevel), nil, nil, FONTS.BIG, nil, 0.6, nil, 0.2)
 			local setCaption = Store.InventoryItemView:addChild({
 				pos = { 10, 50 },
 				size = { Store.InventoryItemView.size.w - 20, 20 }
@@ -1243,7 +1246,7 @@ function Store:showInventoryItem(item)
 			setCaption:addAdaptedText(false, TB_MENU_LOCALIZED.STOREITEMINSIDESET .. ": " .. item.parentset.setname)
 		else
 			itemName.size.h = 70
-			itemName:addAdaptedText(false, item.name .. itemLevel, nil, nil, FONTS.BIG, nil, 0.6, nil, 0.2)
+			itemName:addAdaptedText(false, item.setname ~= '0' and item.setname or (item.name .. itemLevel), nil, nil, FONTS.BIG, nil, 0.6, nil, 0.2)
 		end
 
 		local itemInfoHeight = Store.InventoryItemView.size.h / 2 - 80
@@ -1591,8 +1594,14 @@ function Store:showInventoryItemCustomize(item)
 			local currentUpgradesList = { }
 			local targetLevel = item.upgrade_level
 			for i = 1, item.upgrade_max_level do
+				local levelName = TB_MENU_LOCALIZED.STOREITEMLEVEL .. " " .. i
+				pcall(function()
+					if (Store.Models[item.itemid][i].level_name ~= '') then
+						levelName = Store.Models[item.itemid][i].level_name
+					end
+				end)
 				table.insert(currentUpgradesList, {
-					text = TB_MENU_LOCALIZED.STOREITEMLEVEL .. " " .. i,
+					text = levelName,
 					action = function()
 							targetLevel = i
 							onTargetLevelChange()
@@ -2644,7 +2653,7 @@ function Store:showInventoryPage(inventoryItems, page, mode, title, pageid, item
 			if (inventoryItems[i].bodypartname ~= '0') then
 				local bodypartString = (Store.Models[item.itemid] and TB_MENU_LOCALIZED.INVENTORY3DITEMFOR or TB_MENU_LOCALIZED.STOREFLAMEBODYPART) .. " " .. inventoryItems[i].bodypartname
 				itemExtra:addAdaptedText(true, bodypartString, nil, nil, 4, LEFTMID)
-			else
+			elseif (inventoryItems[i].contents ~= nil) then
 				local numItemsStr = TB_MENU_LOCALIZED.STORESETEMPTY .. " " .. TB_MENU_LOCALIZED.STORESETITEMNAME
 				if (#inventoryItems[i].contents == 1) then
 					numItemsStr = "1 " .. TB_MENU_LOCALIZED.STOREITEMSINSET:lower()
