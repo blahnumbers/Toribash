@@ -2365,6 +2365,21 @@ function upload_item_texture(inventid, filepath) end
 ---@param filepath string
 function upload_texture_image(target, filepath) end
 
+---@alias TextureDisplayMode
+---| 0	Default (multiply color both)
+---| 2	Texture both
+---| 3	Relax texture only
+---| 4	Force texture only
+---| 5	Relax multiply color only
+---| 6	Force multiply color only
+---| 7	Relax texture, force multiply color
+---| 8	Relax multiply color, force texture
+
+---Submits a new target display mode for a texture item
+---@param inventid integer
+---@param mode TextureDisplayMode
+function submit_texture_item_mode(inventid, mode) end
+
 ---Submits item purchase request for Toricredits
 ---@param data string
 function buy_tc(data) end

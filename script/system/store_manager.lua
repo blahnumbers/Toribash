@@ -1236,9 +1236,16 @@ function Store:showInventoryItem(item)
 		})
 		itemDescription:addAdaptedText(true, TB_MENU_LOCALIZED.STOREFLAMEBODYPART .. " ".. utf8.lower(item.bodypartname) .. "\n" .. TB_MENU_LOCALIZED.STOREFLAMEID .. ": " .. item.flameid, nil, nil, 4, LEFTMID, 0.7)
 	else
-		local itemLevel = item.upgrade_level > 0 and " (LVL " .. item.upgrade_level .. ")" or ""
+		local itemNameStr = itemData.itemname
+		if (itemData.catid == StoreCategory.Objects3D) then
+			if (item.setname ~= '0') then
+				itemNameStr = item.setname
+			elseif (item.upgrade_level > 0) then
+				itemNameStr = itemNameStr.. " (LVL " .. item.upgrade_level .. ")"
+			end
+		end
 		if (item.parentset ~= nil) then
-			itemName:addAdaptedText(false, item.setname ~= '0' and item.setname or (item.name .. itemLevel), nil, nil, FONTS.BIG, nil, 0.6, nil, 0.2)
+			itemName:addAdaptedText(false, itemNameStr, nil, nil, FONTS.BIG, nil, 0.6, nil, 0.2)
 			local setCaption = Store.InventoryItemView:addChild({
 				pos = { 10, 50 },
 				size = { Store.InventoryItemView.size.w - 20, 20 }
@@ -1246,7 +1253,7 @@ function Store:showInventoryItem(item)
 			setCaption:addAdaptedText(false, TB_MENU_LOCALIZED.STOREITEMINSIDESET .. ": " .. item.parentset.setname)
 		else
 			itemName.size.h = 70
-			itemName:addAdaptedText(false, item.setname ~= '0' and item.setname or (item.name .. itemLevel), nil, nil, FONTS.BIG, nil, 0.6, nil, 0.2)
+			itemName:addAdaptedText(false, itemNameStr, nil, nil, FONTS.BIG, nil, 0.6, nil, 0.2)
 		end
 
 		local itemInfoHeight = Store.InventoryItemView.size.h / 2 - 80
@@ -1436,8 +1443,75 @@ function Store:showInventoryItemCustomize(item)
 	customizeItemTexture = function(forceReload)
 		local customImagePath = item:getIconPath(true)
 		customizeSectionHolder:kill(true)
+
+		local topOffset = 0
+		if (Store:getItemInfo(item.itemid).catid == StoreCategory.JointTextures) then
+			local dropdownOverlay
+			local function submitRenderMode(mode)
+				local dropdownLoadIndicator = TBMenu:displayLoadingMark(dropdownOverlay.selectedElement, nil, 16)
+				dropdownOverlay.selectedElement:deactivate()
+
+				Request:queue(function()
+					submit_texture_item_mode(item.inventid, mode)
+				end, "set_texture_mode" .. item.inventid, function()
+					local response = get_network_response()
+					dropdownLoadIndicator:kill()
+					dropdownOverlay.selectedElement:activate()
+					if (response == "GATEWAY 0; 0 0") then
+						TBMenu:showStatusMessage(TB_MENU_LOCALIZED.INVENTORYTEXTUREMODECHANGED)
+						item.upgrade_level = mode
+						update_tc_balance()
+						return
+					end
+					TBMenu:showStatusMessage(TB_MENU_LOCALIZED.ERRORTRYAGAIN)
+				end, function()
+					dropdownLoadIndicator:kill()
+					dropdownOverlay.selectedElement:activate()
+					TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STOREPURCHASESERVERERROR .. "\n" .. get_network_error())
+				end)
+			end
+			local renderModes = {
+				{
+					text = TB_MENU_LOCALIZED.INVENTORYTEXTUREMODEDEFAULT,
+					action = function() submitRenderMode(0) end,
+					selected = item.upgrade_level == 0
+				}
+			}
+			for i = 2, 8 do
+				table.insert(renderModes,{
+					text = TB_MENU_LOCALIZED["INVENTORYTEXTUREMODE" .. i],
+					action = function() submitRenderMode(i) end,
+					selected = item.upgrade_level == i
+				})
+			end
+			topOffset = topOffset + 50
+			local renderModeLegend = customizeSectionHolder:addChild({
+				pos = { 0, 0 },
+				size = { customizeSectionHolder.size.w * 0.33 - 10, 40 }
+			})
+			renderModeLegend:addAdaptedText(TB_MENU_LOCALIZED.INVENTORYTEXTUREDISPLAYMODE, nil, nil, nil, LEFTMID)
+			local renderModeDropdownHolder = customizeSectionHolder:addChild({
+				pos = { renderModeLegend.size.w + 10, renderModeLegend.shift.y },
+				size = { customizeSectionHolder.size.w * 0.667, renderModeLegend.size.h },
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				shapeType = ROUNDED,
+				rounded = 4
+			})
+			dropdownOverlay = TBMenu:spawnDropdown(renderModeDropdownHolder, renderModes, renderModeDropdownHolder.size.h * 0.8, nil, nil, {
+				fontid = 4,
+				alignment = CENTERMID,
+				scale = 0.8,
+				uppercase = true
+			}, {
+				fontid = 4,
+				alignment = CENTERMID,
+				scale = 0.65,
+				uppercase = false
+			})
+		end
+
 		local itemImage = customizeSectionHolder:addChild({
-			pos = { 0, (customizeSectionHolder.size.h - 256) / 2 },
+			pos = { 0, topOffset + (customizeSectionHolder.size.h - topOffset - 256) / 2 },
 			size = { 256, 256 },
 			bgImage = {customImagePath, "../textures/store/inventory/noise.tga" }
 		})
@@ -1498,7 +1572,7 @@ function Store:showInventoryItemCustomize(item)
 			end)
 
 		local uploadTextureButton = customizeSectionHolder:addChild({
-			pos = { 270, -210 },
+			pos = { 270, itemImage.shift.y + itemImage.size.h - 154 },
 			size = { customizeSectionHolder.size.w - 270, 70 },
 			interactive = true,
 			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
@@ -1555,7 +1629,7 @@ function Store:showInventoryItemCustomize(item)
 			end)
 
 		local resetTextureButton = customizeSectionHolder:addChild({
-			pos = { 270, -131 },
+			pos = { 270, itemImage.shift.y + itemImage.size.h - 70 },
 			size = { customizeSectionHolder.size.w - 270, 70 },
 			interactive = true,
 			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
@@ -2631,7 +2705,7 @@ function Store:showInventoryPage(inventoryItems, page, mode, title, pageid, item
 			size = { invItemHolder.size.w - itemIcon.shift.x * 2 - itemIcon.size.w - 15, invItemHolder.size.h - 4 }
 		})
 		local itemNameString = item.itemname
-		if (inventoryItems[i].upgrade_level > 0) then
+		if (item.catid == StoreCategory.Objects3D and inventoryItems[i].upgrade_level > 0) then
 			itemNameString = itemNameString .. " (LVL " .. inventoryItems[i].upgrade_level .. ")"
 		end
 		if (inventoryItems[i].flamename ~= '0') then
