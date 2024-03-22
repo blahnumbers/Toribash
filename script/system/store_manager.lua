@@ -890,9 +890,9 @@ end
 ---@param forceCustom boolean?
 ---@return string
 function InventoryItem:getIconPath(forceCustom)
-	local customIconPath = "../textures/store/inventory/" .. self.inventid .. ".tga"
-	if (forceCustom or Files.Exists(customIconPath)) then
-		return customIconPath
+	local customIconPath = "textures/store/inventory/" .. self.inventid .. ".tga"
+	if (forceCustom or Files.Exists("../data/" .. customIconPath)) then
+		return "../" .. customIconPath
 	end
 	return "../textures/store/items/" .. self.itemid .. ".tga"
 end
@@ -2024,7 +2024,7 @@ function Store:showInventoryItemCustomize(item)
 	if (isTexture and item.uploadable) then
 		table.insert(sections, { name = "Texture", action = customizeItemTexture })
 	end
-	if (item.upgradeable) then
+	if (item.upgradeable and Store:getItemInfo(item.itemid).catid ~= StoreCategory.JointTextures) then
 		table.insert(sections, { name = "Level", action = customizeItemLevel })
 	end
 	if (Store:itemSupportsEffects(item.itemid)) then
