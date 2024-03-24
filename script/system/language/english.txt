@@ -1273,3 +1273,4 @@ INVENTORYTEXTUREMODE6	Force multiply color only
 INVENTORYTEXTUREMODE7	Relax texture, force multiply color
 INVENTORYTEXTUREMODE8	Relax multiply color, force texture
 INVENTORYTEXTUREMODECHANGED	Texture display mode has been changed successfully
+SETTINGSAUTOSAVEONLYMINE	Only save my replays

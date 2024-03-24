@@ -1246,9 +1246,34 @@ function Settings:getSettingsData(id)
 					},
 					{
 						name = TB_MENU_LOCALIZED.SETTINGSAUTOSAVE,
-						type = TOGGLE,
+						type = DROPDOWN,
 						systemname = "autosave",
-						val = { get_option("autosave") }
+						selectedAction = function()
+							return get_option("autosave") + 1
+						end,
+						dropdown = {
+							{
+								text = TB_MENU_LOCALIZED.SETTINGSDISABLED,
+								action = function()
+										Settings.Stored.autosave = { value = 0 }
+										Settings:settingsApplyActivate()
+									end
+							},
+							{
+								text = TB_MENU_LOCALIZED.SETTINGSENABLED,
+								action = function()
+										Settings.Stored.autosave = { value = 1 }
+										Settings:settingsApplyActivate()
+									end
+							},
+							{
+								text = TB_MENU_LOCALIZED.SETTINGSAUTOSAVEONLYMINE,
+								action = function()
+										Settings.Stored.autosave = { value = 2 }
+										Settings:settingsApplyActivate()
+									end
+							}
+						},
 					},
 					{
 						name = TB_MENU_LOCALIZED.SETTINGSGAMERULES,
@@ -1504,7 +1529,6 @@ function Settings:getLanguageDropdown()
 	end
 	for _, v in pairs(languages) do
 		v.newMenuDisabled = not Files.Exists("system/language/" .. v.name .. ".txt")
-		echo(v.name .. ": " .. tostring(string.lower(v.name) == current))
 		table.insert(dropdown, {
 			text = v.newMenuDisabled and (v.name .. " (" .. TB_MENU_LOCALIZED.SETTINGSBASEHUDONLY .. ")") or v.name,
 			selected = string.lower(v.name) == current,
