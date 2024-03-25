@@ -1486,7 +1486,6 @@ function Store:showInventoryItemsChangeLevel(items)
 		table.insert(currentUpgradesList, {
 			text = levelName,
 			action = function()
-				echo(table.implode(invidsList, ";") .. ";0;" .. i)
 				Store:spawnInventoryUpdateWaiter(overlay.btnUp)
 				show_dialog_box(StoreInternal.InventoryActions.Upgrade, TB_MENU_LOCALIZED.STOREDIALOGCHANGELEVEL1 .. " " .. levelName .. " " .. TB_MENU_LOCALIZED.STOREDIALOGCHANGELEVELMULTIPLE, table.implode(invidsList, ";") .. ";0;" .. i)
 			end,
