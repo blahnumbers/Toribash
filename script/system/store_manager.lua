@@ -954,6 +954,19 @@ function Store.ParseInventory(path)
 		Store.InventoryCurrentItem = nil
 	end
 	Store.Inventory = inventory
+
+	if (#Store.InventorySelectedItems > 0) then
+		local selectedInvids = {}
+		for _, v in pairs(Store.InventorySelectedItems) do
+			table.insert(selectedInvids, v.inventid)
+		end
+		Store.ClearInventorySelectedItems()
+		for _, v in pairs(Store.Inventory) do
+			if (in_array(v.inventid, selectedInvids)) then
+				table.insert(Store.InventorySelectedItems, v)
+			end
+		end
+	end
 	Request:queue(check_color_achievement, "checkColorAchievements")
 end
 
@@ -1408,6 +1421,90 @@ function Store:showInventoryItem(item)
 				show_dialog_box(StoreInternal.InventoryActions.Unpack, TB_MENU_LOCALIZED.STOREDIALOGUNPACK1 .. " " .. item.name .. (TB_MENU_LOCALIZED.STOREDIALOGUNPACK2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGUNPACK2 .. "?") .. "\n" .. TB_MENU_LOCALIZED.STOREDIALOGUNPACKINFO, tostring(item.inventid))
 			end)
 	end
+end
+
+---Displays an inventory item level mass change window
+---@param items InventoryItem[]
+function Store:showInventoryItemsChangeLevel(items)
+	local overlay = TBMenu:spawnWindowOverlay(true)
+
+	local changeLevelHolder = overlay:addChild({
+		pos = { WIN_W / 2 - 300, WIN_H / 2 - 100 },
+		size = { 600, 200 },
+		bgColor = TB_MENU_DEFAULT_BG_COLOR,
+		interactive = true,
+		shapeType = ROUNDED,
+		rounded = 4
+	})
+	TBMenu:spawnCloseButton(changeLevelHolder, { x = -50, y = 10, h = 40, w = 40 }, overlay.btnUp)
+
+	local changeLevelTitle = changeLevelHolder:addChild({
+		pos = { 60, 10 },
+		size = { changeLevelHolder.size.w - 120, 50 }
+	})
+	changeLevelTitle:addAdaptedText(true, TB_MENU_LOCALIZED.STORECHANGELEVELWINDOWTITLE, nil, nil, FONTS.BIG)
+
+	local maxLevel = items[1].upgrade_max_level
+	local currentLevel = items[1].upgrade_level
+	local levelNames = { }
+	for i = 1, maxLevel do
+		pcall(function()
+			if (Store.Models[items[1].itemid][i].level_name ~= '') then
+				levelNames[i] = Store.Models[items[1].itemid][i].level_name
+			end
+		end)
+	end
+	local invidsList = {}
+	for _, item in pairs(items) do
+		maxLevel = math.min(maxLevel, item.upgrade_max_level)
+		table.insert(invidsList, item.inventid)
+		if (currentLevel ~= nil) then
+			if (currentLevel ~= item.upgrade_level) then
+				---@diagnostic disable-next-line: cast-local-type
+				currentLevel = nil
+			end
+		end
+		for i = 1, maxLevel do
+			pcall(function()
+				if (levelNames[i] ~= Store.Models[item.itemid][i].level_name) then
+					levelNames[i] = ""
+				end
+			end)
+		end
+	end
+
+	local currentUpgradesList = { }
+	if (currentLevel == nil) then
+		table.insert(currentUpgradesList, {
+			text = TB_MENU_LOCALIZED.STORECHANGELEVELSELECT,
+			default = true,
+			selected = true
+		})
+	end
+	for i = 1, maxLevel do
+		local levelName = levelNames[i] ~= "" and levelNames[i] or (TB_MENU_LOCALIZED.STOREITEMLEVEL .. " " .. i)
+		table.insert(currentUpgradesList, {
+			text = levelName,
+			action = function()
+				echo(table.implode(invidsList, ";") .. ";0;" .. i)
+				Store:spawnInventoryUpdateWaiter(overlay.btnUp)
+				show_dialog_box(StoreInternal.InventoryActions.Upgrade, TB_MENU_LOCALIZED.STOREDIALOGCHANGELEVEL1 .. " " .. levelName .. " " .. TB_MENU_LOCALIZED.STOREDIALOGCHANGELEVELMULTIPLE, table.implode(invidsList, ";") .. ";0;" .. i)
+			end,
+			selected = i == currentLevel
+		})
+	end
+
+	local upgradesChangeTitle = changeLevelHolder:addChild({
+		pos = { 20, 80 },
+		size = { changeLevelHolder.size.w - 40, 50 }
+	})
+	upgradesChangeTitle:addAdaptedText(true, TB_MENU_LOCALIZED.INVENTORYCHOOSEITEMUPGRADELEVEL, nil, nil, nil, LEFTMID)
+	local upgradesDropdownHolder = changeLevelHolder:addChild({
+		pos = { upgradesChangeTitle.shift.x, upgradesChangeTitle.shift.y + upgradesChangeTitle.size.h },
+		size = { upgradesChangeTitle.size.w, 50 },
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR
+	}, true)
+	TBMenu:spawnDropdown(upgradesDropdownHolder, currentUpgradesList, upgradesDropdownHolder.size.h, nil, nil, { scale = 0.7, fontid = 4 }, { scale = 0.65, fontid = 4 })
 end
 
 ---Displays inventory item customization window
@@ -2083,7 +2180,7 @@ function Store:spawnInventoryUpdateWaiter(confirmAction)
 	Store:spawnConfirmationWaiter(function()
 			Store.InventoryListShift[1] = 0
 			update_tc_balance()
-			if (TB_MENU_MAIN_ISOPEN and TB_MENU_SPECIAL_SCREEN_ISOPEN == 1) then
+			if (TB_MENU_MAIN_ISOPEN == 1 and TB_MENU_SPECIAL_SCREEN_ISOPEN == 1) then
 				Store:prepareInventory(TBMenu.CurrentSection, true)
 			else
 				download_inventory()
@@ -2216,7 +2313,7 @@ function Store:showSelectionControls()
 	local buttonHeight = math.min(Store.InventoryItemView.size.h / 10, 55)
 	local buttonYPos = -buttonHeight * 1.1
 
-	local showAddSet, showActivate, showDeactivate, showRemoveSet, showSellMarket = true, false, false, false, true
+	local showAddSet, showActivate, showDeactivate, showRemoveSet, showSellMarket, showChangeLevel = true, false, false, false, true, true
 	for _, v in pairs(Store.InventorySelectedItems) do
 		if (v.active) then
 			showDeactivate = true
@@ -2226,8 +2323,14 @@ function Store:showSelectionControls()
 		if (v.setid ~= 0) then
 			showRemoveSet = true
 		end
-		if (showSellMarket and not Market:itemEligible(Store:getItemInfo(v.itemid))) then
-			showSellMarket = false
+		if (showSellMarket or showChangeLevel) then
+			local itemInfo = Store:getItemInfo(v.itemid)
+			if (showSellMarket and not Market:itemEligible(itemInfo)) then
+				showSellMarket = false
+			end
+			if (showChangeLevel and (itemInfo.catid ~= StoreCategory.Objects3D or not v.upgradeable or v.upgrade_max_level == 1)) then
+				showChangeLevel = false
+			end
 		end
 	end
 
@@ -2302,6 +2405,22 @@ function Store:showSelectionControls()
 		marketSellButton:addAdaptedText(TB_MENU_LOCALIZED.STORESELLMARKET)
 		marketSellButton:addMouseUpHandler(function()
 				Market:showSellInventoryItem(Store.InventorySelectedItems)
+			end)
+		buttonYPos = buttonYPos - buttonHeight * 1.2
+	end
+
+	if (showChangeLevel) then
+		local changeLevelButton = buttonsHolder:addChild({
+			pos = { 0, buttonYPos },
+			size = { buttonsHolder.size.w, buttonHeight },
+			interactive = true,
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+		}, true)
+		changeLevelButton:addAdaptedText(TB_MENU_LOCALIZED.STORECHANGELEVEL)
+		changeLevelButton:addMouseUpHandler(function()
+				Store:showInventoryItemsChangeLevel(Store.InventorySelectedItems)
 			end)
 		buttonYPos = buttonYPos - buttonHeight * 1.2
 	end
@@ -2421,7 +2540,8 @@ end
 ---@param pageid integer|string
 ---@param itemScale number?
 ---@param showBack boolean?
-function Store:showInventoryPage(inventoryItems, page, mode, title, pageid, itemScale, showBack)
+---@param search string?
+function Store:showInventoryPage(inventoryItems, page, mode, title, pageid, itemScale, showBack, search)
 	showBack = showBack or false
 	itemScale = itemScale or 100
 
@@ -2450,6 +2570,7 @@ function Store:showInventoryPage(inventoryItems, page, mode, title, pageid, item
 	}
 
 	Store.InventoryPage[pageid] = Store.InventoryPage[pageid] or 1
+	Store.InventorySearch = search
 
 	TBMenu.NavigationBar:kill(true)
 	TBMenu:showNavigationBar(Store:getInventoryNavigation(showBack), true)
@@ -2460,8 +2581,32 @@ function Store:showInventoryPage(inventoryItems, page, mode, title, pageid, item
 	local toReload, topBar, botBar, _, listingHolder = TBMenu:prepareScrollableList(Store.InventoryView, 56, elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
 	TBMenu:addBottomBloodSmudge(botBar, 1)
 
+	local matchingItems = search == nil and inventoryItems or { }
+	local function toLower(str)
+		if (not pcall(function() str = utf8.lower(str) end)) then
+			str = string.lower(str)
+		end
+		return str
+	end
+	if (search ~= nil) then
+		for _, v in pairs(inventoryItems) do
+			local itemName = toLower(Store:getItemInfo(v.itemid).itemname)
+			local setName = toLower(v.setname)
+			local search = toLower(search)
+			if (not pcall(function()
+				if (utf8.find(itemName, search) or utf8.find(setName, search)) then
+					table.insert(matchingItems, v)
+				end
+			end)) then
+				if (string.find(itemName, search) or string.find(setName, search)) then
+					table.insert(matchingItems, v)
+				end
+			end
+		end
+	end
+
 	local itemsPerPage = 100
-	local maxPages = math.ceil(#inventoryItems / itemsPerPage)
+	local maxPages = math.ceil(#matchingItems / itemsPerPage)
 
 	page = page or Store.InventoryPage[pageid]
 	page = page < 1 and maxPages or page
@@ -2479,7 +2624,10 @@ function Store:showInventoryPage(inventoryItems, page, mode, title, pageid, item
 			shapeType = ROUNDED,
 			rounded = 4
 		})
-		TBMenu:spawnDropdown(dropdownBG, inventoryModes, inventoryTitle.size.h, nil, inventoryModes[mode], { fontid = FONTS.MEDIUM }, { scale = 0.7 })
+		local dropdown = TBMenu:spawnDropdown(dropdownBG, inventoryModes, inventoryTitle.size.h, nil, inventoryModes[mode], { fontid = FONTS.MEDIUM }, { scale = 0.7 })
+		if (search ~= nil) then
+			dropdown.selectedElement:deactivate(true)
+		end
 	else
 		inventoryTitle:addAdaptedText(true, title, nil, nil, FONTS.BIG, LEFTMID, 0.6, 0.55, 0.5)
 	end
@@ -2519,7 +2667,7 @@ function Store:showInventoryPage(inventoryItems, page, mode, title, pageid, item
 			button:addAdaptedText(false, tostring(paginationData[i]), nil, nil, 4, nil, 0.6)
 			button:addMouseHandlers(nil, function()
 					Store.InventoryListShift[1] = 0
-					Store:showInventoryPage(inventoryItems, paginationData[i], mode, title, pageid, itemScale, showBack)
+					Store:showInventoryPage(inventoryItems, paginationData[i], mode, title, pageid, itemScale, showBack, search)
 				end)
 		end
 		pagesCount:addAdaptedText(true, TB_MENU_LOCALIZED.PAGINATIONPAGE:upper() .. " " .. Store.InventoryPage[pageid] .. " " .. TB_MENU_LOCALIZED.PAGINATIONPAGEOF:upper() .. " " .. maxPages, -#pageButtons * buttonWidth - 5, nil, 4, RIGHTMID, 0.6)
@@ -2557,9 +2705,10 @@ function Store:showInventoryPage(inventoryItems, page, mode, title, pageid, item
 	showEmptySetsText.size.w = get_string_length(showEmptySetsText.dispstr[1], showEmptySetsText.textFont) * showEmptySetsText.textScale + 45
 	showEmptySetsText:addMouseUpHandler(emptySetsToggle.btnUp)
 
+	local refreshButtonWidth = math.min(botBar.size.w / 3, 250)
 	local refreshInventory = botBar:addChild({
-		pos = { -botBar.size.w / 3, 5 },
-		size = { botBar.size.w / 3 - 20, 40 },
+		pos = { botBar.size.w - refreshButtonWidth, 5 },
+		size = { refreshButtonWidth - 20, 40 },
 		interactive = true,
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
@@ -2572,9 +2721,25 @@ function Store:showInventoryPage(inventoryItems, page, mode, title, pageid, item
 			Store:prepareInventory(TBMenu.CurrentSection, true)
 		end)
 
+	local searchFieldHolder = botBar:addChild({
+		pos = { showEmptySetsText.shift.x + showEmptySetsText.size.w + 20, refreshInventory.shift.y },
+		size = { refreshInventory.shift.x - (showEmptySetsText.shift.x + showEmptySetsText.size.w + 25), refreshInventory.size.h },
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		shapeType = ROUNDED,
+		rounded = 4
+	})
+	local searchField = TBMenu:spawnTextField2(searchFieldHolder, nil, search, TB_MENU_LOCALIZED.SEARCHNOTE, {
+		fontId = 4, textScale = 0.7, returnKeyType = KEYBOARD_RETURN.SEARCH, textAlign = CENTERMID
+	})
+	searchField:addEnterAction(function()
+			local doSearch = string.len(searchField.textfieldstr[1]) > 0
+			Store.InventoryListShift[1] = 0
+			Store:showInventoryPage(inventoryItems, doSearch and 1 or nil, mode, title, "page" .. (doSearch and searchField.textfieldstr[1] or mode), itemScale, showBack, doSearch and searchField.textfieldstr[1] or nil)
+		end)
+
 	local selectedItemButton = nil
 	local listElements = { }
-	for i = invStartShift, #inventoryItems > invStartShift + itemsPerPage and invStartShift + itemsPerPage or #inventoryItems do
+	for i = invStartShift, math.min(#matchingItems, invStartShift + itemsPerPage - 1) do
 		local inventoryItem = listingHolder:addChild({
 			pos = { 10, #listElements * elementHeight },
 			size = { listingHolder.size.w - 10, elementHeight }
@@ -2591,7 +2756,7 @@ function Store:showInventoryPage(inventoryItems, page, mode, title, pageid, item
 			shapeType = ROUNDED,
 			rounded = 4
 		})
-		if (Store.InventoryCurrentItem == inventoryItems[i]) then
+		if (Store.InventoryCurrentItem == matchingItems[i]) then
 			invItemHolder.bgColor = TB_MENU_DEFAULT_DARKEST_COLOR
 			selectedItemButton = invItemHolder
 		end
@@ -2603,35 +2768,35 @@ function Store:showInventoryPage(inventoryItems, page, mode, title, pageid, item
 				invItemHolder.bgColor = TB_MENU_DEFAULT_DARKEST_COLOR
 				selectedItemButton = invItemHolder
 
-				Store:showInventoryItem(inventoryItems[i])
-				if (inventoryItems[i].itemid == ITEM_SET and #inventoryItems[i].contents > 0) then
+				Store:showInventoryItem(matchingItems[i])
+				if (matchingItems[i].itemid == ITEM_SET and #matchingItems[i].contents > 0) then
 					local clock = os.clock_real()
 					if (invItemHolder.lastClick + 0.5 > clock) then
 						Store.InventoryLastListShift = Store.InventoryListShift[1]
 						Store.InventoryListShift[1] = 0
 						Store.InventoryCurrentItem = nil
-						Store:showInventoryPage(inventoryItems[i].contents, nil, nil, TB_MENU_LOCALIZED.STOREITEMSINSET .. ": " .. inventoryItems[i].setname, "invid" .. inventoryItems[i].inventid, nil, true)
+						Store:showInventoryPage(matchingItems[i].contents, nil, nil, TB_MENU_LOCALIZED.STOREITEMSINSET .. ": " .. matchingItems[i].setname, "invid" .. matchingItems[i].inventid, nil, true)
 					end
 					invItemHolder.lastClick = clock
 				end
 			end)
-		local item = Store:getItemInfo(inventoryItems[i].itemid)
+		local item = Store:getItemInfo(matchingItems[i].itemid)
 		local itemIcon = invItemHolder:addChild({
 			pos = { 8, 2 },
 			size = { invItemHolder.size.h - 4, invItemHolder.size.h - 4 }
 		})
 		if (item:isTexture()) then
-			itemIcon:updateImage(inventoryItems[i]:getIconPath())
+			itemIcon:updateImage(matchingItems[i]:getIconPath())
 		else
 			itemIcon:updateImage(item:getIconPath())
 		end
-		inventoryItems[i].iconElement = itemIcon
+		matchingItems[i].iconElement = itemIcon
 
 		local lShift = 0
-		if (inventoryItems[i].itemid ~= ITEM_SET) then
+		if (matchingItems[i].itemid ~= ITEM_SET) then
 			local itemSelected = false
 			for _, v in pairs(Store.InventorySelectedItems) do
-				if (v.inventid == inventoryItems[i].inventid) then
+				if (v.inventid == matchingItems[i].inventid) then
 					itemSelected = true
 					break
 				end
@@ -2657,7 +2822,7 @@ function Store:showInventoryPage(inventoryItems, page, mode, title, pageid, item
 
 			selectBox:addMouseHandlers(nil, function()
 					for j,v in pairs(Store.InventorySelectedItems) do
-						if (v.inventid == inventoryItems[i].inventid) then
+						if (v.inventid == matchingItems[i].inventid) then
 							table.remove(Store.InventorySelectedItems, j)
 							selectIcon:hide(true)
 							if (#Store.InventorySelectedItems == 0) then
@@ -2668,14 +2833,14 @@ function Store:showInventoryPage(inventoryItems, page, mode, title, pageid, item
 							return
 						end
 					end
-					table.insert(Store.InventorySelectedItems, inventoryItems[i])
+					table.insert(Store.InventorySelectedItems, matchingItems[i])
 					Store:showSelectionControls()
 					selectIcon:show(true)
 				end)
 		end
 
-		local buttonWidth = math.min(get_string_length(inventoryItems[i].active and TB_MENU_LOCALIZED.STOREITEMDEACTIVATE or TB_MENU_LOCALIZED.STOREITEMACTIVATE, FONTS.MEDIUM) + 60, invItemHolder.size.w / 7)
-		if (inventoryItems[i].activateable and not inventoryItems[i].unpackable) then
+		local buttonWidth = math.min(get_string_length(matchingItems[i].active and TB_MENU_LOCALIZED.STOREITEMDEACTIVATE or TB_MENU_LOCALIZED.STOREITEMACTIVATE, FONTS.MEDIUM) + 60, invItemHolder.size.w / 7)
+		if (matchingItems[i].activateable and not matchingItems[i].unpackable) then
 			invItemHolder.size.w = invItemHolder.size.w - buttonWidth -  5
 			local activateButton = invItemHolder.parent:addChild({
 				pos = { -buttonWidth - lShift, invItemHolder.shift.y },
@@ -2688,14 +2853,33 @@ function Store:showInventoryPage(inventoryItems, page, mode, title, pageid, item
 				rounded = 4
 			})
 			local activateText = activateButton:addChild({ shift = { 10, 5 }})
-			activateText:addAdaptedText(true, inventoryItems[i].active and TB_MENU_LOCALIZED.STOREITEMDEACTIVATE or TB_MENU_LOCALIZED.STOREITEMACTIVATE)
+			activateText:addAdaptedText(true, matchingItems[i].active and TB_MENU_LOCALIZED.STOREITEMDEACTIVATE or TB_MENU_LOCALIZED.STOREITEMACTIVATE)
 			activateButton:addMouseUpHandler(function()
 					Store:spawnInventoryUpdateWaiter()
-					if (inventoryItems[i].active) then
-						show_dialog_box(StoreInternal.InventoryActions.Deactivate, TB_MENU_LOCALIZED.STOREDIALOGDEACTIVATE1 .. " " .. inventoryItems[i].name .. (TB_MENU_LOCALIZED.STOREDIALOGDEACTIVATE2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGDEACTIVATE2 .. "?"), tostring(inventoryItems[i].inventid))
+					if (matchingItems[i].active) then
+						show_dialog_box(StoreInternal.InventoryActions.Deactivate, TB_MENU_LOCALIZED.STOREDIALOGDEACTIVATE1 .. " " .. matchingItems[i].name .. (TB_MENU_LOCALIZED.STOREDIALOGDEACTIVATE2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGDEACTIVATE2 .. "?"), tostring(matchingItems[i].inventid))
 					else
-						show_dialog_box(StoreInternal.InventoryActions.Activate, TB_MENU_LOCALIZED.STOREDIALOGACTIVATE1 .. " " .. inventoryItems[i].name .. (TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 .. "?"), tostring(inventoryItems[i].inventid))
+						show_dialog_box(StoreInternal.InventoryActions.Activate, TB_MENU_LOCALIZED.STOREDIALOGACTIVATE1 .. " " .. matchingItems[i].name .. (TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 .. "?"), tostring(matchingItems[i].inventid))
 					end
+				end)
+			lShift = lShift + buttonWidth + 5
+		elseif (matchingItems[i].unpackable) then
+			invItemHolder.size.w = invItemHolder.size.w - buttonWidth -  5
+			local unpackButton = invItemHolder.parent:addChild({
+				pos = { -buttonWidth - lShift, invItemHolder.shift.y },
+				size = { buttonWidth, invItemHolder.size.h },
+				interactive = true,
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+				shapeType = ROUNDED,
+				rounded = 4
+			})
+			local unpackText = unpackButton:addChild({ shift = { 10, 5 }})
+			unpackText:addAdaptedText(true, TB_MENU_LOCALIZED.STOREITEMUNPACK)
+			unpackButton:addMouseUpHandler(function()
+					Store:spawnInventoryUpdateWaiter()
+					show_dialog_box(StoreInternal.InventoryActions.Unpack, TB_MENU_LOCALIZED.STOREDIALOGUNPACK1 .. " " .. matchingItems[i].name .. (TB_MENU_LOCALIZED.STOREDIALOGUNPACK2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGUNPACK2 .. "?") .. "\n" .. TB_MENU_LOCALIZED.STOREDIALOGUNPACKINFO, tostring(matchingItems[i].inventid))
 				end)
 			lShift = lShift + buttonWidth + 5
 		end
@@ -2705,14 +2889,14 @@ function Store:showInventoryPage(inventoryItems, page, mode, title, pageid, item
 			size = { invItemHolder.size.w - itemIcon.shift.x * 2 - itemIcon.size.w - 15, invItemHolder.size.h - 4 }
 		})
 		local itemNameString = item.itemname
-		if (item.catid == StoreCategory.Objects3D and inventoryItems[i].upgrade_level > 0) then
-			itemNameString = itemNameString .. " (LVL " .. inventoryItems[i].upgrade_level .. ")"
+		if (item.catid == StoreCategory.Objects3D and matchingItems[i].upgrade_level > 0) then
+			itemNameString = itemNameString .. " (LVL " .. matchingItems[i].upgrade_level .. ")"
 		end
-		if (inventoryItems[i].flamename ~= '0') then
-			itemNameString = itemNameString .. ": " .. inventoryItems[i].flamename
+		if (matchingItems[i].flamename ~= '0') then
+			itemNameString = itemNameString .. ": " .. matchingItems[i].flamename
 		end
-		if (inventoryItems[i].setname ~= '0') then
-			itemNameString = inventoryItems[i].setname
+		if (matchingItems[i].setname ~= '0') then
+			itemNameString = matchingItems[i].setname
 		end
 		local itemName = nil
 		if (in_array(item.catid, { StoreCategory.Sets, StoreCategory.Flames, StoreCategory.Objects3D })) then
@@ -2724,15 +2908,15 @@ function Store:showInventoryPage(inventoryItems, page, mode, title, pageid, item
 				pos = { 0, itemName.size.h },
 				size = { itemInfoHolder.size.w, itemInfoHolder.size.h - itemName.size.h }
 			})
-			if (inventoryItems[i].bodypartname ~= '0') then
-				local bodypartString = (Store.Models[item.itemid] and TB_MENU_LOCALIZED.INVENTORY3DITEMFOR or TB_MENU_LOCALIZED.STOREFLAMEBODYPART) .. " " .. inventoryItems[i].bodypartname
+			if (matchingItems[i].bodypartname ~= '0') then
+				local bodypartString = (Store.Models[item.itemid] and TB_MENU_LOCALIZED.INVENTORY3DITEMFOR or TB_MENU_LOCALIZED.STOREFLAMEBODYPART) .. " " .. matchingItems[i].bodypartname
 				itemExtra:addAdaptedText(true, bodypartString, nil, nil, 4, LEFTMID)
-			elseif (inventoryItems[i].contents ~= nil) then
+			elseif (matchingItems[i].contents ~= nil) then
 				local numItemsStr = TB_MENU_LOCALIZED.STORESETEMPTY .. " " .. TB_MENU_LOCALIZED.STORESETITEMNAME
-				if (#inventoryItems[i].contents == 1) then
+				if (#matchingItems[i].contents == 1) then
 					numItemsStr = "1 " .. TB_MENU_LOCALIZED.STOREITEMSINSET:lower()
-				elseif (#inventoryItems[i].contents > 1) then
-					numItemsStr = #inventoryItems[i].contents .. " " .. TB_MENU_LOCALIZED.STOREITEMSINSET:lower()
+				elseif (#matchingItems[i].contents > 1) then
+					numItemsStr = #matchingItems[i].contents .. " " .. TB_MENU_LOCALIZED.STOREITEMSINSET:lower()
 				end
 				itemExtra:addAdaptedText(true, numItemsStr, nil, nil, 4, LEFTMID)
 			end
@@ -2740,29 +2924,31 @@ function Store:showInventoryPage(inventoryItems, page, mode, title, pageid, item
 			itemName = itemInfoHolder:addChild({ shift = { 0, itemInfoHolder.size.h / 6 } })
 			itemName:addAdaptedText(true, itemNameString, nil, nil, FONTS.BIG, LEFTMID, nil, nil, 0.2)
 		end
-		if (inventoryItems[i].effectid > 0 and Store.Items[inventoryItems[i].itemid].catid ~= 87) then
+		if (matchingItems[i].effectid > 0 and Store.Items[matchingItems[i].itemid].catid ~= 87) then
 			local nameLength = get_string_length(itemName.dispstr[1], itemName.textFont) * itemName.textScale
 			local itemEffectsHolder = itemInfoHolder:addChild({
 				pos = { nameLength + 10, 0 },
 				size = { itemInfoHolder.size.w - nameLength - 20, itemInfoHolder.size.h }
 			})
-			Store:showItemEffectCapsules(inventoryItems[i], itemEffectsHolder, 20)
+			Store:showItemEffectCapsules(matchingItems[i], itemEffectsHolder, 20)
 		end
 	end
 
 	if (#listElements > 0) then
-		for _, v in pairs(listElements) do
-			v:hide()
+		if (#listElements * elementHeight > listingHolder.size.h) then
+			for _, v in pairs(listElements) do
+				v:hide()
+			end
+			local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
+			listingHolder.scrollBar = scrollBar
+			scrollBar:makeScrollBar(listingHolder, listElements, toReload, Store.InventoryListShift)
 		end
-		local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
-		listingHolder.scrollBar = scrollBar
-		scrollBar:makeScrollBar(listingHolder, listElements, toReload, Store.InventoryListShift)
 	else
 		listingHolder:addAdaptedText(false, TB_MENU_LOCALIZED.STOREINVENTORYEMPTY)
 	end
 
 	if (#Store.InventorySelectedItems == 0) then
-		Store:showInventoryItem(Store.InventoryCurrentItem or inventoryItems[invStartShift])
+		Store:showInventoryItem(Store.InventoryCurrentItem or matchingItems[invStartShift])
 	else
 		Store:showSelectionControls()
 	end
@@ -2835,17 +3021,18 @@ function Store:showInventory(viewElement, mode, showSets)
 		end
 	end
 
+	local itemViewWidth = math.min(viewElement.size.w * 0.3, 400) - 10
 	Store.InventoryView = viewElement:addChild({
 		pos = { 5, 0 },
-		size = { viewElement.size.w * 0.7 - 10, viewElement.size.h },
+		size = { viewElement.size.w - itemViewWidth - 20, viewElement.size.h },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR
 	})
 	Store.InventoryItemView = viewElement:addChild({
-		pos = { viewElement.size.w * 0.7 + 5, 0 },
-		size = { viewElement.size.w * 0.3 - 10, viewElement.size.h },
+		pos = { Store.InventoryView.shift.x + Store.InventoryView.size.w + 10, 0 },
+		size = { itemViewWidth, viewElement.size.h },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR
 	})
-	Store:showInventoryPage(playerInventory, nil, mode, nil, "page" .. mode)
+	Store:showInventoryPage(playerInventory, nil, mode, nil, "page" .. mode, nil, nil, Store.InventorySearch)
 end
 
 ---Displays a store item preview in a 3D viewport
@@ -4512,12 +4699,12 @@ function Store:showPostPurchaseScreen(item, forceRefreshItem)
 						download_inventory()
 						if (#item.contents > 0) then
 							Store:spawnInventoryUpdateWaiter()
-							show_dialog_box(StoreInternal.InventoryActions.Unpack, TB_MENU_LOCALIZED.STOREPURCHASECONGRATULATIONSRECEIVED .. " " .. item.itemname .. "!\n" .. TB_MENU_LOCALIZED.STOREDIALOGUNPACK1 .. " " .. item.itemname .. (TB_MENU_LOCALIZED.STOREDIALOGUNPACK2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGUNPACK2 .. "?") .. "\n" .. TB_MENU_LOCALIZED.STOREDIALOGUNPACKINFO, invid)
+							show_dialog_box(StoreInternal.InventoryActions.Unpack, TB_MENU_LOCALIZED.STOREPURCHASECONGRATULATIONSRECEIVED .. " " .. item.itemname .. "!\n\n" .. TB_MENU_LOCALIZED.STOREDIALOGUNPACKPURCHASE1 .. " " .. item.itemname .. (TB_MENU_LOCALIZED.STOREDIALOGUNPACKPURCHASE2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGUNPACKPURCHASE2 .. "?") .. "\n" .. TB_MENU_LOCALIZED.STOREDIALOGUNPACKINFO, invid)
 						elseif (item.ingame) then
 							if (in_array(item.catid, StoreInternal.Categories.Colors)) then
 								Request:queue(function() check_color_achievement(item.colorid) end, "checkColorAchievements")
 							end
-							show_dialog_box(StoreInternal.InventoryActions.Activate, TB_MENU_LOCALIZED.STOREPURCHASECONGRATULATIONSRECEIVED .. " "  .. item.itemname .. "!\n" .. TB_MENU_LOCALIZED.STOREDIALOGACTIVATE1 .. " " .. item.itemname .. (TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 .. "?"), invid)
+							show_dialog_box(StoreInternal.InventoryActions.Activate, TB_MENU_LOCALIZED.STOREPURCHASECONGRATULATIONSRECEIVED .. " "  .. item.itemname .. "!\n\n" .. TB_MENU_LOCALIZED.STOREDIALOGACTIVATEPURCHASE1 .. " " .. item.itemname .. (TB_MENU_LOCALIZED.STOREDIALOGACTIVATEPURCHASE2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGACTIVATEPURCHASE2 .. "?"), invid)
 						else
 							TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STOREYOUHAVEPURCHASEDITEM .. " " .. item.itemname .. "!\n" .. TB_MENU_LOCALIZED.STOREPURCHASEDITEMPLACEDININVENTORY)
 						end

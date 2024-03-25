@@ -51,7 +51,7 @@ if (get_option("newmenu") == 0) then
 	return
 end
 
-TBMenu.Init("240322")
+TBMenu.Init("240325")
 require("system.menu_backend_defines")
 require("system.network_request")
 require("system.downloader_manager")

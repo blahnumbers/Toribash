@@ -1058,7 +1058,6 @@ do
 
 									local invid = response:gsub("GATEWAY 0; 0 ", "")
 									TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.STOREPURCHASESUCCESSFUL, function()
-											Flames:quit()
 											Store:spawnInventoryUpdateWaiter()
 											show_dialog_box(2, TB_MENU_LOCALIZED.STOREDIALOGACTIVATE1 .. " " .. name  .. (TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 .. "?"), invid)
 										end)

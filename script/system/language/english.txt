@@ -77,11 +77,15 @@ STOREDIALOGDEACTIVATE2
 STOREITEMACTIVATE	Activate
 STOREDIALOGACTIVATE1	Are you sure you want to activate
 STOREDIALOGACTIVATE2
+STOREDIALOGACTIVATEPURCHASE1	Would you like to activate
+STOREDIALOGACTIVATEPURCHASE2
 STOREDIALOGCONFLICTSDEACTIVATE	Any conflicting items will be deactivated.
 STOREDIALOGITEMCONFLICTDEACTIVATE	conflicts with this item and will be deactivated.
 STOREITEMUNPACK	Unpack
 STOREDIALOGUNPACK1	Are you sure you want to unpack
 STOREDIALOGUNPACK2
+STOREDIALOGUNPACKPURCHASE1	Would you like to unpack
+STOREDIALOGUNPACKPURCHASE2
 STOREDIALOGUNPACKINFO	Unpacked items will be put in a set\nand placed in your deactivated inventory.
 STOREBUTTONCANCEL	Cancel
 STOREDIALOGADDTOSET1	Are you sure you want to add
@@ -889,6 +893,7 @@ STORENOITEMSTODISPLAY	No items to display
 STORESELECTITEMTOVIEWDETAILS	Select an item to view its details
 STOREDIALOGCHANGELEVEL1	Are you sure you want to set level
 STOREDIALOGCHANGELEVEL2	upgrade for your
+STOREDIALOGCHANGELEVELMULTIPLE	upgrades for the selected items?
 INVENTORYSETEFFECTCONFIRM	Are you sure you want to apply selected effect upgrades for your
 INVENTORYSETEFFECTNOTICE	If you had any paid upgrades applied, you may need to purchase them again.
 STOREYOUHAVEPURCHASEDITEM	You have successfully purchased
@@ -1274,3 +1279,6 @@ INVENTORYTEXTUREMODE7	Relax texture, force multiply color
 INVENTORYTEXTUREMODE8	Relax multiply color, force texture
 INVENTORYTEXTUREMODECHANGED	Texture display mode has been changed successfully
 SETTINGSAUTOSAVEONLYMINE	Only save my replays
+STORECHANGELEVEL	Change level
+STORECHANGELEVELWINDOWTITLE	Change 3D item levels
+STORECHANGELEVELSELECT	Select level to apply

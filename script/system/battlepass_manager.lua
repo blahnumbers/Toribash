@@ -676,6 +676,7 @@ function BattlePass:showLevelPrize(prizeHolder, levelData)
 			tc = levelData.tc,
 			st = levelData.st,
 			item = levelData.item,
+			itemid = levelData.itemid,
 			locked = BattlePass.UserData.level_available < levelData.level,
 			claimed = BattlePass.UserData.level >= levelData.level
 		})
@@ -701,6 +702,7 @@ function BattlePass:showLevelPrize(prizeHolder, levelData)
 	if (levelData.itemid_premium > 0) then
 		table.insert(premiumPrizes, {
 			item = levelData.item_premium,
+			itemid = levelData.itemid_premium,
 			locked = not BattlePass.UserData.premium or BattlePass.UserData.level_available < levelData.level,
 			claimed = BattlePass.UserData.level_premium >= levelData.level,
 			premium = true
@@ -864,6 +866,20 @@ function BattlePass:showMain()
 		TBMenu:addBottomBloodSmudge(battlePassLoading)
 		TBMenu:displayLoadingMark(battlePassLoading, TB_MENU_LOCALIZED.BATTLEPASSLOADING)
 		BattlePass:getUserData(battlePassLoading)
+		return
+	end
+	if (not Store.Ready) then
+		local storeLoading = TBMenu.CurrentSection:addChild({
+			shift = { 5, 0 },
+			bgColor = TB_MENU_DEFAULT_BG_COLOR
+		})
+		TBMenu:addBottomBloodSmudge(storeLoading)
+		TBMenu:displayLoadingMark(storeLoading, TB_MENU_LOCALIZED.STORELOADING)
+		storeLoading:addCustomDisplay(function()
+				if (Store.Ready) then
+					BattlePass:showMain()
+				end
+			end)
 		return
 	end
 
