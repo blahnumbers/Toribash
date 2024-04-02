@@ -897,6 +897,17 @@ function InventoryItem:getIconPath(forceCustom)
 	return "../textures/store/items/" .. self.itemid .. ".tga"
 end
 
+---Marks inventory item (and all items inside in case of sets) inactive. \
+---*This does **not** fire a network request to actually deactivate items and is only used for local inventory manipulations.*
+function InventoryItem:deactivate()
+	self.active = false
+	if (self.contents ~= nil) then
+		for _, v in pairs(self.contents) do
+			v.active = false
+		end
+	end
+end
+
 ---Parses user inventory datafile and returns a list of InventoryItem objects reflecting it. \
 ---When used without arguments, parses current user's inventory data and caches it in **Store** class for later use.
 ---@param path string Inventory datafile path
@@ -1393,7 +1404,11 @@ function Store:showInventoryItem(item)
 		if (item.active) then
 			activateButton:addAdaptedText(false, TB_MENU_LOCALIZED.STOREITEMDEACTIVATE)
 			activateButton:addMouseUpHandler(function()
-					Store:spawnInventoryUpdateWaiter()
+					Store:spawnConfirmationWaiter(function()
+						item:deactivate()
+						Store:showInventory(TBMenu.CurrentSection, nil, Store.InventoryShowEmptySets)
+						update_tc_balance()
+					end)
 					show_dialog_box(StoreInternal.InventoryActions.Deactivate, TB_MENU_LOCALIZED.STOREDIALOGDEACTIVATE1 .. " " .. item.name .. (TB_MENU_LOCALIZED.STOREDIALOGDEACTIVATE2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGDEACTIVATE2 .. "?"), tostring(item.inventid))
 				end)
 		else
@@ -2435,7 +2450,14 @@ function Store:showSelectionControls()
 		}, true)
 		deactivateButton:addAdaptedText(TB_MENU_LOCALIZED.STOREITEMDEACTIVATE)
 		deactivateButton:addMouseUpHandler(function()
-				Store:spawnInventoryUpdateWaiter()
+				Store:spawnConfirmationWaiter(function()
+					for _, v in pairs(Store.InventorySelectedItems) do
+						v:deactivate()
+					end
+					Store:showInventory(TBMenu.CurrentSection, nil, Store.InventoryShowEmptySets)
+					update_tc_balance()
+				end)
+
 				local inventidStr = ""
 				for _, v in pairs(Store.InventorySelectedItems) do
 					inventidStr = inventidStr == "" and tostring(v.inventid) or inventidStr .. ";" .. v.inventid
@@ -2854,10 +2876,15 @@ function Store:showInventoryPage(inventoryItems, page, mode, title, pageid, item
 			local activateText = activateButton:addChild({ shift = { 10, 5 }})
 			activateText:addAdaptedText(true, matchingItems[i].active and TB_MENU_LOCALIZED.STOREITEMDEACTIVATE or TB_MENU_LOCALIZED.STOREITEMACTIVATE)
 			activateButton:addMouseUpHandler(function()
-					Store:spawnInventoryUpdateWaiter()
 					if (matchingItems[i].active) then
+						Store:spawnConfirmationWaiter(function()
+							matchingItems[i]:deactivate()
+							Store:showInventory(TBMenu.CurrentSection, nil, Store.InventoryShowEmptySets)
+							update_tc_balance()
+						end)
 						show_dialog_box(StoreInternal.InventoryActions.Deactivate, TB_MENU_LOCALIZED.STOREDIALOGDEACTIVATE1 .. " " .. matchingItems[i].name .. (TB_MENU_LOCALIZED.STOREDIALOGDEACTIVATE2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGDEACTIVATE2 .. "?"), tostring(matchingItems[i].inventid))
 					else
+						Store:spawnInventoryUpdateWaiter()
 						show_dialog_box(StoreInternal.InventoryActions.Activate, TB_MENU_LOCALIZED.STOREDIALOGACTIVATE1 .. " " .. matchingItems[i].name .. (TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 == " " and "?" or " " .. TB_MENU_LOCALIZED.STOREDIALOGACTIVATE2 .. "?"), tostring(matchingItems[i].inventid))
 					end
 				end)

@@ -1278,7 +1278,7 @@ function get_grip_info(player, hand) end
 ---@param state integer
 function set_grip_info(player, hand, state) end
 
----Returns information about gripped object when in edit mode. \
+---Returns information about gripped object. \
 ---*This function will only return `-1` if player isn't grabbing anything*
 ---@param player integer
 ---@param hand integer
@@ -1386,11 +1386,13 @@ function players_accept_input() end
 ---@param single_frame ?boolean
 function step_game(single_frame) end
 
----Opens and plays the replay
+---Opens and plays the replay. \
+---When used with replay integrity checking enabled, listen to `replay_integrity_fail` hook for check failures. Lower threshold values mean higher precision but likely will generate false positives.
 ---@param filename string
 ---@param cache? integer
----@param check_integrity_threshold? number Replay integrity checker threshold. Lower value means higher precision.
-function open_replay(filename, cache, check_integrity_threshold) end
+---@param check_integrity_threshold? number
+---@param check_integrity_vel_threshold? number
+function open_replay(filename, cache, check_integrity_threshold, check_integrity_vel_threshold) end
 
 ---Rewinds the replay to the beginning
 function rewind_replay() end
