@@ -689,6 +689,29 @@ function UIElement3D:resetRotation()
 	UIElement3DInternal.UpdateChildrenPosition(self)
 end
 
+---Syncs object's rotation to attached bodypart
+---@param updateChildPosition boolean? *Defaults to `true`*
+function UIElement3D:syncPlayerRotation(updateChildPosition)
+	if (self.parent ~= nil or self.playerAttach == nil or self.attachBodypart == nil) then return end
+	self.__rotMatrixSelf = Utils3D.MatrixTBToMatrix(get_body_info(self.playerAttach, self.attachBodypart).rot)
+	UIElement3DInternal.Rotate(self, Utils3D.MatrixIdentity())
+	if (updateChildPosition ~= false) then
+		UIElement3DInternal.UpdateChildrenPosition(self)
+	end
+end
+
+---Syncs object's position to attached bodypart
+function UIElement3D:syncPlayerPosition()
+	if (self.parent ~= nil or self.playerAttach == nil or self.attachBodypart == nil) then return end
+	self.pos = get_body_info(self.playerAttach, self.attachBodypart).pos
+	UIElement3DInternal.UpdatePosition(self)
+end
+
+function UIElement3D:syncPlayer()
+	self:syncPlayerRotation(false)
+	self:syncPlayerPosition()
+end
+
 ---Helper function to get the Euler angles from a rotation matrix. \
 ---*Only `EULER_XYZ` and `EULER_ZYX` conventions are supported.*
 ---@param R number[][]
