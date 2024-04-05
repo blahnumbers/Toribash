@@ -690,7 +690,9 @@ function UIElement3D:resetRotation()
 end
 
 ---Syncs object's rotation to attached bodypart
----@param updateChildPosition boolean? *Defaults to `true`*
+---@param updateChildPosition boolean? *Defaults to `true`* \
+---@see UIElement3D.syncPlayer
+---@see UIElement3D.syncPlayerPosition
 function UIElement3D:syncPlayerRotation(updateChildPosition)
 	if (self.parent ~= nil or self.playerAttach == nil or self.attachBodypart == nil) then return end
 	self.__rotMatrixSelf = Utils3D.MatrixTBToMatrix(get_body_info(self.playerAttach, self.attachBodypart).rot)
@@ -700,13 +702,18 @@ function UIElement3D:syncPlayerRotation(updateChildPosition)
 	end
 end
 
----Syncs object's position to attached bodypart
+---Syncs object's position to attached bodypart \
+---@see UIElement3D.syncPlayer
+---@see UIElement3D.syncPlayerRotation
 function UIElement3D:syncPlayerPosition()
 	if (self.parent ~= nil or self.playerAttach == nil or self.attachBodypart == nil) then return end
 	self.pos = get_body_info(self.playerAttach, self.attachBodypart).pos
 	UIElement3DInternal.UpdatePosition(self)
 end
 
+---Syncs object's position and rotation to attached bodypart \
+---@see UIElement3D.syncPlayerRotation
+---@see UIElement3D.syncPlayerPosition
 function UIElement3D:syncPlayer()
 	self:syncPlayerRotation(false)
 	self:syncPlayerPosition()
