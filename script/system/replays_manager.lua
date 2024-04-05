@@ -3206,9 +3206,15 @@ function Replays:showCustomReplaySelection(mainElement, mod, action)
 			rounded = 4
 		})
 		local replaysToChooseFrom = {}
+		local modExtension = mod
+		if (string.match(modExtension, ".*%.tbm$")) then
+			mod = string.sub(modExtension, 0, -4)
+		else
+			modExtension = mod .. ".tbm"
+		end
 		---@param v ReplayInfo
 		local function checkReplay(v)
-			if ((mod == nil or v.mod == mod) and (v.author == TB_MENU_PLAYER_INFO.username or (v.author == 'autosave' and v.bouts[1] == TB_MENU_PLAYER_INFO.username))) then
+			if ((mod == nil or v.mod == mod or v.mod == modExtension) and (v.author == TB_MENU_PLAYER_INFO.username or (v.author == 'autosave' and v.bouts[1] == TB_MENU_PLAYER_INFO.username))) then
 				if (v.name:find("^" .. ReplaysInternal.EventTempPrefix)) then
 					v.name = 'Autosaved Replay'
 				end
