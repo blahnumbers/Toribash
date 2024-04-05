@@ -52,10 +52,10 @@ local TBMenuInternal = {
 	__index = {}
 }
 
----@param version string
+---@param version integer
 function TBMenu.Init(version)
 	TB_MENU_MAIN_ISOPEN = 1
-	set_build_version(version)
+	set_build_version(tostring(version))
 	TBMenu.GetTranslation(get_language())
 end
 
@@ -3020,10 +3020,9 @@ function TBMenu:showMain(noload)
 		size = { WIN_W, WIN_H * 3 },
 		bgColor = { 0, 0, 0, 0 }
 	})
-	if (enable_blur() == 0) then
+	local blurEnabled = enable_blur()
+	if (not blurEnabled) then
 		tbMenuBackground.bgColor[4] = 0.1
-	else
-		BLURENABLED = true
 	end
 	if (not is_mobile()) then
 		TBMenu.HideButton = TBMenu.MenuMain:addChild({
@@ -3053,13 +3052,11 @@ function TBMenu:showMain(noload)
 					TBMenu.HideButton.progress = TBMenu.HideButton.progress + math.pi / 40
 					TBMenu.MenuMain:moveTo(nil, TBMenu.MenuMain.pos.y + (WIN_H / 15) * math.sin(TBMenu.HideButton.progress))
 					TBMenu.HideButton:moveTo(nil, -TBMenu.MenuMain.pos.y - 74)
-					if (not BLURENABLED) then
+					if (not blurEnabled) then
 						tbMenuBackground.bgColor[4] = tbMenuBackground.bgColor[4] - (0.1 / 15) * math.sin(TBMenu.HideButton.progress)
 					end
 					if (TBMenu.MenuMain.pos.y >= WIN_H) then
-						for i = 1, 3 do
-							TBMenu.HideButton:updateImage("../textures/menu/general/buttons/arrowtop.tga")
-						end
+						TBMenu.HideButton:updateImage("../textures/menu/general/buttons/arrowtop.tga")
 						TBMenu.MenuMain:moveTo(nil, WIN_H)
 						TBMenu.HideButton:moveTo(nil, -TBMenu.MenuMain.pos.y - 74)
 						TBMenu.HideButton.state = 2
@@ -3069,13 +3066,11 @@ function TBMenu:showMain(noload)
 					TBMenu.HideButton.progress = TBMenu.HideButton.progress + math.pi / 50
 					TBMenu.MenuMain:moveTo(nil, TBMenu.MenuMain.pos.y - (WIN_H / 15) * math.sin(TBMenu.HideButton.progress))
 					TBMenu.HideButton:moveTo(nil, -TBMenu.MenuMain.pos.y - 74)
-					if (not BLURENABLED) then
+					if (not blurEnabled) then
 						tbMenuBackground.bgColor[4] = tbMenuBackground.bgColor[4] + (0.1 / 15) * math.sin(TBMenu.HideButton.progress)
 					end
 					if (TBMenu.MenuMain.pos.y <= 0) then
-						for i = 1, 3 do
-							TBMenu.HideButton:updateImage("../textures/menu/general/buttons/arrowbot.tga")
-						end
+						TBMenu.HideButton:updateImage("../textures/menu/general/buttons/arrowbot.tga")
 						TBMenu.MenuMain:moveTo(nil, 0)
 						TBMenu.HideButton:moveTo(nil, -TBMenu.MenuMain.pos.y - 74)
 						TBMenu.HideButton.state = 0
@@ -3088,11 +3083,9 @@ function TBMenu:showMain(noload)
 	end
 	local splatLeftImg = TB_MENU_BLOODSPLATTER_LEFT
 	local splatCustom = false
-	local customLogo = Files.Open("../custom/" .. TB_MENU_PLAYER_INFO.username .. "/splatt1.tga")
-	if (customLogo.data) then
+	if (Files.Exists("../custom/" .. TB_MENU_PLAYER_INFO.username .. "/splatt1.tga")) then
 		splatLeftImg = "../../custom/" .. TB_MENU_PLAYER_INFO.username .. "/splatt1.tga"
 		splatCustom = true
-		customLogo:close()
 	end
 	local splatRes = (WIN_H - 320) * TB_MENU_GLOBAL_SCALE
 	local splatLeft = TBMenu.MenuMain:addChild({
