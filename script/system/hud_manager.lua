@@ -567,6 +567,7 @@ function TBHud:spawnCameraButton()
 			return
 		end
 		runCmd("zp " .. (self.WorldState.selected_player + 1) % self.WorldState.num_players)
+		enable_mouse_camera_movement()
 	end)
 	cameraButton:addCustomDisplay(function()
 		if (clickClock > 0 and UIElement.clock - clickClock > UIElement.longPressDuration) then
@@ -660,6 +661,7 @@ function TBHud:spawnCameraButton()
 		joystickVector.x = 0
 		joystickVector.y = 0
 		remove_hooks("tbHudFreeCamJoystick")
+		enable_mouse_camera_movement()
 	end
 	cameraJoystick:addMouseUpHandler(onJoystickUp)
 	cameraJoystick:addMouseUpOutsideHandler(onJoystickUp)
@@ -681,6 +683,7 @@ function TBHud:spawnCameraButton()
 	end
 
 	cameraJoystick:addMouseDownHandler(function()
+			disable_mouse_camera_movement()
 			mouseDownPosition = cameraJoystick:getLocalPos(MOUSE_X, MOUSE_Y)
 			mouseDownPosition.x = mouseDownPosition.x - joystickOffset
 			mouseDownPosition.y = mouseDownPosition.y - joystickOffset
