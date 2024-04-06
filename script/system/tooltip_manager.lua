@@ -606,7 +606,7 @@ function Tooltip:showTouchControls()
 end
 
 ---Returns normalized touch input delta
----@return Vector2
+---@return Vector2Base
 function Tooltip:getTouchMouseDelta()
 	if (TooltipInternal.TouchInputPosition == nil) then
 		return { x = 0, y = 0 }

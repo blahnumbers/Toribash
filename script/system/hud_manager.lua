@@ -17,6 +17,10 @@ require("system.ignore_manager")
 if (TBHud == nil) then
 	---**Toribash touch HUD class**
 	---
+	---**Version 5.66**
+	---* Added camera mode button
+	---* Added free cam joystick controls
+	---
 	---**Version 5.65**
 	---* Added hud option observer to enable/disable UI
 	---
@@ -42,6 +46,9 @@ if (TBHud == nil) then
 	---@field GhostButtonHolder UIElement
 	---@field GripButtonHolder UIElement
 	---@field HubButtonHolder UIElement
+	---@field CameraButtonHolder UIElement
+	---@field CameraJoystickFreeHolder UIElement
+	---@field CameraJoystickSensitivity number
 	---@field MiscButtonHolders UIElement[]
 	---@field HubHolder UIElement
 	---@field HubDynamicButtonsHolder UIElement
@@ -83,6 +90,7 @@ if (TBHud == nil) then
 		SafeAreaOffset = 0,
 		HudEnabled = true,
 		HudEnableHintDisplayed = false,
+		CameraJoystickSensitivity = 0.075,
 		__waitingWhisper = false,
 		ver = 5.64,
 	}
@@ -101,8 +109,8 @@ if (TBHud == nil) then
 	---@field Queue TBHudPopup[] Active queue of popups to display
 	---@field DefaultDuration number Default popup display duration, in seconds
 	---@field PopupActive boolean Whether we currently have a popup displayed to user
-	---@field __touchPos Vector2
-	---@field __touchDelta Vector2
+	---@field __touchPos Vector2Base
+	---@field __touchDelta Vector2Base
 	---@field __launchClock number|nil
 	---@field __touchClock number|nil
 	---@field __duration number
@@ -351,6 +359,7 @@ function TBHud:init()
 	self:spawnEditButton()
 	self:spawnGripButton()
 	self:spawnCancelMoveButton()
+	self:spawnCameraButton()
 
 	self:spawnHubButton()
 	self.HubSize.w = math.clamp(500, WIN_W * 0.3, WIN_W * 0.4)
@@ -386,6 +395,8 @@ function TBHud.Reload()
 		TBHud.GhostButtonHolder = nil
 		TBHud.GripButtonHolder = nil
 		TBHud.HubButtonHolder = nil
+		TBHud.CameraButtonHolder = nil
+		TBHud.CameraJoystickFreeHolder = nil
 		TBHud.MiscButtonHolders = { }
 	end
 
@@ -535,6 +546,189 @@ function TBHud:spawnCommitButton()
 		button = commitStepButtonHolder,
 		shouldBeDisplayed = TBHudInternal.isPlaying
 	})
+end
+
+function TBHud:spawnCameraButton()
+	if (self.MainElement == nil) then return end
+
+	local cameraButtonHolder = self.MainElement:addChild({
+		pos = { self.DefaultSmallerButtonSize * 1.7, -self.DefaultSmallerButtonSize * 1.5 },
+		size = { self.DefaultSmallerButtonSize, self.DefaultSmallerButtonSize }
+	})
+	self.CameraButtonHolder = cameraButtonHolder
+	local cameraButton = TBHudInternal.generateTouchButton(cameraButtonHolder, "../textures/menu/general/buttons/camera.tga")
+
+	local clickClock = 0
+	cameraButton:addMouseDownHandler(function() clickClock = os.clock_real() end)
+	cameraButton:addMouseUpHandler(function()
+		clickClock = 0
+		if (get_camera_mode() ~= CAMERA_MODE.DEFAULT) then
+			set_camera_mode(CAMERA_MODE.DEFAULT)
+			return
+		end
+		runCmd("zp " .. (self.WorldState.selected_player + 1) % self.WorldState.num_players)
+	end)
+	cameraButton:addCustomDisplay(function()
+		if (clickClock > 0 and UIElement.clock - clickClock > UIElement.longPressDuration) then
+			disable_mouse_camera_movement()
+			play_haptics(0.2, HAPTICS.IMPACT)
+			clickClock = 0
+			local optionsHolder = cameraButtonHolder:addChild({
+				pos = { 0, -cameraButton.size.h * 3.6 },
+				size = { cameraButton.size.w * 3, cameraButton.size.h * 2.5 },
+				bgColor = TB_MENU_DEFAULT_BG_COLOR_TRANS,
+				shapeType = ROUNDED,
+				rounded = 5
+			})
+			---Setup invisible element that would kill our object on mouse up event
+			local optionsKiller = optionsHolder:addChild({
+				pos = { -WIN_W * 2, -WIN_H * 2 },
+				size = { WIN_W * 4, WIN_H * 4 },
+				interactive = true
+			})
+			optionsKiller.hoverState = BTN_DN
+			optionsKiller:addMouseUpHandler(function() optionsHolder:kill() enable_mouse_camera_movement() end)
+
+			local cameraButtons = {
+				{ name = TB_MENU_LOCALIZED.CAMERAUKE, mode = CAMERA_MODE.UKE },
+				{ name = TB_MENU_LOCALIZED.CAMERATORI, mode = CAMERA_MODE.TORI },
+				{ name = TB_MENU_LOCALIZED.CAMERAFREE, mode = CAMERA_MODE.FREE },
+				{ name = TB_MENU_LOCALIZED.CAMERADEFAULT, mode = CAMERA_MODE.DEFAULT }
+			}
+			local buttonHeight = (optionsHolder.size.h - 2) / #cameraButtons
+			local activeMode = get_camera_mode()
+			for i, v in pairs(cameraButtons) do
+				local button = optionsHolder:addChild({
+					pos = { 2, 2 + (i - 1) * buttonHeight },
+					size = { optionsHolder.size.w - 4, buttonHeight - 2 },
+					interactive = true,
+					bgColor = TB_MENU_DEFAULT_BG_COLOR,
+					pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+					inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK,
+					hoverThrough = true,
+					clickThrough = true
+				}, true)
+				button:addAdaptedText(v.name, nil, nil, FONTS.LMEDIUM, nil, 0.7)
+				if (activeMode == v.mode) then
+					button:deactivate()
+				else
+					button:addCustomDisplay(function()
+						if (not (
+							MOUSE_X >= button.pos.x and MOUSE_X <= button.pos.x + button.size.w and
+							MOUSE_Y >= button.pos.y and MOUSE_Y <= button.pos.y + button.size.h)) then
+							button.hoverState = BTN_NONE
+						end
+					end, true)
+					button:addMouseMoveHandler(function()
+						if (button.hoverState ~= BTN_DN) then
+							play_haptics(0.6, HAPTICS.SELECTION)
+						end
+						button.hoverState = BTN_DN
+					end)
+					button:addMouseUpHandler(function() set_camera_mode(v.mode) end)
+				end
+			end
+		end
+	end)
+	local cameraFreeJoystickHolder = self.MainElement:addChild({
+		pos = { self.DefaultSmallerButtonSize * 2.9, -self.DefaultSmallerButtonSize * 3 },
+		size = { self.DefaultSmallerButtonSize * 2.5, self.DefaultSmallerButtonSize * 2.5 }
+	})
+	self.CameraJoystickFreeHolder = cameraFreeJoystickHolder
+	local cameraJoystickBackground = TBHudInternal.generateTouchButton(cameraFreeJoystickHolder)
+	cameraJoystickBackground:deactivate()
+	local cameraJoystick = cameraJoystickBackground:addChild({
+		shift = { self.DefaultSmallerButtonSize * 0.6, self.DefaultSmallerButtonSize * 0.6 },
+		interactive = true,
+		bgColor = TB_MENU_DEFAULT_BG_COLOR,
+		pressedColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		shapeType = ROUNDED,
+		rounded = cameraJoystickBackground.size.w
+	})
+
+	local defaultPos = table.clone(cameraJoystick.shift)
+	local joystickOffset = cameraJoystick.size.w / 2
+	local joystickBackgroundHalfWidth = cameraJoystickBackground.size.w / 2
+	local joystickMaxMagnitude = cameraJoystickBackground.size.w / 3
+	local joystickVector = Vector2.New()
+	local mouseDownPosition = { x = 0, y = 0 }
+
+	local function onJoystickUp()
+		if (defaultPos ~= nil) then
+			cameraJoystick:moveTo(defaultPos.x, defaultPos.y)
+		end
+		joystickVector.x = 0
+		joystickVector.y = 0
+		remove_hooks("tbHudFreeCamJoystick")
+	end
+	cameraJoystick:addMouseUpHandler(onJoystickUp)
+	cameraJoystick:addMouseUpOutsideHandler(onJoystickUp)
+
+	---@param cameraPos Vector3Base
+	---@param cameraLookat Vector3Base
+	---@return Vector3
+	---@return Vector3
+	---@return Vector3
+	local function getCameraVectors(cameraPos, cameraLookat)
+		local front = Vector3.New(
+			cameraLookat.x - cameraPos.x,
+			cameraLookat.y - cameraPos.y,
+			cameraLookat.z - cameraPos.z
+		)
+		local side = Vector3.New(front.y, -front.x):normalize()
+		local up = front:cross(side):normalize()
+		return front, side, up
+	end
+
+	cameraJoystick:addMouseDownHandler(function()
+			mouseDownPosition = cameraJoystick:getLocalPos(MOUSE_X, MOUSE_Y)
+			mouseDownPosition.x = mouseDownPosition.x - joystickOffset
+			mouseDownPosition.y = mouseDownPosition.y - joystickOffset
+
+			add_hook("camera", "tbHudFreeCamJoystick", function()
+					local cameraInfo = get_camera_info()
+					local cameraPos = Vector3.New(cameraInfo.pos.x, cameraInfo.pos.y, cameraInfo.pos.z)
+					local cameraLookat = Vector3.New(cameraInfo.lookat.x, cameraInfo.lookat.y, cameraInfo.lookat.z)
+					local _, side, up = getCameraVectors(cameraPos, cameraInfo.lookat)
+					local moveVector = side:multiply(-joystickVector.x * self.CameraJoystickSensitivity):add(up:multiply(-joystickVector.y * self.CameraJoystickSensitivity))
+					local newPos = cameraPos:add(moveVector)
+					local newLookat = cameraLookat:add(moveVector)
+					set_camera_lookat(newLookat.x, newLookat.y, newLookat.z)
+					set_camera_pos(newPos.x, newPos.y, newPos.z)
+				end)
+		end)
+	cameraJoystick:addMouseMoveHandler(function()
+			if (cameraJoystick.hoverState == BTN_DN) then
+				local mousePos = cameraJoystickBackground:getLocalPos(MOUSE_X - mouseDownPosition.x, MOUSE_Y - mouseDownPosition.y)
+				joystickVector.x = joystickBackgroundHalfWidth - mousePos.x
+				joystickVector.y = joystickBackgroundHalfWidth - mousePos.y
+				local magnitude = math.sqrt(joystickVector.x * joystickVector.x + joystickVector.y * joystickVector.y)
+				if magnitude > joystickMaxMagnitude then
+					local scaleFactor = joystickMaxMagnitude / magnitude
+					joystickVector.x = joystickVector.x * scaleFactor
+					joystickVector.y = joystickVector.y * scaleFactor
+				end
+				mousePos.x = joystickBackgroundHalfWidth - joystickVector.x - joystickOffset
+				mousePos.y = joystickBackgroundHalfWidth - joystickVector.y - joystickOffset
+				if (mousePos.x < 0) then
+					mousePos.x = mousePos.x - cameraJoystickBackground.size.w
+				end
+				if (mousePos.y < 0) then
+					mousePos.y = mousePos.y - cameraJoystickBackground.size.h
+				end
+				joystickVector = joystickVector:multiply(1 / joystickBackgroundHalfWidth)
+				cameraJoystick:moveTo(mousePos.x, mousePos.y)
+			end
+		end)
+
+	cameraFreeJoystickHolder:addCustomDisplay(true, function()
+			local cameraMode = get_camera_mode()
+			if (cameraMode == CAMERA_MODE.FREE and not cameraJoystickBackground:isDisplayed()) then
+				cameraJoystickBackground:show()
+			elseif (cameraMode ~= CAMERA_MODE.FREE and cameraJoystickBackground:isDisplayed()) then
+				cameraJoystickBackground:hide()
+			end
+		end)
 end
 
 function TBHud:spawnGhostButton()

@@ -148,7 +148,7 @@ if (Gamerules == nil) then
 	---* Documentation with EmmyLua annotations
 	---@class Gamerules
 	---@field MainElement UIElement Gamerules main holder element
-	---@field DisplayPos Vector2 Current gamerules window offset coordinates
+	---@field DisplayPos Vector2Base Current gamerules window offset coordinates
 	---@field ListShift number[] Gamerules list shift information
 	---@field StartNewgame boolean Whether newgame should be triggered when applying changes
 	---@field LastSelectedRule string|nil

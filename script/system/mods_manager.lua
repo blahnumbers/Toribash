@@ -27,7 +27,7 @@ if (Mods == nil) then
 	---* Visuals update to match modern style
 	---@class Mods
 	---@field MainElement UIElement
-	---@field DisplayPos Vector2 Current target position for mod browser window
+	---@field DisplayPos Vector2Base Current target position for mod browser window
 	---@field LastShift number[] Last scroll list shift
 	---@field LastMenu ModsListEntryInfo Last clicked menu button
 	---@field StartNewGame boolean Whether to automatically start new game after loading mod

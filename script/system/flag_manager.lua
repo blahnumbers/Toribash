@@ -15,8 +15,8 @@ end
 
 ---Helper class for **Flags manager**
 ---@class FlagManagerInternal
----@field AtlasDimensions Vector2
----@field FlagTextureSize Vector2
+---@field AtlasDimensions Vector2Base
+---@field FlagTextureSize Vector2Base
 ---@field FlagFiles string[]
 ---@field FlagsPerAtlas integer
 ---@field FlagCache string[]

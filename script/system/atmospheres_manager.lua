@@ -40,7 +40,7 @@ if (Atmospheres == nil) then
 	---@field EntityHolder UIElement3D Main holder UIElement3D for Atmospheres objects
 	---@field StoredOptions ShaderOption[] Initial values of the options that were modified by the current shader
 	---@field CurrentShader ShaderOption[] Current shader values
-	---@field DisplayPos Vector2 Window display offset coordinates
+	---@field DisplayPos Vector2Base Window display offset coordinates
 	---@field ListShift number[] Scroll bar state
 	---@field DefaultShader string Default shader name
 	---@field SelectedScreen integer Selected screen id

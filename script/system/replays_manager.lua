@@ -1290,7 +1290,7 @@ function Replays:showTagsModify(replay)
 		size = { popularTagsView.size.w, elementHeight }
 	})
 	popularTagsTitle:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSPOPULARTAGS, nil, nil, nil, LEFTMID)
-	---@type Vector2
+	---@type Vector2Base
 	popularTagsView.buttonsShift = { x = 0, y = popularTagsTitle.shift.y + popularTagsTitle.size.h }
 
 	local currentTagsView = tagsView:addChild({
@@ -1304,7 +1304,7 @@ function Replays:showTagsModify(replay)
 	currentTagsTitle:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSASSIGNEDTAGS, nil, nil, nil, LEFTMID)
 
 	local function reloadAssignedTags()
-		---@type Vector2
+		---@type Vector2Base
 		currentTagsView.buttonsShift = { x = 0, y = currentTagsTitle.shift.y + currentTagsTitle.size.h }
 		for _, v in pairs(assignedTagButtons) do
 			v:kill()

@@ -440,6 +440,22 @@ _G.GAMEOVER_TYPE = {
 	END_TRIGGER = 3
 }
 
+---@alias CameraMode
+---| 0	CAMERA_MODE.DEFAULT
+---| 1	CAMERA_MODE.TORI
+---| 2	CAMERA_MODE.UKE
+---| 3	CAMERA_MODE.FREE
+---| 4	CAMERA_MODE.FREE_ORBITAL
+
+---Camera modes
+_G.CAMERA_MODE = {
+	DEFAULT = 0,
+	TORI = 1,
+	UKE = 2,
+	FREE = 3,
+	FREE_ORBITAL = 4
+}
+
 ---@class MatrixTB
 ---@field r0 number
 ---@field r1 number
@@ -957,16 +973,13 @@ function disable_mouse_camera_movement() end
 ---@param field_of_view number
 function set_fov(field_of_view) end
 
----@alias CameraMode
----| 0 Normal camera
----| 1 Tori camera
----| 2 Uke camera
----| 3 Free camera
----| 4 Free orbital camera
-
 ---Activates the specified camera mode
 ---@param mode CameraMode
 function set_camera_mode(mode) end
+
+---Returns currently active camera mode
+---@return CameraMode
+function get_camera_mode() end
 
 ---Resets camera back to Normal mode
 ---@param factor number
@@ -981,9 +994,9 @@ function start_torishop_camera(angle) end
 ---@field angle number
 
 ---@class CameraInfo
----@field pos Vector3 Camera look from point
----@field lookat Vector3 Camera look at point
----@field perp Vector3
+---@field pos Vector3Base Camera look from point
+---@field lookat Vector3Base Camera look at point
+---@field perp Vector3Base
 ---@field other CameraInfoMisc
 
 ---Returns current camera information
@@ -1014,8 +1027,8 @@ function set_camera_angle(angle) end
 
 ---@class CameraKeyFrame
 ---@field frame number
----@field pos Vector3
----@field lookat Vector3
+---@field pos Vector3Base
+---@field lookat Vector3Base
 
 ---Returns a table containing information on all store camera keyframes
 ---@return CameraKeyFrame[]
@@ -1135,9 +1148,9 @@ function get_world_state() end
 ---@class BodyInfo
 ---@field name string
 ---@field mod_name string
----@field pos Vector3
+---@field pos Vector3Base
 ---@field rot MatrixTB
----@field sides Vector3
+---@field sides Vector3Base
 ---@field shape ODEBodyShapeType
 
 ---Returns player body information
@@ -1317,10 +1330,10 @@ function get_joint_pos(player, joint) end
 ---@param z number
 function set_joint_pos(player, joint, x, y, z) end
 
----Returns joint position in 3D world as Vector3
+---Returns joint position in 3D world as `Vector3Base`
 ---@param player integer
 ---@param joint PlayerJoint
----@return Vector3
+---@return Vector3Base
 ---@nodiscard
 function get_joint_pos2(player, joint) end
 

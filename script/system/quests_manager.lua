@@ -625,10 +625,10 @@ function Quests:showQuestButton(quest, listingHolder, listElements, elementHeigh
 				if (timeleft > 0) then
 					questTimeleftText:uiText(TB_MENU_LOCALIZED.QUESTEXPIRESIN .. " " .. TBMenu:getTime(timeleft, 2), nil, nil, 4, RIGHT, 0.6)
 				else
-					questProgressBar.bgColor = table.clone(TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS)
+					questProgressBar.bgColor = table.clone(TB_MENU_DEFAULT_INACTIVE_COLOR_DARK)
 					if (questProgressBarState) then
 						questProgressBarState:deactivate()
-						questProgressBarState.bgColor = table.clone(TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS)
+						questProgressBarState.bgColor = table.clone(TB_MENU_DEFAULT_INACTIVE_COLOR_DARK)
 						questProgressBarState.innerShadow[1] = 0
 						questProgressBarState.innerShadow[2] = 0
 					end
@@ -701,7 +701,7 @@ function Quests:displayMainQuestTypeButton(listingHolder, v, listElements, eleme
 		local buttonQuestsCount = buttonHolder:addChild({
 			pos = { -buttonHolder.size.h, 5 },
 			size = { buttonHolder.size.h - 10, buttonHolder.size.h - 10 },
-			bgColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
+			bgColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK,
 			shapeType = ROUNDED,
 			rounded = buttonHolder.size.h
 		})

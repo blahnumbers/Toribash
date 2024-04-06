@@ -108,14 +108,14 @@ _G.UICOLORTORI = { 0.58, 0, 0, 1 }
 _G.DEFTEXTCOLOR = _G.DEFTEXTCOLOR or { 1, 1, 1, 1 }
 _G.DEFSHADOWCOLOR = _G.DEFSHADOWCOLOR or { 0, 0, 0, 0.6 }
 
----@class Vector2
+---@class Vector2Base
 ---@field x number
 ---@field y number
 
----@class Vector3 : Vector2
+---@class Vector3Base : Vector2Base
 ---@field z number
 
----@class Rect : Vector2
+---@class Rect : Vector2Base
 ---@field w number
 ---@field h number
 
@@ -239,8 +239,8 @@ if (not UIElement) then
 	---@field globalid integer Global ID to use for UIElement internal update / display loops
 	---@field parent UIElement Parent element
 	---@field child UIElement[] Table containing the list of all children of an object
-	---@field pos Vector2 Object's **absolute** position
-	---@field shift? Vector2 Object position **relative to its parent**
+	---@field pos Vector2Base Object's **absolute** position
+	---@field shift? Vector2Base Object position **relative to its parent**
 	---@field size UIElementSize Object size
 	---@field uiColor Color Default text color to be used for uiText() calls
 	---@field uiShadowColor Color Default text shadow color to be used for uiText() calls
@@ -280,7 +280,7 @@ if (not UIElement) then
 	---@field isactive boolean Internal value to tell if an interactive object is currently active
 	---@field scrollEnabled boolean If true, an interactive object will also handle mouse scroll events in its `UIElement.btnDown()` callback
 	---@field hoverState UIElementBtnState Current mouse hover state of an object
-	---@field pressedPos Vector2 Internal table containing relative cursor position at the moment of `UIElement.btnDown()` call on an active scroll bar
+	---@field pressedPos Vector2Base Internal table containing relative cursor position at the moment of `UIElement.btnDown()` call on an active scroll bar
 	---@field permanentListener boolean True if we want an object with keyboard handlers to react to all keyboard events, even when not in focus. Permanent keyboard listeners will also not exit keyboard loop early.
 	---@field hoverSound integer Sound ID to play when object enters `BTN_HVR` mouse hover state
 	---@field hoverClock number Time for the BTN_HVR state enter
@@ -320,6 +320,62 @@ if (not UIElement) then
 	---Last rendering cycle timestamp
 	---@type number
 	UIElement.clock = os.clock_real()
+
+	---@class Vector2 : Vector2Base
+	Vector2 = {}
+	Vector2.__index = Vector2
+end
+
+---Initializes a **Vector2** object
+---@param x number?
+---@param y number?
+---@return Vector2
+function Vector2.New(x, y)
+	local vector = { x = x or 0, y = y or 0 }
+	setmetatable(vector, Vector2)
+	return vector
+end
+
+---Returns vector magnitude
+---@return number
+function Vector2:magnitude()
+	return math.sqrt(self.x * self.x + self.y * self.y)
+end
+
+---Returns a normalized version of a vector
+---@return Vector2
+function Vector2:normalize()
+	local mag = self:magnitude()
+	if (mag == 0) then
+		return Vector2.New(self.x, self.y)
+	end
+	return Vector2.New(self.x / mag, self.y / mag)
+end
+
+---Returns a vector with the clamped magnitude
+---@param max number
+---@return Vector2
+function Vector2:clampMagnitude(max)
+	if (max <= 0) then return Vector2.New() end
+	local mag = self:magnitude()
+	if (max <= mag) then
+		return Vector2.New(self.x, self.y)
+	end
+	local f = math.min(mag, max) / mag
+	return Vector2.New(self.x * f, self.y * f)
+end
+
+---Returns a vector that represents current vector multiplied by a given value
+---@param n number
+function Vector2:multiply(n)
+	return Vector2.New(self.x * n, self.y * n)
+end
+
+---Returns a vector produced by adding given vector to current one
+---@param other Vector2|Vector2Base
+---@return Vector2
+function Vector2:add(other)
+	return Vector2.New(self.x + other.x, self.y + other.y)
 end
 
 ---Callback function triggered on text input event while UIElement is active and focused
@@ -2209,12 +2265,12 @@ end
 ---Returns local position of a point within current UIElement
 ---@param xPos ?number X position of a point. Defaults to current cursor X position.
 ---@param yPos ?number Y position of a point. Defaults to current cursor Y position.
----@param pos ?Vector2
----@return Vector2
+---@param pos ?Vector2Base
+---@return Vector2Base
 function UIElement:getLocalPos(xPos, yPos, pos)
 	local xPos = xPos or MOUSE_X
 	local yPos = yPos or MOUSE_Y
-	---@type Vector2
+	---@type Vector2Base
 	local pos = pos or { x = xPos, y = yPos}
 	if (self.parent) then
 		pos = self.parent:getLocalPos(xPos, yPos, pos)

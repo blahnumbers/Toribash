@@ -2492,7 +2492,7 @@ end
 ---@param item InventoryItem
 ---@param viewElement UIElement
 ---@param capsuleHeight number?
----@param extraDataShift Vector2?
+---@param extraDataShift Vector2Base?
 function Store:showItemEffectCapsules(item, viewElement, capsuleHeight, extraDataShift)
 	if (getmetatable(item) ~= InventoryItem or item.effectid <= 0 or Store:getItemInfo(item.itemid).catid == 87) then return end
 

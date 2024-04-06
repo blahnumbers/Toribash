@@ -56,6 +56,10 @@ if (not UIElement3D) then
 
 	---**Toribash 3D elements manager class**
 	---
+	---**Version 5.66**
+	---* Added `absolute` argument support to `moveTo()` method
+	---* Added support for passing a `EulerRotation` object to `rotate()` method
+	---
 	---**Version 5.63**
 	---* `ignoreDepth` support for object rendering
 	---
@@ -65,9 +69,9 @@ if (not UIElement3D) then
 	---@field parent UIElement3D|UIElement Parent element
 	---@field child UIElement3D[] List of all object children
 	---@field viewport UIElement3D|UIElement Viewport element
-	---@field pos Vector3 Object's **absolute** position in the world
-	---@field shift Vector3 Object's position **relative to its parent**
-	---@field size Vector3 Object size
+	---@field pos Vector3Base Object's **absolute** position in the world
+	---@field shift Vector3Base Object's position **relative to its parent**
+	---@field size Vector3Base Object size
 	---@field rotMatrix number[][] Object's rotation as a [rotation matrix](https://en.wikipedia.org/wiki/Rotation_matrix)
 	---@field rotMatrixTB MatrixTB Object's rotation as a Toribash rotation matrix
 	---@field rotXYZ EulerRotation Object's rotation in [Euler angles](https://en.wikipedia.org/wiki/Euler_angles)
@@ -102,7 +106,11 @@ if (not UIElement3D) then
 	}
 	Utils3D.__index = Utils3D
 
-	---@class EulerRotation : Vector3
+	---@class Vector3 : Vector3Base
+	Vector3 = {}
+	Vector3.__index = Vector3
+
+	---@class EulerRotation : Vector3Base
 	---@field convention EulerRotationConvention
 	EulerRotation = {}
 	EulerRotation.__index = EulerRotation
@@ -112,6 +120,70 @@ end
 ---*Contains functions that only get used internally and which we don't want to expose.*
 ---@class UIElement3DInternal
 local UIElement3DInternal = {}
+
+---Initializes a **Vector3** object
+---@param x number?
+---@param y number?
+---@param z number?
+---@return Vector3
+function Vector3.New(x, y, z)
+	local vector = { x = x or 0, y = y or 0, z = z or 0 }
+	setmetatable(vector, Vector3)
+	return vector
+end
+
+---Returns a cross product of current and given Vector3 objects
+---@param other Vector3|Vector3Base
+---@return Vector3
+function Vector3:cross(other)
+	return Vector3.New(
+		self.y * other.z - self.z * other.y,
+		self.z * other.x - self.x * other.z,
+		self.x * other.y - self.y * other.x
+	)
+end
+
+---Returns vector magnitude
+---@return number
+function Vector3:magnitude()
+	return math.sqrt(self.x * self.x + self.y * self.y + self.z * self.z)
+end
+
+---Returns a normalized version of a vector
+---@return Vector3
+function Vector3:normalize()
+	local mag = self:magnitude()
+	if (mag == 0) then
+		return Vector3.New(self.x, self.y, self.z)
+	end
+	return Vector3.New(self.x / mag, self.y / mag, self.z / mag)
+end
+
+---Returns a vector with the clamped magnitude
+---@param max number
+---@return Vector3
+function Vector3:clampMagnitude(max)
+	if (max <= 0) then return Vector3.New() end
+	local mag = self:magnitude()
+	if (max <= mag) then
+		return Vector3.New(self.x, self.y, self.z)
+	end
+	local f = math.min(mag, max) / mag
+	return Vector3.New(self.x * f, self.y * f, self.z * f)
+end
+
+---Returns a vector that represents current vector multiplied by a given value
+---@param n number
+function Vector3:multiply(n)
+	return Vector3.New(self.x * n, self.y * n, self.z * n)
+end
+
+---Returns a vector produced by adding given vector to current one
+---@param other Vector3|Vector3Base
+---@return Vector3
+function Vector3:add(other)
+	return Vector3.New(self.x + other.x, self.y + other.y, self.z + other.z)
+end
 
 ---Initializes an **EulerRotation** object with the specified data in degrees
 ---@param x number?
@@ -608,18 +680,30 @@ function UIElement3DInternal.UpdatePosition(object)
 	UIElement3DInternal.UpdateChildrenPosition(object)
 end
 
----Moves the UIElement3D object and updates its and its children's absolute positions accordingly
+---Moves the UIElement3D object and updates its and its children's absolute positions accordingly. \
+---Unlike UIElement method, this moves object relatively to its current position by default. Pass `true` as `absolute` value to override this behavior.
 ---@param x number
 ---@param y number
 ---@param z number
-function UIElement3D:moveTo(x, y, z)
+---@param absolute ?boolean
+function UIElement3D:moveTo(x, y, z, absolute)
 	if (self.playerAttach) then
 		return
 	end
 	if (self.parent) then
-		if (x) then self.shift.x = self.shift.x + x end
-		if (y) then self.shift.y = self.shift.y + y end
-		if (z) then self.shift.z = self.shift.z + z end
+		if (absolute == true) then
+			if (x) then self.shift.x = x end
+			if (y) then self.shift.y = y end
+			if (z) then self.shift.z = z end
+		else
+			if (x) then self.shift.x = self.shift.x + x end
+			if (y) then self.shift.y = self.shift.y + y end
+			if (z) then self.shift.z = self.shift.z + z end
+		end
+	elseif (absolute == true) then
+		if (x) then self.pos.x = x end
+		if (y) then self.pos.y = y end
+		if (z) then self.pos.z = z end
 	else
 		if (x) then self.pos.x = self.pos.x + x end
 		if (y) then self.pos.y = self.pos.y + y end
@@ -667,15 +751,24 @@ end
 ---@param x ?number
 ---@param y ?number
 ---@param z ?number
+---@overload fun(self: UIElement3D, rotation: EulerRotation)
 function UIElement3D:rotate(x, y, z)
-	x = x or 0
-	y = y or 0
-	z = z or 0
-	if (x == 0 and y == 0 and z == 0) then
-		return
+	local eulerRotation = nil
+	if (type(x) ~= "table" or x.convention == nil) then
+		---@diagnostic disable-next-line: cast-local-type
+		x = x or 0
+		y = y or 0
+		z = z or 0
+		if (x == 0 and y == 0 and z == 0) then
+			return
+		end
+		---@diagnostic disable-next-line: param-type-mismatch
+		eulerRotation = EulerRotation.New(x, y, z)
+	else
+		eulerRotation = x
 	end
 
-	local rotation = EulerRotation.New(x, y, z):toMatrix()
+	local rotation = eulerRotation:toMatrix()
 	if (rotation ~= nil) then
 		UIElement3DInternal.Rotate(self, rotation)
 		UIElement3DInternal.UpdateChildrenPosition(self)

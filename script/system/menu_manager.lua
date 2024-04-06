@@ -3921,7 +3921,7 @@ end
 ---@field label UIElement
 ---@field settings SliderSettings
 ---@field lastVal number|nil
----@field pressedPos Vector2
+---@field pressedPos Vector2Base
 ---@field setValue function
 
 ---Spawns a generic slider with callbacks
@@ -4415,7 +4415,7 @@ function TBMenuInternal.DisplayTextfield(element, fontid, scale, color, defaultS
 end
 
 ---Spawns a generic movable menu window with quit button
----@param rect ?Rect|Vector2|UIElementSize
+---@param rect ?Rect|Vector2Base|UIElementSize
 ---@param globalid ?integer
 ---@return UIElement windowHolder
 ---@return UIElement windowWorkArea
