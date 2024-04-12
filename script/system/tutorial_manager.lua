@@ -1664,6 +1664,7 @@ function TutorialsInternal.HandleMobileOption(option)
 		TBHud.HoldAllButtonHolder:setVisible(option.value == 1, true)
 		TBHud.GhostButtonHolder:setVisible(option.value == 1, true)
 		TBHud.GripButtonHolder:setVisible(option.value == 1, true)
+		TBHud.CameraButtonHolder:setVisible(option.value == 1, true)
 		for _, v in pairs(TBHud.MiscButtonHolders) do
 			v:setVisible(option.value == 1, true)
 		end
@@ -1679,6 +1680,8 @@ function TutorialsInternal.HandleMobileOption(option)
 		for _, v in pairs(TBHud.MiscButtonHolders) do
 			v:setVisible(option.value == 1, true)
 		end
+	elseif (option.name == "camera") then
+		TBHud.CameraButtonHolder:setVisible(option.value == 1, true)
 	end
 end
 
@@ -1837,6 +1840,8 @@ function Tutorials:runSteps(steps, currentStep)
 						TutorialsInternal.HandleMobileOption({ name = "grip", value = 1 })
 					elseif (key == 112 or key == 114) then
 						TutorialsInternal.HandleMobileOption({ name = "rewind", value = 1 })
+					elseif (key >= 49 and key <= 55) then
+						TutorialsInternal.HandleMobileOption({ name = "camera", value = 1 })
 					end
 				end
 			end
