@@ -548,7 +548,7 @@ function Ranking:showRankingTrendsWithHistory(viewElement)
 		if (#Ranking.PlayerModRanking == 0) then
 			modListView:addAdaptedText(true, TB_MENU_LOCALIZED.MATCHMAKERANKEDMODSEMPTY)
 		end
-		for i, v in pairs(table.qsort(Ranking.PlayerModRanking, { "rank", "name" })) do
+		for i, v in pairs(table.qsort(Ranking.PlayerModRanking, { "name", "rank" })) do
 			if (i > maxDisplay) then
 				break
 			end
@@ -1047,7 +1047,7 @@ function Ranking.ShowUserModStats(viewElement)
 
 	local maxDisplay = math.min(4, #Ranking.PlayerModRanking, math.floor(modListView.size.h / 55))
 	local elementHeight = math.min(modListView.size.h / maxDisplay, 55)
-	for i, v in pairs(table.qsort(Ranking.PlayerModRanking, { "rank", "name" })) do
+	for i, v in pairs(table.qsort(Ranking.PlayerModRanking, { "name", "rank" })) do
 		if (i > maxDisplay) then
 			break
 		end

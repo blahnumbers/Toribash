@@ -6475,7 +6475,7 @@ function Store:showMain(viewElement)
 			pos = { -10 - (dailySale.size.w - 20) * 0.55, dailySale.size.h * 0.3 * storeButtons.dailysale.ratio },
 			size = { (dailySale.size.w - 20) * 0.3, (dailySale.size.w - 20) * 0.3 }
 		})
-		local iconScale = saleItemIconHolder.size.w > 64 and 64 or saleItemIconHolder.size.w
+		local iconScale = saleItemIconHolder.size.w --saleItemIconHolder.size.w > 64 and 64 or saleItemIconHolder.size.w
 		local saleItemIcon = saleItemIconHolder:addChild({
 			pos = { (saleItemIconHolder.size.w - iconScale) / 2, (saleItemIconHolder.size.h - iconScale) / 2 },
 			size = { iconScale, iconScale },

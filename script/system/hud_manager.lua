@@ -1900,7 +1900,7 @@ function TBHud:spawnMiniChat()
 		self.ChatMiniHolder:kill()
 	end
 	self.ChatMiniHolder = self.MainElement:addChild({
-		pos = { self.DefaultSmallerButtonSize * 1.7, 0 },
+		pos = { self.DefaultSmallerButtonSize * 3, 0 },
 		size = { self.ChatSize.w * 0.75, WIN_H - self.DefaultButtonSize * 0.35 }
 	})
 
@@ -1933,7 +1933,7 @@ function TBHud:spawnMiniChat()
 	end
 
 	self.ChatMiniHolder:addCustomDisplay(function()
-			if (self.ChatHolder:isDisplayed()) then return end
+			if (self.ChatHolder:isDisplayed() or self.CameraJoystickFreeHolder.child[1]:isDisplayed()) then return end
 			if (os.time() ~= self.ChatMiniUpdateTime or self.ChatMiniLastTab ~= self.ChatActiveTab) then
 				refreshMiniChat()
 			end
