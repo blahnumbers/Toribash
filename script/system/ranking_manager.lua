@@ -686,7 +686,7 @@ function Ranking.ShowToplist(viewElement, playerRanking, title, globalElo, playe
 			pos = { 10, 2 },
 			size = { playerView.size.w - 10, playerView.size.h - 2 },
 			---@diagnostic disable-next-line: undefined-field
-			bgColor = player.isUser and TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS or TB_MENU_DEFAULT_DARKER_COLOR,
+			bgColor = player.isUser and TB_MENU_DEFAULT_INACTIVE_COLOR_DARK or TB_MENU_DEFAULT_DARKER_COLOR,
 			shapeType = ROUNDED,
 			rounded = { 4, 0 }
 		})
@@ -726,7 +726,7 @@ function Ranking.ShowToplist(viewElement, playerRanking, title, globalElo, playe
 			pos = { 10, 0 },
 			size = { playerInfoView.size.w - 10, playerInfoView.size.h - 2 },
 			---@diagnostic disable-next-line: undefined-field
-			bgColor = player.isUser and TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS or TB_MENU_DEFAULT_DARKER_COLOR,
+			bgColor = player.isUser and TB_MENU_DEFAULT_INACTIVE_COLOR_DARK or TB_MENU_DEFAULT_DARKER_COLOR,
 			shapeType = ROUNDED,
 			rounded = { 0, 4 }
 		})
