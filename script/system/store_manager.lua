@@ -2755,7 +2755,7 @@ function Store:showInventoryPage(inventoryItems, page, mode, title, pageid, item
 	searchField:addEnterAction(function()
 			local doSearch = string.len(searchField.textfieldstr[1]) > 0
 			Store.InventoryListShift[1] = 0
-			Store:showInventoryPage(inventoryItems, doSearch and 1 or nil, mode, title, "page" .. (doSearch and searchField.textfieldstr[1] or mode), itemScale, showBack, doSearch and searchField.textfieldstr[1] or nil)
+			Store:showInventoryPage(inventoryItems, doSearch and 1 or nil, mode, title, "page" .. (doSearch and searchField.textfieldstr[1] or tostring(mode)), itemScale, showBack, doSearch and searchField.textfieldstr[1] or nil)
 		end)
 
 	local selectedItemButton = nil

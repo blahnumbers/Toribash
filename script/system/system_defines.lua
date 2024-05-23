@@ -2918,6 +2918,7 @@ function save_custom_config() end
 ---| "tooltipmode"
 ---| "camerasensitivity"
 ---| "ghostobj"
+---| "scrollcontrols"
 ---| "aidifficulty" Toribash builds with AI fight mode only
 
 ---Retrieves a value of the specified Toribash option
@@ -3527,8 +3528,17 @@ function get_folders(directory) end
 ---@return boolean
 function is_folder(path) end
 
+---Clears Toribash cache folder to free up space.
+---@return integer error_code
+function remove_cache() end
+
+---Clears Toribash customs folder to free up space.
+---*Only available on mobile platforms.*
+---@return integer? error_code
+function remove_customs() end
+
 ---Attempts to enable screen blur
----@return boolean #Whether blur is supported
+---@return boolean result
 function enable_blur() end
 
 ---Disables screen blur

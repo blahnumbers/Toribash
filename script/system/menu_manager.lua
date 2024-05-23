@@ -3020,7 +3020,7 @@ function TBMenu:showMain(noload)
 		size = { WIN_W, WIN_H * 3 },
 		bgColor = { 0, 0, 0, 0 }
 	})
-	local blurEnabled = enable_blur()
+	local blurEnabled = not UIElement.lightUIMode and enable_blur() or false
 	if (not blurEnabled) then
 		tbMenuBackground.bgColor[4] = 0.1
 	end

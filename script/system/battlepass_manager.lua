@@ -855,7 +855,6 @@ function BattlePass:showMain()
 	self.wasOpened = true
 
 	if (table.empty(BattlePass.LevelData)) then
-		BattlePass.LevelData = nil
 		BattlePass.UserData = nil
 	end
 	if (not BattlePass.UserData or BattlePass.UserData.qi ~= TB_MENU_PLAYER_INFO.data.qi) then

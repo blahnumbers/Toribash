@@ -2824,7 +2824,7 @@ end
 ---@param table T[]
 ---@return boolean
 _G.table.empty = function(table)
-	if (next(table) == nil) then
+	if (table == nil or next(table) == nil) then
 		return true
 	end
 	return false

@@ -1099,6 +1099,7 @@ function Settings:getSettingsData(id)
 					{
 						name = TB_MENU_LOCALIZED.MAINMENUHOTKEYSNAME,
 						type = BUTTON,
+						text = TB_MENU_LOCALIZED.PRESSTOSHOW,
 						action = function()
 							TBMenu:showHotkeys()
 						end,
@@ -1181,6 +1182,13 @@ function Settings:getSettingsData(id)
 							}
 						},
 						hidden = not is_mobile()
+					},
+					{
+						name = TB_MENU_LOCALIZED.SETTINGSMOUSESCROLLCONTROLS,
+						type = TOGGLE,
+						systemname = "scrollcontrols",
+						val = { get_option("scrollcontrols") },
+						hidden = is_mobile(),
 					},
 					{
 						name = TB_MENU_LOCALIZED.SETTINGSREPLAYCACHE,
@@ -1487,6 +1495,41 @@ function Settings:getSettingsData(id)
 							Settings.Stored.tooltip = { value = val }
 						end,
 						val = { get_option("usagestats") }
+					}
+				}
+			},
+			{
+				name = TB_MENU_LOCALIZED.SETTINGSSTORAGEMANAGEMENT,
+				items = {
+					{
+						name = TB_MENU_LOCALIZED.SETTINGSCACHEFILES,
+						hint = TB_MENU_LOCALIZED.SETTINGSCACHEFILESINFO,
+						type = BUTTON,
+						text = TB_MENU_LOCALIZED.SETTINGSCLEARDATABUTTON,
+						action = function()
+							local result = remove_cache()
+							if (result == 0) then
+								TBMenu:showStatusMessage(TB_MENU_LOCALIZED.SETTINGSCACHECLEARSUCCESS)
+							else
+								TBMenu:showStatusMessage(TB_MENU_LOCALIZED.SETTINGSDATACLEARFAILURE .. (result == nil and "" or " (err " .. result .. ")"))
+							end
+						end
+					},
+					{
+						name = TB_MENU_LOCALIZED.SETTINGSCUSTOMSFILES,
+						hint = TB_MENU_LOCALIZED.SETTINGSCUSTOMSFILESINFO,
+						type = BUTTON,
+						text = TB_MENU_LOCALIZED.SETTINGSCLEARDATABUTTON,
+						action = function()
+							local result = remove_customs()
+							if (result == 0) then
+								TBMenu:showStatusMessage(TB_MENU_LOCALIZED.SETTINGSCUSTOMSCLEARSUCCESS)
+							else
+								TBMenu:showStatusMessage(TB_MENU_LOCALIZED.SETTINGSDATACLEARFAILURE .. (result == nil and "" or " (err " .. result .. ")"))
+							end
+							update_tc_balance()
+						end,
+						hidden = not is_mobile()
 					}
 				}
 			}
@@ -2129,7 +2172,7 @@ function Settings:showSettings(id, keepStoredSettings)
 							interactive = true
 						}, true)
 						itemButton:addMouseHandlers(nil, item.action)
-						itemButton:addAdaptedText(false, string.upper("Press to show"), nil, nil, 4, nil, 0.7)
+						itemButton:addAdaptedText(false, string.upper(item.text), nil, nil, 4, nil, 0.7)
 					end
 				end
 			end

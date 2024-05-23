@@ -1286,3 +1286,14 @@ CAMERADEFAULT	Default Camera
 CAMERAFREE	Free Camera
 CAMERATORI	Tori Camera
 CAMERAUKE	Uke Camera
+PRESSTOSHOW	Press to show
+SETTINGSSTORAGEMANAGEMENT	Manage Storage
+SETTINGSCACHEFILES	Cache files
+SETTINGSCACHEFILESINFO	These are local copies of various data files that help prevent unnecessary downloads
+SETTINGSCUSTOMSFILES	Customs files
+SETTINGSCUSTOMSFILESINFO	These files contain general player information and customization items
+SETTINGSCLEARDATABUTTON	Clear Data
+SETTINGSCACHECLEARSUCCESS	Cache data has been cleared successfully!
+SETTINGSCUSTOMSCLEARSUCCESS	Customs data has been cleared successfully!
+SETTINGSDATACLEARFAILURE	Error clearing data, please try again
+SETTINGSMOUSESCROLLCONTROLS	Control joints state with mouse scroll

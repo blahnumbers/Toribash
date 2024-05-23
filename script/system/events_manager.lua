@@ -1737,7 +1737,7 @@ do
 			local backgroundImage = viewElement:addChild({
 				shift = { 0, 60 },
 				bgImage = { event.image ~= nil and event.image or ("../textures/menu/promo/events/" .. event.eventid .. ".tga"), "" },
-				imageColor = event.overlaytransparency and { 1, 1, 1, 1 - event.overlaytransparency } or nil,
+				imageColor = { 1, 1, 1, 1 - (event.overlaytransparency or 0) },
 				disableUnload = true
 			})
 		end
