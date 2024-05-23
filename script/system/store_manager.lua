@@ -2726,7 +2726,7 @@ function Store:showInventoryPage(inventoryItems, page, mode, title, pageid, item
 	showEmptySetsText.size.w = get_string_length(showEmptySetsText.dispstr[1], showEmptySetsText.textFont) * showEmptySetsText.textScale + 45
 	showEmptySetsText:addMouseUpHandler(emptySetsToggle.btnUp)
 
-	local refreshButtonWidth = math.min(botBar.size.w / 3, 250)
+	local refreshButtonWidth = math.min(botBar.size.w / 3, 350)
 	local refreshInventory = botBar:addChild({
 		pos = { botBar.size.w - refreshButtonWidth, 5 },
 		size = { refreshButtonWidth - 20, 40 },
@@ -2742,21 +2742,7 @@ function Store:showInventoryPage(inventoryItems, page, mode, title, pageid, item
 			Store:prepareInventory(TBMenu.CurrentSection, true)
 		end)
 
-	local searchFieldHolder = botBar:addChild({
-		pos = { showEmptySetsText.shift.x + showEmptySetsText.size.w + 20, refreshInventory.shift.y },
-		size = { refreshInventory.shift.x - (showEmptySetsText.shift.x + showEmptySetsText.size.w + 25), refreshInventory.size.h },
-		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
-		shapeType = ROUNDED,
-		rounded = 4
-	})
-	local searchField = TBMenu:spawnTextField2(searchFieldHolder, nil, search, TB_MENU_LOCALIZED.SEARCHNOTE, {
-		fontId = 4, textScale = 0.7, returnKeyType = KEYBOARD_RETURN.SEARCH, textAlign = CENTERMID
-	})
-	searchField:addEnterAction(function()
-			local doSearch = string.len(searchField.textfieldstr[1]) > 0
-			Store.InventoryListShift[1] = 0
-			Store:showInventoryPage(inventoryItems, doSearch and 1 or nil, mode, title, "page" .. (doSearch and searchField.textfieldstr[1] or tostring(mode)), itemScale, showBack, doSearch and searchField.textfieldstr[1] or nil)
-		end)
+	Store:showInventorySearchBar(search, inventoryItems, mode, title, itemScale, showBack)
 
 	local selectedItemButton = nil
 	local listElements = { }
@@ -6190,6 +6176,18 @@ function Store:showSearchBar(viewElement, searchString)
 				Store:showSearchResults(viewElement, Store:getSearchSections(inputText), inputText)
 			end
 		end)
+end
+
+function Store:showInventorySearchBar(searchString, inventoryItems, mode, title, itemScale, showBack)
+	if (not TBMenu.BottomLeftBar) then
+		TBMenu:showBottomBar()
+	end
+	local searchInput = TBMenu:spawnSearchBar(searchString or "", TB_MENU_LOCALIZED.STORESEARCHHINT)
+	searchInput:addEnterAction(function(inputText)
+		local doSearch = string.len(inputText) > 0
+		Store.InventoryListShift[1] = 0
+		Store:showInventoryPage(inventoryItems, doSearch and 1 or nil, mode, title, "page" .. (doSearch and inputText or tostring(mode)), itemScale, showBack, doSearch and inputText or nil)
+	end)
 end
 
 ---Displays active personal user discount for the item
