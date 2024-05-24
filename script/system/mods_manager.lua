@@ -383,7 +383,7 @@ function Mods.showMain()
 	}, true)
 
 	local elementHeight = 36
-	local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(mainView, 75, 70, 20, mainView.bgColor)
+	local toReload, topBar, botBar, _, listingHolder = TBMenu:prepareScrollableList(mainView, 75, 70, 20, mainView.bgColor)
 
 	topBar.shapeType = mainView.shapeType
 	topBar:setRounded(mainView.rounded)

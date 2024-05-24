@@ -3021,9 +3021,9 @@ function TBMenu:showMain(noload)
 		bgColor = { 0, 0, 0, 0 }
 	})
 	local blurEnabled = not UIElement.lightUIMode and enable_blur() or false
-	if (not blurEnabled) then
+	--[[if (not blurEnabled) then
 		tbMenuBackground.bgColor[4] = 0.1
-	end
+	end]]
 	if (not is_mobile()) then
 		TBMenu.HideButton = TBMenu.MenuMain:addChild({
 			pos = { TBMenu.MenuMain.size.w / 2 - 32, -74 },
@@ -3052,9 +3052,9 @@ function TBMenu:showMain(noload)
 					TBMenu.HideButton.progress = TBMenu.HideButton.progress + math.pi / 40
 					TBMenu.MenuMain:moveTo(nil, TBMenu.MenuMain.pos.y + (WIN_H / 15) * math.sin(TBMenu.HideButton.progress))
 					TBMenu.HideButton:moveTo(nil, -TBMenu.MenuMain.pos.y - 74)
-					if (not blurEnabled) then
+					--[[if (not blurEnabled) then
 						tbMenuBackground.bgColor[4] = tbMenuBackground.bgColor[4] - (0.1 / 15) * math.sin(TBMenu.HideButton.progress)
-					end
+					end]]
 					if (TBMenu.MenuMain.pos.y >= WIN_H) then
 						TBMenu.HideButton:updateImage("../textures/menu/general/buttons/arrowtop.tga")
 						TBMenu.MenuMain:moveTo(nil, WIN_H)
@@ -3066,9 +3066,9 @@ function TBMenu:showMain(noload)
 					TBMenu.HideButton.progress = TBMenu.HideButton.progress + math.pi / 50
 					TBMenu.MenuMain:moveTo(nil, TBMenu.MenuMain.pos.y - (WIN_H / 15) * math.sin(TBMenu.HideButton.progress))
 					TBMenu.HideButton:moveTo(nil, -TBMenu.MenuMain.pos.y - 74)
-					if (not blurEnabled) then
+					--[[if (not blurEnabled) then
 						tbMenuBackground.bgColor[4] = tbMenuBackground.bgColor[4] + (0.1 / 15) * math.sin(TBMenu.HideButton.progress)
-					end
+					end]]
 					if (TBMenu.MenuMain.pos.y <= 0) then
 						TBMenu.HideButton:updateImage("../textures/menu/general/buttons/arrowbot.tga")
 						TBMenu.MenuMain:moveTo(nil, 0)

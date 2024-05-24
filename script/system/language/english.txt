@@ -1297,3 +1297,4 @@ SETTINGSCACHECLEARSUCCESS	Cache data has been cleared successfully!
 SETTINGSCUSTOMSCLEARSUCCESS	Customs data has been cleared successfully!
 SETTINGSDATACLEARFAILURE	Error clearing data, please try again
 SETTINGSMOUSESCROLLCONTROLS	Control joints state with mouse scroll
+BUTTONSHARE	Share

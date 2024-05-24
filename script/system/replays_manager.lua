@@ -2062,6 +2062,8 @@ function Replays:showAutosaveToggle(viewElement)
 	autosaveText:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSAUTOSAVEOPTION)
 end
 
+---@param viewElement UIElement
+---@param replay ReplayInfo
 function Replays:showReplayInfo(viewElement, replay)
 	viewElement:kill(true)
 	local bottomSmudge = TBMenu:addBottomBloodSmudge(viewElement, 2)
@@ -2188,7 +2190,21 @@ function Replays:showReplayInfo(viewElement, replay)
 		end)
 	posY = replayManageButton.shift.y
 
-	if (Replays:canUploadReplay(replay)) then
+	if (PLATFORM == "IPHONEOS") then
+		local replayShareButton = viewElement:addChild({
+			pos = { 10, -viewElement.size.h / 8 + posY },
+			size = { viewElement.size.w - 20, viewElement.size.h / 10 },
+			interactive = true,
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+		})
+		replayShareButton:addAdaptedText(TB_MENU_LOCALIZED.BUTTONSHARE)
+		replayShareButton:addMouseUpHandler(function()
+			share_file(replay.filename)
+		end)
+		posY = replayShareButton.shift.y
+	elseif (Replays:canUploadReplay(replay)) then
 		local replayUploadButton = UIElement:new({
 			parent = viewElement,
 			pos = { 10, -viewElement.size.h / 8 + posY },

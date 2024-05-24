@@ -3537,7 +3537,13 @@ function remove_cache() end
 ---@return integer? error_code
 function remove_customs() end
 
----Attempts to enable screen blur
+---Triggers OS-specific share UI.
+---*Only available on mobile platforms.
+---@param path string
+function share_file(path) end
+
+---Attempts to enable screen blur.
+---*Only available on desktop platforms.*
 ---@return boolean result
 function enable_blur() end
 
