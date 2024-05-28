@@ -1944,7 +1944,7 @@ function Settings:showSettings(id, keepStoredSettings)
 		bgColor = TB_MENU_DEFAULT_BG_COLOR,
 		hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
 		pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-		inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
+		inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK,
 		shapeType = ROUNDED,
 		rounded = 5
 	})

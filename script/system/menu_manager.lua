@@ -2012,25 +2012,25 @@ function TBMenu:showGameLogo()
 	local gametitle = TB_MENU_GAME_TITLE
 	local logoSize = 90 * TB_MENU_GLOBAL_SCALE
 	local gameTitleSize = 256 * TB_MENU_GLOBAL_SCALE
-	local customLogo = Files.Open("../custom/" .. TB_MENU_PLAYER_INFO.username .. "/logo.tga")
-	if (customLogo.data) then
-		logo = "../../custom/" .. TB_MENU_PLAYER_INFO.username .. "/logo.tga"
-		logoSize = 120
-		customLogo:close()
+	if (TB_MENU_PLAYER_INFO.customs.textures.gui.logo.equipped) then
+		if (Files.Exists("../custom/" .. TB_MENU_PLAYER_INFO.username .. "/logo.tga")) then
+			logo = "../../custom/" .. TB_MENU_PLAYER_INFO.username .. "/logo.tga"
+			logoSize = 120
+		end
 	end
-	local customGametitle = Files.Open("../custom/" .. TB_MENU_PLAYER_INFO.username .. "/header.tga")
-	if (customGametitle.data) then
-		gametitle = "../../custom/" .. TB_MENU_PLAYER_INFO.username .. "/header.tga"
-		customGametitle:close()
+	if (TB_MENU_PLAYER_INFO.customs.textures.gui.header.equipped) then
+		if (Files.Exists("../custom/" .. TB_MENU_PLAYER_INFO.username .. "/header.tga")) then
+			gametitle = "../../custom/" .. TB_MENU_PLAYER_INFO.username .. "/header.tga"
+		end
 	end
-	local tbMenuLogo = TBMenu.MenuMain:addChild({
+	TBMenu.MenuMain:addChild({
 		pos = { logoSize / 9 * 5, 10 },
 		size = { logoSize, logoSize },
 		bgImage = logo,
 		disableUnload = true,
 		interactive = is_mobile()
 	})
-	local tbMenuGameTitle = TBMenu.MenuMain:addChild({
+	TBMenu.MenuMain:addChild({
 		pos = { logoSize / 9 * 14 + 5, 15 },
 		size = { gameTitleSize, gameTitleSize },
 		bgImage = gametitle,
@@ -3097,24 +3097,23 @@ function TBMenu:showMain(noload)
 				end
 			end, false)
 	end
-	local splatLeftImg = TB_MENU_BLOODSPLATTER_LEFT
-	local splatCustom = false
-	if (Files.Exists("../custom/" .. TB_MENU_PLAYER_INFO.username .. "/splatt1.tga")) then
-		splatLeftImg = "../../custom/" .. TB_MENU_PLAYER_INFO.username .. "/splatt1.tga"
-		splatCustom = true
+	local splatImage = TB_MENU_BLOODSPLATTER_LEFT
+	local splatCustom = TB_MENU_PLAYER_INFO.customs.textures.gui.splatter.equipped and Files.Exists("../custom/" .. TB_MENU_PLAYER_INFO.username .. "/splatt1.tga")
+	if (splatCustom) then
+		splatImage = "../../custom/" .. TB_MENU_PLAYER_INFO.username .. "/splatt1.tga"
 	end
 	local splatRes = (WIN_H - 320) * TB_MENU_GLOBAL_SCALE
 	local splatLeft = TBMenu.MenuMain:addChild({
 		pos = { TBMenu.CurrentSection.shift.x - 60 * TB_MENU_GLOBAL_SCALE, TBMenu.CurrentSection.shift.y },
 		size = { splatRes, splatRes },
-		bgImage = splatLeftImg,
+		bgImage = splatImage,
 		disableUnload = true,
 		imageColor = TB_MENU_DEFAULT_BG_COLOR
 	})
 	local splatRight = TBMenu.MenuMain:addChild({
 		pos = { TBMenu.CurrentSection.shift.x + TBMenu.CurrentSection.size.w + 60 * TB_MENU_GLOBAL_SCALE - splatRes, splatLeft.shift.y },
 		size = { splatRes, splatRes },
-		bgImage = splatCustom and splatLeftImg or TB_MENU_BLOODSPLATTER_RIGHT,
+		bgImage = splatCustom and splatImage or TB_MENU_BLOODSPLATTER_RIGHT,
 		disableUnload = true,
 		imageColor = TB_MENU_DEFAULT_BG_COLOR
 	})
@@ -3390,7 +3389,7 @@ function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHei
 			bgColor = selectedItem == v and TB_MENU_DEFAULT_BG_COLOR or TB_MENU_DEFAULT_LIGHTER_COLOR,
 			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR,
-			inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
+			inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK,
 			shapeType = holderElement.shapeType,
 			rounded = holderElement.rounded
 		})
@@ -4341,7 +4340,7 @@ function TBMenu:spawnTextField2(viewElement, rect, textFieldString, defaultStrin
 		interactive = true,
 		bgColor = inputSettings.darkerMode and TB_MENU_DEFAULT_BG_COLOR or lightColor,
 		hoverColor = inputSettings.darkerMode and lightColor or lightestColor,
-		inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS
+		inactiveColor = inputSettings.darkerMode and TB_MENU_DEFAULT_INACTIVE_COLOR_DARK or TB_MENU_DEFAULT_INACTIVE_COLOR
 	}, true)
 	local inputField = input:addChild({
 		shift = { 4, 1 },

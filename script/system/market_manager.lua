@@ -267,7 +267,7 @@ do
 				suggestion:addMouseHandlers(nil, function()
 						holder.priceInput.textfieldstr[1] = v .. ''
 						holder.priceInput.textfieldindex = holder.priceInput.textfieldstr[1]:len()
-						holder.priceInput.keyUpCustom()
+						holder.priceInput.textInputCustom()
 					end)
 
 				displayed = displayed + 1
@@ -301,7 +301,7 @@ do
 
 				local itemInfo = Store:getItemInfo(itemid)
 
-				for j, holder in pairs(holders) do
+				for _, holder in pairs(holders) do
 					holder:kill(true)
 					if (itemInfo.hidden == 0 and itemInfo.locked == 0 and itemInfo.price > 0) then
 						priceData.shopPrice = itemInfo.price
@@ -314,7 +314,7 @@ do
 					end
 				end
 			end, function()
-				for j, holder in pairs(holders) do
+				for _, holder in pairs(holders) do
 					holder:kill(true)
 					holder:addAdaptedText(false, TB_MENU_LOCALIZED.REQUESTCONNECTIONERROR .. "\n" .. get_network_error(), nil, nil, 4, nil, 0.7)
 				end
@@ -567,7 +567,7 @@ do
 				cancelButton:addMouseHandlers(nil, function()
 						cancelButton.clicked = not cancelButton.clicked
 						if (cancelButton.clicked) then
-							cancelButton.bgColor = table.clone(TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS)
+							cancelButton.bgColor = table.clone(TB_MENU_DEFAULT_INACTIVE_COLOR_DARK)
 							for j,k in pairs(selectedItems) do
 								if (v.inventid == k.inventid) then
 									table.remove(selectedItems, j)
@@ -783,7 +783,7 @@ do
 			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-			inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
+			inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK,
 			shapeType = cancelButton.shapeType,
 			rounded = cancelButton.rounded
 		})
@@ -849,7 +849,7 @@ do
 			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-			inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
+			inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK,
 			shapeType = cancelButton.shapeType,
 			rounded = cancelButton.rounded
 		})
@@ -893,7 +893,7 @@ do
 		local overlay = TBMenu:spawnWindowOverlay()
 		MARKET_ACTIVE_MODAL = overlay
 
-		local width = overlay.size.w / 7 * 3
+		local width = overlay.size.w / 2
 		local height = math.max(overlay.size.h / 2, 550)
 		local modalView = overlay:addChild({
 			pos = { (overlay.size.w - width) / 2, (overlay.size.h - height) / 2 },
@@ -1010,7 +1010,7 @@ do
 					bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 					hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 					pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-					inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
+					inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK,
 					shapeType = ROUNDED,
 					rounded = 4
 				})
@@ -1049,15 +1049,18 @@ do
 				if (v.itemid == ITEM_SET) then
 					v.displayName = v.displayName .. ": " .. v.setname .. " (" .. #v.contents .. " " .. TB_MENU_LOCALIZED.WORDITEMS:lower() .. ")"
 				end
+				if (v.parentset ~= nil) then
+					local setCaption = " (" .. TB_MENU_LOCALIZED.STORESETITEMNAME .. ": " .. v.parentset.setname .. ")"
+					setCaption = utf8.gsub(setCaption, " ", " ^" .. COLORS.ANTIQUEWHITE2)
+					v.displayName = v.displayName .. setCaption
+				end
 
-				itemName:addCustomDisplay(true, function()
-						itemName:uiText(v.displayName, nil, nil, 4, LEFTMID, 0.75)
-					end)
+				itemName:addAdaptedText(true, v.displayName, nil, nil, FONTS.LMEDIUM, LEFTMID, 0.7)
 				if (v.effectid > 0) then
-					itemName.size.w = get_string_length(itemName.dispstr[1], 4) * 0.7 + 1
+					itemName.size.w = get_string_length(itemName.dispstr[1], itemName.textFont) * itemName.textScale + 5
 					local effectsHolder = itemName:addChild({
-						pos = { itemName.size.w + 5, 0 },
-						size = { itemName.parent.size.w - itemName.shift.x - itemName.size.w - 20 - itemCancel.size.w, itemName.size.h }
+						pos = { itemName.size.w, 0 },
+						size = { itemName.parent.size.w - itemName.shift.x - itemName.size.w - 15 - itemCancel.size.w, itemName.size.h }
 					})
 					Store:showItemEffectCapsules(v, effectsHolder)
 				end
@@ -1142,7 +1145,7 @@ do
 					bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 					hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 					pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-					inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS
+					inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK
 				}, true)
 				pageButton:addAdaptedText(false, v .. '', nil, nil, 4, nil, 0.6)
 				pageButton:addMouseHandlers(nil, function()
@@ -1186,7 +1189,7 @@ do
 			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-			inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
+			inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK,
 			shapeType = cancelButton.shapeType,
 			rounded = cancelButton.rounded
 		})
@@ -1264,7 +1267,7 @@ do
 			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-			inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
+			inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK,
 			shapeType = cancelButton.shapeType,
 			rounded = cancelButton.rounded
 		})
@@ -1303,7 +1306,7 @@ do
 			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-			inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
+			inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK,
 			rounded = cancelButton.rounded
 		}, true)
 		local submitText = submitButton:addChild({ shift = { 15, 5 } })
@@ -1425,7 +1428,7 @@ do
 			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-			inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
+			inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK,
 			rounded = cancelButton.rounded
 		}, true)
 		local submitText = submitButton:addChild({ shift = { 15, 5 } })
@@ -1595,7 +1598,7 @@ do
 			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-			inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
+			inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK,
 			rounded = cancelButton.rounded
 		}, true)
 		local submitText = submitButton:addChild({ shift = { 15, 5 } })
@@ -1711,7 +1714,7 @@ do
 			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-			inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
+			inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK,
 			rounded = cancelButton.rounded
 		}, true)
 		local submitText = submitButton:addChild({ shift = { 15, 5 } })
@@ -2098,7 +2101,7 @@ do
 			bgColor = TB_MENU_DEFAULT_BG_COLOR,
 			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-			inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
+			inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK,
 			shapeType = ROUNDED,
 			rounded = 4
 		})
@@ -2389,10 +2392,10 @@ do
 			beltRestrictionText:addAdaptedText(true, beltRestrictionText.str, nil, nil, 4, LEFTMID, beltRestrictionText.textScale - 0.05)
 		end
 
-		local extraData = UIElement:new({
-			parent = itemView,
-			pos = { shiftX, itemView.size.h - dataHeight / 4 * 3 },
-			size = { itemView.size.w - shiftX - itemIcon.shift.x, dataHeight / 4 * 3 - 10 }
+		local extraDataHeight = math.min(dataHeight / 4 * 3 - 10, 80)
+		local extraData = itemView:addChild({
+			pos = { shiftX, itemView.size.h - extraDataHeight - 10 },
+			size = { itemView.size.w - shiftX - itemIcon.shift.x, extraDataHeight }
 		})
 		TBMenu:displayLoadingMarkSmall(extraData, TB_MENU_LOCALIZED.MARKETLOADINGDATA, 4, 25, 0.75)
 
@@ -2418,7 +2421,7 @@ do
 			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-			inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
+			inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK,
 			shapeType = ROUNDED,
 			rounded = 4
 		})
@@ -2446,7 +2449,7 @@ do
 			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-			inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
+			inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK,
 			shapeType = ROUNDED,
 			rounded = 4
 		})
@@ -2977,12 +2980,12 @@ do
 			local offerItemName = UIElement:new({
 				parent = offerViewBG,
 				pos = { offerIcon.shift.x * 2 + offerIcon.size.w, 5 },
-				size = { (offerViewBG.size.w - (offerIcon.shift.x * 3 + offerIcon.size.w)) / 2, offerViewBG.size.h - 10 }
+				size = { (offerViewBG.size.w - (offerIcon.shift.x * 3 + offerIcon.size.w)) * 0.667, offerViewBG.size.h - 10 }
 			})
 			offerItemName:addAdaptedText(true, item.itemname, nil, nil, FONTS.MEDIUM, LEFTMID, 0.9, 0.9)
 			local offerItemPrice = offerViewBG:addChild({
 				pos = { offerItemName.shift.x + offerItemName.size.w, 5 },
-				size = { offerItemName.size.w, offerViewBG.size.h - 10 }
+				size = { offerItemName.size.w * 0.5, offerViewBG.size.h - 10 }
 			})
 			offerItemPrice:addAdaptedText(false, numberFormat(v.price) .. " " .. TB_MENU_LOCALIZED.WORDTC, nil, nil, FONTS.LMEDIUM, RIGHTMID, 0.7)
 			local offerSellButton = offerView:addChild({
@@ -3104,8 +3107,8 @@ do
 				pos = { 25, lastElement.shift.y + lastElement.size.h + 10 },
 				size = { myShopView.size.w - 50, math.min(myShopView.size.h / 10, 40) },
 				interactive = true,
-				bgColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
-				hoverColor = table.clone(TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS),
+				bgColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK,
+				hoverColor = table.clone(TB_MENU_DEFAULT_INACTIVE_COLOR_DARK),
 				pressedColor = TB_MENU_DEFAULT_DARKER_COLOR,
 				shapeType = ROUNDED,
 				rounded = 4

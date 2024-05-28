@@ -173,6 +173,12 @@ end
 ---@class PlayerInfoCustomBase
 ---@field default boolean If true, it means that object population has failed and it contains default values.
 
+---@class PlayerCustomGUITextures
+---@field splatter PlayerCustomTexture
+---@field logo PlayerCustomTexture
+---@field background PlayerCustomTexture
+---@field header PlayerCustomTexture
+
 ---@class PlayerInfoCustomTextures : PlayerInfoCustomBase
 ---@field head PlayerCustomTexture
 ---@field breast PlayerCustomTexture
@@ -195,6 +201,7 @@ end
 ---@field l_leg PlayerCustomTexture
 ---@field r_foot PlayerCustomTexture
 ---@field l_foot PlayerCustomTexture
+---@field gui PlayerCustomGUITextures
 
 
 ---Parses provided **item.dat** lines and returns information about player's equipped textures
@@ -223,7 +230,13 @@ function PlayerInfoInternal.getTextures(data)
 		l_leg = { id = 18, equipped = false },
 		r_leg = { id = 19, equipped = false },
 		r_foot = { id = 20, equipped = false },
-		l_foot = { id = 21, equipped = false }
+		l_foot = { id = 21, equipped = false },
+		gui = {
+			splatter = { id = 1, equipped = false },
+			logo = { id = 2, equipped = false },
+			background = { id = 3, equipped = false },
+			header = { id = 4, equipped = false }
+		}
 	}
 	if (not data) then
 		textures.default = true
@@ -234,6 +247,14 @@ function PlayerInfoInternal.getTextures(data)
 			ln = ln:gsub("TEXBODY 0; ", "")
 			local data_stream = { ln:match(("([^%s]*)%s*"):rep(21)) }
 			for _, v in pairs(textures) do
+				if (v.id ~= nil) then
+					v.equipped = tonumber(data_stream[v.id]) == 0 and true or false
+				end
+			end
+		elseif string.match(ln, "^TEXGUI 0; ") then
+			ln = ln:gsub("^TEXGUI 0; ", "")
+			local data_stream = { ln:match(("([^%s]*)%s*"):rep(4)) }
+			for _, v in pairs(textures.gui) do
 				v.equipped = tonumber(data_stream[v.id]) == 0 and true or false
 			end
 		end

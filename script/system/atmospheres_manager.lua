@@ -931,7 +931,7 @@ function Atmospheres:showMain()
 			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-			inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
+			inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK,
 			shapeType = ROUNDED,
 			rounded = 4
 		})

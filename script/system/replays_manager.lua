@@ -982,7 +982,6 @@ function Replays:showList(viewElement, replayInfo, level, doSearch)
 		searchInputField.btnDown()
 		searchInputField.btnUp()
 	end
-	--searchInputField:addKeyboardHandlers(nil, searchFunction)
 	searchInputField:addEnterAction(searchFunction)
 
 	if (doSearch) then

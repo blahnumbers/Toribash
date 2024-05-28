@@ -330,7 +330,7 @@ function Notifications:showNotificationText(viewElement, notification)
 		pos = { messageViewForums.shift.x + messageViewForums.size.w + 20, 10 },
 		size = { messageButtons.size.w - (messageViewForums.shift.x * 2 + messageViewForums.size.w + 20), messageButtons.size.h - 30 },
 		interactive = true,
-		bgColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
+		bgColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK,
 		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
 		shapeType = ROUNDED,

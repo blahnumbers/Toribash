@@ -238,7 +238,7 @@ function QueueList:addPlayerInfos(viewElement, info)
 	local displayed = 0
 	for _, v in pairs(QueueListInternal.InfoFields) do
 		if (info[v.title] == true) then
-			local color = v.color or table.clone(TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS)
+			local color = v.color or table.clone(TB_MENU_DEFAULT_INACTIVE_COLOR_DARK)
 			local titleDisplay = titleHolder:addChild({
 				pos = { titleShift.x, titleShift.y },
 				size = { 150, 20 },

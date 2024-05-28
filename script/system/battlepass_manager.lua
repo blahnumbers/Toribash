@@ -250,7 +250,7 @@ function BattlePass:showProgress(viewElement)
 		pressedColor = BattlePass.UserData.level == BattlePass.UserData.level_available and TB_MENU_DEFAULT_DARKER_COLOR or TB_MENU_DEFAULT_DARKER_ORANGE,
 		shapeType = ROUNDED,
 		uiColor = BattlePass.UserData.level == BattlePass.UserData.level_available and UICOLORWHITE or UICOLORBLACK,
-		inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
+		inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK,
 		rounded = 4
 	})
 	local purchaseLevelOrClaimRewardButtonText = purchaseLevelOrClaimRewardButton:addChild({ shift = { 10, 5 } })
