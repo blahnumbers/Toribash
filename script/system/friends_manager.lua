@@ -611,7 +611,9 @@ function Friends:showIgnoreList(viewElement)
 					imagePressedColor = UICOLORWHITE
 				})
 				local popup = TBMenu:displayPopup(icon, ignore.hint, true)
-				popup:moveTo(-popup.size.w - iconButtonWidth - 5)
+				if (popup ~= nil) then
+					popup:moveTo(-popup.size.w - iconButtonWidth - 5)
+				end
 			end
 		end
 	end

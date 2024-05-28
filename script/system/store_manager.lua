@@ -1970,7 +1970,9 @@ function Store:showInventoryItemCustomize(item)
 								updateEffectInfo.hint:kill()
 							end
 							updateEffectInfo.hint = TBMenu:displayHelpPopup(updateEffectInfo, TB_MENU_LOCALIZED.STOREUPGRADEORPLAYGAMES .. " " .. (maxRequirement - item.games_played) .. " " .. TB_MENU_LOCALIZED.STOREYOUNEEDTOPLAYGAMES2)
-							updateEffectInfo.hint:moveTo(44, nil, true)
+							if (updateEffectInfo.hint ~= nil) then
+								updateEffectInfo.hint:moveTo(44, nil, true)
+							end
 							updateEffectSettingsButton:moveTo(46)
 							updateEffectSettingsButton.size.w = appliedEffectsHolder.size.w - 46
 						else
@@ -2543,7 +2545,9 @@ function Store:showItemEffectCapsules(item, viewElement, capsuleHeight, extraDat
 			popupString = popupString .. "\n" .. collapsed[i]
 		end
 		local popup = TBMenu:displayHelpPopup(itemEffect, popupString, true, true)
-		popup:moveTo(itemEffect.size.w + 5, -itemEffect.size.h - (popup.size.h - itemEffect.size.h) / 2 )
+		if (popup ~= nil) then
+			popup:moveTo(itemEffect.size.w + 5, -itemEffect.size.h - (popup.size.h - itemEffect.size.h) / 2 )
+		end
 	end
 end
 

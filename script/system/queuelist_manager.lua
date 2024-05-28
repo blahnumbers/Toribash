@@ -279,8 +279,10 @@ function QueueList:addPlayerInfos(viewElement, info)
 					uiColor = UICOLORWHITE
 				}, true)
 				local helpPopup = TBMenu:displayHelpPopup(helpPopupHolder, v.desc, nil, true)
-				helpPopup:moveTo(math.min(-titleDisplay.size.w + (titleDisplay.size.w - helpPopup.size.w) / 2, helpPopup.shift.x))
-				helpPopup:moveTo(nil, titleDisplay.size.h + 5, true)
+				if (helpPopup ~= nil) then
+					helpPopup:moveTo(math.min(-titleDisplay.size.w + (titleDisplay.size.w - helpPopup.size.w) / 2, helpPopup.shift.x))
+					helpPopup:moveTo(nil, titleDisplay.size.h + 5, true)
+				end
 			end
 			titleShift.x = titleShift.x + titleDisplay.size.w + 5
 			if (titleShift.x > titleHolder.size.w) then
@@ -1202,7 +1204,9 @@ function QueueList.AddPlayer(id, playerInfo, bouts, spectator)
 			hoverThrough = true
 		})
 		local infoPopup = TBMenu:displayPopup(playerStatus, statusIcon.infoField.text, nil, playerInfo.button.size.h)
-		infoPopup:moveTo(-playerStatus.size.w - infoPopup.size.w - 5)
+		if (infoPopup ~= nil) then
+			infoPopup:moveTo(-playerStatus.size.w - infoPopup.size.w - 5)
+		end
 	end
 end
 

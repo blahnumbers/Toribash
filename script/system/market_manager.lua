@@ -2011,8 +2011,10 @@ do
 				size = { gamesPlayed.size.w, gamesPlayed.size.h }
 			})
 			local popup = TBMenu:displayPopup(popupHolder, TB_MENU_LOCALIZED.MARKETGAMESPLAYEDINFO, true)
-			popup:moveTo(nil, -popup.size.h - 5, true)
-			popup:moveTo(popupHolder.size.w > popup.size.w and (popupHolder.size.w - popup.size.w) / 2 or -popupHolder.size.w - (popup.size.w - popupHolder.size.w) / 2)
+			if (popup ~= nil) then
+				popup:moveTo(nil, -popup.size.h - 5, true)
+				popup:moveTo(popupHolder.size.w > popup.size.w and (popupHolder.size.w - popup.size.w) / 2 or -popupHolder.size.w - (popup.size.w - popupHolder.size.w) / 2)
+			end
 		end
 		local effectsHolder = offerBG:addChild({
 			pos = { itemIcon.size.w + itemIcon.shift.x * 2 + extraDataShift.x, extraDataShift.y },
@@ -2140,7 +2142,9 @@ do
 
 		if (popupText ~= '') then
 			local popup = TBMenu:displayPopup(actionButton, popupText)
-			popup:moveTo(actionButton.size.w > popup.size.w and (actionButton.size.w - popup.size.w) / 2 or -actionButton.size.w - (popup.size.w - actionButton.size.w) / 2, actionButton.size.h + 5)
+			if (popup ~= nil) then
+				popup:moveTo(actionButton.size.w > popup.size.w and (actionButton.size.w - popup.size.w) / 2 or -actionButton.size.w - (popup.size.w - actionButton.size.w) / 2, actionButton.size.h + 5)
+			end
 		end
 
 		offer.button = actionButton
@@ -2541,7 +2545,9 @@ do
 					interactive = true
 				})
 				local popup = TBMenu:displayPopup(popupHolder, TB_MENU_LOCALIZED.MARKETBELTREQUIREMENT .. "\n\n" .. TB_MENU_LOCALIZED.MARKETSHIAIEXPLANATION:gsub("(%w+)", '^39%1'))
-				popup:moveTo(-popupHolder.size.w - (popup.size.w - popupHolder.size.w) / 2, popupHolder.size.h + 5)
+				if (popup ~= nil) then
+					popup:moveTo(-popupHolder.size.w - (popup.size.w - popupHolder.size.w) / 2, popupHolder.size.h + 5)
+				end
 			end
 
 			local buyOffers = #itemData.offers.purchase
@@ -2563,8 +2569,10 @@ do
 				bestBuyRequestButton:activate()
 			else
 				local popup = TBMenu:displayPopup(bestBuyRequestButton, TB_MENU_LOCALIZED.MARKETINVENTORYEMPTY, true)
-				popup:moveTo(nil, -popup.size.h - 5, true)
-				popup:moveTo(popup.size.w > popup.parent.size.w and -popup.size.w + (popup.size.w - popup.parent.size.w) / 2 or (popup.parent.size.w - popup.size.w) / 2)
+				if (popup ~= nil) then
+					popup:moveTo(nil, -popup.size.h - 5, true)
+					popup:moveTo(popup.size.w > popup.parent.size.w and -popup.size.w + (popup.size.w - popup.parent.size.w) / 2 or (popup.parent.size.w - popup.size.w) / 2)
+				end
 			end
 
 			Market:displayOffers(saleOffersView, itemData.offers.sale, TB_MENU_LOCALIZED.MARKETSALEOFFERS, function() Market:showItemPage(viewElement, item, backAction) end)
@@ -3004,15 +3012,19 @@ do
 
 			if (not is_mobile()) then
 				local sellerInfo = TBMenu:displayPopup(offerViewBG, TB_MENU_LOCALIZED.MARKETOFFERBY .. " " .. v.username .. "\n^37" .. TB_MENU_LOCALIZED.MARKETOFFERPLACEDON .. " " .. v.time)
-				sellerInfo:moveTo(-sellerInfo.size.w - 5, nil, true)
-				sellerInfo:moveTo(nil, sellerInfo.size.h > offerViewBG.size.h and -offerViewBG.size.h - (sellerInfo.size.h - offerViewBG.size.h) / 2 or (offerViewBG.size.h - sellerInfo.size.h) / 2)
+				if (sellerInfo ~= nil) then
+					sellerInfo:moveTo(-sellerInfo.size.w - 5, nil, true)
+					sellerInfo:moveTo(nil, sellerInfo.size.h > offerViewBG.size.h and -offerViewBG.size.h - (sellerInfo.size.h - offerViewBG.size.h) / 2 or (offerViewBG.size.h - sellerInfo.size.h) / 2)
+				end
 			end
 
 			if (not is_mobile() and item.price > 0 and item.price ~= v.price) then
 				local discountValue = math.floor(10000 - (v.price / item.price * 10000)) / 100
 				local priceDiscount = TBMenu:displayPopup(offerSellButton, discountValue > 0 and (discountValue .. "% cheaper than in Store") or (-discountValue .. " more expensive than in Store"))
-				priceDiscount:moveTo(nil, -priceDiscount.size.h - 5, true)
-				priceDiscount:moveTo(priceDiscount.size.w > offerSellButton.size.w and -offerSellButton.size.w - (priceDiscount.size.w - offerSellButton.size.w) / 2 or (offerSellButton.size.w - priceDiscount.size.h) / 2)
+				if (priceDiscount ~= nil) then
+					priceDiscount:moveTo(nil, -priceDiscount.size.h - 5, true)
+					priceDiscount:moveTo(priceDiscount.size.w > offerSellButton.size.w and -offerSellButton.size.w - (priceDiscount.size.w - offerSellButton.size.w) / 2 or (offerSellButton.size.w - priceDiscount.size.h) / 2)
+				end
 			end
 			offerView:hide()
 		end
@@ -3253,8 +3265,10 @@ do
 				lastElement = premiumShopCapsule
 
 				local popup = TBMenu:displayHelpPopup(premiumShopCapsule, TB_MENU_LOCALIZED.MARKETPREMIUMSHOPHINT, nil, true)
-				popup:moveTo(-popup.parent.size.w - (popup.size.w - popup.parent.size.w) / 2, popup.parent.size.h + 5)
-				table.insert(requireReload, popup)
+				if (popup ~= nil) then
+					popup:moveTo(-popup.parent.size.w - (popup.size.w - popup.parent.size.w) / 2, popup.parent.size.h + 5)
+					table.insert(requireReload, popup)
+				end
 			end
 
 			local shopTitle = shopInfoView:addChild({

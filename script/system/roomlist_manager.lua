@@ -482,7 +482,9 @@ function RoomList:showRoomListButton(viewElement, room)
 				iconHolder.imageColor[4] = iconHolder.imageColor[4] * v.iconOpacity
 			end
 			local popup = TBMenu:displayPopup(iconHolder, v.value .. "", true)
-			popup:moveTo(-iconHolder.size.w - (popup.size.w - iconHolder.size.w) / 2, iconHolder.size.h)
+			if (popup ~= nil) then
+				popup:moveTo(-iconHolder.size.w - (popup.size.w - iconHolder.size.w) / 2, iconHolder.size.h)
+			end
 		else
 			local targetTextElement = infoBit
 			if (v.textIcon) then
@@ -493,7 +495,9 @@ function RoomList:showRoomListButton(viewElement, room)
 					imageColor = { 1, 1, 1, matchesBelt and 1 or 0.6 }
 				})
 				local popup = TBMenu:displayPopup(iconHolder, v.textIconHint, true)
-				popup:moveTo(iconHolder.size.w + 5)
+				if (popup ~= nil) then
+					popup:moveTo(iconHolder.size.w + 5)
+				end
 				targetTextElement = infoBit:addChild({
 					pos = { iconHolder.size.h * 0.75, 0 },
 					size = { infoBit.size.w - iconHolder.size.w - 5, infoBit.size.h }
@@ -732,7 +736,9 @@ function RoomList:showRoomList(viewElement, reloadFeatured)
 					interactive = true
 				})
 				local infoPopup = TBMenu:displayHelpPopup(infoPopupHolder, TB_MENU_LOCALIZED.ROOMLISTOFFICIALROOMSINFO, true)
-				infoPopup:moveTo(infoPopupHolder.size.w + 5)
+				if (infoPopup ~= nil) then
+					infoPopup:moveTo(infoPopupHolder.size.w + 5)
+				end
 				listElement:addChild({
 					pos = { infoPopupHolder.shift.x * 2 + infoPopupHolder.size.w, 3 },
 					size = { listElement.size.w - infoPopupHolder.size.w - infoPopupHolder.shift.x * 3, listElement.size.h - 6 }
@@ -1181,9 +1187,10 @@ function RoomList:createRoom()
 		end)
 	createRoomButton:deactivate(true)
 
-	local createRoomTooltip
-	createRoomTooltip = TBMenu:displayPopup(createRoomButtonBackdrop, createRoomFields[1].errorMessage)
-	createRoomTooltip:moveTo(-createRoomButtonBackdrop.size.w + (createRoomButtonBackdrop.size.w - createRoomTooltip.size.w) / 2, -createRoomButtonBackdrop.size.h - createRoomTooltip.size.h - 5)
+	local createRoomTooltip = TBMenu:displayPopup(createRoomButtonBackdrop, createRoomFields[1].errorMessage)
+	if (createRoomTooltip ~= nil) then
+		createRoomTooltip:moveTo(-createRoomButtonBackdrop.size.w + (createRoomButtonBackdrop.size.w - createRoomTooltip.size.w) / 2, -createRoomButtonBackdrop.size.h - createRoomTooltip.size.h - 5)
+	end
 	updateCreateRoomButton = function()
 		for _, v in pairs(createRoomFields) do
 			if (v.required and v.targetValue[1] == "") then
@@ -1194,7 +1201,9 @@ function RoomList:createRoom()
 					createRoomTooltip = nil
 				end
 				createRoomTooltip = TBMenu:displayPopup(createRoomButtonBackdrop, v.errorMessage)
-				createRoomTooltip:moveTo(-createRoomButtonBackdrop.size.w + (createRoomButtonBackdrop.size.w - createRoomTooltip.size.w) / 2, -createRoomButtonBackdrop.size.h - createRoomTooltip.size.h - 5)
+				if (createRoomTooltip ~= nil) then
+					createRoomTooltip:moveTo(-createRoomButtonBackdrop.size.w + (createRoomButtonBackdrop.size.w - createRoomTooltip.size.w) / 2, -createRoomButtonBackdrop.size.h - createRoomTooltip.size.h - 5)
+				end
 				return
 			end
 		end

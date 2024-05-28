@@ -258,9 +258,11 @@ function BattlePass:showProgress(viewElement)
 		if (BattlePass.UserData.level == #BattlePass.LevelData) then
 			purchaseLevelOrClaimRewardButton:deactivate()
 			local popup = TBMenu:displayPopup(purchaseLevelOrClaimRewardButton, TB_MENU_LOCALIZED.BATTLEPASSREACHEDMAXLEVEL, true)
-			popup:moveTo(-purchaseLevelOrClaimRewardButton.size.w - (popup.size.w - purchaseLevelOrClaimRewardButton.size.w) / 2, purchaseLevelOrClaimRewardButton.size.h + 5)
-			if (popup.pos.x + popup.size.w >= WIN_W - 10) then
-				popup:moveTo(-(popup.pos.x + popup.size.w - (WIN_W - 10)), nil, true)
+			if (popup ~= nil) then
+				popup:moveTo(-purchaseLevelOrClaimRewardButton.size.w - (popup.size.w - purchaseLevelOrClaimRewardButton.size.w) / 2, purchaseLevelOrClaimRewardButton.size.h + 5)
+				if (popup.pos.x + popup.size.w >= WIN_W - 10) then
+					popup:moveTo(-(popup.pos.x + popup.size.w - (WIN_W - 10)), nil, true)
+				end
 			end
 		else
 			purchaseLevelOrClaimRewardButton:addMouseUpHandler(BattlePass.spawnPurchaseLevelWindow)
@@ -591,10 +593,12 @@ function BattlePass:showPrizeItem(viewElement, prize)
 	else
 		return
 	end
-	if (prizeBackground.size.w > prizeTooltip.size.w) then
-		prizeTooltip:moveTo((prizeBackground.size.w - prizeTooltip.size.w) / 2, prizeBackground.size.h + 5)
-	else
-		prizeTooltip:moveTo(-prizeBackground.size.w - (prizeTooltip.size.w - prizeBackground.size.w) / 2, prizeBackground.size.h + 5)
+	if (prizeTooltip ~= nil) then
+		if (prizeBackground.size.w > prizeTooltip.size.w) then
+			prizeTooltip:moveTo((prizeBackground.size.w - prizeTooltip.size.w) / 2, prizeBackground.size.h + 5)
+		else
+			prizeTooltip:moveTo(-prizeBackground.size.w - (prizeTooltip.size.w - prizeBackground.size.w) / 2, prizeBackground.size.h + 5)
+		end
 	end
 
 	local shiftSize = math.min(viewElement.size.w / 10, 8)

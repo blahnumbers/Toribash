@@ -374,7 +374,9 @@ function Ranking.ShowTrends(viewElement)
 			}, true)
 			targetElo:moveTo(-targetElo.size.w / 2, -targetElo.size.h / 2, true)
 			local popup = TBMenu:displayPopup(targetElo, elo .. " " .. TB_MENU_LOCALIZED.WORDELO)
-			popup:moveTo(-popup.size.w / 2 - 12, -popup.size.h * 1.5)
+			if (popup ~= nil) then
+				popup:moveTo(-popup.size.w / 2 - 12, -popup.size.h * 1.5)
+			end
 			if (not Ranking.PlayerTrends[i + 2]) then
 				local targetEloFinal = trendsChartView:addChild({
 					pos = { linePart.size.w, linePart.size.h },
@@ -391,7 +393,9 @@ function Ranking.ShowTrends(viewElement)
 				}, true)
 				targetEloFinal:moveTo(-targetEloFinal.size.w / 2, -targetEloFinal.size.h / 2, true)
 				local popup = TBMenu:displayPopup(targetEloFinal, elo .. " " .. TB_MENU_LOCALIZED.WORDELO)
-				popup:moveTo(-popup.size.w / 2 - 12, -popup.size.h * 1.5)
+				if (popup ~= nil) then
+					popup:moveTo(-popup.size.w / 2 - 12, -popup.size.h * 1.5)
+				end
 			end
 			linePart:addCustomDisplay(true, function()
 					set_color(1, 1, 1, 0.6)
@@ -479,10 +483,12 @@ function Ranking:showRankingTrendsWithHistory(viewElement)
 		}):addAdaptedText(winsToNextTierString, nil, nil, 4, nil, 0.8)
 
 		local eloGainPopup = TBMenu:displayPopup(nextTierGamesHolder, TB_MENU_LOCALIZED.MATCHMAKEELOGAININFO)
-		eloGainPopup:moveTo(-(eloGainPopup.size.w - nextTierGamesHolder.size.w) / 2, nextTierGamesHolder.size.h + 5, true)
-		eloGainPopup:updateChildPos()
-		if (eloGainPopup.pos.x < 10) then
-			eloGainPopup:moveTo(10 - eloGainPopup.pos.x, nil, true)
+		if (eloGainPopup ~= nil) then
+			eloGainPopup:moveTo(-(eloGainPopup.size.w - nextTierGamesHolder.size.w) / 2, nextTierGamesHolder.size.h + 5, true)
+			eloGainPopup:updateChildPos()
+			if (eloGainPopup.pos.x < 10) then
+				eloGainPopup:moveTo(10 - eloGainPopup.pos.x, nil, true)
+			end
 		end
 	end
 
@@ -946,10 +952,12 @@ function Ranking.ShowUserEloStats(viewElement)
 		}):addAdaptedText(winsToNextTierString, nil, nil, 4, nil, 0.8)
 
 		local eloGainPopup = TBMenu:displayPopup(nextTierGamesHolder, TB_MENU_LOCALIZED.MATCHMAKEELOGAININFO)
-		eloGainPopup:moveTo(-(eloGainPopup.size.w - nextTierGamesHolder.size.w) / 2, nextTierGamesHolder.size.h + 5, true)
-		eloGainPopup:updateChildPos()
-		if (eloGainPopup.pos.x < 10) then
-			eloGainPopup:moveTo(10 - eloGainPopup.pos.x, nil, true)
+		if (eloGainPopup ~= nil) then
+			eloGainPopup:moveTo(-(eloGainPopup.size.w - nextTierGamesHolder.size.w) / 2, nextTierGamesHolder.size.h + 5, true)
+			eloGainPopup:updateChildPos()
+			if (eloGainPopup.pos.x < 10) then
+				eloGainPopup:moveTo(10 - eloGainPopup.pos.x, nil, true)
+			end
 		end
 	end
 

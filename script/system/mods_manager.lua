@@ -433,7 +433,9 @@ function Mods.showMain()
 	})
 	topBar.helpPopup = helpPopupHolder
 	local helpPopup = TBMenu:displayHelpPopup(helpPopupHolder, "Double click on a mod to load it")
-	helpPopup:moveTo(helpPopupSize + 5, (helpPopupSize - helpPopup.size.h) / 2, true)
+	if (helpPopup ~= nil) then
+		helpPopup:moveTo(helpPopupSize + 5, (helpPopupSize - helpPopup.size.h) / 2, true)
+	end
 
 	local modNewGameToggleView = botBar:addChild({
 		pos = { 0, -35 },

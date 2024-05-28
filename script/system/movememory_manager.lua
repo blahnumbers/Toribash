@@ -497,7 +497,9 @@ function MoveMemory:showMain()
 					self:recordMove()
 				end)
 			local addMoveTooltip = TBMenu:displayPopup(addMoveButton, TB_MENU_LOCALIZED.MOVEMEMORYRECORDINFO)
-			addMoveTooltip:moveTo(addMoveButton.size.w + 5)
+			if (addMoveTooltip ~= nil) then
+				addMoveTooltip:moveTo(addMoveButton.size.w + 5)
+			end
 			self.MovesHolder:addChild({ shift = { 0, 40 } }):addAdaptedText(true, TB_MENU_LOCALIZED.MOVEMEMORYNOMOVESFOUND, nil, nil, nil, nil, nil, nil, 0)
 			return
 		end
@@ -855,7 +857,9 @@ function MoveMemory:spawnOpeners(viewElement, memoryOpeners)
 				self:recordMove()
 			end)
 		local addMoveTooltip = TBMenu:displayPopup(addMoveButton, TB_MENU_LOCALIZED.MOVEMEMORYRECORDINFO)
-		addMoveTooltip:moveTo(addMoveButton.size.w + 5)
+		if (addMoveTooltip ~= nil) then
+			addMoveTooltip:moveTo(addMoveButton.size.w + 5)
+		end
 	end
 
 	botBar:setRounded({ 0, 4 })

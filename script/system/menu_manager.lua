@@ -2148,7 +2148,9 @@ function TBMenu:showUserBar()
 	tcView:addMouseHandlers(nil, function()
 			if (Store.Ready) then
 				Store:showStoreSection(TBMenu.CurrentSection, 4, 1)
-				tcPopup:reload()
+				if (tcPopup ~= nil) then
+					tcPopup:reload()
+				end
 			end
 		end)
 
@@ -2164,7 +2166,9 @@ function TBMenu:showUserBar()
 	})
 	tcBalance:addAdaptedText(true, numberFormat(TB_MENU_PLAYER_INFO.data.tc), nil, nil, 2, LEFTMID, 0.9)
 	tcView.size.w = get_string_length(tcBalance.dispstr[1], tcBalance.textFont) * tcBalance.textScale + tcView.size.h + 30
-	tcPopup:moveTo(math.min(tcPopup.shift.x, -tcView.size.w - (tcPopup.size.w - tcView.size.w) / 2), tcView.size.h + 5)
+	if (tcPopup ~= nil) then
+		tcPopup:moveTo(math.min(tcPopup.shift.x, -tcView.size.w - (tcPopup.size.w - tcView.size.w) / 2), tcView.size.h + 5)
+	end
 
 	local stView = infoHolder:addChild({
 		pos = { tcView.shift.x + tcView.size.w + 15, tcView.shift.y },
@@ -2181,7 +2185,9 @@ function TBMenu:showUserBar()
 	stView:addMouseHandlers(nil, function()
 			if (Store.Ready) then
 				Store:showStoreSection(TBMenu.CurrentSection, 4, 2)
-				stPopup:reload()
+				if (stPopup ~= nil) then
+					stPopup:reload()
+				end
 			end
 		end)
 
@@ -2197,7 +2203,9 @@ function TBMenu:showUserBar()
 	})
 	stBalance:addAdaptedText(true, numberFormat(TB_MENU_PLAYER_INFO.data.st), nil, nil, 2, LEFTMID, 0.9)
 	stView.size.w = get_string_length(stBalance.dispstr[1], stBalance.textFont) * stBalance.textScale + stView.size.h + 30
-	stPopup:moveTo(math.min(stPopup.shift.x, -stView.size.w - (stPopup.size.w - stView.size.w) / 2), stView.size.h + 5)
+	if (stPopup ~= nil) then
+		stPopup:moveTo(math.min(stPopup.shift.x, -stView.size.w - (stPopup.size.w - stView.size.w) / 2), stView.size.h + 5)
+	end
 
 	local userBelt = infoHolder:addChild({
 		pos = { -infoHolder.size.h - 20, -infoHolder.size.h - 10 },
@@ -2223,13 +2231,17 @@ function TBMenu:showUserBar()
 				tcBalance.size.w = infoHolder.size.w / 3
 				tcBalance:addAdaptedText(true, numberFormat(TB_MENU_PLAYER_INFO.data.tc), nil, nil, tcBalance.textFont, LEFTMID, tcBalance.textScale)
 				tcView.size.w = get_string_length(tcBalance.dispstr[1], tcBalance.textFont) * tcBalance.textScale + tcView.size.h + 30
-				tcPopup:moveTo(-tcView.size.w - (tcPopup.size.w - tcView.size.w) / 2, tcView.size.h + 5)
+				if (tcPopup ~= nil) then
+					tcPopup:moveTo(-tcView.size.w - (tcPopup.size.w - tcView.size.w) / 2, tcView.size.h + 5)
+				end
 
 				stView:moveTo(tcView.shift.x + tcView.size.w + 20)
 				stBalance.size.w = infoHolder.size.w / 3
 				stBalance:addAdaptedText(true, numberFormat(TB_MENU_PLAYER_INFO.data.st), nil, nil, stBalance.textFont, LEFTMID, stBalance.textScale)
 				stView.size.w = get_string_length(stBalance.dispstr[1], stBalance.textFont) * stBalance.textScale + stView.size.h + 30
-				stPopup:moveTo(-stView.size.w - (stPopup.size.w - stView.size.w) / 2, stView.size.h + 5)
+				if (stPopup ~= nil) then
+					stPopup:moveTo(-stView.size.w - (stPopup.size.w - stView.size.w) / 2, stView.size.h + 5)
+				end
 
 				if (TB_MENU_PLAYER_INFO.clan.id ~= 0 and tbMenuClan) then
 					tbMenuClan:addAdaptedText(true, TB_MENU_LOCALIZED.MAINMENUUSERCLAN .. ": " .. TB_MENU_PLAYER_INFO.clan.tag .. ((TB_MENU_PLAYER_INFO.clan.name ~= '') and ("  |  " .. TB_MENU_PLAYER_INFO.clan.name) or ''), nil, nil, 4, 0, 0.6)
@@ -2855,7 +2867,9 @@ function TBMenu:showBottomBar(leftOnly)
 		local captionTooltip
 		if (v.caption) then
 			captionTooltip = TBMenu:displayPopup(tbMenuBottomLeftButtons[i], v.caption)
-			captionTooltip:moveTo(-tbMenuBottomLeftButtons[i].size.w - (captionTooltip.size.w - tbMenuBottomLeftButtons[i].size.w) / 2, -tbMenuBottomLeftButtons[i].size.h - captionTooltip.size.h - 5)
+			if (captionTooltip ~= nil) then
+				captionTooltip:moveTo(-tbMenuBottomLeftButtons[i].size.w - (captionTooltip.size.w - tbMenuBottomLeftButtons[i].size.w) / 2, -tbMenuBottomLeftButtons[i].size.h - captionTooltip.size.h - 5)
+			end
 		end
 		tbMenuBottomLeftButtons[i]:addMouseUpHandler(function()
 				shopCheckExit()
@@ -2942,7 +2956,9 @@ function TBMenu:showBottomBar(leftOnly)
 		local captionTooltip
 		if (v.caption) then
 			captionTooltip = TBMenu:displayPopup(tbMenuBottomRightButtons[i], v.caption)
-			captionTooltip:moveTo(-tbMenuBottomRightButtons[i].size.w - (captionTooltip.size.w - tbMenuBottomRightButtons[i].size.w) / 2, -tbMenuBottomRightButtons[i].size.h - captionTooltip.size.h - 5)
+			if (captionTooltip ~= nil) then
+				captionTooltip:moveTo(-tbMenuBottomRightButtons[i].size.w - (captionTooltip.size.w - tbMenuBottomRightButtons[i].size.w) / 2, -tbMenuBottomRightButtons[i].size.h - captionTooltip.size.h - 5)
+			end
 		end
 		tbMenuBottomRightButtons[i]:addMouseUpHandler(function()
 				shopCheckExit()
@@ -3774,6 +3790,31 @@ function TBMenu:showTextExternal(viewElement, text, useUiColor)
 	TBMenu:showTextWithImage(viewElement, text, FONTS.MEDIUM, 26, "../textures/menu/general/buttons/external.tga", { useUiColor = useUiColor or false })
 end
 
+---Override method for popups that will be used on mobile platforms
+---@param element UIElement
+---@param message string
+function TBMenu:displayMobilePopup(element, message)
+	if (element.btnUp ~= UIElement.btnUp) then return end
+
+	element:addMouseUpHandler(function()
+			local overlay = TBMenu:spawnWindowOverlay(true)
+			local messageView = overlay:addChild({
+				size = { overlay.size.w * 0.5, overlay.size.h * 0.33 },
+				bgColor = { 0, 0, 0, 0.8 },
+				shapeType = ROUNDED,
+				rounded = 5
+			})
+			messageView:addAdaptedText(message, nil, nil, FONTS.LMEDIUM, nil, 0.85)
+			local maxLength = 0
+			for _, v in pairs(messageView.dispstr) do
+				maxLength = math.max(maxLength, get_string_length(v, messageView.textFont) * messageView.textScale)
+			end
+			messageView.size.w = maxLength + 100
+			messageView.size.h = #messageView.dispstr * getFontMod(messageView.textFont) * messageView.textScale + 80
+			messageView:moveTo((WIN_W - messageView.size.w) / 2, (WIN_H - messageView.size.h) / 2)
+		end)
+end
+
 ---Generic method to display a question mark with a help popup on mouse hover over the specified object \
 ---@see TBMenu.displayPopup
 ---@param element UIElement
@@ -3781,8 +3822,16 @@ end
 ---@param forceManualPosCheck ?boolean
 ---@param noMark ?boolean
 ---@param maxHeight ?number
----@return UIElement
+---@return UIElement?
 function TBMenu:displayHelpPopup(element, message, forceManualPosCheck, noMark, maxHeight)
+	if (not noMark) then
+		element:addChild({}):addAdaptedText(true, "?", nil, nil, nil, nil, 0.7)
+	end
+	if (is_mobile()) then
+		TBMenu:displayMobilePopup(element, message)
+		return nil
+	end
+
 	local messageElement = element:addChild({
 		size = { WIN_W / 3, maxHeight or WIN_H / 7 },
 		bgColor = { 0, 0, 0, 0.8 },
@@ -3887,10 +3936,6 @@ function TBMenu:displayHelpPopup(element, message, forceManualPosCheck, noMark, 
 			end, true)
 	end
 
-	if (not noMark) then
-		element:addChild({}):addAdaptedText(true, "?", nil, nil, nil, nil, 0.7)
-	end
-
 	return messageElement
 end
 
@@ -3899,7 +3944,7 @@ end
 ---@param message string
 ---@param forceManualPosCheck ?boolean
 ---@param maxHeight ?number
----@return UIElement
+---@return UIElement?
 function TBMenu:displayPopup(element, message, forceManualPosCheck, maxHeight)
 	return TBMenu:displayHelpPopup(element, message, forceManualPosCheck, true, maxHeight)
 end
@@ -4503,8 +4548,8 @@ end
 ---Spawns a generic search bar for main menu
 ---@param searchString string
 ---@param hint string
----@return UIElement
----@return UIElement
+---@return UIElement inputField
+---@return UIElement inputFieldHolder
 function TBMenu:spawnSearchBar(searchString, hint)
 	if (TBMenu.CurrentSection == nil) then
 		---@diagnostic disable-next-line: missing-return-value
@@ -4542,7 +4587,8 @@ function TBMenu:spawnSearchBar(searchString, hint)
 		textScale = 0.7,
 		textAlign = CENTERMID,
 		textColor = UICOLORWHITE,
-		darkerMode = true
+		darkerMode = true,
+		returnKeyType = KEYBOARD_RETURN.SEARCH
 	}), searchBarView
 end
 

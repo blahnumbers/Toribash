@@ -2050,7 +2050,9 @@ function Settings:showSettings(id, keepStoredSettings)
 							pressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR
 						})
 						local popup = TBMenu:displayHelpPopup(hintIcon, item.hint, true)
-						popup:moveTo(itemView.size.h - 9, -(popup.size.h - itemView.size.h + 14) / 2, true)
+						if (popup ~= nil) then
+							popup:moveTo(itemView.size.h - 9, -(popup.size.h - itemView.size.h + 14) / 2, true)
+						end
 						shiftX = shiftX + hintIcon.size.w + 14
 					end
 					local itemName = itemView:addChild({
