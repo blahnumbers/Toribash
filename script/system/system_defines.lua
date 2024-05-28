@@ -2295,8 +2295,8 @@ function download_fetch_bounties() end
 function download_quest(username) end
 
 ---Sends a request to claim quest reward
----@param questid integer
-function claim_quest(questid) end
+---@param ... integer
+function claim_quest(...) end
 
 ---Sends a request to claim global quest reward
 ---@param questid integer

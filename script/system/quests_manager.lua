@@ -319,16 +319,45 @@ end
 ---@param quest QuestData
 ---@param successFunc function?
 ---@param errorFunc function?
+---@overload fun(self: Quests, quests: QuestData[], successFunc?: function, errorFunc?: function)
 function Quests:claim(quest, successFunc, errorFunc)
-	Request:queue(function() claim_quest(quest.id) end, "questclaim" .. quest.id, function()
+	local quests = quest.id ~= nil and { quest } or quest
+	local questIds = { }
+	local isGlobal = false
+	local reloadInventory = false
+	local reloadBattlePass = false
+	for _, v in pairs(quests) do
+		if (v.global) then
+			isGlobal = true
+		end
+		if (v.rewardid > 0 and v.rewardid ~= ITEM_SHIAI_TOKEN) then
+			reloadInventory = true
+		end
+		if (v.bp_xp > 0) then
+			reloadBattlePass = true
+		end
+		table.insert(questIds, v.id)
+	end
+	if (isGlobal and #questIds > 1) then
+		Files.LogError("Error running Quests.claim(): multi claim with global quests is not supported")
+		return
+	end
+
+	Request:queue(function()
+		if (isGlobal) then
+			claim_quest_global(unpack(questIds))
+		else
+			claim_quest(unpack(questIds))
+		end
+	end, "questclaim" .. quests[1].id, function()
 		local response = get_network_response()
 		if (response:find("^GATEWAY 0; 0")) then
 			update_tc_balance()
-			Quests:download()
-			if (quest.rewardid and quest.rewardid > 0 and quest.rewardid ~= ITEM_SHIAI_TOKEN) then
+			Quests:download(true)
+			if (reloadInventory) then
 				download_inventory()
 			end
-			if (quest.bp_xp) then
+			if (reloadBattlePass) then
 				BattlePass:getUserData()
 			end
 			if (successFunc) then
@@ -446,7 +475,7 @@ function Quests:showQuestButton(quest, listingHolder, listElements, elementHeigh
 		shapeType = ROUNDED,
 		rounded = { 4, 0 }
 	})
-	if (not quest.description and (quest.timeleft and quest.timeleft < 0)) then
+	if (not quest.description and (not quest.timeleft or quest.timeleft < 0)) then
 		questBackground.size.h = questBackground.size.h - 3
 		questBackground:setRounded(4)
 	end
@@ -497,54 +526,25 @@ function Quests:showQuestButton(quest, listingHolder, listElements, elementHeigh
 				questProgressBarState:deactivate(true)
 				questProgressText:addCustomDisplay(true, function() end)
 				TBMenu:displayLoadingMarkSmall(questProgressBarState, "", questProgressText.textFont)
-				Request:queue(function()
-					if (quest.global) then
-						claim_quest_global(quest.id)
-					else
-						claim_quest(quest.id)
-					end
-				end, "net_questclaim", function()
-						if (not quest.global) then
-							update_tc_balance()
-							Quests:download(true)
-							add_hook("downloader_complete", "net_questclaim_post", function(filename)
-									if (filename:find("data/quest.txt")) then
-										remove_hooks("net_questclaim_post")
-										Downloader:safeCall(function()
-											if (questProgressBarState and not questProgressBarState.destroyed) then
-												Quests:showMain()
-											end
-										end)
+				Quests:claim(quest, function()
+						add_hook("downloader_complete", "net_questclaim_post", function(filename)
+							if (filename:find("data/quest.txt")) then
+								remove_hooks("net_questclaim_post")
+								Downloader:safeCall(function()
+									if (questProgressBarState and not questProgressBarState.destroyed) then
+										Quests:showMain()
 									end
 								end)
-							if (quest.bp_xp > 0) then
-								BattlePass:getUserData()
 							end
-							if (quest.rewardid > 0 and quest.rewardid ~= ITEM_SHIAI_TOKEN) then
-								download_inventory()
-							end
-							return
-						end
-						questProgressBarState:kill(true)
-						local response = get_network_response()
-						if (response:find("GATEWAY 0; 0")) then
-							update_tc_balance()
-							download_inventory()
+						end)
 
-							TB_MENU_QUESTS_GLOBAL_COUNT = math.max(0, TB_MENU_QUESTS_GLOBAL_COUNT - 1)
-							quest.claimed = true
-							questProgressBarState.bgColor = TB_MENU_DEFAULT_DARKER_COLOR
-							questProgressBarState.inactiveColor = TB_MENU_DEFAULT_DARKER_COLOR
-							questProgressBarState.shadowColor = { TB_MENU_DEFAULT_LIGHTER_COLOR, TB_MENU_DEFAULT_DARKEST_COLOR }
-							questProgressText:addAdaptedText(true, TB_MENU_LOCALIZED.REWARDSCLAIMSUCCESS, nil, nil, nil, nil, nil, nil, nil, 1)
-						else
-							TBMenu:showStatusMessage(TB_MENU_LOCALIZED.ERRORTRYAGAIN)
-							questProgressBarState:activate(true)
-							questProgressText:addAdaptedText(true, TB_MENU_LOCALIZED.QUESTSCLAIMREWARD, nil, nil, nil, nil, nil, nil, nil, 1)
-						end
+						TB_MENU_QUESTS_GLOBAL_COUNT = math.max(0, TB_MENU_QUESTS_GLOBAL_COUNT - 1)
+						quest.claimed = true
+						questProgressBarState.bgColor = TB_MENU_DEFAULT_DARKER_COLOR
+						questProgressBarState.inactiveColor = TB_MENU_DEFAULT_DARKER_COLOR
+						questProgressBarState.shadowColor = { TB_MENU_DEFAULT_LIGHTER_COLOR, TB_MENU_DEFAULT_DARKEST_COLOR }
+						questProgressText:addAdaptedText(true, TB_MENU_LOCALIZED.REWARDSCLAIMSUCCESS, nil, nil, nil, nil, nil, nil, nil, 1)
 					end, function()
-						questProgressBarState:kill(true)
-						TBMenu:showStatusMessage(TB_MENU_LOCALIZED.ERRORTRYAGAIN .. ": " .. get_network_error())
 						questProgressBarState:activate(true)
 						questProgressText:addAdaptedText(true, TB_MENU_LOCALIZED.QUESTSCLAIMREWARD, nil, nil, nil, nil, nil, nil, nil, 1)
 					end)
@@ -603,7 +603,6 @@ function Quests:showQuestButton(quest, listingHolder, listElements, elementHeigh
 			shapeType = ROUNDED,
 			rounded = { 0, 4 }
 		})
-		local shiftY = 0
 		if (quest.description) then
 			local questDescText = questDescBackground:addChild({
 				pos = { 10, 0 },
@@ -612,7 +611,7 @@ function Quests:showQuestButton(quest, listingHolder, listElements, elementHeigh
 			if (quest.timeleft and quest.timeleft > 0) then
 				questDescText.size.h = questDescText.size.h - 13
 			end
-			questDescText:addAdaptedText(true, quest.description, nil, nil, 4, LEFTMID, 0.7)
+			questDescText:addAdaptedText(true, quest.description, nil, nil, 4, LEFTMID, 0.75)
 		end
 		if (quest.timeleft and quest.timeleft > 0) then
 			local questTimeleftText = questDescBackground:addChild({
@@ -642,12 +641,12 @@ end
 
 ---Displays the list of player's quests
 ---@param viewElement UIElement
----@param questsData table
+---@param questsData QuestCategory
 function Quests:showMainQuestList(viewElement, questsData)
 	viewElement:kill(true)
 
 	local elementHeight = 60
-	local toReload, topBar, botBar, listingView, listingHolder, scrollBackground = TBMenu:prepareScrollableList(viewElement, 70, elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
+	local toReload, topBar, botBar, _, listingHolder = TBMenu:prepareScrollableList(viewElement, elementHeight, elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
 
 	topBar:addChild({ shift = { 20, 5 }}):addAdaptedText(questsData.name, nil, nil, FONTS.BIG, nil, 0.7)
 	TBMenu:addBottomBloodSmudge(botBar, 2)
@@ -666,6 +665,38 @@ function Quests:showMainQuestList(viewElement, questsData)
 		scrollBar:makeScrollBar(listingHolder, listElements, toReload)
 	else
 		listingHolder:moveTo((listingHolder.parent.size.w - listingHolder.size.w) / 4, nil, true)
+	end
+
+	if (#questsData.canBeClaimed > 0) then
+		local claimButtonWidth = math.min(topBar.size.w - 20, 700)
+		local claimAllButton = botBar:addChild({
+			pos = { (topBar.size.w - claimButtonWidth) / 2, 5 },
+			size = { claimButtonWidth, topBar.size.h - 10 },
+			interactive = true,
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+			shapeType = ROUNDED,
+			rounded = 4
+		})
+		claimAllButton:addAdaptedText(TB_MENU_LOCALIZED.EVENTSCLAIMALL)
+		claimAllButton:addMouseUpHandler(function()
+			local spinner = claimAllButton:addChild({ bgColor = claimAllButton.bgColor }, true)
+			TBMenu:displayLoadingMark(spinner)
+			Quests:claim(questsData.canBeClaimed, function()
+				add_hook("downloader_complete", "net_questclaim_post", function(filename)
+					if (filename:find("data/quest.txt")) then
+						remove_hooks("net_questclaim_post")
+						Downloader:safeCall(function()
+							if (claimAllButton and not claimAllButton.destroyed) then
+								Quests:showMain()
+							end
+						end)
+					end
+				end)
+				spinner:kill()
+			end, function() spinner:kill() end)
+		end)
 	end
 end
 
@@ -706,7 +737,7 @@ function Quests:displayMainQuestTypeButton(listingHolder, v, listElements, eleme
 			rounded = buttonHolder.size.h
 		})
 		buttonQuestsCount:addChild({ shift = { 3, 3 }}):addAdaptedText(#v.quests .. "", nil, nil, 4, nil, 0.7)
-		if (v.canBeClaimed > 0) then
+		if (#v.canBeClaimed > 0) then
 			local markSize = 14
 			buttonQuestsCount:addChild({
 				pos = { -markSize * 0.9, -buttonQuestsCount.size.h - markSize * 0.1 },
@@ -732,6 +763,11 @@ function Quests:displayMainQuestTypeButton(listingHolder, v, listElements, eleme
 	end
 end
 
+---@class QuestCategory
+---@field name string
+---@field quests QuestData[]
+---@field canBeClaimed QuestData[]
+
 ---Displays a scrollable list with available quest types
 ---@param viewElement UIElement
 ---@param listView UIElement
@@ -741,37 +777,40 @@ function Quests:showMainQuestTypes(viewElement, listView)
 	local RANKED = 3
 	local BATTLEPASS = 4
 
+	---@type QuestCategory[]
 	local regularQuestList = {
 		{
 			name = TB_MENU_LOCALIZED.QUESTSREPEATING,
-			quests = {},
-			canBeClaimed = 0
+			quests = { },
+			canBeClaimed = { }
 		},
 		{
 			name = TB_MENU_LOCALIZED.QUESTSLIMITED,
-			quests = {},
-			canBeClaimed = 0
+			quests = { },
+			canBeClaimed = { }
 		},
 		{
 			name = TB_MENU_LOCALIZED.QUESTSRANKED,
-			quests = {},
-			canBeClaimed = 0
+			quests = { },
+			canBeClaimed = { }
 		},
 		{
 			name = TB_MENU_LOCALIZED.QUESTSBATTLEPASS,
-			quests = {},
-			canBeClaimed = 0
+			quests = { },
+			canBeClaimed = { }
 		}
 	}
 
+	---@param quest QuestData
+	---@param section integer
 	local function putQuestInSection(quest, section)
 		table.insert(regularQuestList[section].quests, quest)
 		if (quest.progress >= quest.requirement) then
-			regularQuestList[section].canBeClaimed = regularQuestList[section].canBeClaimed + 1
+			table.insert(regularQuestList[section].canBeClaimed, quest)
 		end
 	end
 
-	for i,v in pairs(Quests.QuestsData) do
+	for _ ,v in pairs(Quests.QuestsData) do
 		if (v.ranked) then
 			putQuestInSection(v, RANKED)
 		elseif (v.bp_xp > 0) then
@@ -785,16 +824,17 @@ function Quests:showMainQuestTypes(viewElement, listView)
 
 	local GLOBALACTIVE = 1
 	local GLOBALCOMPLETED = 2
+	---@type QuestCategory[]
 	local globalQuestList = {
 		{
 			name = TB_MENU_LOCALIZED.QUESTSGLOBALACTIVE,
-			quests = {},
-			canBeClaimed = 0
+			quests = { },
+			canBeClaimed = { }
 		},
 		{
 			name = TB_MENU_LOCALIZED.QUESTSGLOBALCOMPLETED,
-			quests = {},
-			canBeClaimed = 0
+			quests = { },
+			canBeClaimed = { }
 		}
 	}
 	for _, v in pairs(Quests.QuestsGlobalData) do
@@ -803,7 +843,7 @@ function Quests:showMainQuestTypes(viewElement, listView)
 		else
 			table.insert(globalQuestList[GLOBALACTIVE].quests, v)
 			if (v.progress >= v.requirement) then
-				globalQuestList[GLOBALACTIVE].canBeClaimed = globalQuestList[GLOBALACTIVE].canBeClaimed + 1
+				table.insert(globalQuestList[GLOBALACTIVE].canBeClaimed)
 			end
 		end
 	end
@@ -811,7 +851,7 @@ function Quests:showMainQuestTypes(viewElement, listView)
 	globalQuestList[GLOBALCOMPLETED].quests = table.qsort(globalQuestList[GLOBALCOMPLETED].quests, { "requirement", "type" }, { SORT_ASCENDING })
 
 	local elementHeight = 50
-	local toReload, topBar, botBar, listingView, listingHolder, scrollBackground = TBMenu:prepareScrollableList(viewElement, 70, elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
+	local toReload, topBar, botBar, _, listingHolder = TBMenu:prepareScrollableList(viewElement, 70, elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
 	local listElements = {}
 
 	topBar:addChild({ shift = { 10, 5 } }):addAdaptedText(TB_MENU_LOCALIZED.NAVBUTTONQUESTS, nil, nil, FONTS.BIG, nil, 0.7)
