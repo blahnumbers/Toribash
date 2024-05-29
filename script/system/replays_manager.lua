@@ -2008,7 +2008,7 @@ function Replays:showAutosaveToggle(viewElement)
 			set_option("autosave", value)
 		end)
 	local autosaveText = autosaveView:addChild({
-		pos = { autosaveView.size.h + 20, 0 },
+		pos = { toggle.size.h + 20, 0 },
 		size = { autosaveView.size.w - toggle.size.h - 30, autosaveView.size.h }
 	})
 	autosaveText:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSAUTOSAVEOPTION, nil, nil, nil, LEFTMID)
@@ -2125,9 +2125,10 @@ function Replays:showReplayInfo(viewElement, replay)
 		posY = autosaveToggleView.shift.y - 10
 	end
 
+	local buttonManageWidth = PLATFORM == "IPHONEOS" and buttonWidth - buttonHeight - 10 or buttonWidth
 	local replayManageButton = viewElement:addChild({
 		pos = { 10, -buttonHeight + posY },
-		size = { buttonWidth, buttonHeight },
+		size = { buttonManageWidth, buttonHeight },
 		interactive = true,
 		shapeType = ROUNDED,
 		rounded = 3,
@@ -2139,10 +2140,25 @@ function Replays:showReplayInfo(viewElement, replay)
 	replayManageButton:addMouseHandlers(nil, function()
 			Replays:showReplayManageWindow(replay)
 		end)
+	if (PLATFORM == "IPHONEOS") then
+		local replayShareButton = viewElement:addChild({
+			pos = { replayManageButton.shift.x + replayManageButton.size.w + 10, replayManageButton.shift.y },
+			size = { replayManageButton.size.h, replayManageButton.size.h },
+			bgImage = "../textures/menu/general/buttons/share-ios.tga",
+			shapeType = ROUNDED,
+			rounded = 3,
+			interactive = true,
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+		})
+		replayShareButton:addMouseUpHandler(function()
+			share_file(replay.filename)
+		end)
+	end
 	posY = replayManageButton.shift.y - 10
 
 	if (Replays:canUploadReplay(replay)) then
-		local buttonWidth = PLATFORM == "IPHONEOS" and viewElement.size.w - viewElement.size.h / 10 - 30 or viewElement.size.w - 20
 		local replayUploadButton = viewElement:addChild({
 			pos = { 10, -buttonHeight + posY },
 			size = { buttonWidth, buttonHeight },
@@ -2158,43 +2174,7 @@ function Replays:showReplayInfo(viewElement, replay)
 		replayUploadButton:addMouseHandlers(nil, function()
 				Replays:showUploadWindow(replay)
 			end)
-		if (PLATFORM == "IPHONEOS") then
-			local replayShareButton = viewElement:addChild({
-				pos = { replayUploadButton.shift.x + replayUploadButton.size.w + 10, replayUploadButton.shift.y },
-				size = { replayUploadButton.size.h, replayUploadButton.size.h },
-				bgImage = "../textures/menu/general/buttons/share-ios.tga",
-				shapeType = ROUNDED,
-				rounded = 3,
-				interactive = true,
-				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
-				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-			})
-			replayShareButton:addMouseUpHandler(function()
-				share_file(replay.filename)
-			end)
-		end
 		posY = replayUploadButton.shift.y - 10
-	elseif (PLATFORM == "IPHONEOS") then
-		local replayShareButton = viewElement:addChild({
-			pos = { 10, -buttonHeight + posY },
-			size = { buttonWidth, buttonHeight },
-			shapeType = ROUNDED,
-			rounded = 3,
-			interactive = true,
-			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
-			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
-		})
-		replayShareButton:addChild({
-			pos = { (replayShareButton.size.w - buttonHeight) / 2, 0 },
-			size = { buttonHeight, buttonHeight },
-			bgImage = "../textures/menu/general/buttons/share-ios.tga"
-		})
-		replayShareButton:addMouseUpHandler(function()
-			share_file(replay.filename)
-		end)
-		posY = replayShareButton.shift.y - 10
 	end
 
 	local replayViewButton = viewElement:addChild({
