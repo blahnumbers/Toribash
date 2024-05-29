@@ -4340,7 +4340,7 @@ function TBMenu:spawnTextField2(viewElement, rect, textFieldString, defaultStrin
 		interactive = true,
 		bgColor = inputSettings.darkerMode and TB_MENU_DEFAULT_BG_COLOR or lightColor,
 		hoverColor = inputSettings.darkerMode and lightColor or lightestColor,
-		inactiveColor = inputSettings.darkerMode and TB_MENU_DEFAULT_INACTIVE_COLOR_DARK or TB_MENU_DEFAULT_INACTIVE_COLOR
+		inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK
 	}, true)
 	local inputField = input:addChild({
 		shift = { 4, 1 },
