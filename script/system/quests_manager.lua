@@ -700,6 +700,10 @@ function Quests:showMainQuestList(viewElement, questsData)
 						end)
 					end
 				end)
+				for _, v in pairs(questsData.canBeClaimed) do
+					v.claimed = true
+					TB_MENU_QUESTS_GLOBAL_COUNT = math.max(0, TB_MENU_QUESTS_GLOBAL_COUNT - 1)
+				end
 				spinner:kill()
 				listingHolderOverlay:kill()
 			end, function()
