@@ -31,8 +31,8 @@ local function showPopup(i)
 	elseif (quest.progress >= quest.requirement) then
 		displayDuration = displayDuration * 3
 	end
-	local percentageThreshold = math.floor(oldProgress / quest.requirement * 5)
-	if (math.floor(quest.progress / quest.requirement * 5) == percentageThreshold) then
+	local percentageThreshold = math.floor(oldProgress / quest.requirement * 3)
+	if (math.floor(quest.progress / quest.requirement * 3) == percentageThreshold) then
 		if (popupsData[i + 1]) then
 			showPopup(i + 1)
 		end

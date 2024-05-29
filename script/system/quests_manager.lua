@@ -683,6 +683,12 @@ function Quests:showMainQuestList(viewElement, questsData)
 		claimAllButton:addMouseUpHandler(function()
 			local spinner = claimAllButton:addChild({ bgColor = claimAllButton.bgColor }, true)
 			TBMenu:displayLoadingMark(spinner)
+			local listingHolderOverlay = toReload:addChild({
+				pos = { 0, topBar.size.h },
+				size = { topBar.size.w, toReload.size.h - topBar.size.h - botBar.size.h },
+				bgColor = TB_MENU_DEFAULT_BG_COLOR_TRANS,
+				interactive = true
+			})
 			Quests:claim(questsData.canBeClaimed, function()
 				add_hook("downloader_complete", "net_questclaim_post", function(filename)
 					if (filename:find("data/quest.txt")) then
@@ -695,7 +701,11 @@ function Quests:showMainQuestList(viewElement, questsData)
 					end
 				end)
 				spinner:kill()
-			end, function() spinner:kill() end)
+				listingHolderOverlay:kill()
+			end, function()
+				spinner:kill()
+				listingHolderOverlay:kill()
+			end)
 		end)
 	end
 end
