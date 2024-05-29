@@ -5607,7 +5607,7 @@ function Store:showStoreListItem(listingHolder, listElements, elementHeight, ite
 				pricesString = "$" .. numberFormat(item.now_usd_price, 2)
 			end
 		else
-			pricesString = numberFormat(item.now_usd_price) .. " ST"
+			pricesString = pricesString .. numberFormat(item.now_usd_price) .. " ST"
 		end
 	end
 	itemPrice:addAdaptedText(true, pricesString, nil, nil, nil, RIGHTMID)
