@@ -250,6 +250,7 @@ Torishop = Store
 ---| 86	LotteryTickets
 ---| 87	ItemEffects
 _G.StoreCategory = {
+	Colors = 0,
 	BloodColors = 1,
 	RelaxColors = 2,
 	Winnings = 3,
@@ -655,6 +656,7 @@ end
 function Store.GetItems()
 	Store.Items = { }
 	Store.Categories = { }
+	Store.Categories[-1] = { name = "Colors" }
 	Store.Ready = false
 
 	local file = Files.Open("../data/store.txt")
@@ -780,7 +782,7 @@ end
 ---@param catid integer
 ---@return StoreItemCategory
 function Store:getCategoryInfo(catid)
-	if (not Store.Categories[catid]) then
+	if (Store.Categories[catid] == nil) then
 		return { name = TB_MENU_LOCALIZED.UNDEF }
 	end
 	return table.clone(Store.Categories[catid])
@@ -5876,7 +5878,7 @@ end
 ---@return integer?
 function Store:getSearchCategory(catid)
 	if (in_array(catid, StoreInternal.Categories.Colors)) then
-		return 0
+		return -1
 	end
 	if (in_array(catid, StoreInternal.Categories.Hidden)) then
 		return nil
@@ -5907,7 +5909,7 @@ function Store:getSearchSections(searchString, isSale)
 		if (utf8.find(name, searchString) and not utf8.find(name, "test") and (not isSale and true or v.on_sale)) then
 			local catid = Store:getSearchCategory(v.catid)
 			if (catid ~= nil) then
-				if (not searchResults[catid]) then
+				if (searchResults[catid] == nil) then
 					searchResults[catid] = { }
 				end
 				table.insert(searchResults[catid], v)
