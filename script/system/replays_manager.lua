@@ -2186,7 +2186,11 @@ function Replays:showReplayInfo(viewElement, replay)
 			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
 		})
-		replayShareButton:addAdaptedText(TB_MENU_LOCALIZED.BUTTONSHARE)
+		replayShareButton:addChild({
+			pos = { (replayShareButton.size.w - buttonHeight) / 2, 0 },
+			size = { buttonHeight, buttonHeight },
+			bgImage = "../textures/menu/general/buttons/share-ios.tga"
+		})
 		replayShareButton:addMouseUpHandler(function()
 			share_file(replay.filename)
 		end)
