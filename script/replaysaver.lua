@@ -20,7 +20,9 @@ local infoButton = replaySaveOverlay:addChild({
 	rounded = replaySaveOverlay.size.h
 }, true)
 local popup = TBMenu:displayHelpPopup(infoButton, "Current replay will be automatically saved as \"my replays\\" .. replayName .. "\" every minute with the date appended at the end")
-popup:moveTo(nil, -infoButton.size.h - popup.size.h - 5)
+if (popup ~= nil) then
+	popup:moveTo(nil, -infoButton.size.h - popup.size.h - 5)
+end
 local replayQuitButton = replaySaveOverlay:addChild({
 	pos = { -replaySaveOverlay.size.h, 0 },
 	size = { replaySaveOverlay.size.h, replaySaveOverlay.size.h },
