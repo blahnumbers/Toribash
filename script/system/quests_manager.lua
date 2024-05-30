@@ -857,7 +857,7 @@ function Quests:showMainQuestTypes(viewElement, listView)
 		else
 			table.insert(globalQuestList[GLOBALACTIVE].quests, v)
 			if (v.progress >= v.requirement) then
-				table.insert(globalQuestList[GLOBALACTIVE].canBeClaimed)
+				table.insert(globalQuestList[GLOBALACTIVE].canBeClaimed, v)
 			end
 		end
 	end
