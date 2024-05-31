@@ -330,10 +330,10 @@ function Quests:claim(quest, successFunc, errorFunc)
 		if (v.global) then
 			isGlobal = true
 		end
-		if (v.rewardid > 0 and v.rewardid ~= ITEM_SHIAI_TOKEN) then
+		if (v.rewardid ~= nil and v.rewardid > 0 and v.rewardid ~= ITEM_SHIAI_TOKEN) then
 			reloadInventory = true
 		end
-		if (v.bp_xp > 0) then
+		if (v.bp_xp ~= nil and v.bp_xp > 0) then
 			reloadBattlePass = true
 		end
 		table.insert(questIds, v.id)
