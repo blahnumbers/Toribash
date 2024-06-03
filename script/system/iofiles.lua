@@ -12,9 +12,6 @@ FILES_MODE_READWRITE = 'r+'
 ---@param isroot boolean If true, will start looking for file in Toribash root folder instead of data/script
 ---@return file*|integer|nil #Lua `file*` object on desktop platforms, file index on mobile or nil on failure
 local function filesOpenInternal(path, mode, isroot)
-	if (is_mobile()) then
-		return file_open(path, mode, isroot)
-	end
 	local file, err = io.open(path, mode, isroot)
 	if (type(file) ~= "userdata" or err ~= nil) then
 		return nil
@@ -56,8 +53,19 @@ local function filesCloseInternal(file)
 	file:close()
 end
 
+---Sets an override for filesOpenInternal depending on current platform
+local function setupFilesOpen()
+	if (is_mobile() or (_G.PLATFORM == "APPLE" and not is_steam())) then
+		filesOpenInternal = file_open
+	end
+end
+
 do
 	---**Toribash file IO manager**
+	---
+	---**Version 5.68**
+	---* Use setupFilesOpen() to link filesOpenInternal() against custom functions on platforms that require it
+	---* Adjustments for standalone macOS build
 	---
 	---**Version 5.65**
 	---* Added `Exists()` method to quickly check whether file exists and is readable
@@ -72,7 +80,7 @@ do
 	-- * Semantic updates to use Files class as a static alternative to spawn new File class objects
 	-- * EmmyLua annotations
 	---@class Files
-	Files = { ver = 5.65 }
+	Files = { ver = 5.68 }
 	Files.__index = Files
 
 	---@class File
@@ -216,3 +224,5 @@ do
 		end
 	end
 end
+
+setupFilesOpen()
