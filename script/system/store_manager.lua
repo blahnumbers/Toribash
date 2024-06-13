@@ -5339,8 +5339,8 @@ function Store:showStoreItemInfo(item, noReload, updateOverride)
 				buyWithSt.uiColor = table.clone(UICOLORWHITE)
 				purchaseIconImage = "../textures/menu/logos/apple.tga"
 				displayPrice = utf8.gsub(get_platform_item_price(item.itemid), "%s", " ")
-			elseif (_G.PLATFORM == "ANDROID") then
-				purchaseIconImage = "../textures/menu/logos/android.tga"
+			--[[elseif (_G.PLATFORM == "ANDROID") then
+				purchaseIconImage = "../textures/menu/logos/android.tga"]]
 			end
 			local buyWithUSDIcon = buyWithSt:addChild({
 				pos = { -buyWithSt.size.h + (buyWithSt.size.h - iconScale) / 2 - 5, (buyWithSt.size.h - iconScale) / 2 },
@@ -6056,8 +6056,8 @@ function Store:showPrime()
 		primePurchaseButton.uiColor = table.clone(UICOLORWHITE)
 		purchaseIconImage = "../textures/menu/logos/apple.tga"
 		displayPrice = utf8.gsub(get_platform_item_price(primeItemInfo.itemid), "%s", " ")
-	elseif (_G.PLATFORM == "ANDROID") then
-		purchaseIconImage = "../textures/menu/logos/android.tga"
+	--[[elseif (_G.PLATFORM == "ANDROID") then
+		purchaseIconImage = "../textures/menu/logos/android.tga"]]
 	end
 	if (displayPrice ~= "") then
 		primePurchaseButton:addChild({
