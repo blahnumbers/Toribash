@@ -1371,9 +1371,9 @@ function Settings:getSettingsData(id)
 						minValueDisp = "0.5x",
 						maxValue = 200,
 						maxValueDisp = "2x",
-						systemname = "camerasensitivity",
+						systemname = "camerasensitivityvert",
 						onUpdate = function(slider)
-							Settings.Stored.camerasensitivity = {
+							Settings.Stored.camerasensitivityvert = {
 								value = math.round((tonumber(slider.label.labelText[1]) or 100) / 10) * 10
 							}
 							slider.label.labelText[1] = math.round((tonumber(slider.label.labelText[1]) or 100) / 10) / 10 .. 'x'
