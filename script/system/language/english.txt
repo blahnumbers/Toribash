@@ -1228,7 +1228,8 @@ TOOLTIPDISMEMBERED	Dismembered
 TOOLTIPFRACTURED	Fractured
 SETTINGSJOINTSTATEWHEEL	Long tap state wheel mode
 STOREPURCHASESTEAMCANCELLED	Steam purchase has been cancelled
-SETTINGSCAMERASENSITIVITY	Camera sensitivity
+SETTINGSCAMERASENSITIVITY	Camera sensitivity (horizontal)
+SETTINGSCAMERAYSENSITIVITY	Camera sensitivity (vertical)
 ACCOUNTDELETEBUTTON	Request account deletion
 ACCOUNTDELETECONFIRMATION	You can request your account to be deleted along with all your personal data linked to it.\nIf you'd like to proceed, press "Continue".
 GAMECENTERDOOPEN	Open Game Center
@@ -1298,3 +1299,5 @@ SETTINGSCUSTOMSCLEARSUCCESS	Customs data has been cleared successfully!
 SETTINGSDATACLEARFAILURE	Error clearing data, please try again
 SETTINGSMOUSESCROLLCONTROLS	Control joints state with mouse scroll
 BUTTONSHARE	Share
+SETTINGSPRESSKEYTOASSIGN	Press the key to assign
+SETTINGSREPLAYS	Replays

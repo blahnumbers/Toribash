@@ -1567,11 +1567,16 @@ function TBMenu:showHotkeys()
 			TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
 			overlay:kill()
 		end)
-	local hotkeysView = UIElement:new({
-		parent = overlay,
-		pos = { WIN_W / 10, 100 },
-		size = { WIN_W * 0.8, WIN_H - 200 },
-		bgColor = TB_MENU_DEFAULT_BG_COLOR
+	local hotkeyWindowSize = {
+		x = math.min(WIN_W * 0.8, 1200),
+		y = math.min(WIN_H - 200, 800)
+	}
+	local hotkeysView = overlay:addChild({
+		pos = { (WIN_W - hotkeyWindowSize.x) / 2, math.max(120, (WIN_H - hotkeyWindowSize.y) / 2) },
+		size = { hotkeyWindowSize.x, hotkeyWindowSize.y },
+		bgColor = TB_MENU_DEFAULT_BG_COLOR,
+		shapeType = ROUNDED,
+		rounded = 4
 	})
 
 	local elementHeight = 50
@@ -1582,20 +1587,9 @@ function TBMenu:showHotkeys()
 		size = { topBar.size.w - 20, topBar.size.h }
 	})
 	hotkeysTitle:addAdaptedText(true, TB_MENU_LOCALIZED.MAINMENUHOTKEYSNAME, nil, nil, FONTS.BIG)
-	local backButton = UIElement:new({
-		parent = topBar,
-		pos = { -(get_string_length(TB_MENU_LOCALIZED.NAVBUTTONBACK, FONTS.MEDIUM) + 100), 10 },
-		size = { get_string_length(TB_MENU_LOCALIZED.NAVBUTTONBACK, FONTS.MEDIUM) + 90, topBar.size.h - 20 },
-		interactive = true,
-		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
-		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
-	})
-	backButton:addAdaptedText(false, TB_MENU_LOCALIZED.NAVBUTTONBACK)
-	backButton:addMouseHandlers(nil, function()
-			overlay:kill()
-		end)
-	TBMenu:addBottomBloodSmudge(botBar, 1)
+
+	local closeButton = TBMenu:spawnCloseButton(topBar, { x = -topBar.size.h + 5, y = 5, w = topBar.size.h - 10, h = topBar.size.h - 10 }, function() overlay:kill() end)
+	closeButton:setRounded(hotkeysView.rounded)
 
 	local hotkeys = {
 		{
@@ -1709,6 +1703,10 @@ function TBMenu:showHotkeys()
 			name = TB_MENU_LOCALIZED.HOTKEYSOTHER,
 			items = {
 				{
+					keys = { "m" },
+					desc = TB_MENU_LOCALIZED.MOVEMEMORYTITLE
+				},
+				{
 					keys = { "ctrl", "m" },
 					desc = TB_MENU_LOCALIZED.HOTKEYSMODLIST
 				},
@@ -1734,90 +1732,77 @@ function TBMenu:showHotkeys()
 	}
 
 	local listElements = {}
-	for i, section in pairs(hotkeys) do
-		local sectionTitle = UIElement:new({
-			parent = listingHolder,
+	for _, section in pairs(hotkeys) do
+		local sectionTitle = listingHolder:addChild({
 			pos = { 0, #listElements * elementHeight },
 			size = { listingHolder.size.w, elementHeight }
 		})
 		sectionTitle:addAdaptedText(false, section.name, 10, nil, FONTS.BIG, LEFTMID, 0.6, nil, 0.2)
 		table.insert(listElements, sectionTitle)
-		for i, hotkey in pairs(section.items) do
-			local hotkeyView = UIElement:new({
-				parent = listingHolder,
+		for _, hotkey in pairs(section.items) do
+			local hotkeyView = listingHolder:addChild({
 				pos = { 10, #listElements * elementHeight + 5 },
-				size = { listingHolder.size.w - 20, elementHeight - 10 },
-				bgColor = TB_MENU_DEFAULT_DARKER_COLOR
+				size = { listingHolder.size.w - 12, elementHeight - 10 },
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				shapeType = ROUNDED,
+				rounded = 3
 			})
 			table.insert(listElements, hotkeyView)
-			local description = UIElement:new({
-				parent = hotkeyView,
+			local description = hotkeyView:addChild({
 				pos = { 10, 0 },
 				size = { hotkeyView.size.w / 2 - 10, hotkeyView.size.h }
 			})
 			description:addAdaptedText(true, hotkey.desc, nil, nil, nil, LEFTMID)
 			local kPos = description.size.w + 20
-			for i, key in pairs(hotkey.keys) do
+			for _, key in pairs(hotkey.keys) do
 				if (type(key) == "table") then
 					for i, v in pairs(key) do
 						if (i > 1) then
-							local commaSign = UIElement:new({
-								parent = hotkeyView,
+							local commaSign = hotkeyView:addChild({
 								pos = { kPos, 0 },
 								size = { get_string_length(",", FONTS.MEDIUM) + 10, hotkeyView.size.h - 5 }
 							})
 							commaSign:addAdaptedText(true, ",", nil, nil, FONTS.MEDIUM, LEFTBOT)
 							kPos = kPos + commaSign.size.w
 						end
-						local keyViewBG = UIElement:new({
-							parent = hotkeyView,
+						local keyViewBG = hotkeyView:addChild({
 							pos = { kPos, 5 },
 							size = { hotkeyView.size.h - 10 + get_string_length(v, FONTS.MEDIUM), hotkeyView.size.h - 10 },
 							bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 							shapeType = ROUNDED,
 							rounded = 4
 						})
-						local keyView = UIElement:new({
-							parent = keyViewBG,
-							pos = { 1, 1 },
-							size = { keyViewBG.size.w - 2, keyViewBG.size.h - 2 },
+						local keyView = keyViewBG:addChild({
+							shift = { 1, 1 },
 							bgColor = TB_MENU_DEFAULT_BG_COLOR,
-							shapeType = ROUNDED,
-							rounded = 4,
 							innerShadow = { 2, 2 },
 							shadowColor = { TB_MENU_DEFAULT_LIGHTER_COLOR, TB_MENU_DEFAULT_DARKEST_COLOR }
-						})
+						}, true)
 						keyView:addAdaptedText(false, v)
 						kPos = kPos + keyView.size.w + 5
 					end
 				else
 					if (#hotkeyView.child > 1) then
-						local plusSign = UIElement:new({
-							parent = hotkeyView,
+						local plusSign = hotkeyView:addChild({
 							pos = { kPos, 0 },
 							size = { get_string_length(hotkey.dash and "-" or "+", FONTS.MEDIUM) + 10, hotkeyView.size.h }
 						})
 						plusSign:addAdaptedText(true, hotkey.dash and "-" or "+", nil, nil, FONTS.MEDIUM)
 						kPos = kPos + plusSign.size.w + 5
 					end
-					local keyViewBG = UIElement:new({
-						parent = hotkeyView,
+					local keyViewBG = hotkeyView:addChild({
 						pos = { kPos, 5 },
 						size = { hotkeyView.size.h - 10 + get_string_length(key, FONTS.MEDIUM), hotkeyView.size.h - 10 },
 						bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 						shapeType = ROUNDED,
 						rounded = 4
 					})
-					local keyView = UIElement:new({
-						parent = keyViewBG,
-						pos = { 1, 1 },
-						size = { keyViewBG.size.w - 2, keyViewBG.size.h - 2 },
+					local keyView = keyViewBG:addChild({
+						shift = { 1, 1 },
 						bgColor = TB_MENU_DEFAULT_BG_COLOR,
-						shapeType = ROUNDED,
-						rounded = 4,
 						innerShadow = { 2, 2 },
 						shadowColor = { TB_MENU_DEFAULT_LIGHTER_COLOR, TB_MENU_DEFAULT_DARKEST_COLOR }
-					})
+					}, true)
 					keyView:addAdaptedText(false, key)
 					kPos = kPos + keyView.size.w + 5
 				end
@@ -4280,6 +4265,7 @@ end
 ---@field inputType KeyboardInputType
 ---@field autoCompletion boolean
 ---@field returnKeyType KeyboardReturnType
+---@field showDefaultDuringInput boolean
 
 ---@type TextFieldInputSettings
 local TextFieldDefaultInputSettings = {
@@ -4296,7 +4282,8 @@ local TextFieldDefaultInputSettings = {
 	maxLength = 0,
 	inputType = KEYBOARD_INPUT.ASCII,
 	autoCompletion = true,
-	returnKeyType = KEYBOARD_RETURN.DEFAULT
+	returnKeyType = KEYBOARD_RETURN.DEFAULT,
+	showDefaultDuringInput = false
 }
 
 ---Constructs **TextFieldInputSettings** from provided settings
@@ -4365,7 +4352,7 @@ function TBMenu:spawnTextField2(viewElement, rect, textFieldString, defaultStrin
 			inputField:enableMenuKeyboard()
 		end)
 	inputField.killAction = function() inputField:disableMenuKeyboard() end
-	TBMenuInternal.DisplayTextfield(inputField, inputSettings.fontId, inputSettings.textScale, inputField.uiColor or table.clone(UICOLORWHITE), defaultString, inputSettings.textAlign, inputSettings.noCursor)
+	TBMenuInternal.DisplayTextfield(inputField, inputSettings.fontId, inputSettings.textScale, inputField.uiColor or table.clone(UICOLORWHITE), defaultString, inputSettings.textAlign, inputSettings.noCursor, inputSettings.showDefaultDuringInput)
 	return inputField
 end
 
@@ -4418,7 +4405,8 @@ end
 ---@param defaultStr ?string
 ---@param orientation ?UIElementTextAlign
 ---@param noCursor ?boolean
-function TBMenuInternal.DisplayTextfield(element, fontid, scale, color, defaultStr, orientation, noCursor)
+---@param showDefaultDuringInput ?boolean
+function TBMenuInternal.DisplayTextfield(element, fontid, scale, color, defaultStr, orientation, noCursor, showDefaultDuringInput)
 	local defaultStr = defaultStr or ""
 	local orientation = orientation or LEFTMID
 
@@ -4440,10 +4428,12 @@ function TBMenuInternal.DisplayTextfield(element, fontid, scale, color, defaultS
 					draw_quad(element.parent.pos.x, element.parent.pos.y, element.parent.size.w, element.parent.size.h)
 				end
 
-				local part1 = utf8.sub(element.textfieldstr[1], 0, element.textfieldindex)
-				local part2 = utf8.sub(element.textfieldstr[1], element.textfieldindex + 1)
-				local displayString = part1 .. (noCursor and "" or "|") .. part2
-				element:uiText(displayString, nil, nil, fontid, orientation, scale, nil, nil, color, nil, nil, nil, nil, nil, true)
+				if (not showDefaultDuringInput) then
+					local part1 = utf8.sub(element.textfieldstr[1], 0, element.textfieldindex)
+					local part2 = utf8.sub(element.textfieldstr[1], element.textfieldindex + 1)
+					local displayString = part1 .. (noCursor and "" or "|") .. part2
+					element:uiText(displayString, nil, nil, fontid, orientation, scale, nil, nil, color, nil, nil, nil, nil, nil, true)
+				end
 			else
 				if (element.menuKeyboardId) then
 					element:disableMenuKeyboard()
@@ -4452,7 +4442,7 @@ function TBMenuInternal.DisplayTextfield(element, fontid, scale, color, defaultS
 					element:uiText(element.textfieldstr[1], nil, nil, fontid, orientation, scale, nil, nil, color, nil, nil, nil, nil, nil, true)
 				end
 			end
-			if (element.textfieldstr[1] == "") then
+			if (element.textfieldstr[1] == "" or (showDefaultDuringInput == true and element.keyboard == true)) then
 				element:uiText(defaultStr, nil, nil, fontid, orientation, defaultStringScale, nil, nil, { color[1], color[2], color[3], color[4] * 0.5 }, nil, nil, nil, nil, nil, true)
 			end
 		end)

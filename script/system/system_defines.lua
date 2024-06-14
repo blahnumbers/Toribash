@@ -2917,6 +2917,7 @@ function save_custom_config() end
 ---| "mipmaplevels"
 ---| "tooltipmode"
 ---| "camerasensitivity"
+---| "camerasensitivityvert"
 ---| "ghostobj"
 ---| "scrollcontrols"
 ---| "aidifficulty" Toribash builds with AI fight mode only

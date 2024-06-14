@@ -117,15 +117,15 @@ function Settings:showAbout()
 		pos = { 0, 0 },
 		size = { WIN_W, WIN_H },
 		bgColor = table.clone(UICOLORWHITE),
-		interactive = true
+		--interactive = true
 	})
 	whiteOverlay.killAction = function() UIScrollbarIgnore = false end
 	local slowMode = false
 	local speedMultiplier = get_option('framerate') == 30 and 2 or 1
-	whiteOverlay:addMouseHandlers(nil, function()
+	--[[whiteOverlay:addMouseHandlers(nil, function()
 			whiteOverlay:kill()
 			TBMenu.UserBar:show()
-		end, function() slowMode = false end)
+		end, function() slowMode = false end)]]
 	local aboutMover = UIElement:new({
 		parent = whiteOverlay,
 		pos = { WIN_W / 5, WIN_H },
@@ -162,10 +162,9 @@ function Settings:showAbout()
 	tbToribashTeam:addAdaptedText(true, "Current Team", nil, nil, FONTS.BIG, nil, nil, nil, 0.2)
 
 	-- Keep hampa in the middle and others on sides
-	local tbTeam = { 'hampa', 'sir', 'matarika', 'melrose', 'ancient' }
-	local teamScale = aboutMover.size.w / #tbTeam
-	teamScale = teamScale > 512 and 512 or teamScale
-	for i,v in pairs(tbTeam) do
+	local tbTeam = { 'hampa', 'sir' }
+	local teamScale = math.min(256, aboutMover.size.w / #tbTeam)
+	for i, v in pairs(tbTeam) do
 		local teamMember = UIElement:new({
 			parent = aboutMover,
 			pos = { aboutMover.size.w / 2 - #tbTeam / 2 * teamScale + (i - 1) * teamScale, tbToribashTeam.shift.y + tbToribashTeam.size.h },
@@ -178,7 +177,7 @@ function Settings:showAbout()
 			size = { teamMember.size.w, teamMember.size.h },
 			uiColor = UICOLORWHITE
 		})
-		teamMemberName:addAdaptedText(true, v, nil, nil, FONTS.BIG, CENTERBOT, 0.55, nil, nil, 4)
+		teamMemberName:addAdaptedText(true, v, nil, nil, FONTS.BIG, CENTERBOT, 0.7, nil, nil, 4)
 	end
 
 
@@ -247,8 +246,9 @@ function Settings:showAbout()
 		size = { tbPlayerThanks.size.w, tbPlayerThanks.size.h }
 	})
 	local function initOutro()
+		local initTime = UIElement.clock
 		whiteOverlay:addCustomDisplay(false, function()
-				whiteOverlay.bgColor[4] = whiteOverlay.bgColor[4] - 0.05
+				whiteOverlay.bgColor[4] = UITween.SineTween(1, 0, (UIElement.clock - initTime) * 2);
 				if (whiteOverlay.bgColor[4] <= 0) then
 					whiteOverlay:kill()
 					TBMenu.UserBar:show()
@@ -256,7 +256,7 @@ function Settings:showAbout()
 			end)
 	end
 	lastElement:addCustomDisplay(false, function()
-			if (lastElement.pos.y + lastElement.size.h < 0) then
+			if (lastElement.pos.y + lastElement.size.h <= 0) then
 				lastElement:kill()
 				initOutro()
 			end
@@ -1191,6 +1191,31 @@ function Settings:getSettingsData(id)
 						hidden = is_mobile(),
 					},
 					{
+						name = TB_MENU_LOCALIZED.SETTINGSGAMERULES,
+						hint = TB_MENU_LOCALIZED.SETTINGSGAMERULESHINT,
+						type = TOGGLE,
+						systemname = "rememberrules",
+						val = { get_option("rememberrules") }
+					},
+					{
+						name = TB_MENU_LOCALIZED.SETTINGSBACKGROUNDCLICK,
+						hint = TB_MENU_LOCALIZED.SETTINGSBACKGROUNDCLICKHINT,
+						type = TOGGLE,
+						systemname = "backgroundclick",
+						val = { get_option("backgroundclick") }
+					},
+					{
+						name = TB_MENU_LOCALIZED.SETTINGSAUTOUPDATE,
+						type = TOGGLE,
+						systemname = "autoupdate",
+						val = { get_option("autoupdate") }
+					}
+				}
+			},
+			{
+				name = TB_MENU_LOCALIZED.SETTINGSREPLAYS,
+				items = {
+					{
 						name = TB_MENU_LOCALIZED.SETTINGSREPLAYCACHE,
 						type = DROPDOWN,
 						systemname = "replaycache",
@@ -1282,26 +1307,6 @@ function Settings:getSettingsData(id)
 									end
 							}
 						},
-					},
-					{
-						name = TB_MENU_LOCALIZED.SETTINGSGAMERULES,
-						hint = TB_MENU_LOCALIZED.SETTINGSGAMERULESHINT,
-						type = TOGGLE,
-						systemname = "rememberrules",
-						val = { get_option("rememberrules") }
-					},
-					{
-						name = TB_MENU_LOCALIZED.SETTINGSBACKGROUNDCLICK,
-						hint = TB_MENU_LOCALIZED.SETTINGSBACKGROUNDCLICKHINT,
-						type = TOGGLE,
-						systemname = "backgroundclick",
-						val = { get_option("backgroundclick") }
-					},
-					{
-						name = TB_MENU_LOCALIZED.SETTINGSAUTOUPDATE,
-						type = TOGGLE,
-						systemname = "autoupdate",
-						val = { get_option("autoupdate") }
 					}
 				}
 			},
@@ -1356,7 +1361,25 @@ function Settings:getSettingsData(id)
 							}
 							slider.label.labelText[1] = math.round((tonumber(slider.label.labelText[1]) or 100) / 10) / 10 .. 'x'
 						end,
-						val = { get_option("camerasensitivity") }
+						val = { get_option("camerasensitivity") },
+						hidden = not is_mobile()
+					},
+					{
+						name = TB_MENU_LOCALIZED.SETTINGSCAMERAYSENSITIVITY,
+						type = SLIDER,
+						minValue = 50,
+						minValueDisp = "0.5x",
+						maxValue = 200,
+						maxValueDisp = "2x",
+						systemname = "camerasensitivity",
+						onUpdate = function(slider)
+							Settings.Stored.camerasensitivity = {
+								value = math.round((tonumber(slider.label.labelText[1]) or 100) / 10) * 10
+							}
+							slider.label.labelText[1] = math.round((tonumber(slider.label.labelText[1]) or 100) / 10) / 10 .. 'x'
+						end,
+						val = { get_option("camerasensitivityvert") },
+						hidden = not is_mobile()
 					},
 					{
 						name = TB_MENU_LOCALIZED.SETTINGSCAMERAINVERTX,
@@ -2104,18 +2127,19 @@ function Settings:showSettings(id, keepStoredSettings)
 							rounded = 3
 						})
 						if (item.inputspecial) then
-							local textField = TBMenu:spawnTextField2(itemInput, nil, Settings:getKeyName(item.val[1]), item.name, {
+							local textField = TBMenu:spawnTextField2(itemInput, nil, Settings:getKeyName(item.val[1]), TB_MENU_LOCALIZED.SETTINGSPRESSKEYTOASSIGN, {
 								isNumeric = true,
 								fontId = 4,
 								textAlign = CENTERMID,
 								textScale = 0.8,
 								textColor = UICOLORWHITE,
-								noCursor = true
+								noCursor = true,
+								showDefaultDuringInput = true
 							})
 							textField:addKeyboardHandlers(function(key)
 									textField.textfieldstr[1] = Settings:getKeyName(key)
 									textField.pressedKeyId = key
-								end, function()
+									textField.keyboard = false
 									Settings.Stored[item.systemname] = { value = textField.pressedKeyId, reload = item.reload }
 									Settings:settingsApplyActivate(item.reload)
 								end)
