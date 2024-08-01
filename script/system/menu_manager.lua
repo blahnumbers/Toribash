@@ -3783,7 +3783,7 @@ function TBMenu:displayMobilePopup(element, message)
 	element:addMouseUpHandler(function()
 			local overlay = TBMenu:spawnWindowOverlay(true)
 			local messageView = overlay:addChild({
-				size = { overlay.size.w * 0.5, overlay.size.h * 0.33 },
+				size = { overlay.size.w * 0.5, overlay.size.h * 0.75 },
 				bgColor = { 0, 0, 0, 0.8 },
 				shapeType = ROUNDED,
 				rounded = 5
