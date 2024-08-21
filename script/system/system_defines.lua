@@ -456,6 +456,20 @@ _G.CAMERA_MODE = {
 	FREE_ORBITAL = 4
 }
 
+---@alias CameraCacheMode
+---| 0	CAMERA_CACHE_MODE.NONE
+---| 1	CAMERA_CACHE_MODE.PREPARE
+---| 2	CAMERA_CACHE_MODE.RECORDING
+---| 3	CAMERA_CACHE_MODE.PLAY
+
+---Camera cache modes
+_G.CAMERA_CACHE_MODE = {
+	NONE = 0,
+	PREPARE = 1,
+	RECORDING = 2,
+	PLAY = 3
+}
+
 ---@class MatrixTB
 ---@field r0 number
 ---@field r1 number
@@ -978,7 +992,8 @@ function set_fov(field_of_view) end
 function set_camera_mode(mode) end
 
 ---Returns currently active camera mode
----@return CameraMode
+---@return CameraMode mode
+---@return CameraCacheMode cache_mode
 function get_camera_mode() end
 
 ---Resets camera back to Normal mode
@@ -2705,8 +2720,8 @@ function utf8.char(byte, ...) end
 ---@param pattern string
 ---@param init?   integer
 ---@param plain?  boolean
----@return integer start
----@return integer end
+---@return integer|nil start
+---@return integer|nil end
 ---@return any ... captured
 ---@nodiscard
 function utf8.find(s, pattern, init, plain) end

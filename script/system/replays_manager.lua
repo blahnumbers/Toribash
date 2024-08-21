@@ -3426,7 +3426,10 @@ function Replays:spawnReplaySpeedSlider(viewElement)
 				return
 			end
 
-			unfreeze_game()
+			local _, keyframe_mode = get_camera_mode()
+			if (keyframe_mode < CAMERA_CACHE_MODE.RECORDING) then
+				unfreeze_game()
+			end
 			set_replay_speed(speed, false)
 		end
 
@@ -3529,7 +3532,10 @@ function Replays:spawnReplaySpeedSlider(viewElement)
 		local targetVal = val < 0 and math.ceil(val * multiplyBy) / multiplyBy or math.floor(val * multiplyBy) / multiplyBy
 		slider.child[1].labelText[1] = targetVal .. ''
 
-		unfreeze_game()
+		local _, keyframe_mode = get_camera_mode()
+		if (keyframe_mode < CAMERA_CACHE_MODE.RECORDING) then
+			unfreeze_game()
+		end
 		set_replay_speed(targetVal, false)
 	end
 

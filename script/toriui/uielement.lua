@@ -2856,7 +2856,7 @@ _G.unpack_all = function(tbl) return _G.table.unpack_all(tbl) end
 ---Shuffles the table's numbered fields
 ---@generic T
 ---@param list T[]
----@return T
+---@return T[]
 _G.table.shuffle = function(list)
 	local shuffled = {}
 	for _, v in ipairs(list) do
