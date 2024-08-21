@@ -1793,6 +1793,7 @@ function Replays:getReplayFoldersDropdownOptions(onSelectAction, targetFolder, i
 		end
 		for _, v in pairs(get_files("replay/" .. dir, "")) do
 			if (not utf8.match(v, ".rpl$") and (dir .. v ~= "system") and not utf8.find(v, "^%.+[%s%S]*$") and not utf8.find(v, "%.%a+$")) then
+				---@type string
 				local targetPath = (includeRoot and "replay/" or "") .. dir .. v
 				table.insert(dropdownOptions, {
 					text = (level > 0 and ('' .. string.rep(" ", level * 3)) or '') .. v .. '',
@@ -1900,6 +1901,7 @@ function Replays:showReplayManageWindow(viewElement, replay)
 				})
 		elseif (v.dropdown) then
 			local dropdownOptions = Replays:getReplayFoldersDropdownOptions(function(path)
+					---@type string
 					v.value = path
 				end, v.value, true)
 			local dropdownHolder = dataFieldHolder:addChild({
@@ -3327,10 +3329,10 @@ function Replays:spawnReplayProgressSlider(viewElement)
 	local updateFunc = rewind_replay_to_frame
 	local onMouseDn = function()
 		replaySpeed = get_replay_speed()
-		set_replay_speed(0)
+		set_replay_speed(0, false)
 	end
 	local onMouseUp = function()
-		set_replay_speed(replaySpeed)
+		set_replay_speed(replaySpeed, false)
 	end
 
 	local slider = TBMenu:spawnSlider2(replayProgressHolder,
@@ -3425,7 +3427,7 @@ function Replays:spawnReplaySpeedSlider(viewElement)
 			end
 
 			unfreeze_game()
-			set_replay_speed(speed)
+			set_replay_speed(speed, false)
 		end
 
 		local speedDn = replaySpeedTitle:addChild({
@@ -3528,7 +3530,7 @@ function Replays:spawnReplaySpeedSlider(viewElement)
 		slider.child[1].labelText[1] = targetVal .. ''
 
 		unfreeze_game()
-		set_replay_speed(targetVal)
+		set_replay_speed(targetVal, false)
 	end
 
 	---@type SliderSettings
@@ -3541,10 +3543,11 @@ function Replays:spawnReplaySpeedSlider(viewElement)
 		sliderRadius = 20,
 		textWidth = 30
 	}
+	local speed = get_replay_speed()
 	local slider = TBMenu:spawnSlider2(replaySpeedHolder, {
 		x = 15, y = 25,
 		w = replaySpeedHolder.size.w - 30, h = replaySpeedHolder.size.h - 25 },
-	get_replay_speed(), sliderSettings, updateFunc)
+	speed, sliderSettings, updateFunc)
 	slider.bgColor = UICOLORWHITE
 
 	local regularSpeed = UIElement:new({

@@ -1808,13 +1808,15 @@ function play_next_replay() end
 ---Plays the previous replay in current folder
 function play_prev_replay() end
 
----Returns current replay playback speed
----@return number
+---Returns current and previous replay playback speed
+---@return number current
+---@return number prev
 function get_replay_speed() end
 
 ---Sets current replay playback speed
 ---@param speed number
-function set_replay_speed(speed) end
+---@param ignore_pause boolean? If set to `false`, will update previous replay speed instead of current
+function set_replay_speed(speed, ignore_pause) end
 
 ---Creates a replay subfolder at the specified path relative to `replay/`
 ---@param path string
@@ -3554,7 +3556,8 @@ function disable_blur() end
 ---Prints a local chat message
 ---@param message string
 ---@param tab ?integer
-function echo(message, tab) end
+---@param disable_callback ?boolean If `true`, will not trigger `console` callback
+function echo(message, tab, disable_callback) end
 
 ---Executes a game command
 ---@param command string

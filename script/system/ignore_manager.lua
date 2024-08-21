@@ -81,9 +81,9 @@ function ChatIgnore:checkLine(line, msgType, tabId)
 		local message, replaced = ChatIgnore:filterInput(line)
 		if (replaced) then
 			if (msgType == MSGTYPE.PLAYER) then
-				echo("^02" .. TB_MENU_LOCALIZED.CHATCENSOREDMESSAGE, tabId)
+				echo("^02" .. TB_MENU_LOCALIZED.CHATCENSOREDMESSAGE, tabId, true)
 			end
-			echo(message, tabId)
+			echo(message, tabId, true)
 			return true
 		end
 	end
