@@ -3329,10 +3329,16 @@ function Replays:spawnReplayProgressSlider(viewElement)
 	local updateFunc = rewind_replay_to_frame
 	local onMouseDn = function()
 		replaySpeed = get_replay_speed()
-		set_replay_speed(0, false)
+		if (replaySpeed > 0) then
+			freeze_game()
+			set_replay_speed(0)
+		end
 	end
 	local onMouseUp = function()
-		set_replay_speed(replaySpeed, false)
+		if (replaySpeed > 0) then
+			unfreeze_game()
+			set_replay_speed(replaySpeed, true)
+		end
 	end
 
 	local slider = TBMenu:spawnSlider2(replayProgressHolder,
@@ -3373,26 +3379,52 @@ function Replays:spawnReplayProgressSlider(viewElement)
 				end
 			end
 		end)
-	-- A bit useless now, we can't control them and it only shits up the timeline
-	--[[local keyframes = get_camera_keyframes()
-	for i = 1, #keyframes do
-		local kf = keyframes[i]
-		local keyframeButton = UIElement:new({
-			parent = slider.parent,
-			pos = { -slider.parent.size.w / (worldstate.game_frame + 99) * (worldstate.game_frame + 99 - kf.frame) - 5, slider.parent.size.h / 2 - 5 },
-			size = { 10, 10 },
-			bgImage = "../textures/menu/general/buttons/square45.tga"
-		})
-	end
-	local afterFrames = UIElement:new({
-		parent = slider.parent,
+
+	local afterFrames = slider.parent:addChild({
 		pos = { -slider.parent.size.w / (worldstate.game_frame + 99) * 99, slider.parent.size.h / 2 - 3 },
 		size = { slider.parent.size.w / (worldstate.game_frame + 99) * 99, 6 },
-		bgColor = { 1, 1, 1, 0.8 },
+		bgColor = { 1, 1, 1, 0.7 },
 		shapeType = ROUNDED,
-		rounded = 6
-	})]]
-	--slider:reload()
+		rounded = 5
+	})
+
+	-- A bit useless now, we can't control them and it only shits up the timeline
+	local keyframes = get_camera_keyframes()
+	for i = 1, #keyframes do
+		local kf = keyframes[i]
+		local keyframeButton = slider.parent:addChild({
+			pos = { -slider.parent.size.w / (worldstate.game_frame + 99) * (worldstate.game_frame + 99 - kf.frame) - 5, slider.parent.size.h - 8 },
+			size = { 16, 16 },
+			bgImage = "../textures/menu/general/buttons/square45.tga",
+			interactive = true
+		})
+		---@type Vector2Base
+		---@diagnostic disable-next-line: assign-type-mismatch
+		local initialPos = table.clone(keyframeButton.shift)
+
+		keyframeButton:addCustomDisplay(function()
+			draw_quad(keyframeButton.pos.x + keyframeButton.size.w / 2 - 1, slider.parent.pos.y + slider.parent.size.h - 16, 2, 13)
+			if (get_replay_cache() > 0) then
+				if (keyframeButton.hoverState ~= BTN_NONE) then
+					if (keyframeButton.size.w < 32) then
+						keyframeButton.size.w = UITween.SineTween(keyframeButton.size.w, 32, (UIElement.clock - keyframeButton.hoverClock) * 5)
+						local moveAmount = (keyframeButton.size.h - keyframeButton.size.w) / 2
+						keyframeButton:moveTo(moveAmount, moveAmount, true)
+						keyframeButton.size.h = keyframeButton.size.w
+					end
+				else
+					keyframeButton.size.w = 16
+					keyframeButton.size.h = 16
+					keyframeButton:moveTo(initialPos.x, initialPos.y)
+				end
+			end
+		end)
+		keyframeButton:addMouseUpHandler(function()
+			rewind_replay_to_frame(kf.frame)
+		end)
+	end
+
+	slider:reload()
 
 	return slider
 end
@@ -3427,10 +3459,12 @@ function Replays:spawnReplaySpeedSlider(viewElement)
 			end
 
 			local _, keyframe_mode = get_camera_mode()
-			if (keyframe_mode < CAMERA_CACHE_MODE.RECORDING) then
+			if (keyframe_mode < CAMERA_CACHE_MODE.RECORDING and get_world_state().game_paused == 0) then
 				unfreeze_game()
+				set_replay_speed(speed, true)
+			else
+				set_replay_speed(speed, false)
 			end
-			set_replay_speed(speed, false)
 		end
 
 		local speedDn = replaySpeedTitle:addChild({
@@ -3519,7 +3553,7 @@ function Replays:spawnReplaySpeedSlider(viewElement)
 		return 1
 	end
 
-	local updateFunc = function(val, xPos, slider)
+	local updateFunc = function(val, _, slider)
 		local multiplyBy = tonumber('1' .. string.rep('0', slider.settings.decimal))
 		val = getSliderSpeed(val)
 
@@ -3533,10 +3567,12 @@ function Replays:spawnReplaySpeedSlider(viewElement)
 		slider.child[1].labelText[1] = targetVal .. ''
 
 		local _, keyframe_mode = get_camera_mode()
-		if (keyframe_mode < CAMERA_CACHE_MODE.RECORDING) then
+		if (keyframe_mode < CAMERA_CACHE_MODE.RECORDING and get_world_state().game_paused == 0) then
 			unfreeze_game()
+			set_replay_speed(targetVal)
+		else
+			set_replay_speed(targetVal, false)
 		end
-		set_replay_speed(targetVal, false)
 	end
 
 	---@type SliderSettings
@@ -3558,15 +3594,15 @@ function Replays:spawnReplaySpeedSlider(viewElement)
 
 	local regularSpeed = UIElement:new({
 		parent = slider.parent,
-		pos = { slider.parent.size.w / 3 + 3, slider.parent.size.h / 2 - 3 },
-		size = { slider.parent.size.w / 3 - 6, 6 },
-		bgColor = { 1, 1, 1, 0.75 }
+		pos = { slider.parent.size.w / 3 + 2, slider.parent.size.h / 2 - 3 },
+		size = { slider.parent.size.w / 3 - 4, 6 },
+		bgColor = { 1, 1, 1, 0.7 }
 	})
 	local speedMarks = UIElement:new({
 		parent = slider.parent,
 		pos = { slider.size.w / 2, slider.parent.size.h / 2 - 13 },
 		size = { slider.parent.size.w - slider.size.w, 26 },
-		bgColor = { 1, 1, 1, 0.75 },
+		bgColor = { 1, 1, 1, 0.7 },
 	})
 	speedMarks:addCustomDisplay(true, function()
 			set_color(unpack(speedMarks.bgColor))
