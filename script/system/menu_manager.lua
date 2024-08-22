@@ -3948,6 +3948,7 @@ end
 
 ---@class UISlider : UIElement
 ---@field label UIElement
+---@field background UIElement
 ---@field settings SliderSettings
 ---@field lastVal number|nil
 ---@field pressedPos Vector2Base
@@ -3999,24 +4000,25 @@ function TBMenu:spawnSlider2(parent, rect, value, settings, sliderFunc, onMouseD
 		displayNameText:addAdaptedText(true, settings.displayName, nil, nil, 4, nil, 0.7)
 	end
 
-	local sliderBG = parent:addChild({
+	local sliderHolder = parent:addChild({
 		pos = { rect.x + settings.textWidth + 5, rect.y },
 		size = { rect.w - (settings.textWidth + 5) * 2, rect.h },
-		bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 		interactive = true
 	})
-	sliderBG:addCustomDisplay(true, function()
-			set_color(unpack(sliderBG.bgColor))
-			draw_quad(sliderBG.pos.x, sliderBG.pos.y + rect.h / 2 - 3, sliderBG.size.w, 6)
-		end)
+	local sliderBackground = sliderHolder:addChild({
+		shift = { settings.sliderRadius * 0.5, rect.h / 2 - 3 },
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		shapeType = parent.shapeType,
+		rounded = parent.roundedInternal
+	})
 	local sliderPos = 0
 	value = value > settings.maxValue and 1 or (-settings.minValue + value) / (-settings.minValue + settings.maxValue)
-	sliderPos = value * (sliderBG.size.w - settings.sliderRadius)
+	sliderPos = value * (sliderHolder.size.w - settings.sliderRadius)
 
 	---@type UISlider
 	---@diagnostic disable-next-line: assign-type-mismatch
-	local slider = sliderBG:addChild({
-		pos = { sliderPos, (-sliderBG.size.h - settings.sliderRadius) / 2 },
+	local slider = sliderHolder:addChild({
+		pos = { sliderPos, (-sliderHolder.size.h - settings.sliderRadius) / 2 },
 		size = { settings.sliderRadius, settings.sliderRadius },
 		interactive = true,
 		bgColor = settings.darkerMode and TB_MENU_DEFAULT_DARKER_COLOR or TB_MENU_DEFAULT_BG_COLOR,
@@ -4075,6 +4077,7 @@ function TBMenu:spawnSlider2(parent, rect, value, settings, sliderFunc, onMouseD
 
 	slider.settings = settings
 	slider.label = sliderLabel
+	slider.background = sliderBackground
 	slider.lastVal = nil
 	slider:addMouseHandlers(function()
 			disable_mouse_camera_movement()
@@ -4090,22 +4093,22 @@ function TBMenu:spawnSlider2(parent, rect, value, settings, sliderFunc, onMouseD
 			end
 		end, function()
 			if (slider.hoverState == BTN_DN) then
-				local xPos = MOUSE_X - sliderBG.pos.x - slider.pressedPos.x
+				local xPos = MOUSE_X - sliderHolder.pos.x - slider.pressedPos.x
 				if (xPos < 0) then
 					xPos = 0
-				elseif (xPos > sliderBG.size.w - slider.size.w) then
-					xPos = sliderBG.size.w - slider.size.w
+				elseif (xPos > sliderHolder.size.w - slider.size.w) then
+					xPos = sliderHolder.size.w - slider.size.w
 				end
 				if (settings.isBoolean) then
-					if (xPos + slider.size.w / 2 > sliderBG.size.w / 2) then
-						xPos = sliderBG.size.w - slider.size.w
+					if (xPos + slider.size.w / 2 > sliderHolder.size.w / 2) then
+						xPos = sliderHolder.size.w - slider.size.w
 					else
 						xPos = 0
 					end
 				end
 				slider:moveTo(xPos, nil)
 
-				local val = xPos / (sliderBG.size.w - settings.sliderRadius) * (settings.maxValue - settings.minValue) + settings.minValue
+				local val = xPos / (sliderHolder.size.w - settings.sliderRadius) * (settings.maxValue - settings.minValue) + settings.minValue
 				sliderLabel.uiColor[4] = 1
 				sliderLabel.bgColor[4] = 1
 
@@ -4119,8 +4122,8 @@ function TBMenu:spawnSlider2(parent, rect, value, settings, sliderFunc, onMouseD
 		end)
 	slider:addMouseUpOutsideHandler(slider.btnUp)
 	slider.setValue = function(val, updateLabel)
-		local val = val > settings.maxValue and settings.maxValue or (val < settings.minValue and settings.minValue or val)
-		slider:moveTo(val / settings.maxValue * (sliderBG.size.w - slider.size.w), nil)
+		val = math.clamp(val, settings.minValue, settings.maxValue)
+		slider:moveTo(val / settings.maxValue * (sliderHolder.size.w - slider.size.w), nil)
 
 		if (updateLabel) then
 			local multiplyBy = tonumber('1' .. string.rep('0', settings.decimal))
@@ -4129,22 +4132,22 @@ function TBMenu:spawnSlider2(parent, rect, value, settings, sliderFunc, onMouseD
 			sliderLabel.bgColor[4] = 1
 		end
 	end
-	sliderBG:addMouseDownHandler(function(s, x, y)
-		local pos = sliderBG:getLocalPos()
+	sliderHolder:addMouseDownHandler(function(s, x, y)
+		local pos = sliderHolder:getLocalPos()
 		local xPos = pos.x - slider.size.w / 2
 		if (xPos < 0) then
 			xPos = 0
-		elseif (xPos > sliderBG.size.w - slider.size.w) then
-			xPos = sliderBG.size.w - slider.size.w
+		elseif (xPos > sliderHolder.size.w - slider.size.w) then
+			xPos = sliderHolder.size.w - slider.size.w
 		end
 		if (settings.isBoolean) then
-			if (xPos + slider.size.w / 2 > sliderBG.size.w / 2) then
-				xPos = sliderBG.size.w - slider.size.w
+			if (xPos + slider.size.w / 2 > sliderHolder.size.w / 2) then
+				xPos = sliderHolder.size.w - slider.size.w
 			else
 				xPos = 0
 			end
 		end
-		sliderBG.hoverState = BTN_NONE
+		sliderHolder.hoverState = BTN_NONE
 
 		slider:moveTo(xPos)
 		slider.hoverState = BTN_DN
@@ -4179,23 +4182,21 @@ function TBMenu:spawnSlider(parent, x, y, w, h, textWidth, sliderRadius, value, 
 	return TBMenu:spawnSlider2(parent, { x = x, y = y, w = w, h = h }, value, settings, sliderFunc, onMouseDown, onMouseUp)
 end
 
+---@class UIToggle : UIElement
+---@field setValue function
+
 ---Spawns a generic toggle with callbacks
 ---@param parent UIElement
----@param x ?number
----@param y ?number
----@param w ?number
----@param h ?number
----@param toggleValue ?string|number|boolean
----@param updateFunc ?function
----@return UIElement
-function TBMenu:spawnToggle(parent, x, y, w, h, toggleValue, updateFunc)
-	---@type Rect
-	local rect = {
-		x = x or 0,
-		y = y or 0,
-		w = w or parent.size.h,
-		h = h or parent.size.h
-	}
+---@param rect Rect?
+---@param toggleValue string|number|boolean?
+---@param updateFunc function?
+---@return UIToggle
+function TBMenu:spawnToggle2(parent, rect, toggleValue, updateFunc)
+	local rect = rect or {}
+	rect.x = rect.x or 0
+	rect.y = rect.y or 0
+	rect.w = rect.w or math.min(parent.size.w, parent.size.h)
+	rect.h = rect.h or rect.w
 
 	local toggleBG = parent:addChild({
 		pos = { rect.x, rect.y },
@@ -4230,22 +4231,45 @@ function TBMenu:spawnToggle(parent, x, y, w, h, toggleValue, updateFunc)
 	if (tonumber(toggleValue) == 0 or toggleValue == false) then
 		toggleIcon:hide(true)
 	end
+	local updateValue = function(value)
+		if (value == 1 or value == true) then
+			toggleIcon:show(true)
+		else
+			toggleIcon:hide(true)
+		end
+	end
 	toggleView:addMouseUpHandler(function()
 			if (type(toggleValue) == "boolean") then
 				toggleValue = not toggleValue
 			else
 				toggleValue = 1 - toggleValue
 			end
-			if (toggleValue == 1 or toggleValue == true) then
-				toggleIcon:show(true)
-			else
-				toggleIcon:hide(true)
-			end
+			updateValue(toggleValue)
 			if (updateFunc ~= nil) then
 				updateFunc(toggleValue)
 			end
 		end)
+
+	toggleView.setValue = function(value)
+		updateValue(value)
+	end
+
+	---@diagnostic disable-next-line: return-type-mismatch
 	return toggleView
+end
+
+---Spawns a generic toggle with callbacks
+---@param parent UIElement
+---@param x ?number
+---@param y ?number
+---@param w ?number
+---@param h ?number
+---@param toggleValue ?string|number|boolean
+---@param updateFunc ?function
+---@return UIToggle
+function TBMenu:spawnToggle(parent, x, y, w, h, toggleValue, updateFunc)
+	local rect = { x = x, y = y, w = w, h = h }
+	return TBMenu:spawnToggle2(parent, rect, toggleValue, updateFunc)
 end
 
 ---@class TextFieldInputSettings

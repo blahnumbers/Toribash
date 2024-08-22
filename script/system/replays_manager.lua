@@ -3326,7 +3326,6 @@ function Replays:spawnReplayProgressSlider(viewElement)
 
 	local worldstate = get_world_state()
 	local replaySpeed = 1
-	local updateFunc = rewind_replay_to_frame
 	local onMouseDn = function()
 		replaySpeed = get_replay_speed()
 		if (replaySpeed > 0) then
@@ -3348,7 +3347,7 @@ function Replays:spawnReplayProgressSlider(viewElement)
 			textWidth = 30,
 			maxValue = worldstate.game_frame + 98,
 			minValue = 0
-		}, updateFunc, onMouseDn, onMouseUp)
+		}, rewind_replay_to_frame, onMouseDn, onMouseUp)
 	slider.bgColor = table.clone(UICOLORWHITE)
 	slider.value = worldstate.match_frame
 
@@ -3380,51 +3379,179 @@ function Replays:spawnReplayProgressSlider(viewElement)
 			end
 		end)
 
-	local afterFrames = slider.parent:addChild({
-		pos = { -slider.parent.size.w / (worldstate.game_frame + 99) * 99, slider.parent.size.h / 2 - 3 },
-		size = { slider.parent.size.w / (worldstate.game_frame + 99) * 99, 6 },
-		bgColor = { 1, 1, 1, 0.7 },
-		shapeType = ROUNDED,
-		rounded = 5
-	})
+	local afterFrames = slider.background:addChild({
+		pos = { -slider.background.size.w / (worldstate.game_frame + 99) * 99, slider.background.size.h / 2 - 3 },
+		size = { slider.background.size.w / (worldstate.game_frame + 99) * 99, 6 },
+		bgColor = { 1, 1, 1, 0.7 }
+	}, true)
 
-	-- A bit useless now, we can't control them and it only shits up the timeline
-	local keyframes = get_camera_keyframes()
-	for i = 1, #keyframes do
-		local kf = keyframes[i]
-		local keyframeButton = slider.parent:addChild({
-			pos = { -slider.parent.size.w / (worldstate.game_frame + 99) * (worldstate.game_frame + 99 - kf.frame) - 5, slider.parent.size.h - 8 },
-			size = { 16, 16 },
-			bgImage = "../textures/menu/general/buttons/square45.tga",
-			interactive = true
-		})
-		---@type Vector2Base
-		---@diagnostic disable-next-line: assign-type-mismatch
-		local initialPos = table.clone(keyframeButton.shift)
+	---Keyframe controls
+	local keyframeButtonSize = 16
+	local keyframeButtonHoverSize = 24
+	local keyframeButtons = {}
+	local keyframesCount = 0
+	local loadKeyframes
 
-		keyframeButton:addCustomDisplay(function()
-			draw_quad(keyframeButton.pos.x + keyframeButton.size.w / 2 - 1, slider.parent.pos.y + slider.parent.size.h - 16, 2, 13)
-			if (get_replay_cache() > 0) then
-				if (keyframeButton.hoverState ~= BTN_NONE) then
-					if (keyframeButton.size.w < 32) then
-						keyframeButton.size.w = UITween.SineTween(keyframeButton.size.w, 32, (UIElement.clock - keyframeButton.hoverClock) * 5)
-						local moveAmount = (keyframeButton.size.h - keyframeButton.size.w) / 2
-						keyframeButton:moveTo(moveAmount, moveAmount, true)
-						keyframeButton.size.h = keyframeButton.size.w
-					end
-				else
-					keyframeButton.size.w = 16
-					keyframeButton.size.h = 16
-					keyframeButton:moveTo(initialPos.x, initialPos.y)
-				end
-			end
-		end)
-		keyframeButton:addMouseUpHandler(function()
-			rewind_replay_to_frame(kf.frame)
-		end)
+	local function onKeyframeUpdated()
+		local ws = get_world_state()
+		rewind_replay()
+		rewind_replay_to_frame(ws.match_frame)
+		if (ws.game_paused ~= 0) then
+			toggle_game_pause()
+		end
+		loadKeyframes()
 	end
 
-	slider:reload()
+	local keyframeInfoViewHolder = slider.background:addChild({
+		size = { 350, 100 }
+	})
+	keyframeInfoViewHolder.keyframe = 0
+	keyframeInfoViewHolder.speed = 1
+	local overlay = keyframeInfoViewHolder:addChild({
+		pos = { -WIN_W * 2, -WIN_H * 2 },
+		size = { WIN_W * 3, WIN_H * 3 },
+		interactive = true
+	})
+	overlay:addMouseDownHandler(function() keyframeInfoViewHolder:hide() end)
+	local keyframeInfoView = keyframeInfoViewHolder:addChild({
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		interactive = true,
+		shapeType = ROUNDED,
+		rounded = 4,
+		innerShadow = { 26, 0 },
+		shadowColor = TB_MENU_DEFAULT_BG_COLOR
+	})
+	local keyframeInfoFrameLabel = keyframeInfoView:addChild({
+		pos = { 10, 3 },
+		size = { keyframeInfoView.size.w * 0.65, 20 }
+	})
+	local keyframeInfoDeleteButton = keyframeInfoView:addChild({
+		pos = { keyframeInfoFrameLabel.size.w + keyframeInfoFrameLabel.shift.x, 2 },
+		size = { keyframeInfoView.size.w - keyframeInfoFrameLabel.size.w - keyframeInfoFrameLabel.shift.x - 2, 22 },
+		interactive = true,
+		bgColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK,
+		hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+		pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR
+	}, true)
+	keyframeInfoDeleteButton:addAdaptedText(TB_MENU_LOCALIZED.WORDDELETE)
+	keyframeInfoDeleteButton:addMouseUpHandler(function()
+		delete_camera_keyframe(keyframeInfoViewHolder.keyframe)
+		overlay.btnDown()
+		onKeyframeUpdated()
+	end)
+	local keyframeSpeedLabel = keyframeInfoView:addChild({
+		pos = { 10, 30 },
+		size = { keyframeInfoView.size.w / 3, 32 }
+	})
+	keyframeSpeedLabel:addAdaptedText(true, "Speed", nil, nil, nil, LEFTMID, 0.75)
+	local keyframeSpeedSliderHolder = keyframeInfoView:addChild({
+		pos = { keyframeInfoView.size.w / 3 + keyframeSpeedLabel.shift.x, keyframeSpeedLabel.shift.y },
+		size = { keyframeInfoView.size.w / 3 * 2 - keyframeSpeedLabel.shift.x, keyframeSpeedLabel.size.h }
+	})
+	local keyframeSpeedSlider
+	keyframeSpeedSlider = TBMenu:spawnSlider2(keyframeSpeedSliderHolder, nil, 1, {
+		minValue = 0.05, maxValue = 2,
+		minValueDisp = '0.05x', maxValueDisp = '4x',
+		decimal = 2, textWidth = 40
+	}, function(value)
+		if (value > 1) then
+			if (value < 1.5) then
+				value = 1 + (value - 1) * 2
+				value = math.floor(value * 10) / 10
+			else
+				value = 2 + (value - 1.5) * 4
+				value = math.floor(value * 4) / 4
+			end
+		else
+			value = math.floor(value * 20) / 20
+		end
+		keyframeInfoViewHolder.speed = value
+		---@diagnostic disable-next-line: undefined-field
+		keyframeSpeedSlider.label.labelText[1] = tostring(keyframeInfoViewHolder.speed)
+	end, nil, function()
+		save_camera_keyframe(keyframeInfoViewHolder.keyframe, keyframeInfoViewHolder.speed)
+		onKeyframeUpdated()
+	end)
+	keyframeSpeedSlider.background.bgColor = table.clone(TB_MENU_DEFAULT_BG_COLOR)
+	keyframeSpeedSlider.bgColor = table.clone(UICOLORWHITE)
+	local keyframeInterpolateLabel = keyframeInfoView:addChild({
+		pos = { keyframeSpeedLabel.shift.x, keyframeSpeedSliderHolder.shift.y + keyframeSpeedSliderHolder.size.h },
+		size = { keyframeInfoView.size.w / 2, keyframeSpeedSliderHolder.size.h }
+	})
+	keyframeInterpolateLabel:addAdaptedText(true, "Smoothing", nil, nil, nil, LEFTMID, 0.75)
+	local keyframeInterpolateToggle = TBMenu:spawnToggle(keyframeInfoView, keyframeInfoView.size.w - 5 - keyframeInterpolateLabel.size.h, keyframeInterpolateLabel.shift.y, keyframeInterpolateLabel.size.h, keyframeInterpolateLabel.size.h, true, function(value)
+		save_camera_keyframe(keyframeInfoViewHolder.keyframe, keyframeInfoViewHolder.speed, false, value)
+		onKeyframeUpdated()
+	end)
+	keyframeInfoViewHolder:hide()
+
+	loadKeyframes = function()
+		for _, v in ipairs(keyframeButtons) do
+			v:kill()
+		end
+		local keyframes = get_camera_keyframes()
+		for i = 1, #keyframes do
+			local kf = keyframes[i]
+			local keyframeButton = slider.background:addChild({
+				pos = { -slider.background.size.w / (worldstate.game_frame + 99) * (worldstate.game_frame + 99 - kf.frame) - keyframeButtonSize / 2, slider.background.size.h - 28 },
+				size = { keyframeButtonSize, keyframeButtonSize },
+				bgImage = "../textures/menu/general/buttons/square45.tga",
+				imageColor = UICOLORWHITE,
+				imageHoverColor = UICOLORWHITE,
+				interactive = true
+			})
+			table.insert(keyframeButtons, keyframeButton)
+			---@type Vector2Base
+			---@diagnostic disable-next-line: assign-type-mismatch
+			local initialPos = table.clone(keyframeButton.shift)
+
+			keyframeButton:addCustomDisplay(function()
+				draw_quad(keyframeButton.pos.x + keyframeButton.size.w / 2 - 1, slider.parent.pos.y + slider.parent.size.h - 32, 2, 16)
+				if (get_replay_cache() > 0) then
+					if (keyframeButton.hoverState ~= BTN_NONE) then
+						if (keyframeButton.size.w < keyframeButtonHoverSize) then
+							keyframeButton.size.w = UITween.LinearTween(keyframeButton.size.w, keyframeButtonHoverSize, (UIElement.clock - keyframeButton.hoverClock) * 5)
+							local moveAmount = (keyframeButton.size.h - keyframeButton.size.w) / 2
+							keyframeButton:moveTo(moveAmount, moveAmount, true)
+							keyframeButton.size.h = keyframeButton.size.w
+						end
+					else
+						keyframeButton.size.w = keyframeButtonSize
+						keyframeButton.size.h = keyframeButtonSize
+						keyframeButton:moveTo(initialPos.x, initialPos.y)
+					end
+				end
+			end)
+			keyframeButton:addMouseUpHandler(function()
+				rewind_replay_to_frame(kf.frame)
+			end)
+			keyframeButton:addMouseUpRightHandler(function()
+				keyframeInfoViewHolder:moveTo(keyframeButton.shift.x + keyframeButton.size.w / 2 - keyframeInfoViewHolder.size.w / 2, keyframeButton.shift.y - keyframeInfoViewHolder.size.h - 5)
+				keyframeInfoViewHolder:show()
+				keyframeInfoViewHolder.keyframe = kf.frame
+				keyframeInfoViewHolder.speed = kf.speed
+				keyframeSpeedSlider.setValue(kf.speed)
+				keyframeInterpolateToggle.setValue(kf.interpolate)
+				keyframeInfoFrameLabel:addAdaptedText(true, "Frame " .. kf.frame, nil, nil, nil, LEFTMID)
+			end)
+		end
+		slider:reload()
+		if (keyframeInfoViewHolder:isDisplayed()) then
+			keyframeInfoViewHolder:reload()
+		end
+		keyframesCount = #keyframes
+	end
+	loadKeyframes()
+
+	local keyframeCountObserver = viewElement:addChild({
+		pos = { 0, 0 },
+		size = { 0, 0 }
+	})
+	keyframeCountObserver:addCustomDisplay(true, function()
+			if (get_camera_keyframes_count() ~= keyframesCount) then
+				loadKeyframes()
+			end
+		end)
 
 	return slider
 end
@@ -3564,7 +3691,7 @@ function Replays:spawnReplaySpeedSlider(viewElement)
 		end
 
 		local targetVal = val < 0 and math.ceil(val * multiplyBy) / multiplyBy or math.floor(val * multiplyBy) / multiplyBy
-		slider.child[1].labelText[1] = targetVal .. ''
+		slider.label.labelText[1] = targetVal .. ''
 
 		local _, keyframe_mode = get_camera_mode()
 		if (keyframe_mode < CAMERA_CACHE_MODE.RECORDING and get_world_state().game_paused == 0) then

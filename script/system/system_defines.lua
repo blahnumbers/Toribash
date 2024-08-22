@@ -1042,12 +1042,33 @@ function set_camera_angle(angle) end
 
 ---@class CameraKeyFrame
 ---@field frame number
+---@field speed number
+---@field interpolate boolean
 ---@field pos Vector3Base
 ---@field lookat Vector3Base
 
 ---Returns a table containing information on all store camera keyframes
 ---@return CameraKeyFrame[]
 function get_camera_keyframes() end
+
+---Returns number of active camera keyframes
+---@return integer
+function get_camera_keyframes_count() end
+
+---Saves a new camera keyframe or updates an existing one at the same frame using specified settings
+---@param frame integer
+---@param speed number
+---@param update_pos boolean?
+---@param interpolate boolean?
+function save_camera_keyframe(frame, speed, update_pos, interpolate) end
+
+----Saves a new camera keyframe using current settings
+function save_camera_keyframe() end
+
+---Deletes a stored camera keyframe at the specified frame
+---@param frame integer
+---@return boolean result
+function delete_camera_keyframe(frame) end
 
 ---@class CameraDepthOfFieldInfo
 ---@field supported integer
