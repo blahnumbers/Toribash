@@ -15,14 +15,6 @@ _G.SAFE_X = math.max(safe_x, _G.WIN_W - safe_w - safe_x)
 ---Safe screen area Y offset
 _G.SAFE_Y = math.max(safe_y, _G.WIN_H - safe_h - safe_y)
 
-add_hook("resolution_changed", "uiResolutionUpdater", function()
-	WIN_W, WIN_H = get_window_size()
-	SCREEN_RATIO = WIN_W / WIN_H
-	local safe_x, safe_y, safe_w, safe_h = get_window_safe_size()
-	SAFE_X = math.max(safe_x, WIN_W - safe_w - safe_x)
-	SAFE_Y = math.max(safe_y, WIN_H - safe_h - safe_y)
-end)
-
 ---Current cursor X coordinate
 _G.MOUSE_X = 0
 ---Current cursor Y coordinate
@@ -967,10 +959,10 @@ function UIElement:makeScrollBar(listHolder, listElements, toReload, posShift, s
 		if (listHolder.parent.scrollableListTouchScrollActive) then
 			listHolder.parent.btnUp()
 		end
-		remove_hooks("barScroller" .. barScroller.uid)
-		remove_hooks("touchScroller" .. barScroller.uid)
+		remove_hook("pre_draw", "__uiManagerBarScroller" .. barScroller.uid)
+		remove_hook("pre_draw", "__uiManagerTouchScroller" .. barScroller.uid)
 	end
-	add_hook("pre_draw", "barScroller" .. barScroller.uid, function()
+	add_hook("pre_draw", "__uiManagerBarScroller" .. barScroller.uid, function()
 			if (targetPos ~= nil) then
 				self:barScroll(listElements, listHolder, toReload, targetPos, enabled)
 				targetPos = nil
@@ -1000,7 +992,7 @@ function UIElement:makeScrollBar(listHolder, listElements, toReload, posShift, s
 			lastListHolderVal = -1
 			enable_mouse_camera_movement()
 		end)
-	add_hook("pre_draw", "touchScroller" .. barScroller.uid, function()
+	add_hook("pre_draw", "__uiManagerTouchScroller" .. barScroller.uid, function()
 			if (listHolder.parent.scrollableListTouchScrollActive and listHolder.parent.hoverState == BTN_NONE) then
 				listHolder.parent.scrollableListTouchScrollActive = false
 				lastListHolderVal = -1
@@ -1879,17 +1871,17 @@ end
 
 ---Internal UIElement function to activate generic text input handler hooks
 function UIElement.keyboardHooks()
-	add_hook("key_down", "uiKeyboardHandler", function(key)
+	add_hook("key_down", "__uiManager", function(key)
 			if (TB_MENU_INPUT_ISACTIVE == true) then
 				return UIElement.handleKeyDown(key)
 			end
 		end)
-	add_hook("key_up", "uiKeyboardHandler", function(key)
+	add_hook("key_up", "__uiManager", function(key)
 			if (TB_MENU_INPUT_ISACTIVE == true) then
 				return UIElement.handleKeyUp(key)
 			end
 		end)
-	add_hook("text_input", "uiKeyboardHandler", function(input)
+	add_hook("text_input", "__uiManager", function(input)
 			if (TB_MENU_INPUT_ISACTIVE == true) then
 				return UIElement.handleInput(input)
 			end
@@ -1899,9 +1891,16 @@ function UIElement.keyboardHooks()
 end
 
 function UIElement.drawHooks()
-	add_hook("draw2d", "uiDrawInternalsHandler", function()
+	add_hook("draw2d", "__uiManager", function()
 		UIElement.lightUIMode = get_option("uilight") == 1
 		UIElement.clock = os.clock_real()
+	end)
+	add_hook("resolution_changed", "__uiManager", function()
+		WIN_W, WIN_H = get_window_size()
+		SCREEN_RATIO = WIN_W / WIN_H
+		local safe_x, safe_y, safe_w, safe_h = get_window_safe_size()
+		SAFE_X = math.max(safe_x, WIN_W - safe_w - safe_x)
+		SAFE_Y = math.max(safe_y, WIN_H - safe_h - safe_y)
 	end)
 
 	UIElement.__drawHooks = true
@@ -2017,15 +2016,15 @@ end
 
 ---Internal UIElement function to activate generic mouse handler hooks
 function UIElement.mouseHooks()
-	add_hook("mouse_button_down", "uiMouseHandler", function(s, x, y)
+	add_hook("mouse_button_down", "__uiManager", function(s, x, y)
 			local toReturn = TB_MENU_MAIN_ISOPEN == 1 and 1 or 0
 			toReturn = UIElement.handleMouseDn(s, x, y) or toReturn
 			return toReturn
 		end)
-	add_hook("mouse_button_up", "uiMouseHandler", function(s, x, y)
+	add_hook("mouse_button_up", "__uiManager", function(s, x, y)
 			UIElement.handleMouseUp(s, x, y)
 		end)
-	add_hook("mouse_move", "uiMouseHandler", function(x, y)
+	add_hook("mouse_move", "__uiManager", function(x, y)
 			UIElement.handleMouseHover(x, y)
 		end)
 
@@ -2402,10 +2401,10 @@ _G.runCmd = function(command, online, echo)
 	local silent = echo ~= CMD_ECHO_ENABLED
 
 	if (echo == CMD_ECHO_FORCE_DISABLED) then
-		add_hook("console", "runCmdIgnore", function() return 1 end)
+		add_hook("console", "__uiManager", function() return 1 end)
 	end
 	run_cmd(command .. (online and "\n" or ""), online, silent)
-	remove_hooks("runCmdIgnore")
+	remove_hook("console", "__uiManager")
 end
 
 ---@deprecated

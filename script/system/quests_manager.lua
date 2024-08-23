@@ -34,6 +34,9 @@ require("system.battlepass_manager")
 if (Quests == nil) then
 	---**Toribash quests manager class**
 	---
+	---**Version 5.70**
+	---* Added `HookName` field
+	---
 	---**Version 5.65**
 	---* Removed previously deprecated functions
 	--
@@ -57,9 +60,10 @@ if (Quests == nil) then
 	---@field QuestDataErrors integer Will be non-zero if quest data file parsing resulted in an error
 	---@field PopupDisplayDuration number
 	Quests = {
-		ver = 5.65,
+		ver = 5.70,
 		QuestDataErrors = 0,
-		PopupDisplayDuration = 2.5
+		PopupDisplayDuration = 2.5,
+		HookName = "__tbQuestsManager"
 	}
 end
 
@@ -527,9 +531,9 @@ function Quests:showQuestButton(quest, listingHolder, listElements, elementHeigh
 				questProgressText:addCustomDisplay(true, function() end)
 				TBMenu:displayLoadingMarkSmall(questProgressBarState, "", questProgressText.textFont)
 				Quests:claim(quest, function()
-						add_hook("downloader_complete", "net_questclaim_post", function(filename)
+						add_hook("downloader_complete", self.HookName, function(filename)
 							if (filename:find("data/quest.txt")) then
-								remove_hooks("net_questclaim_post")
+								remove_hook("downloader_complete", self.HookName)
 								Downloader:safeCall(function()
 									if (questProgressBarState and not questProgressBarState.destroyed) then
 										Quests:showMain()
@@ -690,9 +694,9 @@ function Quests:showMainQuestList(viewElement, questsData)
 				interactive = true
 			})
 			Quests:claim(questsData.canBeClaimed, function()
-				add_hook("downloader_complete", "net_questclaim_post", function(filename)
+				add_hook("downloader_complete", self.HookName, function(filename)
 					if (filename:find("data/quest.txt")) then
-						remove_hooks("net_questclaim_post")
+						remove_hook("downloader_complete", self.HookName)
 						Downloader:safeCall(function()
 							if (claimAllButton and not claimAllButton.destroyed) then
 								Quests:showMain()

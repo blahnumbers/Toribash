@@ -1,8 +1,7 @@
 ---@meta
 ---This file contains documentation for all Toribash-specific Lua functions and global variables
 ---You DO NOT need to include this file in any of your scripts, it is only used by EmmyLua plugins
----
----Updated as of Toribash 5.60.230526
+---https://github.com/LuaLS/lua-language-server
 
 --[[ GLOBAL VARIABLES ]]
 

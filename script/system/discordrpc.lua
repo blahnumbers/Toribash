@@ -168,6 +168,6 @@ function DiscordRPC:show()
 		end)
 end
 
-add_hook("draw2d", "tbDiscordRPCVisuals", function() UIElement:drawVisuals(DISCORD_GLOBALID) end)
+add_hook("draw2d", "__tbDiscordRPCVisuals", function() UIElement:drawVisuals(DISCORD_GLOBALID) end)
 
 DiscordRPC:show()

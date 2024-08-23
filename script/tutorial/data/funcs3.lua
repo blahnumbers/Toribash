@@ -4,7 +4,7 @@ local function requireKeyPress(viewElement, reqTable, key, show)
 	local req = { type = "keypress", ready = false }
 	table.insert(reqTable, req)
 
-	local button = nil
+	local button
 	if (show) then
 		local displayKey = key
 		local width = 100
@@ -13,8 +13,7 @@ local function requireKeyPress(viewElement, reqTable, key, show)
 			width = 300
 		end
 
-		button = UIElement:new({
-			parent = viewElement,
+		button = viewElement:addChild({
 			pos = { 250 - width / 2, -200 },
 			size = { width, 70 },
 			interactive = true,
@@ -28,7 +27,7 @@ local function requireKeyPress(viewElement, reqTable, key, show)
 		button:addAdaptedText(false, displayKey)
 	end
 
-	add_hook("key_up", "tbTutorialsCustom", function(s, code)
+	add_hook("key_up", Tutorials.StepHook, function(s, code)
 			if (string.schar(s) == key or (code > 3 and code < 30 and string.schar(code + 93) == key)) then
 				if (show and button.hoverState ~= BTN_NONE) then
 					button.hoverState = BTN_NONE
@@ -40,7 +39,7 @@ local function requireKeyPress(viewElement, reqTable, key, show)
 				end
 			end
 		end)
-	add_hook("key_down", "tbTutorialsCustom", function(s, code)
+	add_hook("key_down", Tutorials.StepHook, function(s, code)
 			if ((string.schar(s) == key or (code > 3 and code < 30 and string.schar(code + 93) == key)) and show) then
 				button.hoverState = BTN_HVR
 			end

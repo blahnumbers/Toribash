@@ -5,6 +5,9 @@ if (MoveMemory == nil) then
 
 	---**MoveMemory manager class**
 	---
+	---**Version 5.70**
+	---* Added `HookName` field
+	---
 	---**Version 5.61**
 	---* Added `OnOpenedEvents` and `OnClosedEvents` callback lists
 	---* While in *TutorialMode*, use `ToggleTutorialQuit()` to enable or disable UI exit button
@@ -34,7 +37,8 @@ if (MoveMemory == nil) then
 		TutorialMode = false,
 		OnOpenedEvents = { },
 		OnClosedEvents = { },
-		ver = 5.61
+		HookName = "__tbMoveMemoryManager",
+		ver = 5.70
 	}
 	MoveMemory.__index = MoveMemory
 end
@@ -372,8 +376,9 @@ function MoveMemory:recordMove()
 		table.insert(recordMove, {})
 	end
 
+	local hookName = MoveMemory.HookName .. "Record" .. player
 	local function cancelRecording()
-		remove_hooks("tbMoveMemoryRecordMove" .. player)
+		remove_hooks(hookName)
 		if (self.Toolbar[player]) then
 			self.Toolbar[player]:kill()
 			self.Toolbar[player] = nil
@@ -382,7 +387,7 @@ function MoveMemory:recordMove()
 	self:showToolbar(player, TB_MENU_LOCALIZED.MOVEMEMORYRECORDINGTURN .. " #" .. (#recordMove + 1), cancelRecording, function()
 			self:showSaveRecordingComplete(recordMove, cancelRecording)
 		end)
-	add_hook("exit_freeze", "tbMoveMemoryRecordMove" .. player, function()
+	add_hook("exit_freeze", hookName, function()
 			table.insert(recordMove, {})
 			for _, v in pairs(JOINTS) do
 				recordMove[#recordMove][v] = get_joint_info(player, v).state
@@ -391,7 +396,7 @@ function MoveMemory:recordMove()
 			recordMove[#recordMove][21] = get_grip_info(player, 12)
 			self:updateToolbar(player, TB_MENU_LOCALIZED.MOVEMEMORYRECORDINGTURN .. " #" .. (#recordMove + 1))
 		end)
-	add_hook("leave_game", "tbMoveMemoryRecordMove" .. player, function()
+	add_hook("leave_game", hookName, function()
 			if (#recordMove > 0) then
 				self:showSaveRecordingComplete(recordMove)
 			end
@@ -624,11 +629,12 @@ function MoveMemory:playMove(memorymove, spawnHook, player, noToolbar)
 		return
 	end
 
+	local hookName = MoveMemory.HookName .. "Play" .. player
 	self.PlaybackActive[player] = true
 	local function playMoveQuit()
 		self.PlaybackActive[player] = false
 		memorymove.currentturn = nil
-		remove_hooks("tbMoveMemoryPlayTurns" .. player)
+		remove_hooks(hookName)
 		if (self.Toolbar and self.Toolbar[player]) then
 			self.Toolbar[player]:kill()
 			self.Toolbar[player] = nil
@@ -665,11 +671,11 @@ function MoveMemory:playMove(memorymove, spawnHook, player, noToolbar)
 		end
 	end
 	if (spawnHook) then
-		add_hook("enter_freeze", "tbMoveMemoryPlayTurns" .. player, function()
+		add_hook("enter_freeze", hookName, function()
 				self:playMove(memorymove, false, player, noToolbar)
 			end)
-		add_hook("end_game", "tbMoveMemoryPlayTurns" .. player, playMoveQuit)
-		add_hook("match_begin", "tbMoveMemoryPlayTurns" .. player, playMoveQuit)
+		add_hook("end_game", hookName, playMoveQuit)
+		add_hook("match_begin", hookName, playMoveQuit)
 	end
 end
 
@@ -938,7 +944,7 @@ end
 ---Spawns a hook to open movememory on `M` key press \
 ---Make sure we also check CTRL and ALT aren't pressed as those are tied to mod list / modmaker
 function MoveMemory.Init()
-	add_hook("key_up", "tbMoveMemoryHotkeyListener", function(key)
+	add_hook("key_up", MoveMemory.HookName, function(key)
 		if (key == 109 and get_keyboard_ctrl() == 0 and get_keyboard_alt() == 0) then
 			if (MoveMemory.MainElement) then
 				MoveMemory.Quit()

@@ -54,7 +54,7 @@ if (Atmospheres == nil) then
 		DisplayPos = { x = SAFE_X + 10, y = top_y + 10 },
 		ListShift = { 0 },
 		SelectedScreen = 1,
-		HookName = "tbAtmospheresManager",
+		HookName = "__tbAtmospheresManager",
 		RandomPrecision = 1000,
 		ver = 5.62
 	}

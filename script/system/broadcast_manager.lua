@@ -14,6 +14,9 @@ if (not Broadcasts) then
 
 	---Manager class to handle Toribash global messages popups
 	---
+	---**Version 5.70**
+	---* Added `HookName` field
+	---
 	---**Version 5.65**
 	---* Minor fixes to broadcast data parsing from server
 	---
@@ -34,12 +37,13 @@ if (not Broadcasts) then
 	---@field IsDisplayed boolean Whether there's a broadcast popup displayed at the moment, only used on desktop platforms
 	---@field StalePeriod integer Cutoff in seconds to consider broadcast stale
 	Broadcasts = {
-		ver = 5.65,
+		ver = 5.70,
 		IsActive = false,
 		LastBroadcast = 0,
 		DisplayDuration = 12,
 		StalePeriod = 600,
-		IsDisplayed = false
+		IsDisplayed = false,
+		HookName = "__tbBroadcastsManager"
 	}
 	Broadcasts.__index = Broadcasts
 end
@@ -255,14 +259,14 @@ end
 ---Unloads broadcasts related hooks
 function Broadcasts:deactivate()
 	self.IsActive = false
-	remove_hooks("broadcast_manager")
+	remove_hooks(self.HookName)
 end
 
 ---Activates broadcasts surveyor hooks
 function Broadcasts:activate()
 	self:deactivate()
 	self.IsActive = true
-	add_hook("console", "broadcast_manager", function(s, i)
+	add_hook("console", self.HookName, function(s, i)
 			if (i == 1) then
 				if (utf8.find(s, "%[global%]")) then
 					Broadcasts:fetchBroadcast()
@@ -277,7 +281,7 @@ end
 ---Adds a listener hook that periodically checks for new in-game broadcasts while the user is in Free Play mode
 function Broadcasts:addListener()
 	local clock = -60
-	add_hook("draw2d", "broadcast_manager", function()
+	add_hook("draw2d", self.HookName, function()
 			if (get_world_state().game_type == 0 and not TUTORIAL_ISACTIVE) then
 				if (clock < UIElement.clock - 60) then
 					clock = UIElement.clock

@@ -17,6 +17,9 @@ require("system.ignore_manager")
 if (TBHud == nil) then
 	---**Toribash touch HUD class**
 	---
+	---**Version 5.70**
+	---* Added `HookNameUI`, `HookNameChat` and `HookNameCamera` fields to access hook names in a uniform way
+	---
 	---**Version 5.66**
 	---* Added camera mode button
 	---* Added free cam joystick controls
@@ -91,8 +94,11 @@ if (TBHud == nil) then
 		HudEnabled = true,
 		HudEnableHintDisplayed = false,
 		CameraJoystickSensitivity = 0.075,
+		HookNameUI = "__tbHudTouchInterface",
+		HookNameChat = "__tbHudChatInterface",
+		HookNameCamera = "__tbHudFreeCamJoystick",
 		__waitingWhisper = false,
-		ver = 5.64,
+		ver = 5.70,
 	}
 	TBHud.__index = TBHud
 
@@ -660,7 +666,7 @@ function TBHud:spawnCameraButton()
 		end
 		joystickVector.x = 0
 		joystickVector.y = 0
-		remove_hooks("tbHudFreeCamJoystick")
+		remove_hooks(TBHud.HookNameCamera)
 		enable_mouse_camera_movement()
 	end
 	cameraJoystick:addMouseUpHandler(onJoystickUp)
@@ -688,7 +694,7 @@ function TBHud:spawnCameraButton()
 			mouseDownPosition.x = mouseDownPosition.x - joystickOffset
 			mouseDownPosition.y = mouseDownPosition.y - joystickOffset
 
-			add_hook("camera", "tbHudFreeCamJoystick", function()
+			add_hook("camera", TBHud.HookNameCamera, function()
 					local cameraInfo = get_camera_info()
 					local cameraPos = Vector3.New(cameraInfo.pos.x, cameraInfo.pos.y, cameraInfo.pos.z)
 					local cameraLookat = Vector3.New(cameraInfo.lookat.x, cameraInfo.lookat.y, cameraInfo.lookat.z)
@@ -2175,13 +2181,13 @@ function TBHudInternal.toggleChatOff()
 end
 
 TBHud.Reload()
-add_hook("resolution_changed", "tbHudTouchInterface", TBHud.Reload)
-add_hook("new_game", "tbHudTouchInterface", TBHudInternal.refreshButtons)
-add_hook("spec_update", "tbHudTouchInterface", TBHudInternal.refreshButtons)
-add_hook("bout_update", "tbHudTouchInterface", TBHudInternal.refreshButtons)
-add_hook("enter_frame", "tbHudTouchInterface", TBHudInternal.refreshButtons)
-add_hook("enter_freeze", "tbHudTouchInterface", TBHudInternal.refreshButtons)
-add_hook("exit_freeze", "tbHudTouchInterface", TBHudInternal.refreshButtons)
-add_hook("new_game_mp", "tbHudTouchInterface", TBHudInternal.refreshButtons)
-add_hook("console_post", "tbHudChatInterface", TBHudInternal.pushChatMessage)
-add_hook("new_mp_game", "tbHudTouchInterface", TBHudInternal.toggleChatOff)
+add_hook("resolution_changed", TBHud.HookNameUI, TBHud.Reload)
+add_hook("new_game", TBHud.HookNameUI, TBHudInternal.refreshButtons)
+add_hook("spec_update", TBHud.HookNameUI, TBHudInternal.refreshButtons)
+add_hook("bout_update", TBHud.HookNameUI, TBHudInternal.refreshButtons)
+add_hook("enter_frame", TBHud.HookNameUI, TBHudInternal.refreshButtons)
+add_hook("enter_freeze", TBHud.HookNameUI, TBHudInternal.refreshButtons)
+add_hook("exit_freeze", TBHud.HookNameUI, TBHudInternal.refreshButtons)
+add_hook("new_game_mp", TBHud.HookNameUI, TBHudInternal.refreshButtons)
+add_hook("console_post", TBHud.HookNameChat, TBHudInternal.pushChatMessage)
+add_hook("new_mp_game", TBHud.HookNameUI, TBHudInternal.toggleChatOff)

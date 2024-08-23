@@ -117,15 +117,15 @@ function Settings:showAbout()
 		pos = { 0, 0 },
 		size = { WIN_W, WIN_H },
 		bgColor = table.clone(UICOLORWHITE),
-		--interactive = true
+		interactive = true
 	})
 	whiteOverlay.killAction = function() UIScrollbarIgnore = false end
 	local slowMode = false
 	local speedMultiplier = get_option('framerate') == 30 and 2 or 1
-	--[[whiteOverlay:addMouseHandlers(nil, function()
+	whiteOverlay:addMouseHandlers(nil, function()
 			whiteOverlay:kill()
 			TBMenu.UserBar:show()
-		end, function() slowMode = false end)]]
+		end, function() slowMode = false end)
 	local aboutMover = UIElement:new({
 		parent = whiteOverlay,
 		pos = { WIN_W / 5, WIN_H },

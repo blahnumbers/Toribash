@@ -4,6 +4,11 @@
 if (TBMenu == nil) then
 	---Toribash main menu class
 	---
+	---**Version 5.70**
+	---* Added `TBMenu.SpawnSlider2()` that takes a Rect for position and dimensions
+	---* Added `showLabelOnHover` field to `SliderSettings` struct
+	---* Added more hotkeys to Hotkeys screen
+	---
 	---**Version 5.65**
 	---* Dropdown updates to support mouse wheel scroll on cycle through options and enable scroll bar override
 	---* Added `TBMenu.Popups` list to hold active UI popups
@@ -42,7 +47,7 @@ if (TBMenu == nil) then
 	TBMenu = {
 		CurrentAnnouncementId = 1,
 		Popups = { },
-		ver = 5.65
+		ver = 5.70
 	}
 end
 
@@ -590,7 +595,7 @@ function TBMenu:showHomeButton(viewElement, buttonData, hasSmudge, extraElements
 		for _, v in pairs(News.DownloadQueue) do
 			if (v:find(filename)) then
 				TBMenu:displayLoadingMark(itemIcon, nil, elementHeight / 5)
-				add_hook("downloader_complete", "menuMain" .. filename, function(name)
+				add_hook("downloader_complete", "__menuMain" .. filename, function(name)
 						if (name:find(filename .. "$")) then
 							Downloader:safeCall(function()
 								News:removeFromQueue(name)
@@ -615,7 +620,7 @@ function TBMenu:showHomeButton(viewElement, buttonData, hasSmudge, extraElements
 											end
 										end)
 								end
-								remove_hooks("menuMain" .. filename)
+								remove_hooks("__menuMain" .. filename)
 							end)
 						end
 					end)
@@ -1632,9 +1637,18 @@ function TBMenu:showHotkeys()
 					desc = TB_MENU_LOCALIZED.HOTKEYSPLAYERSGHOST
 				},
 				{
-					keys = { "space", "shift" },
+					keys = { "space" },
 					desc = TB_MENU_LOCALIZED.HOTKEYSTURN
 				},
+				{
+					keys = { "space", "shift" },
+					desc = TB_MENU_LOCALIZED.HOTKEYSSTEPONCE
+				},
+				{
+					keys = { "1", "7" },
+					dash = true,
+					desc = TB_MENU_LOCALIZED.HOTKEYSCAMERAMODES
+				}
 			}
 		},
 		{
@@ -1682,7 +1696,7 @@ function TBMenu:showHotkeys()
 					desc = TB_MENU_LOCALIZED.HOTKEYSREPLAYKEYFRAME
 				},
 				{
-					keys = { "i" },
+					keys = { "k", "shift" },
 					desc = TB_MENU_LOCALIZED.HOTKEYSREPLAYKEYFRAMESCLEAR
 				},
 				{
@@ -1704,11 +1718,15 @@ function TBMenu:showHotkeys()
 			items = {
 				{
 					keys = { "m" },
-					desc = TB_MENU_LOCALIZED.MOVEMEMORYTITLE
+					desc = TB_MENU_LOCALIZED.HOTKEYSMOVEMEMORY
 				},
 				{
 					keys = { "ctrl", "m" },
 					desc = TB_MENU_LOCALIZED.HOTKEYSMODLIST
+				},
+				{
+					keys = { "alt", "m" },
+					desc = TB_MENU_LOCALIZED.HOTKEYSMODMAKER
 				},
 				{
 					keys = { "ctrl", "h" },
@@ -1723,9 +1741,8 @@ function TBMenu:showHotkeys()
 					desc = TB_MENU_LOCALIZED.HOTKEYSFULLSCREEN
 				},
 				{
-					keys = { "1", "7" },
-					dash = true,
-					desc = TB_MENU_LOCALIZED.HOTKEYSCAMERAMODES
+					keys = { { "f5", "f6", "f7", "f8" } },
+					desc = "Save screenshot"
 				}
 			}
 		}
@@ -1741,8 +1758,8 @@ function TBMenu:showHotkeys()
 		table.insert(listElements, sectionTitle)
 		for _, hotkey in pairs(section.items) do
 			local hotkeyView = listingHolder:addChild({
-				pos = { 10, #listElements * elementHeight + 5 },
-				size = { listingHolder.size.w - 12, elementHeight - 10 },
+				pos = { 10, #listElements * elementHeight + 2 },
+				size = { listingHolder.size.w - 12, elementHeight - 4 },
 				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 				shapeType = ROUNDED,
 				rounded = 3
@@ -3945,6 +3962,7 @@ end
 ---@field displayName string
 ---@field textWidth number
 ---@field sliderRadius number
+---@field showLabelOnHover boolean
 
 ---@class UISlider : UIElement
 ---@field label UIElement
@@ -4012,8 +4030,8 @@ function TBMenu:spawnSlider2(parent, rect, value, settings, sliderFunc, onMouseD
 		rounded = parent.roundedInternal
 	})
 	local sliderPos = 0
-	value = value > settings.maxValue and 1 or (-settings.minValue + value) / (-settings.minValue + settings.maxValue)
-	sliderPos = value * (sliderHolder.size.w - settings.sliderRadius)
+	local sliderValue = value > settings.maxValue and 1 or (-settings.minValue + value) / (-settings.minValue + settings.maxValue)
+	sliderPos = sliderValue * (sliderHolder.size.w - settings.sliderRadius)
 
 	---@type UISlider
 	---@diagnostic disable-next-line: assign-type-mismatch
@@ -4111,6 +4129,7 @@ function TBMenu:spawnSlider2(parent, rect, value, settings, sliderFunc, onMouseD
 				local val = xPos / (sliderHolder.size.w - settings.sliderRadius) * (settings.maxValue - settings.minValue) + settings.minValue
 				sliderLabel.uiColor[4] = 1
 				sliderLabel.bgColor[4] = 1
+				sliderLabelOutClock = UIElement.clock
 
 				if (sliderFunc and slider.lastVal ~= val) then
 					local multiplyBy = tonumber('1' .. string.rep('0', settings.decimal))
@@ -4154,6 +4173,18 @@ function TBMenu:spawnSlider2(parent, rect, value, settings, sliderFunc, onMouseD
 		slider.btnDown(s, x, y)
 		slider.btnHover(x, y)
 	end)
+	if (slider.settings.showLabelOnHover) then
+		slider:addCustomDisplay(function()
+			if (slider.hoverState == BTN_HVR) then
+				sliderLabel.uiColor[4] = 1
+				sliderLabel.bgColor[4] = 1
+				sliderLabelOutClock = UIElement.clock
+			end
+		end)
+
+		local multiplyBy = tonumber('1' .. string.rep('0', settings.decimal))
+		sliderLabel.labelText[1] = (math.floor(value * multiplyBy) / multiplyBy) .. ''
+	end
 	return slider
 end
 

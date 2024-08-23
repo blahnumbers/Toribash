@@ -35,8 +35,10 @@
 ---@field element UIElement
 
 if (Store == nil) then
-	---**Toribash Store manager class** \
-	---This used to be called `Torishop` in older releases
+	---**Toribash Store manager class**
+	---
+	---**Version 5.70**
+	---* Added `HookName` and `HookNameVanilla` fields
 	---
 	---**Version 5.65**
 	---* Class renamed to `Store` with old name retained for compatibility
@@ -90,6 +92,8 @@ if (Store == nil) then
 		InventoryPage = { },
 		InventoryMode = 0,
 		InventoryShowEmptySets = false,
+		HookNameVanilla = "__tbStoreManagerVanilla",
+		HookName = "__tbStoreManager",
 		ver = 5.65
 	}
 	Store.__index = Store
@@ -1030,7 +1034,7 @@ function Store.Quit()
 	TBMenu:clearNavSection()
 	if (not is_mobile() and STORE_VANILLA_PREVIEW) then
 		STORE_VANILLA_PREVIEW = false
-		remove_hooks("storevanillapreview")
+		remove_hooks(Store.HookNameVanilla)
 		set_option("uke", 1)
 		set_option("tooltip", STORE_VANILLA_TOOLTIP)
 		TBMenu.HideButton:show()
@@ -1645,9 +1649,10 @@ function Store:showInventoryItemCustomize(item)
 		TBMenu:displayLoadingMark(itemImageRefreshing)
 		TBMenu:addOuterRounding(itemImage)
 
+		local hookName = self.HookName .. "Inv" .. item.inventid
 		local onImageDownloaded = function()
 			itemImageRefreshing:kill()
-			remove_hooks("torishop_inventory_" .. item.inventid .. "_texture")
+			remove_hooks(hookName)
 			itemImage.requireReload = true
 		end
 
@@ -1664,13 +1669,13 @@ function Store:showInventoryItemCustomize(item)
 						end
 					end
 					-- Wasn't there, wait for downloader
-					add_hook("downloader_complete", "torishop_inventory_" .. item.inventid .. "_texture", function(name)
+					add_hook("downloader_complete", hookName, function(name)
 						if (name:match("^.*/store/inventory/" .. item.inventid .. ".tga")) then
 							Downloader:safeCall(onImageDownloaded)
 						end
 					end)
 					-- get_downloads() doesn't get updated until after this code is run, add a pre_draw hook to check on next frame
-					add_hook("pre_draw", "torishop_inventory_" .. item.inventid .. "_texture", function()
+					add_hook("pre_draw", hookName, function()
 							if (#get_downloads() == 0) then
 								onImageDownloaded()
 							end
@@ -1722,8 +1727,8 @@ function Store:showInventoryItemCustomize(item)
 						end)
 				end)
 		end
-		uploadTextureButton.killAction = function() remove_hooks("tbInventoryDropfile") end
-		add_hook("dropfile", "tbInventoryDropfile", function(filename)
+		uploadTextureButton.killAction = function() remove_hook("dropfile", self.HookName) end
+		add_hook("dropfile", self.HookName, function(filename)
 				local fileext = string.gsub(filename, "^.*%.([a-zA-Z0-9]+)$", "%1")
 				if (in_array(fileext, { 'jpg', 'jpeg', 'png', 'tga', 'gif', 'bmp' })) then
 					doShowUploadFile(filename)
@@ -1732,11 +1737,11 @@ function Store:showInventoryItemCustomize(item)
 		uploadTextureButton:addAdaptedText(false, TB_MENU_LOCALIZED.INVENTORYUPLOADNEWTEXTURE)
 		uploadTextureButton:addMouseUpHandler(function()
 				if (open_file_browser("Image Files", "jpg;jpeg;png;tga;gif;bmp", "All Files", "*")) then
-					add_hook("filebrowser_select", "on_filebrowser_select", function(filename)
+					add_hook("filebrowser_select", self.HookName, function(filename)
 							if (filename ~= "") then
 								doShowUploadFile(filename)
 							end
-							remove_hooks("on_filebrowser_select")
+							remove_hook("filebrowser_select", self.HookName)
 						end)
 				end
 			end)
@@ -4834,7 +4839,7 @@ function Store:doItemPreviewVanilla(item, parentItem)
 		Store.VanillaPreviewer.Name.uiColor = { rgb.r, rgb.g, rgb.b, 1 }
 	elseif (item.catid == 41) then
 		-- Add a draw3d hook for grip manually; quicker than adding a full UIElement3D object
-		add_hook("draw3d", "storevanillapreview", function()
+		add_hook("draw3d", self.HookNameVanilla, function()
 				set_grip_info(0, 11, 1)
 				local rHand = get_body_info(0, BODYPARTS.R_HAND)
 				local rgb = get_color_info(item.colorid)
@@ -4860,7 +4865,7 @@ function Store:doItemPreviewVanilla(item, parentItem)
 		set_separate_trail_color(0, 2, item.colorid)
 		Store.VanillaPreviewer.Score.uiColor = { rgb.r, rgb.g, rgb.b, 1 }
 		Store.VanillaPreviewer.Name.uiColor = { rgb.r, rgb.g, rgb.b, 1 }
-		add_hook("draw3d", "storevanillapreview", function()
+		add_hook("draw3d", self.HookNameVanilla, function()
 				set_grip_info(0, 11, 1)
 				local rHand = get_body_info(0, BODYPARTS.R_HAND)
 				set_color(rgb.r, rgb.g, rgb.b, 0.7)
@@ -4883,7 +4888,7 @@ function Store:doItemPreviewVanilla(item, parentItem)
 			(modelInfo.textured and not Files.Exists("../data/models/store/" .. item.itemid .. "_obj.tga"))) then
 			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STORELOADING, 10000)
 			download_server_file(tostring(item.itemid), 1)
-			add_hook("pre_draw", "storevanillapreview", function()
+			add_hook("pre_draw", self.HookNameVanilla, function()
 					local downloads = get_downloads()
 					if (#downloads > 0 and not parentItem) then
 						for _, v in pairs(downloads) do
@@ -4894,7 +4899,7 @@ function Store:doItemPreviewVanilla(item, parentItem)
 					else
 						TBMenu.StatusMessage.endTime = UIElement.clock
 					end
-					remove_hook("pre_draw", "storevanillapreview")
+					remove_hook("pre_draw", self.HookNameVanilla)
 					Store:doItemPreviewVanilla(parentItem or item)
 				end)
 			return
@@ -4929,16 +4934,16 @@ function Store:preparePreviewVanilla()
 	chat_input_deactivate()
 	open_replay("system/torishop.rpl", 0)
 	load_player(0, TB_MENU_PLAYER_INFO.username)
-	add_hook("draw2d", "storevanillapreview", function()
+	add_hook("draw2d", self.HookNameVanilla, function()
 			if (get_world_state().match_frame >= 15) then
-				add_hook("leave_game", "storevanillapreview", TBMenu.HideButton.btnUp)
+				add_hook("leave_game", self.HookNameVanilla, TBMenu.HideButton.btnUp)
 				edit_game()
 				dismember_joint(0, 3)
 				dismember_joint(0, 2)
 				run_frames(12)
-				add_hook("draw2d", "storevanillapreview", function()
+				add_hook("draw2d", self.HookNameVanilla, function()
 						if (get_world_state().match_frame >= 20) then
-							remove_hook("draw2d", "storevanillapreview")
+							remove_hook("draw2d", self.HookNameVanilla)
 							for i = 0, 19 do
 								local jointstate = math.floor(math.random(1, 4))
 								set_joint_state(0, i, jointstate)
@@ -5143,8 +5148,8 @@ function Store.InitUSDPurchase(item, onSuccess)
 		purchaseProgressMonitor:addMouseMoveHandler(function() purchaseComplete = true end)
 	else
 		---Mobile platforms, we have a dedicated hook that we will be listening to
-		add_hook("purchase_status", "tbStorePurchaseProgress", function(result, error_code)
-				remove_hook("purchase_status", "tbStorePurchaseProgress")
+		add_hook("purchase_status", Store.HookName, function(result, error_code)
+				remove_hook("purchase_status", Store.HookName)
 				if (result == true) then
 					if (purchaseWindow and not purchaseWindow.destroyed) then
 						purchaseWindow:kill(true)
@@ -5459,7 +5464,7 @@ function Store:addIconToDownloadQueue(item, path, element)
 	local itemid = type(item) == "number" and item or item.itemid
 
 	table.insert(Store.IconDownloadQueue, { path = path, itemid = itemid, element = element })
-	add_hook("downloader_complete", "store_icon_downloader", function(load)
+	add_hook("downloader_complete", self.HookName, function(load)
 			local fileName = load:gsub("^.* ", '')
 			for i, v in pairs(Store.IconDownloadQueue) do
 				if (fileName:find(".*/store/items/" .. v.itemid .. "%.tga$")) then
@@ -5474,7 +5479,7 @@ function Store:addIconToDownloadQueue(item, path, element)
 					end)
 					table.remove(Store.IconDownloadQueue, i)
 					if (#Store.IconDownloadQueue == 0) then
-						remove_hooks("store_icon_downloader")
+						remove_hook("downloader_complete", self.HookName)
 					end
 					return
 				end

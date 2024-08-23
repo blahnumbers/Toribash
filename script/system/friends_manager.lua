@@ -56,7 +56,7 @@ function Friends:getOnline(viewElement)
 	local dataReady = true
 	if (RoomList.RefreshIfNeeded()) then
 		dataReady = false
-		add_hook("roomlist_update", "friendsRoomListWaiter", function() dataReady = true end)
+		add_hook("roomlist_update", "__tbFriendsRoomListWaiter", function() dataReady = true end)
 	end
 
 	local function updateStates()

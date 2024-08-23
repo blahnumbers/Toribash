@@ -1,15 +1,22 @@
--- Network class manager based on 5.41+ network hooks
 require("toriui.uielement")
 
 do
-	-- **Ver 1.2 updates:**
-	-- * Use pcall() to run on success/error functions
-	-- * Fixed bug with active request not getting finalized from network_error hook
-	-- * Added EmmyLua supported annotations
-	--
-	-- **Ver 1.1 updates:**
-	-- * Check for active task before queueing a new request to ensure we don't get data from the previous request
-	Request = { ver = 1.2 }
+	---**Network requests class manager**
+	---
+	---**Version 5.70**
+	---* Added `HookName` field
+	---
+	---**Ver 1.2 updates:**
+	---* Use pcall() to run on success/error functions
+	---* Fixed bug with active request not getting finalized from network_error hook
+	---* Added EmmyLua supported annotations
+	---
+	---**Ver 1.1 updates:**
+	---* Check for active task before queueing a new request to ensure we don't get data from the previous request
+	Request = {
+		HookName = "__tbNetworkManager",
+		ver = 5.70
+	}
 	Request.__index = Request
 
 	-- Table that gets updated once network response is finalized. Works somewhat similarly to [JavaScript Promise type](https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/Promise).
@@ -105,9 +112,9 @@ do
 		end
 
 		if (#TB_NETWORK_REQUEST_QUEUE ~= 0) then
-			add_hook("draw2d", "netrequest_wait", function()
+			add_hook("draw2d", self.HookName, function()
 					if (get_network_task() == 0) then
-						remove_hook("draw2d", "netrequest_wait")
+						remove_hook("draw2d", self.HookName)
 						local request = TB_NETWORK_REQUEST_QUEUE[1]
 						if (TB_MENU_DEBUG) then
 							print("Queueing next request")

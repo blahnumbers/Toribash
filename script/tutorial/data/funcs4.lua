@@ -199,21 +199,21 @@ local function challengeUke(viewElement, reqTable)
 	if (configTutorial > Tutorials.CurrentTutorial) then
 		endless = true
 	end
-	remove_hook("draw2d", "tbTutorialsCustomStatic")
-	add_hook("leave_game", "tbTutorialsCustomStatic", function()
+	remove_hook("draw2d", Tutorials.StaticHook)
+	add_hook("leave_game", Tutorials.StaticHook, function()
 			if (TUTORIAL_LEAVEGAME) then
 				return 1
 			end
 		end)
-	add_hook("key_up", "tbTutorialsCustom", function(key)
+	add_hook("key_up", Tutorials.StepHook, function(key)
 			if (get_shift_key_state() > 0 or get_keyboard_ctrl() > 0 or get_keyboard_alt() > 0) then
 				return 1
 			elseif (key == 109) then
 				MOVEMEMORY_USED = true
 			end
 	end)
-	add_hook("end_game", "tbTutorialsCustom", function() FIGHTUKE_GAME_ENDED = true end)
-	add_hook("draw2d", "tbTutorialsCustom", function()
+	add_hook("end_game", Tutorials.StepHook, function() FIGHTUKE_GAME_ENDED = true end)
+	add_hook("draw2d", Tutorials.StepHook, function()
 			local ws = get_world_state()
 			local frame = ws.match_frame
 			if ((ws.winner > -1 or FIGHTUKE_GAME_ENDED) and not leaveGame) then
@@ -233,7 +233,7 @@ local function challengeUke(viewElement, reqTable)
 				end
 				local stopFrame = frame + 97
 				local leaveGameHook = false
-				add_hook("draw2d", "tbTutorialsCustomStatic", function()
+				add_hook("draw2d", Tutorials.StaticHook, function()
 						local wsMatchFrame = get_world_state().match_frame
 						if (wsMatchFrame >= stopFrame and not TUTORIAL_LEAVEGAME) then
 							leaveGameHook = true

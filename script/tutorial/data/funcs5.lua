@@ -285,8 +285,8 @@ local function loadVisuals(viewElement, reqTable)
 		end)
 
 	local leaveGame = false
-	add_hook("end_game", "tbTutorialsCustom", function(gameEndType) COMEBACKPRACTICE_GAME_END = true end)
-	add_hook("draw2d", "tbTutorialsCustom", function()
+	add_hook("end_game", Tutorials.StepHook, function(gameEndType) COMEBACKPRACTICE_GAME_END = true end)
+	add_hook("draw2d", Tutorials.StepHook, function()
 			checkCollision()
 			local ws = get_world_state()
 			local frame = ws.match_frame
@@ -299,7 +299,7 @@ local function loadVisuals(viewElement, reqTable)
 				GAME_COUNT = (GAME_COUNT or 0) + 1
 				local stopFrame = frame + 97
 				local leaveGameHook = false
-				add_hook("draw2d", "tbTutorialsCustomStatic", function()
+				add_hook("draw2d", Tutorials.StaticHook, function()
 						local wsMatchFrame = get_world_state().match_frame
 						if (wsMatchFrame >= stopFrame and not TUTORIAL_LEAVEGAME) then
 							leaveGameHook = true
@@ -322,12 +322,12 @@ local function comebackPractice(viewElement, reqTable)
 	initComebackPractice()
 	loadVisuals(viewElement, reqTable)
 
-	add_hook("leave_game", "tbTutorialsCustomStatic", function()
+	add_hook("leave_game", Tutorials.StaticHook, function()
 			if (TUTORIAL_LEAVEGAME) then
 				return 1
 			end
 		end)
-	add_hook("key_up", "tbTutorialsCustom", function(key)
+	add_hook("key_up", Tutorials.StepHook, function(key)
 			if (get_shift_key_state() > 0 or get_keyboard_ctrl() > 0 or get_keyboard_alt() > 0) then
 				return 1
 			end

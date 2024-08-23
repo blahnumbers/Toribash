@@ -5,7 +5,7 @@ local function requireKeyPress(viewElement, reqTable, key, show)
 	local req = { type = "keypress", ready = false }
 	table.insert(reqTable, req)
 
-	local button = nil
+	local button
 	if (show) then
 		local displayKey = key
 		local width = 100
@@ -28,7 +28,7 @@ local function requireKeyPress(viewElement, reqTable, key, show)
 		button:addAdaptedText(false, displayKey)
 	end
 
-	add_hook("key_up", "tbTutorialsCustom", function(s, code)
+	add_hook("key_up", Tutorials.StepHook, function(s, code)
 			if (string.schar(s) == key or (code > 3 and code < 30 and string.schar(code + 93) == key)) then
 				if (show and button.hoverState ~= BTN_NONE) then
 					button.hoverState = BTN_NONE
@@ -40,7 +40,7 @@ local function requireKeyPress(viewElement, reqTable, key, show)
 				end
 			end
 		end)
-	add_hook("key_down", "tbTutorialsCustom", function(s, code)
+	add_hook("key_down", Tutorials.StepHook, function(s, code)
 			if ((string.schar(s) == key or (code > 3 and code < 30 and string.schar(code + 93) == key)) and show) then
 				button.hoverState = BTN_HVR
 			end
@@ -106,7 +106,7 @@ end
 local function punchingBag()
 	usage_event("tutorial2lockbag")
 	local groinPos = get_body_info(1, BODYPARTS.GROIN).pos
-	add_hook("enter_frame", "tbTutorialsCustomStatic", function()
+	add_hook("enter_frame", Tutorials.StaticHook, function()
 			set_body_pos(1, BODYPARTS.GROIN, groinPos.x, groinPos.y, groinPos.z)
 			set_body_rotation(1, BODYPARTS.GROIN, 0, 0, 0)
 		end)

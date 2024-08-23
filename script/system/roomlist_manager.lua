@@ -22,6 +22,9 @@ local FILTER_ON = true
 if (RoomList == nil) then
 	---**Room List manager class**
 	---
+	---**Version 5.70**
+	---* Added `HookName` field
+	---
 	---**Version 5.61**
 	---* Display room rank and elo requirements in info view
 	---
@@ -35,10 +38,11 @@ if (RoomList == nil) then
 	---@field Filters RoomListFilters
 	---@field FeaturedRooms RoomListInfoExtended[]
 	RoomList = {
-		ver = 5.61,
+		ver = 5.70,
 		RefreshPeriod = 60,
 		Filters = { },
-		FeaturedRooms = { }
+		FeaturedRooms = { },
+		HookName = "__tbRoomListManager"
 	}
 	RoomList.__index = RoomList
 end
@@ -1170,8 +1174,8 @@ function RoomList:createRoom()
 			createRoomBackground:kill(true)
 			TBMenu:displayLoadingMark(createRoomBackground, TB_MENU_LOCALIZED.ROOMLISTCREATEPLEASEWAIT)
 			createRoomFields[1].action(createRoomFields[1].targetValue[1])
-			add_hook("new_mp_game", "roomListMultiplayerCreateJoinRoom", function()
-				remove_hooks("roomListMultiplayerCreateJoinRoom")
+			add_hook("new_mp_game", self.HookName, function()
+				remove_hook("new_mp_game", self.HookName)
 				if (targetMod[1] ~= "") then
 					runCmd("loadmod " .. targetMod[1], true)
 					runCmd("reset", true)
@@ -1461,7 +1465,7 @@ end
 RoomList:resetFilters()
 
 ---Keep this hook running forever so we can update room cache from other sources and not just RoomListInternal.RefreshData() call
-add_hook("roomlist_update", "roomListCacheUpdater", function(error)
+add_hook("roomlist_update", RoomList.HookName, function(error)
 	RoomListInternal.ResetCache()
 	if (utf8.len(error) ~= 0) then
 		RoomListInternal.UpdateError = error

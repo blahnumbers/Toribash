@@ -506,7 +506,8 @@ HOTKEYSGRABALL	Toggle Both Hands' States
 HOTKEYSSAVEREPLAY	Save Replay
 HOTKEYSTORIGHOST	Toggle Player's Ghost
 HOTKEYSPLAYERSGHOST	Toggle Both Players' Ghosts
-HOTKEYSTURN	Finish Turn / Skip One Frame
+HOTKEYSTURN	Finish Current Turn
+HOTKEYSSTEPONCE	Step One Frame (Free Play)
 HOTKEYSCHAT	Chat Controls
 HOTKEYSOPENCHAT	Open Chat Box
 HOTKEYSTOGGLECHAT	Show More Chat Lines
@@ -524,6 +525,8 @@ HOTKEYSOTHER	Other Hotkeys
 HOTKEYSMODLIST	Open Mod List
 HOTKEYSSHADERS	Open Shaders & Atmospheres
 HOTKEYSGAMERULES	Open Game Rules
+HOTKEYSMOVEMEMORY	Open MoveMemory
+HOTKEYSMODMAKER	Open ModMaker
 HOTKEYSFULLSCREEN	Enter Fullscreen Mode
 HOTKEYSCAMERAMODES	Change Camera Modes
 TUTORIALSLEAVINGPROMPT	Leaving tutorial mode.\nCurrent tutorial will have to be restarted from the beginning if you proceed.
@@ -746,6 +749,7 @@ SETTINGSALWAYSSHOW	Always show
 REPORTSCONFIRMATION	Are you sure you want to report
 REPORTSLONGWAITMESSAGE	Taking a bit longer than usual...\nThis window can be closed, you'll receive a notification when your report gets submitted.
 REPLAYSERRORLOADINGCACHE	Error loading replay cache, this may mean the data has been corrupted or you don't have read/write permissions on your Toribash folder.
+REPLAYSERRORLOADIGNCACHESHORT	Error loading replay cache
 WORDERROR	Error
 WORDNEW	New
 WORDNOTIFICATIONS	Notifications
@@ -1301,3 +1305,5 @@ SETTINGSMOUSESCROLLCONTROLS	Control joints state with mouse scroll
 BUTTONSHARE	Share
 SETTINGSPRESSKEYTOASSIGN	Press the key to assign
 SETTINGSREPLAYS	Replays
+REPLAYKEYFRAMEINTERPOLATION	Smoothing
+REPLAYKEYFRAMEFRAME	Frame

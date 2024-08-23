@@ -11,6 +11,9 @@ require("system.iofiles")
 if (Rewards == nil) then
 	---**Login rewards manager class**
 	---
+	---**Version 5.70**
+	---* Added `HookName` field
+	---
 	---**Version 5.65**
 	---* Display increased rewards for Prime subscribers
 	---* Some internal tweaks to variable naming
@@ -21,7 +24,8 @@ if (Rewards == nil) then
 	---@field Data DayReward[] List of available rewards
 	Rewards = {
 		Data = { },
-		ver = 5.65
+		ver = 5.70,
+		HookName = "__tbRewardsManager"
 	}
 	Rewards.__index = Rewards
 end
@@ -195,9 +199,9 @@ function Rewards:showMain(viewElement, rewardData)
 						local timeleft = PlayerInfo.Get().getLoginRewards().timeLeft
 						local clock = os.clock_real()
 						refresh_reward()
-						add_hook("draw2d", "tbRewardsRewardRefresh", function()
+						add_hook("draw2d", self.HookName, function()
 								if (PlayerInfo.Get().getLoginRewards().timeLeft ~= timeleft or os.clock_real() - clock > 5) then
-									remove_hooks("tbRewardsRewardRefresh")
+									remove_hook("draw2d", self.HookName)
 									doClaim(2)
 								end
 							end)

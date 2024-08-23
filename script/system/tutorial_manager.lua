@@ -7,6 +7,9 @@ require("system.tooltip_manager")
 if (Tutorials == nil) then
 	---**Toribash Tutorials class**
 	---
+	---**Version 5.70**
+	---* Added `HookName` field
+	---
 	---**Version 5.62**
 	---* Tutorial atmospheres support
 	---
@@ -49,14 +52,15 @@ if (Tutorials == nil) then
 	---@field StaticHook string Name of a hook set that will be reset on tutorial / event exit
 	---@field ver number
 	Tutorials = {
-		ver = 5.62,
+		ver = 5.70,
 		Globalid = 1003,
 		ReplaySpeed = 1,
 		ReplayCache = false,
 		TotalSteps = 0,
 		ProgressStep = 0,
-		StepHook = "tbTutorialsCustom",
-		StaticHook = "tbTutorialsCustomStatic",
+		StepHook = "__tbTutorialsCustom",
+		StaticHook = "__tbTutorialsCustomStatic",
+		HookName = "__tbTutorialsManager",
 		StoredOptions = {}
 	}
 	Tutorials.__index = Tutorials
@@ -135,12 +139,11 @@ function Tutorials:quit()
 	TUTORIAL_ISACTIVE = false
 	TUTORIAL_LEAVEGAME = false
 
-	remove_hooks("tbTutorialsVisual")
-	remove_hooks("tbTutorialKeyboardHandler")
+	remove_hooks(self.HookName)
 	remove_hooks(self.StepHook)
 	remove_hooks(self.StaticHook)
-	remove_hooks("tbMoveMemoryPlayTurns0")
-	remove_hooks("tbMoveMemoryPlayTurns1")
+	remove_hooks(MoveMemory.HookName .. "Play0")
+	remove_hooks(MoveMemory.HookName .. "Play1")
 	for i, _ in pairs(MoveMemory.PlaybackActive) do
 		MoveMemory.PlaybackActive[i] = false
 	end
@@ -1070,11 +1073,11 @@ function Tutorials:playFrames(_, reqTable, frames)
 			end
 			req.ready = true
 			reqTable.ready = TutorialsInternal.CheckRequirements(self, reqTable)
-			remove_hook("enter_frame", "playFrame")
+			self.EnterFrameCheck = nil
 		end
 	end
 
-	add_hook("enter_frame", "playFrame", checkFrame)
+	self.EnterFrameCheck = checkFrame
 end
 
 ---Sets joint states as per specified data
@@ -1703,8 +1706,8 @@ function Tutorials:runSteps(steps, currentStep)
 		})
 		stepDisplay:addAdaptedText(true, 's' .. currentStep, nil, nil, FONTS.BIG, nil, 0.7, nil, 0.6)
 	end
-	stepElement.killAction = function() remove_hook("post_draw3d", "tutorialProgressStepper") end
-	add_hook("post_draw3d", "tutorialProgressStepper", function()
+	stepElement.killAction = function() remove_hook("post_draw3d", self.HookName) end
+	add_hook("post_draw3d", self.HookName, function()
 		if (requirements.ready) then
 			local skip = steps[currentStep].skip
 			if (requirements.skip) then
@@ -2598,14 +2601,14 @@ end
 ---@param manager Tutorials
 function TutorialsInternal.LoadHooks(manager)
 	local isMessageSkipping = false
-	add_hook("key_down", "tbTutorialKeyboardHandler", function(key, kcode)
+	add_hook("key_down", manager.HookName, function(key, kcode)
 			if (key == 13 and manager.MessageView and not manager.MessageView.doSkip) then
 				manager.MessageView.doSkip = true
 				isMessageSkipping = true
 			end
 			return Tutorials.HandleKeyPress(key, kcode)
 		end)
-	add_hook("key_up", "tbTutorialKeyboardHandler", function(key, kcode)
+	add_hook("key_up", manager.HookName, function(key, kcode)
 			if (key == 13 and not isMessageSkipping) then
 				if (manager.ContinueButton.isactive) then
 					if (manager.ContinueButton.req.ready ~= nil) then
@@ -2620,48 +2623,51 @@ function TutorialsInternal.LoadHooks(manager)
 			end
 		end)
 
-	add_hook("draw2d", "tbTutorialsVisual", function()
+	add_hook("draw2d", manager.HookName, function()
 			if (TB_MENU_MAIN_ISOPEN == 0) then
 				UIElement.drawVisuals(manager.Globalid)
 			end
 		end)
-	add_hook("draw3d", "tbTutorialsVisual", function()
+	add_hook("draw3d", manager.HookName, function()
 			if (TB_MENU_MAIN_ISOPEN == 0) then
 				UIElement3D.drawVisuals(manager.Globalid)
 			end
 		end)
-	add_hook("enter_frame", "tbTutorialsVisual", function()
+	add_hook("enter_frame", manager.HookName, function()
 			if (TB_MENU_MAIN_ISOPEN == 0) then
 				UIElement3D.drawEnterFrame(manager.Globalid)
 			end
+			if (manager.EnterFrameCheck ~= nil) then
+				manager.EnterFrameCheck()
+			end
 		end)
-	add_hook("draw_viewport", "tbTutorialsVisual", function()
+	add_hook("draw_viewport", manager.HookName, function()
 			if (TB_MENU_MAIN_ISOPEN == 0) then
 				UIElement3D.drawViewport(manager.Globalid)
 			end
 		end)
 
-	add_hook("leave_game", "tbTutorialsVisual", function()
+	add_hook("leave_game", manager.HookName, function()
 			if (not TUTORIAL_LEAVEGAME and TB_MENU_MAIN_ISOPEN == 0) then
 				manager:quitPopup()
 			end
 		end)
-	add_hook("console", "tbTutorialsVisual", function() return 1 end)
-	add_hook("mouse_button_down", "tbTutorialKeyboardHandler", function()
+	add_hook("console", manager.HookName, function() return 1 end)
+	add_hook("mouse_button_down", manager.HookName, function()
 			local ws = get_world_state()
 			if (ws.selected_joint ~= -1) then
 				return Tutorials.HandleJointSelect(ws.selected_player, ws.selected_joint)
 			end
 			return Tutorials.HandleBodySelect(ws.selected_player, ws.selected_body)
 		end)
-	add_hook("joint_select", "tbTutorialKeyboardHandler", Tutorials.HandleJointSelect)
-	add_hook("body_select", "tbTutorialKeyboardHandler", Tutorials.HandleBodySelect)
+	add_hook("joint_select", manager.HookName, Tutorials.HandleJointSelect)
+	add_hook("body_select", manager.HookName, Tutorials.HandleBodySelect)
 
 	if (is_mobile()) then
-		add_hook("touch_toggle_hud", "tbTutorialKeyboardHandler", function() return 1 end)
+		add_hook("touch_toggle_hud", manager.HookName, function() return 1 end)
 	end
 
-	add_hook("dropfile", "tbTutorialsVisual", function() return 1 end)
+	add_hook("dropfile", manager.HookName, function() return 1 end)
 
 	---Reload Tooltip and Movememory to make sure their hooks run after Tutorial stuff
 	Tooltip.Init()

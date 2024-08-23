@@ -57,7 +57,7 @@ function Downloader:safeCall(func)
 	return id
 end
 
-add_hook("downloader_complete", "tbDownloaderManagerStatic", function()
+add_hook("downloader_complete", "__tbDownloaderManagerStatic", function()
 	if (#Downloader.Queue > 0) then
 		local func = Downloader.Queue[1]
 		table.remove(Downloader.Queue, 1)

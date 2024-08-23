@@ -9,6 +9,13 @@ end
 if (Replays == nil) then
 	---**Toribash Replays manager class**
 	---
+	---**Version 5.70**
+	---* Replay HUD keyframes browser and editor
+	---* Updated replay HUD next / prev buttons to use custom logic based on last active replay browser list
+	---* Updated `showReplayInfo()` with arguments for replay queue and current idx
+	---* Updated `playReplay()` with arguments for replay queue and current idx
+	---* Added `HookNameUI` field
+	---
 	---**Version 5.65**
 	---* Updated custom replay selector window with mobile device support
 	---* Replay GUI is now part of **Replays** class
@@ -32,8 +39,9 @@ if (Replays == nil) then
 		ServerCacheSettings = { action = 1, offset = 0, search = "", id = 0 },
 		ServerCacheTotal = 0,
 		CacheReady = false,
-		SaveFolder = 'my replays',
-		ver = 5.65
+		SaveFolder = "my replays",
+		HookNameUI = "__tbReplaysManagerUI",
+		ver = 5.70
 	}
 	Replays.__index = Replays
 
@@ -730,6 +738,13 @@ function Replays:showSearchList(viewElement, replayInfo, toReload, replays)
 			Replays:showList(viewElement.parent, replayInfo, ReplaysInternal.SelectedFolder)
 		end)
 
+	local replayQueue = {}
+	for _, list in pairs(replays) do
+		for _, replay in pairs(list) do
+			table.insert(replayQueue, replay)
+		end
+	end
+	local totalIdx = 0
 	for section, replayList in pairs(replays) do
 		if (#replayList > 0) then
 			local sectionName = listingHolder:addChild({
@@ -745,6 +760,8 @@ function Replays:showSearchList(viewElement, replayInfo, toReload, replays)
 					sectionName:uiText(sectionStr, nil, nil, nil, LEFTMID)
 				end)
 			for i, replay in pairs(replayList) do
+				totalIdx = totalIdx + 1
+				local thisIdx = totalIdx
 				local replayElementHolder = listingHolder:addChild({
 					pos = { 0, #listElements * elementHeight },
 					size = { listingHolder.size.w, elementHeight }
@@ -768,7 +785,7 @@ function Replays:showSearchList(viewElement, replayInfo, toReload, replays)
 				end
 				replayElement:addMouseHandlers(nil, function()
 						if (ReplaysInternal.SelectedReplay.element == replayElement and ReplaysInternal.SelectedReplay.time + 0.5 > os.clock_real()) then
-							Replays:playReplay(replay)
+							Replays:playReplay(replay, replayQueue, thisIdx)
 							return
 						end
 						ReplaysInternal.SelectedReplay.time = os.clock_real()
@@ -776,7 +793,7 @@ function Replays:showSearchList(viewElement, replayInfo, toReload, replays)
 						ReplaysInternal.SelectedReplay.element.bgColor = table.clone(ReplaysInternal.SelectedReplay.defaultColor)
 						ReplaysInternal.SelectedReplay.element = replayElement
 						ReplaysInternal.SelectedReplay.defaultColor = table.clone(replayElement.bgColor)
-						Replays:showReplayInfo(replayInfo, replay)
+						Replays:showReplayInfo(replayInfo, replayQueue, thisIdx)
 					end)
 
 				local replayName = replayElement:addChild({
@@ -822,16 +839,20 @@ function Replays:showSearchList(viewElement, replayInfo, toReload, replays)
 	listingScrollBar:makeScrollBar(listingHolder, listElements, toReload)
 end
 
-function Replays:playReplay(replay)
+---@param replay ReplayInfo
+---@param replayQueue ReplayInfo[]?
+---@param replayIdx integer?
+function Replays:playReplay(replay, replayQueue, replayIdx)
 	local whiteoverlay = TBMenu:spawnWindowOverlay()
 	local cacheMode = get_option("replaycache") == 2 and 1 or 0
 	local replayFile = utf8.gsub(replay.filename, "^replay/", "")
 
-	local loading = UIElement:new({
-		parent = whiteoverlay,
+	local loading = whiteoverlay:addChild({
 		pos = { WIN_W / 4, WIN_H / 7 * 3 },
 		size = { WIN_W / 2, WIN_H / 7 },
-		bgColor = TB_MENU_DEFAULT_DARKER_COLOR
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		shapeType = ROUNDED,
+		rounded = 4
 	})
 	if (replay.mod ~= "classic") then
 		local modname = string.find(replay.mod, "%.tbm$") and replay.mod or (replay.mod .. ".tbm")
@@ -851,6 +872,9 @@ function Replays:playReplay(replay)
 								framesN = framesN + 1
 								if (framesN > 4) then
 									open_replay(replayFile, cacheMode)
+									self.GameHud.cacheMode = cacheMode
+									self.GameHud.queue = replayQueue
+									self.GameHud.currentQueueIndex = replayIdx
 									close_menu()
 								end
 							end)
@@ -863,6 +887,9 @@ function Replays:playReplay(replay)
 					wait = wait + 1
 					if (wait > 4) then
 						open_replay(replayFile, cacheMode)
+						self.GameHud.cacheMode = cacheMode
+						self.GameHud.queue = replayQueue
+						self.GameHud.currentQueueIndex = replayIdx
 						close_menu()
 					end
 				end)
@@ -874,6 +901,9 @@ function Replays:playReplay(replay)
 				wait = wait + 1
 				if (wait > 4) then
 					open_replay(replayFile, cacheMode)
+					self.GameHud.cacheMode = cacheMode
+					self.GameHud.queue = replayQueue
+					self.GameHud.currentQueueIndex = replayIdx
 					close_menu()
 				end
 			end)
@@ -1088,7 +1118,7 @@ function Replays:showList(viewElement, replayInfo, level, doSearch)
 		end
 		replayElement:addMouseHandlers(nil, function()
 				if (ReplaysInternal.SelectedReplay.element == replayElement and ReplaysInternal.SelectedReplay.time + 0.5 > os.clock_real()) then
-					Replays:playReplay(replay)
+					Replays:playReplay(replay, rplTable.replays, i)
 					return
 				end
 				ReplaysInternal.SelectedReplay.time = os.clock_real()
@@ -1096,7 +1126,7 @@ function Replays:showList(viewElement, replayInfo, level, doSearch)
 				ReplaysInternal.SelectedReplay.element.bgColor = table.clone(ReplaysInternal.SelectedReplay.defaultColor)
 				ReplaysInternal.SelectedReplay.element = replayElement
 				ReplaysInternal.SelectedReplay.defaultColor = table.clone(replayElement.bgColor)
-				Replays:showReplayInfo(replayInfo, replay)
+				Replays:showReplayInfo(replayInfo, rplTable.replays, i)
 			end)
 
 		local replayName = UIElement:new({
@@ -1147,7 +1177,11 @@ function Replays:showList(viewElement, replayInfo, level, doSearch)
 	else
 		listingHolder:moveTo((listingView.size.w - listingHolder.size.w) / 4)
 	end
-	Replays:showReplayInfo(replayInfo, ReplaysInternal.SelectedReplay.replay or rplTable.replays[1])
+	if (ReplaysInternal.SelectedReplay.replay ~= nil) then
+		Replays:showReplayInfo(replayInfo, ReplaysInternal.SelectedReplay.list, ReplaysInternal.SelectedReplay.idx)
+	else
+		Replays:showReplayInfo(replayInfo, rplTable.replays, 1)
+	end
 end
 
 function Replays:showReplayTaglistTag(viewElement, updatedTags, tag, elementHeight, posInfo, popularTags)
@@ -2018,13 +2052,15 @@ function Replays:showAutosaveToggle(viewElement)
 end
 
 ---@param viewElement UIElement
----@param replay ReplayInfo?
-function Replays:showReplayInfo(viewElement, replay)
+---@param replaysList ReplayInfo[]
+---@param replayIdx integer
+function Replays:showReplayInfo(viewElement, replaysList, replayIdx)
 	viewElement:kill(true)
 	TBMenu:addBottomBloodSmudge(viewElement, 2)
 
 	local buttonWidth = viewElement.size.w - 20
 	local buttonHeight = math.min(viewElement.size.h / 10, 64)
+	local replay = replaysList[replayIdx]
 	if (not replay) then
 		local heightMod = 0
 		if (ReplaysInternal.SelectedFolder.fullname == "replay/autosave") then
@@ -2040,6 +2076,8 @@ function Replays:showReplayInfo(viewElement, replay)
 	end
 
 	ReplaysInternal.SelectedReplay.replay = replay
+	ReplaysInternal.SelectedReplay.list = replaysList
+	ReplaysInternal.SelectedReplay.idx = replayIdx
 	if (ReplaysInternal.SelectedReplay.element) then
 		-- Element can be null judging by crash logs but I can't replicate it
 		-- Let's hope having this check doesn't spawn more errors
@@ -2191,7 +2229,7 @@ function Replays:showReplayInfo(viewElement, replay)
 	})
 	replayViewButton:addAdaptedText(false, TB_MENU_LOCALIZED.BUTTONVIEW)
 	replayViewButton:addMouseHandlers(nil, function()
-			Replays:playReplay(replay)
+			Replays:playReplay(replay, replaysList, replayIdx)
 		end)
 end
 
@@ -3147,7 +3185,7 @@ function Replays:showMain(viewElement)
 	end
 	TB_MENU_REPLAYS_ONLINE = 0
 
-	ReplaysInternal.SelectedReplay = { replay = nil, element = nil, defaultcolor = nil, time = 0 }
+	ReplaysInternal.SelectedReplay = { replay = nil, element = nil, defaultcolor = nil, time = 0, list = {}, idx = 0 }
 
 	local replaysList = UIElement:new({
 		parent = viewElement,
@@ -3280,7 +3318,7 @@ function Replays:showCustomReplaySelection(mainElement, mod, action)
 
 	local status, error = pcall(function() Replays:getReplayFiles(true) end)
 	if (not status) then
-		TBMenu:showStatusMessage("Error loading replay cache: " .. error)
+		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSERRORLOADIGNCACHESHORT .. ": " .. error)
 		return
 	end
 
@@ -3346,7 +3384,8 @@ function Replays:spawnReplayProgressSlider(viewElement)
 			sliderRadius = 20,
 			textWidth = 30,
 			maxValue = worldstate.game_frame + 98,
-			minValue = 0
+			minValue = 0,
+			showLabelOnHover = true
 		}, rewind_replay_to_frame, onMouseDn, onMouseUp)
 	slider.bgColor = table.clone(UICOLORWHITE)
 	slider.value = worldstate.match_frame
@@ -3392,7 +3431,7 @@ function Replays:spawnReplayProgressSlider(viewElement)
 	local keyframesCount = 0
 	local loadKeyframes
 
-	local function onKeyframeUpdated()
+	local onKeyframeUpdated = function()
 		local ws = get_world_state()
 		rewind_replay()
 		rewind_replay_to_frame(ws.match_frame)
@@ -3400,6 +3439,14 @@ function Replays:spawnReplayProgressSlider(viewElement)
 			toggle_game_pause()
 		end
 		loadKeyframes()
+	end
+	local getSliderSpeedValue = function(value)
+		if (value > 2) then
+			value = 1.5 + (value - 2) / 4
+		elseif (value > 1) then
+			value = 1 + (value - 1) / 2
+		end
+		return value
 	end
 
 	local keyframeInfoViewHolder = slider.background:addChild({
@@ -3412,7 +3459,7 @@ function Replays:spawnReplayProgressSlider(viewElement)
 		size = { WIN_W * 3, WIN_H * 3 },
 		interactive = true
 	})
-	overlay:addMouseDownHandler(function() keyframeInfoViewHolder:hide() end)
+	overlay:addMouseDownHandler(function() keyframeInfoViewHolder:hide(true) end)
 	local keyframeInfoView = keyframeInfoViewHolder:addChild({
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 		interactive = true,
@@ -3443,7 +3490,7 @@ function Replays:spawnReplayProgressSlider(viewElement)
 		pos = { 10, 30 },
 		size = { keyframeInfoView.size.w / 3, 32 }
 	})
-	keyframeSpeedLabel:addAdaptedText(true, "Speed", nil, nil, nil, LEFTMID, 0.75)
+	keyframeSpeedLabel:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSREPLAYSPEED, nil, nil, nil, LEFTMID, 0.75)
 	local keyframeSpeedSliderHolder = keyframeInfoView:addChild({
 		pos = { keyframeInfoView.size.w / 3 + keyframeSpeedLabel.shift.x, keyframeSpeedLabel.shift.y },
 		size = { keyframeInfoView.size.w / 3 * 2 - keyframeSpeedLabel.shift.x, keyframeSpeedLabel.size.h }
@@ -3452,7 +3499,7 @@ function Replays:spawnReplayProgressSlider(viewElement)
 	keyframeSpeedSlider = TBMenu:spawnSlider2(keyframeSpeedSliderHolder, nil, 1, {
 		minValue = 0.05, maxValue = 2,
 		minValueDisp = '0.05x', maxValueDisp = '4x',
-		decimal = 2, textWidth = 40
+		decimal = 2, textWidth = 40, showLabelOnHover = true
 	}, function(value)
 		if (value > 1) then
 			if (value < 1.5) then
@@ -3474,16 +3521,28 @@ function Replays:spawnReplayProgressSlider(viewElement)
 	end)
 	keyframeSpeedSlider.background.bgColor = table.clone(TB_MENU_DEFAULT_BG_COLOR)
 	keyframeSpeedSlider.bgColor = table.clone(UICOLORWHITE)
+	keyframeSpeedSlider.background:addCustomDisplay(function()
+			set_color(1, 1, 1, 0.7)
+			draw_quad(keyframeSpeedSlider.background.pos.x, keyframeSpeedSlider.background.pos.y, keyframeSpeedSlider.background.size.w / 2, keyframeSpeedSlider.background.size.h)
+
+			draw_quad(keyframeSpeedSlider.background.pos.x + keyframeSpeedSlider.background.size.w * 0.125, keyframeSpeedSlider.background.pos.y - 3, 1, keyframeSpeedSlider.background.size.h + 6)
+			draw_quad(keyframeSpeedSlider.background.pos.x + keyframeSpeedSlider.background.size.w * 0.25, keyframeSpeedSlider.background.pos.y - 5, 1, keyframeSpeedSlider.background.size.h + 10)
+			draw_quad(keyframeSpeedSlider.background.pos.x + keyframeSpeedSlider.background.size.w * 0.375, keyframeSpeedSlider.background.pos.y - 3, 1, keyframeSpeedSlider.background.size.h + 6)
+			draw_quad(keyframeSpeedSlider.background.pos.x + keyframeSpeedSlider.background.size.w * 0.5, keyframeSpeedSlider.background.pos.y - 8, 1, keyframeSpeedSlider.background.size.h + 16)
+			draw_quad(keyframeSpeedSlider.background.pos.x + keyframeSpeedSlider.background.size.w * 0.625, keyframeSpeedSlider.background.pos.y - 5, 1, keyframeSpeedSlider.background.size.h + 10)
+			draw_quad(keyframeSpeedSlider.background.pos.x + keyframeSpeedSlider.background.size.w * 0.75, keyframeSpeedSlider.background.pos.y - 8, 1, keyframeSpeedSlider.background.size.h + 16)
+			draw_quad(keyframeSpeedSlider.background.pos.x + keyframeSpeedSlider.background.size.w * 0.875, keyframeSpeedSlider.background.pos.y - 8, 1, keyframeSpeedSlider.background.size.h + 16)
+		end)
 	local keyframeInterpolateLabel = keyframeInfoView:addChild({
 		pos = { keyframeSpeedLabel.shift.x, keyframeSpeedSliderHolder.shift.y + keyframeSpeedSliderHolder.size.h },
 		size = { keyframeInfoView.size.w / 2, keyframeSpeedSliderHolder.size.h }
 	})
-	keyframeInterpolateLabel:addAdaptedText(true, "Smoothing", nil, nil, nil, LEFTMID, 0.75)
+	keyframeInterpolateLabel:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYKEYFRAMEINTERPOLATION, nil, nil, nil, LEFTMID, 0.75)
 	local keyframeInterpolateToggle = TBMenu:spawnToggle(keyframeInfoView, keyframeInfoView.size.w - 5 - keyframeInterpolateLabel.size.h, keyframeInterpolateLabel.shift.y, keyframeInterpolateLabel.size.h, keyframeInterpolateLabel.size.h, true, function(value)
 		save_camera_keyframe(keyframeInfoViewHolder.keyframe, keyframeInfoViewHolder.speed, false, value)
 		onKeyframeUpdated()
 	end)
-	keyframeInfoViewHolder:hide()
+	keyframeInfoViewHolder:hide(true)
 
 	loadKeyframes = function()
 		for _, v in ipairs(keyframeButtons) do
@@ -3512,7 +3571,7 @@ function Replays:spawnReplayProgressSlider(viewElement)
 						if (keyframeButton.size.w < keyframeButtonHoverSize) then
 							keyframeButton.size.w = UITween.LinearTween(keyframeButton.size.w, keyframeButtonHoverSize, (UIElement.clock - keyframeButton.hoverClock) * 5)
 							local moveAmount = (keyframeButton.size.h - keyframeButton.size.w) / 2
-							keyframeButton:moveTo(moveAmount, moveAmount, true)
+							keyframeButton:moveTo(moveAmount, moveAmount * 2, true)
 							keyframeButton.size.h = keyframeButton.size.w
 						end
 					else
@@ -3527,12 +3586,14 @@ function Replays:spawnReplayProgressSlider(viewElement)
 			end)
 			keyframeButton:addMouseUpRightHandler(function()
 				keyframeInfoViewHolder:moveTo(keyframeButton.shift.x + keyframeButton.size.w / 2 - keyframeInfoViewHolder.size.w / 2, keyframeButton.shift.y - keyframeInfoViewHolder.size.h - 5)
-				keyframeInfoViewHolder:show()
+				keyframeInfoViewHolder:show(true)
 				keyframeInfoViewHolder.keyframe = kf.frame
 				keyframeInfoViewHolder.speed = kf.speed
-				keyframeSpeedSlider.setValue(kf.speed)
+				keyframeSpeedSlider.setValue(getSliderSpeedValue(kf.speed))
+				---@diagnostic disable-next-line: undefined-field
+				keyframeSpeedSlider.label.labelText[1] = tostring(kf.speed)
 				keyframeInterpolateToggle.setValue(kf.interpolate)
-				keyframeInfoFrameLabel:addAdaptedText(true, "Frame " .. kf.frame, nil, nil, nil, LEFTMID)
+				keyframeInfoFrameLabel:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYKEYFRAMEFRAME .. " " .. kf.frame, nil, nil, nil, LEFTMID)
 			end)
 		end
 		slider:reload()
@@ -3710,7 +3771,8 @@ function Replays:spawnReplaySpeedSlider(viewElement)
 		minValueDisp = -1.5,
 		decimal = 2,
 		sliderRadius = 20,
-		textWidth = 30
+		textWidth = 30,
+		showLabelOnHover = true
 	}
 	local speed = get_replay_speed()
 	local slider = TBMenu:spawnSlider2(replaySpeedHolder, {
@@ -3734,7 +3796,6 @@ function Replays:spawnReplaySpeedSlider(viewElement)
 	speedMarks:addCustomDisplay(true, function()
 			set_color(unpack(speedMarks.bgColor))
 			-- -1 speed
-			local clock = os.clock_real()
 			draw_line(speedMarks.pos.x + speedMarks.size.w * 0.083, speedMarks.pos.y, speedMarks.pos.x + speedMarks.size.w * 0.083, speedMarks.pos.y + speedMarks.size.h, 2)
 
 			draw_line(speedMarks.pos.x + speedMarks.size.w * 0.1455, speedMarks.pos.y + speedMarks.size.h * 0.333, speedMarks.pos.x + speedMarks.size.w * 0.1455, speedMarks.pos.y + speedMarks.size.h * 0.667, 2)
@@ -3793,7 +3854,11 @@ end
 ---@field hidden boolean Whether replay hud UIElement is currently hidden from user
 ---@field manualHidden boolean Whether relpay hud has been manually toggled off
 ---@field toggleClock number Last hud toggle timestamp
----@field hasCache boolean Last replay cache state
+---@field cacheMode integer Last replay load attempt cache mode
+---@field hasCache boolean Whether replay cache is available
+---@field queue ReplayInfo[]|nil|-1 Replay queue used for prev/next buttons
+---@field currentQueueIndex integer? Current replay index in queue
+---@field PlayQueue function
 
 ---Spawns advanced replay UI
 ---@param reload ?boolean
@@ -3820,9 +3885,37 @@ function Replays:spawnReplayAdvancedGui(reload)
 			pos = { posX, WIN_H },
 			size = { size[1], size[2] }
 		})
+
+		---@param direction 1|-1
+		self.GameHud.PlayQueue = function(direction)
+			if (self.GameHud.queue == -1) then
+				if (direction == 1) then
+					play_next_replay()
+				else
+					play_prev_replay()
+				end
+				return
+			end
+
+			if (direction == 1) then
+				self.GameHud.currentQueueIndex = self.GameHud.currentQueueIndex + 1
+				if (self.GameHud.currentQueueIndex > #self.GameHud.queue) then
+					self.GameHud.currentQueueIndex = 1
+				end
+			else
+				self.GameHud.currentQueueIndex = self.GameHud.currentQueueIndex - 1
+				if (self.GameHud.currentQueueIndex < 1) then
+					self.GameHud.currentQueueIndex = #self.GameHud.queue
+				end
+			end
+			local replayFile = utf8.gsub(self.GameHud.queue[self.GameHud.currentQueueIndex].filename, "^replay/", "")
+			open_replay(replayFile, self.GameHud.cacheMode)
+		end
+
 		self.GameHud.hidden = false
 		self.GameHud.toggleClock = UIElement.clock
 		self.GameHud.hasCache = get_replay_cache() > 0
+		self.GameHud.queue = -1
 		self.GameHud:addCustomDisplay(true, function()
 				local ws = get_world_state()
 
@@ -3839,11 +3932,11 @@ function Replays:spawnReplayAdvancedGui(reload)
 				end
 				if (self.GameHud.prevReplay ~= nil and self.GameHud.nextReplay ~= nil) then
 					if (self.GameHud.prevReplay:isDisplayed()) then
-						if (ws.game_type == 1) then
+						if (ws.game_type == 1 or self.GameHud.queue == nil) then
 							self.GameHud.prevReplay:hide(true)
 							self.GameHud.nextReplay:hide(true)
 						end
-					elseif (ws.game_type == 0) then
+					elseif (ws.game_type == 0 and self.GameHud.queue ~= nil) then
 						self.GameHud.prevReplay:show(true)
 						self.GameHud.nextReplay:show(true)
 					end
@@ -3876,11 +3969,13 @@ function Replays:spawnReplayAdvancedGui(reload)
 		shift = { self.GameHud.prevReplay.size.w / 6, 0 },
 		bgImage = "../textures/menu/general/buttons/arrowleft.tga"
 	})
-	self.GameHud.prevReplay:addMouseHandlers(nil, function() play_prev_replay() end)
-	local prevPopup = TBMenu:displayPopup(self.GameHud.prevReplay, TB_MENU_LOCALIZED.REPLAYHUDPREVREPLAY)
+	self.GameHud.prevReplay:addMouseUpHandler(function()
+			self.GameHud.PlayQueue(-1)
+		end)
+	--[[local prevPopup = TBMenu:displayPopup(self.GameHud.prevReplay, TB_MENU_LOCALIZED.REPLAYHUDPREVREPLAY)
 	if (prevPopup ~= nil) then
 		prevPopup:moveTo(-(self.GameHud.prevReplay.size.w + prevPopup.size.w) / 2, self.GameHud.prevReplay.size.h + 2)
-	end
+	end]]
 
 	self.GameHud.nextReplay = self.GameHud:addChild({
 		pos = { -self.GameHud.prevReplay.size.w, 0 },
@@ -3896,11 +3991,13 @@ function Replays:spawnReplayAdvancedGui(reload)
 		shift = { self.GameHud.nextReplay.size.w / 6, 0 },
 		bgImage = "../textures/menu/general/buttons/arrowright.tga"
 	})
-	self.GameHud.nextReplay:addMouseHandlers(nil, function() play_next_replay() end)
-	local nextPopup = TBMenu:displayPopup(self.GameHud.nextReplay, TB_MENU_LOCALIZED.REPLAYHUDNEXTREPLAY)
+	self.GameHud.nextReplay:addMouseUpHandler(function()
+			self.GameHud.PlayQueue(1)
+		end)
+	--[[local nextPopup = TBMenu:displayPopup(self.GameHud.nextReplay, TB_MENU_LOCALIZED.REPLAYHUDNEXTREPLAY)
 	if (nextPopup ~= nil) then
 		nextPopup:moveTo(-(self.GameHud.nextReplay.size.w + nextPopup.size.w) / 2, self.GameHud.nextReplay.size.h + 2)
-	end
+	end]]
 
 	local slidersHolder = self.GameHud:addChild({ shift = { self.GameHud.prevReplay.size.w + 10, 0 }})
 	if (not self.GameHud.hasCache) then

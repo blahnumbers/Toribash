@@ -1,4 +1,3 @@
--- Queuelist Dropdown Menu
 require("system.iofiles")
 require("system.playerinfo_manager")
 require("toriui.uielement3d")
@@ -26,6 +25,9 @@ require("system.friends_manager")
 if (QueueList == nil) then
 	---**Queue list manager class**
 	---
+	---**Version 5.70**
+	---* Added `HookName` field
+	---
 	---**Version 5.62:**
 	---* New ignore functionality
 	---* Queue list dropdown menu size tweaks
@@ -46,12 +48,10 @@ if (QueueList == nil) then
 		Globalid = 1012,
 		PopupWidth = math.min(WIN_W * 0.22, 450),
 		LastHudOption = 1,
-		ver = 5.62
+		HookName = "__tbQueueListManager",
+		ver = 5.70
 	}
 	QueueList.__index = QueueList
-	add_hook("resolution_changed", "queueListResolutionStatic", function()
-			QueueList.PopupWidth = math.min(WIN_W * 0.22, 450)
-		end)
 end
 
 ---Helper class for **QueueList** manager
@@ -327,9 +327,9 @@ end
 function QueueList:placeIPBan(pName)
 	---Let's store time when this was called so that we can exit in case something goes wrong
 	local clock = os.clock_real()
-	add_hook("console", "queuelistipcheck", function(s, i)
+	add_hook("console", self.HookName, function(s, i)
 			if (os.clock_real() - clock > 15) then
-				remove_hooks("queuelistipcheck")
+				remove_hook("console", self.HookName)
 				return
 			end
 
@@ -337,7 +337,7 @@ function QueueList:placeIPBan(pName)
 				if (s:find("^.*%d+ .+ Playing Authorized")) then
 					local ip = s:gsub(" Playing Authorized$", "")
 					ip = ip:gsub("^.*%d+ .* ", "")
-					remove_hooks("queuelistipcheck")
+					remove_hook("console", self.HookName)
 					runCmd("ban silentadd " .. ip, true)
 					runCmd("kick " .. pName, true)
 				end
@@ -929,7 +929,7 @@ function QueueList:show(info)
 	local customs = Files.Open("../custom/" .. pName .. "/item.dat", FILES_MODE_READONLY)
 	if (not customs.data) then
 		download_head(pName)
-		add_hook("downloader_complete", "queueListPlayerDownloader", function(file)
+		add_hook("downloader_complete", self.HookName, function(file)
 				if (string.find(file, pName .. "/item.dat")) then
 					Downloader:safeCall(function()
 							if (queuelistBox ~= nil and not queuelistBox.destroyed and
@@ -938,6 +938,7 @@ function QueueList:show(info)
 								TBMenu:showPlayerHeadAvatar(queuelistBox.headViewport, info.pInfo)
 							end
 						end)
+					remove_hook("downloader_complete", self.HookName)
 				end
 			end)
 	end
@@ -1328,9 +1329,12 @@ function QueueList.UpdateVisibility()
 end
 
 QueueList.Init()
-add_hook("new_game", "queuelistManager", QueueList.Reload)
-add_hook("new_mp_game", "queuelistManager", QueueList.Reload)
-add_hook("bout_update", "queuelistManager", QueueList.Reload)
-add_hook("spec_update", "queuelistManager", QueueList.Reload)
-add_hook("resolution_changed", "queuelistManager", QueueList.Init)
-add_hook("pre_draw", "queuelistManager", QueueList.UpdateVisibility)
+add_hook("new_game", QueueList.HookName, QueueList.Reload)
+add_hook("new_mp_game", QueueList.HookName, QueueList.Reload)
+add_hook("bout_update", QueueList.HookName, QueueList.Reload)
+add_hook("spec_update", QueueList.HookName, QueueList.Reload)
+add_hook("resolution_changed", QueueList.HookName, QueueList.Init)
+add_hook("pre_draw", QueueList.HookName, QueueList.UpdateVisibility)
+add_hook("resolution_changed", QueueList.HookName, function()
+	QueueList.PopupWidth = math.min(WIN_W * 0.22, 450)
+end)

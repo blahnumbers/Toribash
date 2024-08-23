@@ -24,14 +24,14 @@ local function drawSingleKey(viewElement, reqTable, key, requireSelected)
 	local req = { type = "keypresscontrol", ready = false }
 	table.insert(reqTable, req)
 
-	add_hook("key_up", "tbTutorialsCustom", function(s, code)
+	add_hook("key_up", Tutorials.StepHook, function(s, code)
 			if ((string.schar(s) == key or (code > 3 and code < 30 and string.schar(code + 93) == key)) and button.hoverState ~= BTN_NONE) then
 				button.hoverState = BTN_NONE
 				req.ready = true
 				reqTable.ready = Tutorials:checkRequirements(reqTable)
 			end
 		end)
-	add_hook("key_down", "tbTutorialsCustom", function(s, code)
+	add_hook("key_down", Tutorials.StepHook, function(s, code)
 			if (requireSelected and get_world_state().selected_joint < 0) then return end
 			if (string.schar(s) == key or (code > 3 and code < 30 and string.schar(code + 93) == key)) then
 				button.hoverState = BTN_HVR
@@ -100,7 +100,7 @@ local function drawWASD(viewElement, reqTable, shift, fade)
 		local req = { type = "cameracontrols", ready = false }
 		table.insert(reqTable, req)
 
-		add_hook("key_up", "tbTutorialsCustom", function(key, code)
+		add_hook("key_up", Tutorials.StepHook, function(key, code)
 				if (shift and get_shift_key_state() == 0) then
 					keysToPress.shift.keyButton.hoverState = BTN_NONE
 				end
@@ -129,7 +129,7 @@ local function drawWASD(viewElement, reqTable, shift, fade)
 					end
 				end
 			end)
-		add_hook("key_down", "tbTutorialsCustom", function(key, code)
+		add_hook("key_down", Tutorials.StepHook, function(key, code)
 				if (shift and get_shift_key_state() > 0) then
 					keysToPress.shift.keyButton.hoverState = BTN_HVR
 				end
@@ -176,7 +176,7 @@ local function waitCameraPositionChange(viewElement, reqTable)
 
 	add_hook("camera", "tbTutorial1CameraPos", function()
 			local cameraInfo = get_camera_info()
-			cameraPos = cameraPos == nil and cameraInfo.pos or cameraPos
+			cameraPos = cameraPos or cameraInfo.pos
 			local cameraMag = math.sqrt(math.pow(cameraPos.x - cameraInfo.pos.x, 2) + math.pow(cameraPos.y - cameraInfo.pos.y, 2) + math.pow(cameraPos.z - cameraInfo.pos.z, 2))
 			if (cameraMag > 1) then
 				remove_hook("camera", "tbTutorial1CameraPos")

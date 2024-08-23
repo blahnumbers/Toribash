@@ -13,6 +13,9 @@ if (News == nil) then
 
 	---**Toribash News manager class**
 	---
+	---**Version 5.70**
+	---* Added `HookName` field
+	---
 	---**Version 5.65**
 	---* Added `withUrlAuth` NewsItemData param to force open URLs in main browser on mobile devices
 	---
@@ -30,7 +33,8 @@ if (News == nil) then
 		DownloadQueue = {},
 		HasUnreadNews = false,
 		LastRefresh = -1000000,
-		ver = 5.60
+		HookName = "__tbNewsManager",
+		ver = 5.70
 	}
 	News.__index = News
 end
@@ -406,7 +410,7 @@ function News:getEvents()
 	return eventData
 end
 
-add_hook("downloader_complete", "news_manager_downloader", function(filename)
+add_hook("downloader_complete", News.HookName, function(filename)
 		if (filename:find("data/news.txt")) then
 			Downloader:safeCall(function()
 					News:getNews(true)

@@ -4,6 +4,7 @@ if (ChatIgnore == nil) then
 	---* Added `BannedWordsWhole` list to store strings that should be filtered only if they make a whole word
 	---* Updated filtering to replace whole affected word with grawlix instead of only the matched substring
 	---* Fixed various cases when filtering would ignore a string it should match
+	---* Added `HookName` field
 	---
 	---**Version 5.60**
 	---* Class can now be used as a submodule to filter input
@@ -16,6 +17,7 @@ if (ChatIgnore == nil) then
 		ver = 5.70,
 		BannedWords = {},
 		BannedWordsWhole = {},
+		HookName = "__tbMenuChatCensorIgnore",
 		__index = {}
 	}
 end
@@ -160,7 +162,7 @@ end
 
 ---Activates the standalone chat ignore module
 function ChatIgnore:activate()
-	add_hook("console", "tbMenuChatCensorIgnore", function(...)
+	add_hook("console", self.HookName, function(...)
 		if (ChatIgnore:checkLine(...)) then return 1 end
 	end)
 end
@@ -168,7 +170,7 @@ end
 ---@deprecated
 ---No longer in use. Will be removed with future releases.
 function ChatIgnore:deactivate()
-	remove_hooks("tbMenuChatCensorIgnore")
+	remove_hooks(self.HookName)
 end
 
 ChatIgnore:populateBannedWords()

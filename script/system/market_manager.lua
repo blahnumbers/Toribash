@@ -16,11 +16,15 @@ MARKET_ELIGIBLE_CATEGORIES = { 1, 2, 5, 10, 11, 12, 15, 18, 19, 20, 21, 22, 24, 
 do
 	---**Toribash Market manager class**
 	---
+	---**Version 5.70**
+	---* Added `HookName` field
+	---
 	---**Version 5.65**
 	---* Minor code formatting updates and bug fixes to work correctly with the updated Store class
 	---@class Market
 	Market = {
-		ver = 5.65
+		ver = 5.70,
+		HookName = "__tbMarketManager"
 	}
 	Market.__index = Market
 
@@ -1491,10 +1495,11 @@ do
 					chooseShopIcon:kill(true)
 					TBMenu:displayLoadingMarkSmall(chooseShopIcon, '')
 					if (open_file_browser("Image Files", "jpg;jpeg;png;tga;gif;bmp", "All Files", "*")) then
-						add_hook("filebrowser_select", "on_filebrowser_select", function(filename)
+						add_hook("filebrowser_select", Market.HookName, function(filename)
 								newImagePath = filename:len() > 0 and filename or nil
 								chooseShopIcon:kill(true)
 								chooseShopIcon:addChild({ shift = { 15, 5 }}):addAdaptedText(true, newImagePath and (TB_MENU_LOCALIZED.GENERALSELECTEDFILE .. ": " .. newImagePath) or TB_MENU_LOCALIZED.MARKETCHOOSENEWSHOPIMAGE)
+								remove_hook("filebrowser_select", Market.HookName)
 							end)
 					end
 				end)
@@ -3814,9 +3819,9 @@ do
 					Market:showUserShop(TBMenu.CurrentSection, featuredShopData.user)
 					usage_event("marketplace_featured_shop")
 				end)
-				featuredShop.killAction = function() remove_hooks("tbMarketplaceDownloader") end
+				featuredShop.killAction = function() remove_hook("downloader_complete", Market.HookName) end
 
-				add_hook("downloader_complete", "tbMarketplaceDownloader", function(filename)
+				add_hook("downloader_complete", Market.HookName, function(filename)
 						if (filename:find(featuredShopData.user .. "%.tga")) then
 							if (featuredLoader) then
 								Downloader:safeCall(function()
@@ -3824,7 +3829,7 @@ do
 										featuredLoader:kill()
 									end)
 							end
-							remove_hooks("tbMarketplaceDownloader")
+							remove_hook("downloader_complete", Market.HookName)
 						end
 					end)
 

@@ -154,17 +154,17 @@ if (not _G.FIRST_LAUNCH and TBMenu.MenuMain ~= nil) then
 	_G.FIRST_LAUNCH = true
 end
 
-add_hook("draw2d", "tbMainMenuVisual", function() UIElement.drawVisuals(TB_MENU_MAIN_GLOBALID) end)
-add_hook("draw_viewport", "tbMainMenuVisual", function() UIElement3D.drawViewport(TB_MENU_MAIN_GLOBALID) end)
-add_hook("resolution_changed", "tbMainMenuVisual", function()
+add_hook("draw2d", "__tbMainMenuVisual", function() UIElement.drawVisuals(TB_MENU_MAIN_GLOBALID) end)
+add_hook("draw_viewport", "__tbMainMenuVisual", function() UIElement3D.drawViewport(TB_MENU_MAIN_GLOBALID) end)
+add_hook("resolution_changed", "__tbMainMenuVisual", function()
 		if (TB_MENU_MAIN_ISOPEN == 1) then
 			close_menu()
 			open_menu(19)
 		end
 	end)
 
-add_hook("login", "tbMainMenuStatic", TBMenu.RefreshData)
-add_hook("downloader_complete", "tbMainMenuStatic", function(filename)
+add_hook("login", "__tbMainMenuStatic", TBMenu.RefreshData)
+add_hook("downloader_complete", "__tbMainMenuStatic", function(filename)
 		if (filename:find("custom/.*") and not filename:find(TB_MENU_PLAYER_INFO.username)) then
 			-- Most files we'll download will be from custom, sort them out so we don't run checks on them
 			return
@@ -211,13 +211,13 @@ add_hook("downloader_complete", "tbMainMenuStatic", function(filename)
 	end)
 
 -- Clear any custom discord RPC message that was set earlier
-add_hook("new_mp_game", "tbMainMenuStatic", function()
+add_hook("new_mp_game", "__tbMainMenuStatic", function()
 		set_discord_rpc("", "")
 	end)
 
 ---Spawn generic display hooks
 ---We want Tooltip and QueueList to stay below main elements to ensure they aren't blocking the view
-add_hook("draw2d", "tbMainHubVisual", function()
+add_hook("draw2d", "__tbMainHubVisual", function()
 		if (TB_MENU_MAIN_ISOPEN == 1) then return end
 		if (Tooltip.IsActive) then
 			UIElement.drawVisuals(Tooltip.Globalid)
@@ -225,28 +225,28 @@ add_hook("draw2d", "tbMainHubVisual", function()
 		UIElement.drawVisuals(QueueList.Globalid)
 		UIElement.drawVisuals(TB_MENU_HUB_GLOBALID)
 	end)
-add_hook("draw_viewport", "tbMainHubVisual", function()
+add_hook("draw_viewport", "__tbMainHubVisual", function()
 		if (TB_MENU_MAIN_ISOPEN == 1) then return end
 		UIElement3D.drawViewport(QueueList.Globalid)
 		UIElement3D.drawViewport(TB_MENU_HUB_GLOBALID)
 	end)
-add_hook("draw3d", "tbMainHudVisual", function()
+add_hook("draw3d", "__tbMainHubVisual", function()
 		UIElement3D.drawVisuals(TB_MENU_HUB_GLOBALID)
 	end)
 local enterFrame3D = function() UIElement3D.drawEnterFrame(TB_MENU_HUB_GLOBALID) end
-add_hook("enter_frame", "tbMainHubVisual", enterFrame3D)
-add_hook("enter_freeze", "tbMainHubVisual", enterFrame3D)
-add_hook("new_game", "tbMainHubVisual", enterFrame3D)
+add_hook("enter_frame", "__tbMainHubVisual", enterFrame3D)
+add_hook("enter_freeze", "__tbMainHubVisual", enterFrame3D)
+add_hook("new_game", "__tbMainHubVisual", enterFrame3D)
 
 if (is_mobile()) then
 	---Spawn mobile HUD separately and make sure it's above all other elements
 	---This setup *will* work because we're now using deterministic execution order for hooks
-	add_hook("draw2d", "tbMobileHudVisual", function()
+	add_hook("draw2d", "__tbMobileHudVisual", function()
 		if (TB_MENU_MAIN_ISOPEN == 1) then return end
 		UIElement.drawVisuals(TBHud.Globalid)
 		UIElement.drawVisuals(TBHud.HubGlobalid)
 	end)
-	add_hook("draw_viewport", "tbMobileHubVisual", function()
+	add_hook("draw_viewport", "__tbMobileHudVisual", function()
 		if (TB_MENU_MAIN_ISOPEN == 1) then return end
 		UIElement3D.drawViewport(TBHud.Globalid)
 		UIElement3D.drawViewport(TBHud.HubGlobalid)
@@ -256,7 +256,7 @@ end
 Notifications:getTotalNotifications()
 
 if (launchOption == 'register') then
-	remove_hooks("tbMainMenuVisual")
-	remove_hooks("tbMenuConsoleIgnore")
+	remove_hooks("__tbMainMenuVisual")
+	remove_hooks("__tbMenuConsoleIgnore")
 	Tutorials:runTutorial(1, nil, true)
 end
