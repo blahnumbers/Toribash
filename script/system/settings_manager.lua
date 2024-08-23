@@ -1262,19 +1262,26 @@ function Settings:getSettingsData(id)
 									end
 							},
 							{
-								text = 4096 .. " " .. TB_MENU_LOCALIZED.SETTINGSREPLAYFRAMES,
+								text = 2048 .. " " .. TB_MENU_LOCALIZED.SETTINGSREPLAYFRAMES,
 								action = function()
 										Settings.Stored.memsize = { value = 1 }
 										Settings:settingsApplyActivate()
 									end
 							},
 							{
-								text = 8192 .. " " .. TB_MENU_LOCALIZED.SETTINGSREPLAYFRAMES,
+								text = 4096 .. " " .. TB_MENU_LOCALIZED.SETTINGSREPLAYFRAMES,
 								action = function()
 										Settings.Stored.memsize = { value = 2 }
 										Settings:settingsApplyActivate()
 									end
 							},
+							{
+								text = 8192 .. " " .. TB_MENU_LOCALIZED.SETTINGSREPLAYFRAMES,
+								action = function()
+										Settings.Stored.memsize = { value = 3 }
+										Settings:settingsApplyActivate()
+									end
+							}
 						}
 					},
 					{
