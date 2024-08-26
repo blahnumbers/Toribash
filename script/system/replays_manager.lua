@@ -11,6 +11,7 @@ if (Replays == nil) then
 	---
 	---**Version 5.70**
 	---* Replay HUD keyframes browser and editor
+	---* Display replay speed slider on the right side of the screen for mobile platforms
 	---* Updated replay HUD next / prev buttons to use custom logic based on last active replay browser list
 	---* Updated `showReplayInfo()` with arguments for replay queue and current idx
 	---* Updated `playReplay()` with arguments for replay queue and current idx
@@ -29,6 +30,7 @@ if (Replays == nil) then
 	---* Use *utf8lib* when parsing replay files to ensure we handle multibyte symbols correctly
 	---@class Replays
 	---@field GameHud ReplayHud Replay advanced GUI
+	---@field GameHudRight UIElement Replay speed UI holder (mobile platforms only)
 	---@field RootFolder ReplayDirectory Root replay directory Information
 	---@field ServerCache ReplayServerInfo[] Cached server replays information from the last query
 	---@field ServerCacheTotal integer Total replays on server
@@ -3440,7 +3442,7 @@ function Replays:spawnReplayProgressSlider(viewElement)
 		end
 		loadKeyframes()
 	end
-	local getSliderSpeedValue = function(value)
+	local getKeyframeSliderSpeedValue = function(value)
 		if (value > 2) then
 			value = 1.5 + (value - 2) / 4
 		elseif (value > 1) then
@@ -3564,6 +3566,18 @@ function Replays:spawnReplayProgressSlider(viewElement)
 			---@diagnostic disable-next-line: assign-type-mismatch
 			local initialPos = table.clone(keyframeButton.shift)
 
+			local showKeyframeManage = function()
+				keyframeInfoViewHolder:moveTo(keyframeButton.shift.x + keyframeButton.size.w / 2 - keyframeInfoViewHolder.size.w / 2, keyframeButton.shift.y - keyframeInfoViewHolder.size.h - 5)
+				keyframeInfoViewHolder:show(true)
+				keyframeInfoViewHolder.keyframe = kf.frame
+				keyframeInfoViewHolder.speed = kf.speed
+				keyframeSpeedSlider.setValue(getKeyframeSliderSpeedValue(kf.speed))
+				---@diagnostic disable-next-line: undefined-field
+				keyframeSpeedSlider.label.labelText[1] = tostring(kf.speed)
+				keyframeInterpolateToggle.setValue(kf.interpolate)
+				keyframeInfoFrameLabel:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYKEYFRAMEFRAME .. " " .. kf.frame, nil, nil, nil, LEFTMID)
+			end
+			local clickClock = 0
 			keyframeButton:addCustomDisplay(function()
 				draw_quad(keyframeButton.pos.x + keyframeButton.size.w / 2 - 1, slider.parent.pos.y + slider.parent.size.h - 32, 2, 16)
 				if (get_replay_cache() > 0) then
@@ -3580,21 +3594,22 @@ function Replays:spawnReplayProgressSlider(viewElement)
 						keyframeButton:moveTo(initialPos.x, initialPos.y)
 					end
 				end
+				if (clickClock > 0 and UIElement.clock - clickClock > UIElement.longPressDuration) then
+					play_haptics(0.2, HAPTICS.IMPACT)
+					clickClock = 0
+					showKeyframeManage()
+				end
+			end)
+			keyframeButton:addMouseDownHandler(function()
+				clickClock = os.clock_real()
 			end)
 			keyframeButton:addMouseUpHandler(function()
-				rewind_replay_to_frame(kf.frame)
+				if (clickClock > 0) then
+					rewind_replay_to_frame(kf.frame)
+				end
+				clickClock = 0
 			end)
-			keyframeButton:addMouseUpRightHandler(function()
-				keyframeInfoViewHolder:moveTo(keyframeButton.shift.x + keyframeButton.size.w / 2 - keyframeInfoViewHolder.size.w / 2, keyframeButton.shift.y - keyframeInfoViewHolder.size.h - 5)
-				keyframeInfoViewHolder:show(true)
-				keyframeInfoViewHolder.keyframe = kf.frame
-				keyframeInfoViewHolder.speed = kf.speed
-				keyframeSpeedSlider.setValue(getSliderSpeedValue(kf.speed))
-				---@diagnostic disable-next-line: undefined-field
-				keyframeSpeedSlider.label.labelText[1] = tostring(kf.speed)
-				keyframeInterpolateToggle.setValue(kf.interpolate)
-				keyframeInfoFrameLabel:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYKEYFRAMEFRAME .. " " .. kf.frame, nil, nil, nil, LEFTMID)
-			end)
+			keyframeButton:addMouseUpRightHandler(showKeyframeManage)
 		end
 		slider:reload()
 		if (keyframeInfoViewHolder:isDisplayed()) then
@@ -3626,78 +3641,86 @@ function Replays:spawnReplaySpeedSlider(viewElement)
 		shapeType = ROUNDED,
 		rounded = 4
 	})
-	local replaySpeedTitle = UIElement:new({
-		parent = replaySpeedHolder,
-		pos = { 15, 3 },
-		size = { replaySpeedHolder.size.w - 30, 25 }
-	})
-	replaySpeedTitle:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSREPLAYSPEED)
-	local textWidth = get_string_length(replaySpeedTitle.dispstr[1], replaySpeedTitle.textFont) * replaySpeedTitle.textScale + 60
-	if (textWidth + 50 < replaySpeedTitle.size.w) then
-		local setButtonSpeed = function(dir)
-			local speed = get_replay_speed()
-			if (math.abs(speed + dir * 0.01) <= 0.1) then
-				speed = speed + dir * 0.01
-			elseif (math.abs(speed + dir * 0.1) <= 1) then
-				speed = speed + dir * 0.1
-			elseif ((dir > 0 and speed + 0.5 <= 4) or (dir < 0 and speed - 0.5 >= -1.5)) then
-				speed = speed + dir * 0.5
-			else
-				return
-			end
-
-			local _, keyframe_mode = get_camera_mode()
-			if (keyframe_mode < CAMERA_CACHE_MODE.RECORDING and get_world_state().game_paused == 0) then
-				unfreeze_game()
-				set_replay_speed(speed, true)
-			else
-				set_replay_speed(speed, false)
-			end
-		end
-
-		local speedDn = replaySpeedTitle:addChild({
-			pos = { (replaySpeedTitle.size.w - textWidth) / 2 - 25, 0 },
-			size = { 25, 25 },
-			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
-			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-			inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK,
-			interactive = true,
-			shapeType = ROUNDED,
-			rounded = 3
+	if (is_mobile()) then
+		---Speedometer icon instead of text label, also no buttons
+		replaySpeedHolder:addChild({
+			pos = { 5, 5 },
+			size = { self.GameHudRight.size.w - 10, self.GameHudRight.size.w - 10 },
+			bgImage = "../textures/menu/general/speedometer.tga"
 		})
-		speedDn:addChild({ shift = { 5, 11 }, bgColor = TB_MENU_DEFAULT_LIGHTEST_COLOR }, true)
-		speedDn:addMouseHandlers(nil, function() setButtonSpeed(-1) end)
-
-		local speedUp = replaySpeedTitle:addChild({
-			pos = { -(replaySpeedTitle.size.w - textWidth) / 2, 0 },
-			size = { 25, 25 },
-			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
-			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-			inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK,
-			interactive = true,
-			shapeType = ROUNDED,
-			rounded = 3
+	else
+		local replaySpeedTitle = replaySpeedHolder:addChild({
+			pos = { 15, 3 },
+			size = { replaySpeedHolder.size.w - 30, 25 }
 		})
-		speedUp:addChild({ shift = { 5, 11 }, bgColor = TB_MENU_DEFAULT_LIGHTEST_COLOR }, true)
-		speedUp:addChild({ shift = { 11, 5 }, bgColor = TB_MENU_DEFAULT_LIGHTEST_COLOR }, true)
-		speedUp:addMouseHandlers(nil, function() setButtonSpeed(1) end)
-
-		speedDn:addCustomDisplay(false, function()
-				if (speedDn.isactive) then
-					if (get_replay_cache() < 1) then
-						speedDn:deactivate(true)
-						speedUp:deactivate(true)
-					end
-				elseif (get_replay_cache() > 0) then
-					speedDn:activate(true)
-					speedUp:activate(true)
+		replaySpeedTitle:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSREPLAYSPEED)
+		local textWidth = get_string_length(replaySpeedTitle.dispstr[1], replaySpeedTitle.textFont) * replaySpeedTitle.textScale + 60
+		if (textWidth + 50 < replaySpeedTitle.size.w) then
+			local setButtonSpeed = function(dir)
+				local speed = get_replay_speed()
+				if (math.abs(speed + dir * 0.01) <= 0.1) then
+					speed = speed + dir * 0.01
+				elseif (math.abs(speed + dir * 0.1) <= 1) then
+					speed = speed + dir * 0.1
+				elseif ((dir > 0 and speed + 0.5 <= 4) or (dir < 0 and speed - 0.5 >= -1.5)) then
+					speed = speed + dir * 0.5
+				else
+					return
 				end
-			end)
+
+				local _, keyframe_mode = get_camera_mode()
+				if (keyframe_mode < CAMERA_CACHE_MODE.RECORDING and get_world_state().game_paused == 0) then
+					unfreeze_game()
+					set_replay_speed(speed, true)
+				else
+					set_replay_speed(speed, false)
+				end
+			end
+
+			local speedDn = replaySpeedTitle:addChild({
+				pos = { (replaySpeedTitle.size.w - textWidth) / 2 - 25, 0 },
+				size = { 25, 25 },
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+				inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK,
+				interactive = true,
+				shapeType = ROUNDED,
+				rounded = 3
+			})
+			speedDn:addChild({ shift = { 5, 11 }, bgColor = TB_MENU_DEFAULT_LIGHTEST_COLOR }, true)
+			speedDn:addMouseHandlers(nil, function() setButtonSpeed(-1) end)
+
+			local speedUp = replaySpeedTitle:addChild({
+				pos = { -(replaySpeedTitle.size.w - textWidth) / 2, 0 },
+				size = { 25, 25 },
+				bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+				hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+				pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+				inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK,
+				interactive = true,
+				shapeType = ROUNDED,
+				rounded = 3
+			})
+			speedUp:addChild({ shift = { 5, 11 }, bgColor = TB_MENU_DEFAULT_LIGHTEST_COLOR }, true)
+			speedUp:addChild({ shift = { 11, 5 }, bgColor = TB_MENU_DEFAULT_LIGHTEST_COLOR }, true)
+			speedUp:addMouseHandlers(nil, function() setButtonSpeed(1) end)
+
+			speedDn:addCustomDisplay(false, function()
+					if (speedDn.isactive) then
+						if (get_replay_cache() < 1) then
+							speedDn:deactivate(true)
+							speedUp:deactivate(true)
+						end
+					elseif (get_replay_cache() > 0) then
+						speedDn:activate(true)
+						speedUp:activate(true)
+					end
+				end)
+		end
 	end
 
-	local getSliderSpeed = function(val)
+	local getSpeedFromSliderValue = function(val)
 		if (val > 1) then
 			if (val < 1.5) then
 				val = 1 + (val - 1) * 2
@@ -3708,7 +3731,7 @@ function Replays:spawnReplaySpeedSlider(viewElement)
 			if (val < -0.75) then
 				val = -1 + (val + 0.75) * 2
 			else
-				val = val / 75 * 100
+				val = val / 0.75
 			end
 		end
 		if (val > -0.01 and val < 0) then
@@ -3717,33 +3740,22 @@ function Replays:spawnReplaySpeedSlider(viewElement)
 		end
 		return val
 	end
-	local getSliderSpeedPercentage = function(val)
-		--[[ Some maths:
-			-1.5 to -1 is 8.3%
-			-1 to 0 is 25%
-			0 to 1 is 33.3%
-			1 to 2 is 16.6%
-			2 to 4 is 16.6%
-		]]
-		if (val < -1.5) then
-			return 0
+	local getSliderValueFromSpeed = function(val)
+		if (val > 2) then
+			return 1.5 + (val - 2) / 4
+		elseif (val > 1) then
+			return 1 + (val - 1) / 2
 		elseif (val < -1) then
-			return 0.083 * (val + 1.5) * 2
+			return -0.75 + (val + 1) / 2
 		elseif (val < 0) then
-			return 0.083 + 0.25 * (val + 1)
-		elseif (val <= 1) then
-			return 0.333 + 0.333 * val
-		elseif (val < 2) then
-			return 0.666 + 0.166 * (val - 1)
-		elseif (val < 4) then
-			return 0.833 + 0.167 * (val - 2) / 2
+			return val * 0.75
 		end
-		return 1
+		return val
 	end
 
 	local updateFunc = function(val, _, slider)
 		local multiplyBy = tonumber('1' .. string.rep('0', slider.settings.decimal))
-		val = getSliderSpeed(val)
+		val = getSpeedFromSliderValue(val)
 
 		if (math.abs(val) > 1) then
 			multiplyBy = multiplyBy / 10
@@ -3763,6 +3775,20 @@ function Replays:spawnReplaySpeedSlider(viewElement)
 		end
 	end
 
+	local updateLabelFunc = function(val, slider)
+		local multiplyBy = tonumber('1' .. string.rep('0', slider.settings.decimal))
+		val = getSpeedFromSliderValue(val)
+
+		if (math.abs(val) > 1) then
+			multiplyBy = multiplyBy / 10
+		elseif (math.abs(val) > 2) then
+			multiplyBy = 1
+		end
+
+		local targetVal = val < 0 and math.ceil(val * multiplyBy) / multiplyBy or math.floor(val * multiplyBy) / multiplyBy
+		return tostring(targetVal)
+	end
+
 	---@type SliderSettings
 	local sliderSettings = {
 		maxValue = 2,
@@ -3772,74 +3798,115 @@ function Replays:spawnReplaySpeedSlider(viewElement)
 		decimal = 2,
 		sliderRadius = 20,
 		textWidth = 30,
-		showLabelOnHover = true
+		showLabelOnHover = true,
+		vertical = is_mobile()
+	}
+	local sliderRect = sliderSettings.vertical and {
+		x = 5, y = replaySpeedHolder.size.w + 5,
+		w = replaySpeedHolder.size.w - 10, h = replaySpeedHolder.size.h - replaySpeedHolder.size.w - 10
+	} or {
+		x = 15, y = 25,
+		w = replaySpeedHolder.size.w - 30, h = replaySpeedHolder.size.h - 25
 	}
 	local speed = get_replay_speed()
-	local slider = TBMenu:spawnSlider2(replaySpeedHolder, {
-		x = 15, y = 25,
-		w = replaySpeedHolder.size.w - 30, h = replaySpeedHolder.size.h - 25 },
-	speed, sliderSettings, updateFunc)
+	local slider = TBMenu:spawnSlider2(replaySpeedHolder, sliderRect, speed, sliderSettings, updateFunc, nil, nil, updateLabelFunc)
 	slider.bgColor = UICOLORWHITE
 
-	local regularSpeed = UIElement:new({
-		parent = slider.parent,
-		pos = { slider.parent.size.w / 3 + 2, slider.parent.size.h / 2 - 3 },
-		size = { slider.parent.size.w / 3 - 4, 6 },
-		bgColor = { 1, 1, 1, 0.7 }
-	})
-	local speedMarks = UIElement:new({
-		parent = slider.parent,
-		pos = { slider.size.w / 2, slider.parent.size.h / 2 - 13 },
-		size = { slider.parent.size.w - slider.size.w, 26 },
-		bgColor = { 1, 1, 1, 0.7 },
-	})
-	speedMarks:addCustomDisplay(true, function()
-			set_color(unpack(speedMarks.bgColor))
-			-- -1 speed
-			draw_line(speedMarks.pos.x + speedMarks.size.w * 0.083, speedMarks.pos.y, speedMarks.pos.x + speedMarks.size.w * 0.083, speedMarks.pos.y + speedMarks.size.h, 2)
-
-			draw_line(speedMarks.pos.x + speedMarks.size.w * 0.1455, speedMarks.pos.y + speedMarks.size.h * 0.333, speedMarks.pos.x + speedMarks.size.w * 0.1455, speedMarks.pos.y + speedMarks.size.h * 0.667, 2)
-			draw_line(speedMarks.pos.x + speedMarks.size.w * 0.208, speedMarks.pos.y + speedMarks.size.h * 0.25, speedMarks.pos.x + speedMarks.size.w * 0.208, speedMarks.pos.y + speedMarks.size.h * 0.75, 2)
-			draw_line(speedMarks.pos.x + speedMarks.size.w * 0.2705, speedMarks.pos.y + speedMarks.size.h * 0.333, speedMarks.pos.x + speedMarks.size.w * 0.2705, speedMarks.pos.y + speedMarks.size.h * 0.667, 2)
-
-			-- zero
-			draw_line(speedMarks.pos.x + speedMarks.size.w * 0.333, speedMarks.pos.y, speedMarks.pos.x + speedMarks.size.w * 0.333, speedMarks.pos.y + speedMarks.size.h, 2)
-
-			draw_line(speedMarks.pos.x + speedMarks.size.w * 0.41625, speedMarks.pos.y + speedMarks.size.h * 0.333, speedMarks.pos.x + speedMarks.size.w * 0.41625, speedMarks.pos.y + speedMarks.size.h * 0.667, 2)
-			draw_line(speedMarks.pos.x + speedMarks.size.w * 0.4995, speedMarks.pos.y + speedMarks.size.h * 0.25, speedMarks.pos.x + speedMarks.size.w * 0.4995, speedMarks.pos.y + speedMarks.size.h * 0.75, 2)
-			draw_line(speedMarks.pos.x + speedMarks.size.w * 0.58275, speedMarks.pos.y + speedMarks.size.h * 0.333, speedMarks.pos.x + speedMarks.size.w * 0.58275, speedMarks.pos.y + speedMarks.size.h * 0.667, 2)
-
-			-- 1 speed
-			draw_line(speedMarks.pos.x + speedMarks.size.w * 0.667, speedMarks.pos.y, speedMarks.pos.x + speedMarks.size.w * 0.667, speedMarks.pos.y + speedMarks.size.h, 2)
-
-			-- 2 speed
-			draw_line(speedMarks.pos.x + speedMarks.size.w * 0.833, speedMarks.pos.y, speedMarks.pos.x + speedMarks.size.w * 0.833, speedMarks.pos.y + speedMarks.size.h, 2)
-
-
-			if (get_replay_cache() > 0) then
-				if (not slider.isactive) then
-					slider.parent:activate()
-					slider:activate()
-					slider:reload()
-				end
-			else
-				if (slider.isactive) then
-					slider.btnUp()
-					slider:deactivate()
-					slider.parent:deactivate()
-				end
+	local toggleSliderActiveState = function()
+		if (get_replay_cache() > 0) then
+			if (not slider.isactive) then
+				slider.parent:activate()
+				slider:activate()
+				slider:reload()
 			end
-		end)
+		else
+			if (slider.isactive) then
+				slider.btnUp()
+				slider:deactivate()
+				slider.parent:deactivate()
+			end
+		end
+	end
+	if (is_mobile()) then
+		local regularSpeed = slider.parent:addChild({
+			pos = { slider.parent.size.w / 2 - 3, slider.parent.size.h / 3 + 2 },
+			size = { 6, slider.parent.size.h / 3 - 2 },
+			bgColor = { 1, 1, 1, 0.7 }
+		})
+		local speedMarks = slider.parent:addChild({
+			pos = { slider.parent.size.w / 2 - 13, slider.size.h / 2 },
+			size = { 26, slider.parent.size.h - slider.size.h },
+			bgColor = { 1, 1, 1, 0.7 },
+		})
+		speedMarks:addCustomDisplay(true, function()
+				set_color(unpack(speedMarks.bgColor))
+				-- -1 speed
+				draw_line(speedMarks.pos.x, speedMarks.pos.y + speedMarks.size.h * 0.083, speedMarks.pos.x + speedMarks.size.w, speedMarks.pos.y + speedMarks.size.h * 0.083, 2)
+
+				draw_line(speedMarks.pos.x + speedMarks.size.w * 0.333, speedMarks.pos.y + speedMarks.size.h * 0.1455, speedMarks.pos.x + speedMarks.size.w * 0.667, speedMarks.pos.y + speedMarks.size.h * 0.1455, 2)
+				draw_line(speedMarks.pos.x + speedMarks.size.w * 0.25, speedMarks.pos.y + speedMarks.size.h * 0.208, speedMarks.pos.x + speedMarks.size.w * 0.75, speedMarks.pos.y + speedMarks.size.h * 0.208, 2)
+				draw_line(speedMarks.pos.x + speedMarks.size.w * 0.333, speedMarks.pos.y + speedMarks.size.h * 0.2705, speedMarks.pos.x + speedMarks.size.w * 0.667, speedMarks.pos.y + speedMarks.size.h * 0.2705, 2)
+
+				-- zero
+				draw_line(speedMarks.pos.x, speedMarks.pos.y + speedMarks.size.h * 0.333, speedMarks.pos.x + speedMarks.size.w, speedMarks.pos.y + speedMarks.size.h * 0.333, 2)
+
+
+				draw_line(speedMarks.pos.x + speedMarks.size.w * 0.333, speedMarks.pos.y + speedMarks.size.h * 0.41625, speedMarks.pos.x + speedMarks.size.w * 0.667, speedMarks.pos.y + speedMarks.size.h * 0.41625, 2)
+				draw_line(speedMarks.pos.x + speedMarks.size.w * 0.25, speedMarks.pos.y + speedMarks.size.h * 0.4995, speedMarks.pos.x + speedMarks.size.w * 0.75, speedMarks.pos.y + speedMarks.size.h * 0.4995, 2)
+				draw_line(speedMarks.pos.x + speedMarks.size.w * 0.333, speedMarks.pos.y + speedMarks.size.h * 0.58275, speedMarks.pos.x + speedMarks.size.w * 0.667, speedMarks.pos.y + speedMarks.size.h * 0.58275, 2)
+
+				-- 1 speed
+				draw_line(speedMarks.pos.x, speedMarks.pos.y + speedMarks.size.h * 0.667, speedMarks.pos.x + speedMarks.size.w, speedMarks.pos.y + speedMarks.size.h * 0.667, 2)
+
+				-- 2 speed
+				draw_line(speedMarks.pos.x, speedMarks.pos.y + speedMarks.size.h * 0.833, speedMarks.pos.x + speedMarks.size.w, speedMarks.pos.y + speedMarks.size.h * 0.833, 2)
+
+				toggleSliderActiveState()
+			end)
+	else
+		local regularSpeed = slider.parent:addChild({
+			pos = { slider.parent.size.w / 3 + 2, slider.parent.size.h / 2 - 3 },
+			size = { slider.parent.size.w / 3 - 4, 6 },
+			bgColor = { 1, 1, 1, 0.7 }
+		})
+		local speedMarks = slider.parent:addChild({
+			pos = { slider.size.w / 2, slider.parent.size.h / 2 - 13 },
+			size = { slider.parent.size.w - slider.size.w, 26 },
+			bgColor = { 1, 1, 1, 0.7 },
+		})
+		speedMarks:addCustomDisplay(true, function()
+				set_color(unpack(speedMarks.bgColor))
+				-- -1 speed
+				draw_line(speedMarks.pos.x + speedMarks.size.w * 0.083, speedMarks.pos.y, speedMarks.pos.x + speedMarks.size.w * 0.083, speedMarks.pos.y + speedMarks.size.h, 2)
+
+				draw_line(speedMarks.pos.x + speedMarks.size.w * 0.1455, speedMarks.pos.y + speedMarks.size.h * 0.333, speedMarks.pos.x + speedMarks.size.w * 0.1455, speedMarks.pos.y + speedMarks.size.h * 0.667, 2)
+				draw_line(speedMarks.pos.x + speedMarks.size.w * 0.208, speedMarks.pos.y + speedMarks.size.h * 0.25, speedMarks.pos.x + speedMarks.size.w * 0.208, speedMarks.pos.y + speedMarks.size.h * 0.75, 2)
+				draw_line(speedMarks.pos.x + speedMarks.size.w * 0.2705, speedMarks.pos.y + speedMarks.size.h * 0.333, speedMarks.pos.x + speedMarks.size.w * 0.2705, speedMarks.pos.y + speedMarks.size.h * 0.667, 2)
+
+				-- zero
+				draw_line(speedMarks.pos.x + speedMarks.size.w * 0.333, speedMarks.pos.y, speedMarks.pos.x + speedMarks.size.w * 0.333, speedMarks.pos.y + speedMarks.size.h, 2)
+
+				draw_line(speedMarks.pos.x + speedMarks.size.w * 0.41625, speedMarks.pos.y + speedMarks.size.h * 0.333, speedMarks.pos.x + speedMarks.size.w * 0.41625, speedMarks.pos.y + speedMarks.size.h * 0.667, 2)
+				draw_line(speedMarks.pos.x + speedMarks.size.w * 0.4995, speedMarks.pos.y + speedMarks.size.h * 0.25, speedMarks.pos.x + speedMarks.size.w * 0.4995, speedMarks.pos.y + speedMarks.size.h * 0.75, 2)
+				draw_line(speedMarks.pos.x + speedMarks.size.w * 0.58275, speedMarks.pos.y + speedMarks.size.h * 0.333, speedMarks.pos.x + speedMarks.size.w * 0.58275, speedMarks.pos.y + speedMarks.size.h * 0.667, 2)
+
+				-- 1 speed
+				draw_line(speedMarks.pos.x + speedMarks.size.w * 0.667, speedMarks.pos.y, speedMarks.pos.x + speedMarks.size.w * 0.667, speedMarks.pos.y + speedMarks.size.h, 2)
+
+				-- 2 speed
+				draw_line(speedMarks.pos.x + speedMarks.size.w * 0.833, speedMarks.pos.y, speedMarks.pos.x + speedMarks.size.w * 0.833, speedMarks.pos.y + speedMarks.size.h, 2)
+
+				toggleSliderActiveState()
+			end)
+	end
 
 	replaySpeedHolder:addCustomDisplay(false, function()
-			local replay_speed = get_replay_speed()
-			if (slider.value ~= replay_speed) then
+			local value = getSliderValueFromSpeed(get_replay_speed())
+			if (slider.lastVal ~= value) then
 				if (slider.hoverState ~= BTN_NONE or slider.parent.hoverState == BTN_DN) then
 					return
 				end
-				local perc = getSliderSpeedPercentage(replay_speed)
-				slider:moveTo(perc * (slider.parent.size.w - slider.size.w))
-				slider.value = replay_speed
+				slider.setValue(value)
 			end
 		end)
 
@@ -3870,14 +3937,21 @@ function Replays:spawnReplayAdvancedGui(reload)
 	local size = { math.min(1600, WIN_W - posX * 2), 65 * TB_MENU_GLOBAL_SCALE }
 	posX = (WIN_W - size[1]) / 2
 
-	local _, safe_y, _, safe_h = get_window_safe_size()
-	safe_y = math.max(safe_y, WIN_H - safe_h - safe_y)
-	local targetHeightShift = size[2] + math.max(safe_y, 35)
+	local targetHeightShift = size[2] + math.max(SAFE_Y, 35)
+
+	local posYRight = TBHud.DefaultButtonSize * 2
+	local sizeRight = WIN_H - posYRight - TBHud.DefaultButtonSize * 2.5
+	local targetRightShift = size[2] + math.max(SAFE_X, 15)
 
 	if (reload and self.GameHud ~= nil) then
 		self.GameHud:kill(true)
 		self.GameHud.size.w = size[1]
 		self.GameHud:moveTo(posX, WIN_H)
+		if (self.GameHudRight) then
+			self.GameHudRight:kill(true)
+			self.GameHudRight.size.h = sizeRight
+			self.GameHudRight:moveTo(WIN_W, posYRight)
+		end
 	else
 		---@diagnostic disable-next-line: assign-type-mismatch
 		self.GameHud = UIElement.new({
@@ -3885,6 +3959,14 @@ function Replays:spawnReplayAdvancedGui(reload)
 			pos = { posX, WIN_H },
 			size = { size[1], size[2] }
 		})
+
+		if (is_mobile()) then
+			self.GameHudRight = UIElement.new({
+				globalid = TB_MENU_HUB_GLOBALID,
+				pos = { WIN_W, posYRight },
+				size = { size[2], sizeRight }
+			})
+		end
 
 		---@param direction 1|-1
 		self.GameHud.PlayQueue = function(direction)
@@ -3943,18 +4025,28 @@ function Replays:spawnReplayAdvancedGui(reload)
 				end
 				if (self.GameHud.hidden) then
 					if (self.GameHud.pos.y < WIN_H) then
-						self.GameHud:moveTo(nil, UITween.SineTween(self.GameHud.pos.y, WIN_H, (UIElement.clock - self.GameHud.toggleClock) * 1.65))
+						local tweenTime = (UIElement.clock - self.GameHud.toggleClock) * 1.65
+						self.GameHud:moveTo(nil, UITween.SineTween(self.GameHud.pos.y, WIN_H, tweenTime))
+						if (self.GameHudRight ~= nil) then
+							self.GameHudRight:moveTo(UITween.SineTween(self.GameHudRight.pos.x, WIN_W, tweenTime))
+						end
 					else
 						self.GameHud:hide()
+						if (self.GameHudRight ~= nil) then
+							self.GameHudRight:hide()
+						end
 					end
 				else
 					if (self.GameHud.pos.y > WIN_H - targetHeightShift) then
-						self.GameHud:moveTo(nil, UITween.SineTween(self.GameHud.pos.y, WIN_H - 115, (UIElement.clock - self.GameHud.toggleClock) * 1.65))
+						local tweenTime = (UIElement.clock - self.GameHud.toggleClock) * 1.65
+						self.GameHud:moveTo(nil, UITween.SineTween(self.GameHud.pos.y, WIN_H - targetHeightShift, tweenTime))
+						if (self.GameHudRight ~= nil) then
+							self.GameHudRight:moveTo(UITween.SineTween(self.GameHudRight.pos.x, WIN_W - targetRightShift, tweenTime))
+						end
 					end
 				end
 			end)
 	end
-
 	self.GameHud.prevReplay = self.GameHud:addChild({
 		pos = { 0, 0 },
 		size = { self.GameHud.size.h / 3 * 2, self.GameHud.size.h },
@@ -4000,7 +4092,12 @@ function Replays:spawnReplayAdvancedGui(reload)
 	end]]
 
 	local slidersHolder = self.GameHud:addChild({ shift = { self.GameHud.prevReplay.size.w + 10, 0 }})
-	if (not self.GameHud.hasCache) then
+	if (is_mobile()) then
+		Replays:spawnReplayProgressSlider(slidersHolder)
+		if (self.GameHud.hasCache) then
+			Replays:spawnReplaySpeedSlider(self.GameHudRight)
+		end
+	elseif (not self.GameHud.hasCache) then
 		Replays:spawnReplayProgressSlider(slidersHolder)
 	else
 		local speedHolderWidth = math.min(math.max(350, slidersHolder.size.w * 0.1), slidersHolder.size.w * 0.5 - 5)
@@ -4032,6 +4129,9 @@ function Replays:toggleHud(mode)
 	end
 	if (not self.GameHud.hidden) then
 		self.GameHud:show()
+		if (self.GameHudRight ~= nil) then
+			self.GameHudRight:show()
+		end
 	end
 end
 

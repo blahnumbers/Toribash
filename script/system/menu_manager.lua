@@ -6,7 +6,7 @@ if (TBMenu == nil) then
 	---
 	---**Version 5.70**
 	---* Added `TBMenu.SpawnSlider2()` that takes a Rect for position and dimensions
-	---* Added `showLabelOnHover` field to `SliderSettings` struct
+	---* Updated `SliderSettings` struct with new fields to support vertical sliders and label peek on hover
 	---* Added more hotkeys to Hotkeys screen
 	---
 	---**Version 5.65**
@@ -3963,6 +3963,7 @@ end
 ---@field textWidth number
 ---@field sliderRadius number
 ---@field showLabelOnHover boolean
+---@field vertical boolean
 
 ---@class UISlider : UIElement
 ---@field label UIElement
@@ -3980,37 +3981,38 @@ end
 ---@param sliderFunc ?function
 ---@param onMouseDown ?function
 ---@param onMouseUp ?function
+---@param sliderLabelFunc ?function
 ---@return UISlider
-function TBMenu:spawnSlider2(parent, rect, value, settings, sliderFunc, onMouseDown, onMouseUp)
-	local rect = rect or {}
+function TBMenu:spawnSlider2(parent, rect, value, settings, sliderFunc, onMouseDown, onMouseUp, sliderLabelFunc)
+	rect = rect or {}
 	rect.x = rect.x or 0
 	rect.y = rect.y or 0
 	rect.w = rect.w or parent.size.w - rect.x * 2
 	rect.h = rect.h or parent.size.h - rect.y * 2
 
-	local settings = settings or {}
+	settings = settings or {}
 	settings.maxValue = settings.maxValue or 1
 	settings.minValue = settings.minValue or 0
 	settings.maxValueDisp = settings.maxValueDisp or settings.maxValue
 	settings.minValueDisp = settings.minValueDisp or settings.minValue
 	settings.decimal = settings.decimal or 0
-	settings.textWidth = settings.textWidth or rect.w / 8
+	settings.textWidth = settings.textWidth or (settings.vertical and rect.h / 8 or rect.w / 8)
 	settings.sliderRadius = settings.sliderRadius or math.min(20, parent.size.h)
 
-	local value = value or settings.minValue
+	value = value or settings.minValue
 
 	local minText = parent:addChild({
 		pos = { rect.x, rect.y },
-		size = { settings.textWidth, rect.h }
+		size = { settings.vertical and rect.w or settings.textWidth, settings.vertical and settings.textWidth or rect.h }
 	})
-	minText:addAdaptedText(true, settings.minValueDisp .. "", nil, nil, 4, RIGHTMID, 0.7)
+	minText:addAdaptedText(true, tostring(settings.minValueDisp), nil, nil, 4, settings.vertical and CENTERBOT or RIGHTMID, 0.7)
 	local maxText = parent:addChild({
-		pos = { -settings.textWidth - rect.x, rect.y },
-		size = { settings.textWidth, rect.h }
+		pos = settings.vertical and { rect.x, rect.y + rect.h - settings.textWidth } or { rect.x + rect.w - settings.textWidth, rect.y },
+		size = { minText.size.w, minText.size.h }
 	})
-	maxText:addAdaptedText(true, settings.maxValueDisp .. "", nil, nil, 4, LEFTMID, 0.7)
+	maxText:addAdaptedText(true, tostring(settings.maxValueDisp), nil, nil, 4, settings.vertical and CENTER or LEFTMID, 0.7)
 
-	if (settings.displayName) then
+	if (settings.displayName and not settings.vertical) then
 		local displayNameText = parent:addChild({
 			pos = { rect.x + rect.w / 3, rect.y },
 			size = { rect.w / 3, rect.h / 2 }
@@ -4019,24 +4021,24 @@ function TBMenu:spawnSlider2(parent, rect, value, settings, sliderFunc, onMouseD
 	end
 
 	local sliderHolder = parent:addChild({
-		pos = { rect.x + settings.textWidth + 5, rect.y },
-		size = { rect.w - (settings.textWidth + 5) * 2, rect.h },
+		pos = settings.vertical and { rect.x, rect.y + settings.textWidth + 5 } or { rect.x + settings.textWidth + 5, rect.y },
+		size = settings.vertical and { rect.w, rect.h - (settings.textWidth + 5) * 2 } or { rect.w - (settings.textWidth + 5) * 2, rect.h },
 		interactive = true
 	})
 	local sliderBackground = sliderHolder:addChild({
-		shift = { settings.sliderRadius * 0.5, rect.h / 2 - 3 },
+		shift = settings.vertical and { rect.w / 2 - 3, settings.sliderRadius * 0.5 } or { settings.sliderRadius * 0.5, rect.h / 2 - 3 },
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 		shapeType = parent.shapeType,
 		rounded = parent.roundedInternal
 	})
 	local sliderPos = 0
 	local sliderValue = value > settings.maxValue and 1 or (-settings.minValue + value) / (-settings.minValue + settings.maxValue)
-	sliderPos = sliderValue * (sliderHolder.size.w - settings.sliderRadius)
+	sliderPos = sliderValue * ((settings.vertical and sliderHolder.size.h or sliderHolder.size.w) - settings.sliderRadius)
 
 	---@type UISlider
 	---@diagnostic disable-next-line: assign-type-mismatch
 	local slider = sliderHolder:addChild({
-		pos = { sliderPos, (-sliderHolder.size.h - settings.sliderRadius) / 2 },
+		pos = settings.vertical and { (sliderHolder.size.w - settings.sliderRadius) / 2, sliderPos } or { sliderPos, (-sliderHolder.size.h - settings.sliderRadius) / 2 },
 		size = { settings.sliderRadius, settings.sliderRadius },
 		interactive = true,
 		bgColor = settings.darkerMode and TB_MENU_DEFAULT_DARKER_COLOR or TB_MENU_DEFAULT_BG_COLOR,
@@ -4111,30 +4113,49 @@ function TBMenu:spawnSlider2(parent, rect, value, settings, sliderFunc, onMouseD
 			end
 		end, function()
 			if (slider.hoverState == BTN_DN) then
-				local xPos = MOUSE_X - sliderHolder.pos.x - slider.pressedPos.x
-				if (xPos < 0) then
-					xPos = 0
-				elseif (xPos > sliderHolder.size.w - slider.size.w) then
-					xPos = sliderHolder.size.w - slider.size.w
+				local sPos, val, holderSize
+				if (settings.vertical) then
+					sPos = MOUSE_Y - sliderHolder.pos.y - slider.pressedPos.y
+					holderSize = sliderHolder.size.h
+				else
+					sPos = MOUSE_X - sliderHolder.pos.x - slider.pressedPos.x
+					holderSize = sliderHolder.size.w
+				end
+
+				if (sPos < 0) then
+					sPos = 0
+				elseif (sPos > holderSize - slider.size.w) then
+					sPos = holderSize - slider.size.w
 				end
 				if (settings.isBoolean) then
-					if (xPos + slider.size.w / 2 > sliderHolder.size.w / 2) then
-						xPos = sliderHolder.size.w - slider.size.w
+					if (sPos + slider.size.w / 2 > holderSize / 2) then
+						sPos = holderSize - slider.size.w
 					else
-						xPos = 0
+						sPos = 0
 					end
 				end
-				slider:moveTo(xPos, nil)
+				if (settings.vertical) then
+					slider:moveTo(nil, sPos)
+				else
+					slider:moveTo(sPos, nil)
+				end
 
-				local val = xPos / (sliderHolder.size.w - settings.sliderRadius) * (settings.maxValue - settings.minValue) + settings.minValue
+				val = sPos / (holderSize - settings.sliderRadius) * (settings.maxValue - settings.minValue) + settings.minValue
+
 				sliderLabel.uiColor[4] = 1
 				sliderLabel.bgColor[4] = 1
 				sliderLabelOutClock = UIElement.clock
 
-				if (sliderFunc and slider.lastVal ~= val) then
-					local multiplyBy = tonumber('1' .. string.rep('0', settings.decimal))
-					sliderLabel.labelText[1] = (math.floor(val * multiplyBy) / multiplyBy) .. ''
-					sliderFunc(val, xPos, slider)
+				if (slider.lastVal ~= val) then
+					if (sliderLabelFunc) then
+						sliderLabel.labelText[1] = sliderLabelFunc(val, slider) or ""
+					else
+						local multiplyBy = tonumber('1' .. string.rep('0', settings.decimal))
+						sliderLabel.labelText[1] = tostring(math.floor(val * multiplyBy) / multiplyBy)
+					end
+					if (sliderFunc) then
+						sliderFunc(val, sPos, slider)
+					end
 				end
 				slider.lastVal = val
 			end
@@ -4142,33 +4163,55 @@ function TBMenu:spawnSlider2(parent, rect, value, settings, sliderFunc, onMouseD
 	slider:addMouseUpOutsideHandler(slider.btnUp)
 	slider.setValue = function(val, updateLabel)
 		val = math.clamp(val, settings.minValue, settings.maxValue)
-		slider:moveTo(val / settings.maxValue * (sliderHolder.size.w - slider.size.w), nil)
+		local percentage = (val - settings.minValue) / (settings.maxValue - settings.minValue)
+		if (settings.vertical) then
+			slider:moveTo(nil, percentage * (sliderHolder.size.h - slider.size.h))
+		else
+			slider:moveTo(percentage * (sliderHolder.size.w - slider.size.w), nil)
+		end
 
-		if (updateLabel) then
+		if (sliderLabelFunc) then
+			sliderLabel.labelText[1] = sliderLabelFunc(val, slider)
+		else
 			local multiplyBy = tonumber('1' .. string.rep('0', settings.decimal))
-			sliderLabel.labelText[1] = (math.floor(val * multiplyBy) / multiplyBy) .. ''
+			sliderLabel.labelText[1] = tostring(math.floor(val * multiplyBy) / multiplyBy)
+		end
+		if (updateLabel) then
 			sliderLabel.uiColor[4] = 1
 			sliderLabel.bgColor[4] = 1
 		end
+		slider.lastVal = val
 	end
 	sliderHolder:addMouseDownHandler(function(s, x, y)
 		local pos = sliderHolder:getLocalPos()
-		local xPos = pos.x - slider.size.w / 2
-		if (xPos < 0) then
-			xPos = 0
-		elseif (xPos > sliderHolder.size.w - slider.size.w) then
-			xPos = sliderHolder.size.w - slider.size.w
+		local sPos, holderSize
+		if (settings.vertical) then
+			sPos = pos.y - slider.size.w / 2
+			holderSize = sliderHolder.size.h
+		else
+			sPos = pos.x - slider.size.w / 2
+			holderSize = sliderHolder.size.w
+		end
+
+		if (sPos < 0) then
+			sPos = 0
+		elseif (sPos > holderSize - slider.size.w) then
+			sPos = holderSize - slider.size.w
 		end
 		if (settings.isBoolean) then
-			if (xPos + slider.size.w / 2 > sliderHolder.size.w / 2) then
-				xPos = sliderHolder.size.w - slider.size.w
+			if (sPos + slider.size.w / 2 > holderSize / 2) then
+				sPos = holderSize - slider.size.w
 			else
-				xPos = 0
+				sPos = 0
 			end
 		end
 		sliderHolder.hoverState = BTN_NONE
 
-		slider:moveTo(xPos)
+		if (settings.vertical) then
+			slider:moveTo(nil, sPos)
+		else
+			slider:moveTo(sPos, nil)
+		end
 		slider.hoverState = BTN_DN
 		slider.btnDown(s, x, y)
 		slider.btnHover(x, y)

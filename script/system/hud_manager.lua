@@ -19,6 +19,7 @@ if (TBHud == nil) then
 	---
 	---**Version 5.70**
 	---* Added `HookNameUI`, `HookNameChat` and `HookNameCamera` fields to access hook names in a uniform way
+	---* Added add camera keyframe button and slightly tweaked camera joystick
 	---
 	---**Version 5.66**
 	---* Added camera mode button
@@ -52,6 +53,7 @@ if (TBHud == nil) then
 	---@field CameraButtonHolder UIElement
 	---@field CameraJoystickFreeHolder UIElement
 	---@field CameraJoystickSensitivity number
+	---@field CameraKeyframeButtonHolder UIElement
 	---@field MiscButtonHolders UIElement[]
 	---@field HubHolder UIElement
 	---@field HubDynamicButtonsHolder UIElement
@@ -185,7 +187,7 @@ function TBHudInternal.generateTouchButton(holder, icon, atlasRect, imageScale)
 		})
 		buttonIcon:addCustomDisplay(function()
 			if (touchButton.hoverState == BTN_DN) then
-				buttonIcon.imageColor = UICOLORWHITE
+				buttonIcon.imageColor = TB_MENU_DEFAULT_LIGHTEST_COLOR
 			else
 				buttonIcon.imageColor = TB_MENU_DEFAULT_BG_COLOR
 			end
@@ -365,7 +367,7 @@ function TBHud:init()
 	self:spawnEditButton()
 	self:spawnGripButton()
 	self:spawnCancelMoveButton()
-	self:spawnCameraButton()
+	self:spawnCameraButtons()
 
 	self:spawnHubButton()
 	self.HubSize.w = math.clamp(500, WIN_W * 0.3, WIN_W * 0.4)
@@ -403,6 +405,7 @@ function TBHud.Reload()
 		TBHud.HubButtonHolder = nil
 		TBHud.CameraButtonHolder = nil
 		TBHud.CameraJoystickFreeHolder = nil
+		TBHud.CameraKeyframeButtonHolder = nil
 		TBHud.MiscButtonHolders = { }
 	end
 
@@ -554,7 +557,7 @@ function TBHud:spawnCommitButton()
 	})
 end
 
-function TBHud:spawnCameraButton()
+function TBHud:spawnCameraButtons()
 	if (self.MainElement == nil) then return end
 
 	local cameraButtonHolder = self.MainElement:addChild({
@@ -563,6 +566,16 @@ function TBHud:spawnCameraButton()
 	})
 	self.CameraButtonHolder = cameraButtonHolder
 	local cameraButton = TBHudInternal.generateTouchButton(cameraButtonHolder, "../textures/menu/general/buttons/camera.tga")
+
+	local cameraKeyframeButtonHolder = self.MainElement:addChild({
+		pos = { self.DefaultSmallerButtonSize * 1.05, -self.DefaultSmallerButtonSize * 2.6 },
+		size = { self.DefaultSmallerButtonSize, self.DefaultSmallerButtonSize }
+	})
+	self.CameraKeyframeButtonHolder = cameraKeyframeButtonHolder
+	local cameraKeyframeButton = TBHudInternal.generateTouchButton(cameraKeyframeButtonHolder, "../textures/menu/general/buttons/keyframenew.tga")
+	cameraKeyframeButton:addMouseUpHandler(function()
+			save_camera_keyframe()
+		end)
 
 	local clickClock = 0
 	cameraButton:addMouseDownHandler(function() clickClock = os.clock_real() end)
@@ -576,6 +589,12 @@ function TBHud:spawnCameraButton()
 		enable_mouse_camera_movement()
 	end)
 	cameraButton:addCustomDisplay(function()
+		if (not TUTORIAL_ISACTIVE and self.WorldState.replay_mode ~= 0 and not self.CameraKeyframeButtonHolder:isDisplayed()) then
+			self.CameraKeyframeButtonHolder:show()
+		elseif ((TUTORIAL_ISACTIVE or self.WorldState.replay_mode == 0) and self.CameraKeyframeButtonHolder:isDisplayed()) then
+			self.CameraKeyframeButtonHolder:hide()
+		end
+
 		if (clickClock > 0 and UIElement.clock - clickClock > UIElement.longPressDuration) then
 			disable_mouse_camera_movement()
 			play_haptics(0.2, HAPTICS.IMPACT)
@@ -638,8 +657,8 @@ function TBHud:spawnCameraButton()
 		end
 	end)
 	local cameraFreeJoystickHolder = self.MainElement:addChild({
-		pos = { self.DefaultSmallerButtonSize * 2.9, -self.DefaultSmallerButtonSize * 3 },
-		size = { self.DefaultSmallerButtonSize * 2.5, self.DefaultSmallerButtonSize * 2.5 }
+		pos = { self.DefaultSmallerButtonSize * 2.35, -self.DefaultSmallerButtonSize * 3.8 },
+		size = { self.DefaultSmallerButtonSize * 2.25, self.DefaultSmallerButtonSize * 2.25 }
 	})
 	self.CameraJoystickFreeHolder = cameraFreeJoystickHolder
 	local cameraJoystickBackground = TBHudInternal.generateTouchButton(cameraFreeJoystickHolder)
@@ -1280,10 +1299,10 @@ function TBHud:spawnChatButton()
 
 	chatButtonHolder:addCustomDisplay(function()
 		if (self.ChatHolder ~= nil) then
-			if (chatButton:isDisplayed() and self.ChatHolder:isDisplayed()) then
-				chatButton:hide()
-			elseif (not chatButton:isDisplayed() and not self.ChatHolder:isDisplayed()) then
-				chatButton:show()
+			if (chatButton:isActive() and self.ChatHolder:isDisplayed()) then
+				chatButton:setActive(false)
+			elseif (not chatButton:isActive() and not self.ChatHolder:isDisplayed()) then
+				chatButton:setActive(true)
 				self:setChatNotification()
 			end
 		end
