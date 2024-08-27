@@ -3901,7 +3901,8 @@ function Replays:spawnReplaySpeedSlider(viewElement)
 	end
 
 	replaySpeedHolder:addCustomDisplay(false, function()
-			local value = getSliderValueFromSpeed(get_replay_speed())
+			local speed, prev = get_replay_speed()
+			local value = getSliderValueFromSpeed(get_world_state().game_paused == 0 and speed or prev)
 			if (slider.lastVal ~= value) then
 				if (slider.hoverState ~= BTN_NONE or slider.parent.hoverState == BTN_DN) then
 					return
