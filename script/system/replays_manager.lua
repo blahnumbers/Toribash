@@ -3939,8 +3939,8 @@ function Replays:spawnReplayAdvancedGui(reload)
 
 	local targetHeightShift = size[2] + math.max(SAFE_Y, 35)
 
-	local posYRight = TBHud.DefaultButtonSize * 2
-	local sizeRight = WIN_H - posYRight - TBHud.DefaultButtonSize * 2.5
+	local posYRight = is_mobile() and TBHud.DefaultButtonSize or 0
+	local sizeRight = is_mobile() and (WIN_H - posYRight - TBHud.DefaultButtonSize * 2.5) or 0
 	local targetRightShift = size[2] + math.max(SAFE_X, 15)
 
 	if (reload and self.GameHud ~= nil) then
