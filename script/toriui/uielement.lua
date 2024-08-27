@@ -2882,17 +2882,18 @@ debugEchoInternal = function(mixed, returnString, msg, rec)
 	if (not rec) then
 		_G.DEBUGECHOMSG = ""
 	end
-	if (type(mixed) == "table") then
+	local vtype = type(mixed)
+	if (vtype == "table") then
 		buildRet("entering table " .. msg)
 		for i,v in pairs(mixed) do
 			debugEchoInternal(v, returnString, msg .. i, true)
 		end
-	elseif (type(mixed) == "boolean") then
-		buildRet(msg .. (mixed and "true" or "false"))
-	elseif (type(mixed) == "number" or type(mixed) == "string") then
-		buildRet(msg .. mixed)
+	elseif (vtype == "boolean") then
+		buildRet(msg .. "(" .. vtype .. ")" .. (mixed and "true" or "false"))
+	elseif (vtype == "number" or vtype == "string") then
+		buildRet(msg .. "(" .. vtype .. ")" .. mixed)
 	else
-		buildRet(msg .. "[" .. type(mixed) .. "]")
+		buildRet(msg .. "[" .. vtype .. "]")
 	end
 	if (returnString and not rec) then
 		local msg = _G.DEBUGECHOMSG

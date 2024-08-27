@@ -245,7 +245,7 @@ function TBHudInternal.pushChatMessage(msg, type, tab)
 		end
 	end
 
-	local message = get_option("chatcensor") % 2 == 1 and ChatIgnore:filterInput(msg) or msg
+	local message = get_option("chatcensor") % 2 == 1 and ChatIgnore.FilterInput(msg) or msg
 	---@type ChatMessage
 	local chatMessage = {
 		text = message,

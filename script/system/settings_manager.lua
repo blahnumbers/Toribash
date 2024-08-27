@@ -2007,14 +2007,6 @@ function Settings:showSettings(id, keepStoredSettings)
 					end
 				end
 			end
-			--[[if (Settings.Stored.chatcensor) then
-				dofile("system/ignore_manager.lua")
-				if (Settings.Stored.chatcensor.value > 0) then
-					ChatIgnore:activate()
-				else
-					ChatIgnore:deactivate()
-				end
-			end]]
 			if (Settings.Stored.showbroadcast) then
 				dofile("system/broadcast_manager.lua")
 				if (not in_array(Settings.Stored.showbroadcast.value, { 0, 4 })) then

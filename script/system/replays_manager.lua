@@ -718,7 +718,7 @@ end
 ---@param replays ReplayInfo[][]
 function Replays:showSearchList(viewElement, replayInfo, toReload, replays)
 	viewElement:kill(true)
-	local elementHeight = math.max(40, math.ceil(WIN_H / 20))
+	local elementHeight = math.clamp(math.ceil(WIN_H / 20), 40, 55)
 
 	local listingHolder = viewElement:addChild({
 		size = { viewElement.size.w - 20, viewElement.size.h }
@@ -932,7 +932,7 @@ end
 function Replays:showList(viewElement, replayInfo, level, doSearch)
 	viewElement:kill(true)
 
-	local elementHeight = math.max(40, math.ceil(WIN_H / 20))
+	local elementHeight = math.clamp(math.ceil(WIN_H / 20), 40, 55)
 	local rplTable = level or Replays.RootFolder
 	ReplaysInternal.SelectedFolder = rplTable
 

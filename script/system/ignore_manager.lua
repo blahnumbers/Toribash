@@ -1,7 +1,10 @@
 if (ChatIgnore == nil) then
-	---Helper class that filters chat according to current game settings \
+	---**Chat filtering manager class**
+	---
 	---**Version 5.70**
-	---* Added `BannedWordsWhole` list to store strings that should be filtered only if they make a whole word
+	---* Added `ChatIgnoreInternal` utility class to make sure only functions we want are exposed
+	---* Added ability to filter whole word only
+	---* Added `ChatIgnore.AddWord` to allow user-customizable chat filters
 	---* Updated filtering to replace whole affected word with grawlix instead of only the matched substring
 	---* Fixed various cases when filtering would ignore a string it should match
 	---* Added `HookName` field
@@ -10,32 +13,57 @@ if (ChatIgnore == nil) then
 	---* Class can now be used as a submodule to filter input
 	---* Updated list of banned words
 	---@class ChatIgnore
+	---@field HookName string
+	---@field ModeWholeWord 0
+	---@field ModeAnyPart 1
 	---@field ver number
-	---@field BannedWords string[] List of words that we don't want to have displayed in chat
-	---@field IsActive boolean
 	ChatIgnore = {
 		ver = 5.70,
-		BannedWords = {},
-		BannedWordsWhole = {},
 		HookName = "__tbMenuChatCensorIgnore",
-		__index = {}
+		ModeWholeWord = 0,
+		ModeAnyPart = 1
 	}
+	ChatIgnore.__index = ChatIgnore
 end
 
----Populates `ChatIgnore.BannedWords` table with banned word strings
-function ChatIgnore:populateBannedWords()
-	local bannedWords = {
-		"nigg", "fuck", "cunt", "retard", "fag", "faggot",
-		"bitch", "pussy", "dick", "rapist", "cock", "rape", "tranny",
-		"whore", "slut", "dyke", "kike", "chink", "coon",
-		"пидop", "хyй", "пиздa", "нerp", "нигeр", "eбaть", "хуeв"
-	}
-	local bannedWholeWords = {
-		"nga", "igga"
-	}
+---@class ChatIgnoreInternal
+---Utility class for **ChatIgnore** manager
+---@field BannedWords string[] Predefined list of banned words
+---@field BannedWholeWords string[] Predefined list of banned whole words
+---@field BannedWordsCustom string[] List of user customizable banned words
+---@field BannedWholeWordsCustom string[] List of user customizable banned whole words
+---@field BannedWordsActive string[] Currently active list of banned words
+---@field BannedWordsWholeActive string[] Currently active list of banned whole words
+local ChatIgnoreInternal = {
+	BannedWords = {
+		---English
+		"nigg", "fuck", "cunt", "retard", "fag", "bitch", "pussy",
+		"dick", "cock", "rapist", "rape", "tranny",	"whore", "slut",
+		"chink",
+		---Russian
+		"пидop", "хyй", "пиздa", "нerp", "нигeр", "eбaть", "хуeв",
+		---Portuguese
+		"viado", "negao", "crioulo", "foder", "caralho", "porra",
+		"cona", "buceta", "paneleiro", "vadia", "estepr", "travesti"
+	},
+	BannedWholeWords = {
+		---English
+		"nga", "igga", "dyke", "kike", "coon",
+		---Portuguese
+		"puta", "tuga"
+	},
+	BannedWordsCustom = {},
+	BannedWholeWordsCustom = {},
+	BannedWordsActive = {},
+	BannedWordsWholeActive = {}
+}
+ChatIgnoreInternal.__index = ChatIgnoreInternal
+
+---Populates banned words lists
+function ChatIgnore.PopulateLists()
 	local similars = {
 		e = "eе3ё",
-		a = "aа4",
+		a = "aа4ã",
 		t = "tт7",
 		g = "g6",
 		o = "oо0",
@@ -49,32 +77,75 @@ function ChatIgnore:populateBannedWords()
 		il = "il1"
 	}
 
-	---@type string[]
-	self.BannedWords = {}
-	for _, word in ipairs(bannedWords) do
+	ChatIgnoreInternal.BannedWordsActive = {}
+	for _, word in ipairs(ChatIgnoreInternal.BannedWords) do
 		word = utf8.gsub(word, "(.)", "[%1]+")
 		for symbol, replace in pairs(similars) do
 			word = utf8.gsub(word, symbol, replace)
 		end
-		table.insert(self.BannedWords, word)
+		table.insert(ChatIgnoreInternal.BannedWordsActive, word)
+	end
+	for _, word in ipairs(ChatIgnoreInternal.BannedWordsCustom) do
+		pcall(function()
+			word = utf8.gsub(word, "(.)", "[%1]+")
+			for symbol, replace in pairs(similars) do
+				word = utf8.gsub(word, symbol, replace)
+			end
+			table.insert(ChatIgnoreInternal.BannedWordsActive, word)
+		end)
 	end
 
-	---@type string[]
-	self.BannedWordsWhole = {}
-	for _, word in ipairs(bannedWholeWords) do
+	ChatIgnoreInternal.BannedWordsWholeActive = {}
+	for _, word in ipairs(ChatIgnoreInternal.BannedWholeWords) do
 		word = utf8.gsub(word, "(.)", "[%1]+")
 		for symbol, replace in pairs(similars) do
 			word = utf8.gsub(word, symbol, replace)
 		end
-		table.insert(self.BannedWordsWhole, word)
+		table.insert(ChatIgnoreInternal.BannedWordsWholeActive, word)
 	end
+	for _, word in ipairs(ChatIgnoreInternal.BannedWholeWordsCustom) do
+		pcall(function()
+			word = utf8.gsub(word, "(.)", "[%1]+")
+			for symbol, replace in pairs(similars) do
+				word = utf8.gsub(word, symbol, replace)
+			end
+			table.insert(ChatIgnoreInternal.BannedWordsWholeActive, word)
+		end)
+	end
+end
+
+---@alias ChatIgnoreWordMode
+---| 0	ChatIgnore.ModeWholeWord | Will only match whole words
+---| 1	ChatIgnore.ModeAnyPart | Will match any part of the word
+---
+---Adds a word to chat filter list. \
+---Make sure to repopulate banned words list after you're done adding new words
+---@see ChatIgnore.PopulateLists
+---@param word string
+---@param ignoreMode ChatIgnoreWordMode
+function ChatIgnore.BanWord(word, ignoreMode)
+	if (type(word) ~= "string") then
+		error("Invalid word specified")
+	end
+	if (ignoreMode ~= ChatIgnore.ModeWholeWord and ignoreMode ~= ChatIgnore.ModeAnyPart) then
+		error("Invalid ignore mode specified")
+	end
+
+	local targetTable = ignoreMode == ChatIgnore.ModeWholeWord and ChatIgnoreInternal.BannedWholeWordsCustom or ChatIgnoreInternal.BannedWordsCustom
+	for _, v in pairs(targetTable) do
+		if (v == word) then
+			return true
+		end
+	end
+	table.insert(targetTable, word)
+	return true
 end
 
 ---Escapes input if it matches any banned words
 ---@param line string
 ---@return string
 ---@return boolean
-function ChatIgnore:filterInput(line)
+function ChatIgnore.FilterInput(line)
 	local grawlixSymbols = table.shuffle({ "!", "@", "#", "$", "^", "&", "*" })
 	local grawlix = table.implode(grawlixSymbols, '')
 	local replaced = false
@@ -123,12 +194,12 @@ function ChatIgnore:filterInput(line)
 		end
 	end
 
-	for _, word in pairs(ChatIgnore.BannedWords) do
+	for _, word in pairs(ChatIgnoreInternal.BannedWordsActive) do
 		if (pcall(function() doFilter(utf8, word) end) == false) then
 			doFilter(string, word)
 		end
 	end
-	for _, word in pairs(ChatIgnore.BannedWordsWhole) do
+	for _, word in pairs(ChatIgnoreInternal.BannedWordsWholeActive) do
 		if (pcall(function() doFilter(utf8, word, true) end) == false) then
 			doFilter(string, word, true)
 		end
@@ -142,13 +213,13 @@ end
 ---@param msgType ChatMessageType
 ---@param tabId integer
 ---@return boolean
-function ChatIgnore:checkLine(line, msgType, tabId)
+function ChatIgnoreInternal.CheckLine(line, msgType, tabId)
 	local chatcensor = get_option("chatcensor")
 	if (msgType == MSGTYPE.INGAME and chatcensor > 1) then
 		return true
 	end
 	if (msgType >= MSGTYPE.USER and chatcensor % 2 == 1) then
-		local message, replaced = ChatIgnore:filterInput(line)
+		local message, replaced = ChatIgnore.FilterInput(line)
 		if (replaced) then
 			if (msgType == MSGTYPE.PLAYER) then
 				echo("^02" .. TB_MENU_LOCALIZED.CHATCENSOREDMESSAGE, tabId, true)
@@ -160,20 +231,9 @@ function ChatIgnore:checkLine(line, msgType, tabId)
 	return false
 end
 
----Activates the standalone chat ignore module
-function ChatIgnore:activate()
-	add_hook("console", self.HookName, function(...)
-		if (ChatIgnore:checkLine(...)) then return 1 end
-	end)
-end
-
----@deprecated
----No longer in use. Will be removed with future releases.
-function ChatIgnore:deactivate()
-	remove_hooks(self.HookName)
-end
-
-ChatIgnore:populateBannedWords()
+ChatIgnore.PopulateLists()
 if (not is_mobile()) then
-	ChatIgnore:activate()
+	add_hook("console", ChatIgnore.HookName, function(...)
+		if (ChatIgnoreInternal.CheckLine(...)) then return 1 end
+	end)
 end

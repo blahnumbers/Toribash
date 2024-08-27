@@ -140,7 +140,7 @@ end
 function RoomList:showRoomInfo(room)
 	self.RoomInfoView:kill(true)
 
-	local elementHeight = math.max(20, WIN_H / 40)
+	local elementHeight = math.clamp(WIN_H / 40, 20, 32)
 	local buttonHeight = math.min(self.RoomInfoView.size.h / 6, 50)
 	local toReload, topBar, botBar, listingView, listingHolder, scrollBarBG = TBMenu:prepareScrollableList(self.RoomInfoView, elementHeight, buttonHeight, 15, TB_MENU_DEFAULT_BG_COLOR)
 

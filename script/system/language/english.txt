@@ -290,16 +290,21 @@ QUESTSCLAIMREWARD	Claim Reward
 QUESTSUPDATING	Updating your quests data...
 QUESTSBYDECAP	by decapitation
 LUASCRIPTSNAME	Lua scripts
-LUASCRIPTSTHIRDPARTYWARNING1	Always pay double attention to third-party scripts you run.
-LUASCRIPTSTHIRDPARTYWARNING2	Malicious scripts may modify, erase or steal your Toribash data.
-LUASCRIPTSTHIRDPARTYWARNING3	Only run scripts that have been verified by Toribash staff.
-LUASCRIPTSFORUMBOARD	Scripts board on forum
+LUASCRIPTSTHIRDPARTYWARNING1	Always pay double attention to third-party scripts you run
+LUASCRIPTSTHIRDPARTYWARNING2	Malicious scripts may modify, erase or steal your Toribash data
+LUASCRIPTSTHIRDPARTYWARNING3	Only run scripts that have been verified by Toribash staff
+LUASCRIPTSFORUMBOARD	Scripts board on forums
 LUAMALICIOUSWARNING	POSSIBLY MALICIOUS SCRIPT
-LUAFILEACCESSWARNING	SCRIPT CAN GAIN ACCESS TO OTHER FILES
-LUAOTHERSCRIPTSWARNING	SCRIPT LOADS OTHER SCRIPTS
+LUAFILEACCESSWARNING	SCRIPT READS OR MODIFIES OTHER FILES
+LUAOTHERSCRIPTSWARNING	SCRIPT LOADS ADDITIONAL MODULES
+LUAFILEACCESSWARNINGHINT	Some scripts may use their own configuration files, access players' customs and so on. While this does not necessarily mean they are malicious, be wary of scripts that aren't supposed to access anything outside their own data yet get marked with this warning.
+LUAOTHERSCRIPTSWARNINGHINT	Larger scripts with various features may sometimes consist of multiple files (modules), but simple ones typically do not execute any code outside of their own file. Be cautious if this script is supposed to only do something primitive yet got marked with this warning.
 LUALOADSCRIPT	Load script
 LUASHOWSOURCE	Show script source
 LUAVIEWINGSORCE	Viewing script source
+LUAAUTOSTARTENABLED	Autorun Enabled
+LUAAUTOSTARTLABEL	Auto run script on Toribash startup
+LUAAUTOSTARARGSHINT	Script launch arguments
 ERRORCREATINGFILE	Error creating file\nPlease check your folder permissions or run Toribash as admin
 REPLAYSSAVING	Saving replay
 REPLAYSDEFAULTPATH	Replay file will be saved to 'my replays' folder
