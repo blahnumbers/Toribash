@@ -54,6 +54,7 @@ if (TBHud == nil) then
 	---@field CameraJoystickFreeHolder UIElement
 	---@field CameraJoystickSensitivity number
 	---@field CameraKeyframeButtonHolder UIElement
+	---@field CameraKeyframeEditButtonHolder UIElement
 	---@field MiscButtonHolders UIElement[]
 	---@field HubHolder UIElement
 	---@field HubDynamicButtonsHolder UIElement
@@ -406,6 +407,7 @@ function TBHud.Reload()
 		TBHud.CameraButtonHolder = nil
 		TBHud.CameraJoystickFreeHolder = nil
 		TBHud.CameraKeyframeButtonHolder = nil
+		TBHud.CameraKeyframeEditButtonHolder = nil
 		TBHud.MiscButtonHolders = { }
 	end
 
@@ -576,6 +578,14 @@ function TBHud:spawnCameraButtons()
 	cameraKeyframeButton:addMouseUpHandler(function()
 			save_camera_keyframe()
 		end)
+
+	local cameraKeyframeEditButtonHolder = self.MainElement:addChild({
+		pos = { self.DefaultSmallerButtonSize * 2.35, -self.DefaultSmallerButtonSize * 2.6 },
+		size = { self.DefaultSmallerButtonSize, self.DefaultSmallerButtonSize }
+	})
+	self.CameraKeyframeEditButtonHolder = cameraKeyframeEditButtonHolder
+	local cameraKeyframeEditButton = TBHudInternal.generateTouchButton(cameraKeyframeEditButtonHolder, "../textures/menu/general/buttons/keyframeedit.tga")
+	cameraKeyframeEditButton:hide()
 
 	local clickClock = 0
 	cameraButton:addMouseDownHandler(function() clickClock = os.clock_real() end)
@@ -753,6 +763,7 @@ function TBHud:spawnCameraButtons()
 			local cameraMode = get_camera_mode()
 			if (cameraMode == CAMERA_MODE.FREE and not cameraJoystickBackground:isDisplayed()) then
 				cameraJoystickBackground:show()
+				cameraKeyframeEditButton:hide()
 			elseif (cameraMode ~= CAMERA_MODE.FREE and cameraJoystickBackground:isDisplayed()) then
 				cameraJoystickBackground:hide()
 			end

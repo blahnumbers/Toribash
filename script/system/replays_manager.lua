@@ -3392,34 +3392,6 @@ function Replays:spawnReplayProgressSlider(viewElement)
 	slider.bgColor = table.clone(UICOLORWHITE)
 	slider.value = worldstate.match_frame
 
-	replayProgressHolder:addCustomDisplay(false, function()
-			local worldstate = UIElement.WorldState
-			if (slider.settings.maxValue ~= worldstate.game_frame + 98) then
-				Replays:spawnReplayAdvancedGui(true)
-				return
-			end
-			if (slider.value ~= worldstate.match_frame) then
-				if (slider.hoverState ~= BTN_NONE or slider.parent.hoverState == BTN_DN) then
-					return
-				end
-				slider.setValue(worldstate.match_frame, false)
-				slider.value = worldstate.match_frame
-			end
-			if (get_replay_cache() > 0) then
-				if (not slider.isactive) then
-					slider.parent:activate()
-					slider:activate()
-					slider:reload()
-				end
-			else
-				if (slider.isactive) then
-					slider.btnUp()
-					slider:deactivate()
-					slider.parent:deactivate()
-				end
-			end
-		end)
-
 	local afterFrames = slider.background:addChild({
 		pos = { -slider.background.size.w / (worldstate.game_frame + 99) * 99, slider.background.size.h / 2 - 3 },
 		size = { slider.background.size.w / (worldstate.game_frame + 99) * 99, 6 },
@@ -3440,7 +3412,7 @@ function Replays:spawnReplayProgressSlider(viewElement)
 		if (ws.game_paused ~= 0) then
 			toggle_game_pause()
 		end
-		loadKeyframes()
+		loadKeyframes(ws)
 	end
 	local getKeyframeSliderSpeedValue = function(value)
 		if (value > 2) then
@@ -3452,7 +3424,8 @@ function Replays:spawnReplayProgressSlider(viewElement)
 	end
 
 	local keyframeInfoViewHolder = slider.background:addChild({
-		size = { 350, 100 }
+		size = { 350, is_mobile() and 120 or 100 },
+		pos = { 0, -slider.background.size.h - (is_mobile() and 165 or 145) }
 	})
 	keyframeInfoViewHolder.keyframe = 0
 	keyframeInfoViewHolder.speed = 1
@@ -3467,16 +3440,16 @@ function Replays:spawnReplayProgressSlider(viewElement)
 		interactive = true,
 		shapeType = ROUNDED,
 		rounded = 4,
-		innerShadow = { 26, 0 },
+		innerShadow = { is_mobile() and 40 or 26, 0 },
 		shadowColor = TB_MENU_DEFAULT_BG_COLOR
 	})
 	local keyframeInfoFrameLabel = keyframeInfoView:addChild({
 		pos = { 10, 3 },
-		size = { keyframeInfoView.size.w * 0.65, 20 }
+		size = { keyframeInfoView.size.w * 0.65, is_mobile() and 34 or 20 }
 	})
 	local keyframeInfoDeleteButton = keyframeInfoView:addChild({
 		pos = { keyframeInfoFrameLabel.size.w + keyframeInfoFrameLabel.shift.x, 2 },
-		size = { keyframeInfoView.size.w - keyframeInfoFrameLabel.size.w - keyframeInfoFrameLabel.shift.x - 2, 22 },
+		size = { keyframeInfoView.size.w - keyframeInfoFrameLabel.size.w - keyframeInfoFrameLabel.shift.x - 2, is_mobile() and 36 or 22 },
 		interactive = true,
 		bgColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK,
 		hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
@@ -3488,9 +3461,10 @@ function Replays:spawnReplayProgressSlider(viewElement)
 		overlay.btnDown()
 		onKeyframeUpdated()
 	end)
+	local shiftY = keyframeInfoFrameLabel.shift.y * 2 + keyframeInfoFrameLabel.size.h
 	local keyframeSpeedLabel = keyframeInfoView:addChild({
-		pos = { 10, 30 },
-		size = { keyframeInfoView.size.w / 3, 32 }
+		pos = { 10, shiftY + 4 },
+		size = { keyframeInfoView.size.w / 3, (keyframeInfoView.size.h - shiftY - 8) / 2 }
 	})
 	keyframeSpeedLabel:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSREPLAYSPEED, nil, nil, nil, LEFTMID, 0.75)
 	local keyframeSpeedSliderHolder = keyframeInfoView:addChild({
@@ -3546,10 +3520,14 @@ function Replays:spawnReplayProgressSlider(viewElement)
 	end)
 	keyframeInfoViewHolder:hide(true)
 
-	loadKeyframes = function()
+	loadKeyframes = function(ws)
 		for _, v in ipairs(keyframeButtons) do
 			v:kill()
 		end
+		if (is_mobile()) then
+			TBHud.CameraKeyframeEditButtonHolder:hide()
+		end
+
 		local keyframes = get_camera_keyframes()
 		for i = 1, #keyframes do
 			local kf = keyframes[i]
@@ -3567,13 +3545,13 @@ function Replays:spawnReplayProgressSlider(viewElement)
 			local initialPos = table.clone(keyframeButton.shift)
 
 			local showKeyframeManage = function()
-				keyframeInfoViewHolder:moveTo(keyframeButton.shift.x + keyframeButton.size.w / 2 - keyframeInfoViewHolder.size.w / 2, keyframeButton.shift.y - keyframeInfoViewHolder.size.h - 5)
+				keyframeInfoViewHolder:moveTo(math.clamp(keyframeButton.shift.x + keyframeButton.size.w / 2 - keyframeInfoViewHolder.size.w / 2, -slider.background.size.w - 60, 60 - keyframeInfoViewHolder.size.w))
 				keyframeInfoViewHolder:show(true)
 				keyframeInfoViewHolder.keyframe = kf.frame
 				keyframeInfoViewHolder.speed = kf.speed
 				keyframeSpeedSlider.setValue(getKeyframeSliderSpeedValue(kf.speed))
 				---@diagnostic disable-next-line: undefined-field
-				keyframeSpeedSlider.label.labelText[1] = tostring(kf.speed)
+				keyframeSpeedSlider.label.labelText[1] = tostring(math.floor(kf.speed * 100) / 100)
 				keyframeInterpolateToggle.setValue(kf.interpolate)
 				keyframeInfoFrameLabel:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYKEYFRAMEFRAME .. " " .. kf.frame, nil, nil, nil, LEFTMID)
 			end
@@ -3594,21 +3572,35 @@ function Replays:spawnReplayProgressSlider(viewElement)
 						keyframeButton:moveTo(initialPos.x, initialPos.y)
 					end
 				end
-				if (clickClock > 0 and UIElement.clock - clickClock > UIElement.longPressDuration) then
+				if (is_mobile() and clickClock > 0 and UIElement.clock - clickClock > UIElement.longPressDuration) then
 					play_haptics(0.2, HAPTICS.IMPACT)
 					clickClock = 0
 					showKeyframeManage()
 				end
 			end)
-			keyframeButton:addMouseDownHandler(function()
-				clickClock = os.clock_real()
-			end)
-			keyframeButton:addMouseUpHandler(function()
-				if (clickClock > 0) then
-					rewind_replay_to_frame(kf.frame)
+			if (is_mobile()) then
+				keyframeButton:addMouseDownHandler(function()
+					clickClock = os.clock_real()
+				end)
+				keyframeButton:addMouseUpHandler(function()
+					if (clickClock > 0) then
+						rewind_replay_to_frame(kf.frame)
+						TBHud.CameraKeyframeEditButtonHolder:show()
+						TBHud.CameraKeyframeEditButtonHolder.child[1]:addMouseUpHandler(showKeyframeManage)
+						TBHud.CameraKeyframeEditButtonHolder.frame = kf.frame
+					end
+					clickClock = 0
+				end)
+				if (ws.match_frame == kf.frame) then
+					TBHud.CameraKeyframeEditButtonHolder:show()
+					TBHud.CameraKeyframeEditButtonHolder.child[1]:addMouseUpHandler(showKeyframeManage)
+					TBHud.CameraKeyframeEditButtonHolder.frame = kf.frame
 				end
-				clickClock = 0
-			end)
+			else
+				keyframeButton:addMouseUpHandler(function()
+					rewind_replay_to_frame(kf.frame)
+				end)
+			end
 			keyframeButton:addMouseUpRightHandler(showKeyframeManage)
 		end
 		slider:reload()
@@ -3617,7 +3609,7 @@ function Replays:spawnReplayProgressSlider(viewElement)
 		end
 		keyframesCount = #keyframes
 	end
-	loadKeyframes()
+	loadKeyframes(UIElement.WorldState)
 
 	local keyframeCountObserver = viewElement:addChild({
 		pos = { 0, 0 },
@@ -3625,7 +3617,38 @@ function Replays:spawnReplayProgressSlider(viewElement)
 	})
 	keyframeCountObserver:addCustomDisplay(true, function()
 			if (get_camera_keyframes_count() ~= keyframesCount) then
-				loadKeyframes()
+				loadKeyframes(UIElement.WorldState)
+			end
+		end)
+
+	replayProgressHolder:addCustomDisplay(false, function()
+			local worldstate = UIElement.WorldState
+			if (slider.settings.maxValue ~= worldstate.game_frame + 98) then
+				Replays:spawnReplayAdvancedGui(true)
+				return
+			end
+			if (is_mobile() and TBHud.CameraKeyframeEditButtonHolder.frame ~= worldstate.match_frame) then
+				TBHud.CameraKeyframeEditButtonHolder:hide()
+			end
+			if (slider.value ~= worldstate.match_frame) then
+				if (slider.hoverState ~= BTN_NONE or slider.parent.hoverState == BTN_DN) then
+					return
+				end
+				slider.setValue(worldstate.match_frame, false)
+				slider.value = worldstate.match_frame
+			end
+			if (get_replay_cache() > 0) then
+				if (not slider.isactive) then
+					slider.parent:activate()
+					slider:activate()
+					slider:reload()
+				end
+			else
+				if (slider.isactive) then
+					slider.btnUp()
+					slider:deactivate()
+					slider.parent:deactivate()
+				end
 			end
 		end)
 
