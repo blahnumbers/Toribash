@@ -4106,10 +4106,12 @@ function TBMenu:spawnSlider2(parent, rect, value, settings, sliderFunc, onMouseD
 				onMouseDown()
 			end
 		end, function()
-			enable_mouse_camera_movement()
-			sliderLabelOutClock = UIElement.clock
-			if (onMouseUp) then
-				onMouseUp()
+			if (slider.hoverState == BTN_DN) then
+				enable_mouse_camera_movement()
+				sliderLabelOutClock = UIElement.clock
+				if (onMouseUp) then
+					onMouseUp()
+				end
 			end
 		end, function()
 			if (slider.hoverState == BTN_DN) then
