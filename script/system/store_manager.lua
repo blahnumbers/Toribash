@@ -4935,14 +4935,14 @@ function Store:preparePreviewVanilla()
 	open_replay("system/torishop.rpl", 0)
 	load_player(0, TB_MENU_PLAYER_INFO.username)
 	add_hook("draw2d", self.HookNameVanilla, function()
-			if (get_world_state().match_frame >= 15) then
+			if (UIElement.WorldState.match_frame >= 15) then
 				add_hook("leave_game", self.HookNameVanilla, TBMenu.HideButton.btnUp)
 				edit_game()
 				dismember_joint(0, 3)
 				dismember_joint(0, 2)
 				run_frames(12)
 				add_hook("draw2d", self.HookNameVanilla, function()
-						if (get_world_state().match_frame >= 20) then
+						if (UIElement.WorldState.match_frame >= 20) then
 							remove_hook("draw2d", self.HookNameVanilla)
 							for i = 0, 19 do
 								local jointstate = math.floor(math.random(1, 4))

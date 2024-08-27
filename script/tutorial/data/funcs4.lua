@@ -214,7 +214,7 @@ local function challengeUke(viewElement, reqTable)
 	end)
 	add_hook("end_game", Tutorials.StepHook, function() FIGHTUKE_GAME_ENDED = true end)
 	add_hook("draw2d", Tutorials.StepHook, function()
-			local ws = get_world_state()
+			local ws = UIElement.WorldState
 			local frame = ws.match_frame
 			if ((ws.winner > -1 or FIGHTUKE_GAME_ENDED) and not leaveGame) then
 				leaveGame = true
@@ -234,7 +234,7 @@ local function challengeUke(viewElement, reqTable)
 				local stopFrame = frame + 97
 				local leaveGameHook = false
 				add_hook("draw2d", Tutorials.StaticHook, function()
-						local wsMatchFrame = get_world_state().match_frame
+						local wsMatchFrame = UIElement.WorldState.match_frame
 						if (wsMatchFrame >= stopFrame and not TUTORIAL_LEAVEGAME) then
 							leaveGameHook = true
 							TUTORIAL_LEAVEGAME = true

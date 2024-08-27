@@ -46,7 +46,7 @@ end
 
 local function checkCollision()
 	if (checkScoreChange()) then
-		local ws = get_world_state()
+		local ws = UIElement.WorldState
 		if (ws.winner == -1 and ws.replay_mode == 0 and ws.match_frame ~= 0) then
 			teleportUke(COMEBACK_DISPLACE)
 
@@ -288,7 +288,7 @@ local function loadVisuals(viewElement, reqTable)
 	add_hook("end_game", Tutorials.StepHook, function(gameEndType) COMEBACKPRACTICE_GAME_END = true end)
 	add_hook("draw2d", Tutorials.StepHook, function()
 			checkCollision()
-			local ws = get_world_state()
+			local ws = UIElement.WorldState
 			local frame = ws.match_frame
 			DISPLAY_FRAMES = ws.game_frame - ws.match_frame
 			if (DISPLAY_FRAMES < 0) then
@@ -300,7 +300,7 @@ local function loadVisuals(viewElement, reqTable)
 				local stopFrame = frame + 97
 				local leaveGameHook = false
 				add_hook("draw2d", Tutorials.StaticHook, function()
-						local wsMatchFrame = get_world_state().match_frame
+						local wsMatchFrame = UIElement.WorldState.match_frame
 						if (wsMatchFrame >= stopFrame and not TUTORIAL_LEAVEGAME) then
 							leaveGameHook = true
 							TUTORIAL_LEAVEGAME = true

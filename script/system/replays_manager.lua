@@ -3364,7 +3364,7 @@ function Replays:spawnReplayProgressSlider(viewElement)
 	})
 	replayProgressTitle:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSREPLAYPROGRESS)
 
-	local worldstate = get_world_state()
+	local worldstate = UIElement.WorldState
 	local replaySpeed = 1
 	local onMouseDn = function()
 		replaySpeed = get_replay_speed()
@@ -3393,7 +3393,7 @@ function Replays:spawnReplayProgressSlider(viewElement)
 	slider.value = worldstate.match_frame
 
 	replayProgressHolder:addCustomDisplay(false, function()
-			local worldstate = get_world_state()
+			local worldstate = UIElement.WorldState
 			if (slider.settings.maxValue ~= worldstate.game_frame + 98) then
 				Replays:spawnReplayAdvancedGui(true)
 				return
@@ -3669,7 +3669,7 @@ function Replays:spawnReplaySpeedSlider(viewElement)
 				end
 
 				local _, keyframe_mode = get_camera_mode()
-				if (keyframe_mode < CAMERA_CACHE_MODE.RECORDING and get_world_state().game_paused == 0) then
+				if (keyframe_mode < CAMERA_CACHE_MODE.RECORDING and UIElement.WorldState.game_paused == 0) then
 					unfreeze_game()
 					set_replay_speed(speed, true)
 				else
@@ -3767,7 +3767,7 @@ function Replays:spawnReplaySpeedSlider(viewElement)
 		slider.label.labelText[1] = targetVal .. ''
 
 		local _, keyframe_mode = get_camera_mode()
-		if (keyframe_mode < CAMERA_CACHE_MODE.RECORDING and get_world_state().game_paused == 0) then
+		if (keyframe_mode < CAMERA_CACHE_MODE.RECORDING and UIElement.WorldState.game_paused == 0) then
 			unfreeze_game()
 			set_replay_speed(targetVal)
 		else
@@ -3902,7 +3902,7 @@ function Replays:spawnReplaySpeedSlider(viewElement)
 
 	replaySpeedHolder:addCustomDisplay(false, function()
 			local speed, prev = get_replay_speed()
-			local value = getSliderValueFromSpeed(get_world_state().game_paused == 0 and speed or prev)
+			local value = getSliderValueFromSpeed(UIElement.WorldState.game_paused == 0 and speed or prev)
 			if (slider.lastVal ~= value) then
 				if (slider.hoverState ~= BTN_NONE or slider.parent.hoverState == BTN_DN) then
 					return
@@ -4000,7 +4000,7 @@ function Replays:spawnReplayAdvancedGui(reload)
 		self.GameHud.hasCache = get_replay_cache() > 0
 		self.GameHud.queue = -1
 		self.GameHud:addCustomDisplay(true, function()
-				local ws = get_world_state()
+				local ws = UIElement.WorldState
 
 				if (ws.replay_mode ~= 0) then
 					local cacheState = get_replay_cache() > 0

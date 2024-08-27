@@ -337,7 +337,7 @@ function TBHud:init()
 		size = { WIN_W, WIN_H }
 	})
 	self.MainElement:addCustomDisplay(true, function()
-		self.WorldState = get_world_state()
+		self.WorldState = UIElement.WorldState
 
 		local hudState = TUTORIAL_ISACTIVE and true or (get_option("hud") == 1)
 		if (self.HudEnabled ~= hudState) then

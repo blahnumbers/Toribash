@@ -982,7 +982,7 @@ function Tutorials:reqVictory(viewElement, reqTable)
 
 	local reqElement = viewElement:addChild({})
 	reqElement:addCustomDisplay(true, function()
-			if (get_world_state().winner == 0) then
+			if (UIElement.WorldState.winner == 0) then
 				req.ready = true
 				reqTable.ready = TutorialsInternal.CheckRequirements(self, reqTable)
 				reqElement:kill()
@@ -1058,12 +1058,13 @@ end
 ---@param frames integer
 function Tutorials:playFrames(_, reqTable, frames)
 	local req = TutorialsInternal.AddRequirement("playframes", reqTable)
-	local currentFrame = get_world_state().match_frame
+	local ws = get_world_state()
+	local currentFrame = ws.match_frame
 	if (self.ReplayCache == true) then
 		set_replay_speed(self.ReplaySpeed)
 	else
 		frames = frames - 1
-		run_frames(frames - (get_world_state().replay_mode - 1))
+		run_frames(frames - (ws.replay_mode - 1))
 	end
 
 	local function checkFrame()

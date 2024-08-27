@@ -216,7 +216,7 @@ function Tooltip:spawnTooltipMain(frame, width, height, x, y)
 	end
 
 	tbTooltip:addCustomDisplay(true, function()
-			local ws = get_world_state()
+			local ws = UIElement.WorldState
 			if (ws.replay_mode == 1 or ws.match_frame ~= frame or TB_MENU_MAIN_ISOPEN == 1 or ws.selected_player < 0) then
 				Tooltip.Destroy()
 				return

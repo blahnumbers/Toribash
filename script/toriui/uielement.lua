@@ -313,6 +313,10 @@ if (not UIElement) then
 	---@type number
 	UIElement.clock = os.clock_real()
 
+	---World state for current frame
+	---@type WorldState
+	UIElement.WorldState = get_world_state()
+
 	---@class Vector2 : Vector2Base
 	Vector2 = {}
 	Vector2.__index = Vector2
@@ -1894,6 +1898,7 @@ function UIElement.drawHooks()
 	add_hook("draw2d", "__uiManager", function()
 		UIElement.lightUIMode = get_option("uilight") == 1
 		UIElement.clock = os.clock_real()
+		UIElement.WorldState = get_world_state()
 	end)
 	add_hook("resolution_changed", "__uiManager", function()
 		WIN_W, WIN_H = get_window_size()

@@ -22,13 +22,11 @@ end)
 add_hook("pre_draw", Replays.HookNameUI, function()
 	local hud = get_option('hud')
 	if (Replays.GameHud.hidden and not Replays.GameHud.manualHidden and not TUTORIAL_ISACTIVE) then
-		local ws = get_world_state()
-		if (ws.replay_mode > 0 and ws.game_type == 0 and (not is_mobile() or hud == 1)) then
+		if (UIElement.WorldState.replay_mode > 0 and UIElement.WorldState.game_type == 0 and (not is_mobile() or hud == 1)) then
 			Replays:toggleHud(true)
 		end
 	elseif (not Replays.GameHud.hidden and is_mobile() and hud == 0) then
-		local ws = get_world_state()
-		if (ws.replay_mode > 0) then
+		if (UIElement.WorldState.replay_mode > 0) then
 			Replays:toggleHud(false)
 		end
 	end
@@ -38,7 +36,7 @@ add_hook("resolution_changed", Replays.HookNameUI, function()
 end)
 add_hook("key_up", Replays.HookNameUI, function(key, code)
 	---Override default replay navigation to ensure hotkeys work same way UI buttons do
-	if (get_keyboard_ctrl() ~= 0 and get_world_state().game_type == 0 and Replays.GameHud ~= nil) then
+	if (get_keyboard_ctrl() ~= 0 and UIElement.WorldState.game_type == 0 and Replays.GameHud ~= nil) then
 		if (key == 93 or key == 125 or code == 48) then
 			Replays.GameHud.PlayQueue(1)
 			return 1

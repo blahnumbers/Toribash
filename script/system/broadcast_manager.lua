@@ -282,7 +282,7 @@ end
 function Broadcasts:addListener()
 	local clock = -60
 	add_hook("draw2d", self.HookName, function()
-			if (get_world_state().game_type == 0 and not TUTORIAL_ISACTIVE) then
+			if (UIElement.WorldState.game_type == 0 and not TUTORIAL_ISACTIVE) then
 				if (clock < UIElement.clock - 60) then
 					clock = UIElement.clock
 					Broadcasts:fetchBroadcast()

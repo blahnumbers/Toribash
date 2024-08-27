@@ -62,7 +62,7 @@ function ModsInternal.ButtonClick(file)
 		Mods.LastMenu = { time = clock, mod = file }
 	elseif (Mods.LastMenu.time + 0.5 > clock and Mods.LastMenu.mod == file) then
 		runCmd("loadmod " .. file)
-		if (Mods.StartNewGame and get_world_state().game_type == 1) then
+		if (Mods.StartNewGame and UIElement.WorldState.game_type == 1) then
 			runCmd("reset")
 		end
 	else
