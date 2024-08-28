@@ -4027,7 +4027,7 @@ function TBMenu:spawnSlider2(parent, rect, value, settings, sliderFunc, onMouseD
 	})
 	local sliderBackground = sliderHolder:addChild({
 		shift = settings.vertical and { rect.w / 2 - 3, settings.sliderRadius * 0.5 } or { settings.sliderRadius * 0.5, rect.h / 2 - 3 },
-		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 		shapeType = parent.shapeType,
 		rounded = parent.roundedInternal
 	})

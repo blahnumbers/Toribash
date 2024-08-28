@@ -1312,3 +1312,4 @@ SETTINGSPRESSKEYTOASSIGN	Press the key to assign
 SETTINGSREPLAYS	Replays
 REPLAYKEYFRAMEINTERPOLATION	Smoothing
 REPLAYKEYFRAMEFRAME	Frame
+CAMERAKEYFRAMESHINT	K - New Keyframe   ;   SHIFT + K - Clear Keyframes   ;   I - Enable Keyframe Recording

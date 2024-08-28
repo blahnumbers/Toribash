@@ -38,7 +38,7 @@ local ChatIgnoreInternal = {
 	BannedWords = {
 		---English
 		"nigg", "fuck", "cunt", "retard", "fag", "bitch", "pussy",
-		"dick", "cock", "rapist", "rape", "tranny",	"whore", "slut",
+		"dick", "cock", "rapist", "tranny",	"whore", "slut",
 		"chink",
 		---Russian
 		"пидop", "хyй", "пиздa", "нerp", "нигeр", "eбaть", "хуeв",
@@ -49,6 +49,7 @@ local ChatIgnoreInternal = {
 	BannedWholeWords = {
 		---English
 		"nga", "igga", "dyke", "kike", "coon",
+		"rape", "rapes", "raped", "raping",
 		---Portuguese
 		"puta", "tuga"
 	},

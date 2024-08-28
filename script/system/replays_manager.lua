@@ -3603,6 +3603,10 @@ function Replays:spawnReplayProgressSlider(viewElement)
 			end
 			keyframeButton:addMouseUpRightHandler(showKeyframeManage)
 		end
+		if (#keyframes > 0) then
+			set_hint_override(TB_MENU_LOCALIZED.CAMERAKEYFRAMESHINT)
+		end
+
 		slider:reload()
 		if (keyframeInfoViewHolder:isDisplayed()) then
 			keyframeInfoViewHolder:reload()
@@ -3611,18 +3615,21 @@ function Replays:spawnReplayProgressSlider(viewElement)
 	end
 	loadKeyframes(UIElement.WorldState)
 
-	local keyframeCountObserver = viewElement:addChild({
-		pos = { 0, 0 },
-		size = { 0, 0 }
-	})
-	keyframeCountObserver:addCustomDisplay(true, function()
+	local spawnTime = UIElement.WorldState.replay_mode == 0 and 0 or UIElement.clock
+	local hintShown = false
+	replayProgressHolder:addCustomDisplay(false, function()
 			if (get_camera_keyframes_count() ~= keyframesCount) then
 				loadKeyframes(UIElement.WorldState)
 			end
-		end)
-
-	replayProgressHolder:addCustomDisplay(false, function()
 			local worldstate = UIElement.WorldState
+			if (not hintShown and worldstate.replay_mode ~= 0) then
+				if (spawnTime == 0) then
+					spawnTime = UIElement.clock
+				elseif (UIElement.clock - spawnTime > 15) then
+					hintShown = true
+					set_hint_override(TB_MENU_LOCALIZED.CAMERAKEYFRAMESHINT)
+				end
+			end
 			if (slider.settings.maxValue ~= worldstate.game_frame + 98) then
 				Replays:spawnReplayAdvancedGui(true)
 				return
@@ -3956,6 +3963,7 @@ end
 ---@return ReplayHud?
 function Replays:spawnReplayAdvancedGui(reload)
 	if (not reload and self.GameHud ~= nil) then return nil end
+	set_hint_override()
 
 	local posX = is_mobile() and TBHud.DefaultButtonSize * 2.5 or math.max(65 * TB_MENU_GLOBAL_SCALE, WIN_W * 0.15 - 65 * TB_MENU_GLOBAL_SCALE)
 	local size = { math.min(1600, WIN_W - posX * 2), 65 * TB_MENU_GLOBAL_SCALE }
@@ -3994,7 +4002,7 @@ function Replays:spawnReplayAdvancedGui(reload)
 
 		---@param direction 1|-1
 		self.GameHud.PlayQueue = function(direction)
-			if (self.GameHud.queue == -1) then
+			if (self.GameHud.queue == nil or self.GameHud.queue == -1) then
 				if (direction == 1) then
 					play_next_replay()
 				else
@@ -4059,6 +4067,7 @@ function Replays:spawnReplayAdvancedGui(reload)
 						if (self.GameHudRight ~= nil) then
 							self.GameHudRight:hide()
 						end
+						set_hint_override()
 					end
 				else
 					if (self.GameHud.pos.y > WIN_H - targetHeightShift) then

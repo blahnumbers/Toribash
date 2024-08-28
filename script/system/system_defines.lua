@@ -3752,3 +3752,7 @@ function open_gamecenter_dashboard() end
 
 ---Display app rating prompt if it's available. *iOS only*.
 function request_app_review() end
+
+---Sets or removes an override for in-game hint message
+---@param message string|nil
+function set_hint_override(message) end
