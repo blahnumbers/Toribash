@@ -2892,7 +2892,8 @@ function save_custom_config() end
 ---| "trails"
 ---| "keyframes"
 ---| "ghostcache"
----| "replaycache"
+---| "replaycache" Target value for replay cache
+---| "sysreplaycache" Actual current state of replay cache, read-only
 ---| "bloodstainremove"
 ---| "chatcache"
 ---| "filesort"

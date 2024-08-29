@@ -1220,9 +1220,14 @@ function Settings:getSettingsData(id)
 						type = DROPDOWN,
 						systemname = "replaycache",
 						selectedAction = function()
-								return get_option("replaycache") + 1
+								local replaycache, sysreplaycache = get_option("replaycache"), get_option("sysreplaycache")
+								return sysreplaycache + (replaycache == sysreplaycache and 2 or 1)
 							end,
 						dropdown = {
+							{
+								text = TB_MENU_LOCALIZED.SETTINGSDISABLEDREPLAYCACHEMEMORY,
+								hidden = true
+							},
 							{
 								text = TB_MENU_LOCALIZED.SETTINGSDISABLED,
 								action = function()
