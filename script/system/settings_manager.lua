@@ -2033,6 +2033,8 @@ function Settings:showSettings(id, keepStoredSettings)
 			save_custom_config()
 			if (reload) then
 				reload_graphics()
+			else
+				Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
 			end
 		end)
 	Settings.ApplyButton:deactivate(true)

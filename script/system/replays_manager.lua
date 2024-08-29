@@ -3830,13 +3830,13 @@ function Replays:spawnReplaySpeedSlider(viewElement)
 		minValueDisp = -1.5,
 		decimal = 2,
 		sliderRadius = 20,
-		textWidth = 30,
+		textWidth = is_mobile() and 16 or 30,
 		showLabelOnHover = true,
 		vertical = is_mobile()
 	}
 	local sliderRect = sliderSettings.vertical and {
-		x = 5, y = replaySpeedHolder.size.w + 5,
-		w = replaySpeedHolder.size.w - 10, h = replaySpeedHolder.size.h - replaySpeedHolder.size.w - 10
+		x = 5, y = replaySpeedHolder.size.w,
+		w = replaySpeedHolder.size.w - 10, h = replaySpeedHolder.size.h - replaySpeedHolder.size.w - 5
 	} or {
 		x = 15, y = 25,
 		w = replaySpeedHolder.size.w - 30, h = replaySpeedHolder.size.h - 25
@@ -3974,7 +3974,7 @@ function Replays:spawnReplayAdvancedGui(reload)
 
 	local targetHeightShift = size[2] + math.max(SAFE_Y, 35)
 
-	local posYRight = is_mobile() and TBHud.DefaultButtonSize or 0
+	local posYRight = is_mobile() and TBHud.DefaultButtonSize * 1.2 or 0
 	local sizeRight = is_mobile() and (WIN_H - posYRight - TBHud.DefaultButtonSize * 2.5) or 0
 	local targetRightShift = size[2] + math.max(SAFE_X, 15)
 
