@@ -11,7 +11,11 @@ require("system.menu_manager")
 require("system.replays_manager")
 
 TBMenu.ReplaySaveOverlay = TBMenu:spawnWindowOverlay(TB_MENU_HUB_GLOBALID)
+local defaultKillAction = TBMenu.ReplaySaveOverlay.killAction
 TBMenu.ReplaySaveOverlay.killAction = function()
+	if (defaultKillAction ~= nil) then
+		defaultKillAction()
+	end
 	TBMenu.ReplaySaveOverlay = nil
 	enable_camera_movement()
 end

@@ -2960,6 +2960,9 @@ function Replays:showReplayCommentList(listingHolder, listingView, toReload, ele
 				UIScrollbarIgnore = true
 			end
 		end)
+	listingView.killAction = function()
+		UIScrollbarIgnore = false
+	end
 end
 
 ---Fetches comments for the specified replay and shows them in a separate window when ready
