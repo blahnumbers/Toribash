@@ -1317,6 +1317,7 @@ end
 function QueueList.Init()
 	QueueList.ResetCache()
 	QueueList.Reload()
+	QueueList.PopupWidth = math.min(WIN_W * 0.22, 450)
 end
 
 ---Destroys or reloads QueueList based on current `hud` option value
@@ -1335,6 +1336,3 @@ add_hook("bout_update", QueueList.HookName, QueueList.Reload)
 add_hook("spec_update", QueueList.HookName, QueueList.Reload)
 add_hook("resolution_changed", QueueList.HookName, QueueList.Init)
 add_hook("pre_draw", QueueList.HookName, QueueList.UpdateVisibility)
-add_hook("resolution_changed", QueueList.HookName, function()
-	QueueList.PopupWidth = math.min(WIN_W * 0.22, 450)
-end)
