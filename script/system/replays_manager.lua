@@ -3625,7 +3625,7 @@ function Replays:spawnReplayProgressSlider(viewElement)
 				loadKeyframes(UIElement.WorldState)
 			end
 			local worldstate = UIElement.WorldState
-			if (not hintShown and worldstate.replay_mode ~= 0) then
+			if (not hintShown and worldstate.replay_mode ~= 0 and worldstate.game_type == 0) then
 				if (spawnTime == 0) then
 					spawnTime = UIElement.clock
 				elseif (UIElement.clock - spawnTime > 15) then
