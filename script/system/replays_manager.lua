@@ -4070,7 +4070,6 @@ function Replays:spawnReplayAdvancedGui(reload)
 						if (self.GameHudRight ~= nil) then
 							self.GameHudRight:hide()
 						end
-						set_hint_override()
 					end
 				else
 					if (self.GameHud.pos.y > WIN_H - targetHeightShift) then
@@ -4168,6 +4167,8 @@ function Replays:toggleHud(mode)
 		if (self.GameHudRight ~= nil) then
 			self.GameHudRight:show()
 		end
+	else
+		set_hint_override()
 	end
 end
 

@@ -4106,8 +4106,8 @@ function TBMenu:spawnSlider2(parent, rect, value, settings, sliderFunc, onMouseD
 				onMouseDown()
 			end
 		end, function()
+			enable_mouse_camera_movement()
 			if (slider.hoverState ~= BTN_NONE) then
-				enable_mouse_camera_movement()
 				sliderLabelOutClock = UIElement.clock
 				if (onMouseUp) then
 					onMouseUp()
@@ -4161,8 +4161,12 @@ function TBMenu:spawnSlider2(parent, rect, value, settings, sliderFunc, onMouseD
 				end
 				slider.lastVal = val
 			end
+		end, nil, function()
+			enable_mouse_camera_movement()
+			if (onMouseUp) then
+				onMouseUp()
+			end
 		end)
-	slider:addMouseUpOutsideHandler(slider.btnUp)
 	slider.setValue = function(val, updateLabel)
 		val = math.clamp(val, settings.minValue, settings.maxValue)
 		local percentage = (val - settings.minValue) / (settings.maxValue - settings.minValue)
