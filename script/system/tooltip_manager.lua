@@ -7,6 +7,9 @@ if (Tooltip == nil) then
 
 	---Advanced tooltip manager class
 	---
+	---**Version 5.70**
+	---* Use a cached WorldState value instead of additional direct calls to get_world_state()
+	---
 	---**Version 5.61**
 	---* Added **TooltipInternal** class to use for fields we don't want exposed
 	---* Added optional event callbacks for mobile controls
@@ -36,13 +39,13 @@ if (Tooltip == nil) then
 		IsActive = false,
 		IsDisplayed = false,
 		IsTouchCommitted = true,
-		HookName = "tbSystemTooltip",
+		HookName = "__tbTooltipManager",
 		FractureColor = { 0.44, 0.41, 1, 1 },
 		DismemberColor = { 1, 0, 0, 1 },
 		BackgroundColor = table.clone(bgColor),
 		TouchInputDelay = 0.1,
 		TouchInputGrowDuration = 0.1,
-		version = 5.61
+		ver = 5.70
 	}
 	Tooltip.__index = Tooltip
 
@@ -51,7 +54,7 @@ if (Tooltip == nil) then
 		pos = { 0, 0 },
 		size = { 0, 0 }
 	})
-	Tooltip.HolderElement:addCustomDisplay(true, function() end)
+	Tooltip.HolderElement:addCustomDisplay(true, function() Tooltip.WorldState = UIElement.WorldState end)
 end
 
 ---@alias TooltipJointNone
@@ -133,7 +136,14 @@ function Tooltip.Init()
 
 	remove_hooks(Tooltip.HookName)
 	add_hook("joint_select", Tooltip.HookName, function(player, joint)
-			if (players_accept_input() == false or STORE_VANILLA_PREVIEW) then return end
+			if (STORE_VANILLA_PREVIEW) then return end
+			local _, crush = pcall(function()
+					if (is_mobile() or joint < 0 or player < 0) then
+						return false
+					end
+					return get_joint_dismember(player, joint) or get_joint_fracture(player, joint)
+				end)
+			if (players_accept_input() == false and not crush) then return end
 			local discard = Tooltip:showTooltipJoint(player, joint)
 			if (is_mobile()) then
 				Tooltip.EnableFocusCam()
@@ -156,9 +166,9 @@ function Tooltip.Init()
 						return
 				end
 
-				local ws = get_world_state()
-				TooltipInternal.TouchInputTargetPlayer = ws.selected_player
-				TooltipInternal.TouchInputTargetJoint = ws.selected_joint
+				Tooltip.WorldState = get_world_state()
+				TooltipInternal.TouchInputTargetPlayer = Tooltip.WorldState.selected_player
+				TooltipInternal.TouchInputTargetJoint = Tooltip.WorldState.selected_joint
 				Tooltip:showTouchControls()
 			end)
 		add_hook("mouse_button_up", Tooltip.HookName, function()
@@ -201,12 +211,12 @@ end
 ---@param y integer
 ---@return UIElement
 function Tooltip:spawnTooltipMain(frame, width, height, x, y)
-	local tbTooltip = Tooltip.HolderElement:addChild({
+	local tbTooltip = self.HolderElement:addChild({
 		pos = { x + 15, y - 5 },
 		size = { width, height }
 	})
-	tbTooltip.killAction = function() Tooltip.IsDisplayed = false end
-	Tooltip.IsDisplayed = true
+	tbTooltip.killAction = function() self.IsDisplayed = false end
+	self.IsDisplayed = true
 
 	if (tbTooltip.pos.x + tbTooltip.size.w > WIN_W - 10) then
 		tbTooltip:moveTo(WIN_W - 10 - tbTooltip.size.w)
@@ -216,9 +226,11 @@ function Tooltip:spawnTooltipMain(frame, width, height, x, y)
 	end
 
 	tbTooltip:addCustomDisplay(true, function()
-			local ws = UIElement.WorldState
-			if (ws.replay_mode == 1 or ws.match_frame ~= frame or TB_MENU_MAIN_ISOPEN == 1 or ws.selected_player < 0) then
-				Tooltip.Destroy()
+			if (self.WorldState.replay_mode == 1 or
+				self.WorldState.match_frame ~= frame or
+				self.WorldState.selected_player < 0 or
+				TB_MENU_MAIN_ISOPEN == 1) then
+				self.Destroy()
 				return
 			end
 		end)
@@ -230,60 +242,59 @@ end
 ---@param player integer Player id
 ---@param body integer Body id
 function Tooltip:showTooltipBody(player, body)
-	Tooltip.DestroyAndDeselect()
+	self.DestroyAndDeselect()
 
-	local worldstate = get_world_state()
-	if (worldstate.replay_mode == 1) then
+	self.WorldState = get_world_state()
+	if (self.WorldState.replay_mode == 1 or body < 0 or body >= 21) then
 		return
 	end
-	if (body > -1 and body < 21) then
-		local bodyInfo = get_body_info(player, body)
-		bodyInfo.name = bodyInfo.name:gsub("^R_", "RIGHT "):gsub("^L_", "LEFT ")
 
-		local height = (body == 11 or body == 12) and 70 or 40
-		local width = get_string_length(bodyInfo.name, FONTS.MEDIUM) + 20
-		width = width < 200 and 200 or width
-		local heightMod = (body == 11 or body == 12) and 3 or 2
+	local bodyInfo = get_body_info(player, body)
+	bodyInfo.name = bodyInfo.name:gsub("^R_", "RIGHT "):gsub("^L_", "LEFT ")
 
-		local tbTooltip = Tooltip:spawnTooltipMain(worldstate.match_frame, width, height, get_body_screen_pos(player, body))
-		local tbTooltipOutline = tbTooltip:addChild({
-			bgColor = { 1, 1, 1, 0.4 },
-			shapeType = ROUNDED,
-			rounded = 4
+	local height = (body == 11 or body == 12) and 70 or 40
+	local width = get_string_length(bodyInfo.name, FONTS.MEDIUM) + 20
+	width = width < 200 and 200 or width
+	local heightMod = (body == 11 or body == 12) and 3 or 2
+
+	local tbTooltip = self:spawnTooltipMain(self.WorldState.match_frame, width, height, get_body_screen_pos(player, body))
+	local tbTooltipOutline = tbTooltip:addChild({
+		bgColor = { 1, 1, 1, 0.4 },
+		shapeType = ROUNDED,
+		rounded = 4
+	})
+	local tbTooltipView = tbTooltipOutline:addChild({
+		shift = { 1, 1 },
+		bgColor = self.BackgroundColor
+	}, true)
+	local jointTooltipName = tbTooltipView:addChild({
+		pos = { 10, 5 },
+		size = { tbTooltipView.size.w - 20, tbTooltipView.size.h / heightMod * 2 - 10 }
+	})
+	jointTooltipName:addAdaptedText(true, bodyInfo.name, nil, nil, nil, LEFTMID)
+
+	if (body == 11 or body == 12) then
+		self.GrabDisplayActive = true
+		local jointTooltipState = tbTooltipView:addChild({
+			pos = { tbTooltipView.size.h / 3 + 10, jointTooltipName.shift.y + jointTooltipName.size.h },
+			size = { tbTooltipView.size.w - tbTooltipView.size.h / 3 - 25, tbTooltipView.size.h / 3 - 5 }
 		})
-		local tbTooltipView = tbTooltipOutline:addChild({
-			shift = { 1, 1 },
-			bgColor = Tooltip.BackgroundColor
-		}, true)
-		local jointTooltipName = tbTooltipView:addChild({
-			pos = { 10, 5 },
-			size = { tbTooltipView.size.w - 20, tbTooltipView.size.h / heightMod * 2 - 10 }
-		})
-		jointTooltipName:addAdaptedText(true, bodyInfo.name, nil, nil, nil, LEFTMID)
-
-		if (body == 11 or body == 12) then
-			Tooltip.GrabDisplayActive = true
-			local jointTooltipState = tbTooltipView:addChild({
-				pos = { tbTooltipView.size.h / 3 + 10, jointTooltipName.shift.y + jointTooltipName.size.h },
-				size = { tbTooltipView.size.w - tbTooltipView.size.h / 3 - 25, tbTooltipView.size.h / 3 - 5 }
-			})
-			local function drawGrabState(state)
-				set_color(0.9, 0.9, 0.9, 1)
-				if (state == 0) then
-					draw_quad(tbTooltipView.pos.x + 10, jointTooltipState.pos.y, tbTooltipView.size.h / 3 - 5, tbTooltipView.size.h / 3 - 5)
-				else
-					draw_quad(tbTooltipView.pos.x + 10, jointTooltipState.pos.y + tbTooltip.size.h / 12, tbTooltipView.size.h / 3 - 5, tbTooltipView.size.h / 9)
-					set_color(0, 1, 0, 1)
-					draw_disk(tbTooltipView.pos.x + 10 + jointTooltipState.size.h / 6 * 5, jointTooltipState.pos.y + jointTooltipState.size.h / 3 * 2, 0, jointTooltipState.size.h / 3, 20, 1, 0, 360, 1)
-				end
+		local function drawGrabState(state)
+			set_color(0.9, 0.9, 0.9, 1)
+			if (state == 0) then
+				draw_quad(tbTooltipView.pos.x + 10, jointTooltipState.pos.y, tbTooltipView.size.h / 3 - 5, tbTooltipView.size.h / 3 - 5)
+			else
+				draw_quad(tbTooltipView.pos.x + 10, jointTooltipState.pos.y + tbTooltip.size.h / 12, tbTooltipView.size.h / 3 - 5, tbTooltipView.size.h / 9)
+				set_color(0, 1, 0, 1)
+				draw_disk(tbTooltipView.pos.x + 10 + jointTooltipState.size.h / 6 * 5, jointTooltipState.pos.y + jointTooltipState.size.h / 3 * 2, 0, jointTooltipState.size.h / 3, 20, 1, 0, 360, 1)
 			end
-
-			jointTooltipState:addCustomDisplay(true, function()
-					local grab = get_grip_info(player, body)
-					drawGrabState(grab)
-					jointTooltipState:uiText(grab == 0 and "UNGRABBING" or "GRABBING", nil, nil, 4, LEFTMID, 0.7)
-				end)
 		end
+
+		jointTooltipState:addCustomDisplay(true, function()
+				local grab = get_grip_info(player, body)
+				drawGrabState(grab)
+				jointTooltipState:uiText(grab == 0 and "UNGRABBING" or "GRABBING", nil, nil, 4, LEFTMID, 0.7)
+			end)
 	end
 end
 
@@ -292,124 +303,125 @@ end
 ---@param joint integer Joint id
 ---@return integer
 function Tooltip:showTooltipJoint(player, joint)
-	if (Tooltip.GrabDisplayActive) then
+	if (self.GrabDisplayActive) then
 		return 0
 	end
 	if (TooltipInternal.TouchInputPosition ~= nil) then
 		return 1
 	end
-	Tooltip.Destroy()
+	self.Destroy()
 
-	local worldstate = get_world_state()
-	if (worldstate.replay_mode == 1) then
+	self.WorldState = get_world_state()
+	if (self.WorldState.replay_mode == 1 or
+		joint < 0 or joint >= 20 or
+		not self.IsActive or
+		get_option("tooltip") == 0) then
 		return 0
 	end
-	if (joint > -1 and joint < 20) then
-		if (get_option("tooltip") == 0 or not Tooltip.IsActive) then
-			return 0
-		end
 
-		local jointInfo = get_joint_info(player, joint)
-		local width = get_string_length(jointInfo.name, FONTS.MEDIUM) + 20
-		width = width < 200 and 200 or width
+	local jointInfo = get_joint_info(player, joint)
+	local width = get_string_length(jointInfo.name, FONTS.MEDIUM) + 20
+	width = width < 200 and 200 or width
 
-		local tbTooltip = Tooltip:spawnTooltipMain(worldstate.match_frame, width, 70, get_joint_screen_pos(player, joint))
-		local tbTooltipOutline = tbTooltip:addChild({
-			bgColor = { 1, 1, 1, 0.4 },
-			shapeType = ROUNDED,
-			rounded = 4
-		})
-		local tbTooltipView = tbTooltipOutline:addChild({
-			shift = { 1, 1 },
-			bgColor = Tooltip.BackgroundColor
-		}, true)
-		local jointTooltipName = tbTooltipView:addChild({
-			pos = { 10, 5 },
-			size = { tbTooltipView.size.w - 20, tbTooltipView.size.h / 3 * 2 - 10 }
-		})
-		jointTooltipName:addAdaptedText(true, jointInfo.name, nil, nil, nil, LEFTMID)
+	local tbTooltip = self:spawnTooltipMain(self.WorldState.match_frame, width, 70, get_joint_screen_pos(player, joint))
+	local tbTooltipOutline = tbTooltip:addChild({
+		bgColor = { 1, 1, 1, 0.4 },
+		shapeType = ROUNDED,
+		rounded = 4
+	})
+	local tbTooltipView = tbTooltipOutline:addChild({
+		shift = { 1, 1 },
+		bgColor = self.BackgroundColor
+	}, true)
+	local jointTooltipName = tbTooltipView:addChild({
+		pos = { 10, 5 },
+		size = { tbTooltipView.size.w - 20, tbTooltipView.size.h / 3 * 2 - 10 }
+	})
+	jointTooltipName:addAdaptedText(true, jointInfo.name, nil, nil, nil, LEFTMID)
 
-		local jointTooltipState = tbTooltipView:addChild({
-			pos = { tbTooltipView.size.h / 3 + 10, jointTooltipName.shift.y + jointTooltipName.size.h },
-			size = { tbTooltipView.size.w - tbTooltipView.size.h / 3 - 25, tbTooltipView.size.h / 3 - 5 }
-		})
-		local function drawDismembered()
-			set_color(unpack(Tooltip.DismemberColor))
-			draw_disk(tbTooltipView.pos.x + 10 + jointTooltipState.size.h / 2, jointTooltipState.pos.y + jointTooltipState.size.h / 2, 0, jointTooltipState.size.h / 2, 20, 1, 0, 360, 0)
-		end
-		local function drawFractured()
-			set_color(unpack(Tooltip.FractureColor))
-			draw_disk(tbTooltipView.pos.x + 10 + jointTooltipState.size.h / 2, jointTooltipState.pos.y + jointTooltipState.size.h / 2, 0, jointTooltipState.size.h / 2, 20, 1, 0, 360, 0)
-		end
-
-		local force, relax = get_joint_colors(player, joint)
-		if (force == 0) then
-			force = 23
-		end
-		if (relax == 0) then
-			relax = 21
-		end
-		local forceColor = get_color_rgba(force)
-		local relaxColor = get_color_rgba(relax)
-
-		local function drawJointState(state)
-			if (state ~= 3) then
-				set_color(unpack(relaxColor))
-				draw_disk(tbTooltipView.pos.x + 10 + jointTooltipState.size.h / 2, jointTooltipState.pos.y + jointTooltipState.size.h / 2, 0, jointTooltipState.size.h / 3, 20, 1, 0, 360, 0)
-				if (state == 4) then
-					return
-				end
-			end
-			local rotation = 0
-			local scale = 360
-			if (state == 1) then
-				rotation = 40
-				scale = 180
-			elseif (state == 2) then
-				rotation = 220
-				scale = 180
-			end
-			set_color(unpack(forceColor))
-			draw_disk(tbTooltipView.pos.x + 10 + jointTooltipState.size.h / 2, jointTooltipState.pos.y + jointTooltipState.size.h / 2, 0, jointTooltipState.size.h / 2 - 0.5, 20, 1, rotation, scale, 0)
-		end
-		jointTooltipState:addCustomDisplay(true, function()
-				-- Getting full joint state
-				local dismembered = get_joint_dismember(player, joint)
-				if (dismembered) then
-					drawDismembered()
-					jointTooltipState:uiText(TB_MENU_LOCALIZED.TOOLTIPDISMEMBERED, nil, nil, 4, LEFTMID, 0.7, nil, 0.2, nil, UICOLORRED)
-					return
-				end
-				local fractured = get_joint_fracture(player, joint)
-				if (fractured) then
-					drawFractured()
-					jointTooltipState:uiText(TB_MENU_LOCALIZED.TOOLTIPFRACTURED, nil, nil, 4, LEFTMID, 0.7, nil, 0.2, nil, UICOLORBLUE)
-					return
-				end
-				local jInfo = get_joint_info(player, joint)
-				drawJointState(jInfo.state)
-				jointTooltipState:uiText(jInfo.screen_state, nil, nil, 4, LEFTMID, 0.7)
-			end)
-		return 1
+	local jointTooltipState = tbTooltipView:addChild({
+		pos = { tbTooltipView.size.h / 3 + 10, jointTooltipName.shift.y + jointTooltipName.size.h },
+		size = { tbTooltipView.size.w - tbTooltipView.size.h / 3 - 25, tbTooltipView.size.h / 3 - 5 }
+	})
+	local function drawDismembered()
+		set_color(self.DismemberColor[1], self.DismemberColor[2], self.DismemberColor[3], self.DismemberColor[4])
+		draw_disk(tbTooltipView.pos.x + 10 + jointTooltipState.size.h / 2, jointTooltipState.pos.y + jointTooltipState.size.h / 2, 0, jointTooltipState.size.h / 2, 20, 1, 0, 360, 0)
+	end
+	local function drawFractured()
+		set_color(self.FractureColor[1], self.FractureColor[2], self.FractureColor[3], self.FractureColor[4])
+		draw_disk(tbTooltipView.pos.x + 10 + jointTooltipState.size.h / 2, jointTooltipState.pos.y + jointTooltipState.size.h / 2, 0, jointTooltipState.size.h / 2, 20, 1, 0, 360, 0)
 	end
 
-	return 0
+	local force, relax = get_joint_colors(player, joint)
+	if (force == 0) then
+		force = 23
+	end
+	if (relax == 0) then
+		relax = 21
+	end
+	local forceColor = get_color_rgba(force)
+	local relaxColor = get_color_rgba(relax)
+
+	local function drawJointState(state)
+		if (state ~= 3) then
+			set_color(relaxColor[1], relaxColor[2], relaxColor[3], relaxColor[4])
+			draw_disk(tbTooltipView.pos.x + 10 + jointTooltipState.size.h / 2, jointTooltipState.pos.y + jointTooltipState.size.h / 2, 0, jointTooltipState.size.h / 3, 20, 1, 0, 360, 0)
+			if (state == 4) then
+				return
+			end
+		end
+		local rotation = 0
+		local scale = 360
+		if (state == 1) then
+			rotation = 40
+			scale = 180
+		elseif (state == 2) then
+			rotation = 220
+			scale = 180
+		end
+		set_color(forceColor[1], forceColor[2], forceColor[3], forceColor[4])
+		draw_disk(tbTooltipView.pos.x + 10 + jointTooltipState.size.h / 2, jointTooltipState.pos.y + jointTooltipState.size.h / 2, 0, jointTooltipState.size.h / 2 - 0.5, 20, 1, rotation, scale, 0)
+	end
+	local _, crush = pcall(function() return get_joint_dismember(player, joint) end)
+	if (crush) then
+		local crushText = utf8.upper(TB_MENU_LOCALIZED.TOOLTIPDISMEMBERED)
+		jointTooltipState:addCustomDisplay(true, function()
+			drawDismembered()
+			jointTooltipState:uiText(crushText, nil, nil, 4, LEFTMID, 0.7, nil, 0.2, nil, UICOLORRED)
+		end)
+		return 1
+	end
+	_, crush = pcall(function() return get_joint_fracture(player, joint) end)
+	if (crush) then
+		local crushText = utf8.upper(TB_MENU_LOCALIZED.TOOLTIPFRACTURED)
+		jointTooltipState:addCustomDisplay(true, function()
+			drawFractured()
+			jointTooltipState:uiText(crushText, nil, nil, 4, LEFTMID, 0.7, nil, 0.2, nil, UICOLORRED)
+		end)
+		return 1
+	end
+	jointTooltipState:addCustomDisplay(true, function()
+			local jInfo = get_joint_info(player, joint)
+			drawJointState(jInfo.state)
+			jointTooltipState:uiText(jInfo.screen_state, nil, nil, 4, LEFTMID, 0.7)
+		end)
+	return 1
 end
 
 ---Displays touch controls wheel
 function Tooltip:showTouchControls()
-	if (get_world_state().replay_mode == 1) then
-		Tooltip.TouchDeselect()
+	if (self.WorldState.replay_mode == 1) then
+		self.TouchDeselect()
 	end
-	if (Tooltip.GrabDisplayActive or TooltipInternal.TouchInputTargetPlayer < 0 or TooltipInternal.TouchInputTargetJoint < 0 or TooltipInternal.TouchInputTargetJoint >= 20) then
+	if (self.GrabDisplayActive or TooltipInternal.TouchInputTargetPlayer < 0 or TooltipInternal.TouchInputTargetJoint < 0 or TooltipInternal.TouchInputTargetJoint >= 20) then
 		return
 	end
-	Tooltip.Destroy()
-	Tooltip.IsTouchCommitted = false
+	self.Destroy()
+	self.IsTouchCommitted = false
 
 	local wheelMode = get_option("tooltipmode")
 	if (wheelMode == 3) then
-		Tooltip.SetTouchJointState()
+		self.SetTouchJointState()
 		return
 	end
 
@@ -419,7 +431,7 @@ function Tooltip:showTouchControls()
 		x = jointPos[1],
 		y = jointPos[2]
 	}
-	local touchControlsHolder = Tooltip.HolderElement:addChild({
+	local touchControlsHolder = self.HolderElement:addChild({
 		pos = { jointPos[1] - 75, jointPos[2] - 75 },
 		size = { 150, 150 }
 	})
@@ -484,7 +496,7 @@ function Tooltip:showTouchControls()
 				TooltipInternal.WaitForTouchInput = true
 				return
 			end
-			if (UIElement.clock - touchControlsHolder.pressTimer < Tooltip.TouchInputDelay) then
+			if (UIElement.clock - touchControlsHolder.pressTimer < self.TouchInputDelay) then
 				return
 			end
 			if (touchControlsHolder.firstPlay) then
@@ -492,7 +504,7 @@ function Tooltip:showTouchControls()
 				play_haptics(0.2, HAPTICS.IMPACT)
 			end
 
-			local ratio = (UIElement.clock - touchControlsHolder.pressTimer - Tooltip.TouchInputDelay) / Tooltip.TouchInputGrowDuration
+			local ratio = (UIElement.clock - touchControlsHolder.pressTimer - self.TouchInputDelay) / self.TouchInputGrowDuration
 			local tweenRatio = UITween.SineEaseIn(ratio)
 			touchControlsVisual.size.w = touchControlsHolder.size.w * tweenRatio
 			touchControlsVisual.size.h = touchControlsVisual.size.w
@@ -544,7 +556,7 @@ function Tooltip:showTouchControls()
 				draw_disk(centerPoint.x, centerPoint.y, ringStartSize, ringSize, 0, 1, 276, 168, 0) -- bottom
 			end
 
-			local mouseDelta = Tooltip:getTouchMouseDelta()
+			local mouseDelta = self:getTouchMouseDelta()
 			local selectionAngle = 90
 			if (wheelMode == 1) then
 				mouseDelta.y = 0
@@ -554,7 +566,7 @@ function Tooltip:showTouchControls()
 				selectionAngle = 180
 			end
 
-			set_color(unpack(TB_MENU_DEFAULT_DARKER_COLOR))
+			set_color(TB_MENU_DEFAULT_DARKER_COLOR[1], TB_MENU_DEFAULT_DARKER_COLOR[2], TB_MENU_DEFAULT_DARKER_COLOR[3], TB_MENU_DEFAULT_DARKER_COLOR[4])
 			local targetJointState = lastJointState
 			if (mouseDelta.x ~= 0 or mouseDelta.y ~= 0) then
 				if (math.abs(mouseDelta.x) > math.abs(mouseDelta.y)) then

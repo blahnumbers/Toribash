@@ -188,44 +188,48 @@ if (not UIElement) then
 	---@field bgGradient Color[] List of two colors to generate gradient with
 	---@field bgGradientMode PlayerBody Toribash bodypart id to base gradient UV on
 
-	-- **Toribash GUI elements manager class**
-	--
-	-- **Version 5.65:**
-	-- * Added `UIElement.onShow` callback function to execute at the end of `UIElement.show()` call
-	-- * `UIElement.killAction` and `UIElement.onShow` are now wrapped into pcall() to ensure default behavior proceeds uninterrupted in case of error
-	-- * Marked `UIElement.killAction` and `UIElement.onShow` as nullable
-	--
-	-- **Version 5.62:**
-	-- * `UIElement.bgImageDefault` boolean value to tell which texture was loaded during `UIElement.updateImage()` call
-	--
-	-- **Version 5.61:**
-	-- * On-screen keyboard customization support for text fields
-	--
-	-- **Version 5.60:**
-	-- * Rewritten all keyboard handlers to make better use of SDL text input events
-	-- * `UIElement.keyboardHooks()` to initialize generic text field handlers on start
-	-- * `UIElement.mouseHooks()` is now an abstract class function
-	-- * `print` and `print_r` functions for easier debug
-	-- * Gradient generation support for generated UIElements
-	--
-	-- **Version 1.6:**
-	-- * `hoverThrough` support
-	-- * `UIElement.clock` value to store last graphics update time tick
-	-- * Use UITween class for framerate independent animations
-	--
-	-- **Version 1.5:**
-	-- * `imageHoverColor` and `imagePressedColor` support
-	-- * `UIElement:qsort()`, `UIElement:runCmd()` marked as deprecated
-	-- * New `table.qsort()`, `table.reverse()`, `table.clone()`, `table.compare()`, `table.empty()`, `table.unpack_all()` functions to replace legacy names
-	-- * New `string.escape()` to replace legacy strEsc() function
-	-- * Guid() is now `generate_uid()` to prevent confusion with a potential class name
-	-- * debugEcho() is now `print_r(mixed data, boolean returnString)`
-	--
-	-- **Version 1.4:**
-	-- * `UIElement:mouseHooks()` is now initialized when this script is loaded to ensure it isn't required in every script that requires UIElements
-	-- * Moved scrollable list update on mouse bar scroll from mouse_move hook to pre_draw for better performance
-	-- * Different top/bottom rounding support and `roundedInternal` UIElement field
-	-- * Added EmmyLua annotations for some methods
+	---**Toribash GUI elements manager class**
+	---
+	---**Version 5.70**
+	---* Keep a cached copy of `get_world_state()` result in `UIElement.WorldState` to reduce direct calls
+	---* Do not use unpack() on colors for set_color() calls to slightly improve performance
+	---
+	---**Version 5.65:**
+	---* Added `UIElement.onShow` callback function to execute at the end of `UIElement.show()` call
+	---* `UIElement.killAction` and `UIElement.onShow` are now wrapped into pcall() to ensure default behavior proceeds uninterrupted in case of error
+	---* Marked `UIElement.killAction` and `UIElement.onShow` as nullable
+	---
+	---**Version 5.62:**
+	---* `UIElement.bgImageDefault` boolean value to tell which texture was loaded during `UIElement.updateImage()` call
+	---
+	---**Version 5.61:**
+	---* On-screen keyboard customization support for text fields
+	---
+	---**Version 5.60:**
+	---* Rewritten all keyboard handlers to make better use of SDL text input events
+	---* `UIElement.keyboardHooks()` to initialize generic text field handlers on start
+	---* `UIElement.mouseHooks()` is now an abstract class function
+	---* `print` and `print_r` functions for easier debug
+	---* Gradient generation support for generated UIElements
+	---
+	---**Version 1.6:**
+	---* `hoverThrough` support
+	---* `UIElement.clock` value to store last graphics update time tick
+	---* Use UITween class for framerate independent animations
+	---
+	---**Version 1.5:**
+	---* `imageHoverColor` and `imagePressedColor` support
+	---* `UIElement:qsort()`, `UIElement:runCmd()` marked as deprecated
+	---* New `table.qsort()`, `table.reverse()`, `table.clone()`, `table.compare()`, `table.empty()`, `table.unpack_all()` functions to replace legacy names
+	---* New `string.escape()` to replace legacy strEsc() function
+	---* Guid() is now `generate_uid()` to prevent confusion with a potential class name
+	---* debugEcho() is now `print_r(mixed data, boolean returnString)`
+	---
+	---**Version 1.4:**
+	---* `UIElement:mouseHooks()` is now initialized when this script is loaded to ensure it isn't required in every script that requires UIElements
+	---* Moved scrollable list update on mouse bar scroll from mouse_move hook to pre_draw for better performance
+	---* Different top/bottom rounding support and `roundedInternal` UIElement field
+	---* Added EmmyLua annotations for some methods
 	---@class UIElement
 	---@field lightUIMode boolean Disables animations and some unimportant effects to improve GUI performance on lower end machines, this is based on `uilight` option
 	---@field globalid integer Global ID to use for UIElement internal update / display loops
@@ -290,7 +294,7 @@ if (not UIElement) then
 	---@field prevInput UIElement Previous input element, set with `UIElement.addTabSwitchPrev()`
 	---@field nextInput UIElement Next input element, set with `UIElement.addTabSwitch()`
 	UIElement = {
-		ver = 5.65,
+		ver = 5.70,
 		animationDuration = 0.1,
 		longPressDuration = 0.25,
 		lightUIMode = get_option("uilight") == 1
@@ -1376,7 +1380,7 @@ function UIElement:display()
 
 	if (not self.customDisplayOnly and (self.bgColor[4] > 0 or self.bgImage or self.interactive)) then
 		if (self.innerShadow[1] > 0 or self.innerShadow[2] > 0) then
-			set_color(unpack(self.shadowColor[1]))
+			set_color(self.shadowColor[1][1], self.shadowColor[1][2], self.shadowColor[1][3], self.shadowColor[1][4])
 			if (self.shapeType == ROUNDED) then
 				draw_disk(self.pos.x + self.roundedInternal[1], self.pos.y + self.roundedInternal[1], 0, self.roundedInternal[1], self.diskSlices, 1, -180, 90, 0)
 				draw_disk(self.pos.x + self.size.w - self.roundedInternal[1], self.pos.y + self.roundedInternal[1], 0, self.roundedInternal[1], self.diskSlices, 1, 90, 90, 0)
@@ -1387,7 +1391,7 @@ function UIElement:display()
 					draw_quad(self.pos.x + self.roundedInternal[1], self.pos.y, self.size.w - self.roundedInternal[1] * 2, self.roundedInternal[1])
 					draw_quad(self.pos.x, self.pos.y + self.roundedInternal[1], self.size.w, self.size.h / 2 - self.roundedInternal[1])
 				end
-				set_color(unpack(self.shadowColor[2]))
+				set_color(self.shadowColor[2][1], self.shadowColor[2][2], self.shadowColor[2][3], self.shadowColor[2][4])
 				draw_disk(self.pos.x + self.roundedInternal[2], self.pos.y + self.size.h - self.roundedInternal[2], 0, self.roundedInternal[2], self.diskSlices, 1, -90, 90, 0)
 				draw_disk(self.pos.x + self.size.w - self.roundedInternal[2], self.pos.y + self.size.h - self.roundedInternal[2], 0, self.roundedInternal[2], self.diskSlices, 1, 0, 90, 0)
 				if (is_mobile()) then
@@ -1399,20 +1403,20 @@ function UIElement:display()
 				end
 			else
 				draw_quad(self.pos.x, self.pos.y, self.size.w, self.size.h / 2)
-				set_color(unpack(self.shadowColor[2]))
+				set_color(self.shadowColor[2][1], self.shadowColor[2][2], self.shadowColor[2][3], self.shadowColor[2][4])
 				draw_quad(self.pos.x, self.pos.y + self.size.h / 2, self.size.w, self.size.h / 2)
 			end
 		end
 		if (not self.interactive) then
-			set_color(unpack(self.bgColor))
+			set_color(self.bgColor[1], self.bgColor[2], self.bgColor[3], self.bgColor[4])
 		elseif (self.isactive and self.hoverState ~= BTN_DN) then
-			set_color(unpack(self.animateColor))
+			set_color(self.animateColor[1], self.animateColor[2], self.animateColor[3], self.animateColor[4])
 		elseif (not self.isactive and self.inactiveColor) then
-			set_color(unpack(self.inactiveColor))
+			set_color(self.inactiveColor[1], self.inactiveColor[2], self.inactiveColor[3], self.inactiveColor[4])
 		elseif (self.hoverState == BTN_DN and self.pressedColor) then
-			set_color(unpack(self.pressedColor))
+			set_color(self.pressedColor[1], self.pressedColor[2], self.pressedColor[3], self.pressedColor[4])
 		else
-			set_color(unpack(self.bgColor))
+			set_color(self.bgColor[1], self.bgColor[2], self.bgColor[3], self.bgColor[4])
 		end
 		if (self.shapeType == ROUNDED) then
 			draw_disk(self.pos.x + self.roundedInternal[1], self.pos.y + self.roundedInternal[1] + self.innerShadow[1], 0, self.roundedInternal[1], self.diskSlices, 1, -180, 90, 0)
@@ -2660,12 +2664,12 @@ _G.draw_text_new = function(str, xPos, yPos, angle, scale, font, shadow, color, 
 	local intensity = intensity or col1[4]
 	if (shadow) then
 		local offset = shadowOffset or shadow / 2
-		set_color(unpack(col2))
+		set_color(col2[1], col2[2], col2[3], col2[4])
 		draw_text_angle_scale(str, xPos - offset, yPos - offset, angle, scale, shadowFontId or generate_font(font, 1, shadow))
 	end
 
 	if (col1[4] == 0) then return end
-	set_color(unpack(col1))
+	set_color(col1[1], col1[2], col1[3], col1[4])
 	draw_text_angle_scale(str, xPos, yPos, angle, scale, font)
 	if (font == 0 or font == 9) then
 		set_color(col1[1], col1[2], col1[3], intensity)

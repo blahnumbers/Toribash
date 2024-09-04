@@ -422,7 +422,7 @@ _G.TEXTURE_WRAP = {
 _G.INPUT_TYPE = {
 	MOUSE = 0,
 	TOUCH = 1,
-	CONTROLLER = 3
+	CONTROLLER = 2
 }
 
 ---@alias GameOverType
