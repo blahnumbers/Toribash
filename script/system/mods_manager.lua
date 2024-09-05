@@ -78,7 +78,11 @@ function Mods.GetModFiles(path)
 	local path = path or "data/mod"
 	---@type ModFolder
 	local data = { name = path, mods = {}, folders = {}, contents = {} }
-	for _, v in pairs(get_files(path, "")) do
+	local modFiles = get_files(path, "")
+	if (_G.PLATFORM == "IPHONEOS") then
+		table.sort(modFiles)
+	end
+	for _, v in pairs(modFiles) do
 		if (v:match(".tbm$")) then
 			table.insert(data.mods, v)
 		elseif (not v:find("^%.+[%s%S]*$") and v ~= "system" and v ~= "modmaker_draft" and not v:find("%.%a+$")) then
