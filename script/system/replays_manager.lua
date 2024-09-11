@@ -758,9 +758,7 @@ function Replays:showSearchList(viewElement, replayInfo, toReload, replays)
 			if (section == "hiddentags") then
 				sectionStr = "hidden tags"
 			end
-			sectionName:addCustomDisplay(true, function()
-					sectionName:uiText(sectionStr, nil, nil, nil, LEFTMID)
-				end)
+			sectionName:addAdaptedText(true, sectionStr, nil, nil, nil, LEFTMID)
 			for i, replay in pairs(replayList) do
 				totalIdx = totalIdx + 1
 				local thisIdx = totalIdx
@@ -1055,9 +1053,7 @@ function Replays:showList(viewElement, replayInfo, level, doSearch)
 			pos = { folderIcon.shift.x * 2 + folderElement.size.h, 0 },
 			size = { folderElement.size.w - folderElement.size.h - folderIcon.shift.x * 3, folderElement.size.h }
 		})
-		folderName:addCustomDisplay(true, function()
-				folderName:uiText(rplTable.parent.name, nil, nil, 4, LEFTMID, 0.8)
-			end)
+		folderName:addAdaptedText(true, rplTable.parent.name, nil, nil, FONTS.LMEDIUM, LEFTMID, 0.8, 0.8)
 	end
 	for _, folder in pairs(rplTable.folders or {}) do
 		local folderElementHolder = listingHolder:addChild({
@@ -1092,9 +1088,7 @@ function Replays:showList(viewElement, replayInfo, level, doSearch)
 			pos = { folderIcon.shift.x * 2 + folderIcon.size.w, 0 },
 			size = { folderElement.size.w - folderIcon.size.w - folderIcon.shift.x * 3, folderElement.size.h }
 		})
-		folderName:addCustomDisplay(true, function()
-				folderName:uiText(folder.name, nil, nil, 4, LEFTMID, 0.8)
-			end)
+		folderName:addAdaptedText(true, folder.name, nil, nil, FONTS.LMEDIUM, LEFTMID, 0.8, 0.8)
 	end
 	for i, replay in pairs(rplTable.replays or {}) do
 		local replayElementHolder = listingHolder:addChild({
@@ -1136,9 +1130,7 @@ function Replays:showList(viewElement, replayInfo, level, doSearch)
 			pos = { 10, 0 },
 			size = { replayElement.size.w / 2 - 20, replayElement.size.h }
 		})
-		replayName:addCustomDisplay(true, function()
-				replayName:uiText(replay.name, nil, nil, 4, LEFTMID, 0.65)
-			end)
+		replayName:addAdaptedText(true, replay.name, nil, nil, FONTS.LMEDIUM, LEFTMID, 0.65, 0.65)
 		local replayNameSeparator = UIElement:new({
 			parent = replayElement,
 			pos = { replayName.shift.x + replayName.size.w, replayElement.size.h / 4 },
@@ -1151,9 +1143,7 @@ function Replays:showList(viewElement, replayInfo, level, doSearch)
 			size = { replayElement.size.w / 6, replayElement.size.h }
 		})
 		local replayAuthorStr = replay.author == "autosave" and TB_MENU_LOCALIZED.REPLAYSAUTHORAUTOSAVE or TB_MENU_LOCALIZED.REPLAYSAUTHORBY .. " " .. replay.author
-		replayAuthor:addCustomDisplay(true, function()
-				replayAuthor:uiText(replayAuthorStr, nil, nil, 4, nil, 0.65)
-			end)
+		replayAuthor:addAdaptedText(true, replayAuthorStr, nil, nil, FONTS.LMEDIUM, nil, 0.65, 0.65)
 		local replayAuthorSeparator = UIElement:new({
 			parent = replayElement,
 			pos = { replayAuthor.shift.x + replayAuthor.size.w, replayElement.size.h / 4 },
@@ -1165,9 +1155,7 @@ function Replays:showList(viewElement, replayInfo, level, doSearch)
 			pos = { replayAuthorSeparator.shift.x, 0 },
 			size = { replayElement.size.w - replayAuthorSeparator.shift.x, replayElement.size.h }
 		})
-		replayMod:addCustomDisplay(true, function()
-				replayMod:uiText(replay.mod, nil, nil, 4, nil, 0.65)
-			end)
+		replayMod:addAdaptedText(true, replay.mod, nil, nil, FONTS.LMEDIUM, nil, 0.65, 0.65)
 	end
 
 	if (#listElements * elementHeight > listingHolder.size.h) then
@@ -1205,9 +1193,7 @@ function Replays:showReplayTaglistTag(viewElement, updatedTags, tag, elementHeig
 		pos = { 10, 0 },
 		size = { replayTag.size.w, replayTag.size.h }
 	})
-	replayTagName:addCustomDisplay(true, function()
-			replayTagName:uiText(tag, nil, nil, 4, LEFTMID, 0.7)
-		end)
+	replayTagName:addAdaptedText(true, tag, nil, nil, FONTS.LMEDIUM, LEFTMID, 0.7, 0.7)
 	local replayTagRemoveButton = UIElement:new({
 		parent = replayTag,
 		pos = { -24, 3 },
@@ -2096,9 +2082,7 @@ function Replays:showReplayInfo(viewElement, replaysList, replayIdx)
 		size = { buttonWidth, buttonHeight }
 	})
 	local replayAuthorStr = replay.author == "autosave" and "autosave" or TB_MENU_LOCALIZED.REPLAYSBY .. " " .. replay.author
-	replayAuthor:addCustomDisplay(true, function()
-			replayAuthor:uiText(replayAuthorStr, nil, nil, 4, nil, 0.8)
-		end)
+	replayAuthor:addAdaptedText(true, replayAuthorStr, nil, nil, FONTS.LMEDIUM, nil, 0.8, 0.8)
 	local replayBouts = viewElement:addChild({
 		pos = { 10, replayAuthor.shift.y + replayAuthor.size.h },
 		size = { buttonWidth, replayName.size.h / 2 }
@@ -2119,9 +2103,7 @@ function Replays:showReplayInfo(viewElement, replaysList, replayIdx)
 		size = { buttonWidth, replayName.size.h }
 	})
 	local tagsText = replay.tags == " " and TB_MENU_LOCALIZED.WORDNONE or replay.tags
-	replayTags:addCustomDisplay(true, function()
-			replayTags:uiText(TB_MENU_LOCALIZED.REPLAYSTAGS .. ": " .. tagsText, nil, nil, 4, LEFT, 0.7)
-		end)
+	replayTags:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYSTAGS .. ": " .. tagsText, nil, nil, FONTS.LMEDIUM, LEFT, 0.7, 0.7)
 
 	local tagsAdapted = textAdapt(TB_MENU_LOCALIZED.REPLAYSTAGS .. ": " .. tagsText, 4, 0.7, viewElement.size.w - 20)
 	local tagsDispositionX = get_string_length(tagsAdapted[#tagsAdapted], 4) * 0.7
@@ -3559,21 +3541,23 @@ function Replays:spawnReplayProgressSlider(viewElement)
 				keyframeInfoFrameLabel:addAdaptedText(true, TB_MENU_LOCALIZED.REPLAYKEYFRAMEFRAME .. " " .. kf.frame, nil, nil, nil, LEFTMID)
 			end
 			local clickClock = 0
+			local frameTextLength = get_string_length(tostring(kf.frame), FONTS.LMEDIUM) * 0.6
 			keyframeButton:addCustomDisplay(function()
 				draw_quad(keyframeButton.pos.x + keyframeButton.size.w / 2 - 1, slider.parent.pos.y + slider.parent.size.h - 32, 2, 16)
-				if (get_replay_cache() > 0) then
-					if (keyframeButton.hoverState ~= BTN_NONE) then
-						if (keyframeButton.size.w < keyframeButtonHoverSize) then
-							keyframeButton.size.w = UITween.LinearTween(keyframeButton.size.w, keyframeButtonHoverSize, (UIElement.clock - keyframeButton.hoverClock) * 5)
-							local moveAmount = (keyframeButton.size.h - keyframeButton.size.w) / 2
-							keyframeButton:moveTo(moveAmount, moveAmount * 2, true)
-							keyframeButton.size.h = keyframeButton.size.w
-						end
-					else
-						keyframeButton.size.w = keyframeButtonSize
-						keyframeButton.size.h = keyframeButtonSize
-						keyframeButton:moveTo(initialPos.x, initialPos.y)
+				if (keyframeButton.hoverState ~= BTN_NONE) then
+					if (keyframeButton.size.w < keyframeButtonHoverSize) then
+						keyframeButton.size.w = UITween.LinearTween(keyframeButton.size.w, keyframeButtonHoverSize, (UIElement.clock - keyframeButton.hoverClock) * 5)
+						local moveAmount = (keyframeButton.size.h - keyframeButton.size.w) / 2
+						keyframeButton:moveTo(moveAmount, moveAmount * 2, true)
+						keyframeButton.size.h = keyframeButton.size.w
 					end
+					if (not is_mobile()) then
+						draw_text_angle_scale(tostring(kf.frame), keyframeButton.pos.x + (keyframeButton.size.w - frameTextLength) / 2, keyframeButton.pos.y - 16, 0, 0.6, FONTS.LMEDIUM)
+					end
+				else
+					keyframeButton.size.w = keyframeButtonSize
+					keyframeButton.size.h = keyframeButtonSize
+					keyframeButton:moveTo(initialPos.x, initialPos.y)
 				end
 				if (is_mobile() and clickClock > 0 and UIElement.clock - clickClock > UIElement.longPressDuration) then
 					play_haptics(0.2, HAPTICS.IMPACT)
@@ -3972,7 +3956,7 @@ function Replays:spawnReplayAdvancedGui(reload)
 	local size = { math.min(1600, WIN_W - posX * 2), 65 * TB_MENU_GLOBAL_SCALE }
 	posX = (WIN_W - size[1]) / 2
 
-	local targetHeightShift = size[2] + math.max(SAFE_Y, 35)
+	local targetHeightShift = size[2] + math.max(SAFE_Y, 40)
 
 	local posYRight = is_mobile() and TBHud.DefaultButtonSize * 1.2 or 0
 	local sizeRight = is_mobile() and (WIN_H - posYRight - TBHud.DefaultButtonSize * 2.5) or 0

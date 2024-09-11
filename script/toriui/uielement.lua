@@ -20,6 +20,13 @@ _G.MOUSE_X = 0
 ---Current cursor Y coordinate
 _G.MOUSE_Y = 0
 
+---Local references to frequently used global functions to improve performance
+local drawQuad = draw_quad
+local drawDisk = draw_disk
+local setColor = set_color
+local drawText = draw_text_angle_scale
+local is_mobile = is_mobile()
+
 ---@alias FontId
 ---| 0 # FONTS.BIG | Badaboom big
 ---| 1 # FONTS.SMALL | Arial small (chat default)
@@ -190,9 +197,12 @@ if (not UIElement) then
 
 	---**Toribash GUI elements manager class**
 	---
+	---**Version 5.71**
+	---* Minor performance improvements by using local references to frequently used global functions
+	---
 	---**Version 5.70**
 	---* Keep a cached copy of `get_world_state()` result in `UIElement.WorldState` to reduce direct calls
-	---* Do not use unpack() on colors for set_color() calls to slightly improve performance
+	---* Do not use unpack() on colors for setColor() calls to slightly improve performance
 	---
 	---**Version 5.65:**
 	---* Added `UIElement.onShow` callback function to execute at the end of `UIElement.show()` call
@@ -294,7 +304,7 @@ if (not UIElement) then
 	---@field prevInput UIElement Previous input element, set with `UIElement.addTabSwitchPrev()`
 	---@field nextInput UIElement Next input element, set with `UIElement.addTabSwitch()`
 	UIElement = {
-		ver = 5.70,
+		ver = 5.71,
 		animationDuration = 0.1,
 		longPressDuration = 0.25,
 		lightUIMode = get_option("uilight") == 1
@@ -556,7 +566,6 @@ function UIElement.new(_self, o)
 		table.insert(UIKeyboardHandler, elem)
 	end
 	if (o.innerShadow and o.shadowColor) then
-		elem.shadowColor = {}
 		if (type(o.shadowColor[1]) == "table") then
 			elem.shadowColor = o.shadowColor
 		else
@@ -665,7 +674,7 @@ function UIElement:setRounded(rounded)
 
 	---With GLES we have a perfect disk shader that allows us to draw circles more efficiently
 	---Set slices to 0 to use it instead of rendering disks made out of vertices
-	self.diskSlices = is_mobile() and 0 or math.min(self.rounded * 5, 50)
+	self.diskSlices = is_mobile and 0 or math.min(self.rounded * 5, 50)
 end
 
 -- Adds mouse handlers to use for an interactive UIElement object
@@ -912,7 +921,7 @@ function UIElement:makeScrollBar(listHolder, listElements, toReload, posShift, s
 
 	self:addMouseHandlers(
 		function(s, x, y)
-			if (is_mobile() and s < 4) then
+			if (is_mobile and s < 4) then
 				disable_mouse_camera_movement()
 			end
 			local scrollIgnore = UIScrollbarIgnore
@@ -935,7 +944,7 @@ function UIElement:makeScrollBar(listHolder, listElements, toReload, posShift, s
 			return scrollSuccessful
 		end, function()
 			self.scrollReload()
-			if (is_mobile()) then
+			if (is_mobile) then
 				enable_mouse_camera_movement()
 			end
 		end,
@@ -951,7 +960,7 @@ function UIElement:makeScrollBar(listHolder, listElements, toReload, posShift, s
 			end
 		end, nil, function()
 			self.scrollReload()
-			if (is_mobile()) then
+			if (is_mobile) then
 				enable_mouse_camera_movement()
 			end
 		end)
@@ -1380,70 +1389,70 @@ function UIElement:display()
 
 	if (not self.customDisplayOnly and (self.bgColor[4] > 0 or self.bgImage or self.interactive)) then
 		if (self.innerShadow[1] > 0 or self.innerShadow[2] > 0) then
-			set_color(self.shadowColor[1][1], self.shadowColor[1][2], self.shadowColor[1][3], self.shadowColor[1][4])
+			setColor(self.shadowColor[1][1], self.shadowColor[1][2], self.shadowColor[1][3], self.shadowColor[1][4])
 			if (self.shapeType == ROUNDED) then
-				draw_disk(self.pos.x + self.roundedInternal[1], self.pos.y + self.roundedInternal[1], 0, self.roundedInternal[1], self.diskSlices, 1, -180, 90, 0)
-				draw_disk(self.pos.x + self.size.w - self.roundedInternal[1], self.pos.y + self.roundedInternal[1], 0, self.roundedInternal[1], self.diskSlices, 1, 90, 90, 0)
-				if (is_mobile()) then
-					draw_quad(self.pos.x + self.roundedInternal[1] - 0.2, self.pos.y, self.size.w - self.roundedInternal[1] * 2 + 0.4, self.roundedInternal[1])
-					draw_quad(self.pos.x, self.pos.y + self.roundedInternal[1] - 0.2, self.size.w, self.size.h / 2 - self.roundedInternal[1] + 0.2)
+				drawDisk(self.pos.x + self.roundedInternal[1], self.pos.y + self.roundedInternal[1], 0, self.roundedInternal[1], self.diskSlices, 1, -180, 90, 0)
+				drawDisk(self.pos.x + self.size.w - self.roundedInternal[1], self.pos.y + self.roundedInternal[1], 0, self.roundedInternal[1], self.diskSlices, 1, 90, 90, 0)
+				if (is_mobile) then
+					drawQuad(self.pos.x + self.roundedInternal[1] - 0.2, self.pos.y, self.size.w - self.roundedInternal[1] * 2 + 0.4, self.roundedInternal[1])
+					drawQuad(self.pos.x, self.pos.y + self.roundedInternal[1] - 0.2, self.size.w, self.size.h / 2 - self.roundedInternal[1] + 0.2)
 				else
-					draw_quad(self.pos.x + self.roundedInternal[1], self.pos.y, self.size.w - self.roundedInternal[1] * 2, self.roundedInternal[1])
-					draw_quad(self.pos.x, self.pos.y + self.roundedInternal[1], self.size.w, self.size.h / 2 - self.roundedInternal[1])
+					drawQuad(self.pos.x + self.roundedInternal[1], self.pos.y, self.size.w - self.roundedInternal[1] * 2, self.roundedInternal[1])
+					drawQuad(self.pos.x, self.pos.y + self.roundedInternal[1], self.size.w, self.size.h / 2 - self.roundedInternal[1])
 				end
-				set_color(self.shadowColor[2][1], self.shadowColor[2][2], self.shadowColor[2][3], self.shadowColor[2][4])
-				draw_disk(self.pos.x + self.roundedInternal[2], self.pos.y + self.size.h - self.roundedInternal[2], 0, self.roundedInternal[2], self.diskSlices, 1, -90, 90, 0)
-				draw_disk(self.pos.x + self.size.w - self.roundedInternal[2], self.pos.y + self.size.h - self.roundedInternal[2], 0, self.roundedInternal[2], self.diskSlices, 1, 0, 90, 0)
-				if (is_mobile()) then
-					draw_quad(self.pos.x + self.roundedInternal[2] - 0.2, self.pos.y + self.size.h - self.roundedInternal[2], self.size.w - self.roundedInternal[2] * 2 + 0.4, self.roundedInternal[2])
-					draw_quad(self.pos.x, self.pos.y + self.size.h / 2, self.size.w, self.size.h / 2 - self.roundedInternal[2] + 0.2)
+				setColor(self.shadowColor[2][1], self.shadowColor[2][2], self.shadowColor[2][3], self.shadowColor[2][4])
+				drawDisk(self.pos.x + self.roundedInternal[2], self.pos.y + self.size.h - self.roundedInternal[2], 0, self.roundedInternal[2], self.diskSlices, 1, -90, 90, 0)
+				drawDisk(self.pos.x + self.size.w - self.roundedInternal[2], self.pos.y + self.size.h - self.roundedInternal[2], 0, self.roundedInternal[2], self.diskSlices, 1, 0, 90, 0)
+				if (is_mobile) then
+					drawQuad(self.pos.x + self.roundedInternal[2] - 0.2, self.pos.y + self.size.h - self.roundedInternal[2], self.size.w - self.roundedInternal[2] * 2 + 0.4, self.roundedInternal[2])
+					drawQuad(self.pos.x, self.pos.y + self.size.h / 2, self.size.w, self.size.h / 2 - self.roundedInternal[2] + 0.2)
 				else
-					draw_quad(self.pos.x + self.roundedInternal[2], self.pos.y + self.size.h - self.roundedInternal[2], self.size.w - self.roundedInternal[2] * 2, self.roundedInternal[2])
-					draw_quad(self.pos.x, self.pos.y + self.size.h / 2, self.size.w, self.size.h / 2 - self.roundedInternal[2])
+					drawQuad(self.pos.x + self.roundedInternal[2], self.pos.y + self.size.h - self.roundedInternal[2], self.size.w - self.roundedInternal[2] * 2, self.roundedInternal[2])
+					drawQuad(self.pos.x, self.pos.y + self.size.h / 2, self.size.w, self.size.h / 2 - self.roundedInternal[2])
 				end
 			else
-				draw_quad(self.pos.x, self.pos.y, self.size.w, self.size.h / 2)
-				set_color(self.shadowColor[2][1], self.shadowColor[2][2], self.shadowColor[2][3], self.shadowColor[2][4])
-				draw_quad(self.pos.x, self.pos.y + self.size.h / 2, self.size.w, self.size.h / 2)
+				drawQuad(self.pos.x, self.pos.y, self.size.w, self.size.h / 2)
+				setColor(self.shadowColor[2][1], self.shadowColor[2][2], self.shadowColor[2][3], self.shadowColor[2][4])
+				drawQuad(self.pos.x, self.pos.y + self.size.h / 2, self.size.w, self.size.h / 2)
 			end
 		end
 		if (not self.interactive) then
-			set_color(self.bgColor[1], self.bgColor[2], self.bgColor[3], self.bgColor[4])
+			setColor(self.bgColor[1], self.bgColor[2], self.bgColor[3], self.bgColor[4])
 		elseif (self.isactive and self.hoverState ~= BTN_DN) then
-			set_color(self.animateColor[1], self.animateColor[2], self.animateColor[3], self.animateColor[4])
+			setColor(self.animateColor[1], self.animateColor[2], self.animateColor[3], self.animateColor[4])
 		elseif (not self.isactive and self.inactiveColor) then
-			set_color(self.inactiveColor[1], self.inactiveColor[2], self.inactiveColor[3], self.inactiveColor[4])
+			setColor(self.inactiveColor[1], self.inactiveColor[2], self.inactiveColor[3], self.inactiveColor[4])
 		elseif (self.hoverState == BTN_DN and self.pressedColor) then
-			set_color(self.pressedColor[1], self.pressedColor[2], self.pressedColor[3], self.pressedColor[4])
+			setColor(self.pressedColor[1], self.pressedColor[2], self.pressedColor[3], self.pressedColor[4])
 		else
-			set_color(self.bgColor[1], self.bgColor[2], self.bgColor[3], self.bgColor[4])
+			setColor(self.bgColor[1], self.bgColor[2], self.bgColor[3], self.bgColor[4])
 		end
 		if (self.shapeType == ROUNDED) then
-			draw_disk(self.pos.x + self.roundedInternal[1], self.pos.y + self.roundedInternal[1] + self.innerShadow[1], 0, self.roundedInternal[1], self.diskSlices, 1, -180, 90, 0)
-			draw_disk(self.pos.x + self.roundedInternal[2], self.pos.y + self.size.h - self.roundedInternal[2] - self.innerShadow[2], 0, self.roundedInternal[2], self.diskSlices, 1, -90, 90, 0)
-			draw_disk(self.pos.x + self.size.w - self.roundedInternal[1], self.pos.y + self.roundedInternal[1] + self.innerShadow[1], 0, self.roundedInternal[1], self.diskSlices, 1, 90, 90, 0)
-			draw_disk(self.pos.x + self.size.w - self.roundedInternal[2], self.pos.y + self.size.h - self.roundedInternal[2] - self.innerShadow[2], 0, self.roundedInternal[2], self.diskSlices, 1, 0, 90, 0)
-			if (is_mobile()) then
-				draw_quad(self.pos.x + self.roundedInternal[1] - 0.2, self.pos.y + self.innerShadow[1], self.size.w - self.roundedInternal[1] * 2 + 0.4, self.roundedInternal[1])
-				draw_quad(self.pos.x, self.pos.y + self.roundedInternal[1] + self.innerShadow[1] - 0.2, self.size.w, self.size.h - self.roundedInternal[2] - self.roundedInternal[1] - self.innerShadow[2] - self.innerShadow[1] + 0.4)
-				draw_quad(self.pos.x + self.roundedInternal[2] - 0.2, self.pos.y + self.size.h - self.roundedInternal[2] - self.innerShadow[2], self.size.w - self.roundedInternal[2] * 2 + 0.4, self.roundedInternal[2] + 0.2)
+			drawDisk(self.pos.x + self.roundedInternal[1], self.pos.y + self.roundedInternal[1] + self.innerShadow[1], 0, self.roundedInternal[1], self.diskSlices, 1, -180, 90, 0)
+			drawDisk(self.pos.x + self.roundedInternal[2], self.pos.y + self.size.h - self.roundedInternal[2] - self.innerShadow[2], 0, self.roundedInternal[2], self.diskSlices, 1, -90, 90, 0)
+			drawDisk(self.pos.x + self.size.w - self.roundedInternal[1], self.pos.y + self.roundedInternal[1] + self.innerShadow[1], 0, self.roundedInternal[1], self.diskSlices, 1, 90, 90, 0)
+			drawDisk(self.pos.x + self.size.w - self.roundedInternal[2], self.pos.y + self.size.h - self.roundedInternal[2] - self.innerShadow[2], 0, self.roundedInternal[2], self.diskSlices, 1, 0, 90, 0)
+			if (is_mobile) then
+				drawQuad(self.pos.x + self.roundedInternal[1] - 0.2, self.pos.y + self.innerShadow[1], self.size.w - self.roundedInternal[1] * 2 + 0.4, self.roundedInternal[1])
+				drawQuad(self.pos.x, self.pos.y + self.roundedInternal[1] + self.innerShadow[1] - 0.2, self.size.w, self.size.h - self.roundedInternal[2] - self.roundedInternal[1] - self.innerShadow[2] - self.innerShadow[1] + 0.4)
+				drawQuad(self.pos.x + self.roundedInternal[2] - 0.2, self.pos.y + self.size.h - self.roundedInternal[2] - self.innerShadow[2], self.size.w - self.roundedInternal[2] * 2 + 0.4, self.roundedInternal[2] + 0.2)
 			else
-				draw_quad(self.pos.x + self.roundedInternal[1], self.pos.y + self.innerShadow[1], self.size.w - self.roundedInternal[1] * 2, self.roundedInternal[1])
-				draw_quad(self.pos.x, self.pos.y + self.roundedInternal[1] + self.innerShadow[1], self.size.w, self.size.h - self.roundedInternal[2] - self.roundedInternal[1] - self.innerShadow[2] - self.innerShadow[1])
-				draw_quad(self.pos.x + self.roundedInternal[2], self.pos.y + self.size.h - self.roundedInternal[2] - self.innerShadow[2], self.size.w - self.roundedInternal[2] * 2, self.roundedInternal[2])
+				drawQuad(self.pos.x + self.roundedInternal[1], self.pos.y + self.innerShadow[1], self.size.w - self.roundedInternal[1] * 2, self.roundedInternal[1])
+				drawQuad(self.pos.x, self.pos.y + self.roundedInternal[1] + self.innerShadow[1], self.size.w, self.size.h - self.roundedInternal[2] - self.roundedInternal[1] - self.innerShadow[2] - self.innerShadow[1])
+				drawQuad(self.pos.x + self.roundedInternal[2], self.pos.y + self.size.h - self.roundedInternal[2] - self.innerShadow[2], self.size.w - self.roundedInternal[2] * 2, self.roundedInternal[2])
 			end
 		else
-			draw_quad(self.pos.x, self.pos.y + self.innerShadow[1], self.size.w, self.size.h - self.innerShadow[1] - self.innerShadow[2])
+			drawQuad(self.pos.x, self.pos.y + self.innerShadow[1], self.size.w, self.size.h - self.innerShadow[1] - self.innerShadow[2])
 		end
 		if (self.bgImage) then
 			local targetImageColor = self:getImageColor()
 			if (targetImageColor[4] > 0) then
 				if (self.drawMode == 2) then
-					draw_quad(self.pos.x, self.pos.y, self.size.w, self.size.h, self.bgImage, 2, targetImageColor[1], targetImageColor[2], targetImageColor[3], targetImageColor[4], self.atlas.w, self.atlas.h, self.atlas.x, self.atlas.y)
+					drawQuad(self.pos.x, self.pos.y, self.size.w, self.size.h, self.bgImage, 2, targetImageColor[1], targetImageColor[2], targetImageColor[3], targetImageColor[4], self.atlas.w, self.atlas.h, self.atlas.x, self.atlas.y)
 				elseif (self.drawMode == 1) then
-					draw_quad(self.pos.x, self.pos.y, self.size.w, self.size.h, self.bgImage, 1, targetImageColor[1], targetImageColor[2], targetImageColor[3], targetImageColor[4], self.atlas.w, self.atlas.h)
+					drawQuad(self.pos.x, self.pos.y, self.size.w, self.size.h, self.bgImage, 1, targetImageColor[1], targetImageColor[2], targetImageColor[3], targetImageColor[4], self.atlas.w, self.atlas.h)
 				else
-					draw_quad(self.pos.x, self.pos.y, self.size.w, self.size.h, self.bgImage, 0, targetImageColor[1], targetImageColor[2], targetImageColor[3], targetImageColor[4])
+					drawQuad(self.pos.x, self.pos.y, self.size.w, self.size.h, self.bgImage, 0, targetImageColor[1], targetImageColor[2], targetImageColor[3], targetImageColor[4])
 				end
 			end
 		end
@@ -1845,7 +1854,7 @@ function UIElement:enableMenuKeyboard()
 	TB_MENU_INPUT_ISACTIVE = true
 	if (self.textfield) then
 		enable_menu_keyboard(self.pos.x, self.pos.y, self.size.w, self.size.h + 10, self.textfieldstr[1], self.inputType, self.autoCompletion, self.returnKeyType)
-	elseif (not is_mobile()) then
+	elseif (not is_mobile) then
 		enable_menu_keyboard()
 	end
 	local id = 1
@@ -1961,7 +1970,7 @@ function UIElement.handleMouseUp(btn, x, y)
 			if (v.hoverState == BTN_DN and btn == 1) then
 				v.hoverState = BTN_NONE
 				if (not actionTriggered and x > v.pos.x and x < v.pos.x + v.size.w and y > v.pos.y and y < v.pos.y + v.size.h) then
-					if (not is_mobile()) then
+					if (not is_mobile) then
 						v.hoverState = BTN_HVR
 					end
 					if (v.upSound) then
@@ -2148,6 +2157,46 @@ function UIElement:addAdaptedText(override, str, x, y, font, align, maxscale, mi
 		end)
 end
 
+---Helper function to draw text with some additional functionality. \
+---*You are likely looking for `UIElement:addAdaptedText()` or `UIElement:uiText()`.*
+---@param str string
+---@param xPos number
+---@param yPos number
+---@param angle number
+---@param scale number
+---@param font FontId
+---@param shadow ?number Outline thickness in pixels
+---@param color ?Color
+---@param shadowColor ?Color
+---@param intensity ?number
+---@param pixelPerfect ?boolean Whether to floor the text position to make sure we don't start mid-pixel
+---@param shadowFontId ?integer Font id for text shadow retrieved from `generate_font()`
+---@param shadowOffset ?number Shadow offset override
+local drawTextNew = function(str, xPos, yPos, angle, scale, font, shadow, color, shadowColor, intensity, pixelPerfect, shadowFontId, shadowOffset)
+	local shadow = shadow or nil
+	local xPos = pixelPerfect and math.floor(xPos) or xPos
+	local yPos = pixelPerfect and math.floor(yPos) or yPos
+	local col1 = color or DEFTEXTCOLOR
+	local col2 = shadowColor or DEFSHADOWCOLOR
+	local intensity = intensity or col1[4]
+	if (shadow) then
+		local offset = shadowOffset or shadow / 2
+		setColor(col2[1], col2[2], col2[3], col2[4])
+		drawText(str, xPos - offset, yPos - offset, angle, scale, shadowFontId or generate_font(font, 1, shadow))
+	end
+
+	if (col1[4] == 0) then return end
+	setColor(col1[1], col1[2], col1[3], col1[4])
+	drawText(str, xPos, yPos, angle, scale, font)
+	if (font == 0 or font == 9) then
+		setColor(col1[1], col1[2], col1[3], intensity)
+		drawText(str, xPos, yPos, angle, scale, font)
+		if (font == 0 or font == 9) then
+			drawText(str, xPos, yPos, angle, scale, font)
+		end
+	end
+end
+
 ---Generic function to display text within current UIElement using specified settings
 ---@param input string Text to display in an object
 ---@param x ?number X offset for the displayed text
@@ -2230,7 +2279,7 @@ function UIElement:uiText(input, x, y, font, align, scale, angle, shadow, col1, 
 			return false
 		elseif (self.size.h > (pos + 2) * font_mod * 10 * scale) then
 			if (check == false) then
-				draw_text_new(str[i], xPos, yPos + (pos * font_mod * 10 * scale), angle, scale, font, shadow, col1, col2, intensity, smoothing, self.shadowFontid, self.shadowOffset)
+				drawTextNew(str[i], xPos, yPos + (pos * font_mod * 10 * scale), angle, scale, font, shadow, col1, col2, intensity, smoothing, self.shadowFontid, self.shadowOffset)
 			elseif (#str == i) then
 				return true
 			end
@@ -2239,11 +2288,11 @@ function UIElement:uiText(input, x, y, font, align, scale, angle, shadow, col1, 
 			if (check == true) then
 				return false
 			end
-			draw_text_new(str[i]:gsub(".$", "..."), xPos, yPos + (pos * font_mod * 10 * scale), angle, scale, font, shadow, col1, col2, intensity, smoothing, self.shadowFontid, self.shadowOffset)
+			drawTextNew(str[i]:gsub(".$", "..."), xPos, yPos + (pos * font_mod * 10 * scale), angle, scale, font, shadow, col1, col2, intensity, smoothing, self.shadowFontid, self.shadowOffset)
 			break
 		else
 			if (check == false) then
-				draw_text_new(str[i], xPos, yPos + (pos * font_mod * 10 * scale), angle, scale, font, shadow, col1, col2, intensity, smoothing, self.shadowFontid, self.shadowOffset)
+				drawTextNew(str[i], xPos, yPos + (pos * font_mod * 10 * scale), angle, scale, font, shadow, col1, col2, intensity, smoothing, self.shadowFontid, self.shadowOffset)
 			else
 				return true
 			end
@@ -2638,46 +2687,6 @@ _G.textAdapt = function(str, font, scale, maxWidth, check, textfield, singleLine
 	end
 
 	return destStr
-end
-
----Helper function to draw text with some additional functionality. \
----*You are probably looking for `UIElement:addAdaptedText()` or `UIElement:uiText()`.*
----@param str string
----@param xPos number
----@param yPos number
----@param angle number
----@param scale number
----@param font FontId
----@param shadow ?number Outline thickness in pixels
----@param color ?Color
----@param shadowColor ?Color
----@param intensity ?number
----@param pixelPerfect ?boolean Whether to floor the text position to make sure we don't start mid-pixel
----@param shadowFontId ?integer Font id for text shadow retrieved from `generate_font()`
----@param shadowOffset ?number Shadow offset override
-_G.draw_text_new = function(str, xPos, yPos, angle, scale, font, shadow, color, shadowColor, intensity, pixelPerfect, shadowFontId, shadowOffset)
-	local shadow = shadow or nil
-	local xPos = pixelPerfect and math.floor(xPos) or xPos
-	local yPos = pixelPerfect and math.floor(yPos) or yPos
-	local col1 = color or DEFTEXTCOLOR
-	local col2 = shadowColor or DEFSHADOWCOLOR
-	local intensity = intensity or col1[4]
-	if (shadow) then
-		local offset = shadowOffset or shadow / 2
-		set_color(col2[1], col2[2], col2[3], col2[4])
-		draw_text_angle_scale(str, xPos - offset, yPos - offset, angle, scale, shadowFontId or generate_font(font, 1, shadow))
-	end
-
-	if (col1[4] == 0) then return end
-	set_color(col1[1], col1[2], col1[3], col1[4])
-	draw_text_angle_scale(str, xPos, yPos, angle, scale, font)
-	if (font == 0 or font == 9) then
-		set_color(col1[1], col1[2], col1[3], intensity)
-		draw_text_angle_scale(str, xPos, yPos, angle, scale, font)
-		if (font == 0 or font == 9) then
-			draw_text_angle_scale(str, xPos, yPos, angle, scale, font)
-		end
-	end
 end
 
 ---Wrapper function for `open_dialog_box()` that properly parses newlines

@@ -3,6 +3,9 @@ require("toriui.uielement")
 do
 	---**Network requests class manager**
 	---
+	---**Version 5.71**
+	---* Added `timestamp` field to **RequestPromise** class
+	---
 	---**Version 5.70**
 	---* Added `HookName` field
 	---
@@ -15,7 +18,7 @@ do
 	---* Check for active task before queueing a new request to ensure we don't get data from the previous request
 	Request = {
 		HookName = "__tbNetworkManager",
-		ver = 5.70
+		ver = 5.71
 	}
 	Request.__index = Request
 
@@ -24,6 +27,7 @@ do
 	---@field ready boolean True if associated network response has been finalized
 	---@field failed boolean True if network responded with a http error
 	---@field id string Unique ID of a request
+	---@field timestamp number Time since game client startup on the moment of RequestPromise creation
 
 	-- Table that holds main information about the network request
 	---@class RequestData
@@ -75,11 +79,11 @@ do
 			if (TB_MENU_DEBUG) then
 				print("Usage Request:queue(function netCall, string callName, function onSuccess, function onError)")
 			end
-			return { ready = true, failed = true, id = "" }
+			return { ready = true, failed = true, id = "", timestamp = os.clock_real() }
 		end
 
 		---@type RequestPromise
-		local response = { ready = false, id = generate_uid() }
+		local response = { ready = false, id = generate_uid(), timestamp = os.clock_real() }
 		local name = name or "netrequest"
 		local success = success or function() end
 		local error = error or function() end

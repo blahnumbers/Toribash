@@ -1,13 +1,21 @@
 require("toriui.uielement3d")
 
+local sin = math.sin
+local cos = math.cos
+local mclamp = math.clamp
+local pi = math.pi
+
 ---@alias UITweenMode
 ---| "linear"
 ---| "sine"
 
 if (UITween == nil) then
 	---Manager class to allow framerate independent smooth transitions
+	---
+	---**Version 5.71**
+	---* Minor performance improvements by using local references to math global functions
 	UITween = {
-		ver = 5.60
+		ver = 5.71
 	}
 	UITween.__index = UITween
 end
@@ -17,7 +25,7 @@ end
 ---@return number
 ---@return boolean
 local function clamp(ratio)
-	ratio = math.clamp(ratio, 0, 1)
+	ratio = mclamp(ratio, 0, 1)
 	if (ratio == 0 or ratio == 1) then
 		return ratio, true
 	end
@@ -73,7 +81,7 @@ end
 function UITween.SineEaseIn(ratio, value)
 	local ratio, exit = clamp(ratio)
 	if (exit) then return (value or 1) * ratio end
-	return (value or 1) * (1 - math.cos(ratio * (math.pi / 2)));
+	return (value or 1) * (1 - cos(ratio * (pi / 2)));
 end
 
 ---@param ratio number
@@ -82,7 +90,7 @@ end
 function UITween.SineEaseOut(ratio, value)
 	local ratio, exit = clamp(ratio)
 	if (exit) then return (value or 1) * ratio end
-	return (value or 1) * math.sin(ratio * (math.pi / 2));
+	return (value or 1) * sin(ratio * (pi / 2));
 end
 
 ---@param x number

@@ -5099,6 +5099,7 @@ function Store.InitUSDPurchase(item, onSuccess)
 			okButton:addMouseUpHandler(function()
 					overlay:kill()
 					Store.GetPlayerOffers()
+					TBMenu.UserPaymentHistory = nil
 				end)
 			return
 		end
@@ -5140,6 +5141,7 @@ function Store.InitUSDPurchase(item, onSuccess)
 						if (onSuccess) then
 							onSuccess()
 						end
+						TBMenu.UserPaymentHistory = nil
 					else
 						TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STOREPURCHASECANCELLED)
 					end

@@ -4,6 +4,9 @@
 if (TBMenu == nil) then
 	---Toribash main menu class
 	---
+	---**Version 5.71**
+	---* New account info screen with payments history
+	---
 	---**Version 5.70**
 	---* Added `TBMenu.SpawnSlider2()` that takes a Rect for position and dimensions
 	---* Updated `SliderSettings` struct with new fields to support vertical sliders and label peek on hover
@@ -44,10 +47,14 @@ if (TBMenu == nil) then
 	---@field CurrentAnnouncementId integer Active home tab announcement ID
 	---@field HasCustomNavigation boolean Whether `TBMenu.NavigationBar` is currently loaded and has custom navigation
 	---@field Popups UIElement[] List of currently alive popups
+	---@field UserPaymentHistory UserPaymentHistory Cached information on user's payment history
+	---@field UserAccountInfo RequestPromise Cached information on user's general account info
+	---@field AccountInfoStalePeriod integer Time in seconds before cached user info is considered outdated
 	TBMenu = {
 		CurrentAnnouncementId = 1,
 		Popups = { },
-		ver = 5.70
+		AccountInfoStalePeriod = 300,
+		ver = 5.71
 	}
 end
 
@@ -1321,6 +1328,23 @@ function TBMenu:showDataError(message, noParent, time)
 	TBMenu:showStatusMessage(message, time)
 end
 
+---@alias HistoryPaymentProvider
+---| 'steam'
+---| 'paypal'
+
+---@class UserPaymentHistory
+---@field username string
+---@field payments HistoryPayment[]
+
+---@class HistoryPayment
+---@field name string
+---@field price number
+---@field currency string
+---@field recurring boolean
+---@field provider HistoryPaymentProvider
+---@field time integer
+---@field id string
+
 ---Displays Store menu
 function TBMenu:showStoreMain()
 	if (TBMenu.CurrentSection == nil or TBMenu.CurrentSection.destroyed) then
@@ -1329,9 +1353,184 @@ function TBMenu:showStoreMain()
 	Store:showMain(TBMenu.CurrentSection)
 end
 
+function TBMenu:showAccountPayments()
+	local overlay = TBMenu:spawnWindowOverlay(true)
+	local username = TB_MENU_PLAYER_INFO.username
+	local windowWidth = math.clamp(WIN_W / 3, 600, 800)
+	local backgroundView = overlay:addChild({
+		pos = { (WIN_W - windowWidth) / 2, 120 },
+		size = { windowWidth, WIN_H - 200 },
+		bgColor = TB_MENU_DEFAULT_BG_COLOR,
+		shapeType = ROUNDED,
+		rounded = 4
+	})
+	if (TBMenu.UserPaymentHistory == nil or TBMenu.UserPaymentHistory.username ~= username) then
+		local loadingMark = TBMenu:displayLoadingMark(backgroundView, TB_MENU_LOCALIZED.ACCOUNTINFOPAYMENTSLOADING)
+
+		Request:queue(download_payments_history, "paymentHistory", function()
+			if (backgroundView == nil or backgroundView.destroyed) then
+				return
+			end
+			local response = get_network_response()
+			TBMenu.UserPaymentHistory = { username = username, payments = {} }
+			for ln in response:gmatch("[^\n]+\n?") do
+				if (not ln:find("^#")) then
+					local _, segments = ln:gsub("([^\t]*)\t?", "")
+					local data = { ln:match(("([^\t]*)\t?"):rep(segments)) }
+					local itemId, itemName = tonumber(data[1])
+					if (itemId == nil) then
+						itemName = data[1]
+					else
+						itemName = Store:getItemInfo(itemId).itemname
+					end
+					---@type HistoryPayment
+					local paymentInfo = {
+						name = itemName,
+						price = tonumber(data[2]) or 0,
+						currency = data[3],
+						provider = data[4],
+						recurring = data[5] == '1',
+						time = tonumber(data[6]) or 0,
+						id = data[7]
+					}
+					table.insert(TBMenu.UserPaymentHistory.payments, paymentInfo)
+				end
+			end
+			overlay:kill()
+			self:showAccountPayments()
+		end, function()
+			if (backgroundView ~= nil and not backgroundView.destroyed) then
+				loadingMark:kill()
+				backgroundView:addAdaptedText(TB_MENU_LOCALIZED.ACCOUNTINFOERROR)
+			end
+		end)
+		return
+	end
+
+	if (#TBMenu.UserPaymentHistory.payments == 0) then
+		TBMenu:addBottomBloodSmudge(backgroundView)
+		backgroundView:addAdaptedText(TB_MENU_LOCALIZED.NOTHINGTOSHOW)
+		return
+	end
+
+	local elementHeight = math.min(TBMenu.CurrentSection.size.h / 10, 45)
+	local toReload, topBar, botBar, _, listingHolder = TBMenu:prepareScrollableList(backgroundView, 60, elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
+	local paymentsTitle = topBar:addChild({
+		pos = { 10, 10 },
+		size = { topBar.size.w - 230, topBar.size.h - 20 }
+	})
+	paymentsTitle:addAdaptedText(true, TB_MENU_LOCALIZED.ACCOUNTPAYMENTHISTORY, nil, nil, FONTS.BIG, LEFTMID, 0.7, nil, 0.6)
+
+	local refreshButton = topBar:addChild({
+		pos = { -180, 10 },
+		size = { 175, topBar.size.h - 20 },
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+		inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK,
+		interactive = true,
+		shapeType = ROUNDED,
+		rounded = 3
+	})
+	refreshButton:addChild({
+		pos = { -refreshButton.size.h + 4, 7 },
+		size = { refreshButton.size.h - 14, refreshButton.size.h - 14 },
+		bgImage = "../textures/menu/general/buttons/reload.tga"
+	})
+	refreshButton:addAdaptedText(TB_MENU_LOCALIZED.WORDREFRESHACTION, 10, nil, nil, LEFTMID)
+	refreshButton.size.w = get_string_length(refreshButton.dispstr[1], refreshButton.textFont) * refreshButton.textScale + 10 + refreshButton.size.h
+	refreshButton:moveTo(-refreshButton.size.w - 10)
+	refreshButton:addMouseUpHandler(function()
+			overlay:kill()
+			self.UserPaymentHistory = nil
+			self:showAccountPayments()
+		end)
+
+	local listElements = {}
+	for _, v in ipairs(self.UserPaymentHistory.payments) do
+		local topHolder = listingHolder:addChild({
+			pos = { 0, #listElements * elementHeight },
+			size = { listingHolder.size.w, elementHeight }
+		})
+		table.insert(listElements, topHolder)
+		local botHolder = listingHolder:addChild({
+			pos = { 0, #listElements * elementHeight },
+			size = { listingHolder.size.w, elementHeight }
+		})
+		table.insert(listElements, botHolder)
+
+		local topBackground = topHolder:addChild({
+			pos = { 10, 2 },
+			size = { topHolder.size.w - 12, topHolder.size.h - 1.9 },
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			shapeType = ROUNDED,
+			rounded = { 4, 0 }
+		})
+		local botBackground = botHolder:addChild({
+			pos = { 10, 0 },
+			size = { topHolder.size.w - 12, topHolder.size.h - 2 },
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			shapeType = ROUNDED,
+			rounded = { 0, 4 }
+		})
+		local purchaseProviderIcon = topBackground:addChild({
+			pos = { -topBackground.size.h + 5, 5 },
+			size = { topBackground.size.h - 10, topBackground.size.h - 10 },
+			bgImage = v.provider == 'steam' and "../textures/menu/logos/steam.tga" or "../textures/menu/logos/paypal.tga"
+		})
+		local purchaseCost = topBackground:addChild({
+			pos = { purchaseProviderIcon.shift.x - 200, purchaseProviderIcon.shift.y },
+			size = { 190, purchaseProviderIcon.size.h }
+		})
+		local displayPrice = tostring(v.price)
+		if (v.currency == "USD") then
+			displayPrice = "$" .. displayPrice
+		else
+			displayPrice = displayPrice .. " " .. v.currency
+		end
+		purchaseCost:addAdaptedText(true, displayPrice)
+		purchaseCost.size.w = get_string_length(displayPrice, purchaseCost.textFont) * purchaseCost.textScale + 4
+		purchaseCost:moveTo(purchaseProviderIcon.shift.x - purchaseCost.size.w - 5)
+		local itemName = topBackground:addChild({
+			pos = { 10, 5 },
+			size = { topBackground.size.w - topBackground.size.h - purchaseProviderIcon.size.w - 20, topBackground.size.h - 5 }
+		})
+		itemName:addAdaptedText(true, v.name, nil, nil, FONTS.MEDIUM, LEFTMID, 1, 1)
+		local purchaseTime = botBackground:addChild({
+			pos = { 10, 5 },
+			size = { botBackground.size.w * 0.5 - 20, botBackground.size.h - 15 },
+			uiColor = { 1, 1, 1, 0.8 }
+		})
+		purchaseTime:addAdaptedText(true, tostring(os.date("%b %d, %Y @ %I:%M%p", v.time)), nil, nil, FONTS.LMEDIUM, LEFTBOT, 0.55)
+		local receiptButton = botBackground:addChild({
+			pos = { botBackground.size.w * 0.5, 0 },
+			size = { botBackground.size.w * 0.5 - 5, botBackground.size.h - 5 },
+			interactive = true,
+			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			hoverColor = TB_MENU_DEFAULT_BG_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+			shapeType = ROUNDED,
+			rounded = 3
+		})
+		receiptButton:addAdaptedText(TB_MENU_LOCALIZED.ACCOUNTPAYMENTVIEWRECEIPT)
+		receiptButton:addMouseUpHandler(function() open_url("https://toribash.com/receipt?transaction_id=" .. v.id .. "&" .. v.provider, true) end)
+	end
+
+	for _, v in pairs(listElements) do
+		v:hide()
+	end
+	local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
+	listingHolder.scrollBar = scrollBar
+	scrollBar:makeScrollBar(listingHolder, listElements, toReload, nil, nil, true)
+end
+
 ---Displays Account menu
 function TBMenu:showAccountMain()
 	local lastSpecialScreen = TB_MENU_SPECIAL_SCREEN_ISOPEN
+	if (lastSpecialScreen == 10) then
+		lastSpecialScreen = 0
+	end
+
 	TBMenu:clearNavSection()
 	TBMenu:showNavigationBar({
 		{
@@ -1342,58 +1541,61 @@ function TBMenu:showAccountMain()
 				TBMenu:showNavigationBar()
 				TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
 			end,
+		},
+		{
+			text = TB_MENU_LOCALIZED.ACCOUNTMAININFO,
+			right = true,
+			sectionId = 1,
+			action = function()
+				TBMenu:showAccountMain()
+			end
 		}
-	}, true)
+	}, true, true, 1)
+	TB_MENU_SPECIAL_SCREEN_ISOPEN = 10
 
+	local accountButtonsWidth = math.min(WIN_W * 0.4, 500)
+	local accountViewWidth = TBMenu.CurrentSection.size.w - 20 - accountButtonsWidth
 	local accountView = TBMenu.CurrentSection:addChild({
 		pos = { 5, 0 },
-		size = { TBMenu.CurrentSection.size.w - 10, TBMenu.CurrentSection.size.h },
+		size = { accountViewWidth, TBMenu.CurrentSection.size.h },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR
 	})
 	local elementHeight = math.min(TBMenu.CurrentSection.size.h / 10, 50)
-	local toReload, topBar, botBar, listingView, listingHolder = TBMenu:prepareScrollableList(accountView, elementHeight, elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
+	local toReload, topBar, botBar, _, listingHolder = TBMenu:prepareScrollableList(accountView, elementHeight, elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
 	TBMenu:addBottomBloodSmudge(botBar, 1)
 	local accountTitle = topBar:addChild({
-		pos = { 20, 5 },
-		size = { topBar.size.w / 2 - 25, topBar.size.h - 10 }
+		pos = { 10, 5 },
+		size = { topBar.size.w - 200, topBar.size.h - 10 }
 	})
-	accountTitle:addAdaptedText(true, TB_MENU_LOCALIZED.ACCOUNTTITLEINFO, nil, nil, FONTS.BIG, LEFTMID, 0.7, nil, 0.6)
+	accountTitle:addAdaptedText(true, TB_MENU_LOCALIZED.ACCOUNTMAININFO, nil, nil, FONTS.BIG, LEFTMID, 0.6, nil, 0.6)
+
 	local accountDataRefresh = topBar:addChild({
-		pos = { -45, 5 },
-		size = { 40, 40 },
+		pos = { -180, 5 },
+		size = { 175, topBar.size.h - 10 },
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+		inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK,
 		interactive = true,
 		shapeType = ROUNDED,
 		rounded = 3
 	})
-	local accountDataRefreshIcon = accountDataRefresh:addChild({
-		shift = { 5, 5 },
-		bgImage = "../textures/menu/general/buttons/restart.tga"
+	accountDataRefresh:addChild({
+		pos = { -accountDataRefresh.size.h + 4, 7 },
+		size = { accountDataRefresh.size.h - 14, accountDataRefresh.size.h - 14 },
+		bgImage = "../textures/menu/general/buttons/reload.tga"
 	})
+	accountDataRefresh:addAdaptedText(TB_MENU_LOCALIZED.WORDREFRESHACTION, 10, nil, nil, LEFTMID)
+	accountDataRefresh.size.w = get_string_length(accountDataRefresh.dispstr[1], accountDataRefresh.textFont) * accountDataRefresh.textScale + 10 + accountDataRefresh.size.h
+	accountDataRefresh:moveTo(-accountDataRefresh.size.w - 5)
 	accountDataRefresh:addMouseUpHandler(function()
-			if (get_network_task() == 0) then
-				TBMenu:showAccountMain()
-			end
+			TBMenu.UserAccountInfo = nil
+			TBMenu:showAccountMain()
 		end)
-	local switchButtonSize = math.min(topBar.size.w / 2 - 55, 250)
-	local accountSwitch = topBar:addChild({
-		pos = { -switchButtonSize - 50, 5 },
-		size = { switchButtonSize, 40 },
-		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
-		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-		interactive = true,
-		shapeType = ROUNDED,
-		rounded = 3
-	})
-	TBMenu:showTextWithImage(accountSwitch, TB_MENU_LOCALIZED.ACCOUNTSWITCH, FONTS.MEDIUM, 24, TB_MENU_LOGOUT_BUTTON)
-	accountSwitch:addMouseHandlers(nil, function() open_menu(18) end)
 
 	if (is_gamecenter_available()) then
 		local gameCenterButton = botBar:addChild({
-			pos = { 5, 5 },
+			pos = { 10, 5 },
 			size = { 300, botBar.size.h - 10 },
 			bgColor = UICOLORWHITE,
 			hoverColor = TB_MENU_DEFAULT_ORANGE,
@@ -1421,7 +1623,7 @@ function TBMenu:showAccountMain()
 
 	local accountTerminationButton = botBar:addChild({
 		pos = { -400, 5 },
-		size = { 395, botBar.size.h - 10 },
+		size = { 390, botBar.size.h - 10 },
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 		hoverColor = UICOLORRED,
 		pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
@@ -1431,7 +1633,7 @@ function TBMenu:showAccountMain()
 	})
 	accountTerminationButton:addAdaptedText(false, TB_MENU_LOCALIZED.ACCOUNTDELETEBUTTON, nil, nil, 4, nil, 0.7)
 	accountTerminationButton.size.w = get_string_length(accountTerminationButton.dispstr[1], accountTerminationButton.textFont) * accountTerminationButton.textScale + 40
-	accountTerminationButton:moveTo(-accountTerminationButton.size.w - 5)
+	accountTerminationButton:moveTo(-accountTerminationButton.size.w - 10)
 	accountTerminationButton:addMouseUpHandler(function()
 			---@diagnostic disable-next-line: undefined-global
 			TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.ACCOUNTDELETECONFIRMATION, initiate_delete_account)
@@ -1439,53 +1641,80 @@ function TBMenu:showAccountMain()
 
 	local function showAccountData(data)
 		local listElements = {}
-		for _, v in pairs(data) do
+		for _, v in ipairs(data) do
 			if (type(v) == "table") then
 				local infoBG = listingHolder:addChild({
 					pos = { 0, elementHeight * #listElements },
 					size = { listingHolder.size.w, elementHeight }
 				})
 				table.insert(listElements, infoBG)
+				local colorBackdrop
+				if (v.hint and v.customColor) then
+					colorBackdrop = infoBG:addChild({
+						pos = { 10, elementHeight - 4 },
+						size = { infoBG.size.w - 12, 4 },
+						bgColor = v.customColor or TB_MENU_DEFAULT_DARKER_COLOR
+					})
+				end
 				local infoHolder = infoBG:addChild({
 					pos = { 10, 2 },
-					size = { infoBG.size.w - 12, elementHeight - 4 },
+					size = { infoBG.size.w - 12, v.hint and elementHeight - 1.9 or elementHeight - 4 },
 					bgColor = v.customColor or TB_MENU_DEFAULT_DARKER_COLOR,
-					uiColor = v.customUiColor,
-					interactive = v.action,
+					interactive = v.action ~= nil,
 					hoverColor = v.customHoverColor or TB_MENU_DEFAULT_DARKEST_COLOR,
 					pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+					uiColor = v.customUiColor,
 					shapeType = ROUNDED,
-					rounded = 3
+					rounded = { 5, (v.hint and v.customColor == nil) and 0 or 5 },
 				})
 				local infoText = infoHolder:addChild({
 					pos = { 10, 2 },
-					size = { math.min(350, infoHolder.size.w * 0.4), infoHolder.size.h - 4 }
+					size = { infoHolder.size.w * 0.4, infoHolder.size.h - 4 }
 				})
 				if (v.hint) then
-					local hintSize = math.floor(infoHolder.size.h * 0.7)
-					local hintSign = infoHolder:addChild({
-						pos = { 10, (infoHolder.size.h - hintSize) / 2 },
-						size = { hintSize, hintSize },
-						bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-						hoverColor = TB_MENU_DEFAULT_BG_COLOR,
-						shapeType = ROUNDED,
-						uiColor = UICOLORWHITE,
-						rounded = 36,
-						interactive = true
+					local info2BG = listingHolder:addChild({
+						pos = { 0, elementHeight * #listElements },
+						size = { listingHolder.size.w, elementHeight }
 					})
-					TBMenu:displayHelpPopup(hintSign, v.hint)
-					infoText:moveTo(hintSize + 10, nil, true)
-					infoText.size.w = infoText.size.w - hintSize - 10
+					table.insert(listElements, info2BG)
+					local info2Holder = info2BG:addChild({
+						pos = { 10, 0 },
+						size = { infoBG.size.w - 12, elementHeight - 2 },
+						bgColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK,
+						interactive = v.action ~= nil,
+						hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+						pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+						shapeType = ROUNDED,
+						rounded = { 0, 5 }
+					})
+					colorBackdrop:addCustomDisplay(function()
+						if (infoHolder.hoverState ~= info2Holder.hoverState and info2Holder:isDisplayed()) then
+							if (infoHolder.hoverState > info2Holder.hoverState) then
+								info2Holder.hoverState = infoHolder.hoverState
+								info2Holder.hoverClock = infoHolder.hoverClock
+							else
+								infoHolder.hoverState = info2Holder.hoverState
+								infoHolder.hoverClock = info2Holder.hoverClock
+							end
+							if (infoHolder.hoverState ~= BTN_DN) then
+								colorBackdrop.bgColor = info2Holder.animateColor
+							else
+								colorBackdrop.bgColor = info2Holder.pressedColor
+							end
+						end
+					end, true)
+					info2Holder:addChild({ shift = { 10, 4 } }):addAdaptedText(true, v.hint, nil, nil, FONTS.LMEDIUM, LEFTMID, 0.65)
+					info2Holder:addMouseUpHandler(v.action)
 				end
 				infoText:addAdaptedText(true, v.name, nil, nil, nil, LEFTMID, 0.8, nil, nil, nil, { infoText.uiColor[1], infoText.uiColor[2], infoText.uiColor[3], 0.8 })
 
 				local infoValueText = infoHolder:addChild({
-					pos = { infoText.shift.x * 2 + infoText.size.w, infoText.shift.y },
-					size = { infoHolder.size.w - infoText.shift.x * 3 - infoText.size.w, infoText.size.h }
+					pos = { infoText.shift.x + infoText.size.w, infoText.shift.y },
+					size = { infoHolder.size.w - infoText.shift.x - infoText.size.w - 10, infoText.size.h }
 				})
 				infoValueText:addAdaptedText(true, v.value, nil, nil, nil, LEFTMID)
 				if (v.action) then
-					infoHolder:addMouseHandlers(nil, v.action)
+					infoHolder:addMouseUpHandler(v.action)
 				end
 			end
 		end
@@ -1495,24 +1724,92 @@ function TBMenu:showAccountMain()
 		local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
 		listingHolder.scrollBar = scrollBar
 		scrollBar:makeScrollBar(listingHolder, listElements, toReload)
+		accountDataRefresh:activate()
 	end
 
-	local accountDatas = PlayerInfo.getServerUserinfo()
-	local infoMessage = listingHolder:addChild({})
-	TBMenu:displayLoadingMark(infoMessage, TB_MENU_LOCALIZED.ACCOUNTGETTINGINFO)
-	infoMessage:addChild({}):addCustomDisplay(true, function()
-			if (accountDatas.ready) then
-				if (accountDatas.failed) then
-					infoMessage:kill(true)
-					infoMessage:addAdaptedText(true, TB_MENU_LOCALIZED.ACCOUNTINFOERROR)
-					return
-				end
-				infoMessage:kill()
-				accountDatas.ready = nil
+	local switchAccountsButton = TBMenu.CurrentSection:addChild({
+		pos = { accountView.shift.x + accountView.size.w + 10, 0 },
+		size = { accountButtonsWidth, TBMenu.CurrentSection.size.h / 3 - 5 },
+		bgColor = TB_MENU_DEFAULT_BG_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		interactive = true
+	})
+	local switchAccountsTitle = switchAccountsButton:addChild({
+		pos = { 15, 10 },
+		size = { switchAccountsButton.size.w - 30, switchAccountsButton.size.h * 0.6 - 10 }
+	})
+	switchAccountsTitle:addAdaptedText(TB_MENU_LOCALIZED.ACCOUNTINFOLOGINSCREEN, nil, nil, FONTS.BIG, RIGHTBOT, 0.9, nil, 0.6)
+	local switchAccountsInfo = switchAccountsButton:addChild({
+		pos = { switchAccountsTitle.shift.x, switchAccountsButton.size.h * 0.6 },
+		size = { switchAccountsTitle.size.w, switchAccountsButton.size.h * 0.4 - 10 }
+	})
+	switchAccountsInfo:addAdaptedText(TB_MENU_LOCALIZED.ACCOUNTINFOLOGINSCREENDESC, nil, nil, FONTS.MEDIUM, RIGHTMID)
+	switchAccountsButton:addMouseUpHandler(function() open_menu(18) end)
 
-				showAccountData(accountDatas)
-			end
-		end)
+	local showPaymentsHistoryButton = TBMenu.CurrentSection:addChild({
+		pos = { switchAccountsButton.shift.x, switchAccountsButton.size.h + 10 },
+		size = { accountButtonsWidth, switchAccountsButton.size.h },
+		bgColor = TB_MENU_DEFAULT_BG_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		interactive = true
+	})
+	local showPaymentsHistoryTitle = showPaymentsHistoryButton:addChild({
+		pos = { 15, 10 },
+		size = { showPaymentsHistoryButton.size.w - 30, showPaymentsHistoryButton.size.h * 0.6 - 10 }
+	})
+	showPaymentsHistoryTitle:addAdaptedText(TB_MENU_LOCALIZED.ACCOUNTPAYMENTHISTORY, nil, nil, FONTS.BIG, RIGHTBOT, 0.9, nil, 0.6)
+	local showPaymentsHistoryInfo = showPaymentsHistoryButton:addChild({
+		pos = { showPaymentsHistoryTitle.shift.x, showPaymentsHistoryButton.size.h * 0.6 },
+		size = { showPaymentsHistoryTitle.size.w, showPaymentsHistoryButton.size.h * 0.4 - 10 }
+	})
+	showPaymentsHistoryInfo:addAdaptedText(TB_MENU_LOCALIZED.ACCOUNTPAYMENTHISTORYDESC, nil, nil, FONTS.MEDIUM, RIGHTMID)
+	showPaymentsHistoryButton:addMouseUpHandler(function() TBMenu:showAccountPayments() end)
+
+	local accountManageButton = TBMenu.CurrentSection:addChild({
+		pos = { switchAccountsButton.shift.x, showPaymentsHistoryButton.shift.y + showPaymentsHistoryButton.size.h + 10 },
+		size = { accountButtonsWidth, showPaymentsHistoryButton.size.h },
+		bgColor = TB_MENU_DEFAULT_BG_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		interactive = true
+	})
+	TBMenu:addBottomBloodSmudge(accountManageButton, 2)
+	local accountManageTitle = accountManageButton:addChild({
+		pos = { 15, 10 },
+		size = { accountManageButton.size.w - 30, accountManageButton.size.h * 0.6 - 10 }
+	})
+	accountManageTitle:addAdaptedText(TB_MENU_LOCALIZED.ACCOUNTINFOMANAGE, nil, nil, FONTS.BIG, RIGHTBOT, 0.9, nil, 0.6)
+	local accountManageTitleInfo = accountManageButton:addChild({
+		pos = { accountManageTitle.shift.x, accountManageButton.size.h * 0.6 },
+		size = { accountManageTitle.size.w, accountManageButton.size.h * 0.4 - 10 }
+	})
+	accountManageTitleInfo:addAdaptedText(TB_MENU_LOCALIZED.ACCOUNTINFOMANAGEDESC, nil, nil, FONTS.MEDIUM, RIGHTMID)
+	accountManageButton:addMouseUpHandler(function() open_url("https://forum.toribash.com/profile.php", true) end)
+
+
+	if (self.UserAccountInfo == nil or self.UserAccountInfo.failed or self.UserAccountInfo.timestamp + self.AccountInfoStalePeriod < UIElement.clock) then
+		accountDataRefresh:deactivate()
+		self.UserAccountInfo = PlayerInfo.getServerUserinfo()
+		local infoMessage = listingHolder:addChild({})
+		TBMenu:displayLoadingMark(infoMessage, TB_MENU_LOCALIZED.ACCOUNTGETTINGINFO)
+		infoMessage:addChild({}):addCustomDisplay(true, function()
+				if (self.UserAccountInfo.ready) then
+					if (self.UserAccountInfo.failed) then
+						infoMessage:kill(true)
+						infoMessage:addAdaptedText(true, TB_MENU_LOCALIZED.ACCOUNTINFOERROR)
+						return
+					end
+					infoMessage:kill()
+					self.UserAccountInfo.ready = nil
+
+					showAccountData(self.UserAccountInfo)
+				end
+			end)
+		return
+	end
+	showAccountData(self.UserAccountInfo)
 end
 
 ---@deprecated
@@ -1977,6 +2274,8 @@ function TBMenu:openMenu(screenId)
 	elseif (TB_MENU_SPECIAL_SCREEN_ISOPEN == 9) then
 		TBMenu:showStoreMain()
 		Store:showStoreSection(TBMenu.CurrentSection, Store.LastSection, Store.LastSectionId)
+	elseif (TB_MENU_SPECIAL_SCREEN_ISOPEN == 10) then
+		TBMenu:showAccountMain()
 	elseif (screenId == 1) then
 		TBMenu:showHome()
 	elseif (screenId == 2) then
@@ -1989,8 +2288,8 @@ function TBMenu:openMenu(screenId)
 		TBMenu:showToolsSection()
 	elseif (screenId == 6) then
 		TBMenu:showStoreMain()
-	elseif (screenId == 7) then
-		TBMenu:showAccountMain()
+	--[[elseif (screenId == 7) then
+		TBMenu:showAccountMain()]]
 	--[[elseif (screenId == 8) then
 		TBMenu:showMatchmaking()]]
 	elseif (screenId == 9) then
@@ -2086,7 +2385,7 @@ function TBMenu:showUserBar()
 	local clanDisplayed = TB_MENU_PLAYER_INFO.clan.id ~= 0
 	local tbMenuUserName = infoHolder:addChild({
 		pos = { 0, 0 },
-		size = { infoHolder.size.w / 2, math.min(40, infoHolder.size.h / (clanDisplayed and 2.6 or 2)) },
+		size = { infoHolder.size.w, math.min(40, infoHolder.size.h / (clanDisplayed and 2.6 or 2)) },
 		shadowOffset = 0
 	})
 	local displayName = TB_MENU_PLAYER_INFO.username == "" and "Tori" or TB_MENU_PLAYER_INFO.username
@@ -2104,15 +2403,13 @@ function TBMenu:showUserBar()
 		rounded = tbMenuUserName.size.h
 	})
 	accountButton:addAdaptedText(false, TB_MENU_LOCALIZED.NAVBUTTONACCOUNT, 15, nil, 4, LEFTMID, 0.65)
-	accountButton.size.w = get_string_length(accountButton.dispstr[1], accountButton.textFont) * accountButton.textScale + accountButton.size.h + 30
-	accountButton:addCustomDisplay(false, function() end)
-	local accountButtonText = accountButton:addChild({
-		shift = { 10, accountButton.size.h * 0.05 },
-	})
-	TBMenu:showTextWithImage(accountButtonText, TB_MENU_LOCALIZED.NAVBUTTONACCOUNT, 4, accountButtonText.size.h * 0.8, TB_MENU_LOGOUT_BUTTON, {
-		maxTextScale = 0.65
-	})
-	accountButton:addMouseHandlers(nil, function()
+	accountButton.size.w = get_string_length(accountButton.dispstr[1], accountButton.textFont) * accountButton.textScale + 30
+	if (tbMenuUserName.shift.x + tbMenuUserName.size.w + accountButton.size.w > infoHolder.size.w) then
+		tbMenuUserName.size.w = infoHolder.size.w - (tbMenuUserName.shift.x + accountButton.size.w)
+		accountButton:moveTo(tbMenuUserName.shift.x + tbMenuUserName.size.w)
+		tbMenuUserName:addAdaptedText(true, displayName, nil, nil, 0, LEFTMID, 0.7, nil, 0.5, 2)
+	end
+	accountButton:addMouseUpHandler(function()
 			if (string.len(PlayerInfo.Get().username) > 0) then
 				TBMenu:showAccountMain()
 			else
@@ -3237,7 +3534,7 @@ function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHei
 		end
 	end
 
-	local maxHeight = maxHeight or #listElementsDisplay * elementHeight + 6
+	local maxHeight = maxHeight or math.min(WIN_H - elementHeight * 4, #listElementsDisplay * elementHeight + 6)
 	if (maxHeight > #listElementsDisplay * elementHeight + 6) then
 		maxHeight = #listElementsDisplay * elementHeight + 6
 	end
@@ -3409,6 +3706,7 @@ function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHei
 				overlay:hide(true)
 				overlay.selectedElement:show(true)
 				overlay.selectItem(v)
+				enable_mouse_camera_movement()
 			end)
 	end
 

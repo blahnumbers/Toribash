@@ -621,7 +621,8 @@ ACCOUNTUSERNAME	Username
 ACCOUNTUSERID	User ID
 ACCOUNTGAMESPLAYEDTODAY	Games Played Today
 ACCOUNTGAMESWONTODAY	Games Won Today
-ACCOUNTTCEARNINGSTODAY	Today's Fights Earnings
+ACCOUNTTCEARNINGSTODAY	Today's Fight Earnings
+ACCOUNTBPXPEARNINGSTODAY	Today's Fight BP XP
 ACCOUNTQIRESETS	Daily Qi Limit resets in
 ACCOUNTSTATUS	Account Status
 ACCOUNTSUSPENDED	Suspended
@@ -1076,6 +1077,7 @@ BATTLEPASSLOADING	Loading your Battle Pass data, please wait...
 BATTLEPASSQUESTS	Battle Pass Quests
 BATTLEPASSQUESTSDESC	Complete quests to get additional Battle Pass XP
 BATTLEPASSEXPERIENCE	Battle Pass XP
+BATTLEPASSXP	BP XP
 BATTLEPASSPURCHASELEVEL	Purchase Level
 BATTLEPASSPURCHASELEVELTITLE	Upgrade your BP to level
 BATTLEPASSPURCHASELEVELINFO	Purchasing a Battle Pass level upgrade will instantly\nraise your BP XP to the next level's required XP
@@ -1314,3 +1316,12 @@ REPLAYKEYFRAMEINTERPOLATION	Smoothing
 REPLAYKEYFRAMEFRAME	Frame
 CAMERAKEYFRAMESHINT	K - New Keyframe   ;   SHIFT + K - Clear Keyframes   ;   I - Enable Keyframe Recording
 SETTINGSDISABLEDREPLAYCACHEMEMORY	Disabled (low memory)
+ACCOUNTPAYMENTHISTORY	Payments History
+ACCOUNTPAYMENTHISTORYDESC	View subscription and currency purchase history
+ACCOUNTMAININFO	Account Information
+ACCOUNTINFOPAYMENTSLOADING	Loading payments history, please wait...
+ACCOUNTPAYMENTVIEWRECEIPT	View Receipt
+ACCOUNTINFOLOGINSCREEN	Login Screen
+ACCOUNTINFOLOGINSCREENDESC	View your login information or switch your active account
+ACCOUNTINFOMANAGE	Manage Account
+ACCOUNTINFOMANAGEDESC	Change your username, password, linked email and other settings

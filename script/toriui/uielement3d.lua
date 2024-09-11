@@ -1,5 +1,22 @@
 require('toriui.uielement')
 
+---Local references to frequently used global functions to improve performance
+local rad = math.rad
+local deg = math.deg
+local sin = math.sin
+local cos = math.cos
+local atan2 = math.atan2
+local asin = math.asin
+local abs = math.abs
+local min = math.min
+local max = math.max
+local sqrt = math.sqrt
+local setColor = set_color
+local drawBoxM = draw_box_m
+local drawSphereM = draw_sphere_m
+local drawCapsuleM = draw_capsule_m
+local drawObjM = draw_obj_m
+
 ---@alias EulerRotationConvention
 ---| 'XYZ' EULER_XYZ
 ---| 'ZYX' EULER_ZYX
@@ -56,6 +73,9 @@ if (not UIElement3D) then
 
 	---**Toribash 3D elements manager class**
 	---
+	---**Version 5.71**
+	---* Minor performance improvements by using local references to frequently used global functions
+	---
 	---**Version 5.66**
 	---* Added `absolute` argument support to `moveTo()` method
 	---* Added support for passing a `EulerRotation` object to `rotate()` method
@@ -88,7 +108,7 @@ if (not UIElement3D) then
 	---@field viewportElement boolean Whether this object is displayed in a viewport
 	---@field ignoreDepth boolean Whether this object should skip depth writing when being rendered
 	UIElement3D = {
-		ver = 5.63
+		ver = 5.71
 	}
 	UIElement3D.__index = UIElement3D
 	setmetatable(UIElement3D, UIElement)
@@ -146,7 +166,7 @@ end
 ---Returns vector magnitude
 ---@return number
 function Vector3:magnitude()
-	return math.sqrt(self.x * self.x + self.y * self.y + self.z * self.z)
+	return sqrt(self.x * self.x + self.y * self.y + self.z * self.z)
 end
 
 ---Returns a normalized version of a vector
@@ -168,7 +188,7 @@ function Vector3:clampMagnitude(max)
 	if (max <= mag) then
 		return Vector3.New(self.x, self.y, self.z)
 	end
-	local f = math.min(mag, max) / mag
+	local f = min(mag, max) / mag
 	return Vector3.New(self.x * f, self.y * f, self.z * f)
 end
 
@@ -209,13 +229,13 @@ end
 ---@param convention EulerRotationConvention? Defaults to `EULER_XYZ` if none specified
 ---@return EulerRotation
 function EulerRotation.NewRadian(x, y, z, convention)
-	return EulerRotation.New(math.deg(x or 0), math.deg(y or 0), math.deg(z or 0), convention)
+	return EulerRotation.New(deg(x or 0), deg(y or 0), deg(z or 0), convention)
 end
 
 ---Returns a corresponding rotation matrix
 ---@return number[][]?
 function EulerRotation:toMatrix()
-	return Utils3D.GetMatrixFromEuler(math.rad(self.x), math.rad(self.y), math.rad(self.z), self.convention)
+	return Utils3D.GetMatrixFromEuler(rad(self.x), rad(self.y), rad(self.z), self.convention)
 end
 
 ---Returns a corresponding Toribash rotation matrix and a regular rotation matrix
@@ -461,11 +481,11 @@ function UIElement3D:display()
 
 	if (not self.customDisplayOnly and (self.bgColor[4] > 0 or self.interactive)) then
 		if (self.hoverState == BTN_HVR and self.hoverColor) then
-			set_color(unpack(self.animateColor))
+			setColor(self.animateColor[1], self.animateColor[2], self.animateColor[3], self.animateColor[4])
 		elseif (self.hoverState == BTN_DN and self.pressedColor) then
-			set_color(unpack(self.pressedColor))
+			setColor(self.pressedColor[1], self.pressedColor[2], self.pressedColor[3], self.pressedColor[4])
 		else
-			set_color(unpack(self.bgColor))
+			setColor(self.bgColor[1], self.bgColor[2], self.bgColor[3], self.bgColor[4])
 		end
 		if (self.shapeType == CUBE) then
 			self:drawBox()
@@ -474,7 +494,7 @@ function UIElement3D:display()
 		elseif (self.shapeType == CAPSULE) then
 			self:drawCapsule()
 		elseif (self.shapeType == CUSTOMOBJ and self.objModel ~= nil) then
-			draw_obj_m(self.objModel, self.pos.x, self.pos.y, self.pos.z, self.size.x, self.size.y, self.size.z, self.rotMatrixTB, self.ignoreDepth)
+			drawObjM(self.objModel, self.pos.x, self.pos.y, self.pos.z, self.size.x, self.size.y, self.size.z, self.rotMatrixTB, self.ignoreDepth)
 		end
 	end
 	if (self.customDisplay) then
@@ -490,9 +510,9 @@ end
 function UIElement3D:drawBox()
 	if (self.playerAttach) then
 		local body = get_body_info(self.playerAttach, self.attachBodypart)
-		draw_box_m(body.pos.x + self.pos.x, body.pos.y + self.pos.y, body.pos.z + self.pos.z, self.size.x, self.size.y, self.size.z, body.rot, self.bgImage, self.ignoreDepth)
+		drawBoxM(body.pos.x + self.pos.x, body.pos.y + self.pos.y, body.pos.z + self.pos.z, self.size.x, self.size.y, self.size.z, body.rot, self.bgImage, self.ignoreDepth)
 	else
-		draw_box_m(self.pos.x, self.pos.y, self.pos.z, self.size.x, self.size.y, self.size.z, self.rotMatrixTB, self.bgImage, self.ignoreDepth)
+		drawBoxM(self.pos.x, self.pos.y, self.pos.z, self.size.x, self.size.y, self.size.z, self.rotMatrixTB, self.bgImage, self.ignoreDepth)
 	end
 end
 
@@ -501,10 +521,10 @@ end
 function UIElement3D:drawCapsule()
 	if (self.playerAttach and self.attachBodypart) then
 		local body = get_body_info(self.playerAttach, self.attachBodypart)
-		draw_capsule_m(body.pos.x, body.pos.y, body.pos.z, self.size.y, self.size.x, body.rot, self.bgImage, self.ignoreDepth)
+		drawCapsuleM(body.pos.x, body.pos.y, body.pos.z, self.size.y, self.size.x, body.rot, self.bgImage, self.ignoreDepth)
 	else
 		local drawPos = (self.playerAttach and self.attachJoint) and get_joint_pos2(self.playerAttach, self.attachJoint) or self.pos
-		draw_capsule_m(drawPos.x, drawPos.y, drawPos.z, self.size.y, self.size.x, self.rotMatrixTB, self.bgImage, self.ignoreDepth)
+		drawCapsuleM(drawPos.x, drawPos.y, drawPos.z, self.size.y, self.size.x, self.rotMatrixTB, self.bgImage, self.ignoreDepth)
 	end
 end
 
@@ -513,15 +533,15 @@ end
 function UIElement3D:drawSphere()
 	if (self.playerAttach and self.attachBodypart) then
 		local body = get_body_info(self.playerAttach, self.attachBodypart)
-		draw_sphere_m(body.pos.x + self.pos.x, body.pos.y + self.pos.y, body.pos.z + self.pos.z, self.size.x, body.rot, self.bgImage, self.ignoreDepth)
+		drawSphereM(body.pos.x + self.pos.x, body.pos.y + self.pos.y, body.pos.z + self.pos.z, self.size.x, body.rot, self.bgImage, self.ignoreDepth)
 	else
 		local drawPos = (self.playerAttach and self.attachJoint) and get_joint_pos2(self.playerAttach, self.attachJoint) or self.pos
 		local scale = (self.playerAttach and self.attachJoint) and get_joint_radius(self.playerAttach, self.attachJoint) or 1
 
 		if (self.bgImage) then
-			draw_sphere_m(drawPos.x, drawPos.y, drawPos.z, self.size.x * scale, self.rotMatrixTB, self.bgImage, self.ignoreDepth)
+			drawSphereM(drawPos.x, drawPos.y, drawPos.z, self.size.x * scale, self.rotMatrixTB, self.bgImage, self.ignoreDepth)
 		else
-			draw_sphere_m(drawPos.x, drawPos.y, drawPos.z, self.size.x * scale, nil, nil, self.ignoreDepth)
+			drawSphereM(drawPos.x, drawPos.y, drawPos.z, self.size.x * scale, nil, nil, self.ignoreDepth)
 		end
 	end
 end
@@ -821,26 +841,26 @@ function Utils3D.GetEulerFromMatrix(R, convention)
 	convention = convention or EULER_XYZ
 	local x, y, z = 0, 0, 0
 	if (convention == EULER_XYZ) then
-		x = math.atan2(-R[2][3], R[3][3])
-		local sinx = math.sin(x)
-		local cosx = math.cos(x)
-		y = math.atan2(R[1][3], R[3][3] * cosx - R[2][3] * sinx)
-		z = math.atan2(R[2][1] * cosx + R[3][1] * sinx, R[2][2] * cosx + R[3][2] * sinx)
+		x = atan2(-R[2][3], R[3][3])
+		local sinx = sin(x)
+		local cosx = cos(x)
+		y = atan2(R[1][3], R[3][3] * cosx - R[2][3] * sinx)
+		z = atan2(R[2][1] * cosx + R[3][1] * sinx, R[2][2] * cosx + R[3][2] * sinx)
 	elseif (convention == EULER_ZYX) then
 		local clamp = R[3][1] > 1 and 1 or (R[3][1] < -1 and -1 or R[3][1])
-		y = math.asin(-clamp)
-		if (0.99999 > math.abs(R[3][1])) then
-			x = math.atan2(R[3][2], R[3][3])
-			z = math.atan2(R[2][1], R[1][1])
+		y = asin(-clamp)
+		if (0.99999 > abs(R[3][1])) then
+			x = atan2(R[3][2], R[3][3])
+			z = atan2(R[2][1], R[1][1])
 		else
 			x = 0
-			z = math.atan2(-R[1][2], R[2][2])
+			z = atan2(-R[1][2], R[2][2])
 		end
 	else
 		error("UIElement3D.GetEulerFromMatrix() unsupported convention: " .. convention)
 	end
 
-	return EulerRotation.New(math.deg(x), math.deg(y), math.deg(z), convention)
+	return EulerRotation.New(deg(x), deg(y), deg(z), convention)
 end
 
 ---Legacy function to get ZYX euler angles rotation from rotation matrix. \
@@ -936,12 +956,12 @@ end
 ---@return number[][]
 function Utils3D.GetMatrixFromEuler(x, y, z, convention)
 	convention = convention and string.upper(convention) or EULER_XYZ
-	local c1 = math.cos(x)
-	local s1 = math.sin(x)
-	local c2 = math.cos(y)
-	local s2 = math.sin(y)
-	local c3 = math.cos(z)
-	local s3 = math.sin(z)
+	local c1 = cos(x)
+	local s1 = sin(x)
+	local c2 = cos(y)
+	local s2 = sin(y)
+	local c3 = cos(z)
+	local s3 = sin(z)
 
 	local R = {}
 	for i = 1, 3 do
@@ -1133,6 +1153,6 @@ function UIElement:updateObj(model, noreload)
 		self.objModel = objid
 	end
 	UIElement3DModelCache[objid] = { name = filename, count = 1 }
-	UIElement3DModelIndex = math.max(UIElement3DModelIndex, objid)
+	UIElement3DModelIndex = max(UIElement3DModelIndex, objid)
 	return true
 end

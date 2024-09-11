@@ -2300,6 +2300,10 @@ function download_server_info(request) end
 ---@param request string
 function download_market_info(request) end
 
+---Fetches payments history for current user\
+---@see Request
+function download_payments_history() end
+
 ---Sends a request to retrieve the latest available game version\
 ---@see Request
 function get_latest_version() end

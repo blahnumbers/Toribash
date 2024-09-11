@@ -944,12 +944,12 @@ function PlayerInfoInternal.parseServerUserinfo(userinfo)
 		local ln = ln:gsub("\n$", '')
 		if (ln:find("^USERNAME 0;")) then
 			table.insert(userinfo, {
-				name = TB_MENU_LOCALIZED.ACCOUNTUSERNAME or "Username",
+				name = TB_MENU_LOCALIZED.ACCOUNTUSERNAME,
 				value = ln:gsub("^USERNAME 0;", "")
 			})
 		elseif (ln:find("^USERID 0;")) then
 			table.insert(userinfo, {
-				name = TB_MENU_LOCALIZED.ACCOUNTUSERID or "User ID",
+				name = TB_MENU_LOCALIZED.ACCOUNTUSERID,
 				value = ln:gsub("^USERID 0;", "")
 			})
 		elseif (ln:find("^QI 0;")) then
@@ -957,63 +957,71 @@ function PlayerInfoInternal.parseServerUserinfo(userinfo)
 			local qi = tonumber(qiStr) or 0
 			local belt = PlayerInfo.getBeltFromQi(qi)
 			table.insert(userinfo, {
-				name = TB_MENU_LOCALIZED.WORDQI or "Qi",
+				name = TB_MENU_LOCALIZED.WORDQI,
 				value = qi .. " (" .. belt.name .. " Belt)"
 			})
 		elseif (ln:find("^TODAYGAMES 0;")) then
 			table.insert(userinfo, {
-				name = TB_MENU_LOCALIZED.ACCOUNTGAMESPLAYEDTODAY or "Games Played Today",
+				name = TB_MENU_LOCALIZED.ACCOUNTGAMESPLAYEDTODAY,
 				value = ln:gsub("^TODAYGAMES 0;", "")
 			})
 		elseif (ln:find("^TODAYWINS 0;")) then
 			table.insert(userinfo, {
-				name = TB_MENU_LOCALIZED.ACCOUNTGAMESWONTODAY or "Games Won Today",
+				name = TB_MENU_LOCALIZED.ACCOUNTGAMESWONTODAY,
 				value = ln:gsub("^TODAYWINS 0;", "")
 			})
 		elseif (ln:find("^TODAYEARNINGS 0;")) then
 			table.insert(userinfo, {
-				name = TB_MENU_LOCALIZED.ACCOUNTTCEARNINGSTODAY or "Today's Fights Earnings",
-				value = ln:gsub("^TODAYEARNINGS 0;", "") .. " ToriCredits"
+				name = TB_MENU_LOCALIZED.ACCOUNTTCEARNINGSTODAY,
+				value = ln:gsub("^TODAYEARNINGS 0;", "") .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS
 			})
+		elseif (ln:find("^TODAYBPXP 0;")) then
+			if (BattlePass.UserData) then
+				table.insert(userinfo, {
+					name = TB_MENU_LOCALIZED.ACCOUNTBPXPEARNINGSTODAY,
+					value = ln:gsub("^TODAYBPXP 0;", "") .. " " .. TB_MENU_LOCALIZED.BATTLEPASSEXPERIENCE
+				})
+			end
 		elseif (ln:find("^QIRESET 0;")) then
 			table.insert(userinfo, {
-				name = TB_MENU_LOCALIZED.ACCOUNTQIRESETS or "Daily Qi Limit resets in",
+				name = TB_MENU_LOCALIZED.ACCOUNTQIRESETS,
 				value = TBMenu:getTime(ln:gsub("^QIRESET 0;", "") + 0, 2)
 			})
 		elseif (ln:find("^BANNED 0;")) then
-			table.insert(userinfo, {
+			table.insert(userinfo, 1, {
 				name = TB_MENU_LOCALIZED.ACCOUNTSTATUS or "Account Status",
 				value = (TB_MENU_LOCALIZED.ACCOUNTSUSPENDED or "Suspended") .. " (" .. ln:gsub("^BANNED 0; ?", "") .. ")",
 				customColor = UICOLORRED,
-				hint = TB_MENU_LOCALIZED.ACCOUNTSUSPENDEDINFO or "Your account has been suspended by Toribash moderators. You can appeal your ban on forums.",
+				customHoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+				hint = TB_MENU_LOCALIZED.ACCOUNTSUSPENDEDINFO,
 				action = function() open_url("https://forum.toribash.com/forumdisplay.php?f=594") end
 			})
 		elseif (ln:find("^GREYLIST 0;")) then
 			table.insert(userinfo, {
 				name = TB_MENU_LOCALIZED.ACCOUNTSTATUS or "Account Status",
 				value = (TB_MENU_LOCALIZED.ACCOUNTGREYLISTED or "Trading Greylisted") .. " (" .. TBMenu:getTime(ln:gsub("^GREYLIST 0;", "") + 0, 2) .. ")",
-				customColor = TB_MENU_DEFAULT_ORANGE,
-				customHoverColor = TB_MENU_DEFAULT_DARKER_ORANGE,
+				customColor = TB_MENU_DEFAULT_YELLOW,
+				customHoverColor = TB_MENU_DEFAULT_ORANGE,
 				customUiColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 				hint = TB_MENU_LOCALIZED.ACCOUNTGREYLISTEDINFO or "Your account has limited trading capabilities. You can wait your greylist period out or contact an administrator to lift it earlier.",
 				action = function() open_url("https://www.toribash.com/discord.php") end
-			})
+			}, 1)
 		elseif (ln:find("^EMAILERR 0;")) then
-			table.insert(userinfo, {
+			table.insert(userinfo, 1, {
 				name = TB_MENU_LOCALIZED.ACCOUNTSTATUS or "Account Status",
 				value = TB_MENU_LOCALIZED.ACCOUNTNOEMAIL or "No email connected",
-				customColor = TB_MENU_DEFAULT_ORANGE,
-				customHoverColor = TB_MENU_DEFAULT_DARKER_ORANGE,
+				customColor = TB_MENU_DEFAULT_YELLOW,
+				customHoverColor = TB_MENU_DEFAULT_ORANGE,
 				customUiColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 				hint = TB_MENU_LOCALIZED.ACCOUNTEMAILERRORINFO or "Your account's capabilities will be limited until you connect an email to your account and confirm it.",
 				action = function() open_url("https://forum.toribash.com/profile.php?do=editpassword") end
 			})
 		elseif (ln:find("^EMAILERR 1;")) then
-			table.insert(userinfo, {
+			table.insert(userinfo, 1, {
 				name = TB_MENU_LOCALIZED.ACCOUNTSTATUS or "Account Status",
 				value = TB_MENU_LOCALIZED.ACCOUNTAWAITINGCONFIRMATION or "Awaiting Email Confirmation",
-				customColor = TB_MENU_DEFAULT_ORANGE,
-				customHoverColor = TB_MENU_DEFAULT_DARKER_ORANGE,
+				customColor = TB_MENU_DEFAULT_YELLOW,
+				customHoverColor = TB_MENU_DEFAULT_ORANGE,
 				customUiColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 				hint = TB_MENU_LOCALIZED.ACCOUNTEMAILERRORINFO or "Your account's capabilities will be limited until you connect an email to your account and confirm it.",
 				action = function() open_url("https://forum.toribash.com/profile.php?do=editpassword") end
