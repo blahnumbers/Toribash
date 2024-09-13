@@ -3543,6 +3543,7 @@ function Replays:spawnReplayProgressSlider(viewElement)
 			end
 			local clickClock = 0
 			local frameTextLength = get_string_length(tostring(kf.frame), FONTS.LMEDIUM) * 0.6
+			local frameShadowFontId = generate_font(FONTS.LMEDIUM, 1, 4)
 			keyframeButton:addCustomDisplay(function()
 				draw_quad(keyframeButton.pos.x + keyframeButton.size.w / 2 - 1, slider.parent.pos.y + slider.parent.size.h - 32, 2, 16)
 				if (keyframeButton.hoverState ~= BTN_NONE) then
@@ -3553,6 +3554,9 @@ function Replays:spawnReplayProgressSlider(viewElement)
 						keyframeButton.size.h = keyframeButton.size.w
 					end
 					if (not is_mobile) then
+						set_color(unpack(replayProgressHolder.bgColor))
+						draw_text_angle_scale(tostring(kf.frame), keyframeButton.pos.x + (keyframeButton.size.w - frameTextLength) / 2 - 2, keyframeButton.pos.y - 18, 0, 0.6, frameShadowFontId)
+						set_color(1, 1, 1, 1)
 						draw_text_angle_scale(tostring(kf.frame), keyframeButton.pos.x + (keyframeButton.size.w - frameTextLength) / 2, keyframeButton.pos.y - 16, 0, 0.6, FONTS.LMEDIUM)
 					end
 				else
