@@ -1447,6 +1447,7 @@ function TBMenu:showAccountPayments()
 		end)
 
 	local listElements = {}
+	local receiptButtonWidth
 	for _, v in ipairs(self.UserPaymentHistory.payments) do
 		local topHolder = listingHolder:addChild({
 			pos = { 0, #listElements * elementHeight },
@@ -1503,8 +1504,8 @@ function TBMenu:showAccountPayments()
 		})
 		purchaseTime:addAdaptedText(true, tostring(os.date("%b %d, %Y @ %I:%M%p", v.time)), nil, nil, FONTS.LMEDIUM, LEFTBOT, 0.55)
 		local receiptButton = botBackground:addChild({
-			pos = { botBackground.size.w * 0.5, 0 },
-			size = { botBackground.size.w * 0.5 - 5, botBackground.size.h - 5 },
+			pos = { receiptButtonWidth and -receiptButtonWidth - 5 or botBackground.size.w * 0.5, 0 },
+			size = { receiptButtonWidth or botBackground.size.w * 0.5 - 5, botBackground.size.h - 5 },
 			interactive = true,
 			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			hoverColor = TB_MENU_DEFAULT_BG_COLOR,
@@ -1512,7 +1513,12 @@ function TBMenu:showAccountPayments()
 			shapeType = ROUNDED,
 			rounded = 3
 		})
-		receiptButton:addAdaptedText(TB_MENU_LOCALIZED.ACCOUNTPAYMENTVIEWRECEIPT)
+		receiptButton:addAdaptedText(TB_MENU_LOCALIZED.ACCOUNTPAYMENTVIEWRECEIPT, nil, nil, FONTS.LMEDIUM, nil, 0.65)
+		if (receiptButtonWidth == nil) then
+			receiptButtonWidth = math.min(get_string_length(receiptButton.dispstr[1], receiptButton.textFont) * receiptButton.textScale + 50, receiptButton.size.w)
+			receiptButton.size.w = receiptButtonWidth
+			receiptButton:moveTo(-receiptButtonWidth - 5)
+		end
 		receiptButton:addMouseUpHandler(function() open_url("https://toribash.com/receipt?transaction_id=" .. v.id .. "&" .. v.provider, true) end)
 	end
 
@@ -1736,15 +1742,15 @@ function TBMenu:showAccountMain()
 		interactive = true
 	})
 	local switchAccountsTitle = switchAccountsButton:addChild({
-		pos = { 15, 10 },
-		size = { switchAccountsButton.size.w - 30, switchAccountsButton.size.h * 0.6 - 10 }
+		pos = { 25, 10 },
+		size = { switchAccountsButton.size.w - 50, switchAccountsButton.size.h * 0.6 - 10 }
 	})
 	switchAccountsTitle:addAdaptedText(TB_MENU_LOCALIZED.ACCOUNTINFOLOGINSCREEN, nil, nil, FONTS.BIG, RIGHTBOT, 0.9, nil, 0.6)
 	local switchAccountsInfo = switchAccountsButton:addChild({
 		pos = { switchAccountsTitle.shift.x, switchAccountsButton.size.h * 0.6 },
 		size = { switchAccountsTitle.size.w, switchAccountsButton.size.h * 0.4 - 10 }
 	})
-	switchAccountsInfo:addAdaptedText(TB_MENU_LOCALIZED.ACCOUNTINFOLOGINSCREENDESC, nil, nil, FONTS.MEDIUM, RIGHTMID)
+	switchAccountsInfo:addAdaptedText(TB_MENU_LOCALIZED.ACCOUNTINFOLOGINSCREENDESC, nil, nil, FONTS.LMEDIUM, RIGHTMID)
 	switchAccountsButton:addMouseUpHandler(function() open_menu(18) end)
 
 	local showPaymentsHistoryButton = TBMenu.CurrentSection:addChild({
@@ -1756,15 +1762,15 @@ function TBMenu:showAccountMain()
 		interactive = true
 	})
 	local showPaymentsHistoryTitle = showPaymentsHistoryButton:addChild({
-		pos = { 15, 10 },
-		size = { showPaymentsHistoryButton.size.w - 30, showPaymentsHistoryButton.size.h * 0.6 - 10 }
+		pos = { switchAccountsTitle.shift.x, switchAccountsTitle.shift.y },
+		size = { switchAccountsTitle.size.w, switchAccountsTitle.size.h }
 	})
 	showPaymentsHistoryTitle:addAdaptedText(TB_MENU_LOCALIZED.ACCOUNTPAYMENTHISTORY, nil, nil, FONTS.BIG, RIGHTBOT, 0.9, nil, 0.6)
 	local showPaymentsHistoryInfo = showPaymentsHistoryButton:addChild({
-		pos = { showPaymentsHistoryTitle.shift.x, showPaymentsHistoryButton.size.h * 0.6 },
-		size = { showPaymentsHistoryTitle.size.w, showPaymentsHistoryButton.size.h * 0.4 - 10 }
+		pos = { switchAccountsInfo.shift.x, switchAccountsInfo.shift.y },
+		size = { switchAccountsInfo.size.w, switchAccountsInfo.size.h }
 	})
-	showPaymentsHistoryInfo:addAdaptedText(TB_MENU_LOCALIZED.ACCOUNTPAYMENTHISTORYDESC, nil, nil, FONTS.MEDIUM, RIGHTMID)
+	showPaymentsHistoryInfo:addAdaptedText(TB_MENU_LOCALIZED.ACCOUNTPAYMENTHISTORYDESC, nil, nil, FONTS.LMEDIUM, RIGHTMID)
 	showPaymentsHistoryButton:addMouseUpHandler(function() TBMenu:showAccountPayments() end)
 
 	local accountManageButton = TBMenu.CurrentSection:addChild({
@@ -1777,15 +1783,15 @@ function TBMenu:showAccountMain()
 	})
 	TBMenu:addBottomBloodSmudge(accountManageButton, 2)
 	local accountManageTitle = accountManageButton:addChild({
-		pos = { 15, 10 },
-		size = { accountManageButton.size.w - 30, accountManageButton.size.h * 0.6 - 10 }
+		pos = { switchAccountsTitle.shift.x, switchAccountsTitle.shift.y },
+		size = { switchAccountsTitle.size.w, switchAccountsTitle.size.h }
 	})
 	accountManageTitle:addAdaptedText(TB_MENU_LOCALIZED.ACCOUNTINFOMANAGE, nil, nil, FONTS.BIG, RIGHTBOT, 0.9, nil, 0.6)
 	local accountManageTitleInfo = accountManageButton:addChild({
-		pos = { accountManageTitle.shift.x, accountManageButton.size.h * 0.6 },
-		size = { accountManageTitle.size.w, accountManageButton.size.h * 0.4 - 10 }
+		pos = { switchAccountsInfo.shift.x, switchAccountsInfo.shift.y },
+		size = { switchAccountsInfo.size.w, switchAccountsInfo.size.h }
 	})
-	accountManageTitleInfo:addAdaptedText(TB_MENU_LOCALIZED.ACCOUNTINFOMANAGEDESC, nil, nil, FONTS.MEDIUM, RIGHTMID)
+	accountManageTitleInfo:addAdaptedText(TB_MENU_LOCALIZED.ACCOUNTINFOMANAGEDESC, nil, nil, FONTS.LMEDIUM, RIGHTMID)
 	accountManageButton:addMouseUpHandler(function() open_url("https://forum.toribash.com/profile.php", true) end)
 
 

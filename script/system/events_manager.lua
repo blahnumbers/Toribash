@@ -904,11 +904,12 @@ do
 		}
 		BattlePass:showPrizeItem(questIcon, prizeItem)
 
+		local is_mobile = is_mobile()
 		questBackground:addCustomDisplay(false, function()
 				set_color(unpack(questBackground.uiColor))
-				draw_disk(questBackground.pos.x + questBackground.size.w / 2, questBackground.pos.y + questBackground.size.h / 2, questBackground.size.h / 2.75, questBackground.size.h / 2 - 5, is_mobile() and 0 or 50, 1, -60, -240, 0)
+				draw_disk(questBackground.pos.x + questBackground.size.w / 2, questBackground.pos.y + questBackground.size.h / 2, questBackground.size.h / 2.75, questBackground.size.h / 2 - 5, is_mobile and 0 or 50, 1, -60, -240, 0)
 				set_color(unpack(UICOLORWHITE))
-				draw_disk(questBackground.pos.x + questBackground.size.w / 2, questBackground.pos.y + questBackground.size.h / 2, questBackground.size.h / 2.75, questBackground.size.h / 2 - 5, is_mobile() and 0 or 50, 1, -60, -240 * progress, 0)
+				draw_disk(questBackground.pos.x + questBackground.size.w / 2, questBackground.pos.y + questBackground.size.h / 2, questBackground.size.h / 2.75, questBackground.size.h / 2 - 5, is_mobile and 0 or 50, 1, -60, -240 * progress, 0)
 			end)
 		local progressText = UIElement:new({
 			parent = questBackground,

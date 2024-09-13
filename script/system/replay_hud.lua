@@ -13,12 +13,15 @@ else
 end
 
 add_hook("new_game", Replays.HookNameUI, function()
+	set_hint_override()
 	Replays:toggleHud(false)
 	if (Replays.GameHud ~= nil) then
 		Replays.GameHud.queue = nil
 		Replays.GameHud.currentQueueIndex = 0
 	end
 end)
+add_hook("new_mp_game", Replays.HookNameUI, function() set_hint_override() end)
+add_hook("new_game_mp", Replays.HookNameUI, function() set_hint_override() end)
 add_hook("pre_draw", Replays.HookNameUI, function()
 	local hud = get_option('hud')
 	if (Replays.GameHud.hidden and not Replays.GameHud.manualHidden and not TUTORIAL_ISACTIVE) then

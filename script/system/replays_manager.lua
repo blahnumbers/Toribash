@@ -3408,9 +3408,10 @@ function Replays:spawnReplayProgressSlider(viewElement)
 		return value
 	end
 
+	local is_mobile = is_mobile()
 	local keyframeInfoViewHolder = slider.background:addChild({
-		size = { 350, is_mobile() and 120 or 100 },
-		pos = { 0, -slider.background.size.h - (is_mobile() and 165 or 145) }
+		size = { 350, is_mobile and 120 or 100 },
+		pos = { 0, -slider.background.size.h - (is_mobile and 165 or 145) }
 	})
 	keyframeInfoViewHolder.keyframe = 0
 	keyframeInfoViewHolder.speed = 1
@@ -3425,16 +3426,16 @@ function Replays:spawnReplayProgressSlider(viewElement)
 		interactive = true,
 		shapeType = ROUNDED,
 		rounded = 4,
-		innerShadow = { is_mobile() and 40 or 26, 0 },
+		innerShadow = { is_mobile and 40 or 26, 0 },
 		shadowColor = TB_MENU_DEFAULT_BG_COLOR
 	})
 	local keyframeInfoFrameLabel = keyframeInfoView:addChild({
 		pos = { 10, 3 },
-		size = { keyframeInfoView.size.w * 0.65, is_mobile() and 34 or 20 }
+		size = { keyframeInfoView.size.w * 0.65, is_mobile and 34 or 20 }
 	})
 	local keyframeInfoDeleteButton = keyframeInfoView:addChild({
 		pos = { keyframeInfoFrameLabel.size.w + keyframeInfoFrameLabel.shift.x, 2 },
-		size = { keyframeInfoView.size.w - keyframeInfoFrameLabel.size.w - keyframeInfoFrameLabel.shift.x - 2, is_mobile() and 36 or 22 },
+		size = { keyframeInfoView.size.w - keyframeInfoFrameLabel.size.w - keyframeInfoFrameLabel.shift.x - 2, is_mobile and 36 or 22 },
 		interactive = true,
 		bgColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK,
 		hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
@@ -3509,7 +3510,7 @@ function Replays:spawnReplayProgressSlider(viewElement)
 		for _, v in ipairs(keyframeButtons) do
 			v:kill()
 		end
-		if (is_mobile()) then
+		if (is_mobile) then
 			TBHud.CameraKeyframeEditButtonHolder:hide()
 		end
 
@@ -3551,7 +3552,7 @@ function Replays:spawnReplayProgressSlider(viewElement)
 						keyframeButton:moveTo(moveAmount, moveAmount * 2, true)
 						keyframeButton.size.h = keyframeButton.size.w
 					end
-					if (not is_mobile()) then
+					if (not is_mobile) then
 						draw_text_angle_scale(tostring(kf.frame), keyframeButton.pos.x + (keyframeButton.size.w - frameTextLength) / 2, keyframeButton.pos.y - 16, 0, 0.6, FONTS.LMEDIUM)
 					end
 				else
@@ -3559,13 +3560,13 @@ function Replays:spawnReplayProgressSlider(viewElement)
 					keyframeButton.size.h = keyframeButtonSize
 					keyframeButton:moveTo(initialPos.x, initialPos.y)
 				end
-				if (is_mobile() and clickClock > 0 and UIElement.clock - clickClock > UIElement.longPressDuration) then
+				if (is_mobile and clickClock > 0 and UIElement.clock - clickClock > UIElement.longPressDuration) then
 					play_haptics(0.2, HAPTICS.IMPACT)
 					clickClock = 0
 					showKeyframeManage()
 				end
 			end)
-			if (is_mobile()) then
+			if (is_mobile) then
 				keyframeButton:addMouseDownHandler(function()
 					clickClock = os.clock_real()
 				end)
@@ -3621,7 +3622,7 @@ function Replays:spawnReplayProgressSlider(viewElement)
 				Replays:spawnReplayAdvancedGui(true)
 				return
 			end
-			if (is_mobile() and TBHud.CameraKeyframeEditButtonHolder.frame ~= worldstate.match_frame) then
+			if (is_mobile and TBHud.CameraKeyframeEditButtonHolder.frame ~= worldstate.match_frame) then
 				TBHud.CameraKeyframeEditButtonHolder:hide()
 			end
 			if (slider.value ~= worldstate.match_frame) then
@@ -3653,12 +3654,13 @@ end
 ---@param viewElement UIElement
 ---@return UISlider
 function Replays:spawnReplaySpeedSlider(viewElement)
+	local is_mobile = is_mobile()
 	local replaySpeedHolder = viewElement:addChild({
 		bgColor = table.clone(TB_MENU_DEFAULT_BG_COLOR),
 		shapeType = ROUNDED,
 		rounded = 4
 	})
-	if (is_mobile()) then
+	if (is_mobile) then
 		---Speedometer icon instead of text label, also no buttons
 		replaySpeedHolder:addChild({
 			pos = { 5, 5 },
@@ -3814,9 +3816,9 @@ function Replays:spawnReplaySpeedSlider(viewElement)
 		minValueDisp = -1.5,
 		decimal = 2,
 		sliderRadius = 20,
-		textWidth = is_mobile() and 16 or 30,
+		textWidth = is_mobile and 16 or 30,
 		showLabelOnHover = true,
-		vertical = is_mobile()
+		vertical = is_mobile
 	}
 	local sliderRect = sliderSettings.vertical and {
 		x = 5, y = replaySpeedHolder.size.w,
@@ -3844,7 +3846,7 @@ function Replays:spawnReplaySpeedSlider(viewElement)
 			end
 		end
 	end
-	if (is_mobile()) then
+	if (is_mobile) then
 		local regularSpeed = slider.parent:addChild({
 			pos = { slider.parent.size.w / 2 - 3, slider.parent.size.h / 3 + 2 },
 			size = { 6, slider.parent.size.h / 3 - 2 },
@@ -3952,14 +3954,15 @@ function Replays:spawnReplayAdvancedGui(reload)
 	if (not reload and self.GameHud ~= nil) then return nil end
 	set_hint_override()
 
-	local posX = is_mobile() and TBHud.DefaultButtonSize * 2.5 or math.max(65 * TB_MENU_GLOBAL_SCALE, WIN_W * 0.15 - 65 * TB_MENU_GLOBAL_SCALE)
+	local is_mobile = is_mobile()
+	local posX = is_mobile and TBHud.DefaultButtonSize * 2.5 or math.max(65 * TB_MENU_GLOBAL_SCALE, WIN_W * 0.15 - 65 * TB_MENU_GLOBAL_SCALE)
 	local size = { math.min(1600, WIN_W - posX * 2), 65 * TB_MENU_GLOBAL_SCALE }
 	posX = (WIN_W - size[1]) / 2
 
 	local targetHeightShift = size[2] + math.max(SAFE_Y, 40)
 
-	local posYRight = is_mobile() and TBHud.DefaultButtonSize * 1.2 or 0
-	local sizeRight = is_mobile() and (WIN_H - posYRight - TBHud.DefaultButtonSize * 2.5) or 0
+	local posYRight = is_mobile and TBHud.DefaultButtonSize * 1.2 or 0
+	local sizeRight = is_mobile and (WIN_H - posYRight - TBHud.DefaultButtonSize * 2.5) or 0
 	local targetRightShift = size[2] + math.max(SAFE_X, 15)
 
 	if (reload and self.GameHud ~= nil) then
@@ -3979,7 +3982,7 @@ function Replays:spawnReplayAdvancedGui(reload)
 			size = { size[1], size[2] }
 		})
 
-		if (is_mobile()) then
+		if (is_mobile) then
 			self.GameHudRight = UIElement.new({
 				globalid = TB_MENU_HUB_GLOBALID,
 				pos = { WIN_W, posYRight },
@@ -4111,7 +4114,7 @@ function Replays:spawnReplayAdvancedGui(reload)
 	end]]
 
 	local slidersHolder = self.GameHud:addChild({ shift = { self.GameHud.prevReplay.size.w + 10, 0 }})
-	if (is_mobile()) then
+	if (is_mobile) then
 		Replays:spawnReplayProgressSlider(slidersHolder)
 		if (self.GameHud.hasCache) then
 			Replays:spawnReplaySpeedSlider(self.GameHudRight)
@@ -4151,8 +4154,6 @@ function Replays:toggleHud(mode)
 		if (self.GameHudRight ~= nil) then
 			self.GameHudRight:show()
 		end
-	else
-		set_hint_override()
 	end
 end
 

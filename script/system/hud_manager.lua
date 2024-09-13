@@ -889,11 +889,17 @@ function TBHud:spawnPauseButton()
 	})
 	table.insert(self.MiscButtonHolders, pauseButtonHolder)
 	local pauseButton = TBHudInternal.generateTouchButton(pauseButtonHolder, "../textures/menu/general/buttons/playpause.tga", { x = 0, y = 0, w = 128, h = 128 }, 0.8)
+	local clickClock = 0
+	pauseButton:addMouseDownHandler(function()
+		clickClock = os.clock_real()
+	end)
+	local stepSingleFrame = false
 	pauseButton:addMouseUpHandler(function()
+		clickClock = 0
 		if (TUTORIAL_ISACTIVE) then
 			call_hook("key_up", 112)
 		else
-			toggle_game_pause()
+			toggle_game_pause(stepSingleFrame)
 		end
 	end)
 	table.insert(self.ButtonsToRefresh, {
@@ -901,7 +907,87 @@ function TBHud:spawnPauseButton()
 		shouldBeDisplayed = function() return self.WorldState.game_type == 0 and self.WorldState.replay_mode > 0 end
 	})
 	pauseButtonHolder:addCustomDisplay(true, function()
-			pauseButton.icon.atlas.x = is_game_paused() and 0 or pauseButton.icon.atlas.w
+			local gamePaused = is_game_paused()
+			pauseButton.icon.atlas.x = gamePaused and (stepSingleFrame and pauseButton.icon.atlas.w * 2 or 0) or pauseButton.icon.atlas.w
+			if (gamePaused and not TUTORIAL_ISACTIVE) then
+				if (clickClock > 0 and UIElement.clock - clickClock > UIElement.longPressDuration) then
+					disable_mouse_camera_movement()
+					play_haptics(0.2, HAPTICS.IMPACT)
+					clickClock = 0
+					local optionsHolder = pauseButtonHolder:addChild({
+						pos = { -self.DefaultButtonSize * 1.3 - self.DefaultSmallerButtonSize * 0.5, -self.DefaultButtonSize - self.DefaultSmallerButtonSize },
+						size = { self.DefaultButtonSize * 2.6, self.DefaultButtonSize * 0.9 },
+						bgColor = TB_MENU_DEFAULT_BG_COLOR_TRANS,
+						shapeType = ROUNDED,
+						rounded = 5
+					})
+					---Setup invisible element that would kill our object on mouse up event
+					local optionsKiller = optionsHolder:addChild({
+						pos = { -WIN_W * 2, -WIN_H * 2 },
+						size = { WIN_W * 4, WIN_H * 4 },
+						interactive = true
+					})
+					optionsKiller.hoverState = BTN_DN
+					optionsKiller:addMouseUpHandler(function() optionsHolder:kill() enable_mouse_camera_movement() end)
+
+					local stepSingleFrameButton = optionsHolder:addChild({
+						pos = { 2, 2 },
+						size = { optionsHolder.size.w - 4, (optionsHolder.size.h - 6) / 2 },
+						interactive = true,
+						bgColor = TB_MENU_DEFAULT_BG_COLOR,
+						pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+						hoverThrough = true,
+						clickThrough = true
+					}, true)
+					stepSingleFrameButton:addCustomDisplay(function()
+						if (not (
+							MOUSE_X >= stepSingleFrameButton.pos.x and MOUSE_X <= stepSingleFrameButton.pos.x + stepSingleFrameButton.size.w and
+							MOUSE_Y >= stepSingleFrameButton.pos.y and MOUSE_Y <= stepSingleFrameButton.pos.y + stepSingleFrameButton.size.h)) then
+							stepSingleFrameButton.hoverState = BTN_NONE
+						end
+					end, true)
+					stepSingleFrameButton:addChild({
+						shift = { 10, 3 }
+					}):addAdaptedText(stepSingleFrame and TB_MENU_LOCALIZED.HUDSTEPFRAMEFULL or TB_MENU_LOCALIZED.HUDSTEPFRAMESINGLE, nil, nil, FONTS.LMEDIUM, nil, 0.7)
+					stepSingleFrameButton:addMouseMoveHandler(function()
+						if (stepSingleFrameButton.hoverState ~= BTN_DN) then
+							play_haptics(0.6, HAPTICS.SELECTION)
+						end
+						stepSingleFrameButton.hoverState = BTN_DN
+					end)
+					stepSingleFrameButton:addMouseUpHandler(function()
+						toggle_game_pause(true)
+					end)
+
+					local stepSingleFrameButtonToggle = optionsHolder:addChild({
+						pos = { stepSingleFrameButton.shift.x, stepSingleFrameButton.shift.y * 2 + stepSingleFrameButton.size.h },
+						size = { stepSingleFrameButton.size.w, stepSingleFrameButton.size.h },
+						interactive = true,
+						bgColor = TB_MENU_DEFAULT_BG_COLOR,
+						pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+						hoverThrough = true,
+						clickThrough = true
+					}, true)
+					stepSingleFrameButtonToggle:addCustomDisplay(function()
+						if (not (
+							MOUSE_X >= stepSingleFrameButtonToggle.pos.x and MOUSE_X <= stepSingleFrameButtonToggle.pos.x + stepSingleFrameButtonToggle.size.w and
+							MOUSE_Y >= stepSingleFrameButtonToggle.pos.y and MOUSE_Y <= stepSingleFrameButtonToggle.pos.y + stepSingleFrameButtonToggle.size.h)) then
+								stepSingleFrameButtonToggle.hoverState = BTN_NONE
+						end
+					end, true)
+					local iconScale = stepSingleFrameButtonToggle.size.h * 0.5
+					TBMenu:showTextWithImage(stepSingleFrameButtonToggle:addChild({ shift = { 10, 3 } }), TB_MENU_LOCALIZED.HUDSTEPSINGLETOGGLE, FONTS.LMEDIUM, iconScale, stepSingleFrame and "../textures/menu/general/buttons/checkmark.tga" or "../textures/menu/general/buttons/crosswhite.tga", { maxTextScale = 0.7 })
+					stepSingleFrameButtonToggle:addMouseMoveHandler(function()
+						if (stepSingleFrameButtonToggle.hoverState ~= BTN_DN) then
+							play_haptics(0.6, HAPTICS.SELECTION)
+						end
+						stepSingleFrameButtonToggle.hoverState = BTN_DN
+					end)
+					stepSingleFrameButtonToggle:addMouseUpHandler(function()
+						stepSingleFrame = not stepSingleFrame
+					end)
+				end
+			end
 		end)
 end
 

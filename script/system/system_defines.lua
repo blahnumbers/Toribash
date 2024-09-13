@@ -1407,8 +1407,10 @@ function freeze_game() end
 ---@see toggle_game_pause
 function unfreeze_game() end
 
----Simulates `pause` hotkey behavior and pauses or unpauses the game depending on its current state
-function toggle_game_pause() end
+---Simulates `pause` hotkey behavior and pauses or unpauses the game depending on its current state. \
+---*Pass `true` to simulate SHIFT + P behavior*
+---@param single_frame ?boolean
+function toggle_game_pause(single_frame) end
 
 ---Simulates `pause` hotkey behavior. Will be removed in future releases. \
 ---@deprecated
