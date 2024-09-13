@@ -1328,3 +1328,4 @@ ACCOUNTINFOMANAGEDESC	Change your username, password, linked email and other set
 SETTINGSKEYFRAMESAVING	Keyframe saving mode
 SETTINGSKEYFRAMESAVEMODE1	Current replay speed
 SETTINGSKEYFRAMESAVEMODE2	Default replay speed (1x)
+HUDRESUMEREPLAY	Resume replay

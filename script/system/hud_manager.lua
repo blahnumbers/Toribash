@@ -948,7 +948,7 @@ function TBHud:spawnPauseButton()
 					end, true)
 					stepSingleFrameButton:addChild({
 						shift = { 10, 3 }
-					}):addAdaptedText(stepSingleFrame and TB_MENU_LOCALIZED.HUDSTEPFRAMEFULL or TB_MENU_LOCALIZED.HUDSTEPFRAMESINGLE, nil, nil, FONTS.LMEDIUM, nil, 0.7)
+					}):addAdaptedText(stepSingleFrame and TB_MENU_LOCALIZED.HUDRESUMEREPLAY or TB_MENU_LOCALIZED.HUDSTEPFRAMESINGLE, nil, nil, FONTS.LMEDIUM, nil, 0.7)
 					stepSingleFrameButton:addMouseMoveHandler(function()
 						if (stepSingleFrameButton.hoverState ~= BTN_DN) then
 							play_haptics(0.6, HAPTICS.SELECTION)
@@ -956,7 +956,7 @@ function TBHud:spawnPauseButton()
 						stepSingleFrameButton.hoverState = BTN_DN
 					end)
 					stepSingleFrameButton:addMouseUpHandler(function()
-						toggle_game_pause(true)
+						toggle_game_pause(not stepSingleFrame)
 					end)
 
 					local stepSingleFrameButtonToggle = optionsHolder:addChild({
