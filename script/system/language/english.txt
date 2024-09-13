@@ -1325,3 +1325,6 @@ ACCOUNTINFOLOGINSCREEN	Login Screen
 ACCOUNTINFOLOGINSCREENDESC	View your login information or switch your active account
 ACCOUNTINFOMANAGE	Manage Account
 ACCOUNTINFOMANAGEDESC	Change your username, password, linked email and other settings
+SETTINGSKEYFRAMESAVING	Keyframe saving mode
+SETTINGSKEYFRAMESAVEMODE1	Current replay speed
+SETTINGSKEYFRAMESAVEMODE2	Default replay speed (1x)

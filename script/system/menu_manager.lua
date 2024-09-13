@@ -1996,10 +1996,14 @@ function TBMenu:showHotkeys()
 				},
 				{
 					keys = { "k" },
-					desc = TB_MENU_LOCALIZED.HOTKEYSREPLAYKEYFRAME
+					desc = TB_MENU_LOCALIZED.HOTKEYSREPLAYKEYFRAME .. " @ " .. TB_MENU_LOCALIZED["SETTINGSKEYFRAMESAVEMODE" .. (get_option("keyframesavemode") == 0 and 1 or 2)]
 				},
 				{
-					keys = { "k", "shift" },
+					keys = { { "alt", "ctrl" }, "k" },
+					desc = TB_MENU_LOCALIZED.HOTKEYSREPLAYKEYFRAME .. " @ " .. TB_MENU_LOCALIZED["SETTINGSKEYFRAMESAVEMODE" .. (get_option("keyframesavemode") == 1 and 1 or 2)]
+				},
+				{
+					keys = { "shift", "k" },
 					desc = TB_MENU_LOCALIZED.HOTKEYSREPLAYKEYFRAMESCLEAR
 				},
 				{

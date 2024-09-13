@@ -1319,6 +1319,30 @@ function Settings:getSettingsData(id)
 									end
 							}
 						},
+					},
+					{
+						name = TB_MENU_LOCALIZED.SETTINGSKEYFRAMESAVING,
+						type = DROPDOWN,
+						systemname = "keyframesavemode",
+						selectedAction = function()
+							return get_option("keyframesavemode") + 1
+						end,
+						dropdown = {
+							{
+								text = TB_MENU_LOCALIZED.SETTINGSKEYFRAMESAVEMODE1,
+								action = function()
+										Settings.Stored.keyframesavemode = { value = 0 }
+										Settings:settingsApplyActivate()
+									end
+							},
+							{
+								text = TB_MENU_LOCALIZED.SETTINGSKEYFRAMESAVEMODE2,
+								action = function()
+										Settings.Stored.keyframesavemode = { value = 1 }
+										Settings:settingsApplyActivate()
+									end
+							}
+						}
 					}
 				}
 			},

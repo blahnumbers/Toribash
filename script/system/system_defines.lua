@@ -2964,6 +2964,7 @@ function save_custom_config() end
 ---| "camerasensitivityvert"
 ---| "ghostobj"
 ---| "scrollcontrols"
+---| "keyframesavemode"
 ---| "aidifficulty" Toribash builds with AI fight mode only
 
 ---Retrieves a value of the specified Toribash option
