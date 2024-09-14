@@ -997,7 +997,7 @@ function PlayerInfoInternal.parseServerUserinfo(userinfo)
 				action = function() open_url("https://forum.toribash.com/forumdisplay.php?f=594") end
 			})
 		elseif (ln:find("^GREYLIST 0;")) then
-			table.insert(userinfo, {
+			table.insert(userinfo, 1, {
 				name = TB_MENU_LOCALIZED.ACCOUNTSTATUS or "Account Status",
 				value = (TB_MENU_LOCALIZED.ACCOUNTGREYLISTED or "Trading Greylisted") .. " (" .. TBMenu:getTime(ln:gsub("^GREYLIST 0;", "") + 0, 2) .. ")",
 				customColor = TB_MENU_DEFAULT_YELLOW,
@@ -1005,7 +1005,7 @@ function PlayerInfoInternal.parseServerUserinfo(userinfo)
 				customUiColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 				hint = TB_MENU_LOCALIZED.ACCOUNTGREYLISTEDINFO or "Your account has limited trading capabilities. You can wait your greylist period out or contact an administrator to lift it earlier.",
 				action = function() open_url("https://www.toribash.com/discord.php") end
-			}, 1)
+			})
 		elseif (ln:find("^EMAILERR 0;")) then
 			table.insert(userinfo, 1, {
 				name = TB_MENU_LOCALIZED.ACCOUNTSTATUS or "Account Status",
