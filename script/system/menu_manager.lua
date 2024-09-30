@@ -604,7 +604,7 @@ function TBMenu:showHomeButton(viewElement, buttonData, hasSmudge, extraElements
 				TBMenu:displayLoadingMark(itemIcon, nil, elementHeight / 5)
 				add_hook("downloader_complete", "__menuMain" .. filename, function(name)
 						if (name:find(filename .. "$")) then
-							Downloader:safeCall(function()
+							Downloader.SafeCall(function()
 								News:removeFromQueue(name)
 								if (viewElement:isDisplayed()) then
 									viewElement:kill(true)
@@ -2406,14 +2406,23 @@ function TBMenu:showUserBar()
 		pos = { tbMenuUserName.shift.x + tbMenuUserName.size.w, tbMenuUserName.shift.y + 2 },
 		size = { infoHolder.size.w - tbMenuUserName.shift.x * 2, tbMenuUserName.size.h - 4 },
 		interactive = true,
-		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		bgColor = table.clone(TB_MENU_DEFAULT_DARKER_COLOR),
 		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 		pressedColor = TB_MENU_DEFAULT_DARKER_ORANGE,
 		shapeType = ROUNDED,
 		rounded = tbMenuUserName.size.h
 	})
+	local hasAccountWarnings = false
+	if (self.UserAccountInfo ~= nil and self.UserAccountInfo.ready) then
+		for _, v in ipairs(self.UserAccountInfo) do
+			if (type(v) == "table" and v.hint ~= nil) then
+				hasAccountWarnings = true
+				break
+			end
+		end
+	end
 	accountButton:addAdaptedText(false, TB_MENU_LOCALIZED.NAVBUTTONACCOUNT, 15, nil, 4, LEFTMID, 0.65)
-	accountButton.size.w = get_string_length(accountButton.dispstr[1], accountButton.textFont) * accountButton.textScale + 30
+	accountButton.size.w = get_string_length(accountButton.dispstr[1], accountButton.textFont) * accountButton.textScale + (hasAccountWarnings and accountButton.size.h + 20 or 30)
 	if (tbMenuUserName.shift.x + tbMenuUserName.size.w + accountButton.size.w > infoHolder.size.w) then
 		tbMenuUserName.size.w = infoHolder.size.w - (tbMenuUserName.shift.x + accountButton.size.w)
 		accountButton:moveTo(tbMenuUserName.shift.x + tbMenuUserName.size.w)
@@ -2426,6 +2435,15 @@ function TBMenu:showUserBar()
 				open_menu(18)
 			end
 		end)
+	if (hasAccountWarnings) then
+		accountButton:addChild({
+			pos = { -accountButton.size.h + 3, 3 },
+			size = { accountButton.size.h - 6, accountButton.size.h - 6 },
+			bgColor = TB_MENU_DEFAULT_YELLOW,
+			uiColor = UICOLORBLACK
+		}, true):addAdaptedText("!", nil, nil, nil, nil, 0.7)
+	end
+	TBMenu.UserBar.HasWarnings = hasAccountWarnings
 
 	local infoOffset = tbMenuUserName.shift.y + tbMenuUserName.size.h
 	local tbMenuClan = nil
@@ -5015,6 +5033,7 @@ end
 ---Queues data updates that we want to do periodically
 function TBMenu.RefreshData()
 	Store.GetPlayerOffers()
+	TBMenu.UserAccountInfo = PlayerInfo.getServerUserinfo()
 
 	local newsType = "news"
 	if (is_steam()) then

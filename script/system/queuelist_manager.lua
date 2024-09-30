@@ -931,7 +931,7 @@ function QueueList:show(info)
 		download_head(pName)
 		add_hook("downloader_complete", self.HookName, function(file)
 				if (string.find(file, pName .. "/item.dat")) then
-					Downloader:safeCall(function()
+					Downloader.SafeCall(function()
 							if (queuelistBox ~= nil and not queuelistBox.destroyed and
 								queuelistBox.headViewport ~= nil and not queuelistBox.headViewport.destroyed) then
 								queuelistBox.headViewport:kill(true)

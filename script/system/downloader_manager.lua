@@ -4,17 +4,20 @@ require("system.playerinfo_manager")
 if (Downloader == nil) then
 	---Downloader manager class
 	---
+	---**Version 5.72**
+	---* SafeCall() update to act as a "static" method
+	---
 	---**Ver 1.0**
 	---* Initial release
 	---@class Downloader
 	---@field ver number Current class version
 	---@field Queue function[]
 	Downloader = {
-		__index = {},
-		ver = 1.0,
-		Queue = {},
+		ver = 5.72,
+		Queue = { },
 		initialized = false
 	}
+	Downloader.__index = Downloader
 end
 
 ---Queues a function to be executed on next `downloader_complete` callback
@@ -25,29 +28,37 @@ function Downloader:queue(func)
 		return nil
 	end
 
-	table.insert(Downloader.Queue, func)
-	return #Downloader.Queue
+	table.insert(self.Queue, func)
+	return #self.Queue
 end
 
 ---Initializes the downloader by queueing some major Toribash data files for update.\
 ---Will only be called once per session.
 ---@return nil
 function Downloader:init()
-	if (Downloader.initialized) then return end
+	if (self.initialized) then return end
 	if (string.len(PlayerInfo.Get().username) > 0) then
-		Downloader:queue(function() download_global_quests() end)
-		Downloader:queue(function() download_inventory() end)
+		self:queue(download_global_quests)
+		self:queue(download_inventory)
 	end
-	Downloader:queue(function() download_clan() end)
+	self:queue(download_clan)
 
-	Downloader.initialized = true
+	add_hook("downloader_complete", "__tbDownloaderManagerStatic", function()
+		if (#self.Queue > 0) then
+			local func = self.Queue[1]
+			table.remove(self.Queue, 1)
+			func()
+		end
+	end)
+
+	self.initialized = true
 end
 
 ---Should be used for `downloader_complete` callbacks as they may crash the game on certain functions.\
 ---Queues a function to be executed on next `pre_draw` callback.
 ---@param func function
 ---@return string|nil #Spawned hook set name or `nil` on error
-function Downloader:safeCall(func)
+function Downloader.SafeCall(func)
 	if (type(func) ~= "function") then
 		return nil
 	end
@@ -56,13 +67,5 @@ function Downloader:safeCall(func)
 	add_hook("pre_draw", id, function() func() remove_hook("pre_draw", id) end)
 	return id
 end
-
-add_hook("downloader_complete", "__tbDownloaderManagerStatic", function()
-	if (#Downloader.Queue > 0) then
-		local func = Downloader.Queue[1]
-		table.remove(Downloader.Queue, 1)
-		func()
-	end
-end)
 
 Downloader:init()

@@ -94,7 +94,7 @@ if (Store == nil) then
 		InventoryShowEmptySets = false,
 		HookNameVanilla = "__tbStoreManagerVanilla",
 		HookName = "__tbStoreManager",
-		ver = 5.65
+		ver = 5.70
 	}
 	Store.__index = Store
 
@@ -1671,7 +1671,7 @@ function Store:showInventoryItemCustomize(item)
 					-- Wasn't there, wait for downloader
 					add_hook("downloader_complete", hookName, function(name)
 						if (name:match("^.*/store/inventory/" .. item.inventid .. ".tga")) then
-							Downloader:safeCall(onImageDownloaded)
+							Downloader.SafeCall(onImageDownloaded)
 						end
 					end)
 					-- get_downloads() doesn't get updated until after this code is run, add a pre_draw hook to check on next frame
@@ -5474,7 +5474,7 @@ function Store:addIconToDownloadQueue(item, path, element)
 					---Make sure we cache both the itemid and UIElement we're going to modify
 					local itemid = Store.IconDownloadQueue[i].itemid
 					local element = Store.IconDownloadQueue[i].element
-					Downloader:safeCall(function()
+					Downloader.SafeCall(function()
 						if (element ~= nil and not element.destroyed) then
 							element:updateImage(Store:getItemIcon(itemid))
 						end

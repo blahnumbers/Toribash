@@ -534,7 +534,7 @@ function Quests:showQuestButton(quest, listingHolder, listElements, elementHeigh
 						add_hook("downloader_complete", self.HookName, function(filename)
 							if (filename:find("data/quest.txt")) then
 								remove_hook("downloader_complete", self.HookName)
-								Downloader:safeCall(function()
+								Downloader.SafeCall(function()
 									if (questProgressBarState and not questProgressBarState.destroyed) then
 										Quests:showMain()
 									end
@@ -697,7 +697,7 @@ function Quests:showMainQuestList(viewElement, questsData)
 				add_hook("downloader_complete", self.HookName, function(filename)
 					if (filename:find("data/quest.txt")) then
 						remove_hook("downloader_complete", self.HookName)
-						Downloader:safeCall(function()
+						Downloader.SafeCall(function()
 							if (claimAllButton and not claimAllButton.destroyed) then
 								Quests:showMain()
 							end

@@ -412,7 +412,7 @@ end
 
 add_hook("downloader_complete", News.HookName, function(filename)
 		if (filename:find("data/news.txt")) then
-			Downloader:safeCall(function()
+			Downloader.SafeCall(function()
 					News:getNews(true)
 				end)
 		else

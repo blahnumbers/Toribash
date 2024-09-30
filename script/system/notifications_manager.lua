@@ -7,6 +7,9 @@ require("system.quests_manager")
 if (Notifications == nil) then
 	---Notifications manager class
 	---
+	---**Version 5.72:**
+	---* Message deletion without complete notification cache reload
+	---
 	---**Version 5.60:**
 	---* Full EmmyLua annotations
 	---* Moved globals to be Notifications class fields
@@ -18,8 +21,8 @@ if (Notifications == nil) then
 	---@class Notifications
 	Notifications = {
 		MessageLoadingInProgress = false,
-		LastUpdate = { count = 0, data = 0 },
-		ver = 5.60,
+		LastUpdate = { count = -1000, data = -1000 },
+		ver = 5.72,
 		__index = {}
 	}
 end
@@ -59,6 +62,18 @@ local NotificationsInternal = {
 	NotificationsMessages = {},
 	__index = {}
 }
+
+---Deletes a message from cache
+---@param messageInfo NotificationMessage
+function NotificationsInternal.DeleteMessage(messageInfo)
+	for i, v in pairs(NotificationsInternal.NotificationsData) do
+		if (v.id == messageInfo.id) then
+			table.remove(NotificationsInternal.NotificationsData, i)
+			NotificationsInternal.NotificationsMessages[v.id] = nil
+			break
+		end
+	end
+end
 
 function Notifications:quit()
 	TBMenu:clearNavSection()
@@ -342,7 +357,8 @@ function Notifications:showNotificationText(viewElement, notification)
 						local response = get_network_response();
 						local success = response:gsub("%D", '')
 						if (success == '1') then
-							Notifications:prepareNotifications(true)
+							NotificationsInternal.DeleteMessage(notification)
+							Notifications:prepareNotifications()
 							return
 						end
 						TBMenu:showStatusMessage(TB_MENU_LOCALIZED.ERRORTRYAGAIN)
@@ -651,10 +667,10 @@ function Notifications:prepareNotifications(forceReload)
 	end
 
 	if (forceReload or NotificationsInternal.NotificationsUser ~= PlayerInfo.Get().username) then
-		Notifications.LastUpdate.data = 0
+		Notifications.LastUpdate.data = -1000
 	end
 
-	if (Notifications.LastUpdate.data + 60 < os.time()) then
+	if (Notifications.LastUpdate.data + 120 < os.clock_real()) then
 		Notifications:getTotalNotifications(true)
 		local notificationsMain = TBMenu.CurrentSection:addChild({
 			shift = { 5, 0 },
@@ -671,7 +687,7 @@ function Notifications:prepareNotifications(forceReload)
 						TBMenu.NavigationBar:kill(true)
 						TBMenu:showNavigationBar(Notifications:getNavigationButtons(), true, true, TB_MENU_NOTIFICATIONS_LASTSCREEN)
 						Notifications:showNotifications(TBMenu.CurrentSection)
-						Notifications.LastUpdate.data = os.time()
+						Notifications.LastUpdate.data = os.clock_real()
 					else
 						loader:kill(true)
 						loader:addAdaptedText(false, TB_MENU_LOCALIZED.ERRORTRYAGAIN)

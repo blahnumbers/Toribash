@@ -3824,7 +3824,7 @@ do
 				add_hook("downloader_complete", Market.HookName, function(filename)
 						if (filename:find(featuredShopData.user .. "%.tga")) then
 							if (featuredLoader) then
-								Downloader:safeCall(function()
+								Downloader.SafeCall(function()
 										featuredShopImage:updateImage("../textures/store/market/" .. featuredShopData.user .. ".tga", "../textures/store/inventory/noise.tga")
 										featuredLoader:kill()
 									end)

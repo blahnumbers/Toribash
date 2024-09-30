@@ -170,7 +170,7 @@ add_hook("downloader_complete", "__tbMainMenuStatic", function(filename)
 			return
 		end
 		if (filename:find("custom/" .. TB_MENU_PLAYER_INFO.username .. "/item.dat")) then
-			Downloader:safeCall(function()
+			Downloader.SafeCall(function()
 				TB_MENU_PLAYER_INFO:getUserData()
 				TB_MENU_PLAYER_INFO:getItems(PLAYERINFO_CSCOPE_ALL)
 				TB_MENU_PLAYER_INFO:getClan()
@@ -180,33 +180,33 @@ add_hook("downloader_complete", "__tbMainMenuStatic", function(filename)
 				end
 			end)
 		elseif (filename:find("data/store.txt")) then
-			Downloader:safeCall(Store.GetItems)
+			Downloader.SafeCall(Store.GetItems)
 		elseif (filename:find("data/store_obj.txt")) then
-			Downloader:safeCall(Store.GetModelsData)
+			Downloader.SafeCall(Store.GetModelsData)
 		elseif (filename:find("data/clans.txt")) then
-			Downloader:safeCall(function()
+			Downloader.SafeCall(function()
 				Clans:getClanData(true)
 				TB_MENU_PLAYER_INFO:getClan()
 				TB_MENU_CUSTOMS_REFRESHED = true
 			end)
 		elseif (filename:find("data/clanlevels.txt")) then
-			Downloader:safeCall(function()
+			Downloader.SafeCall(function()
 				Clans:getLevelData(true)
 			end)
 		elseif (filename:find("data/clanachievements.txt")) then
-			Downloader:safeCall(function()
+			Downloader.SafeCall(function()
 				Clans:getAchievementData(true)
 			end)
 		elseif (filename:find("data/quest.txt")) then
-			Downloader:safeCall(function()
+			Downloader.SafeCall(function()
 				Quests:getQuests()
 			end)
 		elseif (filename:find("data/quests_global.dat")) then
-			Downloader:safeCall(function()
+			Downloader.SafeCall(function()
 				Quests:getGlobalQuests()
 			end)
 		elseif (filename:find("data/inventory.txt")) then
-			Downloader:safeCall(Store.ParseInventory)
+			Downloader.SafeCall(Store.ParseInventory)
 		end
 	end)
 

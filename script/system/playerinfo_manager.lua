@@ -33,6 +33,12 @@ PLAYERINFO_CSCOPE_ALL = bit.bor(PLAYERINFO_CSCOPE_COLORS, PLAYERINFO_CSCOPE_TEXT
 if (PlayerInfo == nil) then
 	---**Player information class**
 	---
+	---**Version 5.72**
+	---* Special handling for parsing current user info with TBMenu.UserBar reloading when needed
+	---
+	---**Version 5.71**
+	---* `PlayerInfoInternal.parseServerUserinfo()` updates with warnings first in the list and namechange warning
+	---
 	---**Version 5.60**
 	---* Object-oriented approach, introduced **PlayerInfo.Get()** function that returns an object to work with
 	---* Added documentation with EmmyLua annotations
@@ -44,7 +50,7 @@ if (PlayerInfo == nil) then
 	---@field data PlayerInfoData
 	---@field __isCurrentUser boolean Internal flag that will be set to `true` if this data belongs to the currently logged in user
 	PlayerInfo = {
-		ver = 5.60
+		ver = 5.72
 	}
 	PlayerInfo.__index = PlayerInfo
 end
@@ -940,6 +946,7 @@ end
 ---@param userinfo RequestPromise
 function PlayerInfoInternal.parseServerUserinfo(userinfo)
 	local response = get_network_response()
+	local hasWarning = false
 	for ln in (response:gmatch("[^\n]*\n?")) do
 		local ln = ln:gsub("\n$", '')
 		if (ln:find("^USERNAME 0;")) then
@@ -958,7 +965,7 @@ function PlayerInfoInternal.parseServerUserinfo(userinfo)
 			local belt = PlayerInfo.getBeltFromQi(qi)
 			table.insert(userinfo, {
 				name = TB_MENU_LOCALIZED.WORDQI,
-				value = qi .. " (" .. belt.name .. " Belt)"
+				value = numberFormat(qi) .. " (" .. belt.name .. " Belt)"
 			})
 		elseif (ln:find("^TODAYGAMES 0;")) then
 			table.insert(userinfo, {
@@ -988,15 +995,17 @@ function PlayerInfoInternal.parseServerUserinfo(userinfo)
 				value = TBMenu:getTime(ln:gsub("^QIRESET 0;", "") + 0, 2)
 			})
 		elseif (ln:find("^BANNED 0;")) then
+			hasWarning = true
 			table.insert(userinfo, 1, {
 				name = TB_MENU_LOCALIZED.ACCOUNTSTATUS or "Account Status",
-				value = (TB_MENU_LOCALIZED.ACCOUNTSUSPENDED or "Suspended") .. " (" .. ln:gsub("^BANNED 0; ?", "") .. ")",
+				value = (TB_MENU_LOCALIZED.ACCOUNTSUSPENDED or "Suspended") .. " (" .. ln:gsub("^BANNED 0;%d+ ", "") .. ")",
 				customColor = UICOLORRED,
 				customHoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
 				hint = TB_MENU_LOCALIZED.ACCOUNTSUSPENDEDINFO,
-				action = function() open_url("https://forum.toribash.com/forumdisplay.php?f=594") end
+				action = function() open_url("https://forum.toribash.com/forumdisplay.php?f=594", true) end
 			})
 		elseif (ln:find("^GREYLIST 0;")) then
+			hasWarning = true
 			table.insert(userinfo, 1, {
 				name = TB_MENU_LOCALIZED.ACCOUNTSTATUS or "Account Status",
 				value = (TB_MENU_LOCALIZED.ACCOUNTGREYLISTED or "Trading Greylisted") .. " (" .. TBMenu:getTime(ln:gsub("^GREYLIST 0;", "") + 0, 2) .. ")",
@@ -1007,6 +1016,7 @@ function PlayerInfoInternal.parseServerUserinfo(userinfo)
 				action = function() open_url("https://www.toribash.com/discord.php") end
 			})
 		elseif (ln:find("^EMAILERR 0;")) then
+			hasWarning = true
 			table.insert(userinfo, 1, {
 				name = TB_MENU_LOCALIZED.ACCOUNTSTATUS or "Account Status",
 				value = TB_MENU_LOCALIZED.ACCOUNTNOEMAIL or "No email connected",
@@ -1014,9 +1024,10 @@ function PlayerInfoInternal.parseServerUserinfo(userinfo)
 				customHoverColor = TB_MENU_DEFAULT_ORANGE,
 				customUiColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 				hint = TB_MENU_LOCALIZED.ACCOUNTEMAILERRORINFO or "Your account's capabilities will be limited until you connect an email to your account and confirm it.",
-				action = function() open_url("https://forum.toribash.com/profile.php?do=editpassword") end
+				action = function() open_url("https://forum.toribash.com/profile.php?do=editpassword", true) end
 			})
 		elseif (ln:find("^EMAILERR 1;")) then
+			hasWarning = true
 			table.insert(userinfo, 1, {
 				name = TB_MENU_LOCALIZED.ACCOUNTSTATUS or "Account Status",
 				value = TB_MENU_LOCALIZED.ACCOUNTAWAITINGCONFIRMATION or "Awaiting Email Confirmation",
@@ -1024,7 +1035,18 @@ function PlayerInfoInternal.parseServerUserinfo(userinfo)
 				customHoverColor = TB_MENU_DEFAULT_ORANGE,
 				customUiColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 				hint = TB_MENU_LOCALIZED.ACCOUNTEMAILERRORINFO or "Your account's capabilities will be limited until you connect an email to your account and confirm it.",
-				action = function() open_url("https://forum.toribash.com/profile.php?do=editpassword") end
+				action = function() open_url("https://forum.toribash.com/profile.php?do=editpassword", true) end
+			})
+		elseif (ln:find("^NAMECHANGE 0;")) then
+			hasWarning = true
+			table.insert(userinfo, 1, {
+				name = TB_MENU_LOCALIZED.ACCOUNTSTATUS or "Account Status",
+				value = TB_MENU_LOCALIZED.ACCOUNTORIGINALNAMETAKEN or "Original name claimed by another user",
+				customColor = TB_MENU_DEFAULT_YELLOW,
+				customHoverColor = TB_MENU_DEFAULT_ORANGE,
+				customUiColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+				hint = TB_MENU_LOCALIZED.ACCOUNTORIGINALNAMETAKENINFO or "Your account's original name has been claimed by another user due to inactivity. Click here to change your name to a new one.",
+				action = function() open_url("https://forum.toribash.com/profile.php?do=modifyusername", true) end
 			})
 		elseif (ln:find("^SUBSCRIPTION %d+;")) then
 			local subInfo = ln:gsub("^SUBSCRIPTION %d+; ?", "")
@@ -1036,6 +1058,13 @@ function PlayerInfoInternal.parseServerUserinfo(userinfo)
 			})
 		end
 	end
+	---@diagnostic disable-next-line: undefined-field
+	if (userinfo.__isLocalUser and hasWarning and TBMenu.UserBar ~= nil) then
+		if (TBMenu ~= nil and TBMenu.UserBar ~= nil and TBMenu.UserBar.HasWarnings ~= hasWarning) then
+			userinfo.ready = true
+			TBMenu:showUserBar()
+		end
+	end
 end
 
 ---Queues a network request to fetch user's information from Toribash servers. \
@@ -1044,7 +1073,9 @@ end
 ---@return RequestPromise
 function PlayerInfo.getServerUserinfo(username)
 	if (type(username) ~= "string") then
-		return Request:queue(function() get_player_userinfo() end, "playerInfoServerUserinfo", PlayerInfoInternal.parseServerUserinfo)
+		local promise = Request:queue(function() get_player_userinfo() end, "playerInfoServerUserinfo", PlayerInfoInternal.parseServerUserinfo)
+		promise.__isLocalUser = true
+		return promise
 	end
 	return Request:queue(function() get_player_userinfo(username) end, "playerInfoServerUserinfo_" .. username, PlayerInfoInternal.parseServerUserinfo)
 end

@@ -1329,3 +1329,5 @@ SETTINGSKEYFRAMESAVING	Keyframe saving mode
 SETTINGSKEYFRAMESAVEMODE1	Current replay speed
 SETTINGSKEYFRAMESAVEMODE2	Default replay speed (1x)
 HUDRESUMEREPLAY	Resume replay
+ACCOUNTORIGINALNAMETAKEN	Original name claimed by another user
+ACCOUNTORIGINALNAMETAKENINFO	Your account's original name has been claimed by another user due to inactivity. Click here to change your name to a new one.
