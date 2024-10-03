@@ -3393,6 +3393,7 @@ function remove_ignore_list(user, mode) end
 ---| "input_type_change" #Called on input type change, see `INPUT_TYPE` table for types
 ---| "touch_toggle_hud" #Called on hud toggle via tap with three fingers on mobile platforms
 ---| "dropfile" #Called on SDL_DROPFILE event
+---| "touch_fingermotion_ignore" #Called on finger motion event on touch platforms. Return non-zero value to disable multi finger touch gestures.
 
 ---Adds a Lua callback listener \
 ---*Only one function per `event` + `set_name` pair is supported*

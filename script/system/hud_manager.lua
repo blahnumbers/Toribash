@@ -723,6 +723,7 @@ function TBHud:spawnCameraButtons()
 			mouseDownPosition.x = mouseDownPosition.x - joystickOffset
 			mouseDownPosition.y = mouseDownPosition.y - joystickOffset
 
+			add_hook("touch_fingermotion_ignore", TBHud.HookNameCamera, function() return 1 end)
 			add_hook("camera", TBHud.HookNameCamera, function()
 					local cameraInfo = get_camera_info()
 					local cameraPos = Vector3.New(cameraInfo.pos.x, cameraInfo.pos.y, cameraInfo.pos.z)
