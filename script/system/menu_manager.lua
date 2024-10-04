@@ -2445,6 +2445,10 @@ function TBMenu:showUserBar()
 	end
 	TBMenu.UserBar.HasWarnings = hasAccountWarnings
 
+	if (TB_MENU_PLAYER_INFO.username == "") then
+		return
+	end
+
 	local infoOffset = tbMenuUserName.shift.y + tbMenuUserName.size.h
 	local tbMenuClan = nil
 	if (clanDisplayed) then

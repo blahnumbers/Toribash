@@ -96,7 +96,7 @@ function Rewards:showMain(viewElement, rewardData)
 	local leftShift = (dayRewardsView.size.w - dayRewardWidth * 7) / 2
 	local topShift = (dayRewardsView.size.h - dayRewardHeight) / 2
 	for i = 0, 6 do
-		local bgImg = Rewards.Data[i].item.itemid ~= 0 and "../textures/store/items/" .. Rewards.Data[i].item.itemid .. ".tga" or "../textures/store/toricredit.tga"
+		local bgImg = Rewards.Data[i].item.itemid ~= 0 and Rewards.Data[i].item:getIconPath() or "../textures/store/toricredit.tga"
 		local iconSize = math.min(dayRewardWidth - 60, dayRewardHeight / 2 - 20, 108)
 
 		local rewardHolder

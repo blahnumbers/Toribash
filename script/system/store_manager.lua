@@ -1151,7 +1151,7 @@ function Store:showSetDetailsItems(viewElement, items)
 		})
 		iconHolder:addChild({
 			shift = { 2, 2 },
-			bgImage = "../textures/store/items/" .. v.itemid .. ".tga"
+			bgImage = v:getIconPath()
 		})
 		if (i % itemsPerLine == 0) then
 			line = line + 1
@@ -1281,7 +1281,7 @@ function Store:showInventoryItem(item)
 		itemInfo:addChild({
 			pos = { 0, (itemInfo.size.h - 64) / 2 },
 			size = { 64, 64 },
-			bgImage = "../textures/store/items/" .. item.itemid .. ".tga"
+			bgImage = item:getIconPath()
 		})
 		local itemDescription = itemInfo:addChild({
 			pos = { 69, 0 },
