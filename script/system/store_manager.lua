@@ -160,6 +160,8 @@ if (Store == nil) then
 	---@field upgrade_max_level integer
 	---@field effectid integer
 	---@field glow_colorid integer
+	---@field voronoi_colorid integer
+	---@field shift_colorid integer
 	InventoryItem = {
 		ver = Store.ver
 	}
@@ -387,7 +389,9 @@ local StoreInternal = {
 	ItemEffects = {
 		{ id = 1, name = "Toon Shaded", colorid = 11 },
 		{ id = 2, name = " Glow", colorid = 0, use_colorid = true },
-		{ id = 4, name = "Dithering", colorid = 135 }
+		{ id = 4, name = "Dithering", colorid = 135 },
+		{ id = 8, name = " Ripples", colorid = 0, use_colorid = true },
+		{ id = 16, name = " Shift", colorid = 0, use_colorid = true }
 	},
 	EmptyItem = StoreItem.New(),
 	ItemFields = {
@@ -433,7 +437,9 @@ local StoreInternal = {
 		{ "upgrade_price", numeric = true },
 		{ "upgrade_max_level", numeric = true },
 		{ "effectid", numeric = true },
-		{ "glow_colorid", numeric = true }
+		{ "glow_colorid", numeric = true },
+		{ "voronoi_colorid", numeric = true },
+		{ "shift_colorid", numeric = true }
 	},
 	Categories = {
 		Colors = {
@@ -526,6 +532,23 @@ local StoreInternal = {
 		EffectPurge = 10
 	}
 }
+
+---@param item InventoryItem
+---@param effect StoreItemEffect
+---@return ColorId
+function StoreInternal.GetItemEffectColorid(item, effect)
+	local targetColorid = effect.colorid
+	if (effect.use_colorid) then
+		if (effect.id == 2) then
+			targetColorid = item.glow_colorid
+		elseif (effect.id == 8) then
+			targetColorid = item.voronoi_colorid
+		elseif (effect.id == 16) then
+			targetColorid = item.shift_colorid
+		end
+	end
+	return targetColorid
+end
 
 ---Creates a new StoreItem instance from a datafile line
 ---@param ln string
@@ -1919,7 +1942,7 @@ function Store:showInventoryItemCustomize(item)
 							rounded = 4
 						})
 						local effectName = effectHolder:addChild({ shift = { 10, 5 } })
-						local res, color = pcall(get_color_info, StoreInternal.ItemEffects[i].use_colorid and item.glow_colorid or StoreInternal.ItemEffects[i].colorid)
+						local res, color = pcall(get_color_info, StoreInternal.GetItemEffectColorid(item, StoreInternal.ItemEffects[i]))
 						if (res == false) then
 							color = { name = "???", game_name = "???" }
 						end
@@ -2513,7 +2536,7 @@ function Store:showItemEffectCapsules(item, viewElement, capsuleHeight, extraDat
 
 	for j = 1, #StoreInternal.ItemEffects do
 		if (bit.band(item.effectid, StoreInternal.ItemEffects[j].id) ~= 0) then
-			local res, color = pcall(get_color_info, StoreInternal.ItemEffects[j].use_colorid and item.glow_colorid or StoreInternal.ItemEffects[j].colorid)
+			local res, color = pcall(get_color_info, StoreInternal.GetItemEffectColorid(item, StoreInternal.ItemEffects[j]))
 			if (res == false) then
 				color = { r = 0, g = 0, b = 0, name = "???", game_name = "???" }
 			end

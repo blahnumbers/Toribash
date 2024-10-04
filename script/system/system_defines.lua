@@ -762,13 +762,37 @@ function set_viewport(pos_x, pos_y, size_x, size_y) end
 
 ---@alias RenderEffectId
 ---| 0	None
----| 1	Cel Shaded
----| 2	Fresnel Glow
----| 3	Cel Shaded + Fresnel Glow
+---| 1	Toon Shaded
+---| 2	Glow
+---| 3	Toon Shaded + Glow
 ---| 4	Dithering
----| 5	Cel Shaded + Dithering
----| 6	Fresnel Glow + Dithering
----| 7	Cel Shaded + Fresnel Glow + Dithering
+---| 5	Toon Shaded + Dithering
+---| 6	Glow + Dithering
+---| 7	Toon Shaded + Glow + Dithering
+---| 8	Ripples
+---| 9	Toon Shaded + Ripples
+---| 10	Glow + Ripples
+---| 11	Toon Shaded + Glow + Ripples
+---| 12	Dithering + Ripples
+---| 13	Toon Shaded + Dithering + Ripples
+---| 14	Glow + Dithering + Ripples
+---| 15	Toon Shaded + Glow + Dithering + Ripples
+---| 16	Color Shift
+---| 17	Toon Shaded + Color Shift
+---| 18	Glow + Color Shift
+---| 19	Toon Shaded + Glow + Color Shift
+---| 20	Dithering + Color Shift
+---| 21	Toon Shaded + Dithering + Color Shift
+---| 22	Glow + Dithering + Color Shift
+---| 23	Toon Shaded + Glow + Dithering + Color Shift
+---| 24	Ripples + Color Shift
+---| 25	Toon Shaded + Ripples + Color Shift
+---| 26	Glow + Ripples + Color Shift
+---| 27	Toon Shaded + Glow + Ripples + Color Shift
+---| 28	Dithering + Ripples + Color Shift
+---| 29	Toon Shaded + Dithering + Ripples + Color Shift
+---| 30	Glow + Dithering + Ripples + Color Shift
+---| 31	Toon Shaded + Glow + Dithering + Ripples + Color Shift
 
 ---Sets the rendering effects for subsequent 3D drawing calls
 ---@param effectid RenderEffectId
