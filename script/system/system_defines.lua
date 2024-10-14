@@ -469,6 +469,16 @@ _G.CAMERA_CACHE_MODE = {
 	PLAY = 3
 }
 
+---Effect Types
+_G.EFFECT_TYPE = {
+	NONE = 0,
+	CELSHADED = 1,
+	GLOW = 2,
+	DITHERING = 4,
+	VORONOI = 8,
+	COLORSHIFT = 16
+}
+
 ---@class MatrixTB
 ---@field r0 number
 ---@field r1 number
@@ -761,15 +771,15 @@ function set_viewport(pos_x, pos_y, size_x, size_y) end
 ---| 142	COLORS.TENNISGREEN
 
 ---@alias RenderEffectId
----| 0	None
----| 1	Toon Shaded
----| 2	Glow
+---| 0	EFFECT_TYPE.NONE | None
+---| 1	EFFECT_TYPE.CELSHADED | Toon Shaded
+---| 2	EFFECT_TYPE.FRESNEL | Glow
 ---| 3	Toon Shaded + Glow
----| 4	Dithering
+---| 4	EFFECT_TYPE.DITHERING | Dithering
 ---| 5	Toon Shaded + Dithering
 ---| 6	Glow + Dithering
 ---| 7	Toon Shaded + Glow + Dithering
----| 8	Ripples
+---| 8	EFFECT_TYPE.VORONOI | Ripples
 ---| 9	Toon Shaded + Ripples
 ---| 10	Glow + Ripples
 ---| 11	Toon Shaded + Glow + Ripples
@@ -777,7 +787,7 @@ function set_viewport(pos_x, pos_y, size_x, size_y) end
 ---| 13	Toon Shaded + Dithering + Ripples
 ---| 14	Glow + Dithering + Ripples
 ---| 15	Toon Shaded + Glow + Dithering + Ripples
----| 16	Color Shift
+---| 16	EFFECT_TYPE.COLORSHIFT | Color Shift
 ---| 17	Toon Shaded + Color Shift
 ---| 18	Glow + Color Shift
 ---| 19	Toon Shaded + Glow + Color Shift
@@ -799,7 +809,12 @@ function set_viewport(pos_x, pos_y, size_x, size_y) end
 ---@param glow_colorid ?ColorId
 ---@param glow_intensity ?number
 ---@param dither_pixelsize ?integer
-function set_draw_effect(effectid, glow_colorid, glow_intensity, dither_pixelsize) end
+---@param voronoi_scale ?number
+---@param voronoi_fresnel ?boolean
+---@param voronoi_colorid ?ColorId
+---@param shift_colorid ?ColorId
+---@param shift_scale ?number
+function set_draw_effect(effectid, glow_colorid, glow_intensity, dither_pixelsize, voronoi_scale, voronoi_fresnel, voronoi_colorid, shift_colorid, shift_scale) end
 
 ---Draws a 3D cube with the specified settings (use Euler angles)
 ---@param pos_x number
@@ -1963,7 +1978,10 @@ function set_body_color(player, body, color) end
 ---@param glow_color ?ColorId
 ---@param glow_intensity ?integer
 ---@param dither_pixel_size ?integer
-function set_body_effect(player, effectid, type, glow_color, glow_intensity, dither_pixel_size) end
+---@param voronoi_scale ?integer
+---@param voronoi_colorid ?ColorId
+---@param shift_colorid ?ColorId
+function set_body_effect(player, effectid, type, glow_color, glow_intensity, dither_pixel_size, voronoi_scale, voronoi_colorid, shift_colorid) end
 
 ---Sets blood color for the specified player
 ---@param player integer

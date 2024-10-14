@@ -36,10 +36,15 @@ _G.CUSTOMOBJ = 4
 _G.VIEWPORT = 5
 
 ---@class RenderEffect
----@field id RenderEffectId Effect id
----@field glowColor ColorId Glow color id
----@field glowIntensity number Glow intensity
----@field ditherPixelSize integer Dithering effect pixel size
+---@field id RenderEffectId
+---@field glowColor ColorId
+---@field glowIntensity number
+---@field ditherPixelSize integer
+---@field voronoiColor ColorId
+---@field voronoiScale number
+---@field voronoiFresnel boolean
+---@field shiftColor ColorId
+---@field shiftScale number
 
 ---@type UIElement3D[]
 _G.UIElement3DManager = _G.UIElement3DManager or {}
@@ -72,6 +77,9 @@ if (not UIElement3D) then
 	---@field ignoreDepth boolean Whether this object should skip depth writing when being rendered
 
 	---**Toribash 3D elements manager class**
+	---
+	---**Version 5.72**
+	---* Voronoi and color shift effects support
 	---
 	---**Version 5.71**
 	---* Minor performance improvements by using local references to frequently used global functions
@@ -107,8 +115,14 @@ if (not UIElement3D) then
 	---@field customEnterFrameFunc function Function to be executed on `enter_frame` callback
 	---@field viewportElement boolean Whether this object is displayed in a viewport
 	---@field ignoreDepth boolean Whether this object should skip depth writing when being rendered
+	---@field voronoiColor ColorId Element's voronoi (ripples) effect color ID
+	---@field voronoiScale number Element's voronoi (ripples) effect scale
+	---@field voronoiFresnel boolean Element's voronoi (ripples) effect fresnel state
+	---@field shiftColor ColorId Element's shift effect color ID
+	---@field shiftScale number Element's shift effect scale
+	---@field effectNoUnload boolean *Experimental.* If set to `true`, will disable automatic effect unloading at the end of the draw loop, passing the effect to any objects rendered after this one.
 	UIElement3D = {
-		ver = 5.71
+		ver = 5.72
 	}
 	UIElement3D.__index = UIElement3D
 	setmetatable(UIElement3D, UIElement)
@@ -370,6 +384,11 @@ function UIElement3D.new(_self, o)
 		elem.glowIntensity = o.effects.glowIntensity or 0
 		elem.glowColor = o.effects.glowColor or 0
 		elem.ditherPixelSize = o.effects.ditherPixelSize or 0
+		elem.voronoiColor = o.effects.voronoiColor or 0
+		elem.voronoiScale = o.effects.voronoiScale or 0
+		elem.voronoiFresnel = o.effects.voronoiFresnel or false
+		elem.shiftColor = o.effects.shiftColor or 0
+		elem.shiftScale = o.effects.shiftScale or 0
 	end
 	if (o.ignoreDepth) then
 		elem.ignoreDepth = o.ignoreDepth
@@ -453,7 +472,7 @@ function UIElement3D:display()
 		return
 	end
 	if (self.effectid) then
-		set_draw_effect(self.effectid, self.glowColor, self.glowIntensity, self.ditherPixelSize)
+		set_draw_effect(self.effectid, self.glowColor, self.glowIntensity, self.ditherPixelSize, self.voronoiScale, self.voronoiFresnel, self.voronoiColor, self.shiftColor, self.shiftScale)
 	end
 	if (self.customDisplayBefore) then
 		self.customDisplayBefore()
@@ -500,7 +519,7 @@ function UIElement3D:display()
 	if (self.customDisplay) then
 		self.customDisplay()
 	end
-	if (self.effectid) then
+	if (self.effectid and self.effectNoUnload ~= true) then
 		set_draw_effect(0)
 	end
 end
