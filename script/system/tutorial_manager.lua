@@ -1659,33 +1659,36 @@ end
 function TutorialsInternal.HandleMobileOption(option)
 	if (not is_mobile()) then return end
 
+	local btnState = option.value == 1
 	if (option.name == "hud") then
 		for _, button in pairs(TBHud.MiscButtonHolders) do
-			button:setVisible(option.value == 1, true)
+			button:setVisible(btnState, true)
 		end
-		TBHud.ChatMiniHolder:setVisible(option.value == 1, true)
-		TBHud.CommitStepButtonHolder:setVisible(option.value == 1, true)
-		TBHud.HoldAllButtonHolder:setVisible(option.value == 1, true)
-		TBHud.GhostButtonHolder:setVisible(option.value == 1, true)
-		TBHud.GripButtonHolder:setVisible(option.value == 1, true)
-		TBHud.CameraButtonHolder:setVisible(option.value == 1, true)
+		TBHud.ChatMiniHolder:setVisible(btnState, true)
+		TBHud.CommitStepButtonHolder:setVisible(btnState, true)
+		TBHud.HoldAllButtonHolder:setVisible(btnState, true)
+		TBHud.GhostButtonHolder:setVisible(btnState, true)
+		TBHud.GripButtonHolder:setVisible(btnState, true)
+		TBHud.CameraButtonHolder:setVisible(btnState, true)
+		TBHud.CameraKeyframeButtonHolder:setVisible(btnState, true)
+		TBHud.CameraKeyframeEditButtonHolder:setVisible(btnState, true)
 		for _, v in pairs(TBHud.MiscButtonHolders) do
-			v:setVisible(option.value == 1, true)
+			v:setVisible(btnState, true)
 		end
 	elseif (option.name == "holdall") then
-		TBHud.HoldAllButtonHolder:setVisible(option.value == 1, true)
+		TBHud.HoldAllButtonHolder:setVisible(btnState, true)
 	elseif (option.name == "spacebar") then
-		TBHud.CommitStepButtonHolder:setVisible(option.value == 1, true)
+		TBHud.CommitStepButtonHolder:setVisible(btnState, true)
 	elseif (option.name == "ghost") then
-		TBHud.GhostButtonHolder:setVisible(option.value == 1, true)
+		TBHud.GhostButtonHolder:setVisible(btnState, true)
 	elseif (option.name == "grip") then
-		TBHud.GripButtonHolder:setVisible(option.value == 1, true)
+		TBHud.GripButtonHolder:setVisible(btnState, true)
 	elseif (option.name == "rewind") then
 		for _, v in pairs(TBHud.MiscButtonHolders) do
-			v:setVisible(option.value == 1, true)
+			v:setVisible(btnState, true)
 		end
 	elseif (option.name == "camera") then
-		TBHud.CameraButtonHolder:setVisible(option.value == 1, true)
+		TBHud.CameraButtonHolder:setVisible(btnState, true)
 	end
 end
 
