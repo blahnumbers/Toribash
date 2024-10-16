@@ -1121,9 +1121,13 @@ function Store:getInventoryNavigation(showBack)
 		{
 			text = TB_MENU_LOCALIZED.NAVBUTTONBACK,
 			action = function()
-				Store.InventoryListShift[1] = Store.InventoryLastListShift
-				if (Store.InventoryCurrentItem ~= nil) then
-					Store.InventoryCurrentItem = Store.InventoryCurrentItem.parentset
+				if (Store.InventorySearch ~= nil and Store.InventorySearch ~= "") then
+					Store.InventorySearch = nil
+				else
+					Store.InventoryListShift[1] = Store.InventoryLastListShift
+					if (Store.InventoryCurrentItem ~= nil) then
+						Store.InventoryCurrentItem = Store.InventoryCurrentItem.parentset
+					end
 				end
 				Store:showInventory(TBMenu.CurrentSection, nil, Store.InventoryShowEmptySets)
 			end,
@@ -2627,6 +2631,9 @@ function Store:showInventoryPage(inventoryItems, page, mode, title, pageid, item
 	Store.InventoryPage[pageid] = Store.InventoryPage[pageid] or 1
 	Store.InventorySearch = search
 
+	if (search ~= nil) then
+		showBack = true
+	end
 	TBMenu.NavigationBar:kill(true)
 	TBMenu:showNavigationBar(Store:getInventoryNavigation(showBack), true)
 
@@ -3143,8 +3150,20 @@ function Store:showStoreAdvancedItemPreview(viewElement, item, noReload, updateO
 	local fcolor = get_color_rgba(TB_MENU_PLAYER_INFO.items.colors.force)
 	local rcolor = get_color_rgba(TB_MENU_PLAYER_INFO.items.colors.relax)
 
+	local forceEffect = table.clone(TB_MENU_PLAYER_INFO.items.effects.force)
+	local relaxEffect = table.clone(TB_MENU_PLAYER_INFO.items.effects.relax)
+	local headEffect = table.clone(TB_MENU_PLAYER_INFO.items.effects.head)
+	local bodyEffect = table.clone(TB_MENU_PLAYER_INFO.items.effects.body)
+	bodyEffect.voronoiScale = 1
+	bodyEffect.voronoiFresnel = false
+	bodyEffect.shiftScale = 0.45
+
 	if (item.catid == 2 or item.catid == 22) then
 		-- Relax and Force items
+		forceEffect.voronoiScale = forceEffect.voronoiScale / 5.5
+		forceEffect.shiftScale = 0.45
+		relaxEffect.voronoiScale = relaxEffect.voronoiScale / 4
+		relaxEffect.shiftScale = 0.5625
 		local force = previewMain:addChild({
 			shapeType = CUSTOMOBJ,
 			objModel = "../models/store/presets/force",
@@ -3152,7 +3171,7 @@ function Store:showStoreAdvancedItemPreview(viewElement, item, noReload, updateO
 			rot = { 15, 0, 40 },
 			bgColor = item.catid == 22 and color or fcolor,
 			---@diagnostic disable-next-line: assign-type-mismatch
-			effects = item.catid == 2 and TB_MENU_PLAYER_INFO.items.effects.force
+			effects = item.catid == 2 and forceEffect
 		})
 		local relax = previewMain:addChild({
 			shapeType = SPHERE,
@@ -3160,7 +3179,7 @@ function Store:showStoreAdvancedItemPreview(viewElement, item, noReload, updateO
 			rot = { 0, 0, 0 },
 			bgColor = item.catid == 2 and color or rcolor,
 			---@diagnostic disable-next-line: assign-type-mismatch
-			effects = item.catid == 22 and TB_MENU_PLAYER_INFO.items.effects.relax
+			effects = item.catid == 22 and relaxEffect
 		})
 		return true
 	elseif (item.catid == 1) then
@@ -3185,7 +3204,7 @@ function Store:showStoreAdvancedItemPreview(viewElement, item, noReload, updateO
 			bgGradient = item.catid == 20 and { color, scolor } or { pcolor, color },
 			bgGradientMode = BODYPARTS.L_TRICEPS,
 			---@diagnostic disable-next-line: assign-type-mismatch
-			effects = item.catid == 21 and TB_MENU_PLAYER_INFO.items.effects.body
+			effects = item.catid == 21 and bodyEffect
 		})
 		local handBody = previewMain:addChild({
 			shapeType = CUBE,
@@ -3195,21 +3214,23 @@ function Store:showStoreAdvancedItemPreview(viewElement, item, noReload, updateO
 			bgGradient = item.catid == 20 and { color, scolor } or { pcolor, color },
 			bgGradientMode = BODYPARTS.L_HAND,
 			---@diagnostic disable-next-line: assign-type-mismatch
-			effects = item.catid == 21 and TB_MENU_PLAYER_INFO.items.effects.body
+			effects = item.catid == 21 and bodyEffect
 		})
+		forceEffect.voronoiScale = 2
+		forceEffect.shiftScale = 0.9
 		local elbowJoint = previewMain:addChild({
 			shapeType = SPHERE,
 			pos = { 0, 1.2, -0.3 },
 			size = { 0.6, 0.6, 0.6 },
 			bgColor = fcolor,
-			effects = TB_MENU_PLAYER_INFO.items.effects.force
+			effects = forceEffect
 		})
 		local wristJoint = previewMain:addChild({
 			shapeType = SPHERE,
 			pos = { 0, -0.8, -0.3 },
 			size = { 0.5, 0.5, 0.5 },
 			bgColor = fcolor,
-			effects = TB_MENU_PLAYER_INFO.items.effects.force
+			effects = forceEffect
 		})
 		previewHolder:moveTo(0, 1, 0)
 		previewMain:rotate(10, 40, 100)
@@ -3222,7 +3243,7 @@ function Store:showStoreAdvancedItemPreview(viewElement, item, noReload, updateO
 			rot = { 10, 60, 40 },
 			bgGradient = { pcolor, scolor },
 			---@diagnostic disable-next-line: assign-type-mismatch
-			effects = TB_MENU_PLAYER_INFO.items.effects.body
+			effects = bodyEffect
 		})
 		local ghost = cubeBody:addChild({
 			size = { cubeBody.size.x, cubeBody.size.y, cubeBody.size.z },
@@ -3247,6 +3268,10 @@ function Store:showStoreAdvancedItemPreview(viewElement, item, noReload, updateO
 		return true
 	elseif (item.catid == 12) then
 		-- DQ colors
+		headEffect.voronoiScale = 1.25
+		headEffect.shiftScale = 0.5625
+		forceEffect.voronoiScale = headEffect.voronoiScale * 5 / 9
+		forceEffect.shiftScale = headEffect.shiftScale * 5 / 9
 		local headBody = previewMain:addChild({
 			shapeType = SPHERE,
 			pos = { -0.3, 0, 0 },
@@ -3254,14 +3279,14 @@ function Store:showStoreAdvancedItemPreview(viewElement, item, noReload, updateO
 			rot = { 170, 20, -190 },
 			bgColor = { 1, 1, 1, 1 },
 			bgImage = TB_MENU_PLAYER_INFO.items.textures.head.equipped and "../../custom/" .. TB_MENU_PLAYER_INFO.username .. "/head.tga" or "../../custom/tori/head.tga",
-			effects = TB_MENU_PLAYER_INFO.items.effects.head
+			effects = headEffect
 		})
 		local neckJoint = headBody:addChild({
 			shapeType = SPHERE,
 			pos = { 0, headBody.size.x / 9 * 1.8, -headBody.size.x / 9 * 5.8 },
 			size = { headBody.size.x / 9 * 5, 0, 0 },
 			bgColor = fcolor,
-			effects = TB_MENU_PLAYER_INFO.items.effects.force
+			effects = forceEffect
 		})
 		local dqRing = previewMain:addChild({
 			shapeType = CUSTOMOBJ,
@@ -3274,57 +3299,59 @@ function Store:showStoreAdvancedItemPreview(viewElement, item, noReload, updateO
 		return true
 	elseif (item.catid == 5) then
 		-- Torso Items
+		forceEffect.voronoiScale = 1.5
+		forceEffect.shiftScale = 0.675
 		local chestJoint = previewMain:addChild({
 			shapeType = SPHERE,
 			pos = { 0, 0, -0.4 },
 			size = { 0.7, 0.7, 0.7 },
 			bgColor = fcolor,
-			effects = TB_MENU_PLAYER_INFO.items.effects.force
+			effects = forceEffect
 		})
 		local lumbarJoint = previewMain:addChild({
 			shapeType = SPHERE,
 			pos = { 0, 0.2, -1.2 },
 			size = { 0.7, 0.7, 0.7 },
 			bgColor = fcolor,
-			effects = TB_MENU_PLAYER_INFO.items.effects.force
+			effects = forceEffect
 		})
 		local rpecsJoint = previewMain:addChild({
 			shapeType = SPHERE,
 			pos = { 0.55, -0.15, 0.4 },
 			size = { 0.7, 0.7, 0.7 },
 			bgColor = fcolor,
-			effects = TB_MENU_PLAYER_INFO.items.effects.force
+			effects = forceEffect
 		})
 		local lpecsJoint = previewMain:addChild({
 			shapeType = SPHERE,
 			pos = { -0.55, -0.15, 0.4 },
 			size = { 0.7, 0.7, 0.7 },
 			bgColor = fcolor,
-			effects = TB_MENU_PLAYER_INFO.items.effects.force
+			effects = forceEffect
 		})
 		local torsoneck = previewMain:addChild({
 			pos = { 0, 0, 0.8 },
 			size = { 0.7, 0.4, 0.6 },
 			bgColor = color,
-			effects = TB_MENU_PLAYER_INFO.items.effects.body
+			effects = bodyEffect
 		})
 		local torsorpec = previewMain:addChild({
 			pos = { -1, 0, 0.35 },
 			size = { 1, 0.7, 0.95 },
 			bgColor = color,
-			effects = TB_MENU_PLAYER_INFO.items.effects.body
+			effects = bodyEffect
 		})
 		local torsolpec = previewMain:addChild({
 			pos = { 1, 0, 0.35 },
 			size = { 1, 0.7, 0.95 },
 			bgColor = color,
-			effects = TB_MENU_PLAYER_INFO.items.effects.body
+			effects = bodyEffect
 		})
 		local torsochest = previewMain:addChild({
 			pos = { 0, 0.05, -0.6 },
 			size = { 2.2, 0.7, 1 },
 			bgColor = color,
-			effects = TB_MENU_PLAYER_INFO.items.effects.body
+			effects = bodyEffect
 		})
 		local torsostomachp = previewMain:addChild({
 			pos = { 0, 0.2, -1.6 },
@@ -3333,12 +3360,14 @@ function Store:showStoreAdvancedItemPreview(viewElement, item, noReload, updateO
 			bgColor = { 1, 1, 1, 1 },
 			bgGradient = { pcolor, scolor },
 			bgGradientMode = BODYPARTS.STOMACH,
-			effects = TB_MENU_PLAYER_INFO.items.effects.body
+			effects = bodyEffect
 		})
 		previewHolder:moveTo(0, 1, 0.2)
 		return true
 	elseif (item.catid == 41) then
 		-- Grip items
+		forceEffect.voronoiScale = 2
+		forceEffect.shiftScale = 0.9
 		local handBody = previewMain:addChild({
 			pos = { 0, 0.3, 0 },
 			size = { 1, 1, 1 },
@@ -3346,14 +3375,14 @@ function Store:showStoreAdvancedItemPreview(viewElement, item, noReload, updateO
 			bgColor = { 1, 1, 1, 1 },
 			bgGradient = { pcolor, scolor },
 			bgGradientMode = BODYPARTS.R_HAND,
-			effects = TB_MENU_PLAYER_INFO.items.effects.body
+			effects = bodyEffect
 		})
 		local wristJoint = previewMain:addChild({
 			shapeType = SPHERE,
 			pos = { 0, 0.6, -0.6 },
 			size = { 0.45, 0.45, 0.45 },
 			bgColor = fcolor,
-			effects = TB_MENU_PLAYER_INFO.items.effects.force
+			effects = forceEffect
 		})
 		local tricepsBody = previewMain:addChild({
 			pos = { 0, 0.4, -1.3 },
@@ -3362,7 +3391,7 @@ function Store:showStoreAdvancedItemPreview(viewElement, item, noReload, updateO
 			bgColor = { 1, 1, 1, 1 },
 			bgGradient = { pcolor, scolor },
 			bgGradientMode = BODYPARTS.R_TRICEPS,
-			effects = TB_MENU_PLAYER_INFO.items.effects.body
+			effects = bodyEffect
 		})
 		local grip = previewMain:addChild({
 			shapeType = SPHERE,
@@ -3374,6 +3403,8 @@ function Store:showStoreAdvancedItemPreview(viewElement, item, noReload, updateO
 		return true
 	elseif (item.catid == 27 or item.catid == 28) then
 		-- Hand Trail items
+		forceEffect.voronoiScale = 4
+		forceEffect.shiftScale = 1.8
 		local handBody = previewMain:addChild({
 			pos = { 0, 0.3, 0.7 },
 			size = { 0.5, 0.5, 0.5 },
@@ -3381,14 +3412,14 @@ function Store:showStoreAdvancedItemPreview(viewElement, item, noReload, updateO
 			bgColor = { 1, 1, 1, 1 },
 			bgGradient = { pcolor, scolor },
 			bgGradientMode = BODYPARTS.R_HAND,
-			effects = TB_MENU_PLAYER_INFO.items.effects.body
+			effects = bodyEffect
 		})
 		local wristJoint = previewMain:addChild({
 			shapeType = SPHERE,
 			pos = { 0, 0.4, 0.4 },
 			size = { 0.25, 0.25, 0.25 },
 			bgColor = fcolor,
-			effects = TB_MENU_PLAYER_INFO.items.effects.force
+			effects = forceEffect
 		})
 		local tricepsBody = previewMain:addChild({
 			pos = { 0, 0.58, 0 },
@@ -3397,14 +3428,14 @@ function Store:showStoreAdvancedItemPreview(viewElement, item, noReload, updateO
 			bgColor = { 1, 1, 1, 1 },
 			bgGradient = { pcolor, scolor },
 			bgGradientMode = BODYPARTS.R_TRICEPS,
-			effects = TB_MENU_PLAYER_INFO.items.effects.body
+			effects = bodyEffect
 		})
 		local elbowJoint = previewMain:addChild({
 			shapeType = SPHERE,
 			pos = { 0, 0.9, -0.7 },
 			size = { 0.3, 0.3, 0.3 },
 			bgColor = fcolor,
-			effects = TB_MENU_PLAYER_INFO.items.effects.force
+			effects = forceEffect
 		})
 		local trailObj = previewMain:addChild({
 			shapeType = CUSTOMOBJ,
@@ -3418,6 +3449,8 @@ function Store:showStoreAdvancedItemPreview(viewElement, item, noReload, updateO
 		return true
 	elseif (item.catid == 29 or item.catid == 30) then
 		-- Leg Trail items
+		forceEffect.voronoiScale = 4
+		forceEffect.shiftScale = 1.8
 		local footBody = previewMain:addChild({
 			pos = { 0, -0.3, -0.95 },
 			size = { 0.5, 1.2, 0.15 },
@@ -3425,14 +3458,14 @@ function Store:showStoreAdvancedItemPreview(viewElement, item, noReload, updateO
 			bgColor = { 1, 1, 1, 1 },
 			bgGradient = { pcolor, scolor },
 			bgGradientMode = BODYPARTS.L_FOOT,
-			effects = TB_MENU_PLAYER_INFO.items.effects.body
+			effects = bodyEffect
 		})
 		local ankleJoint = previewMain:addChild({
 			shapeType = SPHERE,
 			pos = { 0, 0, -0.7 },
 			size = { 0.28, 0.28, 0.28 },
 			bgColor = fcolor,
-			effects = TB_MENU_PLAYER_INFO.items.effects.force
+			effects = forceEffect
 		})
 		local legBody = previewMain:addChild({
 			shapeType = CAPSULE,
@@ -3442,14 +3475,14 @@ function Store:showStoreAdvancedItemPreview(viewElement, item, noReload, updateO
 			bgColor = { 1, 1, 1, 1 },
 			bgGradient = { pcolor, scolor },
 			bgGradientMode = BODYPARTS.L_LEG,
-			effects = TB_MENU_PLAYER_INFO.items.effects.body
+			effects = bodyEffect
 		})
 		local kneeJoint = previewMain:addChild({
 			shapeType = SPHERE,
 			pos = { 0, -0.52, 0.72 },
 			size = { 0.32, 0.32, 0.32 },
 			bgColor = fcolor,
-			effects = TB_MENU_PLAYER_INFO.items.effects.force
+			effects = forceEffect
 		})
 		local trailObj = previewMain:addChild({
 			shapeType = CUSTOMOBJ,
@@ -3463,13 +3496,15 @@ function Store:showStoreAdvancedItemPreview(viewElement, item, noReload, updateO
 		return true
 	elseif (item.catid == 73) then
 		-- Hair Colors
+		headEffect.voronoiScale = 1.25
+		headEffect.shiftScale = 0.5625
 		local headBody = previewMain:addChild({
 			shapeType = SPHERE,
 			size = { 0.8, 0.8, 0.8 },
 			rot = { 0, 0, -40 },
 			bgImage = TB_MENU_PLAYER_INFO.items.textures.head.equipped and "../../custom/" .. TB_MENU_PLAYER_INFO.username .. "/head.tga" or "../../custom/tori/head.tga",
 			bgColor = { 1, 1, 1, 1 },
-			effects = TB_MENU_PLAYER_INFO.items.effects.head
+			effects = headEffect
 		})
 		local hairObj = headBody:addChild({
 			shapeType = CUSTOMOBJ,
@@ -3666,11 +3701,17 @@ function Store:showStoreAdvancedItemPreview(viewElement, item, noReload, updateO
 		local fcolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.force)
 		local effectid = 0
 		if (item.colorid > 0) then
-			effectid = 2
+			if (string.find(item.itemname, " Glow")) then
+				effectid = EFFECT_TYPE.FRESNEL
+			elseif (string.find(item.itemname, " Ripples")) then
+				effectid = EFFECT_TYPE.VORONOI
+			elseif (string.find(item.itemname, " Shift")) then
+				effectid = EFFECT_TYPE.COLORSHIFT
+			end
 		elseif (item.colorid == -1) then
-			effectid = 1
+			effectid = EFFECT_TYPE.CELSHADED
 		elseif (item.colorid == -2) then
-			effectid = 4
+			effectid = EFFECT_TYPE.DITHERING
 		end
 
 		local force = UIElement3D.new({
@@ -3683,17 +3724,21 @@ function Store:showStoreAdvancedItemPreview(viewElement, item, noReload, updateO
 			bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
 			viewport = true,
 			effects = {
-				id = bit.bor(TB_MENU_PLAYER_INFO.items.effects.force.id or 0, effectid),
-				glowIntensity = effectid == 2 and 20 or TB_MENU_PLAYER_INFO.items.effects.force.glowIntensity,
-				glowColor = effectid == 2 and item.colorid or TB_MENU_PLAYER_INFO.items.effects.force.glowColor,
-				ditherPixelSize = effectid == 4 and 1 or TB_MENU_PLAYER_INFO.items.effects.force.ditherPixelSize
+				id = bit.bor(TB_MENU_PLAYER_INFO.items.effects.force.id or EFFECT_TYPE.NONE, effectid),
+				glowIntensity = effectid == EFFECT_TYPE.FRESNEL and 20 or TB_MENU_PLAYER_INFO.items.effects.force.glowIntensity,
+				glowColor = effectid == EFFECT_TYPE.FRESNEL and item.colorid or TB_MENU_PLAYER_INFO.items.effects.force.glowColor,
+				ditherPixelSize = effectid == EFFECT_TYPE.DITHERING and 1 or TB_MENU_PLAYER_INFO.items.effects.force.ditherPixelSize,
+				voronoiScale = effectid == EFFECT_TYPE.VORONOI and 1 or TB_MENU_PLAYER_INFO.items.effects.force.voronoiScale / 7,
+				voronoiColor = effectid == EFFECT_TYPE.VORONOI and item.colorid or TB_MENU_PLAYER_INFO.items.effects.force.voronoiColor,
+				shiftColor = effectid == EFFECT_TYPE.COLORSHIFT and item.colorid or TB_MENU_PLAYER_INFO.items.effects.force.shiftColor,
+				shiftScale = 0.45
 			}
 		})
 		local headTexture = { "../../custom/tori/head.tga", "../../custom/tori/head.tga" }
 		if (TB_MENU_PLAYER_INFO.items.textures.head.equipped) then
 			headTexture[1] = "../../custom/" .. TB_MENU_PLAYER_INFO.username .. "/head.tga"
 		end
-		local relax = UIElement3D.new({
+		local head = UIElement3D.new({
 			parent = previewHolder,
 			shapeType = SPHERE,
 			pos = { 0, 0, 0 },
@@ -3704,9 +3749,13 @@ function Store:showStoreAdvancedItemPreview(viewElement, item, noReload, updateO
 			bgImage = headTexture,
 			effects = {
 				id = bit.bor(TB_MENU_PLAYER_INFO.items.effects.head.id or 0, effectid),
-				glowIntensity = effectid == 2 and 20 or TB_MENU_PLAYER_INFO.items.effects.head.glowIntensity,
-				glowColor = effectid == 2 and item.colorid or TB_MENU_PLAYER_INFO.items.effects.head.glowColor,
-				ditherPixelSize = effectid == 4 and 1 or TB_MENU_PLAYER_INFO.items.effects.head.ditherPixelSize
+				glowIntensity = effectid == EFFECT_TYPE.FRESNEL and 20 or TB_MENU_PLAYER_INFO.items.effects.head.glowIntensity,
+				glowColor = effectid == EFFECT_TYPE.FRESNEL and item.colorid or TB_MENU_PLAYER_INFO.items.effects.head.glowColor,
+				ditherPixelSize = effectid == EFFECT_TYPE.DITHERING and 1 or TB_MENU_PLAYER_INFO.items.effects.head.ditherPixelSize,
+				voronoiScale = effectid == EFFECT_TYPE.VORONOI and 1.25 or TB_MENU_PLAYER_INFO.items.effects.head.voronoiScale / 5.6,
+				voronoiColor = effectid == EFFECT_TYPE.VORONOI and item.colorid or TB_MENU_PLAYER_INFO.items.effects.head.voronoiColor,
+				shiftColor = effectid == EFFECT_TYPE.COLORSHIFT and item.colorid or TB_MENU_PLAYER_INFO.items.effects.head.shiftColor,
+				shiftScale = 0.5625
 			}
 		})
 		return true

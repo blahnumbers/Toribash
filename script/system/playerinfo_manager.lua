@@ -547,6 +547,9 @@ function PlayerInfoInternal.getEffects(data)
 					v.glowColor = tonumber(data[3]) or 0
 					v.glowIntensity = tonumber(data[4]) or 0
 					v.ditherPixelSize = tonumber(data[5]) or 0
+					v.voronoiScale = tonumber(data[6]) or 0
+					v.voronoiColor = tonumber(data[7]) or 0
+					v.shiftColor = tonumber(data[8]) or 0
 				end
 			end
 		end

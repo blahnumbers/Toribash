@@ -386,7 +386,7 @@ function UIElement3D.new(_self, o)
 		elem.ditherPixelSize = o.effects.ditherPixelSize or 0
 		elem.voronoiColor = o.effects.voronoiColor or 0
 		elem.voronoiScale = o.effects.voronoiScale or 0
-		elem.voronoiFresnel = o.effects.voronoiFresnel or false
+		elem.voronoiFresnel = o.effects.voronoiFresnel == nil and true or o.effects.voronoiFresnel
 		elem.shiftColor = o.effects.shiftColor or 0
 		elem.shiftScale = o.effects.shiftScale or 0
 	end

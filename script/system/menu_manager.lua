@@ -2352,6 +2352,8 @@ end
 
 ---Displays top right user bar
 function TBMenu:showUserBar()
+	if (TBMenu.MenuMain == nil) then return end
+
 	local userBarImageWidth = math.ceil((SCREEN_RATIO > 2 and 1024 or 640) * (TB_MENU_GLOBAL_SCALE or 1))
 	local userBarWidth = math.min(userBarImageWidth, WIN_W / 2)
 	if (TBMenu.UserBar) then
@@ -2632,6 +2634,8 @@ function TBMenu:showPlayerHeadAvatar(viewElement, player, extraSize)
 			player.items.objs == nil or
 			player.items.textures == nil) then
 			customs = player:getItems(PLAYERINFO_CSCOPE_ALL)
+		else
+			customs = table.clone(customs)
 		end
 		playerName = player.username
 	end
@@ -2640,6 +2644,8 @@ function TBMenu:showPlayerHeadAvatar(viewElement, player, extraSize)
 	if (customs.textures.head.equipped) then
 		headTexture[1] = "../../custom/" .. playerName .. "/head.tga"
 	end
+	customs.effects.head.voronoiScale = customs.effects.head.voronoiScale / (extraSize and 5 or 2.5)
+	customs.effects.head.shiftScale = extraSize and 1 or 0.5
 	local playerHeadHolder = headViewport.rootHolder:addChild({
 		shapeType = SPHERE,
 		pos = { 0, 0, 10 },
@@ -2649,6 +2655,9 @@ function TBMenu:showPlayerHeadAvatar(viewElement, player, extraSize)
 		effects = customs.effects.head
 	})
 	table.insert(headViewport.avatarObjects, playerHeadHolder)
+
+	customs.effects.force.voronoiScale = customs.effects.force.voronoiScale / (extraSize and 5 or 2.5) / 0.55
+	customs.effects.force.shiftScale = customs.effects.head.shiftScale / 0.55
 	local playerNeckHolder = playerHeadHolder:addChild({
 		shapeType = SPHERE,
 		pos = { 0, playerHeadHolder.size.x * 0.25, -playerHeadHolder.size.x * 0.75 },
@@ -2657,6 +2666,7 @@ function TBMenu:showPlayerHeadAvatar(viewElement, player, extraSize)
 		effects = customs.effects.force
 	})
 	table.insert(headViewport.avatarObjects, playerNeckHolder)
+
 	if (customs.objs.head.equipped) then
 		local objScale = playerHeadHolder.size.x * (customs.objs.head.dynamic and 2 or 10)
 		if (customs.objs.head.partless and playerHeadHolder) then
@@ -2672,6 +2682,7 @@ function TBMenu:showPlayerHeadAvatar(viewElement, player, extraSize)
 		})
 		table.insert(headViewport.avatarObjects, headObjModel)
 	end
+
 	if (customs.objs.neck.equipped) then
 		local objScale = customs.objs.neck.dynamic and (playerNeckHolder.size.x * 2) or (playerHeadHolder.size.x * 10)
 		if (customs.objs.neck.partless and playerNeckHolder) then
