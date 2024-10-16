@@ -3160,9 +3160,9 @@ function Store:showStoreAdvancedItemPreview(viewElement, item, noReload, updateO
 
 	if (item.catid == 2 or item.catid == 22) then
 		-- Relax and Force items
-		forceEffect.voronoiScale = forceEffect.voronoiScale / 5.5
+		forceEffect.voronoiScale = (forceEffect.voronoiScale or 7) / 5.5
 		forceEffect.shiftScale = 0.45
-		relaxEffect.voronoiScale = relaxEffect.voronoiScale / 4
+		relaxEffect.voronoiScale = (relaxEffect.voronoiScale or 7) / 4
 		relaxEffect.shiftScale = 0.5625
 		local force = previewMain:addChild({
 			shapeType = CUSTOMOBJ,
@@ -3216,7 +3216,7 @@ function Store:showStoreAdvancedItemPreview(viewElement, item, noReload, updateO
 			---@diagnostic disable-next-line: assign-type-mismatch
 			effects = item.catid == 21 and bodyEffect
 		})
-		forceEffect.voronoiScale = 2
+		forceEffect.voronoiScale = (forceEffect.voronoiScale or 7) / 3.5
 		forceEffect.shiftScale = 0.9
 		local elbowJoint = previewMain:addChild({
 			shapeType = SPHERE,
@@ -3268,10 +3268,10 @@ function Store:showStoreAdvancedItemPreview(viewElement, item, noReload, updateO
 		return true
 	elseif (item.catid == 12) then
 		-- DQ colors
-		headEffect.voronoiScale = 1.25
+		headEffect.voronoiScale = (headEffect.voronoiScale or 7) / 5.6
 		headEffect.shiftScale = 0.5625
-		forceEffect.voronoiScale = headEffect.voronoiScale * 5 / 9
-		forceEffect.shiftScale = headEffect.shiftScale * 5 / 9
+		forceEffect.voronoiScale = headEffect.voronoiScale * 0.56
+		forceEffect.shiftScale = 0.3125
 		local headBody = previewMain:addChild({
 			shapeType = SPHERE,
 			pos = { -0.3, 0, 0 },
@@ -3299,7 +3299,7 @@ function Store:showStoreAdvancedItemPreview(viewElement, item, noReload, updateO
 		return true
 	elseif (item.catid == 5) then
 		-- Torso Items
-		forceEffect.voronoiScale = 1.5
+		forceEffect.voronoiScale = (forceEffect.voronoiScale or 7) / 4.67
 		forceEffect.shiftScale = 0.675
 		local chestJoint = previewMain:addChild({
 			shapeType = SPHERE,
@@ -3366,7 +3366,7 @@ function Store:showStoreAdvancedItemPreview(viewElement, item, noReload, updateO
 		return true
 	elseif (item.catid == 41) then
 		-- Grip items
-		forceEffect.voronoiScale = 2
+		forceEffect.voronoiScale = (forceEffect.voronoiScale or 7) / 3.5
 		forceEffect.shiftScale = 0.9
 		local handBody = previewMain:addChild({
 			pos = { 0, 0.3, 0 },
@@ -3403,7 +3403,7 @@ function Store:showStoreAdvancedItemPreview(viewElement, item, noReload, updateO
 		return true
 	elseif (item.catid == 27 or item.catid == 28) then
 		-- Hand Trail items
-		forceEffect.voronoiScale = 4
+		forceEffect.voronoiScale = (forceEffect.voronoiScale or 7) / 1.75
 		forceEffect.shiftScale = 1.8
 		local handBody = previewMain:addChild({
 			pos = { 0, 0.3, 0.7 },
@@ -3449,7 +3449,7 @@ function Store:showStoreAdvancedItemPreview(viewElement, item, noReload, updateO
 		return true
 	elseif (item.catid == 29 or item.catid == 30) then
 		-- Leg Trail items
-		forceEffect.voronoiScale = 4
+		forceEffect.voronoiScale = (forceEffect.voronoiScale or 7) / 1.75
 		forceEffect.shiftScale = 1.8
 		local footBody = previewMain:addChild({
 			pos = { 0, -0.3, -0.95 },
@@ -3496,7 +3496,7 @@ function Store:showStoreAdvancedItemPreview(viewElement, item, noReload, updateO
 		return true
 	elseif (item.catid == 73) then
 		-- Hair Colors
-		headEffect.voronoiScale = 1.25
+		headEffect.voronoiScale = (headEffect.voronoiScale or 7) / 5.6
 		headEffect.shiftScale = 0.5625
 		local headBody = previewMain:addChild({
 			shapeType = SPHERE,
@@ -3724,13 +3724,13 @@ function Store:showStoreAdvancedItemPreview(viewElement, item, noReload, updateO
 			bgColor = { fcolor.r, fcolor.g, fcolor.b, 1 },
 			viewport = true,
 			effects = {
-				id = bit.bor(TB_MENU_PLAYER_INFO.items.effects.force.id or EFFECT_TYPE.NONE, effectid),
-				glowIntensity = effectid == EFFECT_TYPE.FRESNEL and 20 or TB_MENU_PLAYER_INFO.items.effects.force.glowIntensity,
-				glowColor = effectid == EFFECT_TYPE.FRESNEL and item.colorid or TB_MENU_PLAYER_INFO.items.effects.force.glowColor,
-				ditherPixelSize = effectid == EFFECT_TYPE.DITHERING and 1 or TB_MENU_PLAYER_INFO.items.effects.force.ditherPixelSize,
-				voronoiScale = effectid == EFFECT_TYPE.VORONOI and 1 or TB_MENU_PLAYER_INFO.items.effects.force.voronoiScale / 7,
-				voronoiColor = effectid == EFFECT_TYPE.VORONOI and item.colorid or TB_MENU_PLAYER_INFO.items.effects.force.voronoiColor,
-				shiftColor = effectid == EFFECT_TYPE.COLORSHIFT and item.colorid or TB_MENU_PLAYER_INFO.items.effects.force.shiftColor,
+				id = bit.bor(forceEffect.id or EFFECT_TYPE.NONE, effectid),
+				glowIntensity = effectid == EFFECT_TYPE.FRESNEL and 20 or forceEffect.glowIntensity,
+				glowColor = effectid == EFFECT_TYPE.FRESNEL and item.colorid or forceEffect.glowColor,
+				ditherPixelSize = effectid == EFFECT_TYPE.DITHERING and 1 or forceEffect.ditherPixelSize,
+				voronoiScale = effectid == EFFECT_TYPE.VORONOI and 1 or (forceEffect.voronoiScale or 0) / 7,
+				voronoiColor = effectid == EFFECT_TYPE.VORONOI and item.colorid or forceEffect.voronoiColor,
+				shiftColor = effectid == EFFECT_TYPE.COLORSHIFT and item.colorid or forceEffect.shiftColor,
 				shiftScale = 0.45
 			}
 		})
@@ -3748,13 +3748,13 @@ function Store:showStoreAdvancedItemPreview(viewElement, item, noReload, updateO
 			viewport = true,
 			bgImage = headTexture,
 			effects = {
-				id = bit.bor(TB_MENU_PLAYER_INFO.items.effects.head.id or 0, effectid),
-				glowIntensity = effectid == EFFECT_TYPE.FRESNEL and 20 or TB_MENU_PLAYER_INFO.items.effects.head.glowIntensity,
-				glowColor = effectid == EFFECT_TYPE.FRESNEL and item.colorid or TB_MENU_PLAYER_INFO.items.effects.head.glowColor,
-				ditherPixelSize = effectid == EFFECT_TYPE.DITHERING and 1 or TB_MENU_PLAYER_INFO.items.effects.head.ditherPixelSize,
-				voronoiScale = effectid == EFFECT_TYPE.VORONOI and 1.25 or TB_MENU_PLAYER_INFO.items.effects.head.voronoiScale / 5.6,
-				voronoiColor = effectid == EFFECT_TYPE.VORONOI and item.colorid or TB_MENU_PLAYER_INFO.items.effects.head.voronoiColor,
-				shiftColor = effectid == EFFECT_TYPE.COLORSHIFT and item.colorid or TB_MENU_PLAYER_INFO.items.effects.head.shiftColor,
+				id = bit.bor(headEffect.id or 0, effectid),
+				glowIntensity = effectid == EFFECT_TYPE.FRESNEL and 20 or headEffect.glowIntensity,
+				glowColor = effectid == EFFECT_TYPE.FRESNEL and item.colorid or headEffect.glowColor,
+				ditherPixelSize = effectid == EFFECT_TYPE.DITHERING and 1 or headEffect.ditherPixelSize,
+				voronoiScale = effectid == EFFECT_TYPE.VORONOI and 1.25 or (headEffect.voronoiScale or 0) / 5.6,
+				voronoiColor = effectid == EFFECT_TYPE.VORONOI and item.colorid or headEffect.voronoiColor,
+				shiftColor = effectid == EFFECT_TYPE.COLORSHIFT and item.colorid or headEffect.shiftColor,
 				shiftScale = 0.5625
 			}
 		})

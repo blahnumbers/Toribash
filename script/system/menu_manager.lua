@@ -2644,8 +2644,10 @@ function TBMenu:showPlayerHeadAvatar(viewElement, player, extraSize)
 	if (customs.textures.head.equipped) then
 		headTexture[1] = "../../custom/" .. playerName .. "/head.tga"
 	end
-	customs.effects.head.voronoiScale = customs.effects.head.voronoiScale / (extraSize and 5 or 2.5)
-	customs.effects.head.shiftScale = extraSize and 1 or 0.5
+	if (customs.effects.head.id ~= EFFECT_TYPE.NONE) then
+		customs.effects.head.voronoiScale = customs.effects.head.voronoiScale / (extraSize and 5 or 2.5)
+		customs.effects.head.shiftScale = extraSize and 1 or 0.5
+	end
 	local playerHeadHolder = headViewport.rootHolder:addChild({
 		shapeType = SPHERE,
 		pos = { 0, 0, 10 },
@@ -2656,8 +2658,10 @@ function TBMenu:showPlayerHeadAvatar(viewElement, player, extraSize)
 	})
 	table.insert(headViewport.avatarObjects, playerHeadHolder)
 
-	customs.effects.force.voronoiScale = customs.effects.force.voronoiScale / (extraSize and 5 or 2.5) / 0.55
-	customs.effects.force.shiftScale = customs.effects.head.shiftScale / 0.55
+	if (customs.effects.force.id ~= EFFECT_TYPE.NONE) then
+		customs.effects.force.voronoiScale = customs.effects.force.voronoiScale / (extraSize and 5 or 2.5) / 0.55
+		customs.effects.force.shiftScale = (extraSize and 1 or 0.5) / 0.55
+	end
 	local playerNeckHolder = playerHeadHolder:addChild({
 		shapeType = SPHERE,
 		pos = { 0, playerHeadHolder.size.x * 0.25, -playerHeadHolder.size.x * 0.75 },

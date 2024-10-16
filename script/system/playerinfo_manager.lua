@@ -524,10 +524,10 @@ end
 function PlayerInfoInternal.getEffects(data)
 	---@type PlayerInfoCustomEffects
 	local effects = {
-		force = { __id = 0, effectId = 0 },
-		relax = { __id = 1, effectId = 0 },
-		body = { __id = 2, effectId = 0 },
-		head = { __id = 3, effectId = 0 }
+		force = { __id = 0, id = 0 },
+		relax = { __id = 1, id = 0 },
+		body = { __id = 2, id = 0 },
+		head = { __id = 3, id = 0 }
 	}
 	if (not data) then
 		effects.default = true
