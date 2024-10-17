@@ -45,6 +45,7 @@ _G.VIEWPORT = 5
 ---@field voronoiFresnel boolean
 ---@field shiftColor ColorId
 ---@field shiftScale number
+---@field shiftPeriod number
 
 ---@type UIElement3D[]
 _G.UIElement3DManager = _G.UIElement3DManager or {}
@@ -120,6 +121,7 @@ if (not UIElement3D) then
 	---@field voronoiFresnel boolean Element's voronoi (ripples) effect fresnel state
 	---@field shiftColor ColorId Element's shift effect color ID
 	---@field shiftScale number Element's shift effect scale
+	---@field shiftPeriod number Element's shift effect timescale modifier
 	---@field effectNoUnload boolean *Experimental.* If set to `true`, will disable automatic effect unloading at the end of the draw loop, passing the effect to any objects rendered after this one.
 	UIElement3D = {
 		ver = 5.72
@@ -389,6 +391,7 @@ function UIElement3D.new(_self, o)
 		elem.voronoiFresnel = o.effects.voronoiFresnel == nil and true or o.effects.voronoiFresnel
 		elem.shiftColor = o.effects.shiftColor or 0
 		elem.shiftScale = o.effects.shiftScale or 0
+		elem.shiftPeriod = o.effects.shiftPeriod or 1
 	end
 	if (o.ignoreDepth) then
 		elem.ignoreDepth = o.ignoreDepth
@@ -472,7 +475,7 @@ function UIElement3D:display()
 		return
 	end
 	if (self.effectid) then
-		set_draw_effect(self.effectid, self.glowColor, self.glowIntensity, self.ditherPixelSize, self.voronoiScale, self.voronoiFresnel, self.voronoiColor, self.shiftColor, self.shiftScale)
+		set_draw_effect(self.effectid, self.glowColor, self.glowIntensity, self.ditherPixelSize, self.voronoiScale, self.voronoiFresnel, self.voronoiColor, self.shiftColor, self.shiftScale, self.shiftPeriod)
 	end
 	if (self.customDisplayBefore) then
 		self.customDisplayBefore()

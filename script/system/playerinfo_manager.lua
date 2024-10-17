@@ -550,6 +550,7 @@ function PlayerInfoInternal.getEffects(data)
 					v.voronoiScale = tonumber(data[6]) or 0
 					v.voronoiColor = tonumber(data[7]) or 0
 					v.shiftColor = tonumber(data[8]) or 0
+					v.shiftPeriod = tonumber(data[9]) or 0
 				end
 			end
 		end

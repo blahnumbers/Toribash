@@ -814,7 +814,8 @@ function set_viewport(pos_x, pos_y, size_x, size_y) end
 ---@param voronoi_colorid ?ColorId
 ---@param shift_colorid ?ColorId
 ---@param shift_scale ?number
-function set_draw_effect(effectid, glow_colorid, glow_intensity, dither_pixelsize, voronoi_scale, voronoi_fresnel, voronoi_colorid, shift_colorid, shift_scale) end
+---@param shift_period ?number
+function set_draw_effect(effectid, glow_colorid, glow_intensity, dither_pixelsize, voronoi_scale, voronoi_fresnel, voronoi_colorid, shift_colorid, shift_scale, shift_period) end
 
 ---Draws a 3D cube with the specified settings (use Euler angles)
 ---@param pos_x number
@@ -1981,7 +1982,8 @@ function set_body_color(player, body, color) end
 ---@param voronoi_scale ?integer
 ---@param voronoi_colorid ?ColorId
 ---@param shift_colorid ?ColorId
-function set_body_effect(player, effectid, type, glow_color, glow_intensity, dither_pixel_size, voronoi_scale, voronoi_colorid, shift_colorid) end
+---@param shift_period ?number
+function set_body_effect(player, effectid, type, glow_color, glow_intensity, dither_pixel_size, voronoi_scale, voronoi_colorid, shift_colorid, shift_period) end
 
 ---Sets blood color for the specified player
 ---@param player integer

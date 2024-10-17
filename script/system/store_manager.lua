@@ -3731,6 +3731,7 @@ function Store:showStoreAdvancedItemPreview(viewElement, item, noReload, updateO
 				voronoiScale = effectid == EFFECT_TYPE.VORONOI and 1 or (forceEffect.voronoiScale or 0) / 7,
 				voronoiColor = effectid == EFFECT_TYPE.VORONOI and item.colorid or forceEffect.voronoiColor,
 				shiftColor = effectid == EFFECT_TYPE.COLORSHIFT and item.colorid or forceEffect.shiftColor,
+				shiftPeriod = effectid == EFFECT_TYPE.COLORSHIFT and 1 or forceEffect.shiftPeriod,
 				shiftScale = 0.45
 			}
 		})
@@ -3755,6 +3756,7 @@ function Store:showStoreAdvancedItemPreview(viewElement, item, noReload, updateO
 				voronoiScale = effectid == EFFECT_TYPE.VORONOI and 1.25 or (headEffect.voronoiScale or 0) / 5.6,
 				voronoiColor = effectid == EFFECT_TYPE.VORONOI and item.colorid or headEffect.voronoiColor,
 				shiftColor = effectid == EFFECT_TYPE.COLORSHIFT and item.colorid or headEffect.shiftColor,
+				shiftPeriod = effectid == EFFECT_TYPE.COLORSHIFT and 1 or headEffect.shiftPeriod,
 				shiftScale = 0.5625
 			}
 		})
