@@ -2095,7 +2095,11 @@ function Store:showInventoryItemCustomize(item)
 					bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 					hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 					pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+					inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK
 				}, true)
+				if (generalInfo.fuseCost > TB_MENU_PLAYER_INFO.data.tc) then
+					fuseEffectButton:deactivate(true)
+				end
 				fuseEffectButton:addAdaptedText(false, TB_MENU_LOCALIZED.STOREFUSEEFFECTFOR .. " " .. (generalInfo.fuseCost > 0 and ((generalInfo.fuseCost / 1000) .. "K " .. TB_MENU_LOCALIZED.WORDTC) or TB_MENU_LOCALIZED.STOREITEMUPGRADEPRICEFREE))
 				fuseEffectButton:addMouseUpHandler(function()
 						Store:spawnInventoryUpdateWaiter(overlay.btnUp)
