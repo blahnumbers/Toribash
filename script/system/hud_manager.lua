@@ -603,6 +603,7 @@ function TBHud:spawnCameraButtons()
 			self.CameraKeyframeButtonHolder:show()
 		elseif ((TUTORIAL_ISACTIVE or self.WorldState.replay_mode == 0) and self.CameraKeyframeButtonHolder:isDisplayed()) then
 			self.CameraKeyframeButtonHolder:hide()
+			self.CameraKeyframeEditButtonHolder:hide()
 		end
 
 		if (clickClock > 0 and UIElement.clock - clickClock > UIElement.longPressDuration) then

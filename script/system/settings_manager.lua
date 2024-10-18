@@ -725,64 +725,70 @@ function Settings:getSettingsData(id)
 			}
 		}
 	elseif (id == SETTINGS_EFFECTS) then
-		local generalItems = { }
-		if (shaders == 1) then
-			table.insert(generalItems, {
+		local generalItems = {
+			{
 				name = TB_MENU_LOCALIZED.SETTINGSITEMEFFECTS,
 				type = TOGGLE,
 				action = function(val)
 						Settings.Stored.itemeffects = { value = val, id = ITEMEFFECTS, graphics = true }
+						Settings:settingsApplyActivate()
+						Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
 					end,
 				val = { Settings.Stored.itemeffects and Settings.Stored.itemeffects.value or get_option("itemeffects") },
-				reload = true
-			})
-		end
-		table.insert(generalItems, {
-			name = TB_MENU_LOCALIZED.SETTINGSEFFECTSINFO,
-			type = DROPDOWN,
-			selectedAction = function()
-					local effects = Settings.Stored.effects and Settings.Stored.effects.value or get_option("effects")
-					if (effects == 0) then
-						return 1
-					elseif (effects == 1) then
-						return 2
-					else
-						return 3
-					end
+				reload = true,
+				hidden = shaders == 0
+			},
+			{
+				name = TB_MENU_LOCALIZED.SETTINGSEFFECTSVARIABLESPEED,
+				type = TOGGLE,
+				hint = TB_MENU_LOCALIZED.SETTINGSEFFECTSVARIABLESPEEDINFO,
+				action = function(val)
+					Settings.Stored.effectsvariablespeed = { value = val }
 				end,
-			dropdown = {
-				{
-					text = TB_MENU_LOCALIZED.SETTINGSDISABLED,
-					value = 0,
-					name = "effects",
-					action = function()
-							Settings.Stored.effects = { value = 0 }
-							Settings:settingsApplyActivate()
-							Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
-						end
-				},
-				{
-					text = TB_MENU_LOCALIZED.SETTINGSREPLAYSONLY,
-					value = 1,
-					name = "effects",
-					action = function()
-							Settings.Stored.effects = { value = 1 }
-							Settings:settingsApplyActivate()
-							Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
-						end
-				},
-				{
-					text = TB_MENU_LOCALIZED.SETTINGSENABLED,
-					value = 3,
-					name = "effects",
-					action = function()
-							Settings.Stored.effects = { value = 3 }
-							Settings:settingsApplyActivate()
-							Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
-						end
-				},
+				val = { Settings.Stored.effectsvariablespeed and Settings.Stored.effectsvariablespeed.value or get_option("effectsvariablespeed") },
+				hidden = (Settings.Stored.itemeffects and Settings.Stored.itemeffects.value or get_option("itemeffects")) == 0
+			},
+			{
+				name = TB_MENU_LOCALIZED.SETTINGSEFFECTSINFO,
+				type = DROPDOWN,
+				selectedAction = function()
+						local effects = Settings.Stored.effects and Settings.Stored.effects.value or get_option("effects")
+						return math.clamp(effects + 1, 1, 3)
+					end,
+				dropdown = {
+					{
+						text = TB_MENU_LOCALIZED.SETTINGSDISABLED,
+						value = 0,
+						name = "effects",
+						action = function()
+								Settings.Stored.effects = { value = 0 }
+								Settings:settingsApplyActivate()
+								Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
+							end
+					},
+					{
+						text = TB_MENU_LOCALIZED.SETTINGSREPLAYSONLY,
+						value = 1,
+						name = "effects",
+						action = function()
+								Settings.Stored.effects = { value = 1 }
+								Settings:settingsApplyActivate()
+								Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
+							end
+					},
+					{
+						text = TB_MENU_LOCALIZED.SETTINGSENABLED,
+						value = 3,
+						name = "effects",
+						action = function()
+								Settings.Stored.effects = { value = 3 }
+								Settings:settingsApplyActivate()
+								Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
+							end
+					},
+				}
 			}
-		})
+		}
 
 		local settingsCustomization = nil
 		local effects = Settings.Stored.effects and Settings.Stored.effects.value or get_option("effects")
