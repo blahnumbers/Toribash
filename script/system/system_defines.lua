@@ -1746,7 +1746,7 @@ function get_obj_sides(obj_id) end
 function set_obj_sides(obj_id, x, y, z) end
 
 ---Returns the rotation matrix of the specified environment object \
----@see Utils3D.GetEulerFromMatrix
+---@see Utils3D.GetEulerFromMatrixTB
 ---@param obj_id integer
 ---@return number[]
 function get_obj_rot(obj_id) end

@@ -945,7 +945,7 @@ function Utils3D.MatrixTBToMatrix(mTB)
 end
 
 ---Helper function to get the rotation in Euler angles from a Toribash rotation matrix
----@param rTB MatrixTB
+---@param rTB MatrixTB|number[]|number[][]
 ---@return EulerRotation
 ---@nodiscard
 function Utils3D.GetEulerFromMatrixTB(rTB)

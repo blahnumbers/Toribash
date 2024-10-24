@@ -5424,8 +5424,11 @@ function Store:showStoreItemInfo(item, noReload, updateOverride)
 				buyWithSt.uiColor = table.clone(UICOLORWHITE)
 				purchaseIconImage = "../textures/menu/logos/apple.tga"
 				displayPrice = utf8.gsub(get_platform_item_price(item.itemid), "%s", " ")
-			--[[elseif (_G.PLATFORM == "ANDROID") then
-				purchaseIconImage = "../textures/menu/logos/android.tga"]]
+			elseif (_G.PLATFORM == "ANDROID") then
+				buyWithSt.bgColor = { 0.004, 0.527, 0.371, 1 }
+				buyWithSt.uiColor = table.clone(UICOLORWHITE)
+				purchaseIconImage = "../textures/menu/logos/googleplay.tga"
+				displayPrice = utf8.gsub(get_platform_item_price(item.itemid), "%s", " ")
 			end
 			local buyWithUSDIcon = buyWithSt:addChild({
 				pos = { -buyWithSt.size.h + (buyWithSt.size.h - iconScale) / 2 - 5, (buyWithSt.size.h - iconScale) / 2 },
