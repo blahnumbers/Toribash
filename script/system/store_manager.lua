@@ -5160,7 +5160,7 @@ function Store.InitUSDPurchase(item, onSuccess)
 			initResult = 0
 			runCmd("steam purchase " .. item.itemid)
 		else
-			open_url("http://forum.toribash.com/tori_shop.php?action=process&item=" .. item.itemid)
+			open_url("http://forum.toribash.com/tori_shop.php?action=process&item=" .. item.itemid, true)
 			purchaseWindow:addChild({
 				pos = { 20, 20 },
 				size = { purchaseWindow.size.w - 40, purchaseWindow.size.h / 2 - 30 }

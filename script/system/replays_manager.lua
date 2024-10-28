@@ -2004,11 +2004,12 @@ function Replays:canUploadReplay(replay)
 	end
 
 	local isInReplay = false
-	if (replay.author == TB_MENU_PLAYER_INFO.username) then
+	local nameLower = string.lower(TB_MENU_PLAYER_INFO.username)
+	if (string.lower(replay.author) == nameLower) then
 		isInReplay = true
 	end
-	for i,v in pairs(replay.bouts) do
-		if (v == TB_MENU_PLAYER_INFO.username) then
+	for _, v in pairs(replay.bouts) do
+		if (string.lower(v) == nameLower) then
 			isInReplay = true
 		end
 	end
@@ -3073,7 +3074,7 @@ function Replays:showServerReplayInfo(viewElement, replay)
 	replayRating:addMouseHandlers(nil, function()
 			Replays:showReplayVoteWindow(replay)
 		end)
-	if (replay.author:lower() == TB_MENU_PLAYER_INFO.username:lower()) then
+	if (string.lower(replay.author) == string.lower(TB_MENU_PLAYER_INFO.username)) then
 		replayRating:deactivate()
 	end
 	Replays:showReplayRating(replayRating, replay.score, replay.votes, replay.uservote)
@@ -3220,9 +3221,10 @@ function Replays:showCustomReplaySelection(mainElement, mod, action)
 		else
 			modExtension = mod .. ".tbm"
 		end
+		local nameLower = string.lower(TB_MENU_PLAYER_INFO.username)
 		---@param v ReplayInfo
 		local function checkReplay(v)
-			if ((mod == nil or v.mod == mod or v.mod == modExtension) and (v.author == TB_MENU_PLAYER_INFO.username or (v.author == 'autosave' and v.bouts[1] == TB_MENU_PLAYER_INFO.username))) then
+			if ((mod == nil or v.mod == mod or v.mod == modExtension) and (string.lower(v.author) == nameLower or (v.author == 'autosave' and string.lower(v.bouts[1]) == nameLower))) then
 				if (v.name:find("^" .. ReplaysInternal.EventTempPrefix)) then
 					v.name = 'Autosaved Replay'
 				end
