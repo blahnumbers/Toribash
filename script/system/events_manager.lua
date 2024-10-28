@@ -1718,7 +1718,7 @@ do
 			return false
 		end
 
-		TB_MENU_SPECIAL_SCREEN_ISOPEN = 10
+		TB_MENU_SPECIAL_SCREEN_ISOPEN = 1000
 		local overlay = TBMenu:spawnWindowOverlay()
 		local windowSize = math.min(WIN_H - 200, (WIN_W - 200) / 2)
 		local viewElement = UIElement:new({
@@ -1730,8 +1730,12 @@ do
 			shapeType = ROUNDED,
 			rounded = 5
 		})
-		overlay:addMouseHandlers(nil, function()
+		viewElement.killAction = function()
+			if (TB_MENU_SPECIAL_SCREEN_ISOPEN == 1000) then
 				TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
+			end
+		end
+		overlay:addMouseHandlers(nil, function()
 				overlay:kill()
 			end)
 		if (event.eventid or event.image) then
@@ -1882,7 +1886,6 @@ do
 		})
 		table.insert(dtopBar.child, closeButton)
 		closeButton:addMouseHandlers(nil, function()
-				TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
 				overlay:kill()
 			end)
 		if (event.eventid) then
