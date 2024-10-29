@@ -5236,16 +5236,25 @@ function Store.InitUSDPurchase(item, onSuccess)
 						TBMenu:displayLoadingMark(purchaseWindow, TB_MENU_LOCALIZED.STOREPURCHASEFINALIZING)
 						local purchaseProgressMonitor = purchaseWindow:addChild({})
 						purchaseProgressMonitor:addCustomDisplay(true, function()
-								if (get_purchase_done() == 1) then
+								if (get_purchase_done() ~= 0) then
 									if (overlay and not overlay.destroyed) then
 										overlay:kill()
 									end
-									TBMenu:showStatusMessage(item.itemname .. " " .. TB_MENU_LOCALIZED.STOREITEMPURCHASESUCCESSFUL)
-									update_tc_balance()
-									Notifications:getTotalNotifications(true)
-									Store.GetPlayerOffers()
-									if (onSuccess) then
-										onSuccess()
+									if (get_purchase_done() == 1) then
+										TBMenu:showStatusMessage(item.itemname .. " " .. TB_MENU_LOCALIZED.STOREITEMPURCHASESUCCESSFUL)
+										update_tc_balance()
+										Notifications:getTotalNotifications(true)
+										Store.GetPlayerOffers()
+										if (onSuccess) then
+											onSuccess()
+										end
+									else
+										if (_G.PLATFORM == "ANDROID") then
+											---Android will automatically refund the payment if we don't acknowledge it by server, display a separate error
+											TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STOREPURCHASEERRORANDROID)
+										else
+											TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STOREPURCHASEERRORCONTACTSUPPORT)
+										end
 									end
 								end
 							end)
@@ -5254,10 +5263,20 @@ function Store.InitUSDPurchase(item, onSuccess)
 					if (overlay and not overlay.destroyed) then
 						overlay:kill()
 					end
-					if (error_code == 2) then
-						TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STOREPURCHASECANCELLED)
-					else
-						TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STOREPURCHASEERROR .. " err " .. tostring(error_code))
+					if (_G.PLATFORM == "IPHONEOS") then
+						if (error_code == 2) then
+							TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STOREPURCHASECANCELLED)
+						else
+							TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STOREPURCHASEERROR .. " err " .. tostring(error_code))
+						end
+					elseif (_G.PLATFORM == "ANDROID") then
+						if (error_code == 1) then
+							TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STOREPURCHASECANCELLED)
+						elseif (error_code == 2 or error_code == 3 or error_code == 12) then
+							TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STOREERRORPURCHASEMTXINIT)
+						else
+							TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STOREPURCHASEERROR .. " err " .. tostring(error_code))
+						end
 					end
 				end
 			end)
