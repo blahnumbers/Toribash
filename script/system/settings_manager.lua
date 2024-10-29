@@ -1396,14 +1396,14 @@ function Settings:getSettingsData(id)
 						minValueDisp = "0.5x",
 						maxValue = 200,
 						maxValueDisp = "2x",
-						systemname = "camerasensitivity",
+						systemname = "camerasensitivityh",
 						onUpdate = function(slider)
 							Settings.Stored.camerasensitivity = {
 								value = math.round((tonumber(slider.label.labelText[1]) or 100) / 10) * 10
 							}
 							slider.label.labelText[1] = math.round((tonumber(slider.label.labelText[1]) or 100) / 10) / 10 .. 'x'
 						end,
-						val = { get_option("camerasensitivity") },
+						val = { get_option("camerasensitivityh") },
 						hidden = not is_mobile()
 					},
 					{
@@ -1413,14 +1413,14 @@ function Settings:getSettingsData(id)
 						minValueDisp = "0.5x",
 						maxValue = 200,
 						maxValueDisp = "2x",
-						systemname = "camerasensitivityvert",
+						systemname = "camerasensitivityy",
 						onUpdate = function(slider)
 							Settings.Stored.camerasensitivityvert = {
 								value = math.round((tonumber(slider.label.labelText[1]) or 100) / 10) * 10
 							}
 							slider.label.labelText[1] = math.round((tonumber(slider.label.labelText[1]) or 100) / 10) / 10 .. 'x'
 						end,
-						val = { get_option("camerasensitivityvert") },
+						val = { get_option("camerasensitivityy") },
 						hidden = not is_mobile()
 					},
 					{
