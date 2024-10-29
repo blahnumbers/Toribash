@@ -5241,10 +5241,15 @@ function Store.InitUSDPurchase(item, onSuccess)
 										overlay:kill()
 									end
 									if (get_purchase_done() == 1) then
-										TBMenu:showStatusMessage(item.itemname .. " " .. TB_MENU_LOCALIZED.STOREITEMPURCHASESUCCESSFUL)
-										update_tc_balance()
-										Notifications:getTotalNotifications(true)
-										Store.GetPlayerOffers()
+										local purchaseMsg = get_purchase_message()
+										if (purchaseMsg == "finalized") then
+											TBMenu:showStatusMessage(item.itemname .. " " .. TB_MENU_LOCALIZED.STOREITEMPURCHASESUCCESSFUL)
+											update_tc_balance()
+											Notifications:getTotalNotifications(true)
+											Store.GetPlayerOffers()
+										else
+											TBMenu:showStatusMessage(purchaseMsg)
+										end
 										if (onSuccess) then
 											onSuccess()
 										end

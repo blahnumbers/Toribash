@@ -3745,8 +3745,18 @@ function get_screen_pos(pos_x, pos_y, pos_z) end
 ---@return number|nil
 function get_steam_stat(name) end
 
+---@alias PurchaseCompleteState
+---| 0	PURCHASE_UNKNOWN
+---| 1	PURCHASE_COMPLETE
+---| 2	PURCHASE_ERROR
+
 ---Returns in-app purchase finalized status
+---@return PurchaseCompleteState state
 function get_purchase_done() end
+
+---Returns last in-app purchase message
+---@return string
+function get_purchase_message() end
 
 ---Runs a legacy tutorial by its id
 ---@param id integer
