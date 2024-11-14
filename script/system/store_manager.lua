@@ -5708,7 +5708,7 @@ function Store:showStoreListItem(listingHolder, listElements, elementHeight, ite
 			pricesString = pricesString .. "\n"
 		end
 		if (not stItem) then
-			if (_G.PLATFORM == "IPHONEOS") then
+			if (_G.PLATFORM == "IPHONEOS" or _G.PLATFORM == "ANDROID") then
 				pricesString = utf8.gsub(get_platform_item_price(item.itemid), "%s", " ")
 				if (string.len(pricesString) == 0) then
 					---Price length is 0, this means the item is not available on this platform (or in current location)
@@ -6168,8 +6168,11 @@ function Store:showPrime()
 		primePurchaseButton.uiColor = table.clone(UICOLORWHITE)
 		purchaseIconImage = "../textures/menu/logos/apple.tga"
 		displayPrice = utf8.gsub(get_platform_item_price(primeItemInfo.itemid), "%s", " ")
-	--[[elseif (_G.PLATFORM == "ANDROID") then
-		purchaseIconImage = "../textures/menu/logos/android.tga"]]
+	elseif (_G.PLATFORM == "ANDROID") then
+		primePurchaseButton.bgColor = { 0.004, 0.527, 0.371, 1 }
+		primePurchaseButton.uiColor = table.clone(UICOLORWHITE)
+		purchaseIconImage = "../textures/menu/logos/googleplay.tga"
+		displayPrice = utf8.gsub(get_platform_item_price(primeItemInfo.itemid), "%s", " ")
 	end
 	if (displayPrice ~= "") then
 		primePurchaseButton:addChild({
