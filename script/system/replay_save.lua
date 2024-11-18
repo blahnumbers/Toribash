@@ -143,6 +143,11 @@ local function saveReplay(newname)
 
 		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REPLAYSSAVEREPLAYSUCCESS .. " " .. filename .. ".rpl")
 		TBMenu.ReplaySaveOverlay:kill()
+
+		---Request app review on mobile platforms
+		if (not TUTORIAL_ISACTIVE) then
+			request_app_review()
+		end
 	end
 
 	local file = Files.Open("../replay/" .. filename .. ".rpl")
