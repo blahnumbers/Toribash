@@ -145,9 +145,11 @@ local function saveReplay(newname)
 		TBMenu.ReplaySaveOverlay:kill()
 
 		---Request app review on mobile platforms
-		if (not TUTORIAL_ISACTIVE) then
-			request_app_review()
-		end
+		pcall(function()
+			if (not TUTORIAL_ISACTIVE and TB_MENU_PLAYER_INFO.data.qi > 19) then
+				request_app_review()
+			end
+		end)
 	end
 
 	local file = Files.Open("../replay/" .. filename .. ".rpl")
