@@ -1500,6 +1500,7 @@ do
 								chooseShopIcon:kill(true)
 								chooseShopIcon:addChild({ shift = { 15, 5 }}):addAdaptedText(true, newImagePath and (TB_MENU_LOCALIZED.GENERALSELECTEDFILE .. ": " .. newImagePath) or TB_MENU_LOCALIZED.MARKETCHOOSENEWSHOPIMAGE)
 								remove_hook("filebrowser_select", Market.HookName)
+								return 1
 							end)
 					end
 				end)

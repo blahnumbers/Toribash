@@ -1769,6 +1769,7 @@ function Store:showInventoryItemCustomize(item)
 								doShowUploadFile(filename)
 							end
 							remove_hook("filebrowser_select", self.HookName)
+							return 1
 						end)
 				end
 			end)
