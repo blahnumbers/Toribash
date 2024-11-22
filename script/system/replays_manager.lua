@@ -2150,7 +2150,8 @@ function Replays:showReplayInfo(viewElement, replaysList, replayIdx)
 		posY = autosaveToggleView.shift.y - 10
 	end
 
-	local buttonManageWidth = PLATFORM == "IPHONEOS" and buttonWidth - buttonHeight - 10 or buttonWidth
+	local supportsFileSharing = _G.PLATFORM == "IPHONEOS" or _G.PLATFORM == "ANDROID"
+	local buttonManageWidth = supportsFileSharing and buttonWidth - buttonHeight - 10 or buttonWidth
 	local replayManageButton = viewElement:addChild({
 		pos = { 10, -buttonHeight + posY },
 		size = { buttonManageWidth, buttonHeight },
@@ -2165,11 +2166,11 @@ function Replays:showReplayInfo(viewElement, replaysList, replayIdx)
 	replayManageButton:addMouseHandlers(nil, function()
 			Replays:showReplayManageWindow(replay)
 		end)
-	if (PLATFORM == "IPHONEOS") then
+	if (supportsFileSharing) then
 		local replayShareButton = viewElement:addChild({
 			pos = { replayManageButton.shift.x + replayManageButton.size.w + 10, replayManageButton.shift.y },
 			size = { replayManageButton.size.h, replayManageButton.size.h },
-			bgImage = "../textures/menu/general/buttons/share-ios.tga",
+			bgImage = _G.PLATFORM == "IPHONEOS" and "../textures/menu/general/buttons/share-ios.tga" or "../textures/menu/general/buttons/share-android.tga",
 			shapeType = ROUNDED,
 			rounded = 3,
 			interactive = true,

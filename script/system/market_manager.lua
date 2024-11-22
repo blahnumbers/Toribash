@@ -2874,7 +2874,7 @@ do
 					})
 					defaultValue:addAdaptedText(false, v.defaultName .. ": " .. v.default, nil, nil, 4, nil, 0.7)
 					defaultValue:addMouseHandlers(nil, function()
-							v.value = v.default
+							v.value = tostring(v.default)
 							interactiveElem.textfieldstr[1] = v.default .. ''
 							interactiveElem.textfieldindex = interactiveElem.textfieldstr[1]:len()
 							defaultValue:hide(true)
