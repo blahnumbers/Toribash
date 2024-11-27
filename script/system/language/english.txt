@@ -1335,3 +1335,4 @@ SETTINGSEFFECTSVARIABLESPEED	Variable effects speed
 SETTINGSEFFECTSVARIABLESPEEDINFO	Controls whether animated item effects will change their playback speed depending on game state and current replay speed
 STOREPURCHASEERRORANDROID	Error finalizing your purchase, please try again later. Payment for this purchase should be refunded to you shortly.
 STOREPURCHASEERRORCONTACTSUPPORT	Error finalizing your purchase, please contact support@nabistudios.com.
+ACCOUNTSHOWACHIEVEMENTS	Show Achievements

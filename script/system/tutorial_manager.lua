@@ -2501,7 +2501,7 @@ function Tutorials:showAllTutorials(featuredTutorial)
 			tutorials[i].size = size
 			tutorials[i].ratio = 0.5
 		end
-		if (i > featuredTutorial and TB_MENU_PLAYER_INFO.data.qi < i * 250) then
+		if (i > featuredTutorial and TB_MENU_PLAYER_INFO.data.qi < i * 20) then
 			tutorials[i].locked = true
 		end
 		tutorials[i].action = function() self:runTutorial(tutorials[i].id) end

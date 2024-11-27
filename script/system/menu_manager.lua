@@ -1626,6 +1626,32 @@ function TBMenu:showAccountMain()
 		gameCenterText.size.w = textWidth
 		gameCenterButton:addMouseUpHandler(open_gamecenter_dashboard)
 	end
+	if (_G.PLATFORM == "ANDROID") then
+		local showAchievementsButton = botBar:addChild({
+			pos = { 10, 5 },
+			size = { 300, botBar.size.h - 10 },
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			interactive = true,
+			shapeType = ROUNDED,
+			rounded = 3
+		})
+		local gPlayServicesIcon = showAchievementsButton:addChild({
+			pos = { 3, 3 },
+			size = { showAchievementsButton.size.h - 6, showAchievementsButton.size.h - 6 },
+			bgImage = "../textures/menu/logos/googleplayservices.tga"
+		})
+		local showAchievementsText = showAchievementsButton:addChild({
+			pos = { gPlayServicesIcon.size.w + gPlayServicesIcon.shift.x * 2, 5 },
+			size = { showAchievementsButton.size.w - gPlayServicesIcon.size.w - gPlayServicesIcon.shift.x * 4, showAchievementsButton.size.h - 10 }
+		})
+		showAchievementsText:addAdaptedText(true, TB_MENU_LOCALIZED.ACCOUNTSHOWACHIEVEMENTS, nil, nil, 11, CENTERMID, 0.65)
+		local textWidth = get_string_length(showAchievementsText.dispstr[1], showAchievementsText.textFont) * showAchievementsText.textScale + 20
+		showAchievementsButton.size.w = showAchievementsButton.size.w - (showAchievementsText.size.w - textWidth)
+		showAchievementsText.size.w = textWidth
+		showAchievementsButton:addMouseUpHandler(open_achievements)
+	end
 
 	local accountTerminationButton = botBar:addChild({
 		pos = { -400, 5 },

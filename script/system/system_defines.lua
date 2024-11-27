@@ -3820,3 +3820,7 @@ function request_app_review() end
 ---Sets or removes an override for in-game hint message
 ---@param message string|nil
 function set_hint_override(message) end
+
+---Opens achievements screen on supported platforms. \
+---@see open_gamecenter_dashboard
+function open_achievements() end
