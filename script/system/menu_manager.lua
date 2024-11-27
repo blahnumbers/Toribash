@@ -1834,7 +1834,24 @@ function TBMenu:showAccountMain()
 						return
 					end
 					infoMessage:kill()
-					self.UserAccountInfo.ready = nil
+
+					showAccountData(self.UserAccountInfo)
+				end
+			end)
+		return
+	end
+	if (self.UserAccountInfo.ready == false) then
+		accountDataRefresh:deactivate()
+		local infoMessage = listingHolder:addChild({})
+		TBMenu:displayLoadingMark(infoMessage, TB_MENU_LOCALIZED.ACCOUNTGETTINGINFO)
+		infoMessage:addChild({}):addCustomDisplay(true, function()
+				if (self.UserAccountInfo.ready) then
+					if (self.UserAccountInfo.failed) then
+						infoMessage:kill(true)
+						infoMessage:addAdaptedText(true, TB_MENU_LOCALIZED.ACCOUNTINFOERROR)
+						return
+					end
+					infoMessage:kill()
 
 					showAccountData(self.UserAccountInfo)
 				end
