@@ -1532,6 +1532,13 @@ end
 
 ---Displays Account menu
 function TBMenu:showAccountMain()
+	if (TB_MENU_PLAYER_INFO.username == "") then
+		TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
+		TB_LAST_MENU_SCREEN_OPEN = 2
+		TBMenu:openMenu(TB_LAST_MENU_SCREEN_OPEN)
+		return
+	end
+
 	local lastSpecialScreen = TB_MENU_SPECIAL_SCREEN_ISOPEN
 	if (lastSpecialScreen == 10) then
 		lastSpecialScreen = 0
