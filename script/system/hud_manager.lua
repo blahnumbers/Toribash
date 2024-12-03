@@ -229,7 +229,9 @@ function TBHudInternal.refreshButtons()
 			v.button:hide()
 		end
 	end
-	TBHud:reloadHubDynamicButtons()
+	if (TBHud.HubHolder:isDisplayed()) then
+		TBHud:reloadHubDynamicButtons()
+	end
 end
 
 ---Method that handles all incoming chat messages and pushes them for display
@@ -1109,7 +1111,8 @@ end
 
 ---Reloads Hub's dynamic buttons section. \
 ---**This must be executed after QueueList has received the list update.**
-function TBHud:reloadHubDynamicButtons()
+---@param override boolean?
+function TBHud:reloadHubDynamicButtons(override)
 	if (self.HubDynamicButtonsHolder == nil) then return end
 
 	local playerInfoRaw = QueueList:getCurrentPlayerInfo()
@@ -1123,7 +1126,7 @@ function TBHud:reloadHubDynamicButtons()
 
 	---First check if we actually need to reload any buttons
 	---We don't want to run this code unless we actually know we'll have to reload buttons
-	if (self.HubDynamicState ~= nil) then
+	if (self.HubDynamicState ~= nil and not override) then
 		if (self.HubDynamicState.game_type == self.WorldState.game_type and
 			self.HubDynamicState.replay_mode == self.WorldState.replay_mode and
 			table.compare(self.HubDynamicState.PlayerInfo or {}, playerInfo or {})) then
@@ -1165,6 +1168,26 @@ function TBHud:reloadHubDynamicButtons()
 			},
 			action = function() dofile("system/replay_save.lua") end,
 			displayCondition = function() return true end
+		},
+		{
+			title = TB_MENU_LOCALIZED.MOBILEHUDSAVEMOD,
+			icon = {
+				filename = "../textures/menu/general/buttons/download.tga"
+			},
+			action = function()
+				local modname = get_gamerule("mod")
+				modname = utf8.gsub(modname, ".*[\\/]", "")
+				if (export_mod("data/mod/downloads/" .. modname)) then
+					TBMenu:showStatusMessage(modname .. " " .. TB_MENU_LOCALIZED.MOBILEHUDSAVEMODSUCCESS)
+				else
+					TBMenu:showStatusMessage(TB_MENU_LOCALIZED.MOBILEHUDSAVEMODFAILURE .. " " .. modname)
+				end
+			end,
+			displayCondition = function()
+				if (self.WorldState.game_type == 1) then return false end
+				local firstSymbol = utf8.sub(get_gamerule("mod"), 0, 1)
+				return firstSymbol == '/' or firstSymbol == "\\"
+			end
 		}
 	}
 
@@ -1338,6 +1361,7 @@ end
 ---@param state boolean
 function TBHud:toggleHub(state)
 	if (state == true) then
+		self:reloadHubDynamicButtons(true)
 		self.HubHolder:show(true)
 	end
 

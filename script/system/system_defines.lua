@@ -3792,6 +3792,7 @@ function get_errno() end
 
 ---Saves current mod to a file
 ---@param filename string
+---@return boolean
 function export_mod(filename) end
 
 ---Deletes a shader file

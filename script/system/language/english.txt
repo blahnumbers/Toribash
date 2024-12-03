@@ -1336,3 +1336,6 @@ SETTINGSEFFECTSVARIABLESPEEDINFO	Controls whether animated item effects will cha
 STOREPURCHASEERRORANDROID	Error finalizing your purchase, please try again later. Payment for this purchase should be refunded to you shortly.
 STOREPURCHASEERRORCONTACTSUPPORT	Error finalizing your purchase, please contact support@nabistudios.com.
 ACCOUNTSHOWACHIEVEMENTS	Show Achievements
+MOBILEHUDSAVEMOD	Save mod to downloads
+MOBILEHUDSAVEMODSUCCESS	has been saved to downloads folder
+MOBILEHUDSAVEMODFAILURE	Error saving
