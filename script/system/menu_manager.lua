@@ -2336,6 +2336,8 @@ function TBMenu:openMenu(screenId)
 		Store:showStoreSection(TBMenu.CurrentSection, Store.LastSection, Store.LastSectionId)
 	elseif (TB_MENU_SPECIAL_SCREEN_ISOPEN == 10) then
 		TBMenu:showAccountMain()
+	elseif (TB_MENU_SPECIAL_SCREEN_ISOPEN == 11) then
+		TBMenu:showScripts()
 	elseif (screenId == 1) then
 		TBMenu:showHome()
 	elseif (screenId == 2) then

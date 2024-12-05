@@ -139,14 +139,7 @@ function Tutorials:quit()
 	TUTORIAL_ISACTIVE = false
 	TUTORIAL_LEAVEGAME = false
 
-	remove_hooks(self.HookName)
-	remove_hooks(self.StepHook)
-	remove_hooks(self.StaticHook)
-	remove_hooks(MoveMemory.HookName .. "Play0")
-	remove_hooks(MoveMemory.HookName .. "Play1")
-	for i, _ in pairs(MoveMemory.PlaybackActive) do
-		MoveMemory.PlaybackActive[i] = false
-	end
+	self:unloadHooks()
 	runCmd("lm classic")
 
 	if (self.QuitOverlay) then
@@ -157,6 +150,17 @@ function Tutorials:quit()
 	set_discord_rpc("", "")
 	disable_player_select(-1)
 	open_menu(19)
+end
+
+function Tutorials:unloadHooks()
+	remove_hooks(self.HookName)
+	remove_hooks(self.StepHook)
+	remove_hooks(self.StaticHook)
+	remove_hooks(MoveMemory.HookName .. "Play0")
+	remove_hooks(MoveMemory.HookName .. "Play1")
+	for i, _ in pairs(MoveMemory.PlaybackActive) do
+		MoveMemory.PlaybackActive[i] = false
+	end
 end
 
 ---Sets `quitPopup` override for Tutorials UI
@@ -2190,6 +2194,7 @@ function Tutorials:runTutorial(id, path, postTutorial)
 		path = nil
 	end
 
+	self:unloadHooks()
 	self:loadOverlay()
 	local tutorialSteps = self:loadTutorial(id, path)
 	if (not tutorialSteps) then

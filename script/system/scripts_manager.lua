@@ -1,6 +1,10 @@
 if (Scripts == nil) then
 	---**Scripts manager class**
 	---
+	---**Version 5.73**
+	---* Remember last scroll position
+	---* Double click to load script from the list
+	---
 	---**Version 5.70**
 	---* Reworked backend to match modern manager classes
 	---* Reworked visuals to match modern design
@@ -11,11 +15,13 @@ if (Scripts == nil) then
 	---@field AutoStart string[] List of scripts that will be loaded on game startup
 	---@field AutoStartArgs string[] List of launch arguments for autostart scripts
 	---@field AutoStartMisc string[] Lits of other commands that will be executed on startup
+	---@field ListShift number[]
 	Scripts = {
 		AutoStart = {},
 		AutoStartArgs = {},
 		AutoStartMisc = {},
-		ver = 5.70
+		ListShift = { 0 },
+		ver = 5.73
 	}
 	Scripts.__index = Scripts
 end
@@ -27,6 +33,10 @@ ScriptsInternal.__index = ScriptsInternal
 
 ---Exits Scripts menu and opens last main menu screen
 function Scripts.Quit()
+	Scripts.ListShift[1] = 0
+	Scripts.LastDisplayedScript = nil
+	Scripts.LastSelectedButton = nil
+
 	TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
 	TBMenu:clearNavSection()
 	TBMenu:showNavigationBar()
@@ -60,6 +70,7 @@ function ScriptsInternal.IsDefaultDirectory(folder)
 end
 
 ---@class ScriptDirectory
+---@field name string
 ---@field path string
 ---@field files string[]
 ---@field contents ScriptDirectory[]
@@ -81,7 +92,7 @@ function Scripts:getScriptFiles(path, name)
 	end
 	for _, v in ipairs(get_folders(path)) do
 		if (path ~= "data/script" or not ScriptsInternal.IsDefaultDirectory(v)) then
-			table.insert(data.contents, Scripts:getScriptFiles(path .. "/" .. v, v))
+			table.insert(data.contents, self:getScriptFiles(path .. "/" .. v, v))
 			data.contents[#data.contents].parent = data
 		end
 	end
@@ -217,7 +228,10 @@ function Scripts:showScriptsList(files)
 			size = { backButton.size.w - elementHeight, elementHeight }
 		}):addAdaptedText(false, TB_MENU_LOCALIZED.NAVBUTTONBACK, 10, nil, 4, LEFTMID, 0.8, 0.8)
 		backButton:addMouseUpHandler(function()
-				Scripts:showScriptsList(files.parent)
+				self.ListShift[1] = 0
+				self.LastDisplayedScript = nil
+				self.LastSelectedButton = nil
+				self:showScriptsList(files.parent)
 			end)
 	end
 	for i, folder in ipairs(files.contents) do
@@ -240,7 +254,10 @@ function Scripts:showScriptsList(files)
 		})
 		button:addAdaptedText(false, folder.name, elementHeight / 2 + 20, nil, 4, LEFTMID, 0.8, 0.8)
 		button:addMouseUpHandler(function()
-				Scripts:showScriptsList(files.contents[i])
+				self.ListShift[1] = 0
+				self.LastDisplayedScript = nil
+				self.LastSelectedButton = nil
+				self:showScriptsList(files.contents[i])
 			end)
 		local buttonIcon = button:addChild({
 			parent = element,
@@ -249,6 +266,7 @@ function Scripts:showScriptsList(files)
 			bgImage = "../textures/menu/general/folder.tga"
 		})
 	end
+	local infoDisplayed = false
 	for _, file in ipairs(files.files) do
 		local element = listingHolder:addChild({
 			pos = { 0, #listElements * elementHeight },
@@ -261,7 +279,7 @@ function Scripts:showScriptsList(files)
 			interactive = true,
 			clickThrough = true,
 			hoverThrough = true,
-			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			bgColor = table.clone(TB_MENU_DEFAULT_DARKER_COLOR),
 			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			pressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR,
 			shapeType = ROUNDED,
@@ -300,19 +318,42 @@ function Scripts:showScriptsList(files)
 				toReload:reload()
 			end
 		end
-		toggleAutostartPill(self:isAutostartScript(shortPath .. "/" .. file), true)
+		local path = shortPath .. "/" .. file
+		toggleAutostartPill(self:isAutostartScript(path), true)
+		button.lastPress = 0
 		button:addMouseUpHandler(function()
-				Scripts:showScriptInfo(shortPath .. "/" .. file, toggleAutostartPill)
+				if (UIElement.clock - button.lastPress < 0.5) then
+					local _, idx = self:isAutostartScript(path)
+					runCmd("ls " .. path .. " " .. (idx ~= nil and self.AutoStartArgs[idx] or ""))
+					close_menu()
+					return
+				end
+				button.lastPress = UIElement.clock
+				self:showScriptInfo(path, toggleAutostartPill)
+				self.LastDisplayedScript = path
+				if (self.LastSelectedButton ~= nil and not self.LastSelectedButton.destroyed) then
+					self.LastSelectedButton.bgColor = table.clone(TB_MENU_DEFAULT_DARKER_COLOR)
+				end
+				self.LastSelectedButton = button
+				self.LastSelectedButton.bgColor = table.clone(TB_MENU_DEFAULT_LIGHTER_COLOR)
 			end)
+		if (self.LastDisplayedScript == path) then
+			self:showScriptInfo(path, toggleAutostartPill)
+			self.LastSelectedButton = button
+			self.LastSelectedButton.bgColor = table.clone(TB_MENU_DEFAULT_LIGHTER_COLOR)
+			infoDisplayed = true
+		end
 	end
 	for _, v in ipairs(listElements) do
 		v:hide()
 	end
 	local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
 	listingHolder.scrollBar = scrollBar
-	scrollBar:makeScrollBar(listingHolder, listElements, toReload)
+	scrollBar:makeScrollBar(listingHolder, listElements, toReload, self.ListShift)
 
-	Scripts:showScriptInfo()
+	if (not infoDisplayed) then
+		self:showScriptInfo()
+	end
 end
 
 --[[function Scripts:showSource(info)
@@ -512,7 +553,7 @@ function Scripts:showScriptInfo(path, autostartUpdateFunc)
 		bgColor = TB_MENU_DEFAULT_BG_COLOR
 	}, true)
 
-	local autostart, idx = Scripts:isAutostartScript(path)
+	local autostart, idx = self:isAutostartScript(path)
 	local launchArgInputHolder = self.InfoView:addChild({
 		pos = { autostartHolder.shift.x, autostartHolder.shift.y - 40 },
 		size = { autostartHolder.size.w, 30 },
@@ -558,6 +599,7 @@ end
 
 ---Displays Scripts' menu main screen
 function Scripts:showMain()
+	TB_MENU_SPECIAL_SCREEN_ISOPEN = 11
 	usage_event("scripts")
 	TBMenu.CurrentSection:kill(true)
 

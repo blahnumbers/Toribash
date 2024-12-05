@@ -201,7 +201,7 @@ local function showDamageAndTimerBars()
 end
 
 local function unloadStaticHook(viewElement, reqTable)
-	remove_hooks("tbTutorialsCustomStatic")
+	remove_hooks(Tutorials.StaticHook)
 	hideDamageAndTimerBars(viewElement, reqTable)
 end
 
