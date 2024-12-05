@@ -3147,7 +3147,7 @@ function Store:showStoreAdvancedItemPreview(viewElement, item, noReload, updateO
 	local trans = get_option("shaders") == 1 and 1 or 0.99
 	local heightMod = 0
 	local iconScale = viewElement.size.w > viewElement.size.h and viewElement.size.h or viewElement.size.w
-	iconScale = iconScale > 64 and 64 or iconScale
+	iconScale = math.min(item.itemid > 4300 and 128 or 64, iconScale)
 
 	local color = (item.colorid > 0 and item.colorid < _G.COLORS.NUM_COLORS) and get_color_rgba(item.colorid) or { 1, 1, 1, 0 }
 	local pcolor = get_color_rgba(TB_MENU_PLAYER_INFO.items.colors.pgrad)
@@ -3771,7 +3771,7 @@ function Store:showStoreAdvancedItemPreview(viewElement, item, noReload, updateO
 	background:kill()
 
 	local iconScale = viewElement.size.w > viewElement.size.h and viewElement.size.h or viewElement.size.w
-	iconScale = iconScale > 64 and 64 or iconScale
+	iconScale = math.min(item.itemid > 4300 and 128 or 64, iconScale)
 	viewElement.size.h = iconScale + heightMod + 10
 	local itemIcon = viewElement:addChild({
 		pos = { (viewElement.size.w - iconScale) / 2, 0 },
