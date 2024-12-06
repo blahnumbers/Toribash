@@ -11,6 +11,9 @@ require("system.iofiles")
 if (Rewards == nil) then
 	---**Login rewards manager class**
 	---
+	---**Version 5.73**
+	---* Update `ParseData()` to reset `Data` table before populating it
+	---
 	---**Version 5.70**
 	---* Added `HookName` field
 	---
@@ -24,7 +27,7 @@ if (Rewards == nil) then
 	---@field Data DayReward[] List of available rewards
 	Rewards = {
 		Data = { },
-		ver = 5.70,
+		ver = 5.73,
 		HookName = "__tbRewardsManager"
 	}
 	Rewards.__index = Rewards
@@ -42,6 +45,8 @@ function Rewards.ParseData()
 
 	local lines = file:readAll()
 	file:close()
+
+	Rewards.Data = { }
 	for _, ln in pairs(lines) do
 		if string.match(ln, "^REWARD") then
 			local segments = 5

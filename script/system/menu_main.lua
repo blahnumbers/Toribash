@@ -144,11 +144,26 @@ if (not _G.FIRST_LAUNCH and TBMenu.MenuMain ~= nil) then
 				end
 			end)
 	end
-	TBMenu.MenuMain:addChild({}):addCustomDisplay(true, function()
-			if (PlayerInfo:getLoginRewards().available and Store.Ready and Store.Discounts.Prime ~= nil and not TB_MENU_NOTIFICATION_LOGINREWARDS) then
+	local rewardsObserver = TBMenu.MenuMain:addChild({})
+	rewardsObserver:addCustomDisplay(true, function()
+			local hasRewards = not table.empty(Rewards.Data)
+			if (not hasRewards) then
+				local downloads = get_downloads()
+				for _, v in ipairs(downloads) do
+					if (string.find(v, "loginrewards%.txt")) then
+						return
+					end
+				end
+				Rewards.ParseData()
+			end
+			if (PlayerInfo:getLoginRewards().available and
+				Store.Ready and Store.Discounts.Prime ~= nil and
+				not table.empty(Rewards.Data) and
+				not TB_MENU_NOTIFICATION_LOGINREWARDS) then
 				TB_MENU_NOTIFICATIONS_COUNT = TB_MENU_NOTIFICATIONS_COUNT + 1
 				TB_MENU_NOTIFICATION_LOGINREWARDS = true
 				TBMenu:showNotifications()
+				rewardsObserver:kill()
 			end
 		end)
 	_G.FIRST_LAUNCH = true
@@ -207,6 +222,8 @@ add_hook("downloader_complete", "__tbMainMenuStatic", function(filename)
 			end)
 		elseif (filename:find("data/inventory.txt")) then
 			Downloader.SafeCall(Store.ParseInventory)
+		elseif (filename:find("data/script/system/loginrewards.txt")) then
+			Downloader.SafeCall(Rewards.ParseData)
 		end
 	end)
 
