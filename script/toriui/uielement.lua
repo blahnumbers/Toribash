@@ -1725,8 +1725,11 @@ function UIElement:textfieldInput(input, isNumeric, allowNegative, allowDecimal,
 		if (allowNegative and input:find("^-")) then
 			negativeSign = true
 		end
-		local regexMatch = "[^0-9" .. (allowDecimal and "%." or "") .. "]"
+		local regexMatch = "[^0-9" .. (allowDecimal and "%.," or "") .. "]"
 		input = utf8.gsub(input, regexMatch, "")
+		if (allowDecimal) then
+			input = utf8.gsub(input, ",", ".")
+		end
 	end
 	if (strLen == 0 and not negativeSign) then
 		return
