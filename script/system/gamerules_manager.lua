@@ -421,7 +421,7 @@ function Gamerules.showGamerule(v, listingHolder, elementHeight, listElements, s
 				textScale = 0.7,
 				textAlign = CENTERMID,
 				darkerMode = true,
-				inputType = KEYBOARD_INPUT.NUMBERPAD,
+				inputType = (v.allowNegative and _G.PLATFORM == "IPHONEOS") and KEYBOARD_INPUT.ASCII or KEYBOARD_INPUT.NUMBERPAD,
 				returnKeyType = KEYBOARD_RETURN.DONE
 			})
 			grInput:addTabAction(scrollTabFunc)
@@ -606,7 +606,7 @@ function Gamerules.showGamerule(v, listingHolder, elementHeight, listElements, s
 					textScale = 0.7,
 					textAlign = CENTERMID,
 					darkerMode = true,
-					inputType = KEYBOARD_INPUT.NUMBERPAD,
+					inputType = _G.PLATFORM == "IPHONEOS" and KEYBOARD_INPUT.ASCII or KEYBOARD_INPUT.NUMBERPAD,
 					returnKeyType = i == 3 and KEYBOARD_RETURN.DONE or KEYBOARD_RETURN.NEXT
 				})
 				table.insert(gravInputs, grInput)
@@ -690,7 +690,7 @@ function Gamerules.showGamerule(v, listingHolder, elementHeight, listElements, s
 						textScale = 0.7,
 						textAlign = CENTERMID,
 						darkerMode = true,
-						inputType = KEYBOARD_INPUT.NUMBERPAD,
+						inputType = _G.PLATFORM == "IPHONEOS" and KEYBOARD_INPUT.ASCII or KEYBOARD_INPUT.NUMBERPAD,
 						returnKeyType = (i * j == num_inputs) and KEYBOARD_RETURN.DONE or KEYBOARD_RETURN.NEXT
 					})
 					table.insert(engageInputs, grInput)
