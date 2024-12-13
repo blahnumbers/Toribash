@@ -5,6 +5,10 @@ if (MoveMemory == nil) then
 
 	---**MoveMemory manager class**
 	---
+	---**Version 5.74**
+	---* Updates for better move recording control when run from other scripts
+	---* Added `Recording` table to reference moves that are currently being recorded
+	---
 	---**Version 5.70**
 	---* Added `HookName` field
 	---
@@ -32,32 +36,88 @@ if (MoveMemory == nil) then
 		FirstTurn = false,
 		Storage = {},
 		Toolbar = {},
+		Recording = {},
 		ElementHeight = 35,
 		StoragePopulated = false,
 		TutorialMode = false,
 		OnOpenedEvents = { },
 		OnClosedEvents = { },
 		HookName = "__tbMoveMemoryManager",
-		ver = 5.70
+		ver = 5.74
 	}
 	MoveMemory.__index = MoveMemory
+
+	---Move class for **MoveMemory** manager
+	---@class MemoryMove
+	---@field id integer Move id in storage cache
+	---@field name string Name of the movement sequence
+	---@field desc string Description of the movement sequence
+	---@field mod string Name of the mod that this move was made for
+	---@field turns integer Number of turns in this move sequence
+	---@field movements integer[][] Movements data
+	---@field currentturn integer|nil Internal value to tell which turn MoveMemory should play next
+	MemoryMove = {
+		ver = MoveMemory.ver
+	}
+	MemoryMove.__index = MemoryMove
 end
 
 ---Helper class for **MoveMemory** manager
 ---@class MoveMemoryInternal
 local MoveMemoryInternal = {}
 
----Move class for **MoveMemory** manager
----@class MemoryMove
----@field id integer Move id in storage cache
----@field name string Name of the movement sequence
----@field desc string Description of the movement sequence
----@field mod string Name of the mod that this move was made for
----@field turns integer Number of turns in this move sequence
----@field movements integer[][] Movements data
----@field currentturn integer|nil Internal value to tell which turn MoveMemory should play next
-MemoryMove = {}
-MemoryMove.__index = MemoryMove
+---Creates a **MemoryMove** instance from data
+---@param moveData integer[][]
+---@param name string?
+---@param description string?
+---@param mod string?
+---@return MemoryMove
+function MemoryMove.FromData(moveData, name, description, mod)
+	---@type MemoryMove
+	local memoryMove = {
+		name = name or "",
+		desc = description or "",
+		mod = mod or "",
+		movements = table.clone(moveData),
+		turns = #moveData
+	}
+	setmetatable(memoryMove, MemoryMove)
+	return memoryMove
+end
+
+---Creates a **MemoryMove** instance from opener lines
+---@param openerLines string[]
+---@return MemoryMove
+function MemoryMove.FromOpener(openerLines)
+	local moveData = { }
+	local openerValues = { f = 1, b = 2, h = 3, r = 4 }
+	for _, turn in ipairs(openerLines) do
+		local turnMove = { }
+		for i = 1, 20 do
+			turnMove[i - 1] = openerValues[string.sub(turn, i, i)]
+		end
+		turnMove[20] = string.sub(turn, 21, 21) == '+' and 1 or 0
+		turnMove[21] = string.sub(turn, 22, 22) == '+' and 1 or 0
+		table.insert(moveData, turnMove)
+	end
+	return MemoryMove.FromData(moveData)
+end
+
+---Returns memory move as a table of opener strings
+---@return string[]
+function MemoryMove:toOpener()
+	local openerLines = { }
+	local openerValues = { "f", "b", "h", "r" }
+	for _, turn in ipairs(self.movements) do
+		local openerLine = ""
+		for i = 0, 19 do
+			openerLine = openerLine .. openerValues[turn[i]]
+		end
+		openerLine = openerLine .. (turn[20] == 1 and "+" or "-") .. (turn[21] == 1 and "+" or "-")
+		table.insert(openerLines, openerLine)
+	end
+	return openerLines
+end
 
 ---Exits MoveMemory and destroys main holder
 function MoveMemory.Quit()
@@ -331,14 +391,7 @@ function MoveMemory:showSaveRecordingComplete(moveData, successAction)
 			return
 		end
 
-		---@type MemoryMove
-		local memoryMove = {
-			name = name,
-			desc = description,
-			mod = mod,
-			movements = moveData
-		}
-		setmetatable(memoryMove, MemoryMove)
+		local memoryMove = MemoryMove.FromData(moveData, name, description, mod)
 		if (not memoryMove:writeToFile()) then
 			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.MOVEMEMORYERRORUPDATINGDATA)
 			return
@@ -359,7 +412,8 @@ function MoveMemory:showSaveRecordingComplete(moveData, successAction)
 end
 
 ---Begins MoveMemory move recording and spawns callback listeners
-function MoveMemory:recordMove()
+---@param spawnToolbar boolean? Whether to spawn toolbar, defaults to `true`
+function MoveMemory:recordMove(spawnToolbar)
 	local ws = get_world_state()
 	local player = ws.selected_player
 	if (player < 0) then
@@ -378,15 +432,15 @@ function MoveMemory:recordMove()
 
 	local hookName = MoveMemory.HookName .. "Record" .. player
 	local function cancelRecording()
-		remove_hooks(hookName)
-		if (self.Toolbar[player]) then
-			self.Toolbar[player]:kill()
-			self.Toolbar[player] = nil
-		end
+		self:cancelRecording(player)
 	end
-	self:showToolbar(player, TB_MENU_LOCALIZED.MOVEMEMORYRECORDINGTURN .. " #" .. (#recordMove + 1), cancelRecording, function()
-			self:showSaveRecordingComplete(recordMove, cancelRecording)
-		end)
+
+	spawnToolbar = spawnToolbar == nil and true or spawnToolbar
+	if (spawnToolbar == true) then
+		self:showToolbar(player, TB_MENU_LOCALIZED.MOVEMEMORYRECORDINGTURN .. " #" .. (#recordMove + 1), cancelRecording, function()
+				self:showSaveRecordingComplete(recordMove, cancelRecording)
+			end)
+	end
 	add_hook("exit_freeze", hookName, function()
 			table.insert(recordMove, {})
 			for _, v in pairs(JOINTS) do
@@ -394,14 +448,32 @@ function MoveMemory:recordMove()
 			end
 			recordMove[#recordMove][20] = get_grip_info(player, 11)
 			recordMove[#recordMove][21] = get_grip_info(player, 12)
-			self:updateToolbar(player, TB_MENU_LOCALIZED.MOVEMEMORYRECORDINGTURN .. " #" .. (#recordMove + 1))
-		end)
-	add_hook("leave_game", hookName, function()
-			if (#recordMove > 0) then
-				self:showSaveRecordingComplete(recordMove)
+			if (spawnToolbar) then
+				self:updateToolbar(player, TB_MENU_LOCALIZED.MOVEMEMORYRECORDINGTURN .. " #" .. (#recordMove + 1))
 			end
-			cancelRecording()
 		end)
+	if (spawnToolbar) then
+		add_hook("leave_game", hookName, function()
+				if (#recordMove > 0) then
+					self:showSaveRecordingComplete(recordMove)
+				end
+				cancelRecording()
+			end)
+	end
+
+	self.Recording[player] = recordMove
+end
+
+---Cancels ongoing recording of a move for the specified player
+---@param player integer
+function MoveMemory:cancelRecording(player)
+	local hookName = MoveMemory.HookName .. "Record" .. player
+	remove_hooks(hookName)
+	if (self.Toolbar[player]) then
+		self.Toolbar[player]:kill()
+		self.Toolbar[player] = nil
+	end
+	self.Recording[player] = nil
 end
 
 ---Deletes a move from the data file

@@ -205,8 +205,11 @@ function News:getNews(reload)
 			local eventid = newsData[#newsData].eventid
 			newsData[#newsData].isEvent = true
 			newsData[#newsData].action = function() Events:loadModChampionship(TBMenu.CurrentSection, eventid) end
-		elseif (ln:find("^MOVEMBER 0;")) then
-			newsData[#newsData].action = function() Events:loadMovember(TBMenu.CurrentSection) end
+		elseif (ln:find("^BLINDFIGHT 0;")) then
+			newsData[#newsData].isEvent = true
+			newsData[#newsData].action = function() Events:showBlindFight(TBMenu.CurrentSection) end
+		--[[elseif (ln:find("^MOVEMBER 0;")) then
+			newsData[#newsData].action = function() Events:loadMovember(TBMenu.CurrentSection) end]]
 		elseif (ln:find("^BATTLEPASS 0;")) then
 			newsData[#newsData].isBattlePass = true
 			newsData[#newsData].action = function()

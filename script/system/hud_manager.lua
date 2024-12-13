@@ -17,6 +17,9 @@ require("system.ignore_manager")
 if (TBHud == nil) then
 	---**Toribash touch HUD class**
 	---
+	---**Version 5.74**
+	---* Chat command suggestions
+	---
 	---**Version 5.70**
 	---* Added `HookNameUI`, `HookNameChat` and `HookNameCamera` fields to access hook names in a uniform way
 	---* Added add camera keyframe button and slightly tweaked camera joystick
@@ -101,7 +104,7 @@ if (TBHud == nil) then
 		HookNameChat = "__tbHudChatInterface",
 		HookNameCamera = "__tbHudFreeCamJoystick",
 		__waitingWhisper = false,
-		ver = 5.70,
+		ver = 5.74,
 	}
 	TBHud.__index = TBHud
 
@@ -1388,16 +1391,101 @@ function TBHud:toggleHub(state)
 end
 
 ---@class HudChatCommand
----@field command string Example command displayed in UI
+---@field cmd string|string[] Base command string
+---@field info string Example command displayed in UI
 ---@field regex string Regex expression to match input against
 ---@field replacement string String to replace with
+---@field autoSubmit boolean? Whether this command can be auto submitted upon selection from suggestions
+---@field requireOperator boolean? Whether this command requires op in multiplayer
+---@field requireOnline boolean? Whether this is a multiplayer only command
+---@field requireFighter boolean? Whether this command is only available to active fighters
 
 ---Returns the list of chat commands data that will be used for chat autofilling
 ---@return HudChatCommand[]
 function TBHud:getChatCommands()
 	return {
-		--set = { command = "/set ^46gamerule ^47value", regex = "^(/%w+) ?(%w+ )?(%w+ )?.*", replacement = "%1 %2%3" },
-		--opt = { command = "/opt ^46option ^47value", regex = "^(/%w+) ?(%w+ )?(%w+ )?.*", replacement = "%1 %2%3" }
+		{
+			cmd = "set",
+			info = "/set %125- list all gamerules",
+			regex = "^(/%w+).*",
+			replacement = "/set",
+			autoSubmit = true
+		},
+		{
+			cmd = "set",
+			info = "/set ^38gamerule ^47[value] %125- view or set new gamerule value",
+			regex = "^(/%w+) ?(%w*) ?(%w*).*",
+			replacement = "/set %2 %3",
+			requireOperator = true
+		},
+		{
+			cmd = "opt",
+			info = "/opt ^38option ^47[value] %125- view or set new option value",
+			regex = "^(/%w+) ?(%w*) ?(%w*).*",
+			replacement = "/opt %2 %3"
+		},
+		{
+			cmd = "spectate",
+			info = "/spec %125- join spectators",
+			regex = "^(/%w+).*",
+			replacement = "/sp",
+			autoSubmit = true,
+			requireOnline = true
+		},
+		{
+			cmd = "enter",
+			info = "/enter %125- enter fighting queue",
+			regex = "^(/%w+).*",
+			replacement = "/en",
+			autoSubmit = true,
+			requireOnline = true
+		},
+		{
+			cmd = "emote",
+			info = "/emote ^47message %125- display emote message",
+			regex = "^(/%w+) ?(.*)",
+			replacement = "/emote %2",
+			requireFighter = true
+		},
+		{
+			cmd = "join",
+			info = "/join ^47roomname %125- join a multiplayer room",
+			regex = "^(/%w+) ?(.*)",
+			replacement = "/join %2",
+		},
+		{
+			cmd = { "dl", "download" },
+			info = "/dl ^47username %125- download player's custom tori",
+			regex = "^(/%w+) ?([^%. ]*).*",
+			replacement = "/dl %2",
+		},
+		{
+			cmd = { "dl", "download" },
+			info = "/dl ^47modname.tbm %125- download a custom mod",
+			regex = "(/%w+) ?([^%. ]*).*",
+			replacement = "/dl %2.tbm",
+		},
+		{
+			cmd = { "rt", "reset" },
+			info = "/reset %125- reset and restart current fight",
+			regex = "^(/%w+).*",
+			replacement = "/rt",
+			autoSubmit = true,
+			requireOperator = true
+		},
+		{
+			cmd = { "lm", "loadmod" },
+			info = "/loadmod ^47modname %125- load a game mod and restart fight",
+			regex = "(/%w+) ?([^%. ]*).*",
+			replacement = "/lm %2",
+			requireOperator = true
+		},
+		{
+			cmd = { "lp", "loadplayer" },
+			info = "/loadplayer ^38id ^47username %125- load user's customs for specified player",
+			regex = "^(/%w+) ?(%d*) ?(%w*).*",
+			replacement = "/lp %2 %3"
+		},
 	}
 end
 
@@ -1768,6 +1856,7 @@ function TBHud:initChat()
 	})
 	local destroySuggestions = function()
 		if (chatInputField.suggestionsDropdown ~= nil) then
+			chatInputField.suggestionsDropdown.selectedElement:kill()
 			chatInputField.suggestionsDropdown:kill()
 			chatInputField.suggestionsDropdown = nil
 		end
@@ -1782,11 +1871,25 @@ function TBHud:initChat()
 			end
 
 			set_menu_keyboard(chatInputField.inputType, false, chatInputField.returnKeyType)
+
 			local commands = self:getChatCommands()
+			---@type HudChatCommand[]
 			local targetCommands = {}
-			for cmd, _ in pairs(commands) do
-				if (string.find(cmd, "^" .. typeCommand)) then
-					table.insert(targetCommands, commands[cmd])
+			for _, command in ipairs(commands) do
+				local playerInfo = QueueList:getCurrentPlayerInfo()
+				if ((not command.requireOnline or self.WorldState.game_type == 1) and
+					(not command.requireOperator or not playerInfo or playerInfo.op or playerInfo.admin) and
+					(not command.requireFighter or not playerInfo or playerInfo.is_fighter) and
+					(not command.autoSubmit or chatInputField.textfieldstr[1] == "/" .. typeCommand)) then
+					---@type string[]
+					---@diagnostic disable-next-line: assign-type-mismatch
+					local cmds = type(command.cmd) == "string" and { command.cmd } or command.cmd
+					for _, v in pairs(cmds) do
+						if (string.find(v, "^" .. typeCommand)) then
+							table.insert(targetCommands, command)
+							break
+						end
+					end
 				end
 			end
 			if (#targetCommands == 0) then
@@ -1796,8 +1899,18 @@ function TBHud:initChat()
 			local dropdownList = {}
 			for _, cmdInfo in pairs(targetCommands) do
 				table.insert(dropdownList, {
-					text = cmdInfo.command,
-					action = function() end
+					text = cmdInfo.info,
+					action = function()
+						local newInput = utf8.gsub(chatInputField.textfieldstr[1], cmdInfo.regex, cmdInfo.replacement)
+						chatInputField:clearTextfield()
+						chatInputField.textInput(newInput)
+						chatInputField.textInputCustom()
+						if (cmdInfo.autoSubmit) then
+							chatInputField.enteraction()
+						else
+							UIElement.handleMouseDn(0, chatInputField.pos.x + 1, chatInputField.pos.y + 1)
+						end
+					end
 				})
 			end
 
