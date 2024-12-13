@@ -36,6 +36,8 @@ end
 ---Caches login reward information to `Rewards.RewardData` from the data file
 ---@return boolean
 function Rewards.ParseData()
+	if (not Store.Ready) then return false end
+
 	local got_data = false
 	local data_types = { "reward_type", "tc", "item" }
 	local file = Files.Open("system/loginrewards.txt")
