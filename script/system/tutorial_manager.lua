@@ -1696,6 +1696,23 @@ function TutorialsInternal.HandleMobileOption(option)
 	end
 end
 
+---Sets an option override for the duration of the Tutorial and caches its original state
+---@param option GameOption
+---@param value integer|boolean
+function Tutorials:setOption(option, value)
+	local found = false
+	for _, k in pairs(self.StoredOptions) do
+		if (k.name == option) then
+			found = true
+		end
+	end
+	if (not found) then
+		table.insert(self.StoredOptions, { name = option, value = get_option(option) })
+	end
+	set_option(option, value)
+	--TutorialsInternal.HandleMobileOption(v)
+end
+
 ---Main stepper function for the Tutorials manager
 ---@param steps TutorialStep[]
 ---@param currentStep ?integer
@@ -1739,17 +1756,7 @@ function Tutorials:runSteps(steps, currentStep)
 
 	if (steps[currentStep].opts) then
 		for _, v in pairs(steps[currentStep].opts) do
-			local found = false
-			for _, k in pairs(self.StoredOptions) do
-				if (k.name == v.name) then
-					found = true
-				end
-			end
-			if (not found) then
-				table.insert(self.StoredOptions, { name = v.name, value = get_option(v.name) })
-			end
-			set_option(v.name, v.value)
-			--TutorialsInternal.HandleMobileOption(v)
+			self:setOption(v.name, v.value)
 		end
 	end
 	if (steps[currentStep].atmo) then

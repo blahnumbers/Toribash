@@ -85,19 +85,64 @@ local function showPostSimulation(viewElement, reqTable, opponentInfos)
 		shapeType = ROUNDED,
 		rounded = 4
 	})
-	local fightResultsTitle = fightResultsView:addChild({
-		pos = { 20, 10 },
-		size = { fightResultsView.size.w - 40, 40 }
-	})
-	fightResultsTitle:addAdaptedText("Results")
+	local elementHeight = 40
+	local toReload, topBar, botBar, _, listingHolder = TBMenu:prepareScrollableList(fightResultsView, 60, 135, 20, TB_MENU_DEFAULT_BG_COLOR)
+	topBar.shapeType = ROUNDED
+	topBar:setRounded({ fightResultsView.roundedInternal[1], 0 })
+	botBar.shapeType = ROUNDED
+	botBar:setRounded({ 0, fightResultsView.roundedInternal[1] })
 
-	local shiftY = fightResultsTitle.shift.x * 2 + fightResultsTitle.size.h
-	for i, opponent in ipairs(opponentInfos) do
-		local opponentView = fightResultsView:addChild({
-			pos = { 10, shiftY + (i - 1) * 40 },
-			size = { fightResultsView.size.w - 20, 36 },
-			bgColor = TB_MENU_DEFAULT_DARKER_COLOR
-		}, true)
+	topBar:addChild({ shift = { 20, 10 } }):addAdaptedText("Results", nil, nil, FONTS.BIG, CENTERMID, 0.65, nil, 0.25)
+
+	local exitButton = botBar:addChild({
+		pos = { 10, -65 },
+		size = { botBar.size.w - 20, 55 },
+		interactive = true,
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+		shapeType = ROUNDED,
+		rounded = 4
+	})
+	exitButton:addAdaptedText("exit")
+	exitButton:addMouseUpHandler(function()
+			Tutorials:quit()
+		end)
+
+	local redoButton = botBar:addChild({
+		pos = { 10, -125 },
+		size = { exitButton.size.w, exitButton.size.h },
+		interactive = true,
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+		shapeType = ROUNDED,
+		rounded = 4
+	})
+	redoButton:addAdaptedText("Redo Opener")
+	redoButton:addMouseUpHandler(function()
+			Tutorials.CurrentStep.fallback = 4
+			Tutorials.ProgressStep = 0
+			for _, req in pairs(reqTable) do
+				pcall(function() req.ready = true end)
+			end
+			reqTable.ready = true
+		end)
+
+	local listElements = {}
+	for _, opponent in ipairs(opponentInfos) do
+		local infoHolder = listingHolder:addChild({
+			pos = { 0, #listElements * elementHeight },
+			size = { listingHolder.size.w, elementHeight }
+		})
+		table.insert(listElements, infoHolder)
+		local opponentView = infoHolder:addChild({
+			pos = { 10, 2 },
+			size = { infoHolder.size.w - 12, infoHolder.size.h - 4 },
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			shapeType = ROUNDED,
+			rounded = 4
+		})
 		local opponentName = opponentView:addChild({
 			pos = { 10, 5 },
 			size = { opponentView.size.w * 0.65, opponentView.size.h - 10 }
@@ -107,9 +152,20 @@ local function showPostSimulation(viewElement, reqTable, opponentInfos)
 			pos = { opponentName.shift.x * 2 + opponentName.size.w, opponentName.shift.y },
 			size = { opponentView.size.w - opponentName.shift.x * 3 - opponentName.size.w, opponentName.size.h },
 			shadowOffset = 2,
-			uiShadowColor = opponent.win == 0 and UICOLORGREEN or UICOLORRED
+			uiShadowColor = opponent.win == 0 and TB_MENU_DEFAULT_BLUE or UICOLORRED
 		})
-		opponentWinStatus:addAdaptedText(opponent.win == 0 and "Win" or (opponent.win == 1 and "Loss" or "Draw"))
+		opponentWinStatus:addAdaptedText(opponent.win == 0 and "Win" or (opponent.win == 1 and "Loss" or "Draw"), nil, nil, nil, nil, nil, nil, nil, 2)
+	end
+
+	if (#listElements * elementHeight > listingHolder.size.h) then
+		for _, v in pairs(listElements) do
+			v:hide()
+		end
+		local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
+		listingHolder.scrollBar = scrollBar
+		scrollBar:makeScrollBar(listingHolder, listElements, toReload)
+	else
+		listingHolder:moveTo(6, nil, true)
 	end
 end
 
@@ -127,6 +183,8 @@ local function showSimulationResults(viewElement, reqTable, playerMove, opponent
 
 	UIElement.WorldState = get_world_state()
 	runCmd("lp 1 " .. opponentInfos[id].username)
+	Tutorials:setOption("hint", 0)
+
 	playerMove.currentturn = 1
 	opponentInfos[id].opener.currentturn = 1
 
@@ -134,15 +192,37 @@ local function showSimulationResults(viewElement, reqTable, playerMove, opponent
 	local frame = 0
 	local endframe = UIElement.WorldState.game_frame
 	local gameObserver = viewElement:addChild({})
+	local spawnVictoryText = function()
+		local victoryText = gameObserver:addChild({
+			pos = { -1, WIN_H / 2 - 20 },
+			size = { 500, 40 },
+			uiColor = UIElement.WorldState.winner == -1 and TB_MENU_DEFAULT_DARKEST_COLOR or (UIElement.WorldState.winner == 0 and TB_MENU_DEFAULT_BLUE or TB_MENU_DEFAULT_BG_COLOR),
+			uiShadowColor = UICOLORWHITE,
+			shadowOffset = 4
+		})
+		local spawnClock = UIElement.clock
+		local victoryTextString = UIElement.WorldState.winner == -1 and "Draw!" or (UIElement.WorldState.winner == 0 and "Victory!" or "Loss!")
+		victoryText:addCustomDisplay(function()
+				if (spawnClock + 0.25 > UIElement.clock) then
+					victoryText:moveTo(UITween.SineTween(victoryText.shift.x, -gameObserver.size.w / 2 - victoryText.size.w * 0.35, (UIElement.clock - spawnClock) * 4))
+				elseif (spawnClock + 1.25 < UIElement.clock) then
+					victoryText:moveTo(UITween.SineTween(victoryText.shift.x, -WIN_W - victoryText.size.w, (UIElement.clock - spawnClock - 1.25) * 4))
+				else
+					victoryText:moveTo(-2, nil, true)
+				end
+				victoryText:uiText(victoryTextString, nil, nil, FONTS.BIG, CENTERMID, nil, nil, 4)
+			end)
+	end
 	gameObserver:addCustomDisplay(function()
-		set_color(0, 0, 0, 1)
-		draw_text(UIElement.WorldState.winner .. " / " .. endframe .. " / " .. UIElement.WorldState.match_frame .. " " .. frame .. " " .. #opponentInfos .. " " .. id, 500, 5, 0)
 		if (UIElement.WorldState.winner > -1 and UIElement.WorldState.match_frame < endframe) then
 			endframe = UIElement.WorldState.match_frame
 		end
+		if (UIElement.WorldState.match_frame == endframe) then
+			spawnVictoryText()
+		end
 		if (endframe + 90 < UIElement.WorldState.match_frame) then
 			local rplName = "blindfight/blindfight-" .. os.date("%Y%m%d-%H%M%S", os.time()) .. "-" .. opponentInfos[id].username
-			Files.LogError("Saving replay as " .. rplName .. ": winner " .. UIElement.WorldState.winner)
+			Files.WriteDebug("Saving replay as " .. rplName .. ": winner " .. UIElement.WorldState.winner)
 			runCmd("savereplay ../" .. rplName)
 			if (#opponentInfos > id) then
 				showSimulationResults(viewElement, reqTable, playerMove, opponentInfos, id + 1)
@@ -170,17 +250,18 @@ end
 ---@param onError function
 local function submitMove(viewElement, reqTable, moveData, onError)
 	Request:queue(function()
+			Files.WriteDebug("submitting moves to server")
 			local openerString = table.implode(moveData:toOpener(), ":")
-			openerString = string.gsub(openerString, "+", "225%%2b")
+			openerString = string.gsub(openerString, "+", "%%2b")
 			---@diagnostic disable-next-line: undefined-global
 			submit_blindfight_move(openerString)
 		end, "blindfight_submit", function()
-			if (not TUTORIAL_ISACTIVE) then return end
+			if (not TUTORIAL_ISACTIVE) then Files.WriteDebug("tutorial not active") return end
 			local response = get_network_response()
-			Files.LogError(response)
+			Files.WriteDebug(response)
 			if (string.find(response, "^ERROR")) then
-				TBMenu:showStatusMessage(string.sub(response, 7))
 				onError()
+				TBMenu:showStatusMessage("Error submitting your move, please try again.\nIf the error persists, please contact support.")
 				return
 			end
 			local opponentInfos = {}
@@ -199,6 +280,7 @@ local function submitMove(viewElement, reqTable, moveData, onError)
 			end
 			showSimulationResults(viewElement, reqTable, moveData, opponentInfos, 1)
 		end, function()
+			Files.WriteDebug(get_network_error())
 			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.ERRORTRYAGAIN .. "\n(" .. get_network_error() .. ")")
 			onError()
 		end)
@@ -228,14 +310,15 @@ local function onRecordingComplete(viewElement, reqTable)
 	local showButtons
 	local waitView
 	showButtons = function()
-		Files.LogError("showButtons")
+		Files.WriteDebug("showButtons")
 		if (waitView ~= nil) then
-			Files.LogError("hiding waitView")
+			Files.WriteDebug("hiding waitView")
 			waitView:hide()
 		end
+		local buttonWidth = math.min(390, WIN_W / 2 - (is_mobile() and TBHud.DefaultButtonSize * 3.5 or 100))
 		local redoMoveButton = viewElement:addChild({
-			pos = { viewElement.size.w / 2 - 300, -125 },
-			size = { 290, 75 },
+			pos = { viewElement.size.w / 2 - buttonWidth - 10, -math.max(50, SAFE_Y) - 75 },
+			size = { buttonWidth, 75 },
 			interactive = true,
 			bgColor = TB_MENU_DEFAULT_BG_COLOR,
 			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
@@ -246,12 +329,13 @@ local function onRecordingComplete(viewElement, reqTable)
 		redoMoveButton:addAdaptedText("Redo Opener")
 		redoMoveButton:addMouseUpHandler(function()
 				Tutorials.CurrentStep.fallback = 4
+				Tutorials.ProgressStep = 0
 				req.ready = true
 				reqTable.ready = true
 			end)
 		local submitMoveButton = viewElement:addChild({
-			pos = { viewElement.size.w / 2 + 10, -125 },
-			size = { 290, 75 },
+			pos = { viewElement.size.w / 2 + 10, redoMoveButton.shift.y },
+			size = { redoMoveButton.size.w, redoMoveButton.size.h },
 			interactive = true,
 			bgColor = TB_MENU_DEFAULT_BG_COLOR,
 			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
@@ -272,7 +356,7 @@ local function onRecordingComplete(viewElement, reqTable)
 						shapeType = ROUNDED,
 						rounded = 4
 					})
-					TBMenu:displayLoadingMarkSmall(waitView, "Please wait...")
+					TBMenu:displayLoadingMark(waitView)
 				else
 					waitView:show()
 				end
