@@ -1132,7 +1132,7 @@ function TBHud:reloadHubDynamicButtons(override)
 	if (self.HubDynamicState ~= nil and not override) then
 		if (self.HubDynamicState.game_type == self.WorldState.game_type and
 			self.HubDynamicState.replay_mode == self.WorldState.replay_mode and
-			table.compare(self.HubDynamicState.PlayerInfo or {}, playerInfo or {})) then
+			table.equals(self.HubDynamicState.PlayerInfo or {}, playerInfo or {})) then
 			return
 		end
 	end

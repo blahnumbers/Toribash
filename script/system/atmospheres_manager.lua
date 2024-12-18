@@ -19,6 +19,9 @@ if (Atmospheres == nil) then
 
 	---**Atmospheres and Shaders manager**
 	---
+	---**Version 5.74**
+	---* `dojosize` parameter for objects for dynamic scaling based on dojo size
+	---
 	---**Version 5.63**
 	---* `no_depth` support for atmo objects to skip depth writing when rendering
 	---* `rpos_precision`, `rsize_precision`, `rcolor_precision` override values support for atmo objects to control value randomizers
@@ -56,7 +59,7 @@ if (Atmospheres == nil) then
 		SelectedScreen = 1,
 		HookName = "__tbAtmospheresManager",
 		RandomPrecision = 1000,
-		ver = 5.62
+		ver = 5.74
 	}
 	Atmospheres.__index = Atmospheres
 end
@@ -108,6 +111,7 @@ end
 ---@field rotation string[]|number[]
 ---@field min_level GraphicsLevel Minimum graphics level to display this object
 ---@field max_level GraphicsLevel Maximum graphics level to display this object
+---@field dojosize number|nil Reference dojo size used by the object
 
 ---@class Atmosphere
 ---@field shader string Custom shader name
@@ -186,6 +190,9 @@ function Atmospheres.ParseFile(filename)
 			elseif (ln:find("^size ") or ln:find("^sides ")) then
 				data = { ln:gsub("^si[zd]e[s]? ", ""):match(("([^ ]+) *"):rep(3)) }
 				dataName = "size"
+			elseif (ln:find("^size_dojo ")) then
+				local dojosize = ln:gsub("^size_dojo ", "")
+				atmosphere.entities[#atmosphere.entities].dojosize = tonumber(dojosize)
 			elseif (ln:find("^randomsize ") or ln:find("^rsize ")) then
 				data = { ln:gsub("^r[andom]*size ", ""):match(("([^ ]+) *"):rep(3)) }
 				dataName = "rsize"
@@ -579,8 +586,10 @@ function Atmospheres.LoadAtmo(filename)
 		return
 	end
 
+	local newgameHookRequired = false
 	local graphics_level = Settings.GetLevel()
 
+	---@type UIElement3D[]
 	local entityList = {}
 	for _, entity in pairs(atmoData.entities) do
 		if (graphics_level >= entity.min_level and graphics_level <= entity.max_level) then
@@ -618,7 +627,40 @@ function Atmospheres.LoadAtmo(filename)
 			else
 				Atmospheres.SpawnObject(Atmospheres.EntityHolder, entityList, entity)
 			end
+			if (entity.dojosize) then
+				newgameHookRequired = true
+			end
 		end
+	end
+
+	if (newgameHookRequired) then
+		local applyDojoSize = function()
+			local gamerules = get_game_rules()
+			local dojosize = gamerules.dojotype == 0 and gamerules.dojosize or gamerules.dojosize * 2
+			local entityDojoSize = nil
+			for _, v in pairs(entityList) do
+				---@diagnostic disable-next-line: undefined-field
+				entityDojoSize = v.dojosize
+				if (entityDojoSize ~= nil) then
+					local lastSize = table.clone(v.size)
+					local scaleFactor = math.max(dojosize, 450) / entityDojoSize
+					---@diagnostic disable-next-line: undefined-field
+					v.size.x = v.initialSize.x * scaleFactor
+					---@diagnostic disable-next-line: undefined-field
+					v.size.y = v.initialSize.y * scaleFactor
+					---@diagnostic disable-next-line: undefined-field
+					v.size.z = v.initialSize.z * scaleFactor
+					if (not table.equals(lastSize, v.size)) then
+						---@diagnostic disable-next-line: undefined-field
+						v:moveTo(v.initialPos.x, v.initialPos.y, v.initialPos.z, true)
+						---@diagnostic disable-next-line: undefined-field
+						v:moveTo((v.initialPos.x - 1) * (v.size.x - v.initialSize.x) / 2, (v.initialPos.y + 0.1) * (v.size.y - v.initialSize.y) / 2, v.initialPos.z * (v.size.z - v.initialSize.z))
+					end
+				end
+			end
+		end
+		add_hook("new_game", Atmospheres.HookName, applyDojoSize)
+		applyDojoSize()
 	end
 
 	if (atmoData.shader) then
@@ -657,6 +699,11 @@ function Atmospheres.SpawnObject(entityHolder, entityList, entity)
 		objModel = entity.model,
 		ignoreDepth = entity.ignoreDepth
 	})
+	if (entity.dojosize) then
+		item.dojosize = entity.dojosize
+		item.initialSize = table.clone(item.size)
+		item.initialPos = table.clone(item.shift)
+	end
 	entityList[entity.name] = item
 	if (TB_MENU_DEBUG) then
 		Atmospheres.DebugHolder2D = Atmospheres.DebugHolder2D or UIElement.new({

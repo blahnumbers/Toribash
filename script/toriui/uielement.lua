@@ -197,6 +197,9 @@ if (not UIElement) then
 
 	---**Toribash GUI elements manager class**
 	---
+	---**Version 5.74**
+	---* Replace `table.compare()` with `table.equals()` to make sure return value makes sense
+	---
 	---**Version 5.71**
 	---* Minor performance improvements by using local references to frequently used global functions
 	---
@@ -2798,7 +2801,7 @@ _G.cloneTable = function(table) return _G.table.clone(table) end
 ---@param self table
 ---@param table2 table
 ---@return boolean
-_G.table.compare = function(self, table2)
+_G.table.equals = function(self, table2)
 	if (self == nil or type(self) ~= type(table2) or type(self) ~= "table") then
 		return false
 	elseif (self == table2) then
@@ -2815,7 +2818,7 @@ _G.table.compare = function(self, table2)
 	for i,v in pairs(self) do
 		if (v ~= table2[i]) then
 			if (type(v) == "table" and type(v) == type(table2[i])) then
-				if (not table.compare(self[i], table2[i])) then
+				if (not table.equals(self[i], table2[i])) then
 					return false
 				end
 			else
@@ -2826,6 +2829,11 @@ _G.table.compare = function(self, table2)
 
 	return true
 end
+
+---@deprecated
+---Use `table.equals()` instead \
+---@see table.equals
+_G.table.compare = function(self, table2) return _G.table.equals(self, table2) end
 
 ---Returns count of all table fields
 ---@generic T

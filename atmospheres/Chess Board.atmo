@@ -1,0 +1,9 @@
+shaderopt FLOOR_COLOR 0 0 0 1
+shaderopt CUSTOM_COLOR_TEXT 1 1 1 1
+env_obj ground
+	pos 1 -0.1 -0.119
+	shape custom ../atmospheres/checker
+	size 1 1 1
+	size_dojo 800
+	color 1 1 1 1
+	rot 0 90 90
