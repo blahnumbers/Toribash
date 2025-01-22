@@ -45,20 +45,23 @@ if (BattlePass == nil) then
 
 	---**Battle Pass manager class**
 	---
-	---**Version 5.65:**
+	---**Version 5.74**
+	---* Better display for premium levels with multiple rewards
+	---
+	---**Version 5.65**
 	---* Tweaks to prevent data update spam when BP isn't active
 	---
-	---**Version 5.62:**
+	---**Version 5.62**
 	---* Queue missing prize item textures for download
 	---
-	---**Version 5.61:**
+	---**Version 5.61**
 	---* Added `QiRequirement` field
 	---
-	---**Version 5.60:**
+	---**Version 5.60**
 	---* Rewards popup display offset fix for Shiai Tokens
 	---* Minor visual tweaks for user xp bar
 	---
-	---**Version 1.0:**
+	---**Version 1.0**
 	---* Initial release
 	---@class BattlePass
 	---@field LevelData BattlePassLevel[]? Level data for the Battle Pass
@@ -68,7 +71,7 @@ if (BattlePass == nil) then
 	---@field QiRequirement integer User qi requirement to access Battle Pass
 	---@field wasOpened boolean Whether the user has opened the Battle Pass screen during this session
 	BattlePass = {
-		ver = 5.65,
+		ver = 5.74,
 		TimeLeft = -1,
 		MaxLevelPrizes = 2,
 		QiRequirement = 20,
@@ -712,15 +715,16 @@ function BattlePass:showLevelPrize(prizeHolder, levelData)
 			premium = true
 		})
 	end
-	local prizeHolderHeight = (prizeBackground.size.h - freePrizeHolder.size.h) / #premiumPrizes
 	local premiumPrizesHolder = prizeBackground:addChild({
 		pos = { 15, freePrizeHolder.size.h },
 		size = { prizeBackground.size.w - 30, prizeBackground.size.h - freePrizeHolder.size.h }
 	})
+	local premiumPrizeHeight = premiumPrizesHolder.size.w + 10
+	local premiumPrizeOffset = (premiumPrizeHeight * #premiumPrizes) / 2
 	for i, v in pairs(premiumPrizes) do
 		local premiumPrizeHolder = premiumPrizesHolder:addChild({
-			pos = { 0, prizeHolderHeight * (i - 1) },
-			size = { premiumPrizesHolder.size.w, prizeHolderHeight }
+			pos = { 0, premiumPrizesHolder.size.h / 2 - premiumPrizeOffset + (i - 1) * premiumPrizeHeight },
+			size = { premiumPrizesHolder.size.w, premiumPrizesHolder.size.w }
 		})
 		BattlePass:showPrizeItem(premiumPrizeHolder, v)
 	end

@@ -2098,6 +2098,19 @@ function UIElement:updateChildPos()
 	self.__positionDirty = false
 end
 
+---@class UITextSettings
+---@field offset Vector2Base
+---@field font FontId
+---@field align UIElementTextAlign
+---@field minscale number
+---@field maxscale number
+---@field intensity number
+---@field shadow number
+---@field color Color
+---@field shadowColor Color
+---@field isTextfield boolean
+---@field baselineScale number
+
 ---Adapts the specified string to fit inside UIElement object and sets custom display function to draw it
 ---@param override boolean Whether to disable the default `display()` functionality
 ---@param str string Text to display in an object
@@ -2112,32 +2125,57 @@ end
 ---@param col1? Color Main text color. Uses UIElement.uiColor by default.
 ---@param col2? Color Text shadow color. Uses UIElement.uiShadowColor by default.
 ---@param textfield? boolean Whether this text is supposed to be a part of text box input
+---@param baselineScale? number Line height scale
 ---@overload fun(self, str: string, x?: number, y?: number, font?: FontId, align?: UIElementTextAlign, maxscale?: number, minscale?: number, intensity?: number, shadow?: number, col1?: Color, col2?: Color, textfield?: boolean)
-function UIElement:addAdaptedText(override, str, x, y, font, align, maxscale, minscale, intensity, shadow, col1, col2, textfield)
+---@overload fun(self, str: string, textSettings: UITextSettings, override: boolean?)
+function UIElement:addAdaptedText(override, str, x, y, font, align, maxscale, minscale, intensity, shadow, col1, col2, textfield, baselineScale)
 	if (type(override) == "string") then
-		---@type boolean
-		---@diagnostic disable-next-line: assign-type-mismatch
-		textfield = col2
-		col2 = col1
-		---@type Color
-		---@diagnostic disable-next-line: assign-type-mismatch
-		col1 = shadow
-		shadow = intensity
-		intensity = minscale
-		minscale = maxscale
-		maxscale = align
-		---@type UIElementTextAlign
-		---@diagnostic disable-next-line: assign-type-mismatch
-		align = font
-		---@type FontId
-		---@diagnostic disable-next-line: assign-type-mismatch
-		font = y
-		y = x
-		---@type number
-		---@diagnostic disable-next-line: assign-type-mismatch
-		x = str
-		str = override
-		override = false
+		if (type(str) == "table") then
+			local isOverride = x
+			---@type UITextSettings
+			---@diagnostic disable-next-line: cast-local-type
+			str = str
+			baselineScale = str.baselineScale
+			textfield = str.isTextfield
+			col2 = str.shadowColor
+			col1 = str.color
+			shadow = str.shadow
+			intensity = str.intensity
+			minscale = str.minscale
+			maxscale = str.maxscale
+			align = str.align
+			font = str.font
+			y = str.offset and str.offset.y or nil
+			x = str.offset and str.offset.x or nil
+			str = override
+			---@type boolean
+			---@diagnostic disable-next-line: assign-type-mismatch
+			override = isOverride
+		else
+			---@type boolean
+			---@diagnostic disable-next-line: assign-type-mismatch
+			textfield = col2
+			col2 = col1
+			---@type Color
+			---@diagnostic disable-next-line: assign-type-mismatch
+			col1 = shadow
+			shadow = intensity
+			intensity = minscale
+			minscale = maxscale
+			maxscale = align
+			---@type UIElementTextAlign
+			---@diagnostic disable-next-line: assign-type-mismatch
+			align = font
+			---@type FontId
+			---@diagnostic disable-next-line: assign-type-mismatch
+			font = y
+			y = x
+			---@type number
+			---@diagnostic disable-next-line: assign-type-mismatch
+			x = str
+			str = override
+			override = false
+		end
 	end
 	if (not str) then
 		if (TB_MENU_DEBUG) then
@@ -2149,7 +2187,7 @@ function UIElement:addAdaptedText(override, str, x, y, font, align, maxscale, mi
 	local minscale = minscale or 0.2
 	local font = font or FONTS.MEDIUM
 
-	while (not self:uiText(str, x, y, font, nil, scale, nil, nil, nil, nil, nil, true, nil, nil, textfield) and scale > minscale) do
+	while (not self:uiText(str, x, y, font, nil, scale, nil, nil, nil, nil, nil, true, baselineScale, nil, textfield) and scale > minscale) do
 		scale = scale - 0.05
 	end
 
@@ -2159,7 +2197,7 @@ function UIElement:addAdaptedText(override, str, x, y, font, align, maxscale, mi
 		self.shadowFontid = generate_font(self.textFont, 1, shadow)
 	end
 	self:addCustomDisplay(override, function()
-			self:uiText(str, x, y, font, align, scale, nil, shadow, col1, col2, intensity, nil, nil, nil, textfield)
+			self:uiText(str, x, y, font, align, scale, nil, shadow, col1, col2, intensity, nil, baselineScale, nil, textfield)
 		end)
 end
 
@@ -2179,12 +2217,12 @@ end
 ---@param shadowFontId ?integer Font id for text shadow retrieved from `generate_font()`
 ---@param shadowOffset ?number Shadow offset override
 local drawTextNew = function(str, xPos, yPos, angle, scale, font, shadow, color, shadowColor, intensity, pixelPerfect, shadowFontId, shadowOffset)
-	local shadow = shadow or nil
-	local xPos = pixelPerfect and math.floor(xPos) or xPos
-	local yPos = pixelPerfect and math.floor(yPos) or yPos
+	shadow = shadow or nil
+	xPos = pixelPerfect and math.floor(xPos) or xPos
+	yPos = pixelPerfect and math.floor(yPos) or yPos
 	local col1 = color or DEFTEXTCOLOR
 	local col2 = shadowColor or DEFSHADOWCOLOR
-	local intensity = intensity or col1[4]
+	intensity = intensity or col1[4]
 	if (shadow) then
 		local offset = shadowOffset or shadow / 2
 		setColor(col2[1], col2[2], col2[3], col2[4])
@@ -2216,27 +2254,28 @@ end
 ---@param col2 ?Color Text shadow color, uses `uiShadowColor` value by default
 ---@param intensity ?number Text color intensity, only used for `FONTS.BIG` and `FONTS.BIGGER`. Use values from `0` to `1`.
 ---@param check ?boolean Whether this call is only to be used for checking whether text fits the object with current settings
----@param refresh ?boolean Deprecated
+---@param baselineScale ?number Baseline scale value
 ---@param nosmooth ?boolean Whether to disable pixel perfect text drawing
 ---@param textfield ?boolean Whether this function is being used as part of text field display routine
 ---@return boolean
-function UIElement:uiText(input, x, y, font, align, scale, angle, shadow, col1, col2, intensity, check, refresh, nosmooth, textfield)
+function UIElement:uiText(input, x, y, font, align, scale, angle, shadow, col1, col2, intensity, check, baselineScale, nosmooth, textfield)
 	if (not scale and check) then
 		echo("^04UIElement error: ^07uiText() cannot take undefined scale argument with check enabled")
 		return true
 	end
-	local font = font or FONTS.MEDIUM
-	local x = x and self.pos.x + x or self.pos.x
-	local y = y and self.pos.y + y or self.pos.y
+	font = font or FONTS.MEDIUM
+	x = x and self.pos.x + x or self.pos.x
+	y = y and self.pos.y + y or self.pos.y
 	local font_mod = getFontMod(font)
-	local scale = scale or 1
-	local angle = angle or 0
+	scale = scale or 1
+	angle = angle or 0
 	local pos = 0
-	local align = align or CENTERMID
-	local col1 = col1 or self.uiColor
-	local col2 = col2 or self.uiShadowColor
-	local check = check or false
+	align = align or CENTERMID
+	col1 = col1 or self.uiColor
+	col2 = col2 or self.uiShadowColor
+	check = check or false
 	local smoothing = not nosmooth
+	baselineScale = baselineScale or 1
 
 	local str
 	if (check) then
@@ -2247,12 +2286,13 @@ function UIElement:uiText(input, x, y, font, align, scale, angle, shadow, col1, 
 	end
 
 	local startLine = 1
-	if (self.textfield and font_mod * 10 * scale * #str > self.size.h) then
+	local fontModScale = font_mod * 10 * scale * baselineScale
+	if (self.textfield and fontModScale * #str > self.size.h) then
 		local tfstrlen = 0
 		for i, v in pairs(str) do
 			tfstrlen = tfstrlen + utf8.len(v)
 			if (self.textfieldindex < tfstrlen) then
-				startLine = i - math.floor(self.size.h / font_mod / 10 / scale) + 1
+				startLine = i - math.floor(self.size.h / font_mod / 10 / scale / baselineScale) + 1
 				if (startLine < 1) then
 					startLine = 1
 				end
@@ -2271,13 +2311,13 @@ function UIElement:uiText(input, x, y, font, align, scale, angle, shadow, col1, 
 			xPos = x + self.size.w - strlen
 		end
 		if (align >= 3 and align <= 5) then
-			yPos = y + self.size.h - #str * font_mod * 10 * scale
-			while (yPos < y and yPos + font_mod * 10 * scale < y + self.size.h) do
+			yPos = y + self.size.h - #str * fontModScale
+			while (yPos < y and yPos + fontModScale < y + self.size.h) do
 				yPos = yPos + font_mod * 10 * scale
 			end
 		elseif (align >= 6 and align <= 8) then
-			yPos = y + (self.size.h - #str * font_mod * 10 * scale) / 2
-			while (yPos < y and yPos + font_mod * 10 * scale < y + self.size.h) do
+			yPos = y + (self.size.h - #str * fontModScale) / 2
+			while (yPos < y and yPos + fontModScale < y + self.size.h) do
 				yPos = yPos + font_mod * 5 * scale
 			end
 		end
@@ -2285,7 +2325,7 @@ function UIElement:uiText(input, x, y, font, align, scale, angle, shadow, col1, 
 			return false
 		elseif (self.size.h > (pos + 2) * font_mod * 10 * scale) then
 			if (check == false) then
-				drawTextNew(str[i], xPos, yPos + (pos * font_mod * 10 * scale), angle, scale, font, shadow, col1, col2, intensity, smoothing, self.shadowFontid, self.shadowOffset)
+				drawTextNew(str[i], xPos, yPos + (pos * fontModScale), angle, scale, font, shadow, col1, col2, intensity, smoothing, self.shadowFontid, self.shadowOffset)
 			elseif (#str == i) then
 				return true
 			end
@@ -2294,11 +2334,11 @@ function UIElement:uiText(input, x, y, font, align, scale, angle, shadow, col1, 
 			if (check == true) then
 				return false
 			end
-			drawTextNew(str[i]:gsub(".$", "..."), xPos, yPos + (pos * font_mod * 10 * scale), angle, scale, font, shadow, col1, col2, intensity, smoothing, self.shadowFontid, self.shadowOffset)
+			drawTextNew(str[i]:gsub(".$", "..."), xPos, yPos + (pos * fontModScale), angle, scale, font, shadow, col1, col2, intensity, smoothing, self.shadowFontid, self.shadowOffset)
 			break
 		else
 			if (check == false) then
-				drawTextNew(str[i], xPos, yPos + (pos * font_mod * 10 * scale), angle, scale, font, shadow, col1, col2, intensity, smoothing, self.shadowFontid, self.shadowOffset)
+				drawTextNew(str[i], xPos, yPos + (pos * fontModScale), angle, scale, font, shadow, col1, col2, intensity, smoothing, self.shadowFontid, self.shadowOffset)
 			else
 				return true
 			end

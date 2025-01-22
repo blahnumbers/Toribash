@@ -152,27 +152,30 @@ end
 ---@return number #Added elements' height
 function QueueList:addPlayerInfos(viewElement, info)
 	info.pInfo:getClan()
+	info.pInfo:getItems(PLAYERINFO_CSCOPE_ALL)
 
-	--[[local bgBackdrop = viewElement:addChild({
-		size = { viewElement.size.w, viewElement.size.h },
-		bgImage = "../textures/menu/bgtest.tga",
-		imagePatterned = true,
-		atlas = { x = 0, y = 0, w = 450, h = 450 / viewElement.size.w * viewElement.size.h }
-	})
-	local fadeToColor = table.clone(TB_MENU_DEFAULT_BG_COLOR)
-	fadeToColor[4] = 0
-	local bgBackdropGradient = bgBackdrop:addChild({
-		pos = { 0, -60 },
-		size = { bgBackdrop.size.w, 60 },
-		bgGradient = { TB_MENU_DEFAULT_BG_COLOR, fadeToColor }
-	})]]
+	local backdropImage, bgBackdrop = info.pInfo.customs.textures.gui.profile_backdrop.equipped and "../textures/menu/blindfight.tga" or nil, nil
+	if (backdropImage) then
+		bgBackdrop = viewElement:addChild({
+			size = { viewElement.size.w, viewElement.size.h },
+			bgImage = backdropImage,
+			imagePatterned = true,
+			atlas = { x = 0, y = 0, w = 900, h = 900 / viewElement.size.w * viewElement.size.h }
+		})
+		TBMenu:addOuterRounding(bgBackdrop, TB_MENU_DEFAULT_BG_COLOR, { 4, 4, 0, 0 })
+	end
 
 	local infosH = 35
 	local nameHolder = viewElement:addChild({
 		pos = { 75, 0 },
-		size = { viewElement.size.w - 90, 35 }
+		size = { viewElement.size.w - 90, 38 }
 	})
-	nameHolder:addAdaptedText(false, info.pInfo.username, nil, nil, FONTS.BIG, LEFTMID)
+	nameHolder:addAdaptedText(info.pInfo.username, {
+		font = FONTS.BIG,
+		align = LEFTMID,
+		shadow = bgBackdrop and 4 or 0,
+		intensity = 1
+	})
 
 	local beltInfo = PlayerInfo.getBeltFromQi(info.games_played)
 	local beltHolder = viewElement:addChild({
@@ -180,27 +183,34 @@ function QueueList:addPlayerInfos(viewElement, info)
 		size = { viewElement.size.w - 90, 25 }
 	})
 	infosH = infosH + beltHolder.size.h
-	beltHolder:addAdaptedText(true, beltInfo.name .. " Belt, " .. info.games_played .. " Qi", nil, nil, nil, LEFTMID)
+	beltHolder:addAdaptedText(beltInfo.name .. " Belt, " .. info.games_played .. " Qi", {
+		align = LEFTMID,
+		shadow = bgBackdrop and 2 or 0
+	})
 
 	local clanHolder = nil
 	if (info.pInfo.clan.id > 0) then
-		clanHolder = UIElement:new({
-			parent = viewElement,
-			pos = { 0, infosH },
+		clanHolder = viewElement:addChild({
+			pos = { 75, infosH },
 			size = { viewElement.size.w, 30 },
 			interactive = true,
-			bgColor = TB_MENU_DEFAULT_BG_COLOR,
-			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
-			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+			bgColor = UICOLORWHITE,
+			hoverColor = TB_MENU_DEFAULT_YELLOW,
+			pressedColor = TB_MENU_DEFAULT_ORANGE
 		})
 		infosH = infosH + clanHolder.size.h
-		local clanNameHolder = UIElement:new({
-			parent = clanHolder,
-			pos = { 75, 5 },
-			size = { clanHolder.size.w - 90, clanHolder.size.h - 10 }
+		local clanHolderShadow = bgBackdrop and 2 or 0
+		clanHolder:addAdaptedText(info.pInfo.clan.tag .. " " .. info.pInfo.clan.name .. (info.pInfo.clan.isleader and " (" .. TB_MENU_LOCALIZED.QUEUELISTDROPDOWNCLANLEADER .. ")" or ""), {
+			font = FONTS.LMEDIUM,
+			align = LEFTMID,
+			maxscale = 0.65,
+			minscale = 0.55,
+			shadow = clanHolderShadow
 		})
-		clanNameHolder:addAdaptedText(true, info.pInfo.clan.tag .. " " .. info.pInfo.clan.name .. (info.pInfo.clan.isleader and " (" .. TB_MENU_LOCALIZED.QUEUELISTDROPDOWNCLANLEADER .. ")" or ""), nil, nil, FONTS.LMEDIUM, LEFTMID, nil, 0.55)
-		clanHolder:addMouseHandlers(nil, function()
+		clanHolder:addCustomDisplay(true, function()
+				clanHolder:uiText(clanHolder.str, nil, nil, clanHolder.textFont, LEFTMID, clanHolder.textScale, nil, clanHolderShadow, clanHolder:getButtonColor())
+			end)
+		clanHolder:addMouseUpHandler(function()
 				QueueList.DestroyPopup()
 				ARG1 = "clans " .. info.nick
 				open_menu(19)
@@ -300,8 +310,19 @@ function QueueList:addPlayerInfos(viewElement, info)
 		titleHolder:kill()
 	end
 
-	--[[bgBackdrop.size.h = math.min(450 / viewElement.size.w * 200, infosH)
-	bgBackdrop.atlas.h = 450 / viewElement.size.w * bgBackdrop.size.h]]
+	if (bgBackdrop ~= nil) then
+		bgBackdrop.size.h = math.min(450 / viewElement.size.w * 200, infosH)
+		bgBackdrop.atlas.h = 900 / viewElement.size.w * bgBackdrop.size.h
+
+		local fadeToColor = table.clone(TB_MENU_DEFAULT_BG_COLOR)
+		fadeToColor[4] = 0
+		bgBackdrop:addChild({
+			pos = { 0, -60 },
+			size = { bgBackdrop.size.w, 60 },
+			bgGradient = { TB_MENU_DEFAULT_BG_COLOR, fadeToColor }
+		})
+		viewElement:reload()
+	end
 	return infosH
 end
 
@@ -879,7 +900,9 @@ function QueueList:addPlayerControls(viewElement, info, userinfo)
 			parent = globalControls,
 			pos = { 0, 0 },
 			size = { viewElement.size.w, buttonH },
-			bgColor = TB_MENU_DEFAULT_BG_COLOR
+			bgColor = TB_MENU_DEFAULT_BG_COLOR,
+			shapeType = ROUNDED,
+			rounded = 3
 		})
 		TBMenu:spawnDropdown(globalControlsHolder, gButtons, buttonH, nil, nil, { scale = 0.6 }, { scale = 0.6 })
 
@@ -921,7 +944,8 @@ function QueueList:show(info)
 	})
 	local queuelistBox = queuelistBoxBG:addChild({
 		shift = { 2, 2 },
-		bgColor = TB_MENU_DEFAULT_BG_COLOR
+		bgColor = TB_MENU_DEFAULT_BG_COLOR,
+		uiShadowColor = UICOLORBLACK
 	}, true)
 	queuelistBox.headViewport = nil
 

@@ -184,6 +184,7 @@ end
 ---@field logo PlayerCustomTexture
 ---@field background PlayerCustomTexture
 ---@field header PlayerCustomTexture
+---@field profile_backdrop PlayerCustomTexture
 
 ---@class PlayerInfoCustomTextures : PlayerInfoCustomBase
 ---@field head PlayerCustomTexture
@@ -241,7 +242,8 @@ function PlayerInfoInternal.getTextures(data)
 			splatter = { id = 1, equipped = false },
 			logo = { id = 2, equipped = false },
 			background = { id = 3, equipped = false },
-			header = { id = 4, equipped = false }
+			header = { id = 4, equipped = false },
+			profile_backdrop = { id = 5, equipped = false }
 		}
 	}
 	if (not data) then
@@ -259,7 +261,7 @@ function PlayerInfoInternal.getTextures(data)
 			end
 		elseif string.match(ln, "^TEXGUI 0; ") then
 			ln = ln:gsub("^TEXGUI 0; ", "")
-			local data_stream = { ln:match(("([^%s]*)%s*"):rep(4)) }
+			local data_stream = { ln:match(("([^%s]*)%s*"):rep(5)) }
 			for _, v in pairs(textures.gui) do
 				v.equipped = tonumber(data_stream[v.id]) == 0 and true or false
 			end

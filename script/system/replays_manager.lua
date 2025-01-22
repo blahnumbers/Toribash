@@ -3617,12 +3617,20 @@ function Replays:spawnReplayProgressSlider(viewElement)
 				loadKeyframes(UIElement.WorldState)
 			end
 			local worldstate = UIElement.WorldState
-			if (not hintShown and worldstate.replay_mode ~= 0 and worldstate.game_type == 0) then
-				if (spawnTime == 0) then
-					spawnTime = UIElement.clock
-				elseif (UIElement.clock - spawnTime > 15) then
-					hintShown = true
-					set_hint_override(TB_MENU_LOCALIZED.CAMERAKEYFRAMESHINT)
+			if (worldstate.replay_mode ~= 0 and worldstate.game_type == 0) then
+				if (not hintShown) then
+					if (spawnTime == 0) then
+						spawnTime = UIElement.clock
+					elseif (UIElement.clock - spawnTime > 20) then
+						hintShown = true
+						set_hint_override(TB_MENU_LOCALIZED.CAMERAKEYFRAMESHINT)
+					end
+				else
+					if (UIElement.clock - spawnTime > 40) then
+						hintShown = false
+						spawnTime = UIElement.clock
+						set_hint_override()
+					end
 				end
 			end
 			if (slider.settings.maxValue ~= worldstate.game_frame + 98) then

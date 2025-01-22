@@ -174,7 +174,7 @@ function Quests:getQuests()
 	end
 
 	---@type QuestData[]
-	Quests.QuestsData = table.qsort(Quests.QuestsData, { "timeleft", "progresspercentage", "claimed" }, { SORT_DESCENDING, SORT_ASCENDING })
+	Quests.QuestsData = table.qsort(Quests.QuestsData, { "timeleft", "progresspercentage", "claimed" }, { SORT_ASCENDING, SORT_DESCENDING, SORT_ASCENDING })
 end
 
 ---Adds hardcoded Battle Pass quests that automark themselves on completion
@@ -218,7 +218,7 @@ function Quests:updateLoginQuestStatus(completed)
 			Quests.QuestsData[i].progress = completed and 1 or 0
 			Quests.QuestsData[i].progresspercentage = completed and 1 or 0
 			Quests.QuestsData[i].claimed = completed
-			Quests.QuestsData = table.qsort(Quests.QuestsData, { "progresspercentage", "claimed" }, { SORT_DESCENDING, SORT_ASCENDING })
+			Quests.QuestsData = table.qsort(Quests.QuestsData, { "timeleft", "progresspercentage", "claimed" }, { SORT_ASCENDING, SORT_DESCENDING, SORT_ASCENDING })
 			return true
 		end
 	end
