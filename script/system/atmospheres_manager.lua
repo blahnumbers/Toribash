@@ -112,12 +112,16 @@ end
 ---@field min_level GraphicsLevel Minimum graphics level to display this object
 ---@field max_level GraphicsLevel Maximum graphics level to display this object
 ---@field dojosize number|nil Reference dojo size used by the object
+---@field queue_player integer Queue player id
+---@field drawfunc function|nil Custom `draw3d` function
+---@field enterframefunc function|nil Custom `enter_frame` function
 
 ---@class Atmosphere
 ---@field shader string Custom shader name
 ---@field entities AtmosphereEntity3D[] List of all settings to generate Atmosphere objects
 ---@field shaderopts ShaderOption[] List of all custom shader options that this Atmosphere will modify
 ---@field opts table List of all game options that this Atmosphere will modify
+---@field funcs function[] List of custom atmo functions
 
 ---Parses atmo data into an Atmosphere object
 ---@param filename string
@@ -128,8 +132,12 @@ function Atmospheres.ParseFile(filename)
 		return nil
 	end
 
+	local luafileName = utf8.gsub(filename, ".atmo$", ".lua")
+	local luafile = Files.Open(luafileName, FILES_MODE_READONLY)
+	local luafileFuncs = loadstring(luafile:readAll(true)) or function() end
+
 	---@type Atmosphere
-	local atmosphere = { entities = {}, shaderopts = {}, opts = {} }
+	local atmosphere = { entities = {}, shaderopts = {}, opts = {}, funcs = luafileFuncs() or {} }
 	local fileData = file:readAll()
 	file:close()
 	local doIgnore = false
@@ -249,6 +257,15 @@ function Atmospheres.ParseFile(filename)
 			elseif (ln:find("^max_level ")) then
 				local level = ln:gsub("^max_level ", "")
 				atmosphere.entities[#atmosphere.entities].max_level = tonumber(level) or atmosphere.entities[#atmosphere.entities].max_level
+			elseif (ln:find("^queue_player ")) then
+				local playerid = ln:gsub("^queue_player ", "")
+				atmosphere.entities[#atmosphere.entities].queue_player = tonumber(playerid) or 0
+			elseif (ln:find("^drawfunc ")) then
+				local fname = ln:gsub("^drawfunc ", "")
+				atmosphere.entities[#atmosphere.entities].drawfunc = atmosphere.funcs[fname]
+			elseif (ln:find("^framefunc ")) then
+				local fname = ln:gsub("^framefunc ", "")
+				atmosphere.entities[#atmosphere.entities].enterframefunc = atmosphere.funcs[fname]
 			end
 			if (#data > 0) then
 				if (not atmosphere.entities[#atmosphere.entities][dataName]) then
@@ -716,7 +733,7 @@ function Atmospheres.SpawnObject(entityHolder, entityList, entity)
 			size = { 60, 20 }
 		})
 		itemText:addAdaptedText(true, entity.name)
-		item:addCustomDisplay(false, function()
+		item:addChild({}):addCustomDisplay(function()
 				local x, y, z = get_screen_pos(item.pos.x, item.pos.y, item.pos.z)
 				if (z == 0) then
 					itemText:moveTo(x, y)
@@ -725,7 +742,25 @@ function Atmospheres.SpawnObject(entityHolder, entityList, entity)
 				end
 			end)
 	end
-	if (entity.animated) then
+	if (entity.drawfunc) then
+		if (entity.enterframefunc) then
+			item:addCustomDisplay(function()
+				if (UIElement.WorldState.replay_mode == 0 and UIElement.WorldState.match_frame == 0) then
+					entity.enterframefunc(item, 0.2)
+				end
+				entity.drawfunc()
+			end)
+		else
+			item:addCustomDisplay(entity.drawfunc)
+		end
+	elseif (entity.enterframefunc) then
+		item:addCustomDisplay(function()
+			if (UIElement.WorldState.replay_mode == 0 and UIElement.WorldState.match_frame == 0) then
+				entity.enterframefunc(item, 0.2)
+			end
+		end)
+	end
+	if (entity.animated or entity.enterframefunc) then
 		local rotate, move = function() end, function() end
 		if (entity.rotation) then
 			local r = {}
@@ -748,6 +783,9 @@ function Atmospheres.SpawnObject(entityHolder, entityList, entity)
 		item:addOnEnterFrame(function()
 				move()
 				rotate()
+				if (entity.enterframefunc) then
+					entity.enterframefunc(item, get_replay_cache() > 0 and math.abs(get_replay_speed()) or 1)
+				end
 			end)
 	end
 end

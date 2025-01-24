@@ -1,0 +1,5 @@
+shader Desert - Daylight
+
+env_obj 1
+	color 1 1 1 0
+	drawfunc onRender

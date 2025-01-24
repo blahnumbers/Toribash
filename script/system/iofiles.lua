@@ -148,12 +148,17 @@ do
 	end
 
 	-- Reads the whole file and returns all its contents line-by-line in a table
+	---@param raw boolean?
 	---@return string[]
-	function File:readAll()
+	---@overload fun(self: File, raw: true):string
+	function File:readAll(raw)
 		if (not self.data) then
-			return { }
+			return raw == true and "" or { }
 		end
 		local filedata = filesReadAllInternal(self.data)
+		if (raw == true) then
+			return filedata
+		end
 
 		-- Remove all CRs
 		filedata = filedata:gsub("\r", "")
