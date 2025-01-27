@@ -48,7 +48,7 @@ local function atmo_heaven()
 end
 
 local function atmo_heave_enterframe(_, speed)
-	shine = shine + delta_shine
+	shine = shine + delta_shine * speed
 	if(shine > 250) then
 		delta_shine = -1.5
 		shine = 250

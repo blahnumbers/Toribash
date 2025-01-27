@@ -20,7 +20,10 @@ if (Atmospheres == nil) then
 	---**Atmospheres and Shaders manager**
 	---
 	---**Version 5.74**
+	---* Automatically look up a corresponding lua file in atmospheres directory when loading an atmo
+	---* `drawfunc` and `framefunc` parameters to specify custom behaviors for atmo objects
 	---* `dojosize` parameter for objects for dynamic scaling based on dojo size
+	---* `AtmospheresInternal` utility class to store data we only want accessible locally
 	---
 	---**Version 5.63**
 	---* `no_depth` support for atmo objects to skip depth writing when rendering
@@ -50,6 +53,7 @@ if (Atmospheres == nil) then
 	---@field DebugHolder2D UIElement UIElement holder for debug info
 	---@field HookName string Generic hook name for all Atmospheres class loops
 	---@field RandomPrecision integer Default precision for random value generators
+	---@field ReplaySpeed number Current replay speed, updated every frame
 	Atmospheres = {
 		Globalid = 1002,
 		StoredOptions = {},
@@ -59,10 +63,18 @@ if (Atmospheres == nil) then
 		SelectedScreen = 1,
 		HookName = "__tbAtmospheresManager",
 		RandomPrecision = 1000,
+		ReplaySpeed = 1,
 		ver = 5.74
 	}
 	Atmospheres.__index = Atmospheres
 end
+
+---**Internal utility class for Atmospheres manager**
+---@class AtmospheresInternal
+---@field EntityList UIElement3D[]
+local AtmospheresInternal = {
+	EntityList = {}
+}
 
 ---Destroys Atmospheres main view
 function Atmospheres.Quit()
@@ -90,6 +102,7 @@ function Atmospheres.Unload()
 		Atmospheres.DebugHolder2D:kill()
 		Atmospheres.DebugHolder2D = nil
 	end
+	AtmospheresInternal.EntityList = {}
 	remove_hooks(Atmospheres.HookName)
 end
 
@@ -592,6 +605,9 @@ function Atmospheres.LoadAtmo(filename)
 		pos = { 0, 0, 0 },
 		size = { 0, 0, 0 }
 	})
+	Atmospheres.EntityHolder:addCustomDisplay(function()
+		Atmospheres.ReplaySpeed = get_replay_cache() > 0 and math.abs(get_replay_speed()) or 1
+	end)
 
 	local atmoPath = "../data/atmospheres/"
 	if (string.find(filename, "^%.%./")) then
@@ -606,8 +622,6 @@ function Atmospheres.LoadAtmo(filename)
 	local newgameHookRequired = false
 	local graphics_level = Settings.GetLevel()
 
-	---@type UIElement3D[]
-	local entityList = {}
 	for _, entity in pairs(atmoData.entities) do
 		if (graphics_level >= entity.min_level and graphics_level <= entity.max_level) then
 			if (entity.count) then
@@ -639,10 +653,10 @@ function Atmospheres.LoadAtmo(filename)
 							entity.color[4] + math.random(-entity.rcolor[4] * precision, entity.rcolor[4] * precision) / precision
 						}
 					end
-					Atmospheres.SpawnObject(Atmospheres.EntityHolder, entityList, entityRandom)
+					Atmospheres.SpawnObject(Atmospheres.EntityHolder, entityRandom)
 				end
 			else
-				Atmospheres.SpawnObject(Atmospheres.EntityHolder, entityList, entity)
+				Atmospheres.SpawnObject(Atmospheres.EntityHolder, entity)
 			end
 			if (entity.dojosize) then
 				newgameHookRequired = true
@@ -655,7 +669,7 @@ function Atmospheres.LoadAtmo(filename)
 			local gamerules = get_game_rules()
 			local dojosize = gamerules.dojotype == 0 and gamerules.dojosize or gamerules.dojosize * 2
 			local entityDojoSize = nil
-			for _, v in pairs(entityList) do
+			for _, v in pairs(AtmospheresInternal.EntityList) do
 				---@diagnostic disable-next-line: undefined-field
 				entityDojoSize = v.dojosize
 				if (entityDojoSize ~= nil) then
@@ -703,11 +717,10 @@ end
 
 ---Spawns a UIElement3D object based on provided atmo entity settings
 ---@param entityHolder UIElement3D
----@param entityList UIElement3D[]
 ---@param entity AtmosphereEntity3D
-function Atmospheres.SpawnObject(entityHolder, entityList, entity)
+function Atmospheres.SpawnObject(entityHolder, entity)
 	local item = UIElement3D.new({
-		parent = entity.parent and entityList[entity.parent] or entityHolder,
+		parent = (entity.parent and AtmospheresInternal.EntityList[entity.parent]) and AtmospheresInternal.EntityList[entity.parent] or entityHolder,
 		pos = { unpack(entity.pos) },
 		rot = { unpack(entity.rot) },
 		size = { unpack(entity.size) },
@@ -721,7 +734,7 @@ function Atmospheres.SpawnObject(entityHolder, entityList, entity)
 		item.initialSize = table.clone(item.size)
 		item.initialPos = table.clone(item.shift)
 	end
-	entityList[entity.name] = item
+	AtmospheresInternal.EntityList[entity.name] = item
 	if (TB_MENU_DEBUG) then
 		Atmospheres.DebugHolder2D = Atmospheres.DebugHolder2D or UIElement.new({
 			globalid = TB_MENU_HUB_GLOBALID,
@@ -746,9 +759,9 @@ function Atmospheres.SpawnObject(entityHolder, entityList, entity)
 		if (entity.enterframefunc) then
 			item:addCustomDisplay(function()
 				if (UIElement.WorldState.replay_mode == 0 and UIElement.WorldState.match_frame == 0) then
-					entity.enterframefunc(item, 0.2)
+					entity.enterframefunc(item, Atmospheres.ReplaySpeed)
 				end
-				entity.drawfunc()
+				entity.drawfunc(item)
 			end)
 		else
 			item:addCustomDisplay(entity.drawfunc)
@@ -784,7 +797,7 @@ function Atmospheres.SpawnObject(entityHolder, entityList, entity)
 				move()
 				rotate()
 				if (entity.enterframefunc) then
-					entity.enterframefunc(item, get_replay_cache() > 0 and math.abs(get_replay_speed()) or 1)
+					entity.enterframefunc(item, Atmospheres.ReplaySpeed)
 				end
 			end)
 	end
