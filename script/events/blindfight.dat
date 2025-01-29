@@ -7,12 +7,12 @@ OPT replayspeed 0;
 OPT timer 0;
 OPT info 0;
 OPT chat 0;
+OPT message 0;
 KEYBOARDLOCK;
 JOINTLOCK;
 CAMERAMODE 0;
-CUSTOMFUNC BeginRecording;
+CUSTOMFUNC Initialize;
 HIDEWAITBUTTON;
-NEWGAME aikido.tbm
 DELAY 0;
 
 STEP 2;
@@ -34,7 +34,14 @@ CUSTOMFUNC WaitSpace;
 
 STEP 5;
 ADVANCE;
+DELAY 0;
+
+STEP 6;
 KEYBOARDLOCK;
 KEYBOARDUNLOCK WASD;
 JOINTLOCK;
+OPT hint 0;
 CUSTOMFUNC OnRecordingComplete;
+
+STEP 7;
+CUSTOMFUNC DisplayResults;

@@ -1918,8 +1918,14 @@ function Settings:getKeyName(key)
 	elseif (key == 306) then
 		return "L Ctrl"
 	elseif (key == 307) then
+		if (_G.PLATFORM == "APPLE") then
+			return "R Opt"
+		end
 		return "R Alt"
 	elseif (key == 308) then
+		if (_G.PLATFORM == "APPLE") then
+			return "L Opt"
+		end
 		return "L Alt"
 	elseif (key == 312) then
 		return "L Super"

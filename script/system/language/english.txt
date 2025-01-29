@@ -15,9 +15,9 @@ MAINMENUTORISHOPDESC	Try out and purchase items for your Tori
 MAINMENUCLANSNAME	Clans
 MAINMENUCLANSDESC	Explore Toribash clans
 MAINMENUREPLAYSNAME	Replays
-MAINMENUREPLAYSDESC	Watch your downloaded replays
+MAINMENUREPLAYSDESC	Watch and share your replays
 MAINMENUFREEPLAYNAME	Free Play
-MAINMENUFREEPLAYDESC	Practice your skills or make replays in Single Player mode
+MAINMENUFREEPLAYDESC	Practice your skills, make replays or mess around in Single Player mode
 MAINMENURANKEDNAME	Ranked
 MAINMENURANKEDDESC	Find a quick ranked duel in matchmaking mode
 MAINMENUMATCHMAKINGNAME	Matchmaking
@@ -736,6 +736,7 @@ EVENTSLOADING	Loading event info...
 EVENTSMYSTATS	My stats
 EVENTSCOMMUNITYOBJECTIVE	Global Community Objective
 EVENTSGAMESWON	Games won
+EVENTSGAMESPLAYED	Games played
 EVENTSGLOBALPRIZEWILLBESENT	Global objective reward will be applied to your account after event is over if you played 10 or more games
 EVENTSLOADINGTOPPLAYERS	Loading top players...
 EVENTSTOPLIST	Top players
@@ -1339,3 +1340,24 @@ ACCOUNTSHOWACHIEVEMENTS	Show Achievements
 MOBILEHUDSAVEMOD	Save mod to downloads
 MOBILEHUDSAVEMODSUCCESS	has been saved to downloads folder
 MOBILEHUDSAVEMODFAILURE	Error saving
+MAINMENUBLINDFIGHT	Blind Fight
+MAINMENUBLINDFIGHTDESC	Pit your skills against other players - without seeing them!
+BLINDFIGHTUPDATECLIENT	Please update your game client to access Blind Fight.
+BLINDFIGHTDATAERROR	Error loading Blind Fight data, please restart Toribash and try again.
+BLINDFIGHTINFOHINT	Create a 3-turn opener to challenge your opponents
+BLINDFIGHTRESULTS	Results
+BLINDFIGHTREDOOPENER	Change opener
+BLINDFIGHTCREATEOPENER	Create opener and fight
+BLINDFIGHTWIN	Victory
+BLINDFIGHTLOSS	Defeat
+BLINDFIGHTDRAW	Draw
+BLINDFIGHTERRORSUBMITTINGMOVE	Error submitting your move, please try again.\nIf the error persists, please contact support.
+BLINDFIGHTSIMULATING	Simulating your moves against the opponents...
+BLINDFIGHTSUBMITMOVES	Challenge opponents
+BLINDFIGHTFIGHTAGAIN	Fight again
+BLINDFIGHTTIMEUNTILLEAGUERESET	Time left until league reset:
+BLINDFIGHTCURRENTLEAGUE	Current league
+BLINDFIGHTLEAGUEPROMOTIONINFOFULL	Stay among the top 3 players by the time of league reset to advance to next tier or defeat all players in one go to advance instantly
+BLINDFIGHTLEAGUEPROMOTIONINFO	Stay among the top 3 players by the time of league reset to advance to next tier or defeat all players in one go to advance instantly once the league is full
+BLINDFIGHTLEAGUEINSUFFICIENTPLAYERSINFO	Once more players join the league, stay among the top 3 players to advance to next tier
+EVENTSPLAYERWINS	{wins} wins

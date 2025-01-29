@@ -159,8 +159,8 @@ function QueueList:addPlayerInfos(viewElement, info)
 		bgBackdrop = viewElement:addChild({
 			size = { viewElement.size.w, viewElement.size.h },
 			bgImage = backdropImage,
-			imagePatterned = true,
-			atlas = { x = 0, y = 0, w = 900, h = 900 / viewElement.size.w * viewElement.size.h }
+			imageAtlas = true,
+			atlas = { x = 0, y = 0, w = 1200, h = 128 }
 		})
 		TBMenu:addOuterRounding(bgBackdrop, TB_MENU_DEFAULT_BG_COLOR, { 4, 4, 0, 0 })
 	end
@@ -311,8 +311,8 @@ function QueueList:addPlayerInfos(viewElement, info)
 	end
 
 	if (bgBackdrop ~= nil) then
-		bgBackdrop.size.h = math.min(450 / viewElement.size.w * 200, infosH)
-		bgBackdrop.atlas.h = 900 / viewElement.size.w * bgBackdrop.size.h
+		bgBackdrop.size.h = math.min(450 / bgBackdrop.size.w * 150, infosH)
+		bgBackdrop.atlas.h = bgBackdrop.atlas.w / bgBackdrop.size.w * bgBackdrop.size.h
 
 		local fadeToColor = table.clone(TB_MENU_DEFAULT_BG_COLOR)
 		fadeToColor[4] = 0

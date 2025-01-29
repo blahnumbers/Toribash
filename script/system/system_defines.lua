@@ -1217,6 +1217,7 @@ function get_body_screen_pos(player, body) end
 ---@field match_turn integer
 ---@field match_turn_frame integer
 ---@field winner WorldStateWinner
+---@field gameover_frame integer
 
 ---Returns world state information
 ---@return WorldState
@@ -1479,9 +1480,10 @@ function is_game_frozen() end
 function players_accept_input() end
 
 ---Steps the game simulation. \
----*Pass `true` to simulate SHIFT + SPACE behavior*
+---*`single_frame = true` simulates SHIFT + SPACE behavior*
 ---@param single_frame ?boolean
-function step_game(single_frame) end
+---@param silent ?boolean
+function step_game(single_frame, silent) end
 
 ---Opens and plays the replay. \
 ---When used with replay integrity checking enabled, listen to `replay_integrity_fail` hook for check failures. Lower threshold values mean higher precision but likely will generate false positives.

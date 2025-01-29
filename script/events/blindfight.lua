@@ -33,14 +33,85 @@ local function requireKeyPressSpace(viewElement, reqTable, consume)
 	end)
 end
 
+---@param viewElement UIElement
+---@param reqTable TutorialStepRequirement[]
 local function requireKeyPressSpaceConsume(viewElement, reqTable)
 	requireKeyPressSpace(viewElement, reqTable, true)
 end
 
-local function beginRecording()
-	select_player(0, false)
-	MoveMemory:recordMove(false)
+local function quit()
+	Tutorials:quit()
+	close_menu()
+	open_menu(19)
+end
+
+local function onExit()
+	if (Tutorials.QuitOverlay) then
+		Tutorials.QuitOverlay:kill()
+		Tutorials.QuitOverlay = nil
+		return
+	end
+	if (Tutorials.CurrentStep.id < 3 or Tutorials.CurrentStep.id == 7) then
+		Tutorials:quit()
+		return
+	end
+	if (Tutorials.CurrentStep.id < 6) then
+		Tutorials.QuitOverlay = TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.BLINDFIGHTLEAVINGPROMPT1, quit, function()
+				close_menu()
+				TUTORIAL_LEAVEGAME = false
+			end, nil, nil, Tutorials.Globalid)
+		return
+	end
+
+	---Disallow exiting in other cases
+	close_menu()
 	TUTORIAL_LEAVEGAME = false
+end
+
+---@param viewElement UIElement
+---@param message string
+local function showErrorBox(viewElement, message)
+	local overlay = viewElement:addChild({
+		interactive = true,
+		bgColor = { 1, 1, 1, 1 }
+	})
+	local maxWidth = math.min(overlay.size.w * 0.6, 700)
+	local messageHolder = overlay:addChild({
+		pos = { (overlay.size.w - maxWidth) / 2, overlay.size.h / 2 - 90 },
+		size = { maxWidth, 180 },
+		bgColor = TB_MENU_DEFAULT_BG_COLOR,
+		shapeType = ROUNDED,
+		rounded = 4
+	})
+	messageHolder:addChild({ pos = { 10, 10 }, size = { messageHolder.size.w - 20, messageHolder.size.h - 85 } }):addAdaptedText(message)
+	local okButton = messageHolder:addChild({
+		pos = { messageHolder.size.w / 4, -65 },
+		size = { messageHolder.size.w / 2, 55 },
+		interactive = true,
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+	}, true)
+	okButton:addAdaptedText(TB_MENU_LOCALIZED.BUTTONOK)
+	okButton:addMouseUpHandler(function()
+			overlay:kill()
+			quit()
+		end)
+end
+
+local function initialize(viewElement, reqTable)
+	local currentVersion = tonumber(_G.BUILD_VERSION) or 0
+	if (Events == nil or Events.BlindFight == nil or Events.BlindFight.modName == nil or (Events.BlindFight.minVersion and Events.BlindFight.minVersion > currentVersion)) then
+		local req = { type = "exit", ready = false }
+		table.insert(reqTable, req)
+		
+		local errorMessage = TB_MENU_LOCALIZED.BLINDFIGHTDATAERROR
+		if (Events ~= nil and Events.BlindFight ~= nil and Events.BlindFight.minVersion and Events.BlindFight.minVersion > currentVersion) then
+			errorMessage = TB_MENU_LOCALIZED.BLINDFIGHTUPDATECLIENT
+		end
+		showErrorBox(viewElement, errorMessage)
+		return
+	end
 
 	local blindfightDirectoryExists = false
 	for _, v in ipairs(get_folders("replay")) do
@@ -53,7 +124,21 @@ local function beginRecording()
 		add_replay_subfolder("blindfight")
 	end
 
-	TBMenu:showStatusMessage("Make a 3-turn opener and hit \"Submit\" button")
+	Tutorials:setQuitPopupOverride(onExit)
+
+	select_player(0, false)
+	TUTORIAL_LEAVEGAME = true
+	runCmd("lm " .. Events.BlindFight.modName)
+	TUTORIAL_LEAVEGAME = false
+
+	if (Events.BlindFight.launchMode == 1) then
+		Tutorials.CurrentStep.skip = 4
+		return
+	end
+
+	Tutorials.CurrentStep.skip = 0
+	MoveMemory:recordMove(false)
+	set_hint_override(TB_MENU_LOCALIZED.BLINDFIGHTINFOHINT)
 end
 
 ---@class BlindFightOpponent
@@ -63,8 +148,7 @@ end
 
 ---@param viewElement UIElement
 ---@param reqTable TutorialStepRequirement[]
----@param opponentInfos BlindFightOpponent[]
-local function showPostSimulation(viewElement, reqTable, opponentInfos)
+local function showPostSimulation(viewElement, reqTable)
 	viewElement:kill(true)
 
 	local rewindObserver = viewElement:addChild({})
@@ -92,7 +176,9 @@ local function showPostSimulation(viewElement, reqTable, opponentInfos)
 	botBar.shapeType = ROUNDED
 	botBar:setRounded({ 0, fightResultsView.roundedInternal[1] })
 
-	topBar:addChild({ shift = { 20, 10 } }):addAdaptedText("Results", nil, nil, FONTS.BIG, CENTERMID, 0.65, nil, 0.25)
+	topBar:addChild({ shift = { 20, 10 } }):addAdaptedText(TB_MENU_LOCALIZED.BLINDFIGHTRESULTS, {
+		font = FONTS.BIG, align = CENTERMID, maxscale = 0.65, intensity = 0.25
+	})
 
 	local exitButton = botBar:addChild({
 		pos = { 10, -65 },
@@ -104,7 +190,7 @@ local function showPostSimulation(viewElement, reqTable, opponentInfos)
 		shapeType = ROUNDED,
 		rounded = 4
 	})
-	exitButton:addAdaptedText("exit")
+	exitButton:addAdaptedText(TB_MENU_LOCALIZED.NAVBUTTONEXIT)
 	exitButton:addMouseUpHandler(function()
 			Tutorials:quit()
 		end)
@@ -119,9 +205,9 @@ local function showPostSimulation(viewElement, reqTable, opponentInfos)
 		shapeType = ROUNDED,
 		rounded = 4
 	})
-	redoButton:addAdaptedText("Redo Opener")
+	redoButton:addAdaptedText(TB_MENU_LOCALIZED.BLINDFIGHTREDOOPENER)
 	redoButton:addMouseUpHandler(function()
-			Tutorials.CurrentStep.fallback = 4
+			Tutorials.CurrentStep.fallback = 5
 			Tutorials.ProgressStep = 0
 			for _, req in pairs(reqTable) do
 				pcall(function() req.ready = true end)
@@ -130,7 +216,7 @@ local function showPostSimulation(viewElement, reqTable, opponentInfos)
 		end)
 
 	local listElements = {}
-	for _, opponent in ipairs(opponentInfos) do
+	for _, opponent in ipairs(Events.BlindFight.OpponentInfos) do
 		local infoHolder = listingHolder:addChild({
 			pos = { 0, #listElements * elementHeight },
 			size = { listingHolder.size.w, elementHeight }
@@ -154,8 +240,10 @@ local function showPostSimulation(viewElement, reqTable, opponentInfos)
 			shadowOffset = 2,
 			uiShadowColor = opponent.win == 0 and TB_MENU_DEFAULT_BLUE or UICOLORRED
 		})
-		opponentWinStatus:addAdaptedText(opponent.win == 0 and "Win" or (opponent.win == 1 and "Loss" or "Draw"), nil, nil, nil, nil, nil, nil, nil, 2)
+		local winMessage = opponent.win == 0 and TB_MENU_LOCALIZED.BLINDFIGHTWIN or (opponent.win == 1 and TB_MENU_LOCALIZED.BLINDFIGHTLOSS or TB_MENU_LOCALIZED.BLINDFIGHTDRAW)
+		opponentWinStatus:addAdaptedText(winMessage, { shadow = 2 })
 	end
+	Events.BlindFight.OpponentInfos = nil
 
 	if (#listElements * elementHeight > listingHolder.size.h) then
 		for _, v in pairs(listElements) do
@@ -183,14 +271,12 @@ local function showSimulationResults(viewElement, reqTable, playerMove, opponent
 
 	UIElement.WorldState = get_world_state()
 	runCmd("lp 1 " .. opponentInfos[id].username)
-	Tutorials:setOption("hint", 0)
 
 	playerMove.currentturn = 1
 	opponentInfos[id].opener.currentturn = 1
 
 	local step = 0
 	local frame = 0
-	local endframe = UIElement.WorldState.game_frame
 	local gameObserver = viewElement:addChild({})
 	local spawnVictoryText = function()
 		local victoryText = gameObserver:addChild({
@@ -201,7 +287,7 @@ local function showSimulationResults(viewElement, reqTable, playerMove, opponent
 			shadowOffset = 4
 		})
 		local spawnClock = UIElement.clock
-		local victoryTextString = UIElement.WorldState.winner == -1 and "Draw!" or (UIElement.WorldState.winner == 0 and "Victory!" or "Loss!")
+		local victoryTextString = UIElement.WorldState.winner == -1 and TB_MENU_LOCALIZED.BLINDFIGHTDRAW or (UIElement.WorldState.winner == 0 and TB_MENU_LOCALIZED.BLINDFIGHTWIN or TB_MENU_LOCALIZED.BLINDFIGHTLOSS)
 		victoryText:addCustomDisplay(function()
 				if (spawnClock + 0.25 > UIElement.clock) then
 					victoryText:moveTo(UITween.SineTween(victoryText.shift.x, -gameObserver.size.w / 2 - victoryText.size.w * 0.35, (UIElement.clock - spawnClock) * 4))
@@ -214,22 +300,7 @@ local function showSimulationResults(viewElement, reqTable, playerMove, opponent
 			end)
 	end
 	gameObserver:addCustomDisplay(function()
-		if (UIElement.WorldState.winner > -1 and UIElement.WorldState.match_frame < endframe) then
-			endframe = UIElement.WorldState.match_frame
-		end
-		if (UIElement.WorldState.match_frame == endframe) then
-			spawnVictoryText()
-		end
-		if (endframe + 90 < UIElement.WorldState.match_frame) then
-			local rplName = "blindfight/blindfight-" .. os.date("%Y%m%d-%H%M%S", os.time()) .. "-" .. opponentInfos[id].username
-			Files.WriteDebug("Saving replay as " .. rplName .. ": winner " .. UIElement.WorldState.winner)
-			runCmd("savereplay ../" .. rplName)
-			if (#opponentInfos > id) then
-				showSimulationResults(viewElement, reqTable, playerMove, opponentInfos, id + 1)
-			else
-				showPostSimulation(viewElement, reqTable, opponentInfos)
-			end
-		elseif (endframe > UIElement.WorldState.match_frame) then
+		if (UIElement.WorldState.gameover_frame == -1) then
 			if (UIElement.WorldState.match_frame == frame) then
 				frame = frame + get_turn_frame(step)
 				step = step + 1
@@ -238,7 +309,23 @@ local function showSimulationResults(viewElement, reqTable, playerMove, opponent
 					MoveMemory:playMove(playerMove, false, 0, true)
 					MoveMemory:playMove(opponentInfos[id].opener, false, 1, true)
 				end
-				step_game(true)
+				step_game(true, true)
+			end
+		else
+			if (UIElement.WorldState.match_frame == UIElement.WorldState.gameover_frame) then
+				spawnVictoryText()
+			elseif (UIElement.WorldState.gameover_frame + 90 < UIElement.WorldState.match_frame) then
+				local rplName = "blindfight/blindfight-" .. os.date("%Y%m%d-%H%M%S", os.time()) .. "-" .. opponentInfos[id].username
+				runCmd("savereplay ../" .. rplName)
+				if (#opponentInfos > id) then
+					showSimulationResults(viewElement, reqTable, playerMove, opponentInfos, id + 1)
+				else
+					Events.BlindFight.OpponentInfos = opponentInfos
+					for _, req in pairs(reqTable) do
+						pcall(function() req.ready = true end)
+					end
+					reqTable.ready = true
+				end
 			end
 		end
 	end)
@@ -250,18 +337,14 @@ end
 ---@param onError function
 local function submitMove(viewElement, reqTable, moveData, onError)
 	Request:queue(function()
-			Files.WriteDebug("submitting moves to server")
 			local openerString = table.implode(moveData:toOpener(), ":")
 			openerString = string.gsub(openerString, "+", "%%2b")
 			---@diagnostic disable-next-line: undefined-global
 			submit_blindfight_move(openerString)
 		end, "blindfight_submit", function()
-			if (not TUTORIAL_ISACTIVE) then Files.WriteDebug("tutorial not active") return end
 			local response = get_network_response()
-			Files.WriteDebug(response)
 			if (string.find(response, "^ERROR")) then
 				onError()
-				TBMenu:showStatusMessage("Error submitting your move, please try again.\nIf the error persists, please contact support.")
 				return
 			end
 			local opponentInfos = {}
@@ -280,7 +363,6 @@ local function submitMove(viewElement, reqTable, moveData, onError)
 			end
 			showSimulationResults(viewElement, reqTable, moveData, opponentInfos, 1)
 		end, function()
-			Files.WriteDebug(get_network_error())
 			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.ERRORTRYAGAIN .. "\n(" .. get_network_error() .. ")")
 			onError()
 		end)
@@ -292,9 +374,19 @@ local function onRecordingComplete(viewElement, reqTable)
 	local req = { type = "completeRecording", ready = false }
 	table.insert(reqTable, req)
 
+	if (Events.BlindFight.launchMode == 1 and Events.BlindFight.userMoves ~= nil) then
+		local overlay = viewElement:addChild({ bgColor = UICOLORWHITE, interactive = true, uiColor = UICOLORBLACK })
+		TBMenu:displayLoadingMark(overlay, TB_MENU_LOCALIZED.BLINDFIGHTSIMULATING)
+		submitMove(viewElement, reqTable, Events.BlindFight.userMoves, function()
+				overlay:kill()
+				showErrorBox(viewElement, TB_MENU_LOCALIZED.BLINDFIGHTERRORSUBMITTINGMOVE)
+			end)
+		Events.BlindFight.launchMode = 0
+		return
+	end
+
 	local moveData = MemoryMove.FromData(MoveMemory.Recording[0])
 	MoveMemory:cancelRecording(0)
-
 
 	local currentFrame = UIElement.WorldState.match_frame + get_turn_frame(3) + 40
 	run_frames(get_turn_frame(3) + 40)
@@ -310,9 +402,7 @@ local function onRecordingComplete(viewElement, reqTable)
 	local showButtons
 	local waitView
 	showButtons = function()
-		Files.WriteDebug("showButtons")
 		if (waitView ~= nil) then
-			Files.WriteDebug("hiding waitView")
 			waitView:hide()
 		end
 		local buttonWidth = math.min(390, WIN_W / 2 - (is_mobile() and TBHud.DefaultButtonSize * 3.5 or 100))
@@ -326,9 +416,9 @@ local function onRecordingComplete(viewElement, reqTable)
 			shapeType = ROUNDED,
 			rounded = 4
 		})
-		redoMoveButton:addAdaptedText("Redo Opener")
+		redoMoveButton:addAdaptedText(TB_MENU_LOCALIZED.BLINDFIGHTREDOOPENER)
 		redoMoveButton:addMouseUpHandler(function()
-				Tutorials.CurrentStep.fallback = 4
+				Tutorials.CurrentStep.fallback = 5
 				Tutorials.ProgressStep = 0
 				req.ready = true
 				reqTable.ready = true
@@ -343,9 +433,12 @@ local function onRecordingComplete(viewElement, reqTable)
 			shapeType = ROUNDED,
 			rounded = 4
 		})
-		submitMoveButton:addAdaptedText("Submit Opener")
+		submitMoveButton:addAdaptedText(TB_MENU_LOCALIZED.BLINDFIGHTSUBMITMOVES)
 		submitMoveButton:addMouseUpHandler(function()
-				submitMove(viewElement, reqTable, moveData, showButtons)
+				submitMove(viewElement, reqTable, moveData, function()
+					showButtons()
+					TBMenu:showStatusMessage(TB_MENU_LOCALIZED.BLINDFIGHTERRORSUBMITTINGMOVE)
+				end)
 				redoMoveButton:kill()
 				submitMoveButton:kill()
 				if (waitView == nil) then
@@ -369,6 +462,7 @@ end
 functions = {
 	WaitSpace = requireKeyPressSpace,
 	WaitSpaceConsume = requireKeyPressSpaceConsume,
-	BeginRecording = beginRecording,
-	OnRecordingComplete = onRecordingComplete
+	Initialize = initialize,
+	OnRecordingComplete = onRecordingComplete,
+	DisplayResults = showPostSimulation
 }

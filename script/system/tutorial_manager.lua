@@ -148,6 +148,7 @@ function Tutorials:quit()
 	end
 
 	set_discord_rpc("", "")
+	set_hint_override()
 	disable_player_select(-1)
 	open_menu(19)
 end
@@ -2431,8 +2432,8 @@ function Tutorials:loadOverlay()
 		})
 		local step = 0
 		tutorialProgress:addCustomDisplay(true, function(init)
-				if (not init and step < self.ProgressStep) then
-					step = step + 0.05
+				if (not init and step ~= self.ProgressStep) then
+					step = math.round(UITween.SineTween(step, self.ProgressStep, 0.25) * 1000) / 1000
 				end
 				set_color(unpack(TB_MENU_DEFAULT_BG_COLOR))
 				draw_quad(tutorialProgress.pos.x, tutorialProgress.pos.y, tutorialProgress.size.w / self.TotalSteps * step, tutorialProgress.size.h)

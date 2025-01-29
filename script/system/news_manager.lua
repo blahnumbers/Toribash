@@ -207,7 +207,7 @@ function News:getNews(reload)
 			newsData[#newsData].action = function() Events:loadModChampionship(TBMenu.CurrentSection, eventid) end
 		elseif (ln:find("^BLINDFIGHT 0;")) then
 			newsData[#newsData].isEvent = true
-			newsData[#newsData].action = function() Events:showBlindFight(TBMenu.CurrentSection) end
+			newsData[#newsData].action = function() Events:showBlindFight() end
 		--[[elseif (ln:find("^MOVEMBER 0;")) then
 			newsData[#newsData].action = function() Events:loadMovember(TBMenu.CurrentSection) end]]
 		elseif (ln:find("^BATTLEPASS 0;")) then

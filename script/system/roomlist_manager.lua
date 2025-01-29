@@ -1433,7 +1433,7 @@ function RoomList:showMain()
 
 		local buttonWidth = math.min(errorView.size.w / 3, 250)
 		local refreshButton = errorView:addChild({
-			pos = { (errorView.size.w - buttonWidth) / 2, errorMessage.shift.y + 20 },
+			pos = { (errorView.size.w - buttonWidth) / 2, errorMessage.shift.y + errorMessage.size.h + 20 },
 			size = { buttonWidth, buttonWidth / 5 },
 			interactive = true,
 			shapeType = ROUNDED,

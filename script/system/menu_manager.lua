@@ -1898,16 +1898,24 @@ end
 ---Displays Play menu
 function TBMenu:showPlaySection()
 	local tbMenuPlayButtonsData = {
-		{ title = TB_MENU_LOCALIZED.MAINMENUFREEPLAYNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUFREEPLAYDESC, size = 0.5, ratio = 0.5, image = "../textures/menu/freeplay.tga", mode = ORIENTATION_LANDSCAPE, action = function() open_menu(1) end, disableUnload = true },
-		{ title = TB_MENU_LOCALIZED.MAINMENUREPLAYSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUREPLAYSDESC, size = 0.25, ratio = 1.055, image = "../textures/menu/replays2.tga", mode = ORIENTATION_PORTRAIT, action = function() TBMenu:showReplays() end, disableUnload = true },
-		{ title = TB_MENU_LOCALIZED.MAINMENUROOMLISTNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUROOMLISTDESC, size = 0.25, ratio = 1.055, image = "../textures/menu/multiplayer.tga", mode = ORIENTATION_PORTRAIT, action = function() RoomList:showMain() end, disableUnload = true }
+		{ title = TB_MENU_LOCALIZED.MAINMENUFREEPLAYNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUFREEPLAYDESC, size = TB_MENU_PLAYER_INFO.username == '' and 0.667 or 0.55, ratio = 0.5, image = "../textures/menu/freeplay.tga", mode = ORIENTATION_LANDSCAPE, action = function() open_menu(1) end, disableUnload = true }
 	}
-
-	if (TB_MENU_PLAYER_INFO.username == '') then
-		tbMenuPlayButtonsData[3] = nil
-		tbMenuPlayButtonsData[1].size = 0.667
-		tbMenuPlayButtonsData[2].size = 0.333
+	if (TB_MENU_PLAYER_INFO.username ~= '') then
+		table.insert(tbMenuPlayButtonsData, {
+			title = TB_MENU_LOCALIZED.MAINMENUBLINDFIGHT, subtitle = TB_MENU_LOCALIZED.MAINMENUBLINDFIGHTDESC, size = 0.25, vsize = 0.5, ratio = 0.586, image = "../textures/menu/blindfight.tga", mode = ORIENTATION_LANDSCAPE, action = function() Events:showBlindFight() end, disableUnload = true
+		})
+		table.insert(tbMenuPlayButtonsData, {
+			title = TB_MENU_LOCALIZED.MAINMENUROOMLISTNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUROOMLISTDESC, size = 0.45, ratio = 0.439, vsize = 0.5, offsetX = -0.2, image = "../textures/menu/multiplayer2.tga", mode = ORIENTATION_LANDSCAPE, action = function() RoomList:showMain() end, disableUnload = true
+		})
+		table.insert(tbMenuPlayButtonsData, {
+			title = TB_MENU_LOCALIZED.MAINMENUREPLAYSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUREPLAYSDESC, size = 0.2, ratio = 0.948, vsize = 0.5, image = "../textures/menu/replays3.tga", mode = ORIENTATION_PORTRAIT, action = function() TBMenu:showReplays() end, disableUnload = true
+		})
+	else
+		table.insert(tbMenuPlayButtonsData, {
+			title = TB_MENU_LOCALIZED.MAINMENUREPLAYSNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUREPLAYSDESC, size = 0.333, ratio = 1.055, image = "../textures/menu/replays2.tga", mode = ORIENTATION_PORTRAIT, action = function() TBMenu:showReplays() end, disableUnload = true
+		})
 	end
+
 	TBMenu:showSection(tbMenuPlayButtonsData)
 end
 
@@ -2049,7 +2057,7 @@ function TBMenu:showHotkeys()
 					desc = TB_MENU_LOCALIZED.HOTKEYSREPLAYKEYFRAME .. " @ " .. TB_MENU_LOCALIZED["SETTINGSKEYFRAMESAVEMODE" .. (get_option("keyframesavemode") == 0 and 1 or 2)]
 				},
 				{
-					keys = { { "alt", "ctrl" }, "k" },
+					keys = { { _G.PLATFORM == "APPLE" and "option" or "alt", "ctrl" }, "k" },
 					desc = TB_MENU_LOCALIZED.HOTKEYSREPLAYKEYFRAME .. " @ " .. TB_MENU_LOCALIZED["SETTINGSKEYFRAMESAVEMODE" .. (get_option("keyframesavemode") == 1 and 1 or 2)]
 				},
 				{
@@ -2082,7 +2090,7 @@ function TBMenu:showHotkeys()
 					desc = TB_MENU_LOCALIZED.HOTKEYSMODLIST
 				},
 				{
-					keys = { "alt", "m" },
+					keys = { _G.PLATFORM == "APPLE" and "option" or "alt", "m" },
 					desc = TB_MENU_LOCALIZED.HOTKEYSMODMAKER
 				},
 				{
@@ -2222,6 +2230,7 @@ end
 ---@field action function Function that will be executed on button click
 ---@field quit boolean Whether pressing this button should exit main menu
 ---@field disableUnload boolean Whether button image shouldn't be unloaded on UIElement destruction
+---@field offsetX number? Optional horizontal offset that will be applied to the next button
 
 ---Displays Tools screen
 function TBMenu:showToolsSection()
@@ -2291,7 +2300,7 @@ function TBMenu:showSection(buttonsData, shift, lockedMessage)
 		})
 		sectionY = v.vsize and sectionY + buttonView.size.h + 10 or sectionY
 		sectionY = sectionY >= TBMenu.CurrentSection.size.h and 0 or sectionY
-		sectionX = sectionY == 0 and sectionX + buttonView.size.w + 10 or sectionX
+		sectionX = sectionY == 0 and sectionX + buttonView.size.w + TBMenu.CurrentSection.size.w * (v.offsetX or 0) + 10 or sectionX
 		TBMenu:showHomeButton(buttonView, v, sectionY == 0 and i or nil, nil, lockedMessage)
 	end
 end
@@ -2338,6 +2347,8 @@ function TBMenu:openMenu(screenId)
 		TBMenu:showAccountMain()
 	elseif (TB_MENU_SPECIAL_SCREEN_ISOPEN == 11) then
 		TBMenu:showScripts()
+	elseif (TB_MENU_SPECIAL_SCREEN_ISOPEN == 12) then
+		Events:showBlindFight()
 	elseif (screenId == 1) then
 		TBMenu:showHome()
 	elseif (screenId == 2) then
@@ -3372,12 +3383,13 @@ function TBMenu:showBottomBar(leftOnly)
 		size = { 300, 25 },
 		uiColor = { 0, 0, 0, 0.7 }
 	})
+	local gameVersionString = "v" .. TORIBASH_VERSION .. (BETA_VERSION or '') .. "." .. BUILD_VERSION
 	statusMessage:addCustomDisplay(true, function()
 			local downloads = #get_downloads() or 0
 			if (downloads > 0) then
 				statusMessage:uiText(TB_MENU_LOCALIZED.DOWNLOADINGFILESWAIT, nil, nil, 4, RIGHTMID, 0.5)
 			else
-				statusMessage:uiText("v" .. TORIBASH_VERSION .. (BETA_VERSION or '') .. "." .. BUILD_VERSION, nil, nil, 4, RIGHTMID, 0.5)
+				statusMessage:uiText(gameVersionString, nil, nil, 4, RIGHTMID, 0.5)
 			end
 		end)
 end
