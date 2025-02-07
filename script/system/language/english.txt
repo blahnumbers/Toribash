@@ -1361,3 +1361,4 @@ BLINDFIGHTLEAGUEPROMOTIONINFOFULL	Stay among the top 3 players by the time of le
 BLINDFIGHTLEAGUEPROMOTIONINFO	Stay among the top 3 players by the time of league reset to advance to next tier or defeat all players in one go to advance instantly once the league is full
 BLINDFIGHTLEAGUEINSUFFICIENTPLAYERSINFO	Once more players join the league, stay among the top 3 players to advance to next tier
 EVENTSPLAYERWINS	{wins} wins
+BLINDFIGHTLEAVINGPROMPT	You will lose your opener if you leave now. Are you sure?

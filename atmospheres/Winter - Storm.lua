@@ -1,7 +1,7 @@
 -- (c) Melmoth 2010 - http://g.hssn.free.fr/atmospheres/
 
 local graphics_level = Settings and Settings.GetLevel() or 1
-local nb_flakes = (graphics_level + 1) * 160
+local nb_flakes = (graphics_level + 1) * (is_mobile() and 100 or 160)
 
 local snowfall_radius = 15
 local flakes_pos_x = { }

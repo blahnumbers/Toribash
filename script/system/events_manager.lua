@@ -18,7 +18,6 @@ require('system.friends_manager')
 ---@field groupTitle string
 ---@field gamesPlayed integer
 ---@field gamesWon integer
----@field launchMode integer
 ---@field userMoves MemoryMove|nil
 ---@field minVersion integer?
 ---@field numGroupPlayers integer
@@ -31,14 +30,72 @@ if (Events == nil) then
 	---* Update to match modern design
 	---* Blind Fight interface and client logic
 	---@class Events
-	---@field BlindFight BlindFightData Blind Fight event data for current user
 	---@field EventStalePeriod integer Period in seconds before event data is considered stale
+	---@field BlindFightMode integer Blind Fight launch mode
 	Events = {
 		EventStalePeriod = 60,
+		BlindFightMode = 0,
 		HookName = "__tbEventsManager",
 		ver = 5.74
 	}
 	Events.__index = Events
+end
+
+---@class EventsInternal
+---@field ConfigFile string Config file path
+---@field Config table Table containing configuration option values
+---@field BlindFight BlindFightData? Blind Fight event data for current user
+local EventsInternal = {
+	ConfigFile = "../data/events.cfg",
+	Config = { },
+	BlindFight = nil
+}
+
+function EventsInternal.LoadConfig()
+	local f = Files.Open(EventsInternal.ConfigFile, FILES_MODE_READONLY)
+	local configLines = f:readAll()
+	f:close()
+
+	EventsInternal.Config = {
+		BlindFightPlays = 0
+	}
+	for _, line in ipairs(configLines) do
+		local data = { line:match(("([^\t]*)\t?"):rep(2)) }
+		data[2] = tonumber(data[2])
+		if (data[2] ~= nil) then
+			EventsInternal.Config[data[1]] = data[2]
+		end
+	end
+end
+
+function EventsInternal.SaveConfig()
+	local f = Files.Open(EventsInternal.ConfigFile, FILES_MODE_WRITE)
+	for i, v in pairs(EventsInternal.Config) do
+		f:writeLine(i .. "\t" .. tostring(v))
+	end
+	f:close()
+end
+
+---Returns Events configuration option value
+---@param option string
+---@return integer
+function Events.GetConfig(option)
+	return EventsInternal.Config[option]
+end
+
+---Sets Events configuration option value and saves changes if needed
+---@param option string
+---@param value integer
+---@param save boolean
+---@overload fun(option: string, value: integer)
+function Events.SetConfig(option, value, save)
+	if (EventsInternal.Config[option] == value) then
+		return
+	end
+	EventsInternal.Config[option] = value
+	if (save == nil or save == true) then
+		EventsInternal.SaveConfig()
+	end
 end
 
 ---Exits Events menu and opens last opened main menu screen
@@ -51,8 +108,18 @@ function Events.Quit()
 end
 
 ---Resets any cached events data for current user
-function Events.Reset()
-	Events.BlindFight = nil
+function EventsInternal.Reset()
+	EventsInternal.BlindFight = nil
+end
+
+---Returns a table containing current Blind Fight state
+---@return BlindFightData?
+function Events.GetBlindFight()
+	local dataCopy = table.clone(EventsInternal.BlindFight)
+	if (dataCopy ~= nil and dataCopy.userMoves ~= nil) then
+		setmetatable(dataCopy.userMoves, MemoryMove)
+	end
+	return dataCopy
 end
 
 ---@param showBack boolean?
@@ -1961,6 +2028,13 @@ function Events:showBlindFightMain(viewElement)
 	if (viewElement == nil or viewElement.destroyed) then
 		return
 	end
+	if (EventsInternal.BlindFight.userMoves == nil or EventsInternal.BlindFight.userMoves.turns == 0) then
+		TB_MENU_SPECIAL_SCREEN_ISOPEN = 0
+		close_menu()
+		self.BlindFightMode = 2
+		EventsOnline:playEvent("blindfight")
+		return
+	end
 	viewElement:kill(true)
 
 	local playerInfoViewWidth = math.min(viewElement.size.w * 0.65, viewElement.size.w - 450)
@@ -1991,7 +2065,7 @@ function Events:showBlindFightMain(viewElement)
 		pos = { playerInfoViewBackdrop.size.w * 0.615 - statsHolderSize[1] * 0.5, playerInfoViewBackdrop.size.h * 0.415 - statsHolderSize[2] * 0.5 },
 		size = statsHolderSize
 	})
-	playerInfoTierInfo:addAdaptedText(self.BlindFight.groupTitle, { font = FONTS.BIG, intensity = 1, shadow = 4, shadowColor = { 0.1523, 0.0625, 0.1641, 1 } })
+	playerInfoTierInfo:addAdaptedText(EventsInternal.BlindFight.groupTitle, { font = FONTS.BIG, intensity = 1, shadow = 4, shadowColor = { 0.1523, 0.0625, 0.1641, 1 } })
 	local playerInfoDataHolder = playerInfoTierInfo:addChild({
 		pos = { 0, playerInfoTierInfo.size.h },
 		size = { playerInfoTierInfo.size.w, 60 },
@@ -2003,65 +2077,46 @@ function Events:showBlindFightMain(viewElement)
 	})
 	playerInfoDataHolder:addChild({
 		shift = { 25, 10 }
-	}):addAdaptedText(self.BlindFight.gamesPlayed .. " " .. utf8.lower(TB_MENU_LOCALIZED.EVENTSGAMESPLAYED) .. ", " .. self.BlindFight.gamesWon .. " " .. utf8.lower(TB_MENU_LOCALIZED.EVENTSGAMESWON))
+	}):addAdaptedText(EventsInternal.BlindFight.gamesPlayed .. " " .. utf8.lower(TB_MENU_LOCALIZED.EVENTSGAMESPLAYED) .. ", " .. EventsInternal.BlindFight.gamesWon .. " " .. utf8.lower(TB_MENU_LOCALIZED.EVENTSGAMESWON))
 	local playButtonsHolder = playerInfoView:addChild{
 		pos = { 0, -160 },
 		size = { playerInfoView.size.w, 160 },
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR
 	}
 	TBMenu:addBottomBloodSmudge(playButtonsHolder, 1)
-	if (self.BlindFight.userMoves.turns == 0) then
-		local makeOpenerButton = playButtonsHolder:addChild({
-			pos = { 20, 20 },
-			size = { playButtonsHolder.size.w - 40, playButtonsHolder.size.h - 80 },
-			bgColor = TB_MENU_DEFAULT_BG_COLOR,
-			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-			interactive = true,
-			shapeType = ROUNDED,
-			rounded = 4
-		})
-		makeOpenerButton:addAdaptedText(TB_MENU_LOCALIZED.BLINDFIGHTCREATEOPENER, nil, nil, FONTS.BIG, nil, 0.65)
-		makeOpenerButton:addMouseUpHandler(function()
-				close_menu()
-				self.BlindFight.launchMode = 0
-				EventsOnline:playEvent("blindfight")
-			end)
-	else
-		local makeOpenerButton = playButtonsHolder:addChild({
-			pos = { 20, 20 },
-			size = { (playButtonsHolder.size.w - 40) / 2 - 10, playButtonsHolder.size.h - 80 },
-			bgColor = TB_MENU_DEFAULT_BG_COLOR,
-			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-			interactive = true,
-			shapeType = ROUNDED,
-			rounded = 4
-		})
-		makeOpenerButton:addAdaptedText(TB_MENU_LOCALIZED.BLINDFIGHTREDOOPENER, nil, nil, FONTS.BIG, nil, 0.65)
-		makeOpenerButton:addMouseUpHandler(function()
-				close_menu()
-				self.BlindFight.launchMode = 0
-				EventsOnline:playEvent("blindfight")
-			end)
-		
-		local resimulateButton = playButtonsHolder:addChild({
-			pos = { playButtonsHolder.size.w / 2 + 10, makeOpenerButton.shift.y },
-			size = { makeOpenerButton.size.w, makeOpenerButton.size.h },
-			bgColor = TB_MENU_DEFAULT_BG_COLOR,
-			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-			interactive = true,
-			shapeType = makeOpenerButton.shapeType,
-			rounded = makeOpenerButton.rounded
-		})
-		resimulateButton:addAdaptedText(TB_MENU_LOCALIZED.BLINDFIGHTFIGHTAGAIN, nil, nil, FONTS.BIG, nil, 0.65)
-		resimulateButton:addMouseUpHandler(function()
-				close_menu()
-				self.BlindFight.launchMode = 1
-				EventsOnline:playEvent("blindfight")
-			end)
-	end
+	local makeOpenerButton = playButtonsHolder:addChild({
+		pos = { 20, 20 },
+		size = { (playButtonsHolder.size.w - 40) / 2 - 10, playButtonsHolder.size.h - 80 },
+		bgColor = TB_MENU_DEFAULT_BG_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+		interactive = true,
+		shapeType = ROUNDED,
+		rounded = 4
+	})
+	makeOpenerButton:addAdaptedText(TB_MENU_LOCALIZED.BLINDFIGHTREDOOPENER, nil, nil, FONTS.BIG, nil, 0.65)
+	makeOpenerButton:addMouseUpHandler(function()
+			close_menu()
+			self.BlindFightMode = 0
+			EventsOnline:playEvent("blindfight")
+		end)
+	
+	local resimulateButton = playButtonsHolder:addChild({
+		pos = { playButtonsHolder.size.w / 2 + 10, makeOpenerButton.shift.y },
+		size = { makeOpenerButton.size.w, makeOpenerButton.size.h },
+		bgColor = TB_MENU_DEFAULT_BG_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+		interactive = true,
+		shapeType = makeOpenerButton.shapeType,
+		rounded = makeOpenerButton.rounded
+	})
+	resimulateButton:addAdaptedText(TB_MENU_LOCALIZED.BLINDFIGHTFIGHTAGAIN, nil, nil, FONTS.BIG, nil, 0.65)
+	resimulateButton:addMouseUpHandler(function()
+			close_menu()
+			self.BlindFightMode = 1
+			EventsOnline:playEvent("blindfight")
+		end)
 
 	local leagueTimeRemaining = playButtonsHolder:addChild({
 		pos = { 20, -40 },
@@ -2069,7 +2124,7 @@ function Events:showBlindFightMain(viewElement)
 	})
 	leagueTimeRemaining:addCustomDisplay(function(init)
 			if (init == true) then return end
-			local timeleft = self.BlindFight.endtime - os.time()
+			local timeleft = EventsInternal.BlindFight.endtime - os.time()
 			if (timeleft > 0) then
 				leagueTimeRemaining:uiText(TB_MENU_LOCALIZED.BLINDFIGHTTIMEUNTILLEAGUERESET .. " " .. TBMenu:getTime(timeleft, 2), nil, nil, FONTS.LMEDIUM, nil, 0.85)
 			else
@@ -2080,31 +2135,31 @@ function Events:showBlindFightMain(viewElement)
 	local elementHeight = 50
 	local toReload, topBar, botBar, _, listingHolder = TBMenu:prepareScrollableList(toplistView, elementHeight * 1.5, 160, 20, TB_MENU_DEFAULT_BG_COLOR)
 
-	local numPlayers = #self.BlindFight.players
+	local numPlayers = #EventsInternal.BlindFight.players
 	local leaguePlayersTitle = topBar:addChild({ shift = { 25, 10 } })
-	leaguePlayersTitle:addAdaptedText(TB_MENU_LOCALIZED.BLINDFIGHTCURRENTLEAGUE .. " (" .. numPlayers .. "/" .. self.BlindFight.numGroupPlayers .. ")", nil, nil, FONTS.BIG, nil, 0.65)
+	leaguePlayersTitle:addAdaptedText(TB_MENU_LOCALIZED.BLINDFIGHTCURRENTLEAGUE .. " (" .. numPlayers .. "/" .. EventsInternal.BlindFight.numGroupPlayers .. ")", nil, nil, FONTS.BIG, nil, 0.65)
 
 	botBar.bgColor = TB_MENU_DEFAULT_DARKER_COLOR
 	TBMenu:addBottomBloodSmudge(botBar, 2)
 
 	local leagueInfo = botBar:addChild({ shift = { 25, 10 } })
-	if (numPlayers == self.BlindFight.numGroupPlayers) then
+	if (numPlayers == EventsInternal.BlindFight.numGroupPlayers) then
 		leagueInfo:addAdaptedText(TB_MENU_LOCALIZED.BLINDFIGHTLEAGUEPROMOTIONINFOFULL, { font = FONTS.LMEDIUM, maxscale = 0.85, baselineScale = 1.5 })
-	elseif (numPlayers >= self.BlindFight.minPromoteGroupPlayers) then
+	elseif (numPlayers >= EventsInternal.BlindFight.minPromoteGroupPlayers) then
 		leagueInfo:addAdaptedText(TB_MENU_LOCALIZED.BLINDFIGHTLEAGUEPROMOTIONINFO, { font = FONTS.LMEDIUM, maxscale = 0.85, baselineScale = 1.5 })
 	else
 		leagueInfo:addAdaptedText(TB_MENU_LOCALIZED.BLINDFIGHTLEAGUEINSUFFICIENTPLAYERSINFO, { font = FONTS.LMEDIUM, maxscale = 0.85, baselineScale = 1.5 })
 	end
 	
 	local listElements = {}
-	for i, v in pairs(self.BlindFight.players) do
+	for i, v in pairs(EventsInternal.BlindFight.players) do
 		local listElement = listingHolder:addChild({
 			pos = { 0, #listElements * elementHeight },
 			size = { listingHolder.size.w, elementHeight }
 		})
 		table.insert(listElements, listElement)
 		local isUser = utf8.lower(v.name) == utf8.lower(TB_MENU_PLAYER_INFO.username)
-		local isDefeated = in_array(v.userid, self.BlindFight.defeated)
+		local isDefeated = in_array(v.userid, EventsInternal.BlindFight.defeated)
 		local playerEntry = listElement:addChild({
 			pos = { 10, 2 },
 			size = { listElement.size.w - 12, listElement.size.h - 4 },
@@ -2160,73 +2215,107 @@ function Events:showBlindFight()
 	TBMenu:clearNavSection()
 	TBMenu:showNavigationBar(Events:getNavigationButtons(TB_MENU_EVENTS_OPEN), true)
 
-	TB_MENU_SPECIAL_SCREEN_ISOPEN = 12
 	usage_event("blindfight")
 
+	if (self.GetConfig("BlindFightPlays") == 0) then
+		close_menu()
+		self.BlindFightMode = 2
+		EventsOnline:playEvent("blindfight")
+		return
+	end
+
+	TB_MENU_SPECIAL_SCREEN_ISOPEN = 12
 	local time = os.time()
-	if (self.BlindFight == nil or self.BlindFight.endtime < time or self.BlindFight.lastupdate + self.EventStalePeriod < time) then
+	if (EventsInternal.BlindFight == nil or EventsInternal.BlindFight.endtime < time or EventsInternal.BlindFight.lastupdate + self.EventStalePeriod < time) then
 		local loaderView = TBMenu.CurrentSection:addChild({
 			shift = { 5, 0 },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR
 		})
 		TBMenu:addBottomBloodSmudge(loaderView)
 		local loadingMark = TBMenu:displayLoadingMark(loaderView)
-		Request:queue(function() download_server_info("blindfight&user=" .. TB_MENU_PLAYER_INFO.username) end, "blindfight_leagueinfo", function()
-			local response = get_network_response()
-			loadingMark:kill()
-
-			self.BlindFight = { players = { }, defeated = { }, lastupdate = os.time(), groupTitle = "" }
-			if (string.find(response, "^ERROR")) then
-				local errorMessage = response:gsub("^ERROR ", "")
-				loaderView:addChild({ shift = { 100, 50 }}):addAdaptedText(errorMessage)
-				return
-			end
-
-			local autoupdate = get_option("autoupdate")
-			for ln in response:gmatch("[^\n]*\n?") do
-				ln = ln:gsub("\n$", "")
-				if (ln:find("^SEASON_INFO\t")) then
-					local _, segments = ln:gsub("\t", "")
-					local data = { ln:match(("([^\t]*)\t"):rep(segments)) }
-					self.BlindFight.modName = data[2]
-					self.BlindFight.endtime = os.time() + data[3]
-					self.BlindFight.groupTitle = data[4]
-					self.BlindFight.gamesPlayed = tonumber(data[5]) or 0
-					self.BlindFight.gamesWon = tonumber(data[6]) or 0
-					---Make sure we have the mod locally in case of non-standard ones
-					runCmd("dl " .. self.BlindFight.modName, false, CMD_ECHO_FORCE_DISABLED)
-				elseif (ln:find("^BLINDFIGHT\t")) then
-					local _, segments = ln:gsub("\t", "")
-					local data = { ln:match(("([^\t]*)\t"):rep(segments)) }
-					self.BlindFight.minVersion = tonumber(data[2]) or 250129
-					self.BlindFight.numGroupPlayers = tonumber(data[3]) or 8
-					self.BlindFight.minPromoteGroupPlayers = tonumber(data[4]) or 5
-				elseif (ln:len() > 0) then
-					local _, segments = ln:gsub("\t", "")
-					local data = { ln:match(("([^\t]*)\t"):rep(segments)) }
-					table.insert(self.BlindFight.players, {
-						userid = data[1],
-						name = data[2],
-						wins = tonumber(data[3]) or 0
-					})
-					if (string.lower(data[2]) == string.lower(TB_MENU_PLAYER_INFO.username)) then
-						local _, segments = string.gsub(data[4], ":", "")
-						self.BlindFight.defeated = { string.match(data[4], ("([^:]*):?"):rep(segments + 1)) }
-						_, segments = string.gsub(data[5], ":", "")
-						local openerLines = { string.match(data[5], ("([^:]*):?"):rep(segments + 1)) }
-						self.BlindFight.userMoves = MemoryMove.FromOpener(openerLines)
-					elseif (autoupdate == 1) then
-						---Download base player customs so we see them when fighting
-						download_head(data[1])
-					end
-				end
-			end
-			self.BlindFight.players = table.qsort(self.BlindFight.players, "wins", SORT_DESCENDING)
-			self:showBlindFightMain(TBMenu.CurrentSection)
-		end)
+		self:refreshBlindFight(loaderView, loadingMark, function()
+				self:showBlindFightMain(TBMenu.CurrentSection)
+			end)
 	else
 		self:showBlindFightMain(TBMenu.CurrentSection)
 	end
 end
 
-add_hook("login", Events.HookName, Events.Reset)
+---Refreshes Blind Fight data
+---@param loaderView UIElement?
+---@param loadingMark UIElement?
+---@param onComplete function?
+function Events:refreshBlindFight(loaderView, loadingMark, onComplete)
+	Request:queue(function()
+		download_server_info("blindfight&user=" .. TB_MENU_PLAYER_INFO.username)
+	end, "blindfight_leagueinfo", function(_, response)
+		if (loadingMark ~= nil and not loadingMark.destroyed) then
+			loadingMark:kill()
+		end
+
+		EventsInternal.BlindFight = { players = { }, defeated = { }, lastupdate = os.time(), groupTitle = "" }
+		if (string.find(response, "^ERROR")) then
+			if (loaderView ~= nil and not loaderView.destroyed) then
+				local errorMessage = response:gsub("^ERROR ", "")
+				loaderView:addChild({ shift = { 100, 50 }}):addAdaptedText(errorMessage)
+			end
+			return
+		end
+
+		local autoupdate = get_option("autoupdate")
+		for ln in response:gmatch("[^\n]*\n?") do
+			ln = ln:gsub("\n$", "")
+			if (ln:find("^SEASON_INFO\t")) then
+				local _, segments = ln:gsub("\t", "")
+				local data = { ln:match(("([^\t]*)\t"):rep(segments)) }
+				EventsInternal.BlindFight.modName = data[2]
+				EventsInternal.BlindFight.endtime = os.time() + data[3]
+				EventsInternal.BlindFight.groupTitle = data[4]
+				EventsInternal.BlindFight.gamesPlayed = tonumber(data[5]) or 0
+				EventsInternal.BlindFight.gamesWon = tonumber(data[6]) or 0
+				---Make sure we have the mod locally in case of non-standard ones
+				runCmd("dl " .. EventsInternal.BlindFight.modName, false, CMD_ECHO_FORCE_DISABLED)
+			elseif (ln:find("^BLINDFIGHT\t")) then
+				local _, segments = ln:gsub("\t", "")
+				local data = { ln:match(("([^\t]*)\t"):rep(segments)) }
+				EventsInternal.BlindFight.minVersion = tonumber(data[2]) or 250129
+				EventsInternal.BlindFight.numGroupPlayers = tonumber(data[3]) or 8
+				EventsInternal.BlindFight.minPromoteGroupPlayers = tonumber(data[4]) or 5
+			elseif (ln:len() > 0) then
+				local _, segments = ln:gsub("\t", "")
+				local data = { ln:match(("([^\t]*)\t"):rep(segments)) }
+				table.insert(EventsInternal.BlindFight.players, {
+					userid = data[1],
+					name = data[2],
+					wins = tonumber(data[3]) or 0
+				})
+				if (string.lower(data[2]) == string.lower(TB_MENU_PLAYER_INFO.username)) then
+					local _, segments = string.gsub(data[4], ":", "")
+					EventsInternal.BlindFight.defeated = { string.match(data[4], ("([^:]*):?"):rep(segments + 1)) }
+					_, segments = string.gsub(data[5], ":", "")
+					local openerLines = { string.match(data[5], ("([^:]*):?"):rep(segments + 1)) }
+					EventsInternal.BlindFight.userMoves = MemoryMove.FromOpener(openerLines)
+				elseif (autoupdate == 1) then
+					---Download base player customs so we see them when fighting
+					download_head(data[1])
+				end
+			end
+		end
+		EventsInternal.BlindFight.players = table.qsort(EventsInternal.BlindFight.players, "wins", SORT_DESCENDING)
+		if (onComplete ~= nil) then
+			onComplete()
+		end
+	end, function(_, error)
+		EventsInternal.BlindFight = nil
+		if (loaderView ~= nil and not loaderView.destroyed) then
+			loaderView:addChild({ shift = { 100, 50 }}):addAdaptedText(error)
+			if (loadingMark ~= nil and not loadingMark.destroyed) then
+				loadingMark:kill()
+			end
+		end
+	end)
+end
+
+EventsInternal.LoadConfig()
+Events:refreshBlindFight()
+add_hook("login", Events.HookName, EventsInternal.Reset)

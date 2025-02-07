@@ -13,16 +13,16 @@ require("system.playerinfo_manager")
 require("system.iofiles")
 require("system.flames_manager")
 
-if (FLAMES_MENU_MAIN_ELEMENT) then
+if (Flames.MainElement) then
 	if (get_shift_key_state() == 0) then
-		Flames:quit()
+		Flames.Quit()
 	else
-		Flames:minimize()
+		Flames.Minimize()
 	end
 	return
 end
 
-if (not FLAMES_MENU_MINIMIZED) then
-	Flames:storeCurrentFlames()
+if (not Flames.IsMinimized) then
+	Flames.GetCurrentFlames()
 end
 Flames:showMain()

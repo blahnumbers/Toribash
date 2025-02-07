@@ -3,22 +3,27 @@ require("toriui.uielement")
 do
 	---**Network requests class manager**
 	---
+	---**Version 5.74**
+	---* Updates to handle response and error strings returned from network hooks
+	---* Execute error callback on netcall failure
+	---* Write data to a file instead of displaying in game chat when debug mode is enabled
+	---
 	---**Version 5.71**
 	---* Added `timestamp` field to **RequestPromise** class
 	---
 	---**Version 5.70**
 	---* Added `HookName` field
 	---
-	---**Ver 1.2 updates:**
+	---**Version 1.2**
 	---* Use pcall() to run on success/error functions
 	---* Fixed bug with active request not getting finalized from network_error hook
 	---* Added EmmyLua supported annotations
 	---
-	---**Ver 1.1 updates:**
+	---**Version 1.1**
 	---* Check for active task before queueing a new request to ensure we don't get data from the previous request
 	Request = {
 		HookName = "__tbNetworkManager",
-		ver = 5.71
+		ver = 5.74
 	}
 	Request.__index = Request
 
@@ -38,30 +43,30 @@ do
 	---@field netcall function Function that will be executed instantly after network listener hooks are spawned
 
 	---Spawns network listener hooks to handle network responses. \
-	---*You likely want to use `Request:queue()` instead*.
+	---**You likely want to use `Request:queue()` instead**.
 	---@param name string|nil Request name - may come in handy when debugging to be able to tell different requests from each other
 	---@param success? function Function to execute on successful network response
 	---@param error? function Function to execute on network response failure
 	---@param response? RequestPromise A preexisting RequestPromise to use for return value
 	---@return RequestPromise response
 	function Request:new(name, success, error, response)
-		local response = response or { ready = false }
-		local name = name or "netrequest"
-		local success = success or function(r) end
-		local error = error or function(r) end
+		response = response or { ready = false }
+		name = name or "netrequest"
+		success = success or function(_,_) end
+		error = error or function(_,_) end
 
 		TB_NETWORK_LASTREQUEST = response.id
-		add_hook("network_error", name, function()
-				if (TB_MENU_DEBUG) then print(get_network_error()) end
+		add_hook("network_error", name, function(data)
+				if (TB_MENU_DEBUG) then Files.WriteDebug(data) end
 				Request:finalize(name)
 				response.failed = true
-				error(response)
+				error(response, data)
 				response.ready = true
 			end)
-		add_hook("network_complete", name, function()
-				if (TB_MENU_DEBUG) then print(get_network_response()) end
+		add_hook("network_complete", name, function(data)
+				if (TB_MENU_DEBUG) then Files.WriteDebug(data) end
 				Request:finalize(name)
-				success(response)
+				success(response, data)
 				response.ready = true
 			end)
 
@@ -84,20 +89,20 @@ do
 
 		---@type RequestPromise
 		local response = { ready = false, id = generate_uid(), timestamp = os.clock_real() }
-		local name = name or "netrequest"
-		local success = success or function() end
-		local error = error or function() end
+		name = name or "netrequest"
+		success = success or function() end
+		error = error or function() end
 
 		local request = { name = name, success = success, error = error, response = response, netcall = netcall }
 		table.insert(TB_NETWORK_REQUEST_QUEUE, request)
 
 		if (#TB_NETWORK_REQUEST_QUEUE > 1) then
 			if (TB_MENU_DEBUG) then
-				print("Queueing a request (guid " .. request.response.id .. ")")
+				Files.WriteDebug("Queueing a request (guid " .. request.response.id .. ")")
 			end
 		else
 			if (TB_MENU_DEBUG) then
-				print("Launching a request (guid " .. request.response.id .. ")")
+				Files.WriteDebug("Launching a request (guid " .. request.response.id .. ")")
 			end
 			Request:finalize('netrequest')
 		end
@@ -121,15 +126,13 @@ do
 						remove_hook("draw2d", self.HookName)
 						local request = TB_NETWORK_REQUEST_QUEUE[1]
 						if (TB_MENU_DEBUG) then
-							print("Queueing next request")
-							print(request)
+							Files.WriteDebug("Queueing next request")
+							Files.WriteDebug(request)
 						end
 						Request:new(request.name, request.success, request.error, request.response)
 						local completed, msg = pcall(request.netcall)
 						if (not completed) then
-							if (TB_MENU_DEBUG) then
-								print("netcall error: " .. (type(msg) == "string" and msg or ''))
-							end
+							call_hook("network_error", "netcall error: " .. tostring(msg))
 							Request:cancelCurrentRequest()
 						end
 					end

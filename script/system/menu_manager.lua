@@ -2386,13 +2386,13 @@ function TBMenu:showGameLogo()
 	local gametitle = TB_MENU_GAME_TITLE
 	local logoSize = 90 * TB_MENU_GLOBAL_SCALE
 	local gameTitleSize = 256 * TB_MENU_GLOBAL_SCALE
-	if (TB_MENU_PLAYER_INFO.customs.textures.gui.logo.equipped) then
+	if (TB_MENU_PLAYER_INFO.items.textures.gui.logo.equipped) then
 		if (Files.Exists("../custom/" .. TB_MENU_PLAYER_INFO.username .. "/logo.tga")) then
 			logo = "../../custom/" .. TB_MENU_PLAYER_INFO.username .. "/logo.tga"
 			logoSize = 120
 		end
 	end
-	if (TB_MENU_PLAYER_INFO.customs.textures.gui.header.equipped) then
+	if (TB_MENU_PLAYER_INFO.items.textures.gui.header.equipped) then
 		if (Files.Exists("../custom/" .. TB_MENU_PLAYER_INFO.username .. "/header.tga")) then
 			gametitle = "../../custom/" .. TB_MENU_PLAYER_INFO.username .. "/header.tga"
 		end
@@ -3380,15 +3380,31 @@ function TBMenu:showBottomBar(leftOnly)
 
 	local statusMessage = TBMenu.MenuMain:addChild({
 		pos = { -math.max(safe_x, 10) - 300, -25 },
-		size = { 300, 25 },
+		size = { 300, 24 },
 		uiColor = { 0, 0, 0, 0.7 }
 	})
-	local gameVersionString = "v" .. TORIBASH_VERSION .. (BETA_VERSION or '') .. "." .. BUILD_VERSION
+	local gameVersionString = TORIBASH_VERSION .. (BETA_VERSION or '') .. "." .. BUILD_VERSION
+	local platformIconPath = ""
+	if (PLATFORM == "WINDOWS") then
+		platformIconPath = "../textures/menu/logos/windows-tiny.tga"
+	elseif (PLATFORM == "IPHONEOS" or PLATFORM == "APPLE") then
+		platformIconPath = "../textures/menu/logos/apple-tiny.tga"
+	elseif (PLATFORM == "ANDROID") then
+		platformIconPath = "../textures/menu/logos/android-tiny.tga"
+	end
+	local platformIcon = statusMessage:addChild({
+		pos = { statusMessage.size.w - get_string_length(gameVersionString, 4) * 0.5 - 14, 6 },
+		size = { 12, 12 },
+		bgImage = { platformIconPath, platformIconPath },
+		imageColor = statusMessage.uiColor
+	})
 	statusMessage:addCustomDisplay(true, function()
 			local downloads = #get_downloads() or 0
 			if (downloads > 0) then
+				platformIcon:hide()
 				statusMessage:uiText(TB_MENU_LOCALIZED.DOWNLOADINGFILESWAIT, nil, nil, 4, RIGHTMID, 0.5)
 			else
+				platformIcon:show()
 				statusMessage:uiText(gameVersionString, nil, nil, 4, RIGHTMID, 0.5)
 			end
 		end)
@@ -3508,7 +3524,7 @@ function TBMenu:showMain(noload)
 			end, false)
 	end
 	local splatImage = TB_MENU_BLOODSPLATTER_LEFT
-	local splatCustom = TB_MENU_PLAYER_INFO.customs.textures.gui.splatter.equipped and Files.Exists("../custom/" .. TB_MENU_PLAYER_INFO.username .. "/splatt1.tga")
+	local splatCustom = TB_MENU_PLAYER_INFO.items.textures.gui.splatter.equipped and Files.Exists("../custom/" .. TB_MENU_PLAYER_INFO.username .. "/splatt1.tga")
 	if (splatCustom) then
 		splatImage = "../../custom/" .. TB_MENU_PLAYER_INFO.username .. "/splatt1.tga"
 	end

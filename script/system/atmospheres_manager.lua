@@ -148,6 +148,7 @@ function Atmospheres.ParseFile(filename)
 	local luafileName = utf8.gsub(filename, ".atmo$", ".lua")
 	local luafile = Files.Open(luafileName, FILES_MODE_READONLY)
 	local luafileFuncs = loadstring(luafile:readAll(true)) or function() end
+	luafile:close()
 
 	---@type Atmosphere
 	local atmosphere = { entities = {}, shaderopts = {}, opts = {}, funcs = luafileFuncs() or {} }

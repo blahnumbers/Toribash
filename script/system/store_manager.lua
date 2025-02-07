@@ -6502,7 +6502,7 @@ function Store:showMain(viewElement)
 			ratio = 0.75,
 			ratio2 = 0.449,
 			disableUnload = true,
-			action = function() close_menu() if (FLAMES_MENU_MAIN_ELEMENT == nil) then dofile("system/flames.lua") end end
+			action = function() close_menu() if (Flames.MainElement == nil) then dofile("system/flames.lua") end end
 		},
 		storeaccount = {
 			title = TB_MENU_LOCALIZED.STOREACCOUNT,

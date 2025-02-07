@@ -154,7 +154,7 @@ function QueueList:addPlayerInfos(viewElement, info)
 	info.pInfo:getClan()
 	info.pInfo:getItems(PLAYERINFO_CSCOPE_ALL)
 
-	local backdropImage, bgBackdrop = info.pInfo.customs.textures.gui.profile_backdrop.equipped and "../textures/menu/blindfight.tga" or nil, nil
+	local backdropImage, bgBackdrop = info.pInfo.items.textures.gui.profile_backdrop.equipped and "../textures/menu/profile/rankedgold.tga" or nil, nil
 	if (backdropImage) then
 		bgBackdrop = viewElement:addChild({
 			size = { viewElement.size.w, viewElement.size.h },
@@ -311,14 +311,14 @@ function QueueList:addPlayerInfos(viewElement, info)
 	end
 
 	if (bgBackdrop ~= nil) then
-		bgBackdrop.size.h = math.min(450 / bgBackdrop.size.w * 150, infosH)
-		bgBackdrop.atlas.h = bgBackdrop.atlas.w / bgBackdrop.size.w * bgBackdrop.size.h
+		bgBackdrop.size.h = math.clamp(450 / bgBackdrop.size.w * 150, infosH, bgBackdrop.size.w / 3)
+		bgBackdrop.atlas.h = math.min(bgBackdrop.atlas.w / 3, bgBackdrop.atlas.w / bgBackdrop.size.w * bgBackdrop.size.h)
 
 		local fadeToColor = table.clone(TB_MENU_DEFAULT_BG_COLOR)
 		fadeToColor[4] = 0
 		bgBackdrop:addChild({
-			pos = { 0, -60 },
-			size = { bgBackdrop.size.w, 60 },
+			pos = { 0, -30 },
+			size = { bgBackdrop.size.w, 30 },
 			bgGradient = { TB_MENU_DEFAULT_BG_COLOR, fadeToColor }
 		})
 		viewElement:reload()

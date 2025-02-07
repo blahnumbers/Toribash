@@ -589,7 +589,6 @@ function PlayerInfo:getItems(player, scope)
 		---@diagnostic disable-next-line: assign-type-mismatch
 		scope = player
 		player = self.username
-		self.customs = items
 	else
 		player = player and player or "tori"
 	end
@@ -989,7 +988,7 @@ function PlayerInfoInternal.parseServerUserinfo(userinfo)
 				value = ln:gsub("^TODAYEARNINGS 0;", "") .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS
 			})
 		elseif (ln:find("^TODAYBPXP 0;")) then
-			if (BattlePass.UserData) then
+			if (BattlePass.UserData and TB_MENU_PLAYER_INFO.data.qi >= BattlePass.QiRequirement) then
 				table.insert(userinfo, {
 					name = TB_MENU_LOCALIZED.ACCOUNTBPXPEARNINGSTODAY,
 					value = ln:gsub("^TODAYBPXP 0;", "") .. " " .. TB_MENU_LOCALIZED.BATTLEPASSEXPERIENCE
@@ -1086,11 +1085,12 @@ function PlayerInfo.getServerUserinfo(username)
 	return Request:queue(function() get_player_userinfo(username) end, "playerInfoServerUserinfo_" .. username, PlayerInfoInternal.parseServerUserinfo)
 end
 
----Will be removed with future releases, use `numberFormat()` instead
+---Will be removed with future releases \
 ---@deprecated
 ---@param n string|number
 ---@param decimals ?integer
 ---@return string
+---@see numberFormat
 function PlayerInfo:currencyFormat(n, decimals)
 	return numberFormat(n, decimals)
 end

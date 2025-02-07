@@ -35,14 +35,20 @@ end
 
 ---@param viewElement UIElement
 ---@param reqTable TutorialStepRequirement[]
-local function requireKeyPressSpaceConsume(viewElement, reqTable)
-	requireKeyPressSpace(viewElement, reqTable, true)
+local function requireKeyPressSpaceFirst(viewElement, reqTable)
+	requireKeyPressSpace(viewElement, reqTable)
+	if (Events.BlindFightMode == 2) then
+		Tutorials:showMessageWindow(reqTable)
+		Tutorials:showMessage(viewElement, reqTable, TB_MENU_LOCALIZED.BLINDFIGHTINFOHINT, "SENSEI")
+	end
 end
 
 local function quit()
-	Tutorials:quit()
-	close_menu()
-	open_menu(19)
+	MoveMemory:cancelRecording(0)
+	add_hook("pre_draw", Tutorials.HookName, function()
+		close_menu()
+		Tutorials:quit()
+	end)
 end
 
 local function onExit()
@@ -52,11 +58,11 @@ local function onExit()
 		return
 	end
 	if (Tutorials.CurrentStep.id < 3 or Tutorials.CurrentStep.id == 7) then
-		Tutorials:quit()
+		quit()
 		return
 	end
 	if (Tutorials.CurrentStep.id < 6) then
-		Tutorials.QuitOverlay = TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.BLINDFIGHTLEAVINGPROMPT1, quit, function()
+		Tutorials.QuitOverlay = TBMenu:showConfirmationWindow(TB_MENU_LOCALIZED.BLINDFIGHTLEAVINGPROMPT, quit, function()
 				close_menu()
 				TUTORIAL_LEAVEGAME = false
 			end, nil, nil, Tutorials.Globalid)
@@ -64,6 +70,7 @@ local function onExit()
 	end
 
 	---Disallow exiting in other cases
+	TUTORIAL_LEAVEGAME = true
 	close_menu()
 	TUTORIAL_LEAVEGAME = false
 end
@@ -99,14 +106,116 @@ local function showErrorBox(viewElement, message)
 		end)
 end
 
+---@param viewElement UIElement
+---@param reqTable TutorialStepRequirement[]
+local function showEventInfo(viewElement, reqTable)
+	local req = { type = "info", ready = false }
+	table.insert(reqTable, req)
+
+	local overlay = viewElement:addChild({ bgColor = { 1, 1, 1, 1 }, interactive = true })
+	local messages = {
+		Tutorials.LocalizedMessages['INTRO1'],
+		utf8.gsub(Tutorials.LocalizedMessages['INTRO2'], "{modname}", Events.GetBlindFight().modName),
+		Tutorials.LocalizedMessages['INTRO3'],
+		Tutorials.LocalizedMessages['INTRO4'],
+		Tutorials.LocalizedMessages['INTRO5'],
+		Tutorials.LocalizedMessages['INTRO6'],
+	}
+	---@type UIElement[]
+	local messageElements = {}
+	local totalHeight = 0
+	local fontMod = getFontMod(FONTS.LMEDIUM + 10) * 10
+
+	local testMessage = overlay:addChild({
+		shift = { overlay.size.w * 0.2, overlay.size.h * 0.15 }, uiColor = UICOLORWHITE
+	})
+	local testMessageStr = "";
+	for _, v in ipairs(messages) do
+		testMessageStr = testMessageStr .. v .. "\n\n"
+	end
+	testMessage:addAdaptedText(testMessageStr, { font = FONTS.LMEDIUM + 10 })
+	local targetScale = testMessage.textScale
+	testMessage:kill()
+	for _, v in ipairs(messages) do
+		local messageElement = overlay:addChild({
+			shift = { overlay.size.w * 0.2, overlay.size.h * 0.13 },
+			uiColor = { 0, 0, 0, 0 }
+		})
+		table.insert(messageElements, messageElement)
+		messageElement:addAdaptedText(v, { font = FONTS.LMEDIUM + 10, maxscale = targetScale })
+		local lines = #messageElement.dispstr
+		messageElement.size.h = fontMod * targetScale * (lines + 1)
+		totalHeight = totalHeight + messageElement.size.h
+	end
+
+	local function waitAnimateOut()
+		local req2 = { type = "animateOut", ready = false }
+		table.insert(reqTable, req2)
+		local beginClock = 0
+		overlay:addCustomDisplay(function()
+				for _, v in pairs(reqTable) do
+					if (type(v) == "table" and v.ready == false and v.type ~= req2.type) then
+						return
+					end
+				end
+				if (beginClock == 0) then
+					Tutorials:hideWaitButton()
+					beginClock = UIElement.clock
+				end
+				overlay.bgColor[4] = UITween.SineTween(overlay.bgColor[4], 0, UIElement.clock - beginClock)
+				for _, v in pairs(messageElements) do
+					v.uiColor[4] = overlay.bgColor[4]
+				end
+				if (overlay.bgColor[4] == 0) then
+					req2.ready = true
+					reqTable.ready = true
+				end
+			end, true)
+	end
+
+	local anchorPos = (overlay.size.h - totalHeight) / 2
+	local currentObserver = nil
+	for i, v in ipairs(messageElements) do
+		v:moveTo(nil, anchorPos)
+		anchorPos = anchorPos + v.size.h
+		local observer = v:addChild({})
+		observer:addCustomDisplay(true, function(init)
+			if (init == true) then return end
+			currentObserver = observer
+			if (v.uiColor[4] < 1) then
+				v.uiColor[4] = math.ceil(UITween.SineTween(v.uiColor[4], 1, 0.2) * 1000) / 1000
+			else
+				if (i == #messageElements) then
+					req.ready = true
+					Tutorials:reqButton(reqTable)
+					waitAnimateOut()
+				else
+					messageElements[i + 1]:show()
+				end
+				observer:kill()
+				currentObserver = nil
+			end
+		end)
+		v:hide()
+	end
+	overlay:addMouseDownHandler(function()
+			if (currentObserver ~= nil) then
+				currentObserver.parent.uiColor[4] = 1
+			end
+		end)
+	messageElements[1]:show()
+	Tutorials:showWaitButton()
+end
+
 local function initialize(viewElement, reqTable)
 	local currentVersion = tonumber(_G.BUILD_VERSION) or 0
-	if (Events == nil or Events.BlindFight == nil or Events.BlindFight.modName == nil or (Events.BlindFight.minVersion and Events.BlindFight.minVersion > currentVersion)) then
+	local blindFight = Events.GetBlindFight()
+	if (blindFight == nil or blindFight.modName == nil or (blindFight.minVersion and blindFight.minVersion > currentVersion)) then
 		local req = { type = "exit", ready = false }
 		table.insert(reqTable, req)
 		
 		local errorMessage = TB_MENU_LOCALIZED.BLINDFIGHTDATAERROR
-		if (Events ~= nil and Events.BlindFight ~= nil and Events.BlindFight.minVersion and Events.BlindFight.minVersion > currentVersion) then
+		if (Events ~= nil and blindFight ~= nil and blindFight.minVersion and blindFight.minVersion > currentVersion) then
 			errorMessage = TB_MENU_LOCALIZED.BLINDFIGHTUPDATECLIENT
 		end
 		showErrorBox(viewElement, errorMessage)
@@ -128,17 +237,24 @@ local function initialize(viewElement, reqTable)
 
 	select_player(0, false)
 	TUTORIAL_LEAVEGAME = true
-	runCmd("lm " .. Events.BlindFight.modName)
+	runCmd("lm " .. blindFight.modName)
 	TUTORIAL_LEAVEGAME = false
 
-	if (Events.BlindFight.launchMode == 1) then
+	if (Events.BlindFightMode == 1) then
 		Tutorials.CurrentStep.skip = 4
 		return
 	end
 
 	Tutorials.CurrentStep.skip = 0
 	MoveMemory:recordMove(false)
-	set_hint_override(TB_MENU_LOCALIZED.BLINDFIGHTINFOHINT)
+	if (Events.BlindFightMode == 2) then
+		showEventInfo(viewElement, reqTable)
+	elseif (Events.GetConfig("BlindFightPlays") > 2 or Events.BlindFightMode == 10) then
+		set_hint_override(TB_MENU_LOCALIZED.BLINDFIGHTINFOHINT)
+	else
+		Tutorials:showMessageWindow(reqTable)
+		Tutorials:showMessage(viewElement, reqTable, TB_MENU_LOCALIZED.BLINDFIGHTINFOHINT, "SENSEI")
+	end
 end
 
 ---@class BlindFightOpponent
@@ -207,7 +323,7 @@ local function showPostSimulation(viewElement, reqTable)
 	})
 	redoButton:addAdaptedText(TB_MENU_LOCALIZED.BLINDFIGHTREDOOPENER)
 	redoButton:addMouseUpHandler(function()
-			Tutorials.CurrentStep.fallback = 5
+			Tutorials.CurrentStep.fallback = 6
 			Tutorials.ProgressStep = 0
 			for _, req in pairs(reqTable) do
 				pcall(function() req.ready = true end)
@@ -216,7 +332,7 @@ local function showPostSimulation(viewElement, reqTable)
 		end)
 
 	local listElements = {}
-	for _, opponent in ipairs(Events.BlindFight.OpponentInfos) do
+	for _, opponent in ipairs(Events.BlindFightOpponents) do
 		local infoHolder = listingHolder:addChild({
 			pos = { 0, #listElements * elementHeight },
 			size = { listingHolder.size.w, elementHeight }
@@ -243,7 +359,7 @@ local function showPostSimulation(viewElement, reqTable)
 		local winMessage = opponent.win == 0 and TB_MENU_LOCALIZED.BLINDFIGHTWIN or (opponent.win == 1 and TB_MENU_LOCALIZED.BLINDFIGHTLOSS or TB_MENU_LOCALIZED.BLINDFIGHTDRAW)
 		opponentWinStatus:addAdaptedText(winMessage, { shadow = 2 })
 	end
-	Events.BlindFight.OpponentInfos = nil
+	Events.BlindFightOpponents = nil
 
 	if (#listElements * elementHeight > listingHolder.size.h) then
 		for _, v in pairs(listElements) do
@@ -320,7 +436,7 @@ local function showSimulationResults(viewElement, reqTable, playerMove, opponent
 				if (#opponentInfos > id) then
 					showSimulationResults(viewElement, reqTable, playerMove, opponentInfos, id + 1)
 				else
-					Events.BlindFight.OpponentInfos = opponentInfos
+					Events.BlindFightOpponents = opponentInfos
 					for _, req in pairs(reqTable) do
 						pcall(function() req.ready = true end)
 					end
@@ -341,8 +457,7 @@ local function submitMove(viewElement, reqTable, moveData, onError)
 			openerString = string.gsub(openerString, "+", "%%2b")
 			---@diagnostic disable-next-line: undefined-global
 			submit_blindfight_move(openerString)
-		end, "blindfight_submit", function()
-			local response = get_network_response()
+		end, "blindfight_submit", function(_, response)
 			if (string.find(response, "^ERROR")) then
 				onError()
 				return
@@ -361,9 +476,12 @@ local function submitMove(viewElement, reqTable, moveData, onError)
 					download_head(data[1])
 				end
 			end
+			TB_MENU_SPECIAL_SCREEN_ISOPEN = 12
 			showSimulationResults(viewElement, reqTable, moveData, opponentInfos, 1)
-		end, function()
-			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.ERRORTRYAGAIN .. "\n(" .. get_network_error() .. ")")
+			Events.SetConfig("BlindFightPlays", Events.GetConfig("BlindFightPlays") + 1)
+			Events:refreshBlindFight()
+		end, function(_, error)
+			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.ERRORTRYAGAIN .. "\n(" .. error .. ")")
 			onError()
 		end)
 end
@@ -374,14 +492,15 @@ local function onRecordingComplete(viewElement, reqTable)
 	local req = { type = "completeRecording", ready = false }
 	table.insert(reqTable, req)
 
-	if (Events.BlindFight.launchMode == 1 and Events.BlindFight.userMoves ~= nil) then
+	local blindFight = Events.GetBlindFight()
+	if (blindFight ~= nil and Events.BlindFightMode == 1 and blindFight.userMoves ~= nil) then
 		local overlay = viewElement:addChild({ bgColor = UICOLORWHITE, interactive = true, uiColor = UICOLORBLACK })
 		TBMenu:displayLoadingMark(overlay, TB_MENU_LOCALIZED.BLINDFIGHTSIMULATING)
-		submitMove(viewElement, reqTable, Events.BlindFight.userMoves, function()
+		submitMove(viewElement, reqTable, blindFight.userMoves, function()
 				overlay:kill()
 				showErrorBox(viewElement, TB_MENU_LOCALIZED.BLINDFIGHTERRORSUBMITTINGMOVE)
 			end)
-		Events.BlindFight.launchMode = 0
+		Events.BlindFightMode = 0
 		return
 	end
 
@@ -422,6 +541,7 @@ local function onRecordingComplete(viewElement, reqTable)
 				Tutorials.ProgressStep = 0
 				req.ready = true
 				reqTable.ready = true
+				Events.BlindFightMode = 10
 			end)
 		local submitMoveButton = viewElement:addChild({
 			pos = { viewElement.size.w / 2 + 10, redoMoveButton.shift.y },
@@ -461,7 +581,7 @@ end
 ---@diagnostic disable-next-line: lowercase-global
 functions = {
 	WaitSpace = requireKeyPressSpace,
-	WaitSpaceConsume = requireKeyPressSpaceConsume,
+	WaitSpaceFirst = requireKeyPressSpaceFirst,
 	Initialize = initialize,
 	OnRecordingComplete = onRecordingComplete,
 	DisplayResults = showPostSimulation
