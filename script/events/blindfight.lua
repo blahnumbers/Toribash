@@ -269,7 +269,7 @@ local function showPostSimulation(viewElement, reqTable)
 	local rewindObserver = viewElement:addChild({})
 	local rewindFrame = UIElement.WorldState.match_frame
 	rewindObserver:addCustomDisplay(function()
-		if (UIElement.WorldState.match_frame == rewindFrame) then
+		if (UIElement.WorldState.match_frame >= rewindFrame) then
 			TUTORIAL_LEAVEGAME = true
 			rewind_replay()
 			run_frames(rewindFrame)
@@ -414,7 +414,8 @@ local function showSimulationResults(viewElement, reqTable, playerMove, opponent
 				victoryText:uiText(victoryTextString, nil, nil, FONTS.BIG, CENTERMID, nil, nil, 4)
 			end)
 	end
-	gameObserver:addCustomDisplay(function()
+	local victoryTextSpawned = false
+	add_hook("pre_draw", "__blindFightManager", function()
 		if (UIElement.WorldState.gameover_frame == -1) then
 			if (UIElement.WorldState.match_frame == frame) then
 				frame = frame + get_turn_frame(step)
@@ -427,11 +428,11 @@ local function showSimulationResults(viewElement, reqTable, playerMove, opponent
 				step_game(true, true)
 			end
 		else
-			if (UIElement.WorldState.match_frame == UIElement.WorldState.gameover_frame) then
+			if (UIElement.WorldState.match_frame >= UIElement.WorldState.gameover_frame and not victoryTextSpawned) then
+				victoryTextSpawned = true
 				spawnVictoryText()
 			elseif (UIElement.WorldState.gameover_frame + 90 < UIElement.WorldState.match_frame) then
-				local rplName = "blindfight/blindfight-" .. os.date("%Y%m%d-%H%M%S", os.time()) .. "-" .. opponentInfos[id].username
-				runCmd("savereplay ../" .. rplName)
+				remove_hook("pre_draw", "__blindFightManager")
 				if (#opponentInfos > id) then
 					showSimulationResults(viewElement, reqTable, playerMove, opponentInfos, id + 1)
 				else
@@ -509,7 +510,7 @@ local function onRecordingComplete(viewElement, reqTable)
 	local currentFrame = UIElement.WorldState.match_frame + get_turn_frame(3) + 40
 	run_frames(get_turn_frame(3) + 40)
 	viewElement:addChild({}):addCustomDisplay(function()
-			if (UIElement.WorldState.match_frame == currentFrame) then
+			if (UIElement.WorldState.match_frame >= currentFrame) then
 				TUTORIAL_LEAVEGAME = true
 				rewind_replay()
 				run_frames(currentFrame)

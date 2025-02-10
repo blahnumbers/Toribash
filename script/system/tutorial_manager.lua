@@ -2457,20 +2457,19 @@ function Tutorials:loadOverlay()
 	self.ContinueButton:reload()
 	self.ContinueButton:deactivate()
 
-	if (self.TotalSteps > 0) then
-		local tutorialProgress = self.MainView:addChild({
-			pos = { 0, -5 },
-			size = { self.MainView.size.w, 5 }
-		})
-		local step = 0
-		tutorialProgress:addCustomDisplay(true, function(init)
-				if (not init and step ~= self.ProgressStep) then
-					step = math.round(UITween.SineTween(step, self.ProgressStep, 0.25) * 1000) / 1000
-				end
-				set_color(unpack(TB_MENU_DEFAULT_BG_COLOR))
-				draw_quad(tutorialProgress.pos.x, tutorialProgress.pos.y, tutorialProgress.size.w / self.TotalSteps * step, tutorialProgress.size.h)
-			end)
-	end
+	local tutorialProgress = self.MainView:addChild({
+		pos = { 0, -5 },
+		size = { self.MainView.size.w, 5 }
+	})
+	local step = 0
+	tutorialProgress:addCustomDisplay(true, function(init)
+			if (self.TotalSteps == 0) then return end
+			if (not init and step ~= self.ProgressStep) then
+				step = math.round(UITween.SineTween(step, self.ProgressStep, 0.25) * 1000) / 1000
+			end
+			set_color(unpack(TB_MENU_DEFAULT_BG_COLOR))
+			draw_quad(tutorialProgress.pos.x, tutorialProgress.pos.y, tutorialProgress.size.w / self.TotalSteps * step, tutorialProgress.size.h)
+		end)
 
 	if (is_mobile()) then
 		TBHud.CameraJoystickFreeHolder:moveTo(TBHud.ChatButtonHolder.shift.x - TBHud.CameraButtonHolder.shift.x, nil, true)

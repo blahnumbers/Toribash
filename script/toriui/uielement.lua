@@ -1924,6 +1924,9 @@ function UIElement.drawHooks()
 		UIElement.deltaClock = clock - UIElement.clock
 		UIElement.clock = clock
 		UIElement.lightUIMode = get_option("uilight") == 1
+	end)
+	add_hook("pre_draw", "__uiManager", function()
+		-- Make sure this always contains accurate data, even if game is minimized / running with frame skip
 		UIElement.WorldState = get_world_state()
 	end)
 	add_hook("resolution_changed", "__uiManager", function()
