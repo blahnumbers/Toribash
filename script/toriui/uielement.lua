@@ -199,6 +199,7 @@ if (not UIElement) then
 	---
 	---**Version 5.74**
 	---* Replace `table.compare()` with `table.equals()` to make sure return value makes sense
+	---* `UIElement.deltaClock` to track time since last rendered frame
 	---
 	---**Version 5.71**
 	---* Minor performance improvements by using local references to frequently used global functions
@@ -307,7 +308,7 @@ if (not UIElement) then
 	---@field prevInput UIElement Previous input element, set with `UIElement.addTabSwitchPrev()`
 	---@field nextInput UIElement Next input element, set with `UIElement.addTabSwitch()`
 	UIElement = {
-		ver = 5.71,
+		ver = 5.74,
 		animationDuration = 0.1,
 		longPressDuration = 0.25,
 		lightUIMode = get_option("uilight") == 1
@@ -329,6 +330,10 @@ if (not UIElement) then
 	---Last rendering cycle timestamp
 	---@type number
 	UIElement.clock = os.clock_real()
+
+	---Time since last rendered frame
+	---@type number
+	UIElement.deltaClock = 0
 
 	---World state for current frame
 	---@type WorldState
@@ -1915,8 +1920,10 @@ end
 
 function UIElement.drawHooks()
 	add_hook("draw2d", "__uiManager", function()
+		local clock = os.clock_real()
+		UIElement.deltaClock = UIElement.clock - clock
+		UIElement.clock = clock
 		UIElement.lightUIMode = get_option("uilight") == 1
-		UIElement.clock = os.clock_real()
 		UIElement.WorldState = get_world_state()
 	end)
 	add_hook("resolution_changed", "__uiManager", function()

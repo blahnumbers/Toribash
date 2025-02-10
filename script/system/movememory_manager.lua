@@ -702,7 +702,7 @@ function MoveMemory:playMove(memorymove, spawnHook, player, noToolbar)
 	end
 
 	local hookName = MoveMemory.HookName .. "Play" .. player
-	self.PlaybackActive[player] = true
+	self.PlaybackActive[player] = self.PlaybackActive[player] or spawnHook
 	local function playMoveQuit()
 		self.PlaybackActive[player] = false
 		memorymove.currentturn = nil

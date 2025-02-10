@@ -2049,7 +2049,8 @@ function Events:showBlindFightMain(viewElement)
 		bgColor = TB_MENU_DEFAULT_BG_COLOR
 	})
 
-	local maxBackdropWidth = { x = playerInfoView.size.w - 20, y = playerInfoView.size.h - 180 }
+	local buttonsVertical = playerInfoView.size.h >= playerInfoView.size.w
+	local maxBackdropWidth = { x = playerInfoView.size.w - 20, y = playerInfoView.size.h - (buttonsVertical and 250 or 180) }
 	local backdropSize = { x = maxBackdropWidth.x, y = maxBackdropWidth.x * 0.41 }
 	if (backdropSize.y > maxBackdropWidth.y) then
 		backdropSize.y = maxBackdropWidth.y
@@ -2079,14 +2080,14 @@ function Events:showBlindFightMain(viewElement)
 		shift = { 25, 10 }
 	}):addAdaptedText(EventsInternal.BlindFight.gamesPlayed .. " " .. utf8.lower(TB_MENU_LOCALIZED.EVENTSGAMESPLAYED) .. ", " .. EventsInternal.BlindFight.gamesWon .. " " .. utf8.lower(TB_MENU_LOCALIZED.EVENTSGAMESWON))
 	local playButtonsHolder = playerInfoView:addChild{
-		pos = { 0, -160 },
-		size = { playerInfoView.size.w, 160 },
+		pos = { 0, buttonsVertical and -250 or -160 },
+		size = { playerInfoView.size.w, buttonsVertical and 250 or 160 },
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR
 	}
 	TBMenu:addBottomBloodSmudge(playButtonsHolder, 1)
 	local makeOpenerButton = playButtonsHolder:addChild({
 		pos = { 20, 20 },
-		size = { (playButtonsHolder.size.w - 40) / 2 - 10, playButtonsHolder.size.h - 80 },
+		size = { buttonsVertical and playButtonsHolder.size.w - 40 or (playButtonsHolder.size.w - 40) / 2 - 10, 80 },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR,
 		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
@@ -2102,7 +2103,7 @@ function Events:showBlindFightMain(viewElement)
 		end)
 	
 	local resimulateButton = playButtonsHolder:addChild({
-		pos = { playButtonsHolder.size.w / 2 + 10, makeOpenerButton.shift.y },
+		pos = { buttonsVertical and makeOpenerButton.shift.x or playButtonsHolder.size.w / 2 + 10, buttonsVertical and makeOpenerButton.shift.y + makeOpenerButton.size.h + 10 or makeOpenerButton.shift.y },
 		size = { makeOpenerButton.size.w, makeOpenerButton.size.h },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR,
 		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,

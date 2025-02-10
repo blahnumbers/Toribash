@@ -2370,6 +2370,23 @@ function Tutorials:loadOverlay()
 		interactive = true
 	})
 	self.MessageView:addMouseUpHandler(function() self.MessageView.doSkip = true end)
+	if (is_mobile()) then
+		local messageViewMover = self.MessageView:addChild({ })
+		messageViewMover:addCustomDisplay(true, function()
+				local targetY = self.ContinueButton.shift.y - 120
+				for _,v in pairs(TBHud.MiscButtonHolders) do
+					if (v:isDisplayed()) then
+						if (v.shift.y - 15 < self.MessageView.shift.y) then
+							targetY = v.shift.y - 15
+						end
+					end
+				end
+				if (targetY ~= self.MessageView.shift.y) then
+					targetY = math.floor(UITween.SineTween(self.MessageView.shift.y, targetY, UIElement.deltaClock * 13) * 1000) / 1000
+					self.MessageView:moveTo(nil, targetY)
+				end
+			end)
+	end
 	self.MessageViewNameBG = self.MessageView:addChild({
 		parent = self.MessageView,
 		pos = { self.MessageView.size.h / 2, -self.MessageView.size.h - 35 },

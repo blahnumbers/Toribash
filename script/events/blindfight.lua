@@ -183,7 +183,7 @@ local function showEventInfo(viewElement, reqTable)
 			if (init == true) then return end
 			currentObserver = observer
 			if (v.uiColor[4] < 1) then
-				v.uiColor[4] = math.ceil(UITween.SineTween(v.uiColor[4], 1, 0.2) * 1000) / 1000
+				v.uiColor[4] = math.ceil(UITween.SineTween(v.uiColor[4], 1, UIElement.deltaClock * 15) * 1000) / 1000
 			else
 				if (i == #messageElements) then
 					req.ready = true
@@ -524,7 +524,7 @@ local function onRecordingComplete(viewElement, reqTable)
 		if (waitView ~= nil) then
 			waitView:hide()
 		end
-		local buttonWidth = math.min(390, WIN_W / 2 - (is_mobile() and TBHud.DefaultButtonSize * 3.5 or 100))
+		local buttonWidth = math.min(390, WIN_W / 2 - (is_mobile() and TBHud.DefaultButtonSize * 1.5 or 100))
 		local redoMoveButton = viewElement:addChild({
 			pos = { viewElement.size.w / 2 - buttonWidth - 10, -math.max(50, SAFE_Y) - 75 },
 			size = { buttonWidth, 75 },
