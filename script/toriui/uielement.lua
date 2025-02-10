@@ -1921,7 +1921,7 @@ end
 function UIElement.drawHooks()
 	add_hook("draw2d", "__uiManager", function()
 		local clock = os.clock_real()
-		UIElement.deltaClock = UIElement.clock - clock
+		UIElement.deltaClock = clock - UIElement.clock
 		UIElement.clock = clock
 		UIElement.lightUIMode = get_option("uilight") == 1
 		UIElement.WorldState = get_world_state()

@@ -19,7 +19,6 @@ local function requireKeyPressSpace(viewElement, reqTable, consume)
 			req.ready = true
 			reqTable.ready = Tutorials:checkRequirements(reqTable)
 		end)
-		return
 	end
 
 	add_hook("key_up", Tutorials.StepHook, function(s, code)
@@ -183,7 +182,7 @@ local function showEventInfo(viewElement, reqTable)
 			if (init == true) then return end
 			currentObserver = observer
 			if (v.uiColor[4] < 1) then
-				v.uiColor[4] = math.ceil(UITween.SineTween(v.uiColor[4], 1, UIElement.deltaClock * 15) * 1000) / 1000
+				v.uiColor[4] = math.ceil(UITween.SineTween(v.uiColor[4], 1, UIElement.deltaClock * 12) * 1000) / 1000
 			else
 				if (i == #messageElements) then
 					req.ready = true

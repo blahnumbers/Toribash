@@ -120,6 +120,7 @@ function Tutorials:quit()
 
 	chat_input_activate()
 	if (is_mobile()) then
+		TBHud.ResetCameraButtonPositions()
 		TBHud.ChatButtonHolder:show()
 		TBHud.SetTutorialHubOverride(nil)
 		TBHud.ToggleReadyLongPress(true)
@@ -1614,6 +1615,7 @@ function Tutorials:showMessageWindow(reqTable, hide)
 	local windowMover = self.MessageView:addChild({})
 	local spawnClock = UIElement.clock
 	if (hide) then
+		self.MessageView.__isHiding = true
 		windowMover:addCustomDisplay(true, function()
 				local ratio = UIElement.clock - spawnClock
 				self.MessageView:moveTo(UITween.SineTween(self.MessageView.shift.x, self.MessageView.parent.size.w, ratio))
@@ -1632,6 +1634,7 @@ function Tutorials:showMessageWindow(reqTable, hide)
 				end
 			end)
 	else
+		self.MessageView.__isHiding = false
 		windowMover:addCustomDisplay(true, function()
 				local targetShift = self.MessageView.parent.size.w - self.MessageView.size.w
 				local ratio = UIElement.clock - spawnClock
@@ -2370,19 +2373,31 @@ function Tutorials:loadOverlay()
 		interactive = true
 	})
 	self.MessageView:addMouseUpHandler(function() self.MessageView.doSkip = true end)
+	self.MessageView.__isHiding = false
 	if (is_mobile()) then
 		local messageViewMover = self.MessageView:addChild({ })
 		messageViewMover:addCustomDisplay(true, function()
+				if (self.MessageView.__isHiding) then return end
+
 				local targetY = self.ContinueButton.shift.y - 120
-				for _,v in pairs(TBHud.MiscButtonHolders) do
-					if (v:isDisplayed()) then
-						if (v.shift.y - 15 < self.MessageView.shift.y) then
-							targetY = v.shift.y - 15
+				if (TBHud.GripButtonHolder.child[1]:isDisplayed()) then
+					local buttonY = TBHud.GripButtonHolder.shift.y < 0 and self.MainView.size.h + TBHud.GripButtonHolder.shift.y or TBHud.GripButtonHolder.shift.y
+					targetY = math.min(targetY, buttonY - self.MessageView.size.h - 10)
+				else
+					for _, v in pairs(TBHud.MiscButtonHolders) do
+						v = v.child[1]
+						if (v:isDisplayed()) then
+							local buttonY = v.shift.y < 0 and self.MainView.size.h + v.shift.y or v.shift.y
+							targetY = math.min(targetY, buttonY - self.MessageView.size.h - 10)
 						end
+					end
+					if (TBHud.HoldAllButtonHolder.child[1]:isDisplayed()) then
+						local buttonY = TBHud.HoldAllButtonHolder.shift.y < 0 and self.MainView.size.h + TBHud.HoldAllButtonHolder.shift.y or TBHud.HoldAllButtonHolder.shift.y
+						targetY = math.min(targetY, buttonY - self.MessageView.size.h - 10)
 					end
 				end
 				if (targetY ~= self.MessageView.shift.y) then
-					targetY = math.floor(UITween.SineTween(self.MessageView.shift.y, targetY, UIElement.deltaClock * 13) * 1000) / 1000
+					targetY = math.floor(UITween.SineTween(self.MessageView.shift.y, targetY, UIElement.deltaClock * 12) * 1000) / 1000
 					self.MessageView:moveTo(nil, targetY)
 				end
 			end)
@@ -2455,6 +2470,11 @@ function Tutorials:loadOverlay()
 				set_color(unpack(TB_MENU_DEFAULT_BG_COLOR))
 				draw_quad(tutorialProgress.pos.x, tutorialProgress.pos.y, tutorialProgress.size.w / self.TotalSteps * step, tutorialProgress.size.h)
 			end)
+	end
+
+	if (is_mobile()) then
+		TBHud.CameraJoystickFreeHolder:moveTo(TBHud.ChatButtonHolder.shift.x - TBHud.CameraButtonHolder.shift.x, nil, true)
+		TBHud.CameraButtonHolder:moveTo(TBHud.ChatButtonHolder.shift.x)
 	end
 end
 

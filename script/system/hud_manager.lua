@@ -564,6 +564,11 @@ function TBHud:spawnCommitButton()
 	})
 end
 
+function TBHud.ResetCameraButtonPositions()
+	TBHud.CameraButtonHolder:moveTo(TBHud.DefaultSmallerButtonSize * 1.7, -TBHud.DefaultSmallerButtonSize * 1.5)
+	TBHud.CameraJoystickFreeHolder:moveTo(TBHud.DefaultSmallerButtonSize * 2.35, -TBHud.DefaultSmallerButtonSize * 3.8)
+end
+
 function TBHud:spawnCameraButtons()
 	if (self.MainElement == nil) then return end
 
