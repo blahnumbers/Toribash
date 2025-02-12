@@ -3643,7 +3643,7 @@ end
 ---@field uppercase boolean
 
 ---@param holderElement UIElement
----@param listElements DropdownElement[]
+---@param dropdownElements DropdownElement[]
 ---@param elementHeight number
 ---@param maxHeight ?number
 ---@param selectedItem ?integer|DropdownElement
@@ -3653,40 +3653,40 @@ end
 ---@param noOverlaying ?boolean
 ---@param forceDisplayAbove ?boolean
 ---@return UIDropdown
-function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHeight, selectedItem, textSettings, listTextSettings, keepFocus, noOverlaying, forceDisplayAbove)
+function TBMenu:spawnDropdown(holderElement, dropdownElements, elementHeight, maxHeight, selectedItem, textSettings, listTextSettings, keepFocus, noOverlaying, forceDisplayAbove)
 	local listElementsDisplay = {}
-	for _, v in pairs(listElements) do
+	for _, v in pairs(dropdownElements) do
 		if (not v.default and not v.hidden) then
 			table.insert(listElementsDisplay, v)
 		end
 	end
 
-	local maxHeight = maxHeight or math.min(WIN_H - elementHeight * 4, #listElementsDisplay * elementHeight + 6)
+	maxHeight = maxHeight or math.min(WIN_H - elementHeight * 4, #listElementsDisplay * elementHeight + 6)
 	if (maxHeight > #listElementsDisplay * elementHeight + 6) then
 		maxHeight = #listElementsDisplay * elementHeight + 6
 	end
 
 	if (selectedItem == nil) then
-		for i, v in pairs(listElements) do
+		for i, v in pairs(dropdownElements) do
 			if (v.selected) then
 				if (selectedItem == nil) then
-					selectedItem = listElements[i]
+					selectedItem = dropdownElements[i]
 				end
 				v.selected = nil
 			end
 		end
-		selectedItem = selectedItem or listElements[1]
+		selectedItem = selectedItem or dropdownElements[1]
 	elseif (type(selectedItem) ~= "table") then
-		selectedItem = listElements[selectedItem] or listElements[1]
+		selectedItem = dropdownElements[selectedItem] or dropdownElements[1]
 	end
 
-	local textSettings = textSettings or {}
+	textSettings = textSettings or {}
 	textSettings.fontid = textSettings.fontid or 4
 	textSettings.scale = textSettings.scale or 1
 	textSettings.alignment = textSettings.alignment or textSettings.orientation or LEFTMID
 	textSettings.uppercase = textSettings.uppercase == nil and true or textSettings.uppercase
 
-	local listTextSettings = listTextSettings or {}
+	listTextSettings = listTextSettings or {}
 	listTextSettings.fontid = listTextSettings.fontid or 4
 	listTextSettings.scale = listTextSettings.scale or 1
 	listTextSettings.alignment = listTextSettings.alignment or listTextSettings.orientation or CENTERMID
@@ -3784,7 +3784,7 @@ function TBMenu:spawnDropdown(holderElement, listElements, elementHeight, maxHei
 	---Marks an item as selected and executes its on submit action
 	---@param item DropdownElement
 	overlay.selectItem = function(item)
-			selectedElementText:addAdaptedText(false, listTextSettings.uppercase and utf8.upper(item.text) or item.text, nil, nil, textSettings.fontid, textSettings.alignment, textSettings.scale)
+			selectedElementText:addAdaptedText(false, listTextSettings.uppercase and utf8.safe_upper(item.text) or item.text, nil, nil, textSettings.fontid, textSettings.alignment, textSettings.scale)
 			overlay.selectedElement:show(true)
 			if (selectedItem == item) then
 				return
@@ -4781,6 +4781,7 @@ end
 ---@field fontId FontId
 ---@field textAlign UIElementTextAlign
 ---@field textScale number
+---@field baselineHeight number
 ---@field textColor Color
 ---@field isNumeric boolean
 ---@field allowDecimal boolean
@@ -4801,6 +4802,7 @@ local TextFieldDefaultInputSettings = {
 	fontId = FONTS.LMEDIUM,
 	textAlign = LEFTMID,
 	textScale = 1,
+	baselineHeight = 1,
 	isNumeric = false,
 	allowDecimal = false,
 	allowNegative = true,
@@ -4877,11 +4879,75 @@ function TBMenu:spawnTextField2(viewElement, rect, textFieldString, defaultStrin
 		autoCompletion = inputSettings.autoCompletion,
 		uiColor = inputSettings.textColor or viewElement.uiColor
 	}, true)
-	inputField:addMouseHandlers(function()
+	local updateCursorPosition = function(x, y)
+		local targetLine = 1
+		if (inputSettings.allowMultiline and #inputField.dispstr > 1) then
+			local lineHeight = getFontMod(inputSettings.fontId) * inputSettings.baselineHeight * 10 * inputSettings.textScale
+			local numLines = #inputField.dispstr
+			if (inputSettings.textAlign < 3) then		-- Top Aligned
+				targetLine = math.min(numLines, math.ceil(y / lineHeight))
+			elseif (inputSettings.textAlign < 6) then	-- Bottom Aligned
+				targetLine = math.max(1, numLines - math.floor((inputField.size.h - y) / lineHeight))
+			else										-- Middle Aligned
+				local yStart = (inputField.size.h - numLines * lineHeight) / 2
+				local yEnd = yStart + numLines * lineHeight
+				if (y < yStart + lineHeight) then
+					targetLine = 1
+				elseif (y > yEnd - lineHeight) then
+					targetLine = numLines
+				else
+					targetLine = math.ceil((y - yStart) / lineHeight)
+				end
+			end
+			targetLine = targetLine + inputField.startLine - 1
+		end
+		local indicesFixed = {}
+		for i, v in ipairs(inputField.strindices) do
+			indicesFixed[i] = v <= inputField.textfieldindex and v or v - inputField.textfieldcursorlen
+		end
+		local targetLineText = inputField.dispstr[targetLine]
+		local textLength = indicesFixed[targetLine + 1] - indicesFixed[targetLine]
+
+		local getLength = function(text)
+			return get_string_length(text, inputSettings.fontId) * inputSettings.textScale
+		end
+		if (getLength(targetLineText) > x) then
+			for i = 1, textLength do
+				if (getLength(utf8.sub(targetLineText, 0, i)) - getLength(utf8.sub(targetLineText, i, i)) * 0.5 > x) then
+					inputField.textfieldindex = indicesFixed[targetLine] + i - 1
+					return
+				end
+			end
+		end
+
+		---Put cursor at the end
+		inputField.textfieldindex = indicesFixed[targetLine] + textLength
+		if (targetLine ~= #inputField.dispstr) then
+			inputField.textfieldindex = inputField.textfieldindex - 1
+		end
+	end
+	inputField.__mouseUpClock = UIElement.clock
+	inputField:addMouseHandlers(function(_, x, y)
 			inputField:enableMenuKeyboard()
+			inputField.__mouseUpClock = UIElement.clock
+			---@diagnostic disable-next-line: undefined-field
+			if (inputField.__lastKeyboard) then
+				inputField.__moveCursor = true
+				local pos = inputField:getLocalPos(x, y)
+				updateCursorPosition(pos.x, pos.y)
+			end
+		end, function()
+			inputField.__mouseUpClock = UIElement.clock
+			inputField.__moveCursor = false
+		end, function(x, y)
+			if (inputField.hoverState == BTN_DN and inputField.__moveCursor) then
+				inputField.__mouseUpClock = UIElement.clock
+				local pos = inputField:getLocalPos(x, y)
+				updateCursorPosition(pos.x, pos.y)
+			end
 		end)
 	inputField.killAction = function() inputField:disableMenuKeyboard() end
-	TBMenuInternal.DisplayTextfield(inputField, inputSettings.fontId, inputSettings.textScale, inputField.uiColor or table.clone(UICOLORWHITE), defaultString, inputSettings.textAlign, inputSettings.noCursor, inputSettings.showDefaultDuringInput)
+	TBMenuInternal.DisplayTextfield(inputField, inputSettings.fontId, inputSettings.textScale, inputField.uiColor or table.clone(UICOLORWHITE), defaultString, inputSettings.textAlign, inputSettings.noCursor, inputSettings.showDefaultDuringInput, inputSettings.baselineHeight)
 	return inputField
 end
 
@@ -4935,13 +5001,17 @@ end
 ---@param orientation ?UIElementTextAlign
 ---@param noCursor ?boolean
 ---@param showDefaultDuringInput ?boolean
-function TBMenuInternal.DisplayTextfield(element, fontid, scale, color, defaultStr, orientation, noCursor, showDefaultDuringInput)
-	local defaultStr = defaultStr or ""
-	local orientation = orientation or LEFTMID
+---@param baselineHeight ?number
+function TBMenuInternal.DisplayTextfield(element, fontid, scale, color, defaultStr, orientation, noCursor, showDefaultDuringInput, baselineHeight)
+	defaultStr = defaultStr or ""
+	orientation = orientation or LEFTMID
 
-	element:addAdaptedText(true, defaultStr, nil, nil, fontid, orientation, scale, nil, nil, nil, nil, nil, true)
+	element:addAdaptedText(defaultStr, {
+		fontid = fontid, orientation = orientation, maxscale = scale, isTextfield = true
+	}, true)
 	local defaultStringScale = element.textScale
 
+	element.textfieldcursorlen = 7
 	element:addCustomDisplay(true, function()
 			if (element.keyboard == true) then
 				set_color(1, 1, 1, 0.15)
@@ -4958,22 +5028,29 @@ function TBMenuInternal.DisplayTextfield(element, fontid, scale, color, defaultS
 				end
 
 				if (not showDefaultDuringInput) then
-					local part1 = utf8.sub(element.textfieldstr[1], 0, element.textfieldindex)
-					local part2 = utf8.sub(element.textfieldstr[1], element.textfieldindex + 1)
-					local displayString = part1 .. (noCursor and "" or "|") .. part2
-					element:uiText(displayString, nil, nil, fontid, orientation, scale, nil, nil, color, nil, nil, nil, nil, nil, true)
+					if (noCursor) then
+						element:uiText(element.textfieldstr[1], nil, nil, fontid, orientation, scale, nil, nil, color, nil, nil, nil, nil, nil, true)
+					else
+						local part1 = utf8.sub(element.textfieldstr[1], 0, element.textfieldindex)
+						local part2 = utf8.sub(element.textfieldstr[1], element.textfieldindex + 1)
+						---@diagnostic disable-next-line: undefined-field
+						local cursorColor = math.floor(UIElement.clock - element.__mouseUpClock) % 2 == 0 and "^42" or "^00"
+						local displayString = part1 .. cursorColor .. "|^00" .. part2
+						element:uiText(displayString, nil, nil, fontid, orientation, scale, nil, nil, color, nil, nil, nil, nil, nil, true)
+					end
 				end
 			else
 				if (element.menuKeyboardId) then
 					element:disableMenuKeyboard()
 				end
 				if (element.textfieldstr[1] ~= "") then
-					element:uiText(element.textfieldstr[1], nil, nil, fontid, orientation, scale, nil, nil, color, nil, nil, nil, nil, nil, true)
+					element:uiText(element.textfieldstr[1], nil, nil, fontid, orientation, scale, nil, nil, color, nil, nil, nil, baselineHeight, nil, true)
 				end
 			end
 			if (element.textfieldstr[1] == "" or (showDefaultDuringInput == true and element.keyboard == true)) then
-				element:uiText(defaultStr, nil, nil, fontid, orientation, defaultStringScale, nil, nil, { color[1], color[2], color[3], color[4] * 0.5 }, nil, nil, nil, nil, nil, true)
+				element:uiText(defaultStr, nil, nil, fontid, orientation, defaultStringScale, nil, nil, { color[1], color[2], color[3], color[4] * 0.5 }, nil, nil, nil, baselineHeight, nil, true)
 			end
+			element.__lastKeyboard = element.keyboard
 		end)
 end
 
