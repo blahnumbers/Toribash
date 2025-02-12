@@ -4861,7 +4861,7 @@ function TBMenu:spawnTextField2(viewElement, rect, textFieldString, defaultStrin
 		inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK
 	}, true)
 	local inputField = input:addChild({
-		shift = { 4, 1 },
+		shift = { 1, 1 },
 		interactive = true,
 		textfield = true,
 		hoverThrough = true,
@@ -4905,15 +4905,15 @@ function TBMenu:spawnTextField2(viewElement, rect, textFieldString, defaultStrin
 		for i, v in ipairs(inputField.strindices) do
 			indicesFixed[i] = v <= inputField.textfieldindex and v or v - inputField.textfieldcursorlen
 		end
-		local targetLineText = inputField.dispstr[targetLine]
+		local targetLineText = utf8.gsub(inputField.dispstr[targetLine], "%^%d%d|%^00", "|")
 		local textLength = indicesFixed[targetLine + 1] - indicesFixed[targetLine]
 
 		local getLength = function(text)
 			return get_string_length(text, inputSettings.fontId) * inputSettings.textScale
 		end
 		if (getLength(targetLineText) > x) then
-			for i = 1, textLength do
-				if (getLength(utf8.sub(targetLineText, 0, i)) - getLength(utf8.sub(targetLineText, i, i)) * 0.5 > x) then
+			for i = 0, textLength do
+				if (getLength(utf8.sub(targetLineText, 0, i)) - getLength(utf8.sub(targetLineText, i, i)) * 0.5 > x - 3) then
 					inputField.textfieldindex = indicesFixed[targetLine] + i - 1
 					return
 				end
@@ -5029,14 +5029,14 @@ function TBMenuInternal.DisplayTextfield(element, fontid, scale, color, defaultS
 
 				if (not showDefaultDuringInput) then
 					if (noCursor) then
-						element:uiText(element.textfieldstr[1], nil, nil, fontid, orientation, scale, nil, nil, color, nil, nil, nil, nil, nil, true)
+						element:uiText(element.textfieldstr[1], { 3, 3 }, { 1, 1 }, fontid, orientation, scale, nil, nil, color, nil, nil, nil, nil, nil, true)
 					else
 						local part1 = utf8.sub(element.textfieldstr[1], 0, element.textfieldindex)
 						local part2 = utf8.sub(element.textfieldstr[1], element.textfieldindex + 1)
 						---@diagnostic disable-next-line: undefined-field
 						local cursorColor = math.floor(UIElement.clock - element.__mouseUpClock) % 2 == 0 and "^42" or "^00"
 						local displayString = part1 .. cursorColor .. "|^00" .. part2
-						element:uiText(displayString, nil, nil, fontid, orientation, scale, nil, nil, color, nil, nil, nil, nil, nil, true)
+						element:uiText(displayString, { 3, 3 }, { 1, 1 }, fontid, orientation, scale, nil, nil, color, nil, nil, nil, nil, nil, true)
 					end
 				end
 			else
@@ -5044,11 +5044,11 @@ function TBMenuInternal.DisplayTextfield(element, fontid, scale, color, defaultS
 					element:disableMenuKeyboard()
 				end
 				if (element.textfieldstr[1] ~= "") then
-					element:uiText(element.textfieldstr[1], nil, nil, fontid, orientation, scale, nil, nil, color, nil, nil, nil, baselineHeight, nil, true)
+					element:uiText(element.textfieldstr[1], { 3, 3 }, { 1, 1 }, fontid, orientation, scale, nil, nil, color, nil, nil, nil, baselineHeight, nil, true)
 				end
 			end
 			if (element.textfieldstr[1] == "" or (showDefaultDuringInput == true and element.keyboard == true)) then
-				element:uiText(defaultStr, nil, nil, fontid, orientation, defaultStringScale, nil, nil, { color[1], color[2], color[3], color[4] * 0.5 }, nil, nil, nil, baselineHeight, nil, true)
+				element:uiText(defaultStr, { 3, 3 }, { 1, 1 }, fontid, orientation, defaultStringScale, nil, nil, { color[1], color[2], color[3], color[4] * 0.5 }, nil, nil, nil, baselineHeight, nil, true)
 			end
 			element.__lastKeyboard = element.keyboard
 		end)

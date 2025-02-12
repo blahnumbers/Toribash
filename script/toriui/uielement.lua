@@ -2176,7 +2176,7 @@ function UIElement:updateChildPos()
 end
 
 ---@class UITextSettings
----@field offset Vector2Base
+---@field padding Vector2Base|Rect
 ---@field font FontId
 ---@field align UIElementTextAlign
 ---@field minscale number
@@ -2222,8 +2222,10 @@ function UIElement:addAdaptedText(override, str, x, y, font, align, maxscale, mi
 			maxscale = str.maxscale
 			align = str.align
 			font = str.font
-			y = str.offset and str.offset.y or nil
-			x = str.offset and str.offset.x or nil
+			---@diagnostic disable-next-line: cast-local-type
+			y = str.padding and (str.padding.h and { str.padding.y, str.padding.h } or str.padding.y) or 0
+			---@diagnostic disable-next-line: cast-local-type
+			x = str.padding and (str.padding.w and { str.padding.x, str.padding.w } or str.padding.x) or 0
 			str = override
 			---@type boolean
 			---@diagnostic disable-next-line: assign-type-mismatch
@@ -2320,8 +2322,8 @@ end
 
 ---Generic function to display text within current UIElement using specified settings
 ---@param input string Text to display in an object
----@param x ?number X offset for the displayed text
----@param y ?number Y offset for the displayed text
+---@param x? number|number[] X offset for the displayed text
+---@param y? number|number[] Y offset for the displayed text
 ---@param font ?FontId
 ---@param align ?UIElementTextAlign
 ---@param scale ?number
@@ -2341,8 +2343,27 @@ function UIElement:uiText(input, x, y, font, align, scale, angle, shadow, col1, 
 		return true
 	end
 	font = font or FONTS.MEDIUM
-	x = x and self.pos.x + x or self.pos.x
-	y = y and self.pos.y + y or self.pos.y
+	local x2, y2 = 0, 0
+	if (x ~= nil) then
+		if (type(x) == "table") then
+			x2 = tonumber(x[2]) or 0
+			x = tonumber(x[1]) or 0
+		else
+			x = tonumber(x) or 0
+		end
+	else
+		x = 0
+	end
+	if (y ~= nil) then
+		if (type(y) == "table") then
+			y2 = tonumber(y[2]) or 0
+			y = tonumber(y[1]) or 0
+		else
+			y = tonumber(y) or 0
+		end
+	else
+		y = 0
+	end
 	local font_mod = getFontMod(font)
 	scale = scale or 1
 	angle = angle or 0
@@ -2356,19 +2377,19 @@ function UIElement:uiText(input, x, y, font, align, scale, angle, shadow, col1, 
 
 	local str, indices
 	if (check) then
-		str, indices = textAdapt(input, font, scale, self.size.w, true, textfield, self.textfieldsingleline, self.textfieldindex)
+		str, indices = textAdapt(input, font, scale, self.size.w - x - x2, true, textfield, self.textfieldsingleline, self.textfieldindex, self.textfieldcursorlen)
 	else
 		if (self.str == input) then
 			str = self.dispstr
 			indices = self.strindices
 		else
-			str, indices = textAdapt(input, font, scale, self.size.w, nil, textfield, self.textfieldsingleline, self.textfieldindex)
+			str, indices = textAdapt(input, font, scale, self.size.w - x - x2, nil, textfield, self.textfieldsingleline, self.textfieldindex, self.textfieldcursorlen)
 		end
 		self.str, self.dispstr, self.strindices = input, str, indices
 	end
 
 	local fontModScale = font_mod * 10 * scale * baselineScale
-	if (textfield and fontModScale * #str > self.size.h) then
+	if (textfield and fontModScale * #str > self.size.h - y2) then
 		for i, _ in pairs(str) do
 			if (self.textfieldindex < self.strindices[i + 1]) then
 				local newLine = i - math.floor(self.size.h / font_mod / 10 / scale / baselineScale) + 1
@@ -2385,28 +2406,28 @@ function UIElement:uiText(input, x, y, font, align, scale, angle, shadow, col1, 
 	end
 
 	for i = self.startLine, #str do
-		local xPos = x
-		local yPos = y
+		local xPos = x + self.pos.x
+		local yPos = y + self.pos.y
 		local strlen = get_string_length(str[i], font) * scale
 		if ((align + 2) % 3 == 0) then
-			xPos = x + (self.size.w - strlen) / 2
+			xPos = xPos + (self.size.w - x - y2 - strlen) / 2
 		elseif ((align + 1) % 3 == 0) then
-			xPos = x + self.size.w - strlen
+			xPos = self.pos.x + self.size.w - x2 - strlen
 		end
 		if (align >= 3 and align <= 5) then
-			yPos = y + self.size.h - #str * fontModScale
-			while (yPos < y and yPos + fontModScale < y + self.size.h) do
+			yPos = self.pos.y + self.size.h - y2 - #str * fontModScale
+			while (yPos < y + self.pos.y and yPos + fontModScale < self.pos.y + self.size.h - y2) do
 				yPos = yPos + font_mod * 10 * scale
 			end
 		elseif (align >= 6 and align <= 8) then
-			yPos = y + (self.size.h - #str * fontModScale) / 2
-			while (yPos < y and yPos + fontModScale < y + self.size.h) do
+			yPos = yPos + (self.size.h - y - y2 - #str * fontModScale) / 2
+			while (yPos < self.pos.y + y and yPos + fontModScale < self.pos.y + self.size.h - y2) do
 				yPos = yPos + font_mod * 5 * scale
 			end
 		end
-		if (check == true and (self.size.w < strlen or self.size.h < font_mod * 10 * scale)) then
+		if (check == true and (self.size.w - x - x2 < strlen or self.size.h - y - y2 < font_mod * 10 * scale)) then
 			return false
-		elseif (self.size.h > (pos + 2) * font_mod * 10 * scale) then
+		elseif (self.size.h - y - y2 > (pos + 2) * font_mod * 10 * scale) then
 			if (check == false) then
 				drawTextNew(str[i], xPos, yPos + (pos * fontModScale), angle, scale, font, shadow, col1, col2, intensity, smoothing, self.shadowFontid, self.shadowOffset)
 			elseif (#str == i) then
@@ -2417,7 +2438,7 @@ function UIElement:uiText(input, x, y, font, align, scale, angle, shadow, col1, 
 			if (check == true) then
 				return false
 			end
-			drawTextNew(str[i]:gsub(".$", textfield and "" or "..."), xPos, yPos + (pos * fontModScale), angle, scale, font, shadow, col1, col2, intensity, smoothing, self.shadowFontid, self.shadowOffset)
+			drawTextNew(textfield and str[i] or utf8.gsub(str[i], ".$", "..."), xPos, yPos + (pos * fontModScale), angle, scale, font, shadow, col1, col2, intensity, smoothing, self.shadowFontid, self.shadowOffset)
 			break
 		else
 			if (check == false) then
@@ -2710,9 +2731,10 @@ end
 ---@param textfield ?boolean
 ---@param singleLine ?boolean
 ---@param textfieldIndex ?integer
+---@param cursorLen ?integer
 ---@return string[]
 ---@return integer[]
-_G.textAdapt = function(str, font, scale, maxWidth, check, textfield, singleLine, textfieldIndex)
+_G.textAdapt = function(str, font, scale, maxWidth, check, textfield, singleLine, textfieldIndex, cursorLen)
 	local clockdebug = TB_MENU_DEBUG and os.clock_real() or nil
 
 	local destStr, destIdx = { }, { 0 }
@@ -2743,28 +2765,21 @@ _G.textAdapt = function(str, font, scale, maxWidth, check, textfield, singleLine
 	end
 
 	if (textfield and singleLine) then
+		cursorLen = cursorLen or 0
 		local strlen = get_string_length(str, font) * scale
-		local targetIndex = 1
-		local idx = 0
+		local len = utf8.safe_len(str)
+		local startOffset, endOffset = 0, 0
 		while (strlen > maxWidth and str ~= "") do
-			local step = 2
-			local len = utf8.safe_len(str)
-			local reverseStep = len
-			if (strlen > maxWidth) then
-				step = math.max(2, len - math.ceil(len / strlen * maxWidth))
+			if (textfieldIndex < len - 10 - endOffset - cursorLen) then
+				endOffset = endOffset + 1
+				str = utf8.safe_sub(str, 0, -2)
+			else
+				startOffset = startOffset + 1
+				str = utf8.safe_sub(str, 2)
 			end
-			while (targetIndex + step >= textfieldIndex) do
-				step = step - 1
-				reverseStep = reverseStep - 1
-				if (step == 1) then
-					break
-				end
-			end
-			str = utf8.safe_sub(str, step, reverseStep)
 			strlen = get_string_length(str, font) * scale
-			idx = step
 		end
-		return { str }, { idx }
+		return { str }, { startOffset, startOffset + utf8.safe_len(str) }
 	end
 
 	local newline = false
