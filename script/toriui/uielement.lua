@@ -1756,7 +1756,7 @@ function UIElement:textfieldInput(input, isNumeric, allowNegative, allowDecimal,
 		end
 		if (lastWordReplacements ~= 0) then
 			local textFromLastWord = utf8.sub(self.textfieldstr[1], self.textfieldindex - utf8.safe_len(lastWordStart) + 1)
-			local lastWord, replacements = utf8.gsub(textFromLastWord, "^([%'%w]+).*", "%1")
+			local lastWord, replacements = utf8.gsub(textFromLastWord, "^([%'%w]+ ?).*", "%1")
 			if (lastWord ~= nil and replacements ~= 0) then
 				replaceSymbols = utf8.safe_len(lastWordStart)
 				replaceSymbolsAfter = utf8.safe_len(lastWord) - replaceSymbols
