@@ -1694,8 +1694,8 @@ end
 function UIElement:textfieldUpdate(input, consumeSymbols, consumeSymbolsAfter)
 	local strLen = utf8.safe_len(input)
 
-	local consumeSymbols = consumeSymbols or 0
-	local consumeSymbolsAfter = consumeSymbolsAfter or 0
+	consumeSymbols = consumeSymbols or 0
+	consumeSymbolsAfter = consumeSymbolsAfter or 0
 	local part1 = utf8.safe_sub(self.textfieldstr[1], 0, self.textfieldindex - consumeSymbols)
 	local part2 = utf8.safe_sub(self.textfieldstr[1], self.textfieldindex + 1 + consumeSymbolsAfter)
 	self.textfieldstr[1] = part1 .. input .. part2
@@ -1808,7 +1808,7 @@ function UIElement:textfieldKeyDown(key)
 			self.textfieldindex = 0
 			return false
 		elseif (key == 274 and lineIdx == #self.dispstr) then -- arrow down and last line
-			self.textfieldindex = utf8.safe_len(self.textfieldstr[1]) - self.textfieldcursorlen
+			self.textfieldindex = indicesFixed[lineIdx + 1]
 			return false
 		end
 

@@ -4911,20 +4911,46 @@ function TBMenu:spawnTextField2(viewElement, rect, textFieldString, defaultStrin
 		local getLength = function(text)
 			return get_string_length(text, inputSettings.fontId) * inputSettings.textScale
 		end
-		if (getLength(targetLineText) > x) then
-			for i = 0, textLength do
-				if (getLength(utf8.sub(targetLineText, 0, i)) - getLength(utf8.sub(targetLineText, i, i)) * 0.5 > x - 3) then
-					inputField.textfieldindex = indicesFixed[targetLine] + i - 1
-					set_menu_keyboard_context(inputField.textfieldstr[1], inputField.textfieldindex)
-					return
+		local targetTextLength = getLength(targetLineText)
+		if (inputSettings.textAlign % 3 == 0) then				-- Left Aligned
+			if (targetTextLength > x) then
+				for i = 0, textLength do
+					if (getLength(utf8.sub(targetLineText, 0, i)) - getLength(utf8.sub(targetLineText, i, i)) * 0.5 > x - 3) then
+						inputField.textfieldindex = indicesFixed[targetLine] + i - 1
+						set_menu_keyboard_context(inputField.textfieldstr[1], inputField.textfieldindex)
+						return
+					end
 				end
 			end
-		end
-
-		---Put cursor at the end
-		inputField.textfieldindex = indicesFixed[targetLine] + textLength
-		if (targetLine ~= #inputField.dispstr) then
-			inputField.textfieldindex = inputField.textfieldindex - 1
+			---Put cursor at the end
+			inputField.textfieldindex = indicesFixed[targetLine + 1] - (targetLine ~= #inputField.dispstr and 1 or 0)
+		elseif ((inputSettings.textAlign + 2) % 3 == 0)	then	-- Center Aligned
+			if (x < (inputField.size.w - targetTextLength) / 2) then
+				inputField.textfieldindex = indicesFixed[targetLine]
+			elseif (x > (inputField.size.w + targetTextLength) / 2) then
+				inputField.textfieldindex = indicesFixed[targetLine + 1] - (targetLine ~= #inputField.dispstr and 1 or 0)
+			else
+				local startPos = (inputField.size.w - targetTextLength) / 2
+				for i = 0, textLength do
+					if (startPos + getLength(utf8.sub(targetLineText, 0, i)) - getLength(utf8.sub(targetLineText, i, i)) * 0.5 > x) then
+						inputField.textfieldindex = indicesFixed[targetLine] + i - 1
+						set_menu_keyboard_context(inputField.textfieldstr[1], inputField.textfieldindex)
+						return
+					end
+				end
+			end
+		else													-- Right Aligned
+			if (x < inputField.size.w - 3 - targetTextLength) then
+				inputField.textfieldindex = indicesFixed[targetLine]
+			else
+				for i = 1, textLength do
+					if (inputField.size.w - 3 - getLength(utf8.sub(targetLineText, i)) + getLength(utf8.sub(targetLineText, i, i)) * 0.5 > x) then
+						inputField.textfieldindex = indicesFixed[targetLine] + i - 1
+						set_menu_keyboard_context(inputField.textfieldstr[1], inputField.textfieldindex)
+						return
+					end
+				end
+			end
 		end
 		set_menu_keyboard_context(inputField.textfieldstr[1], inputField.textfieldindex)
 	end
