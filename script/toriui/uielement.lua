@@ -1931,7 +1931,7 @@ end
 function UIElement:enableMenuKeyboard()
 	TB_MENU_INPUT_ISACTIVE = true
 	if (self.textfield) then
-		enable_menu_keyboard(self.pos.x, self.pos.y, self.size.w, self.size.h + 10, self.textfieldstr[1], self.inputType, self.autoCompletion, self.returnKeyType)
+		enable_menu_keyboard(self.pos.x, self.pos.y, self.size.w, self.size.h + 10, self.textfieldstr[1], self.inputType, self.autoCompletion, self.returnKeyType, self.textfieldindex)
 	elseif (not is_mobile) then
 		enable_menu_keyboard()
 	end
@@ -3126,6 +3126,18 @@ end
 _G.utf8.safe_upper = function(s)
 	if (not pcall(function() s = utf8.upper(s) end)) then
 		s = string.upper(s)
+	end
+	return s
+end
+
+---Returns a copy of this string with all uppercase letters changed to lowercase. \
+---Falls back to `string.lower()` on UTF-8 decode failure.
+---@param s string
+---@return string
+---@nodiscard
+_G.utf8.safe_lower = function(s)
+	if (not pcall(function() s = utf8.lower(s) end)) then
+		s = string.lower(s)
 	end
 	return s
 end

@@ -4915,6 +4915,7 @@ function TBMenu:spawnTextField2(viewElement, rect, textFieldString, defaultStrin
 			for i = 0, textLength do
 				if (getLength(utf8.sub(targetLineText, 0, i)) - getLength(utf8.sub(targetLineText, i, i)) * 0.5 > x - 3) then
 					inputField.textfieldindex = indicesFixed[targetLine] + i - 1
+					set_menu_keyboard_context(inputField.textfieldstr[1], inputField.textfieldindex)
 					return
 				end
 			end
@@ -4925,6 +4926,7 @@ function TBMenu:spawnTextField2(viewElement, rect, textFieldString, defaultStrin
 		if (targetLine ~= #inputField.dispstr) then
 			inputField.textfieldindex = inputField.textfieldindex - 1
 		end
+		set_menu_keyboard_context(inputField.textfieldstr[1], inputField.textfieldindex)
 	end
 	inputField.__mouseUpClock = UIElement.clock
 	inputField:addMouseHandlers(function(_, x, y)

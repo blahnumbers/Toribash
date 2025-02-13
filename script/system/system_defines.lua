@@ -2588,13 +2588,14 @@ function delete_notification(pmid) end
 ---@param inputY integer
 ---@param inputWidth integer
 ---@param inputHeight integer
----@param context string
+---@param text string
 ---@param inputType? KeyboardInputType
 ---@param autoCompletion? boolean
 ---@param returnKeyType? KeyboardReturnType
+---@param cursorPosition? integer
 ---@overload fun(inputX:integer, inputY:integer, inputWidth:integer, inputHeight:integer)
 ---@overload fun()
-function enable_menu_keyboard(inputX, inputY, inputWidth, inputHeight, context, inputType, autoCompletion, returnKeyType) end
+function enable_menu_keyboard(inputX, inputY, inputWidth, inputHeight, text, inputType, autoCompletion, returnKeyType, cursorPosition) end
 
 ---Disables Lua menu keyboard callbacks. \
 ---*On mobile platforms, this will also hide on-screen keyboard.*
@@ -2610,6 +2611,11 @@ function keyboard_learn_word(word) end
 ---@param autoCompletion? boolean
 ---@param returnKeyType? KeyboardReturnType
 function set_menu_keyboard(inputType, autoCompletion, returnKeyType) end
+
+---Updates menu keyboard context on mobile platforms
+---@param text string
+---@param cursorPosition ?integer
+function set_menu_keyboard_context(text, cursorPosition) end
 
 ---Returns whether either of shift keys is currently down
 ---@return integer

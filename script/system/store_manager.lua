@@ -6004,22 +6004,17 @@ end
 ---@param isSale any
 ---@return StoreItem[][]
 function Store:getSearchSections(searchString, isSale)
-	if (not pcall(function() searchString = utf8.lower(searchString) end)) then
-		searchString = string.lower(searchString)
-	end
+	searchString = utf8.safe_lower(searchString)
 
 	---@type StoreItem[][]
 	local searchResults = { }
-	if (utf8.len(searchString) < 3) then
+	if (utf8.safe_len(searchString) < 3) then
 		return searchResults
 	end
 
 	for _, v in pairs(Store.Items) do
-		local res, name = pcall(utf8.lower, v.itemname)
-		if (not res) then
-			name = string.lower(v.itemname)
-		end
-		if (utf8.find(name, searchString) and not utf8.find(name, "test") and (not isSale and true or v.on_sale)) then
+		local name = utf8.safe_lower(v.itemname)
+		if (string.find(name, searchString) and not string.find(name, "test") and (not isSale and true or v.on_sale)) then
 			local catid = Store:getSearchCategory(v.catid)
 			if (catid ~= nil) then
 				if (searchResults[catid] == nil) then
