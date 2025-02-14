@@ -2023,6 +2023,246 @@ function Events:showEventInfo(id)
 	end
 end
 
+function Events:showBlindFightPromotion(viewElement, prizes)
+	local overlay = viewElement:addChild({ bgColor = { 1, 1, 1, 0 }})
+	local spawnClock = UIElement.clock
+	local spawnArea = { x = overlay.size.w / 2.5, y = overlay.size.h / 3 }
+	local blobSegments = is_mobile() and 0 or 24
+	local blobSegmetsLarge = is_mobile() and 0 or 64
+	local prizeList = table.clone(prizes) -- Make sure we operate on a copy so that the original list can be destroyed
+
+	---@param blob UIElement
+	---@param delay number
+	---@param targetSize number
+	---@param targetPulseSize number
+	local drawBlob = function(blob, delay, targetSize, targetPulseSize)
+		if (spawnClock + delay > UIElement.clock) then return end
+		set_color(blob.bgColor[1], blob.bgColor[2], blob.bgColor[3], blob.bgColor[4])
+		local time = (UIElement.clock - spawnClock - delay) * 3
+		if (time < 0.65) then
+			blob.size.h = UITween.SineEaseOut(time / 0.65, targetSize * 1.15)
+		elseif (time <= 0.9) then
+			blob.size.h = UITween.SineTween(targetSize * 1.15, targetSize, (time - 0.65) * 4)
+		else
+			time = ((time - 0.9) / 10) % 2
+			if (time < 1) then
+				blob.size.h = UITween.LinearTween(targetSize, targetPulseSize, time)
+			else
+				blob.size.h = UITween.LinearTween(targetPulseSize, targetSize * 1, time - 1)
+			end
+		end
+		draw_disk(blob.pos.x, blob.pos.y, 0, blob.size.h, blob.size.h > 50 and blobSegmetsLarge or blobSegments, 1, 0, 360, 0)
+	end
+
+	---@param blob UIElement
+	local function drawBlobSimple(blob, speed)
+		set_color(blob.bgColor[1], blob.bgColor[2], blob.bgColor[3], blob.bgColor[4])
+		draw_disk(blob.pos.x, blob.pos.y, 0, blob.size.h, blobSegments, 1, 0, 360, 0)
+		blob.pos.y = blob.pos.y - UITween.LinearEaseIn(UIElement.deltaClock, speed)
+		if (blob.pos.y < -blob.size.h) then
+			blob.pos.y = overlay.size.h + blob.size.h
+		end
+	end
+
+	for i = 1, 40 do
+		local delay = math.random() * 2
+		local targetSize = math.random(8, 24)
+		local side = i % 4 + 1
+		local spawnPos = { (overlay.size.w - spawnArea.x) / 2 + math.random(0, spawnArea.x / 2), (overlay.size.h - spawnArea.y) / 2 + math.random(0, spawnArea.x / 2) }
+		if (side % 2 == 0) then
+			spawnPos[1] = overlay.size.w / 2 + math.random(0, spawnArea.x / 2)
+		end
+		if (side > 2) then
+			spawnPos[2] = overlay.size.h / 2 + math.random(0, spawnArea.y / 2)
+		end
+		local blob = overlay:addChild({
+			pos = spawnPos,
+			size = { 0, 0 },
+			bgColor = { 0.15 + math.random() * 0.06, 0.06 + math.random() * 0.037, 0.16 + math.random() * 0.059, 1 }
+		})
+		blob:addCustomDisplay(true, function()
+				drawBlob(blob, delay, targetSize, targetSize * 1.2)
+			end)
+	end
+	for _ = 1, 50 do
+		local scale = math.random(6, 12)
+		local targetAlpha = math.random() * 0.5 + 0.5
+		local speed = 10 + math.random(20)
+		local blob = overlay:addChild({
+			pos = { math.random(overlay.size.w), math.random(overlay.size.h) },
+			size = { 0, scale },
+			bgColor = { 0.1523, 0.0625, 0.1641, 0 }
+		})
+		blob:addCustomDisplay(true, function()
+				if (blob.bgColor[4] < 0.7) then
+					blob.bgColor[4] = UITween.SineTween(blob.bgColor[4], targetAlpha, (UIElement.clock - spawnClock) * 0.25)
+				end
+				drawBlobSimple(blob, speed)
+			end)
+	end
+	local mainBlobHolder = overlay:addChild({
+		pos = { (overlay.size.w - spawnArea.x) / 2, (overlay.size.h - spawnArea.y) / 2 },
+		size = { spawnArea.x, spawnArea.y }
+	})
+	local mainBlob = mainBlobHolder:addChild({
+		pos = { mainBlobHolder.size.w / 2, mainBlobHolder.size.h / 2 },
+		size = { 0, 0 },
+		bgColor = { 0.1523, 0.0625, 0.1641, 1 }
+	})
+	local textSpawned, prizesSpawned, buttonSpawned = false, false, false
+	local iconScale = math.min(96, (mainBlobHolder.size.h - 40) / 3)
+	local textDelay = 0.1
+	local prizesDelay = 0.6
+	local buttonDelay = 1.8
+	mainBlob:addCustomDisplay(true, function(init)
+			if (init) then return end
+			if (textSpawned and prizesSpawned and buttonSpawned) then
+				mainBlob:addCustomDisplay(true, function()
+					drawBlob(mainBlob, 0, spawnArea.y / 2, spawnArea.y / 1.9)
+				end)
+				return
+			end
+
+			drawBlob(mainBlob, 0, spawnArea.y / 2, spawnArea.y / 1.9)
+			overlay.bgColor[4] = UITween.SineTween(0, 0.9, UIElement.clock - spawnClock)
+			if (UIElement.clock - spawnClock - textDelay > 0 and not textSpawned) then
+				textSpawned = true
+				local textElement = mainBlobHolder:addChild({
+					pos = { 25, 20 },
+					size = { mainBlobHolder.size.w - 50, (mainBlobHolder.size.h - 60) / 3 },
+					uiColor = { 1, 1, 1, 0 },
+					uiShadowColor = { 0.1523, 0.0625, 0.1641, 0 },
+					shadowOffset = 2
+				})
+				local textScale = 0.5
+				textElement:addCustomDisplay(true, function()
+					local textSpawnClock = UIElement.clock - spawnClock - textDelay
+					if (textElement.uiColor[4] < 1) then
+						textElement.uiColor[4] = UITween.SineTween(0, 1, textSpawnClock)
+						textElement.uiShadowColor[4] = textElement.uiColor[4]
+						textScale = UITween.SineTween(textScale, 1, textSpawnClock)
+						textElement:uiText("League Victory", nil, nil, FONTS.BIG, CENTERBOT, textScale, nil, 4)
+					else
+						textElement:addAdaptedText("League Victory", { font = FONTS.BIG, align = CENTERBOT, minscale = textScale, maxscale = textScale, shadow = 4 }, true)
+					end
+				end)
+			end
+			if (UIElement.clock - spawnClock - prizesDelay > 0 and not prizesSpawned) then
+				prizesSpawned = true
+				local prizeElements = {}
+				local numPrizes = #prizeList
+				local prizeStartPos = (mainBlobHolder.size.w - numPrizes * iconScale - (numPrizes - 1) * 10) / 2
+				for i, v in pairs(prizeList) do
+					local prizeElement = mainBlobHolder:addChild({
+						pos = { prizeStartPos + (i - 1) * (iconScale + 10), (mainBlobHolder.size.h - iconScale) / 2 },
+						size = { iconScale, iconScale }
+					})
+					table.insert(prizeElements, prizeElement)
+					BattlePass:showPrizeItem(prizeElement, {
+						tc = v.tc,
+						st = v.st,
+						bpxp = v.bpxp,
+						itemid = v.itemid,
+						static = true,
+						bgOutlineColor = { 0.424, 0.263, 0.38, 1 },
+						bgColor = { 0.204, 0.084, 0.202, 1 },
+						textBackdropColor = { 0.204, 0.084, 0.202, 0.67 },
+						textColor = { 1, 1, 1, 0 },
+						withoutPopup = true
+					})
+				end
+
+				---@param element UIElement
+				---@param a number
+				local function setTransparency(element, a)
+					if (element.uiColor) then
+						element.uiColor[4] = a
+					end
+					if (element.uiShadowColor) then
+						element.uiShadowColor[4] = a
+					end
+					if (element.bgColor and element.bgColor[4] > 0) then
+						if (element.__initialAlpha == nil) then
+							element.__initialAlpha = element.bgColor[4]
+						end
+						element.bgColor[4] = math.min(a, element.__initialAlpha)
+					end
+					if (element.imageColor) then
+						element.imageColor[4] = a
+					end
+					for _, v in pairs(element.child) do
+						setTransparency(v, a)
+					end
+				end
+				local observer = mainBlobHolder:addChild({})
+				observer:addCustomDisplay(true, function()
+						local prizeSpawnClock = (UIElement.clock - spawnClock - prizesDelay) * 2
+						local transparency = UITween.SineTween(0.01, 1, prizeSpawnClock)
+						for _, v in pairs(prizeElements) do
+							setTransparency(v, transparency)
+						end
+						if (prizeSpawnClock >= 1) then
+							observer:kill()
+						end
+					end)
+			end
+			if (UIElement.clock - spawnClock - buttonDelay > 0 and not buttonSpawned) then
+				buttonSpawned = true
+				local buttonWidth = spawnArea.y * 1.25
+				local buttonHeight = math.min(55, (mainBlobHolder.size.h - 60) / 3)
+				local continueButton = mainBlobHolder:addChild({
+					pos = { (mainBlobHolder.size.w - buttonWidth) / 2, -buttonHeight - 20 },
+					size = { buttonWidth, buttonHeight },
+					bgColor = { 0.224, 0.118, 0.224, 0 },
+					hoverColor = { 0.424, 0.263, 0.38, 1 },
+					pressedColor = { 0.148, 0.094, 0.153, 1 },
+					interactive = true,
+					shapeType = ROUNDED,
+					rounded = 5
+				})
+				local continueText = continueButton:addChild({
+					shift = { 25, 8 },
+					uiColor = { 1, 1, 1, 0 }
+				})
+				continueText:addAdaptedText(TB_MENU_LOCALIZED.BUTTONCONTINUE)
+				continueButton:addCustomDisplay(function()
+						local transparency = UITween.SineTween(0, 1, UIElement.clock - spawnClock - buttonDelay)
+						continueButton.bgColor[4] = transparency
+						continueText.uiColor[4] = transparency
+					end, true)
+				continueButton:addMouseUpHandler(function()
+						Tutorials:quit()
+					end)
+			end
+		end)
+	local secBlob1 = mainBlobHolder:addChild({
+		pos = { mainBlobHolder.size.w / 2 - spawnArea.y / 2.5, mainBlobHolder.size.h / 2 + spawnArea.y / 6 },
+		size = { 0, 0 },
+		bgColor = { 0.1523, 0.0625, 0.1641, 1 }
+	})
+	secBlob1:addCustomDisplay(true, function()
+			drawBlob(secBlob1, 0.125, spawnArea.y / 2.4, spawnArea.y / 2.5)
+		end)
+	local secBlob2 = mainBlobHolder:addChild({
+		pos = { mainBlobHolder.size.w / 2 + spawnArea.y / 1.9, mainBlobHolder.size.h / 2 - spawnArea.y / 6 },
+		size = { 0, 0 },
+		bgColor = { 0.1523, 0.0625, 0.1641, 1 }
+	})
+	secBlob2:addCustomDisplay(true, function()
+			drawBlob(secBlob2, 0.25, spawnArea.y / 3.4, spawnArea.y / 3.6)
+		end)
+	local secBlob3 = mainBlobHolder:addChild({
+		pos = { mainBlobHolder.size.w / 2 + spawnArea.y / 2.1, mainBlobHolder.size.h / 2 + spawnArea.y / 4 },
+		size = { 0, 0 },
+		bgColor = { 0.1523, 0.0625, 0.1641, 1 }
+	})
+	secBlob3:addCustomDisplay(true, function()
+			drawBlob(secBlob3, 0.075, spawnArea.y / 4.1, spawnArea.y / 3.9)
+		end)
+
+	spawnClock = os.clock_real()
+end
+
 ---@param viewElement UIElement
 function Events:showBlindFightMain(viewElement)
 	if (viewElement == nil or viewElement.destroyed) then

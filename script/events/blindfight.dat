@@ -47,3 +47,6 @@ CUSTOMFUNC OnRecordingComplete;
 
 STEP 7;
 CUSTOMFUNC DisplayResults;
+
+STEP 8;
+CUSTOMFUNC DisplayVictory;

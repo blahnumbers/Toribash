@@ -256,6 +256,13 @@ local function initialize(viewElement, reqTable)
 	end
 end
 
+---@param viewElement UIElement
+---@param reqTable TutorialStepRequirement[]
+local function showVictoryScreen(viewElement, reqTable)
+	Events:showBlindFightPromotion(viewElement, Events.BlindFightRewards)
+	Events.BlindFightRewards = nil
+end
+
 ---@class BlindFightOpponent
 ---@field username string
 ---@field opener MemoryMove
@@ -372,12 +379,19 @@ local function showPostSimulation(viewElement, reqTable)
 	end
 end
 
+---@class BlindFightRewards
+---@field tc integer
+---@field st integer
+---@field bpxp integer
+---@field itemids string[]
+
 ---@param viewElement UIElement
 ---@param reqTable TutorialStepRequirement[]
 ---@param playerMove MemoryMove
 ---@param opponentInfos BlindFightOpponent[]
+---@param rewardsEarned BlindFightRewards
 ---@param id integer
-local function showSimulationResults(viewElement, reqTable, playerMove, opponentInfos, id)
+local function showSimulationResults(viewElement, reqTable, playerMove, opponentInfos, rewardsEarned, id)
 	viewElement:kill(true)
 
 	TUTORIAL_LEAVEGAME = true
@@ -434,8 +448,12 @@ local function showSimulationResults(viewElement, reqTable, playerMove, opponent
 			elseif (UIElement.WorldState.gameover_frame + 90 < UIElement.WorldState.match_frame) then
 				remove_hook("pre_draw", "__blindFightManager")
 				if (#opponentInfos > id) then
-					showSimulationResults(viewElement, reqTable, playerMove, opponentInfos, id + 1)
+					showSimulationResults(viewElement, reqTable, playerMove, opponentInfos, rewardsEarned, id + 1)
 				else
+					if (not table.empty(rewardsEarned)) then
+						Tutorials.CurrentStep.skip = 1
+					end
+					Events.BlindFightRewards = rewardsEarned
 					Events.BlindFightOpponents = opponentInfos
 					for _, req in pairs(reqTable) do
 						pcall(function() req.ready = true end)
@@ -463,10 +481,17 @@ local function submitMove(viewElement, reqTable, moveData, onError)
 				return
 			end
 			local opponentInfos = {}
+			local rewardsEarned = {}
 			local autoupdate = get_option("autoupdate")
 			for ln in response:gmatch("[^\n]*\n") do
 				local _, segments = ln:gsub("\t", "")
 				local data = { ln:match(("([^\t]*)\t?"):rep(segments)) }
+				if (data[1] == "LEAGUE_PROMOTED_REWARDS") then
+					rewardsEarned.tc = tonumber(data[2]) or 0
+					rewardsEarned.st = tonumber(data[3]) or 0
+					rewardsEarned.bpxp = tonumber(data[4]) or 0
+					rewardsEarned.itemids = string.explode(data[5], ":")
+				end
 				table.insert(opponentInfos, {
 					username = data[1],
 					opener = MemoryMove.FromOpener(string.explode(data[2], ':')),
@@ -477,7 +502,7 @@ local function submitMove(viewElement, reqTable, moveData, onError)
 				end
 			end
 			TB_MENU_SPECIAL_SCREEN_ISOPEN = 12
-			showSimulationResults(viewElement, reqTable, moveData, opponentInfos, 1)
+			showSimulationResults(viewElement, reqTable, moveData, opponentInfos, rewardsEarned, 1)
 			Events.SetConfig("BlindFightPlays", Events.GetConfig("BlindFightPlays") + 1)
 			Events:refreshBlindFight()
 		end, function(_, error)
@@ -584,5 +609,6 @@ functions = {
 	WaitSpaceFirst = requireKeyPressSpaceFirst,
 	Initialize = initialize,
 	OnRecordingComplete = onRecordingComplete,
-	DisplayResults = showPostSimulation
+	DisplayResults = showPostSimulation,
+	DisplayVictory = showVictoryScreen
 }
