@@ -42,6 +42,9 @@ if (BattlePass == nil) then
 	---@field hoverColor Color Hover color override
 	---@field pressedColor Color Pressed color override
 	---@field bgOutlineColor Color Outline color override
+	---@field textBackdropColor Color Backdrop color override used for prize text info
+	---@field textColor Color Prize text info color override
+	---@field withoutPopup boolean?
 
 	---**Battle Pass manager class**
 	---
@@ -576,23 +579,31 @@ function BattlePass:showPrizeItem(viewElement, prize)
 	if (Store.Discounts.Prime == true and prize.bpxp ~= nil) then
 		prize.bpxp = math.ceil(prize.bpxp * 1.5)
 	end
-	local iconPath, prizeAmount, prizeTooltip
+	local iconPath, prizeAmount, prizeTooltip = nil, nil, nil
 	-- Some free reward levels will have multiple rewards, we want TC/ST to be shown
 	if (prize.tc ~= nil and prize.tc > 0) then
 		iconPath = "../textures/store/toricredit.tga"
 		prizeAmount = numberFormat(prize.tc)
-		prizeTooltip = TBMenu:displayPopup(prizeBackground, prizeAmount .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS, prize.static)
+		if (not prize.withoutPopup) then
+			prizeTooltip = TBMenu:displayPopup(prizeBackground, prizeAmount .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS, prize.static)
+		end
 	elseif (prize.st ~= nil and prize.st > 0) then
 		iconPath = "../textures/store/shiaitoken.tga"
 		prizeAmount = numberFormat(prize.st)
-		prizeTooltip = TBMenu:displayPopup(prizeBackground, prizeAmount .. " " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS, prize.static)
+		if (not prize.withoutPopup) then
+			prizeTooltip = TBMenu:displayPopup(prizeBackground, prizeAmount .. " " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS, prize.static)
+		end
 	elseif (prize.bpxp ~= nil and prize.bpxp > 0) then
 		iconPath = "../textures/menu/battlepass/experience.tga"
 		prizeAmount = numberFormat(prize.bpxp)
-		prizeTooltip = TBMenu:displayPopup(prizeBackground, prizeAmount .. " " .. TB_MENU_LOCALIZED.BATTLEPASSEXPERIENCE, prize.static)
+		if (not prize.withoutPopup) then
+			prizeTooltip = TBMenu:displayPopup(prizeBackground, prizeAmount .. " " .. TB_MENU_LOCALIZED.BATTLEPASSEXPERIENCE, prize.static)
+		end
 	elseif (prize.item ~= nil and prize.item.itemid > 0) then
 		iconPath = prize.item:getIconPath()
-		prizeTooltip = TBMenu:displayPopup(prizeBackground, prize.item.itemname .. (string.len(prize.item.description or "") > 0 and ("\n\n" .. prize.item.description) or ''), prize.static, 500)
+		if (not prize.withoutPopup) then
+			prizeTooltip = TBMenu:displayPopup(prizeBackground, prize.item.itemname .. (string.len(prize.item.description or "") > 0 and ("\n\n" .. prize.item.description) or ''), prize.static, 500)
+		end
 	else
 		return
 	end
@@ -640,21 +651,22 @@ function BattlePass:showPrizeItem(viewElement, prize)
 		prizeBackground:addMouseHandlers(nil, BattlePass.spawnPrizeClaimWindow)
 	end
 
-	if (prize.tc or prize.st or prize.bpxp) then
-		local prizeText = prizeBackgroundOutline:addChild({
+	if (prizeAmount ~= nil) then
+		local prizeTextHolder = prizeBackgroundOutline:addChild({
 			pos = { 0, -30 },
 			size = { prizeBackgroundOutline.size.w, 30 },
-			bgColor = TB_MENU_DEFAULT_BG_COLOR_TRANS,
+			bgColor = prize.textBackdropColor or TB_MENU_DEFAULT_BG_COLOR_TRANS,
 			shapeType = ROUNDED,
 			rounded = { 0, prizeBackgroundOutline.rounded }
 		})
-		local textColor = table.clone(prizeBackground.bgColor)
-		textColor[4] = 0.6
-		prizeText:addChild({
+		local prizeText = prizeTextHolder:addChild({
 			shift = { 5, 2 },
-			uiShadowColor = textColor,
+			uiColor = prize.textColor,
+			uiShadowColor = table.clone(prizeBackground.bgColor),
 			shadowOffset = 2
-		}):addAdaptedText(true, prizeAmount, nil, nil, nil, nil, nil, nil, nil, 2)
+		})
+		prizeText.uiShadowColor[4] = 0.67
+		prizeText:addAdaptedText(prizeAmount, { shadow = 2 }, true)
 	end
 end
 
@@ -675,7 +687,7 @@ function BattlePass:showLevelPrize(prizeHolder, levelData)
 
 	local freePrizeHolder = prizeBackground:addChild({
 		pos = { 0, 0 },
-		size = { prizeBackground.size.w, math.min(200, prizeBackground.size.h / BattlePass.MaxLevelPrizes) },
+		size = { prizeBackground.size.w, prizeBackground.size.h / BattlePass.MaxLevelPrizes },
 		bgColor = TB_MENU_DEFAULT_DARKEST_COLOR
 	})
 	if (levelData.st > 0 or levelData.tc > 0 or levelData.itemid > 0) then
@@ -720,11 +732,14 @@ function BattlePass:showLevelPrize(prizeHolder, levelData)
 		size = { prizeBackground.size.w - 30, prizeBackground.size.h - freePrizeHolder.size.h }
 	})
 	local premiumPrizeHeight = premiumPrizesHolder.size.w + 10
-	local premiumPrizeOffset = (premiumPrizeHeight * #premiumPrizes) / 2
+	local prizeHolderWidth = math.min(premiumPrizesHolder.size.w, prizeBackground.size.h / BattlePass.MaxLevelPrizes)
+	if (freePrizeHolder) then
+		prizeHolderWidth = math.min(prizeHolderWidth, freePrizeHolder.size.w - 30, freePrizeHolder.size.h - 20)
+	end
 	for i, v in pairs(premiumPrizes) do
 		local premiumPrizeHolder = premiumPrizesHolder:addChild({
-			pos = { 0, premiumPrizesHolder.size.h / 2 - premiumPrizeOffset + (i - 1) * premiumPrizeHeight },
-			size = { premiumPrizesHolder.size.w, premiumPrizesHolder.size.w }
+			pos = { (premiumPrizesHolder.size.w - prizeHolderWidth) / 2, (premiumPrizesHolder.size.h - premiumPrizeHeight * #premiumPrizes) / 2 + (i - 1) * premiumPrizeHeight },
+			size = { prizeHolderWidth, premiumPrizesHolder.size.w }
 		})
 		BattlePass:showPrizeItem(premiumPrizeHolder, v)
 	end

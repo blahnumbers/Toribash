@@ -3263,11 +3263,16 @@ end
 ---@param decimals ?integer
 ---@return string
 _G.numberFormat = function(n, decimals)
-	if (not n) then return n end
-	n = n .. "" -- make sure n is a string
+	if (type(n) ~= "number" and type(n) ~= "string") then
+		if (TB_MENU_DEBUG) then
+			error("invalid value type provided (" .. type(n) .. ")")
+		end
+		return tostring(n)
+	end
+	n = tostring(n) -- make sure n is a string if it was a number
 	local left, num, right = string.match(n,'^([^%d]*%d)(%d*)(.-)$')
 	if (not num) then return n end
-	local num = left..(num:reverse():gsub('(%d%d%d)','%1,'):reverse())..right
+	num = left..(num:reverse():gsub('(%d%d%d)','%1,'):reverse())..right
 	if (decimals and decimals > 0) then
 		local numDecimals = num:match("%.%d+$")
 		if (not numDecimals) then
