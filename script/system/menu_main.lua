@@ -85,6 +85,7 @@ require("system.atmospheres_manager")
 require("system.movememory_manager")
 require("system.tooltip_manager")
 require("system.broadcast_manager")
+require("system.flames_manager")
 
 TB_MENU_PLAYER_INFO = PlayerInfo.Get(PLAYERINFO_SCOPE_GENERAL)
 TB_MENU_PLAYER_INFO:getClan()
