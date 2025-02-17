@@ -1,5 +1,6 @@
 -- Files I/O manager
 require("toriui.uielement")
+local json = require("toriui.json")
 
 FILES_MODE_READONLY = 'r'
 FILES_MODE_WRITE = 'w+'
@@ -183,7 +184,7 @@ do
 			return false
 		end
 
-		local line = line:find("\n$") and line or (line .. "\n")
+		line = string.find(line, "\n$") and line or (line .. "\n")
 		filesWriteInternal(self.data, line)
 		return true
 	end
@@ -194,19 +195,17 @@ do
 	function Files.WriteDebug(line, rewrite)
 		local debug = Files.Open("../debug.txt", rewrite and FILES_MODE_WRITE or FILES_MODE_APPEND)
 		if (type(line) == "table") then
-			debug:writeLine(os.clock_real() .. ': ' .. print_r(line, true))
+			debug:writeLine(os.clock_real() .. ': ' .. json.encode(line))
 		else
 			debug:writeLine(os.clock_real() .. ': ' .. tostring(line))
 		end
 		debug:close()
 	end
 
-	---Logs an error string to Toribash `stderr.txt` file
+	---Prints an error string to standard Toribash error log
 	---@param line any
 	function Files.LogError(line)
-		local stderr = Files.Open("../stderr.txt", FILES_MODE_APPEND)
-		stderr:writeLine("[LogError " .. os.clock_real() .. "] " .. tostring(line))
-		stderr:close()
+		perror("[LogError " .. os.clock_real() .. "] " .. tostring(line))
 	end
 
 	-- Checks whether the file is currently being downloaded or is in download queue

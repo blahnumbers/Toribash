@@ -1017,8 +1017,8 @@ function PlayerInfoInternal.parseServerUserinfo(userinfo)
 				customColor = TB_MENU_DEFAULT_YELLOW,
 				customHoverColor = TB_MENU_DEFAULT_ORANGE,
 				customUiColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-				hint = TB_MENU_LOCALIZED.ACCOUNTGREYLISTEDINFO or "Your account has limited trading capabilities. You can wait your greylist period out or contact an administrator to lift it earlier.",
-				action = function() open_url("https://www.toribash.com/discord.php") end
+				hint = TB_MENU_LOCALIZED.ACCOUNTGREYLISTEDINFO or "Your account has limited trading capabilities. Please check your linked email for instructions on lifting the restrictions.",
+				action = function() open_url("https://forum.toribash.com/profile.php?do=editprofile") end
 			})
 		elseif (ln:find("^EMAILERR 0;")) then
 			hasWarning = true

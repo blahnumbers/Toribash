@@ -3663,6 +3663,10 @@ function disable_blur() end
 ---@param disable_callback ?boolean If `true`, will not trigger `console` callback
 function echo(message, tab, disable_callback) end
 
+---Prints an error message to standard error output file (`stderr.txt` on Windows / Linux or Log Report on macOS)
+---@param error string
+function perror(error) end
+
 ---Executes a game command
 ---@param command string
 ---@param online ?integer

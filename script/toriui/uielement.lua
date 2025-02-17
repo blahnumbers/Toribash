@@ -27,6 +27,8 @@ local setColor = set_color
 local drawText = draw_text_angle_scale
 local is_mobile = is_mobile()
 
+local json = require("toriui.json")
+
 ---@alias FontId
 ---| 0 # FONTS.BIG | Badaboom big
 ---| 1 # FONTS.SMALL | Arial small (chat default)
@@ -3042,7 +3044,7 @@ local debugEchoInternal
 ---@param rec? boolean Internal parameter to indicate recursive calls
 ---@return string|nil
 debugEchoInternal = function(mixed, returnString, msg, rec)
-	local msg = msg and msg .. ": " or ""
+	msg = msg and msg .. ": " or ""
 	local buildRet = returnString and function(str) _G.DEBUGECHOMSG = _G.DEBUGECHOMSG .. str .. "\n" end or echo
 	if (not rec) then
 		_G.DEBUGECHOMSG = ""
@@ -3061,7 +3063,7 @@ debugEchoInternal = function(mixed, returnString, msg, rec)
 		buildRet(msg .. "[" .. vtype .. "]")
 	end
 	if (returnString and not rec) then
-		local msg = _G.DEBUGECHOMSG
+		msg = _G.DEBUGECHOMSG
 		_G.DEBUGECHOMSG = nil
 		return msg
 	end
@@ -3091,6 +3093,10 @@ end
 ---@overload fun(data:any):nil
 _G.print_r = function(data, returnString)
 	return debugEchoInternal(data, returnString)
+end
+
+_G.print_json = function(data)
+	return print(json.encode(data))
 end
 
 ---Generates a unique ID

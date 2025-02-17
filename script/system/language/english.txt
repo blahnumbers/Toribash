@@ -630,7 +630,7 @@ ACCOUNTGREYLISTED	Trading Greylisted
 ACCOUNTNOEMAIL	No Email Set
 ACCOUNTAWAITINGCONFIRMATION	Awaiting Email Confirmation
 ACCOUNTSUSPENDEDINFO	Your account has been suspended by Toribash moderators. You can appeal your ban on forums.
-ACCOUNTGREYLISTEDINFO	Your account has limited trading capabilities. You can wait your greylist period out or contact an administrator to lift it earlier.
+ACCOUNTGREYLISTEDINFO	Your account has limited trading capabilities. Please check your linked email for instructions on lifting the restrictions.
 ACCOUNTEMAILERRORINFO	Your account's capabilities will be limited until you connect an email to your account and confirm it.
 STOREITEMUNAVAILABLE	This item cannot be bought
 REPLAYUPLOADERROR	Replay upload error
