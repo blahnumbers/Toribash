@@ -1687,6 +1687,39 @@ function get_body_on_frame_info(player, body, frame) end
 ---@return FrameJointInfo
 function get_joint_on_frame_info(player, joint, frame) end
 
+---Toggles RPG on or off and returns current RPG state
+---@param state boolean
+---@return boolean
+---@overload fun():boolean
+function rpg_state(state) end
+
+---Sets player RPG data for the next game
+---@param player integer
+---@param strength number
+---@param speed number
+---@param endurance number
+---@param x_scale number
+---@param y_scale number
+---@param z_scale number
+---@overload fun(player: integer, strength: number, speed: number, endurance: number)
+function set_rpg(player, strength, speed, endurance, x_scale, y_scale, z_scale) end
+
+---Resets player RPG data for the next game
+---@param player integer
+function reset_rpg(player) end
+
+---@class PlayerRPG
+---@field strength number
+---@field speed number
+---@field endurance number
+---@field x number
+---@field y number
+---@field z number
+
+---Returns current RPG data for the specified player
+---@return PlayerRPG
+function get_rpg(player) end
+
 
 --[[ BLOOD ]]
 
