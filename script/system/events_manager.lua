@@ -2265,7 +2265,7 @@ end
 
 ---@param viewElement UIElement
 function Events:showBlindFightMain(viewElement)
-	if (viewElement == nil or viewElement.destroyed) then
+	if (viewElement == nil or viewElement.destroyed or EventsInternal.BlindFight == nil) then
 		return
 	end
 	if (EventsInternal.BlindFight.userMoves == nil or EventsInternal.BlindFight.userMoves.turns == 0) then

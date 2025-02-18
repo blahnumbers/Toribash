@@ -272,6 +272,7 @@ end
 ---@param reqTable TutorialStepRequirement[]
 local function showPostSimulation(viewElement, reqTable)
 	viewElement:kill(true)
+	Tutorials.CurrentStep.fallback = nil
 
 	local rewindObserver = viewElement:addChild({})
 	local rewindFrame = UIElement.WorldState.match_frame
@@ -515,6 +516,8 @@ end
 ---@param viewElement UIElement
 ---@param reqTable TutorialStepRequirement[]
 local function onRecordingComplete(viewElement, reqTable)
+	Tutorials.CurrentStep.fallback = nil
+
 	local req = { type = "completeRecording", ready = false }
 	table.insert(reqTable, req)
 

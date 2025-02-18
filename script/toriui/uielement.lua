@@ -1,6 +1,8 @@
 -- Toribash UI manager
 -- Created by sir @ Nabi Studios
 
+require('toriui.json')
+
 local w, h = get_window_size()
 ---Window width that UIElement class currently operates with
 _G.WIN_W = w
@@ -26,8 +28,6 @@ local drawDisk = draw_disk
 local setColor = set_color
 local drawText = draw_text_angle_scale
 local is_mobile = is_mobile()
-
-local json = require("toriui.json")
 
 ---@alias FontId
 ---| 0 # FONTS.BIG | Badaboom big
@@ -3096,7 +3096,7 @@ _G.print_r = function(data, returnString)
 end
 
 _G.print_json = function(data)
-	return print(json.encode(data))
+	return print(JSON.encode(data))
 end
 
 ---Generates a unique ID

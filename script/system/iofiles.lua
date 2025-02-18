@@ -1,6 +1,6 @@
 -- Files I/O manager
 require("toriui.uielement")
-local json = require("toriui.json")
+require("toriui.json")
 
 FILES_MODE_READONLY = 'r'
 FILES_MODE_WRITE = 'w+'
@@ -195,7 +195,7 @@ do
 	function Files.WriteDebug(line, rewrite)
 		local debug = Files.Open("../debug.txt", rewrite and FILES_MODE_WRITE or FILES_MODE_APPEND)
 		if (type(line) == "table") then
-			debug:writeLine(os.clock_real() .. ': ' .. json.encode(line))
+			debug:writeLine(os.clock_real() .. ': ' .. JSON.encode(line))
 		else
 			debug:writeLine(os.clock_real() .. ': ' .. tostring(line))
 		end

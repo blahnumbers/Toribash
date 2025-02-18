@@ -25,7 +25,9 @@
 ---JSON library that allows data encoding / decoding. \
 ---[View on GitHub](https://github.com/rxi/json.lua)
 ---@class json
-local json = { _version = "0.1.2" }
+if (JSON == nil) then
+	JSON = { _version = "0.1.2" }
+end
 
 -------------------------------------------------------------------------------
 -- Encode
@@ -134,7 +136,7 @@ encode = function(val, stack)
 end
 
 
-function json.encode(val)
+function JSON.encode(val)
   return ( encode(val) )
 end
 
@@ -375,7 +377,7 @@ parse = function(str, idx)
 end
 
 
-function json.decode(str)
+function JSON.decode(str)
   if type(str) ~= "string" then
     error("expected argument of type string, got " .. type(str))
   end
@@ -388,4 +390,4 @@ function json.decode(str)
 end
 
 
-return json
+return JSON
