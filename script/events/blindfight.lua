@@ -434,7 +434,8 @@ local function showSimulationResults(viewElement, reqTable, playerMove, opponent
 			if (UIElement.WorldState.match_frame == frame) then
 				frame = frame + get_turn_frame(step)
 				step = step + 1
-			elseif (UIElement.WorldState.match_frame < frame) then
+			end
+			if (UIElement.WorldState.match_frame < frame) then
 				if (playerMove.currentturn == step) then
 					MoveMemory:playMove(playerMove, false, 0, true)
 					MoveMemory:playMove(opponentInfos[id].opener, false, 1, true)
