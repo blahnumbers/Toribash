@@ -489,18 +489,24 @@ local function submitMove(viewElement, reqTable, moveData, onError)
 				local _, segments = ln:gsub("\t", "")
 				local data = { ln:match(("([^\t]*)\t?"):rep(segments)) }
 				if (data[1] == "LEAGUE_PROMOTED_REWARDS") then
-					rewardsEarned.tc = tonumber(data[2]) or 0
-					rewardsEarned.st = tonumber(data[3]) or 0
-					rewardsEarned.bpxp = tonumber(data[4]) or 0
-					rewardsEarned.itemids = string.explode(data[5], ":")
-				end
-				table.insert(opponentInfos, {
-					username = data[1],
-					opener = MemoryMove.FromOpener(string.explode(data[2], ':')),
-					win = tonumber(data[3]) or 2
-				})
-				if (autoupdate == 1) then
-					download_head(data[1])
+					local tc = tonumber(data[2]) or 0
+					local st = tonumber(data[3]) or 0
+					local bpxp = tonumber(data[4]) or 0
+					if (tc > 0) then table.insert(rewardsEarned, { tc = tc }) end
+					if (st > 0) then table.insert(rewardsEarned, { st = st }) end
+					if (bpxp > 0) then table.insert(rewardsEarned, { bpxp = bpxp }) end
+					for _, v in pairs(string.explode(data[5], ":")) do
+						table.insert(rewardsEarned, { itemid = v })
+					end
+				else
+					table.insert(opponentInfos, {
+						username = data[1],
+						opener = MemoryMove.FromOpener(string.explode(data[2], ':')),
+						win = tonumber(data[3]) or 2
+					})
+					if (autoupdate == 1) then
+						download_head(data[1])
+					end
 				end
 			end
 			TB_MENU_SPECIAL_SCREEN_ISOPEN = 12

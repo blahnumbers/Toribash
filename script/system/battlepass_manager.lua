@@ -731,15 +731,12 @@ function BattlePass:showLevelPrize(prizeHolder, levelData)
 		pos = { 15, freePrizeHolder.size.h },
 		size = { prizeBackground.size.w - 30, prizeBackground.size.h - freePrizeHolder.size.h }
 	})
-	local premiumPrizeHeight = premiumPrizesHolder.size.w + 10
-	local prizeHolderWidth = math.min(premiumPrizesHolder.size.w, prizeBackground.size.h / BattlePass.MaxLevelPrizes)
-	if (freePrizeHolder) then
-		prizeHolderWidth = math.min(prizeHolderWidth, freePrizeHolder.size.w - 30, freePrizeHolder.size.h - 20)
-	end
+	local prizeSize = math.min(premiumPrizesHolder.size.w, premiumPrizesHolder.size.h / #premiumPrizes, prizeBackground.size.h / BattlePass.MaxLevelPrizes - 10 * (BattlePass.MaxLevelPrizes - 1), freePrizeHolder.size.w - 10, freePrizeHolder.size.h - 20)
+	local prizeHeight = prizeSize + 10
 	for i, v in pairs(premiumPrizes) do
 		local premiumPrizeHolder = premiumPrizesHolder:addChild({
-			pos = { (premiumPrizesHolder.size.w - prizeHolderWidth) / 2, (premiumPrizesHolder.size.h - premiumPrizeHeight * #premiumPrizes) / 2 + (i - 1) * premiumPrizeHeight },
-			size = { prizeHolderWidth, premiumPrizesHolder.size.w }
+			pos = { (premiumPrizesHolder.size.w - prizeSize) / 2, (premiumPrizesHolder.size.h - prizeHeight * #premiumPrizes) / 2 + (i - 1) * prizeHeight },
+			size = { prizeSize, prizeHeight }
 		})
 		BattlePass:showPrizeItem(premiumPrizeHolder, v)
 	end
@@ -748,8 +745,8 @@ end
 ---Displays all BP rewards for main Battle Pass view
 ---@param viewElement UIElement
 function BattlePass:showPrizes(viewElement)
-	local prizeHolderSize = math.min(120, WIN_W / 12)
-	local toReload, leftBar, rightBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, prizeHolderSize, prizeHolderSize, 20, TB_MENU_DEFAULT_DARKER_COLOR, SCROLL_HORIZONTAL)
+	local prizeHolderSize = math.clamp(viewElement.size.w / 12, 110, 160)
+	local toReload, leftBar, rightBar, _, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, prizeHolderSize, prizeHolderSize, 20, TB_MENU_DEFAULT_DARKER_COLOR, SCROLL_HORIZONTAL)
 
 	---@type BattlePassLevel
 	local closestMilestoneReward
@@ -904,10 +901,6 @@ function BattlePass:showMain()
 			end)
 		return
 	end
-
-	local isSeason = false
-	local leftHeight = (TBMenu.CurrentSection.size.h - 90) / 3 - 5
-	local leftWidth = math.min(leftHeight * 2.5, TBMenu.CurrentSection.size.w * 0.3)
 	local battlePassProgressHolder = TBMenu.CurrentSection:addChild({
 		pos = { 5, 0 },
 		size = { TBMenu.CurrentSection.size.w - 10, 80 },
@@ -918,9 +911,16 @@ function BattlePass:showMain()
 	})
 	BattlePass:showProgress(battlePassProgressHolder)
 
+	local buttonWidth = math.min(TBMenu.CurrentSection.size.w * 0.3, 750)
+	local infoButtonHeight = buttonWidth * 0.639 + 10
+	if (infoButtonHeight > (TBMenu.CurrentSection.size.h - battlePassProgressHolder.size.h - 30) * 0.65) then
+		infoButtonHeight = (TBMenu.CurrentSection.size.h - battlePassProgressHolder.size.h - 30) * 0.65
+		buttonWidth = math.round((infoButtonHeight - 10) / 0.639)
+	end
+
 	local battlePassPrizesView = TBMenu.CurrentSection:addChild(({
 		pos = { 5, battlePassProgressHolder.size.h + 10 },
-		size = { TBMenu.CurrentSection.size.w - leftWidth - 20, TBMenu.CurrentSection.size.h - battlePassProgressHolder.size.h - 10 },
+		size = { TBMenu.CurrentSection.size.w - buttonWidth - 25, TBMenu.CurrentSection.size.h - battlePassProgressHolder.size.h - 10 },
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR
 	}))
 	TBMenu:addBottomBloodSmudge(battlePassPrizesView, 1)
@@ -941,12 +941,28 @@ function BattlePass:showMain()
 	})
 	BattlePass:showPrizes(battlePassPrizesHolder)
 
-	local buttonShiftX = battlePassPrizesHolder.shift.x + battlePassPrizesHolder.size.w + 10
+	local buttonShiftX = battlePassPrizesHolder.shift.x + battlePassPrizesHolder.size.w + 15
 	local buttonShiftY = battlePassProgressHolder.size.h + 10
 
-	local battlePassQuestsButton = TBMenu.CurrentSection:addChild({
+	local battlePassInfoButton = TBMenu.CurrentSection:addChild({
 		pos = { buttonShiftX, buttonShiftY },
-		size = { leftWidth, leftHeight },
+		size = { buttonWidth, infoButtonHeight },
+		bgColor = TB_MENU_DEFAULT_BG_COLOR,
+		interactive = true,
+		hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		hoverSound = 31
+	})
+	TBMenu:showHomeButton(battlePassInfoButton, {
+		image = "../textures/menu/battlepass/battlepassinfolarge.tga",
+		ratio = 0.639,
+		disableUnload = true,
+		action = Events.ShowBattlepassInfo
+	})
+	local questsStartY = battlePassInfoButton.shift.y + battlePassInfoButton.size.h + 10
+	local battlePassQuestsButton = TBMenu.CurrentSection:addChild({
+		pos = { buttonShiftX, questsStartY },
+		size = { buttonWidth, TBMenu.CurrentSection.size.h - questsStartY },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR,
 		interactive = true,
 		hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
@@ -954,8 +970,7 @@ function BattlePass:showMain()
 		hoverSound = 31
 	})
 	TBMenu:showHomeButton(battlePassQuestsButton, {
-		--image = isSeason and "../textures/menu/battlepass/battlepassquests.tga" or "../textures/menu/battlepass/battlepassquestslarge.tga",
-		ratio = isSeason and 0.375 or 0.5,
+		ratio = 0.5,
 		title = TB_MENU_LOCALIZED.BATTLEPASSQUESTS,
 		subtitle = TB_MENU_LOCALIZED.BATTLEPASSQUESTSDESC,
 		disableUnload = true,
@@ -967,23 +982,6 @@ function BattlePass:showMain()
 					BattlePass:showMain()
 				end)
 		end
-	})
-	local battlePassInfoButton = TBMenu.CurrentSection:addChild({
-		pos = { buttonShiftX, battlePassQuestsButton.shift.y + battlePassQuestsButton.size.h + 10 },
-		size = { leftWidth, isSeason and leftHeight or leftHeight * 2 },
-		bgColor = TB_MENU_DEFAULT_BG_COLOR,
-		interactive = true,
-		hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
-		pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-		hoverSound = 31
-	})
-	TBMenu:showHomeButton(battlePassInfoButton, {
-		image = isSeason and "../textures/menu/battlepass/battlepassinfo.tga" or "../textures/menu/battlepass/battlepassinfolarge.tga",
-		ratio = isSeason and 0.375 or 0.639,
-		disableUnload = true,
-		action = function()
-				Events:showBattlepassInfo()
-			end
 	}, 2)
 end
 

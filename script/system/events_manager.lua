@@ -1617,7 +1617,7 @@ end
 
 function Events:showEventDescription(viewElement, event)
 	local elementHeight = 41
-	local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 60, 60, 20, event.accentColor)
+	local toReload, topBar, botBar, _, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 60, 60, 20, event.accentColor)
 
 	listingScrollBG.bgColor = { 0, 0, 0, 0 }
 	local listElements = {}
@@ -1637,7 +1637,7 @@ function Events:showEventDescription(viewElement, event)
 				pos = { 10, #listElements * elementHeight },
 				size = { listingHolder.size.w - 20, elementHeight }
 			})
-			infoTitle:addAdaptedText(true, info.title, nil, nil, FONTS.BIG, nil, nil, nil, 0.5)
+			infoTitle:addAdaptedText(info.title, { font = FONTS.BIG, intensity = 0.5, shadow = 2 })
 			table.insert(listElements, infoTitle)
 		end
 		if (info.desc) then
@@ -1647,12 +1647,13 @@ function Events:showEventDescription(viewElement, event)
 				local infoRow = UIElement:new({
 					parent = listingHolder,
 					pos = { 50, #listElements * elementHeight },
-					size = { listingHolder.size.w - 80, elementHeight }
+					size = { listingHolder.size.w - 80, elementHeight },
+					shadowOffset = 1
 				})
 				infoRow:addCustomDisplay(true, function()
-						infoRow:uiText(textString[i * 2 - 1], nil, nil, 4, CENTER, 0.85)
+						infoRow:uiText(textString[i * 2 - 1], nil, nil, 4, CENTER, 0.85, nil, 1)
 						if (textString[i * 2]) then
-							infoRow:uiText(textString[i * 2], nil, nil, 4, CENTERBOT, 0.85)
+							infoRow:uiText(textString[i * 2], nil, nil, 4, CENTERBOT, 0.85, nil, 1)
 						end
 					end)
 				table.insert(listElements, infoRow)
@@ -1669,7 +1670,7 @@ function Events:showEventDescription(viewElement, event)
 	end
 
 	if (#listElements * elementHeight > listingHolder.size.h) then
-		for i,v in pairs(listElements) do
+		for _, v in pairs(listElements) do
 			v:hide()
 		end
 
@@ -1686,7 +1687,7 @@ function Events:showEventDescription(viewElement, event)
 end
 
 function Events:showPrizeInfo(prize, listingHolder, elements, elementHeight)
-	local prize = prize or { id = 0, itemname = "Unknown Item" }
+	prize = prize or { id = 0, itemname = "Unknown Item" }
 	local rewardView = UIElement:new({
 		parent = listingHolder,
 		pos = { 10, elements * elementHeight },
@@ -1714,7 +1715,7 @@ function Events:showPrizeInfo(prize, listingHolder, elements, elementHeight)
 		pos = { rewardBulletpoint.size.w + itemIcon.size.w + 10, 0 },
 		size = { rewardView.size.w - (rewardBulletpoint.size.w + itemIcon.size.w + 10), rewardView.size.h }
 	})
-	itemName:addAdaptedText(true, prize.itemname, nil, nil, nil, LEFTMID)
+	itemName:addAdaptedText(prize.itemname, { align = LEFTMID, shadow = 1 })
 	return rewardView
 end
 
@@ -1725,7 +1726,7 @@ end
 ---@return UIElement
 function Events:showEventPrizes(viewElement, event)
 	local elementHeight = 41
-	local toReload, topBar, botBar, listingView, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 60, 60, 20, event.accentColor)
+	local toReload, topBar, botBar, _, listingHolder, listingScrollBG = TBMenu:prepareScrollableList(viewElement, 60, 60, 20, event.accentColor)
 
 	listingScrollBG.bgColor = { 0, 0, 0, 0 }
 	local listElements = {}
@@ -1744,7 +1745,7 @@ function Events:showEventPrizes(viewElement, event)
 			pos = { 10, #listElements * elementHeight },
 			size = { listingHolder.size.w - 20, elementHeight }
 		})
-		infoTitle:addAdaptedText(true, "Prizes", nil, nil, FONTS.BIG, nil, nil, nil, 0.5)
+		infoTitle:addAdaptedText("Prizes", { font = FONTS.BIG, intensity = 0.5, shadow = 2 })
 		table.insert(listElements, infoTitle)
 	--end
 
@@ -1755,7 +1756,7 @@ function Events:showEventPrizes(viewElement, event)
 				pos = { 10, #listElements * elementHeight },
 				size = { listingHolder.size.w - 20, elementHeight }
 			})
-			infoRow:addAdaptedText(true, prize.info)
+			infoRow:addAdaptedText(prize.info, { shadow = 1 })
 			table.insert(listElements, infoRow)
 		end
 
@@ -1799,7 +1800,7 @@ function Events:showEventPrizes(viewElement, event)
 	end
 
 	if (#listElements * elementHeight > listingHolder.size.h) then
-		for i,v in pairs(listElements) do
+		for _, v in pairs(listElements) do
 			v:hide()
 		end
 
@@ -1826,7 +1827,7 @@ function Events:getEventInfo(id)
 	end
 end
 
-function Events:showBattlepassInfo()
+function Events.ShowBattlepassInfo()
 	News:getNews()
 	for _,v in pairs(News.Cache) do
 		if (v.isBattlePass) then
@@ -1855,6 +1856,7 @@ function Events:showEventInfo(id)
 		size = { windowSize * 2 - 200, windowSize },
 		bgColor = event.accentColor,
 		uiColor = event.uiColor,
+		uiShadowColor = event.accentColor,
 		shapeType = ROUNDED,
 		rounded = 5
 	})
@@ -1867,7 +1869,7 @@ function Events:showEventInfo(id)
 			overlay:kill()
 		end)
 	if (event.eventid or event.image) then
-		local backgroundImage = viewElement:addChild({
+		viewElement:addChild({
 			shift = { 0, 60 },
 			bgImage = { event.image ~= nil and event.image or ("../textures/menu/promo/events/" .. event.eventid .. ".tga"), "" },
 			imageColor = { 1, 1, 1, 1 - (event.overlaytransparency or 0) },
@@ -1875,32 +1877,29 @@ function Events:showEventInfo(id)
 		})
 	end
 
-	local descriptionView = UIElement:new({
-		parent = viewElement,
-		pos = { 0, 0 },
+	local descriptionView = viewElement:addChild({
 		size = { event.prizes and viewElement.size.w * 0.6 or viewElement.size.w, viewElement.size.h }
-	})
+	}, true)
 	local dtopBar, dbotBar = Events:showEventDescription(descriptionView, event)
 	local ptopBar, pbotBar = dtopBar, dbotBar
 	if (event.prizes) then
-		local prizesView = UIElement:new({
-			parent = viewElement,
+		local prizesView = viewElement:addChild({
 			pos = { descriptionView.size.w, 0 },
 			size = { viewElement.size.w - descriptionView.size.w, viewElement.size.h }
-		})
+		}, true)
 		ptopBar, pbotBar = Events:showEventPrizes(prizesView, event)
 	end
 
-	local eventName = UIElement:new({
-		parent = dtopBar,
+	local eventName = dtopBar:addChild({
 		pos = { 10, 5 },
-		size = { viewElement.size.w - (dtopBar.size.h - 30), dtopBar.size.h - 10 },
-		bgColor = event.accentColor
+		size = { viewElement.size.w - (dtopBar.size.h - 30), dtopBar.size.h - 10 }
 	})
 	if (event.prizes) then
 		table.insert(ptopBar.child, eventName)
 	end
-	eventName:addAdaptedText(true, event.name, nil, nil, FONTS.BIG, nil, 0.75, nil, 0.5)
+	eventName:addAdaptedText(event.name, {
+		font = FONTS.BIG, maxscale = 0.85, intensity = 1
+	})
 
 	local eventForumLinkHolderBG = dbotBar:addChild({
 		pos = { 5, 0 },
@@ -1909,11 +1908,10 @@ function Events:showEventInfo(id)
 		uiColor = event.accentColor
 	})
 	local eventForumLinkHolder = eventForumLinkHolderBG:addChild({ shift = { 100, 0 } })
-	local buttonHColor, buttonPColor, delta = nil, nil, nil
+	local buttonHColor, buttonPColor = nil, nil
 	if (event.buttonHoverColor and event.buttonPressedColor) then
 		buttonHColor = event.buttonHoverColor
 		buttonPColor = event.buttonPressedColor
-		delta = buttonHColor[1] + buttonHColor[2] + buttonHColor[3]
 	else
 		buttonHColor = table.clone(viewElement.uiColor)
 		buttonPColor = table.clone(viewElement.uiColor)
@@ -1994,28 +1992,12 @@ function Events:showEventInfo(id)
 			end)
 	end
 
-	local closeButton = UIElement:new({
-		parent = ptopBar,
-		pos = { -(ptopBar.size.h - 10), 10 },
-		size = { ptopBar.size.h - 20, ptopBar.size.h - 20 },
-		bgColor = viewElement.uiColor,
-		hoverColor = buttonHColor,
-		pressedColor = buttonPColor,
-		rounded = 3,
-		shapeType = ROUNDED,
-		interactive = true
-	})
-	local closeImage = UIElement:new({
-		parent = closeButton,
-		pos = { 5, 5 },
-		size = { closeButton.size.w - 10, closeButton.size.h - 10 },
-		bgImage = "../textures/menu/general/buttons/crosswhite.tga",
-		imageColor = viewElement.bgColor
-	})
+	local closeButton = TBMenu:spawnCloseButton(ptopBar, {
+		x = -(ptopBar.size.h - 10), y = 10, w = ptopBar.size.h - 20, h = ptopBar.size.h - 20
+	}, function() overlay:kill() end, { default = viewElement.uiColor, hover = buttonHColor, pressed = buttonPColor, ui = viewElement.bgColor })
+	closeButton:setRounded(viewElement.rounded)
 	table.insert(dtopBar.child, closeButton)
-	closeButton:addMouseHandlers(nil, function()
-			overlay:kill()
-		end)
+
 	if (event.eventid) then
 		if (not EventsOnline:checkFiles(event.eventid, event.requireMod)) then
 			download_server_file('tutorial_' .. event.eventid, 0)

@@ -2189,6 +2189,7 @@ end
 ---@field shadowColor Color
 ---@field isTextfield boolean
 ---@field baselineScale number
+---@field shadowIntensity number
 
 ---Adapts the specified string to fit inside UIElement object and sets custom display function to draw it
 ---@param override boolean Whether to disable the default `display()` functionality
@@ -2208,12 +2209,14 @@ end
 ---@overload fun(self, str: string, x?: number, y?: number, font?: FontId, align?: UIElementTextAlign, maxscale?: number, minscale?: number, intensity?: number, shadow?: number, col1?: Color, col2?: Color, textfield?: boolean)
 ---@overload fun(self, str: string, textSettings: UITextSettings, override: boolean?)
 function UIElement:addAdaptedText(override, str, x, y, font, align, maxscale, minscale, intensity, shadow, col1, col2, textfield, baselineScale)
+	local shadowIntensity = 0
 	if (type(override) == "string") then
 		if (type(str) == "table") then
 			local isOverride = x
 			---@type UITextSettings
 			---@diagnostic disable-next-line: cast-local-type
 			str = str
+			shadowIntensity = str.shadowIntensity
 			baselineScale = str.baselineScale
 			textfield = str.isTextfield
 			col2 = str.shadowColor
@@ -2278,7 +2281,7 @@ function UIElement:addAdaptedText(override, str, x, y, font, align, maxscale, mi
 		self.shadowFontid = generate_font(self.textFont, 1, shadow)
 	end
 	self:addCustomDisplay(override, function()
-			self:uiText(str, x, y, font, align, scale, nil, shadow, col1, col2, intensity, nil, baselineScale, nil, textfield)
+			self:uiText(str, x, y, font, align, scale, nil, shadow, col1, col2, intensity, nil, baselineScale, nil, textfield, shadowIntensity)
 		end)
 end
 
@@ -2297,20 +2300,30 @@ end
 ---@param pixelPerfect ?boolean Whether to floor the text position to make sure we don't start mid-pixel
 ---@param shadowFontId ?integer Font id for text shadow retrieved from `generate_font()`
 ---@param shadowOffset ?number Shadow offset override
-local drawTextNew = function(str, xPos, yPos, angle, scale, font, shadow, color, shadowColor, intensity, pixelPerfect, shadowFontId, shadowOffset)
+---@param shadowIntensity ?number
+local drawTextNew = function(str, xPos, yPos, angle, scale, font, shadow, color, shadowColor, intensity, pixelPerfect, shadowFontId, shadowOffset, shadowIntensity)
+	local col1 = color or DEFTEXTCOLOR
+	local col2 = shadowColor or DEFSHADOWCOLOR
 	shadow = shadow or nil
 	xPos = pixelPerfect and math.floor(xPos) or xPos
 	yPos = pixelPerfect and math.floor(yPos) or yPos
-	local col1 = color or DEFTEXTCOLOR
-	local col2 = shadowColor or DEFSHADOWCOLOR
 	intensity = intensity or col1[4]
-	if (shadow) then
+	if (shadow and col2[4] > 0) then
 		local offset = shadowOffset or shadow / 2
+		shadowFontId = shadowFontId or generate_font(font, 1, shadow)
+		shadowIntensity = shadowIntensity or 0
 		setColor(col2[1], col2[2], col2[3], col2[4])
-		drawText(str, xPos - offset, yPos - offset, angle, scale, shadowFontId or generate_font(font, 1, shadow))
+		drawText(str, xPos - offset, yPos - offset, angle, scale, shadowFontId)
+		if ((font == 0 or font == 9) and shadowIntensity > 0) then
+			setColor(col2[1], col2[2], col2[3], shadowIntensity)
+			drawText(str, xPos - offset, yPos - offset, angle, scale, shadowFontId)
+			if (font == 0 or font == 9) then
+				drawText(str, xPos - offset, yPos - offset, angle, scale, shadowFontId)
+			end
+		end
 	end
 
-	if (col1[4] == 0) then return end
+	if (col1[4] <= 0) then return end
 	setColor(col1[1], col1[2], col1[3], col1[4])
 	drawText(str, xPos, yPos, angle, scale, font)
 	if (font == 0 or font == 9) then
@@ -2338,8 +2351,9 @@ end
 ---@param baselineScale ?number Baseline scale value
 ---@param nosmooth ?boolean Whether to disable pixel perfect text drawing
 ---@param textfield ?boolean Whether this function is being used as part of text field display routine
+---@param shadowIntensity ?number Text shadow color intensity. Works similarly to `intensity`.
 ---@return boolean
-function UIElement:uiText(input, x, y, font, align, scale, angle, shadow, col1, col2, intensity, check, baselineScale, nosmooth, textfield)
+function UIElement:uiText(input, x, y, font, align, scale, angle, shadow, col1, col2, intensity, check, baselineScale, nosmooth, textfield, shadowIntensity)
 	if (not scale and check) then
 		echo("^04UIElement error: ^07uiText() cannot take undefined scale argument with check enabled")
 		return true
@@ -2431,7 +2445,7 @@ function UIElement:uiText(input, x, y, font, align, scale, angle, shadow, col1, 
 			return false
 		elseif (self.size.h - y - y2 > (pos + 2) * font_mod * 10 * scale) then
 			if (check == false) then
-				drawTextNew(str[i], xPos, yPos + (pos * fontModScale), angle, scale, font, shadow, col1, col2, intensity, smoothing, self.shadowFontid, self.shadowOffset)
+				drawTextNew(str[i], xPos, yPos + (pos * fontModScale), angle, scale, font, shadow, col1, col2, intensity, smoothing, self.shadowFontid, self.shadowOffset, shadowIntensity)
 			elseif (#str == i) then
 				return true
 			end
@@ -2440,11 +2454,11 @@ function UIElement:uiText(input, x, y, font, align, scale, angle, shadow, col1, 
 			if (check == true) then
 				return false
 			end
-			drawTextNew(textfield and str[i] or utf8.gsub(str[i], ".$", "..."), xPos, yPos + (pos * fontModScale), angle, scale, font, shadow, col1, col2, intensity, smoothing, self.shadowFontid, self.shadowOffset)
+			drawTextNew(textfield and str[i] or utf8.gsub(str[i], ".$", "..."), xPos, yPos + (pos * fontModScale), angle, scale, font, shadow, col1, col2, intensity, smoothing, self.shadowFontid, self.shadowOffset, shadowIntensity)
 			break
 		else
 			if (check == false) then
-				drawTextNew(str[i], xPos, yPos + (pos * fontModScale), angle, scale, font, shadow, col1, col2, intensity, smoothing, self.shadowFontid, self.shadowOffset)
+				drawTextNew(str[i], xPos, yPos + (pos * fontModScale), angle, scale, font, shadow, col1, col2, intensity, smoothing, self.shadowFontid, self.shadowOffset, shadowIntensity)
 			else
 				return true
 			end
@@ -3212,7 +3226,11 @@ end
 ---@param delimiter string
 ---@return string[]
 _G.string.explode = function(str, delimiter)
-	local list = {}
+	if (string.len(str) == 0) then
+		return { }
+	end
+
+	local list = { }
 	local checkLength = string.len(delimiter)
 	delimiter = string.escape(delimiter)
 	local res = pcall(function()

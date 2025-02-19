@@ -869,11 +869,11 @@ end
 ---@return UIElement listingHolder Object that will move when interacting with the list. Assign all list elements as its children.
 ---@return UIElement scrollBackground
 function TBMenu:prepareScrollableList(viewElement, firstBarSize, secondBarSize, scrollSize, accentColor, orientation)
-	local firstBarSize = firstBarSize or 50
-	local secondBarSize = secondBarSize or firstBarSize
-	local scrollSize = scrollSize or 20
-	local accentColor = accentColor or table.clone(TB_MENU_DEFAULT_DARKER_COLOR)
-	local orientation = orientation or SCROLL_VERTICAL
+	firstBarSize = firstBarSize or 50
+	secondBarSize = secondBarSize or firstBarSize
+	scrollSize = scrollSize or 20
+	accentColor = accentColor or table.clone(TB_MENU_DEFAULT_DARKER_COLOR)
+	orientation = orientation or SCROLL_VERTICAL
 
 	local toReload = viewElement:addChild({ }, true)
 	toReload.onShow = function()
@@ -5215,22 +5215,45 @@ function TBMenu:spawnSearchBar(searchString, hint)
 	}), searchBarView
 end
 
+---@class MenuButtonColorScheme
+---@field default Color
+---@field hover Color
+---@field pressed Color
+---@field ui Color
+
+---Returns a valid MenuButtonColorScheme table
+---@param scheme ?MenuButtonColorScheme
+function TBMenuInternal.VerifyButtonColorScheme(scheme)
+	scheme = scheme or { }
+	scheme.default = scheme.default or table.clone(TB_MENU_DEFAULT_DARKER_COLOR)
+	scheme.hover = scheme.hover or table.clone(TB_MENU_DEFAULT_DARKEST_COLOR)
+	scheme.pressed = scheme.pressed or table.clone(TB_MENU_DEFAULT_LIGHTER_COLOR)
+	scheme.ui = scheme.ui or { 1, 1, 1, 1 }
+	return scheme
+end
+
 ---Spawns a generic close button with an `X` icon
 ---@param viewElement UIElement
 ---@param rect Rect
 ---@param closeFunc function
+---@param colorScheme ?MenuButtonColorScheme
 ---@return UIElement
-function TBMenu:spawnCloseButton(viewElement, rect, closeFunc)
+function TBMenu:spawnCloseButton(viewElement, rect, closeFunc, colorScheme)
+	colorScheme = TBMenuInternal.VerifyButtonColorScheme(colorScheme)
 	local closeButton = viewElement:addChild({
 		pos = { rect.x, rect.y },
 		size = { rect.w, rect.h },
 		interactive = true,
-		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
-		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+		bgColor = colorScheme.default,
+		hoverColor = colorScheme.hover,
+		pressedColor = colorScheme.pressed
 	}, true)
 	closeButton:addMouseUpHandler(closeFunc)
-	closeButton:addChild({ shift = { rect.w / 5, rect.h / 5 }, bgImage = "../textures/menu/general/buttons/crosswhite.tga" })
+	closeButton:addChild({
+		shift = { rect.w / 5, rect.h / 5 },
+		bgImage = "../textures/menu/general/buttons/crosswhite.tga",
+		imageColor = colorScheme.ui
+	})
 	return closeButton
 end
 
