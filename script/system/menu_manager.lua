@@ -1046,11 +1046,16 @@ end
 ---Spawns an overlay that slightly dims main menu
 ---@param globalid ?integer
 ---@param withMouseHandler ?boolean
+---@param colorOverride ?Color
 ---@return UIElement
 ---@overload fun(self: TBMenu, withMouseHandler: boolean) : UIElement
-function TBMenu:spawnWindowOverlay(globalid, withMouseHandler)
+---@overload fun(self: TBMenu, colorOverride: Color, withMouseHandler: boolean) : UIElement
+function TBMenu:spawnWindowOverlay(globalid, withMouseHandler, colorOverride)
 	if (type(globalid) == "boolean") then
 		withMouseHandler = globalid
+		globalid = nil
+	elseif (type(globalid) == "table") then
+		colorOverride = globalid
 		globalid = nil
 	end
 	TB_MENU_POPUPS_DISABLED = true
@@ -1063,13 +1068,11 @@ function TBMenu:spawnWindowOverlay(globalid, withMouseHandler)
 		pos = { 0, 0 },
 		size = { WIN_W, WIN_H },
 		interactive = true,
-		bgColor = { 0, 0, 0, 0.4 }
+		bgColor = colorOverride or { 0, 0, 0, 0.4 }
 	})
 	if (TBMenu.UserBar ~= nil) then
 		for _, v in pairs(TBMenu.UserBar.headDisplayObjects) do
-			v.bgColor[1] = v.bgColor[1] - 0.4
-			v.bgColor[2] = v.bgColor[2] - 0.4
-			v.bgColor[3] = v.bgColor[3] - 0.4
+			v.bgColor[4] = v.bgColor[4] - overlay.bgColor[4]
 		end
 	end
 
@@ -1079,9 +1082,7 @@ function TBMenu:spawnWindowOverlay(globalid, withMouseHandler)
 
 		if (TBMenu.UserBar == nil) then return end
 		for _, v in pairs(TBMenu.UserBar.headDisplayObjects) do
-			v.bgColor[1] = v.bgColor[1] + 0.4
-			v.bgColor[2] = v.bgColor[2] + 0.4
-			v.bgColor[3] = v.bgColor[3] + 0.4
+			v.bgColor[4] = v.bgColor[4] + overlay.bgColor[4]
 		end
 	end
 	if (withMouseHandler) then

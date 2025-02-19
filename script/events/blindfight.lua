@@ -259,7 +259,16 @@ end
 ---@param viewElement UIElement
 ---@param reqTable TutorialStepRequirement[]
 local function showVictoryScreen(viewElement, reqTable)
-	Events:showBlindFightPromotion(viewElement, Events.BlindFightRewards)
+	local overlay = viewElement:addChild({ bgColor = { 1, 1, 1, 0.01 } })
+	local spawnClock = UIElement.clock
+	overlay:addCustomDisplay(function()
+			if (overlay.bgColor[4] < 0.9) then
+				overlay.bgColor[4] = UITween.SineTween(0, 0.9, UIElement.clock - spawnClock)
+			else
+				overlay.customDisplay = nil
+			end
+		end)
+	Events:showBlindFightPromotion(overlay, Events.BlindFightRewards, function() Tutorials:quit() end)
 	Events.BlindFightRewards = nil
 end
 
@@ -380,17 +389,11 @@ local function showPostSimulation(viewElement, reqTable)
 	end
 end
 
----@class BlindFightRewards
----@field tc integer
----@field st integer
----@field bpxp integer
----@field itemids string[]
-
 ---@param viewElement UIElement
 ---@param reqTable TutorialStepRequirement[]
 ---@param playerMove MemoryMove
 ---@param opponentInfos BlindFightOpponent[]
----@param rewardsEarned BlindFightRewards
+---@param rewardsEarned BlindFightReward[]
 ---@param id integer
 local function showSimulationResults(viewElement, reqTable, playerMove, opponentInfos, rewardsEarned, id)
 	viewElement:kill(true)
@@ -496,7 +499,10 @@ local function submitMove(viewElement, reqTable, moveData, onError)
 					if (st > 0) then table.insert(rewardsEarned, { st = st }) end
 					if (bpxp > 0) then table.insert(rewardsEarned, { bpxp = bpxp }) end
 					for _, v in pairs(string.explode(data[5], ":")) do
-						table.insert(rewardsEarned, { itemid = v })
+						local itemid = tonumber(v) or 0
+						if (itemid > 0) then
+							table.insert(rewardsEarned, { itemid = itemid })
+						end
 					end
 				else
 					table.insert(opponentInfos, {

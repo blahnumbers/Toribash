@@ -2005,8 +2005,19 @@ function Events:showEventInfo(id)
 	end
 end
 
-function Events:showBlindFightPromotion(viewElement, prizes)
-	local overlay = viewElement:addChild({ bgColor = { 1, 1, 1, 0 }})
+---@class BlindFightReward
+---@field tc integer
+---@field st integer
+---@field bpxp integer
+---@field itemid integer
+
+---Displays Blind Fight league promotion interface
+---@param overlay UIElement
+---@param prizes BlindFightReward[]
+---@param onContinue ?function
+---@param leagueName ?string
+function Events:showBlindFightPromotion(overlay, prizes, onContinue, leagueName)
+	overlay:kill(true)
 	local spawnClock = UIElement.clock
 	local spawnArea = { x = overlay.size.w / 2.5, y = overlay.size.h / 3 }
 	local blobSegments = is_mobile() and 0 or 24
@@ -2096,17 +2107,9 @@ function Events:showBlindFightPromotion(viewElement, prizes)
 	local textDelay = 0.1
 	local prizesDelay = 0.6
 	local buttonDelay = 1.8
-	mainBlob:addCustomDisplay(true, function(init)
-			if (init) then return end
-			if (textSpawned and prizesSpawned and buttonSpawned) then
-				mainBlob:addCustomDisplay(true, function()
-					drawBlob(mainBlob, 0, spawnArea.y / 2, spawnArea.y / 1.9)
-				end)
-				return
-			end
-
-			drawBlob(mainBlob, 0, spawnArea.y / 2, spawnArea.y / 1.9)
-			overlay.bgColor[4] = UITween.SineTween(0, 0.9, UIElement.clock - spawnClock)
+	local drawText
+	if (leagueName == nil) then
+		drawText = function()
 			if (UIElement.clock - spawnClock - textDelay > 0 and not textSpawned) then
 				textSpawned = true
 				local textElement = mainBlobHolder:addChild({
@@ -2123,12 +2126,75 @@ function Events:showBlindFightPromotion(viewElement, prizes)
 						textElement.uiColor[4] = UITween.SineTween(0, 1, textSpawnClock)
 						textElement.uiShadowColor[4] = textElement.uiColor[4]
 						textScale = UITween.SineTween(textScale, 1, textSpawnClock)
-						textElement:uiText("League Victory", nil, nil, FONTS.BIG, CENTERBOT, textScale, nil, 4)
+						textElement:uiText(TB_MENU_LOCALIZED.BLINDFIGHTLEAGUEVICTORY, nil, nil, FONTS.BIG, CENTERBOT, textScale, nil, 4)
 					else
-						textElement:addAdaptedText("League Victory", { font = FONTS.BIG, align = CENTERBOT, minscale = textScale, maxscale = textScale, shadow = 4 }, true)
+						textElement:addAdaptedText(TB_MENU_LOCALIZED.BLINDFIGHTLEAGUEVICTORY, { font = FONTS.BIG, align = CENTERBOT, minscale = textScale, maxscale = textScale, shadow = 4 }, true)
 					end
 				end)
 			end
+		end
+	else
+		local promotedLeague = utf8.gsub(TB_MENU_LOCALIZED.BLINDFIGHTLEAGUEPROMOTION, "{league}", leagueName)
+		drawText = function()
+			if (UIElement.clock - spawnClock - textDelay > 0 and not textSpawned) then
+				textSpawned = true
+				local textElement = mainBlobHolder:addChild({
+					pos = { 25, 20 },
+					size = { mainBlobHolder.size.w - 50, (mainBlobHolder.size.h - 60) / 3 }
+				})
+				local textElementVictory = textElement:addChild({
+					size = { textElement.size.w, textElement.size.h * 0.65 },
+					uiColor = { 1, 1, 1, 0 },
+					uiShadowColor = { 0.1523, 0.0625, 0.1641, 0 },
+					shadowOffset = 2
+				})
+				local textScale = 0.5
+				textElementVictory:addCustomDisplay(true, function()
+					local textSpawnClock = UIElement.clock - spawnClock - textDelay
+					if (textElementVictory.uiColor[4] < 1) then
+						textElementVictory.uiColor[4] = UITween.SineTween(0, 1, textSpawnClock)
+						textElementVictory.uiShadowColor[4] = textElementVictory.uiColor[4]
+						textScale = UITween.SineTween(textScale, 1, textSpawnClock)
+						textElementVictory:uiText(TB_MENU_LOCALIZED.BLINDFIGHTLEAGUEVICTORY, nil, nil, FONTS.BIG, CENTERBOT, textScale, nil, 4)
+					else
+						textElementVictory:addAdaptedText(TB_MENU_LOCALIZED.BLINDFIGHTLEAGUEVICTORY, { font = FONTS.BIG, align = CENTERBOT, minscale = textScale, maxscale = textScale, shadow = 4 }, true)
+					end
+				end)
+
+				local textElementPromotion = textElement:addChild({
+					pos = { 0, textElementVictory.size.h },
+					size = { textElement.size.w, textElement.size.h - textElementVictory.size.h },
+					uiColor = { 1, 1, 1, 0 },
+					uiShadowColor = { 0.1523, 0.0625, 0.1641, 0 },
+					shadowOffset = 1
+				})
+				textElementPromotion:addCustomDisplay(true, function()
+					local textSpawnClock = UIElement.clock - spawnClock - textDelay - 0.15
+					if (textElementPromotion.uiColor[4] < 1) then
+						textElementPromotion.uiColor[4] = UITween.SineTween(0, 1, textSpawnClock)
+						textElementPromotion.uiShadowColor[4] = textElementPromotion.uiColor[4]
+						textScale = UITween.SineTween(textScale, 1, textSpawnClock)
+						textElementPromotion:uiText(promotedLeague, nil, nil, FONTS.MEDIUM, CENTERBOT, textScale, nil, 2)
+					else
+						textElementPromotion:addAdaptedText(promotedLeague, { font = FONTS.MEDIUM, align = CENTERBOT, minscale = textScale, maxscale = textScale, shadow = 2 }, true)
+					end
+				end)
+			end
+		end
+	end
+	
+	mainBlob:addCustomDisplay(true, function(init)
+			if (init) then return end
+			if (textSpawned and prizesSpawned and buttonSpawned) then
+				mainBlob:addCustomDisplay(true, function()
+					drawBlob(mainBlob, 0, spawnArea.y / 2, spawnArea.y / 1.9)
+				end)
+				return
+			end
+
+			drawBlob(mainBlob, 0, spawnArea.y / 2, spawnArea.y / 1.9)
+
+			drawText()
 			if (UIElement.clock - spawnClock - prizesDelay > 0 and not prizesSpawned) then
 				prizesSpawned = true
 				local prizeElements = {}
@@ -2212,9 +2278,11 @@ function Events:showBlindFightPromotion(viewElement, prizes)
 						continueButton.bgColor[4] = transparency
 						continueText.uiColor[4] = transparency
 					end, true)
-				continueButton:addMouseUpHandler(function()
-						Tutorials:quit()
-					end)
+				if (onContinue) then
+					continueButton:addMouseUpHandler(onContinue)
+				else
+					continueButton:addMouseUpHandler(function() overlay:kill() end)
+				end
 			end
 		end)
 	local secBlob1 = mainBlobHolder:addChild({
@@ -2432,6 +2500,35 @@ function Events:showBlindFightMain(viewElement)
 	else
 		listingHolder:moveTo(6, nil, true)
 	end
+
+	if (EventsInternal.BlindFight.pendingRewards) then
+		local overlay = TBMenu:spawnWindowOverlay({ 1, 1, 1, 0.9 })
+		overlay.uiColor = { 0.1523, 0.0625, 0.1641, 1 }
+		---@diagnostic disable-next-line: undefined-global
+		Request:queue(claim_blindfight_rewards, "blindfight_rewardclaim", function(_, response)
+			if (response:find("^LEAGUE_PROMOTED_REWARDS\t")) then
+				local _, segments = response:gsub("\t", "")
+				local data = { response:match(("([^\t]*)\t?"):rep(segments)) }
+				local claimedRewards = {}
+				local tc = tonumber(data[2]) or 0
+				local st = tonumber(data[3]) or 0
+				local bpxp = tonumber(data[4]) or 0
+				if (tc > 0) then table.insert(claimedRewards, { tc = tc }) end
+				if (st > 0) then table.insert(claimedRewards, { st = st }) end
+				if (bpxp > 0) then table.insert(claimedRewards, { bpxp = bpxp }) end
+				for _, v in pairs(string.explode(data[5], ":")) do
+					local itemid = tonumber(v) or 0
+					if (itemid > 0) then
+						table.insert(claimedRewards, { itemid = itemid })
+					end
+				end
+				Events:showBlindFightPromotion(overlay, claimedRewards, nil, EventsInternal.BlindFight.groupTitle)
+				return
+			end
+		end)
+		TBMenu:displayLoadingMark(overlay)
+		EventsInternal.BlindFight.pendingRewards = false
+	end
 end
 
 function Events:showBlindFight()
@@ -2504,6 +2601,8 @@ function Events:refreshBlindFight(loaderView, loadingMark, onComplete)
 				EventsInternal.BlindFight.minVersion = tonumber(data[2]) or 250129
 				EventsInternal.BlindFight.numGroupPlayers = tonumber(data[3]) or 8
 				EventsInternal.BlindFight.minPromoteGroupPlayers = tonumber(data[4]) or 5
+			elseif (ln:find("^LEAGUE_PENDING_REWARDS\t")) then
+				EventsInternal.BlindFight.pendingRewards = true
 			elseif (ln:len() > 0) then
 				local _, segments = ln:gsub("\t", "")
 				local data = { ln:match(("([^\t]*)\t"):rep(segments)) }

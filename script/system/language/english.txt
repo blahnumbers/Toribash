@@ -1362,3 +1362,5 @@ BLINDFIGHTLEAGUEPROMOTIONINFO	Stay among the top 3 players by the time of league
 BLINDFIGHTLEAGUEINSUFFICIENTPLAYERSINFO	Once more players join the league, stay among the top 3 players to advance to next tier
 EVENTSPLAYERWINS	{wins} wins
 BLINDFIGHTLEAVINGPROMPT	You will lose your opener if you leave now. Are you sure?
+BLINDFIGHTLEAGUEVICTORY	League Victory
+BLINDFIGHTLEAGUEPROMOTION	Promoted to {league}
