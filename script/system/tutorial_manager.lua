@@ -7,6 +7,10 @@ require("system.tooltip_manager")
 if (Tutorials == nil) then
 	---**Toribash Tutorials class**
 	---
+	---**Version 5.74**
+	---* Updates to support RPG functionality
+	---* Fixes to tutorial progress bar display
+	---
 	---**Version 5.70**
 	---* Added `HookName` field
 	---
@@ -50,9 +54,10 @@ if (Tutorials == nil) then
 	---@field QuitPopupOverride function|nil Optional quit popup override function
 	---@field StepHook string Name of a hook set that will be reset on every new step
 	---@field StaticHook string Name of a hook set that will be reset on tutorial / event exit
+	---@field RPGState boolean|nil RPG state when tutorial was launched
 	---@field ver number
 	Tutorials = {
-		ver = 5.70,
+		ver = 5.74,
 		Globalid = 1003,
 		ReplaySpeed = 1,
 		ReplayCache = false,
@@ -61,7 +66,8 @@ if (Tutorials == nil) then
 		StepHook = "__tbTutorialsCustom",
 		StaticHook = "__tbTutorialsCustomStatic",
 		HookName = "__tbTutorialsManager",
-		StoredOptions = {}
+		StoredOptions = {},
+		RPGState = nil
 	}
 	Tutorials.__index = Tutorials
 end
@@ -141,13 +147,13 @@ function Tutorials:quit()
 	TUTORIAL_LEAVEGAME = false
 
 	self:unloadHooks()
+	self:resetRPG()
 	runCmd("lm classic")
 
 	if (self.QuitOverlay) then
 		self.QuitOverlay:kill()
 		self.QuitOverlay = nil
 	end
-
 	set_discord_rpc("", "")
 	set_hint_override()
 	disable_player_select(-1)
@@ -158,11 +164,25 @@ function Tutorials:unloadHooks()
 	remove_hooks(self.HookName)
 	remove_hooks(self.StepHook)
 	remove_hooks(self.StaticHook)
-	remove_hooks(MoveMemory.HookName .. "Play0")
-	remove_hooks(MoveMemory.HookName .. "Play1")
-	for i, _ in pairs(MoveMemory.PlaybackActive) do
-		MoveMemory.PlaybackActive[i] = false
+	for i, v in pairs(MoveMemory.PlaybackActive) do
+		if (v == true) then
+			MoveMemory.PlaybackActive[i] = false
+			remove_hooks(MoveMemory.HookName .. "Play" .. i)
+		end
 	end
+	for i, v in pairs(MoveMemory.Recording) do
+		if (v ~= nil) then
+			MoveMemory:cancelRecording(i)
+		end
+	end
+end
+
+function Tutorials:resetRPG()
+	for i = 0, 3 do
+		reset_rpg(i)
+	end
+	rpg_state(self.RPGState)
+	self.RPGState = nil
 end
 
 ---Sets `quitPopup` override for Tutorials UI
@@ -2206,6 +2226,7 @@ function Tutorials:runTutorial(id, path, postTutorial)
 	end
 
 	self:unloadHooks()
+	self:resetRPG()
 	self:loadOverlay()
 	local tutorialSteps = self:loadTutorial(id, path)
 	if (not tutorialSteps) then
@@ -2220,6 +2241,9 @@ function Tutorials:runTutorial(id, path, postTutorial)
 
 	TutorialsInternal.UpdateConfig()
 	TutorialsInternal.SetDiscordRPC()
+	if (self.RPGState == nil) then
+		self.RPGState = rpg_state()
+	end
 	usage_event("tutorial" .. id .. "begin")
 	self:runTutorialBase(tutorialSteps, postTutorial)
 end

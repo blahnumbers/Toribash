@@ -729,7 +729,7 @@ function MoveMemory:playMove(memorymove, spawnHook, player, noToolbar)
 		for joint, state in pairs(memorymove.movements[turn]) do
 			if (joint < 20) then
 				local state = math.min(math.max(state, 1), 4)
-				set_joint_state(player, joint, state, true)
+				set_joint_state(player, joint, state, self.PlaybackActive[player])
 			end
 		end
 	end

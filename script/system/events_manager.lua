@@ -8,6 +8,18 @@ require('system.friends_manager')
 ---@field userid string
 ---@field name string
 ---@field wins integer
+---@field prestige integer
+
+---@class BlindFightReward
+---@field tc integer
+---@field st integer
+---@field bpxp integer
+---@field itemid integer
+
+---@class BlindFightRPG
+---@field strength integer
+---@field speed integer
+---@field endurance integer
 
 ---@class BlindFightData
 ---@field modName string
@@ -22,6 +34,10 @@ require('system.friends_manager')
 ---@field minVersion integer?
 ---@field numGroupPlayers integer
 ---@field minPromoteGroupPlayers integer
+---@field pendingRewards boolean
+---@field tierRewards BlindFightReward[]
+---@field prestigeRewards BlindFightReward[]
+---@field userRPG BlindFightRPG
 
 if (Events == nil) then
 	---**Events manager class**
@@ -33,7 +49,7 @@ if (Events == nil) then
 	---@field EventStalePeriod integer Period in seconds before event data is considered stale
 	---@field BlindFightMode integer Blind Fight launch mode
 	Events = {
-		EventStalePeriod = 60,
+		EventStalePeriod = 600,
 		BlindFightMode = 0,
 		HookName = "__tbEventsManager",
 		ver = 5.74
@@ -2005,12 +2021,6 @@ function Events:showEventInfo(id)
 	end
 end
 
----@class BlindFightReward
----@field tc integer
----@field st integer
----@field bpxp integer
----@field itemid integer
-
 ---Displays Blind Fight league promotion interface
 ---@param overlay UIElement
 ---@param prizes BlindFightReward[]
@@ -2134,7 +2144,7 @@ function Events:showBlindFightPromotion(overlay, prizes, onContinue, leagueName)
 			end
 		end
 	else
-		local promotedLeague = utf8.gsub(TB_MENU_LOCALIZED.BLINDFIGHTLEAGUEPROMOTION, "{league}", leagueName)
+		local promotedLeague = utf8.gsub(TB_MENU_LOCALIZED.BLINDFIGHTLEAGUEPROMOTION, "{x}", leagueName)
 		drawText = function()
 			if (UIElement.clock - spawnClock - textDelay > 0 and not textSpawned) then
 				textSpawned = true
@@ -2313,6 +2323,28 @@ function Events:showBlindFightPromotion(overlay, prizes, onContinue, leagueName)
 	spawnClock = os.clock_real()
 end
 
+---Parses Blind Fight rewards network response string
+---@param ln string
+---@return BlindFightReward[]
+function Events.ParseBlindFightRewards(ln)
+	local _, segments = ln:gsub("\t", "")
+	local data = { ln:match(("([^\t]*)\t?"):rep(segments)) }
+	local rewards = {}
+	local tc = tonumber(data[2]) or 0
+	local st = tonumber(data[3]) or 0
+	local bpxp = tonumber(data[4]) or 0
+	if (tc > 0) then table.insert(rewards, { tc = tc }) end
+	if (st > 0) then table.insert(rewards, { st = st }) end
+	if (bpxp > 0) then table.insert(rewards, { bpxp = bpxp }) end
+	for _, v in pairs(string.explode(data[5], ":")) do
+		local itemid = tonumber(v) or 0
+		if (itemid > 0) then
+			table.insert(rewards, { itemid = itemid })
+		end
+	end
+	return rewards
+end
+
 ---@param viewElement UIElement
 function Events:showBlindFightMain(viewElement)
 	if (viewElement == nil or viewElement.destroyed or EventsInternal.BlindFight == nil) then
@@ -2340,14 +2372,14 @@ function Events:showBlindFightMain(viewElement)
 	})
 
 	local buttonsVertical = playerInfoView.size.h >= playerInfoView.size.w
-	local maxBackdropWidth = { x = playerInfoView.size.w - 20, y = playerInfoView.size.h - (buttonsVertical and 250 or 180) }
-	local backdropSize = { x = maxBackdropWidth.x, y = maxBackdropWidth.x * 0.41 }
-	if (backdropSize.y > maxBackdropWidth.y) then
-		backdropSize.y = maxBackdropWidth.y
+	local maxBackdropSize = { x = playerInfoView.size.w - 20, y = playerInfoView.size.h - (buttonsVertical and 250 or 180) }
+	local backdropSize = { x = maxBackdropSize.x, y = maxBackdropSize.x * 0.41 }
+	if (backdropSize.y > maxBackdropSize.y) then
+		backdropSize.y = maxBackdropSize.y
 		backdropSize.x = backdropSize.y * 2.438
 	end
 	local playerInfoViewBackdrop = playerInfoView:addChild({
-		pos = { 10 + (maxBackdropWidth.x - backdropSize.x) / 2, 10 + (maxBackdropWidth.y - backdropSize.y) / 2 },
+		pos = { 10 + (maxBackdropSize.x - backdropSize.x) / 2, 10 + (maxBackdropSize.y - backdropSize.y) / 3 },
 		size = { backdropSize.x, backdropSize.y },
 		bgImage = "../textures/menu/blindfight/scoresplash.tga"
 	})
@@ -2369,6 +2401,40 @@ function Events:showBlindFightMain(viewElement)
 	playerInfoDataHolder:addChild({
 		shift = { 25, 10 }
 	}):addAdaptedText(EventsInternal.BlindFight.gamesPlayed .. " " .. utf8.lower(TB_MENU_LOCALIZED.EVENTSGAMESPLAYED) .. ", " .. EventsInternal.BlindFight.gamesWon .. " " .. utf8.lower(TB_MENU_LOCALIZED.EVENTSGAMESWON))
+
+	local numRewards = #EventsInternal.BlindFight.tierRewards
+	local rewardsHolderHeight = math.min(playerInfoDataHolder.size.w / numRewards, 102, backdropSize.y * 0.2)
+	if (playerInfoView.pos.y + playerInfoView.size.h - (buttonsVertical and 250 or 160) - playerInfoDataHolder.pos.y - playerInfoDataHolder.size.h - rewardsHolderHeight - 10 > 0) then
+		local tierRewardsHolder = playerInfoDataHolder:addChild({
+			pos = { 0, playerInfoDataHolder.size.h + 5 },
+			size = { playerInfoDataHolder.size.w, rewardsHolderHeight }
+		})
+		local startX = tierRewardsHolder.size.w - numRewards * tierRewardsHolder.size.h + 6
+		for i, v in pairs(EventsInternal.BlindFight.tierRewards) do
+			local tierReward = tierRewardsHolder:addChild({
+				pos = { startX + (i - 1) * tierRewardsHolder.size.h, 3 },
+				size = { tierRewardsHolder.size.h - 6, tierRewardsHolder.size.h - 6 }
+			})
+			BattlePass:showPrizeItem(tierReward, {
+				bgColor = { 0.204, 0.084, 0.202, 1 },
+				bgOutlineColor = { 0, 0, 0, 1 },
+				textBackdropColor = { 0.204, 0.084, 0.202, 0.67 },
+				textColor = { 1, 1, 1, 1 },
+				static = true,
+				tc = v.tc,
+				st = v.st,
+				itemid = v.itemid,
+				bpxp = v.bpxp,
+			})
+		end
+		local tierRewardsCaption = tierRewardsHolder:addChild({
+			pos = { -tierRewardsHolder.size.w * 1.7 + startX - 10, 0 },
+			size = { tierRewardsHolder.size.w * 0.7, tierRewardsHolder.size.h },
+			uiShadowColor = { 0.1523, 0.0625, 0.1641, 1 },
+		})
+		tierRewardsCaption:addAdaptedText(TB_MENU_LOCALIZED.BLINDFIGHTPROMOTIONREWARDS, { font = FONTS.BIG, align = RIGHTMID, maxscale = 0.65, shadow = 4 })
+	end
+
 	local playButtonsHolder = playerInfoView:addChild{
 		pos = { 0, buttonsVertical and -250 or -160 },
 		size = { playerInfoView.size.w, buttonsVertical and 250 or 160 },
@@ -2484,11 +2550,40 @@ function Events:showBlindFightMain(viewElement)
 			size = { playerEntry.size.w / 2 - 30 - playerEntry.size.h, playerEntry.size.h - 10 }
 		})
 		playerName:addAdaptedText(v.name, nil, nil, FONTS.MEDIUM, LEFTMID)
+		if (v.prestige > 0) then
+			local nameLength = get_string_length(playerName.dispstr[1], playerName.textFont) * playerName.textScale
+			local prestigeBackdrop = playerName:addChild({
+				pos = { nameLength + 5, 7 },
+				size = { playerName.size.h - 14, playerName.size.h - 14 },
+				interactive = true,
+				bgImage = "../textures/menu/blindfight/prestige-backdrop.tga",
+				imageAtlas = true,
+				atlas = {
+					x = math.floor((v.prestige - 1) / 5) * 128, y = 0,
+					w = 128, h = 128
+				},
+				imageColor = { 0.1523, 0.0625, 0.1641, 0.75 },
+				imageHoverColor = { 0.1523, 0.0625, 0.1641, 1 },
+				imagePressedColor = { 0.1523, 0.0625, 0.1641, 1 }
+			})
+			local prestigeIcon = prestigeBackdrop:addChild({
+				bgImage = "../textures/menu/blindfight/prestige.tga",
+				imageAtlas = true,
+				atlas = {
+					x = (v.prestige % 5) * 128, y = 0,
+					w = 128, h = 128
+				}
+			})
+			local popup = TBMenu:displayPopup(prestigeBackdrop, TB_MENU_LOCALIZED.BLINDFIGHTPRESTIGE .. " " .. v.prestige)
+			if (popup ~= nil) then
+				popup:moveTo(-(prestigeIcon.size.w + popup.size.w) / 2, prestigeIcon.size.h + 5)
+			end
+		end
 		local playerWins = playerEntry:addChild({
 			pos = { playerName.shift.x + playerName.size.w + 10, playerName.shift.y },
 			size = { playerEntry.size.w - playerName.shift.x - playerName.size.w - 20, playerName.size.h }
 		})
-		playerWins:addAdaptedText(utf8.gsub(TB_MENU_LOCALIZED.EVENTSPLAYERWINS, "{wins}", v.wins), nil, nil, FONTS.MEDIUM, RIGHTMID)
+		playerWins:addAdaptedText(utf8.gsub(TB_MENU_LOCALIZED.EVENTSPLAYERWINS, "{x}", v.wins), nil, nil, FONTS.MEDIUM, RIGHTMID)
 	end
 
 	if (#listElements * elementHeight > listingHolder.size.h) then
@@ -2507,21 +2602,7 @@ function Events:showBlindFightMain(viewElement)
 		---@diagnostic disable-next-line: undefined-global
 		Request:queue(claim_blindfight_rewards, "blindfight_rewardclaim", function(_, response)
 			if (response:find("^LEAGUE_PROMOTED_REWARDS\t")) then
-				local _, segments = response:gsub("\t", "")
-				local data = { response:match(("([^\t]*)\t?"):rep(segments)) }
-				local claimedRewards = {}
-				local tc = tonumber(data[2]) or 0
-				local st = tonumber(data[3]) or 0
-				local bpxp = tonumber(data[4]) or 0
-				if (tc > 0) then table.insert(claimedRewards, { tc = tc }) end
-				if (st > 0) then table.insert(claimedRewards, { st = st }) end
-				if (bpxp > 0) then table.insert(claimedRewards, { bpxp = bpxp }) end
-				for _, v in pairs(string.explode(data[5], ":")) do
-					local itemid = tonumber(v) or 0
-					if (itemid > 0) then
-						table.insert(claimedRewards, { itemid = itemid })
-					end
-				end
+				local claimedRewards = Events.ParseBlindFightRewards(response)
 				Events:showBlindFightPromotion(overlay, claimedRewards, nil, EventsInternal.BlindFight.groupTitle)
 				return
 			end
@@ -2573,7 +2654,7 @@ function Events:refreshBlindFight(loaderView, loadingMark, onComplete)
 			loadingMark:kill()
 		end
 
-		EventsInternal.BlindFight = { players = { }, defeated = { }, lastupdate = os.time(), groupTitle = "" }
+		EventsInternal.BlindFight = { players = { }, defeated = { }, lastupdate = os.time(), groupTitle = "", tierRewards = { } }
 		if (string.find(response, "^ERROR")) then
 			if (loaderView ~= nil and not loaderView.destroyed) then
 				local errorMessage = response:gsub("^ERROR ", "")
@@ -2603,13 +2684,18 @@ function Events:refreshBlindFight(loaderView, loadingMark, onComplete)
 				EventsInternal.BlindFight.minPromoteGroupPlayers = tonumber(data[4]) or 5
 			elseif (ln:find("^LEAGUE_PENDING_REWARDS\t")) then
 				EventsInternal.BlindFight.pendingRewards = true
+			elseif (ln:find("^LEAGUE_REWARDS\t")) then
+				EventsInternal.BlindFight.tierRewards = Events.ParseBlindFightRewards(ln)
+			elseif (ln:find("^LEAGUE_PRESTIGE\t")) then
+				EventsInternal.BlindFight.prestigeRewards = Events.ParseBlindFightRewards(ln)
 			elseif (ln:len() > 0) then
 				local _, segments = ln:gsub("\t", "")
 				local data = { ln:match(("([^\t]*)\t"):rep(segments)) }
 				table.insert(EventsInternal.BlindFight.players, {
 					userid = data[1],
 					name = data[2],
-					wins = tonumber(data[3]) or 0
+					wins = tonumber(data[3]) or 0,
+					prestige = tonumber(data[6]) or 0
 				})
 				if (string.lower(data[2]) == string.lower(TB_MENU_PLAYER_INFO.username)) then
 					local _, segments = string.gsub(data[4], ":", "")
@@ -2617,6 +2703,11 @@ function Events:refreshBlindFight(loaderView, loadingMark, onComplete)
 					_, segments = string.gsub(data[5], ":", "")
 					local openerLines = { string.match(data[5], ("([^:]*):?"):rep(segments + 1)) }
 					EventsInternal.BlindFight.userMoves = MemoryMove.FromOpener(openerLines)
+					EventsInternal.BlindFight.userRPG = {
+						strength = tonumber(data[7]) or 0,
+						speed = tonumber(data[8]) or 0,
+						endurance = tonumber(data[9]) or 0
+					}
 				elseif (autoupdate == 1) then
 					---Download base player customs so we see them when fighting
 					download_head(data[1])

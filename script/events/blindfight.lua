@@ -69,9 +69,12 @@ local function onExit()
 	end
 
 	---Disallow exiting in other cases
-	TUTORIAL_LEAVEGAME = true
-	close_menu()
-	TUTORIAL_LEAVEGAME = false
+	add_hook("pre_draw", Tutorials.HookName, function()
+			TUTORIAL_LEAVEGAME = true
+			close_menu()
+			TUTORIAL_LEAVEGAME = false
+			remove_hook("pre_draw", Tutorials.HookName)
+		end)
 end
 
 ---@param viewElement UIElement
@@ -237,6 +240,9 @@ local function initialize(viewElement, reqTable)
 	select_player(0, false)
 	TUTORIAL_LEAVEGAME = true
 	runCmd("lm " .. blindFight.modName)
+	rpg_state(true)
+	set_rpg(0, blindFight.userRPG.strength, blindFight.userRPG.speed, blindFight.userRPG.endurance)
+	start_new_game()
 	TUTORIAL_LEAVEGAME = false
 
 	if (Events.BlindFightMode == 1) then
@@ -276,6 +282,7 @@ end
 ---@field username string
 ---@field opener MemoryMove
 ---@field win integer
+---@field rpg BlindFightRPG
 
 ---@param viewElement UIElement
 ---@param reqTable TutorialStepRequirement[]
@@ -398,7 +405,17 @@ end
 local function showSimulationResults(viewElement, reqTable, playerMove, opponentInfos, rewardsEarned, id)
 	viewElement:kill(true)
 
+	local blindFight = Events.GetBlindFight()
+	if (blindFight == nil) then
+		quit()
+		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.BLINDFIGHTDATAERROR)
+		return
+	end
+
 	TUTORIAL_LEAVEGAME = true
+	rpg_state(true)
+	set_rpg(0, blindFight.userRPG.strength, blindFight.userRPG.speed, blindFight.userRPG.endurance)
+	set_rpg(1, opponentInfos[id].rpg.strength, opponentInfos[id].rpg.speed, opponentInfos[id].rpg.endurance)
 	start_new_game()
 	TUTORIAL_LEAVEGAME = false
 
@@ -451,6 +468,8 @@ local function showSimulationResults(viewElement, reqTable, playerMove, opponent
 				victoryTextSpawned = true
 				spawnVictoryText()
 			elseif (UIElement.WorldState.gameover_frame + 90 < UIElement.WorldState.match_frame) then
+				--[[local rplName = "blindfight/blindfight-" .. os.date("%Y%m%d-%H%M%S", os.time()) .. "-" .. opponentInfos[id].username
+				runCmd("savereplay ../" .. rplName)]]
 				remove_hook("pre_draw", "__blindFightManager")
 				if (#opponentInfos > id) then
 					showSimulationResults(viewElement, reqTable, playerMove, opponentInfos, rewardsEarned, id + 1)
@@ -489,26 +508,20 @@ local function submitMove(viewElement, reqTable, moveData, onError)
 			local rewardsEarned = {}
 			local autoupdate = get_option("autoupdate")
 			for ln in response:gmatch("[^\n]*\n") do
-				local _, segments = ln:gsub("\t", "")
-				local data = { ln:match(("([^\t]*)\t?"):rep(segments)) }
-				if (data[1] == "LEAGUE_PROMOTED_REWARDS") then
-					local tc = tonumber(data[2]) or 0
-					local st = tonumber(data[3]) or 0
-					local bpxp = tonumber(data[4]) or 0
-					if (tc > 0) then table.insert(rewardsEarned, { tc = tc }) end
-					if (st > 0) then table.insert(rewardsEarned, { st = st }) end
-					if (bpxp > 0) then table.insert(rewardsEarned, { bpxp = bpxp }) end
-					for _, v in pairs(string.explode(data[5], ":")) do
-						local itemid = tonumber(v) or 0
-						if (itemid > 0) then
-							table.insert(rewardsEarned, { itemid = itemid })
-						end
-					end
+				if (ln:find("^LEAGUE_PROMOTED_REWARDS")) then
+					rewardsEarned = Events.ParseBlindFightRewards(ln)
 				else
+					local _, segments = ln:gsub("\t", "")
+					local data = { ln:match(("([^\t]*)\t?"):rep(segments)) }
 					table.insert(opponentInfos, {
 						username = data[1],
 						opener = MemoryMove.FromOpener(string.explode(data[2], ':')),
-						win = tonumber(data[3]) or 2
+						win = tonumber(data[3]) or 2,
+						rpg = {
+							strength = tonumber(data[4]) or 0,
+							speed = tonumber(data[5]) or 0,
+							endurance = tonumber(data[6]) or 0
+						}
 					})
 					if (autoupdate == 1) then
 						download_head(data[1])

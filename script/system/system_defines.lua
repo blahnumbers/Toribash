@@ -1695,13 +1695,13 @@ function rpg_state(state) end
 
 ---Sets player RPG data for the next game
 ---@param player integer
----@param strength number
----@param speed number
----@param endurance number
+---@param strength integer
+---@param speed integer
+---@param endurance integer
 ---@param x_scale number
 ---@param y_scale number
 ---@param z_scale number
----@overload fun(player: integer, strength: number, speed: number, endurance: number)
+---@overload fun(player: integer, strength: integer, speed: integer, endurance: integer)
 function set_rpg(player, strength, speed, endurance, x_scale, y_scale, z_scale) end
 
 ---Resets player RPG data for the next game
@@ -1709,9 +1709,9 @@ function set_rpg(player, strength, speed, endurance, x_scale, y_scale, z_scale) 
 function reset_rpg(player) end
 
 ---@class PlayerRPG
----@field strength number
----@field speed number
----@field endurance number
+---@field strength integer
+---@field speed integer
+---@field endurance integer
 ---@field x number
 ---@field y number
 ---@field z number
