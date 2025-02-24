@@ -240,6 +240,7 @@ local function initialize(viewElement, reqTable)
 	select_player(0, false)
 	TUTORIAL_LEAVEGAME = true
 	runCmd("lm " .. blindFight.modName)
+	set_gamerule("maxcontacts", "32")
 	rpg_state(true)
 	set_rpg(0, blindFight.userRPG.strength, blindFight.userRPG.speed, blindFight.userRPG.endurance)
 	start_new_game()
@@ -413,6 +414,7 @@ local function showSimulationResults(viewElement, reqTable, playerMove, opponent
 	end
 
 	TUTORIAL_LEAVEGAME = true
+	set_gamerule("maxcontacts", "32")
 	rpg_state(true)
 	set_rpg(0, blindFight.userRPG.strength, blindFight.userRPG.speed, blindFight.userRPG.endurance)
 	set_rpg(1, opponentInfos[id].rpg.strength, opponentInfos[id].rpg.speed, opponentInfos[id].rpg.endurance)
