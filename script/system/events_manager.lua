@@ -38,6 +38,7 @@ require('system.friends_manager')
 ---@field tierRewards BlindFightReward[]
 ---@field prestigeRewards BlindFightReward[]
 ---@field userRPG BlindFightRPG
+---@field promotePlayersPercentage number
 
 if (Events == nil) then
 	---**Events manager class**
@@ -2500,13 +2501,25 @@ function Events:showBlindFightMain(viewElement)
 	TBMenu:addBottomBloodSmudge(botBar, 2)
 
 	local leagueInfo = botBar:addChild({ shift = { 25, 10 } })
-	if (numPlayers == EventsInternal.BlindFight.numGroupPlayers) then
-		leagueInfo:addAdaptedText(TB_MENU_LOCALIZED.BLINDFIGHTLEAGUEPROMOTIONINFOFULL, { font = FONTS.LMEDIUM, maxscale = 0.85, baselineScale = 1.5 })
-	elseif (numPlayers >= EventsInternal.BlindFight.minPromoteGroupPlayers) then
-		leagueInfo:addAdaptedText(TB_MENU_LOCALIZED.BLINDFIGHTLEAGUEPROMOTIONINFO, { font = FONTS.LMEDIUM, maxscale = 0.85, baselineScale = 1.5 })
-	else
-		leagueInfo:addAdaptedText(TB_MENU_LOCALIZED.BLINDFIGHTLEAGUEINSUFFICIENTPLAYERSINFO, { font = FONTS.LMEDIUM, maxscale = 0.85, baselineScale = 1.5 })
+	local leagueInfoMessage = TB_MENU_LOCALIZED.BLINDFIGHTLEAGUEINSUFFICIENTPLAYERSINFO
+	local numPromotePlayers = math.floor(numPlayers * EventsInternal.BlindFight.promotePlayersPercentage)
+	if (numPlayers >= EventsInternal.BlindFight.minPromoteGroupPlayers) then
+		leagueInfoMessage = utf8.gsub(TB_MENU_LOCALIZED.BLINDFIGHTLEAGUEPROMOTIONINFO, "{x}", tostring(numPromotePlayers))
+		if (numPlayers == EventsInternal.BlindFight.numGroupPlayers) then
+			leagueInfo.size.h = leagueInfo.size.h / 2 - 9
+			local leagueInfoOrWord = leagueInfo:addChild({
+				pos = { 0, leagueInfo.size.h },
+				size = { leagueInfo.size.w, 18 },
+				uiColor = TB_MENU_DEFAULT_INACTIVE_COLOR
+			})
+			leagueInfoOrWord:addAdaptedText(TB_MENU_LOCALIZED.WORDOR, { font = FONTS.LMEDIUM, maxscale = 0.75 })
+			local leagueInfoInstant = leagueInfo:addChild({
+				pos = { 0, leagueInfo.size.h + 18 }
+			})
+			leagueInfoInstant:addAdaptedText(TB_MENU_LOCALIZED.BLINDFIGHTLEAGUEPROMOTIONINFOINSTANT, { font = FONTS.LMEDIUM, maxscale = 0.85, baselineScale = 1.2 })
+		end
 	end
+	leagueInfo:addAdaptedText(leagueInfoMessage, { font = FONTS.LMEDIUM, maxscale = 0.85, baselineScale = 1.2 })
 	
 	local listElements = {}
 	for i, v in pairs(EventsInternal.BlindFight.players) do
@@ -2682,6 +2695,7 @@ function Events:refreshBlindFight(loaderView, loadingMark, onComplete)
 				EventsInternal.BlindFight.minVersion = tonumber(data[2]) or 250129
 				EventsInternal.BlindFight.numGroupPlayers = tonumber(data[3]) or 8
 				EventsInternal.BlindFight.minPromoteGroupPlayers = tonumber(data[4]) or 5
+				EventsInternal.BlindFight.promotePlayersPercentage = tonumber(data[5]) or 0.375
 			elseif (ln:find("^LEAGUE_PENDING_REWARDS\t")) then
 				EventsInternal.BlindFight.pendingRewards = true
 			elseif (ln:find("^LEAGUE_REWARDS\t")) then
