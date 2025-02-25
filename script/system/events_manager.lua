@@ -3089,6 +3089,10 @@ function Events:showBlindFightMain(viewElement)
 				Events:showBlindFightPromotion(overlay, claimedRewards, nil, EventsInternal.BlindFight.groupTitle)
 				return
 			end
+			overlay:kill()
+		end, function()
+			overlay:kill()
+			TBMenu:showStatusMessage(TB_MENU_LOCALIZED.ACCOUNTINFOERROR)
 		end)
 		TBMenu:displayLoadingMark(overlay)
 		EventsInternal.BlindFight.pendingRewards = false
