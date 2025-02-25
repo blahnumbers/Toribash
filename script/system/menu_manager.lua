@@ -1072,7 +1072,7 @@ function TBMenu:spawnWindowOverlay(globalid, withMouseHandler, colorOverride)
 	})
 	if (TBMenu.UserBar ~= nil) then
 		for _, v in pairs(TBMenu.UserBar.headDisplayObjects) do
-			v.bgColor[4] = v.bgColor[4] - overlay.bgColor[4]
+			v.bgColor[4] = v.bgColor[4] * (1 - overlay.bgColor[4])
 		end
 	end
 
@@ -1082,7 +1082,7 @@ function TBMenu:spawnWindowOverlay(globalid, withMouseHandler, colorOverride)
 
 		if (TBMenu.UserBar == nil) then return end
 		for _, v in pairs(TBMenu.UserBar.headDisplayObjects) do
-			v.bgColor[4] = v.bgColor[4] + overlay.bgColor[4]
+			v.bgColor[4] = v.bgColor[4] / (1 - overlay.bgColor[4])
 		end
 	end
 	if (withMouseHandler) then
@@ -4262,7 +4262,7 @@ function TBMenu:displayHelpPopup(element, message, forceManualPosCheck, noMark, 
 	local messageElement = element:addChild({
 		size = { WIN_W / 3, maxHeight or WIN_H / 7 },
 		bgColor = { 0, 0, 0, 0.8 },
-		uiColor = UICOLORWHITE,
+		uiColor = table.clone(UICOLORWHITE),
 		shapeType = ROUNDED,
 		rounded = 5
 	})

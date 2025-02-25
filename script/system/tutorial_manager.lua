@@ -233,8 +233,8 @@ end
 function Tutorials:getLocalization(id, language, path)
 	self.LocalizedMessages = {}
 
-	local language = language or get_language()
-	local path = path or "../data/tutorials/tutorial"
+	language = language or get_language()
+	path = path or "../data/tutorials/tutorial"
 	local localization = Files.Open(path .. id .. "_" .. language .. ".txt")
 	if (not localization.data) then
 		if (language == "english") then
@@ -244,18 +244,21 @@ function Tutorials:getLocalization(id, language, path)
 		end
 	end
 
-	for _, ln in pairs(localization:readAll()) do
+	local localizationData = localization:readAll()
+	localization:close()
+	for _, ln in pairs(localizationData) do
 		if (not ln:match("^#")) then
 			local data_stream = { ln:match(("([^\t]*)\t?"):rep(2)) }
 			self.LocalizedMessages[data_stream[1]] = data_stream[2]
 		end
 	end
-	localization:close()
 
 	if (language ~= "english") then
 		-- Make sure there's no missing values
-		local localization = Files.Open(path .. id .. "_english.txt")
-		for _, ln in pairs(localization:readAll()) do
+		localization = Files.Open(path .. id .. "_english.txt")
+		localizationData = localization:readAll()
+		localization:close()
+		for _, ln in pairs(localizationData) do
 			if (not ln:match("^#")) then
 				local data_stream = { ln:match(("([^\t]*)\t?"):rep(2)) }
 				if (not self.LocalizedMessages[data_stream[1]]) then
@@ -263,7 +266,6 @@ function Tutorials:getLocalization(id, language, path)
 				end
 			end
 		end
-		localization:close()
 	end
 	return true
 end
@@ -1991,12 +1993,12 @@ function TutorialsInternal.UpdateConfig(next)
 	---@type integer|string
 	local nextTutId = 1
 	local tutorialsConfig = Files.Open("../data/tutorials/config.cfg")
-	if (tutorialsConfig.data) then
-		for _, ln in pairs(tutorialsConfig:readAll()) do
-			if (ln:find("^NEXT")) then
-				nextTutId = ln:gsub("^NEXT ", "") + 0
-				break
-			end
+	local configData = tutorialsConfig:readAll()
+	tutorialsConfig:close()
+	for _, ln in pairs(configData) do
+		if (ln:find("^NEXT")) then
+			nextTutId = ln:gsub("^NEXT ", "") + 0
+			break
 		end
 	end
 	if (Tutorials.CurrentTutorial >= nextTutId) then
@@ -2588,16 +2590,16 @@ end
 ---@return integer #Last played tutorial id
 function Tutorials:getConfig()
 	local tutorialsConfig = Files.Open("../data/tutorials/config.cfg")
+	local configLines = tutorialsConfig:readAll()
+	tutorialsConfig:close()
+
 	local nextTutorial, lastTutorial = 1, 1
-	if (tutorialsConfig.data) then
-		for _, ln in pairs(tutorialsConfig:readAll()) do
-			if (ln:find("^LAST")) then
-				lastTutorial = ln:gsub("^LAST ", "") + 0
-			elseif (ln:find("^NEXT")) then
-				nextTutorial = ln:gsub("^NEXT ", "") + 0
-			end
+	for _, ln in pairs(configLines) do
+		if (ln:find("^LAST")) then
+			lastTutorial = ln:gsub("^LAST ", "") + 0
+		elseif (ln:find("^NEXT")) then
+			nextTutorial = ln:gsub("^NEXT ", "") + 0
 		end
-		tutorialsConfig:close()
 	end
 	return nextTutorial, lastTutorial
 end

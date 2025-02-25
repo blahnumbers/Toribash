@@ -39,6 +39,8 @@ require('system.friends_manager')
 ---@field prestigeRewards BlindFightReward[]
 ---@field userRPG BlindFightRPG
 ---@field promotePlayersPercentage number
+---@field userStats BlindFightPlayer
+---@field rpgDecayRate number
 
 if (Events == nil) then
 	---**Events manager class**
@@ -2346,6 +2348,451 @@ function Events.ParseBlindFightRewards(ln)
 	return rewards
 end
 
+---Spawns a prestige icon in the specified UIElement viewport
+---@param viewElement UIElement
+---@param prestige integer
+---@param rect ?Rect
+---@param withPopup ?boolean
+---@return UIElement?
+---@return UIElement?
+function Events:displayBlindFightPrestige(viewElement, prestige, rect, withPopup)
+	if (prestige < 1 or prestige > 20) then
+		return nil
+	end
+
+	if (rect == nil) then
+		rect = {
+			x = 0, y = 0,
+			w = math.min(viewElement.size.h, viewElement.size.w), h = math.min(viewElement.size.h, viewElement.size.w)
+		}
+	else
+		if (rect.x == nil) then
+			rect.x = 0
+		end
+		if (rect.y == nil) then
+			rect.y = 0
+		end
+		if (rect.w == nil) then
+			rect.w = math.min(viewElement.size.h, viewElement.size.w)
+		end
+		if (rect.h == nil) then
+			rect.h = math.min(viewElement.size.h, viewElement.size.w)
+		end
+	end
+
+	if (withPopup == nil) then
+		withPopup = true
+	end
+
+	local prestigeBackdrop = viewElement:addChild({
+		pos = { rect.x, rect.y },
+		size = { rect.w, rect.h },
+		interactive = true,
+		bgImage = "../textures/menu/blindfight/prestige-backdrop.tga",
+		imageAtlas = true,
+		atlas = {
+			x = math.floor((prestige - 1) / 5) * 128, y = 0,
+			w = 128, h = 128
+		},
+		imageColor = { 0.1523, 0.0625, 0.1641, 0.75 },
+		imageHoverColor = { 0.1523, 0.0625, 0.1641, 1 },
+		imagePressedColor = { 0.1523, 0.0625, 0.1641, 1 }
+	})
+	prestigeBackdrop:addChild({
+		bgImage = "../textures/menu/blindfight/prestige.tga",
+		imageAtlas = true,
+		atlas = {
+			x = (prestige % 5) * 128, y = 0,
+			w = 128, h = 128
+		}
+	})
+
+	local popup
+	if (prestigeBackdrop ~= nil and withPopup) then
+		popup = TBMenu:displayPopup(prestigeBackdrop, TB_MENU_LOCALIZED.BLINDFIGHTPRESTIGE .. " " .. prestige)
+		if (popup ~= nil) then
+			popup:moveTo(-(prestigeBackdrop.size.w + popup.size.w) / 2, prestigeBackdrop.size.h + 5)
+		end
+	end
+	return prestigeBackdrop, popup
+end
+
+---Displays Blind Fight prestige confirmation window
+function EventsInternal.ShowBlindFightPrestigeConfirmation()
+	local overlay = TBMenu:spawnWindowOverlay({ 0.204, 0.084, 0.202, 0.95 })
+
+	local confirmationWindowDimensions = {
+		math.min(WIN_W * 0.75, 1300), math.min(WIN_H * 0.5, 400)
+	}
+	local confirmationWindow = overlay:addChild({
+		pos = { (WIN_W - confirmationWindowDimensions[1]) / 2, (WIN_H - confirmationWindowDimensions[2]) / 2 },
+		size = confirmationWindowDimensions,
+		uiColor = { 1, 1, 1, 1 },
+		uiShadowColor = { 0, 0, 0, 1 },
+		shapeType = ROUNDED,
+		rounded = 5
+	})
+	local closeButton = overlay:addChild({
+		pos = { -math.max(80, SAFE_X), math.max(30, SAFE_Y) },
+		size = { 50, 50 },
+		interactive = true,
+		bgImage = "../textures/menu/general/buttons/crosswhite.tga",
+		imageColor = { 1, 1, 1, 1 },
+		imageHoverColor = { 0.863, 0.824, 0.624, 1 },
+		imagePressedColor = { 0.424, 0.263, 0.38, 1 }
+	})
+	closeButton:addMouseUpHandler(function() overlay:kill() end)
+	local confirmationTitle = confirmationWindow:addChild({
+		pos = { 0, 0 },
+		size = { confirmationWindow.size.w, 50 }
+	})
+	confirmationTitle:addAdaptedText(TB_MENU_LOCALIZED.BLINDFIGHTPRESTIGESTATSELECT, { font = FONTS.BIG, intensity = 0.5 })
+
+	local selectedStat = -1
+	local selectedButton, selectedStatDisplay = nil, nil
+	---@param stat integer
+	---@param button UIElement
+	---@param statDisplay UIElement
+	local setActiveButton = function(stat, button, statDisplay)
+		if (selectedButton ~= nil) then
+			selectedButton.bgColor = { 0.269, 0.081, 0.303, 1 }
+			selectedButton.uiColor = { 1, 1, 1, 1 }
+		end
+		if (selectedStatDisplay ~= nil) then
+			selectedStatDisplay.uiColor = { 1, 1, 1, 1 }
+			local statText = EventsInternal.BlindFight.userRPG.endurance
+			if (selectedStat == 0) then
+				statText = EventsInternal.BlindFight.userRPG.strength
+			elseif (selectedStat == 1) then
+				statText = EventsInternal.BlindFight.userRPG.speed
+			end
+			selectedStatDisplay:addAdaptedText(statText .. "%")
+		end
+		selectedStat = stat
+		selectedButton = button
+		selectedStatDisplay = statDisplay
+		selectedButton.bgColor = { 0.749, 0.636, 0.764, 1 }
+		selectedButton.uiColor = { 0, 0, 0, 1 }
+		selectedStatDisplay.uiColor = { 0.184, 0.09, 0.192, 1 }
+
+		local statText = EventsInternal.BlindFight.userRPG.endurance * EventsInternal.BlindFight.rpgDecayRate
+		if (stat == 0) then
+			statText = EventsInternal.BlindFight.userRPG.strength * EventsInternal.BlindFight.rpgDecayRate
+		elseif (stat == 1) then
+			statText = EventsInternal.BlindFight.userRPG.speed * EventsInternal.BlindFight.rpgDecayRate
+		end
+		selectedStatDisplay:addAdaptedText("< " .. statText .. "% >")
+	end
+
+	local buttonWidth = (confirmationWindow.size.w - 60) / 3
+	local strengthButton = confirmationWindow:addChild({
+		pos = { 10, confirmationTitle.shift.y + confirmationTitle.size.h + 10 },
+		size = { buttonWidth, confirmationWindow.size.h - confirmationTitle.shift.y - confirmationTitle.size.h - 100 },
+		interactive = true,
+		bgColor = { 0.269, 0.081, 0.303, 1 },
+		hoverColor = { 0.424, 0.263, 0.38, 1 },
+		pressedColor = { 0.184, 0.09, 0.192, 1 }
+	}, true)
+	local strengthButtonTitle = strengthButton:addChild({
+		pos = { 10, 5 },
+		size = { strengthButton.size.w - 20, (strengthButton.size.h - 10) / 3 }
+	})
+	strengthButtonTitle:addAdaptedText(TB_MENU_LOCALIZED.RPGSTRENGTH, { font = FONTS.BIG, shadow = 2, maxscale = 0.8 })
+	local strengthButtonCurrent = strengthButton:addChild({
+		pos = { strengthButtonTitle.shift.x, strengthButtonTitle.shift.y + strengthButtonTitle.size.h },
+		size = { strengthButtonTitle.size.w, strengthButtonTitle.size.h / 2 },
+		uiColor = { 1, 1, 1, 1 }
+	})
+	strengthButtonCurrent:addAdaptedText(EventsInternal.BlindFight.userRPG.strength .. "%")
+	local strengthButtonInfo = strengthButton:addChild({
+		pos = { strengthButtonTitle.shift.x, strengthButtonCurrent.shift.y + strengthButtonCurrent.size.h },
+		size = { strengthButtonTitle.size.w, strengthButton.size.h - strengthButtonCurrent.size.h - strengthButtonCurrent.shift.y - strengthButtonTitle.shift.y }
+	})
+	strengthButtonInfo:addAdaptedText(TB_MENU_LOCALIZED.RPGSTRENGTHINFO, { font = FONTS.LMEDIUM, maxscale = 0.85, shadow = 1 })
+	strengthButton:addMouseUpHandler(function()
+			setActiveButton(0, strengthButton, strengthButtonCurrent)
+		end)
+
+	local speedButton = confirmationWindow:addChild({
+		pos = { strengthButton.shift.x + strengthButton.size.w + 20, strengthButton.shift.y },
+		size = { buttonWidth, strengthButton.size.h },
+		interactive = true,
+		bgColor = { 0.269, 0.081, 0.303, 1 },
+		hoverColor = { 0.424, 0.263, 0.38, 1 },
+		pressedColor = { 0.184, 0.09, 0.192, 1 }
+	}, true)
+	local speedButtonTitle = speedButton:addChild({
+		pos = { strengthButtonTitle.shift.x, strengthButtonTitle.shift.y },
+		size = { strengthButtonTitle.size.w, strengthButtonTitle.size.h }
+	})
+	speedButtonTitle:addAdaptedText(TB_MENU_LOCALIZED.RPGSPEED, { font = FONTS.BIG, shadow = 2, maxscale = 0.8 })
+	local speedButtonCurrent = speedButton:addChild({
+		pos = { strengthButtonCurrent.shift.x, strengthButtonCurrent.shift.y },
+		size = { strengthButtonCurrent.size.w, strengthButtonCurrent.size.h },
+		uiColor = { 1, 1, 1, 1 }
+	})
+	speedButtonCurrent:addAdaptedText(EventsInternal.BlindFight.userRPG.speed .. "%")
+	local speedButtonInfo = speedButton:addChild({
+		pos = { strengthButtonInfo.shift.x, strengthButtonInfo.shift.y },
+		size = { strengthButtonInfo.size.w, strengthButtonInfo.size.h }
+	})
+	speedButtonInfo:addAdaptedText(TB_MENU_LOCALIZED.RPGSPEEDINFO, { font = FONTS.LMEDIUM, maxscale = 0.85, shadow = 1 })
+	speedButton:addMouseUpHandler(function()
+			setActiveButton(1, speedButton, speedButtonCurrent)
+		end)
+
+	local enduranceButton = confirmationWindow:addChild({
+		pos = { speedButton.shift.x + speedButton.size.w + 20, strengthButton.shift.y },
+		size = { buttonWidth, strengthButton.size.h },
+		interactive = true,
+		bgColor = { 0.269, 0.081, 0.303, 1 },
+		hoverColor = { 0.424, 0.263, 0.38, 1 },
+		pressedColor = { 0.184, 0.09, 0.192, 1 }
+	}, true)
+	local enduranceButtonTitle = enduranceButton:addChild({
+		pos = { strengthButtonTitle.shift.x, strengthButtonTitle.shift.y },
+		size = { strengthButtonTitle.size.w, strengthButtonTitle.size.h }
+	})
+	enduranceButtonTitle:addAdaptedText(TB_MENU_LOCALIZED.RPGENDURANCE, { font = FONTS.BIG, shadow = 2, maxscale = 0.8 })
+	local enduranceButtonCurrent = enduranceButton:addChild({
+		pos = { strengthButtonCurrent.shift.x, strengthButtonCurrent.shift.y },
+		size = { strengthButtonCurrent.size.w, strengthButtonCurrent.size.h },
+		uiColor = { 1, 1, 1, 1 }
+	})
+	enduranceButtonCurrent:addAdaptedText(EventsInternal.BlindFight.userRPG.endurance .. "%")
+	local enduranceButtonInfo = enduranceButton:addChild({
+		pos = { strengthButtonInfo.shift.x, strengthButtonInfo.shift.y },
+		size = { strengthButtonInfo.size.w, strengthButtonInfo.size.h }
+	})
+	enduranceButtonInfo:addAdaptedText(TB_MENU_LOCALIZED.RPGENDURANCEINFO, { font = FONTS.LMEDIUM, maxscale = 0.85, shadow = 1 })
+	enduranceButton:addMouseUpHandler(function()
+			setActiveButton(2, enduranceButton, enduranceButtonCurrent)
+		end)
+
+	local prestigeButtonWidth = math.min(400, confirmationWindow.size.w - 20)
+	local prestigeButton = confirmationWindow:addChild({
+		pos = { (confirmationWindow.size.w - prestigeButtonWidth) / 2, -70 },
+		size = { prestigeButtonWidth, 70 },
+		interactive = true,
+		bgColor = { 0.269, 0.081, 0.303, 1 },
+		hoverColor = { 0.424, 0.263, 0.38, 1 },
+		pressedColor = { 0.184, 0.09, 0.192, 1 },
+		inactiveColor = { 0.749, 0.636, 0.764, 1 }
+	}, true)
+	prestigeButton:addCustomDisplay(function()
+			if (selectedStat > -1) then
+				prestigeButton:activate()
+				prestigeButton:addCustomDisplay(false, nil)
+			end
+		end)
+	prestigeButton:addChild({ shift = { 20, 7 }}):addAdaptedText(TB_MENU_LOCALIZED.BLINDFIGHTPRESTIGE)
+	prestigeButton:addMouseUpHandler(function()
+			---@diagnostic disable-next-line: undefined-global
+			Request:queue(function() submit_blindfight_prestige(selectedStat) end, "blindfight_prestige", function(_, response)
+				overlay:kill()
+				if (response:find("^PRESTIGE_REWARDS")) then
+					local rewards = Events.ParseBlindFightRewards(response)
+					local promoOverlay = TBMenu:spawnWindowOverlay({ 1, 1, 1, 0.9 })
+					Events:showBlindFightPromotion(promoOverlay, rewards, nil, TB_MENU_LOCALIZED.BLINDFIGHTPRESTIGE .. " " .. (EventsInternal.BlindFight.userStats.prestige + 1))
+					Events:refreshBlindFight(nil, nil, function()
+							if (TB_MENU_MAIN_ISOPEN == 0 or TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 12) then
+								return
+							end
+							if (promoOverlay == nil or promoOverlay.destroyed) then
+								Events:showBlindFightMain(TBMenu.CurrentSection)
+							else
+								promoOverlay:addChild({}).killAction = function()
+									if (TB_MENU_MAIN_ISOPEN == 1) then
+										Events:showBlindFightMain(TBMenu.CurrentSection)
+									end
+								end
+							end
+						end)
+					return
+				end
+				local error = string.gsub(response, "^ERROR ", "")
+				TBMenu:showStatusMessage(error)
+			end, function(_, response)
+				overlay:kill()
+				TBMenu:showStatusMessage(TB_MENU_LOCALIZED.ACCOUNTINFOERROR .. "\n" .. response)
+			end)
+			confirmationWindow:kill(true)
+			TBMenu:displayLoadingMark(confirmationWindow)
+		end)
+	prestigeButton:deactivate()
+end
+
+---Animates in Blind Fight prestige screen with information and rewards display
+---@param _ any
+---@param x integer
+---@param y integer
+function EventsInternal.ShowBlindFightPrestige(_, x, y)
+	local overlay = TBMenu:spawnWindowOverlay({ 0.204, 0.084, 0.202, 0.95 })
+
+	local displayHolderDimensions = {
+		math.min(WIN_W * 0.6, 1200), math.min(WIN_H * 0.5, 600)
+	}
+	local prizeDisplayHolder = overlay:addChild({
+		pos = { (WIN_W - displayHolderDimensions[1]) / 2, (WIN_H - displayHolderDimensions[2]) / 2 },
+		size = displayHolderDimensions,
+		uiColor = { 1, 1, 1, 1 }
+	})
+	local closeButton = overlay:addChild({
+		pos = { -math.max(80, SAFE_X), math.max(30, SAFE_Y) },
+		size = { 50, 50 },
+		interactive = true,
+		bgImage = "../textures/menu/general/buttons/crosswhite.tga",
+		imageColor = { 1, 1, 1, 1 },
+		imageHoverColor = { 0.863, 0.824, 0.624, 1 },
+		imagePressedColor = { 0.424, 0.263, 0.38, 1 }
+	})
+	closeButton:addMouseUpHandler(function() overlay:kill() end)
+	local prestigeTitle = prizeDisplayHolder:addChild({
+		pos = { 80, 0 },
+		size = { prizeDisplayHolder.size.w - 160, prizeDisplayHolder.size.h / 9 },
+		uiColor = { 1, 1, 1, 1 }
+	})
+	prestigeTitle:addAdaptedText(TB_MENU_LOCALIZED.BLINDFIGHTPRESTIGE, { font = FONTS.BIG })
+	local prestigeDescription = prizeDisplayHolder:addChild({
+		pos = { prestigeTitle.shift.x, prestigeTitle.shift.y + prestigeTitle.size.h },
+		size = { prestigeTitle.size.w, prizeDisplayHolder.size.h / 5 },
+		uiColor = { 1, 1, 1, 1 }
+	})
+	prestigeDescription:addAdaptedText(TB_MENU_LOCALIZED.BLINDFIGHTPRESTIGEINFO, { font = FONTS.LMEDIUM })
+	local prestigeIconsHolder = prizeDisplayHolder:addChild({
+		pos = { prestigeTitle.shift.x, prestigeDescription.shift.y + prestigeDescription.size.h },
+		size = { prestigeTitle.size.w, prizeDisplayHolder.size.h / 8 }
+	})
+	if (EventsInternal.BlindFight.userStats.prestige > 0) then
+		local prestigeUpgradeArrow = prestigeIconsHolder:addChild({
+			pos = { prestigeIconsHolder.size.w / 2 - prestigeIconsHolder.size.h, 0 },
+			size = { prestigeIconsHolder.size.h * 2, prestigeIconsHolder.size.h },
+			bgImage = "../textures/menu/blindfight/prestigearrow.tga"
+		})
+		local currentPrestige = prestigeIconsHolder:addChild({
+			pos = { prestigeUpgradeArrow.shift.x - prestigeUpgradeArrow.size.w, 0 },
+			size = { prestigeUpgradeArrow.size.h, prestigeUpgradeArrow.size.h },
+			bgColor = { 0.424, 0.263, 0.38, 1 },
+			shapeType = ROUNDED,
+			rounded = prestigeUpgradeArrow.size.h
+		})
+		Events:displayBlindFightPrestige(currentPrestige, EventsInternal.BlindFight.userStats.prestige, {
+			x = 2, y = 2, w = currentPrestige.size.w - 4, h = currentPrestige.size.h - 4
+		}, false)
+		local nextPrestige = prestigeIconsHolder:addChild({
+			pos = { prestigeUpgradeArrow.shift.x + prestigeUpgradeArrow.size.w * 1.5, 0 },
+			size = { prestigeUpgradeArrow.size.h, prestigeUpgradeArrow.size.h },
+			bgColor = { 0.424, 0.263, 0.38, 1 },
+			shapeType = ROUNDED,
+			rounded = prestigeUpgradeArrow.size.h
+		})
+		Events:displayBlindFightPrestige(nextPrestige, EventsInternal.BlindFight.userStats.prestige + 1, {
+			x = 2, y = 2, w = nextPrestige.size.w - 4, h = nextPrestige.size.h - 4
+		}, false)
+	else
+		Events:displayBlindFightPrestige(prestigeIconsHolder, EventsInternal.BlindFight.userStats.prestige + 1, { x = prestigeIconsHolder.size.w / 2 - prestigeIconsHolder.size.h / 4, w = prestigeIconsHolder.size.h }, false)
+	end
+	local prestigePrizesInfo = prizeDisplayHolder:addChild({
+		pos = { prestigeTitle.shift.x, prestigeIconsHolder.shift.y + prestigeIconsHolder.size.h },
+		size = { prestigeTitle.size.w, prizeDisplayHolder.size.h / 6 },
+		uiColor = { 1, 1, 1, 1 }
+	})
+	prestigePrizesInfo:addAdaptedText(TB_MENU_LOCALIZED.BLINDFIGHTPRESTIGEREWARDS, { font = FONTS.LMEDIUM })
+
+	local prestigePrizesHolder = prizeDisplayHolder:addChild({
+		pos = { prestigeTitle.shift.x, prestigePrizesInfo.shift.y + prestigePrizesInfo.size.h },
+		size = { prestigeTitle.size.w, prizeDisplayHolder.size.h / 4 }
+	})
+	local numPrizes = #EventsInternal.BlindFight.prestigeRewards
+	local prizeWidth = math.min(prestigePrizesHolder.size.w / numPrizes, prestigePrizesHolder.size.h)
+	local shiftX = (prestigePrizesHolder.size.w - prizeWidth * numPrizes) / 2
+	for i, v in pairs(EventsInternal.BlindFight.prestigeRewards) do
+		local prizeElementHolder = prestigePrizesHolder:addChild({
+			pos = { shiftX + (i - 1) * prizeWidth, (prestigePrizesHolder.size.h - prizeWidth + 10) / 2 },
+			size = { prizeWidth, prizeWidth - 10 }
+		})
+		BattlePass:showPrizeItem(prizeElementHolder, {
+			itemid = v.itemid,
+			tc = v.tc,
+			st = v.st,
+			bpxp = v.bpxp,
+			static = true,
+			bgColor = { 0.204, 0.084, 0.202, 1 },
+			bgOutlineColor = { 0, 0, 0, 1 },
+			textBackdropColor = { 0.204, 0.084, 0.202, 0.67 },
+			textColor = { 1, 1, 1, 1 },
+			withoutPopup = true
+		})
+	end
+	local prestigeButtonWidth = math.max(400, numPrizes * prizeWidth - 10)
+	local prestigeButton = prizeDisplayHolder:addChild({
+		pos = { (prizeDisplayHolder.size.w - prestigeButtonWidth) / 2, -prizeDisplayHolder.size.h / 8 },
+		size = { prestigeButtonWidth, prizeDisplayHolder.size.h / 8 },
+		interactive = true,
+		bgColor = { 0.269, 0.081, 0.303, 1 },
+		hoverColor = { 0.204, 0.084, 0.202, 1 },
+		pressedColor = { 0.184, 0.09, 0.192, 1 },
+		uiColor = UICOLORWHITE,
+		shapeType = ROUNDED,
+		rounded = 4
+	})
+	prestigeButton:addAdaptedText(TB_MENU_LOCALIZED.BUTTONCONTINUE)
+	prestigeButton:addMouseUpHandler(function()
+		overlay:kill()
+		EventsInternal.ShowBlindFightPrestigeConfirmation()
+	end)
+	prizeDisplayHolder:hide()
+
+	---@param element UIElement
+	---@param alpha number
+	---@param setDefaults ?boolean
+	local function setOpacityRecursive(element, alpha, setDefaults)
+		if (setDefaults) then
+			element.__defaultAlpha = {
+				bgColor = element.bgColor[4],
+				uiColor = element.uiColor[4],
+				imageColor = element.imageColor and element.imageColor[4]
+			}
+		end
+		element.bgColor[4] = math.min(alpha, element.__defaultAlpha.bgColor)
+		element.uiColor[4] = math.min(alpha, element.__defaultAlpha.uiColor)
+		if (element.imageColor) then
+			element.imageColor[4] = math.min(alpha, element.__defaultAlpha.imageColor)
+		end
+		for _, v in pairs(element.child) do
+			setOpacityRecursive(v, alpha, setDefaults)
+		end
+	end
+
+	local overlayGrow = 10
+	local numSlices = is_mobile() and 0 or 160
+	local spawnClock = os.clock_real()
+	local animateClock = 0
+	local targetSize = math.sqrt(WIN_W * WIN_W + WIN_H * WIN_H)
+	overlay:addCustomDisplay(true, function()
+			set_color(overlay.bgColor[1], overlay.bgColor[2], overlay.bgColor[3], overlay.bgColor[4])
+			draw_disk(x, y, 0, overlayGrow, numSlices, 1, 0, 360, 0)
+			overlayGrow = math.floor(UITween.LinearTween(overlayGrow, targetSize, UIElement.clock - spawnClock) * 1000) / 1000
+			if (overlayGrow >= WIN_W / 3 and not prizeDisplayHolder:isDisplayed()) then
+				animateClock = UIElement.clock
+				prizeDisplayHolder:show()
+				setOpacityRecursive(prizeDisplayHolder, 0, true)
+
+				local prizeAnimator = overlay:addChild({})
+				prizeAnimator:addCustomDisplay(true, function()
+					local alpha = UITween.SineEaseIn(UIElement.clock - animateClock)
+					setOpacityRecursive(prizeDisplayHolder, alpha)
+					if (alpha == 1) then
+						prizeAnimator:kill()
+					end
+				end)
+			end
+			if (overlayGrow == targetSize) then
+				overlay:addCustomDisplay(false, nil)
+			end
+		end)
+end
+
 ---@param viewElement UIElement
 function Events:showBlindFightMain(viewElement)
 	if (viewElement == nil or viewElement.destroyed or EventsInternal.BlindFight == nil) then
@@ -2491,7 +2938,8 @@ function Events:showBlindFightMain(viewElement)
 		end)
 
 	local elementHeight = 50
-	local toReload, topBar, botBar, _, listingHolder = TBMenu:prepareScrollableList(toplistView, elementHeight * 1.5, 160, 20, TB_MENU_DEFAULT_BG_COLOR)
+	local botBarHeight = EventsInternal.BlindFight.prestigeRewards == nil and 160 or 110
+	local toReload, topBar, botBar, _, listingHolder = TBMenu:prepareScrollableList(toplistView, elementHeight * 1.5, botBarHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
 
 	local numPlayers = #EventsInternal.BlindFight.players
 	local leaguePlayersTitle = topBar:addChild({ shift = { 25, 10 } })
@@ -2500,27 +2948,72 @@ function Events:showBlindFightMain(viewElement)
 	botBar.bgColor = TB_MENU_DEFAULT_DARKER_COLOR
 	TBMenu:addBottomBloodSmudge(botBar, 2)
 
-	local leagueInfo = botBar:addChild({ shift = { 25, 10 } })
-	local leagueInfoMessage = TB_MENU_LOCALIZED.BLINDFIGHTLEAGUEINSUFFICIENTPLAYERSINFO
-	local numPromotePlayers = math.floor(numPlayers * EventsInternal.BlindFight.promotePlayersPercentage)
-	if (numPlayers >= EventsInternal.BlindFight.minPromoteGroupPlayers) then
-		leagueInfoMessage = utf8.gsub(TB_MENU_LOCALIZED.BLINDFIGHTLEAGUEPROMOTIONINFO, "{x}", tostring(numPromotePlayers))
-		if (numPlayers == EventsInternal.BlindFight.numGroupPlayers) then
-			leagueInfo.size.h = leagueInfo.size.h / 2 - 9
-			local leagueInfoOrWord = leagueInfo:addChild({
-				pos = { 0, leagueInfo.size.h },
-				size = { leagueInfo.size.w, 18 },
-				uiColor = TB_MENU_DEFAULT_INACTIVE_COLOR
+	if (EventsInternal.BlindFight.prestigeRewards ~= nil) then
+		local prestigeButton = botBar:addChild({
+			pos = { 10, 10 },
+			size = { botBar.size.w - 20, 90 },
+			interactive = true,
+			bgColor = { 0.204, 0.084, 0.202, 1 },
+			hoverColor = { 0.269, 0.081, 0.303, 1 },
+			pressedColor = { 0.184, 0.09, 0.192, 1 },
+			uiColor = UICOLORWHITE,
+			shapeType = ROUNDED,
+			rounded = 4
+		})
+		local bubbles = { }
+		local blobSegments = is_mobile() and 0 or 24
+		for _ = 1, 20 do
+			table.insert(bubbles, {
+				pos = { x = prestigeButton.pos.x + math.random(0, prestigeButton.size.w), y = prestigeButton.pos.y + math.random(0, prestigeButton.size.h) * 2 },
+				dir = { x = (math.random() - 0.5) * 5, y = 10 + math.random() * 30 },
+				size = math.random(4, 12),
+				bgColor = { 0.15 + math.random() * 0.06, 0.06 + math.random() * 0.037, 0.16 + math.random() * 0.059, 0 }
 			})
-			leagueInfoOrWord:addAdaptedText(TB_MENU_LOCALIZED.WORDOR, { font = FONTS.LMEDIUM, maxscale = 0.75 })
-			local leagueInfoInstant = leagueInfo:addChild({
-				pos = { 0, leagueInfo.size.h + 18 }
-			})
-			leagueInfoInstant:addAdaptedText(TB_MENU_LOCALIZED.BLINDFIGHTLEAGUEPROMOTIONINFOINSTANT, { font = FONTS.LMEDIUM, maxscale = 0.85, baselineScale = 1.2 })
 		end
+		prestigeButton:addCustomDisplay(function()
+				for _, v in pairs(bubbles) do
+					if (v.pos.y < prestigeButton.pos.y - prestigeButton.size.h) then
+						v.bgColor[4] = math.floor(UITween.LinearTween(v.bgColor[4], 0, UIElement.deltaClock) * 1000) / 1000
+					elseif (v.pos.y < prestigeButton.pos.y + prestigeButton.size.h) then
+						if (v.bgColor[4] < 1) then
+							v.bgColor[4] = math.min(1, v.bgColor[4] + UIElement.deltaClock)
+						end
+					end
+					set_color(v.bgColor[1], v.bgColor[2], v.bgColor[3], v.bgColor[4])
+					draw_disk(v.pos.x, v.pos.y, 0, v.size, blobSegments, 1, 0, 360, 0)
+					v.pos.x = v.pos.x + v.dir.x * UIElement.deltaClock
+					v.pos.y = v.pos.y - v.dir.y * UIElement.deltaClock
+					if (v.bgColor[4] <= 0) then
+						v.pos.y = prestigeButton.pos.y + math.random(0, prestigeButton.size.h)
+						v.pos.x = prestigeButton.pos.x + math.random(0, prestigeButton.size.w)
+					end
+				end
+			end)
+		prestigeButton:addMouseUpHandler(EventsInternal.ShowBlindFightPrestige)
+		prestigeButton:addChild({ shift = { 25, 10 } }):addAdaptedText(TB_MENU_LOCALIZED.BLINDFIGHTPRESTIGE, { font = FONTS.BIG, maxscale = 0.75 })
+	else
+		local leagueInfo = botBar:addChild({ shift = { 25, 10 }	})
+		local leagueInfoMessage = TB_MENU_LOCALIZED.BLINDFIGHTLEAGUEINSUFFICIENTPLAYERSINFO
+		local numPromotePlayers = math.floor(numPlayers * EventsInternal.BlindFight.promotePlayersPercentage)
+		if (numPlayers >= EventsInternal.BlindFight.minPromoteGroupPlayers) then
+			leagueInfoMessage = utf8.gsub(TB_MENU_LOCALIZED.BLINDFIGHTLEAGUEPROMOTIONINFO, "{x}", tostring(numPromotePlayers))
+			if (numPlayers == EventsInternal.BlindFight.numGroupPlayers) then
+				leagueInfo.size.h = leagueInfo.size.h / 2 - 9
+				local leagueInfoOrWord = leagueInfo:addChild({
+					pos = { 0, leagueInfo.size.h },
+					size = { leagueInfo.size.w, 18 },
+					uiColor = TB_MENU_DEFAULT_INACTIVE_COLOR
+				})
+				leagueInfoOrWord:addAdaptedText(TB_MENU_LOCALIZED.WORDOR, { font = FONTS.LMEDIUM, maxscale = 0.75 })
+				local leagueInfoInstant = leagueInfo:addChild({
+					pos = { 0, leagueInfo.size.h + 18 }
+				})
+				leagueInfoInstant:addAdaptedText(TB_MENU_LOCALIZED.BLINDFIGHTLEAGUEPROMOTIONINFOINSTANT, { font = FONTS.LMEDIUM, maxscale = 0.85, baselineScale = 1.2 })
+			end
+		end
+		leagueInfo:addAdaptedText(leagueInfoMessage, { font = FONTS.LMEDIUM, maxscale = 0.85, baselineScale = 1.2 })
 	end
-	leagueInfo:addAdaptedText(leagueInfoMessage, { font = FONTS.LMEDIUM, maxscale = 0.85, baselineScale = 1.2 })
-	
+
 	local listElements = {}
 	for i, v in pairs(EventsInternal.BlindFight.players) do
 		local listElement = listingHolder:addChild({
@@ -2562,35 +3055,12 @@ function Events:showBlindFightMain(viewElement)
 			pos = { 15 + playerEntry.size.h, 5 },
 			size = { playerEntry.size.w / 2 - 30 - playerEntry.size.h, playerEntry.size.h - 10 }
 		})
-		playerName:addAdaptedText(v.name, nil, nil, FONTS.MEDIUM, LEFTMID)
+		playerName:addAdaptedText(v.name, { align = LEFTMID })
 		if (v.prestige > 0) then
 			local nameLength = get_string_length(playerName.dispstr[1], playerName.textFont) * playerName.textScale
-			local prestigeBackdrop = playerName:addChild({
-				pos = { nameLength + 5, 7 },
-				size = { playerName.size.h - 14, playerName.size.h - 14 },
-				interactive = true,
-				bgImage = "../textures/menu/blindfight/prestige-backdrop.tga",
-				imageAtlas = true,
-				atlas = {
-					x = math.floor((v.prestige - 1) / 5) * 128, y = 0,
-					w = 128, h = 128
-				},
-				imageColor = { 0.1523, 0.0625, 0.1641, 0.75 },
-				imageHoverColor = { 0.1523, 0.0625, 0.1641, 1 },
-				imagePressedColor = { 0.1523, 0.0625, 0.1641, 1 }
+			Events:displayBlindFightPrestige(playerName, v.prestige, {
+				x = nameLength + 5, y = 7, w = playerName.size.h - 14, h = playerName.size.h - 14
 			})
-			local prestigeIcon = prestigeBackdrop:addChild({
-				bgImage = "../textures/menu/blindfight/prestige.tga",
-				imageAtlas = true,
-				atlas = {
-					x = (v.prestige % 5) * 128, y = 0,
-					w = 128, h = 128
-				}
-			})
-			local popup = TBMenu:displayPopup(prestigeBackdrop, TB_MENU_LOCALIZED.BLINDFIGHTPRESTIGE .. " " .. v.prestige)
-			if (popup ~= nil) then
-				popup:moveTo(-(prestigeIcon.size.w + popup.size.w) / 2, prestigeIcon.size.h + 5)
-			end
 		end
 		local playerWins = playerEntry:addChild({
 			pos = { playerName.shift.x + playerName.size.w + 10, playerName.shift.y },
@@ -2667,7 +3137,7 @@ function Events:refreshBlindFight(loaderView, loadingMark, onComplete)
 			loadingMark:kill()
 		end
 
-		EventsInternal.BlindFight = { players = { }, defeated = { }, lastupdate = os.time(), groupTitle = "", tierRewards = { } }
+		EventsInternal.BlindFight = { players = { }, defeated = { }, lastupdate = os.time(), groupTitle = "", tierRewards = { }, userRPG = { strength = 0, speed = 0, endurance = 0 } }
 		if (string.find(response, "^ERROR")) then
 			if (loaderView ~= nil and not loaderView.destroyed) then
 				local errorMessage = response:gsub("^ERROR ", "")
@@ -2696,6 +3166,7 @@ function Events:refreshBlindFight(loaderView, loadingMark, onComplete)
 				EventsInternal.BlindFight.numGroupPlayers = tonumber(data[3]) or 8
 				EventsInternal.BlindFight.minPromoteGroupPlayers = tonumber(data[4]) or 5
 				EventsInternal.BlindFight.promotePlayersPercentage = tonumber(data[5]) or 0.375
+				EventsInternal.BlindFight.rpgDecayRate = tonumber(data[6]) or 0.75
 			elseif (ln:find("^LEAGUE_PENDING_REWARDS\t")) then
 				EventsInternal.BlindFight.pendingRewards = true
 			elseif (ln:find("^LEAGUE_REWARDS\t")) then
@@ -2717,11 +3188,10 @@ function Events:refreshBlindFight(loaderView, loadingMark, onComplete)
 					_, segments = string.gsub(data[5], ":", "")
 					local openerLines = { string.match(data[5], ("([^:]*):?"):rep(segments + 1)) }
 					EventsInternal.BlindFight.userMoves = MemoryMove.FromOpener(openerLines)
-					EventsInternal.BlindFight.userRPG = {
-						strength = tonumber(data[7]) or 0,
-						speed = tonumber(data[8]) or 0,
-						endurance = tonumber(data[9]) or 0
-					}
+					EventsInternal.BlindFight.userRPG.strength = tonumber(data[7]) or 0
+					EventsInternal.BlindFight.userRPG.speed = tonumber(data[8]) or 0
+					EventsInternal.BlindFight.userRPG.endurance = tonumber(data[9]) or 0
+					EventsInternal.BlindFight.userStats = EventsInternal.BlindFight.players[#EventsInternal.BlindFight.players]
 				elseif (autoupdate == 1) then
 					---Download base player customs so we see them when fighting
 					download_head(data[1])

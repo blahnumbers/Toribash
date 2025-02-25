@@ -142,7 +142,7 @@ do
 	---@param mode? openmode New mode to open file with
 	function File:reopen(mode)
 		self:close()
-		local mode = mode or self.mode
+		mode = mode or self.mode
 		if (not self:isDownloading()) then
 			self.data = filesOpenInternal(self.path, mode, self.isroot)
 		end

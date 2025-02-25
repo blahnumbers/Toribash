@@ -1366,4 +1366,13 @@ BLINDFIGHTLEAGUEVICTORY	League Victory
 BLINDFIGHTLEAGUEPROMOTION	Promoted to {x}
 BLINDFIGHTPROMOTIONREWARDS	Promotion\nrewards
 BLINDFIGHTPRESTIGE	Prestige
+BLINDFIGHTPRESTIGEINFO	After reaching highest league tier, you can now choose to weaken your Tori and start over to climb the ranks (and collect rewards!) once again.
+BLINDFIGHTPRESTIGEREWARDS	You will also receive the following rewards by choosing to prestige now:
+BLINDFIGHTPRESTIGESTATSELECT	Select a stat to lower when you prestige
 WORDOR	or
+RPGSTRENGTH	Strength
+RPGSTRENGTHINFO	Affects your joint power, damage dealt by hits and max weight you can lift
+RPGSPEED	Speed
+RPGSPEEDINFO	Affects your move velocity and damage dealt by hits
+RPGENDURANCE	Endurance
+RPGENDURANCEINFO	Affects how easy it is to break or fracture your joints
