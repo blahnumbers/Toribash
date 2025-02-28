@@ -387,7 +387,7 @@ function TBMenu:showHome()
 	local viewEventsButtonData = {
 		title = TB_MENU_LOCALIZED.EVENTSALLEVENTS,
 		ratio = 0.3,
-		action = function() Events:showEventsHome(TBMenu.CurrentSection) end
+		action = Events.ShowHome
 	}
 
 	-- Store all elements that would require reloading when switching event announcements in one table
@@ -2350,6 +2350,8 @@ function TBMenu:openMenu(screenId)
 		TBMenu:showScripts()
 	elseif (TB_MENU_SPECIAL_SCREEN_ISOPEN == 12) then
 		Events:showBlindFight()
+	elseif (TB_MENU_SPECIAL_SCREEN_ISOPEN == 13) then
+		Events.ShowHome()
 	elseif (screenId == 1) then
 		TBMenu:showHome()
 	elseif (screenId == 2) then
@@ -3884,12 +3886,15 @@ function TBMenu:spawnDropdown(holderElement, dropdownElements, elementHeight, ma
 	return overlay
 end
 
+---@class UIScrollBar : UIElement
+---@field holder UIElement
+
 ---Spawns default menu scroll bar
 ---@param holderElement UIElement
 ---@param numElements integer
 ---@param elementSize number
 ---@param orientation ?UIElementScrollMode
----@return UIElement
+---@return UIScrollBar
 function TBMenu:spawnScrollBar(holderElement, numElements, elementSize, orientation)
 	local orientation = orientation or SCROLL_VERTICAL
 	local scrollActive = true
@@ -3942,6 +3947,8 @@ function TBMenu:spawnScrollBar(holderElement, numElements, elementSize, orientat
 		end
 		bgColor[4], hoverColor[4], pressedColor[4] = 1, 1, 1
 	end
+	---@type UIScrollBar
+	---@diagnostic disable-next-line: assign-type-mismatch
 	local scrollBar = scrollView:addChild({
 		size = orientation == SCROLL_VERTICAL and { scrollView.size.w, scrollView.size.h * scrollScale } or { scrollView.size.w * scrollScale, scrollView.size.h },
 		interactive = scrollActive,

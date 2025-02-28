@@ -28,11 +28,7 @@ if (BattlePass == nil) then
 	---@field qi integer Player Qi at the moment of last data fetching
 	---@field upgrade_price integer Shiai Token price for upgrading to next BP level
 
-	---@class BattlePassReward
-	---@field tc integer
-	---@field st integer
-	---@field bpxp integer
-	---@field itemid integer
+	---@class BattlePassReward : EventRewardBase
 	---@field item StoreItem?
 	---@field claimed boolean Whether this reward has already been claimed
 	---@field locked boolean Whether this reward is currently available for the user
@@ -591,7 +587,7 @@ function BattlePass:showPrizeItem(viewElement, prize)
 		iconPath = "../textures/store/shiaitoken.tga"
 		prizeAmount = numberFormat(prize.st)
 		if (not prize.withoutPopup) then
-			prizeTooltip = TBMenu:displayPopup(prizeBackground, prizeAmount .. " " .. TB_MENU_LOCALIZED.WORDSHIAITOKENS, prize.static)
+			prizeTooltip = TBMenu:displayPopup(prizeBackground, prizeAmount .. " " .. (prizeAmount == '1' and TB_MENU_LOCALIZED.WORDSHIAITOKEN or TB_MENU_LOCALIZED.WORDSHIAITOKENS), prize.static)
 		end
 	elseif (prize.bpxp ~= nil and prize.bpxp > 0) then
 		iconPath = "../textures/menu/battlepass/experience.tga"

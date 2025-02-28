@@ -592,6 +592,7 @@ STORESEARCHHINT	Start typing item name to search
 STOREDISCOUNTEDPRICE	Discounted Price
 WORDTORICREDITS	Toricredits
 WORDSHIAITOKENS	Shiai Tokens
+WORDSHIAITOKEN	Shiai Token
 STOREBUYWITH	Buy with
 STOREVIEWIN1	View
 STOREVIEWIN2	in Store
@@ -1376,3 +1377,8 @@ RPGSPEED	Speed
 RPGSPEEDINFO	Affects your move velocity and damage dealt by hits
 RPGENDURANCE	Endurance
 RPGENDURANCEINFO	Affects how easy it is to break or fracture your joints
+EVENTSSTATICEVENTS	Challenge Events
+EVENTSSTATICEVENTNOREWARDS	This event doesn't seem to have any rewards that can be claimed :(
+EVENTSSTATICSUBMITTINGENTRY	Are you ready to submit your replay?
+REPLAYERRORPARSINGDATA	Error parsing replay data, please try another replay
+EVENTSERRORPREPARINGREPLAY	Error preparing replay file for upload. Please try again.

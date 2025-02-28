@@ -1,0 +1,17 @@
+#Messages
+INTROCINEMATIC1	Hi and welcome to the Opener Challenge!
+INTROCINEMATIC2	In this event you need to complete the objectives by making a replay using the premade opener.
+INTROCINEMATIC3	This time the task is throw Uke up in the air as high as you can!
+INTROCINEMATIC4	Good luck and have fun!
+INTRO1	Welcome back! Continue making the replay and try to dismember Uke as many times as you can!
+UPLOADSUCCESS1	Hooray, you've successfully uploaded your entry!
+UPLOADSUCCESS2	Check your notifications - there should be a message from Event Squad with the list of prizes you've got!
+UPLOADSUCCESS3	If you haven't met all objectives, feel free to submit a better replay any time later and claim even better prizes!
+UPLOADSUCCESS4	It looks like your replay didn't qualify for any new rewards - but hey it's still cool!
+UPLOADSUCCESS5	Thanks for participating and see you next time!
+#Tasks
+EVTTASK1	Move your limbs as fast as you can
+EVTTASKDETAILED	Current speed: {x} m/s (max: {x2} m/s)
+EVTTASKOPT1	Move at 40 m/s
+EVTTASKOPT2	Move at 50 m/s
+EVTTASKOPT3	Move at 65 m/s

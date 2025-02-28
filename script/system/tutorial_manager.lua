@@ -1319,13 +1319,13 @@ function Tutorials:addOptionalTask(data, taskText)
 	optTaskColor[4] = 0.7
 
 	local optTaskView = self.TaskViewHolder:addChild({
-		pos = { SAFE_X, self.TaskViewHolder.size.h - 40 },
-		size = { self.TaskViewHolder.size.w - SAFE_X, 40 },
+		pos = { 0, self.TaskViewHolder.size.h - 40 },
+		size = { self.TaskViewHolder.size.w + SAFE_X, 40 },
 		bgColor = optTaskColor
 	})
 
 	local optTaskMarkView = optTaskView:addChild({
-		pos = { 10, 8 },
+		pos = { SAFE_X + 10, 8 },
 		size = { 24, 24 },
 		bgColor = { 0, 0, 0, 0.2 },
 		shapeType = ROUNDED,
@@ -1343,8 +1343,8 @@ function Tutorials:addOptionalTask(data, taskText)
 	optTaskMarkFail:hide(true)
 
 	local optTaskTextView = optTaskView:addChild({
-		pos = { 44, 3 },
-		size = { optTaskView.size.w - 54, 34 }
+		pos = { SAFE_X + 44, 3 },
+		size = { optTaskView.size.w - 54 - SAFE_X, 34 }
 	})
 	optTaskTextView:addAdaptedText(true, taskText, nil, nil, 4, LEFTMID, 0.6)
 
@@ -1375,14 +1375,14 @@ function Tutorials:addAdditionalTask(data, taskText)
 	optTaskColor[4] = 0.7
 
 	local optTaskView = self.TaskViewHolder:addChild({
-		pos = { SAFE_X, self.TaskViewHolder.size.h - 40 },
-		size = { self.TaskViewHolder.size.w - SAFE_X, 40 },
+		pos = { 0, self.TaskViewHolder.size.h - 40 },
+		size = { self.TaskViewHolder.size.w + SAFE_X, 40 },
 		bgColor = optTaskColor
 	})
 
 	local optTaskTextView = optTaskView:addChild({
-		pos = { 10, 3 },
-		size = { optTaskView.size.w - 20, 34 }
+		pos = { SAFE_X + 10, 3 },
+		size = { optTaskView.size.w - 20 - SAFE_X, 34 }
 	})
 	optTaskTextView:addAdaptedText(true, taskText, nil, nil, 4, LEFTMID, 0.6)
 
@@ -2182,6 +2182,15 @@ function TutorialsInternal.SetDiscordRPC()
 	set_discord_rpc(currentTutorialname, TB_MENU_LOCALIZED.DISCORDRPCINTUTORIAL)
 end
 
+function TutorialsInternal.KillCustomScripts()
+	---Legacy move memory script by Zas
+	remove_hook("console", "cnsldata")
+	remove_hook("draw2d", "on")
+	remove_hook("key_down", "key")
+	remove_hook("mouse_move", "movecursor")
+	remove_hook("mouse_button_down", "click")
+end
+
 ---Generic function to run the tutorial \
 ---*This is also used by the Events manager*
 ---@param tutorialSteps TutorialStep[]
@@ -2196,6 +2205,7 @@ function Tutorials:runTutorialBase(tutorialSteps, postTutorial)
 	start_new_game()
 	chat_input_deactivate()
 
+	TutorialsInternal.KillCustomScripts()
 	Atmospheres.Quit()
 	Gamerules.Quit()
 	Mods.Quit()

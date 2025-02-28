@@ -189,9 +189,9 @@ if (not UIElement) then
 	---@field scrollEnabled boolean
 	---@field keyboard boolean True if we want to spawn the object with default keyboard handlers
 	---@field permanentListener boolean
-	---@field hoverSound number
-	---@field upSound number
-	---@field downSound number
+	---@field hoverSound SoundId
+	---@field upSound SoundId
+	---@field downSound SoundId
 	---@field clickThrough boolean
 	---@field hoverThrough boolean
 	---@field bgGradient Color[] List of two colors to generate gradient with
@@ -305,7 +305,7 @@ if (not UIElement) then
 	---@field destroyed boolean Read-only value to indicate the object has been destroyed. Use this to check whether the UIElement still exists when a UIElement:kill() function may have been called on its reference elsewhere.
 	---@field killAction function? Additional callback to be executed when object is being destroyed
 	---@field onShow function? Additional callback to executed at the end of object's `UIElement.show()` call
-	---@field scrollBar UIElement Reference to scrollable list holder's scroll bar
+	---@field scrollBar UIScrollBar Reference to scrollable list holder's scroll bar
 	---@field __positionDirty boolean Read-only value to tell the UIElement internal loops to refresh element position
 	---@field scrollableListTouchScrollActive boolean Read-only value used for scrollable list view elements on touch devices
 	---@field prevInput UIElement Previous input element, set with `UIElement.addTabSwitchPrev()`

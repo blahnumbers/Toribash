@@ -60,14 +60,29 @@ if (Events == nil) then
 	Events.__index = Events
 end
 
+---@class EventRewardBase
+---@field tc integer
+---@field st integer
+---@field itemid integer
+---@field bpxp integer
+
+---@class StaticEventReward : EventRewardBase
+---@field info string
+
+---@class StaticEventInfo
+---@field rewards StaticEventReward[]
+---@field claimed integer Highest reward tier claimed by player
+
 ---@class EventsInternal
 ---@field ConfigFile string Config file path
 ---@field Config table Table containing configuration option values
----@field BlindFight BlindFightData? Blind Fight event data for current user
+---@field BlindFight ?BlindFightData Blind Fight event data for current user
+---@field EventStorage ?StaticEventInfo[] Static event info cache
 local EventsInternal = {
 	ConfigFile = "../data/events.cfg",
 	Config = { },
-	BlindFight = nil
+	BlindFight = nil,
+	EventStorage = nil
 }
 
 function EventsInternal.LoadConfig()
@@ -129,6 +144,7 @@ end
 ---Resets any cached events data for current user
 function EventsInternal.Reset()
 	EventsInternal.BlindFight = nil
+	EventsInternal.EventStorage = nil
 end
 
 ---Returns a table containing current Blind Fight state
@@ -154,7 +170,7 @@ function Events:getNavigationButtons(showBack, showEventid)
 	if (showBack) then
 		table.insert(navigation, {
 			text = TB_MENU_LOCALIZED.NAVBUTTONBACK,
-			action = function() Events:showEventsHome(TBMenu.CurrentSection) end
+			action = Events.ShowHome
 		})
 	end
 	if (showEventid) then
@@ -1175,16 +1191,24 @@ function Events:showModChampionship(viewElement, champInfo, playerStats)
 		end)
 end
 
----@class EventInfoBase
+---@class EventBaseInfo
 ---@field shortname string
 ---@field name string
+---@field description string?
+---@field id integer?
 
 ---Returns event name as specified in its data file
 ---@param filename string
----@return EventInfoBase
-function Events:getPassedEventInfo(filename)
-	local eventInfo = { shortname = filename:gsub("%.dat$", '') }
+---@return EventBaseInfo
+function EventsInternal.GetEventBaseInfo(filename)
+	local eventInfo = {
+		shortname = string.gsub(filename, "(.+)%.dat$", '%1')
+	}
+	if (string.find(eventInfo.shortname, "[\\/]")) then
+		eventInfo.shortname = string.gsub(eventInfo.shortname, "^.*[\\/]", '')
+	end
 	eventInfo.name = eventInfo.shortname
+
 	local file = Files.Open("../data/script/events/" .. filename, FILES_MODE_READONLY)
 	if (not file.data) then
 		return eventInfo
@@ -1192,17 +1216,22 @@ function Events:getPassedEventInfo(filename)
 	local lines = file:readAll()
 	file:close()
 
-	for i, ln in pairs(lines) do
+	for _, ln in pairs(lines) do
 		if (ln:find("^EVENTNAME 0;")) then
 			eventInfo.name = ln:gsub("^EVENTNAME 0;", '')
-		end
-		if (ln:find("^STEP")) then
+		elseif (ln:find("^EVENTDESC 0;")) then
+			eventInfo.description = ln:gsub("^EVENTDESC 0;", '')
+		elseif (ln:find("^EVENTID 0;")) then
+			eventInfo.id = ln:gsub("^EVENTID 0;", '')
+			eventInfo.id = tonumber(eventInfo.id)
+		elseif (ln:find("^STEP")) then
 			break
 		end
 	end
 	return eventInfo
 end
 
+--[[
 ---Displays event winners for available events
 ---@param viewElement UIElement
 ---@param data table
@@ -1558,8 +1587,390 @@ function Events:showPassedEvents(viewElement, noBack)
 	local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
 	scrollBar:makeScrollBar(listingHolder, listElements, toReload)
 end
+]]
 
-function Events:showEventsHome(viewElement)
+---Queues a request to fetch information about all available static event rewards. \
+---Results will be cached in `EventsInternal.EventStorage` on success.
+function Events.FetchStaticEvents()
+	Request:queue(function()
+		download_server_info("events_static&username=" .. TB_MENU_PLAYER_INFO.username)
+	end, "eventManagerStaticEvents", function(_, response)
+		if (response:find("^Error")) then
+			TBMenu:showStatusMessage(response)
+			return
+		end
+		EventsInternal.EventStorage = { }
+		for ln in response:gmatch("[^\n]+\n?") do
+			local _, segments = ln:gsub("([^\t]*)\t?", "")
+			local data = { ln:match(("([^\t]*)\t?"):rep(segments)) }
+			local eventid = tonumber(data[1])
+			if (eventid ~= nil) then
+				EventsInternal.EventStorage[eventid] = EventsInternal.EventStorage[eventid] or {
+					rewards = { }, claimed = 0
+				}
+				local rewardid = tonumber(data[2])
+				if (rewardid ~= nil) then
+					EventsInternal.EventStorage[eventid].rewards[rewardid] = {
+						tc = tonumber(data[4]) or 0,
+						st = tonumber(data[5]) or 0,
+						itemid = tonumber(data[6]) or 0,
+						bpxp = tonumber(data[7]) or 0,
+						info = data[8]
+					}
+					if (data[3] == '1') then
+						EventsInternal.EventStorage[eventid].claimed = math.max(rewardid, EventsInternal.EventStorage[eventid].claimed)
+					end
+				end
+			end
+		end
+		if (table.size(EventsInternal.EventStorage) == 0) then
+			EventsInternal.EventStorage = nil
+		end
+	end, function(_, response)
+		EventsInternal.EventStorage = nil
+		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.ACCOUNTINFOERROR .. ": " .. response)
+	end)
+end
+
+---Displays information about a static event
+---@param viewElement UIElement
+---@param eventInfo EventBaseInfo
+function EventsInternal.ShowStaticEventInfo(viewElement, eventInfo)
+	viewElement:kill(true)
+	TBMenu:addBottomBloodSmudge(viewElement, 2)
+
+	local eventTitle = viewElement:addChild({
+		pos = { 15, 10 },
+		size = { viewElement.size.w - 30, 80 }
+	})
+	local eventName = utf8.gsub(eventInfo.name, ":", "\n")
+	eventTitle:addAdaptedText(eventName, { font = FONTS.BIG, maxscale = 0.8 })
+	if (#eventTitle.dispstr == 1) then
+		eventTitle.size.h = 40
+	end
+
+	---Prepare a scrollable list for prizes area in case they don't fit.
+	---To make sure we don't get visible bars, topBar acts as parent for description
+	---and botBar as parent for play button
+	local eventInfoHolder = viewElement:addChild({
+		pos = { 0, eventTitle.shift.y + eventTitle.size.h },
+		size = { viewElement.size.w, viewElement.size.h - eventTitle.shift.y - eventTitle.size.h }
+	})
+	local toReload, topBar, botBar, _, listingHolder = TBMenu:prepareScrollableList(eventInfoHolder, 100, 85, 20, viewElement.bgColor)
+
+	local eventDescription = topBar:addChild({
+		pos = { eventTitle.shift.x, 0 },
+		size = { eventTitle.size.w, topBar.size.h }
+	})
+	eventDescription:addAdaptedText(eventInfo.description or "", { font = FONTS.LMEDIUM })
+	local playButton = botBar:addChild({
+		pos = { eventTitle.shift.x, 10 },
+		size = { eventTitle.size.w, botBar.size.h - 20 },
+		interactive = true,
+		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+		shapeType = ROUNDED,
+		rounded = 4
+	})
+	playButton:addAdaptedText(TB_MENU_LOCALIZED.EVENTSPLAY)
+	playButton:addMouseUpHandler(function()
+			close_menu()
+			EventsOnline:playEvent(eventInfo.shortname)
+		end)
+
+	local displayPrizes = function()
+		if (listingHolder.scrollBar ~= nil) then
+			listingHolder.scrollBar.holder:kill()
+		end
+		listingHolder:kill(true)
+		local storageEventInfo = EventsInternal.EventStorage[eventInfo.id]
+		if (storageEventInfo == nil) then
+			listingHolder:addChild({ shift = { 30, 20 }}):addAdaptedText(TB_MENU_LOCALIZED.EVENTSSTATICEVENTNOREWARDS)
+			return
+		end
+		local listElements = {}
+		local elementHeight = botBar.size.h
+		for tier, v in pairs(storageEventInfo.rewards) do
+			local isClaimed = tier <= storageEventInfo.claimed
+			local prizeHolder = listingHolder:addChild({
+				pos = { 0, #listElements * elementHeight },
+				size = { listingHolder.size.w, elementHeight }
+			})
+			table.insert(listElements, prizeHolder)
+			local prizeBackground = prizeHolder:addChild({
+				pos = { 10, 2 },
+				size = { prizeHolder.size.w - 12, prizeHolder.size.h - 4 },
+				bgColor = isClaimed and TB_MENU_DEFAULT_DARKER_BLUE or TB_MENU_DEFAULT_DARKER_COLOR,
+				shapeType = ROUNDED,
+				rounded = 4
+			})
+			local prizeInfo = prizeBackground:addChild({
+				pos = { 0, 4 },
+				size = { prizeBackground.size.w / 2, prizeBackground.size.h - 8 }
+			})
+			prizeInfo:addAdaptedText(v.info, { font = FONTS.LMEDIUM, maxscale = 0.85, align = LEFTMID, padding = { x = 10 } })
+			local prizesHolder = prizeBackground:addChild({
+				pos = { prizeInfo.shift.x * 2 + prizeInfo.size.w, prizeInfo.shift.y },
+				size = { prizeInfo.size.w, prizeInfo.size.h }
+			})
+			---@type BattlePassReward[]
+			local prizesList = { }
+			if (v.tc > 0) then
+				table.insert(prizesList, {
+					tc = v.tc,
+					claimed = isClaimed,
+					static = true
+				})
+			end
+			if (v.st > 0) then
+				table.insert(prizesList, {
+					st = v.st,
+					claimed = isClaimed,
+					static = true
+				})
+			end
+			if (v.itemid > 0) then
+				table.insert(prizesList, {
+					itemid = v.itemid,
+					claimed = isClaimed,
+					static = true
+				})
+			end
+			if (v.bpxp > 0) then
+				table.insert(prizesList, {
+					bpxp = v.bpxp,
+					claimed = isClaimed,
+					static = true
+				})
+			end
+			local prizeIconSize = math.min(prizesHolder.size.h, prizesHolder.size.w / #prizesList)
+			for i, prize in pairs(prizesList) do
+				local prizeDisplayHolder = prizesHolder:addChild({
+					pos = { -i * prizeIconSize, 0 },
+					size = { prizeIconSize - 10, prizeIconSize }
+				})
+				BattlePass:showPrizeItem(prizeDisplayHolder, prize)
+			end
+		end
+		if (#listElements * elementHeight > listingHolder.size.h) then
+			for _, v in ipairs(listElements) do
+				v:hide()
+			end
+			local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
+			listingHolder.scrollBar = scrollBar
+			scrollBar:makeScrollBar(listingHolder, listElements, toReload)
+		else
+			listingHolder:moveTo(6)
+		end
+	end
+	if (EventsInternal.EventStorage == nil) then
+		TBMenu:displayLoadingMark(listingHolder)
+		listingHolder:addCustomDisplay(function()
+				if (EventsInternal.EventStorage == nil) then return end
+				listingHolder:addCustomDisplay(false, nil)
+				displayPrizes()
+			end)
+	else
+		displayPrizes()
+	end
+end
+
+function Events.ShowHome()
+	TBMenu:clearNavSection()
+	TBMenu:showNavigationBar({{
+		text = TB_MENU_LOCALIZED.NAVBUTTONTOMAIN,
+		action = Events.Quit
+	}}, true)
+
+	TB_MENU_SPECIAL_SCREEN_ISOPEN = 13
+
+	if (EventsInternal.EventStorage == nil) then
+		Events.FetchStaticEvents()
+	end
+
+	local eventInfos = {
+		{
+			image = "../textures/menu/promo/events/openerchallenge-static.tga",
+			eventNameFormat = "^oc%d+%.dat$",
+			events = {}, buttonParts = {}
+		},
+		{
+			image = "../textures/menu/promo/events/freerunfrenzy-static.tga",
+			eventNameFormat = "^frf%d+%.dat$",
+			events = {}, buttonParts = {}
+		},
+		{
+			image = "../textures/menu/promo/events/floorislava-static.tga",
+			eventNameFormat = "^fil%d+%.dat$",
+			events = {}, buttonParts = {}
+		}
+	}
+
+	local eventsHolder = TBMenu.CurrentSection:addChild({
+		pos = { 5, 0 },
+		size = { math.min(TBMenu.CurrentSection.size.w * 0.6, 1000), TBMenu.CurrentSection.size.h },
+		bgColor = TB_MENU_DEFAULT_BG_COLOR
+	})
+	TBMenu:addBottomBloodSmudge(eventsHolder, 1)
+	local eventTypeSelectorHolder = eventsHolder:addChild({
+		pos = { 0, 0 },
+		size = { eventsHolder.size.w * 0.4, eventsHolder.size.h }
+	})
+	local typeEventButtonsHolder = eventsHolder:addChild({
+		pos = { eventTypeSelectorHolder.size.w, 0 },
+		size = { eventsHolder.size.w - eventTypeSelectorHolder.size.w, eventsHolder.size.h }
+	})
+
+	local eventInfoHolder = TBMenu.CurrentSection:addChild({
+		pos = { eventsHolder.shift.x + eventsHolder.size.w + 10, 0 },
+		size = { TBMenu.CurrentSection.size.w - eventsHolder.shift.x * 2 - eventsHolder.size.w - 10, TBMenu.CurrentSection.size.h },
+		bgColor = TB_MENU_DEFAULT_BG_COLOR
+	})
+
+	local toReload, topBar, botBar, listingView, listingHolder = TBMenu:prepareScrollableList(eventTypeSelectorHolder, 65, 50, 0, eventsHolder.bgColor)
+	local toReload2, topBar2, botBar2, _, listingHolder2 = TBMenu:prepareScrollableList(typeEventButtonsHolder, topBar.size.h, botBar.size.h, 20, eventsHolder.bgColor)
+
+	topBar2:moveTo(-topBar2.size.w - topBar.size.w)
+	topBar2.size.w = eventsHolder.size.w
+	topBar.size.w = eventsHolder.size.w
+	topBar:addAdaptedText(TB_MENU_LOCALIZED.EVENTSSTATICEVENTS, { font = FONTS.BIG, maxscale = 0.8 })
+	topBar2:addAdaptedText(TB_MENU_LOCALIZED.EVENTSSTATICEVENTS, { font = FONTS.BIG, maxscale = 0.8 })
+
+	local elementHeight = math.min((listingHolder.size.w - 12) * 0.5625 / 5, 50)
+	local listElements = {}
+	local directoryContents = get_files("data/script/events", "dat")
+	for id, v in ipairs(eventInfos) do
+		for _, data in pairs(directoryContents) do
+			if (string.match(data, v.eventNameFormat)) then
+				table.insert(v.events, EventsInternal.GetEventBaseInfo(data))
+			end
+		end
+		v.events = table.qsort(v.events, "name", SORT_ASCENDING)
+		local showTypeEvents = function()
+			if (listingHolder2.scrollBar ~= nil) then
+				listingHolder2.scrollBar.holder:kill()
+			end
+			listingHolder2:kill(true)
+			local listElements2 = { }
+			local selectedButton = nil
+			for i, b in ipairs(v.events) do
+				local buttonHolder = listingHolder2:addChild({
+					pos = { 0, #listElements2 * 50 },
+					size = { listingHolder2.size.w, 50 }
+				})
+				table.insert(listElements2, buttonHolder)
+				local eventButton = buttonHolder:addChild({
+					pos = { 8, 2 },
+					size = { buttonHolder.size.w - 8, buttonHolder.size.h - 4 },
+					interactive = true,
+					bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+					hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+					pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+					shapeType = ROUNDED,
+					rounded = 4,
+					clickThrough = true,
+					hoverThrough = true
+				})
+				eventButton:addChild({ shift = { 10, 4 } }):addAdaptedText(b.name, { align = LEFTMID })
+				eventButton:addMouseUpHandler(function()
+					if (selectedButton ~= nil) then
+						selectedButton.bgColor = TB_MENU_DEFAULT_DARKER_COLOR
+						selectedButton.hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR
+					end
+					eventButton.bgColor = TB_MENU_DEFAULT_DARKER_BLUE
+					eventButton.hoverColor = TB_MENU_DEFAULT_DARKEST_BLUE
+					selectedButton = eventButton
+					EventsInternal.ShowStaticEventInfo(eventInfoHolder, b)
+					end)
+				if (i == 1) then
+					eventButton.btnUp()
+				end
+			end
+			for _, e in ipairs(listElements2) do
+				e:hide()
+			end
+			local scrollBar = TBMenu:spawnScrollBar(listingHolder2, #listElements2, 50)
+			listingHolder2.scrollBar = scrollBar
+			scrollBar:makeScrollBar(listingHolder2, listElements2, toReload2)
+
+			for i, event in ipairs(eventInfos) do
+				if (i == id) then
+					for _, b in ipairs(event.buttonParts) do
+						b.imageColor = { 1, 1, 1, 1 }
+					end
+				else
+					for _, b in ipairs(event.buttonParts) do
+						b.imageColor = { 0.65, 0.65, 0.65, 1 }
+					end
+				end
+			end
+		end
+		for i = 1, 5 do
+			local imageDisplayHolder = listingHolder:addChild({
+				pos = { 0, #listElements * elementHeight },
+				size = { listingHolder.size.w, elementHeight }
+			})
+			table.insert(listElements, imageDisplayHolder)
+			local imageDisplay = imageDisplayHolder:addChild({
+				pos = { 10, 0 },
+				size = { imageDisplayHolder.size.w - 12, imageDisplayHolder.size.h },
+				bgImage = v.image,
+				imageAtlas = true,
+				atlas = {
+					x = 0, y = (i - 1) * 180, w = 1600, h = 180
+				},
+				interactive = true,
+				imageColor = { 0.65, 0.65, 0.65, 1 },
+				imageHoverColor = UICOLORWHITE,
+				clickThrough = true,
+				hoverThrough = true,
+				hoverSound = 31
+			})
+			imageDisplay:addMouseUpHandler(showTypeEvents)
+			table.insert(v.buttonParts, imageDisplay)
+			if (i == 1) then
+				imageDisplay:addChild({ size = { imageDisplay.size.w, 3 }, bgColor = eventsHolder.bgColor })
+				TBMenu:addOuterRounding(imageDisplay:addChild({ pos = { 0, 3 } }), eventsHolder.bgColor, { 4, 4, 0, 0 })
+			elseif (i == 5) then
+				imageDisplay:addChild({ pos = { 0, -3 }, size = { imageDisplay.size.w, 3 }, bgColor = eventsHolder.bgColor })
+				TBMenu:addOuterRounding(imageDisplay:addChild({ pos = { 0, -imageDisplay.size.h - 3 }}), eventsHolder.bgColor, { 0, 0, 4, 4 })
+			end
+		end
+		if (id == 1) then
+			showTypeEvents()
+		end
+	end
+	for _, v in ipairs(listElements) do
+		v:hide()
+	end
+	local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
+	listingHolder.scrollBar = scrollBar
+	scrollBar:makeScrollBar(listingHolder, listElements, toReload)
+
+	listingView:addCustomDisplay(function()
+			for _, v in pairs(eventInfos) do
+				local hoverState, hoverClock, hoverSame = v.buttonParts[1].hoverState, v.buttonParts[1].hoverClock, true
+				for i = 2, #v.buttonParts do
+					if (hoverState ~= v.buttonParts[i].hoverState and v.buttonParts[i]:isDisplayed()) then
+						hoverState = math.max(hoverState, v.buttonParts[i].hoverState)
+						hoverClock = math.max(hoverClock, v.buttonParts[i].hoverClock)
+						hoverSame = false
+					end
+				end
+				if (not hoverSame) then
+					for _, b in ipairs(v.buttonParts) do
+						if (b:isDisplayed()) then
+							b.hoverState = hoverState
+							b.hoverClock = hoverClock
+						end
+					end
+				end
+			end
+		end)
+end
+
+--[[function Events:showEventsHomeLegacy(viewElement)
 	TBMenu:clearNavSection()
 	TBMenu:showNavigationBar(Events:getNavigationButtons(), true)
 	TB_MENU_EVENTS_OPEN = true
@@ -1632,7 +2043,7 @@ function Events:showEventsHome(viewElement)
 		action = function() Events:showPassedEvents(viewElement) end
 	}
 	TBMenu:showHomeButton(allEventsButton, allEventsButtonData, 3)
-end
+end]]
 
 function Events:showEventDescription(viewElement, event)
 	local elementHeight = 41
