@@ -3551,16 +3551,16 @@ function Events:refreshBlindFight(loaderView, loadingMark, onComplete)
 		if (loadingMark ~= nil and not loadingMark.destroyed) then
 			loadingMark:kill()
 		end
-
-		EventsInternal.BlindFight = { players = { }, defeated = { }, lastupdate = os.time(), groupTitle = "", tierRewards = { }, userRPG = { strength = 0, speed = 0, endurance = 0 } }
 		if (string.find(response, "^ERROR")) then
 			if (loaderView ~= nil and not loaderView.destroyed) then
 				local errorMessage = response:gsub("^ERROR ", "")
 				loaderView:addChild({ shift = { 100, 50 }}):addAdaptedText(errorMessage)
 			end
+			EventsInternal.BlindFight = nil
 			return
 		end
 
+		EventsInternal.BlindFight = { players = { }, defeated = { }, lastupdate = os.time(), groupTitle = "", tierRewards = { }, userRPG = { strength = 0, speed = 0, endurance = 0 } }
 		local autoupdate = get_option("autoupdate")
 		for ln in response:gmatch("[^\n]*\n?") do
 			ln = ln:gsub("\n$", "")
