@@ -4173,44 +4173,51 @@ end
 
 ---@class MenuTextImageOptions
 ---@field useUiColor boolean
----@field textLeft boolean
+---@field floatLeft boolean
 ---@field maxTextScale number
 ---@field imageColor Color
+---@field imagePadding number
 
 ---Generic method to display a text string with an image on the side
 ---@param viewElement UIElement
 ---@param text string
 ---@param fontid FontId
 ---@param imgScale? number
----@param imgWhite string
+---@param imagePath string
 ---@param textImageOptions? MenuTextImageOptions
----@param left? boolean Deprecated, use `textImageOptions.textLeft` instead
-function TBMenu:showTextWithImage(viewElement, text, fontid, imgScale, imgWhite, textImageOptions, left)
-	local textImageOptions = type(textImageOptions) == "table" and textImageOptions or {
+---@overload fun(self:TBMenu, viewElement:UIElement, text:string, fontid:FontId, imgScale?:number, imagePath:string, useUIColor?:boolean, left?:boolean)
+function TBMenu:showTextWithImage(viewElement, text, fontid, imgScale, imagePath, textImageOptions, left)
+	textImageOptions = type(textImageOptions) == "table" and textImageOptions or {
 		useUiColor = textImageOptions,
-		textLeft = left
+		floatLeft = left
 	}
-	local imgScale = math.min(viewElement.size.h, imgScale or 26)
-	local textView = viewElement:addChild({
-		pos = { imgScale * 0.8, 0 },
-		size = { viewElement.size.w - imgScale * 1.15, viewElement.size.h }
+	textImageOptions.imagePadding = textImageOptions.imagePadding or 0
+	textImageOptions.maxTextScale = textImageOptions.maxTextScale or 1
+	imgScale = math.min(viewElement.size.h, imgScale or 26)
+	local textView = viewElement:addChild({ })
+	textView:addAdaptedText(text, {
+		padding = {
+			x = textImageOptions.floatLeft and (imgScale + textImageOptions.imagePadding) or 0, y = 0,
+			w = textImageOptions.floatLeft and 0 or (imgScale + textImageOptions.imagePadding), h = 0
+		}, font = fontid, maxscale = textImageOptions.maxTextScale, intensity = fontid == FONTS.BIG and 0.5 or 1
 	})
-	textView:addAdaptedText(true, text, textImageOptions.textLeft and imgScale * 0.7 or -imgScale * 0.7, nil, fontid, nil, textImageOptions.maxTextScale or 1, nil, fontid == FONTS.BIG and 0.5 or 1)
 
-	local fontid = textView.textFont
-	local textScale = textView.textScale
-	local posX = 0
+	local maxLineWidth = 0
 	for _, v in pairs(textView.dispstr) do
-		local lineWidth = get_string_length(v, fontid)
-		if (lineWidth > posX) then
-			posX = lineWidth
-		end
+		maxLineWidth = math.max(maxLineWidth, get_string_length(v, textView.textFont))
 	end
-	posX = posX * textScale
-	local imageElement = textView:addChild({
-		pos = { (textImageOptions.textLeft and (-textView.size.w - (posX + imgScale)) or (textView.size.w + (posX - imgScale))) / 2, (textView.size.h - imgScale) / 2 },
+	maxLineWidth = maxLineWidth * textView.textScale
+
+	local imagePosX = 0
+	if (textImageOptions.floatLeft) then
+		imagePosX = (textView.size.w - maxLineWidth + imgScale) / 2 - imgScale - textImageOptions.imagePadding
+	else
+		imagePosX = (textView.size.w + maxLineWidth - imgScale) / 2 + textImageOptions.imagePadding
+	end
+	textView:addChild({
+		pos = { imagePosX, (textView.size.h - imgScale) / 2 },
 		size = { imgScale, imgScale },
-		bgImage = imgWhite,
+		bgImage = imagePath,
 		imageColor = textImageOptions.imageColor or (textImageOptions.useUiColor and viewElement.uiColor or { 1, 1, 1, 1 })
 	})
 end
