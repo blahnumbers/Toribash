@@ -3093,6 +3093,10 @@ function set_graphics_option(option, value) end
 ---Reloads graphics and applies changes set by `set_graphics_option()`
 function reload_graphics() end
 
+---Returns current custom world shader file name
+---@return string
+function get_shader_name() end
+
 ---@alias ShaderOptionId
 ---| 0	BACKGROUND_COLOR
 ---| 1	MIRROR_COLOR

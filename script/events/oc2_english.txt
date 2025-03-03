@@ -1,7 +1,7 @@
 #Messages
 INTROCINEMATIC1	Hi and welcome to the Opener Challenge!
 INTROCINEMATIC2	In this event you need to complete the objectives by making a replay using the premade opener.
-INTROCINEMATIC3	This time the task is to dismember Uke as many times as you can.
+INTROCINEMATIC3	This time the task is to dismember Uke as many times as you can!
 INTROCINEMATIC4	Good luck and have fun!
 INTRO1	Welcome back! Continue making the replay and try to dismember Uke as many times as you can!
 UPLOADSUCCESS1	Hooray, you've successfully uploaded your entry!

@@ -157,6 +157,7 @@ function Tutorials:quit()
 	set_discord_rpc("", "")
 	set_hint_override()
 	disable_player_select(-1)
+	set_camera_mode(0)
 	open_menu(19)
 end
 
@@ -1743,7 +1744,7 @@ end
 ---@param steps TutorialStep[]
 ---@param currentStep ?integer
 function Tutorials:runSteps(steps, currentStep)
-	local currentStep = currentStep or 1
+	currentStep = currentStep or 1
 	local requirements = { ready = false, skip = 0 }
 	self.CurrentStep = steps[currentStep]
 	self.CurrentStep.isLoaded = false
@@ -2253,6 +2254,8 @@ function Tutorials:runTutorial(id, path, postTutorial)
 
 	TutorialsInternal.UpdateConfig()
 	TutorialsInternal.SetDiscordRPC()
+	Atmospheres.GetDefaultWorldShader()
+	
 	if (self.RPGState == nil) then
 		self.RPGState = rpg_state()
 	end

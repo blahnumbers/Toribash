@@ -1,0 +1,15 @@
+#Messages
+INTROCINEMATIC1	Hi and welcome to Floor is Lava!
+INTROCINEMATIC2	In this event you need to complete a parkour map without getting fried!
+INTROCINEMATIC3	The farther you get and the more checkpoints your pass, the better your prizes will be!
+INTROCINEMATIC4	Good luck and have fun!
+INTRO1	Welcome back! Continue progressing through this parkour map to collect rewards!
+UPLOADSUCCESS1	Hooray, you've successfully uploaded your entry!
+UPLOADSUCCESS2	Check your notifications - there should be a message from Event Squad with the list of prizes you've got!
+UPLOADSUCCESS3	If you haven't met all objectives, feel free to submit a better replay any time later and claim even better prizes!
+UPLOADSUCCESS4	It looks like your replay didn't qualify for any new rewards - but hey it's still cool!
+UPLOADSUCCESS5	Thanks for participating and see you next time!
+#Tasks
+EVTTASK1	Complete the parkour challenge
+EVTTASKOPT1	Pass the checkpoint
+EVTTASKOPT2	Don't touch the lava

@@ -51,9 +51,12 @@ if (Events == nil) then
 	---@class Events
 	---@field EventStalePeriod integer Period in seconds before event data is considered stale
 	---@field BlindFightMode integer Blind Fight launch mode
+	---@field LastEventSection integer Last active static event section
 	Events = {
 		EventStalePeriod = 600,
 		BlindFightMode = 0,
+		LastEventSection = 1,
+		HomeListShift = { 0 },
 		HookName = "__tbEventsManager",
 		ver = 5.74
 	}
@@ -1848,6 +1851,7 @@ function Events.ShowHome()
 		end
 		v.events = table.qsort(v.events, "name", SORT_ASCENDING)
 		local showTypeEvents = function()
+			Events.LastEventSection = id
 			if (listingHolder2.scrollBar ~= nil) then
 				listingHolder2.scrollBar.holder:kill()
 			end
@@ -1937,7 +1941,7 @@ function Events.ShowHome()
 				TBMenu:addOuterRounding(imageDisplay:addChild({ pos = { 0, -imageDisplay.size.h - 3 }}), eventsHolder.bgColor, { 0, 0, 4, 4 })
 			end
 		end
-		if (id == 1) then
+		if (Events.LastEventSection == id) then
 			showTypeEvents()
 		end
 	end
@@ -1946,7 +1950,7 @@ function Events.ShowHome()
 	end
 	local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
 	listingHolder.scrollBar = scrollBar
-	scrollBar:makeScrollBar(listingHolder, listElements, toReload)
+	scrollBar:makeScrollBar(listingHolder, listElements, toReload, Events.HomeListShift)
 
 	listingView:addCustomDisplay(function()
 			for _, v in pairs(eventInfos) do

@@ -95,15 +95,21 @@ function Atmospheres.Unload()
 		Atmospheres.EntityHolder:kill()
 		Atmospheres.EntityHolder = nil
 	end
-	if (Atmospheres.DefaultShader) then
-		runCmd("lws " .. Atmospheres.DefaultShader:gsub("^data/shader/", ""))
-	end
 	if (Atmospheres.DebugHolder2D ~= nil) then
 		Atmospheres.DebugHolder2D:kill()
 		Atmospheres.DebugHolder2D = nil
 	end
+	Atmospheres.RestoreShader()
 	AtmospheresInternal.EntityList = {}
 	remove_hooks(Atmospheres.HookName)
+end
+
+---Loads default shader (if specified)
+function Atmospheres.RestoreShader()
+	Files.LogError("restoreshader " .. tostring(Atmospheres.DefaultShader))
+	if (Atmospheres.DefaultShader) then
+		runCmd("lws " .. Atmospheres.DefaultShader)
+	end
 end
 
 ---@class AtmosphereEntity3D : UIElement3DOptions
@@ -301,19 +307,11 @@ end
 
 ---Gets the default world shader from user config
 function Atmospheres.GetDefaultWorldShader()
-	local file = Files.Open("../custom.cfg")
-	if (file.data) then
-		for _, ln in pairs(file:readAll()) do
-			if (ln:find("^customworldshader ")) then
-				Atmospheres.DefaultShader = ln:gsub("customworldshader ", ""):gsub("\"", "")
-				if (Atmospheres.DefaultShader:len() < 5) then
-					Atmospheres.DefaultShader = "default.inc"
-				end
-				break
-			end
-		end
+	Atmospheres.DefaultShader = string.gsub(get_shader_name(), "^data/shader/", "")
+	echo("default shader: " .. Atmospheres.DefaultShader)
+	if (string.len(Atmospheres.DefaultShader) == 0) then
+		Atmospheres.DefaultShader = "default.inc"
 	end
-	file:close()
 end
 
 ---Displays main controls for Shader Editor
@@ -591,13 +589,17 @@ end
 
 ---Loads an atmosphere from the specified file path
 ---@param filename string
-function Atmospheres.LoadAtmo(filename)
+---@param refreshDefaultShader ?boolean
+function Atmospheres.LoadAtmo(filename, refreshDefaultShader)
 	Atmospheres.Unload()
 	if (type(filename) ~= "string" or string.lower(filename) == "default.atmo") then
 		return
 	end
 
-	Atmospheres.GetDefaultWorldShader()
+	if (Atmospheres.DefaultShader == nil or refreshDefaultShader) then
+		Atmospheres.GetDefaultWorldShader()
+	end
+
 	add_hook("draw3d", Atmospheres.HookName, function() UIElement3D.drawVisuals(Atmospheres.Globalid) end)
 	add_hook("enter_frame", Atmospheres.HookName, function() UIElement3D.drawEnterFrame(Atmospheres.Globalid) end)
 	_ATMO = {}
@@ -996,8 +998,8 @@ function Atmospheres:showMain()
 					end
 					Atmospheres.SelectedScreen = 1
 					Atmospheres.SpawnMainList(listingHolder, toReload, elementHeight, "data/shader", "inc", function(file)
-							Atmospheres.DefaultShader = file
 							runCmd("lws " .. file)
+							Atmospheres.GetDefaultWorldShader()
 						end, search)
 				end
 		},
