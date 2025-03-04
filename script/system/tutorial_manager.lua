@@ -1321,7 +1321,7 @@ function Tutorials:addOptionalTask(data, taskText)
 
 	local optTaskView = self.TaskViewHolder:addChild({
 		pos = { 0, self.TaskViewHolder.size.h - 40 },
-		size = { self.TaskViewHolder.size.w + SAFE_X, 40 },
+		size = { self.TaskViewHolder.size.w, 40 },
 		bgColor = optTaskColor
 	})
 
@@ -1377,7 +1377,7 @@ function Tutorials:addAdditionalTask(data, taskText)
 
 	local optTaskView = self.TaskViewHolder:addChild({
 		pos = { 0, self.TaskViewHolder.size.h - 40 },
-		size = { self.TaskViewHolder.size.w + SAFE_X, 40 },
+		size = { self.TaskViewHolder.size.w, 40 },
 		bgColor = optTaskColor
 	})
 
