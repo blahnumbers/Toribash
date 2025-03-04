@@ -106,7 +106,6 @@ end
 
 ---Loads default shader (if specified)
 function Atmospheres.RestoreShader()
-	Files.LogError("restoreshader " .. tostring(Atmospheres.DefaultShader))
 	if (Atmospheres.DefaultShader) then
 		runCmd("lws " .. Atmospheres.DefaultShader)
 	end
