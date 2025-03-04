@@ -2356,7 +2356,7 @@ function TBHud:spawnMiniChat()
 				for i = #v.adaptedTextMini, 1, -1 do
 					local displayColor = table.clone(v.textColorMini[i] or TB_MENU_DEFAULT_DARKEST_COLOR)
 					displayColor[4] = textOpacity
-					self.ChatMiniHolder:uiText(v.adaptedTextMini[i], nil, -linesPrinted * 20, 11, LEFTBOT, 0.55, nil, nil, displayColor)
+					self.ChatMiniHolder:uiText(v.adaptedTextMini[i], nil, { 0, linesPrinted * 20 }, 11, LEFTBOT, 0.55, nil, nil, displayColor)
 					linesPrinted = linesPrinted + 1
 					if (linesPrinted > self.ChatMiniMaxMessages) then
 						return
