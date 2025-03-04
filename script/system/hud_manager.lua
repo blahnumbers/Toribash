@@ -1467,7 +1467,7 @@ function TBHud:getChatCommands()
 		{
 			cmd = { "dl", "download" },
 			info = "/dl ^47modname.tbm %125- download a custom mod",
-			regex = "(/%w+) ?([^%. ]*).*",
+			regex = "^(/%w+) ?([^%. ]*).*",
 			replacement = "/dl %2.tbm",
 		},
 		{
@@ -1481,7 +1481,7 @@ function TBHud:getChatCommands()
 		{
 			cmd = { "lm", "loadmod" },
 			info = "/loadmod ^47modname %125- load a game mod and restart fight",
-			regex = "(/%w+) ?([^%. ]*).*",
+			regex = "^(/%w+) ?([^%. ]*).*",
 			replacement = "/lm %2",
 			requireOperator = true
 		},
@@ -1490,6 +1490,153 @@ function TBHud:getChatCommands()
 			info = "/loadplayer ^38id ^47username %125- load user's customs for specified player",
 			regex = "^(/%w+) ?(%d*) ?(%w*).*",
 			replacement = "/lp %2 %3"
+		},
+		{
+			cmd = "bet",
+			info = "/bet ^38amount ^47username %125- bet TC on player's victory in current fight",
+			regex = "^(/%w+) ?(%d*) ?(%w*).*",
+			replacement = "/bet %2 %3",
+			requireOnline = true
+		},
+		{
+			cmd = "bets",
+			info = "/bet %125- show all active bets",
+			regex = "^(/%w+).*",
+			replacement = "/bets",
+			requireOnline = true,
+			autoSubmit = true
+		},
+		{
+			cmd = "passwd",
+			info = "/pass ^47password %125- enter a password protected room",
+			regex = "^(/%w+) ?(.*)",
+			replacement = "/pass %2",
+			requireOnline = true
+		},
+		{
+			cmd = "decapprize",
+			info = "/decappize ^47amount %125- add TC to current decap prize",
+			regex = "^(/%w+) ?(%d*).*",
+			replacement = "/decapprize %2",
+			requireOnline = true
+		},
+		{
+			cmd = "dismemberprize",
+			info = "/dismemberprize ^47amount %125- add TC to current dismember prize",
+			regex = "^(/%w+) ?(%d*).*",
+			replacement = "/dismemberprize %2",
+			requireOnline = true
+		},
+		{
+			cmd = "motd",
+			info = "/motd ^47message %125- set room welcome message",
+			regex = "^(/%w+) ?(.*)",
+			replacement = "/motd %2",
+			requireOnline = true
+		},
+		{
+			cmd = "desc",
+			info = "/desc ^47message %125- set room description for room list",
+			regex = "^(/%w+) ?(.*)",
+			replacement = "/desc %2",
+			requireOnline = true
+		},
+		{
+			cmd = "vip add",
+			info = "/vip add ^47username %125- add player to room's vip list",
+			regex = "^(/%w+) ?[ad]* ?(.*)",
+			replacement = "/vip add %2",
+			requireOnline = true
+		},
+		{
+			cmd = "vip del",
+			info = "/vip del ^47username %125- remove player from room's vip list",
+			regex = "^(/%w+) ?[del]* ?(.*)",
+			replacement = "/vip del %2",
+			requireOnline = true
+		},
+		{
+			cmd = "vip list",
+			info = "/vip list %125- show vip list for current room",
+			regex = "^(/%w+).*",
+			replacement = "/vip list",
+			requireOnline = true,
+			autoSubmit = true
+		},
+		{
+			cmd = "vip clear",
+			info = "/vip clear %125- clear current room's vip list",
+			regex = "^(/%w+).*",
+			replacement = "/vip clear",
+			requireOnline = true
+		},
+		{
+			cmd = "clanvip add",
+			info = "/clanvip add ^47clan %125- add clan to room's vip list",
+			regex = "^(/%w+) ?[ad]* ?(.*)",
+			replacement = "/clanvip add %2",
+			requireOnline = true
+		},
+		{
+			cmd = "clanvip del",
+			info = "/clanvip del ^47username %125- remove clan from room's vip list",
+			regex = "^(/%w+) ?[del]* ?(.*)",
+			replacement = "/clanvip del %2",
+			requireOnline = true
+		},
+		{
+			cmd = "clanvip list",
+			info = "/clanvip list %125- show clan vip list for current room",
+			regex = "^(/%w+).*",
+			replacement = "/clanvip list",
+			requireOnline = true,
+			autoSubmit = true
+		},
+		{
+			cmd = "clanvip clear",
+			info = "/clanvip clear %125- clear current room's clan vip list",
+			regex = "^(/%w+).*",
+			replacement = "/clanvip clear",
+			requireOnline = true
+		},
+		{
+			cmd = "viponly",
+			info = "/viponly ^47on|off %125- toggle whether current room's vip only status",
+			regex = "^(/%w+) ?(.*)",
+			replacement = "/viponly %2",
+			requireOnline = true
+		},
+		{
+			cmd = "duel start",
+			info = "/duel start ^47amount %125- enable duel mode with a specified wager",
+			regex = "^(/%w+) ?[star]* ?(%d+).*",
+			replacement = "/duel start %2",
+			requireOnline = true,
+			requireOperator = true
+		},
+		{
+			cmd = "duel stop",
+			info = "/duel stop %125- disable duel mode",
+			regex = "^(/%w+).*",
+			replacement = "/duel stop",
+			requireOnline = true,
+			requireOperator = true
+		},
+		{
+			cmd = "duel earnings",
+			info = "/duel earnings %125- show your earnings in this dueling session",
+			regex = "^(/%w+).*",
+			replacement = "/duel earnings",
+			requireOnline = true,
+			autoSubmit = true
+		},
+		{
+			cmd = "duel status",
+			info = "/duel status %125- show your earnings in this dueling session",
+			regex = "^(/%w+).*",
+			replacement = "/duel status",
+			requireOnline = true,
+			autoSubmit = true
 		},
 	}
 end
