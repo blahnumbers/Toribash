@@ -168,7 +168,7 @@ _T = {
 		},
 		{
 			visible = false,
-			costModifier = 1,
+			costModifier = 2,
 			task = 2,
 			targetCheck = CHECK_TYPE.PLAYER_CUSTOM,
 			checkFunction = function() return true end,
@@ -207,7 +207,7 @@ _T = {
 		},
 		{
 			visible = false,
-			costModifier = 2,
+			costModifier = 1,
 			task = 3,
 			targetCheck = CHECK_TYPE.PLAYER_CUSTOM,
 			inverseCondition = true,

@@ -103,7 +103,7 @@ _T = {
 	CHECKPOINTS = {
 		{
 			visible = true,
-			costModifier = 1,
+			costModifier = 2,
 			isFinal = true,
 			shape = CAPSULE,
 			pos = { x = 0, y = 20, z = 0 },
@@ -139,7 +139,7 @@ _T = {
 		},
 		{
 			visible = false,
-			costModifier = 2,
+			costModifier = 1,
 			task = 2,
 			targetCheck = CHECK_TYPE.PLAYER_DISMEMBERS,
 			compareValue = 1,
