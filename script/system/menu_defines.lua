@@ -1,4 +1,4 @@
-_G.MENU_VERSION = 250304
+_G.MENU_VERSION = 250305
 
 --These used to be in menu_manager.lua
 
