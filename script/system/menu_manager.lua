@@ -3756,7 +3756,7 @@ function TBMenu:spawnDropdown(holderElement, dropdownElements, elementHeight, ma
 		pos = { 10, 2 },
 		size = { selectedElement.size.w - selectedElement.size.h - 10, selectedElement.size.h - 4 }
 	})
-	selectedElementText:addAdaptedText(false, textSettings.uppercase and utf8.upper(selectedItem.text) or selectedItem.text, nil, nil, textSettings.fontid, textSettings.alignment, textSettings.scale)
+	selectedElementText:addAdaptedText(false, textSettings.uppercase and utf8.safe_upper(selectedItem.text) or selectedItem.text, nil, nil, textSettings.fontid, textSettings.alignment, textSettings.scale)
 	local selectedElementArrow = selectedElement:addChild({
 		pos = { -selectedElement.size.h, 0 },
 		size = { selectedElement.size.h, selectedElement.size.h },
@@ -3837,7 +3837,7 @@ function TBMenu:spawnDropdown(holderElement, dropdownElements, elementHeight, ma
 		if (selectedItem == v) then
 			selectedItemId = i
 		end
-		element:addChild({ shift = { 10, 1 }}):addAdaptedText(false, listTextSettings.uppercase and utf8.upper(v.text) or v.text, nil, nil, listTextSettings.fontid, listTextSettings.alignment, listTextSettings.scale)
+		element:addChild({ shift = { 10, 1 }}):addAdaptedText(false, listTextSettings.uppercase and utf8.safe_upper(v.text) or v.text, nil, nil, listTextSettings.fontid, listTextSettings.alignment, listTextSettings.scale)
 		element:addMouseHandlers(nil, function()
 				overlay:hide(true)
 				overlay.selectedElement:show(true)
