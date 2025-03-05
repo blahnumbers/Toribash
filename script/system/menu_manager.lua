@@ -3640,6 +3640,7 @@ end
 ---@field hidden boolean
 ---@field text string
 ---@field action function
+---@field preAction function
 ---@field element UIElement
 ---@field itemId integer
 ---@field selected ?boolean
@@ -3838,7 +3839,7 @@ function TBMenu:spawnDropdown(holderElement, dropdownElements, elementHeight, ma
 			selectedItemId = i
 		end
 		element:addChild({ shift = { 10, 1 }}):addAdaptedText(false, listTextSettings.uppercase and utf8.safe_upper(v.text) or v.text, nil, nil, listTextSettings.fontid, listTextSettings.alignment, listTextSettings.scale)
-		element:addMouseHandlers(nil, function()
+		element:addMouseHandlers(v.preAction, function()
 				overlay:hide(true)
 				overlay.selectedElement:show(true)
 				overlay.selectItem(v)

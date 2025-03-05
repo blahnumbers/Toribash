@@ -2086,9 +2086,10 @@ function TBHud:initChat()
 						chatInputField.textInputCustom()
 						if (cmdInfo.autoSubmit) then
 							chatInputField.enteraction()
-						else
-							regainFocus(true)
 						end
+					end,
+					preAction = function()
+						regainFocus(true)
 					end
 				})
 			end
