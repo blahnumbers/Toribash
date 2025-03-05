@@ -2068,6 +2068,13 @@ function TBHud:initChat()
 				return
 			end
 
+			local regainFocus = function(override)
+				if (override or chatInputField.menuKeyboardId ~= nil) then
+					chatInputField.keyboard = true
+					disable_camera_movement()
+					chatInputField.btnDown(0, -1, -1)
+				end
+			end
 			local dropdownList = {}
 			for _, cmdInfo in pairs(targetCommands) do
 				table.insert(dropdownList, {
@@ -2080,7 +2087,7 @@ function TBHud:initChat()
 						if (cmdInfo.autoSubmit) then
 							chatInputField.enteraction()
 						else
-							UIElement.handleMouseDn(0, chatInputField.pos.x + 1, chatInputField.pos.y + 1)
+							regainFocus(true)
 						end
 					end
 				})
@@ -2091,10 +2098,11 @@ function TBHud:initChat()
 			chatInputField.suggestionsDropdown.selectedElement:hide(true)
 			chatInputField.suggestionsDropdown.selectedElement.btnUp()
 			if (chatInputField.suggestionsDropdown.listHolder ~= nil) then
-				chatInputField.suggestionsDropdown.listHolder.scrollBar.listReload = function()
-					chatInputField.suggestionsDropdown.listHolder.scrollBar.listReload()
-					UIElement.handleMouseDn(0, chatInputField.pos.x + 1, chatInputField.pos.y + 1)
-				end
+				local suggestionsListView = chatInputField.suggestionsDropdown.listHolder.parent
+				local mouseDown = suggestionsListView.btnDown
+				local mouseMove = suggestionsListView.btnHover
+				suggestionsListView.btnDown = function(...) mouseDown(...) regainFocus() end
+				suggestionsListView.mouseHover = function(...) mouseMove(...) regainFocus() end
 			end
 		end)
 	-- Don't need chat history for mobile for now

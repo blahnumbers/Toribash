@@ -4980,7 +4980,7 @@ function TBMenu:spawnTextField2(viewElement, rect, textFieldString, defaultStrin
 			inputField:enableMenuKeyboard()
 			inputField.__mouseUpClock = UIElement.clock
 			---@diagnostic disable-next-line: undefined-field
-			if (inputField.__lastKeyboard) then
+			if (x > -1 and y > -1 and inputField.__lastKeyboard) then
 				inputField.__moveCursor = true
 				local pos = inputField:getLocalPos(x, y)
 				updateCursorPosition(pos.x, pos.y)
