@@ -1382,3 +1382,6 @@ EVENTSSTATICEVENTNOREWARDS	This event doesn't seem to have any rewards that can 
 EVENTSSTATICSUBMITTINGENTRY	Are you ready to submit your replay?
 REPLAYERRORPARSINGDATA	Error parsing replay data, please try another replay
 EVENTSERRORPREPARINGREPLAY	Error preparing replay file for upload. Please try again.
+EVENTSALLEVENTSNEW	Challenges
+EVENTSALLEVENTSNEWDESC	Test your skills in challenge events and receive rewards!
+NAVBUTTONEVENTS	Events

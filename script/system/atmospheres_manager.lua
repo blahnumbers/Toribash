@@ -307,7 +307,6 @@ end
 ---Gets the default world shader from user config
 function Atmospheres.GetDefaultWorldShader()
 	Atmospheres.DefaultShader = string.gsub(get_shader_name(), "^data/shader/", "")
-	echo("default shader: " .. Atmospheres.DefaultShader)
 	if (string.len(Atmospheres.DefaultShader) == 0) then
 		Atmospheres.DefaultShader = "default.inc"
 	end

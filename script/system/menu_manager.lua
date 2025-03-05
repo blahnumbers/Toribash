@@ -391,9 +391,11 @@ function TBMenu:showHome()
 	eventsData = table.qsort(eventsData, "isRead", SORT_ASCENDING)
 
 	local viewEventsButtonData = {
-		title = TB_MENU_LOCALIZED.EVENTSALLEVENTS,
+		title = TB_MENU_LOCALIZED.EVENTSALLEVENTSNEW,
+		subtitle = TB_MENU_LOCALIZED.EVENTSALLEVENTSNEWDESC,
 		ratio = 0.3,
-		action = Events.ShowHome
+		action = Events.ShowHome,
+		hasNotification = Events.HasNewChallenges()
 	}
 
 	-- Store all elements that would require reloading when switching event announcements in one table
@@ -550,17 +552,11 @@ function TBMenu:showHome()
 			newCaption:moveTo(-newCaption.size.w - 5)
 			featuredEventData.newCaption = newCaption
 		end
+		viewEventsButtonData.subtitle = nil
 		TBMenu:showHomeButton(viewEventsButton, viewEventsButtonData, 2)
 	else
 		viewEventsButton:kill()
 		featuredEvent.size.h = TBMenu.CurrentSection.size.h
-		if (TB_MENU_PLAYER_INFO.username == "") then
-			viewEventsButtonData.title = featuredEventData.title
-			viewEventsButtonData.subtitle = featuredEventData.subtitle
-			viewEventsButtonData.action = featuredEventData.action
-		else
-			viewEventsButtonData.subtitle = featuredEventData.title
-		end
 		viewEventsButtonData.image = featuredEventData.image
 		viewEventsButtonData.ratio = featuredEventData.ratio
 		TBMenu:showHomeButton(featuredEvent, viewEventsButtonData, 2)
@@ -768,6 +764,19 @@ function TBMenu:showHomeButton(viewElement, buttonData, hasSmudge, extraElements
 		TBMenu:addOuterRounding(viewElement.imageBoundary, viewElement.animateColor)
 	else
 		TBMenu:addOuterRounding(itemIcon, viewElement.animateColor)
+	end
+	
+	if (buttonData.hasNotification) then
+		local newCaptionSize = math.min(64, viewElement.size.w / 3, viewElement.size.h / 3)
+		local newCaption = viewElement:addChild({
+			pos = { -newCaptionSize + 5, -viewElement.size.h - 5 },
+			size = { newCaptionSize, newCaptionSize },
+			bgColor = TB_MENU_DEFAULT_ORANGE,
+			uiColor = UICOLORBLACK,
+			shapeType = ROUNDED,
+			rounded = newCaptionSize
+		})
+		newCaption:addAdaptedText("!", { padding = { x = 5, y = 5, w = 5, h = 5 }, font = FONTS.BIG })
 	end
 	return titleHeight, descHeight
 end
@@ -1908,8 +1917,9 @@ function TBMenu:showPlaySection()
 		{ title = TB_MENU_LOCALIZED.MAINMENUFREEPLAYNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUFREEPLAYDESC, size = TB_MENU_PLAYER_INFO.username == '' and 0.667 or 0.55, ratio = 0.5, image = "../textures/menu/freeplay.tga", mode = ORIENTATION_LANDSCAPE, action = function() open_menu(1) end, disableUnload = true }
 	}
 	if (TB_MENU_PLAYER_INFO.username ~= '') then
+		local blindFight = Events.GetBlindFight()
 		table.insert(tbMenuPlayButtonsData, {
-			title = TB_MENU_LOCALIZED.MAINMENUBLINDFIGHT, subtitle = TB_MENU_LOCALIZED.MAINMENUBLINDFIGHTDESC, size = 0.25, vsize = 0.5, ratio = 0.586, image = "../textures/menu/blindfight.tga", mode = ORIENTATION_LANDSCAPE, action = function() Events:showBlindFight() end, disableUnload = true
+			title = TB_MENU_LOCALIZED.MAINMENUBLINDFIGHT, subtitle = TB_MENU_LOCALIZED.MAINMENUBLINDFIGHTDESC, size = 0.25, vsize = 0.5, ratio = 0.586, image = "../textures/menu/blindfight.tga", mode = ORIENTATION_LANDSCAPE, action = function() Events:showBlindFight() end, disableUnload = true, hasNotification = Events.GetConfig("BlindFightPlays") == 0 or (blindFight ~= nil and blindFight.pendingRewards or false)
 		})
 		table.insert(tbMenuPlayButtonsData, {
 			title = TB_MENU_LOCALIZED.MAINMENUROOMLISTNAME, subtitle = TB_MENU_LOCALIZED.MAINMENUROOMLISTDESC, size = 0.45, ratio = 0.439, vsize = 0.5, offsetX = -0.2, image = "../textures/menu/multiplayer2.tga", mode = ORIENTATION_LANDSCAPE, action = function() RoomList:showMain() end, disableUnload = true
@@ -2238,6 +2248,7 @@ end
 ---@field quit boolean Whether pressing this button should exit main menu
 ---@field disableUnload boolean Whether button image shouldn't be unloaded on UIElement destruction
 ---@field offsetX number? Optional horizontal offset that will be applied to the next button
+---@field hasNotification boolean Whether to display an exclamation mark icon to attract user's attention
 
 ---Displays Tools screen
 function TBMenu:showToolsSection()
@@ -3156,11 +3167,11 @@ function TBMenu:getMainNavigationButtons()
 		TB_MENU_PLAYER_INFO = PlayerInfo.Get(PLAYERINFO_SCOPE_GENERAL)
 	end
 	local buttonData = {
-		{ text = TB_MENU_LOCALIZED.NAVBUTTONNEWS, sectionId = 1, misctext = News.HasUnreadNews and "!" or nil },
 		{ text = TB_MENU_LOCALIZED.NAVBUTTONPLAY, sectionId = 2 },
 		{ text = TB_MENU_LOCALIZED.NAVBUTTONPRACTICE, sectionId = 3 },
 	}
 	if (TB_MENU_PLAYER_INFO.username ~= '') then
+		table.insert(buttonData, 1, { text = TB_MENU_LOCALIZED.NAVBUTTONEVENTS, sectionId = 1, misctext = News.HasUnreadNews and "!" or nil })
 		table.insert(buttonData, { text = TB_MENU_LOCALIZED.NAVBUTTONSTORE, sectionId = 6, misctext = storeMiscText })
 		table.insert(buttonData, { text = TB_MENU_LOCALIZED.NAVBUTTONMARKET, sectionId = 10 })
 		table.insert(buttonData, { text = TB_MENU_LOCALIZED.MAINMENUCLANSNAME, sectionId = 9 })

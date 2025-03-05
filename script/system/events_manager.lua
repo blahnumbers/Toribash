@@ -81,11 +81,13 @@ end
 ---@field Config table Table containing configuration option values
 ---@field BlindFight ?BlindFightData Blind Fight event data for current user
 ---@field EventStorage ?StaticEventInfo[] Static event info cache
+---@field StaticEventVersion integer Last game build that featured new static events
 local EventsInternal = {
 	ConfigFile = "../data/events.cfg",
 	Config = { },
 	BlindFight = nil,
-	EventStorage = nil
+	EventStorage = nil,
+	StaticEventVersion = 250305
 }
 
 function EventsInternal.LoadConfig()
@@ -1972,82 +1974,9 @@ function Events.ShowHome()
 				end
 			end
 		end)
+
+	Events.SetConfig("challenges", EventsInternal.StaticEventVersion, true)
 end
-
---[[function Events:showEventsHomeLegacy(viewElement)
-	TBMenu:clearNavSection()
-	TBMenu:showNavigationBar(Events:getNavigationButtons(), true)
-	TB_MENU_EVENTS_OPEN = true
-	News:getNews()
-
-	local newsData = {}
-	---table.clone() may fail, do a soft copy of upper level only
-	for _, v in pairs(News.Cache) do
-		table.insert(newsData, v)
-	end
-	local count = #newsData
-	for i = count, 1, -1 do
-		if (not newsData[i].isEvent or newsData[i].isBattlePass) then
-			table.remove(newsData, i)
-		end
-	end
-
-	if (#newsData) < 2 then
-		Events:showPassedEvents(viewElement, true)
-		return
-	end
-
-	local buttonH = #newsData > 3 and 0.5 or 1
-	local buttonW = viewElement.size.w * 0.75 / math.ceil(#newsData * buttonH)
-	local shiftX, shiftY = 0, 0
-	for i,v in pairs(newsData) do
-		v.ratio2 = 0.66
-		if (i == #newsData and shiftY == 0) then
-			buttonH = 1
-		end
-		local newsButton = UIElement:new({
-			parent = viewElement,
-			pos = { 5 + shiftX, shiftY },
-			size = { buttonW - 10, buttonH * viewElement.size.h - (buttonH == 1 and 0 or 5) },
-			interactive = true,
-			bgColor = TB_MENU_DEFAULT_BG_COLOR,
-			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
-			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR
-		})
-		if (buttonH == 1 or shiftY > 0) then
-			TBMenu:showHomeButton(newsButton, v, buttonH * i)
-		else
-			TBMenu:showHomeButton(newsButton, v)
-		end
-
-		if (buttonH == 1) then
-			shiftX = shiftX + buttonW
-		else
-			shiftY = shiftY + viewElement.size.h * buttonH + 5
-			if (shiftY > viewElement.size.h) then
-				shiftY = 0
-				shiftX = shiftX + buttonW + 5
-			end
-		end
-	end
-
-	local allEventsButton = UIElement:new({
-		parent = viewElement,
-		pos = { viewElement.size.w * 0.75 + 5, 0 },
-		size = { viewElement.size.w * 0.25 - 10, viewElement.size.h },
-		interactive = true,
-		bgColor = TB_MENU_DEFAULT_BG_COLOR,
-		hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
-		pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR
-	})
-	local allEventsButtonData = {
-		title = TB_MENU_LOCALIZED.EVENTSALLEVENTS,
-		subtitle = TB_MENU_LOCALIZED.EVENTSALLEVENTSDESC,
-		ratio = 0.3,
-		action = function() Events:showPassedEvents(viewElement) end
-	}
-	TBMenu:showHomeButton(allEventsButton, allEventsButtonData, 3)
-end]]
 
 function Events:showEventDescription(viewElement, event)
 	local elementHeight = 41
@@ -3613,7 +3542,7 @@ function Events:refreshBlindFight(loaderView, loadingMark, onComplete)
 					EventsInternal.BlindFight.userStats = EventsInternal.BlindFight.players[#EventsInternal.BlindFight.players]
 				elseif (autoupdate == 1) then
 					---Download base player customs so we see them when fighting
-					download_head(data[1])
+					download_head(data[2])
 				end
 			end
 		end
@@ -3630,6 +3559,10 @@ function Events:refreshBlindFight(loaderView, loadingMark, onComplete)
 			end
 		end
 	end)
+end
+
+function Events.HasNewChallenges()
+	return Events.GetConfig("challenges") ~= EventsInternal.StaticEventVersion
 end
 
 EventsInternal.LoadConfig()
