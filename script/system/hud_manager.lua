@@ -1401,6 +1401,8 @@ end
 ---@field regex string Regex expression to match input against
 ---@field replacement string String to replace with
 ---@field autoSubmit boolean? Whether this command can be auto submitted upon selection from suggestions
+---@field submitCmdMatch boolean? Whether this command should stop being suggested after it gets input arguments
+---@field typeCommandRegex string? Custom regex used for matching chat input
 ---@field requireOperator boolean? Whether this command requires op in multiplayer
 ---@field requireOnline boolean? Whether this is a multiplayer only command
 ---@field requireFighter boolean? Whether this command is only available to active fighters
@@ -1414,6 +1416,7 @@ function TBHud:getChatCommands()
 			info = "/set %125- list all gamerules",
 			regex = "^(/%w+).*",
 			replacement = "/set",
+			submitCmdMatch = true,
 			autoSubmit = true
 		},
 		{
@@ -1434,6 +1437,7 @@ function TBHud:getChatCommands()
 			info = "/spec %125- join spectators",
 			regex = "^(/%w+).*",
 			replacement = "/sp",
+			submitCmdMatch = true,
 			autoSubmit = true,
 			requireOnline = true
 		},
@@ -1442,6 +1446,7 @@ function TBHud:getChatCommands()
 			info = "/enter %125- enter fighting queue",
 			regex = "^(/%w+).*",
 			replacement = "/en",
+			submitCmdMatch = true,
 			autoSubmit = true,
 			requireOnline = true
 		},
@@ -1475,6 +1480,7 @@ function TBHud:getChatCommands()
 			info = "/reset %125- reset and restart current fight",
 			regex = "^(/%w+).*",
 			replacement = "/rt",
+			submitCmdMatch = true,
 			autoSubmit = true,
 			requireOperator = true
 		},
@@ -1504,6 +1510,7 @@ function TBHud:getChatCommands()
 			regex = "^(/%w+).*",
 			replacement = "/bets",
 			requireOnline = true,
+			submitCmdMatch = true,
 			autoSubmit = true
 		},
 		{
@@ -1545,6 +1552,7 @@ function TBHud:getChatCommands()
 			cmd = "vip add",
 			info = "/vip add ^47username %125- add player to room's vip list",
 			regex = "^(/%w+) ?[ad]* ?(.*)",
+			typeCommandRegex = "^/(%w+ ?%w*).*",
 			replacement = "/vip add %2",
 			requireOnline = true
 		},
@@ -1552,6 +1560,7 @@ function TBHud:getChatCommands()
 			cmd = "vip del",
 			info = "/vip del ^47username %125- remove player from room's vip list",
 			regex = "^(/%w+) ?[del]* ?(.*)",
+			typeCommandRegex = "^/(%w+ ?%w*).*",
 			replacement = "/vip del %2",
 			requireOnline = true
 		},
@@ -1559,6 +1568,7 @@ function TBHud:getChatCommands()
 			cmd = "vip list",
 			info = "/vip list %125- show vip list for current room",
 			regex = "^(/%w+).*",
+			typeCommandRegex = "^/(%w+ ?%w*).*",
 			replacement = "/vip list",
 			requireOnline = true,
 			autoSubmit = true
@@ -1567,6 +1577,7 @@ function TBHud:getChatCommands()
 			cmd = "vip clear",
 			info = "/vip clear %125- clear current room's vip list",
 			regex = "^(/%w+).*",
+			typeCommandRegex = "^/(%w+ ?%w*).*",
 			replacement = "/vip clear",
 			requireOnline = true
 		},
@@ -1574,6 +1585,7 @@ function TBHud:getChatCommands()
 			cmd = "clanvip add",
 			info = "/clanvip add ^47clan %125- add clan to room's vip list",
 			regex = "^(/%w+) ?[ad]* ?(.*)",
+			typeCommandRegex = "^/(%w+ ?%w*).*",
 			replacement = "/clanvip add %2",
 			requireOnline = true
 		},
@@ -1581,6 +1593,7 @@ function TBHud:getChatCommands()
 			cmd = "clanvip del",
 			info = "/clanvip del ^47username %125- remove clan from room's vip list",
 			regex = "^(/%w+) ?[del]* ?(.*)",
+			typeCommandRegex = "^/(%w+ ?%w*).*",
 			replacement = "/clanvip del %2",
 			requireOnline = true
 		},
@@ -1588,6 +1601,7 @@ function TBHud:getChatCommands()
 			cmd = "clanvip list",
 			info = "/clanvip list %125- show clan vip list for current room",
 			regex = "^(/%w+).*",
+			typeCommandRegex = "^/(%w+ ?%w*).*",
 			replacement = "/clanvip list",
 			requireOnline = true,
 			autoSubmit = true
@@ -1596,6 +1610,7 @@ function TBHud:getChatCommands()
 			cmd = "clanvip clear",
 			info = "/clanvip clear %125- clear current room's clan vip list",
 			regex = "^(/%w+).*",
+			typeCommandRegex = "^/(%w+ ?%w*).*",
 			replacement = "/clanvip clear",
 			requireOnline = true
 		},
@@ -1609,7 +1624,8 @@ function TBHud:getChatCommands()
 		{
 			cmd = "duel start",
 			info = "/duel start ^47amount %125- enable duel mode with a specified wager",
-			regex = "^(/%w+) ?[star]* ?(%d+).*",
+			regex = "^(/%w+) ?[star]* ?(%d*).*",
+			typeCommandRegex = "^/(%w+ ?%w*).*",
 			replacement = "/duel start %2",
 			requireOnline = true,
 			requireOperator = true
@@ -1618,6 +1634,7 @@ function TBHud:getChatCommands()
 			cmd = "duel stop",
 			info = "/duel stop %125- disable duel mode",
 			regex = "^(/%w+).*",
+			typeCommandRegex = "^/(%w+ ?%w*).*",
 			replacement = "/duel stop",
 			requireOnline = true,
 			requireOperator = true
@@ -1626,6 +1643,7 @@ function TBHud:getChatCommands()
 			cmd = "duel earnings",
 			info = "/duel earnings %125- show your earnings in this dueling session",
 			regex = "^(/%w+).*",
+			typeCommandRegex = "^/(%w+ ?%w*).*",
 			replacement = "/duel earnings",
 			requireOnline = true,
 			autoSubmit = true
@@ -1634,6 +1652,7 @@ function TBHud:getChatCommands()
 			cmd = "duel status",
 			info = "/duel status %125- show your earnings in this dueling session",
 			regex = "^(/%w+).*",
+			typeCommandRegex = "^/(%w+ ?%w*).*",
 			replacement = "/duel status",
 			requireOnline = true,
 			autoSubmit = true
@@ -2006,7 +2025,7 @@ function TBHud:initChat()
 		returnKeyType = KEYBOARD_RETURN.SEND,
 		inputType = KEYBOARD_INPUT.DEFAULT --Make sure we allow language switching!
 	})
-	local destroySuggestions = function()
+	self.ChatHolder.destroySuggestions = function()
 		if (chatInputField.suggestionsDropdown ~= nil) then
 			chatInputField.suggestionsDropdown.selectedElement:kill()
 			chatInputField.suggestionsDropdown:kill()
@@ -2014,7 +2033,7 @@ function TBHud:initChat()
 		end
 	end
 	chatInputField:addInputCallback(function()
-			destroySuggestions()
+			self.ChatHolder.destroySuggestions()
 
 			local typeCommand, replacements = chatInputField.textfieldstr[1]:gsub("^/(%w+).*", "%1")
 			if (replacements == 0) then
@@ -2032,12 +2051,13 @@ function TBHud:initChat()
 				if ((not command.requireOnline or self.WorldState.game_type == 1) and
 					(not command.requireOperator or not playerInfo or playerInfo.op or playerInfo.admin) and
 					(not command.requireFighter or not playerInfo or playerInfo.is_fighter) and
-					(not command.autoSubmit or chatInputField.textfieldstr[1] == "/" .. typeCommand)) then
+					(not command.submitCmdMatch or chatInputField.textfieldstr[1] == "/" .. typeCommand)) then
 					---@type string[]
 					---@diagnostic disable-next-line: assign-type-mismatch
 					local cmds = type(command.cmd) == "string" and { command.cmd } or command.cmd
+					local typeSpecificCommand = command.typeCommandRegex and chatInputField.textfieldstr[1]:gsub(command.typeCommandRegex, "%1") or typeCommand
 					for _, v in pairs(cmds) do
-						if (string.find(v, "^" .. typeCommand)) then
+						if (string.find(v, "^" .. typeSpecificCommand)) then
 							table.insert(targetCommands, command)
 							break
 						end
@@ -2070,6 +2090,12 @@ function TBHud:initChat()
 			chatInputField.suggestionsDropdown.uiColor = UICOLORWHITE
 			chatInputField.suggestionsDropdown.selectedElement:hide(true)
 			chatInputField.suggestionsDropdown.selectedElement.btnUp()
+			if (chatInputField.suggestionsDropdown.listHolder ~= nil) then
+				chatInputField.suggestionsDropdown.listHolder.scrollBar.listReload = function()
+					chatInputField.suggestionsDropdown.listHolder.scrollBar.listReload()
+					UIElement.handleMouseDn(0, chatInputField.pos.x + 1, chatInputField.pos.y + 1)
+				end
+			end
 		end)
 	-- Don't need chat history for mobile for now
 	chatInputField:addKeyboardHandlers(function(key)
@@ -2091,7 +2117,7 @@ function TBHud:initChat()
 				local cmd = string.sub(chatInputField.textfieldstr[1], cmdIdx + 1, cmdEnd)
 				if (in_array(cmd, TBHudInternal.IgnoreCommands)) then
 					chatInputField:clearTextfield()
-					destroySuggestions()
+					self.ChatHolder.destroySuggestions()
 					return
 				end
 				local message = string.sub(chatInputField.textfieldstr[1], cmdIdx + 1)
@@ -2105,7 +2131,7 @@ function TBHud:initChat()
 			TBHudInternal.ChatMessageHistoryIndex = #TBHudInternal.ChatMessageHistory
 
 			chatInputField:clearTextfield()
-			destroySuggestions()
+			self.ChatHolder.destroySuggestions()
 		end)
 	local chatMessagePrevious = chatInputHolder:addChild({
 		pos = { 0, 0 },
@@ -2295,6 +2321,8 @@ function TBHud:toggleChat(state)
 			self.ChatHolder:moveTo(nil, UITween.SineTween(self.ChatHolder.pos.y, 0, tweenValue))
 		else
 			self.ChatHolder:moveTo(nil, UITween.SineTween(self.ChatHolder.pos.y, self.ChatHolder.size.h, tweenValue))
+			---@diagnostic disable-next-line: undefined-field
+			self.ChatHolder.destroySuggestions()
 		end
 
 		if (tweenValue >= 1) then
