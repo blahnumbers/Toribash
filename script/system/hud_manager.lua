@@ -2072,7 +2072,7 @@ function TBHud:initChat()
 				if (override or chatInputField.menuKeyboardId ~= nil) then
 					chatInputField.keyboard = true
 					disable_camera_movement()
-					chatInputField.btnDown(0, -1, -1)
+					chatInputField.btnDown()
 				end
 			end
 			local dropdownList = {}
