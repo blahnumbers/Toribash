@@ -542,20 +542,21 @@ end
 
 function Flames:spawnBrowseMenu(listingHolder, toReload, elementHeight, flamesData, flameId, previewFlames, searchFlames)
 	Flames.ActiveMode = Flames.MODE_BROWSER
-	local flameId = flameId or 0
+	flameId = flameId or 0
+	previewFlames = previewFlames or Flames.BrowserInfo
+	searchFlames = searchFlames or Flames.SearchData
 	Flames.CurrentFlameId = flameId
-	local previewFlames = previewFlames or Flames.BrowserInfo
+
 	local previewFlame = previewFlames[flameId]
-	local searchFlames = searchFlames or Flames.SearchData
 
 	if (toReload.browserButtons and toReload.forgerButtons) then
-		for i,v in pairs(toReload.forgerButtons) do
+		for _, v in pairs(toReload.forgerButtons) do
 			v:hide(true)
 		end
-		for i,v in pairs(toReload.browserStoredButtons) do
+		for _, v in pairs(toReload.browserStoredButtons) do
 			v:hide(true)
 		end
-		for i,v in pairs(toReload.browserButtons) do
+		for _, v in pairs(toReload.browserButtons) do
 			v:show(true)
 		end
 	end
@@ -615,9 +616,9 @@ function Flames:spawnBrowseMenu(listingHolder, toReload, elementHeight, flamesDa
 			TBMenu:displayLoadingMarkSmall(flameLoaderOverlay, TB_MENU_LOCALIZED.NETWORKLOADING)
 			UIElement.handleMouseDn(0, -1, 0)
 
-			local flameId = tonumber(flameIdLoaderInput.textfieldstr[1]) or 0
+			local flameSystemId = tonumber(flameIdLoaderInput.textfieldstr[1]) or 0
 			Request:queue(function()
-					download_server_info("flame_fetch_settings&flameid=" .. flameId)
+					download_server_info("flame_fetch_settings&flameid=" .. flameSystemId)
 				end,
 				"flameidfetch",
 				function() -- Success
@@ -629,7 +630,7 @@ function Flames:spawnBrowseMenu(listingHolder, toReload, elementHeight, flamesDa
 						return
 					end
 
-					previewFlames[flameId] = FlamesInternal.ParseFlameBrowserData(response, flameId)
+					previewFlames[flameId] = FlamesInternal.ParseFlameBrowserData(response, flameSystemId)
 					Flames.SearchData = nil
 					Flames:spawnBrowseMenu(listingHolder, toReload, elementHeight, flamesData, flameId, previewFlames)
 				end,
