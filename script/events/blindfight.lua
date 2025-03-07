@@ -2,8 +2,7 @@
 
 ---@param viewElement UIElement
 ---@param reqTable TutorialStepRequirement[]
----@param consume boolean?
-local function requireKeyPressSpace(viewElement, reqTable, consume)
+local function requireKeyPressSpace(viewElement, reqTable)
 	local req = { type = "keypress", ready = false }
 	table.insert(reqTable, req)
 
@@ -11,8 +10,7 @@ local function requireKeyPressSpace(viewElement, reqTable, consume)
 		local commitButton = viewElement:addChild({
 			pos = { TBHud.CommitStepButtonHolder.shift.x, TBHud.CommitStepButtonHolder.shift.y },
 			size = { TBHud.CommitStepButtonHolder.size.w, TBHud.CommitStepButtonHolder.size.h },
-			interactive = true,
-			clickThrough = not consume
+			interactive = true
 		})
 		commitButton:addMouseUpHandler(function()
 			step_game()
@@ -25,9 +23,6 @@ local function requireKeyPressSpace(viewElement, reqTable, consume)
 		if (string.schar(s) == " " or (code > 3 and code < 30 and string.schar(code + 93) == " ")) then
 			req.ready = true
 			reqTable.ready = Tutorials:checkRequirements(reqTable)
-			if (consume == true) then
-				return 1
-			end
 		end
 	end)
 end
