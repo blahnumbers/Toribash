@@ -2668,6 +2668,10 @@ function Events:showBlindFightPromotion(overlay, prizes, onContinue, leagueName)
 		end)
 
 	spawnClock = os.clock_real()
+
+	---Refresh player balance and battle pass experience
+	update_tc_balance()
+	BattlePass:getUserData()
 end
 
 ---Parses Blind Fight rewards network response string
