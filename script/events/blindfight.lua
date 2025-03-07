@@ -1,4 +1,4 @@
-local SPACEBAR = " "
+---BLINDFIGHT
 
 ---@param viewElement UIElement
 ---@param reqTable TutorialStepRequirement[]
@@ -22,7 +22,7 @@ local function requireKeyPressSpace(viewElement, reqTable, consume)
 	end
 
 	add_hook("key_up", Tutorials.StepHook, function(s, code)
-		if (string.schar(s) == SPACEBAR or (code > 3 and code < 30 and string.schar(code + 93) == SPACEBAR)) then
+		if (string.schar(s) == " " or (code > 3 and code < 30 and string.schar(code + 93) == " ")) then
 			req.ready = true
 			reqTable.ready = Tutorials:checkRequirements(reqTable)
 			if (consume == true) then
@@ -560,6 +560,12 @@ local function onRecordingComplete(viewElement, reqTable)
 		return
 	end
 
+	if (MoveMemory.Recording[0] == nil) then
+		MoveMemory:cancelRecording(0)
+		Tutorials:quit()
+		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.BLINDFIGHTERROREMPTYRECORDING)
+		return
+	end
 	local moveData = MemoryMove.FromData(MoveMemory.Recording[0])
 	MoveMemory:cancelRecording(0)
 
@@ -635,7 +641,7 @@ local function onRecordingComplete(viewElement, reqTable)
 end
 
 ---@diagnostic disable-next-line: lowercase-global
-functions = {
+return {
 	WaitSpace = requireKeyPressSpace,
 	WaitSpaceFirst = requireKeyPressSpaceFirst,
 	Initialize = initialize,

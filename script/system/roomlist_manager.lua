@@ -140,8 +140,8 @@ end
 function RoomList:showRoomInfo(room)
 	self.RoomInfoView:kill(true)
 
-	local elementHeight = math.clamp(WIN_H / 40, 20, 32)
-	local buttonHeight = math.min(self.RoomInfoView.size.h / 6, 50)
+	local elementHeight = math.clamp(WIN_H / 50, 20, 32)
+	local buttonHeight = math.clamp(self.RoomInfoView.parent.size.h / 10, 50, 60)
 	local toReload, topBar, botBar, listingView, listingHolder, scrollBarBG = TBMenu:prepareScrollableList(self.RoomInfoView, elementHeight, buttonHeight, 15, TB_MENU_DEFAULT_BG_COLOR)
 
 	listingView.bgColor = table.clone(TB_MENU_DEFAULT_LIGHTEST_COLOR)
@@ -218,32 +218,39 @@ function RoomList:showRoomInfo(room)
 	end
 
 	local listElements = {}
+	local fontid = FONTS.SMALL + 10
+	local fontScale = elementHeight / 40
 	for _, v in pairs(infoBits) do
 		local infoBitElement = listingHolder:addChild({
 			pos = { 10, #listElements * elementHeight },
 			size = { listingHolder.size.w - 20, elementHeight }
 		})
 		table.insert(listElements, infoBitElement)
-		infoBitElement:addAdaptedText(true, v, nil, nil, 1, LEFTMID, 1, 1)
+		infoBitElement:addAdaptedText(v, { font = fontid, align = LEFTMID, maxscale = fontScale, minscale = fontScale })
 		if (#infoBitElement.dispstr > 1) then
 			for i = 2, #infoBitElement.dispstr do
 				local infoBitElementExtra = listingHolder:addChild({
 					pos = { infoBitElement.shift.x, #listElements * elementHeight },
 					size = { infoBitElement.size.w, elementHeight }
 				})
-				infoBitElementExtra:addAdaptedText(true, infoBitElement.dispstr[i], nil, nil, 1, LEFTMID, 1, 1)
+				infoBitElementExtra:addAdaptedText(infoBitElement.dispstr[i], { font = fontid, align = LEFTMID, maxscale = fontScale, minscale = fontScale })
 				table.insert(listElements, infoBitElementExtra)
 				infoBitElementExtra:hide(true)
 
-				infoBitElement:addAdaptedText(true, infoBitElement.dispstr[1], nil, nil, 1, LEFTMID, 1, 1)
+				infoBitElement:addAdaptedText(infoBitElement.dispstr[1], { font = fontid, align = LEFTMID, maxscale = fontScale, minscale = fontScale })
 			end
 		end
-		infoBitElement:hide(true)
 	end
 
-	local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
-	listingHolder.scrollBar = scrollBar
-	scrollBar:makeScrollBar(listingHolder, listElements, toReload)
+	if (#listElements * elementHeight > listingHolder.size.h) then
+		for _, v in pairs(listElements) do
+			v:hide(true)
+		end
+
+		local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
+		listingHolder.scrollBar = scrollBar
+		scrollBar:makeScrollBar(listingHolder, listElements, toReload)
+	end
 end
 
 ---Returns a localized name of a sort option
@@ -471,6 +478,7 @@ function RoomList:showRoomListButton(viewElement, room)
 	local shiftWidth = math.min(10, roomButton.size.w / 50)
 	local shiftX = shiftWidth
 	local availableAreaX = roomButton.size.w - shiftWidth * #datasToDisplay
+	local fontScale = viewElement.size.h * 0.014
 	for _, v in pairs(datasToDisplay) do
 		local infoBit = roomButton:addChild({
 			pos = { shiftX, 3 },
@@ -508,10 +516,10 @@ function RoomList:showRoomListButton(viewElement, room)
 				})
 			end
 			if (v.shadowValue) then
-				targetTextElement:addAdaptedText(true, v.shadowValue, nil, nil, 4, v.orientation or LEFTMID, 0.65, nil, nil, 2)
-				targetTextElement:addChild({}):addAdaptedText(true, v.value, nil, nil, 4, v.orientation or LEFTMID, 0.65)
+				targetTextElement:addAdaptedText(v.shadowValue, { font = FONTS.LMEDIUM, align = v.orientation or LEFTMID, maxscale = fontScale, shadow = 2 })
+				targetTextElement:addChild({}):addAdaptedText(tostring(v.value), { font = FONTS.LMEDIUM, align = v.orientation or LEFTMID, maxscale = fontScale })
 			else
-				targetTextElement:addAdaptedText(true, v.value, nil, nil, 4, v.orientation or LEFTMID, 0.65)
+				targetTextElement:addAdaptedText(tostring(v.value), { font = FONTS.LMEDIUM, align = v.orientation or LEFTMID, maxscale = fontScale })
 			end
 		end
 		shiftX = shiftX + infoBit.size.w + shiftWidth
@@ -704,7 +712,7 @@ function RoomList:showRoomList(viewElement, reloadFeatured)
 
 	self.SelectedButton = nil
 	local elementHeight = math.min(70, math.max(45, WIN_H / 20))
-	local toReload, topBar, botBar, listingView, listingHolder = TBMenu:prepareScrollableList(viewElement, elementHeight, elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
+	local toReload, topBar, _, _, listingHolder = TBMenu:prepareScrollableList(viewElement, elementHeight, elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
 
 	self:showRoomListLegend(topBar)
 
@@ -1222,12 +1230,13 @@ end
 ---Prepares the right side of Room List menu with room info and misc buttons
 ---@param viewElement UIElement
 function RoomList:prepareInfoView(viewElement)
+	local buttonHeight = math.clamp(viewElement.size.h / 10, 50, 60)
+	local infoViewHeight = math.min(viewElement.size.h - buttonHeight - 50, 400)
 	self.RoomInfoView = viewElement:addChild({
 		pos = { 10, 0 },
-		size = { viewElement.size.w - 20, viewElement.size.h / 2 }
+		size = { viewElement.size.w - 20, infoViewHeight }
 	})
 
-	local buttonHeight = math.min(self.RoomInfoView.size.h / 6, 50)
 	local newRoomButton = viewElement:addChild({
 		pos = { 10, -buttonHeight - 10 },
 		size = { viewElement.size.w - 20, buttonHeight },
@@ -1447,9 +1456,10 @@ function RoomList:showMain()
 		return
 	end
 
+	local listHolderWidth = math.min(TBMenu.CurrentSection.size.w * 0.8, TBMenu.CurrentSection.size.w - 300)
 	self.MainListHolder = TBMenu.CurrentSection:addChild({
 		pos = { 5, 0 },
-		size = { math.max(TBMenu.CurrentSection.size.w - 300, TBMenu.CurrentSection.size.w * 0.75 - 15), TBMenu.CurrentSection.size.h },
+		size = { listHolderWidth, TBMenu.CurrentSection.size.h },
 		bgColor = TB_MENU_DEFAULT_BG_COLOR
 	})
 	local roomInfoView = TBMenu.CurrentSection:addChild({

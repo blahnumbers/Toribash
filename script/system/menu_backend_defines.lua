@@ -41,9 +41,6 @@ CLANLISTLASTPOS = CLANLISTLASTPOS or { scroll = {}, list = {} }
 -- settings_manager.lua
 dofile("system/settings_defines.lua")
 
--- ../tutorial/tutorial_manager.lua
-TUTORIAL_STORED_OPTS = TUTORIAL_STORED_OPTS or {}
-
 TUTORIALJOINTLOCK = false
 TUTORIALKEYBOARDLOCK = false
 TUTORIAL_SPECIAL_RP_IGNORE = false

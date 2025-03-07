@@ -1574,7 +1574,7 @@ loadExistingReplay = function(viewElement, rplFile, regenerateMoves)
 		for i, v in pairs(openerSteps) do
 			if (v.frame >= GLOBAL_SETTINGS.MINIMUM_STOPFRAME) then break end
 			---Make sure last opener step doesn't throw comparison error because its turn length is 1
-			v.turnLength = steps[i].turnLength
+			v.turnLength = steps[i] == nil and v.turnLength or steps[i].turnLength
 			if (table.equals(v, steps[i]) == false) then
 				TBMenu:showStatusMessage(TB_MENU_LOCALIZED.EVENTSERRORVERIFYINGOPENER)
 				STOPFRAME = -1

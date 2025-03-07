@@ -3531,7 +3531,7 @@ function Events:refreshBlindFight(loaderView, loadingMark, onComplete)
 					prestige = tonumber(data[6]) or 0
 				})
 				if (string.lower(data[2]) == string.lower(TB_MENU_PLAYER_INFO.username)) then
-					local _, segments = string.gsub(data[4], ":", "")
+					_, segments = string.gsub(data[4], ":", "")
 					EventsInternal.BlindFight.defeated = { string.match(data[4], ("([^:]*):?"):rep(segments + 1)) }
 					_, segments = string.gsub(data[5], ":", "")
 					local openerLines = { string.match(data[5], ("([^:]*):?"):rep(segments + 1)) }

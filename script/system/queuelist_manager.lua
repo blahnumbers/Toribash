@@ -637,7 +637,7 @@ function QueueList:showNudgeToPosition(pName, viewElement, info)
 	})
 	local textField = TBMenu:spawnTextField2(textFieldHolder, {
 			w = textFieldHolder.size.w - 100
-		}, (info.id - 1) .. "", TB_MENU_LOCALIZED.QUEUELISTDROPDOWNNUDGECHOOSE, {
+		}, tostring(info.id - 1), TB_MENU_LOCALIZED.QUEUELISTDROPDOWNNUDGECHOOSE, {
 			fontId = FONTS.SMALL,
 			textAlign = LEFTMID,
 			isNumeric = true,
@@ -645,6 +645,7 @@ function QueueList:showNudgeToPosition(pName, viewElement, info)
 		})
 	local function nudge()
 		runCmd("nudge " .. pName .. " " .. textField.textfieldstr[1], true)
+		QueueList.DestroyPopup()
 	end
 	textField:addEnterAction(nudge)
 
@@ -656,11 +657,8 @@ function QueueList:showNudgeToPosition(pName, viewElement, info)
 		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
 	}, true)
-	local buttonText = button:addChild({
-		shift = { 10, 2 }
-	})
-	buttonText:addAdaptedText(true, TB_MENU_LOCALIZED.QUEUELISTDROPDOWNNUDGE, nil, nil, 4)
-	button:addMouseHandlers(nil, function() nudge() QueueList.DestroyPopup() end)
+	button:addChild({ shift = { 10, 2 } }):addAdaptedText(TB_MENU_LOCALIZED.QUEUELISTDROPDOWNNUDGE, { font = FONTS.LMEDIUM })
+	button:addMouseUpHandler(nudge)
 
 	UIElement.handleMouseDn(0, textField.pos.x + 1, textField.pos.y + 1)
 	UIElement.handleMouseUp(0, textField.pos.x + 1, textField.pos.y + 1)
@@ -764,7 +762,7 @@ function QueueList:addPlayerControls(viewElement, info, userinfo)
 		},
 		{
 			name = "nudge",
-			show = not info.spectator and info.id > get_game_rules().numplayers,
+			show = not info.spectator and info.id >= get_game_rules().numplayers,
 			text = TB_MENU_LOCALIZED.QUEUELISTDROPDOWNNUDGETOPOSITION,
 			action = function(s, b) QueueList:showNudge(s, b, info) return 1 end
 		},

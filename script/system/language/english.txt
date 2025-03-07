@@ -1385,3 +1385,4 @@ EVENTSERRORPREPARINGREPLAY	Error preparing replay file for upload. Please try ag
 EVENTSALLEVENTSNEW	Challenges
 EVENTSALLEVENTSNEWDESC	Test your skills in challenge events and receive rewards!
 NAVBUTTONEVENTS	Events
+BLINDFIGHTERROREMPTYRECORDING	Something went wrong, please record a new opener and try again.

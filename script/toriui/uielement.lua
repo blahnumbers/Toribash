@@ -2420,9 +2420,10 @@ function UIElement:uiText(input, x, y, font, align, scale, angle, shadow, col1, 
 	end
 
 	local fontModScale = font_mod * 10 * scale * baselineScale
+	self.startLine = 1
 	if (textfield and fontModScale * #str > self.size.h - y2) then
 		for i, _ in pairs(str) do
-			if (self.textfieldindex < self.strindices[i + 1]) then
+			if (self.textfieldindex < indices[i + 1]) then
 				local newLine = i - math.floor(self.size.h / font_mod / 10 / scale / baselineScale) + 1
 				if (newLine + 1 < self.startLine) then
 					self.startLine = math.max(newLine, self.startLine - 1, 1)
@@ -2432,8 +2433,6 @@ function UIElement:uiText(input, x, y, font, align, scale, angle, shadow, col1, 
 				break
 			end
 		end
-	else
-		self.startLine = 1
 	end
 
 	for i = self.startLine, #str do

@@ -1938,7 +1938,7 @@ end
 
 ---Displays Tutorials menu
 function TBMenu:showPracticeSection()
-	dofile("tutorial/tutorial_manager.lua")
+	require("system.tutorial_manager")
 	local tbMenuPracticeButtonsData = Tutorials:getMainMenuButtons()
 	TBMenu:showSection(tbMenuPracticeButtonsData)
 end

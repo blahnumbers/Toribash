@@ -125,6 +125,7 @@ do
 					if (get_network_task() == 0) then
 						remove_hook("draw2d", self.HookName)
 						local request = TB_NETWORK_REQUEST_QUEUE[1]
+						if (request == nil) then return end
 						if (TB_MENU_DEBUG) then
 							Files.WriteDebug("Queueing next request")
 							Files.WriteDebug(request)
