@@ -3796,7 +3796,7 @@ do
 				end
 
 				local response = get_network_response()
-				local featuredShopData = {}
+				local featuredShopData = { user = "" }
 				for ln in response:gmatch("[^\t]+\t?") do
 					local cleanedValue = ln:gsub("[^;]+;([^\t]*)\t?$", "%1")
 					if (ln:find("^USER")) then

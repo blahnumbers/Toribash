@@ -4246,7 +4246,7 @@ end
 ---@param text string
 ---@param useUiColor ?boolean
 function TBMenu:showTextExternal(viewElement, text, useUiColor)
-	TBMenu:showTextWithImage(viewElement, text, FONTS.MEDIUM, 26, "../textures/menu/general/buttons/external.tga", { useUiColor = useUiColor or false })
+	TBMenu:showTextWithImage(viewElement, text, FONTS.MEDIUM, 26, "../textures/menu/general/buttons/external.tga", { useUiColor = useUiColor or false, imagePadding = 4 })
 end
 
 ---Override method for popups that will be used on mobile platforms

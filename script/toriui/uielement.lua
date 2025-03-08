@@ -2276,10 +2276,8 @@ function UIElement:addAdaptedText(override, str, x, y, font, align, maxscale, mi
 			override = false
 		end
 	end
-	if (not str) then
-		if (TB_MENU_DEBUG) then
-			echo("Error: string is undefined")
-		end
+	if (type(str) ~= "string" and type(str) ~= "number") then
+		Files.LogError("UIElement.addAdaptedText error: string type mismatch (" .. type(str) .. ")")
 		return false
 	end
 	local scale = maxscale or 1
@@ -2370,7 +2368,7 @@ end
 ---@return boolean
 function UIElement:uiText(input, x, y, font, align, scale, angle, shadow, col1, col2, intensity, check, baselineScale, nosmooth, textfield, shadowIntensity)
 	if (not scale and check) then
-		echo("^04UIElement error: ^07uiText() cannot take undefined scale argument with check enabled")
+		Files.LogError("UIElement.uiText() error: cannot take undefined scale argument with check enabled")
 		return true
 	end
 	font = font or FONTS.MEDIUM
@@ -2771,7 +2769,7 @@ _G.textAdapt = function(str, font, scale, maxWidth, check, textfield, singleLine
 	local newStr, word = "", ""
 
 	-- Fix newlines, remove redundant spaces and ensure the string is in fact a string
-	str = string.gsub(str, "\\n", "\n")
+	str = string.gsub(tostring(str), "\\n", "\n")
 	if (not textfield) then
 		str = string.gsub(str, "^%s*", "")
 		str = string.gsub(str, "%s*$", "")
@@ -2781,7 +2779,7 @@ _G.textAdapt = function(str, font, scale, maxWidth, check, textfield, singleLine
 	---@return string
 	local function buildString(checkstr)
 		if (textfield) then
-			return string.match(checkstr, "^\n") or string.match(checkstr, "^%s*%S+%s?")
+			return string.match(checkstr, "^\n") or string.match(checkstr, "^%s*%S+%s?") or checkstr
 		end
 
 		local newlined = string.match(checkstr, "^.*\n")
@@ -2845,7 +2843,7 @@ _G.textAdapt = function(str, font, scale, maxWidth, check, textfield, singleLine
 
 		if ((get_string_length(newStr .. word, font) * scale > maxWidth or newline) and newStr ~= "") then
 			table.insert(destStr, newStr)
-			table.insert(destIdx, destIdx[table.size(destIdx)] + utf8.safe_len(newStr))
+			table.insert(destIdx, destIdx[#destIdx] + utf8.safe_len(newStr))
 			newStr = word
 		else
 			newStr = newStr .. word
@@ -2854,12 +2852,12 @@ _G.textAdapt = function(str, font, scale, maxWidth, check, textfield, singleLine
 		newline = string.match(word, "\n") or string.match(word, "\\n")
 	end
 	table.insert(destStr, newStr)
-	table.insert(destIdx, destIdx[table.size(destIdx)] + utf8.safe_len(newStr))
+	table.insert(destIdx, destIdx[#destIdx] + utf8.safe_len(newStr))
 
 	if (TB_MENU_DEBUG) then
-		local clockdebugend = os.clock_real()
-		if (clockdebugend - clockdebug > 0.01) then
-			echo("Warning: slow text adapt call on string " .. utf8.safe_sub(destStr[1], 1, 10) .. " - " .. clockdebugend - clockdebug .. " seconds")
+		local calltime = (os.clock_real() - clockdebug) * 1000
+		if (calltime > 10) then
+			Files.LogError("UIElement textAdapt warning: slow call on string \"" .. utf8.safe_sub(destStr[1], 1, 20) .. "\" (" .. calltime .. "ms)")
 		end
 	end
 

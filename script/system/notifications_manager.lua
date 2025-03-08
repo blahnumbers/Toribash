@@ -327,23 +327,29 @@ function Notifications:showNotificationText(viewElement, notification)
 	end
 
 	local messageButtons = botBar
-	local messageViewForums = messageButtons:addChild({
-		pos = { messageButtons.size.w / 8, 10 },
-		size = { messageButtons.size.w / 2, messageButtons.size.h - 30 },
-		interactive = true,
-		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
-		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-		shapeType = ROUNDED,
-		rounded = 4
-	})
-	messageViewForums:addMouseUpHandler(function()
-			open_url("https://forum.toribash.com/private.php?do=showpm&pmid=" .. notification.id)
-		end)
-	TBMenu:showTextExternal(messageViewForums, TB_MENU_LOCALIZED.NOTIFICATIONSVIEWPMFORUMS, true)
+	local shiftX = messageButtons.size.w * 0.375
+	local deleteButtonWidth = messageButtons.size.w - shiftX * 2
+	if (notification.nameColor == nil) then
+		local messageViewForums = messageButtons:addChild({
+			pos = { messageButtons.size.w * 0.125, 10 },
+			size = { messageButtons.size.w * 0.5, messageButtons.size.h - 20 },
+			interactive = true,
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+			shapeType = ROUNDED,
+			rounded = 4
+		})
+		messageViewForums:addMouseUpHandler(function()
+				open_url("https://forum.toribash.com/private.php?do=showpm&pmid=" .. notification.id)
+			end)
+		TBMenu:showTextExternal(messageViewForums, TB_MENU_LOCALIZED.NOTIFICATIONSVIEWPMFORUMS, true)
+		shiftX = messageViewForums.shift.x + messageViewForums.size.w + 20
+		deleteButtonWidth = messageButtons.size.w - shiftX - messageViewForums.shift.x
+	end
 	local messageDelete = messageButtons:addChild({
-		pos = { messageViewForums.shift.x + messageViewForums.size.w + 20, 10 },
-		size = { messageButtons.size.w - (messageViewForums.shift.x * 2 + messageViewForums.size.w + 20), messageButtons.size.h - 30 },
+		pos = { shiftX, 10 },
+		size = { deleteButtonWidth, messageButtons.size.h - 20 },
 		interactive = true,
 		bgColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK,
 		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
@@ -548,8 +554,8 @@ function Notifications:showNotifications(viewElement)
 	})
 	notificationsHeader:addAdaptedText(true, TB_MENU_LOCALIZED.NOTIFICATIONSHEADER, nil, nil, FONTS.BIG, LEFTMID)
 	local notificationsReload = topBar:addChild({
-		pos = { -topBar.size.h, 10 },
-		size = { topBar.size.h - 16, topBar.size.h - 16 },
+		pos = { -topBar.size.h + 5, 5 },
+		size = { topBar.size.h - 10, topBar.size.h - 10 },
 		interactive = true,
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
 		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
