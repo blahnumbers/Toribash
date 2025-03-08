@@ -8,6 +8,7 @@ OPT timer 0;
 OPT info 0;
 OPT chat 0;
 OPT message 0;
+OPT autosave 0;
 KEYBOARDLOCK;
 JOINTLOCK;
 CAMERAMODE 0;

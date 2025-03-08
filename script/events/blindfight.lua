@@ -219,7 +219,7 @@ local function initialize(viewElement, reqTable)
 		return
 	end
 
-	local blindfightDirectoryExists = false
+	--[[local blindfightDirectoryExists = false
 	for _, v in ipairs(get_folders("replay")) do
 		if (v == 'blindfight') then
 			blindfightDirectoryExists = true
@@ -228,7 +228,7 @@ local function initialize(viewElement, reqTable)
 	end
 	if (not blindfightDirectoryExists) then
 		add_replay_subfolder("blindfight")
-	end
+	end]]
 
 	Tutorials:setQuitPopupOverride(onExit)
 
