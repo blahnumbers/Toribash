@@ -282,7 +282,7 @@ local function showVictoryScreen(viewElement, reqTable)
 				overlay.customDisplay = nil
 			end
 		end)
-	Events:showBlindFightPromotion(overlay, Events.BlindFightRewards, function() Tutorials:quit() end)
+	Events:showBlindFightPromotion(overlay, Events.BlindFightRewards, function() Tutorials:quit() request_app_review() end)
 	Events.BlindFightRewards = nil
 end
 

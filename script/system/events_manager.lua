@@ -2638,7 +2638,7 @@ function Events:showBlindFightPromotion(overlay, prizes, onContinue, leagueName)
 				if (onContinue) then
 					continueButton:addMouseUpHandler(onContinue)
 				else
-					continueButton:addMouseUpHandler(function() overlay:kill() end)
+					continueButton:addMouseUpHandler(function() overlay:kill() request_app_review() end)
 				end
 			end
 		end)
