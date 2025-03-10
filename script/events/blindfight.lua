@@ -204,6 +204,21 @@ local function showEventInfo(viewElement, reqTable)
 	Tutorials:showWaitButton()
 end
 
+---Sets RPG values and required gamerules for the upcoming game
+---@param userRPG BlindFightRPG
+---@param opponentRPG ?BlindFightRPG
+local function resetGame(userRPG, opponentRPG)
+	opponentRPG = opponentRPG or { strength = 100, speed = 100, endurance = 100 }
+	rpg_state(true)
+	set_rpg(0, userRPG.strength, userRPG.speed, userRPG.endurance)
+	set_rpg(1, opponentRPG.strength, opponentRPG.speed, opponentRPG.endurance)
+	start_new_game()
+
+	---Max contacts need to be set after new game with cur prefix!
+	---Otherwise they get rewritten due to how gamerules are initialized with RPG enabled
+	set_gamerule("curmaxcontacts", "32")
+end
+
 local function initialize(viewElement, reqTable)
 	local currentVersion = tonumber(_G.BUILD_VERSION) or 0
 	local blindFight = Events.GetBlindFight()
@@ -235,10 +250,7 @@ local function initialize(viewElement, reqTable)
 	select_player(0, false)
 	TUTORIAL_LEAVEGAME = true
 	runCmd("lm " .. blindFight.modName)
-	set_gamerule("maxcontacts", "32")
-	rpg_state(true)
-	set_rpg(0, blindFight.userRPG.strength, blindFight.userRPG.speed, blindFight.userRPG.endurance)
-	start_new_game()
+	resetGame(blindFight.userRPG, nil)
 	TUTORIAL_LEAVEGAME = false
 
 	if (Events.BlindFightMode == 1) then
@@ -409,11 +421,7 @@ local function showSimulationResults(viewElement, reqTable, playerMove, opponent
 	end
 
 	TUTORIAL_LEAVEGAME = true
-	set_gamerule("maxcontacts", "32")
-	rpg_state(true)
-	set_rpg(0, blindFight.userRPG.strength, blindFight.userRPG.speed, blindFight.userRPG.endurance)
-	set_rpg(1, opponentInfos[id].rpg.strength, opponentInfos[id].rpg.speed, opponentInfos[id].rpg.endurance)
-	start_new_game()
+	resetGame(blindFight.userRPG, opponentInfos[id].rpg)
 	TUTORIAL_LEAVEGAME = false
 
 	UIElement.WorldState = get_world_state()

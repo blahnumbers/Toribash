@@ -2783,7 +2783,7 @@ _G.textAdapt = function(str, font, scale, maxWidth, check, textfield, singleLine
 		end
 
 		local newlined = string.match(checkstr, "^.*\n")
-		local checkword = string.match(checkstr, "^%s*%S+%s*")
+		local checkword = string.match(checkstr, "^%s*%S+%s*") or checkstr
 		if (newlined) then
 			if (string.len(newlined) < string.len(checkword)) then
 				checkword = newlined

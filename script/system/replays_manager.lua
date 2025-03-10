@@ -3225,7 +3225,7 @@ function Replays:showCustomReplaySelection(mainElement, mod, action)
 		local nameLower = string.lower(TB_MENU_PLAYER_INFO.username)
 		---@param v ReplayInfo
 		local function checkReplay(v)
-			if ((mod == nil or v.mod == mod or v.mod == modExtension) and (string.lower(v.author) == nameLower or (v.author == 'autosave' and string.lower(v.bouts[1]) == nameLower))) then
+			if ((mod == nil or v.mod == mod or v.mod == modExtension) and (v.author ~= nil and string.lower(v.author) == nameLower or (v.author == 'autosave' and v.bouts[1] ~= nil and string.lower(v.bouts[1]) == nameLower))) then
 				if (v.name:find("^" .. ReplaysInternal.EventTempPrefix)) then
 					v.name = 'Autosaved Replay'
 				end
