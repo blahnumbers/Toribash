@@ -5808,9 +5808,9 @@ function Store:showSectionItems(viewElement, catid, searchString, itemsList, ite
 	if (itemsList) then
 		sectionItems = itemsList
 	else
-		for _, v in pairs(Store.Items) do
-			if (v.catid == catid and (v.now_tc_price > 0 or v.now_usd_price > 0) and not (v.locked and v.hidden)) then
-				local v = table.clone(v)
+		for _, item in pairs(Store.Items) do
+			if (item.catid == catid and (item.now_tc_price > 0 or item.now_usd_price > 0) and not (item.locked and item.hidden)) then
+				local v = item:getCopy()
 				for _, k in pairs(Store.Discounts) do
 					if (type(k) == "table" and k.expiryTime > UIElement.clock + 60 and (k.itemid == 0 or k.itemid == v.itemid)) then
 						if ((bit.band(k.paymentType, 2) > 0 or bit.band(k.paymentType, 4) > 0) and in_array(v.catid, StoreInternal.Categories.Account)) then

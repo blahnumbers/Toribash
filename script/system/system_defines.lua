@@ -776,6 +776,17 @@ function set_viewport(pos_x, pos_y, size_x, size_y) end
 ---| 140	COLORS.SUNSTONE
 ---| 141	COLORS.DARKBROWN
 ---| 142	COLORS.TENNISGREEN
+---| 143	COLORS.WISP
+---| 144	COLORS.PHANTOM
+---| 145	COLORS.ULTRABLUE
+---| 146	COLORS.NEON
+---| 147	COLORS.PASTELRED
+---| 148	COLORS.WENGE
+---| 149	COLORS.BRUNSWICKGREEN
+---| 150	COLORS.GLACIER
+---| 151	COLORS.OVERGREEN
+---| 152	COLORS.RHYTHM
+---| 153	COLORS.BRIAR
 
 ---@alias RenderEffectId
 ---| 0	EFFECT_TYPE.NONE | None
@@ -2990,8 +3001,8 @@ function save_custom_config() end
 ---| "trails"
 ---| "keyframes"
 ---| "ghostcache"
----| "replaycache" Target value for replay cache
----| "sysreplaycache" Actual current state of replay cache, read-only
+---| "replaycache" #Target value for replay cache
+---| "sysreplaycache" #Actual current state of replay cache, read-only
 ---| "bloodstainremove"
 ---| "chatcache"
 ---| "filesort"
@@ -3058,7 +3069,7 @@ function save_custom_config() end
 ---| "scrollcontrols"
 ---| "keyframesavemode"
 ---| "effectsvariablespeed"
----| "aidifficulty" Toribash builds with AI fight mode only
+---| "aidifficulty" #Toribash builds with AI fight mode only
 
 ---Retrieves a value of the specified Toribash option
 ---@param value GameOption
