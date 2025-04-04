@@ -2019,6 +2019,10 @@ function UIElement.drawHooks()
 		local safe_x, safe_y, safe_w, safe_h = get_window_safe_size()
 		SAFE_X = math.max(safe_x, WIN_W - safe_w - safe_x)
 		SAFE_Y = math.max(safe_y, WIN_H - safe_h - safe_y)
+		local maxHdpi = get_maximum_dpi_scale()
+		if (get_option("highdpi") > maxHdpi) then
+			set_graphics_option(8, maxHdpi)
+		end
 	end)
 
 	UIElement.__drawHooks = true
