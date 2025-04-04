@@ -2022,6 +2022,7 @@ function UIElement.drawHooks()
 		local maxHdpi = get_maximum_dpi_scale()
 		if (get_option("highdpi") > maxHdpi) then
 			set_graphics_option(8, maxHdpi)
+			reload_graphics()
 		end
 	end)
 
