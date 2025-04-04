@@ -448,7 +448,11 @@ function TBHud:spawnCommitButton()
 	local clickClock = 0
 	commitStepButton:addMouseUpHandler(function()
 		if (self.WorldState.replay_mode ~= 0) then
-			start_new_game(true)
+			if (TUTORIAL_ISACTIVE) then
+				call_hook("key_up", 32, 44)
+			else
+				start_new_game(true)
+			end
 		else
 			step_game(self.WorldState.game_type == 0 and (TBHudInternal.ReadyLongPressEnabled and self.StepSingleFrame))
 			commitStepButtonHolder:hide()
