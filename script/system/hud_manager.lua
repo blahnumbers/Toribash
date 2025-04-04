@@ -881,7 +881,7 @@ function TBHud:spawnRewindButton()
 	local rewindButton = TBHudInternal.generateTouchButton(rewindButtonHolder, "../textures/menu/general/buttons/reload.tga", nil, 0.8)
 	rewindButton:addMouseUpHandler(function()
 		if (TUTORIAL_ISACTIVE) then
-			call_hook("key_up", 114)
+			call_hook("key_up", 114, 21)
 		else
 			rewind_replay()
 		end
@@ -909,7 +909,7 @@ function TBHud:spawnPauseButton()
 	pauseButton:addMouseUpHandler(function()
 		clickClock = 0
 		if (TUTORIAL_ISACTIVE) then
-			call_hook("key_up", 112)
+			call_hook("key_up", 112, 19)
 		else
 			toggle_game_pause(stepSingleFrame)
 		end
@@ -1019,7 +1019,7 @@ function TBHud:spawnEditButton()
 	local editButton = TBHudInternal.generateTouchButton(editButtonHolder, "../textures/menu/general/buttons/edit.tga", nil, 0.6)
 	editButton:addMouseUpHandler(function()
 		if (TUTORIAL_ISACTIVE) then
-			call_hook("key_up", 101)
+			call_hook("key_up", 101, 8)
 			TBHudInternal.refreshButtons()
 		else
 			TBHudInternal.editGame()
