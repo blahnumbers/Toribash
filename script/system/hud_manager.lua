@@ -100,6 +100,8 @@ if (TBHud == nil) then
 		HudEnabled = true,
 		HudEnableHintDisplayed = false,
 		CameraJoystickSensitivity = 0.075,
+		StepSingleFrame = false,
+		StepSingleFramePause = false,
 		HookNameUI = "__tbHudTouchInterface",
 		HookNameChat = "__tbHudChatInterface",
 		HookNameCamera = "__tbHudFreeCamJoystick",
@@ -151,6 +153,7 @@ local TBHudInternal = {
 	ChatMessageHistoryIndex = -1,
 	TutorialHubOverride = nil,
 	ReadyLongPressEnabled = true,
+	PauseLongPressEnabled = true,
 	ListShift = { 0 },
 	ChatElementHeight = 25,
 	RequireListReload = false,
@@ -425,6 +428,12 @@ function TBHud.ToggleReadyLongPress(state)
 	TBHudInternal.ReadyLongPressEnabled = state
 end
 
+---Toggles `Pause` button long press functionality on and off
+---@param state boolean
+function TBHud.TogglePauseLongPress(state)
+	TBHudInternal.PauseLongPressEnabled = state
+end
+
 ---Spawns commit turn / new game button and its corresponding longpress menu
 function TBHud:spawnCommitButton()
 	if (self.MainElement == nil) then return end
@@ -437,12 +446,11 @@ function TBHud:spawnCommitButton()
 	local commitStepButton = TBHudInternal.generateTouchButton(commitStepButtonHolder)
 
 	local clickClock = 0
-	local stepSingleFrame = false
 	commitStepButton:addMouseUpHandler(function()
 		if (self.WorldState.replay_mode ~= 0) then
 			start_new_game(true)
 		else
-			step_game(self.WorldState.game_type == 0 and (TBHudInternal.ReadyLongPressEnabled and stepSingleFrame))
+			step_game(self.WorldState.game_type == 0 and (TBHudInternal.ReadyLongPressEnabled and self.StepSingleFrame))
 			commitStepButtonHolder:hide()
 		end
 		clickClock = 0
@@ -516,7 +524,7 @@ function TBHud:spawnCommitButton()
 				end, true)
 				stepSingleFrameButton:addChild({
 					shift = { 10, 3 }
-				}):addAdaptedText(stepSingleFrame and TB_MENU_LOCALIZED.HUDSTEPFRAMEFULL or TB_MENU_LOCALIZED.HUDSTEPFRAMESINGLE, nil, nil, FONTS.LMEDIUM, nil, 0.7)
+				}):addAdaptedText(self.StepSingleFrame and TB_MENU_LOCALIZED.HUDSTEPFRAMEFULL or TB_MENU_LOCALIZED.HUDSTEPFRAMESINGLE, nil, nil, FONTS.LMEDIUM, nil, 0.7)
 				stepSingleFrameButton:addMouseMoveHandler(function()
 					if (stepSingleFrameButton.hoverState ~= BTN_DN) then
 						play_haptics(0.6, HAPTICS.SELECTION)
@@ -524,7 +532,7 @@ function TBHud:spawnCommitButton()
 					stepSingleFrameButton.hoverState = BTN_DN
 				end)
 				stepSingleFrameButton:addMouseUpHandler(function()
-					step_game(not stepSingleFrame)
+					step_game(self.StepSingleFrame)
 				end)
 
 				local stepSingleFrameButtonToggle = optionsHolder:addChild({
@@ -544,7 +552,7 @@ function TBHud:spawnCommitButton()
 					end
 				end, true)
 				local iconScale = stepSingleFrameButtonToggle.size.h * 0.5
-				TBMenu:showTextWithImage(stepSingleFrameButtonToggle:addChild({ shift = { 10, 3 } }), TB_MENU_LOCALIZED.HUDSTEPSINGLETOGGLE, FONTS.LMEDIUM, iconScale, stepSingleFrame and "../textures/menu/general/buttons/checkmark.tga" or "../textures/menu/general/buttons/crosswhite.tga", { maxTextScale = 0.7 })
+				TBMenu:showTextWithImage(stepSingleFrameButtonToggle:addChild({ shift = { 10, 3 } }), TB_MENU_LOCALIZED.HUDSTEPSINGLETOGGLE, FONTS.LMEDIUM, iconScale, self.StepSingleFrame and "../textures/menu/general/buttons/checkmark.tga" or "../textures/menu/general/buttons/crosswhite.tga", { maxTextScale = 0.7 })
 				stepSingleFrameButtonToggle:addMouseMoveHandler(function()
 					if (stepSingleFrameButtonToggle.hoverState ~= BTN_DN) then
 						play_haptics(0.6, HAPTICS.SELECTION)
@@ -552,7 +560,7 @@ function TBHud:spawnCommitButton()
 					stepSingleFrameButtonToggle.hoverState = BTN_DN
 				end)
 				stepSingleFrameButtonToggle:addMouseUpHandler(function()
-					stepSingleFrame = not stepSingleFrame
+					self.StepSingleFrame = not self.StepSingleFrame
 				end)
 			end
 		end)
@@ -905,13 +913,12 @@ function TBHud:spawnPauseButton()
 	pauseButton:addMouseDownHandler(function()
 		clickClock = os.clock_real()
 	end)
-	local stepSingleFrame = false
 	pauseButton:addMouseUpHandler(function()
 		clickClock = 0
 		if (TUTORIAL_ISACTIVE) then
 			call_hook("key_up", 112, 19)
 		else
-			toggle_game_pause(stepSingleFrame)
+			toggle_game_pause(self.StepSingleFramePause)
 		end
 	end)
 	table.insert(self.ButtonsToRefresh, {
@@ -920,8 +927,8 @@ function TBHud:spawnPauseButton()
 	})
 	pauseButtonHolder:addCustomDisplay(true, function()
 			local gamePaused = is_game_paused()
-			pauseButton.icon.atlas.x = gamePaused and (stepSingleFrame and pauseButton.icon.atlas.w * 2 or 0) or pauseButton.icon.atlas.w
-			if (gamePaused and not TUTORIAL_ISACTIVE) then
+			pauseButton.icon.atlas.x = gamePaused and (self.StepSingleFramePause and pauseButton.icon.atlas.w * 2 or 0) or pauseButton.icon.atlas.w
+			if (gamePaused and (not TUTORIAL_ISACTIVE or TBHudInternal.PauseLongPressEnabled)) then
 				if (clickClock > 0 and UIElement.clock - clickClock > UIElement.longPressDuration) then
 					disable_mouse_camera_movement()
 					play_haptics(0.2, HAPTICS.IMPACT)
@@ -960,7 +967,7 @@ function TBHud:spawnPauseButton()
 					end, true)
 					stepSingleFrameButton:addChild({
 						shift = { 10, 3 }
-					}):addAdaptedText(stepSingleFrame and TB_MENU_LOCALIZED.HUDRESUMEREPLAY or TB_MENU_LOCALIZED.HUDSTEPFRAMESINGLE, nil, nil, FONTS.LMEDIUM, nil, 0.7)
+					}):addAdaptedText(self.StepSingleFramePause and TB_MENU_LOCALIZED.HUDRESUMEREPLAY or TB_MENU_LOCALIZED.HUDSTEPFRAMESINGLE, nil, nil, FONTS.LMEDIUM, nil, 0.7)
 					stepSingleFrameButton:addMouseMoveHandler(function()
 						if (stepSingleFrameButton.hoverState ~= BTN_DN) then
 							play_haptics(0.6, HAPTICS.SELECTION)
@@ -968,7 +975,7 @@ function TBHud:spawnPauseButton()
 						stepSingleFrameButton.hoverState = BTN_DN
 					end)
 					stepSingleFrameButton:addMouseUpHandler(function()
-						toggle_game_pause(not stepSingleFrame)
+						toggle_game_pause(not self.StepSingleFramePause)
 					end)
 
 					local stepSingleFrameButtonToggle = optionsHolder:addChild({
@@ -988,7 +995,7 @@ function TBHud:spawnPauseButton()
 						end
 					end, true)
 					local iconScale = stepSingleFrameButtonToggle.size.h * 0.5
-					TBMenu:showTextWithImage(stepSingleFrameButtonToggle:addChild({ shift = { 10, 3 } }), TB_MENU_LOCALIZED.HUDSTEPSINGLETOGGLE, FONTS.LMEDIUM, iconScale, stepSingleFrame and "../textures/menu/general/buttons/checkmark.tga" or "../textures/menu/general/buttons/crosswhite.tga", { maxTextScale = 0.7 })
+					TBMenu:showTextWithImage(stepSingleFrameButtonToggle:addChild({ shift = { 10, 3 } }), TB_MENU_LOCALIZED.HUDSTEPSINGLETOGGLE, FONTS.LMEDIUM, iconScale, self.StepSingleFramePause and "../textures/menu/general/buttons/checkmark.tga" or "../textures/menu/general/buttons/crosswhite.tga", { maxTextScale = 0.7 })
 					stepSingleFrameButtonToggle:addMouseMoveHandler(function()
 						if (stepSingleFrameButtonToggle.hoverState ~= BTN_DN) then
 							play_haptics(0.6, HAPTICS.SELECTION)
@@ -996,7 +1003,7 @@ function TBHud:spawnPauseButton()
 						stepSingleFrameButtonToggle.hoverState = BTN_DN
 					end)
 					stepSingleFrameButtonToggle:addMouseUpHandler(function()
-						stepSingleFrame = not stepSingleFrame
+						self.StepSingleFramePause = not self.StepSingleFramePause
 					end)
 				end
 			end

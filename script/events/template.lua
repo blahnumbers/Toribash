@@ -1245,8 +1245,13 @@ local function eventMain(viewElement, reqTable)
 				return 1
 			end
 			---`p` key press
-			if (code == 19 and ws.replay_mode == 0) then
-				return 1
+			if (code == 19) then
+				if (ws.replay_mode == 0) then
+					return 1
+				end
+				if (is_mobile()) then
+					toggle_game_pause(TBHud.StepSingleFramePause)
+				end
 			end
 			---`r` key press
 			if (code == 21) then
@@ -1366,6 +1371,7 @@ local function eventMain(viewElement, reqTable)
 
 	if (is_mobile()) then
 		TBHud.ToggleReadyLongPress(GLOBAL_SETTINGS.MOBILE_LONGPRESS_ENABLED)
+		TBHud.TogglePauseLongPress(GLOBAL_SETTINGS.MOBILE_LONGPRESS_ENABLED)
 		setTutorialHubOverride(viewElement)
 	else
 		local buttonWidth = math.clamp(WIN_W / 5, 250, 400 )
