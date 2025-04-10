@@ -386,7 +386,7 @@ end
 ---@field ItemEffects StoreItemEffect[] Item effects data to use for Store displays
 ---@field EmptyItem StoreItem Template store item information
 local StoreInternal = {
-	IAPInterfaceReady = _G.PLATFORM ~= "ANDROID",
+	IAPInterfaceReady = true,
 	InAppIdentifiersReady = not is_mobile(),
 	ItemEffects = {
 		{ id = 1, name = "Toon Shaded", colorid = 11 },
@@ -715,7 +715,7 @@ function Store.GetItems()
 end
 
 function StoreInternal.RegisterIAPItems()
-	if (not StoreInternal.IAPInterfaceReady or StoreInternal.InAppIdentifiersReady) then return end
+	if (not is_mobile() or not StoreInternal.IAPInterfaceReady or StoreInternal.InAppIdentifiersReady) then return end
 
 	---@type integer[]
 	local usdItems = {}
@@ -726,6 +726,7 @@ function StoreInternal.RegisterIAPItems()
 	end
 	if (#usdItems > 0) then
 		register_platform_mtx(usdItems)
+		StoreInternal.InAppIdentifiersReady = true
 	end
 end
 
@@ -6662,13 +6663,14 @@ if (_G.PLATFORM == "ANDROID") then
 		---Calls we want to listen will always return result=true and a non-zero code
 		if (result ~= true or code == 0) then return end
 
-		if (code == 1001) then
+		if (code == 1000) then
 			StoreInternal.IAPInterfaceReady = true
 			if (Store.Ready) then
 				StoreInternal.RegisterIAPItems()
 			end
-		else
+		elseif (code >= 1010) then
 			StoreInternal.IAPInterfaceReady = false
+			StoreInternal.InAppIdentifiersReady = false
 		end
 	end)
 end
