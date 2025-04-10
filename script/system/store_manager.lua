@@ -381,10 +381,12 @@ end
 
 ---**Helper class for Store manager**
 ---@class StoreInternal
----@field InAppIdentifiersReady boolean Whether iOS in-app purchases data has been populated
+---@field IAPInterfaceReady boolean Whether mobile in-app purchase interface is ready
+---@field InAppIdentifiersReady boolean Whether mobile in-app purchases data has been populated
 ---@field ItemEffects StoreItemEffect[] Item effects data to use for Store displays
 ---@field EmptyItem StoreItem Template store item information
 local StoreInternal = {
+	IAPInterfaceReady = _G.PLATFORM ~= "ANDROID",
 	InAppIdentifiersReady = not is_mobile(),
 	ItemEffects = {
 		{ id = 1, name = "Toon Shaded", colorid = 11 },
@@ -693,8 +695,6 @@ function Store.GetItems()
 		end
 		return
 	end
-	---@type integer[]
-	local usdItems = {}
 	local lines = file:readAll()
 	file:close()
 
@@ -703,9 +703,6 @@ function Store.GetItems()
 			pcall(function()
 				local item = StoreItem.FromDataLine(ln)
 				if (item ~= nil) then
-					if (in_array(item.catid, StoreInternal.Categories.Account) and not item.locked) then
-						table.insert(usdItems, item.itemid)
-					end
 					Store.Categories[item.catid] = { name = item.catname }
 					Store.Items[item.itemid] = item
 				end
@@ -713,12 +710,23 @@ function Store.GetItems()
 		end
 	end
 
-	if (not Store.InAppIdentifiersReady and #usdItems > 0) then
-		register_platform_mtx(usdItems)
-		Store.InAppIdentifiersReady = true
-	end
-
+	StoreInternal.RegisterIAPItems()
 	Store.Ready = true
+end
+
+function StoreInternal.RegisterIAPItems()
+	if (not StoreInternal.IAPInterfaceReady or StoreInternal.InAppIdentifiersReady) then return end
+
+	---@type integer[]
+	local usdItems = {}
+	for _, v in pairs(Store.Items) do
+		if (in_array(v.catid, StoreInternal.Categories.Account) and not v.locked) then
+			table.insert(usdItems, v.itemid)
+		end
+	end
+	if (#usdItems > 0) then
+		register_platform_mtx(usdItems)
+	end
 end
 
 ---Parses store models datafile and populates obj items information
@@ -5229,8 +5237,11 @@ function Store.InitUSDPurchase(item, onSuccess)
 		purchaseProgressMonitor:addMouseMoveHandler(function() purchaseComplete = true end)
 	else
 		---Mobile platforms, we have a dedicated hook that we will be listening to
-		add_hook("purchase_status", Store.HookName, function(result, error_code)
-				remove_hook("purchase_status", Store.HookName)
+		add_hook("purchase_status", Store.HookName .. item.itemid, function(result, error_code)
+				---Make sure we ignore hook call from IAP status updates
+				if (result == true and error_code ~= 0) then return end
+
+				remove_hook("purchase_status", Store.HookName .. item.itemid)
 				if (result == true) then
 					if (purchaseWindow and not purchaseWindow.destroyed) then
 						purchaseWindow:kill(true)
@@ -6644,4 +6655,20 @@ function Store:showMain(viewElement)
 		local discountItem = Store.Discounts[math.random(1, #Store.Discounts)]
 		Store:showPersonalDiscount(discountItem)
 	end
+end
+
+if (_G.PLATFORM == "ANDROID") then
+	add_hook("purchase_status", Store.HookName, function(result, code)
+		---Calls we want to listen will always return result=true and a non-zero code
+		if (result ~= true or code == 0) then return end
+
+		if (code == 1001) then
+			StoreInternal.IAPInterfaceReady = true
+			if (Store.Ready) then
+				StoreInternal.RegisterIAPItems()
+			end
+		else
+			StoreInternal.IAPInterfaceReady = false
+		end
+	end)
 end
