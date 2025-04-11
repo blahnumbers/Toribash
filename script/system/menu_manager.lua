@@ -169,19 +169,20 @@ function TBMenu.CreateCurrentSectionView()
 	if (TBMenu.MenuMain == nil or TBMenu.MenuMain.destroyed) then return end
 
 	local safeX = get_window_safe_size()
+	local verticalModifier = is_mobile() and 245 or 235
 	if (SCREEN_RATIO > 2) then
 		local offsetX = math.max(safeX, 50 * TB_MENU_GLOBAL_SCALE) + 25 * TB_MENU_GLOBAL_SCALE
 		local sizeOffset = math.min(WIN_W / 8, 300)
 		TBMenu.CurrentSection = TBMenu.MenuMain:addChild({
 			pos = { offsetX + sizeOffset, 130 * TB_MENU_GLOBAL_SCALE },
-			size = { WIN_W - offsetX - 75 * TB_MENU_GLOBAL_SCALE - sizeOffset, WIN_H - 235 * TB_MENU_GLOBAL_SCALE },
+			size = { WIN_W - offsetX - 75 * TB_MENU_GLOBAL_SCALE - sizeOffset, WIN_H - verticalModifier * TB_MENU_GLOBAL_SCALE },
 			interactive = is_mobile()
 		})
 	else
 		local sizeOffset = math.max(safeX, 75) * TB_MENU_GLOBAL_SCALE
 		TBMenu.CurrentSection = TBMenu.MenuMain:addChild({
 			pos = { sizeOffset, 140 * TB_MENU_GLOBAL_SCALE + math.min(WIN_H / 16, 60) },
-			size = { WIN_W - sizeOffset * 2, WIN_H - 235 * TB_MENU_GLOBAL_SCALE - math.min(WIN_H / 16, 60) },
+			size = { WIN_W - sizeOffset * 2, WIN_H - verticalModifier * TB_MENU_GLOBAL_SCALE - math.min(WIN_H / 16, 60) },
 			interactive = is_mobile()
 		})
 	end
@@ -585,8 +586,9 @@ function TBMenu:showHomeButton(viewElement, buttonData, hasSmudge, extraElements
 		selectedIcon = buttonData.image2
 	end
 	local extraElements = extraElements or {}
+	local bottomSmudge = nil
 	if (hasSmudge and not (buttonData.title or buttonData.subtitle)) then
-		TBMenu:addBottomBloodSmudge(viewElement, hasSmudge)
+		bottomSmudge = TBMenu:addBottomBloodSmudge(viewElement, hasSmudge)
 	end
 	local itemIcon = viewElement:addChild({
 		pos = { (viewElement.size.w - elementWidth) / 2, 10 },
@@ -647,16 +649,14 @@ function TBMenu:showHomeButton(viewElement, buttonData, hasSmudge, extraElements
 		end
 	end
 
-	-- Make sure we spawn it before buttonOverlay element so that subsequent show() calls on parent don't make blood smudge overlay the text
 	if (hasSmudge and (buttonData.title or buttonData.subtitle)) then
-		TBMenu:addBottomBloodSmudge(viewElement, hasSmudge)
+		bottomSmudge = TBMenu:addBottomBloodSmudge(viewElement, hasSmudge)
 	end
-	local buttonOverlay = UIElement:new( {
-		parent = viewElement,
+	local buttonOverlay = viewElement:addChild({
 		pos = { 0, -titleHeight - descHeight - 10 },
 		size = { viewElement.size.w, titleHeight + descHeight }
 	})
-	viewElement.button = buttonOverlay
+	viewElement.buttonOverlay = buttonOverlay
 	viewElement.image = itemIcon
 	viewElement.imageBoundary = itemIcon
 	local overlay = nil
@@ -667,37 +667,49 @@ function TBMenu:showHomeButton(viewElement, buttonData, hasSmudge, extraElements
 			size = { itemIcon.size.w, -buttonOverlay.shift.y - itemIcon.shift.y - (viewElement.size.h - 20 - itemIcon.size.h) },
 			bgColor = viewElement.animateColor
 		})
+		if (bottomSmudge ~= nil) then
+			bottomSmudge:reload()
+		end
+		buttonOverlay = viewElement:addChild({
+			pos = { buttonOverlay.shift.x, buttonOverlay.shift.y },
+			size = { buttonOverlay.size.w, buttonOverlay.size.h }
+		})
 	end
+	viewElement.button = buttonOverlay
 	if (buttonData.title) then
-		local buttonTitleView = UIElement:new( {
-			parent = buttonOverlay,
+		local buttonTitleView = buttonOverlay:addChild({
 			pos = { 10, 0 },
 			size = { buttonOverlay.size.w - 20, titleHeight }
 		})
-		local buttonTitle = UIElement:new( {
-			parent = buttonTitleView,
+		local buttonTitle = buttonTitleView:addChild({
 			pos = { 5, 5 },
 			size = { buttonTitleView.size.w - 10, buttonTitleView.size.h - 5 }
 		})
 		buttonTitle:addAdaptedText(true, buttonData.title, nil, nil, FONTS.BIG, buttonData.subtitle and LEFTBOT or LEFT, nil, nil, 0.4)
 	end
 	if (buttonData.subtitle) then
-		local buttonSubtitleView = UIElement:new( {
-			parent = buttonOverlay,
+		local buttonSubtitleView = buttonOverlay:addChild({
 			pos = { 10, titleHeight },
 			size = { buttonOverlay.size.w - 20, descHeight }
 		})
-		local buttonSubtitle = UIElement:new( {
-			parent = buttonSubtitleView,
+		local buttonSubtitle = buttonSubtitleView:addChild({
 			pos = { 5, 0 },
 			size = { buttonSubtitleView.size.w - 10, buttonSubtitleView.size.h - 5 }
 		})
 		buttonSubtitle:addAdaptedText(true, buttonData.subtitle, nil, nil, 4, LEFT)
 	end
 	if (overlay) then
+		local restoreBgColors = function()
+			overlay.bgColor = viewElement.animateColor
+			for _ ,v in pairs(extraElements) do
+				if (type(v) == "table") then
+					v.bgColor = viewElement.animateColor
+				end
+			end
+		end
 		viewElement:addMouseHandlers(function()
 				overlay.bgColor = table.clone(viewElement.pressedColor)
-				for i,v in pairs(extraElements) do
+				for _ ,v in pairs(extraElements) do
 					if (type(v) == "table") then
 						v.bgColor = table.clone(viewElement.pressedColor)
 					end
@@ -709,13 +721,8 @@ function TBMenu:showHomeButton(viewElement, buttonData, hasSmudge, extraElements
 				if (buttonData.action) then
 					buttonData.action()
 				end
-				overlay.bgColor = viewElement.animateColor
-				for i,v in pairs(extraElements) do
-					if (type(v) == "table") then
-						v.bgColor = viewElement.animateColor
-					end
-				end
-			end)
+				restoreBgColors()
+			end, nil, nil, restoreBgColors)
 	else
 		viewElement:addMouseHandlers(nil, function()
 			if (buttonData.quit) then
@@ -3214,7 +3221,7 @@ function TBMenu:showBottomBar(leftOnly)
 	safe_x = math.max(safe_x, WIN_W - safe_x - safe_w)
 	local barSafe_x = math.max(safe_x, 45)
 
-	local buttonSize = 50 * TB_MENU_GLOBAL_SCALE
+	local buttonSize = (is_mobile() and 60 or 50) * TB_MENU_GLOBAL_SCALE
 	if (TBMenu.BottomLeftBar == nil or TBMenu.BottomLeftBar.destroyed) then
 		TBMenu.BottomLeftBar = TBMenu.MenuMain:addChild({
 			pos = { barSafe_x * TB_MENU_GLOBAL_SCALE - 10, -buttonSize * 1.4 },
