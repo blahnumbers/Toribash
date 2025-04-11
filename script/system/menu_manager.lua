@@ -169,17 +169,17 @@ function TBMenu.CreateCurrentSectionView()
 	if (TBMenu.MenuMain == nil or TBMenu.MenuMain.destroyed) then return end
 
 	local safeX = get_window_safe_size()
-	local verticalModifier = is_mobile() and 245 or 235
 	if (SCREEN_RATIO > 2) then
 		local offsetX = math.max(safeX, 50 * TB_MENU_GLOBAL_SCALE) + 25 * TB_MENU_GLOBAL_SCALE
 		local sizeOffset = math.min(WIN_W / 8, 300)
 		TBMenu.CurrentSection = TBMenu.MenuMain:addChild({
 			pos = { offsetX + sizeOffset, 130 * TB_MENU_GLOBAL_SCALE },
-			size = { WIN_W - offsetX - 75 * TB_MENU_GLOBAL_SCALE - sizeOffset, WIN_H - verticalModifier * TB_MENU_GLOBAL_SCALE },
+			size = { WIN_W - offsetX - 75 * TB_MENU_GLOBAL_SCALE - sizeOffset, WIN_H - 235 * TB_MENU_GLOBAL_SCALE },
 			interactive = is_mobile()
 		})
 	else
 		local sizeOffset = math.max(safeX, 75) * TB_MENU_GLOBAL_SCALE
+		local verticalModifier = is_mobile() and 245 or 235
 		TBMenu.CurrentSection = TBMenu.MenuMain:addChild({
 			pos = { sizeOffset, 140 * TB_MENU_GLOBAL_SCALE + math.min(WIN_H / 16, 60) },
 			size = { WIN_W - sizeOffset * 2, WIN_H - verticalModifier * TB_MENU_GLOBAL_SCALE - math.min(WIN_H / 16, 60) },
