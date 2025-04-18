@@ -2658,23 +2658,18 @@ function Store:showInventoryPage(inventoryItems, page, mode, title, pageid, item
 	TBMenu:addBottomBloodSmudge(botBar, 1)
 
 	local matchingItems = search == nil and inventoryItems or { }
-	local function toLower(str)
-		if (not pcall(function() str = utf8.lower(str) end)) then
-			str = string.lower(str)
-		end
-		return str
-	end
 	if (search ~= nil) then
 		for _, v in pairs(inventoryItems) do
-			local itemName = toLower(Store:getItemInfo(v.itemid).itemname)
-			local setName = toLower(v.setname)
-			local search = toLower(search)
+			local itemName = utf8.safe_lower(Store:getItemInfo(v.itemid).itemname)
+			local setName = utf8.safe_lower(v.setname)
+			local flameName = utf8.safe_lower(v.flamename)
+			local search = utf8.safe_lower(search)
 			if (not pcall(function()
-				if (utf8.find(itemName, search) or utf8.find(setName, search)) then
+				if (utf8.find(itemName, search) or utf8.find(setName, search) or utf8.find(flameName, search)) then
 					table.insert(matchingItems, v)
 				end
 			end)) then
-				if (string.find(itemName, search) or string.find(setName, search)) then
+				if (string.find(itemName, search) or string.find(setName, search) or string.find(flameName, search)) then
 					table.insert(matchingItems, v)
 				end
 			end
@@ -2713,7 +2708,8 @@ function Store:showInventoryPage(inventoryItems, page, mode, title, pageid, item
 			pos = { inventoryTitle.size.w + 10, 10 },
 			size = { topBar.size.w - inventoryTitle.size.w - 20, topBar.size.h - 15 }
 		})
-		pagesCount:addAdaptedText(true, TB_MENU_LOCALIZED.PAGINATIONPAGE .. " " .. Store.InventoryPage[pageid] .. " " .. TB_MENU_LOCALIZED.PAGINATIONPAGEOF .. " " .. maxPages, nil, nil, 4, LEFTMID, 0.6)
+		local pagesText = utf8.upper(TB_MENU_LOCALIZED.PAGINATIONPAGE .. " " .. Store.InventoryPage[pageid] .. " " .. TB_MENU_LOCALIZED.PAGINATIONPAGEOF .. " " .. maxPages)
+		pagesCount:addAdaptedText(true, pagesText, nil, nil, 4, LEFTMID, 0.6)
 		local strlen = get_string_length(pagesCount.dispstr[1], pagesCount.textFont) * pagesCount.textScale
 		local pagesButtonsHolder = pagesCount:addChild({
 			pos = { strlen + 10, 0 },
@@ -2746,7 +2742,10 @@ function Store:showInventoryPage(inventoryItems, page, mode, title, pageid, item
 					Store:showInventoryPage(inventoryItems, paginationData[i], mode, title, pageid, itemScale, showBack, search)
 				end)
 		end
-		pagesCount:addAdaptedText(true, TB_MENU_LOCALIZED.PAGINATIONPAGE:upper() .. " " .. Store.InventoryPage[pageid] .. " " .. TB_MENU_LOCALIZED.PAGINATIONPAGEOF:upper() .. " " .. maxPages, -#pageButtons * buttonWidth - 5, nil, 4, RIGHTMID, 0.6)
+		pagesCount:addAdaptedText(pagesText, {
+			padding = { x = 0, y = 0, w = #pageButtons * buttonWidth + 5, h = 0 },
+			font = FONTS.LMEDIUM, align = RIGHTMID, maxscale = 0.6
+		}, true)
 	end
 
 	local emptySetsToggleHolder = botBar:addChild({
