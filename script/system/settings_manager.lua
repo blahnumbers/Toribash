@@ -523,7 +523,8 @@ function Settings:getSettingsData(id)
 											{ opt = "particles", val = 0 },
 											{ opt = "fixedframerate", val = 1 },
 											{ opt = "uilight", val = 1 },
-											{ opt = "ghostobj", val = 0 }
+											{ opt = "ghostobj", val = 0 },
+											{ opt = "itemeffects", val = 0, graphics = true, id = ITEMEFFECTS }
 										}
 										Settings.SetMacResolution()
 										for _, v in pairs(options) do
@@ -554,13 +555,14 @@ function Settings:getSettingsData(id)
 										{ opt = "trails", val = 1 },
 										{ opt = "hair", val = 1 },
 										{ opt = "hairquality", val = 0 },
-										{ opt = "obj", val = 0 },
+										{ opt = "obj", val = 2 },
 										{ opt = "bodytextures", val = 1, graphics = true, id = BODYTEXTURES },
 										{ opt = "effects", val = 1 },
 										{ opt = "particles", val = is_mobile() and 0 or 1 },
 										{ opt = "fixedframerate", val = 1 },
-										{ opt = "uilight", val = 1 },
-										{ opt = "ghostobj", val = 0 }
+										{ opt = "uilight", val = 0 },
+										{ opt = "ghostobj", val = 0 },
+										{ opt = "itemeffects", val = is_mobile() and 0 or 1, graphics = true, id = ITEMEFFECTS }
 									}
 									Settings.SetMacResolution()
 									for _, v in pairs(options) do
@@ -597,7 +599,8 @@ function Settings:getSettingsData(id)
 										{ opt = "particles", val = 1 },
 										{ opt = "fixedframerate", val = 1 },
 										{ opt = "uilight", val = 0 },
-										{ opt = "ghostobj", val = is_mobile() and 0 or 1 }
+										{ opt = "ghostobj", val = is_mobile() and 0 or 1 },
+										{ opt = "itemeffects", val = 1, graphics = true, id = ITEMEFFECTS }
 									}
 									Settings.SetMacResolution()
 									for _, v in pairs(options) do
@@ -634,7 +637,8 @@ function Settings:getSettingsData(id)
 										{ opt = "particles", val = 1 },
 										{ opt = "fixedframerate", val = 1 },
 										{ opt = "uilight", val = 0 },
-										{ opt = "ghostobj", val = 1 }
+										{ opt = "ghostobj", val = 1 },
+										{ opt = "itemeffects", val = 1, graphics = true, id = ITEMEFFECTS }
 									}
 									Settings.SetMacResolution()
 									for _ ,v in pairs(options) do
@@ -671,7 +675,8 @@ function Settings:getSettingsData(id)
 										{ opt = "particles", val = 1 },
 										{ opt = "fixedframerate", val = 1 },
 										{ opt = "uilight", val = 0 },
-										{ opt = "ghostobj", val = 1 }
+										{ opt = "ghostobj", val = 1 },
+										{ opt = "itemeffects", val = 1, graphics = true, id = ITEMEFFECTS }
 									}
 									Settings.SetMacResolution()
 									for _, v in pairs(options) do
