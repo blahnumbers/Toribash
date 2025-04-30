@@ -659,9 +659,13 @@ function BattlePass:showPrizeItem(viewElement, prize)
 	end
 
 	if (prizeAmount ~= nil) then
+		local textHolderSize = math.min(30, prizeBackgroundOutline.size.h / 2)
+		if (textHolderSize < 10) then
+			return
+		end
 		local prizeTextHolder = prizeBackgroundOutline:addChild({
-			pos = { 0, -30 },
-			size = { prizeBackgroundOutline.size.w, 30 },
+			pos = { 0, -textHolderSize },
+			size = { prizeBackgroundOutline.size.w, textHolderSize },
 			bgColor = prize.textBackdropColor or TB_MENU_DEFAULT_BG_COLOR_TRANS,
 			shapeType = ROUNDED,
 			rounded = { 0, prizeBackgroundOutline.rounded }

@@ -3180,8 +3180,9 @@ function Events:showBlindFightMain(viewElement)
 		bgImage = "../textures/menu/blindfight/scoresplash.tga"
 	})
 	local statsHolderSize = { math.min(450, playerInfoViewBackdrop.size.w * 0.4 ), math.min(150, playerInfoViewBackdrop.size.h * 0.4) }
+	local playerInfoTierHeight = math.max(0, math.min(playerInfoViewBackdrop.size.h - 110 - statsHolderSize[2], playerInfoViewBackdrop.size.h * 0.415 - statsHolderSize[2] * 0.5))
 	local playerInfoTierInfo = playerInfoViewBackdrop:addChild({
-		pos = { playerInfoViewBackdrop.size.w * 0.615 - statsHolderSize[1] * 0.5, playerInfoViewBackdrop.size.h * 0.415 - statsHolderSize[2] * 0.5 },
+		pos = { playerInfoViewBackdrop.size.w * 0.615 - statsHolderSize[1] * 0.5, playerInfoTierHeight },
 		size = statsHolderSize
 	})
 	playerInfoTierInfo:addAdaptedText(EventsInternal.BlindFight.groupTitle, { font = FONTS.BIG, intensity = 1, shadow = 4, shadowColor = { 0.1523, 0.0625, 0.1641, 1 } })
@@ -3198,9 +3199,17 @@ function Events:showBlindFightMain(viewElement)
 		shift = { 25, 10 }
 	}):addAdaptedText(EventsInternal.BlindFight.gamesPlayed .. " " .. utf8.lower(TB_MENU_LOCALIZED.EVENTSGAMESPLAYED) .. ", " .. EventsInternal.BlindFight.gamesWon .. " " .. utf8.lower(TB_MENU_LOCALIZED.EVENTSGAMESWON))
 
+	local timeRemainingVerticalOffset = -60
+	local timeRemainingBaseText = TB_MENU_LOCALIZED.BLINDFIGHTTIMEUNTILLEAGUERESET
+	local playButtonsHolderHeight = buttonsVertical and 260 or 170
+	if (EventsInternal.BlindFight.endtime == EventsInternal.BlindFight.seasonEndtime) then
+		timeRemainingVerticalOffset = -40
+		timeRemainingBaseText = TB_MENU_LOCALIZED.BLINDFIGHTTIMEUNTILSEASONEND
+		playButtonsHolderHeight = playButtonsHolderHeight - 10
+	end
 	local numRewards = #EventsInternal.BlindFight.tierRewards
 	local rewardsHolderHeight = math.min(playerInfoDataHolder.size.w / numRewards, 102, backdropSize.y * 0.2)
-	if (playerInfoView.pos.y + playerInfoView.size.h - (buttonsVertical and 250 or 160) - playerInfoDataHolder.pos.y - playerInfoDataHolder.size.h - rewardsHolderHeight - 10 > 0) then
+	--if (playerInfoView.pos.y + playerInfoView.size.h - playButtonsHolderHeight - playerInfoDataHolder.pos.y - playerInfoDataHolder.size.h - rewardsHolderHeight - 10 > 0) then
 		local tierRewardsHolder = playerInfoDataHolder:addChild({
 			pos = { 0, playerInfoDataHolder.size.h + 5 },
 			size = { playerInfoDataHolder.size.w, rewardsHolderHeight }
@@ -3230,16 +3239,8 @@ function Events:showBlindFightMain(viewElement)
 			uiShadowColor = { 0.1523, 0.0625, 0.1641, 1 },
 		})
 		tierRewardsCaption:addAdaptedText(TB_MENU_LOCALIZED.BLINDFIGHTPROMOTIONREWARDS, { font = FONTS.BIG, align = RIGHTMID, maxscale = 0.65, shadow = 4 })
-	end
+	--end
 
-	local timeRemainingVerticalOffset = -60
-	local timeRemainingBaseText = TB_MENU_LOCALIZED.BLINDFIGHTTIMEUNTILLEAGUERESET
-	local playButtonsHolderHeight = buttonsVertical and 260 or 170
-	if (EventsInternal.BlindFight.endtime == EventsInternal.BlindFight.seasonEndtime) then
-		timeRemainingVerticalOffset = -40
-		timeRemainingBaseText = TB_MENU_LOCALIZED.BLINDFIGHTTIMEUNTILSEASONEND
-		playButtonsHolderHeight = playButtonsHolderHeight - 10
-	end
 	local playButtonsHolder = playerInfoView:addChild{
 		pos = { 0, -playButtonsHolderHeight },
 		size = { playerInfoView.size.w, playButtonsHolderHeight },
@@ -3256,7 +3257,7 @@ function Events:showBlindFightMain(viewElement)
 		shapeType = ROUNDED,
 		rounded = 4
 	})
-	makeOpenerButton:addAdaptedText(TB_MENU_LOCALIZED.BLINDFIGHTREDOOPENER, nil, nil, FONTS.BIG, nil, 0.65)
+	makeOpenerButton:addAdaptedText(TB_MENU_LOCALIZED.BLINDFIGHTREDOOPENER, { font = FONTS.BIG, maxscale = 0.65, padding = { x = 10, y = 10, w = 10, h = 10 } })
 	makeOpenerButton:addMouseUpHandler(function()
 			close_menu()
 			self.BlindFightMode = 0
@@ -3273,7 +3274,7 @@ function Events:showBlindFightMain(viewElement)
 		shapeType = makeOpenerButton.shapeType,
 		rounded = makeOpenerButton.rounded
 	})
-	resimulateButton:addAdaptedText(TB_MENU_LOCALIZED.BLINDFIGHTFIGHTAGAIN, nil, nil, FONTS.BIG, nil, 0.65)
+	resimulateButton:addAdaptedText(TB_MENU_LOCALIZED.BLINDFIGHTFIGHTAGAIN, { font = FONTS.BIG, maxscale = 0.65, padding = { x = 10, y = 10, w = 10, h = 10 } })
 	resimulateButton:addMouseUpHandler(function()
 			close_menu()
 			self.BlindFightMode = 1
