@@ -572,8 +572,13 @@ function BattlePass:showPrizeItem(viewElement, prize)
 	if (prize.itemid ~= nil and (prize.item == nil or prize.item.itemid == 0)) then
 		prize.item = Store:getItemInfo(prize.itemid)
 	end
-	if (Store.Discounts.Prime == true and prize.bpxp ~= nil) then
-		prize.bpxp = math.ceil(prize.bpxp * 1.5)
+	if (Store.Discounts.Prime == true) then
+		if (prize.bpxp ~= nil) then
+			prize.bpxp = math.ceil(prize.bpxp * 1.5)
+		end
+		if (prize.qi ~= nil) then
+			prize.qi = math.ceil(prize.qi * 2)
+		end
 	end
 	local iconPath, prizeAmount, prizeTooltip = nil, nil, nil
 	-- Some free reward levels will have multiple rewards, we want TC/ST to be shown
@@ -599,6 +604,12 @@ function BattlePass:showPrizeItem(viewElement, prize)
 		iconPath = prize.item:getIconPath()
 		if (not prize.withoutPopup) then
 			prizeTooltip = TBMenu:displayPopup(prizeBackground, prize.item.itemname .. (string.len(prize.item.description or "") > 0 and ("\n\n" .. prize.item.description) or ''), prize.static, 500)
+		end
+	elseif (prize.qi ~= nil and prize.qi > 0) then
+		iconPath = "../textures/store/qi.tga"
+		prizeAmount = numberFormat(prize.qi)
+		if (not prize.withoutPopup) then
+			prizeTooltip = TBMenu:displayPopup(prizeBackground, prizeAmount .. " " .. TB_MENU_LOCALIZED.WORDQI, prize.static)
 		end
 	else
 		return

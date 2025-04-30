@@ -4,17 +4,21 @@ require('system.menu_manager')
 require('system.store_manager')
 require('system.friends_manager')
 
+---@class EventRewardBase
+---@field tc integer
+---@field st integer
+---@field itemid integer
+---@field bpxp integer
+---@field qi integer
+
+---@class StaticEventReward : EventRewardBase
+---@field info string
+
 ---@class BlindFightPlayer
 ---@field userid string
 ---@field name string
 ---@field wins integer
 ---@field prestige integer
-
----@class BlindFightReward
----@field tc integer
----@field st integer
----@field bpxp integer
----@field itemid integer
 
 ---@class BlindFightRPG
 ---@field strength integer
@@ -24,6 +28,7 @@ require('system.friends_manager')
 ---@class BlindFightData
 ---@field modName string
 ---@field endtime integer
+---@field seasonEndtime integer
 ---@field lastupdate integer
 ---@field players BlindFightPlayer[]
 ---@field defeated string[]
@@ -35,8 +40,8 @@ require('system.friends_manager')
 ---@field numGroupPlayers integer
 ---@field minPromoteGroupPlayers integer
 ---@field pendingRewards boolean
----@field tierRewards BlindFightReward[]
----@field prestigeRewards BlindFightReward[]
+---@field tierRewards EventRewardBase[]
+---@field prestigeRewards EventRewardBase[]
 ---@field userRPG BlindFightRPG
 ---@field promotePlayersPercentage number
 ---@field userStats BlindFightPlayer
@@ -62,15 +67,6 @@ if (Events == nil) then
 	}
 	Events.__index = Events
 end
-
----@class EventRewardBase
----@field tc integer
----@field st integer
----@field itemid integer
----@field bpxp integer
-
----@class StaticEventReward : EventRewardBase
----@field info string
 
 ---@class StaticEventInfo
 ---@field rewards StaticEventReward[]
@@ -2370,7 +2366,7 @@ end
 
 ---Displays Blind Fight league promotion interface
 ---@param overlay UIElement
----@param prizes BlindFightReward[]
+---@param prizes EventRewardBase[]
 ---@param onContinue ?function
 ---@param leagueName ?string
 function Events:showBlindFightPromotion(overlay, prizes, onContinue, leagueName)
@@ -2568,6 +2564,7 @@ function Events:showBlindFightPromotion(overlay, prizes, onContinue, leagueName)
 						st = v.st,
 						bpxp = v.bpxp,
 						itemid = v.itemid,
+						qi = v.qi,
 						static = true,
 						bgOutlineColor = { 0.424, 0.263, 0.38, 1 },
 						bgColor = { 0.204, 0.084, 0.202, 1 },
@@ -2676,7 +2673,7 @@ end
 
 ---Parses Blind Fight rewards network response string
 ---@param ln string
----@return BlindFightReward[]
+---@return EventRewardBase[]
 function Events.ParseBlindFightRewards(ln)
 	local _, segments = ln:gsub("\t", "")
 	local data = { ln:match(("([^\t]*)\t?"):rep(segments)) }
@@ -2684,9 +2681,11 @@ function Events.ParseBlindFightRewards(ln)
 	local tc = tonumber(data[2]) or 0
 	local st = tonumber(data[3]) or 0
 	local bpxp = tonumber(data[4]) or 0
+	local qi = tonumber(data[6]) or 0
 	if (tc > 0) then table.insert(rewards, { tc = tc }) end
 	if (st > 0) then table.insert(rewards, { st = st }) end
 	if (bpxp > 0) then table.insert(rewards, { bpxp = bpxp }) end
+	if (qi > 0) then table.insert(rewards, { qi = qi }) end
 	for _, v in pairs(string.explode(data[5], ":")) do
 		local itemid = tonumber(v) or 0
 		if (itemid > 0) then
@@ -3064,6 +3063,7 @@ function EventsInternal.ShowBlindFightPrestige(_, x, y)
 			tc = v.tc,
 			st = v.st,
 			bpxp = v.bpxp,
+			qi = v.qi,
 			static = true,
 			bgColor = { 0.204, 0.084, 0.202, 1 },
 			bgOutlineColor = { 0, 0, 0, 1 },
@@ -3221,6 +3221,7 @@ function Events:showBlindFightMain(viewElement)
 				st = v.st,
 				itemid = v.itemid,
 				bpxp = v.bpxp,
+				qi = v.qi
 			})
 		end
 		local tierRewardsCaption = tierRewardsHolder:addChild({
@@ -3231,9 +3232,17 @@ function Events:showBlindFightMain(viewElement)
 		tierRewardsCaption:addAdaptedText(TB_MENU_LOCALIZED.BLINDFIGHTPROMOTIONREWARDS, { font = FONTS.BIG, align = RIGHTMID, maxscale = 0.65, shadow = 4 })
 	end
 
+	local timeRemainingVerticalOffset = -60
+	local timeRemainingBaseText = TB_MENU_LOCALIZED.BLINDFIGHTTIMEUNTILLEAGUERESET
+	local playButtonsHolderHeight = buttonsVertical and 260 or 170
+	if (EventsInternal.BlindFight.endtime == EventsInternal.BlindFight.seasonEndtime) then
+		timeRemainingVerticalOffset = -40
+		timeRemainingBaseText = TB_MENU_LOCALIZED.BLINDFIGHTTIMEUNTILSEASONEND
+		playButtonsHolderHeight = playButtonsHolderHeight - 10
+	end
 	local playButtonsHolder = playerInfoView:addChild{
-		pos = { 0, buttonsVertical and -250 or -160 },
-		size = { playerInfoView.size.w, buttonsVertical and 250 or 160 },
+		pos = { 0, -playButtonsHolderHeight },
+		size = { playerInfoView.size.w, playButtonsHolderHeight },
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR
 	}
 	TBMenu:addBottomBloodSmudge(playButtonsHolder, 1)
@@ -3272,18 +3281,33 @@ function Events:showBlindFightMain(viewElement)
 		end)
 
 	local leagueTimeRemaining = playButtonsHolder:addChild({
-		pos = { 20, -40 },
-		size = { playButtonsHolder.size.w - 40, 20 }
+		pos = { 20, timeRemainingVerticalOffset },
+		size = { playButtonsHolder.size.w - 40, 25 }
 	})
 	leagueTimeRemaining:addCustomDisplay(function(init)
 			if (init == true) then return end
 			local timeleft = EventsInternal.BlindFight.endtime - os.time()
 			if (timeleft > 0) then
-				leagueTimeRemaining:uiText(TB_MENU_LOCALIZED.BLINDFIGHTTIMEUNTILLEAGUERESET .. " " .. TBMenu:getTime(timeleft, 2), nil, nil, FONTS.LMEDIUM, nil, 0.85)
+				leagueTimeRemaining:uiText(timeRemainingBaseText .. " " .. TBMenu:getTime(timeleft, 2), nil, nil, FONTS.LMEDIUM, nil, 0.85)
 			else
 				Events:showBlindFight()
 			end
 		end)
+	if (EventsInternal.BlindFight.endtime ~= EventsInternal.BlindFight.seasonEndtime) then
+		local seasonTimeRemaining = playButtonsHolder:addChild({
+			pos = { leagueTimeRemaining.shift.x, leagueTimeRemaining.shift.y + leagueTimeRemaining.size.h },
+			size = { leagueTimeRemaining.size.w, leagueTimeRemaining.size.h }
+		})
+		seasonTimeRemaining:addCustomDisplay(function(init)
+				if (init == true) then return end
+				local timeleft = EventsInternal.BlindFight.seasonEndtime - os.time()
+				if (timeleft > 0) then
+					seasonTimeRemaining:uiText(TB_MENU_LOCALIZED.BLINDFIGHTTIMEUNTILSEASONEND .. " " .. TBMenu:getTime(timeleft, 2), nil, nil, FONTS.LMEDIUM, nil, 0.85)
+				else
+					Events:showBlindFight()
+				end
+			end)
+	end
 
 	local elementHeight = 50
 	local botBarHeight = EventsInternal.BlindFight.prestigeRewards == nil and 160 or 110
@@ -3509,6 +3533,7 @@ function Events:refreshBlindFight(loaderView, loadingMark, onComplete)
 				EventsInternal.BlindFight.groupTitle = data[4]
 				EventsInternal.BlindFight.gamesPlayed = tonumber(data[5]) or 0
 				EventsInternal.BlindFight.gamesWon = tonumber(data[6]) or 0
+				EventsInternal.BlindFight.seasonEndtime = os.time() + data[7]
 				---Make sure we have the mod locally in case of non-standard ones
 				runCmd("dl " .. EventsInternal.BlindFight.modName, false, CMD_ECHO_FORCE_DISABLED)
 			elseif (ln:find("^BLINDFIGHT\t")) then

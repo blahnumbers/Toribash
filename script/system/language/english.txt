@@ -1357,6 +1357,7 @@ BLINDFIGHTSIMULATING	Simulating your moves against the opponents...
 BLINDFIGHTSUBMITMOVES	Challenge opponents
 BLINDFIGHTFIGHTAGAIN	Fight again
 BLINDFIGHTTIMEUNTILLEAGUERESET	Time left until league reset:
+BLINDFIGHTTIMEUNTILSEASONEND	Current season ends in:
 BLINDFIGHTCURRENTLEAGUE	Current league
 BLINDFIGHTLEAGUEPROMOTIONINFO	Stay among the top {x} players by the time of league reset to advance to next tier
 BLINDFIGHTLEAGUEPROMOTIONINFOINSTANT	Defeat all players in one go to advance instantly
