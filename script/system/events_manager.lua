@@ -146,6 +146,7 @@ end
 function EventsInternal.Reset()
 	EventsInternal.BlindFight = nil
 	EventsInternal.EventStorage = nil
+	Events:refreshBlindFight()
 end
 
 ---Returns a table containing current Blind Fight state
