@@ -3199,7 +3199,9 @@ end
 ---@return integer
 _G.utf8.safe_len = function(s)
 	local res, len = pcall(function() return utf8.len(s) end)
-	if (not res) then
+	---utf8.len() may not throw an error but return a nil
+	---we check for both to ensure this function returns an integer
+	if (res == false or len == nil) then
 		len = string.len(s)
 	end
 	return len
