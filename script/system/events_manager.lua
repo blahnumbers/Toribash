@@ -1675,7 +1675,7 @@ function EventsInternal.ShowStaticEventInfo(viewElement, eventInfo)
 		shapeType = ROUNDED,
 		rounded = 4
 	})
-	playButton:addAdaptedText(TB_MENU_LOCALIZED.EVENTSPLAY)
+	playButton:addAdaptedText(TB_MENU_LOCALIZED.EVENTSPLAY, { font = FONTS.BIG, padding = { x = 0, y = playButton.size.h / 10, w = 0, h = playButton.size.h / 10 } })
 	playButton:addMouseUpHandler(function()
 			close_menu()
 			EventsOnline:playEvent(eventInfo.shortname)

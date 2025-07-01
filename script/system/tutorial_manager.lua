@@ -276,9 +276,10 @@ end
 ---@field text string Task objective text
 ---@field complete boolean
 ---@field failed boolean
----@field element UIElement
----@field mark UIElement
----@field markFail UIElement
+---@field element UIElement?
+---@field textView UIElement?
+---@field mark UIElement?
+---@field markFail UIElement?
 
 ---@class TutorialMove
 ---@field joint PlayerJoint
@@ -1353,7 +1354,7 @@ function Tutorials:addOptionalTask(data, taskText)
 	optTaskView:show()
 	self.TaskViewHolder:show()
 
-	local posVertical = #self.TaskViewHolder.optional
+	local posVertical = #self.TaskViewHolder.extra + #self.TaskViewHolder.optional
 	local task = { id = data.id, complete = false, failed = false, element = optTaskView, mark = optTaskMark, markFail = optTaskMarkFail, textView = optTaskTextView }
 	table.insert(self.TaskViewHolder.optional, task)
 
@@ -1391,7 +1392,7 @@ function Tutorials:addAdditionalTask(data, taskText)
 	optTaskView:show()
 	self.TaskViewHolder:show()
 
-	local posVertical = #self.TaskViewHolder.extra
+	local posVertical = #self.TaskViewHolder.extra + #self.TaskViewHolder.optional
 	local task = { id = data.id, complete = false, failed = false, element = optTaskView, textView = optTaskTextView }
 	table.insert(self.TaskViewHolder.extra, task)
 

@@ -160,24 +160,19 @@ local function verifyVersionLogin(viewElement, reqTable)
 		table.insert(reqTable, req)
 
 		select_player(-1)
-		local overlay = UIElement:new({
-			parent = viewElement,
-			pos = { 0, 0 },
-			size = { viewElement.size.w, viewElement.size.h },
+		local overlay = viewElement:addChild({
 			interactive = true,
 			bgColor = { 1, 1, 1, 1 }
 		})
 		local maxWidth = math.min(overlay.size.w * 0.6, 700)
-		local messageHolder = UIElement:new({
-			parent = overlay,
+		local messageHolder = overlay:addChild({
 			pos = { (overlay.size.w - maxWidth) / 2, overlay.size.h / 2 - 100 },
 			size = { maxWidth, 200 },
 			bgColor = TB_MENU_DEFAULT_BG_COLOR,
 			shapeType = ROUNDED,
 			rounded = 4
 		})
-		local messageText = UIElement:new({
-			parent = messageHolder,
+		local messageText = messageHolder:addChild({
 			pos = { 10, 10 },
 			size = { messageHolder.size.w - 20, messageHolder.size.h - 80 }
 		})
@@ -186,8 +181,7 @@ local function verifyVersionLogin(viewElement, reqTable)
 			errorText = TB_MENU_LOCALIZED.EVENTPLEASELOGINTOPARTICIPATE
 		end
 		messageText:addAdaptedText(true, errorText)
-		local okButton = UIElement:new({
-			parent = messageHolder,
+		local okButton = messageHolder:addChild({
 			pos = { messageHolder.size.w / 4, -60 },
 			size = { messageHolder.size.w / 2, 50 },
 			interactive = true,
@@ -198,7 +192,7 @@ local function verifyVersionLogin(viewElement, reqTable)
 			rounded = messageHolder.rounded
 		})
 		okButton:addAdaptedText(false, TB_MENU_LOCALIZED.BUTTONOK)
-		okButton:addMouseHandlers(nil, function()
+		okButton:addMouseUpHandler(function()
 				overlay:kill()
 				close_menu()
 				Tutorials:quit()
