@@ -646,8 +646,8 @@ function Store.Download()
 		end
 	end
 	Store.LastUpdate = clock
-	download_torishop()
 	Store.GetPlayerOffers()
+	download_torishop()
 	return true
 end
 
