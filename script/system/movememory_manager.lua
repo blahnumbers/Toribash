@@ -103,6 +103,12 @@ function MemoryMove.FromOpener(openerLines)
 	return MemoryMove.FromData(moveData)
 end
 
+---Returns a copy of current MemoryMove object
+---@return MemoryMove
+function MemoryMove:getCopy()
+	return MemoryMove.FromData(self.movements, self.name, self.desc, self.mod)
+end
+
 ---Returns memory move as a table of opener strings
 ---@return string[]
 function MemoryMove:toOpener()
@@ -695,7 +701,8 @@ end
 ---@param noToolbar ?boolean
 function MoveMemory:playMove(memorymove, spawnHook, player, noToolbar)
 	local worldstate = get_world_state()
-	local player = player or worldstate.selected_player
+	player = player or worldstate.selected_player
+	memorymove = spawnHook and memorymove:getCopy() or memorymove
 	if (player < 0 or player >= worldstate.num_players) then
 		TBMenu:showStatusMessage("Please select a player to run the opener")
 		return
@@ -704,13 +711,19 @@ function MoveMemory:playMove(memorymove, spawnHook, player, noToolbar)
 	local hookName = MoveMemory.HookName .. "Play" .. player
 	self.PlaybackActive[player] = self.PlaybackActive[player] or spawnHook
 	local function playMoveQuit()
-		self.PlaybackActive[player] = false
-		memorymove.currentturn = nil
-		remove_hooks(hookName)
-		if (self.Toolbar and self.Toolbar[player]) then
-			self.Toolbar[player]:kill()
-			self.Toolbar[player] = nil
-		end
+		--- BUG: when being called from enter_freeze this will potentially prevent
+		--- other players' movememory logic from being executed. This stems from the way
+		--- hook management is implemented and can't be changed without breaking other stuff.
+		--- Current solution is to defer remove_hooks() call to execute at the end of current frame.
+		add_hook("post_draw3d", hookName, function()
+			self.PlaybackActive[player] = false
+			memorymove.currentturn = nil
+			remove_hooks(hookName)
+			if (self.Toolbar and self.Toolbar[player]) then
+				self.Toolbar[player]:kill()
+				self.Toolbar[player] = nil
+			end
+		end)
 	end
 
 	local turn = spawnHook and (self.FirstTurn and 1 or worldstate.match_turn + 1) or memorymove.currentturn
@@ -728,8 +741,7 @@ function MoveMemory:playMove(memorymove, spawnHook, player, noToolbar)
 		end
 		for joint, state in pairs(memorymove.movements[turn]) do
 			if (joint < 20) then
-				local state = math.min(math.max(state, 1), 4)
-				set_joint_state(player, joint, state, self.PlaybackActive[player])
+				set_joint_state(player, joint, math.clamp(state, 1, 4), self.PlaybackActive[player])
 			end
 		end
 	end
