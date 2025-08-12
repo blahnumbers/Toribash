@@ -15,6 +15,7 @@
 ---@field expiryTime integer Timestamp when this offer becomes obsolete
 
 ---@class StoreItemCategory
+---@field id integer
 ---@field name string
 
 ---@class StoreModel
@@ -703,7 +704,7 @@ function Store.GetItems()
 			pcall(function()
 				local item = StoreItem.FromDataLine(ln)
 				if (item ~= nil) then
-					Store.Categories[item.catid] = { name = item.catname }
+					Store.Categories[item.catid] = { id = item.catid, name = item.catname }
 					Store.Items[item.itemid] = item
 				end
 			end)
@@ -802,7 +803,7 @@ end
 ---@param itemid integer
 ---@return StoreItem
 function Store:getItemInfo(itemid)
-	local itemid = tonumber(itemid)
+	itemid = tonumber(itemid) or 0
 	if (not self.Ready) then
 		self.GetItems()
 	end
@@ -819,7 +820,7 @@ end
 ---@return StoreItemCategory
 function Store:getCategoryInfo(catid)
 	if (Store.Categories[catid] == nil) then
-		return { name = TB_MENU_LOCALIZED.UNDEF }
+		return { id = -1, name = TB_MENU_LOCALIZED.UNDEF }
 	end
 	return table.clone(Store.Categories[catid])
 end
@@ -946,6 +947,15 @@ function InventoryItem:deactivate()
 	end
 end
 
+---Returns inventory item category info without requiring the full `Store:getItemInfo()` flow.
+---@return integer
+function InventoryItem:getCategoryId()
+	if (Store.Ready and Store.Items[self.itemid] ~= nil) then
+		return Store.Items[self.itemid].catid
+	end
+	return 0
+end
+
 ---Parses user inventory datafile and returns a list of InventoryItem objects reflecting it. \
 ---When used without arguments, parses current user's inventory data and caches it in **Store** class for later use.
 ---@param path string Inventory datafile path
@@ -1026,6 +1036,19 @@ function Store:getInventoryItems(itemid)
 	local items = {}
 	for _, v in pairs(Store.Inventory or {}) do
 		if (v.itemid == itemid) then
+			table.insert(items, v:getCopy())
+		end
+	end
+	return items
+end
+
+---Returns a list of inventory items that belong to the specified category id
+---@param catid integer
+---@return InventoryItem[]
+function Store:getInventoryCategoryItems(catid)
+	local items = {}
+	for _, v in pairs(Store.Inventory or {}) do
+		if (v:getCategoryId() == catid) then
 			table.insert(items, v:getCopy())
 		end
 	end
@@ -2057,17 +2080,34 @@ function Store:showInventoryItemCustomize(item)
 
 			local selectedEffect
 			local availableEffectsDropdown = {}
-			for _, v in pairs(Store:getInventory(INVENTORY_DEACTIVATED)) do
-				if (Store:getItemInfo(v.itemid).catid == 87 and bit.band(item.effectid, v.effectid) == 0) then
+			local onUpdateSelectedEffect = function() end
+			for _, v in pairs(Store:getInventoryCategoryItems(87)) do
+				local canBeFused = true
+				if (bit.band(v.effectid, item.effectid) ~= 0) then
+					if (v.effectid == EFFECT_TYPE.CELSHADED or v.effectid == EFFECT_TYPE.DITHERING or
+						(v.effectid == EFFECT_TYPE.FRESNEL and v.glow_colorid == item.glow_colorid) or
+						(v.effectid == EFFECT_TYPE.VORONOI and v.voronoi_colorid == item.voronoi_colorid) or
+						(v.effectid == EFFECT_TYPE.COLORSHIFT and v.shift_colorid == item.shift_colorid)) then
+						canBeFused = false
+					end
+				end
+				if (canBeFused) then
+					local name = v.name
+					if (v.parentset ~= nil) then
+						name = name .. " (" .. v.parentset.setname .. ")"
+					end
 					table.insert(availableEffectsDropdown, {
-						text = v.name,
-						action = function() selectedEffect = v end
+						text = name,
+						isInSet = v.parentset ~= nil,
+						action = function()
+							selectedEffect = v
+							generalInfo.fuseCostOverride = bit.band(item.effectid, v.effectid) ~= 0
+							onUpdateSelectedEffect()
+						end
 					})
 				end
 			end
-			if (#availableEffectsDropdown > 0) then
-				availableEffectsDropdown[1].action()
-			end
+			availableEffectsDropdown = table.qsort(availableEffectsDropdown, "isInSet", SORT_ASCENDING)
 
 			local fuseEffectTitle = customizeSectionHolder:addChild({
 				pos = { 0, shiftY },
@@ -2107,15 +2147,17 @@ function Store:showInventoryItemCustomize(item)
 					pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
 					inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK
 				}, true)
-				if (generalInfo.fuseCost > TB_MENU_PLAYER_INFO.data.tc) then
-					fuseEffectButton:deactivate(true)
+				onUpdateSelectedEffect = function()
+					fuseEffectButton:setActive(generalInfo.fuseCost <= TB_MENU_PLAYER_INFO.data.tc, true)
+					fuseEffectButton:addAdaptedText(false, TB_MENU_LOCALIZED.STOREFUSEEFFECTFOR .. " " .. ((not generalInfo.fuseCostOverride and generalInfo.fuseCost > 0) and ((generalInfo.fuseCost / 1000) .. "K " .. TB_MENU_LOCALIZED.WORDTC) or TB_MENU_LOCALIZED.STOREITEMUPGRADEPRICEFREE))
 				end
-				fuseEffectButton:addAdaptedText(false, TB_MENU_LOCALIZED.STOREFUSEEFFECTFOR .. " " .. (generalInfo.fuseCost > 0 and ((generalInfo.fuseCost / 1000) .. "K " .. TB_MENU_LOCALIZED.WORDTC) or TB_MENU_LOCALIZED.STOREITEMUPGRADEPRICEFREE))
 				fuseEffectButton:addMouseUpHandler(function()
 						Store:spawnInventoryUpdateWaiter(overlay.btnUp)
-						show_dialog_box(StoreInternal.InventoryActions.EffectFuse, TB_MENU_LOCALIZED.INVENTORYFUSECONFIRM1 .. " " .. selectedEffect.name .. " " .. TB_MENU_LOCALIZED.INVENTORYFUSECONFIRM2 .. " " .. item.name .. "?\n" .. TB_MENU_LOCALIZED.INVENTORYFUSECONFIRMPRICE .. " " .. generalInfo.fuseCost .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS .. ".\n\n^09" .. TB_MENU_LOCALIZED.INVENTORYFUSECONFIRMINFO, item.inventid .. ";" .. selectedEffect.inventid .. ";" .. generalInfo.fuseCost)
+						local fuseCost = generalInfo.fuseCostOverride and 0 or generalInfo.fuseCost
+						show_dialog_box(StoreInternal.InventoryActions.EffectFuse, TB_MENU_LOCALIZED.INVENTORYFUSECONFIRM1 .. " " .. selectedEffect.name .. " " .. TB_MENU_LOCALIZED.INVENTORYFUSECONFIRM2 .. " " .. item.name .. "?\n" .. TB_MENU_LOCALIZED.INVENTORYFUSECONFIRMPRICE .. " " .. fuseCost .. " " .. TB_MENU_LOCALIZED.WORDTORICREDITS .. ".\n\n^09" .. TB_MENU_LOCALIZED.INVENTORYFUSECONFIRMINFO, item.inventid .. ";" .. selectedEffect.inventid .. ";" .. fuseCost)
 					end)
 				shiftY = shiftY + fuseEffectDropdownHolder.size.h + 20
+				availableEffectsDropdown[1].action()
 			end
 
 			if (item.effectid > 0) then
@@ -2146,7 +2188,7 @@ function Store:showInventoryItemCustomize(item)
 				download_server_info("effect_fuse_details&invid=" .. item.inventid)
 			end, "store_item_effect_upgrades", function()
 				local response = get_network_response()
-				local effectState, effectOptions, generalInfo = {}, {}, {}
+				local effectState, effectOptions, generalInfo = {}, {}, { fuseCostOverride = false }
 				for ln in response:gmatch("[^\n]+\n") do
 					if (ln:match("^EFFECTID")) then
 						local enabled = ln:gsub("^EFFECTID %d;(%d+).*$", "%1") == "1"
@@ -2663,15 +2705,16 @@ function Store:showInventoryPage(inventoryItems, page, mode, title, pageid, item
 			local itemName = utf8.safe_lower(Store:getItemInfo(v.itemid).itemname)
 			local setName = utf8.safe_lower(v.setname)
 			local flameName = utf8.safe_lower(v.flamename)
-			local search = utf8.safe_lower(search)
-			if (not pcall(function()
-				if (utf8.find(itemName, search) or utf8.find(setName, search) or utf8.find(flameName, search)) then
-					table.insert(matchingItems, v)
+			local searches = utf8.explode(utf8.safe_lower(search), " ")
+			local hasMatch = true
+			for _, s in pairs(searches) do
+				if (not utf8.safe_find(itemName, s)) then
+					hasMatch = false
+					break
 				end
-			end)) then
-				if (string.find(itemName, search) or string.find(setName, search) or string.find(flameName, search)) then
-					table.insert(matchingItems, v)
-				end
+			end
+			if (hasMatch) then
+				table.insert(matchingItems, v)
 			end
 		end
 	end

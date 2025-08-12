@@ -3198,13 +3198,29 @@ end
 ---@param s string
 ---@return integer
 _G.utf8.safe_len = function(s)
-	local res, len = pcall(function() return utf8.len(s) end)
+	local res, len = pcall(utf8.len, s)
 	---utf8.len() may not throw an error but return a nil
 	---we check for both to ensure this function returns an integer
 	if (res == false or len == nil) then
 		len = string.len(s)
 	end
 	return len
+end
+
+---Looks for the first match of `pattern` in the string. \
+---Falls back to `string.find()` on UTF-8 decode failure.
+---@param s string
+---@param pattern string
+---@param init ?integer
+---@param plain ?boolean
+---@return integer|nil
+---@return integer|nil
+_G.utf8.safe_find = function(s, pattern, init, plain)
+	local res, start, _end = pcall(utf8.find, s, pattern, init, plain)
+	if (res == false) then
+		return string.find(s, pattern, init, plain)
+	end
+	return start, _end
 end
 
 ---Escapes all special characters in a specified string. \
