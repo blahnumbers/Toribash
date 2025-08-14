@@ -1772,6 +1772,7 @@ function Store:showInventoryItemCustomize(item)
 							local response = get_network_response()
 							if (response:find("success")) then
 								customizeItemTexture(true)
+								update_tc_balance()
 							else
 								if (response:match("^.*; 0 1$")) then
 									TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REQUESTUNKNOWNERROR)
@@ -2708,7 +2709,7 @@ function Store:showInventoryPage(inventoryItems, page, mode, title, pageid, item
 			local searches = utf8.explode(utf8.safe_lower(search), " ")
 			local hasMatch = true
 			for _, s in pairs(searches) do
-				if (not utf8.safe_find(itemName, s)) then
+				if (not utf8.safe_find(itemName, s) and not utf8.safe_find(setName, s) and not utf8.safe_find(flameName, s)) then
 					hasMatch = false
 					break
 				end
