@@ -2665,19 +2665,25 @@ function set_menu_keyboard(inputType, autoCompletion, returnKeyType) end
 ---@param cursorPosition ?integer
 function set_menu_keyboard_context(text, cursorPosition) end
 
----Returns whether either of shift keys is currently down
+---Returns whether either of shift keys is currently down. \
+---*This function is deprecated and will be removed with future releases.* \
 ---@return integer
+---@depreacted
+---@see get_keyboard_shift
 function get_shift_key_state() end
 
----Returns whether right alt key is currently down
+---Returns whether right alt key is currently down. \
+---*This function is deprecated and will be removed with future releases.* \
 ---@return integer
+---@deprecated
+---@see get_keyboard_alt
 function get_right_alt_key_state() end
 
 ---Returns whether either of ctrl keys is currently down
 ---@return integer
 function get_keyboard_ctrl() end
 
----Returns whether either of ctrl keys is currently down
+---Returns whether either of shift keys is currently down
 ---@return integer
 function get_keyboard_shift() end
 

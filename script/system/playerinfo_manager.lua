@@ -33,6 +33,9 @@ PLAYERINFO_CSCOPE_ALL = bit.bor(PLAYERINFO_CSCOPE_COLORS, PLAYERINFO_CSCOPE_TEXT
 if (PlayerInfo == nil) then
 	---**Player information class**
 	---
+	---**Version 5.76**
+	---* Profile backdrop support
+	---
 	---**Version 5.72**
 	---* Special handling for parsing current user info with TBMenu.UserBar reloading when needed
 	---
@@ -50,7 +53,7 @@ if (PlayerInfo == nil) then
 	---@field data PlayerInfoData
 	---@field __isCurrentUser boolean Internal flag that will be set to `true` if this data belongs to the currently logged in user
 	PlayerInfo = {
-		ver = 5.72
+		ver = 5.76
 	}
 	PlayerInfo.__index = PlayerInfo
 end
@@ -176,6 +179,9 @@ end
 ---@field id integer
 ---@field equipped boolean
 
+---@class PlayerCustomProfileTexture : PlayerCustomTexture
+---@field textureid integer
+
 ---@class PlayerInfoCustomBase
 ---@field default boolean If true, it means that object population has failed and it contains default values.
 
@@ -184,7 +190,7 @@ end
 ---@field logo PlayerCustomTexture
 ---@field background PlayerCustomTexture
 ---@field header PlayerCustomTexture
----@field profile_backdrop PlayerCustomTexture
+---@field profile_backdrop PlayerCustomProfileTexture
 
 ---@class PlayerInfoCustomTextures : PlayerInfoCustomBase
 ---@field head PlayerCustomTexture
@@ -243,7 +249,7 @@ function PlayerInfoInternal.getTextures(data)
 			logo = { id = 2, equipped = false },
 			background = { id = 3, equipped = false },
 			header = { id = 4, equipped = false },
-			profile_backdrop = { id = 5, equipped = false }
+			profile_backdrop = { id = 5, equipped = false, textureid = 0 }
 		}
 	}
 	if (not data) then
@@ -265,6 +271,9 @@ function PlayerInfoInternal.getTextures(data)
 			for _, v in pairs(textures.gui) do
 				v.equipped = tonumber(data_stream[v.id]) == 0 and true or false
 			end
+			-- Profile backdrop field contains texture id as opposed to just reflecting whether it's active
+			textures.gui.profile_backdrop.textureid = tonumber(data_stream[5]) or 0
+			textures.gui.profile_backdrop.equipped = textures.gui.profile_backdrop.textureid ~= 0
 		end
 	end
 	return textures

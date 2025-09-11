@@ -146,6 +146,29 @@ function QueueList.DestroyPopup()
 	end
 end
 
+---Returns player's background image path if they have one active
+---@param info QueueListPlayerInfo
+---@return string|nil
+function QueueListInternal.getPlayerBackgroundImage(info)
+	local backdropInfo = info.pInfo.items.textures.gui.profile_backdrop
+	if (not backdropInfo.equipped) then
+		return nil
+	end
+
+	if (backdropInfo.textureid == 1) then
+		-- Standard mode, we look for texture inside their customs folder
+		return "../custom/" .. string.lower(info.pInfo.username) .. "/profile.tga"
+	elseif (backdropInfo.textureid == 2) then
+		-- Ranked texture, it corresponds with their current ranking tier
+		-- Retrieve user's tier from their elo if rank title isn't empty
+		local rankTier = string.len(info.rank_title) > 0 and Ranking.GetTierFromElo(info.elo) or nil
+		if (rankTier ~= nil) then
+			return rankTier.profileBackdrop
+		end
+	end
+	return nil
+end
+
 ---Adds information about player to display
 ---@param viewElement UIElement
 ---@param info QueueListPlayerInfo
@@ -154,11 +177,12 @@ function QueueList:addPlayerInfos(viewElement, info)
 	info.pInfo:getClan()
 	info.pInfo:getItems(PLAYERINFO_CSCOPE_ALL)
 
-	local backdropImage, bgBackdrop = info.pInfo.items.textures.gui.profile_backdrop.equipped and "../textures/menu/profile/rankedgold.tga" or nil, nil
+	local bgBackdrop = nil
+	local _, backdropImage = pcall(QueueListInternal.getPlayerBackgroundImage, info)
 	if (backdropImage) then
 		bgBackdrop = viewElement:addChild({
 			size = { viewElement.size.w, viewElement.size.h },
-			bgImage = backdropImage,
+			bgImage = { backdropImage, nil },
 			imageAtlas = true,
 			atlas = { x = 0, y = 0, w = 1200, h = 128 }
 		})

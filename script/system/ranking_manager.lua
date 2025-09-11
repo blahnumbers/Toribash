@@ -26,6 +26,7 @@ if (Ranking == nil) then
 	---@field maxElo number Maximum Elo value for this tier, exclusive
 	---@field minElo number Minimum Elo value for this tier, inclusive
 	---@field image string Texture path for tier's icon
+	---@field profileBackdrop string Texture path to corresponding player profile background
 
 	---@class RankingTopPlayer : PlayerInfoRanking
 	---@field username string
@@ -123,8 +124,10 @@ function RankingInternal.Init()
 						local _, segments = ln:gsub("([^\t]*)\t", "")
 						local data_stream = { ln:match(("([^\t]+)\t*"):rep(segments)) }
 						local min_elo = tonumber(data_stream[2]) or 0
-						local texture, lvl = string.gsub(data_stream[1], " ?I", "")
-						texture = "../textures/menu/ranking/" .. string.lower(string.gsub(texture, "%W", "")) .. (lvl > 0 and lvl or "") .. ".tga"
+						local tierName, lvl = string.gsub(data_stream[1], " ?I", "")
+						tierName = string.lower(string.gsub(tierName, "%W", ""))
+						local profileTexture = "../textures/menu/profile/ranked-" .. tierName .. ".tga"
+						local texture = "../textures/menu/ranking/" .. tierName .. (lvl > 0 and lvl or "") .. ".tga"
 						if (#rankingTiers > 0) then
 							rankingTiers[#rankingTiers].maxElo = min_elo
 						end
@@ -133,7 +136,8 @@ function RankingInternal.Init()
 							showRank = data_stream[3] == '1',
 							maxElo = 100000,
 							minElo = min_elo,
-							image = texture
+							image = texture,
+							profileBackdrop = profileTexture
 						})
 					end
 				end)
