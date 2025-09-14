@@ -34,6 +34,9 @@ require("system.battlepass_manager")
 if (Quests == nil) then
 	---**Toribash quests manager class**
 	---
+	---**Version 5.76**
+	---* Global quest fixes
+	---
 	---**Version 5.70**
 	---* Added `HookName` field
 	---
@@ -60,7 +63,7 @@ if (Quests == nil) then
 	---@field QuestDataErrors integer Will be non-zero if quest data file parsing resulted in an error
 	---@field PopupDisplayDuration number
 	Quests = {
-		ver = 5.70,
+		ver = 5.76,
 		QuestDataErrors = 0,
 		PopupDisplayDuration = 2.5,
 		HookName = "__tbQuestsManager"
@@ -357,7 +360,9 @@ function Quests:claim(quest, successFunc, errorFunc)
 		local response = get_network_response()
 		if (response:find("^GATEWAY 0; 0")) then
 			update_tc_balance()
-			Quests:download(true)
+			if (not isGlobal) then
+				Quests:download(true)
+			end
 			if (reloadInventory) then
 				download_inventory()
 			end
@@ -531,19 +536,26 @@ function Quests:showQuestButton(quest, listingHolder, listElements, elementHeigh
 				questProgressText:addCustomDisplay(true, function() end)
 				TBMenu:displayLoadingMarkSmall(questProgressBarState, "", questProgressText.textFont)
 				Quests:claim(quest, function()
-						add_hook("downloader_complete", self.HookName, function(filename)
-							if (filename:find("data/quest.txt")) then
-								remove_hook("downloader_complete", self.HookName)
-								Downloader.SafeCall(function()
-									if (questProgressBarState and not questProgressBarState.destroyed) then
-										Quests:showMain()
-									end
-								end)
-							end
-						end)
+						if (not quest.global) then
+							add_hook("downloader_complete", self.HookName, function(filename)
+								if (filename:find("data/quest.txt")) then
+									remove_hook("downloader_complete", self.HookName)
+									Downloader.SafeCall(function()
+										if (questProgressBarState and not questProgressBarState.destroyed) then
+											Quests:showMain()
+										end
+									end)
+								end
+							end)
+						end
 
 						TB_MENU_QUESTS_GLOBAL_COUNT = math.max(0, TB_MENU_QUESTS_GLOBAL_COUNT - 1)
 						quest.claimed = true
+						if (quest.global) then
+							Quests:showMain()
+							return
+						end
+						questProgressBarState:kill(true)
 						questProgressBarState.bgColor = TB_MENU_DEFAULT_DARKER_COLOR
 						questProgressBarState.inactiveColor = TB_MENU_DEFAULT_DARKER_COLOR
 						questProgressBarState.shadowColor = { TB_MENU_DEFAULT_LIGHTER_COLOR, TB_MENU_DEFAULT_DARKEST_COLOR }
@@ -882,11 +894,22 @@ function Quests:showMainQuestTypes(viewElement, listView)
 	table.insert(listElements, regularQuestsTitle)
 	regularQuestsTitle:addChild({ shift = { 15, 5 }}):addAdaptedText(TB_MENU_LOCALIZED.QUESTSREGULAR, nil, nil, FONTS.BIG, LEFTMID)
 
-	if (regularQuestList[TB_MENU_QUESTS_ACTIVE_SECTION] == nil or #regularQuestList[TB_MENU_QUESTS_ACTIVE_SECTION].quests < 1) then
+	if (TB_MENU_QUESTS_ACTIVE_SECTION <= #regularQuestList) then
+		if (regularQuestList[TB_MENU_QUESTS_ACTIVE_SECTION] == nil or #regularQuestList[TB_MENU_QUESTS_ACTIVE_SECTION].quests < 1) then
+			TB_MENU_QUESTS_ACTIVE_SECTION = 1
+		end
+		regularQuestList[TB_MENU_QUESTS_ACTIVE_SECTION].selected = true
+	elseif (TB_MENU_QUESTS_ACTIVE_SECTION <= #regularQuestList + #globalQuestList) then
+		local globalSectionId = TB_MENU_QUESTS_ACTIVE_SECTION - #regularQuestList
+		if (globalQuestList[globalSectionId] == nil or #globalQuestList[globalSectionId].quests < 1) then
+			globalSectionId = globalSectionId == GLOBALACTIVE and GLOBALCOMPLETED or GLOBALACTIVE
+		end
+		globalQuestList[globalSectionId].selected = true
+	else
 		TB_MENU_QUESTS_ACTIVE_SECTION = 1
+		regularQuestList[TB_MENU_QUESTS_ACTIVE_SECTION].selected = true
 	end
-	regularQuestList[TB_MENU_QUESTS_ACTIVE_SECTION].selected = true
-	for i,v in pairs(regularQuestList) do
+	for i, v in pairs(regularQuestList) do
 		Quests:displayMainQuestTypeButton(listingHolder, v, listElements, elementHeight, listView, i)
 	end
 
@@ -902,8 +925,8 @@ function Quests:showMainQuestTypes(viewElement, listView)
 	table.insert(listElements, globalQuestsTitle)
 	globalQuestsTitle:addChild({ shift = { 15, 5 }}):addAdaptedText(TB_MENU_LOCALIZED.QUESTSGLOBAL, nil, nil, FONTS.BIG, LEFTMID)
 
-	for _, v in pairs(globalQuestList) do
-		Quests:displayMainQuestTypeButton(listingHolder, v, listElements, elementHeight, listView)
+	for i, v in pairs(globalQuestList) do
+		Quests:displayMainQuestTypeButton(listingHolder, v, listElements, elementHeight, listView, i + #regularQuestList)
 	end
 
 	if (#listElements * elementHeight > listingHolder.size.h) then
@@ -918,7 +941,11 @@ function Quests:showMainQuestTypes(viewElement, listView)
 		listingHolder:moveTo((listingHolder.parent.size.w - listingHolder.size.w) / 4, nil, true)
 	end
 
-	Quests:showMainQuestList(listView, regularQuestList[TB_MENU_QUESTS_ACTIVE_SECTION])
+	if (TB_MENU_QUESTS_ACTIVE_SECTION <= #regularQuestList) then
+		Quests:showMainQuestList(listView, regularQuestList[TB_MENU_QUESTS_ACTIVE_SECTION])
+	else
+		Quests:showMainQuestList(listView, globalQuestList[TB_MENU_QUESTS_ACTIVE_SECTION - #regularQuestList])
+	end
 end
 
 ---Displays the main Quests screen
