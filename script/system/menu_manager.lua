@@ -1406,17 +1406,19 @@ function TBMenu:showAccountPayments()
 					else
 						itemName = Store:getItemInfo(itemId).itemname
 					end
-					---@type HistoryPayment
-					local paymentInfo = {
-						name = itemName,
-						price = tonumber(data[2]) or 0,
-						currency = data[3],
-						provider = data[4],
-						recurring = data[5] == '1',
-						time = tonumber(data[6]) or 0,
-						id = data[7]
-					}
-					table.insert(TBMenu.UserPaymentHistory.payments, paymentInfo)
+					if (data[7] ~= nil) then
+						---@type HistoryPayment
+						local paymentInfo = {
+							name = itemName,
+							price = tonumber(data[2]) or 0,
+							currency = data[3],
+							provider = data[4],
+							recurring = data[5] == '1',
+							time = tonumber(data[6]) or 0,
+							id = data[7]
+						}
+						table.insert(TBMenu.UserPaymentHistory.payments, paymentInfo)
+					end
 				end
 			end
 			overlay:kill()
@@ -1432,12 +1434,29 @@ function TBMenu:showAccountPayments()
 
 	if (#TBMenu.UserPaymentHistory.payments == 0) then
 		TBMenu:addBottomBloodSmudge(backgroundView)
-		backgroundView:addAdaptedText(TB_MENU_LOCALIZED.NOTHINGTOSHOW)
+		backgroundView:addAdaptedText(TB_MENU_LOCALIZED.NOTHINGTOSHOW, { padding = { h = 80 } })
+		local refreshButton = backgroundView:addChild({
+			pos = { backgroundView.size.w / 4, backgroundView.size.h / 2 + 10 },
+			size = { backgroundView.size.w / 2, 60 },
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+			inactiveColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK,
+			interactive = true,
+			shapeType = ROUNDED,
+			rounded = 3
+		})
+		refreshButton:addAdaptedText(TB_MENU_LOCALIZED.WORDREFRESHACTION)
+		refreshButton:addMouseUpHandler(function()
+			overlay:kill()
+			self.UserPaymentHistory = nil
+			self:showAccountPayments()
+		end)
 		return
 	end
 
 	local elementHeight = math.min(TBMenu.CurrentSection.size.h / 10, 45)
-	local toReload, topBar, botBar, _, listingHolder = TBMenu:prepareScrollableList(backgroundView, 60, elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
+	local toReload, topBar, _, _, listingHolder = TBMenu:prepareScrollableList(backgroundView, 60, elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
 	local paymentsTitle = topBar:addChild({
 		pos = { 10, 10 },
 		size = { topBar.size.w - 230, topBar.size.h - 20 }
@@ -1711,7 +1730,7 @@ function TBMenu:showAccountMain()
 				})
 				table.insert(listElements, infoBG)
 				local colorBackdrop
-				if (v.hint and v.customColor) then
+				if (v.hint) then
 					colorBackdrop = infoBG:addChild({
 						pos = { 10, elementHeight - 4 },
 						size = { infoBG.size.w - 12, 4 },

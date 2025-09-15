@@ -1064,11 +1064,14 @@ function PlayerInfoInternal.parseServerUserinfo(userinfo)
 			})
 		elseif (ln:find("^SUBSCRIPTION %d+;")) then
 			local subInfo = ln:gsub("^SUBSCRIPTION %d+; ?", "")
-			local subName = subInfo:gsub("^%d+", ""):gsub("^ ", "")
-			local subTime = subInfo:sub(0, -subName:len() - 1)
+			local subName = subInfo:gsub("^%-?%d+", ""):gsub("^ ", "")
+			local subTimeStr = subInfo:sub(0, -subName:len() - 1)
+			local subTime = tonumber(subTimeStr) or 0
+			hasWarning = subTime <= 0
 			table.insert(userinfo, {
 				name = subName,
-				value = TBMenu:getTime(tonumber(subTime) or 0, 2)
+				value = subTime > 0 and TBMenu:getTime(subTime, 2) or TB_MENU_LOCALIZED.ACCOUNTINFOSUBSCRIPTIONEXPIRED,
+				hint = subTime > 0 and nil or TB_MENU_LOCALIZED.ACCOUNTINFOSUBSCRIPTIONEXPIREDHINT
 			})
 		end
 	end

@@ -157,7 +157,7 @@ function QueueListInternal.getPlayerBackgroundImage(info)
 
 	if (backdropInfo.textureid == 1) then
 		-- Standard mode, we look for texture inside their customs folder
-		return "../custom/" .. string.lower(info.pInfo.username) .. "/profile.tga"
+		return "../../custom/" .. string.lower(info.pInfo.username) .. "/profile.tga"
 	elseif (backdropInfo.textureid == 2) then
 		-- Ranked texture, it corresponds with their current ranking tier
 		-- Retrieve user's tier from their elo if rank title isn't empty
@@ -335,7 +335,7 @@ function QueueList:addPlayerInfos(viewElement, info)
 	end
 
 	if (bgBackdrop ~= nil) then
-		bgBackdrop.size.h = math.clamp(450 / bgBackdrop.size.w * 150, infosH, bgBackdrop.size.w / 3)
+		bgBackdrop.size.h = math.min(450 / bgBackdrop.size.w * 150, bgBackdrop.size.w / 3, infosH)
 		bgBackdrop.atlas.h = math.min(bgBackdrop.atlas.w / 3, bgBackdrop.atlas.w / bgBackdrop.size.w * bgBackdrop.size.h)
 
 		local fadeToColor = table.clone(TB_MENU_DEFAULT_BG_COLOR)

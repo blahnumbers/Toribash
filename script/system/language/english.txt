@@ -1387,3 +1387,5 @@ EVENTSALLEVENTSNEW	Challenges
 EVENTSALLEVENTSNEWDESC	Test your skills in challenge events and receive rewards!
 NAVBUTTONEVENTS	Events
 BLINDFIGHTERROREMPTYRECORDING	Something went wrong, please record a new opener and try again.
+ACCOUNTINFOSUBSCRIPTIONEXPIRED	Expired
+ACCOUNTINFOSUBSCRIPTIONEXPIREDHINT	This subscription has run out and will be soon removed from your account.

@@ -1073,7 +1073,9 @@ function Clans.downloadHead(reloader, avatars, id)
 		end
 		if (id < #avatars) then
 			id = id + 1
-			download_head(avatars[id].player)
+			if (string.lower(avatars[id].player) ~= string.lower(TB_MENU_PLAYER_INFO.username)) then
+				download_head(avatars[id].player)
+			end
 			reloader:addCustomDisplay(false, function() Clans.downloadHead(reloader, avatars, id) end)
 		else
 			reloader:kill()
@@ -1091,7 +1093,7 @@ function Clans:reloadHeadAvatars(avatars)
 		end
 	end
 	if (#avatars > 0) then
-		if (avatars[1].player) then
+		if (avatars[1].player and string.lower(avatars[1].player) ~= string.lower(TB_MENU_PLAYER_INFO.username)) then
 			download_head(avatars[1].player)
 		end
 		local reloader = UIElement:new({
