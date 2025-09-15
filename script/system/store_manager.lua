@@ -341,7 +341,8 @@ _G.StoreCategory = {
 	ShiaiTokens = 84,
 	Randomitempacks = 85,
 	LotteryTickets = 86,
-	ItemEffects = 87
+	ItemEffects = 87,
+	ProfileBackgrounds = 88
 }
 
 ---Returns a template empty StoreItem object
@@ -470,7 +471,8 @@ local StoreInternal = {
 			StoreCategory.MiscTextures,
 			StoreCategory.TrailTextures,
 			StoreCategory.GUITextures,
-			StoreCategory.JointTextures
+			StoreCategory.JointTextures,
+			StoreCategory.ProfileBackgrounds,
 		},
 		Advanced = {
 			StoreCategory.Objects3D,
