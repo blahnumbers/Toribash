@@ -2151,7 +2151,9 @@ function Replays:showReplayInfo(viewElement, replaysList, replayIdx)
 	end
 
 	local supportsFileSharing = _G.PLATFORM == "IPHONEOS" or _G.PLATFORM == "ANDROID"
+	local supportsRevealBrowser = _G.PLATFORM == "WINDOWS" or _G.PLATFORM == "APPLE" or _G.PLATFORM == "LINUX"
 	local buttonManageWidth = supportsFileSharing and buttonWidth - buttonHeight - 10 or buttonWidth
+	buttonManageWidth = supportsRevealBrowser and buttonManageWidth - buttonHeight - 10 or buttonManageWidth
 	local replayManageButton = viewElement:addChild({
 		pos = { 10, -buttonHeight + posY },
 		size = { buttonManageWidth, buttonHeight },
@@ -2166,9 +2168,10 @@ function Replays:showReplayInfo(viewElement, replaysList, replayIdx)
 	replayManageButton:addMouseHandlers(nil, function()
 			Replays:showReplayManageWindow(replay)
 		end)
+	local offsetX = replayManageButton.shift.x + replayManageButton.size.w + 10
 	if (supportsFileSharing) then
 		local replayShareButton = viewElement:addChild({
-			pos = { replayManageButton.shift.x + replayManageButton.size.w + 10, replayManageButton.shift.y },
+			pos = { offsetX, replayManageButton.shift.y },
 			size = { replayManageButton.size.h, replayManageButton.size.h },
 			bgImage = _G.PLATFORM == "IPHONEOS" and "../textures/menu/general/buttons/share-ios.tga" or "../textures/menu/general/buttons/share-android.tga",
 			shapeType = ROUNDED,
@@ -2180,6 +2183,27 @@ function Replays:showReplayInfo(viewElement, replaysList, replayIdx)
 		})
 		replayShareButton:addMouseUpHandler(function()
 			share_file(replay.filename)
+		end)
+		offsetX = offsetX + replayShareButton.size.w + 10
+	end
+	if (supportsRevealBrowser) then
+		local replayRevealBrowserButton = viewElement:addChild({
+			pos = { offsetX, replayManageButton.shift.y },
+			size = { replayManageButton.size.h, replayManageButton.size.h },
+			shapeType = ROUNDED,
+			rounded = 3,
+			interactive = true,
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR
+		})
+		replayRevealBrowserButton:addChild({
+			shift = { replayRevealBrowserButton.size.h / 5, replayRevealBrowserButton.size.h / 5 },
+			bgImage = "../textures/menu/general/folder.tga"
+		})
+		replayRevealBrowserButton:addMouseUpHandler(function()
+			open_file_location(replay.filename)
+			Files.LogError("Attempting to open replay " .. replay.filename)
 		end)
 	end
 	posY = replayManageButton.shift.y - 10

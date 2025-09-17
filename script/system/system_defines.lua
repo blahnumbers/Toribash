@@ -3846,6 +3846,11 @@ function run_tutorial(id) end
 ---@return boolean #Whether file browser is supported on current platform
 function open_file_browser(description, extensions, ...) end
 
+---Opens file browser at specified location on supported platforms
+---@param filepath string
+---@return boolean #Whether functionality is supported on current platform
+function open_file_location(filepath) end
+
 ---@class BetInfo
 ---@field tc integer
 ---@field num integer
