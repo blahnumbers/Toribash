@@ -2203,7 +2203,6 @@ function Replays:showReplayInfo(viewElement, replaysList, replayIdx)
 		})
 		replayRevealBrowserButton:addMouseUpHandler(function()
 			open_file_location(replay.filename)
-			Files.LogError("Attempting to open replay " .. replay.filename)
 		end)
 	end
 	posY = replayManageButton.shift.y - 10
