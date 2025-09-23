@@ -16,6 +16,8 @@ EVILTHROW	With this move, you can throw your opponents to the floor! Try it with
 KYATKICKLIFT	This move type is called kicklift. Using it, you can push your opponents out from dojo!
 EVILPUSH	Evilperson taught me this floor push - and it's in your Movememory now, too.
 EVILPUSH2	That dojo push was one of evilperson's moves. Guess I still have to practice it.
+ENDMESSAGE1	Keep fighting Uke to train your skills and unlock new moves
+ENDMESSAGE2	Put your skills against real players online
 #
 #HINT MESSAGES
 HINT1	In AIKIDO, you need to either finish the fight with most points or disqualify the opponent.\nStay within fighting dojo and only touch the floor with your feet or hands!

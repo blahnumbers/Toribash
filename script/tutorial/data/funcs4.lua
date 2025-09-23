@@ -185,7 +185,7 @@ local function enableMobileHud(viewElement)
 end
 
 local function challengeUke(viewElement, reqTable)
-	FIGHTUKE_GAME_ENDED = false
+	local gameEnded = false
 	GAME_COUNT = GAME_COUNT or 0
 	MOVEMEMORY_USED = MOVEMEMORY_USED or false
 	---@diagnostic disable-next-line: assign-type-mismatch
@@ -199,7 +199,7 @@ local function challengeUke(viewElement, reqTable)
 	if (configTutorial > Tutorials.CurrentTutorial) then
 		endless = true
 	end
-	remove_hook("draw2d", Tutorials.StaticHook)
+	remove_hook("pre_draw", Tutorials.StaticHook)
 	add_hook("leave_game", Tutorials.StaticHook, function()
 			if (TUTORIAL_LEAVEGAME) then
 				return 1
@@ -212,11 +212,11 @@ local function challengeUke(viewElement, reqTable)
 				MOVEMEMORY_USED = true
 			end
 	end)
-	add_hook("end_game", Tutorials.StepHook, function() FIGHTUKE_GAME_ENDED = true end)
-	add_hook("draw2d", Tutorials.StepHook, function()
-			local ws = UIElement.WorldState
+	add_hook("end_game", Tutorials.StepHook, function() gameEnded = true end)
+	add_hook("pre_draw", Tutorials.StepHook, function()
+			local ws = get_world_state()
 			local frame = ws.match_frame
-			if ((ws.winner > -1 or FIGHTUKE_GAME_ENDED) and not leaveGame) then
+			if ((ws.winner > -1 or gameEnded) and not leaveGame) then
 				leaveGame = true
 				GAME_COUNT = GAME_COUNT + 1
 				if (ws.winner == 0) then
@@ -233,8 +233,8 @@ local function challengeUke(viewElement, reqTable)
 				end
 				local stopFrame = frame + 97
 				local leaveGameHook = false
-				add_hook("draw2d", Tutorials.StaticHook, function()
-						local wsMatchFrame = UIElement.WorldState.match_frame
+				add_hook("pre_draw", Tutorials.StaticHook, function()
+						local wsMatchFrame = get_world_state().match_frame
 						if (wsMatchFrame >= stopFrame and not TUTORIAL_LEAVEGAME) then
 							leaveGameHook = true
 							TUTORIAL_LEAVEGAME = true
@@ -259,9 +259,9 @@ end
 local function showEndScreen()
 	RoomList.RefreshIfNeeded()
 	local buttons = {
-		{ title = "Keep fighting Uke to train your skills and unlock new moves", size = 0.5, shift = 0, image = "../textures/menu/tutorial4.tga", action = function() Tutorials:runTutorial(Tutorials.CurrentTutorial) end },
-		{ title = "Put your skills against real players online", size = 0.25, shift = 0, image = "../textures/menu/matchmaking.tga", action = function() Tutorials:beginnerConnect() end },
-		{ title = "Return to main menu", size = 0.25, shift = 0, image = "../textures/menu/multiplayer.tga", action = function() Tutorials:quit() end }
+		{ title = Tutorials.LocalizedMessages.ENDMESSAGE1, size = 0.5, shift = 0, image = "../textures/menu/tutorial4.tga", action = function() Tutorials:runTutorial(Tutorials.CurrentTutorial) end },
+		{ title = Tutorials.LocalizedMessages.ENDMESSAGE2, size = 0.25, shift = 0, image = "../textures/menu/matchmaking.tga", action = function() Tutorials:beginnerConnect() end },
+		{ title = TB_MENU_LOCALIZED.TUTORIALSBACKTOMAIN, size = 0.25, shift = 0, image = "../textures/menu/multiplayer.tga", action = function() Tutorials:quit() end }
 	}
 	Tutorials:showTutorialEnd(buttons)
 end
