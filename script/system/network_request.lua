@@ -3,6 +3,9 @@ require("toriui.uielement")
 do
 	---**Network requests class manager**
 	---
+	---**Version 5.76**
+	---* Added `cancel()` method to allow cancelling network requests by their corresponding **RequestPromise**
+	---
 	---**Version 5.74**
 	---* Updates to handle response and error strings returned from network hooks
 	---* Execute error callback on netcall failure
@@ -23,7 +26,7 @@ do
 	---* Check for active task before queueing a new request to ensure we don't get data from the previous request
 	Request = {
 		HookName = "__tbNetworkManager",
-		ver = 5.74
+		ver = 5.76
 	}
 	Request.__index = Request
 
@@ -141,10 +144,22 @@ do
 		end
 	end
 
+	---Cancels the request corresponding to provided response promise
+	---@param promise RequestPromise
+	---@return RequestData|nil
+	function Request:cancel(promise)
+		for _, v in pairs(TB_NETWORK_REQUEST_QUEUE) do
+			if (v.response.id == promise.id) then
+				Request:finalize(v.name)
+				return v
+			end
+		end
+	end
+
 	-- Emergency exit for currently active network request
 	---@return RequestData|nil
 	function Request:cancelCurrentRequest()
-		for _ ,v in pairs(TB_NETWORK_REQUEST_QUEUE) do
+		for _, v in pairs(TB_NETWORK_REQUEST_QUEUE) do
 			if (v.response.id == TB_NETWORK_LASTREQUEST) then
 				Request:finalize(v.name)
 				return v

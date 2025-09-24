@@ -2491,6 +2491,14 @@ function refresh_reward() end
 ---Claims all available Battle Pass rewards
 function battlepass_claim_reward() end
 
+---Claims all available rewards for the specified Battle Pass season
+---@param season string
+function battlepass_claim_reward(season) end
+
+---Sends a network request to set the specified Battle Pass season active
+---@param season string
+function battlepass_select_active_season(season) end
+
 ---Fetches ranking toplist for the specified mod (or global ranking by default)\
 ---@see Request
 ---@param modid ?integer

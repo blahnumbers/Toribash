@@ -1071,7 +1071,7 @@ function PlayerInfoInternal.parseServerUserinfo(userinfo)
 			table.insert(userinfo, {
 				name = subName,
 				value = subTime > 0 and TBMenu:getTime(subTime, 2) or TB_MENU_LOCALIZED.ACCOUNTINFOSUBSCRIPTIONEXPIRED,
-				hint = subTime > 0 and nil or TB_MENU_LOCALIZED.ACCOUNTINFOSUBSCRIPTIONEXPIREDHINT
+				hint = subTime <= 0 and TB_MENU_LOCALIZED.ACCOUNTINFOSUBSCRIPTIONEXPIREDHINT or nil
 			})
 		end
 	end

@@ -42,7 +42,17 @@ if (BattlePass == nil) then
 	---@field textColor Color Prize text info color override
 	---@field withoutPopup boolean?
 
+	---@class BattlePassPastSeason : BattlePassUserData
+	---@field id string Season identifier in the system
+	---@field name string Season display name
+	---@field active boolean Whether season is selected as active
+	---@field levels BattlePassLevel[] Levels with rewards available for claiming or next level
+
+
 	---**Battle Pass manager class**
+	---
+	---**Version 5.76**
+	---* Ability to claim past BP seasons' rewards
 	---
 	---**Version 5.74**
 	---* Better display for premium levels with multiple rewards
@@ -65,12 +75,13 @@ if (BattlePass == nil) then
 	---@class BattlePass
 	---@field LevelData BattlePassLevel[]? Level data for the Battle Pass
 	---@field UserData BattlePassUserData? Current user's data for the Battle Pass
+	---@field PastSeasons BattlePassPastSeason[]? User-specific past BP seasons data
 	---@field TimeLeft integer Time left in seconds until this BP is over
 	---@field MaxLevelPrizes integer Max number of prizes in a single level available for claiming
 	---@field QiRequirement integer User qi requirement to access Battle Pass
 	---@field wasOpened boolean Whether the user has opened the Battle Pass screen during this session
 	BattlePass = {
-		ver = 5.74,
+		ver = 5.76,
 		TimeLeft = -1,
 		MaxLevelPrizes = 2,
 		QiRequirement = 20,
@@ -81,8 +92,8 @@ end
 
 -- Queues a network request to download BP level information and stores it in BattlePass.LevelData
 function BattlePass:getLevelData()
-	Request:queue(function() download_server_info("battlepass&get=levels") end, "battlepass_levels", function()
-			local response = get_network_response()
+	Request:queue(function() download_server_info("battlepass&get=levels") end,
+		"battlepass_levels", function(_, response)
 			if (not response:find("^LEVEL")) then
 				BattlePass.LevelData = { }
 				return
@@ -126,14 +137,15 @@ function BattlePass:getLevelData()
 end
 
 -- Queues a network request to download user's BP statistics.\
--- If BattlePass.LevelData is empty, triggers BattlePass:getLevelData() first.
+-- If `BattlePass.LevelData` is empty, triggers `BattlePass:getLevelData()` first.
 ---@param viewElement? UIElement Optional viewport to display Battle Pass screen in after successful data request
 function BattlePass:getUserData(viewElement)
 	if (not BattlePass.LevelData) then
 		BattlePass:getLevelData()
 	end
-	Request:queue(function() download_server_info("battlepass&username=" .. TB_MENU_PLAYER_INFO.username) end, "battlepass_userinfo", function()
-			local response = get_network_response()
+
+	local pastSeasonsRequest
+	Request:queue(function() download_server_info("battlepass&username=" .. TB_MENU_PLAYER_INFO.username) end, "battlepass_userinfo", function(_, response)
 			if (not response:find("^BPUSER") or not BattlePass.LevelData) then
 				BattlePass.UserData = nil
 				if (viewElement and not viewElement.destroyed) then
@@ -141,6 +153,7 @@ function BattlePass:getUserData(viewElement)
 					TBMenu:addBottomBloodSmudge(viewElement)
 					viewElement:addAdaptedText(false, TB_MENU_LOCALIZED.ACCOUNTINFOERROR)
 				end
+				pcall(Request.cancel, Request, pastSeasonsRequest)
 				return
 			end
 			local _, segments = response:gsub("([^\t]*)\t?", "")
@@ -172,6 +185,494 @@ function BattlePass:getUserData(viewElement)
 				TBMenu:reloadNavigationIfNeeded()
 			end
 		end)
+	pastSeasonsRequest = BattlePass:getUserPastSeasonsData()
+end
+
+---Resets `BattlePass.PastSeasons` table and queues a network request to refresh it
+---@return RequestPromise
+function BattlePass:getUserPastSeasonsData()
+	BattlePass.PastSeasons = nil
+	return Request:queue(function() download_server_info("battlepass_pastseasons&username=" .. TB_MENU_PLAYER_INFO.username) end,
+		"battlepass_pastseasons", function(_, response)
+			BattlePass.PastSeasons = { }
+			for ln in response:gmatch("[^\n]+\n?") do
+				local _, segments = ln:gsub("([^\t]*)\t?", "")
+				local data = { ln:match(("([^\t]*)\t?"):rep(segments)) }
+				local id = data[1]
+				if (BattlePass.PastSeasons[id] == nil) then
+					BattlePass.PastSeasons[id] = {
+						id = id,
+						name = data[2],
+						active = data[3] == '1',
+						level = tonumber(data[4]) or 0,
+						xp = tonumber(data[5]) or 0,
+						levels = { }
+					}
+				end
+				---@type BattlePassLevel
+				local level = {
+					level = tonumber(data[6]) or 0,
+					xp = tonumber(data[8]) or 0,
+					xp_total = tonumber(data[7]) or 0,
+					tc = tonumber(data[9]) or 0,
+					st = tonumber(data[10]) or 0,
+					itemid = tonumber(data[11]) or 0,
+					tc_premium = tonumber(data[12]) or 0,
+					st_premium = tonumber(data[13]) or 0,
+					itemid_premium = tonumber(data[14]) or 0
+				}
+				table.insert(BattlePass.PastSeasons[id].levels, level)
+			end
+			BattlePass.PastSeasons = table.qsort(BattlePass.PastSeasons, "active", true)
+		end)
+end
+
+---Displays past seasons element for Battle Pass main screen
+---@param viewElement UIElement
+function BattlePass:showPastSeasons(viewElement)
+	viewElement:kill(true)
+	---@diagnostic disable-next-line: undefined-field
+	if (viewElement.hasBloodSmudge) then
+		TBMenu:addBottomBloodSmudge(viewElement, 2)
+	end
+	if (BattlePass.PastSeasons == nil) then
+		local loadingMark = TBMenu:displayLoadingMark(viewElement)
+		loadingMark:addChild({}):addCustomDisplay(true, function()
+			if (BattlePass.PastSeasons ~= nil) then
+				BattlePass:showPastSeasons(viewElement)
+			end
+		end)
+		return
+	end
+
+	---@type BattlePassPastSeason?
+	local activePastSeason = nil
+	for _, v in pairs(BattlePass.PastSeasons) do
+		if (v.active) then
+			activePastSeason = v
+			break
+		end
+	end
+
+	local pastSeasonsButtonHeight = math.min(60, viewElement.size.h / 3)
+	local activePastSeasonView = viewElement:addChild({
+		pos = { 10, 10 },
+		size = { viewElement.size.w - 20, viewElement.size.h - pastSeasonsButtonHeight - 30 }
+	})
+	local showAlertButton = not table.empty(BattlePass.PastSeasons) and activePastSeason == nil
+	local allPastSeasonsButton = viewElement:addChild({
+		pos = { 10, -pastSeasonsButtonHeight - 10 },
+		size = { activePastSeasonView.size.w, pastSeasonsButtonHeight },
+		interactive = true,
+		bgColor = showAlertButton and TB_MENU_DEFAULT_ORANGE or TB_MENU_DEFAULT_DARKER_COLOR,
+		hoverColor = showAlertButton and TB_MENU_DEFAULT_DARKER_ORANGE or TB_MENU_DEFAULT_DARKEST_COLOR,
+		pressedColor = showAlertButton and TB_MENU_DEFAULT_YELLOW or TB_MENU_DEFAULT_LIGHTER_COLOR,
+		uiColor = showAlertButton and UICOLORBLACK or UICOLORWHITE,
+		shapeType = ROUNDED,
+		rounded = 4
+	})
+	if (table.empty(BattlePass.PastSeasons)) then
+		activePastSeasonView:addAdaptedText(TB_MENU_LOCALIZED.BATTLEPASSNOREWINDSEASONSAVAILABLE)
+		allPastSeasonsButton:addAdaptedText(TB_MENU_LOCALIZED.BATTLEPASSABOUTREWINDSEASONS)
+	elseif (activePastSeason == nil) then
+		activePastSeasonView:addAdaptedText(TB_MENU_LOCALIZED.BATTLEPASSSELECTREWINDSEASON)
+	else
+		local pastSeasonInfoView = activePastSeasonView:addChild({
+			pos = { 0, 0 },
+			size = { activePastSeasonView.size.w, activePastSeasonView.size.h / 3 }
+		})
+		pastSeasonInfoView:addAdaptedText(TB_MENU_LOCALIZED.BATTLEPASSREWINDSEASON .. ": " .. activePastSeason.name, { font = FONTS.BIG, align = CENTER, maxscale = 0.6, intensity = 0.5 })
+
+		if (#activePastSeason.levels > 1) then
+			---@type BattlePassReward[]
+			local availableRewards = {}
+			local tcRewards = 0
+			local stRewards = 0
+			for _, v in pairs(activePastSeason.levels) do
+				if (v.xp_total <= activePastSeason.xp) then
+					if (v.itemid ~= 0) then
+						table.insert(availableRewards, { itemid = v.itemid, static = true })
+					end
+					if (v.itemid_premium ~= 0) then
+						table.insert(availableRewards, { itemid = v.itemid_premium, static = true })
+					end
+					tcRewards = tcRewards + v.tc + v.tc_premium
+					stRewards = stRewards + v.st + v.st_premium
+				end
+			end
+			if (stRewards > 0) then
+				table.insert(availableRewards, 1, { st = stRewards, static = true })
+			end
+			if (tcRewards > 0) then
+				table.insert(availableRewards, 1, { tc = tcRewards, static = true })
+			end
+
+			local claimRewardsButtonSize = math.min(pastSeasonsButtonHeight, activePastSeasonView.size.h - pastSeasonInfoView.size.h - pastSeasonInfoView.shift.y - 5)
+			local claimRewardsButton = activePastSeasonView:addChild({
+				pos = { 0, pastSeasonInfoView.size.h + (activePastSeasonView.size.h - pastSeasonInfoView.size.h - claimRewardsButtonSize) / 2 },
+				size = { activePastSeasonView.size.w, claimRewardsButtonSize },
+				interactive = true,
+				bgColor = TB_MENU_DEFAULT_ORANGE,
+				hoverColor = TB_MENU_DEFAULT_DARKER_ORANGE,
+				pressedColor = TB_MENU_DEFAULT_YELLOW,
+				uiColor = UICOLORBLACK,
+				shapeType = ROUNDED,
+				rounded = 4
+			})
+			local claimRewardsButtonCaption = claimRewardsButton:addChild({
+				pos = { 15, 3 },
+				size = { claimRewardsButton.size.w - 30, claimRewardsButton.size.h - 6 }
+			})
+			claimRewardsButtonCaption:addAdaptedText(TB_MENU_LOCALIZED.REWARDSCLAIM, { align = LEFTMID })
+			claimRewardsButtonCaption.size.w = get_string_length(claimRewardsButtonCaption.dispstr[1], claimRewardsButtonCaption.textFont) * claimRewardsButtonCaption.textScale + 15
+			local claimRewardsItemsView = claimRewardsButton:addChild({
+				pos = { claimRewardsButtonCaption.shift.x + claimRewardsButtonCaption.size.w, 5 },
+				size = { claimRewardsButton.size.w - claimRewardsButtonCaption.size.w - claimRewardsButtonCaption.shift.x - 5, claimRewardsButton.size.h - 10 }
+			})
+			local numRewardsDisplayed = 0
+			for i, v in pairs(availableRewards) do
+				local rewardView = claimRewardsItemsView:addChild({
+					pos = { (i - 1) * (claimRewardsItemsView.size.h + 5), 0 },
+					size = { claimRewardsItemsView.size.h, claimRewardsItemsView.size.h }
+				})
+				numRewardsDisplayed = numRewardsDisplayed + 1
+				if (i < #availableRewards and (i + 1) * (claimRewardsItemsView.size.h + 5) > claimRewardsItemsView.size.w) then
+					BattlePass:showPrizeItem(rewardView, { static = true })
+					rewardView:addChild({ shift = { 3, 3 }}):addAdaptedText("+" .. (#availableRewards - i + 1))
+					break
+				end
+				BattlePass:showPrizeItem(rewardView, v)
+			end
+			claimRewardsButton:addMouseUpHandler(function()
+					claimRewardsButton:deactivate()
+					local claimRewardsButtonOverlay = claimRewardsButton:addChild({
+						bgColor = { claimRewardsButton.bgColor[1], claimRewardsButton.bgColor[2], claimRewardsButton.bgColor[3], 0.7 }
+					}, true)
+					TBMenu:displayLoadingMark(claimRewardsButtonOverlay)
+					Request:queue(function() battlepass_claim_reward(activePastSeason.id) end,
+						"battlepass_claim_pastreward",
+						function(_, response)
+							if (string.find(response, "GATEWAY 0; 0")) then
+								BattlePass:getUserPastSeasonsData()
+								BattlePass:showPastSeasons(viewElement)
+								return
+							end
+							claimRewardsButtonOverlay:kill()
+							claimRewardsButton:activate()
+							TBMenu:showStatusMessage(TB_MENU_LOCALIZED.BATTLEPASSCLAIMERROR)
+						end, function()
+							claimRewardsButtonOverlay:kill()
+							claimRewardsButton:activate()
+							TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REWARDSCLAIMNETWORKERROR)
+						end)
+				end)
+			claimRewardsItemsView:moveTo(-numRewardsDisplayed * (claimRewardsItemsView.size.h + 5))
+		else
+			local targetLevel = activePastSeason.levels[#activePastSeason.levels]
+			local yOffset = pastSeasonInfoView.shift.y + pastSeasonInfoView.size.h
+			if (activePastSeasonView.size.h > 100) then
+				---@type BattlePassReward[]
+				local availableRewards = { }
+				local tcRewards = targetLevel.tc + targetLevel.tc_premium
+				local stRewards = targetLevel.st + targetLevel.st_premium
+				if (tcRewards > 0) then
+					table.insert(availableRewards, { tc = tcRewards, static = true, bgColor = TB_MENU_DEFAULT_DARKER_COLOR, bgOutlineColor = TB_MENU_DEFAULT_DARKEST_COLOR })
+				end
+				if (stRewards > 0) then
+					table.insert(availableRewards, { st = stRewards, static = true, bgColor = TB_MENU_DEFAULT_DARKER_COLOR, bgOutlineColor = TB_MENU_DEFAULT_DARKEST_COLOR })
+				end
+				if (targetLevel.itemid > 0) then
+					table.insert(availableRewards, { itemid = targetLevel.itemid, static = true, bgColor = TB_MENU_DEFAULT_DARKER_COLOR, bgOutlineColor = TB_MENU_DEFAULT_DARKEST_COLOR })
+				end
+				if (targetLevel.itemid_premium > 0) then
+					table.insert(availableRewards, { itemid = targetLevel.itemid_premium, static = true, bgColor = TB_MENU_DEFAULT_DARKER_COLOR, bgOutlineColor = TB_MENU_DEFAULT_DARKEST_COLOR })
+				end
+
+				local rewardsView = activePastSeasonView:addChild({
+					pos = { 0, yOffset },
+					size = { activePastSeasonView.size.w, math.min(64, activePastSeasonView.size.h - yOffset - 20) }
+				})
+				local numRewardsDisplayed = 0
+				for i, v in pairs(availableRewards) do
+					local rewardView = rewardsView:addChild({
+						pos = { (i - 1) * (rewardsView.size.h + 5), 0 },
+						size = { rewardsView.size.h, rewardsView.size.h }
+					})
+					numRewardsDisplayed = numRewardsDisplayed + 1
+					if (i < #availableRewards and (i + 1) * (rewardsView.size.h + 5) > rewardsView.size.w) then
+						BattlePass:showPrizeItem(rewardView, { static = true })
+						rewardView:addChild({ shift = { 3, 3 }}):addAdaptedText("+" .. (#availableRewards - i + 1))
+						break
+					end
+					BattlePass:showPrizeItem(rewardView, v)
+				end
+				rewardsView:moveTo((rewardsView.size.w - numRewardsDisplayed * (rewardsView.size.h + 5)) / 2)
+				yOffset = yOffset + rewardsView.size.h
+			else
+				yOffset = yOffset + activePastSeasonView.size.h * 0.2
+			end
+
+			local pastSeasonProgress = (activePastSeason.xp - targetLevel.xp) / (targetLevel.xp_total - targetLevel.xp)
+			local progressBarBase = activePastSeasonView:addChild({
+				pos = { 3, yOffset + activePastSeasonView.size.h * 0.1 },
+				size = { activePastSeasonView.size.w - 6, 6 },
+				bgColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK,
+				shapeType = ROUNDED,
+				rounded = 3
+			})
+			local progressBarProgress = progressBarBase:addChild({
+				pos = { -progressBarBase.size.w - 3, -progressBarBase.size.h - 3 },
+				size = { (progressBarBase.size.w + 6) * pastSeasonProgress, progressBarBase.size.h + 6 },
+				bgColor = TB_MENU_DEFAULT_DARKER_ORANGE,
+				rounded = 6
+			}, true)
+			progressBarBase:addChild({
+				pos = { 15, -progressBarBase.size.h - 10 },
+				size = { progressBarBase.size.w - 30, progressBarBase.size.h + 20 }
+			}):addAdaptedText(activePastSeason.xp .. " / " .. targetLevel.xp_total .. " " .. TB_MENU_LOCALIZED.WORDXP, {
+				shadowColor = UICOLORBLACK, shadow = 2, shadowOffset = 0
+			})
+		end
+		allPastSeasonsButton:addAdaptedText(TB_MENU_LOCALIZED.BATTLEPASSSWITCHREWINDSEASON)
+	end
+	allPastSeasonsButton:addMouseUpHandler(function()
+			BattlePass:showPastSeasonsInfoPicker(viewElement, activePastSeason)
+		end)
+end
+
+---Displays active past season selector and general info about past seasons
+---@param viewElement UIElement
+---@param activeSeason BattlePassPastSeason?
+function BattlePass:showPastSeasonsInfoPicker(viewElement, activeSeason)
+	local overlay = TBMenu:spawnWindowOverlay(true)
+	if (table.empty(BattlePass.PastSeasons)) then
+		local dimensions = { math.min(700, WIN_W * 0.65), math.min(250, WIN_H * 0.5 )}
+		local infoView = overlay:addChild({
+			pos = { (overlay.size.w - dimensions[1]) / 2, (overlay.size.h - dimensions[2]) / 2 },
+			size = dimensions,
+			bgColor = TB_MENU_DEFAULT_BG_COLOR,
+			shapeType = ROUNDED,
+			rounded = 4
+		})
+		TBMenu:spawnCloseButton(infoView, { x = -50, y = 10, w = 40, h = 40 }, function() overlay:kill() end)
+		infoView:addChild({ shift = { 100, 50 } }):addAdaptedText(TB_MENU_LOCALIZED.BATTLEPASSABOUTREWINDSEASONSINFO, { font = FONTS.LMEDIUM })
+		return
+	end
+	local dimensions = { math.min(1000, WIN_W * 0.7), math.min(700, WIN_H * 0.65 )}
+	local infoView = overlay:addChild({
+		pos = { (overlay.size.w - dimensions[1]) / 2, (overlay.size.h - dimensions[2]) / 2 },
+		size = dimensions,
+		bgColor = TB_MENU_DEFAULT_BG_COLOR,
+		shapeType = ROUNDED,
+		rounded = 4
+	})
+	local elementHeight = 60
+	local toReload, topBar, botBar, _, listingHolder = TBMenu:prepareScrollableList(infoView, 60, 100, 20, TB_MENU_DEFAULT_BG_COLOR)
+	local button = TBMenu:spawnCloseButton(topBar, { x = -50, y = 10, w = 40, h = 40 }, function() overlay:kill() end)
+	button:setRounded(button.roundedInternal[1])
+	topBar:addAdaptedText(activeSeason ~= nil and (TB_MENU_LOCALIZED.BATTLEPASSREWINDSEASON .. ": " .. activeSeason.name) or TB_MENU_LOCALIZED.BATTLEPASSSELECTREWINDSEASON, {
+		font = FONTS.BIG, maxscale = 0.75, intensity = 0.5, padding = { x = 60, w = 60, y = 10, h = 10 }
+	})
+	botBar:addAdaptedText(TB_MENU_LOCALIZED.BATTLEPASSABOUTREWINDSEASONSINFO2, { font = FONTS.LMEDIUM, padding = { x = 20, w = 20, y = 10, h = 10 } })
+
+	local listElements = { }
+	for _, v in pairs(BattlePass.PastSeasons) do
+		local listElement = listingHolder:addChild({
+			pos = { 0, #listElements * elementHeight },
+			size = { listingHolder.size.w, elementHeight }
+		})
+		table.insert(listElements, listElement)
+		local isActive = v == activeSeason
+		local buttonBG = listElement:addChild({
+			pos = { 20, 4 },
+			size = { listElement.size.w - 20, listElement.size.h - 4 },
+			bgColor = isActive and TB_MENU_DEFAULT_DARKER_ORANGE or TB_MENU_DEFAULT_DARKEST_COLOR,
+			uiColor = isActive and UICOLORBLACK or UICOLORWHITE,
+			shapeType = ROUNDED,
+			rounded = { 4, 0 }
+		})
+		buttonBG:addChild({
+			pos = { 0, buttonBG.size.h * 0.35 },
+			size = { buttonBG.size.w, buttonBG.size.h * 0.65 },
+			bgGradient = { TB_MENU_DEFAULT_DARKER_COLOR, buttonBG.bgColor },
+		})
+		local seasonName = buttonBG:addChild({
+			pos = { 15, 4 },
+			size = { (buttonBG.size.w - 30) / 2, buttonBG.size.h - 8 }
+		})
+		seasonName:addAdaptedText(v.name, { font = FONTS.BIG, maxscale = 0.6, align = LEFTMID, intensity = 0.25, shadow = isActive and 3 or 0, shadowColor = TB_MENU_DEFAULT_DARKER_ORANGE })
+		seasonName.size.w = get_string_length(seasonName.dispstr[1], seasonName.textFont) * seasonName.textScale + 25
+		local seasonInfo = seasonName:addChild({
+			pos = { seasonName.size.w, 0 },
+			size = { (buttonBG.size.w - 30) / 2 - seasonName.size.w - seasonName.shift.x, seasonName.size.h }
+		})
+		seasonInfo:addAdaptedText(TB_MENU_LOCALIZED.BATTLEPASSLVL .. " " .. v.level .. " / " .. v.xp .. " XP", { align = LEFTMID, shadow = isActive and 1.5 or 0, shadowColor = TB_MENU_DEFAULT_DARKER_ORANGE })
+		local offsetX = 0
+		if (not isActive) then
+			local buttonWidth = math.min(200, buttonBG.size.w / 2 - 19)
+			local makeActiveButton = buttonBG:addChild({
+				pos = { -buttonWidth - 8, 8 },
+				size = { buttonWidth, buttonBG.size.h - 16 },
+				interactive = true,
+				bgColor = TB_MENU_DEFAULT_ORANGE,
+				hoverColor = TB_MENU_DEFAULT_DARKER_ORANGE,
+				pressedColor = TB_MENU_DEFAULT_YELLOW,
+				uiColor = UICOLORBLACK,
+				shapeType = ROUNDED,
+				rounded = 4
+			})
+			offsetX = makeActiveButton.size.w + 16
+			makeActiveButton:addAdaptedText(TB_MENU_LOCALIZED.BATTLEPASSSETASACTIVEREWINDSEASON)
+			makeActiveButton:addMouseUpHandler(function()
+					local loadingOverlay = toReload:addChild({ bgColor = TB_MENU_DEFAULT_BG_COLOR_TRANS })
+					TBMenu:displayLoadingMark(loadingOverlay)
+					Request:queue(function() battlepass_select_active_season(v.id) end, "battlepass_selectseason",
+						function(_, response)
+							if (string.find(response, "GATEWAY 0; 0")) then
+								overlay:kill()
+								BattlePass:getUserPastSeasonsData()
+								BattlePass:showPastSeasons(viewElement)
+								local message = utf8.gsub(TB_MENU_LOCALIZED.BATTLEPASSREWINDSEASONCHANGED, "{x}", v.name)
+								TBMenu:showStatusMessage(message)
+								return
+							end
+							TBMenu:showStatusMessage(TB_MENU_LOCALIZED.ERRORTRYAGAIN)
+							loadingOverlay:kill()
+						end, function()
+							TBMenu:showStatusMessage(TB_MENU_LOCALIZED.REWARDSCLAIMNETWORKERROR)
+							loadingOverlay:kill()
+						end)
+				end)
+		end
+
+		if (buttonBG.size.w > 600) then
+			---@type BattlePassReward[]
+			local availableRewards = {}
+			local tcRewards = 0
+			local stRewards = 0
+			for _, l in pairs(v.levels) do
+				if (l.xp_total <= v.xp) then
+					if (l.itemid ~= 0) then
+						table.insert(availableRewards, { itemid = l.itemid, static = true })
+					end
+					if (l.itemid_premium ~= 0) then
+						table.insert(availableRewards, { itemid = l.itemid_premium, static = true })
+					end
+					tcRewards = tcRewards + l.tc + l.tc_premium
+					stRewards = stRewards + l.st + l.st_premium
+				end
+			end
+			if (stRewards > 0) then
+				table.insert(availableRewards, 1, { st = stRewards, static = true })
+			end
+			if (tcRewards > 0) then
+				table.insert(availableRewards, 1, { tc = tcRewards, static = true })
+			end
+			if (not table.empty(availableRewards)) then
+				local prizesHolder = buttonBG:addChild({
+					pos = { buttonBG.size.w / 2, 4 },
+					size = { buttonBG.size.w / 2 - offsetX, buttonBG.size.h - 8 }
+				})
+				local rewardsText = prizesHolder:addChild({
+					pos = { 5, 8 },
+					size = { prizesHolder.size.w / 2 - 16, prizesHolder.size.h - 16 }
+				})
+				rewardsText:addAdaptedText(TB_MENU_LOCALIZED.BATTLEPASSAVAILABLEREWARDS, { align = RIGHTMID })
+				local numRewardsDisplayed = 0
+				local spaceLeft = 0
+				for i, reward in pairs(availableRewards) do
+					local rewardView = prizesHolder:addChild({
+						pos = { prizesHolder.size.w / 2 + (i - 1) * (prizesHolder.size.h - 4), 4 },
+						size = { prizesHolder.size.h - 8, prizesHolder.size.h - 8 }
+					})
+					spaceLeft = prizesHolder.size.w - rewardView.shift.x - rewardView.size.w - 8
+					numRewardsDisplayed = numRewardsDisplayed + 1
+					if (i < #availableRewards and (i + 1) * (prizesHolder.size.h - 4) > prizesHolder.size.w / 2) then
+						BattlePass:showPrizeItem(rewardView, { static = true })
+						rewardView:addChild({ shift = { 3, 3 }}):addAdaptedText("+" .. (#availableRewards - i + 1))
+						break
+					end
+					BattlePass:showPrizeItem(rewardView, reward)
+				end
+				if (spaceLeft > 0) then
+					prizesHolder:moveTo(spaceLeft, nil, true)
+				end
+			end
+		end
+		
+		local levelElement = listingHolder:addChild({
+			pos = { 0, #listElements * elementHeight },
+			size = { listingHolder.size.w, elementHeight }
+		})
+		table.insert(listElements, levelElement)
+		local levelBG = levelElement:addChild({
+			pos = { buttonBG.shift.x, 0 },
+			size = { buttonBG.size.w, buttonBG.size.h },
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			shapeType = ROUNDED,
+			rounded = { 0, 4 }
+		})
+		local levelProgressInfo = levelBG:addChild({
+			pos = { 15, 5 },
+			size = { 200, levelBG.size.h - 10 }
+		})
+		local levelProgressString = utf8.gsub(TB_MENU_LOCALIZED.BATTLEPASSLEVELPROGRESS, "{x}", tostring(v.level + #v.levels))
+		levelProgressInfo:addAdaptedText(levelProgressString, { align = LEFTMID })
+		local lastLevel = v.levels[#v.levels]
+		local levelProgress = math.min(1, (v.xp - lastLevel.xp) / (lastLevel.xp_total - lastLevel.xp))
+		local levelProgressBar = levelBG:addChild({
+			pos = { 225, buttonBG.size.h / 2 - 3 },
+			size = { buttonBG.size.w - 415, 6 },
+			bgColor = TB_MENU_DEFAULT_INACTIVE_COLOR_DARK,
+			rounded = 3
+		}, true)
+		local levelProgressBarFill = levelProgressBar:addChild({
+			pos = { -levelProgressBar.size.w - 3, -levelProgressBar.size.h - 3 },
+			size = { (levelProgressBar.size.w + 6) * levelProgress, levelProgressBar.size.h + 6 },
+			bgColor = TB_MENU_DEFAULT_DARKER_ORANGE,
+			rounded = 6
+		}, true)
+		local offsetX = -levelBG.size.h
+		if (lastLevel.itemid_premium > 0) then
+			local prizeView = levelBG:addChild({
+				pos = { offsetX, 4 },
+				size = { levelBG.size.h - 8, levelBG.size.h - 8 }
+			})
+			BattlePass:showPrizeItem(prizeView, { itemid = lastLevel.itemid_premium, static = true })
+			offsetX = offsetX - levelBG.size.h
+		end
+		if (lastLevel.itemid > 0) then
+			local prizeView = levelBG:addChild({
+				pos = { offsetX, 4 },
+				size = { levelBG.size.h - 8, levelBG.size.h - 8 }
+			})
+			BattlePass:showPrizeItem(prizeView, { itemid = lastLevel.itemid, static = true })
+			offsetX = offsetX - levelBG.size.h
+		end
+		if (lastLevel.st + lastLevel.st_premium > 0) then
+			local prizeView = levelBG:addChild({
+				pos = { offsetX, 4 },
+				size = { levelBG.size.h - 8, levelBG.size.h - 8 }
+			})
+			BattlePass:showPrizeItem(prizeView, { st = lastLevel.st + lastLevel.st_premium , static = true })
+			offsetX = offsetX - levelBG.size.h
+		end
+		if (lastLevel.tc + lastLevel.tc_premium > 0) then
+			local prizeView = levelBG:addChild({
+				pos = { offsetX, 4 },
+				size = { levelBG.size.h - 8, levelBG.size.h - 8 }
+			})
+			BattlePass:showPrizeItem(prizeView, { tc = lastLevel.tc + lastLevel.tc_premium, static = true })
+			offsetX = offsetX - levelBG.size.h
+		end
+	end
+
+	for _, v in pairs(listElements) do
+		v:hide()
+	end
+	local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
+	listingHolder.scrollBar = scrollBar
+	scrollBar:makeScrollBar(listingHolder, listElements, toReload, nil, nil, true)
 end
 
 -- Displays main the progress bar for the main Battle Pass screen
@@ -285,7 +786,7 @@ function BattlePass:showProgress(viewElement)
 			interactive = true,
 			bgColor = TB_MENU_DEFAULT_DARKER_ORANGE,
 			hoverColor = TB_MENU_DEFAULT_ORANGE,
-			pressedColor = TB_MENU_DEFAULT_DARKER_ORANGE,
+			pressedColor = TB_MENU_DEFAULT_DARKEST_ORANGE,
 			uiColor = UICOLORBLACK,
 			shapeType = ROUNDED,
 			rounded = 4
@@ -789,13 +1290,13 @@ function BattlePass:showPrizes(viewElement)
 	fadeColor[4] = 0
 	local leftBarFade = leftBar:addChild({
 		pos = { leftBar.size.w, 0 },
-		size = { 8, leftBar.size.h - listingScrollBG.size.h },
+		size = { 12, leftBar.size.h - listingScrollBG.size.h },
 		bgGradient = { TB_MENU_DEFAULT_DARKEST_COLOR, fadeColor },
 		bgGradientMode = BODYPARTS.R_THIGH
 	})
 	local rightBarFade = rightBar:addChild({
-		pos = { -rightBar.size.w - 8, 0 },
-		size = { 8, leftBarFade.size.h },
+		pos = { -rightBar.size.w - 12, 0 },
+		size = { 12, leftBarFade.size.h },
 		bgGradient = { fadeColor, TB_MENU_DEFAULT_DARKEST_COLOR },
 		bgGradientMode = BODYPARTS.R_THIGH
 	})
@@ -923,10 +1424,10 @@ function BattlePass:showMain()
 	BattlePass:showProgress(battlePassProgressHolder)
 
 	local buttonWidth = math.min(TBMenu.CurrentSection.size.w * 0.3, 750)
-	local infoButtonHeight = buttonWidth * 0.639 + 10
+	local infoButtonHeight = buttonWidth * 0.34 + 10
 	if (infoButtonHeight > (TBMenu.CurrentSection.size.h - battlePassProgressHolder.size.h - 30) * 0.65) then
 		infoButtonHeight = (TBMenu.CurrentSection.size.h - battlePassProgressHolder.size.h - 30) * 0.65
-		buttonWidth = math.round((infoButtonHeight - 10) / 0.639)
+		buttonWidth = math.round((infoButtonHeight - 10) / 0.34)
 	end
 
 	local battlePassPrizesView = TBMenu.CurrentSection:addChild(({
@@ -965,35 +1466,52 @@ function BattlePass:showMain()
 		hoverSound = 31
 	})
 	TBMenu:showHomeButton(battlePassInfoButton, {
-		image = "../textures/menu/battlepass/battlepassinfolarge.tga",
-		ratio = 0.639,
+		image = "../textures/menu/battlepass/battlepassinfonarrow.tga",
+		ratio = 0.333,
 		disableUnload = true,
 		action = Events.ShowBattlepassInfo
 	})
-	local questsStartY = battlePassInfoButton.shift.y + battlePassInfoButton.size.h + 10
-	local battlePassQuestsButton = TBMenu.CurrentSection:addChild({
-		pos = { buttonShiftX, questsStartY },
-		size = { buttonWidth, TBMenu.CurrentSection.size.h - questsStartY },
-		bgColor = TB_MENU_DEFAULT_BG_COLOR,
-		interactive = true,
-		hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
-		pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-		hoverSound = 31
+	buttonShiftY = buttonShiftY + battlePassInfoButton.size.h + 10
+
+	local showQuestsButton = true
+	local battlePassPastSeasonsButton = TBMenu.CurrentSection:addChild({
+		pos = { buttonShiftX, buttonShiftY },
+		size = { buttonWidth, math.min(250, (TBMenu.CurrentSection.size.h - buttonShiftY - 10) * 0.6) },
+		bgColor = TB_MENU_DEFAULT_BG_COLOR
 	})
-	TBMenu:showHomeButton(battlePassQuestsButton, {
-		ratio = 0.5,
-		title = TB_MENU_LOCALIZED.BATTLEPASSQUESTS,
-		subtitle = TB_MENU_LOCALIZED.BATTLEPASSQUESTSDESC,
-		disableUnload = true,
-		action = function()
-			TB_MENU_QUESTS_ACTIVE_SECTION = 4
-			Quests:showMain(true, function()
-					TBMenu:clearNavSection()
-					TBMenu:showNavigationBar()
-					BattlePass:showMain()
-				end)
-		end
-	}, 2)
+	if (battlePassPastSeasonsButton.size.h < 120) then
+		showQuestsButton = false
+		battlePassPastSeasonsButton.size.h = TBMenu.CurrentSection.size.h - buttonShiftY - 10
+		battlePassPastSeasonsButton.hasBloodSmudge = true
+	end
+	BattlePass:showPastSeasons(battlePassPastSeasonsButton)
+	buttonShiftY = buttonShiftY + battlePassPastSeasonsButton.size.h + 10
+
+	if (showQuestsButton) then
+		local battlePassQuestsButton = TBMenu.CurrentSection:addChild({
+			pos = { buttonShiftX, buttonShiftY },
+			size = { buttonWidth, TBMenu.CurrentSection.size.h - buttonShiftY },
+			bgColor = TB_MENU_DEFAULT_BG_COLOR,
+			interactive = true,
+			hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
+			pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
+			hoverSound = 31
+		})
+		TBMenu:showHomeButton(battlePassQuestsButton, {
+			ratio = 0.5,
+			title = TB_MENU_LOCALIZED.NAVBUTTONQUESTS,
+			subtitle = TB_MENU_LOCALIZED.BATTLEPASSQUESTSDESC,
+			disableUnload = true,
+			action = function()
+				TB_MENU_QUESTS_ACTIVE_SECTION = 4
+				Quests:showMain(true, function()
+						TBMenu:clearNavSection()
+						TBMenu:showNavigationBar()
+						BattlePass:showMain()
+					end)
+			end
+		}, 2)
+	end
 end
 
 if (not BattlePass.UserData) then
