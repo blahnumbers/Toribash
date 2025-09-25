@@ -862,8 +862,8 @@ end
 ---@param viewElement UIElement
 function MoveMemory:spawnFirstTurnToggle(viewElement)
 	local toggleView = viewElement:addChild({
-		pos = { 5, -33 },
-		size = { 26, 26 },
+		pos = { 5, -35 },
+		size = { 31, 31 },
 		bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 		shapeType = ROUNDED,
 		rounded = 3

@@ -16,6 +16,10 @@ if (Mods == nil) then
 
 	---**Mod browser class**
 	---
+	---**Version 5.76**
+	---* Added button to reset mod back to classic
+	---* Minor visual tweaks
+	---
 	---**Version 5.61**
 	---* Updated keyboard return type for search bar on mobile devices
 	---* On mobile, hitting return key in search bar now hides the keyboard
@@ -35,7 +39,7 @@ if (Mods == nil) then
 		DisplayPos = { x = SAFE_X + 10, y = top_y + 10 },
 		ListShift = { 0 },
 		StartNewGame = true,
-		ver = 5.61
+		ver = 5.76
 	}
 	Mods.__index = Mods
 end
@@ -72,6 +76,13 @@ function ModsInternal.ButtonClick(file)
 		---@type ModsListEntryInfo
 		Mods.LastMenu = { time = clock, mod = file }
 	end
+end
+
+---Checks whether current game mod is *classic.tbm*
+---@return true
+function ModsInternal.IsModClassic()
+	local mod = get_gamerule("mod")
+	return mod == "" or mod == "0" or string.match(mod, "^classic%.?t?b?m?$") or string.match(mod, "^default%.?t?b?m?$")
 end
 
 ---Method to get and cache all mods within a directory
@@ -217,10 +228,8 @@ function Mods.SpawnMainList(listingHolder, toReload, topBar, elementHeight, data
 	topBar.helpPopup = topBar.helpPopup
 	if (topBar.helpPopup ~= nil) then
 		extraShift.x = topBar.helpPopup.size.w + topBar.helpPopup.shift.x
-		extraShift.y = topBar.helpPopup.shift.y
-	else
-		extraShift.y = -elementHeight
 	end
+	extraShift.y = -elementHeight
 	local modsFolderName = topBar:addChild({
 		pos = { extraShift.x + 5, extraShift.y },
 		size = { topBar.size.w - 15 - extraShift.x, elementHeight }
@@ -230,7 +239,9 @@ function Mods.SpawnMainList(listingHolder, toReload, topBar, elementHeight, data
 	local folderDisplayName = string.gsub(data.name, "^data/mod", "Mods")
 	folderDisplayName = utf8.gsub(folderDisplayName, "^.*/([^/]+)", "%1")
 	folderDisplayName = ModsInternal.CleanFolderName(folderDisplayName)
-	modsFolderName:addAdaptedText(true, folderDisplayName, nil, nil, topBar.helpPopup and FONTS.BIG or FONTS.MEDIUM, LEFTMID, topBar.helpPopup and 0.6 or 1, nil, 0.5)
+	modsFolderName:addAdaptedText(folderDisplayName, {
+		font = topBar.helpPopup and FONTS.BIG or FONTS.MEDIUM, align = LEFTMID, maxscale = topBar.helpPopup and 0.6 or 1, intensity = 0.5
+	})
 
 	local searchString = search and utf8.gsub(utf8.lower(search.textfieldstr[1]), "([^%w])", "%%%1") or ""
 	local listElements = {}
@@ -238,13 +249,14 @@ function Mods.SpawnMainList(listingHolder, toReload, topBar, elementHeight, data
 
 	local modpath = utf8.gsub(data.name, "^data/mod/?", "")
 	if (data.name ~= "data/mod" or searchString ~= "") then
-		Mods.SpawnListButton(listingHolder, listElements, elementHeight, "../textures/menu/general/back.tga", TB_MENU_LOCALIZED.NAVBUTTONBACK, function()
+		local backButton = Mods.SpawnListButton(listingHolder, listElements, elementHeight, "../textures/menu/general/back.tga", TB_MENU_LOCALIZED.NAVBUTTONBACK, function()
 			Mods.ListShift[1] = 0
 			if (search ~= nil) then
 				search:clearTextfield()
 			end
 			Mods.SpawnMainList(listingHolder, toReload, topBar, elementHeight, data.parent and data.parent or data, search, modLoadCustomFunc, scrollOverride)
 		end, { w = elementHeight * 0.5, h = elementHeight * 0.5 })
+		backButton.child[1].bgColor = table.clone(TB_MENU_DEFAULT_DARKEST_COLOR)
 	end
 
 	local modmakerId = 0
@@ -298,6 +310,16 @@ function Mods.SpawnMainList(listingHolder, toReload, topBar, elementHeight, data
 			end
 		end
 		return foundMatch
+	end
+	if (data.name == "data/mod" and searchString == "" and not ModsInternal.IsModClassic()) then
+		local classicButton = Mods.SpawnListButton(listingHolder, listElements, elementHeight, "../textures/menu/general/buttons/reload.tga", TB_MENU_LOCALIZED.MODSREVERTTODEFAULT, function()
+			if (modLoadCustomFunc) then
+				modLoadCustomFunc("classic")
+			else
+				ModsInternal.ButtonClick("classic")
+			end
+		end, { w = elementHeight * 0.5, h = elementHeight * 0.5 })
+		classicButton.child[1].bgColor = table.clone(TB_MENU_DEFAULT_DARKEST_COLOR)
 	end
 	spawnFolders(data, 0)
 	if (modmakerId > 0) then
@@ -389,8 +411,8 @@ function Mods.showMain()
 		bgColor = TB_MENU_DEFAULT_BG_COLOR
 	}, true)
 
-	local elementHeight = 36
-	local toReload, topBar, botBar, _, listingHolder = TBMenu:prepareScrollableList(mainView, 75, 70, 20, mainView.bgColor)
+	local elementHeight = 42
+	local toReload, topBar, botBar, _, listingHolder = TBMenu:prepareScrollableList(mainView, 80, 85, 20, mainView.bgColor)
 
 	topBar.shapeType = mainView.shapeType
 	topBar:setRounded(mainView.rounded)
@@ -398,7 +420,7 @@ function Mods.showMain()
 	botBar:setRounded(mainView.rounded)
 
 	local mainMoverHolder = topBar:addChild({
-		size = { topBar.size.w, 30 },
+		size = { topBar.size.w, 35 },
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR
 	}, true)
 	local mainMover = mainMoverHolder:addChild({
@@ -410,8 +432,8 @@ function Mods.showMain()
 	mainMover:addCustomDisplay(true, function()
 			set_color(unpack(mainMover:getButtonColor()))
 			local posX = mainMover.pos.x + mainMover.size.w / 2 - 15
-			draw_quad(posX, mainMover.pos.y + 10, 30, 2)
-			draw_quad(posX, mainMover.pos.y + 18, 30, 2)
+			draw_quad(posX, mainMover.pos.y + 12, 30, 2)
+			draw_quad(posX, mainMover.pos.y + 21, 30, 2)
 		end)
 	mainMover:addMouseHandlers(function(s, x, y)
 				disable_mouse_camera_movement()
@@ -419,9 +441,9 @@ function Mods.showMain()
 				mainMover.pressedPos.y = y - mainMover.pos.y
 			end, enable_mouse_camera_movement, function(x, y)
 			if (mainMover.hoverState == BTN_DN) then
-				local x = x - mainMover.pressedPos.x
-				local y = y - mainMover.pressedPos.y
-					x = x < 0 and 0 or (x + Mods.MainElement.size.w > WIN_W and WIN_W - Mods.MainElement.size.w or x)
+				x = x - mainMover.pressedPos.x
+				y = y - mainMover.pressedPos.y
+				x = x < 0 and 0 or (x + Mods.MainElement.size.w > WIN_W and WIN_W - Mods.MainElement.size.w or x)
 				y = y < 0 and 0 or (y + Mods.MainElement.size.h > WIN_H and WIN_H - Mods.MainElement.size.h or y)
 				Mods.MainElement:moveTo(x, y)
 			end
@@ -445,8 +467,8 @@ function Mods.showMain()
 	end
 
 	local modNewGameToggleView = botBar:addChild({
-		pos = { 0, -35 },
-		size = { mainView.size.w, 30 }
+		pos = { 0, -40 },
+		size = { mainView.size.w, 35 }
 	}, true)
 	local modNewGameToggleBG = modNewGameToggleView:addChild({
 		pos = { 5, 2 },
@@ -482,13 +504,12 @@ function Mods.showMain()
 
 	local search = TBMenu:spawnTextField2(botBar, {
 		x = 5, y = 5,
-		w = botBar.size.w - 10, h = botBar.size.h - 40
+		w = botBar.size.w - 10, h = botBar.size.h - 50
 	}, nil, TB_MENU_LOCALIZED.SEARCHNOTE, {
 		fontId = 4,
 		textScale = 0.65,
 		textAlign = LEFTMID,
 		keepFocusOnHide = true,
-		darkerMode = true,
 		returnKeyType = KEYBOARD_RETURN.DONE
 	})
 	local lastText = search.textfieldstr[1]
@@ -509,20 +530,11 @@ function Mods.showMain()
 	ModsInternal.RefreshCurrentFolder()
 	Mods.SpawnMainList(listingHolder, toReload, topBar, elementHeight, ModsInternal.CurrentFolder, search)
 
-	local quitButton = mainMoverHolder:addChild({
-		pos = { -mainMoverHolder.size.h, 0 },
-		size = { mainMoverHolder.size.h, mainMoverHolder.size.h },
-		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
-		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-		interactive = true
-	}, true)
-	quitButton:addChild({
-		shift = { 2, 2 },
-		bgImage = "../textures/menu/general/buttons/crosswhite.tga"
-	})
-	quitButton:addMouseHandlers(nil, function()
-			Mods.MainElement:kill()
-			Mods.MainElement = nil
-		end)
+	TBMenu:spawnCloseButton(mainMoverHolder, {
+		x = -mainMoverHolder.size.h, y = 0,
+		w = mainMoverHolder.size.h, h = mainMoverHolder.size.h
+	}, function()
+		Mods.MainElement:kill()
+		Mods.MainElement = nil
+	end)
 end

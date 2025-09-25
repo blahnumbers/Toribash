@@ -139,6 +139,10 @@ if (Gamerules == nil) then
 
 	---**Gamerules manager class**
 	---
+	---**Version 5.76**
+	---* Display dq timeout option when dojo is enabled even if dq is disabled
+	---* Minor visual tweaks
+	---
 	---**Version 5.61**
 	---* Updated keyboard input and return types for input fields on mobile devices
 	---* Use proper input handler for search bar
@@ -157,7 +161,7 @@ if (Gamerules == nil) then
 		ListShift = { 0, 0, 1 },
 		StartNewgame = get_option("grnewgame") == 1,
 		LastSelectedRule = nil,
-		ver = 5.61
+		ver = 5.76
 	}
 	Gamerules.__index = Gamerules
 end
@@ -225,7 +229,7 @@ function Gamerules.getRules()
 		{ name = "dismemberment", title = "Dismemberment", section = GAMERULES_SECTION_DISMEMBER, triggerUpdate = true, type = GAMERULE_BOOL },
 		{ name = "fracture", title = "Fracture", section = GAMERULES_SECTION_FRACTURE, triggerUpdate = true, type = GAMERULE_BOOL },
 		{ name = "disqualification", title = "Disqualification", section = GAMERULES_SECTION_DQ, triggerUpdate = true, type = GAMERULE_BOOL },
-		{ name = "dqtimeout", title = "DQ Timeout", depends = "disqualification", section = GAMERULES_SECTION_DQ, type = GAMERULE_INT },
+		{ name = "dqtimeout", title = "DQ Timeout", depends = { "disqualification", "dojosize" }, section = GAMERULES_SECTION_DQ, type = GAMERULE_INT },
 		{ name = "dqflag", title = "DQ Mode", depends = "dqtimeout", section = GAMERULES_SECTION_DQ, type = GAMERULE_ENUM,
 			options = {
 				{ value = 0, title = "Follow Timeout" },
@@ -864,8 +868,8 @@ function Gamerules.showMain()
 		bgColor = TB_MENU_DEFAULT_BG_COLOR
 	}, true)
 
-	local elementHeight = 38
-	local toReload, topBar, botBar, _, listingHolder = TBMenu:prepareScrollableList(mainView, 80, 75, 20, mainView.bgColor)
+	local elementHeight = 42
+	local toReload, topBar, botBar, _, listingHolder = TBMenu:prepareScrollableList(mainView, 80, 85, 20, mainView.bgColor)
 
 	topBar.shapeType = mainView.shapeType
 	topBar:setRounded(mainView.rounded)
@@ -873,7 +877,7 @@ function Gamerules.showMain()
 	botBar:setRounded(mainView.rounded)
 
 	local mainMoverHolder = topBar:addChild({
-		size = { topBar.size.w, 30 },
+		size = { topBar.size.w, 35 },
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR
 	}, true)
 	local mainMover = mainMoverHolder:addChild({
@@ -883,20 +887,20 @@ function Gamerules.showMain()
 		pressedColor = TB_MENU_DEFAULT_LIGHTEST_COLOR
 	})
 	mainMover:addCustomDisplay(true, function()
-		set_color(unpack(mainMover:getButtonColor()))
-		local posX = mainMover.pos.x + mainMover.size.w / 2 - 15
-		draw_quad(posX, mainMover.pos.y + 10, 30, 2)
-		draw_quad(posX, mainMover.pos.y + 18, 30, 2)
-	end)
+			set_color(unpack(mainMover:getButtonColor()))
+			local posX = mainMover.pos.x + mainMover.size.w / 2 - 15
+			draw_quad(posX, mainMover.pos.y + 12, 30, 2)
+			draw_quad(posX, mainMover.pos.y + 21, 30, 2)
+		end)
 	mainMover:addMouseHandlers(function(s, x, y)
 				disable_mouse_camera_movement()
 				mainMover.pressedPos.x = x - mainMover.pos.x
 				mainMover.pressedPos.y = y - mainMover.pos.y
 			end, enable_mouse_camera_movement, function(x, y)
 			if (mainMover.hoverState == BTN_DN) then
-				local x = x - mainMover.pressedPos.x
-				local y = y - mainMover.pressedPos.y
-					x = x < 0 and 0 or (x + Gamerules.MainElement.size.w > WIN_W and WIN_W - Gamerules.MainElement.size.w or x)
+				x = x - mainMover.pressedPos.x
+				y = y - mainMover.pressedPos.y
+				x = x < 0 and 0 or (x + Gamerules.MainElement.size.w > WIN_W and WIN_W - Gamerules.MainElement.size.w or x)
 				y = y < 0 and 0 or (y + Gamerules.MainElement.size.h > WIN_H and WIN_H - Gamerules.MainElement.size.h or y)
 				Gamerules.MainElement:moveTo(x, y)
 			end
@@ -912,7 +916,7 @@ function Gamerules.showMain()
 		shapeType = ROUNDED,
 		rounded = 3
 	})
-	local search = TBMenu:spawnTextField2(searchHolder, { x = 5, y = 5, w = searchHolder.size.w - 10, h = searchHolder.size.h - 45 }, nil, TB_MENU_LOCALIZED.SEARCHNOTE, {
+	local search = TBMenu:spawnTextField2(searchHolder, { x = 5, y = 5, w = searchHolder.size.w - 10, h = searchHolder.size.h - 50 }, nil, TB_MENU_LOCALIZED.SEARCHNOTE, {
 		fontId = FONTS.LMEDIUM,
 		textScale = 0.65,
 		returnKeyType = KEYBOARD_RETURN.DONE
@@ -935,8 +939,8 @@ function Gamerules.showMain()
 	Gamerules.spawnMainList(listingHolder, toReload, gameRulesName, elementHeight, nil, gamerules, changedValues)
 
 	local grNewGameToggleView = botBar:addChild({
-		pos = { 0, -35 },
-		size = { botBar.size.w / 2, 30 }
+		pos = { 0, -40 },
+		size = { botBar.size.w / 2, 35 }
 	}, true)
 	TBMenu:spawnToggle(grNewGameToggleView, 5, 2, grNewGameToggleView.size.h - 4, grNewGameToggleView.size.h - 4, Gamerules.StartNewgame, function(val) Gamerules.StartNewgame = val set_option("grnewgame", val) save_custom_config() end)
 	local grNewGameText = UIElement:new({
@@ -948,8 +952,8 @@ function Gamerules.showMain()
 
 	local grNewGameButton = UIElement:new({
 		parent = botBar,
-		pos = { botBar.size.w / 2 + 5, -35 },
-		size = { botBar.size.w / 2 - 10, 28 },
+		pos = { botBar.size.w / 2 + 5, -40 },
+		size = { botBar.size.w / 2 - 10, 33 },
 		shapeType = ROUNDED,
 		rounded = 3,
 		interactive = true,
@@ -993,22 +997,11 @@ function Gamerules.showMain()
 			end
 		end)
 
-	local quitButton = mainMoverHolder:addChild({
-		pos = { -mainMoverHolder.size.h, 0 },
-		size = { mainMoverHolder.size.h, mainMoverHolder.size.h },
-		bgColor = TB_MENU_DEFAULT_DARKER_COLOR,
-		hoverColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
-		interactive = true,
-		shapeType = ROUNDED,
-		rounded = 4
-	})
-	quitButton:addChild({
-		shift = { 2, 2 },
-		bgImage = "../textures/menu/general/buttons/crosswhite.tga"
-	})
-	quitButton:addMouseHandlers(nil, function()
-			Gamerules.MainElement:kill()
-			Gamerules.MainElement = nil
-		end)
+	TBMenu:spawnCloseButton(mainMoverHolder, {
+		x = -mainMoverHolder.size.h, y = 0,
+		w = mainMoverHolder.size.h, h = mainMoverHolder.size.h
+	}, function()
+		Gamerules.MainElement:kill()
+		Gamerules.MainElement = nil
+	end)
 end

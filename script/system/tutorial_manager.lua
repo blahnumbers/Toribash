@@ -7,6 +7,9 @@ require("system.tooltip_manager")
 if (Tutorials == nil) then
 	---**Toribash Tutorials class**
 	---
+	---**Version 5.76**
+	---* Migrate to options-based config
+	---
 	---**Version 5.74**
 	---* Updates to support RPG functionality
 	---* Fixes to tutorial progress bar display
@@ -57,7 +60,7 @@ if (Tutorials == nil) then
 	---@field RPGState boolean|nil RPG state when tutorial was launched
 	---@field ver number
 	Tutorials = {
-		ver = 5.74,
+		ver = 5.76,
 		Globalid = 1003,
 		ReplaySpeed = 1,
 		ReplayCache = false,
@@ -123,6 +126,11 @@ function Tutorials:quit()
 	end
 	TutorialsInternal.HandleMobileOption({ name = "hud", value = 1 })
 	self.StoredOptions = {}
+
+	-- Save config changes now after we've recovered options modified by the tutorial.
+	-- Normally it doesn't really matter if we ever call this as config *should* get saved
+	-- automatically on app exit but keep it just for rare cases when that may not happen.
+	save_custom_config()
 
 	chat_input_activate()
 	if (is_mobile()) then
@@ -1980,45 +1988,29 @@ end
 ---@param next ?boolean
 ---@return boolean
 function TutorialsInternal.UpdateConfig(next)
-	-- Steam achievements integration
-	if (type(Tutorials.CurrentTutorial) == "number") then
-		---@diagnostic disable-next-line: undefined-global
-		local level = get_tutorial_level()
-		if (level < Tutorials.CurrentTutorial or Tutorials.CurrentTutorial > 4) then
-			---@diagnostic disable-next-line: param-type-mismatch, undefined-global
-			set_tutorial_level(Tutorials.CurrentTutorial)
-		end
-	else
-		return false
+	if (type(Tutorials.CurrentTutorial) ~= "number") then
+		return false;
 	end
 
-	---@type integer|string
-	local nextTutId = 1
-	local tutorialsConfig = Files.Open("../data/tutorials/config.cfg")
-	local configData = tutorialsConfig:readAll()
-	tutorialsConfig:close()
-	for _, ln in pairs(configData) do
-		if (ln:find("^NEXT")) then
-			nextTutId = ln:gsub("^NEXT ", "") + 0
-			break
-		end
-	end
-	if (Tutorials.CurrentTutorial >= nextTutId) then
-		if (next) then
-			nextTutId = Tutorials.CurrentTutorial + 1
-		else
-			nextTutId = Tutorials.CurrentTutorial
-		end
+	---@type number
+	---@diagnostic disable-next-line: assign-type-mismatch
+	local tutorialId = Tutorials.CurrentTutorial
+
+	-- Achievements integration for supported platforms
+	---@diagnostic disable-next-line: undefined-global
+	local level = get_tutorial_level()
+	if (level < Tutorials.CurrentTutorial or Tutorials.CurrentTutorial > 4) then
+		---@diagnostic disable-next-line: param-type-mismatch, undefined-global
+		set_tutorial_level(Tutorials.CurrentTutorial)
 	end
 
-	tutorialsConfig:reopen(FILES_MODE_WRITE)
-	if (not tutorialsConfig.data) then
-		return false
+	local nextTutId = get_option("tutorialsnext")
+	if (tutorialId >= nextTutId) then
+		nextTutId = tutorialId + (next and 1 or 0)
 	end
-
-	tutorialsConfig:writeLine("NEXT " .. nextTutId)
-	tutorialsConfig:writeLine("LAST " .. Tutorials.CurrentTutorial)
-	tutorialsConfig:close()
+	
+	set_option("tutorialslast", tutorialId)
+	set_option("tutorialsnext", nextTutId)
 	return true
 end
 
@@ -2603,17 +2595,27 @@ end
 ---@return integer #Next tutorial id
 ---@return integer #Last played tutorial id
 function Tutorials:getConfig()
-	local tutorialsConfig = Files.Open("../data/tutorials/config.cfg")
-	local configLines = tutorialsConfig:readAll()
-	tutorialsConfig:close()
+	local nextTutorial = get_option("tutorialsnext")
+	local lastTutorial = get_option("tutorialslast")
 
-	local nextTutorial, lastTutorial = 1, 1
-	for _, ln in pairs(configLines) do
-		if (ln:find("^LAST")) then
-			lastTutorial = ln:gsub("^LAST ", "") + 0
-		elseif (ln:find("^NEXT")) then
-			nextTutorial = ln:gsub("^NEXT ", "") + 0
+	-- Check whether a legacy tutorials config exists and has data
+	if (lastTutorial == 0) then
+		local tutorialsConfig = Files.Open("../data/tutorials/config.cfg")
+		local configLines = tutorialsConfig:readAll()
+		tutorialsConfig:close()
+
+		nextTutorial, lastTutorial = 1, 1
+		for _, ln in pairs(configLines) do
+			if (ln:find("^LAST")) then
+				lastTutorial = ln:gsub("^LAST ", "") + 0
+			elseif (ln:find("^NEXT")) then
+				nextTutorial = ln:gsub("^NEXT ", "") + 0
+			end
 		end
+
+		-- Update options with proper config values
+		set_option("tutorialslast", lastTutorial)
+		set_option("tutorialsnext", nextTutorial)
 	end
 	return nextTutorial, lastTutorial
 end

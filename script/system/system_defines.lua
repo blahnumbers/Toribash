@@ -3087,6 +3087,8 @@ function save_custom_config() end
 ---| "scrollcontrols"
 ---| "keyframesavemode"
 ---| "effectsvariablespeed"
+---| "tutorialslast"
+---| "tutorialsnext"
 ---| "aidifficulty" #Toribash builds with AI fight mode only
 
 ---Retrieves a value of the specified Toribash option

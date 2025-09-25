@@ -953,7 +953,7 @@ function Atmospheres:showMain()
 	Atmospheres.MainElement.killAction = function() Atmospheres.MainElement = nil end
 
 	local elementHeight = 36
-	local toReload, topBar, botBar, _, listingHolder = TBMenu:prepareScrollableList(holderElement, 45, 80, 20, TB_MENU_DEFAULT_BG_COLOR)
+	local toReload, topBar, botBar, _, listingHolder = TBMenu:prepareScrollableList(holderElement, 45, 85, 20, TB_MENU_DEFAULT_BG_COLOR)
 
 	topBar.shapeType = holderElement.shapeType
 	topBar:setRounded(holderElement.rounded)

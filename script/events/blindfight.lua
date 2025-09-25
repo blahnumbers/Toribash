@@ -25,6 +25,14 @@ local function requireKeyPressSpace(viewElement, reqTable)
 			reqTable.ready = Tutorials:checkRequirements(reqTable)
 		end
 	end)
+
+	-- If either player or Uke got disqualified, freeze game and auto progress to next step
+	add_hook("post_draw3d", Tutorials.StepHook, function()
+		if (UIElement.WorldState.winner ~= -1) then
+			req.ready = true
+			reqTable.ready = Tutorials:checkRequirements(reqTable)
+		end
+	end)
 end
 
 ---@param viewElement UIElement
@@ -299,12 +307,12 @@ local function showPostSimulation(viewElement, reqTable)
 	Tutorials.CurrentStep.fallback = nil
 
 	local rewindObserver = viewElement:addChild({})
-	local rewindFrame = UIElement.WorldState.match_frame
 	rewindObserver:addCustomDisplay(function()
-		if (UIElement.WorldState.match_frame >= rewindFrame) then
+		if (UIElement.WorldState.gameover_frame == -1) then return end
+		if (UIElement.WorldState.match_frame >= UIElement.WorldState.gameover_frame + 90) then
 			TUTORIAL_LEAVEGAME = true
 			rewind_replay()
-			run_frames(rewindFrame)
+			run_frames(UIElement.WorldState.gameover_frame + 90)
 			TUTORIAL_LEAVEGAME = false
 		end
 	end)
@@ -408,7 +416,7 @@ end
 ---@param reqTable TutorialStepRequirement[]
 ---@param playerMove MemoryMove
 ---@param opponentInfos BlindFightOpponent[]
----@param rewardsEarned BlindFightReward[]
+---@param rewardsEarned EventRewardBase[]
 ---@param id integer
 local function showSimulationResults(viewElement, reqTable, playerMove, opponentInfos, rewardsEarned, id)
 	viewElement:kill(true)
@@ -434,6 +442,7 @@ local function showSimulationResults(viewElement, reqTable, playerMove, opponent
 	local frame = 0
 	local gameObserver = viewElement:addChild({})
 	local spawnVictoryText = function()
+		if (gameObserver.destroyed) then return end
 		local victoryText = gameObserver:addChild({
 			pos = { -1, WIN_H / 2 - 20 },
 			size = { 500, 40 },
@@ -455,7 +464,23 @@ local function showSimulationResults(viewElement, reqTable, playerMove, opponent
 			end)
 	end
 	local victoryTextSpawned = false
-	add_hook("pre_draw", "__blindFightManager", function()
+	local onNext = function(skipToEnd)
+		remove_hook("pre_draw", "__blindFightManager")
+		if (#opponentInfos > id and skipToEnd ~= true) then
+			showSimulationResults(viewElement, reqTable, playerMove, opponentInfos, rewardsEarned, id + 1)
+			return
+		end
+		if (not table.empty(rewardsEarned)) then
+			Tutorials.CurrentStep.skip = 1
+		end
+		Events.BlindFightRewards = rewardsEarned
+		Events.BlindFightOpponents = opponentInfos
+		for _, req in pairs(reqTable) do
+			pcall(function() req.ready = true end)
+		end
+		reqTable.ready = true
+	end
+	add_hook("pre_draw", "__blindFightManagerStepper", function()
 		if (UIElement.WorldState.gameover_frame == -1) then
 			if (UIElement.WorldState.match_frame == frame) then
 				frame = frame + get_turn_frame(step)
@@ -469,29 +494,55 @@ local function showSimulationResults(viewElement, reqTable, playerMove, opponent
 				step_game(true, true)
 			end
 		else
+			remove_hooks("__blindFightManagerStepper")
+		end
+	end)
+	add_hook("new_game", "__blindFightManagerStepper", function()
+		remove_hooks("__blindFightManagerStepper")
+	end)
+	add_hook("pre_draw", "__blindFightManager", function()
+		if (UIElement.WorldState.gameover_frame > -1) then
 			if (UIElement.WorldState.match_frame >= UIElement.WorldState.gameover_frame and not victoryTextSpawned) then
 				victoryTextSpawned = true
 				spawnVictoryText()
 			elseif (UIElement.WorldState.gameover_frame + 90 < UIElement.WorldState.match_frame) then
 				--[[local rplName = "blindfight/blindfight-" .. os.date("%Y%m%d-%H%M%S", os.time()) .. "-" .. opponentInfos[id].username
 				runCmd("savereplay ../" .. rplName)]]
-				remove_hook("pre_draw", "__blindFightManager")
-				if (#opponentInfos > id) then
-					showSimulationResults(viewElement, reqTable, playerMove, opponentInfos, rewardsEarned, id + 1)
-				else
-					if (not table.empty(rewardsEarned)) then
-						Tutorials.CurrentStep.skip = 1
-					end
-					Events.BlindFightRewards = rewardsEarned
-					Events.BlindFightOpponents = opponentInfos
-					for _, req in pairs(reqTable) do
-						pcall(function() req.ready = true end)
-					end
-					reqTable.ready = true
-				end
+				onNext(false)
 			end
 		end
 	end)
+	local skipButton = viewElement:addChild({
+		pos = { Tutorials.ContinueButton.shift.x, Tutorials.ContinueButton.shift.y },
+		size = { Tutorials.ContinueButton.size.w, Tutorials.ContinueButton.size.h },
+		interactive = true,
+		bgColor = TB_MENU_DEFAULT_BG_COLOR,
+		hoverColor = TB_MENU_DEFAULT_DARKER_COLOR,
+		pressedColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
+		shapeType = ROUNDED,
+		rounded = Tutorials.ContinueButton.rounded
+	})
+	skipButton:addChild({ shift = { 16, 16 }, bgImage = "../textures/menu/general/buttons/skip.tga" })
+	skipButton.longSkip = false
+	local skipButtonLongIndicator = skipButton:addChild({ shift = { 4, 4 } })
+	local skipButtonLongIndicatorHalfSize = skipButtonLongIndicator.size.w / 2
+	skipButtonLongIndicator:addCustomDisplay(true, function()
+			if (skipButton.clickClock == nil) then return end
+			if (UIElement.clock - skipButton.clickClock >= 1) then
+				skipButton.longSkip = true
+			end
+			set_color(1, 1, 1, 1)
+			draw_disk(skipButtonLongIndicator.pos.x + skipButtonLongIndicatorHalfSize, skipButtonLongIndicator.pos.y + skipButtonLongIndicatorHalfSize, skipButtonLongIndicatorHalfSize - 4, skipButtonLongIndicatorHalfSize, 50, 1, -360 * (UIElement.clock - skipButton.clickClock), 360 * (UIElement.clock - skipButton.clickClock), 0)
+		end)
+	skipButton:addMouseHandlers(function()
+			skipButton.longSkip = false
+			skipButton.clickClock = os.clock_real()
+		end, function()
+			skipButton.clickClock = nil
+			onNext(skipButton.longSkip)
+		end, nil, nil, function()
+			skipButton.clickClock = nil
+		end)
 end
 
 ---@param viewElement UIElement
@@ -572,8 +623,11 @@ local function onRecordingComplete(viewElement, reqTable)
 	local moveData = MemoryMove.FromData(MoveMemory.Recording[0])
 	MoveMemory:cancelRecording(0)
 
-	local currentFrame = UIElement.WorldState.match_frame + get_turn_frame(3) + 40
-	run_frames(get_turn_frame(3) + 40)
+	local currentFrame = UIElement.WorldState.match_frame
+	if (UIElement.WorldState.winner == 0) then
+		currentFrame = currentFrame + get_turn_frame(3) + 40
+		run_frames(get_turn_frame(3) + 40)
+	end
 	viewElement:addChild({}):addCustomDisplay(function()
 			if (UIElement.WorldState.match_frame >= currentFrame) then
 				TUTORIAL_LEAVEGAME = true

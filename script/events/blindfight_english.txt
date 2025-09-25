@@ -1,6 +1,6 @@
 #Messages
 INTRO1	Hi and welcome to Blind Fight!
-INTRO2	In this game mode, your task is to create an opener in {modname} - the current season's mod.
+INTRO2	In this game mode, your task is to create an opener in ^52{modname}^00 - the current season's mod.
 INTRO3	Once you're ready with your opener, you will be placed in a group where your moves will be used against other players' moves.
 INTRO4	Defeat as many opponents as you can to stay at the top of the group and progress to the next league.
 INTRO5	Beat all players in a group in a single go to move up a league instantly and receive a bonus reward.
