@@ -275,7 +275,8 @@ function BattlePass:showPastSeasons(viewElement)
 		activePastSeasonView:addAdaptedText(TB_MENU_LOCALIZED.BATTLEPASSNOREWINDSEASONSAVAILABLE)
 		allPastSeasonsButton:addAdaptedText(TB_MENU_LOCALIZED.BATTLEPASSABOUTREWINDSEASONS)
 	elseif (activePastSeason == nil) then
-		activePastSeasonView:addAdaptedText(TB_MENU_LOCALIZED.BATTLEPASSSELECTREWINDSEASON)
+		activePastSeasonView:addAdaptedText(TB_MENU_LOCALIZED.BATTLEPASSNOREWINDSEASONSELECTED)
+		allPastSeasonsButton:addAdaptedText(TB_MENU_LOCALIZED.BATTLEPASSSELECTREWINDSEASON)
 	else
 		local pastSeasonInfoView = activePastSeasonView:addChild({
 			pos = { 0, 0 },
@@ -455,9 +456,10 @@ function BattlePass:showPastSeasonsInfoPicker(viewElement, activeSeason)
 			rounded = 4
 		})
 		TBMenu:spawnCloseButton(infoView, { x = -50, y = 10, w = 40, h = 40 }, function() overlay:kill() end)
-		infoView:addChild({ shift = { 100, 50 } }):addAdaptedText(TB_MENU_LOCALIZED.BATTLEPASSABOUTREWINDSEASONSINFO, { font = FONTS.LMEDIUM })
+		infoView:addChild({ shift = { 75, 50 } }):addAdaptedText(TB_MENU_LOCALIZED.BATTLEPASSABOUTREWINDSEASONSINFO, { font = FONTS.LMEDIUM })
 		return
 	end
+
 	local dimensions = { math.min(1000, WIN_W * 0.7), math.min(700, WIN_H * 0.65 )}
 	local infoView = overlay:addChild({
 		pos = { (overlay.size.w - dimensions[1]) / 2, (overlay.size.h - dimensions[2]) / 2 },

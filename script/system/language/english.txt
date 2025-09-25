@@ -1392,10 +1392,11 @@ ACCOUNTINFOSUBSCRIPTIONEXPIREDHINT	This subscription has run out and will be soo
 WORDXP	XP
 BATTLEPASSSWITCHREWINDSEASON	Switch rewind season
 BATTLEPASSREWINDSEASON	Rewind season
+BATTLEPASSNOREWINDSEASONSELECTED	Select an active rewind season to continue earning rewards
 BATTLEPASSSELECTREWINDSEASON	Select rewind season
 BATTLEPASSNOREWINDSEASONSAVAILABLE	No rewind seasons available
 BATTLEPASSABOUTREWINDSEASONS	More about rewind seaons
-BATTLEPASSABOUTREWINDSEASONSINFO	Upgrading your Battle Pass to Premium allows you to finish it and continue claiming rewards any time - even after it ends its main run.\nThis screen will contain all the past Battle Pass Seasons where you still haven't collected all rewards.
+BATTLEPASSABOUTREWINDSEASONSINFO	Upgrading your Battle Pass to Premium allows you to continue claiming its rewards any time - even after the season ends its main run.\n\nThis screen will contain all the past Battle Pass seasons where you still haven't collected all rewards.
 BATTLEPASSABOUTREWINDSEASONSINFO2	Select one the Battle Pass seasons from the list to set it as an active Rewind Season.\nAny Battle Pass XP earned during the ongoing season will also contribute towards your active Rewind Season's progression.
 BATTLEPASSSETASACTIVEREWINDSEASON	Set active
 BATTLEPASSREWINDSEASONCHANGED	Your Rewind Season has been successfully changed to {x}!
