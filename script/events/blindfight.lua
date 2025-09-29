@@ -623,11 +623,9 @@ local function onRecordingComplete(viewElement, reqTable)
 	local moveData = MemoryMove.FromData(MoveMemory.Recording[0])
 	MoveMemory:cancelRecording(0)
 
-	local currentFrame = UIElement.WorldState.match_frame
-	if (UIElement.WorldState.winner == 0) then
-		currentFrame = currentFrame + get_turn_frame(3) + 40
-		run_frames(get_turn_frame(3) + 40)
-	end
+	local playFrames = math.min(90, get_turn_frame(3) + 40)
+	local currentFrame = UIElement.WorldState.match_frame + playFrames
+	run_frames(playFrames)
 	viewElement:addChild({}):addCustomDisplay(function()
 			if (UIElement.WorldState.match_frame >= currentFrame) then
 				TUTORIAL_LEAVEGAME = true
