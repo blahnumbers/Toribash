@@ -2,8 +2,8 @@
 
 Complete API documentation for Toribash's main menu orchestration system, managing all UI navigation, screens, and user interactions.
 
-**Version**: 5.76
-**File**: `script/system/menu_manager.lua`
+**Version**: 5.76  
+**File**: `script/system/menu_manager.lua`  
 
 ## Table of Contents
 
@@ -15,8 +15,7 @@ Complete API documentation for Toribash's main menu orchestration system, managi
 6. [UI Components](#ui-components)
 7. [Dialogs & Popups](#dialogs--popups)
 8. [Data Display](#data-display)
-9. [User Avatar & Bar](#user-avatar--bar)
-10. [Advanced Features](#advanced-features)
+9. [Advanced Features](#advanced-features)
 
 ## Overview
 

@@ -921,8 +921,8 @@ end
 ---@param scrollIgnoreOverride ?boolean
 ---@param orientation ?UIElementScrollMode
 function UIElement:makeScrollBar(listHolder, listElements, toReload, posShift, scrollSpeed, scrollIgnoreOverride, orientation)
-	local scrollSpeed = scrollSpeed or 1
-	local posShift = posShift or { 0 }
+	scrollSpeed = scrollSpeed or 1
+	posShift = posShift or { 0 }
 	self.orientation = orientation or SCROLL_VERTICAL
 
 	local enabled = {}
