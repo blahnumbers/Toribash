@@ -213,7 +213,6 @@ local element = UIElement.new({
 ```
 
 **Note on `globalid`:** You typically don't need to specify a `globalid`. By default, all UIElements use `TB_MENU_HUB_GLOBALID` and are automatically rendered by the main menu system in `menu_main.lua`. Only specify a custom `globalid` if you're creating your own rendering loop with `UIElement.drawVisuals(globalid)` via the `draw2d` hook (and optionally viewport rendering via `draw_viewport` hook).
-```
 
 #### Common UIElementOptions
 
