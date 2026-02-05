@@ -150,7 +150,7 @@ SORT_DESCENDING = true      -- Descending order (Z-A, 9-0)
 
 ## Core Classes
 
-#### Vector2
+### Vector2
 
 ```lua
 local vec = Vector2.New(x, y)
