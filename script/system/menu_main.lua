@@ -84,6 +84,9 @@ require("system.gamerules_manager")
 require("system.atmospheres_manager")
 require("system.movememory_manager")
 require("system.tooltip_manager")
+if (not is_mobile() and get_desktop_chat_tabs) then
+	require("system.chat_desktop")
+end
 require("system.broadcast_manager")
 require("system.flames_manager")
 
