@@ -1454,6 +1454,14 @@ function Settings:getSettingsData(id)
 						hidden = is_mobile()
 					},
 					{
+						-- The chat before 5.78's desktop chat (no tabs skin, emoji or scrolling); older clients lack the option
+						name = TB_MENU_LOCALIZED.SETTINGSLEGACYCHAT or "Legacy chat",
+						type = TOGGLE,
+						systemname = "legacychat",
+						val = { get_option("legacychat") or 0 },
+						hidden = is_mobile() or get_option("legacychat") == nil
+					},
+					{
 						name = TB_MENU_LOCALIZED.SETTINGSPROFANITYFILTER,
 						type = TOGGLE,
 						systemname = "chatcensor",

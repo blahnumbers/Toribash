@@ -42,6 +42,17 @@ add_hook("pre_draw", hook, function()
     root:updatePos()
 end)
 add_hook("draw2d", hook, function() if (root) then UIElement.drawVisuals(globalid) end end)
+-- The wheel over the open chat's lines scrolls it too, not only over its scrollbar (whose own handler takes that).
+-- Clicks still reach the lines (links): only the wheel (buttons 4 and 5) is taken here.
+add_hook("mouse_button_down", hook, function(button)
+    if (not state or (button ~= 4 and button ~= 5) or TB_CHAT_EMOJI_PICKER_OPEN) then return end
+    if (MOUSE_X < 0 or MOUSE_X >= state.x or MOUSE_Y < state.y or MOUSE_Y > state.y + state.h) then return end
+    local reference = TB_CHAT_REFERENCE
+    if (reference and MOUSE_X >= reference.pos.x and MOUSE_X <= reference.pos.x + reference.size.w
+        and MOUSE_Y >= reference.pos.y and MOUSE_Y <= reference.pos.y + reference.size.h) then return end
+    set_desktop_chat_scroll(state.tab, state.offset + (button == 4 and -3 or 3))
+    return 1
+end)
 add_hook("resolution_changed", hook, destroy)
 add_hook("new_game", hook, destroy)
 add_hook("unload", hook, destroy)

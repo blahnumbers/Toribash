@@ -17,7 +17,8 @@ local ink = get_color_rgba(COLORS.GREY)
 ink[4] = 1
 local surface = TB_MENU_DEFAULT_INACTIVE_COLOR
 local hover = TB_MENU_DEFAULT_LIGHTEST_COLOR
-local unreadColor = TB_MENU_DEFAULT_YELLOW
+local unreadInk = { 0.12, 0.12, 0.12, 1 } -- an unread tab stays grey with its name dark; its badge shows the count
+local POP = 0.4 -- seconds an unread badge's pop takes to settle
 
 local function destroy()
     if (root) then root:kill() root = nil end
@@ -68,15 +69,34 @@ local function rebuild(tabs, key)
                 closeIcon = close:addChild({ pos = { 5 * scale, (tab.h - 14 * scale) / 2 }, size = { 14 * scale, 14 * scale }, bgImage = "../textures/menu/general/buttons/crosswhite.tga", imageColor = ink })
                 close:addMouseUpHandler(function() close_chat_tab(tab.id) end)
             end
-            local badge = button:addChild({ pos = { 26 * scale, tab.h - 20 * scale }, size = { 22 * scale, 20 * scale }, bgColor = red, shapeType = ROUNDED, rounded = 7 * scale, uiColor = white })
-            badge:addAdaptedText(false, tostring(tab.unread), nil, nil, FONTS.SMALL, CENTERMID, 0.85)
-            views[i] = { button = button, label = label, close = closeIcon, badge = badge, roomIcon = roomIcon, avatarObjects = avatarObjects, avatarAlphas = avatarAlphas }
+            local view = { button = button, label = label, close = closeIcon, roomIcon = roomIcon, avatarObjects = avatarObjects, avatarAlphas = avatarAlphas, popAt = -1e9 }
+            -- The unread count as the main menu's bell has it: an orange circle (a pill past one digit), black, on
+            -- the icon's top right corner, popping when it goes up.
+            local badge = button:addChild({ pos = { 0, 0 }, size = { tab.w, tab.h } })
+            badge:addCustomDisplay(false, function()
+                if (not view.unread or view.unread <= 0 or view.selected) then return end
+                local text = tostring(view.unread)
+                local textWidth = get_string_length(text, FONTS.MEDIUM) * 0.6
+                local w, h = math.max(18 * scale, textWidth + 8 * scale), 18 * scale
+                local cx, cy = badge.pos.x + 47 * scale - w / 2, badge.pos.y + scale + h / 2
+                local k = math.max(0, math.min(1, 1 - (UIElement.clock - view.popAt) / POP))
+                local pop = 1 + 0.35 * k * k
+                w, h = w * pop, h * pop
+                local x, y, r = cx - w / 2, cy - h / 2, h / 2
+                set_color(TB_MENU_DEFAULT_ORANGE[1], TB_MENU_DEFAULT_ORANGE[2], TB_MENU_DEFAULT_ORANGE[3], 1)
+                draw_quad(x + r, y, w - 2 * r, h)
+                draw_disk(x + r, y + r, 0, r, 24, 1, -180, 180, 0)
+                draw_disk(x + w - r, y + r, 0, r, 24, 1, 0, 180, 0)
+                set_color(0, 0, 0, 1)
+                draw_text_angle_scale(text, cx - textWidth * pop / 2, cy - 24 * 0.6 * pop / 2, 0, 0.6 * pop, FONTS.MEDIUM)
+            end)
+            views[i] = view
         end
     end
 end
 
 local function refresh()
-    local enabled = get_option("chattabstyle") ~= 0 and TB_MENU_MAIN_ISOPEN ~= 1 and TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 1
+    local enabled = get_option("legacychat") ~= 1 and TB_MENU_MAIN_ISOPEN ~= 1 and TB_MENU_SPECIAL_SCREEN_ISOPEN ~= 1
     local tabs = get_desktop_chat_tabs(enabled)
     if (not enabled or not tabs or next(tabs) == nil) then destroy() return end
     local parts = {}
@@ -88,20 +108,17 @@ local function refresh()
     if (signature ~= key) then rebuild(tabs, key) end
     for i, view in pairs(views) do
         local tab = tabs[i]
-        view.button.bgColor = tab.selected and red or (tab.unread > 0 and unreadColor or surface)
+        view.button.bgColor = tab.selected and red or surface
         view.button.hoverColor = tab.selected and TB_MENU_DEFAULT_BG_COLOR or hover
-        local foreground = tab.selected and white or (tab.unread > 0 and UICOLORBLACK or ink)
+        local foreground = tab.selected and white or (tab.unread > 0 and unreadInk or ink)
         view.label.uiColor = foreground
         if (view.close) then view.close.imageColor = foreground end
         if (view.roomIcon) then view.roomIcon.imageColor = foreground end
         for index, object in ipairs(view.avatarObjects or {}) do
             object.bgColor[4] = view.avatarAlphas[index] * ((tab.selected or tab.unread > 0) and 1 or 0.85)
         end
-        if (tab.unread > 0 and not tab.selected) then
-            if (view.unread ~= tab.unread) then view.badge:addAdaptedText(false, tostring(tab.unread), nil, nil, FONTS.SMALL, CENTERMID, 0.85) end
-            view.badge:show()
-        else view.badge:hide() end
-        view.unread = tab.unread
+        if (view.unread and tab.unread > view.unread) then view.popAt = UIElement.clock end -- (unread already when the chat comes: no pop)
+        view.unread, view.selected = tab.unread, tab.selected
     end
 end
 

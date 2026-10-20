@@ -6,6 +6,7 @@ local root, draftKey, renderedKey, changedAt, dismissedText, request = nil, nil,
 local forced = false
 local function destroy()
     if (root) then root:kill() root = nil end
+    TB_CHAT_REFERENCE = nil
     renderedKey = nil
     set_desktop_chat_reference(false, false)
 end
@@ -107,6 +108,7 @@ add_hook("pre_draw", hook, function()
     end
     local bar = TBMenu:spawnScrollBar(list, #elements, rowHeight)
     bar:makeScrollBar(list, elements, reload)
+    TB_CHAT_REFERENCE = root -- (chat_scroll.lua: the wheel over it scrolls it, not the chat)
     set_desktop_chat_reference(true, false)
 end)
 add_hook("key_down", hook, function(key)

@@ -57,12 +57,20 @@ add_hook("pre_draw", hook, function()
     root = UIElement:new({ globalid = globalid, pos = { 0, 0 }, size = { WIN_W, WIN_H } })
     if (not input.visible) then return end -- Keep inline emoji tooltips available.
     if (input.skin) then
-        -- Only the outline is drawn after the native text, leaving glyphs and caret untouched.
+        -- The box's white fill (rounded at all four corners) and border, drawn before the native text field, which
+        -- leaves its own back clear with the skin on and draws only the text and caret over this.
         local frame = root:addChild({ pos = { input.x, input.y }, size = { input.w + 38 * scale, input.h } })
         frame:addCustomDisplay(false, function()
             local x, y, w, h, r = frame.pos.x, frame.pos.y, frame.size.w, frame.size.h, 4 * scale
+            local f = math.max(0, r - 1)
             set_color(TB_MENU_UI_TEXT_COLOR[1], TB_MENU_UI_TEXT_COLOR[2], TB_MENU_UI_TEXT_COLOR[3], 180 / 255)
-            draw_quad(x + input.w, y + 1, w - input.w - 1, h - 2)
+            draw_quad(x + r, y + 1, w - 2 * r, h - 2)
+            draw_quad(x + 1, y + r, r - 1, h - 2 * r)
+            draw_quad(x + w - r, y + r, r - 1, h - 2 * r)
+            draw_disk(x + r, y + r, 0, f, 16, 1, -180, 90, 0)
+            draw_disk(x + w - r, y + r, 0, f, 16, 1, 90, 90, 0)
+            draw_disk(x + r, y + h - r, 0, f, 16, 1, -90, 90, 0)
+            draw_disk(x + w - r, y + h - r, 0, f, 16, 1, 0, 90, 0)
             set_color(unpack(input.focused and TB_MENU_DEFAULT_BG_COLOR or TB_MENU_DEFAULT_INACTIVE_COLOR))
             draw_quad(x + r, y, w - 2 * r, 1)
             draw_quad(x + r, y + h - 1, w - 2 * r, 1)
