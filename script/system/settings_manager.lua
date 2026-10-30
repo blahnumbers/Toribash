@@ -1224,6 +1224,112 @@ function Settings:getSettingsData(id)
 				}
 			},
 			{
+				name = TB_MENU_LOCALIZED.SETTINGSGHOST or "Ghost",
+				items = {
+					{
+						-- The fighter you control (Tori offline): classic ghost, end of turn ghost (system/betterghost.lua) or both
+						name = TB_MENU_LOCALIZED.SETTINGSGHOSTSTYLE or "My ghost: style",
+						type = DROPDOWN,
+						systemname = "ghoststyle",
+						selectedAction = function()
+								local _, selected = Settings.GetGhostStyleDropdown("ghoststyle")
+								return selected
+							end,
+						dropdown = Settings.GetGhostStyleDropdown("ghoststyle"),
+						hidden = get_option("ghoststyle") == nil
+					},
+					{
+						name = TB_MENU_LOCALIZED.SETTINGSGHOSTCOLOR or "My ghost: end of turn color",
+						type = DROPDOWN,
+						systemname = "ghostcolor",
+						selectedAction = function()
+								local _, selected = Settings.GetGhostColorDropdown("ghostcolor")
+								return selected
+							end,
+						dropdown = Settings.GetGhostColorDropdown("ghostcolor"),
+						dropdownHeight = 300,
+						hidden = get_option("ghostcolor") == nil or Settings.GetGhostOption("ghoststyle") == 0
+					},
+					{
+						-- Everyone else's ghost
+						name = TB_MENU_LOCALIZED.SETTINGSGHOSTSTYLEOPPONENT or "Opponent's ghost: style",
+						type = DROPDOWN,
+						systemname = "ghoststyleopponent",
+						selectedAction = function()
+								local _, selected = Settings.GetGhostStyleDropdown("ghoststyleopponent")
+								return selected
+							end,
+						dropdown = Settings.GetGhostStyleDropdown("ghoststyleopponent"),
+						hidden = get_option("ghoststyleopponent") == nil
+					},
+					{
+						name = TB_MENU_LOCALIZED.SETTINGSGHOSTCOLOROPPONENT or "Opponent's ghost: end of turn color",
+						type = DROPDOWN,
+						systemname = "ghostcoloropponent",
+						selectedAction = function()
+								local _, selected = Settings.GetGhostColorDropdown("ghostcoloropponent")
+								return selected
+							end,
+						dropdown = Settings.GetGhostColorDropdown("ghostcoloropponent"),
+						dropdownHeight = 300,
+						hidden = get_option("ghostcoloropponent") == nil or Settings.GetGhostOption("ghoststyleopponent") == 0
+					},
+					{
+						name = TB_MENU_LOCALIZED.SETTINGSGHOSTCLASSICOPACITY or "Classic ghost: opacity",
+						type = SLIDER,
+						maxValue = 100,
+						systemname = "ghostclassicopacity",
+						val = { Settings.GetGhostOption("ghostclassicopacity") },
+						hidden = get_option("ghostclassicopacity") == nil or (Settings.GetGhostOption("ghoststyle") == 1 and Settings.GetGhostOption("ghoststyleopponent") == 1)
+					},
+					{
+						name = TB_MENU_LOCALIZED.SETTINGSGHOSTOPACITY or "End of turn ghost: opacity",
+						type = SLIDER,
+						maxValue = 100,
+						systemname = "ghostopacity",
+						val = { Settings.GetGhostOption("ghostopacity") },
+						hidden = get_option("ghostopacity") == nil or (Settings.GetGhostOption("ghoststyle") == 0 and Settings.GetGhostOption("ghoststyleopponent") == 0)
+					},
+					{
+						-- Still holds the turn end pose. Moving follows the classic ghost until the turn end
+						name = TB_MENU_LOCALIZED.SETTINGSGHOSTMOVEMENT or "End of turn ghost: movement",
+						type = DROPDOWN,
+						systemname = "ghostmovement",
+						selectedAction = function()
+								return (Settings.GetGhostOption("ghostmovement") or 0) + 1
+							end,
+						dropdown = {
+							{
+								text = TB_MENU_LOCALIZED.SETTINGSGHOSTMOVEMENT0 or "Still",
+								action = function()
+										Settings.Stored.ghostmovement = { value = 0 }
+										Settings:settingsApplyActivate()
+										Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
+									end
+							},
+							{
+								text = TB_MENU_LOCALIZED.SETTINGSGHOSTMOVEMENT1 or "Moving",
+								action = function()
+										Settings.Stored.ghostmovement = { value = 1 }
+										Settings:settingsApplyActivate()
+										Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
+									end
+							}
+						},
+						hidden = get_option("ghostmovement") == nil or (Settings.GetGhostOption("ghoststyle") == 0 and Settings.GetGhostOption("ghoststyleopponent") == 0)
+					},
+					{
+						-- Every ghost; an end of turn ghost that holds still has nothing to fade
+						name = TB_MENU_LOCALIZED.SETTINGSGHOSTFADE or "Fade out",
+						hint = TB_MENU_LOCALIZED.SETTINGSGHOSTFADEHINT or "Ghosts fade out as they near the end of the ghost",
+						type = TOGGLE,
+						systemname = "ghostfade",
+						val = { Settings.GetGhostOption("ghostfade") },
+						hidden = get_option("ghostfade") == nil or (Settings.GetGhostOption("ghoststyle") == 1 and Settings.GetGhostOption("ghoststyleopponent") == 1 and Settings.GetGhostOption("ghostmovement") == 0)
+					}
+				}
+			},
+			{
 				name = TB_MENU_LOCALIZED.SETTINGSREPLAYS,
 				items = {
 					{
@@ -1982,6 +2088,77 @@ function Settings.SetChatCensorSettings()
 	Settings.Stored.chatcensor = { value = wordfilter + hidesystem * 2 }
 end
 
+---A ghost setting's value, counting a change that hasn't been applied yet
+---@param name string
+---@return integer?
+function Settings.GetGhostOption(name)
+	return Settings.Stored[name] and Settings.Stored[name].value or get_option(name)
+end
+
+---Choices for a ghost style: the classic ghost, the end of turn ghost (system/betterghost.lua) or both
+---@param name string ghoststyle for your fighter, ghoststyleopponent for the others
+---@return table[] dropdown
+---@return integer selected
+function Settings.GetGhostStyleDropdown(name)
+	local styles = {
+		TB_MENU_LOCALIZED.SETTINGSGHOSTSTYLE0 or "Classic",
+		TB_MENU_LOCALIZED.SETTINGSGHOSTSTYLE1 or "End of turn",
+		TB_MENU_LOCALIZED.SETTINGSGHOSTSTYLE2 or "Both"
+	}
+	local dropdown = {}
+	for i, text in ipairs(styles) do
+		table.insert(dropdown, {
+			text = text,
+			action = function()
+					Settings.Stored[name] = { value = i - 1 }
+					Settings:settingsApplyActivate()
+					Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
+				end
+		})
+	end
+	return dropdown, (Settings.GetGhostOption(name) or 0) + 1
+end
+
+---Choices for an end of turn ghost color: Automatic, then every ghost color the store has sold, hidden ones included
+---@param name string ghostcolor for your fighter, ghostcoloropponent for the others
+---@return table[] dropdown
+---@return integer selected
+function Settings.GetGhostColorDropdown(name)
+	local items = {}
+	for _, item in pairs(Store.Ready and Store.Items or {}) do
+		if (item.catid == StoreCategory.GhostColors and item.colorid > 0) then
+			local known = items[item.colorid]
+			if (known == nil or item.itemid < known.itemid) then
+				items[item.colorid] = item
+			end
+		end
+	end
+
+	local colors = {}
+	for colorid, item in pairs(items) do
+		table.insert(colors, { id = colorid, name = (item.itemname:gsub(" Ghost$", "")) })
+	end
+	table.sort(colors, function(a, b) return a.name < b.name end)
+	table.insert(colors, 1, { id = 0, name = TB_MENU_LOCALIZED.SETTINGSGHOSTCOLORAUTO or "Automatic" })
+
+	local current = Settings.GetGhostOption(name)
+	local dropdown, selected = {}, 1
+	for i, color in ipairs(colors) do
+		if (color.id == current) then
+			selected = i
+		end
+		table.insert(dropdown, {
+			text = color.name,
+			color = color.id > 0 and get_color_rgba(color.id) or nil,
+			action = function()
+					Settings.Stored[name] = { value = color.id }
+					Settings:settingsApplyActivate()
+				end
+		})
+	end
+	return dropdown, selected
+end
+
 function Settings.SetInvertedCameraSettings()
 	if (Settings.Stored.invertedcamx == nil and Settings.Stored.invertedcamy == nil) then
 		return
@@ -2236,7 +2413,7 @@ function Settings:showSettings(id, keepStoredSettings)
 						if (item.selectedAction) then
 							selectedId = item.selectedAction()
 						end
-						TBMenu:spawnDropdown(itemDropdown, item.dropdown, 30, WIN_H - 100, selectedId and item.dropdown[selectedId], { scale = 0.7 }, { scale = 0.6 })
+						TBMenu:spawnDropdown(itemDropdown, item.dropdown, 30, item.dropdownHeight or WIN_H - 100, selectedId and item.dropdown[selectedId], { scale = 0.7 }, { scale = 0.6 })
 					elseif (item.type == BUTTON) then
 						local itemButtonBG = itemView:addChild({
 							pos = { itemView.size.w / 3 * 2 - 20, 5 },

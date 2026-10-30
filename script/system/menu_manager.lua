@@ -3684,6 +3684,7 @@ end
 ---@field element UIElement
 ---@field itemId integer
 ---@field selected ?boolean
+---@field color ?Color Shown as a swatch next to the text
 
 ---@class DropdownSettings
 ---@field fontid FontId
@@ -3758,7 +3759,8 @@ function TBMenu:spawnDropdown(holderElement, dropdownElements, elementHeight, ma
 		shift = { 1, 1 },
 		bgColor = TB_MENU_DEFAULT_LIGHTER_COLOR
 	}, true)
-	overlay.scrollEnabled = #listElementsDisplay * elementHeight <= maxHeight
+	-- Scrolling outside the list closes it; a list that scrolls takes the wheel itself when the mouse is over it
+	overlay.scrollEnabled = true
 	overlay:addMouseHandlers(function()
 			overlay:hide(true)
 			overlay.selectedElement:show(true)
@@ -3793,9 +3795,26 @@ function TBMenu:spawnDropdown(holderElement, dropdownElements, elementHeight, ma
 		pressedColor = holderElement.pressedColor or TB_MENU_DEFAULT_BG_COLOR,
 		inactiveColor = holderElement.inactiveColor or TB_MENU_DEFAULT_INACTIVE_COLOR_TRANS,
 	}, true)
+	-- Color swatches, when any of the elements has a color
+	local hasColors = false
+	for _, v in pairs(listElementsDisplay) do
+		hasColors = hasColors or v.color ~= nil
+	end
+	local swatchSize = selectedElement.size.h / 2
+	local selectedSwatch = hasColors and selectedElement:addChild({
+		pos = { 10, swatchSize / 2 },
+		size = { swatchSize, swatchSize },
+		bgColor = selectedItem.color or { 0, 0, 0, 0 },
+		shapeType = ROUNDED,
+		rounded = 3
+	})
+	local function getTextShift(item)
+		return item.color and swatchSize + 8 or 0
+	end
+
 	local selectedElementText = selectedElement:addChild({
-		pos = { 10, 2 },
-		size = { selectedElement.size.w - selectedElement.size.h - 10, selectedElement.size.h - 4 }
+		pos = { 10 + getTextShift(selectedItem), 2 },
+		size = { selectedElement.size.w - selectedElement.size.h - 10 - (hasColors and swatchSize + 8 or 0), selectedElement.size.h - 4 }
 	})
 	selectedElementText:addAdaptedText(false, textSettings.uppercase and utf8.safe_upper(selectedItem.text) or selectedItem.text, nil, nil, textSettings.fontid, textSettings.alignment, textSettings.scale)
 	local selectedElementArrow = selectedElement:addChild({
@@ -3835,6 +3854,10 @@ function TBMenu:spawnDropdown(holderElement, dropdownElements, elementHeight, ma
 	---@param item DropdownElement
 	overlay.selectItem = function(item)
 			selectedElementText:addAdaptedText(false, listTextSettings.uppercase and utf8.safe_upper(item.text) or item.text, nil, nil, textSettings.fontid, textSettings.alignment, textSettings.scale)
+			if (selectedSwatch) then
+				selectedSwatch.bgColor = item.color or { 0, 0, 0, 0 }
+				selectedElementText:moveTo(10 + getTextShift(item))
+			end
 			overlay.selectedElement:show(true)
 			if (selectedItem == item) then
 				return
@@ -3878,7 +3901,20 @@ function TBMenu:spawnDropdown(holderElement, dropdownElements, elementHeight, ma
 		if (selectedItem == v) then
 			selectedItemId = i
 		end
-		element:addChild({ shift = { 10, 1 }}):addAdaptedText(false, listTextSettings.uppercase and utf8.safe_upper(v.text) or v.text, nil, nil, listTextSettings.fontid, listTextSettings.alignment, listTextSettings.scale)
+		local text = listTextSettings.uppercase and utf8.safe_upper(v.text) or v.text
+		if (v.color) then
+			-- Just left of the text, which stays where it is in other dropdowns
+			local listSwatchSize = (elementHeight - 2) / 2
+			local textWidth = get_string_length(text, listTextSettings.fontid) * listTextSettings.scale
+			element:addChild({
+				pos = { math.max(10, (element.size.w - textWidth) / 2 - listSwatchSize - 8), listSwatchSize / 2 },
+				size = { listSwatchSize, listSwatchSize },
+				bgColor = v.color,
+				shapeType = ROUNDED,
+				rounded = 3
+			})
+		end
+		element:addChild({ shift = { 10, 1 }}):addAdaptedText(false, text, nil, nil, listTextSettings.fontid, listTextSettings.alignment, listTextSettings.scale)
 		element:addMouseHandlers(v.preAction, function()
 				overlay:hide(true)
 				overlay.selectedElement:show(true)

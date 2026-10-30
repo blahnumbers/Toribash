@@ -1639,6 +1639,23 @@ function set_ghost(ghost_mode) end
 ---@return PlayerGhostCache[]|GhostFrameCache
 function get_ghost_cache(frame) end
 
+---Returns the ghost cache frame the classic ghost is showing, which can be partway between two cached frames,
+---how much of the classic ghost is left as it fades out near the end of its loop (1 to 0), and the last frame
+---the ghost cache holds since the ghost last restarted. Frames after it are left over from an older ghost
+---@return number frame
+---@return number fade
+---@return integer last_cached_frame
+function get_ghost_frame() end
+
+---Returns whether the specified player's ghost uses your ghost settings rather than the opponent's: the fighter you control in multiplayer, else Tori
+---@param player integer
+---@return boolean
+function is_own_ghost(player) end
+
+---Returns how many frames the ghost runs for. In single player this can differ from the ghostlength game rule, which only applies to the next game
+---@return integer
+function get_ghost_length() end
+
 ---Sets score for the specified player
 ---@param player integer
 ---@param score integer
@@ -2056,6 +2073,11 @@ function set_torso_color(player, color) end
 ---@param player integer
 ---@param color ColorId
 function set_ghost_color(player, color) end
+
+---Returns the color the classic ghost is drawn in for the specified player: their custom ghost color, else their player color
+---@param player integer
+---@return ColorId
+function get_ghost_color(player) end
 
 ---Sets DQ color for the specified player
 ---@param player integer
