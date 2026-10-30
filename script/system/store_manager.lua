@@ -555,6 +555,80 @@ function StoreInternal.GetItemEffectColorid(item, effect)
 	return targetColorid
 end
 
+---The render effect an Item Effects item adds. Glow, ripples and shift take the item's colour, toon shading
+---(colorid -1) and dithering (colorid -2) have none
+---@param item StoreItem
+---@return RenderEffectId
+function StoreInternal.GetEffectItemType(item)
+	if (item.colorid > 0) then
+		if (string.find(item.itemname, " Glow")) then
+			return EFFECT_TYPE.FRESNEL
+		elseif (string.find(item.itemname, " Ripples")) then
+			return EFFECT_TYPE.VORONOI
+		elseif (string.find(item.itemname, " Shift")) then
+			return EFFECT_TYPE.COLORSHIFT
+		end
+	elseif (item.colorid == -1) then
+		return EFFECT_TYPE.CELSHADED
+	elseif (item.colorid == -2) then
+		return EFFECT_TYPE.DITHERING
+	end
+	return EFFECT_TYPE.NONE
+end
+
+---Effect slots an Item Effects item can go on, as the engine numbers them, with their language keys
+StoreInternal.EffectSlots = {
+	{ id = 0, langKey = "STOREEFFECTTARGETFORCE", fallback = "Force" },
+	{ id = 1, langKey = "STOREEFFECTTARGETRELAX", fallback = "Relax" },
+	{ id = 2, langKey = "STOREEFFECTTARGETGRADIENT", fallback = "Primary gradient" },
+	{ id = 3, langKey = "STOREEFFECTTARGETHEAD", fallback = "Head" }
+}
+
+---Which colour each coloured effect type uses; one effect slot holds one colour per type
+StoreInternal.EffectColorFields = {
+	[EFFECT_TYPE.FRESNEL] = "glowColor",
+	[EFFECT_TYPE.VORONOI] = "voronoiColor",
+	[EFFECT_TYPE.COLORSHIFT] = "shiftColor"
+}
+
+---The player's own item effects by slot, which previewed effects are added on top of
+---@return table<integer, RenderEffect>
+function StoreInternal.GetPlayerEffectsBySlot()
+	local effects = {}
+	for _, effect in pairs(TB_MENU_PLAYER_INFO.items and TB_MENU_PLAYER_INFO.items.effects or {}) do
+		if (type(effect) == "table" and effect.__id) then
+			effects[effect.__id] = table.clone(effect)
+		end
+	end
+	for _, slot in pairs(StoreInternal.EffectSlots) do
+		effects[slot.id] = effects[slot.id] or { id = 0 }
+	end
+	return effects
+end
+
+---Whether an Item Effects item is on the previewed tori's chosen slot
+---@param item StoreItem
+---@return boolean
+function StoreInternal.IsEffectItemPreviewed(item)
+	local effectType = StoreInternal.GetEffectItemType(item)
+	local effect = Store.VanillaPreviewEffects and Store.VanillaPreviewEffects[Store.VanillaPreviewEffectSlot]
+	if (effect == nil or effectType == EFFECT_TYPE.NONE or bit.band(effect.id or 0, effectType) == 0) then
+		return false
+	end
+	local colorField = StoreInternal.EffectColorFields[effectType]
+	return colorField == nil or effect[colorField] == item.colorid
+end
+
+---Highlights the previewed Item Effects items for the chosen slot
+function StoreInternal.RefreshVanillaEffectRows()
+	if (Store.VanillaPreviewer == nil) then
+		return
+	end
+	for _, row in pairs(Store.VanillaPreviewer.EffectRows or {}) do
+		row.button.bgColor = StoreInternal.IsEffectItemPreviewed(row.item) and TB_MENU_DEFAULT_LIGHTER_COLOR or TB_MENU_DEFAULT_DARKER_COLOR
+	end
+end
+
 ---Creates a new StoreItem instance from a datafile line
 ---@param ln string
 ---@return StoreItem?
@@ -3758,20 +3832,7 @@ function Store:showStoreAdvancedItemPreview(viewElement, item, noReload, updateO
 	elseif (item.catid == 87) then
 		-- Effects items
 		local fcolor = get_color_info(TB_MENU_PLAYER_INFO.items.colors.force)
-		local effectid = 0
-		if (item.colorid > 0) then
-			if (string.find(item.itemname, " Glow")) then
-				effectid = EFFECT_TYPE.FRESNEL
-			elseif (string.find(item.itemname, " Ripples")) then
-				effectid = EFFECT_TYPE.VORONOI
-			elseif (string.find(item.itemname, " Shift")) then
-				effectid = EFFECT_TYPE.COLORSHIFT
-			end
-		elseif (item.colorid == -1) then
-			effectid = EFFECT_TYPE.CELSHADED
-		elseif (item.colorid == -2) then
-			effectid = EFFECT_TYPE.DITHERING
-		end
+		local effectid = StoreInternal.GetEffectItemType(item)
 
 		local force = UIElement3D.new({
 			parent = previewHolder,
@@ -5053,7 +5114,51 @@ function Store:doItemPreviewVanilla(item, parentItem)
 				Store:doItemPreviewVanilla({ catid = 78, itemid = v }, item)
 			end
 		end
+	elseif (item.catid == 87) then
+		Store:previewEffectItemVanilla(item)
 	end
+end
+
+---Puts an Item Effects item on the previewed tori's chosen slot, or takes it off if it's already there.
+---Different effect types stack; a second glow, ripples or shift replaces the colour of the first
+---@param item StoreItem
+function Store:previewEffectItemVanilla(item)
+	local effectType = StoreInternal.GetEffectItemType(item)
+	if (effectType == EFFECT_TYPE.NONE) then
+		return
+	end
+	if (get_option("itemeffects") == 0) then
+		TBMenu:showStatusMessage(TB_MENU_LOCALIZED.STOREEFFECTSDISABLED or "Turn on item effects in the graphics settings to see them")
+	end
+
+	Store.VanillaPreviewEffects = Store.VanillaPreviewEffects or StoreInternal.GetPlayerEffectsBySlot()
+	local slot = Store.VanillaPreviewEffectSlot or 0
+	local effect = Store.VanillaPreviewEffects[slot]
+	if (StoreInternal.IsEffectItemPreviewed(item)) then
+		effect.id = bit.band(effect.id or 0, bit.bnot(effectType))
+	else
+		effect.id = bit.bor(effect.id or 0, effectType)
+		-- The values most items in game use
+		if (effectType == EFFECT_TYPE.FRESNEL) then
+			effect.glowColor = item.colorid
+			effect.glowIntensity = 20
+		elseif (effectType == EFFECT_TYPE.DITHERING) then
+			effect.ditherPixelSize = 1
+		elseif (effectType == EFFECT_TYPE.VORONOI) then
+			effect.voronoiColor = item.colorid
+			effect.voronoiScale = 7
+		elseif (effectType == EFFECT_TYPE.COLORSHIFT) then
+			effect.shiftColor = item.colorid
+			effect.shiftPeriod = 1
+		end
+	end
+
+	set_body_effect(0, slot, effect.id,
+		effect.glowColor or 0, effect.glowIntensity or 0,
+		effect.ditherPixelSize or 0,
+		effect.voronoiScale or 0, effect.voronoiColor or 0,
+		effect.shiftColor or 0, effect.shiftPeriod or 1)
+	StoreInternal.RefreshVanillaEffectRows()
 end
 
 ---Prepares vanilla item preview mode \
@@ -5067,6 +5172,8 @@ function Store:preparePreviewVanilla()
 	chat_input_deactivate()
 	open_replay("system/torishop.rpl", 0)
 	load_player(0, TB_MENU_PLAYER_INFO.username)
+	Store.VanillaPreviewEffects = nil
+	Store.VanillaPreviewEffectSlot = 0
 	add_hook("draw2d", self.HookNameVanilla, function()
 			if (UIElement.WorldState.match_frame >= 15) then
 				add_hook("leave_game", self.HookNameVanilla, TBMenu.HideButton.btnUp)
@@ -5100,10 +5207,13 @@ function Store:spawnVanillaSectionView(catid)
 		bgColor = TB_MENU_DEFAULT_BG_COLOR
 	})
 	local elementHeight = 40
-	local toReload, topBar, botBar, listingView, listingHolder = TBMenu:prepareScrollableList(Store.VanillaPreviewer.Section, elementHeight + 10, elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
+	-- Item Effects gets a second row for choosing the body part the effects go on
+	local isEffectsSection = catid == StoreCategory.ItemEffects
+	local topBarHeight = (elementHeight + 10) * (isEffectsSection and 2 or 1)
+	local toReload, topBar, botBar, listingView, listingHolder = TBMenu:prepareScrollableList(Store.VanillaPreviewer.Section, topBarHeight, elementHeight, 20, TB_MENU_DEFAULT_BG_COLOR)
 
 	local previewableSectionIds = {
-		44, 22, 2, 20, 21, 1, 5, 11, 12, 24, 27, 28, 29, 30, 34, 41, 43, 73, 78, 72, 80
+		44, 22, 2, 20, 21, 87, 1, 5, 11, 12, 24, 27, 28, 29, 30, 34, 41, 43, 73, 78, 72, 80
 	}
 	local previewableSections = {}
 	local displaysectionid = 1
@@ -5114,7 +5224,8 @@ function Store:spawnVanillaSectionView(catid)
 		table.insert(previewableSections, { text = Store:getCategoryInfo(v).name, action = function() Store:spawnVanillaSectionView(v) end })
 	end
 	local sectionsDropdownBG = topBar:addChild({
-		shift = { 5, 5 },
+		pos = { 5, 5 },
+		size = { topBar.size.w - 10, elementHeight },
 		bgColor = TB_MENU_DEFAULT_DARKEST_COLOR
 	})
 	local sectionsDropdown = sectionsDropdownBG:addChild({
@@ -5122,6 +5233,37 @@ function Store:spawnVanillaSectionView(catid)
 		bgColor = TB_MENU_DEFAULT_DARKER_COLOR
 	})
 	TBMenu:spawnDropdown(sectionsDropdown, previewableSections, 25, nil, previewableSections[displaysectionid], nil, { scale = 0.7 })
+
+	if (isEffectsSection) then
+		local targetRow = topBar:addChild({
+			pos = { 5, elementHeight + 15 },
+			size = { topBar.size.w - 10, elementHeight }
+		})
+		local targetLabel = targetRow:addChild({
+			size = { targetRow.size.w * 0.45, targetRow.size.h }
+		})
+		targetLabel:addAdaptedText(true, TB_MENU_LOCALIZED.STOREEFFECTPREVIEWTARGET or "Apply effects to", nil, nil, nil, LEFTMID, 0.8)
+		local targetDropdownBG = targetRow:addChild({
+			pos = { targetLabel.size.w, 0 },
+			size = { targetRow.size.w - targetLabel.size.w, targetRow.size.h },
+			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR
+		})
+		local targetDropdown = targetDropdownBG:addChild({
+			shift = { 1, 1 },
+			bgColor = TB_MENU_DEFAULT_DARKER_COLOR
+		})
+		local targetOptions = {}
+		for _, slot in ipairs(StoreInternal.EffectSlots) do
+			table.insert(targetOptions, {
+				text = TB_MENU_LOCALIZED[slot.langKey] or slot.fallback,
+				action = function()
+						Store.VanillaPreviewEffectSlot = slot.id
+						StoreInternal.RefreshVanillaEffectRows()
+					end
+			})
+		end
+		TBMenu:spawnDropdown(targetDropdown, targetOptions, 25, nil, (Store.VanillaPreviewEffectSlot or 0) + 1, nil, { scale = 0.7 })
+	end
 
 	local resetButton = botBar:addChild({
 		shift = { 10, 5 },
@@ -5133,12 +5275,16 @@ function Store:spawnVanillaSectionView(catid)
 	resetButton:addAdaptedText(false, TB_MENU_LOCALIZED.SHADERSRESETTODEFAULT)
 	resetButton:addMouseHandlers(nil, function()
 			load_player(0, TB_MENU_PLAYER_INFO.username)
+			-- Reloading the player brings back their own effects
+			Store.VanillaPreviewEffects = nil
+			StoreInternal.RefreshVanillaEffectRows()
 		end)
 
 	local listElements = Store:showVanillaSectionItems(listingHolder, elementHeight, catid)
 	for _, v in pairs(listElements) do
 		v:hide()
 	end
+	StoreInternal.RefreshVanillaEffectRows()
 	local scrollBar = TBMenu:spawnScrollBar(listingHolder, #listElements, elementHeight)
 	listingHolder.scrollBar = scrollBar
 	scrollBar:makeScrollBar(listingHolder, listElements, toReload)
@@ -5584,7 +5730,7 @@ function Store:showStoreItemInfo(item, noReload, updateOverride)
 		end
 	end
 
-	if (not is_mobile() and in_array(item.catid, { 1, 2, 5, 11, 11, 20, 21, 22, 24, 27, 28, 29, 30, 34, 41, 43, 44, 72, 73, 78, 80 })) then
+	if (not is_mobile() and in_array(item.catid, { 1, 2, 5, 11, 11, 20, 21, 22, 24, 27, 28, 29, 30, 34, 41, 43, 44, 72, 73, 78, 80, 87 })) then
 		local itemPreview = itemInfo:addChild({
 			pos = { 0, buttonPos },
 			size = { itemInfo.size.w, buttonH },
@@ -5800,6 +5946,8 @@ function Store:showVanillaSectionItems(viewElement, height, catid)
 	end
 	sectionItems = table.qsort(sectionItems, {'qi', 'now_usd_price', 'now_tc_price', 'itemname'}, SORT_ASCENDING, true)
 	local listElements = {}
+	-- Item Effects rows, highlighted while their effect is on the chosen slot
+	Store.VanillaPreviewer.EffectRows = {}
 	for _, item in pairs(sectionItems) do
 		local itemHolder = viewElement:addChild({
 			pos = { 0, #listElements * height },
@@ -5817,7 +5965,8 @@ function Store:showVanillaSectionItems(viewElement, height, catid)
 			rounded = 3
 		})
 		local shiftX = 0
-		if (not in_array(item.catid, { 72, 78, 80 })) then
+		-- Toon shading and dithering effects have no colour (colorid -1 and -2)
+		if (not in_array(item.catid, { 72, 78, 80 }) and item.colorid >= 0) then
 			local rgb = get_color_info(item.colorid)
 			local itemColor = itemButton:addChild({
 				pos = { 13, 5 },
@@ -5835,6 +5984,9 @@ function Store:showVanillaSectionItems(viewElement, height, catid)
 		itemButton:addMouseUpHandler(function()
 				Store:doItemPreviewVanilla(item)
 			end)
+		if (item.catid == StoreCategory.ItemEffects) then
+			table.insert(Store.VanillaPreviewer.EffectRows, { button = itemButton, item = item })
+		end
 		itemName:addAdaptedText(true, item.itemname, nil, nil, nil, LEFTMID)
 		if (item.qi > TB_MENU_PLAYER_INFO.data.qi and (item.now_usd_price > TB_MENU_PLAYER_INFO.data.st or item.now_usd_price == 0)) then
 			local itemLockedIcon = itemButton:addChild({
