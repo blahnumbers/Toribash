@@ -124,13 +124,13 @@ local function saveReplay(newname)
 		local newData = ""
 
 		local res = pcall(function()
-			for _, ln in pairs(fileData) do
+			-- Joined once with table.concat: adding each line to one string froze the game on long replays (fix by bleed)
+			for i, ln in ipairs(fileData) do
 				if (utf8.find(ln, "^FIGHTNAME %d;")) then
-					newData = newData .. "FIGHTNAME 0; " .. newname .. "\n"
-				else
-					newData = newData .. ln .. "\n"
+					fileData[i] = "FIGHTNAME 0; " .. newname
 				end
 			end
+			newData = table.concat(fileData, "\n")
 		end)
 
 		---Consider showing some error if result is false?
