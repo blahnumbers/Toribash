@@ -86,9 +86,10 @@ function ComebackPractice:toggleSettings(viewElement)
 	viewElement.progress = 0
 	if (not viewElement.isopen) then
 		viewElement:addCustomDisplay(false, function()
-				viewElement.progress = viewElement.progress + math.pi / 34
-				if (viewElement.shift.y + viewElement.size.h / 16 * math.sin(viewElement.progress + math.pi / 34) < -25) then
-					viewElement:moveTo(nil, viewElement.shift.y + viewElement.size.h / 16 * math.sin(viewElement.progress))
+				viewElement.progress = viewElement.progress + math.pi / 34 * UIElement.frameScale
+				local moveStep = viewElement.size.h / 16 * math.sin(viewElement.progress) * UIElement.frameScale
+				if (viewElement.shift.y + moveStep < -25) then
+					viewElement:moveTo(nil, viewElement.shift.y + moveStep)
 				else
 					viewElement:moveTo(nil, -25)
 					viewElement.isopen = true
@@ -97,9 +98,9 @@ function ComebackPractice:toggleSettings(viewElement)
 			end)
 	else
 		viewElement:addCustomDisplay(false, function()
-				viewElement.progress = viewElement.progress + math.pi / 40
+				viewElement.progress = viewElement.progress + math.pi / 40 * UIElement.frameScale
 				if (viewElement.shift.y > -viewElement.size.h - viewElement.parent.size.h) then
-					viewElement:moveTo(nil, viewElement.shift.y - viewElement.size.h / 16 * math.sin(viewElement.progress))
+					viewElement:moveTo(nil, viewElement.shift.y - viewElement.size.h / 16 * math.sin(viewElement.progress) * UIElement.frameScale)
 				else
 					viewElement:moveTo(nil, -viewElement.size.h - viewElement.parent.size.h)
 					viewElement.isopen = false

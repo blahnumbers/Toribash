@@ -759,8 +759,9 @@ function Atmospheres.SpawnObject(entityHolder, entity)
 	if (entity.drawfunc) then
 		if (entity.enterframefunc) then
 			item:addCustomDisplay(function()
+				-- Runs once per drawn frame here, so scale the per-call step to this frame
 				if (UIElement.WorldState.replay_mode == 0 and UIElement.WorldState.match_frame == 0) then
-					entity.enterframefunc(item, Atmospheres.ReplaySpeed)
+					entity.enterframefunc(item, Atmospheres.ReplaySpeed * UIElement.frameScale)
 				end
 				entity.drawfunc(item)
 			end)
@@ -770,7 +771,7 @@ function Atmospheres.SpawnObject(entityHolder, entity)
 	elseif (entity.enterframefunc) then
 		item:addCustomDisplay(function()
 			if (UIElement.WorldState.replay_mode == 0 and UIElement.WorldState.match_frame == 0) then
-				entity.enterframefunc(item, 0.2)
+				entity.enterframefunc(item, 0.2 * UIElement.frameScale)
 			end
 		end)
 	end

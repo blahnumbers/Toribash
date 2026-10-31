@@ -358,8 +358,8 @@ function input_to_real()
 end
 
 function on3d()
-	timer = timer + .25
-	if timer == 6 then timer = 0 end
+	timer = timer + .25 * UIElement.frameScale
+	if timer >= 6 then timer = timer % 6 end
 	
 	input_to_real()
 	for foo = 1,#shapelist do shapelist[foo].data:translate() end

@@ -183,7 +183,7 @@ function Broadcasts:showBroadcast(broadcast)
 		notificationHolder:addCustomDisplay(false, function()
 				local ratio = UIElement.clock - spawnClock
 				if (ratio < 1) then
-					notificationHolder:moveTo(UITween.SineTween(notificationHolder.pos.x, WIN_W - notificationHolder.size.w, ratio))
+					notificationHolder:moveTo(UITween.SineFrameTween(notificationHolder.pos.x, WIN_W - notificationHolder.size.w, ratio))
 				end
 				local progress = math.min(1, (UIElement.clock - spawnClock) / self.DisplayDuration)
 				broadcastDisplayTimer.size.w = math.max(notificationHolder.size.w * progress, broadcastDisplayTimer.size.w)
@@ -191,7 +191,7 @@ function Broadcasts:showBroadcast(broadcast)
 					spawnClock = UIElement.clock
 					notificationHolder:addCustomDisplay(false, function()
 							local ratio = UIElement.clock - spawnClock
-							notificationHolder:moveTo(UITween.SineTween(notificationHolder.pos.x, WIN_W, ratio))
+							notificationHolder:moveTo(UITween.SineFrameTween(notificationHolder.pos.x, WIN_W, ratio))
 							if (ratio >= 1) then
 								notificationHolder:kill()
 							end

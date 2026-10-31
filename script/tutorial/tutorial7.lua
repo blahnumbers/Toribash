@@ -90,7 +90,8 @@ function run_timeout(delta)
 end
 
 function update_loop()
-	run_timeout(1)
+	-- Runs once per drawn frame: timeouts count down in reference frames
+	run_timeout(UIElement.frameScale)
 end
 
 function draw_3d()
@@ -99,12 +100,8 @@ function draw_3d()
 end
 
 function set_timeout(timeout, fn)
-	local temp = 0
-	if (get_option("framerate") == 30) then
-		temp = get_world_state().frame_tick - 350
-	else
-		temp = get_world_state().frame_tick - 700
-	end
+	-- update_loop() already scales the countdown to the frame rate, no separate 30 fps timing
+	local temp = get_world_state().frame_tick - 700
 	if (fn) then
 		table.insert(globaltimeouts, { timeleft = timeout*(get_world_state().frame_tick - temp)/1000, func = fn } )
 	end
@@ -459,7 +456,7 @@ end
 
 function step_change(delay, _step)
 	if (run_delay(delay) == 1) then 
-		if (trans_modifier > 0) then trans_modifier = math.ceil((trans_modifier - 0.025)*1000)/1000
+		if (trans_modifier > 0) then trans_modifier = math.max(trans_modifier - 0.025 * UIElement.frameScale, 0)
 	else
 		step = _step
 		modifier = 0
@@ -470,14 +467,14 @@ end
 
 function message_transition()
 	set_color(0, 0, 0, trans_modifier)
-	if (change_init == false and trans_modifier < 1) then trans_modifier = trans_modifier + 0.025
+	if (change_init == false and trans_modifier < 1) then trans_modifier = trans_modifier + 0.025 * UIElement.frameScale
 	else change_init = true
 	end
 end
 
 function tut_visuals()
 	--display_step()
-	if (completion_change < completion) then completion_change = completion_change + 0.02 end
+	if (completion_change < completion) then completion_change = completion_change + 0.02 * UIElement.frameScale end
 	set_color(0.95, 0.95, 0.95, 0.9)
 	draw_quad(100, height - height_modifier, width - 200, 90)
 	set_color(0, 0, 0, 1)
@@ -486,15 +483,15 @@ function tut_visuals()
 	draw_quad(width - 101, height - height_modifier, 1, 90)
 	if (wait_for_continue == false) then 
 		if (continue_colors.r > 0.6) then
-			continue_colors.r = continue_colors.r - 0.01
-			continue_colors.g = continue_colors.g + 0.025
-			continue_colors.b = continue_colors.b + 0.025
+			continue_colors.r = continue_colors.r - 0.01 * UIElement.frameScale
+			continue_colors.g = continue_colors.g + 0.025 * UIElement.frameScale
+			continue_colors.b = continue_colors.b + 0.025 * UIElement.frameScale
 		end
 	else
 		if (continue_colors.r < 0.72) then
-			continue_colors.r = continue_colors.r + 0.01
-			continue_colors.g = continue_colors.g - 0.025
-			continue_colors.b = continue_colors.b - 0.025
+			continue_colors.r = continue_colors.r + 0.01 * UIElement.frameScale
+			continue_colors.g = continue_colors.g - 0.025 * UIElement.frameScale
+			continue_colors.b = continue_colors.b - 0.025 * UIElement.frameScale
 		end
 	end
 	set_color(continue_colors.r, continue_colors.g, continue_colors.b, 1)
@@ -564,7 +561,7 @@ function tut_stage1()
 		add_hook("new_game", "terminate", terminate)
 		set_color(1, 1, 1, trans_modifier)
 		draw_quad(0, 0, width, height)
-		if (trans_modifier > 0) then trans_modifier = trans_modifier - 0.02 end
+		if (trans_modifier > 0) then trans_modifier = trans_modifier - 0.02 * UIElement.frameScale end
 		if (get_world_state().match_frame > 44) then
 			freeze_game()
 			trans_modifier = 0
@@ -573,9 +570,9 @@ function tut_stage1()
 	elseif (step == 2) then
 		set_color(0, 0, 0, trans_modifier)
 		if (change_init == false and (trans_modifier < 1 or height_modifier < 90)) then 
-			if (trans_modifier < 1) then trans_modifier = trans_modifier + 0.025
+			if (trans_modifier < 1) then trans_modifier = trans_modifier + 0.025 * UIElement.frameScale
 			elseif (trans_modifier > 1) then trans_modifier = 1 end
-			if (height_modifier < 90) then height_modifier = height_modifier + 1.5 end
+			if (height_modifier < 90) then height_modifier = math.min(height_modifier + 1.5 * UIElement.frameScale, 90) end
 		else 
 			change_init = true
 		end
@@ -606,8 +603,8 @@ function tut_stage1()
 		unfreeze_game()
 		if ((trans_modifier > 0 or height_modifier > 0) and change_init == false) then 
 			change_init = false
-			if (trans_modifier > 0) then trans_modifier = trans_modifier - 0.025 end
-			if (height_modifier > 0) then height_modifier = height_modifier - 1.5 end
+			if (trans_modifier > 0) then trans_modifier = trans_modifier - 0.025 * UIElement.frameScale end
+			if (height_modifier > 0) then height_modifier = math.max(height_modifier - 1.5 * UIElement.frameScale, 0) end
 		end
 		if (get_world_state().match_frame > 194) then
 			freeze_game()
@@ -617,7 +614,7 @@ function tut_stage1()
 		set_color(1, 1, 1, trans_modifier)
 		draw_quad(0, 0, width, height)
 		if (trans_modifier < 1) then 
-			trans_modifier = trans_modifier + 0.02
+			trans_modifier = trans_modifier + 0.02 * UIElement.frameScale
 		else
 			step = 7
 			remove_hooks("terminate")
@@ -637,7 +634,7 @@ function tut_stage1()
 	elseif (step == 8) then
 		set_color(1, 1, 1, trans_modifier)
 		draw_quad(0, 0, width, height)
-		if (trans_modifier > 0) then trans_modifier = trans_modifier - 0.02
+		if (trans_modifier > 0) then trans_modifier = trans_modifier - 0.02 * UIElement.frameScale
 		else 
 			trans_modifier = 0 
 			wait_for_continue = true
@@ -646,9 +643,9 @@ function tut_stage1()
 	elseif (step == 9) then
 		set_color(0, 0, 0, trans_modifier)
 		if (change_init == false and (trans_modifier < 1 or height_modifier < 90)) then 
-			if (trans_modifier < 1) then trans_modifier = trans_modifier + 0.025
+			if (trans_modifier < 1) then trans_modifier = trans_modifier + 0.025 * UIElement.frameScale
 			elseif (trans_modifier > 1) then trans_modifier = 1 end
-			if (height_modifier < 90) then height_modifier = height_modifier + 1.5 end
+			if (height_modifier < 90) then height_modifier = math.min(height_modifier + 1.5 * UIElement.frameScale, 90) end
 		else 
 			change_init = true
 		end
@@ -1347,7 +1344,7 @@ function tut_stage1()
 		set_color(1, 1, 1, trans_modifier)
 		draw_quad(0, 0, width, height)
 		if (trans_modifier < 1) then 
-			trans_modifier = trans_modifier + 0.02
+			trans_modifier = trans_modifier + 0.02 * UIElement.frameScale
 		else
 			step = 38
 		end

@@ -121,7 +121,6 @@ function Settings:showAbout()
 	})
 	whiteOverlay.killAction = function() UIScrollbarIgnore = false end
 	local slowMode = false
-	local speedMultiplier = (get_option('fpscap') or get_option('framerate')) == 30 and 2 or 1
 	whiteOverlay:addMouseHandlers(nil, function()
 			whiteOverlay:kill()
 			TBMenu.UserBar:show()
@@ -133,7 +132,9 @@ function Settings:showAbout()
 		uiColor = UICOLORBLACK
 	})
 	aboutMover:addCustomDisplay(true, function()
-		aboutMover:moveTo(nil, slowMode and math.ceil(-WIN_H / 1400 * speedMultiplier) or math.ceil(-WIN_H / 700 * speedMultiplier), true)
+		-- Whole pixels per reference frame, as the credits scrolled at 62.5 fps
+		local scrollSpeed = slowMode and math.ceil(-WIN_H / 1400) or math.ceil(-WIN_H / 700)
+		aboutMover:moveTo(nil, scrollSpeed * UIElement.frameScale, true)
 	end)
 	local tbLogo = UIElement:new({
 		parent = aboutMover,

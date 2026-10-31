@@ -101,9 +101,9 @@ local function toggleHub(hubBackground, state)
 	hubBackground:addCustomDisplay(true, function()
 		local tweenValue = (UIElement.clock - clock) * 6
 		if (state) then
-			hubBackground:moveTo(UITween.SineTween(hubBackground.shift.x, hubBackground.parent.size.w - hubBackground.size.w, tweenValue))
+			hubBackground:moveTo(UITween.SineFrameTween(hubBackground.shift.x, hubBackground.parent.size.w - hubBackground.size.w, tweenValue))
 		else
-			hubBackground:moveTo(UITween.SineTween(hubBackground.shift.x, hubBackground.parent.size.w, tweenValue))
+			hubBackground:moveTo(UITween.SineFrameTween(hubBackground.shift.x, hubBackground.parent.size.w, tweenValue))
 		end
 		if (tweenValue >= 1) then
 			hubBackground:addCustomDisplay(function() end)

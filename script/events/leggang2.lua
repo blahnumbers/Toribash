@@ -43,12 +43,19 @@ local function spawnToplist(viewElement)
 			set_color(unpack(UICOLORWHITE))
 			draw_disk(hideButton.pos.x + hideButton.size.w / 2, hideButton.pos.y + hideButton.size.h / 2, 0, hideButton.size.w / 3, 3, 1, 60 + angle, 360 + angle, 0)
 			if (rotate_dir ~= 0) then
-				angle = angle + 10 * rotate_dir
+				-- Turn until the arrow points sideways again, sliding the toplist along with it
+				local angleLeft = (90 - angle * rotate_dir) % 180
+				if (angleLeft == 0) then
+					angleLeft = 180
+				end
+				local angleStep = math.min(10 * UIElement.frameScale, angleLeft)
+				angle = angle + angleStep * rotate_dir
 				if (angle < 0) then
 					angle = 360 + angle
 				end
-				toplistHolder:moveTo((toplistHolder.size.w - 25) / 18 * rotate_dir, 0, true)
-				if (angle % 180 - 90 == 0) then
+				toplistHolder:moveTo((toplistHolder.size.w - 25) / 180 * angleStep * rotate_dir, 0, true)
+				if (angleStep == angleLeft) then
+					angle = math.floor(angle + 0.5)
 					rotate_dir = 0
 				end
 			end
@@ -203,8 +210,15 @@ local function spawnTaskToggle()
 			set_color(unpack(UICOLORWHITE))
 			draw_disk(taskToggle.pos.x + taskToggle.size.w / 2, taskToggle.pos.y + taskToggle.size.h / 2, 0, taskToggle.size.w / 5, 3, 1, 60 + angle, 360 + angle, 0)
 			if (rotate_dir ~= 0) then
-				angle = angle + 10 * rotate_dir
-				if (angle % 180 - 90 == 0) then
+				-- Turn until the arrow points sideways again
+				local angleLeft = (90 - angle * rotate_dir) % 180
+				if (angleLeft == 0) then
+					angleLeft = 180
+				end
+				local angleStep = math.min(10 * UIElement.frameScale, angleLeft)
+				angle = angle + angleStep * rotate_dir
+				if (angleStep == angleLeft) then
+					angle = math.floor(angle + 0.5)
 					rotate_dir = 0
 				end
 			end
@@ -237,8 +251,8 @@ local function checkpointComplete(check)
 	local colorDir = 1
 	local initialSize = cloneTable(check.size)
 	check:addCustomDisplay(false, function()
-			rad = rad + math.pi / 40
-			local increment = math.sin(rad) / 10
+			rad = rad + math.pi / 40 * UIElement.frameScale
+			local increment = math.sin(rad) / 10 * UIElement.frameScale
 			grow = grow + increment
 			check.bgColor[4] = check.bgColor[4] - colorDir * increment
 			check.size.x = initialSize.x + grow * initialSize.x
@@ -268,7 +282,7 @@ local function showOverlay(viewElement, reqTable, out, speed)
 	end
 	overlay.bgColor[4] = out and 0 or 1
 	overlay:addCustomDisplay(true, function()
-			overlay.bgColor[4] = overlay.bgColor[4] + (out and 0.02 or -0.02) * speed
+			overlay.bgColor[4] = overlay.bgColor[4] + (out and 0.02 or -0.02) * speed * UIElement.frameScale
 			if (not out and overlay.bgColor[4] <= 0) then
 				req.ready = true
 				reqTable.ready = Tutorials:checkRequirements(reqTable)

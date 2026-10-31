@@ -313,8 +313,8 @@ function Events:showMovemberIntro()
 		local rad, step = math.pi / 3, math.pi / 45
 		updater:addCustomDisplay(true, function()
 				framerate = 5
-				local mod = math.sin(rad)
-				rad = rad + step
+				local mod = math.sin(rad) * UIElement.frameScale
+				rad = rad + step * UIElement.frameScale
 
 				welcomeTitle.uiColor[4] = welcomeTitle.uiColor[4] + 0.09 * mod
 				welcomeText.uiColor[4] = welcomeText.uiColor[4] + 0.09 * mod
@@ -330,8 +330,8 @@ function Events:showMovemberIntro()
 	local rad, step = math.pi / 3, math.pi / 45
 	mainView:addCustomDisplay(false, function()
 			local finished = false
-			local mod = math.sin(rad)
-			rad = rad + step
+			local mod = math.sin(rad) * UIElement.frameScale
+			rad = rad + step * UIElement.frameScale
 
 			overlay.bgColor[4] = overlay.bgColor[4] + 0.04 * mod
 			mainView.bgColor[4] = mainView.bgColor[4] + 0.09 * mod
@@ -565,7 +565,7 @@ function Events:loadMovemberToplist(viewElement)
 	local countdown = 10
 	waiter:addCustomDisplay(true, function()
 			-- Hack to prevent infinite loading
-			countdown = countdown - 1
+			countdown = countdown - UIElement.frameScale
 			if (countdown > 0) then
 				return
 			end
@@ -795,9 +795,11 @@ function Events:showModChampionshipPlayerRewards(viewElement, playerStats)
 							TBMenu:showStatusMessage(TB_MENU_LOCALIZED.ERRORTRYAGAIN .. "\n" .. get_network_error())
 						end)
 					local spawnClock = UIElement.clock
+					local overlayWidth = claimOverlay.size.w
 					claimOverlay:addCustomDisplay(function()
 							local progress = (UIElement.clock - spawnClock) / 1.6
-							claimOverlay.size.w = math.ceil(math.max(claimOverlay.size.w, UITween.SineTween(claimOverlay.size.w, prizeHolder.size.w, progress)))
+							overlayWidth = UITween.SineFrameTween(overlayWidth, prizeHolder.size.w, progress)
+							claimOverlay.size.w = math.ceil(math.max(claimOverlay.size.w, overlayWidth))
 							if ((progress >= 1 or claimOverlay.size.w >= prizeHolder.size.w) and claimSuccess ~= nil) then
 								claimProgress:kill()
 								if (claimSuccess == true) then
@@ -812,9 +814,11 @@ function Events:showModChampionshipPlayerRewards(viewElement, playerStats)
 									end
 								end
 								local spawnClock = UIElement.clock
+								overlayWidth = claimOverlay.size.w
 								claimOverlay:addCustomDisplay(function()
 										local progress = (UIElement.clock - spawnClock) / 1.6
-										claimOverlay.size.w = math.floor(UITween.SineTween(claimOverlay.size.w, 0, progress))
+										overlayWidth = UITween.SineFrameTween(overlayWidth, 0, progress)
+										claimOverlay.size.w = math.floor(overlayWidth)
 										claimOverlay:moveTo(-claimOverlay.size.w)
 										if (progress >= 1 or claimOverlay.size.w / 2 < (claimOverlay.rounded or 1)) then
 											if (claimSuccess == false) then
@@ -2331,7 +2335,7 @@ function Events:showEventInfo(id)
 		})
 		eventActionDownloadManager.life = -1
 		eventActionDownloadManager:addCustomDisplay(true, function()
-			eventActionDownloadManager.life = eventActionDownloadManager.life + 1
+			eventActionDownloadManager.life = eventActionDownloadManager.life + UIElement.frameScale
 			local downloads = get_downloads()
 			for i,v in pairs(downloads) do
 				if (v:find(event.eventid)) then
@@ -2442,7 +2446,7 @@ function Events:showBlindFightPromotion(overlay, prizes, onContinue, leagueName)
 		})
 		blob:addCustomDisplay(true, function()
 				if (blob.bgColor[4] < 0.7) then
-					blob.bgColor[4] = UITween.SineTween(blob.bgColor[4], targetAlpha, (UIElement.clock - spawnClock) * 0.25)
+					blob.bgColor[4] = UITween.SineFrameTween(blob.bgColor[4], targetAlpha, (UIElement.clock - spawnClock) * 0.25)
 				end
 				drawBlobSimple(blob, speed)
 			end)
@@ -2479,7 +2483,7 @@ function Events:showBlindFightPromotion(overlay, prizes, onContinue, leagueName)
 					if (textElement.uiColor[4] < 1) then
 						textElement.uiColor[4] = UITween.SineTween(0, 1, textSpawnClock)
 						textElement.uiShadowColor[4] = textElement.uiColor[4]
-						textScale = UITween.SineTween(textScale, 1, textSpawnClock)
+						textScale = UITween.SineFrameTween(textScale, 1, textSpawnClock)
 						textElement:uiText(TB_MENU_LOCALIZED.BLINDFIGHTLEAGUEVICTORY, nil, nil, FONTS.BIG, CENTERBOT, textScale, nil, 4)
 					else
 						textElement:addAdaptedText(TB_MENU_LOCALIZED.BLINDFIGHTLEAGUEVICTORY, { font = FONTS.BIG, align = CENTERBOT, minscale = textScale, maxscale = textScale, shadow = 4 }, true)
@@ -2508,7 +2512,7 @@ function Events:showBlindFightPromotion(overlay, prizes, onContinue, leagueName)
 					if (textElementVictory.uiColor[4] < 1) then
 						textElementVictory.uiColor[4] = UITween.SineTween(0, 1, textSpawnClock)
 						textElementVictory.uiShadowColor[4] = textElementVictory.uiColor[4]
-						textScale = UITween.SineTween(textScale, 1, textSpawnClock)
+						textScale = UITween.SineFrameTween(textScale, 1, textSpawnClock)
 						textElementVictory:uiText(TB_MENU_LOCALIZED.BLINDFIGHTLEAGUEVICTORY, nil, nil, FONTS.BIG, CENTERBOT, textScale, nil, 4)
 					else
 						textElementVictory:addAdaptedText(TB_MENU_LOCALIZED.BLINDFIGHTLEAGUEVICTORY, { font = FONTS.BIG, align = CENTERBOT, minscale = textScale, maxscale = textScale, shadow = 4 }, true)
@@ -2527,7 +2531,7 @@ function Events:showBlindFightPromotion(overlay, prizes, onContinue, leagueName)
 					if (textElementPromotion.uiColor[4] < 1) then
 						textElementPromotion.uiColor[4] = UITween.SineTween(0, 1, textSpawnClock)
 						textElementPromotion.uiShadowColor[4] = textElementPromotion.uiColor[4]
-						textScale = UITween.SineTween(textScale, 1, textSpawnClock)
+						textScale = UITween.SineFrameTween(textScale, 1, textSpawnClock)
 						textElementPromotion:uiText(promotedLeague, nil, nil, FONTS.MEDIUM, CENTERBOT, textScale, nil, 2)
 					else
 						textElementPromotion:addAdaptedText(promotedLeague, { font = FONTS.MEDIUM, align = CENTERBOT, minscale = textScale, maxscale = textScale, shadow = 2 }, true)
@@ -3121,7 +3125,7 @@ function EventsInternal.ShowBlindFightPrestige(_, x, y)
 	overlay:addCustomDisplay(true, function()
 			set_color(overlay.bgColor[1], overlay.bgColor[2], overlay.bgColor[3], overlay.bgColor[4])
 			draw_disk(x, y, 0, overlayGrow, numSlices, 1, 0, 360, 0)
-			overlayGrow = math.floor(UITween.LinearTween(overlayGrow, targetSize, UIElement.clock - spawnClock) * 1000) / 1000
+			overlayGrow = math.floor(UITween.LinearFrameTween(overlayGrow, targetSize, UIElement.clock - spawnClock) * 1000) / 1000
 			if (overlayGrow >= WIN_W / 3 and not prizeDisplayHolder:isDisplayed()) then
 				animateClock = UIElement.clock
 				prizeDisplayHolder:show()

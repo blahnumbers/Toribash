@@ -167,7 +167,7 @@ local function showEventInfo(viewElement, reqTable)
 					Tutorials:hideWaitButton()
 					beginClock = UIElement.clock
 				end
-				overlay.bgColor[4] = UITween.SineTween(overlay.bgColor[4], 0, UIElement.clock - beginClock)
+				overlay.bgColor[4] = UITween.SineFrameTween(overlay.bgColor[4], 0, UIElement.clock - beginClock)
 				for _, v in pairs(messageElements) do
 					v.uiColor[4] = overlay.bgColor[4]
 				end
@@ -188,7 +188,9 @@ local function showEventInfo(viewElement, reqTable)
 			if (init == true) then return end
 			currentObserver = observer
 			if (v.uiColor[4] < 1) then
-				v.uiColor[4] = math.ceil(UITween.SineTween(v.uiColor[4], 1, UIElement.deltaClock * 12) * 1000) / 1000
+				-- Move at least a thousandth per reference frame so the fade still finishes (this used to round up to thousandths every frame)
+				local alpha = UITween.SineFrameTween(v.uiColor[4], 1, 12 * UIElement.REFERENCE_FRAME_TIME)
+				v.uiColor[4] = math.min(1, math.max(alpha, v.uiColor[4] + UIElement.frameScale / 1000))
 			else
 				if (i == #messageElements) then
 					req.ready = true
@@ -454,11 +456,11 @@ local function showSimulationResults(viewElement, reqTable, playerMove, opponent
 		local victoryTextString = UIElement.WorldState.winner == -1 and TB_MENU_LOCALIZED.BLINDFIGHTDRAW or (UIElement.WorldState.winner == 0 and TB_MENU_LOCALIZED.BLINDFIGHTWIN or TB_MENU_LOCALIZED.BLINDFIGHTLOSS)
 		victoryText:addCustomDisplay(function()
 				if (spawnClock + 0.25 > UIElement.clock) then
-					victoryText:moveTo(UITween.SineTween(victoryText.shift.x, -gameObserver.size.w / 2 - victoryText.size.w * 0.35, (UIElement.clock - spawnClock) * 4))
+					victoryText:moveTo(UITween.SineFrameTween(victoryText.shift.x, -gameObserver.size.w / 2 - victoryText.size.w * 0.35, (UIElement.clock - spawnClock) * 4))
 				elseif (spawnClock + 1.25 < UIElement.clock) then
-					victoryText:moveTo(UITween.SineTween(victoryText.shift.x, -WIN_W - victoryText.size.w, (UIElement.clock - spawnClock - 1.25) * 4))
+					victoryText:moveTo(UITween.SineFrameTween(victoryText.shift.x, -WIN_W - victoryText.size.w, (UIElement.clock - spawnClock - 1.25) * 4))
 				else
-					victoryText:moveTo(-2, nil, true)
+					victoryText:moveTo(-2 * UIElement.frameScale, nil, true)
 				end
 				victoryText:uiText(victoryTextString, nil, nil, FONTS.BIG, CENTERMID, nil, nil, 4)
 			end)

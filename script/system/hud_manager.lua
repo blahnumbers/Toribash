@@ -752,7 +752,8 @@ function TBHud:spawnCameraButtons()
 					local cameraPos = Vector3.New(cameraInfo.pos.x, cameraInfo.pos.y, cameraInfo.pos.z)
 					local cameraLookat = Vector3.New(cameraInfo.lookat.x, cameraInfo.lookat.y, cameraInfo.lookat.z)
 					local _, side, up = getCameraVectors(cameraPos, cameraInfo.lookat)
-					local moveVector = side:multiply(-joystickVector.x * self.CameraJoystickSensitivity):add(up:multiply(-joystickVector.y * self.CameraJoystickSensitivity))
+					local moveSpeed = self.CameraJoystickSensitivity * UIElement.frameScale
+					local moveVector = side:multiply(-joystickVector.x * moveSpeed):add(up:multiply(-joystickVector.y * moveSpeed))
 					local newPos = cameraPos:add(moveVector)
 					local newLookat = cameraLookat:add(moveVector)
 					set_camera_lookat(newLookat.x, newLookat.y, newLookat.z)
@@ -1391,9 +1392,9 @@ function TBHud:toggleHub(state)
 	self.HubHolder:addCustomDisplay(true, function()
 		local tweenValue = (UIElement.clock - clock) * 6
 		if (state) then
-			self.HubHolder:moveTo(UITween.SineTween(self.HubHolder.pos.x, 0, tweenValue))
+			self.HubHolder:moveTo(UITween.SineFrameTween(self.HubHolder.pos.x, 0, tweenValue))
 		else
-			self.HubHolder:moveTo(UITween.SineTween(self.HubHolder.pos.x, self.HubSize.w + SAFE_X, tweenValue))
+			self.HubHolder:moveTo(UITween.SineFrameTween(self.HubHolder.pos.x, self.HubSize.w + SAFE_X, tweenValue))
 		end
 
 		if (tweenValue >= 1) then
@@ -1952,7 +1953,7 @@ function TBHud:initChat()
 					local ratio = (UIElement.clock - spawnClock) * 3
 					for i, v in pairs(self.ChatTabItems) do
 						if (type(i) == "number") then
-							v.size.w = UITween.SineTween(v.size.w, targetWidth, ratio)
+							v.size.w = UITween.SineFrameTween(v.size.w, targetWidth, ratio)
 							v.outline.size.w = v.size.w - SAFE_X - 10
 							if (extendTabsButton.__extendState) then
 								v.legend.uiColor[4] = math.max(0.01, ratio)
@@ -2338,9 +2339,9 @@ function TBHud:toggleChat(state)
 	self.ChatHolder:addCustomDisplay(true, function()
 		local tweenValue = (UIElement.clock - clock) * 6
 		if (state) then
-			self.ChatHolder:moveTo(nil, UITween.SineTween(self.ChatHolder.pos.y, 0, tweenValue))
+			self.ChatHolder:moveTo(nil, UITween.SineFrameTween(self.ChatHolder.pos.y, 0, tweenValue))
 		else
-			self.ChatHolder:moveTo(nil, UITween.SineTween(self.ChatHolder.pos.y, self.ChatHolder.size.h, tweenValue))
+			self.ChatHolder:moveTo(nil, UITween.SineFrameTween(self.ChatHolder.pos.y, self.ChatHolder.size.h, tweenValue))
 			---@diagnostic disable-next-line: undefined-field
 			self.ChatHolder.destroySuggestions()
 		end
@@ -2590,16 +2591,29 @@ function TBHudPopup.New(duration)
 			end
 		end, nil, mouseUp)
 
+	---Eases popup towards `targetY` for the current frame and moves it to the rounded result. \
+	---Unrounded position is kept between frames so rounding can't speed up or stall the animation at high frame rates.
+	---@param targetY number
+	---@param ratio number
+	---@param round function
+	local tweenPopupY = function(targetY, ratio, round)
+		if (popupView.__tweenY == nil or round(popupView.__tweenY) ~= popupView.pos.y) then
+			popupView.__tweenY = popupView.pos.y
+		end
+		popupView.__tweenY = UITween.SineFrameTween(popupView.__tweenY, targetY, ratio)
+		popupView:moveTo(nil, round(popupView.__tweenY))
+	end
+
 	popupView:addCustomDisplay(function()
 			if (popupView.__launchClock == nil) then return end
 			if (popupView.pos.y < safe_y) then
-				popupView:moveTo(nil, math.ceil(UITween.SineTween(popupView.pos.y, safe_y, UIElement.clock - popupView.__launchClock)))
+				tweenPopupY(safe_y, UIElement.clock - popupView.__launchClock, math.ceil)
 				popupView:updatePos()
 			else
 				popupView:addCustomDisplay(function()
 					if (UIElement.clock - popupView.__launchClock > popupView.__duration) then
 						if (popupView.pos.y > -popupView.size.h) then
-							popupView:moveTo(nil, math.floor(UITween.SineTween(popupView.pos.y, -popupView.size.h, UIElement.clock - popupView.__duration - popupView.__launchClock)))
+							tweenPopupY(-popupView.size.h, UIElement.clock - popupView.__duration - popupView.__launchClock, math.floor)
 							popupView:updatePos()
 						else
 							popupView:kill()
@@ -2620,7 +2634,7 @@ function TBHudPopup.New(duration)
 							popupView.__touchDelta.x = 0
 						end
 					elseif (popupView.pos.y ~= safe_y and popupView.__touchClock ~= nil) then
-						popupView:moveTo(nil, math.ceil(UITween.SineTween(popupView.pos.y, safe_y, (UIElement.clock - popupView.__touchClock) * 2)))
+						tweenPopupY(safe_y, (UIElement.clock - popupView.__touchClock) * 2, math.ceil)
 					end
 				end, true)
 			end

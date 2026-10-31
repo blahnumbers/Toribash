@@ -103,6 +103,15 @@ function TutorialsInternal.LoadFile(path)
 	return loadstring(fileContents)
 end
 
+---Snaps an eased value to `target` once it is within 1/1000 of it. ---Eased values only approach their target, this lets them arrive without rounding every frame
+---(rounding would undo the small steps a high frame rate takes and stall them short of the target).
+---@param value number
+---@param target number
+---@return number
+function TutorialsInternal.SnapToTarget(value, target)
+	return math.abs(value - target) < 0.001 and target or value
+end
+
 ---@param type TutorialStepRequirementType
 ---@return TutorialStepRequirement
 function TutorialsInternal.NewRequirement(type)
@@ -833,7 +842,7 @@ function Tutorials:showTask(_, reqTable, message)
 	local textColor = { 1, 1, 1, 0 }
 	local spawnClock = UIElement.clock
 	messageTransparency:addCustomDisplay(true, function()
-			textColor[4] = UITween.SineTween(textColor[4], 1, UIElement.clock - spawnClock)
+			textColor[4] = UITween.SineFrameTween(textColor[4], 1, UIElement.clock - spawnClock)
 			if (textColor[4] >= 1) then
 				textColor[4] = 1
 				messageTransparency:kill()
@@ -857,7 +866,7 @@ function Tutorials:showHint(_, reqTable, message)
 	local textColor = { 1, 1, 1, 0 }
 	local spawnClock = UIElement.clock
 	messageTransparency:addCustomDisplay(true, function()
-			textColor[4] = UITween.SineTween(textColor[4], 1, UIElement.clock - spawnClock)
+			textColor[4] = UITween.SineFrameTween(textColor[4], 1, UIElement.clock - spawnClock)
 			if (textColor[4] >= 1) then
 				textColor[4] = 1
 				messageTransparency:kill()
@@ -1310,7 +1319,7 @@ function Tutorials:showHintWindow(reqTable, hide)
 
 	local spawnClock = UIElement.clock
 	windowFade:addCustomDisplay(true, function()
-			self.HintView.bgColor[4] = UITween.SineTween(self.HintView.bgColor[4], hide and 0 or 0.7, UIElement.clock - spawnClock)
+			self.HintView.bgColor[4] = UITween.SineFrameTween(self.HintView.bgColor[4], hide and 0 or 0.7, UIElement.clock - spawnClock)
 			if (hide and self.HintView.bgColor[4] <= 0) then
 				self.HintView.bgColor[4] = 0
 				windowFade:kill()
@@ -1370,7 +1379,7 @@ function Tutorials:addOptionalTask(data, taskText)
 	optTaskView:addCustomDisplay(false, function()
 			local targetShift = self.TaskViewHolder.size.h + posVertical * 40
 			if (optTaskView.shift.y < targetShift) then
-				optTaskView:moveTo(nil, UITween.SineTween(optTaskView.shift.y, targetShift, UIElement.clock - spawnClock))
+				optTaskView:moveTo(nil, UITween.SineFrameTween(optTaskView.shift.y, targetShift, UIElement.clock - spawnClock))
 			else
 				optTaskView:addCustomDisplay(false, function() end)
 			end
@@ -1408,7 +1417,7 @@ function Tutorials:addAdditionalTask(data, taskText)
 	optTaskView:addCustomDisplay(false, function()
 			local targetShift = self.TaskViewHolder.size.h + posVertical * 40
 			if (optTaskView.shift.y < targetShift) then
-				optTaskView:moveTo(nil, UITween.SineTween(optTaskView.shift.y, targetShift, UIElement.clock - spawnClock))
+				optTaskView:moveTo(nil, UITween.SineFrameTween(optTaskView.shift.y, targetShift, UIElement.clock - spawnClock))
 			else
 				optTaskView:addCustomDisplay(false, function() end)
 			end
@@ -1541,10 +1550,16 @@ function Tutorials:showTaskWindow(reqTable, hide, disableTaskReset)
 
 	local spawnClock = UIElement.clock
 	if (hide) then
+		---Unrounded shift, so that rounding the displayed shift can't stall the animation at high frame rates
+		local tweenShift = nil
 		self.TaskViewHolder:addCustomDisplay(false, function()
 				local targetShift = -self.TaskViewHolder.parent.size.w - self.TaskViewHolder.size.w
 				if (self.TaskViewHolder.shift.x ~= targetShift) then
-					self.TaskViewHolder:moveTo(math.round(UITween.SineTween(self.TaskViewHolder.shift.x, targetShift, UIElement.clock - spawnClock)))
+					if (tweenShift == nil or math.round(tweenShift) ~= self.TaskViewHolder.shift.x) then
+						tweenShift = self.TaskViewHolder.shift.x
+					end
+					tweenShift = UITween.SineFrameTween(tweenShift, targetShift, UIElement.clock - spawnClock)
+					self.TaskViewHolder:moveTo(math.round(tweenShift))
 				else
 					if (not disableTaskReset) then
 						for _, v in pairs(self.TaskViewHolder.optional) do
@@ -1568,7 +1583,7 @@ function Tutorials:showTaskWindow(reqTable, hide, disableTaskReset)
 		self.TaskViewHolder:addCustomDisplay(false, function()
 				local targetShift = -self.TaskViewHolder.parent.size.w
 				if (self.TaskViewHolder.shift.x ~= targetShift) then
-					self.TaskViewHolder:moveTo(UITween.SineTween(self.TaskViewHolder.shift.x, targetShift, UIElement.clock - spawnClock))
+					self.TaskViewHolder:moveTo(UITween.SineFrameTween(self.TaskViewHolder.shift.x, targetShift, UIElement.clock - spawnClock))
 				else
 					self.TaskViewHolder:addCustomDisplay(false, function() end)
 					req.ready = true
@@ -1650,7 +1665,7 @@ function Tutorials:showMessageWindow(reqTable, hide)
 		self.MessageView.__isHiding = true
 		windowMover:addCustomDisplay(true, function()
 				local ratio = UIElement.clock - spawnClock
-				self.MessageView:moveTo(UITween.SineTween(self.MessageView.shift.x, self.MessageView.parent.size.w, ratio))
+				self.MessageView:moveTo(UITween.SineFrameTween(self.MessageView.shift.x, self.MessageView.parent.size.w, ratio))
 				self:setMessageViewportOpacity(UITween.SineTween(1, 0, ratio * 1.5))
 
 				if (ratio >= 1) then
@@ -1670,7 +1685,7 @@ function Tutorials:showMessageWindow(reqTable, hide)
 		windowMover:addCustomDisplay(true, function()
 				local targetShift = self.MessageView.parent.size.w - self.MessageView.size.w
 				local ratio = UIElement.clock - spawnClock
-				self.MessageView:moveTo(UITween.SineTween(self.MessageView.shift.x, targetShift, ratio))
+				self.MessageView:moveTo(UITween.SineFrameTween(self.MessageView.shift.x, targetShift, ratio))
 				self:setMessageViewportOpacity(UITween.SineTween(0, 1, ratio * 1.5))
 
 				if (ratio >= 1) then
@@ -2122,7 +2137,7 @@ function Tutorials:showTutorialEnd(buttonsCustom)
 		button.animateColor[4] = 0
 		button:addCustomDisplay(false, function()
 				if (button.animateColor[4] < 1) then
-					button.animateColor[4] = button.animateColor[4] + 0.05
+					button.animateColor[4] = button.animateColor[4] + 0.05 * UIElement.frameScale
 				else
 					button:activate()
 					button:addCustomDisplay(false, function() end)
@@ -2139,7 +2154,7 @@ function Tutorials:showTutorialEnd(buttonsCustom)
 					})
 					buttonImage:addCustomDisplay(false, function()
 						if (buttonImage.bgColor[4] > 0) then
-							buttonImage.bgColor[4] = buttonImage.bgColor[4] - 0.1
+							buttonImage.bgColor[4] = buttonImage.bgColor[4] - 0.1 * UIElement.frameScale
 							set_color(unpack(buttonImage.bgColor))
 							draw_quad(buttonImage.pos.x, buttonImage.pos.y, buttonImage.size.w, buttonImage.size.h)
 						else
@@ -2429,7 +2444,7 @@ function Tutorials:loadOverlay()
 					end
 				end
 				if (targetY ~= self.MessageView.shift.y) then
-					targetY = math.floor(UITween.SineTween(self.MessageView.shift.y, targetY, UIElement.deltaClock * 12) * 1000) / 1000
+					targetY = TutorialsInternal.SnapToTarget(UITween.SineFrameTween(self.MessageView.shift.y, targetY, 12 * UIElement.REFERENCE_FRAME_TIME), targetY)
 					self.MessageView:moveTo(nil, targetY)
 				end
 			end)
@@ -2497,7 +2512,7 @@ function Tutorials:loadOverlay()
 	tutorialProgress:addCustomDisplay(true, function(init)
 			if (self.TotalSteps == 0) then return end
 			if (not init and step ~= self.ProgressStep) then
-				step = math.round(UITween.SineTween(step, self.ProgressStep, 0.25) * 1000) / 1000
+				step = TutorialsInternal.SnapToTarget(UITween.SineFrameTween(step, self.ProgressStep, 0.25), self.ProgressStep)
 			end
 			set_color(unpack(TB_MENU_DEFAULT_BG_COLOR))
 			draw_quad(tutorialProgress.pos.x, tutorialProgress.pos.y, tutorialProgress.size.w / self.TotalSteps * step, tutorialProgress.size.h)

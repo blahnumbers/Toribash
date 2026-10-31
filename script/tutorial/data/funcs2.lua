@@ -1,5 +1,4 @@
 local SPACEBAR = " "
-local FPS_MULTIPLIER = get_option("framerate") == 30 and 2 or 1
 
 local function requireKeyPress(viewElement, reqTable, key, show)
 	local req = { type = "keypress", ready = false }
@@ -130,7 +129,7 @@ local function showDamageBar()
 		size = { 0, 0 }
 	})
 	transparencyAnimation:addCustomDisplay(true, function()
-			textColor[4] = textColor[4] + 0.04 * FPS_MULTIPLIER
+			textColor[4] = textColor[4] + 0.04 * UIElement.frameScale
 			if (textColor[4] >= 1) then
 				textColor[4] = 1
 				transparencyAnimation:kill()
@@ -159,7 +158,7 @@ local function showTimer()
 		size = { 0, 0 }
 	})
 	transparencyAnimation:addCustomDisplay(true, function()
-			t2Timer.bgColor[4] = t2Timer.bgColor[4] + 0.04 * FPS_MULTIPLIER
+			t2Timer.bgColor[4] = t2Timer.bgColor[4] + 0.04 * UIElement.frameScale
 			if (t2Timer.bgColor[4] >= 1) then
 				t2Timer.bgColor = t2DamageMeter.bgColor
 				transparencyAnimation:kill()
@@ -185,7 +184,7 @@ local function hideDamageAndTimerBars(viewElement, reqTable)
 		size = { 0, 0 }
 	})
 	transparencyAnimation:addCustomDisplay(true, function()
-			t2DamageMeter.bgColor[4] = t2DamageMeter.bgColor[4] - 0.04 * FPS_MULTIPLIER
+			t2DamageMeter.bgColor[4] = t2DamageMeter.bgColor[4] - 0.04 * UIElement.frameScale
 			if (t2DamageMeter.bgColor[4] <= 0) then
 				t2DamageMeter:kill()
 				t2Timer:kill()

@@ -351,6 +351,44 @@ if (not UIElement) then
 	---@type number
 	UIElement.deltaClock = 0
 
+	---Frame rate the per-frame UI animations were tuned at. The old 60 fps cap waited 16 ms per frame
+	---(`TICKS_PER_FRAME_60`), so it really ran at 62.5 fps, and every animation that moves by a fixed
+	---step each drawn frame was tuned for that rate.
+	---@type number
+	UIElement.REFERENCE_FPS = 62.5
+
+	---Length of one reference frame in seconds
+	---@type number
+	UIElement.REFERENCE_FRAME_TIME = 1 / UIElement.REFERENCE_FPS
+
+	---Most reference frames a single drawn frame may advance animations by.
+	---Keeps a stall (loading, a dragged window) from making every animation jump.
+	---@type number
+	UIElement.FRAME_SCALE_MAX = 6
+
+	---Reference frames that have passed since the last drawn frame: `UIElement.deltaClock * UIElement.REFERENCE_FPS`,
+	---clamped to `0..UIElement.FRAME_SCALE_MAX`. 1 at 62.5 fps, 0.25 at 250 fps, 2 at 31.25 fps.
+	---
+	---Anything that advances by a fixed step every drawn frame scales that step by this, so it looks exactly as it
+	---did at 62.5 fps and runs at the same real speed at any frame rate:
+	---* `x = x + step` → `x = x + step * UIElement.frameScale`
+	---* `x = x * factor` → `x = UIElement.frameDecay(x, factor)`
+	---* `x = x + (target - x) * rate` → `x = UIElement.frameApproach(x, target, rate)`
+	---* `x = UITween.SineTween(x, target, ratio)` → `x = UITween.SineFrameTween(x, target, ratio)`
+	---
+	---Updated once per drawn frame, before any hook of that frame runs (see `UIElement.beginFrame()`).
+	---@type number
+	UIElement.frameScale = 1
+
+	---Goes up by one every drawn frame. `pre_draw` runs once per game step, so it can run several times
+	---in one drawn frame: per-frame work done there can compare against this to only run once a frame.
+	---@type integer
+	UIElement.frameIndex = 0
+
+	---Internal flag: the current frame has reached `draw2d`, so the next `pre_draw` or `draw2d` starts a new frame
+	---@type boolean
+	UIElement.__frameDrawn = true
+
 	---World state for current frame
 	---@type WorldState
 	UIElement.WorldState = get_world_state()
@@ -1015,21 +1053,25 @@ function UIElement:makeScrollBar(listHolder, listElements, toReload, posShift, s
 		end)
 
 	local lastListHolderVal = -1
+	-- Touch scroll speed in pixels per reference frame, kept for the fling after release
 	local deltaChange = 0
+	-- Finger movement since the list last followed it
+	local dragDelta = 0
 	local lastClock = UIElement.clock
+	local lastFrame = -1
 	listHolder.parent:addMouseHandlers(function(_, x, y)
 			disable_mouse_camera_movement()
 			listHolder.parent.scrollableListTouchScrollActive = true
 			lastListHolderVal = (self.orientation == SCROLL_VERTICAL) and y or x
+			dragDelta = 0
 		end, function()
 			listHolder.parent.scrollableListTouchScrollActive = false
 			lastListHolderVal = -1
 			enable_mouse_camera_movement()
 		end, function(x, y)
 			if (listHolder.parent.scrollableListTouchScrollActive) then
-				lastClock = UIElement.clock
 				local targetValue = (self.orientation == SCROLL_VERTICAL) and y or x
-				deltaChange = lastListHolderVal - targetValue
+				dragDelta = dragDelta + lastListHolderVal - targetValue
 				lastListHolderVal = targetValue
 			end
 		end, nil, function()
@@ -1041,17 +1083,30 @@ function UIElement:makeScrollBar(listHolder, listElements, toReload, posShift, s
 			if (listHolder.parent.scrollableListTouchScrollActive and listHolder.parent.hoverState == BTN_NONE) then
 				listHolder.parent.scrollableListTouchScrollActive = false
 				lastListHolderVal = -1
-			elseif (listHolder.parent.hoverState == BTN_DN and UIElement.clock > lastClock + 0.035) then
-				local targetValue = (self.orientation == SCROLL_VERTICAL) and MOUSE_Y or MOUSE_X
-				deltaChange = lastListHolderVal - targetValue
-				lastListHolderVal = targetValue
 			end
 
-			if (math.abs(deltaChange) > 0) then
-				if (lastListHolderVal < 0) then
-					deltaChange = UITween.SineTween(deltaChange, 0, (UIElement.clock - lastClock) * 2)
+			-- pre_draw runs once per game step, scroll once per drawn frame
+			if (lastFrame == UIElement.frameIndex) then
+				return
+			end
+			lastFrame = UIElement.frameIndex
+
+			if (lastListHolderVal >= 0) then
+				-- Finger down: the list follows it exactly and remembers how fast it moved
+				if (dragDelta ~= 0) then
+					local elapsedFrames = math.max((UIElement.clock - lastClock) * UIElement.REFERENCE_FPS, UIElement.frameScale)
+					deltaChange = elapsedFrames > 0 and dragDelta / elapsedFrames or 0
+					lastClock = UIElement.clock
+					self:touchScroll(listElements, listHolder, toReload, dragDelta, enabled)
+					posShift[1] = self.orientation == SCROLL_VERTICAL and self.shift.y or self.shift.x
+					dragDelta = 0
+				elseif (UIElement.clock > lastClock + 0.035) then
+					deltaChange = 0
 				end
-				self:touchScroll(listElements, listHolder, toReload, deltaChange, enabled)
+			elseif (math.abs(deltaChange) > 0) then
+				-- Released: keep going at the finger's last speed and ease out
+				deltaChange = UITween.SineFrameTween(deltaChange, 0, (UIElement.clock - lastClock) * 2)
+				self:touchScroll(listElements, listHolder, toReload, deltaChange * UIElement.frameScale, enabled)
 				posShift[1] = self.orientation == SCROLL_VERTICAL and self.shift.y or self.shift.x
 			end
 		end)
@@ -2015,14 +2070,60 @@ function UIElement.keyboardHooks()
 	UIElement.__keyboardHooks = true
 end
 
+---Starts a new drawn frame: updates `UIElement.clock`, `UIElement.deltaClock`, `UIElement.frameScale` and `UIElement.frameIndex`. \
+---*Called by the UIElement draw hooks, you don't need to call this manually.*
+---
+---A drawn frame runs `pre_draw` once per game step it advances (at least once, several times on a frame that
+---catches up, and not at all on screens that don't simulate), then `camera`, `draw3d`, `post_draw3d`, `draw2d`
+---and `draw_viewport`. The new frame starts at whichever of `pre_draw` or `draw2d`
+---comes first after the previous frame's `draw2d`, so every hook of a frame sees that frame's values.
+function UIElement.beginFrame()
+	local clock = os.clock_real()
+	UIElement.deltaClock = clock - UIElement.clock
+	UIElement.clock = clock
+	UIElement.frameScale = math.clamp(UIElement.deltaClock * UIElement.REFERENCE_FPS, 0, UIElement.FRAME_SCALE_MAX)
+	UIElement.frameIndex = UIElement.frameIndex + 1
+	UIElement.__frameDrawn = false
+end
+
+---Scales a per-frame multiplier to the current frame. \
+---Use for values that get multiplied by a constant every drawn frame: `x = x * factor` becomes `x = UIElement.frameDecay(x, factor)`.
+---@param value number
+---@param factor number Multiplier per reference frame
+---@return number
+function UIElement.frameDecay(value, factor)
+	return value * factor ^ UIElement.frameScale
+end
+
+---Moves a value toward a target by the share of the remaining distance it covered per reference frame. \
+---Use for values that ease toward a target every drawn frame: `x = x + (target - x) * rate` becomes `x = UIElement.frameApproach(x, target, rate)`.
+---@param value number
+---@param target number
+---@param rate number Share of the remaining distance covered per reference frame
+---@return number
+function UIElement.frameApproach(value, target, rate)
+	if (rate >= 1) then
+		return target
+	elseif (rate <= 0) then
+		return value
+	end
+	return target + (value - target) * (1 - rate) ^ UIElement.frameScale
+end
+
 function UIElement.drawHooks()
 	add_hook("draw2d", "__uiManager", function()
-		local clock = os.clock_real()
-		UIElement.deltaClock = clock - UIElement.clock
-		UIElement.clock = clock
+		-- Screens that don't simulate run no pre_draw: the frame starts here then
+		if (UIElement.__frameDrawn) then
+			UIElement.beginFrame()
+		end
+		UIElement.__frameDrawn = true
 		UIElement.lightUIMode = get_option("uilight") == 1
 	end)
 	add_hook("pre_draw", "__uiManager", function()
+		-- First game step after a drawn frame starts the next frame, before any other hook of it runs
+		if (UIElement.__frameDrawn) then
+			UIElement.beginFrame()
+		end
 		-- Make sure this always contains accurate data, even if game is minimized / running with frame skip
 		UIElement.WorldState = get_world_state()
 	end)

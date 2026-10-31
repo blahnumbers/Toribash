@@ -3256,7 +3256,7 @@ function Store:showStoreAdvancedItemPreview(viewElement, item, noReload, updateO
 	viewElement.mouseDelta = 0
 	previewHolder:addCustomDisplay(true, function()
 			if (viewElement.hoverState ~= BTN_DN) then
-				previewHolder:rotate(0, 0, 0.2)
+				previewHolder:rotate(0, 0, 0.2 * UIElement.frameScale)
 			elseif (viewElement.mouseDelta ~= 0) then
 				previewHolder:rotate(0, 0, viewElement.mouseDelta)
 				viewElement.pressedPos.x = MOUSE_X
@@ -3391,12 +3391,12 @@ function Store:showStoreAdvancedItemPreview(viewElement, item, noReload, updateO
 					ticks = 0
 					return
 				end
-				ghost:moveTo(0.02, -0.005, 0)
-				ghost:rotate(0.4)
+				ghost:moveTo(0.02 * UIElement.frameScale, -0.005 * UIElement.frameScale, 0)
+				ghost:rotate(0.4 * UIElement.frameScale)
 				if (ticks > 50) then
-					ghost.bgColor[4] = ghost.bgColor[4] - 0.01
+					ghost.bgColor[4] = ghost.bgColor[4] - 0.01 * UIElement.frameScale
 				end
-				ticks = ticks + 1
+				ticks = ticks + UIElement.frameScale
 			end, true)
 		return true
 	elseif (item.catid == 12) then

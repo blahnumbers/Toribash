@@ -1327,7 +1327,7 @@ function TBMenu:showStatusMessage(message, time)
 	TBMenu.StatusMessage:addCustomDisplay(false, function()
 			if (TBMenu.StatusMessage.pos.y > targetOffsetY) then
 				local tweenRatio = (UIElement.clock - TBMenu.StatusMessage.startTime) * 2
-				TBMenu.StatusMessage:moveTo(nil, UITween.SineTween(TBMenu.StatusMessage.pos.y, targetOffsetY, tweenRatio))
+				TBMenu.StatusMessage:moveTo(nil, UITween.SineFrameTween(TBMenu.StatusMessage.pos.y, targetOffsetY, tweenRatio))
 				transparency = UITween.SineEaseIn(tweenRatio * 2)
 				bgColor[4] = 0.8 * transparency
 				uiColor[4] = transparency
@@ -2495,8 +2495,8 @@ function TBMenu:showUserBar()
 	if (not UIElement.lightUIMode) then
 		local headRotation = math.pi / 2
 		headViewport.rootHolder:addCustomDisplay(true, function()
-				headViewport.rootHolder:rotate(0, 0, math.cos(headRotation))
-				headRotation = headRotation + math.pi / 570
+				headViewport.rootHolder:rotate(0, 0, math.cos(headRotation) * UIElement.frameScale)
+				headRotation = headRotation + math.pi / 570 * UIElement.frameScale
 			end)
 	end
 
@@ -3463,7 +3463,6 @@ end
 ---@deprecated
 function TBMenu:playMenuSwitchAnimation()
 	if (UIElement.lightUIMode) then return end
-	local speedMod = get_option("framerate") == 30 and 2 or 1
 	local currentSectionMover = UIElement:new({
 		parent = TBMenu.MenuMain,
 		pos = { -TBMenu.MenuMain.size.w + TBMenu.CurrentSection.shift.x, TBMenu.CurrentSection.shift.y },
@@ -3479,12 +3478,12 @@ function TBMenu:playMenuSwitchAnimation()
 			if (-currentSectionMover.pos.x >= currentSectionMover.size.w) then
 				currentSectionMover:kill()
 			end
-			currentSectionMover:moveTo(-WIN_W / 10 * math.sin(rad) * speedMod, nil, true)
+			currentSectionMover:moveTo(-WIN_W / 10 * math.sin(rad) * UIElement.frameScale, nil, true)
 		end)
 
 	TBMenu.CurrentSection:moveTo(WIN_W)
 	TBMenu.CurrentSection:addCustomDisplay(true, function()
-			TBMenu.CurrentSection:moveTo(-WIN_W / 10 * math.sin(rad) * speedMod, nil, true)
+			TBMenu.CurrentSection:moveTo(-WIN_W / 10 * math.sin(rad) * UIElement.frameScale, nil, true)
 			if (TBMenu.CurrentSection.shift.x <= 75 * TB_MENU_GLOBAL_SCALE) then
 				TBMenu.CurrentSection:moveTo(75 * TB_MENU_GLOBAL_SCALE)
 				TBMenu.CurrentSection:addCustomDisplay(true, function() end)
@@ -3540,13 +3539,14 @@ function TBMenu:showMain(noload)
 			end)
 		TBMenu.HideButton:addCustomDisplay(false, function()
 				if (TBMenu.HideButton.state == -1) then
-					TBMenu.HideButton.progress = TBMenu.HideButton.progress + math.pi / 40
-					TBMenu.MenuMain:moveTo(nil, TBMenu.MenuMain.pos.y + (WIN_H / 15) * math.sin(TBMenu.HideButton.progress))
+					TBMenu.HideButton.progress = TBMenu.HideButton.progress + math.pi / 40 * UIElement.frameScale
+					TBMenu.MenuMain:moveTo(nil, TBMenu.MenuMain.pos.y + (WIN_H / 15) * math.sin(TBMenu.HideButton.progress) * UIElement.frameScale)
 					TBMenu.HideButton:moveTo(nil, -TBMenu.MenuMain.pos.y - 74)
 					--[[if (not blurEnabled) then
 						tbMenuBackground.bgColor[4] = tbMenuBackground.bgColor[4] - (0.1 / 15) * math.sin(TBMenu.HideButton.progress)
 					end]]
-					if (TBMenu.MenuMain.pos.y >= WIN_H) then
+					-- The slide is over once the sine wave is: long frames can sum to a little less travel
+					if (TBMenu.MenuMain.pos.y >= WIN_H or TBMenu.HideButton.progress >= math.pi) then
 						TBMenu.HideButton:updateImage("../textures/menu/general/buttons/arrowtop.tga")
 						TBMenu.MenuMain:moveTo(nil, WIN_H)
 						TBMenu.HideButton:moveTo(nil, -TBMenu.MenuMain.pos.y - 74)
@@ -3554,13 +3554,13 @@ function TBMenu:showMain(noload)
 						tbMenuBackground.bgColor[4] = 0
 					end
 				elseif (TBMenu.HideButton.state == 1) then
-					TBMenu.HideButton.progress = TBMenu.HideButton.progress + math.pi / 50
-					TBMenu.MenuMain:moveTo(nil, TBMenu.MenuMain.pos.y - (WIN_H / 15) * math.sin(TBMenu.HideButton.progress))
+					TBMenu.HideButton.progress = TBMenu.HideButton.progress + math.pi / 50 * UIElement.frameScale
+					TBMenu.MenuMain:moveTo(nil, TBMenu.MenuMain.pos.y - (WIN_H / 15) * math.sin(TBMenu.HideButton.progress) * UIElement.frameScale)
 					TBMenu.HideButton:moveTo(nil, -TBMenu.MenuMain.pos.y - 74)
 					--[[if (not blurEnabled) then
 						tbMenuBackground.bgColor[4] = tbMenuBackground.bgColor[4] + (0.1 / 15) * math.sin(TBMenu.HideButton.progress)
 					end]]
-					if (TBMenu.MenuMain.pos.y <= 0) then
+					if (TBMenu.MenuMain.pos.y <= 0 or TBMenu.HideButton.progress >= math.pi) then
 						TBMenu.HideButton:updateImage("../textures/menu/general/buttons/arrowbot.tga")
 						TBMenu.MenuMain:moveTo(nil, 0)
 						TBMenu.HideButton:moveTo(nil, -TBMenu.MenuMain.pos.y - 74)
@@ -4587,7 +4587,7 @@ function TBMenu:spawnSlider2(parent, rect, value, settings, sliderFunc, onMouseD
 			if (sliderLabel.uiColor[4] > 0) then
 				sliderLabel:uiText(sliderLabel.labelText[1], nil, nil, 4, nil, 0.5)
 				if (slider.hoverState ~= BTN_DN) then
-					sliderLabel.uiColor[4] = UITween.SineTween(sliderLabel.uiColor[4], 0, UIElement.clock - sliderLabelOutClock)
+					sliderLabel.uiColor[4] = UITween.SineFrameTween(sliderLabel.uiColor[4], 0, UIElement.clock - sliderLabelOutClock)
 					sliderLabel.bgColor[4] = sliderLabel.uiColor[4]
 				end
 			end

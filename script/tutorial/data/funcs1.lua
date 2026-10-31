@@ -1,6 +1,5 @@
 local INTRO = 1
 local OUTRO = -1
-local FPS_MULTIPLIER = get_option("framerate") == 30 and 2 or 1
 
 local function drawSingleKey(viewElement, reqTable, key, requireSelected)
 	usage_event("tutorial1" .. key .. "key")
@@ -81,7 +80,7 @@ local function drawWASD(viewElement, reqTable, shift, fade)
 			size = { 0, 0 }
 		})
 		transparencyController:addCustomDisplay(true, function()
-				BUTTON_DEFAULT_COLOR[4] = BUTTON_DEFAULT_COLOR[4] + 0.04 * fade * FPS_MULTIPLIER
+				BUTTON_DEFAULT_COLOR[4] = BUTTON_DEFAULT_COLOR[4] + 0.04 * fade * UIElement.frameScale
 				if (fade == 1) then
 					if (BUTTON_DEFAULT_COLOR[4] >= 1) then
 						BUTTON_DEFAULT_COLOR[4] = 1
@@ -333,7 +332,7 @@ local function waitRelaxAll(viewElement, reqTable)
 					break
 				end
 			end
-			grow = grow + maxGrow / tonumber(get_option("framerate") or 60)
+			grow = grow + maxGrow * UIElement.REFERENCE_FRAME_TIME * UIElement.frameScale
 			if (grow > maxGrow) then
 				grow = 0
 			end

@@ -1388,8 +1388,8 @@ function Clans:loadClanLogo(clanid, viewElement, reload)
 	loadIndicatorDisk:addCustomDisplay(true, function()
 			set_color(1,1,1,transparency[1])
 			draw_disk(loadIndicatorDisk.pos.x + loadIndicatorDisk.size.w / 2, loadIndicatorDisk.pos.y + loadIndicatorDisk.size.h / 2, 6, 12, 200, 1, rotation, scale, 0)
-			rotation = rotation + 2.5
-			scale = scale + 5
+			rotation = rotation + 2.5 * UIElement.frameScale
+			scale = scale + 5 * UIElement.frameScale
 			if (scale > 360) then
 				scale = -360
 			end
@@ -1399,16 +1399,18 @@ function Clans:loadClanLogo(clanid, viewElement, reload)
 		updateTextScale = updateTextScale - 0.05
 	end
 	local downloadInProgress = true
+	local logoUpdated = false
 	loadIndicator:addCustomDisplay(true, function()
 			local downloads = get_downloads()
 			if (#downloads == 0) then
 				downloadInProgress = false
 			end
 			if (not downloadInProgress) then
-				if (transparency[1] == 0.8) then
+				if (not logoUpdated) then
+					logoUpdated = true
 					viewElement:updateImage("../textures/clans/"..clanid..".tga", Clans.DefaultLogo, true)
 				end
-				transparency[1] = transparency[1] - 0.05
+				transparency[1] = transparency[1] - 0.05 * UIElement.frameScale
 				if (transparency[1] <= 0) then
 					table.insert(LOGOCACHE, clanid)
 					loadView:kill()
