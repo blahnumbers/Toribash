@@ -121,7 +121,7 @@ function Settings:showAbout()
 	})
 	whiteOverlay.killAction = function() UIScrollbarIgnore = false end
 	local slowMode = false
-	local speedMultiplier = get_option('framerate') == 30 and 2 or 1
+	local speedMultiplier = (get_option('fpscap') or get_option('framerate')) == 30 and 2 or 1
 	whiteOverlay:addMouseHandlers(nil, function()
 			whiteOverlay:kill()
 			TBMenu.UserBar:show()
@@ -305,6 +305,7 @@ function Settings:getSettingsData(id)
 						--end
 						--return 4
 					end,
+				hidden = get_option("gamespeed") ~= nil,
 				dropdown = {
 					{
 						text = "30 " .. TB_MENU_LOCALIZED.SETTINGSFPS,
@@ -340,6 +341,60 @@ function Settings:getSettingsData(id)
 							end
 					}]]
 				}
+			},
+			{
+				name = TB_MENU_LOCALIZED.SETTINGSGAMESPEED or "Game speed",
+				hint = TB_MENU_LOCALIZED.SETTINGSGAMESPEEDHINT or "How fast the game plays. Normal is the speed most players use",
+				type = DROPDOWN,
+				selectedAction = function()
+						local speed = Settings.Stored.gamespeed and Settings.Stored.gamespeed.value or get_option("gamespeed")
+						if (speed == 2) then
+							return 2
+						elseif (speed == 0) then
+							return 3
+						end
+						return 1
+					end,
+				hidden = get_option("gamespeed") == nil,
+				dropdown = {
+					{
+						text = TB_MENU_LOCALIZED.SETTINGSGAMESPEEDNORMAL or "Normal",
+						action = function()
+								Settings.Stored.gamespeed = { value = 1 }
+								Settings:settingsApplyActivate()
+							end
+					},
+					{
+						text = TB_MENU_LOCALIZED.SETTINGSGAMESPEEDFAST or "Fast",
+						action = function()
+								Settings.Stored.gamespeed = { value = 2 }
+								Settings:settingsApplyActivate()
+							end
+					},
+					{
+						text = TB_MENU_LOCALIZED.SETTINGSGAMESPEEDCLASSIC or "Match FPS (classic)",
+						action = function()
+								Settings.Stored.gamespeed = { value = 0 }
+								Settings:settingsApplyActivate()
+							end
+					}
+				}
+			},
+			{
+				name = TB_MENU_LOCALIZED.SETTINGSFPSCAP or "FPS cap",
+				hint = TB_MENU_LOCALIZED.SETTINGSFPSCAPHINT or "The most frames drawn per second. Doesn't change game speed",
+				type = DROPDOWN,
+				selectedAction = function()
+						local cap = Settings.Stored.fpscap and Settings.Stored.fpscap.value or get_option("fpscap")
+						for i, v in pairs(Settings.FpsCaps) do
+							if (v == cap) then
+								return i
+							end
+						end
+						return 2
+					end,
+				hidden = get_option("fpscap") == nil,
+				dropdown = Settings:getFpsCapDropdown()
 			},
 			{
 				name = TB_MENU_LOCALIZED.SETTINGSBLOOD,
@@ -536,7 +591,7 @@ function Settings:getSettingsData(id)
 											{ opt = "itemeffects", val = 0, graphics = true, id = ITEMEFFECTS }
 										}
 										Settings.SetMacResolution()
-										for _, v in pairs(options) do
+										for _, v in pairs(Settings.AdaptPresetFramerate(options)) do
 											if (v.graphics) then
 												set_graphics_option(v.id, v.val)
 											else
@@ -574,7 +629,7 @@ function Settings:getSettingsData(id)
 										{ opt = "itemeffects", val = is_mobile() and 0 or 1, graphics = true, id = ITEMEFFECTS }
 									}
 									Settings.SetMacResolution()
-									for _, v in pairs(options) do
+									for _, v in pairs(Settings.AdaptPresetFramerate(options)) do
 										if (v.graphics) then
 											set_graphics_option(v.id, v.val)
 										else
@@ -612,7 +667,7 @@ function Settings:getSettingsData(id)
 										{ opt = "itemeffects", val = 1, graphics = true, id = ITEMEFFECTS }
 									}
 									Settings.SetMacResolution()
-									for _, v in pairs(options) do
+									for _, v in pairs(Settings.AdaptPresetFramerate(options)) do
 										if (v.graphics) then
 											set_graphics_option(v.id, v.val)
 										else
@@ -650,7 +705,7 @@ function Settings:getSettingsData(id)
 										{ opt = "itemeffects", val = 1, graphics = true, id = ITEMEFFECTS }
 									}
 									Settings.SetMacResolution()
-									for _ ,v in pairs(options) do
+									for _, v in pairs(Settings.AdaptPresetFramerate(options)) do
 										if (v.graphics) then
 											set_graphics_option(v.id, v.val)
 										else
@@ -688,7 +743,7 @@ function Settings:getSettingsData(id)
 										{ opt = "itemeffects", val = 1, graphics = true, id = ITEMEFFECTS }
 									}
 									Settings.SetMacResolution()
-									for _, v in pairs(options) do
+									for _, v in pairs(Settings.AdaptPresetFramerate(options)) do
 										if (v.graphics) then
 											set_graphics_option(v.id, v.val)
 										else
@@ -1739,11 +1794,49 @@ function Settings:getSettingsData(id)
 	end
 end
 
+Settings.FpsCaps = { 30, 60, 75, 120, 144, 165, 240, 360, 0 }
+
+---Dropdown entries for the FPS cap setting (fpscap option, 0 is uncapped)
+function Settings:getFpsCapDropdown()
+	local dropdown = {}
+	for _, cap in pairs(Settings.FpsCaps) do
+		table.insert(dropdown, {
+			text = cap == 0 and TB_MENU_LOCALIZED.SETTINGSFPSUNCAPPED or (cap .. " " .. TB_MENU_LOCALIZED.SETTINGSFPS),
+			action = function()
+					Settings.Stored.fpscap = { value = cap }
+					Settings:settingsApplyActivate()
+				end
+		})
+	end
+	return dropdown
+end
+
+---Graphics presets were written for framerate / fixedframerate, which also set the game speed.
+---On clients with the gamespeed / fpscap options a preset only sets the FPS cap.
+function Settings.AdaptPresetFramerate(options)
+	if (get_option("gamespeed") == nil) then
+		return options
+	end
+	local adapted = {}
+	for _, v in pairs(options) do
+		if (v.opt == "framerate") then
+			table.insert(adapted, { opt = "fpscap", val = v.val })
+		elseif (v.opt ~= "fixedframerate") then
+			table.insert(adapted, v)
+		end
+	end
+	return adapted
+end
+
 function Settings:getGraphicsPreset()
 	return function()
 			local options = {
 				"shaders", "fluid", "bloodstains", "framerate", "reflection", "softshadow", "ambientocclusion", "bumpmapping", "raytracing", "trails", "hair", "hairquality", "obj", "effects", "particles", "bodytextures", "uilight", "ghostobj"
 			}
+			if (get_option("fpscap") ~= nil) then
+				-- Presets now set the FPS cap, which uses the same values the frame rate did
+				options[4] = "fpscap"
+			end
 			local presets = {
 				is_mobile() and "1003000000000000110" or "0003000000000000110",
 				is_mobile() and "1003000000110010110" or "1013000000110011110",
