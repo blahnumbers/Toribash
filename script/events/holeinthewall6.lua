@@ -20,7 +20,7 @@ local function showOverlay(viewElement, reqTable, out, speed)
 	end
 	overlay.bgColor[4] = out and 0 or 1
 	overlay:addCustomDisplay(true, function()
-			overlay.bgColor[4] = overlay.bgColor[4] + (out and 0.02 or -0.02) * speed
+			overlay.bgColor[4] = overlay.bgColor[4] + (out and 0.02 or -0.02) * speed * UIElement.frameScale
 			if (not out and overlay.bgColor[4] <= 0) then
 				req.ready = true
 				reqTable.ready = Tutorials:checkRequirements(reqTable)

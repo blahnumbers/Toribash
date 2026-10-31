@@ -1574,6 +1574,7 @@ function run_frames(frames) end
 ---@field grabmode				integer			`0` - classic grabs (fixed), `1` - ball joint (rotatable) grabs
 ---@field tearthreshold			integer			Ball joint grabs' break threshold
 ---@field numplayers			integer			Player count for the mod
+---@field momentumdecay		integer			Single player only: how much of the classic spin and flip slowdown is left, `100` - classic, `0` - off
 
 ---Returns current game rules
 ---@return GameRules
@@ -1638,6 +1639,23 @@ function set_ghost(ghost_mode) end
 ---@param frame integer
 ---@return PlayerGhostCache[]|GhostFrameCache
 function get_ghost_cache(frame) end
+
+---Returns the ghost cache frame the classic ghost is showing, which can be partway between two cached frames,
+---how much of the classic ghost is left as it fades out near the end of its loop (1 to 0), and the last frame
+---the ghost cache holds since the ghost last restarted. Frames after it are left over from an older ghost
+---@return number frame
+---@return number fade
+---@return integer last_cached_frame
+function get_ghost_frame() end
+
+---Returns whether the specified player's ghost uses your ghost settings rather than the opponent's: the fighter you control in multiplayer, else Tori
+---@param player integer
+---@return boolean
+function is_own_ghost(player) end
+
+---Returns how many frames the ghost runs for. In single player this can differ from the ghostlength game rule, which only applies to the next game
+---@return integer
+function get_ghost_length() end
 
 ---Sets score for the specified player
 ---@param player integer
@@ -1982,6 +2000,39 @@ function load_player(player, name) end
 ---@return ColorId relax_color
 function get_joint_colors(player, joint) end
 
+---@class PlayerBodyColors
+---@field color ColorId Body color (the torso color on torso parts)
+---@field primary ColorId Primary gradient color
+---@field secondary ColorId Secondary gradient color
+---@field item ColorId|nil 3D item color, when there's a 3D item on this body part
+---@field grab_item ColorId|nil Color of a hand's 3D item shown while it grabs
+
+---@class PlayerJointColors
+---@field force ColorId
+---@field relax ColorId
+---@field item ColorId|nil 3D item color, when there's a 3D item on this joint
+
+---@class PlayerColors
+---@field blood ColorId
+---@field ghost ColorId
+---@field impact ColorId
+---@field grip ColorId
+---@field text ColorId
+---@field timer ColorId
+---@field emote ColorId
+---@field bruise ColorId
+---@field trails table<integer, ColorId> Trail colors: 0 left hand, 1 right hand, 2 left foot, 3 right foot
+---@field bodies table<integer, PlayerBodyColors> Keyed by body id
+---@field joints table<integer, PlayerJointColors> Keyed by joint id
+---@field hairs ColorId[] Colors of the player's hairs
+
+---Returns every color a player wears (0 is none, the default look)
+---
+---**Since 5.78**
+---@param player integer
+---@return PlayerColors
+function get_player_colors(player) end
+
 ---@deprecated
 ---@param player integer
 ---@param joint PlayerJoint
@@ -2056,6 +2107,11 @@ function set_torso_color(player, color) end
 ---@param player integer
 ---@param color ColorId
 function set_ghost_color(player, color) end
+
+---Returns the color the classic ghost is drawn in for the specified player: their custom ghost color, else their player color
+---@param player integer
+---@return ColorId
+function get_ghost_color(player) end
 
 ---Sets DQ color for the specified player
 ---@param player integer
@@ -3623,6 +3679,14 @@ function shoot_ray(start_x, start_y, start_z, end_x, end_y, end_z, ...) end
 ---@return integer|nil geomId Geom id that was hit first
 ---@return number|nil distance Distance from camera to the returned `geomId`
 function shoot_camera_ray(pos_x, pos_y, length) end
+
+---Returns the fighter part under the mouse cursor, checking every fighter shown in any game mode. Doesn't select anything.
+---
+---**Since 5.78**
+---@return integer|nil player
+---@return integer|nil body Body id or -1 when it's a joint
+---@return integer|nil joint Joint id or -1 when it's a body part
+function get_mouse_player_part() end
 
 
 --[[ OTHER FUNCTIONS ]]

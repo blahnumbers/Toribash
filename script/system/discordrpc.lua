@@ -32,8 +32,8 @@ function DiscordRPC:quit(viewElement, buttons)
 	local progress = math.pi / 60
 	viewElement:addCustomDisplay(false, function()
 			if (viewElement.pos.x > -viewElement.size.w) then
-				viewElement:moveTo(-viewElement.size.w * math.sin(progress))
-				progress = progress + math.pi / 60
+				viewElement:moveTo(-viewElement.size.w * math.sin(math.min(progress, math.pi / 2)))
+				progress = progress + math.pi / 60 * UIElement.frameScale
 			else
 				DiscordRPCInstancesOpen = DiscordRPCInstancesOpen - 1
 				viewElement:kill()
@@ -57,8 +57,8 @@ function DiscordRPC:show()
 	local progress = math.pi / 60
 	discordOverlay:addCustomDisplay(false, function()
 			if (discordOverlay.pos.x < -5) then
-				discordOverlay:moveTo(-discordOverlay.size.w + discordOverlay.size.w * math.sin(progress))
-				progress = progress + math.pi / 60
+				discordOverlay:moveTo(-discordOverlay.size.w + discordOverlay.size.w * math.sin(math.min(progress, math.pi / 2)))
+				progress = progress + math.pi / 60 * UIElement.frameScale
 			else
 				discordOverlay:moveTo(-5)
 				discordOverlay:addCustomDisplay(false, function() end)
@@ -96,8 +96,8 @@ function DiscordRPC:show()
 			for i = #circles, 1, -1 do
 				set_color(circles[i].color[1], circles[i].color[2], circles[i].color[3], (circles[i].y - 5.5) / discordOverlay.size.h * 2)
 				draw_disk(discordOverlay.pos.x + circles[i].x + circles[i].size / 2, discordOverlay.pos.y + circles[i].y + circles[i].size / 2, 0, circles[i].size, 500, 1, 0, 360, 0)
-				circles[i].y = circles[i].y - 0.2
-				circles[i].x = circles[i].x - 0.08
+				circles[i].y = circles[i].y - 0.2 * UIElement.frameScale
+				circles[i].x = circles[i].x - 0.08 * UIElement.frameScale
 				if (circles[i].y < 6) then
 					table.remove(circles, i)
 				end

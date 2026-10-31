@@ -864,7 +864,7 @@ function Replays:playReplay(replay, replayQueue, replayIdx)
 			local wait = 0
 			local downloadWait = loading:addChild({ })
 			downloadWait:addCustomDisplay(true, function()
-					wait = wait + 1
+					wait = wait + UIElement.frameScale
 					if (not modFile:isDownloading() and wait > 5) then
 						loading:addAdaptedText(false, TB_MENU_LOCALIZED.REPLAYSLOADINGREPLAY)
 						local framesN = 0
@@ -2380,8 +2380,8 @@ function Replays:showServerReplayPreview()
 	local replayFile = nil
 	local cacheMode = get_option("replaycache") == 2 and 1 or 0
 	downloadWait:addCustomDisplay(true, function()
-			frames = frames + 1
-			if (frames == 10) then
+			frames = frames + UIElement.frameScale
+			if (replayFile == nil and frames >= 10) then
 				replayFile = Files.Open("../replay/downloads/" .. ReplaysInternal.ServerTempName .. ".rpl", FILES_MODE_READONLY)
 			end
 			if (replayFile) then
@@ -2398,7 +2398,7 @@ function Replays:showServerReplayPreview()
 							local wait = 0
 							local downloadWait = previewView:addChild({ })
 							downloadWait:addCustomDisplay(true, function()
-								wait = wait + 1
+								wait = wait + UIElement.frameScale
 								if (not modFile:isDownloading() and wait > 5) then
 									previewView:addAdaptedText(false, TB_MENU_LOCALIZED.REPLAYSLOADINGREPLAY)
 									local framesN = 0
@@ -2459,8 +2459,8 @@ function Replays:showReplayDownloadPopup(rplname)
 	local frames = 0
 	local replayFile = nil
 	downloadWait:addCustomDisplay(true, function()
-			frames = frames + 1
-			if (frames == 10) then
+			frames = frames + UIElement.frameScale
+			if (replayFile == nil and frames >= 10) then
 				replayFile = Files.Open("../replay/downloads/" .. rplname .. ".rpl", FILES_MODE_READONLY)
 			end
 			if (replayFile) then
@@ -2469,9 +2469,9 @@ function Replays:showReplayDownloadPopup(rplname)
 					notificationView:addAdaptedText(false, TB_MENU_LOCALIZED.REPLAYSREPLAYSAVEDINFO, nil, nil, nil, nil, nil, nil, nil, nil, { 1, 1, 1, notificationView.bgColor[4] })
 					local framesN = 0
 					downloadWait:addCustomDisplay(true, function()
-							framesN = framesN + 1
+							framesN = framesN + UIElement.frameScale
 							if (framesN > 30) then
-								notificationView.bgColor[4] = notificationView.bgColor[4] - 0.05
+								notificationView.bgColor[4] = notificationView.bgColor[4] - 0.05 * UIElement.frameScale
 								notificationView:addAdaptedText(false, TB_MENU_LOCALIZED.REPLAYSREPLAYSAVEDINFO, nil, nil, nil, nil, nil, nil, nil, nil, { 1, 1, 1, notificationView.bgColor[4] })
 							end
 							if (notificationView.bgColor[4] <= 0) then
@@ -3574,7 +3574,7 @@ function Replays:spawnReplayProgressSlider(viewElement)
 				draw_quad(keyframeButton.pos.x + keyframeButton.size.w / 2 - 1, slider.parent.pos.y + slider.parent.size.h - 32, 2, 16)
 				if (keyframeButton.hoverState ~= BTN_NONE) then
 					if (keyframeButton.size.w < keyframeButtonHoverSize) then
-						keyframeButton.size.w = UITween.LinearTween(keyframeButton.size.w, keyframeButtonHoverSize, (UIElement.clock - keyframeButton.hoverClock) * 5)
+						keyframeButton.size.w = UITween.LinearFrameTween(keyframeButton.size.w, keyframeButtonHoverSize, (UIElement.clock - keyframeButton.hoverClock) * 5)
 						local moveAmount = (keyframeButton.size.h - keyframeButton.size.w) / 2
 						keyframeButton:moveTo(moveAmount, moveAmount * 2, true)
 						keyframeButton.size.h = keyframeButton.size.w
@@ -4086,9 +4086,9 @@ function Replays:spawnReplayAdvancedGui(reload)
 				if (self.GameHud.hidden) then
 					if (self.GameHud.pos.y < WIN_H) then
 						local tweenTime = (UIElement.clock - self.GameHud.toggleClock) * 1.65
-						self.GameHud:moveTo(nil, UITween.SineTween(self.GameHud.pos.y, WIN_H, tweenTime))
+						self.GameHud:moveTo(nil, UITween.SineFrameTween(self.GameHud.pos.y, WIN_H, tweenTime))
 						if (self.GameHudRight ~= nil) then
-							self.GameHudRight:moveTo(UITween.SineTween(self.GameHudRight.pos.x, WIN_W, tweenTime))
+							self.GameHudRight:moveTo(UITween.SineFrameTween(self.GameHudRight.pos.x, WIN_W, tweenTime))
 						end
 					else
 						self.GameHud:hide()
@@ -4099,9 +4099,9 @@ function Replays:spawnReplayAdvancedGui(reload)
 				else
 					if (self.GameHud.pos.y > WIN_H - targetHeightShift) then
 						local tweenTime = (UIElement.clock - self.GameHud.toggleClock) * 1.65
-						self.GameHud:moveTo(nil, UITween.SineTween(self.GameHud.pos.y, WIN_H - targetHeightShift, tweenTime))
+						self.GameHud:moveTo(nil, UITween.SineFrameTween(self.GameHud.pos.y, WIN_H - targetHeightShift, tweenTime))
 						if (self.GameHudRight ~= nil) then
-							self.GameHudRight:moveTo(UITween.SineTween(self.GameHudRight.pos.x, WIN_W - targetRightShift, tweenTime))
+							self.GameHudRight:moveTo(UITween.SineFrameTween(self.GameHudRight.pos.x, WIN_W - targetRightShift, tweenTime))
 						end
 					end
 				end

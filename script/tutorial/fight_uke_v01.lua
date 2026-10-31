@@ -539,7 +539,7 @@ function overlay()
 			draw_text("aikido", buttons.aikido.x + 100 - slide, buttons.aikido.y, FONTS.MEDIUM)
 			draw_text("judo", buttons.judo.x + 100 - slide, buttons.judo.y, FONTS.MEDIUM)
 			draw_text("wushu", buttons.wushu.x + 100 - slide, buttons.wushu.y, FONTS.MEDIUM)
-			slide = slide + 5
+			slide = math.min(slide + 5 * UIElement.frameScale, 100)
 		end
 		if (slide == 100) then
 			initchange = 0
@@ -578,7 +578,7 @@ function overlay()
 			draw_text("aikido", buttons.aikido.x + 100 - slide, buttons.aikido.y, FONTS.MEDIUM)
 			draw_text("judo", buttons.judo.x + 100 - slide, buttons.judo.y, FONTS.MEDIUM)
 			draw_text("wushu", buttons.wushu.x + 100 - slide, buttons.wushu.y, FONTS.MEDIUM)
-			slide = slide - 5
+			slide = math.max(slide - 5 * UIElement.frameScale, 0)
 		end
 		if (slide == 0) then
 			initchange = 0
@@ -589,12 +589,12 @@ function overlay()
 	if (lose_count > 4) then
 		if (width > 1040) then
 			if (modchange_trans < 100 and modchange_flag < 100) then
-				modchange_trans = modchange_trans + 1
-				modchange_flag = modchange_flag + 1
+				modchange_trans = math.min(modchange_trans + UIElement.frameScale, 100)
+				modchange_flag = math.min(modchange_flag + UIElement.frameScale, 100)
 			elseif (modchange_flag == 600 or (modchange_trans > 0 and modchange_flag == 1000)) then
-				modchange_trans = modchange_trans - 1
+				modchange_trans = modchange_trans - UIElement.frameScale
 			elseif (modchange_trans == 100) then
-				modchange_flag = modchange_flag + 1
+				modchange_flag = math.min(modchange_flag + UIElement.frameScale, 600)
 			end 
 			set_color(1, 1, 1, .9)
 			draw_quad(0, height - modchange_trans/2, width, 60) 

@@ -121,7 +121,6 @@ function Settings:showAbout()
 	})
 	whiteOverlay.killAction = function() UIScrollbarIgnore = false end
 	local slowMode = false
-	local speedMultiplier = get_option('framerate') == 30 and 2 or 1
 	whiteOverlay:addMouseHandlers(nil, function()
 			whiteOverlay:kill()
 			TBMenu.UserBar:show()
@@ -133,7 +132,9 @@ function Settings:showAbout()
 		uiColor = UICOLORBLACK
 	})
 	aboutMover:addCustomDisplay(true, function()
-		aboutMover:moveTo(nil, slowMode and math.ceil(-WIN_H / 1400 * speedMultiplier) or math.ceil(-WIN_H / 700 * speedMultiplier), true)
+		-- Whole pixels per reference frame, as the credits scrolled at 62.5 fps
+		local scrollSpeed = slowMode and math.ceil(-WIN_H / 1400) or math.ceil(-WIN_H / 700)
+		aboutMover:moveTo(nil, scrollSpeed * UIElement.frameScale, true)
 	end)
 	local tbLogo = UIElement:new({
 		parent = aboutMover,
@@ -305,6 +306,7 @@ function Settings:getSettingsData(id)
 						--end
 						--return 4
 					end,
+				hidden = get_option("gamespeed") ~= nil,
 				dropdown = {
 					{
 						text = "30 " .. TB_MENU_LOCALIZED.SETTINGSFPS,
@@ -340,6 +342,60 @@ function Settings:getSettingsData(id)
 							end
 					}]]
 				}
+			},
+			{
+				name = TB_MENU_LOCALIZED.SETTINGSGAMESPEED or "Game speed",
+				hint = TB_MENU_LOCALIZED.SETTINGSGAMESPEEDHINT or "How fast the game plays. Normal is the speed most players use",
+				type = DROPDOWN,
+				selectedAction = function()
+						local speed = Settings.Stored.gamespeed and Settings.Stored.gamespeed.value or get_option("gamespeed")
+						if (speed == 2) then
+							return 2
+						elseif (speed == 0) then
+							return 3
+						end
+						return 1
+					end,
+				hidden = get_option("gamespeed") == nil,
+				dropdown = {
+					{
+						text = TB_MENU_LOCALIZED.SETTINGSGAMESPEEDNORMAL or "Normal",
+						action = function()
+								Settings.Stored.gamespeed = { value = 1 }
+								Settings:settingsApplyActivate()
+							end
+					},
+					{
+						text = TB_MENU_LOCALIZED.SETTINGSGAMESPEEDFAST or "Fast",
+						action = function()
+								Settings.Stored.gamespeed = { value = 2 }
+								Settings:settingsApplyActivate()
+							end
+					},
+					{
+						text = TB_MENU_LOCALIZED.SETTINGSGAMESPEEDCLASSIC or "Match FPS (classic)",
+						action = function()
+								Settings.Stored.gamespeed = { value = 0 }
+								Settings:settingsApplyActivate()
+							end
+					}
+				}
+			},
+			{
+				name = TB_MENU_LOCALIZED.SETTINGSFPSCAP or "FPS cap",
+				hint = TB_MENU_LOCALIZED.SETTINGSFPSCAPHINT or "The most frames drawn per second. Doesn't change game speed",
+				type = DROPDOWN,
+				selectedAction = function()
+						local cap = Settings.Stored.fpscap and Settings.Stored.fpscap.value or get_option("fpscap")
+						for i, v in pairs(Settings.FpsCaps) do
+							if (v == cap) then
+								return i
+							end
+						end
+						return 2
+					end,
+				hidden = get_option("fpscap") == nil,
+				dropdown = Settings:getFpsCapDropdown()
 			},
 			{
 				name = TB_MENU_LOCALIZED.SETTINGSBLOOD,
@@ -419,6 +475,15 @@ function Settings:getSettingsData(id)
 					val = { Settings.Stored.bloodstains and Settings.Stored.bloodstains.value or get_option("bloodstains") },
 				})
 			end
+			table.insert(advancedItems, {
+				-- Works with and without shaders
+				name = TB_MENU_LOCALIZED.SETTINGSSTICKYBLOOD or "Sticky blood",
+				hint = TB_MENU_LOCALIZED.SETTINGSSTICKYBLOODHINT or "Blood that lands on a fighter stays on them for the rest of the match",
+				type = TOGGLE,
+				systemname = "stickyblood",
+				val = { Settings.Stored.stickyblood and Settings.Stored.stickyblood.value or get_option("stickyblood") },
+				hidden = get_option("stickyblood") == nil
+			})
 			table.insert(advancedItems, {
 				name = TB_MENU_LOCALIZED.SETTINGSFLOORREFLECTIONS,
 				type = TOGGLE,
@@ -527,7 +592,7 @@ function Settings:getSettingsData(id)
 											{ opt = "itemeffects", val = 0, graphics = true, id = ITEMEFFECTS }
 										}
 										Settings.SetMacResolution()
-										for _, v in pairs(options) do
+										for _, v in pairs(Settings.AdaptPresetFramerate(options)) do
 											if (v.graphics) then
 												set_graphics_option(v.id, v.val)
 											else
@@ -565,7 +630,7 @@ function Settings:getSettingsData(id)
 										{ opt = "itemeffects", val = is_mobile() and 0 or 1, graphics = true, id = ITEMEFFECTS }
 									}
 									Settings.SetMacResolution()
-									for _, v in pairs(options) do
+									for _, v in pairs(Settings.AdaptPresetFramerate(options)) do
 										if (v.graphics) then
 											set_graphics_option(v.id, v.val)
 										else
@@ -603,7 +668,7 @@ function Settings:getSettingsData(id)
 										{ opt = "itemeffects", val = 1, graphics = true, id = ITEMEFFECTS }
 									}
 									Settings.SetMacResolution()
-									for _, v in pairs(options) do
+									for _, v in pairs(Settings.AdaptPresetFramerate(options)) do
 										if (v.graphics) then
 											set_graphics_option(v.id, v.val)
 										else
@@ -641,7 +706,7 @@ function Settings:getSettingsData(id)
 										{ opt = "itemeffects", val = 1, graphics = true, id = ITEMEFFECTS }
 									}
 									Settings.SetMacResolution()
-									for _ ,v in pairs(options) do
+									for _, v in pairs(Settings.AdaptPresetFramerate(options)) do
 										if (v.graphics) then
 											set_graphics_option(v.id, v.val)
 										else
@@ -679,7 +744,7 @@ function Settings:getSettingsData(id)
 										{ opt = "itemeffects", val = 1, graphics = true, id = ITEMEFFECTS }
 									}
 									Settings.SetMacResolution()
-									for _, v in pairs(options) do
+									for _, v in pairs(Settings.AdaptPresetFramerate(options)) do
 										if (v.graphics) then
 											set_graphics_option(v.id, v.val)
 										else
@@ -1224,6 +1289,121 @@ function Settings:getSettingsData(id)
 				}
 			},
 			{
+				name = TB_MENU_LOCALIZED.SETTINGSGHOST or "Ghost",
+				items = {
+					{
+						-- bleed's Better Ghost (system/betterghost.lua), also switched with Q in a match
+						name = TB_MENU_LOCALIZED.SETTINGSBETTERGHOST or "Better Ghost",
+						hint = TB_MENU_LOCALIZED.SETTINGSBETTERGHOSTHINT or "Shows where each fighter ends up at the end of the turn. Press Q in a match to show or hide it",
+						type = TOGGLE,
+						systemname = "betterghost",
+						val = { Settings.GetGhostOption("betterghost") },
+						hidden = get_option("betterghost") == nil
+					},
+					{
+						-- The fighter you control (Tori offline): with or instead of the classic ghost
+						name = TB_MENU_LOCALIZED.SETTINGSGHOSTSTYLE or "My Better Ghost",
+						type = DROPDOWN,
+						systemname = "ghoststyle",
+						selectedAction = function()
+								local _, selected = Settings.GetGhostStyleDropdown("ghoststyle")
+								return selected
+							end,
+						dropdown = Settings.GetGhostStyleDropdown("ghoststyle"),
+						hidden = get_option("betterghost") == nil
+					},
+					{
+						name = TB_MENU_LOCALIZED.SETTINGSGHOSTCOLOR or "My Better Ghost: color",
+						type = DROPDOWN,
+						systemname = "ghostcolor",
+						selectedAction = function()
+								local _, selected = Settings.GetGhostColorDropdown("ghostcolor")
+								return selected
+							end,
+						dropdown = Settings.GetGhostColorDropdown("ghostcolor"),
+						dropdownHeight = 300,
+						hidden = get_option("betterghost") == nil
+					},
+					{
+						-- Everyone else's ghost
+						name = TB_MENU_LOCALIZED.SETTINGSGHOSTSTYLEOPPONENT or "Opponent's Better Ghost",
+						type = DROPDOWN,
+						systemname = "ghoststyleopponent",
+						selectedAction = function()
+								local _, selected = Settings.GetGhostStyleDropdown("ghoststyleopponent")
+								return selected
+							end,
+						dropdown = Settings.GetGhostStyleDropdown("ghoststyleopponent"),
+						hidden = get_option("betterghost") == nil
+					},
+					{
+						name = TB_MENU_LOCALIZED.SETTINGSGHOSTCOLOROPPONENT or "Opponent's Better Ghost: color",
+						type = DROPDOWN,
+						systemname = "ghostcoloropponent",
+						selectedAction = function()
+								local _, selected = Settings.GetGhostColorDropdown("ghostcoloropponent")
+								return selected
+							end,
+						dropdown = Settings.GetGhostColorDropdown("ghostcoloropponent"),
+						dropdownHeight = 300,
+						hidden = get_option("betterghost") == nil
+					},
+					{
+						name = TB_MENU_LOCALIZED.SETTINGSGHOSTCLASSICOPACITY or "Classic ghost: opacity",
+						type = SLIDER,
+						maxValue = 100,
+						systemname = "ghostclassicopacity",
+						val = { Settings.GetGhostOption("ghostclassicopacity") },
+						hidden = get_option("ghostclassicopacity") == nil
+					},
+					{
+						name = TB_MENU_LOCALIZED.SETTINGSGHOSTOPACITY or "Better Ghost: opacity",
+						type = SLIDER,
+						maxValue = 100,
+						systemname = "ghostopacity",
+						val = { Settings.GetGhostOption("ghostopacity") },
+						hidden = get_option("betterghost") == nil
+					},
+					{
+						-- Still holds the turn end pose. Moving follows the classic ghost until the turn end
+						name = TB_MENU_LOCALIZED.SETTINGSGHOSTMOVEMENT or "Better Ghost: movement",
+						type = DROPDOWN,
+						systemname = "ghostmovement",
+						selectedAction = function()
+								return (Settings.GetGhostOption("ghostmovement") or 0) + 1
+							end,
+						dropdown = {
+							{
+								text = TB_MENU_LOCALIZED.SETTINGSGHOSTMOVEMENT0 or "Still",
+								action = function()
+										Settings.Stored.ghostmovement = { value = 0 }
+										Settings:settingsApplyActivate()
+										Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
+									end
+							},
+							{
+								text = TB_MENU_LOCALIZED.SETTINGSGHOSTMOVEMENT1 or "Moving",
+								action = function()
+										Settings.Stored.ghostmovement = { value = 1 }
+										Settings:settingsApplyActivate()
+										Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
+									end
+							}
+						},
+						hidden = get_option("betterghost") == nil
+					},
+					{
+						-- Every ghost; an end of turn ghost that holds still has nothing to fade
+						name = TB_MENU_LOCALIZED.SETTINGSGHOSTFADE or "Fade out",
+						hint = TB_MENU_LOCALIZED.SETTINGSGHOSTFADEHINT or "Ghosts fade out as they near the end of the ghost",
+						type = TOGGLE,
+						systemname = "ghostfade",
+						val = { Settings.GetGhostOption("ghostfade") },
+						hidden = get_option("ghostfade") == nil or (Settings.GetGhostOption("ghoststyle") == 1 and Settings.GetGhostOption("ghoststyleopponent") == 1 and Settings.GetGhostOption("ghostmovement") == 0)
+					}
+				}
+			},
+			{
 				name = TB_MENU_LOCALIZED.SETTINGSREPLAYS,
 				items = {
 					{
@@ -1454,6 +1634,50 @@ function Settings:getSettingsData(id)
 						hidden = is_mobile()
 					},
 					{
+						-- The chat before 5.78's desktop chat (no tabs skin, emoji or scrolling); older clients lack the option
+						name = TB_MENU_LOCALIZED.SETTINGSLEGACYCHAT or "Legacy chat",
+						type = TOGGLE,
+						systemname = "legacychat",
+						val = { get_option("legacychat") or 0 },
+						hidden = is_mobile() or get_option("legacychat") == nil
+					},
+					{
+						-- Readability (5.78): a dark box behind the chat lines, both chats; older clients lack the option
+						name = TB_MENU_LOCALIZED.SETTINGSCHATBACKGROUND or "Chat background",
+						hint = TB_MENU_LOCALIZED.SETTINGSCHATBACKGROUNDHINT or "A dark box behind the chat to make it easier to read. 0 turns it off",
+						type = SLIDER,
+						maxValue = 100,
+						systemname = "chatbackground",
+						val = { Settings.GetGhostOption("chatbackground") },
+						hidden = get_option("chatbackground") == nil
+					},
+					{
+						name = TB_MENU_LOCALIZED.SETTINGSCHATTEXTCOLOR or "Chat text color",
+						hint = TB_MENU_LOCALIZED.SETTINGSCHATCOLORHINT or "Default keeps the colors set by the server and your shader",
+						type = DROPDOWN,
+						systemname = "chattextcolor",
+						selectedAction = function()
+								local _, selected = Settings.GetChatColorDropdown("chattextcolor")
+								return selected
+							end,
+						dropdown = Settings.GetChatColorDropdown("chattextcolor"),
+						dropdownHeight = 300,
+						hidden = get_option("chattextcolor") == nil
+					},
+					{
+						name = TB_MENU_LOCALIZED.SETTINGSCHATNAMECOLOR or "Player name color",
+						hint = TB_MENU_LOCALIZED.SETTINGSCHATCOLORHINT or "Default keeps the colors set by the server and your shader",
+						type = DROPDOWN,
+						systemname = "chatnamecolor",
+						selectedAction = function()
+								local _, selected = Settings.GetChatColorDropdown("chatnamecolor")
+								return selected
+							end,
+						dropdown = Settings.GetChatColorDropdown("chatnamecolor"),
+						dropdownHeight = 300,
+						hidden = get_option("chatnamecolor") == nil
+					},
+					{
 						name = TB_MENU_LOCALIZED.SETTINGSPROFANITYFILTER,
 						type = TOGGLE,
 						systemname = "chatcensor",
@@ -1484,6 +1708,15 @@ function Settings:getSettingsData(id)
 							Settings.Stored.tooltip = { value = val }
 						end,
 						val = { get_option("tooltip") }
+					},
+					{
+						-- Accessibility (5.78): names the colors under the mouse, see system/tooltip_manager.lua
+						name = TB_MENU_LOCALIZED.SETTINGSCOLORNAMES or "Show color names on hover",
+						hint = TB_MENU_LOCALIZED.SETTINGSCOLORNAMESHINT or "Hover over a fighter's joint or body part to see the names of the colors worn there. The head also lists hair, blood, ghost and other colors",
+						type = TOGGLE,
+						systemname = "colornames",
+						val = { Settings.GetGhostOption("colornames") },
+						hidden = is_mobile() or get_option("colornames") == nil
 					},
 					{
 						name = TB_MENU_LOCALIZED.SETTINGSJOINTFLASH,
@@ -1607,11 +1840,49 @@ function Settings:getSettingsData(id)
 	end
 end
 
+Settings.FpsCaps = { 30, 60, 75, 120, 144, 165, 240, 360, 0 }
+
+---Dropdown entries for the FPS cap setting (fpscap option, 0 is uncapped)
+function Settings:getFpsCapDropdown()
+	local dropdown = {}
+	for _, cap in pairs(Settings.FpsCaps) do
+		table.insert(dropdown, {
+			text = cap == 0 and TB_MENU_LOCALIZED.SETTINGSFPSUNCAPPED or (cap .. " " .. TB_MENU_LOCALIZED.SETTINGSFPS),
+			action = function()
+					Settings.Stored.fpscap = { value = cap }
+					Settings:settingsApplyActivate()
+				end
+		})
+	end
+	return dropdown
+end
+
+---Graphics presets were written for framerate / fixedframerate, which also set the game speed.
+---On clients with the gamespeed / fpscap options a preset only sets the FPS cap.
+function Settings.AdaptPresetFramerate(options)
+	if (get_option("gamespeed") == nil) then
+		return options
+	end
+	local adapted = {}
+	for _, v in pairs(options) do
+		if (v.opt == "framerate") then
+			table.insert(adapted, { opt = "fpscap", val = v.val })
+		elseif (v.opt ~= "fixedframerate") then
+			table.insert(adapted, v)
+		end
+	end
+	return adapted
+end
+
 function Settings:getGraphicsPreset()
 	return function()
 			local options = {
 				"shaders", "fluid", "bloodstains", "framerate", "reflection", "softshadow", "ambientocclusion", "bumpmapping", "raytracing", "trails", "hair", "hairquality", "obj", "effects", "particles", "bodytextures", "uilight", "ghostobj"
 			}
+			if (get_option("fpscap") ~= nil) then
+				-- Presets now set the FPS cap, which uses the same values the frame rate did
+				options[4] = "fpscap"
+			end
 			local presets = {
 				is_mobile() and "1003000000000000110" or "0003000000000000110",
 				is_mobile() and "1003000000110010110" or "1013000000110011110",
@@ -1974,6 +2245,114 @@ function Settings.SetChatCensorSettings()
 	Settings.Stored.chatcensor = { value = wordfilter + hidesystem * 2 }
 end
 
+---A ghost setting's value, counting a change that hasn't been applied yet
+---@param name string
+---@return integer?
+function Settings.GetGhostOption(name)
+	return Settings.Stored[name] and Settings.Stored[name].value or get_option(name)
+end
+
+---Choices for a Better Ghost style: shown with the classic ghost (2) or instead of it (1). 0, from early 5.78
+---builds, counts as with the classic ghost
+---@param name string ghoststyle for your fighter, ghoststyleopponent for the others
+---@return table[] dropdown
+---@return integer selected
+function Settings.GetGhostStyleDropdown(name)
+	local styles = {
+		{ text = TB_MENU_LOCALIZED.SETTINGSGHOSTSTYLE2 or "With classic ghost", value = 2 },
+		{ text = TB_MENU_LOCALIZED.SETTINGSGHOSTSTYLE1 or "Instead of classic ghost", value = 1 }
+	}
+	local dropdown = {}
+	for _, style in ipairs(styles) do
+		table.insert(dropdown, {
+			text = style.text,
+			action = function()
+					Settings.Stored[name] = { value = style.value }
+					Settings:settingsApplyActivate()
+					Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
+				end
+		})
+	end
+	return dropdown, Settings.GetGhostOption(name) == 1 and 2 or 1
+end
+
+---Choices for an end of turn ghost color: Automatic, then every ghost color the store has sold, hidden ones included
+---@param name string ghostcolor for your fighter, ghostcoloropponent for the others
+---@return table[] dropdown
+---@return integer selected
+function Settings.GetGhostColorDropdown(name)
+	local items = {}
+	for _, item in pairs(Store.Ready and Store.Items or {}) do
+		if (item.catid == StoreCategory.GhostColors and item.colorid > 0) then
+			local known = items[item.colorid]
+			if (known == nil or item.itemid < known.itemid) then
+				items[item.colorid] = item
+			end
+		end
+	end
+
+	local colors = {}
+	for colorid, item in pairs(items) do
+		table.insert(colors, { id = colorid, name = (item.itemname:gsub(" Ghost$", "")) })
+	end
+	table.sort(colors, function(a, b) return a.name < b.name end)
+	table.insert(colors, 1, { id = 0, name = TB_MENU_LOCALIZED.SETTINGSGHOSTCOLORAUTO or "Automatic" })
+
+	local current = Settings.GetGhostOption(name)
+	local dropdown, selected = {}, 1
+	for i, color in ipairs(colors) do
+		if (color.id == current) then
+			selected = i
+		end
+		table.insert(dropdown, {
+			text = color.name,
+			color = color.id > 0 and get_color_rgba(color.id) or nil,
+			action = function()
+					Settings.Stored[name] = { value = color.id }
+					Settings:settingsApplyActivate()
+				end
+		})
+	end
+	return dropdown, selected
+end
+
+---Choices for a chat color option: Default (the chat's own colors), then colors that stand out on most backgrounds
+---@param name string chattextcolor or chatnamecolor
+---@return table[] dropdown
+---@return integer selected
+function Settings.GetChatColorDropdown(name)
+	local L = TB_MENU_LOCALIZED
+	local colors = {
+		{ id = 0, name = L.SETTINGSCHATCOLORDEFAULT or "Default" },
+		{ id = COLORS.WHITE, name = L.SETTINGSCOLORWHITE or "White" },
+		{ id = COLORS.BLACK, name = L.SETTINGSCOLORBLACK or "Black" },
+		{ id = COLORS.GREY, name = L.SETTINGSCOLORGREY or "Grey" },
+		{ id = COLORS.YELLOW, name = L.SETTINGSCOLORYELLOW or "Yellow" },
+		{ id = COLORS.ORANGE, name = L.SETTINGSCOLORORANGE or "Orange" },
+		{ id = COLORS.PINK, name = L.SETTINGSCOLORPINK or "Pink" },
+		{ id = COLORS.ECTO, name = L.SETTINGSCOLORMINT or "Mint" },
+		{ id = COLORS.NEPTUNE, name = L.SETTINGSCOLORLIGHTBLUE or "Light blue" },
+		{ id = COLORS.TYPHON, name = L.SETTINGSCOLORCYAN or "Cyan" }
+	}
+
+	local current = Settings.GetGhostOption(name) or 0
+	local dropdown, selected = {}, 1
+	for i, color in ipairs(colors) do
+		if (color.id == current) then
+			selected = i
+		end
+		table.insert(dropdown, {
+			text = color.name,
+			color = color.id > 0 and get_color_rgba(color.id) or nil,
+			action = function()
+					Settings.Stored[name] = { value = color.id }
+					Settings:settingsApplyActivate()
+				end
+		})
+	end
+	return dropdown, selected
+end
+
 function Settings.SetInvertedCameraSettings()
 	if (Settings.Stored.invertedcamx == nil and Settings.Stored.invertedcamy == nil) then
 		return
@@ -2228,7 +2607,7 @@ function Settings:showSettings(id, keepStoredSettings)
 						if (item.selectedAction) then
 							selectedId = item.selectedAction()
 						end
-						TBMenu:spawnDropdown(itemDropdown, item.dropdown, 30, WIN_H - 100, selectedId and item.dropdown[selectedId], { scale = 0.7 }, { scale = 0.6 })
+						TBMenu:spawnDropdown(itemDropdown, item.dropdown, 30, item.dropdownHeight or WIN_H - 100, selectedId and item.dropdown[selectedId], { scale = 0.7 }, { scale = 0.6 })
 					elseif (item.type == BUTTON) then
 						local itemButtonBG = itemView:addChild({
 							pos = { itemView.size.w / 3 * 2 - 20, 5 },

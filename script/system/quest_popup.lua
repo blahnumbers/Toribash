@@ -93,10 +93,10 @@ local function showPopup(i)
 					local timeDiff = (UIElement.clock - beginClock) * 2
 					questProgress.size.w = UITween.SineEaseOut(1 - timeDiff, questProgressBar.size.w)
 					for i = 1, 4 do
-						questProgressBarOutline.bgColor[i] = UITween.SineTween(questProgressBarOutline.bgColor[i], TB_MENU_DEFAULT_ORANGE[i], timeDiff)
-						questProgressText.uiColor[i] = UITween.SineTween(questProgressText.uiColor[i], 0, timeDiff)
+						questProgressBarOutline.bgColor[i] = UITween.SineFrameTween(questProgressBarOutline.bgColor[i], TB_MENU_DEFAULT_ORANGE[i], timeDiff)
+						questProgressText.uiColor[i] = UITween.SineFrameTween(questProgressText.uiColor[i], 0, timeDiff)
 					end
-					questProgressText.uiColor[4] = UITween.SineTween(questProgressText.uiColor[4], math.abs(1 - timeDiff * 2), timeDiff)
+					questProgressText.uiColor[4] = UITween.SineFrameTween(questProgressText.uiColor[4], math.abs(1 - timeDiff * 2), timeDiff)
 					questProgressText.uiShadowColor[4] = questProgressText.uiColor[4]
 					if (timeDiff >= 0.5 and questProgressText.str ~= TB_MENU_LOCALIZED.QUESTSCLAIMREWARD) then
 						questProgressText:addAdaptedText(true, TB_MENU_LOCALIZED.QUESTSCLAIMREWARD, nil, nil, nil, nil, nil, nil, nil, questProgressText.shadowOffset)
@@ -119,7 +119,7 @@ local function showPopup(i)
 		questProgress:addCustomDisplay(false, function()
 				if (popupView.__launchClock == nil) then return end
 				if (questProgress.size.w < targetSize) then
-					questProgress.size.w = UITween.SineTween(questProgress.size.w, targetSize, UIElement.clock - popupView.__launchClock - 0.4)
+					questProgress.size.w = UITween.SineFrameTween(questProgress.size.w, targetSize, UIElement.clock - popupView.__launchClock - 0.4)
 					questProgressText:addAdaptedText(true, math.min(quest.progress, math.ceil(questProgress.size.w / targetSize * quest.progress)) .. " / " .. quest.requirement, nil, nil, nil, nil, nil, nil, nil, questProgressText.shadowOffset)
 				else
 					if (quest.progress >= quest.requirement) then
@@ -210,8 +210,8 @@ local function showPopup(i)
 			end
 			popupClose:kill()
 			questInfo:addCustomDisplay(false, function()
-					trans = trans - 0.025
-					grow = grow + 0.5
+					trans = trans - 0.025 * UIElement.frameScale
+					grow = grow + 0.5 * UIElement.frameScale
 					if (trans < 0) then
 						questProgress:kill()
 						questProgressNotificationHolder:activate()
@@ -226,10 +226,10 @@ local function showPopup(i)
 					end
 					if (trans <= 0.5) then
 						for i = 1, 3 do
-							questProgressNotificationHolder.bgColor[i] = questProgressNotificationHolder.bgColor[i] - colorsDiff[i]
-							questProgressNotificationHolder.innerShadow[2] = questProgressNotificationHolder.innerShadow[2] * trans * 2
-							questProgressBar.bgColor[i] = questProgressBar.bgColor[i] - barDiff[i]
-							questProgressBarOutline.bgColor[i] = questProgressBarOutline.bgColor[i] - barOutDiff[i]
+							questProgressNotificationHolder.bgColor[i] = questProgressNotificationHolder.bgColor[i] - colorsDiff[i] * UIElement.frameScale
+							questProgressNotificationHolder.innerShadow[2] = UIElement.frameDecay(questProgressNotificationHolder.innerShadow[2], trans * 2)
+							questProgressBar.bgColor[i] = questProgressBar.bgColor[i] - barDiff[i] * UIElement.frameScale
+							questProgressBarOutline.bgColor[i] = questProgressBarOutline.bgColor[i] - barOutDiff[i] * UIElement.frameScale
 						end
 						questProgress.size.w = questProgressBar.size.w * trans * 2
 
@@ -254,16 +254,16 @@ local function showPopup(i)
 		local sizeDifference = targetSize - questProgress.size.w
 		questProgressNotificationHolder:addCustomDisplay(false, function()
 				if (questProgressNotificationHolder.pos.x > WIN_W - 340) then
-					questProgressNotificationHolder:moveTo(-questProgressNotificationHolder.size.w * 0.07 * math.sin(progress), nil, true)
-					progress = progress + math.pi / 30
+					questProgressNotificationHolder:moveTo(-questProgressNotificationHolder.size.w * 0.07 * math.sin(progress) * UIElement.frameScale, nil, true)
+					progress = progress + math.pi / 30 * UIElement.frameScale
 				else
 					local clock = UIElement.clock
 					questProgress:addCustomDisplay(false, function()
 							if (questProgress.size.w < (questProgressBar.size.w * (quest.progress / quest.requirement))) then
-								questProgress.size.w = questProgress.size.w + sizeDifference * 0.02 * math.sin(barProgress)
+								questProgress.size.w = questProgress.size.w + sizeDifference * 0.02 * math.sin(barProgress) * UIElement.frameScale
 								local tSize = targetSize == 0 and 0 or (questProgress.size.w / targetSize)
 								questProgressText:addAdaptedText(true, math.min(quest.progress, math.floor(tSize * quest.progress)) .. " / " .. quest.requirement, nil, nil, nil, nil, nil, nil, nil, 1)
-								barProgress = barProgress + math.pi / 100
+								barProgress = barProgress + math.pi / 100 * UIElement.frameScale
 							else
 								if (quest.progress >= quest.requirement) then
 									showClaim(quest)
@@ -278,8 +278,8 @@ local function showPopup(i)
 								local progress = math.pi / 10
 								questProgressNotificationHolder:addCustomDisplay(false, function()
 									if (questProgressNotificationHolder.pos.x < WIN_W) then
-										questProgressNotificationHolder:moveTo(questProgressNotificationHolder.size.w * 0.07 * math.sin(progress), nil, true)
-										progress = progress + math.pi / 30
+										questProgressNotificationHolder:moveTo(questProgressNotificationHolder.size.w * 0.07 * math.sin(progress) * UIElement.frameScale, nil, true)
+										progress = progress + math.pi / 30 * UIElement.frameScale
 									else
 										questProgressNotificationHolder:kill()
 										if (popupsData[i + 1]) then

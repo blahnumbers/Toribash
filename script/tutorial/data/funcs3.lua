@@ -184,7 +184,7 @@ local function waitRelaxAll(viewElement, reqTable)
 					break
 				end
 			end
-			grow = grow + maxGrow / tonumber(get_option("framerate") or 60)
+			grow = grow + maxGrow * UIElement.REFERENCE_FRAME_TIME * UIElement.frameScale
 			if (grow > maxGrow) then
 				grow = 0
 			end
@@ -240,7 +240,7 @@ local function displayMobileHubMovememory(viewElement, onSelect)
 	local clock = UIElement.clock
 	hubBackground:addCustomDisplay(true, function()
 		local tweenValue = (UIElement.clock - clock) * 6
-		hubBackground:moveTo(UITween.SineTween(hubBackground.shift.x, uiOverlay.size.w - hubBackground.size.w, tweenValue))
+		hubBackground:moveTo(UITween.SineFrameTween(hubBackground.shift.x, uiOverlay.size.w - hubBackground.size.w, tweenValue))
 		if (tweenValue >= 1) then
 			hubBackground:addCustomDisplay(function() end)
 		end
@@ -293,7 +293,7 @@ local function waitMovememory(viewElement, reqTable, isExit)
 					break
 				end
 			end
-			grow = grow + maxGrow / tonumber(get_option("framerate") or 60)
+			grow = grow + maxGrow * UIElement.REFERENCE_FRAME_TIME * UIElement.frameScale
 			if (grow > maxGrow) then
 				grow = 0
 			end
@@ -335,7 +335,7 @@ local function moveMessageView()
 	local spawnTime = UIElement.clock
 	Tutorials.MessageView.t3Mover:addCustomDisplay(true, function()
 			local ratio = UIElement.clock - spawnTime
-			Tutorials.MessageView:moveTo(nil, UITween.SineTween(Tutorials.MessageView.shift.y, Tutorials.MessageView.t3MoverInitialPos - TBHud.HoldAllButtonHolder.size.h, ratio))
+			Tutorials.MessageView:moveTo(nil, UITween.SineFrameTween(Tutorials.MessageView.shift.y, Tutorials.MessageView.t3MoverInitialPos - TBHud.HoldAllButtonHolder.size.h, ratio))
 			if (ratio >= 1) then
 				Tutorials.MessageView.t3Mover:kill()
 			end
@@ -348,8 +348,8 @@ local function moveMessageViewBack()
 	local spawnTime = UIElement.clock
 	Tutorials.MessageView.t3Mover:addCustomDisplay(true, function()
 			local ratio = UIElement.clock - spawnTime
-			Tutorials.MessageView:moveTo(nil, UITween.SineTween(Tutorials.MessageView.shift.y, Tutorials.MessageView.t3MoverInitialPos, ratio))
-			if (ratio == 1) then
+			Tutorials.MessageView:moveTo(nil, UITween.SineFrameTween(Tutorials.MessageView.shift.y, Tutorials.MessageView.t3MoverInitialPos, ratio))
+			if (ratio >= 1) then
 				Tutorials.MessageView.t3Mover:kill()
 			end
 		end)

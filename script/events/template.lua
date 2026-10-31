@@ -264,12 +264,19 @@ local function spawnToplist(viewElement)
 			set_color(unpack(UICOLORWHITE))
 			draw_disk(hideButton.pos.x + hideButton.size.w / 2, hideButton.pos.y + hideButton.size.h / 2, 0, hideButton.size.w / 3, 3, 1, 60 + angle, 360 + angle, 0)
 			if (rotate_dir ~= 0) then
-				angle = angle + 10 * rotate_dir
+				-- Turn until the arrow points sideways again, sliding the toplist along with it
+				local angleLeft = (90 - angle * rotate_dir) % 180
+				if (angleLeft == 0) then
+					angleLeft = 180
+				end
+				local angleStep = math.min(10 * UIElement.frameScale, angleLeft)
+				angle = angle + angleStep * rotate_dir
 				if (angle < 0) then
 					angle = 360 + angle
 				end
-				toplistHolder:moveTo((toplistHolder.size.w - 25) / 18 * rotate_dir, 0, true)
-				if (angle % 180 - 90 == 0) then
+				toplistHolder:moveTo((toplistHolder.size.w - 25) / 180 * angleStep * rotate_dir, 0, true)
+				if (angleStep == angleLeft) then
+					angle = math.floor(angle + 0.5)
 					rotate_dir = 0
 				end
 			end
@@ -411,8 +418,15 @@ local function spawnTaskToggle()
 			set_color(unpack(UICOLORWHITE))
 			draw_disk(taskToggle.pos.x + taskToggle.size.w / 2, taskToggle.pos.y + taskToggle.size.h / 2, 0, taskToggle.size.w / 5, 3, 1, 60 + angle, 360 + angle, 0)
 			if (rotate_dir ~= 0) then
-				angle = angle + 10 * rotate_dir
-				if (angle % 180 - 90 == 0) then
+				-- Turn until the arrow points sideways again
+				local angleLeft = (90 - angle * rotate_dir) % 180
+				if (angleLeft == 0) then
+					angleLeft = 180
+				end
+				local angleStep = math.min(10 * UIElement.frameScale, angleLeft)
+				angle = angle + angleStep * rotate_dir
+				if (angleStep == angleLeft) then
+					angle = math.floor(angle + 0.5)
 					rotate_dir = 0
 				end
 			end
@@ -452,7 +466,7 @@ local function checkpointComplete(checkPoint)
 	local clock = UIElement.clock
 	check:addCustomDisplay(false, function()
 			local rate = UITween.SineTween(1, 0, UIElement.clock - clock)
-			check.bgColor[4] = check.bgColor[4] * rate
+			check.bgColor[4] = UIElement.frameDecay(check.bgColor[4], rate)
 			check.size.x = initialSize.x + (1 - rate) * initialSize.x * 0.2
 			if (checkPoint.shape == CUBE or checkPoint.shape == CUSTOMOBJ) then
 				check.size.y = initialSize.y + (1 - rate) * initialSize.y * 0.2
@@ -516,7 +530,7 @@ local function loadCheckpoints(viewElement, withIndicators)
 					end, true)
 			elseif (v.isRotating) then
 				checkPoint:addCustomDisplay(function()
-						checkPoint:rotate(0, 0, 1)
+						checkPoint:rotate(0, 0, UIElement.frameScale)
 					end)
 			end
 
@@ -747,9 +761,9 @@ local function toggleHub(hubBackground, state)
 	hubBackground:addCustomDisplay(function()
 		local tweenValue = (UIElement.clock - clock) * 6
 		if (state) then
-			hubBackground:moveTo(UITween.SineTween(hubBackground.shift.x, hubBackground.parent.size.w - hubBackground.size.w, tweenValue))
+			hubBackground:moveTo(UITween.SineFrameTween(hubBackground.shift.x, hubBackground.parent.size.w - hubBackground.size.w, tweenValue))
 		else
-			hubBackground:moveTo(UITween.SineTween(hubBackground.shift.x, hubBackground.parent.size.w, tweenValue))
+			hubBackground:moveTo(UITween.SineFrameTween(hubBackground.shift.x, hubBackground.parent.size.w, tweenValue))
 		end
 		if (tweenValue >= 1) then
 			hubBackground:addCustomDisplay(function() end)
@@ -915,7 +929,7 @@ local showSubmitButton = function(viewElement, reqTable, skipAdd)
 					if (animateBeginTime == 0) then
 						animateBeginTime = UIElement.clock
 					else
-						submitButton:moveTo(nil, UITween.SineTween(submitButton.shift.y, WIN_H - submitButton.size.h - 10, UIElement.clock - animateBeginTime))
+						submitButton:moveTo(nil, UITween.SineFrameTween(submitButton.shift.y, WIN_H - submitButton.size.h - 10, UIElement.clock - animateBeginTime))
 						if (UIElement.clock - animateBeginTime > 1) then
 							submitButton:addCustomDisplay(function() end)
 						end

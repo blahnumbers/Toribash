@@ -27,8 +27,15 @@ local function spawnTaskToggle()
 			set_color(unpack(UICOLORWHITE))
 			draw_disk(taskToggle.pos.x + taskToggle.size.w / 2, taskToggle.pos.y + taskToggle.size.h / 2, 0, taskToggle.size.w / 5, 3, 1, 60 + angle, 360 + angle, 0)
 			if (rotate_dir ~= 0) then
-				angle = angle + 10 * rotate_dir
-				if (angle % 180 - 90 == 0) then
+				-- Turn until the arrow points sideways again
+				local angleLeft = (90 - angle * rotate_dir) % 180
+				if (angleLeft == 0) then
+					angleLeft = 180
+				end
+				local angleStep = math.min(10 * UIElement.frameScale, angleLeft)
+				angle = angle + angleStep * rotate_dir
+				if (angleStep == angleLeft) then
+					angle = math.floor(angle + 0.5)
 					rotate_dir = 0
 				end
 			end
@@ -65,7 +72,7 @@ local function showOverlay(viewElement, reqTable, out, speed)
 	end
 	overlay.bgColor[4] = out and 0 or 1
 	overlay:addCustomDisplay(true, function()
-			overlay.bgColor[4] = overlay.bgColor[4] + (out and 0.02 or -0.02) * speed
+			overlay.bgColor[4] = overlay.bgColor[4] + (out and 0.02 or -0.02) * speed * UIElement.frameScale
 			if (not out and overlay.bgColor[4] <= 0) then
 				req.ready = true
 				reqTable.ready = EventsOnline:checkRequirements(reqTable)
@@ -424,10 +431,14 @@ local function playerLose(viewElement, reqTable)
 			end)
 	end
 	local rad = math.pi / 4
+	-- Unrounded splash size, only the displayed size gets rounded so slow growth steps can't stall or overshoot
+	local splashW, splashH = backgroundSplash.size.w, backgroundSplash.size.h
 	backgroundSplash:addCustomDisplay(false, function()
-			rad = rad + math.pi / 24
-			backgroundSplash.size.w = backgroundSplash.size.w + math.ceil(math.sin(rad) * 46)
-			backgroundSplash.size.h = backgroundSplash.size.h + math.ceil(math.sin(rad) * 13)
+			rad = rad + math.pi / 24 * UIElement.frameScale
+			splashW = splashW + math.sin(rad) * 46 * UIElement.frameScale
+			splashH = splashH + math.sin(rad) * 13 * UIElement.frameScale
+			backgroundSplash.size.w = math.ceil(splashW)
+			backgroundSplash.size.h = math.ceil(splashH)
 			backgroundSplash:moveTo((viewElement.size.w - backgroundSplash.size.w) / 2, (viewElement.size.h - backgroundSplash.size.h) / 2)
 			if (backgroundSplash.size.w >= 550) then
 				backgroundSplash:addCustomDisplay(false, function() end)
@@ -440,8 +451,8 @@ local function playerLose(viewElement, reqTable)
 					bgColor = cloneTable(TB_MENU_DEFAULT_BG_COLOR)
 				})
 				overlayLayer:addCustomDisplay(false, function()
-					rad = rad + math.pi / 60
-					overlayLayer.bgColor[4] = overlayLayer.bgColor[4] - math.sin(rad) * 0.04
+					rad = rad + math.pi / 60 * UIElement.frameScale
+					overlayLayer.bgColor[4] = overlayLayer.bgColor[4] - math.sin(rad) * 0.04 * UIElement.frameScale
 					if (overlayLayer.bgColor[4] <= 0) then
 						overlayLayer:kill()
 					end
@@ -518,10 +529,14 @@ local function playerWin(viewElement, reqTable)
 			end)
 	end
 	local rad = math.pi / 4
+	-- Unrounded splash size, only the displayed size gets rounded so slow growth steps can't stall or overshoot
+	local splashW, splashH = backgroundSplash.size.w, backgroundSplash.size.h
 	backgroundSplash:addCustomDisplay(false, function()
-			rad = rad + math.pi / 24
-			backgroundSplash.size.w = backgroundSplash.size.w + math.ceil(math.sin(rad) * 46)
-			backgroundSplash.size.h = backgroundSplash.size.h + math.ceil(math.sin(rad) * 13)
+			rad = rad + math.pi / 24 * UIElement.frameScale
+			splashW = splashW + math.sin(rad) * 46 * UIElement.frameScale
+			splashH = splashH + math.sin(rad) * 13 * UIElement.frameScale
+			backgroundSplash.size.w = math.ceil(splashW)
+			backgroundSplash.size.h = math.ceil(splashH)
 			backgroundSplash:moveTo((viewElement.size.w - backgroundSplash.size.w) / 2, (viewElement.size.h - backgroundSplash.size.h) / 2)
 			if (backgroundSplash.size.w >= 550) then
 				backgroundSplash:addCustomDisplay(false, function() end)
@@ -534,8 +549,8 @@ local function playerWin(viewElement, reqTable)
 					bgColor = cloneTable(TB_MENU_DEFAULT_BG_COLOR)
 				})
 				overlayLayer:addCustomDisplay(false, function()
-					rad = rad + math.pi / 60
-					overlayLayer.bgColor[4] = overlayLayer.bgColor[4] - math.sin(rad) * 0.04
+					rad = rad + math.pi / 60 * UIElement.frameScale
+					overlayLayer.bgColor[4] = overlayLayer.bgColor[4] - math.sin(rad) * 0.04 * UIElement.frameScale
 					if (overlayLayer.bgColor[4] <= 0) then
 						overlayLayer:kill()
 					end

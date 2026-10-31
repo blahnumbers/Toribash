@@ -77,7 +77,7 @@ local function toggleSettings(viewElement, button)
 
 	windowMover:addCustomDisplay(true, function()
 		local ratio = UIElement.clock - clock
-		viewElement:moveTo(nil, UITween.SineTween(viewElement.shift.y, targetPos, ratio))
+		viewElement:moveTo(nil, UITween.SineFrameTween(viewElement.shift.y, targetPos, ratio))
 		if (ratio >= 1) then
 			windowMover:kill()
 			button:activate()

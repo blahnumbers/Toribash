@@ -359,7 +359,7 @@ end
 
 function step_change(delay, _step)
 	if (run_delay(delay) == 1) then 
-		if (trans_modifier > 0) then trans_modifier = trans_modifier - 0.025
+		if (trans_modifier > 0) then trans_modifier = trans_modifier - 0.025 * UIElement.frameScale
 	else
 		step = _step
 		modifier = 0
@@ -468,7 +468,7 @@ end
 
 function message_transition()
 	set_color(0, 0, 0, trans_modifier)
-	if (change_init == false and trans_modifier < 1) then trans_modifier = trans_modifier + 0.025
+	if (change_init == false and trans_modifier < 1) then trans_modifier = trans_modifier + 0.025 * UIElement.frameScale
 	else change_init = true
 	end
 end
@@ -476,7 +476,7 @@ end
 local continue_colors = { r = 0.6, g = 0.6, b = 0.6 }
 
 function tut_visuals()
-	if (completion_change < completion) then completion_change = completion_change + 0.02 end
+	if (completion_change < completion) then completion_change = completion_change + 0.02 * UIElement.frameScale end
 	set_color(0.95, 0.95, 0.95, 0.9)
 	draw_quad(100, height - height_modifier, width - 200, 90)
 	set_color(0, 0, 0, 1)
@@ -485,15 +485,15 @@ function tut_visuals()
 	draw_quad(width - 101, height - height_modifier, 1, 90)
 	if (continue_condition == 0) then 
 		if (continue_colors.r > 0.6) then
-			continue_colors.r = continue_colors.r - 0.01
-			continue_colors.g = continue_colors.g + 0.025
-			continue_colors.b = continue_colors.b + 0.025
+			continue_colors.r = continue_colors.r - 0.01 * UIElement.frameScale
+			continue_colors.g = continue_colors.g + 0.025 * UIElement.frameScale
+			continue_colors.b = continue_colors.b + 0.025 * UIElement.frameScale
 		end
 	else
 		if (continue_colors.r < 0.72) then
-			continue_colors.r = continue_colors.r + 0.01
-			continue_colors.g = continue_colors.g - 0.025
-			continue_colors.b = continue_colors.b - 0.025
+			continue_colors.r = continue_colors.r + 0.01 * UIElement.frameScale
+			continue_colors.g = continue_colors.g - 0.025 * UIElement.frameScale
+			continue_colors.b = continue_colors.b - 0.025 * UIElement.frameScale
 		end
 	end
 	set_color(continue_colors.r, continue_colors.g, continue_colors.b, 1)
@@ -576,7 +576,7 @@ function tut_stage4()
 		-- Fade out
 		set_color(1, 1, 1, trans_modifier)
 		draw_quad(0, 0, width, height)
-		if (trans_modifier > 0) then trans_modifier = trans_modifier - 0.02 end 
+		if (trans_modifier > 0) then trans_modifier = trans_modifier - 0.02 * UIElement.frameScale end 
 		--display_step()
 		step_change(0, 2)
 	elseif (step == 2) then
@@ -593,8 +593,8 @@ function tut_stage4()
 		end
 		set_color(0, 0, 0, trans_modifier)
 		if (change_init == false and (trans_modifier < 1 or height_modifier < 90)) then 
-			if (trans_modifier < 1) then trans_modifier = trans_modifier + 0.025 end
-			if (height_modifier < 90) then height_modifier = height_modifier + 1.5 end
+			if (trans_modifier < 1) then trans_modifier = trans_modifier + 0.025 * UIElement.frameScale end
+			if (height_modifier < 90) then height_modifier = math.min(height_modifier + 1.5 * UIElement.frameScale, 90) end
 		else 
 			change_init = true
 		end
@@ -733,8 +733,8 @@ function tut_stage4()
 		draw_centered_text(messages[5][13], height - height_modifier + 40, FONTS.MEDIUM)
 		if ((trans_modifier > 0 or height_modifier > 0) and change_init == false) then 
 			change_init = false
-			if (trans_modifier > 0) then trans_modifier = trans_modifier - 0.025 end
-			if (height_modifier > 0) then height_modifier = height_modifier - 1.5 end
+			if (trans_modifier > 0) then trans_modifier = trans_modifier - 0.025 * UIElement.frameScale end
+			if (height_modifier > 0) then height_modifier = math.max(height_modifier - 1.5 * UIElement.frameScale, 0) end
 		else	
 			change_init = true
 		end
@@ -753,7 +753,7 @@ function tut_stage4()
 		draw_quad(0, 0, width, height)
 		--display_step()
 		if (trans_modifier < 1) then 
-			trans_modifier = trans_modifier + 0.02
+			trans_modifier = trans_modifier + 0.02 * UIElement.frameScale
 		else
 			step = 13
 		end
@@ -830,15 +830,15 @@ function tut_stage3()
 		-- Fade out
 		set_color(1, 1, 1, trans_modifier)
 		draw_quad(0, 0, width, height)
-		if (trans_modifier > 0) then trans_modifier = trans_modifier - 0.02 end 
+		if (trans_modifier > 0) then trans_modifier = trans_modifier - 0.02 * UIElement.frameScale end 
 		--display_step()
 		step_change(0, 2)
 	elseif (step == 2) then
 		-- Mods intro
 		set_color(0, 0, 0, trans_modifier)
 		if (change_init == false and (trans_modifier < 1 or height_modifier < 90)) then 
-			if (trans_modifier < 1) then trans_modifier = trans_modifier + 0.025 end
-			if (height_modifier < 90) then height_modifier = height_modifier + 1.5 end
+			if (trans_modifier < 1) then trans_modifier = trans_modifier + 0.025 * UIElement.frameScale end
+			if (height_modifier < 90) then height_modifier = math.min(height_modifier + 1.5 * UIElement.frameScale, 90) end
 		else 
 			change_init = true
 			buttons.continue.state = BTN_UP
@@ -1025,8 +1025,8 @@ function tut_stage3()
 		set_color(1, 1, 1, trans_modifier)
 		if ((trans_modifier > 0 or height_modifier > 0) and change_init == false) then 
 			change_init = false
-			if (trans_modifier > 0) then trans_modifier = trans_modifier - 0.025 end
-			if (height_modifier > 0) then height_modifier = height_modifier - 1.5 end
+			if (trans_modifier > 0) then trans_modifier = trans_modifier - 0.025 * UIElement.frameScale end
+			if (height_modifier > 0) then height_modifier = math.max(height_modifier - 1.5 * UIElement.frameScale, 0) end
 		else	
 			change_init = true
 		end
@@ -1043,8 +1043,8 @@ function tut_stage3()
 		-- Replays 1
 		set_color(0, 0, 0, trans_modifier)
 		if (change_init == false and (trans_modifier < 1 or height_modifier < 90)) then 
-			if (trans_modifier < 1) then trans_modifier = trans_modifier + 0.025 end
-			if (height_modifier < 90) then height_modifier = height_modifier + 1.5 end
+			if (trans_modifier < 1) then trans_modifier = trans_modifier + 0.025 * UIElement.frameScale end
+			if (height_modifier < 90) then height_modifier = math.min(height_modifier + 1.5 * UIElement.frameScale, 90) end
 		else 
 			change_init = true
 			continue_condition = 1
@@ -1088,8 +1088,8 @@ function tut_stage3()
 		draw_centered_text(messages[4][21], height - height_modifier + 40, FONTS.MEDIUM)
 		if ((trans_modifier > 0 or height_modifier > 0) and change_init == false) then 
 			change_init = false
-			if (trans_modifier > 0) then trans_modifier = trans_modifier - 0.025 end
-			if (height_modifier > 0) then height_modifier = height_modifier - 1.5 end
+			if (trans_modifier > 0) then trans_modifier = trans_modifier - 0.025 * UIElement.frameScale end
+			if (height_modifier > 0) then height_modifier = math.max(height_modifier - 1.5 * UIElement.frameScale, 0) end
 		else	
 			change_init = true
 		end
@@ -1103,7 +1103,7 @@ function tut_stage3()
 		draw_quad(0, 0, width, height)
 		--display_step()
 		if (trans_modifier < 1) then 
-			trans_modifier = trans_modifier + 0.02
+			trans_modifier = trans_modifier + 0.02 * UIElement.frameScale
 		else
 			remove_hooks("stage3")
 			init_tut_stage4()
@@ -1126,9 +1126,9 @@ local dq_render, dq_size, dq_alpha = false, 0, 1
 
 function tut_stage2_drawdq()
 	if (dq_render == true) then
-		dq_size = dq_size + 0.05
+		dq_size = dq_size + 0.05 * UIElement.frameScale
 		if (dq_size >= 10) then
-			dq_alpha = dq_alpha - 0.02
+			dq_alpha = dq_alpha - 0.02 * UIElement.frameScale
 		end
 		if (dq_alpha < 0) then
 			dq_size = 0.0
@@ -1213,16 +1213,16 @@ function tut_stage2()
 		-- Fade out
 		set_color(1, 1, 1, trans_modifier)
 		draw_quad(0, 0, width, height)
-		if (trans_modifier > 0) then trans_modifier = trans_modifier - 0.02 end 
+		if (trans_modifier > 0) then trans_modifier = trans_modifier - 0.02 * UIElement.frameScale end 
 		--display_step()
 		step_change(0, 2)
 	elseif (step == 2) then
 		-- Camera controls intro
 		set_color(0, 0, 0, trans_modifier)
 		if (change_init == false and (trans_modifier < 1 or height_modifier < 90)) then 
-			if (trans_modifier < 1) then trans_modifier = trans_modifier + 0.025
+			if (trans_modifier < 1) then trans_modifier = trans_modifier + 0.025 * UIElement.frameScale
 			elseif (trans_modifier > 1) then trans_modifier = 1 end
-			if (height_modifier < 90) then height_modifier = height_modifier + 1.5 end
+			if (height_modifier < 90) then height_modifier = math.min(height_modifier + 1.5 * UIElement.frameScale, 90) end
 		else 
 			change_init = true
 		end
@@ -1310,8 +1310,8 @@ function tut_stage2()
 		-- Fade in
 		set_color(0, 0, 0, trans_modifier)
 		if (change_init == false and (trans_modifier > 0 or height_modifier > 0)) then 
-			if (trans_modifier > 0) then trans_modifier = trans_modifier - 0.025 end
-			if (height_modifier > 0) then height_modifier = height_modifier - 1.5 end
+			if (trans_modifier > 0) then trans_modifier = trans_modifier - 0.025 * UIElement.frameScale end
+			if (height_modifier > 0) then height_modifier = math.max(height_modifier - 1.5 * UIElement.frameScale, 0) end
 		else change_init = true
 		end
 		set_color(1, 1, 1, trans_modifier)
@@ -1319,7 +1319,7 @@ function tut_stage2()
 		--display_step()
 		if (change_init == true) then 
 			if (trans_modifier < 1) then 
-				trans_modifier = trans_modifier + 0.02
+				trans_modifier = trans_modifier + 0.02 * UIElement.frameScale
 			else
 				reset_camera(1)
 				unlock_keyboard()
@@ -1333,7 +1333,7 @@ function tut_stage2()
 		draw_quad(0, 0, width, height)
 		--display_step()
 		if (trans_modifier > 0) then 
-			trans_modifier = trans_modifier - 0.02
+			trans_modifier = trans_modifier - 0.02 * UIElement.frameScale
 		else 
 			change_init = true
 			step_change(0, 11) 
@@ -1344,9 +1344,9 @@ function tut_stage2()
 	elseif (step == 11) then
 		-- Tori controls intro
 		if (change_init == false and (trans_modifier < 1 or height_modifier < 90)) then 
-			if (trans_modifier < 1) then trans_modifier = trans_modifier + 0.025
+			if (trans_modifier < 1) then trans_modifier = trans_modifier + 0.025 * UIElement.frameScale
 			elseif (trans_modifier > 1) then trans_modifier = 1 end
-			if (height_modifier < 90) then height_modifier = height_modifier + 1.5 end
+			if (height_modifier < 90) then height_modifier = math.min(height_modifier + 1.5 * UIElement.frameScale, 90) end
 		else 
 			change_init = true
 		end
@@ -1489,8 +1489,8 @@ function tut_stage2()
 		-- Fade in
 		set_color(0, 0, 0, trans_modifier)
 		if (change_init == false and (trans_modifier > 0 or height_modifier > 0)) then 
-			if (trans_modifier > 0) then trans_modifier = trans_modifier - 0.025 end
-			if (height_modifier > 0) then height_modifier = height_modifier - 1.5 end
+			if (trans_modifier > 0) then trans_modifier = trans_modifier - 0.025 * UIElement.frameScale end
+			if (height_modifier > 0) then height_modifier = math.max(height_modifier - 1.5 * UIElement.frameScale, 0) end
 		else change_init = true
 		end
 		set_color(1, 1, 1, trans_modifier)
@@ -1498,7 +1498,7 @@ function tut_stage2()
 		--display_step()
 		if (change_init == true) then 
 			if (trans_modifier < 1) then 
-				trans_modifier = trans_modifier + 0.02
+				trans_modifier = trans_modifier + 0.02 * UIElement.frameScale
 			else
 				remove_hooks("terminate")
 				step = 19
@@ -1523,7 +1523,7 @@ function tut_stage2()
 			dq_render = true
 		end
 		if (trans_modifier > 0) then 
-			trans_modifier = trans_modifier - 0.02
+			trans_modifier = trans_modifier - 0.02 * UIElement.frameScale
 		else
 			change_init = false
 			step = 21
@@ -1534,8 +1534,8 @@ function tut_stage2()
 			dq_render = true
 		end
 		if (change_init == false and (trans_modifier < 1 or height_modifier < 90)) then 
-			if (trans_modifier < 1) then trans_modifier = trans_modifier + 0.025 end
-			if (height_modifier < 90) then height_modifier = height_modifier + 1.5 end
+			if (trans_modifier < 1) then trans_modifier = trans_modifier + 0.025 * UIElement.frameScale end
+			if (height_modifier < 90) then height_modifier = math.min(height_modifier + 1.5 * UIElement.frameScale, 90) end
 		else 
 			change_init = true
 		end
@@ -1599,8 +1599,8 @@ function tut_stage2()
 		set_color(1, 1, 1, trans_modifier)
 		--display_step()
 		if ((trans_modifier > 0 or height_modifier > 0) and change_init == false) then
-			if (trans_modifier > 0) then trans_modifier = trans_modifier - 0.025 end
-			if (height_modifier > 0) then height_modifier = height_modifier - 1.5 end
+			if (trans_modifier > 0) then trans_modifier = trans_modifier - 0.025 * UIElement.frameScale end
+			if (height_modifier > 0) then height_modifier = math.max(height_modifier - 1.5 * UIElement.frameScale, 0) end
 		else	
 			change_init = true
 			set_color(1, 1, 1, trans_modifier)
@@ -1608,7 +1608,7 @@ function tut_stage2()
 		end
 		if (change_init == true) then
 			if (trans_modifier <= 1) then
-				trans_modifier = trans_modifier + 0.02
+				trans_modifier = trans_modifier + 0.02 * UIElement.frameScale
 			else
 				dq_render = false
 				remove_hooks("stage2")
@@ -1654,7 +1654,7 @@ function tut_stage1()
 		add_hook("new_game", "terminate", terminate)
 		set_color(1, 1, 1, trans_modifier)
 		draw_quad(0, 0, width, height)
-		if (trans_modifier > 0) then trans_modifier = trans_modifier - 0.02 end
+		if (trans_modifier > 0) then trans_modifier = trans_modifier - 0.02 * UIElement.frameScale end
 		if (get_world_state().match_frame > 190) then
 			freeze_game()
 			trans_modifier = 0
@@ -1668,12 +1668,12 @@ function tut_stage1()
 		end
 		if ((curtime() - t0) > 1 or (curtime() - t0) < 0) then
 			if (width_modifier < 600) then
-				width_modifier = width_modifier + math.floor(modifier*modifier)
-				if (modifier < 5) then modifier = modifier + 0.1
-				else modifier = modifier - 0.1
+				width_modifier = width_modifier + math.floor(modifier*modifier) * UIElement.frameScale
+				if (modifier < 5) then modifier = modifier + 0.1 * UIElement.frameScale
+				else modifier = modifier - 0.1 * UIElement.frameScale
 				end
 			elseif (width_modifier ~= 600) then
-				width_modifier = width_modifier - 1
+				width_modifier = math.max(width_modifier - UIElement.frameScale, 600)
 			else 
 				step = 3
 				modifier = 0
@@ -1682,7 +1682,7 @@ function tut_stage1()
 	elseif (step == 3) then
 		--display_step()
 		set_color(0, 0, 0, trans_modifier)
-		if (change_init == false and trans_modifier < 1) then trans_modifier = trans_modifier + 0.025
+		if (change_init == false and trans_modifier < 1) then trans_modifier = trans_modifier + 0.025 * UIElement.frameScale
 		else change_init = true
 		end
 		draw_centered_text(messages[1][1], height/2 - 9, FONTS.MEDIUM)
@@ -1692,11 +1692,11 @@ function tut_stage1()
 	elseif (step == 4) then
 		--display_step()
 		set_color(0, 0, 0, trans_modifier)
-		if (change_init == false and trans_modifier < 1) then trans_modifier = trans_modifier + 0.025
+		if (change_init == false and trans_modifier < 1) then trans_modifier = trans_modifier + 0.025 * UIElement.frameScale
 		else change_init = true
 		end
-		if (width_modifier < 680) then width_modifier = width_modifier + 4 end
-		if (height_modifier < 100) then height_modifier = height_modifier + 1 end
+		if (width_modifier < 680) then width_modifier = math.min(width_modifier + 4 * UIElement.frameScale, 680) end
+		if (height_modifier < 100) then height_modifier = math.min(height_modifier + UIElement.frameScale, 100) end
 		draw_centered_text(messages[1][2], height/2 - 25, FONTS.MEDIUM)
 		draw_centered_text(messages[1][3], height/2 + 3, FONTS.MEDIUM)
 		if (change_init == true) then 
@@ -1705,7 +1705,7 @@ function tut_stage1()
 	elseif (step == 5) then
 		--display_step()
 		set_color(0, 0, 0, trans_modifier)
-		if (change_init == false and trans_modifier < 1) then trans_modifier = trans_modifier + 0.025
+		if (change_init == false and trans_modifier < 1) then trans_modifier = trans_modifier + 0.025 * UIElement.frameScale
 		else change_init = true
 		end
 		draw_centered_text(messages[1][4], height/2 - 25, FONTS.MEDIUM)
@@ -1716,11 +1716,11 @@ function tut_stage1()
 	elseif (step == 6) then
 		--display_step()
 		set_color(0, 0, 0, trans_modifier)
-		if (change_init == false and trans_modifier < 1) then trans_modifier = trans_modifier + 0.025
+		if (change_init == false and trans_modifier < 1) then trans_modifier = trans_modifier + 0.025 * UIElement.frameScale
 		else change_init = true
 		end
-		if (width_modifier > 600) then width_modifier = width_modifier - 4 end
-		if (height_modifier > 80) then height_modifier = height_modifier - 1 end
+		if (width_modifier > 600) then width_modifier = math.max(width_modifier - 4 * UIElement.frameScale, 600) end
+		if (height_modifier > 80) then height_modifier = math.max(height_modifier - UIElement.frameScale, 80) end
 		draw_centered_text(messages[1][6], height/2 - 9, FONTS.MEDIUM)
 		if (change_init == true) then 
 			step_change(3, 7)
@@ -1732,8 +1732,8 @@ function tut_stage1()
 			change_init = true
 		end
 		if (width_modifier > 0) then
-			width_modifier = width_modifier - math.floor(modifier*modifier)
-			modifier = modifier - 0.1
+			width_modifier = width_modifier - math.floor(modifier*modifier) * UIElement.frameScale
+			modifier = modifier - 0.1 * UIElement.frameScale
 		else
 			trans_modifier = 0
 			step_change(0, 8)
@@ -1753,7 +1753,7 @@ function tut_stage1()
 		set_color(1, 1, 1, trans_modifier)
 		draw_quad(0, 0, width, height)
 		if (trans_modifier < 1) then
-			trans_modifier = trans_modifier + 0.05
+			trans_modifier = trans_modifier + 0.05 * UIElement.frameScale
 		else
 			remove_hooks("stage1")
 			init_tut_stage2()
