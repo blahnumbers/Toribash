@@ -1574,6 +1574,7 @@ function run_frames(frames) end
 ---@field grabmode				integer			`0` - classic grabs (fixed), `1` - ball joint (rotatable) grabs
 ---@field tearthreshold			integer			Ball joint grabs' break threshold
 ---@field numplayers			integer			Player count for the mod
+---@field momentumdecay		integer			Single player only: how much of the classic spin and flip slowdown is left, `100` - classic, `0` - off
 
 ---Returns current game rules
 ---@return GameRules

@@ -139,6 +139,9 @@ if (Gamerules == nil) then
 
 	---**Gamerules manager class**
 	---
+	---**Version 5.78**
+	---* Added single player `momentumdecay` rule
+	---
 	---**Version 5.76**
 	---* Display dq timeout option when dojo is enabled even if dq is disabled
 	---* Minor visual tweaks
@@ -161,7 +164,7 @@ if (Gamerules == nil) then
 		ListShift = { 0, 0, 1 },
 		StartNewgame = get_option("grnewgame") == 1,
 		LastSelectedRule = nil,
-		ver = 5.76
+		ver = 5.78
 	}
 	Gamerules.__index = Gamerules
 end
@@ -302,6 +305,15 @@ function Gamerules.getRules()
 			}
 		},
 		{ name = "maxcontacts", title = "Max Contacts", section = GAMERULES_SECTION_MISC, type = GAMERULE_INT },
+		-- Single player only: how much of the classic spin and flip slowdown is left (100 is classic, 0 is off).
+		-- Hidden in multiplayer and on clients without the rule (5.78+)
+		{ name = "momentumdecay", title = "Momentum Decay", section = GAMERULES_SECTION_MISC, type = GAMERULE_SLIDER, slider = { 0, 100, false, "Off", "100%" },
+			null = "100",
+			hidden = get_world_state().game_type == 1 or get_gamerule("momentumdecay") == "none",
+			onSet = function(val)
+				return tonumber(val) or 100
+			end
+		},
 		{ name = "ghostcustom", title = "Custom Ghosts", section = GAMERULES_SECTION_GHOST, triggerUpdate = true, type = GAMERULE_BOOL },
 		{ name = "ghostlength", title = "Ghost Length", depends = "ghostcustom", section = GAMERULES_SECTION_GHOST, type = GAMERULE_SLIDER, slider = { 0, 500, false },
 			onSet = function(val)
