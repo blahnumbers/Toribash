@@ -1236,8 +1236,17 @@ function Settings:getSettingsData(id)
 				name = TB_MENU_LOCALIZED.SETTINGSGHOST or "Ghost",
 				items = {
 					{
-						-- The fighter you control (Tori offline): classic ghost, end of turn ghost (system/betterghost.lua) or both
-						name = TB_MENU_LOCALIZED.SETTINGSGHOSTSTYLE or "My ghost: style",
+						-- bleed's Better Ghost (system/betterghost.lua), also switched with Q in a match
+						name = TB_MENU_LOCALIZED.SETTINGSBETTERGHOST or "Better Ghost",
+						hint = TB_MENU_LOCALIZED.SETTINGSBETTERGHOSTHINT or "Shows where each fighter ends up at the end of the turn. Press Q in a match to show or hide it",
+						type = TOGGLE,
+						systemname = "betterghost",
+						val = { Settings.GetGhostOption("betterghost") },
+						hidden = get_option("betterghost") == nil
+					},
+					{
+						-- The fighter you control (Tori offline): with or instead of the classic ghost
+						name = TB_MENU_LOCALIZED.SETTINGSGHOSTSTYLE or "My Better Ghost",
 						type = DROPDOWN,
 						systemname = "ghoststyle",
 						selectedAction = function()
@@ -1245,10 +1254,10 @@ function Settings:getSettingsData(id)
 								return selected
 							end,
 						dropdown = Settings.GetGhostStyleDropdown("ghoststyle"),
-						hidden = get_option("ghoststyle") == nil
+						hidden = get_option("betterghost") == nil
 					},
 					{
-						name = TB_MENU_LOCALIZED.SETTINGSGHOSTCOLOR or "My ghost: end of turn color",
+						name = TB_MENU_LOCALIZED.SETTINGSGHOSTCOLOR or "My Better Ghost: color",
 						type = DROPDOWN,
 						systemname = "ghostcolor",
 						selectedAction = function()
@@ -1257,11 +1266,11 @@ function Settings:getSettingsData(id)
 							end,
 						dropdown = Settings.GetGhostColorDropdown("ghostcolor"),
 						dropdownHeight = 300,
-						hidden = get_option("ghostcolor") == nil or Settings.GetGhostOption("ghoststyle") == 0
+						hidden = get_option("betterghost") == nil
 					},
 					{
 						-- Everyone else's ghost
-						name = TB_MENU_LOCALIZED.SETTINGSGHOSTSTYLEOPPONENT or "Opponent's ghost: style",
+						name = TB_MENU_LOCALIZED.SETTINGSGHOSTSTYLEOPPONENT or "Opponent's Better Ghost",
 						type = DROPDOWN,
 						systemname = "ghoststyleopponent",
 						selectedAction = function()
@@ -1269,10 +1278,10 @@ function Settings:getSettingsData(id)
 								return selected
 							end,
 						dropdown = Settings.GetGhostStyleDropdown("ghoststyleopponent"),
-						hidden = get_option("ghoststyleopponent") == nil
+						hidden = get_option("betterghost") == nil
 					},
 					{
-						name = TB_MENU_LOCALIZED.SETTINGSGHOSTCOLOROPPONENT or "Opponent's ghost: end of turn color",
+						name = TB_MENU_LOCALIZED.SETTINGSGHOSTCOLOROPPONENT or "Opponent's Better Ghost: color",
 						type = DROPDOWN,
 						systemname = "ghostcoloropponent",
 						selectedAction = function()
@@ -1281,7 +1290,7 @@ function Settings:getSettingsData(id)
 							end,
 						dropdown = Settings.GetGhostColorDropdown("ghostcoloropponent"),
 						dropdownHeight = 300,
-						hidden = get_option("ghostcoloropponent") == nil or Settings.GetGhostOption("ghoststyleopponent") == 0
+						hidden = get_option("betterghost") == nil
 					},
 					{
 						name = TB_MENU_LOCALIZED.SETTINGSGHOSTCLASSICOPACITY or "Classic ghost: opacity",
@@ -1289,19 +1298,19 @@ function Settings:getSettingsData(id)
 						maxValue = 100,
 						systemname = "ghostclassicopacity",
 						val = { Settings.GetGhostOption("ghostclassicopacity") },
-						hidden = get_option("ghostclassicopacity") == nil or (Settings.GetGhostOption("ghoststyle") == 1 and Settings.GetGhostOption("ghoststyleopponent") == 1)
+						hidden = get_option("ghostclassicopacity") == nil
 					},
 					{
-						name = TB_MENU_LOCALIZED.SETTINGSGHOSTOPACITY or "End of turn ghost: opacity",
+						name = TB_MENU_LOCALIZED.SETTINGSGHOSTOPACITY or "Better Ghost: opacity",
 						type = SLIDER,
 						maxValue = 100,
 						systemname = "ghostopacity",
 						val = { Settings.GetGhostOption("ghostopacity") },
-						hidden = get_option("ghostopacity") == nil or (Settings.GetGhostOption("ghoststyle") == 0 and Settings.GetGhostOption("ghoststyleopponent") == 0)
+						hidden = get_option("betterghost") == nil
 					},
 					{
 						-- Still holds the turn end pose. Moving follows the classic ghost until the turn end
-						name = TB_MENU_LOCALIZED.SETTINGSGHOSTMOVEMENT or "End of turn ghost: movement",
+						name = TB_MENU_LOCALIZED.SETTINGSGHOSTMOVEMENT or "Better Ghost: movement",
 						type = DROPDOWN,
 						systemname = "ghostmovement",
 						selectedAction = function()
@@ -1325,7 +1334,7 @@ function Settings:getSettingsData(id)
 									end
 							}
 						},
-						hidden = get_option("ghostmovement") == nil or (Settings.GetGhostOption("ghoststyle") == 0 and Settings.GetGhostOption("ghoststyleopponent") == 0)
+						hidden = get_option("betterghost") == nil
 					},
 					{
 						-- Every ghost; an end of turn ghost that holds still has nothing to fade
@@ -2104,28 +2113,28 @@ function Settings.GetGhostOption(name)
 	return Settings.Stored[name] and Settings.Stored[name].value or get_option(name)
 end
 
----Choices for a ghost style: the classic ghost, the end of turn ghost (system/betterghost.lua) or both
+---Choices for a Better Ghost style: shown with the classic ghost (2) or instead of it (1). 0, from early 5.78
+---builds, counts as with the classic ghost
 ---@param name string ghoststyle for your fighter, ghoststyleopponent for the others
 ---@return table[] dropdown
 ---@return integer selected
 function Settings.GetGhostStyleDropdown(name)
 	local styles = {
-		TB_MENU_LOCALIZED.SETTINGSGHOSTSTYLE0 or "Classic",
-		TB_MENU_LOCALIZED.SETTINGSGHOSTSTYLE1 or "End of turn",
-		TB_MENU_LOCALIZED.SETTINGSGHOSTSTYLE2 or "Both"
+		{ text = TB_MENU_LOCALIZED.SETTINGSGHOSTSTYLE2 or "With classic ghost", value = 2 },
+		{ text = TB_MENU_LOCALIZED.SETTINGSGHOSTSTYLE1 or "Instead of classic ghost", value = 1 }
 	}
 	local dropdown = {}
-	for i, text in ipairs(styles) do
+	for _, style in ipairs(styles) do
 		table.insert(dropdown, {
-			text = text,
+			text = style.text,
 			action = function()
-					Settings.Stored[name] = { value = i - 1 }
+					Settings.Stored[name] = { value = style.value }
 					Settings:settingsApplyActivate()
 					Settings:showSettings(TB_MENU_SETTINGS_SCREEN_ACTIVE, true)
 				end
 		})
 	end
-	return dropdown, (Settings.GetGhostOption(name) or 0) + 1
+	return dropdown, Settings.GetGhostOption(name) == 1 and 2 or 1
 end
 
 ---Choices for an end of turn ghost color: Automatic, then every ghost color the store has sold, hidden ones included

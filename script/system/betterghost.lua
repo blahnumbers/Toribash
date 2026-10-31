@@ -6,9 +6,9 @@
 ---@author surge (modifications)
 ---@author AssassinPro, niavic, barbarbar, LostMail (additional credits)
 
--- Shown when the ghoststyle option is 1 (end of turn ghost only) or 2 (both ghosts)
+-- Shown while the betterghost option is on (Q in a match); ghoststyle picks whether it replaces the classic ghost
 -- Clients without the option only have the classic ghost
-if get_option("ghoststyle") == nil then
+if get_option("betterghost") == nil then
 	return
 end
 
