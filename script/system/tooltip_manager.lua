@@ -56,6 +56,14 @@ if (Tooltip == nil) then
 	})
 	Tooltip.HolderElement:addCustomDisplay(true, function() Tooltip.WorldState = UIElement.WorldState end)
 end
+if (Tooltip.ColorNamesHolder == nil) then
+	---Color names on hover keep their own holder: the advanced tooltip's is emptied every frame during replays
+	Tooltip.ColorNamesHolder = UIElement:new({
+		globalid = Tooltip.Globalid + 5,
+		pos = { 0, 0 },
+		size = { 0, 0 }
+	})
+end
 
 ---@alias TooltipJointNone
 ---| -1 NONE
@@ -76,6 +84,417 @@ local TooltipInternal = {
 	OnTapEvents = { },
 	InputMode = is_mobile() and INPUT_TYPE.TOUCH or INPUT_TYPE.MOUSE
 }
+
+---Color names on hover (option `colornames`, **5.78**): names the colors a fighter wears where the mouse is,
+---for players who can't tell them apart, in the same popup as the advanced tooltip
+---@class TooltipColorRow
+---@field label string
+---@field color integer Color id, 0 for the default look
+---@field swatch integer? Color id to show in the swatch when `color` is 0
+
+local TooltipColorNames = {
+	HookName = "__tbTooltipColorNames",
+	RowHeight = 20,
+	TextScale = 0.7,
+	---Key of the part the popup shows ("player:body:joint")
+	---@type string?
+	Key = nil,
+	BuiltAt = 0,
+	---@type UIElement?
+	Popup = nil
+}
+
+-- BREAST, CHEST, R_PECS, L_PECS: drawn in the torso color, without a gradient
+local TORSO_BODIES = { [1] = true, [2] = true, [5] = true, [8] = true }
+-- Body id to trail id: the trails are left hand, right hand, left foot, right foot
+local TRAIL_BODIES = { [12] = 0, [11] = 1, [20] = 2, [19] = 3 }
+
+---Whether color names on hover are on
+---@return boolean
+function Tooltip.ColorNamesEnabled()
+	return get_option("colornames") == 1 and not is_mobile()
+end
+
+---Plain words for what a color looks like ("dark blue", "light grey"), worked out from its rgb: store names
+---like Tesla or Hawk don't say it
+---@param colorid integer
+---@return string?
+function Tooltip.DescribeColor(colorid)
+	local ok, info = pcall(get_color_info, colorid)
+	if (not ok or type(info) ~= "table") then
+		return nil
+	end
+	local L = TB_MENU_LOCALIZED
+	-- Some colors go over 1 (Pure is 1.3) to glow: they look as bright as 1
+	local r, g, b = math.min(tonumber(info.r) or 0, 1), math.min(tonumber(info.g) or 0, 1), math.min(tonumber(info.b) or 0, 1)
+	local maxValue, minValue = math.max(r, g, b), math.min(r, g, b)
+	local delta = maxValue - minValue
+	local lightness = (maxValue + minValue) / 2
+	local saturation = delta == 0 and 0 or delta / (1 - math.abs(2 * lightness - 1))
+
+	if (saturation < 0.18 or delta < 0.08) then
+		if (lightness > 0.85) then
+			return L.TOOLTIPHUEWHITE or "white"
+		elseif (lightness > 0.6) then
+			return (L.TOOLTIPHUELIGHT or "light") .. " " .. (L.TOOLTIPHUEGREY or "grey")
+		elseif (lightness > 0.35) then
+			return L.TOOLTIPHUEGREY or "grey"
+		elseif (lightness > 0.12) then
+			return (L.TOOLTIPHUEDARK or "dark") .. " " .. (L.TOOLTIPHUEGREY or "grey")
+		end
+		return L.TOOLTIPHUEBLACK or "black"
+	end
+
+	local hue
+	if (maxValue == r) then
+		hue = ((g - b) / delta) % 6
+	elseif (maxValue == g) then
+		hue = (b - r) / delta + 2
+	else
+		hue = (r - g) / delta + 4
+	end
+	hue = hue * 60
+
+	local word, shade = nil, true
+	if (hue < 15 or hue >= 350) then
+		word = lightness > 0.75 and (L.TOOLTIPHUEPINK or "pink") or (L.TOOLTIPHUERED or "red")
+		shade = lightness <= 0.75
+	elseif (hue < 48) then
+		if (lightness < 0.35) then
+			word, shade = L.TOOLTIPHUEBROWN or "brown", false
+		else
+			word = L.TOOLTIPHUEORANGE or "orange"
+		end
+	elseif (hue < 70) then
+		word = L.TOOLTIPHUEYELLOW or "yellow"
+	elseif (hue < 95) then
+		word = L.TOOLTIPHUELIME or "lime"
+	elseif (hue < 160) then
+		word = L.TOOLTIPHUEGREEN or "green"
+	elseif (hue < 195) then
+		word = L.TOOLTIPHUECYAN or "cyan"
+	elseif (hue < 255) then
+		word = L.TOOLTIPHUEBLUE or "blue"
+	elseif (hue < 285) then
+		word = L.TOOLTIPHUEPURPLE or "purple"
+	elseif (hue < 335) then
+		word = lightness > 0.75 and (L.TOOLTIPHUEPINK or "pink") or (L.TOOLTIPHUEMAGENTA or "magenta")
+		shade = lightness <= 0.75
+	elseif (lightness > 0.5) then
+		word, shade = L.TOOLTIPHUEPINK or "pink", false
+	else
+		-- Crimson, blood: red with a little blue
+		word = L.TOOLTIPHUERED or "red"
+	end
+
+	if (saturation < 0.35) then
+		return (L.TOOLTIPHUEGREYISH or "greyish") .. " " .. word
+	elseif (shade and lightness > 0.75) then
+		return (L.TOOLTIPHUELIGHT or "light") .. " " .. word
+	elseif (shade and lightness < 0.25) then
+		return (L.TOOLTIPHUEDARK or "dark") .. " " .. word
+	end
+	return word
+end
+
+---A color's name as the store calls it, with what it looks like when the name doesn't say ("Tesla (purple)").
+---Color 0 is "Default", described by `swatch` when given (the default force color, for one)
+---@param colorid integer?
+---@param swatch integer?
+---@return string
+function Tooltip.GetColorName(colorid, swatch)
+	if (colorid == nil or colorid <= 0) then
+		local name = TB_MENU_LOCALIZED.TOOLTIPCOLORDEFAULT or "Default"
+		local look = swatch and Tooltip.DescribeColor(swatch)
+		return look and (name .. " (" .. look .. ")") or name
+	end
+	local ok, info = pcall(get_color_info, colorid)
+	if (not ok or type(info) ~= "table" or type(info.game_name) ~= "string") then
+		return "#" .. colorid
+	end
+	local name = info.game_name:gsub("_", " ")
+	name = name:gsub("(%a)([%w']*)", function(first, rest) return first:upper() .. rest end)
+	-- No "Dark Red (red)": the name already says it
+	local look = Tooltip.DescribeColor(colorid)
+	local lookWord = look and look:match("(%S+)$")
+	if (look and not name:lower():find(lookWord:lower(), 1, true)) then
+		name = name .. " (" .. look .. ")"
+	end
+	return name
+end
+
+---The colors a fighter wears on a joint (joint >= 0) or a body part, as rows for the tooltip
+---@param player integer
+---@param body integer
+---@param joint integer
+---@return TooltipColorRow[]
+function Tooltip.GetColorRows(player, body, joint)
+	local L = TB_MENU_LOCALIZED
+	local rows = {}
+	local function add(label, color, swatch)
+		table.insert(rows, { label = label, color = tonumber(color) or 0, swatch = swatch })
+	end
+
+	---@type PlayerColors?
+	local colors = nil
+	if (get_player_colors) then
+		local ok, result = pcall(get_player_colors, player)
+		if (ok and type(result) == "table") then
+			colors = result
+		end
+	end
+
+	if (joint ~= nil and joint >= 0) then
+		local jointColors = colors and colors.joints and colors.joints[joint]
+		local force, relax = 0, 0
+		if (jointColors) then
+			force, relax = jointColors.force, jointColors.relax
+		else
+			local ok, f, r = pcall(get_joint_colors, player, joint)
+			if (ok) then
+				force, relax = f, r
+			end
+		end
+		add(L.TOOLTIPCOLORFORCE or "Force", force, COLORS.HOLD)
+		add(L.TOOLTIPCOLORRELAX or "Relax", relax, COLORS.RELAX)
+		if (jointColors and jointColors.item) then
+			add(L.TOOLTIPCOLORITEM or "3D item", jointColors.item)
+		end
+		return rows
+	end
+	if (body == nil or body < 0) then
+		return rows
+	end
+
+	-- Older clients only have set_torishop(): one gradient for the whole fighter, no 3D items, hair or trails
+	local shop = { }
+	if (colors == nil) then
+		local ok, result = pcall(set_torishop, player)
+		if (ok and type(result) == "table") then
+			shop = result
+		end
+	end
+	local bodyColors = colors and colors.bodies and colors.bodies[body] or {
+		color = TORSO_BODIES[body] and shop.torso_color or 0,
+		primary = shop.grad_pri_color or 0,
+		secondary = shop.grad_sec_color or 0
+	}
+
+	if (TORSO_BODIES[body]) then
+		add(L.TOOLTIPCOLORTORSO or "Torso", bodyColors.color)
+	elseif ((bodyColors.primary or 0) <= 0 and (bodyColors.secondary or 0) <= 0) then
+		add(L.TOOLTIPCOLORGRADIENT or "Gradient", 0)
+	else
+		add(L.TOOLTIPCOLORPRIMARY or "Primary gradient", bodyColors.primary)
+		add(L.TOOLTIPCOLORSECONDARY or "Secondary gradient", bodyColors.secondary)
+	end
+	if (bodyColors.item) then
+		add(L.TOOLTIPCOLORITEM or "3D item", bodyColors.item)
+	end
+	if (bodyColors.grab_item) then
+		add(L.TOOLTIPCOLORGRABITEM or "3D item (grabbing)", bodyColors.grab_item)
+	end
+	if (colors and (body == 11 or body == 12)) then
+		add(L.TOOLTIPCOLORGRIP or "Grip", colors.grip)
+	end
+	local trail = TRAIL_BODIES[body]
+	if (trail and colors and colors.trails and (colors.trails[trail] or 0) > 0) then
+		add(L.TOOLTIPCOLORTRAIL or "Trail", colors.trails[trail])
+	end
+
+	if (body == 0) then
+		-- The head also lists the colors that belong to the whole fighter
+		local seen = { }
+		for _, hair in ipairs(colors and colors.hairs or { }) do
+			if (not seen[hair]) then
+				seen[hair] = true
+				add(L.TOOLTIPCOLORHAIR or "Hair", hair)
+			end
+		end
+		local extras = {
+			{ "blood", "blood_color", L.TOOLTIPCOLORBLOOD or "Blood" },
+			{ "ghost", "ghost_color", L.TOOLTIPCOLORGHOST or "Ghost" },
+			{ "impact", "impact_color", L.TOOLTIPCOLORIMPACT or "Impact" },
+			{ "timer", nil, L.TOOLTIPCOLORTIMER or "Timer" },
+			{ "text", "text_color", L.TOOLTIPCOLORTEXT or "Text" },
+			{ "emote", nil, L.TOOLTIPCOLOREMOTE or "Emote" }
+		}
+		for _, extra in ipairs(extras) do
+			local value
+			if (colors) then
+				value = colors[extra[1]]
+			elseif (extra[2]) then
+				value = shop[extra[2]]
+			end
+			if ((tonumber(value) or 0) > 0) then
+				add(extra[3], value)
+			end
+		end
+	end
+	return rows
+end
+
+---Width the color rows need inside a tooltip
+---@param rows TooltipColorRow[]
+---@return number
+function Tooltip.GetColorRowsWidth(rows)
+	local width = 0
+	for _, row in ipairs(rows) do
+		local text = row.label .. ": " .. Tooltip.GetColorName(row.color, row.swatch)
+		width = math.max(width, get_string_length(text, FONTS.LMEDIUM) * TooltipColorNames.TextScale)
+	end
+	return width > 0 and width + TooltipColorNames.RowHeight + 10 or 0
+end
+
+---Adds color rows to a tooltip view: a swatch, then "Force: Blue"
+---@param view UIElement
+---@param rows TooltipColorRow[]
+---@param y number
+function Tooltip.AddColorRows(view, rows, y)
+	local rowHeight = TooltipColorNames.RowHeight
+	local swatchSize = rowHeight - 8
+	for i, row in ipairs(rows) do
+		local rowView = view:addChild({
+			pos = { 10, y + (i - 1) * rowHeight },
+			size = { view.size.w - 20, rowHeight }
+		})
+		local swatchColorId = row.color > 0 and row.color or row.swatch
+		if (swatchColorId) then
+			local rgba = get_color_rgba(swatchColorId)
+			local swatchOutline = rowView:addChild({
+				pos = { 0, (rowHeight - swatchSize) / 2 },
+				size = { swatchSize, swatchSize },
+				bgColor = { 1, 1, 1, 0.6 },
+				shapeType = ROUNDED,
+				rounded = 3
+			})
+			swatchOutline:addChild({
+				shift = { 1, 1 },
+				bgColor = { math.min(rgba[1], 1), math.min(rgba[2], 1), math.min(rgba[3], 1), 1 },
+				shapeType = ROUNDED,
+				rounded = 2
+			}, true)
+		end
+		local rowText = rowView:addChild({
+			pos = { swatchSize + 8, 0 },
+			size = { rowView.size.w - swatchSize - 8, rowHeight }
+		})
+		rowText:addAdaptedText(true, row.label .. ": " .. Tooltip.GetColorName(row.color, row.swatch), nil, nil, FONTS.LMEDIUM, LEFTMID, TooltipColorNames.TextScale)
+	end
+end
+
+---Height color rows add to a tooltip
+---@param rows TooltipColorRow[]
+---@return number
+local function getColorRowsHeight(rows)
+	return #rows > 0 and #rows * TooltipColorNames.RowHeight + 2 or 0
+end
+
+---Removes the color names popup
+function Tooltip.HideColorNames()
+	Tooltip.ColorNamesHolder:kill(true)
+	TooltipColorNames.Popup = nil
+	TooltipColorNames.Key = nil
+end
+
+---Shows the color names popup for a fighter's joint (joint >= 0) or body part
+---@param player integer
+---@param body integer
+---@param joint integer
+function Tooltip.ShowColorNames(player, body, joint)
+	Tooltip.HideColorNames()
+	local rows = Tooltip.GetColorRows(player, body, joint)
+	if (#rows == 0) then
+		return
+	end
+
+	local ok, title = pcall(function()
+			if (joint >= 0) then
+				return get_joint_info(player, joint).name
+			end
+			local name = get_body_info(player, body).name:gsub("^R_", "RIGHT "):gsub("^L_", "LEFT ")
+			return name
+		end)
+	if (not ok or type(title) ~= "string") then
+		title = ""
+	end
+
+	local width = math.max(200, get_string_length(title, FONTS.MEDIUM) + 20, Tooltip.GetColorRowsWidth(rows) + 20)
+	local titleHeight = 32
+	local popup = Tooltip.ColorNamesHolder:addChild({
+		pos = { 0, 0 },
+		size = { width, titleHeight + getColorRowsHeight(rows) + 8 }
+	})
+	local outline = popup:addChild({
+		bgColor = { 1, 1, 1, 0.4 },
+		shapeType = ROUNDED,
+		rounded = 4
+	})
+	local view = outline:addChild({
+		shift = { 1, 1 },
+		bgColor = Tooltip.BackgroundColor
+	}, true)
+	local name = view:addChild({
+		pos = { 10, 5 },
+		size = { view.size.w - 20, titleHeight - 8 }
+	})
+	name:addAdaptedText(true, title, nil, nil, nil, LEFTMID)
+	Tooltip.AddColorRows(view, rows, titleHeight)
+
+	TooltipColorNames.Popup = popup
+	TooltipColorNames.Key = player .. ":" .. body .. ":" .. joint
+	TooltipColorNames.BuiltAt = UIElement.clock or 0
+end
+
+---Follows the mouse: shows, refreshes or hides the color names popup. The advanced tooltip goes first: it
+---lists the same colors while it's shown
+local function updateColorNames()
+	if (not Tooltip.IsActive or not get_mouse_player_part or not Tooltip.ColorNamesEnabled() or
+		Tooltip.IsDisplayed or TB_MENU_MAIN_ISOPEN == 1) then
+		if (TooltipColorNames.Key) then
+			Tooltip.HideColorNames()
+		end
+		return
+	end
+
+	local player, body, joint = get_mouse_player_part()
+	if (player == nil) then
+		if (TooltipColorNames.Key) then
+			Tooltip.HideColorNames()
+		end
+		return
+	end
+
+	-- Customs can arrive while the mouse rests on a fighter, so the colors are read again every second
+	local key = player .. ":" .. body .. ":" .. joint
+	if (key ~= TooltipColorNames.Key or (UIElement.clock or 0) - TooltipColorNames.BuiltAt > 1) then
+		Tooltip.ShowColorNames(player, body, joint)
+	end
+
+	local popup = TooltipColorNames.Popup
+	if (popup) then
+		local x = math.min(MOUSE_X + 20, WIN_W - 10 - popup.size.w)
+		local y = math.min(MOUSE_Y + 10, WIN_H - 10 - popup.size.h)
+		popup:moveTo(math.max(x, 10), math.max(y, 10))
+	end
+end
+
+---Starts color names on hover (the option still decides whether they show)
+function Tooltip.InitColorNames()
+	Tooltip.HideColorNames()
+	remove_hooks(TooltipColorNames.HookName)
+	if (is_mobile()) then
+		return
+	end
+	add_hook("pre_draw", TooltipColorNames.HookName, updateColorNames)
+	add_hook("draw2d", TooltipColorNames.HookName, function()
+			if (TooltipColorNames.Popup and TB_MENU_MAIN_ISOPEN ~= 1) then
+				UIElement.drawVisuals(Tooltip.ColorNamesHolder.globalid)
+			end
+		end)
+	add_hook("new_game", TooltipColorNames.HookName, Tooltip.HideColorNames)
+	add_hook("leave_game", TooltipColorNames.HookName, Tooltip.HideColorNames)
+end
 
 ---Calls Destroy() method and marks Tooltip class inactive
 function Tooltip.Quit()
@@ -195,6 +614,7 @@ function Tooltip.Init()
 			end
 		end)
 
+	Tooltip.InitColorNames()
 	Tooltip.IsActive = true
 end
 
@@ -256,8 +676,13 @@ function Tooltip:showTooltipBody(player, body)
 	local width = get_string_length(bodyInfo.name, FONTS.MEDIUM) + 20
 	width = width < 200 and 200 or width
 	local heightMod = (body == 11 or body == 12) and 3 or 2
+	-- Color names on hover: the same rows the color names popup shows, under the usual contents
+	local colorRows = self.ColorNamesEnabled() and self.GetColorRows(player, body, -1) or { }
+	width = math.max(width, self.GetColorRowsWidth(colorRows) + 20)
+	-- Height of the usual contents, which keep their layout
+	local viewHeight = height - 2
 
-	local tbTooltip = self:spawnTooltipMain(self.WorldState.match_frame, width, height, get_body_screen_pos(player, body))
+	local tbTooltip = self:spawnTooltipMain(self.WorldState.match_frame, width, height + getColorRowsHeight(colorRows), get_body_screen_pos(player, body))
 	local tbTooltipOutline = tbTooltip:addChild({
 		bgColor = { 1, 1, 1, 0.4 },
 		shapeType = ROUNDED,
@@ -269,22 +694,25 @@ function Tooltip:showTooltipBody(player, body)
 	}, true)
 	local jointTooltipName = tbTooltipView:addChild({
 		pos = { 10, 5 },
-		size = { tbTooltipView.size.w - 20, tbTooltipView.size.h / heightMod * 2 - 10 }
+		size = { tbTooltipView.size.w - 20, viewHeight / heightMod * 2 - 10 }
 	})
 	jointTooltipName:addAdaptedText(true, bodyInfo.name, nil, nil, nil, LEFTMID)
+	if (#colorRows > 0) then
+		self.AddColorRows(tbTooltipView, colorRows, viewHeight - 4)
+	end
 
 	if (body == 11 or body == 12) then
 		self.GrabDisplayActive = true
 		local jointTooltipState = tbTooltipView:addChild({
-			pos = { tbTooltipView.size.h / 3 + 10, jointTooltipName.shift.y + jointTooltipName.size.h },
-			size = { tbTooltipView.size.w - tbTooltipView.size.h / 3 - 25, tbTooltipView.size.h / 3 - 5 }
+			pos = { viewHeight / 3 + 10, jointTooltipName.shift.y + jointTooltipName.size.h },
+			size = { tbTooltipView.size.w - viewHeight / 3 - 25, viewHeight / 3 - 5 }
 		})
 		local function drawGrabState(state)
 			set_color(0.9, 0.9, 0.9, 1)
 			if (state == 0) then
-				draw_quad(tbTooltipView.pos.x + 10, jointTooltipState.pos.y, tbTooltipView.size.h / 3 - 5, tbTooltipView.size.h / 3 - 5)
+				draw_quad(tbTooltipView.pos.x + 10, jointTooltipState.pos.y, viewHeight / 3 - 5, viewHeight / 3 - 5)
 			else
-				draw_quad(tbTooltipView.pos.x + 10, jointTooltipState.pos.y + tbTooltip.size.h / 12, tbTooltipView.size.h / 3 - 5, tbTooltipView.size.h / 9)
+				draw_quad(tbTooltipView.pos.x + 10, jointTooltipState.pos.y + height / 12, viewHeight / 3 - 5, viewHeight / 9)
 				set_color(0, 1, 0, 1)
 				draw_disk(tbTooltipView.pos.x + 10 + jointTooltipState.size.h / 6 * 5, jointTooltipState.pos.y + jointTooltipState.size.h / 3 * 2, 0, jointTooltipState.size.h / 3, 20, 1, 0, 360, 1)
 			end
@@ -322,8 +750,13 @@ function Tooltip:showTooltipJoint(player, joint)
 	local jointInfo = get_joint_info(player, joint)
 	local width = get_string_length(jointInfo.name, FONTS.MEDIUM) + 20
 	width = width < 200 and 200 or width
+	-- Color names on hover: the same rows the color names popup shows, under the joint state
+	local colorRows = self.ColorNamesEnabled() and self.GetColorRows(player, -1, joint) or { }
+	width = math.max(width, self.GetColorRowsWidth(colorRows) + 20)
+	-- Height of the usual contents, which keep their layout
+	local viewHeight = 68
 
-	local tbTooltip = self:spawnTooltipMain(self.WorldState.match_frame, width, 70, get_joint_screen_pos(player, joint))
+	local tbTooltip = self:spawnTooltipMain(self.WorldState.match_frame, width, 70 + getColorRowsHeight(colorRows), get_joint_screen_pos(player, joint))
 	local tbTooltipOutline = tbTooltip:addChild({
 		bgColor = { 1, 1, 1, 0.4 },
 		shapeType = ROUNDED,
@@ -335,14 +768,17 @@ function Tooltip:showTooltipJoint(player, joint)
 	}, true)
 	local jointTooltipName = tbTooltipView:addChild({
 		pos = { 10, 5 },
-		size = { tbTooltipView.size.w - 20, tbTooltipView.size.h / 3 * 2 - 10 }
+		size = { tbTooltipView.size.w - 20, viewHeight / 3 * 2 - 10 }
 	})
 	jointTooltipName:addAdaptedText(true, jointInfo.name, nil, nil, nil, LEFTMID)
 
 	local jointTooltipState = tbTooltipView:addChild({
-		pos = { tbTooltipView.size.h / 3 + 10, jointTooltipName.shift.y + jointTooltipName.size.h },
-		size = { tbTooltipView.size.w - tbTooltipView.size.h / 3 - 25, tbTooltipView.size.h / 3 - 5 }
+		pos = { viewHeight / 3 + 10, jointTooltipName.shift.y + jointTooltipName.size.h },
+		size = { tbTooltipView.size.w - viewHeight / 3 - 25, viewHeight / 3 - 5 }
 	})
+	if (#colorRows > 0) then
+		self.AddColorRows(tbTooltipView, colorRows, viewHeight - 4)
+	end
 	local function drawDismembered()
 		set_color(self.DismemberColor[1], self.DismemberColor[2], self.DismemberColor[3], self.DismemberColor[4])
 		draw_disk(tbTooltipView.pos.x + 10 + jointTooltipState.size.h / 2, jointTooltipState.pos.y + jointTooltipState.size.h / 2, 0, jointTooltipState.size.h / 2, 20, 1, 0, 360, 0)

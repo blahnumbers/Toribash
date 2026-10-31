@@ -1641,6 +1641,42 @@ function Settings:getSettingsData(id)
 						hidden = is_mobile() or get_option("legacychat") == nil
 					},
 					{
+						-- Readability (5.78): a dark box behind the chat lines, both chats; older clients lack the option
+						name = TB_MENU_LOCALIZED.SETTINGSCHATBACKGROUND or "Chat background",
+						hint = TB_MENU_LOCALIZED.SETTINGSCHATBACKGROUNDHINT or "A dark box behind the chat to make it easier to read. 0 turns it off",
+						type = SLIDER,
+						maxValue = 100,
+						systemname = "chatbackground",
+						val = { Settings.GetGhostOption("chatbackground") },
+						hidden = get_option("chatbackground") == nil
+					},
+					{
+						name = TB_MENU_LOCALIZED.SETTINGSCHATTEXTCOLOR or "Chat text color",
+						hint = TB_MENU_LOCALIZED.SETTINGSCHATCOLORHINT or "Default keeps the colors set by the server and your shader",
+						type = DROPDOWN,
+						systemname = "chattextcolor",
+						selectedAction = function()
+								local _, selected = Settings.GetChatColorDropdown("chattextcolor")
+								return selected
+							end,
+						dropdown = Settings.GetChatColorDropdown("chattextcolor"),
+						dropdownHeight = 300,
+						hidden = get_option("chattextcolor") == nil
+					},
+					{
+						name = TB_MENU_LOCALIZED.SETTINGSCHATNAMECOLOR or "Player name color",
+						hint = TB_MENU_LOCALIZED.SETTINGSCHATCOLORHINT or "Default keeps the colors set by the server and your shader",
+						type = DROPDOWN,
+						systemname = "chatnamecolor",
+						selectedAction = function()
+								local _, selected = Settings.GetChatColorDropdown("chatnamecolor")
+								return selected
+							end,
+						dropdown = Settings.GetChatColorDropdown("chatnamecolor"),
+						dropdownHeight = 300,
+						hidden = get_option("chatnamecolor") == nil
+					},
+					{
 						name = TB_MENU_LOCALIZED.SETTINGSPROFANITYFILTER,
 						type = TOGGLE,
 						systemname = "chatcensor",
@@ -1671,6 +1707,15 @@ function Settings:getSettingsData(id)
 							Settings.Stored.tooltip = { value = val }
 						end,
 						val = { get_option("tooltip") }
+					},
+					{
+						-- Accessibility (5.78): names the colors under the mouse, see system/tooltip_manager.lua
+						name = TB_MENU_LOCALIZED.SETTINGSCOLORNAMES or "Show color names on hover",
+						hint = TB_MENU_LOCALIZED.SETTINGSCOLORNAMESHINT or "Hover over a fighter's joint or body part to see the names of the colors worn there. The head also lists hair, blood, ghost and other colors",
+						type = TOGGLE,
+						systemname = "colornames",
+						val = { Settings.GetGhostOption("colornames") },
+						hidden = is_mobile() or get_option("colornames") == nil
 					},
 					{
 						name = TB_MENU_LOCALIZED.SETTINGSJOINTFLASH,
@@ -2253,6 +2298,43 @@ function Settings.GetGhostColorDropdown(name)
 	table.insert(colors, 1, { id = 0, name = TB_MENU_LOCALIZED.SETTINGSGHOSTCOLORAUTO or "Automatic" })
 
 	local current = Settings.GetGhostOption(name)
+	local dropdown, selected = {}, 1
+	for i, color in ipairs(colors) do
+		if (color.id == current) then
+			selected = i
+		end
+		table.insert(dropdown, {
+			text = color.name,
+			color = color.id > 0 and get_color_rgba(color.id) or nil,
+			action = function()
+					Settings.Stored[name] = { value = color.id }
+					Settings:settingsApplyActivate()
+				end
+		})
+	end
+	return dropdown, selected
+end
+
+---Choices for a chat color option: Default (the chat's own colors), then colors that stand out on most backgrounds
+---@param name string chattextcolor or chatnamecolor
+---@return table[] dropdown
+---@return integer selected
+function Settings.GetChatColorDropdown(name)
+	local L = TB_MENU_LOCALIZED
+	local colors = {
+		{ id = 0, name = L.SETTINGSCHATCOLORDEFAULT or "Default" },
+		{ id = COLORS.WHITE, name = L.SETTINGSCOLORWHITE or "White" },
+		{ id = COLORS.BLACK, name = L.SETTINGSCOLORBLACK or "Black" },
+		{ id = COLORS.GREY, name = L.SETTINGSCOLORGREY or "Grey" },
+		{ id = COLORS.YELLOW, name = L.SETTINGSCOLORYELLOW or "Yellow" },
+		{ id = COLORS.ORANGE, name = L.SETTINGSCOLORORANGE or "Orange" },
+		{ id = COLORS.PINK, name = L.SETTINGSCOLORPINK or "Pink" },
+		{ id = COLORS.ECTO, name = L.SETTINGSCOLORMINT or "Mint" },
+		{ id = COLORS.NEPTUNE, name = L.SETTINGSCOLORLIGHTBLUE or "Light blue" },
+		{ id = COLORS.TYPHON, name = L.SETTINGSCOLORCYAN or "Cyan" }
+	}
+
+	local current = Settings.GetGhostOption(name) or 0
 	local dropdown, selected = {}, 1
 	for i, color in ipairs(colors) do
 		if (color.id == current) then
