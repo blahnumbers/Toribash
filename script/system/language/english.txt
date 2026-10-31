@@ -1205,6 +1205,8 @@ REPLAYSDATACACHEREADY	Replays data cache is ready!
 SETTINGSQUALITYLOW	Low quality
 SETTINGSQUALITYHIGH	High quality
 SETTINGSBLOODSTAINS	Blood stains
+SETTINGSSTICKYBLOOD	Sticky blood
+SETTINGSSTICKYBLOODHINT	Blood that lands on a fighter stays on them for the rest of the match
 SETTINGSMOUSEBUTTONSMOBILE	Tap controls mode
 SETTINGSCAMERA	Camera
 SETTINGSCAMERAINVERTX	Invert horizontal axis

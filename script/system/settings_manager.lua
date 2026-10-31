@@ -420,6 +420,15 @@ function Settings:getSettingsData(id)
 				})
 			end
 			table.insert(advancedItems, {
+				-- Works with and without shaders
+				name = TB_MENU_LOCALIZED.SETTINGSSTICKYBLOOD or "Sticky blood",
+				hint = TB_MENU_LOCALIZED.SETTINGSSTICKYBLOODHINT or "Blood that lands on a fighter stays on them for the rest of the match",
+				type = TOGGLE,
+				systemname = "stickyblood",
+				val = { Settings.Stored.stickyblood and Settings.Stored.stickyblood.value or get_option("stickyblood") },
+				hidden = get_option("stickyblood") == nil
+			})
+			table.insert(advancedItems, {
 				name = TB_MENU_LOCALIZED.SETTINGSFLOORREFLECTIONS,
 				type = TOGGLE,
 				action = function(val)
