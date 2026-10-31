@@ -577,7 +577,7 @@ function UIElement3D.drawVisuals(object, globalid)
 	local globalid = (type(object) == "table" and (object.globalid or globalid) or object)
 	if (UIVisual3DManager[globalid] == nil) then return end
 
-	for _, v in pairs(UIVisual3DManager[globalid]) do
+	for _, v in ipairs(UIVisual3DManager[globalid]) do
 		v:display()
 	end
 end
@@ -592,7 +592,7 @@ function UIElement3D.drawViewport(object, globalid)
 
 	if (UIVisual3DManagerViewport[globalid] == nil) then return end
 
-	for _, v in pairs(UIVisual3DManagerViewport[globalid]) do
+	for _, v in ipairs(UIVisual3DManagerViewport[globalid]) do
 		v:display()
 	end
 end
@@ -608,7 +608,7 @@ function UIElement3D.drawEnterFrame(object, globalid)
 	local globalid = (type(object) == "table" and (object.globalid or globalid) or object)
 	if (UIVisual3DManager[globalid] == nil) then return end
 
-	for _, v in pairs(UIVisual3DManager[globalid]) do
+	for _, v in ipairs(UIVisual3DManager[globalid]) do
 		if (v.customEnterFrameFunc ~= nil) then
 			v.customEnterFrameFunc()
 		end
@@ -628,7 +628,7 @@ function UIElement3D:show(forceReload)
 	end
 
 	local targetManager = self.viewportElement and UIVisual3DManagerViewport or UIVisual3DManager
-	for i,v in pairs(targetManager[self.globalid]) do
+	for i,v in ipairs(targetManager[self.globalid]) do
 		if (self == v) then
 			num = i
 			break
@@ -642,7 +642,7 @@ function UIElement3D:show(forceReload)
 		end
 	end
 
-	for _ ,v in pairs(self.child) do
+	for _ ,v in ipairs(self.child) do
 		v:show()
 	end
 	self.displayed = true
@@ -652,7 +652,7 @@ end
 ---Disables display of current UIElement3D and all its children
 ---@param noreload ?boolean Whether this UIElement3D should ignore subsequent `show()` calls that don't have override on
 function UIElement3D:hide(noreload)
-	for _ ,v in pairs(self.child) do
+	for _ ,v in ipairs(self.child) do
 		v:hide()
 	end
 
@@ -668,7 +668,7 @@ function UIElement3D:hide(noreload)
 	end
 
 	local targetManager = self.viewportElement and UIVisual3DManagerViewport or UIVisual3DManager
-	for i,v in pairs(targetManager[self.globalid]) do
+	for i,v in ipairs(targetManager[self.globalid]) do
 		if (self == v) then
 			table.remove(targetManager[self.globalid], i)
 			break
@@ -708,7 +708,7 @@ end
 ---Internal function to update positions of all the current UIElement3D object's children
 ---@param object UIElement3D
 function UIElement3DInternal.UpdateChildrenPosition(object)
-	for _, v in pairs(object.child) do
+	for _, v in ipairs(object.child) do
 		UIElement3DInternal.UpdatePosition(v)
 	end
 end
@@ -772,7 +772,7 @@ function UIElement3DInternal.Rotate(object, rotMatrix)
 	object.rotMatrixTB = Utils3D.MatrixToMatrixTB(object.rotMatrix)
 	object.rotXYZ = Utils3D.GetEulerFromMatrix(object.rotMatrix, EULER_XYZ)
 
-	for _, v in pairs(object.child) do
+	for _, v in ipairs(object.child) do
 		UIElement3DInternal.RotateChild(v)
 	end
 end
@@ -784,7 +784,7 @@ function UIElement3DInternal.RotateChild(object)
 	object.rotMatrixTB = Utils3D.MatrixToMatrixTB(object.rotMatrix)
 	object.rotXYZ = Utils3D.GetEulerFromMatrix(object.rotMatrix, EULER_XYZ)
 
-	for _, v in pairs(object.child) do
+	for _, v in ipairs(object.child) do
 		UIElement3DInternal.RotateChild(v)
 	end
 end

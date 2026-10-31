@@ -730,7 +730,7 @@ function UIElement:setRounded(rounded)
 	local minRounded = self.roundedInternal[1] + self.roundedInternal[2] > minSize and minSize / 2 or math.max(unpack(self.roundedInternal))
 
 	self.rounded = 0
-	for i, v in pairs(self.roundedInternal) do
+	for i, v in ipairs(self.roundedInternal) do
 		if (v > minRounded) then
 			self.roundedInternal[i] = minRounded
 		end
@@ -872,7 +872,7 @@ end
 ---@param btnDownArg ?table Any additional arguments to be used by element's `btnDown()` event
 ---@param prev ?boolean
 function UIElement:addTabSwitch(element, btnDownArg, prev)
-	local btnDownArg = btnDownArg or {}
+	btnDownArg = btnDownArg or {}
 	local action = prev and "tabswitchprevaction" or "tabswitchaction"
 	local targetName = prev and "prevInput" or "nextInput"
 	self[targetName] = element
@@ -880,7 +880,7 @@ function UIElement:addTabSwitch(element, btnDownArg, prev)
 		if (self.onLoseFocus) then
 			self.onLoseFocus()
 		end
-		for _, v in pairs(UIKeyboardHandler) do
+		for _, v in ipairs(UIKeyboardHandler) do
 			v.keyboard = false
 		end
 		element.hoverState = BTN_HVR
@@ -1313,7 +1313,7 @@ end
 -- Destroys current UIElement object
 ---@param childOnly? boolean If true, will only destroy current object's children and keep the object itself
 function UIElement:kill(childOnly)
-	for _, v in pairs(self.child) do
+	for _, v in ipairs(self.child) do
 		if (v.kill) then
 			v:kill()
 		end
@@ -1332,7 +1332,7 @@ function UIElement:kill(childOnly)
 
 	self:hide(true)
 	if (self.isScrollBar) then
-		for i,v in pairs(UIScrollbarHandler) do
+		for i,v in ipairs(UIScrollbarHandler) do
 			if (self == v) then
 				table.remove(UIScrollbarHandler, i)
 				break
@@ -1340,7 +1340,7 @@ function UIElement:kill(childOnly)
 		end
 	end
 	if (self.bgImage) then self:updateImage(nil) end
-	for i,v in pairs(UIElementManager) do
+	for i,v in ipairs(UIElementManager) do
 		if (self == v) then
 			table.remove(UIElementManager, i)
 			break
@@ -1357,7 +1357,7 @@ function UIElement:updatePos()
 		self:updateChildPos()
 	end
 	if (self.viewport) then return end
-	for _, v in pairs(self.child) do
+	for _, v in ipairs(self.child) do
 		v:updatePos()
 	end
 end
@@ -1381,14 +1381,14 @@ function UIElement.drawVisuals(object, globalid)
 
 	local generation = _G.UIPositionGeneration
 	if (UIPositionUpdated[globalid] ~= generation) then
-		for _, v in pairs(UIElementManager) do
+		for _, v in ipairs(UIElementManager) do
 			if (v.globalid == globalid and v.parent == nil) then
 				v:updatePos()
 			end
 		end
 		UIPositionUpdated[globalid] = generation
 	end
-	for _, v in pairs(UIVisualManager[globalid]) do
+	for _, v in ipairs(UIVisualManager[globalid]) do
 		v:display()
 	end
 end
@@ -1582,7 +1582,7 @@ function UIElement:activate(forceReload)
 		self.noreloadInteractive = false
 	end
 
-	for i,v in pairs(UIMouseHandler) do
+	for i,v in ipairs(UIMouseHandler) do
 		if (self == v) then
 			num = i
 			break
@@ -1614,7 +1614,7 @@ function UIElement:deactivate(noreload)
 		self:disableMenuKeyboard()
 	end
 	if (self.interactive) then
-		for i,v in pairs(UIMouseHandler) do
+		for i,v in ipairs(UIMouseHandler) do
 			if (self == v) then
 				table.remove(UIMouseHandler, i)
 				break
@@ -1622,7 +1622,7 @@ function UIElement:deactivate(noreload)
 		end
 	end
 	if (self.keyboard) then
-		for i,v in pairs(UIKeyboardHandler) do
+		for i,v in ipairs(UIKeyboardHandler) do
 			if (self == v) then
 				table.remove(UIKeyboardHandler, i)
 				break
@@ -1677,7 +1677,7 @@ function UIElement:show(forceReload)
 		self.noreload = nil
 	end
 
-	for i,v in pairs(UIVisualManager[self.globalid]) do
+	for i,v in ipairs(UIVisualManager[self.globalid]) do
 		if (self == v) then
 			num = i
 			break
@@ -1693,7 +1693,7 @@ function UIElement:show(forceReload)
 		end
 	end
 
-	for _, v in pairs(self.child) do
+	for _, v in ipairs(self.child) do
 		v:show()
 	end
 	if (self.onShow) then
@@ -1707,7 +1707,7 @@ end
 ---Disables display of current UIElement and all its children
 ---@param noreload ?boolean Whether this UIElement should ignore subsequent `show()` calls that don't have override on
 function UIElement:hide(noreload)
-	for _, v in pairs(self.child) do
+	for _, v in ipairs(self.child) do
 		v:hide()
 	end
 
@@ -1722,7 +1722,7 @@ function UIElement:hide(noreload)
 		self:deactivate()
 	end
 
-	for i,v in pairs(UIVisualManager[self.globalid]) do
+	for i,v in ipairs(UIVisualManager[self.globalid]) do
 		if (self == v) then
 			table.remove(UIVisualManager[self.globalid], i)
 			break
@@ -1958,7 +1958,7 @@ end
 ---@return integer
 ---@see UIElement.keyboardHooks
 function UIElement.handleKeyUp(key)
-	for _, v in pairs(table.reverse(UIKeyboardHandler)) do
+	for _, v in ipairs(table.reverse(UIKeyboardHandler)) do
 		if (v.keyboard == true) then
 			v.keyUp(key)
 			if (v.keyUpCustom) then
@@ -1978,7 +1978,7 @@ end
 ---@return integer
 ---@see UIElement.keyboardHooks
 function UIElement.handleKeyDown(key)
-	for _, v in pairs(table.reverse(UIKeyboardHandler)) do
+	for _, v in ipairs(table.reverse(UIKeyboardHandler)) do
 		if (v.keyboard == true) then
 			v.keyDown(key)
 			if (v.keyDownCustom) then
@@ -1998,7 +1998,7 @@ end
 ---@return integer
 ---@see UIElement.keyboardHooks
 function UIElement.handleInput(input)
-	for _, v in pairs(table.reverse(UIKeyboardHandler)) do
+	for _, v in ipairs(table.reverse(UIKeyboardHandler)) do
 		if (v.keyboard == true and v.textfield) then
 			v.textInput(input)
 			if (v.textInputCustom) then
@@ -2021,7 +2021,7 @@ function UIElement:enableMenuKeyboard()
 		enable_menu_keyboard()
 	end
 	local id = 1
-	for _, v in pairs(UIKeyboardHandler) do
+	for _, v in ipairs(UIKeyboardHandler) do
 		if (v.menuKeyboardId == id) then
 			id = id + 1
 		else
@@ -2037,7 +2037,7 @@ end
 ---Generic method to disable keyboard input handlers for current UIElement
 function UIElement:disableMenuKeyboard()
 	self.menuKeyboardId = nil
-	for _, v in pairs(UIKeyboardHandler) do
+	for _, v in ipairs(UIKeyboardHandler) do
 		if (v.menuKeyboardId) then
 			return
 		end
@@ -2150,10 +2150,10 @@ end
 ---@param y number
 function UIElement.handleMouseDn(btn, x, y)
 	enable_camera_movement()
-	for _, v in pairs(UIKeyboardHandler) do
+	for _, v in ipairs(UIKeyboardHandler) do
 		v.keyboard = v.permanentListener
 	end
-	for _, v in pairs(table.reverse(UIMouseHandler)) do
+	for _, v in ipairs(table.reverse(UIMouseHandler)) do
 		if (v:shouldReceiveInput()) then
 			if (x > v.pos.x and x < v.pos.x + v.size.w and y > v.pos.y and y < v.pos.y + v.size.h and btn < 4) then
 				if (v.downSound) then
@@ -2184,7 +2184,7 @@ end
 ---@param y number
 function UIElement.handleMouseUp(btn, x, y)
 	local actionTriggered = false
-	for _, v in pairs(table.reverse(UIMouseHandler)) do
+	for _, v in ipairs(table.reverse(UIMouseHandler)) do
 		if (v:shouldReceiveInput()) then
 			if (v.hoverState == BTN_DN and btn == 1) then
 				v.hoverState = BTN_NONE
@@ -2222,7 +2222,7 @@ function UIElement.handleMouseHover(x, y)
 	local disable = nil
 	MOUSE_X, MOUSE_Y = x, y
 
-	for _, v in pairs(table.reverse(UIMouseHandler)) do
+	for _, v in ipairs(table.reverse(UIMouseHandler)) do
 		if (v:shouldReceiveInput()) then
 			if (v.hoverState == BTN_DN) then
 				disable = v.hoverThrough ~= true
@@ -2289,7 +2289,7 @@ function UIElement:invalidatePosition()
 	if (self.parent ~= nil) then
 		self.__positionDirty = true
 	end
-	for _, v in pairs(self.child) do
+	for _, v in ipairs(self.child) do
 		v:invalidatePosition()
 	end
 end
@@ -2540,7 +2540,7 @@ function UIElement:uiText(input, x, y, font, align, scale, angle, shadow, col1, 
 	local fontModScale = font_mod * 10 * scale * baselineScale
 	self.startLine = 1
 	if (textfield and fontModScale * #str > self.size.h - y2) then
-		for i, _ in pairs(str) do
+		for i, _ in ipairs(str) do
 			if (self.textfieldindex < indices[i + 1]) then
 				local newLine = i - math.floor(self.size.h / font_mod / 10 / scale / baselineScale) + 1
 				if (newLine + 1 < self.startLine) then
@@ -2785,7 +2785,7 @@ _G.table.qsort = function(list, sort, _order, includeZeros)
 		---@diagnostic disable-next-line: cast-local-type
 		order = { _order and 1 or -1 }
 	else
-		for i, v in pairs(_order) do
+		for i, v in ipairs(_order) do
 			order[i] = v and 1 or -1
 		end
 	end
@@ -2801,7 +2801,7 @@ _G.table.qsort = function(list, sort, _order, includeZeros)
 	order = table.reverse(order)
 	table.sort(arr, function(a,b)
 			local cmpRes = false
-			for i, v in pairs(sort) do
+			for i, v in ipairs(sort) do
 				local val1 = a[v] == 0 and (includeZeros and 0 or b[v] - (order[i] and order[i] or order[1])) or a[v]
 				local val2 = b[v] == 0 and (includeZeros and 0 or a[v] - (order[i] and order[i] or order[1])) or b[v]
 				if (type(val1) == "string" or type(val2) == "string") then
