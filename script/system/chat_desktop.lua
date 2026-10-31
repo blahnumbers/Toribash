@@ -210,7 +210,39 @@ end
 ---Changes only when a tab is added, closed, renamed, moved or resized
 ---@param tabs table<integer, DesktopChatTab>
 ---@return string
+local layout_values, layout_values_key = {}, nil
 local function get_layout_key(tabs)
+	-- Same tabs with the same values as last time: same key, without building it again
+	local v = layout_values
+	if layout_values_key then
+		local same, n = true, 0
+		for i = 1, MAX_TABS do
+			local tab = tabs[i]
+			if tab then
+				local base = n * 9
+				if v[base + 1] ~= i or v[base + 2] ~= tab.name or v[base + 3] ~= tab.whisper or v[base + 4] ~= tab.closable
+					or v[base + 5] ~= tab.x or v[base + 6] ~= tab.y or v[base + 7] ~= tab.w or v[base + 8] ~= tab.h then
+					same = false
+					break
+				end
+				n = n + 1
+			end
+		end
+		if same and n == v.count then
+			return layout_values_key
+		end
+	end
+	local n = 0
+	for i = 1, MAX_TABS do
+		local tab = tabs[i]
+		if tab then
+			local base = n * 9
+			v[base + 1], v[base + 2], v[base + 3], v[base + 4] = i, tab.name, tab.whisper, tab.closable
+			v[base + 5], v[base + 6], v[base + 7], v[base + 8] = tab.x, tab.y, tab.w, tab.h
+			n = n + 1
+		end
+	end
+	v.count = n
 	local parts = {}
 	for i = 1, MAX_TABS do
 		local tab = tabs[i]
@@ -227,7 +259,8 @@ local function get_layout_key(tabs)
 			}, ":")
 		end
 	end
-	return table.concat(parts, "|")
+	layout_values_key = table.concat(parts, "|")
+	return layout_values_key
 end
 
 ---@param view DesktopChatTabView

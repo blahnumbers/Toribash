@@ -199,14 +199,18 @@ local function build_picker_button(input, scale)
 	end)
 end
 
-local function on_pre_draw()
-	local input = get_desktop_chat_input()
-	if not input or TB_MENU_MAIN_ISOPEN == 1 or TB_MENU_SPECIAL_SCREEN_ISOPEN == 1 then
-		destroy_emoji_ui()
-		return
-	end
+-- The keys below only change when one of their values does, so they're only rebuilt then
+local input_values, input_values_key = {}, nil
 
-	local key = table.concat({
+---@return string
+local function get_input_key(input)
+	local v = input_values
+	if input_values_key and v[1] == input.x and v[2] == input.y and v[3] == input.w and v[4] == input.h
+		and v[5] == input.visible and v[6] == input.skin and v[7] == input.focused then
+		return input_values_key
+	end
+	v[1], v[2], v[3], v[4], v[5], v[6], v[7] = input.x, input.y, input.w, input.h, input.visible, input.skin, input.focused
+	input_values_key = table.concat({
 		input.x,
 		input.y,
 		input.w,
@@ -215,6 +219,49 @@ local function on_pre_draw()
 		tostring(input.skin),
 		tostring(input.focused),
 	}, ":")
+	return input_values_key
+end
+
+local regions_values, regions_values_key = {}, nil
+
+---@param regions DesktopChatEmojiRegion[]
+---@param include boolean
+---@return string
+local function get_regions_key(regions, include)
+	local v = regions_values
+	local count = include and #regions or 0
+	if regions_values_key and v.count == count then
+		local same = true
+		for i = 1, count do
+			local region, base = regions[i], (i - 1) * 4
+			if v[base + 1] ~= region.emoji or v[base + 2] ~= region.x or v[base + 3] ~= region.y or v[base + 4] ~= region.size then
+				same = false
+				break
+			end
+		end
+		if same then
+			return regions_values_key
+		end
+	end
+	v.count = count
+	local parts = {}
+	for i = 1, count do
+		local region, base = regions[i], (i - 1) * 4
+		v[base + 1], v[base + 2], v[base + 3], v[base + 4] = region.emoji, region.x, region.y, region.size
+		parts[#parts + 1] = table.concat({ region.emoji, region.x, region.y, region.size }, ":")
+	end
+	regions_values_key = table.concat(parts, "|")
+	return regions_values_key
+end
+
+local function on_pre_draw()
+	local input = get_desktop_chat_input()
+	if not input or TB_MENU_MAIN_ISOPEN == 1 or TB_MENU_SPECIAL_SCREEN_ISOPEN == 1 then
+		destroy_emoji_ui()
+		return
+	end
+
+	local key = get_input_key(input)
 	if key == input_key then
 		return
 	end
@@ -238,13 +285,7 @@ end
 local function update_chat_tooltips()
 	---@type DesktopChatEmojiRegion[]
 	local regions = get_desktop_chat_emoji_regions() or {}
-	local parts = {}
-	if input_root and not picker then
-		for _, region in ipairs(regions) do
-			parts[#parts + 1] = table.concat({ region.emoji, region.x, region.y, region.size }, ":")
-		end
-	end
-	local key = table.concat(parts, "|")
+	local key = get_regions_key(regions, input_root ~= nil and not picker)
 	if key == regions_key then
 		return
 	end

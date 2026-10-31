@@ -124,6 +124,10 @@ _G.DEFSHADOWCOLOR = _G.DEFSHADOWCOLOR or { 0, 0, 0, 0.6 }
 _G.UIElementManager = _G.UIElementManager or {}
 ---@type UIElement[][]
 _G.UIVisualManager = _G.UIVisualManager or {}
+---Goes up whenever any element's position is marked dirty. drawVisuals() skips the position pass for a
+---globalid when nothing was marked since it last ran it: that pass only touches dirty elements
+_G.UIPositionGeneration = _G.UIPositionGeneration or 0
+local UIPositionUpdated = {}
 ---@type UIElement[]
 _G.UIViewportManager = _G.UIViewportManager or {}
 ---@type UIElement[]
@@ -491,6 +495,7 @@ function UIElement.new(_self, o)
 					__positionDirty = true
 					}
 	setmetatable(elem, UIElement)
+	_G.UIPositionGeneration = _G.UIPositionGeneration + 1
 
 	if (o.parent) then
 		elem.globalid = o.parent.globalid
@@ -1319,10 +1324,14 @@ function UIElement.drawVisuals(object, globalid)
 	local globalid = (type(object) == "table" and (object.globalid or globalid) or object)
 	if (UIVisualManager[globalid] == nil) then return end
 
-	for _, v in pairs(UIElementManager) do
-		if (v.globalid == globalid and v.parent == nil) then
-			v:updatePos()
+	local generation = _G.UIPositionGeneration
+	if (UIPositionUpdated[globalid] ~= generation) then
+		for _, v in pairs(UIElementManager) do
+			if (v.globalid == globalid and v.parent == nil) then
+				v:updatePos()
+			end
 		end
+		UIPositionUpdated[globalid] = generation
 	end
 	for _, v in pairs(UIVisualManager[globalid]) do
 		v:display()
@@ -2175,6 +2184,7 @@ end
 
 ---Marks position as dirty for current UIElement and all its children
 function UIElement:invalidatePosition()
+	_G.UIPositionGeneration = _G.UIPositionGeneration + 1
 	if (self.parent ~= nil) then
 		self.__positionDirty = true
 	end
