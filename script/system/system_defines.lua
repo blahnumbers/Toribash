@@ -1999,6 +1999,39 @@ function load_player(player, name) end
 ---@return ColorId relax_color
 function get_joint_colors(player, joint) end
 
+---@class PlayerBodyColors
+---@field color ColorId Body color (the torso color on torso parts)
+---@field primary ColorId Primary gradient color
+---@field secondary ColorId Secondary gradient color
+---@field item ColorId|nil 3D item color, when there's a 3D item on this body part
+---@field grab_item ColorId|nil Color of a hand's 3D item shown while it grabs
+
+---@class PlayerJointColors
+---@field force ColorId
+---@field relax ColorId
+---@field item ColorId|nil 3D item color, when there's a 3D item on this joint
+
+---@class PlayerColors
+---@field blood ColorId
+---@field ghost ColorId
+---@field impact ColorId
+---@field grip ColorId
+---@field text ColorId
+---@field timer ColorId
+---@field emote ColorId
+---@field bruise ColorId
+---@field trails table<integer, ColorId> Trail colors: 0 left hand, 1 right hand, 2 left foot, 3 right foot
+---@field bodies table<integer, PlayerBodyColors> Keyed by body id
+---@field joints table<integer, PlayerJointColors> Keyed by joint id
+---@field hairs ColorId[] Colors of the player's hairs
+
+---Returns every color a player wears (0 is none, the default look)
+---
+---**Since 5.78**
+---@param player integer
+---@return PlayerColors
+function get_player_colors(player) end
+
 ---@deprecated
 ---@param player integer
 ---@param joint PlayerJoint
@@ -3645,6 +3678,14 @@ function shoot_ray(start_x, start_y, start_z, end_x, end_y, end_z, ...) end
 ---@return integer|nil geomId Geom id that was hit first
 ---@return number|nil distance Distance from camera to the returned `geomId`
 function shoot_camera_ray(pos_x, pos_y, length) end
+
+---Returns the fighter part under the mouse cursor, checking every fighter shown in any game mode. Doesn't select anything.
+---
+---**Since 5.78**
+---@return integer|nil player
+---@return integer|nil body Body id or -1 when it's a joint
+---@return integer|nil joint Joint id or -1 when it's a body part
+function get_mouse_player_part() end
 
 
 --[[ OTHER FUNCTIONS ]]
