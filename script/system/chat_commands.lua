@@ -33,7 +33,7 @@ return {
 		requireOperator = true
 	},
 	{
-		cmd = "opt",
+		cmd = { "opt", "option" },
 		info = "/opt ^38option ^47[value] %125- view or set new option value",
 		regex = "^(/%w+) ?(%w*) ?(%w*).*",
 		replacement = "/opt %2 %3"

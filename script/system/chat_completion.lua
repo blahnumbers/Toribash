@@ -14,6 +14,7 @@
 ---@field font integer
 ---@field hintFont integer
 ---@field request integer Goes up each time Tab asks for the reference
+---@field dismissed integer? Goes up each time Escape closes the reference (newer executables)
 ---@field x number
 ---@field y number
 ---@field w number
@@ -62,8 +63,15 @@ local AUTH_LEVELS = { halfop = 1, op = 2, admin = 3 }
 ---The engine's help text for server commands it has no usage line for
 local PRIVILEGED_HELP = "Requires room permissions"
 local SERVER_HELP = "Server command"
----Placeholders older executables list among the commands (GET, POST and ECHO are protocol words)
-local HIDDEN_COMMANDS = { GET = true, POST = true, ECHO = true, chat = true, invokecrash = true }
+---Placeholders older executables list among the commands (GET, POST and ECHO are protocol words), and the
+---engine's server commands that game servers don't have
+local HIDDEN_COMMANDS = { GET = true, POST = true, ECHO = true, chat = true, invokecrash = true, unpause = true, giftnudge = true }
+---Who the server accepts each of its commands from: the level `get_permissions()` reports
+---@type table<string, integer>
+local server_auth = {}
+for _, command in ipairs(server_commands) do
+	server_auth[command.cmd] = AUTH_LEVELS[command.auth] or 0
+end
 
 ---@type UIElement?
 local reference_root
@@ -77,6 +85,9 @@ local changed_at = 0
 ---@type string?
 local dismissed_text
 local last_request = 0
+---How many times the engine had closed it on Escape when last checked
+---@type integer?
+local last_dismissal
 ---Tab asked for it, so it shows straight away, even for a lone / or after arguments
 local is_forced = false
 ---@type DesktopChatPermissions?
@@ -255,15 +266,20 @@ local function get_matching_rows(input, entries)
 	for _, entry in ipairs(entries) do
 		local is_covered = args == nil and (covered[entry.text:lower()] or covered[entry.alias:lower()])
 		local help = entry.help or ""
-		if not HIDDEN_COMMANDS[entry.text] and not is_covered and (help ~= PRIVILEGED_HELP or access.level >= AUTH_LEVELS.halfop) then
+		local before, after = input.text:sub(1, input.caret), input.text:sub(input.caret + 1)
+		-- Everything before the word under the caret: just the slash while it's the command
+		local head = args ~= nil and before:match("^(.* )") or "/"
+		-- The engine's idea of who may use a server command is out of date, chat_server_commands.lua has the server's
+		local needed_level = head == "/" and server_auth[entry.text:lower()] or 0
+		if not HIDDEN_COMMANDS[entry.text] and not is_covered and access.level >= needed_level
+			and (help ~= PRIVILEGED_HELP or access.level >= AUTH_LEVELS.halfop) then
 			if args ~= nil then
-				-- An argument: fills in the word under the caret
-				local before, after = input.text:sub(1, input.caret), input.text:sub(input.caret + 1)
+				-- Fills in the word under the caret: an argument, or the command itself when the caret is back in it
 				local rest = after:gsub("^[^ ]*", "")
-				local word = before:match("[^ ]*$") or ""
+				local word = before:sub(#head + 1)
 				add_row(
-					entry.text .. (help ~= "" and " %125- " .. help or ""),
-					before:gsub("[^ ]*$", "") .. entry.text .. (rest == "" and " " or rest),
+					(head == "/" and "/" or "") .. entry.text .. (help ~= "" and " %125- " .. help or ""),
+					head .. entry.text .. (rest == "" and " " or rest),
 					entry.text:lower() == word:lower()
 				)
 			else
@@ -394,6 +410,18 @@ local function on_pre_draw()
 			dismissed_text = nil
 		end
 		draft_key, changed_at, is_forced = key, UIElement.clock, false
+	end
+	-- The engine closes it on Escape while the chat input has the keys, and counts each time
+	if input.dismissed and input.dismissed ~= last_dismissal then
+		local was_counting = last_dismissal ~= nil
+		last_dismissal = input.dismissed
+		if was_counting and reference_root then
+			destroy_reference()
+			dismissed_text = input.text
+			-- Still Escape's: the chat input must not act on it as well
+			set_desktop_chat_reference(false, true)
+			return
+		end
 	end
 	if input.request ~= last_request then
 		last_request, is_forced, dismissed_text = input.request, true, nil

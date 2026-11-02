@@ -23,7 +23,6 @@ return {
 	{ cmd = "fenter", info = "/fenter ^47username %125- force a player into the queue", auth = "halfop" },
 	{ cmd = "knockout", info = "/knockout ^47on|off %125- toggle knockout mode", auth = "halfop" },
 	{ cmd = "pause", info = "/pause ^47on|off %125- pause or resume the fight", auth = "halfop" },
-	{ cmd = "unpause", info = "/unpause %125- resume the fight", auth = "halfop" },
 	{ cmd = "op", info = "/op ^47username %125- make a player a room operator", auth = "op" },
 	{ cmd = "deop", info = "/deop ^47username %125- remove a player's room operator status", auth = "op" },
 	{ cmd = "passwd", info = "/passwd ^47password|clear %125- set or clear the room's password", auth = "op" },
