@@ -1642,14 +1642,27 @@ function Settings:getSettingsData(id)
 						hidden = is_mobile() or get_option("legacychat") == nil
 					},
 					{
-						-- Readability (5.78): a dark box behind the chat lines, both chats; older clients lack the option
+						-- Readability (5.78): a box behind the chat lines, both chats; older clients lack the option
 						name = TB_MENU_LOCALIZED.SETTINGSCHATBACKGROUND or "Chat background",
-						hint = TB_MENU_LOCALIZED.SETTINGSCHATBACKGROUNDHINT or "A dark box behind the chat to make it easier to read. 0 turns it off",
+						hint = TB_MENU_LOCALIZED.SETTINGSCHATBACKGROUNDHINT or "A box behind the chat to make it easier to read. 0 turns it off",
 						type = SLIDER,
 						maxValue = 100,
 						systemname = "chatbackground",
 						val = { Settings.GetGhostOption("chatbackground") },
 						hidden = get_option("chatbackground") == nil
+					},
+					{
+						name = TB_MENU_LOCALIZED.SETTINGSCHATBACKGROUNDCOLOR or "Chat background color",
+						hint = TB_MENU_LOCALIZED.SETTINGSCHATBACKGROUNDCOLORHINT or "Automatic is white behind dark text and black behind light text",
+						type = DROPDOWN,
+						systemname = "chatbackgroundcolor",
+						selectedAction = function()
+								local _, selected = Settings.GetChatColorDropdown("chatbackgroundcolor")
+								return selected
+							end,
+						dropdown = Settings.GetChatColorDropdown("chatbackgroundcolor"),
+						dropdownHeight = 300,
+						hidden = get_option("chatbackgroundcolor") == nil
 					},
 					{
 						name = TB_MENU_LOCALIZED.SETTINGSCHATTEXTCOLOR or "Chat text color",
@@ -2316,14 +2329,15 @@ function Settings.GetGhostColorDropdown(name)
 	return dropdown, selected
 end
 
----Choices for a chat color option: Default (the chat's own colors), then colors that stand out on most backgrounds
----@param name string chattextcolor or chatnamecolor
+---Choices for a chat color option: Default (the chat's own colors, or for the background a color that contrasts
+---with the text), then colors that stand out on most backgrounds
+---@param name string chattextcolor, chatnamecolor or chatbackgroundcolor
 ---@return table[] dropdown
 ---@return integer selected
 function Settings.GetChatColorDropdown(name)
 	local L = TB_MENU_LOCALIZED
 	local colors = {
-		{ id = 0, name = L.SETTINGSCHATCOLORDEFAULT or "Default" },
+		{ id = 0, name = name == "chatbackgroundcolor" and (L.SETTINGSCHATBACKGROUNDAUTO or "Automatic") or (L.SETTINGSCHATCOLORDEFAULT or "Default") },
 		{ id = COLORS.WHITE, name = L.SETTINGSCOLORWHITE or "White" },
 		{ id = COLORS.BLACK, name = L.SETTINGSCOLORBLACK or "Black" },
 		{ id = COLORS.GREY, name = L.SETTINGSCOLORGREY or "Grey" },
