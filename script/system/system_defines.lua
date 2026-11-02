@@ -1416,12 +1416,13 @@ function get_grip_info(player, hand) end
 function set_grip_info(player, hand, state) end
 
 ---Returns information about gripped object. \
----*This function will only return `-1` if player isn't grabbing anything*
+---*This function will only return `-1` if player isn't grabbing anything* \
+---For a fighter's body, the third value is the body's index (extra bodies included)
 ---@param player integer
 ---@param hand integer
 ---@return integer playerId
 ---@return integer ?bodyType
----@return integer ?limbId
+---@return integer ?bodyId
 ---@return integer ?anchor_x
 ---@return integer ?anchor_y
 ---@return integer ?anchor_z
