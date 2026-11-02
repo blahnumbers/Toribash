@@ -109,6 +109,65 @@ local TORSO_BODIES = { [1] = true, [2] = true, [5] = true, [8] = true }
 -- Body id to trail id: the trails are left hand, right hand, left foot, right foot
 local TRAIL_BODIES = { [12] = 0, [11] = 1, [20] = 2, [19] = 3 }
 
+-- Extra limbs (**5.78**): a mod can give a fighter more bodies and joints, numbered after the classic 21 and 20
+local CLASSIC_BODIES = 21
+local CLASSIC_JOINTS = 20
+-- As the engine has them: the body each classic joint's sphere sits on, and the joint each classic body belongs to
+local JOINT_CARRIERS = { [0] = 0, 1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 15, 16, 18, 17 }
+local BODY_JOINTS = { [0] = 0, 0, 3, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17, 16, 18, 19 }
+
+---How many bodies a fighter has, extra limbs included
+---@param player integer
+---@return integer
+function Tooltip.GetBodyCount(player)
+	local ok, count = pcall(get_num_bodies, player)
+	return ok and tonumber(count) or CLASSIC_BODIES
+end
+
+---How many joints a fighter has, extra limbs included
+---@param player integer
+---@return integer
+function Tooltip.GetJointCount(player)
+	local ok, count = pcall(get_num_joints, player)
+	return ok and tonumber(count) or CLASSIC_JOINTS
+end
+
+---The classic joint whose colors and state names a joint has, worked out like the engine does: a classic joint
+---is its own, an extra joint goes up the bodies its limb hangs from to a classic body and takes that body's joint
+---@param player integer
+---@param joint integer
+---@return integer
+function Tooltip.GetStyleJoint(player, joint)
+	if (joint < CLASSIC_JOINTS) then
+		return joint
+	end
+	local ok, styleJoint = pcall(function()
+			local function getCarrier(j)
+				local body1, body2 = get_joint_bodies(player, j)
+				local classic = JOINT_CARRIERS[j]
+				return (classic == body1 or classic == body2) and classic or body2
+			end
+			local function getParentBody(body)
+				for j = 0, Tooltip.GetJointCount(player) - 1 do
+					if (getCarrier(j) == body) then
+						local body1, body2 = get_joint_bodies(player, j)
+						return body1 == body and body2 or body1
+					end
+				end
+				return -1
+			end
+			local body = get_joint_bodies(player, joint)
+			for _ = 1, 16 do
+				if (body < CLASSIC_BODIES) then
+					break
+				end
+				body = getParentBody(body)
+			end
+			return BODY_JOINTS[body] or BODY_JOINTS[1]
+		end)
+	return ok and styleJoint or 0
+end
+
 ---Whether color names on hover are on
 ---@return boolean
 function Tooltip.ColorNamesEnabled()
@@ -245,6 +304,9 @@ function Tooltip.GetColorRows(player, body, joint)
 	end
 
 	if (joint ~= nil and joint >= 0) then
+		-- Extra joints wear the force and relax colors of the classic joint they hang from, not its 3D item
+		local isExtra = joint >= CLASSIC_JOINTS
+		joint = Tooltip.GetStyleJoint(player, joint)
 		local jointColors = colors and colors.joints and colors.joints[joint]
 		local force, relax = 0, 0
 		if (jointColors) then
@@ -257,12 +319,13 @@ function Tooltip.GetColorRows(player, body, joint)
 		end
 		add(L.TOOLTIPCOLORFORCE or "Force", force, COLORS.HOLD)
 		add(L.TOOLTIPCOLORRELAX or "Relax", relax, COLORS.RELAX)
-		if (jointColors and jointColors.item) then
+		if (jointColors and jointColors.item and not isExtra) then
 			add(L.TOOLTIPCOLORITEM or "3D item", jointColors.item)
 		end
 		return rows
 	end
-	if (body == nil or body < 0) then
+	if (body == nil or body < 0 or body >= CLASSIC_BODIES) then
+		-- Extra bodies wear the mod's color, nothing from the store
 		return rows
 	end
 
@@ -665,7 +728,7 @@ function Tooltip:showTooltipBody(player, body)
 	self.DestroyAndDeselect()
 
 	self.WorldState = get_world_state()
-	if (self.WorldState.replay_mode == 1 or body < 0 or body >= 21) then
+	if (self.WorldState.replay_mode == 1 or body < 0 or body >= self.GetBodyCount(player)) then
 		return
 	end
 
@@ -741,7 +804,7 @@ function Tooltip:showTooltipJoint(player, joint)
 
 	self.WorldState = get_world_state()
 	if (self.WorldState.replay_mode == 1 or
-		joint < 0 or joint >= 20 or
+		joint < 0 or joint >= self.GetJointCount(player) or
 		not self.IsActive or
 		get_option("tooltip") == 0) then
 		return 0
@@ -788,7 +851,7 @@ function Tooltip:showTooltipJoint(player, joint)
 		draw_disk(tbTooltipView.pos.x + 10 + jointTooltipState.size.h / 2, jointTooltipState.pos.y + jointTooltipState.size.h / 2, 0, jointTooltipState.size.h / 2, 20, 1, 0, 360, 0)
 	end
 
-	local force, relax = get_joint_colors(player, joint)
+	local force, relax = get_joint_colors(player, self.GetStyleJoint(player, joint))
 	if (force == 0) then
 		force = 23
 	end
@@ -893,20 +956,22 @@ function Tooltip:showTouchControls()
 
 	local jointStateTextColor = { 0, 0, 0, 0 }
 	local jointStateShadowColor = { 255, 255, 255, 0 }
+	-- Extra joints use the state names of the classic joint they hang from
+	local styleJoint = Tooltip.GetStyleJoint(TooltipInternal.TouchInputTargetPlayer, TooltipInternal.TouchInputTargetJoint)
 	if (wheelMode == 0 or wheelMode == 2) then
 		local touchControlsTopTitle = touchControlsHolder:addChild({
 			pos = { -touchControlsHolder.size.w - 150, -touchControlsHolder.size.h - 50 },
 			size = { 300 + touchControlsHolder.size.w, 30 }
 		})
 		---@diagnostic disable-next-line: param-type-mismatch
-		touchControlsTopTitle:addAdaptedText(true, get_joint_state_name(TooltipInternal.TouchInputTargetJoint, 3), nil, nil, FONTS.BIG, CENTERBOT, 0.6, nil, nil, 2, jointStateTextColor, jointStateShadowColor)
+		touchControlsTopTitle:addAdaptedText(true, get_joint_state_name(styleJoint, 3), nil, nil, FONTS.BIG, CENTERBOT, 0.6, nil, nil, 2, jointStateTextColor, jointStateShadowColor)
 
 		local touchControlsBotTitle = touchControlsHolder:addChild({
 			pos = { -touchControlsHolder.size.w - 150, touchControlsHolder.size.h + 20 },
 			size = { 300 + touchControlsHolder.size.w, 30 }
 		})
 		---@diagnostic disable-next-line: param-type-mismatch
-		touchControlsBotTitle:addAdaptedText(true, get_joint_state_name(TooltipInternal.TouchInputTargetJoint, 4), nil, nil, FONTS.BIG, CENTER, 0.6, nil, nil, 2, jointStateTextColor, jointStateShadowColor)
+		touchControlsBotTitle:addAdaptedText(true, get_joint_state_name(styleJoint, 4), nil, nil, FONTS.BIG, CENTER, 0.6, nil, nil, 2, jointStateTextColor, jointStateShadowColor)
 	end
 
 	if (wheelMode == 0 or wheelMode == 1) then
@@ -915,14 +980,14 @@ function Tooltip:showTouchControls()
 			size = { 250, 30 }
 		})
 		---@diagnostic disable-next-line: param-type-mismatch
-		touchControlsRightTitle:addAdaptedText(true, get_joint_state_name(TooltipInternal.TouchInputTargetJoint, 1), nil, nil, FONTS.BIG, LEFTMID, 0.6, nil, nil, 2, jointStateTextColor, jointStateShadowColor)
+		touchControlsRightTitle:addAdaptedText(true, get_joint_state_name(styleJoint, 1), nil, nil, FONTS.BIG, LEFTMID, 0.6, nil, nil, 2, jointStateTextColor, jointStateShadowColor)
 
 		local touchControlsLeftTitle = touchControlsHolder:addChild({
 			pos = { -touchControlsHolder.size.w - 270, touchControlsHolder.size.h / 2 - 15 },
 			size = { 250, 30 }
 		})
 		---@diagnostic disable-next-line: param-type-mismatch
-		touchControlsLeftTitle:addAdaptedText(true, get_joint_state_name(TooltipInternal.TouchInputTargetJoint, 2), nil, nil, FONTS.BIG, RIGHTMID, 0.6, nil, nil, 2, jointStateTextColor, jointStateShadowColor)
+		touchControlsLeftTitle:addAdaptedText(true, get_joint_state_name(styleJoint, 2), nil, nil, FONTS.BIG, RIGHTMID, 0.6, nil, nil, 2, jointStateTextColor, jointStateShadowColor)
 	end
 
 	touchControlsHolder.pressTimer = os.clock_real()
