@@ -266,7 +266,7 @@ _G.HAPTICS = {
 ---| 18	JOINTS.R_ANKLE
 ---| 19	JOINTS.L_ANKLE
 
----Joint names
+---Joint names: the classic joints only. A mod's extra joints come after them, from 20 to `get_num_joints(player) - 1`
 _G.JOINTS = {
 	NECK = 0,
 	CHEST = 1,
@@ -327,7 +327,7 @@ _G.JOINT_STATE = {
 ---| 19	BODYPARTS.R_FOOT
 ---| 20	BODYPARTS.L_FOOT
 
----Bodypart names
+---Bodypart names: the classic body parts only. A mod's extra bodies come after them, from 21 to `get_num_bodies(player) - 1`
 _G.BODYPARTS = {
 	HEAD = 0,
 	BREAST = 1,
@@ -1251,11 +1251,36 @@ function get_world_state() end
 ---@field sides Vector3Base
 ---@field shape ODEBodyShapeType
 
----Returns player body information
+---Returns player body information. ---*An extra body's `name` and `mod_name` are its name in the mod*
 ---@param player integer
----@param body PlayerBody
+---@param body PlayerBody|integer Classic body or extra body index
 ---@return BodyInfo
 function get_body_info(player, body) end
+
+---Returns how many body parts a fighter has: the 21 classic ones and a mod's extra bodies. ---Extra bodies take the indices after the classic ones (21 and up) and work with the other body functions. ---The `BODYPARTS` table only lists the classic ones.
+---
+---**Since 5.78**
+---@param player integer
+---@return integer
+function get_num_bodies(player) end
+
+---Returns how many joints a fighter has: the 20 classic ones and a mod's extra joints. ---Extra joints take the indices after the classic ones (20 and up) and work with the other joint functions,
+---and hooks such as `joint_select` pass them as they are. The `JOINTS` table only lists the classic ones.
+---
+---**Since 5.78**
+---@param player integer
+---@return integer
+function get_num_joints(player) end
+
+---Returns the two body parts a joint connects. For an extra joint, `body1` is the part it hangs from and `body2`
+---the part it moves (its joint sphere sits on `body2`).
+---
+---**Since 5.78**
+---@param player integer
+---@param joint PlayerJoint|integer Classic joint or extra joint index
+---@return PlayerBody|integer body1
+---@return PlayerBody|integer body2
+function get_joint_bodies(player, joint) end
 
 
 ---Sets player bodypart position
@@ -1342,9 +1367,9 @@ function set_body_torque(player, body, x, y, z) end
 ---@field name string
 ---@field mod_name string
 
----Returns player joint information
+---Returns player joint information. ---*An extra joint's `name` and `mod_name` are its name in the mod, its `screen_state` uses the state names of the classic joint it hangs from*
 ---@param player integer
----@param joint PlayerJoint
+---@param joint PlayerJoint|integer Classic joint or extra joint index
 ---@return JointInfo
 function get_joint_info(player, joint) end
 
@@ -1629,8 +1654,8 @@ function set_ghost(ghost_mode) end
 ---@field quat number[]
 
 ---@class PlayerGhostCache
----@field bodies BodyGhostData[]
----@field joints BodyGhostData[]
+---@field bodies BodyGhostData[] Classic body parts, then the fighter's extra bodies
+---@field joints BodyGhostData[] Classic joints, then the fighter's extra joints
 
 ---@class GhostFrameCache
 ---@field envs BodyGhostData[]
