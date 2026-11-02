@@ -853,8 +853,11 @@ function TBHud:spawnHoldRelaxAllButton()
 	})
 	holdAllText:addAdaptedText(TB_MENU_LOCALIZED.MOBILEHUDHOLDALL, nil, nil, FONTS.LMEDIUM, nil, 0.5)
 	holdRelaxAllButton:addMouseUpHandler(function()
-		for _, v in pairs(JOINTS) do
-			set_joint_state(self.WorldState.selected_player, v, holdAll and JOINT_STATE.HOLD or JOINT_STATE.RELAX, true)
+		-- Every joint, a mod's extra joints too
+		local player = self.WorldState.selected_player
+		local ok, jointCount = pcall(get_num_joints, player)
+		for joint = 0, (ok and jointCount or 20) - 1 do
+			set_joint_state(player, joint, holdAll and JOINT_STATE.HOLD or JOINT_STATE.RELAX, true)
 		end
 	end)
 	local function toggleButtonsDisplay(state)

@@ -1,0 +1,244 @@
+# Stress test: 16 extra bodies and 16 extra joints (four 4-segment tails)
+
+env_obj 0
+
+body t0_0
+shape box
+sides 0.07 0.12 0.07
+pos 1.00 1.20 1.50
+density 2
+
+joint jt0_0
+connect groin t0_0
+pos 1.00 1.13 1.50
+axis 1 0 0
+radius 0.05
+range 0.8 -0.8
+strength 2
+velocity 10
+
+body t0_1
+shape box
+sides 0.07 0.12 0.07
+pos 1.00 1.34 1.50
+density 2
+
+joint jt0_1
+connect t0_0 t0_1
+pos 1.00 1.27 1.50
+axis 0 0 1
+radius 0.05
+range 0.8 -0.8
+strength 2
+velocity 10
+
+body t0_2
+shape box
+sides 0.07 0.12 0.07
+pos 1.00 1.48 1.50
+density 2
+
+joint jt0_2
+connect t0_1 t0_2
+pos 1.00 1.41 1.50
+axis 1 0 0
+radius 0.05
+range 0.8 -0.8
+strength 2
+velocity 10
+
+body t0_3
+shape box
+sides 0.07 0.12 0.07
+pos 1.00 1.62 1.50
+density 2
+
+joint jt0_3
+connect t0_2 t0_3
+pos 1.00 1.55 1.50
+axis 0 0 1
+radius 0.05
+range 0.8 -0.8
+strength 2
+velocity 10
+
+body t1_0
+shape box
+sides 0.07 0.12 0.07
+pos 1.00 1.15 1.95
+density 2
+
+joint jt1_0
+connect chest t1_0
+pos 1.00 1.08 1.95
+axis 1 0 0
+radius 0.05
+range 0.8 -0.8
+strength 2
+velocity 10
+
+body t1_1
+shape box
+sides 0.07 0.12 0.07
+pos 1.00 1.29 1.95
+density 2
+
+joint jt1_1
+connect t1_0 t1_1
+pos 1.00 1.22 1.95
+axis 0 0 1
+radius 0.05
+range 0.8 -0.8
+strength 2
+velocity 10
+
+body t1_2
+shape box
+sides 0.07 0.12 0.07
+pos 1.00 1.43 1.95
+density 2
+
+joint jt1_2
+connect t1_1 t1_2
+pos 1.00 1.36 1.95
+axis 1 0 0
+radius 0.05
+range 0.8 -0.8
+strength 2
+velocity 10
+
+body t1_3
+shape box
+sides 0.07 0.12 0.07
+pos 1.00 1.57 1.95
+density 2
+
+joint jt1_3
+connect t1_2 t1_3
+pos 1.00 1.50 1.95
+axis 0 0 1
+radius 0.05
+range 0.8 -0.8
+strength 2
+velocity 10
+
+body t2_0
+shape box
+sides 0.07 0.12 0.07
+pos 0.80 1.20 1.40
+density 2
+
+joint jt2_0
+connect r_butt t2_0
+pos 0.80 1.13 1.40
+axis 1 0 0
+radius 0.05
+range 0.8 -0.8
+strength 2
+velocity 10
+
+body t2_1
+shape box
+sides 0.07 0.12 0.07
+pos 0.80 1.34 1.40
+density 2
+
+joint jt2_1
+connect t2_0 t2_1
+pos 0.80 1.27 1.40
+axis 0 0 1
+radius 0.05
+range 0.8 -0.8
+strength 2
+velocity 10
+
+body t2_2
+shape box
+sides 0.07 0.12 0.07
+pos 0.80 1.48 1.40
+density 2
+
+joint jt2_2
+connect t2_1 t2_2
+pos 0.80 1.41 1.40
+axis 1 0 0
+radius 0.05
+range 0.8 -0.8
+strength 2
+velocity 10
+
+body t2_3
+shape box
+sides 0.07 0.12 0.07
+pos 0.80 1.62 1.40
+density 2
+
+joint jt2_3
+connect t2_2 t2_3
+pos 0.80 1.55 1.40
+axis 0 0 1
+radius 0.05
+range 0.8 -0.8
+strength 2
+velocity 10
+
+body t3_0
+shape box
+sides 0.07 0.12 0.07
+pos 1.20 1.20 1.40
+density 2
+
+joint jt3_0
+connect l_butt t3_0
+pos 1.20 1.13 1.40
+axis 1 0 0
+radius 0.05
+range 0.8 -0.8
+strength 2
+velocity 10
+
+body t3_1
+shape box
+sides 0.07 0.12 0.07
+pos 1.20 1.34 1.40
+density 2
+
+joint jt3_1
+connect t3_0 t3_1
+pos 1.20 1.27 1.40
+axis 0 0 1
+radius 0.05
+range 0.8 -0.8
+strength 2
+velocity 10
+
+body t3_2
+shape box
+sides 0.07 0.12 0.07
+pos 1.20 1.48 1.40
+density 2
+
+joint jt3_2
+connect t3_1 t3_2
+pos 1.20 1.41 1.40
+axis 1 0 0
+radius 0.05
+range 0.8 -0.8
+strength 2
+velocity 10
+
+body t3_3
+shape box
+sides 0.07 0.12 0.07
+pos 1.20 1.62 1.40
+density 2
+
+joint jt3_3
+connect t3_2 t3_3
+pos 1.20 1.55 1.40
+axis 0 0 1
+radius 0.05
+range 0.8 -0.8
+strength 2
+velocity 10
+

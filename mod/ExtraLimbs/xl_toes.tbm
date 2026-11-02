@@ -1,0 +1,31 @@
+# Extra limbs example: toes on both feet (Toribash 5.78+)
+
+env_obj 0
+
+body r_toes
+shape box
+sides 0.2 0.14 0.06
+pos 0.8 0.58 0.07
+
+body l_toes
+shape box
+sides 0.2 0.14 0.06
+pos 1.2 0.58 0.07
+
+joint r_toe
+connect r_foot r_toes
+pos 0.8 0.65 0.07
+axis 1 0 0
+radius 0.05
+range 0.6 -0.6
+strength 1
+velocity 8
+
+joint l_toe
+connect l_foot l_toes
+pos 1.2 0.65 0.07
+axis 1 0 0
+radius 0.05
+range 0.6 -0.6
+strength 1
+velocity 8

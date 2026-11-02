@@ -15,6 +15,8 @@ local rotation = dofile("system/betterghost/b_utils/b_utils_rot.lua")
 ---@class BetterGhostPlayerShapes
 ---@field bodies table<PlayerBody, UIElement3D>
 ---@field joints table<PlayerJoint, UIElement3D>
+---@field body_count integer
+---@field joint_count integer
 
 ---How the ghost cache stores a body part or an environment object
 ---@class BetterGhostCachedBody
@@ -50,6 +52,10 @@ local player_shapes = {}
 ---@type table<integer, table<PlayerJoint, Vector3Base>>
 local joint_offsets = {}
 
+---The body part each joint moves with, for each fighter
+---@type table<integer, table<PlayerJoint, PlayerBody>>
+local joint_parents = {}
+
 ---@type UIElement3D[]
 local environment_shapes = {}
 
@@ -58,6 +64,34 @@ local environment_shapes = {}
 local environment_ids = {}
 
 local is_visible = false
+
+---How many joints and body parts a fighter has: the classic ones plus a mod's extra limbs
+---@param player integer
+---@return integer joint_count
+---@return integer body_count
+local function get_part_counts(player)
+	if get_num_joints == nil or player >= get_world_state().num_players then
+		return JOINT_COUNT, BODY_COUNT
+	end
+	return get_num_joints(player), get_num_bodies(player)
+end
+
+---The body part each joint of a fighter moves with, as the engine picks it: a classic joint keeps its classic
+---part while it still connects it (a mod can re-wire it), any other joint goes with the second part it connects
+---@param player integer
+---@return table<PlayerJoint, PlayerBody>
+local function get_joint_parents(player)
+	if get_joint_bodies == nil then
+		return JOINT_PARENTS
+	end
+	local parents = {}
+	for joint = 0, get_part_counts(player) - 1 do
+		local body1, body2 = get_joint_bodies(player, joint)
+		local classic = JOINT_PARENTS[joint]
+		parents[joint] = (classic == body1 or classic == body2) and classic or body2
+	end
+	return parents
+end
 
 ---@param count integer
 ---@return table<integer, UIElement3D>
@@ -185,8 +219,19 @@ end
 local function draw_player(player, cache, colour)
 	local shapes = player_shapes[player]
 
-	for joint = 0, JOINT_COUNT - 1 do
-		local parent_rotation = rotation.from_array(cache.bodies[JOINT_PARENTS[joint] + 1].quat)
+	-- Only what the cache holds (an older engine's cache has the classic parts only)
+	local joint_count = math.min(shapes.joint_count, #cache.joints)
+	local body_count = math.min(shapes.body_count, #cache.bodies)
+	for i = joint_count, shapes.joint_count - 1 do
+		shapes.joints[i].bgColor = { 0, 0, 0, 0 }
+	end
+	for i = body_count, shapes.body_count - 1 do
+		shapes.bodies[i].bgColor = { 0, 0, 0, 0 }
+	end
+
+	local parents = joint_parents[player]
+	for joint = 0, joint_count - 1 do
+		local parent_rotation = rotation.from_array(cache.bodies[parents[joint] + 1].quat)
 		local offset = vector3.rotate_by_inverse(rotation.invert(parent_rotation), joint_offsets[player][joint])
 		local position = vector3.add(vector3.from_array(cache.joints[joint + 1].pos), offset)
 
@@ -196,7 +241,7 @@ local function draw_player(player, cache, colour)
 		shape.bgColor = colour
 	end
 
-	for body = 0, BODY_COUNT - 1 do
+	for body = 0, body_count - 1 do
 		local body_info = get_body_info(player, body)
 		local shape = shapes.bodies[body]
 		place_shape(shape, cache.bodies[body + 1])
@@ -249,17 +294,43 @@ end
 ---@return table<PlayerJoint, Vector3Base>
 local function get_joint_offsets(player)
 	local offsets = {}
-	for joint = 0, JOINT_COUNT - 1 do
-		local parent = get_body_info(player, JOINT_PARENTS[joint])
+	local parents = joint_parents[player]
+	for joint = 0, get_part_counts(player) - 1 do
+		local parent = get_body_info(player, parents[joint])
 		local offset = vector3.subtract(get_joint_pos2(player, joint), parent.pos)
 		offsets[joint] = vector3.rotate_by_inverse(rotation.from_matrix(parent.rot), offset)
 	end
 	return offsets
 end
 
+---Shapes for every joint and body part of a fighter, made again when a mod changes how many it has
+---@param player integer
+local function update_player_shapes(player)
+	local joint_count, body_count = get_part_counts(player)
+	local shapes = player_shapes[player]
+	if shapes ~= nil and shapes.joint_count == joint_count and shapes.body_count == body_count then
+		return
+	end
+	if shapes ~= nil then
+		kill_shapes(shapes.joints)
+		kill_shapes(shapes.bodies)
+	end
+	player_shapes[player] = {
+		joints = create_shapes(joint_count),
+		bodies = create_shapes(body_count),
+		joint_count = joint_count,
+		body_count = body_count,
+	}
+end
+
 local function on_match_begin()
+	for player = 0, MAX_DRAWN_PLAYERS - 1 do
+		update_player_shapes(player)
+	end
+	-- The fighters' shapes first, then the objects', in the order they've always been made (and drawn)
 	create_environment_shapes()
 	for player = 0, get_world_state().num_players - 1 do
+		joint_parents[player] = get_joint_parents(player)
 		joint_offsets[player] = get_joint_offsets(player)
 	end
 
@@ -316,11 +387,6 @@ function future_ghost.draw_at_frame(frame, player_colours, get_object_colour)
 	draw_environment(cache.envs, get_object_colour)
 end
 
-for player = 0, MAX_DRAWN_PLAYERS - 1 do
-	local joints = create_shapes(JOINT_COUNT)
-	local bodies = create_shapes(BODY_COUNT)
-	player_shapes[player] = { joints = joints, bodies = bodies }
-end
 on_match_begin()
 
 remove_hooks(HOOK_SET)
