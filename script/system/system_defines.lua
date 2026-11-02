@@ -1396,11 +1396,12 @@ function set_joint_state(player, joint, state, with_onchange_effects) end
 ---*This is identical to pressing `CTRL` + `Z`*
 function undo_move_changes() end
 
----Returns a joint-specific readable state name
----@param joint PlayerJoint
+---Returns a joint-specific readable state name. ---*An extra joint has the state names of the classic joint it hangs from; `player` (default 0, since 5.78) says whose extra joint it is*
+---@param joint PlayerJoint|integer Classic joint or extra joint index
 ---@param state PlayerJointState
+---@param player ?integer
 ---@return string
-function get_joint_state_name(joint, state) end
+function get_joint_state_name(joint, state, player) end
 
 ---Returns player grip state
 ---@param player integer
@@ -1707,16 +1708,16 @@ function set_gameover(gameover_type, winner_idx) end
 ---@param player integer
 function set_player_relax(player) end
 
----Returns player bodyparts' visual damage level
+---Returns player bodyparts' visual damage level. ---*Takes extra body indices too; the list without `bodypart` has the classic parts*
 ---@param player integer
----@param bodypart PlayerBody
+---@param bodypart PlayerBody|integer Classic body or extra body index
 ---@return number
 ---@overload fun(player:integer):number[]
 function get_body_bruise(player, bodypart) end
 
----Returns player joints' visual damage level
+---Returns player joints' visual damage level. ---*Takes extra joint indices too; the list without `joint` has the classic joints*
 ---@param player integer
----@param joint PlayerJoint
+---@param joint PlayerJoint|integer Classic joint or extra joint index
 ---@return number
 ---@overload fun(player:integer):number[]
 function get_joint_bruise(player, joint) end
@@ -2018,9 +2019,9 @@ function rename_replay_subfolder(path, new_path) end
 ---@param name string
 function load_player(player, name) end
 
----Returns joint color IDs
+---Returns joint color IDs. ---*An extra joint has the colors of the classic joint it hangs from*
 ---@param player integer
----@param joint PlayerJoint
+---@param joint PlayerJoint|integer Classic joint or extra joint index
 ---@return ColorId force_color
 ---@return ColorId relax_color
 function get_joint_colors(player, joint) end
@@ -2069,7 +2070,7 @@ function get_joint_color(player, joint) end
 ---@param player integer
 ---@param relax_color ColorId
 ---@param force_color ColorId
----@param joint ?PlayerJoint If specified, will only set the colors for that joint id
+---@param joint ?PlayerJoint|integer If specified, will only set the colors for that joint id. *An extra joint has the colors of the classic joint it hangs from, so this sets that joint's*
 function set_joint_color(player, relax_color, force_color, joint) end
 
 ---Sets joint relax color for the specified player
@@ -2087,15 +2088,15 @@ function set_joint_force_color(player, color) end
 ---@param color ColorId
 function set_joint_replay_color(player, color) end
 
----Sets selected joint relax color for the player
+---Sets selected joint relax color for the player. ---*An extra joint has the colors of the classic joint it hangs from, so this sets that joint's*
 ---@param player integer
----@param joint PlayerJoint
+---@param joint PlayerJoint|integer Classic joint or extra joint index
 ---@param color ColorId
 function set_selected_joint_relax_color(player, joint, color) end
 
----Sets selected joint force color for the player
+---Sets selected joint force color for the player. ---*An extra joint has the colors of the classic joint it hangs from, so this sets that joint's*
 ---@param player integer
----@param joint PlayerJoint
+---@param joint PlayerJoint|integer Classic joint or extra joint index
 ---@param color ColorId
 function set_selected_joint_force_color(player, joint, color) end
 
