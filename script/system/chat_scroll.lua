@@ -52,8 +52,20 @@ local function scroll_to(y)
 	set_desktop_chat_scroll(scroll_state.tab, math.floor(fraction * (scroll_state.total - scroll_state.visible) + 0.5))
 end
 
+---UIElement hands the wheel to every scrollable element wherever the mouse is: only scroll when it's over the
+---scrollbar, and never through the emoji picker
 ---@param wheel number
 local function scroll_by_wheel(wheel)
+	if
+		TB_CHAT_EMOJI_PICKER_OPEN
+		or not scroll_state
+		or MOUSE_X < scroll_state.x
+		or MOUSE_X > scroll_state.x + WIDTH
+		or MOUSE_Y < scroll_state.y
+		or MOUSE_Y > scroll_state.y + scroll_state.h
+	then
+		return
+	end
 	set_desktop_chat_scroll(scroll_state.tab, scroll_state.offset - wheel * WHEEL_LINES)
 end
 
@@ -107,7 +119,8 @@ local function on_pre_draw()
 	end
 
 	local key = table.concat({ current.tab, current.total, current.visible, current.x, current.y, current.h }, ":")
-	if key ~= layout_key then
+	-- Not rebuilt while the emoji picker is open: a new scrollbar would take the clicks meant for the picker
+	if key ~= layout_key and (not TB_CHAT_EMOJI_PICKER_OPEN or not scroll_root) then
 		destroy_scrollbar()
 		layout_key = key
 		build_scrollbar(current)
