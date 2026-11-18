@@ -34,14 +34,16 @@ if not get_desktop_chat_tabs or is_mobile() then
 end
 
 require("toriui.uielement3d")
+-- Hooks run in the order they're added, so what's required later draws on top: the scrollbar goes first,
+-- under the emoji picker and the command list
+if get_desktop_chat_scroll then
+	require("system.chat_scroll")
+end
 if get_desktop_chat_emojis then
 	require("system.chat_emoji")
 end
 if get_desktop_chat_completions then
 	require("system.chat_completion")
-end
-if get_desktop_chat_scroll then
-	require("system.chat_scroll")
 end
 
 local HOOK_SET = "desktopChatTabs"
