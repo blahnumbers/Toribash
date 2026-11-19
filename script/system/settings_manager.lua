@@ -562,201 +562,7 @@ function Settings:getSettingsData(id)
 						name = TB_MENU_LOCALIZED.SETTINGSVISUALSQUALITY,
 						type = DROPDOWN,
 						selectedAction = Settings:getGraphicsPreset(),
-						dropdown = {
-							{
-								text = TB_MENU_LOCALIZED.SETTINGSCUSTOM
-							},
-							{
-								text = TB_MENU_LOCALIZED.SETTINGSLOWEST,
-								action = function()
-										local options = {
-											{ opt = "shaders", val = 0, graphics = true, id = SHADERS },
-											{ opt = "fluid", val = 0, graphics = true, id = FLUIDBLOOD },
-											{ opt = "bloodstains", val = 0 },
-											{ opt = "framerate", val = 30 },
-											{ opt = "reflection", val = 0, graphics = true, id = REFLECTIONS },
-											{ opt = "softshadow", val = 0, graphics = true, id = SOFTSHADOWS },
-											{ opt = "ambientocclusion", val = 0, graphics = true, id = AMBIENTOCCLUSION },
-											{ opt = "bumpmapping", val = 0, graphics = true, id = BUMPMAPPING },
-											{ opt = "raytracing", val = 0, graphics = true, id = RAYTRACING },
-											{ opt = "trails", val = 0 },
-											{ opt = "hair", val = 0 },
-											{ opt = "hairquality", val = 0 },
-											{ opt = "obj", val = 0 },
-											{ opt = "bodytextures", val = 1, graphics = true, id = BODYTEXTURES },
-											{ opt = "effects", val = 0 },
-											{ opt = "particles", val = 0 },
-											{ opt = "fixedframerate", val = 1 },
-											{ opt = "uilight", val = 1 },
-											{ opt = "ghostobj", val = 0 },
-											{ opt = "itemeffects", val = 0, graphics = true, id = ITEMEFFECTS }
-										}
-										Settings.SetMacResolution()
-										for _, v in pairs(Settings.AdaptPresetFramerate(options)) do
-											if (v.graphics) then
-												set_graphics_option(v.id, v.val)
-											else
-												---@diagnostic disable-next-line: param-type-mismatch
-												set_option(v.opt, v.val)
-											end
-										end
-										save_custom_config()
-										reload_graphics()
-									end
-							},
-							{
-								text = TB_MENU_LOCALIZED.SETTINGSLOW,
-								action = function()
-									local options = {
-										{ opt = "shaders", val = 1, graphics = true, id = SHADERS },
-										{ opt = "fluid", val = 0, graphics = true, id = FLUIDBLOOD },
-										{ opt = "bloodstains", val = is_mobile() and 0 or 1 },
-										{ opt = "framerate", val = 30 },
-										{ opt = "reflection", val = 0, graphics = true, id = REFLECTIONS },
-										{ opt = "softshadow", val = 0, graphics = true, id = SOFTSHADOWS },
-										{ opt = "ambientocclusion", val = 0, graphics = true, id = AMBIENTOCCLUSION },
-										{ opt = "bumpmapping", val = 0, graphics = true, id = BUMPMAPPING },
-										{ opt = "raytracing", val = 0, graphics = true, id = RAYTRACING },
-										{ opt = "trails", val = 1 },
-										{ opt = "hair", val = 1 },
-										{ opt = "hairquality", val = 0 },
-										{ opt = "obj", val = 2 },
-										{ opt = "bodytextures", val = 1, graphics = true, id = BODYTEXTURES },
-										{ opt = "effects", val = 1 },
-										{ opt = "particles", val = is_mobile() and 0 or 1 },
-										{ opt = "fixedframerate", val = 1 },
-										{ opt = "uilight", val = 0 },
-										{ opt = "ghostobj", val = 0 },
-										{ opt = "itemeffects", val = is_mobile() and 0 or 1, graphics = true, id = ITEMEFFECTS }
-									}
-									Settings.SetMacResolution()
-									for _, v in pairs(Settings.AdaptPresetFramerate(options)) do
-										if (v.graphics) then
-											set_graphics_option(v.id, v.val)
-										else
-											---@diagnostic disable-next-line: param-type-mismatch
-											set_option(v.opt, v.val)
-										end
-									end
-									save_custom_config()
-									reload_graphics()
-								end
-							},
-							{
-								text = TB_MENU_LOCALIZED.SETTINGSMEDIUM,
-								action = function()
-									local options = {
-										{ opt = "shaders", val = 1, graphics = true, id = SHADERS },
-										{ opt = "fluid", val = 2, graphics = true, id = FLUIDBLOOD },
-										{ opt = "bloodstains", val = 1 },
-										{ opt = "framerate", val = is_mobile() and 30 or 60 },
-										{ opt = "reflection", val = 0, graphics = true, id = REFLECTIONS },
-										{ opt = "softshadow", val = 0, graphics = true, id = SOFTSHADOWS },
-										{ opt = "ambientocclusion", val = 0, graphics = true, id = AMBIENTOCCLUSION },
-										{ opt = "bumpmapping", val = 1, graphics = true, id = BUMPMAPPING },
-										{ opt = "raytracing", val = 0, graphics = true, id = RAYTRACING },
-										{ opt = "trails", val = 1 },
-										{ opt = "hair", val = 1 },
-										{ opt = "hairquality", val = 0 },
-										{ opt = "obj", val = 1 },
-										{ opt = "bodytextures", val = 1, graphics = true, id = BODYTEXTURES },
-										{ opt = "effects", val = 3 },
-										{ opt = "particles", val = 1 },
-										{ opt = "fixedframerate", val = 1 },
-										{ opt = "uilight", val = 0 },
-										{ opt = "ghostobj", val = is_mobile() and 0 or 1 },
-										{ opt = "itemeffects", val = 1, graphics = true, id = ITEMEFFECTS }
-									}
-									Settings.SetMacResolution()
-									for _, v in pairs(Settings.AdaptPresetFramerate(options)) do
-										if (v.graphics) then
-											set_graphics_option(v.id, v.val)
-										else
-											---@diagnostic disable-next-line: param-type-mismatch
-											set_option(v.opt, v.val)
-										end
-									end
-									save_custom_config()
-									reload_graphics()
-								end
-							},
-							{
-								text = TB_MENU_LOCALIZED.SETTINGSHIGH,
-								action = function()
-									local options = {
-										{ opt = "shaders", val = 1, graphics = true, id = SHADERS },
-										{ opt = "fluid", val = 1, graphics = true, id = FLUIDBLOOD },
-										{ opt = "bloodstains", val = 1 },
-										{ opt = "framerate", val = is_mobile() and 60 or 75 },
-										{ opt = "reflection", val = 1, graphics = true, id = REFLECTIONS },
-										{ opt = "softshadow", val = 1, graphics = true, id = SOFTSHADOWS },
-										{ opt = "ambientocclusion", val = 1, graphics = true, id = AMBIENTOCCLUSION },
-										{ opt = "bumpmapping", val = 1, graphics = true, id = BUMPMAPPING },
-										{ opt = "raytracing", val = 0, graphics = true, id = RAYTRACING },
-										{ opt = "trails", val = 1 },
-										{ opt = "hair", val = 1 },
-										{ opt = "hairquality", val = 1 },
-										{ opt = "obj", val = 1 },
-										{ opt = "bodytextures", val = 1, graphics = true, id = BODYTEXTURES },
-										{ opt = "effects", val = 3 },
-										{ opt = "particles", val = 1 },
-										{ opt = "fixedframerate", val = 1 },
-										{ opt = "uilight", val = 0 },
-										{ opt = "ghostobj", val = 1 },
-										{ opt = "itemeffects", val = 1, graphics = true, id = ITEMEFFECTS }
-									}
-									Settings.SetMacResolution()
-									for _, v in pairs(Settings.AdaptPresetFramerate(options)) do
-										if (v.graphics) then
-											set_graphics_option(v.id, v.val)
-										else
-											---@diagnostic disable-next-line: param-type-mismatch
-											set_option(v.opt, v.val)
-										end
-									end
-									save_custom_config()
-									reload_graphics()
-								end
-							},
-							{
-								text = TB_MENU_LOCALIZED.SETTINGSHIGHEST,
-								action = function()
-									local options = {
-										{ opt = "shaders", val = 1, graphics = true, id = SHADERS },
-										{ opt = "fluid", val = 1, graphics = true, id = FLUIDBLOOD },
-										{ opt = "bloodstains", val = 1 },
-										{ opt = "framerate", val = is_mobile() and 60 or 75 },
-										{ opt = "reflection", val = 1, graphics = true, id = REFLECTIONS },
-										{ opt = "softshadow", val = 1, graphics = true, id = SOFTSHADOWS },
-										{ opt = "ambientocclusion", val = 1, graphics = true, id = AMBIENTOCCLUSION },
-										{ opt = "bumpmapping", val = 1, graphics = true, id = BUMPMAPPING },
-										{ opt = "raytracing", val = 1, graphics = true, id = RAYTRACING },
-										{ opt = "trails", val = 1 },
-										{ opt = "hair", val = 1 },
-										{ opt = "hairquality", val = 1 },
-										{ opt = "obj", val = 1 },
-										{ opt = "bodytextures", val = 1, graphics = true, id = BODYTEXTURES },
-										{ opt = "effects", val = 3 },
-										{ opt = "particles", val = 1 },
-										{ opt = "fixedframerate", val = 1 },
-										{ opt = "uilight", val = 0 },
-										{ opt = "ghostobj", val = 1 },
-										{ opt = "itemeffects", val = 1, graphics = true, id = ITEMEFFECTS }
-									}
-									Settings.SetMacResolution()
-									for _, v in pairs(Settings.AdaptPresetFramerate(options)) do
-										if (v.graphics) then
-											set_graphics_option(v.id, v.val)
-										else
-											---@diagnostic disable-next-line: param-type-mismatch
-											set_option(v.opt, v.val)
-										end
-									end
-									save_custom_config()
-									reload_graphics()
-								end
-							}
-						}
+						dropdown = Settings:getGraphicsPresetDropdown()
 					}
 				}
 			},
@@ -1887,29 +1693,163 @@ function Settings.AdaptPresetFramerate(options)
 	return adapted
 end
 
+---The options each graphics preset sets, Lowest to Highest
+---@return table[][]
+function Settings.GetGraphicsPresets()
+	return {
+		{
+			{ opt = "shaders", val = 0, graphics = true, id = SHADERS },
+			{ opt = "fluid", val = 0, graphics = true, id = FLUIDBLOOD },
+			{ opt = "bloodstains", val = 0 },
+			{ opt = "framerate", val = 30 },
+			{ opt = "reflection", val = 0, graphics = true, id = REFLECTIONS },
+			{ opt = "softshadow", val = 0, graphics = true, id = SOFTSHADOWS },
+			{ opt = "ambientocclusion", val = 0, graphics = true, id = AMBIENTOCCLUSION },
+			{ opt = "bumpmapping", val = 0, graphics = true, id = BUMPMAPPING },
+			{ opt = "raytracing", val = 0, graphics = true, id = RAYTRACING },
+			{ opt = "trails", val = 0 },
+			{ opt = "hair", val = 0 },
+			{ opt = "hairquality", val = 0 },
+			{ opt = "obj", val = 0 },
+			{ opt = "bodytextures", val = 1, graphics = true, id = BODYTEXTURES },
+			{ opt = "effects", val = 0 },
+			{ opt = "particles", val = 0 },
+			{ opt = "fixedframerate", val = 1 },
+			{ opt = "uilight", val = 1 },
+			{ opt = "ghostobj", val = 0 },
+			{ opt = "itemeffects", val = 0, graphics = true, id = ITEMEFFECTS }
+		},
+		{
+			{ opt = "shaders", val = 1, graphics = true, id = SHADERS },
+			{ opt = "fluid", val = 0, graphics = true, id = FLUIDBLOOD },
+			{ opt = "bloodstains", val = is_mobile() and 0 or 1 },
+			{ opt = "framerate", val = 30 },
+			{ opt = "reflection", val = 0, graphics = true, id = REFLECTIONS },
+			{ opt = "softshadow", val = 0, graphics = true, id = SOFTSHADOWS },
+			{ opt = "ambientocclusion", val = 0, graphics = true, id = AMBIENTOCCLUSION },
+			{ opt = "bumpmapping", val = 0, graphics = true, id = BUMPMAPPING },
+			{ opt = "raytracing", val = 0, graphics = true, id = RAYTRACING },
+			{ opt = "trails", val = 1 },
+			{ opt = "hair", val = 1 },
+			{ opt = "hairquality", val = 0 },
+			{ opt = "obj", val = 2 },
+			{ opt = "bodytextures", val = 1, graphics = true, id = BODYTEXTURES },
+			{ opt = "effects", val = 1 },
+			{ opt = "particles", val = is_mobile() and 0 or 1 },
+			{ opt = "fixedframerate", val = 1 },
+			{ opt = "uilight", val = 0 },
+			{ opt = "ghostobj", val = 0 },
+			{ opt = "itemeffects", val = is_mobile() and 0 or 1, graphics = true, id = ITEMEFFECTS }
+		},
+		{
+			{ opt = "shaders", val = 1, graphics = true, id = SHADERS },
+			{ opt = "fluid", val = 2, graphics = true, id = FLUIDBLOOD },
+			{ opt = "bloodstains", val = 1 },
+			{ opt = "framerate", val = is_mobile() and 30 or 60 },
+			{ opt = "reflection", val = 0, graphics = true, id = REFLECTIONS },
+			{ opt = "softshadow", val = 0, graphics = true, id = SOFTSHADOWS },
+			{ opt = "ambientocclusion", val = 0, graphics = true, id = AMBIENTOCCLUSION },
+			{ opt = "bumpmapping", val = 1, graphics = true, id = BUMPMAPPING },
+			{ opt = "raytracing", val = 0, graphics = true, id = RAYTRACING },
+			{ opt = "trails", val = 1 },
+			{ opt = "hair", val = 1 },
+			{ opt = "hairquality", val = 0 },
+			{ opt = "obj", val = 1 },
+			{ opt = "bodytextures", val = 1, graphics = true, id = BODYTEXTURES },
+			{ opt = "effects", val = 3 },
+			{ opt = "particles", val = 1 },
+			{ opt = "fixedframerate", val = 1 },
+			{ opt = "uilight", val = 0 },
+			{ opt = "ghostobj", val = is_mobile() and 0 or 1 },
+			{ opt = "itemeffects", val = 1, graphics = true, id = ITEMEFFECTS }
+		},
+		{
+			{ opt = "shaders", val = 1, graphics = true, id = SHADERS },
+			{ opt = "fluid", val = 1, graphics = true, id = FLUIDBLOOD },
+			{ opt = "bloodstains", val = 1 },
+			{ opt = "framerate", val = is_mobile() and 60 or 75 },
+			{ opt = "reflection", val = 1, graphics = true, id = REFLECTIONS },
+			{ opt = "softshadow", val = 1, graphics = true, id = SOFTSHADOWS },
+			{ opt = "ambientocclusion", val = 1, graphics = true, id = AMBIENTOCCLUSION },
+			{ opt = "bumpmapping", val = 1, graphics = true, id = BUMPMAPPING },
+			{ opt = "raytracing", val = 0, graphics = true, id = RAYTRACING },
+			{ opt = "trails", val = 1 },
+			{ opt = "hair", val = 1 },
+			{ opt = "hairquality", val = 1 },
+			{ opt = "obj", val = 1 },
+			{ opt = "bodytextures", val = 1, graphics = true, id = BODYTEXTURES },
+			{ opt = "effects", val = 3 },
+			{ opt = "particles", val = 1 },
+			{ opt = "fixedframerate", val = 1 },
+			{ opt = "uilight", val = 0 },
+			{ opt = "ghostobj", val = 1 },
+			{ opt = "itemeffects", val = 1, graphics = true, id = ITEMEFFECTS }
+		},
+		{
+			{ opt = "shaders", val = 1, graphics = true, id = SHADERS },
+			{ opt = "fluid", val = 1, graphics = true, id = FLUIDBLOOD },
+			{ opt = "bloodstains", val = 1 },
+			{ opt = "framerate", val = is_mobile() and 60 or 75 },
+			{ opt = "reflection", val = 1, graphics = true, id = REFLECTIONS },
+			{ opt = "softshadow", val = 1, graphics = true, id = SOFTSHADOWS },
+			{ opt = "ambientocclusion", val = 1, graphics = true, id = AMBIENTOCCLUSION },
+			{ opt = "bumpmapping", val = 1, graphics = true, id = BUMPMAPPING },
+			{ opt = "raytracing", val = 1, graphics = true, id = RAYTRACING },
+			{ opt = "trails", val = 1 },
+			{ opt = "hair", val = 1 },
+			{ opt = "hairquality", val = 1 },
+			{ opt = "obj", val = 1 },
+			{ opt = "bodytextures", val = 1, graphics = true, id = BODYTEXTURES },
+			{ opt = "effects", val = 3 },
+			{ opt = "particles", val = 1 },
+			{ opt = "fixedframerate", val = 1 },
+			{ opt = "uilight", val = 0 },
+			{ opt = "ghostobj", val = 1 },
+			{ opt = "itemeffects", val = 1, graphics = true, id = ITEMEFFECTS }
+		}
+	}
+end
+
+---Applies a graphics preset, 1 (Lowest) to 5 (Highest)
+---@param id integer
+function Settings.ApplyGraphicsPreset(id)
+	Settings.SetMacResolution()
+	for _, v in pairs(Settings.AdaptPresetFramerate(Settings.GetGraphicsPresets()[id])) do
+		if (v.graphics) then
+			set_graphics_option(v.id, v.val)
+		else
+			---@diagnostic disable-next-line: param-type-mismatch
+			set_option(v.opt, v.val)
+		end
+	end
+	save_custom_config()
+	reload_graphics()
+end
+
+---Graphics presets dropdown: Custom, then the presets
+function Settings:getGraphicsPresetDropdown()
+	local names = { TB_MENU_LOCALIZED.SETTINGSLOWEST, TB_MENU_LOCALIZED.SETTINGSLOW, TB_MENU_LOCALIZED.SETTINGSMEDIUM, TB_MENU_LOCALIZED.SETTINGSHIGH, TB_MENU_LOCALIZED.SETTINGSHIGHEST }
+	local dropdown = { { text = TB_MENU_LOCALIZED.SETTINGSCUSTOM } }
+	for id, name in ipairs(names) do
+		table.insert(dropdown, { text = name, action = function() Settings.ApplyGraphicsPreset(id) end })
+	end
+	return dropdown
+end
+
 function Settings:getGraphicsPreset()
 	return function()
-			local options = {
-				"shaders", "fluid", "bloodstains", "framerate", "reflection", "softshadow", "ambientocclusion", "bumpmapping", "raytracing", "trails", "hair", "hairquality", "obj", "effects", "particles", "bodytextures", "uilight", "ghostobj"
-			}
-			if (get_option("fpscap") ~= nil) then
-				-- Presets now set the FPS cap, which uses the same values the frame rate did
-				options[4] = "fpscap"
-			end
-			local presets = {
-				is_mobile() and "1003000000000000110" or "0003000000000000110",
-				is_mobile() and "1003000000110010110" or "1013000000110011110",
-				is_mobile() and "1213000010110131100" or "1216000010110131101",
-				is_mobile() and "1116011110111131101" or "1117511110111131101",
-				is_mobile() and "1116011111111131101" or "1117511111111131101"
-			}
-			local userSetting = ""
-			for _, v in pairs(options) do
-				userSetting = userSetting .. get_option(v)
-			end
-			for i,v in pairs(presets) do
-				if (v == userSetting) then
-					return i + 1
+			-- The preset whose every option matches the current settings: the options it sets are the ones it
+			-- is recognised by, so a preset is shown again right after it's applied and Custom after any change
+			for id, options in ipairs(Settings.GetGraphicsPresets()) do
+				local matches = true
+				for _, v in pairs(Settings.AdaptPresetFramerate(options)) do
+					if (get_option(v.opt) ~= v.val) then
+						matches = false
+						break
+					end
+				end
+				if (matches) then
+					return id + 1
 				end
 			end
 			return 1
