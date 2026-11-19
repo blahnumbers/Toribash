@@ -84,10 +84,28 @@ require("system.gamerules_manager")
 require("system.atmospheres_manager")
 require("system.movememory_manager")
 require("system.tooltip_manager")
-if (not is_mobile() and get_desktop_chat_tabs) then
-	require("system.chat_desktop")
+
+---Loads a 5.78 feature script. By now the menu counts as open, so an error in one must not stop the rest of this
+---file: the menu would be left half open, and Lua 5.1 keeps a module that failed to load marked as loading, so every
+---later menu open would fail with "loop or previous error loading module". The error is shown once, the mark is
+---cleared and the next menu open tries again.
+---@param name string
+local function requireFeature(name)
+	local ok, err = pcall(require, name)
+	if (not ok) then
+		package.loaded[name] = nil
+		_G.TB_MENU_FEATURE_ERRORS = _G.TB_MENU_FEATURE_ERRORS or {}
+		local message = tostring(err)
+		if (not TB_MENU_FEATURE_ERRORS[message]) then
+			TB_MENU_FEATURE_ERRORS[message] = true
+			echo("Error " .. message)
+		end
+	end
 end
-require("system.betterghost")
+if (not is_mobile() and get_desktop_chat_tabs) then
+	requireFeature("system.chat_desktop")
+end
+requireFeature("system.betterghost")
 require("system.broadcast_manager")
 require("system.flames_manager")
 
