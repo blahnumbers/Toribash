@@ -447,6 +447,7 @@ local function on_pre_draw()
 	local rows = get_matching_rows(input, get_desktop_chat_completions() or {})
 	if #rows == 0 then
 		destroy_reference()
+		c[1] = key
 		return
 	end
 	local texts = {}
@@ -459,6 +460,7 @@ local function on_pre_draw()
 	end
 
 	destroy_reference()
+	c[1] = key
 	rendered_key = signature
 	build_reference(input, rows)
 	-- chat_scroll.lua leaves the wheel to the reference while the mouse is over it
