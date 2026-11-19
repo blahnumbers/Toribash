@@ -173,6 +173,10 @@ end
 ---the still style the pose only changes when the ghost does
 local drawn_key = {}
 
+---The ghost revision whose pose the drawn frame's cache slot holds, as far as drawing is concerned
+---@type integer?
+local drawn_revision
+
 ---@return boolean changed
 local function update_drawn_key(...)
 	local changed = false
@@ -201,10 +205,14 @@ local function on_camera()
 
 	if is_shown then
 		fade = frame_fade
-		-- The drawn frame's slot holds the new ghost once the cache has got to it again
-		local has_new_frame = last_cached_frame >= math.ceil(frame)
+		-- The drawn frame's slot holds the new ghost once the cache has got to it again. Until then it still holds the
+		-- pose already drawn, so a restart alone doesn't draw it again (a few milliseconds right on the frame of a
+		-- joint change)
+		if last_cached_frame >= math.ceil(frame) then
+			drawn_revision = revision
+		end
 		local world_state = get_world_state()
-		local changed = revision == nil or update_drawn_key(frame, fade, revision, has_new_frame,
+		local changed = revision == nil or update_drawn_key(frame, fade, drawn_revision,
 			get_ghost(), world_state.selected_player, world_state.match_frame,
 			get_option("ghostopacity"), get_option("ghostcolor"), get_option("ghostcoloropponent"),
 			get_option("ghoststyle"), get_option("ghoststyleopponent"), get_option("ghostenvobj"),
