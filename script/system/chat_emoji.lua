@@ -63,6 +63,15 @@ local keyboard_index = 1
 -- Read by chat_completion.lua and chat_scroll.lua, which stay out of the picker's way
 TB_CHAT_EMOJI_PICKER_OPEN = false
 
+---Light UI mode drops small roundings, but the input's frame is always drawn rounded, so the button inside it and
+---the picker above it keep theirs too (a square hover would poke out of the frame's corners)
+---@param element UIElement
+---@return UIElement
+local function keep_rounded(element)
+	element.shapeType = ROUNDED
+	return element
+end
+
 local function close_picker()
 	TB_CHAT_EMOJI_PICKER_OPEN = false
 	if picker then
@@ -113,18 +122,18 @@ local function toggle_picker(input, scale)
 	picker = input_root:addChild({ size = { WIN_W, WIN_H }, interactive = true })
 	picker:addMouseUpHandler(close_picker)
 	local width, height = 216 * scale, 136 * scale
-	local panel = picker:addChild({
+	local panel = keep_rounded(picker:addChild({
 		pos = { math.max(8, input.x + input.w + 38 * scale - width), math.max(8, input.y - height - 8 * scale) },
 		size = { width, height },
 		interactive = true,
 		shapeType = ROUNDED,
 		rounded = 7 * scale,
 		bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-	})
+	}))
 	for index, emoji in ipairs(emojis) do
 		local column = (index - 1) % PICKER_COLUMNS
 		local row = math.floor((index - 1) / PICKER_COLUMNS)
-		local cell = panel:addChild({
+		local cell = keep_rounded(panel:addChild({
 			pos = { (8 + column * CELL_SIZE) * scale, (8 + row * CELL_SIZE) * scale },
 			size = { CELL_SIZE * scale, CELL_SIZE * scale },
 			interactive = true,
@@ -133,7 +142,7 @@ local function toggle_picker(input, scale)
 			bgColor = TB_MENU_DEFAULT_DARKEST_COLOR,
 			hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
 			pressedColor = TB_MENU_DEFAULT_BG_COLOR,
-		})
+		}))
 		cell:addChild({ shift = { 5 * scale, 5 * scale }, bgImage = EMOJI_FOLDER .. emoji.file })
 		cell:addMouseUpHandler(function()
 			insert_emoji(index)
@@ -178,7 +187,7 @@ end
 ---@param input DesktopChatInput
 ---@param scale number
 local function build_picker_button(input, scale)
-	local button = input_root:addChild({
+	local button = keep_rounded(input_root:addChild({
 		pos = { input.x + input.w + 4 * scale, input.y },
 		size = { 34 * scale, input.h },
 		interactive = true,
@@ -187,7 +196,7 @@ local function build_picker_button(input, scale)
 		bgColor = input.skin and { 0, 0, 0, 0 } or TB_MENU_DEFAULT_BG_COLOR,
 		hoverColor = TB_MENU_DEFAULT_LIGHTER_COLOR,
 		pressedColor = TB_MENU_DEFAULT_DARKEST_COLOR,
-	})
+	}))
 	for _, emoji in ipairs(emojis) do
 		if emoji.code == BUTTON_EMOJI then
 			button:addChild({ shift = { 5 * scale, 5 * scale }, bgImage = EMOJI_FOLDER .. emoji.file })
@@ -223,6 +232,8 @@ local function get_input_key(input)
 end
 
 local regions_values, regions_values_key = {}, nil
+---Shared stand-in for the frames the engine reports no regions on (chat not drawn, main menu open)
+local NO_REGIONS = {}
 
 ---@param regions DesktopChatEmojiRegion[]
 ---@param include boolean
@@ -284,7 +295,7 @@ end
 ---Puts a tooltip over each emoji in chat, rebuilt only when they move
 local function update_chat_tooltips()
 	---@type DesktopChatEmojiRegion[]
-	local regions = get_desktop_chat_emoji_regions() or {}
+	local regions = get_desktop_chat_emoji_regions() or NO_REGIONS
 	local key = get_regions_key(regions, input_root ~= nil and not picker)
 	if key == regions_key then
 		return
@@ -343,5 +354,4 @@ add_hook("pre_draw", HOOK_SET, on_pre_draw)
 add_hook("draw2d", HOOK_SET, on_draw2d)
 add_hook("key_down", HOOK_SET, on_key_down)
 add_hook("resolution_changed", HOOK_SET, destroy_emoji_ui)
-add_hook("new_game", HOOK_SET, destroy_emoji_ui)
 add_hook("unload", HOOK_SET, destroy_emoji_ui)
