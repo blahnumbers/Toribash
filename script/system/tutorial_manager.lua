@@ -113,6 +113,9 @@ function TutorialsInternal.SnapToTarget(value, target)
 	return math.abs(value - target) < 0.001 and target or value
 end
 
+---Characters per second that step messages type at: one every two frames at `UIElement.REFERENCE_FPS`
+TutorialsInternal.MessageTypingRate = UIElement.REFERENCE_FPS / 2
+
 ---@param type TutorialStepRequirementType
 ---@return TutorialStepRequirement
 function TutorialsInternal.NewRequirement(type)
@@ -977,7 +980,11 @@ function Tutorials:showMessage(viewElement, reqTable, message, messageby)
 				if (self.MessageView.doSkip) then
 					sub = strlen
 				elseif (lastClock < UIElement.clock) then
-					sub = lastSub + math.round((UIElement.clock - lastClock) * 25)
+					-- A steady number of characters per second. Rounding the time since the last character typed
+					-- faster the higher the frame rate (a character every two frames at 62.5 fps, every 0.02 s at
+					-- 300+); this keeps the 62.5 fps speed at any frame rate
+					local typed = math.floor((UIElement.clock - lastClock) * TutorialsInternal.MessageTypingRate)
+					sub = lastSub + typed
 					if (sub ~= lastSub) then
 						while (sub < strlen and utf8.match(utf8.sub(message, math.max(0, sub - 4), sub), ".*[%^]%d*$")) do
 							sub = sub + 1
@@ -987,7 +994,7 @@ function Tutorials:showMessage(viewElement, reqTable, message, messageby)
 							sub = lastSub + 1 + endPos
 							lastClock = UIElement.clock + 0.1
 						else
-							lastClock = UIElement.clock
+							lastClock = lastClock + typed / TutorialsInternal.MessageTypingRate
 						end
 						lastSub = sub
 					end
