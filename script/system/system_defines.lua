@@ -3567,6 +3567,7 @@ function remove_ignore_list(user, mode) end
 ---| "body_select" #Called when new bodypart is selected (including empty bodypart selection)
 ---| "spec_select_player" #Called when clicking on a player while being a spectator in Multiplayer
 ---| "draw2d" #Main 2D graphics loop
+---| "draw2d_under" #2D graphics drawn under the `draw2d` hook's and the currency balances. Called with a phase: `0` for 2D, `1` for viewports, `2` for 2D over those viewports
 ---| "draw3d" #Main 3D graphics loop
 ---| "play" #Part of the old Torishop, deprecated
 ---| "camera" #Main camera loop
