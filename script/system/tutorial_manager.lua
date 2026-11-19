@@ -103,7 +103,8 @@ function TutorialsInternal.LoadFile(path)
 	return loadstring(fileContents)
 end
 
----Snaps an eased value to `target` once it is within 1/1000 of it. ---Eased values only approach their target, this lets them arrive without rounding every frame
+---Snaps an eased value to `target` once it is within 1/1000 of it. \
+---Eased values only approach their target, this lets them arrive without rounding every frame
 ---(rounding would undo the small steps a high frame rate takes and stall them short of the target).
 ---@param value number
 ---@param target number
