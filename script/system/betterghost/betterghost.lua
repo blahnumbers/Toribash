@@ -233,7 +233,13 @@ function BetterGhost.unload()
 	remove_hooks(HOOK_SET)
 end
 
+---After an error the shapes are hidden: show them again from scratch on the next frame that draws
+local function on_error()
+	is_shown = false
+	drawn_key = {}
+end
+
 remove_hooks(HOOK_SET)
-add_hook("camera", HOOK_SET, on_camera)
-add_hook("new_game", HOOK_SET, on_new_game)
-add_hook("key_down", HOOK_SET, on_key_down)
+add_hook("camera", HOOK_SET, future_ghost.guard(on_camera, on_error))
+add_hook("new_game", HOOK_SET, future_ghost.guard(on_new_game, on_error))
+add_hook("key_down", HOOK_SET, future_ghost.guard(on_key_down, on_error))

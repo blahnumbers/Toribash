@@ -87,7 +87,11 @@ require("system.tooltip_manager")
 if (not is_mobile() and get_desktop_chat_tabs) then
 	require("system.chat_desktop")
 end
-require("system.betterghost")
+-- An error in the Better Ghost must never stop the main menu from loading
+local betterghostLoaded, betterghostError = pcall(require, "system.betterghost")
+if (not betterghostLoaded) then
+	echo("Better Ghost: " .. tostring(betterghostError))
+end
 require("system.broadcast_manager")
 require("system.flames_manager")
 

@@ -165,7 +165,8 @@ end
 ---@return BetterGhostCachedBody[]
 local function lerp_bodies(from, to, amount)
 	local result = {}
-	for i, body in ipairs(from) do
+	-- pairs: the objects' keys can have gaps (see create_environment_shapes)
+	for i, body in pairs(from) do
 		local next_body = to[i]
 		if next_body then
 			result[i] = {
@@ -254,7 +255,7 @@ end
 ---@param cache BetterGhostCachedBody[]
 ---@param get_object_colour fun(object_id: integer): Color
 local function draw_environment(cache, get_object_colour)
-	if #cache == 0 then
+	if next(cache) == nil then
 		return
 	end
 
@@ -278,8 +279,14 @@ local function create_environment_shapes()
 	environment_shapes = {}
 	environment_ids = {}
 
-	local cache = get_ghost_cache(1).envs
-	for object_id = 0, #cache - 1 do
+	-- The cache only has the objects that exist, keyed by object id + 1. A mod can skip object numbers, so the
+	-- keys can have gaps: asking the engine about a missing object is an error (with menudebug on, every time)
+	local object_ids = {}
+	for index in pairs(get_ghost_cache(1).envs) do
+		table.insert(object_ids, index - 1)
+	end
+	table.sort(object_ids)
+	for _, object_id in ipairs(object_ids) do
 		local flag = get_obj_flag(object_id)
 		local is_static = flag == nil or math.floor(flag / STATIC_FLAG) % 2 == 1
 		if not is_static then
@@ -387,10 +394,36 @@ function future_ghost.draw_at_frame(frame, player_colours, get_object_colour)
 	draw_environment(cache.envs, get_object_colour)
 end
 
-on_match_begin()
+---Errors already shown, so one that happens every frame is only shown once
+local reported_errors = {}
+
+---Runs `func` so an error in it can't stop the hooks after it (call_hook stops at the first error) or the script
+---that loads this one: the error is shown once and the ghost is hidden until it next draws without one
+---@param func function
+---@param on_error function? Called after the ghost is hidden
+---@return function
+function future_ghost.guard(func, on_error)
+	return function(...)
+		local result = { pcall(func, ...) }
+		if result[1] then
+			return unpack(result, 2)
+		end
+		local message = tostring(result[2])
+		if not reported_errors[message] then
+			reported_errors[message] = true
+			echo("Better Ghost: " .. message)
+		end
+		pcall(future_ghost.hide)
+		if on_error then
+			pcall(on_error)
+		end
+	end
+end
+
+future_ghost.guard(on_match_begin)()
 
 remove_hooks(HOOK_SET)
-add_hook("match_begin", HOOK_SET, on_match_begin)
-add_hook("new_game", HOOK_SET, on_match_begin)
+add_hook("match_begin", HOOK_SET, future_ghost.guard(on_match_begin))
+add_hook("new_game", HOOK_SET, future_ghost.guard(on_match_begin))
 
 return future_ghost
