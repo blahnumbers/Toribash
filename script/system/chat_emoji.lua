@@ -23,23 +23,6 @@ local CELL_SIZE = 40
 local EMOJI_FOLDER = "../textures/chat/emoji/"
 local BUTTON_EMOJI = ":happy:"
 
-local KEY_ESCAPE = 27
-local KEY_RETURN = 13
-local KEY_KEYPAD_ENTER = 271
-local KEY_UP = 273
-local KEY_DOWN = 274
-local KEY_RIGHT = 275
-local KEY_LEFT = 276
-
----How far each arrow key moves through the picker
----@type table<integer, integer>
-local ARROW_STEPS = {
-	[KEY_RIGHT] = 1,
-	[KEY_LEFT] = -1,
-	[KEY_UP] = -PICKER_COLUMNS,
-	[KEY_DOWN] = PICKER_COLUMNS,
-}
-
 ---@type DesktopChatEmoji[]
 local emojis = get_desktop_chat_emojis()
 
@@ -55,10 +38,6 @@ local tooltip_root
 local input_key
 ---@type string?
 local regions_key
----@type UIElement[]
-local picker_cells = {}
----The cell the arrow keys are on
-local keyboard_index = 1
 
 -- Read by chat_completion.lua and chat_scroll.lua, which stay out of the picker's way
 TB_CHAT_EMOJI_PICKER_OPEN = false
@@ -78,7 +57,6 @@ local function close_picker()
 		picker:kill()
 		picker = nil
 	end
-	picker_cells = {}
 end
 
 local function destroy_emoji_ui()
@@ -148,9 +126,7 @@ local function toggle_picker(input, scale)
 			insert_emoji(index)
 		end)
 		add_tooltip(cell, emoji.code)
-		picker_cells[index] = cell
 	end
-	keyboard_index = 1
 end
 
 ---The input's rounded white fill and border. With the skin on, the engine's text field leaves its own
@@ -324,34 +300,7 @@ local function on_draw2d()
 	end
 end
 
----With the picker open, the arrow keys move through it, Enter picks and Escape closes it
----@param key integer
----@return integer?
-local function on_key_down(key)
-	if not picker then
-		return
-	end
-	if key == KEY_ESCAPE then
-		close_picker()
-		return 1
-	end
-	if key == KEY_RETURN or key == KEY_KEYPAD_ENTER then
-		insert_emoji(keyboard_index)
-		return 1
-	end
-
-	local step = ARROW_STEPS[key]
-	if step then
-		keyboard_index = (keyboard_index - 1 + step) % #emojis + 1
-		for index, cell in ipairs(picker_cells) do
-			cell.bgColor = index == keyboard_index and TB_MENU_DEFAULT_LIGHTER_COLOR or TB_MENU_DEFAULT_DARKEST_COLOR
-		end
-		return 1
-	end
-end
-
 add_hook("pre_draw", HOOK_SET, on_pre_draw)
 add_hook("draw2d", HOOK_SET, on_draw2d)
-add_hook("key_down", HOOK_SET, on_key_down)
 add_hook("resolution_changed", HOOK_SET, destroy_emoji_ui)
 add_hook("unload", HOOK_SET, destroy_emoji_ui)
