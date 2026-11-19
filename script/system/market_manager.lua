@@ -672,12 +672,13 @@ do
 				youGetInput.loader:hide(true)
 				youGetInput.otherInput = sellPriceInput
 
-				local delay = math.floor(tonumber(get_option("framerate")) / 2)
 				youGetInput.changeDelay = 0
 				sellPriceInput.changeDelay = 0
 
-				local priceKeyUp = function(input, instant)
-					input.changeDelay = instant and 1 or delay
+				-- The other field updates on the next frame. A longer wait computed from the framerate option was
+				-- never used: every caller asks for the next frame
+				local priceKeyUp = function(input)
+					input.changeDelay = 1
 					input.otherInput.parent:deactivate(true)
 					input.otherInput:deactivate(true)
 					input.otherInput.loader:show(true)

@@ -135,7 +135,12 @@ end
 ---@param ratio number Same ratio you would pass to SineTween
 ---@return number
 function UITween.SineFrameTween(x, y, ratio)
-	local ratio = clamp(ratio)
+	local ratio, exit = clamp(ratio)
+	if (exit) then
+		-- 1 - cos(pi / 2) is a hair under 1 in floating point: without this the value would only creep up on `y`,
+		-- and animations that wait for it to get there (a fade to 0 takes ~0.3 s of underflow) would end late
+		return ratio == 1 and y or x
+	end
 	return UIElement.frameApproach(x, y, 1 - cos(ratio * (pi / 2)))
 end
 

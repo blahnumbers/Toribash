@@ -3351,7 +3351,13 @@ function Events:showBlindFightMain(viewElement)
 		prestigeButton:addCustomDisplay(function()
 				for _, v in pairs(bubbles) do
 					if (v.pos.y < prestigeButton.pos.y - prestigeButton.size.h) then
-						v.bgColor[4] = math.floor(UITween.LinearTween(v.bgColor[4], 0, UIElement.deltaClock) * 1000) / 1000
+						-- The fade used to round down to 0.001 each drawn frame, a fixed step per frame that made it faster at
+						-- high fps. That step is now taken per second (0.03 = 0.0005 a frame at 60 fps), so the fade lasts
+						-- as long as it did at 60 fps (about 3.4 s) at any frame rate
+						v.bgColor[4] = UITween.LinearTween(v.bgColor[4], 0, UIElement.deltaClock) - 0.03 * UIElement.deltaClock
+						if (v.bgColor[4] < 0.001) then
+							v.bgColor[4] = 0
+						end
 					elseif (v.pos.y < prestigeButton.pos.y + prestigeButton.size.h) then
 						if (v.bgColor[4] < 1) then
 							v.bgColor[4] = math.min(1, v.bgColor[4] + UIElement.deltaClock)

@@ -490,7 +490,10 @@ SETTINGSPROFANITYFILTER	Profanity Filter
 SETTINGSHIDEECHO	Hide system messages
 SETTINGSLEGACYCHAT	Legacy chat
 SETTINGSCHATBACKGROUND	Chat background
-SETTINGSCHATBACKGROUNDHINT	A dark box behind the chat to make it easier to read. 0 turns it off
+SETTINGSCHATBACKGROUNDHINT	A box behind the chat to make it easier to read. 0 turns it off
+SETTINGSCHATBACKGROUNDCOLOR	Chat background color
+SETTINGSCHATBACKGROUNDCOLORHINT	Automatic is white behind dark text and black behind light text
+SETTINGSCHATBACKGROUNDAUTO	Automatic
 SETTINGSCHATTEXTCOLOR	Chat text color
 SETTINGSCHATNAMECOLOR	Player name color
 SETTINGSCHATCOLORHINT	Default keeps the colors set by the server and your shader

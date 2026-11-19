@@ -22,8 +22,10 @@ local WHEEL_LINES = 3
 local scroll_root
 ---@type UIElement?
 local thumb
----@type string?
+---Whether `layout_values` (tab, total, visible, x, y, h) describe the scrollbar that's built
+---@type boolean?
 local layout_key
+local layout_values = {}
 ---@type DesktopChatScrollState?
 local scroll_state
 ---Where on the thumb it was grabbed, while it's being dragged
@@ -52,8 +54,20 @@ local function scroll_to(y)
 	set_desktop_chat_scroll(scroll_state.tab, math.floor(fraction * (scroll_state.total - scroll_state.visible) + 0.5))
 end
 
+---UIElement hands the wheel to every scrollable element wherever the mouse is: only scroll when it's over the
+---scrollbar, and never through the emoji picker
 ---@param wheel number
 local function scroll_by_wheel(wheel)
+	if
+		TB_CHAT_EMOJI_PICKER_OPEN
+		or not scroll_state
+		or MOUSE_X < scroll_state.x
+		or MOUSE_X > scroll_state.x + WIDTH
+		or MOUSE_Y < scroll_state.y
+		or MOUSE_Y > scroll_state.y + scroll_state.h
+	then
+		return
+	end
 	set_desktop_chat_scroll(scroll_state.tab, scroll_state.offset - wheel * WHEEL_LINES)
 end
 
@@ -106,17 +120,26 @@ local function on_pre_draw()
 		return
 	end
 
-	local key = table.concat({ current.tab, current.total, current.visible, current.x, current.y, current.h }, ":")
-	if key ~= layout_key then
+	-- Compared value by value, so nothing new is made on the frames where nothing changed
+	local v = layout_values
+	local same = layout_key and v[1] == current.tab and v[2] == current.total and v[3] == current.visible
+		and v[4] == current.x and v[5] == current.y and v[6] == current.h
+	-- Not rebuilt while the emoji picker is open: a new scrollbar would take the clicks meant for the picker
+	if not same and (not TB_CHAT_EMOJI_PICKER_OPEN or not scroll_root) then
 		destroy_scrollbar()
-		layout_key = key
+		v[1], v[2], v[3], v[4], v[5], v[6] = current.tab, current.total, current.visible, current.x, current.y, current.h
+		layout_key = true
 		build_scrollbar(current)
 	end
 
 	scroll_state = current
+	-- Moved only when its place changes: every move marks the whole UI's positions for an update
 	local travel = thumb.parent.size.h - thumb.size.h
-	thumb:moveTo(nil, travel * math.max(0, current.offset) / (current.total - current.visible))
-	scroll_root:updatePos()
+	local y = travel * math.max(0, current.offset) / (current.total - current.visible)
+	if thumb.shift.y ~= y then
+		thumb:moveTo(nil, y)
+		scroll_root:updatePos()
+	end
 end
 
 local function on_draw2d()
@@ -134,7 +157,8 @@ local function on_mouse_button_down(button)
 	end
 	if
 		MOUSE_X < 0
-		or MOUSE_X >= scroll_state.x
+		-- The scrollbar's own column too, or the game also takes the wheel there (camera, joint force)
+		or MOUSE_X > scroll_state.x + WIDTH
 		or MOUSE_Y < scroll_state.y
 		or MOUSE_Y > scroll_state.y + scroll_state.h
 	then
@@ -160,5 +184,4 @@ add_hook("pre_draw", HOOK_SET, on_pre_draw)
 add_hook("draw2d", HOOK_SET, on_draw2d)
 add_hook("mouse_button_down", HOOK_SET, on_mouse_button_down)
 add_hook("resolution_changed", HOOK_SET, destroy_scrollbar)
-add_hook("new_game", HOOK_SET, destroy_scrollbar)
 add_hook("unload", HOOK_SET, destroy_scrollbar)
