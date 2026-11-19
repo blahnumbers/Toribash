@@ -2308,10 +2308,17 @@ function Settings.GetGhostColorDropdown(name)
 	for colorid, item in pairs(items) do
 		table.insert(colors, { id = colorid, name = (item.itemname:gsub(" Ghost$", "")) })
 	end
+	local current = Settings.GetGhostOption(name)
+	-- The store isn't loaded yet (offline, or still downloading): the saved color is still listed, so it isn't
+	-- shown as Automatic
+	if (type(current) == "number" and current > 0 and items[current] == nil) then
+		local ok, info = pcall(get_color_info, current)
+		local colorName = ok and type(info) == "table" and ((info.game_name or "") ~= "" and info.game_name or info.name) or nil
+		table.insert(colors, { id = current, name = colorName and colorName:gsub("^%l", string.upper) or ("#" .. current) })
+	end
 	table.sort(colors, function(a, b) return a.name < b.name end)
 	table.insert(colors, 1, { id = 0, name = TB_MENU_LOCALIZED.SETTINGSGHOSTCOLORAUTO or "Automatic" })
 
-	local current = Settings.GetGhostOption(name)
 	local dropdown, selected = {}, 1
 	for i, color in ipairs(colors) do
 		if (color.id == current) then
