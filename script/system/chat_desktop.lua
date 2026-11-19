@@ -797,9 +797,9 @@ end
 add_hook("resolution_changed", HOOK_SET, function()
 	destroy_tabs(true)
 end)
+-- The bar is laid out again for the new game; the heads stay loaded, so a round's start doesn't stall on them
 add_hook("new_game", HOOK_SET, function()
-	head_textures = {}
-	destroy_tabs(true)
+	destroy_tabs()
 end)
 -- Only a note to look again: a download callback isn't a safe place to do more
 add_hook("downloader_complete", HOOK_SET, function()
