@@ -672,23 +672,21 @@ do
 				youGetInput.loader:hide(true)
 				youGetInput.otherInput = sellPriceInput
 
-				-- Half a second after the last key press, counted in reference frames: the framerate option
-				-- no longer says how fast frames are drawn
-				local delay = math.floor(UIElement.REFERENCE_FPS / 2)
 				youGetInput.changeDelay = 0
 				sellPriceInput.changeDelay = 0
 
-				local priceKeyUp = function(input, instant)
-					input.changeDelay = instant and 1 or delay
+				-- The other field updates on the next frame. A longer wait computed from the framerate option was
+				-- never used: every caller asks for the next frame
+				local priceKeyUp = function(input)
+					input.changeDelay = 1
 					input.otherInput.parent:deactivate(true)
 					input.otherInput:deactivate(true)
 					input.otherInput.loader:show(true)
 				end
 				local checkDelay = function(input, mode)
 					if (input.changeDelay > 0) then
-						input.changeDelay = input.changeDelay - UIElement.frameScale
-						if (input.changeDelay <= 0) then
-							input.changeDelay = 0
+						input.changeDelay = input.changeDelay - 1
+						if (input.changeDelay == 0) then
 							local price = tonumber(input.textfieldstr[1])
 							local targetPrice = price == nil and '' or (mode and math.floor(price * (1 + MARKET_TAX) + 0.5) or math.floor(price / (1 + MARKET_TAX) + 0.5))
 							input.otherInput.textfieldstr[1] = targetPrice .. ''
