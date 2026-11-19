@@ -337,7 +337,10 @@ function Replays:fetchReplayData(folder, rplTable, file, cacheData, includeEvent
 
 	local files = get_files(folder, "")
 	local count = 1
-	local maxDelay = 1 / (tonumber(get_option("framerate")) or 30) / 2
+	-- Spend at most half of a drawn frame per frame reading replays. The framerate option no longer says how fast
+	-- frames are drawn: use the FPS cap, or the reference frame rate when uncapped
+	local fpsCap = tonumber(get_option("fpscap")) or tonumber(get_option("framerate")) or 30
+	local maxDelay = 1 / math.max(30, fpsCap > 0 and fpsCap or UIElement.REFERENCE_FPS) / 2
 	TBMenu.StatusMessage.replayfolders = TBMenu.StatusMessage.replayfolders or {}
 	if (not TBMenu.StatusMessage.replayUpdater) then
 		TBMenu.StatusMessage.replayUpdater = TBMenu.StatusMessage:addChild({})
