@@ -16,7 +16,8 @@ TB_MENU_DEBUG = get_option("menudebug") == 1
 if (TB_MENU_DEBUG) then
 	_G.old_require = _G.old_require or require
 	require = function(file)
-		dofile(file:gsub("%.", "/") .. ".lua")
+		-- Hand back what the script returns, as require does: modules like chat_completion use it
+		return dofile(file:gsub("%.", "/") .. ".lua")
 	end
 elseif (_G.old_require ~= nil) then
 	require = _G.old_require
