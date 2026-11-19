@@ -1,3 +1,6 @@
+-- The timer steps by UIElement.frameScale; the classic menu (newmenu 0) doesn't load the UI toolkit that keeps it
+require("toriui.uielement")
+
 shapelist = {}
 buttlist = { }
 mouse = {x = 0, y = 0, down = 0, changex = 0, changey = 0, storex = 0, storey = 0, sens = 8}

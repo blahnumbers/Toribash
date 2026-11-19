@@ -1,3 +1,6 @@
+-- Animations step by UIElement.frameScale; the classic menu (newmenu 0) doesn't load the UI toolkit that keeps it
+require("toriui.uielement")
+
 local width, height = get_window_size()
 local chosen_combo = 0
 local move = 0
@@ -697,7 +700,10 @@ function activate_uke()
 	load_buttons()
 	load_icons()
 
-	set_gameover_timelimit(4)
+	-- Removed from the engine long ago; calling it stopped the tutorial from loading
+	if (set_gameover_timelimit) then
+		set_gameover_timelimit(4)
+	end
 
 	start_new_game()	-- This clears the settings for the previous replay
 	if (cur_mod == 0) then run_cmd("lm aikido.tbm")

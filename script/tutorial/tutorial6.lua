@@ -1,4 +1,7 @@
 -- Global
+-- Animations step by UIElement.frameScale; the classic menu (newmenu 0) doesn't load the UI toolkit that keeps it
+require("toriui.uielement")
+
 local width, height = get_window_size()
 local curtime = os.clock
 local playername = get_master().master.nick

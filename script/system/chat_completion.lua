@@ -93,8 +93,11 @@ local is_forced = false
 ---@type DesktopChatPermissions?
 local permissions
 local permissions_checked_at = -math.huge
+---What the rows were last matched for (see on_pre_draw)
+local checked_values = {}
 
 local function destroy_reference()
+	checked_values[1] = nil
 	if reference_root then
 		reference_root:kill()
 		reference_root = nil
@@ -430,9 +433,21 @@ local function on_pre_draw()
 		return
 	end
 
+	-- The rows only change with the text, Tab, the input's place or the player's permissions, so they aren't
+	-- matched again every frame while the reference is up
+	local access = get_permissions()
+	local c = checked_values
+	if c[1] == key and c[2] == is_forced and c[3] == access.online and c[4] == access.level and c[5] == access.fighter
+		and c[6] == input.x and c[7] == input.y and c[8] == input.w and c[9] == input.h then
+		return
+	end
+	c[1], c[2], c[3], c[4], c[5], c[6], c[7], c[8], c[9] =
+		key, is_forced, access.online, access.level, access.fighter, input.x, input.y, input.w, input.h
+
 	local rows = get_matching_rows(input, get_desktop_chat_completions() or {})
 	if #rows == 0 then
 		destroy_reference()
+		c[1] = key
 		return
 	end
 	local texts = {}
@@ -445,6 +460,7 @@ local function on_pre_draw()
 	end
 
 	destroy_reference()
+	c[1] = key
 	rendered_key = signature
 	build_reference(input, rows)
 	-- chat_scroll.lua leaves the wheel to the reference while the mouse is over it
@@ -476,5 +492,4 @@ add_hook("pre_draw", HOOK_SET, on_pre_draw)
 add_hook("key_down", HOOK_SET, on_key_down)
 add_hook("draw2d", HOOK_SET, on_draw2d)
 add_hook("resolution_changed", HOOK_SET, reset_reference)
-add_hook("new_game", HOOK_SET, reset_reference)
 add_hook("unload", HOOK_SET, reset_reference)

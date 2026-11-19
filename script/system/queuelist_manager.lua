@@ -126,6 +126,8 @@ QueueListInternal.InfoFields = {
 	},
 	{
 		title = "legend",
+		-- Gold that reads on the white list background and stays clear of the Tori Agent orange
+		color = { 0.788, 0.635, 0.000, 1 },
 		text = TB_MENU_LOCALIZED.QUEUELISTLEGENDTITLE,
 		desc = TB_MENU_LOCALIZED.QUEUELISTLEGENDDESC,
 		atlasX = 256

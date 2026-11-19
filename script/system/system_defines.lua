@@ -1251,20 +1251,24 @@ function get_world_state() end
 ---@field sides Vector3Base
 ---@field shape ODEBodyShapeType
 
----Returns player body information. ---*An extra body's `name` and `mod_name` are its name in the mod*
+---Returns player body information. \
+---*An extra body's `name` and `mod_name` are its name in the mod*
 ---@param player integer
 ---@param body PlayerBody|integer Classic body or extra body index
 ---@return BodyInfo
 function get_body_info(player, body) end
 
----Returns how many body parts a fighter has: the 21 classic ones and a mod's extra bodies. ---Extra bodies take the indices after the classic ones (21 and up) and work with the other body functions. ---The `BODYPARTS` table only lists the classic ones.
+---Returns how many body parts a fighter has: the 21 classic ones and a mod's extra bodies. \
+---Extra bodies take the indices after the classic ones (21 and up) and work with the other body functions. \
+---The `BODYPARTS` table only lists the classic ones.
 ---
 ---**Since 5.78**
 ---@param player integer
 ---@return integer
 function get_num_bodies(player) end
 
----Returns how many joints a fighter has: the 20 classic ones and a mod's extra joints. ---Extra joints take the indices after the classic ones (20 and up) and work with the other joint functions,
+---Returns how many joints a fighter has: the 20 classic ones and a mod's extra joints. \
+---Extra joints take the indices after the classic ones (20 and up) and work with the other joint functions,
 ---and hooks such as `joint_select` pass them as they are. The `JOINTS` table only lists the classic ones.
 ---
 ---**Since 5.78**
@@ -1367,7 +1371,8 @@ function set_body_torque(player, body, x, y, z) end
 ---@field name string
 ---@field mod_name string
 
----Returns player joint information. ---*An extra joint's `name` and `mod_name` are its name in the mod, its `screen_state` uses the state names of the classic joint it hangs from*
+---Returns player joint information. \
+---*An extra joint's `name` and `mod_name` are its name in the mod, its `screen_state` uses the state names of the classic joint it hangs from*
 ---@param player integer
 ---@param joint PlayerJoint|integer Classic joint or extra joint index
 ---@return JointInfo
@@ -1396,7 +1401,8 @@ function set_joint_state(player, joint, state, with_onchange_effects) end
 ---*This is identical to pressing `CTRL` + `Z`*
 function undo_move_changes() end
 
----Returns a joint-specific readable state name. ---*An extra joint has the state names of the classic joint it hangs from; `player` (default 0, since 5.78) says whose extra joint it is*
+---Returns a joint-specific readable state name. \
+---*An extra joint has the state names of the classic joint it hangs from; `player` (default 0, since 5.78) says whose extra joint it is*
 ---@param joint PlayerJoint|integer Classic joint or extra joint index
 ---@param state PlayerJointState
 ---@param player ?integer
@@ -1709,14 +1715,16 @@ function set_gameover(gameover_type, winner_idx) end
 ---@param player integer
 function set_player_relax(player) end
 
----Returns player bodyparts' visual damage level. ---*Takes extra body indices too; the list without `bodypart` has the classic parts*
+---Returns player bodyparts' visual damage level. \
+---*Takes extra body indices too; the list without `bodypart` has the classic parts*
 ---@param player integer
 ---@param bodypart PlayerBody|integer Classic body or extra body index
 ---@return number
 ---@overload fun(player:integer):number[]
 function get_body_bruise(player, bodypart) end
 
----Returns player joints' visual damage level. ---*Takes extra joint indices too; the list without `joint` has the classic joints*
+---Returns player joints' visual damage level. \
+---*Takes extra joint indices too; the list without `joint` has the classic joints*
 ---@param player integer
 ---@param joint PlayerJoint|integer Classic joint or extra joint index
 ---@return number
@@ -2020,7 +2028,8 @@ function rename_replay_subfolder(path, new_path) end
 ---@param name string
 function load_player(player, name) end
 
----Returns joint color IDs. ---*An extra joint has the colors of the classic joint it hangs from*
+---Returns joint color IDs. \
+---*An extra joint has the colors of the classic joint it hangs from*
 ---@param player integer
 ---@param joint PlayerJoint|integer Classic joint or extra joint index
 ---@return ColorId force_color
@@ -2089,13 +2098,15 @@ function set_joint_force_color(player, color) end
 ---@param color ColorId
 function set_joint_replay_color(player, color) end
 
----Sets selected joint relax color for the player. ---*An extra joint has the colors of the classic joint it hangs from, so this sets that joint's*
+---Sets selected joint relax color for the player. \
+---*An extra joint has the colors of the classic joint it hangs from, so this sets that joint's*
 ---@param player integer
 ---@param joint PlayerJoint|integer Classic joint or extra joint index
 ---@param color ColorId
 function set_selected_joint_relax_color(player, joint, color) end
 
----Sets selected joint force color for the player. ---*An extra joint has the colors of the classic joint it hangs from, so this sets that joint's*
+---Sets selected joint force color for the player. \
+---*An extra joint has the colors of the classic joint it hangs from, so this sets that joint's*
 ---@param player integer
 ---@param joint PlayerJoint|integer Classic joint or extra joint index
 ---@param color ColorId

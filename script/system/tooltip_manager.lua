@@ -100,6 +100,8 @@ local TooltipColorNames = {
 	---@type string?
 	Key = nil,
 	BuiltAt = 0,
+	---The player, body and joint it was last built for
+	Shown = {},
 	---@type UIElement?
 	Popup = nil
 }
@@ -429,6 +431,7 @@ function Tooltip.HideColorNames()
 	Tooltip.ColorNamesHolder:kill(true)
 	TooltipColorNames.Popup = nil
 	TooltipColorNames.Key = nil
+	TooltipColorNames.Shown[1] = nil
 end
 
 ---Shows the color names popup for a fighter's joint (joint >= 0) or body part
@@ -500,16 +503,23 @@ local function updateColorNames()
 	end
 
 	-- Customs can arrive while the mouse rests on a fighter, so the colors are read again every second
-	local key = player .. ":" .. body .. ":" .. joint
-	if (key ~= TooltipColorNames.Key or (UIElement.clock or 0) - TooltipColorNames.BuiltAt > 1) then
+	local shown = TooltipColorNames.Shown
+	if (shown[1] ~= player or shown[2] ~= body or shown[3] ~= joint or
+		(UIElement.clock or 0) - TooltipColorNames.BuiltAt > 1) then
 		Tooltip.ShowColorNames(player, body, joint)
+		-- Also when there was nothing to show, so a part without colors isn't looked up again every frame
+		shown[1], shown[2], shown[3] = player, body, joint
+		TooltipColorNames.BuiltAt = UIElement.clock or 0
 	end
 
 	local popup = TooltipColorNames.Popup
 	if (popup) then
-		local x = math.min(MOUSE_X + 20, WIN_W - 10 - popup.size.w)
-		local y = math.min(MOUSE_Y + 10, WIN_H - 10 - popup.size.h)
-		popup:moveTo(math.max(x, 10), math.max(y, 10))
+		-- Moved only when its place changes: every move marks the whole UI's positions for an update
+		local x = math.max(math.min(MOUSE_X + 20, WIN_W - 10 - popup.size.w), 10)
+		local y = math.max(math.min(MOUSE_Y + 10, WIN_H - 10 - popup.size.h), 10)
+		if (popup.shift.x ~= x or popup.shift.y ~= y) then
+			popup:moveTo(x, y)
+		end
 	end
 end
 
