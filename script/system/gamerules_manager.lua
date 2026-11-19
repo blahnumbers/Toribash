@@ -305,11 +305,12 @@ function Gamerules.getRules()
 			}
 		},
 		{ name = "maxcontacts", title = "Max Contacts", section = GAMERULES_SECTION_MISC, type = GAMERULE_INT },
-		-- How much of the classic spin and flip slowdown is left (100 is classic, 0 is off). A room rule too: in
-		-- multiplayer a change is sent to the room like the others. Hidden on clients without the rule (5.78+)
+		-- How much of the classic spin and flip slowdown is left (100 is classic, 0 is off). A room rule too on 5.78
+		-- alpha 2 servers; older servers don't have it and say nothing about it, so online it's only shown once the
+		-- room's own rules carry it (not 100). Hidden on clients without the rule (5.78+)
 		{ name = "momentumdecay", title = "Momentum Decay", section = GAMERULES_SECTION_MISC, type = GAMERULE_SLIDER, slider = { 0, 100, false, "Off", "100%" },
 			null = "100",
-			hidden = get_gamerule("momentumdecay") == "none",
+			hidden = get_gamerule("momentumdecay") == "none" or (get_world_state().game_type == 1 and tonumber(get_gamerule("momentumdecay")) == 100),
 			onSet = function(val)
 				return tonumber(val) or 100
 			end
